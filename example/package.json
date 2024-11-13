@@ -4,7 +4,6 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "predev": "rm -rf node_modules && bun install",
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
