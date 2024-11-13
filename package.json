@@ -4,13 +4,15 @@
   "version": "0.0.0",
   "license": "MIT",
   "workspaces": [
+    "example",
     "packages/shaders",
     "packages/shaders-react"
   ],
   "scripts": {
     "build": "bun run build.js",
     "publish-all": "bun run build && bun run publish.js",
-    "publish-all-test": "bun run build && bun run publish.js --dry-run"
+    "publish-all-test": "bun run build && bun run publish.js --dry-run",
+    "dev": "cd example && bun run dev"
   },
   "dependencies": {
     "@types/bun": "^1.1.11"
