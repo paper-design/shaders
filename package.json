@@ -13,7 +13,7 @@
     "publish-all": "run-s clean build && bun run publish.js",
     "publish-all-test": "run-s clean build && bun run publish.js --dry-run",
     "dev:example": "bun run --filter example dev",
-    "dev:packages": "nodemon --watch 'packages/*/src/**/*' --ext ts,tsx --exec 'bun run build'",
+    "dev:packages": "nodemon --watch 'packages/*/src/**/*' --ext ts,tsx --exec 'bun run build' --on-change-only",
     "dev": "run-s clean build && run-p dev:*",
     "clean": "rimraf packages/*/dist"
   },
