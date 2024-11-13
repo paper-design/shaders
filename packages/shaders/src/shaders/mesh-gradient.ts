@@ -25,7 +25,7 @@ export const meshGradientFragmentShader = `
 
 precision highp float;
 
-uniform vec3 u_color1;  
+uniform vec3 u_color1;
 uniform vec3 u_color2;
 uniform vec3 u_color3;
 uniform vec3 u_color4;
@@ -53,12 +53,12 @@ float noise( in vec2 p )
 {
     vec2 i = floor( p );
     vec2 f = fract( p );
-	
+
 	vec2 u = f*f*(3.0-2.0*f);
 
-    float n = mix( mix( dot( -1.0+2.0*hash( i + vec2(0.0,0.0) ), f - vec2(0.0,0.0) ), 
+    float n = mix( mix( dot( -1.0+2.0*hash( i + vec2(0.0,0.0) ), f - vec2(0.0,0.0) ),
                         dot( -1.0+2.0*hash( i + vec2(1.0,0.0) ), f - vec2(1.0,0.0) ), u.x),
-                   mix( dot( -1.0+2.0*hash( i + vec2(0.0,1.0) ), f - vec2(0.0,1.0) ), 
+                   mix( dot( -1.0+2.0*hash( i + vec2(0.0,1.0) ), f - vec2(0.0,1.0) ),
                         dot( -1.0+2.0*hash( i + vec2(1.0,1.0) ), f - vec2(1.0,1.0) ), u.x), u.y);
 	return 0.5 + 0.5*n;
 }
@@ -78,23 +78,23 @@ void main() {
     tuv *= Rot(radians((degree-.5)*720.+180.));
 	tuv.y *= ratio;
 
-    
+
     // Wave warp with sin
     float frequency = 5.;
     float amplitude = 30.;
     float speed = u_time * 2.;
     tuv.x += sin(tuv.y*frequency+speed)/amplitude;
    	tuv.y += sin(tuv.x*frequency*1.5+speed)/(amplitude*.5);
-    
-    
+
+
     // draw the image
     vec3 layer1 = mix(u_color1, u_color2, S(-.3, .2, (tuv*Rot(radians(-5.))).x));
     vec3 layer2 = mix(u_color3, u_color4, S(-.3, .2, (tuv*Rot(radians(-5.))).x));
-    
+
     vec3 finalComp = mix(layer1, layer2, S(.5, -.3, tuv.y));
-    
+
     vec3 col = finalComp;
-    
+
     gl_FragColor = vec4(col,1.0);
 }
 `;

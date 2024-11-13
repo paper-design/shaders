@@ -1,13 +1,29 @@
-import { MeshGradient } from "@paper-design/shaders-react";
-import "./App.css";
+import { MeshGradientExample } from './shaders/mesh-gradient';
+import { GrainCloudsExample } from './shaders/grain-clouds';
+import { Router, Switch, Route, Link } from 'wouter';
 
 const App = () => {
   return (
-    <MeshGradient
-      speed={0.25}
-      style={{ width: '100vw', height: '100vh' }}
-    />
-  );
-}
+    <Router>
+      <Switch>
+        <Route path="/">
+          <h1>Paper Shaders examples</h1>
 
-export default App
+          <ul>
+            <li>
+              <Link href="/mesh-gradient">Mesh Gradient</Link>
+            </li>
+            <li>
+              <Link href="/grain-clouds">Grain Clouds</Link>
+            </li>
+          </ul>
+        </Route>
+
+        <Route path="/mesh-gradient" component={MeshGradientExample} />
+        <Route path="/grain-clouds" component={GrainCloudsExample} />
+      </Switch>
+    </Router>
+  );
+};
+
+export default App;

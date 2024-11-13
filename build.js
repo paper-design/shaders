@@ -3,10 +3,6 @@ import { Glob } from 'bun';
 import esbuild from 'esbuild';
 import { execSync } from 'child_process';
 
-// Note we bundle monorepo depdencies and types directly into the build output for each package
-// And we don't change the workspace:* to a real npm version
-// That means each wrapper package ends up with no dependency on @paper-design/shaders on npm
-
 async function build(packageDir) {
   const input = `${packageDir}/src/index.ts`;
   const outDir = `${packageDir}/dist`;
@@ -16,9 +12,7 @@ async function build(packageDir) {
   execSync(`rm -rf ${outDir}`);
 
   // ----- Generate type declaration files ----- //
-  execSync(
-    `tsc --emitDeclarationOnly --declaration --outDir ${outDir} --project ${tsconfig}`
-  );
+  execSync(`tsc --emitDeclarationOnly --declaration --outDir ${outDir} --project ${tsconfig}`);
   console.log(`Built ${outDir}/index.d.ts`);
 
   // Moving away from bundling types since we have dependencies between packages working well, but leaving this here for reference for now

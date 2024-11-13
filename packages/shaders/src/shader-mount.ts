@@ -48,11 +48,7 @@ export class ShaderMount {
   }
 
   private initWebGL = () => {
-    const program = createProgram(
-      this.gl,
-      vertexShaderSource,
-      this.fragmentShader
-    );
+    const program = createProgram(this.gl, vertexShaderSource, this.fragmentShader);
     if (!program) return;
     this.program = program;
 
@@ -61,27 +57,13 @@ export class ShaderMount {
   };
 
   private setupPositionAttribute = () => {
-    const positionAttributeLocation = this.gl.getAttribLocation(
-      this.program!,
-      'a_position'
-    );
+    const positionAttributeLocation = this.gl.getAttribLocation(this.program!, 'a_position');
     const positionBuffer = this.gl.createBuffer();
     this.gl.bindBuffer(this.gl.ARRAY_BUFFER, positionBuffer);
     const positions = [-1, -1, 1, -1, -1, 1, -1, 1, 1, -1, 1, 1];
-    this.gl.bufferData(
-      this.gl.ARRAY_BUFFER,
-      new Float32Array(positions),
-      this.gl.STATIC_DRAW
-    );
+    this.gl.bufferData(this.gl.ARRAY_BUFFER, new Float32Array(positions), this.gl.STATIC_DRAW);
     this.gl.enableVertexAttribArray(positionAttributeLocation);
-    this.gl.vertexAttribPointer(
-      positionAttributeLocation,
-      2,
-      this.gl.FLOAT,
-      false,
-      0,
-      0
-    );
+    this.gl.vertexAttribPointer(positionAttributeLocation, 2, this.gl.FLOAT, false, 0, 0);
   };
 
   private setupUniforms = () => {
@@ -89,10 +71,7 @@ export class ShaderMount {
       u_time: this.gl.getUniformLocation(this.program!, 'u_time'),
       u_resolution: this.gl.getUniformLocation(this.program!, 'u_resolution'),
       ...Object.fromEntries(
-        Object.keys(this.providedUniforms).map((key) => [
-          key,
-          this.gl.getUniformLocation(this.program!, key),
-        ])
+        Object.keys(this.providedUniforms).map((key) => [key, this.gl.getUniformLocation(this.program!, key)])
       ),
     };
   };
@@ -129,17 +108,10 @@ export class ShaderMount {
     this.gl.useProgram(this.program);
 
     // Update the time uniform
-    this.gl.uniform1f(
-      this.uniformLocations.u_time!,
-      this.totalAnimationTime * 0.001
-    );
+    this.gl.uniform1f(this.uniformLocations.u_time!, this.totalAnimationTime * 0.001);
     // If the resolution has changed, we need to update the uniform
     if (this.resolutionChanged) {
-      this.gl.uniform2f(
-        this.uniformLocations.u_resolution!,
-        this.gl.canvas.width,
-        this.gl.canvas.height
-      );
+      this.gl.uniform2f(this.uniformLocations.u_resolution!, this.gl.canvas.width, this.gl.canvas.height);
       this.resolutionChanged = false;
     }
 
@@ -183,9 +155,7 @@ export class ShaderMount {
               } else if (value.length === 16) {
                 this.gl.uniformMatrix4fv(location, false, value);
               } else {
-                console.warn(
-                  `Unsupported uniform array length: ${value.length}`
-                );
+                console.warn(`Unsupported uniform array length: ${value.length}`);
               }
           }
         } else if (typeof value === 'number') {
@@ -216,9 +186,7 @@ export class ShaderMount {
   };
 
   /** Update the uniforms that are provided by the outside shader */
-  public setUniforms = (
-    newUniforms: Record<string, number | number[]>
-  ): void => {
+  public setUniforms = (newUniforms: Record<string, number | number[]>): void => {
     this.providedUniforms = { ...this.providedUniforms, ...newUniforms };
 
     // If we need to allow users to add uniforms after the shader has been created, we can do that here
@@ -264,11 +232,7 @@ const vertexShaderSource = `
   }
 `;
 
-function createShader(
-  gl: WebGLRenderingContext,
-  type: number,
-  source: string
-): WebGLShader | null {
+function createShader(gl: WebGLRenderingContext, type: number, source: string): WebGLShader | null {
   const shader = gl.createShader(type);
   if (!shader) return null;
 
@@ -276,9 +240,7 @@ function createShader(
   gl.compileShader(shader);
 
   if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-    console.error(
-      'An error occurred compiling the shaders: ' + gl.getShaderInfoLog(shader)
-    );
+    console.error('An error occurred compiling the shaders: ' + gl.getShaderInfoLog(shader));
     gl.deleteShader(shader);
     return null;
   }
@@ -292,11 +254,7 @@ function createProgram(
   fragmentShaderSource: string
 ): WebGLProgram | null {
   const vertexShader = createShader(gl, gl.VERTEX_SHADER, vertexShaderSource);
-  const fragmentShader = createShader(
-    gl,
-    gl.FRAGMENT_SHADER,
-    fragmentShaderSource
-  );
+  const fragmentShader = createShader(gl, gl.FRAGMENT_SHADER, fragmentShaderSource);
 
   if (!vertexShader || !fragmentShader) return null;
 
@@ -308,10 +266,7 @@ function createProgram(
   gl.linkProgram(program);
 
   if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
-    console.error(
-      'Unable to initialize the shader program: ' +
-        gl.getProgramInfoLog(program)
-    );
+    console.error('Unable to initialize the shader program: ' + gl.getProgramInfoLog(program));
     gl.deleteProgram(program);
     gl.deleteShader(vertexShader);
     gl.deleteShader(fragmentShader);
@@ -329,8 +284,11 @@ function createProgram(
 
 /**  Convert color string from HSL, RGB, or hex to 0-to-1-range-RGB array */
 export function getShaderColorFromString(
-  colorString: string
+  colorString: string | undefined,
+  fallback: [number, number, number] = [0, 0, 0]
 ): [number, number, number] {
+  if (typeof colorString !== 'string') return fallback;
+
   let r: number, g: number, b: number;
   if (colorString.startsWith('#')) {
     [r, g, b] = hexToRgb(colorString);
@@ -340,13 +298,17 @@ export function getShaderColorFromString(
     [r, g, b] = hslToRgb(parseHsl(colorString));
   } else {
     console.error('Unsupported color format');
-    return [0, 0, 0];
+    return fallback;
   }
   return [r, g, b];
 }
 
 /** Convert hex to RGB (0 to 1 range) */
 function hexToRgb(hex: string): [number, number, number] {
+  // Expand three-letter hex to six-letter
+  if (hex.length === 4) {
+    hex = `#${hex[1]}${hex[1]}${hex[2]}${hex[2]}${hex[3]}${hex[3]}`;
+  }
   const bigint = parseInt(hex.slice(1), 16);
   const r = ((bigint >> 16) & 255) / 255;
   const g = ((bigint >> 8) & 255) / 255;
@@ -358,22 +320,14 @@ function hexToRgb(hex: string): [number, number, number] {
 function parseRgb(rgb: string): [number, number, number] {
   const match = rgb.match(/^rgb\s*\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)$/i);
   if (!match) return [0, 0, 0];
-  return [
-    parseInt(match[1] ?? '0') / 255,
-    parseInt(match[2] ?? '0') / 255,
-    parseInt(match[3] ?? '0') / 255,
-  ];
+  return [parseInt(match[1] ?? '0') / 255, parseInt(match[2] ?? '0') / 255, parseInt(match[3] ?? '0') / 255];
 }
 
 /** Parse HSL string */
 function parseHsl(hsl: string): [number, number, number] {
   const match = hsl.match(/^hsl\s*\(\s*(\d+)\s*,\s*(\d+)%\s*,\s*(\d+)%\s*\)$/i);
   if (!match) return [0, 0, 0];
-  return [
-    parseInt(match[1] ?? '0'),
-    parseInt(match[2] ?? '0'),
-    parseInt(match[3] ?? '0'),
-  ];
+  return [parseInt(match[1] ?? '0'), parseInt(match[2] ?? '0'), parseInt(match[3] ?? '0')];
 }
 
 /** Convert HSL to RGB (0 to 1 range) */
@@ -396,10 +350,7 @@ function hslToRgb(hsl: [number, number, number]): [number, number, number] {
       return p;
     };
 
-    const q =
-      lDecimal < 0.5
-        ? lDecimal * (1 + sDecimal)
-        : lDecimal + sDecimal - lDecimal * sDecimal;
+    const q = lDecimal < 0.5 ? lDecimal * (1 + sDecimal) : lDecimal + sDecimal - lDecimal * sDecimal;
     const p = 2 * lDecimal - q;
     r = hue2rgb(p, q, hDecimal + 1 / 3);
     g = hue2rgb(p, q, hDecimal);
