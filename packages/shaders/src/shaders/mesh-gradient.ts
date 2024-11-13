@@ -41,12 +41,10 @@ mat2 Rot(float a)
 }
 
 
-// Created by inigo quilez - iq/2014
-// License Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported License.
-vec2 hash( vec2 p )
-{
-    p = vec2( dot(p,vec2(2127.1,81.17)), dot(p,vec2(1269.5,283.37)) );
-	return fract(sin(p)*43758.5453);
+vec2 hash(vec2 p) {
+    vec3 p3 = fract(vec3(p.xyx) * vec3(.1031, .1030, .0973));
+    p3 += dot(p3, p3.yzx + 33.33);
+    return fract((p3.xx+p3.yz)*p3.zy);
 }
 
 float noise( in vec2 p )
