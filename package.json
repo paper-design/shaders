@@ -10,15 +10,19 @@
   ],
   "scripts": {
     "build": "bun run build.js",
-    "publish-all": "bun run build && bun run publish.js",
-    "publish-all-test": "bun run build && bun run publish.js --dry-run",
-    "dev": "cd example && bun run dev"
-  },
-  "dependencies": {
-    "@types/bun": "^1.1.11"
+    "publish-all": "run-s clean build && bun run publish.js",
+    "publish-all-test": "run-s clean build && bun run publish.js --dry-run",
+    "dev:example": "bun run --filter example dev",
+    "dev:packages": "nodemon --watch 'packages/*/src/**/*' --ext ts,tsx --exec 'bun run build'",
+    "dev": "run-s clean build && run-p dev:*",
+    "clean": "rimraf packages/*/dist"
   },
   "devDependencies": {
+    "@types/bun": "^1.1.11",
     "esbuild": "^0.24.0",
+    "nodemon": "^3.1.7",
+    "npm-run-all": "^4.1.5",
+    "rimraf": "^6.0.1",
     "typescript": "^5.6.3"
   }
 }

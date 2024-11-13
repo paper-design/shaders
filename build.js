@@ -9,7 +9,7 @@ async function build(packageDir) {
   const tsconfig = `${packageDir}/tsconfig.json`;
 
   // ----- Clean the output directory ----- //
-  execSync(`rm -rf ${outDir}`);
+  // execSync(`rm -rf ${outDir}`);
 
   // ----- Generate type declaration files ----- //
   execSync(`tsc --emitDeclarationOnly --declaration --outDir ${outDir} --project ${tsconfig}`);

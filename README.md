@@ -28,7 +28,7 @@
 
 #### React
 
-```
+```jsx
 import { MeshGradient } from '@paper-design/shaders-react';
 
 <MeshGradient
@@ -43,7 +43,7 @@ import { MeshGradient } from '@paper-design/shaders-react';
 
 #### Vanilla JS
 
-```
+```js
 import { ShaderMount, meshGradientFragmentShader } from '@paper-design/shaders';
 
 const myCanvas = document.createElement('canvas');
