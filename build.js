@@ -18,9 +18,13 @@ async function build(packageDir) {
     entryPoints: [input],
     outdir: outDir,
     bundle: true,
+    banner: {
+      js: '/***** Paper Shaders: https://github.com/paper-design/shaders *****/',
+    },
     platform: 'browser',
     target: 'es2022',
     format: 'esm',
+    treeShaking: true,
     sourcemap: true,
     minify: true,
     external: ['react'],

@@ -30,6 +30,9 @@ export default [
       ...reactHooks.configs.recommended.rules,
       'react/jsx-no-target-blank': 'off',
       'react-refresh/only-export-components': ['warn', { allowConstantExport: true }],
+      // Can assume React is imported by the vite react plugin
+      'react/jsx-uses-react': 'off',
+      'react/react-in-jsx-scope': 'off',
     },
   },
 ];

@@ -1,5 +1,5 @@
-import { MeshGradientExample } from './shaders/mesh-gradient';
-import { GrainCloudsExample } from './shaders/grain-clouds';
+import { MeshGradientWithControls } from './shaders/mesh-gradient-example';
+import { GrainCloudsWithControls } from './shaders/grain-clouds-example';
 import { Router, Switch, Route, Link } from 'wouter';
 
 const App = () => {
@@ -19,8 +19,8 @@ const App = () => {
           </ul>
         </Route>
 
-        <Route path="/mesh-gradient" component={MeshGradientExample} />
-        <Route path="/grain-clouds" component={GrainCloudsExample} />
+        <Route path="/mesh-gradient" component={MeshGradientWithControls} />
+        <Route path="/grain-clouds" component={GrainCloudsWithControls} />
       </Switch>
     </Router>
   );

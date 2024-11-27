@@ -284,10 +284,21 @@ function createProgram(
 
 /**  Convert color string from HSL, RGB, or hex to 0-to-1-range-RGB array */
 export function getShaderColorFromString(
-  colorString: string | undefined,
-  fallback: [number, number, number] = [0, 0, 0]
+  colorString: string | [number, number, number] | undefined,
+  fallback: string | [number, number, number] = [0, 0, 0]
 ): [number, number, number] {
-  if (typeof colorString !== 'string') return fallback;
+  // If the color string is already an array of 3 numbers, return it
+  // Allowing this pass-through is useful for creating default objects in TypeScript with either syntax
+  if (Array.isArray(colorString) && colorString.length === 3) {
+    return colorString;
+  }
+
+  // If the color string is not a string, return the fallback
+  if (typeof colorString !== 'string') {
+    // Return the fallback color, processed, with no additional fallback argument
+    // It'll default to [0, 0, 0] if not parseable
+    return getShaderColorFromString(fallback);
+  }
 
   let r: number, g: number, b: number;
   if (colorString.startsWith('#')) {
@@ -297,8 +308,10 @@ export function getShaderColorFromString(
   } else if (colorString.startsWith('hsl')) {
     [r, g, b] = hslToRgb(parseHsl(colorString));
   } else {
-    console.error('Unsupported color format');
-    return fallback;
+    console.error('Unsupported color format', colorString);
+    // Return the fallback color, processed, with no additional fallback argument
+    // It'll default to [0, 0, 0] if not parseable
+    return getShaderColorFromString(fallback);
   }
   return [r, g, b];
 }

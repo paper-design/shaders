@@ -1,3 +1,5 @@
+import { getShaderColorFromString } from '../shader-mount';
+
 export type MeshGradientUniforms = {
   u_color1: [number, number, number];
   u_color2: [number, number, number];
@@ -7,7 +9,7 @@ export type MeshGradientUniforms = {
 };
 
 /**
- * Mesh Gradient: https://www.shadertoy.com/view/wdyczG
+ * Mesh Gradient, based on https://www.shadertoy.com/view/wdyczG
  * Renders a mesh gradient with a rotating noise pattern
  * and several layers of fractal noise
  *
