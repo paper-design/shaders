@@ -13,5 +13,10 @@ export { MeshGradient, meshGradientDefaults } from './shaders/mesh-gradient';
 export { type MeshGradientProps } from './shaders/mesh-gradient';
 export { type MeshGradientUniforms } from '@paper-design/shaders';
 
+// Mesh gradient
+export { NeuroNoise, neuroNoiseDefaults } from './shaders/neuro-noise';
+export { type NeuroNoiseProps } from './shaders/neuro-noise';
+export { type NeuroNoiseUniforms } from '@paper-design/shaders';
+
 // ----- Uniform conversion utils ----- //
 export { getShaderColorFromString } from '@paper-design/shaders';

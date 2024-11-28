@@ -1,5 +1,6 @@
 import { MeshGradientWithControls } from './shaders/mesh-gradient-example';
 import { GrainCloudsWithControls } from './shaders/grain-clouds-example';
+import { NeuroNoiseWithControls } from './shaders/neuro-noise-example';
 import { Router, Switch, Route, Link } from 'wouter';
 
 const App = () => {
@@ -16,11 +17,15 @@ const App = () => {
             <li>
               <Link href="/grain-clouds">Grain Clouds</Link>
             </li>
+            <li>
+              <Link href="/neuro-noise">Neuro Noise</Link>
+            </li>
           </ul>
         </Route>
 
-        <Route path="/mesh-gradient" component={MeshGradientWithControls} />
-        <Route path="/grain-clouds" component={GrainCloudsWithControls} />
+        <Route path="/mesh-gradient" component={MeshGradientWithControls}/>
+        <Route path="/grain-clouds" component={GrainCloudsWithControls}/>
+        <Route path="/neuro-noise" component={NeuroNoiseWithControls} />
       </Switch>
     </Router>
   );

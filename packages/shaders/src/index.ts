@@ -8,5 +8,8 @@ export { grainCloudsFragmentShader, type GrainCloudsUniforms } from './shaders/g
 /** A shader that renders a mesh gradient with a rotating noise pattern and several layers of fractal noise */
 export { meshGradientFragmentShader, type MeshGradientUniforms } from './shaders/mesh-gradient';
 
+/**  */
+export { neuroNoiseFragmentShader, type NeuroNoiseUniforms } from './shaders/neuro-noise';
+
 // ----- Uniform conversion utils ----- //
 export { getShaderColorFromString } from './shader-mount';
