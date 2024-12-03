@@ -13,7 +13,7 @@ export { MeshGradient, meshGradientDefaults } from './shaders/mesh-gradient';
 export { type MeshGradientProps } from './shaders/mesh-gradient';
 export { type MeshGradientUniforms } from '@paper-design/shaders';
 
-// Mesh gradient
+// Neuro noise
 export { NeuroNoise, neuroNoiseDefaults } from './shaders/neuro-noise';
 export { type NeuroNoiseProps } from './shaders/neuro-noise';
 export { type NeuroNoiseUniforms } from '@paper-design/shaders';

@@ -7,8 +7,11 @@ import {NeuroNoise, neuroNoiseDefaults, type NeuroNoiseProps} from '@paper-desig
  */
 const NeuroNoiseExample = () => {
   return (
-      <MeshGradient
-          color1="#c3a3ff"
+      <NeuroNoise
+          colorFront="#c3a3ff"
+          colorBack="#030208"
+          speed={1}
+          scale={1}
           style={{position: 'fixed', width: '100%', height: '100%'}}
       />
   );
@@ -28,8 +31,11 @@ export const NeuroNoiseWithControls = () => {
       setUniforms((prev) => ({...prev, [key]: value}));
     };
 
-    // Colors
-    const colorKeys = ['color1'] as const;
+    gui.add(uniforms, 'scale', .5, 2).onChange((value: number) => updateUniforms('scale', value));
+    gui.add(uniforms, 'speed', 0, 3).onChange((value: number) => updateUniforms('speed', value));
+    gui.add(uniforms, 'brightness', .8, 2).onChange((value: number) => updateUniforms('brightness', value));
+
+    const colorKeys = ['colorFront', 'colorBack'] as const;
     colorKeys.forEach((colorKey) => {
       gui.addColor(uniforms, colorKey).onChange((value: string) => updateUniforms(colorKey, value));
     });
