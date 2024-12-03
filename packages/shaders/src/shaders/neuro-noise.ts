@@ -1,11 +1,10 @@
 export type NeuroNoiseUniforms = {
-    u_colorFront: [number, number, number];
-    u_colorBack: [number, number, number];
-    u_scale: number;
-    u_brightness: number;
-    u_speed: number;
+  u_colorFront: [number, number, number];
+  u_colorBack: [number, number, number];
+  u_scale: number;
+  u_brightness: number;
+  u_speed: number;
 };
-
 
 /**
  * Neuro Noise Pattern;

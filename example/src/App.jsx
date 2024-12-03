@@ -23,8 +23,8 @@ const App = () => {
           </ul>
         </Route>
 
-        <Route path="/mesh-gradient" component={MeshGradientWithControls}/>
-        <Route path="/grain-clouds" component={GrainCloudsWithControls}/>
+        <Route path="/mesh-gradient" component={MeshGradientWithControls} />
+        <Route path="/grain-clouds" component={GrainCloudsWithControls} />
         <Route path="/neuro-noise" component={NeuroNoiseWithControls} />
       </Switch>
     </Router>
