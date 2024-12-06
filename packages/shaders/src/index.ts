@@ -11,5 +11,8 @@ export { meshGradientFragmentShader, type MeshGradientUniforms } from './shaders
 /** A shader rendering a fractal-like structure made of several layers of since-arches */
 export { neuroNoiseFragmentShader, type NeuroNoiseUniforms } from './shaders/neuro-noise';
 
+/** A shader rendering an animated dots pattern based on Voronoi diagram */
+export { dotsPatternFragmentShader, type DotsPatternUniforms } from './shaders/dots-pattern';
+
 // ----- Uniform conversion utils ----- //
 export { getShaderColorFromString } from './shader-mount';
