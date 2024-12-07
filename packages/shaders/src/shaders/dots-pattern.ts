@@ -122,7 +122,8 @@ void main() {
 
   vec3 voronoi = get_voronoi_shape(uv, t);
   float radius = u_dotSize - u_dotSizeRange * voronoi[2];
-  float shape = 1. - smoothstep(radius, radius + .01, voronoi[0]);
+  float radius_smoother = clamp(.002 * u_scale, .01, .2);
+  float shape = 1. - smoothstep(radius, radius + radius_smoother, voronoi[0]);
 
   vec3 color = hsl_to_rgb(fract(u_hue + u_hueRange * voronoi[1]), u_saturation, u_brightness);
 
