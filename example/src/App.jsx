@@ -2,6 +2,7 @@ import { MeshGradientWithControls } from './shaders/mesh-gradient-example';
 import { GrainCloudsWithControls } from './shaders/grain-clouds-example';
 import { NeuroNoiseWithControls } from './shaders/neuro-noise-example';
 import { Router, Switch, Route, Link } from 'wouter';
+import { DotsPatternWithControls } from './shaders/dots-pattern-example';
 
 const App = () => {
   return (
@@ -20,12 +21,16 @@ const App = () => {
             <li>
               <Link href="/neuro-noise">Neuro Noise</Link>
             </li>
+            <li>
+              <Link href="/dots-pattern">Dots Pattern</Link>
+            </li>
           </ul>
         </Route>
 
         <Route path="/mesh-gradient" component={MeshGradientWithControls} />
         <Route path="/grain-clouds" component={GrainCloudsWithControls} />
         <Route path="/neuro-noise" component={NeuroNoiseWithControls} />
+        <Route path="/dots-pattern" component={DotsPatternWithControls} />
       </Switch>
     </Router>
   );
