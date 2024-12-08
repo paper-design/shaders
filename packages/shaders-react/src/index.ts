@@ -14,8 +14,9 @@ export { type MeshGradientProps } from './shaders/mesh-gradient';
 export { type MeshGradientUniforms } from '@paper-design/shaders';
 
 // Neuro noise
-export { NeuroNoise, neuroNoiseDefaults } from './shaders/neuro-noise';
+export { NeuroNoise, neuroNoisePresets } from './shaders/neuro-noise';
 export { type NeuroNoiseProps } from './shaders/neuro-noise';
+export { type NeuroNoiseParams } from './shaders/neuro-noise';
 export { type NeuroNoiseUniforms } from '@paper-design/shaders';
 
 // ----- Uniform conversion utils ----- //
