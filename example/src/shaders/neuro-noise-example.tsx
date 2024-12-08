@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import GUI from 'lil-gui';
-import { NeuroNoise, neuroNoiseDefaults, type NeuroNoiseProps } from '@paper-design/shaders-react';
+import { NeuroNoise, neuroNoisePresets, type NeuroNoiseParams } from '@paper-design/shaders-react';
 
 /**
  * You can copy/paste this example to use NeuroNoise in your app
@@ -22,23 +22,41 @@ const NeuroNoiseExample = () => {
  * This example has controls added so you can play with settings in the example app
  */
 export const NeuroNoiseWithControls = () => {
-  const [uniforms, setUniforms] = useState<NeuroNoiseProps>(neuroNoiseDefaults);
+  const [params, setParams] = useState<NeuroNoiseParams>({ ...neuroNoisePresets[0].params });
 
-  // Add controls
   useEffect(() => {
-    const gui = new GUI();
+    const gui = new GUI({ title: 'Neuro Noise' });
 
-    const updateUniforms = (key: string, value: any) => {
-      setUniforms((prev) => ({ ...prev, [key]: value }));
+    const updateParam = (key: string, value: any) => {
+      setParams((prev) => ({ ...prev, [key]: value }));
     };
 
-    gui.add(uniforms, 'scale', 0.5, 2).onChange((value: number) => updateUniforms('scale', value));
-    gui.add(uniforms, 'speed', 0, 3).onChange((value: number) => updateUniforms('speed', value));
-    gui.add(uniforms, 'brightness', 0.8, 2).onChange((value: number) => updateUniforms('brightness', value));
+    const presetsFolder = gui.addFolder('Presets');
+    const paramsFolder = gui.addFolder('Parameters');
+
+    const presets = Object.fromEntries(
+      neuroNoisePresets.map((preset) => [
+        preset.name,
+        () => {
+          Object.entries(preset.params).forEach(([key, value]) => {
+            const controller = paramsFolder.controllers.find((c) => c.property === key);
+            controller?.setValue(value);
+          });
+        },
+      ])
+    );
+
+    Object.keys(presets).forEach((presetName) => {
+      presetsFolder.add(presets, presetName);
+    });
+
+    paramsFolder.add(params, 'scale', 0.5, 3).onChange((value: number) => updateParam('scale', value));
+    paramsFolder.add(params, 'speed', 0, 3).onChange((value: number) => updateParam('speed', value));
+    paramsFolder.add(params, 'brightness', 0.8, 2).onChange((value: number) => updateParam('brightness', value));
 
     const colorKeys = ['colorFront', 'colorBack'] as const;
     colorKeys.forEach((colorKey) => {
-      gui.addColor(uniforms, colorKey).onChange((value: string) => updateUniforms(colorKey, value));
+      paramsFolder.addColor(params, colorKey).onChange((value: string) => updateParam(colorKey, value));
     });
 
     return () => {
@@ -46,5 +64,5 @@ export const NeuroNoiseWithControls = () => {
     };
   }, []);
 
-  return <NeuroNoise {...uniforms} style={{ position: 'fixed', width: '100%', height: '100%' }} />;
+  return <NeuroNoise {...params} style={{ position: 'fixed', width: '100%', height: '100%' }} />;
 };
