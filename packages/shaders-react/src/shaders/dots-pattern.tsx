@@ -1,8 +1,8 @@
 import { useMemo } from 'react';
 import { ShaderMount, type ShaderMountProps } from '../shader-mount';
-import { getShaderColorFromString, dotsPatternFragmentShader, type DotsPatternUniforms } from '@paper-design/shaders';
+import { getShaderColorFromString, dotsOrbitFragmentShader, type DotsOrbitUniforms } from '@paper-design/shaders';
 
-export type DotsPatternParams = {
+export type DotsOrbitParams = {
   color1?: string;
   color2?: string;
   color3?: string;
@@ -14,11 +14,11 @@ export type DotsPatternParams = {
   spreading?: number;
 };
 
-export type DotsPatternProps = Omit<ShaderMountProps, 'fragmentShader'> & DotsPatternParams;
+export type DotsOrbitProps = Omit<ShaderMountProps, 'fragmentShader'> & DotsOrbitParams;
 
-type DotsPatternPreset = { name: string; params: Required<DotsPatternParams> };
+type DotsOrbitPreset = { name: string; params: Required<DotsOrbitParams> };
 
-export const defaultPreset: DotsPatternPreset = {
+export const defaultPreset: DotsOrbitPreset = {
   name: 'Default',
   params: {
     color1: '#ce2a2f',
@@ -33,10 +33,10 @@ export const defaultPreset: DotsPatternPreset = {
   },
 } as const;
 
-export const dotsPatternPresets: DotsPatternPreset[] = [defaultPreset];
+export const dotsOrbitPresets: DotsOrbitPreset[] = [defaultPreset];
 
-export const DotsPattern = (props: DotsPatternProps): JSX.Element => {
-  const uniforms: DotsPatternUniforms = useMemo(() => {
+export const DotsOrbit = (props: DotsOrbitProps): JSX.Element => {
+  const uniforms: DotsOrbitUniforms = useMemo(() => {
     return {
       u_color1: getShaderColorFromString(props.color1, defaultPreset.params.color1),
       u_color2: getShaderColorFromString(props.color2, defaultPreset.params.color2),
@@ -60,5 +60,5 @@ export const DotsPattern = (props: DotsPatternProps): JSX.Element => {
     props.spreading,
   ]);
 
-  return <ShaderMount {...props} fragmentShader={dotsPatternFragmentShader} uniforms={uniforms} />;
+  return <ShaderMount {...props} fragmentShader={dotsOrbitFragmentShader} uniforms={uniforms} />;
 };

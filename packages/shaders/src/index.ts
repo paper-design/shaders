@@ -12,7 +12,7 @@ export { meshGradientFragmentShader, type MeshGradientUniforms } from './shaders
 export { neuroNoiseFragmentShader, type NeuroNoiseUniforms } from './shaders/neuro-noise';
 
 /** A shader rendering an animated dots pattern based on Voronoi diagram */
-export { dotsPatternFragmentShader, type DotsPatternUniforms } from './shaders/dots-pattern';
+export { dotsOrbitFragmentShader, type DotsOrbitUniforms } from './shaders/dots-orbit';
 
 // ----- Uniform conversion utils ----- //
 export { getShaderColorFromString } from './shader-mount';

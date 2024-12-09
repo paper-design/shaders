@@ -1,13 +1,13 @@
-import { DotsPattern, type DotsPatternParams, dotsPatternPresets } from '@paper-design/shaders-react';
+import { DotsOrbit, type DotsOrbitParams, dotsOrbitPresets } from '@paper-design/shaders-react';
 import { useControls, button, folder } from 'leva';
 import { useEffect } from 'react';
 
 /**
- * You can copy/paste this example to use DotsPattern in your app
+ * You can copy/paste this example to use DotsOrbit in your app
  */
-const DotsPatternExample = () => {
+const DotsOrbitExample = () => {
   return (
-    <DotsPattern
+    <DotsOrbit
       color1="#6a5496"
       color2="#9b8ab8"
       color3="#f5d03b"
@@ -26,12 +26,12 @@ const DotsPatternExample = () => {
  * This example has controls added so you can play with settings in the example app
  */
 
-const defaultParams = dotsPatternPresets[0].params;
+const defaultParams = dotsOrbitPresets[0].params;
 
-export const DotsPatternWithControls = () => {
+export const DotsOrbitWithControls = () => {
   const [params, setParams] = useControls(() => {
-    const presets: DotsPatternParams = Object.fromEntries(
-      dotsPatternPresets.map((preset) => [preset.name, button(() => setParams(preset.params))])
+    const presets: DotsOrbitParams = Object.fromEntries(
+      dotsOrbitPresets.map((preset) => [preset.name, button(() => setParams(preset.params))])
     );
     return {
       Parameters: folder(
@@ -58,5 +58,5 @@ export const DotsPatternWithControls = () => {
     setParams(defaultParams);
   }, []);
 
-  return <DotsPattern {...params} style={{ position: 'fixed', width: '100%', height: '100%' }} />;
+  return <DotsOrbit {...params} style={{ position: 'fixed', width: '100%', height: '100%' }} />;
 };

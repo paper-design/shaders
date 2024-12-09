@@ -1,4 +1,4 @@
-export type DotsPatternUniforms = {
+export type DotsOrbitUniforms = {
   u_color1: [number, number, number];
   u_color2: [number, number, number];
   u_color3: [number, number, number];
@@ -11,9 +11,9 @@ export type DotsPatternUniforms = {
 };
 
 /**
- * Moving Dots Pattern
+ * Dots Pattern with dots moving around their grid position
  * The artwork by Ksenia Kondrashova
- * Renders a dot pattern with dots placed in the center of each cell of Voronoi diagram
+ * Renders a dot pattern with dots placed in the center of each cell of animated Voronoi diagram
  *
  * Uniforms include:
  * u_color1: The first dots color
@@ -27,7 +27,7 @@ export type DotsPatternUniforms = {
  * u_speed: The speed coefficient for pattern animation
  */
 
-export const dotsPatternFragmentShader = `
+export const dotsOrbitFragmentShader = `
 precision mediump float;
 
 uniform vec3 u_color1;
