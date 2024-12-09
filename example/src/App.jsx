@@ -1,6 +1,7 @@
 import { MeshGradientWithControls } from './shaders/mesh-gradient-example';
 import { GrainCloudsWithControls } from './shaders/grain-clouds-example';
 import { NeuroNoiseWithControls } from './shaders/neuro-noise-example';
+import { SteppedSimplexNoiseWithControls } from './shaders/stepped-simplex-noise-example';
 import { Router, Switch, Route, Link } from 'wouter';
 
 const App = () => {
@@ -20,12 +21,16 @@ const App = () => {
             <li>
               <Link href="/neuro-noise">Neuro Noise</Link>
             </li>
+            <li>
+              <Link href="/stepped-simplex-noise">Stepped Simplex Noise</Link>
+            </li>
           </ul>
         </Route>
 
         <Route path="/mesh-gradient" component={MeshGradientWithControls} />
         <Route path="/grain-clouds" component={GrainCloudsWithControls} />
         <Route path="/neuro-noise" component={NeuroNoiseWithControls} />
+        <Route path="/stepped-simplex-noise" component={SteppedSimplexNoiseWithControls} />
       </Switch>
     </Router>
   );
