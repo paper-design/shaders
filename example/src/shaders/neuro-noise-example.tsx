@@ -1,6 +1,5 @@
-import { useState, useEffect } from 'react';
-import GUI from 'lil-gui';
-import { NeuroNoise, neuroNoisePresets, type NeuroNoiseParams } from '@paper-design/shaders-react';
+import { useControls, buttonGroup } from 'leva';
+import { NeuroNoise, neuroNoisePresets } from '@paper-design/shaders-react';
 
 /**
  * You can copy/paste this example to use NeuroNoise in your app
@@ -21,48 +20,20 @@ const NeuroNoiseExample = () => {
 /**
  * This example has controls added so you can play with settings in the example app
  */
+
+const defaultParams = neuroNoisePresets[0].params;
+
 export const NeuroNoiseWithControls = () => {
-  const [params, setParams] = useState<NeuroNoiseParams>({ ...neuroNoisePresets[0].params });
-
-  useEffect(() => {
-    const gui = new GUI({ title: 'Neuro Noise' });
-
-    const updateParam = (key: string, value: any) => {
-      setParams((prev) => ({ ...prev, [key]: value }));
-    };
-
-    const presetsFolder = gui.addFolder('Presets');
-    const paramsFolder = gui.addFolder('Parameters');
-
-    const presets = Object.fromEntries(
-      neuroNoisePresets.map((preset) => [
-        preset.name,
-        () => {
-          Object.entries(preset.params).forEach(([key, value]) => {
-            const controller = paramsFolder.controllers.find((c) => c.property === key);
-            controller?.setValue(value);
-          });
-        },
-      ])
-    );
-
-    Object.keys(presets).forEach((presetName) => {
-      presetsFolder.add(presets, presetName);
-    });
-
-    paramsFolder.add(params, 'scale', 0.5, 3).onChange((value: number) => updateParam('scale', value));
-    paramsFolder.add(params, 'speed', 0, 3).onChange((value: number) => updateParam('speed', value));
-    paramsFolder.add(params, 'brightness', 0.8, 2).onChange((value: number) => updateParam('brightness', value));
-
-    const colorKeys = ['colorFront', 'colorBack'] as const;
-    colorKeys.forEach((colorKey) => {
-      paramsFolder.addColor(params, colorKey).onChange((value: string) => updateParam(colorKey, value));
-    });
-
-    return () => {
-      gui.destroy();
-    };
-  }, []);
+  const [params, setParams] = useControls(() => ({
+    colorFront: defaultParams.colorFront,
+    colorBack: defaultParams.colorBack,
+    scale: { min: 0.5, max: 3, value: defaultParams.scale },
+    speed: { min: 0, max: 3, value: defaultParams.speed },
+    brightness: { min: 0.8, max: 2, value: defaultParams.brightness },
+    Presets: buttonGroup(
+      Object.fromEntries(neuroNoisePresets.map((preset) => [preset.name, () => setParams(preset.params)]))
+    ),
+  }));
 
   return <NeuroNoise {...params} style={{ position: 'fixed', width: '100%', height: '100%' }} />;
 };
