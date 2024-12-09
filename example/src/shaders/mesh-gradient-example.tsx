@@ -1,4 +1,4 @@
-import { MeshGradient, MeshGradientParams, meshGradientPresets } from '@paper-design/shaders-react';
+import { MeshGradient, type MeshGradientParams, meshGradientPresets } from '@paper-design/shaders-react';
 import { useControls, button, folder } from 'leva';
 import { useEffect } from 'react';
 
@@ -44,8 +44,8 @@ export const MeshGradientWithControls = () => {
     };
   });
 
-  // Reset to default params on mount, so that Leva doesn't show param values from
-  // other shaders when navigating (if two shaders have a color1 param for example)
+  // Reset to defaults on mount, so that Leva doesn't show values from other
+  // shaders when navigating (if two shaders have a color1 param for example)
   useEffect(() => {
     setParams(defaultParams);
   }, []);

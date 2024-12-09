@@ -1,4 +1,4 @@
-import { GrainClouds, GrainCloudsParams, grainCloudsPresets } from '@paper-design/shaders-react';
+import { GrainClouds, type GrainCloudsParams, grainCloudsPresets } from '@paper-design/shaders-react';
 import { button, folder, useControls } from 'leva';
 import { useEffect } from 'react';
 
@@ -35,8 +35,8 @@ export const GrainCloudsWithControls = () => {
     };
   });
 
-  // Reset to default params on mount, so that Leva doesn't show param values from
-  // other shaders when navigating (if two shaders have a color1 param for example)
+  // Reset to defaults on mount, so that Leva doesn't show values from other
+  // shaders when navigating (if two shaders have a color1 param for example)
   useEffect(() => {
     setParams(defaultParams);
   }, []);
