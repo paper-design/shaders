@@ -86,11 +86,9 @@ vec3 getColor(int index) {
 
 void main() {
   vec2 uv = gl_FragCoord.xy / u_resolution.xy;
-  float ratio = u_resolution.x / u_resolution.y;
-
-  uv.x *= ratio;
+    
   uv -= .5;
-  uv *= u_scale;
+  uv *= (.001 * u_scale * u_resolution);
   uv += .5;
 
   float t = u_speed * u_time;
