@@ -1,5 +1,6 @@
-import { useControls, buttonGroup } from 'leva';
-import { NeuroNoise, neuroNoisePresets } from '@paper-design/shaders-react';
+import { useControls, button, folder } from 'leva';
+import { NeuroNoise, NeuroNoiseParams, neuroNoisePresets } from '@paper-design/shaders-react';
+import { useEffect } from 'react';
 
 /**
  * You can copy/paste this example to use NeuroNoise in your app
@@ -24,16 +25,31 @@ const NeuroNoiseExample = () => {
 const defaultParams = neuroNoisePresets[0].params;
 
 export const NeuroNoiseWithControls = () => {
-  const [params, setParams] = useControls(() => ({
-    colorFront: defaultParams.colorFront,
-    colorBack: defaultParams.colorBack,
-    scale: { min: 0.5, max: 3, value: defaultParams.scale },
-    speed: { min: 0, max: 3, value: defaultParams.speed },
-    brightness: { min: 0.8, max: 2, value: defaultParams.brightness },
-    Presets: buttonGroup(
-      Object.fromEntries(neuroNoisePresets.map((preset) => [preset.name, () => setParams(preset.params)]))
-    ),
-  }));
+  const [params, setParams] = useControls(() => {
+    const presets: NeuroNoiseParams = Object.fromEntries(
+      neuroNoisePresets.map((preset) => [preset.name, button(() => setParams(preset.params))])
+    );
+
+    return {
+      Parameters: folder(
+        {
+          colorFront: { value: defaultParams.colorFront, order: 1 },
+          colorBack: { value: defaultParams.colorBack, order: 2 },
+          scale: { value: defaultParams.scale, order: 3, min: 0.5, max: 3 },
+          speed: { value: defaultParams.speed, order: 4, min: 0, max: 3 },
+          brightness: { value: defaultParams.brightness, order: 5, min: 0.8, max: 2 },
+        },
+        { order: 1 }
+      ),
+      Presets: folder(presets, { order: 2 }),
+    };
+  });
+
+  // Reset to default params on mount, so that Leva doesn't show param values from
+  // other shaders when navigating (if two shaders have a color1 param for example)
+  useEffect(() => {
+    setParams(defaultParams);
+  }, []);
 
   return <NeuroNoise {...params} style={{ position: 'fixed', width: '100%', height: '100%' }} />;
 };

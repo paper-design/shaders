@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
-import GUI from 'lil-gui';
-import { MeshGradient, meshGradientDefaults, type MeshGradientProps } from '@paper-design/shaders-react';
+import { MeshGradient, MeshGradientParams, meshGradientPresets } from '@paper-design/shaders-react';
+import { useControls, button, folder } from 'leva';
+import { useEffect } from 'react';
 
 /**
  * You can copy/paste this example to use MeshGradient in your app
@@ -21,30 +21,34 @@ const MeshGradientExample = () => {
 /**
  * This example has controls added so you can play with settings in the example app
  */
+
+const defaultParams = meshGradientPresets[0].params;
+
 export const MeshGradientWithControls = () => {
-  const [uniforms, setUniforms] = useState<MeshGradientProps>(meshGradientDefaults);
+  const [params, setParams] = useControls(() => {
+    const presets: MeshGradientParams = Object.fromEntries(
+      meshGradientPresets.map((preset) => [preset.name, button(() => setParams(preset.params))])
+    );
+    return {
+      Parameters: folder(
+        {
+          color1: { value: defaultParams.color1, order: 1 },
+          color2: { value: defaultParams.color2, order: 2 },
+          color3: { value: defaultParams.color3, order: 3 },
+          color4: { value: defaultParams.color4, order: 4 },
+          speed: { value: defaultParams.speed, order: 5, min: 0, max: 1 },
+        },
+        { order: 1 }
+      ),
+      Presets: folder(presets, { order: 2 }),
+    };
+  });
 
-  // Add controls
+  // Reset to default params on mount, so that Leva doesn't show param values from
+  // other shaders when navigating (if two shaders have a color1 param for example)
   useEffect(() => {
-    const gui = new GUI();
-
-    const updateUniforms = (key: string, value: any) => {
-      setUniforms((prev) => ({ ...prev, [key]: value }));
-    };
-
-    // Speed
-    gui.add(uniforms, 'speed', 0, 1).onChange((value: number) => updateUniforms('speed', value));
-
-    // Colors
-    const colorKeys = ['color1', 'color2', 'color3', 'color4'] as const;
-    colorKeys.forEach((colorKey) => {
-      gui.addColor(uniforms, colorKey).onChange((value: string) => updateUniforms(colorKey, value));
-    });
-
-    return () => {
-      gui.destroy();
-    };
+    setParams(defaultParams);
   }, []);
 
-  return <MeshGradient {...uniforms} style={{ position: 'fixed', width: '100%', height: '100%' }} />;
+  return <MeshGradient {...params} style={{ position: 'fixed', width: '100%', height: '100%' }} />;
 };
