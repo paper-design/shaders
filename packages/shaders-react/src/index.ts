@@ -4,23 +4,27 @@ export { ShaderMount } from './shader-mount';
 // ----- Fragment shaders ----- //
 
 // Grain clouds
-export { GrainClouds, grainCloudsDefaults } from './shaders/grain-clouds';
+export { GrainClouds, grainCloudsPresets } from './shaders/grain-clouds';
 export { type GrainCloudsProps } from './shaders/grain-clouds';
+export { type GrainCloudsParams } from './shaders/grain-clouds';
 export { type GrainCloudsUniforms } from '@paper-design/shaders';
 
 // Mesh gradient
-export { MeshGradient, meshGradientDefaults } from './shaders/mesh-gradient';
+export { MeshGradient, meshGradientPresets } from './shaders/mesh-gradient';
 export { type MeshGradientProps } from './shaders/mesh-gradient';
+export { type MeshGradientParams } from './shaders/mesh-gradient';
 export { type MeshGradientUniforms } from '@paper-design/shaders';
 
 // Neuro noise
-export { NeuroNoise, neuroNoiseDefaults } from './shaders/neuro-noise';
+export { NeuroNoise, neuroNoisePresets } from './shaders/neuro-noise';
 export { type NeuroNoiseProps } from './shaders/neuro-noise';
+export { type NeuroNoiseParams } from './shaders/neuro-noise';
 export { type NeuroNoiseUniforms } from '@paper-design/shaders';
 
 // Stepped simplex noise
-export { SteppedSimplexNoise, steppedSimplexNoiseDefaults } from './shaders/stepped-simplex-noise';
+export { SteppedSimplexNoise, steppedSimplexNoisePresets } from './shaders/stepped-simplex-noise';
 export { type SteppedSimplexNoiseProps } from './shaders/stepped-simplex-noise';
+export { type SteppedSimplexNoiseParams } from './shaders/stepped-simplex-noise';
 export { type SteppedSimplexNoiseUniforms } from '@paper-design/shaders';
 
 // ----- Uniform conversion utils ----- //

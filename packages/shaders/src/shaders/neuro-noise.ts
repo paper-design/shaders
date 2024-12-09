@@ -54,22 +54,19 @@ float neuro_shape(vec2 uv, float t) {
 
 void main() {
   vec2 uv = gl_FragCoord.xy / u_resolution.xy;
-  float ratio = u_resolution.x / u_resolution.y;
-  vec2 uv_r = uv;
-  uv_r -= .5;
-  uv_r *= u_scale;
-  uv_r += .5;
-  uv_r.x *= ratio;
+    
+  uv -= .5;
+  uv *= (.001 * u_scale * u_resolution);
+  uv += .5;
 
   float t = u_speed * u_time;
   vec3 color = vec3(0.);
 
-  float noise = neuro_shape(uv_r, t);
+  float noise = neuro_shape(uv, t);
 
   noise = u_brightness * pow(noise, 3.);
-  noise += pow(noise, 10.);
+  noise += pow(noise, 12.);
   noise = max(.0, noise - .5);
-  noise *= (1. - length(uv - .5));
 
   color = mix(u_colorBack, u_colorFront, noise);
 

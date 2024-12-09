@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
-import GUI from 'lil-gui';
-import { NeuroNoise, neuroNoiseDefaults, type NeuroNoiseProps } from '@paper-design/shaders-react';
+import { NeuroNoise, type NeuroNoiseParams, neuroNoisePresets } from '@paper-design/shaders-react';
+import { useControls, button, folder } from 'leva';
+import { useEffect } from 'react';
 
 /**
  * You can copy/paste this example to use NeuroNoise in your app
@@ -21,30 +21,35 @@ const NeuroNoiseExample = () => {
 /**
  * This example has controls added so you can play with settings in the example app
  */
+
+const defaultParams = neuroNoisePresets[0].params;
+
 export const NeuroNoiseWithControls = () => {
-  const [uniforms, setUniforms] = useState<NeuroNoiseProps>(neuroNoiseDefaults);
+  const [params, setParams] = useControls(() => {
+    const presets: NeuroNoiseParams = Object.fromEntries(
+      neuroNoisePresets.map((preset) => [preset.name, button(() => setParams(preset.params))])
+    );
 
-  // Add controls
+    return {
+      Parameters: folder(
+        {
+          colorFront: { value: defaultParams.colorFront, order: 1 },
+          colorBack: { value: defaultParams.colorBack, order: 2 },
+          scale: { value: defaultParams.scale, order: 3, min: 0.3, max: 3 },
+          speed: { value: defaultParams.speed, order: 4, min: 0, max: 3 },
+          brightness: { value: defaultParams.brightness, order: 5, min: 0.8, max: 2 },
+        },
+        { order: 1 }
+      ),
+      Presets: folder(presets, { order: 2 }),
+    };
+  });
+
+  // Reset to defaults on mount, so that Leva doesn't show values from other
+  // shaders when navigating (if two shaders have a color1 param for example)
   useEffect(() => {
-    const gui = new GUI();
-
-    const updateUniforms = (key: string, value: any) => {
-      setUniforms((prev) => ({ ...prev, [key]: value }));
-    };
-
-    gui.add(uniforms, 'scale', 0.5, 2).onChange((value: number) => updateUniforms('scale', value));
-    gui.add(uniforms, 'speed', 0, 3).onChange((value: number) => updateUniforms('speed', value));
-    gui.add(uniforms, 'brightness', 0.8, 2).onChange((value: number) => updateUniforms('brightness', value));
-
-    const colorKeys = ['colorFront', 'colorBack'] as const;
-    colorKeys.forEach((colorKey) => {
-      gui.addColor(uniforms, colorKey).onChange((value: string) => updateUniforms(colorKey, value));
-    });
-
-    return () => {
-      gui.destroy();
-    };
+    setParams(defaultParams);
   }, []);
 
-  return <NeuroNoise {...uniforms} style={{ position: 'fixed', width: '100%', height: '100%' }} />;
+  return <NeuroNoise {...params} style={{ position: 'fixed', width: '100%', height: '100%' }} />;
 };

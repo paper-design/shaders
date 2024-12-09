@@ -1,10 +1,7 @@
-import { useState, useEffect } from 'react';
-import GUI from 'lil-gui';
-import {
-  SteppedSimplexNoise,
-  steppedSimplexNoiseDefaults,
-  type SteppedSimplexNoiseProps,
-} from '@paper-design/shaders-react';
+import {SteppedSimplexNoise, type SteppedSimplexNoiseParams, steppedSimplexNoisePresets} from '@paper-design/shaders-react';
+
+import {useControls, button, folder} from 'leva';
+import {useEffect} from 'react';
 
 /**
  * You can copy/paste this example to use SteppedSimplexNoise in your app
@@ -28,30 +25,37 @@ const SteppedSimplexNoiseExample = () => {
 /**
  * This example has controls added so you can play with settings in the example app
  */
+
+const defaultParams = steppedSimplexNoisePresets[0].params;
+
 export const SteppedSimplexNoiseWithControls = () => {
-  const [uniforms, setUniforms] = useState<SteppedSimplexNoiseProps>(steppedSimplexNoiseDefaults);
+  const [params, setParams] = useControls(() => {
+    const presets: SteppedSimplexNoiseParams = Object.fromEntries(
+        steppedSimplexNoisePresets.map((preset) => [preset.name, button(() => setParams(preset.params))])
+    );
+    return {
+      Parameters: folder(
+          {
+            color1: {value: defaultParams.color1, order: 1},
+            color2: {value: defaultParams.color2, order: 2},
+            color3: {value: defaultParams.color3, order: 3},
+            color4: {value: defaultParams.color4, order: 4},
+            color5: {value: defaultParams.color5, order: 5},
+            speed: {value: defaultParams.speed, order: 6, min: 0, max: 2},
+            scale: {value: defaultParams.scale, order: 7, min: .2, max: 2.5},
+            stepsNumber: {value: defaultParams.stepsNumber, order: 8, min: 2, max: 40},
+          },
+          {order: 1}
+      ),
+      Presets: folder(presets, {order: 2}),
+    };
+  });
 
-  // Add controls
+  // Reset to defaults on mount, so that Leva doesn't show values from other
+  // shaders when navigating (if two shaders have a color1 param for example)
   useEffect(() => {
-    const gui = new GUI();
-
-    const updateUniforms = (key: string, value: any) => {
-      setUniforms((prev) => ({ ...prev, [key]: value }));
-    };
-
-    gui.add(uniforms, 'scale', 0.2, 2.5).onChange((value: number) => updateUniforms('scale', value));
-    gui.add(uniforms, 'speed', 0, 3).onChange((value: number) => updateUniforms('speed', value));
-    gui.add(uniforms, 'stepsNumber', 2, 40, 1).onChange((value: number) => updateUniforms('stepsNumber', value));
-
-    const colorKeys = ['color1', 'color2', 'color3', 'color4', 'color5'] as const;
-    colorKeys.forEach((colorKey) => {
-      gui.addColor(uniforms, colorKey).onChange((value: string) => updateUniforms(colorKey, value));
-    });
-
-    return () => {
-      gui.destroy();
-    };
+    setParams(defaultParams);
   }, []);
 
-  return <SteppedSimplexNoise {...uniforms} style={{ position: 'fixed', width: '100%', height: '100%' }} />;
+  return <SteppedSimplexNoise {...params} style={{ position: 'fixed', width: '100%', height: '100%' }} />;
 };
