@@ -1,8 +1,8 @@
 export type DotsPatternUniforms = {
-  u_hue: number;
-  u_hueRange: number;
-  u_saturation: number;
-  u_brightness: number;
+  u_color1: [number, number, number];
+  u_color2: [number, number, number];
+  u_color3: [number, number, number];
+  u_color4: [number, number, number];
   u_scale: number;
   u_dotSize: number;
   u_dotSizeRange: number;
@@ -16,10 +16,10 @@ export type DotsPatternUniforms = {
  * Renders a dot pattern with dots placed in the center of each cell of Voronoi diagram
  *
  * Uniforms include:
- * u_hue: HSL color => HUE base value
- * u_hueRange: HSL color => HUE range to vary between the dots
- * u_saturation: HSL color => saturation for all the dots
- * u_brightness: HSL color => brightness for all the dots
+ * u_color1: The first dots color
+ * u_color2: The second dots color
+ * u_color3: The third dots color
+ * u_color4: The fourth dots color
  * u_scale: The scale applied to pattern
  * u_dotSize: The base dot radius (relative to cell size)
  * u_dotSizeRange: Dot radius to vary between the cells
@@ -30,10 +30,10 @@ export type DotsPatternUniforms = {
 export const dotsPatternFragmentShader = `
 precision mediump float;
 
-uniform float u_hue;
-uniform float u_hueRange;
-uniform float u_saturation;
-uniform float u_brightness;
+uniform vec3 u_color1;
+uniform vec3 u_color2;
+uniform vec3 u_color3;
+uniform vec3 u_color4;
 uniform float u_dotSize;
 uniform float u_dotSizeRange;
 uniform float u_scale;
@@ -73,42 +73,6 @@ vec3 get_voronoi_shape(vec2 _uv, float time) {
   return vec3(min_dist, cell_randomizer);
 }
 
-float hue_to_rgb(float f1, float f2, float hue) {
-  if (hue < 0.0)
-    hue += 1.0;
-  else if (hue > 1.0)
-    hue -= 1.0;
-  float res;
-  if ((6.0 * hue) < 1.0)
-    res = f1 + (f2 - f1) * 6.0 * hue;
-  else if ((2.0 * hue) < 1.0)
-    res = f2;
-  else if ((3.0 * hue) < 2.0)
-    res = f1 + (f2 - f1) * ((2.0 / 3.0) - hue) * 6.0;
-  else
-    res = f1;
-  return res;
-}
-vec3 hsl_to_rgb(float h, float s, float l) {
-  vec3 rgb;
-  if (s == 0.) {
-    rgb = vec3(l);
-  } else {
-    float f2;
-    if (l < .5)
-      f2 = l * (1. + s);
-    else
-      f2 = l + s - s * l;
-
-    float f1 = 2. * l - f2;
-
-    rgb.r = hue_to_rgb(f1, f2, h + (1. / 3.));
-    rgb.g = hue_to_rgb(f1, f2, h);
-    rgb.b = hue_to_rgb(f1, f2, h - (1. / 3.));
-  }
-  return rgb;
-}
-
 void main() {
   vec2 uv = gl_FragCoord.xy / u_resolution.xy;
     
@@ -124,8 +88,12 @@ void main() {
   float radius_smoother = .005 + (u_scale - 1.) / 1100.;
   float shape = 1. - smoothstep(radius, radius + radius_smoother, voronoi[0]);
 
-  vec3 color = hsl_to_rgb(fract(u_hue + u_hueRange * voronoi[1]), u_saturation, u_brightness);
-
+  float color_randomizer = voronoi[1];
+  vec3 color = 
+    u_color1 * step(0.0, color_randomizer) * step(color_randomizer, 0.25) +
+    u_color2 * step(0.25, color_randomizer) * step(color_randomizer, 0.5) +
+    u_color3 * step(0.5, color_randomizer) * step(color_randomizer, 0.75) +
+    u_color4 * step(0.75, color_randomizer) * step(color_randomizer, 1.0);  
   
   gl_FragColor = vec4(color, shape);
 }

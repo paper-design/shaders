@@ -1,12 +1,13 @@
 import { useMemo } from 'react';
 import { ShaderMount, type ShaderMountProps } from '../shader-mount';
-import { dotsPatternFragmentShader, type DotsPatternUniforms } from '@paper-design/shaders';
+import { getShaderColorFromString, dotsPatternFragmentShader, type DotsPatternUniforms } from '@paper-design/shaders';
+import { meshGradientDefaults } from './mesh-gradient';
 
 export type DotsPatternProps = Omit<ShaderMountProps, 'fragmentShader'> & {
-  hue?: number;
-  hueRange?: number;
-  saturation?: number;
-  brightness?: number;
+  color1?: string;
+  color2?: string;
+  color3?: string;
+  color4?: string;
   dotSize?: number;
   dotSizeRange?: number;
   scale?: number;
@@ -16,10 +17,10 @@ export type DotsPatternProps = Omit<ShaderMountProps, 'fragmentShader'> & {
 
 /** Some default values for the shader props */
 export const dotsPatternDefaults = {
-  hue: 0.6,
-  hueRange: 0.45,
-  saturation: 0.5,
-  brightness: 0.5,
+  color1: '#ce2a2f',
+  color2: '#3a6c4f',
+  color3: '#f0a71b',
+  color4: '#5b3e72',
   dotSize: 0.15,
   dotSizeRange: 0.05,
   scale: 10,
@@ -30,10 +31,10 @@ export const dotsPatternDefaults = {
 export const DotsPattern = (props: DotsPatternProps): JSX.Element => {
   const uniforms: DotsPatternUniforms = useMemo(() => {
     return {
-      u_hue: props.hue ?? dotsPatternDefaults.hue,
-      u_hueRange: props.hueRange ?? dotsPatternDefaults.hueRange,
-      u_saturation: props.saturation ?? dotsPatternDefaults.saturation,
-      u_brightness: props.brightness ?? dotsPatternDefaults.brightness,
+      u_color1: getShaderColorFromString(props.color1, dotsPatternDefaults.color1),
+      u_color2: getShaderColorFromString(props.color2, dotsPatternDefaults.color2),
+      u_color3: getShaderColorFromString(props.color3, dotsPatternDefaults.color3),
+      u_color4: getShaderColorFromString(props.color4, dotsPatternDefaults.color4),
       u_dotSize: props.dotSize ?? dotsPatternDefaults.dotSize,
       u_dotSizeRange: props.dotSizeRange ?? dotsPatternDefaults.dotSizeRange,
       u_scale: props.scale ?? dotsPatternDefaults.scale,
@@ -41,10 +42,10 @@ export const DotsPattern = (props: DotsPatternProps): JSX.Element => {
       u_spreading: props.spreading ?? dotsPatternDefaults.spreading,
     };
   }, [
-    props.hue,
-    props.hueRange,
-    props.saturation,
-    props.brightness,
+    props.color1,
+    props.color2,
+    props.color3,
+    props.color4,
     props.dotSize,
     props.dotSizeRange,
     props.scale,
