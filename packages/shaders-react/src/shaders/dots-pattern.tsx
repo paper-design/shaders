@@ -1,9 +1,8 @@
 import { useMemo } from 'react';
 import { ShaderMount, type ShaderMountProps } from '../shader-mount';
 import { getShaderColorFromString, dotsPatternFragmentShader, type DotsPatternUniforms } from '@paper-design/shaders';
-import { meshGradientDefaults } from './mesh-gradient';
 
-export type DotsPatternProps = Omit<ShaderMountProps, 'fragmentShader'> & {
+export type DotsPatternParams = {
   color1?: string;
   color2?: string;
   color3?: string;
@@ -15,31 +14,39 @@ export type DotsPatternProps = Omit<ShaderMountProps, 'fragmentShader'> & {
   spreading?: number;
 };
 
-/** Some default values for the shader props */
-export const dotsPatternDefaults = {
-  color1: '#ce2a2f',
-  color2: '#3a6c4f',
-  color3: '#f0a71b',
-  color4: '#5b3e72',
-  dotSize: 0.15,
-  dotSizeRange: 0.05,
-  scale: 10,
-  speed: 3,
-  spreading: 0.25,
+export type DotsPatternProps = Omit<ShaderMountProps, 'fragmentShader'> & DotsPatternParams;
+
+type DotsPatternPreset = { name: string; params: Required<DotsPatternParams> };
+
+export const defaultPreset: DotsPatternPreset = {
+  name: 'Default',
+  params: {
+    color1: '#ce2a2f',
+    color2: '#3a6c4f',
+    color3: '#f0a71b',
+    color4: '#5b3e72',
+    dotSize: 0.15,
+    dotSizeRange: 0.05,
+    scale: 10,
+    speed: 3,
+    spreading: 0.25,
+  },
 } as const;
+
+export const dotsPatternPresets: DotsPatternPreset[] = [defaultPreset];
 
 export const DotsPattern = (props: DotsPatternProps): JSX.Element => {
   const uniforms: DotsPatternUniforms = useMemo(() => {
     return {
-      u_color1: getShaderColorFromString(props.color1, dotsPatternDefaults.color1),
-      u_color2: getShaderColorFromString(props.color2, dotsPatternDefaults.color2),
-      u_color3: getShaderColorFromString(props.color3, dotsPatternDefaults.color3),
-      u_color4: getShaderColorFromString(props.color4, dotsPatternDefaults.color4),
-      u_dotSize: props.dotSize ?? dotsPatternDefaults.dotSize,
-      u_dotSizeRange: props.dotSizeRange ?? dotsPatternDefaults.dotSizeRange,
-      u_scale: props.scale ?? dotsPatternDefaults.scale,
-      u_speed: props.speed ?? dotsPatternDefaults.speed,
-      u_spreading: props.spreading ?? dotsPatternDefaults.spreading,
+      u_color1: getShaderColorFromString(props.color1, defaultPreset.params.color1),
+      u_color2: getShaderColorFromString(props.color2, defaultPreset.params.color2),
+      u_color3: getShaderColorFromString(props.color3, defaultPreset.params.color3),
+      u_color4: getShaderColorFromString(props.color4, defaultPreset.params.color4),
+      u_dotSize: props.dotSize ?? defaultPreset.params.dotSize,
+      u_dotSizeRange: props.dotSizeRange ?? defaultPreset.params.dotSizeRange,
+      u_scale: props.scale ?? defaultPreset.params.scale,
+      u_speed: props.speed ?? defaultPreset.params.speed,
+      u_spreading: props.spreading ?? defaultPreset.params.spreading,
     };
   }, [
     props.color1,

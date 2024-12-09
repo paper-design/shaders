@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
-import GUI from 'lil-gui';
-import { DotsPattern, dotsPatternDefaults, type DotsPatternProps } from '@paper-design/shaders-react';
+import { DotsPattern, type DotsPatternParams, dotsPatternPresets } from '@paper-design/shaders-react';
+import { useControls, button, folder } from 'leva';
+import { useEffect } from 'react';
 
 /**
  * You can copy/paste this example to use DotsPattern in your app
@@ -25,32 +25,38 @@ const DotsPatternExample = () => {
 /**
  * This example has controls added so you can play with settings in the example app
  */
+
+const defaultParams = dotsPatternPresets[0].params;
+
 export const DotsPatternWithControls = () => {
-  const [uniforms, setUniforms] = useState<DotsPatternProps>(dotsPatternDefaults);
+  const [params, setParams] = useControls(() => {
+    const presets: DotsPatternParams = Object.fromEntries(
+      dotsPatternPresets.map((preset) => [preset.name, button(() => setParams(preset.params))])
+    );
+    return {
+      Parameters: folder(
+        {
+          color1: { value: defaultParams.color1, order: 1 },
+          color2: { value: defaultParams.color2, order: 2 },
+          color3: { value: defaultParams.color3, order: 3 },
+          color4: { value: defaultParams.color4, order: 4 },
+          speed: { value: defaultParams.speed, order: 5, min: 0, max: 6 },
+          scale: { value: defaultParams.scale, order: 6, min: 1, max: 20 },
+          dotSize: { value: defaultParams.dotSize, order: 7, min: 0.001, max: 0.5 },
+          dotSizeRange: { value: defaultParams.dotSizeRange, order: 8, min: 0, max: 0.3 },
+          spreading: { value: defaultParams.dotSizeRange, order: 9, min: 0, max: 0.5 },
+        },
+        { order: 1 }
+      ),
+      Presets: folder(presets, { order: 2 }),
+    };
+  });
 
-  // Add controls
+  // Reset to defaults on mount, so that Leva doesn't show values from other
+  // shaders when navigating (if two shaders have a color1 param for example)
   useEffect(() => {
-    const gui = new GUI();
-
-    const updateUniforms = (key: string, value: any) => {
-      setUniforms((prev) => ({ ...prev, [key]: value }));
-    };
-
-    gui.add(uniforms, 'scale', 1, 20).onChange((value: number) => updateUniforms('scale', value));
-    gui.add(uniforms, 'dotSize', 0.001, 0.5).onChange((value: number) => updateUniforms('dotSize', value));
-    gui.add(uniforms, 'dotSizeRange', 0, 0.3).onChange((value: number) => updateUniforms('dotSizeRange', value));
-    gui.add(uniforms, 'speed', 0, 6).onChange((value: number) => updateUniforms('speed', value));
-    gui.add(uniforms, 'spreading', 0, 0.5).onChange((value: number) => updateUniforms('spreading', value));
-
-    const colorKeys = ['color1', 'color2', 'color3', 'color4'] as const;
-    colorKeys.forEach((colorKey) => {
-      gui.addColor(uniforms, colorKey).onChange((value: string) => updateUniforms(colorKey, value));
-    });
-
-    return () => {
-      gui.destroy();
-    };
+    setParams(defaultParams);
   }, []);
 
-  return <DotsPattern {...uniforms} style={{ position: 'fixed', width: '100%', height: '100%' }} />;
+  return <DotsPattern {...params} style={{ position: 'fixed', width: '100%', height: '100%' }} />;
 };

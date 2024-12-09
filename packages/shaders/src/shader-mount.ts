@@ -45,6 +45,9 @@ export class ShaderMount {
     } else {
       this.render(performance.now());
     }
+
+    // Mark canvas as paper shader mount
+    this.canvas.setAttribute('data-paper-shaders', 'true');
   }
 
   private initWebGL = () => {

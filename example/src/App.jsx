@@ -1,8 +1,8 @@
 import { MeshGradientWithControls } from './shaders/mesh-gradient-example';
 import { GrainCloudsWithControls } from './shaders/grain-clouds-example';
 import { NeuroNoiseWithControls } from './shaders/neuro-noise-example';
-import { Router, Switch, Route, Link } from 'wouter';
 import { DotsPatternWithControls } from './shaders/dots-pattern-example';
+import { Router, Switch, Route, Link } from 'wouter';
 
 const App = () => {
   return (

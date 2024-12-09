@@ -75,26 +75,26 @@ vec3 get_voronoi_shape(vec2 _uv, float time) {
 
 void main() {
   vec2 uv = gl_FragCoord.xy / u_resolution.xy;
-    
+
   uv -= .5;
   uv *= (.001 * u_scale * u_resolution);
   uv += .5;
-  
+
   float t = u_speed * u_time;
 
   vec3 voronoi = get_voronoi_shape(uv, t);
   float radius = u_dotSize - u_dotSizeRange * voronoi[2];
-  
+
   float radius_smoother = .005 + (u_scale - 1.) / 1100.;
   float shape = 1. - smoothstep(radius, radius + radius_smoother, voronoi[0]);
 
   float color_randomizer = voronoi[1];
-  vec3 color = 
+  vec3 color =
     u_color1 * step(0.0, color_randomizer) * step(color_randomizer, 0.25) +
     u_color2 * step(0.25, color_randomizer) * step(color_randomizer, 0.5) +
     u_color3 * step(0.5, color_randomizer) * step(color_randomizer, 0.75) +
-    u_color4 * step(0.75, color_randomizer) * step(color_randomizer, 1.0);  
-  
+    u_color4 * step(0.75, color_randomizer) * step(color_randomizer, 1.0);
+
   gl_FragColor = vec4(color, shape);
 }
 `;
