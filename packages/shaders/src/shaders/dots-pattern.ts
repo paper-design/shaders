@@ -111,13 +111,11 @@ vec3 hsl_to_rgb(float h, float s, float l) {
 
 void main() {
   vec2 uv = gl_FragCoord.xy / u_resolution.xy;
-  float ratio = u_resolution.x / u_resolution.y;
-
+    
   uv -= .5;
-  uv *= u_scale;
+  uv *= (.001 * u_scale * u_resolution);
   uv += .5;
-  uv.x *= ratio;
-
+  
   float t = u_speed * u_time;
 
   vec3 voronoi = get_voronoi_shape(uv, t);
@@ -128,6 +126,7 @@ void main() {
 
   vec3 color = hsl_to_rgb(fract(u_hue + u_hueRange * voronoi[1]), u_saturation, u_brightness);
 
+  
   gl_FragColor = vec4(color, shape);
 }
 `;

@@ -40,7 +40,7 @@ export const DotsPatternWithControls = () => {
     gui.add(uniforms, 'hueRange', 0, 1).onChange((value: number) => updateUniforms('hueRange', value));
     gui.add(uniforms, 'saturation', 0, 1).onChange((value: number) => updateUniforms('saturation', value));
     gui.add(uniforms, 'brightness', 0, 1).onChange((value: number) => updateUniforms('brightness', value));
-    gui.add(uniforms, 'scale', 1, 100).onChange((value: number) => updateUniforms('scale', value));
+    gui.add(uniforms, 'scale', 1, 20).onChange((value: number) => updateUniforms('scale', value));
     gui.add(uniforms, 'dotSize', 0.001, 0.5).onChange((value: number) => updateUniforms('dotSize', value));
     gui.add(uniforms, 'dotSizeRange', 0, 0.3).onChange((value: number) => updateUniforms('dotSizeRange', value));
     gui.add(uniforms, 'speed', 0, 6).onChange((value: number) => updateUniforms('speed', value));
