@@ -37,7 +37,7 @@ export const SmokeRingWithControls = () => {
           color1: { value: defaultParams.color1, order: 2 },
           color2: { value: defaultParams.color2, order: 3 },
           speed: { value: defaultParams.speed, order: 4, min: 0, max: 1 },
-          thickness: { value: defaultParams.thickness, order: 5, min: 0.1, max: 0.6 },
+          thickness: { value: defaultParams.thickness, order: 5, min: 0.1, max: 2 },
           noiseScale: { value: defaultParams.thickness, order: 6, min: 0.01, max: 5 },
         },
         { order: 1 }
