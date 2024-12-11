@@ -11,5 +11,8 @@ export { meshGradientFragmentShader, type MeshGradientUniforms } from './shaders
 /** Fractional Brownian motion (fBm) noise over the polar coordinates, masked with ring shape */
 export { cloudyRingFragmentShader, type CloudyRingUniforms } from './shaders/cloudy-ring';
 
+/** A shader rendering a fractal-like structure made of several layers of since-arches */
+export { neuroNoiseFragmentShader, type NeuroNoiseUniforms } from './shaders/neuro-noise';
+
 // ----- Uniform conversion utils ----- //
 export { getShaderColorFromString } from './shader-mount';
