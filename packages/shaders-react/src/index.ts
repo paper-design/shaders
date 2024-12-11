@@ -27,5 +27,11 @@ export { type NeuroNoiseProps } from './shaders/neuro-noise';
 export { type NeuroNoiseParams } from './shaders/neuro-noise';
 export { type NeuroNoiseUniforms } from '@paper-design/shaders';
 
+// Stepped simplex noise
+export { SteppedSimplexNoise, steppedSimplexNoisePresets } from './shaders/stepped-simplex-noise';
+export { type SteppedSimplexNoiseProps } from './shaders/stepped-simplex-noise';
+export { type SteppedSimplexNoiseParams } from './shaders/stepped-simplex-noise';
+export { type SteppedSimplexNoiseUniforms } from '@paper-design/shaders';
+
 // ----- Uniform conversion utils ----- //
 export { getShaderColorFromString } from '@paper-design/shaders';

@@ -16,5 +16,8 @@ export { smokeRingFragmentShader, type SmokeRingUniforms } from './shaders/smoke
 /** A shader rendering a fractal-like structure made of several layers of since-arches */
 export { neuroNoiseFragmentShader, type NeuroNoiseUniforms } from './shaders/neuro-noise';
 
+/** A shader that calculates a combination of 2 simplex noises with result rendered as a stepped gradient */
+export { steppedSimplexNoiseFragmentShader, type SteppedSimplexNoiseUniforms } from './shaders/stepped-simplex-noise';
+
 // ----- Uniform conversion utils ----- //
 export { getShaderColorFromString } from './shader-mount';
