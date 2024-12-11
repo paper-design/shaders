@@ -1,4 +1,4 @@
-export type CloudyRingUniforms = {
+export type SmokeRingUniforms = {
   u_colorBack: [number, number, number];
   u_color1: [number, number, number];
   u_color2: [number, number, number];
@@ -8,7 +8,7 @@ export type CloudyRingUniforms = {
 };
 
 /**
- * Cloudy Ring, based on https://codepen.io/ksenia-k/full/zYyqRWE
+ * Smoke Ring, based on https://codepen.io/ksenia-k/full/zYyqRWE
  * Renders a fractional Brownian motion (fBm) noise over the
  * polar coordinates masked with ring shape
  *
@@ -20,8 +20,8 @@ export type CloudyRingUniforms = {
  * u_speed: The speed of the noise
  */
 
-export const cloudyRingFragmentShader = `
-  
+export const smokeRingFragmentShader = `
+
   precision highp float;
 
   uniform vec3 u_colorBack;
@@ -63,10 +63,10 @@ export const cloudyRingFragmentShader = `
     }
 
     void main() {
-    
+
         vec2 uv = gl_FragCoord.xy / u_resolution.xy;
         float ratio = u_resolution.x / u_resolution.y;
-        
+
         uv -= .5;
         uv *= 2.;
         uv.x *= ratio;
@@ -89,7 +89,7 @@ export const cloudyRingFragmentShader = `
         float radius = .4 - .25 * u_thickness;
         float thickness = u_thickness;
         thickness = pow(thickness, 2.);
-        
+
         float ring_shape = get_ring_shape(uv * (.5 + .6 * noise), radius - .2 * thickness, radius + .5 * thickness);
 
         vec3 color = mix(u_color1, u_color2, (.6 - .3 * pow(ring_shape, 3.)));

@@ -1,8 +1,8 @@
 import { useMemo } from 'react';
 import { ShaderMount, type ShaderMountProps } from '../shader-mount';
-import { getShaderColorFromString, cloudyRingFragmentShader, type CloudyRingUniforms } from '@paper-design/shaders';
+import { getShaderColorFromString, smokeRingFragmentShader, type SmokeRingUniforms } from '@paper-design/shaders';
 
-export type CloudyRingParams = {
+export type SmokeRingParams = {
   colorBack?: string;
   color1?: string;
   color2?: string;
@@ -11,11 +11,11 @@ export type CloudyRingParams = {
   thickness?: number;
 };
 
-export type CloudyRingProps = Omit<ShaderMountProps, 'fragmentShader'> & CloudyRingParams;
+export type SmokeRingProps = Omit<ShaderMountProps, 'fragmentShader'> & SmokeRingParams;
 
-type CloudyRingPreset = { name: string; params: Required<CloudyRingParams> };
+type SmokeRingPreset = { name: string; params: Required<SmokeRingParams> };
 
-export const defaultPreset: CloudyRingPreset = {
+export const defaultPreset: SmokeRingPreset = {
   name: 'Default',
   params: {
     colorBack: '#010101',
@@ -27,10 +27,10 @@ export const defaultPreset: CloudyRingPreset = {
   },
 } as const;
 
-export const cloudyRingPresets: CloudyRingPreset[] = [defaultPreset];
+export const smokeRingPresets: SmokeRingPreset[] = [defaultPreset];
 
-export const CloudyRing = (props: CloudyRingProps): JSX.Element => {
-  const uniforms: CloudyRingUniforms = useMemo(() => {
+export const SmokeRing = (props: SmokeRingProps): JSX.Element => {
+  const uniforms: SmokeRingUniforms = useMemo(() => {
     return {
       u_colorBack: getShaderColorFromString(props.colorBack, defaultPreset.params.colorBack),
       u_color1: getShaderColorFromString(props.color1, defaultPreset.params.color1),
@@ -41,5 +41,5 @@ export const CloudyRing = (props: CloudyRingProps): JSX.Element => {
     };
   }, [props.colorBack, props.color1, props.color2, props.speed, props.noiseScale, props.thickness]);
 
-  return <ShaderMount {...props} fragmentShader={cloudyRingFragmentShader} uniforms={uniforms} />;
+  return <ShaderMount {...props} fragmentShader={smokeRingFragmentShader} uniforms={uniforms} />;
 };

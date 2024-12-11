@@ -1,13 +1,13 @@
-import { CloudyRing, type CloudyRingParams, cloudyRingPresets } from '@paper-design/shaders-react';
+import { SmokeRing, type SmokeRingParams, smokeRingPresets } from '@paper-design/shaders-react';
 import { useControls, button, folder } from 'leva';
 import { useEffect } from 'react';
 
 /**
- * You can copy/paste this example to use CloudyRing in your app
+ * You can copy/paste this example to use SmokeRing in your app
  */
-const CloudyRingExample = () => {
+const SmokeRingExample = () => {
   return (
-    <CloudyRing
+    <SmokeRing
       colorBack="#6a5496"
       color1="#9b8ab8"
       color2="#f5d03b"
@@ -23,12 +23,12 @@ const CloudyRingExample = () => {
  * This example has controls added so you can play with settings in the example app
  */
 
-const defaultParams = cloudyRingPresets[0].params;
+const defaultParams = smokeRingPresets[0].params;
 
-export const CloudyRingWithControls = () => {
+export const SmokeRingWithControls = () => {
   const [params, setParams] = useControls(() => {
-    const presets: CloudyRingParams = Object.fromEntries(
-      cloudyRingPresets.map((preset) => [preset.name, button(() => setParams(preset.params))])
+    const presets: SmokeRingParams = Object.fromEntries(
+      smokeRingPresets.map((preset) => [preset.name, button(() => setParams(preset.params))])
     );
     return {
       Parameters: folder(
@@ -52,5 +52,5 @@ export const CloudyRingWithControls = () => {
     setParams(defaultParams);
   }, []);
 
-  return <CloudyRing {...params} style={{ position: 'fixed', width: '100%', height: '100%' }} />;
+  return <SmokeRing {...params} style={{ position: 'fixed', width: '100%', height: '100%' }} />;
 };

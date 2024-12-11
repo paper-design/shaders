@@ -1,8 +1,8 @@
+import { Router, Switch, Route, Link } from 'wouter';
 import { MeshGradientWithControls } from './shaders/mesh-gradient-example';
 import { GrainCloudsWithControls } from './shaders/grain-clouds-example';
-import { CloudyRingWithControls } from './shaders/cloudy-ring-example';
 import { NeuroNoiseWithControls } from './shaders/neuro-noise-example';
-import { Router, Switch, Route, Link } from 'wouter';
+import { SmokeRingWithControls } from './shaders/smoke-ring-example';
 
 const App = () => {
   return (
@@ -19,18 +19,18 @@ const App = () => {
               <Link href="/grain-clouds">Grain Clouds</Link>
             </li>
             <li>
-              <Link href="/cloudy-ring">Cloudy Ring</Link>
+              <Link href="/neuro-noise">Neuro Noise</Link>
             </li>
             <li>
-              <Link href="/neuro-noise">Neuro Noise</Link>
+              <Link href="/smoke-ring">Smoke Ring</Link>
             </li>
           </ul>
         </Route>
 
         <Route path="/mesh-gradient" component={MeshGradientWithControls} />
         <Route path="/grain-clouds" component={GrainCloudsWithControls} />
-        <Route path="/cloudy-ring" component={CloudyRingWithControls} />
         <Route path="/neuro-noise" component={NeuroNoiseWithControls} />
+        <Route path="/smoke-ring" component={SmokeRingWithControls} />
       </Switch>
     </Router>
   );
