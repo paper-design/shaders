@@ -1,10 +1,8 @@
-import { getShaderColorFromString } from '../shader-mount';
-
 export type MeshGradientUniforms = {
-  u_color1: [number, number, number];
-  u_color2: [number, number, number];
-  u_color3: [number, number, number];
-  u_color4: [number, number, number];
+  u_color1: [number, number, number, number];
+  u_color2: [number, number, number, number];
+  u_color3: [number, number, number, number];
+  u_color4: [number, number, number, number];
   u_speed: number;
 };
 
@@ -27,10 +25,10 @@ export const meshGradientFragmentShader = `
 
 precision highp float;
 
-uniform vec3 u_color1;
-uniform vec3 u_color2;
-uniform vec3 u_color3;
-uniform vec3 u_color4;
+uniform vec4 u_color1;
+uniform vec4 u_color2;
+uniform vec4 u_color3;
+uniform vec4 u_color4;
 uniform vec2 u_resolution;
 uniform float u_time;
 uniform float u_speed;
@@ -88,13 +86,10 @@ void main() {
 
 
     // draw the image
-    vec3 layer1 = mix(u_color1, u_color2, S(-.3, .2, (tuv*Rot(radians(-5.))).x));
-    vec3 layer2 = mix(u_color3, u_color4, S(-.3, .2, (tuv*Rot(radians(-5.))).x));
+    vec4 layer1 = mix(u_color1, u_color2, S(-.3, .2, (tuv*Rot(radians(-5.))).x));
+    vec4 layer2 = mix(u_color3, u_color4, S(-.3, .2, (tuv*Rot(radians(-5.))).x));
 
-    vec3 finalComp = mix(layer1, layer2, S(.5, -.3, tuv.y));
-
-    vec3 col = finalComp;
-
-    gl_FragColor = vec4(col,1.0);
+    vec4 finalComp = mix(layer1, layer2, S(.5, -.3, tuv.y));
+    gl_FragColor = finalComp;
 }
 `;

@@ -12,4 +12,4 @@ export { meshGradientFragmentShader, type MeshGradientUniforms } from './shaders
 export { neuroNoiseFragmentShader, type NeuroNoiseUniforms } from './shaders/neuro-noise';
 
 // ----- Uniform conversion utils ----- //
-export { getShaderColorFromString } from './shader-mount';
+export { getShaderColorFromString } from './get-shader-color-from-string';

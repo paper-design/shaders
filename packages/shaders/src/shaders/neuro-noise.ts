@@ -1,6 +1,6 @@
 export type NeuroNoiseUniforms = {
-  u_colorFront: [number, number, number];
-  u_colorBack: [number, number, number];
+  u_colorFront: [number, number, number, number];
+  u_colorBack: [number, number, number, number];
   u_scale: number;
   u_brightness: number;
   u_speed: number;
@@ -22,8 +22,8 @@ export type NeuroNoiseUniforms = {
 export const neuroNoiseFragmentShader = `
 precision mediump float;
 
-uniform vec3 u_colorFront;
-uniform vec3 u_colorBack;
+uniform vec4 u_colorFront;
+uniform vec4 u_colorBack;
 uniform float u_scale;
 uniform float u_brightness;
 uniform float u_speed;
@@ -54,7 +54,7 @@ float neuro_shape(vec2 uv, float t) {
 
 void main() {
   vec2 uv = gl_FragCoord.xy / u_resolution.xy;
-    
+
   uv -= .5;
   uv *= (.001 * u_scale * u_resolution);
   uv += .5;
@@ -68,8 +68,6 @@ void main() {
   noise += pow(noise, 12.);
   noise = max(.0, noise - .5);
 
-  color = mix(u_colorBack, u_colorFront, noise);
-
-  gl_FragColor = vec4(color, 1.);
+  gl_FragColor = mix(u_colorBack, u_colorFront, noise);
 }
 `;

@@ -9,8 +9,16 @@ async function build(packageDir) {
   const tsconfig = `${packageDir}/tsconfig.json`;
 
   // ----- Generate type declaration files ----- //
-  execSync(`tsc --emitDeclarationOnly --declaration --outDir ${outDir} --project ${tsconfig}`);
-  console.log(`Built ${outDir}/index.d.ts`);
+  try {
+    execSync(`tsc --emitDeclarationOnly --declaration --outDir ${outDir} --project ${tsconfig} --pretty`, {
+      stdio: 'inherit',
+    });
+    console.log(`Built ${outDir}/index.d.ts`);
+  } catch (error) {
+    // Process will exit with error code due to execSync failure
+    console.error('Could not build type declaration files');
+    process.exit(1);
+  }
 
   // ----- Build the package ----- //
   // esbuild configuration

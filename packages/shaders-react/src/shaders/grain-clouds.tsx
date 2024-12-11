@@ -17,8 +17,8 @@ type GrainCloudsPreset = { name: string; params: Required<GrainCloudsParams> };
 export const defaultPreset: GrainCloudsPreset = {
   name: 'Default',
   params: {
-    color1: '#000000',
-    color2: '#ffffff',
+    color1: 'rgba(0, 0, 0, 1)',
+    color2: 'rgba(255, 255, 255, 1)',
     noiseScale: 1,
     noiseSpeed: 0.3,
     grainAmount: 0.05,

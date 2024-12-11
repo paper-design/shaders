@@ -1,6 +1,6 @@
 export type GrainCloudsUniforms = {
-  u_color1: [number, number, number];
-  u_color2: [number, number, number];
+  u_color1: [number, number, number, number];
+  u_color2: [number, number, number, number];
   u_noiseScale: number;
   u_noiseSpeed: number;
   u_grainAmount: number;
@@ -22,8 +22,8 @@ export const grainCloudsFragmentShader = `
   precision highp float;
   uniform vec2 u_resolution;
   uniform float u_time;
-  uniform vec3 u_color1;
-  uniform vec3 u_color2;
+  uniform vec4 u_color1;
+  uniform vec4 u_color2;
   uniform float u_noiseScale;
   uniform float u_noiseSpeed;
   uniform float u_grainAmount;
@@ -83,12 +83,12 @@ export const grainCloudsFragmentShader = `
     n = n * 0.5 + 0.5;
 
     // Color interpolation
-    vec3 color = mix(u_color1, u_color2, n);
+    vec4 color = mix(u_color1, u_color2, n);
 
     // Add grain
     float grain = fract(sin(dot(st * 1000.0, vec2(12.9898, 78.233))) * 43758.5453);
     color += (grain - 0.5) * u_grainAmount;
 
-    gl_FragColor = vec4(color, 1.0);
+    gl_FragColor = color;
   }
 `;
