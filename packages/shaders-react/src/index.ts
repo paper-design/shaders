@@ -15,6 +15,12 @@ export { type MeshGradientProps } from './shaders/mesh-gradient';
 export { type MeshGradientParams } from './shaders/mesh-gradient';
 export { type MeshGradientUniforms } from '@paper-design/shaders';
 
+// Smoke ring
+export { SmokeRing, smokeRingPresets } from './shaders/smoke-ring';
+export { type SmokeRingProps } from './shaders/smoke-ring';
+export { type SmokeRingParams } from './shaders/smoke-ring';
+export { type SmokeRingUniforms } from '@paper-design/shaders';
+
 // Neuro noise
 export { NeuroNoise, neuroNoisePresets } from './shaders/neuro-noise';
 export { type NeuroNoiseProps } from './shaders/neuro-noise';
@@ -26,6 +32,12 @@ export { DotsOrbit, dotsOrbitPresets } from './shaders/dots-pattern';
 export { type DotsOrbitProps } from './shaders/dots-pattern';
 export { type DotsOrbitParams } from './shaders/dots-pattern';
 export { type DotsOrbitUniforms } from '@paper-design/shaders';
+
+// Stepped simplex noise
+export { SteppedSimplexNoise, steppedSimplexNoisePresets } from './shaders/stepped-simplex-noise';
+export { type SteppedSimplexNoiseProps } from './shaders/stepped-simplex-noise';
+export { type SteppedSimplexNoiseParams } from './shaders/stepped-simplex-noise';
+export { type SteppedSimplexNoiseUniforms } from '@paper-design/shaders';
 
 // ----- Uniform conversion utils ----- //
 export { getShaderColorFromString } from '@paper-design/shaders';
