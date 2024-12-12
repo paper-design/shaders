@@ -6,7 +6,6 @@ export type SteppedSimplexNoiseUniforms = {
   u_color5: [number, number, number, number];
   u_scale: number;
   u_steps_number: number;
-  u_speed: number;
 };
 
 /**
@@ -20,7 +19,6 @@ export type SteppedSimplexNoiseUniforms = {
  * u_color4: The fourth color
  * u_color5: The fifth color
  * u_scale: The scale applied to coordinates
- * u_speed: The speed coefficient for noise generator
  * u_steps_number: The number of colors to show as a stepped gradient
  */
 
@@ -33,10 +31,9 @@ uniform vec4 u_color3;
 uniform vec4 u_color4;
 uniform vec4 u_color5;
 uniform float u_scale;
-uniform float u_speed;
 uniform float u_steps_number;
+
 uniform float u_time;
-uniform float u_ratio;
 uniform vec2 u_resolution;
 
 
@@ -91,7 +88,7 @@ void main() {
   uv *= (.001 * u_scale * u_resolution);
   uv += .5;
 
-  float t = u_speed * u_time;
+  float t =  u_time;
 
   float noise = .5 + .5 * get_noise(uv, t);
   noise = floor(noise * u_steps_number) / u_steps_number;

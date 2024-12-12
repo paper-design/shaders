@@ -3,7 +3,6 @@ export type NeuroNoiseUniforms = {
   u_colorBack: [number, number, number, number];
   u_scale: number;
   u_brightness: number;
-  u_speed: number;
 };
 
 /**
@@ -16,7 +15,6 @@ export type NeuroNoiseUniforms = {
  * u_colorBack: The back color of pattern
  * u_brightness: The power/brightness of pattern lines
  * u_scale: The scale applied to coordinates
- * u_speed: The speed coefficient for pattern animation
  */
 
 export const neuroNoiseFragmentShader = `
@@ -26,7 +24,6 @@ uniform vec4 u_colorFront;
 uniform vec4 u_colorBack;
 uniform float u_scale;
 uniform float u_brightness;
-uniform float u_speed;
 
 uniform float u_time;
 uniform float u_ratio;
@@ -59,7 +56,7 @@ void main() {
   uv *= (.001 * u_scale * u_resolution);
   uv += .5;
 
-  float t = u_speed * u_time;
+  float t = u_time;
   vec3 color = vec3(0.);
 
   float noise = neuro_shape(uv, t);

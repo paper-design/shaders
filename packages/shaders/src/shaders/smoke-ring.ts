@@ -2,7 +2,6 @@ export type SmokeRingUniforms = {
   u_colorBack: [number, number, number, number];
   u_color1: [number, number, number, number];
   u_color2: [number, number, number, number];
-  u_speed: number;
   u_scale: number;
   u_thickness: number;
 };
@@ -17,7 +16,8 @@ export type SmokeRingUniforms = {
  * u_color1: Main color of the ring
  * u_color2: The third color of the mesh gradient
  * u_color4: The fourth color of the mesh gradient
- * u_speed: The speed of the noise
+ * u_scale: The scale of the noise
+ * u_thickness: The thickness of the ring
  */
 
 export const smokeRingFragmentShader = `
@@ -29,7 +29,6 @@ export const smokeRingFragmentShader = `
   uniform vec4 u_color2;
   uniform float u_scale;
   uniform float u_thickness;
-  uniform float u_speed;
   uniform vec2 u_resolution;
   uniform float u_time;
 
@@ -71,7 +70,7 @@ export const smokeRingFragmentShader = `
         uv *= 2.;
         uv.x *= ratio;
 
-        float t = u_speed * u_time;
+        float t = u_time;
 
         float atg = atan(uv.y, uv.x);
         float angle = (atg + PI) / TWO_PI;

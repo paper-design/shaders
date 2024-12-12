@@ -1,8 +1,7 @@
 export type GrainCloudsUniforms = {
   u_color1: [number, number, number, number];
   u_color2: [number, number, number, number];
-  u_noiseScale: number;
-  u_noiseSpeed: number;
+  u_scale: number;
   u_grainAmount: number;
 };
 
@@ -14,18 +13,17 @@ export type GrainCloudsUniforms = {
  * Uniforms include:
  * u_color1: The first color of the clouds
  * u_color2: The second color of the clouds
- * u_noiseScale: The scale of the noise
- * u_noiseSpeed: The speed of the noise
+ * u_scale: The scale of the noise
  * u_grainAmount: The amount of grain on the texture
  */
 export const grainCloudsFragmentShader = `
   precision highp float;
   uniform vec2 u_resolution;
   uniform float u_time;
+
   uniform vec4 u_color1;
   uniform vec4 u_color2;
-  uniform float u_noiseScale;
-  uniform float u_noiseSpeed;
+  uniform float u_scale;
   uniform float u_grainAmount;
 
   // Simplex 2D noise
@@ -77,9 +75,9 @@ export const grainCloudsFragmentShader = `
     }
 
     // Create blobby texture
-    float n = snoise(st * u_noiseScale + u_time * u_noiseSpeed);
-    n += 0.5 * snoise(st * u_noiseScale * 2.0 - u_time * u_noiseSpeed * 0.5);
-    n += 0.25 * snoise(st * u_noiseScale * 4.0 + u_time * u_noiseSpeed * 0.25);
+    float n = snoise(st * u_scale + u_time);
+    n += 0.5 * snoise(st * u_scale * 2.0 - u_time * 0.5);
+    n += 0.25 * snoise(st * u_scale * 4.0 + u_time * 0.25);
     n = n * 0.5 + 0.5;
 
     // Color interpolation

@@ -22,7 +22,8 @@ const MeshGradientExample = () => {
  * This example has controls added so you can play with settings in the example app
  */
 
-const defaultParams = meshGradientPresets[0].params;
+const defaults = meshGradientPresets[0].params;
+
 export const MeshGradientWithControls = () => {
   const [params, setParams] = useControls(() => {
     const presets: MeshGradientParams = Object.fromEntries(
@@ -32,11 +33,11 @@ export const MeshGradientWithControls = () => {
     return {
       Parameters: folder(
         {
-          color1: { value: defaultParams.color1, order: 1 },
-          color2: { value: defaultParams.color2, order: 2 },
-          color3: { value: defaultParams.color3, order: 3 },
-          color4: { value: defaultParams.color4, order: 4 },
-          speed: { value: defaultParams.speed, order: 5, min: 0, max: 1 },
+          color1: { value: defaults.color1, order: 1 },
+          color2: { value: defaults.color2, order: 2 },
+          color3: { value: defaults.color3, order: 3 },
+          color4: { value: defaults.color4, order: 4 },
+          speed: { value: defaults.speed, order: 5, min: 0, max: 1 },
         },
         { order: 1 }
       ),
@@ -47,7 +48,7 @@ export const MeshGradientWithControls = () => {
   // Reset to defaults on mount, so that Leva doesn't show values from other
   // shaders when navigating (if two shaders have a color1 param for example)
   useEffect(() => {
-    setParams(defaultParams);
+    setParams(defaults);
   }, []);
 
   return <MeshGradient {...params} style={{ position: 'fixed', width: '100%', height: '100%' }} />;

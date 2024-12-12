@@ -7,7 +7,6 @@ export type DotsOrbitUniforms = {
   u_dotSize: number;
   u_dotSizeRange: number;
   u_spreading: number;
-  u_speed: number;
 };
 
 /**
@@ -24,7 +23,6 @@ export type DotsOrbitUniforms = {
  * u_dotSize: The base dot radius (relative to cell size)
  * u_dotSizeRange: Dot radius to vary between the cells
  * u_spreading: How far dots are moving around the straight grid
- * u_speed: The speed coefficient for pattern animation
  */
 
 export const dotsOrbitFragmentShader = `
@@ -38,7 +36,6 @@ uniform float u_dotSize;
 uniform float u_dotSizeRange;
 uniform float u_scale;
 uniform float u_spreading;
-uniform float u_speed;
 uniform float u_time;
 uniform float u_ratio;
 uniform vec2 u_resolution;
@@ -80,7 +77,7 @@ void main() {
   uv *= (.001 * u_scale * u_resolution);
   uv += .5;
 
-  float t = u_speed * u_time;
+  float t = u_time;
 
   vec3 voronoi = get_voronoi_shape(uv, t);
   float radius = u_dotSize - u_dotSizeRange * voronoi[2];

@@ -22,7 +22,7 @@ const NeuroNoiseExample = () => {
  * This example has controls added so you can play with settings in the example app
  */
 
-const defaultParams = neuroNoisePresets[0].params;
+const defaults = neuroNoisePresets[0].params;
 
 export const NeuroNoiseWithControls = () => {
   const [params, setParams] = useControls(() => {
@@ -33,11 +33,11 @@ export const NeuroNoiseWithControls = () => {
     return {
       Parameters: folder(
         {
-          colorFront: { value: defaultParams.colorFront, order: 1 },
-          colorBack: { value: defaultParams.colorBack, order: 2 },
-          scale: { value: defaultParams.scale, order: 3, min: 0.3, max: 3 },
-          speed: { value: defaultParams.speed, order: 4, min: 0, max: 3 },
-          brightness: { value: defaultParams.brightness, order: 5, min: 0.8, max: 2 },
+          colorFront: { value: defaults.colorFront, order: 1 },
+          colorBack: { value: defaults.colorBack, order: 2 },
+          scale: { value: defaults.scale, order: 3, min: 0.3, max: 3 },
+          speed: { value: defaults.speed, order: 4, min: 0, max: 3 },
+          brightness: { value: defaults.brightness, order: 5, min: 0.8, max: 2 },
         },
         { order: 1 }
       ),
@@ -48,7 +48,7 @@ export const NeuroNoiseWithControls = () => {
   // Reset to defaults on mount, so that Leva doesn't show values from other
   // shaders when navigating (if two shaders have a color1 param for example)
   useEffect(() => {
-    setParams(defaultParams);
+    setParams(defaults);
   }, []);
 
   return <NeuroNoise {...params} style={{ position: 'fixed', width: '100%', height: '100%' }} />;

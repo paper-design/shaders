@@ -1,15 +1,14 @@
 import { useMemo } from 'react';
-import { ShaderMount, type ShaderMountProps } from '../shader-mount';
+import { ShaderMount, type GlobalParams, type ShaderMountProps } from '../shader-mount';
 import { getShaderColorFromString, smokeRingFragmentShader, type SmokeRingUniforms } from '@paper-design/shaders';
 
 export type SmokeRingParams = {
   colorBack?: string;
   color1?: string;
   color2?: string;
-  speed?: number;
   noiseScale?: number;
   thickness?: number;
-};
+} & GlobalParams;
 
 export type SmokeRingProps = Omit<ShaderMountProps, 'fragmentShader'> & SmokeRingParams;
 

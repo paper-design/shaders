@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { ShaderMount, type ShaderMountProps } from '../shader-mount';
+import { ShaderMount, type GlobalParams, type ShaderMountProps } from '../shader-mount';
 import {
   getShaderColorFromString,
   steppedSimplexNoiseFragmentShader,
@@ -13,9 +13,8 @@ export type SteppedSimplexNoiseParams = {
   color4?: string;
   color5?: string;
   scale?: number;
-  speed?: number;
   stepsNumber?: number;
-};
+} & GlobalParams;
 
 export type SteppedSimplexNoiseProps = Omit<ShaderMountProps, 'fragmentShader'> & SteppedSimplexNoiseParams;
 

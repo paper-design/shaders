@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { ShaderMount, type ShaderMountProps } from '../shader-mount';
+import { ShaderMount, type GlobalParams, type ShaderMountProps } from '../shader-mount';
 import { getShaderColorFromString, dotsOrbitFragmentShader, type DotsOrbitUniforms } from '@paper-design/shaders';
 
 export type DotsOrbitParams = {
@@ -10,9 +10,8 @@ export type DotsOrbitParams = {
   dotSize?: number;
   dotSizeRange?: number;
   scale?: number;
-  speed?: number;
   spreading?: number;
-};
+} & GlobalParams;
 
 export type DotsOrbitProps = Omit<ShaderMountProps, 'fragmentShader'> & DotsOrbitParams;
 
@@ -45,7 +44,6 @@ export const DotsOrbit = (props: DotsOrbitProps): JSX.Element => {
       u_dotSize: props.dotSize ?? defaultPreset.params.dotSize,
       u_dotSizeRange: props.dotSizeRange ?? defaultPreset.params.dotSizeRange,
       u_scale: props.scale ?? defaultPreset.params.scale,
-      u_speed: props.speed ?? defaultPreset.params.speed,
       u_spreading: props.spreading ?? defaultPreset.params.spreading,
     };
   }, [
@@ -56,7 +54,6 @@ export const DotsOrbit = (props: DotsOrbitProps): JSX.Element => {
     props.dotSize,
     props.dotSizeRange,
     props.scale,
-    props.speed,
     props.spreading,
   ]);
 

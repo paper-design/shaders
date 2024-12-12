@@ -1,14 +1,13 @@
 import { useMemo } from 'react';
-import { ShaderMount, type ShaderMountProps } from '../shader-mount';
+import { ShaderMount, type GlobalParams, type ShaderMountProps } from '../shader-mount';
 import { getShaderColorFromString, neuroNoiseFragmentShader, type NeuroNoiseUniforms } from '@paper-design/shaders';
 
 export type NeuroNoiseParams = {
   colorFront?: string;
   colorBack?: string;
   scale?: number;
-  speed?: number;
   brightness?: number;
-};
+} & GlobalParams;
 
 export type NeuroNoiseProps = Omit<ShaderMountProps, 'fragmentShader'> & NeuroNoiseParams;
 

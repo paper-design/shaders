@@ -7,8 +7,11 @@ export interface ShaderMountProps {
   style?: React.CSSProperties;
   uniforms?: Record<string, number | number[]>;
   webGlContextAttributes?: WebGLContextAttributes;
-  animated?: boolean;
+  speed?: number;
 }
+
+/** Params that every shader can set as part of their controls */
+export type GlobalParams = Pick<ShaderMountProps, 'speed'>;
 
 export const ShaderMount: React.FC<ShaderMountProps> = ({
   ref,
@@ -16,7 +19,7 @@ export const ShaderMount: React.FC<ShaderMountProps> = ({
   style,
   uniforms = {},
   webGlContextAttributes,
-  animated = true,
+  speed = 1,
 }) => {
   const canvasRef = ref ?? useRef<HTMLCanvasElement>(null);
   const shaderMountRef = useRef<ShaderMountVanilla | null>(null);
@@ -28,32 +31,22 @@ export const ShaderMount: React.FC<ShaderMountProps> = ({
         fragmentShader,
         uniforms,
         webGlContextAttributes,
-        animated
+        speed
       );
     }
 
     return () => {
-      if (shaderMountRef.current) {
-        shaderMountRef.current.dispose();
-      }
+      shaderMountRef.current?.dispose();
     };
   }, [fragmentShader, webGlContextAttributes]);
 
   useEffect(() => {
-    if (shaderMountRef.current) {
-      shaderMountRef.current.setUniforms(uniforms);
-    }
+    shaderMountRef.current?.setUniforms(uniforms);
   }, [uniforms]);
 
   useEffect(() => {
-    if (shaderMountRef.current) {
-      if (animated) {
-        shaderMountRef.current.startAnimating();
-      } else {
-        shaderMountRef.current.stopAnimating();
-      }
-    }
-  }, [animated]);
+    shaderMountRef.current?.setSpeed(speed);
+  }, [speed]);
 
   return <canvas ref={canvasRef} style={style} />;
 };

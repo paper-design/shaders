@@ -3,7 +3,6 @@ export type MeshGradientUniforms = {
   u_color2: [number, number, number, number];
   u_color3: [number, number, number, number];
   u_color4: [number, number, number, number];
-  u_speed: number;
 };
 
 /**
@@ -16,7 +15,6 @@ export type MeshGradientUniforms = {
  * u_color2: The second color of the mesh gradient
  * u_color3: The third color of the mesh gradient
  * u_color4: The fourth color of the mesh gradient
- * u_speed: The speed of the noise
  */
 
 export const meshGradientFragmentShader = `
@@ -31,7 +29,6 @@ uniform vec4 u_color3;
 uniform vec4 u_color4;
 uniform vec2 u_resolution;
 uniform float u_time;
-uniform float u_speed;
 
 mat2 Rot(float a)
 {
@@ -70,7 +67,7 @@ void main() {
     tuv -= .5;
 
     // rotate with Noise
-    float degree = noise(vec2(u_time * u_speed, tuv.x * tuv.y));
+    float degree = noise(vec2(u_time, tuv.x * tuv.y));
 
     tuv.y *= 1./ratio;
     tuv *= Rot(radians((degree-.5)*720.+180.));

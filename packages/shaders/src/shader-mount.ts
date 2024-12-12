@@ -11,8 +11,8 @@ export class ShaderMount {
   private lastFrameTime = 0;
   /** Total time that we have played any animation, passed as a uniform to the shader for time-based VFX */
   private totalAnimationTime = 0;
-  /** Whether we RAF the render or not */
-  private isAnimated: boolean;
+  /** The current speed that we progress through animation time (multiplies by delta time every update) */
+  private speed = 1;
   /** Uniforms that are provided by the user for the specific shader being mounted (not including uniforms that this Mount adds, like time and resolution) */
   private providedUniforms: Record<string, number | number[]>;
   /** Just a sanity check to make sure frames don't run after we're disposed */
@@ -25,12 +25,11 @@ export class ShaderMount {
     fragmentShader: string,
     uniforms: Record<string, number | number[]> = {},
     webGlContextAttributes?: WebGLContextAttributes,
-    animated = true
+    speed = 1
   ) {
     this.canvas = canvas;
     this.fragmentShader = fragmentShader;
     this.providedUniforms = uniforms;
-    this.isAnimated = animated;
 
     const gl = canvas.getContext('webgl', webGlContextAttributes);
     if (!gl) {
@@ -40,11 +39,9 @@ export class ShaderMount {
 
     this.initWebGL();
     this.setupResizeObserver();
-    if (this.isAnimated) {
-      this.startAnimating();
-    } else {
-      this.render(performance.now());
-    }
+
+    // Set the animation speed after everything is ready to go
+    this.setSpeed(speed);
 
     // Mark canvas as paper shader mount
     this.canvas.setAttribute('data-paper-shaders', 'true');
@@ -102,17 +99,20 @@ export class ShaderMount {
   private render = (currentTime: number) => {
     if (this.hasBeenDisposed) return;
 
+    // Calculate the delta time
     const dt = currentTime - this.lastFrameTime;
     this.lastFrameTime = currentTime;
-
-    if (this.isAnimated) {
-      this.totalAnimationTime += dt;
+    // Increase the total animation time by dt * animationSpeed
+    if (this.speed > 0) {
+      this.totalAnimationTime += dt * this.speed;
     }
 
+    // Update uniforms
     this.gl.useProgram(this.program);
 
     // Update the time uniform
     this.gl.uniform1f(this.uniformLocations.u_time!, this.totalAnimationTime * 0.001);
+
     // If the resolution has changed, we need to update the uniform
     if (this.resolutionChanged) {
       this.gl.uniform2f(this.uniformLocations.u_resolution!, this.gl.canvas.width, this.gl.canvas.height);
@@ -122,8 +122,7 @@ export class ShaderMount {
     this.gl.drawArrays(this.gl.TRIANGLES, 0, 6);
 
     // Loop if we're animating
-
-    if (this.isAnimated) {
+    if (this.speed > 0) {
       this.requestRender();
     } else {
       this.rafId = null;
@@ -173,17 +172,19 @@ export class ShaderMount {
     });
   };
 
-  /** Start the animation loop, can be called during instantiation or later by an outside source */
-  public startAnimating = (): void => {
-    this.isAnimated = true;
-    this.lastFrameTime = performance.now();
-    this.rafId = requestAnimationFrame(this.render);
-  };
+  /** Set an animation speed (or 0 to stop animation) */
+  public setSpeed = (newSpeed: number = 1): void => {
+    // Set the new animation speed
+    this.speed = newSpeed;
 
-  /** Stop the animation loop */
-  public stopAnimating = (): void => {
-    this.isAnimated = false;
-    if (this.rafId) {
+    if (this.rafId === null && newSpeed > 0) {
+      // Moving from 0 to animating, kick off a new rAF loop
+      this.lastFrameTime = performance.now();
+      this.rafId = requestAnimationFrame(this.render);
+    }
+
+    if (this.rafId !== null && newSpeed === 0) {
+      // Moving from animating to not animating, cancel the rAF loop
       cancelAnimationFrame(this.rafId);
       this.rafId = null;
     }
@@ -203,8 +204,15 @@ export class ShaderMount {
 
   /** Dispose of the shader mount, cleaning up all of the WebGL resources */
   public dispose = (): void => {
+    // Immediately mark as disposed to prevent future renders from leaking in
     this.hasBeenDisposed = true;
-    this.stopAnimating();
+
+    // Cancel the rAF loop
+    if (this.rafId !== null) {
+      cancelAnimationFrame(this.rafId);
+      this.rafId = null;
+    }
+
     if (this.gl && this.program) {
       this.gl.deleteProgram(this.program);
       this.program = null;

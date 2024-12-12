@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { ShaderMount, type ShaderMountProps } from '../shader-mount';
+import { ShaderMount, type GlobalParams, type ShaderMountProps } from '../shader-mount';
 import { getShaderColorFromString, meshGradientFragmentShader, type MeshGradientUniforms } from '@paper-design/shaders';
 
 export type MeshGradientParams = {
@@ -7,8 +7,7 @@ export type MeshGradientParams = {
   color2?: string;
   color3?: string;
   color4?: string;
-  speed?: number;
-};
+} & GlobalParams;
 
 export type MeshGradientProps = Omit<ShaderMountProps, 'fragmentShader'> & MeshGradientParams;
 
