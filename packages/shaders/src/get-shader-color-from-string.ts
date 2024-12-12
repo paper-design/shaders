@@ -29,7 +29,8 @@ export function getShaderColorFromString(
     console.error('Unsupported color format', colorString);
     return getShaderColorFromString(fallback);
   }
-  return [r, g, b, a];
+
+  return [clamp(r, 0, 1), clamp(g, 0, 1), clamp(b, 0, 1), clamp(a, 0, 1)];
 }
 
 /** Convert hex to RGBA (0 to 1 range) */
@@ -114,3 +115,5 @@ function hslaToRgba(hsla: [number, number, number, number]): [number, number, nu
 
   return [r, g, b, a];
 }
+
+export const clamp = (n: number, min: number, max: number): number => Math.min(Math.max(n, min), max);
