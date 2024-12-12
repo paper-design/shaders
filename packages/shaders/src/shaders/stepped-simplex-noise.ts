@@ -1,9 +1,9 @@
 export type SteppedSimplexNoiseUniforms = {
-  u_color1: [number, number, number];
-  u_color2: [number, number, number];
-  u_color3: [number, number, number];
-  u_color4: [number, number, number];
-  u_color5: [number, number, number];
+  u_color1: [number, number, number, number];
+  u_color2: [number, number, number, number];
+  u_color3: [number, number, number, number];
+  u_color4: [number, number, number, number];
+  u_color5: [number, number, number, number];
   u_scale: number;
   u_steps_number: number;
   u_speed: number;
@@ -27,11 +27,11 @@ export type SteppedSimplexNoiseUniforms = {
 export const steppedSimplexNoiseFragmentShader = `
 precision highp float;
 
-uniform vec3 u_color1;
-uniform vec3 u_color2;
-uniform vec3 u_color3;
-uniform vec3 u_color4;
-uniform vec3 u_color5;
+uniform vec4 u_color1;
+uniform vec4 u_color2;
+uniform vec4 u_color3;
+uniform vec4 u_color4;
+uniform vec4 u_color5;
 uniform float u_scale;
 uniform float u_speed;
 uniform float u_steps_number;
@@ -75,7 +75,7 @@ float get_noise(vec2 uv, float t) {
   return noise;
 }
 
-vec3 getColor(int index) {
+vec4 getColor(int index) {
   if (index == 0) return u_color1;
   if (index == 1) return u_color2;
   if (index == 2) return u_color3;
@@ -86,7 +86,7 @@ vec3 getColor(int index) {
 
 void main() {
   vec2 uv = gl_FragCoord.xy / u_resolution.xy;
-    
+
   uv -= .5;
   uv *= (.001 * u_scale * u_resolution);
   uv += .5;
@@ -96,11 +96,11 @@ void main() {
   float noise = .5 + .5 * get_noise(uv, t);
   noise = floor(noise * u_steps_number) / u_steps_number;
 
-  vec3 col = u_color1;
+  vec4 col = u_color1;
   for (int i = 0; i < 5; i++) {
-      vec3 next_col = getColor(i + 1);
+      vec4 next_col = getColor(i + 1);
       col = mix(col, next_col, smoothstep((float(i) + .5) / 5., (float(i) + 2.) / 5., noise));
   }
-  gl_FragColor = vec4(col, 1.);
+  gl_FragColor = col;
 }
 `;

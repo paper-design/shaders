@@ -1,7 +1,7 @@
 export type SmokeRingUniforms = {
-  u_colorBack: [number, number, number];
-  u_color1: [number, number, number];
-  u_color2: [number, number, number];
+  u_colorBack: [number, number, number, number];
+  u_color1: [number, number, number, number];
+  u_color2: [number, number, number, number];
   u_speed: number;
   u_scale: number;
   u_thickness: number;
@@ -24,9 +24,9 @@ export const smokeRingFragmentShader = `
 
   precision highp float;
 
-  uniform vec3 u_colorBack;
-  uniform vec3 u_color1;
-  uniform vec3 u_color2;
+  uniform vec4 u_colorBack;
+  uniform vec4 u_color1;
+  uniform vec4 u_color2;
   uniform float u_scale;
   uniform float u_thickness;
   uniform float u_speed;
@@ -92,10 +92,10 @@ export const smokeRingFragmentShader = `
 
         float ring_shape = get_ring_shape(uv * (.5 + .6 * noise), radius - .2 * thickness, radius + .5 * thickness);
 
-        vec3 color = mix(u_color1, u_color2, (.6 - .3 * pow(ring_shape, 3.)));
+        vec4 color = mix(u_color1, u_color2, (.6 - .3 * pow(ring_shape, 3.)));
         color = mix(color, u_color1, pow(ring_shape, 7.));
         color = mix(u_colorBack, color, ring_shape);
 
-        gl_FragColor = vec4(color, 1.);
+        gl_FragColor = color;
     }
 `;

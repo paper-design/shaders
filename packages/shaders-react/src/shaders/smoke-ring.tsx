@@ -18,9 +18,9 @@ type SmokeRingPreset = { name: string; params: Required<SmokeRingParams> };
 export const defaultPreset: SmokeRingPreset = {
   name: 'Default',
   params: {
-    colorBack: '#010101',
-    color1: '#ffffff',
-    color2: '#47a0ff',
+    colorBack: 'hsla(0, 0%, 0%, 1)',
+    color1: 'hsla(0, 0%, 100%, 1)',
+    color2: 'hsla(211, 100%, 64%, 1)',
     speed: 1,
     noiseScale: 1.4,
     thickness: 0.33,

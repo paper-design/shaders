@@ -24,11 +24,11 @@ type SteppedSimplexNoisePreset = { name: string; params: Required<SteppedSimplex
 export const defaultPreset: SteppedSimplexNoisePreset = {
   name: 'Default',
   params: {
-    color1: '#577590',
-    color2: '#90BE6D',
-    color3: '#F94144',
-    color4: '#F9C74F',
-    color5: '#ffffff',
+    color1: 'hsla(208.42, 24.68%, 45.29%, 1)',
+    color2: 'hsla(94.07, 38.39%, 58.63%, 1)',
+    color3: 'hsla(359.02, 93.88%, 61.57%, 1)',
+    color4: 'hsla(42.35, 93.41%, 64.31%, 1)',
+    color5: 'hsla(0, 0%, 100%, 1)',
     scale: 0.5,
     speed: 0.6,
     stepsNumber: 13,
@@ -38,11 +38,11 @@ export const defaultPreset: SteppedSimplexNoisePreset = {
 const magmaPreset: SteppedSimplexNoisePreset = {
   name: 'Magma',
   params: {
-    color1: '#ba0000',
-    color2: '#db0505',
-    color3: '#f85300',
-    color4: '#e8ae00',
-    color5: '#fff0df',
+    color1: 'hsla(0, 100%, 36.47%, 1)',
+    color2: 'hsla(0, 95.54%, 43.92%, 1)',
+    color3: 'hsla(20.08, 100%, 48.63%, 1)',
+    color4: 'hsla(45, 100%, 45.49%, 1)',
+    color5: 'hsla(31.87, 100%, 93.73%, 1)',
     speed: 0.2,
     scale: 2,
     stepsNumber: 8,

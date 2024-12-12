@@ -1,8 +1,8 @@
 export type DotsOrbitUniforms = {
-  u_color1: [number, number, number];
-  u_color2: [number, number, number];
-  u_color3: [number, number, number];
-  u_color4: [number, number, number];
+  u_color1: [number, number, number, number];
+  u_color2: [number, number, number, number];
+  u_color3: [number, number, number, number];
+  u_color4: [number, number, number, number];
   u_scale: number;
   u_dotSize: number;
   u_dotSizeRange: number;
@@ -30,10 +30,10 @@ export type DotsOrbitUniforms = {
 export const dotsOrbitFragmentShader = `
 precision mediump float;
 
-uniform vec3 u_color1;
-uniform vec3 u_color2;
-uniform vec3 u_color3;
-uniform vec3 u_color4;
+uniform vec4 u_color1;
+uniform vec4 u_color2;
+uniform vec4 u_color3;
+uniform vec4 u_color4;
 uniform float u_dotSize;
 uniform float u_dotSizeRange;
 uniform float u_scale;
@@ -89,12 +89,12 @@ void main() {
   float shape = 1. - smoothstep(radius, radius + radius_smoother, voronoi[0]);
 
   float color_randomizer = voronoi[1];
-  vec3 color =
+  vec4 color =
     u_color1 * step(0.0, color_randomizer) * step(color_randomizer, 0.25) +
     u_color2 * step(0.25, color_randomizer) * step(color_randomizer, 0.5) +
     u_color3 * step(0.5, color_randomizer) * step(color_randomizer, 0.75) +
     u_color4 * step(0.75, color_randomizer) * step(color_randomizer, 1.0);
 
-  gl_FragColor = vec4(color * shape, shape);
+  gl_FragColor = color * shape;
 }
 `;

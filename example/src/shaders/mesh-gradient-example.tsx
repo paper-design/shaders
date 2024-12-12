@@ -23,7 +23,6 @@ const MeshGradientExample = () => {
  */
 
 const defaultParams = meshGradientPresets[0].params;
-console.log(defaultParams);
 export const MeshGradientWithControls = () => {
   const [params, setParams] = useControls(() => {
     const presets: MeshGradientParams = Object.fromEntries(

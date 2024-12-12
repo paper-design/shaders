@@ -21,10 +21,10 @@ type DotsOrbitPreset = { name: string; params: Required<DotsOrbitParams> };
 export const defaultPreset: DotsOrbitPreset = {
   name: 'Default',
   params: {
-    color1: '#ce2a2f',
-    color2: '#3a6c4f',
-    color3: '#f0a71b',
-    color4: '#5b3e72',
+    color1: 'hsla(358.2, 66.1%, 48.6%, 1)',
+    color2: 'hsla(145.2, 30.1%, 32.5%, 1)',
+    color3: 'hsla(39.4, 87.7%, 52.4%, 1)',
+    color4: 'hsla(273.5, 29.5%, 34.5%, 1)',
     dotSize: 0.15,
     dotSizeRange: 0.05,
     scale: 10,
