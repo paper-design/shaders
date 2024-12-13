@@ -4,6 +4,7 @@
   "version": "0.0.0",
   "license": "MIT",
   "workspaces": [
+    "docs",
     "example",
     "packages/shaders",
     "packages/shaders-react"
