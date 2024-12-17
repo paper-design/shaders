@@ -249,12 +249,10 @@ export class ShaderMount {
 
 /** Vertex shader for the shader mount */
 const vertexShaderSource = `#version 300 es
-in vec2 a_position;
-out vec2 v_uv;
+layout(location = 0) in vec4 a_position;
 
 void main() {
-    v_uv = a_position * 0.5 + 0.5;
-    gl_Position = vec4(a_position, 0.0, 1.0);
+  gl_Position = a_position;
 }`;
 
 function createShader(gl: WebGLRenderingContext, type: number, source: string): WebGLShader | null {

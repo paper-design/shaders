@@ -36,18 +36,17 @@ uniform float u_gridSpacing;
 uniform float u_scale;
 uniform vec2 u_resolution;
 
-in vec2 v_uv;
 out vec4 fragColor;
 
 void main() {
-    vec2 uv_scaled = v_uv;
-    uv_scaled -= .5;
-    uv_scaled *= (.001 * u_scale * u_resolution);
-    uv_scaled += .5;
+    vec2 uv = gl_FragCoord.xy / u_resolution.xy;
+    uv -= .5;
+    uv *= (.001 * u_scale * u_resolution);
+    uv += .5;
     
-    uv_scaled.x /= u_gridSpacing;
+    uv.x /= u_gridSpacing;
     
-    vec2 grid = fract(uv_scaled);
+    vec2 grid = fract(uv);
     vec2 center = vec2(.5);
     vec2 dist_vec = (grid - center);
     dist_vec.x *= u_gridSpacing;
