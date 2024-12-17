@@ -106,6 +106,8 @@ export const smokeRingFragmentShader = `
         
         color += u_colorBack.rgb * ring_shape_inner * (1. - u_color1.a) * background;
         color += u_colorBack.rgb * ring_shape_outer * (1. - u_color2.a) * background;
+        
+        color.r += .2;
                 
         gl_FragColor = vec4(color, opacity);
     }
