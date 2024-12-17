@@ -17,7 +17,7 @@ export type NeuroNoiseUniforms = {
  * u_scale: The scale applied to coordinates
  */
 
-export const neuroNoiseFragmentShader = `
+export const neuroNoiseFragmentShader = `#version 300 es
 precision mediump float;
 
 uniform vec4 u_colorFront;
@@ -28,6 +28,8 @@ uniform float u_brightness;
 uniform float u_time;
 uniform float u_ratio;
 uniform vec2 u_resolution;
+
+out vec4 fragColor;
 
 vec2 rotate(vec2 uv, float th) {
   return mat2(cos(th), sin(th), -sin(th), cos(th)) * uv;
@@ -67,6 +69,6 @@ void main() {
   vec3 color = mix(u_colorBack.rgb * u_colorBack.a, u_colorFront.rgb * u_colorFront.a, noise);
   float opacity = mix(u_colorBack.a, u_colorFront.a, noise);
 
-  gl_FragColor = vec4(color, opacity);
+  fragColor = vec4(color, opacity);
 }
 `;

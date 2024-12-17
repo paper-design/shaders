@@ -16,7 +16,7 @@ export type GrainCloudsUniforms = {
  * u_scale: The scale of the noise
  * u_grainAmount: The amount of grain on the texture
  */
-export const grainCloudsFragmentShader = `
+export const grainCloudsFragmentShader = `#version 300 es
   precision highp float;
   uniform vec2 u_resolution;
   uniform float u_time;
@@ -25,6 +25,8 @@ export const grainCloudsFragmentShader = `
   uniform vec4 u_color2;
   uniform float u_scale;
   uniform float u_grainAmount;
+
+  out vec4 fragColor;
 
   // Simplex 2D noise
   vec3 permute(vec3 x) { return mod(((x*34.0)+1.0)*x, 289.0); }
@@ -88,6 +90,6 @@ export const grainCloudsFragmentShader = `
     float grain = fract(sin(dot(st * 1000.0, vec2(12.9898, 78.233))) * 43758.5453);
     color.rgb += (grain - 0.5) * u_grainAmount;
 
-    gl_FragColor = vec4(color * opacity, opacity);
+    fragColor = vec4(color * opacity, opacity);
   }
 `;

@@ -22,7 +22,7 @@ export type SteppedSimplexNoiseUniforms = {
  * u_steps_number: The number of colors to show as a stepped gradient
  */
 
-export const steppedSimplexNoiseFragmentShader = `
+export const steppedSimplexNoiseFragmentShader = `#version 300 es
 precision highp float;
 
 uniform vec4 u_color1;
@@ -36,6 +36,7 @@ uniform float u_steps_number;
 uniform float u_time;
 uniform vec2 u_resolution;
 
+out vec4 fragColor;
 
 vec3 permute(vec3 x) { return mod(((x * 34.0) + 1.0) * x, 289.0); }
 float snoise(vec2 v) {
@@ -101,6 +102,6 @@ void main() {
       color = mix(color, next_c.rgb * next_c.a, proportion);
       opacity = mix(opacity, next_c.a, proportion);
   }
-  gl_FragColor = vec4(color, opacity);
+  fragColor = vec4(color, opacity);
 }
 `;

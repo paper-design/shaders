@@ -17,11 +17,11 @@ export type MeshGradientUniforms = {
  * u_color4: The fourth color of the mesh gradient
  */
 
-export const meshGradientFragmentShader = `
+export const meshGradientFragmentShader = `#version 300 es
+precision highp float;
+
 // Mesh Gradient: https://www.shadertoy.com/view/wdyczG
 #define S(a,b,t) smoothstep(a,b,t)
-
-precision highp float;
 
 uniform vec4 u_color1;
 uniform vec4 u_color2;
@@ -29,6 +29,8 @@ uniform vec4 u_color3;
 uniform vec4 u_color4;
 uniform vec2 u_resolution;
 uniform float u_time;
+
+out vec4 fragColor;
 
 mat2 Rot(float a)
 {
@@ -92,6 +94,6 @@ void main() {
     vec3 color = mix(layer1_color, layer2_color, proportion_2);
     float opacity = mix(layer1_opacity, layer2_opacity, proportion_2);
     
-    gl_FragColor = vec4(color, opacity);
+    fragColor = vec4(color, opacity);
 }
 `;

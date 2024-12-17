@@ -25,7 +25,7 @@ export type DotsOrbitUniforms = {
  * u_spreading: How far dots are moving around the straight grid
  */
 
-export const dotsOrbitFragmentShader = `
+export const dotsOrbitFragmentShader = `#version 300 es
 precision mediump float;
 
 uniform vec4 u_color1;
@@ -39,6 +39,8 @@ uniform float u_spreading;
 uniform float u_time;
 uniform float u_ratio;
 uniform vec2 u_resolution;
+
+out vec4 fragColor;
 
 #define TWO_PI 6.28318530718
 #define PI 3.14159265358979323846
@@ -101,6 +103,6 @@ void main() {
     u_color3.rgb * step(0.5, color_randomizer) * step(color_randomizer, 0.75) +
     u_color4.rgb * step(0.75, color_randomizer) * step(color_randomizer, 1.0);
 
-  gl_FragColor = vec4(color * opacity, opacity);
+  fragColor = vec4(color * opacity, opacity);
 }
 `;

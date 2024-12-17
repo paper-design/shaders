@@ -20,8 +20,7 @@ export type SmokeRingUniforms = {
  * u_thickness: The thickness of the ring
  */
 
-export const smokeRingFragmentShader = `
-
+export const smokeRingFragmentShader = `#version 300 es
   precision highp float;
 
   uniform vec4 u_colorBack;
@@ -31,6 +30,8 @@ export const smokeRingFragmentShader = `
   uniform float u_thickness;
   uniform vec2 u_resolution;
   uniform float u_time;
+
+  out vec4 fragColor;
 
     #define TWO_PI 6.28318530718
     #define PI 3.14159265358979323846
@@ -110,6 +111,6 @@ export const smokeRingFragmentShader = `
         color += u_colorBack.rgb * ring_shape_inner * (1. - u_color1.a) * background;
         color += u_colorBack.rgb * ring_shape_outer * (1. - u_color2.a) * background;
                 
-        gl_FragColor = vec4(color, opacity);
+        fragColor = vec4(color, opacity);
     }
 `;
