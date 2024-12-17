@@ -4,7 +4,8 @@ import { getShaderColorFromString, dotsGridFragmentShader, type DotsGridUniforms
 
 export type DotsGridParams = {
   dotSize?: number;
-  gridSpacing?: number;
+  gridSpacingX?: number;
+  gridSpacingY?: number;
   scale?: number;
 };
 
@@ -16,7 +17,8 @@ export const defaultPreset: DotsGridPreset = {
   name: 'Default',
   params: {
     dotSize: 0.15,
-    gridSpacing: 2,
+    gridSpacingX: 2,
+    gridSpacingY: 1,
     scale: 10,
   },
 } as const;
@@ -27,12 +29,14 @@ export const DotsGrid = (props: DotsGridProps): JSX.Element => {
   const uniforms: DotsGridUniforms = useMemo(() => {
     return {
       u_dotSize: props.dotSize ?? defaultPreset.params.dotSize,
-      u_gridSpacing: props.gridSpacing ?? defaultPreset.params.gridSpacing,
+      u_gridSpacingX: props.gridSpacingX ?? defaultPreset.params.gridSpacingX,
+      u_gridSpacingY: props.gridSpacingY ?? defaultPreset.params.gridSpacingY,
       u_scale: props.scale ?? defaultPreset.params.scale,
     };
   }, [
     props.dotSize,
-    props.gridSpacing,
+    props.gridSpacingX,
+    props.gridSpacingY,
     props.scale,
   ]);
 

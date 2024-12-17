@@ -10,7 +10,8 @@ const DotsGridExample = () => {
     <DotsGrid
       scale={11}
       dotSize={0.15}
-      gridSpacing={2}
+      gridSpacingX={2}
+      gridSpacingY={1}
       style={{ position: 'fixed', width: '100%', height: '100%' }}
     />
   );
@@ -32,7 +33,8 @@ export const DotsGridWithControls = () => {
         {
           scale: { value: defaults.scale, order: 1, min: 1, max: 80 },
           dotSize: { value: defaults.dotSize, order: 2, min: 0.001, max: 0.5 },
-          gridSpacing: { value: defaults.gridSpacing, order: 3, min: .1, max: 10 },
+          gridSpacingX: { value: defaults.gridSpacingX, order: 3, min: .1, max: 2 },
+          gridSpacingY: { value: defaults.gridSpacingY, order: 4, min: .1, max: 2 },
         },
         { order: 1 }
       ),

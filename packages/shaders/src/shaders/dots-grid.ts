@@ -1,7 +1,8 @@
 export type DotsGridUniforms = {
   u_scale: number;
   u_dotSize: number;
-  u_gridSpacing: number;
+  u_gridSpacingX: number;
+  u_gridSpacingY: number;
 };
 
 /**
@@ -32,7 +33,8 @@ precision mediump float;
 // uniform float u_ratio;
 
 uniform float u_dotSize;
-uniform float u_gridSpacing;
+uniform float u_gridSpacingX;
+uniform float u_gridSpacingY;
 uniform float u_scale;
 uniform vec2 u_resolution;
 
@@ -44,13 +46,11 @@ void main() {
     uv *= (.001 * u_scale * u_resolution);
     uv += .5;
     
-    uv.x /= u_gridSpacing;
+    uv /= vec2(u_gridSpacingX, u_gridSpacingY);
     
     vec2 grid = fract(uv);
     vec2 center = vec2(.5);
-    vec2 dist_vec = (grid - center);
-    dist_vec.x *= u_gridSpacing;
-    float dist = length(dist_vec);
+    float dist = length((grid - center) * vec2(u_gridSpacingX, u_gridSpacingY));
     float radius = u_dotSize;
 
     float edge_width = fwidth(dist);
