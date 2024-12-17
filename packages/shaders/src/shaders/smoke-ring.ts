@@ -73,10 +73,8 @@ export const smokeRingFragmentShader = `
         float t = u_time;
 
         float atg = atan(uv.y, uv.x);
-        float angle = (atg + PI) / TWO_PI;
 
-        float lenSquared = uv.x * uv.x + uv.y * uv.y;
-        vec2 polar_uv = vec2(atg, .1 * t - (0.5 * sqrt(lenSquared)) + 1.0 / pow(sqrt(lenSquared), 0.5));
+        vec2 polar_uv = vec2(atg, -.2 * t + 2. * length(uv));
         polar_uv *= u_scale;
 
         float noise_left = fbm(polar_uv);
