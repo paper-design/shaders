@@ -74,21 +74,16 @@ export const smokeRingFragmentShader = `
 
         float atg = atan(uv.y, uv.x);
 
-        vec2 polar_uv = vec2(atg, length(uv));
-        // polar_uv *= u_scale;
-
+        vec2 polar_uv = vec2(atg, -.2 * t + 2. * length(uv));
         float noise_left = fbm(polar_uv);
-        // polar_uv.x = mod(polar_uv.x, u_scale * TWO_PI);
-        // float noise_right = fbm(polar_uv);
         float noise = noise_left;
 
-        float center_shape = 1. - pow(smoothstep(2., .0, length(uv)), 50.);
 
         float radius = .4 - .25 * u_thickness;
         float thickness = u_thickness;
         thickness = pow(thickness, 2.);
 
-        float ring_shape = get_ring_shape(uv * (.5 + .6 * noise), radius - .2 * thickness, radius + .5 * thickness);
+        float ring_shape = noise;
         
         float ring_shape_outer = 1. - pow(ring_shape, 7.);
         ring_shape_outer *= ring_shape;
