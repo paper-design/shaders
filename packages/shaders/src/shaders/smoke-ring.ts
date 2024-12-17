@@ -58,19 +58,11 @@ export const smokeRingFragmentShader = `
         vec2 uv = gl_FragCoord.xy / u_resolution.xy;
         float ratio = u_resolution.x / u_resolution.y;
 
-        uv -= .5;
-        uv *= 2.;
+        uv *= 8.;
         uv.x *= ratio;
 
         float t = u_time;
-
-        float atg = atan(uv.y, uv.x);
-
-        float lenManual = sqrt(uv.x * uv.x + uv.y * uv.y + 1e-5);
-        lenManual = smoothstep(0.0, 0.05, lenManual) * lenManual;
-
-        vec2 polar_uv = vec2(atg, -.2 * t + 1.5 * lenManual);
-        float noise_left = fbm(polar_uv);
+        float noise_left = fbm(uv + vec2(0., t));
 
                 
         gl_FragColor = vec4(vec3(noise_left, noise_left, 0.), 1.);
