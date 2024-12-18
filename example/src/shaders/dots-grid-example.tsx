@@ -8,10 +8,9 @@ import { useEffect } from 'react';
 const DotsGridExample = () => {
   return (
     <DotsGrid
-      scale={11}
-      dotSize={0.15}
-      gridSpacingX={2}
-      gridSpacingY={1}
+      dotSize={4}
+      gridSpacingX={50}
+      gridSpacingY={50}
       style={{ position: 'fixed', width: '100%', height: '100%' }}
     />
   );
@@ -31,10 +30,9 @@ export const DotsGridWithControls = () => {
     return {
       Parameters: folder(
         {
-          scale: { value: defaults.scale, order: 1, min: 1, max: 80 },
-          dotSize: { value: defaults.dotSize, order: 2, min: 0.001, max: 0.5 },
-          gridSpacingX: { value: defaults.gridSpacingX, order: 3, min: .1, max: 2 },
-          gridSpacingY: { value: defaults.gridSpacingY, order: 4, min: .1, max: 2 },
+          dotSize: { value: defaults.dotSize, order: 2, min: .1, max: 50 },
+          gridSpacingX: { value: defaults.gridSpacingX, order: 3, min: 2, max: 500 },
+          gridSpacingY: { value: defaults.gridSpacingY, order: 4, min: 2, max: 500 },
         },
         { order: 1 }
       ),

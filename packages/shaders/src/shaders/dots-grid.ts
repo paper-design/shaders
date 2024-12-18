@@ -1,55 +1,37 @@
 export type DotsGridUniforms = {
-  u_scale: number;
   u_dotSize: number;
   u_gridSpacingX: number;
   u_gridSpacingY: number;
 };
 
 /**
- * Dots Pattern with dots moving around their grid position
- * The artwork by Ksenia Kondrashova
- * Renders a dot pattern with dots placed in the center of each cell of animated Voronoi diagram
+ * Dots Pattern
  *
  * Uniforms include:
- * u_color1: The first dots color
- * u_color2: The second dots color
- * u_color3: The third dots color
- * u_color4: The fourth dots color
- * u_scale: The scale applied to pattern
- * u_dotSize: The base dot radius (relative to cell size)
- * u_dotSizeRange: Dot radius to vary between the cells
- * u_spreading: How far dots are moving around the straight grid
+ * u_dotSize: The base dot radius, px
+ * u_gridSpacingX: Horizontal grid spacing, px
+ * u_gridSpacingY: Vertical grid spacing, px
  */
 
 export const dotsGridFragmentShader = `#version 300 es
-precision mediump float;
-
-// uniform vec4 u_color1;
-// uniform vec4 u_color2;
-// uniform vec4 u_color3;
-// uniform vec4 u_color4;
-// uniform float u_dotSizeRange;
-// uniform float u_spreading;
-// uniform float u_ratio;
+precision highp float;
 
 uniform float u_dotSize;
 uniform float u_gridSpacingX;
 uniform float u_gridSpacingY;
-uniform float u_scale;
 uniform vec2 u_resolution;
+uniform float u_pxRatio;
 
 out vec4 fragColor;
 
 void main() {
-    vec2 uv = gl_FragCoord.xy / u_resolution.xy;
-    uv -= .5;
-    uv *= (.001 * u_scale * u_resolution);
-    uv += .5;
-    
-    uv /= vec2(u_gridSpacingX, u_gridSpacingY);
-    
-    vec2 grid = fract(uv);
-    vec2 center = vec2(.5);
+    vec2 uv = gl_FragCoord.xy;
+
+    uv /= u_pxRatio;
+
+    vec2 grid = fract(uv / vec2(u_gridSpacingX, u_gridSpacingY)) + 1e-4;
+
+    vec2 center = vec2(.5) - 1e-3;
     float dist = length((grid - center) * vec2(u_gridSpacingX, u_gridSpacingY));
     float radius = u_dotSize;
 
