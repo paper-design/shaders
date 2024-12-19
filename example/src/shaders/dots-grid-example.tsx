@@ -8,9 +8,14 @@ import { useEffect } from 'react';
 const DotsGridExample = () => {
   return (
     <DotsGrid
+      colorBack="#222222"
+      colorFill="#e48b97"
+      colorStroke="#f5d03b"
       dotSize={4}
       gridSpacingX={50}
       gridSpacingY={50}
+      strokeWidth={2}
+      sizeRange={0}
       style={{ position: 'fixed', width: '100%', height: '100%' }}
     />
   );
@@ -30,9 +35,14 @@ export const DotsGridWithControls = () => {
     return {
       Parameters: folder(
         {
-          dotSize: { value: defaults.dotSize, order: 2, min: .1, max: 50 },
-          gridSpacingX: { value: defaults.gridSpacingX, order: 3, min: 2, max: 500 },
-          gridSpacingY: { value: defaults.gridSpacingY, order: 4, min: 2, max: 500 },
+          colorBack: {value: defaults.colorBack, order: 1},
+          colorFill: {value: defaults.colorFill, order: 2},
+          colorStroke: {value: defaults.colorStroke, order: 3},
+          dotSize: { value: defaults.dotSize, order: 4, min: .1, max: 100 },
+          gridSpacingX: { value: defaults.gridSpacingX, order: 5, min: 2, max: 500 },
+          gridSpacingY: { value: defaults.gridSpacingY, order: 6, min: 2, max: 500 },
+          strokeWidth: { value: defaults.dotSize, order: 7, min: 0, max: 50 },
+          sizeRange: { value: defaults.gridSpacingY, order: 8, min: 0, max: 1 },
         },
         { order: 1 }
       ),
