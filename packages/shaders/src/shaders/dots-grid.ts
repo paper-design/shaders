@@ -41,6 +41,7 @@ float hash (vec2 st) {
 
 void main() {
     vec2 uv = gl_FragCoord.xy;
+    uv.y = u_resolution.y - uv.y;
 
     uv /= u_pxRatio;
 
