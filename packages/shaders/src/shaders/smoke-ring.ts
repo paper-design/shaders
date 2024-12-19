@@ -33,18 +33,23 @@ export const smokeRingFragmentShader = `#version 300 es
 
   out vec4 fragColor;
 
-    #define TWO_PI 6.28318530718
-    #define PI 3.14159265358979323846
+  #define TWO_PI 6.28318530718
+  #define PI 3.14159265358979323846
 
-    float rand(vec2 n) {
-        return fract(cos(dot(n, vec2(12.9898, 4.1414))) * 43758.5453);
+    float random (in vec2 st) {
+        return fract(sin(dot(st.xy,vec2(12.9898,78.233)))*43758.5453123);
     }
-    float noise(vec2 n) {
-        const vec2 d = vec2(0.0, 1.0);
-        vec2 b = floor(n), f = smoothstep(vec2(0.0), vec2(1.0), fract(n));
-        return mix(mix(rand(b), rand(b + d.yx), f.x), mix(rand(b + d.xy), rand(b + d.yy), f.x), f.y);
+    float noise (in vec2 st) {
+        vec2 i = floor(st);
+        vec2 f = fract(st);
+        float a = random(i);
+        float b = random(i + vec2(1.0, 0.0));
+        float c = random(i + vec2(0.0, 1.0));
+        float d = random(i + vec2(1.0, 1.0));
+        vec2 u = f * f * (3.0 - 2.0 * f);
+        return mix(a, b, u.x) + (c - a)* u.y * (1.0 - u.x) + (d - b) * u.x * u.y;
     }
-    float fbm(vec2 n) {
+    float fbm (in vec2 n) {
         float total = 0.0, amplitude = .4;
         for (int i = 0; i < 12; i++) {
             total += noise(n) * amplitude;

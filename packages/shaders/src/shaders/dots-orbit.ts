@@ -45,8 +45,11 @@ out vec4 fragColor;
 #define TWO_PI 6.28318530718
 #define PI 3.14159265358979323846
 
+float random (in vec2 st) {
+  return fract(sin(dot(st.xy,vec2(12.9898,78.233)))*43758.5453123);
+}    
 vec2 random2(vec2 p) {
-  return fract(sin(vec2(dot(p, vec2(127.1, 311.7)), dot(p, vec2(269.5, 183.3)))) * 43758.5453);
+  return vec2(random(p), random(200. * p));
 }
 
 vec3 get_voronoi_shape(vec2 _uv, float time) {
@@ -59,7 +62,7 @@ vec3 get_voronoi_shape(vec2 _uv, float time) {
     for (int x = -1; x <= 1; x++) {
       vec2 tile_offset = vec2(float(x), float(y));
       vec2 rand = random2(i_uv + tile_offset);
-      vec2 cell_center = .5 + u_spreading * sin(time + PI * 2. * rand);
+      vec2 cell_center = .50000001 + u_spreading * sin(time + PI * 2. * rand);
       float dist = length(tile_offset + cell_center - f_uv);
       if (dist < min_dist) {
         min_dist = dist;
@@ -81,11 +84,12 @@ void main() {
 
   float t = u_time;
 
-  vec3 voronoi = get_voronoi_shape(uv, t);
+  vec3 voronoi = get_voronoi_shape(uv, t) + 1e-4;
+  
   float radius = u_dotSize - u_dotSizeRange * voronoi[2];
-
-  float radius_smoother = .001 + .001 * (u_scale - 1.);
-  float shape = 1. - smoothstep(radius, radius + radius_smoother, voronoi[0]);
+  float dist = voronoi[0];
+  float edge_width = fwidth(dist);
+  float shape = smoothstep(radius + edge_width, radius - edge_width, dist);
 
   float color_randomizer = voronoi[1];
   

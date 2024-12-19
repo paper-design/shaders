@@ -44,7 +44,7 @@ export const DotsOrbitWithControls = () => {
           scale: { value: defaults.scale, order: 6, min: 1, max: 20 },
           dotSize: { value: defaults.dotSize, order: 7, min: 0.001, max: 0.5 },
           dotSizeRange: { value: defaults.dotSizeRange, order: 8, min: 0, max: 0.3 },
-          spreading: { value: defaults.dotSizeRange, order: 9, min: 0, max: 0.5 },
+          spreading: { value: defaults.dotSizeRange, order: 9, min: 0, max: 0.25 },
         },
         { order: 1 }
       ),
