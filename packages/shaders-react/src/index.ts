@@ -33,7 +33,7 @@ export { type DotsOrbitProps } from './shaders/dots-orbit';
 export { type DotsOrbitParams } from './shaders/dots-orbit';
 export { type DotsOrbitUniforms } from '@paper-design/shaders';
 
-// Static grid made of dots (or other shapes)
+// Static grid made of dots
 export { DotsGrid, dotsGridPresets } from './shaders/dots-grid';
 export { type DotsGridProps } from './shaders/dots-grid';
 export { type DotsGridParams } from './shaders/dots-grid';

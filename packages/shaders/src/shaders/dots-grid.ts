@@ -11,12 +11,19 @@ export type DotsGridUniforms = {
 };
 
 /**
- * Dots Pattern
+ * Dots Grid Pattern
  *
  * Uniforms include:
+ * u_colorBack: Background color
+ * u_colorFill: Dots fill color
+ * u_colorStroke: Dots stroke color
  * u_dotSize: The base dot radius, px
+ * u_strokeWidth: The stroke (to be subtracted from u_dotSize), px
  * u_gridSpacingX: Horizontal grid spacing, px
  * u_gridSpacingY: Vertical grid spacing, px
+ * u_sizeRange: Variety of dot size, 0..1
+ * u_opacityRange: Variety of dot opacity to be applied equally to fill and stroke, 0..1
+ *
  */
 
 export const dotsGridFragmentShader = `#version 300 es
