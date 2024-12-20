@@ -74,6 +74,7 @@ export class ShaderMount {
   private setupUniforms = () => {
     this.uniformLocations = {
       u_time: this.gl.getUniformLocation(this.program!, 'u_time'),
+      u_pxRatio: this.gl.getUniformLocation(this.program!, 'u_pxRatio'),
       u_resolution: this.gl.getUniformLocation(this.program!, 'u_resolution'),
       ...Object.fromEntries(
         Object.keys(this.providedUniforms).map((key) => [key, this.gl.getUniformLocation(this.program!, key)])
@@ -89,7 +90,8 @@ export class ShaderMount {
   };
 
   private handleResize = () => {
-    const pxRatio = Math.min(2, window.devicePixelRatio);
+    const pxRatio = window.devicePixelRatio;
+    this.gl.uniform1f(this.uniformLocations.u_pxRatio!, pxRatio);
     const newWidth = this.canvas.clientWidth * pxRatio;
     const newHeight = this.canvas.clientHeight * pxRatio;
     if (this.canvas.width !== newWidth || this.canvas.height !== newHeight) {
