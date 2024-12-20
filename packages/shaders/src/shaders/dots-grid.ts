@@ -7,6 +7,7 @@ export type DotsGridUniforms = {
   u_gridSpacingY: number;
   u_strokeWidth: number;
   u_sizeRange: number;
+  u_opacityRange: number;
 };
 
 /**
@@ -29,6 +30,7 @@ uniform float u_gridSpacingX;
 uniform float u_gridSpacingY;
 uniform float u_strokeWidth;
 uniform float u_sizeRange;
+uniform float u_opacityRange;
 
 uniform vec2 u_resolution;
 uniform float u_pxRatio;
@@ -47,24 +49,27 @@ void main() {
 
     vec2 grid = fract(uv / vec2(u_gridSpacingX, u_gridSpacingY)) + 1e-4;
     vec2 grid_idx = floor(uv / vec2(u_gridSpacingX, u_gridSpacingY));
-    float randomizer = hash(grid_idx);
+    float size_randomizer = hash(grid_idx);
+    float opacity_randomizer = hash(grid_idx * 2. + 1000.);
 
     vec2 center = vec2(.5) - 1e-3;
     float dist = length((grid - center) * vec2(u_gridSpacingX, u_gridSpacingY));    
 
     float edge_width = fwidth(dist);
-    float base_size = u_dotSize * (1. - randomizer * u_sizeRange);
+    float base_size = u_dotSize * (1. - size_randomizer * u_sizeRange);
     float circle_outer = smoothstep(base_size + edge_width, base_size - edge_width, dist);
     float circle_inner = smoothstep(base_size - u_strokeWidth + edge_width, base_size - u_strokeWidth - edge_width, dist);
     float stroke = clamp(circle_outer - circle_inner, 0., 1.);
 
+    float dot_opacity = 1. - opacity_randomizer * u_opacityRange;
+
     vec3 color = u_colorBack.rgb * u_colorBack.a;
-    color = mix(color, u_colorFill.rgb * u_colorFill.a, circle_inner * u_colorFill.a);
-    color = mix(color, u_colorStroke.rgb * u_colorStroke.a, stroke * u_colorStroke.a);
+    color = mix(color, u_colorFill.rgb * u_colorFill.a * dot_opacity, circle_inner * u_colorFill.a * dot_opacity);
+    color = mix(color, u_colorStroke.rgb * u_colorStroke.a * dot_opacity, stroke * u_colorStroke.a * dot_opacity);
     
     float opacity = u_colorBack.a;
-    opacity += u_colorFill.a * circle_inner;
-    opacity += u_colorStroke.a * stroke;
+    opacity += u_colorFill.a * circle_inner * dot_opacity;
+    opacity += u_colorStroke.a * stroke * dot_opacity;
     
     fragColor = vec4(color, opacity);
 }

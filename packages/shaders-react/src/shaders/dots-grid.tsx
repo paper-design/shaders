@@ -11,6 +11,7 @@ export type DotsGridParams = {
   gridSpacingY?: number;
   strokeWidth?: number;
   sizeRange?: number;
+  opacityRange?: number;
 };
 
 export type DotsGridProps = Omit<ShaderMountProps, 'fragmentShader'> & DotsGridParams;
@@ -29,6 +30,7 @@ export const defaultPreset: DotsGridPreset = {
     gridSpacingY: 75,
     strokeWidth: 0,
     sizeRange: 0,
+    opacityRange: 0,
   },
 } as const;
 
@@ -45,6 +47,7 @@ export const DotsGrid = (props: DotsGridProps): JSX.Element => {
       u_gridSpacingY: props.gridSpacingY ?? defaultPreset.params.gridSpacingY,
       u_strokeWidth: props.strokeWidth ?? defaultPreset.params.strokeWidth,
       u_sizeRange: props.sizeRange ?? defaultPreset.params.sizeRange,
+      u_opacityRange: props.opacityRange ?? defaultPreset.params.opacityRange,
     };
   }, [
     props.colorBack,
@@ -55,6 +58,7 @@ export const DotsGrid = (props: DotsGridProps): JSX.Element => {
     props.gridSpacingY,
     props.strokeWidth,
     props.sizeRange,
+    props.opacityRange,
   ]);
 
   return <ShaderMount {...props} fragmentShader={dotsGridFragmentShader} uniforms={uniforms} />;
