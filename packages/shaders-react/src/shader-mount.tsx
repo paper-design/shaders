@@ -48,9 +48,12 @@ export const ShaderMount: React.FC<ShaderMountProps> = ({
   }, [uniforms]);
 
   useEffect(() => {
-    shaderMountRef.current?.setSeed(seed);
     shaderMountRef.current?.setSpeed(speed);
-  }, [speed, seed]);
+  }, [speed]);
+
+  useEffect(() => {
+    shaderMountRef.current?.setSeed(seed);
+  }, [seed]);
 
   return <canvas ref={canvasRef} style={style} />;
 };
