@@ -1,13 +1,16 @@
+'use client';
+
 import { GrainClouds, type GrainCloudsParams, grainCloudsPresets } from '@paper-design/shaders-react';
 import { button, folder, useControls } from 'leva';
+import Link from 'next/link';
 import { useEffect } from 'react';
 
 /**
  * You can copy/paste this example to use GrainClouds in your app
  */
-const GrainCloudsExample = () => {
-  return <GrainClouds color1="#000" color2="#fff" style={{ position: 'fixed', width: '100%', height: '100%' }} />;
-};
+// const GrainCloudsExample = () => {
+//   return <GrainClouds color1="#000" color2="#fff" style={{ position: 'fixed', width: '100%', height: '100%' }} />;
+// };
 
 /**
  * This example has controls added so you can play with settings in the example app
@@ -15,7 +18,7 @@ const GrainCloudsExample = () => {
 
 const defaults = grainCloudsPresets[0].params;
 
-export const GrainCloudsWithControls = () => {
+const GrainCloudsWithControls = () => {
   const [params, setParams] = useControls(() => {
     const presets: GrainCloudsParams = Object.fromEntries(
       grainCloudsPresets.map((preset) => [preset.name, button(() => setParams(preset.params))])
@@ -41,5 +44,14 @@ export const GrainCloudsWithControls = () => {
     setParams(defaults);
   }, []);
 
-  return <GrainClouds {...params} style={{ position: 'fixed', width: '100%', height: '100%' }} />;
+  return (
+    <>
+      <Link href="/">
+        <button className="fixed top-2 left-2 bg-white z-10 px-2 py-1 rounded-md">Back</button>
+      </Link>
+      <GrainClouds {...params} style={{ position: 'fixed', width: '100%', height: '100%' }} />
+    </>
+  );
 };
+
+export default GrainCloudsWithControls;

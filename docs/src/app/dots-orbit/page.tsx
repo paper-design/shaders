@@ -1,26 +1,29 @@
+'use client';
+
 import { DotsOrbit, type DotsOrbitParams, dotsOrbitPresets } from '@paper-design/shaders-react';
 import { useControls, button, folder } from 'leva';
+import Link from 'next/link';
 import { useEffect } from 'react';
 
 /**
  * You can copy/paste this example to use DotsOrbit in your app
  */
-const DotsOrbitExample = () => {
-  return (
-    <DotsOrbit
-      color1="#6a5496"
-      color2="#9b8ab8"
-      color3="#f5d03b"
-      color4="#e48b97"
-      scale={11}
-      dotSize={0.15}
-      dotSizeRange={0.01}
-      speed={3}
-      spreading={0.1}
-      style={{ position: 'fixed', width: '100%', height: '100%' }}
-    />
-  );
-};
+// const DotsOrbitExample = () => {
+//   return (
+//     <DotsOrbit
+//       color1="#6a5496"
+//       color2="#9b8ab8"
+//       color3="#f5d03b"
+//       color4="#e48b97"
+//       scale={11}
+//       dotSize={0.15}
+//       dotSizeRange={0.01}
+//       speed={3}
+//       spreading={0.1}
+//       style={{ position: 'fixed', width: '100%', height: '100%' }}
+//     />
+//   );
+// };
 
 /**
  * This example has controls added so you can play with settings in the example app
@@ -28,7 +31,7 @@ const DotsOrbitExample = () => {
 
 const defaults = dotsOrbitPresets[0].params;
 
-export const DotsOrbitWithControls = () => {
+const DotsOrbitWithControls = () => {
   const [params, setParams] = useControls(() => {
     const presets: DotsOrbitParams = Object.fromEntries(
       dotsOrbitPresets.map((preset) => [preset.name, button(() => setParams(preset.params))])
@@ -58,5 +61,14 @@ export const DotsOrbitWithControls = () => {
     setParams(defaults);
   }, []);
 
-  return <DotsOrbit {...params} style={{ position: 'fixed', width: '100%', height: '100%' }} />;
+  return (
+    <>
+      <Link href="/">
+        <button className="fixed top-2 left-2 bg-white z-10 px-2 py-1 rounded-md">Back</button>
+      </Link>
+      <DotsOrbit {...params} style={{ position: 'fixed', width: '100%', height: '100%' }} />
+    </>
+  );
 };
+
+export default DotsOrbitWithControls;

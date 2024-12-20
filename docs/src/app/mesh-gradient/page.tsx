@@ -1,22 +1,25 @@
+'use client';
+
 import { MeshGradient, type MeshGradientParams, meshGradientPresets } from '@paper-design/shaders-react';
 import { useControls, button, folder } from 'leva';
+import Link from 'next/link';
 import { useEffect } from 'react';
 
 /**
  * You can copy/paste this example to use MeshGradient in your app
  */
-const MeshGradientExample = () => {
-  return (
-    <MeshGradient
-      color1="#6a5496"
-      color2="#9b8ab8"
-      color3="#f5d03b"
-      color4="#e48b97"
-      speed={0.2}
-      style={{ position: 'fixed', width: '100%', height: '100%' }}
-    />
-  );
-};
+// const MeshGradientExample = () => {
+//   return (
+//     <MeshGradient
+//       color1="#6a5496"
+//       color2="#9b8ab8"
+//       color3="#f5d03b"
+//       color4="#e48b97"
+//       speed={0.2}
+//       style={{ position: 'fixed', width: '100%', height: '100%' }}
+//     />
+//   );
+// };
 
 /**
  * This example has controls added so you can play with settings in the example app
@@ -24,7 +27,7 @@ const MeshGradientExample = () => {
 
 const defaults = meshGradientPresets[0].params;
 
-export const MeshGradientWithControls = () => {
+const MeshGradientWithControls = () => {
   const [params, setParams] = useControls(() => {
     const presets: MeshGradientParams = Object.fromEntries(
       meshGradientPresets.map((preset) => [preset.name, button(() => setParams(preset.params))])
@@ -51,5 +54,14 @@ export const MeshGradientWithControls = () => {
     setParams(defaults);
   }, []);
 
-  return <MeshGradient {...params} style={{ position: 'fixed', width: '100%', height: '100%' }} />;
+  return (
+    <>
+      <Link href="/">
+        <button className="fixed top-2 left-2 bg-white z-10 px-2 py-1 rounded-md">Back</button>
+      </Link>
+      <MeshGradient {...params} style={{ position: 'fixed', width: '100%', height: '100%' }} />
+    </>
+  );
 };
+
+export default MeshGradientWithControls;
