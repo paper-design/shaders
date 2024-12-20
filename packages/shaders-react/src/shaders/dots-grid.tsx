@@ -26,15 +26,79 @@ export const defaultPreset: DotsGridPreset = {
     colorFill: 'hsla(145.2, 30.1%, 32.5%, 1)',
     colorStroke: 'hsla(39.4, 87.7%, 52.4%, 1)',
     dotSize: 2,
-    gridSpacingX: 75,
-    gridSpacingY: 75,
+    gridSpacingX: 50,
+    gridSpacingY: 50,
     strokeWidth: 0,
     sizeRange: 0,
     opacityRange: 0,
   },
 } as const;
 
-export const dotsGridPresets: DotsGridPreset[] = [defaultPreset];
+const preset1: DotsGridPreset = {
+  name: '1',
+  params: {
+    // Note: Keep default colors in HSLA format so that our Leva controls show a transparency channel (rgba and hex8 do not work)
+    colorBack: 'hsla(234, 100%, 31%, .5)',
+    colorFill: 'hsla(100, 30.1%, 100%, 1)',
+    colorStroke: 'hsla(0, 100%, 50%, .4)',
+    dotSize: 28,
+    gridSpacingX: 60,
+    gridSpacingY: 60,
+    strokeWidth: 7,
+    sizeRange: .5,
+    opacityRange: 1,
+  },
+} as const;
+
+const preset2: DotsGridPreset = {
+  name: '2',
+  params: {
+    // Note: Keep default colors in HSLA format so that our Leva controls show a transparency channel (rgba and hex8 do not work)
+    colorBack: 'hsla(0, 100%, 36%, 1)',
+    colorFill: 'hsla(100, 30.1%, 100%, 1)',
+    colorStroke: 'hsla(0, 0%, 0%, 1)',
+    dotSize: 39,
+    gridSpacingX: 35,
+    gridSpacingY: 35,
+    strokeWidth: 23,
+    sizeRange: .35,
+    opacityRange: .55,
+  },
+} as const;
+
+const preset3: DotsGridPreset = {
+  name: '3',
+  params: {
+    // Note: Keep default colors in HSLA format so that our Leva controls show a transparency channel (rgba and hex8 do not work)
+    colorBack: 'hsla(100, 100%, 36%, .05)',
+    colorFill: 'hsla(150, 80%, 10%, 1)',
+    colorStroke: 'hsla(0, 0%, 0%, 1)',
+    dotSize: 8,
+    gridSpacingX: 20,
+    gridSpacingY: 90,
+    strokeWidth: 0,
+    sizeRange: 1,
+    opacityRange: .6,
+  },
+} as const;
+
+const preset4: DotsGridPreset = {
+  name: '4',
+  params: {
+    // Note: Keep default colors in HSLA format so that our Leva controls show a transparency channel (rgba and hex8 do not work)
+    colorBack: 'hsla(40, 100%, 36%, .3)',
+    colorFill: 'hsla(50, 50%, 50%, 1)',
+    colorStroke: 'hsla(0, 0%, 0%, 1)',
+    dotSize: 42,
+    gridSpacingX: 75,
+    gridSpacingY: 75,
+    strokeWidth: 0,
+    sizeRange: 0,
+    opacityRange: 1,
+  },
+} as const;
+
+export const dotsGridPresets: DotsGridPreset[] = [defaultPreset, preset1, preset2, preset3, preset4];
 
 export const DotsGrid = (props: DotsGridProps): JSX.Element => {
   const uniforms: DotsGridUniforms = useMemo(() => {
