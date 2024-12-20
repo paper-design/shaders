@@ -1,23 +1,26 @@
+'use client';
+
 import { NeuroNoise, type NeuroNoiseParams, neuroNoisePresets } from '@paper-design/shaders-react';
 import { useControls, button, folder } from 'leva';
-import { setParamsSafe, useResetLevaParams } from '../example-helpers/use-reset-leva-params';
-import { usePresetHighlight } from '../example-helpers/use-preset-highlight';
+import { setParamsSafe, useResetLevaParams } from '@/helpers/use-reset-leva-params';
+import { usePresetHighlight } from '@/helpers/use-preset-highlight';
+import Link from 'next/link';
 
 /**
  * You can copy/paste this example to use NeuroNoise in your app
  */
-const NeuroNoiseExample = () => {
-  return (
-    <NeuroNoise
-      colorFront="#c3a3ff"
-      colorBack="#030208"
-      speed={1}
-      scale={1}
-      brightness={1.3}
-      style={{ position: 'fixed', width: '100%', height: '100%' }}
-    />
-  );
-};
+// const NeuroNoiseExample = () => {
+//   return (
+//     <NeuroNoise
+//       colorFront="#c3a3ff"
+//       colorBack="#030208"
+//       speed={1}
+//       scale={1}
+//       brightness={1.3}
+//       style={{ position: 'fixed', width: '100%', height: '100%' }}
+//     />
+//   );
+// };
 
 /**
  * This example has controls added so you can play with settings in the example app
@@ -25,7 +28,7 @@ const NeuroNoiseExample = () => {
 
 const defaults = neuroNoisePresets[0].params;
 
-export const NeuroNoiseWithControls = () => {
+const NeuroNoiseWithControls = () => {
   const [params, setParams] = useControls(() => {
     const presets: NeuroNoiseParams = Object.fromEntries(
       neuroNoisePresets.map((preset) => [preset.name, button(() => setParamsSafe(params, setParams, preset.params))])
@@ -52,5 +55,14 @@ export const NeuroNoiseWithControls = () => {
 
   usePresetHighlight(neuroNoisePresets, params);
 
-  return <NeuroNoise {...params} style={{ position: 'fixed', width: '100%', height: '100%' }} />;
+  return (
+    <>
+      <Link href="/">
+        <button className="fixed top-2 left-2 bg-white z-10 px-2 py-1 rounded-md">Back</button>
+      </Link>
+      <NeuroNoise {...params} style={{ position: 'fixed', width: '100%', height: '100%' }} />
+    </>
+  );
 };
+
+export default NeuroNoiseWithControls;

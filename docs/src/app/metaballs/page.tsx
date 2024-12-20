@@ -1,8 +1,9 @@
+'use client';
+
 import { Metaballs, type MetaballsParams, metaballsPresets } from '@paper-design/shaders-react';
 import { useControls, button, folder } from 'leva';
-import { useEffect } from 'react';
-import { setParamsSafe, useResetLevaParams } from '../example-helpers/use-reset-leva-params';
-import { usePresetHighlight } from '../example-helpers/use-preset-highlight';
+import { setParamsSafe, useResetLevaParams } from '@/helpers/use-reset-leva-params';
+import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 
 /**
  * You can copy/paste this example to use Metaballs in your app
@@ -29,7 +30,7 @@ const MetaballsExample = () => {
 
 const defaults = metaballsPresets[0].params;
 
-export const MetaballsWithControls = () => {
+const MetaballsWithControls = () => {
   const [params, setParams] = useControls(() => {
     const presets: MetaballsParams = Object.fromEntries(
       metaballsPresets.map((preset) => [preset.name, button(() => setParamsSafe(params, setParams, preset.params))])
@@ -60,3 +61,5 @@ export const MetaballsWithControls = () => {
 
   return <Metaballs {...params} style={{ position: 'fixed', width: '100%', height: '100%' }} />;
 };
+
+export default MetaballsWithControls;

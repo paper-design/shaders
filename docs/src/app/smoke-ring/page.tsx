@@ -1,24 +1,27 @@
+'use client';
+
 import { SmokeRing, type SmokeRingParams, smokeRingPresets } from '@paper-design/shaders-react';
 import { useControls, button, folder } from 'leva';
-import { setParamsSafe, useResetLevaParams } from '../example-helpers/use-reset-leva-params';
-import { usePresetHighlight } from '../example-helpers/use-preset-highlight';
+import { setParamsSafe, useResetLevaParams } from '@/helpers/use-reset-leva-params';
+import { usePresetHighlight } from '@/helpers/use-preset-highlight';
+import Link from 'next/link';
 
 /**
  * You can copy/paste this example to use SmokeRing in your app
  */
-const SmokeRingExample = () => {
-  return (
-    <SmokeRing
-      colorBack="#6a5496"
-      color1="#9b8ab8"
-      color2="#f5d03b"
-      noiseScale={1}
-      speed={1.2}
-      thickness={0.3}
-      style={{ position: 'fixed', width: '100%', height: '100%' }}
-    />
-  );
-};
+// const SmokeRingExample = () => {
+//   return (
+//     <SmokeRing
+//       colorBack="#6a5496"
+//       color1="#9b8ab8"
+//       color2="#f5d03b"
+//       noiseScale={1}
+//       speed={1.2}
+//       thickness={0.3}
+//       style={{ position: 'fixed', width: '100%', height: '100%' }}
+//     />
+//   );
+// };
 
 /**
  * This example has controls added so you can play with settings in the example app
@@ -26,7 +29,7 @@ const SmokeRingExample = () => {
 
 const defaults = smokeRingPresets[0].params;
 
-export const SmokeRingWithControls = () => {
+const SmokeRingWithControls = () => {
   const [params, setParams] = useControls(() => {
     const presets: SmokeRingParams = Object.fromEntries(
       smokeRingPresets.map((preset) => [preset.name, button(() => setParamsSafe(params, setParams, preset.params))])
@@ -53,5 +56,14 @@ export const SmokeRingWithControls = () => {
 
   usePresetHighlight(smokeRingPresets, params);
 
-  return <SmokeRing {...params} style={{ position: 'fixed', width: '100%', height: '100%' }} />;
+  return (
+    <>
+      <Link href="/">
+        <button className="fixed top-2 left-2 bg-white z-10 px-2 py-1 rounded-md">Back</button>
+      </Link>
+      <SmokeRing {...params} style={{ position: 'fixed', width: '100%', height: '100%' }} />
+    </>
+  );
 };
+
+export default SmokeRingWithControls;
