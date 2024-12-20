@@ -50,7 +50,7 @@ void main() {
     uv += .5;
     uv.x *= ratio;
 
-    float t = u_time + 10.;
+    float t = u_time;
 
     vec3 total_color = vec3(0.);
     float total_shape = 0.;
