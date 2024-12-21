@@ -5,6 +5,7 @@ import { GrainCloudsWithControls } from './shaders/grain-clouds-example';
 import { NeuroNoiseWithControls } from './shaders/neuro-noise-example';
 import { SmokeRingWithControls } from './shaders/smoke-ring-example';
 import { SteppedSimplexNoiseWithControls } from './shaders/stepped-simplex-noise-example';
+import { MetaballsWithControls } from './shaders/metaballs-example';
 
 const App = () => {
   return (
@@ -32,6 +33,9 @@ const App = () => {
             <li>
               <Link href="/stepped-simplex-noise">Stepped Simplex Noise</Link>
             </li>
+            <li>
+              <Link href="/metaballs">Metaballs</Link>
+            </li>
           </ul>
         </Route>
 
@@ -41,6 +45,7 @@ const App = () => {
         <Route path="/neuro-noise" component={NeuroNoiseWithControls} />
         <Route path="/smoke-ring" component={SmokeRingWithControls} />
         <Route path="/stepped-simplex-noise" component={SteppedSimplexNoiseWithControls} />
+        <Route path="/metaballs" component={MetaballsWithControls} />
       </Switch>
     </Router>
   );
