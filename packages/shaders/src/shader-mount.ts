@@ -179,7 +179,7 @@ export class ShaderMount {
 
   /** Set a seed to get a deterministic result */
   public setSeed = (newSeed: number): void => {
-    this.totalAnimationTime = newSeed;
+    this.totalAnimationTime = 10000 * newSeed;
     this.render(performance.now());
   };
 
