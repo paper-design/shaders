@@ -17,6 +17,7 @@ const DotsGridExample = () => {
       strokeWidth={2}
       sizeRange={0}
       opacityRange={0}
+      shape={0}
       style={{ position: 'fixed', width: '100%', height: '100%' }}
     />
   );
@@ -45,6 +46,7 @@ export const DotsGridWithControls = () => {
           strokeWidth: { value: defaults.dotSize, order: 7, min: 0, max: 50 },
           sizeRange: { value: defaults.gridSpacingY, order: 8, min: 0, max: 1 },
           opacityRange: { value: defaults.gridSpacingY, order: 9, min: 0, max: 1 },
+          shape: {value: defaults.shape, order: 10, options: {'Circle': 0, 'Diamond': 1, 'Square': 2, 'Triangle': 3}},
         },
         { order: 1 }
       ),

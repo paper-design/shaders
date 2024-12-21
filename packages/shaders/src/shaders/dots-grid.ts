@@ -8,6 +8,7 @@ export type DotsGridUniforms = {
   u_strokeWidth: number;
   u_sizeRange: number;
   u_opacityRange: number;
+  u_shape: number;
 };
 
 /**
@@ -23,7 +24,7 @@ export type DotsGridUniforms = {
  * u_gridSpacingY: Vertical grid spacing, px
  * u_sizeRange: Variety of dot size, 0..1
  * u_opacityRange: Variety of dot opacity to be applied equally to fill and stroke, 0..1
- *
+ * u_shape: Shape code: 'Circle': 0, 'Diamond': 1, 'Square': 2, 'Triangle': 3
  */
 
 export const dotsGridFragmentShader = `#version 300 es
@@ -38,14 +39,25 @@ uniform float u_gridSpacingY;
 uniform float u_strokeWidth;
 uniform float u_sizeRange;
 uniform float u_opacityRange;
+uniform float u_shape;
 
 uniform vec2 u_resolution;
 uniform float u_pxRatio;
 
 out vec4 fragColor;
 
-float hash (vec2 st) {
-  return fract(sin(dot(st.xy,vec2(12.9898,78.233)))*43758.5453123);
+#define TWO_PI 6.28318530718
+#define PI 3.14159265358979323846
+
+float hash(vec2 st) {
+    return fract(sin(dot(st.xy, vec2(12.9898, 78.233))) * 43758.5453123);
+}
+
+float polygon(vec2 p, float N, float rot) {
+    float a = atan(p.x, p.y) + rot;
+    float r = TWO_PI / float(N);
+
+    return cos(floor(.5 + a/r) * r - a) * length(p);
 }
 
 void main() {
@@ -59,25 +71,41 @@ void main() {
     float size_randomizer = hash(grid_idx);
     float opacity_randomizer = hash(grid_idx * 2. + 1000.);
 
-    vec2 center = vec2(.5) - 1e-3;
-    float dist = length((grid - center) * vec2(u_gridSpacingX, u_gridSpacingY));    
+    vec2 center = vec2(0.5) - 1e-3;
+    vec2 p = (grid - center) * vec2(u_gridSpacingX, u_gridSpacingY);
+
+    float dist;
+    if (u_shape < 0.5) {
+        // Circle
+        dist = length(p);
+    } else if (u_shape < 1.5) {
+        // Diamond
+        dist = polygon(1.5 * p, 4., .25 * PI);
+    } else if (u_shape < 2.5) {
+        // Square
+        dist = polygon(1.5 * p, 4., 1e-3);
+    } else {
+        // Triangle
+        p = p * 2. - 1.;
+        dist = polygon(p, 3., 0.);
+    }
 
     float edge_width = fwidth(dist);
     float base_size = u_dotSize * (1. - size_randomizer * u_sizeRange);
-    float circle_outer = smoothstep(base_size + edge_width, base_size - edge_width, dist);
-    float circle_inner = smoothstep(base_size - u_strokeWidth + edge_width, base_size - u_strokeWidth - edge_width, dist);
-    float stroke = clamp(circle_outer - circle_inner, 0., 1.);
+    float shape_outer = smoothstep(base_size + edge_width, base_size - edge_width, dist);
+    float shape_inner = smoothstep(base_size - u_strokeWidth + edge_width, base_size - u_strokeWidth - edge_width, dist);
+    float stroke = clamp(shape_outer - shape_inner, 0., 1.);
 
     float dot_opacity = 1. - opacity_randomizer * u_opacityRange;
 
     vec3 color = u_colorBack.rgb * u_colorBack.a;
-    color = mix(color, u_colorFill.rgb * u_colorFill.a * dot_opacity, circle_inner * u_colorFill.a * dot_opacity);
+    color = mix(color, u_colorFill.rgb * u_colorFill.a * dot_opacity, shape_inner * u_colorFill.a * dot_opacity);
     color = mix(color, u_colorStroke.rgb * u_colorStroke.a * dot_opacity, stroke * u_colorStroke.a * dot_opacity);
-    
+
     float opacity = u_colorBack.a;
-    opacity += u_colorFill.a * circle_inner * dot_opacity;
+    opacity += u_colorFill.a * shape_inner * dot_opacity;
     opacity += u_colorStroke.a * stroke * dot_opacity;
-    
+
     fragColor = vec4(color, opacity);
 }
 `;

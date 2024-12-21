@@ -12,6 +12,7 @@ export type DotsGridParams = {
   strokeWidth?: number;
   sizeRange?: number;
   opacityRange?: number;
+  shape?: number;
 };
 
 export type DotsGridProps = Omit<ShaderMountProps, 'fragmentShader'> & DotsGridParams;
@@ -31,6 +32,7 @@ export const defaultPreset: DotsGridPreset = {
     strokeWidth: 0,
     sizeRange: 0,
     opacityRange: 0,
+    shape: 0,
   },
 } as const;
 
@@ -47,6 +49,7 @@ const preset1: DotsGridPreset = {
     strokeWidth: 7,
     sizeRange: .5,
     opacityRange: 1,
+    shape: 0,
   },
 } as const;
 
@@ -63,6 +66,7 @@ const preset2: DotsGridPreset = {
     strokeWidth: 23,
     sizeRange: .35,
     opacityRange: .55,
+    shape: 0,
   },
 } as const;
 
@@ -79,6 +83,7 @@ const preset3: DotsGridPreset = {
     strokeWidth: 0,
     sizeRange: 1,
     opacityRange: .6,
+    shape: 0,
   },
 } as const;
 
@@ -95,6 +100,7 @@ const preset4: DotsGridPreset = {
     strokeWidth: 0,
     sizeRange: 0,
     opacityRange: 1,
+    shape: 0,
   },
 } as const;
 
@@ -112,6 +118,7 @@ export const DotsGrid = (props: DotsGridProps): JSX.Element => {
       u_strokeWidth: props.strokeWidth ?? defaultPreset.params.strokeWidth,
       u_sizeRange: props.sizeRange ?? defaultPreset.params.sizeRange,
       u_opacityRange: props.opacityRange ?? defaultPreset.params.opacityRange,
+      u_shape: props.shape ?? defaultPreset.params.shape,
     };
   }, [
     props.colorBack,
@@ -123,6 +130,7 @@ export const DotsGrid = (props: DotsGridProps): JSX.Element => {
     props.strokeWidth,
     props.sizeRange,
     props.opacityRange,
+    props.shape,
   ]);
 
   return <ShaderMount {...props} fragmentShader={dotsGridFragmentShader} uniforms={uniforms} />;
