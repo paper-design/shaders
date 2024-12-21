@@ -38,11 +38,11 @@ export const MetaballsWithControls = () => {
           color1: { value: defaults.color1, order: 1 },
           color2: { value: defaults.color2, order: 2 },
           color3: { value: defaults.color3, order: 3 },
-          speed: { value: defaults.speed, order: 4, min: 0, max: 2 },
+          speed: { value: defaults.speed, order: 4, min: 0, max: 1 },
           seed: { value: defaults.speed, order: 5, min: 0, max: 1 },
           scale: { value: defaults.scale, order: 6, min: 1, max: 20 },
           dotSize: { value: defaults.scale, order: 7, min: 0, max: 1 },
-          visibilityRange: { value: defaults.scale, order: 8, min: 0, max: 1 },
+          visibilityRange: { value: defaults.scale, order: 8, min: .05, max: 1 },
         },
         { order: 1 }
       ),
