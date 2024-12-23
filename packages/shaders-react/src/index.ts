@@ -39,5 +39,11 @@ export { type SteppedSimplexNoiseProps } from './shaders/stepped-simplex-noise';
 export { type SteppedSimplexNoiseParams } from './shaders/stepped-simplex-noise';
 export { type SteppedSimplexNoiseUniforms } from '@paper-design/shaders';
 
+// Perlin noise
+export {PerlinNoise, perlinNoisePresets} from './shaders/perlin-noise';
+export {type PerlinNoiseProps} from './shaders/perlin-noise';
+export {type PerlinNoiseParams} from './shaders/perlin-noise';
+export {type PerlinNoiseUniforms} from '@paper-design/shaders';
+
 // ----- Uniform conversion utils ----- //
 export { getShaderColorFromString } from '@paper-design/shaders';

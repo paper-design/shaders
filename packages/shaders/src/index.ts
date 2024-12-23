@@ -24,5 +24,9 @@ export { dotsOrbitFragmentShader, type DotsOrbitUniforms } from './shaders/dots-
 /** A shader that calculates a combination of 2 simplex noises with result rendered as a stepped gradient */
 export { steppedSimplexNoiseFragmentShader, type SteppedSimplexNoiseUniforms } from './shaders/stepped-simplex-noise';
 
+// ----- Perlin noise ----- //
+/** 2d noise with max number of parameters to be exposed to users */
+export { perlinNoiseFragmentShader, type PerlinNoiseUniforms } from './shaders/perlin-noise';
+
 // ----- Uniform conversion utils ----- //
 export { getShaderColorFromString } from './get-shader-color-from-string';
