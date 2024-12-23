@@ -1,6 +1,7 @@
 import { Metaballs, type MetaballsParams, metaballsPresets } from '@paper-design/shaders-react';
 import { useControls, button, folder } from 'leva';
 import { useEffect } from 'react';
+import { useResetLevaParams } from '../example-helpers/use-reset-leva-params';
 
 /**
  * You can copy/paste this example to use Metaballs in your app
@@ -38,11 +39,11 @@ export const MetaballsWithControls = () => {
           color1: { value: defaults.color1, order: 1 },
           color2: { value: defaults.color2, order: 2 },
           color3: { value: defaults.color3, order: 3 },
-          speed: { value: defaults.speed, order: 4, min: 0, max: 1 },
-          // seed: { value: defaults.seed, order: 5, min: 0, max: 10 },
+          seed: { value: defaults.seed, order: 4, min: 0, max: 9999 },
+          speed: { value: defaults.speed, order: 5, min: 0, max: 1 },
           scale: { value: defaults.scale, order: 6, min: 1, max: 20 },
           dotSize: { value: defaults.dotSize, order: 7, min: 0, max: 1 },
-          visibilityRange: { value: defaults.visibilityRange, order: 8, min: .05, max: 1 },
+          visibilityRange: { value: defaults.visibilityRange, order: 8, min: 0.05, max: 1 },
         },
         { order: 1 }
       ),
@@ -52,9 +53,7 @@ export const MetaballsWithControls = () => {
 
   // Reset to defaults on mount, so that Leva doesn't show values from other
   // shaders when navigating (if two shaders have a color1 param for example)
-  useEffect(() => {
-    setParams(defaults);
-  }, []);
+  // useResetLevaParams(params, setParams, defaults);
 
   return <Metaballs {...params} style={{ position: 'fixed', width: '100%', height: '100%' }} />;
 };

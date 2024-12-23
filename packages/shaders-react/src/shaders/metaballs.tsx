@@ -23,9 +23,10 @@ export const defaultPreset: MetaballsPreset = {
     color2: 'hsla(350, 80%, 60%, 1)',
     color3: 'hsla(20, 85%, 70%, 1)',
     scale: 10,
-    speed: .6,
+    speed: 0.6,
     dotSize: 1,
-    visibilityRange: .4,
+    visibilityRange: 0.4,
+    seed: 0,
   },
 } as const;
 
@@ -40,15 +41,9 @@ export const Metaballs = (props: MetaballsProps): JSX.Element => {
       u_scale: props.scale ?? defaultPreset.params.scale,
       u_dotSize: props.dotSize ?? defaultPreset.params.dotSize,
       u_visibilityRange: props.visibilityRange ?? defaultPreset.params.visibilityRange,
+      u_seed: props.seed ?? defaultPreset.params.seed,
     };
-  }, [
-    props.color1,
-    props.color2,
-    props.color3,
-    props.scale,
-    props.dotSize,
-    props.visibilityRange,
-  ]);
+  }, [props.color1, props.color2, props.color3, props.scale, props.dotSize, props.visibilityRange, props.seed]);
 
   return <ShaderMount {...props} fragmentShader={metaballsFragmentShader} uniforms={uniforms} />;
 };

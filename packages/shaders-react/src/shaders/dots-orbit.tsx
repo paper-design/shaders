@@ -30,6 +30,7 @@ export const defaultPreset: DotsOrbitPreset = {
     scale: 10,
     speed: 2,
     spreading: 0.25,
+    seed: 0,
   },
 } as const;
 
@@ -46,6 +47,7 @@ export const DotsOrbit = (props: DotsOrbitProps): JSX.Element => {
       u_dotSizeRange: props.dotSizeRange ?? defaultPreset.params.dotSizeRange,
       u_scale: props.scale ?? defaultPreset.params.scale,
       u_spreading: props.spreading ?? defaultPreset.params.spreading,
+      u_seed: props.seed ?? defaultPreset.params.seed,
     };
   }, [
     props.color1,
@@ -56,6 +58,7 @@ export const DotsOrbit = (props: DotsOrbitProps): JSX.Element => {
     props.dotSizeRange,
     props.scale,
     props.spreading,
+    props.seed,
   ]);
 
   return <ShaderMount {...props} fragmentShader={dotsOrbitFragmentShader} uniforms={uniforms} />;

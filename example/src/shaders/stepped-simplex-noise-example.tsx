@@ -6,6 +6,7 @@ import {
 
 import { useControls, button, folder } from 'leva';
 import { useEffect } from 'react';
+import { useResetLevaParams } from '../example-helpers/use-reset-leva-params';
 
 /**
  * You can copy/paste this example to use SteppedSimplexNoise in your app
@@ -57,9 +58,7 @@ export const SteppedSimplexNoiseWithControls = () => {
 
   // Reset to defaults on mount, so that Leva doesn't show values from other
   // shaders when navigating (if two shaders have a color1 param for example)
-  useEffect(() => {
-    setParams(defaults);
-  }, []);
+  useResetLevaParams(params, setParams, defaults);
 
   return <SteppedSimplexNoise {...params} style={{ position: 'fixed', width: '100%', height: '100%' }} />;
 };

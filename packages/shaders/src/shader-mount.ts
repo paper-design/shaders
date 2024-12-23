@@ -112,6 +112,9 @@ export class ShaderMount {
       this.totalAnimationTime += dt * this.speed;
     }
 
+    // Clear the canvas
+    this.gl.clear(this.gl.COLOR_BUFFER_BIT);
+
     // Update uniforms
     this.gl.useProgram(this.program);
 
@@ -179,7 +182,9 @@ export class ShaderMount {
 
   /** Set a seed to get a deterministic result */
   public setSeed = (newSeed: number): void => {
-    this.totalAnimationTime = 1000 * newSeed;
+    const oneFrameAt120Fps = 1000 / 120;
+    this.totalAnimationTime = newSeed * oneFrameAt120Fps;
+    this.lastFrameTime = performance.now();
     this.render(performance.now());
   };
 
