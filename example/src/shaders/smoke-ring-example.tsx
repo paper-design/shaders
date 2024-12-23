@@ -1,6 +1,5 @@
 import { SmokeRing, type SmokeRingParams, smokeRingPresets } from '@paper-design/shaders-react';
 import { useControls, button, folder } from 'leva';
-import { useEffect } from 'react';
 import { setParamsSafe, useResetLevaParams } from '../example-helpers/use-reset-leva-params';
 
 /**

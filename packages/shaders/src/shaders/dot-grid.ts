@@ -1,4 +1,13 @@
-export type DotsGridUniforms = {
+/** Possible values for the shape uniform */
+export const DotGridShapes = {
+  Circle: 0,
+  Diamond: 1,
+  Square: 2,
+  Triangle: 3,
+} as const;
+export type DotGridShape = (typeof DotGridShapes)[keyof typeof DotGridShapes];
+
+export type DotGridUniforms = {
   u_colorBack: [number, number, number, number];
   u_colorFill: [number, number, number, number];
   u_colorStroke: [number, number, number, number];
@@ -8,11 +17,11 @@ export type DotsGridUniforms = {
   u_strokeWidth: number;
   u_sizeRange: number;
   u_opacityRange: number;
-  u_shape: number;
+  u_shape: DotGridShape;
 };
 
 /**
- * Dots Grid Pattern
+ * Dot Grid Pattern
  *
  * Uniforms include:
  * u_colorBack: Background color
@@ -27,7 +36,7 @@ export type DotsGridUniforms = {
  * u_shape: Shape code: 'Circle': 0, 'Diamond': 1, 'Square': 2, 'Triangle': 3
  */
 
-export const dotsGridFragmentShader = `#version 300 es
+export const dotGridFragmentShader = `#version 300 es
 precision highp float;
 
 uniform vec4 u_colorBack;
@@ -42,7 +51,7 @@ uniform float u_opacityRange;
 uniform float u_shape;
 
 uniform vec2 u_resolution;
-uniform float u_pxRatio;
+uniform float u_pixelRatio;
 
 out vec4 fragColor;
 
@@ -64,7 +73,7 @@ void main() {
     vec2 uv = gl_FragCoord.xy;
     uv.y = u_resolution.y - uv.y;
 
-    uv /= u_pxRatio;
+    uv /= u_pixelRatio;
 
     vec2 grid = fract(uv / vec2(u_gridSpacingX, u_gridSpacingY)) + 1e-4;
     vec2 grid_idx = floor(uv / vec2(u_gridSpacingX, u_gridSpacingY));

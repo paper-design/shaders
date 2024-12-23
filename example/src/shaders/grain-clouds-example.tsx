@@ -1,6 +1,5 @@
 import { GrainClouds, type GrainCloudsParams, grainCloudsPresets } from '@paper-design/shaders-react';
 import { button, folder, useControls } from 'leva';
-import { useEffect } from 'react';
 import { setParamsSafe, useResetLevaParams } from '../example-helpers/use-reset-leva-params';
 
 /**

@@ -1,8 +1,14 @@
 import { useMemo } from 'react';
-import { ShaderMount, type GlobalParams, type ShaderMountProps } from '../shader-mount';
-import { getShaderColorFromString, dotsGridFragmentShader, type DotsGridUniforms } from '@paper-design/shaders';
+import { ShaderMount, type ShaderMountProps } from '../shader-mount';
+import {
+  dotGridFragmentShader,
+  getShaderColorFromString,
+  type DotGridUniforms,
+  type DotGridShape,
+  DotGridShapes,
+} from '@paper-design/shaders';
 
-export type DotsGridParams = {
+export type DotGridParams = {
   colorBack?: string;
   colorFill?: string;
   colorStroke?: string;
@@ -12,14 +18,14 @@ export type DotsGridParams = {
   strokeWidth?: number;
   sizeRange?: number;
   opacityRange?: number;
-  shape?: number;
+  shape?: DotGridShape;
 };
 
-export type DotsGridProps = Omit<ShaderMountProps, 'fragmentShader'> & DotsGridParams;
+export type DotGridProps = Omit<ShaderMountProps, 'fragmentShader'> & DotGridParams;
 
-type DotsGridPreset = { name: string; params: Required<DotsGridParams> };
+type DotGridPreset = { name: string; params: Required<DotGridParams> };
 
-export const defaultPreset: DotsGridPreset = {
+export const defaultPreset: DotGridPreset = {
   name: 'Default',
   params: {
     // Note: Keep default colors in HSLA format so that our Leva controls show a transparency channel (rgba and hex8 do not work)
@@ -32,12 +38,11 @@ export const defaultPreset: DotsGridPreset = {
     strokeWidth: 0,
     sizeRange: 0,
     opacityRange: 0,
-    // Shape code: 'Circle': 0, 'Diamond': 1, 'Square': 2, 'Triangle': 3
-    shape: 0,
+    shape: DotGridShapes.Circle,
   },
 } as const;
 
-const preset1: DotsGridPreset = {
+const preset1: DotGridPreset = {
   name: '1',
   params: {
     // Note: Keep default colors in HSLA format so that our Leva controls show a transparency channel (rgba and hex8 do not work)
@@ -48,14 +53,13 @@ const preset1: DotsGridPreset = {
     gridSpacingX: 60,
     gridSpacingY: 60,
     strokeWidth: 3,
-    sizeRange: .5,
+    sizeRange: 0.5,
     opacityRange: 1,
-    // Shape code: 'Circle': 0, 'Diamond': 1, 'Square': 2, 'Triangle': 3
-    shape: 0,
+    shape: DotGridShapes.Circle,
   },
 } as const;
 
-const preset2: DotsGridPreset = {
+const preset2: DotGridPreset = {
   name: '2',
   params: {
     // Note: Keep default colors in HSLA format so that our Leva controls show a transparency channel (rgba and hex8 do not work)
@@ -66,14 +70,13 @@ const preset2: DotsGridPreset = {
     gridSpacingX: 35,
     gridSpacingY: 35,
     strokeWidth: 23,
-    sizeRange: .35,
-    opacityRange: .55,
-    // Shape code: 'Circle': 0, 'Diamond': 1, 'Square': 2, 'Triangle': 3
-    shape: 0,
+    sizeRange: 0.35,
+    opacityRange: 0.55,
+    shape: DotGridShapes.Circle,
   },
 } as const;
 
-const preset3: DotsGridPreset = {
+const preset3: DotGridPreset = {
   name: '3',
   params: {
     // Note: Keep default colors in HSLA format so that our Leva controls show a transparency channel (rgba and hex8 do not work)
@@ -85,13 +88,12 @@ const preset3: DotsGridPreset = {
     gridSpacingY: 90,
     strokeWidth: 0,
     sizeRange: 1,
-    opacityRange: .6,
-    // Shape code: 'Circle': 0, 'Diamond': 1, 'Square': 2, 'Triangle': 3
-    shape: 0,
+    opacityRange: 0.6,
+    shape: DotGridShapes.Circle,
   },
 } as const;
 
-const preset4: DotsGridPreset = {
+const preset4: DotGridPreset = {
   name: '4',
   params: {
     // Note: Keep default colors in HSLA format so that our Leva controls show a transparency channel (rgba and hex8 do not work)
@@ -104,12 +106,11 @@ const preset4: DotsGridPreset = {
     strokeWidth: 0,
     sizeRange: 0,
     opacityRange: 1,
-    // Shape code: 'Circle': 0, 'Diamond': 1, 'Square': 2, 'Triangle': 3
-    shape: 1,
+    shape: DotGridShapes.Diamond,
   },
 } as const;
 
-const preset5: DotsGridPreset = {
+const preset5: DotGridPreset = {
   name: '5',
   params: {
     // Note: Keep default colors in HSLA format so that our Leva controls show a transparency channel (rgba and hex8 do not work)
@@ -120,17 +121,16 @@ const preset5: DotsGridPreset = {
     gridSpacingX: 75,
     gridSpacingY: 75,
     strokeWidth: 16,
-    sizeRange: .6,
-    opacityRange: .5,
-    // Shape code: 'Circle': 0, 'Diamond': 1, 'Square': 2, 'Triangle': 3
-    shape: 2,
+    sizeRange: 0.6,
+    opacityRange: 0.5,
+    shape: DotGridShapes.Square,
   },
 } as const;
 
-export const dotsGridPresets: DotsGridPreset[] = [defaultPreset, preset1, preset2, preset3, preset4, preset5];
+export const dotGridPresets: DotGridPreset[] = [defaultPreset, preset1, preset2, preset3, preset4, preset5];
 
-export const DotsGrid = (props: DotsGridProps): JSX.Element => {
-  const uniforms: DotsGridUniforms = useMemo(() => {
+export const DotGrid = (props: DotGridProps): JSX.Element => {
+  const uniforms: DotGridUniforms = useMemo(() => {
     return {
       u_colorBack: getShaderColorFromString(props.colorBack, defaultPreset.params.colorBack),
       u_colorFill: getShaderColorFromString(props.colorFill, defaultPreset.params.colorStroke),
@@ -156,5 +156,5 @@ export const DotsGrid = (props: DotsGridProps): JSX.Element => {
     props.shape,
   ]);
 
-  return <ShaderMount {...props} fragmentShader={dotsGridFragmentShader} uniforms={uniforms} />;
+  return <ShaderMount {...props} fragmentShader={dotGridFragmentShader} uniforms={uniforms} />;
 };
