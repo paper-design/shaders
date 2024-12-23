@@ -34,6 +34,7 @@ uniform float u_scale;
 uniform float u_steps_number;
 
 uniform float u_time;
+uniform float u_pixelRatio;
 uniform vec2 u_resolution;
 
 out vec4 fragColor;
@@ -87,6 +88,7 @@ void main() {
 
   uv -= .5;
   uv *= (.001 * u_scale * u_resolution);
+  uv /= u_pixelRatio;
   uv += .5;
 
   float t =  u_time;

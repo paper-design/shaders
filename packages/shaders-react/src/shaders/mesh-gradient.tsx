@@ -22,6 +22,7 @@ export const defaultPreset: MeshGradientPreset = {
     color3: 'hsla(48, 73%, 84%,1)',
     color4: 'hsla(295, 32%, 70%, 1)',
     speed: 0.15,
+    seed: 0,
   },
 } as const;
 
@@ -33,6 +34,7 @@ export const beachPreset: MeshGradientPreset = {
     color3: 'hsla(53, 67%, 88%, 1)',
     color4: 'hsla(45, 93%, 73%, 1)',
     speed: 0.1,
+    seed: 0,
   },
 };
 
@@ -46,8 +48,9 @@ export const MeshGradient = (props: MeshGradientProps): JSX.Element => {
       u_color3: getShaderColorFromString(props.color3, defaultPreset.params.color3),
       u_color4: getShaderColorFromString(props.color4, defaultPreset.params.color4),
       u_speed: props.speed ?? defaultPreset.params.speed,
+      u_seed: props.seed ?? defaultPreset.params.seed,
     };
-  }, [props.color1, props.color2, props.color3, props.color4, props.speed]);
+  }, [props.color1, props.color2, props.color3, props.color4, props.speed, props.seed]);
 
   return <ShaderMount {...props} fragmentShader={meshGradientFragmentShader} uniforms={uniforms} />;
 };

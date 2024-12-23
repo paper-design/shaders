@@ -12,7 +12,7 @@ export interface ShaderMountProps {
 }
 
 /** Params that every shader can set as part of their controls */
-export type GlobalParams = Pick<ShaderMountProps, 'speed'>;
+export type GlobalParams = Pick<ShaderMountProps, 'speed' | 'seed'>;
 
 export const ShaderMount: React.FC<ShaderMountProps> = ({
   ref,
@@ -48,9 +48,12 @@ export const ShaderMount: React.FC<ShaderMountProps> = ({
   }, [uniforms]);
 
   useEffect(() => {
-    shaderMountRef.current?.setSeed(seed);
     shaderMountRef.current?.setSpeed(speed);
-  }, [speed, seed]);
+  }, [speed]);
+
+  useEffect(() => {
+    shaderMountRef.current?.setSeed(seed);
+  }, [seed]);
 
   return <canvas ref={canvasRef} style={style} />;
 };

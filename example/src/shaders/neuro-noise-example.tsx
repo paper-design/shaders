@@ -1,6 +1,6 @@
 import { NeuroNoise, type NeuroNoiseParams, neuroNoisePresets } from '@paper-design/shaders-react';
 import { useControls, button, folder } from 'leva';
-import { useEffect } from 'react';
+import { setParamsSafe, useResetLevaParams } from '../example-helpers/use-reset-leva-params';
 
 /**
  * You can copy/paste this example to use NeuroNoise in your app
@@ -27,7 +27,7 @@ const defaults = neuroNoisePresets[0].params;
 export const NeuroNoiseWithControls = () => {
   const [params, setParams] = useControls(() => {
     const presets: NeuroNoiseParams = Object.fromEntries(
-      neuroNoisePresets.map((preset) => [preset.name, button(() => setParams(preset.params))])
+      neuroNoisePresets.map((preset) => [preset.name, button(() => setParamsSafe(params, setParams, preset.params))])
     );
 
     return {
@@ -47,9 +47,7 @@ export const NeuroNoiseWithControls = () => {
 
   // Reset to defaults on mount, so that Leva doesn't show values from other
   // shaders when navigating (if two shaders have a color1 param for example)
-  useEffect(() => {
-    setParams(defaults);
-  }, []);
+  useResetLevaParams(params, setParams, defaults);
 
   return <NeuroNoise {...params} style={{ position: 'fixed', width: '100%', height: '100%' }} />;
 };

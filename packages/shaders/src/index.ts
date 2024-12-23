@@ -28,5 +28,9 @@ export { dotsGridFragmentShader, type DotsGridUniforms } from './shaders/dots-gr
 /** A shader that calculates a combination of 2 simplex noises with result rendered as a stepped gradient */
 export { steppedSimplexNoiseFragmentShader, type SteppedSimplexNoiseUniforms } from './shaders/stepped-simplex-noise';
 
+// ----- Metaballs ----- //
+/** A number of circlular shapes blened in a gooey way */
+export { metaballsFragmentShader, type MetaballsUniforms } from './shaders/metaballs';
+
 // ----- Uniform conversion utils ----- //
 export { getShaderColorFromString } from './get-shader-color-from-string';
