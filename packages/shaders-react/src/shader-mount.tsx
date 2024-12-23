@@ -12,6 +12,7 @@ export interface ShaderMountProps {
 }
 
 /** Params that every shader can set as part of their controls */
+// export type GlobalParams = Pick<ShaderMountProps, 'speed' | 'seed'>;
 export type GlobalParams = Pick<ShaderMountProps, 'speed'>;
 
 export const ShaderMount: React.FC<ShaderMountProps> = ({
