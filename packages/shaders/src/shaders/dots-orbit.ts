@@ -37,7 +37,7 @@ uniform float u_dotSizeRange;
 uniform float u_scale;
 uniform float u_spreading;
 uniform float u_time;
-uniform float u_ratio;
+uniform float u_pxRatio;
 uniform vec2 u_resolution;
 
 out vec4 fragColor;
@@ -80,6 +80,7 @@ void main() {
 
   uv -= .5;
   uv *= (.001 * u_scale * u_resolution);
+  uv /= u_pxRatio;
   uv += .5;
 
   float t = u_time;
