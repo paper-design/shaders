@@ -84,6 +84,7 @@ void main() {
     vec2 p = (grid - center) * vec2(u_gridSpacingX, u_gridSpacingY);
 
     float base_size = u_dotSize * (1. - size_randomizer * u_sizeRange);
+    float stroke_width = u_strokeWidth;
 
     float dist;
     if (u_shape < 0.5) {
@@ -99,6 +100,7 @@ void main() {
         // Triangle
         p = p * 2. - 1.;
         p.y -= .75 * base_size;
+        stroke_width *= 2.;
         dist = polygon(p, 3., 1e-3);
     }
 
