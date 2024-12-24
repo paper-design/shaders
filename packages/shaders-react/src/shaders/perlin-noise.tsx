@@ -17,22 +17,23 @@ export type PerlinNoiseProps = Omit<ShaderMountProps, 'fragmentShader'> & Perlin
 
 type PerlinNoisePreset = { name: string; params: Required<PerlinNoiseParams> };
 
+
 export const defaultPreset: PerlinNoisePreset = {
   name: 'Default',
   params: {
     // Note: Keep default colors in HSLA format so that our Leva controls show a transparency channel (rgba and hex8 do not work)
-    color1: 'hsla(250, 70%, 80%, 1)',
-    color2: 'hsla(10, 70%, 90%, 1)',
-    scale: 0.1,
-    speed: .1,
-    octaveCount: 6,
-    persistence: 0.5,
-    lacunarity: 2.5,
-    seed: 1,
-    contour: .55,
-    proportion: .45,
+    color1: 'hsla(0, 0%, 15%, 1)',
+    color2: 'hsla(203, 100%, 87%, 1)',
+    scale: 2,
+    speed: 0.5,
+    octaveCount: 2,
+    persistence: 1,
+    lacunarity: 1.5,
+    seed: 0,
+    contour: 0.9,
+    proportion: 0.34,
   },
-} as const;
+};
 
 export const preset1: PerlinNoisePreset = {
   name: '1',
@@ -41,13 +42,13 @@ export const preset1: PerlinNoisePreset = {
     color1: 'hsla(220, 66%, 50%, 1)',
     color2: 'hsla(155, 66%, 80%, 1)',
     scale: 0.4,
-    speed: .5,
+    speed: 0.5,
     octaveCount: 2,
     persistence: 0.55,
     lacunarity: 1.8,
     seed: 0,
     contour: 1,
-    proportion: .42,
+    proportion: 0.42,
   },
 };
 
@@ -63,12 +64,30 @@ export const preset2: PerlinNoisePreset = {
     persistence: 1,
     lacunarity: 2.55,
     seed: 0,
-    contour: .65,
-    proportion: .65,
+    contour: 0.65,
+    proportion: 0.65,
   },
 };
 
-export const perlinNoisePresets: PerlinNoisePreset[] = [defaultPreset, preset1, preset2];
+export const preset3: PerlinNoisePreset = {
+  name: '3',
+  params: {
+    // Note: Keep default colors in HSLA format so that our Leva controls show a transparency channel (rgba and hex8 do not work)
+    color1: 'hsla(30, 50%, 50%, 1)',
+    color2: 'hsla(241, 50%, 50%, 1)',
+    scale: 0.1,
+    speed: 0.15,
+    octaveCount: 6,
+    persistence: 0.55,
+    lacunarity: 2.5,
+    seed: 1,
+    contour: 0.55,
+    proportion: 0.55,
+  },
+} as const;
+
+
+export const perlinNoisePresets: PerlinNoisePreset[] = [defaultPreset, preset1, preset2, preset3];
 
 export const PerlinNoise = (props: PerlinNoiseProps): JSX.Element => {
   const uniforms: PerlinNoiseUniforms = useMemo(() => {
