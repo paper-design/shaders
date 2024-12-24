@@ -20,6 +20,10 @@ export { neuroNoiseFragmentShader, type NeuroNoiseUniforms } from './shaders/neu
 /** A shader rendering an animated dots pattern based on Voronoi diagram */
 export { dotsOrbitFragmentShader, type DotsOrbitUniforms } from './shaders/dots-orbit';
 
+// ----- Dot Grid ----- //
+/** A shader rendering a static dots pattern */
+export { dotGridFragmentShader, DotGridShapes, type DotGridShape, type DotGridUniforms } from './shaders/dot-grid';
+
 // ----- Stepped simplex noise ----- //
 /** A shader that calculates a combination of 2 simplex noises with result rendered as a stepped gradient */
 export { steppedSimplexNoiseFragmentShader, type SteppedSimplexNoiseUniforms } from './shaders/stepped-simplex-noise';

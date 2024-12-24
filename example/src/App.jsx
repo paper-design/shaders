@@ -1,5 +1,6 @@
 import { Router, Switch, Route, Link } from 'wouter';
 import { DotsOrbitWithControls } from './shaders/dots-orbit-example';
+import { DotGridWithControls } from './shaders/dot-grid-example';
 import { MeshGradientWithControls } from './shaders/mesh-gradient-example';
 import { GrainCloudsWithControls } from './shaders/grain-clouds-example';
 import { NeuroNoiseWithControls } from './shaders/neuro-noise-example';
@@ -17,6 +18,9 @@ const App = () => {
           <ul>
             <li>
               <Link href="/dots-orbit">Dots Pattern: Orbit</Link>
+            </li>
+            <li>
+              <Link href="/dot-grid">Dot Grid</Link>
             </li>
             <li>
               <Link href="/grain-clouds">Grain Clouds</Link>
@@ -40,6 +44,7 @@ const App = () => {
         </Route>
 
         <Route path="/dots-orbit" component={DotsOrbitWithControls} />
+        <Route path="/dot-grid" component={DotGridWithControls} />
         <Route path="/mesh-gradient" component={MeshGradientWithControls} />
         <Route path="/grain-clouds" component={GrainCloudsWithControls} />
         <Route path="/neuro-noise" component={NeuroNoiseWithControls} />

@@ -33,6 +33,12 @@ export { type DotsOrbitProps } from './shaders/dots-orbit';
 export { type DotsOrbitParams } from './shaders/dots-orbit';
 export { type DotsOrbitUniforms } from '@paper-design/shaders';
 
+// Dot Grid
+export { DotGrid, dotGridPresets } from './shaders/dot-grid';
+export { type DotGridProps } from './shaders/dot-grid';
+export { type DotGridParams } from './shaders/dot-grid';
+export { type DotGridUniforms, DotGridShapes, type DotGridShape } from '@paper-design/shaders';
+
 // Stepped simplex noise
 export { SteppedSimplexNoise, steppedSimplexNoisePresets } from './shaders/stepped-simplex-noise';
 export { type SteppedSimplexNoiseProps } from './shaders/stepped-simplex-noise';
