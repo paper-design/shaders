@@ -83,6 +83,8 @@ void main() {
     vec2 center = vec2(0.5) - 1e-3;
     vec2 p = (grid - center) * vec2(u_gridSpacingX, u_gridSpacingY);
 
+    float base_size = u_dotSize * (1. - size_randomizer * u_sizeRange);
+
     float dist;
     if (u_shape < 0.5) {
         // Circle
@@ -96,11 +98,11 @@ void main() {
     } else {
         // Triangle
         p = p * 2. - 1.;
-        dist = polygon(p, 3., 0.);
+        p.y -= .75 * base_size;
+        dist = polygon(p, 3., 1e-3);
     }
 
     float edge_width = fwidth(dist);
-    float base_size = u_dotSize * (1. - size_randomizer * u_sizeRange);
     float shape_outer = smoothstep(base_size + edge_width, base_size - edge_width, dist);
     float shape_inner = smoothstep(base_size - u_strokeWidth + edge_width, base_size - u_strokeWidth - edge_width, dist);
     float stroke = clamp(shape_outer - shape_inner, 0., 1.);
