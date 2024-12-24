@@ -21,6 +21,7 @@ export const defaultPreset: NeuroNoisePreset = {
     scale: 0.7,
     speed: 1,
     brightness: 1.3,
+    seed: 0,
   },
 } as const;
 
@@ -33,6 +34,7 @@ const marblePreset: NeuroNoisePreset = {
     scale: 1.2,
     speed: 0,
     brightness: 1.1,
+    seed: 0,
   },
 } as const;
 
@@ -46,8 +48,9 @@ export const NeuroNoise = (props: NeuroNoiseProps): JSX.Element => {
       u_scale: props.scale ?? defaultPreset.params.scale,
       u_speed: props.speed ?? defaultPreset.params.speed,
       u_brightness: props.brightness ?? defaultPreset.params.brightness,
+      u_seed: props.seed ?? defaultPreset.params.seed,
     };
-  }, [props.colorFront, props.colorBack, props.scale, props.speed, props.brightness]);
+  }, [props.colorFront, props.colorBack, props.scale, props.speed, props.brightness, props.seed]);
 
   return <ShaderMount {...props} fragmentShader={neuroNoiseFragmentShader} uniforms={uniforms} />;
 };

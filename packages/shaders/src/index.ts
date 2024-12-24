@@ -24,6 +24,10 @@ export { dotsOrbitFragmentShader, type DotsOrbitUniforms } from './shaders/dots-
 /** A shader that calculates a combination of 2 simplex noises with result rendered as a stepped gradient */
 export { steppedSimplexNoiseFragmentShader, type SteppedSimplexNoiseUniforms } from './shaders/stepped-simplex-noise';
 
+// ----- Metaballs ----- //
+/** A number of circlular shapes blened in a gooey way */
+export {metaballsFragmentShader, type MetaballsUniforms} from './shaders/metaballs';
+
 // ----- Perlin noise ----- //
 /** 2d noise with max number of parameters to be exposed to users */
 export { perlinNoiseFragmentShader, type PerlinNoiseUniforms } from './shaders/perlin-noise';

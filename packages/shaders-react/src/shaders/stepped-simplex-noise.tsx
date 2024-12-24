@@ -32,6 +32,7 @@ export const defaultPreset: SteppedSimplexNoisePreset = {
     scale: 0.5,
     speed: 0.15,
     stepsNumber: 13,
+    seed: 0,
   },
 } as const;
 
@@ -46,6 +47,7 @@ const magmaPreset: SteppedSimplexNoisePreset = {
     speed: 0.2,
     scale: 2,
     stepsNumber: 8,
+    seed: 0,
   },
 };
 
@@ -60,6 +62,7 @@ const bloodCellPreset: SteppedSimplexNoisePreset = {
     scale: 0.72,
     speed: 0.22,
     stepsNumber: 29,
+    seed: 0,
   },
 };
 
@@ -74,6 +77,7 @@ const firstContactPreset: SteppedSimplexNoisePreset = {
     scale: 0.62,
     speed: -0.1,
     stepsNumber: 40,
+    seed: 0,
   },
 };
 
@@ -95,6 +99,7 @@ export const SteppedSimplexNoise = (props: SteppedSimplexNoiseProps): JSX.Elemen
       u_scale: props.scale ?? defaultPreset.params.scale,
       u_speed: props.speed ?? defaultPreset.params.speed,
       u_steps_number: props.stepsNumber ?? defaultPreset.params.stepsNumber,
+      u_seed: props.seed ?? defaultPreset.params.seed,
     };
   }, [
     props.color1,
@@ -105,6 +110,7 @@ export const SteppedSimplexNoise = (props: SteppedSimplexNoiseProps): JSX.Elemen
     props.scale,
     props.speed,
     props.stepsNumber,
+    props.seed,
   ]);
 
   return <ShaderMount {...props} fragmentShader={steppedSimplexNoiseFragmentShader} uniforms={uniforms} />;

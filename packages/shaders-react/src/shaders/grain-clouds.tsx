@@ -22,6 +22,7 @@ export const defaultPreset: GrainCloudsPreset = {
     scale: 1,
     grainAmount: 0.05,
     speed: 0.3,
+    seed: 0,
   },
 };
 
@@ -33,6 +34,7 @@ export const skyPreset: GrainCloudsPreset = {
     scale: 1,
     grainAmount: 0,
     speed: 0.3,
+    seed: 0,
   },
 };
 
@@ -45,8 +47,9 @@ export const GrainClouds = (props: GrainCloudsProps): JSX.Element => {
       u_color2: getShaderColorFromString(props.color2, defaultPreset.params.color2),
       u_scale: props.scale ?? defaultPreset.params.scale,
       u_grainAmount: props.grainAmount ?? defaultPreset.params.grainAmount,
+      u_seed: props.seed ?? defaultPreset.params.seed,
     };
-  }, [props.color1, props.color2, props.scale, props.grainAmount]);
+  }, [props.color1, props.color2, props.scale, props.grainAmount, props.seed]);
 
   return <ShaderMount {...props} fragmentShader={grainCloudsFragmentShader} uniforms={uniforms} />;
 };

@@ -39,6 +39,12 @@ export { type SteppedSimplexNoiseProps } from './shaders/stepped-simplex-noise';
 export { type SteppedSimplexNoiseParams } from './shaders/stepped-simplex-noise';
 export { type SteppedSimplexNoiseUniforms } from '@paper-design/shaders';
 
+// Metaballs
+export { Metaballs, metaballsPresets } from './shaders/metaballs';
+export { type MetaballsProps } from './shaders/metaballs';
+export { type MetaballsParams } from './shaders/metaballs';
+export { type MetaballsUniforms } from '@paper-design/shaders';
+
 // Perlin noise
 export {PerlinNoise, perlinNoisePresets} from './shaders/perlin-noise';
 export {type PerlinNoiseProps} from './shaders/perlin-noise';
