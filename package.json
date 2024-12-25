@@ -4,22 +4,27 @@
   "version": "0.0.0",
   "license": "MIT",
   "workspaces": [
-    "example",
+    "examples/react",
+    "examples/vue",
     "packages/shaders",
-    "packages/shaders-react"
+    "packages/shaders-react",
+    "packages/shaders-vue"
   ],
   "scripts": {
     "build": "bun run build.js",
     "publish-all": "run-s clean build && bun run publish.js",
     "publish-all-test": "run-s clean build && bun run publish.js --dry-run",
-    "dev:example": "bun run --filter example dev",
+    "dev:react": "bun run --filter ./examples/react dev",
+    "dev:vue": "bun run --filter ./examples/vue dev",
     "dev:packages": "nodemon --watch 'packages/*/src/**/*' --ext ts,tsx --exec 'bun run build' --on-change-only",
     "dev": "run-s clean build && run-p dev:*",
     "clean": "rimraf packages/*/dist"
   },
   "devDependencies": {
     "@types/bun": "^1.1.11",
+    "defu": "^6.1.4",
     "esbuild": "^0.24.0",
+    "esbuild-plugin-vue": "^0.2.4",
     "nodemon": "^3.1.7",
     "npm-run-all": "^4.1.5",
     "rimraf": "^6.0.1",
