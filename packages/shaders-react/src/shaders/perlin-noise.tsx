@@ -73,16 +73,16 @@ export const preset3: PerlinNoisePreset = {
   name: '3',
   params: {
     // Note: Keep default colors in HSLA format so that our Leva controls show a transparency channel (rgba and hex8 do not work)
-    color1: 'hsla(30, 50%, 50%, 1)',
-    color2: 'hsla(241, 50%, 50%, 1)',
+    color1: 'hsla(350, 80%, 70%, 1)',
+    color2: 'hsla(150, 50%, 60%, 1)',
     scale: 0.1,
     speed: 0.15,
     octaveCount: 6,
-    persistence: 0.55,
-    lacunarity: 2.5,
+    persistence: 0.3,
+    lacunarity: 3,
     seed: 1,
     contour: 0.55,
-    proportion: 0.55,
+    proportion: 0.45,
   },
 } as const;
 
