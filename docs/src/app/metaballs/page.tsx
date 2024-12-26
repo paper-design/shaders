@@ -4,6 +4,8 @@ import { Metaballs, type MetaballsParams, metaballsPresets } from '@paper-design
 import { useControls, button, folder } from 'leva';
 import { setParamsSafe, useResetLevaParams } from '@/helpers/use-reset-leva-params';
 import { usePresetHighlight } from '@/helpers/use-preset-highlight';
+import Link from 'next/link';
+import { BackButton } from '@/components/back-button';
 
 /**
  * You can copy/paste this example to use Metaballs in your app
@@ -59,7 +61,14 @@ const MetaballsWithControls = () => {
 
   usePresetHighlight(metaballsPresets, params);
 
-  return <Metaballs {...params} style={{ position: 'fixed', width: '100%', height: '100%' }} />;
+  return (
+    <>
+      <Link href="/">
+        <BackButton />
+      </Link>
+      <Metaballs {...params} style={{ position: 'fixed', width: '100%', height: '100%' }} />
+    </>
+  );
 };
 
 export default MetaballsWithControls;

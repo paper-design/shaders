@@ -5,6 +5,7 @@ import { button, folder, useControls } from 'leva';
 import { setParamsSafe, useResetLevaParams } from '@/helpers/use-reset-leva-params';
 import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import Link from 'next/link';
+import { BackButton } from '@/components/back-button';
 
 /**
  * You can copy/paste this example to use GrainClouds in your app
@@ -48,7 +49,7 @@ const GrainCloudsWithControls = () => {
   return (
     <>
       <Link href="/">
-        <button className="fixed top-2 left-2 bg-white z-10 px-2 py-1 rounded-md">Back</button>
+        <BackButton />
       </Link>
       <GrainClouds {...params} style={{ position: 'fixed', width: '100%', height: '100%' }} />
     </>

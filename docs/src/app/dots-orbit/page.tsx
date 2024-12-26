@@ -1,5 +1,6 @@
 'use client';
 
+import { BackButton } from '@/components/back-button';
 import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import { setParamsSafe, useResetLevaParams } from '@/helpers/use-reset-leva-params';
 import { DotsOrbit, type DotsOrbitParams, dotsOrbitPresets } from '@paper-design/shaders-react';
@@ -65,7 +66,7 @@ const DotsOrbitWithControls = () => {
   return (
     <>
       <Link href="/">
-        <button className="fixed top-2 left-2 bg-white z-10 px-2 py-1 rounded-md">Back</button>
+        <BackButton />
       </Link>
       <DotsOrbit {...params} style={{ position: 'fixed', width: '100%', height: '100%' }} />
     </>
