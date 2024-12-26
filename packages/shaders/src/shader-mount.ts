@@ -74,6 +74,7 @@ export class ShaderMount {
   private setupUniforms = () => {
     this.uniformLocations = {
       u_time: this.gl.getUniformLocation(this.program!, 'u_time'),
+      u_pixelRatio: this.gl.getUniformLocation(this.program!, 'u_pixelRatio'),
       u_resolution: this.gl.getUniformLocation(this.program!, 'u_resolution'),
       ...Object.fromEntries(
         Object.keys(this.providedUniforms).map((key) => [key, this.gl.getUniformLocation(this.program!, key)])
@@ -89,15 +90,15 @@ export class ShaderMount {
   };
 
   private handleResize = () => {
-    const pxRatio = Math.min(2, window.devicePixelRatio);
-    const newWidth = this.canvas.clientWidth * pxRatio;
-    const newHeight = this.canvas.clientHeight * pxRatio;
+    const pixelRatio = window.devicePixelRatio;
+    const newWidth = this.canvas.clientWidth * pixelRatio;
+    const newHeight = this.canvas.clientHeight * pixelRatio;
     if (this.canvas.width !== newWidth || this.canvas.height !== newHeight) {
       this.canvas.width = newWidth;
       this.canvas.height = newHeight;
       this.resolutionChanged = true;
       this.gl.viewport(0, 0, this.gl.canvas.width, this.gl.canvas.height);
-      this.render(performance.now());
+      this.render(performance.now()); // this is necessary to avoid flashes while resizing (the next scheduled render will set uniforms)
     }
   };
 
@@ -112,6 +113,9 @@ export class ShaderMount {
       this.totalAnimationTime += dt * this.speed;
     }
 
+    // Clear the canvas
+    this.gl.clear(this.gl.COLOR_BUFFER_BIT);
+
     // Update uniforms
     this.gl.useProgram(this.program);
 
@@ -121,6 +125,7 @@ export class ShaderMount {
     // If the resolution has changed, we need to update the uniform
     if (this.resolutionChanged) {
       this.gl.uniform2f(this.uniformLocations.u_resolution!, this.gl.canvas.width, this.gl.canvas.height);
+      this.gl.uniform1f(this.uniformLocations.u_pixelRatio!, window.devicePixelRatio);
       this.resolutionChanged = false;
     }
 
@@ -179,7 +184,9 @@ export class ShaderMount {
 
   /** Set a seed to get a deterministic result */
   public setSeed = (newSeed: number): void => {
-    this.totalAnimationTime = newSeed;
+    const oneFrameAt120Fps = 1000 / 120;
+    this.totalAnimationTime = newSeed * oneFrameAt120Fps;
+    this.lastFrameTime = performance.now();
     this.render(performance.now());
   };
 

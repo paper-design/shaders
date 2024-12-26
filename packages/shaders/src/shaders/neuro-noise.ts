@@ -26,7 +26,7 @@ uniform float u_scale;
 uniform float u_brightness;
 
 uniform float u_time;
-uniform float u_ratio;
+uniform float u_pixelRatio;
 uniform vec2 u_resolution;
 
 out vec4 fragColor;
@@ -56,6 +56,7 @@ void main() {
 
   uv -= .5;
   uv *= (.001 * u_scale * u_resolution);
+  uv /= u_pixelRatio;
   uv += .5;
 
   float t = u_time;
@@ -65,7 +66,7 @@ void main() {
   noise = u_brightness * pow(noise, 3.);
   noise += pow(noise, 12.);
   noise = max(.0, noise - .5);
-  
+
   vec3 color = mix(u_colorBack.rgb * u_colorBack.a, u_colorFront.rgb * u_colorFront.a, noise);
   float opacity = mix(u_colorBack.a, u_colorFront.a, noise);
 

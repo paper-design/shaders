@@ -24,6 +24,7 @@ export const defaultPreset: SmokeRingPreset = {
     speed: 1,
     noiseScale: 1.4,
     thickness: 0.33,
+    seed: 0,
   },
 } as const;
 
@@ -36,6 +37,7 @@ export const cloudPreset: SmokeRingPreset = {
     speed: 1,
     thickness: 0.7,
     noiseScale: 1.8,
+    seed: 0,
   },
 };
 
@@ -48,6 +50,7 @@ export const firePreset: SmokeRingPreset = {
     speed: 4,
     thickness: 0.35,
     noiseScale: 1.4,
+    seed: 0,
   },
 };
 
@@ -60,6 +63,7 @@ export const electricPreset: SmokeRingPreset = {
     speed: 2.5,
     thickness: 0.1,
     noiseScale: 1.8,
+    seed: 0,
   },
 };
 
@@ -72,6 +76,7 @@ export const poisonPreset: SmokeRingPreset = {
     speed: 3,
     thickness: 0.6,
     noiseScale: 5,
+    seed: 0,
   },
 };
 
@@ -92,8 +97,9 @@ export const SmokeRing = (props: SmokeRingProps): JSX.Element => {
       u_speed: props.speed ?? defaultPreset.params.speed,
       u_scale: props.noiseScale ?? defaultPreset.params.noiseScale,
       u_thickness: props.thickness ?? defaultPreset.params.thickness,
+      u_seed: props.seed ?? defaultPreset.params.seed,
     };
-  }, [props.colorBack, props.color1, props.color2, props.speed, props.noiseScale, props.thickness]);
+  }, [props.colorBack, props.color1, props.color2, props.speed, props.noiseScale, props.thickness, props.seed]);
 
   return <ShaderMount {...props} fragmentShader={smokeRingFragmentShader} uniforms={uniforms} />;
 };
