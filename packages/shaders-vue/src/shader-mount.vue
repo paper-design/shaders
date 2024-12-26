@@ -1,12 +1,12 @@
 <script lang="ts">
-import { type CSSProperties, type Ref, ref, watch, onScopeDispose, type MaybeRefOrGetter, toRef } from 'vue';
+import { type CSSProperties, type Ref, ref, watch, onScopeDispose, toRef } from 'vue';
 import { ShaderMount as ShaderMountVanilla } from '@paper-design/shaders';
 
 export interface ShaderMountProps {
   ref?: Ref<HTMLCanvasElement>;
   fragmentShader: string;
   style?: CSSProperties;
-  uniforms?: MaybeRefOrGetter<Record<string, number | number[]>>;
+  uniforms?: Record<string, number | number[]>;
   webGlContextAttributes?: WebGLContextAttributes;
   speed?: number;
   seed?: number;
@@ -29,7 +29,7 @@ const {
 
 const canvasRef = defaultRef ?? ref<HTMLCanvasElement | null>(null);
 const shaderMountRef = ref<ShaderMountVanilla | null>(null);
-const uniformsRef = toRef(uniforms);
+const uniformsRef = toRef(() => uniforms);
 
 watch(
   () => [fragmentShader, webGlContextAttributes],

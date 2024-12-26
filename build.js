@@ -1,16 +1,16 @@
 import esbuild from 'esbuild';
 import { execSync } from 'child_process';
 import defu from 'defu';
-import vue from 'esbuild-plugin-vue';
+import vue from 'unplugin-vue/esbuild';
 
-async function build(packageDir, options = {}) {
+async function build(packageDir, options = {}, typeCompiler = 'tsc') {
   const input = `${packageDir}/src/index.ts`;
   const outDir = `${packageDir}/dist`;
   const tsconfig = `${packageDir}/tsconfig.json`;
 
   // ----- Generate type declaration files ----- //
   try {
-    execSync(`tsc --emitDeclarationOnly --declaration --outDir ${outDir} --project ${tsconfig} --pretty`, {
+    execSync(`${typeCompiler} --emitDeclarationOnly --declaration --outDir ${outDir} --project ${tsconfig} --pretty`, {
       stdio: 'inherit',
     });
     console.log(`Built ${outDir}/index.d.ts`);
@@ -48,4 +48,4 @@ async function build(packageDir, options = {}) {
 
 build('packages/shaders');
 build('packages/shaders-react', { external: ['react'] });
-build('packages/shaders-vue', { plugins: [vue()] });
+build('packages/shaders-vue', { plugins: [vue()], external: ['vue'] }, 'vue-tsc');
