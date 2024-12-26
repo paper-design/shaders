@@ -18,6 +18,7 @@ export const defaultPreset: SmokeRingPreset = {
   name: 'Default',
   params: {
     // Note: Keep default colors in HSLA format so that our Leva controls show a transparency channel (rgba and hex8 do not work)
+    // And don't use decimal values or highlights won't work, because the values get rounded and highlights need an exact match.
     colorBack: 'hsla(208, 54%, 7%, 1)',
     color1: 'hsla(0, 0%, 100%, 1)',
     color2: 'hsla(211, 100%, 64%, 1)',

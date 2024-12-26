@@ -16,6 +16,8 @@ type NeuroNoisePreset = { name: string; params: Required<NeuroNoiseParams> };
 export const defaultPreset: NeuroNoisePreset = {
   name: 'Default',
   params: {
+    // Note: Keep default colors in HSLA format so that our Leva controls show a transparency channel (rgba and hex8 do not work)
+    // And don't use decimal values or highlights won't work, because the values get rounded and highlights need an exact match.
     colorFront: 'hsla(261, 100%, 82%, 1)',
     colorBack: 'hsla(0, 0%, 0%, 1)',
     scale: 0.7,

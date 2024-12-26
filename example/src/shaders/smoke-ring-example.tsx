@@ -1,33 +1,7 @@
 import { SmokeRing, type SmokeRingParams, smokeRingPresets } from '@paper-design/shaders-react';
 import { useControls, button, folder } from 'leva';
-import { useEffect } from 'react';
 import { setParamsSafe, useResetLevaParams } from '../example-helpers/use-reset-leva-params';
-
-const usePresetHighlight = (presets: typeof smokeRingPresets, params: SmokeRingParams) => {
-  useEffect(() => {
-    const matchingPreset = presets.find((preset) => {
-      return Object.entries(preset.params).every(([key, value]) => {
-        const paramValue = params[key as keyof typeof params];
-        const presetValue =
-          typeof value === 'string' && value.startsWith('hsla') && value.endsWith(', 1)')
-            ? value.replace('hsla', 'hsl').slice(0, -4) + ')'
-            : value;
-        return paramValue === presetValue;
-      });
-    });
-
-    presets.forEach((preset, presetIndex) => {
-      const buttons = document.querySelectorAll<HTMLButtonElement>(`#leva__root button`);
-      if (buttons.length > 0) {
-        if (preset === matchingPreset) {
-          buttons[presetIndex].style.backgroundColor = 'var(--leva-colors-accent1)';
-        } else {
-          buttons[presetIndex].style.backgroundColor = 'var(--leva-colors-elevation3)';
-        }
-      }
-    });
-  }, [params, presets]);
-};
+import { usePresetHighlight } from '../example-helpers/use-preset-highlight';
 
 /**
  * You can copy/paste this example to use SmokeRing in your app

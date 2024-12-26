@@ -2,6 +2,7 @@ import { Metaballs, type MetaballsParams, metaballsPresets } from '@paper-design
 import { useControls, button, folder } from 'leva';
 import { useEffect } from 'react';
 import { setParamsSafe, useResetLevaParams } from '../example-helpers/use-reset-leva-params';
+import { usePresetHighlight } from '../example-helpers/use-preset-highlight';
 
 /**
  * You can copy/paste this example to use Metaballs in your app
@@ -54,6 +55,8 @@ export const MetaballsWithControls = () => {
   // Reset to defaults on mount, so that Leva doesn't show values from other
   // shaders when navigating (if two shaders have a color1 param for example)
   useResetLevaParams(params, setParams, defaults);
+
+  usePresetHighlight(metaballsPresets, params);
 
   return <Metaballs {...params} style={{ position: 'fixed', width: '100%', height: '100%' }} />;
 };

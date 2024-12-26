@@ -21,10 +21,11 @@ export const defaultPreset: DotsOrbitPreset = {
   name: 'Default',
   params: {
     // Note: Keep default colors in HSLA format so that our Leva controls show a transparency channel (rgba and hex8 do not work)
-    color1: 'hsla(358.2, 66.1%, 48.6%, 1)',
-    color2: 'hsla(145.2, 30.1%, 32.5%, 1)',
-    color3: 'hsla(39.4, 87.7%, 52.4%, 1)',
-    color4: 'hsla(273.5, 29.5%, 34.5%, 1)',
+    // And don't use decimal values or highlights won't work, because the values get rounded and highlights need an exact match.
+    color1: 'hsla(358, 66%, 49%, 1)',
+    color2: 'hsla(145, 30%, 33%, 1)',
+    color3: 'hsla(39, 88%, 52%, 1)',
+    color4: 'hsla(274, 30%, 35%, 1)',
     dotSize: 0.2,
     dotSizeRange: 0.05,
     scale: 10,
