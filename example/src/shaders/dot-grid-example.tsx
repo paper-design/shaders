@@ -45,7 +45,7 @@ export const DotGridWithControls = () => {
           gridSpacingY: { value: defaults.gridSpacingY, order: 6, min: 2, max: 500 },
           strokeWidth: { value: defaults.dotSize, order: 7, min: 0, max: 50 },
           sizeRange: { value: defaults.gridSpacingY, order: 8, min: 0, max: 1 },
-          opacityRange: { value: defaults.gridSpacingY, order: 9, min: 0, max: 1 },
+          opacityRange: { value: defaults.gridSpacingY, order: 9, min: 0, max: 2 },
           shape: { value: defaults.shape, order: 10, options: DotGridShapes },
         },
         { order: 1 }
