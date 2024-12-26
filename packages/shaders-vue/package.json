@@ -1,0 +1,36 @@
+{
+  "name": "@paper-design/shaders-vue",
+  "version": "0.0.1",
+  "license": "MIT",
+  "type": "module",
+  "publishConfig": {
+    "access": "public"
+  },
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "type-check": "vue-tsc --project tsconfig.json"
+  },
+  "peerDependencies": {
+    "vue": ">=3.5"
+  },
+  "dependencies": {
+    "@paper-design/shaders": "workspace:*"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.2.1",
+    "vue-tsc": "^2.2.0",
+    "unplugin-vue": "^5.2.1"
+  }
+}
