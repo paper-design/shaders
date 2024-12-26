@@ -6,15 +6,19 @@ import grainCloudsImg from '../../public/shaders/grain-clouds.webp';
 import neuroNoiseImg from '../../public/shaders/neuro-noise.webp';
 import dotOrbitImg from '../../public/shaders/dot-orbit.webp';
 import smokeRingImg from '../../public/shaders/smoke-ring.webp';
+import metaballsImg from '../../public/shaders/metaballs.webp';
 import { ShaderItem } from './shader-item';
 import {
   DotsOrbit,
   GrainClouds,
   MeshGradient,
+  Metaballs,
   NeuroNoise,
   SmokeRing,
   SteppedSimplexNoise,
 } from '@paper-design/shaders-react';
+import { GithubIcon } from '@/icons';
+import Link from 'next/link';
 
 const shaders = [
   {
@@ -91,6 +95,22 @@ const shaders = [
       noiseScale: 1.8,
     },
   },
+  {
+    name: 'metaballs',
+    image: metaballsImg,
+    url: '/metaballs',
+    ShaderComponent: Metaballs,
+    shaderConfig: {
+      color1: '#f42547',
+      color2: '#eb4763',
+      color3: '#f49d71',
+      scale: 7,
+      speed: 0.6,
+      dotSize: 1,
+      visibilityRange: 0.4,
+      seed: 0,
+    },
+  },
 ];
 
 export default function Home() {
@@ -98,14 +118,19 @@ export default function Home() {
     <>
       <header className="bg-[#f7f6f0] pt-5 pb-32">
         <div className="container mx-auto max-w-screen-lg px-4">
-          <div className="font-semibold text-xl mb-5">Paper</div>
+          <div className="flex justify-between mb-5 items-center">
+            <div className="font-semibold text-xl">Paper</div>
+            <Link href="https://github.com/paper-design/shaders" target="_blank">
+              <GithubIcon className="size-8" />
+            </Link>
+          </div>
           <div className="flex flex-col gap-2 text-center max-w-64 mx-auto">
             <h1 className="text-4xl font-bold">Paper Shaders</h1>
             <p className="text-lg text-gray-600">ultra fast zero-dependency shaders for your designs</p>
           </div>
         </div>
       </header>
-      <main className="-mt-12">
+      <main className="-mt-12 pb-16">
         <div className="container mx-auto max-w-screen-lg px-4">
           <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-16 gap-x-16 gap-y-8 md:gap-y-16">
             {shaders.map((shader) => (
