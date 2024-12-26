@@ -26,7 +26,7 @@ export function ShaderItem({
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <div className=" h-32 rounded-full overflow-hidden">
+      <div className=" h-32 rounded-full overflow-hidden shadow">
         {isHovered ? (
           <ShaderComponent style={{ width: '100%', height: '100%' }} {...shaderConfig} />
         ) : (
