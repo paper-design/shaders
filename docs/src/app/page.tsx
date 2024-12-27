@@ -3,21 +3,30 @@
 import { ShaderItem } from '@/components/shader-item';
 import { homeShaders } from '@/home-shaders';
 import { GithubIcon } from '@/icons';
+import Image from 'next/image';
 import Link from 'next/link';
+import logoImg from '../../public/logo-placeholder.webp';
 
 export default function Home() {
   return (
     <>
-      <header className="bg-[#f7f6f0] pt-5 pb-32">
+      <header className="bg-[#f7f6f0] pt-5 pb-24 sm:pb-32">
         <div className="container mx-auto max-w-screen-lg px-4">
-          <div className="flex justify-between mb-5 items-center">
-            <div className="font-semibold text-xl">Paper</div>
+          <div className="flex justify-between mb-8 items-center">
+            <Link
+              className="flex items-center gap-1 font-semibold font-[matter] text-2xl"
+              href="https://paper.design/"
+              target="_blank"
+            >
+              <Image src={logoImg} alt="Paper" width={32} height={32} className="opacity-80 relative top-[1px]" />
+              Paper
+            </Link>
             <Link href="https://github.com/paper-design/shaders" target="_blank">
               <GithubIcon className="size-8" />
             </Link>
           </div>
           <div className="flex flex-col gap-2 text-center max-w-64 mx-auto">
-            <h1 className="text-4xl font-bold">Paper Shaders</h1>
+            <h1 className="text-4xl font-bold font-[matter]">Paper Shaders</h1>
             <p className="text-lg text-gray-600">ultra fast zero-dependency shaders for your designs</p>
           </div>
         </div>

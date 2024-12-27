@@ -2,22 +2,15 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+@font-face {
+  font-family: matter;
+  font-style: normal;
+  font-display: swap;
+  src: url('https://assets.paper.design/fonts/MatterUprights-VF.woff2');
 }
 
 body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: matter, system-ui, sans-serif;
 }
 
 #leva__root button {
