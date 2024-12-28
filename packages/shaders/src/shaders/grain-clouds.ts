@@ -17,91 +17,90 @@ export type GrainCloudsUniforms = {
  * u_grainAmount: The amount of grain on the texture
  */
 export const grainCloudsFragmentShader = `#version 300 es
-  precision highp float;
-  uniform vec2 u_resolution;
-  uniform float u_pixelRatio;
-  uniform float u_time;
+precision highp float;
+uniform vec2 u_resolution;
+uniform float u_pixelRatio;
+uniform float u_time;
 
-  uniform vec4 u_color1;
-  uniform vec4 u_color2;
-  uniform float u_scale;
-  uniform float u_grainAmount;
+uniform vec4 u_color1;
+uniform vec4 u_color2;
+uniform float u_scale;
+uniform float u_grainAmount;
 
-  out vec4 fragColor;
+out vec4 fragColor;
 
-  // Simplex 2D noise
-  vec3 permute(vec3 x) { return mod(((x*34.0)+1.0)*x, 289.0); }
+// Simplex 2D noise
+vec3 permute(vec3 x) { return mod(((x * 34.0) + 1.0) * x, 289.0); }
 
-  float snoise(vec2 v) {
-    const vec4 C = vec4(0.211324865405187, 0.366025403784439,
-                        -0.577350269189626, 0.024390243902439);
-    vec2 i  = floor(v + dot(v, C.yy));
-    vec2 x0 = v -   i + dot(i, C.xx);
-    vec2 i1;
-    i1 = (x0.x > x0.y) ? vec2(1.0, 0.0) : vec2(0.0, 1.0);
-    vec4 x12 = x0.xyxy + C.xxzz;
-    x12.xy -= i1;
-    i = mod(i, 289.0);
-    vec3 p = permute( permute( i.y + vec3(0.0, i1.y, 1.0))
+float snoise(vec2 v) {
+  const vec4 C = vec4(0.211324865405187, 0.366025403784439,
+    -0.577350269189626, 0.024390243902439);
+  vec2 i = floor(v + dot(v, C.yy));
+  vec2 x0 = v - i + dot(i, C.xx);
+  vec2 i1;
+  i1 = (x0.x > x0.y) ? vec2(1.0, 0.0) : vec2(0.0, 1.0);
+  vec4 x12 = x0.xyxy + C.xxzz;
+  x12.xy -= i1;
+  i = mod(i, 289.0);
+  vec3 p = permute(permute(i.y + vec3(0.0, i1.y, 1.0))
     + i.x + vec3(0.0, i1.x, 1.0));
-    vec3 m = max(0.5 - vec3(dot(x0,x0), dot(x12.xy,x12.xy),
-      dot(x12.zw,x12.zw)), 0.0);
-    m = m*m ;
-    m = m*m ;
-    vec3 x = 2.0 * fract(p * C.www) - 1.0;
-    vec3 h = abs(x) - 0.5;
-    vec3 ox = floor(x + 0.5);
-    vec3 a0 = x - ox;
-    m *= 1.79284291400159 - 0.85373472095314 * (a0*a0 + h*h);
-    vec3 g;
-    g.x = a0.x * x0.x + h.x * x0.y;
-    g.yz = a0.yz * x12.xz + h.yz * x12.yw;
-    return 130.0 * dot(m, g);
+  vec3 m = max(0.5 - vec3(dot(x0, x0), dot(x12.xy, x12.xy),
+      dot(x12.zw, x12.zw)), 0.0);
+  m = m * m;
+  m = m * m;
+  vec3 x = 2.0 * fract(p * C.www) - 1.0;
+  vec3 h = abs(x) - 0.5;
+  vec3 ox = floor(x + 0.5);
+  vec3 a0 = x - ox;
+  m *= 1.79284291400159 - 0.85373472095314 * (a0 * a0 + h * h);
+  vec3 g;
+  g.x = a0.x * x0.x + h.x * x0.y;
+  g.yz = a0.yz * x12.xz + h.yz * x12.yw;
+  return 130.0 * dot(m, g);
+}
+
+float rand(vec2 n) {
+  return fract(cos(dot(n, vec2(12.9898, 4.1414))) * 43758.5453);
+}
+float noise(vec2 n) {
+  const vec2 d = vec2(0.0, 1.0);
+  vec2 b = floor(n), f = smoothstep(vec2(0.0), vec2(1.0), fract(n));
+  return mix(mix(rand(b), rand(b + d.yx), f.x), mix(rand(b + d.xy), rand(b + d.yy), f.x), f.y);
+}
+float fbm(vec2 n) {
+  float total = 0.0, amplitude = .2;
+  for (int i = 0; i < 6; i++) {
+    total += noise(n) * amplitude;
+    n += n;
+    amplitude *= 0.6;
   }
+  return total;
+}
 
-    float rand(vec2 n) {
-        return fract(cos(dot(n, vec2(12.9898, 4.1414))) * 43758.5453);
-    }
-    float noise(vec2 n) {
-        const vec2 d = vec2(0.0, 1.0);
-        vec2 b = floor(n), f = smoothstep(vec2(0.0), vec2(1.0), fract(n));
-        return mix(mix(rand(b), rand(b + d.yx), f.x), mix(rand(b + d.xy), rand(b + d.yy), f.x), f.y);
-    }
-    float fbm(vec2 n) {
-        float total = 0.0, amplitude = .2;
-        for (int i = 0; i < 6; i++) {
-            total += noise(n) * amplitude;
-            n += n;
-            amplitude *= 0.6;
-        }
-        return total;
-    }
+void main() {
+  vec2 uv = gl_FragCoord.xy / u_resolution.xy;
 
+  uv -= .5;
+  float scale = .5 * u_scale + 1e-4;
+  uv *= (.0004 * (1. - step(1. - scale, 1.) / scale));
+  uv *= u_resolution;
+  uv /= u_pixelRatio;
+  uv += .5;
 
-  void main() {
-    vec2 uv = gl_FragCoord.xy / u_resolution.xy;
+  // Create blobby texture
+  float n = snoise(uv + u_time);
+  n += 0.5 * snoise(uv * 2.0 - u_time * 0.5);
+  n += 0.25 * snoise(uv * 4.0 + u_time * 0.25);
+  n = n * 0.5 + 0.5;
 
-    uv -= .5;
-    float scale = .5 * u_scale + 1e-4;
-    uv *= (.0004 * (1. - step(1. - scale, 1.) / scale));
-    uv *= u_resolution;
-    uv /= u_pixelRatio;
-    uv += .5;
-    
-    // Create blobby texture
-    float n = snoise(uv + u_time);
-    n += 0.5 * snoise(uv * 2.0 - u_time * 0.5);
-    n += 0.25 * snoise(uv * 4.0 + u_time * 0.25);
-    n = n * 0.5 + 0.5;
+  // Color interpolation
+  vec3 color = mix(u_color1.rgb, u_color2.rgb, n);
+  float opacity = mix(u_color1.a, u_color2.a, n);
 
-    // Color interpolation
-    vec3 color = mix(u_color1.rgb, u_color2.rgb, n);
-    float opacity = mix(u_color1.a, u_color2.a, n);
+  // Add grain
+  float grain = fbm(uv * 1000.);
+  color.rgb += (grain - 0.5) * u_grainAmount;
 
-    // Add grain
-    float grain = fbm(uv * 1000.);
-    color.rgb += (grain - 0.5) * u_grainAmount;
-
-    fragColor = vec4(color * opacity, opacity);
-  }
+  fragColor = vec4(color * opacity, opacity);
+}
 `;
