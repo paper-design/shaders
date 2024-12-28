@@ -19,7 +19,7 @@ export default function Home() {
               Paper
             </Link>
             <Link href="https://github.com/paper-design/shaders" target="_blank">
-              <GithubIcon className="size-8" />
+              <GithubIcon className="size-7" />
             </Link>
           </div>
           <div className="flex flex-col gap-2 text-center max-w-64 mx-auto">
