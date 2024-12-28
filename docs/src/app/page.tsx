@@ -7,30 +7,30 @@ import logoImg from '../../public/logo-placeholder.webp';
 export default function Home() {
   return (
     <>
-      <header className="bg-[#f7f6f0] pt-5 pb-24 sm:pb-32">
+      <header className="bg-[#f7f6f0] pb-24 pt-5 sm:pb-32">
         <div className="container mx-auto max-w-screen-lg px-4">
-          <div className="flex justify-between mb-8 items-center">
+          <div className="mb-8 flex items-center justify-between">
             <Link
-              className="flex items-center gap-1 font-semibold font-[matter] text-2xl"
+              className="flex items-center gap-1 font-[matter] text-2xl font-semibold"
               href="https://paper.design/"
               target="_blank"
             >
-              <Image src={logoImg} alt="Paper" width={32} height={32} className="opacity-80 relative top-[1px]" />
+              <Image src={logoImg} alt="Paper" width={32} height={32} className="relative top-[1px] opacity-80" />
               Paper
             </Link>
             <Link href="https://github.com/paper-design/shaders" target="_blank">
               <GithubIcon className="size-7" />
             </Link>
           </div>
-          <div className="flex flex-col gap-2 text-center max-w-64 mx-auto">
-            <h1 className="text-4xl font-bold font-[matter]">Paper Shaders</h1>
+          <div className="mx-auto flex max-w-64 flex-col gap-2 text-center">
+            <h1 className="font-[matter] text-4xl font-bold">Paper Shaders</h1>
             <p className="text-lg text-gray-600">ultra fast zero-dependency shaders for your designs</p>
           </div>
         </div>
       </header>
       <main className="-mt-12 pb-16">
         <div className="container mx-auto max-w-screen-lg px-4">
-          <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-16 gap-x-16 gap-y-8 md:gap-y-16">
+          <div className="grid gap-16 gap-x-16 gap-y-8 sm:grid-cols-2 md:grid-cols-3 md:gap-y-16">
             <ShaderItems />
           </div>
         </div>

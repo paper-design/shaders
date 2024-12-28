@@ -31,7 +31,7 @@ export function ShaderItem({
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <div className="relative h-32 rounded-full overflow-hidden shadow">
+      <div className="relative h-32 overflow-hidden rounded-full shadow">
         <Image
           className="size-full object-cover"
           src={image}
