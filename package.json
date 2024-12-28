@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "license": "MIT",
   "workspaces": [
-    "example",
+    "docs",
     "packages/shaders",
     "packages/shaders-react"
   ],
@@ -12,7 +12,7 @@
     "build": "bun run build.js",
     "publish-all": "run-s clean build && bun run publish.js",
     "publish-all-test": "run-s clean build && bun run publish.js --dry-run",
-    "dev:example": "bun run --filter example dev",
+    "dev:docs": "bun run --filter docs dev",
     "dev:packages": "nodemon --watch 'packages/*/src/**/*' --ext ts,tsx --exec 'bun run build' --on-change-only",
     "dev": "run-s clean build && run-p dev:*",
     "clean": "rimraf packages/*/dist"
@@ -22,7 +22,12 @@
     "esbuild": "^0.24.0",
     "nodemon": "^3.1.7",
     "npm-run-all": "^4.1.5",
+    "prettier": "^3.4.2",
+    "prettier-plugin-tailwindcss": "^0.6.9",
     "rimraf": "^6.0.1",
     "typescript": "^5.6.3"
+  },
+  "patchedDependencies": {
+    "leva@0.9.34": "patches/leva@0.9.34.patch"
   }
 }

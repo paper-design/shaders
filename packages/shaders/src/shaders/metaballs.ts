@@ -1,10 +1,10 @@
 export type MetaballsUniforms = {
-    u_color1: [number, number, number, number];
-    u_color2: [number, number, number, number];
-    u_color3: [number, number, number, number];
-    u_scale: number;
-    u_dotSize: number;
-    u_visibilityRange: number;
+  u_color1: [number, number, number, number];
+  u_color2: [number, number, number, number];
+  u_color3: [number, number, number, number];
+  u_scale: number;
+  u_dotSize: number;
+  u_visibilityRange: number;
 };
 
 /**

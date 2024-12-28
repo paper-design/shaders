@@ -1,14 +1,18 @@
+'use client';
+
 import { GrainClouds, type GrainCloudsParams, grainCloudsPresets } from '@paper-design/shaders-react';
 import { button, folder, useControls } from 'leva';
-import { setParamsSafe, useResetLevaParams } from '../example-helpers/use-reset-leva-params';
-import { usePresetHighlight } from '../example-helpers/use-preset-highlight';
+import { setParamsSafe, useResetLevaParams } from '@/helpers/use-reset-leva-params';
+import { usePresetHighlight } from '@/helpers/use-preset-highlight';
+import Link from 'next/link';
+import { BackButton } from '@/components/back-button';
 
 /**
  * You can copy/paste this example to use GrainClouds in your app
  */
-const GrainCloudsExample = () => {
-  return <GrainClouds color1="#000" color2="#fff" style={{ position: 'fixed', width: '100%', height: '100%' }} />;
-};
+// const GrainCloudsExample = () => {
+//   return <GrainClouds color1="#000" color2="#fff" style={{ position: 'fixed', width: '100%', height: '100%' }} />;
+// };
 
 /**
  * This example has controls added so you can play with settings in the example app
@@ -16,7 +20,7 @@ const GrainCloudsExample = () => {
 
 const defaults = grainCloudsPresets[0].params;
 
-export const GrainCloudsWithControls = () => {
+const GrainCloudsWithControls = () => {
   const [params, setParams] = useControls(() => {
     const presets: GrainCloudsParams = Object.fromEntries(
       grainCloudsPresets.map((preset) => [preset.name, button(() => setParamsSafe(params, setParams, preset.params))])
@@ -42,5 +46,14 @@ export const GrainCloudsWithControls = () => {
 
   usePresetHighlight(grainCloudsPresets, params);
 
-  return <GrainClouds {...params} style={{ position: 'fixed', width: '100%', height: '100%' }} />;
+  return (
+    <>
+      <Link href="/">
+        <BackButton />
+      </Link>
+      <GrainClouds {...params} style={{ position: 'fixed', width: '100%', height: '100%' }} />
+    </>
+  );
 };
+
+export default GrainCloudsWithControls;
