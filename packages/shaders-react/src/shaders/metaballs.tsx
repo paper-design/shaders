@@ -19,6 +19,7 @@ export const defaultPreset: MetaballsPreset = {
   name: 'Default',
   params: {
     // Note: Keep default colors in HSLA format so that our Leva controls show a transparency channel (rgba and hex8 do not work)
+    // And don't use decimal values or highlights won't work, because the values get rounded and highlights need an exact match.
     color1: 'hsla(350, 90%, 55%, 1)',
     color2: 'hsla(350, 80%, 60%, 1)',
     color3: 'hsla(20, 85%, 70%, 1)',

@@ -24,10 +24,11 @@ export const defaultPreset: SteppedSimplexNoisePreset = {
   name: 'Default',
   params: {
     // Note: Keep default colors in HSLA format so that our Leva controls show a transparency channel (rgba and hex8 do not work)
-    color1: 'hsla(208.42, 24.68%, 45.29%, 1)',
-    color2: 'hsla(94.07, 38.39%, 58.63%, 1)',
-    color3: 'hsla(359.02, 93.88%, 61.57%, 1)',
-    color4: 'hsla(42.35, 93.41%, 64.31%, 1)',
+    // And don't use decimal values or highlights won't work, because the values get rounded and highlights need an exact match.
+    color1: 'hsla(208, 25%, 45%, 1)',
+    color2: 'hsla(94, 38%, 59%, 1)',
+    color3: 'hsla(359, 94%, 62%, 1)',
+    color4: 'hsla(42, 93%, 64%, 1)',
     color5: 'hsla(0, 0%, 100%, 1)',
     scale: 0.5,
     speed: 0.15,
@@ -39,11 +40,11 @@ export const defaultPreset: SteppedSimplexNoisePreset = {
 const magmaPreset: SteppedSimplexNoisePreset = {
   name: 'Magma',
   params: {
-    color1: 'hsla(0, 100%, 36.47%, 1)',
-    color2: 'hsla(0, 95.54%, 43.92%, 1)',
-    color3: 'hsla(20.08, 100%, 48.63%, 1)',
-    color4: 'hsla(45, 100%, 45.49%, 1)',
-    color5: 'hsla(31.87, 100%, 93.73%, 1)',
+    color1: 'hsla(0, 100%, 36%, 1)',
+    color2: 'hsla(0, 95%, 44%, 1)',
+    color3: 'hsla(20, 100%, 49%, 1)',
+    color4: 'hsla(45, 100%, 45%, 1)',
+    color5: 'hsla(31, 100%, 94%, 1)',
     speed: 0.2,
     scale: 2,
     stepsNumber: 8,
@@ -54,11 +55,11 @@ const magmaPreset: SteppedSimplexNoisePreset = {
 const bloodCellPreset: SteppedSimplexNoisePreset = {
   name: 'Blood cell',
   params: {
-    color1: '#30132f',
-    color2: '#540332',
-    color3: '#720d32',
-    color4: '#720d32',
-    color5: '#f4807c',
+    color1: 'hsla(302, 43%, 13%, 1)',
+    color2: 'hsla(325, 93%, 17%, 1)',
+    color3: 'hsla(338, 80%, 25%, 1)',
+    color4: 'hsla(338, 80%, 25%, 1)',
+    color5: 'hsla(2, 85%, 72%, 1)',
     scale: 0.72,
     speed: 0.22,
     stepsNumber: 29,
@@ -69,11 +70,11 @@ const bloodCellPreset: SteppedSimplexNoisePreset = {
 const firstContactPreset: SteppedSimplexNoisePreset = {
   name: 'First contact',
   params: {
-    color1: '#e5bde5',
-    color2: '#150727',
-    color3: '#512a5a',
-    color4: '#deb0b0',
-    color5: '#ffebeb',
+    color1: 'hsla(300, 43%, 82%, 1)',
+    color2: 'hsla(266, 70%, 9%, 1)',
+    color3: 'hsla(289, 36%, 26%, 1)',
+    color4: 'hsla(0, 41%, 78%, 1)',
+    color5: 'hsla(0, 100%, 96%, 1)',
     scale: 0.62,
     speed: -0.1,
     stepsNumber: 40,

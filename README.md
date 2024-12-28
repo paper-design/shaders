@@ -3,15 +3,17 @@
 ![mesh-gradient-shader](https://github.com/user-attachments/assets/2db6e087-764c-4c36-bee7-451b09c4c91e)
 
 ### Getting started
+
 ```
 // React
 npm i @paper-design/shaders-react
 
 // vanilla
-npm i @paper-design/shaders 
+npm i @paper-design/shaders
 ```
 
 ### React example
+
 ```jsx
 import { MeshGradient } from '@paper-design/shaders-react';
 
@@ -21,7 +23,8 @@ import { MeshGradient } from '@paper-design/shaders-react';
   color3="#0000FF" // blue
   color4="#800080" // purple
   speed={0.25}
-  style={{ width: 500, height: 200 }} />
+  style={{ width: 500, height: 200 }}
+/>;
 
 // these settings can be configured in code or designed in Paper
 ```
@@ -48,7 +51,7 @@ import { MeshGradient } from '@paper-design/shaders-react';
 
 - Vanilla JS (@paper-design/shaders)
 - React JS (@paper-design/shaders-react)
-- Vue and others: accepting community PRs
+- Vue and others: intent to accept community PRs in the future
 
 ### Examples:
 
@@ -63,7 +66,8 @@ import { MeshGradient } from '@paper-design/shaders-react';
   color3="#0000FF" // blue
   color4="#800080" // purple
   speed={0.25}
-  style={{ width: 500, height: 200 }} />
+  style={{ width: 500, height: 200 }}
+/>;
 
 // these settings can be configured in code or designed in Paper
 ```
@@ -81,7 +85,7 @@ const shaderParams = {
   u_color3: 'blue',
   u_color4: 'purple',
   u_speed: 0.25,
-}
+};
 
 const meshGradient = new ShaderMount(myCanvas, meshGradientFragmentShader, shaderParams);
 ```

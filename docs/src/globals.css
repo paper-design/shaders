@@ -1,0 +1,24 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+  font-family: matter;
+  font-style: normal;
+  font-display: swap;
+  src: url('https://assets.paper.design/fonts/MatterUprights-VF.woff2');
+}
+
+body {
+  font-family: matter, system-ui, sans-serif;
+}
+
+#leva__root button {
+  background-color: var(--leva-colors-elevation1);
+
+  &:hover,
+  &:active,
+  &:focus {
+    box-shadow: inset 0 0 0 var(--leva-borderWidths-hover) var(--leva-colors-elevation3);
+  }
+}
