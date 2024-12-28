@@ -32,7 +32,15 @@ export function ShaderItem({
       onMouseLeave={() => setIsHovered(false)}
     >
       <div className="relative h-32 rounded-full overflow-hidden shadow">
-        <Image className="size-full object-cover" src={image} alt={`Preview of ${name}`} width={640} height={360} />
+        <Image
+          className="size-full object-cover"
+          src={image}
+          alt={`Preview of ${name}`}
+          width={640}
+          height={360}
+          unoptimized // The images are already optimized
+          priority
+        />
         {isHovered && (
           <ShaderComponent
             style={{
