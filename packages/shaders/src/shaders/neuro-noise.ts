@@ -56,7 +56,7 @@ void main() {
 
   uv -= .5;
   float scale = .5 * u_scale + 1e-4;
-  uv *= (.0004 * (1. - step(1. - scale, 1.) / scale));
+  uv *= (.001 * (1. - step(1. - scale, 1.) / scale));
   uv *= u_resolution;
   uv /= u_pixelRatio;
   uv += .5;
