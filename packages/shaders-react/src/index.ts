@@ -45,11 +45,5 @@ export { type MetaballsProps } from './shaders/metaballs';
 export { type MetaballsParams } from './shaders/metaballs';
 export { type MetaballsUniforms } from '@paper-design/shaders';
 
-// Voronoi diagram
-export { Voronoi, voronoiPresets } from './shaders/voronoi';
-export { type VoronoiProps } from './shaders/voronoi';
-export { type VoronoiParams } from './shaders/voronoi';
-export { type VoronoiUniforms } from '@paper-design/shaders';
-
 // ----- Uniform conversion utils ----- //
 export { getShaderColorFromString } from '@paper-design/shaders';

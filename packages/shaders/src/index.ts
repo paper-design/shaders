@@ -28,9 +28,5 @@ export { steppedSimplexNoiseFragmentShader, type SteppedSimplexNoiseUniforms } f
 /** A number of circlular shapes blened in a gooey way */
 export { metaballsFragmentShader, type MetaballsUniforms } from './shaders/metaballs';
 
-// ----- Voronoi Diagram ----- //
-/** Voronoi diagram: classic + rounded edges */
-export { voronoiFragmentShader, type VoronoiUniforms } from './shaders/voronoi';
-
 // ----- Uniform conversion utils ----- //
 export { getShaderColorFromString } from './get-shader-color-from-string';
