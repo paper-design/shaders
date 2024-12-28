@@ -16,6 +16,7 @@ import { BackButton } from '@/components/back-button';
 //       colorBack="#6a5496"
 //       color1="#9b8ab8"
 //       color2="#f5d03b"
+//       scale={1}
 //       noiseScale={1}
 //       speed={1.2}
 //       thickness={0.3}
@@ -41,9 +42,10 @@ const SmokeRingWithControls = () => {
           colorBack: { value: defaults.colorBack, order: 1 },
           color1: { value: defaults.color1, order: 2 },
           color2: { value: defaults.color2, order: 3 },
-          speed: { value: defaults.speed, order: 4, min: -4, max: 4 },
-          thickness: { value: defaults.thickness, order: 5, min: 0.1, max: 2 },
-          noiseScale: { value: defaults.thickness, order: 6, min: 0.01, max: 5 },
+          scale: { value: defaults.scale, order: 4, min: .5, max: 1.5 },
+          speed: { value: defaults.speed, order: 5, min: -4, max: 4 },
+          thickness: { value: defaults.thickness, order: 6, min: 0.1, max: 2 },
+          noiseScale: { value: defaults.thickness, order: 7, min: 0.01, max: 5 },
         },
         { order: 1 }
       ),

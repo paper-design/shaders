@@ -3,6 +3,7 @@ export type SmokeRingUniforms = {
   u_color1: [number, number, number, number];
   u_color2: [number, number, number, number];
   u_scale: number;
+  u_noise_scale: number;
   u_thickness: number;
 };
 
@@ -13,10 +14,10 @@ export type SmokeRingUniforms = {
  *
  * Uniforms include:
  * u_colorBack: The back color of the scene
- * u_color1: Main color of the ring
- * u_color2: The third color of the mesh gradient
- * u_color4: The fourth color of the mesh gradient
- * u_scale: The scale of the noise
+ * u_color1: Main inner of the ring
+ * u_color2: The outer color of the mesh gradient
+ * u_scale: The scale of UV coordinates
+ * u_noise_scale: The resolution of noise texture
  * u_thickness: The thickness of the ring
  */
 
@@ -26,8 +27,10 @@ export const smokeRingFragmentShader = `#version 300 es
   uniform vec4 u_colorBack;
   uniform vec4 u_color1;
   uniform vec4 u_color2;
-  uniform float u_scale;
+  uniform float u_noise_scale;
   uniform float u_thickness;
+  uniform float u_pixelRatio;
+  uniform float u_scale;
   uniform vec2 u_resolution;
   uniform float u_time;
 
@@ -71,21 +74,24 @@ export const smokeRingFragmentShader = `#version 300 es
 
         vec2 uv = gl_FragCoord.xy / u_resolution.xy;
         float ratio = u_resolution.x / u_resolution.y;
-
+    
         uv -= .5;
-        uv *= 2.;
+        uv /= u_pixelRatio;
+        float scale = .5 * u_scale + 1e-4;
+        uv *= (1. - step(1. - scale, 1.) / scale);
+        uv *= 3.;
         uv.x *= ratio;
-
+        
         float t = u_time;
 
         float atg = atan(uv.y, uv.x);
         float angle = (atg + PI) / TWO_PI;
 
         vec2 polar_uv = vec2(atg, .1 * t - (.5 * length(uv)) + 1. / pow(length(uv), .5));
-        polar_uv *= u_scale;
+        polar_uv *= u_noise_scale;
 
         float noise_left = fbm(polar_uv + .05 * t);
-        polar_uv.x = mod(polar_uv.x, u_scale * TWO_PI);
+        polar_uv.x = mod(polar_uv.x, u_noise_scale * TWO_PI);
         float noise_right = fbm(polar_uv + .05 * t);
         float noise = mix(noise_right, noise_left, smoothstep(-.2, .2, uv.x));
 

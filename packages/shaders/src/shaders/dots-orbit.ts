@@ -79,10 +79,12 @@ void main() {
   vec2 uv = gl_FragCoord.xy / u_resolution.xy;
 
   uv -= .5;
-  uv *= (.001 * u_scale * u_resolution);
+  float scale = .5 * u_scale + 1e-4;
+  uv *= (.01 * (1. - step(1. - scale, 1.) / scale));
+  uv *= u_resolution;
   uv /= u_pixelRatio;
   uv += .5;
-
+  
   float t = u_time;
 
   vec3 voronoi = get_voronoi_shape(uv, t) + 1e-4;

@@ -28,7 +28,7 @@ export const defaultPreset: DotsOrbitPreset = {
     color4: 'hsla(274, 30%, 35%, 1)',
     dotSize: 0.2,
     dotSizeRange: 0.05,
-    scale: 10,
+    scale: 1,
     speed: 2,
     spreading: 0.25,
     seed: 0,

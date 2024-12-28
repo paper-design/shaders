@@ -6,6 +6,7 @@ export type SmokeRingParams = {
   colorBack?: string;
   color1?: string;
   color2?: string;
+  scale?: number;
   noiseScale?: number;
   thickness?: number;
 } & GlobalParams;
@@ -22,6 +23,7 @@ export const defaultPreset: SmokeRingPreset = {
     colorBack: 'hsla(208, 54%, 7%, 1)',
     color1: 'hsla(0, 0%, 100%, 1)',
     color2: 'hsla(211, 100%, 64%, 1)',
+    scale: 1,
     speed: 1,
     noiseScale: 1.4,
     thickness: 0.33,
@@ -35,6 +37,7 @@ export const cloudPreset: SmokeRingPreset = {
     colorBack: 'hsla(218, 100%, 62%, 1)',
     color1: 'hsla(0, 0%, 100%, 1)',
     color2: 'hsla(0, 0%, 100%, 1)',
+    scale: 1,
     speed: 1,
     thickness: 0.7,
     noiseScale: 1.8,
@@ -48,6 +51,7 @@ export const firePreset: SmokeRingPreset = {
     colorBack: 'hsla(20, 100%, 5%, 1)',
     color1: 'hsla(40, 100%, 50%, 1)',
     color2: 'hsla(0, 100%, 50%, 1)',
+    scale: 1,
     speed: 4,
     thickness: 0.35,
     noiseScale: 1.4,
@@ -61,6 +65,7 @@ export const electricPreset: SmokeRingPreset = {
     colorBack: 'hsla(47, 50%, 7%, 1)',
     color1: 'hsla(47, 100%, 64%, 1)',
     color2: 'hsla(47, 100%, 64%, 1)',
+    scale: 1,
     speed: 2.5,
     thickness: 0.1,
     noiseScale: 1.8,
@@ -74,6 +79,7 @@ export const poisonPreset: SmokeRingPreset = {
     colorBack: 'hsla(120, 100%, 3%, 1)',
     color1: 'hsla(120, 100%, 3%, 1)',
     color2: 'hsla(120, 100%, 66%, 1)',
+    scale: 1,
     speed: 3,
     thickness: 0.6,
     noiseScale: 5,
@@ -95,12 +101,13 @@ export const SmokeRing = (props: SmokeRingProps): JSX.Element => {
       u_colorBack: getShaderColorFromString(props.colorBack, defaultPreset.params.colorBack),
       u_color1: getShaderColorFromString(props.color1, defaultPreset.params.color1),
       u_color2: getShaderColorFromString(props.color2, defaultPreset.params.color2),
+      u_scale: props.scale ?? defaultPreset.params.scale,
       u_speed: props.speed ?? defaultPreset.params.speed,
-      u_scale: props.noiseScale ?? defaultPreset.params.noiseScale,
+      u_noise_scale: props.noiseScale ?? defaultPreset.params.noiseScale,
       u_thickness: props.thickness ?? defaultPreset.params.thickness,
       u_seed: props.seed ?? defaultPreset.params.seed,
     };
-  }, [props.colorBack, props.color1, props.color2, props.speed, props.noiseScale, props.thickness, props.seed]);
+  }, [props.colorBack, props.color1, props.color2, props.scale, props.speed, props.noiseScale, props.thickness, props.seed]);
 
   return <ShaderMount {...props} fragmentShader={smokeRingFragmentShader} uniforms={uniforms} />;
 };

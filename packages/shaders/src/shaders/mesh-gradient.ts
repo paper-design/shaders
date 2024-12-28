@@ -27,6 +27,7 @@ uniform vec4 u_color1;
 uniform vec4 u_color2;
 uniform vec4 u_color3;
 uniform vec4 u_color4;
+uniform float u_pixelRatio;
 uniform vec2 u_resolution;
 uniform float u_time;
 
@@ -64,7 +65,9 @@ float noise( in vec2 p )
 void main() {
     vec2 uv = gl_FragCoord.xy / u_resolution.xy;
     float ratio = u_resolution.x / u_resolution.y;
-
+    
+    uv /= u_pixelRatio;
+    
     vec2 tuv = uv;
     tuv -= .5;
 

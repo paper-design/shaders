@@ -82,10 +82,12 @@ export const grainCloudsFragmentShader = `#version 300 es
     vec2 uv = gl_FragCoord.xy / u_resolution.xy;
 
     uv -= .5;
-    uv *= (.001 * u_scale * u_resolution);
+    float scale = .5 * u_scale + 1e-4;
+    uv *= (.0004 * (1. - step(1. - scale, 1.) / scale));
+    uv *= u_resolution;
     uv /= u_pixelRatio;
     uv += .5;
-
+    
     // Create blobby texture
     float n = snoise(uv + u_time);
     n += 0.5 * snoise(uv * 2.0 - u_time * 0.5);

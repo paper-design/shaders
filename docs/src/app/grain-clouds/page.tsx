@@ -30,7 +30,7 @@ const GrainCloudsWithControls = () => {
         {
           color1: { value: defaults.color1, order: 1 },
           color2: { value: defaults.color2, order: 2 },
-          scale: { value: defaults.scale, order: 3, min: 0, max: 1 },
+          scale: { value: defaults.scale, order: 3, min: .2, max: 1.8 },
           grainAmount: { value: defaults.grainAmount, order: 4, min: 0, max: 1 },
           speed: { value: defaults.speed, order: 5, min: 0, max: 2 },
         },

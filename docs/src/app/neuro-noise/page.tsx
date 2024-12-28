@@ -40,7 +40,7 @@ const NeuroNoiseWithControls = () => {
         {
           colorFront: { value: defaults.colorFront, order: 1 },
           colorBack: { value: defaults.colorBack, order: 2 },
-          scale: { value: defaults.scale, order: 3, min: 0.3, max: 3 },
+          scale: { value: defaults.scale, order: 3, min: .3, max: 2 },
           speed: { value: defaults.speed, order: 4, min: -3, max: 3 },
           brightness: { value: defaults.brightness, order: 5, min: 0.8, max: 2 },
         },
