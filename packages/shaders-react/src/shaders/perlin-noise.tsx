@@ -24,7 +24,7 @@ export const defaultPreset: PerlinNoisePreset = {
     // Note: Keep default colors in HSLA format so that our Leva controls show a transparency channel (rgba and hex8 do not work)
     color1: 'hsla(0, 0%, 15%, 1)',
     color2: 'hsla(203, 100%, 87%, 1)',
-    scale: 2,
+    scale: 1,
     speed: 0.5,
     octaveCount: 2,
     persistence: 1,
@@ -41,7 +41,7 @@ export const preset1: PerlinNoisePreset = {
     // Note: Keep default colors in HSLA format so that our Leva controls show a transparency channel (rgba and hex8 do not work)
     color1: 'hsla(220, 66%, 50%, 1)',
     color2: 'hsla(155, 66%, 80%, 1)',
-    scale: 0.4,
+    scale: 0.2,
     speed: 0.5,
     octaveCount: 2,
     persistence: 0.55,
@@ -58,7 +58,7 @@ export const preset2: PerlinNoisePreset = {
     // Note: Keep default colors in HSLA format so that our Leva controls show a transparency channel (rgba and hex8 do not work)
     color1: 'hsla(56, 86%, 81%, 1)',
     color2: 'hsla(230, 80%, 20%, 1)',
-    scale: 0.3,
+    scale: 0.15,
     speed: 0,
     octaveCount: 6,
     persistence: 1,
@@ -75,7 +75,7 @@ export const preset3: PerlinNoisePreset = {
     // Note: Keep default colors in HSLA format so that our Leva controls show a transparency channel (rgba and hex8 do not work)
     color1: 'hsla(350, 80%, 70%, 1)',
     color2: 'hsla(150, 50%, 60%, 1)',
-    scale: 0.1,
+    scale: 0.03,
     speed: 0.15,
     octaveCount: 6,
     persistence: 0.3,

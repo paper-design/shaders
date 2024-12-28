@@ -10,14 +10,19 @@ export type PerlinNoiseUniforms = {
 };
 
 /**
- * Calculates a combination of 2 simplex noises with result rendered as a stepped gradient
+ * 3d Perlin noise with exposed parameters
  * Based on https://www.shadertoy.com/view/NlSGDz
  *
  * Uniforms include:
- * u_color1: The first color
+ * u_color1: The first (background) color
  * u_color2: The second color
  * u_scale: The scale applied to coordinates
- * u_steps_number: The number of colors to show as a stepped gradient
+ * u_octaveCount: Number of octaves for Perlin noise. Higher values increase the complexity of the noise
+ * u_persistence: Controls the amplitude of each successive octave in Perlin noise. Lower values make higher octaves less pronounced
+ * u_lacunarity: Controls the frequency of each successive octave in Perlin noise. Higher values increase the detail
+ * u_proportion: Adjusts the brightness of the noise, shifting the perceived balance between u_color1 and u_color2
+ * u_contour: Controls the sharpness of the transition between u_color1 and u_color2 in the noise output. Values close to 1 make the transition sharper
+ *
  */
 
 export const perlinNoiseFragmentShader = `#version 300 es
@@ -26,18 +31,14 @@ precision highp float;
 uniform vec4 u_color1;
 uniform vec4 u_color2;
 uniform float u_scale;
-
 uniform float u_octaveCount;
 uniform float u_persistence;
 uniform float u_lacunarity;
 uniform float u_proportion;
-
 uniform float u_contour;
-uniform float u_depth;
-uniform float u_dx;
-uniform float u_dy;
 
 uniform float u_time;
+uniform float u_pixelRatio;
 uniform vec2 u_resolution;
 
 out vec4 fragColor;
@@ -45,8 +46,8 @@ out vec4 fragColor;
 #define TWO_PI 6.28318530718
 
 uint hash(uint x, uint seed) {
-    const uint m = 0x5bd1e995U;
-    uint hash = seed;
+  const uint m = 0x5bd1e995U;
+  uint hash = seed;
     // process input
     uint k = x;
     k *= m;
@@ -181,7 +182,9 @@ void main() {
     vec2 uv = gl_FragCoord.xy / u_resolution.xy;
     float t = .2 * u_time;
 
-    uv *= (.001 * u_scale * u_resolution);
+    uv *= (.004 * u_scale * u_resolution);
+    uv /= u_pixelRatio;
+    uv += .5;
         
     vec3 p = vec3(uv, t);
     

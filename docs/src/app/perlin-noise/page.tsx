@@ -13,7 +13,7 @@ import { BackButton } from '@/components/back-button';
 // <PerlinNoise
 //     color1="#577590"
 //     color2="#90BE6D"
-//     scale={0.5}
+//     scale={1}
 //     speed={1}
 //     octaveCount={10}
 //     persistence={0.5}
