@@ -31,11 +31,20 @@ export function ShaderItem({
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <div className=" h-32 rounded-full overflow-hidden shadow">
-        {isHovered ? (
-          <ShaderComponent style={{ width: '100%', height: '100%' }} {...shaderConfig} />
-        ) : (
-          <Image className="size-full object-cover" src={image} alt={`Preview of ${name}`} width={640} height={360} />
+      <div className="relative h-32 rounded-full overflow-hidden shadow">
+        <Image className="size-full object-cover" src={image} alt={`Preview of ${name}`} width={640} height={360} />
+        {isHovered && (
+          <ShaderComponent
+            style={{
+              width: '100%',
+              height: '100%',
+              position: 'absolute',
+              inset: 0,
+              // Some shaders are transparent, adding a background to not see the preview image through
+              background: 'white',
+            }}
+            {...shaderConfig}
+          />
         )}
       </div>
       <div className="text-center">{name}</div>
