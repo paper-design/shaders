@@ -1,8 +1,13 @@
 'use client';
 
+import { homeShaders } from '@/home-shaders';
 import Image, { StaticImageData } from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
+
+export function ShaderItems() {
+  return homeShaders.map((shader) => <ShaderItem key={shader.name} {...shader} />);
+}
 
 export function ShaderItem({
   name,

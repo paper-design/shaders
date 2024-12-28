@@ -1,7 +1,4 @@
-'use client';
-
-import { ShaderItem } from '@/components/shader-item';
-import { homeShaders } from '@/home-shaders';
+import { ShaderItems } from '@/components/shader-item';
 import { GithubIcon } from '@/icons';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -34,9 +31,7 @@ export default function Home() {
       <main className="-mt-12 pb-16">
         <div className="container mx-auto max-w-screen-lg px-4">
           <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-16 gap-x-16 gap-y-8 md:gap-y-16">
-            {homeShaders.map((shader) => (
-              <ShaderItem key={shader.name} {...shader} />
-            ))}
+            <ShaderItems />
           </div>
         </div>
       </main>
