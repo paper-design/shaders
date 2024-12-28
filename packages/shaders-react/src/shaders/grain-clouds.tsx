@@ -17,6 +17,7 @@ export const defaultPreset: GrainCloudsPreset = {
   name: 'Default',
   params: {
     // Note: Keep default colors in HSLA format so that our Leva controls show a transparency channel (rgba and hex8 do not work)
+    // And don't use decimal values or highlights won't work, because the values get rounded and highlights need an exact match.
     color1: 'hsla(0, 0%, 0%, 1)',
     color2: 'hsla(0, 0%, 100%, 1)',
     scale: 1,
@@ -29,8 +30,8 @@ export const defaultPreset: GrainCloudsPreset = {
 export const skyPreset: GrainCloudsPreset = {
   name: 'Sky',
   params: {
-    color1: '#73a6ff',
-    color2: '#ffffff',
+    color1: 'hsla(218, 100%, 73%, 1)',
+    color2: 'hsla(0, 0%, 100%, 1)',
     scale: 1,
     grainAmount: 0,
     speed: 0.3,

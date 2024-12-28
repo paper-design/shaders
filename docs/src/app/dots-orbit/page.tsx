@@ -1,27 +1,31 @@
+'use client';
+
+import { BackButton } from '@/components/back-button';
+import { usePresetHighlight } from '@/helpers/use-preset-highlight';
+import { setParamsSafe, useResetLevaParams } from '@/helpers/use-reset-leva-params';
 import { DotsOrbit, type DotsOrbitParams, dotsOrbitPresets } from '@paper-design/shaders-react';
 import { useControls, button, folder } from 'leva';
-import { useEffect } from 'react';
-import { setParamsSafe, useResetLevaParams } from '../example-helpers/use-reset-leva-params';
+import Link from 'next/link';
 
 /**
  * You can copy/paste this example to use DotsOrbit in your app
  */
-const DotsOrbitExample = () => {
-  return (
-    <DotsOrbit
-      color1="#6a5496"
-      color2="#9b8ab8"
-      color3="#f5d03b"
-      color4="#e48b97"
-      scale={11}
-      dotSize={0.15}
-      dotSizeRange={0.01}
-      speed={3}
-      spreading={0.1}
-      style={{ position: 'fixed', width: '100%', height: '100%' }}
-    />
-  );
-};
+// const DotsOrbitExample = () => {
+//   return (
+//     <DotsOrbit
+//       color1="#6a5496"
+//       color2="#9b8ab8"
+//       color3="#f5d03b"
+//       color4="#e48b97"
+//       scale={11}
+//       dotSize={0.15}
+//       dotSizeRange={0.01}
+//       speed={3}
+//       spreading={0.1}
+//       style={{ position: 'fixed', width: '100%', height: '100%' }}
+//     />
+//   );
+// };
 
 /**
  * This example has controls added so you can play with settings in the example app
@@ -29,7 +33,7 @@ const DotsOrbitExample = () => {
 
 const defaults = dotsOrbitPresets[0].params;
 
-export const DotsOrbitWithControls = () => {
+const DotsOrbitWithControls = () => {
   const [params, setParams] = useControls(() => {
     const presets: DotsOrbitParams = Object.fromEntries(
       dotsOrbitPresets.map((preset) => [preset.name, button(() => setParamsSafe(params, setParams, preset.params))])
@@ -57,5 +61,16 @@ export const DotsOrbitWithControls = () => {
   // shaders when navigating (if two shaders have a color1 param for example)
   useResetLevaParams(params, setParams, defaults);
 
-  return <DotsOrbit {...params} style={{ position: 'fixed', width: '100%', height: '100%' }} />;
+  usePresetHighlight(dotsOrbitPresets, params);
+
+  return (
+    <>
+      <Link href="/">
+        <BackButton />
+      </Link>
+      <DotsOrbit {...params} style={{ position: 'fixed', width: '100%', height: '100%' }} />
+    </>
+  );
 };
+
+export default DotsOrbitWithControls;

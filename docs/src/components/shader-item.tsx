@@ -1,0 +1,61 @@
+'use client';
+
+import { homeShaders } from '@/home-shaders';
+import Image, { StaticImageData } from 'next/image';
+import Link from 'next/link';
+import { useState } from 'react';
+
+export function ShaderItems() {
+  return homeShaders.map((shader) => <ShaderItem key={shader.name} {...shader} />);
+}
+
+export function ShaderItem({
+  name,
+  image,
+  url,
+  ShaderComponent,
+  shaderConfig,
+}: {
+  name: string;
+  image: StaticImageData;
+  url: string;
+  ShaderComponent: React.ComponentType<{ style: React.CSSProperties } & Record<string, unknown>>;
+  shaderConfig: Record<string, unknown>;
+}) {
+  const [isHovered, setIsHovered] = useState(false);
+
+  return (
+    <Link
+      href={url}
+      className="flex flex-col gap-2"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      <div className="relative h-32 overflow-hidden rounded-full shadow">
+        <Image
+          className="size-full object-cover"
+          src={image}
+          alt={`Preview of ${name}`}
+          width={640}
+          height={360}
+          unoptimized // The images are already optimized
+          priority
+        />
+        {isHovered && (
+          <ShaderComponent
+            style={{
+              width: '100%',
+              height: '100%',
+              position: 'absolute',
+              inset: 0,
+              // Some shaders are transparent, adding a background to not see the preview image through
+              background: 'white',
+            }}
+            {...shaderConfig}
+          />
+        )}
+      </div>
+      <div className="text-center">{name}</div>
+    </Link>
+  );
+}

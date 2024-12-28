@@ -1,22 +1,27 @@
+'use client';
+
 import { MeshGradient, type MeshGradientParams, meshGradientPresets } from '@paper-design/shaders-react';
 import { useControls, button, folder } from 'leva';
-import { useResetLevaParams, setParamsSafe } from '../example-helpers/use-reset-leva-params';
+import { setParamsSafe, useResetLevaParams } from '@/helpers/use-reset-leva-params';
+import { usePresetHighlight } from '@/helpers/use-preset-highlight';
+import Link from 'next/link';
+import { BackButton } from '@/components/back-button';
 
 /**
  * You can copy/paste this example to use MeshGradient in your app
  */
-const MeshGradientExample = () => {
-  return (
-    <MeshGradient
-      color1="#6a5496"
-      color2="#9b8ab8"
-      color3="#f5d03b"
-      color4="#e48b97"
-      speed={0.2}
-      style={{ position: 'fixed', width: '100%', height: '100%' }}
-    />
-  );
-};
+// const MeshGradientExample = () => {
+//   return (
+//     <MeshGradient
+//       color1="#6a5496"
+//       color2="#9b8ab8"
+//       color3="#f5d03b"
+//       color4="#e48b97"
+//       speed={0.2}
+//       style={{ position: 'fixed', width: '100%', height: '100%' }}
+//     />
+//   );
+// };
 
 /**
  * This example has controls added so you can play with settings in the example app
@@ -24,7 +29,7 @@ const MeshGradientExample = () => {
 
 const defaults = meshGradientPresets[0].params;
 
-export const MeshGradientWithControls = () => {
+const MeshGradientWithControls = () => {
   const [params, setParams] = useControls(() => {
     const presets: MeshGradientParams = Object.fromEntries(
       meshGradientPresets.map((preset) => [preset.name, button(() => setParamsSafe(params, setParams, preset.params))])
@@ -49,5 +54,16 @@ export const MeshGradientWithControls = () => {
   // shaders when navigating (if two shaders have a color1 param for example)
   useResetLevaParams(params, setParams, defaults);
 
-  return <MeshGradient {...params} style={{ position: 'fixed', width: '100%', height: '100%' }} />;
+  usePresetHighlight(meshGradientPresets, params);
+
+  return (
+    <>
+      <Link href="/">
+        <BackButton />
+      </Link>
+      <MeshGradient {...params} style={{ position: 'fixed', width: '100%', height: '100%' }} />
+    </>
+  );
 };
+
+export default MeshGradientWithControls;

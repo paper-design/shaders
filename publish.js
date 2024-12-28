@@ -22,9 +22,7 @@ if (tag) {
 const packageVersionMap = {};
 // Loop through all the packages and get the current version of each
 for (const pkg of packages) {
-  const packageJson = JSON.parse(
-    readFileSync(`packages/${pkg}/package.json`, 'utf8')
-  );
+  const packageJson = JSON.parse(readFileSync(`packages/${pkg}/package.json`, 'utf8'));
   // Get the name of the package
   const name = packageJson.name;
   const currentVersion = packageJson.version;
@@ -36,10 +34,7 @@ async function publish(pkg) {
   console.log(`Publishing ${pkg}...`);
 
   //  ----- Update any workspace dependencies with the current version ----- //
-  const originalPackageJson = readFileSync(
-    `${packagePath}/package.json`,
-    'utf8'
-  );
+  const originalPackageJson = readFileSync(`${packagePath}/package.json`, 'utf8');
   const packageJson = JSON.parse(originalPackageJson);
   // Search the package.json for any packages in our packageVersionMap and replace the version with the current version
   for (const [key, value] of Object.entries(packageJson.dependencies)) {
@@ -48,10 +43,7 @@ async function publish(pkg) {
     }
   }
   // Write the updated package.json
-  writeFileSync(
-    `${packagePath}/package.json`,
-    JSON.stringify(packageJson, null, 2)
-  );
+  writeFileSync(`${packagePath}/package.json`, JSON.stringify(packageJson, null, 2));
 
   // ----- Publish the package ----- //
   const args = ['publish', '--access', 'public'];
@@ -70,9 +62,7 @@ async function publish(pkg) {
 
     child.on('close', (code) => {
       if (code !== 0) {
-        console.log(
-          `Skipping ${pkg}: Publication failed or package is already up to date`
-        );
+        console.log(`Skipping ${pkg}: Publication failed or package is already up to date`);
       } else {
         console.log(`Published ${pkg}`);
       }
