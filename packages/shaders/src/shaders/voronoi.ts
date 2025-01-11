@@ -34,7 +34,7 @@ uniform float u_midSize;
 uniform float u_dotSharpness;
 
 uniform float u_time;
-uniform float u_ratio;
+uniform float u_pixelRatio;
 uniform vec2 u_resolution;
 
 #define TWO_PI 6.28318530718
@@ -53,14 +53,10 @@ float smin(float angle, float b, float k) {
 
 void main() {
   vec2 uv = gl_FragCoord.xy / u_resolution.xy;
-  float ratio = u_resolution.x / u_resolution.y;
-
-  uv -= .5;
-  uv *= u_scale;
-  uv += .5;
-  uv.x *= ratio;
-
   float t = u_time;
+  uv *= (.015 * u_scale * u_resolution);
+  uv /= u_pixelRatio;
+  uv += .5;
 
   vec2 i_uv = floor(uv);
   vec2 f_uv = fract(uv);
@@ -98,14 +94,14 @@ void main() {
 
   float dot_shape = cell_radius / (2. * u_midSize + 1e-4);
   float dot_edge_width = fwidth(dot_shape);
-  dot_shape = 1. - smoothstep(0. + .5 * u_dotSharpness - dot_edge_width, 1. - .5 * u_dotSharpness + dot_edge_width, dot_shape);
+  dot_shape = 1. - smoothstep(0. + .5 * u_dotSharpness - dot_edge_width, 1. - .5 * u_dotSharpness, dot_shape);
 
   float cell_edge_width = fwidth(distance.x);
   float w = .7 * (u_edgeWidth - .1);
   cell_shape = smoothstep(w - cell_edge_width, w + cell_edge_width, cell_shape);
-  
+
   dot_shape *= cell_shape;
-  
+
   vec3 dot_color = mix(u_colorMid1.rgb, u_colorMid2.rgb, randomizer[0]);
   vec3 cell_color = mix(u_colorCell1.rgb, u_colorCell2.rgb, randomizer[1]);
 
