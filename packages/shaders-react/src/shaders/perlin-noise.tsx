@@ -86,8 +86,42 @@ export const preset3: PerlinNoisePreset = {
   },
 } as const;
 
+export const preset4: PerlinNoisePreset = {
+  name: '4',
+  params: {
+    // Note: Keep default colors in HSLA format so that our Leva controls show a transparency channel (rgba and hex8 do not work)
+    color1: 'hsla(137, 100%, 51%, 1)',
+    color2: 'hsla(0, 0%, 15%, 1)',
+    scale: 0.15,
+    speed: 0.02,
+    octaveCount: 6,
+    persistence: 1,
+    lacunarity: 2.55,
+    seed: 1,
+    contour: 0.65,
+    proportion: 0.65,
+  },
+} as const;
 
-export const perlinNoisePresets: PerlinNoisePreset[] = [defaultPreset, preset1, preset2, preset3];
+export const preset5: PerlinNoisePreset = {
+  name: '5',
+  params: {
+    // Note: Keep default colors in HSLA format so that our Leva controls show a transparency channel (rgba and hex8 do not work)
+    color1: 'hsla(0, 100%, 100%, 1)',
+    color2: 'hsla(0, 0%, 35%, 1)',
+    scale: 2,
+    speed: 0,
+    octaveCount: 1,
+    persistence: 1,
+    lacunarity: 1.5,
+    seed: 1,
+    contour: 1,
+    proportion: 0.5,
+  },
+} as const;
+
+
+export const perlinNoisePresets: PerlinNoisePreset[] = [defaultPreset, preset1, preset2, preset3, preset4, preset5];
 
 export const PerlinNoise = (props: PerlinNoiseProps): JSX.Element => {
   const uniforms: PerlinNoiseUniforms = useMemo(() => {
