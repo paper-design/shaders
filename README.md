@@ -94,25 +94,24 @@ const meshGradient = new ShaderMount(myCanvas, meshGradientFragmentShader, shade
 
 ### Patterns:
 
-- Perlin noise
+- Perlin noise (done)
+- Meta balls (done)
+- Mesh gradient (done)
+- Dot Grid (done)
 - Voronoi
-- Meta balls
-- Wave
-- Random lines
-- Value
-- Marble
-- Mesh gradient
-- Dots
-- Grid
+- Dither
+- Vector fields
+- Sine wave
 
 ### VFX
 
 - God rays
-- Starfield
 - Stripe
-- Mountains
-- Clouds
 - Water
+- Lo-fi
+- Warp
+- Swirl
+- Crystals
 
 ## Building and publishing
 
