@@ -62,8 +62,6 @@ void main() {
 
   float t = u_time;
 
-  // ======
-
   vec2 i_uv = floor(uv);
   vec2 f_uv = fract(uv);
 
@@ -87,29 +85,29 @@ void main() {
       distance.x = min(distance.x, dist);
 
       if (old_min_dist > distance.x) {
-        angle = atan(tile_offset.x, tile_offset.y);
         randomizer = o;
       }
     }
   }
 
   distance = sqrt(distance);
-  distance = sqrt(distance);
-  float cell_shape = min(smin(distance.z, distance.y, .1) - distance.x, 1.);
   float cell_radius = distance.x;
 
-  float dot_shape = cell_radius / (4. * u_midSize + 1e-4);
-  float dot_edge_width = fwidth(dot_shape);
-  dot_shape = smoothstep(0. + .5 * u_dotSharpness - dot_edge_width, 1. - .5 * u_dotSharpness + dot_edge_width, dot_shape);
+  distance = sqrt(distance);
+  float cell_shape = min(smin(distance.z, distance.y, .1) - distance.x, 1.);
 
-  float cell_edge_width = 2. * fwidth(cell_shape);
+  float dot_shape = cell_radius / (2. * u_midSize + 1e-4);
+  float dot_edge_width = fwidth(dot_shape);
+  dot_shape = 1. - smoothstep(0. + .5 * u_dotSharpness - dot_edge_width, 1. - .5 * u_dotSharpness + dot_edge_width, dot_shape);
+
+  float cell_edge_width = fwidth(distance.x);
   float w = .7 * (u_edgeWidth - .1);
   cell_shape = smoothstep(w - cell_edge_width, w + cell_edge_width, cell_shape);
   
   dot_shape *= cell_shape;
   
-  vec3 cell_color = mix(u_colorMid1.rgb, u_colorMid2.rgb, randomizer[0]);
-  vec3 dot_color = mix(u_colorCell1.rgb, u_colorCell2.rgb, randomizer[1]);
+  vec3 dot_color = mix(u_colorMid1.rgb, u_colorMid2.rgb, randomizer[0]);
+  vec3 cell_color = mix(u_colorCell1.rgb, u_colorCell2.rgb, randomizer[1]);
 
   vec3 color = u_colorEdges.rgb;
   color = mix(color, cell_color, cell_shape);
