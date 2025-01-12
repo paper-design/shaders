@@ -1,20 +1,20 @@
 'use client';
 
-import { DotGrid, type DotGridParams, dotGridPresets } from '@paper-design/shaders-react';
+import { DotsGrid, type DotsGridParams, dotsGridPresets } from '@paper-design/shaders-react';
 
 import { useControls, button, folder } from 'leva';
 import { setParamsSafe, useResetLevaParams } from '@/helpers/use-reset-leva-params';
 import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import Link from 'next/link';
 import { BackButton } from '@/components/back-button';
-import { DotGridShapes } from '@paper-design/shaders';
+import { DotsGridShapes } from '@paper-design/shaders';
 
 /**
- * You can copy/paste this example to use DotGrid in your app
+ * You can copy/paste this example to use DotsGrid in your app
  */
-// const DotGridExample = () => {
+// const DotsGridExample = () => {
 //   return (
-//     <DotGrid
+//     <DotsGrid
 //         colorBack="#222222"
 //         colorFill="#e48b97"
 //         colorStroke="#f5d03b"
@@ -24,7 +24,7 @@ import { DotGridShapes } from '@paper-design/shaders';
 //         strokeWidth={2}
 //         sizeRange={0}
 //         opacityRange={0}
-//         shape={DotGridShapes.Circle}
+//         shape={DotsGridShapes.Circle}
 //         style={{position: 'fixed', width: '100%', height: '100%'}}
 //     />
 //   );
@@ -34,12 +34,12 @@ import { DotGridShapes } from '@paper-design/shaders';
  * This example has controls added so you can play with settings in the example app
  */
 
-const defaults = dotGridPresets[0].params;
+const defaults = dotsGridPresets[0].params;
 
-const DotGridWithControls = () => {
+const DotsGridWithControls = () => {
   const [params, setParams] = useControls(() => {
-    const presets: DotGridParams = Object.fromEntries(
-      dotGridPresets.map((preset) => [preset.name, button(() => setParamsSafe(params, setParams, preset.params))])
+    const presets: DotsGridParams = Object.fromEntries(
+      dotsGridPresets.map((preset) => [preset.name, button(() => setParamsSafe(params, setParams, preset.params))])
     );
     return {
       Parameters: folder(
@@ -53,7 +53,7 @@ const DotGridWithControls = () => {
           strokeWidth: { value: defaults.dotSize, order: 7, min: 0, max: 50 },
           sizeRange: { value: defaults.gridSpacingY, order: 8, min: 0, max: 1 },
           opacityRange: { value: defaults.gridSpacingY, order: 9, min: 0, max: 2 },
-          shape: { value: defaults.shape, order: 10, options: DotGridShapes },
+          shape: { value: defaults.shape, order: 10, options: DotsGridShapes },
         },
         { order: 1 }
       ),
@@ -65,16 +65,16 @@ const DotGridWithControls = () => {
   // shaders when navigating (if two shaders have a color1 param for example)
   useResetLevaParams(params, setParams, defaults);
 
-  usePresetHighlight(dotGridPresets, params);
+  usePresetHighlight(dotsGridPresets, params);
 
   return (
     <>
       <Link href="/">
         <BackButton />
       </Link>
-      <DotGrid {...params} style={{ position: 'fixed', width: '100%', height: '100%' }} />
+      <DotsGrid {...params} style={{ position: 'fixed', width: '100%', height: '100%' }} />
     </>
   );
 };
 
-export default DotGridWithControls;
+export default DotsGridWithControls;

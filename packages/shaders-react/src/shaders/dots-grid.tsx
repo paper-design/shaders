@@ -1,14 +1,14 @@
 import { useMemo } from 'react';
 import { ShaderMount, type ShaderMountProps } from '../shader-mount';
 import {
-  dotGridFragmentShader,
+  dotsGridFragmentShader,
   getShaderColorFromString,
-  type DotGridUniforms,
-  type DotGridShape,
-  DotGridShapes,
+  type DotsGridUniforms,
+  type DotsGridShape,
+  DotsGridShapes,
 } from '@paper-design/shaders';
 
-export type DotGridParams = {
+export type DotsGridParams = {
   colorBack?: string;
   colorFill?: string;
   colorStroke?: string;
@@ -18,14 +18,14 @@ export type DotGridParams = {
   strokeWidth?: number;
   sizeRange?: number;
   opacityRange?: number;
-  shape?: DotGridShape;
+  shape?: DotsGridShape;
 };
 
-export type DotGridProps = Omit<ShaderMountProps, 'fragmentShader'> & DotGridParams;
+export type DotsGridProps = Omit<ShaderMountProps, 'fragmentShader'> & DotsGridParams;
 
-type DotGridPreset = { name: string; params: Required<DotGridParams> };
+type DotsGridPreset = { name: string; params: Required<DotsGridParams> };
 
-export const defaultPreset: DotGridPreset = {
+export const defaultPreset: DotsGridPreset = {
   name: 'Default',
   params: {
     // Note: Keep default colors in HSLA format so that our Leva controls show a transparency channel (rgba and hex8 do not work)
@@ -38,11 +38,11 @@ export const defaultPreset: DotGridPreset = {
     strokeWidth: 0,
     sizeRange: 0,
     opacityRange: 0,
-    shape: DotGridShapes.Circle,
+    shape: DotsGridShapes.Circle,
   },
 } as const;
 
-const preset1: DotGridPreset = {
+const preset1: DotsGridPreset = {
   name: '1',
   params: {
     // Note: Keep default colors in HSLA format so that our Leva controls show a transparency channel (rgba and hex8 do not work)
@@ -55,11 +55,11 @@ const preset1: DotGridPreset = {
     strokeWidth: 3,
     sizeRange: 0.5,
     opacityRange: 1,
-    shape: DotGridShapes.Circle,
+    shape: DotsGridShapes.Circle,
   },
 } as const;
 
-const preset2: DotGridPreset = {
+const preset2: DotsGridPreset = {
   name: '2',
   params: {
     // Note: Keep default colors in HSLA format so that our Leva controls show a transparency channel (rgba and hex8 do not work)
@@ -72,11 +72,11 @@ const preset2: DotGridPreset = {
     strokeWidth: 23,
     sizeRange: 0.35,
     opacityRange: 0.55,
-    shape: DotGridShapes.Circle,
+    shape: DotsGridShapes.Circle,
   },
 } as const;
 
-const preset3: DotGridPreset = {
+const preset3: DotsGridPreset = {
   name: '3',
   params: {
     // Note: Keep default colors in HSLA format so that our Leva controls show a transparency channel (rgba and hex8 do not work)
@@ -89,11 +89,11 @@ const preset3: DotGridPreset = {
     strokeWidth: 0,
     sizeRange: 1,
     opacityRange: 0.6,
-    shape: DotGridShapes.Circle,
+    shape: DotsGridShapes.Circle,
   },
 } as const;
 
-const preset4: DotGridPreset = {
+const preset4: DotsGridPreset = {
   name: '4',
   params: {
     // Note: Keep default colors in HSLA format so that our Leva controls show a transparency channel (rgba and hex8 do not work)
@@ -106,11 +106,11 @@ const preset4: DotGridPreset = {
     strokeWidth: 0,
     sizeRange: 0,
     opacityRange: 1,
-    shape: DotGridShapes.Diamond,
+    shape: DotsGridShapes.Diamond,
   },
 } as const;
 
-const preset5: DotGridPreset = {
+const preset5: DotsGridPreset = {
   name: '5',
   params: {
     // Note: Keep default colors in HSLA format so that our Leva controls show a transparency channel (rgba and hex8 do not work)
@@ -123,14 +123,14 @@ const preset5: DotGridPreset = {
     strokeWidth: 16,
     sizeRange: 0.6,
     opacityRange: 0.5,
-    shape: DotGridShapes.Square,
+    shape: DotsGridShapes.Square,
   },
 } as const;
 
-export const dotGridPresets: DotGridPreset[] = [defaultPreset, preset1, preset2, preset3, preset4, preset5];
+export const dotsGridPresets: DotsGridPreset[] = [defaultPreset, preset1, preset2, preset3, preset4, preset5];
 
-export const DotGrid = (props: DotGridProps): JSX.Element => {
-  const uniforms: DotGridUniforms = useMemo(() => {
+export const DotsGrid = (props: DotsGridProps): JSX.Element => {
+  const uniforms: DotsGridUniforms = useMemo(() => {
     return {
       u_colorBack: getShaderColorFromString(props.colorBack, defaultPreset.params.colorBack),
       u_colorFill: getShaderColorFromString(props.colorFill, defaultPreset.params.colorStroke),
@@ -156,5 +156,5 @@ export const DotGrid = (props: DotGridProps): JSX.Element => {
     props.shape,
   ]);
 
-  return <ShaderMount {...props} fragmentShader={dotGridFragmentShader} uniforms={uniforms} />;
+  return <ShaderMount {...props} fragmentShader={dotsGridFragmentShader} uniforms={uniforms} />;
 };

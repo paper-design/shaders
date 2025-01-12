@@ -22,7 +22,7 @@ export { dotsOrbitFragmentShader, type DotsOrbitUniforms } from './shaders/dots-
 
 // ----- Dot Grid ----- //
 /** A shader rendering a static dots pattern */
-export { dotGridFragmentShader, DotGridShapes, type DotGridShape, type DotGridUniforms } from './shaders/dot-grid';
+export { dotsGridFragmentShader, DotsGridShapes, type DotsGridShape, type DotsGridUniforms } from './shaders/dots-grid';
 
 // ----- Stepped simplex noise ----- //
 /** A shader that calculates a combination of 2 simplex noises with result rendered as a stepped gradient */

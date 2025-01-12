@@ -1,13 +1,13 @@
 /** Possible values for the shape uniform */
-export const DotGridShapes = {
+export const DotsGridShapes = {
   Circle: 0,
   Diamond: 1,
   Square: 2,
   Triangle: 3,
 } as const;
-export type DotGridShape = (typeof DotGridShapes)[keyof typeof DotGridShapes];
+export type DotsGridShape = (typeof DotsGridShapes)[keyof typeof DotsGridShapes];
 
-export type DotGridUniforms = {
+export type DotsGridUniforms = {
   u_colorBack: [number, number, number, number];
   u_colorFill: [number, number, number, number];
   u_colorStroke: [number, number, number, number];
@@ -17,7 +17,7 @@ export type DotGridUniforms = {
   u_strokeWidth: number;
   u_sizeRange: number;
   u_opacityRange: number;
-  u_shape: DotGridShape;
+  u_shape: DotsGridShape;
 };
 
 /**
@@ -36,7 +36,7 @@ export type DotGridUniforms = {
  * u_shape: Shape code: 'Circle': 0, 'Diamond': 1, 'Square': 2, 'Triangle': 3
  */
 
-export const dotGridFragmentShader = `#version 300 es
+export const dotsGridFragmentShader = `#version 300 es
 precision highp float;
 
 uniform vec4 u_colorBack;

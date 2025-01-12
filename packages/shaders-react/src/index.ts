@@ -34,10 +34,10 @@ export { type DotsOrbitParams } from './shaders/dots-orbit';
 export { type DotsOrbitUniforms } from '@paper-design/shaders';
 
 // Dot Grid
-export { DotGrid, dotGridPresets } from './shaders/dot-grid';
-export { type DotGridProps } from './shaders/dot-grid';
-export { type DotGridParams } from './shaders/dot-grid';
-export { type DotGridUniforms, DotGridShapes, type DotGridShape } from '@paper-design/shaders';
+export { DotsGrid, dotsGridPresets } from './shaders/dots-grid';
+export { type DotsGridProps } from './shaders/dots-grid';
+export { type DotsGridParams } from './shaders/dots-grid';
+export { type DotsGridUniforms, DotsGridShapes, type DotsGridShape } from '@paper-design/shaders';
 
 // Stepped simplex noise
 export { SteppedSimplexNoise, steppedSimplexNoisePresets } from './shaders/stepped-simplex-noise';
