@@ -6,7 +6,7 @@
   font-family: matter;
   font-style: normal;
   font-display: swap;
-  src: url('https://assets.paper.design/fonts/MatterUprights-VF.woff2');
+  src: url('https://assets.paper.design/fonts/matter-variable.woff2') format('woff2');
 }
 
 body {
