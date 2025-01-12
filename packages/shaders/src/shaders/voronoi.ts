@@ -18,7 +18,19 @@ export type VoronoiUniforms = {
  * Renders a number of circular shapes with gooey effect applied
  *
  * Uniforms include:
- * u_scale: The scale applied to pattern
+ * u_colorEdges - color of borders (between the cells)
+ * u_colorCell1 - color #1 of mix used to fill the cell shape
+ * u_colorCell2 - color #2 of mix used to fill the cell shape
+ * u_colorMid1 - color #1 of mix used to fill the radial shape in the center of each cell
+ * u_colorMid2 - color #2 of mix used to fill the radial shape in the center of each cell
+ * u_distance - how far the cell center can move from regular square grid
+ * u_edgesSize - the size of borders (can be set to zero but the edge may get glitchy due
+ *   to nature of Voronoi diagram)
+ * u_edgesSharpness - the smoothness for cel border
+ * u_middleSize - the size of shape in the center of each cell
+ * u_middleSharpness - the smoothness of shape in the center of each cell (vary from cell
+ *   color gradient to sharp dot in the middle)
+ * u_scale: The scale applied to UV space
  */
 
 export const voronoiFragmentShader = `#version 300 es
