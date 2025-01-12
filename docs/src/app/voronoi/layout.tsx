@@ -1,6 +1,6 @@
-import { Voronoi } from 'next';
+import { Metadata } from 'next';
 
-export const metadata: Voronoi = {
+export const metadata: Metadata = {
   title: 'Voronoi Diagram | Paper',
 };
 
