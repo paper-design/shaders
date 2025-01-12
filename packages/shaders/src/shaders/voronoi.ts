@@ -4,10 +4,12 @@ export type VoronoiUniforms = {
     u_colorCell2: [number, number, number, number];
     u_colorMid1: [number, number, number, number];
     u_colorMid2: [number, number, number, number];
+    u_distance: number;
+    u_edgesSize: number;
+    u_edgesSharpness: number;
+    u_middleSize: number;
+    u_middleSharpness: number;
     u_scale: number;
-    u_edgeWidth: number;
-    u_midSize: number;
-    u_dotSharpness: number;
 };
 
 /**
@@ -27,14 +29,16 @@ uniform vec4 u_colorCell1;
 uniform vec4 u_colorCell2;
 uniform vec4 u_colorMid1;
 uniform vec4 u_colorMid2;
-uniform float u_scale;
 
-uniform float u_edgeWidth;
-uniform float u_midSize;
-uniform float u_dotSharpness;
+uniform float u_distance;
+uniform float u_edgesSize;
+uniform float u_edgesSharpness;
+uniform float u_middleSize;
+uniform float u_middleSharpness;
 
 uniform float u_time;
 uniform float u_pixelRatio;
+uniform float u_scale;
 uniform vec2 u_resolution;
 
 #define TWO_PI 6.28318530718
@@ -51,10 +55,12 @@ float smin(float angle, float b, float k) {
   return mix(b, angle, h) - k * h * (1. - h);
 }
 
+
 void main() {
   vec2 uv = gl_FragCoord.xy / u_resolution.xy;
   float t = u_time;
-  uv *= (.015 * u_scale * u_resolution);
+  uv -= .5;
+  uv *= (.01 * u_scale * u_resolution);
   uv /= u_pixelRatio;
   uv += .5;
 
@@ -63,15 +69,12 @@ void main() {
 
   vec2 randomizer = vec2(0.);
   vec3 distance = vec3(1.);
-  float angle = 0.;
 
   for (int y = -1; y <= 1; y++) {
     for (int x = -1; x <= 1; x++) {
       vec2 tile_offset = vec2(float(x), float(y));
-      vec2 blick_tile_offset = tile_offset;
       vec2 o = hash(i_uv + tile_offset);
-      tile_offset += (.5 + (.25) * sin(t + TWO_PI * o)) - f_uv;
-      blick_tile_offset += (.9 - f_uv);
+      tile_offset += (.5 + min(.5, u_distance) * sin(t + TWO_PI * o)) - f_uv;
 
       float dist = dot(tile_offset, tile_offset);
       float old_min_dist = distance.x;
@@ -92,24 +95,33 @@ void main() {
   distance = sqrt(distance);
   float cell_shape = min(smin(distance.z, distance.y, .1) - distance.x, 1.);
 
-  float dot_shape = cell_radius / (2. * u_midSize + 1e-4);
+  float dot_shape = cell_radius / (2. * u_middleSize + 1e-4);
   float dot_edge_width = fwidth(dot_shape);
-  dot_shape = 1. - smoothstep(0. + .5 * u_dotSharpness - dot_edge_width, 1. - .5 * u_dotSharpness, dot_shape);
+  dot_shape = 1. - smoothstep(.5 * u_middleSharpness - dot_edge_width, 1. - .5 * u_middleSharpness, dot_shape);
 
   float cell_edge_width = fwidth(distance.x);
-  float w = .7 * (u_edgeWidth - .1);
-  cell_shape = smoothstep(w - cell_edge_width, w + cell_edge_width, cell_shape);
+  float w = .7 * (u_edgesSize - .1);
+  cell_shape = smoothstep(w - cell_edge_width, w + u_edgesSharpness, cell_shape);
 
   dot_shape *= cell_shape;
 
-  vec3 dot_color = mix(u_colorMid1.rgb, u_colorMid2.rgb, randomizer[0]);
-  vec3 cell_color = mix(u_colorCell1.rgb, u_colorCell2.rgb, randomizer[1]);
+  vec3 dot_color = mix(u_colorMid1.rgb * u_colorMid1.a, u_colorMid2.rgb * u_colorMid2.a, randomizer[0]);
+  float dot_opacity = mix(u_colorMid1.a, u_colorMid2.a, randomizer[0]);
 
-  vec3 color = u_colorEdges.rgb;
+  vec3 cell_color = mix(u_colorCell1.rgb * u_colorCell1.a, u_colorCell2.rgb * u_colorCell2.a, randomizer[1]);
+  float cell_opacity = mix(u_colorCell1.a, u_colorCell2.a, randomizer[1]);
+  
+  vec3 edge_color = u_colorEdges.rgb;
+  float edge_opacity = u_colorEdges.a;
+
+  edge_color *= edge_opacity;
+
+  vec3 color = edge_color;
   color = mix(color, cell_color, cell_shape);
-  color = mix(color, dot_color, dot_shape);
+  float opacity = mix(edge_opacity, cell_opacity, cell_shape);
 
-  float opacity = 1.;
+  color = mix(color, dot_color, dot_shape);
+  opacity = mix(opacity, dot_opacity, dot_shape);
 
   fragColor = vec4(color, opacity);
 }

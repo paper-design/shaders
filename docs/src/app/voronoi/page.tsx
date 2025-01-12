@@ -19,9 +19,11 @@ import Link from 'next/link';
 //             colorMid1="#9b8ab8"
 //             colorMid2="#f5d03b"
 //             scale={11}
-//             edgeWidth={0.2}
-//             midSize={0.2}
-//             dotSharpness={0.2}
+//             distance={0.25}
+//             edgesSize={0.2}
+//             edgesSharpness={0.}
+//             middleSize={0.2}
+//             middleSharpness={0.2}
 //             speed={1}
 //             seed={0}
 //             style={{position: 'fixed', width: '100%', height: '100%'}}
@@ -43,17 +45,19 @@ const VoronoiWithControls = () => {
     return {
       Parameters: folder(
         {
-            colorEdges: {value: defaults.colorEdges, order: 1},
-            colorCell1: {value: defaults.colorCell1, order: 1},
-            colorCell2: {value: defaults.colorCell2, order: 1},
-            colorMid1: {value: defaults.colorMid1, order: 1},
-            colorMid2: {value: defaults.colorMid2, order: 1},
-            scale: {value: defaults.scale, order: 4, min: 1, max: 20},
-            edgeWidth: {value: defaults.edgeWidth, order: 5, min: 0, max: 1},
-            midSize: {value: defaults.midSize, order: 6, min: 0, max: 1},
-            dotSharpness: {value: defaults.dotSharpness, order: 7, min: 0, max: 1},
-            seed: {value: defaults.seed, order: 8, min: 0, max: 9999},
-            speed: {value: defaults.speed, order: 9, min: 0, max: 1},
+            colorEdges: {value: defaults.colorEdges},
+            colorCell1: {value: defaults.colorCell1},
+            colorCell2: {value: defaults.colorCell2},
+            colorMid1: {value: defaults.colorMid1},
+            colorMid2: {value: defaults.colorMid2},
+            scale: {value: defaults.scale, min: .15, max: 3},
+            distance: {value: defaults.distance, min: 0, max: .5},
+            edgesSize: {value: defaults.edgesSize, min: 0, max: 1},
+            edgesSharpness: {value: defaults.edgesSharpness, min: 0, max: 1},
+            middleSize: {value: defaults.middleSize, min: 0, max: 1},
+            middleSharpness: {value: defaults.middleSharpness, min: 0, max: 1},
+            seed: {value: defaults.seed, min: 0, max: 9999},
+            speed: {value: defaults.speed, min: 0, max: 1},
         },
         { order: 1 }
       ),
