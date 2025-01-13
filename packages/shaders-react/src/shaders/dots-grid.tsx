@@ -46,16 +46,16 @@ const preset1: DotsGridPreset = {
   name: '1',
   params: {
     // Note: Keep default colors in HSLA format so that our Leva controls show a transparency channel (rgba and hex8 do not work)
-    colorBack: 'hsla(234, 100%, 31%, .5)',
-    colorFill: 'hsla(100, 30.1%, 100%, 1)',
-    colorStroke: 'hsla(0, 100%, 0%, 1)',
-    dotSize: 28,
-    gridSpacingX: 60,
-    gridSpacingY: 60,
-    strokeWidth: 12,
-    sizeRange: .7,
-    opacityRange: 1.3,
-    shape: DotsGridShapes.Circle,
+    colorBack: 'hsla(0, 0%, 100%, 1)',
+    colorFill: 'hsla(0, 0%, 100%, 1)',
+    colorStroke: 'hsla(0, 0%, 0%, .5)',
+    dotSize: 5,
+    gridSpacingX: 32,
+    gridSpacingY: 32,
+    strokeWidth: 1,
+    sizeRange: 0,
+    opacityRange: 0,
+    shape: DotsGridShapes.Triangle,
   },
 } as const;
 
@@ -63,16 +63,17 @@ const preset2: DotsGridPreset = {
   name: '2',
   params: {
     // Note: Keep default colors in HSLA format so that our Leva controls show a transparency channel (rgba and hex8 do not work)
-    colorBack: 'hsla(0, 100%, 0%, 1)',
+    colorBack: 'hsla(234, 100%, 31%, .5)',
     colorFill: 'hsla(100, 30.1%, 100%, 1)',
-    colorStroke: 'hsla(0, 0%, 0%, 1)',
-    dotSize: 6,
-    gridSpacingX: 50,
-    gridSpacingY: 50,
-    strokeWidth: 0,
-    sizeRange: 0,
-    opacityRange: 0,
-    shape: DotsGridShapes.Triangle,
+    colorStroke: 'hsla(0, 100%, 0%, 1)',
+    dotSize: 28,
+    gridSpacingX: 60,
+    gridSpacingY: 60,
+    strokeWidth: 12,
+    sizeRange: 0.7,
+    opacityRange: 1.3,
+    shape: DotsGridShapes.Circle,
+
   },
 } as const;
 
@@ -98,7 +99,7 @@ const preset4: DotsGridPreset = {
   params: {
     // Note: Keep default colors in HSLA format so that our Leva controls show a transparency channel (rgba and hex8 do not work)
     colorBack: 'hsla(0, 0%, 0%, 0)',
-    colorFill: 'hsla(0, 50%, 50%, 1)',
+    colorFill: 'hsla(0, 100%, 50%, 1)',
     colorStroke: 'hsla(0, 0%, 0%, 1)',
     dotSize: 15,
     gridSpacingX: 30,
@@ -114,20 +115,63 @@ const preset5: DotsGridPreset = {
   name: '5',
   params: {
     // Note: Keep default colors in HSLA format so that our Leva controls show a transparency channel (rgba and hex8 do not work)
-    colorBack: 'hsla(0, 100%, 100%, .1)',
-    colorFill: 'hsla(171, 50%, 50%, 1)',
-    colorStroke: 'hsla(0, 100%, 100%, 1)',
-    dotSize: 52,
-    gridSpacingX: 75,
-    gridSpacingY: 75,
-    strokeWidth: 16,
-    sizeRange: 0.6,
-    opacityRange: 0.5,
+    colorBack: 'hsla(154, 33%, 19%, 1)',
+    colorFill: 'hsla(0, 0%, 0%, 0)',
+    colorStroke: 'hsla(36, 48%, 58%, 1)',
+    dotSize: 9,
+    gridSpacingX: 32,
+    gridSpacingY: 32,
+    strokeWidth: 1,
+    sizeRange: 0,
+    opacityRange: 0,
+    shape: DotsGridShapes.Diamond,
+  },
+} as const;
+
+const preset6: DotsGridPreset = {
+  name: '6',
+  params: {
+    // Note: Keep default colors in HSLA format so that our Leva controls show a transparency channel (rgba and hex8 do not work)
+    colorBack: 'hsla(0, 100%, 0%, 1)',
+    colorFill: 'hsla(182, 100%, 64%, 1)',
+    colorStroke: 'hsla(0, 100%, 100%, 0)',
+    dotSize: 2,
+    gridSpacingX: 10,
+    gridSpacingY: 10,
+    strokeWidth: .5,
+    sizeRange: .25,
+    opacityRange: 1,
+    shape: DotsGridShapes.Triangle,
+  },
+} as const;
+
+const preset7: DotsGridPreset = {
+  name: '7',
+  params: {
+    // Note: Keep default colors in HSLA format so that our Leva controls show a transparency channel (rgba and hex8 do not work)
+    colorBack: 'hsla(0, 100%, 100%, 1)',
+    colorFill: 'hsla(227, 93%, 38%, 1)',
+    colorStroke: 'hsla(0, 0%, 0%, 0)',
+    dotSize: 100,
+    gridSpacingX: 2,
+    gridSpacingY: 215,
+    strokeWidth: 0,
+    sizeRange: 1,
+    opacityRange: 0,
     shape: DotsGridShapes.Square,
   },
 } as const;
 
-export const dotsGridPresets: DotsGridPreset[] = [defaultPreset, preset1, preset2, preset3, preset4, preset5];
+export const dotsGridPresets: DotsGridPreset[] = [
+  defaultPreset,
+  preset1,
+  preset2,
+  preset3,
+  preset4,
+  preset5,
+  preset6,
+  preset7,
+];
 
 export const DotsGrid = (props: DotsGridProps): JSX.Element => {
   const uniforms: DotsGridUniforms = useMemo(() => {
