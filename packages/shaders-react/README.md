@@ -6,11 +6,13 @@
 import { MeshGradient } from '@paper-design/shaders-react';
 
 <MeshGradient
-  colors={['#283BFC', '#FF2828', '#ddd']}
-  blur="0.6"
-  frequency="0.8"
-  animationSpeed="1"
-  style={{ width: 500, height: 200 }} />
+  color1="#FFC0CB" // pink
+  color2="#FFFF00" // yellow
+  color3="#0000FF" // blue
+  color4="#800080" // purple
+  speed={0.25}
+  style={{ width: 500, height: 200 }}
+/>;
 
 // these settings can be configured in code or designed in Paper
 ```
