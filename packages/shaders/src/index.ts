@@ -28,5 +28,9 @@ export { steppedSimplexNoiseFragmentShader, type SteppedSimplexNoiseUniforms } f
 /** A number of circlular shapes blened in a gooey way */
 export { metaballsFragmentShader, type MetaballsUniforms } from './shaders/metaballs';
 
+// ----- Waves ----- //
+/** Waves pattern */
+export {wavesFragmentShader, type WavesUniforms} from './shaders/waves';
+
 // ----- Uniform conversion utils ----- //
 export { getShaderColorFromString } from './get-shader-color-from-string';
