@@ -47,22 +47,21 @@ void main() {
   uv /= u_pixelRatio;
   uv += .5;
 
-  float wave = sin(u_frequency * uv.x * TWO_PI);
-  float zigzag = abs(fract(uv.x * u_frequency) * 2.0 - 1.0);
-  
+  float wave = .5 * cos(u_frequency * uv.x * TWO_PI);
+  float zigzag = 2. * abs(fract(uv.x * u_frequency) - .5);
+
   // float offset = wave;
   float offset = zigzag;
   
-  offset *= u_amplitude;
+  offset *= 2. * u_amplitude;
   
-  
-  float shape = .5 + .5 * cos((uv.y + offset) * u_spacing * PI);
+  float shape = .5 + .5 * sin((uv.y + offset) * u_spacing * PI);
 
-  float t = smoothstep(u_dutyCycle + 1e-4, u_dutyCycle - 1e-4, shape);
+  float shapeFwidth = fwidth(shape);
+  float t = smoothstep(u_dutyCycle - shapeFwidth, u_dutyCycle + shapeFwidth, shape);
 
-  vec3 color = mix(u_color1.rgb, u_color2.rgb, t);
-
-  float opacity = 1.;
+  vec3 color = mix(u_color1.rgb * u_color1.a, u_color2.rgb * u_color2.a, t);
+  float opacity = mix(u_color1.a, u_color2.a, t);
 
   fragColor = vec4(color, opacity);
 }
