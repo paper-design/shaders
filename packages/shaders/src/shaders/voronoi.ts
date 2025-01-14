@@ -76,7 +76,7 @@ vec4 blend_colors(vec4 c1, vec4 c2, vec4 c3, vec2 randomizer) {
     vec3 color3 = c3.rgb * c3.a;
 
     float r1 = smoothstep(.5 - .5 * u_colorGradient, .5 + .5 * u_colorGradient, randomizer[0]);
-    float r2 = smoothstep(.75 - .75 * u_colorGradient, .75 + .25 * u_colorGradient, randomizer[1]);
+    float r2 = smoothstep(.6 - .6 * u_colorGradient, .6 + .4 * u_colorGradient, randomizer[1]);
     vec3 blended_color_2 = mix(color1, color2, r1);
     float blended_opacity_2 = mix(c1.a, c2.a, r1);
     vec3 c = mix(blended_color_2, color3, r2);
