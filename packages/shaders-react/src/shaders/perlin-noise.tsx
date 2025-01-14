@@ -17,7 +17,6 @@ export type PerlinNoiseProps = Omit<ShaderMountProps, 'fragmentShader'> & Perlin
 
 type PerlinNoisePreset = { name: string; params: Required<PerlinNoiseParams> };
 
-
 export const defaultPreset: PerlinNoisePreset = {
   name: 'Default',
   params: {
@@ -119,7 +118,6 @@ export const preset5: PerlinNoisePreset = {
     proportion: 0.5,
   },
 } as const;
-
 
 export const perlinNoisePresets: PerlinNoisePreset[] = [defaultPreset, preset1, preset2, preset3, preset4, preset5];
 

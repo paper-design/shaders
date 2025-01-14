@@ -46,10 +46,10 @@ export { type MetaballsParams } from './shaders/metaballs';
 export { type MetaballsUniforms } from '@paper-design/shaders';
 
 // Perlin noise
-export {PerlinNoise, perlinNoisePresets} from './shaders/perlin-noise';
-export {type PerlinNoiseProps} from './shaders/perlin-noise';
-export {type PerlinNoiseParams} from './shaders/perlin-noise';
-export {type PerlinNoiseUniforms} from '@paper-design/shaders';
+export { PerlinNoise, perlinNoisePresets } from './shaders/perlin-noise';
+export { type PerlinNoiseProps } from './shaders/perlin-noise';
+export { type PerlinNoiseParams } from './shaders/perlin-noise';
+export { type PerlinNoiseUniforms } from '@paper-design/shaders';
 
 // ----- Uniform conversion utils ----- //
 export { getShaderColorFromString } from '@paper-design/shaders';

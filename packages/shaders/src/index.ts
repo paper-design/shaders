@@ -26,7 +26,7 @@ export { steppedSimplexNoiseFragmentShader, type SteppedSimplexNoiseUniforms } f
 
 // ----- Metaballs ----- //
 /** A number of circlular shapes blened in a gooey way */
-export {metaballsFragmentShader, type MetaballsUniforms} from './shaders/metaballs';
+export { metaballsFragmentShader, type MetaballsUniforms } from './shaders/metaballs';
 
 // ----- Perlin noise ----- //
 /** 2d noise with max number of parameters to be exposed to users */

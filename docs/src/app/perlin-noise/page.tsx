@@ -38,16 +38,16 @@ const PerlinNoiseWithControls = () => {
     return {
       Parameters: folder(
         {
-            color1: {value: defaults.color1, order: 1},
-            color2: {value: defaults.color2, order: 2},
-            speed: {value: defaults.speed, order: 3, min: 0, max: 0.5},
-            seed: {value: defaults.seed, order: 4, min: 0, max: 9999},
-            scale: {value: defaults.scale, order: 5, min: 0, max: 2},
-            octaveCount: {value: defaults.octaveCount, order: 6, min: 1, step: 1, max: 8},
-            persistence: {value: defaults.persistence, order: 7, min: .3, max: 1},
-            lacunarity: {value: defaults.lacunarity, order: 8, min: 1.5, max: 3},
-            contour: {value: defaults.contour, order: 9, min: 0, max: 1},
-            proportion: {value: defaults.contour, order: 10, min: 0, max: 1},
+          color1: { value: defaults.color1, order: 1 },
+          color2: { value: defaults.color2, order: 2 },
+          speed: { value: defaults.speed, order: 3, min: 0, max: 0.5 },
+          seed: { value: defaults.seed, order: 4, min: 0, max: 9999 },
+          scale: { value: defaults.scale, order: 5, min: 0, max: 2 },
+          octaveCount: { value: defaults.octaveCount, order: 6, min: 1, step: 1, max: 8 },
+          persistence: { value: defaults.persistence, order: 7, min: 0.3, max: 1 },
+          lacunarity: { value: defaults.lacunarity, order: 8, min: 1.5, max: 3 },
+          contour: { value: defaults.contour, order: 9, min: 0, max: 1 },
+          proportion: { value: defaults.contour, order: 10, min: 0, max: 1 },
         },
         { order: 1 }
       ),
