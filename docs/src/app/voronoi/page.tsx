@@ -13,16 +13,17 @@ import Link from 'next/link';
 // const VoronoiExample = () => {
 //     return (
 //         <Voronoi
-//             colorEdges="#6a5496"
-//             colorCell1="#9b8ab8"
-//             colorCell2="#9b8ab8"
-//             colorMid1="#9b8ab8"
-//             colorMid2="#f5d03b"
+//             color1="#ffffff"
+//             color2="#ffffff"
+//             color3="#ffffff"
+//             colorEdges="#301a03"
+//             colorMid="#9b8ab8"
+//             colorGradient={0}
 //             scale={11}
 //             distance={0.25}
 //             edgesSize={0.2}
 //             edgesSharpness={0.}
-//             middleSize={0.2}
+//             middleSize={0}
 //             middleSharpness={0.2}
 //             speed={1}
 //             seed={0}
@@ -45,11 +46,12 @@ const VoronoiWithControls = () => {
     return {
       Parameters: folder(
         {
+            color1: {value: defaults.color1},
+            color2: {value: defaults.color2},
+            color3: {value: defaults.color3},
+            colorMid: {value: defaults.colorMid},
             colorEdges: {value: defaults.colorEdges},
-            colorCell1: {value: defaults.colorCell1},
-            colorCell2: {value: defaults.colorCell2},
-            colorMid1: {value: defaults.colorMid1},
-            colorMid2: {value: defaults.colorMid2},
+            colorGradient: {value: defaults.colorGradient, min: 0, max: 1},
             scale: {value: defaults.scale, min: .15, max: 3},
             distance: {value: defaults.distance, min: 0, max: .5},
             edgesSize: {value: defaults.edgesSize, min: 0, max: 1},

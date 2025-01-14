@@ -1,9 +1,10 @@
 export type VoronoiUniforms = {
+    u_color1: [number, number, number, number];
+    u_color2: [number, number, number, number];
+    u_color3: [number, number, number, number];
     u_colorEdges: [number, number, number, number];
-    u_colorCell1: [number, number, number, number];
-    u_colorCell2: [number, number, number, number];
-    u_colorMid1: [number, number, number, number];
-    u_colorMid2: [number, number, number, number];
+    u_colorMid: [number, number, number, number];
+    u_colorGradient: number;
     u_distance: number;
     u_edgesSize: number;
     u_edgesSharpness: number;
@@ -18,30 +19,32 @@ export type VoronoiUniforms = {
  * Renders a number of circular shapes with gooey effect applied
  *
  * Uniforms include:
+ * u_color1 - color #1 of mix used to fill the cell shape
+ * u_color2 - color #2 of mix used to fill the cell shape
+ * u_color3 - color #3 of mix used to fill the cell shape
  * u_colorEdges - color of borders (between the cells)
- * u_colorCell1 - color #1 of mix used to fill the cell shape
- * u_colorCell2 - color #2 of mix used to fill the cell shape
- * u_colorMid1 - color #1 of mix used to fill the radial shape in the center of each cell
- * u_colorMid2 - color #2 of mix used to fill the radial shape in the center of each cell
+ * u_colorMid - color used to fill the radial shape in the center of each cell
+ * u_colorGradient - if the cell colors is a mix or selection
  * u_distance - how far the cell center can move from regular square grid
  * u_edgesSize - the size of borders (can be set to zero but the edge may get glitchy due
- *   to nature of Voronoi diagram)
+ *               to nature of Voronoi diagram)
  * u_edgesSharpness - the smoothness for cel border
  * u_middleSize - the size of shape in the center of each cell
  * u_middleSharpness - the smoothness of shape in the center of each cell (vary from cell
- *   color gradient to sharp dot in the middle)
+ *                     color gradient to sharp dot in the middle)
  * u_scale: The scale applied to UV space
  */
 
 export const voronoiFragmentShader = `#version 300 es
 precision highp float;
 
+uniform vec4 u_color1;
+uniform vec4 u_color2;
+uniform vec4 u_color3;
 uniform vec4 u_colorEdges;
-uniform vec4 u_colorCell1;
-uniform vec4 u_colorCell2;
-uniform vec4 u_colorMid1;
-uniform vec4 u_colorMid2;
+uniform vec4 u_colorMid;
 
+uniform float u_colorGradient;
 uniform float u_distance;
 uniform float u_edgesSize;
 uniform float u_edgesSharpness;
@@ -67,6 +70,20 @@ float smin(float angle, float b, float k) {
   return mix(b, angle, h) - k * h * (1. - h);
 }
 
+vec4 blend_colors(vec4 c1, vec4 c2, vec4 c3, vec2 randomizer) {
+    vec3 color1 = c1.rgb * c1.a;
+    vec3 color2 = c2.rgb * c2.a;
+    vec3 color3 = c3.rgb * c3.a;
+
+    float r1 = smoothstep(.5 - .5 * u_colorGradient, .5 + .5 * u_colorGradient, randomizer[0]);
+    float r2 = smoothstep(.75 - .75 * u_colorGradient, .75 + .25 * u_colorGradient, randomizer[1]);
+    vec3 blended_color_2 = mix(color1, color2, r1);
+    float blended_opacity_2 = mix(c1.a, c2.a, r1);
+    vec3 c = mix(blended_color_2, color3, r2);
+    float o = mix(blended_opacity_2, c3.a, r2);
+    
+    return vec4(c, o);
+}
 
 void main() {
   vec2 uv = gl_FragCoord.xy / u_resolution.xy;
@@ -102,12 +119,11 @@ void main() {
   }
 
   distance = sqrt(distance);
-  float cell_radius = distance.x;
 
   distance = sqrt(distance);
   float cell_shape = min(smin(distance.z, distance.y, .1) - distance.x, 1.);
 
-  float dot_shape = cell_radius / (2. * u_middleSize + 1e-4);
+  float dot_shape = pow(distance.x, 2.) / (2. * u_middleSize + 1e-4);
   float dot_edge_width = fwidth(dot_shape);
   dot_shape = 1. - smoothstep(.5 * u_middleSharpness - dot_edge_width, 1. - .5 * u_middleSharpness, dot_shape);
 
@@ -117,23 +133,15 @@ void main() {
 
   dot_shape *= cell_shape;
 
-  vec3 dot_color = mix(u_colorMid1.rgb * u_colorMid1.a, u_colorMid2.rgb * u_colorMid2.a, randomizer[0]);
-  float dot_opacity = mix(u_colorMid1.a, u_colorMid2.a, randomizer[0]);
-
-  vec3 cell_color = mix(u_colorCell1.rgb * u_colorCell1.a, u_colorCell2.rgb * u_colorCell2.a, randomizer[1]);
-  float cell_opacity = mix(u_colorCell1.a, u_colorCell2.a, randomizer[1]);
+  vec4 cell_mix = blend_colors(u_color1, u_color2, u_color3, randomizer);
   
-  vec3 edge_color = u_colorEdges.rgb;
-  float edge_opacity = u_colorEdges.a;
+  vec4 edges = vec4(u_colorEdges.rgb * u_colorEdges.a, u_colorEdges.a);
 
-  edge_color *= edge_opacity;
+  vec3 color = mix(edges.rgb, cell_mix.rgb, cell_shape);
+  float opacity = mix(edges.a, cell_mix.a, cell_shape);
 
-  vec3 color = edge_color;
-  color = mix(color, cell_color, cell_shape);
-  float opacity = mix(edge_opacity, cell_opacity, cell_shape);
-
-  color = mix(color, dot_color, dot_shape);
-  opacity = mix(opacity, dot_opacity, dot_shape);
+  color = mix(color, u_colorMid.rgb * u_colorMid.a, dot_shape);
+  opacity = mix(opacity, u_colorMid.a, dot_shape);
 
   fragColor = vec4(color, opacity);
 }
