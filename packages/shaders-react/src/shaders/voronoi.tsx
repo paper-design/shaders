@@ -31,7 +31,7 @@ export const defaultPreset: VoronoiPreset = {
     color3: 'hsla(200, 80%, 50%, 1)',
     colorEdges: 'hsla(30, 90%, 10%, 1)',
     colorMid: 'hsla(0, 0%, 0%, 1)',
-    colorGradient: .5,
+    colorGradient: 0.5,
     scale: 1.5,
     distance: 0.25,
     edgesSize: 0.15,
@@ -153,7 +153,6 @@ export const cellsPreset: VoronoiPreset = {
   },
 } as const;
 
-
 export const glowPreset: VoronoiPreset = {
   name: 'Glow',
   params: {
@@ -169,7 +168,7 @@ export const glowPreset: VoronoiPreset = {
     distance: 0.25,
     edgesSize: 0.15,
     edgesSharpness: 0.01,
-    middleSize: .7,
+    middleSize: 0.7,
     middleSharpness: 0,
     speed: 0.8,
     seed: 0,

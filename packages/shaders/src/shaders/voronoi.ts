@@ -1,16 +1,16 @@
 export type VoronoiUniforms = {
-    u_color1: [number, number, number, number];
-    u_color2: [number, number, number, number];
-    u_color3: [number, number, number, number];
-    u_colorEdges: [number, number, number, number];
-    u_colorMid: [number, number, number, number];
-    u_colorGradient: number;
-    u_distance: number;
-    u_edgesSize: number;
-    u_edgesSharpness: number;
-    u_middleSize: number;
-    u_middleSharpness: number;
-    u_scale: number;
+  u_color1: [number, number, number, number];
+  u_color2: [number, number, number, number];
+  u_color3: [number, number, number, number];
+  u_colorEdges: [number, number, number, number];
+  u_colorMid: [number, number, number, number];
+  u_colorGradient: number;
+  u_distance: number;
+  u_edgesSize: number;
+  u_edgesSharpness: number;
+  u_middleSize: number;
+  u_middleSharpness: number;
+  u_scale: number;
 };
 
 /**
