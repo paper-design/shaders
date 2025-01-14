@@ -73,7 +73,6 @@ const preset2: DotsGridPreset = {
     sizeRange: 0.7,
     opacityRange: 1.3,
     shape: DotsGridShapes.Circle,
-
   },
 } as const;
 
@@ -138,8 +137,8 @@ const preset6: DotsGridPreset = {
     dotSize: 2,
     gridSpacingX: 10,
     gridSpacingY: 10,
-    strokeWidth: .5,
-    sizeRange: .25,
+    strokeWidth: 0.5,
+    sizeRange: 0.25,
     opacityRange: 1,
     shape: DotsGridShapes.Triangle,
   },
