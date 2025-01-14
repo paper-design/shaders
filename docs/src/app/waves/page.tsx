@@ -1,10 +1,6 @@
 'use client';
 
-import {
-  Waves,
-  type WavesParams,
-  wavesPresets,
-} from '@paper-design/shaders-react';
+import { Waves, type WavesParams, wavesPresets } from '@paper-design/shaders-react';
 
 import { useControls, button, folder } from 'leva';
 import { setParamsSafe, useResetLevaParams } from '@/helpers/use-reset-leva-params';
@@ -34,10 +30,7 @@ const defaults = wavesPresets[0].params;
 const WavesWithControls = () => {
   const [params, setParams] = useControls(() => {
     const presets: WavesParams = Object.fromEntries(
-      wavesPresets.map((preset) => [
-        preset.name,
-        button(() => setParamsSafe(params, setParams, preset.params)),
-      ])
+      wavesPresets.map((preset) => [preset.name, button(() => setParamsSafe(params, setParams, preset.params))])
     );
     return {
       Parameters: folder(
@@ -45,7 +38,7 @@ const WavesWithControls = () => {
           color1: { value: defaults.color1 },
           color2: { value: defaults.color2 },
           speed: { value: defaults.speed, min: -1.5, max: 1.5 },
-          scale: { value: defaults.scale, min: .1, max: 4 },
+          scale: { value: defaults.scale, min: 0.1, max: 4 },
           frequency: { value: defaults.frequency, min: 0, max: 2 },
           amplitude: { value: defaults.amplitude, min: 0, max: 1 },
           dutyCycle: { value: defaults.dutyCycle, min: 0, max: 1 },

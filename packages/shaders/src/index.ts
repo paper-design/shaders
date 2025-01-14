@@ -30,7 +30,7 @@ export { metaballsFragmentShader, type MetaballsUniforms } from './shaders/metab
 
 // ----- Waves ----- //
 /** Waves pattern */
-export {wavesFragmentShader, type WavesUniforms} from './shaders/waves';
+export { wavesFragmentShader, type WavesUniforms } from './shaders/waves';
 
 // ----- Uniform conversion utils ----- //
 export { getShaderColorFromString } from './get-shader-color-from-string';
