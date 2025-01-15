@@ -52,17 +52,16 @@ export { type MetaballsParams } from './shaders/metaballs';
 export { type MetaballsUniforms } from '@paper-design/shaders';
 
 // Waves
-export {Waves, wavesPresets} from './shaders/waves';
-export {type WavesProps} from './shaders/waves';
-export {type WavesParams} from './shaders/waves';
-export {type WavesUniforms} from '@paper-design/shaders';
+export { Waves, wavesPresets } from './shaders/waves';
+export { type WavesProps } from './shaders/waves';
+export { type WavesParams } from './shaders/waves';
+export { type WavesUniforms } from '@paper-design/shaders';
 
 // Voronoi diagram
-export {Voronoi, voronoiPresets} from './shaders/voronoi';
-export {type VoronoiProps} from './shaders/voronoi';
-export {type VoronoiParams} from './shaders/voronoi';
-export {type VoronoiUniforms} from '@paper-design/shaders';
-
+export { Voronoi, voronoiPresets } from './shaders/voronoi';
+export { type VoronoiProps } from './shaders/voronoi';
+export { type VoronoiParams } from './shaders/voronoi';
+export { type VoronoiUniforms } from '@paper-design/shaders';
 
 // ----- Uniform conversion utils ----- //
 export { getShaderColorFromString } from '@paper-design/shaders';

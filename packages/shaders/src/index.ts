@@ -34,11 +34,11 @@ export { metaballsFragmentShader, type MetaballsUniforms } from './shaders/metab
 
 // ----- Voronoi Diagram ----- //
 /** Voronoi diagram: classic + rounded edges */
-export {voronoiFragmentShader, type VoronoiUniforms} from './shaders/voronoi';
+export { voronoiFragmentShader, type VoronoiUniforms } from './shaders/voronoi';
 
 // ----- Waves ----- //
 /** Waves pattern */
-export {wavesFragmentShader, WavesShapes, type WavesShape, type WavesUniforms} from './shaders/waves';
+export { wavesFragmentShader, WavesShapes, type WavesShape, type WavesUniforms } from './shaders/waves';
 
 // ----- Uniform conversion utils ----- //
 export { getShaderColorFromString } from './get-shader-color-from-string';
