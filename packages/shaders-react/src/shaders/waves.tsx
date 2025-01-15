@@ -28,14 +28,14 @@ export const defaultPreset: WavesPreset = {
   params: {
     // Note: Keep default colors in HSLA format so that our Leva controls show a transparency channel (rgba and hex8 do not work)
     // And don't use decimal values or highlights won't work, because the values get rounded and highlights need an exact match.
-    color1: 'hsla(208, 25%, 45%, 1)',
-    color2: 'hsla(94, 38%, 59%, 1)',
+    color1: 'hsla(48, 100%, 74%, 1)',
+    color2: 'hsla(204, 47%, 45%, 1)',
     scale: 1,
     speed: 0.15,
     frequency: 0.5,
     amplitude: 0.5,
     dutyCycle: 0.2,
-    spacing: 1,
+    spacing: 0.75,
     seed: 0,
     // shape: 0,
     shape: WavesShapes.Zigzag,

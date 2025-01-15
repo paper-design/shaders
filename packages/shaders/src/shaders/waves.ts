@@ -1,7 +1,7 @@
 /** Possible values for the shape uniform */
 export const WavesShapes = {
-  Zigzag: 0,
-  Sine: 1,
+  Sine: 0,
+  Zigzag: 1,
   Irregular: 2,
 } as const;
 export type WavesShape = (typeof WavesShapes)[keyof typeof WavesShapes];
@@ -14,8 +14,8 @@ export type WavesUniforms = {
   u_amplitude: number;
   u_dutyCycle: number;
   u_spacing: number;
-  u_shape: number;
-  // u_shape: WavesShape;
+  // u_shape: number;
+  u_shape: WavesShape;
 };
 
 /**
@@ -54,7 +54,7 @@ void main() {
   vec2 uv = gl_FragCoord.xy / u_resolution.xy;
 
   uv -= .5;
-  uv *= (.01 * u_scale * u_resolution);
+  uv *= (.02 * u_scale * u_resolution);
   uv /= u_pixelRatio;
   uv += .5;
 
@@ -62,11 +62,13 @@ void main() {
   // extra_thickness -= smoothstep(-1., 0., cos(uv.x * u_frequency * TWO_PI + .5 * PI));
   
   float wave = .5 * cos(uv.x * u_frequency * TWO_PI);
-  float zigzag = abs(fract(uv.x * u_frequency) - .5);
-  float irregular = 2. * cos(2. * u_frequency * uv.x * TWO_PI);
+  float zigzag = 2. * abs(fract(uv.x * u_frequency) - .5);
+  float irregular = sin(uv.x * .25 * u_frequency * TWO_PI) * cos(uv.x * u_frequency * TWO_PI);
+  float irregular2 = .75 * (sin(uv.x * u_frequency * TWO_PI) + .5 * cos(uv.x * .5 * u_frequency * TWO_PI));
 
-  float tempMix = mix(wave, zigzag, smoothstep(0., 1., u_shape));
-  float offset = mix(tempMix, irregular, step(1.5, u_shape));
+  float offset = mix(zigzag, wave, smoothstep(0., 1., u_shape));
+  offset = mix(offset, irregular, smoothstep(1., 2., u_shape));
+  offset = mix(offset, irregular2, smoothstep(2., 3., u_shape));
   offset *= 2. * u_amplitude;
   
   float shape = .5 + .5 * sin((uv.y + offset) * PI / (1e-2 + u_spacing));

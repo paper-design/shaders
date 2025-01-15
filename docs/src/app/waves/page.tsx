@@ -44,8 +44,8 @@ const WavesWithControls = () => {
           amplitude: { value: defaults.amplitude, min: 0, max: 1 },
           dutyCycle: { value: defaults.dutyCycle, min: 0, max: 1 },
           spacing: { value: defaults.spacing, min: 0, max: 2 },
-          shape: { value: defaults.shape, options: WavesShapes },
-          // shape: { value: defaults.shape, min: 0, max: 1 },
+          // shape: { value: defaults.shape, options: WavesShapes },
+          shape: { value: defaults.shape, min: 0, max: 3 },
         },
         { order: 1 }
       ),
