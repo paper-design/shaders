@@ -17,7 +17,8 @@ export type WavesParams = {
   dutyCycle?: number;
   spacing?: number;
   shape?: WavesShape;
-} & GlobalParams;
+  rotation?: number;
+};
 
 export type WavesProps = Omit<ShaderMountProps, 'fragmentShader'> & WavesParams;
 
@@ -39,6 +40,7 @@ export const defaultPreset: WavesPreset = {
     seed: 0,
     // shape: 0,
     shape: WavesShapes.Zigzag,
+    rotation: 0,
   },
 } as const;
 
@@ -50,25 +52,23 @@ export const Waves = (props: WavesProps): JSX.Element => {
       u_color1: getShaderColorFromString(props.color1, defaultPreset.params.color1),
       u_color2: getShaderColorFromString(props.color2, defaultPreset.params.color2),
       u_scale: props.scale ?? defaultPreset.params.scale,
-      u_speed: props.speed ?? defaultPreset.params.speed,
       u_frequency: props.frequency ?? defaultPreset.params.frequency,
       u_amplitude: props.amplitude ?? defaultPreset.params.amplitude,
       u_dutyCycle: props.dutyCycle ?? defaultPreset.params.dutyCycle,
       u_spacing: props.spacing ?? defaultPreset.params.spacing,
       u_shape: props.shape ?? defaultPreset.params.shape,
-      u_seed: props.seed ?? defaultPreset.params.seed,
+      u_rotation: props.rotation ?? defaultPreset.params.rotation,
     };
   }, [
     props.color1,
     props.color2,
     props.scale,
-    props.speed,
     props.frequency,
     props.amplitude,
     props.dutyCycle,
     props.spacing,
     props.shape,
-    props.seed,
+    props.rotation,
   ]);
 
   return <ShaderMount {...props} fragmentShader={wavesFragmentShader} uniforms={uniforms} />;

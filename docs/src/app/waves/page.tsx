@@ -38,7 +38,6 @@ const WavesWithControls = () => {
         {
           color1: { value: defaults.color1 },
           color2: { value: defaults.color2 },
-          speed: { value: defaults.speed, min: -1.5, max: 1.5 },
           scale: { value: defaults.scale, min: 0.1, max: 4 },
           frequency: { value: defaults.frequency, min: 0, max: 2 },
           amplitude: { value: defaults.amplitude, min: 0, max: 1 },
@@ -46,6 +45,7 @@ const WavesWithControls = () => {
           spacing: { value: defaults.spacing, min: 0, max: 2 },
           // shape: { value: defaults.shape, options: WavesShapes },
           shape: { value: defaults.shape, min: 0, max: 3 },
+          rotation: { value: defaults.rotation, min: 0, max: 1 },
         },
         { order: 1 }
       ),

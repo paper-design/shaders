@@ -16,6 +16,7 @@ export type WavesUniforms = {
   u_spacing: number;
   // u_shape: number;
   u_shape: WavesShape;
+  u_rotation: number;
 };
 
 /**
@@ -38,10 +39,10 @@ uniform float u_amplitude;
 uniform float u_dutyCycle;
 uniform float u_spacing;
 uniform float u_shape;
+uniform float u_rotation;
 
 uniform float u_scale;
 
-uniform float u_time;
 uniform float u_pixelRatio;
 uniform vec2 u_resolution;
 
@@ -50,11 +51,16 @@ uniform vec2 u_resolution;
 
 out vec4 fragColor;
 
+vec2 rotate(vec2 uv, float th) {
+  return mat2(cos(th), sin(th), -sin(th), cos(th)) * uv;
+}
+
 void main() {
   vec2 uv = gl_FragCoord.xy / u_resolution.xy;
 
   uv -= .5;
   uv *= (.02 * u_scale * u_resolution);
+  uv = rotate(uv, u_rotation * .5 * PI);
   uv /= u_pixelRatio;
   uv += .5;
 
