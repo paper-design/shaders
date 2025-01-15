@@ -65,9 +65,9 @@ void main() {
   offset = mix(offset, irregular2, smoothstep(2., 3., u_shape));
   offset *= 2. * u_amplitude;
   
-  float shape = .5 + .5 * sin((uv.y + offset) * PI / (1e-2 + u_spacing));
+  float shape = .5 + .5 * sin((uv.y + offset) * PI / (.01 + .99 * u_spacing));
   
-  float shapeFwidth = fwidth(shape);
+  float shapeFwidth = max(1e-4, fwidth(shape));
   float t = smoothstep(u_dutyCycle - shapeFwidth, u_dutyCycle + shapeFwidth, shape);
 
   vec3 color = mix(u_color1.rgb * u_color1.a, u_color2.rgb * u_color2.a, t);
