@@ -144,8 +144,9 @@ vec3 fade(vec3 t) {
 }
 
 float perlinNoise(vec3 position, uint seed) {
+    position += 1e+4;
     vec3 floorPosition = floor(position);
-    vec3 fractPosition = position - floorPosition;
+    vec3 fractPosition = fract(position);
     uvec3 cellCoordinates = uvec3(floorPosition);
     float value1 = dot(gradientdy(hash(cellCoordinates, seed)), fractPosition);
     float value2 = dot(gradientdy(hash((cellCoordinates + uvec3(1, 0, 0)), seed)), fractPosition - vec3(1, 0, 0));
@@ -158,7 +159,7 @@ float perlinNoise(vec3 position, uint seed) {
     return interpolate(value1, value2, value3, value4, value5, value6, value7, value8, fade(fractPosition));
 }
 
-float perlinNoise(vec3 position, int octaveCount, float persistence, float lacunarity) {
+float p_noise(vec3 position, int octaveCount, float persistence, float lacunarity) {
     float value = 0.0;
     float amplitude = 1.0;
     float currentFrequency = 10.;
@@ -172,7 +173,7 @@ float perlinNoise(vec3 position, int octaveCount, float persistence, float lacun
     return value;
 }
 
-float calculateMaxAmplitude(float persistence, float octaveCount) {
+float get_max_amp(float persistence, float octaveCount) {
     persistence *= .999;
     return (1. - pow(persistence, octaveCount)) / (1. - persistence);
 }
@@ -182,21 +183,27 @@ void main() {
     vec2 uv = gl_FragCoord.xy / u_resolution.xy;
     float t = .2 * u_time;
 
+    uv -= .5;
     uv *= (.004 * u_scale * u_resolution);
     uv /= u_pixelRatio;
     uv += .5;
         
     vec3 p = vec3(uv, t);
     
-    float noise = perlinNoise(p, int(floor(u_octaveCount)), u_persistence, u_lacunarity);
+    float noise = p_noise(p, int(floor(u_octaveCount)), u_persistence, u_lacunarity);
     
-    float maxAmplitude = calculateMaxAmplitude(u_persistence, u_octaveCount);
-    float normalizedNoise = (noise + maxAmplitude) / (2. * maxAmplitude) + (u_proportion - .5);
+    float max_amp = get_max_amp(u_persistence, u_octaveCount);
+    float noise_normalized = (noise + max_amp) / (2. * max_amp) + (u_proportion - .5);
     float sharpness = 1. - u_contour;
-    float sharpNoise = smoothstep(.5 - .5 * sharpness, .5 + .5 * sharpness, normalizedNoise);
+    float smooth_w = 0.5 * fwidth(noise_normalized);
+    float sharp_noise = smoothstep(
+        .5 - .5 * sharpness - smooth_w, 
+        .5 + .5 * sharpness + smooth_w, 
+        noise_normalized
+    );
 
-    vec3 color = mix(u_color1.rgb * u_color1.a, u_color2.rgb * u_color2.a, sharpNoise);
-    float opacity = mix(u_color1.a, u_color2.a, sharpNoise);
+    vec3 color = mix(u_color1.rgb * u_color1.a, u_color2.rgb * u_color2.a, sharp_noise);
+    float opacity = mix(u_color1.a, u_color2.a, sharp_noise);
 
     fragColor = vec4(color, opacity);
 }
