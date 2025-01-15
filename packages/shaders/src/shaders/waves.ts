@@ -1,11 +1,3 @@
-/** Possible values for the shape uniform */
-export const WavesShapes = {
-  Sine: 0,
-  Zigzag: 1,
-  Irregular: 2,
-} as const;
-export type WavesShape = (typeof WavesShapes)[keyof typeof WavesShapes];
-
 export type WavesUniforms = {
   u_color1: [number, number, number, number];
   u_color2: [number, number, number, number];
@@ -15,7 +7,6 @@ export type WavesUniforms = {
   u_dutyCycle: number;
   u_spacing: number;
   u_shape: number;
-  // u_shape: WavesShape;
   u_rotation: number;
 };
 
@@ -64,9 +55,6 @@ void main() {
   uv /= u_pixelRatio;
   uv += .5;
 
-  // float extra_thickness = smoothstep(0., 1., cos(uv.x * u_frequency * TWO_PI + .5 * PI));
-  // extra_thickness -= smoothstep(-1., 0., cos(uv.x * u_frequency * TWO_PI + .5 * PI));
-  
   float wave = .5 * cos(uv.x * u_frequency * TWO_PI);
   float zigzag = 2. * abs(fract(uv.x * u_frequency) - .5);
   float irregular = sin(uv.x * .25 * u_frequency * TWO_PI) * cos(uv.x * u_frequency * TWO_PI);
@@ -79,10 +67,7 @@ void main() {
   
   float shape = .5 + .5 * sin((uv.y + offset) * PI / (1e-2 + u_spacing));
   
-  // extra_thickness *= (1. - clamp(0., 1., u_shape));
-
   float shapeFwidth = fwidth(shape);
-  // float t = smoothstep(u_dutyCycle - shapeFwidth, u_dutyCycle + shapeFwidth, shape - .07 * extra_thickness);
   float t = smoothstep(u_dutyCycle - shapeFwidth, u_dutyCycle + shapeFwidth, shape);
 
   vec3 color = mix(u_color1.rgb * u_color1.a, u_color2.rgb * u_color2.a, t);

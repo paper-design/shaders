@@ -1,12 +1,6 @@
 import { useMemo } from 'react';
-import { ShaderMount, type GlobalParams, type ShaderMountProps } from '../shader-mount';
-import {
-  getShaderColorFromString,
-  wavesFragmentShader,
-  type WavesUniforms,
-  type WavesShape,
-  WavesShapes,
-} from '@paper-design/shaders';
+import { ShaderMount, type ShaderMountProps } from '../shader-mount';
+import { getShaderColorFromString, wavesFragmentShader, type WavesUniforms } from '@paper-design/shaders';
 
 export type WavesParams = {
   color1?: string;
@@ -16,7 +10,6 @@ export type WavesParams = {
   amplitude?: number;
   dutyCycle?: number;
   spacing?: number;
-  // shape?: WavesShape;
   shape?: number;
   rotation?: number;
 };
@@ -38,7 +31,6 @@ export const defaultPreset: WavesPreset = {
     dutyCycle: 0.2,
     spacing: 0.75,
     shape: 0,
-    // shape: WavesShapes.Zigzag,
     rotation: 0,
   },
 } as const;
