@@ -1,6 +1,12 @@
 import { useMemo } from 'react';
 import { ShaderMount, type GlobalParams, type ShaderMountProps } from '../shader-mount';
-import { getShaderColorFromString, wavesFragmentShader, type WavesUniforms } from '@paper-design/shaders';
+import {
+  getShaderColorFromString,
+  wavesFragmentShader,
+  type WavesUniforms,
+  type WavesShape,
+  WavesShapes,
+} from '@paper-design/shaders';
 
 export type WavesParams = {
   color1?: string;
@@ -10,6 +16,7 @@ export type WavesParams = {
   amplitude?: number;
   dutyCycle?: number;
   spacing?: number;
+  shape?: WavesShape;
 } & GlobalParams;
 
 export type WavesProps = Omit<ShaderMountProps, 'fragmentShader'> & WavesParams;
@@ -28,8 +35,10 @@ export const defaultPreset: WavesPreset = {
     frequency: 0.5,
     amplitude: 0.5,
     dutyCycle: 0.2,
-    spacing: 3,
+    spacing: 1,
     seed: 0,
+    // shape: 0,
+    shape: WavesShapes.Zigzag,
   },
 } as const;
 
@@ -46,6 +55,7 @@ export const Waves = (props: WavesProps): JSX.Element => {
       u_amplitude: props.amplitude ?? defaultPreset.params.amplitude,
       u_dutyCycle: props.dutyCycle ?? defaultPreset.params.dutyCycle,
       u_spacing: props.spacing ?? defaultPreset.params.spacing,
+      u_shape: props.shape ?? defaultPreset.params.shape,
       u_seed: props.seed ?? defaultPreset.params.seed,
     };
   }, [
@@ -57,6 +67,7 @@ export const Waves = (props: WavesProps): JSX.Element => {
     props.amplitude,
     props.dutyCycle,
     props.spacing,
+    props.shape,
     props.seed,
   ]);
 

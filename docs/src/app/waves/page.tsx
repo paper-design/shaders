@@ -7,6 +7,7 @@ import { setParamsSafe, useResetLevaParams } from '@/helpers/use-reset-leva-para
 import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import Link from 'next/link';
 import { BackButton } from '@/components/back-button';
+import { WavesShapes } from '@paper-design/shaders';
 
 /**
  * You can copy/paste this example to use Waves in your app
@@ -42,7 +43,9 @@ const WavesWithControls = () => {
           frequency: { value: defaults.frequency, min: 0, max: 2 },
           amplitude: { value: defaults.amplitude, min: 0, max: 1 },
           dutyCycle: { value: defaults.dutyCycle, min: 0, max: 1 },
-          spacing: { value: defaults.spacing, min: 0, max: 16 },
+          spacing: { value: defaults.spacing, min: 0, max: 2 },
+          shape: { value: defaults.shape, options: WavesShapes },
+          // shape: { value: defaults.shape, min: 0, max: 1 },
         },
         { order: 1 }
       ),
