@@ -15,21 +15,21 @@ import { BackButton } from '@/components/back-button';
 /**
  * You can copy/paste this example to use SteppedSimplexNoise in your app
  */
-// const SteppedSimplexNoiseExample = () => {
-//   return (
-//     <SteppedSimplexNoise
-//       color1="#577590"
-//       color2="#90BE6D"
-//       color3="#F94144"
-//       color4="#F9C74F"
-//       color5="#ffffff"
-//       scale={0.5}
-//       speed={1}
-//       stepsNumber={12}
-//       style={{ position: 'fixed', width: '100%', height: '100%' }}
-//     />
-//   );
-// };
+const SteppedSimplexNoiseExample = () => {
+  return (
+    <SteppedSimplexNoise
+      color1="#577590"
+      color2="#90BE6D"
+      color3="#F94144"
+      color4="#F9C74F"
+      color5="#ffffff"
+      scale={0.5}
+      speed={1}
+      stepsNumber={12}
+      style={{ position: 'fixed', width: '100%', height: '100%' }}
+    />
+  );
+};
 
 /**
  * This example has controls added so you can play with settings in the example app

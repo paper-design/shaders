@@ -10,9 +10,9 @@ import { BackButton } from '@/components/back-button';
 /**
  * You can copy/paste this example to use GrainClouds in your app
  */
-// const GrainCloudsExample = () => {
-//   return <GrainClouds color1="#000" color2="#fff" style={{ position: 'fixed', width: '100%', height: '100%' }} />;
-// };
+const GrainCloudsExample = () => {
+  return <GrainClouds color1="#000" color2="#fff" style={{ position: 'fixed', width: '100%', height: '100%' }} />;
+};
 
 /**
  * This example has controls added so you can play with settings in the example app

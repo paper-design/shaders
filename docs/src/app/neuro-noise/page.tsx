@@ -10,18 +10,18 @@ import { BackButton } from '@/components/back-button';
 /**
  * You can copy/paste this example to use NeuroNoise in your app
  */
-// const NeuroNoiseExample = () => {
-//   return (
-//     <NeuroNoise
-//       colorFront="#c3a3ff"
-//       colorBack="#030208"
-//       speed={1}
-//       scale={1}
-//       brightness={1.3}
-//       style={{ position: 'fixed', width: '100%', height: '100%' }}
-//     />
-//   );
-// };
+const NeuroNoiseExample = () => {
+  return (
+    <NeuroNoise
+      colorFront="#c3a3ff"
+      colorBack="#030208"
+      speed={1}
+      scale={1}
+      brightness={1.3}
+      style={{ position: 'fixed', width: '100%', height: '100%' }}
+    />
+  );
+};
 
 /**
  * This example has controls added so you can play with settings in the example app

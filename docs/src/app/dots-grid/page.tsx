@@ -12,23 +12,23 @@ import { DotsGridShapes } from '@paper-design/shaders';
 /**
  * You can copy/paste this example to use DotsGrid in your app
  */
-// const DotsGridExample = () => {
-//   return (
-//     <DotsGrid
-//         colorBack="#222222"
-//         colorFill="#e48b97"
-//         colorStroke="#f5d03b"
-//         dotSize={4}
-//         gridSpacingX={50}
-//         gridSpacingY={50}
-//         strokeWidth={2}
-//         sizeRange={0}
-//         opacityRange={0}
-//         shape={DotsGridShapes.Circle}
-//         style={{position: 'fixed', width: '100%', height: '100%'}}
-//     />
-//   );
-// };
+const DotsGridExample = () => {
+  return (
+    <DotsGrid
+      colorBack="#222222"
+      colorFill="#e48b97"
+      colorStroke="#f5d03b"
+      dotSize={4}
+      gridSpacingX={50}
+      gridSpacingY={50}
+      strokeWidth={2}
+      sizeRange={0}
+      opacityRange={0}
+      shape={DotsGridShapes.Circle}
+      style={{ position: 'fixed', width: '100%', height: '100%' }}
+    />
+  );
+};
 
 /**
  * This example has controls added so you can play with settings in the example app

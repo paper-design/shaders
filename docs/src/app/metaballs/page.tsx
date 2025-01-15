@@ -10,21 +10,21 @@ import { BackButton } from '@/components/back-button';
 /**
  * You can copy/paste this example to use Metaballs in your app
  */
-// const MetaballsExample = () => {
-//   return (
-//     <Metaballs
-//       color1="#6a5496"
-//       color2="#9b8ab8"
-//       color3="#f5d03b"
-//       scale={11}
-//       speed={1}
-//       seed={0}
-//       visibilityRange={0}
-//       dotSize={1}
-//       style={{ position: 'fixed', width: '100%', height: '100%' }}
-//     />
-//   );
-// };
+const MetaballsExample = () => {
+  return (
+    <Metaballs
+      color1="#6a5496"
+      color2="#9b8ab8"
+      color3="#f5d03b"
+      scale={11}
+      speed={1}
+      seed={0}
+      visibilityRange={0}
+      dotSize={1}
+      style={{ position: 'fixed', width: '100%', height: '100%' }}
+    />
+  );
+};
 
 /**
  * This example has controls added so you can play with settings in the example app
