@@ -16,7 +16,8 @@ export type WavesParams = {
   amplitude?: number;
   dutyCycle?: number;
   spacing?: number;
-  shape?: WavesShape;
+  // shape?: WavesShape;
+  shape?: number;
   rotation?: number;
 };
 
@@ -36,8 +37,8 @@ export const defaultPreset: WavesPreset = {
     amplitude: 0.5,
     dutyCycle: 0.2,
     spacing: 0.75,
-    // shape: 0,
-    shape: WavesShapes.Zigzag,
+    shape: 0,
+    // shape: WavesShapes.Zigzag,
     rotation: 0,
   },
 } as const;

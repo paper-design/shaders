@@ -14,8 +14,8 @@ export type WavesUniforms = {
   u_amplitude: number;
   u_dutyCycle: number;
   u_spacing: number;
-  // u_shape: number;
-  u_shape: WavesShape;
+  u_shape: number;
+  // u_shape: WavesShape;
   u_rotation: number;
 };
 
