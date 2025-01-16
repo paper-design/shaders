@@ -7,6 +7,9 @@ import smokeRingImg from '../public/shaders/smoke-ring.webp';
 import metaballsImg from '../public/shaders/metaballs.webp';
 
 import {
+  DotsGrid,
+  DotsGridParams,
+  DotsGridShapes,
   DotsOrbit,
   DotsOrbitParams,
   GrainClouds,
@@ -21,12 +24,14 @@ import {
   SmokeRingParams,
   SteppedSimplexNoise,
   SteppedSimplexNoiseParams,
+  Voronoi,
+  VoronoiParams,
 } from '@paper-design/shaders-react';
 import { StaticImageData } from 'next/image';
 
 type HomeShaderConfig = {
   name: string;
-  image: StaticImageData;
+  image?: StaticImageData;
   url: string;
   ShaderComponent: React.ComponentType;
   shaderConfig: Record<string, unknown>;
@@ -44,7 +49,7 @@ export const homeShaders = [
       color3: '#f94346',
       color4: '#f9c54e',
       color5: '#ffffff',
-      scale: 1.5,
+      scale: 0.5,
       speed: 0.25,
       stepsNumber: 13,
     } satisfies SteppedSimplexNoiseParams,
@@ -57,7 +62,7 @@ export const homeShaders = [
     shaderConfig: {
       color1: '#73a6ff',
       color2: '#ffffff',
-      scale: 5,
+      scale: 0.15,
       grainAmount: 0,
       speed: 0.3,
     } satisfies GrainCloudsParams,
@@ -74,7 +79,7 @@ export const homeShaders = [
     image: neuroNoiseImg,
     url: '/neuro-noise',
     ShaderComponent: NeuroNoise,
-    shaderConfig: { scale: 2.5 } satisfies NeuroNoiseParams,
+    shaderConfig: { scale: 0.4 } satisfies NeuroNoiseParams,
   },
   {
     name: 'dot orbit',
@@ -86,9 +91,9 @@ export const homeShaders = [
       color2: '#396a4e',
       color3: '#f0a519',
       color4: '#5d3f73',
-      dotSize: 0.15,
+      dotSize: 0.14,
       dotSizeRange: 0.05,
-      scale: 16,
+      scale: 0.9,
       speed: 2,
       spreading: 0.25,
     } satisfies DotsOrbitParams,
@@ -122,5 +127,43 @@ export const homeShaders = [
       visibilityRange: 0.4,
       seed: 0,
     } satisfies MetaballsParams,
+  },
+  {
+    name: 'dots grid',
+    url: '/dots-grid',
+    ShaderComponent: DotsGrid,
+    shaderConfig: {
+      colorBack: '#ffffff',
+      colorFill: '#121212',
+      colorStroke: '#f0a519',
+      dotSize: 2,
+      gridSpacingX: 22,
+      gridSpacingY: 22,
+      strokeWidth: 0,
+      sizeRange: 0,
+      opacityRange: 0,
+      shape: DotsGridShapes.Circle,
+    } satisfies DotsGridParams,
+  },
+  {
+    name: 'voronoi',
+    url: '/voronoi',
+    ShaderComponent: Voronoi,
+    shaderConfig: {
+      color1: '#ffffff',
+      color2: '#ffffff',
+      color3: '#000000',
+      colorEdges: '#000000',
+      colorMid: '#000000',
+      colorGradient: 1,
+      scale: 3,
+      distance: 0.45,
+      edgesSize: 0.02,
+      edgesSharpness: 0.07,
+      middleSize: 0,
+      middleSharpness: 0,
+      speed: 0.8,
+      seed: 0,
+    } satisfies VoronoiParams,
   },
 ] satisfies HomeShaderConfig[];
