@@ -63,5 +63,11 @@ export { type VoronoiProps } from './shaders/voronoi';
 export { type VoronoiParams } from './shaders/voronoi';
 export { type VoronoiUniforms } from '@paper-design/shaders';
 
+// Warping distortion
+export { Warp, warpPresets } from './shaders/warp';
+export { type WarpProps } from './shaders/warp';
+export { type WarpParams } from './shaders/warp';
+export { type WarpUniforms } from '@paper-design/shaders';
+
 // ----- Uniform conversion utils ----- //
 export { getShaderColorFromString } from '@paper-design/shaders';
