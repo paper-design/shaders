@@ -43,7 +43,7 @@ export const defaultPreset: DotsGridPreset = {
 } as const;
 
 const preset1: DotsGridPreset = {
-  name: '1',
+  name: 'Preset #1',
   params: {
     // Note: Keep default colors in HSLA format so that our Leva controls show a transparency channel (rgba and hex8 do not work)
     colorBack: 'hsla(0, 0%, 100%, 1)',
@@ -60,7 +60,7 @@ const preset1: DotsGridPreset = {
 } as const;
 
 const preset2: DotsGridPreset = {
-  name: '2',
+  name: 'Preset #2',
   params: {
     // Note: Keep default colors in HSLA format so that our Leva controls show a transparency channel (rgba and hex8 do not work)
     colorBack: 'hsla(234, 100%, 31%, .5)',
@@ -77,7 +77,7 @@ const preset2: DotsGridPreset = {
 } as const;
 
 const preset3: DotsGridPreset = {
-  name: '3',
+  name: 'Preset #3',
   params: {
     // Note: Keep default colors in HSLA format so that our Leva controls show a transparency channel (rgba and hex8 do not work)
     colorBack: 'hsla(100, 100%, 36%, .05)',
@@ -94,7 +94,7 @@ const preset3: DotsGridPreset = {
 } as const;
 
 const preset4: DotsGridPreset = {
-  name: '4',
+  name: 'Preset #4',
   params: {
     // Note: Keep default colors in HSLA format so that our Leva controls show a transparency channel (rgba and hex8 do not work)
     colorBack: 'hsla(0, 0%, 0%, 0)',
@@ -111,7 +111,7 @@ const preset4: DotsGridPreset = {
 } as const;
 
 const preset5: DotsGridPreset = {
-  name: '5',
+  name: 'Preset #5',
   params: {
     // Note: Keep default colors in HSLA format so that our Leva controls show a transparency channel (rgba and hex8 do not work)
     colorBack: 'hsla(154, 33%, 19%, 1)',
@@ -128,7 +128,7 @@ const preset5: DotsGridPreset = {
 } as const;
 
 const preset6: DotsGridPreset = {
-  name: '6',
+  name: 'Preset #6',
   params: {
     // Note: Keep default colors in HSLA format so that our Leva controls show a transparency channel (rgba and hex8 do not work)
     colorBack: 'hsla(0, 100%, 0%, 1)',
@@ -145,7 +145,7 @@ const preset6: DotsGridPreset = {
 } as const;
 
 const preset7: DotsGridPreset = {
-  name: '7',
+  name: 'Preset #7',
   params: {
     // Note: Keep default colors in HSLA format so that our Leva controls show a transparency channel (rgba and hex8 do not work)
     colorBack: 'hsla(0, 100%, 100%, 1)',
