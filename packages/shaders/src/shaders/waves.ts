@@ -67,7 +67,7 @@ void main() {
   
   float shape = .5 + .5 * sin((uv.y + offset) * PI / (.01 + .99 * u_spacing));
   
-  float shapeFwidth = max(1e-4, fwidth(shape));
+  float shapeFwidth = fwidth(offset) + fwidth(shape);
   float t = smoothstep(u_dutyCycle - shapeFwidth, u_dutyCycle + shapeFwidth, shape);
 
   vec3 color = mix(u_color1.rgb * u_color1.a, u_color2.rgb * u_color2.a, t);
