@@ -17,6 +17,18 @@ export type WavesUniforms = {
  * Uniforms include:
  * u_color1: The first color
  * u_color2: The second color
+ * u_frequency: The wave frequency
+ * u_amplitude: The wave amplitude
+ * u_dutyCycle: The proportion of stroke with to the pattern spacing
+ * u_spacing: The density of pattern lines
+ * u_shape: The line shaping coefficient
+ *          - u_shape = 0 is zigzag
+ *          - u_shape = 1 is perfect sine wave
+ *          - u_shape = 2 is irregular wave #1
+ *          - u_shape = 3 is irregular wave #2
+ * u_rotation: The rotation applied to user space
+ * u_rotation: The rotation applied to user space
+ * u_scale: The scale applied to user space
  */
 
 export const wavesFragmentShader = `#version 300 es
@@ -31,7 +43,6 @@ uniform float u_dutyCycle;
 uniform float u_spacing;
 uniform float u_shape;
 uniform float u_rotation;
-
 uniform float u_scale;
 
 uniform float u_pixelRatio;
