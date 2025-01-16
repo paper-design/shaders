@@ -27,18 +27,18 @@ uniform vec4 u_color1;
 uniform vec4 u_color2;
 uniform vec4 u_color3;
 uniform vec4 u_color4;
+
+uniform float u_pixelRatio;
 uniform vec2 u_resolution;
 uniform float u_time;
 
 out vec4 fragColor;
 
-mat2 Rot(float a)
-{
+mat2 Rot(float a) {
     float s = sin(a);
     float c = cos(a);
     return mat2(c, -s, s, c);
 }
-
 
 vec2 hash(vec2 p) {
     vec3 p3 = fract(vec3(p.xyx) * vec3(.1031, .1030, .0973));
@@ -46,25 +46,25 @@ vec2 hash(vec2 p) {
     return fract((p3.xx+p3.yz)*p3.zy);
 }
 
-float noise( in vec2 p )
-{
+float noise( in vec2 p ) {
     vec2 i = floor( p );
     vec2 f = fract( p );
-
-	vec2 u = f*f*(3.0-2.0*f);
+    vec2 u = f*f*(3.0-2.0*f);
 
     float n = mix( mix( dot( -1.0+2.0*hash( i + vec2(0.0,0.0) ), f - vec2(0.0,0.0) ),
                         dot( -1.0+2.0*hash( i + vec2(1.0,0.0) ), f - vec2(1.0,0.0) ), u.x),
                    mix( dot( -1.0+2.0*hash( i + vec2(0.0,1.0) ), f - vec2(0.0,1.0) ),
                         dot( -1.0+2.0*hash( i + vec2(1.0,1.0) ), f - vec2(1.0,1.0) ), u.x), u.y);
-	return 0.5 + 0.5*n;
+    return 0.5 + 0.5*n;
 }
 
 
 void main() {
     vec2 uv = gl_FragCoord.xy / u_resolution.xy;
     float ratio = u_resolution.x / u_resolution.y;
-
+    
+    uv /= u_pixelRatio;
+    
     vec2 tuv = uv;
     tuv -= .5;
 
@@ -73,7 +73,7 @@ void main() {
 
     tuv.y *= 1./ratio;
     tuv *= Rot(radians((degree-.5)*720.+180.));
-	tuv.y *= ratio;
+    tuv.y *= ratio;
 
 
     // Wave warp with sin
@@ -81,7 +81,7 @@ void main() {
     float amplitude = 30.;
     float speed = u_time * 2.;
     tuv.x += sin(tuv.y*frequency+speed)/amplitude;
-   	tuv.y += sin(tuv.x*frequency*1.5+speed)/(amplitude*.5);
+    tuv.y += sin(tuv.x*frequency*1.5+speed)/(amplitude*.5);
 
 
     float proportion_1 = S(-.3, .2, (tuv*Rot(radians(-5.))).x);
