@@ -44,6 +44,7 @@ const WavesWithControls = () => {
           spacing: { value: defaults.spacing, min: 0, max: 2 },
           rotation: { value: defaults.rotation, min: 0, max: 1 },
           shape: { value: defaults.shape, min: 0, max: 3 },
+          edgeBlur: { value: defaults.edgeBlur, min: 0, max: 1 },
         },
         { order: 1 }
       ),

@@ -8,6 +8,7 @@ export type WavesUniforms = {
   u_spacing: number;
   u_shape: number;
   u_rotation: number;
+  u_edgeBlur: number;
 };
 
 /**
@@ -26,7 +27,7 @@ export type WavesUniforms = {
  *          - u_shape = 1 is perfect sine wave
  *          - u_shape = 2 is irregular wave #1
  *          - u_shape = 3 is irregular wave #2
- * u_rotation: The rotation applied to user space
+ * u_edgeBlur: The way to make the lines fuzzy
  * u_rotation: The rotation applied to user space
  * u_scale: The scale applied to user space
  */
@@ -42,6 +43,7 @@ uniform float u_amplitude;
 uniform float u_dutyCycle;
 uniform float u_spacing;
 uniform float u_shape;
+uniform float u_edgeBlur;
 uniform float u_rotation;
 uniform float u_scale;
 
@@ -80,6 +82,7 @@ void main() {
   float shape = .5 + .5 * sin((uv.y + offset) * PI / spacing);
   
   float shapeFwidth = .02 / (1. + abs(shape)) * (.001 + u_scale);
+  shapeFwidth += .5 * u_edgeBlur;
   float t = smoothstep(u_dutyCycle - shapeFwidth, u_dutyCycle + shapeFwidth, shape);
 
   vec3 color = mix(u_color1.rgb * u_color1.a, u_color2.rgb * u_color2.a, t);

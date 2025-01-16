@@ -12,6 +12,7 @@ export type WavesParams = {
   spacing?: number;
   shape?: number;
   rotation?: number;
+  edgeBlur?: number;
 };
 
 export type WavesProps = Omit<ShaderMountProps, 'fragmentShader'> & WavesParams;
@@ -32,6 +33,7 @@ export const defaultPreset: WavesPreset = {
     spacing: 0.75,
     shape: 1,
     rotation: 0,
+    edgeBlur: 0,
   },
 } as const;
 
@@ -49,6 +51,7 @@ export const preset1: WavesPreset = {
     spacing: 0.37,
     shape: 0,
     rotation: 0,
+    edgeBlur: 0,
   },
 } as const;
 
@@ -66,6 +69,7 @@ export const preset2: WavesPreset = {
     spacing: 1.17,
     shape: 2.37,
     rotation: 1,
+    edgeBlur: 1,
   },
 } as const;
 
@@ -81,6 +85,7 @@ export const preset3: WavesPreset = {
     spacing: 1.05,
     shape: 3,
     rotation: 0,
+    edgeBlur: 0,
   },
 } as const;
 
@@ -96,6 +101,7 @@ export const preset4: WavesPreset = {
     spacing: 0.5,
     shape: 0,
     rotation: 1,
+    edgeBlur: 1,
   },
 } as const;
 
@@ -111,6 +117,7 @@ export const preset5: WavesPreset = {
     spacing: 0.7,
     shape: 2.23,
     rotation: 0,
+    edgeBlur: 0,
   },
 } as const;
 
@@ -128,6 +135,7 @@ export const Waves = (props: WavesProps): JSX.Element => {
       u_spacing: props.spacing ?? defaultPreset.params.spacing,
       u_shape: props.shape ?? defaultPreset.params.shape,
       u_rotation: props.rotation ?? defaultPreset.params.rotation,
+      u_edgeBlur: props.edgeBlur ?? defaultPreset.params.edgeBlur,
     };
   }, [
     props.color1,
@@ -139,6 +147,7 @@ export const Waves = (props: WavesProps): JSX.Element => {
     props.spacing,
     props.shape,
     props.rotation,
+    props.edgeBlur,
   ]);
 
   return <ShaderMount {...props} fragmentShader={wavesFragmentShader} uniforms={uniforms} />;
