@@ -43,7 +43,7 @@ export const defaultPreset: DotsGridPreset = {
 } as const;
 
 const preset1: DotsGridPreset = {
-  name: 'Preset #1',
+  name: 'Triangles',
   params: {
     // Note: Keep default colors in HSLA format so that our Leva controls show a transparency channel (rgba and hex8 do not work)
     colorBack: 'hsla(0, 0%, 100%, 1)',
@@ -60,7 +60,7 @@ const preset1: DotsGridPreset = {
 } as const;
 
 const preset2: DotsGridPreset = {
-  name: 'Preset #2',
+  name: 'Bubbles',
   params: {
     // Note: Keep default colors in HSLA format so that our Leva controls show a transparency channel (rgba and hex8 do not work)
     colorBack: 'hsla(234, 100%, 31%, .5)',
@@ -77,7 +77,7 @@ const preset2: DotsGridPreset = {
 } as const;
 
 const preset3: DotsGridPreset = {
-  name: 'Preset #3',
+  name: 'Tree line',
   params: {
     // Note: Keep default colors in HSLA format so that our Leva controls show a transparency channel (rgba and hex8 do not work)
     colorBack: 'hsla(100, 100%, 36%, .05)',
@@ -94,7 +94,7 @@ const preset3: DotsGridPreset = {
 } as const;
 
 const preset4: DotsGridPreset = {
-  name: 'Preset #4',
+  name: 'Diamonds',
   params: {
     // Note: Keep default colors in HSLA format so that our Leva controls show a transparency channel (rgba and hex8 do not work)
     colorBack: 'hsla(0, 0%, 0%, 0)',
@@ -111,7 +111,7 @@ const preset4: DotsGridPreset = {
 } as const;
 
 const preset5: DotsGridPreset = {
-  name: 'Preset #5',
+  name: 'Wallpaper',
   params: {
     // Note: Keep default colors in HSLA format so that our Leva controls show a transparency channel (rgba and hex8 do not work)
     colorBack: 'hsla(154, 33%, 19%, 1)',
@@ -128,7 +128,7 @@ const preset5: DotsGridPreset = {
 } as const;
 
 const preset6: DotsGridPreset = {
-  name: 'Preset #6',
+  name: 'Enter the Matrix',
   params: {
     // Note: Keep default colors in HSLA format so that our Leva controls show a transparency channel (rgba and hex8 do not work)
     colorBack: 'hsla(0, 100%, 0%, 1)',
@@ -145,7 +145,7 @@ const preset6: DotsGridPreset = {
 } as const;
 
 const preset7: DotsGridPreset = {
-  name: 'Preset #7',
+  name: 'Waveform',
   params: {
     // Note: Keep default colors in HSLA format so that our Leva controls show a transparency channel (rgba and hex8 do not work)
     colorBack: 'hsla(0, 100%, 100%, 1)',
