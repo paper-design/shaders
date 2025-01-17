@@ -38,7 +38,7 @@ export const defaultPreset: WavesPreset = {
 } as const;
 
 export const preset1: WavesPreset = {
-  name: 'Preset #1',
+  name: 'Spikes',
   params: {
     // Note: Keep default colors in HSLA format so that our Leva controls show a transparency channel (rgba and hex8 do not work)
     // And don't use decimal values or highlights won't work, because the values get rounded and highlights need an exact match.
@@ -46,17 +46,17 @@ export const preset1: WavesPreset = {
     color2: 'hsla(290, 52%, 15%, 1)',
     scale: 2.3,
     frequency: 0.5,
-    amplitude: 0.57,
+    amplitude: 0.9,
     dutyCycle: 0.93,
     spacing: 0.37,
     shape: 0,
     rotation: 0,
-    edgeBlur: 0,
+    edgeBlur: 0.15,
   },
 } as const;
 
 export const preset2: WavesPreset = {
-  name: 'Preset #2',
+  name: 'Groovy',
   params: {
     // Note: Keep default colors in HSLA format so that our Leva controls show a transparency channel (rgba and hex8 do not work)
     // And don't use decimal values or highlights won't work, because the values get rounded and highlights need an exact match.
@@ -74,23 +74,23 @@ export const preset2: WavesPreset = {
 } as const;
 
 export const preset3: WavesPreset = {
-  name: 'Preset #3',
+  name: 'Tangled up',
   params: {
-    color1: 'hsla(198, 61%, 43%, 1)',
-    color2: 'hsla(0, 0%, 100%, 1)',
-    scale: 2.16,
-    frequency: 0.48,
+    color1: 'hsla(198.7, 66.7%, 14.1%, 1)',
+    color2: 'hsla(85.5, 35.7%, 78%, 1)',
+    scale: 3.04,
+    frequency: 0.44,
     amplitude: 0.57,
     dutyCycle: 0.97,
     spacing: 1.05,
     shape: 3,
-    rotation: 0,
+    rotation: 1,
     edgeBlur: 0,
   },
 } as const;
 
 export const preset4: WavesPreset = {
-  name: 'Preset #4',
+  name: 'Zig zag',
   params: {
     color1: 'hsla(0, 0%, 0%, 1)',
     color2: 'hsla(0, 0%, 90%, 1)',
@@ -106,15 +106,15 @@ export const preset4: WavesPreset = {
 } as const;
 
 export const preset5: WavesPreset = {
-  name: 'Preset #5',
+  name: 'Ride the wave',
   params: {
     color1: 'hsla(65, 100%, 95%, 1)',
     color2: 'hsla(0, 0%, 12%, 1)',
-    scale: 1.1,
-    frequency: 0.64,
-    amplitude: .6,
-    dutyCycle: 0.5,
-    spacing: 0.3,
+    scale: 0.84,
+    frequency: 0.1,
+    amplitude: 0.6,
+    dutyCycle: 0.99,
+    spacing: 0.41,
     shape: 2.23,
     rotation: 0,
     edgeBlur: 0,
