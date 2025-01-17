@@ -35,7 +35,7 @@ export const defaultPreset: PerlinNoisePreset = {
 };
 
 export const preset1: PerlinNoisePreset = {
-  name: 'Preset #1',
+  name: 'Nintendo Water',
   params: {
     // Note: Keep default colors in HSLA format so that our Leva controls show a transparency channel (rgba and hex8 do not work)
     color1: 'hsla(220, 66%, 50%, 1)',
@@ -52,7 +52,7 @@ export const preset1: PerlinNoisePreset = {
 };
 
 export const preset2: PerlinNoisePreset = {
-  name: 'Preset #2',
+  name: 'Colony',
   params: {
     // Note: Keep default colors in HSLA format so that our Leva controls show a transparency channel (rgba and hex8 do not work)
     color1: 'hsla(56, 86%, 81%, 1)',
@@ -69,7 +69,7 @@ export const preset2: PerlinNoisePreset = {
 };
 
 export const preset3: PerlinNoisePreset = {
-  name: 'Preset #3',
+  name: 'Phosphenes',
   params: {
     // Note: Keep default colors in HSLA format so that our Leva controls show a transparency channel (rgba and hex8 do not work)
     color1: 'hsla(350, 80%, 70%, 1)',
@@ -86,7 +86,7 @@ export const preset3: PerlinNoisePreset = {
 } as const;
 
 export const preset4: PerlinNoisePreset = {
-  name: 'Preset #4',
+  name: 'Moss',
   params: {
     // Note: Keep default colors in HSLA format so that our Leva controls show a transparency channel (rgba and hex8 do not work)
     color1: 'hsla(137, 100%, 51%, 1)',
@@ -103,7 +103,7 @@ export const preset4: PerlinNoisePreset = {
 } as const;
 
 export const preset5: PerlinNoisePreset = {
-  name: 'Preset #5',
+  name: 'Worms',
   params: {
     // Note: Keep default colors in HSLA format so that our Leva controls show a transparency channel (rgba and hex8 do not work)
     color1: 'hsla(0, 100%, 100%, 1)',
