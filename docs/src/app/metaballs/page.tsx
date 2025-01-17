@@ -10,21 +10,21 @@ import { BackButton } from '@/components/back-button';
 /**
  * You can copy/paste this example to use Metaballs in your app
  */
-// const MetaballsExample = () => {
-//   return (
-//     <Metaballs
-//       color1="#6a5496"
-//       color2="#9b8ab8"
-//       color3="#f5d03b"
-//       scale={11}
-//       speed={1}
-//       seed={0}
-//       visibilityRange={0}
-//       dotSize={1}
-//       style={{ position: 'fixed', width: '100%', height: '100%' }}
-//     />
-//   );
-// };
+const MetaballsExample = () => {
+  return (
+    <Metaballs
+      color1="#6a5496"
+      color2="#9b8ab8"
+      color3="#f5d03b"
+      scale={1}
+      speed={1}
+      seed={0}
+      visibilityRange={0}
+      dotSize={1}
+      style={{ position: 'fixed', width: '100%', height: '100%' }}
+    />
+  );
+};
 
 /**
  * This example has controls added so you can play with settings in the example app
@@ -45,7 +45,7 @@ const MetaballsWithControls = () => {
           color3: { value: defaults.color3, order: 3 },
           seed: { value: defaults.seed, order: 4, min: 0, max: 9999 },
           speed: { value: defaults.speed, order: 5, min: 0, max: 1 },
-          scale: { value: defaults.scale, order: 6, min: 1, max: 20 },
+          scale: { value: defaults.scale, order: 6, min: 0, max: 2 },
           dotSize: { value: defaults.dotSize, order: 7, min: 0, max: 1 },
           visibilityRange: { value: defaults.visibilityRange, order: 8, min: 0.05, max: 1 },
         },

@@ -18,7 +18,7 @@ export type SteppedSimplexNoiseUniforms = {
  * u_color3: The third color
  * u_color4: The fourth color
  * u_color5: The fifth color
- * u_scale: The scale applied to coordinates
+ * u_scale: The scale of uv coordinates
  * u_steps_number: The number of colors to show as a stepped gradient
  */
 
@@ -87,11 +87,13 @@ void main() {
   vec2 uv = gl_FragCoord.xy / u_resolution.xy;
 
   uv -= .5;
-  uv *= (.001 * u_scale * u_resolution);
+  float scale = .5 * u_scale + 1e-4;
+  uv *= (.0008 * (1. - step(1. - scale, 1.) / scale));
+  uv *= u_resolution;
   uv /= u_pixelRatio;
   uv += .5;
 
-  float t =  u_time;
+  float t = u_time;
 
   float noise = .5 + .5 * get_noise(uv, t);
   noise = floor(noise * u_steps_number) / u_steps_number;
@@ -99,10 +101,10 @@ void main() {
   vec3 color = u_color1.rgb * u_color1.a;
   float opacity = u_color1.a;
   for (int i = 0; i < 5; i++) {
-      vec4 next_c = getColor(i + 1);
-      float proportion = smoothstep((float(i) + .5) / 5., (float(i) + 2.) / 5., noise);
-      color = mix(color, next_c.rgb * next_c.a, proportion);
-      opacity = mix(opacity, next_c.a, proportion);
+    vec4 next_c = getColor(i + 1);
+    float proportion = smoothstep((float(i) + .5) / 5., (float(i) + 2.) / 5., noise);
+    color = mix(color, next_c.rgb * next_c.a, proportion);
+    opacity = mix(opacity, next_c.a, proportion);
   }
   fragColor = vec4(color, opacity);
 }

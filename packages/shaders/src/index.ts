@@ -32,6 +32,10 @@ export { steppedSimplexNoiseFragmentShader, type SteppedSimplexNoiseUniforms } f
 /** A number of circlular shapes blened in a gooey way */
 export { metaballsFragmentShader, type MetaballsUniforms } from './shaders/metaballs';
 
+// ----- Perlin noise ----- //
+/** 2d noise with max number of parameters to be exposed to users */
+export { perlinNoiseFragmentShader, type PerlinNoiseUniforms } from './shaders/perlin-noise';
+
 // ----- Voronoi Diagram ----- //
 /** Voronoi diagram: classic + rounded edges */
 export { voronoiFragmentShader, type VoronoiUniforms } from './shaders/voronoi';

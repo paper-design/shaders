@@ -10,27 +10,27 @@ import Link from 'next/link';
 /**
  * You can copy/paste this example to use Voronoi in your app
  */
-// const VoronoiExample = () => {
-//     return (
-//         <Voronoi
-//             color1="#ffffff"
-//             color2="#ffffff"
-//             color3="#ffffff"
-//             colorEdges="#301a03"
-//             colorMid="#9b8ab8"
-//             colorGradient={0}
-//             scale={11}
-//             distance={0.25}
-//             edgesSize={0.2}
-//             edgesSharpness={0.}
-//             middleSize={0}
-//             middleSharpness={0.2}
-//             speed={1}
-//             seed={0}
-//             style={{position: 'fixed', width: '100%', height: '100%'}}
-//         />
-//     );
-// };
+const VoronoiExample = () => {
+  return (
+    <Voronoi
+      color1="#ffffff"
+      color2="#ffffff"
+      color3="#ffffff"
+      colorEdges="#301a03"
+      colorMid="#9b8ab8"
+      colorGradient={0}
+      scale={11}
+      distance={0.25}
+      edgesSize={0.2}
+      edgesSharpness={0}
+      middleSize={0}
+      middleSharpness={0.2}
+      speed={1}
+      seed={0}
+      style={{ position: 'fixed', width: '100%', height: '100%' }}
+    />
+  );
+};
 
 /**
  * This example has controls added so you can play with settings in the example app

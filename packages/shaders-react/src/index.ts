@@ -57,6 +57,12 @@ export { type WavesProps } from './shaders/waves';
 export { type WavesParams } from './shaders/waves';
 export { type WavesUniforms } from '@paper-design/shaders';
 
+// Perlin noise
+export { PerlinNoise, perlinNoisePresets } from './shaders/perlin-noise';
+export { type PerlinNoiseProps } from './shaders/perlin-noise';
+export { type PerlinNoiseParams } from './shaders/perlin-noise';
+export { type PerlinNoiseUniforms } from '@paper-design/shaders';
+
 // Voronoi diagram
 export { Voronoi, voronoiPresets } from './shaders/voronoi';
 export { type VoronoiProps } from './shaders/voronoi';
