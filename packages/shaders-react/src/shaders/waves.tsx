@@ -61,7 +61,7 @@ export const preset2: WavesPreset = {
     // Note: Keep default colors in HSLA format so that our Leva controls show a transparency channel (rgba and hex8 do not work)
     // And don't use decimal values or highlights won't work, because the values get rounded and highlights need an exact match.
     color1: 'hsla(60, 100%, 97%, 1)',
-    color2: 'hsla(212, 100%, 71%, 1)',
+    color2: 'hsla(20, 100%, 71%, 1)',
     scale: 0.5,
     frequency: 0.2,
     amplitude: 0.67,
@@ -69,7 +69,7 @@ export const preset2: WavesPreset = {
     spacing: 1.17,
     shape: 2.37,
     rotation: 1,
-    edgeBlur: 1,
+    edgeBlur: 0,
   },
 } as const;
 
@@ -81,7 +81,7 @@ export const preset3: WavesPreset = {
     scale: 2.16,
     frequency: 0.48,
     amplitude: 0.57,
-    dutyCycle: 0.93,
+    dutyCycle: 0.97,
     spacing: 1.05,
     shape: 3,
     rotation: 0,
@@ -96,12 +96,12 @@ export const preset4: WavesPreset = {
     color2: 'hsla(0, 0%, 90%, 1)',
     scale: 2.7,
     frequency: 0.6,
-    amplitude: 0.63,
+    amplitude: 0.8,
     dutyCycle: 1,
     spacing: 0.5,
     shape: 0,
     rotation: 1,
-    edgeBlur: 1,
+    edgeBlur: .5,
   },
 } as const;
 
@@ -112,9 +112,9 @@ export const preset5: WavesPreset = {
     color2: 'hsla(0, 0%, 12%, 1)',
     scale: 1.1,
     frequency: 0.64,
-    amplitude: 0.14,
+    amplitude: .6,
     dutyCycle: 0.5,
-    spacing: 0.7,
+    spacing: 0.3,
     shape: 2.23,
     rotation: 0,
     edgeBlur: 0,
