@@ -26,6 +26,9 @@ import {
   SteppedSimplexNoiseParams,
   Voronoi,
   VoronoiParams,
+  Waves,
+  WavesParams,
+  wavesPresets,
 } from '@paper-design/shaders-react';
 import { StaticImageData } from 'next/image';
 
@@ -165,5 +168,11 @@ export const homeShaders = [
       speed: 0.8,
       seed: 0,
     } satisfies VoronoiParams,
+  },
+  {
+    name: 'waves',
+    url: '/waves',
+    ShaderComponent: Waves,
+    shaderConfig: wavesPresets[0].params,
   },
 ] satisfies HomeShaderConfig[];
