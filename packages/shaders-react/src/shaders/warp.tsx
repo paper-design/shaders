@@ -6,11 +6,9 @@ export type WarpParams = {
   color1?: string;
   color2?: string;
   scale?: number;
-  octaveCount?: number;
-  persistence?: number;
-  lacunarity?: number;
-  contour?: number;
-  proportion?: number;
+  distortion?: number;
+  swirl?: number;
+  iterations?: number;
 } & GlobalParams;
 
 export type WarpProps = Omit<ShaderMountProps, 'fragmentShader'> & WarpParams;
@@ -24,13 +22,11 @@ export const defaultPreset: WarpPreset = {
     color1: 'hsla(0, 0%, 15%, 1)',
     color2: 'hsla(203, 100%, 87%, 1)',
     scale: 1,
-    speed: 0.5,
-    octaveCount: 2,
-    persistence: 1,
-    lacunarity: 1.5,
+    speed: 1,
+    distortion: 1,
     seed: 0,
-    contour: 0.9,
-    proportion: 0.34,
+    swirl: 0.9,
+    iterations: 10,
   },
 };
 
@@ -42,22 +38,18 @@ export const Warp = (props: WarpProps): JSX.Element => {
       u_color1: getShaderColorFromString(props.color1, defaultPreset.params.color1),
       u_color2: getShaderColorFromString(props.color2, defaultPreset.params.color2),
       u_scale: props.scale ?? defaultPreset.params.scale,
-      u_octaveCount: props.octaveCount ?? defaultPreset.params.octaveCount,
-      u_persistence: props.persistence ?? defaultPreset.params.persistence,
-      u_lacunarity: props.lacunarity ?? defaultPreset.params.lacunarity,
-      u_contour: props.contour ?? defaultPreset.params.contour,
-      u_proportion: props.proportion ?? defaultPreset.params.proportion,
+      u_distortion: props.distortion ?? defaultPreset.params.distortion,
+      u_swirl: props.swirl ?? defaultPreset.params.swirl,
+      u_iterations: props.iterations ?? defaultPreset.params.iterations,
     };
   }, [
     props.color1,
     props.color2,
     props.scale,
-    props.octaveCount,
-    props.persistence,
-    props.lacunarity,
+    props.distortion,
     props.seed,
-    props.contour,
-    props.proportion,
+    props.swirl,
+    props.iterations,
   ]);
 
   return <ShaderMount {...props} fragmentShader={warpFragmentShader} uniforms={uniforms} />;
