@@ -51,6 +51,12 @@ export { type MetaballsProps } from './shaders/metaballs';
 export { type MetaballsParams } from './shaders/metaballs';
 export { type MetaballsUniforms } from '@paper-design/shaders';
 
+// Waves
+export { Waves, wavesPresets } from './shaders/waves';
+export { type WavesProps } from './shaders/waves';
+export { type WavesParams } from './shaders/waves';
+export { type WavesUniforms } from '@paper-design/shaders';
+
 // Perlin noise
 export { PerlinNoise, perlinNoisePresets } from './shaders/perlin-noise';
 export { type PerlinNoiseProps } from './shaders/perlin-noise';

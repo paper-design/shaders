@@ -39,7 +39,19 @@ export const beachPreset: MeshGradientPreset = {
   },
 };
 
-export const meshGradientPresets: MeshGradientPreset[] = [defaultPreset, beachPreset];
+export const fadedPreset: MeshGradientPreset = {
+  name: 'Faded',
+  params: {
+    ...defaultPreset.params,
+    color1: 'hsla(185.7, 41.2%, 90%, 1)',
+    color2: 'hsla(207.8, 71.1%, 85.1%, 1)',
+    color3: 'hsla(182.9, 51.2%, 92%, 1)',
+    color4: 'hsla(201.1, 72.5%, 90.0%, 1)',
+    speed: -0.3
+  },
+};
+
+export const meshGradientPresets: MeshGradientPreset[] = [defaultPreset, beachPreset, fadedPreset];
 
 export const MeshGradient = (props: MeshGradientProps): JSX.Element => {
   const uniforms: MeshGradientUniforms = useMemo(() => {

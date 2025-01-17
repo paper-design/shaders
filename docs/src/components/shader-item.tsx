@@ -17,7 +17,7 @@ export function ShaderItem({
   shaderConfig,
 }: {
   name: string;
-  image: StaticImageData;
+  image?: StaticImageData;
   url: string;
   ShaderComponent: React.ComponentType<{ style: React.CSSProperties } & Record<string, unknown>>;
   shaderConfig: Record<string, unknown>;
@@ -25,34 +25,37 @@ export function ShaderItem({
   const [isHovered, setIsHovered] = useState(false);
 
   return (
-    <Link
-      href={url}
-      className="flex flex-col gap-2"
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-    >
-      <div className="relative h-32 overflow-hidden rounded-full shadow">
-        <Image
-          className="size-full object-cover"
-          src={image}
-          alt={`Preview of ${name}`}
-          width={640}
-          height={360}
-          unoptimized // The images are already optimized
-          priority
-        />
-        {isHovered && (
-          <ShaderComponent
-            style={{
-              width: '100%',
-              height: '100%',
-              position: 'absolute',
-              inset: 0,
-              // Some shaders are transparent, adding a background to not see the preview image through
-              background: 'white',
-            }}
-            {...shaderConfig}
-          />
+    <Link href={url} className="flex flex-col gap-2">
+      <div
+        className="relative h-32 overflow-hidden rounded-full bg-[#f7f6f0] shadow"
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+      >
+        {image && (
+          <>
+            <Image
+              className="size-full object-cover"
+              src={image}
+              alt={`Preview of ${name}`}
+              width={640}
+              height={360}
+              unoptimized // The images are already optimized
+              priority
+            />
+            {isHovered && (
+              <ShaderComponent
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  position: 'absolute',
+                  inset: 0,
+                  // Some shaders are transparent, adding a background to not see the preview image through
+                  background: 'white',
+                }}
+                {...shaderConfig}
+              />
+            )}
+          </>
         )}
       </div>
       <div className="text-center">{name}</div>
