@@ -29,6 +29,8 @@ import {
   Waves,
   WavesParams,
   wavesPresets,
+  Warp,
+  warpPresets,
 } from '@paper-design/shaders-react';
 import { StaticImageData } from 'next/image';
 
@@ -174,5 +176,11 @@ export const homeShaders = [
     url: '/waves',
     ShaderComponent: Waves,
     shaderConfig: wavesPresets[0].params,
+  },
+  {
+    name: 'warp',
+    url: '/warp',
+    ShaderComponent: Warp,
+    shaderConfig: warpPresets[0].params,
   },
 ] satisfies HomeShaderConfig[];
