@@ -37,12 +37,14 @@ const WarpWithControls = () => {
         {
           color1: { value: defaults.color1 },
           color2: { value: defaults.color2 },
+          color3: { value: defaults.color3 },
+          proportion: { value: defaults.proportion, min: 0, max: 1 },
           speed: { value: defaults.speed, min: 0, max: 2 },
           seed: { value: defaults.seed, min: 0, max: 9999 },
           scale: { value: defaults.scale, min: 0, max: 2 },
           distortion: { value: defaults.distortion, min: 0, max: 3 },
           swirl: { value: defaults.swirl, min: 0, max: 1 },
-          iterations: { value: defaults.iterations, min: 0, max: 20 },
+          swirlIterations: { value: defaults.swirlIterations, min: 0, max: 20 },
         },
         { order: 1 }
       ),
