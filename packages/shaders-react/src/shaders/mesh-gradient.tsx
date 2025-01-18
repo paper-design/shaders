@@ -47,7 +47,7 @@ export const fadedPreset: MeshGradientPreset = {
     color2: 'hsla(207.8, 71.1%, 85.1%, 1)',
     color3: 'hsla(182.9, 51.2%, 92%, 1)',
     color4: 'hsla(201.1, 72.5%, 90.0%, 1)',
-    speed: -0.3
+    speed: -0.3,
   },
 };
 

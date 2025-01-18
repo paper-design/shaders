@@ -101,7 +101,7 @@ export const preset4: WavesPreset = {
     spacing: 0.5,
     shape: 0,
     rotation: 1,
-    edgeBlur: .5,
+    edgeBlur: 0.5,
   },
 } as const;
 
