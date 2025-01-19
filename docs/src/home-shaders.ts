@@ -29,6 +29,8 @@ import {
   Waves,
   WavesParams,
   wavesPresets,
+  RadialSwirl,
+  radialSwirlPresets,
 } from '@paper-design/shaders-react';
 import { StaticImageData } from 'next/image';
 
@@ -174,5 +176,11 @@ export const homeShaders = [
     url: '/waves',
     ShaderComponent: Waves,
     shaderConfig: wavesPresets[0].params,
+  },
+  {
+    name: 'radial swirl',
+    url: '/radial-swirl',
+    ShaderComponent: RadialSwirl,
+    shaderConfig: radialSwirlPresets[0].params,
   },
 ] satisfies HomeShaderConfig[];

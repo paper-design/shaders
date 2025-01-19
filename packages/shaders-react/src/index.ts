@@ -69,5 +69,11 @@ export { type VoronoiProps } from './shaders/voronoi';
 export { type VoronoiParams } from './shaders/voronoi';
 export { type VoronoiUniforms } from '@paper-design/shaders';
 
+// Radial swirl
+export { RadialSwirl, radialSwirlPresets } from './shaders/radial-swirl';
+export { type RadialSwirlProps } from './shaders/radial-swirl';
+export { type RadialSwirlParams } from './shaders/radial-swirl';
+export { type RadialSwirlUniforms } from '@paper-design/shaders';
+
 // ----- Uniform conversion utils ----- //
 export { getShaderColorFromString } from '@paper-design/shaders';

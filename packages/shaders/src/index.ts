@@ -44,5 +44,9 @@ export { voronoiFragmentShader, type VoronoiUniforms } from './shaders/voronoi';
 /** Waves pattern */
 export { wavesFragmentShader, type WavesUniforms } from './shaders/waves';
 
+// ----- Radial Swirl ----- //
+/** Whirl animation */
+export { radialSwirlFragmentShader, type RadialSwirlUniforms } from './shaders/radial-swirl';
+
 // ----- Uniform conversion utils ----- //
 export { getShaderColorFromString } from './get-shader-color-from-string';
