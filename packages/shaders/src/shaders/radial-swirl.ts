@@ -69,7 +69,7 @@ void main() {
   uv /= u_pixelRatio;
   uv.x *= ratio;
   
-  float t = 2. * u_time;
+  float t = u_time;
 
   float scaling = 10. * pow(u_density, 4.);
   
@@ -89,10 +89,12 @@ void main() {
     deformed_uv.x += u_noisePower * n1 * cos(a) * radius_original;
     deformed_uv.y += u_noisePower * n2 * sin(a) * radius_original;
         
-    float edge_w = fwidth(deformed_uv.y);
-    float fst_color_shape = smoothstep(scaling * pow(u_proportion, 7.), scaling * pow(u_proportion, 7.) + edge_w, deformed_uv.y);
-    float scd_color_shape = smoothstep(deformed_uv.x, deformed_uv.x + edge_w, scaling * (u_stripe1 - 1.));
-    float trd_color_shape = smoothstep(-deformed_uv.x, -deformed_uv.x + edge_w, scaling * (u_stripe2 - 1.));
+    float edge_w = .5 * u_density * fwidth(deformed_uv.y);
+    float fst_color_shape = smoothstep(scaling * pow(u_proportion, 7.) - edge_w, scaling * pow(u_proportion, 7.) + edge_w, deformed_uv.y);
+    
+    edge_w = .5 * u_density * fwidth(deformed_uv.x);
+    float scd_color_shape = smoothstep(deformed_uv.x - edge_w, deformed_uv.x + edge_w, scaling * (u_stripe1 - 1.));
+    float trd_color_shape = smoothstep(-deformed_uv.x - edge_w, -deformed_uv.x + edge_w, scaling * (u_stripe2 - 1.));
     
     // float stripe_map = fract(angle / TWO_PI + radius);
     // fst_color_shape = step(.25 - .25 * u_proportion, stripe_map) * (1. - step(.75 + .25 * u_proportion, stripe_map));

@@ -49,7 +49,7 @@ const RadialSwirlWithControls = () => {
           colorStripe1: { value: defaults.colorStripe1 },
           colorStripe2: { value: defaults.colorStripe2 },
           seed: { value: defaults.seed, min: 0, max: 9999 },
-          speed: { value: defaults.speed, min: -1, max: 1 },
+          speed: { value: defaults.speed, min: 0, max: 1 },
           density: { value: defaults.density, min: 0, max: 2 },
           proportion: { value: defaults.proportion, min: 0, max: 1 },
           stripe1: { value: defaults.stripe1, min: 0, max: 1 },

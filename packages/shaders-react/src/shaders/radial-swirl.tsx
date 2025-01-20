@@ -25,13 +25,55 @@ export const defaultPreset: RadialSwirlPreset = {
   params: {
     // Note: Keep default colors in HSLA format so that our Leva controls show a transparency channel (rgba and hex8 do not work)
     // And don't use decimal values or highlights won't work, because the values get rounded and highlights need an exact match.
-    colorBack: 'hsla(190, 75%, 90%, 1)',
-    colorFront: 'hsla(250, 75%, 20%, 1)',
-    colorStripe1: 'hsla(290, 90%, 50%, 1)',
-    colorStripe2: 'hsla(50, 80%, 65%, 1)',
-    density: 1,
-    speed: .2,
+    colorBack: 'hsla(156, 46%, 51%, 1)',
+    colorFront: 'hsla(189, 63%, 30%, 1)',
+    colorStripe1: 'hsla(60, 92%, 71%, 1)',
+    colorStripe2: 'hsla(0, 0%, 0%, 1)',
+    density: .93,
+    speed: .3,
     proportion: 0,
+    stripe1: 1,
+    stripe2: 0,
+    focus: .15,
+    noiseFreq: 0,
+    noisePower: 0,
+    seed: 0,
+  },
+} as const;
+
+export const bubbleGumPreset: RadialSwirlPreset = {
+  name: 'Bubble Gum',
+  params: {
+    // Note: Keep default colors in HSLA format so that our Leva controls show a transparency channel (rgba and hex8 do not work)
+    // And don't use decimal values or highlights won't work, because the values get rounded and highlights need an exact match.
+    colorBack: 'hsla(330, 100%, 85%, 1)',
+    colorFront: 'hsla(160, 70%, 75%, 1)',
+    colorStripe1: 'hsla(290, 80%, 70%, 1)',
+    colorStripe2: 'hsla(200, 60%, 60%, 1)',
+    density: .75,
+    speed: .3,
+    proportion: .63,
+    stripe1: .72,
+    stripe2: .79,
+    focus: 0,
+    noiseFreq: 0,
+    noisePower: 0,
+    seed: 0,
+  },
+} as const;
+
+export const classicPreset: RadialSwirlPreset = {
+  name: 'Classic',
+  params: {
+    // Note: Keep default colors in HSLA format so that our Leva controls show a transparency channel (rgba and hex8 do not work)
+    // And don't use decimal values or highlights won't work, because the values get rounded and highlights need an exact match.
+    colorBack: 'hsla(0, 0%, 100%, 1)',
+    colorFront: 'hsla(200, 20%, 10%, 1)',
+    colorStripe1: 'hsla(0, 0%, 0%, 1)',
+    colorStripe2: 'hsla(0, 0%, 0%, 1)',
+    density: 1.75,
+    speed: 0,
+    proportion: .4,
     stripe1: 0,
     stripe2: 0,
     focus: 0,
@@ -41,8 +83,29 @@ export const defaultPreset: RadialSwirlPreset = {
   },
 } as const;
 
+export const swampPreset: RadialSwirlPreset = {
+  name: 'Swamp',
+  params: {
+    // Note: Keep default colors in HSLA format so that our Leva controls show a transparency channel (rgba and hex8 do not work)
+    // And don't use decimal values or highlights won't work, because the values get rounded and highlights need an exact match.
+    colorBack: 'hsla(72, 100%, 76%, 1)',
+    colorFront: 'hsla(120, 80%, 35%, 1)',
+    colorStripe1: 'hsla(122, 78%, 20%, 1)',
+    colorStripe2: 'hsla(0, 0%, 0%, 1)',
+    density: .98,
+    speed: .3,
+    proportion: .5,
+    stripe1: .94,
+    stripe2: .75,
+    focus: 0,
+    noiseFreq: .75,
+    noisePower: 1.4,
+    seed: 0,
+  },
+} as const;
 
-export const radialSwirlPresets: RadialSwirlPreset[] = [defaultPreset];
+
+export const radialSwirlPresets: RadialSwirlPreset[] = [defaultPreset, bubbleGumPreset, classicPreset, swampPreset];
 
 export const RadialSwirl = (props: RadialSwirlProps): JSX.Element => {
   const uniforms: RadialSwirlUniforms = useMemo(() => {
