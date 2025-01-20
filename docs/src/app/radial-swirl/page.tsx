@@ -17,7 +17,6 @@ const RadialSwirlExample = () => {
       colorFront="#00d03b"
       colorStripe1="#9b8ab8"
       colorStripe2="#f5d03b"
-      radialSwirl={1}
       speed={1}
       seed={0}
       proportion={0}
