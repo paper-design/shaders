@@ -21,8 +21,8 @@ const RadialSwirlExample = () => {
       speed={1}
       seed={0}
       proportion={0}
-      stripe1={.8}
-      stripe2={.8}
+      stripe1={0.8}
+      stripe2={0.8}
       noiseFreq={1}
       noisePower={0}
       style={{ position: 'fixed', width: '100%', height: '100%' }}
@@ -45,7 +45,7 @@ const RadialSwirlWithControls = () => {
       Parameters: folder(
         {
           colorBack: { value: defaults.colorBack },
-          colorFront: {value: defaults.colorFront},
+          colorFront: { value: defaults.colorFront },
           colorStripe1: { value: defaults.colorStripe1 },
           colorStripe2: { value: defaults.colorStripe2 },
           seed: { value: defaults.seed, min: 0, max: 9999 },

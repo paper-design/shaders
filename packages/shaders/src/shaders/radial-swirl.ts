@@ -99,11 +99,15 @@ void main() {
     // float stripe_map = fract(angle / TWO_PI + radius);
     // fst_color_shape = step(.25 - .25 * u_proportion, stripe_map) * (1. - step(.75 + .25 * u_proportion, stripe_map));
 
-    vec3 color = mix(u_colorFront.rgb, u_colorBack.rgb, fst_color_shape);
-    color = mix(color, u_colorStripe1.rgb, scd_color_shape);
-    color = mix(color, u_colorStripe2.rgb, trd_color_shape);
+    vec3 color = mix(u_colorFront.rgb * u_colorFront.a, u_colorBack.rgb * u_colorBack.a, fst_color_shape);
+    color = mix(color, u_colorStripe1.rgb * u_colorStripe1.a, scd_color_shape);
+    color = mix(color, u_colorStripe2.rgb * u_colorStripe2.a, trd_color_shape);
     
-    fragColor = vec4(color, 1.);
+    float opacity = mix(u_colorFront.a, u_colorBack.a, fst_color_shape);
+    opacity = mix(opacity, u_colorStripe1.a, scd_color_shape);
+    opacity = mix(opacity, u_colorStripe2.a, trd_color_shape);
+    
+    fragColor = vec4(color, opacity);
         
   }
 `;
