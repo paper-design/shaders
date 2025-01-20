@@ -13,13 +13,18 @@ import { BackButton } from '@/components/back-button';
 const RadialSwirlExample = () => {
   return (
     <RadialSwirl
-      color1="#6a5496"
-      color2="#9b8ab8"
-      color3="#f5d03b"
+      colorBack="#6a5496"
+      colorFront="#00d03b"
+      colorStripe1="#9b8ab8"
+      colorStripe2="#f5d03b"
       radialSwirl={1}
       speed={1}
       seed={0}
-      dotSize={1}
+      proportion={0}
+      stripe1={.8}
+      stripe2={.8}
+      noiseFreq={1}
+      noisePower={0}
       style={{ position: 'fixed', width: '100%', height: '100%' }}
     />
   );
@@ -39,14 +44,19 @@ const RadialSwirlWithControls = () => {
     return {
       Parameters: folder(
         {
-          color1: { value: defaults.color1 },
-          color2: { value: defaults.color2 },
-          color3: { value: defaults.color3 },
+          colorBack: { value: defaults.colorBack },
+          colorFront: {value: defaults.colorFront},
+          colorStripe1: { value: defaults.colorStripe1 },
+          colorStripe2: { value: defaults.colorStripe2 },
           seed: { value: defaults.seed, min: 0, max: 9999 },
           speed: { value: defaults.speed, min: -1, max: 1 },
           density: { value: defaults.density, min: 0, max: 2 },
-          dotSize: { value: defaults.dotSize, min: -1, max: 2 },
-          focus: { value: defaults.focus, min: 0, max: 2 },
+          proportion: { value: defaults.proportion, min: 0, max: 1 },
+          stripe1: { value: defaults.stripe1, min: 0, max: 1 },
+          stripe2: { value: defaults.stripe2, min: 0, max: 1 },
+          focus: { value: defaults.focus, min: 0, max: 1 },
+          noiseFreq: { value: defaults.noiseFreq, min: 0, max: 2 },
+          noisePower: { value: defaults.noisePower, min: 0, max: 2 },
         },
         { order: 1 }
       ),
@@ -55,7 +65,7 @@ const RadialSwirlWithControls = () => {
   });
 
   // Reset to defaults on mount, so that Leva doesn't show values from other
-  // shaders when navigating (if two shaders have a color1 param for example)
+  // shaders when navigating (if two shaders have a colorBack param for example)
   useResetLevaParams(params, setParams, defaults);
 
   usePresetHighlight(radialSwirlPresets, params);

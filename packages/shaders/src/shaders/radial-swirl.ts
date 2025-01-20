@@ -1,9 +1,14 @@
 export type RadialSwirlUniforms = {
-  u_color1: [number, number, number, number];
-  u_color2: [number, number, number, number];
-  u_color3: [number, number, number, number];
+  u_colorBack: [number, number, number, number];
+  u_colorFront: [number, number, number, number];
+  u_colorStripe1: [number, number, number, number];
+  u_colorStripe2: [number, number, number, number];
   u_density: number;
-  u_dotSize: number;
+  u_proportion: number;
+  u_stripe1: number;
+  u_stripe2: number;
+  u_noiseFreq: number;
+  u_noisePower: number;
   u_focus: number;
 };
 
@@ -13,21 +18,26 @@ export type RadialSwirlUniforms = {
  * Renders a number of circular shapes with gooey effect applied
  *
  * Uniforms include:
- * u_color1: The mataball base color #1
- * u_color2: The mataball base color #2
- * u_color3: The mataball base color #3
+ * u_colorBack: The mataball base color #1
+ * u_colorStripe1: The mataball base color #2
+ * u_colorStripe2: The mataball base color #3
  * u_density: The scale of uv coordinates: with scale = 1 radialSwirl fit the screen height
  */
 
 export const radialSwirlFragmentShader = `#version 300 es
 precision highp float;
 
-uniform vec4 u_color1;
-uniform vec4 u_color2;
-uniform vec4 u_color3;
+uniform vec4 u_colorBack;
+uniform vec4 u_colorFront;
+uniform vec4 u_colorStripe1;
+uniform vec4 u_colorStripe2;
 uniform float u_density;
-uniform float u_dotSize;
+uniform float u_proportion;
+uniform float u_stripe1;
+uniform float u_stripe2;
 uniform float u_focus;
+uniform float u_noiseFreq;
+uniform float u_noisePower;
 
 uniform float u_time;
 uniform float u_pixelRatio;
@@ -37,55 +47,18 @@ uniform vec2 u_resolution;
 
 out vec4 fragColor;
 
-float smoothStep(float t) {
-  return sin(t * 3.14159 * 3.0) * 0.5 + 0.5;
+float random(vec2 st) {
+  return fract(sin(dot(st.xy, vec2(12.9898, 78.233))) * 43758.5453123);
 }
-
-float remap(float t) {
-  return smoothstep(0., 1., t);
-}
-
-vec4 blend_colors(vec4 c1, vec4 c2, vec4 c3, float mixer) {
-  vec4 color1 = vec4(c1.rgb * c1.a, c1.a);
-  vec4 color2 = vec4(c2.rgb * c2.a, c2.a);
-  vec4 color3 = vec4(c3.rgb * c3.a, c3.a);
-
-  vec4 res;
-  float step = 1. / 6.;
-
-  if (mixer < step) {
-    float t = mixer / step;
-    t = remap(t);
-    res = mix(color1, color2, t);
-  } else if (mixer < 2. * step) {
-    float t = (mixer - step) / step;
-    t = remap(t);
-    res = mix(color2, color3, t);
-  } else if (mixer < 3. * step) {
-    float t = (mixer - 2. * step) / step;
-    t = remap(t);
-    res = mix(color3, color1, t);
-  } else if (mixer < 4. * step) {
-    float t = (mixer - 3. * step) / step;
-    t = remap(t);
-    res = mix(color1, color2, t);
-  } else if (mixer < 5. * step) {
-    float t = (mixer - 4. * step) / step;
-    t = remap(t);
-    res = mix(color2, color3, t);
-  } else {
-    float t = (mixer - 5. * step) / step;
-    t = remap(t);
-    res = mix(color3, color1, t);
-  }
-  return res;
-}
-
-mat2 rotationMatrix(float theta) {
-  return mat2(
-    cos(theta), -sin(theta),
-    sin(theta), cos(theta)
-  );
+float noise(vec2 st) {
+  vec2 i = floor(st);
+  vec2 f = fract(st);
+  float a = random(i);
+  float b = random(i + vec2(1.0, 0.0));
+  float c = random(i + vec2(0.0, 1.0));
+  float d = random(i + vec2(1.0, 1.0));
+  vec2 u = f * f * (3.0 - 2.0 * f);
+  return mix(a, b, u.x) + (c - a) * u.y * (1.0 - u.x) + (d - b) * u.x * u.y;
 }
 
 void main() {
@@ -95,28 +68,40 @@ void main() {
   uv -= .5;
   uv /= u_pixelRatio;
   uv.x *= ratio;
-
+  
   float t = 2. * u_time;
 
-  uv *= (10. * pow(u_density, 4.));
+  float scaling = 10. * pow(u_density, 4.);
+  
+    uv *= scaling;
 
-  float radius = length(uv);
+    float radius_original = length(uv);
+    float radius = pow(radius_original, 1. - clamp(u_focus, 0., .99));
 
-  float len = length(uv);
-  len = pow(len, 1. + (u_focus - 1.));
+    float angle = atan(uv.y, uv.x) - 5. * t;
 
-  float angle = atan(uv.y, uv.x) + TWO_PI * len;
-  angle -= 10. * t;
+    angle += TWO_PI * radius;
+    vec2 deformed_uv = vec2(radius_original * cos(angle), radius_original * sin(angle));       
+    
+    float n1 = noise(uv * u_noiseFreq + t);
+    float n2 = noise(uv * 2. * u_noiseFreq - t);
+    float a = n1 * TWO_PI;
+    deformed_uv.x += u_noisePower * n1 * cos(a) * radius_original;
+    deformed_uv.y += u_noisePower * n2 * sin(a) * radius_original;
+        
+    float edge_w = fwidth(deformed_uv.y);
+    float fst_color_shape = smoothstep(scaling * pow(u_proportion, 7.), scaling * pow(u_proportion, 7.) + edge_w, deformed_uv.y);
+    float scd_color_shape = smoothstep(deformed_uv.x, deformed_uv.x + edge_w, scaling * (u_stripe1 - 1.));
+    float trd_color_shape = smoothstep(-deformed_uv.x, -deformed_uv.x + edge_w, scaling * (u_stripe2 - 1.));
+    
+    // float stripe_map = fract(angle / TWO_PI + radius);
+    // fst_color_shape = step(.25 - .25 * u_proportion, stripe_map) * (1. - step(.75 + .25 * u_proportion, stripe_map));
 
-  float stripe_map = fract((atan(uv.y, uv.x) - 10. * t) / TWO_PI + len);
-
-  vec2 deformed_uv = vec2(radius * cos(angle), radius * sin(angle));
-
-  float edge_width = fwidth(length(uv));
-
-  vec3 color = u_color1.rgb * smoothstep(.0, edge_width, deformed_uv.y);
-
-  color = mix(color, vec3(step(.5, stripe_map)), step(0., uv.x));
-  fragColor = vec4(color, 1.);
-}
+    vec3 color = mix(u_colorFront.rgb, u_colorBack.rgb, fst_color_shape);
+    color = mix(color, u_colorStripe1.rgb, scd_color_shape);
+    color = mix(color, u_colorStripe2.rgb, trd_color_shape);
+    
+    fragColor = vec4(color, 1.);
+        
+  }
 `;
