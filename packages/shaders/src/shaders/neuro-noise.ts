@@ -18,7 +18,7 @@ export type NeuroNoiseUniforms = {
  */
 
 export const neuroNoiseFragmentShader = `#version 300 es
-precision mediump float;
+precision highp float;
 
 uniform float u_time;
 uniform float u_pixelRatio;

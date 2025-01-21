@@ -13,11 +13,13 @@ export type NeuroNoiseProps = Omit<ShaderMountProps, 'fragmentShader'> & NeuroNo
 
 type NeuroNoisePreset = { name: string; params: Required<NeuroNoiseParams> };
 
+// Due to Leva controls limitation:
+// 1) keep default colors in HSLA format to keep alpha channel
+// 2) don't use decimal values on HSL values (to avoid button highlight bug)
+
 export const defaultPreset: NeuroNoisePreset = {
   name: 'Default',
   params: {
-    // Note: Keep default colors in HSLA format so that our Leva controls show a transparency channel (rgba and hex8 do not work)
-    // And don't use decimal values or highlights won't work, because the values get rounded and highlights need an exact match.
     scale: 1,
     speed: 1,
     seed: 0,
@@ -30,7 +32,6 @@ export const defaultPreset: NeuroNoisePreset = {
 const marblePreset: NeuroNoisePreset = {
   name: 'Marble',
   params: {
-    // Note: Keep default colors in HSLA format so that our Leva controls show a transparency channel (rgba and hex8 do not work)
     scale: 0.4,
     speed: 0,
     seed: 0,
@@ -46,13 +47,11 @@ export const NeuroNoise = (props: NeuroNoiseProps): JSX.Element => {
   const uniforms: NeuroNoiseUniforms = useMemo(() => {
     return {
       u_scale: props.scale ?? defaultPreset.params.scale,
-      u_speed: props.speed ?? defaultPreset.params.speed,
-      u_seed: props.seed ?? defaultPreset.params.seed,
       u_colorFront: getShaderColorFromString(props.colorFront, defaultPreset.params.colorFront),
       u_colorBack: getShaderColorFromString(props.colorBack, defaultPreset.params.colorBack),
       u_brightness: props.brightness ?? defaultPreset.params.brightness,
     };
-  }, [props.scale, props.speed, props.seed, props.colorFront, props.colorBack, props.brightness]);
+  }, [props.scale, props.colorFront, props.colorBack, props.brightness]);
 
   return <ShaderMount {...props} fragmentShader={neuroNoiseFragmentShader} uniforms={uniforms} />;
 };
