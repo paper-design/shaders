@@ -11,15 +11,23 @@ import { BackButton } from '@/components/back-button';
 /**
  * You can copy/paste this example to use Waves in your app
  */
-// const WavesExample = () => {
-//   return (
-//     <Waves
-//       color1="#577590"
-//       color2="#90BE6D"
-//       style={{ position: 'fixed', width: '100%', height: '100%' }}
-//     />
-//   );
-// };
+const WavesExample = () => {
+  return (
+    <Waves
+      scale={1}
+      rotation={0}
+      color1="#577590"
+      color2="#90BE6D"
+      shape={1}
+      frequency={0.5}
+      amplitude={0.5}
+      spacing={0.75}
+      dutyCycle={0.2}
+      edgeBlur={0}
+      style={{ position: 'fixed', width: '100%', height: '100%' }}
+    />
+  );
+};
 
 /**
  * This example has controls added so you can play with settings in the example app
@@ -35,15 +43,15 @@ const WavesWithControls = () => {
     return {
       Parameters: folder(
         {
+          scale: { value: defaults.scale, min: 0.1, max: 4 },
+          rotation: { value: defaults.rotation, min: 0, max: 1 },
           color1: { value: defaults.color1 },
           color2: { value: defaults.color2 },
-          scale: { value: defaults.scale, min: 0.1, max: 4 },
+          shape: { value: defaults.shape, min: 0, max: 3 },
           frequency: { value: defaults.frequency, min: 0, max: 2 },
           amplitude: { value: defaults.amplitude, min: 0, max: 1 },
-          dutyCycle: { value: defaults.dutyCycle, min: 0, max: 1 },
           spacing: { value: defaults.spacing, min: 0, max: 2 },
-          rotation: { value: defaults.rotation, min: 0, max: 1 },
-          shape: { value: defaults.shape, min: 0, max: 3 },
+          dutyCycle: { value: defaults.dutyCycle, min: 0, max: 1 },
           edgeBlur: { value: defaults.edgeBlur, min: 0, max: 1 },
         },
         { order: 1 }
