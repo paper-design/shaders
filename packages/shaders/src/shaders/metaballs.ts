@@ -1,37 +1,39 @@
 export type MetaballsUniforms = {
+  u_scale: number;
   u_color1: [number, number, number, number];
   u_color2: [number, number, number, number];
   u_color3: [number, number, number, number];
-  u_scale: number;
-  u_dotSize: number;
+  u_ballSize: number;
   u_visibilityRange: number;
 };
 
 /**
- * Metaballs pattern
+ * Metaballs (circular shapes with gooey effect applied)
  * The artwork by Ksenia Kondrashova
- * Renders a number of circular shapes with gooey effect applied
  *
  * Uniforms include:
- * u_color1: The mataball base color #1
- * u_color2: The mataball base color #2
- * u_color3: The mataball base color #3
- * u_scale: The scale of uv coordinates: with scale = 1 metaballs fit the screen height
+ * u_scale - the scale applied to user space
+ *    (with scale = 1 metaballs fit the screen height)
+ * u_color1 - the mataballs gradient color #1
+ * u_color2 - the mataballs gradient color #2
+ * u_color3 - the mataballs gradient color #3
+ * u_ballSize (0 .. 1) - the size coefficient applied to each ball
+ * u_visibilityRange (0 .. 1) - to show 2 to 15 balls
  */
 
 export const metaballsFragmentShader = `#version 300 es
 precision highp float;
 
-uniform vec4 u_color1;
-uniform vec4 u_color2;
-uniform vec4 u_color3;
-uniform float u_scale;
-uniform float u_dotSize;
-uniform float u_visibilityRange;
-
 uniform float u_time;
 uniform float u_pixelRatio;
 uniform vec2 u_resolution;
+
+uniform float u_scale;
+uniform vec4 u_color1;
+uniform vec4 u_color2;
+uniform vec4 u_color3;
+uniform float u_ballSize;
+uniform float u_visibilityRange;
 
 #define TWO_PI 6.28318530718
 
@@ -50,7 +52,7 @@ float noise(float x) {
   return lerp(hash(i), hash(i + 1.0), u);
 }
 
-float get_dot_shape(vec2 uv, vec2 c, float p) {
+float get_ball_shape(vec2 uv, vec2 c, float p) {
   float s = .5 * length(uv - c);
   s = 1. - clamp(s, 0., 1.);
   s = pow(s, p);
@@ -85,20 +87,20 @@ void main() {
 
     pos += 7. * (vec2(noiseX, noiseY) - .5);
 
-    vec4 dot_color;
+    vec4 ball_color;
     if (i % 3 == 0) {
-      dot_color = u_color1;
+      ball_color = u_color1;
     } else if (i % 3 == 1) {
-      dot_color = u_color2;
+      ball_color = u_color2;
     } else {
-      dot_color = u_color3;
+      ball_color = u_color3;
     }
 
-    float shape = get_dot_shape(uv, pos, 6. - 4. * u_dotSize) * dot_color.a;
+    float shape = get_ball_shape(uv, pos, 6. - 4. * u_ballSize) * ball_color.a;
 
     shape *= smoothstep((float(i) - 1.) / float(max_balls_number), idx_fract, u_visibilityRange);
 
-    total_color += dot_color.rgb * shape;
+    total_color += ball_color.rgb * shape;
     total_shape += shape;
   }
 
