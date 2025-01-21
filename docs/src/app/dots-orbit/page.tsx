@@ -12,18 +12,18 @@ import Link from 'next/link';
  */
 const DotsOrbitExample = () => {
   return (
-    <DotsOrbit
-      color1="#6a5496"
-      color2="#9b8ab8"
-      color3="#f5d03b"
-      color4="#e48b97"
-      scale={11}
-      dotSize={0.15}
-      dotSizeRange={0.01}
-      speed={3}
-      spreading={0.1}
-      style={{ position: 'fixed', width: '100%', height: '100%' }}
-    />
+      <DotsOrbit
+          scale={1}
+          speed={2}
+          color1="#cf2a30"
+          color2="#3b6d50"
+          color3="#f0a519"
+          color4="#5d3e74"
+          dotSize={0.2}
+          dotSizeRange={0.1}
+          spreading={0.25}
+          style={{position: 'fixed', width: '100%', height: '100%'}}
+      />
   );
 };
 
@@ -41,19 +41,18 @@ const DotsOrbitWithControls = () => {
     return {
       Parameters: folder(
         {
-          color1: { value: defaults.color1, order: 1 },
-          color2: { value: defaults.color2, order: 2 },
-          color3: { value: defaults.color3, order: 3 },
-          color4: { value: defaults.color4, order: 4 },
-          speed: { value: defaults.speed, order: 5, min: 0, max: 6 },
-          scale: { value: defaults.scale, order: 6, min: 0.5, max: 1.8 },
-          dotSize: { value: defaults.dotSize, order: 7, min: 0.001, max: 0.5 },
-          dotSizeRange: { value: defaults.dotSizeRange, order: 8, min: 0, max: 0.3 },
-          spreading: { value: defaults.dotSizeRange, order: 9, min: 0, max: 0.25 },
-        },
-        { order: 1 }
+          color1: { value: defaults.color1 },
+          color2: { value: defaults.color2 },
+          color3: { value: defaults.color3 },
+          color4: { value: defaults.color4 },
+          scale: {value: defaults.scale, min: 0.5, max: 2},
+          speed: { value: defaults.speed, min: 0, max: 6 },
+          dotSize: { value: defaults.dotSize, min: 0.001, max: 0.5 },
+          dotSizeRange: { value: defaults.dotSizeRange, min: 0, max: 0.3 },
+          spreading: { value: defaults.spreading, min: 0, max: 0.25 },
+        }
       ),
-      Presets: folder(presets, { order: 2 }),
+      Presets: folder(presets),
     };
   });
 
