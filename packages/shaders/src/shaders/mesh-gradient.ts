@@ -20,19 +20,18 @@ export type MeshGradientUniforms = {
 export const meshGradientFragmentShader = `#version 300 es
 precision highp float;
 
-// Mesh Gradient: https://www.shadertoy.com/view/wdyczG
-#define S(a,b,t) smoothstep(a,b,t)
+uniform float u_pixelRatio;
+uniform vec2 u_resolution;
+uniform float u_time;
 
 uniform vec4 u_color1;
 uniform vec4 u_color2;
 uniform vec4 u_color3;
 uniform vec4 u_color4;
 
-uniform float u_pixelRatio;
-uniform vec2 u_resolution;
-uniform float u_time;
-
 out vec4 fragColor;
+
+#define S(a,b,t) smoothstep(a,b,t)
 
 mat2 Rot(float a) {
     float s = sin(a);

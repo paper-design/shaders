@@ -16,38 +16,38 @@ type MeshGradientPreset = { name: string; params: Required<MeshGradientParams> }
 export const defaultPreset: MeshGradientPreset = {
   name: 'Default',
   params: {
+    speed: 0.15,
+    seed: 0,
     // Note: Keep default colors in HSLA format so that our Leva controls show a transparency channel (rgba and hex8 do not work)
     // And don't use decimal values or highlights won't work, because the values get rounded and highlights need an exact match.
     color1: 'hsla(259, 29%, 73%, 1)',
     color2: 'hsla(263, 57%, 39%, 1)',
     color3: 'hsla(48, 73%, 84%, 1)',
     color4: 'hsla(295, 32%, 70%, 1)',
-    speed: 0.15,
-    seed: 0,
   },
 } as const;
 
 export const beachPreset: MeshGradientPreset = {
   name: 'Beach',
   params: {
+    speed: 0.1,
+    seed: 0,
     color1: 'hsla(186, 81%, 83%, 1)',
     color2: 'hsla(198, 55%, 68%, 1)',
     color3: 'hsla(53, 67%, 88%, 1)',
     color4: 'hsla(45, 93%, 73%, 1)',
-    speed: 0.1,
-    seed: 0,
   },
 };
 
 export const fadedPreset: MeshGradientPreset = {
   name: 'Faded',
   params: {
-    ...defaultPreset.params,
+    speed: -0.3,
+    seed: 0,
     color1: 'hsla(185.7, 41.2%, 90%, 1)',
     color2: 'hsla(207.8, 71.1%, 85.1%, 1)',
     color3: 'hsla(182.9, 51.2%, 92%, 1)',
     color4: 'hsla(201.1, 72.5%, 90.0%, 1)',
-    speed: -0.3
   },
 };
 
