@@ -21,11 +21,13 @@ export type VoronoiProps = Omit<ShaderMountProps, 'fragmentShader'> & VoronoiPar
 
 type VoronoiPreset = { name: string; params: Required<VoronoiParams> };
 
+// Due to Leva controls limitation:
+// 1) keep default colors in HSLA format to keep alpha channel
+// 2) don't use decimal values on HSL values (to avoid button highlight bug)
+
 export const defaultPreset: VoronoiPreset = {
   name: 'Default',
   params: {
-    // Note: Keep default colors in HSLA format so that our Leva controls show a transparency channel (rgba and hex8 do not work)
-    // And don't use decimal values or highlights won't work, because the values get rounded and highlights need an exact match.
     scale: 1.5,
     speed: 0.5,
     seed: 0,
@@ -46,8 +48,6 @@ export const defaultPreset: VoronoiPreset = {
 export const classicPreset: VoronoiPreset = {
   name: 'Classic',
   params: {
-    // Note: Keep default colors in HSLA format so that our Leva controls show a transparency channel (rgba and hex8 do not work)
-    // And don't use decimal values or highlights won't work, because the values get rounded and highlights need an exact match.
     scale: 3,
     speed: 0.8,
     seed: 0,
@@ -68,8 +68,6 @@ export const classicPreset: VoronoiPreset = {
 export const giraffePreset: VoronoiPreset = {
   name: 'Giraffe',
   params: {
-    // Note: Keep default colors in HSLA format so that our Leva controls show a transparency channel (rgba and hex8 do not work)
-    // And don't use decimal values or highlights won't work, because the values get rounded and highlights need an exact match.
     scale: 1,
     speed: 0.6,
     seed: 0,
@@ -90,8 +88,6 @@ export const giraffePreset: VoronoiPreset = {
 export const eyesPreset: VoronoiPreset = {
   name: 'Eyes',
   params: {
-    // Note: Keep default colors in HSLA format so that our Leva controls show a transparency channel (rgba and hex8 do not work)
-    // And don't use decimal values or highlights won't work, because the values get rounded and highlights need an exact match.
     scale: 1.6,
     speed: 0.6,
     seed: 0,
@@ -112,8 +108,6 @@ export const eyesPreset: VoronoiPreset = {
 export const bubblesPreset: VoronoiPreset = {
   name: 'Bubbles',
   params: {
-    // Note: Keep default colors in HSLA format so that our Leva controls show a transparency channel (rgba and hex8 do not work)
-    // And don't use decimal values or highlights won't work, because the values get rounded and highlights need an exact match.
     scale: 2,
     speed: 0.5,
     seed: 0,
@@ -134,8 +128,6 @@ export const bubblesPreset: VoronoiPreset = {
 export const cellsPreset: VoronoiPreset = {
   name: 'Cells',
   params: {
-    // Note: Keep default colors in HSLA format so that our Leva controls show a transparency channel (rgba and hex8 do not work)
-    // And don't use decimal values or highlights won't work, because the values get rounded and highlights need an exact match.
     scale: 2,
     speed: 1,
     seed: 0,
@@ -156,8 +148,6 @@ export const cellsPreset: VoronoiPreset = {
 export const glowPreset: VoronoiPreset = {
   name: 'Glow',
   params: {
-    // Note: Keep default colors in HSLA format so that our Leva controls show a transparency channel (rgba and hex8 do not work)
-    // And don't use decimal values or highlights won't work, because the values get rounded and highlights need an exact match.
     scale: 1.2,
     speed: 0.8,
     seed: 0,
@@ -178,8 +168,6 @@ export const glowPreset: VoronoiPreset = {
 export const tilesPreset: VoronoiPreset = {
   name: 'Tiles',
   params: {
-    // Note: Keep default colors in HSLA format so that our Leva controls show a transparency channel (rgba and hex8 do not work)
-    // And don't use decimal values or highlights won't work, because the values get rounded and highlights need an exact match.
     scale: 1.3,
     speed: 1,
     seed: 0,
