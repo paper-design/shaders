@@ -1,7 +1,7 @@
 export type NeuroNoiseUniforms = {
+  u_scale: number;
   u_colorFront: [number, number, number, number];
   u_colorBack: [number, number, number, number];
-  u_scale: number;
   u_brightness: number;
 };
 
@@ -11,23 +11,23 @@ export type NeuroNoiseUniforms = {
  * Renders a fractal-like structure made of several layers of since-arches
  *
  * Uniforms include:
+ * u_scale: The scale applied to coordinates
  * u_colorFront: The front color of pattern
  * u_colorBack: The back color of pattern
  * u_brightness: The power/brightness of pattern lines
- * u_scale: The scale applied to coordinates
  */
 
 export const neuroNoiseFragmentShader = `#version 300 es
 precision mediump float;
 
-uniform vec4 u_colorFront;
-uniform vec4 u_colorBack;
-uniform float u_scale;
-uniform float u_brightness;
-
 uniform float u_time;
 uniform float u_pixelRatio;
 uniform vec2 u_resolution;
+
+uniform float u_scale;
+uniform vec4 u_colorFront;
+uniform vec4 u_colorBack;
+uniform float u_brightness;
 
 out vec4 fragColor;
 
