@@ -1,18 +1,30 @@
 'use client';
 
-import { GrainClouds, type GrainCloudsParams, grainCloudsPresets } from '@paper-design/shaders-react';
+import {GrainClouds, type GrainCloudsParams, grainCloudsPresets, NeuroNoise} from '@paper-design/shaders-react';
 import { button, folder, useControls } from 'leva';
 import { setParamsSafe, useResetLevaParams } from '@/helpers/use-reset-leva-params';
 import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import Link from 'next/link';
 import { BackButton } from '@/components/back-button';
 
+
 /**
  * You can copy/paste this example to use GrainClouds in your app
  */
 const GrainCloudsExample = () => {
-  return <GrainClouds color1="#000" color2="#fff" style={{ position: 'fixed', width: '100%', height: '100%' }} />;
+  return (
+      <GrainClouds
+          scale={1}
+          speed={.2}
+          seed={0}
+          colorBack="#000000"
+          colorFront="#ffffff"
+          grainAmount={1.3}
+          style={{position: 'fixed', width: '100%', height: '100%'}}
+      />
+  );
 };
+
 
 /**
  * This example has controls added so you can play with settings in the example app
@@ -26,17 +38,14 @@ const GrainCloudsWithControls = () => {
       grainCloudsPresets.map((preset) => [preset.name, button(() => setParamsSafe(params, setParams, preset.params))])
     );
     return {
-      Parameters: folder(
-        {
-          color1: { value: defaults.color1, order: 1 },
-          color2: { value: defaults.color2, order: 2 },
-          scale: { value: defaults.scale, order: 3, min: 0.2, max: 1.8 },
-          grainAmount: { value: defaults.grainAmount, order: 4, min: 0, max: 1 },
-          speed: { value: defaults.speed, order: 5, min: 0, max: 2 },
-        },
-        { order: 1 }
-      ),
-      Presets: folder(presets, { order: 2 }),
+      Parameters: folder({
+        color1: { value: defaults.color1 },
+        color2: { value: defaults.color2 },
+        scale: { value: defaults.scale, min: 0.2, max: 1.8 },
+        grainAmount: { value: defaults.grainAmount, min: 0, max: 1 },
+        speed: { value: defaults.speed, min: 0, max: 2 },
+      }),
+      Presets: folder(presets),
     };
   });
 
