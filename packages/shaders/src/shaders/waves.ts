@@ -16,20 +16,21 @@ export type WavesUniforms = {
  * Calculates a combination of 2 simplex noises with result rendered as a stepped gradient
  *
  * Uniforms include:
- * u_scale: The scale applied to user space
- * u_rotation: The rotation applied to user space
- * u_color1: The first color
- * u_color2: The second color
- * u_shape: The line shaping coefficient
+ * u_scale - the scale applied to user space
+ * u_rotation - the rotation applied to user space
+ * u_color1 - the first color
+ * u_color2 - the second color
+ * u_shape (0 ... 3) - the line shaping coefficient, non-integer
+   values allowed and produce mixed shapes
    - u_shape = 0 is zigzag
    - u_shape = 1 is perfect sine wave
    - u_shape = 2 is irregular wave #1
    - u_shape = 3 is irregular wave #2
- * u_frequency: The wave frequency
- * u_amplitude: The wave amplitude
- * u_spacing: The density of pattern lines
- * u_dutyCycle: The proportion of stroke width to the pattern step
- * u_edgeBlur: The blur applied to the lines edges
+ * u_frequency - the wave frequency
+ * u_amplitude - the wave amplitude
+ * u_spacing - the density of pattern lines
+ * u_dutyCycle (0 ... 1) - the proportion of stroke width to the pattern step
+ * u_edgeBlur (0 ... 1) - the blur applied to the lines edges
  */
 
 export const wavesFragmentShader = `#version 300 es
