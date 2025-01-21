@@ -15,16 +15,16 @@ import { DotsGridShapes } from '@paper-design/shaders';
 const DotsGridExample = () => {
   return (
     <DotsGrid
-      colorBack="#222222"
-      colorFill="#e48b97"
-      colorStroke="#f5d03b"
-      dotSize={4}
+      colorBack="#00000000"
+      colorFill="#122118"
+      colorStroke="#f0a519"
+      dotSize={2}
       gridSpacingX={50}
       gridSpacingY={50}
-      strokeWidth={2}
+      strokeWidth={0}
       sizeRange={0}
       opacityRange={0}
-      shape={DotsGridShapes.Circle}
+      shape={0}
       style={{ position: 'fixed', width: '100%', height: '100%' }}
     />
   );
@@ -42,22 +42,19 @@ const DotsGridWithControls = () => {
       dotsGridPresets.map((preset) => [preset.name, button(() => setParamsSafe(params, setParams, preset.params))])
     );
     return {
-      Parameters: folder(
-        {
-          colorBack: { value: defaults.colorBack, order: 1 },
-          colorFill: { value: defaults.colorFill, order: 2 },
-          colorStroke: { value: defaults.colorStroke, order: 3 },
-          dotSize: { value: defaults.dotSize, order: 4, min: 0.1, max: 100 },
-          gridSpacingX: { value: defaults.gridSpacingX, order: 5, min: 2, max: 500 },
-          gridSpacingY: { value: defaults.gridSpacingY, order: 6, min: 2, max: 500 },
-          strokeWidth: { value: defaults.dotSize, order: 7, min: 0, max: 50 },
-          sizeRange: { value: defaults.gridSpacingY, order: 8, min: 0, max: 1 },
-          opacityRange: { value: defaults.gridSpacingY, order: 9, min: 0, max: 2 },
-          shape: { value: defaults.shape, order: 10, options: DotsGridShapes },
-        },
-        { order: 1 }
-      ),
-      Presets: folder(presets, { order: 2 }),
+      Parameters: folder({
+        colorBack: { value: defaults.colorBack },
+        colorFill: { value: defaults.colorFill },
+        colorStroke: { value: defaults.colorStroke },
+        dotSize: { value: defaults.dotSize, min: 1, max: 100 },
+        gridSpacingX: { value: defaults.gridSpacingX, min: 2, max: 500 },
+        gridSpacingY: { value: defaults.gridSpacingY, min: 2, max: 500 },
+        strokeWidth: { value: defaults.dotSize, min: 0, max: 50 },
+        sizeRange: { value: defaults.gridSpacingY, min: 0, max: 1 },
+        opacityRange: { value: defaults.gridSpacingY, min: 0, max: 2 },
+        shape: { value: defaults.shape, options: DotsGridShapes },
+      }),
+      Presets: folder(presets),
     };
   });
 

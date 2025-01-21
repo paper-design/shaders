@@ -42,7 +42,7 @@ export const defaultPreset: DotsGridPreset = {
   },
 } as const;
 
-const preset1: DotsGridPreset = {
+const trianglesPreset: DotsGridPreset = {
   name: 'Triangles',
   params: {
     // Note: Keep default colors in HSLA format so that our Leva controls show a transparency channel (rgba and hex8 do not work)
@@ -59,7 +59,7 @@ const preset1: DotsGridPreset = {
   },
 } as const;
 
-const preset2: DotsGridPreset = {
+const bubblesPreset: DotsGridPreset = {
   name: 'Bubbles',
   params: {
     // Note: Keep default colors in HSLA format so that our Leva controls show a transparency channel (rgba and hex8 do not work)
@@ -76,7 +76,7 @@ const preset2: DotsGridPreset = {
   },
 } as const;
 
-const preset3: DotsGridPreset = {
+const treeLinePreset: DotsGridPreset = {
   name: 'Tree line',
   params: {
     // Note: Keep default colors in HSLA format so that our Leva controls show a transparency channel (rgba and hex8 do not work)
@@ -93,7 +93,7 @@ const preset3: DotsGridPreset = {
   },
 } as const;
 
-const preset4: DotsGridPreset = {
+const diamondsPreset: DotsGridPreset = {
   name: 'Diamonds',
   params: {
     // Note: Keep default colors in HSLA format so that our Leva controls show a transparency channel (rgba and hex8 do not work)
@@ -110,7 +110,7 @@ const preset4: DotsGridPreset = {
   },
 } as const;
 
-const preset5: DotsGridPreset = {
+const wallpaperPreset: DotsGridPreset = {
   name: 'Wallpaper',
   params: {
     // Note: Keep default colors in HSLA format so that our Leva controls show a transparency channel (rgba and hex8 do not work)
@@ -127,7 +127,7 @@ const preset5: DotsGridPreset = {
   },
 } as const;
 
-const preset6: DotsGridPreset = {
+const matrixPreset: DotsGridPreset = {
   name: 'Enter the Matrix',
   params: {
     // Note: Keep default colors in HSLA format so that our Leva controls show a transparency channel (rgba and hex8 do not work)
@@ -144,7 +144,7 @@ const preset6: DotsGridPreset = {
   },
 } as const;
 
-const preset7: DotsGridPreset = {
+const waveformPreset: DotsGridPreset = {
   name: 'Waveform',
   params: {
     // Note: Keep default colors in HSLA format so that our Leva controls show a transparency channel (rgba and hex8 do not work)
@@ -163,13 +163,13 @@ const preset7: DotsGridPreset = {
 
 export const dotsGridPresets: DotsGridPreset[] = [
   defaultPreset,
-  preset1,
-  preset2,
-  preset3,
-  preset4,
-  preset5,
-  preset6,
-  preset7,
+  trianglesPreset,
+  bubblesPreset,
+  treeLinePreset,
+  diamondsPreset,
+  wallpaperPreset,
+  matrixPreset,
+  waveformPreset,
 ];
 
 export const DotsGrid = (props: DotsGridProps): JSX.Element => {
