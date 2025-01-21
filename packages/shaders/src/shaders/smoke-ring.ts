@@ -1,38 +1,40 @@
 export type SmokeRingUniforms = {
-  u_colorBack: [number, number, number, number];
-  u_color1: [number, number, number, number];
-  u_color2: [number, number, number, number];
   u_scale: number;
+  u_colorBack: [number, number, number, number];
+  u_colorInner: [number, number, number, number];
+  u_colorOuter: [number, number, number, number];
+  u_noiseScale: number;
   u_thickness: number;
 };
 
 /**
- * Smoke Ring, based on https://codepen.io/ksenia-k/full/zYyqRWE
+ * Smoke Ring by Ksenia Kondrashova
  * Renders a fractional Brownian motion (fBm) noise over the
  * polar coordinates masked with ring shape
  *
  * Uniforms include:
- * u_colorBack: The back color of the scene
- * u_color1: Main inner of the ring
- * u_color2: The outer color of the mesh gradient
  * u_scale: The scale of uv coordinates: with scale = 1 the ring fits the screen height
- * u_noise_scale: The resolution of noise texture
+ * u_colorBack: The background color of the scene
+ * u_colorInner: The inner color of the ring gradient
+ * u_colorOuter: The outer color of the ring gradient
+ * u_noiseScale: The resolution of noise texture
  * u_thickness: The thickness of the ring
  */
 
 export const smokeRingFragmentShader = `#version 300 es
 precision highp float;
 
-uniform vec4 u_colorBack;
-uniform vec4 u_color1;
-uniform vec4 u_color2;
-uniform float u_scale;
-uniform float u_noise_scale;
-uniform float u_thickness;
-
 uniform float u_pixelRatio;
 uniform vec2 u_resolution;
 uniform float u_time;
+
+uniform float u_scale;
+
+uniform vec4 u_colorBack;
+uniform vec4 u_colorInner;
+uniform vec4 u_colorOuter;
+uniform float u_noiseScale;
+uniform float u_thickness;
 
 out vec4 fragColor;
 
@@ -87,10 +89,10 @@ void main() {
   float angle = (atg + PI) / TWO_PI;
 
   vec2 polar_uv = vec2(atg, .1 * t - (.5 * length(uv)) + 1. / pow(length(uv), .5));
-  polar_uv *= u_noise_scale;
+  polar_uv *= u_noiseScale;
 
   float noise_left = fbm(polar_uv + .05 * t);
-  polar_uv.x = mod(polar_uv.x, u_noise_scale * TWO_PI);
+  polar_uv.x = mod(polar_uv.x, u_noiseScale * TWO_PI);
   float noise_right = fbm(polar_uv + .05 * t);
   float noise = mix(noise_right, noise_left, smoothstep(-.2, .2, uv.x));
 
@@ -110,16 +112,16 @@ void main() {
 
   float background = u_colorBack.a;
 
-  float opacity = ring_shape_outer * u_color2.a;
-  opacity += ring_shape_inner * u_color1.a;
-  opacity += background * (1. - ring_shape_inner * u_color1.a - ring_shape_outer * u_color2.a);
+  float opacity = ring_shape_outer * u_colorOuter.a;
+  opacity += ring_shape_inner * u_colorInner.a;
+  opacity += background * (1. - ring_shape_inner * u_colorInner.a - ring_shape_outer * u_colorOuter.a);
 
   vec3 color = u_colorBack.rgb * (1. - ring_shape) * background;
-  color += u_color2.rgb * ring_shape_outer * u_color2.a;
-  color += u_color1.rgb * ring_shape_inner * u_color1.a;
+  color += u_colorOuter.rgb * ring_shape_outer * u_colorOuter.a;
+  color += u_colorInner.rgb * ring_shape_inner * u_colorInner.a;
 
-  color += u_colorBack.rgb * ring_shape_inner * (1. - u_color1.a) * background;
-  color += u_colorBack.rgb * ring_shape_outer * (1. - u_color2.a) * background;
+  color += u_colorBack.rgb * ring_shape_inner * (1. - u_colorInner.a) * background;
+  color += u_colorBack.rgb * ring_shape_outer * (1. - u_colorOuter.a) * background;
 
   fragColor = vec4(color, opacity);
 }
