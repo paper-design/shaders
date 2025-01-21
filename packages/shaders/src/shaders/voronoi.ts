@@ -1,7 +1,8 @@
 export type VoronoiUniforms = {
-  u_color1: [number, number, number, number];
-  u_color2: [number, number, number, number];
-  u_color3: [number, number, number, number];
+  u_scale: number;
+  u_colorCell1: [number, number, number, number];
+  u_colorCell2: [number, number, number, number];
+  u_colorCell3: [number, number, number, number];
   u_colorEdges: [number, number, number, number];
   u_colorMid: [number, number, number, number];
   u_colorGradient: number;
@@ -10,7 +11,6 @@ export type VoronoiUniforms = {
   u_edgesSharpness: number;
   u_middleSize: number;
   u_middleSharpness: number;
-  u_scale: number;
 };
 
 /**
@@ -19,9 +19,10 @@ export type VoronoiUniforms = {
  * Renders a number of circular shapes with gooey effect applied
  *
  * Uniforms include:
- * u_color1 - color #1 of mix used to fill the cell shape
- * u_color2 - color #2 of mix used to fill the cell shape
- * u_color3 - color #3 of mix used to fill the cell shape
+ * u_scale: The scale applied to UV space
+ * u_colorCell1 - color #1 of mix used to fill the cell shape
+ * u_colorCell2 - color #2 of mix used to fill the cell shape
+ * u_colorCell3 - color #3 of mix used to fill the cell shape
  * u_colorEdges - color of borders (between the cells)
  * u_colorMid - color used to fill the radial shape in the center of each cell
  * u_colorGradient - if the cell colors is a mix or selection
@@ -32,15 +33,20 @@ export type VoronoiUniforms = {
  * u_middleSize - the size of shape in the center of each cell
  * u_middleSharpness - the smoothness of shape in the center of each cell (vary from cell
  *                     color gradient to sharp dot in the middle)
- * u_scale: The scale applied to UV space
  */
 
 export const voronoiFragmentShader = `#version 300 es
 precision highp float;
 
-uniform vec4 u_color1;
-uniform vec4 u_color2;
-uniform vec4 u_color3;
+uniform float u_time;
+uniform float u_pixelRatio;
+uniform vec2 u_resolution;
+
+uniform float u_scale;
+
+uniform vec4 u_colorCell1;
+uniform vec4 u_colorCell2;
+uniform vec4 u_colorCell3;
 uniform vec4 u_colorEdges;
 uniform vec4 u_colorMid;
 
@@ -50,11 +56,6 @@ uniform float u_edgesSize;
 uniform float u_edgesSharpness;
 uniform float u_middleSize;
 uniform float u_middleSharpness;
-
-uniform float u_time;
-uniform float u_pixelRatio;
-uniform float u_scale;
-uniform vec2 u_resolution;
 
 #define TWO_PI 6.28318530718
 
@@ -133,7 +134,7 @@ void main() {
 
   dot_shape *= cell_shape;
 
-  vec4 cell_mix = blend_colors(u_color1, u_color2, u_color3, randomizer);
+  vec4 cell_mix = blend_colors(u_colorCell1, u_colorCell2, u_colorCell3, randomizer);
   
   vec4 edges = vec4(u_colorEdges.rgb * u_colorEdges.a, u_colorEdges.a);
 

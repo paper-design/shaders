@@ -13,18 +13,15 @@ import Link from 'next/link';
 const VoronoiExample = () => {
   return (
     <Voronoi
-      color1="#ffffff"
-      color2="#ffffff"
-      color3="#ffffff"
+      colorCell1="#e64d1a"
+      colorCell2="#1ae6e6"
+      colorCell3="#1aa2e6"
       colorEdges="#301a03"
-      colorMid="#9b8ab8"
       colorGradient={0}
-      scale={11}
+      scale={1}
       distance={0.25}
       edgesSize={0.2}
       edgesSharpness={0}
-      middleSize={0}
-      middleSharpness={0.2}
       speed={1}
       seed={0}
       style={{ position: 'fixed', width: '100%', height: '100%' }}
@@ -46,9 +43,9 @@ const VoronoiWithControls = () => {
     return {
       Parameters: folder(
         {
-          color1: { value: defaults.color1 },
-          color2: { value: defaults.color2 },
-          color3: { value: defaults.color3 },
+          colorCell1: { value: defaults.colorCell1 },
+          colorCell2: { value: defaults.colorCell2 },
+          colorCell3: { value: defaults.colorCell3 },
           colorMid: { value: defaults.colorMid },
           colorEdges: { value: defaults.colorEdges },
           colorGradient: { value: defaults.colorGradient, min: 0, max: 1 },
