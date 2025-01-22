@@ -10,15 +10,22 @@ import { BackButton } from '@/components/back-button';
 /**
  * You can copy/paste this example to use Warp in your app
  */
-// <Warp
-//     color1="#577590"
-//     color2="#90BE6D"
-//     scale={1}
-//     speed={1}
-//     distortion={0.5}
-//     contour={.5}
-//     style={{position: 'fixed', width: '100%', height: '100%'}}
-// />
+const WarpExample = () => {
+  return (
+    <Warp
+      scale={1}
+      speed={1}
+      color1="#262626"
+      color2="#75c1f0"
+      color3="#ffffff"
+      proportion={0.5}
+      distortion={1}
+      swirl={0.9}
+      swirlIterations={10}
+      style={{ position: 'fixed', width: '100%', height: '100%' }}
+    />
+  );
+};
 
 /**
  * This example has controls added so you can play with settings in the example app
@@ -33,22 +40,19 @@ const WarpWithControls = () => {
     );
 
     return {
-      Parameters: folder(
-        {
-          color1: { value: defaults.color1 },
-          color2: { value: defaults.color2 },
-          color3: { value: defaults.color3 },
-          proportion: { value: defaults.proportion, min: 0, max: 1 },
-          speed: { value: defaults.speed, min: 0, max: 2 },
-          seed: { value: defaults.seed, min: 0, max: 9999 },
-          scale: { value: defaults.scale, min: 0, max: 2 },
-          distortion: { value: defaults.distortion, min: 0, max: 3 },
-          swirl: { value: defaults.swirl, min: 0, max: 1 },
-          swirlIterations: { value: defaults.swirlIterations, min: 0, max: 20 },
-        },
-        { order: 1 }
-      ),
-      Presets: folder(presets, { order: 2 }),
+      Parameters: folder({
+        color1: { value: defaults.color1 },
+        color2: { value: defaults.color2 },
+        color3: { value: defaults.color3 },
+        proportion: { value: defaults.proportion, min: 0, max: 1 },
+        scale: { value: defaults.scale, min: 0, max: 2 },
+        speed: { value: defaults.speed, min: 0, max: 2 },
+        seed: { value: defaults.seed, min: 0, max: 9999 },
+        distortion: { value: defaults.distortion, min: 0, max: 3 },
+        swirl: { value: defaults.swirl, min: 0, max: 1 },
+        swirlIterations: { value: defaults.swirlIterations, min: 0, max: 20 },
+      }),
+      Presets: folder(presets),
     };
   });
 
