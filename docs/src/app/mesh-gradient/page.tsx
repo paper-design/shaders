@@ -37,11 +37,11 @@ const MeshGradientWithControls = () => {
 
     return {
       Parameters: folder({
-        color1: { value: defaults.color1, order: 1 },
-        color2: { value: defaults.color2, order: 2 },
-        color3: { value: defaults.color3, order: 3 },
-        color4: { value: defaults.color4, order: 4 },
-        speed: { value: defaults.speed, order: 5, min: -1, max: 1 },
+        color1: { value: defaults.color1 },
+        color2: { value: defaults.color2 },
+        color3: { value: defaults.color3 },
+        color4: { value: defaults.color4 },
+        speed: { value: defaults.speed, min: -1, max: 1 },
       }),
       Presets: folder(presets),
     };

@@ -53,10 +53,9 @@ const WavesWithControls = () => {
           spacing: { value: defaults.spacing, min: 0, max: 2 },
           dutyCycle: { value: defaults.dutyCycle, min: 0, max: 1 },
           edgeBlur: { value: defaults.edgeBlur, min: 0, max: 1 },
-        },
-        { order: 1 }
+        }
       ),
-      Presets: folder(presets, { order: 2 }),
+      Presets: folder(presets),
     };
   });
 
