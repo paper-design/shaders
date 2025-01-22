@@ -18,14 +18,15 @@ import { BackButton } from '@/components/back-button';
 const SteppedSimplexNoiseExample = () => {
   return (
     <SteppedSimplexNoise
-      color1="#577590"
-      color2="#90BE6D"
-      color3="#F94144"
-      color4="#F9C74F"
+      color1="#56758f"
+      color2="#91be6f"
+      color3="#f94346"
+      color4="#f9c54e"
       color5="#ffffff"
-      scale={0.5}
-      speed={1}
-      stepsNumber={12}
+      scale={1}
+      speed={0.5}
+      seed={0}
+      stepsNumber={13}
       style={{ position: 'fixed', width: '100%', height: '100%' }}
     />
   );
@@ -46,20 +47,18 @@ const SteppedSimplexNoiseWithControls = () => {
       ])
     );
     return {
-      Parameters: folder(
-        {
-          color1: { value: defaults.color1, order: 1 },
-          color2: { value: defaults.color2, order: 2 },
-          color3: { value: defaults.color3, order: 3 },
-          color4: { value: defaults.color4, order: 4 },
-          color5: { value: defaults.color5, order: 5 },
-          speed: { value: defaults.speed, order: 6, min: -1.5, max: 1.5 },
-          scale: { value: defaults.scale, order: 7, min: 0.1, max: 1.9 },
-          stepsNumber: { value: defaults.stepsNumber, order: 8, min: 2, max: 40 },
-        },
-        { order: 1 }
-      ),
-      Presets: folder(presets, { order: 2 }),
+      Parameters: folder({
+        color1: { value: defaults.color1 },
+        color2: { value: defaults.color2 },
+        color3: { value: defaults.color3 },
+        color4: { value: defaults.color4 },
+        color5: { value: defaults.color5 },
+        scale: { value: defaults.scale, min: 0.1, max: 1.9 },
+        speed: { value: defaults.speed, min: -1.5, max: 1.5 },
+        seed: { value: defaults.seed, min: 0, max: 9999 },
+        stepsNumber: { value: defaults.stepsNumber, min: 2, max: 40 },
+      }),
+      Presets: folder(presets),
     };
   });
 

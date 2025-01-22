@@ -13,13 +13,13 @@ import { BackButton } from '@/components/back-button';
 const SmokeRingExample = () => {
   return (
     <SmokeRing
-      colorBack="#6a5496"
-      color1="#9b8ab8"
-      color2="#f5d03b"
       scale={1}
-      noiseScale={1}
-      speed={1.2}
-      thickness={0.3}
+      speed={1}
+      colorBack="#08121b"
+      colorInner="#ffffff"
+      colorOuter="#47a0ff"
+      noiseScale={1.4}
+      thickness={0.33}
       style={{ position: 'fixed', width: '100%', height: '100%' }}
     />
   );
@@ -37,24 +37,22 @@ const SmokeRingWithControls = () => {
       smokeRingPresets.map((preset) => [preset.name, button(() => setParamsSafe(params, setParams, preset.params))])
     );
     return {
-      Parameters: folder(
-        {
-          colorBack: { value: defaults.colorBack, order: 1 },
-          color1: { value: defaults.color1, order: 2 },
-          color2: { value: defaults.color2, order: 3 },
-          scale: { value: defaults.scale, order: 4, min: 0.5, max: 1.5 },
-          speed: { value: defaults.speed, order: 5, min: -4, max: 4 },
-          thickness: { value: defaults.thickness, order: 6, min: 0.1, max: 2 },
-          noiseScale: { value: defaults.thickness, order: 7, min: 0.01, max: 5 },
-        },
-        { order: 1 }
-      ),
-      Presets: folder(presets, { order: 2 }),
+      Parameters: folder({
+        colorBack: { value: defaults.colorBack },
+        colorInner: { value: defaults.colorInner },
+        colorOuter: { value: defaults.colorOuter },
+        scale: { value: defaults.scale, min: 0.5, max: 1.5 },
+        speed: { value: defaults.speed, min: -4, max: 4 },
+        seed: { value: defaults.seed, min: 0, max: 9999 },
+        noiseScale: { value: defaults.thickness, min: 0.01, max: 5 },
+        thickness: { value: defaults.thickness, min: 0.1, max: 2 },
+      }),
+      Presets: folder(presets),
     };
   });
 
   // Reset to defaults on mount, so that Leva doesn't show values from other
-  // shaders when navigating (if two shaders have a color1 param for example)
+  // shaders when navigating (if two shaders have a colorInner param for example)
   useResetLevaParams(params, setParams, defaults);
 
   usePresetHighlight(smokeRingPresets, params);

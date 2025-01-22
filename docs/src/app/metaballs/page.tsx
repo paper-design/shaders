@@ -13,14 +13,14 @@ import { BackButton } from '@/components/back-button';
 const MetaballsExample = () => {
   return (
     <Metaballs
-      color1="#6a5496"
-      color2="#9b8ab8"
-      color3="#f5d03b"
       scale={1}
       speed={1}
       seed={0}
-      visibilityRange={0}
-      dotSize={1}
+      color1="#f42547"
+      color2="#eb4763"
+      color3="#f49d71"
+      ballSize={1}
+      visibilityRange={0.4}
       style={{ position: 'fixed', width: '100%', height: '100%' }}
     />
   );
@@ -38,20 +38,17 @@ const MetaballsWithControls = () => {
       metaballsPresets.map((preset) => [preset.name, button(() => setParamsSafe(params, setParams, preset.params))])
     );
     return {
-      Parameters: folder(
-        {
-          color1: { value: defaults.color1, order: 1 },
-          color2: { value: defaults.color2, order: 2 },
-          color3: { value: defaults.color3, order: 3 },
-          seed: { value: defaults.seed, order: 4, min: 0, max: 9999 },
-          speed: { value: defaults.speed, order: 5, min: 0, max: 1 },
-          scale: { value: defaults.scale, order: 6, min: 0, max: 2 },
-          dotSize: { value: defaults.dotSize, order: 7, min: 0, max: 1 },
-          visibilityRange: { value: defaults.visibilityRange, order: 8, min: 0.05, max: 1 },
-        },
-        { order: 1 }
-      ),
-      Presets: folder(presets, { order: 2 }),
+      Parameters: folder({
+        color1: { value: defaults.color1 },
+        color2: { value: defaults.color2 },
+        color3: { value: defaults.color3 },
+        scale: { value: defaults.scale, min: 0, max: 2 },
+        speed: { value: defaults.speed, min: 0, max: 1 },
+        seed: { value: defaults.seed, min: 0, max: 9999 },
+        ballSize: { value: defaults.ballSize, min: 0, max: 1 },
+        visibilityRange: { value: defaults.visibilityRange, min: 0.05, max: 1 },
+      }),
+      Presets: folder(presets),
     };
   });
 

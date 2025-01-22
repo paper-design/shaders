@@ -22,22 +22,26 @@ export type DotsGridUniforms = {
 
 /**
  * Dot Grid Pattern
+ * (the size parameters are set in pixels)
  *
  * Uniforms include:
- * u_colorBack: Background color
- * u_colorFill: Dots fill color
- * u_colorStroke: Dots stroke color
- * u_dotSize: The base dot radius, px
- * u_strokeWidth: The stroke (to be subtracted from u_dotSize), px
- * u_gridSpacingX: Horizontal grid spacing, px
- * u_gridSpacingY: Vertical grid spacing, px
- * u_sizeRange: Variety of dot size, 0..1
- * u_opacityRange: Variety of dot opacity to be applied equally to fill and stroke, 0..1
- * u_shape: Shape code: 'Circle': 0, 'Diamond': 1, 'Square': 2, 'Triangle': 3
+ * u_colorBack - the background color
+ * u_colorFill - the dots fill color
+ * u_colorStroke - the dots stroke color
+ * u_dotSize (px) - the base dot radius
+ * u_strokeWidth (px) - the stroke (to be subtracted from u_dotSize)
+ * u_gridSpacingX (px) - horizontal grid spacing
+ * u_gridSpacingY (px) - xertical grid spacing
+ * u_sizeRange (0 .. 1) - variety of dot size
+ * u_opacityRange(0 .. 1) - variety of dot opacity to be applied equally to fill and stroke
+ * u_shape - shape code (0 - circle, 1 - diamond, 2 - square, 3 - triangle)
  */
 
 export const dotsGridFragmentShader = `#version 300 es
 precision highp float;
+
+uniform vec2 u_resolution;
+uniform float u_pixelRatio;
 
 uniform vec4 u_colorBack;
 uniform vec4 u_colorFill;
@@ -49,9 +53,6 @@ uniform float u_strokeWidth;
 uniform float u_sizeRange;
 uniform float u_opacityRange;
 uniform float u_shape;
-
-uniform vec2 u_resolution;
-uniform float u_pixelRatio;
 
 out vec4 fragColor;
 
@@ -111,7 +112,7 @@ void main() {
     vec2 center = vec2(0.5) - 1e-3;
     vec2 p = (grid - center) * vec2(u_gridSpacingX, u_gridSpacingY);
 
-    float base_size = u_dotSize * (1. - size_randomizer * u_sizeRange);
+    float base_size = u_dotSize * (1. - size_randomizer * clamp(u_sizeRange, 0., 1.));
     float stroke_width = u_strokeWidth;
 
     float dist;
@@ -137,7 +138,7 @@ void main() {
     float shape_inner = smoothstep(base_size - u_strokeWidth + edge_width, base_size - u_strokeWidth - edge_width, dist);
     float stroke = clamp(shape_outer - shape_inner, 0., 1.);
 
-    float dot_opacity = max(0., 1. - opacity_randomizer * u_opacityRange);
+    float dot_opacity = max(0., 1. - opacity_randomizer * clamp(u_opacityRange, 0., 1.));
 
     vec3 color = u_colorBack.rgb * u_colorBack.a;
     color = mix(color, u_colorFill.rgb, u_colorFill.a * dot_opacity * shape_inner);

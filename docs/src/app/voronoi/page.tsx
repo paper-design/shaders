@@ -13,20 +13,16 @@ import Link from 'next/link';
 const VoronoiExample = () => {
   return (
     <Voronoi
-      color1="#ffffff"
-      color2="#ffffff"
-      color3="#ffffff"
+      scale={1}
+      speed={1}
+      colorCell1="#e64d1a"
+      colorCell2="#1ae6e6"
+      colorCell3="#1aa2e6"
       colorEdges="#301a03"
-      colorMid="#9b8ab8"
       colorGradient={0}
-      scale={11}
       distance={0.25}
       edgesSize={0.2}
       edgesSharpness={0}
-      middleSize={0}
-      middleSharpness={0.2}
-      speed={1}
-      seed={0}
       style={{ position: 'fixed', width: '100%', height: '100%' }}
     />
   );
@@ -44,26 +40,23 @@ const VoronoiWithControls = () => {
       voronoiPresets.map((preset) => [preset.name, button(() => setParamsSafe(params, setParams, preset.params))])
     );
     return {
-      Parameters: folder(
-        {
-          color1: { value: defaults.color1 },
-          color2: { value: defaults.color2 },
-          color3: { value: defaults.color3 },
-          colorMid: { value: defaults.colorMid },
-          colorEdges: { value: defaults.colorEdges },
-          colorGradient: { value: defaults.colorGradient, min: 0, max: 1 },
-          scale: { value: defaults.scale, min: 0.15, max: 3 },
-          distance: { value: defaults.distance, min: 0, max: 0.5 },
-          edgesSize: { value: defaults.edgesSize, min: 0, max: 1 },
-          edgesSharpness: { value: defaults.edgesSharpness, min: 0, max: 1 },
-          middleSize: { value: defaults.middleSize, min: 0, max: 1 },
-          middleSharpness: { value: defaults.middleSharpness, min: 0, max: 1 },
-          seed: { value: defaults.seed, min: 0, max: 9999 },
-          speed: { value: defaults.speed, min: 0, max: 1 },
-        },
-        { order: 1 }
-      ),
-      Presets: folder(presets, { order: 2 }),
+      Parameters: folder({
+        colorCell1: { value: defaults.colorCell1 },
+        colorCell2: { value: defaults.colorCell2 },
+        colorCell3: { value: defaults.colorCell3 },
+        colorMid: { value: defaults.colorMid },
+        colorEdges: { value: defaults.colorEdges },
+        colorGradient: { value: defaults.colorGradient, min: 0, max: 1 },
+        scale: { value: defaults.scale, min: 0.15, max: 3 },
+        speed: { value: defaults.speed, min: 0, max: 1 },
+        seed: { value: defaults.seed, min: 0, max: 9999 },
+        distance: { value: defaults.distance, min: 0, max: 0.5 },
+        edgesSize: { value: defaults.edgesSize, min: 0, max: 1 },
+        edgesSharpness: { value: defaults.edgesSharpness, min: 0, max: 1 },
+        middleSize: { value: defaults.middleSize, min: 0, max: 1 },
+        middleSharpness: { value: defaults.middleSharpness, min: 0, max: 1 },
+      }),
+      Presets: folder(presets),
     };
   });
 
