@@ -14,6 +14,7 @@ const MeshGradientExample = () => {
   return (
     <MeshGradient
       speed={0.15}
+      seed={0}
       color1="#b3a6ce"
       color2="#562b9c"
       color3="#f4e8b8"
@@ -42,6 +43,7 @@ const MeshGradientWithControls = () => {
         color3: { value: defaults.color3 },
         color4: { value: defaults.color4 },
         speed: { value: defaults.speed, min: -1, max: 1 },
+        seed: { value: defaults.seed, min: 0, max: 9999 },
       }),
       Presets: folder(presets),
     };
