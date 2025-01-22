@@ -6,15 +6,15 @@ export type NeuroNoiseUniforms = {
 };
 
 /**
- * Neuro Noise Pattern;
+ * Neuro Noise Pattern
  * The original artwork: https://codepen.io/ksenia-k/full/vYwgrWv by Ksenia Kondrashova
  * Renders a fractal-like structure made of several layers of since-arches
  *
  * Uniforms include:
- * u_scale: The scale applied to coordinates
- * u_colorFront: The front color of pattern
- * u_colorBack: The back color of pattern
- * u_brightness: The power/brightness of pattern lines
+ * u_scale - the scale applied to user space
+ * u_colorFront - the front color of pattern
+ * u_colorBack - the back color of pattern
+ * u_brightness - the power (brightness) of pattern lines
  */
 
 export const neuroNoiseFragmentShader = `#version 300 es

@@ -14,13 +14,13 @@ export type SteppedSimplexNoiseUniforms = {
  * an X-stepped 5-colored gradient
  *
  * Uniforms include:
- * u_scale: The scale applied to user space
- * u_color1: The first gradient color
- * u_color2: The second gradient color
- * u_color3: The third gradient color
- * u_color4: The fourth gradient color
- * u_color5: The fifth gradient color
- * u_steps_number: The number of solid colors to show as a stepped gradient
+ * u_scale - the scale applied to user space
+ * u_color1 - the first gradient color
+ * u_color2 - the second gradient color
+ * u_color3 - the third gradient color
+ * u_color4 - the fourth gradient color
+ * u_color5 - the fifth gradient color
+ * u_steps_number - the number of solid colors to show as a stepped gradient
  */
 
 export const steppedSimplexNoiseFragmentShader = `#version 300 es

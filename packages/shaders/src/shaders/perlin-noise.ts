@@ -193,7 +193,7 @@ void main() {
     vec3 p = vec3(uv, t);
     
     float oct_count = max(0., floor(u_octaveCount));
-    float persistence = clamp(0., 1., u_persistence);
+    float persistence = clamp(u_persistence, 0., 1.);
     float noise = p_noise(p, int(oct_count), persistence, u_lacunarity);
     
     float max_amp = get_max_amp(persistence, oct_count);

@@ -13,11 +13,11 @@ import { BackButton } from '@/components/back-button';
 const SmokeRingExample = () => {
   return (
     <SmokeRing
+      scale={1}
+      speed={1}
       colorBack="#08121b"
       colorInner="#ffffff"
       colorOuter="#47a0ff"
-      scale={1}
-      speed={1}
       noiseScale={1.4}
       thickness={0.33}
       style={{ position: 'fixed', width: '100%', height: '100%' }}

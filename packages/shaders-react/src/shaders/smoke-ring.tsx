@@ -15,11 +15,13 @@ export type SmokeRingProps = Omit<ShaderMountProps, 'fragmentShader'> & SmokeRin
 
 type SmokeRingPreset = { name: string; params: Required<SmokeRingParams> };
 
+// Due to Leva controls limitation:
+// 1) keep default colors in HSLA format to keep alpha channel
+// 2) don't use decimal values on HSL values (to avoid button highlight bug)
+
 export const defaultPreset: SmokeRingPreset = {
   name: 'Default',
   params: {
-    // Note: Keep default colors in HSLA format so that our Leva controls show a transparency channel (rgba and hex8 do not work)
-    // And don't use decimal values or highlights won't work, because the values get rounded and highlights need an exact match.
     scale: 1,
     speed: 1,
     seed: 0,
@@ -99,24 +101,13 @@ export const SmokeRing = (props: SmokeRingProps): JSX.Element => {
   const uniforms: SmokeRingUniforms = useMemo(() => {
     return {
       u_scale: props.scale ?? defaultPreset.params.scale,
-      u_speed: props.speed ?? defaultPreset.params.speed,
-      u_seed: props.seed ?? defaultPreset.params.seed,
       u_colorBack: getShaderColorFromString(props.colorBack, defaultPreset.params.colorBack),
       u_colorInner: getShaderColorFromString(props.colorInner, defaultPreset.params.colorInner),
       u_colorOuter: getShaderColorFromString(props.colorOuter, defaultPreset.params.colorOuter),
       u_noiseScale: props.noiseScale ?? defaultPreset.params.noiseScale,
       u_thickness: props.thickness ?? defaultPreset.params.thickness,
     };
-  }, [
-    props.scale,
-    props.speed,
-    props.seed,
-    props.colorBack,
-    props.colorInner,
-    props.colorOuter,
-    props.noiseScale,
-    props.thickness,
-  ]);
+  }, [props.scale, props.colorBack, props.colorInner, props.colorOuter, props.noiseScale, props.thickness]);
 
   return <ShaderMount {...props} fragmentShader={smokeRingFragmentShader} uniforms={uniforms} />;
 };

@@ -20,11 +20,13 @@ export type SteppedSimplexNoiseProps = Omit<ShaderMountProps, 'fragmentShader'> 
 
 type SteppedSimplexNoisePreset = { name: string; params: Required<SteppedSimplexNoiseParams> };
 
+// Due to Leva controls limitation:
+// 1) keep default colors in HSLA format to keep alpha channel
+// 2) don't use decimal values on HSL values (to avoid button highlight bug)
+
 export const defaultPreset: SteppedSimplexNoisePreset = {
   name: 'Default',
   params: {
-    // Note: Keep default colors in HSLA format so that our Leva controls show a transparency channel (rgba and hex8 do not work)
-    // And don't use decimal values or highlights won't work, because the values get rounded and highlights need an exact match.
     scale: 1,
     speed: 0.15,
     seed: 0,
@@ -93,8 +95,6 @@ export const SteppedSimplexNoise = (props: SteppedSimplexNoiseProps): JSX.Elemen
   const uniforms: SteppedSimplexNoiseUniforms = useMemo(() => {
     return {
       u_scale: props.scale ?? defaultPreset.params.scale,
-      u_speed: props.speed ?? defaultPreset.params.speed,
-      u_seed: props.seed ?? defaultPreset.params.seed,
       u_color1: getShaderColorFromString(props.color1, defaultPreset.params.color1),
       u_color2: getShaderColorFromString(props.color2, defaultPreset.params.color2),
       u_color3: getShaderColorFromString(props.color3, defaultPreset.params.color3),
@@ -102,17 +102,7 @@ export const SteppedSimplexNoise = (props: SteppedSimplexNoiseProps): JSX.Elemen
       u_color5: getShaderColorFromString(props.color5, defaultPreset.params.color5),
       u_steps_number: props.stepsNumber ?? defaultPreset.params.stepsNumber,
     };
-  }, [
-    props.scale,
-    props.speed,
-    props.seed,
-    props.color1,
-    props.color2,
-    props.color3,
-    props.color4,
-    props.color5,
-    props.stepsNumber,
-  ]);
+  }, [props.scale, props.color1, props.color2, props.color3, props.color4, props.color5, props.stepsNumber]);
 
   return <ShaderMount {...props} fragmentShader={steppedSimplexNoiseFragmentShader} uniforms={uniforms} />;
 };

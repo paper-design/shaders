@@ -20,13 +20,13 @@ export type DotsOrbitUniforms = {
  * u_color2 - the second dots color
  * u_color3 - the third dots color
  * u_color4 - the fourth dots color
- * u_dotSize - the base dot radius (relative to cell size)
- * u_dotSizeRange: Dot radius to vary between the cells
- * u_spreading: How far dots are moving around the straight grid
+ * u_dotSize (0 .. 1) - the base dot radius (relative to cell size)
+ * u_dotSizeRange (0 .. 1) - the dot radius to vary between the cells
+ * u_spreading (0 .. 1) - the distance each dot can move around the regular grid
  */
 
 export const dotsOrbitFragmentShader = `#version 300 es
-precision mediump float;
+precision highp float;
 
 uniform float u_time;
 uniform float u_pixelRatio;
@@ -62,7 +62,7 @@ vec3 get_voronoi_shape(vec2 _uv, float time) {
     for (int x = -1; x <= 1; x++) {
       vec2 tile_offset = vec2(float(x), float(y));
       vec2 rand = random2(i_uv + tile_offset);
-      vec2 cell_center = .50000001 + u_spreading * sin(time + TWO_PI * rand);
+      vec2 cell_center = .5 + 1e-4 + .25 * clamp(u_spreading, 0., 1.) * sin(time + TWO_PI * rand);
       float dist = length(tile_offset + cell_center - f_uv);
       if (dist < min_dist) {
         min_dist = dist;
@@ -89,7 +89,7 @@ void main() {
 
   vec3 voronoi = get_voronoi_shape(uv, t) + 1e-4;
 
-  float radius = u_dotSize - u_dotSizeRange * voronoi[2];
+  float radius = .25 * clamp(u_dotSize, 0., 1.) - .5 * clamp(u_dotSizeRange, 0., 1.) * voronoi[2];
   float dist = voronoi[0];
   float edge_width = fwidth(dist);
   float shape = smoothstep(radius + edge_width, radius - edge_width, dist);

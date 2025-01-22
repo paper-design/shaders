@@ -1,6 +1,6 @@
 'use client';
 
-import {GrainClouds, type GrainCloudsParams, grainCloudsPresets, NeuroNoise} from '@paper-design/shaders-react';
+import { GrainClouds, type GrainCloudsParams, grainCloudsPresets, NeuroNoise } from '@paper-design/shaders-react';
 import { button, folder, useControls } from 'leva';
 import { setParamsSafe, useResetLevaParams } from '@/helpers/use-reset-leva-params';
 import { usePresetHighlight } from '@/helpers/use-preset-highlight';
@@ -13,18 +13,17 @@ import { BackButton } from '@/components/back-button';
  */
 const GrainCloudsExample = () => {
   return (
-      <GrainClouds
-          scale={1}
-          speed={.2}
-          seed={0}
-          colorBack="#000000"
-          colorFront="#ffffff"
-          grainAmount={1.3}
-          style={{position: 'fixed', width: '100%', height: '100%'}}
-      />
+    <GrainClouds
+      scale={1}
+      speed={0.2}
+      seed={0}
+      colorBack="#000000"
+      colorFront="#ffffff"
+      grainAmount={.5}
+      style={{ position: 'fixed', width: '100%', height: '100%' }}
+    />
   );
 };
-
 
 /**
  * This example has controls added so you can play with settings in the example app

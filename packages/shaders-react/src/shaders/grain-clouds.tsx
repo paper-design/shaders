@@ -13,17 +13,19 @@ export type GrainCloudsProps = Omit<ShaderMountProps, 'fragmentShader'> & GrainC
 
 type GrainCloudsPreset = { name: string; params: Required<GrainCloudsParams> };
 
+// Due to Leva controls limitation:
+// 1) keep default colors in HSLA format to keep alpha channel
+// 2) don't use decimal values on HSL values (to avoid button highlight bug)
+
 export const defaultPreset: GrainCloudsPreset = {
   name: 'Default',
   params: {
     scale: 1,
     speed: 0.3,
     seed: 0,
-    // Note: Keep default colors in HSLA format so that our Leva controls show a transparency channel (rgba and hex8 do not work)
-    // And don't use decimal values or highlights won't work, because the values get rounded and highlights need an exact match.
     color1: 'hsla(0, 0%, 0%, 1)',
     color2: 'hsla(0, 0%, 100%, 1)',
-    grainAmount: 0.9,
+    grainAmount: 1,
   },
 };
 
@@ -45,12 +47,11 @@ export const GrainClouds = (props: GrainCloudsProps): JSX.Element => {
   const uniforms: GrainCloudsUniforms = useMemo(() => {
     return {
       u_scale: props.scale ?? defaultPreset.params.scale,
-      u_seed: props.seed ?? defaultPreset.params.seed,
       u_color1: getShaderColorFromString(props.color1, defaultPreset.params.color1),
       u_color2: getShaderColorFromString(props.color2, defaultPreset.params.color2),
       u_grainAmount: props.grainAmount ?? defaultPreset.params.grainAmount,
     };
-  }, [props.scale, props.seed, props.color1, props.color2, props.grainAmount]);
+  }, [props.scale, props.color1, props.color2, props.grainAmount]);
 
   return <ShaderMount {...props} fragmentShader={grainCloudsFragmentShader} uniforms={uniforms} />;
 };

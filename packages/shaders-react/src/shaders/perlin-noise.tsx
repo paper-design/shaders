@@ -17,10 +17,13 @@ export type PerlinNoiseProps = Omit<ShaderMountProps, 'fragmentShader'> & Perlin
 
 type PerlinNoisePreset = { name: string; params: Required<PerlinNoiseParams> };
 
+// Due to Leva controls limitation:
+// 1) keep default colors in HSLA format to keep alpha channel
+// 2) don't use decimal values on HSL values (to avoid button highlight bug)
+
 export const defaultPreset: PerlinNoisePreset = {
   name: 'Default',
   params: {
-    // Note: Keep default colors in HSLA format so that our Leva controls show a transparency channel (rgba and hex8 do not work)
     scale: 1,
     speed: 0.5,
     seed: 0,
@@ -37,7 +40,6 @@ export const defaultPreset: PerlinNoisePreset = {
 export const preset1: PerlinNoisePreset = {
   name: 'Nintendo Water',
   params: {
-    // Note: Keep default colors in HSLA format so that our Leva controls show a transparency channel (rgba and hex8 do not work)
     scale: 0.2,
     speed: 0.5,
     seed: 0,
@@ -54,7 +56,6 @@ export const preset1: PerlinNoisePreset = {
 export const preset2: PerlinNoisePreset = {
   name: 'Colony',
   params: {
-    // Note: Keep default colors in HSLA format so that our Leva controls show a transparency channel (rgba and hex8 do not work)
     scale: 0.15,
     speed: 0,
     seed: 0,
@@ -71,7 +72,6 @@ export const preset2: PerlinNoisePreset = {
 export const preset3: PerlinNoisePreset = {
   name: 'Phosphenes',
   params: {
-    // Note: Keep default colors in HSLA format so that our Leva controls show a transparency channel (rgba and hex8 do not work)
     scale: 0.03,
     speed: 0.15,
     seed: 0,
@@ -88,7 +88,6 @@ export const preset3: PerlinNoisePreset = {
 export const preset4: PerlinNoisePreset = {
   name: 'Moss',
   params: {
-    // Note: Keep default colors in HSLA format so that our Leva controls show a transparency channel (rgba and hex8 do not work)
     scale: 0.15,
     speed: 0.02,
     seed: 0,
@@ -105,7 +104,6 @@ export const preset4: PerlinNoisePreset = {
 export const preset5: PerlinNoisePreset = {
   name: 'Worms',
   params: {
-    // Note: Keep default colors in HSLA format so that our Leva controls show a transparency channel (rgba and hex8 do not work)
     scale: 2,
     speed: 0,
     seed: 0,
@@ -135,7 +133,6 @@ export const PerlinNoise = (props: PerlinNoiseProps): JSX.Element => {
     };
   }, [
     props.scale,
-    props.seed,
     props.color1,
     props.color2,
     props.proportion,

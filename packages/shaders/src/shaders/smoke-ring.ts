@@ -13,12 +13,12 @@ export type SmokeRingUniforms = {
  * polar coordinates masked with ring shape
  *
  * Uniforms include:
- * u_scale: The scale of uv coordinates: with scale = 1 the ring fits the screen height
- * u_colorBack: The background color of the scene
- * u_colorInner: The inner color of the ring gradient
- * u_colorOuter: The outer color of the ring gradient
- * u_noiseScale: The resolution of noise texture
- * u_thickness: The thickness of the ring
+ * u_scale - the scale applied to user space: with scale = 1 the ring fits the screen height
+ * u_colorBack - the background color of the scene
+ * u_colorInner - the inner color of the ring gradient
+ * u_colorOuter - the outer color of the ring gradient
+ * u_noiseScale - the resolution of noise texture
+ * u_thickness - the thickness of the ring
  */
 
 export const smokeRingFragmentShader = `#version 300 es

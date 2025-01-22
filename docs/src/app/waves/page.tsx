@@ -43,10 +43,10 @@ const WavesWithControls = () => {
     return {
       Parameters: folder(
         {
-          scale: { value: defaults.scale, min: 0.1, max: 4 },
-          rotation: { value: defaults.rotation, min: 0, max: 1 },
           color1: { value: defaults.color1 },
           color2: { value: defaults.color2 },
+          scale: { value: defaults.scale, min: 0.1, max: 4 },
+          rotation: { value: defaults.rotation, min: 0, max: 1 },
           shape: { value: defaults.shape, min: 0, max: 3 },
           frequency: { value: defaults.frequency, min: 0, max: 2 },
           amplitude: { value: defaults.amplitude, min: 0, max: 1 },

@@ -105,7 +105,7 @@ void main() {
     for (int x = -1; x <= 1; x++) {
       vec2 tile_offset = vec2(float(x), float(y));
       vec2 o = hash(i_uv + tile_offset);
-      tile_offset += (.5 + clamp(0., .5, u_distance) * sin(t + TWO_PI * o)) - f_uv;
+      tile_offset += (.5 + clamp(u_distance, 0., .5) * sin(t + TWO_PI * o)) - f_uv;
 
       float dist = dot(tile_offset, tile_offset);
       float old_min_dist = distance.x;

@@ -21,6 +21,10 @@ export type DotsGridParams = {
   shape?: DotsGridShape;
 };
 
+// Due to Leva controls limitation:
+// 1) keep default colors in HSLA format to keep alpha channel
+// 2) don't use decimal values on HSL values (to avoid button highlight bug)
+
 export type DotsGridProps = Omit<ShaderMountProps, 'fragmentShader'> & DotsGridParams;
 
 type DotsGridPreset = { name: string; params: Required<DotsGridParams> };
@@ -28,10 +32,9 @@ type DotsGridPreset = { name: string; params: Required<DotsGridParams> };
 export const defaultPreset: DotsGridPreset = {
   name: 'Default',
   params: {
-    // Note: Keep default colors in HSLA format so that our Leva controls show a transparency channel (rgba and hex8 do not work)
-    colorBack: 'hsla(358.2, 66.1%, 48.6%, 0)',
-    colorFill: 'hsla(145.2, 30.1%, 10%, 1)',
-    colorStroke: 'hsla(39.4, 87.7%, 52.4%, 1)',
+    colorBack: 'hsla(358, 66%, 49%, 0)',
+    colorFill: 'hsla(145, 30%, 10%, 1)',
+    colorStroke: 'hsla(39, 88%, 52%, 1)',
     dotSize: 2,
     gridSpacingX: 50,
     gridSpacingY: 50,
@@ -45,7 +48,6 @@ export const defaultPreset: DotsGridPreset = {
 const trianglesPreset: DotsGridPreset = {
   name: 'Triangles',
   params: {
-    // Note: Keep default colors in HSLA format so that our Leva controls show a transparency channel (rgba and hex8 do not work)
     colorBack: 'hsla(0, 0%, 100%, 1)',
     colorFill: 'hsla(0, 0%, 100%, 1)',
     colorStroke: 'hsla(0, 0%, 0%, .5)',
@@ -62,9 +64,8 @@ const trianglesPreset: DotsGridPreset = {
 const bubblesPreset: DotsGridPreset = {
   name: 'Bubbles',
   params: {
-    // Note: Keep default colors in HSLA format so that our Leva controls show a transparency channel (rgba and hex8 do not work)
     colorBack: 'hsla(234, 100%, 31%, .5)',
-    colorFill: 'hsla(100, 30.1%, 100%, 1)',
+    colorFill: 'hsla(100, 30%, 100%, 1)',
     colorStroke: 'hsla(0, 100%, 0%, 1)',
     dotSize: 28,
     gridSpacingX: 60,
@@ -79,7 +80,6 @@ const bubblesPreset: DotsGridPreset = {
 const treeLinePreset: DotsGridPreset = {
   name: 'Tree line',
   params: {
-    // Note: Keep default colors in HSLA format so that our Leva controls show a transparency channel (rgba and hex8 do not work)
     colorBack: 'hsla(100, 100%, 36%, .05)',
     colorFill: 'hsla(150, 80%, 10%, 1)',
     colorStroke: 'hsla(0, 0%, 0%, 1)',
@@ -96,7 +96,6 @@ const treeLinePreset: DotsGridPreset = {
 const diamondsPreset: DotsGridPreset = {
   name: 'Diamonds',
   params: {
-    // Note: Keep default colors in HSLA format so that our Leva controls show a transparency channel (rgba and hex8 do not work)
     colorBack: 'hsla(0, 0%, 0%, 0)',
     colorFill: 'hsla(0, 100%, 50%, 1)',
     colorStroke: 'hsla(0, 0%, 0%, 1)',
@@ -113,7 +112,6 @@ const diamondsPreset: DotsGridPreset = {
 const wallpaperPreset: DotsGridPreset = {
   name: 'Wallpaper',
   params: {
-    // Note: Keep default colors in HSLA format so that our Leva controls show a transparency channel (rgba and hex8 do not work)
     colorBack: 'hsla(154, 33%, 19%, 1)',
     colorFill: 'hsla(0, 0%, 0%, 0)',
     colorStroke: 'hsla(36, 48%, 58%, 1)',
@@ -130,7 +128,6 @@ const wallpaperPreset: DotsGridPreset = {
 const matrixPreset: DotsGridPreset = {
   name: 'Enter the Matrix',
   params: {
-    // Note: Keep default colors in HSLA format so that our Leva controls show a transparency channel (rgba and hex8 do not work)
     colorBack: 'hsla(0, 100%, 0%, 1)',
     colorFill: 'hsla(182, 100%, 64%, 1)',
     colorStroke: 'hsla(0, 100%, 100%, 0)',
@@ -147,7 +144,6 @@ const matrixPreset: DotsGridPreset = {
 const waveformPreset: DotsGridPreset = {
   name: 'Waveform',
   params: {
-    // Note: Keep default colors in HSLA format so that our Leva controls show a transparency channel (rgba and hex8 do not work)
     colorBack: 'hsla(0, 100%, 100%, 1)',
     colorFill: 'hsla(227, 93%, 38%, 1)',
     colorStroke: 'hsla(0, 0%, 0%, 0)',
