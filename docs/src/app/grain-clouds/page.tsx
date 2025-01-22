@@ -17,8 +17,8 @@ const GrainCloudsExample = () => {
       scale={1}
       speed={0.2}
       seed={0}
-      colorBack="#000000"
-      colorFront="#ffffff"
+      color1="#000000"
+      color2="#ffffff"
       grainAmount={.5}
       style={{ position: 'fixed', width: '100%', height: '100%' }}
     />

@@ -47,14 +47,7 @@ export const homeShaders = [
     url: '/stepped-simplex-noise',
     ShaderComponent: SteppedSimplexNoise,
     shaderConfig: {
-      color1: '#56758f',
-      color2: '#91be6f',
-      color3: '#f94346',
-      color4: '#f9c54e',
-      color5: '#ffffff',
-      scale: 0.5,
-      speed: 0.25,
-      stepsNumber: 13,
+
     } satisfies SteppedSimplexNoiseParams,
   },
   {
@@ -63,11 +56,6 @@ export const homeShaders = [
     url: '/grain-clouds',
     ShaderComponent: GrainClouds,
     shaderConfig: {
-      color1: '#73a6ff',
-      color2: '#ffffff',
-      scale: 0.15,
-      grainAmount: 0,
-      speed: 0.3,
     } satisfies GrainCloudsParams,
   },
   {
@@ -75,14 +63,18 @@ export const homeShaders = [
     image: meshGradientImg,
     url: '/mesh-gradient',
     ShaderComponent: MeshGradient,
-    shaderConfig: { speed: 0.2 } satisfies MeshGradientParams,
+    shaderConfig: {
+
+    } satisfies MeshGradientParams,
   },
   {
     name: 'neuro noise',
     image: neuroNoiseImg,
     url: '/neuro-noise',
     ShaderComponent: NeuroNoise,
-    shaderConfig: { scale: 0.4 } satisfies NeuroNoiseParams,
+    shaderConfig: {
+
+    } satisfies NeuroNoiseParams,
   },
   {
     name: 'dot orbit',
@@ -90,15 +82,7 @@ export const homeShaders = [
     url: '/dots-orbit',
     ShaderComponent: DotsOrbit,
     shaderConfig: {
-      color1: '#cf2a30',
-      color2: '#396a4e',
-      color3: '#f0a519',
-      color4: '#5d3f73',
-      dotSize: 0.14,
-      dotSizeRange: 0.05,
-      scale: 0.9,
-      speed: 2,
-      spreading: 0.25,
+
     } satisfies DotsOrbitParams,
   },
   {
@@ -107,12 +91,7 @@ export const homeShaders = [
     url: '/smoke-ring',
     ShaderComponent: SmokeRing,
     shaderConfig: {
-      colorBack: '#3d84ff',
-      color1: '#ffffff',
-      color2: '#ffffff',
-      speed: 1,
-      thickness: 0.7,
-      noiseScale: 1.8,
+
     } satisfies SmokeRingParams,
   },
   {
@@ -121,14 +100,7 @@ export const homeShaders = [
     url: '/metaballs',
     ShaderComponent: Metaballs,
     shaderConfig: {
-      color1: '#f42547',
-      color2: '#eb4763',
-      color3: '#f49d71',
-      scale: 7,
-      speed: 0.6,
-      dotSize: 1,
-      visibilityRange: 0.4,
-      seed: 0,
+
     } satisfies MetaballsParams,
   },
   {
@@ -136,16 +108,7 @@ export const homeShaders = [
     url: '/dots-grid',
     ShaderComponent: DotsGrid,
     shaderConfig: {
-      colorBack: '#ffffff',
-      colorFill: '#121212',
-      colorStroke: '#f0a519',
-      dotSize: 2,
-      gridSpacingX: 22,
-      gridSpacingY: 22,
-      strokeWidth: 0,
-      sizeRange: 0,
-      opacityRange: 0,
-      shape: DotsGridShapes.Circle,
+
     } satisfies DotsGridParams,
   },
   {
@@ -153,20 +116,7 @@ export const homeShaders = [
     url: '/voronoi',
     ShaderComponent: Voronoi,
     shaderConfig: {
-      color1: '#ffffff',
-      color2: '#ffffff',
-      color3: '#000000',
-      colorEdges: '#000000',
-      colorMid: '#000000',
-      colorGradient: 1,
-      scale: 3,
-      distance: 0.45,
-      edgesSize: 0.02,
-      edgesSharpness: 0.07,
-      middleSize: 0,
-      middleSharpness: 0,
-      speed: 0.8,
-      seed: 0,
+
     } satisfies VoronoiParams,
   },
   {
