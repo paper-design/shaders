@@ -1,12 +1,12 @@
 export type PerlinNoiseUniforms = {
+  u_scale: number;
   u_color1: [number, number, number, number];
   u_color2: [number, number, number, number];
-  u_scale: number;
+  u_proportion: number;
+  u_contour: number;
   u_octaveCount: number;
   u_persistence: number;
   u_lacunarity: number;
-  u_contour: number;
-  u_proportion: number;
 };
 
 /**
@@ -14,32 +14,34 @@ export type PerlinNoiseUniforms = {
  * Based on https://www.shadertoy.com/view/NlSGDz
  *
  * Uniforms include:
- * u_color1: The first (background) color
- * u_color2: The second color
- * u_scale: The scale applied to coordinates
- * u_octaveCount: Number of octaves for Perlin noise. Higher values increase the complexity of the noise
- * u_persistence: Controls the amplitude of each successive octave in Perlin noise. Lower values make higher octaves less pronounced
- * u_lacunarity: Controls the frequency of each successive octave in Perlin noise. Higher values increase the detail
- * u_proportion: Adjusts the brightness of the noise, shifting the perceived balance between u_color1 and u_color2
- * u_contour: Controls the sharpness of the transition between u_color1 and u_color2 in the noise output. Values close to 1 make the transition sharper
- *
+ * u_scale - the scale applied to user space
+ * u_color1 - the first mixed color
+ * u_color2 - the second mixed color
+ * u_proportion (0 .. 1) - the proportion between u_color1 and u_color2;
+ * u_contour - the sharpness of the transition between u_color1 and u_color2 in the noise output
+ * u_octaveCount - the number of octaves for Perlin noise;
+ *    higher values increase the complexity of the noise
+ * u_persistence (0 .. 1) - the amplitude of each successive octave of the noise;
+ *    lower values make higher octaves less pronounced
+ * u_lacunarity - the frequency of each successive octave of the noise;
+ *    higher values increase the detail
  */
 
 export const perlinNoiseFragmentShader = `#version 300 es
 precision highp float;
 
-uniform vec4 u_color1;
-uniform vec4 u_color2;
-uniform float u_scale;
-uniform float u_octaveCount;
-uniform float u_persistence;
-uniform float u_lacunarity;
-uniform float u_proportion;
-uniform float u_contour;
-
 uniform float u_time;
 uniform float u_pixelRatio;
 uniform vec2 u_resolution;
+
+uniform float u_scale;
+uniform vec4 u_color1;
+uniform vec4 u_color2;
+uniform float u_proportion;
+uniform float u_contour;
+uniform float u_octaveCount;
+uniform float u_persistence;
+uniform float u_lacunarity;
 
 out vec4 fragColor;
 
@@ -190,11 +192,13 @@ void main() {
         
     vec3 p = vec3(uv, t);
     
-    float noise = p_noise(p, int(floor(u_octaveCount)), u_persistence, u_lacunarity);
+    float oct_count = max(0., floor(u_octaveCount));
+    float persistence = clamp(u_persistence, 0., 1.);
+    float noise = p_noise(p, int(oct_count), persistence, u_lacunarity);
     
-    float max_amp = get_max_amp(u_persistence, u_octaveCount);
+    float max_amp = get_max_amp(persistence, oct_count);
     float noise_normalized = (noise + max_amp) / (2. * max_amp) + (u_proportion - .5);
-    float sharpness = 1. - u_contour;
+    float sharpness = clamp(1. - u_contour, 0., 1.);
     float smooth_w = 0.5 * fwidth(noise_normalized);
     float sharp_noise = smoothstep(
         .5 - .5 * sharpness - smooth_w, 

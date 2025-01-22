@@ -1,6 +1,6 @@
 'use client';
 
-import { PerlinNoise, type PerlinNoiseParams, perlinNoisePresets } from '@paper-design/shaders-react';
+import { PerlinNoise, type PerlinNoiseParams, perlinNoisePresets, SmokeRing } from '@paper-design/shaders-react';
 import { useControls, button, folder } from 'leva';
 import { setParamsSafe, useResetLevaParams } from '@/helpers/use-reset-leva-params';
 import { usePresetHighlight } from '@/helpers/use-preset-highlight';
@@ -10,18 +10,23 @@ import { BackButton } from '@/components/back-button';
 /**
  * You can copy/paste this example to use PerlinNoise in your app
  */
-// <PerlinNoise
-//     color1="#577590"
-//     color2="#90BE6D"
-//     scale={1}
-//     speed={1}
-//     octaveCount={10}
-//     persistence={0.5}
-//     lacunarity={2}
-//     contour={.5}
-//     proportion={.5}
-//     style={{position: 'fixed', width: '100%', height: '100%'}}
-// />
+const PerlinNoiseExample = () => {
+  return (
+    <PerlinNoise
+      scale={1}
+      speed={0.5}
+      seed={0}
+      color1="#262626"
+      color2="#bde6ff"
+      proportion={0.34}
+      contour={0.9}
+      octaveCount={2}
+      persistence={1}
+      lacunarity={1.5}
+      style={{ position: 'fixed', width: '100%', height: '100%' }}
+    />
+  );
+};
 
 /**
  * This example has controls added so you can play with settings in the example app
@@ -36,22 +41,19 @@ const PerlinNoiseWithControls = () => {
     );
 
     return {
-      Parameters: folder(
-        {
-          color1: { value: defaults.color1, order: 1 },
-          color2: { value: defaults.color2, order: 2 },
-          speed: { value: defaults.speed, order: 3, min: 0, max: 0.5 },
-          seed: { value: defaults.seed, order: 4, min: 0, max: 9999 },
-          scale: { value: defaults.scale, order: 5, min: 0, max: 2 },
-          octaveCount: { value: defaults.octaveCount, order: 6, min: 1, step: 1, max: 8 },
-          persistence: { value: defaults.persistence, order: 7, min: 0.3, max: 1 },
-          lacunarity: { value: defaults.lacunarity, order: 8, min: 1.5, max: 3 },
-          contour: { value: defaults.contour, order: 9, min: 0, max: 1 },
-          proportion: { value: defaults.contour, order: 10, min: 0, max: 1 },
-        },
-        { order: 1 }
-      ),
-      Presets: folder(presets, { order: 2 }),
+      Parameters: folder({
+        color1: { value: defaults.color1 },
+        color2: { value: defaults.color2 },
+        scale: { value: defaults.scale, min: 0, max: 2 },
+        speed: { value: defaults.speed, min: 0, max: 0.5 },
+        seed: { value: defaults.seed, min: 0, max: 9999 },
+        proportion: { value: defaults.contour, min: 0, max: 1 },
+        contour: { value: defaults.contour, min: 0, max: 1 },
+        octaveCount: { value: defaults.octaveCount, min: 1, max: 8, step: 1 },
+        persistence: { value: defaults.persistence, min: 0.3, max: 1 },
+        lacunarity: { value: defaults.lacunarity, min: 1.5, max: 10 },
+      }),
+      Presets: folder(presets),
     };
   });
 
