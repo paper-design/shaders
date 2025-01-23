@@ -15,10 +15,10 @@ export const usePresetHighlight = (presets: Record<string, any>[], levaParams: R
               : value;
 
           if (key === 'speed') {
-            return presetValue === (levaParams.reverse ? -levaValue : levaValue);
+            return presetValue === levaValue * (levaParams.reverse ? -1 : 1);
           }
 
-          return levaValue === presetValue;
+          return presetValue === levaValue;
         });
       });
 
