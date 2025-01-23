@@ -8,6 +8,7 @@ export type WarpParams = {
   color2?: string;
   color3?: string;
   proportion?: number;
+  gradient?: number;
   distortion?: number;
   swirl?: number;
   swirlIterations?: number;
@@ -31,6 +32,7 @@ export const defaultPreset: WarpPreset = {
     color2: 'hsla(203, 80%, 70%, 1)',
     color3: 'hsla(0, 0%, 100%, 1)',
     proportion: 0.5,
+    gradient: 1,
     distortion: 1,
     swirl: 0.9,
     swirlIterations: 10,
@@ -47,6 +49,7 @@ export const Warp = (props: WarpProps): JSX.Element => {
       u_color2: getShaderColorFromString(props.color2, defaultPreset.params.color2),
       u_color3: getShaderColorFromString(props.color3, defaultPreset.params.color2),
       u_proportion: props.proportion ?? defaultPreset.params.proportion,
+      u_gradient: props.gradient ?? defaultPreset.params.gradient,
       u_distortion: props.distortion ?? defaultPreset.params.distortion,
       u_swirl: props.swirl ?? defaultPreset.params.swirl,
       u_swirlIterations: props.swirlIterations ?? defaultPreset.params.swirlIterations,
@@ -57,6 +60,7 @@ export const Warp = (props: WarpProps): JSX.Element => {
     props.color2,
     props.color3,
     props.proportion,
+    props.gradient,
     props.distortion,
     props.swirl,
     props.swirlIterations,

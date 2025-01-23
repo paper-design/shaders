@@ -4,6 +4,7 @@ export type WarpUniforms = {
   u_color2: [number, number, number, number];
   u_color3: [number, number, number, number];
   u_proportion: number;
+  u_gradient: number;
   u_distortion: number;
   u_swirl: number;
   u_swirlIterations: number;
@@ -36,6 +37,7 @@ uniform vec4 u_color1;
 uniform vec4 u_color2;
 uniform vec4 u_color3;
 uniform float u_proportion;
+uniform float u_gradient;
 uniform float u_distortion;
 uniform float u_swirl;
 uniform float u_swirlIterations;
@@ -59,12 +61,12 @@ float noise(vec2 st) {
   return mix(a, b, u.x) + (c - a) * u.y * (1.0 - u.x) + (d - b) * u.x * u.y;
 }
 
-vec4 blend_colors(vec4 c1, vec4 c2, vec4 c3, float mixer) {
+vec4 blend_colors(vec4 c1, vec4 c2, vec4 c3, float mixer, float contrast) {
     vec3 color1 = c1.rgb * c1.a;
     vec3 color2 = c2.rgb * c2.a;
     vec3 color3 = c3.rgb * c3.a;
-    float r1 = smoothstep(.0, .7, mixer);
-    float r2 = smoothstep(.3, 1., mixer);
+    float r1 = smoothstep(.0 + .35 * contrast, .7 - .35 * contrast, mixer);
+    float r2 = smoothstep(.3 + .35 * contrast, 1. - .35 * contrast, mixer);
     vec3 blended_color_2 = mix(color1, color2, r1);
     float blended_opacity_2 = mix(c1.a, c2.a, r1);
     vec3 c = mix(blended_color_2, color3, r2);
@@ -96,7 +98,7 @@ void main() {
     float shape = .5 + .5 * sin(uv.x) * cos(uv.y);
     shape = pow(shape, 1e-2 + 2.5 * max(0., u_proportion));
     
-    vec4 color_mix = blend_colors(u_color1, u_color2, u_color3, shape);
+    vec4 color_mix = blend_colors(u_color1, u_color2, u_color3, shape, (1. - u_gradient));
     
     fragColor = vec4(color_mix.rgb, color_mix.a);
 }

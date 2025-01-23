@@ -19,6 +19,7 @@ const WarpExample = () => {
       color2="#75c1f0"
       color3="#ffffff"
       proportion={0.5}
+      gradient={0}
       distortion={1}
       swirl={0.9}
       swirlIterations={10}
@@ -45,6 +46,7 @@ const WarpWithControls = () => {
         color2: { value: defaults.color2 },
         color3: { value: defaults.color3 },
         proportion: { value: defaults.proportion, min: 0, max: 1 },
+        gradient: { value: defaults.gradient, min: 0, max: 1 },
         scale: { value: defaults.scale, min: 0, max: 2 },
         speed: { value: defaults.speed, min: 0, max: 2 },
         seed: { value: defaults.seed, min: 0, max: 9999 },
