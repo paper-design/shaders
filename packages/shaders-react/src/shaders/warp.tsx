@@ -43,11 +43,11 @@ export const defaultPreset: WarpPreset = {
     color3: 'hsla(0, 0%, 100%, 1)',
     proportion: 0.5,
     softness: 1,
-    distortion: 0,
-    swirl: 0,
+    distortion: .3,
+    swirl: .65,
     swirlIterations: 10,
-    shapeScale: .5,
-    shape: PatternShapes.Stripes,
+    shapeScale: .1,
+    shape: PatternShapes.Checks,
   },
 };
 

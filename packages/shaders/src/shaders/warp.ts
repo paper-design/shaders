@@ -101,7 +101,7 @@ void main() {
     float t = .5 * u_time;
 
     uv -= .5;
-    uv *= (.005 * u_scale * u_resolution);
+    uv *= (.004 * u_scale * u_resolution);
     uv = rotate(uv, u_rotation * .5 * PI);
     uv /= u_pixelRatio;
     uv += .5;
@@ -139,7 +139,7 @@ void main() {
       float stripes_shape = smoothstep(.0, .65, f) * smoothstep(1., .35, f);
       shape = pow(stripes_shape, .1 + 2. * max(0., u_proportion));
     } else {
-      shape = 10. * (.01 + u_proportion) * uv.y / (.005 * u_resolution.y) + .2;
+      shape = 10. * (.01 + u_proportion) * uv.y / (.004 * u_resolution.y) + .2;
     } 
 
     vec4 color_mix = blend_colors(u_color1, u_color2, u_color3, shape, clamp(1. - u_softness, 0., 1.));
