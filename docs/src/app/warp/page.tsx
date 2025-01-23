@@ -24,7 +24,6 @@ const WarpExample = () => {
       distortion={1}
       swirl={0.9}
       swirlIterations={10}
-      patternScale={0}
       style={{ position: 'fixed', width: '100%', height: '100%' }}
     />
   );
