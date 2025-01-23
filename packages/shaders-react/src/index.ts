@@ -73,7 +73,7 @@ export { type VoronoiUniforms } from '@paper-design/shaders';
 export { Warp, warpPresets } from './shaders/warp';
 export { type WarpProps } from './shaders/warp';
 export { type WarpParams } from './shaders/warp';
-export { type WarpUniforms } from '@paper-design/shaders';
+export { type WarpUniforms, PatternShapes, type PatternShape } from '@paper-design/shaders';
 
 // ----- Uniform conversion utils ----- //
 export { getShaderColorFromString } from '@paper-design/shaders';

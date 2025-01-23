@@ -6,6 +6,7 @@ import { setParamsSafe, useResetLevaParams } from '@/helpers/use-reset-leva-para
 import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import Link from 'next/link';
 import { BackButton } from '@/components/back-button';
+import { PatternShape, PatternShapes } from '@paper-design/shaders';
 
 /**
  * You can copy/paste this example to use Warp in your app
@@ -19,10 +20,11 @@ const WarpExample = () => {
       color2="#75c1f0"
       color3="#ffffff"
       proportion={0.5}
-      gradient={0}
+      softness={1}
       distortion={1}
       swirl={0.9}
       swirlIterations={10}
+      patternScale={0}
       style={{ position: 'fixed', width: '100%', height: '100%' }}
     />
   );
@@ -45,14 +47,16 @@ const WarpWithControls = () => {
         color1: { value: defaults.color1 },
         color2: { value: defaults.color2 },
         color3: { value: defaults.color3 },
+        scale: {value: defaults.scale, min: 0, max: 2},
         proportion: { value: defaults.proportion, min: 0, max: 1 },
-        gradient: { value: defaults.gradient, min: 0, max: 1 },
-        scale: { value: defaults.scale, min: 0, max: 2 },
+        softness: { value: defaults.softness, min: 0, max: 1 },
         speed: { value: defaults.speed, min: 0, max: 2 },
-        seed: { value: defaults.seed, min: 0, max: 9999 },
         distortion: { value: defaults.distortion, min: 0, max: 3 },
         swirl: { value: defaults.swirl, min: 0, max: 1 },
         swirlIterations: { value: defaults.swirlIterations, min: 0, max: 20 },
+        shape: { value: defaults.shape, options: PatternShapes },
+        shapeScale: {value: defaults.shapeScale, min: 0, max: 1},
+        rotation: {value: defaults.rotation, min: 0, max: 2},
       }),
       Presets: folder(presets),
     };

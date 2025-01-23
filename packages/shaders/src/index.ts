@@ -46,7 +46,7 @@ export { wavesFragmentShader, type WavesUniforms } from './shaders/waves';
 
 // ----- Warping Distortion ----- //
 /** Voronoi diagram: classic + rounded edges */
-export { warpFragmentShader, type WarpUniforms } from './shaders/warp';
+export { warpFragmentShader, PatternShapes, type PatternShape, type WarpUniforms } from './shaders/warp';
 
 // ----- Uniform conversion utils ----- //
 export { getShaderColorFromString } from './get-shader-color-from-string';

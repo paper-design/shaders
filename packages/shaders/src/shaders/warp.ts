@@ -1,13 +1,25 @@
+export const PatternShapes = {
+  Checks: 0,
+  ChecksMoving: 1,
+  Stripes: 2,
+  StripesMoving: 3,
+  Edges: 4,
+} as const;
+export type PatternShape = (typeof PatternShapes)[keyof typeof PatternShapes];
+
 export type WarpUniforms = {
   u_scale: number;
   u_color1: [number, number, number, number];
   u_color2: [number, number, number, number];
   u_color3: [number, number, number, number];
   u_proportion: number;
-  u_gradient: number;
+  u_softness: number;
   u_distortion: number;
   u_swirl: number;
   u_swirlIterations: number;
+  u_rotation: number;
+  u_shapeScale: number;
+  u_shape: PatternShape;
 };
 
 /**
@@ -37,15 +49,23 @@ uniform vec4 u_color1;
 uniform vec4 u_color2;
 uniform vec4 u_color3;
 uniform float u_proportion;
-uniform float u_gradient;
+uniform float u_softness;
 uniform float u_distortion;
 uniform float u_swirl;
 uniform float u_swirlIterations;
 
+uniform float u_rotation;
+uniform float u_shapeScale;
+uniform float u_shape;
 
 out vec4 fragColor;
 
 #define TWO_PI 6.28318530718
+#define PI 3.14159265358979323846
+
+vec2 rotate(vec2 uv, float th) {
+  return mat2(cos(th), sin(th), -sin(th), cos(th)) * uv;
+}
 
 float random(vec2 st) {
   return fract(sin(dot(st.xy, vec2(12.9898, 78.233))) * 43758.5453123);
@@ -76,13 +96,16 @@ vec4 blend_colors(vec4 c1, vec4 c2, vec4 c3, float mixer, float contrast) {
 
 void main() {
     vec2 uv = gl_FragCoord.xy / u_resolution.xy;
+    vec2 uv_original = uv;
+    
     float t = .5 * u_time;
 
     uv -= .5;
-    uv *= (.01 * u_scale * u_resolution);
+    uv *= (.005 * u_scale * u_resolution);
+    uv = rotate(uv, u_rotation * .5 * PI);
     uv /= u_pixelRatio;
     uv += .5;
-    
+        
     float n1 = noise(uv * 1. + t);
     float n2 = noise(uv * 2. - t);
     float angle = n1 * TWO_PI;
@@ -95,10 +118,31 @@ void main() {
         uv.y += clamp(u_swirl, 0., 2.) / i * cos(t + i * 1. * uv.x);
     }
     
-    float shape = .5 + .5 * sin(uv.x) * cos(uv.y);
-    shape = pow(shape, 1e-2 + 2.5 * max(0., u_proportion));
-    
-    vec4 color_mix = blend_colors(u_color1, u_color2, u_color3, shape, (1. - u_gradient));
+    float shape = 0.;
+    if (u_shape < 1.5) {
+      vec2 checks_shape_uv = vec2(0.);
+      if (u_shape < .5) {
+        checks_shape_uv = uv * 3. * (.25 + u_shapeScale);
+      } else {
+        checks_shape_uv = uv * 3. * (.25 + u_shapeScale) + vec2(0., t * 5.);
+      }
+      float checks_shape = .5 + .5 * sin(checks_shape_uv.x) * cos(checks_shape_uv.y);
+      shape = pow(checks_shape, 1e-2 + 2.5 * max(0., u_proportion));
+    } else if (u_shape < 3.5) {
+      vec2 stripes_shape_uv = vec2(0.);
+      if (u_shape < 2.5) {
+        stripes_shape_uv = (uv / u_scale) * (.1 + .7 * u_shapeScale);
+      } else {
+        stripes_shape_uv = (uv / u_scale) * (.1 + .7 * u_shapeScale) + t;
+      }
+      float f = fract(stripes_shape_uv.y);
+      float stripes_shape = smoothstep(.0, .65, f) * smoothstep(1., .35, f);
+      shape = pow(stripes_shape, .1 + 2. * max(0., u_proportion));
+    } else {
+      shape = 10. * (.01 + u_proportion) * uv.y / (.005 * u_resolution.y) + .2;
+    } 
+
+    vec4 color_mix = blend_colors(u_color1, u_color2, u_color3, shape, clamp(1. - u_softness, 0., 1.));
     
     fragColor = vec4(color_mix.rgb, color_mix.a);
 }
