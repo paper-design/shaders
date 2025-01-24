@@ -15,15 +15,18 @@ const WarpExample = () => {
   return (
     <Warp
       scale={1}
-      speed={1}
+      rotation={0}
+      speed={0.3}
       color1="#262626"
       color2="#75c1f0"
       color3="#ffffff"
       proportion={0.5}
       softness={1}
-      distortion={.3}
+      distortion={0.25}
       swirl={0.9}
       swirlIterations={10}
+      shapeScale={0.5}
+      shape={0}
       style={{ position: 'fixed', width: '100%', height: '100%' }}
     />
   );
@@ -46,7 +49,7 @@ const WarpWithControls = () => {
         color1: { value: defaults.color1 },
         color2: { value: defaults.color2 },
         color3: { value: defaults.color3 },
-        scale: {value: defaults.scale, min: 0, max: 2},
+        scale: { value: defaults.scale, min: 0, max: 2 },
         proportion: { value: defaults.proportion, min: 0, max: 1 },
         softness: { value: defaults.softness, min: 0, max: 1 },
         speed: { value: defaults.speed, min: 0, max: 2 },
@@ -54,8 +57,8 @@ const WarpWithControls = () => {
         swirl: { value: defaults.swirl, min: 0, max: 1 },
         swirlIterations: { value: defaults.swirlIterations, min: 0, max: 20 },
         shape: { value: defaults.shape, options: PatternShapes },
-        shapeScale: {value: defaults.shapeScale, min: 0, max: 1},
-        rotation: {value: defaults.rotation, min: 0, max: 2},
+        shapeScale: { value: defaults.shapeScale, min: 0, max: 1 },
+        rotation: { value: defaults.rotation, min: 0, max: 2 },
       }),
       Presets: folder(presets),
     };
