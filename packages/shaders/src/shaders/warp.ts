@@ -7,17 +7,17 @@ export type PatternShape = (typeof PatternShapes)[keyof typeof PatternShapes];
 
 export type WarpUniforms = {
   u_scale: number;
+  u_rotation: number;
   u_color1: [number, number, number, number];
   u_color2: [number, number, number, number];
   u_color3: [number, number, number, number];
   u_proportion: number;
   u_softness: number;
+  u_shape: PatternShape;
+  u_shapeScale: number;
   u_distortion: number;
   u_swirl: number;
   u_swirlIterations: number;
-  u_rotation: number;
-  u_shapeScale: number;
-  u_shape: PatternShape;
 };
 
 /**
@@ -25,11 +25,18 @@ export type WarpUniforms = {
  *
  * Uniforms include:
  * u_scale - the scale applied to user space
+ * u_rotation - the rotation applied to user space
  * u_color1 - the first pattern color
  * u_color2 - the second pattern color
  * u_color3 - the third pattern color
- * u_proportion (0 .. 1) - the proportion between colors (on 0.5 colors are at least contrast)
- * u_distortion - the distortion over the UV coordinate (applied before the overlapping swirl)
+ * u_proportion (0 .. 1) - the proportion between colors (on 0.5 colors are equally distributed)
+ * u_softness (0 .. 1) - the color blur (0 for pronounced edges, 1 for gradient)
+ * u_shape (0 ... 2) - the color pattern to be distorted with noise & swirl
+ *    - u_shape = 0 is checks
+ *    - u_shape = 1 is stripes
+ *    - u_shape = 2 is 2 halves of canvas (mapping the canvas height regardless of resolution)
+ * u_shapeScale - the scale of color pattern (appies over the global scaling)
+ * u_distortion - the noisy distortion over the UV coordinate (applied before the overlapping swirl)
  * u_swirl - the power of swirly distortion
  * u_swirlIterations - the number of swirl iterations (layering curves effect)
  *
@@ -43,18 +50,18 @@ uniform float u_pixelRatio;
 uniform vec2 u_resolution;
 
 uniform float u_scale;
+uniform float u_rotation;
 uniform vec4 u_color1;
 uniform vec4 u_color2;
 uniform vec4 u_color3;
 uniform float u_proportion;
 uniform float u_softness;
+uniform float u_shape;
+uniform float u_shapeScale;
 uniform float u_distortion;
 uniform float u_swirl;
 uniform float u_swirlIterations;
 
-uniform float u_rotation;
-uniform float u_shapeScale;
-uniform float u_shape;
 
 out vec4 fragColor;
 
@@ -101,10 +108,10 @@ void main() {
     
     float t = .5 * u_time;
     
-    float scale_multiplier = .004;
+    float noise_scale = .0005 + .006 * u_scale;
 
     uv -= .5;
-    uv *= (scale_multiplier * u_scale * u_resolution);
+    uv *= (noise_scale * u_resolution);
     uv = rotate(uv, u_rotation * .5 * PI);
     uv /= u_pixelRatio;
     uv += .5;
@@ -121,27 +128,30 @@ void main() {
         uv.y += clamp(u_swirl, 0., 2.) / i * cos(t + i * 1. * uv.x);
     }
     
+    float proportion = clamp(u_proportion, 0., 1.);
+    
     float shape = 0.;
     float mixer = 0.;
     if (u_shape < .5) {
       vec2 checks_shape_uv = uv * (.5 + 3.5 * u_shapeScale);
       shape = .5 + .5 * sin(checks_shape_uv.x) * cos(checks_shape_uv.y);
-      mixer = shape + .48 * sign(u_proportion - .5) * pow(abs(u_proportion - .5), .5);
+      mixer = shape + .48 * sign(proportion - .5) * pow(abs(proportion - .5), .5);
     } else if (u_shape < 1.5) {
-      vec2 stripes_shape_uv = .25 * uv * (.5 + 3.5 * u_shapeScale);
+      vec2 stripes_shape_uv = uv * (.25 + 3. * u_shapeScale);
       float f = fract(stripes_shape_uv.y);
       shape = smoothstep(.0, .55, f) * smoothstep(1., .45, f);
-      mixer = shape + .48 * sign(u_proportion - .5) * pow(abs(u_proportion - .5), .5);
+      mixer = shape + .48 * sign(proportion - .5) * pow(abs(proportion - .5), .5);
     } else {      
       float sh = 1. - uv.y;
       sh -= .5;
-      sh /= (scale_multiplier * u_scale * u_resolution.y);
+      sh /= (noise_scale * u_resolution.y);
       sh += .5;
-      shape = smoothstep(.45 - .2 * (1. - u_shapeScale), .55 + .2 * (1. - u_shapeScale), sh + .3 * (u_proportion - .5));
+      float shape_scaling = .2 * (1. - u_shapeScale);
+      shape = smoothstep(.45 - shape_scaling, .55 + shape_scaling, sh + .3 * (proportion - .5));
       mixer = shape;
     } 
 
-    vec4 color_mix = blend_colors(u_color1, u_color2, u_color3, mixer, clamp(1. - u_softness, 0., 1.));
+    vec4 color_mix = blend_colors(u_color1, u_color2, u_color3, mixer, 1. - clamp(u_softness, 0., 1.));
     
     fragColor = vec4(color_mix.rgb, color_mix.a);
 }
