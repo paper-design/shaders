@@ -58,13 +58,13 @@ export const preset1: WarpPreset = {
     rotation: 1.62,
     speed: 1,
     seed: 0,
-    color1: 'hsla(147, 51%, 61%, 1)',
+    color1: 'hsla(100, 51%, 75%, 1)',
     color2: 'hsla(220, 39%, 32%, 1)',
     color3: 'hsla(0, 0%, 19%, 1)',
-    proportion: 1,
+    proportion: 0.64,
     softness: 0.95,
     distortion: 0.18,
-    swirl: 0.65,
+    swirl: 0.86,
     swirlIterations: 7,
     shapeScale: 0,
     shape: PatternShapes.Edge,
@@ -84,7 +84,7 @@ export const preset2: WarpPreset = {
     proportion: 0.43,
     softness: 1,
     distortion: 0.1,
-    swirl: 0.88,
+    swirl: 1,
     swirlIterations: 20,
     shapeScale: 0.5,
     shape: PatternShapes.Checks,
@@ -111,7 +111,27 @@ export const preset3: WarpPreset = {
   },
 };
 
-export const warpPresets: WarpPreset[] = [defaultPreset, preset1, preset2, preset3];
+export const preset4: WarpPreset = {
+  name: 'Preset #4',
+  params: {
+    scale: 2,
+    rotation: 1.62,
+    speed: 1,
+    seed: 0,
+    color1: 'hsla(292, 56%, 16%, 1)',
+    color2: 'hsla(216, 100%, 55%, 1)',
+    color3: 'hsla(0, 0%, 100%, 1)',
+    proportion: 0.5,
+    softness: 0.3,
+    distortion: 0,
+    swirl: 0.45,
+    swirlIterations: 1,
+    shapeScale: 0.78,
+    shape: PatternShapes.Stripes,
+  },
+};
+
+export const warpPresets: WarpPreset[] = [defaultPreset, preset1, preset2, preset3, preset4];
 
 export const Warp = (props: WarpProps): JSX.Element => {
   const uniforms: WarpUniforms = useMemo(() => {
