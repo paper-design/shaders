@@ -46,7 +46,7 @@ export const defaultPreset: WarpPreset = {
     distortion: .3,
     swirl: .65,
     swirlIterations: 10,
-    shapeScale: .1,
+    shapeScale: .5,
     shape: PatternShapes.Checks,
   },
 };

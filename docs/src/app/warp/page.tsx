@@ -6,7 +6,7 @@ import { setParamsSafe, useResetLevaParams } from '@/helpers/use-reset-leva-para
 import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import Link from 'next/link';
 import { BackButton } from '@/components/back-button';
-import { PatternShape, PatternShapes } from '@paper-design/shaders';
+import { PatternShapes } from '@paper-design/shaders';
 
 /**
  * You can copy/paste this example to use Warp in your app

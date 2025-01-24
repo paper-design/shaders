@@ -1,9 +1,7 @@
 export const PatternShapes = {
   Checks: 0,
-  ChecksMoving: 1,
-  Stripes: 2,
-  StripesMoving: 3,
-  Edges: 4,
+  Stripes: 1,
+  Edge: 2,
 } as const;
 export type PatternShape = (typeof PatternShapes)[keyof typeof PatternShapes];
 
@@ -81,14 +79,17 @@ float noise(vec2 st) {
   return mix(a, b, u.x) + (c - a) * u.y * (1.0 - u.x) + (d - b) * u.x * u.y;
 }
 
-vec4 blend_colors(vec4 c1, vec4 c2, vec4 c3, float mixer, float contrast) {
+vec4 blend_colors(vec4 c1, vec4 c2, vec4 c3, float mixer, float edgesWidth) {
     vec3 color1 = c1.rgb * c1.a;
     vec3 color2 = c2.rgb * c2.a;
     vec3 color3 = c3.rgb * c3.a;
-    float r1 = smoothstep(.0 + .35 * contrast, .7 - .35 * contrast, mixer);
-    float r2 = smoothstep(.3 + .35 * contrast, 1. - .35 * contrast, mixer);
+            
+    float r1 = smoothstep(.0 + .35 * edgesWidth, .7 - .35 * edgesWidth, mixer);
+    float r2 = smoothstep(.3 + .35 * edgesWidth, 1. - .35 * edgesWidth, mixer);
+
     vec3 blended_color_2 = mix(color1, color2, r1);
     float blended_opacity_2 = mix(c1.a, c2.a, r1);
+
     vec3 c = mix(blended_color_2, color3, r2);
     float o = mix(blended_opacity_2, c3.a, r2);
     return vec4(c, o);
@@ -99,9 +100,11 @@ void main() {
     vec2 uv_original = uv;
     
     float t = .5 * u_time;
+    
+    float scale_multiplier = .004;
 
     uv -= .5;
-    uv *= (.004 * u_scale * u_resolution);
+    uv *= (scale_multiplier * u_scale * u_resolution);
     uv = rotate(uv, u_rotation * .5 * PI);
     uv /= u_pixelRatio;
     uv += .5;
@@ -119,30 +122,26 @@ void main() {
     }
     
     float shape = 0.;
-    if (u_shape < 1.5) {
-      vec2 checks_shape_uv = vec2(0.);
-      if (u_shape < .5) {
-        checks_shape_uv = uv * 3. * (.25 + u_shapeScale);
-      } else {
-        checks_shape_uv = uv * 3. * (.25 + u_shapeScale) + vec2(0., t * 5.);
-      }
-      float checks_shape = .5 + .5 * sin(checks_shape_uv.x) * cos(checks_shape_uv.y);
-      shape = pow(checks_shape, 1e-2 + 2.5 * max(0., u_proportion));
-    } else if (u_shape < 3.5) {
-      vec2 stripes_shape_uv = vec2(0.);
-      if (u_shape < 2.5) {
-        stripes_shape_uv = (uv / u_scale) * (.1 + .7 * u_shapeScale);
-      } else {
-        stripes_shape_uv = (uv / u_scale) * (.1 + .7 * u_shapeScale) + t;
-      }
+    float mixer = 0.;
+    if (u_shape < .5) {
+      vec2 checks_shape_uv = uv * (.5 + 3.5 * u_shapeScale);
+      shape = .5 + .5 * sin(checks_shape_uv.x) * cos(checks_shape_uv.y);
+      mixer = shape + .48 * sign(u_proportion - .5) * pow(abs(u_proportion - .5), .5);
+    } else if (u_shape < 1.5) {
+      vec2 stripes_shape_uv = .25 * uv * (.5 + 3.5 * u_shapeScale);
       float f = fract(stripes_shape_uv.y);
-      float stripes_shape = smoothstep(.0, .65, f) * smoothstep(1., .35, f);
-      shape = pow(stripes_shape, .1 + 2. * max(0., u_proportion));
-    } else {
-      shape = 10. * (.01 + u_proportion) * uv.y / (.004 * u_resolution.y) + .2;
+      shape = smoothstep(.0, .55, f) * smoothstep(1., .45, f);
+      mixer = shape + .48 * sign(u_proportion - .5) * pow(abs(u_proportion - .5), .5);
+    } else {      
+      float sh = 1. - uv.y;
+      sh -= .5;
+      sh /= (scale_multiplier * u_scale * u_resolution.y);
+      sh += .5;
+      shape = smoothstep(.45 - .2 * (1. - u_shapeScale), .55 + .2 * (1. - u_shapeScale), sh + .3 * (u_proportion - .5));
+      mixer = shape;
     } 
 
-    vec4 color_mix = blend_colors(u_color1, u_color2, u_color3, shape, clamp(1. - u_softness, 0., 1.));
+    vec4 color_mix = blend_colors(u_color1, u_color2, u_color3, mixer, clamp(1. - u_softness, 0., 1.));
     
     fragColor = vec4(color_mix.rgb, color_mix.a);
 }
