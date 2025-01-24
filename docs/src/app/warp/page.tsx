@@ -21,7 +21,7 @@ const WarpExample = () => {
       color3="#ffffff"
       proportion={0.5}
       softness={1}
-      distortion={1}
+      distortion={.3}
       swirl={0.9}
       swirlIterations={10}
       style={{ position: 'fixed', width: '100%', height: '100%' }}
@@ -50,7 +50,7 @@ const WarpWithControls = () => {
         proportion: { value: defaults.proportion, min: 0, max: 1 },
         softness: { value: defaults.softness, min: 0, max: 1 },
         speed: { value: defaults.speed, min: 0, max: 2 },
-        distortion: { value: defaults.distortion, min: 0, max: 3 },
+        distortion: { value: defaults.distortion, min: 0, max: 1 },
         swirl: { value: defaults.swirl, min: 0, max: 1 },
         swirlIterations: { value: defaults.swirlIterations, min: 0, max: 20 },
         shape: { value: defaults.shape, options: PatternShapes },
