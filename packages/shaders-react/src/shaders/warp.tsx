@@ -51,7 +51,67 @@ export const defaultPreset: WarpPreset = {
   },
 };
 
-export const warpPresets: WarpPreset[] = [defaultPreset];
+export const preset1: WarpPreset = {
+  name: 'Preset #1',
+  params: {
+    scale: 0.96,
+    rotation: 1.62,
+    speed: 1,
+    seed: 0,
+    color1: 'hsla(147, 51%, 61%, 1)',
+    color2: 'hsla(220, 39%, 32%, 1)',
+    color3: 'hsla(0, 0%, 19%, 1)',
+    proportion: 1,
+    softness: 0.95,
+    distortion: 0.18,
+    swirl: 0.65,
+    swirlIterations: 7,
+    shapeScale: 0,
+    shape: PatternShapes.Edge,
+  },
+};
+
+export const preset2: WarpPreset = {
+  name: 'Preset #2',
+  params: {
+    scale: 0.3,
+    rotation: 0,
+    speed: 0.2,
+    seed: 0,
+    color1: 'hsla(70, 100%, 70%, 1)',
+    color2: 'hsla(200, 100%, 70%, 1)',
+    color3: 'hsla(0, 100%, 70%, 1)',
+    proportion: 0.43,
+    softness: 1,
+    distortion: 0.1,
+    swirl: 0.88,
+    swirlIterations: 20,
+    shapeScale: 0.5,
+    shape: PatternShapes.Checks,
+  },
+};
+
+export const preset3: WarpPreset = {
+  name: 'Preset #3',
+  params: {
+    scale: 0.26,
+    rotation: 0,
+    speed: 0.5,
+    seed: 0,
+    color1: 'hsla(0, 9%, 7%, 1)',
+    color2: 'hsla(8, 13%, 34%, 1)',
+    color3: 'hsla(5, 8%, 71%, 1)',
+    proportion: 0,
+    softness: 1,
+    distortion: 0.3,
+    swirl: 0.6,
+    swirlIterations: 10,
+    shapeScale: 0.05,
+    shape: PatternShapes.Stripes,
+  },
+};
+
+export const warpPresets: WarpPreset[] = [defaultPreset, preset1, preset2, preset3];
 
 export const Warp = (props: WarpProps): JSX.Element => {
   const uniforms: WarpUniforms = useMemo(() => {
