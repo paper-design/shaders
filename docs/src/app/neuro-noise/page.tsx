@@ -39,7 +39,7 @@ const NeuroNoiseWithControls = () => {
     return {
       Parameters: folder({
         scale: { value: defaults.scale, min: 0.3, max: 2 },
-        speed: { value: defaults.speed, min: -3, max: 3 },
+        speed: { value: defaults.speed, min: 0, max: 2 },
         colorFront: { value: defaults.colorFront },
         colorBack: { value: defaults.colorBack },
         brightness: { value: defaults.brightness, min: 0.8, max: 2 },
