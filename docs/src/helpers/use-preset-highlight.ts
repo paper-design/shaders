@@ -4,10 +4,10 @@ export const usePresetHighlight = (presets: Record<string, any>[], levaParams: R
   useEffect(() => {
     const highlightPreset = () => {
       const matchingPreset = presets.find((preset) => {
-        // We might need to remove properties present in the preset that are not changeable params in the future
-        const { ...changeableParams } = preset.params;
+        // Remove any property that should not be compared for matching
+        const { seed, ...paramsToCompare } = preset.params;
 
-        return Object.entries(changeableParams).every(([key, value]) => {
+        return Object.entries(paramsToCompare).every(([key, value]) => {
           const levaValue = levaParams[key as keyof typeof levaParams];
           const presetValue =
             typeof value === 'string' && value.startsWith('hsla') && value.endsWith(', 1)')

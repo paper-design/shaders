@@ -56,11 +56,11 @@ const SmokeRingWithControls = () => {
         colorInner: { value: levaDefaults.colorInner },
         colorOuter: { value: levaDefaults.colorOuter },
         scale: { value: levaDefaults.scale, min: 0.5, max: 1.5 },
-        speed: { value: levaDefaults.speed, min: 0, max: 4 },
-        reverse: { value: levaDefaults.reverse },
         seed: { value: levaDefaults.seed, min: 0, max: 9999 },
         noiseScale: { value: levaDefaults.noiseScale, min: 0.01, max: 5 },
         thickness: { value: levaDefaults.thickness, min: 0.1, max: 2 },
+        speed: { value: levaDefaults.speed, min: 0, max: 4 },
+        reverse: { value: levaDefaults.reverse },
       }),
       Presets: folder(presets),
     };
