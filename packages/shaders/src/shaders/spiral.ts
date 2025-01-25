@@ -1,4 +1,4 @@
-export type RadialSwirlUniforms = {
+export type SpiralUniforms = {
   u_colorBack: [number, number, number, number];
   u_colorFront: [number, number, number, number];
   u_colorStripe1: [number, number, number, number];
@@ -13,7 +13,7 @@ export type RadialSwirlUniforms = {
 };
 
 /**
- * RadialSwirl pattern
+ * Spiral pattern
  * The artwork by Ksenia Kondrashova
  * Renders a number of circular shapes with gooey effect applied
  *
@@ -21,10 +21,10 @@ export type RadialSwirlUniforms = {
  * u_colorBack: The mataball base color #1
  * u_colorStripe1: The mataball base color #2
  * u_colorStripe2: The mataball base color #3
- * u_density: The scale of uv coordinates: with scale = 1 radialSwirl fit the screen height
+ * u_density: The scale of uv coordinates: with scale = 1 spiral fit the screen height
  */
 
-export const radialSwirlFragmentShader = `#version 300 es
+export const spiralFragmentShader = `#version 300 es
 precision highp float;
 
 uniform vec4 u_colorBack;

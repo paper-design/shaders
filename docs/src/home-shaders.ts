@@ -29,8 +29,8 @@ import {
   wavesPresets,
   PerlinNoise,
   perlinNoisePresets,
-  RadialSwirl,
-  radialSwirlPresets,
+  Spiral,
+  spiralPresets,
 } from '@paper-design/shaders-react';
 import { StaticImageData } from 'next/image';
 
@@ -117,9 +117,9 @@ export const homeShaders = [
     shaderConfig: wavesPresets[0].params,
   },
   {
-    name: 'radial swirl',
-    url: '/radial-swirl',
-    ShaderComponent: RadialSwirl,
-    shaderConfig: radialSwirlPresets[0].params,
+    name: 'spiral',
+    url: '/spiral',
+    ShaderComponent: Spiral,
+    shaderConfig: spiralPresets[0].params,
   },
 ] satisfies HomeShaderConfig[];

@@ -1,8 +1,8 @@
 import { useMemo } from 'react';
 import { ShaderMount, type GlobalParams, type ShaderMountProps } from '../shader-mount';
-import { getShaderColorFromString, radialSwirlFragmentShader, type RadialSwirlUniforms } from '@paper-design/shaders';
+import { getShaderColorFromString, spiralFragmentShader, type SpiralUniforms } from '@paper-design/shaders';
 
-export type RadialSwirlParams = {
+export type SpiralParams = {
   colorBack?: string;
   colorFront?: string;
   colorStripe1?: string;
@@ -16,11 +16,11 @@ export type RadialSwirlParams = {
   noisePower?: number;
 } & GlobalParams;
 
-export type RadialSwirlProps = Omit<ShaderMountProps, 'fragmentShader'> & RadialSwirlParams;
+export type SpiralProps = Omit<ShaderMountProps, 'fragmentShader'> & SpiralParams;
 
-type RadialSwirlPreset = { name: string; params: Required<RadialSwirlParams> };
+type SpiralPreset = { name: string; params: Required<SpiralParams> };
 
-export const defaultPreset: RadialSwirlPreset = {
+export const defaultPreset: SpiralPreset = {
   name: 'Default',
   params: {
     // Note: Keep default colors in HSLA format so that our Leva controls show a transparency channel (rgba and hex8 do not work)
@@ -41,7 +41,7 @@ export const defaultPreset: RadialSwirlPreset = {
   },
 } as const;
 
-export const bubbleGumPreset: RadialSwirlPreset = {
+export const bubbleGumPreset: SpiralPreset = {
   name: 'Bubble Gum',
   params: {
     // Note: Keep default colors in HSLA format so that our Leva controls show a transparency channel (rgba and hex8 do not work)
@@ -62,7 +62,7 @@ export const bubbleGumPreset: RadialSwirlPreset = {
   },
 } as const;
 
-export const classicPreset: RadialSwirlPreset = {
+export const classicPreset: SpiralPreset = {
   name: 'Classic',
   params: {
     // Note: Keep default colors in HSLA format so that our Leva controls show a transparency channel (rgba and hex8 do not work)
@@ -83,7 +83,7 @@ export const classicPreset: RadialSwirlPreset = {
   },
 } as const;
 
-export const swampPreset: RadialSwirlPreset = {
+export const swampPreset: SpiralPreset = {
   name: 'Swamp',
   params: {
     // Note: Keep default colors in HSLA format so that our Leva controls show a transparency channel (rgba and hex8 do not work)
@@ -104,7 +104,7 @@ export const swampPreset: RadialSwirlPreset = {
   },
 } as const;
 
-export const funnelPreset: RadialSwirlPreset = {
+export const funnelPreset: SpiralPreset = {
   name: 'Funnel',
   params: {
     // Note: Keep default colors in HSLA format so that our Leva controls show a transparency channel (rgba and hex8 do not work)
@@ -125,16 +125,10 @@ export const funnelPreset: RadialSwirlPreset = {
   },
 } as const;
 
-export const radialSwirlPresets: RadialSwirlPreset[] = [
-  defaultPreset,
-  bubbleGumPreset,
-  classicPreset,
-  swampPreset,
-  funnelPreset,
-];
+export const spiralPresets: SpiralPreset[] = [defaultPreset, bubbleGumPreset, classicPreset, swampPreset, funnelPreset];
 
-export const RadialSwirl = (props: RadialSwirlProps): JSX.Element => {
-  const uniforms: RadialSwirlUniforms = useMemo(() => {
+export const Spiral = (props: SpiralProps): JSX.Element => {
+  const uniforms: SpiralUniforms = useMemo(() => {
     return {
       u_colorBack: getShaderColorFromString(props.colorBack, defaultPreset.params.colorBack),
       u_colorFront: getShaderColorFromString(props.colorFront, defaultPreset.params.colorFront),
@@ -164,5 +158,5 @@ export const RadialSwirl = (props: RadialSwirlProps): JSX.Element => {
     props.seed,
   ]);
 
-  return <ShaderMount {...props} fragmentShader={radialSwirlFragmentShader} uniforms={uniforms} />;
+  return <ShaderMount {...props} fragmentShader={spiralFragmentShader} uniforms={uniforms} />;
 };

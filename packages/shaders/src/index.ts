@@ -46,7 +46,7 @@ export { wavesFragmentShader, type WavesUniforms } from './shaders/waves';
 
 // ----- Radial Swirl ----- //
 /** Whirl animation */
-export { radialSwirlFragmentShader, type RadialSwirlUniforms } from './shaders/radial-swirl';
+export { spiralFragmentShader, type SpiralUniforms } from './shaders/spiral';
 
 // ----- Uniform conversion utils ----- //
 export { getShaderColorFromString } from './get-shader-color-from-string';

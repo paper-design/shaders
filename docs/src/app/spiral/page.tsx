@@ -1,6 +1,6 @@
 'use client';
 
-import { RadialSwirl, type RadialSwirlParams, radialSwirlPresets } from '@paper-design/shaders-react';
+import { Spiral, type SpiralParams, spiralPresets } from '@paper-design/shaders-react';
 import { useControls, button, folder } from 'leva';
 import { setParamsSafe, useResetLevaParams } from '@/helpers/use-reset-leva-params';
 import { usePresetHighlight } from '@/helpers/use-preset-highlight';
@@ -8,11 +8,11 @@ import Link from 'next/link';
 import { BackButton } from '@/components/back-button';
 
 /**
- * You can copy/paste this example to use RadialSwirl in your app
+ * You can copy/paste this example to use Spiral in your app
  */
-const RadialSwirlExample = () => {
+const SpiralExample = () => {
   return (
-    <RadialSwirl
+    <Spiral
       colorBack="#6a5496"
       colorFront="#00d03b"
       colorStripe1="#9b8ab8"
@@ -33,12 +33,12 @@ const RadialSwirlExample = () => {
  * This example has controls added so you can play with settings in the example app
  */
 
-const defaults = radialSwirlPresets[0].params;
+const defaults = spiralPresets[0].params;
 
-const RadialSwirlWithControls = () => {
+const SpiralWithControls = () => {
   const [params, setParams] = useControls(() => {
-    const presets: RadialSwirlParams = Object.fromEntries(
-      radialSwirlPresets.map((preset) => [preset.name, button(() => setParamsSafe(params, setParams, preset.params))])
+    const presets: SpiralParams = Object.fromEntries(
+      spiralPresets.map((preset) => [preset.name, button(() => setParamsSafe(params, setParams, preset.params))])
     );
     return {
       Parameters: folder(
@@ -67,16 +67,16 @@ const RadialSwirlWithControls = () => {
   // shaders when navigating (if two shaders have a colorBack param for example)
   useResetLevaParams(params, setParams, defaults);
 
-  usePresetHighlight(radialSwirlPresets, params);
+  usePresetHighlight(spiralPresets, params);
 
   return (
     <>
       <Link href="/">
         <BackButton />
       </Link>
-      <RadialSwirl {...params} style={{ position: 'fixed', width: '100%', height: '100%' }} />
+      <Spiral {...params} style={{ position: 'fixed', width: '100%', height: '100%' }} />
     </>
   );
 };
 
-export default RadialSwirlWithControls;
+export default SpiralWithControls;
