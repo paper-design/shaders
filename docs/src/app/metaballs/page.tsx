@@ -44,7 +44,6 @@ const MetaballsWithControls = () => {
         color3: { value: defaults.color3 },
         scale: { value: defaults.scale, min: 0, max: 2 },
         speed: { value: defaults.speed, min: 0, max: 1 },
-        seed: { value: defaults.seed, min: 0, max: 9999 },
         ballSize: { value: defaults.ballSize, min: 0, max: 1 },
         visibilityRange: { value: defaults.visibilityRange, min: 0.05, max: 1 },
       }),

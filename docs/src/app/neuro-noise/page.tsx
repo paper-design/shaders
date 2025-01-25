@@ -15,6 +15,7 @@ const NeuroNoiseExample = () => {
     <NeuroNoise
       scale={1}
       speed={1}
+      seed={0}
       colorBack="hsla(200, 100%, 5%, 1)"
       colorFront="hsla(200, 100%, 25%, 1)"
       brightness={1.3}
@@ -39,7 +40,6 @@ const NeuroNoiseWithControls = () => {
       Parameters: folder({
         scale: { value: defaults.scale, min: 0.3, max: 2 },
         speed: { value: defaults.speed, min: -3, max: 3 },
-        seed: { value: defaults.seed, min: 0, max: 9999 },
         colorFront: { value: defaults.colorFront },
         colorBack: { value: defaults.colorBack },
         brightness: { value: defaults.brightness, min: 0.8, max: 2 },

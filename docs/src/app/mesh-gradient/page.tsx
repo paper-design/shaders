@@ -43,7 +43,6 @@ const MeshGradientWithControls = () => {
         color3: { value: defaults.color3 },
         color4: { value: defaults.color4 },
         speed: { value: defaults.speed, min: -1, max: 1 },
-        seed: { value: defaults.seed, min: 0, max: 9999 },
       }),
       Presets: folder(presets),
     };

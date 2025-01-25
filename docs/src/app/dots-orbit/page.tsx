@@ -15,6 +15,7 @@ const DotsOrbitExample = () => {
     <DotsOrbit
       scale={1}
       speed={2}
+      seed={0}
       color1="#cf2a30"
       color2="#3b6d50"
       color3="#f0a519"

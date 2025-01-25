@@ -42,7 +42,6 @@ const GrainCloudsWithControls = () => {
         scale: { value: defaults.scale, min: 0.2, max: 1.8 },
         grainAmount: { value: defaults.grainAmount, min: 0, max: 1 },
         speed: { value: defaults.speed, min: 0, max: 2 },
-        seed: { value: defaults.seed, min: 0, max: 9999 },
       }),
       Presets: folder(presets),
     };

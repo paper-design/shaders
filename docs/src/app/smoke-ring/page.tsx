@@ -15,6 +15,7 @@ const SmokeRingExample = () => {
     <SmokeRing
       scale={1}
       speed={1}
+      seed={0}
       colorBack="#08121b"
       colorInner="#ffffff"
       colorOuter="#47a0ff"
@@ -56,7 +57,6 @@ const SmokeRingWithControls = () => {
         colorInner: { value: defaults.colorInner },
         colorOuter: { value: defaults.colorOuter },
         scale: { value: defaults.scale, min: 0.5, max: 1.5 },
-        seed: { value: defaults.seed, min: 0, max: 9999 },
         noiseScale: { value: defaults.noiseScale, min: 0.01, max: 5 },
         thickness: { value: defaults.thickness, min: 0.1, max: 2 },
         speed: { value: defaults.speed, min: 0, max: 4 },

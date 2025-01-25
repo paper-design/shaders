@@ -46,7 +46,6 @@ const PerlinNoiseWithControls = () => {
         color2: { value: defaults.color2 },
         scale: { value: defaults.scale, min: 0, max: 2 },
         speed: { value: defaults.speed, min: 0, max: 0.5 },
-        seed: { value: defaults.seed, min: 0, max: 9999 },
         proportion: { value: defaults.contour, min: 0, max: 1 },
         contour: { value: defaults.contour, min: 0, max: 1 },
         octaveCount: { value: defaults.octaveCount, min: 1, max: 8, step: 1 },
