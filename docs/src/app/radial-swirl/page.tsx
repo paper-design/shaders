@@ -17,13 +17,13 @@ const RadialSwirlExample = () => {
       colorFront="#00d03b"
       colorStripe1="#9b8ab8"
       colorStripe2="#f5d03b"
-      speed={1}
-      seed={0}
       proportion={0}
       stripe1={0.8}
       stripe2={0.8}
       noiseFreq={1}
       noisePower={0}
+      speed={1}
+      seed={0}
       style={{ position: 'fixed', width: '100%', height: '100%' }}
     />
   );
@@ -43,12 +43,10 @@ const RadialSwirlWithControls = () => {
     return {
       Parameters: folder(
         {
-          colorBack: { value: defaults.colorBack },
-          colorFront: { value: defaults.colorFront },
-          colorStripe1: { value: defaults.colorStripe1 },
-          colorStripe2: { value: defaults.colorStripe2 },
-          seed: { value: defaults.seed, min: 0, max: 9999 },
-          speed: { value: defaults.speed, min: 0, max: 1 },
+          colorBack: { value: defaults.colorBack, order: 100 },
+          colorFront: { value: defaults.colorFront, order: 101 },
+          colorStripe1: { value: defaults.colorStripe1, order: 102 },
+          colorStripe2: { value: defaults.colorStripe2, order: 103 },
           density: { value: defaults.density, min: 0, max: 2 },
           proportion: { value: defaults.proportion, min: 0, max: 1 },
           stripe1: { value: defaults.stripe1, min: 0, max: 1 },
@@ -56,6 +54,8 @@ const RadialSwirlWithControls = () => {
           focus: { value: defaults.focus, min: 0, max: 1 },
           noiseFreq: { value: defaults.noiseFreq, min: 0, max: 2 },
           noisePower: { value: defaults.noisePower, min: 0, max: 2 },
+          speed: { value: defaults.speed, min: 0, max: 1, order: 400 },
+          // Speed reverse to be added after leva-review branch merge
         },
         { order: 1 }
       ),
