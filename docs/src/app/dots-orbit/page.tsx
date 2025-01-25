@@ -13,11 +13,11 @@ import Link from 'next/link';
 const DotsOrbitExample = () => {
   return (
     <DotsOrbit
-      scale={1}
       color1="#cf2a30"
       color2="#3b6d50"
       color3="#f0a519"
       color4="#5d3e74"
+      scale={1}
       dotSize={0.7}
       dotSizeRange={0.2}
       spreading={1}
@@ -41,15 +41,15 @@ const DotsOrbitWithControls = () => {
     );
     return {
       Parameters: folder({
-        color1: { value: defaults.color1 },
-        color2: { value: defaults.color2 },
-        color3: { value: defaults.color3 },
-        color4: { value: defaults.color4 },
-        scale: { value: defaults.scale, min: 0.5, max: 2 },
-        dotSize: { value: defaults.dotSize, min: 0, max: 1 },
-        dotSizeRange: { value: defaults.dotSizeRange, min: 0, max: 1 },
-        spreading: { value: defaults.spreading, min: 0, max: 1 },
-        speed: { value: defaults.speed, min: 0, max: 6 },
+        color1: { value: defaults.color1, order: 100 },
+        color2: { value: defaults.color2, order: 101 },
+        color3: { value: defaults.color3, order: 102 },
+        color4: { value: defaults.color4, order: 103 },
+        scale: { value: defaults.scale, min: 0.5, max: 2, order: 200 },
+        dotSize: { value: defaults.dotSize, min: 0, max: 1, order: 300 },
+        dotSizeRange: { value: defaults.dotSizeRange, min: 0, max: 1, order: 301 },
+        spreading: { value: defaults.spreading, min: 0, max: 1, order: 302 },
+        speed: { value: defaults.speed, min: 0, max: 6, order: 400 },
       }),
       Presets: folder(presets),
     };
