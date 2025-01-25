@@ -30,7 +30,7 @@ const SmokeRingExample = () => {
  */
 
 const firstPresetParams = smokeRingPresets[0].params;
-const levaDefaults = {
+const defaults = {
   ...firstPresetParams,
   speed: Math.abs(firstPresetParams.speed),
   reverse: firstPresetParams.speed < 0,
@@ -52,15 +52,15 @@ const SmokeRingWithControls = () => {
     );
     return {
       Parameters: folder({
-        colorBack: { value: levaDefaults.colorBack },
-        colorInner: { value: levaDefaults.colorInner },
-        colorOuter: { value: levaDefaults.colorOuter },
-        scale: { value: levaDefaults.scale, min: 0.5, max: 1.5 },
-        seed: { value: levaDefaults.seed, min: 0, max: 9999 },
-        noiseScale: { value: levaDefaults.noiseScale, min: 0.01, max: 5 },
-        thickness: { value: levaDefaults.thickness, min: 0.1, max: 2 },
-        speed: { value: levaDefaults.speed, min: 0, max: 4 },
-        reverse: { value: levaDefaults.reverse },
+        colorBack: { value: defaults.colorBack },
+        colorInner: { value: defaults.colorInner },
+        colorOuter: { value: defaults.colorOuter },
+        scale: { value: defaults.scale, min: 0.5, max: 1.5 },
+        seed: { value: defaults.seed, min: 0, max: 9999 },
+        noiseScale: { value: defaults.noiseScale, min: 0.01, max: 5 },
+        thickness: { value: defaults.thickness, min: 0.1, max: 2 },
+        speed: { value: defaults.speed, min: 0, max: 4 },
+        reverse: { value: defaults.reverse },
       }),
       Presets: folder(presets),
     };
@@ -68,7 +68,7 @@ const SmokeRingWithControls = () => {
 
   // Reset to defaults on mount, so that Leva doesn't show values from other
   // shaders when navigating (if two shaders have a colorInner param for example)
-  useResetLevaParams(params, setParams, levaDefaults);
+  useResetLevaParams(params, setParams, defaults);
 
   usePresetHighlight(smokeRingPresets, params);
 
