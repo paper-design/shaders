@@ -52,17 +52,20 @@ const SmokeRingWithControls = () => {
       ])
     );
     return {
-      Parameters: folder({
-        colorBack: { value: defaults.colorBack, order: 100 },
-        colorInner: { value: defaults.colorInner, order: 101 },
-        colorOuter: { value: defaults.colorOuter, order: 102 },
-        scale: { value: defaults.scale, min: 0.5, max: 1.5, order: 200 },
-        noiseScale: { value: defaults.noiseScale, min: 0.01, max: 5, order: 300 },
-        thickness: { value: defaults.thickness, min: 0.1, max: 2, order: 301 },
-        speed: { value: defaults.speed, min: 0, max: 4, order: 400 },
-        reverse: { value: defaults.reverse, order: 401 },
-      }),
-      Presets: folder(presets),
+      Parameters: folder(
+        {
+          colorBack: { value: defaults.colorBack, order: 100 },
+          colorInner: { value: defaults.colorInner, order: 101 },
+          colorOuter: { value: defaults.colorOuter, order: 102 },
+          scale: { value: defaults.scale, min: 0.5, max: 1.5, order: 200 },
+          noiseScale: { value: defaults.noiseScale, min: 0.01, max: 5, order: 300 },
+          thickness: { value: defaults.thickness, min: 0.1, max: 2, order: 301 },
+          speed: { value: defaults.speed, min: 0, max: 4, order: 400 },
+          reverse: { value: defaults.reverse, order: 401 },
+        },
+        { order: 1 }
+      ),
+      Presets: folder(presets, { order: 2 }),
     };
   });
 

@@ -38,16 +38,19 @@ const MetaballsWithControls = () => {
       metaballsPresets.map((preset) => [preset.name, button(() => setParamsSafe(params, setParams, preset.params))])
     );
     return {
-      Parameters: folder({
-        color1: { value: defaults.color1, order: 100 },
-        color2: { value: defaults.color2, order: 101 },
-        color3: { value: defaults.color3, order: 102 },
-        scale: { value: defaults.scale, min: 0, max: 2, order: 200 },
-        ballSize: { value: defaults.ballSize, min: 0, max: 1, order: 300 },
-        visibilityRange: { value: defaults.visibilityRange, min: 0.05, max: 1, order: 301 },
-        speed: { value: defaults.speed, min: 0, max: 1, order: 400 },
-      }),
-      Presets: folder(presets),
+      Parameters: folder(
+        {
+          color1: { value: defaults.color1, order: 100 },
+          color2: { value: defaults.color2, order: 101 },
+          color3: { value: defaults.color3, order: 102 },
+          scale: { value: defaults.scale, min: 0, max: 2, order: 200 },
+          ballSize: { value: defaults.ballSize, min: 0, max: 1, order: 300 },
+          visibilityRange: { value: defaults.visibilityRange, min: 0.05, max: 1, order: 301 },
+          speed: { value: defaults.speed, min: 0, max: 1, order: 400 },
+        },
+        { order: 1 }
+      ),
+      Presets: folder(presets, { order: 2 }),
     };
   });
 

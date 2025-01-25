@@ -42,19 +42,22 @@ const DotsGridWithControls = () => {
       dotsGridPresets.map((preset) => [preset.name, button(() => setParamsSafe(params, setParams, preset.params))])
     );
     return {
-      Parameters: folder({
-        colorBack: { value: defaults.colorBack, order: 100 },
-        colorFill: { value: defaults.colorFill, order: 101 },
-        colorStroke: { value: defaults.colorStroke, order: 102 },
-        dotSize: { value: defaults.dotSize, min: 1, max: 100, order: 300 },
-        gridSpacingX: { value: defaults.gridSpacingX, min: 2, max: 500, order: 300 },
-        gridSpacingY: { value: defaults.gridSpacingY, min: 2, max: 500, order: 300 },
-        strokeWidth: { value: defaults.dotSize, min: 0, max: 50, order: 300 },
-        sizeRange: { value: defaults.gridSpacingY, min: 0, max: 1, order: 300 },
-        opacityRange: { value: defaults.gridSpacingY, min: 0, max: 2, order: 300 },
-        shape: { value: defaults.shape, options: DotsGridShapes, order: 350 },
-      }),
-      Presets: folder(presets),
+      Parameters: folder(
+        {
+          colorBack: { value: defaults.colorBack, order: 100 },
+          colorFill: { value: defaults.colorFill, order: 101 },
+          colorStroke: { value: defaults.colorStroke, order: 102 },
+          dotSize: { value: defaults.dotSize, min: 1, max: 100, order: 300 },
+          gridSpacingX: { value: defaults.gridSpacingX, min: 2, max: 500, order: 300 },
+          gridSpacingY: { value: defaults.gridSpacingY, min: 2, max: 500, order: 300 },
+          strokeWidth: { value: defaults.dotSize, min: 0, max: 50, order: 300 },
+          sizeRange: { value: defaults.gridSpacingY, min: 0, max: 1, order: 300 },
+          opacityRange: { value: defaults.gridSpacingY, min: 0, max: 2, order: 300 },
+          shape: { value: defaults.shape, options: DotsGridShapes, order: 350 },
+        },
+        { order: 1 }
+      ),
+      Presets: folder(presets, { order: 2 }),
     };
   });
 

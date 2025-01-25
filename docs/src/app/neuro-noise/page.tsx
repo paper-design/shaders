@@ -37,14 +37,17 @@ const NeuroNoiseWithControls = () => {
     );
 
     return {
-      Parameters: folder({
-        colorFront: { value: defaults.colorFront, order: 100 },
-        colorBack: { value: defaults.colorBack, order: 101 },
-        scale: { value: defaults.scale, min: 0.3, max: 2, order: 200 },
-        brightness: { value: defaults.brightness, min: 0.8, max: 2, order: 300 },
-        speed: { value: defaults.speed, min: 0, max: 2, order: 400 },
-      }),
-      Presets: folder(presets),
+      Parameters: folder(
+        {
+          colorFront: { value: defaults.colorFront, order: 100 },
+          colorBack: { value: defaults.colorBack, order: 101 },
+          scale: { value: defaults.scale, min: 0.3, max: 2, order: 200 },
+          brightness: { value: defaults.brightness, min: 0.8, max: 2, order: 300 },
+          speed: { value: defaults.speed, min: 0, max: 2, order: 400 },
+        },
+        { order: 1 }
+      ),
+      Presets: folder(presets, { order: 2 }),
     };
   });
 
