@@ -24,9 +24,9 @@ const SteppedSimplexNoiseExample = () => {
       color4="#f9c54e"
       color5="#ffffff"
       scale={1}
+      stepsNumber={13}
       speed={0.5}
       seed={0}
-      stepsNumber={13}
       style={{ position: 'fixed', width: '100%', height: '100%' }}
     />
   );
@@ -54,8 +54,8 @@ const SteppedSimplexNoiseWithControls = () => {
         color4: { value: defaults.color4 },
         color5: { value: defaults.color5 },
         scale: { value: defaults.scale, min: 0.1, max: 1.9 },
-        speed: { value: defaults.speed, min: 0, max: 1 },
         stepsNumber: { value: defaults.stepsNumber, min: 2, max: 40 },
+        speed: { value: defaults.speed, min: 0, max: 1 },
       }),
       Presets: folder(presets),
     };

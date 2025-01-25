@@ -14,13 +14,13 @@ const SmokeRingExample = () => {
   return (
     <SmokeRing
       scale={1}
-      speed={1}
-      seed={0}
       colorBack="#08121b"
       colorInner="#ffffff"
       colorOuter="#47a0ff"
       noiseScale={1.4}
       thickness={0.33}
+      speed={1}
+      seed={0}
       style={{ position: 'fixed', width: '100%', height: '100%' }}
     />
   );

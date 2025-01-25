@@ -14,8 +14,6 @@ const DotsOrbitExample = () => {
   return (
     <DotsOrbit
       scale={1}
-      speed={2}
-      seed={0}
       color1="#cf2a30"
       color2="#3b6d50"
       color3="#f0a519"
@@ -23,6 +21,8 @@ const DotsOrbitExample = () => {
       dotSize={0.7}
       dotSizeRange={0.2}
       spreading={1}
+      speed={2}
+      seed={0}
       style={{ position: 'fixed', width: '100%', height: '100%' }}
     />
   );
@@ -46,10 +46,10 @@ const DotsOrbitWithControls = () => {
         color3: { value: defaults.color3 },
         color4: { value: defaults.color4 },
         scale: { value: defaults.scale, min: 0.5, max: 2 },
-        speed: { value: defaults.speed, min: 0, max: 6 },
         dotSize: { value: defaults.dotSize, min: 0, max: 1 },
         dotSizeRange: { value: defaults.dotSizeRange, min: 0, max: 1 },
         spreading: { value: defaults.spreading, min: 0, max: 1 },
+        speed: { value: defaults.speed, min: 0, max: 6 },
       }),
       Presets: folder(presets),
     };

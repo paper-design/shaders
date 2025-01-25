@@ -14,8 +14,6 @@ const VoronoiExample = () => {
   return (
     <Voronoi
       scale={1}
-      speed={1}
-      seed={0}
       colorCell1="#e64d1a"
       colorCell2="#1ae6e6"
       colorCell3="#1aa2e6"
@@ -24,6 +22,8 @@ const VoronoiExample = () => {
       distance={0.25}
       edgesSize={0.2}
       edgesSharpness={0}
+      speed={1}
+      seed={0}
       style={{ position: 'fixed', width: '100%', height: '100%' }}
     />
   );
@@ -49,12 +49,12 @@ const VoronoiWithControls = () => {
         colorEdges: { value: defaults.colorEdges },
         colorGradient: { value: defaults.colorGradient, min: 0, max: 1 },
         scale: { value: defaults.scale, min: 0.15, max: 3 },
-        speed: { value: defaults.speed, min: 0, max: 1 },
         distance: { value: defaults.distance, min: 0, max: 0.5 },
         edgesSize: { value: defaults.edgesSize, min: 0, max: 1 },
         edgesSharpness: { value: defaults.edgesSharpness, min: 0, max: 1 },
         middleSize: { value: defaults.middleSize, min: 0, max: 1 },
         middleSharpness: { value: defaults.middleSharpness, min: 0, max: 1 },
+        speed: { value: defaults.speed, min: 0, max: 1 },
       }),
       Presets: folder(presets),
     };

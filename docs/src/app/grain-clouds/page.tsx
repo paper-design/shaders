@@ -14,11 +14,11 @@ const GrainCloudsExample = () => {
   return (
     <GrainClouds
       scale={1}
-      speed={0.2}
-      seed={0}
       color1="#000000"
       color2="#ffffff"
       grainAmount={0.5}
+      speed={0.2}
+      seed={0}
       style={{ position: 'fixed', width: '100%', height: '100%' }}
     />
   );

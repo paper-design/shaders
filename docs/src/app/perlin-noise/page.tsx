@@ -14,8 +14,6 @@ const PerlinNoiseExample = () => {
   return (
     <PerlinNoise
       scale={1}
-      speed={0.5}
-      seed={0}
       color1="#262626"
       color2="#bde6ff"
       proportion={0.34}
@@ -23,6 +21,8 @@ const PerlinNoiseExample = () => {
       octaveCount={2}
       persistence={1}
       lacunarity={1.5}
+      speed={0.5}
+      seed={0}
       style={{ position: 'fixed', width: '100%', height: '100%' }}
     />
   );
@@ -45,12 +45,12 @@ const PerlinNoiseWithControls = () => {
         color1: { value: defaults.color1 },
         color2: { value: defaults.color2 },
         scale: { value: defaults.scale, min: 0, max: 2 },
-        speed: { value: defaults.speed, min: 0, max: 0.5 },
         proportion: { value: defaults.contour, min: 0, max: 1 },
         contour: { value: defaults.contour, min: 0, max: 1 },
         octaveCount: { value: defaults.octaveCount, min: 1, max: 8, step: 1 },
         persistence: { value: defaults.persistence, min: 0.3, max: 1 },
         lacunarity: { value: defaults.lacunarity, min: 1.5, max: 10 },
+        speed: { value: defaults.speed, min: 0, max: 0.5 },
       }),
       Presets: folder(presets),
     };
