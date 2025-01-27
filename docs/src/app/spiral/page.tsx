@@ -11,22 +11,7 @@ import { BackButton } from '@/components/back-button';
  * You can copy/paste this example to use Spiral in your app
  */
 const SpiralExample = () => {
-  return (
-    <Spiral
-      colorBack="#6a5496"
-      colorFront="#00d03b"
-      colorStripe1="#9b8ab8"
-      colorStripe2="#f5d03b"
-      proportion={0}
-      stripe1={0.8}
-      stripe2={0.8}
-      noiseFreq={1}
-      noisePower={0}
-      speed={1}
-      seed={0}
-      style={{ position: 'fixed', width: '100%', height: '100%' }}
-    />
-  );
+  return <Spiral color1="#6a5496" color2="#00d03b" style={{ position: 'fixed', width: '100%', height: '100%' }} />;
 };
 
 /**
@@ -43,17 +28,19 @@ const SpiralWithControls = () => {
     return {
       Parameters: folder(
         {
-          colorBack: { value: defaults.colorBack, order: 100 },
-          colorFront: { value: defaults.colorFront, order: 101 },
-          colorStripe1: { value: defaults.colorStripe1, order: 102 },
-          colorStripe2: { value: defaults.colorStripe2, order: 103 },
-          density: { value: defaults.density, min: 0, max: 2 },
-          proportion: { value: defaults.proportion, min: 0, max: 1 },
-          stripe1: { value: defaults.stripe1, min: 0, max: 1 },
-          stripe2: { value: defaults.stripe2, min: 0, max: 1 },
-          focus: { value: defaults.focus, min: 0, max: 1 },
-          noiseFreq: { value: defaults.noiseFreq, min: 0, max: 2 },
-          noisePower: { value: defaults.noisePower, min: 0, max: 2 },
+          color1: { value: defaults.color1, order: 100 },
+          color2: { value: defaults.color2, order: 101 },
+          scale: { value: defaults.scale, min: 0, max: 2, order: 200 },
+          offsetX: { value: defaults.offsetX, min: -1, max: 1, order: 201 },
+          offsetY: { value: defaults.offsetY, min: -1, max: 1, order: 202 },
+          focus: { value: defaults.focus, min: 0, max: 1, order: 203 },
+          strokeWidth: { value: defaults.strokeWidth, min: 0, max: 1, order: 204 },
+          midShape: { value: defaults.midShape, min: 0, max: 1, order: 205 },
+          irregular: { value: defaults.irregular, min: 0, max: 1, order: 206 },
+          decrease: { value: defaults.decrease, min: 0, max: 0.5, order: 2067 },
+          blur: { value: defaults.blur, min: 0, max: 0.5, order: 208 },
+          noiseFreq: { value: defaults.noiseFreq, min: 0, max: 2, order: 350 },
+          noisePower: { value: defaults.noisePower, min: 0, max: 2, order: 351 },
           speed: { value: defaults.speed, min: 0, max: 1, order: 400 },
           // Speed reverse to be added after leva-review branch merge
         },
