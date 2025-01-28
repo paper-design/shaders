@@ -61,6 +61,7 @@ const WarpWithControls = () => {
           shape: { value: defaults.shape, options: PatternShapes, order: 305 },
           shapeScale: { value: defaults.shapeScale, min: 0, max: 1, order: 306 },
           speed: { value: defaults.speed, min: 0, max: 2, order: 400 },
+          seed: { value: defaults.seed, min: 0, max: 50000, order: 401 },
         },
         { order: 1 }
       ),
