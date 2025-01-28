@@ -44,25 +44,26 @@ out vec4 fragColor;
 float waveSDF(vec3 p, float t) {
     // Define wave properties
     float frequency = 3.0;    // Controls wave frequency
-    float amplitude = 0.2;    // Controls wave height
+    float amplitude = .3;    // Controls wave height
     float speed = 1.0;        // Controls wave speed
 
     float stripeWidth = 5.;  // Width of the stripe
     float stripeHeight = 20.; // Height of the stripe
 
-
-    // Calculate wave height based on x and z coordinates
     float waveHeight = amplitude 
+      * cos(.5 * frequency * p.x - t)
       * sin(frequency * p.x + t)
-      * cos(2. * frequency * p.z - t);
+      * cos(1.5 * frequency * p.z - t)
+      * sin(.2 * frequency * p.z + t);
       
-   float bounds = max(abs(p.x) - stripeWidth * .5, abs(p.z) - stripeHeight * .5);
-    if (bounds > 0.) {
-        return bounds;
-    }
-
-
-    // SDF for the surface
+   // float bounds = max(abs(p.x) - stripeWidth * .5, abs(p.z) - stripeHeight * .5);
+   float bounds = p.x - 3.;
+   // float bounds = abs(p.z) - 7.;
+   
+    // if (bounds > 0.) {
+    //     return bounds;
+    // }
+    
     return p.y - waveHeight;
 }
 
@@ -83,34 +84,32 @@ void main() {
     
     float t = 3. * u_time;
 
-
-    // Ray marching setup
     vec3 rayOrigin = vec3(0., 2., u_steps_number);
     vec3 rayDir = normalize(vec3(uv.x, uv.y - 1., 1.));
 
     // Ray marching loop
     float rrr = 0.0;
-    float tMax = 10.0;
-    float minDist = 0.0001; // When to stop marching
-    vec3 p;               // Current point on the ray
-    for (int i = 0; i < 256; i++) {
+    float tMax = 7.0;
+    float minDist = .0001;
+    vec3 p;
+    for (int i = 0; i < 512; i++) {
         p = rayOrigin + rrr * rayDir;
         float dist = waveSDF(p, t);
-        if (abs(dist) < minDist) break; // Stop if close to the surface
-        rrr += dist; // Advance the ray
-        if (rrr > tMax) break; // Stop if beyond max depth
+        if (abs(dist) < minDist) break;
+        rrr += dist;
+        if (rrr > tMax) break;
     }
 
-    // Shading
     vec3 color = u_colorBack.rgb;
     if (rrr < tMax) {
-        // Surface normal and light direction
         vec3 normal = calculateNormal(p, t);
         vec3 lightDir = normalize(vec3(1.0, 1.0, 1.0));
-
-        // Lambertian shading
+        
         float diff = max(dot(normal, lightDir), 0.0);
-        color = vec3(0.2, 0.5, 0.8) * diff; // Base color
+        // color = vec3(0.2, 0.5, 0.8) * diff; // Base color
+        color = normal - vec3(0., .5, .0);
+        color = 1. - color;
+        color *= diff;
     } 
 
     // Output final color

@@ -26,7 +26,7 @@ export const defaultPreset: Stripe3DPreset = {
     scale: 1,
     speed: 0.15,
     seed: 0,
-    colorBack: 'hsla(208, 25%, 45%, 1)',
+    colorBack: 'hsla(0, 0%, 0%, 1)',
     color2: 'hsla(94, 38%, 59%, 1)',
     color3: 'hsla(359, 94%, 62%, 1)',
     color4: 'hsla(42, 93%, 64%, 1)',
