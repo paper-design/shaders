@@ -71,7 +71,7 @@ void main() {
   float ratio = u_resolution.x / u_resolution.y;
 
   uv -= .5;
-  uv -= vec2(u_offsetX, u_offsetY);
+  uv += vec2(-u_offsetX, u_offsetY);
   float radius_original = length(uv);
 
   uv *= (.3 + 40. * u_scale);
