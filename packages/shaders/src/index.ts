@@ -48,5 +48,9 @@ export { wavesFragmentShader, type WavesUniforms } from './shaders/waves';
 /** Warp: distortion + swirl + underlying shapes */
 export { warpFragmentShader, PatternShapes, type PatternShape, type WarpUniforms } from './shaders/warp';
 
+// ----- 3d Stripe shape ----- //
+/**  */
+export { stripe3DFragmentShader, type Stripe3DUniforms } from './shaders/stripe-3d';
+
 // ----- Uniform conversion utils ----- //
 export { getShaderColorFromString } from './get-shader-color-from-string';
