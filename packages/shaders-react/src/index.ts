@@ -33,6 +33,12 @@ export { type DotsOrbitProps } from './shaders/dots-orbit';
 export { type DotsOrbitParams } from './shaders/dots-orbit';
 export { type DotsOrbitUniforms } from '@paper-design/shaders';
 
+// Dot Grid
+export { DotsGrid, dotsGridPresets } from './shaders/dots-grid';
+export { type DotsGridProps } from './shaders/dots-grid';
+export { type DotsGridParams } from './shaders/dots-grid';
+export { type DotsGridUniforms, DotsGridShapes, type DotsGridShape } from '@paper-design/shaders';
+
 // Stepped simplex noise
 export { SteppedSimplexNoise, steppedSimplexNoisePresets } from './shaders/stepped-simplex-noise';
 export { type SteppedSimplexNoiseProps } from './shaders/stepped-simplex-noise';
@@ -44,6 +50,30 @@ export { Metaballs, metaballsPresets } from './shaders/metaballs';
 export { type MetaballsProps } from './shaders/metaballs';
 export { type MetaballsParams } from './shaders/metaballs';
 export { type MetaballsUniforms } from '@paper-design/shaders';
+
+// Waves
+export { Waves, wavesPresets } from './shaders/waves';
+export { type WavesProps } from './shaders/waves';
+export { type WavesParams } from './shaders/waves';
+export { type WavesUniforms } from '@paper-design/shaders';
+
+// Perlin noise
+export { PerlinNoise, perlinNoisePresets } from './shaders/perlin-noise';
+export { type PerlinNoiseProps } from './shaders/perlin-noise';
+export { type PerlinNoiseParams } from './shaders/perlin-noise';
+export { type PerlinNoiseUniforms } from '@paper-design/shaders';
+
+// Voronoi diagram
+export { Voronoi, voronoiPresets } from './shaders/voronoi';
+export { type VoronoiProps } from './shaders/voronoi';
+export { type VoronoiParams } from './shaders/voronoi';
+export { type VoronoiUniforms } from '@paper-design/shaders';
+
+// Warping distortion
+export { Warp, warpPresets } from './shaders/warp';
+export { type WarpProps } from './shaders/warp';
+export { type WarpParams } from './shaders/warp';
+export { type WarpUniforms, PatternShapes, type PatternShape } from '@paper-design/shaders';
 
 // ----- Uniform conversion utils ----- //
 export { getShaderColorFromString } from '@paper-design/shaders';

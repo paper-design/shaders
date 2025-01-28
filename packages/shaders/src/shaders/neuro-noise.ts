@@ -1,33 +1,33 @@
 export type NeuroNoiseUniforms = {
+  u_scale: number;
   u_colorFront: [number, number, number, number];
   u_colorBack: [number, number, number, number];
-  u_scale: number;
   u_brightness: number;
 };
 
 /**
- * Neuro Noise Pattern;
+ * Neuro Noise Pattern
  * The original artwork: https://codepen.io/ksenia-k/full/vYwgrWv by Ksenia Kondrashova
  * Renders a fractal-like structure made of several layers of since-arches
  *
  * Uniforms include:
- * u_colorFront: The front color of pattern
- * u_colorBack: The back color of pattern
- * u_brightness: The power/brightness of pattern lines
- * u_scale: The scale applied to coordinates
+ * u_scale - the scale applied to user space
+ * u_colorFront - the front color of pattern
+ * u_colorBack - the back color of pattern
+ * u_brightness - the power (brightness) of pattern lines
  */
 
 export const neuroNoiseFragmentShader = `#version 300 es
-precision mediump float;
-
-uniform vec4 u_colorFront;
-uniform vec4 u_colorBack;
-uniform float u_scale;
-uniform float u_brightness;
+precision highp float;
 
 uniform float u_time;
 uniform float u_pixelRatio;
 uniform vec2 u_resolution;
+
+uniform float u_scale;
+uniform vec4 u_colorFront;
+uniform vec4 u_colorBack;
+uniform float u_brightness;
 
 out vec4 fragColor;
 
@@ -55,7 +55,9 @@ void main() {
   vec2 uv = gl_FragCoord.xy / u_resolution.xy;
 
   uv -= .5;
-  uv *= (.001 * u_scale * u_resolution);
+  float scale = .5 * u_scale + 1e-4;
+  uv *= (.001 * (1. - step(1. - scale, 1.) / scale));
+  uv *= u_resolution;
   uv /= u_pixelRatio;
   uv += .5;
 

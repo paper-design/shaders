@@ -20,6 +20,10 @@ export { neuroNoiseFragmentShader, type NeuroNoiseUniforms } from './shaders/neu
 /** A shader rendering an animated dots pattern based on Voronoi diagram */
 export { dotsOrbitFragmentShader, type DotsOrbitUniforms } from './shaders/dots-orbit';
 
+// ----- Dot Grid ----- //
+/** A shader rendering a static dots pattern */
+export { dotsGridFragmentShader, DotsGridShapes, type DotsGridShape, type DotsGridUniforms } from './shaders/dots-grid';
+
 // ----- Stepped simplex noise ----- //
 /** A shader that calculates a combination of 2 simplex noises with result rendered as a stepped gradient */
 export { steppedSimplexNoiseFragmentShader, type SteppedSimplexNoiseUniforms } from './shaders/stepped-simplex-noise';
@@ -27,6 +31,22 @@ export { steppedSimplexNoiseFragmentShader, type SteppedSimplexNoiseUniforms } f
 // ----- Metaballs ----- //
 /** A number of circlular shapes blened in a gooey way */
 export { metaballsFragmentShader, type MetaballsUniforms } from './shaders/metaballs';
+
+// ----- Perlin noise ----- //
+/** 2d noise with max number of parameters to be exposed to users */
+export { perlinNoiseFragmentShader, type PerlinNoiseUniforms } from './shaders/perlin-noise';
+
+// ----- Voronoi Diagram ----- //
+/** Voronoi diagram: classic + rounded edges */
+export { voronoiFragmentShader, type VoronoiUniforms } from './shaders/voronoi';
+
+// ----- Waves ----- //
+/** Waves pattern */
+export { wavesFragmentShader, type WavesUniforms } from './shaders/waves';
+
+// ----- Warping Distortion ----- //
+/** Warp: distortion + swirl + underlying shapes */
+export { warpFragmentShader, PatternShapes, type PatternShape, type WarpUniforms } from './shaders/warp';
 
 // ----- Uniform conversion utils ----- //
 export { getShaderColorFromString } from './get-shader-color-from-string';

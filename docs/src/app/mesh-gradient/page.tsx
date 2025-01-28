@@ -10,18 +10,19 @@ import { BackButton } from '@/components/back-button';
 /**
  * You can copy/paste this example to use MeshGradient in your app
  */
-// const MeshGradientExample = () => {
-//   return (
-//     <MeshGradient
-//       color1="#6a5496"
-//       color2="#9b8ab8"
-//       color3="#f5d03b"
-//       color4="#e48b97"
-//       speed={0.2}
-//       style={{ position: 'fixed', width: '100%', height: '100%' }}
-//     />
-//   );
-// };
+const MeshGradientExample = () => {
+  return (
+    <MeshGradient
+      speed={0.15}
+      seed={0}
+      color1="#b3a6ce"
+      color2="#562b9c"
+      color3="#f4e8b8"
+      color4="#c79acb"
+      style={{ position: 'fixed', width: '100%', height: '100%' }}
+    />
+  );
+};
 
 /**
  * This example has controls added so you can play with settings in the example app
@@ -36,17 +37,15 @@ const MeshGradientWithControls = () => {
     );
 
     return {
-      Parameters: folder(
-        {
-          color1: { value: defaults.color1, order: 1 },
-          color2: { value: defaults.color2, order: 2 },
-          color3: { value: defaults.color3, order: 3 },
-          color4: { value: defaults.color4, order: 4 },
-          speed: { value: defaults.speed, order: 5, min: -1, max: 1 },
-        },
-        { order: 1 }
-      ),
-      Presets: folder(presets, { order: 2 }),
+      Parameters: folder({
+        color1: { value: defaults.color1 },
+        color2: { value: defaults.color2 },
+        color3: { value: defaults.color3 },
+        color4: { value: defaults.color4 },
+        speed: { value: defaults.speed, min: -1, max: 1 },
+        seed: { value: defaults.seed, min: 0, max: 9999 },
+      }),
+      Presets: folder(presets),
     };
   });
 

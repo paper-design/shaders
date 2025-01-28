@@ -10,18 +10,18 @@ import { BackButton } from '@/components/back-button';
 /**
  * You can copy/paste this example to use NeuroNoise in your app
  */
-// const NeuroNoiseExample = () => {
-//   return (
-//     <NeuroNoise
-//       colorFront="#c3a3ff"
-//       colorBack="#030208"
-//       speed={1}
-//       scale={1}
-//       brightness={1.3}
-//       style={{ position: 'fixed', width: '100%', height: '100%' }}
-//     />
-//   );
-// };
+const NeuroNoiseExample = () => {
+  return (
+    <NeuroNoise
+      scale={1}
+      speed={1}
+      colorBack="hsla(200, 100%, 5%, 1)"
+      colorFront="hsla(200, 100%, 25%, 1)"
+      brightness={1.3}
+      style={{ position: 'fixed', width: '100%', height: '100%' }}
+    />
+  );
+};
 
 /**
  * This example has controls added so you can play with settings in the example app
@@ -36,17 +36,15 @@ const NeuroNoiseWithControls = () => {
     );
 
     return {
-      Parameters: folder(
-        {
-          colorFront: { value: defaults.colorFront, order: 1 },
-          colorBack: { value: defaults.colorBack, order: 2 },
-          scale: { value: defaults.scale, order: 3, min: 0.3, max: 3 },
-          speed: { value: defaults.speed, order: 4, min: -3, max: 3 },
-          brightness: { value: defaults.brightness, order: 5, min: 0.8, max: 2 },
-        },
-        { order: 1 }
-      ),
-      Presets: folder(presets, { order: 2 }),
+      Parameters: folder({
+        scale: { value: defaults.scale, min: 0.3, max: 2 },
+        speed: { value: defaults.speed, min: -3, max: 3 },
+        seed: { value: defaults.seed, min: 0, max: 9999 },
+        colorFront: { value: defaults.colorFront },
+        colorBack: { value: defaults.colorBack },
+        brightness: { value: defaults.brightness, min: 0.8, max: 2 },
+      }),
+      Presets: folder(presets),
     };
   });
 

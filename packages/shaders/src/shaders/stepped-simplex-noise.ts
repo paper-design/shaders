@@ -1,41 +1,43 @@
 export type SteppedSimplexNoiseUniforms = {
+  u_scale: number;
   u_color1: [number, number, number, number];
   u_color2: [number, number, number, number];
   u_color3: [number, number, number, number];
   u_color4: [number, number, number, number];
   u_color5: [number, number, number, number];
-  u_scale: number;
   u_steps_number: number;
 };
 
 /**
  * Stepped Simplex Noise by Ksenia Kondrashova
- * Calculates a combination of 2 simplex noises with result rendered as a stepped gradient
+ * Calculates a combination of 2 simplex noises with result rendered as
+ * an X-stepped 5-colored gradient
  *
  * Uniforms include:
- * u_color1: The first color
- * u_color2: The second color
- * u_color3: The third color
- * u_color4: The fourth color
- * u_color5: The fifth color
- * u_scale: The scale applied to coordinates
- * u_steps_number: The number of colors to show as a stepped gradient
+ * u_scale - the scale applied to user space
+ * u_color1 - the first gradient color
+ * u_color2 - the second gradient color
+ * u_color3 - the third gradient color
+ * u_color4 - the fourth gradient color
+ * u_color5 - the fifth gradient color
+ * u_steps_number - the number of solid colors to show as a stepped gradient
  */
 
 export const steppedSimplexNoiseFragmentShader = `#version 300 es
 precision highp float;
+
+uniform float u_time;
+uniform float u_pixelRatio;
+uniform vec2 u_resolution;
+
+uniform float u_scale;
 
 uniform vec4 u_color1;
 uniform vec4 u_color2;
 uniform vec4 u_color3;
 uniform vec4 u_color4;
 uniform vec4 u_color5;
-uniform float u_scale;
 uniform float u_steps_number;
-
-uniform float u_time;
-uniform float u_pixelRatio;
-uniform vec2 u_resolution;
 
 out vec4 fragColor;
 
@@ -87,11 +89,13 @@ void main() {
   vec2 uv = gl_FragCoord.xy / u_resolution.xy;
 
   uv -= .5;
-  uv *= (.001 * u_scale * u_resolution);
+  float scale = .5 * u_scale + 1e-4;
+  uv *= (.0008 * (1. - step(1. - scale, 1.) / scale));
+  uv *= u_resolution;
   uv /= u_pixelRatio;
   uv += .5;
 
-  float t =  u_time;
+  float t = u_time;
 
   float noise = .5 + .5 * get_noise(uv, t);
   noise = floor(noise * u_steps_number) / u_steps_number;
@@ -99,10 +103,10 @@ void main() {
   vec3 color = u_color1.rgb * u_color1.a;
   float opacity = u_color1.a;
   for (int i = 0; i < 5; i++) {
-      vec4 next_c = getColor(i + 1);
-      float proportion = smoothstep((float(i) + .5) / 5., (float(i) + 2.) / 5., noise);
-      color = mix(color, next_c.rgb * next_c.a, proportion);
-      opacity = mix(opacity, next_c.a, proportion);
+    vec4 next_c = getColor(i + 1);
+    float proportion = smoothstep((float(i) + .5) / 5., (float(i) + 2.) / 5., noise);
+    color = mix(color, next_c.rgb * next_c.a, proportion);
+    opacity = mix(opacity, next_c.a, proportion);
   }
   fragColor = vec4(color, opacity);
 }
