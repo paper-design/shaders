@@ -118,9 +118,8 @@ void main() {
         
     float n1 = noise(uv * 1. + t);
     float n2 = noise(uv * 2. - t);
-    float angle = n1 * TWO_PI;
-    uv.x += 4. * u_distortion * n2 * cos(angle);
-    uv.y += 4. * u_distortion * n2 * sin(angle);
+    uv.x += 4. * u_distortion * n1;
+    uv.y += 4. * u_distortion * n2;
 
     float iterations_number = ceil(clamp(u_swirlIterations, 1., 30.));
     for (float i = 1.; i <= iterations_number; i++) {
