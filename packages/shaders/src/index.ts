@@ -44,9 +44,13 @@ export { voronoiFragmentShader, type VoronoiUniforms } from './shaders/voronoi';
 /** Waves pattern */
 export { wavesFragmentShader, type WavesUniforms } from './shaders/waves';
 
-// ----- Radial Swirl ----- //
-/** Whirl animation */
-export { spiralFragmentShader, type SpiralUniforms } from './shaders/spiral';
+// ----- Warping Distortion ----- //
+/** Warp: distortion + swirl + underlying shapes */
+export {warpFragmentShader, PatternShapes, type PatternShape, type WarpUniforms} from './shaders/warp';
+
+// ----- Spiral Shape ----- //
+/** Radial whirl animation */
+export {spiralFragmentShader, type SpiralUniforms} from './shaders/spiral';
 
 // ----- Uniform conversion utils ----- //
 export { getShaderColorFromString } from './get-shader-color-from-string';

@@ -75,19 +75,33 @@ import { MeshGradient } from '@paper-design/shaders-react';
 #### Vanilla JS
 
 ```js
-import { ShaderMount, meshGradientFragmentShader } from '@paper-design/shaders';
+import {
+  ShaderMount,
+  meshGradientFragmentShader,
+  getShaderColorFromString,
+} from "@paper-design/shaders";
 
-const myCanvas = document.createElement('canvas');
+const myCanvas = document.createElement("canvas");
+myCanvas.width = 300;
+myCanvas.height = 300;
+document.body.appendChild(myCanvas);
 
 const shaderParams = {
-  u_color1: 'pink',
-  u_color2: 'white',
-  u_color3: 'blue',
-  u_color4: 'purple',
-  u_speed: 0.25,
+  u_color1: getShaderColorFromString("#283BFC"),
+  u_color2: getShaderColorFromString("#FF2828"),
+  u_color3: getShaderColorFromString("#dddddd"),
+  u_color4: getShaderColorFromString("#800080"),
 };
 
-const meshGradient = new ShaderMount(myCanvas, meshGradientFragmentShader, shaderParams);
+const meshGradient = new ShaderMount(
+  myCanvas,
+  meshGradientFragmentShader,
+  shaderParams,
+  undefined,
+  0.25
+);
+
+meshGradient.setUniforms(shaderParams);
 ```
 
 ## Roadmap:

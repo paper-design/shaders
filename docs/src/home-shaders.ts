@@ -29,6 +29,8 @@ import {
   wavesPresets,
   PerlinNoise,
   perlinNoisePresets,
+  Warp,
+  warpPresets,
   Spiral,
   spiralPresets,
 } from '@paper-design/shaders-react';
@@ -117,9 +119,15 @@ export const homeShaders = [
     shaderConfig: wavesPresets[0].params,
   },
   {
-    name: 'spiral',
-    url: '/spiral',
-    ShaderComponent: Spiral,
-    shaderConfig: spiralPresets[0].params,
+    name: 'warp',
+    url: '/warp',
+    ShaderComponent: Warp,
+    shaderConfig: warpPresets[0].params,
+  },
+  {
+    name: 'warp',
+    url: '/warp',
+    ShaderComponent: Warp,
+    shaderConfig: warpPresets[0].params,
   },
 ] satisfies HomeShaderConfig[];
