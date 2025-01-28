@@ -42,13 +42,13 @@ const Stripe3DWithControls = () => {
     return {
       Parameters: folder({
         colorBack: { value: defaults.colorBack },
-        // color2: { value: defaults.color2 },
+        color2: { value: defaults.color2 },
         // color3: { value: defaults.color3 },
         // color4: { value: defaults.color4 },
         // color5: { value: defaults.color5 },
-        // scale: { value: defaults.scale, min: 0.1, max: 1.9 },
+        scale: { value: defaults.scale, min: 0.1, max: 1.9 },
         speed: { value: defaults.speed, min: -1.5, max: 1.5 },
-        stepsNumber: { value: defaults.stepsNumber, min: -6, max: 6 },
+        // stepsNumber: { value: defaults.stepsNumber, min: -6, max: 6 },
       }),
       Presets: folder(presets),
     };
