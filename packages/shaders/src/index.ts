@@ -46,11 +46,11 @@ export { wavesFragmentShader, type WavesUniforms } from './shaders/waves';
 
 // ----- Warping Distortion ----- //
 /** Warp: distortion + swirl + underlying shapes */
-export {warpFragmentShader, PatternShapes, type PatternShape, type WarpUniforms} from './shaders/warp';
+export { warpFragmentShader, PatternShapes, type PatternShape, type WarpUniforms } from './shaders/warp';
 
 // ----- Spiral Shape ----- //
 /** Radial whirl animation */
-export {spiralFragmentShader, type SpiralUniforms} from './shaders/spiral';
+export { spiralFragmentShader, type SpiralUniforms } from './shaders/spiral';
 
 // ----- Uniform conversion utils ----- //
 export { getShaderColorFromString } from './get-shader-color-from-string';
