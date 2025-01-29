@@ -15,14 +15,15 @@ const Stripe3DExample = () => {
   return (
     <Stripe3D
       colorBack="#56758f"
-      color2="#91be6f"
-      color3="#f94346"
-      color4="#f9c54e"
-      color5="#ffffff"
-      scale={1}
+      // color2="#91be6f"
+      // color3="#f94346"
+      // color4="#f9c54e"
+      // color5="#ffffff"
+      scale={.8}
       speed={0.5}
       seed={0}
-      stepsNumber={13}
+      amplitude={13}
+      frequency={13}
       style={{ position: 'fixed', width: '100%', height: '100%' }}
     />
   );
@@ -42,13 +43,13 @@ const Stripe3DWithControls = () => {
     return {
       Parameters: folder({
         colorBack: { value: defaults.colorBack },
+        color1: { value: defaults.color1 },
         color2: { value: defaults.color2 },
-        // color3: { value: defaults.color3 },
-        // color4: { value: defaults.color4 },
-        // color5: { value: defaults.color5 },
+        color3: { value: defaults.color3 },
         scale: { value: defaults.scale, min: 0.1, max: 1.9 },
-        speed: { value: defaults.speed, min: -1.5, max: 1.5 },
-        // stepsNumber: { value: defaults.stepsNumber, min: -6, max: 6 },
+        speed: { value: defaults.speed, min: 0, max: 1.5 },
+        amplitude: { value: defaults.amplitude, min: 0, max: 3 },
+        frequency: { value: defaults.frequency, min: 0, max: 6 },
       }),
       Presets: folder(presets),
     };
