@@ -3,13 +3,16 @@ import { ShaderMount, type GlobalParams, type ShaderMountProps } from '../shader
 import { getShaderColorFromString, stripe3DFragmentShader, type Stripe3DUniforms } from '@paper-design/shaders';
 
 export type Stripe3DParams = {
-  scale?: number;
   colorBack?: string;
   color1?: string;
   color2?: string;
-  color3?: string;
-  amplitude?: number;
-  frequency?: number;
+  length?: number;
+  amplitude1?: number;
+  amplitude2?: number;
+  frequency1?: number;
+  frequency2?: number;
+  incline?: number;
+  rotation?: number;
 } & GlobalParams;
 
 export type Stripe3DProps = Omit<ShaderMountProps, 'fragmentShader'> & Stripe3DParams;
@@ -23,15 +26,18 @@ type Stripe3DPreset = { name: string; params: Required<Stripe3DParams> };
 export const defaultPreset: Stripe3DPreset = {
   name: 'Default',
   params: {
-    scale: .8,
-    speed: 0.15,
+    speed: 0.9,
     seed: 0,
-    colorBack: 'hsla(120, 20%, 90%, 1)',
-    color1: 'hsla(94, 38%, 59%, 1)',
-    color2: 'hsla(359, 94%, 62%, 1)',
-    color3: 'hsla(42, 93%, 64%, 1)',
-    amplitude: .3,
-    frequency: 4,
+    colorBack: 'hsla(0, 0%, 100%, 1)',
+    color1: 'hsla(200, 80%, 80%, 1)',
+    color2: 'hsla(350, 80%, 80%, 1)',
+    length: 4,
+    amplitude1: 0.15,
+    frequency1: 12,
+    amplitude2: 0.04,
+    frequency2: 2,
+    incline: 0.2,
+    rotation: 0,
   },
 } as const;
 
@@ -40,15 +46,29 @@ export const stripe3DPresets: Stripe3DPreset[] = [defaultPreset];
 export const Stripe3D = (props: Stripe3DProps): JSX.Element => {
   const uniforms: Stripe3DUniforms = useMemo(() => {
     return {
-      u_scale: props.scale ?? defaultPreset.params.scale,
       u_colorBack: getShaderColorFromString(props.colorBack, defaultPreset.params.colorBack),
       u_color1: getShaderColorFromString(props.color1, defaultPreset.params.color1),
       u_color2: getShaderColorFromString(props.color2, defaultPreset.params.color2),
-      u_color3: getShaderColorFromString(props.color3, defaultPreset.params.color3),
-      u_amplitude: props.amplitude ?? defaultPreset.params.amplitude,
-      u_frequency: props.frequency ?? defaultPreset.params.frequency,
+      u_length: props.length ?? defaultPreset.params.length,
+      u_amplitude1: props.amplitude1 ?? defaultPreset.params.amplitude1,
+      u_amplitude2: props.amplitude2 ?? defaultPreset.params.amplitude2,
+      u_frequency1: props.frequency1 ?? defaultPreset.params.frequency1,
+      u_frequency2: props.frequency2 ?? defaultPreset.params.frequency2,
+      u_incline: props.incline ?? defaultPreset.params.incline,
+      u_rotation: props.rotation ?? defaultPreset.params.rotation,
     };
-  }, [props.scale, props.colorBack, props.color1, props.color2, props.color3, props.amplitude, props.frequency]);
+  }, [
+    props.colorBack,
+    props.color1,
+    props.color2,
+    props.length,
+    props.amplitude1,
+    props.amplitude2,
+    props.frequency1,
+    props.frequency2,
+    props.incline,
+    props.rotation,
+  ]);
 
   return <ShaderMount {...props} fragmentShader={stripe3DFragmentShader} uniforms={uniforms} />;
 };

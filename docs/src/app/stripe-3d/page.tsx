@@ -13,19 +13,7 @@ import { BackButton } from '@/components/back-button';
  */
 const Stripe3DExample = () => {
   return (
-    <Stripe3D
-      colorBack="#56758f"
-      // color2="#91be6f"
-      // color3="#f94346"
-      // color4="#f9c54e"
-      // color5="#ffffff"
-      scale={.8}
-      speed={0.5}
-      seed={0}
-      amplitude={13}
-      frequency={13}
-      style={{ position: 'fixed', width: '100%', height: '100%' }}
-    />
+    <Stripe3D colorBack="#56758f" speed={0.5} seed={0} style={{ position: 'fixed', width: '100%', height: '100%' }} />
   );
 };
 
@@ -42,14 +30,17 @@ const Stripe3DWithControls = () => {
     );
     return {
       Parameters: folder({
-        colorBack: { value: defaults.colorBack },
-        color1: { value: defaults.color1 },
-        color2: { value: defaults.color2 },
-        color3: { value: defaults.color3 },
-        scale: { value: defaults.scale, min: 0.1, max: 1.9 },
-        speed: { value: defaults.speed, min: 0, max: 1.5 },
-        amplitude: { value: defaults.amplitude, min: 0, max: 3 },
-        frequency: { value: defaults.frequency, min: 0, max: 6 },
+        colorBack: { value: defaults.colorBack, order: 100 },
+        color1: { value: defaults.color1, order: 101 },
+        color2: { value: defaults.color2, order: 102 },
+        length: { value: defaults.length, min: 0, max: 3, order: 200 },
+        incline: { value: defaults.incline, min: 0, max: 0.5, order: 201 },
+        rotation: { value: defaults.rotation, min: 0, max: 2, order: 202 },
+        amplitude1: { value: defaults.amplitude1, min: 0, max: 0.2, order: 203 },
+        frequency1: { value: defaults.frequency1, min: 0, max: 15, order: 204 },
+        amplitude2: { value: defaults.amplitude2, min: 0, max: 0.1, order: 205 },
+        frequency2: { value: defaults.frequency2, min: 0, max: 4, order: 206 },
+        speed: { value: defaults.speed, min: 0, max: 1.5, order: 400 },
       }),
       Presets: folder(presets),
     };
