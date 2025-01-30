@@ -33,6 +33,7 @@ const Stripe3DWithControls = () => {
         colorBack: { value: defaults.colorBack, order: 100 },
         color1: { value: defaults.color1, order: 101 },
         color2: { value: defaults.color2, order: 102 },
+        width: { value: defaults.width, min: 0, max: 3, order: 200 },
         length: { value: defaults.length, min: 0, max: 3, order: 200 },
         incline: { value: defaults.incline, min: 0, max: 0.5, order: 201 },
         rotation: { value: defaults.rotation, min: 0, max: 2, order: 202 },
@@ -41,6 +42,7 @@ const Stripe3DWithControls = () => {
         amplitude2: { value: defaults.amplitude2, min: 0, max: 0.1, order: 205 },
         frequency2: { value: defaults.frequency2, min: 0, max: 4, order: 206 },
         speed: { value: defaults.speed, min: 0, max: 1.5, order: 400 },
+        seed: { value: defaults.seed, min: 0, max: 9999, order: 400 },
       }),
       Presets: folder(presets),
     };

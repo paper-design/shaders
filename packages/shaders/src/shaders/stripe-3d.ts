@@ -2,6 +2,7 @@ export type Stripe3DUniforms = {
   u_colorBack: [number, number, number, number];
   u_color1: [number, number, number, number];
   u_color2: [number, number, number, number];
+  u_width: number;
   u_length: number;
   u_incline: number;
   u_amplitude1: number;
@@ -28,6 +29,7 @@ uniform vec4 u_colorBack;
 uniform vec4 u_color1;
 uniform vec4 u_color2;
 
+uniform float u_width;
 uniform float u_length;
 uniform float u_incline;
 uniform float u_amplitude1;
@@ -77,12 +79,12 @@ float sdRectangleXZWithWaves(vec3 p, vec2 size, float time) {
 }
 
 float traceWavyPlane(vec3 ro, vec3 rd, vec2 size, float time) {
-    const int maxSteps = 150;
-    const float epsilon = .005;
+    const int maxSteps = 500;
+    const float epsilon = .001;
     const float maxDistance = 10.;
-    const float maxStepSize = .1;
+    const float maxStepSize = .02;
 
-    float dist = 4.;
+    float dist = 3.;
     for (int i = 0; i < maxSteps; i++) {
         vec3 pos = ro + rd * dist;
         float d = sdRectangleXZWithWaves(pos, size, time);
@@ -109,8 +111,8 @@ void main() {
     vec2 uv = (gl_FragCoord.xy / u_resolution) * 2.0 - 1.0;
     uv.x *= u_resolution.x / u_resolution.y; // Adjust for aspect ratio
 
-    float t = 6. * u_time;
-    vec2 u_planeSize = vec2(u_length * 3.0, 3.0);
+    float t = u_time;
+    vec2 u_planeSize = 3. * vec2(u_length, u_width);
     
     vec3 u_cameraPos = vec3(sin(u_rotation * PI) * 5.0, 2.0, cos(u_rotation * PI) * 5.0);
     vec3 u_cameraDir = normalize(vec3(0.0, 0.0, 0.0) - u_cameraPos);
