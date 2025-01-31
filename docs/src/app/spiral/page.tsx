@@ -18,7 +18,12 @@ const SpiralExample = () => {
  * This example has controls added so you can play with settings in the example app
  */
 
-const defaults = spiralPresets[0].params;
+const firstPresetParams = spiralPresets[0].params;
+const defaults = {
+  ...firstPresetParams,
+  speed: Math.abs(firstPresetParams.speed),
+  reverse: firstPresetParams.speed < 0,
+};
 
 const SpiralWithControls = () => {
   const [params, setParams] = useControls(() => {
@@ -41,8 +46,8 @@ const SpiralWithControls = () => {
           blur: { value: defaults.blur, min: 0, max: 0.5, order: 208 },
           noiseFreq: { value: defaults.noiseFreq, min: 0, max: 2, order: 350 },
           noisePower: { value: defaults.noisePower, min: 0, max: 2, order: 351 },
-          speed: { value: defaults.speed, min: 0, max: 1, order: 400 },
-          // Speed reverse to be added after leva-review branch merge
+          speed: { value: defaults.speed, min: 0, max: 4, order: 400 },
+          reverse: { value: defaults.reverse, order: 401 },
         },
         { order: 1 }
       ),
@@ -56,12 +61,14 @@ const SpiralWithControls = () => {
 
   usePresetHighlight(spiralPresets, params);
 
+  const { reverse, ...shaderParams } = { ...params, speed: params.speed * (params.reverse ? -1 : 1) };
+
   return (
     <>
       <Link href="/">
         <BackButton />
       </Link>
-      <Spiral {...params} style={{ position: 'fixed', width: '100%', height: '100%' }} />
+      <Spiral {...shaderParams} style={{ position: 'fixed', width: '100%', height: '100%' }} />
     </>
   );
 };
