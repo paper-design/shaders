@@ -124,4 +124,10 @@ export const homeShaders = [
     ShaderComponent: Warp,
     shaderConfig: warpPresets[0].params,
   },
+  {
+    name: 'spiral',
+    url: '/spiral',
+    ShaderComponent: Spiral,
+    shaderConfig: spiralPresets[0].params,
+  },
 ] satisfies HomeShaderConfig[];
