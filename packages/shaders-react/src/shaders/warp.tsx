@@ -154,7 +154,7 @@ export const presetAbyss: WarpPreset = {
 export const presetInk: WarpPreset = {
   name: 'Live Ink',
   params: {
-    scale: 2,
+    scale: 0.7,
     rotation: 1.5,
     speed: 0.25,
     seed: 0,
@@ -162,7 +162,7 @@ export const presetInk: WarpPreset = {
     color2: 'hsla(165, 9%, 65.1%, 1)',
     color3: 'hsla(84, 100%, 97.1%, 1)',
     proportion: 0.35,
-    softness: 0.3,
+    softness: 0,
     distortion: 0.25,
     swirl: 0.8,
     swirlIterations: 10,
