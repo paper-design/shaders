@@ -82,15 +82,23 @@ float noise(vec2 st) {
   float b = random(i + vec2(1.0, 0.0));
   float c = random(i + vec2(0.0, 1.0));
   float d = random(i + vec2(1.0, 1.0));
+
+  // Smoothstep for interpolation
   vec2 u = f * f * (3.0 - 2.0 * f);
-  return mix(a, b, u.x) + (c - a) * u.y * (1.0 - u.x) + (d - b) * u.x * u.y;
+
+  // Do the interpolation as two nested mix operations
+  // If you try to do this in one big operation, there's enough precision loss to be off by 1px at cell boundaries
+  float x1 = mix(a, b, u.x);
+  float x2 = mix(c, d, u.x);
+  return mix(x1, x2, u.y);
+
 }
 
 vec4 blend_colors(vec4 c1, vec4 c2, vec4 c3, float mixer, float edgesWidth, float edge_blur) {
     vec3 color1 = c1.rgb * c1.a;
     vec3 color2 = c2.rgb * c2.a;
     vec3 color3 = c3.rgb * c3.a;
-            
+
     float r1 = smoothstep(.0 + .35 * edgesWidth, .7 - .35 * edgesWidth + .5 * edge_blur, mixer);
     float r2 = smoothstep(.3 + .35 * edgesWidth, 1. - .35 * edgesWidth + edge_blur, mixer);
 
@@ -105,9 +113,9 @@ vec4 blend_colors(vec4 c1, vec4 c2, vec4 c3, float mixer, float edgesWidth, floa
 void main() {
     vec2 uv = gl_FragCoord.xy / u_resolution.xy;
     vec2 uv_original = uv;
-    
+
     float t = .5 * u_time;
-    
+
     float noise_scale = .0005 + .006 * u_scale;
 
     uv -= .5;
@@ -115,7 +123,7 @@ void main() {
     uv = rotate(uv, u_rotation * .5 * PI);
     uv /= u_pixelRatio;
     uv += .5;
-        
+
     float n1 = noise(uv * 1. + t);
     float n2 = noise(uv * 2. - t);
     float angle = n1 * TWO_PI;
@@ -127,9 +135,9 @@ void main() {
         uv.x += clamp(u_swirl, 0., 2.) / i * cos(t + i * 1.5 * uv.y);
         uv.y += clamp(u_swirl, 0., 2.) / i * cos(t + i * 1. * uv.x);
     }
-    
+
     float proportion = clamp(u_proportion, 0., 1.);
-    
+
     float shape = 0.;
     float mixer = 0.;
     if (u_shape < .5) {
@@ -141,7 +149,7 @@ void main() {
       float f = fract(stripes_shape_uv.y);
       shape = smoothstep(.0, .55, f) * smoothstep(1., .45, f);
       mixer = shape + .48 * sign(proportion - .5) * pow(abs(proportion - .5), .5);
-    } else {      
+    } else {
       float sh = 1. - uv.y;
       sh -= .5;
       sh /= (noise_scale * u_resolution.y);
@@ -149,10 +157,10 @@ void main() {
       float shape_scaling = .2 * (1. - u_shapeScale);
       shape = smoothstep(.45 - shape_scaling, .55 + shape_scaling, sh + .3 * (proportion - .5));
       mixer = shape;
-    } 
+    }
 
     vec4 color_mix = blend_colors(u_color1, u_color2, u_color3, mixer, 1. - clamp(u_softness, 0., 1.), .01 + .01 * u_scale);
-    
+
     fragColor = vec4(color_mix.rgb, color_mix.a);
 }
 `;
