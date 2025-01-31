@@ -63,7 +63,9 @@ float noise(vec2 st) {
   float c = random(i + vec2(0.0, 1.0));
   float d = random(i + vec2(1.0, 1.0));
   vec2 u = f * f * (3.0 - 2.0 * f);
-  return mix(a, b, u.x) + (c - a) * u.y * (1.0 - u.x) + (d - b) * u.x * u.y;
+  float x1 = mix(a, b, u.x);
+  float x2 = mix(c, d, u.x);
+  return mix(x1, x2, u.y);
 }
 
 void main() {
