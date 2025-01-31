@@ -13,12 +13,12 @@ import { BackButton } from '@/components/back-button';
 const GrainCloudsExample = () => {
   return (
     <GrainClouds
-      scale={1}
-      speed={0.2}
-      seed={0}
       color1="#000000"
       color2="#ffffff"
+      scale={1}
       grainAmount={0.5}
+      speed={0.2}
+      seed={0}
       style={{ position: 'fixed', width: '100%', height: '100%' }}
     />
   );
@@ -36,15 +36,17 @@ const GrainCloudsWithControls = () => {
       grainCloudsPresets.map((preset) => [preset.name, button(() => setParamsSafe(params, setParams, preset.params))])
     );
     return {
-      Parameters: folder({
-        color1: { value: defaults.color1 },
-        color2: { value: defaults.color2 },
-        scale: { value: defaults.scale, min: 0.2, max: 1.8 },
-        grainAmount: { value: defaults.grainAmount, min: 0, max: 1 },
-        speed: { value: defaults.speed, min: 0, max: 2 },
-        seed: { value: defaults.seed, min: 0, max: 9999 },
-      }),
-      Presets: folder(presets),
+      Parameters: folder(
+        {
+          color1: { value: defaults.color1, order: 100 },
+          color2: { value: defaults.color2, order: 101 },
+          scale: { value: defaults.scale, min: 0.2, max: 1.8, order: 200 },
+          grainAmount: { value: defaults.grainAmount, min: 0, max: 1, order: 300 },
+          speed: { value: defaults.speed, min: 0, max: 2, order: 400 },
+        },
+        { order: 1 }
+      ),
+      Presets: folder(presets, { order: 2 }),
     };
   });
 

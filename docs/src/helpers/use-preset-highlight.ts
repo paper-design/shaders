@@ -1,21 +1,24 @@
 import { useEffect } from 'react';
 
-export const usePresetHighlight = (presets: Record<string, any>[], params: Record<string, any>) => {
+export const usePresetHighlight = (presets: Record<string, any>[], levaParams: Record<string, any>) => {
   useEffect(() => {
-    // Leva takes a little longer to mount on some examples, so buttons are not present at the time of the
-    // first render. Delaying this hook with a timeout, even if it's 0, ensures that the buttons are present.
-    const timeoutId = setTimeout(() => {
+    const highlightPreset = () => {
       const matchingPreset = presets.find((preset) => {
-        // Remove anything present in the preset that is not a param
-        const { seed, ...rest } = preset.params;
+        // Remove any property that should not be compared for matching
+        const { seed, ...paramsToCompare } = preset.params;
 
-        return Object.entries(rest).every(([key, value]) => {
-          const paramValue = params[key as keyof typeof params];
+        return Object.entries(paramsToCompare).every(([key, value]) => {
+          const levaValue = levaParams[key as keyof typeof levaParams];
           const presetValue =
             typeof value === 'string' && value.startsWith('hsla') && value.endsWith(', 1)')
               ? value.replace('hsla', 'hsl').slice(0, -4) + ')'
               : value;
-          return paramValue === presetValue;
+
+          if (key === 'speed') {
+            return presetValue === levaValue * (levaParams.reverse ? -1 : 1);
+          }
+
+          return presetValue === levaValue;
         });
       });
 
@@ -29,8 +32,12 @@ export const usePresetHighlight = (presets: Record<string, any>[], params: Recor
           }
         }
       });
-    }, 0);
+    };
+
+    // Leva takes a little longer to mount on some examples, so buttons are not present at the time of the
+    // first render. Delaying this hook with a timeout to ensure the buttons are present.
+    const timeoutId = setTimeout(highlightPreset, 1);
 
     return () => clearTimeout(timeoutId);
-  }, [params, presets]);
+  }, [levaParams, presets]);
 };

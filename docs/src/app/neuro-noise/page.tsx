@@ -13,11 +13,12 @@ import { BackButton } from '@/components/back-button';
 const NeuroNoiseExample = () => {
   return (
     <NeuroNoise
-      scale={1}
-      speed={1}
       colorBack="hsla(200, 100%, 5%, 1)"
       colorFront="hsla(200, 100%, 25%, 1)"
+      scale={1}
       brightness={1.3}
+      speed={1}
+      seed={0}
       style={{ position: 'fixed', width: '100%', height: '100%' }}
     />
   );
@@ -36,15 +37,17 @@ const NeuroNoiseWithControls = () => {
     );
 
     return {
-      Parameters: folder({
-        scale: { value: defaults.scale, min: 0.3, max: 2 },
-        speed: { value: defaults.speed, min: -3, max: 3 },
-        seed: { value: defaults.seed, min: 0, max: 9999 },
-        colorFront: { value: defaults.colorFront },
-        colorBack: { value: defaults.colorBack },
-        brightness: { value: defaults.brightness, min: 0.8, max: 2 },
-      }),
-      Presets: folder(presets),
+      Parameters: folder(
+        {
+          colorFront: { value: defaults.colorFront, order: 100 },
+          colorBack: { value: defaults.colorBack, order: 101 },
+          scale: { value: defaults.scale, min: 0.3, max: 2, order: 200 },
+          brightness: { value: defaults.brightness, min: 0.8, max: 2, order: 300 },
+          speed: { value: defaults.speed, min: 0, max: 2, order: 400 },
+        },
+        { order: 1 }
+      ),
+      Presets: folder(presets, { order: 2 }),
     };
   });
 
