@@ -65,7 +65,7 @@ export const electricPreset: SmokeRingPreset = {
   name: 'Electric',
   params: {
     scale: 1,
-    speed: 2.5,
+    speed: -2.5,
     seed: 0,
     colorBack: 'hsla(47, 50%, 7%, 1)',
     colorInner: 'hsla(47, 100%, 64%, 1)',

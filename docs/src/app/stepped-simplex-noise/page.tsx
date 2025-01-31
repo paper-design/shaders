@@ -24,9 +24,9 @@ const SteppedSimplexNoiseExample = () => {
       color4="#f9c54e"
       color5="#ffffff"
       scale={1}
+      stepsNumber={13}
       speed={0.5}
       seed={0}
-      stepsNumber={13}
       style={{ position: 'fixed', width: '100%', height: '100%' }}
     />
   );
@@ -47,18 +47,20 @@ const SteppedSimplexNoiseWithControls = () => {
       ])
     );
     return {
-      Parameters: folder({
-        color1: { value: defaults.color1 },
-        color2: { value: defaults.color2 },
-        color3: { value: defaults.color3 },
-        color4: { value: defaults.color4 },
-        color5: { value: defaults.color5 },
-        scale: { value: defaults.scale, min: 0.1, max: 1.9 },
-        speed: { value: defaults.speed, min: -1.5, max: 1.5 },
-        seed: { value: defaults.seed, min: 0, max: 9999 },
-        stepsNumber: { value: defaults.stepsNumber, min: 2, max: 40 },
-      }),
-      Presets: folder(presets),
+      Parameters: folder(
+        {
+          color1: { value: defaults.color1, order: 100 },
+          color2: { value: defaults.color2, order: 101 },
+          color3: { value: defaults.color3, order: 102 },
+          color4: { value: defaults.color4, order: 103 },
+          color5: { value: defaults.color5, order: 104 },
+          scale: { value: defaults.scale, min: 0.1, max: 1.9, order: 200 },
+          stepsNumber: { value: defaults.stepsNumber, min: 2, max: 40, order: 300 },
+          speed: { value: defaults.speed, min: 0, max: 1, order: 400 },
+        },
+        { order: 1 }
+      ),
+      Presets: folder(presets, { order: 2 }),
     };
   });
 

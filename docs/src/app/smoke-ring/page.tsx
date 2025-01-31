@@ -13,13 +13,14 @@ import { BackButton } from '@/components/back-button';
 const SmokeRingExample = () => {
   return (
     <SmokeRing
-      scale={1}
-      speed={1}
       colorBack="#08121b"
       colorInner="#ffffff"
       colorOuter="#47a0ff"
+      scale={1}
       noiseScale={1.4}
       thickness={0.33}
+      speed={1}
+      seed={0}
       style={{ position: 'fixed', width: '100%', height: '100%' }}
     />
   );
@@ -29,25 +30,42 @@ const SmokeRingExample = () => {
  * This example has controls added so you can play with settings in the example app
  */
 
-const defaults = smokeRingPresets[0].params;
+const firstPresetParams = smokeRingPresets[0].params;
+const defaults = {
+  ...firstPresetParams,
+  speed: Math.abs(firstPresetParams.speed),
+  reverse: firstPresetParams.speed < 0,
+};
 
 const SmokeRingWithControls = () => {
   const [params, setParams] = useControls(() => {
     const presets: SmokeRingParams = Object.fromEntries(
-      smokeRingPresets.map((preset) => [preset.name, button(() => setParamsSafe(params, setParams, preset.params))])
+      smokeRingPresets.map((preset) => [
+        preset.name,
+        button(() => {
+          setParamsSafe(params, setParams, {
+            ...preset.params,
+            speed: Math.abs(preset.params.speed),
+            reverse: preset.params.speed < 0,
+          });
+        }),
+      ])
     );
     return {
-      Parameters: folder({
-        colorBack: { value: defaults.colorBack },
-        colorInner: { value: defaults.colorInner },
-        colorOuter: { value: defaults.colorOuter },
-        scale: { value: defaults.scale, min: 0.5, max: 1.5 },
-        speed: { value: defaults.speed, min: -4, max: 4 },
-        seed: { value: defaults.seed, min: 0, max: 9999 },
-        noiseScale: { value: defaults.thickness, min: 0.01, max: 5 },
-        thickness: { value: defaults.thickness, min: 0.1, max: 2 },
-      }),
-      Presets: folder(presets),
+      Parameters: folder(
+        {
+          colorBack: { value: defaults.colorBack, order: 100 },
+          colorInner: { value: defaults.colorInner, order: 101 },
+          colorOuter: { value: defaults.colorOuter, order: 102 },
+          scale: { value: defaults.scale, min: 0.5, max: 1.5, order: 200 },
+          noiseScale: { value: defaults.noiseScale, min: 0.01, max: 5, order: 300 },
+          thickness: { value: defaults.thickness, min: 0.1, max: 2, order: 301 },
+          speed: { value: defaults.speed, min: 0, max: 4, order: 400 },
+          reverse: { value: defaults.reverse, order: 401 },
+        },
+        { order: 1 }
+      ),
+      Presets: folder(presets, { order: 2 }),
     };
   });
 
@@ -57,12 +75,14 @@ const SmokeRingWithControls = () => {
 
   usePresetHighlight(smokeRingPresets, params);
 
+  const { reverse, ...shaderParams } = { ...params, speed: params.speed * (params.reverse ? -1 : 1) };
+
   return (
     <>
       <Link href="/">
         <BackButton />
       </Link>
-      <SmokeRing {...params} style={{ position: 'fixed', width: '100%', height: '100%' }} />
+      <SmokeRing {...shaderParams} style={{ position: 'fixed', width: '100%', height: '100%' }} />
     </>
   );
 };
