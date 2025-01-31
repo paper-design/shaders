@@ -124,10 +124,4 @@ export const homeShaders = [
     ShaderComponent: Warp,
     shaderConfig: warpPresets[0].params,
   },
-  {
-    name: 'warp',
-    url: '/warp',
-    ShaderComponent: Warp,
-    shaderConfig: warpPresets[0].params,
-  },
 ] satisfies HomeShaderConfig[];
