@@ -75,11 +75,11 @@ export { type WarpProps } from './shaders/warp';
 export { type WarpParams } from './shaders/warp';
 export { type WarpUniforms, PatternShapes, type PatternShape } from '@paper-design/shaders';
 
-// 3d Stripe
-export { Stripe3D, stripe3DPresets } from './shaders/stripe-3d';
-export { type Stripe3DProps } from './shaders/stripe-3d';
-export { type Stripe3DParams } from './shaders/stripe-3d';
-export { type Stripe3DUniforms } from '@paper-design/shaders';
+// 3d Waves
+export { Waves3D, waves3DPresets } from './shaders/waves-3d';
+export { type Waves3DProps } from './shaders/waves-3d';
+export { type Waves3DParams } from './shaders/waves-3d';
+export { type Waves3DUniforms } from '@paper-design/shaders';
 
 // ----- Uniform conversion utils ----- //
 export { getShaderColorFromString } from '@paper-design/shaders';
