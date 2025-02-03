@@ -12,7 +12,6 @@ export type Stripe3DParams = {
   amplitude2?: number;
   frequency1?: number;
   frequency2?: number;
-  rotation?: number;
 } & GlobalParams;
 
 export type Stripe3DProps = Omit<ShaderMountProps, 'fragmentShader'> & Stripe3DParams;
