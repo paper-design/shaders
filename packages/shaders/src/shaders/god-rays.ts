@@ -97,10 +97,11 @@ void main() {
   float radius = length(uv);
   float spots = 4. * u_spotty;
 
-  float rays_inner = .5 * get_noise_shape(uv, radius * spots, 9. * u_frequency, t);
+  float rays_inner = .5 * get_noise_shape(uv, radius * spots, 3. * u_frequency, t);
   rays_inner += .2 * get_noise_shape(uv, .5 + .75 * radius * spots, 6. * u_frequency, -.3 * t);
 
-  float rays_outer = .6 * get_noise_shape(uv, .3 + .5 * radius, 8. * u_frequency, -.5 * t);
+  float rays_outer = .5 * get_noise_shape(uv, .3 + .5 * radius, 14. * u_frequency, -.5 * t);
+  rays_outer += .2 * get_noise_shape(uv, .3 + 1.5 * radius, 4. * u_frequency, .75 * t);
   rays_inner += .3 * rays_outer;
 
   rays_inner *= (1. + .3 * u_light);
