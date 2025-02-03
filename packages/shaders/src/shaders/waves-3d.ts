@@ -65,7 +65,7 @@ float calculateWaveHeightRaw(vec3 p, float time) {
     );
     h += u_amplitude2 * (
         sin(.5 * u_frequency2 * (p.z + p.x) - time - .5 * PI) +
-        sin(u_frequency2 * p.z - .8 * time)
+        sin(u_frequency2 * p.z - 1.8 * time)
     );
        
     return h;
@@ -77,7 +77,7 @@ float calculateWaveHeight(vec3 p, float time) {
 }
 
 vec3 calculateNormal(vec3 p, float time) {
-    float epsilon = 0.05;
+    float epsilon = 0.01;
     vec3 dx = vec3(epsilon, 0.0, 0.0);
     vec3 dz = vec3(0.0, 0.0, epsilon);
     
@@ -93,7 +93,7 @@ vec3 calculateNormal(vec3 p, float time) {
 float traceWavyPlane(vec3 ro, vec3 rd, float time) {
     const int maxSteps = 100;
     const float epsilon = .001;
-    const float maxDistance = 4.;
+    const float maxDistance = 5.;
     const float maxStepSize = .01;
 
     float dist = 1.;
