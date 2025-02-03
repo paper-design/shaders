@@ -4,7 +4,6 @@ export type Stripe3DUniforms = {
   u_color2: [number, number, number, number];
   u_width: number;
   u_length: number;
-  u_incline: number;
   u_amplitude1: number;
   u_amplitude2: number;
   u_frequency1: number;

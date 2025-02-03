@@ -37,7 +37,6 @@ export const defaultPreset: Stripe3DPreset = {
     frequency1: 12,
     amplitude2: 0.04,
     frequency2: 2,
-    rotation: 0,
   },
 } as const;
 
@@ -55,7 +54,6 @@ export const Stripe3D = (props: Stripe3DProps): JSX.Element => {
       u_amplitude2: props.amplitude2 ?? defaultPreset.params.amplitude2,
       u_frequency1: props.frequency1 ?? defaultPreset.params.frequency1,
       u_frequency2: props.frequency2 ?? defaultPreset.params.frequency2,
-      u_rotation: props.rotation ?? defaultPreset.params.rotation,
     };
   }, [
     props.colorBack,
@@ -67,7 +65,6 @@ export const Stripe3D = (props: Stripe3DProps): JSX.Element => {
     props.amplitude2,
     props.frequency1,
     props.frequency2,
-    props.rotation,
   ]);
 
   return <ShaderMount {...props} fragmentShader={stripe3DFragmentShader} uniforms={uniforms} />;
