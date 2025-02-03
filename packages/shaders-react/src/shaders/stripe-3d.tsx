@@ -12,7 +12,6 @@ export type Stripe3DParams = {
   amplitude2?: number;
   frequency1?: number;
   frequency2?: number;
-  incline?: number;
   rotation?: number;
 } & GlobalParams;
 
@@ -38,7 +37,6 @@ export const defaultPreset: Stripe3DPreset = {
     frequency1: 12,
     amplitude2: 0.04,
     frequency2: 2,
-    incline: 0.2,
     rotation: 0,
   },
 } as const;
@@ -57,7 +55,6 @@ export const Stripe3D = (props: Stripe3DProps): JSX.Element => {
       u_amplitude2: props.amplitude2 ?? defaultPreset.params.amplitude2,
       u_frequency1: props.frequency1 ?? defaultPreset.params.frequency1,
       u_frequency2: props.frequency2 ?? defaultPreset.params.frequency2,
-      u_incline: props.incline ?? defaultPreset.params.incline,
       u_rotation: props.rotation ?? defaultPreset.params.rotation,
     };
   }, [
@@ -70,7 +67,6 @@ export const Stripe3D = (props: Stripe3DProps): JSX.Element => {
     props.amplitude2,
     props.frequency1,
     props.frequency2,
-    props.incline,
     props.rotation,
   ]);
 

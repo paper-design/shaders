@@ -9,7 +9,6 @@ export type Stripe3DUniforms = {
   u_amplitude2: number;
   u_frequency1: number;
   u_frequency2: number;
-  u_rotation: number;
 };
 
 /**
@@ -31,12 +30,10 @@ uniform vec4 u_color2;
 
 uniform float u_width;
 uniform float u_length;
-uniform float u_incline;
 uniform float u_amplitude1;
 uniform float u_amplitude2;
 uniform float u_frequency1;
 uniform float u_frequency2;
-uniform float u_rotation;
 
 uniform float u_time;
 uniform float u_pixelRatio;
@@ -64,7 +61,7 @@ float calculateWaveHeightRaw(vec3 p, float time) {
 
 float calculateWaveHeight(vec3 p, float time) {
     float h = calculateWaveHeightRaw(p, time);
-    h -= u_incline * p.x;
+    h -= .3 * p.x;
     return h;
 }
 
@@ -75,16 +72,16 @@ float sdRectangleXZWithWaves(vec3 p, vec2 size, float time) {
     vec2 d = abs(p.xz) - size * 0.5;
     float distXZ = length(max(d, 0.0)) + min(max(d.x, d.y), 0.0);
 
-    return max(distXZ, distY) - .02;
+    return max(distXZ, distY) - .01;
 }
 
 float traceWavyPlane(vec3 ro, vec3 rd, vec2 size, float time) {
-    const int maxSteps = 500;
+    const int maxSteps = 150;
     const float epsilon = .001;
-    const float maxDistance = 10.;
-    const float maxStepSize = .02;
+    const float maxDistance = 8.;
+    const float maxStepSize = .3;
 
-    float dist = 3.;
+    float dist = 4.;
     for (int i = 0; i < maxSteps; i++) {
         vec3 pos = ro + rd * dist;
         float d = sdRectangleXZWithWaves(pos, size, time);
@@ -114,7 +111,7 @@ void main() {
     float t = u_time;
     vec2 u_planeSize = 3. * vec2(u_length, u_width);
     
-    vec3 u_cameraPos = vec3(sin(u_rotation * PI) * 5.0, 2.0, cos(u_rotation * PI) * 5.0);
+    vec3 u_cameraPos = vec3(sin(.02 * PI) * 5.0, 2.0, cos(.02 * PI) * 5.0);
     vec3 u_cameraDir = normalize(vec3(0.0, 0.0, 0.0) - u_cameraPos);
 
     vec3 u_cameraUp = vec3(0.0, 1.0, 0.0);
