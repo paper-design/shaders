@@ -6,7 +6,7 @@ export type GodRaysUniforms = {
   u_color2: [number, number, number, number];
   u_color3: [number, number, number, number];
   u_spotty: number;
-  u_midShape: number;
+  u_midSize: number;
   u_midIntensity: number;
   u_frequency: number;
   u_density: number;
@@ -46,7 +46,7 @@ uniform vec4 u_color3;
 uniform float u_offsetX;
 uniform float u_offsetY;
 uniform float u_spotty;
-uniform float u_midShape;
+uniform float u_midSize;
 uniform float u_midIntensity;
 uniform float u_frequency;
 uniform float u_density;
@@ -80,13 +80,15 @@ float noise(vec2 uv) {
   return mix(x1, x2, u.y);
 }
 
-float get_noise_shape(vec2 uv, float r, float freq, float time) {
+float get_noise_shape(vec2 uv, float r, float freq, float density, float time) {
   uv = rotate(uv, .05 * time);
   float a = atan(uv.y, uv.x);
   r -= 3. * time;
   vec2 left = vec2(a * freq, r);
   vec2 right = vec2(mod(a, TWO_PI) * freq, r);
-  float shape = mix(noise(right), noise(left), smoothstep(-.2, .2, uv.x));
+  float n_left = pow(noise(left), density);
+  float n_right = pow(noise(right), density);
+  float shape = mix(n_right, n_left, smoothstep(-.2, .2, uv.x));
   return shape;
 }
 
@@ -102,40 +104,25 @@ void main() {
 
   float radius = length(uv);
   float spots = 4. * u_spotty;
-  float density = 1. - clamp(u_density, 0., 1.);
+  float density = 4. - 3. * clamp(u_density, 0., 1.);
 
-  float rays1 = get_noise_shape(uv, radius * spots, 5. * u_frequency, t);
-  rays1 *= get_noise_shape(uv, .5 + .75 * radius * spots, 4. * u_frequency, -.5 * t);
+  float rays1 = get_noise_shape(uv, radius * spots, 5. * u_frequency, density, t);
+  rays1 *= get_noise_shape(uv, .5 + .75 * radius * spots, 4. * u_frequency, density, -.5 * t);
   
-  float rays2 = get_noise_shape(uv, 1.5 * radius * spots, 12. * u_frequency, t);
-  rays2 *= get_noise_shape(uv, -.5 + 1.1 * radius * spots, 7. * u_frequency, .75 * t);
+  float rays2 = get_noise_shape(uv, 1.5 * radius, 12. * u_frequency, density, t);
+  rays2 *= get_noise_shape(uv, -.5 + 1.1 * radius * spots, 7. * u_frequency, density, .75 * t);
   
-  float rays3 = get_noise_shape(uv, 2. * radius * spots, 10. * u_frequency, t);
-  rays3 *= get_noise_shape(uv, 1.1 * radius * spots, 12. * u_frequency, .2 * t);
-  
-  vec2 uv_ray1_mask = rotate(uv, .2 * t);
-  float a_ray1_mask = atan(uv_ray1_mask.y, uv_ray1_mask.x);
-  rays1 -= density * abs(sin(7. * a_ray1_mask) * cos(2. * a_ray1_mask + .25 * t));
-  rays1 = max(rays1, 0.);
-  
-  vec2 uv_ray2_mask = rotate(uv, -.4 * t);
-  float a_ray2_mask = atan(uv_ray2_mask.y, uv_ray2_mask.x);
-  rays2 -= density * abs(sin(4. * a_ray2_mask + .2 * t) * cos(5. * a_ray2_mask));
-  rays2 = max(rays2, 0.);
+  float rays3 = get_noise_shape(uv, 2. * radius * spots, 10. * u_frequency, density, t);
+  rays3 *= get_noise_shape(uv, 1.1 * radius, 12. * u_frequency, density, .2 * t);
 
-  vec2 uv_ray3_mask = rotate(uv, .5 * t);
-  float a_ray3_mask = atan(uv_ray3_mask.y, uv_ray3_mask.x); 
-  rays3 -= density * abs(sin(7. * a_ray1_mask - .3 * t) * cos(2. * a_ray1_mask));
-  rays3 = max(rays3, 0.);
-
-  float mid_shape = smoothstep(1. * u_midShape, .1 * u_midShape, radius);  
-  rays3 = mix(rays2, 1., u_midIntensity * pow(mid_shape, 7.));
-  rays2 = mix(rays2, 1., u_midIntensity * pow(mid_shape, 2.));
+  float mid_shape = smoothstep(1. * u_midSize, .05 * u_midSize, radius);  
+  rays3 = mix(rays3, 1., (.5 + .5 * rays1) * u_midIntensity * pow(mid_shape, 7.));
+  rays2 = mix(rays2, 1., (.5 + .5 * rays3) * u_midIntensity * pow(mid_shape, 3.));
   rays1 = mix(rays1, 1., u_midIntensity * pow(mid_shape, 5.));
   
-  vec3 mixed_color = mix(u_colorBack.rgb, u_color2.rgb, .7 * rays2);
-  mixed_color = mix(mixed_color, u_color3.rgb, .7 * rays3);
-  mixed_color = mix(mixed_color, u_color1.rgb, .7 * rays1);
+  vec3 mixed_color = mix(u_colorBack.rgb, u_color2.rgb, rays2);
+  mixed_color = mix(mixed_color, u_color3.rgb, rays3);
+  mixed_color = mix(mixed_color, u_color1.rgb, rays1);
 
   vec3 added_color = u_colorBack.rgb;
   added_color += u_color1.rgb * rays1;

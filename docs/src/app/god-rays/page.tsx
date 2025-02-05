@@ -35,7 +35,7 @@ const GodRaysWithControls = () => {
           offsetX: { value: defaults.offsetX, min: -1.5, max: 1.5, order: 301 },
           offsetY: { value: defaults.offsetY, min: -1.5, max: 1.5, order: 302 },
           spotty: { value: defaults.spotty, min: 0, max: 1, order: 303 },
-          midShape: { value: defaults.midShape, min: 0, max: 3, order: 304 },
+          midSize: { value: defaults.midSize, min: 0, max: 5, order: 304 },
           midIntensity: { value: defaults.midIntensity, min: 0, max: 1, order: 305 },
           density: { value: defaults.density, min: 0, max: 1, order: 306 },
           blending: { value: defaults.blending, min: 0, max: 1, order: 306 },
