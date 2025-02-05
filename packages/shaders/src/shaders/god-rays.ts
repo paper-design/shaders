@@ -4,11 +4,13 @@ export type GodRaysUniforms = {
   u_colorBack: [number, number, number, number];
   u_color1: [number, number, number, number];
   u_color2: [number, number, number, number];
+  u_color3: [number, number, number, number];
   u_spotty: number;
   u_midShape: number;
-  u_light: number;
+  u_midIntensity: number;
   u_frequency: number;
   u_density: number;
+  u_blending: number;
 };
 
 /**
@@ -38,14 +40,17 @@ uniform vec2 u_resolution;
 uniform vec4 u_colorBack;
 uniform vec4 u_color1;
 uniform vec4 u_color2;
+uniform vec4 u_color3;
+
 
 uniform float u_offsetX;
 uniform float u_offsetY;
 uniform float u_spotty;
 uniform float u_midShape;
-uniform float u_light;
+uniform float u_midIntensity;
 uniform float u_frequency;
 uniform float u_density;
+uniform float u_blending;
 
 out vec4 fragColor;
 
@@ -75,13 +80,14 @@ float noise(vec2 uv) {
   return mix(x1, x2, u.y);
 }
 
-float get_noise_shape(vec2 uv, float r, float density, float time) {
+float get_noise_shape(vec2 uv, float r, float freq, float time) {
   uv = rotate(uv, .05 * time);
   float a = atan(uv.y, uv.x);
   r -= 3. * time;
-  vec2 left = vec2(a * density, r);
-  vec2 right = vec2(mod(a, TWO_PI) * density, r);
-  return mix(noise(right), noise(left), smoothstep(-.2, .2, uv.x));
+  vec2 left = vec2(a * freq, r);
+  vec2 right = vec2(mod(a, TWO_PI) * freq, r);
+  float shape = mix(noise(right), noise(left), smoothstep(-.2, .2, uv.x));
+  return shape;
 }
 
 void main() {
@@ -96,31 +102,48 @@ void main() {
 
   float radius = length(uv);
   float spots = 4. * u_spotty;
+  float density = 1. - clamp(u_density, 0., 1.);
 
-  float rays_inner = .5 * get_noise_shape(uv, radius * spots, 3. * u_frequency, t);
-  rays_inner += .2 * get_noise_shape(uv, .5 + .75 * radius * spots, 6. * u_frequency, -.3 * t);
+  float rays1 = get_noise_shape(uv, radius * spots, 5. * u_frequency, t);
+  rays1 *= get_noise_shape(uv, .5 + .75 * radius * spots, 4. * u_frequency, -.5 * t);
+  
+  float rays2 = get_noise_shape(uv, 1.5 * radius * spots, 12. * u_frequency, t);
+  rays2 *= get_noise_shape(uv, -.5 + 1.1 * radius * spots, 7. * u_frequency, .75 * t);
+  
+  float rays3 = get_noise_shape(uv, 2. * radius * spots, 10. * u_frequency, t);
+  rays3 *= get_noise_shape(uv, 1.1 * radius * spots, 12. * u_frequency, .2 * t);
+  
+  vec2 uv_ray1_mask = rotate(uv, .2 * t);
+  float a_ray1_mask = atan(uv_ray1_mask.y, uv_ray1_mask.x);
+  rays1 -= density * abs(sin(7. * a_ray1_mask) * cos(2. * a_ray1_mask + .25 * t));
+  rays1 = max(rays1, 0.);
+  
+  vec2 uv_ray2_mask = rotate(uv, -.4 * t);
+  float a_ray2_mask = atan(uv_ray2_mask.y, uv_ray2_mask.x);
+  rays2 -= density * abs(sin(4. * a_ray2_mask + .2 * t) * cos(5. * a_ray2_mask));
+  rays2 = max(rays2, 0.);
 
-  float rays_outer = .5 * get_noise_shape(uv, .3 + .5 * radius, 14. * u_frequency, -.5 * t);
-  rays_outer += .2 * get_noise_shape(uv, .3 + 1.5 * radius, 4. * u_frequency, .75 * t);
-  rays_inner += .3 * rays_outer;
+  vec2 uv_ray3_mask = rotate(uv, .5 * t);
+  float a_ray3_mask = atan(uv_ray3_mask.y, uv_ray3_mask.x); 
+  rays3 -= density * abs(sin(7. * a_ray1_mask - .3 * t) * cos(2. * a_ray1_mask));
+  rays3 = max(rays3, 0.);
 
-  rays_inner *= (1. + .3 * u_light);
-  rays_outer *= (1. + .5 * u_light);
+  float mid_shape = smoothstep(1. * u_midShape, .1 * u_midShape, radius);  
+  rays3 = mix(rays2, 1., u_midIntensity * pow(mid_shape, 7.));
+  rays2 = mix(rays2, 1., u_midIntensity * pow(mid_shape, 2.));
+  rays1 = mix(rays1, 1., u_midIntensity * pow(mid_shape, 5.));
+  
+  vec3 mixed_color = mix(u_colorBack.rgb, u_color2.rgb, rays2);
+  mixed_color = mix(mixed_color, u_color3.rgb, rays3);
+  mixed_color = mix(mixed_color, u_color1.rgb, rays1);
 
-  float mid_shape = smoothstep(1. * u_midShape, .1 * u_midShape, radius);
-  rays_inner = mix(rays_inner, 1. + .05 * u_light, mid_shape);
-
-  rays_outer -= smoothstep(.3 * u_midShape, 0., radius);
-
-  rays_inner = pow(rays_inner, 13. - 11. * clamp(u_density, .2, .6));
-  rays_outer = pow(rays_outer, 7. - 6. * clamp(u_density, .2, .6));
-
-  rays_inner = clamp(rays_inner, 0., 1. + .5 * u_light);
-  rays_outer = clamp(rays_outer, 0., 1. + .3 * u_light);
-
-  vec3 color = mix(u_colorBack.rgb, u_color1.rgb, rays_inner);
-  color = mix(color, u_color2.rgb, rays_outer);
-
+  vec3 added_color = u_colorBack.rgb;
+  added_color += u_color1.rgb * rays1;
+  added_color += u_color2.rgb * rays2;
+  added_color += u_color3.rgb * rays3;
+  
+  vec3 color = mix(mixed_color, added_color, u_blending);
+  
   fragColor = vec4(color, 1.);
 }
 `;
