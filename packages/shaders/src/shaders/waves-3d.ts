@@ -6,7 +6,6 @@ export type Waves3DUniforms = {
   u_amplitude2: number;
   u_frequency1: number;
   u_frequency2: number;
-  u_grain: number;
 };
 
 /**
@@ -30,7 +29,6 @@ uniform float u_amplitude1;
 uniform float u_amplitude2;
 uniform float u_frequency1;
 uniform float u_frequency2;
-uniform float u_grain;
 
 uniform float u_time;
 uniform float u_pixelRatio;
@@ -40,23 +38,6 @@ uniform vec2 u_resolution;
 
 out vec4 fragColor;
 
-float random(vec2 st) {
-  return fract(sin(dot(st.xy, vec2(12.9898, 78.233))) * 43758.5453123);
-}
-
-float noise(vec2 st) {
-  vec2 i = floor(st);
-  vec2 f = fract(st);
-  float a = random(i);
-  float b = random(i + vec2(1.0, 0.0));
-  float c = random(i + vec2(0.0, 1.0));
-  float d = random(i + vec2(1.0, 1.0));
-
-  vec2 u = f * f * (3.0 - 2.0 * f);
-  float x1 = mix(a, b, u.x);
-  float x2 = mix(c, d, u.x);
-  return mix(x1, x2, u.y);
-}
 
 float calculateWaveHeightRaw(vec3 p, float time) {
     float h = u_amplitude1 * (
@@ -128,8 +109,6 @@ void main() {
         uv.x * tan(u_fov * 0.5) * cameraRight +
         uv.y * tan(u_fov * 0.5) * cameraUp
     );
-
-    rayDir += .002 * u_grain * noise(.5 * gl_FragCoord.xy);
 
     float trace = traceWavyPlane(u_cameraPos, rayDir, t);
 

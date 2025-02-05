@@ -37,7 +37,6 @@ const Waves3DWithControls = () => {
         frequency1: { value: defaults.frequency1, min: 0, max: 8, order: 204 },
         amplitude2: { value: defaults.amplitude2, min: 0, max: 0.1, order: 205 },
         frequency2: { value: defaults.frequency2, min: 0, max: 8, order: 206 },
-        grain: { value: defaults.grain, min: 0, max: 8, order: 206 },
         speed: { value: defaults.speed, min: 0, max: 1.5, order: 400 },
         seed: { value: defaults.seed, min: 0, max: 9999, order: 400 },
       }),

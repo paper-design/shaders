@@ -10,7 +10,6 @@ export type Waves3DParams = {
   amplitude2?: number;
   frequency1?: number;
   frequency2?: number;
-  grain?: number;
 } & GlobalParams;
 
 export type Waves3DProps = Omit<ShaderMountProps, 'fragmentShader'> & Waves3DParams;
@@ -33,7 +32,6 @@ export const defaultPreset: Waves3DPreset = {
     frequency1: 6,
     amplitude2: 0.1,
     frequency2: 6,
-    grain: .0,
   },
 } as const;
 
@@ -49,7 +47,6 @@ export const Waves3D = (props: Waves3DProps): JSX.Element => {
       u_amplitude2: props.amplitude2 ?? defaultPreset.params.amplitude2,
       u_frequency1: props.frequency1 ?? defaultPreset.params.frequency1,
       u_frequency2: props.frequency2 ?? defaultPreset.params.frequency2,
-      u_grain: props.grain ?? defaultPreset.params.grain,
     };
   }, [
     props.colorBack,
@@ -59,7 +56,6 @@ export const Waves3D = (props: Waves3DProps): JSX.Element => {
     props.amplitude2,
     props.frequency1,
     props.frequency2,
-    props.grain,
   ]);
 
   return <ShaderMount {...props} fragmentShader={waves3DFragmentShader} uniforms={uniforms} />;
