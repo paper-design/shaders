@@ -133,9 +133,9 @@ void main() {
   rays2 = mix(rays2, 1., u_midIntensity * pow(mid_shape, 2.));
   rays1 = mix(rays1, 1., u_midIntensity * pow(mid_shape, 5.));
   
-  vec3 mixed_color = mix(u_colorBack.rgb, u_color2.rgb, rays2);
-  mixed_color = mix(mixed_color, u_color3.rgb, rays3);
-  mixed_color = mix(mixed_color, u_color1.rgb, rays1);
+  vec3 mixed_color = mix(u_colorBack.rgb, u_color2.rgb, .7 * rays2);
+  mixed_color = mix(mixed_color, u_color3.rgb, .7 * rays3);
+  mixed_color = mix(mixed_color, u_color1.rgb, .7 * rays1);
 
   vec3 added_color = u_colorBack.rgb;
   added_color += u_color1.rgb * rays1;
