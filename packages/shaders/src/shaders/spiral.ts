@@ -101,6 +101,7 @@ void main() {
   
   float stroke_width = clamp(u_strokeWidth, fwidth(l), 1. - fwidth(l));
   float n2 = noise(uv * .2 * u_noiseFreq - .5 * t);
+  n2 *= noise(uv * u_noiseFreq);
   stroke_width += u_noisePower * n2;
 
   float edge_width = min(fwidth(l), fwidth(offset));
