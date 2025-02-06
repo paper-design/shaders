@@ -22,14 +22,16 @@ export type SpiralProps = Omit<ShaderMountProps, 'fragmentShader'> & SpiralParam
 
 type SpiralPreset = { name: string; params: Required<SpiralParams> };
 
+// Due to Leva controls limitation:
+// 1) keep default colors in HSLA format to keep alpha channel
+// 2) don't use decimal values on HSL values (to avoid button highmidIntensity bug)
+
 export const defaultPreset: SpiralPreset = {
   name: 'Default',
   params: {
-    // Note: Keep default colors in HSLA format so that our Leva controls show a transparency channel (rgba and hex8 do not work)
-    // And don't use decimal values or highlights won't work, because the values get rounded and highlights need an exact match.
-    color1: 'hsla(156, 46%, 51%, 1)',
-    color2: 'hsla(189, 63%, 30%, 1)',
-    scale: 1,
+    color1: 'hsla(200, 60%, 95%, 1)',
+    color2: 'hsla(340, 60%, 5%, 1)',
+    scale: 3,
     offsetX: 0,
     offsetY: 0,
     speed: 1,
@@ -39,13 +41,97 @@ export const defaultPreset: SpiralPreset = {
     strokeWidth: 0.5,
     midShape: 0,
     decrease: 0,
+    blur: 0.1,
+    irregular: 0,
+    seed: 0,
+  },
+} as const;
+
+export const dropletPreset: SpiralPreset = {
+  name: 'Droplet',
+  params: {
+    color1: 'hsla(190, 50%, 95%, 1)',
+    color2: 'hsla(320, 50%, 50%, 1)',
+    scale: 0.65,
+    offsetX: 0,
+    offsetY: 0,
+    speed: 1,
+    focus: 0,
+    noiseFreq: 0,
+    noisePower: 0,
+    strokeWidth: 0.95,
+    midShape: 1,
+    decrease: 0,
     blur: 0,
     irregular: 0,
     seed: 0,
   },
 } as const;
 
-export const spiralPresets: SpiralPreset[] = [defaultPreset];
+export const sandPreset: SpiralPreset = {
+  name: 'Sand',
+  params: {
+    color1: 'hsla(45, 25%, 69%, 1)',
+    color2: 'hsla(0, 0%, 87%, 1)',
+    scale: 4,
+    offsetX: 0,
+    offsetY: 0,
+    speed: 0,
+    focus: 0,
+    noiseFreq: 4.5,
+    noisePower: 0.4,
+    strokeWidth: 0.15,
+    midShape: 0,
+    decrease: 0,
+    blur: 0.5,
+    irregular: 0,
+    seed: 0,
+  },
+} as const;
+
+export const swirlPreset: SpiralPreset = {
+  name: 'Swirl',
+  params: {
+    color1: 'hsla(160, 50%, 80%, 1)',
+    color2: 'hsla(220, 50%, 20%, 1)',
+    scale: 4,
+    offsetX: 0,
+    offsetY: 0,
+    speed: 1,
+    focus: 0.8,
+    noiseFreq: 0,
+    noisePower: 0,
+    strokeWidth: 0.5,
+    midShape: 0,
+    decrease: 0,
+    blur: 0.5,
+    irregular: 0,
+    seed: 0,
+  },
+} as const;
+
+export const hookPreset: SpiralPreset = {
+  name: 'Hook',
+  params: {
+    color1: 'hsla(0, 0%, 0%, 1)',
+    color2: 'hsla(200, 50%, 70%, 1)',
+    scale: 0.8,
+    offsetX: 0,
+    offsetY: 0,
+    speed: 3,
+    focus: 0,
+    noiseFreq: 0,
+    noisePower: 0,
+    strokeWidth: 0.5,
+    midShape: 0,
+    decrease: 0.25,
+    blur: 0.02,
+    irregular: 0,
+    seed: 0,
+  },
+} as const;
+
+export const spiralPresets: SpiralPreset[] = [defaultPreset, dropletPreset, swirlPreset, sandPreset, hookPreset];
 
 export const Spiral = (props: SpiralProps): JSX.Element => {
   const uniforms: SpiralUniforms = useMemo(() => {

@@ -88,23 +88,23 @@ void main() {
 
   float offset = pow(l, 1. - u_focus) + angle_norm;  
   
-  float n1 = noise(uv * .7 * u_noiseFreq + .5 * t);
-  float n2 = noise(uv * .9 * u_noiseFreq - .5 * t);
-  float a = n1 * TWO_PI;
-  offset += .5 * u_noisePower * n2 * cos(a) * pow(radius_original, .5);
-  offset -= .5 * u_noisePower * n1 * sin(a) * pow(radius_original, .5);
-
   float stripe_map = fract(offset);
   stripe_map -= u_decrease * l;
   
   stripe_map *= (1. + u_irregular * sin(4. * l - t) * cos(PI + l + t));
+  
+  float n1 = noise(uv * .7 * u_noiseFreq + .5 * t);
+  stripe_map += (u_noisePower * (n1 - .5));
 
   float shape = 2. * abs(stripe_map - .5);
-  
-  // shape *= (1. - u_midShape * u_irregular / l);
+    
+  shape *= (1. - u_midShape * pow(u_irregular / (2.5 * l), .5));
   shape *= (1. - u_midShape * u_blur / l);
   
   float stroke_width = clamp(u_strokeWidth, fwidth(l), 1. - fwidth(l));
+  float n2 = noise(uv * .2 * u_noiseFreq - .5 * t);
+  stroke_width += u_noisePower * n2;
+
   float edge_width = min(fwidth(l), fwidth(offset));
 
   float mid = 1. - smoothstep(.0, .9, l);
