@@ -75,7 +75,7 @@ export { type WarpProps } from './shaders/warp';
 export { type WarpParams } from './shaders/warp';
 export { type WarpUniforms, PatternShapes, type PatternShape } from '@paper-design/shaders';
 
-// Radial swirl
+// Single-colored spiral shape
 export { Spiral, spiralPresets } from './shaders/spiral';
 export { type SpiralProps } from './shaders/spiral';
 export { type SpiralParams } from './shaders/spiral';

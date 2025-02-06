@@ -15,16 +15,28 @@ export type SpiralUniforms = {
 };
 
 /**
- * Spiral pattern
+ * Spiral shape
  * The artwork by Ksenia Kondrashova
- * Renders a number of circular shapes with gooey effect applied
+ * Generates a dynamic spiral shape with configurable parameters
  *
  * Uniforms include:
- * u_colorBack: The mataball base color #1
- * u_colorStripe1: The mataball base color #2
- * u_colorStripe2: The mataball base color #3
- * u_scale: The scale of uv coordinates: with scale = 1 spiral fit the screen height
+ *
+ * u_scale - controls the overall scale of the spiral (u_scale = 1 makes it fit the viewport height)
+ * u_offsetX - left / right pan
+ * u_offsetY - up / down pan
+ * u_color1 - the first color used in the spiral (stroke)
+ * u_color2 - the second color used in the spiral (back)
+ * u_spiralDensity (0 .. 1) - the spacing of the spiral arms
+ * u_spiralDistortion (0 .. 1) - adds a wavy distortion effect to the spiral arms
+ * u_strokeWidth (0 .. 1) - defines the thickness of the spiral lines.
+ * u_strokeCap (0 .. 1) - adjusts the fading of the spiral edges.
+ * u_strokeTaper (0 .. 1) - controls the tapering effect along the spiral arms.
+ * u_noiseFreq - frequency of the noise applied to the spiral.
+ * u_noisePower (0 .. 1) - strength of the noise effect.
+ * u_blur - softens the edges of the spiral for a smoother appearance.
  */
+
+
 
 export const spiralFragmentShader = `#version 300 es
 precision highp float;
@@ -89,7 +101,6 @@ void main() {
 
   uv -= .5;
   uv += vec2(-u_offsetX, u_offsetY);
-  float radius_original = length(uv);
 
   uv *= (.4 + 30. * u_scale);
   uv /= u_pixelRatio;
@@ -101,14 +112,14 @@ void main() {
   float angle = atan(uv.y, uv.x) - 2. * t;
   float angle_norm = angle / TWO_PI;  
 
-  angle_norm += .5 * u_noisePower * snoise(.5 * u_noiseFreq * uv);
+  angle_norm += .125 * u_noisePower * snoise(.5 * u_noiseFreq * uv);
 
-  float offset = pow(l, 1. - u_spiralDensity) + angle_norm;
+  float offset = pow(l, 1. - clamp(0., 1., u_spiralDensity)) + angle_norm;
   
   float stripe_map = fract(offset);
-  stripe_map -= u_strokeTaper * l;
+  stripe_map -= .5 * u_strokeTaper * l;
   
-  stripe_map += u_noisePower * snoise(u_noiseFreq * uv);
+  stripe_map += .25 * u_noisePower * snoise(u_noiseFreq * uv);
 
   float shape = 2. * abs(stripe_map - .5);
   
@@ -130,6 +141,5 @@ void main() {
   float opacity = mix(u_color1.a, u_color2.a, shape);
 
   fragColor = vec4(color, opacity);
-  // fragColor = vec4(vec3(n), 1.);
 }
 `;
