@@ -52,5 +52,9 @@ export { warpFragmentShader, PatternShapes, type PatternShape, type WarpUniforms
 /** Radial whirl animation */
 export { spiralFragmentShader, type SpiralUniforms } from './shaders/spiral';
 
+// ----- Swirl Gradient ----- //
+/** Colors mixed in the radial swirl shape */
+export { swirlFragmentShader, type SwirlUniforms } from './shaders/swirl';
+
 // ----- Uniform conversion utils ----- //
 export { getShaderColorFromString } from './get-shader-color-from-string';
