@@ -42,6 +42,8 @@ export const defaultPreset: SpiralPreset = {
     noiseFreq: 0,
     noisePower: 0,
     blur: 0.01,
+    speed: 1,
+    seed: 0,
   },
 } as const;
 
@@ -61,6 +63,8 @@ export const dropletPreset: SpiralPreset = {
     noiseFreq: 0,
     noisePower: 0,
     blur: 0,
+    speed: 1,
+    seed: 0,
   },
 } as const;
 
@@ -80,6 +84,8 @@ export const sandPreset: SpiralPreset = {
     noiseFreq: 4.5,
     noisePower: 0.4,
     blur: 0.5,
+    speed: 0,
+    seed: 0,
   },
 } as const;
 
@@ -99,6 +105,8 @@ export const swirlPreset: SpiralPreset = {
     noiseFreq: 0,
     noisePower: 0,
     blur: 0.5,
+    speed: 1,
+    seed: 0,
   },
 } as const;
 
@@ -118,6 +126,8 @@ export const hookPreset: SpiralPreset = {
     noiseFreq: 0,
     noisePower: 0,
     blur: 0.02,
+    speed: 3,
+    seed: 0,
   },
 } as const;
 
@@ -137,6 +147,8 @@ export const vinylPreset: SpiralPreset = {
     noiseFreq: 0,
     noisePower: 0,
     blur: 0.11,
+    speed: 1,
+    seed: 0,
   },
 } as const;
 
