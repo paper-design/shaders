@@ -49,7 +49,7 @@ export { wavesFragmentShader, type WavesUniforms } from './shaders/waves';
 export { warpFragmentShader, PatternShapes, type PatternShape, type WarpUniforms } from './shaders/warp';
 
 // ----- Spiral Shape ----- //
-/** Radial whirl animation */
+/** Single-color spiral shape */
 export { spiralFragmentShader, type SpiralUniforms } from './shaders/spiral';
 
 // ----- Uniform conversion utils ----- //
