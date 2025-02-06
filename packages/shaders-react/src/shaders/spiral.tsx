@@ -8,14 +8,14 @@ export type SpiralParams = {
   scale?: number;
   offsetX?: number;
   offsetY?: number;
-  focus?: number;
+  spiralDensity?: number;
+  spiralDistortion?: number;
+  strokeWidth?: number;
+  strokeTaper?: number;
+  strokeCap?: number;
   noiseFreq?: number;
   noisePower?: number;
-  strokeWidth?: number;
-  midShape?: number;
-  decrease?: number;
   blur?: number;
-  irregular?: number;
 } & GlobalParams;
 
 export type SpiralProps = Omit<ShaderMountProps, 'fragmentShader'> & SpiralParams;
@@ -29,21 +29,19 @@ type SpiralPreset = { name: string; params: Required<SpiralParams> };
 export const defaultPreset: SpiralPreset = {
   name: 'Default',
   params: {
-    color1: 'hsla(200, 60%, 95%, 1)',
-    color2: 'hsla(340, 60%, 5%, 1)',
+    color1: 'hsla(0, 0%, 90%, 1)',
+    color2: 'hsla(0, 0%, 25%, 1)',
     scale: 1,
     offsetX: 0,
     offsetY: 0,
-    speed: 1,
-    focus: 0,
+    spiralDensity: 0,
+    spiralDistortion: 0,
+    strokeWidth: 0.5,
+    strokeTaper: 0,
+    strokeCap: 0,
     noiseFreq: 0,
     noisePower: 0,
-    strokeWidth: 0.5,
-    midShape: 0,
-    decrease: 0,
     blur: 0.01,
-    irregular: 0,
-    seed: 0,
   },
 } as const;
 
@@ -55,16 +53,14 @@ export const dropletPreset: SpiralPreset = {
     scale: 0.65,
     offsetX: 0,
     offsetY: 0,
-    speed: 1,
-    focus: 0,
+    spiralDensity: 0,
+    spiralDistortion: 0,
+    strokeWidth: 0.95,
+    strokeTaper: 0,
+    strokeCap: 1,
     noiseFreq: 0,
     noisePower: 0,
-    strokeWidth: 0.95,
-    midShape: 1,
-    decrease: 0,
     blur: 0,
-    irregular: 0,
-    seed: 0,
   },
 } as const;
 
@@ -76,16 +72,14 @@ export const sandPreset: SpiralPreset = {
     scale: 4,
     offsetX: 0,
     offsetY: 0,
-    speed: 0,
-    focus: 0,
+    spiralDensity: 0,
+    spiralDistortion: 0,
+    strokeWidth: 0.15,
+    strokeTaper: 0,
+    strokeCap: 0,
     noiseFreq: 4.5,
     noisePower: 0.4,
-    strokeWidth: 0.15,
-    midShape: 0,
-    decrease: 0,
     blur: 0.5,
-    irregular: 0,
-    seed: 0,
   },
 } as const;
 
@@ -97,16 +91,14 @@ export const swirlPreset: SpiralPreset = {
     scale: 4,
     offsetX: 0,
     offsetY: 0,
-    speed: 1,
-    focus: 0.8,
+    spiralDensity: 0.8,
+    spiralDistortion: 0,
+    strokeWidth: 0.5,
+    strokeTaper: 0,
+    strokeCap: 0,
     noiseFreq: 0,
     noisePower: 0,
-    strokeWidth: 0.5,
-    midShape: 0,
-    decrease: 0,
     blur: 0.5,
-    irregular: 0,
-    seed: 0,
   },
 } as const;
 
@@ -118,16 +110,14 @@ export const hookPreset: SpiralPreset = {
     scale: 0.8,
     offsetX: 0,
     offsetY: 0,
-    speed: 3,
-    focus: 0,
+    spiralDensity: 0,
+    spiralDistortion: 0,
+    strokeWidth: 0.5,
+    strokeTaper: 0.25,
+    strokeCap: 0,
     noiseFreq: 0,
     noisePower: 0,
-    strokeWidth: 0.5,
-    midShape: 0,
-    decrease: 0.25,
     blur: 0.02,
-    irregular: 0,
-    seed: 0,
   },
 } as const;
 
@@ -139,20 +129,25 @@ export const vinylPreset: SpiralPreset = {
     scale: 1,
     offsetX: 0,
     offsetY: 0,
-    speed: 3,
-    focus: 0,
+    spiralDensity: 0,
+    spiralDistortion: 0.3,
+    strokeWidth: 0.95,
+    strokeTaper: 0,
+    strokeCap: 1,
     noiseFreq: 0,
     noisePower: 0,
-    strokeWidth: 0.95,
-    midShape: 1,
-    decrease: 0,
     blur: 0.11,
-    irregular: .3,
-    seed: 0,
   },
 } as const;
 
-export const spiralPresets: SpiralPreset[] = [defaultPreset, dropletPreset, swirlPreset, sandPreset, hookPreset, vinylPreset];
+export const spiralPresets: SpiralPreset[] = [
+  defaultPreset,
+  dropletPreset,
+  swirlPreset,
+  sandPreset,
+  hookPreset,
+  vinylPreset,
+];
 
 export const Spiral = (props: SpiralProps): JSX.Element => {
   const uniforms: SpiralUniforms = useMemo(() => {
@@ -162,15 +157,14 @@ export const Spiral = (props: SpiralProps): JSX.Element => {
       u_scale: props.scale ?? defaultPreset.params.scale,
       u_offsetX: props.offsetX ?? defaultPreset.params.offsetX,
       u_offsetY: props.offsetY ?? defaultPreset.params.offsetY,
-      u_focus: props.focus ?? defaultPreset.params.focus,
+      u_spiralDensity: props.spiralDensity ?? defaultPreset.params.spiralDensity,
+      u_spiralDistortion: props.spiralDistortion ?? defaultPreset.params.spiralDistortion,
+      u_strokeWidth: props.strokeWidth ?? defaultPreset.params.strokeWidth,
+      u_strokeTaper: props.strokeTaper ?? defaultPreset.params.strokeTaper,
+      u_strokeCap: props.strokeCap ?? defaultPreset.params.strokeCap,
       u_noiseFreq: props.noiseFreq ?? defaultPreset.params.noiseFreq,
       u_noisePower: props.noisePower ?? defaultPreset.params.noisePower,
-      u_strokeWidth: props.strokeWidth ?? defaultPreset.params.strokeWidth,
-      u_midShape: props.midShape ?? defaultPreset.params.midShape,
-      u_decrease: props.decrease ?? defaultPreset.params.decrease,
       u_blur: props.blur ?? defaultPreset.params.blur,
-      u_irregular: props.irregular ?? defaultPreset.params.irregular,
-      u_seed: props.seed ?? defaultPreset.params.seed,
     };
   }, [
     props.color1,
@@ -178,15 +172,14 @@ export const Spiral = (props: SpiralProps): JSX.Element => {
     props.scale,
     props.offsetX,
     props.offsetY,
-    props.focus,
+    props.spiralDensity,
+    props.spiralDistortion,
+    props.strokeWidth,
+    props.strokeTaper,
+    props.strokeCap,
     props.noiseFreq,
     props.noisePower,
-    props.strokeWidth,
-    props.midShape,
-    props.decrease,
     props.blur,
-    props.irregular,
-    props.seed,
   ]);
 
   return <ShaderMount {...props} fragmentShader={spiralFragmentShader} uniforms={uniforms} />;

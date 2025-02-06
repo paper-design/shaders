@@ -4,13 +4,13 @@ export type SpiralUniforms = {
   u_scale: number;
   u_offsetX: number;
   u_offsetY: number;
+  u_spiralDensity: number;
+  u_spiralDistortion: number;
+  u_strokeWidth: number;
+  u_strokeTaper: number;
+  u_strokeCap: number;
   u_noiseFreq: number;
   u_noisePower: number;
-  u_focus: number;
-  u_strokeWidth: number;
-  u_midShape: number;
-  u_decrease: number;
-  u_irregular: number;
   u_blur: number;
 };
 
@@ -29,18 +29,20 @@ export type SpiralUniforms = {
 export const spiralFragmentShader = `#version 300 es
 precision highp float;
 
-uniform vec4 u_color1;
-uniform vec4 u_color2;
 uniform float u_scale;
 uniform float u_offsetX;
 uniform float u_offsetY;
-uniform float u_focus;
+
+uniform vec4 u_color1;
+uniform vec4 u_color2;
+uniform float u_spiralDensity;
+uniform float u_spiralDistortion;
+uniform float u_strokeWidth;
+uniform float u_strokeCap;
+uniform float u_strokeTaper;
+
 uniform float u_noiseFreq;
 uniform float u_noisePower;
-uniform float u_strokeWidth;
-uniform float u_midShape;
-uniform float u_decrease;
-uniform float u_irregular;
 uniform float u_blur;
 
 uniform float u_time;
@@ -86,20 +88,16 @@ void main() {
   float angle = atan(uv.y, uv.x) - 2. * t;
   float angle_norm = angle / TWO_PI;
 
-  float offset = pow(l, 1. - u_focus) + angle_norm;  
+  float offset = pow(l, 1. - u_spiralDensity) + angle_norm;  
   
   float stripe_map = fract(offset);
-  stripe_map -= u_decrease * l;
-  
-  
-  float n1 = noise(uv * .7 * u_noiseFreq + .5 * t);
-  stripe_map += (u_noisePower * (n1 - .5));
+  stripe_map -= u_strokeTaper * l;
 
   float shape = 2. * abs(stripe_map - .5);
   
-  shape *= (1. + u_irregular * sin(4. * l - t) * cos(PI + l + t));
+  shape *= (1. + u_spiralDistortion * sin(4. * l - t) * cos(PI + l + t));
 
-  shape *= (1. - u_midShape * max(u_irregular, u_blur) / l);
+  shape *= (1. - u_strokeCap * max(u_spiralDistortion, u_blur) / l);
   
   float stroke_width = clamp(u_strokeWidth, fwidth(l), 1. - fwidth(l));
   float n2 = noise(uv * .2 * u_noiseFreq - .5 * t);
@@ -110,7 +108,7 @@ void main() {
   float mid = 1. - smoothstep(.0, .9, l);
   mid = pow(mid, 2.);
 
-  shape -= u_midShape * (mid * (.5 - u_strokeWidth));
+  shape -= u_strokeCap * (mid * (.5 - u_strokeWidth));
   shape = smoothstep(stroke_width - edge_width - u_blur, stroke_width + edge_width + u_blur, shape);
 
   vec3 color = mix(u_color1.rgb * u_color1.a, u_color2.rgb * u_color2.a, shape);
