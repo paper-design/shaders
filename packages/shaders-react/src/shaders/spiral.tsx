@@ -31,7 +31,7 @@ export const defaultPreset: SpiralPreset = {
   params: {
     color1: 'hsla(200, 60%, 95%, 1)',
     color2: 'hsla(340, 60%, 5%, 1)',
-    scale: 3,
+    scale: 1,
     offsetX: 0,
     offsetY: 0,
     speed: 1,
@@ -41,7 +41,7 @@ export const defaultPreset: SpiralPreset = {
     strokeWidth: 0.5,
     midShape: 0,
     decrease: 0,
-    blur: 0.1,
+    blur: 0.01,
     irregular: 0,
     seed: 0,
   },
@@ -131,7 +131,28 @@ export const hookPreset: SpiralPreset = {
   },
 } as const;
 
-export const spiralPresets: SpiralPreset[] = [defaultPreset, dropletPreset, swirlPreset, sandPreset, hookPreset];
+export const vinylPreset: SpiralPreset = {
+  name: 'Vinyl',
+  params: {
+    color1: 'hsla(0, 0%, 15%, 1)',
+    color2: 'hsla(320, 5%, 75%, 1)',
+    scale: 1,
+    offsetX: 0,
+    offsetY: 0,
+    speed: 3,
+    focus: 0,
+    noiseFreq: 0,
+    noisePower: 0,
+    strokeWidth: 0.95,
+    midShape: 1,
+    decrease: 0,
+    blur: 0.11,
+    irregular: .3,
+    seed: 0,
+  },
+} as const;
+
+export const spiralPresets: SpiralPreset[] = [defaultPreset, dropletPreset, swirlPreset, sandPreset, hookPreset, vinylPreset];
 
 export const Spiral = (props: SpiralProps): JSX.Element => {
   const uniforms: SpiralUniforms = useMemo(() => {

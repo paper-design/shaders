@@ -76,7 +76,7 @@ void main() {
   uv += vec2(-u_offsetX, u_offsetY);
   float radius_original = length(uv);
 
-  uv *= (.3 + 40. * u_scale);
+  uv *= (.4 + 30. * u_scale);
   uv /= u_pixelRatio;
   uv.x *= ratio;
 
@@ -91,15 +91,15 @@ void main() {
   float stripe_map = fract(offset);
   stripe_map -= u_decrease * l;
   
-  stripe_map *= (1. + u_irregular * sin(4. * l - t) * cos(PI + l + t));
   
   float n1 = noise(uv * .7 * u_noiseFreq + .5 * t);
   stripe_map += (u_noisePower * (n1 - .5));
 
   float shape = 2. * abs(stripe_map - .5);
-    
-  shape *= (1. - u_midShape * pow(u_irregular / (2.5 * l), .5));
-  shape *= (1. - u_midShape * u_blur / l);
+  
+  shape *= (1. + u_irregular * sin(4. * l - t) * cos(PI + l + t));
+
+  shape *= (1. - u_midShape * max(u_irregular, u_blur) / l);
   
   float stroke_width = clamp(u_strokeWidth, fwidth(l), 1. - fwidth(l));
   float n2 = noise(uv * .2 * u_noiseFreq - .5 * t);
