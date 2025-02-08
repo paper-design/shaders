@@ -5,11 +5,9 @@ export type SwirlUniforms = {
   u_scale: number;
   u_offsetX: number;
   u_offsetY: number;
-  u_spiralDensity: number;
-  u_spiralDistortion: number;
-  u_strokeWidth: number;
-  u_strokeTaper: number;
-  u_strokeCap: number;
+  u_frequency: number;
+  u_twist: number;
+  u_depth: number;
   u_noiseFreq: number;
   u_noisePower: number;
   u_blur: number;
@@ -37,11 +35,10 @@ uniform float u_offsetY;
 uniform vec4 u_color1;
 uniform vec4 u_color2;
 uniform vec4 u_color3;
-uniform float u_spiralDensity;
-uniform float u_spiralDistortion;
-uniform float u_strokeWidth;
-uniform float u_strokeCap;
-uniform float u_strokeTaper;
+uniform float u_frequency;
+
+uniform float u_twist;
+uniform float u_depth;
 
 uniform float u_noiseFreq;
 uniform float u_noisePower;
@@ -85,6 +82,51 @@ float snoise(vec2 v) {
   return 130.0 * dot(m, g);
 }
 
+float remap(float t) {
+  float b = .495 * (1. - u_blur);
+  return smoothstep(b, 1. - b, t);
+}
+
+vec4 blend_colors(vec4 c1, vec4 c2, vec4 c3, float mixer) {
+  vec4 color1 = vec4(c1.rgb * c1.a, c1.a);
+  vec4 color2 = vec4(c2.rgb * c2.a, c2.a);
+  vec4 color3 = vec4(c3.rgb * c3.a, c3.a);
+
+  vec4 res;
+  float step = 1. / 6.;
+
+  if (mixer < step) {
+    float t = mixer / step;
+    t = remap(t);
+    res = mix(color1, color2, t);
+  } else if (mixer < 2. * step) {
+    float t = (mixer - step) / step;
+    t = remap(t);
+    res = mix(color2, color3, t);
+  } else if (mixer < 3. * step) {
+    float t = (mixer - 2. * step) / step;
+    t = remap(t);
+    res = mix(color3, color1, t);
+  } else if (mixer < 4. * step) {
+    float t = (mixer - 3. * step) / step;
+    t = remap(t);
+    res = mix(color1, color2, t);
+  } else if (mixer < 5. * step) {
+    float t = (mixer - 4. * step) / step;
+    t = remap(t);
+    res = mix(color2, color3, t);
+  } else {
+    float t = (mixer - 5. * step) / step;
+    t = remap(t);
+    res = mix(color3, color1, t);
+  }
+  return res;
+}
+
+float easeMidpoint(float x, float k) {
+    return pow(x, k) / (pow(x, k) + pow(1.0 - x, k));
+}
+
 void main() {
   vec2 uv = gl_FragCoord.xy / u_resolution.xy;
   float ratio = u_resolution.x / u_resolution.y;
@@ -92,41 +134,30 @@ void main() {
   uv -= .5;
   uv += vec2(-u_offsetX, u_offsetY);
 
-  uv *= (.4 + 30. * u_scale);
+  uv *= (.5 + 2. * u_scale);
   uv /= u_pixelRatio;
   uv.x *= ratio;
 
   float t = u_time;
 
   float l = length(uv);
-  float angle = atan(uv.y, uv.x) - 2. * t;
+  float angle = ceil(u_frequency) * atan(uv.y, uv.x) + 2. * t;
   float angle_norm = angle / TWO_PI;  
 
-  angle_norm += .5 * u_noisePower * snoise(.5 * u_noiseFreq * uv);
+  angle_norm += .5 * u_noisePower * snoise(4. * u_noiseFreq * uv);
+    
+  float twisted_l = .01 + pow(1.5 * l, 5. * u_twist);
 
-  float offset = pow(l, 1. - u_spiralDensity) + angle_norm;
+  float offset = (.5 + .5 * u_depth) / twisted_l + angle_norm;
   
   float stripe_map = fract(offset);
-  stripe_map -= u_strokeTaper * l;
   
-  stripe_map += u_noisePower * snoise(u_noiseFreq * uv);
-
-  float shape = 2. * abs(stripe_map - .5);
+  float shape = stripe_map;
   
-  shape *= (1. + u_spiralDistortion * sin(4. * l - t) * cos(PI + l + t));
-    
-  float stroke_width = clamp(u_strokeWidth, fwidth(l), 1. - fwidth(l));
+  shape = easeMidpoint(shape, smoothstep(.1, 1., twisted_l));
+  
+  vec4 color = blend_colors(u_color1, u_color2, u_color3, shape);
 
-  float edge_width = min(fwidth(l), fwidth(offset));
-
-  float mid = 1. - smoothstep(.0, .9, l);
-  mid = pow(mid, 2.);
-
-  shape = smoothstep(stroke_width - edge_width - u_blur, stroke_width + edge_width + u_blur, shape);
-
-  vec3 color = mix(u_color1.rgb * u_color1.a, u_color2.rgb * u_color2.a, shape);
-  float opacity = mix(u_color1.a, u_color2.a, shape);
-
-  fragColor = vec4(color, opacity);
+  fragColor = vec4(color);
 }
 `;

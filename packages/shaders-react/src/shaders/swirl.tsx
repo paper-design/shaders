@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { ShaderMount, type GlobalParams, type ShaderMountProps } from '../shader-mount';
-import { getShaderColorFromString, spiralFragmentShader, type SwirlUniforms } from '@paper-design/shaders';
+import { getShaderColorFromString, swirlFragmentShader, type SwirlUniforms } from '@paper-design/shaders';
 
 export type SwirlParams = {
   color1?: string;
@@ -9,11 +9,9 @@ export type SwirlParams = {
   scale?: number;
   offsetX?: number;
   offsetY?: number;
-  spiralDensity?: number;
-  spiralDistortion?: number;
-  strokeWidth?: number;
-  strokeTaper?: number;
-  strokeCap?: number;
+  frequency?: number;
+  twist?: number;
+  depth?: number;
   noiseFreq?: number;
   noisePower?: number;
   blur?: number;
@@ -30,29 +28,24 @@ type SwirlPreset = { name: string; params: Required<SwirlParams> };
 export const defaultPreset: SwirlPreset = {
   name: 'Default',
   params: {
-    color1: 'hsla(0, 50%, 50%, 1)',
-    color2: 'hsla(100, 50%, 50%, 1)',
-    color3: 'hsla(200, 50%, 50%, 1)',
+    color1: 'hsla(0, 0%, 20%, 1)',
+    color2: 'hsla(110, 60%, 95%, 1)',
+    color3: 'hsla(340, 70%, 80%, 1)',
     scale: 1,
     offsetX: 0,
     offsetY: 0,
-    spiralDensity: 0,
-    spiralDistortion: 0,
-    strokeWidth: 0.5,
-    strokeTaper: 0,
-    strokeCap: 0,
-    noiseFreq: 0,
-    noisePower: 0,
-    blur: 0.01,
-    speed: 1,
+    frequency: 2.5,
+    twist: 0.25,
+    depth: 0.4,
+    noiseFreq: 30,
+    noisePower: 0.2,
+    blur: 0,
+    speed: 0,
     seed: 0,
   },
 } as const;
 
-
-export const swirlPresets: SwirlPreset[] = [
-  defaultPreset
-];
+export const swirlPresets: SwirlPreset[] = [defaultPreset];
 
 export const Swirl = (props: SwirlProps): JSX.Element => {
   const uniforms: SwirlUniforms = useMemo(() => {
@@ -63,11 +56,9 @@ export const Swirl = (props: SwirlProps): JSX.Element => {
       u_scale: props.scale ?? defaultPreset.params.scale,
       u_offsetX: props.offsetX ?? defaultPreset.params.offsetX,
       u_offsetY: props.offsetY ?? defaultPreset.params.offsetY,
-      u_spiralDensity: props.spiralDensity ?? defaultPreset.params.spiralDensity,
-      u_spiralDistortion: props.spiralDistortion ?? defaultPreset.params.spiralDistortion,
-      u_strokeWidth: props.strokeWidth ?? defaultPreset.params.strokeWidth,
-      u_strokeTaper: props.strokeTaper ?? defaultPreset.params.strokeTaper,
-      u_strokeCap: props.strokeCap ?? defaultPreset.params.strokeCap,
+      u_frequency: props.frequency ?? defaultPreset.params.frequency,
+      u_twist: props.twist ?? defaultPreset.params.twist,
+      u_depth: props.depth ?? defaultPreset.params.depth,
       u_noiseFreq: props.noiseFreq ?? defaultPreset.params.noiseFreq,
       u_noisePower: props.noisePower ?? defaultPreset.params.noisePower,
       u_blur: props.blur ?? defaultPreset.params.blur,
@@ -79,15 +70,13 @@ export const Swirl = (props: SwirlProps): JSX.Element => {
     props.scale,
     props.offsetX,
     props.offsetY,
-    props.spiralDensity,
-    props.spiralDistortion,
-    props.strokeWidth,
-    props.strokeTaper,
-    props.strokeCap,
+    props.frequency,
+    props.twist,
+    props.depth,
     props.noiseFreq,
     props.noisePower,
     props.blur,
   ]);
 
-  return <ShaderMount {...props} fragmentShader={spiralFragmentShader} uniforms={uniforms} />;
+  return <ShaderMount {...props} fragmentShader={swirlFragmentShader} uniforms={uniforms} />;
 };
