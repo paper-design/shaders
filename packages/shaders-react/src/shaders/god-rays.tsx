@@ -60,13 +60,13 @@ export const auroraPreset: GodRaysPreset = {
     midSize: 2.1,
     density: 0.5,
     blending: 1,
-    speed: 1,
+    speed: 0.5,
     seed: 0,
   },
 } as const;
 
-export const spacePreset: GodRaysPreset = {
-  name: 'Space',
+export const warpPreset: GodRaysPreset = {
+  name: 'Warp',
   params: {
     colorBack: 'hsla(0, 0%, 0%, 1)',
     color1: 'hsla(317, 100%, 50%, 1)',
@@ -85,7 +85,47 @@ export const spacePreset: GodRaysPreset = {
   },
 } as const;
 
-export const godRaysPresets: GodRaysPreset[] = [defaultPreset, auroraPreset, spacePreset];
+export const linearPreset: GodRaysPreset = {
+  name: 'Linear',
+  params: {
+    colorBack: 'hsla(0, 0%, 0%, 1)',
+    color1: 'hsl(0 0% 100% / 12%)',
+    color2: 'hsl(0 0% 100% / 24%)',
+    color3: 'hsl(0 0% 100% / 16%)',
+    offsetX: 0.2,
+    offsetY: -0.7,
+    frequency: 1.2,
+    spotty: 0.25,
+    midSize: 1.1,
+    midIntensity: 0.75,
+    density: 0.79,
+    blending: 1,
+    speed: 0.5,
+    seed: 0,
+  },
+} as const;
+
+export const etherPreset: GodRaysPreset = {
+  name: 'Ether',
+  params: {
+    colorBack: 'hsl(226.7 50% 7.1% / 100%)',
+    color1: 'hsl(215 100% 53.9% / 65.1%)',
+    color2: 'hsl(214.4 85.9% 86.1% / 74.9%)',
+    color3: 'hsl(225 31.4% 20% / 100%)',
+    offsetX: -0.6,
+    offsetY: 0,
+    frequency: 0.3,
+    spotty: 0.77,
+    midSize: 1.1,
+    midIntensity: 0.5,
+    density: 0.6,
+    blending: 0.6,
+    speed: 1,
+    seed: 0,
+  },
+} as const;
+
+export const godRaysPresets: GodRaysPreset[] = [defaultPreset, auroraPreset, warpPreset, linearPreset, etherPreset];
 
 export const GodRays = (props: GodRaysProps): JSX.Element => {
   const uniforms: GodRaysUniforms = useMemo(() => {
