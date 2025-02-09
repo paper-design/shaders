@@ -31,6 +31,10 @@ import {
   perlinNoisePresets,
   Warp,
   warpPresets,
+  Spiral,
+  spiralPresets,
+  Swirl,
+  swirlPresets,
 } from '@paper-design/shaders-react';
 import { StaticImageData } from 'next/image';
 
@@ -121,5 +125,17 @@ export const homeShaders = [
     url: '/warp',
     ShaderComponent: Warp,
     shaderConfig: warpPresets[0].params,
+  },
+  {
+    name: 'spiral',
+    url: '/spiral',
+    ShaderComponent: Spiral,
+    shaderConfig: spiralPresets[0].params,
+  },
+  {
+    name: 'swirl',
+    url: '/swirl',
+    ShaderComponent: Swirl,
+    shaderConfig: swirlPresets[0].params,
   },
 ] satisfies HomeShaderConfig[];
