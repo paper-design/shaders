@@ -19,15 +19,19 @@ export type GodRaysUniforms = {
  * Renders a number of circular shapes with gooey effect applied
  *
  * Uniforms include:
- * u_colorBack - color #2 of mix used to fill the cell shape
- * u_color1 - color #1 of mix used to fill the cell shape
- * u_spread (0 ... 0.5) - how far the cell center can move from regular square grid
- * u_edgesSize (0 .. 1) - the size of borders
- *   (can be set to zero but the edge may get glitchy due to nature of GodRays diagram)
- * u_edgesSharpness (0 .. 1) - the blur/sharp for cell border
- * u_middleSize (0 .. 1) - the size of shape in the center of each cell
- * u_middleSharpness (0 .. 1) - the smoothness of shape in the center of each cell
- *   (vary from cell color gradient to sharp dot in the middle)
+ *
+ * u_offsetX - left / right pan
+ * u_offsetY - up / down pan
+ * u_colorBack - background RGBA color
+ * u_color1 - ray color #1 (also main color of middle spot)
+ * u_color2 - ray color #2
+ * u_color3 - ray color #3
+ * u_frequency - the frequency of rays (the number of sectors)
+ * u_spotty - the density of spots in the rings (higher = more spots)
+ * u_midSize - the size of the central shape within the rings
+ * u_midIntensity - the influence of the central shape on the rings
+ * u_density (0 .. 1) - the number of visible rays
+ * u_blending (0 .. 1) - blending mode (0 for color mix, 1 for additive blending)
  */
 
 export const godRaysFragmentShader = `#version 300 es
@@ -44,10 +48,11 @@ uniform vec4 u_color3;
 
 uniform float u_offsetX;
 uniform float u_offsetY;
+
+uniform float u_frequency;
 uniform float u_spotty;
 uniform float u_midSize;
 uniform float u_midIntensity;
-uniform float u_frequency;
 uniform float u_density;
 uniform float u_blending;
 
@@ -102,7 +107,7 @@ void main() {
   float t = .2 * u_time;
 
   float radius = length(uv);
-  float spots = 4. * u_spotty;
+  float spots = 4. * abs(u_spotty);
   float density = 4. - 3. * clamp(u_density, 0., 1.);
 
   float rays1 = get_noise_shape(uv, radius * spots, 5. * u_frequency, density, t);
@@ -114,7 +119,7 @@ void main() {
   float rays3 = get_noise_shape(uv, 2. * radius * spots, 10. * u_frequency, density, t);
   rays3 *= get_noise_shape(uv, 1.1 * radius, 12. * u_frequency, density, .2 * t);
 
-  float mid_shape = smoothstep(1. * u_midSize, .05 * u_midSize, radius);  
+  float mid_shape = smoothstep(1. * abs(u_midSize), .05 * abs(u_midSize), radius);  
   rays3 = mix(rays3, 1., (.5 + .5 * rays1) * u_midIntensity * pow(mid_shape, 7.));
   rays2 = mix(rays2, 1., (.5 + .5 * rays3) * u_midIntensity * pow(mid_shape, 3.));
   rays1 = mix(rays1, 1., u_midIntensity * pow(mid_shape, 5.));
@@ -138,7 +143,7 @@ void main() {
   mixed_color = mix(mixed_color, u_color3.rgb, rays3 * u_color3.a);
   mixed_color = mix(mixed_color, u_color1.rgb, rays1 * u_color1.a);
   
-  vec3 color = mix(mixed_color, added_color, u_blending);
+  vec3 color = mix(mixed_color, added_color, clamp(u_blending, 0., 1.));
   
   fragColor = vec4(color, opacity);
 }

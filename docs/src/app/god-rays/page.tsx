@@ -11,7 +11,24 @@ import Link from 'next/link';
  * You can copy/paste this example to use GodRays in your app
  */
 const GodRaysExample = () => {
-  return <GodRays colorBack="#1ae6e6" color1="#e64d1a" style={{ position: 'fixed', width: '100%', height: '100%' }} />;
+  return (
+    <GodRays
+      colorBack="#404040"
+      color1="#6669ff"
+      color2="#66ffb3"
+      color3="#66ccff"
+      offsetX={0}
+      offsetY={0}
+      spotty={0.15}
+      midIntensity={0}
+      midSize={0}
+      density={0.8}
+      blending={0.4}
+      frequency={1.2}
+      speed={2}
+      style={{ position: 'fixed', width: '100%', height: '100%' }}
+    />
+  );
 };
 
 /**
@@ -34,12 +51,12 @@ const GodRaysWithControls = () => {
           color3: { value: defaults.color2, order: 103 },
           offsetX: { value: defaults.offsetX, min: -1.5, max: 1.5, order: 301 },
           offsetY: { value: defaults.offsetY, min: -1.5, max: 1.5, order: 302 },
-          spotty: { value: defaults.spotty, min: 0, max: 1, order: 303 },
-          midSize: { value: defaults.midSize, min: 0, max: 5, order: 304 },
-          midIntensity: { value: defaults.midIntensity, min: 0, max: 1, order: 305 },
-          density: { value: defaults.density, min: 0, max: 1, order: 306 },
-          blending: { value: defaults.blending, min: 0, max: 1, order: 306 },
-          frequency: { value: defaults.frequency, min: 0, max: 30, order: 307 },
+          frequency: { value: defaults.frequency, min: 0, max: 30, order: 303 },
+          spotty: { value: defaults.spotty, min: 0, max: 1, order: 304 },
+          midSize: { value: defaults.midSize, min: 0, max: 5, order: 305 },
+          midIntensity: { value: defaults.midIntensity, min: 0, max: 1, order: 306 },
+          density: { value: defaults.density, min: 0, max: 1, order: 307 },
+          blending: { value: defaults.blending, min: 0, max: 1, order: 308 },
           speed: { value: defaults.speed, min: 0, max: 2, order: 400 },
         },
         { order: 1 }

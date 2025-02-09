@@ -9,12 +9,12 @@ export type GodRaysParams = {
   color3?: string;
   offsetX?: number;
   offsetY?: number;
+  frequency?: number;
   spotty?: number;
   midIntensity?: number;
   midSize?: number;
   density?: number;
   blending?: number;
-  frequency?: number;
 } & GlobalParams;
 
 export type GodRaysProps = Omit<ShaderMountProps, 'fragmentShader'> & GodRaysParams;
@@ -32,60 +32,60 @@ export const defaultPreset: GodRaysPreset = {
     color1: 'hsla(45, 100%, 70%, 1)',
     color2: 'hsla(10, 100%, 80%, 1)',
     color3: 'hsla(178, 100%, 83%, 1)',
-    offsetX: -0.4,
-    offsetY: -0.4,
+    offsetX: -0.6,
+    offsetY: -0.6,
+    frequency: 6,
     spotty: 0.28,
     midIntensity: 0.97,
     midSize: 2,
     density: 0.3,
     blending: 0,
-    frequency: 6,
     speed: 1,
     seed: 0,
   },
 } as const;
 
-export const preset1: GodRaysPreset = {
-  name: 'Preset #1',
+export const auroraPreset: GodRaysPreset = {
+  name: 'Aurora',
   params: {
-    colorBack: 'hsla(0, 35%, 32%, 1)',
-    color1: 'hsla(196, 100%, 50%, 1)',
-    color2: 'hsla(239, 100%, 50%, 1)',
-    color3: 'hsla(38, 91%, 50%, 1)',
+    colorBack: 'hsla(0, 0%, 25%, 1)',
+    color1: 'hsla(239, 100%, 70%, 1)',
+    color2: 'hsla(150, 100%, 70%, 1)',
+    color3: 'hsla(200, 100%, 70%, 1)',
     offsetX: 0,
-    offsetY: .75,
-    spotty: 0.45,
-    midIntensity: 0.97,
-    midSize: 1.5,
-    density: 0.7,
+    offsetY: 1,
+    frequency: 2.4,
+    spotty: 0.9,
+    midIntensity: 0.8,
+    midSize: 2.1,
+    density: 0.5,
     blending: 1,
-    frequency: 18,
     speed: 1,
     seed: 0,
   },
 } as const;
 
-export const preset2: GodRaysPreset = {
-  name: 'Preset #2',
+export const spacePreset: GodRaysPreset = {
+  name: 'Space',
   params: {
-    colorBack: 'hsla(164, 14%, 15%, 1)',
-    color1: 'hsla(239, 100%, 50%, 1)',
-    color2: 'hsla(150, 100%, 50%, 1)',
+    colorBack: 'hsla(0, 0%, 0%, 1)',
+    color1: 'hsla(317, 100%, 50%, 1)',
+    color2: 'hsla(25, 100%, 50%, 1)',
     color3: 'hsla(0, 0%, 100%, 1)',
     offsetX: 0,
     offsetY: 0,
+    frequency: 1.2,
     spotty: 0.15,
     midIntensity: 0,
     midSize: 0,
     density: 0.79,
     blending: 0.4,
-    frequency: 1.2,
-    speed: 0,
+    speed: 2,
     seed: 0,
   },
 } as const;
 
-export const godRaysPresets: GodRaysPreset[] = [defaultPreset, preset1, preset2];
+export const godRaysPresets: GodRaysPreset[] = [defaultPreset, auroraPreset, spacePreset];
 
 export const GodRays = (props: GodRaysProps): JSX.Element => {
   const uniforms: GodRaysUniforms = useMemo(() => {
@@ -96,12 +96,12 @@ export const GodRays = (props: GodRaysProps): JSX.Element => {
       u_color3: getShaderColorFromString(props.color3, defaultPreset.params.color3),
       u_offsetX: props.offsetX ?? defaultPreset.params.offsetX,
       u_offsetY: props.offsetY ?? defaultPreset.params.offsetY,
+      u_frequency: props.frequency ?? defaultPreset.params.frequency,
       u_spotty: props.spotty ?? defaultPreset.params.spotty,
       u_midIntensity: props.midIntensity ?? defaultPreset.params.midIntensity,
       u_midSize: props.midSize ?? defaultPreset.params.midSize,
       u_density: props.density ?? defaultPreset.params.density,
       u_blending: props.blending ?? defaultPreset.params.blending,
-      u_frequency: props.frequency ?? defaultPreset.params.frequency,
     };
   }, [
     props.colorBack,
@@ -110,12 +110,12 @@ export const GodRays = (props: GodRaysProps): JSX.Element => {
     props.color3,
     props.offsetX,
     props.offsetY,
+    props.frequency,
     props.spotty,
     props.midIntensity,
     props.midSize,
     props.density,
     props.blending,
-    props.frequency,
   ]);
 
   return <ShaderMount {...props} fragmentShader={godRaysFragmentShader} uniforms={uniforms} />;
