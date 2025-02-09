@@ -42,7 +42,6 @@ uniform vec4 u_color1;
 uniform vec4 u_color2;
 uniform vec4 u_color3;
 
-
 uniform float u_offsetX;
 uniform float u_offsetY;
 uniform float u_spotty;
@@ -120,17 +119,27 @@ void main() {
   rays2 = mix(rays2, 1., (.5 + .5 * rays3) * u_midIntensity * pow(mid_shape, 3.));
   rays1 = mix(rays1, 1., u_midIntensity * pow(mid_shape, 5.));
   
-  vec3 mixed_color = mix(u_colorBack.rgb, u_color2.rgb, rays2);
-  mixed_color = mix(mixed_color, u_color3.rgb, rays3);
-  mixed_color = mix(mixed_color, u_color1.rgb, rays1);
+  float opacity = rays2 * u_color2.a;
+  opacity += rays3 * u_color3.a;
+  opacity += rays1 * u_color1.a;
+  opacity += u_colorBack.a * (1.0 - rays1 * u_color1.a - rays2 * u_color2.a - rays3 * u_color3.a);
+  opacity = clamp(opacity, 0.0, 1.0);
 
-  vec3 added_color = u_colorBack.rgb;
-  added_color += u_color1.rgb * rays1;
-  added_color += u_color2.rgb * rays2;
-  added_color += u_color3.rgb * rays3;
+  vec3 added_color = u_colorBack.rgb * (1. - (rays1 + rays2 + rays3)) * u_colorBack.a;
+  added_color += u_color1.rgb * rays1 * u_color1.a;
+  added_color += u_color2.rgb * rays2 * u_color2.a;
+  added_color += u_color3.rgb * rays3 * u_color3.a;
+
+  added_color += u_colorBack.rgb * rays1 * (1.0 - u_color1.a) * u_colorBack.a;
+  added_color += u_colorBack.rgb * rays2 * (1.0 - u_color2.a) * u_colorBack.a;
+  added_color += u_colorBack.rgb * rays3 * (1.0 - u_color3.a) * u_colorBack.a;
+  
+  vec3 mixed_color = mix(u_colorBack.rgb * u_colorBack.a, u_color2.rgb, rays2 * u_color2.a);
+  mixed_color = mix(mixed_color, u_color3.rgb, rays3 * u_color3.a);
+  mixed_color = mix(mixed_color, u_color1.rgb, rays1 * u_color1.a);
   
   vec3 color = mix(mixed_color, added_color, u_blending);
   
-  fragColor = vec4(color, 1.);
+  fragColor = vec4(color, opacity);
 }
 `;
