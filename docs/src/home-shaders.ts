@@ -31,6 +31,8 @@ import {
   perlinNoisePresets,
   Warp,
   warpPresets,
+  GodRays,
+  godRaysPresets,
 } from '@paper-design/shaders-react';
 import { StaticImageData } from 'next/image';
 
@@ -121,5 +123,11 @@ export const homeShaders = [
     url: '/warp',
     ShaderComponent: Warp,
     shaderConfig: warpPresets[0].params,
+  },
+  {
+    name: 'god rays',
+    url: '/god-rays',
+    ShaderComponent: GodRays,
+    shaderConfig: godRaysPresets[0].params,
   },
 ] satisfies HomeShaderConfig[];

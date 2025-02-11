@@ -48,9 +48,13 @@ export { wavesFragmentShader, type WavesUniforms } from './shaders/waves';
 /** Warp: distortion + swirl + underlying shapes */
 export { warpFragmentShader, PatternShapes, type PatternShape, type WarpUniforms } from './shaders/warp';
 
+// ----- God Rays Effect ----- //
+/** Radial shape made of randomized stripes */
+export { godRaysFragmentShader, type GodRaysUniforms } from './shaders/god-rays';
+
 // ----- Pulsing border animation ----- //
 /** A shader rendering a noisy semi-transparent gradient around the canvas border */
-export { pulsingBorderFragmentShader, type PulsingBorderUniforms } from './shaders/pulsing-border';
+export {pulsingBorderFragmentShader, type PulsingBorderUniforms} from './shaders/pulsing-border';
 
 // ----- Uniform conversion utils ----- //
 export { getShaderColorFromString } from './get-shader-color-from-string';
