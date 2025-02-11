@@ -82,10 +82,10 @@ export { type GodRaysParams } from './shaders/god-rays';
 export { type GodRaysUniforms } from '@paper-design/shaders';
 
 // Neuro noise
-export {PulsingBorder, pulsingBorderPresets} from './shaders/pulsing-border';
-export {type PulsingBorderProps} from './shaders/pulsing-border';
-export {type PulsingBorderParams} from './shaders/pulsing-border';
-export {type PulsingBorderUniforms} from '@paper-design/shaders';
+export { PulsingBorder, pulsingBorderPresets } from './shaders/pulsing-border';
+export { type PulsingBorderProps } from './shaders/pulsing-border';
+export { type PulsingBorderParams } from './shaders/pulsing-border';
+export { type PulsingBorderUniforms } from '@paper-design/shaders';
 
 // ----- Uniform conversion utils ----- //
 export { getShaderColorFromString } from '@paper-design/shaders';

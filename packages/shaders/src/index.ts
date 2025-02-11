@@ -54,7 +54,7 @@ export { godRaysFragmentShader, type GodRaysUniforms } from './shaders/god-rays'
 
 // ----- Pulsing border animation ----- //
 /** A shader rendering a noisy semi-transparent gradient around the canvas border */
-export {pulsingBorderFragmentShader, type PulsingBorderUniforms} from './shaders/pulsing-border';
+export { pulsingBorderFragmentShader, type PulsingBorderUniforms } from './shaders/pulsing-border';
 
 // ----- Uniform conversion utils ----- //
 export { getShaderColorFromString } from './get-shader-color-from-string';
