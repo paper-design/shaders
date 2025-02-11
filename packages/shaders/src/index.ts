@@ -48,5 +48,9 @@ export { wavesFragmentShader, type WavesUniforms } from './shaders/waves';
 /** Warp: distortion + swirl + underlying shapes */
 export { warpFragmentShader, PatternShapes, type PatternShape, type WarpUniforms } from './shaders/warp';
 
+// ----- Pulsing border animation ----- //
+/** A shader rendering a noisy semi-transparent gradient around the canvas border */
+export { pulsingBorderFragmentShader, type PulsingBorderUniforms } from './shaders/pulsing-border';
+
 // ----- Uniform conversion utils ----- //
 export { getShaderColorFromString } from './get-shader-color-from-string';

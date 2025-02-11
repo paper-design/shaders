@@ -75,5 +75,11 @@ export { type WarpProps } from './shaders/warp';
 export { type WarpParams } from './shaders/warp';
 export { type WarpUniforms, PatternShapes, type PatternShape } from '@paper-design/shaders';
 
+// Neuro noise
+export { PulsingBorder, pulsingBorderPresets } from './shaders/pulsing-border';
+export { type PulsingBorderProps } from './shaders/pulsing-border';
+export { type PulsingBorderParams } from './shaders/pulsing-border';
+export { type PulsingBorderUniforms } from '@paper-design/shaders';
+
 // ----- Uniform conversion utils ----- //
 export { getShaderColorFromString } from '@paper-design/shaders';
