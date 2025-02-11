@@ -36,8 +36,6 @@ export type SpiralUniforms = {
  * u_blur - softens the edges of the spiral for a smoother appearance.
  */
 
-
-
 export const spiralFragmentShader = `#version 300 es
 precision highp float;
 
