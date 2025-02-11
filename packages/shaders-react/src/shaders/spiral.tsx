@@ -71,14 +71,14 @@ export const noisyPreset: SpiralPreset = {
 export const dropletPreset: SpiralPreset = {
   name: 'Droplet',
   params: {
-    color1: 'hsla(190, 50%, 95%, 1)',
-    color2: 'hsla(320, 50%, 50%, 1)',
+    color1: 'hsla(320, 50%, 50%, 1)',
+    color2: 'hsla(190, 50%, 95%, 1)',
     scale: 0.65,
     offsetX: 0,
     offsetY: 0,
     spiralDensity: 0,
     spiralDistortion: 0,
-    strokeWidth: 0.95,
+    strokeWidth: 0.05,
     strokeTaper: 0,
     strokeCap: 1,
     noiseFreq: 0,

@@ -124,8 +124,6 @@ void main() {
   float shape = 2. * abs(stripe_map - .5);
   
   shape *= (1. + u_spiralDistortion * sin(4. * l - t) * cos(PI + l + t));
-
-  shape *= (1. - u_strokeCap * max(u_spiralDistortion, u_blur) / l);
     
   float stroke_width = clamp(u_strokeWidth, fwidth(l), 1. - fwidth(l));
 
@@ -133,8 +131,8 @@ void main() {
 
   float mid = 1. - smoothstep(.0, .9, l);
   mid = pow(mid, 2.);
-
-  shape -= u_strokeCap * (mid * (.5 - u_strokeWidth));
+  shape -= .5 * u_strokeCap * mid;
+  
   shape = smoothstep(stroke_width - edge_width - u_blur, stroke_width + edge_width + u_blur, shape);
 
   vec3 color = mix(u_color1.rgb * u_color1.a, u_color2.rgb * u_color2.a, shape);
