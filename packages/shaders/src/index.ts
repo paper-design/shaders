@@ -52,8 +52,8 @@ export { warpFragmentShader, PatternShapes, type PatternShape, type WarpUniforms
 /** Radial shape made of randomized stripes */
 export { godRaysFragmentShader, type GodRaysUniforms } from './shaders/god-rays';
 
-// ----- Pulsing border animation ----- //
-/** A shader rendering a noisy semi-transparent gradient around the canvas border */
+// ----- Border Gradient ----- //
+/** A shader rendering a multi-color gradient around the viewport border */
 export { pulsingBorderFragmentShader, type PulsingBorderUniforms } from './shaders/pulsing-border';
 
 // ----- Uniform conversion utils ----- //

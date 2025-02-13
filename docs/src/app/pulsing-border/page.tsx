@@ -29,11 +29,16 @@ const PulsingBorderWithControls = () => {
     return {
       Parameters: folder(
         {
-          colorFront: { value: defaults.colorFront, order: 100 },
-          colorBack: { value: defaults.colorBack, order: 101 },
-          scale: { value: defaults.scale, min: 0.3, max: 2, order: 200 },
-          brightness: { value: defaults.brightness, min: 0.8, max: 2, order: 300 },
+          colorBack: { value: defaults.colorBack, order: 100 },
+          color1: { value: defaults.color1, order: 101 },
+          color2: { value: defaults.color2, order: 102 },
+          color3: { value: defaults.color3, order: 103 },
+          brightness: { value: defaults.brightness, min: 0, max: 1, order: 300 },
           speed: { value: defaults.speed, min: 0, max: 2, order: 400 },
+          borderBlur: { value: defaults.borderBlur, min: 0, max: 2, order: 500 },
+          borderSize: { value: defaults.borderSize, min: 0, max: 500, order: 500 },
+          midOpacity: { value: defaults.midOpacity, min: 0, max: 1, order: 500 },
+          borderPower: { value: defaults.borderPower, min: 0, max: 1, order: 500 },
         },
         { order: 1 }
       ),
