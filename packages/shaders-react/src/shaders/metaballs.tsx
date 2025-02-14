@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { ShaderMount, type GlobalParams, type ShaderMountProps } from '../shader-mount';
-import { getShaderColorFromString, metaballsFragmentShader, type MetaballsUniforms } from '@paper-design/shaders';
+import { getShaderColorFromString, metaballsFragmentShader } from '@paper-design/shaders';
 
 export type MetaballsParams = {
   scale?: number;
@@ -36,7 +36,7 @@ export const defaultPreset: MetaballsPreset = {
 export const metaballsPresets: MetaballsPreset[] = [defaultPreset];
 
 export const Metaballs = (props: MetaballsProps): JSX.Element => {
-  const uniforms: MetaballsUniforms = useMemo(() => {
+  const uniforms = useMemo(() => {
     return {
       u_scale: props.scale ?? defaultPreset.params.scale,
       u_color1: getShaderColorFromString(props.color1, defaultPreset.params.color1),

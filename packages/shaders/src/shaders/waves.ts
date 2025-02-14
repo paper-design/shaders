@@ -1,16 +1,3 @@
-export type WavesUniforms = {
-  u_scale: number;
-  u_rotation: number;
-  u_color1: [number, number, number, number];
-  u_color2: [number, number, number, number];
-  u_shape: number;
-  u_frequency: number;
-  u_amplitude: number;
-  u_spacing: number;
-  u_dutyCycle: number;
-  u_edgeBlur: number;
-};
-
 /**
  * Stepped Simplex Noise by Ksenia Kondrashova
  * Calculates a combination of 2 simplex noises with result rendered as a stepped gradient

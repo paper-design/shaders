@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { ShaderMount, type GlobalParams, type ShaderMountProps } from '../shader-mount';
-import { getShaderColorFromString, meshGradientFragmentShader, type MeshGradientUniforms } from '@paper-design/shaders';
+import { getShaderColorFromString, meshGradientFragmentShader } from '@paper-design/shaders';
 
 export type MeshGradientParams = {
   color1?: string;
@@ -56,7 +56,7 @@ export const fadedPreset: MeshGradientPreset = {
 export const meshGradientPresets: MeshGradientPreset[] = [defaultPreset, beachPreset, fadedPreset];
 
 export const MeshGradient = (props: MeshGradientProps): JSX.Element => {
-  const uniforms: MeshGradientUniforms = useMemo(() => {
+  const uniforms = useMemo(() => {
     return {
       u_color1: getShaderColorFromString(props.color1, defaultPreset.params.color1),
       u_color2: getShaderColorFromString(props.color2, defaultPreset.params.color2),

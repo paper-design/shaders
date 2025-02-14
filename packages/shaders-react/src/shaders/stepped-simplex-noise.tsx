@@ -1,10 +1,6 @@
 import { useMemo } from 'react';
 import { ShaderMount, type GlobalParams, type ShaderMountProps } from '../shader-mount';
-import {
-  getShaderColorFromString,
-  steppedSimplexNoiseFragmentShader,
-  type SteppedSimplexNoiseUniforms,
-} from '@paper-design/shaders';
+import { getShaderColorFromString, steppedSimplexNoiseFragmentShader } from '@paper-design/shaders';
 
 export type SteppedSimplexNoiseParams = {
   scale?: number;
@@ -92,7 +88,7 @@ export const steppedSimplexNoisePresets: SteppedSimplexNoisePreset[] = [
 ];
 
 export const SteppedSimplexNoise = (props: SteppedSimplexNoiseProps): JSX.Element => {
-  const uniforms: SteppedSimplexNoiseUniforms = useMemo(() => {
+  const uniforms = useMemo(() => {
     return {
       u_scale: props.scale ?? defaultPreset.params.scale,
       u_color1: getShaderColorFromString(props.color1, defaultPreset.params.color1),

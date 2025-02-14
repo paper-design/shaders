@@ -3,7 +3,7 @@ import { ShaderMount, type ShaderMountProps } from '../shader-mount';
 import {
   dotsGridFragmentShader,
   getShaderColorFromString,
-  type DotsGridUniforms,
+  // type DotsGridUniforms,
   type DotsGridShape,
   DotsGridShapes,
 } from '@paper-design/shaders';
@@ -169,7 +169,7 @@ export const dotsGridPresets: DotsGridPreset[] = [
 ];
 
 export const DotsGrid = (props: DotsGridProps): JSX.Element => {
-  const uniforms: DotsGridUniforms = useMemo(() => {
+  const uniforms = useMemo(() => {
     return {
       u_colorBack: getShaderColorFromString(props.colorBack, defaultPreset.params.colorBack),
       u_colorFill: getShaderColorFromString(props.colorFill, defaultPreset.params.colorStroke),

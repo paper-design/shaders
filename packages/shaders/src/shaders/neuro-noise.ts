@@ -1,10 +1,3 @@
-export type NeuroNoiseUniforms = {
-  u_scale: number;
-  u_colorFront: [number, number, number, number];
-  u_colorBack: [number, number, number, number];
-  u_brightness: number;
-};
-
 /**
  * Neuro Noise Pattern
  * The original artwork: https://codepen.io/ksenia-k/full/vYwgrWv by Ksenia Kondrashova

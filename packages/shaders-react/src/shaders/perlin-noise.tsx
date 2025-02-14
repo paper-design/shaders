@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { ShaderMount, type GlobalParams, type ShaderMountProps } from '../shader-mount';
-import { getShaderColorFromString, perlinNoiseFragmentShader, type PerlinNoiseUniforms } from '@paper-design/shaders';
+import { getShaderColorFromString, perlinNoiseFragmentShader } from '@paper-design/shaders';
 
 export type PerlinNoiseParams = {
   scale?: number;
@@ -120,7 +120,7 @@ export const preset5: PerlinNoisePreset = {
 export const perlinNoisePresets: PerlinNoisePreset[] = [defaultPreset, preset1, preset2, preset3, preset4, preset5];
 
 export const PerlinNoise = (props: PerlinNoiseProps): JSX.Element => {
-  const uniforms: PerlinNoiseUniforms = useMemo(() => {
+  const uniforms = useMemo(() => {
     return {
       u_scale: props.scale ?? defaultPreset.params.scale,
       u_color1: getShaderColorFromString(props.color1, defaultPreset.params.color1),

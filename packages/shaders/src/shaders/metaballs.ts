@@ -1,12 +1,3 @@
-export type MetaballsUniforms = {
-  u_scale: number;
-  u_color1: [number, number, number, number];
-  u_color2: [number, number, number, number];
-  u_color3: [number, number, number, number];
-  u_ballSize: number;
-  u_visibilityRange: number;
-};
-
 /**
  * Metaballs (circular shapes with gooey effect applied)
  * The artwork by Ksenia Kondrashova

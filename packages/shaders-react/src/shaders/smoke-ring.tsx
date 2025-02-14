@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { ShaderMount, type GlobalParams, type ShaderMountProps } from '../shader-mount';
-import { getShaderColorFromString, smokeRingFragmentShader, type SmokeRingUniforms } from '@paper-design/shaders';
+import { getShaderColorFromString, smokeRingFragmentShader } from '@paper-design/shaders';
 
 export type SmokeRingParams = {
   colorBack?: string;
@@ -98,7 +98,7 @@ export const smokeRingPresets: SmokeRingPreset[] = [
 ];
 
 export const SmokeRing = (props: SmokeRingProps): JSX.Element => {
-  const uniforms: SmokeRingUniforms = useMemo(() => {
+  const uniforms = useMemo(() => {
     return {
       u_scale: props.scale ?? defaultPreset.params.scale,
       u_colorBack: getShaderColorFromString(props.colorBack, defaultPreset.params.colorBack),

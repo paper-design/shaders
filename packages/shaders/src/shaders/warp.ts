@@ -5,21 +5,6 @@ export const PatternShapes = {
 } as const;
 export type PatternShape = (typeof PatternShapes)[keyof typeof PatternShapes];
 
-export type WarpUniforms = {
-  u_scale: number;
-  u_rotation: number;
-  u_color1: [number, number, number, number];
-  u_color2: [number, number, number, number];
-  u_color3: [number, number, number, number];
-  u_proportion: number;
-  u_softness: number;
-  u_shape: PatternShape;
-  u_shapeScale: number;
-  u_distortion: number;
-  u_swirl: number;
-  u_swirlIterations: number;
-};
-
 /**
  * 3d Perlin noise with exposed parameters
  *

@@ -7,19 +7,6 @@ export const DotsGridShapes = {
 } as const;
 export type DotsGridShape = (typeof DotsGridShapes)[keyof typeof DotsGridShapes];
 
-export type DotsGridUniforms = {
-  u_colorBack: [number, number, number, number];
-  u_colorFill: [number, number, number, number];
-  u_colorStroke: [number, number, number, number];
-  u_dotSize: number;
-  u_gridSpacingX: number;
-  u_gridSpacingY: number;
-  u_strokeWidth: number;
-  u_sizeRange: number;
-  u_opacityRange: number;
-  u_shape: DotsGridShape;
-};
-
 /**
  * Dot Grid Pattern
  * (the size parameters are set in pixels)

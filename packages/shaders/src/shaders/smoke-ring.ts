@@ -1,12 +1,3 @@
-export type SmokeRingUniforms = {
-  u_scale: number;
-  u_colorBack: [number, number, number, number];
-  u_colorInner: [number, number, number, number];
-  u_colorOuter: [number, number, number, number];
-  u_noiseScale: number;
-  u_thickness: number;
-};
-
 /**
  * Smoke Ring by Ksenia Kondrashova
  * Renders a fractional Brownian motion (fBm) noise over the

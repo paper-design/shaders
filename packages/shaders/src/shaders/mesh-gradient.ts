@@ -1,10 +1,3 @@
-export type MeshGradientUniforms = {
-  u_color1: [number, number, number, number];
-  u_color2: [number, number, number, number];
-  u_color3: [number, number, number, number];
-  u_color4: [number, number, number, number];
-};
-
 /**
  * Mesh Gradient, based on https://www.shadertoy.com/view/wdyczG
  * Renders a mesh gradient with a rotating noise pattern
