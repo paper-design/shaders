@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { ShaderMount, type GlobalParams, type ShaderMountProps } from '../shader-mount';
+import { getShaderColorFromString, neuroNoiseFragmentShader } from '@paper-design/shaders';
 
 export type NeuroNoiseParams = {
   scale?: number;
