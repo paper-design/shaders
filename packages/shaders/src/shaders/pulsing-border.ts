@@ -1,16 +1,8 @@
-export type PulsingBorderUniforms = {
-  u_colorBack: [number, number, number, number];
-  u_color1: [number, number, number, number];
-  u_color2: [number, number, number, number];
-  u_color3: [number, number, number, number];
-  u_brightness: number;
-  u_midOpacity: number;
-  u_borderPower: number;
-};
+export type PulsingBorderUniforms = {};
 
 /**
  *
- * Border gradient with optional pulsing animation. Inspired by
+ * Border borderLine with optional pulsing animation. Inspired by
  *
  * Uniforms include:
  */
@@ -26,23 +18,20 @@ uniform vec4 u_colorBack;
 uniform vec4 u_color1;
 uniform vec4 u_color2;
 uniform vec4 u_color3;
-uniform float u_brightness;
-uniform float u_midOpacity;
-uniform float u_borderPower;
 
-uniform float u_borderBlur;
-uniform float u_borderSize;
+uniform float u_sizePx;
+uniform float u_power;
+uniform float u_inner;
+uniform float u_borderLine;
+uniform float u_grain;
+uniform float u_spotty;
 
 out vec4 fragColor;
 
 vec2 rotate(vec2 uv, float th) {
   return mat2(cos(th), sin(th), -sin(th), cos(th)) * uv;
 }
-  mat2 rot(float a) {
-      float c = cos(a), s = sin(a);
-      return mat2(c, -s, s, c);
-  }
-  
+
 vec3 permute(vec3 x) { return mod(((x * 34.0) + 1.0) * x, 289.0); }
 float snoise(vec2 v) {
   const vec4 C = vec4(0.211324865405187, 0.366025403784439,
@@ -73,66 +62,83 @@ float snoise(vec2 v) {
 
 float get_noise(vec2 uv, float offset, float rotation) {
   uv -= .5;
-  uv *= (.0007 * u_resolution);
+  uv *= (.00075 * u_resolution);
   uv = rotate(uv, rotation);
   uv /= u_pixelRatio;
   uv += .5;
-  
-  float noise = snoise(uv + offset);
+  float noise = abs(snoise(uv + offset));
   noise = pow(noise, 4.);
   return noise;
+}
+
+float get_px_border(vec2 uv_normalised) {
+  vec2 outer = u_sizePx / u_resolution;
+  vec2 bl = smoothstep(vec2(0.), outer, uv_normalised);
+  vec2 tr = smoothstep(vec2(0.), outer, 1. - uv_normalised);
+  
+  vec2 border_shaper = 12. * vec2(pow(.05 + .95 * u_borderLine, 3.));
+  bl = pow(bl, border_shaper);
+  tr = pow(tr, border_shaper);
+  float s = 1. - bl.x * bl.y * tr.x * tr.y;
+  return s;
+}
+
+float rand(vec2 n) {
+  return fract(cos(dot(n, vec2(12.9898, 4.1414))) * 43758.5453);
+}
+float noise(vec2 n) {
+  const vec2 d = vec2(0.0, 1.0);
+  vec2 b = floor(n), f = smoothstep(vec2(0.0), vec2(1.0), fract(n));
+  return mix(mix(rand(b), rand(b + d.yx), f.x), mix(rand(b + d.xy), rand(b + d.yy), f.x), f.y);
+}
+float fbm(vec2 n) {
+  float total = 0.0, amplitude = .2;
+  for (int i = 0; i < 4; i++) {
+    total += noise(n) * amplitude;
+    n += n;
+    amplitude *= 0.6;
+  }
+  return total;
 }
 
 void main() {
   vec2 uv = gl_FragCoord.xy;
   uv /= u_pixelRatio;
 
-  float t = .5 * u_time;
+  float t = 10. + .6 * u_time;
   
   vec2 uv_normalised = gl_FragCoord.xy / u_resolution.xy;
-
-  vec2 border_saved_bl = smoothstep(vec2(0.), vec2(1.), uv_normalised);
-  vec2 border_saved_tr = smoothstep(vec2(0.), vec2(1.), 1. - uv_normalised);
-  float border_saved = border_saved_bl.x * border_saved_bl.y * border_saved_tr.x * border_saved_tr.y;
-
-  vec2 outer = u_borderSize / u_resolution;
-  vec2 bl = smoothstep(vec2(0.), outer, uv_normalised);
-  vec2 tr = smoothstep(vec2(0.), outer, 1. - uv_normalised);
-  float border = bl.x * bl.y * tr.x * tr.y;
-  border = clamp(border, 0., 1.);  
-  border = 1. - border;
-  border = pow(border, 2. * u_borderBlur);
   
+  float grain = clamp(.6 * snoise(uv * .5) - fbm(.4 * uv) - fbm(.001 * uv), 0., 1.);
+  
+  float px_border = get_px_border(uv_normalised);
+  px_border += grain * .5 * u_grain;
+  px_border *= (1. + u_power);
+
+  float inner = mix(1.5 * u_inner - 1., 1.5 * u_inner, length(uv_normalised - .5));
+  inner = .4 * inner * clamp(inner, 0., 1.);
+  inner += grain * .5 * u_grain;
+
+  float border_shape = px_border + inner;
   
   vec2 noise_uv = gl_FragCoord.xy / u_resolution.xy;
-  float shape1 = smoothstep(1. - border, 1., get_noise(noise_uv, -.5 * t + 5., .5 * t));
-  float shape2 = smoothstep(1. - border, 1., get_noise(.8 * noise_uv, .2 * t + 2., -.5 * t));
-  float shape3 = smoothstep(1. - border, 1., get_noise(noise_uv, -.5 * t + 10., .4 * t));
-   
-   
-  float brightness = (1. + 5. * u_brightness);
-  shape1 *= brightness;
-  shape2 *= brightness;
-  shape3 *= brightness;
 
+  float shape1 = border_shape * get_noise(noise_uv, -.1 * t + 2., t);
+  float shape2 = border_shape * get_noise(1.2 * vec2(noise_uv.x, - noise_uv.y), .3 * t, 10. - t);
+  float shape3 = border_shape * get_noise(noise_uv, -.2 * t, 1.1 * t);
 
-  float middle1 = mix(1., border_saved, .5);
-  middle1 *= (get_noise(noise_uv, -.5 * t + 5., .5 * t));
-  middle1 *= u_midOpacity;
-  shape1 += middle1;
-
-  float middle2 = mix(1., border_saved, .5);
-  middle2 *= (get_noise(.8 * noise_uv, .2 * t + 2., -.5 * t));
-  middle2 *= u_midOpacity;
-  shape2 += middle2;
-
-  vec3 color = mix(u_colorBack.rgb * u_colorBack.a, u_color1.rgb * u_color1.a, shape1);
-  color = mix(color, u_color2.rgb * u_color2.a, shape2);
-  color = mix(color, u_color3.rgb * u_color3.a, shape3);
+  vec3 color_spotty = mix(u_colorBack.rgb * u_colorBack.a, u_color1.rgb * u_color1.a, shape1);
+  color_spotty = mix(color_spotty, u_color2.rgb * u_color2.a, shape2);
+  color_spotty = mix(color_spotty, u_color3.rgb * u_color3.a, shape3);
+  
+  vec3 color_solid = mix(u_colorBack.rgb * u_colorBack.a, u_color1.rgb * u_color1.a, smoothstep(.1, .7, px_border) + inner);
+  color_solid = mix(color_solid, u_color2.rgb * u_color2.a, smoothstep(.4, .7, px_border));
+  color_solid = mix(color_solid, u_color3.rgb * u_color3.a, smoothstep(.7, 1., px_border));
+  
+  vec3 color = mix(color_spotty, color_solid, 1. - u_spotty);
   
   fragColor = vec4(color, 1.);
-  
-  // fragColor = vec4(vec3(middle), 1.);
+  // fragColor = vec4(vec3(border_shape), 1.);
 }
 
 `;
