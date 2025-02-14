@@ -1,14 +1,3 @@
-export type DotsOrbitUniforms = {
-  u_scale: number;
-  u_color1: [number, number, number, number];
-  u_color2: [number, number, number, number];
-  u_color3: [number, number, number, number];
-  u_color4: [number, number, number, number];
-  u_dotSize: number;
-  u_dotSizeRange: number;
-  u_spreading: number;
-};
-
 /**
  * Dots Pattern with dots moving around their grid position
  * The artwork by Ksenia Kondrashova

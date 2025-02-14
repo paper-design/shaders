@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { ShaderMount, type GlobalParams, type ShaderMountProps } from '../shader-mount';
-import { getShaderColorFromString, godRaysFragmentShader, type GodRaysUniforms } from '@paper-design/shaders';
+import { getShaderColorFromString, godRaysFragmentShader } from '@paper-design/shaders';
 
 export type GodRaysParams = {
   colorBack?: string;
@@ -128,7 +128,7 @@ export const etherPreset: GodRaysPreset = {
 export const godRaysPresets: GodRaysPreset[] = [defaultPreset, auroraPreset, warpPreset, linearPreset, etherPreset];
 
 export const GodRays = (props: GodRaysProps): JSX.Element => {
-  const uniforms: GodRaysUniforms = useMemo(() => {
+  const uniforms = useMemo(() => {
     return {
       u_colorBack: getShaderColorFromString(props.colorBack, defaultPreset.params.colorBack),
       u_color1: getShaderColorFromString(props.color1, defaultPreset.params.color1),

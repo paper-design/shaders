@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { ShaderMount, type GlobalParams, type ShaderMountProps } from '../shader-mount';
-import { getShaderColorFromString, voronoiFragmentShader, type VoronoiUniforms } from '@paper-design/shaders';
+import { getShaderColorFromString, voronoiFragmentShader } from '@paper-design/shaders';
 
 export type VoronoiParams = {
   scale?: number;
@@ -197,7 +197,7 @@ export const voronoiPresets: VoronoiPreset[] = [
 ];
 
 export const Voronoi = (props: VoronoiProps): JSX.Element => {
-  const uniforms: VoronoiUniforms = useMemo(() => {
+  const uniforms = useMemo(() => {
     return {
       u_scale: props.scale ?? defaultPreset.params.scale,
       u_colorCell1: getShaderColorFromString(props.colorCell1, defaultPreset.params.colorCell1),

@@ -1,14 +1,3 @@
-export type PerlinNoiseUniforms = {
-  u_scale: number;
-  u_color1: [number, number, number, number];
-  u_color2: [number, number, number, number];
-  u_proportion: number;
-  u_contour: number;
-  u_octaveCount: number;
-  u_persistence: number;
-  u_lacunarity: number;
-};
-
 /**
  * 3d Perlin noise with exposed parameters
  * Based on https://www.shadertoy.com/view/NlSGDz

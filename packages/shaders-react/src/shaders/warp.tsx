@@ -1,12 +1,6 @@
 import { useMemo } from 'react';
 import { ShaderMount, type GlobalParams, type ShaderMountProps } from '../shader-mount';
-import {
-  getShaderColorFromString,
-  warpFragmentShader,
-  type WarpUniforms,
-  type PatternShape,
-  PatternShapes,
-} from '@paper-design/shaders';
+import { getShaderColorFromString, warpFragmentShader, type PatternShape, PatternShapes } from '@paper-design/shaders';
 
 export type WarpParams = {
   scale?: number;
@@ -227,7 +221,7 @@ export const presetFilteredLight: WarpPreset = {
     swirl: 0,
     swirlIterations: 0,
     shapeScale: 0,
-    shape: PatternShapes.Stripes
+    shape: PatternShapes.Stripes,
   },
 };
 
@@ -247,11 +241,9 @@ export const presetKelp: WarpPreset = {
     swirl: 0.15,
     swirlIterations: 0,
     shapeScale: 0.74,
-    shape: PatternShapes.Stripes
+    shape: PatternShapes.Stripes,
   },
 };
-
-
 
 export const warpPresets: WarpPreset[] = [
   defaultPreset,
@@ -268,7 +260,7 @@ export const warpPresets: WarpPreset[] = [
 ];
 
 export const Warp = (props: WarpProps): JSX.Element => {
-  const uniforms: WarpUniforms = useMemo(() => {
+  const uniforms = useMemo(() => {
     return {
       u_scale: props.scale ?? defaultPreset.params.scale,
       u_rotation: props.rotation ?? defaultPreset.params.rotation,

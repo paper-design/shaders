@@ -1,13 +1,3 @@
-export type SteppedSimplexNoiseUniforms = {
-  u_scale: number;
-  u_color1: [number, number, number, number];
-  u_color2: [number, number, number, number];
-  u_color3: [number, number, number, number];
-  u_color4: [number, number, number, number];
-  u_color5: [number, number, number, number];
-  u_steps_number: number;
-};
-
 /**
  * Stepped Simplex Noise by Ksenia Kondrashova
  * Calculates a combination of 2 simplex noises with result rendered as

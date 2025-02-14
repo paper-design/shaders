@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { ShaderMount, type ShaderMountProps } from '../shader-mount';
-import { getShaderColorFromString, wavesFragmentShader, type WavesUniforms } from '@paper-design/shaders';
+import { getShaderColorFromString, wavesFragmentShader } from '@paper-design/shaders';
 
 export type WavesParams = {
   scale?: number;
@@ -129,7 +129,7 @@ export const wavesPresets: WavesPreset[] = [
 ];
 
 export const Waves = (props: WavesProps): JSX.Element => {
-  const uniforms: WavesUniforms = useMemo(() => {
+  const uniforms = useMemo(() => {
     return {
       u_scale: props.scale ?? defaultPreset.params.scale,
       u_rotation: props.rotation ?? defaultPreset.params.rotation,

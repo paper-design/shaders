@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { ShaderMount, type GlobalParams, type ShaderMountProps } from '../shader-mount';
-import { getShaderColorFromString, dotsOrbitFragmentShader, type DotsOrbitUniforms } from '@paper-design/shaders';
+import { getShaderColorFromString, dotsOrbitFragmentShader } from '@paper-design/shaders';
 
 export type DotsOrbitParams = {
   scale?: number;
@@ -40,7 +40,7 @@ export const defaultPreset: DotsOrbitPreset = {
 export const dotsOrbitPresets: DotsOrbitPreset[] = [defaultPreset];
 
 export const DotsOrbit = (props: DotsOrbitProps): JSX.Element => {
-  const uniforms: DotsOrbitUniforms = useMemo(() => {
+  const uniforms = useMemo(() => {
     return {
       u_scale: props.scale ?? defaultPreset.params.scale,
       u_color1: getShaderColorFromString(props.color1, defaultPreset.params.color1),

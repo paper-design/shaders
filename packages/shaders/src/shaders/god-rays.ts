@@ -1,18 +1,3 @@
-export type GodRaysUniforms = {
-  u_offsetX: number;
-  u_offsetY: number;
-  u_colorBack: [number, number, number, number];
-  u_color1: [number, number, number, number];
-  u_color2: [number, number, number, number];
-  u_color3: [number, number, number, number];
-  u_spotty: number;
-  u_midSize: number;
-  u_midIntensity: number;
-  u_frequency: number;
-  u_density: number;
-  u_blending: number;
-};
-
 /**
  * GodRays pattern
  * The artwork by Ksenia Kondrashova

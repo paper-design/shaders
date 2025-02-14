@@ -1,18 +1,3 @@
-export type VoronoiUniforms = {
-  u_scale: number;
-  u_colorCell1: [number, number, number, number];
-  u_colorCell2: [number, number, number, number];
-  u_colorCell3: [number, number, number, number];
-  u_colorEdges: [number, number, number, number];
-  u_colorMid: [number, number, number, number];
-  u_colorGradient: number;
-  u_distance: number;
-  u_edgesSize: number;
-  u_edgesSharpness: number;
-  u_middleSize: number;
-  u_middleSharpness: number;
-};
-
 /**
  * Voronoi pattern
  * The artwork by Ksenia Kondrashova

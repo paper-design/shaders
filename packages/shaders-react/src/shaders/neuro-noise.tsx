@@ -1,6 +1,5 @@
 import { useMemo } from 'react';
 import { ShaderMount, type GlobalParams, type ShaderMountProps } from '../shader-mount';
-import { getShaderColorFromString, neuroNoiseFragmentShader, type NeuroNoiseUniforms } from '@paper-design/shaders';
 
 export type NeuroNoiseParams = {
   scale?: number;
@@ -44,7 +43,7 @@ const marblePreset: NeuroNoisePreset = {
 export const neuroNoisePresets: NeuroNoisePreset[] = [defaultPreset, marblePreset] as const;
 
 export const NeuroNoise = (props: NeuroNoiseProps): JSX.Element => {
-  const uniforms: NeuroNoiseUniforms = useMemo(() => {
+  const uniforms = useMemo(() => {
     return {
       u_scale: props.scale ?? defaultPreset.params.scale,
       u_colorFront: getShaderColorFromString(props.colorFront, defaultPreset.params.colorFront),

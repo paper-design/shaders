@@ -1,10 +1,3 @@
-export type GrainCloudsUniforms = {
-  u_scale: number;
-  u_color1: [number, number, number, number];
-  u_color2: [number, number, number, number];
-  u_grainAmount: number;
-};
-
 /**
  * Renders a grainy texture over top of blobby animated clouds
  * This is an example shader that we're using to bootstrap the project
