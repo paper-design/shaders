@@ -81,11 +81,17 @@ export { type GodRaysProps } from './shaders/god-rays';
 export { type GodRaysParams } from './shaders/god-rays';
 export { type GodRaysUniforms } from '@paper-design/shaders';
 
-// Border gradient with optional pulsing animation
+// Pulsing border
 export { PulsingBorder, pulsingBorderPresets } from './shaders/pulsing-border';
 export { type PulsingBorderProps } from './shaders/pulsing-border';
 export { type PulsingBorderParams } from './shaders/pulsing-border';
 export { type PulsingBorderUniforms } from '@paper-design/shaders';
+
+// Border gradient
+export { GradientBorder, gradientBorderPresets } from './shaders/gradient-border';
+export { type GradientBorderProps } from './shaders/gradient-border';
+export { type GradientBorderParams } from './shaders/gradient-border';
+export { type GradientBorderUniforms } from '@paper-design/shaders';
 
 // ----- Uniform conversion utils ----- //
 export { getShaderColorFromString } from '@paper-design/shaders';

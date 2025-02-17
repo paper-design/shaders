@@ -52,9 +52,13 @@ export { warpFragmentShader, PatternShapes, type PatternShape, type WarpUniforms
 /** Radial shape made of randomized stripes */
 export { godRaysFragmentShader, type GodRaysUniforms } from './shaders/god-rays';
 
-// ----- Border Gradient ----- //
+// ----- Pulsing Border Gradient ----- //
 /** A shader rendering a multi-color gradient around the viewport border */
 export { pulsingBorderFragmentShader, type PulsingBorderUniforms } from './shaders/pulsing-border';
+
+// ----- Gradient Border ----- //
+/** A shader rendering a multi-color gradient around the viewport border */
+export { gradientBorderFragmentShader, type GradientBorderUniforms } from './shaders/gradient-border';
 
 // ----- Uniform conversion utils ----- //
 export { getShaderColorFromString } from './get-shader-color-from-string';

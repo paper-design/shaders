@@ -1,13 +1,13 @@
-export type PulsingBorderUniforms = {};
+export type GradientBorderUniforms = {};
 
 /**
  *
- * Border borderLine with optional pulsing animation. Inspired by
+ * Border borderLine with optional gradient animation. Inspired by
  *
  * Uniforms include:
  */
 
-export const pulsingBorderFragmentShader = `#version 300 es
+export const gradientBorderFragmentShader = `#version 300 es
 precision highp float;
 
 uniform float u_time;
@@ -127,11 +127,12 @@ void main() {
   float shape2 = border_shape * get_noise(1.2 * vec2(noise_uv.x, - noise_uv.y), .3 * t, 10. - t);
   float shape3 = border_shape * get_noise(noise_uv, -.2 * t, 1.1 * t);
 
-  vec3 color = mix(u_colorBack.rgb * u_colorBack.a, u_color1.rgb * u_color1.a, shape1);
-  color = mix(color, u_color2.rgb * u_color2.a, shape2);
-  color = mix(color, u_color3.rgb * u_color3.a, shape3);
+  vec3 color = mix(u_colorBack.rgb * u_colorBack.a, u_color1.rgb * u_color1.a, smoothstep(.1, .7, px_border) + inner);
+  color = mix(color, u_color2.rgb * u_color2.a, smoothstep(.4, .7, px_border));
+  color = mix(color, u_color3.rgb * u_color3.a, smoothstep(.7, 1., px_border));
     
   fragColor = vec4(color, 1.);
+  // fragColor = vec4(vec3(border_shape), 1.);
 }
 
 `;
