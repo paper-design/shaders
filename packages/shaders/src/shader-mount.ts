@@ -155,7 +155,7 @@ export class ShaderMount {
 
   /** Creates a texture from an image and sets it into a uniform value */
   private setTextureUniform = (uniformName: string, image: HTMLImageElement): void => {
-    if (!image.complete) {
+    if (!image.complete || image.naturalWidth === 0) {
       throw new Error(`Image for uniform ${uniformName} must be fully loaded`);
     }
 
