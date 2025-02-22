@@ -21,6 +21,7 @@ void main() {
   st.y = 1.0 - st.y;
   vec4 color = texture(u_texture, st);
   fragColor = color;
+  fragColor = vec4(st, 0.0, 1.0);
 }
 `;
 
