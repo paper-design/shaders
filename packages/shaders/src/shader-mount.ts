@@ -112,8 +112,6 @@ export class ShaderMount {
   private render = (currentTime: number) => {
     if (this.hasBeenDisposed) return;
 
-    console.log('rendering');
-
     // Calculate the delta time
     const dt = currentTime - this.lastFrameTime;
     this.lastFrameTime = currentTime;
@@ -188,6 +186,9 @@ export class ShaderMount {
 
     // Store the texture
     this.textures.set(uniformName, texture);
+
+    console.log('setting texture');
+    console.log(texture);
 
     // Set up texture unit and uniform
     const location = this.uniformLocations[uniformName];
