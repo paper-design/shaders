@@ -112,6 +112,8 @@ export class ShaderMount {
   private render = (currentTime: number) => {
     if (this.hasBeenDisposed) return;
 
+    console.log('rendering');
+
     // Calculate the delta time
     const dt = currentTime - this.lastFrameTime;
     this.lastFrameTime = currentTime;
