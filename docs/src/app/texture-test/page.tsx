@@ -66,14 +66,14 @@ const TextureTest = () => {
       <ShaderMount
         fragmentShader={fragmentShader}
         uniforms={{ u_texture: '/logo-placeholder.webp' }}
-        style={{ width: 300, aspectRatio: '1/1' }}
+        style={{ width: 300, height: 300, aspectRatio: '1/1' }}
       />
 
       {/* Testing with passing image */}
       <ShaderMount
         fragmentShader={fragmentShader}
         uniforms={{ u_texture: image }}
-        style={{ width: 300, aspectRatio: '1/1' }}
+        style={{ width: 300, height: 300, aspectRatio: '1/1' }}
       />
     </>
   );
