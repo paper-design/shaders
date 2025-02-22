@@ -1,5 +1,5 @@
 /** The core Shader Mounting class. Pass it a canvas element and a fragment shader to get started. */
-export { ShaderMount } from './shader-mount';
+export { ShaderMount, type ShaderMountUniforms } from './shader-mount';
 
 // ----- Grain clouds ----- //
 export { grainCloudsFragmentShader, type GrainCloudsUniforms } from './shaders/grain-clouds';

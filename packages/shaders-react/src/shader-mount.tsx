@@ -1,11 +1,11 @@
 import React, { useEffect, useRef } from 'react';
-import { ShaderMount as ShaderMountVanilla } from '@paper-design/shaders';
+import { ShaderMount as ShaderMountVanilla, type ShaderMountUniforms } from '@paper-design/shaders';
 
 export interface ShaderMountProps {
   ref?: React.RefObject<HTMLCanvasElement>;
   fragmentShader: string;
   style?: React.CSSProperties;
-  uniforms?: Record<string, number | number[]>;
+  uniforms?: ShaderMountUniforms;
   webGlContextAttributes?: WebGLContextAttributes;
   speed?: number;
   seed?: number;
