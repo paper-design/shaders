@@ -132,7 +132,6 @@ export class ShaderMount {
     // If the resolution has changed, we need to update the uniform
     if (this.resolutionChanged) {
       this.gl.uniform2f(this.uniformLocations.u_resolution!, this.gl.canvas.width, this.gl.canvas.height);
-      console.log('setting resolution to: ' + this.gl.canvas.width + ' ' + this.gl.canvas.height);
       this.gl.uniform1f(this.uniformLocations.u_pixelRatio!, window.devicePixelRatio);
       this.resolutionChanged = false;
     }
@@ -210,6 +209,7 @@ export class ShaderMount {
       if (location) {
         if (value instanceof HTMLImageElement) {
           // Texture case, requires a good amount of code so it gets its own function:
+          console.log('calling setTextureUniform');
           this.setTextureUniform(key, value);
         } else if (Array.isArray(value)) {
           // Array case, supports 2, 3, 4, 9, 16 length arrays
