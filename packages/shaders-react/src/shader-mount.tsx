@@ -22,11 +22,41 @@ const processUniforms = (uniforms: ShaderMountUniformsReact): Promise<ShaderMoun
   const processedUniforms: ShaderMountUniforms = {};
   const imageLoadPromises: Promise<void>[] = [];
 
+  const isValidUrl = (url: string): boolean => {
+    try {
+      // Handle absolute paths
+      if (url.startsWith('/')) return true;
+      // Check if it's a valid URL
+      new URL(url);
+      return true;
+    } catch {
+      return false;
+    }
+  };
+
+  const isExternalUrl = (url: string): boolean => {
+    try {
+      if (url.startsWith('/')) return false;
+      const urlObject = new URL(url, window.location.origin);
+      return urlObject.origin !== window.location.origin;
+    } catch {
+      return false;
+    }
+  };
+
   Object.entries(uniforms).forEach(([key, value]) => {
     if (typeof value === 'string') {
+      // Make sure the provided string is a valid URL or just skip trying to set this uniform entirely
+      if (!isValidUrl(value)) {
+        console.warn(`Uniform "${key}" has invalid URL "${value}". Skipping image loading.`);
+        return;
+      }
+
       const imagePromise = new Promise<void>((resolve, reject) => {
         const img = new Image();
-        img.crossOrigin = 'anonymous';
+        if (isExternalUrl(value)) {
+          img.crossOrigin = 'anonymous';
+        }
         img.onload = () => {
           processedUniforms[key] = img;
           resolve();

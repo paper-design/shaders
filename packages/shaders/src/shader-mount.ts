@@ -177,9 +177,9 @@ export class ShaderMount {
 
     // Upload image to texture
     this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.gl.RGBA, this.gl.UNSIGNED_BYTE, image);
-
-    if (texture === null) {
-      console.error('Failed to create texture, will not be passed as a uniform');
+    const error = this.gl.getError();
+    if (error !== this.gl.NO_ERROR || texture === null) {
+      console.error('WebGL error when uploading texture:', error);
       return;
     }
 
