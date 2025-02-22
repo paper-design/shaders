@@ -17,13 +17,29 @@ uniform vec2 u_resolution;
 out vec4 fragColor;
 
 void main() {
-  vec2 st = gl_FragCoord.xy / u_resolution;
-  st.y = 1.0 - st.y;
-  vec4 color = texture(u_texture, st);
-  fragColor = color;
-  fragColor = vec4(st, 0.0, 1.0);
-}
-`;
+    // Log raw values first
+    vec2 rawCoord = gl_FragCoord.xy;
+    // If resolution is 0, this will output red
+    if (u_resolution.x == 0.0 || u_resolution.y == 0.0) {
+        fragColor = vec4(1.0, 0.0, 0.0, 1.0);
+        return;
+    }
+
+    vec2 st = rawCoord / u_resolution;
+    // If st calculation results in NaN or Inf, output blue
+    if (any(isnan(st)) || any(isinf(st))) {
+        fragColor = vec4(0.0, 0.0, 1.0, 1.0);
+        return;
+    }
+
+    // Output debugging values
+    fragColor = vec4(
+        rawCoord.x / 1000.0, // R channel: x coordinate scaled down
+        rawCoord.y / 1000.0, // G channel: y coordinate scaled down
+        u_resolution.x / 1000.0, // B channel: resolution x scaled down
+        1.0
+    );
+}`;
 
 const TextureTest = () => {
   const [image, setImage] = useState<HTMLImageElement | null>(null);

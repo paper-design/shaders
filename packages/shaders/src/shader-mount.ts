@@ -138,11 +138,6 @@ export class ShaderMount {
 
     this.gl.drawArrays(this.gl.TRIANGLES, 0, 6);
 
-    const error = this.gl.getError();
-    if (error !== this.gl.NO_ERROR) {
-      console.error('WebGL error during render:', error);
-    }
-
     // Loop if we're animating
     if (this.speed !== 0) {
       this.requestRender();
@@ -160,48 +155,33 @@ export class ShaderMount {
 
   /** Creates a texture from an image and sets it into a uniform value */
   private setTextureUniform = (uniformName: string, image: HTMLImageElement): void => {
-    console.log(`Starting setTextureUniform for ${uniformName}`);
-
     if (!image.complete) {
-      console.error(`Image for uniform ${uniformName} not fully loaded`);
-      return;
+      throw new Error(`Image for uniform ${uniformName} must be fully loaded`);
     }
 
     // Clean up existing texture if present
     const existingTexture = this.textures.get(uniformName);
     if (existingTexture) {
-      console.log(`Cleaning up existing texture for ${uniformName}`);
       this.gl.deleteTexture(existingTexture);
     }
 
     // Create and set up the new texture
     const texture = this.gl.createTexture();
-    if (!texture) {
-      console.error(`Failed to create texture for ${uniformName}`);
-      return;
-    }
-    console.log(`Created new texture for ${uniformName}`);
-
     this.gl.bindTexture(this.gl.TEXTURE_2D, texture);
 
-    // Log WebGL state before texture upload
-    console.log(`Current WebGL program: ${this.gl.getParameter(this.gl.CURRENT_PROGRAM)}`);
-    console.log(`Bound texture: ${this.gl.getParameter(this.gl.TEXTURE_BINDING_2D)}`);
-
-    // Upload image to texture with error checking
-    this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.gl.RGBA, this.gl.UNSIGNED_BYTE, image);
-    const error = this.gl.getError();
-    if (error !== this.gl.NO_ERROR) {
-      console.error(`WebGL error when uploading texture ${uniformName}:`, error);
-      return;
-    }
-    console.log(`Successfully uploaded texture data for ${uniformName}`);
-
-    // Set up texture parameters
+    // Set texture parameters
     this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_S, this.gl.CLAMP_TO_EDGE);
     this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_T, this.gl.CLAMP_TO_EDGE);
     this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.LINEAR);
     this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MAG_FILTER, this.gl.LINEAR);
+
+    // Upload image to texture
+    this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.gl.RGBA, this.gl.UNSIGNED_BYTE, image);
+    const error = this.gl.getError();
+    if (error !== this.gl.NO_ERROR || texture === null) {
+      console.error('WebGL error when uploading texture:', error);
+      return;
+    }
 
     // Store the texture
     this.textures.set(uniformName, texture);
@@ -209,14 +189,12 @@ export class ShaderMount {
     // Set up texture unit and uniform
     const location = this.uniformLocations[uniformName];
     if (location) {
+      // Use texture unit based on the order textures were added
       const textureUnit = this.textures.size - 1;
-      console.log(`Using texture unit ${textureUnit} for ${uniformName}`);
       this.gl.useProgram(this.program);
       this.gl.activeTexture(this.gl.TEXTURE0 + textureUnit);
       this.gl.bindTexture(this.gl.TEXTURE_2D, texture);
       this.gl.uniform1i(location, textureUnit);
-    } else {
-      console.warn(`No uniform location found for ${uniformName}`);
     }
   };
 
