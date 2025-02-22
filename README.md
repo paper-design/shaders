@@ -90,8 +90,6 @@ const shaderParams = {
 };
 
 const meshGradient = new ShaderMount(myCanvas, meshGradientFragmentShader, shaderParams, undefined, 0.25);
-
-meshGradient.setUniforms(shaderParams);
 ```
 
 ## Roadmap:
@@ -122,7 +120,6 @@ meshGradient.setUniforms(shaderParams);
 1. Bump the version numbers as desired manually
 2. Use `bun run build` on the top level of the monorepo to build each package
 3. Use `bun run publish-all` to publish all (or `bun run publish-all-test` to do a dry run). You can do this even if you just bumped one package version. The others will fail to publish and continue.
-
 
 ## License and use
 

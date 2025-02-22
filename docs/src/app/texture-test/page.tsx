@@ -45,10 +45,18 @@ const TextureTest = () => {
         <BackButton />
       </Link>
 
+      {/* Testing with passing URL */}
+      <ShaderMount
+        fragmentShader={fragmentShader}
+        uniforms={{ u_texture: '/logo-placeholder.webp' }}
+        style={{ width: 300, aspectRatio: '1/1' }}
+      />
+
+      {/* Testing with passing image */}
       <ShaderMount
         fragmentShader={fragmentShader}
         uniforms={{ u_texture: image }}
-        style={{ position: 'fixed', width: 300, aspectRatio: '1/1' }}
+        style={{ width: 300, aspectRatio: '1/1' }}
       />
     </>
   );

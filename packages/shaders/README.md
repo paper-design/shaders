@@ -24,6 +24,4 @@ const meshGradient = new ShaderMount(
   meshGradientFragmentShader,
   shaderParams
 );
-
-meshGradient.setUniforms(shaderParams);
 ```
