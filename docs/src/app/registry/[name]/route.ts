@@ -3,7 +3,7 @@ import path from 'path';
 import { promises as fs } from 'fs';
 import { registryItemSchema } from 'shadcn/registry';
 
-// This route shows an example for serving a component using a route handler.
+// This route serves shadcn registry items.
 export async function GET(request: Request, { params }: { params: Promise<{ name: string }> }) {
   try {
     const { name } = await params;
