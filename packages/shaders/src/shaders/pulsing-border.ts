@@ -19,7 +19,7 @@ uniform vec4 u_color1;
 uniform vec4 u_color2;
 uniform vec4 u_color3;
 
-uniform float u_sizePx;
+uniform float u_size;
 uniform float u_power;
 uniform float u_inner;
 uniform float u_borderLine;
@@ -72,7 +72,7 @@ float get_noise(vec2 uv, float offset, float rotation) {
 }
 
 float get_px_border(vec2 uv_normalised) {
-  vec2 outer = u_sizePx / u_resolution;
+  vec2 outer = u_size / u_resolution;
   vec2 bl = smoothstep(vec2(0.), outer, uv_normalised);
   vec2 tr = smoothstep(vec2(0.), outer, 1. - uv_normalised);
   

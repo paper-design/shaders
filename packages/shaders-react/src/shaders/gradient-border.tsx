@@ -13,10 +13,10 @@ export type GradientBorderParams = {
   color3?: string;
   inner?: number;
   borderLine?: number;
-  power?: number;
+  blur?: number;
   spotty?: number;
   grain?: number;
-  sizePx?: number;
+  size?: number;
 } & GlobalParams;
 
 export type GradientBorderProps = Omit<ShaderMountProps, 'fragmentShader'> & GradientBorderParams;
@@ -30,18 +30,18 @@ type GradientBorderPreset = { name: string; params: Required<GradientBorderParam
 export const defaultPreset: GradientBorderPreset = {
   name: 'Default',
   params: {
-    speed: 0.8,
+    speed: 1,
     seed: 0,
-    colorBack: 'hsla(200, 0%, 0%, 1)',
-    color1: 'hsla(30, 100%, 50%, 1)',
-    color2: 'hsla(240, 100%, 50%, 1)',
-    color3: 'hsla(320, 100%, 50%, 1)',
-    inner: 0.86,
-    borderLine: 0.15,
-    power: 1,
-    spotty: 1,
+    colorBack: 'hsla(0, 0%, 100%, 1)',
+    color1: 'hsla(60, 75%, 50%, 1)',
+    color2: 'hsla(180, 75%, 50%, 1)',
+    color3: 'hsla(260, 100%, 50%, 1)',
+    inner: 0,
+    borderLine: 0,
+    blur: 0,
+    spotty: 0,
     grain: 0,
-    sizePx: 120,
+    size: 100,
   },
 } as const;
 
@@ -56,10 +56,10 @@ export const preset1: GradientBorderPreset = {
     color3: 'hsla(331, 100%, 63%, 1)',
     inner: 0,
     borderLine: 1,
-    power: 1,
+    blur: 1,
     spotty: 1,
     grain: 0,
-    sizePx: 25,
+    size: 25,
   },
 } as const;
 
@@ -74,10 +74,10 @@ export const preset2: GradientBorderPreset = {
     color3: 'hsla(330, 100%, 50%, 1)',
     inner: 0,
     borderLine: 0.2,
-    power: 1,
+    blur: 1,
     spotty: 0.5,
     grain: 1,
-    sizePx: 130,
+    size: 130,
   },
 } as const;
 
@@ -92,10 +92,10 @@ export const preset3: GradientBorderPreset = {
     color3: 'hsla(26, 26%, 83%, 1)',
     inner: 1,
     borderLine: 0.33,
-    power: 0,
+    blur: 0,
     spotty: 0,
     grain: 0.38,
-    sizePx: 250,
+    size: 250,
   },
 } as const;
 
@@ -110,20 +110,20 @@ export const GradientBorder = (props: GradientBorderProps): JSX.Element => {
       u_color3: getShaderColorFromString(props.color3, defaultPreset.params.color3),
       u_inner: props.inner ?? defaultPreset.params.inner,
       u_borderLine: props.borderLine ?? defaultPreset.params.borderLine,
-      u_power: props.power ?? defaultPreset.params.power,
+      u_blur: props.blur ?? defaultPreset.params.blur,
       u_spotty: props.spotty ?? defaultPreset.params.spotty,
       u_grain: props.grain ?? defaultPreset.params.grain,
-      u_sizePx: props.sizePx ?? defaultPreset.params.sizePx,
+      u_size: props.size ?? defaultPreset.params.size,
     };
   }, [
     props.colorBack,
     props.color1,
     props.color2,
     props.color3,
-    props.sizePx,
+    props.size,
     props.inner,
     props.borderLine,
-    props.power,
+    props.blur,
     props.spotty,
     props.grain,
   ]);

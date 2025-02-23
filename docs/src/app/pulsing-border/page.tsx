@@ -33,7 +33,7 @@ const PulsingBorderWithControls = () => {
           color1: { value: defaults.color1, order: 101 },
           color2: { value: defaults.color2, order: 102 },
           color3: { value: defaults.color3, order: 103 },
-          sizePx: { value: defaults.sizePx, min: 0, max: 500, order: 200 },
+          size: { value: defaults.size, min: 0, max: 500, order: 200 },
           power: { value: defaults.power, min: 0, max: 1, order: 201 },
           borderLine: { value: defaults.borderLine, min: 0, max: 1, order: 202 },
           inner: { value: defaults.inner, min: 0, max: 1, order: 203 },

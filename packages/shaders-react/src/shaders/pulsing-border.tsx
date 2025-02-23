@@ -16,7 +16,7 @@ export type PulsingBorderParams = {
   power?: number;
   spotty?: number;
   grain?: number;
-  sizePx?: number;
+  size?: number;
 } & GlobalParams;
 
 export type PulsingBorderProps = Omit<ShaderMountProps, 'fragmentShader'> & PulsingBorderParams;
@@ -41,7 +41,7 @@ export const defaultPreset: PulsingBorderPreset = {
     power: 1,
     spotty: 1,
     grain: 0,
-    sizePx: 120,
+    size: 120,
   },
 } as const;
 
@@ -60,7 +60,7 @@ export const preset1: PulsingBorderPreset = {
     power: 1,
     spotty: 1,
     grain: 0,
-    sizePx: 25,
+    size: 25,
   },
 } as const;
 
@@ -78,7 +78,7 @@ export const preset2: PulsingBorderPreset = {
     power: 1,
     spotty: 0.5,
     grain: 1,
-    sizePx: 130,
+    size: 130,
   },
 } as const;
 
@@ -96,7 +96,7 @@ export const preset3: PulsingBorderPreset = {
     power: 0,
     spotty: 0,
     grain: 0.38,
-    sizePx: 250,
+    size: 250,
   },
 } as const;
 
@@ -114,14 +114,14 @@ export const PulsingBorder = (props: PulsingBorderProps): JSX.Element => {
       u_power: props.power ?? defaultPreset.params.power,
       u_spotty: props.spotty ?? defaultPreset.params.spotty,
       u_grain: props.grain ?? defaultPreset.params.grain,
-      u_sizePx: props.sizePx ?? defaultPreset.params.sizePx,
+      u_size: props.size ?? defaultPreset.params.size,
     };
   }, [
     props.colorBack,
     props.color1,
     props.color2,
     props.color3,
-    props.sizePx,
+    props.size,
     props.inner,
     props.borderLine,
     props.power,
