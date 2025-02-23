@@ -17,27 +17,31 @@ uniform vec2 u_resolution;
 out vec4 fragColor;
 
 void main() {
-    // Log raw values first
     vec2 rawCoord = gl_FragCoord.xy;
-    // If resolution is 0, this will output red
     if (u_resolution.x == 0.0 || u_resolution.y == 0.0) {
         fragColor = vec4(1.0, 0.0, 0.0, 1.0);
         return;
     }
 
     vec2 st = rawCoord / u_resolution;
-    // If st calculation results in NaN or Inf, output blue
     if (any(isnan(st)) || any(isinf(st))) {
         fragColor = vec4(0.0, 0.0, 1.0, 1.0);
         return;
     }
 
-    // Output debugging values
-    fragColor = vec4(
-        rawCoord.x / 1000.0, // R channel: x coordinate scaled down
-        rawCoord.y / 1000.0, // G channel: y coordinate scaled down
-        u_resolution.x / 1000.0, // B channel: resolution x scaled down
-        1.0
+    // Sample the texture using the calculated UV coordinates
+    vec4 texColor = texture(u_texture, st);
+
+    // Mix the texture color with our debug values
+    fragColor = mix(
+        texColor,
+        vec4(
+            rawCoord.x / 1000.0,
+            rawCoord.y / 1000.0,
+            u_resolution.x / 1000.0,
+            1.0
+        ),
+        0.5
     );
 }`;
 

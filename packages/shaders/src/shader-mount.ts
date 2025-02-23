@@ -88,6 +88,7 @@ export class ShaderMount {
         Object.keys(this.providedUniforms).map((key) => [key, this.gl.getUniformLocation(this.program!, key)])
       ),
     };
+    console.log('uniform locations', this.uniformLocations);
   };
 
   private resizeObserver: ResizeObserver | null = null;
@@ -207,41 +208,44 @@ export class ShaderMount {
     this.gl.useProgram(this.program);
     Object.entries(updatedUniforms).forEach(([key, value]) => {
       const location = this.uniformLocations[key];
-      if (location) {
-        if (value instanceof HTMLImageElement) {
-          // Texture case, requires a good amount of code so it gets its own function:
-          console.log('calling setTextureUniform');
-          this.setTextureUniform(key, value);
-        } else if (Array.isArray(value)) {
-          // Array case, supports 2, 3, 4, 9, 16 length arrays
-          switch (value.length) {
-            case 2:
-              this.gl.uniform2fv(location, value);
-              break;
-            case 3:
-              this.gl.uniform3fv(location, value);
-              break;
-            case 4:
-              this.gl.uniform4fv(location, value);
-              break;
-            default:
-              if (value.length === 9) {
-                this.gl.uniformMatrix3fv(location, false, value);
-              } else if (value.length === 16) {
-                this.gl.uniformMatrix4fv(location, false, value);
-              } else {
-                console.warn(`Unsupported uniform array length: ${value.length}`);
-              }
-          }
-        } else if (typeof value === 'number') {
-          // Number case, supports floats and ints
-          this.gl.uniform1f(location, value);
-        } else if (typeof value === 'boolean') {
-          // Boolean case, supports true and false
-          this.gl.uniform1i(location, value ? 1 : 0);
-        } else {
-          console.warn(`Unsupported uniform type for ${key}: ${typeof value}`);
+      if (!location) {
+        console.warn(`Uniform location for ${key} not found`);
+        return;
+      }
+
+      if (value instanceof HTMLImageElement) {
+        // Texture case, requires a good amount of code so it gets its own function:
+        console.log('calling setTextureUniform');
+        this.setTextureUniform(key, value);
+      } else if (Array.isArray(value)) {
+        // Array case, supports 2, 3, 4, 9, 16 length arrays
+        switch (value.length) {
+          case 2:
+            this.gl.uniform2fv(location, value);
+            break;
+          case 3:
+            this.gl.uniform3fv(location, value);
+            break;
+          case 4:
+            this.gl.uniform4fv(location, value);
+            break;
+          default:
+            if (value.length === 9) {
+              this.gl.uniformMatrix3fv(location, false, value);
+            } else if (value.length === 16) {
+              this.gl.uniformMatrix4fv(location, false, value);
+            } else {
+              console.warn(`Unsupported uniform array length: ${value.length}`);
+            }
         }
+      } else if (typeof value === 'number') {
+        // Number case, supports floats and ints
+        this.gl.uniform1f(location, value);
+      } else if (typeof value === 'boolean') {
+        // Boolean case, supports true and false
+        this.gl.uniform1i(location, value ? 1 : 0);
+      } else {
+        console.warn(`Unsupported uniform type for ${key}: ${typeof value}`);
       }
     });
   };
