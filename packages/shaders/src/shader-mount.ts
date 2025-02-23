@@ -49,12 +49,12 @@ export class ShaderMount {
 
     this.initProgram();
     this.setupPositionAttribute();
-    this.setupResizeObserver();
     // Grab the locations of the uniforms in the fragment shader
     this.setupUniforms();
     // Put the user provided values into the uniforms
     this.setUniformValues(this.providedUniforms);
-    console.log('provided uniforms', this.providedUniforms);
+    // Set up the resize observer to handle window resizing and set u_resolution
+    this.setupResizeObserver();
 
     // Set the animation speed after everything is ready to go
     this.setSpeed(speed);
@@ -88,7 +88,6 @@ export class ShaderMount {
         Object.keys(this.providedUniforms).map((key) => [key, this.gl.getUniformLocation(this.program!, key)])
       ),
     };
-    console.log('uniform locations', this.uniformLocations);
   };
 
   private resizeObserver: ResizeObserver | null = null;
@@ -107,14 +106,17 @@ export class ShaderMount {
       this.canvas.height = newHeight;
       this.resolutionChanged = true;
       this.gl.viewport(0, 0, this.gl.canvas.width, this.gl.canvas.height);
-      console.log('setting resolution changed to true');
-      console.log(this.canvas.width, this.gl.canvas.width);
       this.render(performance.now()); // this is necessary to avoid flashes while resizing (the next scheduled render will set uniforms)
     }
   };
 
   private render = (currentTime: number) => {
     if (this.hasBeenDisposed) return;
+
+    if (this.program === null) {
+      console.warn('Tried to render before program or gl was initialized');
+      return;
+    }
 
     // Calculate the delta time
     const dt = currentTime - this.lastFrameTime;
@@ -190,9 +192,6 @@ export class ShaderMount {
     // Store the texture
     this.textures.set(uniformName, texture);
 
-    console.log('setting texture');
-    console.log(texture);
-
     // Set up texture unit and uniform
     const location = this.uniformLocations[uniformName];
     if (location) {
@@ -217,7 +216,6 @@ export class ShaderMount {
 
       if (value instanceof HTMLImageElement) {
         // Texture case, requires a good amount of code so it gets its own function:
-        console.log('calling setTextureUniform');
         this.setTextureUniform(key, value);
       } else if (Array.isArray(value)) {
         // Array case, supports 2, 3, 4, 9, 16 length arrays
