@@ -54,6 +54,7 @@ export class ShaderMount {
     this.setupUniforms();
     // Put the user provided values into the uniforms
     this.setUniformValues(this.providedUniforms);
+    console.log('provided uniforms', this.providedUniforms);
 
     // Set the animation speed after everything is ready to go
     this.setSpeed(speed);

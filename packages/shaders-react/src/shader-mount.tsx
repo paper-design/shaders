@@ -95,6 +95,8 @@ export const ShaderMount: React.FC<ShaderMountProps> = ({
   useEffect(() => {
     const initShader = async () => {
       if (canvasRef.current) {
+        console.log('initializing shader');
+        console.log(uniforms);
         const processedUniforms = await processUniforms(uniforms);
         shaderMountRef.current = new ShaderMountVanilla(
           canvasRef.current,
