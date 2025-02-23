@@ -101,6 +101,8 @@ export class ShaderMount {
   private handleResize = () => {
     const newWidth = this.canvas.clientWidth;
     const newHeight = this.canvas.clientHeight;
+    console.log('new width', newWidth);
+    console.log('new height', newHeight);
 
     if (this.canvas.width !== newWidth || this.canvas.height !== newHeight) {
       this.canvas.width = newWidth;
