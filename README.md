@@ -122,3 +122,10 @@ meshGradient.setUniforms(shaderParams);
 1. Bump the version numbers as desired manually
 2. Use `bun run build` on the top level of the monorepo to build each package
 3. Use `bun run publish-all` to publish all (or `bun run publish-all-test` to do a dry run). You can do this even if you just bumped one package version. The others will fail to publish and continue.
+
+
+## License and use
+
+Feel free to use this code in any projects, commercial or otherwise.
+
+If you use this code or wrap the library to create another shader library or tool, we ask that you give attribution and link to Paper Shaders (it helps us continue investing in this project). Thank you!

@@ -47,17 +47,38 @@ export const defaultPreset: SpiralPreset = {
   },
 } as const;
 
+export const noisyPreset: SpiralPreset = {
+  name: 'Noisy',
+  params: {
+    color1: 'hsla(87, 77%, 53%, 1)',
+    color2: 'hsla(109, 70%, 31%, 1)',
+    scale: 1.3,
+    offsetX: 0,
+    offsetY: 0,
+    spiralDensity: 0.5,
+    spiralDistortion: 0,
+    strokeWidth: 0.5,
+    strokeTaper: 0,
+    strokeCap: 0.5,
+    noiseFreq: 0.1,
+    noisePower: 1,
+    blur: 0,
+    speed: 1,
+    seed: 0,
+  },
+} as const;
+
 export const dropletPreset: SpiralPreset = {
   name: 'Droplet',
   params: {
-    color1: 'hsla(190, 50%, 95%, 1)',
-    color2: 'hsla(320, 50%, 50%, 1)',
+    color1: 'hsla(320, 50%, 50%, 1)',
+    color2: 'hsla(190, 50%, 95%, 1)',
     scale: 0.65,
     offsetX: 0,
     offsetY: 0,
     spiralDensity: 0,
     spiralDistortion: 0,
-    strokeWidth: 0.95,
+    strokeWidth: 0.05,
     strokeTaper: 0,
     strokeCap: 1,
     noiseFreq: 0,
@@ -71,9 +92,9 @@ export const dropletPreset: SpiralPreset = {
 export const sandPreset: SpiralPreset = {
   name: 'Sand',
   params: {
-    color1: 'hsla(45, 25%, 69%, 1)',
+    color1: 'hsla(45, 25%, 50%, 1)',
     color2: 'hsla(0, 0%, 87%, 1)',
-    scale: 4,
+    scale: 3,
     offsetX: 0,
     offsetY: 0,
     spiralDensity: 0,
@@ -81,7 +102,7 @@ export const sandPreset: SpiralPreset = {
     strokeWidth: 0.15,
     strokeTaper: 0,
     strokeCap: 0,
-    noiseFreq: 20,
+    noiseFreq: 30,
     noisePower: 1,
     blur: 0.2,
     speed: 0,
@@ -154,6 +175,7 @@ export const vinylPreset: SpiralPreset = {
 
 export const spiralPresets: SpiralPreset[] = [
   defaultPreset,
+  noisyPreset,
   dropletPreset,
   swirlPreset,
   sandPreset,

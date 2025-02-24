@@ -31,6 +31,8 @@ import {
   perlinNoisePresets,
   Warp,
   warpPresets,
+  GodRays,
+  godRaysPresets,
   Spiral,
   spiralPresets,
   Swirl,
@@ -125,6 +127,12 @@ export const homeShaders = [
     url: '/warp',
     ShaderComponent: Warp,
     shaderConfig: warpPresets[0].params,
+  },
+  {
+    name: 'god rays',
+    url: '/god-rays',
+    ShaderComponent: GodRays,
+    shaderConfig: godRaysPresets[0].params,
   },
   {
     name: 'spiral',
