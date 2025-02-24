@@ -1,47 +1,59 @@
 export type SwirlUniforms = {
+  u_offsetX: number;
+  u_offsetY: number;
   u_color1: [number, number, number, number];
   u_color2: [number, number, number, number];
   u_color3: [number, number, number, number];
-  u_scale: number;
-  u_offsetX: number;
-  u_offsetY: number;
-  u_frequency: number;
+  u_bandCount: number;
   u_twist: number;
   u_depth: number;
   u_noiseFreq: number;
-  u_noisePower: number;
+  u_noise: number;
   u_blur: number;
 };
 
 /**
  * Swirl pattern
- * The artwork by Ksenia Kondrashova
- * Renders a number of circular shapes with gooey effect applied
+ * Renders a swirling pattern with smooth color transitions, adjustable twisting, and noise distortion
  *
  * Uniforms include:
- * u_colorBack: The mataball base color #1
- * u_colorStripe1: The mataball base color #2
- * u_colorStripe2: The mataball base color #3
- * u_scale: The scale of uv coordinates: with scale = 1 spiral fit the screen height
+ *
+ * Colors:
+ * - u_color1: The first color used in the swirl pattern (RGBA)
+ * - u_color2: The second color used in the swirl pattern (RGBA)
+ * - u_color3: The third color used in the swirl pattern (RGBA)
+ *
+ * Positioning:
+ * - u_offsetX: Horizontal offset of the swirl center
+ * - u_offsetY: Vertical offset of the swirl center
+ *
+ * Swirl Properties:
+ * - u_bandCount: The number of color bands in the swirl
+ * - u_twist: The amount of twist applied to the swirl pattern
+ * - u_depth: Controls how much the swirl pattern falls off towards the center
+ *
+ * Noise:
+ * - u_noiseFreq: Frequency of the applied noise
+ * - u_noise: Intensity of the noise effect
+ *
+ * Blur:
+ * - u_blur: Softness of the band transitions, affecting blending between colors
  */
 
 export const swirlFragmentShader = `#version 300 es
 precision highp float;
 
-uniform float u_scale;
 uniform float u_offsetX;
 uniform float u_offsetY;
 
 uniform vec4 u_color1;
 uniform vec4 u_color2;
 uniform vec4 u_color3;
-uniform float u_frequency;
-
+uniform float u_bandCount;
 uniform float u_twist;
 uniform float u_depth;
-
 uniform float u_noiseFreq;
-uniform float u_noisePower;
+uniform float u_noise;
 uniform float u_blur;
 
 uniform float u_time;
@@ -82,49 +94,23 @@ float snoise(vec2 v) {
   return 130.0 * dot(m, g);
 }
 
-float remap(float t) {
-  float b = .495 * (1. - u_blur);
+float remap(float t, float blur) {
+  float b = .5 * blur;
   return smoothstep(b, 1. - b, t);
 }
 
-vec4 blend_colors(vec4 c1, vec4 c2, vec4 c3, float mixer) {
-  vec4 color1 = vec4(c1.rgb * c1.a, c1.a);
-  vec4 color2 = vec4(c2.rgb * c2.a, c2.a);
-  vec4 color3 = vec4(c3.rgb * c3.a, c3.a);
+vec4 blend_colors(vec4 c1, vec4 c2, vec4 c3, float mixer, float blur) {
+    vec4 colors[3] = vec4[](c1, c2, c3);
+    
+    float step = 1. / 6.;
+    float index = floor(mixer / step);
+    float t = fract(mixer / step);
+    t = remap(t, blur);
 
-  vec4 res;
-  float step = 1. / 6.;
+    vec4 colorA = colors[int(mod(index, 3.))];
+    vec4 colorB = colors[int(mod(index + 1., 3.))];
 
-  if (mixer < step) {
-    float t = mixer / step;
-    t = remap(t);
-    res = mix(color1, color2, t);
-  } else if (mixer < 2. * step) {
-    float t = (mixer - step) / step;
-    t = remap(t);
-    res = mix(color2, color3, t);
-  } else if (mixer < 3. * step) {
-    float t = (mixer - 2. * step) / step;
-    t = remap(t);
-    res = mix(color3, color1, t);
-  } else if (mixer < 4. * step) {
-    float t = (mixer - 3. * step) / step;
-    t = remap(t);
-    res = mix(color1, color2, t);
-  } else if (mixer < 5. * step) {
-    float t = (mixer - 4. * step) / step;
-    t = remap(t);
-    res = mix(color2, color3, t);
-  } else {
-    float t = (mixer - 5. * step) / step;
-    t = remap(t);
-    res = mix(color3, color1, t);
-  }
-  return res;
-}
-
-float easeMidpoint(float x, float k) {
-    return pow(x, k) / (pow(x, k) + pow(1.0 - x, k));
+    return mix(colorA, colorB, t);
 }
 
 void main() {
@@ -134,29 +120,31 @@ void main() {
   uv -= .5;
   uv += vec2(-u_offsetX, u_offsetY);
 
-  uv *= (.5 + 2. * u_scale);
+  uv *= 1.5;
   uv /= u_pixelRatio;
   uv.x *= ratio;
 
   float t = u_time;
 
   float l = length(uv);
-  float angle = ceil(u_frequency) * atan(uv.y, uv.x) + 2. * t;
+  float angle = ceil(u_bandCount) * atan(uv.y, uv.x) + 2. * t;
   float angle_norm = angle / TWO_PI;  
 
-  angle_norm += .5 * u_noisePower * snoise(4. * u_noiseFreq * uv);
-    
-  float twisted_l = .01 + pow(1.5 * l, 5. * u_twist);
-
-  float offset = (.5 + .5 * u_depth) / twisted_l + angle_norm;
+  angle_norm += .2 * u_noise * snoise(7. * u_noiseFreq * uv);
+  
+  float twist = clamp(2. * u_twist, .3, 2.);
+  float offset = twist / l + angle_norm;
   
   float stripe_map = fract(offset);
   
+  float center_falloff = clamp(.2 + .5 * abs(twist), .0, 1.);
+  float center_factor = smoothstep(0., center_falloff, l * (1. + .5 * abs(u_depth)));
+  stripe_map = mix(.5, stripe_map, center_factor);
+  
   float shape = stripe_map;
   
-  shape = easeMidpoint(shape, smoothstep(.1, 1., twisted_l));
-  
-  vec4 color = blend_colors(u_color1, u_color2, u_color3, shape);
+  float blur = 1. - u_blur - .1 * (1. - center_factor);
+  vec4 color = blend_colors(u_color1, u_color2, u_color3, shape, blur);
 
   fragColor = vec4(color);
 }
