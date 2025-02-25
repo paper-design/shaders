@@ -18,24 +18,43 @@ uniform vec2 u_resolution;
 out vec4 fragColor;
 
 vec2 get_img_uv(vec2 uv, float canvas_ratio, float img_ratio) {
+
+  bool is_cover = true;
+  bool is_centered = true;
+  float scale_factor = 1.;
+
   vec2 img_uv = uv;
   img_uv.y = 1. - img_uv.y;
-  img_uv -= .5;
-  if (canvas_ratio > img_ratio) {
-    img_uv.x = img_uv.x * canvas_ratio / img_ratio;
-  } else {
-    img_uv.y = img_uv.y * img_ratio / canvas_ratio;
+  
+  if (is_centered) {
+    img_uv -= .5;  
   }
-  float scale_factor = 1.;
-  scale_factor += 2. * 1e-2;
+  
+  if (is_cover) {
+    if (canvas_ratio > img_ratio) {
+      img_uv.y *= (img_ratio / canvas_ratio);
+    } else {
+      img_uv.x *= (canvas_ratio / img_ratio);
+    }
+  } else {
+    // fit canvas    
+    if (canvas_ratio > img_ratio) {
+      img_uv.x = img_uv.x * canvas_ratio / img_ratio;
+    } else {
+      img_uv.y = img_uv.y * img_ratio / canvas_ratio;
+    }
+  }
+  
   img_uv /= scale_factor;
-  img_uv += .5;
+  if (is_centered) {
+    img_uv += .5;  
+  }
 
   return img_uv;
 }
 
 float get_uv_frame(vec2 uv) {
-  return step(1e-2, uv.x) * step(uv.x, 1. - 1e-2) * step(1e-2, uv.y) * step(uv.y, 1. - 1e-2);
+  return step(1e-3, uv.x) * step(uv.x, 1. - 1e-3) * step(1e-3, uv.y) * step(uv.y, 1. - 1e-3);
 }
 
 void main() {
