@@ -80,14 +80,25 @@ export class ShaderMount {
   };
 
   private setupUniforms = () => {
-    this.uniformLocations = {
+    // Create a map to store all uniform locations
+    const uniformLocations: Record<string, WebGLUniformLocation | null> = {
       u_time: this.gl.getUniformLocation(this.program!, 'u_time'),
       u_pixelRatio: this.gl.getUniformLocation(this.program!, 'u_pixelRatio'),
       u_resolution: this.gl.getUniformLocation(this.program!, 'u_resolution'),
-      ...Object.fromEntries(
-        Object.keys(this.providedUniforms).map((key) => [key, this.gl.getUniformLocation(this.program!, key)])
-      ),
     };
+
+    // Add locations for all provided uniforms
+    Object.entries(this.providedUniforms).forEach(([key, value]) => {
+      uniformLocations[key] = this.gl.getUniformLocation(this.program!, key);
+
+      // For texture uniforms, also look for the aspect ratio uniform
+      if (value instanceof HTMLImageElement) {
+        const aspectRatioUniformName = `${key}_aspect_ratio`;
+        uniformLocations[aspectRatioUniformName] = this.gl.getUniformLocation(this.program!, aspectRatioUniformName);
+      }
+    });
+
+    this.uniformLocations = uniformLocations;
   };
 
   private resizeObserver: ResizeObserver | null = null;
@@ -201,6 +212,14 @@ export class ShaderMount {
       this.gl.activeTexture(this.gl.TEXTURE0 + textureUnit);
       this.gl.bindTexture(this.gl.TEXTURE_2D, texture);
       this.gl.uniform1i(location, textureUnit);
+
+      // Calculate and set the aspect ratio uniform
+      const aspectRatioUniformName = `${uniformName}_aspect_ratio`;
+      const aspectRatioLocation = this.uniformLocations[aspectRatioUniformName];
+      if (aspectRatioLocation) {
+        const aspectRatio = image.naturalWidth / image.naturalHeight;
+        this.gl.uniform1f(aspectRatioLocation, aspectRatio);
+      }
     }
   };
 
