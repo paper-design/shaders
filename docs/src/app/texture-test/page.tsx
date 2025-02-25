@@ -17,44 +17,40 @@ uniform vec2 u_resolution;
 
 out vec4 fragColor;
 
+vec2 get_img_uv(vec2 uv, float canvas_ratio, float img_ratio) {
+  vec2 img_uv = uv;
+  img_uv.y = 1. - img_uv.y;
+  img_uv -= .5;
+  if (canvas_ratio > img_ratio) {
+    img_uv.x = img_uv.x * canvas_ratio / img_ratio;
+  } else {
+    img_uv.y = img_uv.y * img_ratio / canvas_ratio;
+  }
+  float scale_factor = 1.;
+  scale_factor += 2. * 1e-2;
+  img_uv /= scale_factor;
+  img_uv += .5;
+
+  return img_uv;
+}
+
+float get_uv_frame(vec2 uv) {
+  return step(1e-2, uv.x) * step(uv.x, 1. - 1e-2) * step(1e-2, uv.y) * step(uv.y, 1. - 1e-2);
+}
+
 void main() {
-    // Get normalized coordinates
-    vec2 st = gl_FragCoord.xy / u_resolution;
-
-    // Calculate the aspect ratio of the canvas
-    float canvasAspectRatio = u_resolution.x / u_resolution.y;
-
-    // Adjust texture coordinates to maintain aspect ratio
-    vec2 adjustedSt = st;
-
-    // Center the texture (move origin to center)
-    adjustedSt = adjustedSt * 2.0 - 1.0;
-
-    // Scale based on aspect ratios to prevent distortion
-    if (u_texture_aspect_ratio > canvasAspectRatio) {
-        // Texture is wider than canvas (relative to height)
-        // Scale x to fit within canvas width
-        adjustedSt.x *= canvasAspectRatio / u_texture_aspect_ratio;
-    } else {
-        // Texture is taller than canvas (relative to width)
-        // Scale y to fit within canvas height
-        adjustedSt.y *= u_texture_aspect_ratio / canvasAspectRatio;
-    }
-
-    // Convert back to 0-1 range
-    adjustedSt = adjustedSt * 0.5 + 0.5;
-
-    // Flip the y coordinate to match typical texture coordinates
-    adjustedSt.y = 1.0 - adjustedSt.y;
-
-    // Check if we're outside the valid texture coordinates
-    if (adjustedSt.x < 0.0 || adjustedSt.x > 1.0 || adjustedSt.y < 0.0 || adjustedSt.y > 1.0) {
-        // Outside the texture bounds - show transparent or a background color
-        fragColor = vec4(0.1, 0.1, 0.1, 1.0); // Dark gray background
-    } else {
-        // Sample the texture with our adjusted coordinates
-        fragColor = texture(u_texture, adjustedSt);
-    }
+  vec2 uv = gl_FragCoord.xy / u_resolution.xy;
+  float ratio = u_resolution.x / u_resolution.y;
+  
+  vec2 inage_uv = get_img_uv(uv, ratio, u_texture_aspect_ratio);
+  
+  vec4 img = texture(u_texture, inage_uv);
+  vec4 background = vec4(.2, .2, .2, 1.);
+  
+  float frame = get_uv_frame(inage_uv);
+  
+  vec4 color = mix(background, img, frame);
+  fragColor = color;
 }`;
 
 const TextureTest = () => {
