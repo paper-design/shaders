@@ -18,10 +18,12 @@ uniform vec4 u_colorBack;
 uniform vec4 u_color1;
 uniform vec4 u_color2;
 uniform vec4 u_color3;
+uniform vec4 u_color4;
 
 uniform float u_size;
 uniform float u_power;
 uniform float u_inner;
+uniform float u_frequency;
 uniform float u_borderLine;
 uniform float u_grain;
 uniform float u_spotty;
@@ -60,27 +62,19 @@ float snoise(vec2 v) {
   return 130.0 * dot(m, g);
 }
 
-float get_noise(vec2 uv, float offset, float rotation) {
-  uv -= .5;
-  uv *= (.00075 * u_resolution);
-  uv = rotate(uv, rotation);
-  uv /= u_pixelRatio;
-  uv += .5;
-  float noise = abs(snoise(uv + offset));
-  noise = pow(noise, 4.);
-  return noise;
-}
 
-float get_px_border(vec2 uv_normalised) {
+float get_border_map(vec2 uv_normalised) {
   vec2 outer = u_size / u_resolution;
+  outer *= 2.447;
+      
   vec2 bl = smoothstep(vec2(0.), outer, uv_normalised);
   vec2 tr = smoothstep(vec2(0.), outer, 1. - uv_normalised);
-  
-  vec2 border_shaper = 12. * vec2(pow(.05 + .95 * u_borderLine, 3.));
-  bl = pow(bl, border_shaper);
-  tr = pow(tr, border_shaper);
-  float s = 1. - bl.x * bl.y * tr.x * tr.y;
-  return s;
+
+  bl = pow(bl, vec2(.04));
+  tr = pow(tr, vec2(.04));
+  float s = 1. - bl.x * bl.y * tr.x * tr.y; 
+    
+  return clamp(s, 0., 1.);
 }
 
 float rand(vec2 n) {
@@ -91,7 +85,7 @@ float noise(vec2 n) {
   vec2 b = floor(n), f = smoothstep(vec2(0.0), vec2(1.0), fract(n));
   return mix(mix(rand(b), rand(b + d.yx), f.x), mix(rand(b + d.xy), rand(b + d.yy), f.x), f.y);
 }
-float fbm(vec2 n) {
+float fbm_4(vec2 n) {
   float total = 0.0, amplitude = .2;
   for (int i = 0; i < 4; i++) {
     total += noise(n) * amplitude;
@@ -101,36 +95,116 @@ float fbm(vec2 n) {
   return total;
 }
 
+float fbm_6(vec2 n) {
+  float total = 0.0, amplitude = .2;
+  for (int i = 0; i < 6; i++) {
+    total += noise(n) * amplitude;
+    n += n;
+    amplitude *= 0.6;
+  }
+  return total;
+}
+
+vec2 get_noise_uv(vec2 uv_normalised, float rotation, float t) {
+    vec2 noise_uv = uv_normalised;
+    noise_uv -= .5;
+    noise_uv = rotate(noise_uv, rotation * t);
+    noise_uv += .5;
+    noise_uv *= u_resolution.xy;
+    noise_uv *= .0001 * u_frequency;
+    return noise_uv;
+}
+ 
 void main() {
   vec2 uv = gl_FragCoord.xy;
   uv /= u_pixelRatio;
 
+  float ratio = u_resolution.x / u_resolution.y;
+
+
   float t = 10. + .6 * u_time;
   
   vec2 uv_normalised = gl_FragCoord.xy / u_resolution.xy;
+  float grain = clamp(.6 * snoise(uv * .5) - fbm_4(.4 * uv) - fbm_4(.001 * uv), 0., 1.);
   
-  float grain = clamp(.6 * snoise(uv * .5) - fbm(.4 * uv) - fbm(.001 * uv), 0., 1.);
+  float border_map = get_border_map(uv_normalised);
+  border_map += grain * .5 * u_grain;
+//  border_map *= (1. + 4. * u_power);
   
-  float px_border = get_px_border(uv_normalised);
-  px_border += grain * .5 * u_grain;
-  px_border *= (1. + u_power);
-
-  float inner = mix(1.5 * u_inner - 1., 1.5 * u_inner, length(uv_normalised - .5));
-  inner = .4 * inner * clamp(inner, 0., 1.);
-  inner += grain * .5 * u_grain;
-
-  float border_shape = px_border + inner;
   
-  vec2 noise_uv = gl_FragCoord.xy / u_resolution.xy;
-
-  float shape1 = border_shape * get_noise(noise_uv, -.1 * t + 2., t);
-  float shape2 = border_shape * get_noise(1.2 * vec2(noise_uv.x, - noise_uv.y), .3 * t, 10. - t);
-  float shape3 = border_shape * get_noise(noise_uv, -.2 * t, 1.1 * t);
-
-  vec3 color = mix(u_colorBack.rgb * u_colorBack.a, u_color1.rgb * u_color1.a, shape1);
-  color = mix(color, u_color2.rgb * u_color2.a, shape2);
-  color = mix(color, u_color3.rgb * u_color3.a, shape3);
     
+
+    
+//  float splats_power = .7 * u_borderLine;
+//  
+//  float noise1 = snoise(noise_uv + vec2(0., t));
+//  float splats1 = smoothstep(0., 1., noise1) * pow(uv_normalised.y, 1.);
+//  splats1 *= splats_power;
+//  
+//  float noise2 = snoise(noise_uv + vec2(0., -t));
+//  float splats2 = smoothstep(0., 1., noise2) * pow(1. - uv_normalised.y, 1.);
+//  splats2 *= splats_power;
+//  
+//  float noise3 = snoise(noise_uv + vec2(-t, 0.));
+//  float splats3 = smoothstep(0., 1., noise3) * pow(1. - uv_normalised.x, 1.);
+//  splats3 *= splats_power;
+//  
+//  float noise4 = snoise(noise_uv + vec2(t, 0.));
+//  float splats4 = smoothstep(0., 1., noise4) * pow(uv_normalised.x, 1.);
+//  splats4 *= splats_power;
+  
+  
+//  float shape1 = border_map * (1. + 4. * noise1);
+//  float shape2 = border_map * (1. + 4. * noise2);
+//  float shape3 = border_map * (1. + 4. * noise3);
+//  float shape4 = border_map * (1. + 4. * noise4);
+  
+  float pulse = (1. + 4. * u_power) * (.3 + .5 * sin(14. * t) * sin(1. * t) * cos(2. * t));
+  
+
+
+  
+  float noise_speed = .4;
+  float move_speed = 7.;
+  vec2 noise_uv1 = get_noise_uv(uv_normalised, 1.1, sin(move_speed * t));
+  float shape1 = border_map * pulse * snoise(noise_uv1 + vec2(0., noise_speed * t));
+
+  vec2 noise_uv2 = get_noise_uv(uv_normalised, -.9, sin(move_speed * t));
+  float shape2 = border_map * pulse * snoise(noise_uv2 + vec2(0., noise_speed * t));
+
+  vec2 noise_uv3 = get_noise_uv(uv_normalised, -.7, sin(move_speed * t));
+  float shape3 = border_map * pulse * snoise(noise_uv3 + vec2(noise_speed * t, -noise_speed * t));
+  
+
+//  shape1 += splats1;
+//  shape1 *= pow(noise1, 3.);
+//  shape1 *= pow(snoise(noise_uv + vec2(0., .3 * t)), 3.);
+  
+//  shape2 += splats2;
+//  shape2 *= pow(noise2, 3.);
+//  shape2 *= pow(snoise(noise_uv + vec2(0., -.3 * t)), 3.);
+  
+//  shape3 += splats3;
+//  shape3 *= pow(noise3, 3.);
+//  shape3 *= pow(snoise(noise_uv + vec2(-.3 * t, 0.)), 3.);
+  
+//  shape4 += splats4;
+//  shape4 *= pow(noise4, 3.);
+//  shape4 *= pow(snoise(noise_uv + vec2(.3 * t, 0.)), 3.);
+  
+  shape1 = clamp(shape1, 0., 1.);
+  shape2 = clamp(shape2, 0., 1.);
+  shape3 = clamp(shape3, 0., 1.);
+//  shape4 = clamp(shape4, 0., 1.);
+  
+  vec3 color = mix(u_colorBack.rgb, u_color1.rgb, shape1);
+  color = mix(color, u_color2.rgb, shape2);
+  color = mix(color, u_color3.rgb, shape3);
+//  
+//  vec3 color = mix(u_colorBack.rgb, u_color1.rgb, shape1);
+//  color += u_color2.rgb * shape2;
+//  color += u_color3.rgb * shape3;
+//  
   fragColor = vec4(color, 1.);
 }
 

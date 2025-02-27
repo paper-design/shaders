@@ -60,27 +60,29 @@ float snoise(vec2 v) {
   return 130.0 * dot(m, g);
 }
 
-float get_noise(vec2 uv, float offset, float rotation) {
-  uv -= .5;
-  uv *= (.00075 * u_resolution);
-  uv = rotate(uv, rotation);
-  uv /= u_pixelRatio;
-  uv += .5;
-  // float noise = abs(snoise(uv + offset));
-  float noise = (snoise(uv + offset));
-  noise = pow(noise, 3.);
-  return noise;
-}
-
 float get_border_map(vec2 uv_normalised) {
-  vec2 outer = 2.447 * u_size / u_resolution;
+  vec2 outer = u_size / u_resolution;
+  outer *= 2.447;
+    
+  vec2 noise_uv = gl_FragCoord.xy / u_resolution.xy;
+  float noise = smoothstep(-1., 1., snoise(4. * noise_uv + .2 * u_time));
+  noise *= u_borderLine;
+  noise *= pow(length(uv_normalised - .5), 2.);
+  
+  outer += noise;
+  
+//  outer += .01 * u_inner;
+    
   vec2 bl = smoothstep(vec2(0.), outer, uv_normalised);
   vec2 tr = smoothstep(vec2(0.), outer, 1. - uv_normalised);
   
-  vec2 border_shaper = vec2(.6718);
+//  vec2 border_shaper = vec2(.6718);
+  vec2 border_shaper = vec2(1. - .8 * u_inner);
+  
   bl = pow(bl, border_shaper);
   tr = pow(tr, border_shaper);
-  float s = 1. - bl.x * bl.y * tr.x * tr.y;
+  float s = 1. - bl.x * bl.y * tr.x * tr.y; 
+    
   return clamp(s, 0., 1.);
 }
 
@@ -106,6 +108,8 @@ void main() {
   vec2 uv = gl_FragCoord.xy;
   uv /= u_pixelRatio;
 
+  vec2 noise_uv = gl_FragCoord.xy / u_resolution.xy;
+
   float t = 10. + .6 * u_time;
 
   vec2 uv_normalised = gl_FragCoord.xy / u_resolution.xy;
@@ -114,15 +118,11 @@ void main() {
 
   float border_map = get_border_map(uv_normalised);
 
-  vec2 noise_uv = gl_FragCoord.xy / u_resolution.xy;
 
   float mixer = border_map;
-
-  mixer = pow(mixer, 1. + 2. * u_borderLine * get_noise(noise_uv, -.3 * t + 2., .2 * t));
-
   mixer += .4 * grain * u_grain;
   
-  float blur = 1e-2 + .3 * u_blur;
+  float blur = fwidth(border_map) + .6 * u_blur;
 
   vec3 colorBack = u_colorBack.rgb * u_colorBack.a;
   vec3 color1 = u_color1.rgb * u_color1.a;
@@ -131,18 +131,14 @@ void main() {
   
   vec3 borders = vec3(0.05, .32, .75); // kinda equal stripes
   
-  borders[0] += .3 * u_borderLine * abs(get_noise(noise_uv, -.3 * t + 2., .2 * t));
-  borders[1] += .4 * u_borderLine * get_noise(noise_uv, -.3 * t + 6., .2 * t);
-  borders[2] += .6 * u_borderLine * get_noise(noise_uv, -.3 * t + 12., .2 * t);
-
-
-  vec3 mixedColor = mix(colorBack, color1, smoothstep(max(0., borders[0] - blur), borders[0] + .5 * blur, mixer));
+  vec3 mixedColor = mix(colorBack, color1, smoothstep(max(0., borders[0] - blur), borders[0] + .75 * blur, mixer));
   mixedColor = mix(mixedColor, color2, smoothstep(borders[1] - .5 * blur, borders[1] + blur, mixer));
   mixedColor = mix(mixedColor, color3, smoothstep(borders[2] - blur, borders[2] + 2. * blur, mixer));
-
+  
   vec4 color_mix = vec4(mixedColor, 1.);
 
-  fragColor = color_mix;
+//  fragColor = color_mix;
+  fragColor = vec4(vec3(mixer), 1.);
 }
 
 

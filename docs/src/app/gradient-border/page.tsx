@@ -39,7 +39,7 @@ const GradientBorderWithControls = () => {
           size: { value: defaults.size, min: 0, max: 500, order: 200 },
           blur: { value: defaults.blur, min: 0, max: 1, order: 201 },
           borderLine: { value: defaults.borderLine, min: 0, max: 1, order: 202 },
-          inner: { value: defaults.inner, min: 0, max: 1, order: 203 },
+          inner: { value: defaults.inner, min: -1, max: 1, order: 203 },
           grain: { value: defaults.grain, min: 0, max: 1, order: 204 },
           spotty: { value: defaults.spotty, min: 0, max: 1, order: 205 },
           speed: { value: defaults.speed, min: 0, max: 2, order: 400 },

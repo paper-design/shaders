@@ -32,7 +32,7 @@ export const defaultPreset: GradientBorderPreset = {
   params: {
     speed: 1,
     seed: 0,
-    colorBack: 'hsla(0, 0%, 100%, 1)',
+    colorBack: 'hsla(0, 0%, 0%, 1)',
     color1: 'hsla(60, 75%, 50%, 1)',
     color2: 'hsla(180, 75%, 50%, 1)',
     color3: 'hsla(260, 100%, 50%, 1)',
