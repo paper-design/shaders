@@ -30,6 +30,9 @@ uniform float u_spotty;
 
 out vec4 fragColor;
 
+#define PI 3.14159265358979323846
+
+
 vec2 rotate(vec2 uv, float th) {
   return mat2(cos(th), sin(th), -sin(th), cos(th)) * uv;
 }
@@ -61,7 +64,6 @@ float snoise(vec2 v) {
   g.yz = a0.yz * x12.xz + h.yz * x12.yw;
   return 130.0 * dot(m, g);
 }
-
 
 float get_border_map(vec2 uv_normalised) {
   vec2 outer = u_size / u_resolution;
@@ -95,24 +97,24 @@ float fbm_4(vec2 n) {
   return total;
 }
 
-float fbm_6(vec2 n) {
-  float total = 0.0, amplitude = .2;
-  for (int i = 0; i < 6; i++) {
-    total += noise(n) * amplitude;
-    n += n;
-    amplitude *= 0.6;
-  }
-  return total;
+
+vec2 get_rotated_uv(float rotation, float scale) {
+    vec2 noise_uv = gl_FragCoord.xy;
+    noise_uv /= u_pixelRatio;
+    noise_uv -= .25 * u_resolution.xy;
+    noise_uv = rotate(noise_uv, rotation);
+    noise_uv += .25 * u_resolution.xy;
+    noise_uv *= .0001 * scale * u_frequency;
+    return noise_uv;
 }
 
-vec2 get_noise_uv(vec2 uv_normalised, float rotation, float t) {
-    vec2 noise_uv = uv_normalised;
-    noise_uv -= .5;
-    noise_uv = rotate(noise_uv, rotation * t);
-    noise_uv += .5;
-    noise_uv *= u_resolution.xy;
-    noise_uv *= .0001 * u_frequency;
-    return noise_uv;
+float get_shape(float t1, float t2, float border, float scale) {
+  vec2 noise_uv1 = get_rotated_uv(t1, scale);
+  float s = (.1 + snoise(noise_uv1));
+  s *= (.2 + 1. * t2);
+  s *= (1. + 2. * u_power);
+  s *= border;
+  return s;
 }
  
 void main() {
@@ -121,90 +123,56 @@ void main() {
 
   float ratio = u_resolution.x / u_resolution.y;
 
-
-  float t = 10. + .6 * u_time;
+  float t = u_time;
   
   vec2 uv_normalised = gl_FragCoord.xy / u_resolution.xy;
+  float atg = atan(uv_normalised.y, uv_normalised.x);
+
   float grain = clamp(.6 * snoise(uv * .5) - fbm_4(.4 * uv) - fbm_4(.001 * uv), 0., 1.);
   
   float border_map = get_border_map(uv_normalised);
   border_map += grain * .5 * u_grain;
-//  border_map *= (1. + 4. * u_power);
   
-  
+  float shape1 = get_shape(
+    sin(1.3 * t), 
+    cos(1.5 * t + 0.8 * PI), 
+    border_map, 
+    0.85);  
+  shape1 += get_shape(
+    -1.4 * sin(t + 0.6 * PI), 
+    cos(0.9 * t + PI), 
+    border_map, 
+    1.15);
     
+  float shape2 = get_shape(
+    cos(1.2 * t + 0.7 * PI), 
+    sin(1.1 * t + 1.1 * PI), 
+    border_map,
+    1.05);
+  shape2 += get_shape(
+    -1.3 * cos(t + 1.3 * PI), 
+    sin(0.8 * t + 0.9 * PI), 
+    border_map, 
+    0.95);
+
+  float shape3 = get_shape(
+    cos(1.4 * t), 
+    sin(1.7 * t + 1.2 * PI), 
+    border_map,
+    1.1);
+  shape3 += get_shape(
+    -1.2 * cos(t + 0.7 * PI), 
+    sin(1.6 * t), 
+    border_map, 
+    1.3);
 
     
-//  float splats_power = .7 * u_borderLine;
-//  
-//  float noise1 = snoise(noise_uv + vec2(0., t));
-//  float splats1 = smoothstep(0., 1., noise1) * pow(uv_normalised.y, 1.);
-//  splats1 *= splats_power;
-//  
-//  float noise2 = snoise(noise_uv + vec2(0., -t));
-//  float splats2 = smoothstep(0., 1., noise2) * pow(1. - uv_normalised.y, 1.);
-//  splats2 *= splats_power;
-//  
-//  float noise3 = snoise(noise_uv + vec2(-t, 0.));
-//  float splats3 = smoothstep(0., 1., noise3) * pow(1. - uv_normalised.x, 1.);
-//  splats3 *= splats_power;
-//  
-//  float noise4 = snoise(noise_uv + vec2(t, 0.));
-//  float splats4 = smoothstep(0., 1., noise4) * pow(uv_normalised.x, 1.);
-//  splats4 *= splats_power;
-  
-  
-//  float shape1 = border_map * (1. + 4. * noise1);
-//  float shape2 = border_map * (1. + 4. * noise2);
-//  float shape3 = border_map * (1. + 4. * noise3);
-//  float shape4 = border_map * (1. + 4. * noise4);
-  
-  float pulse = (1. + 4. * u_power) * (.3 + .5 * sin(14. * t) * sin(1. * t) * cos(2. * t));
-  
-
-
-  
-  float noise_speed = .4;
-  float move_speed = 7.;
-  vec2 noise_uv1 = get_noise_uv(uv_normalised, 1.1, sin(move_speed * t));
-  float shape1 = border_map * pulse * snoise(noise_uv1 + vec2(0., noise_speed * t));
-
-  vec2 noise_uv2 = get_noise_uv(uv_normalised, -.9, sin(move_speed * t));
-  float shape2 = border_map * pulse * snoise(noise_uv2 + vec2(0., noise_speed * t));
-
-  vec2 noise_uv3 = get_noise_uv(uv_normalised, -.7, sin(move_speed * t));
-  float shape3 = border_map * pulse * snoise(noise_uv3 + vec2(noise_speed * t, -noise_speed * t));
-  
-
-//  shape1 += splats1;
-//  shape1 *= pow(noise1, 3.);
-//  shape1 *= pow(snoise(noise_uv + vec2(0., .3 * t)), 3.);
-  
-//  shape2 += splats2;
-//  shape2 *= pow(noise2, 3.);
-//  shape2 *= pow(snoise(noise_uv + vec2(0., -.3 * t)), 3.);
-  
-//  shape3 += splats3;
-//  shape3 *= pow(noise3, 3.);
-//  shape3 *= pow(snoise(noise_uv + vec2(-.3 * t, 0.)), 3.);
-  
-//  shape4 += splats4;
-//  shape4 *= pow(noise4, 3.);
-//  shape4 *= pow(snoise(noise_uv + vec2(.3 * t, 0.)), 3.);
-  
-  shape1 = clamp(shape1, 0., 1.);
-  shape2 = clamp(shape2, 0., 1.);
-  shape3 = clamp(shape3, 0., 1.);
-//  shape4 = clamp(shape4, 0., 1.);
-  
-  vec3 color = mix(u_colorBack.rgb, u_color1.rgb, shape1);
+      
+  vec3 color = u_colorBack.rgb;
+  color = mix(color, u_color1.rgb, shape1);
   color = mix(color, u_color2.rgb, shape2);
   color = mix(color, u_color3.rgb, shape3);
-//  
-//  vec3 color = mix(u_colorBack.rgb, u_color1.rgb, shape1);
-//  color += u_color2.rgb * shape2;
-//  color += u_color3.rgb * shape3;
-//  
+
   fragColor = vec4(color, 1.);
 }
 
