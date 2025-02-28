@@ -32,7 +32,7 @@ type PulsingBorderPreset = { name: string; params: Required<PulsingBorderParams>
 export const defaultPreset: PulsingBorderPreset = {
   name: 'Default',
   params: {
-    speed: 0.8,
+    speed: 1,
     seed: 0,
     colorBack: 'hsla(200, 0%, 0%, 1)',
     color1: 'hsla(30, 100%, 50%, 1)',
@@ -40,12 +40,12 @@ export const defaultPreset: PulsingBorderPreset = {
     color3: 'hsla(320, 100%, 50%, 1)',
     color4: 'hsla(100, 100%, 50%, 1)',
     inner: 0.86,
-    frequency: 3.5,
-    borderLine: 1,
-    power: 0.7,
+    frequency: 5,
+    borderLine: .4,
+    power: .7,
     spotty: 1,
     grain: 0,
-    size: 120,
+    size: 100,
   },
 } as const;
 

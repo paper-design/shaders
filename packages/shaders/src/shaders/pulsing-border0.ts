@@ -30,7 +30,6 @@ uniform float u_spotty;
 
 out vec4 fragColor;
 
-#define TWO_PI 6.28318530718
 #define PI 3.14159265358979323846
 
 
@@ -109,42 +108,67 @@ vec2 get_rotated_uv(float rotation, float scale) {
     return noise_uv;
 }
 
-float get_shape(float t1, float t2, float border, float scale) {
-  vec2 noise_uv1 = get_rotated_uv(t1, scale);
-  float s = (.1 + snoise(noise_uv1));
-  s *= (.2 + 1. * t2);
-  s *= (1. + 2. * u_power);
-  s *= border;
-  return s;
+float get_shape(vec2 motion, float border, float scale) {
+    vec2 noise_uv = get_rotated_uv(atan(motion.y, motion.x), scale);
+
+    float dist = length(motion);  
+    float fade = smoothstep(0.7, 1.0, border * dist);
+
+//    float s = (0.1 + snoise(noise_uv)) * fade;
+//    s *= (0.2 + 1.0 * border);
+//    s *= (1.0 + 2.0 * u_power);
+//    
+    return fade;
 }
+ 
+vec2 get_spot_pos(float ratio, float t, float start_time) {
+    float perimeter = 2. * (ratio + 1.);
+    float tt = mod(t+ start_time, perimeter);
+//    vec2 spot_pos;
 
-// Smoother speech-like signal
-float smoothSpeechEmulation(float time) {
-    // Parameters for wave frequencies and modulations
-    float baseFreq = 300.0 + sin(time * 0.1) * 100.0;  // Slow modulation for low frequency
-    float midFreq = 600.0 + cos(time * 0.3) * 50.0;    // Slight modulation for mid-range
-    float highFreq = 1200.0 + sin(time * 0.6) * 150.0; // Faster modulation for high-pitched components
+    float x_offset = (1. - ratio) / 2.;
 
-    // Smooth sine waves for each frequency component
-    float lowWave = sin(time * baseFreq);
-    float midWave = sin(time * midFreq) * 0.5;
-    float highWave = sin(time * highFreq) * 0.2;
+//    if (tt < ratio) { 
+//        spot_pos = vec2(-.5 + tt + x_offset, -.5);
+//    } else if (tt < ratio + 1.) { 
+//        spot_pos = vec2(.5 - x_offset, -.5 + (tt - ratio));
+//    } else if (tt < 2.0 * ratio + 1.) { 
+//        spot_pos = vec2(.5 - (tt - ratio - 1.) - x_offset, .5);
+//    } else { 
+//        spot_pos = vec2(-.5 + x_offset, .5 - (tt - 2.0 * ratio - 1.));
+//    }
 
-    // Combine all waves with gentle mixing for a smoother result
-    float speechSignal = lowWave + midWave + highWave;
 
-    // Apply a smooth sine modulation to the entire signal for soft dynamics
-    speechSignal *= 0.5 + 0.5 * sin(time * 0.05);  // Smooth amplitude modulation
+        vec2 pos_b = vec2(-.5 + tt + x_offset, -.5);
+        vec2 pos_r = vec2(.5 - x_offset, -.5 + (tt - ratio));
+        vec2 pos_t = vec2(.5 - (tt - ratio - 1.) - x_offset, .5);
+        vec2 pos_l = vec2(-.5 + x_offset, .5 - (tt - 2.0 * ratio - 1.));
+    
+    float t0 = ratio;
+    float t1 = ratio + 1.;
+    float t2 = 2.0 * ratio + 1.;
+    float t3 = perimeter;
+    
+    float rounded = 0.0;
+    float blend_b_r = smoothstep(t0 - rounded, t0 + rounded, tt);
+    float blend_r_t = smoothstep(t1 - rounded, t1 + rounded, tt);
+    float blend_t_l = smoothstep(t2 - rounded, t2 + rounded, tt);
+    float blend_l_b = smoothstep(t3 - rounded, t3 + rounded, tt);
 
-    return speechSignal;
-}
+    vec2 spot_pos;
+    if (tt < t0) {
+        spot_pos = pos_b;
+    } else if (tt < t1) {
+        spot_pos = mix(pos_b, pos_r, blend_b_r);
+    } else if (tt < t2) {
+        spot_pos = mix(pos_r, pos_t, blend_r_t);
+    } else if (tt < t3) {
+        spot_pos = mix(pos_t, pos_l, blend_t_l);
+    } else {
+        spot_pos = mix(pos_l, pos_b, blend_l_b);
+    }
 
-float get_sector(float a, float mask) {
-  float atg1 = mod(a, 1.);
-  float s = smoothstep(.3, .5, atg1) * smoothstep(.7, .5, atg1);
-  s *= mask;
-  s = max(0., s);
-  return s;
+    return spot_pos;
 }
  
 void main() {
@@ -153,57 +177,40 @@ void main() {
 
   float ratio = u_resolution.x / u_resolution.y;
 
-  float t = 2. * u_time;
+  float t = u_time;
   
   vec2 uv_normalised = gl_FragCoord.xy / u_resolution.xy;
+  float atg = atan(uv_normalised.y, uv_normalised.x);
 
   float grain = clamp(.6 * snoise(uv * .5) - fbm_4(.4 * uv) - fbm_4(.001 * uv), 0., 1.);
   
-  float border = get_border_map(uv_normalised);
-  border += grain * .5 * u_grain;
-
-  float pulse = smoothSpeechEmulation(.01 * t);
-  border *= (.5 + .5 * pulse);
-
-  vec2 uv_center = uv_normalised - .5;;
+  float border_map = get_border_map(uv_normalised);
+  border_map += grain * .5 * u_grain;
+  border_map *= (1. + 1. * u_power);
   
 
-  float angle_norm = atan(uv_center.y, uv_center.x) / TWO_PI;
-  
-  float shape1 = get_sector(angle_norm + .1 * t, .7 + sin(1. * t));
-  shape1 += get_sector(angle_norm - .2 * t, .2 + cos(1. * t + 2.));
-  
-  float shape2 = get_sector(angle_norm - .3 * t, .7 + sin(1.2 * t + .3));
-  shape2 += get_sector(angle_norm + .2 * t, .3 + sin(.8 * t ));
-  
-  float shape3 = 1. - shape1 - shape2;
+  vec2 uv_ratio = uv_normalised;
+  uv_ratio -= .5;
+  uv_ratio.x *= ratio;
 
-
-  shape1 *= border;
-  shape2 *= border;
-  shape3 *= border;
-  
-  shape1 *= (1. + 4. * u_power);
-  shape2 *= (1. + 3. * u_power);
-  shape3 *= (1. + .2 * u_power);
-
-  
-//  shape1 *= (.2 + .8 * pulse);
-//  shape3 *= (.5 + .5 * pulse);
+    vec2 spot_pos = get_spot_pos(ratio, t, .8);
+    float dist = length(uv_ratio - spot_pos);
     
-  
+    float spot = smoothstep(1., 0., dist);
+    spot = pow(spot, 1. + 5. * u_borderLine);
+//    spot *= (sin(2. * t + PI) + cos(1. * t + PI));
+    spot *= border_map;
     
-      
-  vec3 color = u_colorBack.rgb;
+//    spot *= sin(t);
+    
+
+//  vec3 color = u_colorBack.rgb;
 //  color = mix(color, u_color1.rgb, shape1);
 //  color = mix(color, u_color2.rgb, shape2);
 //  color = mix(color, u_color3.rgb, shape3);
-  color += u_color1.rgb * shape1;
-  color += u_color2.rgb * shape2;
-  color += u_color3.rgb * shape3;
-
-  fragColor = vec4(color, 1.);
-//  fragColor = vec4(vec3(border * pulse), 1.);
+//
+//  fragColor = vec4(color, 1.);
+  fragColor = vec4(vec3(spot), 1.);
 }
 
 `;
