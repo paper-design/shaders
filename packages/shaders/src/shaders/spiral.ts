@@ -112,7 +112,7 @@ void main() {
 
   angle_norm += .125 * u_noisePower * snoise(.5 * u_noiseFreq * uv);
 
-  float offset = pow(l, 1. - clamp(0., 1., u_spiralDensity)) + angle_norm;
+  float offset = pow(l, 1. - clamp(u_spiralDensity, 0., 1.)) + angle_norm;
   
   float stripe_map = fract(offset);
   stripe_map -= .5 * u_strokeTaper * l;

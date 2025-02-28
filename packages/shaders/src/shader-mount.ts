@@ -90,12 +90,30 @@ export class ShaderMount {
   };
 
   private handleResize = () => {
-    const newWidth = this.canvas.clientWidth;
-    const newHeight = this.canvas.clientHeight;
+    const clientWidth = this.canvas.clientWidth;
+    const clientHeight = this.canvas.clientHeight;
+    const pixelRatio = window.devicePixelRatio;
+    const newWidth = clientWidth * pixelRatio;
+    const newHeight = clientHeight * pixelRatio;
 
     if (this.canvas.width !== newWidth || this.canvas.height !== newHeight) {
       this.canvas.width = newWidth;
       this.canvas.height = newHeight;
+
+      // If pixelRatio is not 1, we need the user to set a CSS size or changing the canvas.width/height will
+      // actually resize the element, triggering a resize loop and making the result still 1x dpi, just bigger
+      if (pixelRatio !== 1) {
+        const cssWidth = window.getComputedStyle(this.canvas).width;
+        const cssHeight = window.getComputedStyle(this.canvas).height;
+        // CSS width should not equal newWidth, because newWidth is scaled with dpi
+        if (parseFloat(cssWidth) === newWidth && parseFloat(cssHeight) === newHeight) {
+          // It appears that CSS sizing was unset, so we just caused the entire canvas to resize and will trigger a resize loop
+          // Set an explicit inline CSS size to avoid the loop and preserve 2x rendering
+          this.canvas.style.width = `${clientWidth}px`;
+          this.canvas.style.height = `${clientHeight}px`;
+        }
+      }
+
       this.resolutionChanged = true;
       this.gl.viewport(0, 0, this.gl.canvas.width, this.gl.canvas.height);
       this.render(performance.now()); // this is necessary to avoid flashes while resizing (the next scheduled render will set uniforms)
