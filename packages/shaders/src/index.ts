@@ -56,6 +56,10 @@ export { godRaysFragmentShader, type GodRaysUniforms } from './shaders/god-rays'
 /** A shader rendering a multi-color gradient around the viewport border */
 export { pulsingBorderFragmentShader, type PulsingBorderUniforms } from './shaders/pulsing-border';
 
+// -----  Border Gradient ----- //
+/**  */
+export { tttttBorderFragmentShader, type TttttBorderUniforms } from './shaders/ttttt-border';
+
 // ----- Gradient Border ----- //
 /** A shader rendering a multi-color gradient around the viewport border */
 export { gradientBorderFragmentShader, type GradientBorderUniforms } from './shaders/gradient-border';

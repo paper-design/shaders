@@ -11,12 +11,11 @@ export type PulsingBorderParams = {
   color1?: string;
   color2?: string;
   color3?: string;
-  color4?: string;
   inner?: number;
   frequency?: number;
   borderLine?: number;
   power?: number;
-  spotty?: number;
+  pulse?: number;
   grain?: number;
   size?: number;
 } & GlobalParams;
@@ -38,14 +37,14 @@ export const defaultPreset: PulsingBorderPreset = {
     color1: 'hsla(30, 100%, 50%, 1)',
     color2: 'hsla(240, 100%, 50%, 1)',
     color3: 'hsla(320, 100%, 50%, 1)',
-    color4: 'hsla(100, 100%, 50%, 1)',
-    inner: 0.86,
-    frequency: 5,
-    borderLine: .4,
-    power: .7,
-    spotty: 1,
-    grain: 0,
     size: 100,
+    power: .7,
+    pulse: 0,
+
+    inner: 0.1,
+    frequency: 1,
+    borderLine: .4,
+    grain: 0,
   },
 } as const;
 
@@ -59,12 +58,11 @@ export const preset1: PulsingBorderPreset = {
     color1: 'hsla(76, 86%, 34%, 1)',
     color2: 'hsla(199, 100%, 50%, 1)',
     color3: 'hsla(331, 100%, 63%, 1)',
-    color4: 'hsla(100, 100%, 63%, 1)',
     inner: 0,
     frequency: 1,
     borderLine: 1,
     power: 1,
-    spotty: 1,
+    pulse: 1,
     grain: 0,
     size: 25,
   },
@@ -79,12 +77,11 @@ export const preset2: PulsingBorderPreset = {
     color1: 'hsla(174, 72%, 56%, 1)',
     color2: 'hsla(33, 100%, 50%, 1)',
     color3: 'hsla(330, 100%, 50%, 1)',
-    color4: 'hsla(200, 100%, 50%, 1)',
     inner: 0,
     frequency: 0.2,
     borderLine: 0.2,
     power: 1,
-    spotty: 0.5,
+    pulse: 0.5,
     grain: 1,
     size: 130,
   },
@@ -99,12 +96,11 @@ export const preset3: PulsingBorderPreset = {
     color1: 'hsla(32, 100%, 50%, 1)',
     color2: 'hsla(40, 82%, 67%, 1)',
     color3: 'hsla(26, 26%, 83%, 1)',
-    color4: 'hsla(12, 26%, 83%, 1)',
     inner: 1,
     frequency: 0.33,
     borderLine: 0.33,
     power: 0,
-    spotty: 0,
+    pulse: 0,
     grain: 0.38,
     size: 250,
   },
@@ -119,12 +115,11 @@ export const PulsingBorder = (props: PulsingBorderProps): JSX.Element => {
       u_color1: getShaderColorFromString(props.color1, defaultPreset.params.color1),
       u_color2: getShaderColorFromString(props.color2, defaultPreset.params.color2),
       u_color3: getShaderColorFromString(props.color3, defaultPreset.params.color3),
-      u_color4: getShaderColorFromString(props.color4, defaultPreset.params.color4),
       u_inner: props.inner ?? defaultPreset.params.inner,
       u_frequency: props.frequency ?? defaultPreset.params.frequency,
       u_borderLine: props.borderLine ?? defaultPreset.params.borderLine,
       u_power: props.power ?? defaultPreset.params.power,
-      u_spotty: props.spotty ?? defaultPreset.params.spotty,
+      u_pulse: props.pulse ?? defaultPreset.params.pulse,
       u_grain: props.grain ?? defaultPreset.params.grain,
       u_size: props.size ?? defaultPreset.params.size,
     };
@@ -133,13 +128,12 @@ export const PulsingBorder = (props: PulsingBorderProps): JSX.Element => {
     props.color1,
     props.color2,
     props.color3,
-    props.color4,
     props.size,
     props.inner,
     props.frequency,
     props.borderLine,
     props.power,
-    props.spotty,
+    props.pulse,
     props.grain,
   ]);
 

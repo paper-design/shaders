@@ -18,7 +18,6 @@ uniform vec4 u_colorBack;
 uniform vec4 u_color1;
 uniform vec4 u_color2;
 uniform vec4 u_color3;
-uniform vec4 u_color4;
 
 uniform float u_size;
 uniform float u_power;
@@ -26,7 +25,7 @@ uniform float u_inner;
 uniform float u_frequency;
 uniform float u_borderLine;
 uniform float u_grain;
-uniform float u_spotty;
+uniform float u_pulse;
 
 out vec4 fragColor;
 
@@ -118,14 +117,13 @@ float get_shape(float t1, float t2, float border, float scale) {
   return s;
 }
 
-// Smoother speech-like signal
 float smoothSpeechEmulation(float time) {
     // Parameters for wave frequencies and modulations
-    float baseFreq = 300.0 + sin(time * 0.1) * 100.0;  // Slow modulation for low frequency
+    float baseFreq = 300.0 + sin(time * 0.1) * 100.0;  // Slow modulation for low u_frequency
     float midFreq = 600.0 + cos(time * 0.3) * 50.0;    // Slight modulation for mid-range
     float highFreq = 1200.0 + sin(time * 0.6) * 150.0; // Faster modulation for high-pitched components
 
-    // Smooth sine waves for each frequency component
+    // Smooth sine waves for each u_frequency component
     float lowWave = sin(time * baseFreq);
     float midWave = sin(time * midFreq) * 0.5;
     float highWave = sin(time * highFreq) * 0.2;
@@ -139,13 +137,15 @@ float smoothSpeechEmulation(float time) {
     return speechSignal;
 }
 
-float get_sector(float a, float mask) {
+float get_sector(float a, float mask, float width) {
   float atg1 = mod(a, 1.);
-  float s = smoothstep(.3, .5, atg1) * smoothstep(.7, .5, atg1);
+  float s = smoothstep(.5 - width, .5, atg1) * smoothstep(.5 + width, .5, atg1);
   s *= mask;
   s = max(0., s);
   return s;
 }
+
+
  
 void main() {
   vec2 uv = gl_FragCoord.xy;
@@ -153,57 +153,90 @@ void main() {
 
   float ratio = u_resolution.x / u_resolution.y;
 
-  float t = 2. * u_time;
+  float t = 1.5 * u_time;
   
   vec2 uv_normalised = gl_FragCoord.xy / u_resolution.xy;
+  float oval_mask = smoothstep(0., 1., 1.5 * length(uv_normalised - .5));
 
   float grain = clamp(.6 * snoise(uv * .5) - fbm_4(.4 * uv) - fbm_4(.001 * uv), 0., 1.);
   
   float border = get_border_map(uv_normalised);
-  border += grain * .5 * u_grain;
 
-  float pulse = smoothSpeechEmulation(.01 * t);
-  border *= (.5 + .5 * pulse);
+  float pulse = smoothSpeechEmulation(.012 * t);
+  border *= (1. + u_pulse * pulse);
 
   vec2 uv_center = uv_normalised - .5;;
   
 
   float angle_norm = atan(uv_center.y, uv_center.x) / TWO_PI;
   
-  float shape1 = get_sector(angle_norm + .1 * t, .7 + sin(1. * t));
-  shape1 += get_sector(angle_norm - .2 * t, .2 + cos(1. * t + 2.));
   
-  float shape2 = get_sector(angle_norm - .3 * t, .7 + sin(1.2 * t + .3));
-  shape2 += get_sector(angle_norm + .2 * t, .3 + sin(.8 * t ));
+  float shape1 = 0.;
+  float shape2 = 0.;
   
-  float shape3 = 1. - shape1 - shape2;
+  
+  // CHANGE WIDTH CALCULATION
 
+  for (int i = 0; i < int(u_frequency + 1.); i++) {
+    float fi = float(i);  
+    float time = (.1 + .15 * abs(sin(fi * 4.) * cos(fi * 2.))) * t + rand(vec2(fi * 10.)) * 3.;
+    time *= mix(1., -1., float(i % 2 == 0));
+    float mask = .2 + sin(t + fi * 6. - fi);
+    float width = (.1 - .004 * u_frequency) * (1. + rand(vec2(fi + 20., fi + 55.)));
+    
+//    shape1 = max(shape1, get_sector(angle_norm + time, mask, width));
+    shape1 += get_sector(angle_norm + time, mask, width);
+  }
+    
+  for (int i = 0; i < int(u_frequency); i++) {
+    float fi = float(i);  
+    float time = (.1 + .15 * abs(sin(fi * 2.) * cos(fi * 5.))) * t + rand(vec2(fi * 2. - 20.)) * 3.;
+    time *= mix(-1., 1., float(i % 2 == 0));
+    float mask = .2 + cos(t + fi * 5. - 2. * fi);
+    float width = (.1 - .004 * u_frequency) * (1. + rand(vec2(fi + 120., fi - 55.)));
+    
+//    shape2 = max(shape2, get_sector(angle_norm + time, mask, width));
+    shape2 += get_sector(angle_norm + time, mask, width);
+  }
+      
+  float shape3 = 1. - max(shape1, shape2);
+
+//  shape1 += .2 * snoise(.001 * uv);
 
   shape1 *= border;
   shape2 *= border;
   shape3 *= border;
-  
-  shape1 *= (1. + 4. * u_power);
-  shape2 *= (1. + 3. * u_power);
-  shape3 *= (1. + .2 * u_power);
 
+  float noise_scale = (.0005 + .00012 * u_frequency);
+  float inner1 = smoothstep(-1., 1., snoise(noise_scale * uv + .05 * t));
+  float inner2 = smoothstep(-1., 1., snoise(noise_scale * uv - .05 * t + 125.));
+  shape3 += .2 * u_inner * (inner1 - inner2) * (1. + u_pulse * pulse);;
+  shape2 += .05 * u_inner * inner2 * (1. + u_pulse * pulse);;
   
-//  shape1 *= (.2 + .8 * pulse);
-//  shape3 *= (.5 + .5 * pulse);
-    
+  shape1 *= (1. + 2. * (.5 + .5 * sin(t)) * u_power);
+  shape2 *= (1. + 2. * (.5 + .5 * cos(t)) * u_power);
+  shape3 *= (1. + .2 * u_power);
+  shape3 *= (.7 + .3 * inner1);
   
-    
-      
+  
+//    shape1 += grain * u_grain;
+    shape2 += 2. * grain * u_grain;
+    shape3 += grain * u_grain;
+
+
   vec3 color = u_colorBack.rgb;
-//  color = mix(color, u_color1.rgb, shape1);
-//  color = mix(color, u_color2.rgb, shape2);
-//  color = mix(color, u_color3.rgb, shape3);
   color += u_color1.rgb * shape1;
   color += u_color2.rgb * shape2;
   color += u_color3.rgb * shape3;
 
+
+  // vec3 color = u_colorBack.rgb;
+  // color = mix(color, u_color1.rgb, shape1);
+  // color = mix(color, u_color2.rgb, shape1);
+  // color = mix(color, u_color3.rgb, shape3);
+
   fragColor = vec4(color, 1.);
-//  fragColor = vec4(vec3(border * pulse), 1.);
+//  fragColor = vec4(vec3(shape2), 1.);
 }
 
 `;

@@ -87,6 +87,11 @@ export { type PulsingBorderProps } from './shaders/pulsing-border';
 export { type PulsingBorderParams } from './shaders/pulsing-border';
 export { type PulsingBorderUniforms } from '@paper-design/shaders';
 
+export { TttttBorder, tttttBorderPresets } from './shaders/ttttt-border';
+export { type TttttBorderProps } from './shaders/ttttt-border';
+export { type TttttBorderParams } from './shaders/ttttt-border';
+export { type TttttBorderUniforms } from '@paper-design/shaders';
+
 // Border gradient
 export { GradientBorder, gradientBorderPresets } from './shaders/gradient-border';
 export { type GradientBorderProps } from './shaders/gradient-border';
