@@ -35,6 +35,8 @@ import {
   godRaysPresets,
   Spiral,
   spiralPresets,
+  Swirl,
+  swirlPresets,
 } from '@paper-design/shaders-react';
 import { StaticImageData } from 'next/image';
 
@@ -137,5 +139,11 @@ export const homeShaders = [
     url: '/spiral',
     ShaderComponent: Spiral,
     shaderConfig: spiralPresets[0].params,
+  },
+  {
+    name: 'swirl',
+    url: '/swirl',
+    ShaderComponent: Swirl,
+    shaderConfig: swirlPresets[0].params,
   },
 ] satisfies HomeShaderConfig[];
