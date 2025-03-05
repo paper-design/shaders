@@ -4,10 +4,9 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "next build && shadcn build",
     "start": "next start",
-    "lint": "next lint",
-    "registry": "shadcn build"
+    "lint": "next lint"
   },
   "dependencies": {
     "@paper-design/shaders-react": "workspace:*",
