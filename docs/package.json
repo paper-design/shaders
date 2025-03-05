@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
@@ -11,7 +11,7 @@
   "dependencies": {
     "@paper-design/shaders-react": "workspace:*",
     "leva": "0.9.34",
-    "next": "15.1.2",
+    "next": "15.1.7",
     "react": "19.0.0",
     "react-dom": "19.0.0",
     "shadcn": "2.4.0-canary.9"
@@ -22,9 +22,9 @@
     "@types/react": "19.0.2",
     "@types/react-dom": "19.0.2",
     "eslint": "9.17.0",
-    "eslint-config-next": "15.1.2",
+    "eslint-config-next": "15.1.7",
     "postcss": "8.4.49",
     "tailwindcss": "3.4.17",
-    "typescript": "5.7.2"
+    "typescript": "^5.7.2"
   }
 }

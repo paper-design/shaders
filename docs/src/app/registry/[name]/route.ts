@@ -3,6 +3,14 @@ import path from 'path';
 import { promises as fs } from 'fs';
 import { registryItemSchema } from 'shadcn/registry';
 
+// Note: This file compiles successfully but with warnings:
+// ../node_modules/cosmiconfig/dist/loaders.js
+// Critical dependency: the request of a dependency is an expression
+// ../node_modules/tsconfig-paths/lib/match-path-async.js
+// require.extensions is not supported by webpack. Use a loader instead.
+// cosmiconfig and tsconfig-paths are used by the shadcn package.
+// This could be due to our monorepo setup.
+
 // This route serves shadcn registry items.
 export async function GET(request: Request, { params }: { params: Promise<{ name: string }> }) {
   try {
