@@ -7,12 +7,16 @@ import dotsGridImg from '../public/shaders/dots-grid.webp';
 import dotOrbitImg from '../public/shaders/dot-orbit.webp';
 import smokeRingImg from '../public/shaders/smoke-ring.webp';
 import metaballsImg from '../public/shaders/metaballs.webp';
+import voronoiImg from '../public/shaders/voronoi.webp';
+import wavesImg from '../public/shaders/waves.webp';
+import warpImg from '../public/shaders/warp.webp';
+import godRaysImg from '../public/shaders/god-rays.webp';
+import spiralImg from '../public/shaders/spiral.webp';
 
 import {
   DotsGrid,
   dotsOrbitPresets,
   DotsOrbit,
-  dotsGridPresets,
   GrainClouds,
   grainCloudsPresets,
   MeshGradient,
@@ -28,7 +32,6 @@ import {
   Voronoi,
   voronoiPresets,
   Waves,
-  wavesPresets,
   PerlinNoise,
   perlinNoisePresets,
   Warp,
@@ -115,30 +118,34 @@ export const homeShaders = [
     name: 'voronoi',
     url: '/voronoi',
     ShaderComponent: Voronoi,
-    shaderConfig: voronoiPresets[0].params,
+    image: voronoiImg,
+    shaderConfig: { ...voronoiPresets[0].params, scale: 2.1 },
   },
   {
     name: 'waves',
     url: '/waves',
     ShaderComponent: Waves,
-    shaderConfig: wavesPresets[0].params,
+    image: wavesImg,
   },
   {
     name: 'warp',
     url: '/warp',
     ShaderComponent: Warp,
-    shaderConfig: warpPresets[0].params,
+    image: warpImg,
+    shaderConfig: { ...warpPresets[0].params, scale: 3, speed: 0.6 },
   },
   {
     name: 'god rays',
     url: '/god-rays',
     ShaderComponent: GodRays,
-    shaderConfig: godRaysPresets[0].params,
+    image: godRaysImg,
+    shaderConfig: { ...godRaysPresets[0].params, offsetX: -0.55, offsetY: -0.55, speed: 2 },
   },
   {
     name: 'spiral',
     url: '/spiral',
     ShaderComponent: Spiral,
-    shaderConfig: spiralPresets[0].params,
+    image: spiralImg,
+    shaderConfig: { ...spiralPresets[1].params, scale: 0.5 },
   },
 ] satisfies HomeShaderConfig[];
