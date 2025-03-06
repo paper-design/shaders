@@ -2,6 +2,7 @@ import meshGradientImg from '../public/shaders/mesh-gradient.webp';
 import simplexNoiseImg from '../public/shaders/simplex-noise.webp';
 import grainCloudsImg from '../public/shaders/grain-clouds.webp';
 import neuroNoiseImg from '../public/shaders/neuro-noise.webp';
+import dotsGridImg from '../public/shaders/dots-grid.webp';
 import dotOrbitImg from '../public/shaders/dot-orbit.webp';
 import smokeRingImg from '../public/shaders/smoke-ring.webp';
 import metaballsImg from '../public/shaders/metaballs.webp';
@@ -43,7 +44,7 @@ type HomeShaderConfig = {
   image?: StaticImageData;
   url: string;
   ShaderComponent: React.ComponentType;
-  shaderConfig: Record<string, unknown>;
+  shaderConfig?: Record<string, unknown>;
 };
 
 export const homeShaders = [
@@ -100,7 +101,7 @@ export const homeShaders = [
     name: 'dots grid',
     url: '/dots-grid',
     ShaderComponent: DotsGrid,
-    shaderConfig: dotsOrbitPresets[0].params,
+    image: dotsGridImg,
   },
   {
     name: 'perlin',
