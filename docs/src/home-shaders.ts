@@ -2,6 +2,7 @@ import meshGradientImg from '../public/shaders/mesh-gradient.webp';
 import simplexNoiseImg from '../public/shaders/simplex-noise.webp';
 import grainCloudsImg from '../public/shaders/grain-clouds.webp';
 import neuroNoiseImg from '../public/shaders/neuro-noise.webp';
+import perlinNoiseImg from '../public/shaders/perlin-noise.webp';
 import dotsGridImg from '../public/shaders/dots-grid.webp';
 import dotOrbitImg from '../public/shaders/dot-orbit.webp';
 import smokeRingImg from '../public/shaders/smoke-ring.webp';
@@ -107,7 +108,8 @@ export const homeShaders = [
     name: 'perlin',
     url: '/perlin-noise',
     ShaderComponent: PerlinNoise,
-    shaderConfig: perlinNoisePresets[0].params,
+    image: perlinNoiseImg,
+    shaderConfig: { ...perlinNoisePresets[1].params, scale: 0.6 },
   },
   {
     name: 'voronoi',
