@@ -31,13 +31,13 @@ type BorderPatternPreset = { name: string; params: Required<BorderPatternParams>
 export const defaultPreset: BorderPatternPreset = {
   name: 'Default',
   params: {
-    colorBack: 'hsla(150, 50%, 50%, .5)',
+    colorBack: 'hsla(0, 0%, 100%, 1)',
     color: 'hsla(0, 0%, 0%, 1)',
     pxSize: 116,
     scale: 3.45,
     dotSize: 0.89,
     dotSizeRand: 0,
-    blur: .2,
+    blur: 0,
     noise: 0,
     overlayX: 0.5,
     overlayY: 0.5,
