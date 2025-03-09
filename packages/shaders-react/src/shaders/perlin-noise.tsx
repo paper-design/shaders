@@ -37,14 +37,14 @@ export const defaultPreset: PerlinNoisePreset = {
   },
 };
 
-export const preset1: PerlinNoisePreset = {
+export const nintendoWaterPreset: PerlinNoisePreset = {
   name: 'Nintendo Water',
   params: {
     scale: 0.2,
-    speed: 0.5,
+    speed: 0.4,
     seed: 0,
     color1: 'hsla(220, 66%, 50%, 1)',
-    color2: 'hsla(155, 66%, 80%, 1)',
+    color2: 'hsla(200, 66%, 90%, 1)',
     proportion: 0.42,
     contour: 1,
     octaveCount: 2,
@@ -53,7 +53,7 @@ export const preset1: PerlinNoisePreset = {
   },
 };
 
-export const preset2: PerlinNoisePreset = {
+export const colonyPreset: PerlinNoisePreset = {
   name: 'Colony',
   params: {
     scale: 0.15,
@@ -69,7 +69,7 @@ export const preset2: PerlinNoisePreset = {
   },
 };
 
-export const preset3: PerlinNoisePreset = {
+export const phosphenesPreset: PerlinNoisePreset = {
   name: 'Phosphenes',
   params: {
     scale: 0.03,
@@ -85,7 +85,7 @@ export const preset3: PerlinNoisePreset = {
   },
 } as const;
 
-export const preset4: PerlinNoisePreset = {
+export const mossPreset: PerlinNoisePreset = {
   name: 'Moss',
   params: {
     scale: 0.15,
@@ -101,7 +101,7 @@ export const preset4: PerlinNoisePreset = {
   },
 } as const;
 
-export const preset5: PerlinNoisePreset = {
+export const wormsPreset: PerlinNoisePreset = {
   name: 'Worms',
   params: {
     scale: 2,
@@ -117,7 +117,14 @@ export const preset5: PerlinNoisePreset = {
   },
 } as const;
 
-export const perlinNoisePresets: PerlinNoisePreset[] = [defaultPreset, preset1, preset2, preset3, preset4, preset5];
+export const perlinNoisePresets: PerlinNoisePreset[] = [
+  defaultPreset,
+  nintendoWaterPreset,
+  colonyPreset,
+  phosphenesPreset,
+  mossPreset,
+  wormsPreset,
+];
 
 export const PerlinNoise = (props: PerlinNoiseProps): JSX.Element => {
   const uniforms: PerlinNoiseUniforms = useMemo(() => {

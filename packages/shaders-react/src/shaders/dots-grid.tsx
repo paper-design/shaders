@@ -45,6 +45,22 @@ export const defaultPreset: DotsGridPreset = {
   },
 } as const;
 
+export const macrodataPreset: DotsGridPreset = {
+  name: 'Macrodata',
+  params: {
+    colorBack: 'hsla(211, 37%, 13%, 1)',
+    colorFill: 'hsla(218, 100%, 67%, 1)',
+    colorStroke: 'hsla(0, 0%, 0%, 1)',
+    dotSize: 3,
+    gridSpacingX: 25,
+    gridSpacingY: 25,
+    strokeWidth: 0,
+    sizeRange: 0.25,
+    opacityRange: 0.9,
+    shape: DotsGridShapes.Circle,
+  },
+};
+
 const trianglesPreset: DotsGridPreset = {
   name: 'Triangles',
   params: {
@@ -159,6 +175,7 @@ const waveformPreset: DotsGridPreset = {
 
 export const dotsGridPresets: DotsGridPreset[] = [
   defaultPreset,
+  macrodataPreset,
   trianglesPreset,
   bubblesPreset,
   treeLinePreset,

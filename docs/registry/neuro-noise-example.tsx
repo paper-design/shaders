@@ -1,3 +1,5 @@
+'use client';
+
 import { NeuroNoise, type NeuroNoiseProps } from '@paper-design/shaders-react';
 
 export function NeuroNoiseExample(props: NeuroNoiseProps) {
