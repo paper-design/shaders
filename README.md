@@ -75,31 +75,21 @@ import { MeshGradient } from '@paper-design/shaders-react';
 #### Vanilla JS
 
 ```js
-import {
-  ShaderMount,
-  meshGradientFragmentShader,
-  getShaderColorFromString,
-} from "@paper-design/shaders";
+import { ShaderMount, meshGradientFragmentShader, getShaderColorFromString } from '@paper-design/shaders';
 
-const myCanvas = document.createElement("canvas");
+const myCanvas = document.createElement('canvas');
 myCanvas.width = 300;
 myCanvas.height = 300;
 document.body.appendChild(myCanvas);
 
 const shaderParams = {
-  u_color1: getShaderColorFromString("#283BFC"),
-  u_color2: getShaderColorFromString("#FF2828"),
-  u_color3: getShaderColorFromString("#dddddd"),
-  u_color4: getShaderColorFromString("#800080"),
+  u_color1: getShaderColorFromString('#283BFC'),
+  u_color2: getShaderColorFromString('#FF2828'),
+  u_color3: getShaderColorFromString('#dddddd'),
+  u_color4: getShaderColorFromString('#800080'),
 };
 
-const meshGradient = new ShaderMount(
-  myCanvas,
-  meshGradientFragmentShader,
-  shaderParams,
-  undefined,
-  0.25
-);
+const meshGradient = new ShaderMount(myCanvas, meshGradientFragmentShader, shaderParams, undefined, 0.25);
 
 meshGradient.setUniforms(shaderParams);
 ```
@@ -132,3 +122,10 @@ meshGradient.setUniforms(shaderParams);
 1. Bump the version numbers as desired manually
 2. Use `bun run build` on the top level of the monorepo to build each package
 3. Use `bun run publish-all` to publish all (or `bun run publish-all-test` to do a dry run). You can do this even if you just bumped one package version. The others will fail to publish and continue.
+
+
+## License and use
+
+Feel free to use this code in any projects, commercial or otherwise.
+
+If you use this code or wrap the library to create another shader library or tool, we ask that you give attribution and link to Paper Shaders (it helps us continue investing in this project). Thank you!

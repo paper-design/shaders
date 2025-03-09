@@ -33,6 +33,8 @@ import {
   warpPresets,
   GodRays,
   godRaysPresets,
+  Spiral,
+  spiralPresets,
   BorderPulsing,
   borderPulsingPresets,
   BorderPattern,
@@ -135,6 +137,12 @@ export const homeShaders = [
     url: '/god-rays',
     ShaderComponent: GodRays,
     shaderConfig: godRaysPresets[0].params,
+  },
+  {
+    name: 'spiral',
+    url: '/spiral',
+    ShaderComponent: Spiral,
+    shaderConfig: spiralPresets[0].params,
   },
   {
     name: 'pulsing border',

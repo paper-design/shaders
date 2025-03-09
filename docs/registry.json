@@ -1,0 +1,20 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry.json",
+  "name": "Paper Shaders",
+  "homepage": "https://shaders.paper.design",
+  "items": [
+    {
+      "name": "neuro-noise",
+      "type": "registry:component",
+      "title": "Neuro Noise Example",
+      "description": "Neuro Noise shader example.",
+      "dependencies": ["@paper-design/shaders-react"],
+      "files": [
+        {
+          "path": "registry/neuro-noise-example.tsx",
+          "type": "registry:component"
+        }
+      ]
+    }
+  ]
+}
