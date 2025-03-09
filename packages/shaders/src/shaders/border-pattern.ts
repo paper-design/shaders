@@ -1,11 +1,15 @@
 export type BorderPatternUniforms = {
-  u_pixelRatio: number;
-  u_resolution: [number, number];
   u_colorBack: [number, number, number, number];
   u_color: [number, number, number, number];
   u_pxSize: number;
   u_scale: number;
-  u_sizeRandomised: number;
+  u_dotSizeRand: number;
+  u_dotSize: number;
+  u_noise: number;
+  u_blur: number;
+  u_overlayX: number;
+  u_overlayY: number;
+  u_overlayScale: number;
 };
 
 /**
@@ -18,7 +22,7 @@ export type BorderPatternUniforms = {
  * u_color - pattern RGBA color
  * u_pxSize - border size (roughly in pixels)
  * u_scale - pattern scale factor
- * u_sizeRandomised - degree of randomness in pattern dots size
+ * u_dotSizeRand - degree of randomness in pattern dots size
  */
 
 export const borderPatternFragmentShader = `#version 300 es
@@ -31,7 +35,13 @@ uniform vec4 u_colorBack;
 uniform vec4 u_color;
 uniform float u_pxSize;
 uniform float u_scale;
-uniform float u_sizeRandomised;
+uniform float u_dotSizeRand;
+uniform float u_dotSize;
+uniform float u_noise;
+uniform float u_blur;
+uniform float u_overlayX;
+uniform float u_overlayY;
+uniform float u_overlayScale;
 
 out vec4 fragColor;
 
@@ -81,20 +91,6 @@ float get_border_map(vec2 uv_normalised) {
 float rand(vec2 n) {
   return fract(cos(dot(n, vec2(12.9898, 4.1414))) * 43758.5453);
 }
-float noise(vec2 n) {
-  const vec2 d = vec2(0.0, 1.0);
-  vec2 b = floor(n), f = smoothstep(vec2(0.0), vec2(1.0), fract(n));
-  return mix(mix(rand(b), rand(b + d.yx), f.x), mix(rand(b + d.xy), rand(b + d.yy), f.x), f.y);
-}
-float fbm_4(vec2 n) {
-  float total = 0.0, amplitude = .2;
-  for (int i = 0; i < 4; i++) {
-    total += noise(n) * amplitude;
-    n += n;
-    amplitude *= 0.6;
-  }
-  return total;
-}
 
 float get_ball_shape(vec2 uv, float radius) {
   float s = .5 * length(uv);
@@ -103,27 +99,27 @@ float get_ball_shape(vec2 uv, float radius) {
   return s;
 }
 
-float form_pattern(vec2 uv, float ratio, vec2 offset, float scale) {
+float pattern_shape(vec2 uv, float ratio, vec2 offset, float scale, float rand_offset) {
   uv -= .5;
   uv += offset;
-  uv *= scale;
+  uv /= scale;
   uv.x *= ratio;
 
   vec2 pattern_iv = uv;
 
   uv = floor(uv);
-  float randomizer = 2. * (rand(uv) - .5);
-  randomizer = mix(1., randomizer, u_sizeRandomised);
+  float randomizer = 1.3 * (rand(uv + rand_offset) - .3);
+  randomizer = mix(1., randomizer, u_dotSizeRand);
   uv += .5;
 
   uv.x /= ratio;
-  uv /= scale;
+  uv *= scale;
   uv += .5;
 
   float pattern = 0.;
   pattern_iv = fract(pattern_iv);
   pattern_iv -= .5;
-  pattern = randomizer * get_ball_shape(pattern_iv, 28. - 12. * randomizer);
+  pattern = randomizer * get_ball_shape(pattern_iv, 28. - 12. * randomizer - 8. * u_dotSize);
 
   return pattern;
 }
@@ -139,15 +135,18 @@ void main() {
 
   vec2 pattern_uv = uv_normalised - .5;
   pattern_uv *= 10. * u_scale;
+  
+
+  vec2 noise = vec2(snoise(uv * .01), snoise(uv * .005 + vec2(4.)));
+  pattern_uv += u_noise * noise;
 
   float pattern = 0.;
-  pattern += form_pattern(pattern_uv, ratio, vec2(.0 / ratio, .0), 1.);
-  pattern += form_pattern(pattern_uv, ratio, vec2(0. / ratio, 0.), 2.);
+  pattern += pattern_shape(pattern_uv, ratio, vec2(.0 / ratio, .0), 1., 0.);
+  pattern += pattern_shape(pattern_uv, ratio, vec2(u_overlayX / ratio, u_overlayY), 1. + u_overlayScale, 1000.);
 
   pattern *= border;
 
-  float e = .1;
-  pattern = smoothstep(e, e + fwidth(pattern), pattern);
+  pattern = smoothstep(.3 - fwidth(pattern) - u_blur, .3 + fwidth(pattern) + u_blur, pattern);
 
   vec4 color_mix = mix(u_colorBack, u_color, pattern);
 

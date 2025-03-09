@@ -11,7 +11,13 @@ export type BorderPatternParams = {
   color?: string;
   scale?: number;
   pxSize?: number;
-  sizeRandomised?: number;
+  dotSizeRand?: number;
+  dotSize?: number;
+  noise?: number;
+  blur?: number;
+  overlayX?: number;
+  overlayY?: number;
+  overlayScale?: number;
 };
 
 export type BorderPatternProps = Omit<ShaderMountProps, 'fragmentShader'> & BorderPatternParams;
@@ -29,7 +35,13 @@ export const defaultPreset: BorderPatternPreset = {
     color: 'hsla(210, 100%, 25%, 1)',
     scale: 3,
     pxSize: 100,
-    sizeRandomised: 0.5,
+    dotSizeRand: 0,
+    dotSize: 0.5,
+    noise: 0,
+    blur: 0,
+    overlayX: 0,
+    overlayY: 0,
+    overlayScale: 0,
   },
 } as const;
 
@@ -42,9 +54,27 @@ export const BorderPattern = (props: BorderPatternProps): JSX.Element => {
       u_color: getShaderColorFromString(props.color, defaultPreset.params.color),
       u_scale: props.scale ?? defaultPreset.params.scale,
       u_pxSize: props.pxSize ?? defaultPreset.params.pxSize,
-      u_sizeRandomised: props.sizeRandomised ?? defaultPreset.params.sizeRandomised,
+      u_dotSizeRand: props.dotSizeRand ?? defaultPreset.params.dotSizeRand,
+      u_dotSize: props.dotSize ?? defaultPreset.params.dotSize,
+      u_blur: props.blur ?? defaultPreset.params.blur,
+      u_noise: props.noise ?? defaultPreset.params.noise,
+      u_overlayX: props.overlayX ?? defaultPreset.params.overlayX,
+      u_overlayY: props.overlayY ?? defaultPreset.params.overlayY,
+      u_overlayScale: props.overlayScale ?? defaultPreset.params.overlayScale,
     };
-  }, [props.colorBack, props.color, props.scale, props.pxSize, props.sizeRandomised]);
+  }, [
+    props.colorBack,
+    props.color,
+    props.scale,
+    props.pxSize,
+    props.dotSizeRand,
+    props.dotSize,
+    props.noise,
+    props.blur,
+    props.overlayX,
+    props.overlayY,
+    props.overlayScale,
+  ]);
 
   return <ShaderMount {...props} fragmentShader={borderPatternFragmentShader} uniforms={uniforms} />;
 };
