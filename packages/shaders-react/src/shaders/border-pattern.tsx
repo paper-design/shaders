@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { ShaderMount, type GlobalParams, type ShaderMountProps } from '../shader-mount';
+import { ShaderMount, type ShaderMountProps } from '../shader-mount';
 import {
   getShaderColorFromString,
   borderPatternFragmentShader,
@@ -31,21 +31,72 @@ type BorderPatternPreset = { name: string; params: Required<BorderPatternParams>
 export const defaultPreset: BorderPatternPreset = {
   name: 'Default',
   params: {
-    colorBack: 'hsla(0, 0%, 100%, 0)',
-    color: 'hsla(210, 100%, 25%, 1)',
-    scale: 3,
-    pxSize: 100,
+    colorBack: 'hsla(150, 50%, 50%, .5)',
+    color: 'hsla(0, 0%, 0%, 1)',
+    pxSize: 116,
+    scale: 3.45,
+    dotSize: 0.89,
     dotSizeRand: 0,
-    dotSize: 0.5,
+    blur: .2,
     noise: 0,
-    blur: 0,
-    overlayX: 0,
-    overlayY: 0,
+    overlayX: 0.5,
+    overlayY: 0.5,
     overlayScale: 0,
   },
 } as const;
 
-export const borderPatternPresets: BorderPatternPreset[] = [defaultPreset] as const;
+export const tropicsPreset: BorderPatternPreset = {
+  name: 'Tropics',
+  params: {
+    colorBack: 'hsla(75, 63%, 89%, 1)',
+    color: 'hsla(90, 100%, 31%, 1)',
+    pxSize: 88,
+    scale: 0,
+    dotSize: 1,
+    dotSizeRand: 0,
+    blur: 0,
+    noise: 1,
+    overlayX: 0,
+    overlayY: 0.2,
+    overlayScale: 0,
+  },
+} as const;
+
+export const wavesPreset: BorderPatternPreset = {
+  name: 'Waves',
+  params: {
+    colorBack: 'hsla(0, 0%, 100%, 0)',
+    color: 'hsla(0, 100%, 15%, 1)',
+    pxSize: 80,
+    scale: 2.45,
+    dotSize: 0.8,
+    dotSizeRand: 0,
+    blur: 0,
+    noise: 0,
+    overlayX: 0.5,
+    overlayY: 0.35,
+    overlayScale: 0,
+  },
+} as const;
+
+export const digitalPreset: BorderPatternPreset = {
+  name: 'Digital',
+  params: {
+    colorBack: 'hsla(220, 10%, 20%, 1)',
+    color: 'hsla(195, 100%, 60%, 1)',
+    pxSize: 128,
+    scale: 5.0,
+    dotSize: 1.0,
+    dotSizeRand: 0.86,
+    blur: 0.0,
+    noise: 0.0,
+    overlayX: 0.0,
+    overlayY: 0.0,
+    overlayScale: 0,
+  },
+} as const;
+
+export const borderPatternPresets: BorderPatternPreset[] = [defaultPreset, tropicsPreset, wavesPreset, digitalPreset] as const;
 
 export const BorderPattern = (props: BorderPatternProps): JSX.Element => {
   const uniforms: BorderPatternUniforms = useMemo(() => {

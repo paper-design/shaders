@@ -136,7 +136,6 @@ void main() {
   vec2 pattern_uv = uv_normalised - .5;
   pattern_uv *= 10. * u_scale;
   
-
   vec2 noise = vec2(snoise(uv * .01), snoise(uv * .005 + vec2(4.)));
   pattern_uv += u_noise * noise;
 
@@ -146,9 +145,9 @@ void main() {
 
   pattern *= border;
 
-  pattern = smoothstep(.3 - fwidth(pattern) - u_blur, .3 + fwidth(pattern) + u_blur, pattern);
+  pattern = smoothstep(.3 - fwidth(pattern) - .15 * u_blur, .3 + fwidth(pattern) + .5 * u_blur, pattern);
 
-  vec4 color_mix = mix(u_colorBack, u_color, pattern);
+  vec4 color_mix = mix(u_colorBack * u_colorBack.a, u_color * u_color.a, pattern);
 
   fragColor = color_mix;
 }
