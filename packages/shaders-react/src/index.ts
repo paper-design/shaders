@@ -81,22 +81,23 @@ export { type GodRaysProps } from './shaders/god-rays';
 export { type GodRaysParams } from './shaders/god-rays';
 export { type GodRaysUniforms } from '@paper-design/shaders';
 
-// Pulsing border
-export { PulsingBorder, pulsingBorderPresets } from './shaders/pulsing-border';
-export { type PulsingBorderProps } from './shaders/pulsing-border';
-export { type PulsingBorderParams } from './shaders/pulsing-border';
-export { type PulsingBorderUniforms } from '@paper-design/shaders';
+//
+export { BorderPulsing, borderPulsingPresets } from './shaders/border-pulsing';
+export { type BorderPulsingProps } from './shaders/border-pulsing';
+export { type BorderPulsingParams } from './shaders/border-pulsing';
+export { type BorderPulsingUniforms } from '@paper-design/shaders';
 
-export { TttttBorder, tttttBorderPresets } from './shaders/ttttt-border';
-export { type TttttBorderProps } from './shaders/ttttt-border';
-export { type TttttBorderParams } from './shaders/ttttt-border';
-export { type TttttBorderUniforms } from '@paper-design/shaders';
+//
+export { BorderPattern, borderPatternPresets } from './shaders/border-pattern';
+export { type BorderPatternProps } from './shaders/border-pattern';
+export { type BorderPatternParams } from './shaders/border-pattern';
+export { type BorderPatternUniforms } from '@paper-design/shaders';
 
-// Border gradient
-export { GradientBorder, gradientBorderPresets } from './shaders/gradient-border';
-export { type GradientBorderProps } from './shaders/gradient-border';
-export { type GradientBorderParams } from './shaders/gradient-border';
-export { type GradientBorderUniforms } from '@paper-design/shaders';
+//
+export { BorderGradient, borderGradientPresets } from './shaders/border-gradient';
+export { type BorderGradientProps } from './shaders/border-gradient';
+export { type BorderGradientParams } from './shaders/border-gradient';
+export { type BorderGradientUniforms } from '@paper-design/shaders';
 
 // ----- Uniform conversion utils ----- //
 export { getShaderColorFromString } from '@paper-design/shaders';

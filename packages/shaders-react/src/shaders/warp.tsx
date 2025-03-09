@@ -227,7 +227,7 @@ export const presetFilteredLight: WarpPreset = {
     swirl: 0,
     swirlIterations: 0,
     shapeScale: 0,
-    shape: PatternShapes.Stripes
+    shape: PatternShapes.Stripes,
   },
 };
 
@@ -247,11 +247,9 @@ export const presetKelp: WarpPreset = {
     swirl: 0.15,
     swirlIterations: 0,
     shapeScale: 0.74,
-    shape: PatternShapes.Stripes
+    shape: PatternShapes.Stripes,
   },
 };
-
-
 
 export const warpPresets: WarpPreset[] = [
   defaultPreset,

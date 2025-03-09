@@ -2,11 +2,11 @@ import { useMemo } from 'react';
 import { ShaderMount, type GlobalParams, type ShaderMountProps } from '../shader-mount';
 import {
   getShaderColorFromString,
-  tttttBorderFragmentShader,
-  type TttttBorderUniforms,
+  borderGradientFragmentShader,
+  type BorderGradientUniforms,
 } from '@paper-design/shaders';
 
-export type TttttBorderParams = {
+export type BorderGradientParams = {
   colorBack?: string;
   color1?: string;
   color2?: string;
@@ -14,48 +14,43 @@ export type TttttBorderParams = {
   blur?: number;
   grainDistortion?: number;
   grainAddon?: number;
-  size?: number;
+  pxSize?: number;
   offsetX?: number;
   offsetY?: number;
   scaleX?: number;
   scaleY?: number;
-} & GlobalParams;
+};
 
-export type TttttBorderProps = Omit<ShaderMountProps, 'fragmentShader'> & TttttBorderParams;
+export type BorderGradientProps = Omit<ShaderMountProps, 'fragmentShader'> & BorderGradientParams;
 
-type TttttBorderPreset = { name: string; params: Required<TttttBorderParams> };
+type BorderGradientPreset = { name: string; params: Required<BorderGradientParams> };
 
 // Due to Leva controls limitation:
 // 1) keep default colors in HSLA format to keep alpha channel
 // 2) don't use decimal values on HSL values (to avoid button highlight bug)
 
-export const defaultPreset: TttttBorderPreset = {
+export const defaultPreset: BorderGradientPreset = {
   name: 'Default',
   params: {
-    speed: 1,
-    seed: 0,
-    colorBack: 'hsla(358, 94%, 12%, 1)',
+    colorBack: 'hsla(365, 94%, 30%, 1)',
     color1: 'hsla(32, 100%, 50%, 1)',
     color2: 'hsla(40, 82%, 67%, 1)',
-    // color3: 'hsla(26, 26%, 83%, 1)',
     color3: 'hsla(100, 50%, 20%, 1)',
     offsetX: 0,
     offsetY: 0,
     scaleX: 0,
     scaleY: 0,
-    size: 200,
-    blur: 0,
-    grainDistortion: 0,
-    grainAddon: 0,
+    pxSize: 200,
+    blur: 0.3,
+    grainDistortion: 0.3,
+    grainAddon: 0.5,
   },
 } as const;
 
+export const borderGradientPresets: BorderGradientPreset[] = [defaultPreset] as const;
 
-
-export const tttttBorderPresets: TttttBorderPreset[] = [defaultPreset] as const;
-
-export const TttttBorder = (props: TttttBorderProps): JSX.Element => {
-  const uniforms: TttttBorderUniforms = useMemo(() => {
+export const BorderGradient = (props: BorderGradientProps): JSX.Element => {
+  const uniforms: BorderGradientUniforms = useMemo(() => {
     return {
       u_colorBack: getShaderColorFromString(props.colorBack, defaultPreset.params.colorBack),
       u_color1: getShaderColorFromString(props.color1, defaultPreset.params.color1),
@@ -68,7 +63,7 @@ export const TttttBorder = (props: TttttBorderProps): JSX.Element => {
       u_blur: props.blur ?? defaultPreset.params.blur,
       u_grainDistortion: props.grainDistortion ?? defaultPreset.params.grainDistortion,
       u_grainAddon: props.grainAddon ?? defaultPreset.params.grainAddon,
-      u_size: props.size ?? defaultPreset.params.size,
+      u_pxSize: props.pxSize ?? defaultPreset.params.pxSize,
     };
   }, [
     props.colorBack,
@@ -79,11 +74,11 @@ export const TttttBorder = (props: TttttBorderProps): JSX.Element => {
     props.offsetY,
     props.scaleX,
     props.scaleY,
-    props.size,
+    props.pxSize,
     props.blur,
     props.grainDistortion,
     props.grainAddon,
   ]);
 
-  return <ShaderMount {...props} fragmentShader={tttttBorderFragmentShader} uniforms={uniforms} />;
+  return <ShaderMount {...props} fragmentShader={borderGradientFragmentShader} uniforms={uniforms} />;
 };

@@ -33,8 +33,12 @@ import {
   warpPresets,
   GodRays,
   godRaysPresets,
-  PulsingBorder,
-  pulsingBorderPresets,
+  BorderPulsing,
+  borderPulsingPresets,
+  BorderPattern,
+  borderPatternPresets,
+  BorderGradient,
+  borderGradientPresets,
 } from '@paper-design/shaders-react';
 import { StaticImageData } from 'next/image';
 
@@ -134,8 +138,20 @@ export const homeShaders = [
   },
   {
     name: 'pulsing border',
-    url: '/pulsing-border',
-    ShaderComponent: GodRays,
-    shaderConfig: pulsingBorderPresets[0].params,
+    url: '/border-pulsing',
+    ShaderComponent: BorderPulsing,
+    shaderConfig: borderPulsingPresets[0].params,
+  },
+  {
+    name: 'pattern border',
+    url: '/border-pattern',
+    ShaderComponent: BorderPattern,
+    shaderConfig: borderPatternPresets[0].params,
+  },
+  {
+    name: 'gradient border',
+    url: '/border-gradient',
+    ShaderComponent: BorderGradient,
+    shaderConfig: borderGradientPresets[0].params,
   },
 ] satisfies HomeShaderConfig[];

@@ -1,4 +1,4 @@
-export type GradientBorderUniforms = {};
+export type BorderGradientUniforms = {};
 
 /**
  *
@@ -7,30 +7,30 @@ export type GradientBorderUniforms = {};
  * Uniforms include:
  */
 
-export const gradientBorderFragmentShader = `#version 300 es
+export const borderGradientFragmentShader = `#version 300 es
 precision highp float;
 
-uniform float u_time;
 uniform float u_pixelRatio;
 uniform vec2 u_resolution;
+
+uniform float u_offsetX;
+uniform float u_offsetY;
+uniform float u_scaleX;
+uniform float u_scaleY;
 
 uniform vec4 u_colorBack;
 uniform vec4 u_color1;
 uniform vec4 u_color2;
 uniform vec4 u_color3;
-
-uniform float u_size;
+uniform float u_pxSize;
 uniform float u_blur;
-uniform float u_inner;
-uniform float u_borderLine;
-uniform float u_grain;
-uniform float u_spotty;
+uniform float u_grainDistortion;
+uniform float u_grainAddon;
 
 out vec4 fragColor;
 
-vec2 rotate(vec2 uv, float th) {
-  return mat2(cos(th), sin(th), -sin(th), cos(th)) * uv;
-}
+#define PI 3.14159265358979323846
+#define TWO_PI 6.28318530718
 
 vec3 permute(vec3 x) { return mod(((x * 34.0) + 1.0) * x, 289.0); }
 float snoise(vec2 v) {
@@ -61,28 +61,14 @@ float snoise(vec2 v) {
 }
 
 float get_border_map(vec2 uv_normalised) {
-  vec2 outer = u_size / u_resolution;
-  outer *= 2.447;
-    
-  vec2 noise_uv = gl_FragCoord.xy / u_resolution.xy;
-  float noise = smoothstep(-1., 1., snoise(4. * noise_uv + .2 * u_time));
-  noise *= u_borderLine;
-  noise *= pow(length(uv_normalised - .5), 2.);
-  
-  outer += noise;
-  
-//  outer += .01 * u_inner;
-    
-  vec2 bl = smoothstep(vec2(0.), outer, uv_normalised);
-  vec2 tr = smoothstep(vec2(0.), outer, 1. - uv_normalised);
-  
-//  vec2 border_shaper = vec2(.6718);
-  vec2 border_shaper = vec2(1. - .8 * u_inner);
-  
-  bl = pow(bl, border_shaper);
-  tr = pow(tr, border_shaper);
+  vec2 outer = (u_pxSize / u_resolution) * u_pixelRatio;
+  outer *= (1.28 + .6 * u_blur);
+
+  vec2 bl = smoothstep(vec2(0.), outer, uv_normalised + .5 * vec2(u_scaleX, u_scaleY));
+  vec2 tr = smoothstep(vec2(0.), outer, 1. - uv_normalised + .5 * vec2(u_scaleX, u_scaleY));
+ 
   float s = 1. - bl.x * bl.y * tr.x * tr.y; 
-    
+  
   return clamp(s, 0., 1.);
 }
 
@@ -94,7 +80,7 @@ float noise(vec2 n) {
   vec2 b = floor(n), f = smoothstep(vec2(0.0), vec2(1.0), fract(n));
   return mix(mix(rand(b), rand(b + d.yx), f.x), mix(rand(b + d.xy), rand(b + d.yy), f.x), f.y);
 }
-float fbm(vec2 n) {
+float fbm_4(vec2 n) {
   float total = 0.0, amplitude = .2;
   for (int i = 0; i < 4; i++) {
     total += noise(n) * amplitude;
@@ -108,38 +94,44 @@ void main() {
   vec2 uv = gl_FragCoord.xy;
   uv /= u_pixelRatio;
 
-  vec2 noise_uv = gl_FragCoord.xy / u_resolution.xy;
-
-  float t = 10. + .6 * u_time;
-
-  vec2 uv_normalised = gl_FragCoord.xy / u_resolution.xy;
-
-  float grain = snoise(uv * .2) * snoise(uv * .5) - fbm(.002 * uv + 10.) - fbm(.003 * uv);
-
-  float border_map = get_border_map(uv_normalised);
-
-
-  float mixer = border_map;
-  mixer += .4 * grain * u_grain;
+  float ratio = u_resolution.x / u_resolution.y;
   
-  float blur = fwidth(border_map) + .6 * u_blur;
+  vec2 uv_normalised = gl_FragCoord.xy / u_resolution.xy;
+  uv_normalised += vec2(-u_offsetX, u_offsetY);
+
+  float grain = snoise(uv * .2) * snoise(uv * .5) - fbm_4(.002 * uv + 10.) - fbm_4(.003 * uv);
+    
+  float mixer = get_border_map(uv_normalised); 
+  mixer += u_grainDistortion * .3 * (grain + .5);
+  mixer += u_grainAddon * 2. * clamp(grain, 0., .5);
+   
+  mixer -= pow(mixer, .3) * .23;
+
+  float edge_w = fwidth(mixer);
 
   vec3 colorBack = u_colorBack.rgb * u_colorBack.a;
   vec3 color1 = u_color1.rgb * u_color1.a;
   vec3 color2 = u_color2.rgb * u_color2.a;
   vec3 color3 = u_color3.rgb * u_color3.a;
   
-  vec3 borders = vec3(0.05, .32, .75); // kinda equal stripes
+  vec3 borders = vec3(.0, .25, .58);
   
-  vec3 mixedColor = mix(colorBack, color1, smoothstep(max(0., borders[0] - blur), borders[0] + .75 * blur, mixer));
-  mixedColor = mix(mixedColor, color2, smoothstep(borders[1] - .5 * blur, borders[1] + blur, mixer));
-  mixedColor = mix(mixedColor, color3, smoothstep(borders[2] - blur, borders[2] + 2. * blur, mixer));
+  vec2 borders1 = vec2(borders[0], borders[0] + .9 * u_blur + edge_w);
+  vec2 borders2 = vec2(borders[1] - edge_w, borders[1] + u_blur + edge_w);
+  vec2 borders3 = vec2(borders[2] + .1 * u_blur - edge_w, borders[2] + .4 * u_blur + edge_w);
   
-  vec4 color_mix = vec4(mixedColor, 1.);
+  float mixer1 = smoothstep(borders1[0], borders1[1], mixer);
+  float mixer2 = smoothstep(borders2[0], borders2[1], mixer);
+  float mixer3 = smoothstep(borders3[0], borders3[1], mixer);
 
-//  fragColor = color_mix;
-  fragColor = vec4(vec3(mixer), 1.);
+  vec3 color = mix(colorBack, color1, mixer1);
+  color = mix(color, color2, mixer2);
+  color = mix(color, color3, mixer3);
+
+  float alpha = mix(u_colorBack.a, u_color1.a, mixer1);
+  alpha = mix(alpha, u_color2.a, mixer2);
+  alpha = mix(alpha, u_color3.a, mixer3);
+  
+  fragColor = vec4(color, alpha);
 }
-
-
 `;
