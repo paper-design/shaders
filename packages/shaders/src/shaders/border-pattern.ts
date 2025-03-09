@@ -1,11 +1,11 @@
 export type BorderPatternUniforms = {
-    u_pixelRatio: number;
-    u_resolution: [number, number];
-    u_colorBack: [number, number, number, number];
-    u_color: [number, number, number, number];
-    u_pxSize: number;
-    u_scale: number;
-    u_sizeRandomised: number;
+  u_pixelRatio: number;
+  u_resolution: [number, number];
+  u_colorBack: [number, number, number, number];
+  u_color: [number, number, number, number];
+  u_pxSize: number;
+  u_scale: number;
+  u_sizeRandomised: number;
 };
 
 /**
