@@ -99,11 +99,13 @@ void main() {
   vec2 uv_normalised = gl_FragCoord.xy / u_resolution.xy;
   uv_normalised += vec2(-u_offsetX, u_offsetY);
 
-  float grain = snoise(uv * .2) * snoise(uv * .5) - fbm_4(.002 * uv + 10.) - fbm_4(.003 * uv);
-    
+  float snoise05 = snoise(uv * .5);
+  float grainDist = snoise(uv * .2) * snoise05 - fbm_4(.002 * uv + 10.) - fbm_4(.003 * uv);
+  float grainAddon = clamp(.6 * snoise05 - fbm_4(.4 * uv) - fbm_4(.001 * uv), 0., 1.);
+
   float mixer = get_border_map(uv_normalised); 
-  mixer += u_grainDistortion * .3 * (grain + .5);
-  mixer += u_grainAddon * 2. * clamp(grain, 0., .5);
+  mixer += u_grainDistortion * .3 * (grainDist + .5);
+  mixer += u_grainAddon * 2. * grainAddon;
    
   mixer -= pow(mixer, .3) * .23;
 
