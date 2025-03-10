@@ -1,3 +1,6 @@
+/** Uniform types that we support to be auto-mapped into the fragment shader */
+export type ShaderMountUniforms = Record<string, number | number[] | HTMLImageElement>;
+
 export class ShaderMount {
   private canvas: HTMLCanvasElement;
   private gl: WebGLRenderingContext;
@@ -14,16 +17,18 @@ export class ShaderMount {
   /** The current speed that we progress through animation time (multiplies by delta time every update). Allows negatives to play in reverse. If set to 0, rAF will stop entirely so static shaders have no recurring performance costs */
   private speed = 1;
   /** Uniforms that are provided by the user for the specific shader being mounted (not including uniforms that this Mount adds, like time and resolution) */
-  private providedUniforms: Record<string, number | number[]>;
+  private providedUniforms: ShaderMountUniforms;
   /** Just a sanity check to make sure frames don't run after we're disposed */
   private hasBeenDisposed = false;
   /** If the resolution of the canvas has changed since the last render */
   private resolutionChanged = true;
+  /** Store textures that are provided by the user */
+  private textures: Map<string, WebGLTexture> = new Map();
 
   constructor(
     canvas: HTMLCanvasElement,
     fragmentShader: string,
-    uniforms: Record<string, number | number[]> = {},
+    uniforms: ShaderMountUniforms = {},
     webGlContextAttributes?: WebGLContextAttributes,
     /** The speed of the animation, or 0 to stop it. Supports negative values to play in reverse. */
     speed = 1,
@@ -42,7 +47,13 @@ export class ShaderMount {
     }
     this.gl = gl;
 
-    this.initWebGL();
+    this.initProgram();
+    this.setupPositionAttribute();
+    // Grab the locations of the uniforms in the fragment shader
+    this.setupUniforms();
+    // Put the user provided values into the uniforms
+    this.setUniformValues(this.providedUniforms);
+    // Set up the resize observer to handle window resizing and set u_resolution
     this.setupResizeObserver();
 
     // Set the animation speed after everything is ready to go
@@ -52,13 +63,10 @@ export class ShaderMount {
     this.canvas.setAttribute('data-paper-shaders', 'true');
   }
 
-  private initWebGL = () => {
+  private initProgram = () => {
     const program = createProgram(this.gl, vertexShaderSource, this.fragmentShader);
     if (!program) return;
     this.program = program;
-
-    this.setupPositionAttribute();
-    this.setupUniforms();
   };
 
   private setupPositionAttribute = () => {
@@ -72,14 +80,25 @@ export class ShaderMount {
   };
 
   private setupUniforms = () => {
-    this.uniformLocations = {
+    // Create a map to store all uniform locations
+    const uniformLocations: Record<string, WebGLUniformLocation | null> = {
       u_time: this.gl.getUniformLocation(this.program!, 'u_time'),
       u_pixelRatio: this.gl.getUniformLocation(this.program!, 'u_pixelRatio'),
       u_resolution: this.gl.getUniformLocation(this.program!, 'u_resolution'),
-      ...Object.fromEntries(
-        Object.keys(this.providedUniforms).map((key) => [key, this.gl.getUniformLocation(this.program!, key)])
-      ),
     };
+
+    // Add locations for all provided uniforms
+    Object.entries(this.providedUniforms).forEach(([key, value]) => {
+      uniformLocations[key] = this.gl.getUniformLocation(this.program!, key);
+
+      // For texture uniforms, also look for the aspect ratio uniform
+      if (value instanceof HTMLImageElement) {
+        const aspectRatioUniformName = `${key}_aspect_ratio`;
+        uniformLocations[aspectRatioUniformName] = this.gl.getUniformLocation(this.program!, aspectRatioUniformName);
+      }
+    });
+
+    this.uniformLocations = uniformLocations;
   };
 
   private resizeObserver: ResizeObserver | null = null;
@@ -123,6 +142,11 @@ export class ShaderMount {
   private render = (currentTime: number) => {
     if (this.hasBeenDisposed) return;
 
+    if (this.program === null) {
+      console.warn('Tried to render before program or gl was initialized');
+      return;
+    }
+
     // Calculate the delta time
     const dt = currentTime - this.lastFrameTime;
     this.lastFrameTime = currentTime;
@@ -164,38 +188,101 @@ export class ShaderMount {
     this.rafId = requestAnimationFrame(this.render);
   };
 
-  private updateProvidedUniforms = () => {
+  /** Creates a texture from an image and sets it into a uniform value */
+  private setTextureUniform = (uniformName: string, image: HTMLImageElement): void => {
+    if (!image.complete || image.naturalWidth === 0) {
+      throw new Error(`Image for uniform ${uniformName} must be fully loaded`);
+    }
+
+    // Clean up existing texture if present
+    const existingTexture = this.textures.get(uniformName);
+    if (existingTexture) {
+      this.gl.deleteTexture(existingTexture);
+    }
+
+    // Create and set up the new texture
+    const texture = this.gl.createTexture();
+    this.gl.bindTexture(this.gl.TEXTURE_2D, texture);
+
+    // Set texture parameters
+    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_S, this.gl.CLAMP_TO_EDGE);
+    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_T, this.gl.CLAMP_TO_EDGE);
+    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.LINEAR);
+    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MAG_FILTER, this.gl.LINEAR);
+
+    // Upload image to texture
+    this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.gl.RGBA, this.gl.UNSIGNED_BYTE, image);
+    const error = this.gl.getError();
+    if (error !== this.gl.NO_ERROR || texture === null) {
+      console.error('WebGL error when uploading texture:', error);
+      return;
+    }
+
+    // Store the texture
+    this.textures.set(uniformName, texture);
+
+    // Set up texture unit and uniform
+    const location = this.uniformLocations[uniformName];
+    if (location) {
+      // Use texture unit based on the order textures were added
+      const textureUnit = this.textures.size - 1;
+      this.gl.useProgram(this.program);
+      this.gl.activeTexture(this.gl.TEXTURE0 + textureUnit);
+      this.gl.bindTexture(this.gl.TEXTURE_2D, texture);
+      this.gl.uniform1i(location, textureUnit);
+
+      // Calculate and set the aspect ratio uniform
+      const aspectRatioUniformName = `${uniformName}_aspect_ratio`;
+      const aspectRatioLocation = this.uniformLocations[aspectRatioUniformName];
+      if (aspectRatioLocation) {
+        const aspectRatio = image.naturalWidth / image.naturalHeight;
+        this.gl.uniform1f(aspectRatioLocation, aspectRatio);
+      }
+    }
+  };
+
+  /** Sets the provided uniform values into the WebGL program, can be a partial list of uniforms that have changed */
+  private setUniformValues = (updatedUniforms: ShaderMountUniforms) => {
     this.gl.useProgram(this.program);
-    Object.entries(this.providedUniforms).forEach(([key, value]) => {
+    Object.entries(updatedUniforms).forEach(([key, value]) => {
       const location = this.uniformLocations[key];
-      if (location) {
-        if (Array.isArray(value)) {
-          switch (value.length) {
-            case 2:
-              this.gl.uniform2fv(location, value);
-              break;
-            case 3:
-              this.gl.uniform3fv(location, value);
-              break;
-            case 4:
-              this.gl.uniform4fv(location, value);
-              break;
-            default:
-              if (value.length === 9) {
-                this.gl.uniformMatrix3fv(location, false, value);
-              } else if (value.length === 16) {
-                this.gl.uniformMatrix4fv(location, false, value);
-              } else {
-                console.warn(`Unsupported uniform array length: ${value.length}`);
-              }
-          }
-        } else if (typeof value === 'number') {
-          this.gl.uniform1f(location, value);
-        } else if (typeof value === 'boolean') {
-          this.gl.uniform1i(location, value ? 1 : 0);
-        } else {
-          console.warn(`Unsupported uniform type for ${key}: ${typeof value}`);
+      if (!location) {
+        console.warn(`Uniform location for ${key} not found`);
+        return;
+      }
+
+      if (value instanceof HTMLImageElement) {
+        // Texture case, requires a good amount of code so it gets its own function:
+        this.setTextureUniform(key, value);
+      } else if (Array.isArray(value)) {
+        // Array case, supports 2, 3, 4, 9, 16 length arrays
+        switch (value.length) {
+          case 2:
+            this.gl.uniform2fv(location, value);
+            break;
+          case 3:
+            this.gl.uniform3fv(location, value);
+            break;
+          case 4:
+            this.gl.uniform4fv(location, value);
+            break;
+          default:
+            if (value.length === 9) {
+              this.gl.uniformMatrix3fv(location, false, value);
+            } else if (value.length === 16) {
+              this.gl.uniformMatrix4fv(location, false, value);
+            } else {
+              console.warn(`Unsupported uniform array length: ${value.length}`);
+            }
         }
+      } else if (typeof value === 'number') {
+        // Number case, supports floats and ints
+        this.gl.uniform1f(location, value);
+      } else if (typeof value === 'boolean') {
+        // Boolean case, supports true and false
+        this.gl.uniform1i(location, value ? 1 : 0);
+      } else {
+        console.warn(`Unsupported uniform type for ${key}: ${typeof value}`);
       }
     });
   };
@@ -226,15 +313,15 @@ export class ShaderMount {
     }
   };
 
-  /** Update the uniforms that are provided by the outside shader */
-  public setUniforms = (newUniforms: Record<string, number | number[]>): void => {
+  /** Update the uniforms that are provided by the outside shader, can be a partial set with only the uniforms that have changed */
+  public setUniforms = (newUniforms: ShaderMountUniforms): void => {
     this.providedUniforms = { ...this.providedUniforms, ...newUniforms };
 
     // If we need to allow users to add uniforms after the shader has been created, we can do that here
     // But right now we're expecting the uniform list to be predictable and static
     // this.setupUniforms();
 
-    this.updateProvidedUniforms();
+    this.setUniformValues(newUniforms);
     this.render(performance.now());
   };
 
@@ -250,6 +337,12 @@ export class ShaderMount {
     }
 
     if (this.gl && this.program) {
+      // Clean up all textures
+      this.textures.forEach((texture) => {
+        this.gl.deleteTexture(texture);
+      });
+      this.textures.clear();
+
       this.gl.deleteProgram(this.program);
       this.program = null;
 
