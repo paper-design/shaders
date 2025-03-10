@@ -39,7 +39,7 @@ const BorderGradientWithControls = () => {
           pxSize: { value: defaults.pxSize, min: 0, max: 500, order: 200 },
           blur: { value: defaults.blur, min: 0, max: 0.5, order: 206 },
           grainDistortion: { value: defaults.grainDistortion, min: 0, max: 1, order: 206 },
-          grainAddon: { value: defaults.grainAddon, min: 0, max: 1, order: 206 },
+          sandGrain: { value: defaults.sandGrain, min: 0, max: 1, order: 206 },
           offsetX: { value: defaults.offsetX, min: -0.5, max: 0.5, order: 301 },
           offsetY: { value: defaults.offsetY, min: -0.5, max: 0.5, order: 302 },
           scaleX: { value: defaults.scaleX, min: -0.5, max: 1, order: 302 },

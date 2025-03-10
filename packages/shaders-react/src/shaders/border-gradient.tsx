@@ -13,7 +13,7 @@ export type BorderGradientParams = {
   color3?: string;
   blur?: number;
   grainDistortion?: number;
-  grainAddon?: number;
+  sandGrain?: number;
   pxSize?: number;
   offsetX?: number;
   offsetY?: number;
@@ -43,7 +43,7 @@ export const defaultPreset: BorderGradientPreset = {
     pxSize: 150,
     blur: 0.35,
     grainDistortion: 0.15,
-    grainAddon: 0.5,
+    sandGrain: 0.5,
   },
 } as const;
 
@@ -62,7 +62,7 @@ export const BorderGradient = (props: BorderGradientProps): JSX.Element => {
       u_scaleY: props.scaleY ?? defaultPreset.params.scaleY,
       u_blur: props.blur ?? defaultPreset.params.blur,
       u_grainDistortion: props.grainDistortion ?? defaultPreset.params.grainDistortion,
-      u_grainAddon: props.grainAddon ?? defaultPreset.params.grainAddon,
+      u_sandGrain: props.sandGrain ?? defaultPreset.params.sandGrain,
       u_pxSize: props.pxSize ?? defaultPreset.params.pxSize,
     };
   }, [
@@ -77,7 +77,7 @@ export const BorderGradient = (props: BorderGradientProps): JSX.Element => {
     props.pxSize,
     props.blur,
     props.grainDistortion,
-    props.grainAddon,
+    props.sandGrain,
   ]);
 
   return <ShaderMount {...props} fragmentShader={borderGradientFragmentShader} uniforms={uniforms} />;

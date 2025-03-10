@@ -25,7 +25,7 @@ uniform vec4 u_color3;
 uniform float u_pxSize;
 uniform float u_blur;
 uniform float u_grainDistortion;
-uniform float u_grainAddon;
+uniform float u_sandGrain;
 
 out vec4 fragColor;
 
@@ -101,11 +101,11 @@ void main() {
 
   float snoise05 = snoise(uv * .5);
   float grainDist = snoise(uv * .2) * snoise05 - fbm_4(.002 * uv + 10.) - fbm_4(.003 * uv);
-  float grainAddon = clamp(.6 * snoise05 - fbm_4(.4 * uv) - fbm_4(.001 * uv), 0., 1.);
+  float sandGrain = clamp(.6 * snoise05 - fbm_4(.4 * uv) - fbm_4(.001 * uv), 0., 1.);
 
   float mixer = get_border_map(uv_normalised); 
   mixer += u_grainDistortion * .3 * (grainDist + .5);
-  mixer += u_grainAddon * 2. * grainAddon;
+  mixer += u_sandGrain * 2. * sandGrain;
    
   mixer -= pow(mixer, .3) * .23;
 
