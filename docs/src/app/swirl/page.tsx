@@ -59,7 +59,7 @@ const SwirlWithControls = () => {
           depth: { value: defaults.depth, min: 0, max: 2, order: 205 },
           noiseFreq: { value: defaults.noiseFreq, min: 0, max: 50, order: 350 },
           noise: { value: defaults.noise, min: 0, max: 1, order: 351 },
-          blur: { value: defaults.blur, min: 0, max: 2, order: 352 },
+          blur: { value: defaults.blur, min: 0, max: 1, order: 352 },
           speed: { value: defaults.speed, min: 0, max: 2, order: 400 },
           reverse: { value: defaults.reverse, order: 401 },
         },
