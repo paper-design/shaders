@@ -16,9 +16,6 @@ const DitheringExample = () => {
     <Dithering
       color1="#56758f"
       color2="#91be6f"
-      color3="#f94346"
-      color4="#f9c54e"
-      color5="#ffffff"
       scale={1}
       ditheringRes={13}
       speed={0.5}
@@ -44,9 +41,6 @@ const DitheringWithControls = () => {
         {
           color1: { value: defaults.color1, order: 100 },
           color2: { value: defaults.color2, order: 101 },
-          color3: { value: defaults.color3, order: 102 },
-          color4: { value: defaults.color4, order: 103 },
-          color5: { value: defaults.color5, order: 104 },
           scale: { value: defaults.scale, min: 0.1, max: 1.9, order: 200 },
           ditheringRes: { value: defaults.ditheringRes, min: 0, max: 10, order: 300 },
           numColors: { value: defaults.numColors, min: 1, max: 15, step: 1, order: 300 },
