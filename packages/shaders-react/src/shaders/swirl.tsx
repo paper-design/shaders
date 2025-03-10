@@ -25,21 +25,22 @@ type SwirlPreset = { name: string; params: Required<SwirlParams> };
 // 1) keep default colors in HSLA format to keep alpha channel
 // 2) don't use decimal values on HSL values (to avoid button highmidIntensity bug)
 
+
 export const defaultPreset: SwirlPreset = {
   name: 'Default',
   params: {
-    color1: 'hsla(45, 100%, 70%, 1)',
-    color2: 'hsla(200, 80%, 65%, 1)',
-    color3: 'hsla(280, 90%, 60%, 1)',
-    offsetX: 0,
-    offsetY: 0,
-    bandCount: 2.5,
-    twist: 0.2,
-    depth: 1,
-    noiseFreq: 3,
-    noise: 0.37,
-    blur: 0,
-    speed: 0,
+    color1: 'hsla(45, 100%, 80%, 1)',
+    color2: 'hsla(15, 100%, 50%, 1)',
+    color3: 'hsla(30, 100%, 65%, 1)',
+    offsetX: 0.0,
+    offsetY: 0.0,
+    bandCount: -10.0,
+    twist: 1.0,
+    depth: 0.0,
+    noiseFreq: 50.0,
+    noise: 0.29,
+    blur: 1.0,
+    speed: 0.0,
     reverse: false,
     seed: 0,
   },
@@ -85,27 +86,28 @@ export const jamesBondPreset: SwirlPreset = {
   },
 } as const;
 
-export const sunPreset: SwirlPreset = {
-  name: 'Sun',
+
+export const hippiePreset: SwirlPreset = {
+  name: 'Hippie',
   params: {
-    color1: 'hsla(45, 100%, 80%, 1)',
-    color2: 'hsla(15, 100%, 50%, 1)',
-    color3: 'hsla(30, 100%, 65%, 1)',
-    offsetX: 0.0,
-    offsetY: 0.0,
-    bandCount: 0.0,
-    twist: 1.0,
-    depth: 0.0,
-    noiseFreq: 50.0,
-    noise: 0.29,
-    blur: 1.0,
-    speed: 0.0,
+    color1: 'hsla(45, 100%, 70%, 1)',
+    color2: 'hsla(200, 80%, 65%, 1)',
+    color3: 'hsla(280, 90%, 60%, 1)',
+    offsetX: 0,
+    offsetY: 0,
+    bandCount: 2.5,
+    twist: 0.2,
+    depth: 1,
+    noiseFreq: 4,
+    noise: 0.37,
+    blur: 0,
+    speed: 0,
     reverse: false,
     seed: 0,
   },
 } as const;
 
-export const swirlPresets: SwirlPreset[] = [defaultPreset, openingPreset, jamesBondPreset, sunPreset];
+export const swirlPresets: SwirlPreset[] = [defaultPreset, openingPreset, jamesBondPreset, hippiePreset];
 
 export const Swirl = (props: SwirlProps): JSX.Element => {
   const uniforms: SwirlUniforms = useMemo(() => {
