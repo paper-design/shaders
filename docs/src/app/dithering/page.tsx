@@ -12,17 +12,7 @@ import { BackButton } from '@/components/back-button';
  * You can copy/paste this example to use Dithering in your app
  */
 const DitheringExample = () => {
-  return (
-    <Dithering
-      color1="#56758f"
-      color2="#91be6f"
-      scale={1}
-      ditheringRes={13}
-      speed={0.5}
-      seed={0}
-      style={{ position: 'fixed', width: '100%', height: '100%' }}
-    />
-  );
+  return <Dithering style={{ position: 'fixed', width: '100%', height: '100%' }} />;
 };
 
 /**
@@ -41,10 +31,11 @@ const DitheringWithControls = () => {
         {
           color1: { value: defaults.color1, order: 100 },
           color2: { value: defaults.color2, order: 101 },
-          scale: { value: defaults.scale, min: 0.1, max: 1.9, order: 200 },
-          ditheringRes: { value: defaults.ditheringRes, min: 1, max: 5, step: 1, order: 300 },
-          numColors: { value: defaults.numColors, min: 1, max: 15, step: 1, order: 300 },
-          pxSize: { value: defaults.pxSize, min: 1, max: 100,  order: 300 },
+          shape: { value: defaults.shape, min: 1, max: 6, step: 1, order: 200 },
+          scale: { value: defaults.scale, min: 0.1, max: 3, order: 201 },
+          type: { value: defaults.type, min: 1, max: 4, step: 1, order: 250 },
+          pxRounded: { value: defaults.pxRounded, order: 251 },
+          pxSize: { value: defaults.pxSize, min: 2, max: 30, order: 252 },
           speed: { value: defaults.speed, min: 0, max: 1, order: 400 },
         },
         { order: 1 }
