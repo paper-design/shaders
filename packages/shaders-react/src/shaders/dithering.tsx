@@ -27,9 +27,9 @@ export const defaultPreset: DitheringPreset = {
     seed: 0,
     color1: 'hsla(208, 50%, 15%, 1)',
     color2: 'hsla(94, 50%, 75%, 1)',
-    ditheringRes: 2,
+    ditheringRes: 6,
     numColors: 4,
-    pxSize: 3,
+    pxSize: 7,
   },
 } as const;
 

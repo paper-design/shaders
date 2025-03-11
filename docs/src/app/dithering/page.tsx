@@ -42,9 +42,9 @@ const DitheringWithControls = () => {
           color1: { value: defaults.color1, order: 100 },
           color2: { value: defaults.color2, order: 101 },
           scale: { value: defaults.scale, min: 0.1, max: 1.9, order: 200 },
-          ditheringRes: { value: defaults.ditheringRes, min: 0, max: 10, order: 300 },
+          ditheringRes: { value: defaults.ditheringRes, min: 1, max: 5, step: 1, order: 300 },
           numColors: { value: defaults.numColors, min: 1, max: 15, step: 1, order: 300 },
-          pxSize: { value: defaults.pxSize, min: 1, max: 32, step: 1, order: 300 },
+          pxSize: { value: defaults.pxSize, min: 1, max: 100,  order: 300 },
           speed: { value: defaults.speed, min: 0, max: 1, order: 400 },
         },
         { order: 1 }

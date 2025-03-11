@@ -1,8 +1,8 @@
 export type DitheringUniforms = {
-  u_scale: number;
-  u_color1: [number, number, number, number];
-  u_color2: [number, number, number, number];
-  u_ditheringRes: number;
+    u_scale: number;
+    u_color1: [number, number, number, number];
+    u_color2: [number, number, number, number];
+    u_ditheringRes: number;
 };
 
 /**
@@ -65,39 +65,16 @@ float snoise(vec2 v) {
   return 130.0 * dot(m, g);
 }
 
+float random(vec2 c) {
+  return fract(sin(dot(c.xy, vec2(12.9898, 78.233))) * 43758.5453);
+}
+
 float get_noise(vec2 uv, float t) {
   float noise = .5 * snoise(uv - vec2(0., .3 * t));
   noise += .5 * snoise(2. * uv + vec2(0., .32 * t));
 
   return noise;
 }
-
-const mat2x2 bayerMatrix2x2 = mat2x2(
-    0.0, 2.0,
-    3.0, 1.0
-) / 4.0;
-
-const mat4x4 bayerMatrix4x4 = mat4x4(
-    0.0,  8.0,  2.0, 10.0,
-    12.0, 4.0,  14.0, 6.0,
-    3.0,  11.0, 1.0, 9.0,
-    15.0, 7.0,  13.0, 5.0
-) / 16.0;
-
-const float bayerMatrix8x8[64] = float[64](
-    0.0/ 64.0, 48.0/ 64.0, 12.0/ 64.0, 60.0/ 64.0,  3.0/ 64.0, 51.0/ 64.0, 15.0/ 64.0, 63.0/ 64.0,
-  32.0/ 64.0, 16.0/ 64.0, 44.0/ 64.0, 28.0/ 64.0, 35.0/ 64.0, 19.0/ 64.0, 47.0/ 64.0, 31.0/ 64.0,
-    8.0/ 64.0, 56.0/ 64.0,  4.0/ 64.0, 52.0/ 64.0, 11.0/ 64.0, 59.0/ 64.0,  7.0/ 64.0, 55.0/ 64.0,
-  40.0/ 64.0, 24.0/ 64.0, 36.0/ 64.0, 20.0/ 64.0, 43.0/ 64.0, 27.0/ 64.0, 39.0/ 64.0, 23.0/ 64.0,
-    2.0/ 64.0, 50.0/ 64.0, 14.0/ 64.0, 62.0/ 64.0,  1.0/ 64.0, 49.0/ 64.0, 13.0/ 64.0, 61.0/ 64.0,
-  34.0/ 64.0, 18.0/ 64.0, 46.0/ 64.0, 30.0/ 64.0, 33.0/ 64.0, 17.0/ 64.0, 45.0/ 64.0, 29.0/ 64.0,
-  10.0/ 64.0, 58.0/ 64.0,  6.0/ 64.0, 54.0/ 64.0,  9.0/ 64.0, 57.0/ 64.0,  5.0/ 64.0, 53.0/ 64.0,
-  42.0/ 64.0, 26.0/ 64.0, 38.0/ 64.0, 22.0/ 64.0, 41.0/ 64.0, 25.0/ 64.0, 37.0/ 64.0, 21.0 / 64.0
-);
-
-
-
-
 
 float Bayer2(vec2 a) {
     a = floor(a);
@@ -108,38 +85,60 @@ float Bayer2(vec2 a) {
 #define Bayer8(a)   (Bayer4 (.5 *(a)) * .25 + Bayer2(a))
 #define Bayer16(a)  (Bayer8 (.5 *(a)) * .25 + Bayer2(a))
 #define Bayer32(a)  (Bayer16(.5 *(a)) * .25 + Bayer2(a))
-#define Bayer64(a)  (Bayer32(.5 *(a)) * .25 + Bayer2(a))
-
-
-
 
 
 void main() {
-  vec2 uv = gl_FragCoord.xy / u_resolution.xy;
-
-  uv -= .5;
   float scale = .5 * u_scale + 1e-4;
+  float t = u_time;
+
+  vec2 uv = gl_FragCoord.xy / u_resolution.xy;
+  uv -= .5;
   uv *= (.0008 * (1. - step(1. - scale, 1.) / scale));
   uv *= u_resolution;
   uv /= u_pixelRatio;
   uv += .5;
-
-  float t = u_time;
-
-  float noise = .5 + .5 * get_noise(uv, t);
+  
+  vec2 uv_px = floor(gl_FragCoord.xy / u_pxSize) * u_pxSize;
+  uv_px -= .5;
+  uv_px *= (.0008 * (1. - step(1. - scale, 1.) / scale));
+  uv_px /= u_pixelRatio;
+  uv_px += .5;
+  
   
   vec2 uv_classic = gl_FragCoord.xy / u_resolution.xy;
-   noise = uv_classic.x;
+  
+  
+//  float noise = .5 + .5 * get_noise(uv, t);
+  float noise = .5 + .5 * get_noise(uv_px, t);
+
+   noise = uv_px.x;
    
    
    
     vec2 dithering_uv = gl_FragCoord.xy / u_pxSize;
-    float dithering = Bayer16(dithering_uv) - .5;
+    int ditheringRes = int(floor(u_ditheringRes));
+    
+    float dithering = 0.;
+    switch (ditheringRes) {
+        case 1: dithering = Bayer2(dithering_uv); break;
+        case 2: dithering = Bayer4(dithering_uv); break;
+        case 3: dithering = Bayer8(dithering_uv); break;
+        case 4: dithering = Bayer16(dithering_uv); break;
+        case 5: {             
+          dithering = step(random(uv_px), smoothstep(.2, .9, noise));
+        } break;
+        default: dithering = 0.; break;
+    }
+
+    dithering -= .5;
     float res = step(.5, noise + dithering);
 
    vec3 darkColor = u_color1.rgb;
    vec3 lightColor = u_color2.rgb;
-   vec3 colorMapped = res * lightColor + (1. - res) * darkColor;    
-   fragColor = vec4(colorMapped, 1.);
+   vec3 color = res * lightColor + (1. - res) * darkColor;    
+
+   fragColor = vec4(color, 1.);
+//
+//   fragColor = vec4(vec3(noise), 1.);
 }
 `;
