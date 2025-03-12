@@ -103,14 +103,13 @@ float getBayerValue(vec2 uv, int size) {
   return 0.0;
 }
 
-void main() {  
-  
+void main() {
   float t = u_time;  
   float ratio = u_resolution.x / u_resolution.y;  
   
   vec2 uv = vec2(0.);  
   if (u_pxRounded) {  
-    uv = floor(gl_FragCoord.xy / u_pxSize) * u_pxSize / u_resolution.xy;  
+    uv = floor(gl_FragCoord.xy / (u_pxSize * u_pixelRatio)) * (u_pxSize * u_pixelRatio) / u_resolution.xy;  
   } else {  
     uv = gl_FragCoord.xy / u_resolution.xy;  
   }  
@@ -123,7 +122,7 @@ void main() {
     uv -= 0.5;  
     uv *= noise_scale;  
     uv *= u_resolution;  
-//    uv /= u_pixelRatio;  
+    uv /= u_pixelRatio;  
     uv += 0.5;  
       
     shape = 0.5 + 0.5 * get_noise(uv, t);
@@ -144,22 +143,30 @@ void main() {
     
     shape = .15 / abs(sin(t - uv.y - uv.x));  
     shape = smoothstep(0.1, 1., shape);
-
+  
   } else if (u_shape < 3.5) {  
     // SHAPE = 3 => Stripes  
+    // For stripes, we need to ensure the scale is consistent
+    // Apply pixel ratio before scaling
     uv -= 0.5;  
+    // Scale by pixel ratio first to ensure consistent visual size
+    uv *= u_pixelRatio;
     uv *= 5.0 * u_scale;  
-//    uv /= u_pixelRatio;  
+    // Now divide by pixel ratio to normalize
+    uv /= u_pixelRatio;  
     uv += 0.5;  
     
     shape = abs(fract(uv.x + 0.5) * 2.0 - 1.0);  
     shape = smoothstep(0.2, 1., shape);
-
+  
   } else if (u_shape < 4.5) {  
     // SHAPE = 4 => Border  
-    vec2 outer = 1.28 * 100.0 * u_scale / u_resolution * u_pixelRatio;  
-    vec2 bl = smoothstep(vec2(0.0), outer, uv);  
-    vec2 tr = smoothstep(vec2(0.0), outer, 1.0 - uv);  
+    // For border, we need to ensure the edge thickness is consistent
+    // Use a direct pixel ratio compensation
+    vec2 outer = 1.28 * 100.0 * u_scale / u_resolution;
+    // Apply pixel ratio directly to the smoothstep scale
+    vec2 bl = smoothstep(vec2(0.0), outer * u_pixelRatio, uv);  
+    vec2 tr = smoothstep(vec2(0.0), outer * u_pixelRatio, 1.0 - uv);  
     
     float s = 1.0 - bl.x * bl.y * tr.x * tr.y;  
     shape = clamp(s, 0.0, 1.0);  
@@ -174,28 +181,28 @@ void main() {
     
     shape = .5 + .5 * sin(uv.x) * cos(uv.y);  
     shape = smoothstep(0.2, 1., shape);
-
+  
   } else {  
     // SHAPE = 6 => Ball  
     uv -= 0.5;  
     uv.x *= ratio;  
-    uv *= 1.25 * u_scale;  
+    uv *= 1.25 * u_scale;
     uv += 0.5;  
     
     float dist = length(uv - vec2(.5));  
     shape = smoothstep(.7, 0., dist);  
   }  
   
-  vec2 dithering_uv = gl_FragCoord.xy / u_pxSize;  
+  vec2 dithering_uv = gl_FragCoord.xy / (u_pxSize * u_pixelRatio);  
   int type = int(floor(u_type));  
   float dithering = 0.0;  
   
   switch (type) {  
     case 1: {  
-      uv = floor(gl_FragCoord.xy / u_pxSize) * u_pxSize;  
+      uv = floor(gl_FragCoord.xy / (u_pxSize * u_pixelRatio)) * (u_pxSize * u_pixelRatio);  
       uv *= noise_scale;  
       uv *= 2.0;
-//      uv /= u_pixelRatio;  
+      uv /= u_pixelRatio;  
       dithering = step(random(uv), shape);  
     } break;  
     case 2:  
@@ -213,7 +220,6 @@ void main() {
   float res = step(0.5, shape + dithering);  
   
   vec4 color = mix(u_color1, u_color2, res);
-
+  
   fragColor = color;
-}  
-`;
+}`;
