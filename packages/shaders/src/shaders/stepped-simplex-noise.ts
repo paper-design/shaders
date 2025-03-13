@@ -90,7 +90,7 @@ vec4 getColor(int index) {
 void main() {
   vec2 uv = gl_FragCoord.xy / u_resolution.xy;
   float ratio = u_resolution.x / u_resolution.y;
-  float worldRatio = u_worldWidth / u_worldHeight;
+  float worldRatio = 1.;
 
   uv -= .5;
   
@@ -100,14 +100,14 @@ void main() {
   uv /= u_pixelRatio;
   
   uv.x /= u_worldWidth;
-  uv.y /= u_worldHeight;
+  uv.y /= u_worldWidth;
   
   vec2 box_uv = uv;
   
 
 //  if (u_fit == 0.) {
 //    if (worldRatio > 1.) {
-//        uv.x *= worldRatio;
+        uv.x *= worldRatio;
 //    } else {
 //        uv.y /= worldRatio;
 //    }

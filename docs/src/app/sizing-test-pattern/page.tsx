@@ -10,9 +10,8 @@ const MyTest = () => {
         height: {value: 400, min: 10, max: 1000},
     });
 
-    const {worldWidth, worldHeight} = useControls('shader', {
-        worldWidth: {value: 300, min: 10, max: 1000},
-        worldHeight: {value: 300, min: 10, max: 1000},
+    const {worldSize} = useControls('shader', {
+        worldSize: {value: 300, min: 10, max: 1000},
     });
 
     return (
@@ -33,8 +32,8 @@ const MyTest = () => {
             >
                 <SteppedSimplexNoise
                     style={{width: '100%', height: '100%'}}
-                    worldWidth={worldWidth}
-                    worldHeight={worldHeight}
+                    worldWidth={worldSize}
+                    worldHeight={worldSize}
                     speed={0}
                 />
             </div>
