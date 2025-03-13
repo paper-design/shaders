@@ -86,12 +86,13 @@ void main() {
   
   vec2 inage_uv = get_img_uv(uv, worldRatio, u_texture_aspect_ratio);
   
-  vec4 img = texture(u_texture, inage_uv);
+
+  
+  
+  float effect = .03 * sin(effect_uv.x * 20. - effect_uv.y * 20.);
+  
+  vec4 img = texture(u_texture, inage_uv + effect);
   vec4 background = vec4(.2, .2, .2, 1.);
-  
-  
-  
-  float effect = .05 * sin(effect_uv.x * 20. - effect_uv.y * 20.);
   
   float frame = get_uv_frame(inage_uv + effect);
   
@@ -104,16 +105,16 @@ void main() {
     vec2 halfSize = vec2(.5);
     vec2 dist = abs(box_uv);
     vec2 outer = step(halfSize, dist);
-    vec2 inner = step(halfSize -  0.01, dist);
+    vec2 inner = step(halfSize -  0.002, dist);
     float stroke = (1.0 - outer.x) * (1.0 - outer.y) * (inner.x + inner.y);
-    color.r += .5 * stroke;
+    color.g += .5 * stroke;
     
     
     vec2 dist_effect = abs(effect_uv);
     vec2 outer_effect = step(halfSize, dist_effect);
     vec2 inner_effect = step(halfSize - 0.003, dist_effect);
     float stroke_effect = (1.0 - outer_effect.x) * (1.0 - outer_effect.y) * (inner_effect.x + inner_effect.y);
-    color.g += stroke_effect;
+    color.r += stroke_effect;
     
   fragColor = color;
 }`;
@@ -135,6 +136,18 @@ const MyTest = () => {
 
     return (
         <>
+            <div style={{
+                position: 'fixed',
+                left: `10px`,
+                top: `10px`,
+            }}><span style={{color: 'red'}}>red</span>: effect size in px (effect size = 3 waves)
+            </div>
+            <div style={{
+                position: 'fixed',
+                left: `10px`,
+                top: `10px`,
+            }}><span style={{color: 'red'}}>red</span>: effect size in px (effect size = 3 waves)
+            </div>
             <div
                 style={{
                     position: 'fixed',
