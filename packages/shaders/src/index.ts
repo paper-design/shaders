@@ -60,10 +60,6 @@ export { spiralFragmentShader, type SpiralUniforms } from './shaders/spiral';
 /**  */
 export { borderPulsingFragmentShader, type BorderPulsingUniforms } from './shaders/border-pulsing';
 
-// -----   ----- //
-/**  */
-export { borderPatternFragmentShader, type BorderPatternUniforms } from './shaders/border-pattern';
-
 // ----- Gradient Border ----- //
 /** A shader rendering a multi-color gradient around the viewport border */
 export { borderGradientFragmentShader, type BorderGradientUniforms } from './shaders/border-gradient';

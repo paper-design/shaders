@@ -151,12 +151,6 @@ export const homeShaders = [
     shaderConfig: borderPulsingPresets[0].params,
   },
   {
-    name: 'pattern border',
-    url: '/border-pattern',
-    ShaderComponent: BorderPattern,
-    shaderConfig: borderPatternPresets[0].params,
-  },
-  {
     name: 'gradient border',
     url: '/border-gradient',
     ShaderComponent: BorderGradient,
