@@ -9,9 +9,10 @@ uniform sampler2D u_texture;
 uniform float u_texture_aspect_ratio;
 uniform vec2 u_resolution;
 uniform float u_pixelRatio;
-uniform float u_worldWidth;
-uniform float u_worldHeight;
-uniform float u_fit;
+uniform float u_imageWidth;
+uniform float u_imageHeight;
+uniform float u_worldSize;
+uniform float u_imageFit;
 
 out vec4 fragColor;
 
@@ -19,7 +20,7 @@ vec2 get_img_uv(vec2 uv, float canvas_ratio, float img_ratio) {
 
   bool is_centered = true;
   float scale_factor = 1.;
-//  float scale_factor = u_worldWidth / u_resolution.x;
+//  float scale_factor = u_imageWidth / u_resolution.x;
 
   vec2 img_uv = uv;
   img_uv.y = 1. - img_uv.y;
@@ -31,7 +32,7 @@ vec2 get_img_uv(vec2 uv, float canvas_ratio, float img_ratio) {
     img_uv -= .5;  
   }
   
-  if (u_fit == 1.) {
+  if (u_imageFit == 1.) {
     if (canvas_ratio > img_ratio) {
       img_uv.y *= (img_ratio / canvas_ratio);
     } else {
@@ -60,7 +61,16 @@ float get_uv_frame(vec2 uv) {
 void main() {
   vec2 uv = gl_FragCoord.xy / u_resolution.xy;
   float ratio = u_resolution.x / u_resolution.y;
-  float worldRatio = u_worldWidth / u_worldHeight;
+  float worldRatio = u_imageWidth / u_imageHeight;
+
+  vec2 effect_uv = uv;
+  effect_uv -= .5;
+  effect_uv *= u_resolution;  
+  effect_uv /= u_pixelRatio;
+  effect_uv /= u_worldSize;
+  
+  
+  
 
   uv -= .5;
   
@@ -69,8 +79,8 @@ void main() {
   
   uv /= u_pixelRatio;
   
-  uv.x /= u_worldWidth;
-  uv.y /= u_worldHeight;
+  uv.x /= u_imageWidth;
+  uv.y /= u_imageHeight;
   
   vec2 box_uv = uv;
   
@@ -79,10 +89,16 @@ void main() {
   vec4 img = texture(u_texture, inage_uv);
   vec4 background = vec4(.2, .2, .2, 1.);
   
-  float frame = get_uv_frame(inage_uv);
+  
+  
+  float effect = .05 * sin(effect_uv.x * 20. - effect_uv.y * 20.);
+  
+  float frame = get_uv_frame(inage_uv + effect);
   
   vec4 color = mix(background, img, frame);
   
+  
+    
   
   
     vec2 halfSize = vec2(.5);
@@ -92,6 +108,13 @@ void main() {
     float stroke = (1.0 - outer.x) * (1.0 - outer.y) * (inner.x + inner.y);
     color.r += .5 * stroke;
     
+    
+    vec2 dist_effect = abs(effect_uv);
+    vec2 outer_effect = step(halfSize, dist_effect);
+    vec2 inner_effect = step(halfSize - 0.003, dist_effect);
+    float stroke_effect = (1.0 - outer_effect.x) * (1.0 - outer_effect.y) * (inner_effect.x + inner_effect.y);
+    color.g += stroke_effect;
+    
   fragColor = color;
 }`;
 
@@ -99,36 +122,19 @@ const MyTest = () => {
     const {left, top, width, height} = useControls('canvas', {
         left: {value: 150, min: 0, max: 200},
         top: {value: 150, min: 0, max: 200},
-        width: {value: 400, min: 10, max: 1000},
-        height: {value: 400, min: 10, max: 1000},
+        width: {value: 600, min: 10, max: 1000},
+        height: {value: 600, min: 10, max: 1000},
     });
 
-    const {fit, worldWidth, worldHeight} = useControls('shader', {
-        fit: {value: 0, min: 0, max: 1, step: 1},
-        worldWidth: {value: 300, min: 10, max: 1000},
-        worldHeight: {value: 300, min: 10, max: 1000},
+    const {imageFit, imageWidth, imageHeight, worldSize} = useControls('shader', {
+        imageFit: {value: 0, min: 0, max: 1, step: 1},
+        imageWidth: {value: 300, min: 10, max: 1000},
+        imageHeight: {value: 300, min: 10, max: 1000},
+        worldSize: {value: 200, min: 10, max: 1000},
     });
 
     return (
         <>
-            <div style={{
-                position: 'fixed',
-                left: `10px`,
-                top: `10px`,
-            }}><span style={{color: 'red'}}>red</span>: world size in px
-            </div>
-            <div style={{
-                position: 'fixed',
-                left: `10px`,
-                top: `50px`,
-            }}>
-                <div>
-                    <b>fit = 0</b>: contain
-                </div>
-                <div>
-                    <b>fit = 1</b>: cover
-                </div>
-            </div>
             <div
                 style={{
                     position: 'fixed',
@@ -143,9 +149,10 @@ const MyTest = () => {
                     fragmentShader={fragmentShader}
                     uniforms={{
                         u_texture: '/placeholder.png',
-                        u_worldWidth: worldWidth,
-                        u_worldHeight: worldHeight,
-                        u_fit: fit
+                        u_imageWidth: imageWidth,
+                        u_imageHeight: imageHeight,
+                        u_imageFit: imageFit,
+                        u_worldSize: worldSize,
                 }}
                 />
             </div>
