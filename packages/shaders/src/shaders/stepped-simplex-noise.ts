@@ -38,6 +38,8 @@ uniform vec4 u_color3;
 uniform vec4 u_color4;
 uniform vec4 u_color5;
 uniform float u_steps_number;
+uniform float u_worldWidth;
+uniform float u_worldHeight;
 
 out vec4 fragColor;
 
@@ -87,13 +89,36 @@ vec4 getColor(int index) {
 
 void main() {
   vec2 uv = gl_FragCoord.xy / u_resolution.xy;
+  float ratio = u_resolution.x / u_resolution.y;
+  float worldRatio = u_worldWidth / u_worldHeight;
 
   uv -= .5;
-  float scale = .5 * u_scale + 1e-4;
-  uv *= (.0008 * (1. - step(1. - scale, 1.) / scale));
-  uv *= u_resolution;
+  
+  uv.x *= u_resolution.x;
+  uv.y *= u_resolution.y;
+  
   uv /= u_pixelRatio;
-  uv += .5;
+  
+  uv.x /= u_worldWidth;
+  uv.y /= u_worldHeight;
+  
+  vec2 box_uv = uv;
+  
+
+//  if (u_fit == 0.) {
+//    if (worldRatio > 1.) {
+//        uv.x *= worldRatio;
+//    } else {
+//        uv.y /= worldRatio;
+//    }
+//  } else if (u_fit == 1.) {
+//    if (worldRatio > 1.) {
+//        uv.y /= worldRatio;
+//    } else {
+//        uv.x *= worldRatio;
+//    }
+//  }
+
 
   float t = u_time;
 
@@ -108,6 +133,14 @@ void main() {
     color = mix(color, next_c.rgb * next_c.a, proportion);
     opacity = mix(opacity, next_c.a, proportion);
   }
+  
+    vec2 halfSize = vec2(.5);
+    vec2 dist = abs(box_uv);
+    vec2 outer = step(halfSize, dist);
+    vec2 inner = step(halfSize -  0.01, dist);
+    float stroke = (1.0 - outer.x) * (1.0 - outer.y) * (inner.x + inner.y);
+    color -= stroke;
+    
   fragColor = vec4(color, opacity);
 }
 `;
