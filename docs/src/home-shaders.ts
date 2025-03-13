@@ -89,7 +89,7 @@ export const homeShaders = [
     image: smokeRingImg,
     url: '/smoke-ring',
     ShaderComponent: SmokeRing,
-    shaderConfig: smokeRingPresets[1].params,
+    shaderConfig: smokeRingPresets[0].params,
   },
   {
     name: 'metaballs',
