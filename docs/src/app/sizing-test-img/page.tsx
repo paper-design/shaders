@@ -140,13 +140,13 @@ const MyTest = () => {
                 position: 'fixed',
                 left: `10px`,
                 top: `10px`,
-            }}><span style={{color: 'red'}}>red</span>: effect size in px (effect size = 3 waves)
+            }}><span style={{color: 'red'}}>red</span>: image box
             </div>
             <div style={{
                 position: 'fixed',
                 left: `10px`,
-                top: `10px`,
-            }}><span style={{color: 'red'}}>red</span>: effect size in px (effect size = 3 waves)
+                top: `40px`,
+            }}><span style={{color: 'red'}}>green</span>: effect size in px (effect size = 3 waves)
             </div>
             <div
                 style={{
