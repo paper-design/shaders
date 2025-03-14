@@ -99,9 +99,9 @@ void main() {
   vec2 polar_uv = vec2(atg, .1 * t - (.5 * length(uv)) + 1. / pow(length(uv), .5));
   polar_uv *= u_noiseScale;
 
-  float noise_left = fbm(polar_uv + .05 * t);
+  float noise_left = fbm(polar_uv + mod(.05 * t, 150.));
   polar_uv.x = mod(polar_uv.x, u_noiseScale * TWO_PI);
-  float noise_right = fbm(polar_uv + .05 * t);
+  float noise_right = fbm(polar_uv + mod(.05 * t, 150.));
   float noise = mix(noise_right, noise_left, smoothstep(-.2, .2, uv.x));
 
   float center_shape = 1. - pow(smoothstep(2., .0, length(uv)), 50.);
