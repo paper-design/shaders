@@ -17,7 +17,7 @@ const PerlinNoiseExample = () => {
       color2="#bde6ff"
       scale={1}
       proportion={0.34}
-      contour={0.9}
+      softness={0.9}
       octaveCount={2}
       persistence={1}
       lacunarity={1.5}
@@ -46,8 +46,8 @@ const PerlinNoiseWithControls = () => {
           color1: { value: defaults.color1, order: 100 },
           color2: { value: defaults.color2, order: 101 },
           scale: { value: defaults.scale, min: 0, max: 2, order: 200 },
-          proportion: { value: defaults.contour, min: 0, max: 1, order: 300 },
-          contour: { value: defaults.contour, min: 0, max: 1, order: 301 },
+          proportion: { value: defaults.softness, min: 0, max: 1, order: 300 },
+          softness: { value: defaults.softness, min: 0, max: 1, order: 301 },
           octaveCount: { value: defaults.octaveCount, min: 1, max: 8, step: 1, order: 302 },
           persistence: { value: defaults.persistence, min: 0.3, max: 1, order: 303 },
           lacunarity: { value: defaults.lacunarity, min: 1.5, max: 10, order: 304 },
