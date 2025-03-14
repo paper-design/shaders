@@ -99,8 +99,17 @@ void main() {
   uv.x /= u_worldWidth;
   uv.y /= u_worldHeight;
   
-  vec2 box_uv = uv;
+   
+  vec2 world = vec2(u_worldWidth, u_worldHeight) * u_pixelRatio;
   
+  if (world.x > u_resolution.x || world.y > u_resolution.y) {
+    if (u_fit == 0.) {
+      float scaleFactor = min(u_resolution.x / world.x, u_resolution.y / world.y);
+      uv /= scaleFactor;
+    }
+  }
+
+  vec2 box_uv = uv;
 
   if (u_fit == 0.) {
     if (worldRatio > 1.) {
@@ -115,6 +124,7 @@ void main() {
         uv.x *= worldRatio;
     }
   }
+ 
 
 
   float t = u_time;
@@ -166,6 +176,6 @@ void main() {
     color.r += .5 * stroke;
 
   fragColor = vec4(color, opacity);
-//  fragColor = vec4(vec3(u_fit), 1.);
+//  fragColor = vec4(vec3(test), 1.);
 }
 `;
