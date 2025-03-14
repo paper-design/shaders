@@ -12,7 +12,7 @@ export type WavesParams = {
   amplitude?: number;
   spacing?: number;
   dutyCycle?: number;
-  edgeBlur?: number;
+  softness?: number;
 };
 
 export type WavesProps = Omit<ShaderMountProps, 'fragmentShader'> & WavesParams;
@@ -35,7 +35,7 @@ export const defaultPreset: WavesPreset = {
     amplitude: 0.5,
     spacing: 0.75,
     dutyCycle: 0.2,
-    edgeBlur: 0,
+    softness: 0,
   },
 } as const;
 
@@ -51,7 +51,7 @@ export const spikesPreset: WavesPreset = {
     amplitude: 0.9,
     spacing: 0.37,
     dutyCycle: 0.93,
-    edgeBlur: 0.15,
+    softness: 0.15,
   },
 } as const;
 
@@ -67,7 +67,7 @@ export const groovyPreset: WavesPreset = {
     amplitude: 0.67,
     spacing: 1.17,
     dutyCycle: 0.57,
-    edgeBlur: 0,
+    softness: 0,
   },
 } as const;
 
@@ -83,7 +83,7 @@ export const tangledUpPreset: WavesPreset = {
     amplitude: 0.57,
     spacing: 1.05,
     dutyCycle: 0.97,
-    edgeBlur: 0,
+    softness: 0,
   },
 } as const;
 
@@ -99,7 +99,7 @@ export const zigZagPreset: WavesPreset = {
     amplitude: 0.8,
     spacing: 0.5,
     dutyCycle: 1,
-    edgeBlur: 0.5,
+    softness: 0.5,
   },
 } as const;
 
@@ -115,7 +115,7 @@ export const waveRidePreset: WavesPreset = {
     amplitude: 0.6,
     spacing: 0.41,
     dutyCycle: 0.99,
-    edgeBlur: 0,
+    softness: 0,
   },
 } as const;
 
@@ -140,7 +140,7 @@ export const Waves = (props: WavesProps): JSX.Element => {
       u_amplitude: props.amplitude ?? defaultPreset.params.amplitude,
       u_spacing: props.spacing ?? defaultPreset.params.spacing,
       u_dutyCycle: props.dutyCycle ?? defaultPreset.params.dutyCycle,
-      u_edgeBlur: props.edgeBlur ?? defaultPreset.params.edgeBlur,
+      u_softness: props.softness ?? defaultPreset.params.softness,
     };
   }, [
     props.scale,
@@ -152,7 +152,7 @@ export const Waves = (props: WavesProps): JSX.Element => {
     props.amplitude,
     props.spacing,
     props.dutyCycle,
-    props.edgeBlur,
+    props.softness,
   ]);
 
   return <ShaderMount {...props} fragmentShader={wavesFragmentShader} uniforms={uniforms} />;
