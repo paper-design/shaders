@@ -100,8 +100,7 @@ void main() {
   uv -= .5;
   uv += vec2(-u_offsetX, u_offsetY);
 
-  uv *= (.4 + 30. * u_scale);
-  uv /= u_pixelRatio;
+  uv *= (.4 + 15. * u_scale);
   uv.x *= ratio;
 
   float t = u_time;
