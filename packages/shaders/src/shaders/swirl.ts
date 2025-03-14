@@ -9,7 +9,7 @@ export type SwirlUniforms = {
   u_depth: number;
   u_noiseFreq: number;
   u_noise: number;
-  u_blur: number;
+  u_softness: number;
 };
 
 /**
@@ -36,8 +36,8 @@ export type SwirlUniforms = {
  * - u_noiseFreq: Frequency of the applied noise
  * - u_noise: Intensity of the noise effect
  *
- * Blur:
- * - u_blur: Softness of the band transitions, affecting blending between colors
+ * softness:
+ * - u_softness: Softness of the band transitions, affecting blending between colors
  */
 
 export const swirlFragmentShader = `#version 300 es
@@ -54,7 +54,7 @@ uniform float u_twist;
 uniform float u_depth;
 uniform float u_noiseFreq;
 uniform float u_noise;
-uniform float u_blur;
+uniform float u_softness;
 
 uniform float u_time;
 uniform float u_pixelRatio;
@@ -94,18 +94,18 @@ float snoise(vec2 v) {
   return 130.0 * dot(m, g);
 }
 
-float remap(float t, float blur) {
-  float b = .5 * blur;
+float remap(float t, float softness) {
+  float b = .5 * softness;
   return smoothstep(b, 1. - b, t);
 }
 
-vec4 blend_colors(vec4 c1, vec4 c2, vec4 c3, float mixer, float blur) {
+vec4 blend_colors(vec4 c1, vec4 c2, vec4 c3, float mixer, float softness) {
     vec4 colors[3] = vec4[](c1, c2, c3);
     
     float step = 1. / 6.;
     float index = floor(mixer / step);
     float t = fract(mixer / step);
-    t = remap(t, blur);
+    t = remap(t, softness);
 
     vec4 colorA = colors[int(mod(index, 3.))];
     vec4 colorB = colors[int(mod(index + 1., 3.))];
@@ -142,8 +142,8 @@ void main() {
   
   float shape = stripe_map;
   
-  float blur = 1. - u_blur - .1 * (1. - center_factor);
-  vec4 color = blend_colors(u_color1, u_color2, u_color3, shape, blur);
+  float softness = 1. - u_softness - .1 * (1. - center_factor);
+  vec4 color = blend_colors(u_color1, u_color2, u_color3, shape, softness);
 
   fragColor = vec4(color);
 }

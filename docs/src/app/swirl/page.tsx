@@ -23,7 +23,7 @@ const SwirlExample = () => {
       depth={1}
       noiseFreq={3}
       noise={0.37}
-      blur={0}
+      softness={0}
       speed={0}
       style={{ position: 'fixed', width: '100%', height: '100%' }}
     />
@@ -59,7 +59,7 @@ const SwirlWithControls = () => {
           depth: { value: defaults.depth, min: 0, max: 2, order: 205 },
           noiseFreq: { value: defaults.noiseFreq, min: 0, max: 50, order: 350 },
           noise: { value: defaults.noise, min: 0, max: 1, order: 351 },
-          blur: { value: defaults.blur, min: 0, max: 1, order: 352 },
+          softness: { value: defaults.softness, min: 0, max: 1, order: 352 },
           speed: { value: defaults.speed, min: 0, max: 2, order: 400 },
           reverse: { value: defaults.reverse, order: 401 },
         },

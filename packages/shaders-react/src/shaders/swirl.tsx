@@ -13,7 +13,7 @@ export type SwirlParams = {
   depth?: number;
   noiseFreq?: number;
   noise?: number;
-  blur?: number;
+  softness?: number;
   reverse?: boolean;
 } & GlobalParams;
 
@@ -39,7 +39,7 @@ export const defaultPreset: SwirlPreset = {
     depth: 0.0,
     noiseFreq: 50.0,
     noise: 0.29,
-    blur: 1.0,
+    softness: 1.0,
     speed: 0.0,
     reverse: false,
     seed: 0,
@@ -59,7 +59,7 @@ export const openingPreset: SwirlPreset = {
     depth: 0.6,
     noiseFreq: 0,
     noise: 0,
-    blur: 0,
+    softness: 0,
     speed: 1,
     reverse: false,
     seed: 0,
@@ -79,7 +79,7 @@ export const jamesBondPreset: SwirlPreset = {
     depth: 0.6,
     noiseFreq: 0,
     noise: 0,
-    blur: 0,
+    softness: 0,
     speed: 2,
     reverse: true,
     seed: 0,
@@ -100,7 +100,7 @@ export const hippiePreset: SwirlPreset = {
     depth: 1,
     noiseFreq: 4,
     noise: 0.37,
-    blur: 0,
+    softness: 0,
     speed: 0,
     reverse: false,
     seed: 0,
@@ -122,7 +122,7 @@ export const Swirl = (props: SwirlProps): JSX.Element => {
       u_depth: props.depth ?? defaultPreset.params.depth,
       u_noiseFreq: props.noiseFreq ?? defaultPreset.params.noiseFreq,
       u_noise: props.noise ?? defaultPreset.params.noise,
-      u_blur: props.blur ?? defaultPreset.params.blur,
+      u_softness: props.softness ?? defaultPreset.params.softness,
     };
   }, [
     props.color1,
@@ -135,7 +135,7 @@ export const Swirl = (props: SwirlProps): JSX.Element => {
     props.depth,
     props.noiseFreq,
     props.noise,
-    props.blur,
+    props.softness,
   ]);
 
   return <ShaderMount {...props} fragmentShader={swirlFragmentShader} uniforms={uniforms} />;
