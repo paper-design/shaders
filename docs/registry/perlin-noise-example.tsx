@@ -9,7 +9,7 @@ export function PerlinNoiseExample(props: PerlinNoiseProps) {
       color2="#bde6ff"
       scale={1}
       proportion={0.34}
-      contour={0.9}
+      softness={0.1}
       octaveCount={2}
       persistence={1}
       lacunarity={1.5}
