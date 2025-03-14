@@ -25,7 +25,7 @@ const SpiralExample = () => {
       strokeCap={0.5}
       noiseFreq={0.1}
       noisePower={1}
-      blur={0}
+      softness={0}
       speed={1}
       style={{ position: 'fixed', width: '100%', height: '100%' }}
     />
@@ -63,7 +63,7 @@ const SpiralWithControls = () => {
           strokeCap: { value: defaults.strokeCap, min: 0, max: 1, order: 207 },
           noiseFreq: { value: defaults.noiseFreq, min: 0, max: 30, order: 350 },
           noisePower: { value: defaults.noisePower, min: 0, max: 1, order: 351 },
-          blur: { value: defaults.blur, min: 0, max: 1, order: 352 },
+          softness: { value: defaults.softness, min: 0, max: 1, order: 352 },
           speed: { value: defaults.speed, min: 0, max: 2, order: 400 },
           reverse: { value: defaults.reverse, order: 401 },
         },

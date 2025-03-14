@@ -17,7 +17,7 @@ export function SpiralExample(props: SpiralProps) {
       strokeCap={0.5}
       noiseFreq={0.1}
       noisePower={1}
-      blur={0}
+      softness={0}
       speed={1}
       style={{ position: 'fixed', width: '100%', height: '100%' }}
       {...props}

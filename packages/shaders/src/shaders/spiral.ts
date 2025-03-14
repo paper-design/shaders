@@ -11,7 +11,7 @@ export type SpiralUniforms = {
   u_strokeCap: number;
   u_noiseFreq: number;
   u_noisePower: number;
-  u_blur: number;
+  u_softness: number;
 };
 
 /**
@@ -33,7 +33,7 @@ export type SpiralUniforms = {
  * u_strokeTaper (0 .. 1) - controls the tapering effect along the spiral arms.
  * u_noiseFreq - frequency of the noise applied to the spiral.
  * u_noisePower (0 .. 1) - strength of the noise effect.
- * u_blur - softens the edges of the spiral for a smoother appearance.
+ * u_softness - softens the edges of the spiral for a smoother appearance.
  */
 
 export const spiralFragmentShader = `#version 300 es
@@ -53,7 +53,7 @@ uniform float u_strokeTaper;
 
 uniform float u_noiseFreq;
 uniform float u_noisePower;
-uniform float u_blur;
+uniform float u_softness;
 
 uniform float u_time;
 uniform float u_pixelRatio;
@@ -130,7 +130,7 @@ void main() {
   mid = pow(mid, 2.);
   shape -= .5 * u_strokeCap * mid;
   
-  shape = smoothstep(stroke_width - edge_width - u_blur, stroke_width + edge_width + u_blur, shape);
+  shape = smoothstep(stroke_width - edge_width - u_softness, stroke_width + edge_width + u_softness, shape);
 
   vec3 color = mix(u_color1.rgb * u_color1.a, u_color2.rgb * u_color2.a, shape);
   float opacity = mix(u_color1.a, u_color2.a, shape);
