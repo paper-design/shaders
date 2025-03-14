@@ -91,24 +91,17 @@ void main() {
 
   uv -= .5;
   
-  uv.x *= u_resolution.x;
-  uv.y *= u_resolution.y;
-  
-  uv /= u_pixelRatio;
-  
-  uv.x /= u_worldWidth;
-  uv.y /= u_worldHeight;
-  
-   
   vec2 world = vec2(u_worldWidth, u_worldHeight) * u_pixelRatio;
   
-  if (world.x > u_resolution.x || world.y > u_resolution.y) {
+  uv.x *= (u_resolution.x / world.x);
+  uv.y *= (u_resolution.y / world.y);
+ 
+  if (world.x < u_resolution.x && world.y < u_resolution.y) {
     if (u_fit == 0.) {
       float scaleFactor = min(u_resolution.x / world.x, u_resolution.y / world.y);
       uv /= scaleFactor;
     }
   }
-
   vec2 box_uv = uv;
 
   if (u_fit == 0.) {
