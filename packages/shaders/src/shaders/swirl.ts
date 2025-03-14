@@ -94,24 +94,31 @@ float snoise(vec2 v) {
   return 130.0 * dot(m, g);
 }
 
-float remap(float t, float softness) {
-  float b = .5 * softness;
-  return smoothstep(b, 1. - b, t);
+float smoothBlend(float value, float softness) {
+    float threshold = 0.5 * softness;
+    return smoothstep(threshold, 1.0 - threshold, value);
 }
 
-vec4 blend_colors(vec4 c1, vec4 c2, vec4 c3, float mixer, float softness) {
-    vec4 colors[3] = vec4[](c1, c2, c3);
+vec4 blend_colors(vec4 color1, vec4 color2, vec4 color3, float mixFactor, float softness) {
+    vec4 colors[3] = vec4[](color1, color2, color3);
     
-    float step = 1. / 6.;
-    float index = floor(mixer / step);
-    float t = fract(mixer / step);
-    t = remap(t, softness);
+    float segmentSize = 1.0 / 8.0; // Now we have 8 segments
+    float segmentIndex = floor(mixFactor / segmentSize);
+    float blendAmount = fract(mixFactor / segmentSize);
+    blendAmount = smoothBlend(blendAmount, softness);
 
-    vec4 colorA = colors[int(mod(index, 3.))];
-    vec4 colorB = colors[int(mod(index + 1., 3.))];
+    // Define the new color sequence
+    int sequence[8] = int[](0, 1, 1, 2, 2, 1, 1, 0);
+    
+    int indexA = sequence[int(mod(segmentIndex, 8.0))];
+    int indexB = sequence[int(mod(segmentIndex + 1.0, 8.0))];
 
-    return mix(colorA, colorB, t);
+    vec4 startColor = colors[indexA];
+    vec4 endColor = colors[indexB];
+
+    return mix(startColor, endColor, blendAmount);
 }
+
 
 void main() {
   vec2 uv = gl_FragCoord.xy / u_resolution.xy;
@@ -137,12 +144,12 @@ void main() {
   float stripe_map = fract(offset);
   
   float center_falloff = clamp(.2 + .5 * abs(twist), .0, 1.);
-  float center_factor = smoothstep(0., center_falloff, l * (1. + .5 * abs(u_depth)));
+  float center_factor = smoothstep(.5, .7, l * (1. + 2. * u_depth));
   stripe_map = mix(.5, stripe_map, center_factor);
   
   float shape = stripe_map;
   
-  float softness = 1. - u_softness - .1 * (1. - center_factor);
+  float softness = 1. - u_softness;
   vec4 color = blend_colors(u_color1, u_color2, u_color3, shape, softness);
 
   fragColor = vec4(color);
