@@ -110,7 +110,7 @@ const MyTest = () => {
                 position: 'fixed',
                 left: `10px`,
                 top: `100px`,
-            }}>fit describes only the relation between ring and world box
+            }}>fit describes the relation between ring and world box AND relation between world box can canvas
             </div>
 
             <div
