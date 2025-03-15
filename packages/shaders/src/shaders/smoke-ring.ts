@@ -98,8 +98,11 @@ void main() {
  
   if (world.x < u_resolution.x && world.y < u_resolution.y) {
     if (u_fit == 0.) {
-      float scaleFactor = min(u_resolution.x / world.x, u_resolution.y / world.y);
-      uv /= scaleFactor;
+//      float scaleFactor = min(u_resolution.x / world.x, u_resolution.y / world.y);
+//      uv /= scaleFactor;
+    } else {
+//       float scaleFactor = min(world.x / u_resolution.x, world.y / u_resolution.y);
+//      uv *= scaleFactor;
     }
   }
   vec2 box_uv = uv;
