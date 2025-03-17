@@ -169,7 +169,7 @@ void main() {
 
 
 
-  float ring_shape = 1. - smoothstep(.1, .58, length(uv));
+  float ring_shape = 1. - smoothstep(.1, .5, length(uv));
   vec3 color = normalize(vec3(.4, .2, 1.)) * 2. * ring_shape;
 
   color = mix(color, vec3(.4), 1. - step(uv.x, .5));
