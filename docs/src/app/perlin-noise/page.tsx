@@ -13,7 +13,7 @@ import { BackButton } from '@/components/back-button';
 const PerlinNoiseExample = () => {
   return (
     <PerlinNoise
-      color2="#bde6ff"
+      color="#bde6ff"
       scale={1}
       proportion={0.34}
       softness={0.1}

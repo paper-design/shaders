@@ -14,7 +14,7 @@ import { BackButton } from '@/components/back-button';
 const WavesExample = () => {
   return (
     <Waves
-      color1="#90BE6D"
+      color="#90BE6D"
       scale={1}
       rotation={0}
       frequency={0.5}
@@ -42,7 +42,7 @@ const WavesWithControls = () => {
     return {
       Parameters: folder(
         {
-          color2: { value: defaults.color2, order: 101 },
+          color: { value: defaults.color, order: 101 },
           scale: { value: defaults.scale, min: 0.1, max: 4, order: 200 },
           rotation: { value: defaults.rotation, min: 0, max: 1, order: 201 },
           frequency: { value: defaults.frequency, min: 0, max: 2, order: 300 },
