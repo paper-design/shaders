@@ -110,14 +110,16 @@ void main() {
 
 const MyTest = () => {
   const { width, height } = useControls('canvas', {
-    width: { value: 800, min: 10, max: 1000 },
-    height: { value: 150, min: 10, max: 1000 },
+    width: { value: 400, min: 10, max: 1000 },
+    height: { value: 600, min: 10, max: 1000 },
   });
 
-  const { fit, worldWidth, worldHeight } = useControls('shader', {
+  const { fit, worldWidth, worldHeight, offsetX, offsetY } = useControls('shader', {
     fit: { value: 0, min: 0, max: 1, step: 1 },
-    worldWidth: { value: 600, min: 10, max: 1000 },
-    worldHeight: { value: 950, min: 10, max: 1000 },
+    worldWidth: { value: 100, min: 10, max: 1000 },
+    worldHeight: { value: 100, min: 10, max: 1000 },
+    offsetX: {value: 0, min: 0, max: 100},
+    offsetY: {value: 0, min: 0, max: 100},
   });
 
   return (
@@ -161,39 +163,40 @@ const MyTest = () => {
               width: `100%`,
               height: `100%`,
               objectFit: fit ? 'cover' : 'contain',
+              objectPosition: `${offsetX}% ${offsetY}%`,
             }}
             src="https://workers.paper.design/user-images/01JNZJBZJEV693N5NH06FV53Q1/01JPD59V69P2WKXGXGGTHR6AYW.png"
           />
         </div>
 
-        <div
-          style={{
-            width: `${width}px`,
-            height: `${height}px`,
-            position: 'relative',
-          }}
-        >
-          <span
-            style={{
-              position: 'absolute',
-              top: '10px',
-              left: '10px',
-              color: 'red',
-            }}
-          >
-            shader
-          </span>
+        {/*<div*/}
+        {/*  style={{*/}
+        {/*    width: `${width}px`,*/}
+        {/*    height: `${height}px`,*/}
+        {/*    position: 'relative',*/}
+        {/*  }}*/}
+        {/*>*/}
+        {/*  <span*/}
+        {/*    style={{*/}
+        {/*      position: 'absolute',*/}
+        {/*      top: '10px',*/}
+        {/*      left: '10px',*/}
+        {/*      color: 'red',*/}
+        {/*    }}*/}
+        {/*  >*/}
+        {/*    shader*/}
+        {/*  </span>*/}
 
-          <ShaderMount
-            style={{ width: '100%', height: '100%' }}
-            fragmentShader={fragmentShader}
-            uniforms={{
-              u_worldWidth: worldWidth,
-              u_worldHeight: worldHeight,
-              u_fit: fit,
-            }}
-          />
-        </div>
+        {/*  <ShaderMount*/}
+        {/*    style={{ width: '100%', height: '100%' }}*/}
+        {/*    fragmentShader={fragmentShader}*/}
+        {/*    uniforms={{*/}
+        {/*      u_worldWidth: worldWidth,*/}
+        {/*      u_worldHeight: worldHeight,*/}
+        {/*      u_fit: fit,*/}
+        {/*    }}*/}
+        {/*  />*/}
+        {/*</div>*/}
       </div>
     </>
   );
