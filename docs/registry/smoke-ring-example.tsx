@@ -5,7 +5,6 @@ import { SmokeRing, SmokeRingProps } from '@paper-design/shaders-react';
 export function SmokeRingExample(props: SmokeRingProps) {
   return (
     <SmokeRing
-      colorBack="#08121b"
       colorInner="#ffffff"
       colorOuter="#47a0ff"
       scale={1}
