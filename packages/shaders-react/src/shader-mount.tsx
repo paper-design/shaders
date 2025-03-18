@@ -94,8 +94,9 @@ export const ShaderMount: React.FC<ShaderMountProps> = ({
 
   useEffect(() => {
     const initShader = async () => {
-      if (canvasRef.current) {
-        const processedUniforms = await processUniforms(uniforms);
+      const processedUniforms = await processUniforms(uniforms);
+
+      if (canvasRef.current && !shaderMountRef.current) {
         shaderMountRef.current = new ShaderMountVanilla(
           canvasRef.current,
           fragmentShader,
@@ -111,6 +112,7 @@ export const ShaderMount: React.FC<ShaderMountProps> = ({
 
     return () => {
       shaderMountRef.current?.dispose();
+      shaderMountRef.current = null;
     };
   }, [fragmentShader, webGlContextAttributes]);
 
