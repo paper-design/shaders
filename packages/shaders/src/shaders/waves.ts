@@ -1,8 +1,7 @@
 export type WavesUniforms = {
   u_scale: number;
   u_rotation: number;
-  u_color1: [number, number, number, number];
-  u_color2: [number, number, number, number];
+  u_color: [number, number, number, number];
   u_shape: number;
   u_frequency: number;
   u_amplitude: number;
@@ -12,14 +11,12 @@ export type WavesUniforms = {
 };
 
 /**
- * Stepped Simplex Noise by Ksenia Kondrashova
- * Calculates a combination of 2 simplex noises with result rendered as a stepped gradient
+ * Waves static pattern on the transparent background
  *
  * Uniforms include:
  * u_scale - the scale applied to user space
  * u_rotation - the rotation applied to user space
- * u_color1 - the first color
- * u_color2 - the second color
+ * u_color - the wave color
  * u_shape (0 ... 3) - the line shaping coefficient, non-integer
    values allowed and produce mixed shapes
    - u_shape = 0 is zigzag
@@ -42,8 +39,7 @@ uniform vec2 u_resolution;
 uniform float u_scale;
 uniform float u_rotation;
 
-uniform vec4 u_color1;
-uniform vec4 u_color2;
+uniform vec4 u_color;
 uniform float u_shape;
 uniform float u_frequency;
 uniform float u_amplitude;
@@ -84,11 +80,11 @@ void main() {
   
   float edge_width = .02 / (1. + abs(shape)) * (.001 + u_scale);
   edge_width += .5 * max(0., u_softness);
-  float dc = clamp(u_dutyCycle, 0., 1.);
-  float t = smoothstep(dc - edge_width, dc + edge_width, shape);
+  float dc = clamp(1. - u_dutyCycle, 0., 1.);
+  float s = smoothstep(dc - edge_width, dc + edge_width, shape);
 
-  vec3 color = mix(u_color1.rgb * u_color1.a, u_color2.rgb * u_color2.a, t);
-  float opacity = mix(u_color1.a, u_color2.a, t);
+  vec3 color = u_color.rgb * u_color.a * s;
+  float opacity = u_color.a * s;
   
   fragColor = vec4(color, opacity);
 }
