@@ -28,38 +28,35 @@ void main() {
   uv -= .5;
 
   vec2 world = vec2(u_worldWidth, u_worldHeight) * u_pixelRatio;
-
-  float xRatio = u_resolution.x / world.x;
-  float yRatio = u_resolution.y / world.y;
-
-  uv *= vec2(xRatio, yRatio);
+  vec2 resRatio = u_resolution / world;
+  uv *= resRatio;
 
 
   if (u_fit == 0.) {
     if (ratio > 1.) {
       uv.x *= worldRatio;
-      if (yRatio > 1.) {
-        uv /= yRatio;
+      if (resRatio.y > 1.) {
+        uv /= resRatio.y;
       }
-      if (xRatio < 1.) {
+      if (resRatio.x < 1.) {
         if (worldRatio < 1.) {
           uv /= worldRatio;
         }
       } else {
         if (world.y > u_resolution.x) {
           uv /= worldRatio;
-          uv /= xRatio;
+          uv /= resRatio.x;
         }
       }
     } else {
       uv.y /= worldRatio;
-      if (xRatio > 1.) {
-        uv /= xRatio;
+      if (resRatio.x > 1.) {
+        uv /= resRatio.x;
       }
       if (world.x > u_resolution.y) {
-        if (yRatio > 1.) {
+        if (resRatio.y > 1.) {
           uv *= worldRatio;
-          uv /= yRatio;
+          uv /= resRatio.y;
         } else {
           if (worldRatio > 1.) {
             uv *= worldRatio;
@@ -70,14 +67,14 @@ void main() {
   } else {
     if (ratio > 1.) {
       uv.x *= worldRatio;
-      if (xRatio < 1.) {
+      if (resRatio.x < 1.) {
         if (worldRatio > 1.) {
           uv /= worldRatio;
         }
       } else {
         if (world.y < u_resolution.x) {
           uv /= worldRatio;
-          uv /= xRatio;
+          uv /= resRatio.x;
         }
       }
     } else {
@@ -89,18 +86,17 @@ void main() {
       } else {
         uv *= worldRatio;
         if (worldRatio > 1.) {
-          uv /= yRatio;
+          uv /= resRatio.y;
         } else {
-          if (yRatio > 1.) {
-            uv /= yRatio;
+          if (resRatio.y > 1.) {
+            uv /= resRatio.y;
           }
         }
       }
     }
   }
 
-
-  float ring_shape = 2. - (smoothstep(.1, .3, length(uv + vec2(-.15, 0.))) + smoothstep(.1, .3, length(uv + vec2(.15, 0.))));
+  float ring_shape = 1. - smoothstep(.1, .5, length(uv));
   vec3 color = normalize(vec3(.4, .2, 1.)) * 2. * ring_shape;
 
   color = mix(color, vec3(.4), 1. - step(uv.x, .5));
@@ -114,8 +110,8 @@ void main() {
 
 const MyTest = () => {
   const { width, height } = useControls('canvas', {
-    width: { value: 300, min: 10, max: 1000 },
-    height: { value: 700, min: 10, max: 1000 },
+    width: { value: 800, min: 10, max: 1000 },
+    height: { value: 150, min: 10, max: 1000 },
   });
 
   const { fit, worldWidth, worldHeight } = useControls('shader', {
@@ -126,13 +122,68 @@ const MyTest = () => {
 
   return (
     <>
+      <div
+        style={{
+          width: `100%`,
+          display: 'flex',
+          // flexDirection: (width / height > 1) ? 'row' : 'column',
+          flexDirection: 'row',
+          alignItems: 'start',
+          justifyContent: 'start',
+        }}
+      >
         <div
           style={{
             width: `${width}px`,
             height: `${height}px`,
-            position: 'absolute',
+            background: 'grey',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            overflow: 'hidden',
+            position: 'relative',
           }}
         >
+          <span
+            style={{
+              position: 'absolute',
+              top: '10px',
+              left: '10px',
+              color: 'red',
+            }}
+          >
+            img
+          </span>
+          <img
+            style={{
+              minWidth: `${worldWidth}px`,
+              minHeight: `${worldHeight}px`,
+              width: `100%`,
+              height: `100%`,
+              objectFit: fit ? 'cover' : 'contain',
+            }}
+            src="https://workers.paper.design/user-images/01JNZJBZJEV693N5NH06FV53Q1/01JPD59V69P2WKXGXGGTHR6AYW.png"
+          />
+        </div>
+
+        <div
+          style={{
+            width: `${width}px`,
+            height: `${height}px`,
+            position: 'relative',
+          }}
+        >
+          <span
+            style={{
+              position: 'absolute',
+              top: '10px',
+              left: '10px',
+              color: 'red',
+            }}
+          >
+            shader
+          </span>
+
           <ShaderMount
             style={{ width: '100%', height: '100%' }}
             fragmentShader={fragmentShader}
@@ -143,6 +194,7 @@ const MyTest = () => {
             }}
           />
         </div>
+      </div>
     </>
   );
 };
