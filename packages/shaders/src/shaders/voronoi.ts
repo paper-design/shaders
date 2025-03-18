@@ -3,7 +3,6 @@ export type VoronoiUniforms = {
   u_colorCell1: [number, number, number, number];
   u_colorCell2: [number, number, number, number];
   u_colorCell3: [number, number, number, number];
-  u_colorEdges: [number, number, number, number];
   u_colorMid: [number, number, number, number];
   u_colorGradient: number;
   u_distance: number;
@@ -23,7 +22,6 @@ export type VoronoiUniforms = {
  * u_colorCell1 - color #1 of mix used to fill the cell shape
  * u_colorCell2 - color #2 of mix used to fill the cell shape
  * u_colorCell3 - color #3 of mix used to fill the cell shape
- * u_colorEdges - color of borders between the cells
  * u_colorMid - color used to fill the radial shape in the center of each cell
  * u_colorGradient (0 .. 1) - if the cell color is a gradient of palette colors or one color selection
  * u_distance (0 ... 0.5) - how far the cell center can move from regular square grid
@@ -47,7 +45,6 @@ uniform float u_scale;
 uniform vec4 u_colorCell1;
 uniform vec4 u_colorCell2;
 uniform vec4 u_colorCell3;
-uniform vec4 u_colorEdges;
 uniform vec4 u_colorMid;
 
 uniform float u_colorGradient;
@@ -139,10 +136,8 @@ void main() {
 
   vec4 cell_mix = blend_colors(u_colorCell1, u_colorCell2, u_colorCell3, randomizer);
   
-  vec4 edges = vec4(u_colorEdges.rgb * u_colorEdges.a, u_colorEdges.a);
-
-  vec3 color = mix(edges.rgb, cell_mix.rgb, cell_shape);
-  float opacity = mix(edges.a, cell_mix.a, cell_shape);
+  vec3 color = cell_mix.rgb * cell_shape;
+  float opacity = cell_mix.a * cell_shape;
 
   color = mix(color, u_colorMid.rgb * u_colorMid.a, dot_shape);
   opacity = mix(opacity, u_colorMid.a, dot_shape);

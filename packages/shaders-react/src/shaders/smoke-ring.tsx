@@ -3,7 +3,6 @@ import { ShaderMount, type GlobalParams, type ShaderMountProps } from '../shader
 import { getShaderColorFromString, smokeRingFragmentShader, type SmokeRingUniforms } from '@paper-design/shaders';
 
 export type SmokeRingParams = {
-  colorBack?: string;
   colorInner?: string;
   colorOuter?: string;
   scale?: number;
@@ -25,7 +24,6 @@ export const defaultPreset: SmokeRingPreset = {
     scale: 1,
     speed: 1,
     frame: 0,
-    colorBack: 'hsla(208, 54%, 7%, 1)',
     colorInner: 'hsla(0, 0%, 100%, 1)',
     colorOuter: 'hsla(211, 100%, 64%, 1)',
     noiseScale: 1.4,
@@ -39,7 +37,6 @@ export const cloudPreset: SmokeRingPreset = {
     scale: 1,
     speed: 1,
     frame: 0,
-    colorBack: 'hsla(218, 100%, 62%, 1)',
     colorInner: 'hsla(0, 0%, 100%, 1)',
     colorOuter: 'hsla(0, 0%, 100%, 1)',
     noiseScale: 1.8,
@@ -53,7 +50,6 @@ export const firePreset: SmokeRingPreset = {
     scale: 1,
     speed: 4,
     frame: 0,
-    colorBack: 'hsla(20, 100%, 5%, 1)',
     colorInner: 'hsla(40, 100%, 50%, 1)',
     colorOuter: 'hsla(0, 100%, 50%, 1)',
     noiseScale: 1.4,
@@ -67,7 +63,6 @@ export const electricPreset: SmokeRingPreset = {
     scale: 1,
     speed: -2.5,
     frame: 0,
-    colorBack: 'hsla(47, 50%, 7%, 1)',
     colorInner: 'hsla(47, 100%, 64%, 1)',
     colorOuter: 'hsla(47, 100%, 64%, 1)',
     noiseScale: 1.8,
@@ -81,7 +76,6 @@ export const poisonPreset: SmokeRingPreset = {
     scale: 1,
     speed: 3,
     frame: 0,
-    colorBack: 'hsla(120, 100%, 3%, 1)',
     colorInner: 'hsla(120, 100%, 3%, 1)',
     colorOuter: 'hsla(120, 100%, 66%, 1)',
     noiseScale: 5,
@@ -101,13 +95,12 @@ export const SmokeRing = (props: SmokeRingProps): React.ReactElement => {
   const uniforms: SmokeRingUniforms = useMemo(() => {
     return {
       u_scale: props.scale ?? defaultPreset.params.scale,
-      u_colorBack: getShaderColorFromString(props.colorBack, defaultPreset.params.colorBack),
       u_colorInner: getShaderColorFromString(props.colorInner, defaultPreset.params.colorInner),
       u_colorOuter: getShaderColorFromString(props.colorOuter, defaultPreset.params.colorOuter),
       u_noiseScale: props.noiseScale ?? defaultPreset.params.noiseScale,
       u_thickness: props.thickness ?? defaultPreset.params.thickness,
     };
-  }, [props.scale, props.colorBack, props.colorInner, props.colorOuter, props.noiseScale, props.thickness]);
+  }, [props.scale, props.colorInner, props.colorOuter, props.noiseScale, props.thickness]);
 
   return <ShaderMount {...props} fragmentShader={smokeRingFragmentShader} uniforms={uniforms} />;
 };

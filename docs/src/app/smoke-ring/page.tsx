@@ -13,7 +13,6 @@ import { BackButton } from '@/components/back-button';
 const SmokeRingExample = () => {
   return (
     <SmokeRing
-      colorBack="#08121b"
       colorInner="#ffffff"
       colorOuter="#47a0ff"
       scale={1}
@@ -53,7 +52,6 @@ const SmokeRingWithControls = () => {
     return {
       Parameters: folder(
         {
-          colorBack: { value: defaults.colorBack, order: 100 },
           colorInner: { value: defaults.colorInner, order: 101 },
           colorOuter: { value: defaults.colorOuter, order: 102 },
           scale: { value: defaults.scale, min: 0.5, max: 1.5, order: 200 },

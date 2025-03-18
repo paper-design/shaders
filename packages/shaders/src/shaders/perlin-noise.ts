@@ -1,7 +1,6 @@
 export type PerlinNoiseUniforms = {
   u_scale: number;
-  u_color1: [number, number, number, number];
-  u_color2: [number, number, number, number];
+  u_color: [number, number, number, number];
   u_proportion: number;
   u_softness: number;
   u_octaveCount: number;
@@ -10,15 +9,14 @@ export type PerlinNoiseUniforms = {
 };
 
 /**
- * 3d Perlin noise with exposed parameters
+ * 3d Perlin noise with exposed parameters rendered on the transparent background
  * Based on https://www.shadertoy.com/view/NlSGDz
  *
  * Uniforms include:
  * u_scale - the scale applied to user space
- * u_color1 - the first mixed color
- * u_color2 - the second mixed color
- * u_proportion (0 .. 1) - the proportion between u_color1 and u_color2;
- * u_softness - the sharpness of the transition between u_color1 and u_color2 in the noise output
+ * u_color - the color
+ * u_proportion (0 .. 1) - the proportion between u_color1 and u_color;
+ * u_softness - the sharpness of the transition between u_color1 and u_color in the noise output
  * u_octaveCount - the number of octaves for Perlin noise;
  *    higher values increase the complexity of the noise
  * u_persistence (0 .. 1) - the amplitude of each successive octave of the noise;
@@ -35,8 +33,7 @@ uniform float u_pixelRatio;
 uniform vec2 u_resolution;
 
 uniform float u_scale;
-uniform vec4 u_color1;
-uniform vec4 u_color2;
+uniform vec4 u_color;
 uniform float u_proportion;
 uniform float u_softness;
 uniform float u_octaveCount;
@@ -206,8 +203,8 @@ void main() {
         noise_normalized
     );
 
-    vec3 color = mix(u_color1.rgb * u_color1.a, u_color2.rgb * u_color2.a, sharp_noise);
-    float opacity = mix(u_color1.a, u_color2.a, sharp_noise);
+    vec3 color = u_color.rgb * u_color.a * sharp_noise;
+    float opacity = u_color.a * sharp_noise;
 
     fragColor = vec4(color, opacity);
 }

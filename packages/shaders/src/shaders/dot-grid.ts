@@ -8,7 +8,6 @@ export const DotGridShapes = {
 export type DotGridShape = (typeof DotGridShapes)[keyof typeof DotGridShapes];
 
 export type DotGridUniforms = {
-  u_colorBack: [number, number, number, number];
   u_colorFill: [number, number, number, number];
   u_colorStroke: [number, number, number, number];
   u_dotSize: number;
@@ -43,7 +42,6 @@ precision highp float;
 uniform vec2 u_resolution;
 uniform float u_pixelRatio;
 
-uniform vec4 u_colorBack;
 uniform vec4 u_colorFill;
 uniform vec4 u_colorStroke;
 uniform float u_dotSize;
@@ -142,12 +140,10 @@ void main() {
 
   float dot_opacity = max(0., 1. - opacity_randomizer * u_opacityRange);
 
-  vec3 color = u_colorBack.rgb * u_colorBack.a;
-  color = mix(color, u_colorFill.rgb, u_colorFill.a * dot_opacity * shapeInner);
+  vec3 color = u_colorFill.rgb * u_colorFill.a * dot_opacity * shape_inner;
   color = mix(color, u_colorStroke.rgb, u_colorStroke.a * dot_opacity * stroke);
 
-  float opacity = u_colorBack.a;
-  opacity += u_colorFill.a * shapeInner * dot_opacity;
+  float opacity = u_colorFill.a * shape_inner * dot_opacity;
   opacity += u_colorStroke.a * stroke * dot_opacity;
 
   fragColor = vec4(color, opacity);

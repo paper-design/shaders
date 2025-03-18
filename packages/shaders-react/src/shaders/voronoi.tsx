@@ -8,7 +8,6 @@ export type VoronoiParams = {
   colorCell2?: string;
   colorCell3?: string;
   colorMid?: string;
-  colorEdges?: string;
   colorGradient?: number;
   distance?: number;
   edgesSize?: number;
@@ -34,7 +33,6 @@ export const defaultPreset: VoronoiPreset = {
     colorCell1: 'hsla(15, 80%, 50%, 1)',
     colorCell2: 'hsla(180, 80%, 50%, 1)',
     colorCell3: 'hsla(200, 80%, 50%, 1)',
-    colorEdges: 'hsla(30, 90%, 10%, 1)',
     colorMid: 'hsla(0, 0%, 0%, 1)',
     colorGradient: 0.5,
     distance: 0.25,
@@ -54,7 +52,6 @@ export const classicPreset: VoronoiPreset = {
     colorCell1: 'hsla(0, 100%, 100%, 1)',
     colorCell2: 'hsla(0, 0%, 100%, 1)',
     colorCell3: 'hsla(0, 100%, 0%, 1)',
-    colorEdges: 'hsla(0, 0%, 0%, 1)',
     colorMid: 'hsla(0, 0%, 0%, 1)',
     colorGradient: 1,
     distance: 0.45,
@@ -74,7 +71,6 @@ export const giraffePreset: VoronoiPreset = {
     colorCell1: 'hsla(32, 100%, 18%, 1)',
     colorCell2: 'hsla(42, 93%, 35%, 1)',
     colorCell3: 'hsla(32, 100%, 18%, 1)',
-    colorEdges: 'hsla(45, 100%, 96%, 1)',
     colorMid: 'hsla(0, 0%, 0%, 1)',
     colorGradient: 1,
     distance: 0.25,
@@ -95,7 +91,6 @@ export const eyesPreset: VoronoiPreset = {
     colorCell2: 'hsla(207, 53%, 41%, 1)',
     colorCell3: 'hsla(207, 80%, 65%, 1)',
     colorMid: 'hsla(0, 0%, 0%, 1)',
-    colorEdges: 'hsla(0, 100%, 100%, 1)',
     colorGradient: 1,
     distance: 0.25,
     edgesSize: 0.62,
@@ -115,7 +110,6 @@ export const bubblesPreset: VoronoiPreset = {
     colorCell2: 'hsla(169, 100%, 66%, 1)',
     colorCell3: 'hsla(50, 100%, 66%, 1)',
     colorMid: 'hsla(0, 0%, 0%, 1)',
-    colorEdges: 'hsla(0, 0%, 0%, 1)',
     colorGradient: 1,
     distance: 0.5,
     edgesSize: 0.81,
@@ -135,7 +129,6 @@ export const cellsPreset: VoronoiPreset = {
     colorCell2: 'hsla(0, 0%, 100%, 1)',
     colorCell3: 'hsla(0, 0%, 100%, 1)',
     colorMid: 'hsla(0, 0%, 0%, 1)',
-    colorEdges: 'hsla(200, 50%, 15%, 1)',
     colorGradient: 1,
     distance: 0.38,
     edgesSize: 0.1,
@@ -154,7 +147,6 @@ export const glowPreset: VoronoiPreset = {
     colorCell1: 'hsla(40, 100%, 50%, 1)',
     colorCell2: 'hsla(311, 100%, 59%, 1)',
     colorCell3: 'hsla(180, 100%, 65%, 1)',
-    colorEdges: 'hsla(0, 100%, 0%, 1)',
     colorMid: 'hsla(0, 0%, 100%, 1)',
     colorGradient: 1,
     distance: 0.25,
@@ -175,7 +167,6 @@ export const tilesPreset: VoronoiPreset = {
     colorCell2: 'hsla(0, 50%, 100%, 1)',
     colorCell3: 'hsla(200, 50%, 50%, 1)',
     colorMid: 'hsla(0, 0%, 0%, 1)',
-    colorEdges: 'hsla(200, 50%, 10%, 1)',
     colorGradient: 0,
     distance: 0.05,
     edgesSize: 0.25,
@@ -204,7 +195,6 @@ export const Voronoi = (props: VoronoiProps): React.ReactElement => {
       u_colorCell2: getShaderColorFromString(props.colorCell2, defaultPreset.params.colorCell2),
       u_colorCell3: getShaderColorFromString(props.colorCell3, defaultPreset.params.colorCell3),
       u_colorMid: getShaderColorFromString(props.colorMid, defaultPreset.params.colorMid),
-      u_colorEdges: getShaderColorFromString(props.colorEdges, defaultPreset.params.colorEdges),
       u_colorGradient: props.colorGradient ?? defaultPreset.params.colorGradient,
       u_distance: props.distance ?? defaultPreset.params.distance,
       u_edgesSize: props.edgesSize ?? defaultPreset.params.edgesSize,
@@ -218,7 +208,6 @@ export const Voronoi = (props: VoronoiProps): React.ReactElement => {
     props.colorCell3,
     props.colorCell2,
     props.colorMid,
-    props.colorEdges,
     props.colorGradient,
     props.distance,
     props.edgesSize,

@@ -15,7 +15,6 @@ import { DotGridShapes } from '@paper-design/shaders';
 const DotGridExample = () => {
   return (
     <DotGrid
-      colorBack="#00000000"
       colorFill="#122118"
       colorStroke="#f0a519"
       dotSize={2}
@@ -44,7 +43,6 @@ const DotGridWithControls = () => {
     return {
       Parameters: folder(
         {
-          colorBack: { value: defaults.colorBack, order: 100 },
           colorFill: { value: defaults.colorFill, order: 101 },
           colorStroke: { value: defaults.colorStroke, order: 102 },
           dotSize: { value: defaults.dotSize, min: 1, max: 100, order: 301 },

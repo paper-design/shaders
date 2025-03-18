@@ -5,8 +5,7 @@ import { Waves, WavesProps } from '@paper-design/shaders-react';
 export function WavesExample(props: WavesProps) {
   return (
     <Waves
-      color1="#577590"
-      color2="#90BE6D"
+      color="#90BE6D"
       scale={1}
       rotation={0}
       frequency={0.5}

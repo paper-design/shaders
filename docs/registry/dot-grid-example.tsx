@@ -5,7 +5,6 @@ import { DotGrid, type DotGridProps } from '@paper-design/shaders-react';
 export function DotGridExample(props: DotGridProps) {
   return (
     <DotGrid
-      colorBack="#00000000"
       colorFill="#122118"
       colorStroke="#f0a519"
       dotSize={2}
