@@ -28,38 +28,35 @@ void main() {
   uv -= .5;
 
   vec2 world = vec2(u_worldWidth, u_worldHeight) * u_pixelRatio;
-
-  float xRatio = u_resolution.x / world.x;
-  float yRatio = u_resolution.y / world.y;
-
-  uv *= vec2(xRatio, yRatio);
+  vec2 resRatio = u_resolution / world;
+  uv *= resRatio;
 
 
   if (u_fit == 0.) {
     if (ratio > 1.) {
       uv.x *= worldRatio;
-      if (yRatio > 1.) {
-        uv /= yRatio;
+      if (resRatio.y > 1.) {
+        uv /= resRatio.y;
       }
-      if (xRatio < 1.) {
+      if (resRatio.x < 1.) {
         if (worldRatio < 1.) {
           uv /= worldRatio;
         }
       } else {
         if (world.y > u_resolution.x) {
           uv /= worldRatio;
-          uv /= xRatio;
+          uv /= resRatio.x;
         }
       }
     } else {
       uv.y /= worldRatio;
-      if (xRatio > 1.) {
-        uv /= xRatio;
+      if (resRatio.x > 1.) {
+        uv /= resRatio.x;
       }
       if (world.x > u_resolution.y) {
-        if (yRatio > 1.) {
+        if (resRatio.y > 1.) {
           uv *= worldRatio;
-          uv /= yRatio;
+          uv /= resRatio.y;
         } else {
           if (worldRatio > 1.) {
             uv *= worldRatio;
@@ -70,14 +67,14 @@ void main() {
   } else {
     if (ratio > 1.) {
       uv.x *= worldRatio;
-      if (xRatio < 1.) {
+      if (resRatio.x < 1.) {
         if (worldRatio > 1.) {
           uv /= worldRatio;
         }
       } else {
         if (world.y < u_resolution.x) {
           uv /= worldRatio;
-          uv /= xRatio;
+          uv /= resRatio.x;
         }
       }
     } else {
@@ -89,85 +86,15 @@ void main() {
       } else {
         uv *= worldRatio;
         if (worldRatio > 1.) {
-          uv /= yRatio;
+          uv /= resRatio.y;
         } else {
-          if (yRatio > 1.) {
-            uv /= yRatio;
+          if (resRatio.y > 1.) {
+            uv /= resRatio.y;
           }
         }
       }
     }
   }
-  
-  
-//    if (u_fit == 0.) {
-//      if (ratio > 1.) {
-//        uv.x *= worldRatio;
-//        if (world.y < u_resolution.y) {
-//          uv /= (u_resolution.y / world.y);  
-//        }
-//        if (world.x > u_resolution.x) {
-//            if (world.y > world.x) {
-//                uv /= worldRatio;
-//            }
-//        } else {
-//            if (world.y > u_resolution.x) {
-//                uv /= worldRatio;
-//                uv /= (u_resolution.x / world.x);  
-//            }
-//        }
-//      } else {
-//          uv.y /= worldRatio;
-//          if (world.x < u_resolution.x) {
-//            uv /= (u_resolution.x / world.x);  
-//          }
-//          if (world.x > u_resolution.y) {
-//            if (world.y < u_resolution.y) {
-//                uv *= worldRatio;
-//                uv /= (u_resolution.y / world.y);          
-//            } else {
-//                if (world.y < world.x) {
-//                  uv *= worldRatio;
-//                }
-//            }
-//          }
-//      }
-//  } else {
-//      if (ratio > 1.) {
-//        uv.x *= worldRatio;
-//        if (world.x > u_resolution.x) {
-//            if (world.y < world.x) {
-//              uv /= worldRatio;
-//            } 
-//         } else {
-//            if (world.y < u_resolution.x) {
-//              uv /= worldRatio;
-//              uv /= (u_resolution.x / world.x);          
-//            } 
-//         }
-//      } else {
-//        uv.y /= worldRatio;
-//        if (world.x > u_resolution.y) {
-//            if (world.y > world.x) {
-//              uv *= worldRatio;
-//            } 
-//        } else {
-//            if (world.y < world.x) {
-//              uv *= worldRatio;
-//              uv /= (u_resolution.y / world.y);       
-//            } else {
-//              if (world.y > u_resolution.y) {
-//                uv *= worldRatio;
-//              } else {
-//                 uv *= worldRatio;
-//                 uv /= (u_resolution.y / world.y);     
-//              }
-//            }
-//        }
-//      }
-//  }
-
-
 
   float ring_shape = 1. - smoothstep(.1, .5, length(uv));
   vec3 color = normalize(vec3(.4, .2, 1.)) * 2. * ring_shape;
