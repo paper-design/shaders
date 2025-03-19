@@ -3,7 +3,7 @@ import simplexNoiseImg from '../public/shaders/simplex-noise.webp';
 import neuroNoiseImg from '../public/shaders/neuro-noise.webp';
 import perlinNoiseImg from '../public/shaders/perlin-noise.webp';
 import dotsGridImg from '../public/shaders/dots-grid.webp';
-import dotOrbitImg from '../public/shaders/dot-orbit.webp';
+import dotsOrbitImg from '../public/shaders/dots-orbit.webp';
 import smokeRingImg from '../public/shaders/smoke-ring.webp';
 import metaballsImg from '../public/shaders/metaballs.webp';
 import voronoiImg from '../public/shaders/voronoi.webp';
@@ -78,8 +78,8 @@ export const homeShaders = [
     shaderConfig: { ...neuroNoisePresets[0].params, scale: 0.4 },
   },
   {
-    name: 'dot orbit',
-    image: dotOrbitImg,
+    name: 'dots orbit',
+    image: dotsOrbitImg,
     url: '/dots-orbit',
     ShaderComponent: DotsOrbit,
     shaderConfig: { ...dotsOrbitPresets[0].params, scale: 0.7, dotSizeRange: 0.15 },
