@@ -62,8 +62,7 @@ uniform float u_middleSoftness;
 out vec4 fragColor;
 
 vec2 hash(vec2 p) {
-  p = vec2(dot(p, vec2(127.1, 311.7)), dot(p, vec2(269.5, 183.3)));
-  return fract(sin(p) * 18.5453);
+    return fract(sin(vec2(dot(p,vec2(127.1,311.7)),dot(p,vec2(269.5,183.3))))*43758.5453);
 }
 
 float smin(float angle, float b, float k) {
@@ -71,21 +70,117 @@ float smin(float angle, float b, float k) {
   return mix(b, angle, h) - k * h * (1. - h);
 }
 
-vec4 blend_colors(vec4 c1, vec4 c2, vec4 c3, vec2 randomizer) {
+vec4 getColor(vec4 c1, vec4 c2, vec4 c3, vec2 randomizer) {
     vec3 color1 = c1.rgb * c1.a;
     vec3 color2 = c2.rgb * c2.a;
     vec3 color3 = c3.rgb * c3.a;
 
-    float mixer = clamp(u_colorGradient, 0., 1.);
-    float r1 = smoothstep(.5 - .5 * mixer, .5 + .5 * mixer, randomizer[0]);
-    float r2 = smoothstep(.6 - .6 * mixer, .6 + .4 * mixer, randomizer[1]);
-    vec3 blended_color_2 = mix(color1, color2, r1);
-    float blended_opacity_2 = mix(c1.a, c2.a, r1);
-    vec3 c = mix(blended_color_2, color3, r2);
-    float o = mix(blended_opacity_2, c3.a, r2);
-    
-    return vec4(c, o);
+    float t = randomizer[0];
+    vec3 c = vec3(0.);
+    float tttt = .66 * u_colorGradient;
+    if (t < .33) {
+        c = mix(color1, color2, (t * 3.) * tttt);
+    } else if (t < .66) {
+        c = mix(color2, color3, ((t - .33) * 3.) * tttt);
+    } else {
+        c = mix(color3, color1, ((t - .66) * 3.) * tttt);
+    }
+
+    return vec4(c, 1.);
 }
+
+
+
+//
+//// Convert RGB to HSL
+//vec3 rgbToHsl(vec3 color) {
+//    float maxC = max(max(color.r, color.g), color.b);
+//    float minC = min(min(color.r, color.g), color.b);
+//    float delta = maxC - minC;
+//
+//    float h = 0.0;
+//    float s = 0.0;
+//    float l = (maxC + minC) / 2.0;
+//
+//    if (delta > 0.0) {
+//        s = (l < 0.5) ? (delta / (maxC + minC)) : (delta / (2.0 - maxC - minC));
+//
+//        if (maxC == color.r) {
+//            h = (color.g - color.b) / delta + (color.g < color.b ? 6.0 : 0.0);
+//        } else if (maxC == color.g) {
+//            h = (color.b - color.r) / delta + 2.0;
+//        } else {
+//            h = (color.r - color.g) / delta + 4.0;
+//        }
+//        h /= 6.0;
+//    }
+//    
+//    return vec3(h, s, l);
+//}
+//
+//// Convert HSL to RGB
+//vec3 hslToRgb(vec3 hsl) {
+//    float h = hsl.x;
+//    float s = hsl.y;
+//    float l = hsl.z;
+//
+//    float c = (1.0 - abs(2.0 * l - 1.0)) * s;
+//    float x = c * (1.0 - abs(mod(h * 6.0, 2.0) - 1.0));
+//    float m = l - c / 2.0;
+//
+//    vec3 rgb;
+//    if (h < 1.0 / 6.0) {
+//        rgb = vec3(c, x, 0.0);
+//    } else if (h < 2.0 / 6.0) {
+//        rgb = vec3(x, c, 0.0);
+//    } else if (h < 3.0 / 6.0) {
+//        rgb = vec3(0.0, c, x);
+//    } else if (h < 4.0 / 6.0) {
+//        rgb = vec3(0.0, x, c);
+//    } else if (h < 5.0 / 6.0) {
+//        rgb = vec3(x, 0.0, c);
+//    } else {
+//        rgb = vec3(c, 0.0, x);
+//    }
+//
+//    return rgb + m;
+//}
+//
+//// Main function: Blend colors in HSL
+//vec4 getColor(vec4 color1, vec4 color2, vec4 color3, vec2 randomizer) {
+//    // Convert RGB colors to HSL
+//    vec3 hsl1 = rgbToHsl(color1.rgb);
+//    vec3 hsl2 = rgbToHsl(color2.rgb);
+//    vec3 hsl3 = rgbToHsl(color3.rgb);
+//
+//    // Select color based on randomizer.x
+//    vec3 selectedHsl = mix(mix(hsl1, hsl2, step(0.33, randomizer.x)), hsl3, step(0.66, randomizer.x));
+//
+//    // Blend HSL colors
+//    vec3 blendedHsl = (hsl1 + hsl2 + hsl3) / 3.0;
+//    vec3 gradientMixHsl = mix(mix(hsl1, hsl2, randomizer.y), hsl3, randomizer.y);
+//
+//    // Final blended HSL
+//    vec3 finalHsl = mix(mix(selectedHsl, gradientMixHsl, u_colorGradient), blendedHsl, u_colorGradient);
+//
+//    // Convert back to RGB
+//    vec3 finalRgb = hslToRgb(finalHsl);
+//
+//    // Blend alpha channel separately
+//    float finalAlpha = mix(mix(color1.a, color2.a, randomizer.y), color3.a, randomizer.y);
+//    
+//    return vec4(finalRgb, finalAlpha);
+//}
+
+
+
+//
+//vec4 getColor(vec4 color1, vec4 color2, vec4 color3, vec2 randomizer) {
+//    vec4 selectedColor = mix(mix(color1, color2, step(0.33, randomizer.x)), color3, step(0.66, randomizer.x));
+//    vec4 blendedColor = (color1 + color2 + color3) / 3.0;
+//    vec4 gradientMix = mix(mix(color1, color2, randomizer.y), color3, randomizer.y);
+//    return mix(mix(selectedColor, gradientMix, u_colorGradient), blendedColor, u_colorGradient);
+//}
 
 void main() {
   vec2 uv = gl_FragCoord.xy / u_resolution.xy;
@@ -137,7 +232,7 @@ void main() {
 
   dotShape *= cellShape;
 
-  vec4 cellMix = blend_colors(u_colorCell1, u_colorCell2, u_colorCell3, randomizer);
+  vec4 cellMix = getColor(u_colorCell1, u_colorCell2, u_colorCell3, (randomizer));
   
   vec4 edges = vec4(u_colorEdges.rgb * u_colorEdges.a, u_colorEdges.a);
 
