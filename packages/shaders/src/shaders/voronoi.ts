@@ -238,9 +238,7 @@ void main() {
   vec3 color = mix(edges.rgb, cellMix.rgb, cellShape);
   float opacity = mix(edges.a, cellMix.a, cellShape);
 
-  vec4 blendedMid = vec4(u_colorMid.rgb, u_colorMid.a * dotShape);
-  color = mix(color, blendedMid.rgb, blendedMid.a);
-  opacity = mix(opacity, blendedMid.a, blendedMid.a);
+  color = mix(color, u_colorMid.rgb, u_colorMid.a * dotShape);
 
   fragColor = vec4(color, opacity);
 }
