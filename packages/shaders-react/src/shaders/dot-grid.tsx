@@ -1,14 +1,14 @@
 import { useMemo } from 'react';
 import { ShaderMount, type ShaderMountProps } from '../shader-mount';
 import {
-  dotsGridFragmentShader,
+  dotGridFragmentShader,
   getShaderColorFromString,
-  type DotsGridUniforms,
-  type DotsGridShape,
-  DotsGridShapes,
+  type DotGridUniforms,
+  type DotGridShape,
+  DotGridShapes,
 } from '@paper-design/shaders';
 
-export type DotsGridParams = {
+export type DotGridParams = {
   colorBack?: string;
   colorFill?: string;
   colorStroke?: string;
@@ -18,18 +18,18 @@ export type DotsGridParams = {
   strokeWidth?: number;
   sizeRange?: number;
   opacityRange?: number;
-  shape?: DotsGridShape;
+  shape?: DotGridShape;
 };
 
 // Due to Leva controls limitation:
 // 1) keep default colors in HSLA format to keep alpha channel
 // 2) don't use decimal values on HSL values (to avoid button highlight bug)
 
-export type DotsGridProps = Omit<ShaderMountProps, 'fragmentShader'> & DotsGridParams;
+export type DotGridProps = Omit<ShaderMountProps, 'fragmentShader'> & DotGridParams;
 
-type DotsGridPreset = { name: string; params: Required<DotsGridParams> };
+type DotGridPreset = { name: string; params: Required<DotGridParams> };
 
-export const defaultPreset: DotsGridPreset = {
+export const defaultPreset: DotGridPreset = {
   name: 'Default',
   params: {
     colorBack: 'hsla(358, 66%, 49%, 0)',
@@ -41,11 +41,11 @@ export const defaultPreset: DotsGridPreset = {
     strokeWidth: 0,
     sizeRange: 0,
     opacityRange: 0,
-    shape: DotsGridShapes.Circle,
+    shape: DotGridShapes.Circle,
   },
 } as const;
 
-export const macrodataPreset: DotsGridPreset = {
+export const macrodataPreset: DotGridPreset = {
   name: 'Macrodata',
   params: {
     colorBack: 'hsla(211, 37%, 13%, 1)',
@@ -57,11 +57,11 @@ export const macrodataPreset: DotsGridPreset = {
     strokeWidth: 0,
     sizeRange: 0.25,
     opacityRange: 0.9,
-    shape: DotsGridShapes.Circle,
+    shape: DotGridShapes.Circle,
   },
 };
 
-const trianglesPreset: DotsGridPreset = {
+const trianglesPreset: DotGridPreset = {
   name: 'Triangles',
   params: {
     colorBack: 'hsla(0, 0%, 100%, 1)',
@@ -73,11 +73,11 @@ const trianglesPreset: DotsGridPreset = {
     strokeWidth: 1,
     sizeRange: 0,
     opacityRange: 0,
-    shape: DotsGridShapes.Triangle,
+    shape: DotGridShapes.Triangle,
   },
 } as const;
 
-const bubblesPreset: DotsGridPreset = {
+const bubblesPreset: DotGridPreset = {
   name: 'Bubbles',
   params: {
     colorBack: 'hsla(234, 100%, 31%, .5)',
@@ -89,11 +89,11 @@ const bubblesPreset: DotsGridPreset = {
     strokeWidth: 12,
     sizeRange: 0.7,
     opacityRange: 1.3,
-    shape: DotsGridShapes.Circle,
+    shape: DotGridShapes.Circle,
   },
 } as const;
 
-const treeLinePreset: DotsGridPreset = {
+const treeLinePreset: DotGridPreset = {
   name: 'Tree line',
   params: {
     colorBack: 'hsla(100, 100%, 36%, .05)',
@@ -105,11 +105,11 @@ const treeLinePreset: DotsGridPreset = {
     strokeWidth: 0,
     sizeRange: 1,
     opacityRange: 0.6,
-    shape: DotsGridShapes.Circle,
+    shape: DotGridShapes.Circle,
   },
 } as const;
 
-const diamondsPreset: DotsGridPreset = {
+const diamondsPreset: DotGridPreset = {
   name: 'Diamonds',
   params: {
     colorBack: 'hsla(0, 0%, 0%, 0)',
@@ -121,11 +121,11 @@ const diamondsPreset: DotsGridPreset = {
     strokeWidth: 0,
     sizeRange: 0,
     opacityRange: 2,
-    shape: DotsGridShapes.Diamond,
+    shape: DotGridShapes.Diamond,
   },
 } as const;
 
-const wallpaperPreset: DotsGridPreset = {
+const wallpaperPreset: DotGridPreset = {
   name: 'Wallpaper',
   params: {
     colorBack: 'hsla(154, 33%, 19%, 1)',
@@ -137,11 +137,11 @@ const wallpaperPreset: DotsGridPreset = {
     strokeWidth: 1,
     sizeRange: 0,
     opacityRange: 0,
-    shape: DotsGridShapes.Diamond,
+    shape: DotGridShapes.Diamond,
   },
 } as const;
 
-const matrixPreset: DotsGridPreset = {
+const matrixPreset: DotGridPreset = {
   name: 'Enter the Matrix',
   params: {
     colorBack: 'hsla(0, 100%, 0%, 1)',
@@ -153,11 +153,11 @@ const matrixPreset: DotsGridPreset = {
     strokeWidth: 0.5,
     sizeRange: 0.25,
     opacityRange: 1,
-    shape: DotsGridShapes.Triangle,
+    shape: DotGridShapes.Triangle,
   },
 } as const;
 
-const waveformPreset: DotsGridPreset = {
+const waveformPreset: DotGridPreset = {
   name: 'Waveform',
   params: {
     colorBack: 'hsla(0, 100%, 100%, 1)',
@@ -169,11 +169,11 @@ const waveformPreset: DotsGridPreset = {
     strokeWidth: 0,
     sizeRange: 1,
     opacityRange: 0,
-    shape: DotsGridShapes.Square,
+    shape: DotGridShapes.Square,
   },
 } as const;
 
-export const dotsGridPresets: DotsGridPreset[] = [
+export const dotGridPresets: DotGridPreset[] = [
   defaultPreset,
   macrodataPreset,
   trianglesPreset,
@@ -185,8 +185,8 @@ export const dotsGridPresets: DotsGridPreset[] = [
   waveformPreset,
 ];
 
-export const DotsGrid = (props: DotsGridProps): JSX.Element => {
-  const uniforms: DotsGridUniforms = useMemo(() => {
+export const DotGrid = (props: DotGridProps): JSX.Element => {
+  const uniforms: DotGridUniforms = useMemo(() => {
     return {
       u_colorBack: getShaderColorFromString(props.colorBack, defaultPreset.params.colorBack),
       u_colorFill: getShaderColorFromString(props.colorFill, defaultPreset.params.colorStroke),
@@ -212,5 +212,5 @@ export const DotsGrid = (props: DotsGridProps): JSX.Element => {
     props.shape,
   ]);
 
-  return <ShaderMount {...props} fragmentShader={dotsGridFragmentShader} uniforms={uniforms} />;
+  return <ShaderMount {...props} fragmentShader={dotGridFragmentShader} uniforms={uniforms} />;
 };

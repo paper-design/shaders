@@ -1,10 +1,10 @@
 'use client';
 
-import { DotsOrbit, type DotsOrbitProps } from '@paper-design/shaders-react';
+import { DotOrbit, type DotOrbitProps } from '@paper-design/shaders-react';
 
-export function DotsOrbitExample(props: DotsOrbitProps) {
+export function DotOrbitExample(props: DotOrbitProps) {
   return (
-    <DotsOrbit
+    <DotOrbit
       color1="#cf2a30"
       color2="#3b6d50"
       color3="#f0a519"

@@ -1,10 +1,10 @@
 'use client';
 
-import { DotsGrid, type DotsGridProps } from '@paper-design/shaders-react';
+import { DotGrid, type DotGridProps } from '@paper-design/shaders-react';
 
-export function DotsGridExample(props: DotsGridProps) {
+export function DotGridExample(props: DotGridProps) {
   return (
-    <DotsGrid
+    <DotGrid
       colorBack="#00000000"
       colorFill="#122118"
       colorStroke="#f0a519"

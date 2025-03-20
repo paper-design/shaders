@@ -1,13 +1,13 @@
 /** Possible values for the shape uniform */
-export const DotsGridShapes = {
+export const DotGridShapes = {
   Circle: 0,
   Diamond: 1,
   Square: 2,
   Triangle: 3,
 } as const;
-export type DotsGridShape = (typeof DotsGridShapes)[keyof typeof DotsGridShapes];
+export type DotGridShape = (typeof DotGridShapes)[keyof typeof DotGridShapes];
 
-export type DotsGridUniforms = {
+export type DotGridUniforms = {
   u_colorBack: [number, number, number, number];
   u_colorFill: [number, number, number, number];
   u_colorStroke: [number, number, number, number];
@@ -17,7 +17,7 @@ export type DotsGridUniforms = {
   u_strokeWidth: number;
   u_sizeRange: number;
   u_opacityRange: number;
-  u_shape: DotsGridShape;
+  u_shape: DotGridShape;
 };
 
 /**
@@ -26,8 +26,8 @@ export type DotsGridUniforms = {
  *
  * Uniforms include:
  * u_colorBack - the background color
- * u_colorFill - the dots fill color
- * u_colorStroke - the dots stroke color
+ * u_colorFill - the fill color
+ * u_colorStroke - the stroke color
  * u_dotSize (px) - the base dot radius
  * u_strokeWidth (px) - the stroke (to be subtracted from u_dotSize)
  * u_gridSpacingX (px) - horizontal grid spacing
@@ -37,7 +37,7 @@ export type DotsGridUniforms = {
  * u_shape - shape code (0 - circle, 1 - diamond, 2 - square, 3 - triangle)
  */
 
-export const dotsGridFragmentShader = `#version 300 es
+export const dotGridFragmentShader = `#version 300 es
 precision highp float;
 
 uniform vec2 u_resolution;

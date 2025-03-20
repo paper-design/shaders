@@ -1,8 +1,8 @@
 import { useMemo } from 'react';
 import { ShaderMount, type GlobalParams, type ShaderMountProps } from '../shader-mount';
-import { getShaderColorFromString, dotsOrbitFragmentShader, type DotsOrbitUniforms } from '@paper-design/shaders';
+import { getShaderColorFromString, dotOrbitFragmentShader, type DotOrbitUniforms } from '@paper-design/shaders';
 
-export type DotsOrbitParams = {
+export type DotOrbitParams = {
   scale?: number;
   color1?: string;
   color2?: string;
@@ -13,15 +13,15 @@ export type DotsOrbitParams = {
   spreading?: number;
 } & GlobalParams;
 
-export type DotsOrbitProps = Omit<ShaderMountProps, 'fragmentShader'> & DotsOrbitParams;
+export type DotOrbitProps = Omit<ShaderMountProps, 'fragmentShader'> & DotOrbitParams;
 
-type DotsOrbitPreset = { name: string; params: Required<DotsOrbitParams> };
+type DotOrbitPreset = { name: string; params: Required<DotOrbitParams> };
 
 // Due to Leva controls limitation:
 // 1) keep default colors in HSLA format to keep alpha channel
 // 2) don't use decimal values on HSL values (to avoid button highlight bug)
 
-export const defaultPreset: DotsOrbitPreset = {
+export const defaultPreset: DotOrbitPreset = {
   name: 'Default',
   params: {
     scale: 1,
@@ -37,10 +37,10 @@ export const defaultPreset: DotsOrbitPreset = {
   },
 } as const;
 
-export const dotsOrbitPresets: DotsOrbitPreset[] = [defaultPreset];
+export const dotOrbitPresets: DotOrbitPreset[] = [defaultPreset];
 
-export const DotsOrbit = (props: DotsOrbitProps): JSX.Element => {
-  const uniforms: DotsOrbitUniforms = useMemo(() => {
+export const DotOrbit = (props: DotOrbitProps): JSX.Element => {
+  const uniforms: DotOrbitUniforms = useMemo(() => {
     return {
       u_scale: props.scale ?? defaultPreset.params.scale,
       u_color1: getShaderColorFromString(props.color1, defaultPreset.params.color1),
@@ -62,5 +62,5 @@ export const DotsOrbit = (props: DotsOrbitProps): JSX.Element => {
     props.spreading,
   ]);
 
-  return <ShaderMount {...props} fragmentShader={dotsOrbitFragmentShader} uniforms={uniforms} />;
+  return <ShaderMount {...props} fragmentShader={dotOrbitFragmentShader} uniforms={uniforms} />;
 };
