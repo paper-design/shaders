@@ -70,35 +70,35 @@ float smin(float angle, float b, float k) {
   return mix(b, angle, h) - k * h * (1. - h);
 }
 
-vec4 getColor(vec4 c1, vec4 c2, vec4 c3, vec2 randomizer) {
-    vec3 color1 = c1.rgb * c1.a;
-    vec3 color2 = c2.rgb * c2.a;
-    vec3 color3 = c3.rgb * c3.a;
-
-    float t = randomizer[0];
-    vec3 c = vec3(0.);
-    if (t < .33) {
-      if (randomizer[1] < .5) {
-        c = mix(color1, color2, (t * 3.) * .5 * u_colorGradient);      
-      } else {
-        c = mix(color1, color3, (t * 3.) * .5 * u_colorGradient);      
-      }
-    } else if (t < .66) {
-      if (randomizer[1] < .5) {
-         c = mix(color2, color1, ((t - .33) * 3.) * .5 * u_colorGradient);
-      } else {
-         c = mix(color2, color3, ((t - .33) * 3.) * .5 * u_colorGradient);      
-      }
-    } else {
-      if (randomizer[1] < .5) {
-        c = mix(color3, color2, ((t - .66) * 3.) * .5 * u_colorGradient);
-      } else {
-        c = mix(color3, color1, ((t - .66) * 3.) * .5 * u_colorGradient);
-      }
-    }
-
-    return vec4(c, 1.);
-}
+//vec4 getColor(vec4 c1, vec4 c2, vec4 c3, vec2 randomizer) {
+//    vec3 color1 = c1.rgb * c1.a;
+//    vec3 color2 = c2.rgb * c2.a;
+//    vec3 color3 = c3.rgb * c3.a;
+//
+//    float t = randomizer[0];
+//    vec3 c = vec3(0.);
+//    if (t < .33) {
+//      if (randomizer[1] < .5) {
+//        c = mix(color1, color2, (t * 3.) * .5 * u_colorGradient);      
+//      } else {
+//        c = mix(color1, color3, (t * 3.) * .5 * u_colorGradient);      
+//      }
+//    } else if (t < .66) {
+//      if (randomizer[1] < .5) {
+//         c = mix(color2, color1, ((t - .33) * 3.) * .5 * u_colorGradient);
+//      } else {
+//         c = mix(color2, color3, ((t - .33) * 3.) * .5 * u_colorGradient);      
+//      }
+//    } else {
+//      if (randomizer[1] < .5) {
+//        c = mix(color3, color2, ((t - .66) * 3.) * .5 * u_colorGradient);
+//      } else {
+//        c = mix(color3, color1, ((t - .66) * 3.) * .5 * u_colorGradient);
+//      }
+//    }
+//
+//    return vec4(c, 1.);
+//}
 
 
 
@@ -185,13 +185,13 @@ vec4 getColor(vec4 c1, vec4 c2, vec4 c3, vec2 randomizer) {
 
 
 
-//
-//vec4 getColor(vec4 color1, vec4 color2, vec4 color3, vec2 randomizer) {
-//    vec4 selectedColor = mix(mix(color1, color2, step(0.33, randomizer.x)), color3, step(0.66, randomizer.x));
-//    vec4 blendedColor = (color1 + color2 + color3) / 3.0;
-//    vec4 gradientMix = mix(mix(color1, color2, randomizer.y), color3, randomizer.y);
-//    return mix(mix(selectedColor, gradientMix, u_colorGradient), blendedColor, u_colorGradient);
-//}
+
+vec4 getColor(vec4 color1, vec4 color2, vec4 color3, vec2 randomizer) {
+    vec4 selectedColor = mix(mix(color1, color2, step(0.33, randomizer.x)), color3, step(0.66, randomizer.x));
+    vec4 blendedColor = (color1 + color2 + color3) / 3.0;
+    vec4 gradientMix = mix(mix(color1, color2, randomizer.y), color3, randomizer.y);
+    return mix(mix(selectedColor, gradientMix, u_colorGradient), blendedColor, u_colorGradient);
+}
 
 void main() {
   vec2 uv = gl_FragCoord.xy / u_resolution.xy;
