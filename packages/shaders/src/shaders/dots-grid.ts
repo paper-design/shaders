@@ -113,7 +113,7 @@ void main() {
     vec2 p = (grid - center) * vec2(u_gridSpacingX, u_gridSpacingY);
 
     float base_size = u_dotSize * (1. - size_randomizer * clamp(u_sizeRange, 0., 1.));
-    float stroke_width = u_strokeWidth;
+    float strokeWidth = u_strokeWidth;
 
     float dist;
     if (u_shape < 0.5) {
@@ -121,21 +121,23 @@ void main() {
         dist = length(p);
     } else if (u_shape < 1.5) {
         // Diamond
+        strokeWidth *= 1.5;
         dist = polygon(1.5 * p, 4., .25 * PI);
     } else if (u_shape < 2.5) {
         // Square
-        dist = polygon(1.5 * p, 4., 1e-3);
+        dist = polygon(1.03 * p, 4., 1e-3);
     } else {
         // Triangle
+        strokeWidth *= 1.5;
         p = p * 2. - 1.;
+        p *= .9;
         p.y -= .75 * base_size;
-        stroke_width *= 2.;
         dist = polygon(p, 3., 1e-3);
     }
 
     float edge_width = fwidth(dist);
-    float shape_outer = smoothstep(base_size + edge_width, base_size - edge_width, dist);
-    float shape_inner = smoothstep(base_size - u_strokeWidth + edge_width, base_size - u_strokeWidth - edge_width, dist);
+    float shape_outer = smoothstep(base_size + edge_width + strokeWidth, base_size - edge_width + strokeWidth, dist);
+    float shape_inner = smoothstep(base_size + edge_width, base_size - edge_width, dist);
     float stroke = clamp(shape_outer - shape_inner, 0., 1.);
 
     float dot_opacity = max(0., 1. - opacity_randomizer * clamp(u_opacityRange, 0., 1.));
