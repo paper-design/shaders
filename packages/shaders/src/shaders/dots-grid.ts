@@ -106,8 +106,8 @@ void main() {
 
     vec2 grid = fract(uv / vec2(u_gridSpacingX, u_gridSpacingY)) + 1e-4;
     vec2 grid_idx = floor(uv / vec2(u_gridSpacingX, u_gridSpacingY));
-    float size_randomizer = .5 + .5 * snoise(2. * vec2(grid_idx.x * 100., grid_idx.y));
-    float opacity_randomizer = .5 + .5 * snoise(2. * vec2(grid_idx.y, grid_idx.x));
+    float size_randomizer = .5 + .8 * snoise(2. * vec2(grid_idx.x * 100., grid_idx.y));
+    float opacity_randomizer = .5 + .7 * snoise(2. * vec2(grid_idx.y, grid_idx.x));
 
     vec2 center = vec2(0.5) - 1e-3;
     vec2 p = (grid - center) * vec2(u_gridSpacingX, u_gridSpacingY);
