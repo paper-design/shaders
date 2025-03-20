@@ -123,29 +123,30 @@ void main() {
   distance = sqrt(distance);
 
   distance = sqrt(distance);
-  float cell_shape = min(smin(distance.z, distance.y, .1) - distance.x, 1.);
+  float cellShape = min(smin(distance.z, distance.y, .1) - distance.x, 1.);
 
-  float dot_shape = pow(distance.x, 2.) / (2. * clamp(u_middleSize, 0., 1.) + 1e-4);
-  float dot_edge_width = fwidth(dot_shape);
+  float dotShape = pow(distance.x, 2.) / (2. * clamp(u_middleSize, 0., 1.) + 1e-4);
+  float dotEdgeWidth = fwidth(dotShape);
   float dotSharp = clamp(1. - u_middleSoftness, 0., 1.);
-  dot_shape = 1. - smoothstep(.5 * dotSharp - dot_edge_width, 1. - .5 * dotSharp, dot_shape);
+  dotShape = 1. - smoothstep(.5 * dotSharp - dotEdgeWidth, 1. - .5 * dotSharp, dotShape);
 
-  float cell_edge_width = fwidth(distance.x);
+  float cellEdgeWidth = fwidth(distance.x);
   float w = .7 * (clamp(u_edgesSize, 0., 1.) - .1);
   float edgeSharp = clamp(u_edgesSoftness, 0., 1.);
-  cell_shape = smoothstep(w - cell_edge_width, w + edgeSharp, cell_shape);
+  cellShape = smoothstep(w - cellEdgeWidth, w + edgeSharp, cellShape);
 
-  dot_shape *= cell_shape;
+  dotShape *= cellShape;
 
-  vec4 cell_mix = blend_colors(u_colorCell1, u_colorCell2, u_colorCell3, randomizer);
+  vec4 cellMix = blend_colors(u_colorCell1, u_colorCell2, u_colorCell3, randomizer);
   
   vec4 edges = vec4(u_colorEdges.rgb * u_colorEdges.a, u_colorEdges.a);
 
-  vec3 color = mix(edges.rgb, cell_mix.rgb, cell_shape);
-  float opacity = mix(edges.a, cell_mix.a, cell_shape);
+  vec3 color = mix(edges.rgb, cellMix.rgb, cellShape);
+  float opacity = mix(edges.a, cellMix.a, cellShape);
 
-  color = mix(color, u_colorMid.rgb * u_colorMid.a, dot_shape);
-  opacity = mix(opacity, u_colorMid.a, dot_shape);
+  vec4 blendedMid = vec4(u_colorMid.rgb, u_colorMid.a * dotShape);
+  color = mix(color, blendedMid.rgb, blendedMid.a);
+  opacity = mix(opacity, blendedMid.a, blendedMid.a);
 
   fragColor = vec4(color, opacity);
 }
