@@ -140,7 +140,7 @@ void main() {
     float shape_inner = smoothstep(base_size + edge_width, base_size - edge_width, dist);
     float stroke = clamp(shape_outer - shape_inner, 0., 1.);
 
-    float dot_opacity = max(0., 1. - opacity_randomizer * clamp(u_opacityRange, 0., 1.));
+    float dot_opacity = max(0., 1. - opacity_randomizer * u_opacityRange);
 
     vec3 color = u_colorBack.rgb * u_colorBack.a;
     color = mix(color, u_colorFill.rgb, u_colorFill.a * dot_opacity * shape_inner);
