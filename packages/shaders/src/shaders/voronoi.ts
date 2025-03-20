@@ -78,11 +78,23 @@ vec4 getColor(vec4 c1, vec4 c2, vec4 c3, vec2 randomizer) {
     float t = randomizer[0];
     vec3 c = vec3(0.);
     if (t < .33) {
-        c = mix(color1, color2, (t * 3.) * (u_colorGradient));
+      if (randomizer[1] < .5) {
+        c = mix(color1, color2, (t * 3.) * .5 * u_colorGradient);      
+      } else {
+        c = mix(color1, color3, (t * 3.) * .5 * u_colorGradient);      
+      }
     } else if (t < .66) {
-        c = mix(color2, color3, ((t - .33) * 3.) * u_colorGradient);
+      if (randomizer[1] < .5) {
+         c = mix(color2, color1, ((t - .33) * 3.) * .5 * u_colorGradient);
+      } else {
+         c = mix(color2, color3, ((t - .33) * 3.) * .5 * u_colorGradient);      
+      }
     } else {
-        c = mix(color3, color1, ((t - .66) * 3.) * u_colorGradient);
+      if (randomizer[1] < .5) {
+        c = mix(color3, color2, ((t - .66) * 3.) * .5 * u_colorGradient);
+      } else {
+        c = mix(color3, color1, ((t - .66) * 3.) * .5 * u_colorGradient);
+      }
     }
 
     return vec4(c, 1.);
