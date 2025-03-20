@@ -35,7 +35,7 @@ export const defaultPreset: DotGridPreset = {
     colorBack: 'hsla(358, 66%, 49%, 0)',
     colorFill: 'hsla(145, 30%, 10%, 1)',
     colorStroke: 'hsla(39, 88%, 52%, 1)',
-    dotSize: 20,
+    dotSize: 2,
     gridSpacingX: 50,
     gridSpacingY: 50,
     strokeWidth: 0,
