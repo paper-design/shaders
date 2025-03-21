@@ -56,5 +56,9 @@ export { godRaysFragmentShader, type GodRaysUniforms } from './shaders/god-rays'
 /** Single-color spiral shape */
 export { spiralFragmentShader, type SpiralUniforms } from './shaders/spiral';
 
+// -----  ----- //
+/**  */
+export { ditheringFragmentShader, type DitheringUniforms } from './shaders/dithering';
+
 // ----- Uniform conversion utils ----- //
 export { getShaderColorFromString } from './get-shader-color-from-string';
