@@ -22,13 +22,13 @@ out vec4 fragColor;
 #define PI 3.14159265358979323846
 
 
-vec2 getSizedMult(float viewBoxRatio, vec2 viewBox, vec2 world) {
+vec2 getSizedMultUV(vec2 viewBox, vec2 world) {
 
   vec2 mult = vec2(1.);
 
   if (u_fit == 0.) {
-    if (viewBoxRatio > 1.) {
-                      
+    if (viewBox.x > viewBox.y) {
+
       // make the world size depend on height
       mult.x *= (world.x / world.y);
 
@@ -78,7 +78,7 @@ vec2 getSizedMult(float viewBoxRatio, vec2 viewBox, vec2 world) {
       }
     }
   } else {
-    if (viewBoxRatio > 1.) {
+    if (viewBox.x > viewBox.y) {
 
       // if world ratio is same as viewbox
       if (world.y < world.x) {
@@ -127,24 +127,29 @@ vec2 getSizedMult(float viewBoxRatio, vec2 viewBox, vec2 world) {
   return mult;
 }
 
+
 void main() {
 
   vec2 uv = gl_FragCoord.xy / u_resolution.xy;
-  float viewBoxRatio = u_resolution.x / u_resolution.y;
   vec2 world = vec2(u_worldWidth, u_worldHeight) * u_pixelRatio;
 
   uv -= .5;
 
 
+  vec2 viewbox_uv = uv;
+
   // keep graphics aspect ratio
   uv *= (u_resolution / world);
-  vec2 original_uv = uv;  
 
-  vec2 resizer = getSizedMult(viewBoxRatio, u_resolution, world);
+  vec2 world_uv = uv;
+  world_uv.x = sign(uv.x) * min(abs(uv.x), abs(viewbox_uv.x));
+  world_uv.y = sign(uv.y) * min(abs(uv.y), abs(viewbox_uv.y));
+
+  vec2 resizer = getSizedMultUV(u_resolution, world);
   uv *= resizer;
-  
-  uv.x += u_offsetX * (uv.x / original_uv.x);
-  uv.y += u_offsetY * (uv.y / original_uv.y);
+
+  uv.x += u_offsetX * (uv.x / world_uv.x - 1.);
+  uv.y += u_offsetY * (uv.y / world_uv.y - 1.);
 
 
   float ring_shape = 1. - smoothstep(.1, .5, length(uv));
@@ -157,7 +162,7 @@ void main() {
   
   
     vec2 halfSize = vec2(.5);
-    vec2 dist = abs(original_uv);
+    vec2 dist = abs(world_uv);
     vec2 outer = step(halfSize, dist);
     vec2 inner = step(halfSize - 0.005, dist);
     float stroke = (1.0 - outer.x) * (1.0 - outer.y) * (inner.x + inner.y);
@@ -174,6 +179,10 @@ const MyTest = () => {
     height: { value: 250, min: 10, max: 1000 },
   });
 
+  const { imgOverflow } = useControls('img', {
+    imgOverflow: { value: false },
+  });
+
   const { fit, worldWidth, worldHeight, offsetX, offsetY } = useControls('shader', {
     fit: { value: 0, min: 0, max: 1, step: 1 },
     worldWidth: { value: 370, min: 10, max: 1000 },
@@ -187,11 +196,10 @@ const MyTest = () => {
       <div
         style={{
           width: `100%`,
+          height: '100vh',
           display: 'flex',
-          flexDirection: 'row',
-          // flexDirection: 'column',
-          alignItems: 'start',
-          justifyContent: 'start',
+          alignItems: 'center',
+          justifyContent: 'space-around',
         }}
       >
         <div
@@ -202,7 +210,7 @@ const MyTest = () => {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            overflow: 'hidden',
+            overflow: imgOverflow ? 'visible' : 'hidden',
             position: 'relative',
           }}
         >
@@ -224,6 +232,7 @@ const MyTest = () => {
               height: `100%`,
               objectFit: fit ? 'cover' : 'contain',
               objectPosition: `${offsetX}% ${offsetY}%`,
+              border: '5px solid green'
             }}
             src="https://workers.paper.design/user-images/01JNZJBZJEV693N5NH06FV53Q1/01JPD59V69P2WKXGXGGTHR6AYW.png"
           />
