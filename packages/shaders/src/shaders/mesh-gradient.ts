@@ -1,8 +1,11 @@
+import type { vec4 } from '../types';
+
+/** Mesh gradient can accept up to 4 colors */
+export const meshGradientMaxColorCount = 4;
+
 export type MeshGradientUniforms = {
-  u_color1: [number, number, number, number];
-  u_color2: [number, number, number, number];
-  u_color3: [number, number, number, number];
-  u_color4: [number, number, number, number];
+  u_colors: vec4[];
+  u_colors_count: number;
 };
 
 /**
@@ -11,23 +14,19 @@ export type MeshGradientUniforms = {
  * and several layers of fractal noise
  *
  * Uniforms include:
- * u_color1: The first color of the mesh gradient
- * u_color2: The second color of the mesh gradient
- * u_color3: The third color of the mesh gradient
- * u_color4: The fourth color of the mesh gradient
+ * u_colors: An array of colors, each color is an array of 4 numbers [r, g, b, a]
+ * u_colors_count: The number of colors in the u_colors array
  */
 
-export const meshGradientFragmentShader = `#version 300 es
+export const meshGradientFragmentShader: string = `#version 300 es
 precision highp float;
 
 uniform float u_pixelRatio;
 uniform vec2 u_resolution;
 uniform float u_time;
 
-uniform vec4 u_color1;
-uniform vec4 u_color2;
-uniform vec4 u_color3;
-uniform vec4 u_color4;
+uniform vec4 u_colors[${meshGradientMaxColorCount}];
+uniform float u_colors_count;
 
 out vec4 fragColor;
 
@@ -61,9 +60,9 @@ float noise( in vec2 p ) {
 void main() {
     vec2 uv = gl_FragCoord.xy / u_resolution.xy;
     float ratio = u_resolution.x / u_resolution.y;
-    
+
     uv /= u_pixelRatio;
-    
+
     vec2 tuv = uv;
     tuv -= .5;
 
@@ -82,6 +81,10 @@ void main() {
     tuv.x += sin(tuv.y*frequency+speed)/amplitude;
     tuv.y += sin(tuv.x*frequency*1.5+speed)/(amplitude*.5);
 
+    vec4 u_color1 = u_colors[0];
+    vec4 u_color2 = u_colors[1];
+    vec4 u_color3 = u_colors[2];
+    vec4 u_color4 = u_colors[3];
 
     float proportion_1 = S(-.3, .2, (tuv*Rot(radians(-5.))).x);
     vec3 layer1_color = mix(u_color1.rgb * u_color1.a, u_color2.rgb * u_color2.a, proportion_1);
@@ -92,7 +95,7 @@ void main() {
     float proportion_2 = S(.5, -.3, tuv.y);
     vec3 color = mix(layer1_color, layer2_color, proportion_2);
     float opacity = mix(layer1_opacity, layer2_opacity, proportion_2);
-    
+
     fragColor = vec4(color, opacity);
 }
 `;

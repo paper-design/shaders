@@ -13,7 +13,7 @@ export { type GrainCloudsUniforms } from '@paper-design/shaders';
 export { MeshGradient, meshGradientPresets } from './shaders/mesh-gradient';
 export { type MeshGradientProps } from './shaders/mesh-gradient';
 export { type MeshGradientParams } from './shaders/mesh-gradient';
-export { type MeshGradientUniforms } from '@paper-design/shaders';
+export { meshGradientMaxColorCount, type MeshGradientUniforms } from '@paper-design/shaders';
 
 // Smoke ring
 export { SmokeRing, smokeRingPresets } from './shaders/smoke-ring';

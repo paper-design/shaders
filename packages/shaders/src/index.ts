@@ -6,7 +6,11 @@ export { grainCloudsFragmentShader, type GrainCloudsUniforms } from './shaders/g
 
 // ----- Mesh gradient ----- //
 /** A shader that renders a mesh gradient with a rotating noise pattern and several layers of fractal noise */
-export { meshGradientFragmentShader, type MeshGradientUniforms } from './shaders/mesh-gradient';
+export {
+  meshGradientFragmentShader,
+  meshGradientMaxColorCount,
+  type MeshGradientUniforms,
+} from './shaders/mesh-gradient';
 
 // ----- Smoke ring ----- //
 /** Fractional Brownian motion (fBm) noise over the polar coordinates, masked with ring shape */
