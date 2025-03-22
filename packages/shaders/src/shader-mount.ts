@@ -99,7 +99,6 @@ export class ShaderMount {
     });
 
     this.uniformLocations = uniformLocations;
-    console.log(uniformLocations);
   };
 
   private resizeObserver: ResizeObserver | null = null;
