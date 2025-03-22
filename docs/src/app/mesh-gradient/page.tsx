@@ -36,12 +36,12 @@ const MeshGradientWithControls = () => {
     return {
       Parameters: folder(
         {
-          colors: { value: defaults.colors, order: 100 },
+          // colors: { value: defaults.colors, order: 100 },
           speed: { value: defaults.speed, min: 0, max: 1, order: 400 },
         },
         { order: 1 }
       ),
-      Presets: folder(presets, { order: 2 }),
+      // Presets: folder(presets, { order: 2 }),
     };
   });
 
