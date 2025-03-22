@@ -13,10 +13,7 @@ import { BackButton } from '@/components/back-button';
 const MeshGradientExample = () => {
   return (
     <MeshGradient
-      color1="#b3a6ce"
-      color2="#562b9c"
-      color3="#f4e8b8"
-      color4="#c79acb"
+      colors={['#b3a6ce', '#562b9c', '#f4e8b8', '#c79acb']}
       speed={0.15}
       seed={0}
       style={{ position: 'fixed', width: '100%', height: '100%' }}
@@ -39,10 +36,7 @@ const MeshGradientWithControls = () => {
     return {
       Parameters: folder(
         {
-          color1: { value: defaults.color1, order: 100 },
-          color2: { value: defaults.color2, order: 101 },
-          color3: { value: defaults.color3, order: 102 },
-          color4: { value: defaults.color4, order: 103 },
+          colors: { value: defaults.colors, order: 100 },
           speed: { value: defaults.speed, min: 0, max: 1, order: 400 },
         },
         { order: 1 }
