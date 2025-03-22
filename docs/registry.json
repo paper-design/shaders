@@ -4,6 +4,71 @@
   "homepage": "https://shaders.paper.design",
   "items": [
     {
+      "name": "dot-grid",
+      "type": "registry:component",
+      "title": "Dot Grid Example",
+      "description": "Dot Grid shader example.",
+      "dependencies": ["@paper-design/shaders-react"],
+      "files": [
+        {
+          "path": "registry/dot-grid-example.tsx",
+          "type": "registry:component"
+        }
+      ]
+    },
+    {
+      "name": "dot-orbit",
+      "type": "registry:component",
+      "title": "Dot Orbit Example",
+      "description": "Dot Orbit shader example.",
+      "dependencies": ["@paper-design/shaders-react"],
+      "files": [
+        {
+          "path": "registry/dot-orbit-example.tsx",
+          "type": "registry:component"
+        }
+      ]
+    },
+    {
+      "name": "god-rays",
+      "type": "registry:component",
+      "title": "God Rays Example",
+      "description": "God Rays shader example.",
+      "dependencies": ["@paper-design/shaders-react"],
+      "files": [
+        {
+          "path": "registry/god-rays-example.tsx",
+          "type": "registry:component"
+        }
+      ]
+    },
+    {
+      "name": "mesh-gradient",
+      "type": "registry:component",
+      "title": "Mesh Gradient Example",
+      "description": "Mesh Gradient shader example.",
+      "dependencies": ["@paper-design/shaders-react"],
+      "files": [
+        {
+          "path": "registry/mesh-gradient-example.tsx",
+          "type": "registry:component"
+        }
+      ]
+    },
+    {
+      "name": "metaballs",
+      "type": "registry:component",
+      "title": "Metaballs Example",
+      "description": "Metaballs shader example.",
+      "dependencies": ["@paper-design/shaders-react"],
+      "files": [
+        {
+          "path": "registry/metaballs-example.tsx",
+          "type": "registry:component"
+        }
+      ]
+    },
+    {
       "name": "neuro-noise",
       "type": "registry:component",
       "title": "Neuro Noise Example",
@@ -12,6 +77,97 @@
       "files": [
         {
           "path": "registry/neuro-noise-example.tsx",
+          "type": "registry:component"
+        }
+      ]
+    },
+    {
+      "name": "perlin-noise",
+      "type": "registry:component",
+      "title": "Perlin Noise Example",
+      "description": "Perlin Noise shader example.",
+      "dependencies": ["@paper-design/shaders-react"],
+      "files": [
+        {
+          "path": "registry/perlin-noise-example.tsx",
+          "type": "registry:component"
+        }
+      ]
+    },
+    {
+      "name": "smoke-ring",
+      "type": "registry:component",
+      "title": "Smoke Ring Example",
+      "description": "Smoke Ring shader example.",
+      "dependencies": ["@paper-design/shaders-react"],
+      "files": [
+        {
+          "path": "registry/smoke-ring-example.tsx",
+          "type": "registry:component"
+        }
+      ]
+    },
+    {
+      "name": "spiral",
+      "type": "registry:component",
+      "title": "Spiral Example",
+      "description": "Spiral shader example.",
+      "dependencies": ["@paper-design/shaders-react"],
+      "files": [
+        {
+          "path": "registry/spiral-example.tsx",
+          "type": "registry:component"
+        }
+      ]
+    },
+    {
+      "name": "stepped-simplex-noise",
+      "type": "registry:component",
+      "title": "Stepped Simplex Noise Example",
+      "description": "Stepped Simplex Noise shader example.",
+      "dependencies": ["@paper-design/shaders-react"],
+      "files": [
+        {
+          "path": "registry/stepped-simplex-noise-example.tsx",
+          "type": "registry:component"
+        }
+      ]
+    },
+    {
+      "name": "voronoi",
+      "type": "registry:component",
+      "title": "Voronoi Example",
+      "description": "Voronoi shader example.",
+      "dependencies": ["@paper-design/shaders-react"],
+      "files": [
+        {
+          "path": "registry/voronoi-example.tsx",
+          "type": "registry:component"
+        }
+      ]
+    },
+    {
+      "name": "warp",
+      "type": "registry:component",
+      "title": "Warp Example",
+      "description": "Warp shader example.",
+      "dependencies": ["@paper-design/shaders-react"],
+      "files": [
+        {
+          "path": "registry/warp-example.tsx",
+          "type": "registry:component"
+        }
+      ]
+    },
+    {
+      "name": "waves",
+      "type": "registry:component",
+      "title": "Waves Example",
+      "description": "Waves shader example.",
+      "dependencies": ["@paper-design/shaders-react"],
+      "files": [
+        {
+          "path": "registry/waves-example.tsx",
           "type": "registry:component"
         }
       ]

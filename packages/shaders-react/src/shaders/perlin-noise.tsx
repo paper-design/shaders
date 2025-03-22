@@ -7,7 +7,7 @@ export type PerlinNoiseParams = {
   color1?: string;
   color2?: string;
   proportion?: number;
-  contour?: number;
+  softness?: number;
   octaveCount?: number;
   persistence?: number;
   lacunarity?: number;
@@ -30,30 +30,30 @@ export const defaultPreset: PerlinNoisePreset = {
     color1: 'hsla(0, 0%, 15%, 1)',
     color2: 'hsla(203, 100%, 87%, 1)',
     proportion: 0.34,
-    contour: 0.9,
+    softness: 0.1,
     octaveCount: 2,
     persistence: 1,
     lacunarity: 1.5,
   },
 };
 
-export const preset1: PerlinNoisePreset = {
+export const nintendoWaterPreset: PerlinNoisePreset = {
   name: 'Nintendo Water',
   params: {
     scale: 0.2,
-    speed: 0.5,
+    speed: 0.4,
     seed: 0,
     color1: 'hsla(220, 66%, 50%, 1)',
-    color2: 'hsla(155, 66%, 80%, 1)',
+    color2: 'hsla(200, 66%, 90%, 1)',
     proportion: 0.42,
-    contour: 1,
+    softness: 0,
     octaveCount: 2,
     persistence: 0.55,
     lacunarity: 1.8,
   },
 };
 
-export const preset2: PerlinNoisePreset = {
+export const colonyPreset: PerlinNoisePreset = {
   name: 'Colony',
   params: {
     scale: 0.15,
@@ -65,11 +65,11 @@ export const preset2: PerlinNoisePreset = {
     persistence: 1,
     lacunarity: 2.55,
     proportion: 0.65,
-    contour: 0.65,
+    softness: 0.35,
   },
 };
 
-export const preset3: PerlinNoisePreset = {
+export const phosphenesPreset: PerlinNoisePreset = {
   name: 'Phosphenes',
   params: {
     scale: 0.03,
@@ -78,14 +78,14 @@ export const preset3: PerlinNoisePreset = {
     color1: 'hsla(350, 80%, 70%, 1)',
     color2: 'hsla(150, 50%, 60%, 1)',
     proportion: 0.45,
-    contour: 0.55,
+    softness: 0.45,
     octaveCount: 6,
     persistence: 0.3,
     lacunarity: 3,
   },
 } as const;
 
-export const preset4: PerlinNoisePreset = {
+export const mossPreset: PerlinNoisePreset = {
   name: 'Moss',
   params: {
     scale: 0.15,
@@ -94,14 +94,14 @@ export const preset4: PerlinNoisePreset = {
     color1: 'hsla(137, 100%, 51%, 1)',
     color2: 'hsla(0, 0%, 15%, 1)',
     proportion: 0.65,
-    contour: 0.65,
+    softness: 0.35,
     octaveCount: 6,
     persistence: 1,
     lacunarity: 2.55,
   },
 } as const;
 
-export const preset5: PerlinNoisePreset = {
+export const wormsPreset: PerlinNoisePreset = {
   name: 'Worms',
   params: {
     scale: 2,
@@ -110,14 +110,21 @@ export const preset5: PerlinNoisePreset = {
     color1: 'hsla(0, 100%, 100%, 1)',
     color2: 'hsla(0, 0%, 35%, 1)',
     proportion: 0.5,
-    contour: 1,
+    softness: 0,
     octaveCount: 1,
     persistence: 1,
     lacunarity: 1.5,
   },
 } as const;
 
-export const perlinNoisePresets: PerlinNoisePreset[] = [defaultPreset, preset1, preset2, preset3, preset4, preset5];
+export const perlinNoisePresets: PerlinNoisePreset[] = [
+  defaultPreset,
+  nintendoWaterPreset,
+  colonyPreset,
+  phosphenesPreset,
+  mossPreset,
+  wormsPreset,
+];
 
 export const PerlinNoise = (props: PerlinNoiseProps): JSX.Element => {
   const uniforms: PerlinNoiseUniforms = useMemo(() => {
@@ -126,7 +133,7 @@ export const PerlinNoise = (props: PerlinNoiseProps): JSX.Element => {
       u_color1: getShaderColorFromString(props.color1, defaultPreset.params.color1),
       u_color2: getShaderColorFromString(props.color2, defaultPreset.params.color2),
       u_proportion: props.proportion ?? defaultPreset.params.proportion,
-      u_contour: props.contour ?? defaultPreset.params.contour,
+      u_softness: props.softness ?? defaultPreset.params.softness,
       u_octaveCount: props.octaveCount ?? defaultPreset.params.octaveCount,
       u_persistence: props.persistence ?? defaultPreset.params.persistence,
       u_lacunarity: props.lacunarity ?? defaultPreset.params.lacunarity,
@@ -136,7 +143,7 @@ export const PerlinNoise = (props: PerlinNoiseProps): JSX.Element => {
     props.color1,
     props.color2,
     props.proportion,
-    props.contour,
+    props.softness,
     props.octaveCount,
     props.persistence,
     props.lacunarity,

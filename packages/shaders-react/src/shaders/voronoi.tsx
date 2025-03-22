@@ -12,9 +12,9 @@ export type VoronoiParams = {
   colorGradient?: number;
   distance?: number;
   edgesSize?: number;
-  edgesSharpness?: number;
+  edgesSoftness?: number;
   middleSize?: number;
-  middleSharpness?: number;
+  middleSoftness?: number;
 } & GlobalParams;
 
 export type VoronoiProps = Omit<ShaderMountProps, 'fragmentShader'> & VoronoiParams;
@@ -39,9 +39,9 @@ export const defaultPreset: VoronoiPreset = {
     colorGradient: 0.5,
     distance: 0.25,
     edgesSize: 0.15,
-    edgesSharpness: 0.01,
+    edgesSoftness: 0.01,
     middleSize: 0,
-    middleSharpness: 0,
+    middleSoftness: 0,
   },
 } as const;
 
@@ -59,9 +59,9 @@ export const classicPreset: VoronoiPreset = {
     colorGradient: 1,
     distance: 0.45,
     edgesSize: 0.02,
-    edgesSharpness: 0.07,
+    edgesSoftness: 0.07,
     middleSize: 0,
-    middleSharpness: 0,
+    middleSoftness: 0,
   },
 } as const;
 
@@ -79,9 +79,9 @@ export const giraffePreset: VoronoiPreset = {
     colorGradient: 1,
     distance: 0.25,
     edgesSize: 0.2,
-    edgesSharpness: 0.01,
+    edgesSoftness: 0.01,
     middleSize: 0,
-    middleSharpness: 0.3,
+    middleSoftness: 0,
   },
 } as const;
 
@@ -99,9 +99,9 @@ export const eyesPreset: VoronoiPreset = {
     colorGradient: 1,
     distance: 0.25,
     edgesSize: 0.62,
-    edgesSharpness: 0.01,
+    edgesSoftness: 0.01,
     middleSize: 0.1,
-    middleSharpness: 1,
+    middleSoftness: 0,
   },
 } as const;
 
@@ -119,9 +119,9 @@ export const bubblesPreset: VoronoiPreset = {
     colorGradient: 1,
     distance: 0.5,
     edgesSize: 0.81,
-    edgesSharpness: 0.0,
+    edgesSoftness: 0.0,
     middleSize: 0,
-    middleSharpness: 0.45,
+    middleSoftness: 0,
   },
 } as const;
 
@@ -139,9 +139,9 @@ export const cellsPreset: VoronoiPreset = {
     colorGradient: 1,
     distance: 0.38,
     edgesSize: 0.1,
-    edgesSharpness: 0.02,
+    edgesSoftness: 0.02,
     middleSize: 0,
-    middleSharpness: 0,
+    middleSoftness: 0,
   },
 } as const;
 
@@ -159,9 +159,9 @@ export const glowPreset: VoronoiPreset = {
     colorGradient: 1,
     distance: 0.25,
     edgesSize: 0.15,
-    edgesSharpness: 0.01,
+    edgesSoftness: 0.01,
     middleSize: 0.7,
-    middleSharpness: 0,
+    middleSoftness: 1,
   },
 } as const;
 
@@ -179,9 +179,9 @@ export const tilesPreset: VoronoiPreset = {
     colorGradient: 0,
     distance: 0.05,
     edgesSize: 0.25,
-    edgesSharpness: 0.02,
+    edgesSoftness: 0.02,
     middleSize: 0,
-    middleSharpness: 0,
+    middleSoftness: 0,
   },
 } as const;
 
@@ -208,9 +208,9 @@ export const Voronoi = (props: VoronoiProps): JSX.Element => {
       u_colorGradient: props.colorGradient ?? defaultPreset.params.colorGradient,
       u_distance: props.distance ?? defaultPreset.params.distance,
       u_edgesSize: props.edgesSize ?? defaultPreset.params.edgesSize,
-      u_edgesSharpness: props.edgesSharpness ?? defaultPreset.params.edgesSharpness,
+      u_edgesSoftness: props.edgesSoftness ?? defaultPreset.params.edgesSoftness,
       u_middleSize: props.middleSize ?? defaultPreset.params.middleSize,
-      u_middleSharpness: props.middleSharpness ?? defaultPreset.params.middleSharpness,
+      u_middleSoftness: props.middleSoftness ?? defaultPreset.params.middleSoftness,
     };
   }, [
     props.scale,
@@ -222,9 +222,9 @@ export const Voronoi = (props: VoronoiProps): JSX.Element => {
     props.colorGradient,
     props.distance,
     props.edgesSize,
-    props.edgesSharpness,
+    props.edgesSoftness,
     props.middleSize,
-    props.middleSharpness,
+    props.middleSoftness,
   ]);
 
   return <ShaderMount {...props} fragmentShader={voronoiFragmentShader} uniforms={uniforms} />;

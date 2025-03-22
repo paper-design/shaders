@@ -1,18 +1,21 @@
 import meshGradientImg from '../public/shaders/mesh-gradient.webp';
 import simplexNoiseImg from '../public/shaders/simplex-noise.webp';
-import grainCloudsImg from '../public/shaders/grain-clouds.webp';
 import neuroNoiseImg from '../public/shaders/neuro-noise.webp';
+import perlinNoiseImg from '../public/shaders/perlin-noise.webp';
+import dotGridImg from '../public/shaders/dot-grid.webp';
 import dotOrbitImg from '../public/shaders/dot-orbit.webp';
 import smokeRingImg from '../public/shaders/smoke-ring.webp';
 import metaballsImg from '../public/shaders/metaballs.webp';
+import voronoiImg from '../public/shaders/voronoi.webp';
+import wavesImg from '../public/shaders/waves.webp';
+import warpImg from '../public/shaders/warp.webp';
+import godRaysImg from '../public/shaders/god-rays.webp';
+import spiralImg from '../public/shaders/spiral.webp';
 
 import {
-  DotsGrid,
-  dotsOrbitPresets,
-  DotsOrbit,
-  dotsGridPresets,
-  GrainClouds,
-  grainCloudsPresets,
+  DotGrid,
+  dotOrbitPresets,
+  DotOrbit,
   MeshGradient,
   meshGradientPresets,
   Metaballs,
@@ -26,7 +29,6 @@ import {
   Voronoi,
   voronoiPresets,
   Waves,
-  wavesPresets,
   PerlinNoise,
   perlinNoisePresets,
   Warp,
@@ -39,29 +41,29 @@ import {
   swirlPresets,
 } from '@paper-design/shaders-react';
 import { StaticImageData } from 'next/image';
+import TextureTest from './app/texture-test/page';
 
 type HomeShaderConfig = {
   name: string;
   image?: StaticImageData;
   url: string;
   ShaderComponent: React.ComponentType;
-  shaderConfig: Record<string, unknown>;
+  shaderConfig?: Record<string, unknown>;
 };
 
 export const homeShaders = [
+  {
+    name: 'texture test',
+    url: '/texture-test',
+    ShaderComponent: TextureTest,
+    shaderConfig: {},
+  },
   {
     name: 'simplex noise',
     image: simplexNoiseImg,
     url: '/stepped-simplex-noise',
     ShaderComponent: SteppedSimplexNoise,
-    shaderConfig: steppedSimplexNoisePresets[0].params,
-  },
-  {
-    name: 'grain clouds',
-    image: grainCloudsImg,
-    url: '/grain-clouds',
-    ShaderComponent: GrainClouds,
-    shaderConfig: grainCloudsPresets[0].params,
+    shaderConfig: { ...steppedSimplexNoisePresets[0].params, scale: 0.5, speed: 0.3 },
   },
   {
     name: 'mesh gradient',
@@ -75,70 +77,75 @@ export const homeShaders = [
     image: neuroNoiseImg,
     url: '/neuro-noise',
     ShaderComponent: NeuroNoise,
-    shaderConfig: neuroNoisePresets[0].params,
+    shaderConfig: { ...neuroNoisePresets[0].params, scale: 0.4 },
   },
   {
     name: 'dot orbit',
     image: dotOrbitImg,
-    url: '/dots-orbit',
-    ShaderComponent: DotsOrbit,
-    shaderConfig: dotsOrbitPresets[0].params,
+    url: '/dot-orbit',
+    ShaderComponent: DotOrbit,
+    shaderConfig: { ...dotOrbitPresets[0].params, scale: 0.7, dotSizeRange: 0.15 },
   },
   {
     name: 'smoke ring',
     image: smokeRingImg,
     url: '/smoke-ring',
     ShaderComponent: SmokeRing,
-    shaderConfig: smokeRingPresets[0].params,
+    shaderConfig: smokeRingPresets[1].params,
   },
   {
     name: 'metaballs',
     image: metaballsImg,
     url: '/metaballs',
     ShaderComponent: Metaballs,
-    shaderConfig: metaballsPresets[0].params,
+    shaderConfig: { ...metaballsPresets[0].params, scale: 1 },
   },
   {
-    name: 'dots grid',
-    url: '/dots-grid',
-    ShaderComponent: DotsGrid,
-    shaderConfig: dotsOrbitPresets[0].params,
+    name: 'dot grid',
+    url: '/dot-grid',
+    ShaderComponent: DotGrid,
+    image: dotGridImg,
   },
   {
     name: 'perlin',
     url: '/perlin-noise',
     ShaderComponent: PerlinNoise,
-    shaderConfig: perlinNoisePresets[0].params,
+    image: perlinNoiseImg,
+    shaderConfig: { ...perlinNoisePresets[1].params, scale: 0.6 },
   },
   {
     name: 'voronoi',
     url: '/voronoi',
     ShaderComponent: Voronoi,
-    shaderConfig: voronoiPresets[0].params,
+    image: voronoiImg,
+    shaderConfig: { ...voronoiPresets[0].params, scale: 2.1 },
   },
   {
     name: 'waves',
     url: '/waves',
     ShaderComponent: Waves,
-    shaderConfig: wavesPresets[0].params,
+    image: wavesImg,
   },
   {
     name: 'warp',
     url: '/warp',
     ShaderComponent: Warp,
-    shaderConfig: warpPresets[0].params,
+    image: warpImg,
+    shaderConfig: { ...warpPresets[0].params, scale: 3, speed: 0.6 },
   },
   {
     name: 'god rays',
     url: '/god-rays',
     ShaderComponent: GodRays,
-    shaderConfig: godRaysPresets[0].params,
+    image: godRaysImg,
+    shaderConfig: { ...godRaysPresets[0].params, offsetX: -0.55, offsetY: -0.55, speed: 2 },
   },
   {
     name: 'spiral',
     url: '/spiral',
     ShaderComponent: Spiral,
-    shaderConfig: spiralPresets[0].params,
+    image: spiralImg,
+    shaderConfig: { ...spiralPresets[1].params, scale: 0.5 },
   },
   {
     name: 'swirl',

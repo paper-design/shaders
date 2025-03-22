@@ -1,4 +1,4 @@
-export type DotsOrbitUniforms = {
+export type DotOrbitUniforms = {
   u_scale: number;
   u_color1: [number, number, number, number];
   u_color2: [number, number, number, number];
@@ -10,22 +10,22 @@ export type DotsOrbitUniforms = {
 };
 
 /**
- * Dots Pattern with dots moving around their grid position
+ * Dot Pattern with dot moving around their grid position
  * The artwork by Ksenia Kondrashova
- * Renders a dot pattern with dots placed in the center of each cell of animated Voronoi diagram
+ * Renders a dot pattern with dot placed in the center of each cell of animated Voronoi diagram
  *
  * Uniforms include:
  * u_scale - the scale applied to user space
- * u_color1 - the first dots color
- * u_color2 - the second dots color
- * u_color3 - the third dots color
- * u_color4 - the fourth dots color
+ * u_color1 - the first color
+ * u_color2 - the second color
+ * u_color3 - the third color
+ * u_color4 - the fourth color
  * u_dotSize (0 .. 1) - the base dot radius (relative to cell size)
  * u_dotSizeRange (0 .. 1) - the dot radius to vary between the cells
  * u_spreading (0 .. 1) - the distance each dot can move around the regular grid
  */
 
-export const dotsOrbitFragmentShader = `#version 300 es
+export const dotOrbitFragmentShader = `#version 300 es
 precision highp float;
 
 uniform float u_time;

@@ -1,5 +1,5 @@
 /** The core Shader Mounting class. Pass it a canvas element and a fragment shader to get started. */
-export { ShaderMount } from './shader-mount';
+export { ShaderMount, type ShaderMountUniforms } from './shader-mount';
 
 // ----- Grain clouds ----- //
 export { grainCloudsFragmentShader, type GrainCloudsUniforms } from './shaders/grain-clouds';
@@ -16,13 +16,13 @@ export { smokeRingFragmentShader, type SmokeRingUniforms } from './shaders/smoke
 /** A shader rendering a fractal-like structure made of several layers of since-arches */
 export { neuroNoiseFragmentShader, type NeuroNoiseUniforms } from './shaders/neuro-noise';
 
-// ----- Animated dots pattern: orbit type of animation ----- //
-/** A shader rendering an animated dots pattern based on Voronoi diagram */
-export { dotsOrbitFragmentShader, type DotsOrbitUniforms } from './shaders/dots-orbit';
+// ----- Animated dot pattern: orbit type of animation ----- //
+/** A shader rendering an animated dot pattern based on Voronoi diagram */
+export { dotOrbitFragmentShader, type DotOrbitUniforms } from './shaders/dot-orbit';
 
 // ----- Dot Grid ----- //
-/** A shader rendering a static dots pattern */
-export { dotsGridFragmentShader, DotsGridShapes, type DotsGridShape, type DotsGridUniforms } from './shaders/dots-grid';
+/** A shader rendering a static dot pattern */
+export { dotGridFragmentShader, DotGridShapes, type DotGridShape, type DotGridUniforms } from './shaders/dot-grid';
 
 // ----- Stepped simplex noise ----- //
 /** A shader that calculates a combination of 2 simplex noises with result rendered as a stepped gradient */

@@ -20,7 +20,7 @@ export function ShaderItem({
   image?: StaticImageData;
   url: string;
   ShaderComponent: React.ComponentType<{ style: React.CSSProperties } & Record<string, unknown>>;
-  shaderConfig: Record<string, unknown>;
+  shaderConfig?: Record<string, unknown>;
 }) {
   const [isHovered, setIsHovered] = useState(false);
 
@@ -42,7 +42,7 @@ export function ShaderItem({
               unoptimized // The images are already optimized
               priority
             />
-            {isHovered && (
+            {isHovered && shaderConfig && (
               <ShaderComponent
                 style={{
                   width: '100%',

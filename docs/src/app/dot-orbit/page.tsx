@@ -3,16 +3,16 @@
 import { BackButton } from '@/components/back-button';
 import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import { setParamsSafe, useResetLevaParams } from '@/helpers/use-reset-leva-params';
-import { DotsOrbit, type DotsOrbitParams, dotsOrbitPresets } from '@paper-design/shaders-react';
+import { DotOrbit, type DotOrbitParams, dotOrbitPresets } from '@paper-design/shaders-react';
 import { useControls, button, folder } from 'leva';
 import Link from 'next/link';
 
 /**
- * You can copy/paste this example to use DotsOrbit in your app
+ * You can copy/paste this example to use DotOrbit in your app
  */
-const DotsOrbitExample = () => {
+const DotOrbitExample = () => {
   return (
-    <DotsOrbit
+    <DotOrbit
       color1="#cf2a30"
       color2="#3b6d50"
       color3="#f0a519"
@@ -32,12 +32,12 @@ const DotsOrbitExample = () => {
  * This example has controls added so you can play with settings in the example app
  */
 
-const defaults = dotsOrbitPresets[0].params;
+const defaults = dotOrbitPresets[0].params;
 
-const DotsOrbitWithControls = () => {
+const DotOrbitWithControls = () => {
   const [params, setParams] = useControls(() => {
-    const presets: DotsOrbitParams = Object.fromEntries(
-      dotsOrbitPresets.map((preset) => [preset.name, button(() => setParamsSafe(params, setParams, preset.params))])
+    const presets: DotOrbitParams = Object.fromEntries(
+      dotOrbitPresets.map((preset) => [preset.name, button(() => setParamsSafe(params, setParams, preset.params))])
     );
     return {
       Parameters: folder(
@@ -62,16 +62,16 @@ const DotsOrbitWithControls = () => {
   // shaders when navigating (if two shaders have a color1 param for example)
   useResetLevaParams(params, setParams, defaults);
 
-  usePresetHighlight(dotsOrbitPresets, params);
+  usePresetHighlight(dotOrbitPresets, params);
 
   return (
     <>
       <Link href="/">
         <BackButton />
       </Link>
-      <DotsOrbit {...params} style={{ position: 'fixed', width: '100%', height: '100%' }} />
+      <DotOrbit {...params} style={{ position: 'fixed', width: '100%', height: '100%' }} />
     </>
   );
 };
 
-export default DotsOrbitWithControls;
+export default DotOrbitWithControls;

@@ -8,7 +8,7 @@ export type WavesUniforms = {
   u_amplitude: number;
   u_spacing: number;
   u_dutyCycle: number;
-  u_edgeBlur: number;
+  u_softness: number;
 };
 
 /**
@@ -30,7 +30,7 @@ export type WavesUniforms = {
  * u_amplitude - the wave amplitude
  * u_spacing - the density of pattern lines
  * u_dutyCycle (0 ... 1) - the proportion of stroke width to the pattern step
- * u_edgeBlur (0 ... 1) - the blur applied to the lines edges
+ * u_softness (0 ... 1) - the blur applied to the lines edges
  */
 
 export const wavesFragmentShader = `#version 300 es
@@ -49,7 +49,7 @@ uniform float u_frequency;
 uniform float u_amplitude;
 uniform float u_spacing;
 uniform float u_dutyCycle;
-uniform float u_edgeBlur;
+uniform float u_softness;
 
 #define TWO_PI 6.28318530718
 #define PI 3.14159265358979323846
@@ -83,7 +83,7 @@ void main() {
   float shape = .5 + .5 * sin((uv.y + offset) * PI / spacing);
   
   float edge_width = .02 / (1. + abs(shape)) * (.001 + u_scale);
-  edge_width += .5 * max(0., u_edgeBlur);
+  edge_width += .5 * max(0., u_softness);
   float dc = clamp(u_dutyCycle, 0., 1.);
   float t = smoothstep(dc - edge_width, dc + edge_width, shape);
 
