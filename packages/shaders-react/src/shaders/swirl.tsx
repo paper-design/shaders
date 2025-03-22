@@ -10,7 +10,6 @@ export type SwirlParams = {
   offsetY?: number;
   bandCount?: number;
   twist?: number;
-  depth?: number;
   noiseFreq?: number;
   noise?: number;
   softness?: number;
@@ -36,7 +35,6 @@ export const defaultPreset: SwirlPreset = {
     offsetY: 0.0,
     bandCount: -10.0,
     twist: 1.0,
-    depth: 0.0,
     noiseFreq: 50.0,
     // noise: 0.29,
     noise: 0,
@@ -58,7 +56,6 @@ export const openingPreset: SwirlPreset = {
     offsetY: 0.5,
     bandCount: 8,
     twist: 0.6,
-    depth: 0.6,
     noiseFreq: 0,
     noise: 0,
     softness: 0,
@@ -78,7 +75,6 @@ export const jamesBondPreset: SwirlPreset = {
     offsetY: 0,
     bandCount: 8,
     twist: 0.8,
-    depth: 0.6,
     noiseFreq: 0,
     noise: 0,
     softness: 0,
@@ -99,7 +95,6 @@ export const hippiePreset: SwirlPreset = {
     offsetY: 0,
     bandCount: 2.5,
     twist: 0.2,
-    depth: 1,
     noiseFreq: 4,
     noise: 0.37,
     softness: 0,
@@ -121,7 +116,6 @@ export const Swirl = (props: SwirlProps): JSX.Element => {
       u_offsetY: props.offsetY ?? defaultPreset.params.offsetY,
       u_bandCount: props.bandCount ?? defaultPreset.params.bandCount,
       u_twist: props.twist ?? defaultPreset.params.twist,
-      u_depth: props.depth ?? defaultPreset.params.depth,
       u_noiseFreq: props.noiseFreq ?? defaultPreset.params.noiseFreq,
       u_noise: props.noise ?? defaultPreset.params.noise,
       u_softness: props.softness ?? defaultPreset.params.softness,
@@ -134,7 +128,6 @@ export const Swirl = (props: SwirlProps): JSX.Element => {
     props.offsetY,
     props.bandCount,
     props.twist,
-    props.depth,
     props.noiseFreq,
     props.noise,
     props.softness,

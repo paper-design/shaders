@@ -6,7 +6,6 @@ export type SwirlUniforms = {
   u_color3: [number, number, number, number];
   u_bandCount: number;
   u_twist: number;
-  u_depth: number;
   u_noiseFreq: number;
   u_noise: number;
   u_softness: number;
@@ -30,7 +29,6 @@ export type SwirlUniforms = {
  * Swirl Properties:
  * - u_bandCount: The number of color bands in the swirl
  * - u_twist: The amount of twist applied to the swirl pattern
- * - u_depth: Controls how much the swirl pattern falls off towards the center
  *
  * Noise:
  * - u_noiseFreq: Frequency of the applied noise
@@ -51,7 +49,6 @@ uniform vec4 u_color2;
 uniform vec4 u_color3;
 uniform float u_bandCount;
 uniform float u_twist;
-uniform float u_depth;
 uniform float u_noiseFreq;
 uniform float u_noise;
 uniform float u_softness;
@@ -138,20 +135,21 @@ void main() {
 
   angle_norm += .2 * u_noise * snoise(7. * u_noiseFreq * uv);
   
-  float twist = clamp(2. * u_twist, .3, 2.);
-  float offset = twist / l + angle_norm;
+  float twist = 3. * clamp(u_twist, 0., 1.);
+  float offset = pow(l, -twist) + angle_norm;
   
   float stripe_map = fract(offset);
   
-  float center_falloff = clamp(.2 + .5 * abs(twist), .0, 1.);
-  float center_factor = smoothstep(.5, .7, l * (1. + 2. * u_depth));
-  stripe_map = mix(.5, stripe_map, center_factor);
+  float mid = smoothstep(0., 1., pow(l, twist));
+  stripe_map = mix(0., stripe_map, mid);
   
-  float shape = stripe_map;
-  
-  float softness = 1. - u_softness;
-  vec4 color = blend_colors(u_color1, u_color2, u_color3, shape, softness);
-
-  fragColor = vec4(color);
+//  float shape = stripe_map;
+//  
+//  float softness = 1. - u_softness;
+//  vec4 color = blend_colors(u_color1, u_color2, u_color3, shape, softness);
+//
+//  fragColor = vec4(color);
+//  fragColor = vec4(vec3(stripe_map, stripe_map, pow(l, twist)), 1.);
+  fragColor = vec4(vec3(stripe_map), 1.);
 }
 `;

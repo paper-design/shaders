@@ -20,7 +20,6 @@ const SwirlExample = () => {
       offsetY={0}
       bandCount={2.5}
       twist={0.2}
-      depth={1}
       noiseFreq={3}
       noise={0.37}
       softness={0}
@@ -55,8 +54,7 @@ const SwirlWithControls = () => {
           offsetX: { value: defaults.offsetX, min: -1, max: 1, order: 201 },
           offsetY: { value: defaults.offsetY, min: -1, max: 1, order: 202 },
           bandCount: { value: defaults.bandCount, min: -10, max: 10, order: 203 },
-          twist: { value: defaults.twist, min: 0.2, max: 1, order: 204 },
-          depth: { value: defaults.depth, min: 0, max: 2, order: 205 },
+          twist: { value: defaults.twist, min: 0, max: 1, order: 204 },
           noiseFreq: { value: defaults.noiseFreq, min: 0, max: 50, order: 350 },
           noise: { value: defaults.noise, min: 0, max: 1, order: 351 },
           softness: { value: defaults.softness, min: 0, max: 4, order: 352 },
