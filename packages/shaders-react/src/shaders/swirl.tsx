@@ -24,7 +24,6 @@ type SwirlPreset = { name: string; params: Required<SwirlParams> };
 // 1) keep default colors in HSLA format to keep alpha channel
 // 2) don't use decimal values on HSL values (to avoid button highmidIntensity bug)
 
-
 export const defaultPreset: SwirlPreset = {
   name: 'Default',
   params: {
@@ -83,7 +82,6 @@ export const jamesBondPreset: SwirlPreset = {
     seed: 0,
   },
 } as const;
-
 
 export const hippiePreset: SwirlPreset = {
   name: 'Hippie',
