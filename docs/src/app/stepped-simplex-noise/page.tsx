@@ -55,8 +55,7 @@ const SteppedSimplexNoiseWithControls = () => {
           color5: { value: defaults.color5, order: 104 },
           scale: { value: defaults.scale, min: 0.1, max: 1.9, order: 200 },
           stepsNumber: { value: defaults.stepsNumber, min: 2, max: 40, order: 300 },
-          speed: { value: 0, min: 0, max: 1, order: 400 },
-          frame: { value: 0, min: 0, max: 1000, order: 500 },
+          speed: { value: defaults.speed, min: 0, max: 1, order: 400 },
         },
         { order: 1 }
       ),
