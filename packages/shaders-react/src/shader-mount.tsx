@@ -6,6 +6,7 @@ export type ShaderMountUniformsReact = { [key: string]: ShaderMountUniforms[keyo
 
 export interface ShaderMountProps {
   ref?: React.RefObject<HTMLCanvasElement>;
+  shaderMountRef?: React.MutableRefObject<ShaderMountVanilla | null>;
   fragmentShader: string;
   style?: React.CSSProperties;
   uniforms?: ShaderMountUniformsReact;
@@ -82,6 +83,7 @@ const processUniforms = (uniforms: ShaderMountUniformsReact): Promise<ShaderMoun
  */
 export const ShaderMount: React.FC<ShaderMountProps> = ({
   ref,
+  shaderMountRef: externalShaderMountRef,
   fragmentShader,
   style,
   uniforms = {},
@@ -90,7 +92,7 @@ export const ShaderMount: React.FC<ShaderMountProps> = ({
   frame = 0,
 }) => {
   const canvasRef = ref ?? useRef<HTMLCanvasElement>(null);
-  const shaderMountRef = useRef<ShaderMountVanilla | null>(null);
+  const shaderMountRef = externalShaderMountRef ?? useRef<ShaderMountVanilla | null>(null);
 
   useEffect(() => {
     const initShader = async () => {
