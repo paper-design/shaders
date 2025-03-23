@@ -124,8 +124,15 @@ export class ShaderMount {
     const clientWidth = this.canvas.clientWidth;
     const clientHeight = this.canvas.clientHeight;
     const pixelRatio = window.devicePixelRatio;
-    const newWidth = clientWidth * pixelRatio;
-    const newHeight = clientHeight * pixelRatio;
+
+    const maxRes = 1920;
+    // const maxRes = 1920 * pixelRatio;
+
+    let newWidth = clientWidth * pixelRatio;
+    let newHeight = clientHeight * pixelRatio;
+    const scale = Math.min(1, maxRes / Math.max(newWidth, newHeight));
+    newWidth = Math.floor(newWidth * scale);
+    newHeight = Math.floor(newHeight * scale);
 
     if (this.canvas.width !== newWidth || this.canvas.height !== newHeight) {
       this.canvas.width = newWidth;
