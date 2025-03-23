@@ -186,7 +186,8 @@ export class ShaderMount {
     // If the resolution has changed, we need to update the uniform
     if (this.resolutionChanged) {
       this.gl.uniform2f(this.uniformLocations.u_resolution!, this.gl.canvas.width, this.gl.canvas.height);
-      this.gl.uniform1f(this.uniformLocations.u_pixelRatio!, window.devicePixelRatio);
+      const cssWidth = parseFloat(window.getComputedStyle(this.canvas).width);
+      this.gl.uniform1f(this.uniformLocations.u_pixelRatio!, this.gl.canvas.width / cssWidth);
       this.resolutionChanged = false;
     }
 
