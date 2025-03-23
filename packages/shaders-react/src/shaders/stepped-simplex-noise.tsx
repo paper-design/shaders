@@ -29,7 +29,7 @@ export const defaultPreset: SteppedSimplexNoisePreset = {
   params: {
     scale: 1,
     speed: 0.15,
-    seed: 0,
+    frame: 0,
     color1: 'hsla(208, 25%, 45%, 1)',
     color2: 'hsla(94, 38%, 59%, 1)',
     color3: 'hsla(359, 94%, 62%, 1)',
@@ -44,7 +44,7 @@ const magmaPreset: SteppedSimplexNoisePreset = {
   params: {
     scale: 0.3,
     speed: 0.2,
-    seed: 0,
+    frame: 0,
     color1: 'hsla(0, 100%, 36%, 1)',
     color2: 'hsla(0, 95%, 44%, 1)',
     color3: 'hsla(20, 100%, 49%, 1)',
@@ -59,7 +59,7 @@ const bloodCellPreset: SteppedSimplexNoisePreset = {
   params: {
     scale: 1.2,
     speed: 0.22,
-    seed: 0,
+    frame: 0,
     color1: 'hsla(302, 43%, 13%, 1)',
     color2: 'hsla(325, 93%, 17%, 1)',
     color3: 'hsla(338, 80%, 25%, 1)',
@@ -74,7 +74,7 @@ const firstContactPreset: SteppedSimplexNoisePreset = {
   params: {
     scale: 1.2,
     speed: -0.1,
-    seed: 0,
+    frame: 0,
     color1: 'hsla(300, 43%, 82%, 1)',
     color2: 'hsla(266, 70%, 9%, 1)',
     color3: 'hsla(289, 36%, 26%, 1)',

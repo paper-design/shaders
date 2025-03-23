@@ -14,7 +14,6 @@ export function DotOrbitExample(props: DotOrbitProps) {
       dotSizeRange={0.2}
       spreading={1}
       speed={2}
-      seed={0}
       style={{ position: 'fixed', width: '100%', height: '100%' }}
       {...props}
     />

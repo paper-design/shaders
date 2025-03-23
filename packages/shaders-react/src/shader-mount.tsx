@@ -11,11 +11,11 @@ export interface ShaderMountProps {
   uniforms?: ShaderMountUniformsReact;
   webGlContextAttributes?: WebGLContextAttributes;
   speed?: number;
-  seed?: number;
+  frame?: number;
 }
 
 /** Params that every shader can set as part of their controls */
-export type GlobalParams = Pick<ShaderMountProps, 'speed' | 'seed'>;
+export type GlobalParams = Pick<ShaderMountProps, 'speed' | 'frame'>;
 
 /** Parse the provided uniforms, turning URL strings into loaded images */
 const processUniforms = (uniforms: ShaderMountUniformsReact): Promise<ShaderMountUniforms> => {
@@ -87,7 +87,7 @@ export const ShaderMount: React.FC<ShaderMountProps> = ({
   uniforms = {},
   webGlContextAttributes,
   speed = 1,
-  seed = 0,
+  frame = 0,
 }) => {
   const canvasRef = ref ?? useRef<HTMLCanvasElement>(null);
   const shaderMountRef = useRef<ShaderMountVanilla | null>(null);
@@ -103,7 +103,7 @@ export const ShaderMount: React.FC<ShaderMountProps> = ({
           processedUniforms,
           webGlContextAttributes,
           speed,
-          seed
+          frame
         );
       }
     };
@@ -130,8 +130,8 @@ export const ShaderMount: React.FC<ShaderMountProps> = ({
   }, [speed]);
 
   useEffect(() => {
-    shaderMountRef.current?.setSeed(seed);
-  }, [seed]);
+    shaderMountRef.current?.setFrame(frame);
+  }, [frame]);
 
   return <canvas ref={canvasRef} style={style} />;
 };

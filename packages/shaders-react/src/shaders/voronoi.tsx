@@ -30,7 +30,7 @@ export const defaultPreset: VoronoiPreset = {
   params: {
     scale: 1.5,
     speed: 0.5,
-    seed: 0,
+    frame: 0,
     colorCell1: 'hsla(15, 80%, 50%, 1)',
     colorCell2: 'hsla(180, 80%, 50%, 1)',
     colorCell3: 'hsla(200, 80%, 50%, 1)',
@@ -50,7 +50,7 @@ export const classicPreset: VoronoiPreset = {
   params: {
     scale: 3,
     speed: 0.8,
-    seed: 0,
+    frame: 0,
     colorCell1: 'hsla(0, 100%, 100%, 1)',
     colorCell2: 'hsla(0, 0%, 100%, 1)',
     colorCell3: 'hsla(0, 100%, 0%, 1)',
@@ -70,7 +70,7 @@ export const giraffePreset: VoronoiPreset = {
   params: {
     scale: 1,
     speed: 0.6,
-    seed: 0,
+    frame: 0,
     colorCell1: 'hsla(32, 100%, 18%, 1)',
     colorCell2: 'hsla(42, 93%, 35%, 1)',
     colorCell3: 'hsla(32, 100%, 18%, 1)',
@@ -90,7 +90,7 @@ export const eyesPreset: VoronoiPreset = {
   params: {
     scale: 1.6,
     speed: 0.6,
-    seed: 0,
+    frame: 0,
     colorCell1: 'hsla(79, 84%, 60%, 1)',
     colorCell2: 'hsla(207, 53%, 41%, 1)',
     colorCell3: 'hsla(207, 80%, 65%, 1)',
@@ -110,7 +110,7 @@ export const bubblesPreset: VoronoiPreset = {
   params: {
     scale: 2,
     speed: 0.5,
-    seed: 0,
+    frame: 0,
     colorCell1: 'hsla(0, 100%, 50%, 1)',
     colorCell2: 'hsla(169, 100%, 66%, 1)',
     colorCell3: 'hsla(50, 100%, 66%, 1)',
@@ -130,7 +130,7 @@ export const cellsPreset: VoronoiPreset = {
   params: {
     scale: 2,
     speed: 1,
-    seed: 0,
+    frame: 0,
     colorCell1: 'hsla(0, 0%, 100%, 1)',
     colorCell2: 'hsla(0, 0%, 100%, 1)',
     colorCell3: 'hsla(0, 0%, 100%, 1)',
@@ -150,7 +150,7 @@ export const glowPreset: VoronoiPreset = {
   params: {
     scale: 1.2,
     speed: 0.8,
-    seed: 0,
+    frame: 0,
     colorCell1: 'hsla(40, 100%, 50%, 1)',
     colorCell2: 'hsla(311, 100%, 59%, 1)',
     colorCell3: 'hsla(180, 100%, 65%, 1)',
@@ -170,7 +170,7 @@ export const tilesPreset: VoronoiPreset = {
   params: {
     scale: 1.3,
     speed: 1,
-    seed: 0,
+    frame: 0,
     colorCell1: 'hsla(80, 50%, 50%, 1)',
     colorCell2: 'hsla(0, 50%, 100%, 1)',
     colorCell3: 'hsla(200, 50%, 50%, 1)',

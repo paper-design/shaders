@@ -22,7 +22,7 @@ export const defaultPreset: NeuroNoisePreset = {
   params: {
     scale: 1,
     speed: 1,
-    seed: 0,
+    frame: 0,
     colorFront: 'hsla(261, 100%, 82%, 1)',
     colorBack: 'hsla(0, 0%, 0%, 1)',
     brightness: 1.3,
@@ -34,7 +34,7 @@ const marblePreset: NeuroNoisePreset = {
   params: {
     scale: 0.4,
     speed: 0,
-    seed: 0,
+    frame: 0,
     colorFront: 'hsla(230, 24%, 15%, 1)',
     colorBack: 'hsla(0, 0%, 97%, 1)',
     brightness: 1.1,

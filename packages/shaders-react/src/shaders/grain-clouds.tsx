@@ -22,7 +22,7 @@ export const defaultPreset: GrainCloudsPreset = {
   params: {
     scale: 1,
     speed: 0.3,
-    seed: 0,
+    frame: 0,
     color1: 'hsla(0, 0%, 0%, 1)',
     color2: 'hsla(0, 0%, 100%, 1)',
     grainAmount: 1,
@@ -34,7 +34,7 @@ export const skyPreset: GrainCloudsPreset = {
   params: {
     scale: 1,
     speed: 0.3,
-    seed: 0,
+    frame: 0,
     color1: 'hsla(218, 100%, 73%, 1)',
     color2: 'hsla(0, 0%, 100%, 1)',
     grainAmount: 0,

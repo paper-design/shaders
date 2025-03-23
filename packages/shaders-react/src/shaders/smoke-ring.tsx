@@ -24,7 +24,7 @@ export const defaultPreset: SmokeRingPreset = {
   params: {
     scale: 1,
     speed: 1,
-    seed: 0,
+    frame: 0,
     colorBack: 'hsla(208, 54%, 7%, 1)',
     colorInner: 'hsla(0, 0%, 100%, 1)',
     colorOuter: 'hsla(211, 100%, 64%, 1)',
@@ -38,7 +38,7 @@ export const cloudPreset: SmokeRingPreset = {
   params: {
     scale: 1,
     speed: 1,
-    seed: 0,
+    frame: 0,
     colorBack: 'hsla(218, 100%, 62%, 1)',
     colorInner: 'hsla(0, 0%, 100%, 1)',
     colorOuter: 'hsla(0, 0%, 100%, 1)',
@@ -52,7 +52,7 @@ export const firePreset: SmokeRingPreset = {
   params: {
     scale: 1,
     speed: 4,
-    seed: 0,
+    frame: 0,
     colorBack: 'hsla(20, 100%, 5%, 1)',
     colorInner: 'hsla(40, 100%, 50%, 1)',
     colorOuter: 'hsla(0, 100%, 50%, 1)',
@@ -66,7 +66,7 @@ export const electricPreset: SmokeRingPreset = {
   params: {
     scale: 1,
     speed: -2.5,
-    seed: 0,
+    frame: 0,
     colorBack: 'hsla(47, 50%, 7%, 1)',
     colorInner: 'hsla(47, 100%, 64%, 1)',
     colorOuter: 'hsla(47, 100%, 64%, 1)',
@@ -80,7 +80,7 @@ export const poisonPreset: SmokeRingPreset = {
   params: {
     scale: 1,
     speed: 3,
-    seed: 0,
+    frame: 0,
     colorBack: 'hsla(120, 100%, 3%, 1)',
     colorInner: 'hsla(120, 100%, 3%, 1)',
     colorOuter: 'hsla(120, 100%, 66%, 1)',

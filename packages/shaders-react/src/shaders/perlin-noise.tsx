@@ -26,7 +26,7 @@ export const defaultPreset: PerlinNoisePreset = {
   params: {
     scale: 1,
     speed: 0.5,
-    seed: 0,
+    frame: 0,
     color1: 'hsla(0, 0%, 15%, 1)',
     color2: 'hsla(203, 100%, 87%, 1)',
     proportion: 0.34,
@@ -42,7 +42,7 @@ export const nintendoWaterPreset: PerlinNoisePreset = {
   params: {
     scale: 0.2,
     speed: 0.4,
-    seed: 0,
+    frame: 0,
     color1: 'hsla(220, 66%, 50%, 1)',
     color2: 'hsla(200, 66%, 90%, 1)',
     proportion: 0.42,
@@ -58,7 +58,7 @@ export const colonyPreset: PerlinNoisePreset = {
   params: {
     scale: 0.15,
     speed: 0,
-    seed: 0,
+    frame: 0,
     color1: 'hsla(56, 86%, 81%, 1)',
     color2: 'hsla(230, 80%, 20%, 1)',
     octaveCount: 6,
@@ -74,7 +74,7 @@ export const phosphenesPreset: PerlinNoisePreset = {
   params: {
     scale: 0.03,
     speed: 0.15,
-    seed: 0,
+    frame: 0,
     color1: 'hsla(350, 80%, 70%, 1)',
     color2: 'hsla(150, 50%, 60%, 1)',
     proportion: 0.45,
@@ -90,7 +90,7 @@ export const mossPreset: PerlinNoisePreset = {
   params: {
     scale: 0.15,
     speed: 0.02,
-    seed: 0,
+    frame: 0,
     color1: 'hsla(137, 100%, 51%, 1)',
     color2: 'hsla(0, 0%, 15%, 1)',
     proportion: 0.65,
@@ -106,7 +106,7 @@ export const wormsPreset: PerlinNoisePreset = {
   params: {
     scale: 2,
     speed: 0,
-    seed: 0,
+    frame: 0,
     color1: 'hsla(0, 100%, 100%, 1)',
     color2: 'hsla(0, 0%, 35%, 1)',
     proportion: 0.5,

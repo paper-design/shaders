@@ -26,7 +26,7 @@ export const defaultPreset: DotOrbitPreset = {
   params: {
     scale: 1,
     speed: 2,
-    seed: 0,
+    frame: 0,
     color1: 'hsla(358, 66%, 49%, 1)',
     color2: 'hsla(145, 30%, 33%, 1)',
     color3: 'hsla(39, 88%, 52%, 1)',

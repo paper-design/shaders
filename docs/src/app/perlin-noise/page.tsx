@@ -22,7 +22,6 @@ const PerlinNoiseExample = () => {
       persistence={1}
       lacunarity={1.5}
       speed={0.5}
-      seed={0}
       style={{ position: 'fixed', width: '100%', height: '100%' }}
     />
   );

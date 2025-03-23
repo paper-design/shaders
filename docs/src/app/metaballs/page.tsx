@@ -20,7 +20,6 @@ const MetaballsExample = () => {
       ballSize={1}
       visibilityRange={0.4}
       speed={1}
-      seed={0}
       style={{ position: 'fixed', width: '100%', height: '100%' }}
     />
   );

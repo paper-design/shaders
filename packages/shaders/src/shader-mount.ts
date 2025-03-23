@@ -11,9 +11,9 @@ export class ShaderMount {
   /** Stores the RAF for the render loop */
   private rafId: number | null = null;
   /** Time of the last rendered frame */
-  private lastFrameTime = 0;
+  private lastRenderTime = 0;
   /** Total time that we have played any animation, passed as a uniform to the shader for time-based VFX */
-  private totalAnimationTime = 0;
+  private totalFrameTime = 0;
   /** The current speed that we progress through animation time (multiplies by delta time every update). Allows negatives to play in reverse. If set to 0, rAF will stop entirely so static shaders have no recurring performance costs */
   private speed = 1;
   /** Uniforms that are provided by the user for the specific shader being mounted (not including uniforms that this Mount adds, like time and resolution) */
@@ -32,14 +32,14 @@ export class ShaderMount {
     webGlContextAttributes?: WebGLContextAttributes,
     /** The speed of the animation, or 0 to stop it. Supports negative values to play in reverse. */
     speed = 1,
-    /** Pass a seed to offset the starting u_time value and give deterministic results*/
-    seed = 0
+    /** Pass a frame to offset the starting u_time value and give deterministic results*/
+    frame = 0
   ) {
     this.canvas = canvas;
     this.fragmentShader = fragmentShader;
     this.providedUniforms = uniforms;
-    // Base our starting animation time on the provided seed value
-    this.totalAnimationTime = seed;
+    // Base our starting animation time on the provided frame value
+    this.totalFrameTime = frame;
 
     const gl = canvas.getContext('webgl2', webGlContextAttributes);
     if (!gl) {
@@ -148,11 +148,11 @@ export class ShaderMount {
     }
 
     // Calculate the delta time
-    const dt = currentTime - this.lastFrameTime;
-    this.lastFrameTime = currentTime;
+    const dt = currentTime - this.lastRenderTime;
+    this.lastRenderTime = currentTime;
     // Increase the total animation time by dt * animationSpeed
     if (this.speed !== 0) {
-      this.totalAnimationTime += dt * this.speed;
+      this.totalFrameTime += dt * this.speed;
     }
 
     // Clear the canvas
@@ -162,7 +162,7 @@ export class ShaderMount {
     this.gl.useProgram(this.program);
 
     // Update the time uniform
-    this.gl.uniform1f(this.uniformLocations.u_time!, this.totalAnimationTime * 0.001);
+    this.gl.uniform1f(this.uniformLocations.u_time!, this.totalFrameTime * 0.001);
 
     // If the resolution has changed, we need to update the uniform
     if (this.resolutionChanged) {
@@ -287,11 +287,15 @@ export class ShaderMount {
     });
   };
 
-  /** Set a seed to get a deterministic result */
-  public setSeed = (newSeed: number): void => {
-    const oneFrameAt120Fps = 1000 / 120;
-    this.totalAnimationTime = newSeed * oneFrameAt120Fps;
-    this.lastFrameTime = performance.now();
+  /** Gets the current total animation time from 0ms */
+  public getCurrentFrameTime = (): number => {
+    return this.totalFrameTime;
+  };
+
+  /** Set a frame to get a deterministic result, frames are literally just milliseconds from zero since the animation started */
+  public setFrame = (newFrame: number): void => {
+    this.totalFrameTime = newFrame;
+    this.lastRenderTime = performance.now();
     this.render(performance.now());
   };
 
@@ -302,7 +306,7 @@ export class ShaderMount {
 
     if (this.rafId === null && newSpeed !== 0) {
       // Moving from 0 to animating, kick off a new rAF loop
-      this.lastFrameTime = performance.now();
+      this.lastRenderTime = performance.now();
       this.rafId = requestAnimationFrame(this.render);
     }
 
