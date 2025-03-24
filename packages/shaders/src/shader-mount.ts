@@ -42,7 +42,9 @@ export class ShaderMount {
     /** The speed of the animation, or 0 to stop it. Supports negative values to play in reverse. */
     speed = 1,
     /** Pass a frame to offset the starting u_time value and give deterministic results*/
-    frame = 0
+    frame = 0,
+    /** The maximum resolution (on the larger axis) that we render for the shader, to protect against insane resolutions and bad performance. Actual CSS size of the canvas can be larger, it will just lose quality after this */
+    private maxResolution = 1920
   ) {
     this.canvas = canvas as PaperShaderCanvasElement;
     this.fragmentShader = fragmentShader;
@@ -120,17 +122,17 @@ export class ShaderMount {
     this.handleResize();
   };
 
+  private lastCSSWidth = 0;
+  private lastCSSHeight = 0;
   private handleResize = () => {
     const clientWidth = this.canvas.clientWidth;
     const clientHeight = this.canvas.clientHeight;
     const pixelRatio = window.devicePixelRatio;
 
-    const maxRes = 1920;
-    // const maxRes = 1920 * pixelRatio;
-
     let newWidth = clientWidth * pixelRatio;
     let newHeight = clientHeight * pixelRatio;
-    const scale = Math.min(1, maxRes / Math.max(newWidth, newHeight));
+    // Prevent the size from going larger than our max resolution
+    const scale = Math.min(1, this.maxResolution / Math.max(newWidth, newHeight));
     newWidth = Math.floor(newWidth * scale);
     newHeight = Math.floor(newHeight * scale);
 
@@ -141,10 +143,10 @@ export class ShaderMount {
       // If pixelRatio is not 1, we need the user to set a CSS size or changing the canvas.width/height will
       // actually resize the element, triggering a resize loop and making the result still 1x dpi, just bigger
       if (pixelRatio !== 1) {
-        const cssWidth = window.getComputedStyle(this.canvas).width;
-        const cssHeight = window.getComputedStyle(this.canvas).height;
+        this.lastCSSWidth = parseFloat(window.getComputedStyle(this.canvas).width);
+        this.lastCSSHeight = parseFloat(window.getComputedStyle(this.canvas).height);
         // CSS width should not equal newWidth, because newWidth is scaled with dpi
-        if (parseFloat(cssWidth) === newWidth && parseFloat(cssHeight) === newHeight) {
+        if (this.lastCSSWidth === newWidth && this.lastCSSHeight === newHeight) {
           // It appears that CSS sizing was unset, so we just caused the entire canvas to resize and will trigger a resize loop
           // Set an explicit inline CSS size to avoid the loop and preserve 2x rendering
           this.canvas.style.width = `${clientWidth}px`;
@@ -186,8 +188,8 @@ export class ShaderMount {
     // If the resolution has changed, we need to update the uniform
     if (this.resolutionChanged) {
       this.gl.uniform2f(this.uniformLocations.u_resolution!, this.gl.canvas.width, this.gl.canvas.height);
-      const cssWidth = parseFloat(window.getComputedStyle(this.canvas).width);
-      this.gl.uniform1f(this.uniformLocations.u_pixelRatio!, this.gl.canvas.width / cssWidth);
+      const pixelRatio = this.gl.canvas.width / this.lastCSSWidth;
+      this.gl.uniform1f(this.uniformLocations.u_pixelRatio!, pixelRatio);
       this.resolutionChanged = false;
     }
 
