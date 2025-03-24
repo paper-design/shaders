@@ -1,31 +1,59 @@
 /* eslint-disable @next/next/no-img-element */
+
 'use client';
 import { useRef, useState } from 'react';
+import { flushSync } from 'react-dom';
 
 export default function Page() {
+  // React scaffolding
   const [fit, setFit] = useState<'crop' | 'cover' | 'contain'>('cover');
-
-  const [canvasWidth, setCanvasWidth] = useState(100);
-  const [canvasHeight, setCanvasHeight] = useState(100);
-
-  const [worldWidth, setWorldWidth] = useState(100);
-  const [worldHeight, setWorldHeight] = useState(100);
-
+  const [image, setImage] = useState('image-square.png');
+  const [canvasWidth, setCanvasWidth] = useState(400);
+  const [canvasHeight, setCanvasHeight] = useState(200);
+  const [worldWidth, setWorldWidth] = useState(400);
+  const [worldHeight, setWorldHeight] = useState(200);
   const [originX, setOriginX] = useState(0.5);
   const [originY, setOriginY] = useState(0.5);
-
-  const [imageWidth, setImageWidth] = useState(100);
-  const [imageHeight, setImageHeight] = useState(100);
-
+  const imageAspectRatio = image.includes('square') ? 1 : image.includes('landscape') ? 2 : 0.5;
   const canvasResizeObserver = useRef<ResizeObserver | null>(null);
   const canvasNodeRef = useRef<HTMLDivElement>(null);
 
-  const worldNodeRef = useRef<HTMLDivElement>(null);
-  const worldResizeObserver = useRef<ResizeObserver | null>(null);
+  // Sizes
+  const renderedWorldWidth = Math.max(canvasWidth, worldWidth);
+  const renderedWorldHeight = Math.max(canvasHeight, worldHeight);
+
+  const imageWidth = (() => {
+    if (fit === 'cover') {
+      return imageAspectRatio * Math.max(renderedWorldWidth / imageAspectRatio, renderedWorldHeight);
+    }
+
+    if (fit === 'contain') {
+      return imageAspectRatio * Math.min(renderedWorldWidth / imageAspectRatio, renderedWorldHeight);
+    }
+
+    // fit === 'crop'
+    return imageAspectRatio * Math.min(worldWidth / imageAspectRatio, worldHeight);
+  })();
+
+  const imageHeight = imageWidth / imageAspectRatio;
+  const imageOffsetX = (canvasWidth - imageWidth) * originX;
+  const imageOffsetY = (canvasHeight - imageHeight) * originY;
 
   return (
     <div className="grid min-h-dvh grid-cols-[1fr_300px] bg-[#333]">
-      <div className="jusify-center relative flex flex-col items-center self-center">
+      <div className="jusify-center relative flex h-full flex-col items-center self-center">
+        <div
+          inert
+          className="absolute left-0 right-0 top-1/2 -translate-y-1/2 outline outline-1 outline-white/20"
+          style={{ height: renderedWorldHeight }}
+        />
+
+        <div
+          inert
+          className="absolute bottom-0 left-1/2 top-0 -translate-x-1/2 outline outline-1 outline-white/20"
+          style={{ width: renderedWorldWidth }}
+        />
+
         <div
           className="bg-gray absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 resize overflow-hidden bg-black outline outline-black"
           style={{
@@ -38,36 +66,26 @@ export default function Page() {
 
             if (node) {
               canvasResizeObserver.current = new ResizeObserver(() => {
-                setCanvasWidth(node.clientWidth);
-                setCanvasHeight(node.clientHeight);
+                flushSync(() => {
+                  setCanvasWidth(node.clientWidth);
+                  setCanvasHeight(node.clientHeight);
+                });
               });
 
               canvasResizeObserver.current.observe(node);
             }
           }}
         >
-          <div
-            className="absolute resize overflow-hidden bg-black outline-dotted -outline-offset-1 outline-[red]"
+          <img
+            src={`/${image}`}
+            alt=""
+            className="block size-1 max-w-none outline-dotted -outline-offset-1 outline-[red]"
             style={{
-              width: worldWidth,
-              height: worldHeight,
+              width: imageWidth,
+              height: imageHeight,
+              translate: `${imageOffsetX}px ${imageOffsetY}px`,
             }}
-            ref={(node) => {
-              worldNodeRef.current = node;
-              worldResizeObserver.current?.disconnect();
-
-              if (node) {
-                worldResizeObserver.current = new ResizeObserver(() => {
-                  setWorldWidth(node.clientWidth);
-                  setWorldHeight(node.clientHeight);
-                });
-
-                worldResizeObserver.current.observe(node);
-              }
-            }}
-          >
-            <img src="/image.webp" alt="" className="max-w-none" width={imageWidth} height={imageHeight} />
-          </div>
+          />
         </div>
       </div>
 
@@ -130,6 +148,22 @@ export default function Page() {
           </div>
 
           <div className="flex flex-col gap-1">
+            <label htmlFor="aspectRatio" className="text-sm font-medium">
+              Image aspect ratio
+            </label>
+            <select
+              id="aspectRatio"
+              className="h-7 appearance-none rounded bg-black/5 px-2 text-base"
+              value={image}
+              onChange={(e) => setImage(e.target.value)}
+            >
+              <option value="image-square.png">Square 1:1</option>
+              <option value="image-landscape.webp">Landscape 2:1</option>
+              <option value="image-portrait.webp">Portrait 1:2</option>
+            </select>
+          </div>
+
+          <div className="flex flex-col gap-1">
             <label htmlFor="fit" className="text-sm font-medium">
               Fit
             </label>
@@ -175,6 +209,24 @@ export default function Page() {
               className="h-7 rounded bg-black/5 px-2 text-base"
               onChange={(e) => setOriginY(Number(e.target.value))}
             />
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <span className="text-sm font-medium text-black/50">
+              Rendered world width: {Math.round(renderedWorldWidth)}
+            </span>
+            <span className="text-sm font-medium text-black/50">
+              Rendered world height: {Math.round(renderedWorldHeight)}
+            </span>
+
+            {/* <span className="text-sm font-medium text-black/50">
+              Rendered aspect ratio: {renderAspectRatio.toFixed(3)}
+            </span> */}
+
+            {/* <span className="text-sm font-medium text-black/50">Fit size: {Math.round(fitSize)}</span> */}
+
+            <span className="text-sm font-medium text-black/50">Origin offset X: {Math.round(imageOffsetX)}</span>
+            <span className="text-sm font-medium text-black/50">Origin offset Y: {Math.round(imageOffsetY)}</span>
           </div>
         </div>
       </div>
