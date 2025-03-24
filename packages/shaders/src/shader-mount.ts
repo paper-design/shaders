@@ -33,6 +33,8 @@ export class ShaderMount {
   private resolutionChanged = true;
   /** Store textures that are provided by the user */
   private textures: Map<string, WebGLTexture> = new Map();
+  /** The maximum resolution (on the larger axis) that we render for the shader, to protect against insane resolutions and bad performance. Actual CSS size of the canvas can be larger, it will just lose quality after this */
+  private maxResolution = 0; // set by constructor
 
   constructor(
     canvas: HTMLCanvasElement,
@@ -44,13 +46,14 @@ export class ShaderMount {
     /** Pass a frame to offset the starting u_time value and give deterministic results*/
     frame = 0,
     /** The maximum resolution (on the larger axis) that we render for the shader, to protect against insane resolutions and bad performance. Actual CSS size of the canvas can be larger, it will just lose quality after this */
-    private maxResolution = 1920
+    maxResolution = 3840 // 1920@2X
   ) {
     this.canvas = canvas as PaperShaderCanvasElement;
     this.fragmentShader = fragmentShader;
     this.providedUniforms = uniforms;
     // Base our starting animation time on the provided frame value
     this.totalFrameTime = frame;
+    this.maxResolution = maxResolution;
 
     const gl = canvas.getContext('webgl2', webGlContextAttributes);
     if (!gl) {
