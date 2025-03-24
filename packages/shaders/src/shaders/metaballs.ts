@@ -64,9 +64,8 @@ void main() {
   float ratio = u_resolution.x / u_resolution.y;
 
   uv -= .5;
-  uv /= u_pixelRatio;
   float scale = .5 * u_scale + 1e-4;
-  uv *= (18. * (1. - step(1. - scale, 1.) / scale));
+  uv *= (9. * (1. - step(1. - scale, 1.) / scale));
   uv += .5;
   uv.x *= ratio;
 

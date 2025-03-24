@@ -14,8 +14,6 @@ export type SteppedSimplexNoiseParams = {
   color4?: string;
   color5?: string;
   stepsNumber?: number;
-  worldWidth?: number;
-  worldHeight?: number;
 } & GlobalParams;
 
 export type SteppedSimplexNoiseProps = Omit<ShaderMountProps, 'fragmentShader'> & SteppedSimplexNoiseParams;
@@ -31,21 +29,66 @@ export const defaultPreset: SteppedSimplexNoisePreset = {
   params: {
     scale: 1,
     speed: 0.15,
-    seed: 0,
+    frame: 0,
     color1: 'hsla(208, 25%, 45%, 1)',
     color2: 'hsla(94, 38%, 59%, 1)',
     color3: 'hsla(359, 94%, 62%, 1)',
     color4: 'hsla(42, 93%, 64%, 1)',
     color5: 'hsla(0, 0%, 100%, 1)',
     stepsNumber: 13,
-    worldWidth: 500,
-    worldHeight: 500,
   },
 } as const;
 
+const magmaPreset: SteppedSimplexNoisePreset = {
+  name: 'Magma',
+  params: {
+    scale: 0.3,
+    speed: 0.2,
+    frame: 0,
+    color1: 'hsla(0, 100%, 36%, 1)',
+    color2: 'hsla(0, 95%, 44%, 1)',
+    color3: 'hsla(20, 100%, 49%, 1)',
+    color4: 'hsla(45, 100%, 45%, 1)',
+    color5: 'hsla(31, 100%, 94%, 1)',
+    stepsNumber: 8,
+  },
+};
+
+const bloodCellPreset: SteppedSimplexNoisePreset = {
+  name: 'Blood cell',
+  params: {
+    scale: 1.2,
+    speed: 0.22,
+    frame: 0,
+    color1: 'hsla(302, 43%, 13%, 1)',
+    color2: 'hsla(325, 93%, 17%, 1)',
+    color3: 'hsla(338, 80%, 25%, 1)',
+    color4: 'hsla(338, 80%, 25%, 1)',
+    color5: 'hsla(2, 85%, 72%, 1)',
+    stepsNumber: 29,
+  },
+};
+
+const firstContactPreset: SteppedSimplexNoisePreset = {
+  name: 'First contact',
+  params: {
+    scale: 1.2,
+    speed: -0.1,
+    frame: 0,
+    color1: 'hsla(300, 43%, 82%, 1)',
+    color2: 'hsla(266, 70%, 9%, 1)',
+    color3: 'hsla(289, 36%, 26%, 1)',
+    color4: 'hsla(0, 41%, 78%, 1)',
+    color5: 'hsla(0, 100%, 96%, 1)',
+    stepsNumber: 40,
+  },
+};
 
 export const steppedSimplexNoisePresets: SteppedSimplexNoisePreset[] = [
   defaultPreset,
+  magmaPreset,
+  bloodCellPreset,
+  firstContactPreset,
 ];
 
 export const SteppedSimplexNoise = (props: SteppedSimplexNoiseProps): JSX.Element => {
@@ -58,10 +101,8 @@ export const SteppedSimplexNoise = (props: SteppedSimplexNoiseProps): JSX.Elemen
       u_color4: getShaderColorFromString(props.color4, defaultPreset.params.color4),
       u_color5: getShaderColorFromString(props.color5, defaultPreset.params.color5),
       u_steps_number: props.stepsNumber ?? defaultPreset.params.stepsNumber,
-      u_worldWidth: props.worldWidth ?? defaultPreset.params.worldWidth,
-      u_worldHeight: props.worldHeight ?? defaultPreset.params.worldHeight,
     };
-  }, [props.scale, props.color1, props.color2, props.color3, props.color4, props.color5, props.stepsNumber, props.worldWidth, props.worldHeight]);
+  }, [props.scale, props.color1, props.color2, props.color3, props.color4, props.color5, props.stepsNumber]);
 
   return <ShaderMount {...props} fragmentShader={steppedSimplexNoiseFragmentShader} uniforms={uniforms} />;
 };

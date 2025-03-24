@@ -13,7 +13,7 @@ export function WavesExample(props: WavesProps) {
       amplitude={0.5}
       spacing={0.75}
       dutyCycle={0.2}
-      edgeBlur={0}
+      softness={0}
       shape={1}
       style={{ position: 'fixed', width: '100%', height: '100%' }}
       {...props}

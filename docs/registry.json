@@ -4,27 +4,27 @@
   "homepage": "https://shaders.paper.design",
   "items": [
     {
-      "name": "dots-grid",
+      "name": "dot-grid",
       "type": "registry:component",
-      "title": "Dots Grid Example",
-      "description": "Dots Grid shader example.",
+      "title": "Dot Grid Example",
+      "description": "Dot Grid shader example.",
       "dependencies": ["@paper-design/shaders-react"],
       "files": [
         {
-          "path": "registry/dots-grid-example.tsx",
+          "path": "registry/dot-grid-example.tsx",
           "type": "registry:component"
         }
       ]
     },
     {
-      "name": "dots-orbit",
+      "name": "dot-orbit",
       "type": "registry:component",
-      "title": "Dots Orbit Example",
-      "description": "Dots Orbit shader example.",
+      "title": "Dot Orbit Example",
+      "description": "Dot Orbit shader example.",
       "dependencies": ["@paper-design/shaders-react"],
       "files": [
         {
-          "path": "registry/dots-orbit-example.tsx",
+          "path": "registry/dot-orbit-example.tsx",
           "type": "registry:component"
         }
       ]

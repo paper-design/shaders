@@ -20,7 +20,6 @@ const SmokeRingExample = () => {
       noiseScale={1.4}
       thickness={0.33}
       speed={1}
-      seed={0}
       style={{ position: 'fixed', width: '100%', height: '100%' }}
     />
   );

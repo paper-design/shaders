@@ -35,9 +35,6 @@ uniform vec4 u_colorInner;
 uniform vec4 u_colorOuter;
 uniform float u_noiseScale;
 uniform float u_thickness;
-uniform float u_worldWidth;
-uniform float u_worldHeight;
-uniform float u_fit;
 
 out vec4 fragColor;
 
@@ -84,44 +81,14 @@ float get_ring_shape(vec2 uv, float innerRadius, float outerRadius) {
 }
 
 void main() {
-
   vec2 uv = gl_FragCoord.xy / u_resolution.xy;
   float ratio = u_resolution.x / u_resolution.y;
-  float worldRatio = u_worldWidth / u_worldHeight;
 
   uv -= .5;
-  
-  vec2 world = vec2(u_worldWidth, u_worldHeight) * u_pixelRatio;
-  
-  uv.x *= (u_resolution.x / world.x);
-  uv.y *= (u_resolution.y / world.y);
- 
-  if (world.x < u_resolution.x && world.y < u_resolution.y) {
-    if (u_fit == 0.) {
-//      float scaleFactor = min(u_resolution.x / world.x, u_resolution.y / world.y);
-//      uv /= scaleFactor;
-    } else {
-//       float scaleFactor = min(world.x / u_resolution.x, world.y / u_resolution.y);
-//      uv *= scaleFactor;
-    }
-  }
-  vec2 box_uv = uv;
-
-  if (u_fit == 0.) {
-    if (worldRatio > 1.) {
-        uv.x *= worldRatio;
-    } else {
-        uv.y /= worldRatio;
-    }
-  } else if (u_fit == 1.) {
-    if (worldRatio > 1.) {
-        uv.y /= worldRatio;
-    } else {
-        uv.x *= worldRatio;
-    }
-  }
- 
-
+  float scale = .5 * u_scale + 1e-4;
+  uv *= (1. - step(1. - scale, 1.) / scale);
+  uv *= 1.5;
+  uv.x *= ratio;
 
   float t = u_time;
 
@@ -131,14 +98,14 @@ void main() {
   vec2 polar_uv = vec2(atg, .1 * t - (.5 * length(uv)) + 1. / pow(length(uv), .5));
   polar_uv *= u_noiseScale;
 
-  float noise_left = fbm(polar_uv + .05 * t);
+  float noise_left = fbm(polar_uv + mod(.05 * t, 35.));
   polar_uv.x = mod(polar_uv.x, u_noiseScale * TWO_PI);
-  float noise_right = fbm(polar_uv + .05 * t);
+  float noise_right = fbm(polar_uv + mod(.05 * t, 35.));
   float noise = mix(noise_right, noise_left, smoothstep(-.2, .2, uv.x));
 
   float center_shape = 1. - pow(smoothstep(2., .0, length(uv)), 50.);
 
-  float radius = .29 - .25 * u_thickness;
+  float radius = .4 - .25 * u_thickness;
   float thickness = u_thickness;
   thickness = pow(thickness, 2.);
 
@@ -162,16 +129,7 @@ void main() {
 
   color += u_colorBack.rgb * ring_shape_inner * (1. - u_colorInner.a) * background;
   color += u_colorBack.rgb * ring_shape_outer * (1. - u_colorOuter.a) * background;
-  
-  
-    vec2 halfSize = vec2(.5);
-    vec2 dist = abs(box_uv);
-    vec2 outer = step(halfSize, dist);
-    vec2 inner = step(halfSize -  0.01, dist);
-    float stroke = (1.0 - outer.x) * (1.0 - outer.y) * (inner.x + inner.y);
-    color.r += .5 * stroke;
 
   fragColor = vec4(color, opacity);
-//  fragColor = vec4(vec3(test), 1.);
 }
 `;

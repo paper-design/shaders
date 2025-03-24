@@ -18,7 +18,6 @@ const MeshGradientExample = () => {
       color3="#f4e8b8"
       color4="#c79acb"
       speed={0.15}
-      seed={0}
       style={{ position: 'fixed', width: '100%', height: '100%' }}
     />
   );

@@ -41,7 +41,7 @@ export const defaultPreset: GodRaysPreset = {
     density: 0.3,
     blending: 0,
     speed: 1,
-    seed: 0,
+    frame: 0,
   },
 } as const;
 
@@ -61,7 +61,7 @@ export const auroraPreset: GodRaysPreset = {
     density: 0.5,
     blending: 1,
     speed: 0.5,
-    seed: 0,
+    frame: 0,
   },
 } as const;
 
@@ -81,7 +81,7 @@ export const warpPreset: GodRaysPreset = {
     density: 0.79,
     blending: 0.4,
     speed: 2,
-    seed: 0,
+    frame: 0,
   },
 } as const;
 
@@ -101,7 +101,7 @@ export const linearPreset: GodRaysPreset = {
     density: 0.79,
     blending: 1,
     speed: 0.5,
-    seed: 0,
+    frame: 0,
   },
 } as const;
 
@@ -121,7 +121,7 @@ export const etherPreset: GodRaysPreset = {
     density: 0.6,
     blending: 0.6,
     speed: 1,
-    seed: 0,
+    frame: 0,
   },
 } as const;
 

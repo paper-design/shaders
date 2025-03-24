@@ -15,7 +15,7 @@ export type SpiralParams = {
   strokeCap?: number;
   noiseFreq?: number;
   noisePower?: number;
-  blur?: number;
+  softness?: number;
 } & GlobalParams;
 
 export type SpiralProps = Omit<ShaderMountProps, 'fragmentShader'> & SpiralParams;
@@ -41,9 +41,9 @@ export const defaultPreset: SpiralPreset = {
     strokeCap: 0,
     noiseFreq: 0,
     noisePower: 0,
-    blur: 0.01,
+    softness: 0.01,
     speed: 1,
-    seed: 0,
+    frame: 0,
   },
 } as const;
 
@@ -62,9 +62,9 @@ export const noisyPreset: SpiralPreset = {
     strokeCap: 0.5,
     noiseFreq: 0.1,
     noisePower: 1,
-    blur: 0,
+    softness: 0,
     speed: 1,
-    seed: 0,
+    frame: 0,
   },
 } as const;
 
@@ -83,9 +83,9 @@ export const dropletPreset: SpiralPreset = {
     strokeCap: 1,
     noiseFreq: 0,
     noisePower: 0,
-    blur: 0,
+    softness: 0,
     speed: 1,
-    seed: 0,
+    frame: 0,
   },
 } as const;
 
@@ -104,9 +104,9 @@ export const sandPreset: SpiralPreset = {
     strokeCap: 0,
     noiseFreq: 30,
     noisePower: 1,
-    blur: 0.2,
+    softness: 0.2,
     speed: 0,
-    seed: 0,
+    frame: 0,
   },
 } as const;
 
@@ -125,9 +125,9 @@ export const swirlPreset: SpiralPreset = {
     strokeCap: 0,
     noiseFreq: 0,
     noisePower: 0,
-    blur: 0.5,
+    softness: 0.5,
     speed: 1,
-    seed: 0,
+    frame: 0,
   },
 } as const;
 
@@ -146,9 +146,9 @@ export const hookPreset: SpiralPreset = {
     strokeCap: 0,
     noiseFreq: 0,
     noisePower: 0,
-    blur: 0.02,
+    softness: 0.02,
     speed: 3,
-    seed: 0,
+    frame: 0,
   },
 } as const;
 
@@ -167,9 +167,9 @@ export const vinylPreset: SpiralPreset = {
     strokeCap: 1,
     noiseFreq: 0,
     noisePower: 0,
-    blur: 0.11,
+    softness: 0.11,
     speed: 1,
-    seed: 0,
+    frame: 0,
   },
 } as const;
 
@@ -198,7 +198,7 @@ export const Spiral = (props: SpiralProps): JSX.Element => {
       u_strokeCap: props.strokeCap ?? defaultPreset.params.strokeCap,
       u_noiseFreq: props.noiseFreq ?? defaultPreset.params.noiseFreq,
       u_noisePower: props.noisePower ?? defaultPreset.params.noisePower,
-      u_blur: props.blur ?? defaultPreset.params.blur,
+      u_softness: props.softness ?? defaultPreset.params.softness,
     };
   }, [
     props.color1,
@@ -213,7 +213,7 @@ export const Spiral = (props: SpiralProps): JSX.Element => {
     props.strokeCap,
     props.noiseFreq,
     props.noisePower,
-    props.blur,
+    props.softness,
   ]);
 
   return <ShaderMount {...props} fragmentShader={spiralFragmentShader} uniforms={uniforms} />;

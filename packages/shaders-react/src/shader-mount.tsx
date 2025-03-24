@@ -6,16 +6,17 @@ export type ShaderMountUniformsReact = { [key: string]: ShaderMountUniforms[keyo
 
 export interface ShaderMountProps {
   ref?: React.RefObject<HTMLCanvasElement>;
+  shaderMountRef?: React.MutableRefObject<ShaderMountVanilla | null>;
   fragmentShader: string;
   style?: React.CSSProperties;
   uniforms?: ShaderMountUniformsReact;
   webGlContextAttributes?: WebGLContextAttributes;
   speed?: number;
-  seed?: number;
+  frame?: number;
 }
 
 /** Params that every shader can set as part of their controls */
-export type GlobalParams = Pick<ShaderMountProps, 'speed' | 'seed'>;
+export type GlobalParams = Pick<ShaderMountProps, 'speed' | 'frame'>;
 
 /** Parse the provided uniforms, turning URL strings into loaded images */
 const processUniforms = (uniforms: ShaderMountUniformsReact): Promise<ShaderMountUniforms> => {
@@ -82,27 +83,29 @@ const processUniforms = (uniforms: ShaderMountUniformsReact): Promise<ShaderMoun
  */
 export const ShaderMount: React.FC<ShaderMountProps> = ({
   ref,
+  shaderMountRef: externalShaderMountRef,
   fragmentShader,
   style,
   uniforms = {},
   webGlContextAttributes,
   speed = 1,
-  seed = 0,
+  frame = 0,
 }) => {
   const canvasRef = ref ?? useRef<HTMLCanvasElement>(null);
-  const shaderMountRef = useRef<ShaderMountVanilla | null>(null);
+  const shaderMountRef = externalShaderMountRef ?? useRef<ShaderMountVanilla | null>(null);
 
   useEffect(() => {
     const initShader = async () => {
-      if (canvasRef.current) {
-        const processedUniforms = await processUniforms(uniforms);
+      const processedUniforms = await processUniforms(uniforms);
+
+      if (canvasRef.current && !shaderMountRef.current) {
         shaderMountRef.current = new ShaderMountVanilla(
           canvasRef.current,
           fragmentShader,
           processedUniforms,
           webGlContextAttributes,
           speed,
-          seed
+          frame
         );
       }
     };
@@ -111,6 +114,7 @@ export const ShaderMount: React.FC<ShaderMountProps> = ({
 
     return () => {
       shaderMountRef.current?.dispose();
+      shaderMountRef.current = null;
     };
   }, [fragmentShader, webGlContextAttributes]);
 
@@ -128,8 +132,8 @@ export const ShaderMount: React.FC<ShaderMountProps> = ({
   }, [speed]);
 
   useEffect(() => {
-    shaderMountRef.current?.setSeed(seed);
-  }, [seed]);
+    shaderMountRef.current?.setFrame(frame);
+  }, [frame]);
 
   return <canvas ref={canvasRef} style={style} />;
 };

@@ -1,6 +1,6 @@
 {
   "name": "@paper-design/shaders-react",
-  "version": "0.0.21",
+  "version": "0.0.25",
   "license": "MIT",
   "type": "module",
   "publishConfig": {

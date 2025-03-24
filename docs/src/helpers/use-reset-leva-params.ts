@@ -12,7 +12,7 @@ export function setParamsSafe(params: any, setParams: any, defaults: any) {
   const newParamObject: Record<string, any> = {};
 
   // We need to prune off any extra keys from the defaults if there isn't a leva control for it
-  // Not all shaders have leva controls for all params, like seed is often not needed
+  // Not all shaders have leva controls for all params, like frame is often not needed
   // But leva will throw an error if we try to set a param for a control that doesn't exist
   for (const [key, value] of Object.entries(defaults)) {
     if (key in params) {

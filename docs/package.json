@@ -10,8 +10,9 @@
   },
   "dependencies": {
     "@paper-design/shaders-react": "workspace:*",
+    "@vercel/analytics": "^1.5.0",
     "leva": "0.9.34",
-    "next": "15.1.2",
+    "next": "15.2.3",
     "react": "19.0.0",
     "react-dom": "19.0.0"
   },

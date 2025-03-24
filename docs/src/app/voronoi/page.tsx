@@ -21,9 +21,8 @@ const VoronoiExample = () => {
       scale={1}
       distance={0.25}
       edgesSize={0.2}
-      edgesSharpness={0}
+      edgesSoftness={0}
       speed={1}
-      seed={0}
       style={{ position: 'fixed', width: '100%', height: '100%' }}
     />
   );
@@ -52,9 +51,9 @@ const VoronoiWithControls = () => {
           scale: { value: defaults.scale, min: 0.15, max: 3, order: 200 },
           distance: { value: defaults.distance, min: 0, max: 0.5, order: 300 },
           edgesSize: { value: defaults.edgesSize, min: 0, max: 1, order: 301 },
-          edgesSharpness: { value: defaults.edgesSharpness, min: 0, max: 1, order: 302 },
+          edgesSoftness: { value: defaults.edgesSoftness, min: 0, max: 1, order: 302 },
           middleSize: { value: defaults.middleSize, min: 0, max: 1, order: 303 },
-          middleSharpness: { value: defaults.middleSharpness, min: 0, max: 1, order: 304 },
+          middleSoftness: { value: defaults.middleSoftness, min: 0, max: 1, order: 304 },
           speed: { value: defaults.speed, min: 0, max: 1, order: 400 },
         },
         { order: 1 }

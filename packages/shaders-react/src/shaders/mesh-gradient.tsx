@@ -21,7 +21,7 @@ export const defaultPreset: MeshGradientPreset = {
   name: 'Default',
   params: {
     speed: 0.15,
-    seed: 0,
+    frame: 0,
     color1: 'hsla(259, 29%, 73%, 1)',
     color2: 'hsla(263, 57%, 39%, 1)',
     color3: 'hsla(48, 73%, 84%, 1)',
@@ -33,7 +33,7 @@ export const beachPreset: MeshGradientPreset = {
   name: 'Beach',
   params: {
     speed: 0.1,
-    seed: 0,
+    frame: 0,
     color1: 'hsla(186, 81%, 83%, 1)',
     color2: 'hsla(198, 55%, 68%, 1)',
     color3: 'hsla(53, 67%, 88%, 1)',
@@ -45,7 +45,7 @@ export const fadedPreset: MeshGradientPreset = {
   name: 'Faded',
   params: {
     speed: -0.3,
-    seed: 0,
+    frame: 0,
     color1: 'hsla(186, 41%, 90%, 1)',
     color2: 'hsla(208, 71%, 85%, 1)',
     color3: 'hsla(183, 51%, 92%, 1)',
