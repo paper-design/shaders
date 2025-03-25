@@ -66,7 +66,7 @@ void main() {
   const int max_balls_number = 15;
   
   for (int i = 0; i < max_balls_number; i++) {
-    vec2 pos = vec2(.5) + 1e-4;
+    vec2 pos = vec2(1e-4);
     float idx_fract = float(i) / float(max_balls_number);
     float angle = TWO_PI * idx_fract;
 
@@ -74,7 +74,7 @@ void main() {
     float noiseX = noise(angle * 10. + float(i) + t * speed);
     float noiseY = noise(angle * 20. + float(i) - t * speed);
 
-    pos += (vec2(noiseX, noiseY) - 1.);
+    pos += .99 * (vec2(noiseX, noiseY) - .5);
 
     vec4 ball_color;
     if (i % 3 == 0) {
@@ -99,10 +99,9 @@ void main() {
   float final_shape = smoothstep(.4, .4 + edge_width, total_shape);
 
   vec3 color = total_color * final_shape;
-  // color = vec3(0.);
   
-  float circle = 1. - smoothstep(.49, .5, length(uv));
-  color.r = .5 * circle;
+  float circle = smoothstep(.49, .495, length(uv)) - smoothstep(.495, .5, length(uv));
+  color.r = circle;
   
   float opacity = final_shape + circle;
 
@@ -151,18 +150,6 @@ export default function Page() {
   return (
     <div className="grid min-h-dvh grid-cols-[1fr_300px]">
       <div className="jusify-center relative flex h-full flex-col items-center self-center">
-        <div
-          inert
-          className="absolute left-0 right-0 top-1/2 -translate-y-1/2"
-          style={{ height: renderedWorldHeight, border: '1px dotted grey' }}
-        />
-
-        <div
-          inert
-          className="absolute bottom-0 left-1/2 top-0 -translate-x-1/2"
-          style={{ width: renderedWorldWidth, border: '1px dotted grey' }}
-        />
-
         <div
           className="bg-gray absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 resize overflow-hidden bg-black"
           style={{
