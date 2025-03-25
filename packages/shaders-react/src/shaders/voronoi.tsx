@@ -18,7 +18,7 @@ export type VoronoiParams = {
 
 export type VoronoiProps = Omit<ShaderMountProps, 'fragmentShader'> & VoronoiParams;
 
-type VoronoiPreset = { name: string; params: Required<VoronoiParams> };
+type VoronoiPreset = { name: string; params: Required<VoronoiParams>; style?: React.CSSProperties };
 
 // Due to Leva controls limitation:
 // 1) keep default colors in HSLA format to keep alpha channel
@@ -41,7 +41,7 @@ export const defaultPreset: VoronoiPreset = {
     middleSize: 0,
     middleSoftness: 0,
   },
-} as const;
+};
 
 export const classicPreset: VoronoiPreset = {
   name: 'Classic',
@@ -60,7 +60,7 @@ export const classicPreset: VoronoiPreset = {
     middleSize: 0,
     middleSoftness: 0,
   },
-} as const;
+};
 
 export const giraffePreset: VoronoiPreset = {
   name: 'Giraffe',
@@ -79,7 +79,7 @@ export const giraffePreset: VoronoiPreset = {
     middleSize: 0,
     middleSoftness: 0,
   },
-} as const;
+};
 
 export const eyesPreset: VoronoiPreset = {
   name: 'Eyes',
@@ -98,7 +98,7 @@ export const eyesPreset: VoronoiPreset = {
     middleSize: 0.1,
     middleSoftness: 0,
   },
-} as const;
+};
 
 export const bubblesPreset: VoronoiPreset = {
   name: 'Bubbles',
@@ -117,7 +117,7 @@ export const bubblesPreset: VoronoiPreset = {
     middleSize: 0,
     middleSoftness: 0,
   },
-} as const;
+};
 
 export const cellsPreset: VoronoiPreset = {
   name: 'Cells',
@@ -136,7 +136,7 @@ export const cellsPreset: VoronoiPreset = {
     middleSize: 0,
     middleSoftness: 0,
   },
-} as const;
+};
 
 export const glowPreset: VoronoiPreset = {
   name: 'Glow',
@@ -155,7 +155,7 @@ export const glowPreset: VoronoiPreset = {
     middleSize: 0.7,
     middleSoftness: 1,
   },
-} as const;
+};
 
 export const tilesPreset: VoronoiPreset = {
   name: 'Tiles',
@@ -174,7 +174,7 @@ export const tilesPreset: VoronoiPreset = {
     middleSize: 0,
     middleSoftness: 0,
   },
-} as const;
+};
 
 export const voronoiPresets: VoronoiPreset[] = [
   defaultPreset,

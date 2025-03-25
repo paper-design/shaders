@@ -18,7 +18,11 @@ export type SteppedSimplexNoiseParams = {
 
 export type SteppedSimplexNoiseProps = Omit<ShaderMountProps, 'fragmentShader'> & SteppedSimplexNoiseParams;
 
-type SteppedSimplexNoisePreset = { name: string; params: Required<SteppedSimplexNoiseParams> };
+type SteppedSimplexNoisePreset = {
+  name: string;
+  params: Required<SteppedSimplexNoiseParams>;
+  style?: React.CSSProperties;
+};
 
 // Due to Leva controls limitation:
 // 1) keep default colors in HSLA format to keep alpha channel
@@ -37,7 +41,7 @@ export const defaultPreset: SteppedSimplexNoisePreset = {
     color5: 'hsla(0, 0%, 100%, 1)',
     stepsNumber: 13,
   },
-} as const;
+};
 
 const magmaPreset: SteppedSimplexNoisePreset = {
   name: 'Magma',

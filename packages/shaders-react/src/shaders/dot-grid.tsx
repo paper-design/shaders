@@ -26,13 +26,13 @@ export type DotGridParams = {
 
 export type DotGridProps = Omit<ShaderMountProps, 'fragmentShader'> & DotGridParams;
 
-type DotGridPreset = { name: string; params: Required<DotGridParams> };
+type DotGridPreset = { name: string; params: Required<DotGridParams>; style?: React.CSSProperties };
 
 export const defaultPreset: DotGridPreset = {
   name: 'Default',
   params: {
-    colorFill: 'hsla(145, 30%, 10%, 1)',
-    colorStroke: 'hsla(39, 88%, 52%, 1)',
+    colorFill: 'hsla(0, 0%, 0%, 1)',
+    colorStroke: 'hsla(40, 100%, 50%, 1)',
     dotSize: 2,
     gridSpacingX: 50,
     gridSpacingY: 50,
@@ -41,7 +41,7 @@ export const defaultPreset: DotGridPreset = {
     opacityRange: 0,
     shape: DotGridShapes.Circle,
   },
-} as const;
+};
 
 export const macrodataPreset: DotGridPreset = {
   name: 'Macrodata',
@@ -55,6 +55,9 @@ export const macrodataPreset: DotGridPreset = {
     sizeRange: 0.25,
     opacityRange: 0.9,
     shape: DotGridShapes.Circle,
+  },
+  style: {
+    background: 'hsla(211, 37%, 13%, 1)',
   },
 };
 
@@ -71,7 +74,10 @@ const trianglesPreset: DotGridPreset = {
     opacityRange: 0,
     shape: DotGridShapes.Triangle,
   },
-} as const;
+  style: {
+    background: 'hsla(0, 0%, 100%, 1)',
+  },
+};
 
 const bubblesPreset: DotGridPreset = {
   name: 'Bubbles',
@@ -86,7 +92,10 @@ const bubblesPreset: DotGridPreset = {
     opacityRange: 1.3,
     shape: DotGridShapes.Circle,
   },
-} as const;
+  style: {
+    background: 'hsla(234, 100%, 31%, .5)',
+  },
+};
 
 const treeLinePreset: DotGridPreset = {
   name: 'Tree line',
@@ -101,7 +110,10 @@ const treeLinePreset: DotGridPreset = {
     opacityRange: 0.6,
     shape: DotGridShapes.Circle,
   },
-} as const;
+  style: {
+    background: 'hsla(100, 100%, 36%, .05)',
+  },
+};
 
 const diamondsPreset: DotGridPreset = {
   name: 'Diamonds',
@@ -116,7 +128,10 @@ const diamondsPreset: DotGridPreset = {
     opacityRange: 2,
     shape: DotGridShapes.Diamond,
   },
-} as const;
+  style: {
+    background: 'hsla(0, 0%, 0%, 0)',
+  },
+};
 
 const wallpaperPreset: DotGridPreset = {
   name: 'Wallpaper',
@@ -131,7 +146,10 @@ const wallpaperPreset: DotGridPreset = {
     opacityRange: 0,
     shape: DotGridShapes.Diamond,
   },
-} as const;
+  style: {
+    background: 'hsla(154, 33%, 19%, 1)',
+  },
+};
 
 const matrixPreset: DotGridPreset = {
   name: 'Enter the Matrix',
@@ -146,7 +164,10 @@ const matrixPreset: DotGridPreset = {
     opacityRange: 1,
     shape: DotGridShapes.Triangle,
   },
-} as const;
+  style: {
+    background: 'hsla(0, 100%, 0%, 1)',
+  },
+};
 
 const waveformPreset: DotGridPreset = {
   name: 'Waveform',
@@ -161,7 +182,10 @@ const waveformPreset: DotGridPreset = {
     opacityRange: 0,
     shape: DotGridShapes.Square,
   },
-} as const;
+  style: {
+    background: 'hsla(0, 100%, 100%, 1)',
+  },
+};
 
 export const dotGridPresets: DotGridPreset[] = [
   defaultPreset,

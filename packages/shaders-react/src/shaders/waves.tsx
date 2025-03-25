@@ -16,7 +16,7 @@ export type WavesParams = {
 
 export type WavesProps = Omit<ShaderMountProps, 'fragmentShader'> & WavesParams;
 
-type WavesPreset = { name: string; params: Required<WavesParams> };
+type WavesPreset = { name: string; params: Required<WavesParams>; style?: React.CSSProperties };
 
 // Due to Leva controls limitation:
 // 1) keep default colors in HSLA format to keep alpha channel
@@ -35,7 +35,7 @@ export const defaultPreset: WavesPreset = {
     dutyCycle: 0.2,
     softness: 0,
   },
-} as const;
+};
 
 export const spikesPreset: WavesPreset = {
   name: 'Spikes',
@@ -50,7 +50,10 @@ export const spikesPreset: WavesPreset = {
     dutyCycle: 0.93,
     softness: 0.15,
   },
-} as const;
+  style: {
+    background: 'hsla(65, 100%, 95%, 1)',
+  },
+};
 
 export const groovyPreset: WavesPreset = {
   name: 'Groovy',
@@ -65,7 +68,10 @@ export const groovyPreset: WavesPreset = {
     dutyCycle: 0.57,
     softness: 0,
   },
-} as const;
+  style: {
+    background: 'hsla(60, 100%, 97%, 1)',
+  },
+};
 
 export const tangledUpPreset: WavesPreset = {
   name: 'Tangled up',
@@ -80,7 +86,10 @@ export const tangledUpPreset: WavesPreset = {
     dutyCycle: 0.97,
     softness: 0,
   },
-} as const;
+  style: {
+    background: 'hsla(198.7, 66.7%, 14.1%, 1)',
+  },
+};
 
 export const zigZagPreset: WavesPreset = {
   name: 'Zig zag',
@@ -95,7 +104,10 @@ export const zigZagPreset: WavesPreset = {
     dutyCycle: 1,
     softness: 0.5,
   },
-} as const;
+  style: {
+    background: 'hsla(0, 0%, 0%, 1)',
+  },
+};
 
 export const waveRidePreset: WavesPreset = {
   name: 'Ride the wave',
@@ -110,7 +122,10 @@ export const waveRidePreset: WavesPreset = {
     dutyCycle: 0.99,
     softness: 0,
   },
-} as const;
+  style: {
+    background: 'hsla(65, 100%, 95%, 1)',
+  },
+};
 
 export const wavesPresets: WavesPreset[] = [
   defaultPreset,

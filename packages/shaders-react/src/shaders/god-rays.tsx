@@ -19,7 +19,7 @@ export type GodRaysParams = {
 
 export type GodRaysProps = Omit<ShaderMountProps, 'fragmentShader'> & GodRaysParams;
 
-type GodRaysPreset = { name: string; params: Required<GodRaysParams> };
+type GodRaysPreset = { name: string; params: Required<GodRaysParams>; style?: React.CSSProperties };
 
 // Due to Leva controls limitation:
 // 1) keep default colors in HSLA format to keep alpha channel
@@ -43,7 +43,7 @@ export const defaultPreset: GodRaysPreset = {
     speed: 1,
     frame: 0,
   },
-} as const;
+};
 
 export const auroraPreset: GodRaysPreset = {
   name: 'Aurora',
@@ -63,7 +63,7 @@ export const auroraPreset: GodRaysPreset = {
     speed: 0.5,
     frame: 0,
   },
-} as const;
+};
 
 export const warpPreset: GodRaysPreset = {
   name: 'Warp',
@@ -83,7 +83,7 @@ export const warpPreset: GodRaysPreset = {
     speed: 2,
     frame: 0,
   },
-} as const;
+};
 
 export const linearPreset: GodRaysPreset = {
   name: 'Linear',
@@ -103,7 +103,7 @@ export const linearPreset: GodRaysPreset = {
     speed: 0.5,
     frame: 0,
   },
-} as const;
+};
 
 export const etherPreset: GodRaysPreset = {
   name: 'Ether',
@@ -123,7 +123,7 @@ export const etherPreset: GodRaysPreset = {
     speed: 1,
     frame: 0,
   },
-} as const;
+};
 
 export const godRaysPresets: GodRaysPreset[] = [defaultPreset, auroraPreset, warpPreset, linearPreset, etherPreset];
 

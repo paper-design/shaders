@@ -11,7 +11,7 @@ export type GrainCloudsParams = {
 
 export type GrainCloudsProps = Omit<ShaderMountProps, 'fragmentShader'> & GrainCloudsParams;
 
-type GrainCloudsPreset = { name: string; params: Required<GrainCloudsParams> };
+type GrainCloudsPreset = { name: string; params: Required<GrainCloudsParams>; style?: React.CSSProperties };
 
 // Due to Leva controls limitation:
 // 1) keep default colors in HSLA format to keep alpha channel

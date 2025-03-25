@@ -15,7 +15,7 @@ export type DotOrbitParams = {
 
 export type DotOrbitProps = Omit<ShaderMountProps, 'fragmentShader'> & DotOrbitParams;
 
-type DotOrbitPreset = { name: string; params: Required<DotOrbitParams> };
+type DotOrbitPreset = { name: string; params: Required<DotOrbitParams>; style?: React.CSSProperties };
 
 // Due to Leva controls limitation:
 // 1) keep default colors in HSLA format to keep alpha channel
@@ -35,7 +35,7 @@ export const defaultPreset: DotOrbitPreset = {
     dotSizeRange: 0.4,
     spreading: 1,
   },
-} as const;
+};
 
 export const dotOrbitPresets: DotOrbitPreset[] = [defaultPreset];
 

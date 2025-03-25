@@ -20,7 +20,7 @@ export type SpiralParams = {
 
 export type SpiralProps = Omit<ShaderMountProps, 'fragmentShader'> & SpiralParams;
 
-type SpiralPreset = { name: string; params: Required<SpiralParams> };
+type SpiralPreset = { name: string; params: Required<SpiralParams>; style?: React.CSSProperties };
 
 // Due to Leva controls limitation:
 // 1) keep default colors in HSLA format to keep alpha channel
@@ -29,8 +29,8 @@ type SpiralPreset = { name: string; params: Required<SpiralParams> };
 export const defaultPreset: SpiralPreset = {
   name: 'Default',
   params: {
-    color1: 'hsla(0, 0%, 90%, 1)',
-    color2: 'hsla(0, 0%, 25%, 1)',
+    color1: 'hsla(0, 0%, 0%, 0)',
+    color2: 'hsla(0, 0%, 50%, 1)',
     scale: 1,
     offsetX: 0,
     offsetY: 0,
@@ -45,12 +45,12 @@ export const defaultPreset: SpiralPreset = {
     speed: 1,
     frame: 0,
   },
-} as const;
+};
 
 export const noisyPreset: SpiralPreset = {
   name: 'Noisy',
   params: {
-    color1: 'hsla(87, 77%, 53%, 1)',
+    color1: 'hsla(0, 0%, 0%, 0)',
     color2: 'hsla(109, 70%, 31%, 1)',
     scale: 1.3,
     offsetX: 0,
@@ -66,12 +66,15 @@ export const noisyPreset: SpiralPreset = {
     speed: 1,
     frame: 0,
   },
-} as const;
+  style: {
+    background: 'hsla(87, 77%, 53%, 1)',
+  },
+};
 
 export const dropletPreset: SpiralPreset = {
   name: 'Droplet',
   params: {
-    color1: 'hsla(320, 50%, 50%, 1)',
+    color1: 'hsla(0, 0%, 0%, 0)',
     color2: 'hsla(190, 50%, 95%, 1)',
     scale: 0.65,
     offsetX: 0,
@@ -87,12 +90,15 @@ export const dropletPreset: SpiralPreset = {
     speed: 1,
     frame: 0,
   },
-} as const;
+  style: {
+    background: 'hsla(320, 50%, 50%, 1)',
+  },
+};
 
 export const sandPreset: SpiralPreset = {
   name: 'Sand',
   params: {
-    color1: 'hsla(45, 25%, 50%, 1)',
+    color1: 'hsla(0, 0%, 0%, 0)',
     color2: 'hsla(0, 0%, 87%, 1)',
     scale: 3,
     offsetX: 0,
@@ -108,12 +114,15 @@ export const sandPreset: SpiralPreset = {
     speed: 0,
     frame: 0,
   },
-} as const;
+  style: {
+    background: 'hsla(45, 25%, 50%, 1)',
+  },
+};
 
 export const swirlPreset: SpiralPreset = {
   name: 'Swirl',
   params: {
-    color1: 'hsla(160, 50%, 80%, 1)',
+    color1: 'hsla(0, 0%, 0%, 0)',
     color2: 'hsla(220, 50%, 20%, 1)',
     scale: 4,
     offsetX: 0,
@@ -129,12 +138,15 @@ export const swirlPreset: SpiralPreset = {
     speed: 1,
     frame: 0,
   },
-} as const;
+  style: {
+    background: 'hsla(160, 50%, 80%, 1)',
+  },
+};
 
 export const hookPreset: SpiralPreset = {
   name: 'Hook',
   params: {
-    color1: 'hsla(0, 0%, 0%, 1)',
+    color1: 'hsla(0, 0%, 0%, 0)',
     color2: 'hsla(200, 50%, 70%, 1)',
     scale: 0.8,
     offsetX: 0,
@@ -150,12 +162,15 @@ export const hookPreset: SpiralPreset = {
     speed: 3,
     frame: 0,
   },
-} as const;
+  style: {
+    background: 'hsla(0, 0%, 0%, 1)',
+  },
+};
 
 export const vinylPreset: SpiralPreset = {
   name: 'Vinyl',
   params: {
-    color1: 'hsla(0, 0%, 15%, 1)',
+    color1: 'hsla(0, 0%, 0%, 0)',
     color2: 'hsla(320, 5%, 75%, 1)',
     scale: 1,
     offsetX: 0,
@@ -171,7 +186,10 @@ export const vinylPreset: SpiralPreset = {
     speed: 1,
     frame: 0,
   },
-} as const;
+  style: {
+    background: 'hsla(0, 0%, 15%, 1)',
+  },
+};
 
 export const spiralPresets: SpiralPreset[] = [
   defaultPreset,

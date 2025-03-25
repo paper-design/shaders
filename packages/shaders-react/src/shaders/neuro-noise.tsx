@@ -11,7 +11,7 @@ export type NeuroNoiseParams = {
 
 export type NeuroNoiseProps = Omit<ShaderMountProps, 'fragmentShader'> & NeuroNoiseParams;
 
-type NeuroNoisePreset = { name: string; params: Required<NeuroNoiseParams> };
+type NeuroNoisePreset = { name: string; params: Required<NeuroNoiseParams>; style?: React.CSSProperties };
 
 // Due to Leva controls limitation:
 // 1) keep default colors in HSLA format to keep alpha channel
@@ -27,7 +27,7 @@ export const defaultPreset: NeuroNoisePreset = {
     colorBack: 'hsla(0, 0%, 0%, 1)',
     brightness: 1.3,
   },
-} as const;
+};
 
 const marblePreset: NeuroNoisePreset = {
   name: 'Marble',
@@ -39,7 +39,7 @@ const marblePreset: NeuroNoisePreset = {
     colorBack: 'hsla(0, 0%, 97%, 1)',
     brightness: 1.1,
   },
-} as const;
+};
 
 export const neuroNoisePresets: NeuroNoisePreset[] = [defaultPreset, marblePreset] as const;
 

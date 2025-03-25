@@ -33,13 +33,10 @@ const DotGridExample = () => {
  * This example has controls added so you can play with settings in the example app
  */
 
-const defaults = dotGridPresets[0].params;
+const defaults = { ...dotGridPresets[0].params, style: { background: 'hsla(0, 0%, 0%, 0)' } };
 
 const DotGridWithControls = () => {
   const [params, setParams] = useControls(() => {
-    const presets: DotGridParams = Object.fromEntries(
-      dotGridPresets.map((preset) => [preset.name, button(() => setParamsSafe(params, setParams, preset.params))])
-    );
     return {
       Parameters: folder(
         {
@@ -55,6 +52,28 @@ const DotGridWithControls = () => {
         },
         { order: 1 }
       ),
+    };
+  });
+
+  const [style, setStyle] = useControls(() => {
+    return {
+      Parameters: folder({
+        background: { value: 'hsla(0, 0%, 0%, 0)', order: 100 },
+      }),
+    };
+  });
+
+  useControls(() => {
+    const presets: DotGridParams = Object.fromEntries(
+      dotGridPresets.map((preset) => [
+        preset.name,
+        button(() => {
+          setParamsSafe(params, setParams, preset.params);
+          setStyle({ background: String(preset.style?.background || 'hsla(0, 0%, 0%, 0)') });
+        }),
+      ])
+    );
+    return {
       Presets: folder(presets, { order: 2 }),
     };
   });
@@ -62,15 +81,16 @@ const DotGridWithControls = () => {
   // Reset to defaults on mount, so that Leva doesn't show values from other
   // shaders when navigating (if two shaders have a color1 param for example)
   useResetLevaParams(params, setParams, defaults);
+  useResetLevaParams(style, setStyle, defaults.style);
 
-  usePresetHighlight(dotGridPresets, params);
+  usePresetHighlight(dotGridPresets, { ...params, style });
 
   return (
     <>
       <Link href="/">
         <BackButton />
       </Link>
-      <DotGrid {...params} style={{ position: 'fixed', width: '100%', height: '100%' }} />
+      <DotGrid {...params} style={{ position: 'fixed', width: '100%', height: '100%', ...style }} />
     </>
   );
 };

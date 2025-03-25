@@ -12,7 +12,7 @@ export type SmokeRingParams = {
 
 export type SmokeRingProps = Omit<ShaderMountProps, 'fragmentShader'> & SmokeRingParams;
 
-type SmokeRingPreset = { name: string; params: Required<SmokeRingParams> };
+type SmokeRingPreset = { name: string; params: Required<SmokeRingParams>; style?: React.CSSProperties };
 
 // Due to Leva controls limitation:
 // 1) keep default colors in HSLA format to keep alpha channel
@@ -22,14 +22,14 @@ export const defaultPreset: SmokeRingPreset = {
   name: 'Default',
   params: {
     scale: 1,
-    speed: 1,
+    speed: 0.5,
     frame: 0,
     colorInner: 'hsla(0, 0%, 100%, 1)',
-    colorOuter: 'hsla(211, 100%, 64%, 1)',
-    noiseScale: 1.4,
-    thickness: 0.33,
+    colorOuter: 'hsla(38, 4%, 38%, 1)',
+    noiseScale: 1,
+    thickness: 0.5,
   },
-} as const;
+};
 
 export const cloudPreset: SmokeRingPreset = {
   name: 'Cloud',
@@ -41,6 +41,9 @@ export const cloudPreset: SmokeRingPreset = {
     colorOuter: 'hsla(0, 0%, 100%, 1)',
     noiseScale: 1.8,
     thickness: 0.7,
+  },
+  style: {
+    background: 'hsla(218, 100%, 62%, 1)',
   },
 };
 
@@ -55,6 +58,9 @@ export const firePreset: SmokeRingPreset = {
     noiseScale: 1.4,
     thickness: 0.35,
   },
+  style: {
+    background: 'hsla(20, 100%, 5%, 1)',
+  },
 };
 
 export const electricPreset: SmokeRingPreset = {
@@ -68,6 +74,9 @@ export const electricPreset: SmokeRingPreset = {
     noiseScale: 1.8,
     thickness: 0.1,
   },
+  style: {
+    background: 'hsla(47, 50%, 7%, 1)',
+  },
 };
 
 export const poisonPreset: SmokeRingPreset = {
@@ -80,6 +89,9 @@ export const poisonPreset: SmokeRingPreset = {
     colorOuter: 'hsla(120, 100%, 66%, 1)',
     noiseScale: 5,
     thickness: 0.6,
+  },
+  style: {
+    background: 'hsla(120, 100%, 3%, 1)',
   },
 };
 

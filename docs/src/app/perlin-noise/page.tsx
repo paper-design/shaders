@@ -30,14 +30,10 @@ const PerlinNoiseExample = () => {
  * This example has controls added so you can play with settings in the example app
  */
 
-const defaults = perlinNoisePresets[0].params;
+const defaults = { ...perlinNoisePresets[0].params, style: { background: 'hsla(0, 0%, 0%, 0)' } };
 
 const PerlinNoiseWithControls = () => {
   const [params, setParams] = useControls(() => {
-    const presets: PerlinNoiseParams = Object.fromEntries(
-      perlinNoisePresets.map((preset) => [preset.name, button(() => setParamsSafe(params, setParams, preset.params))])
-    );
-
     return {
       Parameters: folder(
         {
@@ -52,6 +48,28 @@ const PerlinNoiseWithControls = () => {
         },
         { order: 1 }
       ),
+    };
+  });
+
+  const [style, setStyle] = useControls(() => {
+    return {
+      Parameters: folder({
+        background: { value: 'hsla(0, 0%, 0%, 0)', order: 100 },
+      }),
+    };
+  });
+
+  useControls(() => {
+    const presets: PerlinNoiseParams = Object.fromEntries(
+      perlinNoisePresets.map((preset) => [
+        preset.name,
+        button(() => {
+          setParamsSafe(params, setParams, preset.params);
+          setStyle({ background: String(preset.style?.background || 'hsla(0, 0%, 0%, 0)') });
+        }),
+      ])
+    );
+    return {
       Presets: folder(presets, { order: 2 }),
     };
   });
@@ -59,6 +77,7 @@ const PerlinNoiseWithControls = () => {
   // Reset to defaults on mount, so that Leva doesn't show values from other
   // shaders when navigating (if two shaders have a color1 param for example)
   useResetLevaParams(params, setParams, defaults);
+  useResetLevaParams(style, setStyle, defaults.style);
 
   usePresetHighlight(perlinNoisePresets, params);
 
@@ -67,7 +86,7 @@ const PerlinNoiseWithControls = () => {
       <Link href="/">
         <BackButton />
       </Link>
-      <PerlinNoise {...params} style={{ position: 'fixed', width: '100%', height: '100%' }} />
+      <PerlinNoise {...params} style={{ position: 'fixed', width: '100%', height: '100%', ...style }} />
     </>
   );
 };

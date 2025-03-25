@@ -41,6 +41,7 @@ const defaults = {
   ...firstPresetParams,
   speed: Math.abs(firstPresetParams.speed),
   reverse: firstPresetParams.speed < 0,
+  style: { background: 'hsla(0, 0%, 0%, 0)' },
 };
 
 const SpiralWithControls = () => {
@@ -51,7 +52,6 @@ const SpiralWithControls = () => {
     return {
       Parameters: folder(
         {
-          color1: { value: defaults.color1, order: 100 },
           color2: { value: defaults.color2, order: 101 },
           scale: { value: defaults.scale, min: 0, max: 4, order: 200 },
           offsetX: { value: defaults.offsetX, min: -1, max: 1, order: 201 },
@@ -73,9 +73,33 @@ const SpiralWithControls = () => {
     };
   });
 
+  const [style, setStyle] = useControls(() => {
+    return {
+      Parameters: folder({
+        background: { value: 'hsla(0, 0%, 0%, 0)', order: 100 },
+      }),
+    };
+  });
+
+  useControls(() => {
+    const presets: SpiralParams = Object.fromEntries(
+      spiralPresets.map((preset) => [
+        preset.name,
+        button(() => {
+          setParamsSafe(params, setParams, preset.params);
+          setStyle({ background: String(preset.style?.background || 'hsla(0, 0%, 0%, 0)') });
+        }),
+      ])
+    );
+    return {
+      Presets: folder(presets, { order: 2 }),
+    };
+  });
+
   // Reset to defaults on mount, so that Leva doesn't show values from other
   // shaders when navigating (if two shaders have a colorBack param for example)
   useResetLevaParams(params, setParams, defaults);
+  useResetLevaParams(style, setStyle, defaults.style);
 
   usePresetHighlight(spiralPresets, params);
 

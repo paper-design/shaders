@@ -29,13 +29,10 @@ const MetaballsExample = () => {
  * This example has controls added so you can play with settings in the example app
  */
 
-const defaults = metaballsPresets[0].params;
+const defaults = { ...metaballsPresets[0].params, style: { background: 'hsla(0, 0%, 0%, 0)' } };
 
 const MetaballsWithControls = () => {
   const [params, setParams] = useControls(() => {
-    const presets: MetaballsParams = Object.fromEntries(
-      metaballsPresets.map((preset) => [preset.name, button(() => setParamsSafe(params, setParams, preset.params))])
-    );
     return {
       Parameters: folder(
         {
@@ -49,6 +46,28 @@ const MetaballsWithControls = () => {
         },
         { order: 1 }
       ),
+    };
+  });
+
+  const [style, setStyle] = useControls(() => {
+    return {
+      Parameters: folder({
+        background: { value: 'hsla(0, 0%, 0%, 0)', order: 99 },
+      }),
+    };
+  });
+
+  useControls(() => {
+    const presets: MetaballsParams = Object.fromEntries(
+      metaballsPresets.map((preset) => [
+        preset.name,
+        button(() => {
+          setParamsSafe(params, setParams, preset.params);
+          setStyle({ background: String(preset.style?.background || 'hsla(0, 0%, 0%, 0)') });
+        }),
+      ])
+    );
+    return {
       Presets: folder(presets, { order: 2 }),
     };
   });
@@ -56,6 +75,7 @@ const MetaballsWithControls = () => {
   // Reset to defaults on mount, so that Leva doesn't show values from other
   // shaders when navigating (if two shaders have a color1 param for example)
   useResetLevaParams(params, setParams, defaults);
+  useResetLevaParams(style, setStyle, defaults.style);
 
   usePresetHighlight(metaballsPresets, params);
 
@@ -64,7 +84,7 @@ const MetaballsWithControls = () => {
       <Link href="/">
         <BackButton />
       </Link>
-      <Metaballs {...params} style={{ position: 'fixed', width: '100%', height: '100%' }} />
+      <Metaballs {...params} style={{ position: 'fixed', width: '100%', height: '100%', ...style }} />
     </>
   );
 };

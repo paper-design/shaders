@@ -47,6 +47,7 @@ type HomeShaderConfig = {
   url: string;
   ShaderComponent: React.ComponentType;
   shaderConfig?: Record<string, unknown>;
+  style?: React.CSSProperties;
 };
 
 export const homeShaders = [
@@ -90,6 +91,7 @@ export const homeShaders = [
     url: '/smoke-ring',
     ShaderComponent: SmokeRing,
     shaderConfig: smokeRingPresets[1].params,
+    style: { background: '#4082FF' },
   },
   {
     name: 'metaballs',
@@ -110,6 +112,7 @@ export const homeShaders = [
     ShaderComponent: PerlinNoise,
     image: perlinNoiseImg,
     shaderConfig: { ...perlinNoisePresets[1].params, scale: 0.6 },
+    style: { background: '#2D63D4' },
   },
   {
     name: 'voronoi',
@@ -117,6 +120,7 @@ export const homeShaders = [
     ShaderComponent: Voronoi,
     image: voronoiImg,
     shaderConfig: { ...voronoiPresets[0].params, scale: 2.1 },
+    style: { background: '#301A04' },
   },
   {
     name: 'waves',
@@ -144,5 +148,6 @@ export const homeShaders = [
     ShaderComponent: Spiral,
     image: spiralImg,
     shaderConfig: { ...spiralPresets[1].params, scale: 0.5 },
+    style: { background: '#91E32B' },
   },
 ] satisfies HomeShaderConfig[];

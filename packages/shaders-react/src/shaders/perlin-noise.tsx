@@ -14,7 +14,7 @@ export type PerlinNoiseParams = {
 
 export type PerlinNoiseProps = Omit<ShaderMountProps, 'fragmentShader'> & PerlinNoiseParams;
 
-type PerlinNoisePreset = { name: string; params: Required<PerlinNoiseParams> };
+type PerlinNoisePreset = { name: string; params: Required<PerlinNoiseParams>; style?: React.CSSProperties };
 
 // Due to Leva controls limitation:
 // 1) keep default colors in HSLA format to keep alpha channel
@@ -26,8 +26,8 @@ export const defaultPreset: PerlinNoisePreset = {
     scale: 1,
     speed: 0.5,
     frame: 0,
-    color: 'hsla(203, 100%, 87%, 1)',
-    proportion: 0.34,
+    color: 'hsla(0, 0%, 15%, 1)',
+    proportion: 0.65,
     softness: 0.1,
     octaveCount: 2,
     persistence: 1,
@@ -48,6 +48,9 @@ export const nintendoWaterPreset: PerlinNoisePreset = {
     persistence: 0.55,
     lacunarity: 1.8,
   },
+  style: {
+    background: 'hsla(220, 66%, 50%, 1)',
+  },
 };
 
 export const colonyPreset: PerlinNoisePreset = {
@@ -62,6 +65,9 @@ export const colonyPreset: PerlinNoisePreset = {
     lacunarity: 2.55,
     proportion: 0.65,
     softness: 0.35,
+  },
+  style: {
+    background: 'hsla(56, 86%, 81%, 1)',
   },
 };
 
@@ -78,7 +84,10 @@ export const phosphenesPreset: PerlinNoisePreset = {
     persistence: 0.3,
     lacunarity: 3,
   },
-} as const;
+  style: {
+    background: 'hsla(350, 80%, 70%, 1)',
+  },
+};
 
 export const mossPreset: PerlinNoisePreset = {
   name: 'Moss',
@@ -93,7 +102,10 @@ export const mossPreset: PerlinNoisePreset = {
     persistence: 1,
     lacunarity: 2.55,
   },
-} as const;
+  style: {
+    background: 'hsla(137, 100%, 51%, 1)',
+  },
+};
 
 export const wormsPreset: PerlinNoisePreset = {
   name: 'Worms',
@@ -108,7 +120,10 @@ export const wormsPreset: PerlinNoisePreset = {
     persistence: 1,
     lacunarity: 1.5,
   },
-} as const;
+  style: {
+    background: 'hsla(0, 100%, 100%, 1)',
+  },
+};
 
 export const perlinNoisePresets: PerlinNoisePreset[] = [
   defaultPreset,
