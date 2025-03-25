@@ -1,6 +1,6 @@
 'use client';
-import {ShaderMount} from '@paper-design/shaders-react';
-import {useControls} from 'leva';
+import { ShaderMount } from '@paper-design/shaders-react';
+import { useControls } from 'leva';
 
 const fragmentShader = `#version 300 es
 precision highp float;
@@ -120,58 +120,63 @@ void main() {
 }`;
 
 const MyTest = () => {
-    const {left, top, width, height} = useControls('canvas', {
-        left: {value: 150, min: 0, max: 200},
-        top: {value: 150, min: 0, max: 200},
-        width: {value: 600, min: 10, max: 1000},
-        height: {value: 600, min: 10, max: 1000},
-    });
+  const { left, top, width, height } = useControls('canvas', {
+    left: { value: 150, min: 0, max: 200 },
+    top: { value: 150, min: 0, max: 200 },
+    width: { value: 600, min: 10, max: 1000 },
+    height: { value: 600, min: 10, max: 1000 },
+  });
 
-    const {imageFit, imageWidth, imageHeight, worldSize} = useControls('shader', {
-        imageFit: {value: 0, min: 0, max: 1, step: 1},
-        imageWidth: {value: 300, min: 10, max: 1000},
-        imageHeight: {value: 300, min: 10, max: 1000},
-        worldSize: {value: 200, min: 10, max: 1000},
-    });
+  const { imageFit, imageWidth, imageHeight, worldSize } = useControls('shader', {
+    imageFit: { value: 0, min: 0, max: 1, step: 1 },
+    imageWidth: { value: 300, min: 10, max: 1000 },
+    imageHeight: { value: 300, min: 10, max: 1000 },
+    worldSize: { value: 200, min: 10, max: 1000 },
+  });
 
-    return (
-        <>
-            <div style={{
-                position: 'fixed',
-                left: `10px`,
-                top: `40px`,
-            }}><span style={{color: 'red'}}>red</span>: effect size in px (effect size = 3 waves)
-            </div>
-            <div style={{
-                position: 'fixed',
-                left: `10px`,
-                top: `10px`,
-            }}><span style={{color: 'green'}}>green</span>: image box
-            </div>
-            <div
-                style={{
-                    position: 'fixed',
-                    left: `${left}px`,
-                    top: `${top}px`,
-                    width: `${width}px`,
-                    height: `${height}px`,
-                }}
-            >
-                <ShaderMount
-                    style={{width: '100%', height: '100%'}}
-                    fragmentShader={fragmentShader}
-                    uniforms={{
-                        u_texture: '/placeholder.png',
-                        u_imageWidth: imageWidth,
-                        u_imageHeight: imageHeight,
-                        u_imageFit: imageFit,
-                        u_worldSize: worldSize,
-                }}
-                />
-            </div>
-        </>
-    );
+  return (
+    <>
+      <div
+        style={{
+          position: 'fixed',
+          left: `10px`,
+          top: `40px`,
+        }}
+      >
+        <span style={{ color: 'red' }}>red</span>: effect size in px (effect size = 3 waves)
+      </div>
+      <div
+        style={{
+          position: 'fixed',
+          left: `10px`,
+          top: `10px`,
+        }}
+      >
+        <span style={{ color: 'green' }}>green</span>: image box
+      </div>
+      <div
+        style={{
+          position: 'fixed',
+          left: `${left}px`,
+          top: `${top}px`,
+          width: `${width}px`,
+          height: `${height}px`,
+        }}
+      >
+        <ShaderMount
+          style={{ width: '100%', height: '100%' }}
+          fragmentShader={fragmentShader}
+          uniforms={{
+            u_texture: '/placeholder.png',
+            u_imageWidth: imageWidth,
+            u_imageHeight: imageHeight,
+            u_imageFit: imageFit,
+            u_worldSize: worldSize,
+          }}
+        />
+      </div>
+    </>
+  );
 };
 
 export default MyTest;
-
