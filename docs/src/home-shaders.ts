@@ -148,6 +148,5 @@ export const homeShaders = [
     ShaderComponent: Spiral,
     image: spiralImg,
     shaderConfig: { ...spiralPresets[1].params, scale: 0.5 },
-    style: { background: '#91E32B' },
   },
 ] satisfies HomeShaderConfig[];
