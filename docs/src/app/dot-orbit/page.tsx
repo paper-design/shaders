@@ -22,7 +22,6 @@ const DotOrbitExample = () => {
       dotSizeRange={0.2}
       spreading={1}
       speed={2}
-      seed={0}
       style={{ position: 'fixed', width: '100%', height: '100%' }}
     />
   );

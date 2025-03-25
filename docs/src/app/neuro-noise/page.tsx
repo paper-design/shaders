@@ -18,7 +18,6 @@ const NeuroNoiseExample = () => {
       scale={1}
       brightness={1.3}
       speed={1}
-      seed={0}
       style={{ position: 'fixed', width: '100%', height: '100%' }}
     />
   );

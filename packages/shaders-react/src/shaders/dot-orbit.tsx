@@ -15,7 +15,7 @@ export type DotOrbitParams = {
 
 export type DotOrbitProps = Omit<ShaderMountProps, 'fragmentShader'> & DotOrbitParams;
 
-type DotOrbitPreset = { name: string; params: Required<DotOrbitParams> };
+type DotOrbitPreset = { name: string; params: Required<DotOrbitParams>; style?: React.CSSProperties };
 
 // Due to Leva controls limitation:
 // 1) keep default colors in HSLA format to keep alpha channel
@@ -26,7 +26,7 @@ export const defaultPreset: DotOrbitPreset = {
   params: {
     scale: 1,
     speed: 2,
-    seed: 0,
+    frame: 0,
     color1: 'hsla(358, 66%, 49%, 1)',
     color2: 'hsla(145, 30%, 33%, 1)',
     color3: 'hsla(39, 88%, 52%, 1)',
@@ -35,32 +35,33 @@ export const defaultPreset: DotOrbitPreset = {
     dotSizeRange: 0.4,
     spreading: 1,
   },
-} as const;
+};
 
 export const dotOrbitPresets: DotOrbitPreset[] = [defaultPreset];
 
-export const DotOrbit = (props: DotOrbitProps): JSX.Element => {
+export const DotOrbit = ({
+  scale,
+  color1,
+  color2,
+  color3,
+  color4,
+  dotSize,
+  dotSizeRange,
+  spreading,
+  ...props
+}: DotOrbitProps): React.ReactElement => {
   const uniforms: DotOrbitUniforms = useMemo(() => {
     return {
-      u_scale: props.scale ?? defaultPreset.params.scale,
-      u_color1: getShaderColorFromString(props.color1, defaultPreset.params.color1),
-      u_color2: getShaderColorFromString(props.color2, defaultPreset.params.color2),
-      u_color3: getShaderColorFromString(props.color3, defaultPreset.params.color3),
-      u_color4: getShaderColorFromString(props.color4, defaultPreset.params.color4),
-      u_dotSize: props.dotSize ?? defaultPreset.params.dotSize,
-      u_dotSizeRange: props.dotSizeRange ?? defaultPreset.params.dotSizeRange,
-      u_spreading: props.spreading ?? defaultPreset.params.spreading,
+      u_scale: scale ?? defaultPreset.params.scale,
+      u_color1: getShaderColorFromString(color1, defaultPreset.params.color1),
+      u_color2: getShaderColorFromString(color2, defaultPreset.params.color2),
+      u_color3: getShaderColorFromString(color3, defaultPreset.params.color3),
+      u_color4: getShaderColorFromString(color4, defaultPreset.params.color4),
+      u_dotSize: dotSize ?? defaultPreset.params.dotSize,
+      u_dotSizeRange: dotSizeRange ?? defaultPreset.params.dotSizeRange,
+      u_spreading: spreading ?? defaultPreset.params.spreading,
     };
-  }, [
-    props.scale,
-    props.color1,
-    props.color2,
-    props.color3,
-    props.color4,
-    props.dotSize,
-    props.dotSizeRange,
-    props.spreading,
-  ]);
+  }, [scale, color1, color2, color3, color4, dotSize, dotSizeRange, spreading]);
 
   return <ShaderMount {...props} fragmentShader={dotOrbitFragmentShader} uniforms={uniforms} />;
 };

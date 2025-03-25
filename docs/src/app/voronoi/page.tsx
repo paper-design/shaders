@@ -16,14 +16,12 @@ const VoronoiExample = () => {
       colorCell1="#e64d1a"
       colorCell2="#1ae6e6"
       colorCell3="#1aa2e6"
-      colorEdges="#301a03"
       colorGradient={0}
       scale={1}
       distance={0.25}
       edgesSize={0.2}
       edgesSoftness={0}
       speed={1}
-      seed={0}
       style={{ position: 'fixed', width: '100%', height: '100%' }}
     />
   );
@@ -47,7 +45,6 @@ const VoronoiWithControls = () => {
           colorCell2: { value: defaults.colorCell2, order: 101 },
           colorCell3: { value: defaults.colorCell3, order: 102 },
           colorMid: { value: defaults.colorMid, order: 103 },
-          colorEdges: { value: defaults.colorEdges, order: 104 },
           colorGradient: { value: defaults.colorGradient, min: 0, max: 1, order: 105 },
           scale: { value: defaults.scale, min: 0.15, max: 3, order: 200 },
           distance: { value: defaults.distance, min: 0, max: 0.5, order: 300 },

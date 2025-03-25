@@ -5,7 +5,7 @@ export const usePresetHighlight = (presets: Record<string, any>[], levaParams: R
     const highlightPreset = () => {
       const matchingPreset = presets.find((preset) => {
         // Remove any property that should not be compared for matching
-        const { seed, ...paramsToCompare } = preset.params;
+        const { frame, ...paramsToCompare } = preset.params;
 
         return Object.entries(paramsToCompare).every(([key, value]) => {
           const levaValue = levaParams[key as keyof typeof levaParams];

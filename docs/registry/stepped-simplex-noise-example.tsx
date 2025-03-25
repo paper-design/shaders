@@ -13,7 +13,6 @@ export function SteppedSimplexNoiseExample(props: SteppedSimplexNoiseProps) {
       scale={1}
       stepsNumber={13}
       speed={0.5}
-      seed={0}
       style={{ position: 'fixed', width: '100%', height: '100%' }}
       {...props}
     />

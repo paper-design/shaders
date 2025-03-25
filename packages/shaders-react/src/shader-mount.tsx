@@ -1,21 +1,21 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, forwardRef } from 'react';
 import { ShaderMount as ShaderMountVanilla, type ShaderMountUniforms } from '@paper-design/shaders';
+import { useMergeRefs } from './use-merge-refs';
 
 /** The React ShaderMount can also accept strings as uniform values, which will assumed to be URLs and loaded as images */
 export type ShaderMountUniformsReact = { [key: string]: ShaderMountUniforms[keyof ShaderMountUniforms] | string };
 
-export interface ShaderMountProps {
-  ref?: React.RefObject<HTMLCanvasElement>;
+export interface ShaderMountProps extends React.ComponentProps<'canvas'> {
+  shaderMountRef?: React.RefObject<ShaderMountVanilla | null>;
   fragmentShader: string;
-  style?: React.CSSProperties;
   uniforms?: ShaderMountUniformsReact;
   webGlContextAttributes?: WebGLContextAttributes;
   speed?: number;
-  seed?: number;
+  frame?: number;
 }
 
 /** Params that every shader can set as part of their controls */
-export type GlobalParams = Pick<ShaderMountProps, 'speed' | 'seed'>;
+export type GlobalParams = Pick<ShaderMountProps, 'speed' | 'frame'>;
 
 /** Parse the provided uniforms, turning URL strings into loaded images */
 const processUniforms = (uniforms: ShaderMountUniformsReact): Promise<ShaderMountUniforms> => {
@@ -80,58 +80,69 @@ const processUniforms = (uniforms: ShaderMountUniformsReact): Promise<ShaderMoun
  * A React component that mounts a shader and updates its uniforms as the component's props change
  * If you pass a string as a uniform value, it will be assumed to be a URL and attempted to be loaded as an image
  */
-export const ShaderMount: React.FC<ShaderMountProps> = ({
-  ref,
-  fragmentShader,
-  style,
-  uniforms = {},
-  webGlContextAttributes,
-  speed = 1,
-  seed = 0,
-}) => {
-  const canvasRef = ref ?? useRef<HTMLCanvasElement>(null);
-  const shaderMountRef = useRef<ShaderMountVanilla | null>(null);
+export const ShaderMount: React.FC<ShaderMountProps> = forwardRef<HTMLCanvasElement, ShaderMountProps>(
+  function ShaderMountImpl(
+    {
+      shaderMountRef: externalShaderMountRef,
+      fragmentShader,
+      uniforms = {},
+      webGlContextAttributes,
+      speed = 1,
+      frame = 0,
+      ...canvasProps
+    },
+    forwardedRef
+  ) {
+    const canvasRef = useRef<HTMLCanvasElement>(null);
+    const shaderMountRef = useRef<ShaderMountVanilla>(null);
 
-  useEffect(() => {
-    const initShader = async () => {
-      const processedUniforms = await processUniforms(uniforms);
+    useEffect(() => {
+      const initShader = async () => {
+        const processedUniforms = await processUniforms(uniforms);
 
-      if (canvasRef.current && !shaderMountRef.current) {
-        shaderMountRef.current = new ShaderMountVanilla(
-          canvasRef.current,
-          fragmentShader,
-          processedUniforms,
-          webGlContextAttributes,
-          speed,
-          seed
-        );
-      }
-    };
+        if (canvasRef.current && !shaderMountRef.current) {
+          shaderMountRef.current = new ShaderMountVanilla(
+            canvasRef.current,
+            fragmentShader,
+            processedUniforms,
+            webGlContextAttributes,
+            speed,
+            frame
+          );
 
-    initShader();
+          if (externalShaderMountRef) {
+            externalShaderMountRef.current = shaderMountRef.current;
+          }
+        }
+      };
 
-    return () => {
-      shaderMountRef.current?.dispose();
-      shaderMountRef.current = null;
-    };
-  }, [fragmentShader, webGlContextAttributes]);
+      initShader();
 
-  useEffect(() => {
-    const updateUniforms = async () => {
-      const processedUniforms = await processUniforms(uniforms);
-      shaderMountRef.current?.setUniforms(processedUniforms);
-    };
+      return () => {
+        shaderMountRef.current?.dispose();
+        shaderMountRef.current = null;
+      };
+    }, [fragmentShader, webGlContextAttributes]);
 
-    updateUniforms();
-  }, [uniforms]);
+    useEffect(() => {
+      const updateUniforms = async () => {
+        const processedUniforms = await processUniforms(uniforms);
+        shaderMountRef.current?.setUniforms(processedUniforms);
+      };
 
-  useEffect(() => {
-    shaderMountRef.current?.setSpeed(speed);
-  }, [speed]);
+      updateUniforms();
+    }, [uniforms]);
 
-  useEffect(() => {
-    shaderMountRef.current?.setSeed(seed);
-  }, [seed]);
+    useEffect(() => {
+      shaderMountRef.current?.setSpeed(speed);
+    }, [speed]);
 
-  return <canvas ref={canvasRef} style={style} />;
-};
+    useEffect(() => {
+      shaderMountRef.current?.setFrame(frame);
+    }, [frame]);
+
+    return <canvas ref={useMergeRefs([canvasRef, forwardedRef])} {...canvasProps} />;
+  }
+);
+
+ShaderMount.displayName = 'ShaderMount';

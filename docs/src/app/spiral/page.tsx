@@ -41,13 +41,11 @@ const defaults = {
   ...firstPresetParams,
   speed: Math.abs(firstPresetParams.speed),
   reverse: firstPresetParams.speed < 0,
+  style: { background: 'hsla(0, 0%, 0%, 0)' },
 };
 
 const SpiralWithControls = () => {
   const [params, setParams] = useControls(() => {
-    const presets: SpiralParams = Object.fromEntries(
-      spiralPresets.map((preset) => [preset.name, button(() => setParamsSafe(params, setParams, preset.params))])
-    );
     return {
       Parameters: folder(
         {
@@ -69,6 +67,19 @@ const SpiralWithControls = () => {
         },
         { order: 1 }
       ),
+    };
+  });
+
+  useControls(() => {
+    const presets: SpiralParams = Object.fromEntries(
+      spiralPresets.map((preset) => [
+        preset.name,
+        button(() => {
+          setParamsSafe(params, setParams, preset.params);
+        }),
+      ])
+    );
+    return {
       Presets: folder(presets, { order: 2 }),
     };
   });

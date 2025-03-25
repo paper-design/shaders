@@ -11,7 +11,7 @@
     // Bundler mode
     "moduleResolution": "bundler",
     "verbatimModuleSyntax": true,
-    "isolatedDeclarations": true,
+    "isolatedDeclarations": true, // good for libs, ensures bundled type declarations are robust
 
     // Best practices
     "strict": true,
