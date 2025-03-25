@@ -127,7 +127,7 @@ export const etherPreset: GodRaysPreset = {
 
 export const godRaysPresets: GodRaysPreset[] = [defaultPreset, auroraPreset, warpPreset, linearPreset, etherPreset];
 
-export const GodRays = (props: GodRaysProps): JSX.Element => {
+export const GodRays = (props: GodRaysProps): React.ReactElement => {
   const uniforms: GodRaysUniforms = useMemo(() => {
     return {
       u_colorBack: getShaderColorFromString(props.colorBack, defaultPreset.params.colorBack),

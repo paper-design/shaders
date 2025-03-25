@@ -39,7 +39,7 @@ export const defaultPreset: DotOrbitPreset = {
 
 export const dotOrbitPresets: DotOrbitPreset[] = [defaultPreset];
 
-export const DotOrbit = (props: DotOrbitProps): JSX.Element => {
+export const DotOrbit = (props: DotOrbitProps): React.ReactElement => {
   const uniforms: DotOrbitUniforms = useMemo(() => {
     return {
       u_scale: props.scale ?? defaultPreset.params.scale,

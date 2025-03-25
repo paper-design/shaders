@@ -185,7 +185,7 @@ export const dotGridPresets: DotGridPreset[] = [
   waveformPreset,
 ];
 
-export const DotGrid = (props: DotGridProps): JSX.Element => {
+export const DotGrid = (props: DotGridProps): React.ReactElement => {
   const uniforms: DotGridUniforms = useMemo(() => {
     return {
       u_colorBack: getShaderColorFromString(props.colorBack, defaultPreset.params.colorBack),

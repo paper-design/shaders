@@ -265,7 +265,7 @@ export const warpPresets: WarpPreset[] = [
   presetSilk,
 ];
 
-export const Warp = (props: WarpProps): JSX.Element => {
+export const Warp = (props: WarpProps): React.ReactElement => {
   const uniforms: WarpUniforms = useMemo(() => {
     return {
       u_scale: props.scale ?? defaultPreset.params.scale,

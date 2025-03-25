@@ -35,7 +35,7 @@ export const defaultPreset: MetaballsPreset = {
 
 export const metaballsPresets: MetaballsPreset[] = [defaultPreset];
 
-export const Metaballs = (props: MetaballsProps): JSX.Element => {
+export const Metaballs = (props: MetaballsProps): React.ReactElement => {
   const uniforms: MetaballsUniforms = useMemo(() => {
     return {
       u_scale: props.scale ?? defaultPreset.params.scale,

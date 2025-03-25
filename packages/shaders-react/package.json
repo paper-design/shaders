@@ -27,6 +27,6 @@
     "react": ">=18"
   },
   "devDependencies": {
-    "@types/react": "^18.3.11"
+    "@types/react": "^19.0.12"
   }
 }

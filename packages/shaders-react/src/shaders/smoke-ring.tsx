@@ -97,7 +97,7 @@ export const smokeRingPresets: SmokeRingPreset[] = [
   poisonPreset,
 ];
 
-export const SmokeRing = (props: SmokeRingProps): JSX.Element => {
+export const SmokeRing = (props: SmokeRingProps): React.ReactElement => {
   const uniforms: SmokeRingUniforms = useMemo(() => {
     return {
       u_scale: props.scale ?? defaultPreset.params.scale,

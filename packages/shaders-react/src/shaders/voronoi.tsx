@@ -196,7 +196,7 @@ export const voronoiPresets: VoronoiPreset[] = [
   tilesPreset,
 ];
 
-export const Voronoi = (props: VoronoiProps): JSX.Element => {
+export const Voronoi = (props: VoronoiProps): React.ReactElement => {
   const uniforms: VoronoiUniforms = useMemo(() => {
     return {
       u_scale: props.scale ?? defaultPreset.params.scale,

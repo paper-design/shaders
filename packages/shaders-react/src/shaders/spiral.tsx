@@ -183,7 +183,7 @@ export const spiralPresets: SpiralPreset[] = [
   vinylPreset,
 ];
 
-export const Spiral = (props: SpiralProps): JSX.Element => {
+export const Spiral = (props: SpiralProps): React.ReactElement => {
   const uniforms: SpiralUniforms = useMemo(() => {
     return {
       u_color1: getShaderColorFromString(props.color1, defaultPreset.params.color1),

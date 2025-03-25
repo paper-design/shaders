@@ -126,7 +126,7 @@ export const perlinNoisePresets: PerlinNoisePreset[] = [
   wormsPreset,
 ];
 
-export const PerlinNoise = (props: PerlinNoiseProps): JSX.Element => {
+export const PerlinNoise = (props: PerlinNoiseProps): React.ReactElement => {
   const uniforms: PerlinNoiseUniforms = useMemo(() => {
     return {
       u_scale: props.scale ?? defaultPreset.params.scale,

@@ -55,7 +55,7 @@ export const fadedPreset: MeshGradientPreset = {
 
 export const meshGradientPresets: MeshGradientPreset[] = [defaultPreset, beachPreset, fadedPreset];
 
-export const MeshGradient = (props: MeshGradientProps): JSX.Element => {
+export const MeshGradient = (props: MeshGradientProps): React.ReactElement => {
   const uniforms: MeshGradientUniforms = useMemo(() => {
     return {
       u_color1: getShaderColorFromString(props.color1, defaultPreset.params.color1),

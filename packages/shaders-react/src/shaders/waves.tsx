@@ -128,7 +128,7 @@ export const wavesPresets: WavesPreset[] = [
   waveRidePreset,
 ];
 
-export const Waves = (props: WavesProps): JSX.Element => {
+export const Waves = (props: WavesProps): React.ReactElement => {
   const uniforms: WavesUniforms = useMemo(() => {
     return {
       u_scale: props.scale ?? defaultPreset.params.scale,

@@ -43,7 +43,7 @@ const marblePreset: NeuroNoisePreset = {
 
 export const neuroNoisePresets: NeuroNoisePreset[] = [defaultPreset, marblePreset] as const;
 
-export const NeuroNoise = (props: NeuroNoiseProps): JSX.Element => {
+export const NeuroNoise = (props: NeuroNoiseProps): React.ReactElement => {
   const uniforms: NeuroNoiseUniforms = useMemo(() => {
     return {
       u_scale: props.scale ?? defaultPreset.params.scale,

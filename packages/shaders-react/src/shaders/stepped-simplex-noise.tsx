@@ -91,7 +91,7 @@ export const steppedSimplexNoisePresets: SteppedSimplexNoisePreset[] = [
   firstContactPreset,
 ];
 
-export const SteppedSimplexNoise = (props: SteppedSimplexNoiseProps): JSX.Element => {
+export const SteppedSimplexNoise = (props: SteppedSimplexNoiseProps): React.ReactElement => {
   const uniforms: SteppedSimplexNoiseUniforms = useMemo(() => {
     return {
       u_scale: props.scale ?? defaultPreset.params.scale,

@@ -43,7 +43,7 @@ export const skyPreset: GrainCloudsPreset = {
 
 export const grainCloudsPresets: GrainCloudsPreset[] = [defaultPreset, skyPreset];
 
-export const GrainClouds = (props: GrainCloudsProps): JSX.Element => {
+export const GrainClouds = (props: GrainCloudsProps): React.ReactElement => {
   const uniforms: GrainCloudsUniforms = useMemo(() => {
     return {
       u_scale: props.scale ?? defaultPreset.params.scale,
