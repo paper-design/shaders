@@ -100,7 +100,7 @@ void main() {
 
   vec3 color = total_color * final_shape;
   
-  float circle = smoothstep(.45, .455, length(uv)) - smoothstep(.495, .5, length(uv));
+  float circle = smoothstep(.49, .495, length(uv)) - smoothstep(.495, .5, length(uv));
   color.r = circle;
   
   float opacity = final_shape + circle;
