@@ -140,10 +140,10 @@ void main() {
 
   float dot_opacity = max(0., 1. - opacity_randomizer * u_opacityRange);
 
-  vec3 color = u_colorFill.rgb * u_colorFill.a * dot_opacity * shape_inner;
+  vec3 color = u_colorFill.rgb * u_colorFill.a * dot_opacity * shapeInner;
   color = mix(color, u_colorStroke.rgb, u_colorStroke.a * dot_opacity * stroke);
 
-  float opacity = u_colorFill.a * shape_inner * dot_opacity;
+  float opacity = u_colorFill.a * shapeInner * dot_opacity;
   opacity += u_colorStroke.a * stroke * dot_opacity;
 
   fragColor = vec4(color, opacity);
