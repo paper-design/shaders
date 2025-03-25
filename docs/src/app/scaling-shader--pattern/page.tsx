@@ -21,24 +21,24 @@ out vec4 fragColor;
 
 #define TWO_PI 6.28318530718
 
-float hash(float x) {
-  return fract(sin(x) * 43758.5453123);
-}
-float lerp(float a, float b, float t) {
-  return a + t * (b - a);
-}
-float noise(float x) {
-  float i = floor(x);
-  float f = fract(x);
-  float u = f * f * (3.0 - 2.0 * f); // Smoothstep function for interpolation
-  return lerp(hash(i), hash(i + 1.0), u);
+vec2 rotate(vec2 uv, float th) {
+  return mat2(cos(th), sin(th), -sin(th), cos(th)) * uv;
 }
 
-float get_ball_shape(vec2 uv, vec2 c, float p) {
-  float s = .5 * length(uv - c);
-  s = 1. - clamp(s, 0., 1.);
-  s = pow(s, p);
-  return s;
+float neuro_shape(vec2 uv, float t) {
+  vec2 sine_acc = vec2(0.);
+  vec2 res = vec2(0.);
+  float scale = 8.;
+
+  for (int j = 0; j < 15; j++) {
+    uv = rotate(uv, 1.);
+    sine_acc = rotate(sine_acc, 1.);
+    vec2 layer = uv * scale + float(j) + sine_acc - t;
+    sine_acc += sin(layer);
+    res += (.5 + .5 * cos(layer)) / scale;
+    scale *= (1.2);
+  }
+  return res.x + res.y;
 }
 
 void main() {
@@ -55,71 +55,33 @@ void main() {
   
   float t = .5 * u_time;
 
-  vec4 u_color1 = vec4(1., .4, .7, 1.);
-  vec4 u_color2 = vec4(1., 1., .7, 1.);
-  vec4 u_color3 = vec4(0., .4, .7, 1.);
-  float u_visibilityRange = .7;
+  float noise = neuro_shape(uv, t);
 
-  vec3 total_color = vec3(0.);
-  float total_shape = 0.;
-
-  const int max_balls_number = 15;
+  noise = 1.25 * pow(noise, 3.);
+  noise += pow(noise, 12.);
+  noise = max(.0, noise - .5);
   
-  for (int i = 0; i < max_balls_number; i++) {
-    vec2 pos = vec2(1e-4);
-    float idx_fract = float(i) / float(max_balls_number);
-    float angle = TWO_PI * idx_fract;
+  vec4 u_colorBack = vec4(0., 0., 0., 1.);
+  vec4 u_colorFront = vec4(0., 1., .5, 1.);
 
-    float speed = 1. - .2 * idx_fract;
-    float noiseX = noise(angle * 10. + float(i) + t * speed);
-    float noiseY = noise(angle * 20. + float(i) - t * speed);
-
-    pos += .9 * (vec2(noiseX, noiseY) - .5);
-
-    vec4 ball_color;
-    if (i % 3 == 0) {
-      ball_color = u_color1;
-    } else if (i % 3 == 1) {
-      ball_color = u_color2;
-    } else {
-      ball_color = u_color3;
-    }
-
-    float shape = get_ball_shape(uv, pos, 30.) * ball_color.a;
-
-    shape *= smoothstep((float(i) - 1.) / float(max_balls_number), idx_fract, u_visibilityRange);
-
-    total_color += ball_color.rgb * shape;
-    total_shape += shape;
-  }
-
-  total_color /= max(total_shape, 1e-4);
-
-  float edge_width = fwidth(total_shape);
-  float final_shape = smoothstep(.4, .4 + edge_width, total_shape);
-
-  vec3 color = total_color * final_shape;
+  vec3 color = mix(u_colorBack.rgb * u_colorBack.a, u_colorFront.rgb * u_colorFront.a, noise);
   
-  float circle = smoothstep(.45, .455, length(uv)) - smoothstep(.495, .5, length(uv));
+  float circle = smoothstep(.49, .495, length(uv)) - smoothstep(.495, .5, length(uv));
   color.r = circle;
   
-  float opacity = final_shape + circle;
-
-  if (opacity < .01) {
-    discard;
-  }
+  float opacity = mix(u_colorBack.a, u_colorFront.a, noise);
 
   fragColor = vec4(color, opacity);
 }
 `;
 export default function Page() {
   // React scaffolding
-  const [fit, setFit] = useState<'crop' | 'cover' | 'contain'>('contain');
+  const [fit, setFit] = useState<'crop' | 'cover' | 'contain'>('crop');
   const [image, setImage] = useState('image-square.png');
   const [canvasWidth, setCanvasWidth] = useState(400);
   const [canvasHeight, setCanvasHeight] = useState(200);
-  const [worldWidth, setWorldWidth] = useState(400);
-  const [worldHeight, setWorldHeight] = useState(200);
+  const [worldWidth, setWorldWidth] = useState(500);
+  const [worldHeight, setWorldHeight] = useState(500);
   const [originX, setOriginX] = useState(0.5);
   const [originY, setOriginY] = useState(0.5);
   const imageAspectRatio = image.includes('square') ? 1 : image.includes('landscape') ? 2 : 0.5;
