@@ -1,7 +1,7 @@
 import { memo, useMemo } from 'react';
 import { ShaderMount, type GlobalParams, type ShaderMountProps } from '../shader-mount';
 import { getShaderColorFromString, meshGradientFragmentShader, type MeshGradientUniforms } from '@paper-design/shaders';
-import { colorPropsAreEqual } from '../colors-are-equal';
+import { colorPropsAreEqual } from '../color-props-are-equal';
 
 export type MeshGradientParams = {
   colors?: string[];
