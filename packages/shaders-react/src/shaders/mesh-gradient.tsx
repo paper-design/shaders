@@ -1,6 +1,7 @@
-import { useMemo } from 'react';
+import { memo, useMemo } from 'react';
 import { ShaderMount, type GlobalParams, type ShaderMountProps } from '../shader-mount';
 import { getShaderColorFromString, meshGradientFragmentShader, type MeshGradientUniforms } from '@paper-design/shaders';
+import { colorPropsAreEqual } from '../colors-are-equal';
 
 export type MeshGradientParams = {
   colors?: string[];
@@ -43,7 +44,7 @@ export const fadedPreset: MeshGradientPreset = {
 
 export const meshGradientPresets: MeshGradientPreset[] = [defaultPreset, beachPreset, fadedPreset];
 
-export const MeshGradient = (props: MeshGradientProps): JSX.Element => {
+function MeshGradientImpl(props: MeshGradientProps) {
   const uniforms: MeshGradientUniforms = useMemo(() => {
     let colors = props.colors?.map((color) => getShaderColorFromString(color));
     if (!colors) {
@@ -57,4 +58,7 @@ export const MeshGradient = (props: MeshGradientProps): JSX.Element => {
   }, [props.colors]);
 
   return <ShaderMount {...props} fragmentShader={meshGradientFragmentShader} uniforms={uniforms} />;
-};
+}
+
+type MeshGradientComponent = React.MemoExoticComponent<(props: MeshGradientProps) => React.ReactElement>;
+export const MeshGradient: MeshGradientComponent = memo(MeshGradientImpl, colorPropsAreEqual);
