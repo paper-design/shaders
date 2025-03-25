@@ -42,18 +42,19 @@ void main() {
   fragColor = vec4(color, 1.);
 }
 `;
-
 export default function Page() {
   // React scaffolding
-  const [fit, setFit] = useState<'crop' | 'cover' | 'contain'>('contain');
+  const [fit, setFit] = useState<'crop' | 'cover' | 'contain'>('cover');
   const [image, setImage] = useState('image-square.png');
-  const [canvasWidth, setCanvasWidth] = useState(300);
-  const [canvasHeight, setCanvasHeight] = useState(650);
+  const [canvasWidth, setCanvasWidth] = useState(400);
+  const [canvasHeight, setCanvasHeight] = useState(200);
   const [worldWidth, setWorldWidth] = useState(400);
-  const [worldHeight, setWorldHeight] = useState(100);
+  const [worldHeight, setWorldHeight] = useState(200);
   const [originX, setOriginX] = useState(0.5);
   const [originY, setOriginY] = useState(0.5);
   const imageAspectRatio = image.includes('square') ? 1 : image.includes('landscape') ? 2 : 0.5;
+  const canvasResizeObserver = useRef<ResizeObserver | null>(null);
+  const canvasNodeRef = useRef<HTMLDivElement>(null);
 
   // Sizes
   const renderedWorldWidth = Math.max(canvasWidth, worldWidth);
@@ -78,35 +79,41 @@ export default function Page() {
 
   return (
     <div className="grid min-h-dvh grid-cols-[1fr_300px] bg-[#333]">
-      <div className="flex h-screen flex-row items-center justify-around">
-        {/*<div className="flex h-screen flex-col items-center justify-around">*/}
+      <div className="jusify-center relative flex h-full flex-col items-center self-center">
         <div
-          className="bg-gray relative overflow-hidden bg-black outline outline-black"
+          inert
+          className="absolute left-0 right-0 top-1/2 -translate-y-1/2 outline outline-1 outline-white/20"
+          style={{ height: renderedWorldHeight }}
+        />
+
+        <div
+          inert
+          className="absolute bottom-0 left-1/2 top-0 -translate-x-1/2 outline outline-1 outline-white/20"
+          style={{ width: renderedWorldWidth }}
+        />
+
+        <div
+          className="bg-gray absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 resize overflow-hidden bg-black"
           style={{
             width: canvasWidth,
             height: canvasHeight,
           }}
-        >
-          <span className="absolute text-red-50">img</span>
-          <img
-            src={`/${image}`}
-            alt=""
-            className="block size-1 max-w-none outline-dotted -outline-offset-1 outline-[red]"
-            style={{
-              width: imageWidth,
-              height: imageHeight,
-              translate: `${imageOffsetX}px ${imageOffsetY}px`,
-            }}
-          />
-        </div>
-        <div
-          style={{
-            width: `${canvasWidth}px`,
-            height: `${canvasHeight}px`,
-            position: 'relative',
+          ref={(node) => {
+            canvasNodeRef.current = node;
+            canvasResizeObserver.current?.disconnect();
+
+            if (node) {
+              canvasResizeObserver.current = new ResizeObserver(() => {
+                flushSync(() => {
+                  setCanvasWidth(node.clientWidth);
+                  setCanvasHeight(node.clientHeight);
+                });
+              });
+
+              canvasResizeObserver.current.observe(node);
+            }
           }}
         >
-          <span className="absolute text-red-50">shader</span>
           <ShaderMount
             style={{ width: '100%', height: '100%' }}
             fragmentShader={fragmentShader}
