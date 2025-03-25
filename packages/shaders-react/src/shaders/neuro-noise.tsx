@@ -43,15 +43,21 @@ const marblePreset: NeuroNoisePreset = {
 
 export const neuroNoisePresets: NeuroNoisePreset[] = [defaultPreset, marblePreset] as const;
 
-export const NeuroNoise = (props: NeuroNoiseProps): React.ReactElement => {
+export const NeuroNoise = ({
+  scale,
+  colorFront,
+  colorBack,
+  brightness,
+  ...props
+}: NeuroNoiseProps): React.ReactElement => {
   const uniforms: NeuroNoiseUniforms = useMemo(() => {
     return {
-      u_scale: props.scale ?? defaultPreset.params.scale,
-      u_colorFront: getShaderColorFromString(props.colorFront, defaultPreset.params.colorFront),
-      u_colorBack: getShaderColorFromString(props.colorBack, defaultPreset.params.colorBack),
-      u_brightness: props.brightness ?? defaultPreset.params.brightness,
+      u_scale: scale ?? defaultPreset.params.scale,
+      u_colorFront: getShaderColorFromString(colorFront, defaultPreset.params.colorFront),
+      u_colorBack: getShaderColorFromString(colorBack, defaultPreset.params.colorBack),
+      u_brightness: brightness ?? defaultPreset.params.brightness,
     };
-  }, [props.scale, props.colorFront, props.colorBack, props.brightness]);
+  }, [scale, colorFront, colorBack, brightness]);
 
   return <ShaderMount {...props} fragmentShader={neuroNoiseFragmentShader} uniforms={uniforms} />;
 };

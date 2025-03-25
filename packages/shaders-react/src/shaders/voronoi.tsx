@@ -187,33 +187,46 @@ export const voronoiPresets: VoronoiPreset[] = [
   tilesPreset,
 ];
 
-export const Voronoi = (props: VoronoiProps): React.ReactElement => {
+export const Voronoi = ({
+  scale,
+  colorCell1,
+  colorCell2,
+  colorCell3,
+  colorMid,
+  colorGradient,
+  distance,
+  edgesSize,
+  edgesSoftness,
+  middleSize,
+  middleSoftness,
+  ...props
+}: VoronoiProps): React.ReactElement => {
   const uniforms: VoronoiUniforms = useMemo(() => {
     return {
-      u_scale: props.scale ?? defaultPreset.params.scale,
-      u_colorCell1: getShaderColorFromString(props.colorCell1, defaultPreset.params.colorCell1),
-      u_colorCell2: getShaderColorFromString(props.colorCell2, defaultPreset.params.colorCell2),
-      u_colorCell3: getShaderColorFromString(props.colorCell3, defaultPreset.params.colorCell3),
-      u_colorMid: getShaderColorFromString(props.colorMid, defaultPreset.params.colorMid),
-      u_colorGradient: props.colorGradient ?? defaultPreset.params.colorGradient,
-      u_distance: props.distance ?? defaultPreset.params.distance,
-      u_edgesSize: props.edgesSize ?? defaultPreset.params.edgesSize,
-      u_edgesSoftness: props.edgesSoftness ?? defaultPreset.params.edgesSoftness,
-      u_middleSize: props.middleSize ?? defaultPreset.params.middleSize,
-      u_middleSoftness: props.middleSoftness ?? defaultPreset.params.middleSoftness,
+      u_scale: scale ?? defaultPreset.params.scale,
+      u_colorCell1: getShaderColorFromString(colorCell1, defaultPreset.params.colorCell1),
+      u_colorCell2: getShaderColorFromString(colorCell2, defaultPreset.params.colorCell2),
+      u_colorCell3: getShaderColorFromString(colorCell3, defaultPreset.params.colorCell3),
+      u_colorMid: getShaderColorFromString(colorMid, defaultPreset.params.colorMid),
+      u_colorGradient: colorGradient ?? defaultPreset.params.colorGradient,
+      u_distance: distance ?? defaultPreset.params.distance,
+      u_edgesSize: edgesSize ?? defaultPreset.params.edgesSize,
+      u_edgesSoftness: edgesSoftness ?? defaultPreset.params.edgesSoftness,
+      u_middleSize: middleSize ?? defaultPreset.params.middleSize,
+      u_middleSoftness: middleSoftness ?? defaultPreset.params.middleSoftness,
     };
   }, [
-    props.scale,
-    props.colorCell1,
-    props.colorCell3,
-    props.colorCell2,
-    props.colorMid,
-    props.colorGradient,
-    props.distance,
-    props.edgesSize,
-    props.edgesSoftness,
-    props.middleSize,
-    props.middleSoftness,
+    scale,
+    colorCell1,
+    colorCell3,
+    colorCell2,
+    colorMid,
+    colorGradient,
+    distance,
+    edgesSize,
+    edgesSoftness,
+    middleSize,
+    middleSoftness,
   ]);
 
   return <ShaderMount {...props} fragmentShader={voronoiFragmentShader} uniforms={uniforms} />;

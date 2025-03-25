@@ -43,15 +43,15 @@ export const skyPreset: GrainCloudsPreset = {
 
 export const grainCloudsPresets: GrainCloudsPreset[] = [defaultPreset, skyPreset];
 
-export const GrainClouds = (props: GrainCloudsProps): React.ReactElement => {
+export const GrainClouds = ({ scale, color1, color2, grainAmount, ...props }: GrainCloudsProps): React.ReactElement => {
   const uniforms: GrainCloudsUniforms = useMemo(() => {
     return {
-      u_scale: props.scale ?? defaultPreset.params.scale,
-      u_color1: getShaderColorFromString(props.color1, defaultPreset.params.color1),
-      u_color2: getShaderColorFromString(props.color2, defaultPreset.params.color2),
-      u_grainAmount: props.grainAmount ?? defaultPreset.params.grainAmount,
+      u_scale: scale ?? defaultPreset.params.scale,
+      u_color1: getShaderColorFromString(color1, defaultPreset.params.color1),
+      u_color2: getShaderColorFromString(color2, defaultPreset.params.color2),
+      u_grainAmount: grainAmount ?? defaultPreset.params.grainAmount,
     };
-  }, [props.scale, props.color1, props.color2, props.grainAmount]);
+  }, [scale, color1, color2, grainAmount]);
 
   return <ShaderMount {...props} fragmentShader={grainCloudsFragmentShader} uniforms={uniforms} />;
 };

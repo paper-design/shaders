@@ -199,30 +199,31 @@ export const dotGridPresets: DotGridPreset[] = [
   waveformPreset,
 ];
 
-export const DotGrid = (props: DotGridProps): React.ReactElement => {
+export const DotGrid = ({
+  colorFill,
+  colorStroke,
+  dotSize,
+  gridSpacingX,
+  gridSpacingY,
+  strokeWidth,
+  sizeRange,
+  opacityRange,
+  shape,
+  ...props
+}: DotGridProps): React.ReactElement => {
   const uniforms: DotGridUniforms = useMemo(() => {
     return {
-      u_colorFill: getShaderColorFromString(props.colorFill, defaultPreset.params.colorStroke),
-      u_colorStroke: getShaderColorFromString(props.colorStroke, defaultPreset.params.colorStroke),
-      u_dotSize: props.dotSize ?? defaultPreset.params.dotSize,
-      u_gridSpacingX: props.gridSpacingX ?? defaultPreset.params.gridSpacingX,
-      u_gridSpacingY: props.gridSpacingY ?? defaultPreset.params.gridSpacingY,
-      u_strokeWidth: props.strokeWidth ?? defaultPreset.params.strokeWidth,
-      u_sizeRange: props.sizeRange ?? defaultPreset.params.sizeRange,
-      u_opacityRange: props.opacityRange ?? defaultPreset.params.opacityRange,
-      u_shape: props.shape ?? defaultPreset.params.shape,
+      u_colorFill: getShaderColorFromString(colorFill, defaultPreset.params.colorStroke),
+      u_colorStroke: getShaderColorFromString(colorStroke, defaultPreset.params.colorStroke),
+      u_dotSize: dotSize ?? defaultPreset.params.dotSize,
+      u_gridSpacingX: gridSpacingX ?? defaultPreset.params.gridSpacingX,
+      u_gridSpacingY: gridSpacingY ?? defaultPreset.params.gridSpacingY,
+      u_strokeWidth: strokeWidth ?? defaultPreset.params.strokeWidth,
+      u_sizeRange: sizeRange ?? defaultPreset.params.sizeRange,
+      u_opacityRange: opacityRange ?? defaultPreset.params.opacityRange,
+      u_shape: shape ?? defaultPreset.params.shape,
     };
-  }, [
-    props.colorFill,
-    props.colorStroke,
-    props.dotSize,
-    props.gridSpacingX,
-    props.gridSpacingY,
-    props.strokeWidth,
-    props.sizeRange,
-    props.opacityRange,
-    props.shape,
-  ]);
+  }, [colorFill, colorStroke, dotSize, gridSpacingX, gridSpacingY, strokeWidth, sizeRange, opacityRange, shape]);
 
   return <ShaderMount {...props} fragmentShader={dotGridFragmentShader} uniforms={uniforms} />;
 };

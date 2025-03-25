@@ -136,30 +136,31 @@ export const wavesPresets: WavesPreset[] = [
   waveRidePreset,
 ];
 
-export const Waves = (props: WavesProps): React.ReactElement => {
+export const Waves = ({
+  scale,
+  rotation,
+  color,
+  shape,
+  frequency,
+  amplitude,
+  spacing,
+  dutyCycle,
+  softness,
+  ...props
+}: WavesProps): React.ReactElement => {
   const uniforms: WavesUniforms = useMemo(() => {
     return {
-      u_scale: props.scale ?? defaultPreset.params.scale,
-      u_rotation: props.rotation ?? defaultPreset.params.rotation,
-      u_color: getShaderColorFromString(props.color, defaultPreset.params.color),
-      u_shape: props.shape ?? defaultPreset.params.shape,
-      u_frequency: props.frequency ?? defaultPreset.params.frequency,
-      u_amplitude: props.amplitude ?? defaultPreset.params.amplitude,
-      u_spacing: props.spacing ?? defaultPreset.params.spacing,
-      u_dutyCycle: props.dutyCycle ?? defaultPreset.params.dutyCycle,
-      u_softness: props.softness ?? defaultPreset.params.softness,
+      u_scale: scale ?? defaultPreset.params.scale,
+      u_rotation: rotation ?? defaultPreset.params.rotation,
+      u_color: getShaderColorFromString(color, defaultPreset.params.color),
+      u_shape: shape ?? defaultPreset.params.shape,
+      u_frequency: frequency ?? defaultPreset.params.frequency,
+      u_amplitude: amplitude ?? defaultPreset.params.amplitude,
+      u_spacing: spacing ?? defaultPreset.params.spacing,
+      u_dutyCycle: dutyCycle ?? defaultPreset.params.dutyCycle,
+      u_softness: softness ?? defaultPreset.params.softness,
     };
-  }, [
-    props.scale,
-    props.rotation,
-    props.color,
-    props.shape,
-    props.frequency,
-    props.amplitude,
-    props.spacing,
-    props.dutyCycle,
-    props.softness,
-  ]);
+  }, [scale, rotation, color, shape, frequency, amplitude, spacing, dutyCycle, softness]);
 
   return <ShaderMount {...props} fragmentShader={wavesFragmentShader} uniforms={uniforms} />;
 };

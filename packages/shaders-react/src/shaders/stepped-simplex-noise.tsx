@@ -95,18 +95,27 @@ export const steppedSimplexNoisePresets: SteppedSimplexNoisePreset[] = [
   firstContactPreset,
 ];
 
-export const SteppedSimplexNoise = (props: SteppedSimplexNoiseProps): React.ReactElement => {
+export const SteppedSimplexNoise = ({
+  scale,
+  color1,
+  color2,
+  color3,
+  color4,
+  color5,
+  stepsNumber,
+  ...props
+}: SteppedSimplexNoiseProps): React.ReactElement => {
   const uniforms: SteppedSimplexNoiseUniforms = useMemo(() => {
     return {
-      u_scale: props.scale ?? defaultPreset.params.scale,
-      u_color1: getShaderColorFromString(props.color1, defaultPreset.params.color1),
-      u_color2: getShaderColorFromString(props.color2, defaultPreset.params.color2),
-      u_color3: getShaderColorFromString(props.color3, defaultPreset.params.color3),
-      u_color4: getShaderColorFromString(props.color4, defaultPreset.params.color4),
-      u_color5: getShaderColorFromString(props.color5, defaultPreset.params.color5),
-      u_steps_number: props.stepsNumber ?? defaultPreset.params.stepsNumber,
+      u_scale: scale ?? defaultPreset.params.scale,
+      u_color1: getShaderColorFromString(color1, defaultPreset.params.color1),
+      u_color2: getShaderColorFromString(color2, defaultPreset.params.color2),
+      u_color3: getShaderColorFromString(color3, defaultPreset.params.color3),
+      u_color4: getShaderColorFromString(color4, defaultPreset.params.color4),
+      u_color5: getShaderColorFromString(color5, defaultPreset.params.color5),
+      u_steps_number: stepsNumber ?? defaultPreset.params.stepsNumber,
     };
-  }, [props.scale, props.color1, props.color2, props.color3, props.color4, props.color5, props.stepsNumber]);
+  }, [scale, color1, color2, color3, color4, color5, stepsNumber]);
 
   return <ShaderMount {...props} fragmentShader={steppedSimplexNoiseFragmentShader} uniforms={uniforms} />;
 };

@@ -103,16 +103,23 @@ export const smokeRingPresets: SmokeRingPreset[] = [
   poisonPreset,
 ];
 
-export const SmokeRing = (props: SmokeRingProps): React.ReactElement => {
+export const SmokeRing = ({
+  scale,
+  colorInner,
+  colorOuter,
+  noiseScale,
+  thickness,
+  ...props
+}: SmokeRingProps): React.ReactElement => {
   const uniforms: SmokeRingUniforms = useMemo(() => {
     return {
-      u_scale: props.scale ?? defaultPreset.params.scale,
-      u_colorInner: getShaderColorFromString(props.colorInner, defaultPreset.params.colorInner),
-      u_colorOuter: getShaderColorFromString(props.colorOuter, defaultPreset.params.colorOuter),
-      u_noiseScale: props.noiseScale ?? defaultPreset.params.noiseScale,
-      u_thickness: props.thickness ?? defaultPreset.params.thickness,
+      u_scale: scale ?? defaultPreset.params.scale,
+      u_colorInner: getShaderColorFromString(colorInner, defaultPreset.params.colorInner),
+      u_colorOuter: getShaderColorFromString(colorOuter, defaultPreset.params.colorOuter),
+      u_noiseScale: noiseScale ?? defaultPreset.params.noiseScale,
+      u_thickness: thickness ?? defaultPreset.params.thickness,
     };
-  }, [props.scale, props.colorInner, props.colorOuter, props.noiseScale, props.thickness]);
+  }, [scale, colorInner, colorOuter, noiseScale, thickness]);
 
   return <ShaderMount {...props} fragmentShader={smokeRingFragmentShader} uniforms={uniforms} />;
 };

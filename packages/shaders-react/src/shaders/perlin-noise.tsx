@@ -134,26 +134,27 @@ export const perlinNoisePresets: PerlinNoisePreset[] = [
   wormsPreset,
 ];
 
-export const PerlinNoise = (props: PerlinNoiseProps): React.ReactElement => {
+export const PerlinNoise = ({
+  scale,
+  color,
+  proportion,
+  softness,
+  octaveCount,
+  persistence,
+  lacunarity,
+  ...props
+}: PerlinNoiseProps): React.ReactElement => {
   const uniforms: PerlinNoiseUniforms = useMemo(() => {
     return {
-      u_scale: props.scale ?? defaultPreset.params.scale,
-      u_color: getShaderColorFromString(props.color, defaultPreset.params.color),
-      u_proportion: props.proportion ?? defaultPreset.params.proportion,
-      u_softness: props.softness ?? defaultPreset.params.softness,
-      u_octaveCount: props.octaveCount ?? defaultPreset.params.octaveCount,
-      u_persistence: props.persistence ?? defaultPreset.params.persistence,
-      u_lacunarity: props.lacunarity ?? defaultPreset.params.lacunarity,
+      u_scale: scale ?? defaultPreset.params.scale,
+      u_color: getShaderColorFromString(color, defaultPreset.params.color),
+      u_proportion: proportion ?? defaultPreset.params.proportion,
+      u_softness: softness ?? defaultPreset.params.softness,
+      u_octaveCount: octaveCount ?? defaultPreset.params.octaveCount,
+      u_persistence: persistence ?? defaultPreset.params.persistence,
+      u_lacunarity: lacunarity ?? defaultPreset.params.lacunarity,
     };
-  }, [
-    props.scale,
-    props.color,
-    props.proportion,
-    props.softness,
-    props.octaveCount,
-    props.persistence,
-    props.lacunarity,
-  ]);
+  }, [scale, color, proportion, softness, octaveCount, persistence, lacunarity]);
 
   return <ShaderMount {...props} fragmentShader={perlinNoiseFragmentShader} uniforms={uniforms} />;
 };

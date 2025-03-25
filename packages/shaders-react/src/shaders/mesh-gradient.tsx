@@ -55,15 +55,15 @@ export const fadedPreset: MeshGradientPreset = {
 
 export const meshGradientPresets: MeshGradientPreset[] = [defaultPreset, beachPreset, fadedPreset];
 
-export const MeshGradient = (props: MeshGradientProps): React.ReactElement => {
+export const MeshGradient = ({ color1, color2, color3, color4, ...props }: MeshGradientProps): React.ReactElement => {
   const uniforms: MeshGradientUniforms = useMemo(() => {
     return {
-      u_color1: getShaderColorFromString(props.color1, defaultPreset.params.color1),
-      u_color2: getShaderColorFromString(props.color2, defaultPreset.params.color2),
-      u_color3: getShaderColorFromString(props.color3, defaultPreset.params.color3),
-      u_color4: getShaderColorFromString(props.color4, defaultPreset.params.color4),
+      u_color1: getShaderColorFromString(color1, defaultPreset.params.color1),
+      u_color2: getShaderColorFromString(color2, defaultPreset.params.color2),
+      u_color3: getShaderColorFromString(color3, defaultPreset.params.color3),
+      u_color4: getShaderColorFromString(color4, defaultPreset.params.color4),
     };
-  }, [props.color1, props.color2, props.color3, props.color4]);
+  }, [color1, color2, color3, color4]);
 
   return <ShaderMount {...props} fragmentShader={meshGradientFragmentShader} uniforms={uniforms} />;
 };
