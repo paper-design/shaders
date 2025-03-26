@@ -19,7 +19,7 @@ export type GodRaysParams = {
 
 export type GodRaysProps = Omit<ShaderMountProps, 'fragmentShader'> & GodRaysParams;
 
-type GodRaysPreset = { name: string; params: Required<GodRaysParams> };
+type GodRaysPreset = { name: string; params: Required<GodRaysParams>; style?: React.CSSProperties };
 
 // Due to Leva controls limitation:
 // 1) keep default colors in HSLA format to keep alpha channel
@@ -41,9 +41,9 @@ export const defaultPreset: GodRaysPreset = {
     density: 0.3,
     blending: 0,
     speed: 1,
-    seed: 0,
+    frame: 0,
   },
-} as const;
+};
 
 export const auroraPreset: GodRaysPreset = {
   name: 'Aurora',
@@ -61,9 +61,9 @@ export const auroraPreset: GodRaysPreset = {
     density: 0.5,
     blending: 1,
     speed: 0.5,
-    seed: 0,
+    frame: 0,
   },
-} as const;
+};
 
 export const warpPreset: GodRaysPreset = {
   name: 'Warp',
@@ -81,9 +81,9 @@ export const warpPreset: GodRaysPreset = {
     density: 0.79,
     blending: 0.4,
     speed: 2,
-    seed: 0,
+    frame: 0,
   },
-} as const;
+};
 
 export const linearPreset: GodRaysPreset = {
   name: 'Linear',
@@ -101,9 +101,9 @@ export const linearPreset: GodRaysPreset = {
     density: 0.79,
     blending: 1,
     speed: 0.5,
-    seed: 0,
+    frame: 0,
   },
-} as const;
+};
 
 export const etherPreset: GodRaysPreset = {
   name: 'Ether',
@@ -121,41 +121,55 @@ export const etherPreset: GodRaysPreset = {
     density: 0.6,
     blending: 0.6,
     speed: 1,
-    seed: 0,
+    frame: 0,
   },
-} as const;
+};
 
 export const godRaysPresets: GodRaysPreset[] = [defaultPreset, auroraPreset, warpPreset, linearPreset, etherPreset];
 
-export const GodRays = (props: GodRaysProps): JSX.Element => {
+export const GodRays = ({
+  colorBack,
+  color1,
+  color2,
+  color3,
+  offsetX,
+  offsetY,
+  frequency,
+  spotty,
+  midIntensity,
+  midSize,
+  density,
+  blending,
+  ...props
+}: GodRaysProps): React.ReactElement => {
   const uniforms: GodRaysUniforms = useMemo(() => {
     return {
-      u_colorBack: getShaderColorFromString(props.colorBack, defaultPreset.params.colorBack),
-      u_color1: getShaderColorFromString(props.color1, defaultPreset.params.color1),
-      u_color2: getShaderColorFromString(props.color2, defaultPreset.params.color2),
-      u_color3: getShaderColorFromString(props.color3, defaultPreset.params.color3),
-      u_offsetX: props.offsetX ?? defaultPreset.params.offsetX,
-      u_offsetY: props.offsetY ?? defaultPreset.params.offsetY,
-      u_frequency: props.frequency ?? defaultPreset.params.frequency,
-      u_spotty: props.spotty ?? defaultPreset.params.spotty,
-      u_midIntensity: props.midIntensity ?? defaultPreset.params.midIntensity,
-      u_midSize: props.midSize ?? defaultPreset.params.midSize,
-      u_density: props.density ?? defaultPreset.params.density,
-      u_blending: props.blending ?? defaultPreset.params.blending,
+      u_colorBack: getShaderColorFromString(colorBack, defaultPreset.params.colorBack),
+      u_color1: getShaderColorFromString(color1, defaultPreset.params.color1),
+      u_color2: getShaderColorFromString(color2, defaultPreset.params.color2),
+      u_color3: getShaderColorFromString(color3, defaultPreset.params.color3),
+      u_offsetX: offsetX ?? defaultPreset.params.offsetX,
+      u_offsetY: offsetY ?? defaultPreset.params.offsetY,
+      u_frequency: frequency ?? defaultPreset.params.frequency,
+      u_spotty: spotty ?? defaultPreset.params.spotty,
+      u_midIntensity: midIntensity ?? defaultPreset.params.midIntensity,
+      u_midSize: midSize ?? defaultPreset.params.midSize,
+      u_density: density ?? defaultPreset.params.density,
+      u_blending: blending ?? defaultPreset.params.blending,
     };
   }, [
-    props.colorBack,
-    props.color1,
-    props.color2,
-    props.color3,
-    props.offsetX,
-    props.offsetY,
-    props.frequency,
-    props.spotty,
-    props.midIntensity,
-    props.midSize,
-    props.density,
-    props.blending,
+    colorBack,
+    color1,
+    color2,
+    color3,
+    offsetX,
+    offsetY,
+    frequency,
+    spotty,
+    midIntensity,
+    midSize,
+    density,
+    blending,
   ]);
 
   return <ShaderMount {...props} fragmentShader={godRaysFragmentShader} uniforms={uniforms} />;

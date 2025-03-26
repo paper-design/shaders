@@ -1,6 +1,5 @@
 export type SmokeRingUniforms = {
   u_scale: number;
-  u_colorBack: [number, number, number, number];
   u_colorInner: [number, number, number, number];
   u_colorOuter: [number, number, number, number];
   u_noiseScale: number;
@@ -14,7 +13,6 @@ export type SmokeRingUniforms = {
  *
  * Uniforms include:
  * u_scale - the scale applied to user space: with scale = 1 the ring fits the screen height
- * u_colorBack - the background color of the scene
  * u_colorInner - the inner color of the ring gradient
  * u_colorOuter - the outer color of the ring gradient
  * u_noiseScale - the resolution of noise texture
@@ -30,7 +28,6 @@ uniform float u_time;
 
 uniform float u_scale;
 
-uniform vec4 u_colorBack;
 uniform vec4 u_colorInner;
 uniform vec4 u_colorOuter;
 uniform float u_noiseScale;
@@ -85,10 +82,9 @@ void main() {
   float ratio = u_resolution.x / u_resolution.y;
 
   uv -= .5;
-  uv /= u_pixelRatio;
   float scale = .5 * u_scale + 1e-4;
   uv *= (1. - step(1. - scale, 1.) / scale);
-  uv *= 3.;
+  uv *= 1.5;
   uv.x *= ratio;
 
   float t = u_time;
@@ -99,9 +95,9 @@ void main() {
   vec2 polar_uv = vec2(atg, .1 * t - (.5 * length(uv)) + 1. / pow(length(uv), .5));
   polar_uv *= u_noiseScale;
 
-  float noise_left = fbm(polar_uv + .05 * t);
+  float noise_left = fbm(polar_uv + mod(.05 * t, 35.));
   polar_uv.x = mod(polar_uv.x, u_noiseScale * TWO_PI);
-  float noise_right = fbm(polar_uv + .05 * t);
+  float noise_right = fbm(polar_uv + mod(.05 * t, 35.));
   float noise = mix(noise_right, noise_left, smoothstep(-.2, .2, uv.x));
 
   float center_shape = 1. - pow(smoothstep(2., .0, length(uv)), 50.);
@@ -118,18 +114,11 @@ void main() {
   float ring_shape_inner = ring_shape - ring_shape_outer;
   ring_shape_inner *= ring_shape;
 
-  float background = u_colorBack.a;
+  float opacity = ring_shape_inner * u_colorInner.a;
+  opacity += ring_shape_outer * u_colorOuter.a;
 
-  float opacity = ring_shape_outer * u_colorOuter.a;
-  opacity += ring_shape_inner * u_colorInner.a;
-  opacity += background * (1. - ring_shape_inner * u_colorInner.a - ring_shape_outer * u_colorOuter.a);
-
-  vec3 color = u_colorBack.rgb * (1. - ring_shape) * background;
-  color += u_colorOuter.rgb * ring_shape_outer * u_colorOuter.a;
+  vec3 color = u_colorOuter.rgb * ring_shape_outer * u_colorOuter.a;
   color += u_colorInner.rgb * ring_shape_inner * u_colorInner.a;
-
-  color += u_colorBack.rgb * ring_shape_inner * (1. - u_colorInner.a) * background;
-  color += u_colorBack.rgb * ring_shape_outer * (1. - u_colorOuter.a) * background;
 
   fragColor = vec4(color, opacity);
 }

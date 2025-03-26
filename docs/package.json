@@ -10,16 +10,17 @@
   },
   "dependencies": {
     "@paper-design/shaders-react": "workspace:*",
+    "@vercel/analytics": "^1.5.0",
     "leva": "0.9.34",
-    "next": "15.1.2",
+    "next": "15.2.3",
     "react": "19.0.0",
     "react-dom": "19.0.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "3.2.0",
     "@types/node": "22.10.2",
-    "@types/react": "19.0.2",
-    "@types/react-dom": "19.0.2",
+    "@types/react": "19.0.12",
+    "@types/react-dom": "19.0.4",
     "eslint": "9.17.0",
     "eslint-config-next": "15.1.2",
     "postcss": "8.4.49",

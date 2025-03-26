@@ -25,7 +25,7 @@ const SpiralExample = () => {
       strokeCap={0.5}
       noiseFreq={0.1}
       noisePower={1}
-      blur={0}
+      softness={0}
       speed={1}
       style={{ position: 'fixed', width: '100%', height: '100%' }}
     />
@@ -41,13 +41,11 @@ const defaults = {
   ...firstPresetParams,
   speed: Math.abs(firstPresetParams.speed),
   reverse: firstPresetParams.speed < 0,
+  style: { background: 'hsla(0, 0%, 0%, 0)' },
 };
 
 const SpiralWithControls = () => {
   const [params, setParams] = useControls(() => {
-    const presets: SpiralParams = Object.fromEntries(
-      spiralPresets.map((preset) => [preset.name, button(() => setParamsSafe(params, setParams, preset.params))])
-    );
     return {
       Parameters: folder(
         {
@@ -63,12 +61,25 @@ const SpiralWithControls = () => {
           strokeCap: { value: defaults.strokeCap, min: 0, max: 1, order: 207 },
           noiseFreq: { value: defaults.noiseFreq, min: 0, max: 30, order: 350 },
           noisePower: { value: defaults.noisePower, min: 0, max: 1, order: 351 },
-          blur: { value: defaults.blur, min: 0, max: 1, order: 352 },
+          softness: { value: defaults.softness, min: 0, max: 1, order: 352 },
           speed: { value: defaults.speed, min: 0, max: 2, order: 400 },
           reverse: { value: defaults.reverse, order: 401 },
         },
         { order: 1 }
       ),
+    };
+  });
+
+  useControls(() => {
+    const presets: SpiralParams = Object.fromEntries(
+      spiralPresets.map((preset) => [
+        preset.name,
+        button(() => {
+          setParamsSafe(params, setParams, preset.params);
+        }),
+      ])
+    );
+    return {
       Presets: folder(presets, { order: 2 }),
     };
   });

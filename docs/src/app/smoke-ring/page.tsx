@@ -13,14 +13,12 @@ import { BackButton } from '@/components/back-button';
 const SmokeRingExample = () => {
   return (
     <SmokeRing
-      colorBack="#08121b"
       colorInner="#ffffff"
       colorOuter="#47a0ff"
       scale={1}
       noiseScale={1.4}
       thickness={0.33}
       speed={1}
-      seed={0}
       style={{ position: 'fixed', width: '100%', height: '100%' }}
     />
   );
@@ -35,26 +33,14 @@ const defaults = {
   ...firstPresetParams,
   speed: Math.abs(firstPresetParams.speed),
   reverse: firstPresetParams.speed < 0,
+  style: { background: 'hsla(0, 0%, 0%, 0)' },
 };
 
 const SmokeRingWithControls = () => {
   const [params, setParams] = useControls(() => {
-    const presets: SmokeRingParams = Object.fromEntries(
-      smokeRingPresets.map((preset) => [
-        preset.name,
-        button(() => {
-          setParamsSafe(params, setParams, {
-            ...preset.params,
-            speed: Math.abs(preset.params.speed),
-            reverse: preset.params.speed < 0,
-          });
-        }),
-      ])
-    );
     return {
       Parameters: folder(
         {
-          colorBack: { value: defaults.colorBack, order: 100 },
           colorInner: { value: defaults.colorInner, order: 101 },
           colorOuter: { value: defaults.colorOuter, order: 102 },
           scale: { value: defaults.scale, min: 0.5, max: 1.5, order: 200 },
@@ -65,6 +51,32 @@ const SmokeRingWithControls = () => {
         },
         { order: 1 }
       ),
+    };
+  });
+
+  const [style, setStyle] = useControls(() => {
+    return {
+      Parameters: folder({
+        background: { value: 'hsla(0, 0%, 0%, 0)', order: 100 },
+      }),
+    };
+  });
+
+  useControls(() => {
+    const presets: SmokeRingParams = Object.fromEntries(
+      smokeRingPresets.map((preset) => [
+        preset.name,
+        button(() => {
+          setParamsSafe(params, setParams, {
+            ...preset.params,
+            speed: Math.abs(preset.params.speed),
+            reverse: preset.params.speed < 0,
+          });
+          setStyle({ background: String(preset.style?.background || 'hsla(0, 0%, 0%, 0)') });
+        }),
+      ])
+    );
+    return {
       Presets: folder(presets, { order: 2 }),
     };
   });
@@ -72,6 +84,7 @@ const SmokeRingWithControls = () => {
   // Reset to defaults on mount, so that Leva doesn't show values from other
   // shaders when navigating (if two shaders have a colorInner param for example)
   useResetLevaParams(params, setParams, defaults);
+  useResetLevaParams(style, setStyle, defaults.style);
 
   usePresetHighlight(smokeRingPresets, params);
 
@@ -82,7 +95,7 @@ const SmokeRingWithControls = () => {
       <Link href="/">
         <BackButton />
       </Link>
-      <SmokeRing {...shaderParams} style={{ position: 'fixed', width: '100%', height: '100%' }} />
+      <SmokeRing {...shaderParams} style={{ position: 'fixed', width: '100%', height: '100%', ...style }} />
     </>
   );
 };

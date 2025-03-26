@@ -3,14 +3,13 @@ export type VoronoiUniforms = {
   u_colorCell1: [number, number, number, number];
   u_colorCell2: [number, number, number, number];
   u_colorCell3: [number, number, number, number];
-  u_colorEdges: [number, number, number, number];
   u_colorMid: [number, number, number, number];
   u_colorGradient: number;
   u_distance: number;
   u_edgesSize: number;
-  u_edgesSharpness: number;
+  u_edgesSoftness: number;
   u_middleSize: number;
-  u_middleSharpness: number;
+  u_middleSoftness: number;
 };
 
 /**
@@ -23,15 +22,14 @@ export type VoronoiUniforms = {
  * u_colorCell1 - color #1 of mix used to fill the cell shape
  * u_colorCell2 - color #2 of mix used to fill the cell shape
  * u_colorCell3 - color #3 of mix used to fill the cell shape
- * u_colorEdges - color of borders between the cells
  * u_colorMid - color used to fill the radial shape in the center of each cell
  * u_colorGradient (0 .. 1) - if the cell color is a gradient of palette colors or one color selection
  * u_distance (0 ... 0.5) - how far the cell center can move from regular square grid
  * u_edgesSize (0 .. 1) - the size of borders
  *   (can be set to zero but the edge may get glitchy due to nature of Voronoi diagram)
- * u_edgesSharpness (0 .. 1) - the blur/sharp for cell border
+ * u_edgesSoftness (0 .. 1) - the blur/sharp for cell border
  * u_middleSize (0 .. 1) - the size of shape in the center of each cell
- * u_middleSharpness (0 .. 1) - the smoothness of shape in the center of each cell
+ * u_middleSoftness (0 .. 1) - the smoothness of shape in the center of each cell
  *   (vary from cell color gradient to sharp dot in the middle)
  */
 
@@ -47,15 +45,14 @@ uniform float u_scale;
 uniform vec4 u_colorCell1;
 uniform vec4 u_colorCell2;
 uniform vec4 u_colorCell3;
-uniform vec4 u_colorEdges;
 uniform vec4 u_colorMid;
 
 uniform float u_colorGradient;
 uniform float u_distance;
 uniform float u_edgesSize;
-uniform float u_edgesSharpness;
+uniform float u_edgesSoftness;
 uniform float u_middleSize;
-uniform float u_middleSharpness;
+uniform float u_middleSoftness;
 
 #define TWO_PI 6.28318530718
 
@@ -127,22 +124,20 @@ void main() {
 
   float dot_shape = pow(distance.x, 2.) / (2. * clamp(u_middleSize, 0., 1.) + 1e-4);
   float dot_edge_width = fwidth(dot_shape);
-  float dotSharp = clamp(u_middleSharpness, 0., 1.);
+  float dotSharp = clamp(1. - u_middleSoftness, 0., 1.);
   dot_shape = 1. - smoothstep(.5 * dotSharp - dot_edge_width, 1. - .5 * dotSharp, dot_shape);
 
   float cell_edge_width = fwidth(distance.x);
   float w = .7 * (clamp(u_edgesSize, 0., 1.) - .1);
-  float edgeSharp = clamp(u_edgesSharpness, 0., 1.);
+  float edgeSharp = clamp(u_edgesSoftness, 0., 1.);
   cell_shape = smoothstep(w - cell_edge_width, w + edgeSharp, cell_shape);
 
   dot_shape *= cell_shape;
 
   vec4 cell_mix = blend_colors(u_colorCell1, u_colorCell2, u_colorCell3, randomizer);
   
-  vec4 edges = vec4(u_colorEdges.rgb * u_colorEdges.a, u_colorEdges.a);
-
-  vec3 color = mix(edges.rgb, cell_mix.rgb, cell_shape);
-  float opacity = mix(edges.a, cell_mix.a, cell_shape);
+  vec3 color = cell_mix.rgb * cell_shape;
+  float opacity = cell_mix.a * cell_shape;
 
   color = mix(color, u_colorMid.rgb * u_colorMid.a, dot_shape);
   opacity = mix(opacity, u_colorMid.a, dot_shape);

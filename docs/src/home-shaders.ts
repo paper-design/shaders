@@ -2,7 +2,7 @@ import meshGradientImg from '../public/shaders/mesh-gradient.webp';
 import simplexNoiseImg from '../public/shaders/simplex-noise.webp';
 import neuroNoiseImg from '../public/shaders/neuro-noise.webp';
 import perlinNoiseImg from '../public/shaders/perlin-noise.webp';
-import dotsGridImg from '../public/shaders/dots-grid.webp';
+import dotGridImg from '../public/shaders/dot-grid.webp';
 import dotOrbitImg from '../public/shaders/dot-orbit.webp';
 import smokeRingImg from '../public/shaders/smoke-ring.webp';
 import metaballsImg from '../public/shaders/metaballs.webp';
@@ -13,9 +13,9 @@ import godRaysImg from '../public/shaders/god-rays.webp';
 import spiralImg from '../public/shaders/spiral.webp';
 
 import {
-  DotsGrid,
-  dotsOrbitPresets,
-  DotsOrbit,
+  DotGrid,
+  dotOrbitPresets,
+  DotOrbit,
   MeshGradient,
   meshGradientPresets,
   Metaballs,
@@ -49,6 +49,7 @@ type HomeShaderConfig = {
   url: string;
   ShaderComponent: React.ComponentType;
   shaderConfig?: Record<string, unknown>;
+  style?: React.CSSProperties;
 };
 
 export const homeShaders = [
@@ -82,9 +83,9 @@ export const homeShaders = [
   {
     name: 'dot orbit',
     image: dotOrbitImg,
-    url: '/dots-orbit',
-    ShaderComponent: DotsOrbit,
-    shaderConfig: { ...dotsOrbitPresets[0].params, scale: 0.7, dotSizeRange: 0.15 },
+    url: '/dot-orbit',
+    ShaderComponent: DotOrbit,
+    shaderConfig: { ...dotOrbitPresets[0].params, scale: 0.7, dotSizeRange: 0.15 },
   },
   {
     name: 'smoke ring',
@@ -92,6 +93,7 @@ export const homeShaders = [
     url: '/smoke-ring',
     ShaderComponent: SmokeRing,
     shaderConfig: smokeRingPresets[1].params,
+    style: { background: '#4082FF' },
   },
   {
     name: 'metaballs',
@@ -101,10 +103,10 @@ export const homeShaders = [
     shaderConfig: { ...metaballsPresets[0].params, scale: 1 },
   },
   {
-    name: 'dots grid',
-    url: '/dots-grid',
-    ShaderComponent: DotsGrid,
-    image: dotsGridImg,
+    name: 'dot grid',
+    url: '/dot-grid',
+    ShaderComponent: DotGrid,
+    image: dotGridImg,
   },
   {
     name: 'perlin',
@@ -112,6 +114,7 @@ export const homeShaders = [
     ShaderComponent: PerlinNoise,
     image: perlinNoiseImg,
     shaderConfig: { ...perlinNoisePresets[1].params, scale: 0.6 },
+    style: { background: '#2D63D4' },
   },
   {
     name: 'voronoi',
@@ -119,6 +122,7 @@ export const homeShaders = [
     ShaderComponent: Voronoi,
     image: voronoiImg,
     shaderConfig: { ...voronoiPresets[0].params, scale: 2.1 },
+    style: { background: '#301A04' },
   },
   {
     name: 'waves',

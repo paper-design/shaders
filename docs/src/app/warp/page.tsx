@@ -27,7 +27,6 @@ const WarpExample = () => {
       shape={0}
       shapeScale={0.5}
       speed={0.3}
-      seed={0}
       style={{ position: 'fixed', width: '100%', height: '100%' }}
     />
   );

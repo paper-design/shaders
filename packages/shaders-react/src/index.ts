@@ -27,17 +27,17 @@ export { type NeuroNoiseProps } from './shaders/neuro-noise';
 export { type NeuroNoiseParams } from './shaders/neuro-noise';
 export { type NeuroNoiseUniforms } from '@paper-design/shaders';
 
-// Animated dots pattern: orbit type of animation
-export { DotsOrbit, dotsOrbitPresets } from './shaders/dots-orbit';
-export { type DotsOrbitProps } from './shaders/dots-orbit';
-export { type DotsOrbitParams } from './shaders/dots-orbit';
-export { type DotsOrbitUniforms } from '@paper-design/shaders';
+// Animated dot pattern: orbit type of animation
+export { DotOrbit, dotOrbitPresets } from './shaders/dot-orbit';
+export { type DotOrbitProps } from './shaders/dot-orbit';
+export { type DotOrbitParams } from './shaders/dot-orbit';
+export { type DotOrbitUniforms } from '@paper-design/shaders';
 
 // Dot Grid
-export { DotsGrid, dotsGridPresets } from './shaders/dots-grid';
-export { type DotsGridProps } from './shaders/dots-grid';
-export { type DotsGridParams } from './shaders/dots-grid';
-export { type DotsGridUniforms, DotsGridShapes, type DotsGridShape } from '@paper-design/shaders';
+export { DotGrid, dotGridPresets } from './shaders/dot-grid';
+export { type DotGridProps } from './shaders/dot-grid';
+export { type DotGridParams } from './shaders/dot-grid';
+export { type DotGridUniforms, DotGridShapes, type DotGridShape } from '@paper-design/shaders';
 
 // Stepped simplex noise
 export { SteppedSimplexNoise, steppedSimplexNoisePresets } from './shaders/stepped-simplex-noise';

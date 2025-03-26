@@ -13,16 +13,14 @@ import { BackButton } from '@/components/back-button';
 const PerlinNoiseExample = () => {
   return (
     <PerlinNoise
-      color1="#262626"
-      color2="#bde6ff"
+      color="#bde6ff"
       scale={1}
       proportion={0.34}
-      contour={0.9}
+      softness={0.1}
       octaveCount={2}
       persistence={1}
       lacunarity={1.5}
       speed={0.5}
-      seed={0}
       style={{ position: 'fixed', width: '100%', height: '100%' }}
     />
   );
@@ -32,22 +30,17 @@ const PerlinNoiseExample = () => {
  * This example has controls added so you can play with settings in the example app
  */
 
-const defaults = perlinNoisePresets[0].params;
+const defaults = { ...perlinNoisePresets[0].params, style: { background: 'hsla(0, 0%, 0%, 0)' } };
 
 const PerlinNoiseWithControls = () => {
   const [params, setParams] = useControls(() => {
-    const presets: PerlinNoiseParams = Object.fromEntries(
-      perlinNoisePresets.map((preset) => [preset.name, button(() => setParamsSafe(params, setParams, preset.params))])
-    );
-
     return {
       Parameters: folder(
         {
-          color1: { value: defaults.color1, order: 100 },
-          color2: { value: defaults.color2, order: 101 },
+          color: { value: defaults.color, order: 101 },
           scale: { value: defaults.scale, min: 0, max: 2, order: 200 },
-          proportion: { value: defaults.contour, min: 0, max: 1, order: 300 },
-          contour: { value: defaults.contour, min: 0, max: 1, order: 301 },
+          proportion: { value: defaults.proportion, min: 0, max: 1, order: 300 },
+          softness: { value: defaults.softness, min: 0, max: 1, order: 301 },
           octaveCount: { value: defaults.octaveCount, min: 1, max: 8, step: 1, order: 302 },
           persistence: { value: defaults.persistence, min: 0.3, max: 1, order: 303 },
           lacunarity: { value: defaults.lacunarity, min: 1.5, max: 10, order: 304 },
@@ -55,6 +48,28 @@ const PerlinNoiseWithControls = () => {
         },
         { order: 1 }
       ),
+    };
+  });
+
+  const [style, setStyle] = useControls(() => {
+    return {
+      Parameters: folder({
+        background: { value: 'hsla(0, 0%, 0%, 0)', order: 100 },
+      }),
+    };
+  });
+
+  useControls(() => {
+    const presets: PerlinNoiseParams = Object.fromEntries(
+      perlinNoisePresets.map((preset) => [
+        preset.name,
+        button(() => {
+          setParamsSafe(params, setParams, preset.params);
+          setStyle({ background: String(preset.style?.background || 'hsla(0, 0%, 0%, 0)') });
+        }),
+      ])
+    );
+    return {
       Presets: folder(presets, { order: 2 }),
     };
   });
@@ -62,6 +77,7 @@ const PerlinNoiseWithControls = () => {
   // Reset to defaults on mount, so that Leva doesn't show values from other
   // shaders when navigating (if two shaders have a color1 param for example)
   useResetLevaParams(params, setParams, defaults);
+  useResetLevaParams(style, setStyle, defaults.style);
 
   usePresetHighlight(perlinNoisePresets, params);
 
@@ -70,7 +86,7 @@ const PerlinNoiseWithControls = () => {
       <Link href="/">
         <BackButton />
       </Link>
-      <PerlinNoise {...params} style={{ position: 'fixed', width: '100%', height: '100%' }} />
+      <PerlinNoise {...params} style={{ position: 'fixed', width: '100%', height: '100%', ...style }} />
     </>
   );
 };

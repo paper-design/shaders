@@ -1,8 +1,17 @@
 /** Uniform types that we support to be auto-mapped into the fragment shader */
 export type ShaderMountUniforms = Record<string, number | number[] | HTMLImageElement>;
 
+/** A canvas element that has a ShaderMount available on it */
+export interface PaperShaderCanvasElement extends HTMLCanvasElement {
+  paperShaderMount: ShaderMount | undefined;
+}
+/** Check if a canvas element is a ShaderCanvas */
+export function isPaperShaderCanvas(canvas: HTMLCanvasElement): canvas is PaperShaderCanvasElement {
+  return 'paperShaderMount' in canvas;
+}
+
 export class ShaderMount {
-  private canvas: HTMLCanvasElement;
+  private canvas: PaperShaderCanvasElement;
   private gl: WebGLRenderingContext;
   private program: WebGLProgram | null = null;
   private uniformLocations: Record<string, WebGLUniformLocation | null> = {};
@@ -11,11 +20,11 @@ export class ShaderMount {
   /** Stores the RAF for the render loop */
   private rafId: number | null = null;
   /** Time of the last rendered frame */
-  private lastFrameTime = 0;
+  private lastRenderTime = 0;
   /** Total time that we have played any animation, passed as a uniform to the shader for time-based VFX */
-  private totalAnimationTime = 0;
+  private totalFrameTime = 0;
   /** The current speed that we progress through animation time (multiplies by delta time every update). Allows negatives to play in reverse. If set to 0, rAF will stop entirely so static shaders have no recurring performance costs */
-  private speed = 1;
+  private speed = 0;
   /** Uniforms that are provided by the user for the specific shader being mounted (not including uniforms that this Mount adds, like time and resolution) */
   private providedUniforms: ShaderMountUniforms;
   /** Just a sanity check to make sure frames don't run after we're disposed */
@@ -24,6 +33,8 @@ export class ShaderMount {
   private resolutionChanged = true;
   /** Store textures that are provided by the user */
   private textures: Map<string, WebGLTexture> = new Map();
+  /** The maximum resolution (on the larger axis) that we render for the shader, to protect against insane resolutions and bad performance. Actual CSS size of the canvas can be larger, it will just lose quality after this */
+  private maxResolution = 0; // set by constructor
 
   constructor(
     canvas: HTMLCanvasElement,
@@ -31,15 +42,18 @@ export class ShaderMount {
     uniforms: ShaderMountUniforms = {},
     webGlContextAttributes?: WebGLContextAttributes,
     /** The speed of the animation, or 0 to stop it. Supports negative values to play in reverse. */
-    speed = 1,
-    /** Pass a seed to offset the starting u_time value and give deterministic results*/
-    seed = 0
+    speed = 0,
+    /** Pass a frame to offset the starting u_time value and give deterministic results*/
+    frame = 0,
+    /** The maximum resolution (on the larger axis) that we render for the shader. Use virtual pixels, will be multiplied by display DPI to get the actual resolution. Actual CSS size of the canvas can be larger, it will just lose quality after this */
+    maxResolution = 1920
   ) {
-    this.canvas = canvas;
+    this.canvas = canvas as PaperShaderCanvasElement;
     this.fragmentShader = fragmentShader;
     this.providedUniforms = uniforms;
-    // Base our starting animation time on the provided seed value
-    this.totalAnimationTime = seed;
+    // Base our starting animation time on the provided frame value
+    this.totalFrameTime = frame;
+    this.maxResolution = maxResolution * window.devicePixelRatio;
 
     const gl = canvas.getContext('webgl2', webGlContextAttributes);
     if (!gl) {
@@ -61,6 +75,9 @@ export class ShaderMount {
 
     // Mark canvas as paper shader mount
     this.canvas.setAttribute('data-paper-shaders', 'true');
+
+    // Add the shaderMount instance to the canvas element to make it easily accessible
+    this.canvas.paperShaderMount = this;
   }
 
   private initProgram = () => {
@@ -108,12 +125,19 @@ export class ShaderMount {
     this.handleResize();
   };
 
+  private lastCSSWidth = 0;
+  private lastCSSHeight = 0;
   private handleResize = () => {
     const clientWidth = this.canvas.clientWidth;
     const clientHeight = this.canvas.clientHeight;
     const pixelRatio = window.devicePixelRatio;
-    const newWidth = clientWidth * pixelRatio;
-    const newHeight = clientHeight * pixelRatio;
+
+    let newWidth = clientWidth * pixelRatio;
+    let newHeight = clientHeight * pixelRatio;
+    // Prevent the size from going larger than our max resolution
+    const scale = Math.min(1, this.maxResolution / Math.max(newWidth, newHeight));
+    newWidth = Math.floor(newWidth * scale);
+    newHeight = Math.floor(newHeight * scale);
 
     if (this.canvas.width !== newWidth || this.canvas.height !== newHeight) {
       this.canvas.width = newWidth;
@@ -122,10 +146,10 @@ export class ShaderMount {
       // If pixelRatio is not 1, we need the user to set a CSS size or changing the canvas.width/height will
       // actually resize the element, triggering a resize loop and making the result still 1x dpi, just bigger
       if (pixelRatio !== 1) {
-        const cssWidth = window.getComputedStyle(this.canvas).width;
-        const cssHeight = window.getComputedStyle(this.canvas).height;
+        this.lastCSSWidth = parseFloat(window.getComputedStyle(this.canvas).width);
+        this.lastCSSHeight = parseFloat(window.getComputedStyle(this.canvas).height);
         // CSS width should not equal newWidth, because newWidth is scaled with dpi
-        if (parseFloat(cssWidth) === newWidth && parseFloat(cssHeight) === newHeight) {
+        if (this.lastCSSWidth === newWidth && this.lastCSSHeight === newHeight) {
           // It appears that CSS sizing was unset, so we just caused the entire canvas to resize and will trigger a resize loop
           // Set an explicit inline CSS size to avoid the loop and preserve 2x rendering
           this.canvas.style.width = `${clientWidth}px`;
@@ -148,11 +172,11 @@ export class ShaderMount {
     }
 
     // Calculate the delta time
-    const dt = currentTime - this.lastFrameTime;
-    this.lastFrameTime = currentTime;
+    const dt = currentTime - this.lastRenderTime;
+    this.lastRenderTime = currentTime;
     // Increase the total animation time by dt * animationSpeed
     if (this.speed !== 0) {
-      this.totalAnimationTime += dt * this.speed;
+      this.totalFrameTime += dt * this.speed;
     }
 
     // Clear the canvas
@@ -162,12 +186,13 @@ export class ShaderMount {
     this.gl.useProgram(this.program);
 
     // Update the time uniform
-    this.gl.uniform1f(this.uniformLocations.u_time!, this.totalAnimationTime * 0.001);
+    this.gl.uniform1f(this.uniformLocations.u_time!, this.totalFrameTime * 0.001);
 
     // If the resolution has changed, we need to update the uniform
     if (this.resolutionChanged) {
       this.gl.uniform2f(this.uniformLocations.u_resolution!, this.gl.canvas.width, this.gl.canvas.height);
-      this.gl.uniform1f(this.uniformLocations.u_pixelRatio!, window.devicePixelRatio);
+      const pixelRatio = this.gl.canvas.width / this.lastCSSWidth;
+      this.gl.uniform1f(this.uniformLocations.u_pixelRatio!, pixelRatio);
       this.resolutionChanged = false;
     }
 
@@ -287,11 +312,15 @@ export class ShaderMount {
     });
   };
 
-  /** Set a seed to get a deterministic result */
-  public setSeed = (newSeed: number): void => {
-    const oneFrameAt120Fps = 1000 / 120;
-    this.totalAnimationTime = newSeed * oneFrameAt120Fps;
-    this.lastFrameTime = performance.now();
+  /** Gets the current total animation time from 0ms */
+  public getCurrentFrameTime = (): number => {
+    return this.totalFrameTime;
+  };
+
+  /** Set a frame to get a deterministic result, frames are literally just milliseconds from zero since the animation started */
+  public setFrame = (newFrame: number): void => {
+    this.totalFrameTime = newFrame;
+    this.lastRenderTime = performance.now();
     this.render(performance.now());
   };
 
@@ -302,7 +331,7 @@ export class ShaderMount {
 
     if (this.rafId === null && newSpeed !== 0) {
       // Moving from 0 to animating, kick off a new rAF loop
-      this.lastFrameTime = performance.now();
+      this.lastRenderTime = performance.now();
       this.rafId = requestAnimationFrame(this.render);
     }
 
@@ -362,6 +391,9 @@ export class ShaderMount {
     }
 
     this.uniformLocations = {};
+
+    // Remove the shader mount from the canvas element to avoid any GC issues
+    this.canvas.paperShaderMount = undefined;
   };
 }
 
