@@ -28,22 +28,64 @@ const MeshGradientExample = () => {
 const defaults = meshGradientPresets[0].params;
 
 const MeshGradientWithControls = () => {
+  const [{ colorCount }, setColorCount] = useControls(() => ({
+    Colors: folder({
+      colorCount: {
+        value: defaults.colors.length,
+        min: 1,
+        max: 10,
+        step: 1,
+      },
+    }),
+  }));
+
+  const [levaColors, setLevaColors] = useControls(() => {
+    const colors: Record<string, { value: string }> = {};
+
+    for (let i = 0; i < colorCount; i++) {
+      colors[`color${i}`] = {
+        value: defaults.colors[i] ?? 'hsla(0, 0%, 100%, 1)',
+      };
+    }
+
+    return {
+      Colors: folder(colors),
+    };
+  }, [colorCount]);
+
   const [params, setParams] = useControls(() => {
     const presets: MeshGradientParams = Object.fromEntries(
-      meshGradientPresets.map((preset) => [preset.name, button(() => setParamsSafe(params, setParams, preset.params))])
+      meshGradientPresets.map((preset) => {
+        return [
+          preset.name,
+          button(() => {
+            const { colors, ...presetParams } = preset.params;
+            setParamsSafe(params, setParams, presetParams);
+            setColorCount({ colorCount: colors.length });
+
+            const presetColors = Object.fromEntries(
+              colors.map((color, index) => {
+                return [`color${index}`, color];
+              })
+            );
+
+            setColorCount({ colorCount: colors.length });
+            setParamsSafe(levaColors, setLevaColors, presetColors);
+          }),
+        ];
+      })
     );
 
     return {
       Parameters: folder(
         {
-          // colors: { value: defaults.colors, order: 100 },
           speed: { value: defaults.speed, min: 0, max: 1, order: 400 },
         },
         { order: 1 }
       ),
-      // Presets: folder(presets, { order: 2 }),
+      Presets: folder(presets as Record<string, string>, { order: 2 }),
     };
-  });
+  }, [colorCount]);
 
   // Reset to defaults on mount, so that Leva doesn't show values from other
   // shaders when navigating (if two shaders have a color1 param for example)
@@ -51,12 +93,14 @@ const MeshGradientWithControls = () => {
   usePresetHighlight(meshGradientPresets, params);
   cleanUpLevaParams(params);
 
+  const colors = Object.values(levaColors) as unknown as string[];
+
   return (
     <>
       <Link href="/">
         <BackButton />
       </Link>
-      <MeshGradient {...params} style={{ position: 'fixed', width: '100%', height: '100%' }} />
+      <MeshGradient {...params} colors={colors} style={{ position: 'fixed', width: '100%', height: '100%' }} />
     </>
   );
 };
