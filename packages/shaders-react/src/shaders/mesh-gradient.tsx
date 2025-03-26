@@ -1,12 +1,10 @@
-import { useMemo } from 'react';
+import { memo, useMemo } from 'react';
 import { ShaderMount, type GlobalParams, type ShaderMountProps } from '../shader-mount';
 import { getShaderColorFromString, meshGradientFragmentShader, type MeshGradientUniforms } from '@paper-design/shaders';
+import { colorPropsAreEqual } from '../color-props-are-equal';
 
 export type MeshGradientParams = {
-  color1?: string;
-  color2?: string;
-  color3?: string;
-  color4?: string;
+  colors?: string[];
 } & GlobalParams;
 
 export type MeshGradientProps = Omit<ShaderMountProps, 'fragmentShader'> & MeshGradientParams;
@@ -22,10 +20,7 @@ export const defaultPreset: MeshGradientPreset = {
   params: {
     speed: 0.15,
     frame: 0,
-    color1: 'hsla(259, 29%, 73%, 1)',
-    color2: 'hsla(263, 57%, 39%, 1)',
-    color3: 'hsla(48, 73%, 84%, 1)',
-    color4: 'hsla(295, 32%, 70%, 1)',
+    colors: ['hsla(259, 29%, 73%, 1)', 'hsla(263, 57%, 39%, 1)', 'hsla(48, 73%, 84%, 1)', 'hsla(295, 32%, 70%, 1)'],
   },
 };
 
@@ -34,10 +29,7 @@ export const beachPreset: MeshGradientPreset = {
   params: {
     speed: 0.1,
     frame: 0,
-    color1: 'hsla(186, 81%, 83%, 1)',
-    color2: 'hsla(198, 55%, 68%, 1)',
-    color3: 'hsla(53, 67%, 88%, 1)',
-    color4: 'hsla(45, 93%, 73%, 1)',
+    colors: ['hsla(186, 81%, 83%, 1)', 'hsla(198, 55%, 68%, 1)', 'hsla(53, 67%, 88%, 1)', 'hsla(45, 93%, 73%, 1)'],
   },
 };
 
@@ -46,24 +38,27 @@ export const fadedPreset: MeshGradientPreset = {
   params: {
     speed: -0.3,
     frame: 0,
-    color1: 'hsla(186, 41%, 90%, 1)',
-    color2: 'hsla(208, 71%, 85%, 1)',
-    color3: 'hsla(183, 51%, 92%, 1)',
-    color4: 'hsla(201, 72%, 90%, 1)',
+    colors: ['hsla(186, 41%, 90%, 1)', 'hsla(208, 71%, 85%, 1)', 'hsla(183, 51%, 92%, 1)', 'hsla(201, 72%, 90%, 1)'],
   },
 };
 
 export const meshGradientPresets: MeshGradientPreset[] = [defaultPreset, beachPreset, fadedPreset];
 
-export const MeshGradient = ({ color1, color2, color3, color4, ...props }: MeshGradientProps): React.ReactElement => {
+function MeshGradientImpl({ colors: colorsProp, ...props }: MeshGradientProps) {
   const uniforms: MeshGradientUniforms = useMemo(() => {
+    let colors = colorsProp?.map((color) => getShaderColorFromString(color));
+    if (!colors) {
+      colors = defaultPreset.params.colors.map((color) => getShaderColorFromString(color));
+    }
+
     return {
-      u_color1: getShaderColorFromString(color1, defaultPreset.params.color1),
-      u_color2: getShaderColorFromString(color2, defaultPreset.params.color2),
-      u_color3: getShaderColorFromString(color3, defaultPreset.params.color3),
-      u_color4: getShaderColorFromString(color4, defaultPreset.params.color4),
+      u_colors: colors,
+      u_colors_count: colors.length,
     };
-  }, [color1, color2, color3, color4]);
+  }, [colorsProp]);
 
   return <ShaderMount {...props} fragmentShader={meshGradientFragmentShader} uniforms={uniforms} />;
-};
+}
+
+type MeshGradientComponent = React.MemoExoticComponent<(props: MeshGradientProps) => React.ReactElement>;
+export const MeshGradient: MeshGradientComponent = memo(MeshGradientImpl, colorPropsAreEqual);
