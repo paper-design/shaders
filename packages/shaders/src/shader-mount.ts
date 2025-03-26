@@ -46,14 +46,14 @@ export class ShaderMount {
     /** Pass a frame to offset the starting u_time value and give deterministic results*/
     frame = 0,
     /** The maximum resolution (on the larger axis) that we render for the shader, to protect against insane resolutions and bad performance. Actual CSS size of the canvas can be larger, it will just lose quality after this */
-    maxResolution = 3840 // 1920@2X
+    maxResolution = 1920 // will later be multiplied by display DPI
   ) {
     this.canvas = canvas as PaperShaderCanvasElement;
     this.fragmentShader = fragmentShader;
     this.providedUniforms = uniforms;
     // Base our starting animation time on the provided frame value
     this.totalFrameTime = frame;
-    this.maxResolution = maxResolution;
+    this.maxResolution = maxResolution * window.devicePixelRatio;
 
     const gl = canvas.getContext('webgl2', webGlContextAttributes);
     if (!gl) {
