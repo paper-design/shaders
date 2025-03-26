@@ -1,6 +1,7 @@
 'use client';
 
 import { BackButton } from '@/components/back-button';
+import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
 import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import { setParamsSafe, useResetLevaParams } from '@/helpers/use-reset-leva-params';
 import { Voronoi, type VoronoiParams, voronoiPresets } from '@paper-design/shaders-react';
@@ -63,8 +64,8 @@ const VoronoiWithControls = () => {
   // Reset to defaults on mount, so that Leva doesn't show values from other
   // shaders when navigating (if two shaders have a color1 param for example)
   useResetLevaParams(params, setParams, defaults);
-
   usePresetHighlight(voronoiPresets, params);
+  cleanUpLevaParams(params);
 
   return (
     <>

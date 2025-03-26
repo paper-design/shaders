@@ -6,6 +6,7 @@ import { setParamsSafe, useResetLevaParams } from '@/helpers/use-reset-leva-para
 import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import Link from 'next/link';
 import { BackButton } from '@/components/back-button';
+import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
 
 /**
  * You can copy/paste this example to use SmokeRing in your app
@@ -85,8 +86,8 @@ const SmokeRingWithControls = () => {
   // shaders when navigating (if two shaders have a colorInner param for example)
   useResetLevaParams(params, setParams, defaults);
   useResetLevaParams(style, setStyle, defaults.style);
-
   usePresetHighlight(smokeRingPresets, params);
+  cleanUpLevaParams(params);
 
   const { reverse, ...shaderParams } = { ...params, speed: params.speed * (params.reverse ? -1 : 1) };
 
