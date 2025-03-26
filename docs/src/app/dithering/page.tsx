@@ -1,7 +1,6 @@
 'use client';
 
 import { Dithering, type DitheringParams, ditheringPresets } from '@paper-design/shaders-react';
-
 import { useControls, button, folder } from 'leva';
 import { setParamsSafe, useResetLevaParams } from '@/helpers/use-reset-leva-params';
 import { usePresetHighlight } from '@/helpers/use-preset-highlight';
@@ -19,18 +18,14 @@ const DitheringExample = () => {
  * This example has controls added so you can play with settings in the example app
  */
 
-const defaults = ditheringPresets[0].params;
+const defaults = { ...ditheringPresets[0].params, style: { background: 'hsla(0, 0%, 0%, 0)' } };
 
 const DitheringWithControls = () => {
   const [params, setParams] = useControls(() => {
-    const presets: DitheringParams = Object.fromEntries(
-      ditheringPresets.map((preset) => [preset.name, button(() => setParamsSafe(params, setParams, preset.params))])
-    );
     return {
       Parameters: folder(
         {
-          color1: { value: defaults.color1, order: 100 },
-          color2: { value: defaults.color2, order: 101 },
+          color: { value: defaults.color, order: 100 },
           shape: { value: defaults.shape, min: 1, max: 6, step: 1, order: 200 },
           scale: { value: defaults.scale, min: 0.1, max: 3, order: 201 },
           type: { value: defaults.type, min: 1, max: 4, step: 1, order: 250 },
@@ -40,6 +35,28 @@ const DitheringWithControls = () => {
         },
         { order: 1 }
       ),
+    };
+  });
+
+  const [style, setStyle] = useControls(() => {
+    return {
+      Parameters: folder({
+        background: { value: 'hsla(0, 0%, 0%, 0)', order: 100 },
+      }),
+    };
+  });
+
+  useControls(() => {
+    const presets: DitheringParams = Object.fromEntries(
+      ditheringPresets.map((preset) => [
+        preset.name,
+        button(() => {
+          setParamsSafe(params, setParams, preset.params);
+          setStyle({ background: String(preset.style?.background || 'hsla(0, 0%, 0%, 0)') });
+        }),
+      ])
+    );
+    return {
       Presets: folder(presets, { order: 2 }),
     };
   });
@@ -47,6 +64,7 @@ const DitheringWithControls = () => {
   // Reset to defaults on mount, so that Leva doesn't show values from other
   // shaders when navigating (if two shaders have a color1 param for example)
   useResetLevaParams(params, setParams, defaults);
+  useResetLevaParams(style, setStyle, defaults.style);
 
   usePresetHighlight(ditheringPresets, params);
 
@@ -55,7 +73,7 @@ const DitheringWithControls = () => {
       <Link href="/">
         <BackButton />
       </Link>
-      <Dithering {...params} style={{ position: 'fixed', width: '100%', height: '100%' }} />
+      <Dithering {...params} style={{ position: 'fixed', width: '100%', height: '100%', ...style}}/>
     </>
   );
 };
