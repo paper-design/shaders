@@ -77,7 +77,7 @@ const GodRaysWithControls = () => {
       <Link href="/">
         <BackButton />
       </Link>
-      <GodRays {...params} style={{ position: 'fixed', width: '100%', height: '100%' }} />
+      <GodRays {...params} style={{ position: 'fixed', width: '100svw', height: '100svh' }} />
     </>
   );
 };

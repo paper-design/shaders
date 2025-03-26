@@ -69,7 +69,7 @@ const DotOrbitWithControls = () => {
       <Link href="/">
         <BackButton />
       </Link>
-      <DotOrbit {...params} style={{ position: 'fixed', width: '100%', height: '100%' }} />
+      <DotOrbit {...params} style={{ position: 'fixed', width: '100svw', height: '100svh' }} />
     </>
   );
 };

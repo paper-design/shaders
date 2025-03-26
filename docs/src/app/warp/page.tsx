@@ -79,7 +79,7 @@ const WarpWithControls = () => {
       <Link href="/">
         <BackButton />
       </Link>
-      <Warp {...params} style={{ position: 'fixed', width: '100%', height: '100%' }} />
+      <Warp {...params} style={{ position: 'fixed', width: '100svw', height: '100svh' }} />
     </>
   );
 };

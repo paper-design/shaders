@@ -75,7 +75,7 @@ const SteppedSimplexNoiseWithControls = () => {
       <Link href="/">
         <BackButton />
       </Link>
-      <SteppedSimplexNoise {...params} style={{ position: 'fixed', width: '100%', height: '100%' }} />
+      <SteppedSimplexNoise {...params} style={{ position: 'fixed', width: '100svw', height: '100svh' }} />
     </>
   );
 };

@@ -85,7 +85,7 @@ const MetaballsWithControls = () => {
       <Link href="/">
         <BackButton />
       </Link>
-      <Metaballs {...params} style={{ position: 'fixed', width: '100%', height: '100%', ...style }} />
+      <Metaballs {...params} style={{ position: 'fixed', width: '100svw', height: '100svh', ...style }} />
     </>
   );
 };

@@ -62,7 +62,7 @@ const NeuroNoiseWithControls = () => {
       <Link href="/">
         <BackButton />
       </Link>
-      <NeuroNoise {...params} style={{ position: 'fixed', width: '100%', height: '100%' }} />
+      <NeuroNoise {...params} style={{ position: 'fixed', width: '100svw', height: '100svh' }} />
     </>
   );
 };

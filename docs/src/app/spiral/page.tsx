@@ -98,7 +98,7 @@ const SpiralWithControls = () => {
       <Link href="/">
         <BackButton />
       </Link>
-      <Spiral {...shaderParams} style={{ position: 'fixed', width: '100%', height: '100%' }} />
+      <Spiral {...shaderParams} style={{ position: 'fixed', width: '100svw', height: '100svh' }} />
     </>
   );
 };

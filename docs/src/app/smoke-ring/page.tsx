@@ -96,7 +96,7 @@ const SmokeRingWithControls = () => {
       <Link href="/">
         <BackButton />
       </Link>
-      <SmokeRing {...shaderParams} style={{ position: 'fixed', width: '100%', height: '100%', ...style }} />
+      <SmokeRing {...shaderParams} style={{ position: 'fixed', width: '100svw', height: '100svh', ...style }} />
     </>
   );
 };

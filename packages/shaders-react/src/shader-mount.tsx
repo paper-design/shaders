@@ -5,8 +5,8 @@ import { useMergeRefs } from './use-merge-refs';
 /** The React ShaderMount can also accept strings as uniform values, which will assumed to be URLs and loaded as images */
 export type ShaderMountUniformsReact = { [key: string]: ShaderMountUniforms[keyof ShaderMountUniforms] | string };
 
-export interface ShaderMountProps extends React.ComponentProps<'canvas'> {
-  shaderMountRef?: React.MutableRefObject<ShaderMountVanilla | null>;
+export interface ShaderMountProps extends React.ComponentProps<'div'> {
+  shaderMountRef?: React.RefObject<ShaderMountVanilla | null>;
   fragmentShader: string;
   uniforms?: ShaderMountUniformsReact;
   webGlContextAttributes?: WebGLContextAttributes;
@@ -80,7 +80,7 @@ const processUniforms = (uniforms: ShaderMountUniformsReact): Promise<ShaderMoun
  * A React component that mounts a shader and updates its uniforms as the component's props change
  * If you pass a string as a uniform value, it will be assumed to be a URL and attempted to be loaded as an image
  */
-export const ShaderMount: React.FC<ShaderMountProps> = forwardRef<HTMLCanvasElement, ShaderMountProps>(
+export const ShaderMount: React.FC<ShaderMountProps> = forwardRef<HTMLDivElement, ShaderMountProps>(
   function ShaderMountImpl(
     {
       shaderMountRef: externalShaderMountRef,
@@ -89,20 +89,20 @@ export const ShaderMount: React.FC<ShaderMountProps> = forwardRef<HTMLCanvasElem
       webGlContextAttributes,
       speed = 1,
       frame = 0,
-      ...canvasProps
+      ...divProps
     },
     forwardedRef
   ) {
-    const canvasRef = useRef<HTMLCanvasElement>(null);
-    const shaderMountRef: React.MutableRefObject<ShaderMountVanilla | null> = useRef<ShaderMountVanilla>(null);
+    const divRef = useRef<HTMLDivElement>(null);
+    const shaderMountRef: React.RefObject<ShaderMountVanilla | null> = useRef<ShaderMountVanilla>(null);
 
     useEffect(() => {
       const initShader = async () => {
         const processedUniforms = await processUniforms(uniforms);
 
-        if (canvasRef.current && !shaderMountRef.current) {
+        if (divRef.current && !shaderMountRef.current) {
           shaderMountRef.current = new ShaderMountVanilla(
-            canvasRef.current,
+            divRef.current,
             fragmentShader,
             processedUniforms,
             webGlContextAttributes,
@@ -141,7 +141,7 @@ export const ShaderMount: React.FC<ShaderMountProps> = forwardRef<HTMLCanvasElem
       shaderMountRef.current?.setFrame(frame);
     }, [frame]);
 
-    return <canvas ref={useMergeRefs([canvasRef, forwardedRef])} {...canvasProps} />;
+    return <div ref={useMergeRefs([divRef, forwardedRef])} {...divProps} />;
   }
 );
 
