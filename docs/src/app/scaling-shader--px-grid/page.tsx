@@ -70,34 +70,6 @@ export default function Page() {
   const canvasResizeObserver = useRef<ResizeObserver | null>(null);
   const canvasNodeRef = useRef<HTMLDivElement>(null);
 
-  // Sizes
-  const renderedWorldWidth = Math.max(canvasWidth, worldWidth);
-  const renderedWorldHeight = Math.max(canvasHeight, worldHeight);
-
-  const imageWidth = (() => {
-    if (!imageAspectRatio) return 0;
-
-    if (fit === 'cover') {
-      return imageAspectRatio * Math.max(renderedWorldWidth / imageAspectRatio, renderedWorldHeight);
-    }
-
-    if (fit === 'contain') {
-      return imageAspectRatio * Math.min(renderedWorldWidth / imageAspectRatio, renderedWorldHeight);
-    }
-
-    // fit === 'crop'
-    return imageAspectRatio * Math.min(worldWidth / imageAspectRatio, worldHeight);
-  })();
-
-  const imageHeight = imageWidth / imageAspectRatio;
-
-  if (image === null) {
-    return null;
-  }
-
-  if (imageAspectRatio === null) {
-    return null;
-  }
 
   return (
     <div className="grid min-h-dvh grid-cols-[1fr_300px]">
@@ -128,11 +100,6 @@ export default function Page() {
             style={{ width: '100%', height: '100%', background: 'white', border: '1px solid grey' }}
             fragmentShader={fragmentShader}
             uniforms={{
-              u_texture: image,
-              u_worldWidth: imageWidth,
-              u_worldHeight: imageHeight,
-              u_originX: originX,
-              u_originY: originY,
             }}
           />
         </div>
