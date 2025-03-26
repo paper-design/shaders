@@ -45,8 +45,8 @@ export class ShaderMount {
     speed = 0,
     /** Pass a frame to offset the starting u_time value and give deterministic results*/
     frame = 0,
-    /** The maximum resolution (on the larger axis) that we render for the shader, to protect against insane resolutions and bad performance. Actual CSS size of the canvas can be larger, it will just lose quality after this */
-    maxResolution = 1920 // will later be multiplied by display DPI
+    /** The maximum resolution (on the larger axis) that we render for the shader. Use virtual pixels, will be multiplied by display DPI to get the actual resolution. Actual CSS size of the canvas can be larger, it will just lose quality after this */
+    maxResolution = 1920
   ) {
     this.canvas = canvas as PaperShaderCanvasElement;
     this.fragmentShader = fragmentShader;
