@@ -96,13 +96,13 @@ export default function Page() {
     return imageAspectRatio * Math.min(worldWidth / imageAspectRatio, worldHeight);
   })();
 
-  const imageHeight = imageWidth / imageAspectRatio;
+  const imageHeight = (() => {
+    if (!imageAspectRatio) return 0;
+
+    return imageWidth / imageAspectRatio;
+  })();
 
   if (image === null) {
-    return null;
-  }
-
-  if (imageAspectRatio === null) {
     return null;
   }
 

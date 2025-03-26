@@ -12,45 +12,36 @@ uniform sampler2D u_texture;
 uniform vec2 u_resolution;
 uniform float u_pixelRatio;
 
-uniform float u_originX;
-uniform float u_originY;
-uniform float u_worldWidth;
-uniform float u_worldHeight;
 
 out vec4 fragColor;
 
-
-float get_uv_frame(vec2 uv) {
-  return step(1e-3, uv.x) * step(uv.x, 1. - 1e-3) * step(1e-3, uv.y) * step(uv.y, 1. - 1e-3);
-}
-
 void main() {
+  vec2 uv = gl_FragCoord.xy;
+  uv.y = u_resolution.y - uv.y;
 
-  vec2 uv = gl_FragCoord.xy / u_resolution.xy;
-  vec2 world = vec2(u_worldWidth, u_worldHeight) * u_pixelRatio;
-  vec2 origin = vec2(-u_originX, 1. - u_originY);
-  
-  vec2 scale = u_resolution / world;
-  uv *= scale;
-  uv.y = 1. - uv.y;
-  uv += origin * (scale - 1.);
-  
-  vec2 effect_uv = gl_FragCoord.xy / u_resolution.xy;
-  effect_uv -= .5;
-  effect_uv *= u_resolution;  
-  effect_uv /= u_pixelRatio;
-  float effect = .03 * sin(effect_uv.x * .1 - effect_uv.y * .05);
+  uv /= u_pixelRatio;
 
-  vec4 img = texture(u_texture, uv + effect);
-  vec4 background = vec4(.2, .2, .2, 1.);
-  
-  float frame = get_uv_frame(uv + effect);
-  vec4 color = mix(background, img, frame);
+  vec2 gridSpacing = vec2(50.);
+  vec2 grid = fract(uv / gridSpacing) + 1e-4;
+  vec2 grid_idx = floor(uv / gridSpacing);
 
-  color.a = mix(0., color.a, frame);
-  
-  fragColor = color;
-}`;
+  vec2 center = vec2(0.5) - 1e-3;
+  vec2 p = (grid - center) * gridSpacing;
+
+  float baseSize = 15.;
+
+  float dist = length(p);
+
+  float edgeWidth = fwidth(dist);
+  float shapeInner = smoothstep(baseSize + edgeWidth, baseSize - edgeWidth, dist);
+
+  vec3 color = vec3(shapeInner);
+
+  float opacity = 1.;
+
+  fragColor = vec4(color, opacity);
+}
+`;
 
 export default function Page() {
   // React scaffolding
@@ -98,13 +89,13 @@ export default function Page() {
     return imageAspectRatio * Math.min(worldWidth / imageAspectRatio, worldHeight);
   })();
 
-  const imageHeight = (() => {
-    if (!imageAspectRatio) return 0;
-
-    return imageWidth / imageAspectRatio;
-  })();
+  const imageHeight = imageWidth / imageAspectRatio;
 
   if (image === null) {
+    return null;
+  }
+
+  if (imageAspectRatio === null) {
     return null;
   }
 
@@ -177,90 +168,6 @@ export default function Page() {
             />
           </div>
 
-          <div className="flex flex-col gap-1">
-            <label htmlFor="worldWidth" className="text-sm font-medium">
-              World width
-            </label>
-            <input
-              id="worldWidth"
-              type="number"
-              min={0}
-              value={worldWidth}
-              className="h-7 rounded bg-black/5 px-2 text-base"
-              onChange={(e) => setWorldWidth(Number(e.target.value))}
-            />
-          </div>
-
-          <div className="flex flex-col gap-1">
-            <label htmlFor="worldHeight" className="text-sm font-medium">
-              World height
-            </label>
-            <input
-              id="worldHeight"
-              type="number"
-              min={0}
-              value={worldHeight}
-              className="h-7 rounded bg-black/5 px-2 text-base"
-              onChange={(e) => setWorldHeight(Number(e.target.value))}
-            />
-          </div>
-
-          <div className="flex flex-col gap-1">
-            <label htmlFor="fit" className="text-sm font-medium">
-              Fit
-            </label>
-            <select
-              id="fit"
-              className="h-7 appearance-none rounded bg-black/5 px-2 text-base"
-              value={fit}
-              onChange={(e) => setFit(e.target.value as 'cover' | 'contain' | 'crop')}
-            >
-              <option value="cover">Cover</option>
-              <option value="contain">Contain</option>
-              <option value="crop">Crop</option>
-            </select>
-          </div>
-
-          <div className="flex flex-col gap-1">
-            <label htmlFor="originX" className="text-sm font-medium">
-              Origin X
-            </label>
-            <input
-              id="originX"
-              type="number"
-              min={0}
-              max={1}
-              step={0.01}
-              value={originX}
-              className="h-7 rounded bg-black/5 px-2 text-base"
-              onChange={(e) => setOriginX(Number(e.target.value))}
-            />
-          </div>
-
-          <div className="flex flex-col gap-1">
-            <label htmlFor="originY" className="text-sm font-medium">
-              Origin Y
-            </label>
-            <input
-              id="originY"
-              type="number"
-              min={0}
-              max={1}
-              step={0.01}
-              value={originY}
-              className="h-7 rounded bg-black/5 px-2 text-base"
-              onChange={(e) => setOriginY(Number(e.target.value))}
-            />
-          </div>
-
-          <div className="flex flex-col gap-2">
-            <span className="text-sm font-medium text-black/50">
-              Rendered world width: {Math.round(renderedWorldWidth)}
-            </span>
-            <span className="text-sm font-medium text-black/50">
-              Rendered world height: {Math.round(renderedWorldHeight)}
-            </span>
-          </div>
         </div>
       </div>
     </div>
