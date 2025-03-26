@@ -1,7 +1,6 @@
 import type { vec4 } from '../types';
 
-/** The array of colors can accept up to 10 colors */
-export const meshGradientMaxColorCount = 10;
+export const meshGradientMaxColorCount = 7;
 
 export type MeshGradientUniforms = {
   u_colors: vec4[];
@@ -34,8 +33,8 @@ void main() {
   float t = uv.x * float(u_colors_count);
   vec4 color = u_colors[0]; // Default to first color
 
-  for (int i = 1; i < 10; i++) {
-    if (i >= u_colors_count) break; // Ensure we don’t access out of bounds
+  for (int i = 1; i < ${meshGradientMaxColorCount}; i++) {
+    if (i >= int(u_colors_count)) break; // Ensure we don’t access out of bounds
     color = mix(color, u_colors[i], step(float(i), t));
   }
   fragColor = color;

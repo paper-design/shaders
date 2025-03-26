@@ -1,6 +1,6 @@
 'use client';
 
-import { MeshGradient, type MeshGradientParams, meshGradientPresets } from '@paper-design/shaders-react';
+import { MeshGradient, type MeshGradientParams, meshGradientPresets, meshGradientMaxColorCount } from '@paper-design/shaders-react';
 import { useControls, button, folder } from 'leva';
 import { setParamsSafe, useResetLevaParams } from '@/helpers/use-reset-leva-params';
 import { usePresetHighlight } from '@/helpers/use-preset-highlight';
@@ -33,7 +33,7 @@ const MeshGradientWithControls = () => {
       colorCount: {
         value: defaults.colors.length,
         min: 1,
-        max: 10,
+        max: meshGradientMaxColorCount,
         step: 1,
       },
     }),
