@@ -322,6 +322,8 @@ export class ShaderMount {
           default:
             console.warn(`Unsupported uniform array length: ${valueLength}`);
         }
+      } else if (key === 'u_colors_count') {
+        this.gl.uniform1i(location, value);
       } else if (typeof value === 'number') {
         // Number case, supports floats and ints
         this.gl.uniform1f(location, value);
