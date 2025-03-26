@@ -8,6 +8,7 @@ import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import Link from 'next/link';
 import { BackButton } from '@/components/back-button';
 import { DotGridShapes } from '@paper-design/shaders';
+import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
 
 /**
  * You can copy/paste this example to use DotGrid in your app
@@ -82,8 +83,8 @@ const DotGridWithControls = () => {
   // shaders when navigating (if two shaders have a color1 param for example)
   useResetLevaParams(params, setParams, defaults);
   useResetLevaParams(style, setStyle, defaults.style);
-
   usePresetHighlight(dotGridPresets, { ...params, style });
+  cleanUpLevaParams(params);
 
   return (
     <>

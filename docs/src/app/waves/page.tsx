@@ -7,6 +7,7 @@ import { setParamsSafe, useResetLevaParams } from '@/helpers/use-reset-leva-para
 import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import Link from 'next/link';
 import { BackButton } from '@/components/back-button';
+import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
 
 /**
  * You can copy/paste this example to use Waves in your app
@@ -81,8 +82,8 @@ const WavesWithControls = () => {
   // shaders when navigating (if two shaders have a color1 param for example)
   useResetLevaParams(params, setParams, defaults);
   useResetLevaParams(style, setStyle, defaults.style);
-
   usePresetHighlight(wavesPresets, params);
+  cleanUpLevaParams(params);
 
   return (
     <>

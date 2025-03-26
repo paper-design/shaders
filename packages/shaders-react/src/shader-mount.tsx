@@ -6,7 +6,7 @@ import { useMergeRefs } from './use-merge-refs';
 export type ShaderMountUniformsReact = { [key: string]: ShaderMountUniforms[keyof ShaderMountUniforms] | string };
 
 export interface ShaderMountProps extends React.ComponentProps<'canvas'> {
-  shaderMountRef?: React.RefObject<ShaderMountVanilla | null>;
+  shaderMountRef?: React.MutableRefObject<ShaderMountVanilla | null>;
   fragmentShader: string;
   uniforms?: ShaderMountUniformsReact;
   webGlContextAttributes?: WebGLContextAttributes;
@@ -94,7 +94,7 @@ export const ShaderMount: React.FC<ShaderMountProps> = forwardRef<HTMLCanvasElem
     forwardedRef
   ) {
     const canvasRef = useRef<HTMLCanvasElement>(null);
-    const shaderMountRef = useRef<ShaderMountVanilla>(null);
+    const shaderMountRef: React.MutableRefObject<ShaderMountVanilla | null> = useRef<ShaderMountVanilla>(null);
 
     useEffect(() => {
       const initShader = async () => {

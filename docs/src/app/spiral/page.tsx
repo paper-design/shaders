@@ -6,6 +6,7 @@ import { setParamsSafe, useResetLevaParams } from '@/helpers/use-reset-leva-para
 import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import Link from 'next/link';
 import { BackButton } from '@/components/back-button';
+import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
 
 /**
  * You can copy/paste this example to use Spiral in your app
@@ -87,8 +88,8 @@ const SpiralWithControls = () => {
   // Reset to defaults on mount, so that Leva doesn't show values from other
   // shaders when navigating (if two shaders have a colorBack param for example)
   useResetLevaParams(params, setParams, defaults);
-
   usePresetHighlight(spiralPresets, params);
+  cleanUpLevaParams(params);
 
   const { reverse, ...shaderParams } = { ...params, speed: params.speed * (params.reverse ? -1 : 1) };
 
