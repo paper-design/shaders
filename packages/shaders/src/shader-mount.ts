@@ -138,7 +138,9 @@ export class ShaderMount {
     this.handleResize();
   };
 
-  renderScale = 1;
+  /** The scale that we should render at (prevents the virtual resolution from going beyond our maxium and then multiplies by pixelRatio (at least 2X rendering always) */
+  private renderScale = 1;
+  /** Resize handler for when the container div changes size and we want to resize our canvas to match */
   private handleResize = () => {
     const clientWidth = this.mountToDiv.clientWidth;
     const clientHeight = this.mountToDiv.clientHeight;
