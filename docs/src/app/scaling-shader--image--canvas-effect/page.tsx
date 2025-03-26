@@ -104,6 +104,9 @@ export default function Page() {
     return null;
   }
 
+  if (imageAspectRatio === null) {
+    return null;
+  }
 
   return (
     <div className="grid min-h-dvh grid-cols-[1fr_300px]">
