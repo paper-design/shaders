@@ -10,6 +10,8 @@ npm i @paper-design/shaders-react
 
 // vanilla
 npm i @paper-design/shaders
+
+// Please pin your dependency – we will ship breaking changes under 0.0.x versioning
 ```
 
 ### React example
