@@ -3,12 +3,6 @@ export { ShaderMount } from './shader-mount';
 
 // ----- Fragment shaders ----- //
 
-// Grain clouds
-export { GrainClouds, grainCloudsPresets } from './shaders/grain-clouds';
-export { type GrainCloudsProps } from './shaders/grain-clouds';
-export { type GrainCloudsParams } from './shaders/grain-clouds';
-export { type GrainCloudsUniforms } from '@paper-design/shaders';
-
 // Mesh gradient
 export { MeshGradient, meshGradientPresets } from './shaders/mesh-gradient';
 export { type MeshGradientProps } from './shaders/mesh-gradient';

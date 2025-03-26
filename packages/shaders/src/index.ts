@@ -6,9 +6,6 @@ export {
   type ShaderMountUniforms,
 } from './shader-mount';
 
-// ----- Grain clouds ----- //
-export { grainCloudsFragmentShader, type GrainCloudsUniforms } from './shaders/grain-clouds';
-
 // ----- Mesh gradient ----- //
 /** A shader that renders a mesh gradient with a rotating noise pattern and several layers of fractal noise */
 export { meshGradientFragmentShader, type MeshGradientUniforms } from './shaders/mesh-gradient';
