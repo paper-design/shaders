@@ -23,7 +23,7 @@ uniform vec2 u_resolution;
 uniform float u_time;
 
 uniform vec4 u_colors[${meshGradientMaxColorCount}];
-uniform int u_colors_count;
+uniform float u_colors_count;
 
 out vec4 fragColor;
 
