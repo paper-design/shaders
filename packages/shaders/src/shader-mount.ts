@@ -24,7 +24,7 @@ export class ShaderMount {
   /** Total time that we have played any animation, passed as a uniform to the shader for time-based VFX */
   private totalFrameTime = 0;
   /** The current speed that we progress through animation time (multiplies by delta time every update). Allows negatives to play in reverse. If set to 0, rAF will stop entirely so static shaders have no recurring performance costs */
-  private speed = 1;
+  private speed = 0;
   /** Uniforms that are provided by the user for the specific shader being mounted (not including uniforms that this Mount adds, like time and resolution) */
   private providedUniforms: ShaderMountUniforms;
   /** Just a sanity check to make sure frames don't run after we're disposed */
@@ -42,7 +42,7 @@ export class ShaderMount {
     uniforms: ShaderMountUniforms = {},
     webGlContextAttributes?: WebGLContextAttributes,
     /** The speed of the animation, or 0 to stop it. Supports negative values to play in reverse. */
-    speed = 1,
+    speed = 0,
     /** Pass a frame to offset the starting u_time value and give deterministic results*/
     frame = 0,
     /** The maximum resolution (on the larger axis) that we render for the shader, to protect against insane resolutions and bad performance. Actual CSS size of the canvas can be larger, it will just lose quality after this */
