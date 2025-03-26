@@ -50,7 +50,6 @@ function MeshGradientImpl({ colors: colorsProp, ...props }: MeshGradientProps) {
     if (!colors) {
       colors = defaultPreset.params.colors.map((color) => getShaderColorFromString(color));
     }
-    console.log('MeshGradientImpl', { colorsProp, colors });
 
     return {
       u_colors: colors,
