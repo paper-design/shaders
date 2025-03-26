@@ -180,15 +180,26 @@ void main() {
     shape = .5 + .5 * sin(uv.x) * cos(uv.y);  
     shape = smoothstep(0.2, 1., shape);
   
-  } else {  
-    // SHAPE = 6 => Ball  
+  } else if (u_shape < 6.5) {  
+    // SHAPE = 6 => Ripple  
     uv -= 0.5;  
     uv.x *= ratio;  
     uv *= 1.25 * u_scale;
     uv += 0.5;  
     
-    float dist = length(uv - vec2(.5));  
-    shape = smoothstep(.7, 0., dist);  
+    float dist = length(uv - vec2(.5));
+    float waves = sin(pow(dist, 1.7) * 7. - 3. * t) * .5 + .55;
+    shape = waves;
+    
+  } else {
+    // SHAPE = 7 => Sphere  
+    uv -= 0.5;  
+    uv.x *= ratio;  
+    uv *= 2.25 * u_scale;
+    
+    vec3 pos = vec3(uv, sqrt(1. - pow(length(uv), 2.)));
+    vec3 lightPos = normalize(vec3(cos(1.5 * t), .8, sin(1.25 * t)));
+    shape = .5 + .5 * dot(lightPos, pos);
   }  
   
   vec2 dithering_uv = gl_FragCoord.xy / (u_pxSize * u_pixelRatio);  

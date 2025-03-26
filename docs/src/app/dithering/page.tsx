@@ -26,7 +26,7 @@ const DitheringWithControls = () => {
       Parameters: folder(
         {
           color: { value: defaults.color, order: 100 },
-          shape: { value: defaults.shape, min: 1, max: 6, step: 1, order: 200 },
+          shape: { value: defaults.shape, min: 1, max: 10, step: 1, order: 200 },
           scale: { value: defaults.scale, min: 0.1, max: 3, order: 201 },
           type: { value: defaults.type, min: 1, max: 4, step: 1, order: 250 },
           pxRounded: { value: defaults.pxRounded, order: 251 },

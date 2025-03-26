@@ -23,9 +23,9 @@ export const defaultPreset: DitheringPreset = {
   name: 'Default',
   params: {
     scale: 1,
-    shape: 1,
+    shape: 7,
     speed: 0.15,
-    color: 'hsla(240, 14%, 17%, 1)',
+    color: 'hsla(210, 50%, 50%, 1)',
     type: 3,
     pxSize: 4,
     pxRounded: true,
