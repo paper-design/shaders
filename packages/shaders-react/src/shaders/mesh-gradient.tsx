@@ -20,7 +20,7 @@ export const defaultPreset: MeshGradientPreset = {
   name: 'Default',
   params: {
     speed: 0.15,
-    test: .25,
+    test: 0.25,
     frame: 0,
     colors: ['hsla(259, 29%, 73%, 1)', 'hsla(263, 57%, 39%, 1)', 'hsla(48, 73%, 84%, 1)', 'hsla(295, 32%, 70%, 1)'],
   },
@@ -30,7 +30,7 @@ export const beachPreset: MeshGradientPreset = {
   name: 'Beach',
   params: {
     speed: 0.1,
-    test: .5,
+    test: 0.5,
     frame: 0,
     colors: ['hsla(186, 81%, 83%, 1)', 'hsla(198, 55%, 68%, 1)', 'hsla(53, 67%, 88%, 1)', 'hsla(45, 93%, 73%, 1)'],
   },
@@ -43,7 +43,7 @@ export const fadedPreset: MeshGradientPreset = {
   name: 'Faded',
   params: {
     speed: -0.3,
-    test: .75,
+    test: 0.75,
     frame: 0,
     colors: ['hsla(186, 41%, 90%, 1)', 'hsla(208, 71%, 85%, 1)', 'hsla(183, 51%, 92%, 1)', 'hsla(201, 72%, 90%, 1)'],
   },
@@ -66,7 +66,7 @@ function MeshGradientImpl({ test, colors: colorsProp, ...props }: MeshGradientPr
       u_colors: colors,
       u_colors_count: colors.length,
     };
-  }, [colorsProp]);
+  }, [colorsProp, test]);
 
   return <ShaderMount {...props} fragmentShader={meshGradientFragmentShader} uniforms={uniforms} />;
 }
