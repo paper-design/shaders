@@ -106,7 +106,10 @@ const MeshGradientWithControls = () => {
       <Link href="/">
         <BackButton />
       </Link>
-      <MeshGradient {...params} colors={colors} style={{ position: 'fixed', width: '100%', height: '100%' }} />
+      <div className="fixed flex size-full flex-col">
+        <MeshGradient {...params} colors={colors} className="h-4/5" />
+        <div className="h-1/5" style={{ background: 'linear-gradient(to right in oklch, #f00, #00f' }} />
+      </div>
     </>
   );
 };
