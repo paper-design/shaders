@@ -90,7 +90,7 @@ const WavesWithControls = () => {
       <Link href="/">
         <BackButton />
       </Link>
-      <Waves {...params} style={{ position: 'fixed', width: '100svw', height: '100svh', ...style }} />
+      <Waves className="fixed size-full" {...params} />
     </>
   );
 };

@@ -72,7 +72,7 @@ const VoronoiWithControls = () => {
       <Link href="/">
         <BackButton />
       </Link>
-      <Voronoi {...params} style={{ position: 'fixed', width: '100svw', height: '100svh' }} />
+      <Voronoi className="fixed size-full" {...params} />
     </>
   );
 };

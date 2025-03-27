@@ -31,7 +31,7 @@ type DotGridPreset = { name: string; params: Required<DotGridParams>; style?: Re
 export const defaultPreset: DotGridPreset = {
   name: 'Default',
   params: {
-    colorFill: 'hsla(0, 0%, 0%, 1)',
+    colorFill: 'hsla(0, 0%, 100%, 1)',
     colorStroke: 'hsla(40, 100%, 50%, 1)',
     dotSize: 2,
     gridSpacingX: 50,
@@ -40,6 +40,9 @@ export const defaultPreset: DotGridPreset = {
     sizeRange: 0,
     opacityRange: 0,
     shape: DotGridShapes.Circle,
+  },
+  style: {
+    background: 'hsla(0, 0%, 0%, 1)',
   },
 };
 
@@ -209,11 +212,12 @@ export const DotGrid = ({
   sizeRange,
   opacityRange,
   shape,
+  style,
   ...props
 }: DotGridProps): React.ReactElement => {
   const uniforms: DotGridUniforms = useMemo(() => {
     return {
-      u_colorFill: getShaderColorFromString(colorFill, defaultPreset.params.colorStroke),
+      u_colorFill: getShaderColorFromString(colorFill, defaultPreset.params.colorFill),
       u_colorStroke: getShaderColorFromString(colorStroke, defaultPreset.params.colorStroke),
       u_dotSize: dotSize ?? defaultPreset.params.dotSize,
       u_gridSpacingX: gridSpacingX ?? defaultPreset.params.gridSpacingX,
@@ -225,5 +229,12 @@ export const DotGrid = ({
     };
   }, [colorFill, colorStroke, dotSize, gridSpacingX, gridSpacingY, strokeWidth, sizeRange, opacityRange, shape]);
 
-  return <ShaderMount {...props} fragmentShader={dotGridFragmentShader} uniforms={uniforms} />;
+  return (
+    <ShaderMount
+      {...props}
+      fragmentShader={dotGridFragmentShader}
+      uniforms={uniforms}
+      style={{ ...defaultPreset.style, ...style }}
+    />
+  );
 };

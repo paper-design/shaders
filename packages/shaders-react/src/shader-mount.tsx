@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, forwardRef, useState } from 'react';
+import React, { useEffect, useRef, forwardRef, useState, useId } from 'react';
 import { ShaderMount as ShaderMountVanilla, type ShaderMountUniforms } from '@paper-design/shaders';
 import { useMergeRefs } from './use-merge-refs';
 
@@ -10,6 +10,7 @@ export interface ShaderMountProps extends React.ComponentProps<'div'> {
   fragmentShader: string;
   uniforms?: ShaderMountUniformsReact;
   webGlContextAttributes?: WebGLContextAttributes;
+  maxResolution?: number;
   speed?: number;
   frame?: number;
 }
@@ -89,6 +90,7 @@ export const ShaderMount: React.FC<ShaderMountProps> = forwardRef<HTMLDivElement
       webGlContextAttributes,
       speed = 1,
       frame = 0,
+      maxResolution,
       ...divProps
     },
     forwardedRef
@@ -108,7 +110,8 @@ export const ShaderMount: React.FC<ShaderMountProps> = forwardRef<HTMLDivElement
             processedUniforms,
             webGlContextAttributes,
             speed,
-            frame
+            frame,
+            maxResolution
           );
 
           if (externalShaderMountRef) {
@@ -152,3 +155,26 @@ export const ShaderMount: React.FC<ShaderMountProps> = forwardRef<HTMLDivElement
 );
 
 ShaderMount.displayName = 'ShaderMount';
+
+// const reactId = useId();
+// const id = divProps.id ?? reactId;
+// const background = defaultStyle?.background ? `\n    background: ${defaultStyle.background};` : '';
+
+// return (
+//   <>
+//     {
+//       <style
+//         {...(parseFloat(React.version) >= 19 && {
+//           href: `#${id}`,
+//           precedence: 'low',
+//         })}
+//       >{`@layer base {
+// :where(#${id}) {
+// position: relative;
+// isolation: isolate;${background}
+// }
+// }`}</style>
+//     }
+
+//     <div id={id} ref={useMergeRefs([divRef, forwardedRef])} {...divProps} />
+//   </>

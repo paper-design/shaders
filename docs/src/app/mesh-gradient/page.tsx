@@ -62,7 +62,7 @@ const MeshGradientWithControls = () => {
       <Link href="/">
         <BackButton />
       </Link>
-      <MeshGradient {...params} style={{ position: 'fixed', width: '100svw', height: '100svh' }} />
+      <MeshGradient className="fixed size-full" {...params} />
     </>
   );
 };

@@ -86,7 +86,7 @@ const PerlinNoiseWithControls = () => {
       <Link href="/">
         <BackButton />
       </Link>
-      <PerlinNoise {...params} style={{ position: 'fixed', width: '100svw', height: '100svh', ...style }} />
+      <PerlinNoise className="fixed size-full" {...params} />
     </>
   );
 };

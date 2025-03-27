@@ -34,7 +34,7 @@ const DotGridExample = () => {
  * This example has controls added so you can play with settings in the example app
  */
 
-const defaults = { ...dotGridPresets[0].params, style: { background: 'hsla(0, 0%, 0%, 0)' } };
+const defaults = { ...dotGridPresets[0].params, style: dotGridPresets[0].style };
 
 const DotGridWithControls = () => {
   const [params, setParams] = useControls(() => {
@@ -59,7 +59,7 @@ const DotGridWithControls = () => {
   const [style, setStyle] = useControls(() => {
     return {
       Parameters: folder({
-        background: { value: 'hsla(0, 0%, 0%, 0)', order: 100 },
+        background: { value: defaults.style?.background as string, order: 100 },
       }),
     };
   });
@@ -91,7 +91,7 @@ const DotGridWithControls = () => {
       <Link href="/">
         <BackButton />
       </Link>
-      <DotGrid {...params} style={{ position: 'fixed', width: '100svw', height: '100svh', ...style }} />
+      <DotGrid className="fixed size-full" style={style} {...params} />
     </>
   );
 };

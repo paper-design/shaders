@@ -2,17 +2,17 @@
 export type ShaderMountUniforms = Record<string, number | number[] | HTMLImageElement>;
 
 /** A canvas element that has a ShaderMount available on it */
-export interface PaperShaderDivWrapperElement extends HTMLDivElement {
+export interface PaperShadersElement extends HTMLElement {
   paperShaderMount: ShaderMount | undefined;
 }
 /** Check if a canvas element is a ShaderCanvas */
-export function isPaperShaderDivWrapper(div: HTMLDivElement): div is PaperShaderDivWrapperElement {
-  return 'paperShaderMount' in div;
+export function isPaperShadersElement(element: HTMLElement): element is PaperShadersElement {
+  return 'paperShaderMount' in element;
 }
 
 export class ShaderMount {
-  public mountToDiv: PaperShaderDivWrapperElement;
-  public canvas: HTMLCanvasElement;
+  public parentElement: PaperShadersElement;
+  public canvasElement: HTMLCanvasElement;
   private gl: WebGLRenderingContext;
   private program: WebGLProgram | null = null;
   private uniformLocations: Record<string, WebGLUniformLocation | null> = {};
@@ -39,7 +39,7 @@ export class ShaderMount {
 
   constructor(
     /** The div you'd like to mount the shader to. The shader will match its size. */
-    mountToDiv: HTMLDivElement,
+    parentElement: HTMLElement,
     fragmentShader: string,
     uniforms: ShaderMountUniforms = {},
     webGlContextAttributes?: WebGLContextAttributes,
@@ -50,25 +50,31 @@ export class ShaderMount {
     /** The maximum resolution (on the larger axis) that we render for the shader. Use virtual pixels, will be multiplied by display DPI to get the actual resolution. Actual CSS size of the canvas can be larger, it will just lose quality after this */
     maxResolution = 1920
   ) {
-    // Create the canvas element and mount it into the provided div
-    const canvas = document.createElement('canvas');
-    mountToDiv.style.contain = 'strict';
-    mountToDiv.style.position = 'relative';
-    canvas.style.position = 'absolute';
-    canvas.style.inset = '0';
-    canvas.style.zIndex = '-1';
-    canvas.style.width = '100%';
-    canvas.style.height = '100%';
-    this.canvas = canvas;
-    this.mountToDiv = mountToDiv as PaperShaderDivWrapperElement;
-    mountToDiv.appendChild(canvas);
+    if (parentElement instanceof HTMLElement) {
+      this.parentElement = parentElement as PaperShadersElement;
+    } else {
+      throw new Error('Parent element must be an HTMLElement');
+    }
+
+    let styleElement = document.querySelector('style[data-paper-shaders]') || document.createElement('style');
+    styleElement.innerHTML = defaultStyle;
+
+    if (!styleElement.parentElement) {
+      styleElement.setAttribute('data-paper-shaders', '');
+      document.head.prepend(styleElement);
+    }
+
+    // Create the canvas element and mount it into the provided element
+    const canvasElement = document.createElement('canvas');
+    this.canvasElement = canvasElement;
+    this.parentElement.prepend(canvasElement);
     this.fragmentShader = fragmentShader;
     this.providedUniforms = uniforms;
     // Base our starting animation time on the provided frame value
     this.totalFrameTime = frame;
     this.maxResolution = maxResolution;
 
-    const gl = canvas.getContext('webgl2', webGlContextAttributes);
+    const gl = canvasElement.getContext('webgl2', webGlContextAttributes);
     if (!gl) {
       throw new Error('WebGL not supported');
     }
@@ -86,11 +92,11 @@ export class ShaderMount {
     // Set the animation speed after everything is ready to go
     this.setSpeed(speed);
 
-    // Mark canvas as paper shader mount
-    this.canvas.setAttribute('data-paper-shaders', 'true');
+    // Mark parent element as paper shader mount
+    this.parentElement.setAttribute('data-paper-shaders', '');
 
     // Add the shaderMount instance to the div mount element to make it easily accessible
-    this.mountToDiv.paperShaderMount = this;
+    this.parentElement.paperShaderMount = this;
   }
 
   private initProgram = () => {
@@ -134,7 +140,7 @@ export class ShaderMount {
   private resizeObserver: ResizeObserver | null = null;
   private setupResizeObserver = () => {
     this.resizeObserver = new ResizeObserver(() => this.handleResize());
-    this.resizeObserver.observe(this.mountToDiv);
+    this.resizeObserver.observe(this.parentElement);
     this.handleResize();
   };
 
@@ -142,8 +148,8 @@ export class ShaderMount {
   private renderScale = 1;
   /** Resize handler for when the container div changes size and we want to resize our canvas to match */
   private handleResize = () => {
-    const clientWidth = this.mountToDiv.clientWidth;
-    const clientHeight = this.mountToDiv.clientHeight;
+    const clientWidth = this.parentElement.clientWidth;
+    const clientHeight = this.parentElement.clientHeight;
     const maxResolution = this.maxResolution;
     // Note we render at 2X even for 1x screens because it gives a much smoother looking result
     const pixelRatio = Math.max(2, window.devicePixelRatio);
@@ -152,9 +158,9 @@ export class ShaderMount {
 
     let newWidth = clientWidth * this.renderScale;
     let newHeight = clientHeight * this.renderScale;
-    if (this.canvas.width !== newWidth || this.canvas.height !== newHeight) {
-      this.canvas.width = newWidth;
-      this.canvas.height = newHeight;
+    if (this.canvasElement.width !== newWidth || this.canvasElement.height !== newHeight) {
+      this.canvasElement.width = newWidth;
+      this.canvasElement.height = newHeight;
 
       this.resolutionChanged = true;
       this.gl.viewport(0, 0, this.gl.canvas.width, this.gl.canvas.height);
@@ -391,7 +397,7 @@ export class ShaderMount {
     this.uniformLocations = {};
 
     // Remove the shader mount from the div wrapper element to avoid any GC issues
-    this.mountToDiv.paperShaderMount = undefined;
+    this.parentElement.paperShaderMount = undefined;
   };
 }
 
@@ -453,3 +459,20 @@ function createProgram(
 
   return program;
 }
+
+const defaultStyle = `@layer base {
+  :where([data-paper-shaders]) {
+    isolation: isolate;
+    position: relative;
+
+    & :where(canvas) {
+      contain: strict;
+      display: block;
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      width: 100%;
+      height: 100%;
+    }
+  }
+}`;
