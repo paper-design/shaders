@@ -5,6 +5,7 @@ export const meshGradientMaxColorCount = 7;
 export type MeshGradientUniforms = {
   u_colors: vec4[];
   u_colors_count: number;
+  u_test: number;
 };
 
 /**
@@ -21,6 +22,7 @@ uniform float u_pixelRatio;
 uniform vec2 u_resolution;
 uniform float u_time;
 
+uniform float u_test;
 uniform vec4 u_colors[${meshGradientMaxColorCount}];
 uniform float u_colors_count;
 
@@ -37,6 +39,8 @@ void main() {
     if (i >= int(u_colors_count)) break; // Ensure we don’t access out of bounds
     color = mix(color, u_colors[i], step(float(i), t));
   }
-  fragColor = color;
+  
+  // fragColor = color;
+ fragColor = step(uv.y, .5) * vec4(vec3(u_test), 1.) + step(.5, uv.y) * color;
 }
 `;

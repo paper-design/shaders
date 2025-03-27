@@ -5,6 +5,7 @@ import { colorPropsAreEqual } from '../color-props-are-equal';
 
 export type MeshGradientParams = {
   colors?: string[];
+  test?: number;
 } & GlobalParams;
 
 export type MeshGradientProps = Omit<ShaderMountProps, 'fragmentShader'> & MeshGradientParams;
@@ -19,6 +20,7 @@ export const defaultPreset: MeshGradientPreset = {
   name: 'Default',
   params: {
     speed: 0.15,
+    test: .25,
     frame: 0,
     colors: ['hsla(259, 29%, 73%, 1)', 'hsla(263, 57%, 39%, 1)', 'hsla(48, 73%, 84%, 1)', 'hsla(295, 32%, 70%, 1)'],
   },
@@ -28,8 +30,12 @@ export const beachPreset: MeshGradientPreset = {
   name: 'Beach',
   params: {
     speed: 0.1,
+    test: .5,
     frame: 0,
     colors: ['hsla(186, 81%, 83%, 1)', 'hsla(198, 55%, 68%, 1)', 'hsla(53, 67%, 88%, 1)', 'hsla(45, 93%, 73%, 1)'],
+  },
+  style: {
+    background: 'hsla(120, 100%, 3%, 1)',
   },
 };
 
@@ -37,14 +43,18 @@ export const fadedPreset: MeshGradientPreset = {
   name: 'Faded',
   params: {
     speed: -0.3,
+    test: .75,
     frame: 0,
     colors: ['hsla(186, 41%, 90%, 1)', 'hsla(208, 71%, 85%, 1)', 'hsla(183, 51%, 92%, 1)', 'hsla(201, 72%, 90%, 1)'],
+  },
+  style: {
+    background: 'hsla(120, 100%, 3%, 1)',
   },
 };
 
 export const meshGradientPresets: MeshGradientPreset[] = [defaultPreset, beachPreset, fadedPreset];
 
-function MeshGradientImpl({ colors: colorsProp, ...props }: MeshGradientProps) {
+function MeshGradientImpl({ test, colors: colorsProp, ...props }: MeshGradientProps) {
   const uniforms: MeshGradientUniforms = useMemo(() => {
     let colors = colorsProp?.map((color) => getShaderColorFromString(color));
     if (!colors) {
@@ -52,6 +62,7 @@ function MeshGradientImpl({ colors: colorsProp, ...props }: MeshGradientProps) {
     }
 
     return {
+      u_test: test ?? defaultPreset.params.test,
       u_colors: colors,
       u_colors_count: colors.length,
     };

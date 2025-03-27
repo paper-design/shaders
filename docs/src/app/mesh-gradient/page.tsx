@@ -44,7 +44,7 @@ const MeshGradientWithControls = () => {
 
     for (let i = 0; i < colorCount; i++) {
       colors[`color${i}`] = {
-        value: defaults.colors[i] ?? 'hsla(0, 0%, 100%, 1)',
+        value: defaults.colors[i] ?? 'hsla(' + Math.random() * 360 + ', 50%, 50%, 1)',
       };
     }
 
@@ -80,6 +80,7 @@ const MeshGradientWithControls = () => {
       Parameters: folder(
         {
           speed: { value: defaults.speed, min: 0, max: 1, order: 400 },
+          test: { value: defaults.test, min: 0, max: 1, order: 400 },
         },
         { order: 1 }
       ),
