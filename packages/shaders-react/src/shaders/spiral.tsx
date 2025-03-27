@@ -20,7 +20,7 @@ export type SpiralParams = {
 
 export type SpiralProps = Omit<ShaderMountProps, 'fragmentShader'> & SpiralParams;
 
-type SpiralPreset = { name: string; params: Required<SpiralParams>; style?: React.CSSProperties };
+type SpiralPreset = { name: string; params: Required<SpiralParams> };
 
 // Due to Leva controls limitation:
 // 1) keep default colors in HSLA format to keep alpha channel

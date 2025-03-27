@@ -19,7 +19,7 @@ export type GodRaysParams = {
 
 export type GodRaysProps = Omit<ShaderMountProps, 'fragmentShader'> & GodRaysParams;
 
-type GodRaysPreset = { name: string; params: Required<GodRaysParams>; style?: React.CSSProperties };
+type GodRaysPreset = { name: string; params: Required<GodRaysParams> };
 
 // Due to Leva controls limitation:
 // 1) keep default colors in HSLA format to keep alpha channel

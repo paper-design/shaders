@@ -34,7 +34,6 @@ const defaults = {
   ...firstPresetParams,
   speed: Math.abs(firstPresetParams.speed),
   reverse: firstPresetParams.speed < 0,
-  style: { background: 'hsla(0, 0%, 0%, 0)' },
 };
 
 const SmokeRingWithControls = () => {
@@ -55,14 +54,6 @@ const SmokeRingWithControls = () => {
     };
   });
 
-  const [style, setStyle] = useControls(() => {
-    return {
-      Parameters: folder({
-        background: { value: 'hsla(0, 0%, 0%, 0)', order: 100 },
-      }),
-    };
-  });
-
   useControls(() => {
     const presets: SmokeRingParams = Object.fromEntries(
       smokeRingPresets.map((preset) => [
@@ -73,7 +64,6 @@ const SmokeRingWithControls = () => {
             speed: Math.abs(preset.params.speed),
             reverse: preset.params.speed < 0,
           });
-          setStyle({ background: String(preset.style?.background || 'hsla(0, 0%, 0%, 0)') });
         }),
       ])
     );
@@ -85,7 +75,6 @@ const SmokeRingWithControls = () => {
   // Reset to defaults on mount, so that Leva doesn't show values from other
   // shaders when navigating (if two shaders have a colorInner param for example)
   useResetLevaParams(params, setParams, defaults);
-  useResetLevaParams(style, setStyle, defaults.style);
   usePresetHighlight(smokeRingPresets, params);
   cleanUpLevaParams(params);
 

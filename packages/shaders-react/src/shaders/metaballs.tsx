@@ -13,7 +13,7 @@ export type MetaballsParams = {
 
 export type MetaballsProps = Omit<ShaderMountProps, 'fragmentShader'> & MetaballsParams;
 
-type MetaballsPreset = { name: string; params: Required<MetaballsParams>; style?: React.CSSProperties };
+type MetaballsPreset = { name: string; params: Required<MetaballsParams> };
 
 // Due to Leva controls limitation:
 // 1) keep default colors in HSLA format to keep alpha channel

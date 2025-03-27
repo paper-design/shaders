@@ -55,21 +55,12 @@ const WavesWithControls = () => {
     };
   });
 
-  const [style, setStyle] = useControls(() => {
-    return {
-      Parameters: folder({
-        background: { value: 'hsla(0, 0%, 0%, 0)', order: 100 },
-      }),
-    };
-  });
-
   useControls(() => {
     const presets: WavesParams = Object.fromEntries(
       wavesPresets.map((preset) => [
         preset.name,
         button(() => {
           setParamsSafe(params, setParams, preset.params);
-          setStyle({ background: String(preset.style?.background || 'hsla(0, 0%, 0%, 0)') });
         }),
       ])
     );
@@ -81,7 +72,6 @@ const WavesWithControls = () => {
   // Reset to defaults on mount, so that Leva doesn't show values from other
   // shaders when navigating (if two shaders have a color1 param for example)
   useResetLevaParams(params, setParams, defaults);
-  useResetLevaParams(style, setStyle, defaults.style);
   usePresetHighlight(wavesPresets, params);
   cleanUpLevaParams(params);
 

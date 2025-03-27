@@ -14,7 +14,7 @@ export type PerlinNoiseParams = {
 
 export type PerlinNoiseProps = Omit<ShaderMountProps, 'fragmentShader'> & PerlinNoiseParams;
 
-type PerlinNoisePreset = { name: string; params: Required<PerlinNoiseParams>; style?: React.CSSProperties };
+type PerlinNoisePreset = { name: string; params: Required<PerlinNoiseParams> };
 
 // Due to Leva controls limitation:
 // 1) keep default colors in HSLA format to keep alpha channel
@@ -41,15 +41,13 @@ export const nintendoWaterPreset: PerlinNoisePreset = {
     scale: 0.2,
     speed: 0.4,
     frame: 0,
+    // background: 'hsla(220, 66%, 50%, 1)',
     color: 'hsla(200, 66%, 90%, 1)',
     proportion: 0.42,
     softness: 0,
     octaveCount: 2,
     persistence: 0.55,
     lacunarity: 1.8,
-  },
-  style: {
-    background: 'hsla(220, 66%, 50%, 1)',
   },
 };
 
@@ -59,15 +57,13 @@ export const colonyPreset: PerlinNoisePreset = {
     scale: 0.15,
     speed: 0,
     frame: 0,
+    // background: 'hsla(56, 86%, 81%, 1)',
     color: 'hsla(230, 80%, 20%, 1)',
     octaveCount: 6,
     persistence: 1,
     lacunarity: 2.55,
     proportion: 0.65,
     softness: 0.35,
-  },
-  style: {
-    background: 'hsla(56, 86%, 81%, 1)',
   },
 };
 
@@ -77,15 +73,13 @@ export const phosphenesPreset: PerlinNoisePreset = {
     scale: 0.03,
     speed: 0.15,
     frame: 0,
+    // background: 'hsla(350, 80%, 70%, 1)',
     color: 'hsla(150, 50%, 60%, 1)',
     proportion: 0.45,
     softness: 0.45,
     octaveCount: 6,
     persistence: 0.3,
     lacunarity: 3,
-  },
-  style: {
-    background: 'hsla(350, 80%, 70%, 1)',
   },
 };
 
@@ -95,15 +89,13 @@ export const mossPreset: PerlinNoisePreset = {
     scale: 0.15,
     speed: 0.02,
     frame: 0,
+    // background: 'hsla(137, 100%, 51%, 1)',
     color: 'hsla(0, 0%, 15%, 1)',
     proportion: 0.65,
     softness: 0.35,
     octaveCount: 6,
     persistence: 1,
     lacunarity: 2.55,
-  },
-  style: {
-    background: 'hsla(137, 100%, 51%, 1)',
   },
 };
 
@@ -113,15 +105,13 @@ export const wormsPreset: PerlinNoisePreset = {
     scale: 2,
     speed: 0,
     frame: 0,
+    // background: 'hsla(0, 100%, 100%, 1)',
     color: 'hsla(0, 0%, 35%, 1)',
     proportion: 0.5,
     softness: 0,
     octaveCount: 1,
     persistence: 1,
     lacunarity: 1.5,
-  },
-  style: {
-    background: 'hsla(0, 100%, 100%, 1)',
   },
 };
 

@@ -16,7 +16,7 @@ export type WavesParams = {
 
 export type WavesProps = Omit<ShaderMountProps, 'fragmentShader'> & WavesParams;
 
-type WavesPreset = { name: string; params: Required<WavesParams>; style?: React.CSSProperties };
+type WavesPreset = { name: string; params: Required<WavesParams> };
 
 // Due to Leva controls limitation:
 // 1) keep default colors in HSLA format to keep alpha channel
@@ -42,6 +42,7 @@ export const spikesPreset: WavesPreset = {
   params: {
     scale: 2.3,
     rotation: 0,
+    // background: 'hsla(65, 100%, 95%, 1)',
     color: 'hsla(290, 52%, 15%, 1)',
     shape: 0,
     frequency: 0.5,
@@ -50,9 +51,6 @@ export const spikesPreset: WavesPreset = {
     dutyCycle: 0.93,
     softness: 0.15,
   },
-  style: {
-    background: 'hsla(65, 100%, 95%, 1)',
-  },
 };
 
 export const groovyPreset: WavesPreset = {
@@ -60,6 +58,7 @@ export const groovyPreset: WavesPreset = {
   params: {
     scale: 0.5,
     rotation: 1,
+    // background: 'hsla(60, 100%, 97%, 1)',
     color: 'hsla(20, 100%, 71%, 1)',
     shape: 2.37,
     frequency: 0.2,
@@ -68,9 +67,6 @@ export const groovyPreset: WavesPreset = {
     dutyCycle: 0.57,
     softness: 0,
   },
-  style: {
-    background: 'hsla(60, 100%, 97%, 1)',
-  },
 };
 
 export const tangledUpPreset: WavesPreset = {
@@ -78,6 +74,7 @@ export const tangledUpPreset: WavesPreset = {
   params: {
     scale: 3.04,
     rotation: 1,
+    // background: 'hsla(198.7, 66.7%, 14.1%, 1)',
     color: 'hsla(85.5, 35.7%, 78%, 1)',
     shape: 3,
     frequency: 0.44,
@@ -86,9 +83,6 @@ export const tangledUpPreset: WavesPreset = {
     dutyCycle: 0.97,
     softness: 0,
   },
-  style: {
-    background: 'hsla(198.7, 66.7%, 14.1%, 1)',
-  },
 };
 
 export const zigZagPreset: WavesPreset = {
@@ -96,6 +90,7 @@ export const zigZagPreset: WavesPreset = {
   params: {
     scale: 2.7,
     rotation: 1,
+    // background: 'hsla(0, 0%, 0%, 1)',
     color: 'hsla(0, 0%, 90%, 1)',
     shape: 0,
     frequency: 0.6,
@@ -104,9 +99,6 @@ export const zigZagPreset: WavesPreset = {
     dutyCycle: 1,
     softness: 0.5,
   },
-  style: {
-    background: 'hsla(0, 0%, 0%, 1)',
-  },
 };
 
 export const waveRidePreset: WavesPreset = {
@@ -114,6 +106,7 @@ export const waveRidePreset: WavesPreset = {
   params: {
     scale: 0.84,
     rotation: 0,
+    // background: 'hsla(65, 100%, 95%, 1)',
     color: 'hsla(0, 0%, 12%, 1)',
     shape: 2.23,
     frequency: 0.1,
@@ -121,9 +114,6 @@ export const waveRidePreset: WavesPreset = {
     spacing: 0.41,
     dutyCycle: 0.99,
     softness: 0,
-  },
-  style: {
-    background: 'hsla(65, 100%, 95%, 1)',
   },
 };
 

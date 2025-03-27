@@ -34,7 +34,7 @@ const DotGridExample = () => {
  * This example has controls added so you can play with settings in the example app
  */
 
-const defaults = { ...dotGridPresets[0].params, style: dotGridPresets[0].style };
+const defaults = dotGridPresets[0].params;
 
 const DotGridWithControls = () => {
   const [params, setParams] = useControls(() => {
@@ -56,21 +56,12 @@ const DotGridWithControls = () => {
     };
   });
 
-  const [style, setStyle] = useControls(() => {
-    return {
-      Parameters: folder({
-        background: { value: defaults.style?.background as string, order: 100 },
-      }),
-    };
-  });
-
   useControls(() => {
     const presets: DotGridParams = Object.fromEntries(
       dotGridPresets.map((preset) => [
         preset.name,
         button(() => {
           setParamsSafe(params, setParams, preset.params);
-          setStyle({ background: String(preset.style?.background || 'hsla(0, 0%, 0%, 0)') });
         }),
       ])
     );
@@ -82,8 +73,7 @@ const DotGridWithControls = () => {
   // Reset to defaults on mount, so that Leva doesn't show values from other
   // shaders when navigating (if two shaders have a color1 param for example)
   useResetLevaParams(params, setParams, defaults);
-  useResetLevaParams(style, setStyle, defaults.style);
-  usePresetHighlight(dotGridPresets, { ...params, style });
+  usePresetHighlight(dotGridPresets, params);
   cleanUpLevaParams(params);
 
   return (
@@ -91,7 +81,7 @@ const DotGridWithControls = () => {
       <Link href="/">
         <BackButton />
       </Link>
-      <DotGrid className="fixed size-full" style={style} {...params} />
+      <DotGrid className="fixed size-full" {...params} />
     </>
   );
 };

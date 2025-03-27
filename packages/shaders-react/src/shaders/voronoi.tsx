@@ -18,7 +18,7 @@ export type VoronoiParams = {
 
 export type VoronoiProps = Omit<ShaderMountProps, 'fragmentShader'> & VoronoiParams;
 
-type VoronoiPreset = { name: string; params: Required<VoronoiParams>; style?: React.CSSProperties };
+type VoronoiPreset = { name: string; params: Required<VoronoiParams> };
 
 // Due to Leva controls limitation:
 // 1) keep default colors in HSLA format to keep alpha channel
