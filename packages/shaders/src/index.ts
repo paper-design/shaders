@@ -6,6 +6,18 @@ export {
   type ShaderMountUniforms,
 } from './shader-mount';
 
+export {
+  gradientDemoCSSFragmentShader,
+  gradientDemoCSSMaxColorCount,
+  type GradientDemoCSSUniforms,
+} from './shaders/gradient-demo-css';
+export {
+  gradientDemoMixerFragmentShader,
+  gradientDemoMixerMaxColorCount,
+  type GradientDemoMixerUniforms,
+} from './shaders/gradient-demo-mixer';
+
+
 // ----- Mesh gradient ----- //
 /** A shader that renders a mesh gradient with a rotating noise pattern and several layers of fractal noise */
 export {

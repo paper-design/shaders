@@ -3,6 +3,17 @@ export { ShaderMount } from './shader-mount';
 
 // ----- Fragment shaders ----- //
 
+// Temporary 2x demos
+export { GradientDemoCSS, gradientDemoCSSPresets } from './shaders/gradient-demo-css';
+export { type GradientDemoCSSProps } from './shaders/gradient-demo-css';
+export { type GradientDemoCSSParams } from './shaders/gradient-demo-css';
+export { gradientDemoCSSMaxColorCount, type GradientDemoCSSUniforms } from '@paper-design/shaders';
+
+export { GradientDemoMixer, gradientDemoMixerPresets } from './shaders/gradient-demo-mixer';
+export { type GradientDemoMixerProps } from './shaders/gradient-demo-mixer';
+export { type GradientDemoMixerParams } from './shaders/gradient-demo-mixer';
+export { gradientDemoMixerMaxColorCount, type GradientDemoMixerUniforms } from '@paper-design/shaders';
+
 // Mesh gradient
 export { MeshGradient, meshGradientPresets } from './shaders/mesh-gradient';
 export { type MeshGradientProps } from './shaders/mesh-gradient';
