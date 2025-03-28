@@ -581,11 +581,6 @@ const defaultStyle = `@layer base {
       z-index: -1;
       top: 0;
       left: 0;
-      /*
-      // left: 50%;
-      // top: 50%;
-      // translate: -50% -50%;
-      */
     }
   }
 }`;
