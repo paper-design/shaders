@@ -53,7 +53,7 @@ export class ShaderMount {
     if (parentElement instanceof HTMLElement) {
       this.parentElement = parentElement as PaperShaderElement;
     } else {
-      throw new Error('Parent element must be an HTMLElement');
+      throw new Error('Paper Shaders: parent element must be an HTMLElement');
     }
 
     if (!document.querySelector('style[data-paper-shaders]')) {
@@ -75,7 +75,7 @@ export class ShaderMount {
 
     const gl = canvasElement.getContext('webgl2', webGlContextAttributes);
     if (!gl) {
-      throw new Error('WebGL not supported');
+      throw new Error('Paper Shaders: WebGL is not supported in this browser');
     }
     this.gl = gl;
 
@@ -219,7 +219,7 @@ export class ShaderMount {
   /** Creates a texture from an image and sets it into a uniform value */
   private setTextureUniform = (uniformName: string, image: HTMLImageElement): void => {
     if (!image.complete || image.naturalWidth === 0) {
-      throw new Error(`Image for uniform ${uniformName} must be fully loaded`);
+      throw new Error(`Paper Shaders: image for uniform ${uniformName} must be fully loaded`);
     }
 
     // Clean up existing texture if present
@@ -242,7 +242,7 @@ export class ShaderMount {
     this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.gl.RGBA, this.gl.UNSIGNED_BYTE, image);
     const error = this.gl.getError();
     if (error !== this.gl.NO_ERROR || texture === null) {
-      console.error('WebGL error when uploading texture:', error);
+      console.error('Paper Shaders: WebGL error when uploading texture:', error);
       return;
     }
 
