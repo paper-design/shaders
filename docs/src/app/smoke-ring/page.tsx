@@ -14,8 +14,9 @@ import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
 const SmokeRingExample = () => {
   return (
     <SmokeRing
+      colorBack="#000000"
       colorInner="#ffffff"
-      colorOuter="#47a0ff"
+      colorOuter="#4f566a"
       scale={1}
       noiseScale={1.4}
       thickness={0.33}
@@ -41,6 +42,7 @@ const SmokeRingWithControls = () => {
     return {
       Parameters: folder(
         {
+          colorBack: { value: defaults.colorBack, order: 100 },
           colorInner: { value: defaults.colorInner, order: 101 },
           colorOuter: { value: defaults.colorOuter, order: 102 },
           scale: { value: defaults.scale, min: 0.5, max: 1.5, order: 200 },
@@ -85,7 +87,7 @@ const SmokeRingWithControls = () => {
       <Link href="/">
         <BackButton />
       </Link>
-      <SmokeRing {...shaderParams} />
+      <SmokeRing className="fixed size-full" {...shaderParams} />
     </>
   );
 };
