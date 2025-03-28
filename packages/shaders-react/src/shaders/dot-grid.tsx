@@ -211,7 +211,18 @@ export const DotGrid = ({
       u_opacityRange: opacityRange ?? defaultPreset.params.opacityRange,
       u_shape: shape ?? defaultPreset.params.shape,
     };
-  }, [colorFill, colorStroke, dotSize, gridSpacingX, gridSpacingY, strokeWidth, sizeRange, opacityRange, shape]);
+  }, [
+    colorBack,
+    colorFill,
+    colorStroke,
+    dotSize,
+    gridSpacingX,
+    gridSpacingY,
+    strokeWidth,
+    sizeRange,
+    opacityRange,
+    shape,
+  ]);
 
   return <ShaderMount {...props} fragmentShader={dotGridFragmentShader} uniforms={uniforms} />;
 };

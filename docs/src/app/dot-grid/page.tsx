@@ -16,7 +16,8 @@ import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
 const DotGridExample = () => {
   return (
     <DotGrid
-      colorFill="#122118"
+      colorBack="#000000"
+      colorFill="#ffffff"
       colorStroke="#f0a519"
       dotSize={2}
       gridSpacingX={50}
@@ -41,6 +42,7 @@ const DotGridWithControls = () => {
     return {
       Parameters: folder(
         {
+          colorBack: { value: defaults.colorBack, order: 100 },
           colorFill: { value: defaults.colorFill, order: 101 },
           colorStroke: { value: defaults.colorStroke, order: 102 },
           dotSize: { value: defaults.dotSize, min: 1, max: 100, order: 301 },
@@ -58,12 +60,7 @@ const DotGridWithControls = () => {
 
   useControls(() => {
     const presets: DotGridParams = Object.fromEntries(
-      dotGridPresets.map((preset) => [
-        preset.name,
-        button(() => {
-          setParamsSafe(params, setParams, preset.params);
-        }),
-      ])
+      dotGridPresets.map((preset) => [preset.name, button(() => setParamsSafe(params, setParams, preset.params))])
     );
     return {
       Presets: folder(presets, { order: 2 }),
