@@ -98,7 +98,7 @@ const SpiralWithControls = () => {
       <Link href="/">
         <BackButton />
       </Link>
-      <Spiral {...shaderParams} />
+      <Spiral className="fixed size-full" {...shaderParams} />
     </>
   );
 };
