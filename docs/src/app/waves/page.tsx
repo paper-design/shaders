@@ -15,7 +15,8 @@ import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
 const WavesExample = () => {
   return (
     <Waves
-      color="#90BE6D"
+      color1="#90BE6D"
+      color2="#000000"
       scale={1}
       rotation={0}
       frequency={0.5}
@@ -40,7 +41,8 @@ const WavesWithControls = () => {
     return {
       Parameters: folder(
         {
-          color: { value: defaults.color, order: 101 },
+          color1: { value: defaults.color1, order: 101 },
+          color2: { value: defaults.color2, order: 102 },
           scale: { value: defaults.scale, min: 0.1, max: 4, order: 200 },
           rotation: { value: defaults.rotation, min: 0, max: 1, order: 201 },
           frequency: { value: defaults.frequency, min: 0, max: 2, order: 300 },
@@ -57,12 +59,7 @@ const WavesWithControls = () => {
 
   useControls(() => {
     const presets: WavesParams = Object.fromEntries(
-      wavesPresets.map((preset) => [
-        preset.name,
-        button(() => {
-          setParamsSafe(params, setParams, preset.params);
-        }),
-      ])
+      wavesPresets.map((preset) => [preset.name, button(() => setParamsSafe(params, setParams, preset.params))])
     );
     return {
       Presets: folder(presets, { order: 2 }),
