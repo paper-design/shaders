@@ -56,10 +56,9 @@ export class ShaderMount {
       throw new Error('Parent element must be an HTMLElement');
     }
 
-    let styleElement = document.querySelector('style[data-paper-shaders]') || document.createElement('style');
-    styleElement.innerHTML = defaultStyle;
-
-    if (!styleElement.parentElement) {
+    if (!document.querySelector('style[data-paper-shaders]')) {
+      const styleElement = document.createElement('style');
+      styleElement.innerHTML = defaultStyle;
       styleElement.setAttribute('data-paper-shaders', '');
       document.head.prepend(styleElement);
     }
@@ -465,7 +464,7 @@ const defaultStyle = `@layer base {
     isolation: isolate;
     position: relative;
 
-    & :where(canvas) {
+    & canvas {
       contain: strict;
       display: block;
       position: absolute;
