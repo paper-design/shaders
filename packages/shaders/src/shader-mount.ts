@@ -2,16 +2,16 @@
 export type ShaderMountUniforms = Record<string, number | number[] | HTMLImageElement>;
 
 /** A canvas element that has a ShaderMount available on it */
-export interface PaperShadersElement extends HTMLElement {
+export interface PaperShaderElement extends HTMLElement {
   paperShaderMount: ShaderMount | undefined;
 }
 /** Check if a canvas element is a ShaderCanvas */
-export function isPaperShadersElement(element: HTMLElement): element is PaperShadersElement {
+export function isPaperShaderElement(element: HTMLElement): element is PaperShaderElement {
   return 'paperShaderMount' in element;
 }
 
 export class ShaderMount {
-  public parentElement: PaperShadersElement;
+  public parentElement: PaperShaderElement;
   public canvasElement: HTMLCanvasElement;
   private gl: WebGLRenderingContext;
   private program: WebGLProgram | null = null;
@@ -51,7 +51,7 @@ export class ShaderMount {
     maxResolution = 1920
   ) {
     if (parentElement instanceof HTMLElement) {
-      this.parentElement = parentElement as PaperShadersElement;
+      this.parentElement = parentElement as PaperShaderElement;
     } else {
       throw new Error('Parent element must be an HTMLElement');
     }
