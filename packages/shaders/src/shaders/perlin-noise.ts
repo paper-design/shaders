@@ -1,6 +1,7 @@
 export type PerlinNoiseUniforms = {
   u_scale: number;
-  u_color: [number, number, number, number];
+  u_color1: [number, number, number, number];
+  u_color2: [number, number, number, number];
   u_proportion: number;
   u_softness: number;
   u_octaveCount: number;
@@ -9,14 +10,15 @@ export type PerlinNoiseUniforms = {
 };
 
 /**
- * 3d Perlin noise with exposed parameters rendered on the transparent background
+ * 3d Perlin noise with exposed parameters
  * Based on https://www.shadertoy.com/view/NlSGDz
  *
  * Uniforms include:
  * u_scale - the scale applied to user space
- * u_color - the color
- * u_proportion (0 .. 1) - the proportion between u_color1 and u_color;
- * u_softness - the sharpness of the transition between u_color1 and u_color in the noise output
+ * u_color1 - the first mixed color
+ * u_color2 - the second mixed color
+ * u_proportion (0 .. 1) - the proportion between u_color1 and u_color2;
+ * u_softness - the sharpness of the transition between u_color1 and u_color2 in the noise output
  * u_octaveCount - the number of octaves for Perlin noise;
  *    higher values increase the complexity of the noise
  * u_persistence (0 .. 1) - the amplitude of each successive octave of the noise;
@@ -33,7 +35,8 @@ uniform float u_pixelRatio;
 uniform vec2 u_resolution;
 
 uniform float u_scale;
-uniform vec4 u_color;
+uniform vec4 u_color1;
+uniform vec4 u_color2;
 uniform float u_proportion;
 uniform float u_softness;
 uniform float u_octaveCount;
@@ -65,21 +68,21 @@ uint hash(uvec3 x, uint seed){
     const uint m = 0x5bd1e995U;
     uint hash = seed;
     // process first vector element
-    uint k = x.x; 
+    uint k = x.x;
     k *= m;
     k ^= k >> 24;
     k *= m;
     hash *= m;
     hash ^= k;
     // process second vector element
-    k = x.y; 
+    k = x.y;
     k *= m;
     k ^= k >> 24;
     k *= m;
     hash *= m;
     hash ^= k;
     // process third vector element
-    k = x.z; 
+    k = x.z;
     k *= m;
     k ^= k >> 24;
     k *= m;
@@ -186,25 +189,25 @@ void main() {
     uv *= (.004 * u_scale * u_resolution);
     uv /= u_pixelRatio;
     uv += .5;
-        
+
     vec3 p = vec3(uv, t);
-    
+
     float oct_count = max(0., floor(u_octaveCount));
     float persistence = clamp(u_persistence, 0., 1.);
     float noise = p_noise(p, int(oct_count), persistence, u_lacunarity);
-    
+
     float max_amp = get_max_amp(persistence, oct_count);
     float noise_normalized = (noise + max_amp) / (2. * max_amp) + (u_proportion - .5);
     float sharpness = clamp(u_softness, 0., 1.);
     float smooth_w = 0.5 * fwidth(noise_normalized);
     float sharp_noise = smoothstep(
-        .5 - .5 * sharpness - smooth_w, 
-        .5 + .5 * sharpness + smooth_w, 
+        .5 - .5 * sharpness - smooth_w,
+        .5 + .5 * sharpness + smooth_w,
         noise_normalized
     );
 
-    vec3 color = u_color.rgb * u_color.a * sharp_noise;
-    float opacity = u_color.a * sharp_noise;
+    vec3 color = mix(u_color1.rgb * u_color1.a, u_color2.rgb * u_color2.a, sharp_noise);
+    float opacity = mix(u_color1.a, u_color2.a, sharp_noise);
 
     fragColor = vec4(color, opacity);
 }

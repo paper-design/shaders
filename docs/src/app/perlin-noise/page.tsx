@@ -30,14 +30,15 @@ const PerlinNoiseExample = () => {
  * This example has controls added so you can play with settings in the example app
  */
 
-const defaults = { ...perlinNoisePresets[0].params, style: { background: 'hsla(0, 0%, 0%, 0)' } };
+const defaults = perlinNoisePresets[0].params;
 
 const PerlinNoiseWithControls = () => {
   const [params, setParams] = useControls(() => {
     return {
       Parameters: folder(
         {
-          color: { value: defaults.color, order: 101 },
+          color1: { value: defaults.color1, order: 100 },
+          color2: { value: defaults.color2, order: 101 },
           scale: { value: defaults.scale, min: 0, max: 2, order: 200 },
           proportion: { value: defaults.proportion, min: 0, max: 1, order: 300 },
           softness: { value: defaults.softness, min: 0, max: 1, order: 301 },
@@ -53,12 +54,7 @@ const PerlinNoiseWithControls = () => {
 
   useControls(() => {
     const presets: PerlinNoiseParams = Object.fromEntries(
-      perlinNoisePresets.map((preset) => [
-        preset.name,
-        button(() => {
-          setParamsSafe(params, setParams, preset.params);
-        }),
-      ])
+      perlinNoisePresets.map((preset) => [preset.name, button(() => setParamsSafe(params, setParams, preset.params))])
     );
     return {
       Presets: folder(presets, { order: 2 }),
