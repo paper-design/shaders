@@ -5,7 +5,7 @@ import { useMergeRefs } from './use-merge-refs';
 /** The React ShaderMount can also accept strings as uniform values, which will assumed to be URLs and loaded as images */
 export type ShaderMountUniformsReact = { [key: string]: ShaderMountUniforms[keyof ShaderMountUniforms] | string };
 
-export interface ShaderMountProps extends React.ComponentProps<'div'> {
+export interface ShaderMountProps extends Omit<React.ComponentProps<'div'>, 'color'> {
   shaderMountRef?: React.RefObject<ShaderMountVanilla | null>;
   fragmentShader: string;
   uniforms?: ShaderMountUniformsReact;

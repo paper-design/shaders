@@ -13,7 +13,8 @@ import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
 const PerlinNoiseExample = () => {
   return (
     <PerlinNoise
-      color="#bde6ff"
+      color1="#222222"
+      color2="#eeeeee"
       scale={1}
       proportion={0.34}
       softness={0.1}
