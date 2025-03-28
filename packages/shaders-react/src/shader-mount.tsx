@@ -1,18 +1,20 @@
-import React, { useEffect, useRef, forwardRef, useState, useId } from 'react';
-import { ShaderMount as ShaderMountVanilla, type ShaderMountUniforms } from '@paper-design/shaders';
+import React, { useEffect, useRef, forwardRef, useState } from 'react';
+import {
+  ShaderMount as ShaderMountVanilla,
+  type ShaderMountUniforms,
+  type ShaderMountParams,
+  type ShaderWorld,
+} from '@paper-design/shaders';
 import { useMergeRefs } from './use-merge-refs';
 
-/** The React ShaderMount can also accept strings as uniform values, which will assumed to be URLs and loaded as images */
+/** React ShaderMount can also accept strings as uniform values, which will assumed to be URLs and loaded as images */
 export type ShaderMountUniformsReact = { [key: string]: ShaderMountUniforms[keyof ShaderMountUniforms] | string };
 
-export interface ShaderMountProps extends Omit<React.ComponentProps<'div'>, 'color'> {
-  shaderMountRef?: React.RefObject<ShaderMountVanilla | null>;
-  fragmentShader: string;
+type BaseDivProps = Omit<React.ComponentProps<'div'>, 'color'>;
+type BaseShaderMountParams = Omit<ShaderMountParams, 'parentElement' | 'uniforms'>;
+
+export interface ShaderMountProps extends BaseDivProps, BaseShaderMountParams, ShaderWorld {
   uniforms?: ShaderMountUniformsReact;
-  webGlContextAttributes?: WebGLContextAttributes;
-  maxResolution?: number;
-  speed?: number;
-  frame?: number;
 }
 
 /** Params that every shader can set as part of their controls */
@@ -84,13 +86,17 @@ const processUniforms = (uniforms: ShaderMountUniformsReact): Promise<ShaderMoun
 export const ShaderMount: React.FC<ShaderMountProps> = forwardRef<HTMLDivElement, ShaderMountProps>(
   function ShaderMountImpl(
     {
-      shaderMountRef: externalShaderMountRef,
       fragmentShader,
       uniforms = {},
       webGlContextAttributes,
       speed = 1,
       frame = 0,
       maxResolution,
+      worldFit,
+      worldWidth,
+      worldHeight,
+      worldOriginX,
+      worldOriginY,
       ...divProps
     },
     forwardedRef
@@ -104,19 +110,20 @@ export const ShaderMount: React.FC<ShaderMountProps> = forwardRef<HTMLDivElement
       const initShader = async () => {
         const processedUniforms = await processUniforms(uniforms);
         if (divRef.current && !shaderMountRef.current) {
-          shaderMountRef.current = new ShaderMountVanilla(
-            divRef.current,
+          shaderMountRef.current = new ShaderMountVanilla({
+            parentElement: divRef.current,
             fragmentShader,
-            processedUniforms,
+            uniforms: processedUniforms,
             webGlContextAttributes,
             speed,
             frame,
-            maxResolution
-          );
-
-          if (externalShaderMountRef) {
-            externalShaderMountRef.current = shaderMountRef.current;
-          }
+            maxResolution,
+            worldFit,
+            worldWidth,
+            worldHeight,
+            worldOriginX,
+            worldOriginY,
+          });
 
           setIsInitialized(true);
         }

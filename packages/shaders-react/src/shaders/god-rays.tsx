@@ -17,7 +17,7 @@ export type GodRaysParams = {
   blending?: number;
 } & GlobalParams;
 
-export type GodRaysProps = Omit<ShaderMountProps, 'fragmentShader'> & GodRaysParams;
+export type GodRaysProps = Omit<Partial<ShaderMountProps>, 'fragmentShader'> & GodRaysParams;
 
 type GodRaysPreset = { name: string; params: Required<GodRaysParams> };
 
@@ -140,6 +140,9 @@ export const GodRays = ({
   midSize,
   density,
   blending,
+  worldFit = 'cover',
+  worldWidth = 0,
+  worldHeight = 0,
   ...props
 }: GodRaysProps): React.ReactElement => {
   const uniforms: GodRaysUniforms = useMemo(() => {
@@ -172,5 +175,14 @@ export const GodRays = ({
     blending,
   ]);
 
-  return <ShaderMount {...props} fragmentShader={godRaysFragmentShader} uniforms={uniforms} />;
+  return (
+    <ShaderMount
+      {...props}
+      worldFit={worldFit}
+      worldWidth={worldWidth}
+      worldHeight={worldHeight}
+      fragmentShader={godRaysFragmentShader}
+      uniforms={uniforms}
+    />
+  );
 };

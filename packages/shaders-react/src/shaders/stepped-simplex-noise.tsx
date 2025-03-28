@@ -16,7 +16,7 @@ export type SteppedSimplexNoiseParams = {
   stepsNumber?: number;
 } & GlobalParams;
 
-export type SteppedSimplexNoiseProps = Omit<ShaderMountProps, 'fragmentShader'> & SteppedSimplexNoiseParams;
+export type SteppedSimplexNoiseProps = Omit<Partial<ShaderMountProps>, 'fragmentShader'> & SteppedSimplexNoiseParams;
 
 type SteppedSimplexNoisePreset = {
   name: string;
@@ -103,6 +103,9 @@ export const SteppedSimplexNoise = ({
   color4,
   color5,
   stepsNumber,
+  worldFit = 'cover',
+  worldWidth = 0,
+  worldHeight = 0,
   ...props
 }: SteppedSimplexNoiseProps): React.ReactElement => {
   const uniforms: SteppedSimplexNoiseUniforms = useMemo(() => {
@@ -117,5 +120,14 @@ export const SteppedSimplexNoise = ({
     };
   }, [scale, color1, color2, color3, color4, color5, stepsNumber]);
 
-  return <ShaderMount {...props} fragmentShader={steppedSimplexNoiseFragmentShader} uniforms={uniforms} />;
+  return (
+    <ShaderMount
+      {...props}
+      worldFit={worldFit}
+      worldWidth={worldWidth}
+      worldHeight={worldHeight}
+      fragmentShader={steppedSimplexNoiseFragmentShader}
+      uniforms={uniforms}
+    />
+  );
 };

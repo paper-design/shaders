@@ -23,7 +23,7 @@ export type WarpParams = {
   shape?: PatternShape;
 } & GlobalParams;
 
-export type WarpProps = Omit<ShaderMountProps, 'fragmentShader'> & WarpParams;
+export type WarpProps = Omit<Partial<ShaderMountProps>, 'fragmentShader'> & WarpParams;
 
 type WarpPreset = { name: string; params: Required<WarpParams> };
 
@@ -278,6 +278,9 @@ export const Warp = ({
   swirlIterations,
   shapeScale,
   shape,
+  worldFit = 'cover',
+  worldWidth = 0,
+  worldHeight = 0,
   ...props
 }: WarpProps): React.ReactElement => {
   const uniforms: WarpUniforms = useMemo(() => {
@@ -310,5 +313,14 @@ export const Warp = ({
     shape,
   ]);
 
-  return <ShaderMount {...props} fragmentShader={warpFragmentShader} uniforms={uniforms} />;
+  return (
+    <ShaderMount
+      {...props}
+      worldFit={worldFit}
+      worldWidth={worldWidth}
+      worldHeight={worldHeight}
+      fragmentShader={warpFragmentShader}
+      uniforms={uniforms}
+    />
+  );
 };

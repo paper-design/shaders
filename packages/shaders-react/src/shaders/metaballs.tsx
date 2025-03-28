@@ -11,7 +11,7 @@ export type MetaballsParams = {
   visibilityRange?: number;
 } & GlobalParams;
 
-export type MetaballsProps = Omit<ShaderMountProps, 'fragmentShader'> & MetaballsParams;
+export type MetaballsProps = Omit<Partial<ShaderMountProps>, 'fragmentShader'> & MetaballsParams;
 
 type MetaballsPreset = { name: string; params: Required<MetaballsParams> };
 
@@ -42,6 +42,9 @@ export const Metaballs = ({
   color3,
   ballSize,
   visibilityRange,
+  worldFit = 'cover',
+  worldWidth = 0,
+  worldHeight = 0,
   ...props
 }: MetaballsProps): React.ReactElement => {
   const uniforms: MetaballsUniforms = useMemo(() => {
@@ -55,5 +58,14 @@ export const Metaballs = ({
     };
   }, [scale, color1, color2, color3, ballSize, visibilityRange]);
 
-  return <ShaderMount {...props} fragmentShader={metaballsFragmentShader} uniforms={uniforms} />;
+  return (
+    <ShaderMount
+      {...props}
+      worldFit={worldFit}
+      worldWidth={worldWidth}
+      worldHeight={worldHeight}
+      fragmentShader={metaballsFragmentShader}
+      uniforms={uniforms}
+    />
+  );
 };

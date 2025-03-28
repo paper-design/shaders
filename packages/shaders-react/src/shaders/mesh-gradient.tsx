@@ -9,7 +9,7 @@ export type MeshGradientParams = {
   color4?: string;
 } & GlobalParams;
 
-export type MeshGradientProps = Omit<ShaderMountProps, 'fragmentShader'> & MeshGradientParams;
+export type MeshGradientProps = Omit<Partial<ShaderMountProps>, 'fragmentShader'> & MeshGradientParams;
 
 type MeshGradientPreset = { name: string; params: Required<MeshGradientParams> };
 
@@ -55,7 +55,16 @@ export const fadedPreset: MeshGradientPreset = {
 
 export const meshGradientPresets: MeshGradientPreset[] = [defaultPreset, beachPreset, fadedPreset];
 
-export const MeshGradient = ({ color1, color2, color3, color4, ...props }: MeshGradientProps): React.ReactElement => {
+export const MeshGradient = ({
+  color1,
+  color2,
+  color3,
+  color4,
+  worldFit = 'cover',
+  worldWidth = 0,
+  worldHeight = 0,
+  ...props
+}: MeshGradientProps): React.ReactElement => {
   const uniforms: MeshGradientUniforms = useMemo(() => {
     return {
       u_color1: getShaderColorFromString(color1, defaultPreset.params.color1),
@@ -65,5 +74,14 @@ export const MeshGradient = ({ color1, color2, color3, color4, ...props }: MeshG
     };
   }, [color1, color2, color3, color4]);
 
-  return <ShaderMount {...props} fragmentShader={meshGradientFragmentShader} uniforms={uniforms} />;
+  return (
+    <ShaderMount
+      {...props}
+      worldFit={worldFit}
+      worldWidth={worldWidth}
+      worldHeight={worldHeight}
+      fragmentShader={meshGradientFragmentShader}
+      uniforms={uniforms}
+    />
+  );
 };

@@ -10,6 +10,32 @@ export function isPaperShaderElement(element: HTMLElement): element is PaperShad
   return 'paperShaderMount' in element;
 }
 
+export type ShaderFit = 'contain' | 'cover' | 'crop';
+
+export interface ShaderMountParams extends ShaderWorld {
+  /** The element you'd like to mount the shader to. The shader will match its size. */
+  parentElement: HTMLElement;
+  fragmentShader: string;
+  uniforms?: ShaderMountUniforms;
+  webGlContextAttributes?: WebGLContextAttributes;
+  /** The speed of the animation, or 0 to stop it. Supports negative values to play in reverse. */
+  speed?: number;
+  frame?: number;
+  /**
+   * The maximum amount of physical device pixels to render for the shader, by default it's 1920 * 1080 * 2x dpi = 8,294,400 pixels on a 4K screen.
+   * Actual DOM size of the canvas can be larger, it will just lose quality after this.
+   */
+  maxResolution?: number;
+}
+
+export interface ShaderWorld {
+  worldFit: ShaderFit;
+  worldWidth: number;
+  worldHeight: number;
+  worldOriginX?: number;
+  worldOriginY?: number;
+}
+
 export class ShaderMount {
   public parentElement: PaperShaderElement;
   public canvasElement: HTMLCanvasElement;
@@ -37,19 +63,33 @@ export class ShaderMount {
   /** The maximum resolution (on the larger axis) that we render for the shader, to protect against insane resolutions and bad performance. Actual CSS size of the canvas can be larger, it will just lose quality after this */
   private maxResolution = 0; // set by constructor
 
-  constructor(
-    /** The div you'd like to mount the shader to. The shader will match its size. */
-    parentElement: HTMLElement,
-    fragmentShader: string,
-    uniforms: ShaderMountUniforms = {},
-    webGlContextAttributes?: WebGLContextAttributes,
-    /** The speed of the animation, or 0 to stop it. Supports negative values to play in reverse. */
+  // Shader sizing state
+  private worldFit: ShaderFit;
+  private worldHeight: number;
+  private worldWidth: number;
+  private worldOriginX: number;
+  private worldOriginY: number;
+  private canvasLeft = 0;
+  private canvasTop = 0;
+  private viewportLeft = 0;
+  private viewportBottom = 0;
+  private viewportWidth = 0;
+  private viewportHeight = 0;
+
+  constructor({
+    parentElement,
+    fragmentShader,
+    uniforms = {},
+    webGlContextAttributes,
     speed = 0,
-    /** Pass a frame to offset the starting u_time value and give deterministic results*/
     frame = 0,
-    /** The maximum resolution (on the larger axis) that we render for the shader. Use virtual pixels, will be multiplied by display DPI to get the actual resolution. Actual CSS size of the canvas can be larger, it will just lose quality after this */
-    maxResolution = 1920
-  ) {
+    maxResolution = 1920 * 1080 * 4,
+    worldFit,
+    worldWidth,
+    worldHeight,
+    worldOriginX = 0.5,
+    worldOriginY = 0.5,
+  }: ShaderMountParams) {
     if (parentElement instanceof HTMLElement) {
       this.parentElement = parentElement as PaperShaderElement;
     } else {
@@ -73,6 +113,12 @@ export class ShaderMount {
     this.totalFrameTime = frame;
     this.maxResolution = maxResolution;
 
+    this.worldFit = worldFit;
+    this.worldWidth = worldWidth;
+    this.worldHeight = worldHeight;
+    this.worldOriginX = worldOriginX;
+    this.worldOriginY = worldOriginY;
+
     const gl = canvasElement.getContext('webgl2', webGlContextAttributes);
     if (!gl) {
       throw new Error('Paper Shaders: WebGL is not supported in this browser');
@@ -94,7 +140,7 @@ export class ShaderMount {
     // Mark parent element as paper shader mount
     this.parentElement.setAttribute('data-paper-shaders', '');
 
-    // Add the shaderMount instance to the div mount element to make it easily accessible
+    // Add the shaderMount instance to the parent element to make it easily accessible
     this.parentElement.paperShaderMount = this;
   }
 
@@ -143,28 +189,83 @@ export class ShaderMount {
     this.handleResize();
   };
 
-  /** The scale that we should render at (prevents the virtual resolution from going beyond our maxium and then multiplies by pixelRatio (at least 2X rendering always) */
+  /** The scale that we should render at, accounting for the maximum resolution and device pixel ratio */
   private renderScale = 1;
-  /** Resize handler for when the container div changes size and we want to resize our canvas to match */
+
+  /** Resize handler for when the parent element changes size and we want to resize our canvas to match */
   private handleResize = () => {
-    const clientWidth = this.parentElement.clientWidth;
-    const clientHeight = this.parentElement.clientHeight;
+    const parentClientWidth = this.parentElement.clientWidth;
+    const parentClientHeight = this.parentElement.clientHeight;
     const maxResolution = this.maxResolution;
+
     // Note we render at 2X even for 1x screens because it gives a much smoother looking result
     const pixelRatio = Math.max(2, window.devicePixelRatio);
-    // Render scale prevents the virtual resolution from going beyond our maxium and then multiplies by pixelRatio (so at least 2X rendering)
-    this.renderScale = Math.min(1, maxResolution / Math.max(clientWidth, clientHeight)) * pixelRatio;
 
-    let newWidth = clientWidth * this.renderScale;
-    let newHeight = clientHeight * this.renderScale;
-    if (this.canvasElement.width !== newWidth || this.canvasElement.height !== newHeight) {
-      this.canvasElement.width = newWidth;
-      this.canvasElement.height = newHeight;
+    // Pattern shaders come with an infinite world size by default – trim it to the parent element
+    let canvasClientWidth = this.worldWidth === Infinity ? parentClientWidth : this.worldWidth;
+    let canvasClientHeight = this.worldHeight === Infinity ? parentClientHeight : this.worldHeight;
+    const worldAspectRatio = canvasClientWidth / canvasClientHeight;
+
+    if (this.worldFit !== 'crop') {
+      const referenceWidth = Math.max(canvasClientWidth, parentClientWidth);
+      const referenceHeight = Math.max(canvasClientHeight, parentClientHeight);
+      const clamp = this.worldFit === 'cover' ? Math.max : Math.min;
+      canvasClientWidth = worldAspectRatio * clamp(referenceWidth / worldAspectRatio, referenceHeight);
+      canvasClientHeight = canvasClientWidth / worldAspectRatio;
+    }
+
+    // Canvas offsets relative to the corresponding sides of the parent element
+    const widthOffset = parentClientWidth - canvasClientWidth;
+    const heightOffset = parentClientHeight - canvasClientHeight;
+    const canvasLeft = widthOffset * this.worldOriginX;
+    const canvasTop = heightOffset * this.worldOriginY;
+    const canvasRight = widthOffset * (1 - this.worldOriginX);
+    const canvasBottom = heightOffset * (1 - this.worldOriginY);
+
+    const baseViewportWidth = parentClientWidth - Math.max(0, canvasLeft) - Math.max(0, canvasRight);
+    const baseViewportHeight = parentClientHeight - Math.max(0, canvasTop) - Math.max(0, canvasBottom);
+
+    // Scale the render according to the device pixel ratio, but not beyond the maximum resolution
+    this.renderScale = Math.min(pixelRatio, maxResolution ** 2 / (baseViewportWidth * baseViewportHeight * pixelRatio));
+
+    const viewportWidth = baseViewportWidth * this.renderScale;
+    const viewportHeight = baseViewportHeight * this.renderScale;
+    const viewportLeft = Math.max(0, -canvasLeft) * this.renderScale;
+    const viewportBottom = Math.max(0, -canvasBottom) * this.renderScale;
+
+    const canvasAttributeWidth = canvasClientWidth * this.renderScale;
+    const canvasAttributeHeight = canvasClientHeight * this.renderScale;
+
+    if (this.canvasLeft !== canvasLeft || this.canvasTop !== canvasTop) {
+      this.canvasElement.style.translate = `${canvasLeft}px ${canvasTop}px`;
+    }
+
+    if (
+      this.canvasElement.width !== canvasAttributeWidth ||
+      this.canvasElement.height !== canvasAttributeHeight ||
+      this.viewportLeft !== viewportLeft ||
+      this.viewportBottom !== viewportBottom ||
+      this.viewportWidth !== baseViewportWidth ||
+      this.viewportHeight !== baseViewportHeight
+    ) {
+      this.canvasElement.style.width = canvasClientWidth + 'px';
+      this.canvasElement.style.height = canvasClientHeight + 'px';
+      this.canvasElement.width = canvasAttributeWidth;
+      this.canvasElement.height = canvasAttributeHeight;
 
       this.resolutionChanged = true;
-      this.gl.viewport(0, 0, this.gl.canvas.width, this.gl.canvas.height);
-      this.render(performance.now()); // this is necessary to avoid flashes while resizing (the next scheduled render will set uniforms)
+      this.gl.viewport(viewportLeft, viewportBottom, viewportWidth, viewportHeight);
+
+      // this is necessary to avoid flashes while resizing (the next scheduled render will set uniforms)
+      this.render(performance.now());
     }
+
+    this.canvasLeft = canvasLeft;
+    this.canvasTop = canvasTop;
+    this.viewportLeft = viewportLeft;
+    this.viewportBottom = viewportBottom;
+    this.viewportWidth = viewportWidth;
+    this.viewportHeight = viewportHeight;
   };
 
   private render = (currentTime: number) => {
@@ -357,6 +458,15 @@ export class ShaderMount {
     this.render(performance.now());
   };
 
+  public setWorldSize = ({ worldFit, worldWidth, worldHeight, worldOriginX, worldOriginY }: ShaderWorld): void => {
+    this.worldFit = worldFit;
+    this.worldWidth = worldWidth;
+    this.worldHeight = worldHeight;
+    this.worldOriginX = worldOriginX;
+    this.worldOriginY = worldOriginY;
+    this.handleResize();
+  };
+
   /** Dispose of the shader mount, cleaning up all of the WebGL resources */
   public dispose = (): void => {
     // Immediately mark as disposed to prevent future renders from leaking in
@@ -395,7 +505,7 @@ export class ShaderMount {
 
     this.uniformLocations = {};
 
-    // Remove the shader mount from the div wrapper element to avoid any GC issues
+    // Remove the shader mount from the parent element to avoid any GC issues
     this.parentElement.paperShaderMount = undefined;
   };
 }
@@ -468,10 +578,19 @@ const defaultStyle = `@layer base {
       contain: strict;
       display: block;
       position: absolute;
-      inset: 0;
       z-index: -1;
-      width: 100%;
-      height: 100%;
+      top: 0;
+      left: 0;
+      /*
+      // left: 50%;
+      // top: 50%;
+      // translate: -50% -50%;
+      */
     }
   }
 }`;
+
+function unreachable(condition: never): never {
+  console.error('Expected an unreachable condition, received:', condition);
+  throw new Error();
+}

@@ -1,5 +1,12 @@
 /** The core Shader Mounting class. Pass it a canvas element and a fragment shader to get started. */
-export { ShaderMount, isPaperShaderElement, type PaperShaderElement, type ShaderMountUniforms } from './shader-mount';
+export {
+  ShaderMount,
+  isPaperShaderElement,
+  type PaperShaderElement,
+  type ShaderMountUniforms,
+  type ShaderMountParams,
+  type ShaderWorld,
+} from './shader-mount';
 
 // ----- Mesh gradient ----- //
 /** A shader that renders a mesh gradient with a rotating noise pattern and several layers of fractal noise */

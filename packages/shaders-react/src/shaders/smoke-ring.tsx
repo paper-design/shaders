@@ -11,7 +11,7 @@ export type SmokeRingParams = {
   thickness?: number;
 } & GlobalParams;
 
-export type SmokeRingProps = Omit<ShaderMountProps, 'fragmentShader'> & SmokeRingParams;
+export type SmokeRingProps = Omit<Partial<ShaderMountProps>, 'fragmentShader'> & SmokeRingParams;
 
 type SmokeRingPreset = { name: string; params: Required<SmokeRingParams> };
 
@@ -117,5 +117,16 @@ export const SmokeRing = ({
     };
   }, [scale, colorBack, colorInner, colorOuter, noiseScale, thickness]);
 
-  return <ShaderMount {...props} fragmentShader={smokeRingFragmentShader} uniforms={uniforms} />;
+  return (
+    <ShaderMount
+      {...props}
+      worldFit="cover"
+      worldWidth={1000}
+      worldHeight={500}
+      worldOriginX={0.5}
+      worldOriginY={0.5}
+      fragmentShader={smokeRingFragmentShader}
+      uniforms={uniforms}
+    />
+  );
 };

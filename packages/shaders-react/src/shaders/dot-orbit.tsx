@@ -13,7 +13,7 @@ export type DotOrbitParams = {
   spreading?: number;
 } & GlobalParams;
 
-export type DotOrbitProps = Omit<ShaderMountProps, 'fragmentShader'> & DotOrbitParams;
+export type DotOrbitProps = Omit<Partial<ShaderMountProps>, 'fragmentShader'> & DotOrbitParams;
 
 type DotOrbitPreset = { name: string; params: Required<DotOrbitParams> };
 
@@ -48,6 +48,9 @@ export const DotOrbit = ({
   dotSize,
   dotSizeRange,
   spreading,
+  worldFit = 'crop',
+  worldWidth = Infinity,
+  worldHeight = Infinity,
   ...props
 }: DotOrbitProps): React.ReactElement => {
   const uniforms: DotOrbitUniforms = useMemo(() => {
@@ -63,5 +66,14 @@ export const DotOrbit = ({
     };
   }, [scale, color1, color2, color3, color4, dotSize, dotSizeRange, spreading]);
 
-  return <ShaderMount {...props} fragmentShader={dotOrbitFragmentShader} uniforms={uniforms} />;
+  return (
+    <ShaderMount
+      {...props}
+      worldFit={worldFit}
+      worldWidth={worldWidth}
+      worldHeight={worldHeight}
+      fragmentShader={dotOrbitFragmentShader}
+      uniforms={uniforms}
+    />
+  );
 };
