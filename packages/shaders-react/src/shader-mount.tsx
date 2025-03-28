@@ -155,26 +155,3 @@ export const ShaderMount: React.FC<ShaderMountProps> = forwardRef<HTMLDivElement
 );
 
 ShaderMount.displayName = 'ShaderMount';
-
-// const reactId = useId();
-// const id = divProps.id ?? reactId;
-// const background = defaultStyle?.background ? `\n    background: ${defaultStyle.background};` : '';
-
-// return (
-//   <>
-//     {
-//       <style
-//         {...(parseFloat(React.version) >= 19 && {
-//           href: `#${id}`,
-//           precedence: 'low',
-//         })}
-//       >{`@layer base {
-// :where(#${id}) {
-// position: relative;
-// isolation: isolate;${background}
-// }
-// }`}</style>
-//     }
-
-//     <div id={id} ref={useMergeRefs([divRef, forwardedRef])} {...divProps} />
-//   </>
