@@ -9,6 +9,7 @@ import {
 } from '@paper-design/shaders';
 
 export type DotGridParams = {
+  colorBack?: string;
   colorFill?: string;
   colorStroke?: string;
   dotSize?: number;
@@ -31,7 +32,7 @@ type DotGridPreset = { name: string; params: Required<DotGridParams> };
 export const defaultPreset: DotGridPreset = {
   name: 'Default',
   params: {
-    // background: 'hsla(0, 0%, 0%, 1)',
+    colorBack: 'hsla(0, 0%, 0%, 1)',
     colorFill: 'hsla(0, 0%, 100%, 1)',
     colorStroke: 'hsla(40, 100%, 50%, 1)',
     dotSize: 2,
@@ -47,7 +48,7 @@ export const defaultPreset: DotGridPreset = {
 export const macrodataPreset: DotGridPreset = {
   name: 'Macrodata',
   params: {
-    // background: 'hsla(211, 37%, 13%, 1)',
+    colorBack: 'hsla(211, 37%, 13%, 1)',
     colorFill: 'hsla(218, 100%, 67%, 1)',
     colorStroke: 'hsla(0, 0%, 0%, 1)',
     dotSize: 3,
@@ -63,7 +64,7 @@ export const macrodataPreset: DotGridPreset = {
 const trianglesPreset: DotGridPreset = {
   name: 'Triangles',
   params: {
-    // background: 'hsla(0, 0%, 100%, 1)',
+    colorBack: 'hsla(0, 0%, 100%, 1)',
     colorFill: 'hsla(0, 0%, 100%, 1)',
     colorStroke: 'hsla(0, 0%, 0%, .5)',
     dotSize: 5,
@@ -79,7 +80,7 @@ const trianglesPreset: DotGridPreset = {
 const bubblesPreset: DotGridPreset = {
   name: 'Bubbles',
   params: {
-    // background: 'hsla(234, 100%, 31%, .5)',
+    colorBack: 'hsla(234, 100%, 31%, .5)',
     colorFill: 'hsla(100, 30%, 100%, 1)',
     colorStroke: 'hsla(0, 100%, 0%, 1)',
     dotSize: 28,
@@ -95,7 +96,7 @@ const bubblesPreset: DotGridPreset = {
 const treeLinePreset: DotGridPreset = {
   name: 'Tree line',
   params: {
-    // background: 'hsla(100, 100%, 36%, .05)',
+    colorBack: 'hsla(100, 100%, 36%, .05)',
     colorFill: 'hsla(150, 80%, 10%, 1)',
     colorStroke: 'hsla(0, 0%, 0%, 1)',
     dotSize: 8,
@@ -111,7 +112,7 @@ const treeLinePreset: DotGridPreset = {
 const diamondsPreset: DotGridPreset = {
   name: 'Diamonds',
   params: {
-    // background: 'hsla(0, 0%, 0%, 0)',
+    colorBack: 'hsla(0, 0%, 0%, 0)',
     colorFill: 'hsla(0, 100%, 50%, 1)',
     colorStroke: 'hsla(0, 0%, 0%, 1)',
     dotSize: 15,
@@ -127,7 +128,7 @@ const diamondsPreset: DotGridPreset = {
 const wallpaperPreset: DotGridPreset = {
   name: 'Wallpaper',
   params: {
-    // background: 'hsla(154, 33%, 19%, 1)',
+    colorBack: 'hsla(154, 33%, 19%, 1)',
     colorFill: 'hsla(0, 0%, 0%, 0)',
     colorStroke: 'hsla(36, 48%, 58%, 1)',
     dotSize: 9,
@@ -143,7 +144,7 @@ const wallpaperPreset: DotGridPreset = {
 const matrixPreset: DotGridPreset = {
   name: 'Enter the Matrix',
   params: {
-    // background: 'hsla(0, 100%, 0%, 1)',
+    colorBack: 'hsla(0, 100%, 0%, 1)',
     colorFill: 'hsla(182, 100%, 64%, 1)',
     colorStroke: 'hsla(0, 100%, 100%, 0)',
     dotSize: 2,
@@ -159,7 +160,7 @@ const matrixPreset: DotGridPreset = {
 const waveformPreset: DotGridPreset = {
   name: 'Waveform',
   params: {
-    // background: 'hsla(0, 100%, 100%, 1)',
+    colorBack: 'hsla(0, 100%, 100%, 1)',
     colorFill: 'hsla(227, 93%, 38%, 1)',
     colorStroke: 'hsla(0, 0%, 0%, 0)',
     dotSize: 100,
@@ -185,6 +186,7 @@ export const dotGridPresets: DotGridPreset[] = [
 ];
 
 export const DotGrid = ({
+  colorBack,
   colorFill,
   colorStroke,
   dotSize,
@@ -198,6 +200,7 @@ export const DotGrid = ({
 }: DotGridProps): React.ReactElement => {
   const uniforms: DotGridUniforms = useMemo(() => {
     return {
+      u_colorBack: getShaderColorFromString(colorBack, defaultPreset.params.colorBack),
       u_colorFill: getShaderColorFromString(colorFill, defaultPreset.params.colorFill),
       u_colorStroke: getShaderColorFromString(colorStroke, defaultPreset.params.colorStroke),
       u_dotSize: dotSize ?? defaultPreset.params.dotSize,
