@@ -67,8 +67,8 @@ export class ShaderMount {
   private worldFit: ShaderFit;
   private worldHeight: number;
   private worldWidth: number;
-  private worldOriginX: number;
-  private worldOriginY: number;
+  private worldOriginX = 0.5;
+  private worldOriginY = 0.5;
   private canvasLeft = 0;
   private canvasTop = 0;
   private viewportLeft = 0;
@@ -458,7 +458,13 @@ export class ShaderMount {
     this.render(performance.now());
   };
 
-  public setWorldSize = ({ worldFit, worldWidth, worldHeight, worldOriginX, worldOriginY }: ShaderWorld): void => {
+  public setWorldSize = ({
+    worldFit,
+    worldWidth,
+    worldHeight,
+    worldOriginX = this.worldOriginX,
+    worldOriginY = this.worldOriginY,
+  }: ShaderWorld): void => {
     this.worldFit = worldFit;
     this.worldWidth = worldWidth;
     this.worldHeight = worldHeight;
