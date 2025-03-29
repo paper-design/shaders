@@ -81,5 +81,11 @@ export { type SpiralProps } from './shaders/spiral';
 export { type SpiralParams } from './shaders/spiral';
 export { type SpiralUniforms } from '@paper-design/shaders';
 
+// Radial swirl gradient
+export { Swirl, swirlPresets } from './shaders/swirl';
+export { type SwirlProps } from './shaders/swirl';
+export { type SwirlParams } from './shaders/swirl';
+export { type SwirlUniforms } from '@paper-design/shaders';
+
 // ----- Uniform conversion utils ----- //
 export { getShaderColorFromString } from '@paper-design/shaders';
