@@ -28,6 +28,8 @@ uniform float u_colors_count;
 
 out vec4 fragColor;
 
+#define TWO_PI 6.28318530718
+#define PI 3.14159265358979323846
 
 vec3 srgbToLinear(vec3 srgb) {
     return pow(srgb, vec3(2.2));
@@ -98,17 +100,30 @@ vec3 getColor(vec3 c) {
   }
 }
 
+float mixHue(float h1, float h2, float mixer) {
+    float delta = mod(h2 - h1 + PI, TWO_PI) - PI;
+    return h1 + mixer * delta;
+}
+
 void main() {
   vec2 uv = gl_FragCoord.xy / u_resolution.xy;
   
-  float t = uv.x * (u_colors_count - 1.);
+  float mixer = uv.x * (u_colors_count - 1.);
   
   vec3 color = vec3(0.);
     vec3 gradient = getColor(u_colors[0].rgb);
     for (int i = 1; i < ${gradientDemoCSSMaxColorCount}; i++) {
       if (i >= int(u_colors_count)) break;
-      float localT = clamp(t - float(i - 1), 0., 1.);
-      gradient = mix(gradient, getColor(u_colors[i].rgb), localT);
+      float localMixer = clamp(mixer - float(i - 1), 0., 1.);
+      
+      vec3 c = getColor(u_colors[i].rgb);
+      if (u_test == 0.) {
+        gradient = mix(gradient, c, localMixer);
+      } else {
+        gradient.x = mix(gradient.x, c.x, localMixer);
+        gradient.y = mix(gradient.y, c.y, localMixer);
+        gradient.z = mixHue(gradient.z, c.z, localMixer);
+      }
     }
     color = setColor(gradient);
 

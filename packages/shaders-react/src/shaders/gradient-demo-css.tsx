@@ -29,6 +29,7 @@ export const defaultPreset: GradientDemoCSSPreset = {
     colors: [
       'hsla(0, 100%, 50%, 1)',
       'hsla(240, 100%, 50%, 1)',
+      'hsla(72, 76%, 20%, 1)',
       'hsla(259, 29%, 73%, 1)',
       'hsla(263, 57%, 39%, 1)',
       'hsla(48, 73%, 84%, 1)',

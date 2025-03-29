@@ -100,41 +100,6 @@ const GradientDemoCSSWithControls = () => {
 
   const colors = Object.values(levaColors) as unknown as string[];
 
-  const getColorMixingFunction = () => {
-    if (params.test == 0) {
-      return (
-        <>
-          &nbsp;
-          <br />
-          mix(
-          <br />
-          &nbsp;&nbsp;&nbsp;&nbsp;color0,
-          <br />
-          &nbsp;&nbsp;&nbsp;&nbsp;color1,
-          <br />
-          &nbsp;&nbsp;&nbsp;&nbsp;coordinate
-          <br />)
-        </>
-      );
-    } else {
-      return (
-        <>
-          linearToSrgb(OklabToLrgb(oklchToOklab(
-          <br />
-          &nbsp;&nbsp;mix(
-          <br />
-          &nbsp;&nbsp;&nbsp;&nbsp;oklabToOklch(LrgbToOklab(srgbToLinear(color0))),
-          <br />
-          &nbsp;&nbsp;&nbsp;&nbsp;oklabToOklch(LrgbToOklab(srgbToLinear(color1))),
-          <br />
-          &nbsp;&nbsp;&nbsp;&nbsp;coordinate
-          <br />
-          )));
-        </>
-      );
-    }
-  };
-
   return (
     <>
       <Link href="/">
@@ -155,7 +120,7 @@ const GradientDemoCSSWithControls = () => {
 
         <div className="relative h-1/3 w-full">
           <div className="top-half absolute left-0 whitespace-pre p-2 font-bold text-white">
-            {getColorMixingFunction()}
+            Shader
           </div>
           <GradientDemoCSS {...params} colors={colors} className="h-full w-full" />
         </div>
