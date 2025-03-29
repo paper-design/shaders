@@ -117,7 +117,7 @@ void main() {
    color = gradient;
   }
   
-  color += 1. / 512. * u_bNoise * (random(.014 * gl_FragCoord.xy) - .5);
+  color += 1. / 256. * u_bNoise * (random(.014 * gl_FragCoord.xy) - .5);
   
   fragColor = vec4(color, 1.);
 }
