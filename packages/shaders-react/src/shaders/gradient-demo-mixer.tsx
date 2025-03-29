@@ -41,7 +41,7 @@ export const bandingPreset: GradientDemoMixerPreset = {
   name: 'banding',
   params: {
     speed: 0.15,
-    shape: .6,
+    shape: 0.6,
     softness: 1,
     bNoise: 0,
     test: 1,
@@ -53,7 +53,15 @@ export const bandingPreset: GradientDemoMixerPreset = {
 
 export const gradientDemoMixerPresets: GradientDemoMixerPreset[] = [defaultPreset, bandingPreset];
 
-function GradientDemoMixerImpl({ shape, bNoise, extraSides, softness, test, colors: colorsProp, ...props }: GradientDemoMixerProps) {
+function GradientDemoMixerImpl({
+  shape,
+  bNoise,
+  extraSides,
+  softness,
+  test,
+  colors: colorsProp,
+  ...props
+}: GradientDemoMixerProps) {
   const uniforms: GradientDemoMixerUniforms = useMemo(() => {
     let colors = colorsProp?.map((color) => getShaderColorFromString(color));
     if (!colors) {

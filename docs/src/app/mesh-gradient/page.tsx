@@ -85,8 +85,8 @@ const MeshGradientWithControls = () => {
       Parameters: folder(
         {
           test: { value: defaults.test, min: 1, max: 3, step: 1, order: 1 },
-          softness: {value: defaults.softness, min: 0, max: 1, order: 2},
-          extraSides: {value: defaults.extraSides, order: 3},
+          softness: { value: defaults.softness, min: 0, max: 1, order: 2 },
+          extraSides: { value: defaults.extraSides, order: 3 },
         },
         { order: 1 }
       ),

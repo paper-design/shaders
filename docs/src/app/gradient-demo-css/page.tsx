@@ -192,8 +192,7 @@ const GradientDemoCSSWithControls = () => {
           &nbsp;&nbsp;&nbsp;&nbsp;srgbToLinear(color1),
           <br />
           &nbsp;&nbsp;&nbsp;&nbsp;coordinate
-          <br />
-          )
+          <br />)
         </>
       );
     } else if (params.test == 6) {
@@ -208,8 +207,7 @@ const GradientDemoCSSWithControls = () => {
           &nbsp;&nbsp;&nbsp;&nbsp;linearToSrgb(color1),
           <br />
           &nbsp;&nbsp;&nbsp;&nbsp;coordinate
-          <br />
-          )
+          <br />)
         </>
       );
     } else if (params.test == 7) {
@@ -231,7 +229,7 @@ const GradientDemoCSSWithControls = () => {
     } else if (params.test == 8) {
       return (
         <>
-            linearToSrgb(oklabToLinear(
+          linearToSrgb(oklabToLinear(
           <br />
           &nbsp;&nbsp;mix(
           <br />
@@ -245,11 +243,7 @@ const GradientDemoCSSWithControls = () => {
         </>
       );
     } else if (params.test == 9) {
-      return (
-        <>
-            https://www.shadertoy.com/view/ttcyRS
-        </>
-      );
+      return <>https://www.shadertoy.com/view/ttcyRS</>;
     } else {
       return <></>;
     }
@@ -274,7 +268,7 @@ const GradientDemoCSSWithControls = () => {
         </div>
 
         <div className="relative h-1/3 w-full">
-          <div className="absolute left-0 top-half whitespace-pre p-2 font-bold text-white">
+          <div className="top-half absolute left-0 whitespace-pre p-2 font-bold text-white">
             {getColorMixingFunction()}
           </div>
           <GradientDemoCSS {...params} colors={colors} className="h-full w-full" />

@@ -4,7 +4,8 @@ import {
   GradientDemoMixer,
   type GradientDemoMixerParams,
   gradientDemoMixerPresets,
-  gradientDemoMixerMaxColorCount, GradientDemoCSS,
+  gradientDemoMixerMaxColorCount,
+  GradientDemoCSS,
 } from '@paper-design/shaders-react';
 import { useControls, button, folder } from 'leva';
 import { setParamsSafe, useResetLevaParams } from '@/helpers/use-reset-leva-params';
@@ -85,10 +86,10 @@ const GradientDemoMixerWithControls = () => {
       Parameters: folder(
         {
           shape: { value: defaults.shape, min: 0, max: 3, order: 0 },
-            extraSides: {value: defaults.extraSides, order: 1},
-            test: { value: defaults.test, min: 0, max: 3, step: 1, order: 2 },
-            softness: {value: defaults.softness, min: 0, max: 1, order: 3},
-            bNoise: {value: defaults.bNoise, min: 0, max: 100, order: 4},
+          extraSides: { value: defaults.extraSides, order: 1 },
+          test: { value: defaults.test, min: 0, max: 3, step: 1, order: 2 },
+          softness: { value: defaults.softness, min: 0, max: 1, order: 3 },
+          bNoise: { value: defaults.bNoise, min: 0, max: 100, order: 4 },
         },
         { order: 1 }
       ),
@@ -106,50 +107,43 @@ const GradientDemoMixerWithControls = () => {
 
   const getBlending = () => {
     if (params.test == 0) {
-      return (
-          <>
-            simple linear interpolation
-          </>
-      );
+      return <>simple linear interpolation</>;
     } else if (params.test == 1) {
       return (
-          <>
-            smoothstep (use softness control)
-            <br/>
-            https://thebookofshaders.com/glossary/?search=smoothstep
-          </>
+        <>
+          smoothstep (use softness control)
+          <br />
+          https://thebookofshaders.com/glossary/?search=smoothstep
+        </>
       );
     } else if (params.test == 2) {
       return (
-          <>
-            custom mixer (use softness control)
-            <br/>
-            1. / (1. + exp(-1. / (pow(u_softness, 4.) + 1e-3) * (LINEAR_MIXER - .5)))
-          </>
+        <>
+          custom mixer (use softness control)
+          <br />
+          1. / (1. + exp(-1. / (pow(u_softness, 4.) + 1e-3) * (LINEAR_MIXER - .5)))
+        </>
       );
     } else if (params.test == 3) {
       return (
-          <>
-            custom mixer (use softness control)
-            <br/>
-            SMOOTH_MIXER = smoothstep(0., 1., LINEAR_MIXER);
-            <br/>
-            RESULT = 1. / (1. + exp(-1. / (pow(u_softness, 4.) + 1e-3) * (SMOOTH_MIXER - .5)))
-          </>
+        <>
+          custom mixer (use softness control)
+          <br />
+          SMOOTH_MIXER = smoothstep(0., 1., LINEAR_MIXER);
+          <br />
+          RESULT = 1. / (1. + exp(-1. / (pow(u_softness, 4.) + 1e-3) * (SMOOTH_MIXER - .5)))
+        </>
       );
     }
   };
-
 
   return (
     <>
       <Link href="/">
         <BackButton />
       </Link>
-      <div className="relative flex size-full flex-col h-screen" style={{ width: 'calc(100% - 300px)' }}>
-        <div className="absolute left-0 top-1/3 whitespace-pre p-2 font-bold text-white">
-          {getBlending()}
-        </div>
+      <div className="relative flex size-full h-screen flex-col" style={{ width: 'calc(100% - 300px)' }}>
+        <div className="absolute left-0 top-1/3 whitespace-pre p-2 font-bold text-white">{getBlending()}</div>
         <GradientDemoMixer {...params} colors={colors} className="h-full" />
       </div>
     </>

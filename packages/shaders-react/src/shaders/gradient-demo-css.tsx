@@ -14,7 +14,7 @@ export type GradientDemoCSSParams = {
 
 export type GradientDemoCSSProps = Omit<ShaderMountProps, 'fragmentShader'> & GradientDemoCSSParams;
 
-type GradientDemoCSSPreset = { name: string; params: Required<GradientDemoCSSParams>;  };
+type GradientDemoCSSPreset = { name: string; params: Required<GradientDemoCSSParams> };
 
 // Due to Leva controls limitation:
 // 1) keep default colors in HSLA format to keep alpha channel
@@ -26,7 +26,14 @@ export const defaultPreset: GradientDemoCSSPreset = {
     speed: 0.15,
     test: 0,
     frame: 0,
-    colors: ['hsla(0, 100%, 50%, 1)', 'hsla(240, 100%, 50%, 1)', 'hsla(259, 29%, 73%, 1)', 'hsla(263, 57%, 39%, 1)', 'hsla(48, 73%, 84%, 1)', 'hsla(295, 32%, 70%, 1)'],
+    colors: [
+      'hsla(0, 100%, 50%, 1)',
+      'hsla(240, 100%, 50%, 1)',
+      'hsla(259, 29%, 73%, 1)',
+      'hsla(263, 57%, 39%, 1)',
+      'hsla(48, 73%, 84%, 1)',
+      'hsla(295, 32%, 70%, 1)',
+    ],
   },
 };
 
@@ -37,7 +44,7 @@ export const beachPreset: GradientDemoCSSPreset = {
     test: 0,
     frame: 0,
     colors: ['#ff0000', '#0000ff'],
-  }
+  },
 };
 
 export const fadedPreset: GradientDemoCSSPreset = {
@@ -47,7 +54,7 @@ export const fadedPreset: GradientDemoCSSPreset = {
     test: 0,
     frame: 0,
     colors: ['hsla(186, 41%, 90%, 1)', 'hsla(208, 71%, 85%, 1)', 'hsla(183, 51%, 92%, 1)', 'hsla(201, 72%, 90%, 1)'],
-  }
+  },
 };
 
 export const gradientDemoCSSPresets: GradientDemoCSSPreset[] = [defaultPreset, beachPreset, fadedPreset];

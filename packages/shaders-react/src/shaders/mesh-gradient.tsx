@@ -46,7 +46,7 @@ function MeshGradientImpl({ test, softness, extraSides, colors: colorsProp, ...p
       u_colors: colors,
       u_colors_count: colors.length,
     };
-  }, [colorsProp, test, softness, extraSides,]);
+  }, [colorsProp, test, softness, extraSides]);
 
   return <ShaderMount {...props} fragmentShader={meshGradientFragmentShader} uniforms={uniforms} />;
 }
