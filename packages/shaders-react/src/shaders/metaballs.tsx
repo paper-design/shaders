@@ -43,8 +43,8 @@ export const Metaballs = ({
   ballSize,
   visibilityRange,
   worldFit = 'cover',
-  worldWidth = 0,
-  worldHeight = 0,
+  worldWidth = 1,
+  worldHeight = 1,
   ...props
 }: MetaballsProps): React.ReactElement => {
   const uniforms: MetaballsUniforms = useMemo(() => {

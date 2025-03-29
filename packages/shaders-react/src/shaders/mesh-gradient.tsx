@@ -61,8 +61,8 @@ export const MeshGradient = ({
   color3,
   color4,
   worldFit = 'cover',
-  worldWidth = 0,
-  worldHeight = 0,
+  worldWidth = 1,
+  worldHeight = 1,
   ...props
 }: MeshGradientProps): React.ReactElement => {
   const uniforms: MeshGradientUniforms = useMemo(() => {

@@ -141,8 +141,8 @@ export const GodRays = ({
   density,
   blending,
   worldFit = 'cover',
-  worldWidth = 0,
-  worldHeight = 0,
+  worldWidth = 1,
+  worldHeight = 1,
   ...props
 }: GodRaysProps): React.ReactElement => {
   const uniforms: GodRaysUniforms = useMemo(() => {

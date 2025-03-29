@@ -104,8 +104,8 @@ export const SteppedSimplexNoise = ({
   color5,
   stepsNumber,
   worldFit = 'cover',
-  worldWidth = 0,
-  worldHeight = 0,
+  worldWidth = 1,
+  worldHeight = 1,
   ...props
 }: SteppedSimplexNoiseProps): React.ReactElement => {
   const uniforms: SteppedSimplexNoiseUniforms = useMemo(() => {

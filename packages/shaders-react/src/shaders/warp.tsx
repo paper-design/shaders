@@ -279,8 +279,8 @@ export const Warp = ({
   shapeScale,
   shape,
   worldFit = 'cover',
-  worldWidth = 0,
-  worldHeight = 0,
+  worldWidth = 1,
+  worldHeight = 1,
   ...props
 }: WarpProps): React.ReactElement => {
   const uniforms: WarpUniforms = useMemo(() => {
