@@ -66,35 +66,38 @@ vec3 oklabToLinear(vec3 oklab)
     return m2 * (lms * lms * lms);
 }
 
-//
-//vec3 rgb_to_oklab(vec3 rgb) {
-//    // Linear RGB to LMS
-//    float L = pow(0.41222147079999993 * rgb.r + 0.5363325363 * rgb.g + 0.0514459929 * rgb.b, 3.0);
-//    float M = pow(0.2119034981999999 * rgb.r + 0.6806995450999999 * rgb.g + 0.1073969566 * rgb.b, 3.0);
-//    float S = pow(0.08830246189999998 * rgb.r + 0.2817188376 * rgb.g + 0.6299787005000002 * rgb.b, 3.0);
-//    
-//    // LMS to Oklab
-//    return vec3(
-//        0.2104542553 * L + 0.793617785 * M - 0.0040720468 * S,
-//        1.9779984951 * L - 2.428592205 * M + 0.4505937099 * S,
-//        0.0259040371 * L + 0.7827717662 * M - 0.808675766 * S
-//    );
-//}
-//
-//// Backward transformation: Oklab to Linear RGB
-//vec3 oklab_to_rgb(vec3 oklab) {
-//    // Oklab to LMS
-//    float L = 0.9999999984505196 * oklab.x + 0.39633779217376785 * oklab.y + 0.2158037580939128 * oklab.z;
-//    float M = 1.0000000088817453 * oklab.x - 0.1055613423236586 * oklab.y - 0.0638541747717059 * oklab.z;
-//    float S = 1.0000000546819966 * oklab.x - 0.08948418209496574 * oklab.y - 1.2914804721037398 * oklab.z;
-//    
-//    // LMS to Linear RGB
-//    return vec3(
-//        +4.0767416621 * L - 3.3077115913 * M + 0.2309699292 * S,
-//        -1.2684380046 * L + 2.6097574011 * M - 0.3413193965 * S,
-//        -0.0041960863 * L - 0.7034186147 * M + 1.7076147010 * S
-//    );
-//}
+
+// from https://github.com/Evercoder/culori/blob/main/src/oklab/convertLrgbToOklab.js
+vec3 convertLrgbToOklab(vec3 rgb) {
+    float L = pow(0.4122214708 * rgb.r + 0.5363325363 * rgb.g + 0.0514459929 * rgb.b, 1.0 / 3.0);
+    float M = pow(0.2119034982 * rgb.r + 0.6806995451 * rgb.g + 0.1073969566 * rgb.b, 1.0 / 3.0);
+    float S = pow(0.0883024619 * rgb.r + 0.2817188376 * rgb.g + 0.6299787005 * rgb.b, 1.0 / 3.0);
+
+    return vec3(
+        0.2104542553 * L + 0.793617785 * M - 0.0040720468 * S,  // l
+        1.9779984951 * L - 2.428592205 * M + 0.4505937099 * S,  // a
+        0.0259040371 * L + 0.7827717662 * M - 0.808675766 * S   // b
+    );
+}
+vec3 convertOklabToLrgb(vec3 oklab) {
+    float L = oklab.x;
+    float a = oklab.y;
+    float b = oklab.z;
+
+    float l_ = L + 0.3963377774 * a + 0.2158037573 * b;
+    float m_ = L - 0.1055613458 * a - 0.0638541728 * b;
+    float s_ = L - 0.0894841775 * a - 1.291485548 * b;
+
+    float l = l_ * l_ * l_;
+    float m = m_ * m_ * m_;
+    float s = s_ * s_ * s_;
+
+    return vec3(
+        4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s,  // r
+        -1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s, // g
+        -0.0041960863 * l - 0.7034186147 * m + 1.707614701 * s   // b
+    );
+}
 
 
 
@@ -118,6 +121,10 @@ vec3 setColor(vec3 c) {
     return oklabToLinear(c);  
   } else if (u_test == 8.) {
     return linearToSrgb(oklabToLinear(c));  
+  } else if (u_test == 9.) {
+    return oklabToLinear(c);  
+  } else if (u_test == 10.) {
+    return convertOklabToLrgb(c);  
   } else {
     return c;  
   }
@@ -140,9 +147,13 @@ vec3 getColor(vec3 c) {
   } else if (u_test == 6.) {
     return linearToSrgb(c);  
   } else if (u_test == 7.) {
-    return linearToOklab(c);  
-  } else if (u_test == 8.) {
-    return linearToOklab(srgbToLinear(c));  
+    return linearToOklab(c);
+   } else if (u_test == 8.) {
+     return linearToOklab(srgbToLinear(c));  
+   } else if (u_test == 9.) {
+     return linearToOklab(c);  
+  } else if (u_test == 10.) {
+    return convertLrgbToOklab(c);  
   } else {
     return c;  
   }
@@ -178,7 +189,7 @@ void main() {
   float t = uv.x * (u_colors_count - 1.);
   
   vec3 color = vec3(0.);
-  if (u_test < 9.) {
+  if (u_test < 11.) {
     vec3 gradient = getColor(u_colors[0].rgb);
     for (int i = 1; i < ${gradientDemoCSSMaxColorCount}; i++) {
       if (i >= int(u_colors_count)) break;

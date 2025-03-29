@@ -84,7 +84,7 @@ const GradientDemoCSSWithControls = () => {
     return {
       Parameters: folder(
         {
-          test: { value: defaults.test, min: 0, max: 9, step: 1, order: 400 },
+          test: { value: defaults.test, min: 0, max: 11, step: 1, order: 400 },
         },
         { order: 1 }
       ),
@@ -243,6 +243,24 @@ const GradientDemoCSSWithControls = () => {
         </>
       );
     } else if (params.test == 9) {
+      return (
+        <>
+          oklabToLinear(
+          <br />
+          &nbsp;&nbsp;mix(
+          <br />
+          &nbsp;&nbsp;&nbsp;&nbsp;linearToOklab(color0),
+          <br />
+          &nbsp;&nbsp;&nbsp;&nbsp;linearToOklab(color1),
+          <br />
+          &nbsp;&nbsp;&nbsp;&nbsp;coordinate
+          <br />
+          ))
+        </>
+      );
+    } else if (params.test == 10) {
+      return <>https://github.com/Evercoder/culori/blob/main/src/oklab/convertLrgbToOklab.js</>;
+    } else if (params.test == 11) {
       return <>https://www.shadertoy.com/view/ttcyRS</>;
     } else {
       return <></>;
