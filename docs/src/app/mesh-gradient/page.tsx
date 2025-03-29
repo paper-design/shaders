@@ -37,7 +37,7 @@ const MeshGradientWithControls = () => {
     Colors: folder({
       colorCount: {
         value: defaults.colors.length,
-        min: 1,
+        min: 2,
         max: meshGradientMaxColorCount,
         step: 1,
       },
@@ -49,7 +49,7 @@ const MeshGradientWithControls = () => {
 
     for (let i = 0; i < colorCount; i++) {
       colors[`color${i}`] = {
-        value: defaults.colors[i] ?? 'hsla(' + Math.random() * 360 + ', 50%, 50%, 1)',
+        value: defaults.colors[i] ?? 'hsla(' + Math.random() * 360 + ', ' + Math.random() * 100 + '%, 50%, 1)',
       };
     }
 
@@ -84,8 +84,9 @@ const MeshGradientWithControls = () => {
     return {
       Parameters: folder(
         {
-          speed: { value: defaults.speed, min: 0, max: 1, order: 400 },
-          test: { value: defaults.test, min: 0, max: 1, order: 400 },
+          test: { value: defaults.test, min: 1, max: 3, step: 1, order: 1 },
+          softness: {value: defaults.softness, min: 0, max: 1, order: 2},
+          extraSides: {value: defaults.extraSides, order: 3},
         },
         { order: 1 }
       ),
@@ -107,8 +108,7 @@ const MeshGradientWithControls = () => {
         <BackButton />
       </Link>
       <div className="fixed flex size-full flex-col">
-        <MeshGradient {...params} colors={colors} className="h-4/5" />
-        <div className="h-1/5" style={{ background: 'linear-gradient(to right in oklch, #f00, #00f' }} />
+        <MeshGradient {...params} colors={colors} className="h-full" />
       </div>
     </>
   );

@@ -17,7 +17,6 @@ export {
   type GradientDemoMixerUniforms,
 } from './shaders/gradient-demo-mixer';
 
-
 // ----- Mesh gradient ----- //
 /** A shader that renders a mesh gradient with a rotating noise pattern and several layers of fractal noise */
 export {

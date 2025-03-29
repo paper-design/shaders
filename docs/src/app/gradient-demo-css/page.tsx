@@ -84,7 +84,7 @@ const GradientDemoCSSWithControls = () => {
     return {
       Parameters: folder(
         {
-          test: { value: defaults.test, min: 0, max: 3, order: 400 },
+          test: { value: defaults.test, min: 0, max: 9, step: 1, order: 400 },
         },
         { order: 1 }
       ),
@@ -100,25 +100,195 @@ const GradientDemoCSSWithControls = () => {
 
   const colors = Object.values(levaColors) as unknown as string[];
 
+  const getColorMixingFunction = () => {
+    if (params.test == 0) {
+      return (
+        <>
+          &nbsp;
+          <br />
+          mix(
+          <br />
+          &nbsp;&nbsp;&nbsp;&nbsp;color0,
+          <br />
+          &nbsp;&nbsp;&nbsp;&nbsp;color1,
+          <br />
+          &nbsp;&nbsp;&nbsp;&nbsp;coordinate
+          <br />)
+        </>
+      );
+    } else if (params.test == 1) {
+      return (
+        <>
+          linearToSrgb(
+          <br />
+          &nbsp;&nbsp;mix(
+          <br />
+          &nbsp;&nbsp;&nbsp;&nbsp;srgbToLinear(color0),
+          <br />
+          &nbsp;&nbsp;&nbsp;&nbsp;srgbToLinear(color1),
+          <br />
+          &nbsp;&nbsp;&nbsp;&nbsp;coordinate
+          <br />
+          ))
+        </>
+      );
+    } else if (params.test == 2) {
+      return (
+        <>
+          srgbToLinear(
+          <br />
+          &nbsp;&nbsp;mix(
+          <br />
+          &nbsp;&nbsp;&nbsp;&nbsp;linearToSrgb(color0),
+          <br />
+          &nbsp;&nbsp;&nbsp;&nbsp;linearToSrgb(color1),
+          <br />
+          &nbsp;&nbsp;&nbsp;&nbsp;coordinate
+          <br />
+          ))
+        </>
+      );
+    } else if (params.test == 3) {
+      return (
+        <>
+          linearToSrgb(
+          <br />
+          &nbsp;&nbsp;mix(
+          <br />
+          &nbsp;&nbsp;&nbsp;&nbsp;color0,
+          <br />
+          &nbsp;&nbsp;&nbsp;&nbsp;color1,
+          <br />
+          &nbsp;&nbsp;&nbsp;&nbsp;coordinate
+          <br />
+          ))
+        </>
+      );
+    } else if (params.test == 4) {
+      return (
+        <>
+          srgbToLinear(
+          <br />
+          &nbsp;&nbsp;mix(
+          <br />
+          &nbsp;&nbsp;&nbsp;&nbsp;color0,
+          <br />
+          &nbsp;&nbsp;&nbsp;&nbsp;color1,
+          <br />
+          &nbsp;&nbsp;&nbsp;&nbsp;coordinate
+          <br />
+          ))
+        </>
+      );
+    } else if (params.test == 5) {
+      return (
+        <>
+          &nbsp;
+          <br />
+          mix(
+          <br />
+          &nbsp;&nbsp;&nbsp;&nbsp;srgbToLinear(color0),
+          <br />
+          &nbsp;&nbsp;&nbsp;&nbsp;srgbToLinear(color1),
+          <br />
+          &nbsp;&nbsp;&nbsp;&nbsp;coordinate
+          <br />
+          )
+        </>
+      );
+    } else if (params.test == 6) {
+      return (
+        <>
+          &nbsp;
+          <br />
+          mix(
+          <br />
+          &nbsp;&nbsp;&nbsp;&nbsp;linearToSrgb(color0),
+          <br />
+          &nbsp;&nbsp;&nbsp;&nbsp;linearToSrgb(color1),
+          <br />
+          &nbsp;&nbsp;&nbsp;&nbsp;coordinate
+          <br />
+          )
+        </>
+      );
+    } else if (params.test == 7) {
+      return (
+        <>
+          oklabToLinear(
+          <br />
+          &nbsp;&nbsp;mix(
+          <br />
+          &nbsp;&nbsp;&nbsp;&nbsp;linearToOklab(color0),
+          <br />
+          &nbsp;&nbsp;&nbsp;&nbsp;linearToOklab(color1),
+          <br />
+          &nbsp;&nbsp;&nbsp;&nbsp;coordinate
+          <br />
+          ))
+        </>
+      );
+    } else if (params.test == 8) {
+      return (
+        <>
+            linearToSrgb(oklabToLinear(
+          <br />
+          &nbsp;&nbsp;mix(
+          <br />
+          &nbsp;&nbsp;&nbsp;&nbsp;linearToOklab(srgbToLinear(color0)),
+          <br />
+          &nbsp;&nbsp;&nbsp;&nbsp;linearToOklab(srgbToLinear(color1)),
+          <br />
+          &nbsp;&nbsp;&nbsp;&nbsp;coordinate
+          <br />
+          ))
+        </>
+      );
+    } else if (params.test == 9) {
+      return (
+        <>
+            https://www.shadertoy.com/view/ttcyRS
+        </>
+      );
+    } else {
+      return <></>;
+    }
+  };
+
   return (
     <>
       <Link href="/">
         <BackButton />
       </Link>
-      <div className="fixed flex size-full flex-col" style={{width: 'calc(100% - 400px)'}}>
-        <GradientDemoCSS {...params} colors={colors} className="h-3/5" />
-        <div
-            className="h-1/5"
+      <div className="fixed flex size-full flex-col" style={{ width: 'calc(100% - 300px)' }}>
+        <div className="relative h-1/3">
+          <span className="absolute left-0 top-0 p-2 font-bold text-white">
+            {`CSS: linear-gradient(to right in oklch, ${colors.join(', ')})`}
+          </span>
+          <div
+            className="h-full"
             style={{
-              background: `linear-gradient(to right in oklch, ${colors.join(", ")})`,
+              background: `linear-gradient(to right in oklch, ${colors.join(', ')})`,
             }}
-        />
-        <div
-            className="h-1/5"
+          />
+        </div>
+
+        <div className="relative h-1/3 w-full">
+          <div className="absolute left-0 top-half whitespace-pre p-2 font-bold text-white">
+            {getColorMixingFunction()}
+          </div>
+          <GradientDemoCSS {...params} colors={colors} className="h-full w-full" />
+        </div>
+
+        <div className="relative h-1/3">
+          <span className="absolute left-0 top-0 p-2 font-bold text-white">{`CSS: linear-gradient(to right, ${colors.join(', ')})`}</span>
+          <div
+            className="h-full"
             style={{
-              background: `linear-gradient(to right, ${colors.join(", ")})`,
+              background: `linear-gradient(to right, ${colors.join(', ')})`,
             }}
-        />
+          />
+        </div>
       </div>
     </>
   );
