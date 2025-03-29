@@ -18,7 +18,7 @@ export type SpiralParams = {
   softness?: number;
 } & GlobalParams;
 
-export type SpiralProps = Omit<ShaderMountProps, 'fragmentShader'> & SpiralParams;
+export type SpiralProps = Omit<Partial<ShaderMountProps>, 'fragmentShader'> & SpiralParams;
 
 type SpiralPreset = { name: string; params: Required<SpiralParams> };
 
@@ -197,6 +197,9 @@ export const Spiral = ({
   noiseFreq,
   noisePower,
   softness,
+  worldFit = 'crop',
+  worldWidth = Infinity,
+  worldHeight = Infinity,
   ...props
 }: SpiralProps): React.ReactElement => {
   const uniforms: SpiralUniforms = useMemo(() => {
@@ -231,5 +234,14 @@ export const Spiral = ({
     softness,
   ]);
 
-  return <ShaderMount {...props} fragmentShader={spiralFragmentShader} uniforms={uniforms} />;
+  return (
+    <ShaderMount
+      {...props}
+      worldFit={worldFit}
+      worldWidth={worldWidth}
+      worldHeight={worldHeight}
+      fragmentShader={spiralFragmentShader}
+      uniforms={uniforms}
+    />
+  );
 };

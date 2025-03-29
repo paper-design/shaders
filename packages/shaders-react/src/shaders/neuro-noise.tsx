@@ -9,7 +9,7 @@ export type NeuroNoiseParams = {
   brightness?: number;
 } & GlobalParams;
 
-export type NeuroNoiseProps = Omit<ShaderMountProps, 'fragmentShader'> & NeuroNoiseParams;
+export type NeuroNoiseProps = Omit<Partial<ShaderMountProps>, 'fragmentShader'> & NeuroNoiseParams;
 
 type NeuroNoisePreset = { name: string; params: Required<NeuroNoiseParams> };
 
@@ -48,6 +48,9 @@ export const NeuroNoise = ({
   colorFront,
   colorBack,
   brightness,
+  worldFit = 'crop',
+  worldWidth = Infinity,
+  worldHeight = Infinity,
   ...props
 }: NeuroNoiseProps): React.ReactElement => {
   const uniforms: NeuroNoiseUniforms = useMemo(() => {
@@ -59,5 +62,14 @@ export const NeuroNoise = ({
     };
   }, [scale, colorFront, colorBack, brightness]);
 
-  return <ShaderMount {...props} fragmentShader={neuroNoiseFragmentShader} uniforms={uniforms} />;
+  return (
+    <ShaderMount
+      {...props}
+      worldFit={worldFit}
+      worldWidth={worldWidth}
+      worldHeight={worldHeight}
+      fragmentShader={neuroNoiseFragmentShader}
+      uniforms={uniforms}
+    />
+  );
 };

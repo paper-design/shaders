@@ -13,7 +13,7 @@ export type PerlinNoiseParams = {
   lacunarity?: number;
 } & GlobalParams;
 
-export type PerlinNoiseProps = Omit<ShaderMountProps, 'fragmentShader'> & PerlinNoiseParams;
+export type PerlinNoiseProps = Omit<Partial<ShaderMountProps>, 'fragmentShader'> & PerlinNoiseParams;
 
 type PerlinNoisePreset = { name: string; params: Required<PerlinNoiseParams> };
 
@@ -135,6 +135,9 @@ export const PerlinNoise = ({
   octaveCount,
   persistence,
   lacunarity,
+  worldFit = 'crop',
+  worldWidth = Infinity,
+  worldHeight = Infinity,
   ...props
 }: PerlinNoiseProps): React.ReactElement => {
   const uniforms: PerlinNoiseUniforms = useMemo(() => {
@@ -150,5 +153,14 @@ export const PerlinNoise = ({
     };
   }, [scale, color1, color2, proportion, softness, octaveCount, persistence, lacunarity]);
 
-  return <ShaderMount {...props} fragmentShader={perlinNoiseFragmentShader} uniforms={uniforms} />;
+  return (
+    <ShaderMount
+      {...props}
+      worldFit={worldFit}
+      worldWidth={worldWidth}
+      worldHeight={worldHeight}
+      fragmentShader={perlinNoiseFragmentShader}
+      uniforms={uniforms}
+    />
+  );
 };

@@ -17,7 +17,7 @@ export type VoronoiParams = {
   middleSoftness?: number;
 } & GlobalParams;
 
-export type VoronoiProps = Omit<ShaderMountProps, 'fragmentShader'> & VoronoiParams;
+export type VoronoiProps = Omit<Partial<ShaderMountProps>, 'fragmentShader'> & VoronoiParams;
 
 type VoronoiPreset = { name: string; params: Required<VoronoiParams> };
 
@@ -209,6 +209,9 @@ export const Voronoi = ({
   edgesSoftness,
   middleSize,
   middleSoftness,
+  worldFit = 'crop',
+  worldWidth = Infinity,
+  worldHeight = Infinity,
   ...props
 }: VoronoiProps): React.ReactElement => {
   const uniforms: VoronoiUniforms = useMemo(() => {
@@ -241,5 +244,14 @@ export const Voronoi = ({
     middleSoftness,
   ]);
 
-  return <ShaderMount {...props} fragmentShader={voronoiFragmentShader} uniforms={uniforms} />;
+  return (
+    <ShaderMount
+      {...props}
+      worldFit={worldFit}
+      worldWidth={worldWidth}
+      worldHeight={worldHeight}
+      fragmentShader={voronoiFragmentShader}
+      uniforms={uniforms}
+    />
+  );
 };

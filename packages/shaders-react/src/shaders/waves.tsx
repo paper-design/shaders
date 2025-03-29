@@ -15,7 +15,7 @@ export type WavesParams = {
   softness?: number;
 };
 
-export type WavesProps = Omit<ShaderMountProps, 'fragmentShader'> & WavesParams;
+export type WavesProps = Omit<Partial<ShaderMountProps>, 'fragmentShader'> & WavesParams;
 
 type WavesPreset = { name: string; params: Required<WavesParams> };
 
@@ -139,6 +139,9 @@ export const Waves = ({
   spacing,
   dutyCycle,
   softness,
+  worldFit = 'crop',
+  worldWidth = Infinity,
+  worldHeight = Infinity,
   ...props
 }: WavesProps): React.ReactElement => {
   const uniforms: WavesUniforms = useMemo(() => {
@@ -156,5 +159,14 @@ export const Waves = ({
     };
   }, [scale, rotation, color1, color2, shape, frequency, amplitude, spacing, dutyCycle, softness]);
 
-  return <ShaderMount {...props} fragmentShader={wavesFragmentShader} uniforms={uniforms} />;
+  return (
+    <ShaderMount
+      {...props}
+      worldFit={worldFit}
+      worldWidth={worldWidth}
+      worldHeight={worldHeight}
+      fragmentShader={wavesFragmentShader}
+      uniforms={uniforms}
+    />
+  );
 };

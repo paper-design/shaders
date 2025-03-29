@@ -25,7 +25,7 @@ export type DotGridParams = {
 // 1) keep default colors in HSLA format to keep alpha channel
 // 2) don't use decimal values on HSL values (to avoid button highlight bug)
 
-export type DotGridProps = Omit<ShaderMountProps, 'fragmentShader'> & DotGridParams;
+export type DotGridProps = Omit<Partial<ShaderMountProps>, 'fragmentShader'> & DotGridParams;
 
 type DotGridPreset = { name: string; params: Required<DotGridParams> };
 
@@ -196,6 +196,9 @@ export const DotGrid = ({
   sizeRange,
   opacityRange,
   shape,
+  worldFit = 'crop',
+  worldWidth = Infinity,
+  worldHeight = Infinity,
   ...props
 }: DotGridProps): React.ReactElement => {
   const uniforms: DotGridUniforms = useMemo(() => {
@@ -224,5 +227,14 @@ export const DotGrid = ({
     shape,
   ]);
 
-  return <ShaderMount {...props} fragmentShader={dotGridFragmentShader} uniforms={uniforms} />;
+  return (
+    <ShaderMount
+      {...props}
+      worldFit={worldFit}
+      worldWidth={worldWidth}
+      worldHeight={worldHeight}
+      fragmentShader={dotGridFragmentShader}
+      uniforms={uniforms}
+    />
+  );
 };
