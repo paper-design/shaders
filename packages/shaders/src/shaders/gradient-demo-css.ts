@@ -37,38 +37,8 @@ vec3 linearToSrgb(vec3 linear) {
     return pow(linear, vec3(1.0/2.2));
 }
 
-vec3 linearToOklab(vec3 linear)
-{
-    const mat3 im1 = mat3(0.4121656120, 0.2118591070, 0.0883097947,
-                          0.5362752080, 0.6807189584, 0.2818474174,
-                          0.0514575653, 0.1074065790, 0.6302613616);
-                       
-    const mat3 im2 = mat3(+0.2104542553, +1.9779984951, +0.0259040371,
-                          +0.7936177850, -2.4285922050, +0.7827717662,
-                          -0.0040720468, +0.4505937099, -0.8086757660);
-                       
-    vec3 lms = im1 * linear;
-            
-    return im2 * (sign(lms) * pow(abs(lms), vec3(1.0/3.0)));
-}
-
-vec3 oklabToLinear(vec3 oklab)
-{
-    const mat3 m1 = mat3(+1.000000000, +1.000000000, +1.000000000,
-                         +0.396337777, -0.105561346, -0.089484178,
-                         +0.215803757, -0.063854173, -1.291485548);
-                       
-    const mat3 m2 = mat3(+4.076724529, -1.268143773, -0.004111989,
-                         -3.307216883, +2.609332323, -0.703476310,
-                         +0.230759054, -0.341134429, +1.706862569);
-    vec3 lms = m1 * oklab;
-    
-    return m2 * (lms * lms * lms);
-}
-
-
-// from https://github.com/Evercoder/culori/blob/main/src/oklab/convertLrgbToOklab.js
-vec3 convertLrgbToOklab(vec3 rgb) {
+// from https://github.com/Evercoder/culori/blob/main/src/oklab/LrgbToOklab.js
+vec3 LrgbToOklab(vec3 rgb) {
     float L = pow(0.4122214708 * rgb.r + 0.5363325363 * rgb.g + 0.0514459929 * rgb.b, 1.0 / 3.0);
     float M = pow(0.2119034982 * rgb.r + 0.6806995451 * rgb.g + 0.1073969566 * rgb.b, 1.0 / 3.0);
     float S = pow(0.0883024619 * rgb.r + 0.2817188376 * rgb.g + 0.6299787005 * rgb.b, 1.0 / 3.0);
@@ -79,7 +49,7 @@ vec3 convertLrgbToOklab(vec3 rgb) {
         0.0259040371 * L + 0.7827717662 * M - 0.808675766 * S   // b
     );
 }
-vec3 convertOklabToLrgb(vec3 oklab) {
+vec3 OklabToLrgb(vec3 oklab) {
     float L = oklab.x;
     float a = oklab.y;
     float b = oklab.z;
@@ -100,87 +70,32 @@ vec3 convertOklabToLrgb(vec3 oklab) {
 }
 
 
+vec3 oklabToOklch(vec3 oklab) {
+    float C = length(oklab.yz);
+    float H = atan(oklab.z, oklab.y);
+    return vec3(oklab.x, C, H);
+}
 
+vec3 oklchToOklab(vec3 oklch) {
+    float a = oklch.y * cos(oklch.z);
+    float b = oklch.y * sin(oklch.z);
+    return vec3(oklch.x, a, b);
+}
 
 vec3 setColor(vec3 c) {
   if (u_test == 0.) {
-    return c;  
-  } else if (u_test == 1.) {
-    return linearToSrgb(c);  
-  } else if (u_test == 2.) {
-    return srgbToLinear(c);  
-  } else if (u_test == 3.) {
-    return linearToSrgb(c);  
-  } else if (u_test == 4.) {
-    return srgbToLinear(c);  
-  } else if (u_test == 5.) {
-    return c;  
-  } else if (u_test == 6.) {
-    return c;  
-  } else if (u_test == 7.) {
-    return oklabToLinear(c);  
-  } else if (u_test == 8.) {
-    return linearToSrgb(oklabToLinear(c));  
-  } else if (u_test == 9.) {
-    return oklabToLinear(c);  
-  } else if (u_test == 10.) {
-    return convertOklabToLrgb(c);  
+    return c;
   } else {
-    return c;  
+    return linearToSrgb(OklabToLrgb(oklchToOklab(c)));  
   }
 }
-
 
 vec3 getColor(vec3 c) {
   if (u_test == 0.) {
     return c;  
-  } else if (u_test == 1.) {
-    return srgbToLinear(c);  
-  } else if (u_test == 2.) {
-    return linearToSrgb(c);  
-  } else if (u_test == 3.) {
-    return (c);  
-  } else if (u_test == 4.) {
-    return (c);  
-  } else if (u_test == 5.) {
-    return srgbToLinear(c);  
-  } else if (u_test == 6.) {
-    return linearToSrgb(c);  
-  } else if (u_test == 7.) {
-    return linearToOklab(c);
-   } else if (u_test == 8.) {
-     return linearToOklab(srgbToLinear(c));  
-   } else if (u_test == 9.) {
-     return linearToOklab(c);  
-  } else if (u_test == 10.) {
-    return convertLrgbToOklab(c);  
   } else {
-    return c;  
+    return oklabToOklch(LrgbToOklab(srgbToLinear(c)));  
   }
-}
-
-
-vec3 oklab_mix(vec3 lin1, vec3 lin2, float a)
-{
-    // https://bottosson.github.io/posts/oklab
-    const mat3 kCONEtoLMS = mat3(                
-         0.4121656120,  0.2118591070,  0.0883097947,
-         0.5362752080,  0.6807189584,  0.2818474174,
-         0.0514575653,  0.1074065790,  0.6302613616);
-    const mat3 kLMStoCONE = mat3(
-         4.0767245293, -1.2681437731, -0.0041119885,
-        -3.3072168827,  2.6093323231, -0.7034763098,
-         0.2307590544, -0.3411344290,  1.7068625689);
-                    
-    // rgb to cone (arg of pow can't be negative)
-    vec3 lms1 = pow( kCONEtoLMS*lin1, vec3(1.0/3.0) );
-    vec3 lms2 = pow( kCONEtoLMS*lin2, vec3(1.0/3.0) );
-    // lerp
-    vec3 lms = mix( lms1, lms2, a );
-    // gain in the middle (no oklab anymore, but looks better?)
-    lms *= 1.0+0.2*a*(1.0-a);
-    // cone to rgb
-    return kLMStoCONE*(lms*lms*lms);
 }
 
 void main() {
@@ -189,7 +104,6 @@ void main() {
   float t = uv.x * (u_colors_count - 1.);
   
   vec3 color = vec3(0.);
-  if (u_test < 11.) {
     vec3 gradient = getColor(u_colors[0].rgb);
     for (int i = 1; i < ${gradientDemoCSSMaxColorCount}; i++) {
       if (i >= int(u_colors_count)) break;
@@ -197,15 +111,7 @@ void main() {
       gradient = mix(gradient, getColor(u_colors[i].rgb), localT);
     }
     color = setColor(gradient);
-  } else {
-    vec3 gradient = pow(u_colors[0].rgb, vec3(2.2));
-    for (int i = 1; i < ${gradientDemoCSSMaxColorCount}; i++) {
-      if (i >= int(u_colors_count)) break;
-      float localT = clamp(t - float(i - 1), 0., 1.);
-      gradient = oklab_mix(gradient, pow(u_colors[i].rgb, vec3(2.2)), localT);
-    }
-    color = pow(gradient, vec3(1. / 2.2));
-  }
+
   
   fragColor = vec4(color, 1.);
 }

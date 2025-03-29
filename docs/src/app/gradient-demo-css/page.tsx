@@ -84,7 +84,7 @@ const GradientDemoCSSWithControls = () => {
     return {
       Parameters: folder(
         {
-          test: { value: defaults.test, min: 0, max: 11, step: 1, order: 400 },
+          test: { value: defaults.test, min: 0, max: 1, step: 1, order: 400 },
         },
         { order: 1 }
       ),
@@ -116,154 +116,22 @@ const GradientDemoCSSWithControls = () => {
           <br />)
         </>
       );
-    } else if (params.test == 1) {
-      return (
-        <>
-          linearToSrgb(
-          <br />
-          &nbsp;&nbsp;mix(
-          <br />
-          &nbsp;&nbsp;&nbsp;&nbsp;srgbToLinear(color0),
-          <br />
-          &nbsp;&nbsp;&nbsp;&nbsp;srgbToLinear(color1),
-          <br />
-          &nbsp;&nbsp;&nbsp;&nbsp;coordinate
-          <br />
-          ))
-        </>
-      );
-    } else if (params.test == 2) {
-      return (
-        <>
-          srgbToLinear(
-          <br />
-          &nbsp;&nbsp;mix(
-          <br />
-          &nbsp;&nbsp;&nbsp;&nbsp;linearToSrgb(color0),
-          <br />
-          &nbsp;&nbsp;&nbsp;&nbsp;linearToSrgb(color1),
-          <br />
-          &nbsp;&nbsp;&nbsp;&nbsp;coordinate
-          <br />
-          ))
-        </>
-      );
-    } else if (params.test == 3) {
-      return (
-        <>
-          linearToSrgb(
-          <br />
-          &nbsp;&nbsp;mix(
-          <br />
-          &nbsp;&nbsp;&nbsp;&nbsp;color0,
-          <br />
-          &nbsp;&nbsp;&nbsp;&nbsp;color1,
-          <br />
-          &nbsp;&nbsp;&nbsp;&nbsp;coordinate
-          <br />
-          ))
-        </>
-      );
-    } else if (params.test == 4) {
-      return (
-        <>
-          srgbToLinear(
-          <br />
-          &nbsp;&nbsp;mix(
-          <br />
-          &nbsp;&nbsp;&nbsp;&nbsp;color0,
-          <br />
-          &nbsp;&nbsp;&nbsp;&nbsp;color1,
-          <br />
-          &nbsp;&nbsp;&nbsp;&nbsp;coordinate
-          <br />
-          ))
-        </>
-      );
-    } else if (params.test == 5) {
-      return (
-        <>
-          &nbsp;
-          <br />
-          mix(
-          <br />
-          &nbsp;&nbsp;&nbsp;&nbsp;srgbToLinear(color0),
-          <br />
-          &nbsp;&nbsp;&nbsp;&nbsp;srgbToLinear(color1),
-          <br />
-          &nbsp;&nbsp;&nbsp;&nbsp;coordinate
-          <br />)
-        </>
-      );
-    } else if (params.test == 6) {
-      return (
-        <>
-          &nbsp;
-          <br />
-          mix(
-          <br />
-          &nbsp;&nbsp;&nbsp;&nbsp;linearToSrgb(color0),
-          <br />
-          &nbsp;&nbsp;&nbsp;&nbsp;linearToSrgb(color1),
-          <br />
-          &nbsp;&nbsp;&nbsp;&nbsp;coordinate
-          <br />)
-        </>
-      );
-    } else if (params.test == 7) {
-      return (
-        <>
-          oklabToLinear(
-          <br />
-          &nbsp;&nbsp;mix(
-          <br />
-          &nbsp;&nbsp;&nbsp;&nbsp;linearToOklab(color0),
-          <br />
-          &nbsp;&nbsp;&nbsp;&nbsp;linearToOklab(color1),
-          <br />
-          &nbsp;&nbsp;&nbsp;&nbsp;coordinate
-          <br />
-          ))
-        </>
-      );
-    } else if (params.test == 8) {
-      return (
-        <>
-          linearToSrgb(oklabToLinear(
-          <br />
-          &nbsp;&nbsp;mix(
-          <br />
-          &nbsp;&nbsp;&nbsp;&nbsp;linearToOklab(srgbToLinear(color0)),
-          <br />
-          &nbsp;&nbsp;&nbsp;&nbsp;linearToOklab(srgbToLinear(color1)),
-          <br />
-          &nbsp;&nbsp;&nbsp;&nbsp;coordinate
-          <br />
-          ))
-        </>
-      );
-    } else if (params.test == 9) {
-      return (
-        <>
-          oklabToLinear(
-          <br />
-          &nbsp;&nbsp;mix(
-          <br />
-          &nbsp;&nbsp;&nbsp;&nbsp;linearToOklab(color0),
-          <br />
-          &nbsp;&nbsp;&nbsp;&nbsp;linearToOklab(color1),
-          <br />
-          &nbsp;&nbsp;&nbsp;&nbsp;coordinate
-          <br />
-          ))
-        </>
-      );
-    } else if (params.test == 10) {
-      return <>https://github.com/Evercoder/culori/blob/main/src/oklab/convertLrgbToOklab.js</>;
-    } else if (params.test == 11) {
-      return <>https://www.shadertoy.com/view/ttcyRS</>;
     } else {
-      return <></>;
+      return (
+        <>
+          linearToSrgb(OklabToLrgb(oklchToOklab(
+          <br />
+          &nbsp;&nbsp;mix(
+          <br />
+          &nbsp;&nbsp;&nbsp;&nbsp;oklabToOklch(LrgbToOklab(srgbToLinear(color0))),
+          <br />
+          &nbsp;&nbsp;&nbsp;&nbsp;oklabToOklch(LrgbToOklab(srgbToLinear(color1))),
+          <br />
+          &nbsp;&nbsp;&nbsp;&nbsp;coordinate
+          <br />
+          )));
+        </>
+      );
     }
   };
 
