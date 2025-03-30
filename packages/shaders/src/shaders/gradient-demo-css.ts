@@ -96,7 +96,11 @@ vec3 getColor(vec3 c) {
   if (u_test == 0.) {
     return c;  
   } else {
-    return oklabToOklch(LrgbToOklab(srgbToLinear(c)));  
+    vec3 oklch = oklabToOklch(LrgbToOklab(srgbToLinear(c)));
+    if (oklch.y < 1e-3) {
+        oklch.z = 0.;
+    }
+    return oklch;
   }
 }
 
