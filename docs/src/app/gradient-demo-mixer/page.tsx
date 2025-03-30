@@ -85,7 +85,7 @@ const GradientDemoMixerWithControls = () => {
     return {
       Parameters: folder(
         {
-          shape: { value: defaults.shape, min: 0, max: 3, order: 0 },
+          shape: { value: defaults.shape, min: 0, max: 3, order: 5 },
           extraSides: { value: defaults.extraSides, order: 1 },
           test: { value: defaults.test, min: 0, max: 3, step: 1, order: 2 },
           softness: { value: defaults.softness, min: 0, max: 1, order: 3 },

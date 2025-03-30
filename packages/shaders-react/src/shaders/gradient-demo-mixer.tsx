@@ -31,7 +31,7 @@ export const defaultPreset: GradientDemoMixerPreset = {
     shape: 1,
     softness: 0,
     bNoise: 1,
-    test: 2,
+    test: 0,
     extraSides: true,
     frame: 0,
     colors: ['hsla(259, 29%, 73%, 1)', 'hsla(263, 57%, 39%, 1)', 'hsla(48, 73%, 84%, 1)', 'hsla(295, 32%, 70%, 1)'],
@@ -41,7 +41,7 @@ export const bandingPreset: GradientDemoMixerPreset = {
   name: 'banding',
   params: {
     speed: 0.15,
-    shape: 0.6,
+    shape: 0.67,
     softness: 1,
     bNoise: 0,
     test: 1,
