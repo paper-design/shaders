@@ -42,39 +42,29 @@ float get_ball_shape(vec2 uv, vec2 c, float p) {
   return s;
 }
 
-void main() {
+void main() {  
+  vec2 worldSize = vec2(u_worldWidth, u_worldHeight) * u_pixelRatio;
+  
+  float maxWidth = max(u_resolution.x, worldSize.x);
+  float maxHeight = max(u_resolution.y, worldSize.y);
 
-  vec2 uv = gl_FragCoord.xy / u_resolution.xy;
-  
-  float worldWidth = u_worldWidth * u_pixelRatio;
-  float worldHeight = u_worldHeight * u_pixelRatio;
-  float canvasWidth = u_resolution.x;
-  float canvasHeight = u_resolution.y;
-  
-  float renderedWorldWidth = max(canvasWidth, worldWidth);
-  float renderedWorldHeight = max(canvasHeight, worldHeight);
-
-  float imageAspectRatio = 1.;
-  
+  float worldRatio = 1.;
   // crop
-  float imageWidth = imageAspectRatio * min(worldWidth / imageAspectRatio, worldHeight);
+  float imageWidth = worldRatio * min(worldSize.x / worldRatio, worldSize.y);
   if (u_fit == 1.) {
     // cover
-    imageWidth = imageAspectRatio * max(renderedWorldWidth / imageAspectRatio, renderedWorldHeight);
+    imageWidth = worldRatio * max(maxWidth / worldRatio, maxHeight);
   } else if (u_fit == 2.) {
     // contain
-    imageWidth = imageAspectRatio * min(renderedWorldWidth / imageAspectRatio, renderedWorldHeight);
+    imageWidth = worldRatio * min(maxWidth / worldRatio, maxHeight);
   }
-  float imageHeight = imageWidth / imageAspectRatio;
-
-
-  vec2 world = vec2(imageWidth, imageHeight);
-  vec2 origin = vec2(.5 - u_originX, u_originY - .5);
-
-  uv -= .5;
+  float imageHeight = imageWidth / worldRatio;
   
-  vec2 scale = u_resolution / world;
+  vec2 uv = gl_FragCoord.xy / u_resolution.xy;
+  uv -= .5;
+  vec2 scale = u_resolution.xy / vec2(imageWidth, imageHeight);
   uv *= scale;
+  vec2 origin = vec2(.5 - u_originX, u_originY - .5);
   uv += origin * (scale - 1.);
   
   float t = .5 * u_time;
@@ -123,16 +113,11 @@ void main() {
   float final_shape = smoothstep(.4, .4 + edge_width, total_shape);
 
   vec3 color = total_color * final_shape;
-  
-  float circle = smoothstep(.49, .495, length(uv)) - smoothstep(.495, .5, length(uv));
-  color.r = circle;
-  
-  
+    
   vec2 dist = abs(uv);  
   float box = (step(max(dist.x, dist.y), .5) - step(max(dist.x, dist.y), .495));
-  color.r = box;
 
-  float opacity = final_shape + box;
+  float opacity = final_shape;
 
   if (opacity < .01) {
     discard;

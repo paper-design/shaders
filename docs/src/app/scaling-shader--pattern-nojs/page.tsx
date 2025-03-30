@@ -42,48 +42,38 @@ float neuro_shape(vec2 uv, float t) {
   return res.x + res.y;
 }
 
-void main() {
-
-  vec2 uv = gl_FragCoord.xy / u_resolution.xy;
+void main() {  
+  vec2 worldSize = vec2(u_worldWidth, u_worldHeight) * u_pixelRatio;
   
-  float worldWidth = u_worldWidth * u_pixelRatio;
-  float worldHeight = u_worldHeight * u_pixelRatio;
-  float canvasWidth = u_resolution.x;
-  float canvasHeight = u_resolution.y;
-  
-  float renderedWorldWidth = max(canvasWidth, worldWidth);
-  float renderedWorldHeight = max(canvasHeight, worldHeight);
+  float maxWidth = max(u_resolution.x, worldSize.x);
+  float maxHeight = max(u_resolution.y, worldSize.y);
 
-  float imageAspectRatio = worldWidth / worldHeight;
-//  float imageAspectRatio = 1.;
+  float worldRatio = worldSize.x / max(worldSize.y, 1e-4);
   // crop
-  float imageWidth = imageAspectRatio * min(worldWidth / imageAspectRatio, worldHeight);
+  float imageWidth = worldRatio * min(worldSize.x / worldRatio, worldSize.y);
   if (u_fit == 1.) {
     // cover
-    imageWidth = imageAspectRatio * max(renderedWorldWidth / imageAspectRatio, renderedWorldHeight);
+    imageWidth = worldRatio * max(maxWidth / worldRatio, maxHeight);
   } else if (u_fit == 2.) {
     // contain
-    imageWidth = imageAspectRatio * min(renderedWorldWidth / imageAspectRatio, renderedWorldHeight);
+    imageWidth = worldRatio * min(maxWidth / worldRatio, maxHeight);
   }
-  float imageHeight = imageWidth / imageAspectRatio;
-  vec2 world = vec2(imageWidth, imageHeight);
-  vec2 origin = vec2(.5 - u_originX, u_originY - .5);
+  float imageHeight = imageWidth / worldRatio;
+  
+  vec2 uv = gl_FragCoord.xy / u_resolution.xy;
   uv -= .5;
-  vec2 scale = u_resolution / world;
+  vec2 scale = u_resolution.xy / vec2(imageWidth, imageHeight);
   uv *= scale;
+  vec2 origin = vec2(.5 - u_originX, u_originY - .5);
   uv += origin * (scale - 1.);
   vec2 worldBox = uv;
   
+  if (imageWidth > imageHeight) {
+    uv.x *= (imageWidth / imageHeight);
+  } else {
+    uv.y /= (imageWidth / imageHeight);
+  }
 
-  uv = gl_FragCoord.xy / u_resolution.xy;
-  uv -= .5;
-  uv += origin * (1. - world / u_resolution);
-  uv *= .003;
-  uv *= u_resolution;
-  uv /= u_pixelRatio;
-  uv += .5;
-  
-  
   float t = .0 * u_time;
 
   float noise = neuro_shape(uv, t);
@@ -97,13 +87,11 @@ void main() {
 
   vec3 color = mix(u_colorBack.rgb * u_colorBack.a, u_colorFront.rgb * u_colorFront.a, noise);
   
-  vec2 dist = abs(worldBox);  
   float left   = step(-0.5, worldBox.x);
   float right  = step( worldBox.x, 0.5);
   float top    = step( worldBox.y, 0.5);
   float bottom = step(-0.5, worldBox.y);
   float box = left * right * top * bottom;
-//  color.r = box;
   
   float opacity = mix(u_colorBack.a, u_colorFront.a, noise);
   opacity *= box;
@@ -115,10 +103,10 @@ export default function Page() {
   // React scaffolding
   const [fit, setFit] = useState<'crop' | 'cover' | 'contain'>('crop');
   const [image, setImage] = useState('image-square.png');
-  const [canvasWidth, setCanvasWidth] = useState(600);
-  const [canvasHeight, setCanvasHeight] = useState(400);
-  const [worldWidth, setWorldWidth] = useState(400);
-  const [worldHeight, setWorldHeight] = useState(200);
+  const [canvasWidth, setCanvasWidth] = useState(400);
+  const [canvasHeight, setCanvasHeight] = useState(200);
+  const [worldWidth, setWorldWidth] = useState(500);
+  const [worldHeight, setWorldHeight] = useState(150);
   const [originX, setOriginX] = useState(0.5);
   const [originY, setOriginY] = useState(0.5);
   const canvasResizeObserver = useRef<ResizeObserver | null>(null);
