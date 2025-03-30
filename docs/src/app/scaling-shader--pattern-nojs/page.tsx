@@ -51,6 +51,7 @@ void main() {
   float worldRatio = worldSize.x / max(worldSize.y, 1e-4);
   // crop
   float imageWidth = worldRatio * min(worldSize.x / worldRatio, worldSize.y);
+  float imageWidthCrop = imageWidth;
   if (u_fit == 1.) {
     // cover
     imageWidth = worldRatio * max(maxWidth / worldRatio, maxHeight);
@@ -59,20 +60,30 @@ void main() {
     imageWidth = worldRatio * min(maxWidth / worldRatio, maxHeight);
   }
   float imageHeight = imageWidth / worldRatio;
+
+
+  vec2 world = vec2(imageWidth, imageHeight);
+  vec2 origin = vec2(.5 - u_originX, u_originY - .5);
+  vec2 scale = u_resolution.xy / world;
+
+  
+  vec2 worldBox = gl_FragCoord.xy / u_resolution.xy;
+  worldBox -= .5;
+  worldBox *= scale;
+  worldBox += origin * (scale - 1.);
   
   vec2 uv = gl_FragCoord.xy / u_resolution.xy;
   uv -= .5;
-  vec2 scale = u_resolution.xy / vec2(imageWidth, imageHeight);
-  uv *= scale;
-  vec2 origin = vec2(.5 - u_originX, u_originY - .5);
-  uv += origin * (scale - 1.);
-  vec2 worldBox = uv;
-  
-  if (imageWidth > imageHeight) {
-    uv.x *= (imageWidth / imageHeight);
-  } else {
-    uv.y /= (imageWidth / imageHeight);
+
+  uv += origin * (1. - 1. / scale);
+  uv *= .003;
+  uv *= u_resolution.xy;
+  uv /= u_pixelRatio;
+    
+  if (u_fit > 0.) {
+    uv *= (imageWidthCrop / imageWidth);
   }
+  uv += .5;
 
   float t = .0 * u_time;
 
