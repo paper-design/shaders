@@ -18,6 +18,8 @@ uniform float u_worldWidth;
 uniform float u_worldHeight;
 uniform float u_fit;
 
+uniform float u_scale;
+
 out vec4 fragColor;
 
 #define TWO_PI 6.28318530718
@@ -71,6 +73,8 @@ void main() {
   worldBox -= .5;
   worldBox *= scale;
   worldBox += origin * (scale - 1.);
+  worldBox /= u_scale;
+  worldBox += .5;
   
   vec2 uv = gl_FragCoord.xy / u_resolution.xy;
   uv -= .5;
@@ -83,6 +87,7 @@ void main() {
   if (u_fit > 0.) {
     uv *= (imageWidthCrop / imageWidth);
   }
+  uv /= u_scale;
   uv += .5;
 
   float t = .0 * u_time;
@@ -98,10 +103,10 @@ void main() {
 
   vec3 color = mix(u_colorBack.rgb * u_colorBack.a, u_colorFront.rgb * u_colorFront.a, noise);
   
-  float left   = step(-0.5, worldBox.x);
-  float right  = step( worldBox.x, 0.5);
-  float top    = step( worldBox.y, 0.5);
-  float bottom = step(-0.5, worldBox.y);
+  float left   = step(0., worldBox.x);
+  float right  = step( worldBox.x, 1.);
+  float top    = step( worldBox.y, 1.);
+  float bottom = step(0., worldBox.y);
   float box = left * right * top * bottom;
   
   float opacity = mix(u_colorBack.a, u_colorFront.a, noise);
@@ -113,13 +118,13 @@ void main() {
 export default function Page() {
   // React scaffolding
   const [fit, setFit] = useState<'crop' | 'cover' | 'contain'>('crop');
-  const [image, setImage] = useState('image-square.png');
   const [canvasWidth, setCanvasWidth] = useState(400);
   const [canvasHeight, setCanvasHeight] = useState(200);
   const [worldWidth, setWorldWidth] = useState(500);
   const [worldHeight, setWorldHeight] = useState(150);
   const [originX, setOriginX] = useState(0.5);
   const [originY, setOriginY] = useState(0.5);
+  const [scale, setScale] = useState(1);
   const canvasResizeObserver = useRef<ResizeObserver | null>(null);
   const canvasNodeRef = useRef<HTMLDivElement>(null);
 
@@ -159,6 +164,7 @@ export default function Page() {
               u_fit: fitCode,
               u_originX: originX,
               u_originY: originY,
+              u_scale: scale,
             }}
           />
         </div>
@@ -267,6 +273,22 @@ export default function Page() {
               value={originY}
               className="h-7 rounded bg-black/5 px-2 text-base"
               onChange={(e) => setOriginY(Number(e.target.value))}
+            />
+          </div>
+
+          <div className="flex flex-col gap-1">
+            <label htmlFor="scale" className="text-sm font-medium">
+              Scale
+            </label>
+            <input
+                id="scale"
+                type="range"
+                min={0}
+                max={2}
+                step={0.01}
+                value={scale}
+                className="h-7 rounded bg-black/5 px-2 text-base"
+                onChange={(e) => setScale(Number(e.target.value))}
             />
           </div>
         </div>

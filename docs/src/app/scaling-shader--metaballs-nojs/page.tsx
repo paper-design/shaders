@@ -18,6 +18,8 @@ uniform float u_worldWidth;
 uniform float u_worldHeight;
 uniform float u_fit;
 
+uniform float u_scale;
+
 out vec4 fragColor;
 
 #define TWO_PI 6.28318530718
@@ -66,6 +68,10 @@ void main() {
   uv *= scale;
   vec2 origin = vec2(.5 - u_originX, u_originY - .5);
   uv += origin * (scale - 1.);
+
+  uv /= u_scale;
+  
+  uv += .5;
   
   float t = .5 * u_time;
 
@@ -80,7 +86,7 @@ void main() {
   const int max_balls_number = 15;
   
   for (int i = 0; i < max_balls_number; i++) {
-    vec2 pos = vec2(1e-4);
+    vec2 pos = vec2(.5 + 1e-4);
     float idx_fract = float(i) / float(max_balls_number);
     float angle = TWO_PI * idx_fract;
 
@@ -129,13 +135,13 @@ void main() {
 export default function Page() {
   // React scaffolding
   const [fit, setFit] = useState<'crop' | 'cover' | 'contain'>('contain');
-  const [image, setImage] = useState('image-square.png');
   const [canvasWidth, setCanvasWidth] = useState(400);
   const [canvasHeight, setCanvasHeight] = useState(200);
   const [worldWidth, setWorldWidth] = useState(400);
   const [worldHeight, setWorldHeight] = useState(200);
   const [originX, setOriginX] = useState(0.5);
   const [originY, setOriginY] = useState(0.5);
+  const [scale, setScale] = useState(1);
   const canvasResizeObserver = useRef<ResizeObserver | null>(null);
   const canvasNodeRef = useRef<HTMLDivElement>(null);
 
@@ -175,6 +181,7 @@ export default function Page() {
               u_fit: fitCode,
               u_originX: originX,
               u_originY: originY,
+              u_scale: scale,
             }}
           />
         </div>
@@ -283,6 +290,21 @@ export default function Page() {
               value={originY}
               className="h-7 rounded bg-black/5 px-2 text-base"
               onChange={(e) => setOriginY(Number(e.target.value))}
+            />
+          </div>
+          <div className="flex flex-col gap-1">
+            <label htmlFor="scale" className="text-sm font-medium">
+              Scale
+            </label>
+            <input
+              id="scale"
+              type="range"
+              min={0}
+              max={2}
+              step={0.01}
+              value={scale}
+              className="h-7 rounded bg-black/5 px-2 text-base"
+              onChange={(e) => setScale(Number(e.target.value))}
             />
           </div>
         </div>
