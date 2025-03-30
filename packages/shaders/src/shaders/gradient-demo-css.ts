@@ -97,8 +97,8 @@ vec3 getColor(vec3 c) {
     return c;  
   } else {
     vec3 oklch = oklabToOklch(LrgbToOklab(srgbToLinear(c)));
-    if (oklch.y < 1e-3) {
-        oklch.z = 0.;
+    if (oklch.y < .035) {
+        oklch.z = -2.;
     }
     return oklch;
   }
@@ -126,7 +126,9 @@ void main() {
       } else {
         gradient.x = mix(gradient.x, c.x, localMixer);
         gradient.y = mix(gradient.y, c.y, localMixer);
-        gradient.z = mixHue(gradient.z, c.z, localMixer);
+        if (gradient.y > .035 && c.y > .035) {
+            gradient.z = mixHue(gradient.z, c.z, localMixer);
+        }
       }
     }
     color = setColor(gradient);

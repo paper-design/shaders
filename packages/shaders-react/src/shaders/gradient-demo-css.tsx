@@ -24,7 +24,7 @@ export const defaultPreset: GradientDemoCSSPreset = {
   name: 'Default',
   params: {
     speed: 0.15,
-    test: 0,
+    test: 1,
     frame: 0,
     colors: [
       'hsla(0, 100%, 50%, 1)',
@@ -42,9 +42,9 @@ export const beachPreset: GradientDemoCSSPreset = {
   name: 'Beach',
   params: {
     speed: 0.1,
-    test: 0,
+    test: 1,
     frame: 0,
-    colors: ['#ff0000', '#0000ff'],
+    colors: ['#999999', '#0000ff'],
   },
 };
 
@@ -58,7 +58,7 @@ export const fadedPreset: GradientDemoCSSPreset = {
   },
 };
 
-export const gradientDemoCSSPresets: GradientDemoCSSPreset[] = [defaultPreset, beachPreset, fadedPreset];
+export const gradientDemoCSSPresets: GradientDemoCSSPreset[] = [beachPreset, defaultPreset, fadedPreset];
 
 function GradientDemoCSSImpl({ test, colors: colorsProp, ...props }: GradientDemoCSSProps) {
   const uniforms: GradientDemoCSSUniforms = useMemo(() => {
