@@ -1,26 +1,74 @@
 /* eslint-disable @next/next/no-img-element */
 
 'use client';
-import { useRef, useEffect, useState } from 'react';
+import { useRef, useState } from 'react';
 import { flushSync } from 'react-dom';
 import { ShaderMount } from '@paper-design/shaders-react';
 
 const fragmentShader = `#version 300 es
 precision highp float;
 
-uniform sampler2D u_texture;
-uniform vec2 u_resolution;
 uniform float u_pixelRatio;
+uniform vec2 u_resolution;
+uniform float u_time;
 
+uniform float u_originX;
+uniform float u_originY;
+uniform float u_worldWidth;
+uniform float u_worldHeight;
+uniform float u_fit;
+
+uniform float u_scale;
+uniform float u_offsetX;
+uniform float u_offsetY;
 
 out vec4 fragColor;
 
 void main() {
-  vec2 uv = gl_FragCoord.xy;
-  uv.y = u_resolution.y - uv.y;
 
+  vec2 worldSize = vec2(u_worldWidth, u_worldHeight) * u_pixelRatio;
+  float worldRatio = worldSize.x / max(worldSize.y, 1e-4);
+  
+  float maxWidth = max(u_resolution.x, worldSize.x);
+  float maxHeight = max(u_resolution.y, worldSize.y);
+
+  // crop
+  float imageWidth = worldRatio * min(worldSize.x / worldRatio, worldSize.y);
+  float imageWidthCrop = imageWidth;
+  if (u_fit == 1.) {
+    // cover
+    imageWidth = worldRatio * max(maxWidth / worldRatio, maxHeight);
+  } else if (u_fit == 2.) {
+    // contain
+    imageWidth = worldRatio * min(maxWidth / worldRatio, maxHeight);
+  }
+  float imageHeight = imageWidth / worldRatio;
+  
+  vec2 world = vec2(imageWidth, imageHeight);
+  vec2 origin = vec2(.5 - u_originX, u_originY - .5);
+  vec2 scale = u_resolution.xy / world;
+
+  vec2 worldBox = gl_FragCoord.xy / u_resolution.xy;
+  worldBox -= .5;
+  worldBox *= scale;
+  worldBox += origin * (scale - 1.);
+  worldBox /= u_scale;
+  worldBox += .5;
+
+  vec2 uv = gl_FragCoord.xy / u_resolution.xy;
+  uv -= .5;
+  uv += vec2(-u_offsetX, u_offsetY) / scale;
+
+  uv += origin * (1. - 1. / scale);
+  uv /= u_scale;
+  uv *= u_resolution.xy;
   uv /= u_pixelRatio;
+  if (u_fit > 0.) {
+    uv *= (imageWidthCrop / imageWidth);
+  }
+  uv += .5;
 
+  
   vec2 gridSpacing = vec2(50.);
   vec2 grid = fract(uv / gridSpacing) + 1e-4;
   vec2 grid_idx = floor(uv / gridSpacing);
@@ -30,46 +78,38 @@ void main() {
 
   float baseSize = 15.;
 
-  float dist = length(p);
+  float dotDist = length(p);
 
-  float edgeWidth = fwidth(dist);
-  float shapeInner = smoothstep(baseSize + edgeWidth, baseSize - edgeWidth, dist);
+  float edgeWidth = fwidth(dotDist);
+  float shapeInner = smoothstep(baseSize + edgeWidth, baseSize - edgeWidth, dotDist);
 
   vec3 color = vec3(shapeInner);
+
+  vec2 dist = abs(worldBox - .5);  
+  float box = (step(max(dist.x, dist.y), .5) - step(max(dist.x, dist.y), .495));
+  color.r = box;
 
   float opacity = 1.;
 
   fragColor = vec4(color, opacity);
 }
 `;
-
 export default function Page() {
   // React scaffolding
   const [fit, setFit] = useState<'crop' | 'cover' | 'contain'>('crop');
-  const [canvasWidth, setCanvasWidth] = useState(400);
-  const [canvasHeight, setCanvasHeight] = useState(200);
-  const [worldWidth, setWorldWidth] = useState(400);
-  const [worldHeight, setWorldHeight] = useState(400);
+  const [canvasWidth, setCanvasWidth] = useState(600);
+  const [canvasHeight, setCanvasHeight] = useState(400);
+  const [worldWidth, setWorldWidth] = useState(300);
+  const [worldHeight, setWorldHeight] = useState(300);
   const [originX, setOriginX] = useState(0.5);
   const [originY, setOriginY] = useState(0.5);
-
-
-  const [image, setImage] = useState<HTMLImageElement | null>(null);
-  const [imageAspectRatio, setImageAspectRatio] = useState<number | null>(null);
-
-  useEffect(() => {
-    const img = new Image();
-    // img.src = '/image-landscape.webp';
-    img.src = '/image-portrait.webp';
-    img.onload = () => {
-      setImage(img);
-      setImageAspectRatio(img.naturalWidth / img.naturalHeight);
-    };
-  }, []);
-
+  const [scale, setScale] = useState(1);
+  const [offsetX, setOffsetX] = useState(0);
+  const [offsetY, setOffsetY] = useState(0);
   const canvasResizeObserver = useRef<ResizeObserver | null>(null);
   const canvasNodeRef = useRef<HTMLDivElement>(null);
 
+  const fitCode = (fit === 'crop' ? 0 : (fit === 'cover' ? 1 : 2));
 
   return (
     <div className="grid min-h-dvh grid-cols-[1fr_300px]">
@@ -100,6 +140,14 @@ export default function Page() {
             style={{ width: '100%', height: '100%', background: 'white', border: '1px solid grey' }}
             fragmentShader={fragmentShader}
             uniforms={{
+              u_worldWidth: worldWidth,
+              u_worldHeight: worldHeight,
+              u_fit: fitCode,
+              u_originX: originX,
+              u_originY: originY,
+              u_scale: scale,
+              u_offsetX: offsetX,
+              u_offsetY: offsetY,
             }}
           />
         </div>
@@ -135,6 +183,132 @@ export default function Page() {
             />
           </div>
 
+          <div className="flex flex-col gap-1">
+            <label htmlFor="worldWidth" className="text-sm font-medium">
+              World width
+            </label>
+            <input
+              id="worldWidth"
+              type="number"
+              min={0}
+              value={worldWidth}
+              className="h-7 rounded bg-black/5 px-2 text-base"
+              onChange={(e) => setWorldWidth(Number(e.target.value))}
+            />
+          </div>
+
+          <div className="flex flex-col gap-1">
+            <label htmlFor="worldHeight" className="text-sm font-medium">
+              World height
+            </label>
+            <input
+              id="worldHeight"
+              type="number"
+              min={0}
+              value={worldHeight}
+              className="h-7 rounded bg-black/5 px-2 text-base"
+              onChange={(e) => setWorldHeight(Number(e.target.value))}
+            />
+          </div>
+
+          <div className="flex flex-col gap-1">
+            <label htmlFor="fit" className="text-sm font-medium">
+              Fit
+            </label>
+            <select
+              id="fit"
+              className="h-7 appearance-none rounded bg-black/5 px-2 text-base"
+              value={fit}
+              onChange={(e) => setFit(e.target.value as 'cover' | 'contain' | 'crop')}
+            >
+              <option value="cover">Cover</option>
+              <option value="contain">Contain</option>
+              <option value="crop">Crop</option>
+            </select>
+          </div>
+
+          <div className="flex flex-col gap-1">
+            <label htmlFor="originX" className="text-sm font-medium">
+              Origin X
+            </label>
+            <input
+              id="originX"
+              type="number"
+              min={0}
+              max={1}
+              step={0.01}
+              value={originX}
+              className="h-7 rounded bg-black/5 px-2 text-base"
+              onChange={(e) => setOriginX(Number(e.target.value))}
+            />
+          </div>
+
+          <div className="flex flex-col gap-1">
+            <label htmlFor="originY" className="text-sm font-medium">
+              Origin Y
+            </label>
+            <input
+              id="originY"
+              type="number"
+              min={0}
+              max={1}
+              step={0.01}
+              value={originY}
+              className="h-7 rounded bg-black/5 px-2 text-base"
+              onChange={(e) => setOriginY(Number(e.target.value))}
+            />
+          </div>
+
+          <div className="flex flex-col gap-1">
+            <label htmlFor="scale" className="text-sm font-medium">
+              <span>Scale</span>
+              <span> {scale}</span>
+            </label>
+            <input
+                id="scale"
+                type="range"
+                min={0}
+                max={2}
+                step={0.01}
+                value={scale}
+                className="h-7 rounded bg-black/5 px-2 text-base"
+                onChange={(e) => setScale(Number(e.target.value))}
+            />
+          </div>
+
+          <div className="flex flex-col gap-1">
+            <label htmlFor="offsetX" className="text-sm font-medium">
+              <span>OffsetX</span>
+              <span> {offsetX}</span>
+            </label>
+            <input
+                id="offsetX"
+                type="range"
+                min={-1}
+                max={1}
+                step={0.01}
+                value={offsetX}
+                className="h-7 rounded bg-black/5 px-2 text-base"
+                onChange={(e) => setOffsetX(Number(e.target.value))}
+            />
+          </div>
+
+          <div className="flex flex-col gap-1">
+            <label htmlFor="offsetY" className="text-sm font-medium">
+              <span>offsetY</span>
+              <span> {offsetY}</span>
+            </label>
+            <input
+                id="offsetY"
+                type="range"
+                min={-1}
+                max={1}
+                step={0.01}
+                value={offsetY}
+                className="h-7 rounded bg-black/5 px-2 text-base"
+                onChange={(e) => setOffsetY(Number(e.target.value))}
+            />
+          </div>
         </div>
       </div>
     </div>

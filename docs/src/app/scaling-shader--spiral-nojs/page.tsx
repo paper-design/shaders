@@ -16,136 +16,118 @@ uniform float u_originX;
 uniform float u_originY;
 uniform float u_worldWidth;
 uniform float u_worldHeight;
+uniform float u_fit;
+
+uniform float u_scale;
+uniform float u_offsetX;
+uniform float u_offsetY;
 
 out vec4 fragColor;
 
 #define TWO_PI 6.28318530718
 
-float hash(float x) {
-  return fract(sin(x) * 43758.5453123);
-}
-float lerp(float a, float b, float t) {
-  return a + t * (b - a);
-}
-float noise(float x) {
-  float i = floor(x);
-  float f = fract(x);
-  float u = f * f * (3.0 - 2.0 * f); // Smoothstep function for interpolation
-  return lerp(hash(i), hash(i + 1.0), u);
-}
 
-float get_ball_shape(vec2 uv, vec2 c, float p) {
-  float s = .5 * length(uv - c);
-  s = 1. - clamp(s, 0., 1.);
-  s = pow(s, p);
-  return s;
-}
 
 void main() {
 
-  vec2 uv = gl_FragCoord.xy / u_resolution.xy;
-  vec2 world = vec2(u_worldWidth, u_worldHeight) * u_pixelRatio;
+  vec2 worldSize = vec2(u_worldWidth, u_worldHeight) * u_pixelRatio;
+  float worldRatio = worldSize.x / max(worldSize.y, 1e-4);
+  
+  float maxWidth = max(u_resolution.x, worldSize.x);
+  float maxHeight = max(u_resolution.y, worldSize.y);
+
+  // crop
+  float imageWidth = worldRatio * min(worldSize.x / worldRatio, worldSize.y);
+  float imageWidthCrop = imageWidth;
+  if (u_fit == 1.) {
+    // cover
+    imageWidth = worldRatio * max(maxWidth / worldRatio, maxHeight);
+  } else if (u_fit == 2.) {
+    // contain
+    imageWidth = worldRatio * min(maxWidth / worldRatio, maxHeight);
+  }
+  float imageHeight = imageWidth / worldRatio;
+  
+  vec2 world = vec2(imageWidth, imageHeight);
   vec2 origin = vec2(.5 - u_originX, u_originY - .5);
+  vec2 scale = u_resolution.xy / world;
 
+  vec2 worldBox = gl_FragCoord.xy / u_resolution.xy;
+  worldBox -= .5;
+  worldBox *= scale;
+  worldBox += origin * (scale - 1.);
+  worldBox /= u_scale;
+  worldBox += .5;
+
+  vec2 uv = gl_FragCoord.xy / u_resolution.xy;
   uv -= .5;
-  
-  vec2 scale = u_resolution / world;
-  uv *= scale;
-  uv += origin * (scale - 1.);
-  
-  float t = .5 * u_time;
+  uv += vec2(-u_offsetX, u_offsetY) / scale;
 
-  vec4 u_color1 = vec4(1., .4, .7, 1.);
-  vec4 u_color2 = vec4(1., 1., .7, 1.);
-  vec4 u_color3 = vec4(0., .4, .7, 1.);
-  float u_visibilityRange = .7;
-
-  vec3 total_color = vec3(0.);
-  float total_shape = 0.;
-
-  const int max_balls_number = 15;
-  
-  for (int i = 0; i < max_balls_number; i++) {
-    vec2 pos = vec2(1e-4);
-    float idx_fract = float(i) / float(max_balls_number);
-    float angle = TWO_PI * idx_fract;
-
-    float speed = 1. - .2 * idx_fract;
-    float noiseX = noise(angle * 10. + float(i) + t * speed);
-    float noiseY = noise(angle * 20. + float(i) - t * speed);
-
-    pos += .9 * (vec2(noiseX, noiseY) - .5);
-
-    vec4 ball_color;
-    if (i % 3 == 0) {
-      ball_color = u_color1;
-    } else if (i % 3 == 1) {
-      ball_color = u_color2;
-    } else {
-      ball_color = u_color3;
-    }
-
-    float shape = get_ball_shape(uv, pos, 30.) * ball_color.a;
-
-    shape *= smoothstep((float(i) - 1.) / float(max_balls_number), idx_fract, u_visibilityRange);
-
-    total_color += ball_color.rgb * shape;
-    total_shape += shape;
+  uv += origin * (1. - 1. / scale);
+  uv *= .03;
+  uv /= u_scale;
+  uv *= u_resolution.xy;
+  uv /= u_pixelRatio;
+  if (u_fit > 0.) {
+    uv *= (imageWidthCrop / imageWidth);
   }
+  // uv += .5;
 
-  total_color /= max(total_shape, 1e-4);
 
-  float edge_width = fwidth(total_shape);
-  float final_shape = smoothstep(.4, .4 + edge_width, total_shape);
+  float t = .0 * u_time;
 
-  vec3 color = total_color * final_shape;
+  vec4 u_color1 = vec4(1., .1, 0., 1.);
+  vec4 u_color2 = vec4(1., .2, .4, 1.);
   
-  float circle = smoothstep(.49, .495, length(uv)) - smoothstep(.495, .5, length(uv));
-  color.r = circle;
-  
-  float opacity = final_shape + circle;
+  float l = length(uv);
+  float angle = atan(uv.y, uv.x) - 2. * t;
+  float angle_norm = angle / TWO_PI;  
 
-  if (opacity < .01) {
-    discard;
-  }
+  float offset = l + angle_norm;
+  
+  float stripe_map = fract(offset);
+  stripe_map -= .5;
+  
+  float shape = 2. * abs(stripe_map - .5);
+      
+  float stroke_width = .5;
+
+  float edge_width = min(fwidth(l), fwidth(offset));
+
+  float mid = 1. - smoothstep(.0, .9, l);
+  mid = pow(mid, 2.);
+  shape -= .5 * mid;
+  
+  shape = smoothstep(stroke_width - edge_width, stroke_width + edge_width, shape);
+
+  vec3 color = mix(u_color1.rgb * u_color1.a, u_color2.rgb * u_color2.a, shape);
+  
+  vec2 dist = abs(worldBox - .5);  
+  float box = (step(max(dist.x, dist.y), .5) - step(max(dist.x, dist.y), .495));
+  color.r = box;
+
+  float opacity = 1.;
 
   fragColor = vec4(color, opacity);
 }
 `;
+
 export default function Page() {
   // React scaffolding
-  const [fit, setFit] = useState<'crop' | 'cover' | 'contain'>('contain');
-  const [image, setImage] = useState('image-square.png');
-  const [canvasWidth, setCanvasWidth] = useState(400);
-  const [canvasHeight, setCanvasHeight] = useState(200);
-  const [worldWidth, setWorldWidth] = useState(400);
-  const [worldHeight, setWorldHeight] = useState(200);
+  const [fit, setFit] = useState<'crop' | 'cover' | 'contain'>('crop');
+  const [canvasWidth, setCanvasWidth] = useState(600);
+  const [canvasHeight, setCanvasHeight] = useState(400);
+  const [worldWidth, setWorldWidth] = useState(300);
+  const [worldHeight, setWorldHeight] = useState(300);
   const [originX, setOriginX] = useState(0.5);
   const [originY, setOriginY] = useState(0.5);
-  const imageAspectRatio = image.includes('square') ? 1 : image.includes('landscape') ? 2 : 0.5;
+  const [scale, setScale] = useState(1);
+  const [offsetX, setOffsetX] = useState(0);
+  const [offsetY, setOffsetY] = useState(0);
   const canvasResizeObserver = useRef<ResizeObserver | null>(null);
   const canvasNodeRef = useRef<HTMLDivElement>(null);
 
-  // Sizes
-  const renderedWorldWidth = Math.max(canvasWidth, worldWidth);
-  const renderedWorldHeight = Math.max(canvasHeight, worldHeight);
-
-  const imageWidth = (() => {
-    if (fit === 'cover') {
-      return imageAspectRatio * Math.max(renderedWorldWidth / imageAspectRatio, renderedWorldHeight);
-    }
-
-    if (fit === 'contain') {
-      return imageAspectRatio * Math.min(renderedWorldWidth / imageAspectRatio, renderedWorldHeight);
-    }
-
-    // fit === 'crop'
-    return imageAspectRatio * Math.min(worldWidth / imageAspectRatio, worldHeight);
-  })();
-
-  const imageHeight = imageWidth / imageAspectRatio;
-  const imageOffsetX = (canvasWidth - imageWidth) * originX;
-  const imageOffsetY = (canvasHeight - imageHeight) * originY;
+  const fitCode = (fit === 'crop' ? 0 : (fit === 'cover' ? 1 : 2));
 
   return (
     <div className="grid min-h-dvh grid-cols-[1fr_300px]">
@@ -176,10 +158,14 @@ export default function Page() {
             style={{ width: '100%', height: '100%', background: 'white', border: '1px solid grey' }}
             fragmentShader={fragmentShader}
             uniforms={{
-              u_worldWidth: imageWidth,
-              u_worldHeight: imageHeight,
+              u_worldWidth: worldWidth,
+              u_worldHeight: worldHeight,
+              u_fit: fitCode,
               u_originX: originX,
               u_originY: originY,
+              u_scale: scale,
+              u_offsetX: offsetX,
+              u_offsetY: offsetY,
             }}
           />
         </div>
@@ -244,22 +230,6 @@ export default function Page() {
           </div>
 
           <div className="flex flex-col gap-1">
-            <label htmlFor="aspectRatio" className="text-sm font-medium">
-              Image aspect ratio
-            </label>
-            <select
-              id="aspectRatio"
-              className="h-7 appearance-none rounded bg-black/5 px-2 text-base"
-              value={image}
-              onChange={(e) => setImage(e.target.value)}
-            >
-              <option value="image-square.png">Square 1:1</option>
-              <option value="image-landscape.webp">Landscape 2:1</option>
-              <option value="image-portrait.webp">Portrait 1:2</option>
-            </select>
-          </div>
-
-          <div className="flex flex-col gap-1">
             <label htmlFor="fit" className="text-sm font-medium">
               Fit
             </label>
@@ -307,22 +277,55 @@ export default function Page() {
             />
           </div>
 
-          <div className="flex flex-col gap-2">
-            <span className="text-sm font-medium text-black/50">
-              Rendered world width: {Math.round(renderedWorldWidth)}
-            </span>
-            <span className="text-sm font-medium text-black/50">
-              Rendered world height: {Math.round(renderedWorldHeight)}
-            </span>
+          <div className="flex flex-col gap-1">
+            <label htmlFor="scale" className="text-sm font-medium">
+              <span>Scale</span>
+              <span> {scale}</span>
+            </label>
+            <input
+                id="scale"
+                type="range"
+                min={0}
+                max={2}
+                step={0.01}
+                value={scale}
+                className="h-7 rounded bg-black/5 px-2 text-base"
+                onChange={(e) => setScale(Number(e.target.value))}
+            />
+          </div>
 
-            {/* <span className="text-sm font-medium text-black/50">
-              Rendered aspect ratio: {renderAspectRatio.toFixed(3)}
-            </span> */}
+          <div className="flex flex-col gap-1">
+            <label htmlFor="offsetX" className="text-sm font-medium">
+              <span>OffsetX</span>
+              <span> {offsetX}</span>
+            </label>
+            <input
+                id="offsetX"
+                type="range"
+                min={-1}
+                max={1}
+                step={0.01}
+                value={offsetX}
+                className="h-7 rounded bg-black/5 px-2 text-base"
+                onChange={(e) => setOffsetX(Number(e.target.value))}
+            />
+          </div>
 
-            {/* <span className="text-sm font-medium text-black/50">Fit size: {Math.round(fitSize)}</span> */}
-
-            <span className="text-sm font-medium text-black/50">Origin offset X: {Math.round(imageOffsetX)}</span>
-            <span className="text-sm font-medium text-black/50">Origin offset Y: {Math.round(imageOffsetY)}</span>
+          <div className="flex flex-col gap-1">
+            <label htmlFor="offsetY" className="text-sm font-medium">
+              <span>offsetY</span>
+              <span> {offsetY}</span>
+            </label>
+            <input
+                id="offsetY"
+                type="range"
+                min={-1}
+                max={1}
+                step={0.01}
+                value={offsetY}
+                className="h-7 rounded bg-black/5 px-2 text-base"
+                onChange={(e) => setOffsetY(Number(e.target.value))}
+            />
           </div>
         </div>
       </div>

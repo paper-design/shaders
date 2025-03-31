@@ -46,13 +46,14 @@ float get_ball_shape(vec2 uv, vec2 c, float p) {
   return s;
 }
 
-void main() {  
+void main() {
+
   vec2 worldSize = vec2(u_worldWidth, u_worldHeight) * u_pixelRatio;
+  float worldRatio = 1.;
   
   float maxWidth = max(u_resolution.x, worldSize.x);
   float maxHeight = max(u_resolution.y, worldSize.y);
 
-  float worldRatio = 1.;
   // crop
   float imageWidth = worldRatio * min(worldSize.x / worldRatio, worldSize.y);
   if (u_fit == 1.) {
@@ -64,13 +65,14 @@ void main() {
   }
   float imageHeight = imageWidth / worldRatio;
   
+  vec2 world = vec2(imageWidth, imageHeight);
+  vec2 origin = vec2(.5 - u_originX, u_originY - .5);
+  vec2 scale = u_resolution.xy / world;
+
   vec2 uv = gl_FragCoord.xy / u_resolution.xy;
   uv -= .5;
-  vec2 scale = u_resolution.xy / vec2(imageWidth, imageHeight);
   uv *= scale;
-  vec2 origin = vec2(.5 - u_originX, u_originY - .5);
   uv += origin * (scale - 1.);
-
   uv /= u_scale;
   uv += .5;
   
@@ -322,8 +324,8 @@ export default function Page() {
             <input
                 id="offsetX"
                 type="range"
-                min={-0.5}
-                max={0.5}
+                min={-1}
+                max={1}
                 step={0.01}
                 value={offsetX}
                 className="h-7 rounded bg-black/5 px-2 text-base"
@@ -339,8 +341,8 @@ export default function Page() {
             <input
                 id="offsetY"
                 type="range"
-                min={-0.5}
-                max={0.5}
+                min={-1}
+                max={1}
                 step={0.01}
                 value={offsetY}
                 className="h-7 rounded bg-black/5 px-2 text-base"

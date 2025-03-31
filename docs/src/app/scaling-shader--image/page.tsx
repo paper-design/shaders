@@ -9,13 +9,21 @@ const fragmentShader = `#version 300 es
 precision highp float;
 
 uniform sampler2D u_texture;
-uniform vec2 u_resolution;
+uniform float u_texture_aspect_ratio;
+
 uniform float u_pixelRatio;
+uniform vec2 u_resolution;
+uniform float u_time;
 
 uniform float u_originX;
 uniform float u_originY;
 uniform float u_worldWidth;
 uniform float u_worldHeight;
+uniform float u_fit;
+
+uniform float u_scale;
+uniform float u_offsetX;
+uniform float u_offsetY;
 
 out vec4 fragColor;
 
@@ -26,43 +34,83 @@ float get_uv_frame(vec2 uv) {
 
 void main() {
 
+  vec2 worldSize = vec2(u_worldWidth, u_worldHeight) * u_pixelRatio;
+  float worldRatio = worldSize.x / max(worldSize.y, 1e-4);
+  //   float worldRatio = u_texture_aspect_ratio;
+  
+  float maxWidth = max(u_resolution.x, worldSize.x);
+  float maxHeight = max(u_resolution.y, worldSize.y);
+
+  // crop
+  float imageWidth = worldRatio * min(worldSize.x / worldRatio, worldSize.y);
+  float imageWidthCrop = imageWidth;
+  if (u_fit == 1.) {
+    // cover
+    imageWidth = worldRatio * max(maxWidth / worldRatio, maxHeight);
+  } else if (u_fit == 2.) {
+    // contain
+    imageWidth = worldRatio * min(maxWidth / worldRatio, maxHeight);
+  }
+  float imageHeight = imageWidth / worldRatio;
+  
+  vec2 world = vec2(imageWidth, imageHeight);
+  vec2 origin = vec2(.5 - u_originX, u_originY - .5);
+  vec2 scale = u_resolution.xy / world;
+
+  vec2 worldBox = gl_FragCoord.xy / u_resolution.xy;
+  worldBox -= .5;
+  worldBox *= scale;
+  worldBox += origin * (scale - 1.);
+  worldBox /= u_scale;
+  worldBox += .5;
+  
   vec2 uv = gl_FragCoord.xy / u_resolution.xy;
-  vec2 world = vec2(u_worldWidth, u_worldHeight) * u_pixelRatio;
-  vec2 origin = vec2(-u_originX, 1. - u_originY);
-  
-  vec2 scale = u_resolution / world;
-  uv *= scale;
-  uv.y = 1. - uv.y;
-  uv += origin * (scale - 1.);
-  
-  vec2 effect_uv = gl_FragCoord.xy / u_resolution.xy;
-  effect_uv -= .5;
-  effect_uv *= u_resolution;  
-  effect_uv /= u_pixelRatio;
-  float effect = .03 * sin(effect_uv.x * .1 - effect_uv.y * .05);
+  uv -= .5;
+  uv += vec2(-u_offsetX, u_offsetY) / scale;
 
-  vec4 img = texture(u_texture, uv + effect);
+  uv += origin * (1. - 1. / scale);
+  uv *= .003;
+  uv /= u_scale;
+  uv *= u_resolution.xy;
+  uv /= u_pixelRatio;
+  if (u_fit > 0.) {
+    uv *= (imageWidthCrop / imageWidth);
+  }
+  uv += .5;
+  
+  float t = .0 * u_time;
+
+  vec2 dist = abs(worldBox - .5);  
+  float box = (step(max(dist.x, dist.y), .5) - step(max(dist.x, dist.y), .495));
+    
+  vec2 effect_uv = uv;
+
+  float effect = .03 * sin(effect_uv.x * 22.1 - effect_uv.y * 22.05);
+
+  vec4 img = texture(u_texture, worldBox + effect);
   vec4 background = vec4(.2, .2, .2, 1.);
-  
-  float frame = get_uv_frame(uv + effect);
-  vec4 color = mix(background, img, frame);
 
-  color.a = mix(0., color.a, frame);
+  float frame = get_uv_frame(worldBox + effect);
+  vec4 color = mix(background, img, frame);
   
+  color.r = box;
+
+  color.a = mix(0., color.a, frame) + box;
   fragColor = color;
 }`;
 
 export default function Page() {
   // React scaffolding
   const [fit, setFit] = useState<'crop' | 'cover' | 'contain'>('crop');
-  const [canvasWidth, setCanvasWidth] = useState(400);
-  const [canvasHeight, setCanvasHeight] = useState(200);
-  const [worldWidth, setWorldWidth] = useState(400);
-  const [worldHeight, setWorldHeight] = useState(400);
+  const [canvasWidth, setCanvasWidth] = useState(600);
+  const [canvasHeight, setCanvasHeight] = useState(400);
+  const [worldWidth, setWorldWidth] = useState(300);
+  const [worldHeight, setWorldHeight] = useState(300);
   const [originX, setOriginX] = useState(0.5);
   const [originY, setOriginY] = useState(0.5);
-
-
+  const [scale, setScale] = useState(1);
+  const [offsetX, setOffsetX] = useState(0);
+  const [offsetY, setOffsetY] = useState(0);
   const [image, setImage] = useState<HTMLImageElement | null>(null);
   const [imageAspectRatio, setImageAspectRatio] = useState<number | null>(null);
 
@@ -79,30 +127,7 @@ export default function Page() {
   const canvasResizeObserver = useRef<ResizeObserver | null>(null);
   const canvasNodeRef = useRef<HTMLDivElement>(null);
 
-  // Sizes
-  const renderedWorldWidth = Math.max(canvasWidth, worldWidth);
-  const renderedWorldHeight = Math.max(canvasHeight, worldHeight);
-
-  const imageWidth = (() => {
-    if (!imageAspectRatio) return 0;
-
-    if (fit === 'cover') {
-      return imageAspectRatio * Math.max(renderedWorldWidth / imageAspectRatio, renderedWorldHeight);
-    }
-
-    if (fit === 'contain') {
-      return imageAspectRatio * Math.min(renderedWorldWidth / imageAspectRatio, renderedWorldHeight);
-    }
-
-    // fit === 'crop'
-    return imageAspectRatio * Math.min(worldWidth / imageAspectRatio, worldHeight);
-  })();
-
-  const imageHeight = (() => {
-    if (!imageAspectRatio) return 0;
-
-    return imageWidth / imageAspectRatio;
-  })();
+  const fitCode = (fit === 'crop' ? 0 : (fit === 'cover' ? 1 : 2));
 
   if (image === null) {
     return null;
@@ -138,10 +163,14 @@ export default function Page() {
             fragmentShader={fragmentShader}
             uniforms={{
               u_texture: image,
-              u_worldWidth: imageWidth,
-              u_worldHeight: imageHeight,
+              u_worldWidth: worldWidth,
+              u_worldHeight: worldHeight,
+              u_fit: fitCode,
               u_originX: originX,
               u_originY: originY,
+              u_scale: scale,
+              u_offsetX: offsetX,
+              u_offsetY: offsetY,
             }}
           />
         </div>
@@ -253,13 +282,55 @@ export default function Page() {
             />
           </div>
 
-          <div className="flex flex-col gap-2">
-            <span className="text-sm font-medium text-black/50">
-              Rendered world width: {Math.round(renderedWorldWidth)}
-            </span>
-            <span className="text-sm font-medium text-black/50">
-              Rendered world height: {Math.round(renderedWorldHeight)}
-            </span>
+          <div className="flex flex-col gap-1">
+            <label htmlFor="scale" className="text-sm font-medium">
+              <span>Scale</span>
+              <span> {scale}</span>
+            </label>
+            <input
+                id="scale"
+                type="range"
+                min={0}
+                max={2}
+                step={0.01}
+                value={scale}
+                className="h-7 rounded bg-black/5 px-2 text-base"
+                onChange={(e) => setScale(Number(e.target.value))}
+            />
+          </div>
+
+          <div className="flex flex-col gap-1">
+            <label htmlFor="offsetX" className="text-sm font-medium">
+              <span>OffsetX</span>
+              <span> {offsetX}</span>
+            </label>
+            <input
+                id="offsetX"
+                type="range"
+                min={-1}
+                max={1}
+                step={0.01}
+                value={offsetX}
+                className="h-7 rounded bg-black/5 px-2 text-base"
+                onChange={(e) => setOffsetX(Number(e.target.value))}
+            />
+          </div>
+
+          <div className="flex flex-col gap-1">
+            <label htmlFor="offsetY" className="text-sm font-medium">
+              <span>offsetY</span>
+              <span> {offsetY}</span>
+            </label>
+            <input
+                id="offsetY"
+                type="range"
+                min={-1}
+                max={1}
+                step={0.01}
+                value={offsetY}
+                className="h-7 rounded bg-black/5 px-2 text-base"
+                onChange={(e) => setOffsetY(Number(e.target.value))}
+            />
           </div>
         </div>
       </div>

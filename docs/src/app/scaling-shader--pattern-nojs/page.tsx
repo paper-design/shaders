@@ -46,13 +46,14 @@ float neuro_shape(vec2 uv, float t) {
   return res.x + res.y;
 }
 
-void main() {  
+void main() {
+
   vec2 worldSize = vec2(u_worldWidth, u_worldHeight) * u_pixelRatio;
+  float worldRatio = worldSize.x / max(worldSize.y, 1e-4);
   
   float maxWidth = max(u_resolution.x, worldSize.x);
   float maxHeight = max(u_resolution.y, worldSize.y);
 
-  float worldRatio = worldSize.x / max(worldSize.y, 1e-4);
   // crop
   float imageWidth = worldRatio * min(worldSize.x / worldRatio, worldSize.y);
   float imageWidthCrop = imageWidth;
@@ -64,20 +65,18 @@ void main() {
     imageWidth = worldRatio * min(maxWidth / worldRatio, maxHeight);
   }
   float imageHeight = imageWidth / worldRatio;
-
-
+  
   vec2 world = vec2(imageWidth, imageHeight);
   vec2 origin = vec2(.5 - u_originX, u_originY - .5);
   vec2 scale = u_resolution.xy / world;
 
-  
   vec2 worldBox = gl_FragCoord.xy / u_resolution.xy;
   worldBox -= .5;
   worldBox *= scale;
   worldBox += origin * (scale - 1.);
   worldBox /= u_scale;
   worldBox += .5;
-  
+
   vec2 uv = gl_FragCoord.xy / u_resolution.xy;
   uv -= .5;
   uv += vec2(-u_offsetX, u_offsetY) / scale;
@@ -87,13 +86,10 @@ void main() {
   uv /= u_scale;
   uv *= u_resolution.xy;
   uv /= u_pixelRatio;
-    
   if (u_fit > 0.) {
     uv *= (imageWidthCrop / imageWidth);
   }
   uv += .5;
-  
-  
 
 
   float t = .0 * u_time;
@@ -108,12 +104,12 @@ void main() {
   vec4 u_colorFront = vec4(0., .2, .5, 1.);
 
   vec3 color = mix(u_colorBack.rgb * u_colorBack.a, u_colorFront.rgb * u_colorFront.a, noise);
-  
+
   vec2 dist = abs(worldBox - .5);  
   float box = (step(max(dist.x, dist.y), .5) - step(max(dist.x, dist.y), .495));
   color.r = box;
-  
-  float opacity = mix(u_colorBack.a, u_colorFront.a, noise);
+
+  float opacity = 1.;
 
   fragColor = vec4(color, opacity);
 }
@@ -308,8 +304,8 @@ export default function Page() {
             <input
                 id="offsetX"
                 type="range"
-                min={-0.5}
-                max={0.5}
+                min={-1}
+                max={1}
                 step={0.01}
                 value={offsetX}
                 className="h-7 rounded bg-black/5 px-2 text-base"
@@ -325,8 +321,8 @@ export default function Page() {
             <input
                 id="offsetY"
                 type="range"
-                min={-0.5}
-                max={0.5}
+                min={-1}
+                max={1}
                 step={0.01}
                 value={offsetY}
                 className="h-7 rounded bg-black/5 px-2 text-base"
