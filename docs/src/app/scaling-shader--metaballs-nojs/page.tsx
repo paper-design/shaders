@@ -19,6 +19,8 @@ uniform float u_worldHeight;
 uniform float u_fit;
 
 uniform float u_scale;
+uniform float u_offsetX;
+uniform float u_offsetY;
 
 out vec4 fragColor;
 
@@ -70,9 +72,11 @@ void main() {
   uv += origin * (scale - 1.);
 
   uv /= u_scale;
-  
   uv += .5;
   
+  vec2 worldBox = uv;
+  uv += vec2(-u_offsetX, u_offsetY);
+
   float t = .5 * u_time;
 
   vec4 u_color1 = vec4(1., .4, .7, 1.);
@@ -119,16 +123,13 @@ void main() {
   float final_shape = smoothstep(.4, .4 + edge_width, total_shape);
 
   vec3 color = total_color * final_shape;
-    
-  vec2 dist = abs(uv);  
+
+  vec2 dist = abs(worldBox - .5);  
   float box = (step(max(dist.x, dist.y), .5) - step(max(dist.x, dist.y), .495));
+  color.r = box;
 
-  float opacity = final_shape;
-
-  if (opacity < .01) {
-    discard;
-  }
-
+  float opacity = 1.;
+  
   fragColor = vec4(color, opacity);
 }
 `;
@@ -142,6 +143,8 @@ export default function Page() {
   const [originX, setOriginX] = useState(0.5);
   const [originY, setOriginY] = useState(0.5);
   const [scale, setScale] = useState(1);
+  const [offsetX, setOffsetX] = useState(0);
+  const [offsetY, setOffsetY] = useState(0);
   const canvasResizeObserver = useRef<ResizeObserver | null>(null);
   const canvasNodeRef = useRef<HTMLDivElement>(null);
 
@@ -182,6 +185,8 @@ export default function Page() {
               u_originX: originX,
               u_originY: originY,
               u_scale: scale,
+              u_offsetX: offsetX,
+              u_offsetY: offsetY,
             }}
           />
         </div>
@@ -294,17 +299,52 @@ export default function Page() {
           </div>
           <div className="flex flex-col gap-1">
             <label htmlFor="scale" className="text-sm font-medium">
-              Scale
+              <span>Scale</span>
+              <span> {scale}</span>
             </label>
             <input
-              id="scale"
-              type="range"
-              min={0}
-              max={2}
-              step={0.01}
-              value={scale}
-              className="h-7 rounded bg-black/5 px-2 text-base"
-              onChange={(e) => setScale(Number(e.target.value))}
+                id="scale"
+                type="range"
+                min={0}
+                max={2}
+                step={0.01}
+                value={scale}
+                className="h-7 rounded bg-black/5 px-2 text-base"
+                onChange={(e) => setScale(Number(e.target.value))}
+            />
+          </div>
+
+          <div className="flex flex-col gap-1">
+            <label htmlFor="offsetX" className="text-sm font-medium">
+              <span>OffsetX</span>
+              <span> {offsetX}</span>
+            </label>
+            <input
+                id="offsetX"
+                type="range"
+                min={-0.5}
+                max={0.5}
+                step={0.01}
+                value={offsetX}
+                className="h-7 rounded bg-black/5 px-2 text-base"
+                onChange={(e) => setOffsetX(Number(e.target.value))}
+            />
+          </div>
+
+          <div className="flex flex-col gap-1">
+            <label htmlFor="offsetY" className="text-sm font-medium">
+              <span>offsetY</span>
+              <span> {offsetY}</span>
+            </label>
+            <input
+                id="offsetY"
+                type="range"
+                min={-0.5}
+                max={0.5}
+                step={0.01}
+                value={offsetY}
+                className="h-7 rounded bg-black/5 px-2 text-base"
+                onChange={(e) => setOffsetY(Number(e.target.value))}
             />
           </div>
         </div>

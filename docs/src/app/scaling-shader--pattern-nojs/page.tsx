@@ -19,6 +19,8 @@ uniform float u_worldHeight;
 uniform float u_fit;
 
 uniform float u_scale;
+uniform float u_offsetX;
+uniform float u_offsetY;
 
 out vec4 fragColor;
 
@@ -78,17 +80,21 @@ void main() {
   
   vec2 uv = gl_FragCoord.xy / u_resolution.xy;
   uv -= .5;
+  uv += vec2(-u_offsetX, u_offsetY) / scale;
 
   uv += origin * (1. - 1. / scale);
   uv *= .003;
+  uv /= u_scale;
   uv *= u_resolution.xy;
   uv /= u_pixelRatio;
     
   if (u_fit > 0.) {
     uv *= (imageWidthCrop / imageWidth);
   }
-  uv /= u_scale;
   uv += .5;
+  
+  
+
 
   float t = .0 * u_time;
 
@@ -99,18 +105,15 @@ void main() {
   noise = max(.0, noise - .5);
   
   vec4 u_colorBack = vec4(0., 0., 0., 1.);
-  vec4 u_colorFront = vec4(0., 1., .5, 1.);
+  vec4 u_colorFront = vec4(0., .2, .5, 1.);
 
   vec3 color = mix(u_colorBack.rgb * u_colorBack.a, u_colorFront.rgb * u_colorFront.a, noise);
   
-  float left   = step(0., worldBox.x);
-  float right  = step( worldBox.x, 1.);
-  float top    = step( worldBox.y, 1.);
-  float bottom = step(0., worldBox.y);
-  float box = left * right * top * bottom;
+  vec2 dist = abs(worldBox - .5);  
+  float box = (step(max(dist.x, dist.y), .5) - step(max(dist.x, dist.y), .495));
+  color.r = box;
   
   float opacity = mix(u_colorBack.a, u_colorFront.a, noise);
-  opacity *= box;
 
   fragColor = vec4(color, opacity);
 }
@@ -118,13 +121,15 @@ void main() {
 export default function Page() {
   // React scaffolding
   const [fit, setFit] = useState<'crop' | 'cover' | 'contain'>('crop');
-  const [canvasWidth, setCanvasWidth] = useState(400);
-  const [canvasHeight, setCanvasHeight] = useState(200);
-  const [worldWidth, setWorldWidth] = useState(500);
-  const [worldHeight, setWorldHeight] = useState(150);
+  const [canvasWidth, setCanvasWidth] = useState(600);
+  const [canvasHeight, setCanvasHeight] = useState(400);
+  const [worldWidth, setWorldWidth] = useState(300);
+  const [worldHeight, setWorldHeight] = useState(300);
   const [originX, setOriginX] = useState(0.5);
   const [originY, setOriginY] = useState(0.5);
   const [scale, setScale] = useState(1);
+  const [offsetX, setOffsetX] = useState(0);
+  const [offsetY, setOffsetY] = useState(0);
   const canvasResizeObserver = useRef<ResizeObserver | null>(null);
   const canvasNodeRef = useRef<HTMLDivElement>(null);
 
@@ -165,6 +170,8 @@ export default function Page() {
               u_originX: originX,
               u_originY: originY,
               u_scale: scale,
+              u_offsetX: offsetX,
+              u_offsetY: offsetY,
             }}
           />
         </div>
@@ -278,7 +285,8 @@ export default function Page() {
 
           <div className="flex flex-col gap-1">
             <label htmlFor="scale" className="text-sm font-medium">
-              Scale
+              <span>Scale</span>
+              <span> {scale}</span>
             </label>
             <input
                 id="scale"
@@ -289,6 +297,40 @@ export default function Page() {
                 value={scale}
                 className="h-7 rounded bg-black/5 px-2 text-base"
                 onChange={(e) => setScale(Number(e.target.value))}
+            />
+          </div>
+
+          <div className="flex flex-col gap-1">
+            <label htmlFor="offsetX" className="text-sm font-medium">
+              <span>OffsetX</span>
+              <span> {offsetX}</span>
+            </label>
+            <input
+                id="offsetX"
+                type="range"
+                min={-0.5}
+                max={0.5}
+                step={0.01}
+                value={offsetX}
+                className="h-7 rounded bg-black/5 px-2 text-base"
+                onChange={(e) => setOffsetX(Number(e.target.value))}
+            />
+          </div>
+
+          <div className="flex flex-col gap-1">
+            <label htmlFor="offsetY" className="text-sm font-medium">
+              <span>offsetY</span>
+              <span> {offsetY}</span>
+            </label>
+            <input
+                id="offsetY"
+                type="range"
+                min={-0.5}
+                max={0.5}
+                step={0.01}
+                value={offsetY}
+                className="h-7 rounded bg-black/5 px-2 text-base"
+                onChange={(e) => setOffsetY(Number(e.target.value))}
             />
           </div>
         </div>
