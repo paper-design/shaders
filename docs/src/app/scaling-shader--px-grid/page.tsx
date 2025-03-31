@@ -26,6 +26,9 @@ out vec4 fragColor;
 
 void main() {
 
+  // ===============================================
+  // START OF API INSERTION 
+
   vec2 worldSize = vec2(u_worldWidth, u_worldHeight) * u_pixelRatio;
   float worldRatio = worldSize.x / max(worldSize.y, 1e-4);
   
@@ -66,6 +69,10 @@ void main() {
   if (u_fit > 0.) {
     uv *= (imageWidthCrop / imageWidth);
   }
+
+  // END OF API INSERTION 
+  // ===============================================
+  
   uv += .5;
 
   

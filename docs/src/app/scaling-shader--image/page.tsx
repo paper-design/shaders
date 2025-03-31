@@ -34,6 +34,9 @@ float get_uv_frame(vec2 uv) {
 
 void main() {
 
+  // ===============================================
+  // START OF API INSERTION 
+
   vec2 worldSize = vec2(u_worldWidth, u_worldHeight) * u_pixelRatio;
   float worldRatio = worldSize.x / max(worldSize.y, 1e-4);
   //   float worldRatio = u_texture_aspect_ratio;
@@ -63,20 +66,23 @@ void main() {
   worldBox += origin * (scale - 1.);
   worldBox /= u_scale;
   worldBox += .5;
-  
+
   vec2 uv = gl_FragCoord.xy / u_resolution.xy;
   uv -= .5;
   uv += vec2(-u_offsetX, u_offsetY) / scale;
 
   uv += origin * (1. - 1. / scale);
-  uv *= .003;
   uv /= u_scale;
   uv *= u_resolution.xy;
   uv /= u_pixelRatio;
   if (u_fit > 0.) {
     uv *= (imageWidthCrop / imageWidth);
   }
-  uv += .5;
+
+  // END OF API INSERTION 
+  // ===============================================
+  
+  uv *= .003;
   
   float t = .0 * u_time;
 
