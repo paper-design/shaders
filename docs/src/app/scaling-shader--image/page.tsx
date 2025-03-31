@@ -118,7 +118,6 @@ export default function Page() {
   const [offsetX, setOffsetX] = useState(0);
   const [offsetY, setOffsetY] = useState(0);
   const [image, setImage] = useState<HTMLImageElement | null>(null);
-  const [imageAspectRatio, setImageAspectRatio] = useState<number | null>(null);
 
   useEffect(() => {
     const img = new Image();
@@ -126,7 +125,6 @@ export default function Page() {
     img.src = '/image-portrait.webp';
     img.onload = () => {
       setImage(img);
-      setImageAspectRatio(img.naturalWidth / img.naturalHeight);
     };
   }, []);
 
