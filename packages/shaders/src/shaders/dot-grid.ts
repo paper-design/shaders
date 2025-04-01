@@ -1,4 +1,4 @@
-import type { ShaderSizingParams, ShaderSizingUniforms } from '../shader-sizing';
+import { patternSizingFragment, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing';
 
 /**
  * Dot Grid Pattern
@@ -16,7 +16,7 @@ import type { ShaderSizingParams, ShaderSizingUniforms } from '../shader-sizing'
  * u_opacityRange(0 .. 1) - variety of dot opacity to be applied equally to fill and stroke
  * u_shape - shape code (0 - circle, 1 - diamond, 2 - square, 3 - triangle)
  */
-export const dotGridFragmentShader = `#version 300 es
+export const dotGridFragmentShader: string = `#version 300 es
 precision highp float;
 
 uniform vec2 u_resolution;
@@ -78,6 +78,7 @@ float polygon(vec2 p, float N, float rot) {
 }
 
 void main() {
+  ${patternSizingFragment};
   vec2 uv = gl_FragCoord.xy;
   uv.y = u_resolution.y - uv.y;
 
