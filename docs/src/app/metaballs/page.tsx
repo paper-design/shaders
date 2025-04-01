@@ -6,6 +6,7 @@ import { setParamsSafe, useResetLevaParams } from '@/helpers/use-reset-leva-para
 import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import Link from 'next/link';
 import { BackButton } from '@/components/back-button';
+import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
 
 /**
  * You can copy/paste this example to use Metaballs in your app
@@ -29,13 +30,10 @@ const MetaballsExample = () => {
  * This example has controls added so you can play with settings in the example app
  */
 
-const defaults = metaballsPresets[0].params;
+const defaults = { ...metaballsPresets[0].params, style: { background: 'hsla(0, 0%, 0%, 0)' } };
 
 const MetaballsWithControls = () => {
   const [params, setParams] = useControls(() => {
-    const presets: MetaballsParams = Object.fromEntries(
-      metaballsPresets.map((preset) => [preset.name, button(() => setParamsSafe(params, setParams, preset.params))])
-    );
     return {
       Parameters: folder(
         {
@@ -49,6 +47,19 @@ const MetaballsWithControls = () => {
         },
         { order: 1 }
       ),
+    };
+  });
+
+  useControls(() => {
+    const presets: MetaballsParams = Object.fromEntries(
+      metaballsPresets.map((preset) => [
+        preset.name,
+        button(() => {
+          setParamsSafe(params, setParams, preset.params);
+        }),
+      ])
+    );
+    return {
       Presets: folder(presets, { order: 2 }),
     };
   });
@@ -56,15 +67,15 @@ const MetaballsWithControls = () => {
   // Reset to defaults on mount, so that Leva doesn't show values from other
   // shaders when navigating (if two shaders have a color1 param for example)
   useResetLevaParams(params, setParams, defaults);
-
   usePresetHighlight(metaballsPresets, params);
+  cleanUpLevaParams(params);
 
   return (
     <>
       <Link href="/">
         <BackButton />
       </Link>
-      <Metaballs {...params} style={{ position: 'fixed', width: '100%', height: '100%' }} />
+      <Metaballs className="fixed size-full" {...params} />
     </>
   );
 };

@@ -12,8 +12,7 @@ export type WavesUniforms = {
 };
 
 /**
- * Stepped Simplex Noise by Ksenia Kondrashova
- * Calculates a combination of 2 simplex noises with result rendered as a stepped gradient
+ * Waves static pattern on the transparent background
  *
  * Uniforms include:
  * u_scale - the scale applied to user space
@@ -78,10 +77,10 @@ void main() {
   offset = mix(offset, irregular, smoothstep(1., 2., u_shape));
   offset = mix(offset, irregular2, smoothstep(2., 3., u_shape));
   offset *= 2. * u_amplitude;
-  
+
   float spacing = .02 + .98 * u_spacing;
   float shape = .5 + .5 * sin((uv.y + offset) * PI / spacing);
-  
+
   float edge_width = .02 / (1. + abs(shape)) * (.001 + u_scale);
   edge_width += .5 * max(0., u_softness);
   float dc = clamp(u_dutyCycle, 0., 1.);
@@ -89,7 +88,7 @@ void main() {
 
   vec3 color = mix(u_color1.rgb * u_color1.a, u_color2.rgb * u_color2.a, t);
   float opacity = mix(u_color1.a, u_color2.a, t);
-  
+
   fragColor = vec4(color, opacity);
 }
 `;

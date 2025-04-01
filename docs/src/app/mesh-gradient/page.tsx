@@ -4,6 +4,7 @@ import { MeshGradient, type MeshGradientParams, meshGradientPresets } from '@pap
 import { useControls, button, folder } from 'leva';
 import { setParamsSafe, useResetLevaParams } from '@/helpers/use-reset-leva-params';
 import { usePresetHighlight } from '@/helpers/use-preset-highlight';
+import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
 import Link from 'next/link';
 import { BackButton } from '@/components/back-button';
 
@@ -53,15 +54,15 @@ const MeshGradientWithControls = () => {
   // Reset to defaults on mount, so that Leva doesn't show values from other
   // shaders when navigating (if two shaders have a color1 param for example)
   useResetLevaParams(params, setParams, defaults);
-
   usePresetHighlight(meshGradientPresets, params);
+  cleanUpLevaParams(params);
 
   return (
     <>
       <Link href="/">
         <BackButton />
       </Link>
-      <MeshGradient {...params} style={{ position: 'fixed', width: '100%', height: '100%' }} />
+      <MeshGradient className="fixed size-full" {...params} />
     </>
   );
 };

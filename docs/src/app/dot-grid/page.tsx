@@ -8,6 +8,7 @@ import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import Link from 'next/link';
 import { BackButton } from '@/components/back-button';
 import { DotGridShapes } from '@paper-design/shaders';
+import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
 
 /**
  * You can copy/paste this example to use DotGrid in your app
@@ -15,8 +16,8 @@ import { DotGridShapes } from '@paper-design/shaders';
 const DotGridExample = () => {
   return (
     <DotGrid
-      colorBack="#00000000"
-      colorFill="#122118"
+      colorBack="#000000"
+      colorFill="#ffffff"
       colorStroke="#f0a519"
       dotSize={2}
       gridSpacingX={50}
@@ -38,9 +39,6 @@ const defaults = dotGridPresets[0].params;
 
 const DotGridWithControls = () => {
   const [params, setParams] = useControls(() => {
-    const presets: DotGridParams = Object.fromEntries(
-      dotGridPresets.map((preset) => [preset.name, button(() => setParamsSafe(params, setParams, preset.params))])
-    );
     return {
       Parameters: folder(
         {
@@ -57,6 +55,14 @@ const DotGridWithControls = () => {
         },
         { order: 1 }
       ),
+    };
+  });
+
+  useControls(() => {
+    const presets: DotGridParams = Object.fromEntries(
+      dotGridPresets.map((preset) => [preset.name, button(() => setParamsSafe(params, setParams, preset.params))])
+    );
+    return {
       Presets: folder(presets, { order: 2 }),
     };
   });
@@ -64,15 +70,15 @@ const DotGridWithControls = () => {
   // Reset to defaults on mount, so that Leva doesn't show values from other
   // shaders when navigating (if two shaders have a color1 param for example)
   useResetLevaParams(params, setParams, defaults);
-
   usePresetHighlight(dotGridPresets, params);
+  cleanUpLevaParams(params);
 
   return (
     <>
       <Link href="/">
         <BackButton />
       </Link>
-      <DotGrid {...params} style={{ position: 'fixed', width: '100%', height: '100%' }} />
+      <DotGrid className="fixed size-full" {...params} />
     </>
   );
 };

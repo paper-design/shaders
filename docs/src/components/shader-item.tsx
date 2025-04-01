@@ -13,6 +13,7 @@ export function ShaderItem({
   name,
   image,
   url,
+  style,
   ShaderComponent,
   shaderConfig,
 }: {
@@ -20,6 +21,7 @@ export function ShaderItem({
   image?: StaticImageData;
   url: string;
   ShaderComponent: React.ComponentType<{ style: React.CSSProperties } & Record<string, unknown>>;
+  style?: React.CSSProperties;
   shaderConfig?: Record<string, unknown>;
 }) {
   const [isHovered, setIsHovered] = useState(false);
@@ -51,6 +53,7 @@ export function ShaderItem({
                   inset: 0,
                   // Some shaders are transparent, adding a background to not see the preview image through
                   background: 'white',
+                  ...style,
                 }}
                 {...shaderConfig}
               />

@@ -68,21 +68,21 @@ uint hash(uvec3 x, uint seed){
     const uint m = 0x5bd1e995U;
     uint hash = seed;
     // process first vector element
-    uint k = x.x; 
+    uint k = x.x;
     k *= m;
     k ^= k >> 24;
     k *= m;
     hash *= m;
     hash ^= k;
     // process second vector element
-    k = x.y; 
+    k = x.y;
     k *= m;
     k ^= k >> 24;
     k *= m;
     hash *= m;
     hash ^= k;
     // process third vector element
-    k = x.z; 
+    k = x.z;
     k *= m;
     k ^= k >> 24;
     k *= m;
@@ -189,20 +189,20 @@ void main() {
     uv *= (.004 * u_scale * u_resolution);
     uv /= u_pixelRatio;
     uv += .5;
-        
+
     vec3 p = vec3(uv, t);
-    
+
     float oct_count = max(0., floor(u_octaveCount));
     float persistence = clamp(u_persistence, 0., 1.);
     float noise = p_noise(p, int(oct_count), persistence, u_lacunarity);
-    
+
     float max_amp = get_max_amp(persistence, oct_count);
     float noise_normalized = (noise + max_amp) / (2. * max_amp) + (u_proportion - .5);
     float sharpness = clamp(u_softness, 0., 1.);
     float smooth_w = 0.5 * fwidth(noise_normalized);
     float sharp_noise = smoothstep(
-        .5 - .5 * sharpness - smooth_w, 
-        .5 + .5 * sharpness + smooth_w, 
+        .5 - .5 * sharpness - smooth_w,
+        .5 + .5 * sharpness + smooth_w,
         noise_normalized
     );
 

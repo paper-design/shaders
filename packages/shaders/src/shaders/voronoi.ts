@@ -47,8 +47,8 @@ uniform float u_scale;
 uniform vec4 u_colorCell1;
 uniform vec4 u_colorCell2;
 uniform vec4 u_colorCell3;
-uniform vec4 u_colorEdges;
 uniform vec4 u_colorMid;
+uniform vec4 u_colorEdges;
 
 uniform float u_colorGradient;
 uniform float u_distance;
@@ -83,7 +83,7 @@ vec4 blend_colors(vec4 c1, vec4 c2, vec4 c3, vec2 randomizer) {
     float blended_opacity_2 = mix(c1.a, c2.a, r1);
     vec3 c = mix(blended_color_2, color3, r2);
     float o = mix(blended_opacity_2, c3.a, r2);
-    
+
     return vec4(c, o);
 }
 
@@ -138,7 +138,7 @@ void main() {
   dot_shape *= cell_shape;
 
   vec4 cell_mix = blend_colors(u_colorCell1, u_colorCell2, u_colorCell3, randomizer);
-  
+
   vec4 edges = vec4(u_colorEdges.rgb * u_colorEdges.a, u_colorEdges.a);
 
   vec3 color = mix(edges.rgb, cell_mix.rgb, cell_shape);

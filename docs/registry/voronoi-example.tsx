@@ -8,7 +8,6 @@ export function VoronoiExample(props: VoronoiProps) {
       colorCell1="#e64d1a"
       colorCell2="#1ae6e6"
       colorCell3="#1aa2e6"
-      colorEdges="#301a03"
       colorGradient={0}
       scale={1}
       distance={0.25}

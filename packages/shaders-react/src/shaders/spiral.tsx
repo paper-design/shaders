@@ -29,8 +29,8 @@ type SpiralPreset = { name: string; params: Required<SpiralParams> };
 export const defaultPreset: SpiralPreset = {
   name: 'Default',
   params: {
-    color1: 'hsla(0, 0%, 90%, 1)',
-    color2: 'hsla(0, 0%, 25%, 1)',
+    color1: 'hsla(0, 0%, 98%, 1)',
+    color2: 'hsla(0, 0%, 50%, 1)',
     scale: 1,
     offsetX: 0,
     offsetY: 0,
@@ -45,7 +45,7 @@ export const defaultPreset: SpiralPreset = {
     speed: 1,
     frame: 0,
   },
-} as const;
+};
 
 export const noisyPreset: SpiralPreset = {
   name: 'Noisy',
@@ -66,7 +66,7 @@ export const noisyPreset: SpiralPreset = {
     speed: 1,
     frame: 0,
   },
-} as const;
+};
 
 export const dropletPreset: SpiralPreset = {
   name: 'Droplet',
@@ -87,7 +87,7 @@ export const dropletPreset: SpiralPreset = {
     speed: 1,
     frame: 0,
   },
-} as const;
+};
 
 export const sandPreset: SpiralPreset = {
   name: 'Sand',
@@ -108,7 +108,7 @@ export const sandPreset: SpiralPreset = {
     speed: 0,
     frame: 0,
   },
-} as const;
+};
 
 export const swirlPreset: SpiralPreset = {
   name: 'Swirl',
@@ -129,7 +129,7 @@ export const swirlPreset: SpiralPreset = {
     speed: 1,
     frame: 0,
   },
-} as const;
+};
 
 export const hookPreset: SpiralPreset = {
   name: 'Hook',
@@ -150,7 +150,7 @@ export const hookPreset: SpiralPreset = {
     speed: 3,
     frame: 0,
   },
-} as const;
+};
 
 export const vinylPreset: SpiralPreset = {
   name: 'Vinyl',
@@ -171,7 +171,7 @@ export const vinylPreset: SpiralPreset = {
     speed: 1,
     frame: 0,
   },
-} as const;
+};
 
 export const spiralPresets: SpiralPreset[] = [
   defaultPreset,
@@ -183,37 +183,52 @@ export const spiralPresets: SpiralPreset[] = [
   vinylPreset,
 ];
 
-export const Spiral = (props: SpiralProps): JSX.Element => {
+export const Spiral = ({
+  color1,
+  color2,
+  scale,
+  offsetX,
+  offsetY,
+  spiralDensity,
+  spiralDistortion,
+  strokeWidth,
+  strokeTaper,
+  strokeCap,
+  noiseFreq,
+  noisePower,
+  softness,
+  ...props
+}: SpiralProps): React.ReactElement => {
   const uniforms: SpiralUniforms = useMemo(() => {
     return {
-      u_color1: getShaderColorFromString(props.color1, defaultPreset.params.color1),
-      u_color2: getShaderColorFromString(props.color2, defaultPreset.params.color2),
-      u_scale: props.scale ?? defaultPreset.params.scale,
-      u_offsetX: props.offsetX ?? defaultPreset.params.offsetX,
-      u_offsetY: props.offsetY ?? defaultPreset.params.offsetY,
-      u_spiralDensity: props.spiralDensity ?? defaultPreset.params.spiralDensity,
-      u_spiralDistortion: props.spiralDistortion ?? defaultPreset.params.spiralDistortion,
-      u_strokeWidth: props.strokeWidth ?? defaultPreset.params.strokeWidth,
-      u_strokeTaper: props.strokeTaper ?? defaultPreset.params.strokeTaper,
-      u_strokeCap: props.strokeCap ?? defaultPreset.params.strokeCap,
-      u_noiseFreq: props.noiseFreq ?? defaultPreset.params.noiseFreq,
-      u_noisePower: props.noisePower ?? defaultPreset.params.noisePower,
-      u_softness: props.softness ?? defaultPreset.params.softness,
+      u_color1: getShaderColorFromString(color1, defaultPreset.params.color1),
+      u_color2: getShaderColorFromString(color2, defaultPreset.params.color2),
+      u_scale: scale ?? defaultPreset.params.scale,
+      u_offsetX: offsetX ?? defaultPreset.params.offsetX,
+      u_offsetY: offsetY ?? defaultPreset.params.offsetY,
+      u_spiralDensity: spiralDensity ?? defaultPreset.params.spiralDensity,
+      u_spiralDistortion: spiralDistortion ?? defaultPreset.params.spiralDistortion,
+      u_strokeWidth: strokeWidth ?? defaultPreset.params.strokeWidth,
+      u_strokeTaper: strokeTaper ?? defaultPreset.params.strokeTaper,
+      u_strokeCap: strokeCap ?? defaultPreset.params.strokeCap,
+      u_noiseFreq: noiseFreq ?? defaultPreset.params.noiseFreq,
+      u_noisePower: noisePower ?? defaultPreset.params.noisePower,
+      u_softness: softness ?? defaultPreset.params.softness,
     };
   }, [
-    props.color1,
-    props.color2,
-    props.scale,
-    props.offsetX,
-    props.offsetY,
-    props.spiralDensity,
-    props.spiralDistortion,
-    props.strokeWidth,
-    props.strokeTaper,
-    props.strokeCap,
-    props.noiseFreq,
-    props.noisePower,
-    props.softness,
+    color1,
+    color2,
+    scale,
+    offsetX,
+    offsetY,
+    spiralDensity,
+    spiralDistortion,
+    strokeWidth,
+    strokeTaper,
+    strokeCap,
+    noiseFreq,
+    noisePower,
+    softness,
   ]);
 
   return <ShaderMount {...props} fragmentShader={spiralFragmentShader} uniforms={uniforms} />;

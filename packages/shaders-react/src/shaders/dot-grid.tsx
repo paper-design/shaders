@@ -32,9 +32,9 @@ type DotGridPreset = { name: string; params: Required<DotGridParams> };
 export const defaultPreset: DotGridPreset = {
   name: 'Default',
   params: {
-    colorBack: 'hsla(358, 66%, 49%, 0)',
-    colorFill: 'hsla(145, 30%, 10%, 1)',
-    colorStroke: 'hsla(39, 88%, 52%, 1)',
+    colorBack: 'hsla(0, 0%, 0%, 1)',
+    colorFill: 'hsla(0, 0%, 100%, 1)',
+    colorStroke: 'hsla(40, 100%, 50%, 1)',
     dotSize: 2,
     gridSpacingX: 50,
     gridSpacingY: 50,
@@ -43,7 +43,7 @@ export const defaultPreset: DotGridPreset = {
     opacityRange: 0,
     shape: DotGridShapes.Circle,
   },
-} as const;
+};
 
 export const macrodataPreset: DotGridPreset = {
   name: 'Macrodata',
@@ -75,7 +75,7 @@ const trianglesPreset: DotGridPreset = {
     opacityRange: 0,
     shape: DotGridShapes.Triangle,
   },
-} as const;
+};
 
 const bubblesPreset: DotGridPreset = {
   name: 'Bubbles',
@@ -91,7 +91,7 @@ const bubblesPreset: DotGridPreset = {
     opacityRange: 1.3,
     shape: DotGridShapes.Circle,
   },
-} as const;
+};
 
 const treeLinePreset: DotGridPreset = {
   name: 'Tree line',
@@ -107,7 +107,7 @@ const treeLinePreset: DotGridPreset = {
     opacityRange: 0.6,
     shape: DotGridShapes.Circle,
   },
-} as const;
+};
 
 const diamondsPreset: DotGridPreset = {
   name: 'Diamonds',
@@ -123,7 +123,7 @@ const diamondsPreset: DotGridPreset = {
     opacityRange: 2,
     shape: DotGridShapes.Diamond,
   },
-} as const;
+};
 
 const wallpaperPreset: DotGridPreset = {
   name: 'Wallpaper',
@@ -139,7 +139,7 @@ const wallpaperPreset: DotGridPreset = {
     opacityRange: 0,
     shape: DotGridShapes.Diamond,
   },
-} as const;
+};
 
 const matrixPreset: DotGridPreset = {
   name: 'Enter the Matrix',
@@ -155,7 +155,7 @@ const matrixPreset: DotGridPreset = {
     opacityRange: 1,
     shape: DotGridShapes.Triangle,
   },
-} as const;
+};
 
 const waveformPreset: DotGridPreset = {
   name: 'Waveform',
@@ -171,7 +171,7 @@ const waveformPreset: DotGridPreset = {
     opacityRange: 0,
     shape: DotGridShapes.Square,
   },
-} as const;
+};
 
 export const dotGridPresets: DotGridPreset[] = [
   defaultPreset,
@@ -185,31 +185,43 @@ export const dotGridPresets: DotGridPreset[] = [
   waveformPreset,
 ];
 
-export const DotGrid = (props: DotGridProps): JSX.Element => {
+export const DotGrid = ({
+  colorBack,
+  colorFill,
+  colorStroke,
+  dotSize,
+  gridSpacingX,
+  gridSpacingY,
+  strokeWidth,
+  sizeRange,
+  opacityRange,
+  shape,
+  ...props
+}: DotGridProps): React.ReactElement => {
   const uniforms: DotGridUniforms = useMemo(() => {
     return {
-      u_colorBack: getShaderColorFromString(props.colorBack, defaultPreset.params.colorBack),
-      u_colorFill: getShaderColorFromString(props.colorFill, defaultPreset.params.colorStroke),
-      u_colorStroke: getShaderColorFromString(props.colorStroke, defaultPreset.params.colorStroke),
-      u_dotSize: props.dotSize ?? defaultPreset.params.dotSize,
-      u_gridSpacingX: props.gridSpacingX ?? defaultPreset.params.gridSpacingX,
-      u_gridSpacingY: props.gridSpacingY ?? defaultPreset.params.gridSpacingY,
-      u_strokeWidth: props.strokeWidth ?? defaultPreset.params.strokeWidth,
-      u_sizeRange: props.sizeRange ?? defaultPreset.params.sizeRange,
-      u_opacityRange: props.opacityRange ?? defaultPreset.params.opacityRange,
-      u_shape: props.shape ?? defaultPreset.params.shape,
+      u_colorBack: getShaderColorFromString(colorBack, defaultPreset.params.colorBack),
+      u_colorFill: getShaderColorFromString(colorFill, defaultPreset.params.colorFill),
+      u_colorStroke: getShaderColorFromString(colorStroke, defaultPreset.params.colorStroke),
+      u_dotSize: dotSize ?? defaultPreset.params.dotSize,
+      u_gridSpacingX: gridSpacingX ?? defaultPreset.params.gridSpacingX,
+      u_gridSpacingY: gridSpacingY ?? defaultPreset.params.gridSpacingY,
+      u_strokeWidth: strokeWidth ?? defaultPreset.params.strokeWidth,
+      u_sizeRange: sizeRange ?? defaultPreset.params.sizeRange,
+      u_opacityRange: opacityRange ?? defaultPreset.params.opacityRange,
+      u_shape: shape ?? defaultPreset.params.shape,
     };
   }, [
-    props.colorBack,
-    props.colorFill,
-    props.colorStroke,
-    props.dotSize,
-    props.gridSpacingX,
-    props.gridSpacingY,
-    props.strokeWidth,
-    props.sizeRange,
-    props.opacityRange,
-    props.shape,
+    colorBack,
+    colorFill,
+    colorStroke,
+    dotSize,
+    gridSpacingX,
+    gridSpacingY,
+    strokeWidth,
+    sizeRange,
+    opacityRange,
+    shape,
   ]);
 
   return <ShaderMount {...props} fragmentShader={dotGridFragmentShader} uniforms={uniforms} />;

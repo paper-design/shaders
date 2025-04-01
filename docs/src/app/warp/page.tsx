@@ -7,6 +7,7 @@ import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import Link from 'next/link';
 import { BackButton } from '@/components/back-button';
 import { PatternShapes } from '@paper-design/shaders';
+import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
 
 /**
  * You can copy/paste this example to use Warp in your app
@@ -70,15 +71,15 @@ const WarpWithControls = () => {
   // Reset to defaults on mount, so that Leva doesn't show values from other
   // shaders when navigating (if two shaders have a color1 param for example)
   useResetLevaParams(params, setParams, defaults);
-
   usePresetHighlight(warpPresets, params);
+  cleanUpLevaParams(params);
 
   return (
     <>
       <Link href="/">
         <BackButton />
       </Link>
-      <Warp {...params} style={{ position: 'fixed', width: '100%', height: '100%' }} />
+      <Warp className="fixed size-full" {...params} />
     </>
   );
 };

@@ -31,21 +31,29 @@ export const defaultPreset: MetaballsPreset = {
     ballSize: 1,
     visibilityRange: 0.4,
   },
-} as const;
+};
 
 export const metaballsPresets: MetaballsPreset[] = [defaultPreset];
 
-export const Metaballs = (props: MetaballsProps): JSX.Element => {
+export const Metaballs = ({
+  scale,
+  color1,
+  color2,
+  color3,
+  ballSize,
+  visibilityRange,
+  ...props
+}: MetaballsProps): React.ReactElement => {
   const uniforms: MetaballsUniforms = useMemo(() => {
     return {
-      u_scale: props.scale ?? defaultPreset.params.scale,
-      u_color1: getShaderColorFromString(props.color1, defaultPreset.params.color1),
-      u_color2: getShaderColorFromString(props.color2, defaultPreset.params.color2),
-      u_color3: getShaderColorFromString(props.color3, defaultPreset.params.color3),
-      u_ballSize: props.ballSize ?? defaultPreset.params.ballSize,
-      u_visibilityRange: props.visibilityRange ?? defaultPreset.params.visibilityRange,
+      u_scale: scale ?? defaultPreset.params.scale,
+      u_color1: getShaderColorFromString(color1, defaultPreset.params.color1),
+      u_color2: getShaderColorFromString(color2, defaultPreset.params.color2),
+      u_color3: getShaderColorFromString(color3, defaultPreset.params.color3),
+      u_ballSize: ballSize ?? defaultPreset.params.ballSize,
+      u_visibilityRange: visibilityRange ?? defaultPreset.params.visibilityRange,
     };
-  }, [props.scale, props.color1, props.color2, props.color3, props.ballSize, props.visibilityRange]);
+  }, [scale, color1, color2, color3, ballSize, visibilityRange]);
 
   return <ShaderMount {...props} fragmentShader={metaballsFragmentShader} uniforms={uniforms} />;
 };

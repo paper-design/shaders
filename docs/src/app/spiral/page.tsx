@@ -6,6 +6,7 @@ import { setParamsSafe, useResetLevaParams } from '@/helpers/use-reset-leva-para
 import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import Link from 'next/link';
 import { BackButton } from '@/components/back-button';
+import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
 
 /**
  * You can copy/paste this example to use Spiral in your app
@@ -41,13 +42,11 @@ const defaults = {
   ...firstPresetParams,
   speed: Math.abs(firstPresetParams.speed),
   reverse: firstPresetParams.speed < 0,
+  style: { background: 'hsla(0, 0%, 0%, 0)' },
 };
 
 const SpiralWithControls = () => {
   const [params, setParams] = useControls(() => {
-    const presets: SpiralParams = Object.fromEntries(
-      spiralPresets.map((preset) => [preset.name, button(() => setParamsSafe(params, setParams, preset.params))])
-    );
     return {
       Parameters: folder(
         {
@@ -69,6 +68,19 @@ const SpiralWithControls = () => {
         },
         { order: 1 }
       ),
+    };
+  });
+
+  useControls(() => {
+    const presets: SpiralParams = Object.fromEntries(
+      spiralPresets.map((preset) => [
+        preset.name,
+        button(() => {
+          setParamsSafe(params, setParams, preset.params);
+        }),
+      ])
+    );
+    return {
       Presets: folder(presets, { order: 2 }),
     };
   });
@@ -76,8 +88,8 @@ const SpiralWithControls = () => {
   // Reset to defaults on mount, so that Leva doesn't show values from other
   // shaders when navigating (if two shaders have a colorBack param for example)
   useResetLevaParams(params, setParams, defaults);
-
   usePresetHighlight(spiralPresets, params);
+  cleanUpLevaParams(params);
 
   const { reverse, ...shaderParams } = { ...params, speed: params.speed * (params.reverse ? -1 : 1) };
 
@@ -86,7 +98,7 @@ const SpiralWithControls = () => {
       <Link href="/">
         <BackButton />
       </Link>
-      <Spiral {...shaderParams} style={{ position: 'fixed', width: '100%', height: '100%' }} />
+      <Spiral className="fixed size-full" {...shaderParams} />
     </>
   );
 };

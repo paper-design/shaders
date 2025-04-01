@@ -1,6 +1,7 @@
 'use client';
 
 import { BackButton } from '@/components/back-button';
+import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
 import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import { setParamsSafe, useResetLevaParams } from '@/helpers/use-reset-leva-params';
 import { GodRays, type GodRaysParams, godRaysPresets } from '@paper-design/shaders-react';
@@ -68,15 +69,15 @@ const GodRaysWithControls = () => {
   // Reset to defaults on mount, so that Leva doesn't show values from other
   // shaders when navigating (if two shaders have a color1 param for example)
   useResetLevaParams(params, setParams, defaults);
-
   usePresetHighlight(godRaysPresets, params);
+  cleanUpLevaParams(params);
 
   return (
     <>
       <Link href="/">
         <BackButton />
       </Link>
-      <GodRays {...params} style={{ position: 'fixed', width: '100%', height: '100%' }} />
+      <GodRays className="fixed size-full" {...params} />
     </>
   );
 };

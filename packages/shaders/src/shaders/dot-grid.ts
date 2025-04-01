@@ -113,7 +113,7 @@ void main() {
   vec2 p = (grid - center) * vec2(u_gridSpacingX, u_gridSpacingY);
 
   float baseSize = u_dotSize * (1. - sizeRandomizer * u_sizeRange);
-  float strokeWidth = u_strokeWidth;
+  float strokeWidth = u_strokeWidth * (1. - sizeRandomizer * u_sizeRange);
 
   float dist;
   if (u_shape < 0.5) {
