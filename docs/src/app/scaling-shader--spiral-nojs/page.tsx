@@ -1,5 +1,3 @@
-/* eslint-disable @next/next/no-img-element */
-
 'use client';
 import { useRef, useState } from 'react';
 import { flushSync } from 'react-dom';
@@ -31,11 +29,11 @@ out vec4 fragColor;
 void main() {
 
   // ===============================================
-  // START OF API INSERTION 
+  // START OF API INSERTION
 
   vec2 worldSize = vec2(u_worldWidth, u_worldHeight) * u_pixelRatio;
   float worldRatio = worldSize.x / max(worldSize.y, 1e-4);
-  
+
   float maxWidth = max(u_resolution.x, worldSize.x);
   float maxHeight = max(u_resolution.y, worldSize.y);
 
@@ -50,7 +48,7 @@ void main() {
     imageWidth = worldRatio * min(maxWidth / worldRatio, maxHeight);
   }
   float imageHeight = imageWidth / worldRatio;
-  
+
   vec2 world = vec2(imageWidth, imageHeight);
   vec2 origin = vec2(.5 - u_originX, u_originY - .5);
   vec2 scale = u_resolution.xy / world;
@@ -74,27 +72,27 @@ void main() {
     uv *= (imageWidthCrop / imageWidth);
   }
 
-  // END OF API INSERTION 
+  // END OF API INSERTION
   // ===============================================
-  
+
   uv *= .03;
 
   float t = .0 * u_time;
 
   vec4 u_color1 = vec4(1., .1, 0., 1.);
   vec4 u_color2 = vec4(1., .2, .4, 1.);
-  
+
   float l = length(uv);
   float angle = atan(uv.y, uv.x) - 2. * t;
-  float angle_norm = angle / TWO_PI;  
+  float angle_norm = angle / TWO_PI;
 
   float offset = l + angle_norm;
-  
+
   float stripe_map = fract(offset);
   stripe_map -= .5;
-  
+
   float shape = 2. * abs(stripe_map - .5);
-      
+
   float stroke_width = .5;
 
   float edge_width = min(fwidth(l), fwidth(offset));
@@ -102,12 +100,12 @@ void main() {
   float mid = 1. - smoothstep(.0, .9, l);
   mid = pow(mid, 2.);
   shape -= .5 * mid;
-  
+
   shape = smoothstep(stroke_width - edge_width, stroke_width + edge_width, shape);
 
   vec3 color = mix(u_color1.rgb * u_color1.a, u_color2.rgb * u_color2.a, shape);
-  
-  vec2 dist = abs(worldBox - .5);  
+
+  vec2 dist = abs(worldBox - .5);
   float box = (step(max(dist.x, dist.y), .5) - step(max(dist.x, dist.y), .495));
   color.r = box;
 
@@ -132,7 +130,7 @@ export default function Page() {
   const canvasResizeObserver = useRef<ResizeObserver | null>(null);
   const canvasNodeRef = useRef<HTMLDivElement>(null);
 
-  const fitCode = (fit === 'crop' ? 0 : (fit === 'cover' ? 1 : 2));
+  const fitCode = fit === 'crop' ? 0 : fit === 'cover' ? 1 : 2;
 
   return (
     <div className="grid min-h-dvh grid-cols-[1fr_300px]">
@@ -288,14 +286,14 @@ export default function Page() {
               <span> {scale}</span>
             </label>
             <input
-                id="scale"
-                type="range"
-                min={0}
-                max={2}
-                step={0.01}
-                value={scale}
-                className="h-7 rounded bg-black/5 px-2 text-base"
-                onChange={(e) => setScale(Number(e.target.value))}
+              id="scale"
+              type="range"
+              min={0}
+              max={2}
+              step={0.01}
+              value={scale}
+              className="h-7 rounded bg-black/5 px-2 text-base"
+              onChange={(e) => setScale(Number(e.target.value))}
             />
           </div>
 
@@ -305,14 +303,14 @@ export default function Page() {
               <span> {offsetX}</span>
             </label>
             <input
-                id="offsetX"
-                type="range"
-                min={-1}
-                max={1}
-                step={0.01}
-                value={offsetX}
-                className="h-7 rounded bg-black/5 px-2 text-base"
-                onChange={(e) => setOffsetX(Number(e.target.value))}
+              id="offsetX"
+              type="range"
+              min={-1}
+              max={1}
+              step={0.01}
+              value={offsetX}
+              className="h-7 rounded bg-black/5 px-2 text-base"
+              onChange={(e) => setOffsetX(Number(e.target.value))}
             />
           </div>
 
@@ -322,14 +320,14 @@ export default function Page() {
               <span> {offsetY}</span>
             </label>
             <input
-                id="offsetY"
-                type="range"
-                min={-1}
-                max={1}
-                step={0.01}
-                value={offsetY}
-                className="h-7 rounded bg-black/5 px-2 text-base"
-                onChange={(e) => setOffsetY(Number(e.target.value))}
+              id="offsetY"
+              type="range"
+              min={-1}
+              max={1}
+              step={0.01}
+              value={offsetY}
+              className="h-7 rounded bg-black/5 px-2 text-base"
+              onChange={(e) => setOffsetY(Number(e.target.value))}
             />
           </div>
         </div>

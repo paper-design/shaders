@@ -4,7 +4,8 @@ import { BackButton } from '@/components/back-button';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
 import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import { setParamsSafe, useResetLevaParams } from '@/helpers/use-reset-leva-params';
-import { GodRays, type GodRaysParams, godRaysPresets } from '@paper-design/shaders-react';
+import { GodRays, godRaysPresets } from '@paper-design/shaders-react';
+import { ShaderFitOptions, ShaderFit } from '@paper-design/shaders';
 import { useControls, button, folder } from 'leva';
 import Link from 'next/link';
 
@@ -40,7 +41,7 @@ const defaults = godRaysPresets[0].params;
 
 const GodRaysWithControls = () => {
   const [params, setParams] = useControls(() => {
-    const presets: GodRaysParams = Object.fromEntries(
+    const presets = Object.fromEntries(
       godRaysPresets.map((preset) => [preset.name, button(() => setParamsSafe(params, setParams, preset.params))])
     );
     return {
@@ -50,8 +51,6 @@ const GodRaysWithControls = () => {
           color1: { value: defaults.color1, order: 101 },
           color2: { value: defaults.color2, order: 102 },
           color3: { value: defaults.color2, order: 103 },
-          offsetX: { value: defaults.offsetX, min: -1.5, max: 1.5, order: 301 },
-          offsetY: { value: defaults.offsetY, min: -1.5, max: 1.5, order: 302 },
           frequency: { value: defaults.frequency, min: 0, max: 30, order: 303 },
           spotty: { value: defaults.spotty, min: 0, max: 1, order: 304 },
           midSize: { value: defaults.midSize, min: 0, max: 5, order: 305 },
@@ -61,6 +60,22 @@ const GodRaysWithControls = () => {
           speed: { value: defaults.speed, min: 0, max: 2, order: 400 },
         },
         { order: 1 }
+      ),
+      Sizing: folder(
+        {
+          fit: { value: defaults.fit, options: Object.keys(ShaderFitOptions) as ShaderFit[], order: 400 },
+          scale: { value: defaults.scale, min: 0.01, max: 4, order: 401 },
+          originX: { value: defaults.originX, min: 0, max: 1, order: 402 },
+          originY: { value: defaults.originY, min: 0, max: 1, order: 403 },
+          offsetX: { value: defaults.offsetX, min: -2, max: 2, order: 404 },
+          offsetY: { value: defaults.offsetY, min: -2, max: 2, order: 405 },
+          worldWidth: { value: defaults.worldWidth, min: 0, max: 4000, order: 406 },
+          worldHeight: { value: defaults.worldHeight, min: 0, max: 4000, order: 407 },
+        },
+        {
+          order: 2,
+          collapsed: true,
+        }
       ),
       Presets: folder(presets, { order: 2 }),
     };

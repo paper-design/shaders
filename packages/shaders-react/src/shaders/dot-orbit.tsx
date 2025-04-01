@@ -1,21 +1,18 @@
 import { useMemo } from 'react';
-import { ShaderMount, type GlobalParams, type ShaderMountProps } from '../shader-mount';
-import { getShaderColorFromString, dotOrbitFragmentShader, type DotOrbitUniforms } from '@paper-design/shaders';
+import { ShaderMount, type ShaderComponentProps } from '../shader-mount';
+import {
+  getShaderColorFromString,
+  dotOrbitFragmentShader,
+  ShaderFitOptions,
+  type DotOrbitParams,
+  type DotOrbitUniforms,
+  type ShaderPreset,
+  defaultPatternSizing,
+} from '@paper-design/shaders';
 
-export type DotOrbitParams = {
-  scale?: number;
-  color1?: string;
-  color2?: string;
-  color3?: string;
-  color4?: string;
-  dotSize?: number;
-  dotSizeRange?: number;
-  spreading?: number;
-} & GlobalParams;
+export interface DotOrbitProps extends ShaderComponentProps, DotOrbitParams {}
 
-export type DotOrbitProps = Omit<ShaderMountProps, 'fragmentShader'> & DotOrbitParams;
-
-type DotOrbitPreset = { name: string; params: Required<DotOrbitParams> };
+type DotOrbitPreset = ShaderPreset<DotOrbitParams>;
 
 // Due to Leva controls limitation:
 // 1) keep default colors in HSLA format to keep alpha channel
@@ -24,7 +21,7 @@ type DotOrbitPreset = { name: string; params: Required<DotOrbitParams> };
 export const defaultPreset: DotOrbitPreset = {
   name: 'Default',
   params: {
-    scale: 1,
+    ...defaultPatternSizing,
     speed: 2,
     frame: 0,
     color1: 'hsla(358, 66%, 49%, 1)',
@@ -40,28 +37,71 @@ export const defaultPreset: DotOrbitPreset = {
 export const dotOrbitPresets: DotOrbitPreset[] = [defaultPreset];
 
 export const DotOrbit = ({
-  scale,
-  color1,
-  color2,
-  color3,
-  color4,
-  dotSize,
-  dotSizeRange,
-  spreading,
+  // Own props
+  speed = defaultPreset.params.speed,
+  frame = defaultPreset.params.frame,
+  color1 = defaultPreset.params.color1,
+  color2 = defaultPreset.params.color2,
+  color3 = defaultPreset.params.color3,
+  color4 = defaultPreset.params.color4,
+  dotSize = defaultPreset.params.dotSize,
+  dotSizeRange = defaultPreset.params.dotSizeRange,
+  spreading = defaultPreset.params.spreading,
+
+  // Sizing props
+  fit = defaultPreset.params.fit,
+  worldWidth = defaultPreset.params.worldWidth,
+  worldHeight = defaultPreset.params.worldHeight,
+  scale = defaultPreset.params.scale,
+  originX = defaultPreset.params.originX,
+  originY = defaultPreset.params.originY,
+  offsetX = defaultPreset.params.offsetX,
+  offsetY = defaultPreset.params.offsetY,
   ...props
 }: DotOrbitProps): React.ReactElement => {
-  const uniforms: DotOrbitUniforms = useMemo(() => {
+  const uniforms = useMemo(() => {
     return {
-      u_scale: scale ?? defaultPreset.params.scale,
-      u_color1: getShaderColorFromString(color1, defaultPreset.params.color1),
-      u_color2: getShaderColorFromString(color2, defaultPreset.params.color2),
-      u_color3: getShaderColorFromString(color3, defaultPreset.params.color3),
-      u_color4: getShaderColorFromString(color4, defaultPreset.params.color4),
-      u_dotSize: dotSize ?? defaultPreset.params.dotSize,
-      u_dotSizeRange: dotSizeRange ?? defaultPreset.params.dotSizeRange,
-      u_spreading: spreading ?? defaultPreset.params.spreading,
-    };
-  }, [scale, color1, color2, color3, color4, dotSize, dotSizeRange, spreading]);
+      // Own uniforms
+      u_color1: getShaderColorFromString(color1),
+      u_color2: getShaderColorFromString(color2),
+      u_color3: getShaderColorFromString(color3),
+      u_color4: getShaderColorFromString(color4),
+      u_dotSize: dotSize,
+      u_dotSizeRange: dotSizeRange,
+      u_spreading: spreading,
 
-  return <ShaderMount {...props} fragmentShader={dotOrbitFragmentShader} uniforms={uniforms} />;
+      // Sizing uniforms
+      u_fit: ShaderFitOptions[fit],
+      u_scale: scale,
+      u_offsetX: offsetX,
+      u_offsetY: offsetY,
+      u_originX: originX,
+      u_originY: originY,
+      u_worldWidth: worldWidth,
+      u_worldHeight: worldHeight,
+    } satisfies DotOrbitUniforms;
+  }, [
+    // Own props
+    color1,
+    color2,
+    color3,
+    color4,
+    dotSize,
+    dotSizeRange,
+    spreading,
+
+    // Sizing props
+    fit,
+    scale,
+    offsetX,
+    offsetY,
+    originX,
+    originY,
+    worldWidth,
+    worldHeight,
+  ]);
+
+  return (
+    <ShaderMount {...props} speed={speed} frame={frame} fragmentShader={dotOrbitFragmentShader} uniforms={uniforms} />
+  );
 };

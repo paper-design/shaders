@@ -1,13 +1,4 @@
-export type DotOrbitUniforms = {
-  u_scale: number;
-  u_color1: [number, number, number, number];
-  u_color2: [number, number, number, number];
-  u_color3: [number, number, number, number];
-  u_color4: [number, number, number, number];
-  u_dotSize: number;
-  u_dotSizeRange: number;
-  u_spreading: number;
-};
+import type { ShaderMotionParams, ShaderSizingParams, ShaderSizingUniforms } from '../shader-mount';
 
 /**
  * Dot Pattern with dot moving around their grid position
@@ -24,7 +15,6 @@ export type DotOrbitUniforms = {
  * u_dotSizeRange (0 .. 1) - the dot radius to vary between the cells
  * u_spreading (0 .. 1) - the distance each dot can move around the regular grid
  */
-
 export const dotOrbitFragmentShader = `#version 300 es
 precision highp float;
 
@@ -113,3 +103,23 @@ void main() {
   fragColor = vec4(color * opacity, opacity);
 }
 `;
+
+export interface DotOrbitUniforms extends ShaderSizingUniforms {
+  u_color1: [number, number, number, number];
+  u_color2: [number, number, number, number];
+  u_color3: [number, number, number, number];
+  u_color4: [number, number, number, number];
+  u_dotSize: number;
+  u_dotSizeRange: number;
+  u_spreading: number;
+}
+
+export interface DotOrbitParams extends ShaderSizingParams, ShaderMotionParams {
+  color1?: string;
+  color2?: string;
+  color3?: string;
+  color4?: string;
+  dotSize?: number;
+  dotSizeRange?: number;
+  spreading?: number;
+}

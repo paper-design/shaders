@@ -1,13 +1,12 @@
 'use client';
 
-import { DotGrid, type DotGridParams, dotGridPresets } from '@paper-design/shaders-react';
-
+import { DotGrid, dotGridPresets } from '@paper-design/shaders-react';
 import { useControls, button, folder } from 'leva';
 import { setParamsSafe, useResetLevaParams } from '@/helpers/use-reset-leva-params';
 import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import Link from 'next/link';
 import { BackButton } from '@/components/back-button';
-import { DotGridShapes } from '@paper-design/shaders';
+import { DotGridShape, DotGridShapes, ShaderFit, ShaderFitOptions } from '@paper-design/shaders';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
 
 /**
@@ -25,7 +24,7 @@ const DotGridExample = () => {
       strokeWidth={0}
       sizeRange={0}
       opacityRange={0}
-      shape={0}
+      shape="circle"
       style={{ position: 'fixed', width: '100%', height: '100%' }}
     />
   );
@@ -51,15 +50,35 @@ const DotGridWithControls = () => {
           strokeWidth: { value: defaults.dotSize, min: 0, max: 50, order: 304 },
           sizeRange: { value: defaults.gridSpacingY, min: 0, max: 1, order: 305 },
           opacityRange: { value: defaults.gridSpacingY, min: 0, max: 1, order: 306 },
-          shape: { value: defaults.shape, options: DotGridShapes, order: 350 },
+          shape: {
+            value: defaults.shape,
+            options: Object.keys(DotGridShapes) as DotGridShape[],
+            order: 350,
+          },
         },
         { order: 1 }
+      ),
+      Sizing: folder(
+        {
+          fit: { value: defaults.fit, options: Object.keys(ShaderFitOptions) as ShaderFit[], order: 400 },
+          scale: { value: defaults.scale, min: 0.01, max: 4, order: 401 },
+          originX: { value: defaults.originX, min: 0, max: 1, order: 402 },
+          originY: { value: defaults.originY, min: 0, max: 1, order: 403 },
+          offsetX: { value: defaults.offsetX, min: -2, max: 2, order: 404 },
+          offsetY: { value: defaults.offsetY, min: -2, max: 2, order: 405 },
+          worldWidth: { value: defaults.worldWidth, min: 0, max: 4000, order: 406 },
+          worldHeight: { value: defaults.worldHeight, min: 0, max: 4000, order: 407 },
+        },
+        {
+          order: 2,
+          collapsed: true,
+        }
       ),
     };
   });
 
   useControls(() => {
-    const presets: DotGridParams = Object.fromEntries(
+    const presets = Object.fromEntries(
       dotGridPresets.map((preset) => [preset.name, button(() => setParamsSafe(params, setParams, preset.params))])
     );
     return {

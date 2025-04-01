@@ -1,18 +1,4 @@
-export type SpiralUniforms = {
-  u_color1: [number, number, number, number];
-  u_color2: [number, number, number, number];
-  u_scale: number;
-  u_offsetX: number;
-  u_offsetY: number;
-  u_spiralDensity: number;
-  u_spiralDistortion: number;
-  u_strokeWidth: number;
-  u_strokeTaper: number;
-  u_strokeCap: number;
-  u_noiseFreq: number;
-  u_noisePower: number;
-  u_softness: number;
-};
+import type { ShaderMotionParams, ShaderSizingParams, ShaderSizingUniforms } from '../shader-mount';
 
 /**
  * Spiral shape
@@ -35,7 +21,6 @@ export type SpiralUniforms = {
  * u_noisePower (0 .. 1) - strength of the noise effect.
  * u_softness - softens the edges of the spiral for a smoother appearance.
  */
-
 export const spiralFragmentShader = `#version 300 es
 precision highp float;
 
@@ -107,21 +92,21 @@ void main() {
 
   float l = length(uv);
   float angle = atan(uv.y, uv.x) - 2. * t;
-  float angle_norm = angle / TWO_PI;  
+  float angle_norm = angle / TWO_PI;
 
   angle_norm += .125 * u_noisePower * snoise(.5 * u_noiseFreq * uv);
 
   float offset = pow(l, 1. - clamp(u_spiralDensity, 0., 1.)) + angle_norm;
-  
+
   float stripe_map = fract(offset);
   stripe_map -= .5 * u_strokeTaper * l;
-  
+
   stripe_map += .25 * u_noisePower * snoise(u_noiseFreq * uv);
 
   float shape = 2. * abs(stripe_map - .5);
-  
+
   shape *= (1. + u_spiralDistortion * sin(4. * l - t) * cos(PI + l + t));
-    
+
   float stroke_width = clamp(u_strokeWidth, fwidth(l), 1. - fwidth(l));
 
   float edge_width = min(fwidth(l), fwidth(offset));
@@ -129,7 +114,7 @@ void main() {
   float mid = 1. - smoothstep(.0, .9, l);
   mid = pow(mid, 2.);
   shape -= .5 * u_strokeCap * mid;
-  
+
   shape = smoothstep(stroke_width - edge_width - u_softness, stroke_width + edge_width + u_softness, shape);
 
   vec3 color = mix(u_color1.rgb * u_color1.a, u_color2.rgb * u_color2.a, shape);
@@ -138,3 +123,29 @@ void main() {
   fragColor = vec4(color, opacity);
 }
 `;
+
+export interface SpiralUniforms extends ShaderSizingUniforms {
+  u_color1: [number, number, number, number];
+  u_color2: [number, number, number, number];
+  u_spiralDensity: number;
+  u_spiralDistortion: number;
+  u_strokeWidth: number;
+  u_strokeTaper: number;
+  u_strokeCap: number;
+  u_noiseFreq: number;
+  u_noisePower: number;
+  u_softness: number;
+}
+
+export interface SpiralParams extends ShaderSizingParams, ShaderMotionParams {
+  color1?: string;
+  color2?: string;
+  spiralDensity?: number;
+  spiralDistortion?: number;
+  strokeWidth?: number;
+  strokeTaper?: number;
+  strokeCap?: number;
+  noiseFreq?: number;
+  noisePower?: number;
+  softness?: number;
+}

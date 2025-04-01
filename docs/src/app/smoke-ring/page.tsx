@@ -7,6 +7,8 @@ import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import Link from 'next/link';
 import { BackButton } from '@/components/back-button';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
+import { ShaderFitOptions } from '@paper-design/shaders';
+import { ShaderFit } from '@paper-design/shaders';
 
 /**
  * You can copy/paste this example to use SmokeRing in your app
@@ -45,7 +47,6 @@ const SmokeRingWithControls = () => {
           colorBack: { value: defaults.colorBack, order: 100 },
           colorInner: { value: defaults.colorInner, order: 101 },
           colorOuter: { value: defaults.colorOuter, order: 102 },
-          scale: { value: defaults.scale, min: 0.5, max: 1.5, order: 200 },
           noiseScale: { value: defaults.noiseScale, min: 0.01, max: 5, order: 300 },
           thickness: { value: defaults.thickness, min: 0.1, max: 2, order: 301 },
           speed: { value: defaults.speed, min: 0, max: 4, order: 400 },
@@ -53,11 +54,27 @@ const SmokeRingWithControls = () => {
         },
         { order: 1 }
       ),
+      Sizing: folder(
+        {
+          fit: { value: defaults.fit, options: Object.keys(ShaderFitOptions) as ShaderFit[], order: 400 },
+          scale: { value: defaults.scale, min: 0.01, max: 4, order: 401 },
+          originX: { value: defaults.originX, min: 0, max: 1, order: 402 },
+          originY: { value: defaults.originY, min: 0, max: 1, order: 403 },
+          offsetX: { value: defaults.offsetX, min: -2, max: 2, order: 404 },
+          offsetY: { value: defaults.offsetY, min: -2, max: 2, order: 405 },
+          worldWidth: { value: defaults.worldWidth, min: 0, max: 4000, order: 406 },
+          worldHeight: { value: defaults.worldHeight, min: 0, max: 4000, order: 407 },
+        },
+        {
+          order: 2,
+          collapsed: true,
+        }
+      ),
     };
   });
 
   useControls(() => {
-    const presets: SmokeRingParams = Object.fromEntries(
+    const presets = Object.fromEntries(
       smokeRingPresets.map((preset) => [
         preset.name,
         button(() => {

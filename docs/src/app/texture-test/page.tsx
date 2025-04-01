@@ -25,11 +25,11 @@ vec2 get_img_uv(vec2 uv, float canvas_ratio, float img_ratio) {
 
   vec2 img_uv = uv;
   img_uv.y = 1. - img_uv.y;
-  
+
   if (is_centered) {
-    img_uv -= .5;  
+    img_uv -= .5;
   }
-  
+
   if (is_cover) {
     if (canvas_ratio > img_ratio) {
       img_uv.y *= (img_ratio / canvas_ratio);
@@ -37,17 +37,17 @@ vec2 get_img_uv(vec2 uv, float canvas_ratio, float img_ratio) {
       img_uv.x *= (canvas_ratio / img_ratio);
     }
   } else {
-    // fit canvas    
+    // fit canvas
     if (canvas_ratio > img_ratio) {
       img_uv.x = img_uv.x * canvas_ratio / img_ratio;
     } else {
       img_uv.y = img_uv.y * img_ratio / canvas_ratio;
     }
   }
-  
+
   img_uv /= scale_factor;
   if (is_centered) {
-    img_uv += .5;  
+    img_uv += .5;
   }
 
   return img_uv;
@@ -60,14 +60,14 @@ float get_uv_frame(vec2 uv) {
 void main() {
   vec2 uv = gl_FragCoord.xy / u_resolution.xy;
   float ratio = u_resolution.x / u_resolution.y;
-  
+
   vec2 inage_uv = get_img_uv(uv, ratio, u_texture_aspect_ratio);
-  
+
   vec4 img = texture(u_texture, inage_uv);
   vec4 background = vec4(.2, .2, .2, 1.);
-  
+
   float frame = get_uv_frame(inage_uv);
-  
+
   vec4 color = mix(background, img, frame);
   fragColor = color;
 }`;

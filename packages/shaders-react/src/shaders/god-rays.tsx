@@ -1,25 +1,18 @@
 import { useMemo } from 'react';
-import { ShaderMount, type GlobalParams, type ShaderMountProps } from '../shader-mount';
-import { getShaderColorFromString, godRaysFragmentShader, type GodRaysUniforms } from '@paper-design/shaders';
+import { ShaderMount, type ShaderComponentProps } from '../shader-mount';
+import {
+  defaultObjectSizing,
+  getShaderColorFromString,
+  godRaysFragmentShader,
+  ShaderFitOptions,
+  type GodRaysParams,
+  type GodRaysUniforms,
+  type ShaderPreset,
+} from '@paper-design/shaders';
 
-export type GodRaysParams = {
-  colorBack?: string;
-  color1?: string;
-  color2?: string;
-  color3?: string;
-  offsetX?: number;
-  offsetY?: number;
-  frequency?: number;
-  spotty?: number;
-  midIntensity?: number;
-  midSize?: number;
-  density?: number;
-  blending?: number;
-} & GlobalParams;
+export interface GodRaysProps extends ShaderComponentProps, GodRaysParams {}
 
-export type GodRaysProps = Omit<ShaderMountProps, 'fragmentShader'> & GodRaysParams;
-
-type GodRaysPreset = { name: string; params: Required<GodRaysParams> };
+type GodRaysPreset = ShaderPreset<GodRaysParams>;
 
 // Due to Leva controls limitation:
 // 1) keep default colors in HSLA format to keep alpha channel
@@ -28,6 +21,8 @@ type GodRaysPreset = { name: string; params: Required<GodRaysParams> };
 export const defaultPreset: GodRaysPreset = {
   name: 'Default',
   params: {
+    ...defaultObjectSizing,
+    scale: 1,
     colorBack: 'hsla(215, 100%, 11%, 1)',
     color1: 'hsla(45, 100%, 70%, 1)',
     color2: 'hsla(10, 100%, 80%, 1)',
@@ -48,6 +43,8 @@ export const defaultPreset: GodRaysPreset = {
 export const auroraPreset: GodRaysPreset = {
   name: 'Aurora',
   params: {
+    ...defaultObjectSizing,
+    scale: 1,
     colorBack: 'hsla(0, 0%, 25%, 1)',
     color1: 'hsla(239, 100%, 70%, 1)',
     color2: 'hsla(150, 100%, 70%, 1)',
@@ -68,6 +65,8 @@ export const auroraPreset: GodRaysPreset = {
 export const warpPreset: GodRaysPreset = {
   name: 'Warp',
   params: {
+    ...defaultObjectSizing,
+    scale: 1,
     colorBack: 'hsla(0, 0%, 0%, 1)',
     color1: 'hsla(317, 100%, 50%, 1)',
     color2: 'hsla(25, 100%, 50%, 1)',
@@ -88,6 +87,8 @@ export const warpPreset: GodRaysPreset = {
 export const linearPreset: GodRaysPreset = {
   name: 'Linear',
   params: {
+    ...defaultObjectSizing,
+    scale: 1,
     colorBack: 'hsla(0, 0%, 0%, 1)',
     color1: 'hsl(0 0% 100% / 12%)',
     color2: 'hsl(0 0% 100% / 24%)',
@@ -108,6 +109,8 @@ export const linearPreset: GodRaysPreset = {
 export const etherPreset: GodRaysPreset = {
   name: 'Ether',
   params: {
+    ...defaultObjectSizing,
+    scale: 1,
     colorBack: 'hsl(226.7 50% 7.1% / 100%)',
     color1: 'hsl(215 100% 53.9% / 65.1%)',
     color2: 'hsl(214.4 85.9% 86.1% / 74.9%)',
@@ -128,49 +131,80 @@ export const etherPreset: GodRaysPreset = {
 export const godRaysPresets: GodRaysPreset[] = [defaultPreset, auroraPreset, warpPreset, linearPreset, etherPreset];
 
 export const GodRays = ({
-  colorBack,
-  color1,
-  color2,
-  color3,
-  offsetX,
-  offsetY,
-  frequency,
-  spotty,
-  midIntensity,
-  midSize,
-  density,
-  blending,
+  // Own props
+  speed = defaultPreset.params.speed,
+  frame = defaultPreset.params.frame,
+  colorBack = defaultPreset.params.colorBack,
+  color1 = defaultPreset.params.color1,
+  color2 = defaultPreset.params.color2,
+  color3 = defaultPreset.params.color3,
+  frequency = defaultPreset.params.frequency,
+  spotty = defaultPreset.params.spotty,
+  midIntensity = defaultPreset.params.midIntensity,
+  midSize = defaultPreset.params.midSize,
+  density = defaultPreset.params.density,
+  blending = defaultPreset.params.blending,
+
+  // Sizing props
+  fit = defaultPreset.params.fit,
+  worldWidth = defaultPreset.params.worldWidth,
+  worldHeight = defaultPreset.params.worldHeight,
+  scale = defaultPreset.params.scale,
+  originX = defaultPreset.params.originX,
+  originY = defaultPreset.params.originY,
+  offsetX = defaultPreset.params.offsetX,
+  offsetY = defaultPreset.params.offsetY,
   ...props
 }: GodRaysProps): React.ReactElement => {
-  const uniforms: GodRaysUniforms = useMemo(() => {
+  const uniforms = useMemo(() => {
     return {
-      u_colorBack: getShaderColorFromString(colorBack, defaultPreset.params.colorBack),
-      u_color1: getShaderColorFromString(color1, defaultPreset.params.color1),
-      u_color2: getShaderColorFromString(color2, defaultPreset.params.color2),
-      u_color3: getShaderColorFromString(color3, defaultPreset.params.color3),
-      u_offsetX: offsetX ?? defaultPreset.params.offsetX,
-      u_offsetY: offsetY ?? defaultPreset.params.offsetY,
-      u_frequency: frequency ?? defaultPreset.params.frequency,
-      u_spotty: spotty ?? defaultPreset.params.spotty,
-      u_midIntensity: midIntensity ?? defaultPreset.params.midIntensity,
-      u_midSize: midSize ?? defaultPreset.params.midSize,
-      u_density: density ?? defaultPreset.params.density,
-      u_blending: blending ?? defaultPreset.params.blending,
-    };
+      // Own uniforms
+      u_colorBack: getShaderColorFromString(colorBack),
+      u_color1: getShaderColorFromString(color1),
+      u_color2: getShaderColorFromString(color2),
+      u_color3: getShaderColorFromString(color3),
+      u_frequency: frequency,
+      u_spotty: spotty,
+      u_midIntensity: midIntensity,
+      u_midSize: midSize,
+      u_density: density,
+      u_blending: blending,
+
+      // Sizing uniforms
+      u_fit: ShaderFitOptions[fit],
+      u_scale: scale,
+      u_offsetX: offsetX,
+      u_offsetY: offsetY,
+      u_originX: originX,
+      u_originY: originY,
+      u_worldWidth: worldWidth,
+      u_worldHeight: worldHeight,
+    } satisfies GodRaysUniforms;
   }, [
+    // Own props
     colorBack,
     color1,
     color2,
     color3,
-    offsetX,
-    offsetY,
     frequency,
     spotty,
     midIntensity,
     midSize,
     density,
     blending,
+
+    // Sizing props
+    fit,
+    scale,
+    offsetX,
+    offsetY,
+    originX,
+    originY,
+    worldWidth,
+    worldHeight,
   ]);
 
-  return <ShaderMount {...props} fragmentShader={godRaysFragmentShader} uniforms={uniforms} />;
+  return (
+    <ShaderMount {...props} speed={speed} frame={frame} fragmentShader={godRaysFragmentShader} uniforms={uniforms} />
+  );
 };

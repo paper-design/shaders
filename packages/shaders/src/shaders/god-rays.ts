@@ -1,17 +1,4 @@
-export type GodRaysUniforms = {
-  u_offsetX: number;
-  u_offsetY: number;
-  u_colorBack: [number, number, number, number];
-  u_color1: [number, number, number, number];
-  u_color2: [number, number, number, number];
-  u_color3: [number, number, number, number];
-  u_spotty: number;
-  u_midSize: number;
-  u_midIntensity: number;
-  u_frequency: number;
-  u_density: number;
-  u_blending: number;
-};
+import type { ShaderMotionParams, ShaderSizingParams, ShaderSizingUniforms } from '../shader-mount';
 
 /**
  * GodRays pattern
@@ -33,7 +20,6 @@ export type GodRaysUniforms = {
  * u_density (0 .. 1) - the number of visible rays
  * u_blending (0 .. 1) - blending mode (0 for color mix, 1 for additive blending)
  */
-
 export const godRaysFragmentShader = `#version 300 es
 precision highp float;
 
@@ -112,18 +98,18 @@ void main() {
 
   float rays1 = get_noise_shape(uv, radius * spots, 5. * u_frequency, density, t);
   rays1 *= get_noise_shape(uv, .5 + .75 * radius * spots, 4. * u_frequency, density, -.5 * t);
-  
+
   float rays2 = get_noise_shape(uv, 1.5 * radius, 12. * u_frequency, density, t);
   rays2 *= get_noise_shape(uv, -.5 + 1.1 * radius * spots, 7. * u_frequency, density, .75 * t);
-  
+
   float rays3 = get_noise_shape(uv, 2. * radius * spots, 10. * u_frequency, density, t);
   rays3 *= get_noise_shape(uv, 1.1 * radius, 12. * u_frequency, density, .2 * t);
 
-  float mid_shape = smoothstep(1. * abs(u_midSize), .05 * abs(u_midSize), radius);  
+  float mid_shape = smoothstep(1. * abs(u_midSize), .05 * abs(u_midSize), radius);
   rays3 = mix(rays3, 1., (.5 + .5 * rays1) * u_midIntensity * pow(mid_shape, 7.));
   rays2 = mix(rays2, 1., (.5 + .5 * rays3) * u_midIntensity * pow(mid_shape, 3.));
   rays1 = mix(rays1, 1., u_midIntensity * pow(mid_shape, 5.));
-  
+
   float opacity = rays2 * u_color2.a;
   opacity += rays3 * u_color3.a;
   opacity += rays1 * u_color1.a;
@@ -138,13 +124,39 @@ void main() {
   added_color += u_colorBack.rgb * rays1 * (1.0 - u_color1.a) * u_colorBack.a;
   added_color += u_colorBack.rgb * rays2 * (1.0 - u_color2.a) * u_colorBack.a;
   added_color += u_colorBack.rgb * rays3 * (1.0 - u_color3.a) * u_colorBack.a;
-  
+
   vec3 mixed_color = mix(u_colorBack.rgb * u_colorBack.a, u_color2.rgb, rays2 * u_color2.a);
   mixed_color = mix(mixed_color, u_color3.rgb, rays3 * u_color3.a);
   mixed_color = mix(mixed_color, u_color1.rgb, rays1 * u_color1.a);
-  
+
   vec3 color = mix(mixed_color, added_color, clamp(u_blending, 0., 1.));
-  
+
   fragColor = vec4(color, opacity);
 }
 `;
+
+export interface GodRaysUniforms extends ShaderSizingUniforms {
+  u_colorBack: [number, number, number, number];
+  u_color1: [number, number, number, number];
+  u_color2: [number, number, number, number];
+  u_color3: [number, number, number, number];
+  u_spotty: number;
+  u_midSize: number;
+  u_midIntensity: number;
+  u_frequency: number;
+  u_density: number;
+  u_blending: number;
+}
+
+export interface GodRaysParams extends ShaderSizingParams, ShaderMotionParams {
+  colorBack?: string;
+  color1?: string;
+  color2?: string;
+  color3?: string;
+  spotty?: number;
+  midSize?: number;
+  midIntensity?: number;
+  frequency?: number;
+  density?: number;
+  blending?: number;
+}

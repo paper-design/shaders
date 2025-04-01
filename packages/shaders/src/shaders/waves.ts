@@ -1,15 +1,4 @@
-export type WavesUniforms = {
-  u_scale: number;
-  u_rotation: number;
-  u_color1: [number, number, number, number];
-  u_color2: [number, number, number, number];
-  u_shape: number;
-  u_frequency: number;
-  u_amplitude: number;
-  u_spacing: number;
-  u_dutyCycle: number;
-  u_softness: number;
-};
+import type { ShaderSizingParams, ShaderSizingUniforms } from '../shader-mount';
 
 /**
  * Waves static pattern on the transparent background
@@ -31,7 +20,6 @@ export type WavesUniforms = {
  * u_dutyCycle (0 ... 1) - the proportion of stroke width to the pattern step
  * u_softness (0 ... 1) - the blur applied to the lines edges
  */
-
 export const wavesFragmentShader = `#version 300 es
 precision highp float;
 
@@ -92,3 +80,27 @@ void main() {
   fragColor = vec4(color, opacity);
 }
 `;
+
+export interface WavesUniforms extends ShaderSizingUniforms {
+  u_color1: [number, number, number, number];
+  u_color2: [number, number, number, number];
+  u_rotation: number;
+  u_shape: number;
+  u_frequency: number;
+  u_amplitude: number;
+  u_spacing: number;
+  u_dutyCycle: number;
+  u_softness: number;
+}
+
+export interface WavesParams extends ShaderSizingParams {
+  color1?: string;
+  color2?: string;
+  rotation?: number;
+  shape?: number;
+  frequency?: number;
+  amplitude?: number;
+  spacing?: number;
+  dutyCycle?: number;
+  softness?: number;
+}

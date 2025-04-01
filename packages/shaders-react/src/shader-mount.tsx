@@ -1,26 +1,31 @@
-import React, { useEffect, useRef, forwardRef, useState, useId } from 'react';
-import { ShaderMount as ShaderMountVanilla, type ShaderMountUniforms } from '@paper-design/shaders';
+import React, { useEffect, useRef, forwardRef, useState } from 'react';
+import {
+  ShaderMount as ShaderMountVanilla,
+  type ShaderMotionParams,
+  type ShaderMountUniforms,
+} from '@paper-design/shaders';
 import { useMergeRefs } from './use-merge-refs';
 
-/** The React ShaderMount can also accept strings as uniform values, which will assumed to be URLs and loaded as images */
-export type ShaderMountUniformsReact = { [key: string]: ShaderMountUniforms[keyof ShaderMountUniforms] | string };
-
-export interface ShaderMountProps extends Omit<React.ComponentProps<'div'>, 'color'> {
-  shaderMountRef?: React.RefObject<ShaderMountVanilla | null>;
-  fragmentShader: string;
-  uniforms?: ShaderMountUniformsReact;
-  webGlContextAttributes?: WebGLContextAttributes;
-  maxResolution?: number;
-  speed?: number;
-  frame?: number;
+/** React Shader Mount can also accept strings as uniform values, which will assumed to be URLs and loaded as images */
+export interface ShaderMountUniformsReact {
+  [key: string]: string | number | number[] | HTMLImageElement;
 }
 
-/** Params that every shader can set as part of their controls */
-export type GlobalParams = Pick<ShaderMountProps, 'speed' | 'frame'>;
+export interface ShaderMountProps extends Omit<React.ComponentProps<'div'>, 'color'>, ShaderMotionParams {
+  fragmentShader: string;
+  uniforms: ShaderMountUniformsReact;
+  maxResolution?: number;
+  webGlContextAttributes?: WebGLContextAttributes;
+}
+
+export interface ShaderComponentProps extends Omit<React.ComponentProps<'div'>, 'color'> {
+  maxResolution?: number;
+  webGlContextAttributes?: WebGLContextAttributes;
+}
 
 /** Parse the provided uniforms, turning URL strings into loaded images */
-const processUniforms = (uniforms: ShaderMountUniformsReact): Promise<ShaderMountUniforms> => {
-  const processedUniforms: ShaderMountUniforms = {};
+async function processUniforms(uniformsProp: ShaderMountUniformsReact): Promise<ShaderMountUniforms> {
+  const processedUniforms = {} as ShaderMountUniforms;
   const imageLoadPromises: Promise<void>[] = [];
 
   const isValidUrl = (url: string): boolean => {
@@ -45,7 +50,7 @@ const processUniforms = (uniforms: ShaderMountUniformsReact): Promise<ShaderMoun
     }
   };
 
-  Object.entries(uniforms).forEach(([key, value]) => {
+  Object.entries(uniformsProp).forEach(([key, value]) => {
     if (typeof value === 'string') {
       // Make sure the provided string is a valid URL or just skip trying to set this uniform entirely
       if (!isValidUrl(value)) {
@@ -74,8 +79,9 @@ const processUniforms = (uniforms: ShaderMountUniformsReact): Promise<ShaderMoun
     }
   });
 
-  return Promise.all(imageLoadPromises).then(() => processedUniforms);
-};
+  await Promise.all(imageLoadPromises);
+  return processedUniforms;
+}
 
 /**
  * A React component that mounts a shader and updates its uniforms as the component's props change
@@ -84,9 +90,8 @@ const processUniforms = (uniforms: ShaderMountUniformsReact): Promise<ShaderMoun
 export const ShaderMount: React.FC<ShaderMountProps> = forwardRef<HTMLDivElement, ShaderMountProps>(
   function ShaderMountImpl(
     {
-      shaderMountRef: externalShaderMountRef,
       fragmentShader,
-      uniforms = {},
+      uniforms: uniformsProp,
       webGlContextAttributes,
       speed = 1,
       frame = 0,
@@ -102,21 +107,18 @@ export const ShaderMount: React.FC<ShaderMountProps> = forwardRef<HTMLDivElement
     // Initialize the ShaderMountVanilla
     useEffect(() => {
       const initShader = async () => {
-        const processedUniforms = await processUniforms(uniforms);
+        const uniforms = await processUniforms(uniformsProp);
+
         if (divRef.current && !shaderMountRef.current) {
           shaderMountRef.current = new ShaderMountVanilla(
             divRef.current,
             fragmentShader,
-            processedUniforms,
+            uniforms,
             webGlContextAttributes,
             speed,
             frame,
             maxResolution
           );
-
-          if (externalShaderMountRef) {
-            externalShaderMountRef.current = shaderMountRef.current;
-          }
 
           setIsInitialized(true);
         }
@@ -133,12 +135,12 @@ export const ShaderMount: React.FC<ShaderMountProps> = forwardRef<HTMLDivElement
     // Uniforms
     useEffect(() => {
       const updateUniforms = async () => {
-        const processedUniforms = await processUniforms(uniforms);
-        shaderMountRef.current?.setUniforms(processedUniforms);
+        const uniforms = await processUniforms(uniformsProp);
+        shaderMountRef.current?.setUniforms(uniforms);
       };
 
       updateUniforms();
-    }, [uniforms, isInitialized]);
+    }, [uniformsProp, isInitialized]);
 
     // Speed
     useEffect(() => {

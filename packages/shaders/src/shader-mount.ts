@@ -1,15 +1,3 @@
-/** Uniform types that we support to be auto-mapped into the fragment shader */
-export type ShaderMountUniforms = Record<string, number | number[] | HTMLImageElement>;
-
-/** A canvas element that has a ShaderMount available on it */
-export interface PaperShaderElement extends HTMLElement {
-  paperShaderMount: ShaderMount | undefined;
-}
-/** Check if a canvas element is a ShaderCanvas */
-export function isPaperShaderElement(element: HTMLElement): element is PaperShaderElement {
-  return 'paperShaderMount' in element;
-}
-
 export class ShaderMount {
   public parentElement: PaperShaderElement;
   public canvasElement: HTMLCanvasElement;
@@ -41,7 +29,7 @@ export class ShaderMount {
     /** The div you'd like to mount the shader to. The shader will match its size. */
     parentElement: HTMLElement,
     fragmentShader: string,
-    uniforms: ShaderMountUniforms = {},
+    uniforms: ShaderMountUniforms,
     webGlContextAttributes?: WebGLContextAttributes,
     /** The speed of the animation, or 0 to stop it. Supports negative values to play in reverse. */
     speed = 0,
@@ -475,3 +463,80 @@ const defaultStyle = `@layer base {
     }
   }
 }`;
+
+/** A canvas element that has a ShaderMount available on it */
+export interface PaperShaderElement extends HTMLElement {
+  paperShaderMount: ShaderMount | undefined;
+}
+
+/** Check if a canvas element is a ShaderCanvas */
+export function isPaperShaderElement(element: HTMLElement): element is PaperShaderElement {
+  return 'paperShaderMount' in element;
+}
+
+/** Uniform types that we support to be auto-mapped into the fragment shader */
+export interface ShaderMountUniforms {
+  [key: string]: number | number[] | HTMLImageElement;
+}
+
+export const ShaderFitOptions = {
+  none: 0,
+  contain: 1,
+  cover: 2,
+} as const;
+
+export type ShaderFit = keyof typeof ShaderFitOptions;
+
+export interface ShaderSizingUniforms {
+  u_fit: (typeof ShaderFitOptions)[ShaderFit];
+  u_scale: number;
+  u_originX: number;
+  u_originY: number;
+  u_offsetX: number;
+  u_offsetY: number;
+  u_worldWidth: number;
+  u_worldHeight: number;
+}
+
+export interface ShaderSizingParams {
+  fit?: 'none' | 'contain' | 'cover';
+  scale?: number;
+  originX?: number;
+  originY?: number;
+  offsetX?: number;
+  offsetY?: number;
+  worldWidth?: number;
+  worldHeight?: number;
+}
+
+export interface ShaderMotionParams {
+  speed?: number;
+  frame?: number;
+}
+
+export type ShaderPreset<T> = {
+  name: string;
+  params: Required<T>;
+};
+
+export const defaultObjectSizing: Required<ShaderSizingParams> = {
+  fit: 'contain',
+  scale: 1,
+  offsetX: 0,
+  offsetY: 0,
+  originX: 0.5,
+  originY: 0.5,
+  worldWidth: 0,
+  worldHeight: 0,
+};
+
+export const defaultPatternSizing: Required<ShaderSizingParams> = {
+  fit: 'none',
+  scale: 1,
+  offsetX: 0,
+  offsetY: 0,
+  originX: 0.5,
+  originY: 0.5,
+  worldWidth: Infinity,
+  worldHeight: Infinity,
+};

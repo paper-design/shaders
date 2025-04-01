@@ -1,5 +1,3 @@
-/* eslint-disable @next/next/no-img-element */
-
 'use client';
 import { useRef, useEffect, useState } from 'react';
 import { flushSync } from 'react-dom';
@@ -35,12 +33,12 @@ float get_uv_frame(vec2 uv) {
 void main() {
 
   // ===============================================
-  // START OF API INSERTION 
+  // START OF API INSERTION
 
   vec2 worldSize = vec2(u_worldWidth, u_worldHeight) * u_pixelRatio;
   float worldRatio = worldSize.x / max(worldSize.y, 1e-4);
   //   float worldRatio = u_texture_aspect_ratio;
-  
+
   float maxWidth = max(u_resolution.x, worldSize.x);
   float maxHeight = max(u_resolution.y, worldSize.y);
 
@@ -55,7 +53,7 @@ void main() {
     imageWidth = worldRatio * min(maxWidth / worldRatio, maxHeight);
   }
   float imageHeight = imageWidth / worldRatio;
-  
+
   vec2 world = vec2(imageWidth, imageHeight);
   vec2 origin = vec2(.5 - u_originX, u_originY - .5);
   vec2 scale = u_resolution.xy / world;
@@ -79,16 +77,16 @@ void main() {
     uv *= (imageWidthCrop / imageWidth);
   }
 
-  // END OF API INSERTION 
+  // END OF API INSERTION
   // ===============================================
-  
+
   uv *= .003;
-  
+
   float t = .0 * u_time;
 
-  vec2 dist = abs(worldBox - .5);  
+  vec2 dist = abs(worldBox - .5);
   float box = (step(max(dist.x, dist.y), .5) - step(max(dist.x, dist.y), .495));
-    
+
   vec2 effect_uv = uv;
 
   float effect = .03 * sin(effect_uv.x * 22.1 - effect_uv.y * 22.05);
@@ -98,7 +96,7 @@ void main() {
 
   float frame = get_uv_frame(worldBox + effect);
   vec4 color = mix(background, img, frame);
-  
+
   color.r = box;
 
   color.a = mix(0., color.a, frame) + box;
@@ -131,7 +129,7 @@ export default function Page() {
   const canvasResizeObserver = useRef<ResizeObserver | null>(null);
   const canvasNodeRef = useRef<HTMLDivElement>(null);
 
-  const fitCode = (fit === 'crop' ? 0 : (fit === 'cover' ? 1 : 2));
+  const fitCode = fit === 'crop' ? 0 : fit === 'cover' ? 1 : 2;
 
   if (image === null) {
     return null;
@@ -292,14 +290,14 @@ export default function Page() {
               <span> {scale}</span>
             </label>
             <input
-                id="scale"
-                type="range"
-                min={0}
-                max={2}
-                step={0.01}
-                value={scale}
-                className="h-7 rounded bg-black/5 px-2 text-base"
-                onChange={(e) => setScale(Number(e.target.value))}
+              id="scale"
+              type="range"
+              min={0}
+              max={2}
+              step={0.01}
+              value={scale}
+              className="h-7 rounded bg-black/5 px-2 text-base"
+              onChange={(e) => setScale(Number(e.target.value))}
             />
           </div>
 
@@ -309,14 +307,14 @@ export default function Page() {
               <span> {offsetX}</span>
             </label>
             <input
-                id="offsetX"
-                type="range"
-                min={-1}
-                max={1}
-                step={0.01}
-                value={offsetX}
-                className="h-7 rounded bg-black/5 px-2 text-base"
-                onChange={(e) => setOffsetX(Number(e.target.value))}
+              id="offsetX"
+              type="range"
+              min={-1}
+              max={1}
+              step={0.01}
+              value={offsetX}
+              className="h-7 rounded bg-black/5 px-2 text-base"
+              onChange={(e) => setOffsetX(Number(e.target.value))}
             />
           </div>
 
@@ -326,14 +324,14 @@ export default function Page() {
               <span> {offsetY}</span>
             </label>
             <input
-                id="offsetY"
-                type="range"
-                min={-1}
-                max={1}
-                step={0.01}
-                value={offsetY}
-                className="h-7 rounded bg-black/5 px-2 text-base"
-                onChange={(e) => setOffsetY(Number(e.target.value))}
+              id="offsetY"
+              type="range"
+              min={-1}
+              max={1}
+              step={0.01}
+              value={offsetY}
+              className="h-7 rounded bg-black/5 px-2 text-base"
+              onChange={(e) => setOffsetY(Number(e.target.value))}
             />
           </div>
         </div>

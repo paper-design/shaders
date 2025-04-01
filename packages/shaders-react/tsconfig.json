@@ -21,7 +21,13 @@
 
     // Some stricter flags
     "noUnusedParameters": false,
-    "noUncheckedIndexedAccess": true
+    "noUncheckedIndexedAccess": true,
+
+    // Monorepo paths
+    "paths": {
+      "@paper-design/shaders": ["../shaders/src"],
+      "@paper-design/shaders/*": ["../shaders/src/*"]
+    }
   },
   "include": ["src/**/*"]
 }

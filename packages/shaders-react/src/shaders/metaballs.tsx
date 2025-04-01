@@ -1,19 +1,18 @@
 import { useMemo } from 'react';
-import { ShaderMount, type GlobalParams, type ShaderMountProps } from '../shader-mount';
-import { getShaderColorFromString, metaballsFragmentShader, type MetaballsUniforms } from '@paper-design/shaders';
+import { ShaderMount, type ShaderComponentProps } from '../shader-mount';
+import {
+  defaultObjectSizing,
+  getShaderColorFromString,
+  metaballsFragmentShader,
+  ShaderFitOptions,
+  type MetaballsParams,
+  type MetaballsUniforms,
+  type ShaderPreset,
+} from '@paper-design/shaders';
 
-export type MetaballsParams = {
-  scale?: number;
-  color1?: string;
-  color2?: string;
-  color3?: string;
-  ballSize?: number;
-  visibilityRange?: number;
-} & GlobalParams;
+export interface MetaballsProps extends ShaderComponentProps, MetaballsParams {}
 
-export type MetaballsProps = Omit<ShaderMountProps, 'fragmentShader'> & MetaballsParams;
-
-type MetaballsPreset = { name: string; params: Required<MetaballsParams> };
+type MetaballsPreset = ShaderPreset<MetaballsParams>;
 
 // Due to Leva controls limitation:
 // 1) keep default colors in HSLA format to keep alpha channel
@@ -22,6 +21,7 @@ type MetaballsPreset = { name: string; params: Required<MetaballsParams> };
 export const defaultPreset: MetaballsPreset = {
   name: 'Default',
   params: {
+    ...defaultObjectSizing,
     scale: 1,
     speed: 0.6,
     frame: 0,
@@ -36,24 +36,65 @@ export const defaultPreset: MetaballsPreset = {
 export const metaballsPresets: MetaballsPreset[] = [defaultPreset];
 
 export const Metaballs = ({
-  scale,
-  color1,
-  color2,
-  color3,
-  ballSize,
-  visibilityRange,
+  // Own props
+  speed = defaultPreset.params.speed,
+  frame = defaultPreset.params.frame,
+  color1 = defaultPreset.params.color1,
+  color2 = defaultPreset.params.color2,
+  color3 = defaultPreset.params.color3,
+  ballSize = defaultPreset.params.ballSize,
+  visibilityRange = defaultPreset.params.visibilityRange,
+
+  // Sizing props
+  fit = defaultPreset.params.fit,
+  worldWidth = defaultPreset.params.worldWidth,
+  worldHeight = defaultPreset.params.worldHeight,
+  scale = defaultPreset.params.scale,
+  originX = defaultPreset.params.originX,
+  originY = defaultPreset.params.originY,
+  offsetX = defaultPreset.params.offsetX,
+  offsetY = defaultPreset.params.offsetY,
   ...props
 }: MetaballsProps): React.ReactElement => {
-  const uniforms: MetaballsUniforms = useMemo(() => {
+  const uniforms = useMemo(() => {
     return {
-      u_scale: scale ?? defaultPreset.params.scale,
-      u_color1: getShaderColorFromString(color1, defaultPreset.params.color1),
-      u_color2: getShaderColorFromString(color2, defaultPreset.params.color2),
-      u_color3: getShaderColorFromString(color3, defaultPreset.params.color3),
-      u_ballSize: ballSize ?? defaultPreset.params.ballSize,
-      u_visibilityRange: visibilityRange ?? defaultPreset.params.visibilityRange,
-    };
-  }, [scale, color1, color2, color3, ballSize, visibilityRange]);
+      // Own uniforms
+      u_color1: getShaderColorFromString(color1),
+      u_color2: getShaderColorFromString(color2),
+      u_color3: getShaderColorFromString(color3),
+      u_ballSize: ballSize,
+      u_visibilityRange: visibilityRange,
 
-  return <ShaderMount {...props} fragmentShader={metaballsFragmentShader} uniforms={uniforms} />;
+      // Sizing uniforms
+      u_fit: ShaderFitOptions[fit],
+      u_scale: scale,
+      u_offsetX: offsetX,
+      u_offsetY: offsetY,
+      u_originX: originX,
+      u_originY: originY,
+      u_worldWidth: worldWidth,
+      u_worldHeight: worldHeight,
+    } satisfies MetaballsUniforms;
+  }, [
+    // Own props
+    scale,
+    color1,
+    color2,
+    color3,
+    ballSize,
+    visibilityRange,
+
+    // Sizing props
+    fit,
+    offsetX,
+    offsetY,
+    originX,
+    originY,
+    worldWidth,
+    worldHeight,
+  ]);
+
+  return (
+    <ShaderMount {...props} speed={speed} frame={frame} fragmentShader={metaballsFragmentShader} uniforms={uniforms} />
+  );
 };

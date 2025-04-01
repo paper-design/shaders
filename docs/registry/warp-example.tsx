@@ -15,7 +15,7 @@ export function WarpExample(props: WarpProps) {
       distortion={0.25}
       swirl={0.9}
       swirlIterations={10}
-      shape={0}
+      shape="checks"
       shapeScale={0.5}
       speed={0.3}
       style={{ position: 'fixed', width: '100%', height: '100%' }}

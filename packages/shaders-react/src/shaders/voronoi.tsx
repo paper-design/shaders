@@ -1,25 +1,18 @@
 import { useMemo } from 'react';
-import { ShaderMount, type GlobalParams, type ShaderMountProps } from '../shader-mount';
-import { getShaderColorFromString, voronoiFragmentShader, type VoronoiUniforms } from '@paper-design/shaders';
+import { ShaderMount, type ShaderComponentProps } from '../shader-mount';
+import {
+  defaultPatternSizing,
+  getShaderColorFromString,
+  voronoiFragmentShader,
+  ShaderFitOptions,
+  type VoronoiParams,
+  type VoronoiUniforms,
+  type ShaderPreset,
+} from '@paper-design/shaders';
 
-export type VoronoiParams = {
-  scale?: number;
-  colorCell1?: string;
-  colorCell2?: string;
-  colorCell3?: string;
-  colorMid?: string;
-  colorEdges?: string;
-  colorGradient?: number;
-  distance?: number;
-  edgesSize?: number;
-  edgesSoftness?: number;
-  middleSize?: number;
-  middleSoftness?: number;
-} & GlobalParams;
+export interface VoronoiProps extends ShaderComponentProps, VoronoiParams {}
 
-export type VoronoiProps = Omit<ShaderMountProps, 'fragmentShader'> & VoronoiParams;
-
-type VoronoiPreset = { name: string; params: Required<VoronoiParams> };
+type VoronoiPreset = ShaderPreset<VoronoiParams>;
 
 // Due to Leva controls limitation:
 // 1) keep default colors in HSLA format to keep alpha channel
@@ -28,6 +21,7 @@ type VoronoiPreset = { name: string; params: Required<VoronoiParams> };
 export const defaultPreset: VoronoiPreset = {
   name: 'Default',
   params: {
+    ...defaultPatternSizing,
     scale: 1.5,
     speed: 0.5,
     frame: 0,
@@ -48,6 +42,7 @@ export const defaultPreset: VoronoiPreset = {
 export const classicPreset: VoronoiPreset = {
   name: 'Classic',
   params: {
+    ...defaultPatternSizing,
     scale: 3,
     speed: 0.8,
     frame: 0,
@@ -68,6 +63,7 @@ export const classicPreset: VoronoiPreset = {
 export const giraffePreset: VoronoiPreset = {
   name: 'Giraffe',
   params: {
+    ...defaultPatternSizing,
     scale: 1,
     speed: 0.6,
     frame: 0,
@@ -88,6 +84,7 @@ export const giraffePreset: VoronoiPreset = {
 export const eyesPreset: VoronoiPreset = {
   name: 'Eyes',
   params: {
+    ...defaultPatternSizing,
     scale: 1.6,
     speed: 0.6,
     frame: 0,
@@ -108,6 +105,7 @@ export const eyesPreset: VoronoiPreset = {
 export const bubblesPreset: VoronoiPreset = {
   name: 'Bubbles',
   params: {
+    ...defaultPatternSizing,
     scale: 2,
     speed: 0.5,
     frame: 0,
@@ -128,6 +126,7 @@ export const bubblesPreset: VoronoiPreset = {
 export const cellsPreset: VoronoiPreset = {
   name: 'Cells',
   params: {
+    ...defaultPatternSizing,
     scale: 2,
     speed: 1,
     frame: 0,
@@ -148,6 +147,7 @@ export const cellsPreset: VoronoiPreset = {
 export const glowPreset: VoronoiPreset = {
   name: 'Glow',
   params: {
+    ...defaultPatternSizing,
     scale: 1.2,
     speed: 0.8,
     frame: 0,
@@ -168,6 +168,7 @@ export const glowPreset: VoronoiPreset = {
 export const tilesPreset: VoronoiPreset = {
   name: 'Tiles',
   params: {
+    ...defaultPatternSizing,
     scale: 1.3,
     speed: 1,
     frame: 0,
@@ -197,40 +198,62 @@ export const voronoiPresets: VoronoiPreset[] = [
 ];
 
 export const Voronoi = ({
-  scale,
-  colorCell1,
-  colorCell2,
-  colorCell3,
-  colorMid,
-  colorEdges,
-  colorGradient,
-  distance,
-  edgesSize,
-  edgesSoftness,
-  middleSize,
-  middleSoftness,
+  // Own props
+  speed = defaultPreset.params.speed,
+  frame = defaultPreset.params.frame,
+  colorCell1 = defaultPreset.params.colorCell1,
+  colorCell2 = defaultPreset.params.colorCell2,
+  colorCell3 = defaultPreset.params.colorCell3,
+  colorMid = defaultPreset.params.colorMid,
+  colorEdges = defaultPreset.params.colorEdges,
+  colorGradient = defaultPreset.params.colorGradient,
+  distance = defaultPreset.params.distance,
+  edgesSize = defaultPreset.params.edgesSize,
+  edgesSoftness = defaultPreset.params.edgesSoftness,
+  middleSize = defaultPreset.params.middleSize,
+  middleSoftness = defaultPreset.params.middleSoftness,
+
+  // Sizing props
+  fit = defaultPreset.params.fit,
+  worldWidth = defaultPreset.params.worldWidth,
+  worldHeight = defaultPreset.params.worldHeight,
+  scale = defaultPreset.params.scale,
+  originX = defaultPreset.params.originX,
+  originY = defaultPreset.params.originY,
+  offsetX = defaultPreset.params.offsetX,
+  offsetY = defaultPreset.params.offsetY,
   ...props
 }: VoronoiProps): React.ReactElement => {
-  const uniforms: VoronoiUniforms = useMemo(() => {
+  const uniforms = useMemo(() => {
     return {
-      u_scale: scale ?? defaultPreset.params.scale,
-      u_colorCell1: getShaderColorFromString(colorCell1, defaultPreset.params.colorCell1),
-      u_colorCell2: getShaderColorFromString(colorCell2, defaultPreset.params.colorCell2),
-      u_colorCell3: getShaderColorFromString(colorCell3, defaultPreset.params.colorCell3),
-      u_colorMid: getShaderColorFromString(colorMid, defaultPreset.params.colorMid),
-      u_colorEdges: getShaderColorFromString(colorEdges, defaultPreset.params.colorEdges),
-      u_colorGradient: colorGradient ?? defaultPreset.params.colorGradient,
-      u_distance: distance ?? defaultPreset.params.distance,
-      u_edgesSize: edgesSize ?? defaultPreset.params.edgesSize,
-      u_edgesSoftness: edgesSoftness ?? defaultPreset.params.edgesSoftness,
-      u_middleSize: middleSize ?? defaultPreset.params.middleSize,
-      u_middleSoftness: middleSoftness ?? defaultPreset.params.middleSoftness,
-    };
+      // Own uniforms
+      u_colorCell1: getShaderColorFromString(colorCell1),
+      u_colorCell2: getShaderColorFromString(colorCell2),
+      u_colorCell3: getShaderColorFromString(colorCell3),
+      u_colorMid: getShaderColorFromString(colorMid),
+      u_colorEdges: getShaderColorFromString(colorEdges),
+      u_colorGradient: colorGradient,
+      u_distance: distance,
+      u_edgesSize: edgesSize,
+      u_edgesSoftness: edgesSoftness,
+      u_middleSize: middleSize,
+      u_middleSoftness: middleSoftness,
+
+      // Sizing uniforms
+      u_fit: ShaderFitOptions[fit],
+      u_scale: scale,
+      u_offsetX: offsetX,
+      u_offsetY: offsetY,
+      u_originX: originX,
+      u_originY: originY,
+      u_worldWidth: worldWidth,
+      u_worldHeight: worldHeight,
+    } satisfies VoronoiUniforms;
   }, [
-    scale,
+    // Own props
     colorCell1,
-    colorCell3,
     colorCell2,
+    colorCell3,
     colorMid,
     colorEdges,
     colorGradient,
@@ -239,7 +262,19 @@ export const Voronoi = ({
     edgesSoftness,
     middleSize,
     middleSoftness,
+
+    // Sizing props
+    fit,
+    scale,
+    offsetX,
+    offsetY,
+    originX,
+    originY,
+    worldWidth,
+    worldHeight,
   ]);
 
-  return <ShaderMount {...props} fragmentShader={voronoiFragmentShader} uniforms={uniforms} />;
+  return (
+    <ShaderMount {...props} speed={speed} frame={frame} fragmentShader={voronoiFragmentShader} uniforms={uniforms} />
+  );
 };

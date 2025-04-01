@@ -1,14 +1,4 @@
-export type PerlinNoiseUniforms = {
-  u_scale: number;
-  u_color1: [number, number, number, number];
-  u_color2: [number, number, number, number];
-  u_proportion: number;
-  u_softness: number;
-  u_octaveCount: number;
-  u_persistence: number;
-  u_lacunarity: number;
-};
-
+import type { ShaderMotionParams, ShaderSizingParams, ShaderSizingUniforms } from '../shader-mount';
 /**
  * 3d Perlin noise with exposed parameters
  * Based on https://www.shadertoy.com/view/NlSGDz
@@ -26,7 +16,6 @@ export type PerlinNoiseUniforms = {
  * u_lacunarity - the frequency of each successive octave of the noise;
  *    higher values increase the detail
  */
-
 export const perlinNoiseFragmentShader = `#version 300 es
 precision highp float;
 
@@ -212,3 +201,23 @@ void main() {
     fragColor = vec4(color, opacity);
 }
 `;
+
+export interface PerlinNoiseUniforms extends ShaderSizingUniforms {
+  u_color1: [number, number, number, number];
+  u_color2: [number, number, number, number];
+  u_proportion: number;
+  u_softness: number;
+  u_octaveCount: number;
+  u_persistence: number;
+  u_lacunarity: number;
+}
+
+export interface PerlinNoiseParams extends ShaderSizingParams, ShaderMotionParams {
+  color1?: string;
+  color2?: string;
+  proportion?: number;
+  softness?: number;
+  octaveCount?: number;
+  persistence?: number;
+  lacunarity?: number;
+}

@@ -7,6 +7,8 @@ import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import Link from 'next/link';
 import { BackButton } from '@/components/back-button';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
+import { ShaderFit } from '@paper-design/shaders';
+import { ShaderFitOptions } from '@paper-design/shaders';
 /**
  * You can copy/paste this example to use PerlinNoise in your app
  */
@@ -40,7 +42,6 @@ const PerlinNoiseWithControls = () => {
         {
           color1: { value: defaults.color1, order: 100 },
           color2: { value: defaults.color2, order: 101 },
-          scale: { value: defaults.scale, min: 0, max: 2, order: 200 },
           proportion: { value: defaults.proportion, min: 0, max: 1, order: 300 },
           softness: { value: defaults.softness, min: 0, max: 1, order: 301 },
           octaveCount: { value: defaults.octaveCount, min: 1, max: 8, step: 1, order: 302 },
@@ -50,11 +51,27 @@ const PerlinNoiseWithControls = () => {
         },
         { order: 1 }
       ),
+      Sizing: folder(
+        {
+          fit: { value: defaults.fit, options: Object.keys(ShaderFitOptions) as ShaderFit[], order: 400 },
+          scale: { value: defaults.scale, min: 0.01, max: 4, order: 401 },
+          originX: { value: defaults.originX, min: 0, max: 1, order: 402 },
+          originY: { value: defaults.originY, min: 0, max: 1, order: 403 },
+          offsetX: { value: defaults.offsetX, min: -2, max: 2, order: 404 },
+          offsetY: { value: defaults.offsetY, min: -2, max: 2, order: 405 },
+          worldWidth: { value: defaults.worldWidth, min: 0, max: 4000, order: 406 },
+          worldHeight: { value: defaults.worldHeight, min: 0, max: 4000, order: 407 },
+        },
+        {
+          order: 2,
+          collapsed: true,
+        }
+      ),
     };
   });
 
   useControls(() => {
-    const presets: PerlinNoiseParams = Object.fromEntries(
+    const presets = Object.fromEntries(
       perlinNoisePresets.map((preset) => [preset.name, button(() => setParamsSafe(params, setParams, preset.params))])
     );
     return {

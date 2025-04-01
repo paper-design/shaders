@@ -4,7 +4,9 @@ import { BackButton } from '@/components/back-button';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
 import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import { setParamsSafe, useResetLevaParams } from '@/helpers/use-reset-leva-params';
-import { DotOrbit, type DotOrbitParams, dotOrbitPresets } from '@paper-design/shaders-react';
+import { ShaderFitOptions } from '@paper-design/shaders';
+import { ShaderFit } from '@paper-design/shaders';
+import { DotOrbit, dotOrbitPresets } from '@paper-design/shaders-react';
 import { useControls, button, folder } from 'leva';
 import Link from 'next/link';
 
@@ -36,9 +38,10 @@ const defaults = dotOrbitPresets[0].params;
 
 const DotOrbitWithControls = () => {
   const [params, setParams] = useControls(() => {
-    const presets: DotOrbitParams = Object.fromEntries(
+    const presets = Object.fromEntries(
       dotOrbitPresets.map((preset) => [preset.name, button(() => setParamsSafe(params, setParams, preset.params))])
     );
+
     return {
       Parameters: folder(
         {
@@ -46,13 +49,28 @@ const DotOrbitWithControls = () => {
           color2: { value: defaults.color2, order: 101 },
           color3: { value: defaults.color3, order: 102 },
           color4: { value: defaults.color4, order: 103 },
-          scale: { value: defaults.scale, min: 0.5, max: 2, order: 200 },
           dotSize: { value: defaults.dotSize, min: 0, max: 1, order: 300 },
           dotSizeRange: { value: defaults.dotSizeRange, min: 0, max: 1, order: 301 },
           spreading: { value: defaults.spreading, min: 0, max: 1, order: 302 },
           speed: { value: defaults.speed, min: 0, max: 6, order: 400 },
         },
         { order: 1 }
+      ),
+      Sizing: folder(
+        {
+          fit: { value: defaults.fit, options: Object.keys(ShaderFitOptions) as ShaderFit[], order: 400 },
+          scale: { value: defaults.scale, min: 0.01, max: 4, order: 401 },
+          originX: { value: defaults.originX, min: 0, max: 1, order: 402 },
+          originY: { value: defaults.originY, min: 0, max: 1, order: 403 },
+          offsetX: { value: defaults.offsetX, min: -2, max: 2, order: 404 },
+          offsetY: { value: defaults.offsetY, min: -2, max: 2, order: 405 },
+          worldWidth: { value: defaults.worldWidth, min: 0, max: 4000, order: 406 },
+          worldHeight: { value: defaults.worldHeight, min: 0, max: 4000, order: 407 },
+        },
+        {
+          order: 2,
+          collapsed: true,
+        }
       ),
       Presets: folder(presets, { order: 2 }),
     };

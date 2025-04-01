@@ -1,12 +1,4 @@
-export type SteppedSimplexNoiseUniforms = {
-  u_scale: number;
-  u_color1: [number, number, number, number];
-  u_color2: [number, number, number, number];
-  u_color3: [number, number, number, number];
-  u_color4: [number, number, number, number];
-  u_color5: [number, number, number, number];
-  u_steps_number: number;
-};
+import type { ShaderSizingParams, ShaderSizingUniforms, ShaderMotionParams } from '../shader-mount';
 
 /**
  * Stepped Simplex Noise by Ksenia Kondrashova
@@ -22,7 +14,6 @@ export type SteppedSimplexNoiseUniforms = {
  * u_color5 - the fifth gradient color
  * u_steps_number - the number of solid colors to show as a stepped gradient
  */
-
 export const steppedSimplexNoiseFragmentShader = `#version 300 es
 precision highp float;
 
@@ -93,17 +84,17 @@ void main() {
   float worldRatio = 1.;
 
   uv -= .5;
-  
+
   uv.x *= u_resolution.x;
   uv.y *= u_resolution.y;
-  
+
   uv /= u_pixelRatio;
-  
+
   uv.x /= u_worldWidth;
   uv.y /= u_worldWidth;
-  
+
   vec2 box_uv = uv;
-  
+
 
 //  if (u_fit == 0.) {
 //    if (worldRatio > 1.) {
@@ -133,14 +124,32 @@ void main() {
     color = mix(color, next_c.rgb * next_c.a, proportion);
     opacity = mix(opacity, next_c.a, proportion);
   }
-  
+
     vec2 halfSize = vec2(.5);
     vec2 dist = abs(box_uv);
     vec2 outer = step(halfSize, dist);
     vec2 inner = step(halfSize -  0.01, dist);
     float stroke = (1.0 - outer.x) * (1.0 - outer.y) * (inner.x + inner.y);
     color -= stroke;
-    
+
   fragColor = vec4(color, opacity);
 }
 `;
+
+export interface SteppedSimplexNoiseUniforms extends ShaderSizingUniforms {
+  u_color1: [number, number, number, number];
+  u_color2: [number, number, number, number];
+  u_color3: [number, number, number, number];
+  u_color4: [number, number, number, number];
+  u_color5: [number, number, number, number];
+  u_steps_number: number;
+}
+
+export interface SteppedSimplexNoiseParams extends ShaderSizingParams, ShaderMotionParams {
+  color1?: string;
+  color2?: string;
+  color3?: string;
+  color4?: string;
+  color5?: string;
+  stepsNumber?: number;
+}

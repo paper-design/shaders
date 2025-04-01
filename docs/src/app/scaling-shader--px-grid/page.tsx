@@ -1,5 +1,3 @@
-/* eslint-disable @next/next/no-img-element */
-
 'use client';
 import { useRef, useState } from 'react';
 import { flushSync } from 'react-dom';
@@ -27,11 +25,11 @@ out vec4 fragColor;
 void main() {
 
   // ===============================================
-  // START OF API INSERTION 
+  // START OF API INSERTION
 
   vec2 worldSize = vec2(u_worldWidth, u_worldHeight) * u_pixelRatio;
   float worldRatio = worldSize.x / max(worldSize.y, 1e-4);
-  
+
   float maxWidth = max(u_resolution.x, worldSize.x);
   float maxHeight = max(u_resolution.y, worldSize.y);
 
@@ -46,7 +44,7 @@ void main() {
     imageWidth = worldRatio * min(maxWidth / worldRatio, maxHeight);
   }
   float imageHeight = imageWidth / worldRatio;
-  
+
   vec2 world = vec2(imageWidth, imageHeight);
   vec2 origin = vec2(.5 - u_originX, u_originY - .5);
   vec2 scale = u_resolution.xy / world;
@@ -70,12 +68,12 @@ void main() {
     uv *= (imageWidthCrop / imageWidth);
   }
 
-  // END OF API INSERTION 
+  // END OF API INSERTION
   // ===============================================
-  
+
   uv += .5;
 
-  
+
   vec2 gridSpacing = vec2(50.);
   vec2 grid = fract(uv / gridSpacing) + 1e-4;
   vec2 grid_idx = floor(uv / gridSpacing);
@@ -92,7 +90,7 @@ void main() {
 
   vec3 color = vec3(shapeInner);
 
-  vec2 dist = abs(worldBox - .5);  
+  vec2 dist = abs(worldBox - .5);
   float box = (step(max(dist.x, dist.y), .5) - step(max(dist.x, dist.y), .495));
   color.r = box;
 
@@ -116,7 +114,7 @@ export default function Page() {
   const canvasResizeObserver = useRef<ResizeObserver | null>(null);
   const canvasNodeRef = useRef<HTMLDivElement>(null);
 
-  const fitCode = (fit === 'crop' ? 0 : (fit === 'cover' ? 1 : 2));
+  const fitCode = fit === 'crop' ? 0 : fit === 'cover' ? 1 : 2;
 
   return (
     <div className="grid min-h-dvh grid-cols-[1fr_300px]">
@@ -272,14 +270,14 @@ export default function Page() {
               <span> {scale}</span>
             </label>
             <input
-                id="scale"
-                type="range"
-                min={0}
-                max={2}
-                step={0.01}
-                value={scale}
-                className="h-7 rounded bg-black/5 px-2 text-base"
-                onChange={(e) => setScale(Number(e.target.value))}
+              id="scale"
+              type="range"
+              min={0}
+              max={2}
+              step={0.01}
+              value={scale}
+              className="h-7 rounded bg-black/5 px-2 text-base"
+              onChange={(e) => setScale(Number(e.target.value))}
             />
           </div>
 
@@ -289,14 +287,14 @@ export default function Page() {
               <span> {offsetX}</span>
             </label>
             <input
-                id="offsetX"
-                type="range"
-                min={-1}
-                max={1}
-                step={0.01}
-                value={offsetX}
-                className="h-7 rounded bg-black/5 px-2 text-base"
-                onChange={(e) => setOffsetX(Number(e.target.value))}
+              id="offsetX"
+              type="range"
+              min={-1}
+              max={1}
+              step={0.01}
+              value={offsetX}
+              className="h-7 rounded bg-black/5 px-2 text-base"
+              onChange={(e) => setOffsetX(Number(e.target.value))}
             />
           </div>
 
@@ -306,14 +304,14 @@ export default function Page() {
               <span> {offsetY}</span>
             </label>
             <input
-                id="offsetY"
-                type="range"
-                min={-1}
-                max={1}
-                step={0.01}
-                value={offsetY}
-                className="h-7 rounded bg-black/5 px-2 text-base"
-                onChange={(e) => setOffsetY(Number(e.target.value))}
+              id="offsetY"
+              type="range"
+              min={-1}
+              max={1}
+              step={0.01}
+              value={offsetY}
+              className="h-7 rounded bg-black/5 px-2 text-base"
+              onChange={(e) => setOffsetY(Number(e.target.value))}
             />
           </div>
         </div>

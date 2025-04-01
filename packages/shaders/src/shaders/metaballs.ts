@@ -1,11 +1,4 @@
-export type MetaballsUniforms = {
-  u_scale: number;
-  u_color1: [number, number, number, number];
-  u_color2: [number, number, number, number];
-  u_color3: [number, number, number, number];
-  u_ballSize: number;
-  u_visibilityRange: number;
-};
+import type { ShaderMotionParams, ShaderSizingParams, ShaderSizingUniforms } from '../shader-mount';
 
 /**
  * Metaballs (circular shapes with gooey effect applied)
@@ -20,7 +13,6 @@ export type MetaballsUniforms = {
  * u_ballSize (0 .. 1) - the size coefficient applied to each ball
  * u_visibilityRange (0 .. 1) - to show 2 to 15 balls
  */
-
 export const metaballsFragmentShader = `#version 300 es
 precision highp float;
 
@@ -118,3 +110,19 @@ void main() {
   fragColor = vec4(color, opacity);
 }
 `;
+
+export interface MetaballsUniforms extends ShaderSizingUniforms {
+  u_color1: [number, number, number, number];
+  u_color2: [number, number, number, number];
+  u_color3: [number, number, number, number];
+  u_ballSize: number;
+  u_visibilityRange: number;
+}
+
+export interface MetaballsParams extends ShaderSizingParams, ShaderMotionParams {
+  color1?: string;
+  color2?: string;
+  color3?: string;
+  ballSize?: number;
+  visibilityRange?: number;
+}

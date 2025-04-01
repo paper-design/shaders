@@ -1,21 +1,18 @@
 import { useMemo } from 'react';
-import { ShaderMount, type GlobalParams, type ShaderMountProps } from '../shader-mount';
-import { getShaderColorFromString, perlinNoiseFragmentShader, type PerlinNoiseUniforms } from '@paper-design/shaders';
+import { ShaderMount, type ShaderComponentProps } from '../shader-mount';
+import {
+  defaultPatternSizing,
+  getShaderColorFromString,
+  perlinNoiseFragmentShader,
+  ShaderFitOptions,
+  type PerlinNoiseParams,
+  type PerlinNoiseUniforms,
+  type ShaderPreset,
+} from '@paper-design/shaders';
 
-export type PerlinNoiseParams = {
-  scale?: number;
-  color1?: string;
-  color2?: string;
-  proportion?: number;
-  softness?: number;
-  octaveCount?: number;
-  persistence?: number;
-  lacunarity?: number;
-} & GlobalParams;
+export interface PerlinNoiseProps extends ShaderComponentProps, PerlinNoiseParams {}
 
-export type PerlinNoiseProps = Omit<ShaderMountProps, 'fragmentShader'> & PerlinNoiseParams;
-
-type PerlinNoisePreset = { name: string; params: Required<PerlinNoiseParams> };
+type PerlinNoisePreset = ShaderPreset<PerlinNoiseParams>;
 
 // Due to Leva controls limitation:
 // 1) keep default colors in HSLA format to keep alpha channel
@@ -24,7 +21,7 @@ type PerlinNoisePreset = { name: string; params: Required<PerlinNoiseParams> };
 export const defaultPreset: PerlinNoisePreset = {
   name: 'Default',
   params: {
-    scale: 1,
+    ...defaultPatternSizing,
     speed: 0.5,
     frame: 0,
     color1: 'hsla(0, 0%, 15%, 1)',
@@ -40,6 +37,7 @@ export const defaultPreset: PerlinNoisePreset = {
 export const nintendoWaterPreset: PerlinNoisePreset = {
   name: 'Nintendo Water',
   params: {
+    ...defaultPatternSizing,
     scale: 0.2,
     speed: 0.4,
     frame: 0,
@@ -56,6 +54,7 @@ export const nintendoWaterPreset: PerlinNoisePreset = {
 export const colonyPreset: PerlinNoisePreset = {
   name: 'Colony',
   params: {
+    ...defaultPatternSizing,
     scale: 0.15,
     speed: 0,
     frame: 0,
@@ -72,6 +71,7 @@ export const colonyPreset: PerlinNoisePreset = {
 export const phosphenesPreset: PerlinNoisePreset = {
   name: 'Phosphenes',
   params: {
+    ...defaultPatternSizing,
     scale: 0.03,
     speed: 0.15,
     frame: 0,
@@ -88,6 +88,7 @@ export const phosphenesPreset: PerlinNoisePreset = {
 export const mossPreset: PerlinNoisePreset = {
   name: 'Moss',
   params: {
+    ...defaultPatternSizing,
     scale: 0.15,
     speed: 0.02,
     frame: 0,
@@ -104,6 +105,7 @@ export const mossPreset: PerlinNoisePreset = {
 export const wormsPreset: PerlinNoisePreset = {
   name: 'Worms',
   params: {
+    ...defaultPatternSizing,
     scale: 2,
     speed: 0,
     frame: 0,
@@ -127,28 +129,79 @@ export const perlinNoisePresets: PerlinNoisePreset[] = [
 ];
 
 export const PerlinNoise = ({
-  scale,
-  color1,
-  color2,
-  proportion,
-  softness,
-  octaveCount,
-  persistence,
+  // Own props
+  speed = defaultPreset.params.speed,
+  frame = defaultPreset.params.frame,
+  color1 = defaultPreset.params.color1,
+  color2 = defaultPreset.params.color2,
+  proportion = defaultPreset.params.proportion,
+  softness = defaultPreset.params.softness,
+  octaveCount = defaultPreset.params.octaveCount,
+  persistence = defaultPreset.params.persistence,
   lacunarity,
+
+  // Sizing props
+  fit = defaultPreset.params.fit,
+  worldWidth = defaultPreset.params.worldWidth,
+  worldHeight = defaultPreset.params.worldHeight,
+  scale = defaultPreset.params.scale,
+  originX = defaultPreset.params.originX,
+  originY = defaultPreset.params.originY,
+  offsetX = defaultPreset.params.offsetX,
+  offsetY = defaultPreset.params.offsetY,
   ...props
 }: PerlinNoiseProps): React.ReactElement => {
-  const uniforms: PerlinNoiseUniforms = useMemo(() => {
+  const uniforms = useMemo(() => {
     return {
-      u_scale: scale ?? defaultPreset.params.scale,
-      u_color1: getShaderColorFromString(color1, defaultPreset.params.color1),
-      u_color2: getShaderColorFromString(color2, defaultPreset.params.color2),
-      u_proportion: proportion ?? defaultPreset.params.proportion,
+      // Own uniforms
+      u_color1: getShaderColorFromString(color1),
+      u_color2: getShaderColorFromString(color2),
+      u_proportion: proportion,
       u_softness: softness ?? defaultPreset.params.softness,
       u_octaveCount: octaveCount ?? defaultPreset.params.octaveCount,
       u_persistence: persistence ?? defaultPreset.params.persistence,
       u_lacunarity: lacunarity ?? defaultPreset.params.lacunarity,
-    };
-  }, [scale, color1, color2, proportion, softness, octaveCount, persistence, lacunarity]);
 
-  return <ShaderMount {...props} fragmentShader={perlinNoiseFragmentShader} uniforms={uniforms} />;
+      // Sizing uniforms
+      u_fit: ShaderFitOptions[fit],
+      u_scale: scale,
+      u_offsetX: offsetX,
+      u_offsetY: offsetY,
+      u_originX: originX,
+      u_originY: originY,
+      u_worldWidth: worldWidth,
+      u_worldHeight: worldHeight,
+    } satisfies PerlinNoiseUniforms;
+  }, [
+    // Own props
+    speed,
+    frame,
+    color1,
+    color2,
+    proportion,
+    softness,
+    octaveCount,
+    persistence,
+    lacunarity,
+
+    // Sizing props
+    fit,
+    scale,
+    offsetX,
+    offsetY,
+    originX,
+    originY,
+    worldWidth,
+    worldHeight,
+  ]);
+
+  return (
+    <ShaderMount
+      {...props}
+      speed={speed}
+      frame={frame}
+      fragmentShader={perlinNoiseFragmentShader}
+      uniforms={uniforms}
+    />
+  );
 };

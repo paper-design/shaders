@@ -1,18 +1,4 @@
-export type VoronoiUniforms = {
-  u_scale: number;
-  u_colorCell1: [number, number, number, number];
-  u_colorCell2: [number, number, number, number];
-  u_colorCell3: [number, number, number, number];
-  u_colorEdges: [number, number, number, number];
-  u_colorMid: [number, number, number, number];
-  u_colorGradient: number;
-  u_distance: number;
-  u_edgesSize: number;
-  u_edgesSoftness: number;
-  u_middleSize: number;
-  u_middleSoftness: number;
-};
-
+import type { ShaderMotionParams, ShaderSizingParams, ShaderSizingUniforms } from '../shader-mount';
 /**
  * Voronoi pattern
  * The artwork by Ksenia Kondrashova
@@ -34,7 +20,6 @@ export type VoronoiUniforms = {
  * u_middleSoftness (0 .. 1) - the smoothness of shape in the center of each cell
  *   (vary from cell color gradient to sharp dot in the middle)
  */
-
 export const voronoiFragmentShader = `#version 300 es
 precision highp float;
 
@@ -150,3 +135,31 @@ void main() {
   fragColor = vec4(color, opacity);
 }
 `;
+
+export interface VoronoiUniforms extends ShaderSizingUniforms {
+  u_colorCell1: [number, number, number, number];
+  u_colorCell2: [number, number, number, number];
+  u_colorCell3: [number, number, number, number];
+  u_colorEdges: [number, number, number, number];
+  u_colorMid: [number, number, number, number];
+  u_colorGradient: number;
+  u_distance: number;
+  u_edgesSize: number;
+  u_edgesSoftness: number;
+  u_middleSize: number;
+  u_middleSoftness: number;
+}
+
+export interface VoronoiParams extends ShaderSizingParams, ShaderMotionParams {
+  colorCell1?: string;
+  colorCell2?: string;
+  colorCell3?: string;
+  colorEdges?: string;
+  colorMid?: string;
+  colorGradient?: number;
+  distance?: number;
+  edgesSize?: number;
+  edgesSoftness?: number;
+  middleSize?: number;
+  middleSoftness?: number;
+}

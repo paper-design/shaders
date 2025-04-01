@@ -1,24 +1,4 @@
-export const PatternShapes = {
-  Checks: 0,
-  Stripes: 1,
-  Edge: 2,
-} as const;
-export type PatternShape = (typeof PatternShapes)[keyof typeof PatternShapes];
-
-export type WarpUniforms = {
-  u_scale: number;
-  u_rotation: number;
-  u_color1: [number, number, number, number];
-  u_color2: [number, number, number, number];
-  u_color3: [number, number, number, number];
-  u_proportion: number;
-  u_softness: number;
-  u_shape: PatternShape;
-  u_shapeScale: number;
-  u_distortion: number;
-  u_swirl: number;
-  u_swirlIterations: number;
-};
+import type { ShaderMotionParams, ShaderSizingParams, ShaderSizingUniforms } from '../shader-mount';
 
 /**
  * 3d Perlin noise with exposed parameters
@@ -41,7 +21,6 @@ export type WarpUniforms = {
  * u_swirlIterations - the number of swirl iterations (layering curves effect)
  *
  */
-
 export const warpFragmentShader = `#version 300 es
 precision highp float;
 
@@ -164,3 +143,39 @@ void main() {
     fragColor = vec4(color_mix.rgb, color_mix.a);
 }
 `;
+
+export interface WarpUniforms extends ShaderSizingUniforms {
+  u_color1: [number, number, number, number];
+  u_color2: [number, number, number, number];
+  u_color3: [number, number, number, number];
+  u_rotation: number;
+  u_proportion: number;
+  u_softness: number;
+  u_shape: WarpPattern;
+  u_shapeScale: number;
+  u_distortion: number;
+  u_swirl: number;
+  u_swirlIterations: number;
+}
+
+export interface WarpParams extends ShaderSizingParams, ShaderMotionParams {
+  color1?: string;
+  color2?: string;
+  color3?: string;
+  rotation?: number;
+  proportion?: number;
+  softness?: number;
+  shape?: WarpPattern;
+  shapeScale?: number;
+  distortion?: number;
+  swirl?: number;
+  swirlIterations?: number;
+}
+
+export const WarpPatterns = {
+  checks: 0,
+  stripes: 1,
+  edge: 2,
+} as const;
+
+export type WarpPattern = keyof typeof WarpPatterns;

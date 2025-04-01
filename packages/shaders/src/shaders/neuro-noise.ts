@@ -1,9 +1,4 @@
-export type NeuroNoiseUniforms = {
-  u_scale: number;
-  u_colorFront: [number, number, number, number];
-  u_colorBack: [number, number, number, number];
-  u_brightness: number;
-};
+import type { ShaderMotionParams, ShaderSizingParams, ShaderSizingUniforms } from '../shader-mount';
 
 /**
  * Neuro Noise Pattern
@@ -16,7 +11,6 @@ export type NeuroNoiseUniforms = {
  * u_colorBack - the back color of pattern
  * u_brightness - the power (brightness) of pattern lines
  */
-
 export const neuroNoiseFragmentShader = `#version 300 es
 precision highp float;
 
@@ -75,3 +69,15 @@ void main() {
   fragColor = vec4(color, opacity);
 }
 `;
+
+export interface NeuroNoiseUniforms extends ShaderSizingUniforms {
+  u_colorFront: [number, number, number, number];
+  u_colorBack: [number, number, number, number];
+  u_brightness: number;
+}
+
+export interface NeuroNoiseParams extends ShaderSizingParams, ShaderMotionParams {
+  colorFront?: string;
+  colorBack?: string;
+  brightness?: number;
+}

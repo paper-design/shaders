@@ -12,6 +12,8 @@ import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import Link from 'next/link';
 import { BackButton } from '@/components/back-button';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
+import { ShaderFitOptions } from '@paper-design/shaders';
+import { ShaderFit } from '@paper-design/shaders';
 
 /**
  * You can copy/paste this example to use SteppedSimplexNoise in your app
@@ -40,7 +42,7 @@ const defaults = steppedSimplexNoisePresets[0].params;
 
 const SteppedSimplexNoiseWithControls = () => {
   const [params, setParams] = useControls(() => {
-    const presets: SteppedSimplexNoiseParams = Object.fromEntries(
+    const presets = Object.fromEntries(
       steppedSimplexNoisePresets.map((preset) => [
         preset.name,
         button(() => setParamsSafe(params, setParams, preset.params)),
@@ -54,11 +56,26 @@ const SteppedSimplexNoiseWithControls = () => {
           color3: { value: defaults.color3, order: 102 },
           color4: { value: defaults.color4, order: 103 },
           color5: { value: defaults.color5, order: 104 },
-          scale: { value: defaults.scale, min: 0.1, max: 1.9, order: 200 },
           stepsNumber: { value: defaults.stepsNumber, min: 2, max: 40, order: 300 },
           speed: { value: defaults.speed, min: 0, max: 1, order: 400 },
         },
         { order: 1 }
+      ),
+      Sizing: folder(
+        {
+          fit: { value: defaults.fit, options: Object.keys(ShaderFitOptions) as ShaderFit[], order: 400 },
+          scale: { value: defaults.scale, min: 0.01, max: 4, order: 401 },
+          originX: { value: defaults.originX, min: 0, max: 1, order: 402 },
+          originY: { value: defaults.originY, min: 0, max: 1, order: 403 },
+          offsetX: { value: defaults.offsetX, min: -2, max: 2, order: 404 },
+          offsetY: { value: defaults.offsetY, min: -2, max: 2, order: 405 },
+          worldWidth: { value: defaults.worldWidth, min: 0, max: 4000, order: 406 },
+          worldHeight: { value: defaults.worldHeight, min: 0, max: 4000, order: 407 },
+        },
+        {
+          order: 2,
+          collapsed: true,
+        }
       ),
       Presets: folder(presets, { order: 2 }),
     };

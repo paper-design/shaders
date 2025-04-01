@@ -1,11 +1,4 @@
-export type SmokeRingUniforms = {
-  u_scale: number;
-  u_colorBack: [number, number, number, number];
-  u_colorInner: [number, number, number, number];
-  u_colorOuter: [number, number, number, number];
-  u_noiseScale: number;
-  u_thickness: number;
-};
+import type { ShaderMotionParams, ShaderSizingParams, ShaderSizingUniforms } from '../shader-mount';
 
 /**
  * Smoke Ring by Ksenia Kondrashova
@@ -133,3 +126,19 @@ void main() {
   fragColor = vec4(color, opacity);
 }
 `;
+
+export interface SmokeRingUniforms extends ShaderSizingUniforms {
+  u_colorBack: [number, number, number, number];
+  u_colorInner: [number, number, number, number];
+  u_colorOuter: [number, number, number, number];
+  u_noiseScale: number;
+  u_thickness: number;
+}
+
+export interface SmokeRingParams extends ShaderSizingParams, ShaderMotionParams {
+  colorBack?: string;
+  colorInner?: string;
+  colorOuter?: string;
+  noiseScale?: number;
+  thickness?: number;
+}

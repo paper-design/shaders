@@ -1,24 +1,4 @@
-/** Possible values for the shape uniform */
-export const DotGridShapes = {
-  Circle: 0,
-  Diamond: 1,
-  Square: 2,
-  Triangle: 3,
-} as const;
-export type DotGridShape = (typeof DotGridShapes)[keyof typeof DotGridShapes];
-
-export type DotGridUniforms = {
-  u_colorBack: [number, number, number, number];
-  u_colorFill: [number, number, number, number];
-  u_colorStroke: [number, number, number, number];
-  u_dotSize: number;
-  u_gridSpacingX: number;
-  u_gridSpacingY: number;
-  u_strokeWidth: number;
-  u_sizeRange: number;
-  u_opacityRange: number;
-  u_shape: DotGridShape;
-};
+import type { ShaderSizingParams, ShaderSizingUniforms } from '../shader-mount';
 
 /**
  * Dot Grid Pattern
@@ -36,7 +16,6 @@ export type DotGridUniforms = {
  * u_opacityRange(0 .. 1) - variety of dot opacity to be applied equally to fill and stroke
  * u_shape - shape code (0 - circle, 1 - diamond, 2 - square, 3 - triangle)
  */
-
 export const dotGridFragmentShader = `#version 300 es
 precision highp float;
 
@@ -153,3 +132,38 @@ void main() {
   fragColor = vec4(color, opacity);
 }
 `;
+
+export interface DotGridUniforms extends ShaderSizingUniforms {
+  u_colorBack: [number, number, number, number];
+  u_colorFill: [number, number, number, number];
+  u_colorStroke: [number, number, number, number];
+  u_dotSize: number;
+  u_gridSpacingX: number;
+  u_gridSpacingY: number;
+  u_strokeWidth: number;
+  u_sizeRange: number;
+  u_opacityRange: number;
+  u_shape: (typeof DotGridShapes)[DotGridShape];
+}
+
+export interface DotGridParams extends ShaderSizingParams {
+  colorBack?: string;
+  colorFill?: string;
+  colorStroke?: string;
+  dotSize?: number;
+  gridSpacingX?: number;
+  gridSpacingY?: number;
+  strokeWidth?: number;
+  sizeRange?: number;
+  opacityRange?: number;
+  shape?: DotGridShape;
+}
+
+export const DotGridShapes = {
+  circle: 0,
+  diamond: 1,
+  square: 2,
+  triangle: 3,
+} as const;
+
+export type DotGridShape = keyof typeof DotGridShapes;
