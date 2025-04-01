@@ -29,6 +29,9 @@ uniform bool u_pxRounded;
 
 out vec4 fragColor;
 
+#define TWO_PI 6.28318530718
+#define PI 3.14159265358979323846
+
 vec3 permute(vec3 x) { return mod(((x * 34.0) + 1.0) * x, 289.0); }
 float snoise(vec2 v) {
   const vec4 C = vec4(0.211324865405187, 0.366025403784439,
@@ -116,9 +119,9 @@ void main() {
   float noise_scale = 0.0008 * u_scale + 1e-4;  
   
   if (u_shape < 1.5) {  
-    // SHAPE = 1 => Simplex noise  
+    // Simplex noise  
     uv -= 0.5;  
-    uv *= noise_scale;  
+    uv *= 1.5 * noise_scale;  
     uv *= u_resolution;  
     uv /= u_pixelRatio;  
     uv += 0.5;  
@@ -127,9 +130,9 @@ void main() {
     shape = smoothstep(0.3, 0.9, shape);
       
   } else if (u_shape < 2.5) {  
-    // SHAPE = 2 => Warp  
+    // Warp  
     uv -= 0.5;  
-    uv *= 5. * noise_scale;
+    uv *= 2. * noise_scale;
     uv *= u_resolution;  
     uv /= u_pixelRatio;  
     uv += 0.5;
@@ -140,59 +143,61 @@ void main() {
     }  
     
     shape = .15 / abs(sin(t - uv.y - uv.x));  
-    shape = smoothstep(0.1, 1., shape);
+    shape = smoothstep(0.02, 1., shape);
   
   } else if (u_shape < 3.5) {  
-    // SHAPE = 3 => Stripes  
-    // For stripes, we need to ensure the scale is consistent
-    // Apply pixel ratio before scaling
-    uv -= 0.5;  
-    // Scale by pixel ratio first to ensure consistent visual size
-    uv *= u_pixelRatio;
-    uv *= 5.0 * u_scale;  
-    // Now divide by pixel ratio to normalize
-    uv /= u_pixelRatio;  
-    uv += 0.5;  
+    // Sine wave
+
+    uv -= .5;
+    uv *= 3. * u_scale;
+    uv.x *= ratio;  
     
-    shape = abs(fract(uv.x + 0.5) * 2.0 - 1.0);  
-    shape = smoothstep(0.2, 1., shape);
-  
+    float wave = cos(.5 * uv.x - 2. * t) * sin(1.5 * uv.x + t) * (.75 + .25 * cos(3. * t));
+    shape = 1. - smoothstep(-1., 1., uv.y + wave);
+          
   } else if (u_shape < 4.5) {  
-    // SHAPE = 4 => Border  
-    // For border, we need to ensure the edge thickness is consistent
-    // Use a direct pixel ratio compensation
-    vec2 outer = 1.28 * 100.0 * u_scale / u_resolution;
-    // Apply pixel ratio directly to the smoothstep scale
-    vec2 bl = smoothstep(vec2(0.0), outer * u_pixelRatio, uv);  
-    vec2 tr = smoothstep(vec2(0.0), outer * u_pixelRatio, 1.0 - uv);  
-    
-    float s = 1.0 - bl.x * bl.y * tr.x * tr.y;  
-    shape = clamp(s, 0.0, 1.0);  
-    
-  } else if (u_shape < 5.5) {  
-    // SHAPE = 5 => Grid  
+    // Grid  
     uv -= 0.5;  
-    uv *= 15. * noise_scale;
+    uv *= 50. * noise_scale;
     uv *= u_resolution;  
     uv /= u_pixelRatio;  
     uv += 0.5;
     
-    shape = .5 + .5 * sin(uv.x) * cos(uv.y);  
-    shape = smoothstep(0.2, 1., shape);
-  
-  } else if (u_shape < 6.5) {  
-    // SHAPE = 6 => Ripple  
+    float stripeIdx = floor(2. * uv.x / TWO_PI);
+    float rand = fract(sin(stripeIdx * 12.9898) * 43758.5453);
+
+    float speed = sign(rand - .5) * ceil(2. + rand);
+    shape = sin(uv.x) * cos(uv.y + speed * t);  
+    shape = pow(shape, 6.);
+      
+  } else if (u_shape < 5.5) {  
+    // Ripple  
     uv -= 0.5;  
     uv.x *= ratio;  
     uv *= 1.25 * u_scale;
     uv += 0.5;  
     
     float dist = length(uv - vec2(.5));
-    float waves = sin(pow(dist, 1.7) * 7. - 3. * t) * .5 + .55;
+    float waves = sin(pow(dist, 1.7) * 7. - 3. * t) * .5 + .5;
     shape = waves;
     
+  } else if (u_shape < 6.5) {  
+    // Swirl  
+    uv -= 0.5;  
+    uv.x *= ratio;  
+    uv *= 1.7 * u_scale;
+
+    float l = length(uv);
+    float angle = 6. * atan(uv.y, uv.x) + 4. * t;
+    float angle_norm = angle / TWO_PI;  
+    float twist = 1.2;
+    float offset = pow(l, -twist) + angle_norm;
+    float stripe_map = fract(offset);
+    float mid = smoothstep(0., 1., pow(l, twist));
+    shape = mix(0., stripe_map, mid);
+    
   } else {
-    // SHAPE = 7 => Sphere  
+    // Sphere  
     uv -= 0.5;  
     uv.x *= ratio;  
     uv *= 2.25 * u_scale;

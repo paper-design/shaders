@@ -23,7 +23,7 @@ export const defaultPreset: DitheringPreset = {
   name: 'Default',
   params: {
     scale: 1,
-    shape: 7,
+    shape: 5,
     speed: 0.15,
     color: 'hsla(210, 50%, 50%, 1)',
     type: 3,
