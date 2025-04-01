@@ -55,10 +55,6 @@ describe('getShaderColorFromString', () => {
     expect(getShaderColorFromString('not-a-color')).toEqual([0, 0, 0, 1]);
   });
 
-  test('handles custom fallback color', () => {
-    expect(getShaderColorFromString('invalid')).toEqual([1, 0, 0, 1]);
-  });
-
   // Test color value ranges
   test('normalizes RGB values to 0-1 range', () => {
     expect(getShaderColorFromString('rgb(127, 127, 127)')).toEqual([
