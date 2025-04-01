@@ -1,4 +1,5 @@
-import type { ShaderMotionParams, ShaderSizingParams, ShaderSizingUniforms } from '../shader-mount';
+import type { ShaderMotionParams } from '../shader-mount';
+import type { ShaderSizingParams, ShaderSizingUniforms } from '../shader-sizing';
 
 /**
  * Neuro Noise Pattern

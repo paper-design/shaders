@@ -1,4 +1,4 @@
-import type { ShaderSizingParams, ShaderSizingUniforms } from '../shader-mount';
+import type { ShaderSizingParams, ShaderSizingUniforms } from '../shader-sizing';
 
 /**
  * Dot Grid Pattern

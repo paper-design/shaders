@@ -1,4 +1,5 @@
-import type { ShaderSizingParams, ShaderSizingUniforms, ShaderMotionParams } from '../shader-mount';
+import type { ShaderMotionParams } from '../shader-mount';
+import type { ShaderSizingParams, ShaderSizingUniforms } from '../shader-sizing';
 
 /**
  * Stepped Simplex Noise by Ksenia Kondrashova

@@ -1,4 +1,4 @@
-import type { ShaderSizingParams, ShaderSizingUniforms } from '../shader-mount';
+import type { ShaderSizingParams, ShaderSizingUniforms } from '../shader-sizing';
 
 /**
  * Waves static pattern on the transparent background

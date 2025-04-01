@@ -1,20 +1,16 @@
 /** The core Shader Mount class. Pass it a parent element and a fragment shader to get started. */
+export { ShaderMount, isPaperShaderElement } from './shader-mount';
+export type { PaperShaderElement, ShaderMotionParams, ShaderMountUniforms, ShaderPreset } from './shader-mount';
+
+/** Shader sizing options and uniforms */
 export {
-  ShaderMount,
-  ShaderFitOptions,
-  isPaperShaderElement,
   defaultObjectSizing,
   defaultPatternSizing,
-} from './shader-mount';
-export type {
-  PaperShaderElement,
-  ShaderFit,
-  ShaderMotionParams,
-  ShaderMountUniforms,
-  ShaderPreset,
-  ShaderSizingParams,
-  ShaderSizingUniforms,
-} from './shader-mount';
+  ShaderFitOptions,
+  type ShaderFit,
+  type ShaderSizingParams,
+  type ShaderSizingUniforms,
+} from './shader-sizing';
 
 // ----- Mesh gradient ----- //
 /** A shader that renders a mesh gradient with a rotating noise pattern and several layers of fractal noise */
