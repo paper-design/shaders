@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { memo } from 'react';
 import { ShaderMount, type ShaderComponentProps } from '../shader-mount';
 import {
   defaultObjectSizing,
@@ -59,7 +59,7 @@ export const fadedPreset: MeshGradientPreset = {
 
 export const meshGradientPresets: MeshGradientPreset[] = [defaultPreset, beachPreset, fadedPreset];
 
-export const MeshGradient = ({
+export const MeshGradient: React.FC<MeshGradientProps> = memo(function MeshGradientImpl({
   // Own props
   speed = defaultPreset.params.speed,
   frame = defaultPreset.params.frame,
@@ -78,42 +78,24 @@ export const MeshGradient = ({
   offsetX = defaultPreset.params.offsetX,
   offsetY = defaultPreset.params.offsetY,
   ...props
-}: MeshGradientProps): React.ReactElement => {
-  const uniforms = useMemo(() => {
-    return {
-      // Own uniforms
-      u_color1: getShaderColorFromString(color1),
-      u_color2: getShaderColorFromString(color2),
-      u_color3: getShaderColorFromString(color3),
-      u_color4: getShaderColorFromString(color4),
+}) {
+  const uniforms = {
+    // Own uniforms
+    u_color1: getShaderColorFromString(color1),
+    u_color2: getShaderColorFromString(color2),
+    u_color3: getShaderColorFromString(color3),
+    u_color4: getShaderColorFromString(color4),
 
-      // Sizing uniforms
-      u_fit: ShaderFitOptions[fit],
-      u_scale: scale,
-      u_offsetX: offsetX,
-      u_offsetY: offsetY,
-      u_originX: originX,
-      u_originY: originY,
-      u_worldWidth: worldWidth,
-      u_worldHeight: worldHeight,
-    } satisfies MeshGradientUniforms;
-  }, [
-    // Own props
-    color1,
-    color2,
-    color3,
-    color4,
-
-    // Sizing props
-    fit,
-    scale,
-    offsetX,
-    offsetY,
-    originX,
-    originY,
-    worldWidth,
-    worldHeight,
-  ]);
+    // Sizing uniforms
+    u_fit: ShaderFitOptions[fit],
+    u_scale: scale,
+    u_offsetX: offsetX,
+    u_offsetY: offsetY,
+    u_originX: originX,
+    u_originY: originY,
+    u_worldWidth: worldWidth,
+    u_worldHeight: worldHeight,
+  } satisfies MeshGradientUniforms;
 
   return (
     <ShaderMount
@@ -124,4 +106,4 @@ export const MeshGradient = ({
       uniforms={uniforms}
     />
   );
-};
+});

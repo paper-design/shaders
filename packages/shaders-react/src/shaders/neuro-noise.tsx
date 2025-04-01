@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { memo } from 'react';
 import { ShaderMount, type ShaderComponentProps } from '../shader-mount';
 import {
   defaultObjectSizing,
@@ -45,7 +45,7 @@ const marblePreset: NeuroNoisePreset = {
 
 export const neuroNoisePresets: NeuroNoisePreset[] = [defaultPreset, marblePreset] as const;
 
-export const NeuroNoise = ({
+export const NeuroNoise: React.FC<NeuroNoiseProps> = memo(function NeuroNoiseImpl({
   // Own props
   speed = defaultPreset.params.speed,
   frame = defaultPreset.params.frame,
@@ -63,44 +63,25 @@ export const NeuroNoise = ({
   offsetX = defaultPreset.params.offsetX,
   offsetY = defaultPreset.params.offsetY,
   ...props
-}: NeuroNoiseProps): React.ReactElement => {
-  const uniforms = useMemo(() => {
-    return {
-      // Own uniforms
-      u_colorFront: getShaderColorFromString(colorFront),
-      u_colorBack: getShaderColorFromString(colorBack),
-      u_brightness: brightness,
+}) {
+  const uniforms = {
+    // Own uniforms
+    u_colorFront: getShaderColorFromString(colorFront),
+    u_colorBack: getShaderColorFromString(colorBack),
+    u_brightness: brightness,
 
-      // Sizing uniforms
-      u_fit: ShaderFitOptions[fit],
-      u_scale: scale,
-      u_offsetX: offsetX,
-      u_offsetY: offsetY,
-      u_originX: originX,
-      u_originY: originY,
-      u_worldWidth: worldWidth,
-      u_worldHeight: worldHeight,
-    } satisfies NeuroNoiseUniforms;
-  }, [
-    // Own props
-    speed,
-    frame,
-    colorFront,
-    colorBack,
-    brightness,
-
-    // Sizing props
-    fit,
-    scale,
-    offsetX,
-    offsetY,
-    originX,
-    originY,
-    worldWidth,
-    worldHeight,
-  ]);
+    // Sizing uniforms
+    u_fit: ShaderFitOptions[fit],
+    u_scale: scale,
+    u_offsetX: offsetX,
+    u_offsetY: offsetY,
+    u_originX: originX,
+    u_originY: originY,
+    u_worldWidth: worldWidth,
+    u_worldHeight: worldHeight,
+  } satisfies NeuroNoiseUniforms;
 
   return (
     <ShaderMount {...props} speed={speed} frame={frame} fragmentShader={neuroNoiseFragmentShader} uniforms={uniforms} />
   );
-};
+});

@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { memo } from 'react';
 import { ShaderMount, type ShaderComponentProps } from '../shader-mount';
 import {
   defaultPatternSizing,
@@ -262,7 +262,7 @@ export const warpPresets: WarpPreset[] = [
   presetSilk,
 ];
 
-export const Warp = ({
+export const Warp: React.FC<WarpProps> = memo(function WarpImpl({
   // Own props
   speed = defaultPreset.params.speed,
   frame = defaultPreset.params.frame,
@@ -288,56 +288,31 @@ export const Warp = ({
   worldWidth = defaultPreset.params.worldWidth,
   worldHeight = defaultPreset.params.worldHeight,
   ...props
-}: WarpProps): React.ReactElement => {
-  const uniforms = useMemo(() => {
-    return {
-      // Own uniforms
-      u_scale: scale,
-      u_rotation: rotation,
-      u_color1: getShaderColorFromString(color1),
-      u_color2: getShaderColorFromString(color2),
-      u_color3: getShaderColorFromString(color3),
-      u_proportion: proportion,
-      u_softness: softness,
-      u_distortion: distortion,
-      u_swirl: swirl,
-      u_swirlIterations: swirlIterations,
-      u_shapeScale: shapeScale,
-      u_shape: shape,
+}) {
+  const uniforms = {
+    // Own uniforms
+    u_scale: scale,
+    u_rotation: rotation,
+    u_color1: getShaderColorFromString(color1),
+    u_color2: getShaderColorFromString(color2),
+    u_color3: getShaderColorFromString(color3),
+    u_proportion: proportion,
+    u_softness: softness,
+    u_distortion: distortion,
+    u_swirl: swirl,
+    u_swirlIterations: swirlIterations,
+    u_shapeScale: shapeScale,
+    u_shape: shape,
 
-      // Sizing uniforms
-      u_fit: ShaderFitOptions[fit],
-      u_offsetX: offsetX,
-      u_offsetY: offsetY,
-      u_originX: originX,
-      u_originY: originY,
-      u_worldWidth: worldWidth,
-      u_worldHeight: worldHeight,
-    } satisfies WarpUniforms;
-  }, [
-    // Own props
-    rotation,
-    color1,
-    color2,
-    color3,
-    proportion,
-    softness,
-    distortion,
-    swirl,
-    swirlIterations,
-    shapeScale,
-    shape,
-
-    // Sizing props
-    fit,
-    scale,
-    offsetX,
-    offsetY,
-    originX,
-    originY,
-    worldWidth,
-    worldHeight,
-  ]);
+    // Sizing uniforms
+    u_fit: ShaderFitOptions[fit],
+    u_offsetX: offsetX,
+    u_offsetY: offsetY,
+    u_originX: originX,
+    u_originY: originY,
+    u_worldWidth: worldWidth,
+    u_worldHeight: worldHeight,
+  } satisfies WarpUniforms;
 
   return <ShaderMount {...props} speed={speed} frame={frame} fragmentShader={warpFragmentShader} uniforms={uniforms} />;
-};
+});

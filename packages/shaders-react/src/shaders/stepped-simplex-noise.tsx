@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { memo } from 'react';
 import { ShaderMount, type ShaderComponentProps } from '../shader-mount';
 import {
   getShaderColorFromString,
@@ -88,7 +88,7 @@ export const steppedSimplexNoisePresets: SteppedSimplexNoisePreset[] = [
   firstContactPreset,
 ];
 
-export const SteppedSimplexNoise = ({
+export const SteppedSimplexNoise: React.FC<SteppedSimplexNoiseProps> = memo(function SteppedSimplexNoiseImpl({
   // Own props
   speed = defaultPreset.params.speed,
   frame = defaultPreset.params.frame,
@@ -109,46 +109,26 @@ export const SteppedSimplexNoise = ({
   offsetX = defaultPreset.params.offsetX,
   offsetY = defaultPreset.params.offsetY,
   ...props
-}: SteppedSimplexNoiseProps): React.ReactElement => {
-  const uniforms = useMemo(() => {
-    return {
-      // Own uniforms
-      u_color1: getShaderColorFromString(color1),
-      u_color2: getShaderColorFromString(color2),
-      u_color3: getShaderColorFromString(color3),
-      u_color4: getShaderColorFromString(color4),
-      u_color5: getShaderColorFromString(color5),
-      u_steps_number: stepsNumber,
+}) {
+  const uniforms = {
+    // Own uniforms
+    u_color1: getShaderColorFromString(color1),
+    u_color2: getShaderColorFromString(color2),
+    u_color3: getShaderColorFromString(color3),
+    u_color4: getShaderColorFromString(color4),
+    u_color5: getShaderColorFromString(color5),
+    u_steps_number: stepsNumber,
 
-      // Sizing uniforms
-      u_fit: ShaderFitOptions[fit],
-      u_scale: scale,
-      u_offsetX: offsetX,
-      u_offsetY: offsetY,
-      u_originX: originX,
-      u_originY: originY,
-      u_worldWidth: worldWidth,
-      u_worldHeight: worldHeight,
-    } satisfies SteppedSimplexNoiseUniforms;
-  }, [
-    // Own props
-    color1,
-    color2,
-    color3,
-    color4,
-    color5,
-    stepsNumber,
-
-    // Sizing props
-    fit,
-    scale,
-    offsetX,
-    offsetY,
-    originX,
-    originY,
-    worldWidth,
-    worldHeight,
-  ]);
+    // Sizing uniforms
+    u_fit: ShaderFitOptions[fit],
+    u_scale: scale,
+    u_offsetX: offsetX,
+    u_offsetY: offsetY,
+    u_originX: originX,
+    u_originY: originY,
+    u_worldWidth: worldWidth,
+    u_worldHeight: worldHeight,
+  } satisfies SteppedSimplexNoiseUniforms;
 
   return (
     <ShaderMount
@@ -159,4 +139,4 @@ export const SteppedSimplexNoise = ({
       uniforms={uniforms}
     />
   );
-};
+});

@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { memo, useMemo } from 'react';
 import { ShaderMount, type ShaderComponentProps } from '../shader-mount';
 import {
   defaultPatternSizing,
@@ -197,7 +197,7 @@ export const voronoiPresets: VoronoiPreset[] = [
   tilesPreset,
 ];
 
-export const Voronoi = ({
+export const Voronoi: React.FC<VoronoiProps> = memo(function VoronoiImpl({
   // Own props
   speed = defaultPreset.params.speed,
   frame = defaultPreset.params.frame,
@@ -223,58 +223,33 @@ export const Voronoi = ({
   offsetX = defaultPreset.params.offsetX,
   offsetY = defaultPreset.params.offsetY,
   ...props
-}: VoronoiProps): React.ReactElement => {
-  const uniforms = useMemo(() => {
-    return {
-      // Own uniforms
-      u_colorCell1: getShaderColorFromString(colorCell1),
-      u_colorCell2: getShaderColorFromString(colorCell2),
-      u_colorCell3: getShaderColorFromString(colorCell3),
-      u_colorMid: getShaderColorFromString(colorMid),
-      u_colorEdges: getShaderColorFromString(colorEdges),
-      u_colorGradient: colorGradient,
-      u_distance: distance,
-      u_edgesSize: edgesSize,
-      u_edgesSoftness: edgesSoftness,
-      u_middleSize: middleSize,
-      u_middleSoftness: middleSoftness,
+}) {
+  const uniforms = {
+    // Own uniforms
+    u_colorCell1: getShaderColorFromString(colorCell1),
+    u_colorCell2: getShaderColorFromString(colorCell2),
+    u_colorCell3: getShaderColorFromString(colorCell3),
+    u_colorMid: getShaderColorFromString(colorMid),
+    u_colorEdges: getShaderColorFromString(colorEdges),
+    u_colorGradient: colorGradient,
+    u_distance: distance,
+    u_edgesSize: edgesSize,
+    u_edgesSoftness: edgesSoftness,
+    u_middleSize: middleSize,
+    u_middleSoftness: middleSoftness,
 
-      // Sizing uniforms
-      u_fit: ShaderFitOptions[fit],
-      u_scale: scale,
-      u_offsetX: offsetX,
-      u_offsetY: offsetY,
-      u_originX: originX,
-      u_originY: originY,
-      u_worldWidth: worldWidth,
-      u_worldHeight: worldHeight,
-    } satisfies VoronoiUniforms;
-  }, [
-    // Own props
-    colorCell1,
-    colorCell2,
-    colorCell3,
-    colorMid,
-    colorEdges,
-    colorGradient,
-    distance,
-    edgesSize,
-    edgesSoftness,
-    middleSize,
-    middleSoftness,
-
-    // Sizing props
-    fit,
-    scale,
-    offsetX,
-    offsetY,
-    originX,
-    originY,
-    worldWidth,
-    worldHeight,
-  ]);
+    // Sizing uniforms
+    u_fit: ShaderFitOptions[fit],
+    u_scale: scale,
+    u_offsetX: offsetX,
+    u_offsetY: offsetY,
+    u_originX: originX,
+    u_originY: originY,
+    u_worldWidth: worldWidth,
+    u_worldHeight: worldHeight,
+  } satisfies VoronoiUniforms;
 
   return (
     <ShaderMount {...props} speed={speed} frame={frame} fragmentShader={voronoiFragmentShader} uniforms={uniforms} />
   );
-};
+});

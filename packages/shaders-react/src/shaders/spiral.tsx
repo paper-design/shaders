@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { memo } from 'react';
 import { ShaderMount, type ShaderComponentProps } from '../shader-mount';
 import {
   defaultPatternSizing,
@@ -166,7 +166,7 @@ export const spiralPresets: SpiralPreset[] = [
   vinylPreset,
 ];
 
-export const Spiral = ({
+export const Spiral: React.FC<SpiralProps> = memo(function SpiralImpl({
   // Own props
   speed = defaultPreset.params.speed,
   frame = defaultPreset.params.frame,
@@ -191,56 +191,32 @@ export const Spiral = ({
   offsetX = defaultPreset.params.offsetX,
   offsetY = defaultPreset.params.offsetY,
   ...props
-}: SpiralProps): React.ReactElement => {
-  const uniforms = useMemo(() => {
-    return {
-      // Own uniforms
-      u_color1: getShaderColorFromString(color1),
-      u_color2: getShaderColorFromString(color2),
-      u_spiralDensity: spiralDensity,
-      u_spiralDistortion: spiralDistortion,
-      u_strokeWidth: strokeWidth,
-      u_strokeTaper: strokeTaper,
-      u_strokeCap: strokeCap,
-      u_noiseFreq: noiseFreq,
-      u_noisePower: noisePower,
-      u_softness: softness,
+}) {
+  const uniforms = {
+    // Own uniforms
+    u_color1: getShaderColorFromString(color1),
+    u_color2: getShaderColorFromString(color2),
+    u_spiralDensity: spiralDensity,
+    u_spiralDistortion: spiralDistortion,
+    u_strokeWidth: strokeWidth,
+    u_strokeTaper: strokeTaper,
+    u_strokeCap: strokeCap,
+    u_noiseFreq: noiseFreq,
+    u_noisePower: noisePower,
+    u_softness: softness,
 
-      // Sizing uniforms
-      u_fit: ShaderFitOptions[fit],
-      u_scale: scale,
-      u_offsetX: offsetX,
-      u_offsetY: offsetY,
-      u_originX: originX,
-      u_originY: originY,
-      u_worldWidth: worldWidth,
-      u_worldHeight: worldHeight,
-    } satisfies SpiralUniforms;
-  }, [
-    // Own props
-    color1,
-    color2,
-    spiralDensity,
-    spiralDistortion,
-    strokeWidth,
-    strokeTaper,
-    strokeCap,
-    noiseFreq,
-    noisePower,
-    softness,
-
-    // Sizing props
-    fit,
-    scale,
-    offsetX,
-    offsetY,
-    originX,
-    originY,
-    worldWidth,
-    worldHeight,
-  ]);
+    // Sizing uniforms
+    u_fit: ShaderFitOptions[fit],
+    u_scale: scale,
+    u_offsetX: offsetX,
+    u_offsetY: offsetY,
+    u_originX: originX,
+    u_originY: originY,
+    u_worldWidth: worldWidth,
+    u_worldHeight: worldHeight,
+  } satisfies SpiralUniforms;
 
   return (
     <ShaderMount {...props} speed={speed} frame={frame} fragmentShader={spiralFragmentShader} uniforms={uniforms} />
   );
-};
+});

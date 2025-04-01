@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { memo } from 'react';
 import { ShaderMount, type ShaderComponentProps } from '../shader-mount';
 import {
   defaultPatternSizing,
@@ -128,7 +128,7 @@ export const perlinNoisePresets: PerlinNoisePreset[] = [
   wormsPreset,
 ];
 
-export const PerlinNoise = ({
+export const PerlinNoise: React.FC<PerlinNoiseProps> = memo(function PerlinNoiseImpl({
   // Own props
   speed = defaultPreset.params.speed,
   frame = defaultPreset.params.frame,
@@ -150,50 +150,27 @@ export const PerlinNoise = ({
   offsetX = defaultPreset.params.offsetX,
   offsetY = defaultPreset.params.offsetY,
   ...props
-}: PerlinNoiseProps): React.ReactElement => {
-  const uniforms = useMemo(() => {
-    return {
-      // Own uniforms
-      u_color1: getShaderColorFromString(color1),
-      u_color2: getShaderColorFromString(color2),
-      u_proportion: proportion,
-      u_softness: softness ?? defaultPreset.params.softness,
-      u_octaveCount: octaveCount ?? defaultPreset.params.octaveCount,
-      u_persistence: persistence ?? defaultPreset.params.persistence,
-      u_lacunarity: lacunarity ?? defaultPreset.params.lacunarity,
+}) {
+  const uniforms = {
+    // Own uniforms
+    u_color1: getShaderColorFromString(color1),
+    u_color2: getShaderColorFromString(color2),
+    u_proportion: proportion,
+    u_softness: softness ?? defaultPreset.params.softness,
+    u_octaveCount: octaveCount ?? defaultPreset.params.octaveCount,
+    u_persistence: persistence ?? defaultPreset.params.persistence,
+    u_lacunarity: lacunarity ?? defaultPreset.params.lacunarity,
 
-      // Sizing uniforms
-      u_fit: ShaderFitOptions[fit],
-      u_scale: scale,
-      u_offsetX: offsetX,
-      u_offsetY: offsetY,
-      u_originX: originX,
-      u_originY: originY,
-      u_worldWidth: worldWidth,
-      u_worldHeight: worldHeight,
-    } satisfies PerlinNoiseUniforms;
-  }, [
-    // Own props
-    speed,
-    frame,
-    color1,
-    color2,
-    proportion,
-    softness,
-    octaveCount,
-    persistence,
-    lacunarity,
-
-    // Sizing props
-    fit,
-    scale,
-    offsetX,
-    offsetY,
-    originX,
-    originY,
-    worldWidth,
-    worldHeight,
-  ]);
+    // Sizing uniforms
+    u_fit: ShaderFitOptions[fit],
+    u_scale: scale,
+    u_offsetX: offsetX,
+    u_offsetY: offsetY,
+    u_originX: originX,
+    u_originY: originY,
+    u_worldWidth: worldWidth,
+    u_worldHeight: worldHeight,
+  } satisfies PerlinNoiseUniforms;
 
   return (
     <ShaderMount
@@ -204,4 +181,4 @@ export const PerlinNoise = ({
       uniforms={uniforms}
     />
   );
-};
+});

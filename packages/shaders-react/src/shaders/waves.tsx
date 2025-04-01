@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { memo } from 'react';
 import { ShaderMount, type ShaderComponentProps } from '../shader-mount';
 import {
   defaultPatternSizing,
@@ -129,7 +129,7 @@ export const wavesPresets: WavesPreset[] = [
   waveRidePreset,
 ];
 
-export const Waves = ({
+export const Waves: React.FC<WavesProps> = memo(function WavesImpl({
   // Own props
   rotation = defaultPreset.params.rotation,
   color1 = defaultPreset.params.color1,
@@ -151,52 +151,29 @@ export const Waves = ({
   worldWidth = defaultPreset.params.worldWidth,
   worldHeight = defaultPreset.params.worldHeight,
   ...props
-}: WavesProps): React.ReactElement => {
-  const uniforms = useMemo(() => {
-    return {
-      // Own uniforms
-      u_rotation: rotation,
-      u_color1: getShaderColorFromString(color1),
-      u_color2: getShaderColorFromString(color2),
-      u_shape: shape,
-      u_frequency: frequency,
-      u_amplitude: amplitude,
-      u_spacing: spacing,
-      u_dutyCycle: dutyCycle,
-      u_softness: softness,
+}) {
+  const uniforms = {
+    // Own uniforms
+    u_rotation: rotation,
+    u_color1: getShaderColorFromString(color1),
+    u_color2: getShaderColorFromString(color2),
+    u_shape: shape,
+    u_frequency: frequency,
+    u_amplitude: amplitude,
+    u_spacing: spacing,
+    u_dutyCycle: dutyCycle,
+    u_softness: softness,
 
-      // Sizing uniforms
-      u_fit: ShaderFitOptions[fit],
-      u_scale: scale,
-      u_offsetX: offsetX,
-      u_offsetY: offsetY,
-      u_originX: originX,
-      u_originY: originY,
-      u_worldWidth: worldWidth,
-      u_worldHeight: worldHeight,
-    } satisfies WavesUniforms;
-  }, [
-    // Own props
-    rotation,
-    color1,
-    color2,
-    shape,
-    frequency,
-    amplitude,
-    spacing,
-    dutyCycle,
-    softness,
-
-    // Sizing props
-    fit,
-    scale,
-    offsetX,
-    offsetY,
-    originX,
-    originY,
-    worldWidth,
-    worldHeight,
-  ]);
+    // Sizing uniforms
+    u_fit: ShaderFitOptions[fit],
+    u_scale: scale,
+    u_offsetX: offsetX,
+    u_offsetY: offsetY,
+    u_originX: originX,
+    u_originY: originY,
+    u_worldWidth: worldWidth,
+    u_worldHeight: worldHeight,
+  } satisfies WavesUniforms;
 
   return <ShaderMount {...props} fragmentShader={wavesFragmentShader} uniforms={uniforms} />;
-};
+});

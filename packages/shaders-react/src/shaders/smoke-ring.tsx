@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { memo } from 'react';
 import { ShaderMount, type ShaderComponentProps } from '../shader-mount';
 import {
   defaultObjectSizing,
@@ -101,7 +101,7 @@ export const smokeRingPresets: SmokeRingPreset[] = [
   poisonPreset,
 ];
 
-export const SmokeRing = ({
+export const SmokeRing: React.FC<SmokeRingProps> = memo(function SmokeRingImpl({
   // Own props
   speed = defaultPreset.params.speed,
   frame = defaultPreset.params.frame,
@@ -121,46 +121,27 @@ export const SmokeRing = ({
   offsetX = defaultPreset.params.offsetX,
   offsetY = defaultPreset.params.offsetY,
   ...props
-}: SmokeRingProps): React.ReactElement => {
-  const uniforms = useMemo(() => {
-    return {
-      // Own uniforms
-      u_colorBack: getShaderColorFromString(colorBack),
-      u_colorInner: getShaderColorFromString(colorInner),
-      u_colorOuter: getShaderColorFromString(colorOuter),
-      u_noiseScale: noiseScale,
-      u_thickness: thickness,
+}) {
+  const uniforms = {
+    // Own uniforms
+    u_colorBack: getShaderColorFromString(colorBack),
+    u_colorInner: getShaderColorFromString(colorInner),
+    u_colorOuter: getShaderColorFromString(colorOuter),
+    u_noiseScale: noiseScale,
+    u_thickness: thickness,
 
-      // Sizing uniforms
-      u_fit: ShaderFitOptions[fit],
-      u_scale: scale,
-      u_offsetX: offsetX,
-      u_offsetY: offsetY,
-      u_originX: originX,
-      u_originY: originY,
-      u_worldWidth: worldWidth,
-      u_worldHeight: worldHeight,
-    } satisfies SmokeRingUniforms;
-  }, [
-    // Own props
-    colorBack,
-    colorInner,
-    colorOuter,
-    noiseScale,
-    thickness,
-
-    // Sizing props
-    fit,
-    scale,
-    offsetX,
-    offsetY,
-    originX,
-    originY,
-    worldWidth,
-    worldHeight,
-  ]);
+    // Sizing uniforms
+    u_fit: ShaderFitOptions[fit],
+    u_scale: scale,
+    u_offsetX: offsetX,
+    u_offsetY: offsetY,
+    u_originX: originX,
+    u_originY: originY,
+    u_worldWidth: worldWidth,
+    u_worldHeight: worldHeight,
+  } satisfies SmokeRingUniforms;
 
   return (
     <ShaderMount {...props} speed={speed} frame={frame} fragmentShader={smokeRingFragmentShader} uniforms={uniforms} />
   );
-};
+});

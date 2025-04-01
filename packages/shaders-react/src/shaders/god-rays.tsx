@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { memo } from 'react';
 import { ShaderMount, type ShaderComponentProps } from '../shader-mount';
 import {
   defaultObjectSizing,
@@ -130,7 +130,7 @@ export const etherPreset: GodRaysPreset = {
 
 export const godRaysPresets: GodRaysPreset[] = [defaultPreset, auroraPreset, warpPreset, linearPreset, etherPreset];
 
-export const GodRays = ({
+export const GodRays: React.FC<GodRaysProps> = memo(function GodRaysImpl({
   // Own props
   speed = defaultPreset.params.speed,
   frame = defaultPreset.params.frame,
@@ -155,56 +155,32 @@ export const GodRays = ({
   offsetX = defaultPreset.params.offsetX,
   offsetY = defaultPreset.params.offsetY,
   ...props
-}: GodRaysProps): React.ReactElement => {
-  const uniforms = useMemo(() => {
-    return {
-      // Own uniforms
-      u_colorBack: getShaderColorFromString(colorBack),
-      u_color1: getShaderColorFromString(color1),
-      u_color2: getShaderColorFromString(color2),
-      u_color3: getShaderColorFromString(color3),
-      u_frequency: frequency,
-      u_spotty: spotty,
-      u_midIntensity: midIntensity,
-      u_midSize: midSize,
-      u_density: density,
-      u_blending: blending,
+}) {
+  const uniforms = {
+    // Own uniforms
+    u_colorBack: getShaderColorFromString(colorBack),
+    u_color1: getShaderColorFromString(color1),
+    u_color2: getShaderColorFromString(color2),
+    u_color3: getShaderColorFromString(color3),
+    u_frequency: frequency,
+    u_spotty: spotty,
+    u_midIntensity: midIntensity,
+    u_midSize: midSize,
+    u_density: density,
+    u_blending: blending,
 
-      // Sizing uniforms
-      u_fit: ShaderFitOptions[fit],
-      u_scale: scale,
-      u_offsetX: offsetX,
-      u_offsetY: offsetY,
-      u_originX: originX,
-      u_originY: originY,
-      u_worldWidth: worldWidth,
-      u_worldHeight: worldHeight,
-    } satisfies GodRaysUniforms;
-  }, [
-    // Own props
-    colorBack,
-    color1,
-    color2,
-    color3,
-    frequency,
-    spotty,
-    midIntensity,
-    midSize,
-    density,
-    blending,
-
-    // Sizing props
-    fit,
-    scale,
-    offsetX,
-    offsetY,
-    originX,
-    originY,
-    worldWidth,
-    worldHeight,
-  ]);
+    // Sizing uniforms
+    u_fit: ShaderFitOptions[fit],
+    u_scale: scale,
+    u_offsetX: offsetX,
+    u_offsetY: offsetY,
+    u_originX: originX,
+    u_originY: originY,
+    u_worldWidth: worldWidth,
+    u_worldHeight: worldHeight,
+  } satisfies GodRaysUniforms;
 
   return (
     <ShaderMount {...props} speed={speed} frame={frame} fragmentShader={godRaysFragmentShader} uniforms={uniforms} />
   );
-};
+});

@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { memo } from 'react';
 import { ShaderMount, type ShaderComponentProps } from '../shader-mount';
 import {
   getShaderColorFromString,
@@ -184,7 +184,7 @@ export const dotGridPresets: DotGridPreset[] = [
   waveformPreset,
 ];
 
-export const DotGrid = ({
+export const DotGrid: React.FC<DotGridProps> = memo(function DotGridImpl({
   // Own props
   colorBack = defaultPreset.params.colorBack,
   colorFill = defaultPreset.params.colorFill,
@@ -207,54 +207,30 @@ export const DotGrid = ({
   offsetX = defaultPreset.params.offsetX,
   offsetY = defaultPreset.params.offsetY,
   ...props
-}: DotGridProps): React.ReactElement => {
-  const uniforms = useMemo(() => {
-    return {
-      // Own uniforms
-      u_colorBack: getShaderColorFromString(colorBack),
-      u_colorFill: getShaderColorFromString(colorFill),
-      u_colorStroke: getShaderColorFromString(colorStroke),
-      u_dotSize: dotSize,
-      u_gridSpacingX: gridSpacingX,
-      u_gridSpacingY: gridSpacingY,
-      u_strokeWidth: strokeWidth,
-      u_sizeRange: sizeRange,
-      u_opacityRange: opacityRange,
-      u_shape: DotGridShapes[shape],
+}) {
+  const uniforms = {
+    // Own uniforms
+    u_colorBack: getShaderColorFromString(colorBack),
+    u_colorFill: getShaderColorFromString(colorFill),
+    u_colorStroke: getShaderColorFromString(colorStroke),
+    u_dotSize: dotSize,
+    u_gridSpacingX: gridSpacingX,
+    u_gridSpacingY: gridSpacingY,
+    u_strokeWidth: strokeWidth,
+    u_sizeRange: sizeRange,
+    u_opacityRange: opacityRange,
+    u_shape: DotGridShapes[shape],
 
-      // Sizing uniforms
-      u_fit: ShaderFitOptions[fit],
-      u_scale: scale,
-      u_offsetX: offsetX,
-      u_offsetY: offsetY,
-      u_originX: originX,
-      u_originY: originY,
-      u_worldWidth: worldWidth,
-      u_worldHeight: worldHeight,
-    } satisfies DotGridUniforms;
-  }, [
-    // Own props
-    colorBack,
-    colorFill,
-    colorStroke,
-    dotSize,
-    gridSpacingX,
-    gridSpacingY,
-    strokeWidth,
-    sizeRange,
-    opacityRange,
-    shape,
-
-    // Sizing props
-    fit,
-    scale,
-    offsetX,
-    offsetY,
-    originX,
-    originY,
-    worldWidth,
-    worldHeight,
-  ]);
+    // Sizing uniforms
+    u_fit: ShaderFitOptions[fit],
+    u_scale: scale,
+    u_offsetX: offsetX,
+    u_offsetY: offsetY,
+    u_originX: originX,
+    u_originY: originY,
+    u_worldWidth: worldWidth,
+    u_worldHeight: worldHeight,
+  } satisfies DotGridUniforms;
 
   return <ShaderMount {...props} fragmentShader={dotGridFragmentShader} uniforms={uniforms} />;
-};
+});
