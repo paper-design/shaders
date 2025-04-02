@@ -1,7 +1,8 @@
 export type DitheringUniforms = {
   u_scale: number;
   u_shape: number;
-  u_color: [number, number, number, number];
+  u_color1: [number, number, number, number];
+  u_color2: [number, number, number, number];
   u_type: number;
   u_pxSize: number;
   // u_pxRounded: boolean;
@@ -21,7 +22,8 @@ uniform vec2 u_resolution;
 
 uniform float u_scale;
 
-uniform vec4 u_color;
+uniform vec4 u_color1;
+uniform vec4 u_color2;
 uniform float u_shape;
 uniform float u_type;
 uniform float u_pxSize;
@@ -233,8 +235,7 @@ void main() {
   dithering -= 0.5;  
   float res = step(0.5, shape + dithering);  
   
-  vec3 color = u_color.rgb * u_color.a * res;
-  float opacity = u_color.a * res;
+  vec4 color = mix(u_color1, u_color2, res);
   
-  fragColor = vec4(color, opacity);
+  fragColor = color;
 }`;
