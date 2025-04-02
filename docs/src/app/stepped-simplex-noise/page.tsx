@@ -11,6 +11,7 @@ import { setParamsSafe, useResetLevaParams } from '@/helpers/use-reset-leva-para
 import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import Link from 'next/link';
 import { BackButton } from '@/components/back-button';
+import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
 
 /**
  * You can copy/paste this example to use SteppedSimplexNoise in your app
@@ -66,15 +67,15 @@ const SteppedSimplexNoiseWithControls = () => {
   // Reset to defaults on mount, so that Leva doesn't show values from other
   // shaders when navigating (if two shaders have a color1 param for example)
   useResetLevaParams(params, setParams, defaults);
-
   usePresetHighlight(steppedSimplexNoisePresets, params);
+  cleanUpLevaParams(params);
 
   return (
     <>
       <Link href="/">
         <BackButton />
       </Link>
-      <SteppedSimplexNoise {...params} style={{ position: 'fixed', width: '100%', height: '100%' }} />
+      <SteppedSimplexNoise className="fixed size-full" {...params} />
     </>
   );
 };

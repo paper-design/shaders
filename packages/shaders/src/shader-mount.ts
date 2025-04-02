@@ -2,16 +2,17 @@
 export type ShaderMountUniforms = Record<string, number | number[] | HTMLImageElement>;
 
 /** A canvas element that has a ShaderMount available on it */
-export interface PaperShaderCanvasElement extends HTMLCanvasElement {
+export interface PaperShaderElement extends HTMLElement {
   paperShaderMount: ShaderMount | undefined;
 }
 /** Check if a canvas element is a ShaderCanvas */
-export function isPaperShaderCanvas(canvas: HTMLCanvasElement): canvas is PaperShaderCanvasElement {
-  return 'paperShaderMount' in canvas;
+export function isPaperShaderElement(element: HTMLElement): element is PaperShaderElement {
+  return 'paperShaderMount' in element;
 }
 
 export class ShaderMount {
-  private canvas: PaperShaderCanvasElement;
+  public parentElement: PaperShaderElement;
+  public canvasElement: HTMLCanvasElement;
   private gl: WebGLRenderingContext;
   private program: WebGLProgram | null = null;
   private uniformLocations: Record<string, WebGLUniformLocation | null> = {};
@@ -37,7 +38,8 @@ export class ShaderMount {
   private maxResolution = 0; // set by constructor
 
   constructor(
-    canvas: HTMLCanvasElement,
+    /** The div you'd like to mount the shader to. The shader will match its size. */
+    parentElement: HTMLElement,
     fragmentShader: string,
     uniforms: ShaderMountUniforms = {},
     webGlContextAttributes?: WebGLContextAttributes,
@@ -48,16 +50,32 @@ export class ShaderMount {
     /** The maximum resolution (on the larger axis) that we render for the shader. Use virtual pixels, will be multiplied by display DPI to get the actual resolution. Actual CSS size of the canvas can be larger, it will just lose quality after this */
     maxResolution = 1920
   ) {
-    this.canvas = canvas as PaperShaderCanvasElement;
+    if (parentElement instanceof HTMLElement) {
+      this.parentElement = parentElement as PaperShaderElement;
+    } else {
+      throw new Error('Paper Shaders: parent element must be an HTMLElement');
+    }
+
+    if (!document.querySelector('style[data-paper-shaders]')) {
+      const styleElement = document.createElement('style');
+      styleElement.innerHTML = defaultStyle;
+      styleElement.setAttribute('data-paper-shaders', '');
+      document.head.prepend(styleElement);
+    }
+
+    // Create the canvas element and mount it into the provided element
+    const canvasElement = document.createElement('canvas');
+    this.canvasElement = canvasElement;
+    this.parentElement.prepend(canvasElement);
     this.fragmentShader = fragmentShader;
     this.providedUniforms = uniforms;
     // Base our starting animation time on the provided frame value
     this.totalFrameTime = frame;
-    this.maxResolution = maxResolution * window.devicePixelRatio;
+    this.maxResolution = maxResolution;
 
-    const gl = canvas.getContext('webgl2', webGlContextAttributes);
+    const gl = canvasElement.getContext('webgl2', webGlContextAttributes);
     if (!gl) {
-      throw new Error('WebGL not supported');
+      throw new Error('Paper Shaders: WebGL is not supported in this browser');
     }
     this.gl = gl;
 
@@ -73,11 +91,11 @@ export class ShaderMount {
     // Set the animation speed after everything is ready to go
     this.setSpeed(speed);
 
-    // Mark canvas as paper shader mount
-    this.canvas.setAttribute('data-paper-shaders', 'true');
+    // Mark parent element as paper shader mount
+    this.parentElement.setAttribute('data-paper-shaders', '');
 
-    // Add the shaderMount instance to the canvas element to make it easily accessible
-    this.canvas.paperShaderMount = this;
+    // Add the shaderMount instance to the div mount element to make it easily accessible
+    this.parentElement.paperShaderMount = this;
   }
 
   private initProgram = () => {
@@ -121,41 +139,27 @@ export class ShaderMount {
   private resizeObserver: ResizeObserver | null = null;
   private setupResizeObserver = () => {
     this.resizeObserver = new ResizeObserver(() => this.handleResize());
-    this.resizeObserver.observe(this.canvas);
+    this.resizeObserver.observe(this.parentElement);
     this.handleResize();
   };
 
-  private lastCSSWidth = 0;
-  private lastCSSHeight = 0;
+  /** The scale that we should render at (prevents the virtual resolution from going beyond our maxium and then multiplies by pixelRatio (at least 2X rendering always) */
+  private renderScale = 1;
+  /** Resize handler for when the container div changes size and we want to resize our canvas to match */
   private handleResize = () => {
-    const clientWidth = this.canvas.clientWidth;
-    const clientHeight = this.canvas.clientHeight;
-    const pixelRatio = window.devicePixelRatio;
+    const clientWidth = this.parentElement.clientWidth;
+    const clientHeight = this.parentElement.clientHeight;
+    const maxResolution = this.maxResolution;
+    // Note we render at 2X even for 1x screens because it gives a much smoother looking result
+    const pixelRatio = Math.max(2, window.devicePixelRatio);
+    // Render scale prevents the virtual resolution from going beyond our maxium and then multiplies by pixelRatio (so at least 2X rendering)
+    this.renderScale = Math.min(1, maxResolution / Math.max(clientWidth, clientHeight)) * pixelRatio;
 
-    let newWidth = clientWidth * pixelRatio;
-    let newHeight = clientHeight * pixelRatio;
-    // Prevent the size from going larger than our max resolution
-    const scale = Math.min(1, this.maxResolution / Math.max(newWidth, newHeight));
-    newWidth = Math.floor(newWidth * scale);
-    newHeight = Math.floor(newHeight * scale);
-
-    if (this.canvas.width !== newWidth || this.canvas.height !== newHeight) {
-      this.canvas.width = newWidth;
-      this.canvas.height = newHeight;
-
-      // If pixelRatio is not 1, we need the user to set a CSS size or changing the canvas.width/height will
-      // actually resize the element, triggering a resize loop and making the result still 1x dpi, just bigger
-      if (pixelRatio !== 1) {
-        this.lastCSSWidth = parseFloat(window.getComputedStyle(this.canvas).width);
-        this.lastCSSHeight = parseFloat(window.getComputedStyle(this.canvas).height);
-        // CSS width should not equal newWidth, because newWidth is scaled with dpi
-        if (this.lastCSSWidth === newWidth && this.lastCSSHeight === newHeight) {
-          // It appears that CSS sizing was unset, so we just caused the entire canvas to resize and will trigger a resize loop
-          // Set an explicit inline CSS size to avoid the loop and preserve 2x rendering
-          this.canvas.style.width = `${clientWidth}px`;
-          this.canvas.style.height = `${clientHeight}px`;
-        }
-      }
+    let newWidth = clientWidth * this.renderScale;
+    let newHeight = clientHeight * this.renderScale;
+    if (this.canvasElement.width !== newWidth || this.canvasElement.height !== newHeight) {
+      this.canvasElement.width = newWidth;
+      this.canvasElement.height = newHeight;
 
       this.resolutionChanged = true;
       this.gl.viewport(0, 0, this.gl.canvas.width, this.gl.canvas.height);
@@ -191,8 +195,7 @@ export class ShaderMount {
     // If the resolution has changed, we need to update the uniform
     if (this.resolutionChanged) {
       this.gl.uniform2f(this.uniformLocations.u_resolution!, this.gl.canvas.width, this.gl.canvas.height);
-      const pixelRatio = this.gl.canvas.width / this.lastCSSWidth;
-      this.gl.uniform1f(this.uniformLocations.u_pixelRatio!, pixelRatio);
+      this.gl.uniform1f(this.uniformLocations.u_pixelRatio!, this.renderScale);
       this.resolutionChanged = false;
     }
 
@@ -216,7 +219,7 @@ export class ShaderMount {
   /** Creates a texture from an image and sets it into a uniform value */
   private setTextureUniform = (uniformName: string, image: HTMLImageElement): void => {
     if (!image.complete || image.naturalWidth === 0) {
-      throw new Error(`Image for uniform ${uniformName} must be fully loaded`);
+      throw new Error(`Paper Shaders: image for uniform ${uniformName} must be fully loaded`);
     }
 
     // Clean up existing texture if present
@@ -239,7 +242,7 @@ export class ShaderMount {
     this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.gl.RGBA, this.gl.UNSIGNED_BYTE, image);
     const error = this.gl.getError();
     if (error !== this.gl.NO_ERROR || texture === null) {
-      console.error('WebGL error when uploading texture:', error);
+      console.error('Paper Shaders: WebGL error when uploading texture:', error);
       return;
     }
 
@@ -392,8 +395,8 @@ export class ShaderMount {
 
     this.uniformLocations = {};
 
-    // Remove the shader mount from the canvas element to avoid any GC issues
-    this.canvas.paperShaderMount = undefined;
+    // Remove the shader mount from the div wrapper element to avoid any GC issues
+    this.parentElement.paperShaderMount = undefined;
   };
 }
 
@@ -455,3 +458,20 @@ function createProgram(
 
   return program;
 }
+
+const defaultStyle = `@layer base {
+  :where([data-paper-shaders]) {
+    isolation: isolate;
+    position: relative;
+
+    & canvas {
+      contain: strict;
+      display: block;
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      width: 100%;
+      height: 100%;
+    }
+  }
+}`;

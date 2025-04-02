@@ -1,6 +1,7 @@
 'use client';
 
 import { BackButton } from '@/components/back-button';
+import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
 import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import { setParamsSafe, useResetLevaParams } from '@/helpers/use-reset-leva-params';
 import { Voronoi, type VoronoiParams, voronoiPresets } from '@paper-design/shaders-react';
@@ -16,6 +17,7 @@ const VoronoiExample = () => {
       colorCell1="#e64d1a"
       colorCell2="#1ae6e6"
       colorCell3="#1aa2e6"
+      colorEdges="#000000"
       colorGradient={0}
       scale={1}
       distance={0.25}
@@ -45,6 +47,7 @@ const VoronoiWithControls = () => {
           colorCell2: { value: defaults.colorCell2, order: 101 },
           colorCell3: { value: defaults.colorCell3, order: 102 },
           colorMid: { value: defaults.colorMid, order: 103 },
+          colorEdges: { value: defaults.colorEdges, order: 104 },
           colorGradient: { value: defaults.colorGradient, min: 0, max: 1, order: 105 },
           scale: { value: defaults.scale, min: 0.15, max: 3, order: 200 },
           distance: { value: defaults.distance, min: 0, max: 0.5, order: 300 },
@@ -63,15 +66,15 @@ const VoronoiWithControls = () => {
   // Reset to defaults on mount, so that Leva doesn't show values from other
   // shaders when navigating (if two shaders have a color1 param for example)
   useResetLevaParams(params, setParams, defaults);
-
   usePresetHighlight(voronoiPresets, params);
+  cleanUpLevaParams(params);
 
   return (
     <>
       <Link href="/">
         <BackButton />
       </Link>
-      <Voronoi {...params} style={{ position: 'fixed', width: '100%', height: '100%' }} />
+      <Voronoi className="fixed size-full" {...params} />
     </>
   );
 };

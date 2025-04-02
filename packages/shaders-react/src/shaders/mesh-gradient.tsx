@@ -11,7 +11,7 @@ export type MeshGradientParams = {
 
 export type MeshGradientProps = Omit<ShaderMountProps, 'fragmentShader'> & MeshGradientParams;
 
-type MeshGradientPreset = { name: string; params: Required<MeshGradientParams>; style?: React.CSSProperties };
+type MeshGradientPreset = { name: string; params: Required<MeshGradientParams> };
 
 // Due to Leva controls limitation:
 // 1) keep default colors in HSLA format to keep alpha channel

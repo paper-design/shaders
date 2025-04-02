@@ -34,7 +34,7 @@ async function build(packageDir) {
     format: 'esm',
     treeShaking: true,
     sourcemap: true,
-    minify: true,
+    minify: false,
     external: ['react'],
     packages: 'external', // Treat workspace dependencies as external (the publish script will replace workspace:* with the actual version)
   });

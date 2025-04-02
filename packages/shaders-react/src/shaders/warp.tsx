@@ -25,7 +25,7 @@ export type WarpParams = {
 
 export type WarpProps = Omit<ShaderMountProps, 'fragmentShader'> & WarpParams;
 
-type WarpPreset = { name: string; params: Required<WarpParams>; style?: React.CSSProperties };
+type WarpPreset = { name: string; params: Required<WarpParams> };
 
 // Due to Leva controls limitation:
 // 1) keep default colors in HSLA format to keep alpha channel

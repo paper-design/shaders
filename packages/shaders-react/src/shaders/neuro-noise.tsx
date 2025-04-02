@@ -11,7 +11,7 @@ export type NeuroNoiseParams = {
 
 export type NeuroNoiseProps = Omit<ShaderMountProps, 'fragmentShader'> & NeuroNoiseParams;
 
-type NeuroNoisePreset = { name: string; params: Required<NeuroNoiseParams>; style?: React.CSSProperties };
+type NeuroNoisePreset = { name: string; params: Required<NeuroNoiseParams> };
 
 // Due to Leva controls limitation:
 // 1) keep default colors in HSLA format to keep alpha channel

@@ -6,6 +6,7 @@ import { setParamsSafe, useResetLevaParams } from '@/helpers/use-reset-leva-para
 import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import Link from 'next/link';
 import { BackButton } from '@/components/back-button';
+import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
 
 /**
  * You can copy/paste this example to use Metaballs in your app
@@ -49,21 +50,12 @@ const MetaballsWithControls = () => {
     };
   });
 
-  const [style, setStyle] = useControls(() => {
-    return {
-      Parameters: folder({
-        background: { value: 'hsla(0, 0%, 0%, 0)', order: 99 },
-      }),
-    };
-  });
-
   useControls(() => {
     const presets: MetaballsParams = Object.fromEntries(
       metaballsPresets.map((preset) => [
         preset.name,
         button(() => {
           setParamsSafe(params, setParams, preset.params);
-          setStyle({ background: String(preset.style?.background || 'hsla(0, 0%, 0%, 0)') });
         }),
       ])
     );
@@ -75,16 +67,15 @@ const MetaballsWithControls = () => {
   // Reset to defaults on mount, so that Leva doesn't show values from other
   // shaders when navigating (if two shaders have a color1 param for example)
   useResetLevaParams(params, setParams, defaults);
-  useResetLevaParams(style, setStyle, defaults.style);
-
   usePresetHighlight(metaballsPresets, params);
+  cleanUpLevaParams(params);
 
   return (
     <>
       <Link href="/">
         <BackButton />
       </Link>
-      <Metaballs {...params} style={{ position: 'fixed', width: '100%', height: '100%', ...style }} />
+      <Metaballs className="fixed size-full" {...params} />
     </>
   );
 };

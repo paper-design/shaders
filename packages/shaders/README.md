@@ -7,10 +7,10 @@ This is the vanilla JS of Paper Shaders. You can also find framework specific wr
 ```
 import { ShaderMount, meshGradientFragmentShader, getShaderColorFromString } from "@paper-design/shaders";
 
-const myCanvas = document.createElement("canvas");
-myCanvas.width = 300;
-myCanvas.height = 300;
+const myDiv = document.createElement('div');
 document.body.appendChild(myCanvas);
+myDiv.style.width = '600px';
+myDiv.style.height = '400px';
 
 const shaderParams = {
   u_color1: getShaderColorFromString("#283BFC"),
@@ -19,9 +19,6 @@ const shaderParams = {
   u_color4: getShaderColorFromString("#800080")
 };
 
-const meshGradient = new ShaderMount(
-  myCanvas,
-  meshGradientFragmentShader,
-  shaderParams
-);
+const speed = 0.25;
+const meshGradient = new ShaderMount(myDiv, meshGradientFragmentShader, shaderParams, undefined, speed);
 ```
