@@ -1,3 +1,5 @@
+'use client';
+
 // ----- ShaderMount ----- //
 export { ShaderMount } from './shader-mount';
 

@@ -34,8 +34,8 @@ export class ShaderMount {
   private resolutionChanged = true;
   /** Store textures that are provided by the user */
   private textures: Map<string, WebGLTexture> = new Map();
-  /** The maximum resolution (on the larger axis) that we render for the shader, to protect against insane resolutions and bad performance. Actual CSS size of the canvas can be larger, it will just lose quality after this */
-  private maxResolution = 0; // set by constructor
+  private maxResolution;
+  private minPixelRatio;
 
   constructor(
     /** The div you'd like to mount the shader to. The shader will match its size. */
@@ -47,8 +47,19 @@ export class ShaderMount {
     speed = 0,
     /** Pass a frame to offset the starting u_time value and give deterministic results*/
     frame = 0,
-    /** The maximum resolution (on the larger axis) that we render for the shader. Use virtual pixels, will be multiplied by display DPI to get the actual resolution. Actual CSS size of the canvas can be larger, it will just lose quality after this */
-    maxResolution = 1920
+    /**
+     * The maximum amount of physical device pixels to render for the shader,
+     * by default it's 1920 * 1080 * 2x dpi (per each side) = 8,294,400 pixels of a 4K screen.
+     * Actual DOM size of the canvas can be larger, it will just lose quality after this.
+     *
+     * May be reduced to improve performance or increased to improve quality on high-resolution screens.
+     */
+    maxResolution: number = 1920 * 1080 * 4,
+    /**
+     * The minimum pixel ratio to render at, defaults to 2.
+     * May be reduced to improve performance or increased together with `maxResolution` to improve antialiasing.
+     */
+    minPixelRatio = 2
   ) {
     if (parentElement instanceof HTMLElement) {
       this.parentElement = parentElement as PaperShaderElement;
@@ -72,6 +83,7 @@ export class ShaderMount {
     // Base our starting animation time on the provided frame value
     this.totalFrameTime = frame;
     this.maxResolution = maxResolution;
+    this.minPixelRatio = minPixelRatio;
 
     const gl = canvasElement.getContext('webgl2', webGlContextAttributes);
     if (!gl) {
@@ -136,34 +148,71 @@ export class ShaderMount {
     this.uniformLocations = uniformLocations;
   };
 
+  /**
+   * The scale that we should render at.
+   * - By default, targets 2x rendering even on 1x screens for better antialiasing
+   * - Prevents the virtual resolution from going beyond the maximum resolution
+   * - Accounts for the page zoom level so we render in physical device pixels rather than CSS pixels
+   */
+  private renderScale = 1;
+  private parentWidth = 0;
+  private parentHeight = 0;
+
   private resizeObserver: ResizeObserver | null = null;
   private setupResizeObserver = () => {
-    this.resizeObserver = new ResizeObserver(() => this.handleResize());
+    this.resizeObserver = new ResizeObserver(([entry]) => {
+      if (entry?.borderBoxSize[0]) {
+        this.parentWidth = entry.borderBoxSize[0].inlineSize;
+        this.parentHeight = entry.borderBoxSize[0].blockSize;
+      }
+
+      this.handleResize();
+    });
+
     this.resizeObserver.observe(this.parentElement);
+    visualViewport?.addEventListener('resize', this.handleResize);
+
+    const rect = this.parentElement.getBoundingClientRect();
+    this.parentWidth = rect.width;
+    this.parentHeight = rect.height;
     this.handleResize();
   };
 
-  /** The scale that we should render at (prevents the virtual resolution from going beyond our maxium and then multiplies by pixelRatio (at least 2X rendering always) */
-  private renderScale = 1;
+  private isSafari = isSafari();
+
   /** Resize handler for when the container div changes size and we want to resize our canvas to match */
   private handleResize = () => {
-    const clientWidth = this.parentElement.clientWidth;
-    const clientHeight = this.parentElement.clientHeight;
-    const maxResolution = this.maxResolution;
-    // Note we render at 2X even for 1x screens because it gives a much smoother looking result
-    const pixelRatio = Math.max(2, window.devicePixelRatio);
-    // Render scale prevents the virtual resolution from going beyond our maxium and then multiplies by pixelRatio (so at least 2X rendering)
-    this.renderScale = Math.min(1, maxResolution / Math.max(clientWidth, clientHeight)) * pixelRatio;
+    const pinchZoom = visualViewport?.scale ?? 1;
+    const classicZoom = window.outerWidth / window.innerWidth / (this.isSafari ? pinchZoom : 1);
 
-    let newWidth = clientWidth * this.renderScale;
-    let newHeight = clientHeight * this.renderScale;
-    if (this.canvasElement.width !== newWidth || this.canvasElement.height !== newHeight) {
+    // As of 2025, Safari reports real pixel ratio, but other browsers also include the current zoom level
+    // https://bugs.webkit.org/show_bug.cgi?id=124862
+    const realPixelRatio = this.isSafari ? devicePixelRatio : devicePixelRatio / classicZoom;
+    const targetPixelRatio = Math.max(realPixelRatio, this.minPixelRatio);
+    const targetRenderScale = targetPixelRatio * classicZoom * pinchZoom;
+    const targetPixelWidth = this.parentWidth * targetRenderScale;
+    const targetPixelHeight = this.parentHeight * targetRenderScale;
+
+    // Prevent the total rendered pixel count from exceeding maxResolution
+    const maxResolutionHeadroom = Math.sqrt(this.maxResolution) / Math.sqrt(targetPixelWidth * targetPixelHeight);
+
+    const newRenderScale = targetRenderScale * Math.min(1, maxResolutionHeadroom);
+    const newWidth = Math.round(this.parentWidth * newRenderScale);
+    const newHeight = Math.round(this.parentHeight * newRenderScale);
+
+    if (
+      this.renderScale !== newRenderScale ||
+      this.canvasElement.width !== newWidth ||
+      this.canvasElement.height !== newHeight
+    ) {
+      this.renderScale = newRenderScale;
       this.canvasElement.width = newWidth;
       this.canvasElement.height = newHeight;
-
       this.resolutionChanged = true;
       this.gl.viewport(0, 0, this.gl.canvas.width, this.gl.canvas.height);
-      this.render(performance.now()); // this is necessary to avoid flashes while resizing (the next scheduled render will set uniforms)
+
+      // this is necessary to avoid flashes while resizing (the next scheduled render will set uniforms)
+      this.render(performance.now());
     }
   };
 
@@ -393,6 +442,8 @@ export class ShaderMount {
       this.resizeObserver = null;
     }
 
+    visualViewport?.removeEventListener('resize', this.handleResize);
+
     this.uniformLocations = {};
 
     // Remove the shader mount from the div wrapper element to avoid any GC issues
@@ -475,3 +526,8 @@ const defaultStyle = `@layer base {
     }
   }
 }`;
+
+function isSafari() {
+  const ua = navigator.userAgent.toLowerCase();
+  return ua.includes('safari') && !ua.includes('chrome') && !ua.includes('android');
+}
