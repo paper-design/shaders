@@ -38,7 +38,7 @@ export const nintendoWaterPreset: PerlinNoisePreset = {
   name: 'Nintendo Water',
   params: {
     ...defaultPatternSizing,
-    scale: 0.2,
+    scale: 1 / 0.2,
     speed: 0.4,
     frame: 0,
     color1: 'hsla(220, 66%, 50%, 1)',
@@ -55,7 +55,7 @@ export const colonyPreset: PerlinNoisePreset = {
   name: 'Colony',
   params: {
     ...defaultPatternSizing,
-    scale: 0.15,
+    scale: 1 / 0.15,
     speed: 0,
     frame: 0,
     color1: 'hsla(56, 86%, 81%, 1)',
@@ -72,7 +72,7 @@ export const phosphenesPreset: PerlinNoisePreset = {
   name: 'Phosphenes',
   params: {
     ...defaultPatternSizing,
-    scale: 0.03,
+    scale: 1 / 0.03,
     speed: 0.15,
     frame: 0,
     color1: 'hsla(350, 80%, 70%, 1)',
@@ -89,7 +89,7 @@ export const mossPreset: PerlinNoisePreset = {
   name: 'Moss',
   params: {
     ...defaultPatternSizing,
-    scale: 0.15,
+    scale: 1 / 0.15,
     speed: 0.02,
     frame: 0,
     color1: 'hsla(137, 100%, 51%, 1)',
@@ -106,7 +106,7 @@ export const wormsPreset: PerlinNoisePreset = {
   name: 'Worms',
   params: {
     ...defaultPatternSizing,
-    scale: 2,
+    scale: 1 / 2,
     speed: 0,
     frame: 0,
     color1: 'hsla(0, 100%, 100%, 1)',

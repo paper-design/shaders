@@ -1,11 +1,17 @@
 import type { ShaderMotionParams } from '../shader-mount';
-import type { ShaderSizingParams, ShaderSizingUniforms } from '../shader-sizing';
+import {
+  sizingUniformsDeclaration,
+  sizingPatternUV,
+  declarePI,
+  type ShaderSizingParams,
+  type ShaderSizingUniforms,
+} from '../shader-sizing';
+
 /**
  * 3d Perlin noise with exposed parameters
  * Based on https://www.shadertoy.com/view/NlSGDz
  *
  * Uniforms include:
- * u_scale - the scale applied to user space
  * u_color1 - the first mixed color
  * u_color2 - the second mixed color
  * u_proportion (0 .. 1) - the proportion between u_color1 and u_color2;
@@ -17,14 +23,15 @@ import type { ShaderSizingParams, ShaderSizingUniforms } from '../shader-sizing'
  * u_lacunarity - the frequency of each successive octave of the noise;
  *    higher values increase the detail
  */
-export const perlinNoiseFragmentShader = `#version 300 es
+export const perlinNoiseFragmentShader: string = `#version 300 es
 precision highp float;
 
 uniform float u_time;
-uniform float u_pixelRatio;
 uniform vec2 u_resolution;
+uniform float u_pixelRatio;
 
-uniform float u_scale;
+${sizingUniformsDeclaration}
+
 uniform vec4 u_color1;
 uniform vec4 u_color2;
 uniform float u_proportion;
@@ -35,7 +42,7 @@ uniform float u_lacunarity;
 
 out vec4 fragColor;
 
-#define TWO_PI 6.28318530718
+${declarePI}
 
 uint hash(uint x, uint seed) {
   const uint m = 0x5bd1e995U;
@@ -172,13 +179,9 @@ float get_max_amp(float persistence, float octaveCount) {
 
 void main() {
 
-    vec2 uv = gl_FragCoord.xy / u_resolution.xy;
-    float t = .2 * u_time;
-
-    uv -= .5;
-    uv *= (.004 * u_scale * u_resolution);
-    uv /= u_pixelRatio;
-    uv += .5;
+  ${sizingPatternUV}
+  uv *= .005;
+  float t = .2 * u_time;
 
     vec3 p = vec3(uv, t);
 

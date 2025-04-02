@@ -1,5 +1,11 @@
 import type { ShaderMotionParams } from '../shader-mount';
-import type { ShaderSizingParams, ShaderSizingUniforms } from '../shader-sizing';
+import {
+  sizingUniformsDeclaration,
+  sizingPatternUV,
+  declareSimplexNoise,
+  type ShaderSizingParams,
+  type ShaderSizingUniforms,
+} from '../shader-sizing';
 
 /**
  * Stepped Simplex Noise by Ksenia Kondrashova
@@ -7,7 +13,6 @@ import type { ShaderSizingParams, ShaderSizingUniforms } from '../shader-sizing'
  * an X-stepped 5-colored gradient
  *
  * Uniforms include:
- * u_scale - the scale applied to user space
  * u_color1 - the first gradient color
  * u_color2 - the second gradient color
  * u_color3 - the third gradient color
@@ -15,14 +20,14 @@ import type { ShaderSizingParams, ShaderSizingUniforms } from '../shader-sizing'
  * u_color5 - the fifth gradient color
  * u_steps_number - the number of solid colors to show as a stepped gradient
  */
-export const steppedSimplexNoiseFragmentShader = `#version 300 es
+export const steppedSimplexNoiseFragmentShader: string = `#version 300 es
 precision highp float;
 
 uniform float u_time;
-uniform float u_pixelRatio;
 uniform vec2 u_resolution;
+uniform float u_pixelRatio;
 
-uniform float u_scale;
+${sizingUniformsDeclaration}
 
 uniform vec4 u_color1;
 uniform vec4 u_color2;
@@ -30,38 +35,10 @@ uniform vec4 u_color3;
 uniform vec4 u_color4;
 uniform vec4 u_color5;
 uniform float u_steps_number;
-uniform float u_worldWidth;
-uniform float u_worldHeight;
 
 out vec4 fragColor;
 
-vec3 permute(vec3 x) { return mod(((x * 34.0) + 1.0) * x, 289.0); }
-float snoise(vec2 v) {
-  const vec4 C = vec4(0.211324865405187, 0.366025403784439,
-    -0.577350269189626, 0.024390243902439);
-  vec2 i = floor(v + dot(v, C.yy));
-  vec2 x0 = v - i + dot(i, C.xx);
-  vec2 i1;
-  i1 = (x0.x > x0.y) ? vec2(1.0, 0.0) : vec2(0.0, 1.0);
-  vec4 x12 = x0.xyxy + C.xxzz;
-  x12.xy -= i1;
-  i = mod(i, 289.0);
-  vec3 p = permute(permute(i.y + vec3(0.0, i1.y, 1.0))
-    + i.x + vec3(0.0, i1.x, 1.0));
-  vec3 m = max(0.5 - vec3(dot(x0, x0), dot(x12.xy, x12.xy),
-      dot(x12.zw, x12.zw)), 0.0);
-  m = m * m;
-  m = m * m;
-  vec3 x = 2.0 * fract(p * C.www) - 1.0;
-  vec3 h = abs(x) - 0.5;
-  vec3 ox = floor(x + 0.5);
-  vec3 a0 = x - ox;
-  m *= 1.79284291400159 - 0.85373472095314 * (a0 * a0 + h * h);
-  vec3 g;
-  g.x = a0.x * x0.x + h.x * x0.y;
-  g.yz = a0.yz * x12.xz + h.yz * x12.yw;
-  return 130.0 * dot(m, g);
-}
+${declareSimplexNoise}
 
 float get_noise(vec2 uv, float t) {
   float noise = .5 * snoise(uv - vec2(0., .3 * t));
@@ -80,37 +57,9 @@ vec4 getColor(int index) {
 }
 
 void main() {
-  vec2 uv = gl_FragCoord.xy / u_resolution.xy;
-  float ratio = u_resolution.x / u_resolution.y;
-  float worldRatio = 1.;
 
-  uv -= .5;
-
-  uv.x *= u_resolution.x;
-  uv.y *= u_resolution.y;
-
-  uv /= u_pixelRatio;
-
-  uv.x /= u_worldWidth;
-  uv.y /= u_worldWidth;
-
-  vec2 box_uv = uv;
-
-
-//  if (u_fit == 0.) {
-//    if (worldRatio > 1.) {
-        uv.x *= worldRatio;
-//    } else {
-//        uv.y /= worldRatio;
-//    }
-//  } else if (u_fit == 1.) {
-//    if (worldRatio > 1.) {
-//        uv.y /= worldRatio;
-//    } else {
-//        uv.x *= worldRatio;
-//    }
-//  }
-
+  ${sizingPatternUV}
+  uv *= .001;
 
   float t = u_time;
 
@@ -125,13 +74,6 @@ void main() {
     color = mix(color, next_c.rgb * next_c.a, proportion);
     opacity = mix(opacity, next_c.a, proportion);
   }
-
-    vec2 halfSize = vec2(.5);
-    vec2 dist = abs(box_uv);
-    vec2 outer = step(halfSize, dist);
-    vec2 inner = step(halfSize -  0.01, dist);
-    float stroke = (1.0 - outer.x) * (1.0 - outer.y) * (inner.x + inner.y);
-    color -= stroke;
 
   fragColor = vec4(color, opacity);
 }

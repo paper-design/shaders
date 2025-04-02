@@ -8,6 +8,7 @@ import {
   type WarpParams,
   type WarpUniforms,
   type ShaderPreset,
+  WarpPatterns,
 } from '@paper-design/shaders';
 
 export interface WarpProps extends ShaderComponentProps, WarpParams {}
@@ -42,7 +43,7 @@ export const presetCauldron: WarpPreset = {
   name: 'Cauldron Pot',
   params: {
     ...defaultPatternSizing,
-    scale: 1.1,
+    scale: 1 / 1.1,
     rotation: 1.62,
     speed: 1,
     frame: 0,
@@ -63,7 +64,7 @@ export const presetSilk: WarpPreset = {
   name: 'Silk',
   params: {
     ...defaultPatternSizing,
-    scale: 0.26,
+    scale: 1 / 0.26,
     rotation: 0,
     speed: 0.5,
     frame: 0,
@@ -84,7 +85,7 @@ export const presetPassion: WarpPreset = {
   name: 'Passion',
   params: {
     ...defaultPatternSizing,
-    scale: 0.25,
+    scale: 1 / 0.25,
     rotation: 1.35,
     speed: 0.3,
     frame: 0,
@@ -105,7 +106,7 @@ export const presetPhantom: WarpPreset = {
   name: 'Phantom',
   params: {
     ...defaultPatternSizing,
-    scale: 0.68,
+    scale: 1 / 0.68,
     rotation: 1.8,
     speed: 1.25,
     frame: 0,
@@ -126,7 +127,7 @@ export const presetAbyss: WarpPreset = {
   name: 'The Abyss',
   params: {
     ...defaultPatternSizing,
-    scale: 0.1,
+    scale: 1 / 0.1,
     rotation: 2,
     speed: 0.06,
     frame: 0,
@@ -147,7 +148,7 @@ export const presetInk: WarpPreset = {
   name: 'Live Ink',
   params: {
     ...defaultPatternSizing,
-    scale: 0.7,
+    scale: 1 / 0.7,
     rotation: 1.5,
     speed: 0.25,
     frame: 0,
@@ -168,7 +169,7 @@ export const presetIceberg: WarpPreset = {
   name: 'Iceberg',
   params: {
     ...defaultPatternSizing,
-    scale: 1.1,
+    scale: 1 / 1.1,
     rotation: 2,
     speed: 0.05,
     frame: 0,
@@ -189,7 +190,7 @@ export const presetNectar: WarpPreset = {
   name: 'Nectar',
   params: {
     ...defaultPatternSizing,
-    scale: 0.24,
+    scale: 1 / 0.24,
     rotation: 0,
     speed: 0.42,
     frame: 0,
@@ -302,7 +303,7 @@ export const Warp: React.FC<WarpProps> = memo(function WarpImpl({
     u_swirl: swirl,
     u_swirlIterations: swirlIterations,
     u_shapeScale: shapeScale,
-    u_shape: shape,
+    u_shape: WarpPatterns[shape],
 
     // Sizing uniforms
     u_fit: ShaderFitOptions[fit],

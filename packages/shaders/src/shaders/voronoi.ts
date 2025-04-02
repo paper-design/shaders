@@ -1,12 +1,18 @@
 import type { ShaderMotionParams } from '../shader-mount';
-import type { ShaderSizingParams, ShaderSizingUniforms } from '../shader-sizing';
+import {
+  sizingUniformsDeclaration,
+  sizingPatternUV,
+  declarePI,
+  type ShaderSizingParams,
+  type ShaderSizingUniforms,
+} from '../shader-sizing';
+
 /**
  * Voronoi pattern
  * The artwork by Ksenia Kondrashova
  * Renders a number of circular shapes with gooey effect applied
  *
  * Uniforms include:
- * u_scale - the scale applied to user space
  * u_colorCell1 - color #1 of mix used to fill the cell shape
  * u_colorCell2 - color #2 of mix used to fill the cell shape
  * u_colorCell3 - color #3 of mix used to fill the cell shape
@@ -21,14 +27,14 @@ import type { ShaderSizingParams, ShaderSizingUniforms } from '../shader-sizing'
  * u_middleSoftness (0 .. 1) - the smoothness of shape in the center of each cell
  *   (vary from cell color gradient to sharp dot in the middle)
  */
-export const voronoiFragmentShader = `#version 300 es
+export const voronoiFragmentShader: string = `#version 300 es
 precision highp float;
 
 uniform float u_time;
-uniform float u_pixelRatio;
 uniform vec2 u_resolution;
+uniform float u_pixelRatio;
 
-uniform float u_scale;
+${sizingUniformsDeclaration}
 
 uniform vec4 u_colorCell1;
 uniform vec4 u_colorCell2;
@@ -46,6 +52,8 @@ uniform float u_middleSoftness;
 #define TWO_PI 6.28318530718
 
 out vec4 fragColor;
+
+${declarePI}
 
 vec2 hash(vec2 p) {
   p = vec2(dot(p, vec2(127.1, 311.7)), dot(p, vec2(269.5, 183.3)));
@@ -74,13 +82,11 @@ vec4 blend_colors(vec4 c1, vec4 c2, vec4 c3, vec2 randomizer) {
 }
 
 void main() {
-  vec2 uv = gl_FragCoord.xy / u_resolution.xy;
-  float t = u_time;
-  uv -= .5;
-  uv *= (.01 * u_scale * u_resolution);
-  uv /= u_pixelRatio;
-  uv += .5;
+  ${sizingPatternUV}
+  uv *= .025;
 
+  float t = u_time;
+  
   vec2 i_uv = floor(uv);
   vec2 f_uv = fract(uv);
 

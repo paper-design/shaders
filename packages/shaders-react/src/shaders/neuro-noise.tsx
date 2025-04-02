@@ -1,7 +1,7 @@
 import { memo } from 'react';
 import { ShaderMount, type ShaderComponentProps } from '../shader-mount';
 import {
-  defaultObjectSizing,
+  defaultPatternSizing,
   getShaderColorFromString,
   neuroNoiseFragmentShader,
   ShaderFitOptions,
@@ -21,7 +21,7 @@ type NeuroNoisePreset = ShaderPreset<NeuroNoiseParams>;
 export const defaultPreset: NeuroNoisePreset = {
   name: 'Default',
   params: {
-    ...defaultObjectSizing,
+    ...defaultPatternSizing,
     speed: 1,
     frame: 0,
     colorFront: 'hsla(261, 100%, 82%, 1)',
@@ -33,7 +33,7 @@ export const defaultPreset: NeuroNoisePreset = {
 const marblePreset: NeuroNoisePreset = {
   name: 'Marble',
   params: {
-    ...defaultObjectSizing,
+    ...defaultPatternSizing,
     scale: 0.4,
     speed: 0,
     frame: 0,

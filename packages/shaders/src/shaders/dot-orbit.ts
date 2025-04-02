@@ -1,5 +1,11 @@
 import type { ShaderMotionParams } from '../shader-mount';
-import type { ShaderSizingParams, ShaderSizingUniforms } from '../shader-sizing';
+import {
+  sizingUniformsDeclaration,
+  sizingPatternUV,
+  declareRandom,
+  type ShaderSizingParams,
+  type ShaderSizingUniforms,
+} from '../shader-sizing';
 
 /**
  * Dot Pattern with dot moving around their grid position
@@ -7,7 +13,6 @@ import type { ShaderSizingParams, ShaderSizingUniforms } from '../shader-sizing'
  * Renders a dot pattern with dot placed in the center of each cell of animated Voronoi diagram
  *
  * Uniforms include:
- * u_scale - the scale applied to user space
  * u_color1 - the first color
  * u_color2 - the second color
  * u_color3 - the third color
@@ -16,14 +21,15 @@ import type { ShaderSizingParams, ShaderSizingUniforms } from '../shader-sizing'
  * u_dotSizeRange (0 .. 1) - the dot radius to vary between the cells
  * u_spreading (0 .. 1) - the distance each dot can move around the regular grid
  */
-export const dotOrbitFragmentShader = `#version 300 es
+export const dotOrbitFragmentShader: string = `#version 300 es
 precision highp float;
 
 uniform float u_time;
 uniform float u_pixelRatio;
 uniform vec2 u_resolution;
 
-uniform float u_scale;
+${sizingUniformsDeclaration}
+
 uniform vec4 u_color1;
 uniform vec4 u_color2;
 uniform vec4 u_color3;
@@ -36,9 +42,8 @@ out vec4 fragColor;
 
 #define TWO_PI 6.28318530718
 
-float random(in vec2 st) {
-  return fract(sin(dot(st.xy, vec2(12.9898, 78.233))) * 43758.5453123);
-}
+${declareRandom}
+
 vec2 random2(vec2 p) {
   return vec2(random(p), random(200. * p));
 }
@@ -67,14 +72,8 @@ vec3 get_voronoi_shape(vec2 _uv, float time) {
 }
 
 void main() {
-  vec2 uv = gl_FragCoord.xy / u_resolution.xy;
-
-  uv -= .5;
-  float scale = .5 * u_scale + 1e-4;
-  uv *= (.02 * (1. - step(1. - scale, 1.) / scale));
-  uv *= u_resolution;
-  uv /= u_pixelRatio;
-  uv += .5;
+  ${sizingPatternUV}
+  uv *= .015;
 
   float t = u_time;
 

@@ -1,5 +1,11 @@
 import type { ShaderMotionParams } from '../shader-mount';
-import type { ShaderSizingParams, ShaderSizingUniforms } from '../shader-sizing';
+import {
+  sizingUniformsDeclaration,
+  sizingPatternUV,
+  declareRotate,
+  type ShaderSizingParams,
+  type ShaderSizingUniforms,
+} from '../shader-sizing';
 
 /**
  * Neuro Noise Pattern
@@ -7,28 +13,26 @@ import type { ShaderSizingParams, ShaderSizingUniforms } from '../shader-sizing'
  * Renders a fractal-like structure made of several layers of since-arches
  *
  * Uniforms include:
- * u_scale - the scale applied to user space
  * u_colorFront - the front color of pattern
  * u_colorBack - the back color of pattern
  * u_brightness - the power (brightness) of pattern lines
  */
-export const neuroNoiseFragmentShader = `#version 300 es
+export const neuroNoiseFragmentShader: string = `#version 300 es
 precision highp float;
 
 uniform float u_time;
-uniform float u_pixelRatio;
 uniform vec2 u_resolution;
+uniform float u_pixelRatio;
 
-uniform float u_scale;
+${sizingUniformsDeclaration}
+
 uniform vec4 u_colorFront;
 uniform vec4 u_colorBack;
 uniform float u_brightness;
 
 out vec4 fragColor;
 
-vec2 rotate(vec2 uv, float th) {
-  return mat2(cos(th), sin(th), -sin(th), cos(th)) * uv;
-}
+${declareRotate}
 
 float neuro_shape(vec2 uv, float t) {
   vec2 sine_acc = vec2(0.);
@@ -47,14 +51,9 @@ float neuro_shape(vec2 uv, float t) {
 }
 
 void main() {
-  vec2 uv = gl_FragCoord.xy / u_resolution.xy;
 
-  uv -= .5;
-  float scale = .5 * u_scale + 1e-4;
-  uv *= (.001 * (1. - step(1. - scale, 1.) / scale));
-  uv *= u_resolution;
-  uv /= u_pixelRatio;
-  uv += .5;
+  ${sizingPatternUV}
+  uv *= .001;
 
   float t = u_time;
 

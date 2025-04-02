@@ -39,7 +39,7 @@ export const spikesPreset: WavesPreset = {
   name: 'Spikes',
   params: {
     ...defaultPatternSizing,
-    scale: 2.3,
+    scale: 1 / 2.3,
     rotation: 0,
     color1: 'hsla(65, 100%, 95%, 1)',
     color2: 'hsla(290, 52%, 15%, 1)',
@@ -56,7 +56,7 @@ export const groovyPreset: WavesPreset = {
   name: 'Groovy',
   params: {
     ...defaultPatternSizing,
-    scale: 0.5,
+    scale: 1 / 0.5,
     rotation: 1,
     color1: 'hsla(60, 100%, 97%, 1)',
     color2: 'hsla(20, 100%, 71%, 1)',
@@ -73,7 +73,7 @@ export const tangledUpPreset: WavesPreset = {
   name: 'Tangled up',
   params: {
     ...defaultPatternSizing,
-    scale: 3.04,
+    scale: 1 / 3.04,
     rotation: 1,
     color1: 'hsla(198.7, 66.7%, 14.1%, 1)',
     color2: 'hsla(85.5, 35.7%, 78%, 1)',
@@ -90,7 +90,7 @@ export const zigZagPreset: WavesPreset = {
   name: 'Zig zag',
   params: {
     ...defaultPatternSizing,
-    scale: 2.7,
+    scale: 1 / 2.7,
     rotation: 1,
     color1: 'hsla(0, 0%, 0%, 1)',
     color2: 'hsla(0, 0%, 90%, 1)',
@@ -107,7 +107,7 @@ export const waveRidePreset: WavesPreset = {
   name: 'Ride the wave',
   params: {
     ...defaultPatternSizing,
-    scale: 0.84,
+    scale: 1 / 0.84,
     rotation: 0,
     color1: 'hsla(65, 100%, 95%, 1)',
     color2: 'hsla(0, 0%, 12%, 1)',

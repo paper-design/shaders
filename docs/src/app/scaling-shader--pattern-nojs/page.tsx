@@ -23,10 +23,7 @@ uniform float u_offsetY;
 out vec4 fragColor;
 
 #define TWO_PI 6.28318530718
-
-vec2 rotate(vec2 uv, float th) {
-  return mat2(cos(th), sin(th), -sin(th), cos(th)) * uv;
-}
+${declareRotate}
 
 float neuro_shape(vec2 uv, float t) {
   vec2 sine_acc = vec2(0.);

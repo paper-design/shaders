@@ -48,7 +48,7 @@ const SmokeRingWithControls = () => {
           colorInner: { value: defaults.colorInner, order: 101 },
           colorOuter: { value: defaults.colorOuter, order: 102 },
           noiseScale: { value: defaults.noiseScale, min: 0.01, max: 5, order: 300 },
-          thickness: { value: defaults.thickness, min: 0.1, max: 2, order: 301 },
+          thickness: { value: defaults.thickness, min: 0.01, max: 1, order: 301 },
           speed: { value: defaults.speed, min: 0, max: 4, order: 400 },
           reverse: { value: defaults.reverse, order: 401 },
         },

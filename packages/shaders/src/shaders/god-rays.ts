@@ -1,5 +1,13 @@
 import type { ShaderMotionParams } from '../shader-mount';
-import type { ShaderSizingParams, ShaderSizingUniforms } from '../shader-sizing';
+import {
+  sizingUniformsDeclaration,
+  declarePI,
+  sizingSquareUV,
+  declareRandom,
+  declareRotate,
+  type ShaderSizingParams,
+  type ShaderSizingUniforms,
+} from '../shader-sizing';
 
 /**
  * GodRays pattern
@@ -8,8 +16,6 @@ import type { ShaderSizingParams, ShaderSizingUniforms } from '../shader-sizing'
  *
  * Uniforms include:
  *
- * u_offsetX - left / right pan
- * u_offsetY - up / down pan
  * u_colorBack - background RGBA color
  * u_color1 - ray color #1 (also main color of middle spot)
  * u_color2 - ray color #2
@@ -21,20 +27,19 @@ import type { ShaderSizingParams, ShaderSizingUniforms } from '../shader-sizing'
  * u_density (0 .. 1) - the number of visible rays
  * u_blending (0 .. 1) - blending mode (0 for color mix, 1 for additive blending)
  */
-export const godRaysFragmentShader = `#version 300 es
+export const godRaysFragmentShader: string = `#version 300 es
 precision highp float;
 
 uniform float u_time;
 uniform float u_pixelRatio;
 uniform vec2 u_resolution;
 
+${sizingUniformsDeclaration}
+
 uniform vec4 u_colorBack;
 uniform vec4 u_color1;
 uniform vec4 u_color2;
 uniform vec4 u_color3;
-
-uniform float u_offsetX;
-uniform float u_offsetY;
 
 uniform float u_frequency;
 uniform float u_spotty;
@@ -45,15 +50,9 @@ uniform float u_blending;
 
 out vec4 fragColor;
 
-#define TWO_PI 6.28318530718
-
-float random(vec2 uv) {
-  return fract(sin(dot(uv, vec2(12.9898, 78.233))) * 43758.5453123);
-}
-
-vec2 rotate(vec2 uv, float th) {
-  return mat2(cos(th), sin(th), -sin(th), cos(th)) * uv;
-}
+${declarePI}
+${declareRandom}
+${declareRotate}
 
 float noise(vec2 uv) {
   vec2 i = floor(uv);
@@ -84,12 +83,8 @@ float get_noise_shape(vec2 uv, float r, float freq, float density, float time) {
 }
 
 void main() {
-  vec2 uv = gl_FragCoord.xy / u_resolution.xy;
-  float ratio = u_resolution.x / u_resolution.y;
-
-  uv -= .5;
-  uv += vec2(-u_offsetX, u_offsetY);
-  uv.x *= ratio;
+  ${sizingSquareUV}
+  uv -= .5;  
 
   float t = .2 * u_time;
 
