@@ -88,7 +88,7 @@ export const ShaderMount: React.FC<ShaderMountProps> = forwardRef<HTMLDivElement
       fragmentShader,
       uniforms = {},
       webGlContextAttributes,
-      speed = 1,
+      speed = 0,
       frame = 0,
       maxResolution,
       ...divProps

@@ -36,6 +36,7 @@ export class ShaderMount {
   private textures: Map<string, WebGLTexture> = new Map();
   private maxResolution;
   private minPixelRatio;
+  private isSafari = isSafari();
 
   constructor(
     /** The div you'd like to mount the shader to. The shader will match its size. */
@@ -170,7 +171,7 @@ export class ShaderMount {
     });
 
     this.resizeObserver.observe(this.parentElement);
-    visualViewport?.addEventListener('resize', this.handleResize);
+    // visualViewport?.addEventListener('resize', this.handleVisualViewportChange);
 
     const rect = this.parentElement.getBoundingClientRect();
     this.parentWidth = rect.width;
@@ -178,12 +179,40 @@ export class ShaderMount {
     this.handleResize();
   };
 
-  private isSafari = isSafari();
+  // Visual viewport resize handler, mainly used to react to browser zoom changes.
+  // Wait 2 frames to align with when the resize observer callback is done (in case it might follow):
+  // - Frame 1: a paint after the visual viewport resize
+  // - Frame 2: a paint after the resize observer has been handled, if it was ever triggered
+  //
+  // Both resize observer and visual viewport will react to classic browser zoom changes,
+  // so we dedupe the callbacks, but pinch zoom only triggers the visual viewport handler.
+  private resizeRafId: number | null = null;
+  private handleVisualViewportChange = () => {
+    if (this.resizeRafId !== null) {
+      cancelAnimationFrame(this.resizeRafId);
+    }
+
+    this.resizeRafId = requestAnimationFrame(() => {
+      this.resizeRafId = requestAnimationFrame(() => {
+        this.handleResize();
+      });
+    });
+  };
 
   /** Resize handler for when the container div changes size and we want to resize our canvas to match */
   private handleResize = () => {
+    // Cancel any scheduled resize handlers
+    if (this.resizeRafId !== null) {
+      cancelAnimationFrame(this.resizeRafId);
+    }
+
     const pinchZoom = visualViewport?.scale ?? 1;
-    const classicZoom = window.outerWidth / window.innerWidth / (this.isSafari ? pinchZoom : 1);
+
+    // Note: avoid innerWidth, use visualViewport.width instead.
+    // - innerWidth is affected by pinch zoom in Safari, but not other browsers
+    // - innerWidth is rounded to integer, but not visualViewport.width
+    const innerWidth = visualViewport ? visualViewport.width * visualViewport.scale : window.innerWidth;
+    const classicZoom = Math.round((10000 * window.outerWidth) / innerWidth) / 10000;
 
     // As of 2025, Safari reports real pixel ratio, but other browsers also include the current zoom level
     // https://bugs.webkit.org/show_bug.cgi?id=124862
@@ -442,7 +471,7 @@ export class ShaderMount {
       this.resizeObserver = null;
     }
 
-    visualViewport?.removeEventListener('resize', this.handleResize);
+    visualViewport?.removeEventListener('resize', this.handleVisualViewportChange);
 
     this.uniformLocations = {};
 
