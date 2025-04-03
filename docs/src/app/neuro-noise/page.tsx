@@ -30,12 +30,15 @@ const NeuroNoiseExample = () => {
  * This example has controls added so you can play with settings in the example app
  */
 
-const defaults = neuroNoisePresets[0].params;
+const { worldWidth, worldHeight, ...defaults } = neuroNoisePresets[0].params;
 
 const NeuroNoiseWithControls = () => {
   const [params, setParams] = useControls(() => {
     const presets = Object.fromEntries(
-      neuroNoisePresets.map((preset) => [preset.name, button(() => setParamsSafe(params, setParams, preset.params))])
+      neuroNoisePresets.map(({ name, params: { worldWidth, worldHeight, ...params } }) => [
+        name,
+        button(() => setParamsSafe(params, setParams, params)),
+      ])
     );
 
     return {
@@ -48,23 +51,31 @@ const NeuroNoiseWithControls = () => {
         },
         { order: 1 }
       ),
-      Sizing: folder(
+      Size: folder(
         {
           fit: { value: defaults.fit, options: Object.keys(ShaderFitOptions) as ShaderFit[], order: 400 },
           scale: { value: defaults.scale, min: 0.01, max: 4, order: 401 },
+          worldWidth: { value: 1000, min: 1, max: 5120, order: 406 },
+          worldHeight: { value: 500, min: 1, max: 5120, order: 407 },
+        },
+        {
+          order: 2,
+          collapsed: false,
+        }
+      ),
+      Position: folder(
+        {
           originX: { value: defaults.originX, min: 0, max: 1, order: 402 },
           originY: { value: defaults.originY, min: 0, max: 1, order: 403 },
           offsetX: { value: defaults.offsetX, min: -2, max: 2, order: 404 },
           offsetY: { value: defaults.offsetY, min: -2, max: 2, order: 405 },
-          worldWidth: { value: defaults.worldWidth, min: 0, max: 4000, order: 406 },
-          worldHeight: { value: defaults.worldHeight, min: 0, max: 4000, order: 407 },
         },
         {
-          order: 2,
+          order: 3,
           collapsed: true,
         }
       ),
-      Presets: folder(presets, { order: 2 }),
+      Presets: folder(presets, { order: 10 }),
     };
   });
 

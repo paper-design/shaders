@@ -10,7 +10,8 @@ uniform float u_offsetX;
 uniform float u_offsetY;`;
 
 export const sizingSquareUV = `
-  vec2 worldSize = vec2(u_worldWidth, u_worldHeight) * u_pixelRatio;
+  vec2 worldSize = vec2(u_worldWidth, u_worldHeight);
+  worldSize = max(worldSize, vec2(1.)) * u_pixelRatio;
   float worldRatio = 1.;
 
   float maxWidth = max(u_resolution.x, worldSize.x);
@@ -43,8 +44,9 @@ export const sizingSquareUV = `
 `;
 
 export const sizingPatternUV = `
-  vec2 worldSize = vec2(u_worldWidth, u_worldHeight) * u_pixelRatio;
-  float worldRatio = worldSize.x / max(worldSize.y, 1e-4);
+  vec2 worldSize = vec2(u_worldWidth, u_worldHeight);
+  worldSize = max(worldSize, vec2(1.)) * u_pixelRatio;
+  float worldRatio = worldSize.x / worldSize.y;
 
   float maxWidth = max(u_resolution.x, worldSize.x);
   float maxHeight = max(u_resolution.y, worldSize.y);
@@ -119,8 +121,8 @@ export const defaultObjectSizing: Required<ShaderSizingParams> = {
   offsetY: 0,
   originX: 0.5,
   originY: 0.5,
-  worldWidth: 0,
-  worldHeight: 0,
+  worldWidth: 1,
+  worldHeight: 1,
 };
 
 export const defaultPatternSizing: Required<ShaderSizingParams> = {
@@ -130,8 +132,8 @@ export const defaultPatternSizing: Required<ShaderSizingParams> = {
   offsetY: 0,
   originX: 0.5,
   originY: 0.5,
-  worldWidth: Infinity,
-  worldHeight: Infinity,
+  worldWidth: 1,
+  worldHeight: 1,
 };
 
 export const ShaderFitOptions = {
