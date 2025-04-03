@@ -208,13 +208,17 @@ export class ShaderMount {
 
     const pinchZoom = visualViewport?.scale ?? 1;
 
+    // Zoom level can be calculated comparing the browser's outerWidth and the viewport width.
     // Note: avoid innerWidth, use visualViewport.width instead.
-    // - innerWidth is affected by pinch zoom in Safari, but not other browsers
-    // - innerWidth is rounded to integer, but not visualViewport.width
+    // - innerWidth is affected by pinch zoom in Safari, but not other browsers.
+    //   visualViewport.width works consistently in all browsers.
+    // - innerWidth is rounded to integer, but not visualViewport.width.
     const innerWidth = visualViewport ? visualViewport.width * visualViewport.scale : window.innerWidth;
+
+    // Slight rounding here helps the <canvas> maintain a consistent computed size as the zoom level changes
     const classicZoom = Math.round((10000 * window.outerWidth) / innerWidth) / 10000;
 
-    // As of 2025, Safari reports real pixel ratio, but other browsers also include the current zoom level
+    // As of 2025, Safari reports physical devicePixelRatio, but other browsers add the current zoom level
     // https://bugs.webkit.org/show_bug.cgi?id=124862
     const realPixelRatio = this.isSafari ? devicePixelRatio : devicePixelRatio / classicZoom;
     const targetPixelRatio = Math.max(realPixelRatio, this.minPixelRatio);
@@ -230,9 +234,9 @@ export class ShaderMount {
     const newHeight = Math.round(this.parentHeight * newRenderScale);
 
     if (
-      this.renderScale !== newRenderScale ||
       this.canvasElement.width !== newWidth ||
-      this.canvasElement.height !== newHeight
+      this.canvasElement.height !== newHeight ||
+      this.renderScale !== newRenderScale // Usually, only render scale change when the user zooms in/out
     ) {
       this.renderScale = newRenderScale;
       this.canvasElement.width = newWidth;
