@@ -14,12 +14,14 @@ export interface ShaderMountUniformsReact {
 export interface ShaderMountProps extends Omit<React.ComponentProps<'div'>, 'color'>, ShaderMotionParams {
   fragmentShader: string;
   uniforms: ShaderMountUniformsReact;
-  maxResolution?: number;
+  minPixelRatio?: number;
+  maxPixelCount?: number;
   webGlContextAttributes?: WebGLContextAttributes;
 }
 
 export interface ShaderComponentProps extends Omit<React.ComponentProps<'div'>, 'color'> {
-  maxResolution?: number;
+  minPixelRatio?: number;
+  maxPixelCount?: number;
   webGlContextAttributes?: WebGLContextAttributes;
 }
 
@@ -93,9 +95,10 @@ export const ShaderMount: React.FC<ShaderMountProps> = forwardRef<HTMLDivElement
       fragmentShader,
       uniforms: uniformsProp,
       webGlContextAttributes,
-      speed = 1,
+      speed = 0,
       frame = 0,
-      maxResolution,
+      minPixelRatio,
+      maxPixelCount,
       ...divProps
     },
     forwardedRef
@@ -117,7 +120,8 @@ export const ShaderMount: React.FC<ShaderMountProps> = forwardRef<HTMLDivElement
             webGlContextAttributes,
             speed,
             frame,
-            maxResolution
+            minPixelRatio,
+            maxPixelCount
           );
 
           setIsInitialized(true);

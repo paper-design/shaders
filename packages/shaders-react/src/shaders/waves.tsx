@@ -150,6 +150,9 @@ export const Waves: React.FC<WavesProps> = memo(function WavesImpl({
   originY = defaultPreset.params.originY,
   worldWidth = defaultPreset.params.worldWidth,
   worldHeight = defaultPreset.params.worldHeight,
+
+  // Other props
+  maxPixelCount = 6016 * 3384, // Higher max resolution for this shader
   ...props
 }) {
   const uniforms = {

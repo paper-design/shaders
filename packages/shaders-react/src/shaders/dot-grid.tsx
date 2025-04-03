@@ -207,6 +207,9 @@ export const DotGrid: React.FC<DotGridProps> = memo(function DotGridImpl({
   offsetY = defaultPreset.params.offsetY,
   worldWidth = defaultPreset.params.worldWidth,
   worldHeight = defaultPreset.params.worldHeight,
+
+  // Other props
+  maxPixelCount = 6016 * 3384, // Higher max resolution for this shader
   ...props
 }) {
   const uniforms = {
@@ -234,5 +237,7 @@ export const DotGrid: React.FC<DotGridProps> = memo(function DotGridImpl({
     u_worldHeight: worldHeight,
   } satisfies DotGridUniforms;
 
-  return <ShaderMount {...props} fragmentShader={dotGridFragmentShader} uniforms={uniforms} />;
+  return (
+    <ShaderMount {...props} maxPixelCount={maxPixelCount} fragmentShader={dotGridFragmentShader} uniforms={uniforms} />
+  );
 });

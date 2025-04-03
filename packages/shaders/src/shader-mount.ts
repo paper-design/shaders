@@ -22,8 +22,9 @@ export class ShaderMount {
   private resolutionChanged = true;
   /** Store textures that are provided by the user */
   private textures: Map<string, WebGLTexture> = new Map();
-  /** The maximum resolution (on the larger axis) that we render for the shader, to protect against insane resolutions and bad performance. Actual CSS size of the canvas can be larger, it will just lose quality after this */
-  private maxResolution = 0; // set by constructor
+  private minPixelRatio;
+  private maxPixelCount;
+  private isSafari = isSafari();
 
   constructor(
     /** The div you'd like to mount the shader to. The shader will match its size. */
@@ -35,8 +36,19 @@ export class ShaderMount {
     speed = 0,
     /** Pass a frame to offset the starting u_time value and give deterministic results*/
     frame = 0,
-    /** The maximum resolution (on the larger axis) that we render for the shader. Use virtual pixels, will be multiplied by display DPI to get the actual resolution. Actual CSS size of the canvas can be larger, it will just lose quality after this */
-    maxResolution = 1920
+    /**
+     * The minimum pixel ratio to render at, defaults to 2.
+     * May be reduced to improve performance or increased together with `maxPixelCount` to improve antialiasing.
+     */
+    minPixelRatio = 2,
+    /**
+     * The maximum amount of physical device pixels to render for the shader,
+     * by default it's 1920 * 1080 * 2x dpi (per each side) = 8,294,400 pixels of a 4K screen.
+     * Actual DOM size of the canvas can be larger, it will just lose quality after this.
+     *
+     * May be reduced to improve performance or increased to improve quality on high-resolution screens.
+     */
+    maxPixelCount: number = 1920 * 1080 * 4
   ) {
     if (parentElement instanceof HTMLElement) {
       this.parentElement = parentElement as PaperShaderElement;
@@ -59,7 +71,8 @@ export class ShaderMount {
     this.providedUniforms = uniforms;
     // Base our starting animation time on the provided frame value
     this.totalFrameTime = frame;
-    this.maxResolution = maxResolution;
+    this.minPixelRatio = minPixelRatio;
+    this.maxPixelCount = maxPixelCount;
 
     const gl = canvasElement.getContext('webgl2', webGlContextAttributes);
     if (!gl) {
@@ -124,34 +137,103 @@ export class ShaderMount {
     this.uniformLocations = uniformLocations;
   };
 
+  /**
+   * The scale that we should render at.
+   * - Used to target 2x rendering even on 1x screens for better antialiasing
+   * - Prevents the virtual resolution from going beyond the maximum resolution
+   * - Accounts for the page zoom level so we render in physical device pixels rather than CSS pixels
+   */
+  private renderScale = 1;
+  private parentWidth = 0;
+  private parentHeight = 0;
+
   private resizeObserver: ResizeObserver | null = null;
   private setupResizeObserver = () => {
-    this.resizeObserver = new ResizeObserver(() => this.handleResize());
+    this.resizeObserver = new ResizeObserver(([entry]) => {
+      if (entry?.borderBoxSize[0]) {
+        this.parentWidth = entry.borderBoxSize[0].inlineSize;
+        this.parentHeight = entry.borderBoxSize[0].blockSize;
+      }
+
+      this.handleResize();
+    });
+
     this.resizeObserver.observe(this.parentElement);
+    visualViewport?.addEventListener('resize', this.handleVisualViewportChange);
+
+    const rect = this.parentElement.getBoundingClientRect();
+    this.parentWidth = rect.width;
+    this.parentHeight = rect.height;
     this.handleResize();
   };
 
-  /** The scale that we should render at (prevents the virtual resolution from going beyond our maxium and then multiplies by pixelRatio (at least 2X rendering always) */
-  private renderScale = 1;
+  // Visual viewport resize handler, mainly used to react to browser zoom changes.
+  // Wait 2 frames to align with when the resize observer callback is done (in case it might follow):
+  // - Frame 1: a paint after the visual viewport resize
+  // - Frame 2: a paint after the resize observer has been handled, if it was ever triggered
+  //
+  // Both resize observer and visual viewport will react to classic browser zoom changes,
+  // so we dedupe the callbacks, but pinch zoom only triggers the visual viewport handler.
+  private resizeRafId: number | null = null;
+  private handleVisualViewportChange = () => {
+    if (this.resizeRafId !== null) {
+      cancelAnimationFrame(this.resizeRafId);
+    }
+
+    this.resizeRafId = requestAnimationFrame(() => {
+      this.resizeRafId = requestAnimationFrame(() => {
+        this.handleResize();
+      });
+    });
+  };
+
   /** Resize handler for when the container div changes size and we want to resize our canvas to match */
   private handleResize = () => {
-    const clientWidth = this.parentElement.clientWidth;
-    const clientHeight = this.parentElement.clientHeight;
-    const maxResolution = this.maxResolution;
-    // Note we render at 2X even for 1x screens because it gives a much smoother looking result
-    const pixelRatio = Math.max(2, window.devicePixelRatio);
-    // Render scale prevents the virtual resolution from going beyond our maxium and then multiplies by pixelRatio (so at least 2X rendering)
-    this.renderScale = Math.min(1, maxResolution / Math.max(clientWidth, clientHeight)) * pixelRatio;
+    // Cancel any scheduled resize handlers
+    if (this.resizeRafId !== null) {
+      cancelAnimationFrame(this.resizeRafId);
+    }
 
-    let newWidth = clientWidth * this.renderScale;
-    let newHeight = clientHeight * this.renderScale;
-    if (this.canvasElement.width !== newWidth || this.canvasElement.height !== newHeight) {
+    const pinchZoom = visualViewport?.scale ?? 1;
+
+    // Zoom level can be calculated comparing the browser's outerWidth and the viewport width.
+    // Note: avoid innerWidth, use visualViewport.width instead.
+    // - innerWidth is affected by pinch zoom in Safari, but not other browsers.
+    //   visualViewport.width works consistently in all browsers.
+    // - innerWidth is rounded to integer, but not visualViewport.width.
+    const innerWidth = visualViewport ? visualViewport.width * visualViewport.scale : window.innerWidth;
+
+    // Slight rounding here helps the <canvas> maintain a consistent computed size as the zoom level changes
+    const classicZoom = Math.round((10000 * window.outerWidth) / innerWidth) / 10000;
+
+    // As of 2025, Safari reports physical devicePixelRatio, but other browsers add the current zoom level
+    // https://bugs.webkit.org/show_bug.cgi?id=124862
+    const realPixelRatio = this.isSafari ? devicePixelRatio : devicePixelRatio / classicZoom;
+    const targetPixelRatio = Math.max(realPixelRatio, this.minPixelRatio);
+    const targetRenderScale = targetPixelRatio * classicZoom * pinchZoom;
+    const targetPixelWidth = this.parentWidth * targetRenderScale;
+    const targetPixelHeight = this.parentHeight * targetRenderScale;
+
+    // Prevent the total rendered pixel count from exceeding maxPixelCount
+    const maxPixelCountHeadroom = Math.sqrt(this.maxPixelCount) / Math.sqrt(targetPixelWidth * targetPixelHeight);
+
+    const newRenderScale = targetRenderScale * Math.min(1, maxPixelCountHeadroom);
+    const newWidth = Math.round(this.parentWidth * newRenderScale);
+    const newHeight = Math.round(this.parentHeight * newRenderScale);
+
+    if (
+      this.canvasElement.width !== newWidth ||
+      this.canvasElement.height !== newHeight ||
+      this.renderScale !== newRenderScale // Usually, only render scale change when the user zooms in/out
+    ) {
+      this.renderScale = newRenderScale;
       this.canvasElement.width = newWidth;
       this.canvasElement.height = newHeight;
-
       this.resolutionChanged = true;
       this.gl.viewport(0, 0, this.gl.canvas.width, this.gl.canvas.height);
-      this.render(performance.now()); // this is necessary to avoid flashes while resizing (the next scheduled render will set uniforms)
+
+      // this is necessary to avoid flashes while resizing (the next scheduled render will set uniforms)
+      this.render(performance.now());
     }
   };
 
@@ -381,6 +463,8 @@ export class ShaderMount {
       this.resizeObserver = null;
     }
 
+    visualViewport?.removeEventListener('resize', this.handleVisualViewportChange);
+
     this.uniformLocations = {};
 
     // Remove the shader mount from the div wrapper element to avoid any GC issues
@@ -488,3 +572,8 @@ export type ShaderPreset<T> = {
   name: string;
   params: Required<T>;
 };
+
+function isSafari() {
+  const ua = navigator.userAgent.toLowerCase();
+  return ua.includes('safari') && !ua.includes('chrome') && !ua.includes('android');
+}
