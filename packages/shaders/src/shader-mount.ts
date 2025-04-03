@@ -151,7 +151,7 @@ export class ShaderMount {
 
   /**
    * The scale that we should render at.
-   * - By default, targets 2x rendering even on 1x screens for better antialiasing
+   * - Used to target 2x rendering even on 1x screens for better antialiasing
    * - Prevents the virtual resolution from going beyond the maximum resolution
    * - Accounts for the page zoom level so we render in physical device pixels rather than CSS pixels
    */
@@ -171,7 +171,7 @@ export class ShaderMount {
     });
 
     this.resizeObserver.observe(this.parentElement);
-    // visualViewport?.addEventListener('resize', this.handleVisualViewportChange);
+    visualViewport?.addEventListener('resize', this.handleVisualViewportChange);
 
     const rect = this.parentElement.getBoundingClientRect();
     this.parentWidth = rect.width;
