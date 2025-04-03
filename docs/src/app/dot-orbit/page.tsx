@@ -39,9 +39,9 @@ const { worldWidth, worldHeight, ...defaults } = dotOrbitPresets[0].params;
 const DotOrbitWithControls = () => {
   const [params, setParams] = useControls(() => {
     const presets = Object.fromEntries(
-      dotOrbitPresets.map(({ name, params: { worldWidth, worldHeight, ...params } }) => [
+      dotOrbitPresets.map(({ name, params: { worldWidth, worldHeight, ...preset } }) => [
         name,
-        button(() => setParamsSafe(params, setParams, params)),
+        button(() => setParamsSafe(params, setParams, preset)),
       ])
     );
 

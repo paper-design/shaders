@@ -35,9 +35,9 @@ const { worldWidth, worldHeight, ...defaults } = neuroNoisePresets[0].params;
 const NeuroNoiseWithControls = () => {
   const [params, setParams] = useControls(() => {
     const presets = Object.fromEntries(
-      neuroNoisePresets.map(({ name, params: { worldWidth, worldHeight, ...params } }) => [
+      neuroNoisePresets.map(({ name, params: { worldWidth, worldHeight, ...preset } }) => [
         name,
-        button(() => setParamsSafe(params, setParams, params)),
+        button(() => setParamsSafe(params, setParams, preset)),
       ])
     );
 

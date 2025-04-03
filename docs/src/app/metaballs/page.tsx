@@ -80,9 +80,9 @@ const MetaballsWithControls = () => {
 
   useControls(() => {
     const presets = Object.fromEntries(
-      metaballsPresets.map(({ name, params: { worldWidth, worldHeight, ...params } }) => [
+      metaballsPresets.map(({ name, params: { worldWidth, worldHeight, ...preset } }) => [
         name,
-        button(() => setParamsSafe(params, setParams, params)),
+        button(() => setParamsSafe(params, setParams, preset)),
       ])
     );
     return {

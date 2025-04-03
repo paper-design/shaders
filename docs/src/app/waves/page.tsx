@@ -87,9 +87,9 @@ const WavesWithControls = () => {
 
   useControls(() => {
     const presets = Object.fromEntries(
-      wavesPresets.map(({ name, params: { worldWidth, worldHeight, ...params } }) => [
+      wavesPresets.map(({ name, params: { worldWidth, worldHeight, ...preset } }) => [
         name,
-        button(() => setParamsSafe(params, setParams, params)),
+        button(() => setParamsSafe(params, setParams, preset)),
       ])
     );
     return {

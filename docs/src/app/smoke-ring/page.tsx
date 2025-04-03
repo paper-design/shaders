@@ -83,7 +83,7 @@ const SmokeRingWithControls = () => {
 
   useControls(() => {
     const presets = Object.fromEntries(
-      smokeRingPresets.map(({ name, params: { worldWidth, worldHeight, ...params } }) => [
+      smokeRingPresets.map(({ name, params: { worldWidth, worldHeight, ...preset } }) => [
         name,
         button(() => {
           setParamsSafe(params, setParams, {

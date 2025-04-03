@@ -43,9 +43,9 @@ const { worldWidth, worldHeight, ...defaults } = steppedSimplexNoisePresets[0].p
 const SteppedSimplexNoiseWithControls = () => {
   const [params, setParams] = useControls(() => {
     const presets = Object.fromEntries(
-      steppedSimplexNoisePresets.map(({ name, params: { worldWidth, worldHeight, ...params } }) => [
+      steppedSimplexNoisePresets.map(({ name, params: { worldWidth, worldHeight, ...preset } }) => [
         name,
-        button(() => setParamsSafe(params, setParams, params)),
+        button(() => setParamsSafe(params, setParams, preset)),
       ])
     );
     return {

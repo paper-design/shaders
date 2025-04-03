@@ -42,9 +42,9 @@ const { worldWidth, worldHeight, ...defaults } = godRaysPresets[0].params;
 const GodRaysWithControls = () => {
   const [params, setParams] = useControls(() => {
     const presets = Object.fromEntries(
-      godRaysPresets.map(({ name, params: { worldWidth, worldHeight, ...params } }) => [
+      godRaysPresets.map(({ name, params: { worldWidth, worldHeight, ...preset } }) => [
         name,
-        button(() => setParamsSafe(params, setParams, params)),
+        button(() => setParamsSafe(params, setParams, preset)),
       ])
     );
     return {

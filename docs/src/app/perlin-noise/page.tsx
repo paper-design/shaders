@@ -80,9 +80,9 @@ const PerlinNoiseWithControls = () => {
 
   useControls(() => {
     const presets = Object.fromEntries(
-      perlinNoisePresets.map(({ name, params: { worldWidth, worldHeight, ...params } }) => [
+      perlinNoisePresets.map(({ name, params: { worldWidth, worldHeight, ...preset } }) => [
         name,
-        button(() => setParamsSafe(params, setParams, params)),
+        button(() => setParamsSafe(params, setParams, preset)),
       ])
     );
     return {

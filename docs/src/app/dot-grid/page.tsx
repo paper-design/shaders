@@ -87,9 +87,9 @@ const DotGridWithControls = () => {
 
   useControls(() => {
     const presets = Object.fromEntries(
-      dotGridPresets.map(({ name, params: { worldWidth, worldHeight, ...params } }) => [
+      dotGridPresets.map(({ name, params: { worldWidth, worldHeight, ...preset } }) => [
         name,
-        button(() => setParamsSafe(params, setParams, params)),
+        button(() => setParamsSafe(params, setParams, preset)),
       ])
     );
     return {

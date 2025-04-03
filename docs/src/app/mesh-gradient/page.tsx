@@ -1,14 +1,12 @@
 'use client';
 
-import { MeshGradient, type MeshGradientParams, meshGradientPresets } from '@paper-design/shaders-react';
+import { MeshGradient, meshGradientPresets } from '@paper-design/shaders-react';
 import { useControls, button, folder } from 'leva';
 import { setParamsSafe, useResetLevaParams } from '@/helpers/use-reset-leva-params';
 import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
 import Link from 'next/link';
 import { BackButton } from '@/components/back-button';
-import { ShaderFit } from '@paper-design/shaders';
-import { ShaderFitOptions } from '@paper-design/shaders';
 
 /**
  * You can copy/paste this example to use MeshGradient in your app
@@ -36,8 +34,11 @@ const defaults = meshGradientPresets[0].params;
 const MeshGradientWithControls = () => {
   const [params, setParams] = useControls(() => {
     const presets = Object.fromEntries(
-      // meshGradientPresets.map(({ name, params: { worldWidth, worldHeight, ...params } }) => [
-      meshGradientPresets.map(({ name, params }) => [name, button(() => setParamsSafe(params, setParams, params))])
+      // meshGradientPresets.map(({ name, params: { worldWidth, worldHeight, ...preset } }) => [
+      meshGradientPresets.map(({ name, params: preset }) => [
+        name,
+        button(() => setParamsSafe(params, setParams, preset)),
+      ])
     );
 
     return {

@@ -96,9 +96,9 @@ const SpiralWithControls = () => {
 
   useControls(() => {
     const presets = Object.fromEntries(
-      spiralPresets.map(({ name, params: { worldWidth, worldHeight, ...params } }) => [
+      spiralPresets.map(({ name, params: { worldWidth, worldHeight, ...preset } }) => [
         name,
-        button(() => setParamsSafe(params, setParams, params)),
+        button(() => setParamsSafe(params, setParams, preset)),
       ])
     );
     return {

@@ -43,9 +43,9 @@ const { worldWidth, worldHeight, ...defaults } = warpPresets[0].params;
 const WarpWithControls = () => {
   const [params, setParams] = useControls(() => {
     const presets = Object.fromEntries(
-      warpPresets.map(({ name, params: { worldWidth, worldHeight, ...params } }) => [
+      warpPresets.map(({ name, params: { worldWidth, worldHeight, ...preset } }) => [
         name,
-        button(() => setParamsSafe(params, setParams, params)),
+        button(() => setParamsSafe(params, setParams, preset)),
       ])
     );
 

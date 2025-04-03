@@ -39,9 +39,9 @@ const { worldWidth, worldHeight, ...defaults } = voronoiPresets[0].params;
 const VoronoiWithControls = () => {
   const [params, setParams] = useControls(() => {
     const presets = Object.fromEntries(
-      voronoiPresets.map(({ name, params: { worldWidth, worldHeight, ...params } }) => [
+      voronoiPresets.map(({ name, params: { worldWidth, worldHeight, ...preset } }) => [
         name,
-        button(() => setParamsSafe(params, setParams, params)),
+        button(() => setParamsSafe(params, setParams, preset)),
       ])
     );
     return {
