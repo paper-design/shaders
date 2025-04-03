@@ -2,11 +2,10 @@ import {
   sizingUniformsDeclaration,
   sizingPatternUV,
   worldBoxTestStroke,
-  declarePI,
-  declareSimplexNoise,
   type ShaderSizingParams,
   type ShaderSizingUniforms,
 } from '../shader-sizing';
+import { declarePI, declareSimplexNoise } from '../shader-utils';
 
 /**
  * Dot Grid Pattern
@@ -57,7 +56,7 @@ float polygon(vec2 p, float N, float rot) {
 
 void main() {
   ${sizingPatternUV}
-  
+
   uv += .5;
 
   vec2 grid = fract(uv / vec2(u_gridSpacingX, u_gridSpacingY)) + 1e-4;
@@ -105,7 +104,7 @@ void main() {
   float opacity = u_colorBack.a;
   opacity += u_colorFill.a * shapeInner * dot_opacity;
   opacity += u_colorStroke.a * stroke * dot_opacity;
-  
+
   ${worldBoxTestStroke}
   color.r += worldBoxTestStroke;
   opacity += worldBoxTestStroke;

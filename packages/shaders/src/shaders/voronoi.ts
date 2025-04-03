@@ -2,10 +2,10 @@ import type { ShaderMotionParams } from '../shader-mount';
 import {
   sizingUniformsDeclaration,
   sizingPatternUV,
-  declarePI,
   type ShaderSizingParams,
   type ShaderSizingUniforms,
 } from '../shader-sizing';
+import { declarePI } from '../shader-utils';
 
 /**
  * Voronoi pattern
@@ -86,7 +86,7 @@ void main() {
   uv *= .025;
 
   float t = u_time;
-  
+
   vec2 i_uv = floor(uv);
   vec2 f_uv = fract(uv);
 

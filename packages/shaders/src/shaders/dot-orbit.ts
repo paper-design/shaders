@@ -2,10 +2,10 @@ import type { ShaderMotionParams } from '../shader-mount';
 import {
   sizingUniformsDeclaration,
   sizingPatternUV,
-  declareRandom,
   type ShaderSizingParams,
   type ShaderSizingUniforms,
 } from '../shader-sizing';
+import { declareRandom } from '../shader-utils';
 
 /**
  * Dot Pattern with dot moving around their grid position

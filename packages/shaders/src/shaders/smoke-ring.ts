@@ -1,12 +1,11 @@
 import type { ShaderMotionParams } from '../shader-mount';
 import {
   sizingUniformsDeclaration,
-  declarePI,
-  declareRandom,
   sizingSquareUV,
   type ShaderSizingParams,
   type ShaderSizingUniforms,
 } from '../shader-sizing';
+import { declarePI, declareRandom } from '../shader-utils';
 
 /**
  * Smoke Ring by Ksenia Kondrashova
@@ -78,17 +77,17 @@ float getNoise(vec2 uv, vec2 pUv, float t) {
 
 float getRingShape(vec2 uv, float thickness) {
   float radius = .65 - .75 * thickness;
-    
+
   float distance = length(uv);
   float ringValue = 1. - smoothstep(radius, radius - .7 * thickness, distance);
   ringValue *= (smoothstep(radius + thickness, radius, distance));
-        
+
   return ringValue;
 }
 
 void main() {
   ${sizingSquareUV}
-  uv -= .5;  
+  uv -= .5;
 
   float t = u_time;
 

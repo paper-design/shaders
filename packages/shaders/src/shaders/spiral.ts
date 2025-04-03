@@ -2,11 +2,10 @@ import type { ShaderMotionParams } from '../shader-mount';
 import {
   sizingUniformsDeclaration,
   sizingPatternUV,
-  declareSimplexNoise,
-  declarePI,
   type ShaderSizingParams,
   type ShaderSizingUniforms,
 } from '../shader-sizing';
+import { declareSimplexNoise, declarePI } from '../shader-utils';
 
 /**
  * Spiral shape by Ksenia Kondrashova

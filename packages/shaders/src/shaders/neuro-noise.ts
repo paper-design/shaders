@@ -2,10 +2,10 @@ import type { ShaderMotionParams } from '../shader-mount';
 import {
   sizingUniformsDeclaration,
   sizingPatternUV,
-  declareRotate,
   type ShaderSizingParams,
   type ShaderSizingUniforms,
 } from '../shader-sizing';
+import { declareRotate } from '../shader-utils';
 
 /**
  * Neuro Noise Pattern

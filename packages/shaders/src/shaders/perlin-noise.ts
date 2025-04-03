@@ -2,10 +2,10 @@ import type { ShaderMotionParams } from '../shader-mount';
 import {
   sizingUniformsDeclaration,
   sizingPatternUV,
-  declarePI,
   type ShaderSizingParams,
   type ShaderSizingUniforms,
 } from '../shader-sizing';
+import { declarePI } from '../shader-utils';
 
 /**
  * 3d Perlin noise with exposed parameters

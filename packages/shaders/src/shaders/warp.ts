@@ -1,13 +1,11 @@
 import type { ShaderMotionParams } from '../shader-mount';
 import {
   sizingUniformsDeclaration,
-  declarePI,
-  declareRandom,
-  declareRotate,
   sizingPatternUV,
   type ShaderSizingParams,
   type ShaderSizingUniforms,
 } from '../shader-sizing';
+import { declarePI, declareRandom, declareRotate } from '../shader-utils';
 
 /**
  * 3d Perlin noise with exposed parameters

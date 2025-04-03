@@ -1,11 +1,11 @@
 import type { ShaderMotionParams } from '../shader-mount';
 import {
   sizingUniformsDeclaration,
-  declarePI,
   sizingSquareUV,
   type ShaderSizingParams,
   type ShaderSizingUniforms,
 } from '../shader-sizing';
+import { declarePI } from '../shader-utils';
 /**
  * Metaballs (circular shapes with gooey effect applied)
  * The artwork by Ksenia Kondrashova

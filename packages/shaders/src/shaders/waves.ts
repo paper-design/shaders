@@ -1,11 +1,10 @@
 import {
   sizingUniformsDeclaration,
-  declarePI,
-  declareRotate,
   sizingPatternUV,
   type ShaderSizingParams,
   type ShaderSizingUniforms,
 } from '../shader-sizing';
+import { declarePI, declareRotate } from '../shader-utils';
 
 /**
  * Waves static pattern on the transparent background

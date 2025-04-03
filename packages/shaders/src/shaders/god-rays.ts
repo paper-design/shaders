@@ -1,13 +1,11 @@
 import type { ShaderMotionParams } from '../shader-mount';
 import {
   sizingUniformsDeclaration,
-  declarePI,
   sizingSquareUV,
-  declareRandom,
-  declareRotate,
   type ShaderSizingParams,
   type ShaderSizingUniforms,
 } from '../shader-sizing';
+import { declarePI, declareRandom, declareRotate } from '../shader-utils';
 
 /**
  * GodRays pattern
@@ -84,7 +82,7 @@ float get_noise_shape(vec2 uv, float r, float freq, float density, float time) {
 
 void main() {
   ${sizingSquareUV}
-  uv -= .5;  
+  uv -= .5;
 
   float t = .2 * u_time;
 
