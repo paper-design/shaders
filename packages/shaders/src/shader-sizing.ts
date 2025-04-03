@@ -95,6 +95,7 @@ export const worldBoxTestStroke = `
 export interface ShaderSizingUniforms {
   u_fit: (typeof ShaderFitOptions)[ShaderFit];
   u_scale: number;
+  u_rotation: number;
   u_originX: number;
   u_originY: number;
   u_offsetX: number;
@@ -106,6 +107,7 @@ export interface ShaderSizingUniforms {
 export interface ShaderSizingParams {
   fit?: 'none' | 'contain' | 'cover';
   scale?: number;
+  rotation?: number;
   originX?: number;
   originY?: number;
   offsetX?: number;
@@ -117,6 +119,7 @@ export interface ShaderSizingParams {
 export const defaultObjectSizing: Required<ShaderSizingParams> = {
   fit: 'contain',
   scale: 1,
+  rotation: 0,
   offsetX: 0,
   offsetY: 0,
   originX: 0.5,
@@ -128,6 +131,7 @@ export const defaultObjectSizing: Required<ShaderSizingParams> = {
 export const defaultPatternSizing: Required<ShaderSizingParams> = {
   fit: 'none',
   scale: 1,
+  rotation: 0,
   offsetX: 0,
   offsetY: 0,
   originX: 0.5,

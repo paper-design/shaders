@@ -50,13 +50,14 @@ export const DotOrbit: React.FC<DotOrbitProps> = memo(function DotOrbitImpl({
 
   // Sizing props
   fit = defaultPreset.params.fit,
-  worldWidth = defaultPreset.params.worldWidth,
-  worldHeight = defaultPreset.params.worldHeight,
   scale = defaultPreset.params.scale,
+  rotation = defaultPreset.params.rotation,
   originX = defaultPreset.params.originX,
   originY = defaultPreset.params.originY,
   offsetX = defaultPreset.params.offsetX,
   offsetY = defaultPreset.params.offsetY,
+  worldWidth = defaultPreset.params.worldWidth,
+  worldHeight = defaultPreset.params.worldHeight,
   ...props
 }) {
   const uniforms = {
@@ -72,6 +73,7 @@ export const DotOrbit: React.FC<DotOrbitProps> = memo(function DotOrbitImpl({
     // Sizing uniforms
     u_fit: ShaderFitOptions[fit],
     u_scale: scale,
+    u_rotation: rotation,
     u_offsetX: offsetX,
     u_offsetY: offsetY,
     u_originX: originX,

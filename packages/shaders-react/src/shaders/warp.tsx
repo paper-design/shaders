@@ -267,7 +267,6 @@ export const Warp: React.FC<WarpProps> = memo(function WarpImpl({
   // Own props
   speed = defaultPreset.params.speed,
   frame = defaultPreset.params.frame,
-  rotation = defaultPreset.params.rotation,
   color1 = defaultPreset.params.color1,
   color2 = defaultPreset.params.color2,
   color3 = defaultPreset.params.color3,
@@ -282,6 +281,7 @@ export const Warp: React.FC<WarpProps> = memo(function WarpImpl({
   // Sizing props
   fit = defaultPreset.params.fit,
   scale = defaultPreset.params.scale,
+  rotation = defaultPreset.params.rotation,
   originX = defaultPreset.params.originX,
   originY = defaultPreset.params.originY,
   offsetX = defaultPreset.params.offsetX,

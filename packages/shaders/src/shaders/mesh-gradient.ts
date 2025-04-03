@@ -92,14 +92,14 @@ void main() {
 }
 `;
 
-export interface MeshGradientUniforms extends ShaderSizingUniforms {
+export interface MeshGradientUniforms {
   u_color1: [number, number, number, number];
   u_color2: [number, number, number, number];
   u_color3: [number, number, number, number];
   u_color4: [number, number, number, number];
 }
 
-export interface MeshGradientParams extends ShaderSizingParams, ShaderMotionParams {
+export interface MeshGradientParams extends ShaderMotionParams {
   color1?: string;
   color2?: string;
   color3?: string;

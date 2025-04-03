@@ -21,7 +21,7 @@ type MeshGradientPreset = ShaderPreset<MeshGradientParams>;
 export const defaultPreset: MeshGradientPreset = {
   name: 'Default',
   params: {
-    ...defaultObjectSizing,
+    // ...defaultObjectSizing,
     speed: 0.15,
     frame: 0,
     color1: 'hsla(259, 29%, 73%, 1)',
@@ -34,7 +34,7 @@ export const defaultPreset: MeshGradientPreset = {
 export const beachPreset: MeshGradientPreset = {
   name: 'Beach',
   params: {
-    ...defaultObjectSizing,
+    // ...defaultObjectSizing,
     speed: 0.1,
     frame: 0,
     color1: 'hsla(186, 81%, 83%, 1)',
@@ -47,7 +47,7 @@ export const beachPreset: MeshGradientPreset = {
 export const fadedPreset: MeshGradientPreset = {
   name: 'Faded',
   params: {
-    ...defaultObjectSizing,
+    // ...defaultObjectSizing,
     speed: -0.3,
     frame: 0,
     color1: 'hsla(186, 41%, 90%, 1)',
@@ -69,14 +69,15 @@ export const MeshGradient: React.FC<MeshGradientProps> = memo(function MeshGradi
   color4 = defaultPreset.params.color4,
 
   // Sizing props
-  fit = defaultPreset.params.fit,
-  worldWidth = defaultPreset.params.worldWidth,
-  worldHeight = defaultPreset.params.worldHeight,
-  scale = defaultPreset.params.scale,
-  originX = defaultPreset.params.originX,
-  originY = defaultPreset.params.originY,
-  offsetX = defaultPreset.params.offsetX,
-  offsetY = defaultPreset.params.offsetY,
+  // fit = defaultPreset.params.fit,
+  // scale = defaultPreset.params.scale,
+  // rotation = defaultPreset.params.rotation,
+  // originX = defaultPreset.params.originX,
+  // originY = defaultPreset.params.originY,
+  // offsetX = defaultPreset.params.offsetX,
+  // offsetY = defaultPreset.params.offsetY,
+  // worldWidth = defaultPreset.params.worldWidth,
+  // worldHeight = defaultPreset.params.worldHeight,
   ...props
 }) {
   const uniforms = {
@@ -87,14 +88,15 @@ export const MeshGradient: React.FC<MeshGradientProps> = memo(function MeshGradi
     u_color4: getShaderColorFromString(color4),
 
     // Sizing uniforms
-    u_fit: ShaderFitOptions[fit],
-    u_scale: scale,
-    u_offsetX: offsetX,
-    u_offsetY: offsetY,
-    u_originX: originX,
-    u_originY: originY,
-    u_worldWidth: worldWidth,
-    u_worldHeight: worldHeight,
+    // u_fit: ShaderFitOptions[fit],
+    // u_rotation: rotation,
+    // u_scale: scale,
+    // u_offsetX: offsetX,
+    // u_offsetY: offsetY,
+    // u_originX: originX,
+    // u_originY: originY,
+    // u_worldWidth: worldWidth,
+    // u_worldHeight: worldHeight,
   } satisfies MeshGradientUniforms;
 
   return (

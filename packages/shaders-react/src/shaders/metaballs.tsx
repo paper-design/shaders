@@ -47,13 +47,14 @@ export const Metaballs: React.FC<MetaballsProps> = memo(function MetaballsImpl({
 
   // Sizing props
   fit = defaultPreset.params.fit,
-  worldWidth = defaultPreset.params.worldWidth,
-  worldHeight = defaultPreset.params.worldHeight,
+  rotation = defaultPreset.params.rotation,
   scale = defaultPreset.params.scale,
   originX = defaultPreset.params.originX,
   originY = defaultPreset.params.originY,
   offsetX = defaultPreset.params.offsetX,
   offsetY = defaultPreset.params.offsetY,
+  worldWidth = defaultPreset.params.worldWidth,
+  worldHeight = defaultPreset.params.worldHeight,
   ...props
 }) {
   const uniforms = {
@@ -66,6 +67,7 @@ export const Metaballs: React.FC<MetaballsProps> = memo(function MetaballsImpl({
 
     // Sizing uniforms
     u_fit: ShaderFitOptions[fit],
+    u_rotation: rotation,
     u_scale: scale,
     u_offsetX: offsetX,
     u_offsetY: offsetY,

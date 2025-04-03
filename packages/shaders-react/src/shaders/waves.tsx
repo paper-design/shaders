@@ -131,7 +131,6 @@ export const wavesPresets: WavesPreset[] = [
 
 export const Waves: React.FC<WavesProps> = memo(function WavesImpl({
   // Own props
-  rotation = defaultPreset.params.rotation,
   color1 = defaultPreset.params.color1,
   color2 = defaultPreset.params.color2,
   shape = defaultPreset.params.shape,
@@ -144,6 +143,7 @@ export const Waves: React.FC<WavesProps> = memo(function WavesImpl({
   // Sizing props
   fit = defaultPreset.params.fit,
   scale = defaultPreset.params.scale,
+  rotation = defaultPreset.params.rotation,
   offsetX = defaultPreset.params.offsetX,
   offsetY = defaultPreset.params.offsetY,
   originX = defaultPreset.params.originX,
@@ -154,7 +154,6 @@ export const Waves: React.FC<WavesProps> = memo(function WavesImpl({
 }) {
   const uniforms = {
     // Own uniforms
-    u_rotation: rotation,
     u_color1: getShaderColorFromString(color1),
     u_color2: getShaderColorFromString(color2),
     u_shape: shape,
@@ -167,6 +166,7 @@ export const Waves: React.FC<WavesProps> = memo(function WavesImpl({
     // Sizing uniforms
     u_fit: ShaderFitOptions[fit],
     u_scale: scale,
+    u_rotation: rotation,
     u_offsetX: offsetX,
     u_offsetY: offsetY,
     u_originX: originX,
