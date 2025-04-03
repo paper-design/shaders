@@ -1,7 +1,6 @@
 import {
   sizingUniformsDeclaration,
   sizingPatternUV,
-  worldBoxTestStroke,
   type ShaderSizingParams,
   type ShaderSizingUniforms,
 } from '../shader-sizing';
@@ -104,10 +103,6 @@ void main() {
   float opacity = u_colorBack.a;
   opacity += u_colorFill.a * shapeInner * dot_opacity;
   opacity += u_colorStroke.a * stroke * dot_opacity;
-
-  ${worldBoxTestStroke}
-  color.r += worldBoxTestStroke;
-  opacity += worldBoxTestStroke;
 
   fragColor = vec4(color, opacity);
 }
