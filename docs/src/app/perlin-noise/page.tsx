@@ -55,6 +55,7 @@ const PerlinNoiseWithControls = () => {
         {
           fit: { value: defaults.fit, options: Object.keys(ShaderFitOptions) as ShaderFit[], order: 400 },
           scale: { value: defaults.scale, min: 0.01, max: 4, order: 401 },
+          rotation: { value: defaults.rotation, min: 0, max: 360, order: 402 },
           worldWidth: { value: 1000, min: 1, max: 5120, order: 406 },
           worldHeight: { value: 500, min: 1, max: 5120, order: 407 },
         },

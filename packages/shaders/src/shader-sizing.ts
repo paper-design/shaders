@@ -6,6 +6,7 @@ uniform float u_worldHeight;
 uniform float u_fit;
 
 uniform float u_scale;
+uniform float u_rotation;
 uniform float u_offsetX;
 uniform float u_offsetY;`;
 

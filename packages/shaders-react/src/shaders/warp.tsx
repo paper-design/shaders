@@ -292,8 +292,6 @@ export const Warp: React.FC<WarpProps> = memo(function WarpImpl({
 }) {
   const uniforms = {
     // Own uniforms
-    u_scale: scale,
-    u_rotation: rotation,
     u_color1: getShaderColorFromString(color1),
     u_color2: getShaderColorFromString(color2),
     u_color3: getShaderColorFromString(color3),
@@ -306,6 +304,8 @@ export const Warp: React.FC<WarpProps> = memo(function WarpImpl({
     u_shape: WarpPatterns[shape],
 
     // Sizing uniforms
+    u_scale: scale,
+    u_rotation: rotation,
     u_fit: ShaderFitOptions[fit],
     u_offsetX: offsetX,
     u_offsetY: offsetY,

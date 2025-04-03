@@ -11,7 +11,6 @@ import { declarePI, declareRandom, declareRotate } from '../shader-utils';
  * 3d Perlin noise with exposed parameters
  *
  * Uniforms include:
- * u_rotation - the rotation applied to user space
  * u_color1 - the first pattern color
  * u_color2 - the second pattern color
  * u_color3 - the third pattern color
@@ -36,7 +35,6 @@ uniform float u_pixelRatio;
 
 ${sizingUniformsDeclaration}
 
-uniform float u_rotation;
 uniform vec4 u_color1;
 uniform vec4 u_color2;
 uniform vec4 u_color3;
@@ -92,7 +90,6 @@ vec4 blend_colors(vec4 c1, vec4 c2, vec4 c3, float mixer, float edgesWidth, floa
 void main() {
 
   ${sizingPatternUV}
-  uv = rotate(uv, u_rotation * .5 * PI);
   uv *= .005;
 
   float t = .5 * u_time;
@@ -144,7 +141,6 @@ export interface WarpUniforms extends ShaderSizingUniforms {
   u_color1: [number, number, number, number];
   u_color2: [number, number, number, number];
   u_color3: [number, number, number, number];
-  u_rotation: number;
   u_proportion: number;
   u_softness: number;
   u_shape: (typeof WarpPatterns)[WarpPattern];
