@@ -24,8 +24,8 @@ export const defaultPreset: DitheringPreset = {
   name: 'Default',
   params: {
     scale: 1,
-    shape: 5,
-    speed: 0.15,
+    shape: 1,
+    speed: 1,
     color1: 'hsla(240, 14%, 17%, 1)',
     color2: 'hsla(34, 26%, 61%, 1)',
     type: 3,
@@ -35,14 +35,14 @@ export const defaultPreset: DitheringPreset = {
   },
 } as const;
 
-export const wavesPreset: DitheringPreset = {
-  name: 'Waves',
+export const warpPreset: DitheringPreset = {
+  name: 'Warp',
   params: {
-    scale: 0.85,
+    scale: 1,
     shape: 2,
-    speed: 0.6,
-    color1: 'hsla(196, 32%, 45%, 1)',
-    color2: 'hsla(38, 100%, 94%, 1)',
+    speed: 1,
+    color1: 'hsla(195, 47%, 35%, 1)',
+    color2: 'hsla(171, 26%, 89%, 1)',
     type: 4,
     pxSize: 2,
     pxRounded: true,
@@ -50,17 +50,62 @@ export const wavesPreset: DitheringPreset = {
   },
 } as const;
 
-export const borderPreset: DitheringPreset = {
-  name: 'Border',
+export const sinePreset: DitheringPreset = {
+  name: 'Sine Wave',
   params: {
-    scale: 2,
+    scale: 2.7,
+    shape: 3,
+    speed: 1,
+    color1: 'hsla(15, 80%, 25%, 1)',
+    color2: 'hsla(55, 100%, 40%, 1)',
+    type: 4,
+    pxSize: 11,
+    pxRounded: true,
+    frame: 0,
+  },
+} as const;
+
+export const bugsPreset: DitheringPreset = {
+  name: 'Bugs',
+  params: {
+    scale: 1.5,
     shape: 4,
-    speed: 0,
-    color1: 'hsla(0, 0%, 100%, 0)',
-    color2: 'hsla(360, 75%, 35%, 1)',
+    speed: 1,
+    color1: 'hsla(0, 0%, 0%, 1)',
+    color2: 'hsla(120, 80%, 50%, 1)',
+    type: 1,
+    pxSize: 9,
+    pxRounded: true,
+    frame: 0,
+  },
+} as const;
+
+export const ripplePreset: DitheringPreset = {
+  name: 'Ripple',
+  params: {
+    scale: 1,
+    shape: 5,
+    speed: 1,
+    color1: 'hsla(20, 50%, 25%, 1)',
+    color2: 'hsla(20, 50%, 55%, 1)',
+    type: 2,
+    pxSize: 3,
+    pxRounded: false,
+    frame: 0,
+  },
+} as const;
+
+export const swirlPreset: DitheringPreset = {
+  name: 'Swirl',
+  params: {
+    scale: 1,
+    shape: 6,
+    speed: 1,
+    color1: 'hsla(0, 0%, 0%, 1)',
+    color2: 'hsla(200, 26%, 20%, 1)',
     type: 4,
     pxSize: 2,
-    pxRounded: true,
+    pxRounded: false,
     frame: 0,
   },
 } as const;
@@ -69,18 +114,18 @@ export const spherePreset: DitheringPreset = {
   name: 'Sphere',
   params: {
     scale: 1,
-    shape: 6,
-    speed: 0,
-    color1: 'hsla(0, 0%, 0%, 1)',
-    color2: 'hsla(320, 26%, 60%, 1)',
-    type: 1,
-    pxSize: 7,
+    shape: 7,
+    speed: 1,
+    color1: 'hsla(320, 26%, 15%, 1)',
+    color2: 'hsla(135, 30%, 30%, 1)',
+    type: 3,
+    pxSize: 2.5,
     pxRounded: true,
     frame: 0,
   },
 } as const;
 
-export const ditheringPresets: DitheringPreset[] = [defaultPreset, wavesPreset, borderPreset, spherePreset];
+export const ditheringPresets: DitheringPreset[] = [defaultPreset, spherePreset, warpPreset, sinePreset, ripplePreset, bugsPreset, swirlPreset];
 
 export const Dithering = ({
   scale,

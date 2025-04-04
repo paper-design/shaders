@@ -32,7 +32,7 @@ const DitheringWithControls = () => {
           scale: { value: defaults.scale, min: 0.1, max: 3, order: 201 },
           type: { value: defaults.type, min: 1, max: 4, step: 1, order: 250 },
           pxRounded: { value: defaults.pxRounded, order: 251 },
-          pxSize: { value: defaults.pxSize, min: 2, max: 30, order: 252 },
+          pxSize: { value: defaults.pxSize, min: 1, max: 15, order: 252 },
           speed: { value: defaults.speed, min: 0, max: 1, order: 400 },
         },
         { order: 1 }

@@ -107,7 +107,7 @@ float getBayerValue(vec2 uv, int size) {
 }
 
 void main() {
-  float t = u_time;  
+  float t = .5 * u_time;  
   float ratio = u_resolution.x / u_resolution.y;  
   
   vec2 uv = vec2(0.);  
