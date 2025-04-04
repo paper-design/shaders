@@ -125,7 +125,15 @@ export const spherePreset: DitheringPreset = {
   },
 } as const;
 
-export const ditheringPresets: DitheringPreset[] = [defaultPreset, spherePreset, warpPreset, sinePreset, ripplePreset, bugsPreset, swirlPreset];
+export const ditheringPresets: DitheringPreset[] = [
+  defaultPreset,
+  spherePreset,
+  warpPreset,
+  sinePreset,
+  ripplePreset,
+  bugsPreset,
+  swirlPreset,
+];
 
 export const Dithering = ({
   scale,

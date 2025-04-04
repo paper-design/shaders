@@ -1,12 +1,12 @@
 'use client';
 
-import {Dithering, type DitheringParams, ditheringPresets, dotGridPresets} from '@paper-design/shaders-react';
+import { Dithering, type DitheringParams, ditheringPresets, dotGridPresets } from '@paper-design/shaders-react';
 import { useControls, button, folder } from 'leva';
 import { setParamsSafe, useResetLevaParams } from '@/helpers/use-reset-leva-params';
 import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import Link from 'next/link';
 import { BackButton } from '@/components/back-button';
-import {cleanUpLevaParams} from "@/helpers/clean-up-leva-params";
+import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
 
 /**
  * You can copy/paste this example to use Dithering in your app
@@ -19,7 +19,7 @@ const DitheringExample = () => {
  * This example has controls added so you can play with settings in the example app
  */
 
-const defaults = { ...ditheringPresets[0].params, style: { background: 'hsla(0, 0%, 0%, 0)' } };
+const defaults = ditheringPresets[0].params;
 
 const DitheringWithControls = () => {
   const [params, setParams] = useControls(() => {
@@ -42,7 +42,7 @@ const DitheringWithControls = () => {
 
   useControls(() => {
     const presets: DitheringParams = Object.fromEntries(
-        ditheringPresets.map((preset) => [preset.name, button(() => setParamsSafe(params, setParams, preset.params))])
+      ditheringPresets.map((preset) => [preset.name, button(() => setParamsSafe(params, setParams, preset.params))])
     );
     return {
       Presets: folder(presets, { order: 2 }),
