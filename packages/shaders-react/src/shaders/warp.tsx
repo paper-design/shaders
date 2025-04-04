@@ -1,31 +1,19 @@
-import { useMemo } from 'react';
-import { ShaderMount, type GlobalParams, type ShaderMountProps } from '../shader-mount';
+import { memo } from 'react';
+import { ShaderMount, type ShaderComponentProps } from '../shader-mount';
 import {
+  defaultPatternSizing,
   getShaderColorFromString,
   warpFragmentShader,
+  ShaderFitOptions,
+  type WarpParams,
   type WarpUniforms,
-  type PatternShape,
-  PatternShapes,
+  type ShaderPreset,
+  WarpPatterns,
 } from '@paper-design/shaders';
 
-export type WarpParams = {
-  scale?: number;
-  rotation?: number;
-  color1?: string;
-  color2?: string;
-  color3?: string;
-  proportion?: number;
-  softness?: number;
-  distortion?: number;
-  swirl?: number;
-  swirlIterations?: number;
-  shapeScale?: number;
-  shape?: PatternShape;
-} & GlobalParams;
+export interface WarpProps extends ShaderComponentProps, WarpParams {}
 
-export type WarpProps = Omit<ShaderMountProps, 'fragmentShader'> & WarpParams;
-
-type WarpPreset = { name: string; params: Required<WarpParams> };
+type WarpPreset = ShaderPreset<WarpParams>;
 
 // Due to Leva controls limitation:
 // 1) keep default colors in HSLA format to keep alpha channel
@@ -34,7 +22,7 @@ type WarpPreset = { name: string; params: Required<WarpParams> };
 export const defaultPreset: WarpPreset = {
   name: 'Default',
   params: {
-    scale: 1,
+    ...defaultPatternSizing,
     rotation: 0,
     speed: 0.1,
     frame: 0,
@@ -47,14 +35,15 @@ export const defaultPreset: WarpPreset = {
     swirl: 0.8,
     swirlIterations: 10,
     shapeScale: 0.1,
-    shape: PatternShapes.Checks,
+    shape: 'checks',
   },
 };
 
 export const presetCauldron: WarpPreset = {
   name: 'Cauldron Pot',
   params: {
-    scale: 1.1,
+    ...defaultPatternSizing,
+    scale: 1 / 1.1,
     rotation: 1.62,
     speed: 1,
     frame: 0,
@@ -67,14 +56,15 @@ export const presetCauldron: WarpPreset = {
     swirl: 0.86,
     swirlIterations: 7,
     shapeScale: 0,
-    shape: PatternShapes.Edge,
+    shape: 'edge',
   },
 };
 
 export const presetSilk: WarpPreset = {
   name: 'Silk',
   params: {
-    scale: 0.26,
+    ...defaultPatternSizing,
+    scale: 1 / 0.26,
     rotation: 0,
     speed: 0.5,
     frame: 0,
@@ -87,14 +77,15 @@ export const presetSilk: WarpPreset = {
     swirl: 0.6,
     swirlIterations: 11,
     shapeScale: 0.05,
-    shape: PatternShapes.Stripes,
+    shape: 'stripes',
   },
 };
 
 export const presetPassion: WarpPreset = {
   name: 'Passion',
   params: {
-    scale: 0.25,
+    ...defaultPatternSizing,
+    scale: 1 / 0.25,
     rotation: 1.35,
     speed: 0.3,
     frame: 0,
@@ -107,14 +98,15 @@ export const presetPassion: WarpPreset = {
     swirl: 0.9,
     swirlIterations: 6,
     shapeScale: 0.25,
-    shape: PatternShapes.Checks,
+    shape: 'checks',
   },
 };
 
 export const presetPhantom: WarpPreset = {
   name: 'Phantom',
   params: {
-    scale: 0.68,
+    ...defaultPatternSizing,
+    scale: 1 / 0.68,
     rotation: 1.8,
     speed: 1.25,
     frame: 0,
@@ -127,14 +119,15 @@ export const presetPhantom: WarpPreset = {
     swirl: 0.3,
     swirlIterations: 7,
     shapeScale: 0.1,
-    shape: PatternShapes.Checks,
+    shape: 'checks',
   },
 };
 
 export const presetAbyss: WarpPreset = {
   name: 'The Abyss',
   params: {
-    scale: 0.1,
+    ...defaultPatternSizing,
+    scale: 1 / 0.1,
     rotation: 2,
     speed: 0.06,
     frame: 0,
@@ -147,14 +140,15 @@ export const presetAbyss: WarpPreset = {
     swirl: 0.48,
     swirlIterations: 4,
     shapeScale: 0.1,
-    shape: PatternShapes.Edge,
+    shape: 'edge',
   },
 };
 
 export const presetInk: WarpPreset = {
   name: 'Live Ink',
   params: {
-    scale: 0.7,
+    ...defaultPatternSizing,
+    scale: 1 / 0.7,
     rotation: 1.5,
     speed: 0.25,
     frame: 0,
@@ -167,14 +161,15 @@ export const presetInk: WarpPreset = {
     swirl: 0.8,
     swirlIterations: 10,
     shapeScale: 0.26,
-    shape: PatternShapes.Checks,
+    shape: 'checks',
   },
 };
 
 export const presetIceberg: WarpPreset = {
   name: 'Iceberg',
   params: {
-    scale: 1.1,
+    ...defaultPatternSizing,
+    scale: 1 / 1.1,
     rotation: 2,
     speed: 0.05,
     frame: 0,
@@ -187,14 +182,15 @@ export const presetIceberg: WarpPreset = {
     swirl: 0.86,
     swirlIterations: 7,
     shapeScale: 0,
-    shape: PatternShapes.Checks,
+    shape: 'checks',
   },
 };
 
 export const presetNectar: WarpPreset = {
   name: 'Nectar',
   params: {
-    scale: 0.24,
+    ...defaultPatternSizing,
+    scale: 1 / 0.24,
     rotation: 0,
     speed: 0.42,
     frame: 0,
@@ -207,13 +203,14 @@ export const presetNectar: WarpPreset = {
     swirl: 0.57,
     swirlIterations: 10,
     shapeScale: 0.32,
-    shape: PatternShapes.Edge,
+    shape: 'edge',
   },
 };
 
 export const presetFilteredLight: WarpPreset = {
   name: 'Filtered Light',
   params: {
+    ...defaultPatternSizing,
     scale: 2,
     rotation: 0.44,
     speed: 0.32,
@@ -227,13 +224,14 @@ export const presetFilteredLight: WarpPreset = {
     swirl: 0,
     swirlIterations: 0,
     shapeScale: 0,
-    shape: PatternShapes.Stripes,
+    shape: 'stripes',
   },
 };
 
 export const presetKelp: WarpPreset = {
   name: 'Kelp',
   params: {
+    ...defaultPatternSizing,
     scale: 0.38,
     rotation: 0.6,
     speed: 2,
@@ -247,7 +245,7 @@ export const presetKelp: WarpPreset = {
     swirl: 0.15,
     swirlIterations: 0,
     shapeScale: 0.74,
-    shape: PatternShapes.Stripes,
+    shape: 'stripes',
   },
 };
 
@@ -265,50 +263,57 @@ export const warpPresets: WarpPreset[] = [
   presetSilk,
 ];
 
-export const Warp = ({
-  scale,
-  rotation,
-  color1,
-  color2,
-  color3,
-  proportion,
-  softness,
-  distortion,
-  swirl,
-  swirlIterations,
-  shapeScale,
-  shape,
-  ...props
-}: WarpProps): React.ReactElement => {
-  const uniforms: WarpUniforms = useMemo(() => {
-    return {
-      u_scale: scale ?? defaultPreset.params.scale,
-      u_rotation: rotation ?? defaultPreset.params.rotation,
-      u_color1: getShaderColorFromString(color1, defaultPreset.params.color1),
-      u_color2: getShaderColorFromString(color2, defaultPreset.params.color2),
-      u_color3: getShaderColorFromString(color3, defaultPreset.params.color2),
-      u_proportion: proportion ?? defaultPreset.params.proportion,
-      u_softness: softness ?? defaultPreset.params.softness,
-      u_distortion: distortion ?? defaultPreset.params.distortion,
-      u_swirl: swirl ?? defaultPreset.params.swirl,
-      u_swirlIterations: swirlIterations ?? defaultPreset.params.swirlIterations,
-      u_shapeScale: shapeScale ?? defaultPreset.params.shapeScale,
-      u_shape: shape ?? defaultPreset.params.shape,
-    };
-  }, [
-    scale,
-    rotation,
-    color1,
-    color2,
-    color3,
-    proportion,
-    softness,
-    distortion,
-    swirl,
-    swirlIterations,
-    shapeScale,
-    shape,
-  ]);
+export const Warp: React.FC<WarpProps> = memo(function WarpImpl({
+  // Own props
+  speed = defaultPreset.params.speed,
+  frame = defaultPreset.params.frame,
+  color1 = defaultPreset.params.color1,
+  color2 = defaultPreset.params.color2,
+  color3 = defaultPreset.params.color3,
+  proportion = defaultPreset.params.proportion,
+  softness = defaultPreset.params.softness,
+  distortion = defaultPreset.params.distortion,
+  swirl = defaultPreset.params.swirl,
+  swirlIterations = defaultPreset.params.swirlIterations,
+  shapeScale = defaultPreset.params.shapeScale,
+  shape = defaultPreset.params.shape,
 
-  return <ShaderMount {...props} fragmentShader={warpFragmentShader} uniforms={uniforms} />;
-};
+  // Sizing props
+  fit = defaultPreset.params.fit,
+  scale = defaultPreset.params.scale,
+  rotation = defaultPreset.params.rotation,
+  originX = defaultPreset.params.originX,
+  originY = defaultPreset.params.originY,
+  offsetX = defaultPreset.params.offsetX,
+  offsetY = defaultPreset.params.offsetY,
+  worldWidth = defaultPreset.params.worldWidth,
+  worldHeight = defaultPreset.params.worldHeight,
+  ...props
+}) {
+  const uniforms = {
+    // Own uniforms
+    u_color1: getShaderColorFromString(color1),
+    u_color2: getShaderColorFromString(color2),
+    u_color3: getShaderColorFromString(color3),
+    u_proportion: proportion,
+    u_softness: softness,
+    u_distortion: distortion,
+    u_swirl: swirl,
+    u_swirlIterations: swirlIterations,
+    u_shapeScale: shapeScale,
+    u_shape: WarpPatterns[shape],
+
+    // Sizing uniforms
+    u_scale: scale,
+    u_rotation: rotation,
+    u_fit: ShaderFitOptions[fit],
+    u_offsetX: offsetX,
+    u_offsetY: offsetY,
+    u_originX: originX,
+    u_originY: originY,
+    u_worldWidth: worldWidth,
+    u_worldHeight: worldHeight,
+  } satisfies WarpUniforms;
+
+  return <ShaderMount {...props} speed={speed} frame={frame} fragmentShader={warpFragmentShader} uniforms={uniforms} />;
+});

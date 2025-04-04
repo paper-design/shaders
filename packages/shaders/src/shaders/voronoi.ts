@@ -1,17 +1,11 @@
-export type VoronoiUniforms = {
-  u_scale: number;
-  u_colorCell1: [number, number, number, number];
-  u_colorCell2: [number, number, number, number];
-  u_colorCell3: [number, number, number, number];
-  u_colorEdges: [number, number, number, number];
-  u_colorMid: [number, number, number, number];
-  u_colorGradient: number;
-  u_distance: number;
-  u_edgesSize: number;
-  u_edgesSoftness: number;
-  u_middleSize: number;
-  u_middleSoftness: number;
-};
+import type { ShaderMotionParams } from '../shader-mount';
+import {
+  sizingUniformsDeclaration,
+  sizingPatternUV,
+  type ShaderSizingParams,
+  type ShaderSizingUniforms,
+} from '../shader-sizing';
+import { declarePI } from '../shader-utils';
 
 /**
  * Voronoi pattern
@@ -19,7 +13,6 @@ export type VoronoiUniforms = {
  * Renders a number of circular shapes with gooey effect applied
  *
  * Uniforms include:
- * u_scale - the scale applied to user space
  * u_colorCell1 - color #1 of mix used to fill the cell shape
  * u_colorCell2 - color #2 of mix used to fill the cell shape
  * u_colorCell3 - color #3 of mix used to fill the cell shape
@@ -34,15 +27,14 @@ export type VoronoiUniforms = {
  * u_middleSoftness (0 .. 1) - the smoothness of shape in the center of each cell
  *   (vary from cell color gradient to sharp dot in the middle)
  */
-
-export const voronoiFragmentShader = `#version 300 es
+export const voronoiFragmentShader: string = `#version 300 es
 precision highp float;
 
 uniform float u_time;
-uniform float u_pixelRatio;
 uniform vec2 u_resolution;
+uniform float u_pixelRatio;
 
-uniform float u_scale;
+${sizingUniformsDeclaration}
 
 uniform vec4 u_colorCell1;
 uniform vec4 u_colorCell2;
@@ -60,6 +52,8 @@ uniform float u_middleSoftness;
 #define TWO_PI 6.28318530718
 
 out vec4 fragColor;
+
+${declarePI}
 
 vec2 hash(vec2 p) {
   p = vec2(dot(p, vec2(127.1, 311.7)), dot(p, vec2(269.5, 183.3)));
@@ -88,12 +82,10 @@ vec4 blend_colors(vec4 c1, vec4 c2, vec4 c3, vec2 randomizer) {
 }
 
 void main() {
-  vec2 uv = gl_FragCoord.xy / u_resolution.xy;
+  ${sizingPatternUV}
+  uv *= .025;
+
   float t = u_time;
-  uv -= .5;
-  uv *= (.01 * u_scale * u_resolution);
-  uv /= u_pixelRatio;
-  uv += .5;
 
   vec2 i_uv = floor(uv);
   vec2 f_uv = fract(uv);
@@ -150,3 +142,31 @@ void main() {
   fragColor = vec4(color, opacity);
 }
 `;
+
+export interface VoronoiUniforms extends ShaderSizingUniforms {
+  u_colorCell1: [number, number, number, number];
+  u_colorCell2: [number, number, number, number];
+  u_colorCell3: [number, number, number, number];
+  u_colorEdges: [number, number, number, number];
+  u_colorMid: [number, number, number, number];
+  u_colorGradient: number;
+  u_distance: number;
+  u_edgesSize: number;
+  u_edgesSoftness: number;
+  u_middleSize: number;
+  u_middleSoftness: number;
+}
+
+export interface VoronoiParams extends ShaderSizingParams, ShaderMotionParams {
+  colorCell1?: string;
+  colorCell2?: string;
+  colorCell3?: string;
+  colorEdges?: string;
+  colorMid?: string;
+  colorGradient?: number;
+  distance?: number;
+  edgesSize?: number;
+  edgesSoftness?: number;
+  middleSize?: number;
+  middleSoftness?: number;
+}

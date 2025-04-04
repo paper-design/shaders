@@ -1,9 +1,5 @@
-export type MeshGradientUniforms = {
-  u_color1: [number, number, number, number];
-  u_color2: [number, number, number, number];
-  u_color3: [number, number, number, number];
-  u_color4: [number, number, number, number];
-};
+import type { ShaderMotionParams } from '../shader-mount';
+import type { ShaderSizingParams, ShaderSizingUniforms } from '../shader-sizing';
 
 /**
  * Mesh Gradient, based on https://www.shadertoy.com/view/wdyczG
@@ -16,7 +12,6 @@ export type MeshGradientUniforms = {
  * u_color3: The third color of the mesh gradient
  * u_color4: The fourth color of the mesh gradient
  */
-
 export const meshGradientFragmentShader = `#version 300 es
 precision highp float;
 
@@ -61,9 +56,9 @@ float noise( in vec2 p ) {
 void main() {
     vec2 uv = gl_FragCoord.xy / u_resolution.xy;
     float ratio = u_resolution.x / u_resolution.y;
-    
+
     uv /= u_pixelRatio;
-    
+
     vec2 tuv = uv;
     tuv -= .5;
 
@@ -92,7 +87,21 @@ void main() {
     float proportion_2 = S(.5, -.3, tuv.y);
     vec3 color = mix(layer1_color, layer2_color, proportion_2);
     float opacity = mix(layer1_opacity, layer2_opacity, proportion_2);
-    
+
     fragColor = vec4(color, opacity);
 }
 `;
+
+export interface MeshGradientUniforms {
+  u_color1: [number, number, number, number];
+  u_color2: [number, number, number, number];
+  u_color3: [number, number, number, number];
+  u_color4: [number, number, number, number];
+}
+
+export interface MeshGradientParams extends ShaderMotionParams {
+  color1?: string;
+  color2?: string;
+  color3?: string;
+  color4?: string;
+}

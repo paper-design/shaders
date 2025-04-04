@@ -5,6 +5,7 @@ import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
 import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import { setParamsSafe, useResetLevaParams } from '@/helpers/use-reset-leva-params';
 import { Voronoi, type VoronoiParams, voronoiPresets } from '@paper-design/shaders-react';
+import { ShaderFitOptions, ShaderFit } from '@paper-design/shaders';
 import { useControls, button, folder } from 'leva';
 import Link from 'next/link';
 
@@ -33,12 +34,15 @@ const VoronoiExample = () => {
  * This example has controls added so you can play with settings in the example app
  */
 
-const defaults = voronoiPresets[0].params;
+const { worldWidth, worldHeight, ...defaults } = voronoiPresets[0].params;
 
 const VoronoiWithControls = () => {
   const [params, setParams] = useControls(() => {
-    const presets: VoronoiParams = Object.fromEntries(
-      voronoiPresets.map((preset) => [preset.name, button(() => setParamsSafe(params, setParams, preset.params))])
+    const presets = Object.fromEntries(
+      voronoiPresets.map(({ name, params: { worldWidth, worldHeight, ...preset } }) => [
+        name,
+        button(() => setParamsSafe(params, setParams, preset)),
+      ])
     );
     return {
       Parameters: folder(
@@ -49,7 +53,6 @@ const VoronoiWithControls = () => {
           colorMid: { value: defaults.colorMid, order: 103 },
           colorEdges: { value: defaults.colorEdges, order: 104 },
           colorGradient: { value: defaults.colorGradient, min: 0, max: 1, order: 105 },
-          scale: { value: defaults.scale, min: 0.15, max: 3, order: 200 },
           distance: { value: defaults.distance, min: 0, max: 0.5, order: 300 },
           edgesSize: { value: defaults.edgesSize, min: 0, max: 1, order: 301 },
           edgesSoftness: { value: defaults.edgesSoftness, min: 0, max: 1, order: 302 },
@@ -59,7 +62,32 @@ const VoronoiWithControls = () => {
         },
         { order: 1 }
       ),
-      Presets: folder(presets, { order: 2 }),
+      Size: folder(
+        {
+          fit: { value: defaults.fit, options: Object.keys(ShaderFitOptions) as ShaderFit[], order: 400 },
+          scale: { value: defaults.scale, min: 0.01, max: 4, order: 401 },
+          rotation: { value: defaults.rotation, min: 0, max: 360, order: 402 },
+          worldWidth: { value: 1000, min: 1, max: 5120, order: 406 },
+          worldHeight: { value: 500, min: 1, max: 5120, order: 407 },
+        },
+        {
+          order: 2,
+          collapsed: false,
+        }
+      ),
+      Position: folder(
+        {
+          originX: { value: defaults.originX, min: 0, max: 1, order: 402 },
+          originY: { value: defaults.originY, min: 0, max: 1, order: 403 },
+          offsetX: { value: defaults.offsetX, min: -1, max: 1, order: 404 },
+          offsetY: { value: defaults.offsetY, min: -1, max: 1, order: 405 },
+        },
+        {
+          order: 3,
+          collapsed: true,
+        }
+      ),
+      Presets: folder(presets, { order: 10 }),
     };
   });
 

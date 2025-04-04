@@ -1,6 +1,6 @@
 'use client';
 
-import { MeshGradient, type MeshGradientParams, meshGradientPresets } from '@paper-design/shaders-react';
+import { MeshGradient, meshGradientPresets } from '@paper-design/shaders-react';
 import { useControls, button, folder } from 'leva';
 import { setParamsSafe, useResetLevaParams } from '@/helpers/use-reset-leva-params';
 import { usePresetHighlight } from '@/helpers/use-preset-highlight';
@@ -28,12 +28,17 @@ const MeshGradientExample = () => {
  * This example has controls added so you can play with settings in the example app
  */
 
+// const { worldWidth, worldHeight, ...defaults } = meshGradientPresets[0].params;
 const defaults = meshGradientPresets[0].params;
 
 const MeshGradientWithControls = () => {
   const [params, setParams] = useControls(() => {
-    const presets: MeshGradientParams = Object.fromEntries(
-      meshGradientPresets.map((preset) => [preset.name, button(() => setParamsSafe(params, setParams, preset.params))])
+    const presets = Object.fromEntries(
+      // meshGradientPresets.map(({ name, params: { worldWidth, worldHeight, ...preset } }) => [
+      meshGradientPresets.map(({ name, params: preset }) => [
+        name,
+        button(() => setParamsSafe(params, setParams, preset)),
+      ])
     );
 
     return {
@@ -47,7 +52,31 @@ const MeshGradientWithControls = () => {
         },
         { order: 1 }
       ),
-      Presets: folder(presets, { order: 2 }),
+      // Size: folder(
+      //   {
+      //     fit: { value: defaults.fit, options: Object.keys(ShaderFitOptions) as ShaderFit[], order: 400 },
+      //     scale: { value: defaults.scale, min: 0.01, max: 4, order: 401 },
+      //     worldWidth: { value: 1000, min: 1, max: 5120, order: 406 },
+      //     worldHeight: { value: 500, min: 1, max: 5120, order: 407 },
+      //   },
+      //   {
+      //     order: 2,
+      //     collapsed: false,
+      //   }
+      // ),
+      // Position: folder(
+      //   {
+      //     originX: { value: defaults.originX, min: 0, max: 1, order: 402 },
+      //     originY: { value: defaults.originY, min: 0, max: 1, order: 403 },
+      //     offsetX: { value: defaults.offsetX, min: -1, max: 1, order: 404 },
+      //     offsetY: { value: defaults.offsetY, min: -1, max: 1, order: 405 },
+      //   },
+      //   {
+      //     order: 3,
+      //     collapsed: true,
+      //   }
+      // ),
+      Presets: folder(presets, { order: 10 }),
     };
   });
 

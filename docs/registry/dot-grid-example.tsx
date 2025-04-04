@@ -14,7 +14,7 @@ export function DotGridExample(props: DotGridProps) {
       strokeWidth={0}
       sizeRange={0}
       opacityRange={0}
-      shape={0}
+      shape="circle"
       style={{ position: 'fixed', width: '100%', height: '100%' }}
       {...props}
     />

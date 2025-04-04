@@ -1,15 +1,3 @@
-/** Uniform types that we support to be auto-mapped into the fragment shader */
-export type ShaderMountUniforms = Record<string, number | number[] | HTMLImageElement>;
-
-/** A canvas element that has a ShaderMount available on it */
-export interface PaperShaderElement extends HTMLElement {
-  paperShaderMount: ShaderMount | undefined;
-}
-/** Check if a canvas element is a ShaderCanvas */
-export function isPaperShaderElement(element: HTMLElement): element is PaperShaderElement {
-  return 'paperShaderMount' in element;
-}
-
 export class ShaderMount {
   public parentElement: PaperShaderElement;
   public canvasElement: HTMLCanvasElement;
@@ -34,20 +22,25 @@ export class ShaderMount {
   private resolutionChanged = true;
   /** Store textures that are provided by the user */
   private textures: Map<string, WebGLTexture> = new Map();
-  private maxPixelCount;
   private minPixelRatio;
+  private maxPixelCount;
   private isSafari = isSafari();
 
   constructor(
     /** The div you'd like to mount the shader to. The shader will match its size. */
     parentElement: HTMLElement,
     fragmentShader: string,
-    uniforms: ShaderMountUniforms = {},
+    uniforms: ShaderMountUniforms,
     webGlContextAttributes?: WebGLContextAttributes,
     /** The speed of the animation, or 0 to stop it. Supports negative values to play in reverse. */
     speed = 0,
     /** Pass a frame to offset the starting u_time value and give deterministic results*/
     frame = 0,
+    /**
+     * The minimum pixel ratio to render at, defaults to 2.
+     * May be reduced to improve performance or increased together with `maxPixelCount` to improve antialiasing.
+     */
+    minPixelRatio = 2,
     /**
      * The maximum amount of physical device pixels to render for the shader,
      * by default it's 1920 * 1080 * 2x dpi (per each side) = 8,294,400 pixels of a 4K screen.
@@ -55,12 +48,7 @@ export class ShaderMount {
      *
      * May be reduced to improve performance or increased to improve quality on high-resolution screens.
      */
-    maxPixelCount: number = 1920 * 1080 * 4,
-    /**
-     * The minimum pixel ratio to render at, defaults to 2.
-     * May be reduced to improve performance or increased together with `maxPixelCount` to improve antialiasing.
-     */
-    minPixelRatio = 2
+    maxPixelCount: number = 1920 * 1080 * 4
   ) {
     if (parentElement instanceof HTMLElement) {
       this.parentElement = parentElement as PaperShaderElement;
@@ -83,8 +71,8 @@ export class ShaderMount {
     this.providedUniforms = uniforms;
     // Base our starting animation time on the provided frame value
     this.totalFrameTime = frame;
-    this.maxPixelCount = maxPixelCount;
     this.minPixelRatio = minPixelRatio;
+    this.maxPixelCount = maxPixelCount;
 
     const gl = canvasElement.getContext('webgl2', webGlContextAttributes);
     if (!gl) {
@@ -559,6 +547,31 @@ const defaultStyle = `@layer base {
     }
   }
 }`;
+
+/** A canvas element that has a ShaderMount available on it */
+export interface PaperShaderElement extends HTMLElement {
+  paperShaderMount: ShaderMount | undefined;
+}
+
+/** Check if a canvas element is a ShaderCanvas */
+export function isPaperShaderElement(element: HTMLElement): element is PaperShaderElement {
+  return 'paperShaderMount' in element;
+}
+
+/** Uniform types that we support to be auto-mapped into the fragment shader */
+export interface ShaderMountUniforms {
+  [key: string]: number | number[] | HTMLImageElement;
+}
+
+export interface ShaderMotionParams {
+  speed?: number;
+  frame?: number;
+}
+
+export type ShaderPreset<T> = {
+  name: string;
+  params: Required<T>;
+};
 
 function isSafari() {
   const ua = navigator.userAgent.toLowerCase();

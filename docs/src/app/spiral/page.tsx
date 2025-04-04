@@ -7,6 +7,8 @@ import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import Link from 'next/link';
 import { BackButton } from '@/components/back-button';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
+import { ShaderFit } from '@paper-design/shaders';
+import { ShaderFitOptions } from '@paper-design/shaders';
 
 /**
  * You can copy/paste this example to use Spiral in your app
@@ -38,7 +40,7 @@ const SpiralExample = () => {
  */
 
 const firstPresetParams = spiralPresets[0].params;
-const defaults = {
+const { worldWidth, worldHeight, ...defaults } = {
   ...firstPresetParams,
   speed: Math.abs(firstPresetParams.speed),
   reverse: firstPresetParams.speed < 0,
@@ -52,9 +54,6 @@ const SpiralWithControls = () => {
         {
           color1: { value: defaults.color1, order: 100 },
           color2: { value: defaults.color2, order: 101 },
-          scale: { value: defaults.scale, min: 0, max: 4, order: 200 },
-          offsetX: { value: defaults.offsetX, min: -1, max: 1, order: 201 },
-          offsetY: { value: defaults.offsetY, min: -1, max: 1, order: 202 },
           spiralDensity: { value: defaults.spiralDensity, min: 0, max: 1, order: 203 },
           spiralDistortion: { value: defaults.spiralDistortion, min: 0, max: 1, order: 204 },
           strokeWidth: { value: defaults.strokeWidth, min: 0, max: 1, order: 205 },
@@ -68,20 +67,43 @@ const SpiralWithControls = () => {
         },
         { order: 1 }
       ),
+      Size: folder(
+        {
+          fit: { value: defaults.fit, options: Object.keys(ShaderFitOptions) as ShaderFit[], order: 400 },
+          scale: { value: defaults.scale, min: 0.01, max: 4, order: 401 },
+          rotation: { value: defaults.rotation, min: 0, max: 360, order: 402 },
+          worldWidth: { value: 1000, min: 1, max: 5120, order: 406 },
+          worldHeight: { value: 500, min: 1, max: 5120, order: 407 },
+        },
+        {
+          order: 2,
+          collapsed: false,
+        }
+      ),
+      Position: folder(
+        {
+          originX: { value: defaults.originX, min: 0, max: 1, order: 402 },
+          originY: { value: defaults.originY, min: 0, max: 1, order: 403 },
+          offsetX: { value: defaults.offsetX, min: -0.5, max: 0.5, order: 404 },
+          offsetY: { value: defaults.offsetY, min: -0.5, max: 0.5, order: 405 },
+        },
+        {
+          order: 3,
+          collapsed: false,
+        }
+      ),
     };
   });
 
   useControls(() => {
-    const presets: SpiralParams = Object.fromEntries(
-      spiralPresets.map((preset) => [
-        preset.name,
-        button(() => {
-          setParamsSafe(params, setParams, preset.params);
-        }),
+    const presets = Object.fromEntries(
+      spiralPresets.map(({ name, params: { worldWidth, worldHeight, ...preset } }) => [
+        name,
+        button(() => setParamsSafe(params, setParams, preset)),
       ])
     );
     return {
-      Presets: folder(presets, { order: 2 }),
+      Presets: folder(presets, { order: 10 }),
     };
   });
 

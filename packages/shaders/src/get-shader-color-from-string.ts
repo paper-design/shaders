@@ -1,18 +1,17 @@
 /**  Convert color string from HSL, RGB, or hex to 0-to-1-range-RGBA array */
 export function getShaderColorFromString(
-  colorString: string | [number, number, number] | [number, number, number, number] | undefined,
-  fallback: string | [number, number, number] | [number, number, number, number] = [0, 0, 0, 1]
+  colorString: string | [number, number, number] | [number, number, number, number] | undefined
 ): [number, number, number, number] {
   // If the color string is already an array of 3 or 4 numbers, return it (with alpha=1 if needed)
   if (Array.isArray(colorString)) {
     if (colorString.length === 4) return colorString as [number, number, number, number];
     if (colorString.length === 3) return [...colorString, 1];
-    return getShaderColorFromString(fallback);
+    return fallbackColor;
   }
 
   // If the color string is not a string, return the fallback
   if (typeof colorString !== 'string') {
-    return getShaderColorFromString(fallback);
+    return fallbackColor;
   }
 
   let r: number,
@@ -27,7 +26,7 @@ export function getShaderColorFromString(
     [r, g, b, a] = hslaToRgba(parseHsla(colorString));
   } else {
     console.error('Unsupported color format', colorString);
-    return getShaderColorFromString(fallback);
+    return fallbackColor;
   }
 
   return [clamp(r, 0, 1), clamp(g, 0, 1), clamp(b, 0, 1), clamp(a, 0, 1)];
@@ -117,3 +116,5 @@ function hslaToRgba(hsla: [number, number, number, number]): [number, number, nu
 }
 
 export const clamp = (n: number, min: number, max: number): number => Math.min(Math.max(n, min), max);
+
+const fallbackColor = [0, 0, 0, 1] as [0, 0, 0, 1];

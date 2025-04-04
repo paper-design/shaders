@@ -1,17 +1,18 @@
-import { useMemo } from 'react';
-import { ShaderMount, type GlobalParams, type ShaderMountProps } from '../shader-mount';
-import { getShaderColorFromString, neuroNoiseFragmentShader, type NeuroNoiseUniforms } from '@paper-design/shaders';
+import { memo } from 'react';
+import { ShaderMount, type ShaderComponentProps } from '../shader-mount';
+import {
+  defaultPatternSizing,
+  getShaderColorFromString,
+  neuroNoiseFragmentShader,
+  ShaderFitOptions,
+  type NeuroNoiseParams,
+  type NeuroNoiseUniforms,
+  type ShaderPreset,
+} from '@paper-design/shaders';
 
-export type NeuroNoiseParams = {
-  scale?: number;
-  colorFront?: string;
-  colorBack?: string;
-  brightness?: number;
-} & GlobalParams;
+export interface NeuroNoiseProps extends ShaderComponentProps, NeuroNoiseParams {}
 
-export type NeuroNoiseProps = Omit<ShaderMountProps, 'fragmentShader'> & NeuroNoiseParams;
-
-type NeuroNoisePreset = { name: string; params: Required<NeuroNoiseParams> };
+type NeuroNoisePreset = ShaderPreset<NeuroNoiseParams>;
 
 // Due to Leva controls limitation:
 // 1) keep default colors in HSLA format to keep alpha channel
@@ -20,7 +21,7 @@ type NeuroNoisePreset = { name: string; params: Required<NeuroNoiseParams> };
 export const defaultPreset: NeuroNoisePreset = {
   name: 'Default',
   params: {
-    scale: 1,
+    ...defaultPatternSizing,
     speed: 1,
     frame: 0,
     colorFront: 'hsla(261, 100%, 82%, 1)',
@@ -32,6 +33,7 @@ export const defaultPreset: NeuroNoisePreset = {
 const marblePreset: NeuroNoisePreset = {
   name: 'Marble',
   params: {
+    ...defaultPatternSizing,
     scale: 0.4,
     speed: 0,
     frame: 0,
@@ -43,21 +45,45 @@ const marblePreset: NeuroNoisePreset = {
 
 export const neuroNoisePresets: NeuroNoisePreset[] = [defaultPreset, marblePreset] as const;
 
-export const NeuroNoise = ({
-  scale,
-  colorFront,
-  colorBack,
-  brightness,
-  ...props
-}: NeuroNoiseProps): React.ReactElement => {
-  const uniforms: NeuroNoiseUniforms = useMemo(() => {
-    return {
-      u_scale: scale ?? defaultPreset.params.scale,
-      u_colorFront: getShaderColorFromString(colorFront, defaultPreset.params.colorFront),
-      u_colorBack: getShaderColorFromString(colorBack, defaultPreset.params.colorBack),
-      u_brightness: brightness ?? defaultPreset.params.brightness,
-    };
-  }, [scale, colorFront, colorBack, brightness]);
+export const NeuroNoise: React.FC<NeuroNoiseProps> = memo(function NeuroNoiseImpl({
+  // Own props
+  speed = defaultPreset.params.speed,
+  frame = defaultPreset.params.frame,
+  colorFront = defaultPreset.params.colorFront,
+  colorBack = defaultPreset.params.colorBack,
+  brightness = defaultPreset.params.brightness,
 
-  return <ShaderMount {...props} fragmentShader={neuroNoiseFragmentShader} uniforms={uniforms} />;
-};
+  // Sizing props
+  fit = defaultPreset.params.fit,
+  scale = defaultPreset.params.scale,
+  rotation = defaultPreset.params.rotation,
+  originX = defaultPreset.params.originX,
+  originY = defaultPreset.params.originY,
+  offsetX = defaultPreset.params.offsetX,
+  offsetY = defaultPreset.params.offsetY,
+  worldWidth = defaultPreset.params.worldWidth,
+  worldHeight = defaultPreset.params.worldHeight,
+  ...props
+}) {
+  const uniforms = {
+    // Own uniforms
+    u_colorFront: getShaderColorFromString(colorFront),
+    u_colorBack: getShaderColorFromString(colorBack),
+    u_brightness: brightness,
+
+    // Sizing uniforms
+    u_fit: ShaderFitOptions[fit],
+    u_scale: scale,
+    u_rotation: rotation,
+    u_offsetX: offsetX,
+    u_offsetY: offsetY,
+    u_originX: originX,
+    u_originY: originY,
+    u_worldWidth: worldWidth,
+    u_worldHeight: worldHeight,
+  } satisfies NeuroNoiseUniforms;
+
+  return (
+    <ShaderMount {...props} speed={speed} frame={frame} fragmentShader={neuroNoiseFragmentShader} uniforms={uniforms} />
+  );
+});

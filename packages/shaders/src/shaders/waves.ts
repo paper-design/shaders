@@ -1,22 +1,15 @@
-export type WavesUniforms = {
-  u_scale: number;
-  u_rotation: number;
-  u_color1: [number, number, number, number];
-  u_color2: [number, number, number, number];
-  u_shape: number;
-  u_frequency: number;
-  u_amplitude: number;
-  u_spacing: number;
-  u_dutyCycle: number;
-  u_softness: number;
-};
+import {
+  sizingUniformsDeclaration,
+  sizingPatternUV,
+  type ShaderSizingParams,
+  type ShaderSizingUniforms,
+} from '../shader-sizing';
+import { declarePI, declareRotate } from '../shader-utils';
 
 /**
  * Waves static pattern on the transparent background
  *
  * Uniforms include:
- * u_scale - the scale applied to user space
- * u_rotation - the rotation applied to user space
  * u_color1 - the first color
  * u_color2 - the second color
  * u_shape (0 ... 3) - the line shaping coefficient, non-integer
@@ -31,15 +24,13 @@ export type WavesUniforms = {
  * u_dutyCycle (0 ... 1) - the proportion of stroke width to the pattern step
  * u_softness (0 ... 1) - the blur applied to the lines edges
  */
-
-export const wavesFragmentShader = `#version 300 es
+export const wavesFragmentShader: string = `#version 300 es
 precision highp float;
 
-uniform float u_pixelRatio;
 uniform vec2 u_resolution;
+uniform float u_pixelRatio;
 
-uniform float u_scale;
-uniform float u_rotation;
+${sizingUniformsDeclaration}
 
 uniform vec4 u_color1;
 uniform vec4 u_color2;
@@ -50,23 +41,15 @@ uniform float u_spacing;
 uniform float u_dutyCycle;
 uniform float u_softness;
 
-#define TWO_PI 6.28318530718
-#define PI 3.14159265358979323846
-
 out vec4 fragColor;
 
-vec2 rotate(vec2 uv, float th) {
-  return mat2(cos(th), sin(th), -sin(th), cos(th)) * uv;
-}
+${declarePI}
+${declareRotate}
 
 void main() {
-  vec2 uv = gl_FragCoord.xy / u_resolution.xy;
 
-  uv -= .5;
-  uv *= (.02 * max(0., u_scale) * u_resolution);
-  uv = rotate(uv, u_rotation * .5 * PI);
-  uv /= u_pixelRatio;
-  uv += .5;
+  ${sizingPatternUV}
+  uv *= .05;
 
   float wave = .5 * cos(uv.x * u_frequency * TWO_PI);
   float zigzag = 2. * abs(fract(uv.x * u_frequency) - .5);
@@ -92,3 +75,26 @@ void main() {
   fragColor = vec4(color, opacity);
 }
 `;
+
+export interface WavesUniforms extends ShaderSizingUniforms {
+  u_color1: [number, number, number, number];
+  u_color2: [number, number, number, number];
+  u_shape: number;
+  u_frequency: number;
+  u_amplitude: number;
+  u_spacing: number;
+  u_dutyCycle: number;
+  u_softness: number;
+}
+
+export interface WavesParams extends ShaderSizingParams {
+  color1?: string;
+  color2?: string;
+  rotation?: number;
+  shape?: number;
+  frequency?: number;
+  amplitude?: number;
+  spacing?: number;
+  dutyCycle?: number;
+  softness?: number;
+}

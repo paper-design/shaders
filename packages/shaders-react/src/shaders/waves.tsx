@@ -1,23 +1,18 @@
-import { useMemo } from 'react';
-import { ShaderMount, type ShaderMountProps } from '../shader-mount';
-import { getShaderColorFromString, wavesFragmentShader, type WavesUniforms } from '@paper-design/shaders';
+import { memo } from 'react';
+import { ShaderMount, type ShaderComponentProps } from '../shader-mount';
+import {
+  defaultPatternSizing,
+  getShaderColorFromString,
+  wavesFragmentShader,
+  ShaderFitOptions,
+  type WavesParams,
+  type WavesUniforms,
+  type ShaderPreset,
+} from '@paper-design/shaders';
 
-export type WavesParams = {
-  scale?: number;
-  rotation?: number;
-  color1?: string;
-  color2?: string;
-  shape?: number;
-  frequency?: number;
-  amplitude?: number;
-  spacing?: number;
-  dutyCycle?: number;
-  softness?: number;
-};
+export interface WavesProps extends ShaderComponentProps, WavesParams {}
 
-export type WavesProps = Omit<ShaderMountProps, 'fragmentShader'> & WavesParams;
-
-type WavesPreset = { name: string; params: Required<WavesParams> };
+type WavesPreset = ShaderPreset<WavesParams>;
 
 // Due to Leva controls limitation:
 // 1) keep default colors in HSLA format to keep alpha channel
@@ -26,6 +21,7 @@ type WavesPreset = { name: string; params: Required<WavesParams> };
 export const defaultPreset: WavesPreset = {
   name: 'Default',
   params: {
+    ...defaultPatternSizing,
     scale: 1.6,
     rotation: 0,
     color1: 'hsla(0, 0%, 100%, 1)',
@@ -42,7 +38,8 @@ export const defaultPreset: WavesPreset = {
 export const spikesPreset: WavesPreset = {
   name: 'Spikes',
   params: {
-    scale: 2.3,
+    ...defaultPatternSizing,
+    scale: 1 / 2.3,
     rotation: 0,
     color1: 'hsla(65, 100%, 95%, 1)',
     color2: 'hsla(290, 52%, 15%, 1)',
@@ -58,7 +55,8 @@ export const spikesPreset: WavesPreset = {
 export const groovyPreset: WavesPreset = {
   name: 'Groovy',
   params: {
-    scale: 0.5,
+    ...defaultPatternSizing,
+    scale: 1 / 0.5,
     rotation: 1,
     color1: 'hsla(60, 100%, 97%, 1)',
     color2: 'hsla(20, 100%, 71%, 1)',
@@ -74,7 +72,8 @@ export const groovyPreset: WavesPreset = {
 export const tangledUpPreset: WavesPreset = {
   name: 'Tangled up',
   params: {
-    scale: 3.04,
+    ...defaultPatternSizing,
+    scale: 1 / 3.04,
     rotation: 1,
     color1: 'hsla(198.7, 66.7%, 14.1%, 1)',
     color2: 'hsla(85.5, 35.7%, 78%, 1)',
@@ -90,7 +89,8 @@ export const tangledUpPreset: WavesPreset = {
 export const zigZagPreset: WavesPreset = {
   name: 'Zig zag',
   params: {
-    scale: 2.7,
+    ...defaultPatternSizing,
+    scale: 1 / 2.7,
     rotation: 1,
     color1: 'hsla(0, 0%, 0%, 1)',
     color2: 'hsla(0, 0%, 90%, 1)',
@@ -106,7 +106,8 @@ export const zigZagPreset: WavesPreset = {
 export const waveRidePreset: WavesPreset = {
   name: 'Ride the wave',
   params: {
-    scale: 0.84,
+    ...defaultPatternSizing,
+    scale: 1 / 0.84,
     rotation: 0,
     color1: 'hsla(65, 100%, 95%, 1)',
     color2: 'hsla(0, 0%, 12%, 1)',
@@ -128,34 +129,54 @@ export const wavesPresets: WavesPreset[] = [
   waveRidePreset,
 ];
 
-export const Waves = ({
-  scale,
-  rotation,
-  color1,
-  color2,
-  shape,
-  frequency,
-  amplitude,
-  spacing,
-  dutyCycle,
-  softness,
+export const Waves: React.FC<WavesProps> = memo(function WavesImpl({
+  // Own props
+  color1 = defaultPreset.params.color1,
+  color2 = defaultPreset.params.color2,
+  shape = defaultPreset.params.shape,
+  frequency = defaultPreset.params.frequency,
+  amplitude = defaultPreset.params.amplitude,
+  spacing = defaultPreset.params.spacing,
+  dutyCycle = defaultPreset.params.dutyCycle,
+  softness = defaultPreset.params.softness,
+
+  // Sizing props
+  fit = defaultPreset.params.fit,
+  scale = defaultPreset.params.scale,
+  rotation = defaultPreset.params.rotation,
+  offsetX = defaultPreset.params.offsetX,
+  offsetY = defaultPreset.params.offsetY,
+  originX = defaultPreset.params.originX,
+  originY = defaultPreset.params.originY,
+  worldWidth = defaultPreset.params.worldWidth,
+  worldHeight = defaultPreset.params.worldHeight,
+
+  // Other props
   maxPixelCount = 6016 * 3384, // Higher max resolution for this shader
   ...props
-}: WavesProps): React.ReactElement => {
-  const uniforms: WavesUniforms = useMemo(() => {
-    return {
-      u_scale: scale ?? defaultPreset.params.scale,
-      u_rotation: rotation ?? defaultPreset.params.rotation,
-      u_color1: getShaderColorFromString(color1, defaultPreset.params.color1),
-      u_color2: getShaderColorFromString(color2, defaultPreset.params.color2),
-      u_shape: shape ?? defaultPreset.params.shape,
-      u_frequency: frequency ?? defaultPreset.params.frequency,
-      u_amplitude: amplitude ?? defaultPreset.params.amplitude,
-      u_spacing: spacing ?? defaultPreset.params.spacing,
-      u_dutyCycle: dutyCycle ?? defaultPreset.params.dutyCycle,
-      u_softness: softness ?? defaultPreset.params.softness,
-    };
-  }, [scale, rotation, color1, color2, shape, frequency, amplitude, spacing, dutyCycle, softness]);
+}) {
+  const uniforms = {
+    // Own uniforms
+    u_color1: getShaderColorFromString(color1),
+    u_color2: getShaderColorFromString(color2),
+    u_shape: shape,
+    u_frequency: frequency,
+    u_amplitude: amplitude,
+    u_spacing: spacing,
+    u_dutyCycle: dutyCycle,
+    u_softness: softness,
+
+    // Sizing uniforms
+    u_fit: ShaderFitOptions[fit],
+    u_scale: scale,
+    u_rotation: rotation,
+    u_offsetX: offsetX,
+    u_offsetY: offsetY,
+    u_originX: originX,
+    u_originY: originY,
+    u_worldWidth: worldWidth,
+    u_worldHeight: worldHeight,
+  } satisfies WavesUniforms;
 
   return <ShaderMount {...props} fragmentShader={wavesFragmentShader} uniforms={uniforms} />;
-};
+});
