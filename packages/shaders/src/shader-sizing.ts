@@ -30,18 +30,39 @@ export const sizingSquareUV = `
   float imageHeight = imageWidth / worldRatio;
 
   vec2 world = vec2(imageWidth, imageHeight);
-  vec2 origin = vec2(.5 - u_originX, u_originY - .5);
-  vec2 scale = u_resolution.xy / world;
+  vec2 worldOrigin = vec2(.5 - u_originX, u_originY - .5);
+  vec2 worldScale = u_resolution.xy / world;
 
+  vec2 worldBox = gl_FragCoord.xy / u_resolution.xy;
+  worldBox -= .5;
+  worldBox *= worldScale;
+  worldBox += worldOrigin * (worldScale - 1.);  
+  
   vec2 uv = gl_FragCoord.xy / u_resolution.xy;
   uv -= .5;
-  uv *= scale;
-  uv += origin * (scale - 1.);
-  uv /= u_scale;
-  uv += .5;
+  uv *= worldScale;
+  uv += worldOrigin * (worldScale - 1.);
 
-  vec2 worldBox = uv;
+  // uv += worldOrigin;
+  uv /= u_scale;
+  float rotationRad = u_rotation * 3.14159265358979323846 / 180.;
+  uv = mat2(cos(rotationRad), sin(rotationRad), -sin(rotationRad), cos(rotationRad)) * uv;
+  // uv -= worldOrigin;
+
+  uv += .5;
   uv += vec2(-u_offsetX, u_offsetY);
+
+  
+  // vec2 uv = gl_FragCoord.xy / u_resolution.xy;
+  // uv -= .5;
+  // uv += worldOrigin;
+  // uv *= worldScale;
+  // uv /= u_scale;
+  // float rotationRad = u_rotation * 3.14159265358979323846 / 180.;
+  // uv = mat2(cos(rotationRad), sin(rotationRad), -sin(rotationRad), cos(rotationRad)) * uv;
+  // uv -= worldOrigin;
+  // uv += .5;
+  // uv += vec2(-u_offsetX, u_offsetY);
 `;
 
 export const sizingPatternUV = `
@@ -65,32 +86,57 @@ export const sizingPatternUV = `
   float imageHeight = imageWidth / worldRatio;
 
   vec2 world = vec2(imageWidth, imageHeight);
-  vec2 origin = vec2(.5 - u_originX, u_originY - .5);
-  vec2 scale = u_resolution.xy / world;
+  vec2 worldOrigin = vec2(.5 - u_originX, u_originY - .5);
+  vec2 worldScale = u_resolution.xy / world;
 
   vec2 worldBox = gl_FragCoord.xy / u_resolution.xy;
   worldBox -= .5;
-  worldBox *= scale;
-  worldBox += origin * (scale - 1.);
-  worldBox /= u_scale;
-  worldBox += .5;
+  worldBox *= worldScale;
+  worldBox += worldOrigin * (worldScale - 1.);
 
   vec2 uv = gl_FragCoord.xy / u_resolution.xy;
   uv -= .5;
-  uv += vec2(-u_offsetX, u_offsetY) / scale;
-
-  uv += origin * (1. - 1. / scale);
-  uv /= u_scale;
+  uv += vec2(-u_offsetX, u_offsetY) / worldScale;
+  uv += worldOrigin;
+  uv -= worldOrigin / worldScale;
+  
   uv *= u_resolution.xy;
   uv /= u_pixelRatio;
+  
   if (u_fit > 0.) {
     uv *= (imageWidthCrop / imageWidth);
   }
+  
+  // uv /= u_scale;
+  // float rotationRad = u_rotation * 3.14159265358979323846 / 180.;
+  // uv = mat2(cos(rotationRad), sin(rotationRad), -sin(rotationRad), cos(rotationRad)) * uv;
+    
+  uv += worldOrigin / worldScale;
+  uv -= worldOrigin;
+  uv -= vec2(-u_offsetX, u_offsetY) / worldScale;
+  uv += .5;
+
+  // vec2 localOrigin = -worldOrigin * vec2(u_worldWidth, u_worldHeight);
+  // uv -= localOrigin;
+  // uv /= u_scale;
+  // float rotationRad = u_rotation * 3.14159265358979323846 / 180.;
+  // uv = mat2(cos(rotationRad), sin(rotationRad), -sin(rotationRad), cos(rotationRad)) * uv;
+  // uv += localOrigin;
 `;
 
 export const worldBoxTestStroke = `
-  vec2 worldBoxDist = abs(worldBox - .5);
-  float worldBoxTestStroke = (step(max(worldBoxDist.x, worldBoxDist.y), .5) - step(max(worldBoxDist.x, worldBoxDist.y), .495));
+  vec2 worldBoxDist = abs(worldBox);
+  float worldBoxTestStroke = (step(max(worldBoxDist.x, worldBoxDist.y), .5) - step(max(worldBoxDist.x, worldBoxDist.y), .49));
+`;
+
+export const worldOriginTestPoint = `
+  vec2 worldOriginTestPointDist = worldBox + worldOrigin;
+  worldOriginTestPointDist.x *= (world.x / world.y);
+  float worldOriginTestPoint = 1. - smoothstep(0., .05, length(worldOriginTestPointDist));
+  
+  vec2 worldOriginPointDist = worldBox;
+  worldOriginPointDist.x *= (world.x / world.y);
+  float worldOriginPoint = 1. - smoothstep(0., .05, length(worldOriginPointDist));
 `;
 
 export interface ShaderSizingUniforms {

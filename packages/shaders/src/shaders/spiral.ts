@@ -2,6 +2,8 @@ import type { ShaderMotionParams } from '../shader-mount';
 import {
   sizingUniformsDeclaration,
   sizingPatternUV,
+  worldBoxTestStroke,
+  worldOriginTestPoint,
   type ShaderSizingParams,
   type ShaderSizingUniforms,
 } from '../shader-sizing';
@@ -48,6 +50,9 @@ uniform float u_noiseFreq;
 uniform float u_noisePower;
 uniform float u_softness;
 
+uniform float u_testOriginX;
+uniform float u_testOriginY;
+
 #define TWO_PI 6.28318530718
 #define PI 3.14159265358979323846
 
@@ -58,9 +63,18 @@ ${declareSimplexNoise}
 
 void main() {
   ${sizingPatternUV}
+  
+  vec2 testOrigin = vec2(.5 - u_testOriginX, u_testOriginY - .5);
+  vec2 localOrigin = -testOrigin * vec2(u_worldWidth, u_worldHeight);;
+  uv -= localOrigin;
+  uv /= u_scale;
+  float rotationRad = u_rotation * 3.14159265358979323846 / 180.;
+  uv = mat2(cos(rotationRad), sin(rotationRad), -sin(rotationRad), cos(rotationRad)) * uv;
+  uv += localOrigin;
+  
   uv *= .02;
 
-  float t = u_time;
+  float t = 0. * u_time;
 
   float l = length(uv);
   float angle = atan(uv.y, uv.x) - 2. * t;
@@ -92,6 +106,20 @@ void main() {
   vec3 color = mix(u_color1.rgb * u_color1.a, u_color2.rgb * u_color2.a, shape);
   float opacity = mix(u_color1.a, u_color2.a, shape);
 
+  
+  ${worldBoxTestStroke}
+  ${worldOriginTestPoint}
+
+  color = mix(color, vec3(.9, .2, 0.), worldBoxTestStroke);
+  color = mix(color, vec3(0., .2, .9), worldOriginTestPoint);
+  color = mix(color, vec3(0., .9, .2), worldOriginPoint);
+
+  vec2 testtestDist = worldBox + testOrigin;
+  testtestDist.x *= (world.x / world.y);
+
+  float testPoint = 1. - smoothstep(0., .05, length(testtestDist));
+  color = mix(color, vec3(.8, .5, .2), testPoint);
+
   fragColor = vec4(color, opacity);
 }
 `;
@@ -107,6 +135,8 @@ export interface SpiralUniforms extends ShaderSizingUniforms {
   u_noiseFreq: number;
   u_noisePower: number;
   u_softness: number;
+  u_testOriginX: number;
+  u_testOriginY: number;
 }
 
 export interface SpiralParams extends ShaderSizingParams, ShaderMotionParams {
@@ -120,4 +150,6 @@ export interface SpiralParams extends ShaderSizingParams, ShaderMotionParams {
   noiseFreq?: number;
   noisePower?: number;
   softness?: number;
+  testOriginX?: number;
+  testOriginY?: number;
 }

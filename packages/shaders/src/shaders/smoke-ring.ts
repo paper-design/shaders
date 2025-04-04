@@ -2,6 +2,8 @@ import type { ShaderMotionParams } from '../shader-mount';
 import {
   sizingUniformsDeclaration,
   sizingSquareUV,
+  worldBoxTestStroke,
+  worldOriginTestPoint,
   type ShaderSizingParams,
   type ShaderSizingUniforms,
 } from '../shader-sizing';
@@ -125,6 +127,13 @@ void main() {
 
   color += u_colorBack.rgb * ringShapeInner * (1. - u_colorInner.a) * background;
   color += u_colorBack.rgb * ringShapeOuter * (1. - u_colorOuter.a) * background;
+  
+  ${worldBoxTestStroke}
+  ${worldOriginTestPoint}
+    
+  color = mix(color, vec3(.9, .2, 0.), worldBoxTestStroke);
+  color = mix(color, vec3(0., .2, .9), worldOriginTestPoint);
+  color = mix(color, vec3(0., .9, .2), worldOriginPoint);
 
   fragColor = vec4(color, opacity);
 }

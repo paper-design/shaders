@@ -65,12 +65,23 @@ const SpiralWithControls = () => {
           speed: { value: defaults.speed, min: 0, max: 2, order: 400 },
           reverse: { value: defaults.reverse, order: 401 },
         },
-        { order: 1 }
+        { order: 1, collapsed: true }
+      ),
+      Test: folder(
+        {
+          testOriginX: { value: defaults.testOriginX, min: -1, max: 1, order: 400 },
+          testOriginY: { value: defaults.testOriginY, min: -1, max: 1, order: 401 },
+        },
+        {
+          order: 2,
+          collapsed: false,
+        }
       ),
       Size: folder(
         {
           fit: { value: defaults.fit, options: Object.keys(ShaderFitOptions) as ShaderFit[], order: 400 },
           scale: { value: defaults.scale, min: 0.01, max: 4, order: 401 },
+          rotation: { value: defaults.rotation, min: 0, max: 360, order: 402 },
           worldWidth: { value: 1000, min: 1, max: 5120, order: 406 },
           worldHeight: { value: 500, min: 1, max: 5120, order: 407 },
         },
@@ -83,12 +94,12 @@ const SpiralWithControls = () => {
         {
           originX: { value: defaults.originX, min: 0, max: 1, order: 402 },
           originY: { value: defaults.originY, min: 0, max: 1, order: 403 },
-          offsetX: { value: defaults.offsetX, min: -2, max: 2, order: 404 },
-          offsetY: { value: defaults.offsetY, min: -2, max: 2, order: 405 },
+          offsetX: { value: defaults.offsetX, min: -0.5, max: 0.5, order: 404 },
+          offsetY: { value: defaults.offsetY, min: -0.5, max: 0.5, order: 405 },
         },
         {
           order: 3,
-          collapsed: true,
+          collapsed: false,
         }
       ),
     };

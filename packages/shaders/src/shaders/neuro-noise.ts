@@ -2,6 +2,8 @@ import type { ShaderMotionParams } from '../shader-mount';
 import {
   sizingUniformsDeclaration,
   sizingPatternUV,
+  worldBoxTestStroke,
+  worldOriginTestPoint,
   type ShaderSizingParams,
   type ShaderSizingUniforms,
 } from '../shader-sizing';
@@ -53,9 +55,9 @@ float neuro_shape(vec2 uv, float t) {
 void main() {
 
   ${sizingPatternUV}
-  uv *= .001;
+  uv *= .005;
 
-  float t = u_time;
+  float t = 0. * u_time;
 
   float noise = neuro_shape(uv, t);
 
@@ -65,6 +67,13 @@ void main() {
 
   vec3 color = mix(u_colorBack.rgb * u_colorBack.a, u_colorFront.rgb * u_colorFront.a, noise);
   float opacity = mix(u_colorBack.a, u_colorFront.a, noise);
+  
+  ${worldBoxTestStroke}
+  ${worldOriginTestPoint}
+    
+  color.r += worldBoxTestStroke;
+  color.g += worldOriginTestPoint;
+  color.b += worldOriginPoint;
 
   fragColor = vec4(color, opacity);
 }
