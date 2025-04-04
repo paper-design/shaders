@@ -65,17 +65,7 @@ const SpiralWithControls = () => {
           speed: { value: defaults.speed, min: 0, max: 2, order: 400 },
           reverse: { value: defaults.reverse, order: 401 },
         },
-        { order: 1, collapsed: true }
-      ),
-      Test: folder(
-        {
-          testOriginX: { value: defaults.testOriginX, min: -1, max: 1, order: 400 },
-          testOriginY: { value: defaults.testOriginY, min: -1, max: 1, order: 401 },
-        },
-        {
-          order: 2,
-          collapsed: false,
-        }
+        { order: 1 }
       ),
       Size: folder(
         {

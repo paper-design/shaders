@@ -34,9 +34,6 @@ export const defaultPreset: SpiralPreset = {
     softness: 0.01,
     speed: 1,
     frame: 0,
-
-    testOriginX: .5,
-    testOriginY: .5,
   },
 };
 
@@ -57,9 +54,6 @@ export const noisyPreset: SpiralPreset = {
     softness: 0,
     speed: 1,
     frame: 0,
-
-    testOriginX: .5,
-    testOriginY: .5,
   },
 };
 
@@ -80,9 +74,6 @@ export const dropletPreset: SpiralPreset = {
     softness: 0,
     speed: 1,
     frame: 0,
-
-    testOriginX: .5,
-    testOriginY: .5,
   },
 };
 
@@ -103,9 +94,6 @@ export const sandPreset: SpiralPreset = {
     softness: 0.2,
     speed: 0,
     frame: 0,
-
-    testOriginX: .5,
-    testOriginY: .5,
   },
 };
 
@@ -126,9 +114,6 @@ export const swirlPreset: SpiralPreset = {
     softness: 0.5,
     speed: 1,
     frame: 0,
-
-    testOriginX: .5,
-    testOriginY: .5,
   },
 };
 
@@ -149,9 +134,6 @@ export const hookPreset: SpiralPreset = {
     softness: 0.02,
     speed: 3,
     frame: 0,
-
-    testOriginX: .5,
-    testOriginY: .5,
   },
 };
 
@@ -171,9 +153,6 @@ export const vinylPreset: SpiralPreset = {
     softness: 0.11,
     speed: 1,
     frame: 0,
-
-    testOriginX: .5,
-    testOriginY: .5,
   },
 };
 
@@ -201,9 +180,6 @@ export const Spiral: React.FC<SpiralProps> = memo(function SpiralImpl({
   noiseFreq = defaultPreset.params.noiseFreq,
   noisePower = defaultPreset.params.noisePower,
   softness = defaultPreset.params.softness,
-  testOriginX = defaultPreset.params.testOriginX,
-  testOriginY = defaultPreset.params.testOriginY,
-
 
   // Sizing props
   fit = defaultPreset.params.fit,
@@ -229,8 +205,6 @@ export const Spiral: React.FC<SpiralProps> = memo(function SpiralImpl({
     u_noiseFreq: noiseFreq,
     u_noisePower: noisePower,
     u_softness: softness,
-    u_testOriginX: testOriginX,
-    u_testOriginY: testOriginY,
 
     // Sizing uniforms
     u_fit: ShaderFitOptions[fit],

@@ -3,7 +3,7 @@ import {
   sizingUniformsDeclaration,
   sizingSquareUV,
   worldBoxTestStroke,
-  worldOriginTestPoint,
+  viewPortTestOriginPoint,
   type ShaderSizingParams,
   type ShaderSizingUniforms,
 } from '../shader-sizing';
@@ -89,7 +89,7 @@ float getRingShape(vec2 uv, float thickness) {
 
 void main() {
   ${sizingSquareUV}
-  uv -= .5;
+  // uv -= .5;
 
   float t = u_time;
 
@@ -129,11 +129,11 @@ void main() {
   color += u_colorBack.rgb * ringShapeOuter * (1. - u_colorOuter.a) * background;
   
   ${worldBoxTestStroke}
-  ${worldOriginTestPoint}
+  ${viewPortTestOriginPoint}
     
   color = mix(color, vec3(.9, .2, 0.), worldBoxTestStroke);
-  color = mix(color, vec3(0., .2, .9), worldOriginTestPoint);
-  color = mix(color, vec3(0., .9, .2), worldOriginPoint);
+  color = mix(color, vec3(0., .2, .9), viewPortTestOriginPoint);
+  color = mix(color, vec3(0., .9, .2), worldTestOriginPoint);
 
   fragColor = vec4(color, opacity);
 }

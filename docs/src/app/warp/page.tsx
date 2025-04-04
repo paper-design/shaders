@@ -71,6 +71,7 @@ const WarpWithControls = () => {
         {
           fit: { value: defaults.fit, options: Object.keys(ShaderFitOptions) as ShaderFit[], order: 400 },
           scale: { value: defaults.scale, min: 0.01, max: 4, order: 401 },
+          rotation: { value: defaults.rotation, min: 0, max: 360, order: 402 },
           worldWidth: { value: 1000, min: 1, max: 5120, order: 406 },
           worldHeight: { value: 500, min: 1, max: 5120, order: 407 },
         },
@@ -83,8 +84,8 @@ const WarpWithControls = () => {
         {
           originX: { value: defaults.originX, min: 0, max: 1, order: 402 },
           originY: { value: defaults.originY, min: 0, max: 1, order: 403 },
-          offsetX: { value: defaults.offsetX, min: -2, max: 2, order: 404 },
-          offsetY: { value: defaults.offsetY, min: -2, max: 2, order: 405 },
+          offsetX: { value: defaults.offsetX, min: -1, max: 1, order: 404 },
+          offsetY: { value: defaults.offsetY, min: -1, max: 1, order: 405 },
         },
         {
           order: 3,

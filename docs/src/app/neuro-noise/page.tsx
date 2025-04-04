@@ -68,8 +68,8 @@ const NeuroNoiseWithControls = () => {
         {
           originX: { value: defaults.originX, min: 0, max: 1, order: 402 },
           originY: { value: defaults.originY, min: 0, max: 1, order: 403 },
-          offsetX: { value: defaults.offsetX, min: -2, max: 2, order: 404 },
-          offsetY: { value: defaults.offsetY, min: -2, max: 2, order: 405 },
+          offsetX: { value: defaults.offsetX, min: -1, max: 1, order: 404 },
+          offsetY: { value: defaults.offsetY, min: -1, max: 1, order: 405 },
         },
         {
           order: 3,

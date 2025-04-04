@@ -43,26 +43,10 @@ export const sizingSquareUV = `
   uv *= worldScale;
   uv += worldOrigin * (worldScale - 1.);
 
-  // uv += worldOrigin;
+  uv += vec2(-u_offsetX, u_offsetY);
   uv /= u_scale;
   float rotationRad = u_rotation * 3.14159265358979323846 / 180.;
   uv = mat2(cos(rotationRad), sin(rotationRad), -sin(rotationRad), cos(rotationRad)) * uv;
-  // uv -= worldOrigin;
-
-  uv += .5;
-  uv += vec2(-u_offsetX, u_offsetY);
-
-  
-  // vec2 uv = gl_FragCoord.xy / u_resolution.xy;
-  // uv -= .5;
-  // uv += worldOrigin;
-  // uv *= worldScale;
-  // uv /= u_scale;
-  // float rotationRad = u_rotation * 3.14159265358979323846 / 180.;
-  // uv = mat2(cos(rotationRad), sin(rotationRad), -sin(rotationRad), cos(rotationRad)) * uv;
-  // uv -= worldOrigin;
-  // uv += .5;
-  // uv += vec2(-u_offsetX, u_offsetY);
 `;
 
 export const sizingPatternUV = `
@@ -110,18 +94,9 @@ export const sizingPatternUV = `
   uv /= u_scale;
   float rotationRad = u_rotation * 3.14159265358979323846 / 180.;
   uv = mat2(cos(rotationRad), sin(rotationRad), -sin(rotationRad), cos(rotationRad)) * uv;
-    
   uv += worldOrigin / worldScale;
   uv -= worldOrigin;
-  uv -= vec2(-u_offsetX, u_offsetY) / worldScale;
   uv += .5;
-
-  // vec2 localOrigin = -worldOrigin * vec2(u_worldWidth, u_worldHeight);
-  // uv -= localOrigin;
-  // uv /= u_scale;
-  // float rotationRad = u_rotation * 3.14159265358979323846 / 180.;
-  // uv = mat2(cos(rotationRad), sin(rotationRad), -sin(rotationRad), cos(rotationRad)) * uv;
-  // uv += localOrigin;
 `;
 
 export const worldBoxTestStroke = `
@@ -129,14 +104,14 @@ export const worldBoxTestStroke = `
   float worldBoxTestStroke = (step(max(worldBoxDist.x, worldBoxDist.y), .5) - step(max(worldBoxDist.x, worldBoxDist.y), .49));
 `;
 
-export const worldOriginTestPoint = `
-  vec2 worldOriginTestPointDist = worldBox + worldOrigin;
-  worldOriginTestPointDist.x *= (world.x / world.y);
-  float worldOriginTestPoint = 1. - smoothstep(0., .05, length(worldOriginTestPointDist));
+export const viewPortTestOriginPoint = `
+  vec2 viewPortTestOriginDist = worldBox + worldOrigin;
+  viewPortTestOriginDist.x *= (world.x / world.y);
+  float viewPortTestOriginPoint = 1. - smoothstep(0., .05, length(viewPortTestOriginDist));
   
-  vec2 worldOriginPointDist = worldBox;
-  worldOriginPointDist.x *= (world.x / world.y);
-  float worldOriginPoint = 1. - smoothstep(0., .05, length(worldOriginPointDist));
+  vec2 worldTestOriginPointDist = worldBox + vec2(-u_offsetX, u_offsetY);
+  worldTestOriginPointDist.x *= (world.x / world.y);
+  float worldTestOriginPoint = 1. - smoothstep(0., .05, length(worldTestOriginPointDist));
 `;
 
 export interface ShaderSizingUniforms {

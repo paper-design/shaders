@@ -58,6 +58,8 @@ float get_ball_shape(vec2 uv, vec2 c, float p) {
 
 void main() {
   ${sizingSquareUV}
+  
+  uv += .5;
 
   float t = u_time + 1.;
 
