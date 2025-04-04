@@ -55,7 +55,6 @@ const WarpWithControls = () => {
           color1: { value: defaults.color1, order: 100 },
           color2: { value: defaults.color2, order: 101 },
           color3: { value: defaults.color3, order: 102 },
-          rotation: { value: defaults.rotation, min: 0, max: 2, order: 201 },
           proportion: { value: defaults.proportion, min: 0, max: 1, order: 300 },
           softness: { value: defaults.softness, min: 0, max: 1, order: 301 },
           distortion: { value: defaults.distortion, min: 0, max: 1, order: 302 },
