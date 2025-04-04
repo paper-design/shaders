@@ -64,13 +64,13 @@ ${declareSimplexNoise}
 void main() {
   ${sizingPatternUV}
   
-  vec2 testOrigin = vec2(.5 - u_testOriginX, u_testOriginY - .5);
-  vec2 localOrigin = -testOrigin * vec2(u_worldWidth, u_worldHeight);;
-  uv -= localOrigin;
-  uv /= u_scale;
-  float rotationRad = u_rotation * 3.14159265358979323846 / 180.;
-  uv = mat2(cos(rotationRad), sin(rotationRad), -sin(rotationRad), cos(rotationRad)) * uv;
-  uv += localOrigin;
+  // vec2 testOrigin = vec2(.5 - u_testOriginX, u_testOriginY - .5);
+  // vec2 localOrigin = -testOrigin * vec2(u_worldWidth, u_worldHeight);;
+  // uv -= localOrigin;
+  // uv /= u_scale;
+  // float rotationRad = u_rotation * 3.14159265358979323846 / 180.;
+  // uv = mat2(cos(rotationRad), sin(rotationRad), -sin(rotationRad), cos(rotationRad)) * uv;
+  // uv += localOrigin;
   
   uv *= .02;
 
@@ -114,11 +114,11 @@ void main() {
   color = mix(color, vec3(0., .2, .9), worldOriginTestPoint);
   color = mix(color, vec3(0., .9, .2), worldOriginPoint);
 
-  vec2 testtestDist = worldBox + testOrigin;
-  testtestDist.x *= (world.x / world.y);
-
-  float testPoint = 1. - smoothstep(0., .05, length(testtestDist));
-  color = mix(color, vec3(.8, .5, .2), testPoint);
+  // vec2 testtestDist = worldBox + testOrigin;
+  // testtestDist.x *= (world.x / world.y);
+  //
+  // float testPoint = 1. - smoothstep(0., .05, length(testtestDist));
+  // color = mix(color, vec3(.8, .5, .2), testPoint);
 
   fragColor = vec4(color, opacity);
 }

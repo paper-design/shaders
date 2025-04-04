@@ -107,9 +107,9 @@ export const sizingPatternUV = `
     uv *= (imageWidthCrop / imageWidth);
   }
   
-  // uv /= u_scale;
-  // float rotationRad = u_rotation * 3.14159265358979323846 / 180.;
-  // uv = mat2(cos(rotationRad), sin(rotationRad), -sin(rotationRad), cos(rotationRad)) * uv;
+  uv /= u_scale;
+  float rotationRad = u_rotation * 3.14159265358979323846 / 180.;
+  uv = mat2(cos(rotationRad), sin(rotationRad), -sin(rotationRad), cos(rotationRad)) * uv;
     
   uv += worldOrigin / worldScale;
   uv -= worldOrigin;
