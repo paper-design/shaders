@@ -139,6 +139,7 @@ export const Waves = ({
   spacing,
   dutyCycle,
   softness,
+  maxPixelCount = 6016 * 3384, // Higher max resolution for this shader
   ...props
 }: WavesProps): React.ReactElement => {
   const uniforms: WavesUniforms = useMemo(() => {
