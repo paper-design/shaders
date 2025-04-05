@@ -29,5 +29,9 @@
   },
   "patchedDependencies": {
     "leva@0.9.34": "patches/leva@0.9.34.patch"
+  },
+  "dependencies": {
+    "react": "19.1.0",
+    "react-dom": "19.1.0"
   }
 }
