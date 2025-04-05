@@ -22,59 +22,16 @@ export const defaultPreset: SmokeRingPreset = {
   name: 'Default',
   params: {
     ...defaultObjectSizing,
-    scale: 1,
-    speed: 0.5,
-    frame: 0,
-    colorBack: 'hsla(0, 0%, 0%, 1)',
-    colorInner: 'hsla(0, 0%, 100%, 1)',
-    colorOuter: 'hsla(223, 15%, 36%, 1)',
-    noiseScale: 1,
-    thickness: 0.5,
-  },
-};
-
-export const cloudPreset: SmokeRingPreset = {
-  name: 'Cloud',
-  params: {
-    ...defaultObjectSizing,
-    scale: 1,
     speed: 1,
     frame: 0,
-    colorBack: 'hsla(215, 74%, 72%, 1)',
-    colorInner: 'hsla(0, 0%, 100%, 1)',
-    colorOuter: 'hsla(0, 0%, 100%, 0.5)',
-    noiseScale: 1.8,
-    thickness: 1,
-  },
-};
-
-export const firePreset: SmokeRingPreset = {
-  name: 'Fire',
-  params: {
-    ...defaultObjectSizing,
-    scale: 1,
-    speed: 4,
-    frame: 0,
-    colorBack: 'hsla(20, 100%, 5%, 1)',
-    colorInner: 'hsla(40, 100%, 50%, 1)',
-    colorOuter: 'hsla(0, 100%, 50%, 1)',
-    noiseScale: 1.4,
-    thickness: 0.35,
-  },
-};
-
-export const electricPreset: SmokeRingPreset = {
-  name: 'Electric',
-  params: {
-    ...defaultObjectSizing,
-    scale: 1,
-    speed: -2.5,
-    frame: 0,
-    colorBack: 'hsla(47, 50%, 7%, 1)',
-    colorInner: 'hsla(47, 100%, 64%, 1)',
-    colorOuter: 'hsla(47, 100%, 64%, 1)',
-    noiseScale: 1.8,
-    thickness: 0.1,
+    colorBack: 'hsla(0, 0%, 0%, 1)',
+    colorInner: 'hsla(56, 13%, 90%, 1)',
+    colorOuter: 'hsla(56, 16%, 75%, 1)',
+    noiseScale: 2.4,
+    noiseIterations: 10,
+    radius: 0.39,
+    thickness: 0.3,
+    innerShape: 3.6,
   },
 };
 
@@ -82,24 +39,54 @@ export const poisonPreset: SmokeRingPreset = {
   name: 'Poison',
   params: {
     ...defaultObjectSizing,
-    scale: 1,
-    speed: 3,
+    speed: 1,
     frame: 0,
-    colorBack: 'hsla(120, 100%, 3%, 1)',
-    colorInner: 'hsla(120, 100%, 3%, 1)',
-    colorOuter: 'hsla(120, 100%, 66%, 1)',
-    noiseScale: 5,
-    thickness: 0.6,
+    colorBack: 'hsla(0, 0%, 0%, 1)',
+    colorInner: 'hsla(61, 100%, 50%, 1)',
+    colorOuter: 'hsla(111, 89%, 27%, 1)',
+    noiseScale: 2.2,
+    noiseIterations: 10,
+    radius: 0.4,
+    thickness: 0.2,
+    innerShape: 0.6,
   },
 };
 
-export const smokeRingPresets: SmokeRingPreset[] = [
-  defaultPreset,
-  cloudPreset,
-  firePreset,
-  electricPreset,
-  poisonPreset,
-];
+export const linePreset: SmokeRingPreset = {
+  name: 'Line',
+  params: {
+    ...defaultObjectSizing,
+    frame: 0,
+    colorBack: 'hsla(0, 0%, 0%, 1)',
+    colorInner: 'hsla(185, 100%, 56%, 1)',
+    colorOuter: 'hsla(251, 39%, 45%, 1)',
+    noiseScale: 1.1,
+    noiseIterations: 2,
+    radius: 0.38,
+    thickness: 0.01,
+    innerShape: 0.88,
+    speed: 4,
+  },
+};
+
+export const claudPreset: SmokeRingPreset = {
+  name: 'Cloud',
+  params: {
+    ...defaultObjectSizing,
+    frame: 0,
+    colorBack: 'hsla(218, 100%, 62%, 1)',
+    colorInner: 'hsla(0, 0%, 100%, 1)',
+    colorOuter: 'hsla(0, 0%, 100%, 1)',
+    noiseScale: 2.3,
+    noiseIterations: 10,
+    radius: 0.7,
+    thickness: 0.45,
+    innerShape: 1,
+    speed: 0.5,
+  },
+};
+
+export const smokeRingPresets: SmokeRingPreset[] = [defaultPreset, linePreset, poisonPreset, claudPreset];
 
 export const SmokeRing: React.FC<SmokeRingProps> = memo(function SmokeRingImpl({
   // Own props
@@ -110,6 +97,9 @@ export const SmokeRing: React.FC<SmokeRingProps> = memo(function SmokeRingImpl({
   colorOuter = defaultPreset.params.colorOuter,
   noiseScale = defaultPreset.params.noiseScale,
   thickness = defaultPreset.params.thickness,
+  radius = defaultPreset.params.radius,
+  innerShape = defaultPreset.params.innerShape,
+  noiseIterations = defaultPreset.params.noiseIterations,
 
   // Sizing props
   fit = defaultPreset.params.fit,
@@ -130,6 +120,9 @@ export const SmokeRing: React.FC<SmokeRingProps> = memo(function SmokeRingImpl({
     u_colorOuter: getShaderColorFromString(colorOuter),
     u_noiseScale: noiseScale,
     u_thickness: thickness,
+    u_radius: radius,
+    u_innerShape: innerShape,
+    u_noiseIterations: noiseIterations,
 
     // Sizing uniforms
     u_fit: ShaderFitOptions[fit],
