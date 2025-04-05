@@ -5,7 +5,7 @@ import {
   type ShaderSizingParams,
   type ShaderSizingUniforms,
 } from '../shader-sizing';
-import { declareRandom } from '../shader-utils';
+import { declareRandom, declareRotate } from '../shader-utils';
 
 /**
  * Dot Pattern with dot moving around their grid position
@@ -43,6 +43,7 @@ out vec4 fragColor;
 #define TWO_PI 6.28318530718
 
 ${declareRandom}
+${declareRotate}
 
 vec2 random2(vec2 p) {
   return vec2(random(p), random(200. * p));
@@ -51,6 +52,8 @@ vec2 random2(vec2 p) {
 vec3 get_voronoi_shape(vec2 _uv, float time) {
   vec2 i_uv = floor(_uv);
   vec2 f_uv = fract(_uv);
+  
+  float spreading = .25 * clamp(u_spreading, 0., 1.);
 
   float min_dist = 1.;
   vec2 cell_randomizer = vec2(0.);
@@ -58,7 +61,11 @@ vec3 get_voronoi_shape(vec2 _uv, float time) {
     for (int x = -1; x <= 1; x++) {
       vec2 tile_offset = vec2(float(x), float(y));
       vec2 rand = random2(i_uv + tile_offset);
-      vec2 cell_center = .5 + 1e-4 + .25 * clamp(u_spreading, 0., 1.) * sin(time + TWO_PI * rand);
+      vec2 cell_center = vec2(.5 + 1e-4);
+      cell_center += spreading * cos(time + TWO_PI * rand);
+      cell_center -= .5;
+      cell_center = rotate(cell_center, random(vec2(rand.x, rand.y)) + .1 * time);
+      cell_center += .5;
       float dist = length(tile_offset + cell_center - f_uv);
       if (dist < min_dist) {
         min_dist = dist;
