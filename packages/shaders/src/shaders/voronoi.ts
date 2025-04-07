@@ -124,8 +124,7 @@ void main() {
 
   float cell_edge_width = fwidth(distance.x);
   float w = .7 * (clamp(u_edgesSize, 0., 1.) - .1);
-  float edgeSharp = clamp(u_edgesSoftness, 0., 1.);
-  cell_shape = smoothstep(w - cell_edge_width, w + edgeSharp, cell_shape);
+  cell_shape = smoothstep(w, w + cell_edge_width + u_edgesSoftness, cell_shape);
 
   dot_shape *= cell_shape;
 
@@ -136,8 +135,7 @@ void main() {
   vec3 color = mix(edges.rgb, cell_mix.rgb, cell_shape);
   float opacity = mix(edges.a, cell_mix.a, cell_shape);
 
-  color = mix(color, u_colorMid.rgb * u_colorMid.a, dot_shape);
-  opacity = mix(opacity, u_colorMid.a, dot_shape);
+  color = mix(color, u_colorMid.rgb, u_colorMid.a * dot_shape);
 
   fragColor = vec4(color, opacity);
 }
