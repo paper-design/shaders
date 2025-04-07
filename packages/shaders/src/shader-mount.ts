@@ -560,7 +560,7 @@ export function isPaperShaderElement(element: HTMLElement): element is PaperShad
 
 /** Uniform types that we support to be auto-mapped into the fragment shader */
 export interface ShaderMountUniforms {
-  [key: string]: number | number[] | HTMLImageElement;
+  [key: string]: number | number[] | boolean | HTMLImageElement;
 }
 
 export interface ShaderMotionParams {
