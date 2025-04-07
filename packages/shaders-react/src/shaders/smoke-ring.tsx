@@ -69,7 +69,7 @@ export const linePreset: SmokeRingPreset = {
   },
 };
 
-export const claudPreset: SmokeRingPreset = {
+export const cloudPreset: SmokeRingPreset = {
   name: 'Cloud',
   params: {
     ...defaultObjectSizing,
@@ -86,7 +86,7 @@ export const claudPreset: SmokeRingPreset = {
   },
 };
 
-export const smokeRingPresets: SmokeRingPreset[] = [defaultPreset, linePreset, poisonPreset, claudPreset];
+export const smokeRingPresets: SmokeRingPreset[] = [defaultPreset, linePreset, poisonPreset, cloudPreset];
 
 export const SmokeRing: React.FC<SmokeRingProps> = memo(function SmokeRingImpl({
   // Own props
