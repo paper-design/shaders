@@ -39,7 +39,7 @@ const DitheringWithControls = () => {
           color2: { value: defaults.color2, order: 101 },
           shape: { value: defaults.shape, min: 1, max: 7, step: 1, order: 200 },
           type: { value: defaults.type, min: 1, max: 4, step: 1, order: 250 },
-          pxRounded: { value: defaults.pxRounded, order: 251 },
+          pxRounded: { value: defaults.pxRounded, min: 0, max: 1, step: 1, order: 251 },
           pxSize: { value: defaults.pxSize, min: 1, max: 20, order: 252 },
           speed: { value: defaults.speed, min: 0, max: 2, order: 400 },
         },
