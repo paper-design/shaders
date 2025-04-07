@@ -207,7 +207,7 @@ export interface DitheringUniforms extends ShaderSizingUniforms {
   u_shape: number;
   u_type: number;
   u_pxSize: number;
-  u_pxRounded: number;
+  u_pxRounded: boolean;
 }
 
 export interface DitheringParams extends ShaderSizingParams, ShaderMotionParams {
