@@ -1,10 +1,10 @@
-import path from 'path';
-import { Glob } from 'bun';
+import { glob } from 'glob';
 import esbuild from 'esbuild';
 import { execSync } from 'child_process';
 
 async function build(packageDir) {
-  const input = `${packageDir}/src/index.ts`;
+  const files = glob.sync(`${packageDir}/src/**/*.ts*`);
+  const entryPoints = files.filter((file) => !file.includes('.test.'));
   const outDir = `${packageDir}/dist`;
   const tsconfig = `${packageDir}/tsconfig.build.json`;
 
@@ -20,14 +20,21 @@ async function build(packageDir) {
     process.exit(1);
   }
 
+  // prettier-ignore
+  const banner =
+`/* * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ *                    Paper Shaders                    *
+ *       https://github.com/paper-design/shaders       *
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+`;
+
   // ----- Build the package ----- //
   // esbuild configuration
   await esbuild.build({
-    entryPoints: [input],
+    entryPoints: entryPoints,
     outdir: outDir,
-    bundle: true,
     banner: {
-      js: '/***** Paper Shaders: https://github.com/paper-design/shaders *****/',
+      js: banner,
     },
     platform: 'browser',
     target: 'es2022',
@@ -35,8 +42,6 @@ async function build(packageDir) {
     treeShaking: true,
     sourcemap: true,
     minify: false,
-    external: ['react'],
-    packages: 'external', // Treat workspace dependencies as external (the publish script will replace workspace:* with the actual version)
   });
 
   console.log(`Built ${outDir}/index.js`);

@@ -1,5 +1,3 @@
-'use client';
-
 import { DotGrid, type DotGridProps } from '@paper-design/shaders-react';
 
 export function DotGridExample(props: DotGridProps) {

@@ -1,5 +1,3 @@
-'use client';
-
 import { Voronoi, VoronoiProps } from '@paper-design/shaders-react';
 
 export function VoronoiExample(props: VoronoiProps) {

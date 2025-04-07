@@ -1,5 +1,3 @@
-'use client';
-
 import { Spiral, SpiralProps } from '@paper-design/shaders-react';
 
 export function SpiralExample(props: SpiralProps) {

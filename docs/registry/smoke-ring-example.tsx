@@ -1,5 +1,3 @@
-'use client';
-
 import { SmokeRing, SmokeRingProps } from '@paper-design/shaders-react';
 
 export function SmokeRingExample(props: SmokeRingProps) {
