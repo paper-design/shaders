@@ -78,5 +78,13 @@ export { godRaysFragmentShader, type GodRaysParams, type GodRaysUniforms } from 
 /** Single-color spiral shape */
 export { spiralFragmentShader, type SpiralParams, type SpiralUniforms } from './shaders/spiral';
 
+// -----  ----- //
+/**  */
+export { borderPulsingFragmentShader, type BorderPulsingUniforms } from './shaders/border-pulsing';
+
+// ----- Gradient Border ----- //
+/** A shader rendering a multi-color gradient around the viewport border */
+export { borderGradientFragmentShader, type BorderGradientUniforms } from './shaders/border-gradient';
+
 // ----- Uniform conversion utils ----- //
 export { getShaderColorFromString } from './get-shader-color-from-string';

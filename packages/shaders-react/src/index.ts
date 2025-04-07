@@ -68,5 +68,17 @@ export { Spiral, spiralPresets } from './shaders/spiral';
 export { type SpiralProps } from './shaders/spiral';
 export { type SpiralUniforms, type SpiralParams } from '@paper-design/shaders';
 
+//
+export { BorderPulsing, borderPulsingPresets } from './shaders/border-pulsing';
+export { type BorderPulsingProps } from './shaders/border-pulsing';
+export { type BorderPulsingParams } from './shaders/border-pulsing';
+export { type BorderPulsingUniforms } from '@paper-design/shaders';
+
+//
+export { BorderGradient, borderGradientPresets } from './shaders/border-gradient';
+export { type BorderGradientProps } from './shaders/border-gradient';
+export { type BorderGradientParams } from './shaders/border-gradient';
+export { type BorderGradientUniforms } from '@paper-design/shaders';
+
 // ----- Uniform conversion utils ----- //
 export { getShaderColorFromString } from '@paper-design/shaders';

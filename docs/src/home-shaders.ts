@@ -37,6 +37,10 @@ import {
   godRaysPresets,
   Spiral,
   spiralPresets,
+  BorderPulsing,
+  borderPulsingPresets,
+  BorderGradient,
+  borderGradientPresets,
 } from '@paper-design/shaders-react';
 import { StaticImageData } from 'next/image';
 import TextureTest from './app/texture-test/page';
@@ -148,5 +152,17 @@ export const homeShaders = [
     ShaderComponent: Spiral,
     image: spiralImg,
     shaderConfig: { ...spiralPresets[1].params, scale: 0.5 },
+  },
+  {
+    name: 'pulsing border',
+    url: '/border-pulsing',
+    ShaderComponent: BorderPulsing,
+    shaderConfig: borderPulsingPresets[0].params,
+  },
+  {
+    name: 'gradient border',
+    url: '/border-gradient',
+    ShaderComponent: BorderGradient,
+    shaderConfig: borderGradientPresets[0].params,
   },
 ] satisfies HomeShaderConfig[];
