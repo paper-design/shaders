@@ -22,6 +22,8 @@ const SmokeRingExample = () => {
       scale={1}
       noiseScale={1.4}
       thickness={0.33}
+      radius={0.5}
+      innerShape={1}
       speed={1}
       style={{ position: 'fixed', width: '100%', height: '100%' }}
     />
@@ -48,7 +50,10 @@ const SmokeRingWithControls = () => {
           colorInner: { value: defaults.colorInner, order: 101 },
           colorOuter: { value: defaults.colorOuter, order: 102 },
           noiseScale: { value: defaults.noiseScale, min: 0.01, max: 5, order: 300 },
-          thickness: { value: defaults.thickness, min: 0.01, max: 1, order: 301 },
+          noiseIterations: { value: defaults.noiseIterations, min: 1, max: 10, step: 1, order: 301 },
+          radius: { value: defaults.radius, min: 0, max: 1, order: 302 },
+          thickness: { value: defaults.thickness, min: 0.01, max: 1, order: 303 },
+          innerShape: { value: defaults.innerShape, min: 0, max: 4, order: 304 },
           speed: { value: defaults.speed, min: 0, max: 4, order: 400 },
           reverse: { value: defaults.reverse, order: 401 },
         },
@@ -63,7 +68,7 @@ const SmokeRingWithControls = () => {
         },
         {
           order: 2,
-          collapsed: false,
+          collapsed: true,
         }
       ),
       Fit: folder(
