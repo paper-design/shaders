@@ -68,5 +68,10 @@ export { Spiral, spiralPresets } from './shaders/spiral';
 export { type SpiralProps } from './shaders/spiral';
 export { type SpiralUniforms, type SpiralParams } from '@paper-design/shaders';
 
+// Dithering over abstract shapes
+export { Dithering, ditheringPresets } from './shaders/dithering';
+export { type DitheringProps } from './shaders/dithering';
+export { type DitheringUniforms, type DitheringParams } from '@paper-design/shaders';
+
 // ----- Uniform conversion utils ----- //
 export { getShaderColorFromString } from '@paper-design/shaders';

@@ -39,6 +39,12 @@ export const sizingSquareUV = `
   worldBox += worldOrigin * (worldScale - 1.);  
   
   vec2 uv = gl_FragCoord.xy / u_resolution.xy;
+  #ifdef USE_PX_ROUNDING
+    if (pxSize > 0.) {
+      uv = floor(gl_FragCoord.xy / (u_pxSize * u_pixelRatio)) * (u_pxSize * u_pixelRatio) / u_resolution.xy;
+    }  
+  #endif
+  
   uv -= .5;
   uv *= worldScale;
   uv += worldOrigin * (worldScale - 1.);
@@ -79,6 +85,12 @@ export const sizingPatternUV = `
   worldBox += worldOrigin * (worldScale - 1.);
 
   vec2 uv = gl_FragCoord.xy / u_resolution.xy;
+  #ifdef USE_PX_ROUNDING
+    if (pxSize > 0.) {
+      uv = floor(gl_FragCoord.xy / (u_pxSize * u_pixelRatio)) * (u_pxSize * u_pixelRatio) / u_resolution.xy;
+    }  
+  #endif
+
   uv -= .5;
   uv += vec2(-u_offsetX, u_offsetY) / worldScale;
   uv += worldOrigin;
