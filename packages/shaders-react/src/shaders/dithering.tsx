@@ -30,7 +30,7 @@ export const defaultPreset: DitheringPreset = {
     shape: 1,
     type: 3,
     pxSize: 2,
-    pxRounded: 1,
+    pxRounded: true,
   },
 };
 
@@ -45,7 +45,7 @@ export const warpPreset: DitheringPreset = {
     shape: 2,
     type: 3,
     pxSize: 2,
-    pxRounded: 1,
+    pxRounded: true,
   },
 } as const;
 
@@ -60,7 +60,7 @@ export const sinePreset: DitheringPreset = {
     shape: 4,
     type: 4,
     pxSize: 11,
-    pxRounded: 1,
+    pxRounded: true,
   },
 } as const;
 
@@ -75,7 +75,7 @@ export const bugsPreset: DitheringPreset = {
     shape: 3,
     type: 1,
     pxSize: 9,
-    pxRounded: 1,
+    pxRounded: true,
   },
 } as const;
 
@@ -90,7 +90,7 @@ export const ripplePreset: DitheringPreset = {
     shape: 5,
     type: 2,
     pxSize: 3,
-    pxRounded: 0,
+    pxRounded: false,
   },
 } as const;
 
@@ -105,7 +105,7 @@ export const swirlPreset: DitheringPreset = {
     shape: 6,
     type: 4,
     pxSize: 2,
-    pxRounded: 0,
+    pxRounded: false,
   },
 } as const;
 
@@ -122,7 +122,7 @@ export const spherePreset: DitheringPreset = {
     shape: 7,
     type: 3,
     pxSize: 2.5,
-    pxRounded: 1,
+    pxRounded: true,
   },
 } as const;
 

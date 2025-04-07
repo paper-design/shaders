@@ -35,7 +35,7 @@ uniform vec4 u_color2;
 uniform float u_shape;
 uniform float u_type;
 uniform float u_pxSize;
-uniform float u_pxRounded;
+uniform bool u_pxRounded;
 
 out vec4 fragColor;
 
@@ -95,7 +95,7 @@ void main() {
   ditheringNoise_uv /= u_pixelRatio;
   
   float pxSize = 0.;
-  if (u_pxRounded > 0.) {
+  if (u_pxRounded == true) {
     pxSize = u_pxSize;
   }
   
@@ -216,5 +216,5 @@ export interface DitheringParams extends ShaderSizingParams, ShaderMotionParams 
   shape?: number;
   type?: number;
   pxSize?: number;
-  pxRounded?: number;
+  pxRounded?: boolean;
 }
