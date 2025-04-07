@@ -204,10 +204,10 @@ void main() {
 export interface DitheringUniforms extends ShaderSizingUniforms {
   u_color1: [number, number, number, number];
   u_color2: [number, number, number, number];
-  shape: number;
-  type: number;
-  pxSize: number;
-  pxRounded: boolean;
+  u_shape: number;
+  u_type: number;
+  u_pxSize: number;
+  u_pxRounded: boolean;
 }
 
 export interface DitheringParams extends ShaderSizingParams, ShaderMotionParams {
