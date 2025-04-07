@@ -89,23 +89,24 @@ void main() {
   
   float t = .5 * u_time;  
   
-  vec2 dithering_uv = gl_FragCoord.xy / (u_pxSize * u_pixelRatio);  
-  vec2 ditheringNoise_uv = floor(gl_FragCoord.xy / (u_pxSize * u_pixelRatio)) * (u_pxSize * u_pixelRatio);  
-  ditheringNoise_uv *= 0.0015;
-  ditheringNoise_uv /= u_pixelRatio;
-  
   float pxSize = 0.;
   if (u_pxRounded == true) {
     pxSize = u_pxSize;
   }
   
   vec2 shape_uv = vec2(0.);
+  vec2 dithering_uv = vec2(0.);
+  vec2 ditheringNoise_uv = vec2(0.);
   if (u_shape < 3.5) {
     ${sizingPatternUV}
     shape_uv = uv;
+    dithering_uv = pxSizeUv;
+    ditheringNoise_uv = roundedUv;
   } else {
     ${sizingSquareUV}
     shape_uv = uv;
+    dithering_uv = pxSizeUv;
+    ditheringNoise_uv = roundedUv;
   }
   
   float shape = 0.;    
