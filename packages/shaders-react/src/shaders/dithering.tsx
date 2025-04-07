@@ -133,7 +133,7 @@ export const ditheringPresets: DitheringPreset[] = [
   warpPreset,
   ripplePreset,
   bugsPreset,
-  swirlPreset
+  swirlPreset,
 ];
 
 export const Dithering: React.FC<DitheringProps> = memo(function DitheringImpl({
