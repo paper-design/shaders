@@ -39,8 +39,6 @@ import {
   spiralPresets,
   BorderPulsing,
   borderPulsingPresets,
-  BorderPattern,
-  borderPatternPresets,
   BorderGradient,
   borderGradientPresets,
 } from '@paper-design/shaders-react';
