@@ -88,6 +88,8 @@ void main() {
     vec3 color = mix(layer1_color, layer2_color, proportion_2);
     float opacity = mix(layer1_opacity, layer2_opacity, proportion_2);
 
+    color += 1. / 256. * (fract(sin(dot(.014 * gl_FragCoord.xy, vec2(12.9898, 78.233))) * 43758.5453123) - .5);
+
     fragColor = vec4(color, opacity);
 }
 `;

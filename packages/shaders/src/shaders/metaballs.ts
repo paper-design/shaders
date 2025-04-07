@@ -5,7 +5,7 @@ import {
   type ShaderSizingParams,
   type ShaderSizingUniforms,
 } from '../shader-sizing';
-import { declarePI } from '../shader-utils';
+import { declarePI, colorBandingFix } from '../shader-utils';
 /**
  * Metaballs (circular shapes with gooey effect applied)
  * The artwork by Ksenia Kondrashova
@@ -106,6 +106,8 @@ void main() {
   if (opacity < .01) {
     discard;
   }
+
+  ${colorBandingFix}
 
   fragColor = vec4(color, opacity);
 }

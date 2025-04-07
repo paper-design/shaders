@@ -5,7 +5,7 @@ import {
   type ShaderSizingParams,
   type ShaderSizingUniforms,
 } from '../shader-sizing';
-import { declareSimplexNoise } from '../shader-utils';
+import { declareSimplexNoise, colorBandingFix } from '../shader-utils';
 
 /**
  * Stepped Simplex Noise by Ksenia Kondrashova
@@ -75,6 +75,8 @@ void main() {
     opacity = mix(opacity, next_c.a, proportion);
   }
 
+  ${colorBandingFix}
+  
   fragColor = vec4(color, opacity);
 }
 `;

@@ -5,7 +5,7 @@ import {
   type ShaderSizingParams,
   type ShaderSizingUniforms,
 } from '../shader-sizing';
-import { declarePI, declareRandom, declareRotate } from '../shader-utils';
+import { declarePI, declareRandom, declareRotate, colorBandingFix } from '../shader-utils';
 
 /**
  * GodRays pattern
@@ -124,6 +124,7 @@ void main() {
   mixed_color = mix(mixed_color, u_color1.rgb, rays1 * u_color1.a);
 
   vec3 color = mix(mixed_color, added_color, clamp(u_blending, 0., 1.));
+  ${colorBandingFix}
 
   fragColor = vec4(color, opacity);
 }

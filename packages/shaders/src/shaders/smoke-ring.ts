@@ -5,7 +5,7 @@ import {
   type ShaderSizingParams,
   type ShaderSizingUniforms,
 } from '../shader-sizing';
-import { declarePI, declareRandom } from '../shader-utils';
+import { declarePI, declareRandom, colorBandingFix } from '../shader-utils';
 
 /**
  * Smoke Ring by Ksenia Kondrashova
@@ -136,6 +136,8 @@ void main() {
   color += u_colorBack.rgb * ringShapeInner * (1. - u_colorInner.a) * background;
   color += u_colorBack.rgb * ringShapeOuter * (1. - u_colorOuter.a) * background;
   
+  ${colorBandingFix}
+
   fragColor = vec4(color, opacity);
 }
 `;
