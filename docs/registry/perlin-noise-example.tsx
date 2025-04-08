@@ -1,5 +1,3 @@
-'use client';
-
 import { PerlinNoise, PerlinNoiseProps } from '@paper-design/shaders-react';
 
 export function PerlinNoiseExample(props: PerlinNoiseProps) {

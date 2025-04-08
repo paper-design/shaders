@@ -1,5 +1,3 @@
-'use client';
-
 import { SteppedSimplexNoise, SteppedSimplexNoiseProps } from '@paper-design/shaders-react';
 
 export function SteppedSimplexNoiseExample(props: SteppedSimplexNoiseProps) {

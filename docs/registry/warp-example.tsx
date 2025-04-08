@@ -1,5 +1,3 @@
-'use client';
-
 import { Warp, WarpProps } from '@paper-design/shaders-react';
 
 export function WarpExample(props: WarpProps) {

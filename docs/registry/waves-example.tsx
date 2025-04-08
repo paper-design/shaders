@@ -1,5 +1,3 @@
-'use client';
-
 import { Waves, WavesProps } from '@paper-design/shaders-react';
 
 export function WavesExample(props: WavesProps) {

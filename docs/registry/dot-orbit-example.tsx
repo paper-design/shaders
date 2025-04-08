@@ -1,5 +1,3 @@
-'use client';
-
 import { DotOrbit, type DotOrbitProps } from '@paper-design/shaders-react';
 
 export function DotOrbitExample(props: DotOrbitProps) {

@@ -1,5 +1,3 @@
-'use client';
-
 import { GodRays, GodRaysProps } from '@paper-design/shaders-react';
 
 export function GodRaysExample(props: GodRaysProps) {

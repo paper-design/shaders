@@ -1,5 +1,3 @@
-'use client';
-
 import { Metaballs, MetaballsProps } from '@paper-design/shaders-react';
 
 export function MetaballsExample(props: MetaballsProps) {
