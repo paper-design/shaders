@@ -142,10 +142,10 @@ export const spherePreset: GrainGradientPreset = {
 };
 
 export const grainGradientPresets: GrainGradientPreset[] = [
+  cornersPreset,
   defaultPreset,
   dotsPreset,
   truchetPreset,
-  cornersPreset,
   ripplePreset,
   blobPreset,
   spherePreset,
