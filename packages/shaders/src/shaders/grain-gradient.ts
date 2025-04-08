@@ -23,7 +23,7 @@ uniform vec4 u_colorBack;
 uniform vec4 u_color1;
 uniform vec4 u_color2;
 uniform vec4 u_color3;
-uniform float u_blur;
+uniform float u_softness;
 uniform float u_grainDistortion;
 uniform float u_sandGrain;
 uniform float u_shape;
@@ -123,7 +123,7 @@ void main() {
   } else if (u_shape < 3.5) {
     // Truchet pattern
     
-    float n2 = noisenoise(shapeUv * .4 - t);
+    float n2 = noisenoise(shapeUv * .4 - 2.5 * t);
     shapeUv.x += 10.;
     shapeUv *= .6;
 
@@ -187,7 +187,7 @@ void main() {
     shapeUv *= 2.;
     float d = length(shapeUv);
     vec3 pos = vec3(shapeUv, sqrt(1. - clamp(d, 0., 1.)));
-    vec3 lightPos = normalize(vec3(cos(1.5 * t), 0.8, sin(1.25 * t)));
+    vec3 lightPos = normalize(vec3(cos(3. * t), 0.8, sin(2.5 * t)));
     float lighting = dot(lightPos, pos);
     float edge = smoothstep(1., .98, d);
     shape = mix(.1, .5 + .5 * lighting, edge);
@@ -208,9 +208,9 @@ void main() {
   vec3 color3 = u_color3.rgb * u_color3.a;
   
   vec3 borders = vec3(.25, .5, .75);
-  vec2 borders1 = vec2(borders[0] - .5 * u_blur, borders[0] + .5 * u_blur + edge_w);
-  vec2 borders2 = vec2(borders[1] - .5 * u_blur - edge_w, borders[1] + .5 * u_blur + edge_w);
-  vec2 borders3 = vec2(borders[2] - .5 * u_blur - edge_w, borders[2] + .5 * u_blur + edge_w);
+  vec2 borders1 = vec2(borders[0] - .5 * u_softness, borders[0] + .5 * u_softness + edge_w);
+  vec2 borders2 = vec2(borders[1] - .5 * u_softness - edge_w, borders[1] + .5 * u_softness + edge_w);
+  vec2 borders3 = vec2(borders[2] - .5 * u_softness - edge_w, borders[2] + .5 * u_softness + edge_w);
   float shape1 = smoothstep(borders1[0], borders1[1], shape);
   float shape2 = smoothstep(borders2[0], borders2[1], shape);
   float shape3 = smoothstep(borders3[0], borders3[1], shape);
@@ -232,7 +232,7 @@ export interface GrainGradientUniforms extends ShaderSizingUniforms {
   u_color1: [number, number, number, number];
   u_color2: [number, number, number, number];
   u_color3: [number, number, number, number];
-  u_blur: number;
+  u_softness: number;
   u_grainDistortion: number;
   u_sandGrain: number;
   u_shape: number;
@@ -243,7 +243,7 @@ export interface GrainGradientParams extends ShaderSizingParams, ShaderMotionPar
   color1?: string;
   color2?: string;
   color3?: string;
-  blur?: number;
+  softness?: number;
   grainDistortion?: number;
   sandGrain?: number;
   shape?: number;

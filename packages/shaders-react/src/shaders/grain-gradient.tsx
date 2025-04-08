@@ -8,6 +8,7 @@ import {
   type GrainGradientParams,
   type ShaderPreset,
   defaultPatternSizing,
+  defaultObjectSizing,
 } from '@paper-design/shaders';
 
 export interface GrainGradientProps extends ShaderComponentProps, GrainGradientParams {}
@@ -24,18 +25,123 @@ export const defaultPreset: GrainGradientPreset = {
     ...defaultPatternSizing,
     speed: 1,
     frame: 0,
-    colorBack: 'hsla(0, 100%, 2%, 1)',
-    color1: 'hsla(52, 89%, 41%, 1)',
-    color2: 'hsla(320, 62%, 60%, 1)',
-    color3: 'hsla(225, 32%, 24%, 1)',
-    blur: 0.35,
+    colorBack: 'hsla(210, 100%, 3%, 1)',
+    color1: 'hsla(200, 100%, 22%, 1)',
+    color2: 'hsla(20, 85%, 70%, 1)',
+    color3: 'hsla(50, 60%, 88%, 1)',
+    softness: 0.35,
     grainDistortion: 0.15,
     sandGrain: 0.5,
+    shape: 1,
+  },
+};
+
+export const dotsPreset: GrainGradientPreset = {
+  name: 'Dots',
+  params: {
+    ...defaultPatternSizing,
+    scale: 0.6,
+    speed: 1,
+    frame: 0,
+    colorBack: 'hsla(0, 100%, 2%, 1)',
+    color1: 'hsla(0, 100%, 22%, 1)',
+    color2: 'hsla(210, 85%, 69%, 1)',
+    color3: 'hsla(48, 52%, 90%, 1)',
+    softness: 0.5,
+    grainDistortion: 0.15,
+    sandGrain: 0.5,
+    shape: 2,
+  },
+};
+
+export const truchetPreset: GrainGradientPreset = {
+  name: 'Truchet',
+  params: {
+    ...defaultPatternSizing,
+    speed: 1,
+    frame: 0,
+    colorBack: 'hsla(0, 100%, 2%, 1)',
+    color1: 'hsla(24, 100%, 22%, 1)',
+    color2: 'hsla(35, 85%, 69%, 1)',
+    color3: 'hsla(100, 52%, 45%, 1)',
+    softness: 0,
+    grainDistortion: 0.15,
+    sandGrain: 0.5,
+    shape: 3,
+  },
+};
+
+export const cornersPreset: GrainGradientPreset = {
+  name: 'Corners',
+  params: {
+    ...defaultObjectSizing,
+    speed: 1,
+    frame: 0,
+    colorBack: 'hsla(210, 80%, 6%, 1)',
+    color1: 'hsla(200, 100%, 40%, 1)',
+    color2: 'hsla(170, 100%, 50%, 1)',
+    color3: 'hsla(50, 100%, 50%, 1)',
+    softness: 0.2,
+    grainDistortion: 0.35,
+    sandGrain: 0.35,
     shape: 4,
   },
 };
 
-export const grainGradientPresets: GrainGradientPreset[] = [defaultPreset];
+export const ripplePreset: GrainGradientPreset = {
+  name: 'Ripple',
+  params: {
+    ...defaultObjectSizing,
+    scale: .5,
+    speed: 1,
+    frame: 0,
+    colorBack: 'hsla(30, 100%, 4%, 1)',
+    color1: 'hsla(25, 100%, 22%, 1)',
+    color2: 'hsla(140, 70%, 70%, 1)',
+    color3: 'hsla(4305, 64%, 11%, 1)',
+    softness: 1,
+    grainDistortion: 1,
+    sandGrain: 0.5,
+    shape: 5,
+  },
+};
+
+export const blobPreset: GrainGradientPreset = {
+  name: 'Blob',
+  params: {
+    ...defaultObjectSizing,
+    scale: 1.3,
+    speed: 1,
+    frame: 0,
+    colorBack: 'hsla(240, 30%, 8%, 1)',
+    color1: 'hsla(200, 30%, 35%, 1)',
+    color2: 'hsla(50, 30%, 55%, 1)',
+    color3: 'hsla(90, 25%, 45%, 1)',
+    softness: 0,
+    grainDistortion: 0.15,
+    sandGrain: 0.5,
+    shape: 6,
+  },
+};
+
+export const spherePreset: GrainGradientPreset = {
+  name: 'Sphere',
+  params: {
+    ...defaultObjectSizing,
+    speed: 1,
+    frame: 0,
+    colorBack: 'hsla(230, 100%, 5%, 1)',
+    color1: 'hsla(210, 100%, 35%, 1)',
+    color2: 'hsla(180, 95%, 60%, 1)',
+    color3: 'hsla(130, 80%, 45%, 1)',
+    softness: 1,
+    grainDistortion: 0.15,
+    sandGrain: 0.5,
+    shape: 7,
+  },
+};
+
+export const grainGradientPresets: GrainGradientPreset[] = [defaultPreset, dotsPreset, truchetPreset, cornersPreset, ripplePreset, blobPreset, spherePreset];
 
 export const GrainGradient: React.FC<GrainGradientProps> = memo(function GrainGradientImpl({
   // Own props
@@ -45,7 +151,7 @@ export const GrainGradient: React.FC<GrainGradientProps> = memo(function GrainGr
   color1 = defaultPreset.params.color1,
   color2 = defaultPreset.params.color2,
   color3 = defaultPreset.params.color3,
-  blur = defaultPreset.params.blur,
+  softness = defaultPreset.params.softness,
   grainDistortion = defaultPreset.params.grainDistortion,
   sandGrain = defaultPreset.params.sandGrain,
   shape = defaultPreset.params.shape,
@@ -68,7 +174,7 @@ export const GrainGradient: React.FC<GrainGradientProps> = memo(function GrainGr
     u_color1: getShaderColorFromString(color1),
     u_color2: getShaderColorFromString(color2),
     u_color3: getShaderColorFromString(color3),
-    u_blur: blur,
+    u_softness: softness,
     u_grainDistortion: grainDistortion,
     u_sandGrain: sandGrain,
     u_shape: shape,
