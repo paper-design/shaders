@@ -100,105 +100,94 @@ float fbm_4(vec2 n) {
 }
 
 
-vec2 truchetPattern(in vec2 _st, in float _index){
-    _index = fract(((_index - 0.5) * 2.0));
-    if (_index > 0.75) {
-        _st = vec2(1.0) - _st;
-    } else if (_index > 0.5) {
-        _st = vec2(1.0 - _st.x, _st.y);
-    } else if (_index > 0.25) {
-        _st = 1.0 - vec2(1.0 - _st.x, _st.y);
+vec2 truchet(vec2 uv, float idx){
+    idx = fract(((idx - .5) * 2.));
+    if (idx > 0.75) {
+        uv = vec2(1.0) - uv;
+    } else if (idx > 0.5) {
+        uv = vec2(1.0 - uv.x, uv.y);
+    } else if (idx > 0.25) {
+        uv = 1.0 - vec2(1.0 - uv.x, uv.y);
     }
-    return _st;
+    return uv;
 }
 
 void main() {
-  vec2 uv = gl_FragCoord.xy;
-  uv /= u_pixelRatio;
+  vec2 grainUV = gl_FragCoord.xy;
+  grainUV /= u_pixelRatio;
 
   float ratio = u_resolution.x / u_resolution.y;
   
-  vec2 uv_normalised = gl_FragCoord.xy / u_resolution.xy;
-
-  float snoise05 = snoise(uv * .5);
-  float grainDist = snoise(uv * .2) * snoise05 - fbm_4(.002 * uv + 10.) - fbm_4(.003 * uv);
-  float sandGrain = clamp(.6 * snoise05 - fbm_4(.4 * uv) - fbm_4(.001 * uv), 0., 1.);
+  float snoise05 = snoise(grainUV * .5);
+  float grainDist = snoise(grainUV * .2) * snoise05 - fbm_4(.002 * grainUV + 10.) - fbm_4(.003 * grainUV);
+  float sandGrain = clamp(.6 * snoise05 - fbm_4(.4 * grainUV) - fbm_4(.001 * grainUV), 0., 1.);
   
   
   float shape = 0.;
   float t = .1 * u_time;
   
-  uv = gl_FragCoord.xy / u_resolution.xy;  
-    uv -= .5;
-    uv *= 3. * 1.;
-    uv.x *= ratio;  
+  vec2 shapeUv = gl_FragCoord.xy / u_resolution.xy;  
+  shapeUv -= .5;
+  shapeUv *= 3. * 1.;
+  shapeUv.x *= ratio;
     
   if (u_shape < 1.5) { 
-  
-    float n1 = noisenoise(uv * .3 + t);
-    float n2 = noisenoise(uv * .4 - t);
-    float angle = n1 * TWO_PI;
-    uv.x += .2 * n2 * cos(angle);
-    uv.y += .2 * n2 * sin(angle);
-    uv *= 2.;
-      
-    vec2 ipos = floor(uv);
-    vec2 fpos = fract(uv);
+    float n2 = noisenoise(shapeUv * .4 - t);
+    
+    shapeUv.x += 10.;
+    shapeUv *= .6;
 
-    vec2 tile = truchetPattern(fpos, random( ipos ));
+    vec2 tile = truchet(fract(shapeUv), random(floor(shapeUv)));
 
     float distance1 = length(tile);
     float distance2 = length(tile - vec2(1.));
-    
-    
-    shape = smoothstep(.2, .55, distance1) * smoothstep(.8, .45, distance1);
-    shape += smoothstep(.2, .55, distance2) * smoothstep(.8, .45, distance2);
 
-  
+    n2 -= .5;
+    n2 *= .1;
+    
+    shape = smoothstep(.2, .55, distance1 + n2) * smoothstep(.8, .45, distance1 - n2);
+    shape += smoothstep(.2, .55, distance2 + n2) * smoothstep(.8, .45, distance2 - n2);
+      
   } else if (u_shape < 2.5) {  
-  
-      vec2 grid = vec2(.8, .6);
 
-    float n1 = noisenoise(uv * .3 + t);
-    float n2 = noisenoise(uv * .4 - t);
-    float angle = n1 * TWO_PI;
-    uv.x += .2 * n2 * cos(angle);
-    uv.y += .2 * n2 * sin(angle);
-    grid.x += .2 * n2 * cos(angle);
-    grid.y += .2 * n2 * sin(angle);
-    
-        vec2 ipos = floor(uv * grid);
-vec2 gv = fract(uv * grid);
-    
-      vec2 outer = .4 * grid;
-    
-      vec2 bl = smoothstep(vec2(0.), outer, gv);
-      vec2 tr = smoothstep(vec2(0.), outer, 1. - gv);
-     
-      shape = 1. - bl.x * bl.y * tr.x * tr.y; 
-      // shape = smoothstep(0., 1., 2. * abs(fract(1.5 * uv.x) - .5));
+      shapeUv *= .2;
+      vec2 outer = vec2(.5);
+      vec2 bl = vec2(0.);
+      vec2 tr = vec2(0.);
+      shape = 1.;
+      
+      bl = smoothstep(vec2(0.), outer, shapeUv + vec2(.1 + .1 * sin(2. * t), .2 - .1 * sin(3. * t)));
+      tr = smoothstep(vec2(0.), outer, 1. - shapeUv);
+      shape -= bl.x * bl.y * tr.x * tr.y;
+      
+      shapeUv = -shapeUv;
+      bl = smoothstep(vec2(0.), outer, shapeUv + vec2(.1 + .1 * sin(2. * t), .2 - .1 * cos(3. * t)));
+      tr = smoothstep(vec2(0.), outer, 1. - shapeUv);
+      shape -= bl.x * bl.y * tr.x * tr.y; 
+      
+      shape = 1. - smoothstep(0., 1.2, shape);
   
   } else if (u_shape < 3.5) {  
-    float wave = cos(.5 * uv.x - 2. * t) * sin(1.5 * uv.x + t) * (.75 + .25 * cos(3. * t));
-    shape = 1. - smoothstep(-1., 1., uv.y + wave);
+    float wave = cos(.5 * shapeUv.x - 2. * t) * sin(1.5 * shapeUv.x + t) * (.75 + .25 * cos(3. * t));
+    shape = 1. - smoothstep(-1., 1., shapeUv.y + wave);
           
   } else if (u_shape < 4.5) {  
-    float stripeIdx = floor(2. * uv.x / TWO_PI);
+    float stripeIdx = floor(2. * shapeUv.x / TWO_PI);
     float rand = fract(sin(stripeIdx * 12.9898) * 43758.5453);
 
     float speed = sign(rand - .5) * ceil(2. + rand);
-    shape = sin(uv.x) * cos(uv.y + speed * t);  
+    shape = sin(shapeUv.x) * cos(shapeUv.y + speed * t);  
     shape = pow(shape, 6.);
       
   } else if (u_shape < 5.5) {  
-    float dist = length(.4 * uv);
+    float dist = length(.4 * shapeUv);
     float waves = sin(pow(dist, 1.2) * 5. - 3. * t) * .5 + .5;
     // waves = mix(waves, .5, smoothstep(0., 1., waves));
     shape = waves;
 
   } else if (u_shape < 6.5) {          
     
-    uv *= .3;
+    shapeUv *= .3;
     t *= 5.;
        
     vec2 f1_traj = .25 * vec2(1.3 * sin(.5 * t), .2 + 1.3 * cos(.3 * t + 4.));
@@ -206,24 +195,23 @@ vec2 gv = fract(uv * grid);
     vec2 f3_traj = .25 * vec2(1.7 * cos(-.3 * t), cos(-.8 * t));
     vec2 f4_traj = .3 * vec2(1.4 * cos(.4 * t), 1.2 * sin(-.3 * t - 3.));
     
-    shape = .5 * pow(1. - clamp(0., 1., length(uv + f1_traj)), 5.);
-    shape += .5 * pow(1. - clamp(0., 1., length(uv + f2_traj)), 5.);
-    shape += .5 * pow(1. - clamp(0., 1., length(uv + f3_traj)), 5.);
-    shape += .5 * pow(1. - clamp(0., 1., length(uv + f4_traj)), 5.);
+    shape = .5 * pow(1. - clamp(0., 1., length(shapeUv + f1_traj)), 5.);
+    shape += .5 * pow(1. - clamp(0., 1., length(shapeUv + f2_traj)), 5.);
+    shape += .5 * pow(1. - clamp(0., 1., length(shapeUv + f3_traj)), 5.);
+    shape += .5 * pow(1. - clamp(0., 1., length(shapeUv + f4_traj)), 5.);
     
-    shape = smoothstep(0., .6, shape);
+    shape = smoothstep(.0, .5, shape);
+    
+    float edge = smoothstep(.45, .46, shape);
+    shape = mix(.1, shape, edge);
     
   } else {
-vec3 pos = vec3(uv, sqrt(1.0 - pow(length(uv), 2.0)));
-vec3 lightPos = normalize(vec3(cos(1.5 * t), 0.8, sin(1.25 * t)));
-float lighting = dot(lightPos, pos);
-
-// fade out at the edge of the sphere
-float radius = 1.0;
-float d = length(uv);
-float edge = smoothstep(radius, radius - 0.02, d);
-
-shape = mix(0.0, 0.5 + 0.5 * lighting, edge);
+    float d = length(shapeUv);
+    vec3 pos = vec3(shapeUv, sqrt(1. - clamp(d, 0., 1.)));
+    vec3 lightPos = normalize(vec3(cos(1.5 * t), 0.8, sin(1.25 * t)));
+    float lighting = dot(lightPos, pos);
+    float edge = smoothstep(1., .98, d);
+    shape = mix(.1, .5 + .5 * lighting, edge);
   }  
   
   
@@ -239,11 +227,9 @@ shape = mix(0.0, 0.5 + 0.5 * lighting, edge);
   vec3 color3 = u_color3.rgb * u_color3.a;
   
   vec3 borders = vec3(.25, .5, .75);
-  
   vec2 borders1 = vec2(borders[0] - .5 * u_blur, borders[0] + .5 * u_blur + edge_w);
   vec2 borders2 = vec2(borders[1] - .5 * u_blur - edge_w, borders[1] + .5 * u_blur + edge_w);
   vec2 borders3 = vec2(borders[2] - .5 * u_blur - edge_w, borders[2] + .5 * u_blur + edge_w);
-  
   float shape1 = smoothstep(borders1[0], borders1[1], shape);
   float shape2 = smoothstep(borders2[0], borders2[1], shape);
   float shape3 = smoothstep(borders3[0], borders3[1], shape);
@@ -252,10 +238,10 @@ shape = mix(0.0, 0.5 + 0.5 * lighting, edge);
   color = mix(color, color2, shape2);
   color = mix(color, color3, shape3);
 
-  float alpha = mix(u_colorBack.a, u_color1.a, shape1);
-  alpha = mix(alpha, u_color2.a, shape2);
-  alpha = mix(alpha, u_color3.a, shape3);
+  float opacity = mix(u_colorBack.a, u_color1.a, shape1);
+  opacity = mix(opacity, u_color2.a, shape2);
+  opacity = mix(opacity, u_color3.a, shape3);
   
-  fragColor = vec4(color, alpha);
+  fragColor = vec4(color, opacity);
 }
 `;

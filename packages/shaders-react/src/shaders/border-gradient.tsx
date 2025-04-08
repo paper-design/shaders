@@ -33,7 +33,7 @@ export const defaultPreset: BorderGradientPreset = {
     seed: 0,
     color1: 'hsla(52, 89%, 41%, 1)',
     color2: 'hsla(320, 62%, 60%, 1)',
-    color3: 'hsla(224, 100%, 64%, 1)',
+    color3: 'hsla(225, 32%, 24%, 1)',
     blur: 0.35,
     grainDistortion: 0.15,
     sandGrain: 0.5,
