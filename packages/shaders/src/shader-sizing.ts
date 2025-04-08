@@ -37,8 +37,24 @@ export const sizingSquareUV = `
   worldBox -= .5;
   worldBox *= worldScale;
   worldBox += worldOrigin * (worldScale - 1.);  
-  
+
+  // -----------------------------------------------------  
+  // BASE UV (MUST BE A SEPARATE STRING?)
+  // -----------------------------------------------------  
   vec2 uv = gl_FragCoord.xy / u_resolution.xy;
+  vec2 pxSizeUv = gl_FragCoord.xy / u_pixelRatio;
+  vec2 roundedUv = vec2(0.);
+  #ifdef USE_PX_ROUNDING
+    pxSizeUv /= u_pxSize;
+    roundedUv = floor(pxSizeUv) * (u_pxSize * u_pixelRatio) / u_resolution.xy;
+    if (pxSize > 0.) {
+      uv = roundedUv;
+    }  
+  #endif
+  // -----------------------------------------------------  
+  // END OF BASE UV
+  // -----------------------------------------------------  
+  
   uv -= .5;
   uv *= worldScale;
   uv += worldOrigin * (worldScale - 1.);
@@ -78,7 +94,23 @@ export const sizingPatternUV = `
   worldBox *= worldScale;
   worldBox += worldOrigin * (worldScale - 1.);
 
+  // -----------------------------------------------------  
+  // BASE UV (MUST BE A SEPARATE STRING?)
+  // -----------------------------------------------------  
   vec2 uv = gl_FragCoord.xy / u_resolution.xy;
+  vec2 pxSizeUv = gl_FragCoord.xy / u_pixelRatio;
+  vec2 roundedUv = vec2(0.);
+  #ifdef USE_PX_ROUNDING
+    pxSizeUv /= u_pxSize;
+    roundedUv = floor(pxSizeUv) * (u_pxSize * u_pixelRatio) / u_resolution.xy;
+    if (pxSize > 0.) {
+      uv = roundedUv;
+    }  
+  #endif
+  // -----------------------------------------------------  
+  // END OF BASE UV
+  // -----------------------------------------------------  
+  
   uv -= .5;
   uv += vec2(-u_offsetX, u_offsetY) / worldScale;
   uv += worldOrigin;
