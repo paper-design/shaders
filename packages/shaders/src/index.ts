@@ -78,5 +78,13 @@ export { godRaysFragmentShader, type GodRaysParams, type GodRaysUniforms } from 
 /** Single-color spiral shape */
 export { spiralFragmentShader, type SpiralParams, type SpiralUniforms } from './shaders/spiral';
 
+// ----- Grainy Gradient ----- //
+/**  */
+export {
+  grainGradientFragmentShader,
+  type GrainGradientParams,
+  type GrainGradientUniforms,
+} from './shaders/grain-gradient';
+
 // ----- Uniform conversion utils ----- //
 export { getShaderColorFromString } from './get-shader-color-from-string';
