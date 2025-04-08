@@ -92,7 +92,7 @@ export const ripplePreset: GrainGradientPreset = {
   name: 'Ripple',
   params: {
     ...defaultObjectSizing,
-    scale: .5,
+    scale: 0.5,
     speed: 1,
     frame: 0,
     colorBack: 'hsla(30, 100%, 4%, 1)',
@@ -141,7 +141,15 @@ export const spherePreset: GrainGradientPreset = {
   },
 };
 
-export const grainGradientPresets: GrainGradientPreset[] = [defaultPreset, dotsPreset, truchetPreset, cornersPreset, ripplePreset, blobPreset, spherePreset];
+export const grainGradientPresets: GrainGradientPreset[] = [
+  defaultPreset,
+  dotsPreset,
+  truchetPreset,
+  cornersPreset,
+  ripplePreset,
+  blobPreset,
+  spherePreset,
+];
 
 export const GrainGradient: React.FC<GrainGradientProps> = memo(function GrainGradientImpl({
   // Own props
