@@ -25,7 +25,7 @@ export const defaultPreset: VoronoiPreset = {
     speed: 0.5,
     frame: 0,
     color1: 'hsla(208, 65%, 31%, 1)', // #135572
-    color2: 'hsla(35, 79%, 66%, 1)',  // #eb8c0f
+    color2: 'hsla(35, 79%, 66%, 1)', // #eb8c0f
     colorShadow: 'hsla(266, 100%, 50%, 1)', // #3c00ff
     colorEdges: 'hsla(0, 0%, 100%, 1)', // #ffffff
     distance: 0.42,
@@ -41,10 +41,10 @@ export const roundPreset: VoronoiPreset = {
     ...defaultPatternSizing,
     speed: 0.5,
     frame: 0,
-    color1: 'hsla(0, 0%, 100%, 1)',  // #ffffff
-    color2: 'hsla(0, 0%, 100%, 1)',  // #ffffff
+    color1: 'hsla(0, 0%, 100%, 1)', // #ffffff
+    color2: 'hsla(0, 0%, 100%, 1)', // #ffffff
     colorShadow: 'hsla(0, 0%, 100%, 1)', // #ffffff
-    colorEdges: 'hsla(0, 90%, 4%, 1)',   // #130707
+    colorEdges: 'hsla(0, 90%, 4%, 1)', // #130707
     distance: 0.22,
     edgeWidth: 0.01,
     edgesSoftness: 0.02,
@@ -58,10 +58,10 @@ export const shadowPreset: VoronoiPreset = {
     ...defaultPatternSizing,
     speed: 0.5,
     frame: 0,
-    color1: 'hsla(0, 0%, 100%, 1)',    // #ffffff
-    color2: 'hsla(0, 0%, 97%, 1)',     // #f7f7f7
+    color1: 'hsla(0, 0%, 100%, 1)', // #ffffff
+    color2: 'hsla(0, 0%, 97%, 1)', // #f7f7f7
     colorShadow: 'hsla(290, 18%, 42%, 1)', // #5a557c
-    colorEdges: 'hsla(0, 0%, 100%, 1)',    // #ffffff
+    colorEdges: 'hsla(0, 0%, 100%, 1)', // #ffffff
     distance: 0.23,
     edgeWidth: 0.01,
     edgesSoftness: 0.12,
@@ -70,9 +70,7 @@ export const shadowPreset: VoronoiPreset = {
   },
 };
 
-export const voronoiPresets: VoronoiPreset[] = [
-  defaultPreset, roundPreset, shadowPreset
-];
+export const voronoiPresets: VoronoiPreset[] = [defaultPreset, roundPreset, shadowPreset];
 
 export const Voronoi: React.FC<VoronoiProps> = memo(function VoronoiImpl({
   // Own props
