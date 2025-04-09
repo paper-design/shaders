@@ -22,7 +22,7 @@ const VoronoiExample = () => {
       colorGradient={0}
       scale={1}
       distance={0.25}
-      edgesSize={0.2}
+      edgeWidth={0.2}
       edgesSoftness={0}
       speed={1}
       style={{ position: 'fixed', width: '100%', height: '100%' }}
@@ -47,17 +47,15 @@ const VoronoiWithControls = () => {
     return {
       Parameters: folder(
         {
-          colorCell1: { value: defaults.colorCell1, order: 100 },
-          colorCell2: { value: defaults.colorCell2, order: 101 },
-          colorCell3: { value: defaults.colorCell3, order: 102 },
-          colorMid: { value: defaults.colorMid, order: 103 },
-          colorEdges: { value: defaults.colorEdges, order: 104 },
-          colorGradient: { value: defaults.colorGradient, min: 0, max: 1, order: 105 },
+          color1: { value: defaults.color1, order: 100 },
+          color2: { value: defaults.color2, order: 101 },
+          colorShadow: { value: defaults.colorShadow, order: 102 },
+          colorEdges: { value: defaults.colorEdges, order: 103 },
           distance: { value: defaults.distance, min: 0, max: 0.5, order: 300 },
-          edgesSize: { value: defaults.edgesSize, min: 0, max: 1, order: 301 },
-          edgesSoftness: { value: defaults.edgesSoftness, min: 0, max: 1, order: 302 },
-          middleSize: { value: defaults.middleSize, min: 0, max: 1, order: 303 },
-          middleSoftness: { value: defaults.middleSoftness, min: 0, max: 1, order: 304 },
+          edgeWidth: { value: defaults.edgeWidth, min: 0, max: 0.1, order: 301 },
+          edgesSoftness: { value: defaults.edgesSoftness, min: 0, max: 0.3, order: 302 },
+          edgesRoundness: { value: defaults.edgesRoundness, min: 0, max: 1, order: 303 },
+          shade: { value: defaults.shade, min: 0, max: 1, order: 304 },
           speed: { value: defaults.speed, min: 0, max: 1, order: 400 },
         },
         { order: 1 }

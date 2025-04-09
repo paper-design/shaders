@@ -22,196 +22,71 @@ export const defaultPreset: VoronoiPreset = {
   name: 'Default',
   params: {
     ...defaultPatternSizing,
-    scale: 1.5,
     speed: 0.5,
     frame: 0,
-    colorCell1: 'hsla(15, 80%, 50%, 1)',
-    colorCell2: 'hsla(180, 80%, 50%, 1)',
-    colorCell3: 'hsla(200, 80%, 50%, 1)',
-    colorMid: 'hsla(0, 0%, 0%, 1)',
-    colorEdges: 'hsla(0, 0%, 0%, 1)',
-    colorGradient: 0.5,
-    distance: 0.25,
-    edgesSize: 0.15,
-    edgesSoftness: 0.01,
-    middleSize: 0,
-    middleSoftness: 0,
+    color1: 'hsla(208, 65%, 31%, 1)', // #135572
+    color2: 'hsla(35, 79%, 66%, 1)',  // #eb8c0f
+    colorShadow: 'hsla(266, 100%, 50%, 1)', // #3c00ff
+    colorEdges: 'hsla(0, 0%, 100%, 1)', // #ffffff
+    distance: 0.42,
+    edgeWidth: 0.06,
+    edgesSoftness: 0.03,
+    edgesRoundness: 0,
+    shade: 0,
   },
 };
-
-export const classicPreset: VoronoiPreset = {
-  name: 'Classic',
+export const roundPreset: VoronoiPreset = {
+  name: 'Round',
   params: {
     ...defaultPatternSizing,
-    scale: 3,
-    speed: 0.8,
-    frame: 0,
-    colorCell1: 'hsla(0, 100%, 100%, 1)',
-    colorCell2: 'hsla(0, 0%, 100%, 1)',
-    colorCell3: 'hsla(0, 100%, 0%, 1)',
-    colorMid: 'hsla(0, 0%, 0%, 1)',
-    colorEdges: 'hsla(0, 0%, 0%, 1)',
-    colorGradient: 1,
-    distance: 0.45,
-    edgesSize: 0.02,
-    edgesSoftness: 0.07,
-    middleSize: 0,
-    middleSoftness: 0,
-  },
-};
-
-export const giraffePreset: VoronoiPreset = {
-  name: 'Giraffe',
-  params: {
-    ...defaultPatternSizing,
-    scale: 1,
-    speed: 0.6,
-    frame: 0,
-    colorCell1: 'hsla(32, 100%, 18%, 1)',
-    colorCell2: 'hsla(42, 93%, 35%, 1)',
-    colorCell3: 'hsla(32, 100%, 18%, 1)',
-    colorMid: 'hsla(0, 0%, 0%, 1)',
-    colorEdges: 'hsla(45, 100%, 96%, 1)',
-    colorGradient: 1,
-    distance: 0.25,
-    edgesSize: 0.2,
-    edgesSoftness: 0.01,
-    middleSize: 0,
-    middleSoftness: 0,
-  },
-};
-
-export const eyesPreset: VoronoiPreset = {
-  name: 'Eyes',
-  params: {
-    ...defaultPatternSizing,
-    scale: 1.6,
-    speed: 0.6,
-    frame: 0,
-    colorCell1: 'hsla(79, 84%, 60%, 1)',
-    colorCell2: 'hsla(207, 53%, 41%, 1)',
-    colorCell3: 'hsla(207, 80%, 65%, 1)',
-    colorMid: 'hsla(0, 0%, 0%, 1)',
-    colorEdges: 'hsla(0, 100%, 100%, 1)',
-    colorGradient: 1,
-    distance: 0.25,
-    edgesSize: 0.62,
-    edgesSoftness: 0.01,
-    middleSize: 0.1,
-    middleSoftness: 0,
-  },
-};
-
-export const bubblesPreset: VoronoiPreset = {
-  name: 'Bubbles',
-  params: {
-    ...defaultPatternSizing,
-    scale: 2,
     speed: 0.5,
     frame: 0,
-    colorCell1: 'hsla(0, 100%, 50%, 1)',
-    colorCell2: 'hsla(169, 100%, 66%, 1)',
-    colorCell3: 'hsla(50, 100%, 66%, 1)',
-    colorMid: 'hsla(0, 0%, 0%, 1)',
-    colorEdges: 'hsla(0, 0%, 0%, 1)',
-    colorGradient: 1,
-    distance: 0.5,
-    edgesSize: 0.81,
-    edgesSoftness: 0.0,
-    middleSize: 0,
-    middleSoftness: 0,
-  },
-};
-
-export const cellsPreset: VoronoiPreset = {
-  name: 'Cells',
-  params: {
-    ...defaultPatternSizing,
-    scale: 2,
-    speed: 1,
-    frame: 0,
-    colorCell1: 'hsla(0, 0%, 100%, 1)',
-    colorCell2: 'hsla(0, 0%, 100%, 1)',
-    colorCell3: 'hsla(0, 0%, 100%, 1)',
-    colorMid: 'hsla(0, 0%, 0%, 1)',
-    colorEdges: 'hsla(200, 50%, 15%, 1)',
-    colorGradient: 1,
-    distance: 0.38,
-    edgesSize: 0.1,
+    color1: 'hsla(0, 0%, 100%, 1)',  // #ffffff
+    color2: 'hsla(0, 0%, 100%, 1)',  // #ffffff
+    colorShadow: 'hsla(0, 0%, 100%, 1)', // #ffffff
+    colorEdges: 'hsla(0, 90%, 4%, 1)',   // #130707
+    distance: 0.22,
+    edgeWidth: 0.01,
     edgesSoftness: 0.02,
-    middleSize: 0,
-    middleSoftness: 0,
+    edgesRoundness: 0.48,
+    shade: 0,
   },
 };
-
-export const glowPreset: VoronoiPreset = {
-  name: 'Glow',
+export const shadowPreset: VoronoiPreset = {
+  name: 'Shadow',
   params: {
     ...defaultPatternSizing,
-    scale: 1.2,
-    speed: 0.8,
+    speed: 0.5,
     frame: 0,
-    colorCell1: 'hsla(40, 100%, 50%, 1)',
-    colorCell2: 'hsla(311, 100%, 59%, 1)',
-    colorCell3: 'hsla(180, 100%, 65%, 1)',
-    colorMid: 'hsla(0, 0%, 100%, 1)',
-    colorEdges: 'hsla(0, 100%, 0%, 1)',
-    colorGradient: 1,
-    distance: 0.25,
-    edgesSize: 0.15,
-    edgesSoftness: 0.01,
-    middleSize: 0.7,
-    middleSoftness: 1,
-  },
-};
-
-export const tilesPreset: VoronoiPreset = {
-  name: 'Tiles',
-  params: {
-    ...defaultPatternSizing,
-    scale: 1.3,
-    speed: 1,
-    frame: 0,
-    colorCell1: 'hsla(80, 50%, 50%, 1)',
-    colorCell2: 'hsla(0, 50%, 100%, 1)',
-    colorCell3: 'hsla(200, 50%, 50%, 1)',
-    colorMid: 'hsla(0, 0%, 0%, 1)',
-    colorEdges: 'hsla(200, 50%, 10%, 1)',
-    colorGradient: 0,
-    distance: 0.05,
-    edgesSize: 0.25,
-    edgesSoftness: 0.02,
-    middleSize: 0,
-    middleSoftness: 0,
+    color1: 'hsla(0, 0%, 100%, 1)',    // #ffffff
+    color2: 'hsla(0, 0%, 97%, 1)',     // #f7f7f7
+    colorShadow: 'hsla(290, 18%, 42%, 1)', // #5a557c
+    colorEdges: 'hsla(0, 0%, 100%, 1)',    // #ffffff
+    distance: 0.23,
+    edgeWidth: 0.01,
+    edgesSoftness: 0.12,
+    edgesRoundness: 0,
+    shade: 0.42,
   },
 };
 
 export const voronoiPresets: VoronoiPreset[] = [
-  defaultPreset,
-  classicPreset,
-  giraffePreset,
-  eyesPreset,
-  bubblesPreset,
-  cellsPreset,
-  glowPreset,
-  tilesPreset,
+  defaultPreset, roundPreset, shadowPreset
 ];
 
 export const Voronoi: React.FC<VoronoiProps> = memo(function VoronoiImpl({
   // Own props
   speed = defaultPreset.params.speed,
   frame = defaultPreset.params.frame,
-  colorCell1 = defaultPreset.params.colorCell1,
-  colorCell2 = defaultPreset.params.colorCell2,
-  colorCell3 = defaultPreset.params.colorCell3,
-  colorMid = defaultPreset.params.colorMid,
+  color1 = defaultPreset.params.color1,
+  color2 = defaultPreset.params.color2,
+  colorShadow = defaultPreset.params.colorShadow,
   colorEdges = defaultPreset.params.colorEdges,
-  colorGradient = defaultPreset.params.colorGradient,
   distance = defaultPreset.params.distance,
-  edgesSize = defaultPreset.params.edgesSize,
+  edgeWidth = defaultPreset.params.edgeWidth,
   edgesSoftness = defaultPreset.params.edgesSoftness,
-  middleSize = defaultPreset.params.middleSize,
-  middleSoftness = defaultPreset.params.middleSoftness,
+  edgesRoundness = defaultPreset.params.edgesRoundness,
+  shade = defaultPreset.params.shade,
 
   // Sizing props
   fit = defaultPreset.params.fit,
@@ -227,17 +102,15 @@ export const Voronoi: React.FC<VoronoiProps> = memo(function VoronoiImpl({
 }) {
   const uniforms = {
     // Own uniforms
-    u_colorCell1: getShaderColorFromString(colorCell1),
-    u_colorCell2: getShaderColorFromString(colorCell2),
-    u_colorCell3: getShaderColorFromString(colorCell3),
-    u_colorMid: getShaderColorFromString(colorMid),
+    u_color1: getShaderColorFromString(color1),
+    u_color2: getShaderColorFromString(color2),
+    u_colorShadow: getShaderColorFromString(colorShadow),
     u_colorEdges: getShaderColorFromString(colorEdges),
-    u_colorGradient: colorGradient,
     u_distance: distance,
-    u_edgesSize: edgesSize,
+    u_edgeWidth: edgeWidth,
     u_edgesSoftness: edgesSoftness,
-    u_middleSize: middleSize,
-    u_middleSoftness: middleSoftness,
+    u_edgesRoundness: edgesRoundness,
+    u_shade: shade,
 
     // Sizing uniforms
     u_fit: ShaderFitOptions[fit],
