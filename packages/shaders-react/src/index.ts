@@ -52,9 +52,9 @@ export { Spiral, spiralPresets } from './shaders/spiral';
 export type { SpiralProps } from './shaders/spiral';
 export type { SpiralUniforms, SpiralParams } from '@paper-design/shaders';
 
-export {Dithering, ditheringPresets} from './shaders/dithering';
-export {type DitheringProps} from './shaders/dithering';
-export {type DitheringUniforms, type DitheringParams} from '@paper-design/shaders';
+export { Dithering, ditheringPresets } from './shaders/dithering';
+export { type DitheringProps } from './shaders/dithering';
+export { type DitheringUniforms, type DitheringParams } from '@paper-design/shaders';
 
 export { isPaperShaderElement, getShaderColorFromString } from '@paper-design/shaders';
 export type { ShaderFit, ShaderSizingParams, ShaderSizingUniforms } from '@paper-design/shaders';
