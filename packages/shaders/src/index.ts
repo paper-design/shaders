@@ -78,5 +78,9 @@ export { godRaysFragmentShader, type GodRaysParams, type GodRaysUniforms } from 
 /** Single-color spiral shape */
 export { spiralFragmentShader, type SpiralParams, type SpiralUniforms } from './shaders/spiral';
 
+// ----- Dithering ----- //
+/** Dithering effect applied over abstract shapes */
+export { ditheringFragmentShader, type DitheringParams, type DitheringUniforms } from './shaders/dithering';
+
 // ----- Uniform conversion utils ----- //
 export { getShaderColorFromString } from './get-shader-color-from-string';
