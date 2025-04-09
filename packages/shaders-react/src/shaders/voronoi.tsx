@@ -28,7 +28,7 @@ export const defaultPreset: VoronoiPreset = {
     color2: 'hsla(35, 79%, 66%, 1)', // #eb8c0f
     colorShadow: 'hsla(266, 100%, 50%, 1)', // #3c00ff
     colorEdges: 'hsla(0, 0%, 100%, 1)', // #ffffff
-    distance: 0.42,
+    distortion: 0.42,
     edgeWidth: 0.06,
     edgesSoftness: 0.03,
     edgesRoundness: 0,
@@ -45,7 +45,7 @@ export const roundPreset: VoronoiPreset = {
     color2: 'hsla(0, 0%, 100%, 1)', // #ffffff
     colorShadow: 'hsla(0, 0%, 100%, 1)', // #ffffff
     colorEdges: 'hsla(0, 90%, 4%, 1)', // #130707
-    distance: 0.22,
+    distortion: 0.22,
     edgeWidth: 0.01,
     edgesSoftness: 0.02,
     edgesRoundness: 0.48,
@@ -62,7 +62,7 @@ export const shadowPreset: VoronoiPreset = {
     color2: 'hsla(0, 0%, 97%, 1)', // #f7f7f7
     colorShadow: 'hsla(290, 18%, 42%, 1)', // #5a557c
     colorEdges: 'hsla(0, 0%, 100%, 1)', // #ffffff
-    distance: 0.23,
+    distortion: 0.23,
     edgeWidth: 0.01,
     edgesSoftness: 0.12,
     edgesRoundness: 0,
@@ -80,7 +80,7 @@ export const Voronoi: React.FC<VoronoiProps> = memo(function VoronoiImpl({
   color2 = defaultPreset.params.color2,
   colorShadow = defaultPreset.params.colorShadow,
   colorEdges = defaultPreset.params.colorEdges,
-  distance = defaultPreset.params.distance,
+  distortion = defaultPreset.params.distortion,
   edgeWidth = defaultPreset.params.edgeWidth,
   edgesSoftness = defaultPreset.params.edgesSoftness,
   edgesRoundness = defaultPreset.params.edgesRoundness,
@@ -104,7 +104,7 @@ export const Voronoi: React.FC<VoronoiProps> = memo(function VoronoiImpl({
     u_color2: getShaderColorFromString(color2),
     u_colorShadow: getShaderColorFromString(colorShadow),
     u_colorEdges: getShaderColorFromString(colorEdges),
-    u_distance: distance,
+    u_distortion: distortion,
     u_edgeWidth: edgeWidth,
     u_edgesSoftness: edgesSoftness,
     u_edgesRoundness: edgesRoundness,

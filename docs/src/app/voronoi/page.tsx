@@ -41,7 +41,7 @@ const VoronoiWithControls = () => {
           color2: { value: defaults.color2, order: 101 },
           colorShadow: { value: defaults.colorShadow, order: 102 },
           colorEdges: { value: defaults.colorEdges, order: 103 },
-          distance: { value: defaults.distance, min: 0, max: 0.5, order: 300 },
+          distortion: { value: defaults.distortion, min: 0, max: 0.5, order: 300 },
           edgeWidth: { value: defaults.edgeWidth, min: 0, max: 0.1, order: 301 },
           edgesSoftness: { value: defaults.edgesSoftness, min: 0, max: 0.3, order: 302 },
           edgesRoundness: { value: defaults.edgesRoundness, min: 0, max: 1, order: 303 },

@@ -17,7 +17,7 @@ import { declarePI, colorBandingFix } from '../shader-utils';
  * u_color2 - color #2 of mix used to fill the cell shape
  * u_colorEdges - color of borders between the cells
  * u_colorShadow - color used to fill the radial shape on the cell edges
- * u_distance (0 ... 0.5) - how far the cell center can move from regular square grid
+ * u_distortion (0 ... 0.5) - how far the cell center can move from regular square grid
  * u_edgeWidth (0 .. 1) - the size of borders
  *   (can be set to zero but the edge may get glitchy due to nature of Voronoi diagram)
  * u_edgesSoftness (0 .. 1) - the blur/sharp for cell border
@@ -37,7 +37,7 @@ uniform vec4 u_color1;
 uniform vec4 u_color2;
 uniform vec4 u_colorShadow;
 uniform vec4 u_colorEdges;
-uniform float u_distance;
+uniform float u_distortion;
 uniform float u_edgeWidth;
 uniform float u_edgesSoftness;
 uniform float u_edgesRoundness;
@@ -67,7 +67,7 @@ vec4 voronoi(vec2 x, float t) {
       vec2 g = vec2(float(i), float(j));
       vec2 raw_hash = hash(ip + g);
       vec2 o = hash(ip + g);
-      o = .5 + u_distance * sin(t + TWO_PI * o);
+      o = .5 + u_distortion * sin(t + TWO_PI * o);
       vec2 r = g + o - fp;
       float d = dot(r, r);
 
@@ -85,7 +85,7 @@ vec4 voronoi(vec2 x, float t) {
     for (int i = -2; i <= 2; i++) {
       vec2 g = mg + vec2(float(i), float(j));
       vec2 o = hash(ip + g);
-      o = .5 + u_distance * sin(t + TWO_PI * o);
+      o = .5 + u_distortion * sin(t + TWO_PI * o);
       vec2 r = g + o - fp;
       if (dot(mr - r, mr - r) > .00001) {
         md = min(md, dot(.5 * (mr + r), normalize(r - mr)));
@@ -130,7 +130,7 @@ export interface VoronoiUniforms extends ShaderSizingUniforms {
   u_color2: [number, number, number, number];
   u_colorEdges: [number, number, number, number];
   u_colorShadow: [number, number, number, number];
-  u_distance: number;
+  u_distortion: number;
   u_edgeWidth: number;
   u_edgesSoftness: number;
   u_edgesRoundness: number;
@@ -142,7 +142,7 @@ export interface VoronoiParams extends ShaderSizingParams, ShaderMotionParams {
   color2?: string;
   colorEdges?: string;
   colorShadow?: string;
-  distance?: number;
+  distortion?: number;
   edgeWidth?: number;
   edgesSoftness?: number;
   edgesRoundness?: number;
