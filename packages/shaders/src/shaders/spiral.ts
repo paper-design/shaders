@@ -5,7 +5,7 @@ import {
   type ShaderSizingParams,
   type ShaderSizingUniforms,
 } from '../shader-sizing';
-import { declareSimplexNoise, declarePI } from '../shader-utils';
+import { declareSimplexNoise, declarePI, colorBandingFix } from '../shader-utils';
 
 /**
  * Spiral shape by Ksenia Kondrashova
@@ -92,6 +92,8 @@ void main() {
 
   vec3 color = mix(u_color1.rgb * u_color1.a, u_color2.rgb * u_color2.a, shape);
   float opacity = mix(u_color1.a, u_color2.a, shape);
+
+  ${colorBandingFix}
 
   fragColor = vec4(color, opacity);
 }

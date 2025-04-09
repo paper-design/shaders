@@ -5,7 +5,7 @@ import {
   type ShaderSizingParams,
   type ShaderSizingUniforms,
 } from '../shader-sizing';
-import { declarePI } from '../shader-utils';
+import { declarePI, colorBandingFix } from '../shader-utils';
 
 /**
  * Voronoi pattern
@@ -137,6 +137,8 @@ void main() {
 
   color = mix(color, u_colorMid.rgb, u_colorMid.a * dot_shape);
 
+  ${colorBandingFix}
+  
   fragColor = vec4(color, opacity);
 }
 `;

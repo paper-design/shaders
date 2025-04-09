@@ -1,4 +1,6 @@
-import React, { useEffect, useRef, forwardRef, useState } from 'react';
+'use client';
+
+import { useEffect, useRef, forwardRef, useState } from 'react';
 import {
   ShaderMount as ShaderMountVanilla,
   type ShaderMotionParams,

@@ -5,7 +5,7 @@ import {
   type ShaderSizingParams,
   type ShaderSizingUniforms,
 } from '../shader-sizing';
-import { declarePI, declareRandom, declareRotate } from '../shader-utils';
+import { declarePI, declareRandom, declareRotate, colorBandingFix } from '../shader-utils';
 
 /**
  * 3d Perlin noise with exposed parameters
@@ -133,7 +133,11 @@ void main() {
 
   vec4 color_mix = blend_colors(u_color1, u_color2, u_color3, mixer, 1. - clamp(u_softness, 0., 1.), .01 + .01 * u_scale);
 
-  fragColor = color_mix;
+  vec3 color = color_mix.rgb;
+  float opacity = color_mix.a;
+  ${colorBandingFix}
+
+  fragColor = vec4(color, opacity);
 }
 `;
 

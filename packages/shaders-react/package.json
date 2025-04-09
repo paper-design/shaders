@@ -3,6 +3,7 @@
   "version": "0.0.29",
   "license": "MIT",
   "type": "module",
+  "sideEffects": false,
   "publishConfig": {
     "access": "public"
   },
@@ -23,10 +24,18 @@
     "type-check": "tsc --project tsconfig.json"
   },
   "dependencies": {
-    "@paper-design/shaders": "workspace:*",
-    "react": ">=18"
+    "@paper-design/shaders": "workspace:*"
   },
   "devDependencies": {
-    "@types/react": "^19.0.12"
+    "@types/react": "19.1.0"
+  },
+  "peerDependencies": {
+    "@types/react": "^18 || ^19",
+    "react": "^18 || ^19"
+  },
+  "peerDependenciesMeta": {
+    "@types/react": {
+      "optional": true
+    }
   }
 }

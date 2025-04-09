@@ -15,6 +15,12 @@ float random(vec2 st) {
 }
 `;
 
+// It does use the standard random function but we don't call it to keep
+// colorBandingFix insertion independent from declareRandom
+export const colorBandingFix = `
+  color += 1. / 256. * (fract(sin(dot(.014 * gl_FragCoord.xy, vec2(12.9898, 78.233))) * 43758.5453123) - .5);
+`;
+
 export const declareSimplexNoise = `
 vec3 permute(vec3 x) { return mod(((x * 34.0) + 1.0) * x, 289.0); }
 float snoise(vec2 v) {

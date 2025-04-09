@@ -7,8 +7,7 @@ import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import Link from 'next/link';
 import { BackButton } from '@/components/back-button';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
-import { ShaderFitOptions } from '@paper-design/shaders';
-import { ShaderFit } from '@paper-design/shaders';
+import { ShaderFit, ShaderFitOptions } from '@paper-design/shaders';
 
 /**
  * You can copy/paste this example to use SmokeRing in your app
