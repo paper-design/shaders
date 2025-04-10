@@ -21,43 +21,17 @@ type MeshGradientPreset = ShaderPreset<MeshGradientParams>;
 export const defaultPreset: MeshGradientPreset = {
   name: 'Default',
   params: {
-    // ...defaultObjectSizing,
-    speed: 0.15,
+    ...defaultObjectSizing,
+    speed: 1,
     frame: 0,
-    color1: 'hsla(259, 29%, 73%, 1)',
-    color2: 'hsla(263, 57%, 39%, 1)',
-    color3: 'hsla(48, 73%, 84%, 1)',
-    color4: 'hsla(295, 32%, 70%, 1)',
+    color1: 'hsla(259, 100%, 50%, 1)',
+    color2: 'hsla(150, 100%, 50%, 1)',
+    color3: 'hsla(48, 100%, 50%, 1)',
+    color4: 'hsla(295, 100%, 50%, 1)',
   },
 };
 
-export const beachPreset: MeshGradientPreset = {
-  name: 'Beach',
-  params: {
-    // ...defaultObjectSizing,
-    speed: 0.1,
-    frame: 0,
-    color1: 'hsla(186, 81%, 83%, 1)',
-    color2: 'hsla(198, 55%, 68%, 1)',
-    color3: 'hsla(53, 67%, 88%, 1)',
-    color4: 'hsla(45, 93%, 73%, 1)',
-  },
-};
-
-export const fadedPreset: MeshGradientPreset = {
-  name: 'Faded',
-  params: {
-    // ...defaultObjectSizing,
-    speed: -0.3,
-    frame: 0,
-    color1: 'hsla(186, 41%, 90%, 1)',
-    color2: 'hsla(208, 71%, 85%, 1)',
-    color3: 'hsla(183, 51%, 92%, 1)',
-    color4: 'hsla(201, 72%, 90%, 1)',
-  },
-};
-
-export const meshGradientPresets: MeshGradientPreset[] = [defaultPreset, beachPreset, fadedPreset];
+export const meshGradientPresets: MeshGradientPreset[] = [defaultPreset];
 
 export const MeshGradient: React.FC<MeshGradientProps> = memo(function MeshGradientImpl({
   // Own props
@@ -69,15 +43,15 @@ export const MeshGradient: React.FC<MeshGradientProps> = memo(function MeshGradi
   color4 = defaultPreset.params.color4,
 
   // Sizing props
-  // fit = defaultPreset.params.fit,
-  // scale = defaultPreset.params.scale,
-  // rotation = defaultPreset.params.rotation,
-  // originX = defaultPreset.params.originX,
-  // originY = defaultPreset.params.originY,
-  // offsetX = defaultPreset.params.offsetX,
-  // offsetY = defaultPreset.params.offsetY,
-  // worldWidth = defaultPreset.params.worldWidth,
-  // worldHeight = defaultPreset.params.worldHeight,
+  fit = defaultPreset.params.fit,
+  rotation = defaultPreset.params.rotation,
+  scale = defaultPreset.params.scale,
+  originX = defaultPreset.params.originX,
+  originY = defaultPreset.params.originY,
+  offsetX = defaultPreset.params.offsetX,
+  offsetY = defaultPreset.params.offsetY,
+  worldWidth = defaultPreset.params.worldWidth,
+  worldHeight = defaultPreset.params.worldHeight,
   ...props
 }) {
   const uniforms = {
@@ -88,15 +62,15 @@ export const MeshGradient: React.FC<MeshGradientProps> = memo(function MeshGradi
     u_color4: getShaderColorFromString(color4),
 
     // Sizing uniforms
-    // u_fit: ShaderFitOptions[fit],
-    // u_rotation: rotation,
-    // u_scale: scale,
-    // u_offsetX: offsetX,
-    // u_offsetY: offsetY,
-    // u_originX: originX,
-    // u_originY: originY,
-    // u_worldWidth: worldWidth,
-    // u_worldHeight: worldHeight,
+    u_fit: ShaderFitOptions[fit],
+    u_rotation: rotation,
+    u_scale: scale,
+    u_offsetX: offsetX,
+    u_offsetY: offsetY,
+    u_originX: originX,
+    u_originY: originY,
+    u_worldWidth: worldWidth,
+    u_worldHeight: worldHeight,
   } satisfies MeshGradientUniforms;
 
   return (
