@@ -28,6 +28,7 @@ export const defaultPreset: MeshGradientPreset = {
     color2: 'hsla(150, 100%, 50%, 1)',
     color3: 'hsla(48, 100%, 50%, 1)',
     color4: 'hsla(295, 100%, 50%, 1)',
+    test: 0.3,
   },
 };
 
@@ -41,6 +42,7 @@ export const MeshGradient: React.FC<MeshGradientProps> = memo(function MeshGradi
   color2 = defaultPreset.params.color2,
   color3 = defaultPreset.params.color3,
   color4 = defaultPreset.params.color4,
+  test = defaultPreset.params.test,
 
   // Sizing props
   fit = defaultPreset.params.fit,
@@ -60,6 +62,7 @@ export const MeshGradient: React.FC<MeshGradientProps> = memo(function MeshGradi
     u_color2: getShaderColorFromString(color2),
     u_color3: getShaderColorFromString(color3),
     u_color4: getShaderColorFromString(color4),
+    u_test: test,
 
     // Sizing uniforms
     u_fit: ShaderFitOptions[fit],
