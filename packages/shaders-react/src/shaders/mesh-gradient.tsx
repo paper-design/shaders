@@ -46,7 +46,7 @@ export const purplePreset: MeshGradientPreset = {
     waveDistortion: 0.3,
     swirlDistortion: 0.5,
   },
-} as const;
+};
 
 export const beachPreset: MeshGradientPreset = {
   name: 'Beach',

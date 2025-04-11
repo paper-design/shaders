@@ -131,6 +131,6 @@ export interface MeshGradientParams extends ShaderSizingParams, ShaderMotionPara
   color2?: string;
   color3?: string;
   color4?: string;
-  waveDistortion: number;
-  swirlDistortion: number;
+  waveDistortion?: number;
+  swirlDistortion?: number;
 }
