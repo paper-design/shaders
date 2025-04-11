@@ -23,16 +23,47 @@ export const defaultPreset: MeshGradientPreset = {
   params: {
     ...defaultObjectSizing,
     speed: 1,
-    frame: 0,
+    frame: 40000,
     color1: 'hsla(259, 100%, 50%, 1)',
     color2: 'hsla(150, 100%, 50%, 1)',
     color3: 'hsla(48, 100%, 50%, 1)',
     color4: 'hsla(295, 100%, 50%, 1)',
-    test: 0.3,
+    waveDistortion: 0.8,
+    swirlDistortion: 0.1,
   },
 };
 
-export const meshGradientPresets: MeshGradientPreset[] = [defaultPreset];
+export const purplePreset: MeshGradientPreset = {
+  name: 'Purple',
+  params: {
+    ...defaultObjectSizing,
+    speed: 0.6,
+    frame: 100,
+    color1: 'hsla(259, 29%, 73%, 1)',
+    color2: 'hsla(263, 57%, 39%, 1)',
+    color3: 'hsla(48, 73%, 84%, 1)',
+    color4: 'hsla(295, 32%, 70%, 1)',
+    waveDistortion: 0.3,
+    swirlDistortion: 0.5,
+  },
+} as const;
+
+export const beachPreset: MeshGradientPreset = {
+  name: 'Beach',
+  params: {
+    ...defaultObjectSizing,
+    speed: 0.1,
+    frame: 0,
+    color1: 'hsla(186, 81%, 83%, 1)',
+    color2: 'hsla(198, 55%, 68%, 1)',
+    color3: 'hsla(53, 67%, 88%, 1)',
+    color4: 'hsla(45, 93%, 73%, 1)',
+    waveDistortion: 0.8,
+    swirlDistortion: 0.35,
+  },
+};
+
+export const meshGradientPresets: MeshGradientPreset[] = [defaultPreset, purplePreset, beachPreset];
 
 export const MeshGradient: React.FC<MeshGradientProps> = memo(function MeshGradientImpl({
   // Own props
@@ -42,7 +73,8 @@ export const MeshGradient: React.FC<MeshGradientProps> = memo(function MeshGradi
   color2 = defaultPreset.params.color2,
   color3 = defaultPreset.params.color3,
   color4 = defaultPreset.params.color4,
-  test = defaultPreset.params.test,
+  waveDistortion = defaultPreset.params.waveDistortion,
+  swirlDistortion = defaultPreset.params.swirlDistortion,
 
   // Sizing props
   fit = defaultPreset.params.fit,
@@ -62,7 +94,8 @@ export const MeshGradient: React.FC<MeshGradientProps> = memo(function MeshGradi
     u_color2: getShaderColorFromString(color2),
     u_color3: getShaderColorFromString(color3),
     u_color4: getShaderColorFromString(color4),
-    u_test: test,
+    u_waveDistortion: waveDistortion,
+    u_swirlDistortion: swirlDistortion,
 
     // Sizing uniforms
     u_fit: ShaderFitOptions[fit],

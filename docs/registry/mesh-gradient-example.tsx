@@ -7,9 +7,10 @@ export function MeshGradientExample(props: MeshGradientProps) {
       color2="#562b9c"
       color3="#f4e8b8"
       color4="#c79acb"
+      waveDistortion={0.5}
+      swirlDistortion={0.1}
       speed={0.15}
       style={{ position: 'fixed', width: '100%', height: '100%' }}
-      {...props}
     />
   );
 }

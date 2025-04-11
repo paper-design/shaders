@@ -1,6 +1,6 @@
 'use client';
 
-import {MeshGradient, meshGradientPresets, metaballsPresets} from '@paper-design/shaders-react';
+import { MeshGradient, meshGradientPresets } from '@paper-design/shaders-react';
 import { useControls, button, folder } from 'leva';
 import { setParamsSafe, useResetLevaParams } from '@/helpers/use-reset-leva-params';
 import { usePresetHighlight } from '@/helpers/use-preset-highlight';
@@ -19,6 +19,8 @@ const MeshGradientExample = () => {
       color2="#562b9c"
       color3="#f4e8b8"
       color4="#c79acb"
+      waveDistortion={0.5}
+      swirlDistortion={0.1}
       speed={0.15}
       style={{ position: 'fixed', width: '100%', height: '100%' }}
     />
@@ -29,10 +31,7 @@ const MeshGradientExample = () => {
  * This example has controls added so you can play with settings in the example app
  */
 
-const {worldWidth, worldHeight, ...defaults} = {
-    ...meshGradientPresets[0].params,
-    style: {background: 'hsla(0, 0%, 0%, 0)'},
-};
+const { worldWidth, worldHeight, ...defaults } = meshGradientPresets[0].params;
 
 const MeshGradientWithControls = () => {
   const [params, setParams] = useControls(() => {
@@ -43,8 +42,9 @@ const MeshGradientWithControls = () => {
           color2: { value: defaults.color2, order: 101 },
           color3: { value: defaults.color3, order: 102 },
           color4: { value: defaults.color4, order: 103 },
-          test: { value: defaults.test, min: 0, max: 1, order: 200 },
-          speed: { value: defaults.speed, min: 0, max: 1, order: 400 },
+          waveDistortion: { value: defaults.waveDistortion, min: 0, max: 1, order: 200 },
+          swirlDistortion: { value: defaults.swirlDistortion, min: 0, max: 1, order: 201 },
+          speed: { value: defaults.speed, min: 0, max: 2, order: 400 },
         },
         { order: 1 }
       ),
