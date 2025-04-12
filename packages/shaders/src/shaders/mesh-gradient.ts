@@ -42,15 +42,14 @@ ${declareRotate}
 
 
 vec2 getPosition(int i, float t) {
-  if (i == 0) return 0.5 + 0.5 * vec2(sin(t), cos(t * 1.2));
-  if (i == 1) return 0.5 + 0.5 * vec2(cos(t * .9 + 2.), sin(t * 1.1 + 1.0));
-  if (i == 2) return 0.5 + 0.5 * vec2(sin(t * .6 + 3.), sin(t * 1.7));
-  return 0.5 + 0.5 * vec2(sin(t * 1.3 + 1.5), cos(t * 0.7 + 4.0));
+  float a = float(i) * .37;
+  float b = .6 + mod(float(i), 3.) * .3;
+  float c = .8 + mod(float(i + 1), 4.) * 0.25;
 
-  // if (i == 0) return vec2(0.);
-  // if (i == 1) return vec2(1., 0.);
-  // if (i == 2) return vec2(0., 1.);
-  // return vec2(1.);
+  float x = sin(t * b + a);
+  float y = cos(t * c + a * 1.5);
+
+  return .5 + .5 * vec2(x, y);
 }
 
 vec3 getColor(int i) {
