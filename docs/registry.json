@@ -171,6 +171,19 @@
           "type": "registry:component"
         }
       ]
+    },
+    {
+      "name": "swirl",
+      "type": "registry:component",
+      "title": "Swirl Example",
+      "description": "Swirl shader example.",
+      "dependencies": ["@paper-design/shaders-react"],
+      "files": [
+        {
+          "path": "registry/swirl-example.tsx",
+          "type": "registry:component"
+        }
+      ]
     }
   ]
 }

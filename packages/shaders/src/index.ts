@@ -78,5 +78,9 @@ export { godRaysFragmentShader, type GodRaysParams, type GodRaysUniforms } from 
 /** Single-color spiral shape */
 export { spiralFragmentShader, type SpiralParams, type SpiralUniforms } from './shaders/spiral';
 
+// ----- Swirl gradient ----- //
+/**  */
+export { swirlFragmentShader, type SwirlParams, type SwirlUniforms } from './shaders/swirl';
+
 // ----- Uniform conversion utils ----- //
 export { getShaderColorFromString } from './get-shader-color-from-string';

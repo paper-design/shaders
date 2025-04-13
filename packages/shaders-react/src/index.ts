@@ -52,5 +52,9 @@ export { Spiral, spiralPresets } from './shaders/spiral';
 export type { SpiralProps } from './shaders/spiral';
 export type { SpiralUniforms, SpiralParams } from '@paper-design/shaders';
 
+export { Swirl, swirlPresets } from './shaders/swirl';
+export type { SwirlProps } from './shaders/swirl';
+export type { SwirlUniforms, SwirlParams } from '@paper-design/shaders';
+
 export { isPaperShaderElement, getShaderColorFromString } from '@paper-design/shaders';
 export type { ShaderFit, ShaderSizingParams, ShaderSizingUniforms } from '@paper-design/shaders';
