@@ -15,6 +15,7 @@ import { declarePI, colorBandingFix } from '../shader-utils';
  * Uniforms include:
  * u_color1 - color #1 of mix used to fill the cell shape
  * u_color2 - color #2 of mix used to fill the cell shape
+ * u_color3 - color #3 of mix used to fill the cell shape
  * u_colorEdges - color of borders between the cells
  * u_colorShadow - color used to fill the radial shape on the cell edges
  * u_distortion (0 ... 0.5) - how far the cell center can move from regular square grid
@@ -23,6 +24,7 @@ import { declarePI, colorBandingFix } from '../shader-utils';
  * u_edgesSoftness (0 .. 1) - the blur/sharp for cell border
  * u_edgesRoundness (0 .. 1) - the additional rounding on cells
  * u_shade (0 .. 1) - the size of shape in the center of each cell
+ * u_softness (0 .. 1)
  */
 export const voronoiFragmentShader: string = `#version 300 es
 precision highp float;
@@ -35,6 +37,7 @@ ${sizingUniformsDeclaration}
 
 uniform vec4 u_color1;
 uniform vec4 u_color2;
+uniform vec4 u_color3;
 uniform vec4 u_colorShadow;
 uniform vec4 u_colorEdges;
 uniform float u_distortion;
@@ -42,8 +45,7 @@ uniform float u_edgeWidth;
 uniform float u_edgesSoftness;
 uniform float u_edgesRoundness;
 uniform float u_shade;
-
-#define TWO_PI 6.28318530718
+uniform float u_mixing;
 
 out vec4 fragColor;
 
@@ -97,6 +99,44 @@ vec4 voronoi(vec2 x, float t) {
   return vec4(md, mr, rand);
 }
 
+vec3 colorBlend(float shape) {
+
+  int maxColorCount = 10;
+  float colorsCount = 3.;
+  float softness = u_mixing;
+  bool extraSides = true;
+  float test = 3.;
+
+  float mixer = shape * (colorsCount - 1.);
+  if (extraSides == true) {
+    mixer = (shape - .5 / colorsCount) * colorsCount;
+  }
+  
+  vec3 colors[3] = vec3[](
+    u_color1.rgb,
+    u_color2.rgb,
+    u_color3.rgb
+  );
+  
+  vec3 gradient = colors[0].rgb;
+  
+  for (int i = 1; i < maxColorCount; i++) {
+      if (i >= int(colorsCount)) break;
+      float localT = clamp(mixer - float(i - 1), 0.0, 1.0);
+      
+      if (test == 1.) {
+        localT = smoothstep(.5 - .5 * softness, .5 + .5 * softness, localT);
+      } else if (test == 2.) {
+        localT = 1. / (1. + exp(-1. / (pow(softness, 2.) + 1e-3) * (localT - .5)));
+      } else if (test == 3.) {
+        localT = smoothstep(0., 1., localT);
+        localT = 1. / (1. + exp(-1. / (pow(softness, 2.) + 1e-3) * (localT - .5)));
+      }
+      gradient = mix(gradient, colors[i].rgb, localT);
+  }  
+  return gradient;
+}
+  
 void main() {
   ${sizingPatternUV}
   
@@ -105,8 +145,8 @@ void main() {
   float t = u_time;
 
   vec4 voronoiRes = voronoi(uv, t);
-  
-  vec3 cellColor = step(.5, voronoiRes.w) * u_color1.rgb + step(voronoiRes.w, .5) * u_color2.rgb;
+    
+  vec3 cellColor = colorBlend(voronoiRes.w * .998);
 
   float shades = length(voronoiRes.yz * u_shade + .1);
   shades = pow(shades, 1.5);
@@ -128,6 +168,7 @@ void main() {
 export interface VoronoiUniforms extends ShaderSizingUniforms {
   u_color1: [number, number, number, number];
   u_color2: [number, number, number, number];
+  u_color3: [number, number, number, number];
   u_colorEdges: [number, number, number, number];
   u_colorShadow: [number, number, number, number];
   u_distortion: number;
@@ -135,11 +176,13 @@ export interface VoronoiUniforms extends ShaderSizingUniforms {
   u_edgesSoftness: number;
   u_edgesRoundness: number;
   u_shade: number;
+  u_mixing: number;
 }
 
 export interface VoronoiParams extends ShaderSizingParams, ShaderMotionParams {
   color1?: string;
   color2?: string;
+  color3?: string;
   colorEdges?: string;
   colorShadow?: string;
   distortion?: number;
@@ -147,4 +190,5 @@ export interface VoronoiParams extends ShaderSizingParams, ShaderMotionParams {
   edgesSoftness?: number;
   edgesRoundness?: number;
   shade?: number;
+  mixing?: number;
 }
