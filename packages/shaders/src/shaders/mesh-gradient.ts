@@ -114,7 +114,7 @@ export const meshGradientMeta = {
   maxColorCount: 10,
 } as const;
 
-// export interface MeshGradientUniforms1 extends ShaderSizingUniforms {
+// export interface MeshGradientUniforms extends ShaderSizingUniforms {
 //   u_colors: vec4[];
 //   u_colorSpace: (typeof ShaderColorSpaces)[ShaderColorSpace];
 // }
