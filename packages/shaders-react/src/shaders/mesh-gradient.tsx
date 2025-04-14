@@ -28,6 +28,7 @@ export const defaultPreset: MeshGradientPreset = {
     colors: ['hsla(259, 100%, 50%, 1)', 'hsla(150, 100%, 50%, 1)', 'hsla(48, 100%, 50%, 1)', 'hsla(295, 100%, 50%, 1)'],
     distortion: 0.8,
     swirl: 0.1,
+    colorSpace: 0,
   },
 };
 
@@ -40,6 +41,7 @@ export const purplePreset: MeshGradientPreset = {
     colors: ['hsla(259, 29%, 73%, 1)', 'hsla(263, 57%, 39%, 1)', 'hsla(48, 73%, 84%, 1)', 'hsla(295, 32%, 70%, 1)'],
     distortion: 0.3,
     swirl: 0.5,
+    colorSpace: 0,
   },
 };
 
@@ -52,6 +54,7 @@ export const beachPreset: MeshGradientPreset = {
     colors: ['hsla(186, 81%, 83%, 1)', 'hsla(198, 55%, 68%, 1)', 'hsla(53, 67%, 88%, 1)', 'hsla(45, 93%, 73%, 1)'],
     distortion: 0.8,
     swirl: 0.35,
+    colorSpace: 0,
   },
 };
 
@@ -64,6 +67,7 @@ export const MeshGradient: React.FC<MeshGradientProps> = memo(function MeshGradi
   colors = defaultPreset.params.colors,
   distortion = defaultPreset.params.distortion,
   swirl = defaultPreset.params.swirl,
+  colorSpace = defaultPreset.params.colorSpace,
 
   // Sizing props
   fit = defaultPreset.params.fit,
@@ -81,6 +85,7 @@ export const MeshGradient: React.FC<MeshGradientProps> = memo(function MeshGradi
     // Own uniforms
     u_colors: colors.map(getShaderColorFromString),
     u_colorsCount: colors.length,
+    u_colorSpace: colorSpace,
     u_distortion: distortion,
     u_swirl: swirl,
 
