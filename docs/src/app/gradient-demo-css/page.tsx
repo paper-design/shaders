@@ -9,6 +9,7 @@ import { BackButton } from '@/components/back-button';
 import { memo } from 'react';
 import { getShaderColorFromString, type ShaderPreset } from '@paper-design/shaders';
 import { ShaderMount, ShaderComponentProps } from '@paper-design/shaders-react';
+import { useColors } from '@/helpers/use-colors';
 
 type vec4 = [number, number, number, number];
 const gradientDemoCSSMaxColorCount = 7;
@@ -196,30 +197,10 @@ const GradientDemoCSS: React.FC<GradientDemoCSSProps> = memo(function GradientDe
 const defaults = gradientDemoCSSPresets[0].params;
 
 export default function Page() {
-  const [{ colorCount }, setColorCount] = useControls(() => ({
-    Colors: folder({
-      colorCount: {
-        value: defaults.colors.length,
-        min: 2,
-        max: gradientDemoCSSMaxColorCount,
-        step: 1,
-      },
-    }),
-  }));
-
-  const [levaColors, setLevaColors] = useControls(() => {
-    const colors: Record<string, { value: string }> = {};
-
-    for (let i = 0; i < colorCount; i++) {
-      colors[`color${i}`] = {
-        value: defaults.colors[i] ?? 'hsla(' + Math.random() * 360 + ', 50%, 50%, 1)',
-      };
-    }
-
-    return {
-      Colors: folder(colors),
-    };
-  }, [colorCount]);
+  const { colors, setColors } = useColors({
+    defaultColors: defaults.colors,
+    maxColorCount: gradientDemoCSSMaxColorCount,
+  });
 
   const [params, setParams] = useControls(() => {
     const presets: GradientDemoCSSParams = Object.fromEntries(
@@ -228,17 +209,8 @@ export default function Page() {
           preset.name,
           button(() => {
             const { colors, ...presetParams } = preset.params;
+            setColors(colors);
             setParamsSafe(params, setParams, presetParams);
-            setColorCount({ colorCount: colors.length });
-
-            const presetColors = Object.fromEntries(
-              colors.map((color, index) => {
-                return [`color${index}`, color];
-              })
-            );
-
-            setColorCount({ colorCount: colors.length });
-            setParamsSafe(levaColors, setLevaColors, presetColors);
           }),
         ];
       })
@@ -253,15 +225,13 @@ export default function Page() {
       ),
       Presets: folder(presets as Record<string, string>, { order: 2 }),
     };
-  }, [colorCount]);
+  }, [colors.length]);
 
   // Reset to defaults on mount, so that Leva doesn't show values from other
   // shaders when navigating (if two shaders have a color1 param for example)
   useResetLevaParams(params, setParams, defaults);
   usePresetHighlight(gradientDemoCSSPresets, params);
   cleanUpLevaParams(params);
-
-  const colors = Object.values(levaColors) as unknown as string[];
 
   return (
     <>
