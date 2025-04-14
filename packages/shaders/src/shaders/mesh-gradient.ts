@@ -6,7 +6,7 @@ import {
   type ShaderSizingParams,
   type ShaderSizingUniforms,
 } from '../shader-sizing';
-import { declarePI, declareRotate, declareSimplexNoise, colorBandingFix } from '../shader-utils';
+import { declarePI, declareRotate, colorBandingFix } from '../shader-utils';
 import type { ShaderColorSpace, ShaderColorSpaces } from '../shader-color-spaces';
 
 export const meshGradientMeta = {
@@ -19,10 +19,6 @@ export const meshGradientMeta = {
  * and several layers of fractal noise
  *
  * Uniforms include:
- * u_color1: The first color of the mesh gradient
- * u_color2: The second color of the mesh gradient
- * u_color3: The third color of the mesh gradient
- * u_color4: The fourth color of the mesh gradient
  */
 export const meshGradientFragmentShader: string = `#version 300 es
 precision highp float;
@@ -33,16 +29,15 @@ uniform vec2 u_resolution;
 
 ${sizingUniformsDeclaration}
 
-uniform vec4 u_color1;
-uniform vec4 u_color2;
-uniform vec4 u_color3;
-uniform vec4 u_color4;
+uniform vec4 u_colors[${meshGradientMeta.maxColorCount}];
+uniform float u_colors_count;
+uniform bool u_extraSides;
+
 uniform float u_waveDistortion;
 uniform float u_swirlDistortion;
 
 out vec4 fragColor;
 
-${declareSimplexNoise}
 ${declarePI}
 ${declareRotate}
 
@@ -58,25 +53,11 @@ vec2 getPosition(int i, float t) {
   return .5 + .5 * vec2(x, y);
 }
 
-vec3 getColor(int i) {
-  if (i == 0) return u_color1.rgb;
-  if (i == 1) return u_color2.rgb;
-  if (i == 2) return u_color3.rgb;
-  return u_color4.rgb;
-}
-
-float get_noise(vec2 uv, float t) {
-  float noise = .5 * snoise(uv - vec2(0., .3 * t));
-  noise += .5 * snoise(2. * uv + vec2(0., .32 * t));
-
-  return noise;
-}
-
 void main() {
   ${sizingSquareUV}
-   uv += .5;
+  uv += .5;
 
-  float t = .25 * u_time;
+  float t = .5 * u_time;
 
   vec3 color = vec3(0.0);
   float totalWeight = 0.0;
@@ -94,10 +75,11 @@ void main() {
   uvRotated = rotate(uvRotated, -angle);
   uvRotated += vec2(.5);
 
-  for (int i = 0; i < 4; i++) {
-
+  for (int i = 0; i < ${meshGradientMeta.maxColorCount}; i++) {
+    if (i >= int(u_colors_count)) break;
+    
     vec2 pos = getPosition(i, t);
-    vec3 col = getColor(i);
+    vec3 col = u_colors[i].rgb;
 
     float dist = 0.;
     if (mod(float(i), 2.) > 1.) {
