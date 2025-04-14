@@ -1,5 +1,6 @@
 import { memo } from 'react';
 import { ShaderMount, type ShaderComponentProps } from '../shader-mount';
+import { colorPropsAreEqual } from '../color-props-are-equal';
 import {
   getShaderColorFromString,
   steppedSimplexNoiseFragmentShader,
@@ -110,7 +111,7 @@ export const SteppedSimplexNoise: React.FC<SteppedSimplexNoiseProps> = memo(func
   worldWidth = defaultPreset.params.worldWidth,
   worldHeight = defaultPreset.params.worldHeight,
   ...props
-}) {
+}: SteppedSimplexNoiseProps) {
   const uniforms = {
     // Own uniforms
     u_color1: getShaderColorFromString(color1),
@@ -141,4 +142,4 @@ export const SteppedSimplexNoise: React.FC<SteppedSimplexNoiseProps> = memo(func
       uniforms={uniforms}
     />
   );
-});
+}, colorPropsAreEqual);
