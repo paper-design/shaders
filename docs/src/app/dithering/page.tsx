@@ -1,6 +1,6 @@
 'use client';
 
-import { Dithering, type DitheringParams, ditheringPresets } from '@paper-design/shaders-react';
+import { Dithering, ditheringPresets } from '@paper-design/shaders-react';
 
 import { useControls, button, folder } from 'leva';
 import { setParamsSafe, useResetLevaParams } from '@/helpers/use-reset-leva-params';
@@ -10,6 +10,7 @@ import { BackButton } from '@/components/back-button';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
 import { ShaderFitOptions } from '@paper-design/shaders';
 import { ShaderFit } from '@paper-design/shaders';
+import { levaImageButton } from '@/helpers/leva-image-button';
 
 /**
  * You can copy/paste this example to use Dithering in your app
@@ -70,6 +71,16 @@ const DitheringWithControls = () => {
           collapsed: true,
         }
       ),
+      Image: folder(
+        {
+          'Upload image': levaImageButton((image) => setParamsSafe(params, setParams, { image })),
+        },
+        {
+          order: 4,
+          collapsed: false,
+        }
+      ),
+
       Presets: folder(presets, { order: 10 }),
     };
   });

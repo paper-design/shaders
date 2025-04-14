@@ -31,6 +31,7 @@ export const defaultPreset: DitheringPreset = {
     type: 3,
     pxSize: 2,
     pxRounded: true,
+    image: null,
   },
 };
 
@@ -46,6 +47,7 @@ export const warpPreset: DitheringPreset = {
     type: 3,
     pxSize: 2,
     pxRounded: true,
+    image: null,
   },
 } as const;
 
@@ -61,6 +63,7 @@ export const sinePreset: DitheringPreset = {
     type: 4,
     pxSize: 11,
     pxRounded: true,
+    image: null,
   },
 } as const;
 
@@ -76,6 +79,7 @@ export const bugsPreset: DitheringPreset = {
     type: 1,
     pxSize: 9,
     pxRounded: true,
+    image: null,
   },
 } as const;
 
@@ -91,6 +95,7 @@ export const ripplePreset: DitheringPreset = {
     type: 2,
     pxSize: 3,
     pxRounded: false,
+    image: null,
   },
 } as const;
 
@@ -106,6 +111,7 @@ export const swirlPreset: DitheringPreset = {
     type: 4,
     pxSize: 2,
     pxRounded: false,
+    image: null,
   },
 } as const;
 
@@ -123,6 +129,7 @@ export const spherePreset: DitheringPreset = {
     type: 3,
     pxSize: 2.5,
     pxRounded: true,
+    image: null,
   },
 } as const;
 
@@ -146,6 +153,7 @@ export const Dithering: React.FC<DitheringProps> = memo(function DitheringImpl({
   type = defaultPreset.params.type,
   pxSize = defaultPreset.params.pxSize,
   pxRounded = defaultPreset.params.pxRounded,
+  image = defaultPreset.params.image,
 
   // Sizing props
   fit = defaultPreset.params.fit,
@@ -167,6 +175,7 @@ export const Dithering: React.FC<DitheringProps> = memo(function DitheringImpl({
     u_type: type,
     u_pxSize: pxSize,
     u_pxRounded: pxRounded,
+    u_image: image,
 
     // Sizing uniforms
     u_fit: ShaderFitOptions[fit],
