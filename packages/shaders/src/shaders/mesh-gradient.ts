@@ -128,7 +128,7 @@ export interface MeshGradientUniforms extends ShaderSizingUniforms {
 
 export interface MeshGradientParams extends ShaderSizingParams, ShaderMotionParams {
   colors?: string[];
-  colorSpace?: (typeof ShaderColorSpaces)[ShaderColorSpace];
+  colorSpace?: number;
   distortion?: number;
   swirl?: number;
 }
