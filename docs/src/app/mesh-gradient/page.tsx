@@ -16,8 +16,8 @@ import { useColors } from '@/helpers/use-colors';
 const MeshGradientExample = () => {
   return (
     <MeshGradient
-      waveDistortion={0.5}
-      swirlDistortion={0.1}
+      distortion={0.5}
+      swirl={0.1}
       speed={0.15}
       colors={[
         'hsla(259, 100%, 50%, 1)',
@@ -46,8 +46,8 @@ const MeshGradientWithControls = () => {
     return {
       Parameters: folder(
         {
-          waveDistortion: { value: defaults.waveDistortion, min: 0, max: 1, order: 200 },
-          swirlDistortion: { value: defaults.swirlDistortion, min: 0, max: 1, order: 201 },
+          distortion: { value: defaults.distortion, min: 0, max: 1, order: 200 },
+          swirl: { value: defaults.swirl, min: 0, max: 1, order: 201 },
           speed: { value: defaults.speed, min: 0, max: 2, order: 400 },
         },
         { order: 1 }

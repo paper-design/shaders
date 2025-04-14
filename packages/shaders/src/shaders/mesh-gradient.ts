@@ -33,8 +33,8 @@ uniform vec4 u_colors[${meshGradientMeta.maxColorCount}];
 uniform float u_colorsCount;
 uniform bool u_extraSides;
 
-uniform float u_waveDistortion;
-uniform float u_swirlDistortion;
+uniform float u_distortion;
+uniform float u_swirl;
 
 out vec4 fragColor;
 
@@ -65,13 +65,13 @@ void main() {
   float radius = smoothstep(0., 1., length(uv - .5));
   float center = 1. - radius;
   for (float i = 1.; i <= 2.; i++) {
-    uv.x += u_waveDistortion * center / i * sin(t + i * .4 * smoothstep(.0, 1., uv.y)) * cos(.2 * t + i * 2.4 * smoothstep(.0, 1., uv.y));
-    uv.y += u_waveDistortion * center / i * cos(t + i * 2. * smoothstep(.0, 1., uv.x));
+    uv.x += u_distortion * center / i * sin(t + i * .4 * smoothstep(.0, 1., uv.y)) * cos(.2 * t + i * 2.4 * smoothstep(.0, 1., uv.y));
+    uv.y += u_distortion * center / i * cos(t + i * 2. * smoothstep(.0, 1., uv.x));
   }
 
   vec2 uvRotated = uv;
   uvRotated -= vec2(.5);
-  float angle = 3. * u_swirlDistortion * radius;
+  float angle = 3. * u_swirl * radius;
   uvRotated = rotate(uvRotated, -angle);
   uvRotated += vec2(.5);
 
@@ -108,13 +108,13 @@ export interface MeshGradientUniforms extends ShaderSizingUniforms {
   u_colors: vec4[];
   u_colorsCount: number;
   // u_colorSpace: (typeof ShaderColorSpaces)[ShaderColorSpace];
-  u_waveDistortion: number;
-  u_swirlDistortion: number;
+  u_distortion: number;
+  u_swirl: number;
 }
 
 export interface MeshGradientParams extends ShaderSizingParams, ShaderMotionParams {
   colors?: string[];
   // colorSpace?: ShaderColorSpace;
-  waveDistortion?: number;
-  swirlDistortion?: number;
+  distortion?: number;
+  swirl?: number;
 }
