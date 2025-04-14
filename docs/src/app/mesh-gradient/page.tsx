@@ -7,6 +7,8 @@ import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
 import Link from 'next/link';
 import { BackButton } from '@/components/back-button';
+import { meshGradientMeta } from '@paper-design/shaders';
+import { useColors } from '@/helpers/use-colors';
 
 /**
  * You can copy/paste this example to use MeshGradient in your app
@@ -32,12 +34,23 @@ const MeshGradientExample = () => {
 const defaults = meshGradientPresets[0].params;
 
 const MeshGradientWithControls = () => {
+  // Colors: (1 / 3)
+  // const { colors, setColors } = useColors({
+  //   defaultColors: defaults.colors,
+  //   maxColorCount: meshGradientMeta.maxColorCount,
+  // });
+
   const [params, setParams] = useControls(() => {
     const presets = Object.fromEntries(
       // meshGradientPresets.map(({ name, params: { worldWidth, worldHeight, ...preset } }) => [
       meshGradientPresets.map(({ name, params: preset }) => [
         name,
-        button(() => setParamsSafe(params, setParams, preset)),
+        button(() => {
+          // Colors: (2 / 3)
+          // const { colors, ...presetParams } = preset;
+          // setColors(colors);
+          setParamsSafe(params, setParams, preset);
+        }),
       ])
     );
 
@@ -92,7 +105,12 @@ const MeshGradientWithControls = () => {
       <Link href="/">
         <BackButton />
       </Link>
-      <MeshGradient className="fixed size-full" {...params} />
+      <MeshGradient
+        {...params}
+        // Colors: (3 / 3)
+        // colors={colors}
+        className="fixed size-full"
+      />
     </>
   );
 };

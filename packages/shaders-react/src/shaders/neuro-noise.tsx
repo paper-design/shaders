@@ -1,5 +1,6 @@
 import { memo } from 'react';
 import { ShaderMount, type ShaderComponentProps } from '../shader-mount';
+import { colorPropsAreEqual } from '../color-props-are-equal';
 import {
   defaultPatternSizing,
   getShaderColorFromString,
@@ -64,7 +65,7 @@ export const NeuroNoise: React.FC<NeuroNoiseProps> = memo(function NeuroNoiseImp
   worldWidth = defaultPreset.params.worldWidth,
   worldHeight = defaultPreset.params.worldHeight,
   ...props
-}) {
+}: NeuroNoiseProps) {
   const uniforms = {
     // Own uniforms
     u_colorFront: getShaderColorFromString(colorFront),
@@ -86,4 +87,4 @@ export const NeuroNoise: React.FC<NeuroNoiseProps> = memo(function NeuroNoiseImp
   return (
     <ShaderMount {...props} speed={speed} frame={frame} fragmentShader={neuroNoiseFragmentShader} uniforms={uniforms} />
   );
-});
+}, colorPropsAreEqual);

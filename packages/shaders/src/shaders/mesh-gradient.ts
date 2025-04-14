@@ -1,5 +1,7 @@
+import type { vec4 } from '../types';
 import type { ShaderMotionParams } from '../shader-mount';
-import type { ShaderSizingParams, ShaderSizingUniforms } from '../shader-sizing';
+import type { ShaderFit, ShaderSizingParams, ShaderSizingUniforms } from '../shader-sizing';
+import type { ShaderColorSpace, ShaderColorSpaces } from '../shader-color-spaces';
 
 /**
  * Mesh Gradient, based on https://www.shadertoy.com/view/wdyczG
@@ -107,3 +109,17 @@ export interface MeshGradientParams extends ShaderMotionParams {
   color3?: string;
   color4?: string;
 }
+
+export const meshGradientMeta = {
+  maxColorCount: 10,
+} as const;
+
+// export interface MeshGradientUniforms extends ShaderSizingUniforms {
+//   u_colors: vec4[];
+//   u_colorSpace: (typeof ShaderColorSpaces)[ShaderColorSpace];
+// }
+
+// export interface MeshGradientParams extends ShaderSizingParams, ShaderMotionParams {
+//   colors?: string[];
+//   colorSpace?: ShaderColorSpace;
+// }

@@ -1,5 +1,6 @@
 import { memo } from 'react';
 import { ShaderMount, type ShaderComponentProps } from '../shader-mount';
+import { colorPropsAreEqual } from '../color-props-are-equal';
 import {
   defaultObjectSizing,
   getShaderColorFromString,
@@ -79,7 +80,7 @@ export const MeshGradient: React.FC<MeshGradientProps> = memo(function MeshGradi
   // worldWidth = defaultPreset.params.worldWidth,
   // worldHeight = defaultPreset.params.worldHeight,
   ...props
-}) {
+}: MeshGradientProps) {
   const uniforms = {
     // Own uniforms
     u_color1: getShaderColorFromString(color1),
@@ -108,4 +109,4 @@ export const MeshGradient: React.FC<MeshGradientProps> = memo(function MeshGradi
       uniforms={uniforms}
     />
   );
-});
+}, colorPropsAreEqual);

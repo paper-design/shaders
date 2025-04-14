@@ -1,5 +1,6 @@
 import { memo } from 'react';
 import { ShaderMount, type ShaderComponentProps } from '../shader-mount';
+import { colorPropsAreEqual } from '../color-props-are-equal';
 import {
   getShaderColorFromString,
   dotOrbitFragmentShader,
@@ -59,7 +60,7 @@ export const DotOrbit: React.FC<DotOrbitProps> = memo(function DotOrbitImpl({
   worldWidth = defaultPreset.params.worldWidth,
   worldHeight = defaultPreset.params.worldHeight,
   ...props
-}) {
+}: DotOrbitProps) {
   const uniforms = {
     // Own uniforms
     u_color1: getShaderColorFromString(color1),
@@ -85,4 +86,4 @@ export const DotOrbit: React.FC<DotOrbitProps> = memo(function DotOrbitImpl({
   return (
     <ShaderMount {...props} speed={speed} frame={frame} fragmentShader={dotOrbitFragmentShader} uniforms={uniforms} />
   );
-});
+}, colorPropsAreEqual);
