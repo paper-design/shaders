@@ -59,9 +59,6 @@ void main() {
 
   float t = .5 * u_time;
 
-  vec3 color = vec3(0.0);
-  float totalWeight = 0.0;
-
   float radius = smoothstep(0., 1., length(uv - .5));
   float center = 1. - radius;
   for (float i = 1.; i <= 2.; i++) {
@@ -75,11 +72,15 @@ void main() {
   uvRotated = rotate(uvRotated, -angle);
   uvRotated += vec2(.5);
 
+  vec3 color = vec3(0.);
+  float opacity = 0.;
+  float totalWeight = 0.;
+  
   for (int i = 0; i < ${meshGradientMeta.maxColorCount}; i++) {
     if (i >= int(u_colorsCount)) break;
     
     vec2 pos = getPosition(i, t);
-    vec3 col = u_colors[i].rgb;
+    vec4 col = u_colors[i];
 
     float dist = 0.;
     if (mod(float(i), 2.) > 1.) {
@@ -90,13 +91,13 @@ void main() {
 
     dist = pow(dist, 3.5);
     float weight = 1. / (dist + 1e-3);
-    color += col * weight;
+    color += col.rgb * col.a * weight;
+    opacity += col.a * weight;
     totalWeight += weight;
   }
 
   color /= totalWeight;
-
-  float opacity = 1.;
+  opacity /= totalWeight;
 
   ${colorBandingFix}
 
