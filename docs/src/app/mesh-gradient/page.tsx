@@ -19,12 +19,6 @@ const MeshGradientExample = () => {
       distortion={0.5}
       swirl={0.1}
       speed={0.15}
-      colors={[
-        'hsla(259, 100%, 50%, 1)',
-        'hsla(150, 100%, 50%, 1)',
-        'hsla(48, 100%, 50%, 1)',
-        'hsla(295, 100%, 50%, 1)',
-      ]}
       style={{ position: 'fixed', width: '100%', height: '100%' }}
     />
   );
