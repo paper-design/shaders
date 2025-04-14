@@ -1,3 +1,4 @@
+import type { vec4 } from '../types';
 import type { ShaderMotionParams } from '../shader-mount';
 import type { ShaderSizingParams, ShaderSizingUniforms } from '../shader-sizing';
 
@@ -107,3 +108,15 @@ export interface MeshGradientParams extends ShaderMotionParams {
   color3?: string;
   color4?: string;
 }
+
+export const meshGradientMeta = {
+  maxColorCount: 10,
+} as const;
+
+// export interface MeshGradientUniforms extends ShaderSizingUniforms {
+//   u_colors: vec4[];
+// }
+
+// export interface MeshGradientParams extends ShaderSizingParams, ShaderMotionParams {
+//   colors?: string[];
+// }
