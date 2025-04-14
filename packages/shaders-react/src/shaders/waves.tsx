@@ -1,5 +1,6 @@
 import { memo } from 'react';
 import { ShaderMount, type ShaderComponentProps } from '../shader-mount';
+import { colorPropsAreEqual } from '../color-props-are-equal';
 import {
   defaultPatternSizing,
   getShaderColorFromString,
@@ -154,7 +155,7 @@ export const Waves: React.FC<WavesProps> = memo(function WavesImpl({
   // Other props
   maxPixelCount = 6016 * 3384, // Higher max resolution for this shader
   ...props
-}) {
+}: WavesProps) {
   const uniforms = {
     // Own uniforms
     u_color1: getShaderColorFromString(color1),
@@ -179,4 +180,4 @@ export const Waves: React.FC<WavesProps> = memo(function WavesImpl({
   } satisfies WavesUniforms;
 
   return <ShaderMount {...props} fragmentShader={wavesFragmentShader} uniforms={uniforms} />;
-});
+}, colorPropsAreEqual);

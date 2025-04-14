@@ -8,6 +8,8 @@ import Link from 'next/link';
 import { BackButton } from '@/components/back-button';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
 import { ShaderFit, ShaderFitOptions } from '@paper-design/shaders';
+import { meshGradientMeta } from '@paper-design/shaders';
+import { useColors } from '@/helpers/use-colors';
 
 /**
  * You can copy/paste this example to use MeshGradient in your app
@@ -15,13 +17,15 @@ import { ShaderFit, ShaderFitOptions } from '@paper-design/shaders';
 const MeshGradientExample = () => {
   return (
     <MeshGradient
-      color1="#b3a6ce"
-      color2="#562b9c"
-      color3="#f4e8b8"
-      color4="#c79acb"
       waveDistortion={0.5}
       swirlDistortion={0.1}
       speed={0.15}
+      colors={[
+        'hsla(259, 100%, 50%, 1)',
+        'hsla(150, 100%, 50%, 1)',
+        'hsla(48, 100%, 50%, 1)',
+        'hsla(295, 100%, 50%, 1)',
+      ]}
       style={{ position: 'fixed', width: '100%', height: '100%' }}
     />
   );
@@ -34,14 +38,15 @@ const MeshGradientExample = () => {
 const { worldWidth, worldHeight, ...defaults } = meshGradientPresets[0].params;
 
 const MeshGradientWithControls = () => {
+  const { colors, setColors } = useColors({
+    defaultColors: defaults.colors,
+    maxColorCount: meshGradientMeta.maxColorCount,
+  });
+
   const [params, setParams] = useControls(() => {
     return {
       Parameters: folder(
         {
-          color1: { value: defaults.color1, order: 100 },
-          color2: { value: defaults.color2, order: 101 },
-          color3: { value: defaults.color3, order: 102 },
-          color4: { value: defaults.color4, order: 103 },
           waveDistortion: { value: defaults.waveDistortion, min: 0, max: 1, order: 200 },
           swirlDistortion: { value: defaults.swirlDistortion, min: 0, max: 1, order: 201 },
           speed: { value: defaults.speed, min: 0, max: 2, order: 400 },
@@ -74,13 +79,17 @@ const MeshGradientWithControls = () => {
         }
       ),
     };
-  });
+  }, [colors.length]);
 
   useControls(() => {
     const presets = Object.fromEntries(
       meshGradientPresets.map(({ name, params: { worldWidth, worldHeight, ...preset } }) => [
         name,
-        button(() => setParamsSafe(params, setParams, preset)),
+        button(() => {
+          const { colors, ...presetParams } = preset;
+          setColors(colors);
+          setParamsSafe(params, setParams, presetParams);
+        }),
       ])
     );
     return {
@@ -99,7 +108,7 @@ const MeshGradientWithControls = () => {
       <Link href="/">
         <BackButton />
       </Link>
-      <MeshGradient className="fixed size-full" {...params} />
+      <MeshGradient {...params} colors={colors} className="fixed size-full" />
     </>
   );
 };

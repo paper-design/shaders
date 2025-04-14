@@ -16,6 +16,7 @@ export {
 /** A shader that renders a mesh gradient with a rotating noise pattern and several layers of fractal noise */
 export {
   meshGradientFragmentShader,
+  meshGradientMeta,
   type MeshGradientParams,
   type MeshGradientUniforms,
 } from './shaders/mesh-gradient';

@@ -1,3 +1,4 @@
+import type { vec4 } from '../types';
 import type { ShaderMotionParams } from '../shader-mount';
 import {
   sizingUniformsDeclaration,
@@ -6,6 +7,11 @@ import {
   type ShaderSizingUniforms,
 } from '../shader-sizing';
 import { declarePI, declareRotate, declareSimplexNoise, colorBandingFix } from '../shader-utils';
+import type { ShaderColorSpace, ShaderColorSpaces } from '../shader-color-spaces';
+
+export const meshGradientMeta = {
+  maxColorCount: 10,
+} as const;
 
 /**
  * Mesh Gradient, based on https://www.shadertoy.com/view/wdyczG
@@ -71,12 +77,12 @@ void main() {
    uv += .5;
 
   float t = .25 * u_time;
-  
+
   vec3 color = vec3(0.0);
   float totalWeight = 0.0;
-  
+
   float radius = smoothstep(0., 1., length(uv - .5));
-  float center = 1. - radius;  
+  float center = 1. - radius;
   for (float i = 1.; i <= 2.; i++) {
     uv.x += u_waveDistortion * center / i * sin(t + i * .4 * smoothstep(.0, 1., uv.y)) * cos(.2 * t + i * 2.4 * smoothstep(.0, 1., uv.y));
     uv.y += u_waveDistortion * center / i * cos(t + i * 2. * smoothstep(.0, 1., uv.x));
@@ -87,19 +93,19 @@ void main() {
   float angle = 3. * u_swirlDistortion * radius;
   uvRotated = rotate(uvRotated, -angle);
   uvRotated += vec2(.5);
- 
+
   for (int i = 0; i < 4; i++) {
 
     vec2 pos = getPosition(i, t);
     vec3 col = getColor(i);
-    
+
     float dist = 0.;
     if (mod(float(i), 2.) > 1.) {
       dist = length(uv - pos);
     } else {
       dist = length(uvRotated - pos);
     }
-    
+
     dist = pow(dist, 3.5);
     float weight = 1. / (dist + 1e-3);
     color += col * weight;
@@ -107,29 +113,26 @@ void main() {
   }
 
   color /= totalWeight;
-  
+
   float opacity = 1.;
-  
+
   ${colorBandingFix}
-  
+
   fragColor = vec4(color, opacity);
 }
 `;
 
 export interface MeshGradientUniforms extends ShaderSizingUniforms {
-  u_color1: [number, number, number, number];
-  u_color2: [number, number, number, number];
-  u_color3: [number, number, number, number];
-  u_color4: [number, number, number, number];
+  u_colors: vec4[];
+  u_colors_count: number;
+  // u_colorSpace: (typeof ShaderColorSpaces)[ShaderColorSpace];
   u_waveDistortion: number;
   u_swirlDistortion: number;
 }
 
 export interface MeshGradientParams extends ShaderSizingParams, ShaderMotionParams {
-  color1?: string;
-  color2?: string;
-  color3?: string;
-  color4?: string;
+  colors?: string[];
+  // colorSpace?: ShaderColorSpace;
   waveDistortion?: number;
   swirlDistortion?: number;
 }

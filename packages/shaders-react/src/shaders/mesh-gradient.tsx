@@ -1,5 +1,6 @@
 import { memo } from 'react';
 import { ShaderMount, type ShaderComponentProps } from '../shader-mount';
+import { colorPropsAreEqual } from '../color-props-are-equal';
 import {
   defaultObjectSizing,
   getShaderColorFromString,
@@ -24,10 +25,7 @@ export const defaultPreset: MeshGradientPreset = {
     ...defaultObjectSizing,
     speed: 1,
     frame: 40000,
-    color1: 'hsla(259, 100%, 50%, 1)',
-    color2: 'hsla(150, 100%, 50%, 1)',
-    color3: 'hsla(48, 100%, 50%, 1)',
-    color4: 'hsla(295, 100%, 50%, 1)',
+    colors: ['hsla(259, 100%, 50%, 1)', 'hsla(150, 100%, 50%, 1)', 'hsla(48, 100%, 50%, 1)', 'hsla(295, 100%, 50%, 1)'],
     waveDistortion: 0.8,
     swirlDistortion: 0.1,
   },
@@ -39,10 +37,7 @@ export const purplePreset: MeshGradientPreset = {
     ...defaultObjectSizing,
     speed: 0.6,
     frame: 100,
-    color1: 'hsla(259, 29%, 73%, 1)',
-    color2: 'hsla(263, 57%, 39%, 1)',
-    color3: 'hsla(48, 73%, 84%, 1)',
-    color4: 'hsla(295, 32%, 70%, 1)',
+    colors: ['hsla(259, 29%, 73%, 1)', 'hsla(263, 57%, 39%, 1)', 'hsla(48, 73%, 84%, 1)', 'hsla(295, 32%, 70%, 1)'],
     waveDistortion: 0.3,
     swirlDistortion: 0.5,
   },
@@ -54,10 +49,7 @@ export const beachPreset: MeshGradientPreset = {
     ...defaultObjectSizing,
     speed: 0.1,
     frame: 0,
-    color1: 'hsla(186, 81%, 83%, 1)',
-    color2: 'hsla(198, 55%, 68%, 1)',
-    color3: 'hsla(53, 67%, 88%, 1)',
-    color4: 'hsla(45, 93%, 73%, 1)',
+    colors: ['hsla(186, 81%, 83%, 1)', 'hsla(198, 55%, 68%, 1)', 'hsla(53, 67%, 88%, 1)', 'hsla(45, 93%, 73%, 1)'],
     waveDistortion: 0.8,
     swirlDistortion: 0.35,
   },
@@ -69,10 +61,7 @@ export const MeshGradient: React.FC<MeshGradientProps> = memo(function MeshGradi
   // Own props
   speed = defaultPreset.params.speed,
   frame = defaultPreset.params.frame,
-  color1 = defaultPreset.params.color1,
-  color2 = defaultPreset.params.color2,
-  color3 = defaultPreset.params.color3,
-  color4 = defaultPreset.params.color4,
+  colors = defaultPreset.params.colors,
   waveDistortion = defaultPreset.params.waveDistortion,
   swirlDistortion = defaultPreset.params.swirlDistortion,
 
@@ -87,13 +76,11 @@ export const MeshGradient: React.FC<MeshGradientProps> = memo(function MeshGradi
   worldWidth = defaultPreset.params.worldWidth,
   worldHeight = defaultPreset.params.worldHeight,
   ...props
-}) {
+}: MeshGradientProps) {
   const uniforms = {
     // Own uniforms
-    u_color1: getShaderColorFromString(color1),
-    u_color2: getShaderColorFromString(color2),
-    u_color3: getShaderColorFromString(color3),
-    u_color4: getShaderColorFromString(color4),
+    u_colors: colors.map(getShaderColorFromString),
+    u_colors_count: colors.length,
     u_waveDistortion: waveDistortion,
     u_swirlDistortion: swirlDistortion,
 
@@ -118,4 +105,4 @@ export const MeshGradient: React.FC<MeshGradientProps> = memo(function MeshGradi
       uniforms={uniforms}
     />
   );
-});
+}, colorPropsAreEqual);
