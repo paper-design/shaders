@@ -30,7 +30,7 @@ uniform vec2 u_resolution;
 ${sizingUniformsDeclaration}
 
 uniform vec4 u_colors[${meshGradientMeta.maxColorCount}];
-uniform float u_colors_count;
+uniform float u_colorsCount;
 uniform bool u_extraSides;
 
 uniform float u_waveDistortion;
@@ -76,7 +76,7 @@ void main() {
   uvRotated += vec2(.5);
 
   for (int i = 0; i < ${meshGradientMeta.maxColorCount}; i++) {
-    if (i >= int(u_colors_count)) break;
+    if (i >= int(u_colorsCount)) break;
     
     vec2 pos = getPosition(i, t);
     vec3 col = u_colors[i].rgb;
@@ -106,7 +106,7 @@ void main() {
 
 export interface MeshGradientUniforms extends ShaderSizingUniforms {
   u_colors: vec4[];
-  u_colors_count: number;
+  u_colorsCount: number;
   // u_colorSpace: (typeof ShaderColorSpaces)[ShaderColorSpace];
   u_waveDistortion: number;
   u_swirlDistortion: number;

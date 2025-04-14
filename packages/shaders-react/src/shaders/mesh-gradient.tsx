@@ -80,7 +80,7 @@ export const MeshGradient: React.FC<MeshGradientProps> = memo(function MeshGradi
   const uniforms = {
     // Own uniforms
     u_colors: colors.map(getShaderColorFromString),
-    u_colors_count: colors.length,
+    u_colorsCount: colors.length,
     u_waveDistortion: waveDistortion,
     u_swirlDistortion: swirlDistortion,
 

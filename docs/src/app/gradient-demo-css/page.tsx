@@ -16,7 +16,7 @@ const gradientDemoCSSMaxColorCount = 7;
 
 type GradientDemoCSSUniforms = {
   u_colors: vec4[];
-  u_colors_count: number;
+  u_colorsCount: number;
   u_test: number;
 };
 
@@ -29,7 +29,7 @@ type GradientDemoCSSParams = {
  *
  * Uniforms include:
  * u_colors: An array of colors, each color is an array of 4 numbers [r, g, b, a]
- * u_colors_count: The number of colors in the u_colors array
+ * u_colorsCount: The number of colors in the u_colors array
  */
 
 const gradientDemoCSSFragmentShader: string = `#version 300 es
@@ -41,7 +41,7 @@ uniform float u_time;
 
 uniform float u_test;
 uniform vec4 u_colors[${gradientDemoCSSMaxColorCount}];
-uniform float u_colors_count;
+uniform float u_colorsCount;
 
 out vec4 fragColor;
 
@@ -113,13 +113,13 @@ float mixHue(float h1, float h2, float mixer) {
 
 void main() {
     vec2 uv = gl_FragCoord.xy / u_resolution.xy;
-    float mixer = uv.x * (u_colors_count - 1.);
+    float mixer = uv.x * (u_colorsCount - 1.);
     vec3 color = vec3(0.);
 
     if (u_test == 0.) {
         vec3 gradient = u_colors[0].rgb;
         for (int i = 1; i < ${gradientDemoCSSMaxColorCount}; i++) {
-            if (i >= int(u_colors_count)) break;
+            if (i >= int(u_colorsCount)) break;
             float localMixer = clamp(mixer - float(i - 1), 0., 1.);
             gradient = mix(gradient, u_colors[i].rgb, localMixer);
         }
@@ -127,7 +127,7 @@ void main() {
     } else {
         vec3 gradient = oklabToOklch(LrgbToOklab(srgbToLinear(u_colors[0].rgb)));
         for (int i = 1; i < ${gradientDemoCSSMaxColorCount}; i++) {
-            if (i >= int(u_colors_count)) break;
+            if (i >= int(u_colorsCount)) break;
             float localMixer = clamp(mixer - float(i - 1), 0., 1.);
             vec3 c = oklabToOklch(LrgbToOklab(srgbToLinear(u_colors[i].rgb)));
             gradient.x = mix(gradient.x, c.x, localMixer);
@@ -187,7 +187,7 @@ const GradientDemoCSS: React.FC<GradientDemoCSSProps> = memo(function GradientDe
 }: GradientDemoCSSProps) {
   const uniforms: GradientDemoCSSUniforms = {
     u_colors: colors.map(getShaderColorFromString),
-    u_colors_count: colors.length,
+    u_colorsCount: colors.length,
     u_test: test ?? defaultPreset.params.test,
   };
 

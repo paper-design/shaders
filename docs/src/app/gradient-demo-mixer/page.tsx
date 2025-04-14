@@ -17,7 +17,7 @@ const gradientDemoMixerMaxColorCount = 7;
 
 type GradientDemoMixerUniforms = {
   u_colors: vec4[];
-  u_colors_count: number;
+  u_colorsCount: number;
   u_shape: number;
   u_softness: number;
   u_bNoise: number;
@@ -38,7 +38,7 @@ type GradientDemoMixerParams = {
  *
  * Uniforms include:
  * u_colors: An array of colors, each color is an array of 4 numbers [r, g, b, a]
- * u_colors_count: The number of colors in the u_colors array
+ * u_colorsCount: The number of colors in the u_colors array
  */
 
 const gradientDemoMixerFragmentShader: string = `#version 300 es
@@ -52,7 +52,7 @@ uniform float u_shape;
 uniform float u_softness;
 uniform float u_bNoise;
 uniform vec4 u_colors[${gradientDemoMixerMaxColorCount}];
-uniform float u_colors_count;
+uniform float u_colorsCount;
 uniform bool u_extraSides;
 uniform float u_test;
 
@@ -109,15 +109,15 @@ void main() {
 //  float shape = pow(.5 + .5 * get_noise(uv, .4 * u_time), u_shape);
 
 
-  float mixer = shape * (u_colors_count - 1.);
+  float mixer = shape * (u_colorsCount - 1.);
   if (u_extraSides == true) {
-    mixer = (shape - .5 / u_colors_count) * u_colors_count;
+    mixer = (shape - .5 / u_colorsCount) * u_colorsCount;
   }
 
   vec3 gradient = u_colors[0].rgb;
 
   for (int i = 1; i < ${gradientDemoMixerMaxColorCount}; i++) {
-      if (i >= int(u_colors_count)) break;
+      if (i >= int(u_colorsCount)) break;
       float localT = clamp(mixer - float(i - 1), 0.0, 1.0);
 
       if (u_test == 0.) {
@@ -185,7 +185,7 @@ const GradientDemoMixer: React.FC<GradientDemoMixerProps> = memo(function Gradie
 }: GradientDemoMixerProps) {
   const uniforms: GradientDemoMixerUniforms = {
     u_colors: colors.map(getShaderColorFromString),
-    u_colors_count: colors.length,
+    u_colorsCount: colors.length,
     u_bNoise: bNoise ?? defaultPreset.params.bNoise,
     u_extraSides: extraSides ?? defaultPreset.params.extraSides,
     u_shape: shape ?? defaultPreset.params.shape,
