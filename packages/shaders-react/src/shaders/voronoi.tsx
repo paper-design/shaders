@@ -27,35 +27,16 @@ export const defaultPreset: VoronoiPreset = {
     color1: 'hsla(208, 65%, 31%, 1)', // #135572
     color2: 'hsla(35, 79%, 66%, 1)', // #eb8c0f
     color3: 'hsla(10, 79%, 66%, 1)', // #eb8c0f
-    colorShadow: 'hsla(266, 100%, 50%, 1)', // #3c00ff
+    colorGlow: 'hsla(266, 100%, 50%, 1)', // #3c00ff
     colorEdges: 'hsla(0, 0%, 100%, 1)', // #ffffff
     distortion: 0.42,
     edgeWidth: 0.06,
     edgesSoftness: 0.03,
-    edgesRoundness: 0,
-    shade: 0,
+    innerGlow: 0,
     mixing: 0,
   },
 };
-export const roundPreset: VoronoiPreset = {
-  name: 'Round',
-  params: {
-    ...defaultPatternSizing,
-    speed: 0.5,
-    frame: 0,
-    color1: 'hsla(0, 0%, 100%, 1)', // #ffffff
-    color2: 'hsla(0, 0%, 100%, 1)', // #ffffff
-    color3: 'hsla(0, 0%, 100%, 1)', // #ffffff
-    colorShadow: 'hsla(0, 0%, 100%, 1)', // #ffffff
-    colorEdges: 'hsla(0, 90%, 4%, 1)', // #130707
-    distortion: 0.22,
-    edgeWidth: 0.01,
-    edgesSoftness: 0.02,
-    edgesRoundness: 0.48,
-    shade: 0,
-    mixing: 0,
-  },
-};
+
 export const shadowPreset: VoronoiPreset = {
   name: 'Shadow',
   params: {
@@ -65,18 +46,17 @@ export const shadowPreset: VoronoiPreset = {
     color1: 'hsla(0, 0%, 97%, 1)', // #ffffff
     color2: 'hsla(0, 0%, 97%, 1)', // #f7f7f7
     color3: 'hsla(0, 0%, 97%, 1)', // #f7f7f7
-    colorShadow: 'hsla(290, 18%, 42%, 1)', // #5a557c
+    colorGlow: 'hsla(290, 18%, 42%, 1)', // #5a557c
     colorEdges: 'hsla(0, 0%, 100%, 1)', // #ffffff
     distortion: 0.23,
     edgeWidth: 0.005,
     edgesSoftness: 0.1,
-    edgesRoundness: 0,
-    shade: 0.42,
+    innerGlow: 0.42,
     mixing: 0,
   },
 };
 
-export const voronoiPresets: VoronoiPreset[] = [defaultPreset, roundPreset, shadowPreset];
+export const voronoiPresets: VoronoiPreset[] = [defaultPreset, shadowPreset];
 
 export const Voronoi: React.FC<VoronoiProps> = memo(function VoronoiImpl({
   // Own props
@@ -85,13 +65,12 @@ export const Voronoi: React.FC<VoronoiProps> = memo(function VoronoiImpl({
   color1 = defaultPreset.params.color1,
   color2 = defaultPreset.params.color2,
   color3 = defaultPreset.params.color3,
-  colorShadow = defaultPreset.params.colorShadow,
+  colorGlow = defaultPreset.params.colorGlow,
   colorEdges = defaultPreset.params.colorEdges,
   distortion = defaultPreset.params.distortion,
   edgeWidth = defaultPreset.params.edgeWidth,
   edgesSoftness = defaultPreset.params.edgesSoftness,
-  edgesRoundness = defaultPreset.params.edgesRoundness,
-  shade = defaultPreset.params.shade,
+  innerGlow = defaultPreset.params.innerGlow,
   mixing = defaultPreset.params.mixing,
 
   // Sizing props
@@ -111,13 +90,12 @@ export const Voronoi: React.FC<VoronoiProps> = memo(function VoronoiImpl({
     u_color1: getShaderColorFromString(color1),
     u_color2: getShaderColorFromString(color2),
     u_color3: getShaderColorFromString(color3),
-    u_colorShadow: getShaderColorFromString(colorShadow),
+    u_colorGlow: getShaderColorFromString(colorGlow),
     u_colorEdges: getShaderColorFromString(colorEdges),
     u_distortion: distortion,
     u_edgeWidth: edgeWidth,
     u_edgesSoftness: edgesSoftness,
-    u_edgesRoundness: edgesRoundness,
-    u_shade: shade,
+    u_innerGlow: innerGlow,
     u_mixing: mixing,
 
     // Sizing uniforms

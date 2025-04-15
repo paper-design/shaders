@@ -5,7 +5,7 @@ import {
   type ShaderSizingParams,
   type ShaderSizingUniforms,
 } from '../shader-sizing';
-import { declarePI, colorBandingFix } from '../shader-utils';
+import { declarePI } from '../shader-utils';
 
 /**
  * Voronoi pattern
@@ -17,13 +17,12 @@ import { declarePI, colorBandingFix } from '../shader-utils';
  * u_color2 - color #2 of mix used to fill the cell shape
  * u_color3 - color #3 of mix used to fill the cell shape
  * u_colorEdges - color of borders between the cells
- * u_colorShadow - color used to fill the radial shape on the cell edges
+ * u_colorGlow - color used to fill the radial shape on the cell edges
  * u_distortion (0 ... 0.5) - how far the cell center can move from regular square grid
  * u_edgeWidth (0 .. 1) - the size of borders
  *   (can be set to zero but the edge may get glitchy due to nature of Voronoi diagram)
  * u_edgesSoftness (0 .. 1) - the blur/sharp for cell border
- * u_edgesRoundness (0 .. 1) - the additional rounding on cells
- * u_shade (0 .. 1) - the size of shape in the center of each cell
+ * u_innerGlow (0 .. 1) - the size of shape in the center of each cell
  * u_softness (0 .. 1)
  */
 export const voronoiFragmentShader: string = `#version 300 es
@@ -38,13 +37,12 @@ ${sizingUniformsDeclaration}
 uniform vec4 u_color1;
 uniform vec4 u_color2;
 uniform vec4 u_color3;
-uniform vec4 u_colorShadow;
+uniform vec4 u_colorGlow;
 uniform vec4 u_colorEdges;
 uniform float u_distortion;
 uniform float u_edgeWidth;
 uniform float u_edgesSoftness;
-uniform float u_edgesRoundness;
-uniform float u_shade;
+uniform float u_innerGlow;
 uniform float u_mixing;
 
 out vec4 fragColor;
@@ -148,19 +146,16 @@ void main() {
     
   vec3 cellColor = colorBlend(voronoiRes.w * .998);
 
-  float shades = length(voronoiRes.yz * u_shade + .1);
-  shades = pow(shades, 1.5);
-  vec3 color = mix(cellColor, u_colorShadow.rgb, shades);
+  float innerGlows = length(voronoiRes.yz * u_innerGlow + .1);
+  innerGlows = pow(innerGlows, 1.5);
+  vec3 color = mix(cellColor, u_colorGlow.rgb, innerGlows);
 
   float edge = voronoiRes.x;
   float smoothEdge = fwidth(edge);
-  edge = mix(edge, edge - pow(length(voronoiRes.yz), 12.), 4000. * pow(u_edgesRoundness, 10.));
   color = mix(u_colorEdges.rgb, color, smoothstep(u_edgeWidth - smoothEdge - .25 * u_edgesSoftness, u_edgeWidth + .25 * u_edgesSoftness, edge));
     
   float opacity = 1.;
   
-  ${colorBandingFix}
-
   fragColor = vec4(color, opacity);
 }
 `;
@@ -170,12 +165,11 @@ export interface VoronoiUniforms extends ShaderSizingUniforms {
   u_color2: [number, number, number, number];
   u_color3: [number, number, number, number];
   u_colorEdges: [number, number, number, number];
-  u_colorShadow: [number, number, number, number];
+  u_colorGlow: [number, number, number, number];
   u_distortion: number;
   u_edgeWidth: number;
   u_edgesSoftness: number;
-  u_edgesRoundness: number;
-  u_shade: number;
+  u_innerGlow: number;
   u_mixing: number;
 }
 
@@ -184,11 +178,10 @@ export interface VoronoiParams extends ShaderSizingParams, ShaderMotionParams {
   color2?: string;
   color3?: string;
   colorEdges?: string;
-  colorShadow?: string;
+  colorGlow?: string;
   distortion?: number;
   edgeWidth?: number;
   edgesSoftness?: number;
-  edgesRoundness?: number;
-  shade?: number;
+  innerGlow?: number;
   mixing?: number;
 }
