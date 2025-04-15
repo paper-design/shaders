@@ -6,6 +6,7 @@ import {
   type ShaderSizingUniforms,
 } from '../shader-sizing';
 import { declarePI, colorBandingFix } from '../shader-utils';
+
 /**
  * Metaballs (circular shapes with gooey effect applied)
  * The artwork by Ksenia Kondrashova
@@ -58,7 +59,7 @@ float get_ball_shape(vec2 uv, vec2 c, float p) {
 
 void main() {
   ${sizingSquareUV}
-  
+
   uv += .5;
 
   float t = u_time + 1.;

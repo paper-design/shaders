@@ -1,5 +1,6 @@
-import { memo, useMemo } from 'react';
+import { memo } from 'react';
 import { ShaderMount, type ShaderComponentProps } from '../shader-mount';
+import { colorPropsAreEqual } from '../color-props-are-equal';
 import {
   defaultPatternSizing,
   getShaderColorFromString,
@@ -84,7 +85,7 @@ export const Voronoi: React.FC<VoronoiProps> = memo(function VoronoiImpl({
   worldWidth = defaultPreset.params.worldWidth,
   worldHeight = defaultPreset.params.worldHeight,
   ...props
-}) {
+}: VoronoiProps) {
   const uniforms = {
     // Own uniforms
     u_color1: getShaderColorFromString(color1),
@@ -113,4 +114,4 @@ export const Voronoi: React.FC<VoronoiProps> = memo(function VoronoiImpl({
   return (
     <ShaderMount {...props} speed={speed} frame={frame} fragmentShader={voronoiFragmentShader} uniforms={uniforms} />
   );
-});
+}, colorPropsAreEqual);

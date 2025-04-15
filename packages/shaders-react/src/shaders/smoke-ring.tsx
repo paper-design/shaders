@@ -1,5 +1,6 @@
 import { memo } from 'react';
 import { ShaderMount, type ShaderComponentProps } from '../shader-mount';
+import { colorPropsAreEqual } from '../color-props-are-equal';
 import {
   defaultObjectSizing,
   getShaderColorFromString,
@@ -112,7 +113,7 @@ export const SmokeRing: React.FC<SmokeRingProps> = memo(function SmokeRingImpl({
   worldWidth = defaultPreset.params.worldWidth,
   worldHeight = defaultPreset.params.worldHeight,
   ...props
-}) {
+}: SmokeRingProps) {
   const uniforms = {
     // Own uniforms
     u_colorBack: getShaderColorFromString(colorBack),
@@ -139,4 +140,4 @@ export const SmokeRing: React.FC<SmokeRingProps> = memo(function SmokeRingImpl({
   return (
     <ShaderMount {...props} speed={speed} frame={frame} fragmentShader={smokeRingFragmentShader} uniforms={uniforms} />
   );
-});
+}, colorPropsAreEqual);
