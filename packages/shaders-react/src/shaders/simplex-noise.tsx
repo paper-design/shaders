@@ -3,23 +3,23 @@ import { ShaderMount, type ShaderComponentProps } from '../shader-mount';
 import { colorPropsAreEqual } from '../color-props-are-equal';
 import {
   getShaderColorFromString,
-  steppedSimplexNoiseFragmentShader,
+  simplexNoiseFragmentShader,
   ShaderFitOptions,
-  type SteppedSimplexNoiseUniforms,
-  type SteppedSimplexNoiseParams,
+  type SimplexNoiseUniforms,
+  type SimplexNoiseParams,
   type ShaderPreset,
   defaultPatternSizing,
 } from '@paper-design/shaders';
 
-export interface SteppedSimplexNoiseProps extends ShaderComponentProps, SteppedSimplexNoiseParams {}
+export interface SimplexNoiseProps extends ShaderComponentProps, SimplexNoiseParams {}
 
-type SteppedSimplexNoisePreset = ShaderPreset<SteppedSimplexNoiseParams>;
+type SimplexNoisePreset = ShaderPreset<SimplexNoiseParams>;
 
 // Due to Leva controls limitation:
 // 1) keep default colors in HSLA format to keep alpha channel
 // 2) don't use decimal values on HSL values (to avoid button highlight bug)
 
-export const defaultPreset: SteppedSimplexNoisePreset = {
+export const defaultPreset: SimplexNoisePreset = {
   name: 'Default',
   params: {
     ...defaultPatternSizing,
@@ -31,9 +31,9 @@ export const defaultPreset: SteppedSimplexNoisePreset = {
   },
 };
 
-export const steppedSimplexNoisePresets: SteppedSimplexNoisePreset[] = [defaultPreset];
+export const simplexNoisePresets: SimplexNoisePreset[] = [defaultPreset];
 
-export const SteppedSimplexNoise: React.FC<SteppedSimplexNoiseProps> = memo(function SteppedSimplexNoiseImpl({
+export const SimplexNoise: React.FC<SimplexNoiseProps> = memo(function SimplexNoiseImpl({
   // Own props
   speed = defaultPreset.params.speed,
   frame = defaultPreset.params.frame,
@@ -52,7 +52,7 @@ export const SteppedSimplexNoise: React.FC<SteppedSimplexNoiseProps> = memo(func
   worldWidth = defaultPreset.params.worldWidth,
   worldHeight = defaultPreset.params.worldHeight,
   ...props
-}: SteppedSimplexNoiseProps) {
+}: SimplexNoiseProps) {
   const uniforms = {
     // Own uniforms
     u_colors: colors.map(getShaderColorFromString),
@@ -70,14 +70,14 @@ export const SteppedSimplexNoise: React.FC<SteppedSimplexNoiseProps> = memo(func
     u_originY: originY,
     u_worldWidth: worldWidth,
     u_worldHeight: worldHeight,
-  } satisfies SteppedSimplexNoiseUniforms;
+  } satisfies SimplexNoiseUniforms;
 
   return (
     <ShaderMount
       {...props}
       speed={speed}
       frame={frame}
-      fragmentShader={steppedSimplexNoiseFragmentShader}
+      fragmentShader={simplexNoiseFragmentShader}
       uniforms={uniforms}
     />
   );

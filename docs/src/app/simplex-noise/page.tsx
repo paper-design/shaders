@@ -1,10 +1,6 @@
 'use client';
 
-import {
-  SteppedSimplexNoise,
-  type SteppedSimplexNoiseParams,
-  steppedSimplexNoisePresets,
-} from '@paper-design/shaders-react';
+import { SimplexNoise, type SimplexNoiseParams, simplexNoisePresets } from '@paper-design/shaders-react';
 
 import { useControls, button, folder } from 'leva';
 import { setParamsSafe, useResetLevaParams } from '@/helpers/use-reset-leva-params';
@@ -12,26 +8,26 @@ import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import Link from 'next/link';
 import { BackButton } from '@/components/back-button';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
-import { steppedSimplexNoiseMeta, ShaderFit, ShaderFitOptions, meshGradientMeta } from '@paper-design/shaders';
+import { simplexNoiseMeta, ShaderFit, ShaderFitOptions, meshGradientMeta } from '@paper-design/shaders';
 import { useColors } from '@/helpers/use-colors';
 
 /**
- * You can copy/paste this example to use SteppedSimplexNoise in your app
+ * You can copy/paste this example to use SimplexNoise in your app
  */
-const SteppedSimplexNoiseExample = () => {
-  return <SteppedSimplexNoise style={{ position: 'fixed', width: '100%', height: '100%' }} />;
+const SimplexNoiseExample = () => {
+  return <SimplexNoise style={{ position: 'fixed', width: '100%', height: '100%' }} />;
 };
 
 /**
  * This example has controls added so you can play with settings in the example app
  */
 
-const { worldWidth, worldHeight, ...defaults } = steppedSimplexNoisePresets[0].params;
+const { worldWidth, worldHeight, ...defaults } = simplexNoisePresets[0].params;
 
-const SteppedSimplexNoiseWithControls = () => {
+const SimplexNoiseWithControls = () => {
   const { colors, setColors } = useColors({
     defaultColors: defaults.colors,
-    maxColorCount: steppedSimplexNoiseMeta.maxColorCount,
+    maxColorCount: simplexNoiseMeta.maxColorCount,
   });
 
   const [params, setParams] = useControls(() => {
@@ -74,7 +70,7 @@ const SteppedSimplexNoiseWithControls = () => {
 
   useControls(() => {
     const presets = Object.fromEntries(
-      steppedSimplexNoisePresets.map(({ name, params: { worldWidth, worldHeight, ...preset } }) => [
+      simplexNoisePresets.map(({ name, params: { worldWidth, worldHeight, ...preset } }) => [
         name,
         button(() => {
           const { colors, ...presetParams } = preset;
@@ -91,7 +87,7 @@ const SteppedSimplexNoiseWithControls = () => {
   // Reset to defaults on mount, so that Leva doesn't show values from other
   // shaders when navigating (if two shaders have a color1 param for example)
   useResetLevaParams(params, setParams, defaults);
-  usePresetHighlight(steppedSimplexNoisePresets, params);
+  usePresetHighlight(simplexNoisePresets, params);
   cleanUpLevaParams(params);
 
   return (
@@ -99,9 +95,9 @@ const SteppedSimplexNoiseWithControls = () => {
       <Link href="/">
         <BackButton />
       </Link>
-      <SteppedSimplexNoise {...params} colors={colors} className="fixed size-full" />
+      <SimplexNoise {...params} colors={colors} className="fixed size-full" />
     </>
   );
 };
 
-export default SteppedSimplexNoiseWithControls;
+export default SimplexNoiseWithControls;

@@ -121,14 +121,14 @@
       ]
     },
     {
-      "name": "stepped-simplex-noise",
+      "name": "simplex-noise",
       "type": "registry:component",
-      "title": "Stepped Simplex Noise Example",
-      "description": "Stepped Simplex Noise shader example.",
+      "title": "Simplex Noise Example",
+      "description": "Simplex Noise shader example.",
       "dependencies": ["@paper-design/shaders-react"],
       "files": [
         {
-          "path": "registry/stepped-simplex-noise-example.tsx",
+          "path": "registry/simplex-noise-example.tsx",
           "type": "registry:component"
         }
       ]

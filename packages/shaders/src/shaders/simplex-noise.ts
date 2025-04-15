@@ -8,18 +8,18 @@ import {
 } from '../shader-sizing';
 import { declareSimplexNoise, colorBandingFix } from '../shader-utils';
 
-export const steppedSimplexNoiseMeta = {
+export const simplexNoiseMeta = {
   maxColorCount: 10,
 } as const;
 
 /**
- * Stepped Simplex Noise by Ksenia Kondrashova
+ * Simplex Noise by Ksenia Kondrashova
  * Calculates a combination of 2 simplex noises with result rendered as
- * an X-stepped 5-colored gradient
+ * an X-5-colored gradient
  *
  * Uniforms include:
  */
-export const steppedSimplexNoiseFragmentShader: string = `#version 300 es
+export const simplexNoiseFragmentShader: string = `#version 300 es
 precision highp float;
 
 uniform float u_time;
@@ -28,7 +28,7 @@ uniform float u_pixelRatio;
 
 ${sizingUniformsDeclaration}
 
-uniform vec4 u_colors[${steppedSimplexNoiseMeta.maxColorCount}];
+uniform vec4 u_colors[${simplexNoiseMeta.maxColorCount}];
 uniform float u_colorsCount;
 uniform float u_extraSteps;
 uniform float u_softness;
@@ -70,10 +70,12 @@ void main() {
     mixer = (shape - .5 / u_colorsCount) * u_colorsCount;
   }
 
+
+
   float steps = max(1., u_extraSteps + 1.);
 
   vec3 gradient = u_colors[0].rgb;
-  for (int i = 1; i < ${steppedSimplexNoiseMeta.maxColorCount}; i++) {
+  for (int i = 1; i < ${simplexNoiseMeta.maxColorCount}; i++) {
       if (i >= int(u_colorsCount)) break;
       
       float localT = clamp(mixer - float(i - 1), 0., 1.);
@@ -102,14 +104,14 @@ void main() {
 }
 `;
 
-export interface SteppedSimplexNoiseUniforms extends ShaderSizingUniforms {
+export interface SimplexNoiseUniforms extends ShaderSizingUniforms {
   u_colors: vec4[];
   u_colorsCount: number;
   u_extraSteps: number;
   u_softness: number;
 }
 
-export interface SteppedSimplexNoiseParams extends ShaderSizingParams, ShaderMotionParams {
+export interface SimplexNoiseParams extends ShaderSizingParams, ShaderMotionParams {
   colors?: string[];
   extraSteps?: number;
   softness?: number;

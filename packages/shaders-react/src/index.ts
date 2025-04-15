@@ -21,9 +21,9 @@ export { DotGrid, dotGridPresets } from './shaders/dot-grid';
 export type { DotGridProps } from './shaders/dot-grid';
 export type { DotGridUniforms, DotGridParams, DotGridShape } from '@paper-design/shaders';
 
-export { SteppedSimplexNoise, steppedSimplexNoisePresets } from './shaders/stepped-simplex-noise';
-export type { SteppedSimplexNoiseProps } from './shaders/stepped-simplex-noise';
-export type { SteppedSimplexNoiseUniforms, SteppedSimplexNoiseParams } from '@paper-design/shaders';
+export { SimplexNoise, simplexNoisePresets } from './shaders/simplex-noise';
+export type { SimplexNoiseProps } from './shaders/simplex-noise';
+export type { SimplexNoiseUniforms, SimplexNoiseParams } from '@paper-design/shaders';
 
 export { Metaballs, metaballsPresets } from './shaders/metaballs';
 export type { MetaballsProps } from './shaders/metaballs';
