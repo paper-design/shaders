@@ -7,8 +7,6 @@ import {
   type ShaderSizingUniforms,
 } from '../shader-sizing';
 import { declarePI, declareRotate, colorBandingFix } from '../shader-utils';
-import type { ShaderColorSpace, ShaderColorSpaces } from '../shader-color-spaces';
-import { declareOklchTransforms } from '../shader-color-spaces';
 
 export const meshGradientMeta = {
   maxColorCount: 10,
@@ -34,8 +32,6 @@ uniform vec4 u_colors[${meshGradientMeta.maxColorCount}];
 uniform float u_colorsCount;
 uniform bool u_extraSides;
 
-uniform float u_colorSpace;
-
 uniform float u_distortion;
 uniform float u_swirl;
 
@@ -43,8 +39,6 @@ out vec4 fragColor;
 
 ${declarePI}
 ${declareRotate}
-
-${declareOklchTransforms}
 
 vec2 getPosition(int i, float t) {
   float a = float(i) * .37;
@@ -86,10 +80,6 @@ void main() {
     vec2 pos = getPosition(i, t);
     vec3 colorFraction = u_colors[i].rgb * u_colors[i].a;
     float opacityFraction = u_colors[i].a;
-    
-    if (u_colorSpace > 0.) {
-      colorFraction = linearToOklch(colorFraction);
-    }
       
     float dist = 0.;
     if (mod(float(i), 2.) > 1.) {
@@ -107,10 +97,6 @@ void main() {
 
   color /= totalWeight;
   opacity /= totalWeight;
-
-  if (u_colorSpace > 0.) {
-    color = OklchToLinear(color);
-  }
   
   ${colorBandingFix}
 
@@ -121,14 +107,12 @@ void main() {
 export interface MeshGradientUniforms extends ShaderSizingUniforms {
   u_colors: vec4[];
   u_colorsCount: number;
-  u_colorSpace: number;
   u_distortion: number;
   u_swirl: number;
 }
 
 export interface MeshGradientParams extends ShaderSizingParams, ShaderMotionParams {
   colors?: string[];
-  colorSpace?: number;
   distortion?: number;
   swirl?: number;
 }
