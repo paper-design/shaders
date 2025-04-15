@@ -33,13 +33,13 @@ const VoronoiWithControls = () => {
     return {
       Parameters: folder(
         {
+          colorSteps: { value: defaults.colorSteps, min: 0, max: 10, step: 1, order: 200 },
           colorGlow: { value: defaults.colorGlow, order: 201 },
           colorEdges: { value: defaults.colorEdges, order: 202 },
           distortion: { value: defaults.distortion, min: 0, max: 0.5, order: 300 },
           edgeWidth: { value: defaults.edgeWidth, min: 0, max: 0.1, order: 301 },
           edgesSoftness: { value: defaults.edgesSoftness, min: 0, max: 0.3, order: 302 },
           innerGlow: { value: defaults.innerGlow, min: 0, max: 1, order: 303 },
-          mixing: { value: defaults.mixing, min: 0, max: 2, order: 304 },
           speed: { value: defaults.speed, min: 0, max: 1, order: 400 },
         },
         { order: 1 }

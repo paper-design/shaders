@@ -39,8 +39,8 @@ ${sizingUniformsDeclaration}
 
 uniform vec4 u_colors[${voronoiMeta.maxColorCount}];
 uniform float u_colorsCount;
-uniform bool u_extraSides;
 
+uniform float u_colorSteps;
 uniform float u_colorSpace;
 
 uniform vec4 u_colorGlow;
@@ -49,7 +49,6 @@ uniform float u_distortion;
 uniform float u_edgeWidth;
 uniform float u_edgesSoftness;
 uniform float u_innerGlow;
-uniform float u_mixing;
 
 out vec4 fragColor;
 
@@ -107,9 +106,7 @@ vec4 voronoi(vec2 x, float t) {
 
 vec3 colorBlend(float shape) {
 
-  float softness = u_mixing;
   bool extraSides = true;
-  float test = 3.;
 
   float mixer = shape * (u_colorsCount - 1.);
   if (extraSides == true) {
@@ -118,18 +115,12 @@ vec3 colorBlend(float shape) {
   
   vec3 gradient = u_colors[0].rgb;
   
+  float steps = max(1., u_colorSteps + 1.);
+  
   for (int i = 1; i < ${voronoiMeta.maxColorCount}; i++) {
-      if (i >= int(u_colorsCount)) break;
+      if (i >= int(u_colorsCount)) break;      
       float localT = clamp(mixer - float(i - 1), 0.0, 1.0);
-      
-      if (test == 1.) {
-        localT = smoothstep(.5 - .5 * softness, .5 + .5 * softness, localT);
-      } else if (test == 2.) {
-        localT = 1. / (1. + exp(-1. / (pow(softness, 2.) + 1e-3) * (localT - .5)));
-      } else if (test == 3.) {
-        localT = smoothstep(0., 1., localT);
-        localT = 1. / (1. + exp(-1. / (pow(softness, 2.) + 1e-3) * (localT - .5)));
-      }
+      localT = floor(localT * steps) / steps;
       gradient = mix(gradient, u_colors[i].rgb, localT);
   }  
   return gradient;
@@ -144,7 +135,7 @@ void main() {
 
   vec4 voronoiRes = voronoi(uv, t);
     
-  vec3 cellColor = colorBlend(voronoiRes.w * .998);
+  vec3 cellColor = colorBlend(voronoiRes.w);
 
   float innerGlows = length(voronoiRes.yz * u_innerGlow + .1);
   innerGlows = pow(innerGlows, 1.5);
@@ -163,22 +154,22 @@ void main() {
 export interface VoronoiUniforms extends ShaderSizingUniforms {
   u_colors: vec4[];
   u_colorsCount: number;
+  u_colorSteps: number;
   u_colorEdges: [number, number, number, number];
   u_colorGlow: [number, number, number, number];
   u_distortion: number;
   u_edgeWidth: number;
   u_edgesSoftness: number;
   u_innerGlow: number;
-  u_mixing: number;
 }
 
 export interface VoronoiParams extends ShaderSizingParams, ShaderMotionParams {
   colors?: string[];
+  colorSteps?: number;
   colorEdges?: string;
   colorGlow?: string;
   distortion?: number;
   edgeWidth?: number;
   edgesSoftness?: number;
   innerGlow?: number;
-  mixing?: number;
 }
