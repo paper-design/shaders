@@ -22,7 +22,6 @@ type GradientDemoMixerUniforms = {
   u_softness: number;
   u_test: number;
   u_extraSides: boolean;
-  u_extraSteps: number;
 };
 
 type GradientDemoMixerParams = {
@@ -45,7 +44,6 @@ uniform float u_softness;
 uniform vec4 u_colors[${gradientDemoMixerMaxColorCount}];
 uniform float u_colorsCount;
 uniform bool u_extraSides;
-uniform float u_extraSteps;
 uniform float u_test;
 
 out vec4 fragColor;
