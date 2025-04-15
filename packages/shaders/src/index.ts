@@ -61,7 +61,7 @@ export { perlinNoiseFragmentShader, type PerlinNoiseParams, type PerlinNoiseUnif
 
 // ----- Voronoi Diagram ----- //
 /** Voronoi diagram: classic + rounded edges */
-export { voronoiFragmentShader, type VoronoiParams, type VoronoiUniforms } from './shaders/voronoi';
+export { voronoiMeta, voronoiFragmentShader, type VoronoiParams, type VoronoiUniforms } from './shaders/voronoi';
 
 // ----- Waves ----- //
 /** Waves pattern */

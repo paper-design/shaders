@@ -1,3 +1,4 @@
+import type { vec4 } from '../types';
 import type { ShaderMotionParams } from '../shader-mount';
 import {
   sizingUniformsDeclaration,
@@ -6,6 +7,11 @@ import {
   type ShaderSizingUniforms,
 } from '../shader-sizing';
 import { declarePI } from '../shader-utils';
+import { declareOklchTransforms } from '../shader-color-spaces';
+
+export const voronoiMeta = {
+  maxColorCount: 10,
+} as const;
 
 /**
  * Voronoi pattern
@@ -13,9 +19,6 @@ import { declarePI } from '../shader-utils';
  * Renders a number of circular shapes with gooey effect applied
  *
  * Uniforms include:
- * u_color1 - color #1 of mix used to fill the cell shape
- * u_color2 - color #2 of mix used to fill the cell shape
- * u_color3 - color #3 of mix used to fill the cell shape
  * u_colorEdges - color of borders between the cells
  * u_colorGlow - color used to fill the radial shape on the cell edges
  * u_distortion (0 ... 0.5) - how far the cell center can move from regular square grid
@@ -34,9 +37,12 @@ uniform float u_pixelRatio;
 
 ${sizingUniformsDeclaration}
 
-uniform vec4 u_color1;
-uniform vec4 u_color2;
-uniform vec4 u_color3;
+uniform vec4 u_colors[${voronoiMeta.maxColorCount}];
+uniform float u_colorsCount;
+uniform bool u_extraSides;
+
+uniform float u_colorSpace;
+
 uniform vec4 u_colorGlow;
 uniform vec4 u_colorEdges;
 uniform float u_distortion;
@@ -48,6 +54,8 @@ uniform float u_mixing;
 out vec4 fragColor;
 
 ${declarePI}
+
+${declareOklchTransforms}
 
 vec2 hash(vec2 p) {
   p = vec2(dot(p, vec2(127.1, 311.7)), dot(p, vec2(269.5, 183.3)));
@@ -99,27 +107,19 @@ vec4 voronoi(vec2 x, float t) {
 
 vec3 colorBlend(float shape) {
 
-  int maxColorCount = 10;
-  float colorsCount = 3.;
   float softness = u_mixing;
   bool extraSides = true;
   float test = 3.;
 
-  float mixer = shape * (colorsCount - 1.);
+  float mixer = shape * (u_colorsCount - 1.);
   if (extraSides == true) {
-    mixer = (shape - .5 / colorsCount) * colorsCount;
+    mixer = (shape - .5 / u_colorsCount) * u_colorsCount;
   }
   
-  vec3 colors[3] = vec3[](
-    u_color1.rgb,
-    u_color2.rgb,
-    u_color3.rgb
-  );
+  vec3 gradient = u_colors[0].rgb;
   
-  vec3 gradient = colors[0].rgb;
-  
-  for (int i = 1; i < maxColorCount; i++) {
-      if (i >= int(colorsCount)) break;
+  for (int i = 1; i < ${voronoiMeta.maxColorCount}; i++) {
+      if (i >= int(u_colorsCount)) break;
       float localT = clamp(mixer - float(i - 1), 0.0, 1.0);
       
       if (test == 1.) {
@@ -130,7 +130,7 @@ vec3 colorBlend(float shape) {
         localT = smoothstep(0., 1., localT);
         localT = 1. / (1. + exp(-1. / (pow(softness, 2.) + 1e-3) * (localT - .5)));
       }
-      gradient = mix(gradient, colors[i].rgb, localT);
+      gradient = mix(gradient, u_colors[i].rgb, localT);
   }  
   return gradient;
 }
@@ -161,9 +161,8 @@ void main() {
 `;
 
 export interface VoronoiUniforms extends ShaderSizingUniforms {
-  u_color1: [number, number, number, number];
-  u_color2: [number, number, number, number];
-  u_color3: [number, number, number, number];
+  u_colors: vec4[];
+  u_colorsCount: number;
   u_colorEdges: [number, number, number, number];
   u_colorGlow: [number, number, number, number];
   u_distortion: number;
@@ -174,9 +173,7 @@ export interface VoronoiUniforms extends ShaderSizingUniforms {
 }
 
 export interface VoronoiParams extends ShaderSizingParams, ShaderMotionParams {
-  color1?: string;
-  color2?: string;
-  color3?: string;
+  colors?: string[];
   colorEdges?: string;
   colorGlow?: string;
   distortion?: number;

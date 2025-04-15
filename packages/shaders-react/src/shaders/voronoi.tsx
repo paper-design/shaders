@@ -25,9 +25,7 @@ export const defaultPreset: VoronoiPreset = {
     ...defaultPatternSizing,
     speed: 0.5,
     frame: 0,
-    color1: 'hsla(208, 65%, 31%, 1)', // #135572
-    color2: 'hsla(35, 79%, 66%, 1)', // #eb8c0f
-    color3: 'hsla(10, 79%, 66%, 1)', // #eb8c0f
+    colors: ['hsla(259, 100%, 50%, 1)', 'hsla(150, 100%, 50%, 1)', 'hsla(48, 100%, 50%, 1)', 'hsla(295, 100%, 50%, 1)'],
     colorGlow: 'hsla(266, 100%, 50%, 1)', // #3c00ff
     colorEdges: 'hsla(0, 0%, 100%, 1)', // #ffffff
     distortion: 0.42,
@@ -44,9 +42,7 @@ export const shadowPreset: VoronoiPreset = {
     ...defaultPatternSizing,
     speed: 0.5,
     frame: 0,
-    color1: 'hsla(0, 0%, 97%, 1)', // #ffffff
-    color2: 'hsla(0, 0%, 97%, 1)', // #f7f7f7
-    color3: 'hsla(0, 0%, 97%, 1)', // #f7f7f7
+    colors: ['hsla(259, 29%, 73%, 1)', 'hsla(263, 57%, 39%, 1)', 'hsla(48, 73%, 84%, 1)', 'hsla(295, 32%, 70%, 1)'],
     colorGlow: 'hsla(290, 18%, 42%, 1)', // #5a557c
     colorEdges: 'hsla(0, 0%, 100%, 1)', // #ffffff
     distortion: 0.23,
@@ -63,9 +59,7 @@ export const Voronoi: React.FC<VoronoiProps> = memo(function VoronoiImpl({
   // Own props
   speed = defaultPreset.params.speed,
   frame = defaultPreset.params.frame,
-  color1 = defaultPreset.params.color1,
-  color2 = defaultPreset.params.color2,
-  color3 = defaultPreset.params.color3,
+  colors = defaultPreset.params.colors,
   colorGlow = defaultPreset.params.colorGlow,
   colorEdges = defaultPreset.params.colorEdges,
   distortion = defaultPreset.params.distortion,
@@ -88,9 +82,8 @@ export const Voronoi: React.FC<VoronoiProps> = memo(function VoronoiImpl({
 }: VoronoiProps) {
   const uniforms = {
     // Own uniforms
-    u_color1: getShaderColorFromString(color1),
-    u_color2: getShaderColorFromString(color2),
-    u_color3: getShaderColorFromString(color3),
+    u_colors: colors.map(getShaderColorFromString),
+    u_colorsCount: colors.length,
     u_colorGlow: getShaderColorFromString(colorGlow),
     u_colorEdges: getShaderColorFromString(colorEdges),
     u_distortion: distortion,
