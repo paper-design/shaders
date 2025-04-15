@@ -23,7 +23,7 @@ export function useColors({ defaultColors, maxColorCount }: UseColorsArgs) {
 
     for (let i = 0; i < colorCount; i++) {
       colors[`color${i + 1}`] = {
-        value: defaultColors[i] ?? 'hsla(' + Math.random() * 360 + ', 50%, 50%, 1)',
+        value: defaultColors[i] ?? 'hsla(' + (40 * i) % 360 + ', 100%, 50%, 1)',
       };
     }
 
