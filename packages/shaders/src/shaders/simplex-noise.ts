@@ -48,8 +48,8 @@ float steppedSmooth(float t, float steps, float softness) {
     float stepT = floor(t * steps) / steps;
     float f = t * steps - floor(t * steps);
     
-    float fw = .004 + .001 * u_colorsCount;
-    float smoothed = smoothstep(.5 - softness * .5 - fw, .5 + softness * .5, f);
+    float fw = 0.005 / u_scale;
+    float smoothed = smoothstep(.5 - softness * .5 - fw, .5 + softness * .5 + fw, f);
         
     return stepT + smoothed / steps;
 }

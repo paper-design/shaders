@@ -36,7 +36,7 @@ const SimplexNoiseWithControls = () => {
         {
           extraSteps: { value: defaults.extraSteps, min: 0, max: 10, step: 1, order: 300 },
           softness: { value: defaults.softness, min: 0, max: 1, order: 301 },
-          speed: { value: defaults.speed, min: 0, max: 1, order: 400 },
+          speed: { value: defaults.speed, min: 0, max: 2, order: 400 },
         },
         { order: 1 }
       ),
