@@ -74,14 +74,17 @@ void main() {
 
   float steps = max(1., u_extraSteps + 1.);
 
-  vec3 gradient = u_colors[0].rgb;
+  vec4 gradient = u_colors[0];
+  gradient.rgb *= gradient.a;
   for (int i = 1; i < ${simplexNoiseMeta.maxColorCount}; i++) {
       if (i >= int(u_colorsCount)) break;
       
       float localT = clamp(mixer - float(i - 1), 0., 1.);
       localT = steppedSmooth(localT, steps, u_softness);   
-         
-      gradient = mix(gradient, u_colors[i].rgb, localT);
+      
+      vec4 c = u_colors[i];
+      c.rgb *= c.a;
+      gradient = mix(gradient, c, localT);
   }
   
   if (u_extraSides == true) {
@@ -91,12 +94,16 @@ void main() {
        localT = mixer - (u_colorsCount - 1.);
      }
      localT = steppedSmooth(localT, steps, u_softness);   
-     gradient = mix(u_colors[int(u_colorsCount - 1.)].rgb, u_colors[0].rgb, localT);
+     vec4 cFst = u_colors[0];
+     cFst.rgb *= cFst.a;
+     vec4 cLast = u_colors[int(u_colorsCount - 1.)];
+     cLast.rgb *= cLast.a;
+     gradient = mix(cLast, cFst, localT);
    }
   }
 
-  vec3 color = gradient;
-  float opacity = 1.;
+  vec3 color = gradient.rgb;
+  float opacity = gradient.a;
   
   ${colorBandingFix}
 
