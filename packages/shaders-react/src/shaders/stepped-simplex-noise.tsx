@@ -23,10 +23,11 @@ export const defaultPreset: SteppedSimplexNoisePreset = {
   name: 'Default',
   params: {
     ...defaultPatternSizing,
-    speed: 0.15,
+    speed: 1,
     frame: 0,
     colors: ['hsla(259, 100%, 50%, 1)', 'hsla(150, 100%, 50%, 1)', 'hsla(48, 100%, 50%, 1)', 'hsla(295, 100%, 50%, 1)'],
     extraSteps: 0,
+    softness: 0,
   },
 };
 
@@ -38,6 +39,7 @@ export const SteppedSimplexNoise: React.FC<SteppedSimplexNoiseProps> = memo(func
   frame = defaultPreset.params.frame,
   colors = defaultPreset.params.colors,
   extraSteps = defaultPreset.params.extraSteps,
+  softness = defaultPreset.params.softness,
 
   // Sizing props
   fit = defaultPreset.params.fit,
@@ -56,6 +58,7 @@ export const SteppedSimplexNoise: React.FC<SteppedSimplexNoiseProps> = memo(func
     u_colors: colors.map(getShaderColorFromString),
     u_colorsCount: colors.length,
     u_extraSteps: extraSteps,
+    u_softness: softness,
 
     // Sizing uniforms
     u_fit: ShaderFitOptions[fit],

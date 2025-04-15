@@ -31,6 +31,7 @@ ${sizingUniformsDeclaration}
 uniform vec4 u_colors[${steppedSimplexNoiseMeta.maxColorCount}];
 uniform float u_colorsCount;
 uniform float u_extraSteps;
+uniform float u_softness;
 
 out vec4 fragColor;
 
@@ -43,12 +44,22 @@ float getNoise(vec2 uv, float t) {
   return noise;
 }
 
+float steppedSmooth(float t, float steps, float softness) {
+    float stepT = floor(t * steps) / steps;
+    float f = t * steps - floor(t * steps);
+    
+    float fw = .004 + .001 * u_colorsCount;
+    float smoothed = smoothstep(.5 - softness * .5 - fw, .5 + softness * .5, f);
+        
+    return stepT + smoothed / steps;
+}
+
 void main() {
 
   ${sizingPatternUV}
   uv *= .001;
 
-  float t = u_time;
+  float t = .2 * u_time;
 
   float shape = .5 + .5 * getNoise(uv, t);
   
@@ -65,9 +76,9 @@ void main() {
   for (int i = 1; i < ${steppedSimplexNoiseMeta.maxColorCount}; i++) {
       if (i >= int(u_colorsCount)) break;
       
-      float localT = clamp(mixer - float(i - 1), 0.0, 1.0);
-      localT = round(localT * steps) / steps;
-      
+      float localT = clamp(mixer - float(i - 1), 0., 1.);
+      localT = steppedSmooth(localT, steps, u_softness);   
+         
       gradient = mix(gradient, u_colors[i].rgb, localT);
   }
   
@@ -77,7 +88,7 @@ void main() {
      if (mixer > (u_colorsCount - 1.)) {
        localT = mixer - (u_colorsCount - 1.);
      }
-     localT = round(localT * steps) / steps;
+     localT = steppedSmooth(localT, steps, u_softness);   
      gradient = mix(u_colors[int(u_colorsCount - 1.)].rgb, u_colors[0].rgb, localT);
    }
   }
@@ -95,9 +106,11 @@ export interface SteppedSimplexNoiseUniforms extends ShaderSizingUniforms {
   u_colors: vec4[];
   u_colorsCount: number;
   u_extraSteps: number;
+  u_softness: number;
 }
 
 export interface SteppedSimplexNoiseParams extends ShaderSizingParams, ShaderMotionParams {
   colors?: string[];
   extraSteps?: number;
+  softness?: number;
 }
