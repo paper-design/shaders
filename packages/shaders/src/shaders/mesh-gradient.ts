@@ -13,11 +13,14 @@ export const meshGradientMeta = {
 } as const;
 
 /**
- * Mesh Gradient, based on https://www.shadertoy.com/view/wdyczG
- * Renders a mesh gradient with a rotating noise pattern
- * and several layers of fractal noise
+ * Mesh Gradient Ksenia Kondrashova
+ * Smooth, animated mesh gradient using a dynamic list of colors
  *
  * Uniforms include:
+ * - u_colors (vec4[]): Input RGBA colors
+ * - u_colorsCount (float): Number of active colors (`u_colors` length)
+ * - u_distortion (float): Amount of animated wavy distortion applied to UV coordinates
+ * - u_swirl (float): Amount of radial swirl distortion applied to UV coordinates
  */
 export const meshGradientFragmentShader: string = `#version 300 es
 precision highp float;
@@ -30,7 +33,6 @@ ${sizingUniformsDeclaration}
 
 uniform vec4 u_colors[${meshGradientMeta.maxColorCount}];
 uniform float u_colorsCount;
-uniform bool u_extraSides;
 
 uniform float u_distortion;
 uniform float u_swirl;
