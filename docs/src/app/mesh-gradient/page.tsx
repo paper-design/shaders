@@ -43,7 +43,6 @@ const MeshGradientWithControls = () => {
           distortion: { value: defaults.distortion, min: 0, max: 1, order: 200 },
           swirl: { value: defaults.swirl, min: 0, max: 1, order: 201 },
           speed: { value: defaults.speed, min: 0, max: 2, order: 400 },
-          colorSpace: { value: defaults.colorSpace, min: 0, max: 1, step: 1, order: 500 },
         },
         { order: 1 }
       ),
