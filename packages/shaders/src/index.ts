@@ -46,6 +46,7 @@ export {
 // ----- Stepped simplex noise ----- //
 /** A shader that calculates a combination of 2 simplex noises with result rendered as a stepped gradient */
 export {
+  steppedSimplexNoiseMeta,
   steppedSimplexNoiseFragmentShader,
   type SteppedSimplexNoiseParams,
   type SteppedSimplexNoiseUniforms,
