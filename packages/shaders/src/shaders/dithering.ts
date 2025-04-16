@@ -202,7 +202,9 @@ void main() {
   float res = step(.5, shape + dithering);
 
   vec4 color = mix(u_color1, u_color2, res);
-  fragColor = color;
+  // fragColor = color;
+  
+  fragColor = texture(u_image, gl_FragCoord.xy / u_resolution.xy);
 }
 `;
 
