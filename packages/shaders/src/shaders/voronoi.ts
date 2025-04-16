@@ -28,7 +28,7 @@ export const voronoiMeta = {
  * u_softness (0 .. 1)
  */
 export const voronoiFragmentShader: string = `#version 300 es
-precision highp float;
+precision mediump float;
 
 uniform float u_time;
 uniform vec2 u_resolution;
@@ -149,8 +149,8 @@ void main() {
   float opacity = cellOpacity + innerGlows;
 
   float edge = voronoiRes.x;
-  float smoothEdge = .02 / (2. * u_scale);
-  edge = smoothstep(u_edgeWidth - smoothEdge, u_edgeWidth, edge);
+  float smoothEdge = .03 / (2. * u_scale);
+  edge = smoothstep(u_edgeWidth - smoothEdge, u_edgeWidth + smoothEdge, edge);
   
   color = mix(u_colorEdges.rgb * u_colorEdges.a, color, edge);
   opacity = mix(u_colorEdges.a, opacity, edge);
