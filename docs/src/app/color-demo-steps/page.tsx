@@ -21,6 +21,7 @@ type GradientDemoStepsUniforms = {
   u_shape: number;
   u_extraSides: boolean;
   u_extraSteps: number;
+  u_softness: number;
 };
 
 type GradientDemoStepsParams = {
@@ -28,6 +29,7 @@ type GradientDemoStepsParams = {
   shape?: number;
   extraSides?: boolean;
   extraSteps?: number;
+  softness?: number;
 };
 
 const gradientDemoStepsFragmentShader: string = `#version 300 es
@@ -42,9 +44,20 @@ uniform vec4 u_colors[${gradientDemoStepsMaxColorCount}];
 uniform float u_colorsCount;
 uniform bool u_extraSides;
 uniform float u_extraSteps;
+uniform float u_softness;
 
 out vec4 fragColor;
 
+
+float steppedSmooth(float t, float steps, float softness) {
+    float stepT = floor(t * steps) / steps;
+    float f = t * steps - floor(t * steps);
+    
+    float fw = 0.;
+    float smoothed = smoothstep(.5 - softness * .5 - fw, .5 + softness * .5 + fw, f);
+        
+    return stepT + smoothed / steps;
+}
 
 void main() {
   vec2 uv = gl_FragCoord.xy / u_resolution.xy;
@@ -63,7 +76,8 @@ void main() {
   for (int i = 1; i < ${gradientDemoStepsMaxColorCount}; i++) {
       if (i >= int(u_colorsCount)) break;
       float localT = clamp(mixer - float(i - 1), 0.0, 1.0);
-      localT = round(localT * steps) / steps;
+      // localT = round(localT * steps) / steps;
+      localT = steppedSmooth(localT, steps, u_softness);
       gradient = mix(gradient, u_colors[i].rgb, localT);
   }
   
@@ -73,7 +87,8 @@ void main() {
      if (mixer > (u_colorsCount - 1.)) {
        localT = mixer - (u_colorsCount - 1.);
      }
-     localT = round(localT * steps) / steps;
+     // localT = round(localT * steps) / steps;
+     localT = steppedSmooth(localT, steps, u_softness);
      gradient = mix(u_colors[int(u_colorsCount - 1.)].rgb, u_colors[0].rgb, localT);
    }
   }
@@ -98,6 +113,7 @@ const defaultPreset: GradientDemoStepsPreset = {
     shape: 1,
     extraSides: true,
     extraSteps: 0,
+    softness: 0,
     colors: ['hsla(259, 100%, 50%, 1)', 'hsla(150, 100%, 50%, 1)', 'hsla(48, 100%, 50%, 1)', 'hsla(295, 100%, 50%, 1)'],
   },
 };
@@ -109,6 +125,7 @@ const GradientDemoSteps: React.FC<GradientDemoStepsProps> = memo(function Gradie
   extraSides = defaultPreset.params.extraSides,
   shape = defaultPreset.params.shape,
   extraSteps = defaultPreset.params.extraSteps,
+  softness = defaultPreset.params.softness,
   ...props
 }: GradientDemoStepsProps) {
   const uniforms: GradientDemoStepsUniforms = {
@@ -117,6 +134,7 @@ const GradientDemoSteps: React.FC<GradientDemoStepsProps> = memo(function Gradie
     u_extraSides: extraSides ?? defaultPreset.params.extraSides,
     u_shape: shape ?? defaultPreset.params.shape,
     u_extraSteps: extraSteps ?? defaultPreset.params.extraSteps,
+    u_softness: softness ?? defaultPreset.params.softness,
   };
 
   return <ShaderMount {...props} fragmentShader={gradientDemoStepsFragmentShader} uniforms={uniforms} />;
@@ -149,7 +167,8 @@ export default function Page() {
         {
           shape: { value: defaults.shape, min: 0, max: 3, order: 5 },
           extraSides: { value: defaults.extraSides, order: 1 },
-          extraSteps: { value: defaults.extraSteps, min: 0, max: 10, step: 1, order: 4 },
+          extraSteps: { value: defaults.extraSteps, min: 0, max: 10, step: 1, order: 2 },
+          softness: { value: defaults.softness, min: 0, max: 1, order: 3 },
         },
         { order: 1 }
       ),
