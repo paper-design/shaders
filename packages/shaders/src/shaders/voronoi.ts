@@ -24,7 +24,6 @@ export const voronoiMeta = {
  * u_distortion (0 ... 0.5) - how far the cell center can move from regular square grid
  * u_edgeWidth (0 .. 1) - the size of borders
  *   (can be set to zero but the edge may get glitchy due to nature of Voronoi diagram)
- * u_edgesSoftness (0 .. 1) - the blur/sharp for cell border
  * u_innerGlow (0 .. 1) - the size of shape in the center of each cell
  * u_softness (0 .. 1)
  */
@@ -40,14 +39,13 @@ ${sizingUniformsDeclaration}
 uniform vec4 u_colors[${voronoiMeta.maxColorCount}];
 uniform float u_colorsCount;
 
-uniform float u_colorSteps;
+uniform float u_extraSteps;
 uniform float u_colorSpace;
 
 uniform vec4 u_colorGlow;
 uniform vec4 u_colorEdges;
 uniform float u_distortion;
 uniform float u_edgeWidth;
-uniform float u_edgesSoftness;
 uniform float u_innerGlow;
 
 out vec4 fragColor;
@@ -99,31 +97,8 @@ vec4 voronoi(vec2 x, float t) {
       }
     }
   }
-  
 
   return vec4(md, mr, rand);
-}
-
-vec3 colorBlend(float shape) {
-
-  bool extraSides = true;
-
-  float mixer = shape * (u_colorsCount - 1.);
-  if (extraSides == true) {
-    mixer = (shape - .5 / u_colorsCount) * u_colorsCount;
-  }
-  
-  vec3 gradient = u_colors[0].rgb;
-  
-  float steps = max(1., u_colorSteps + 1.);
-  
-  for (int i = 1; i < ${voronoiMeta.maxColorCount}; i++) {
-      if (i >= int(u_colorsCount)) break;      
-      float localT = clamp(mixer - float(i - 1), 0.0, 1.0);
-      localT = floor(localT * steps) / steps;
-      gradient = mix(gradient, u_colors[i].rgb, localT);
-  }  
-  return gradient;
 }
   
 void main() {
@@ -135,18 +110,51 @@ void main() {
 
   vec4 voronoiRes = voronoi(uv, t);
     
-  vec3 cellColor = colorBlend(voronoiRes.w);
+  float shape = clamp(voronoiRes.w, 0., 1.);
+  float mixer = shape * (u_colorsCount - 1.);
+  mixer = (shape - .5 / u_colorsCount) * u_colorsCount;
+  float steps = max(1., u_extraSteps + 1.);
+
+  vec4 gradient = u_colors[0];
+  gradient.rgb *= gradient.a;
+  for (int i = 1; i < ${voronoiMeta.maxColorCount}; i++) {
+      if (i >= int(u_colorsCount)) break;
+      float localT = clamp(mixer - float(i - 1), 0.0, 1.0);
+      localT = round(localT * steps) / steps;
+      vec4 c = u_colors[i];
+      c.rgb *= c.a;
+      gradient = mix(gradient, c, localT);
+  }
+  
+  if ((mixer < 0.) || (mixer > (u_colorsCount - 1.))) {
+    float localT = mixer + 1.;
+    if (mixer > (u_colorsCount - 1.)) {
+      localT = mixer - (u_colorsCount - 1.);
+    }
+    localT = round(localT * steps) / steps;
+    vec4 cFst = u_colors[0];
+    cFst.rgb *= cFst.a;
+    vec4 cLast = u_colors[int(u_colorsCount - 1.)];
+    cLast.rgb *= cLast.a;
+    gradient = mix(cLast, cFst, localT);
+  }
+  
+  vec3 cellColor = gradient.rgb;
+  float cellOpacity = gradient.a;
 
   float innerGlows = length(voronoiRes.yz * u_innerGlow + .1);
   innerGlows = pow(innerGlows, 1.5);
-  vec3 color = mix(cellColor, u_colorGlow.rgb, innerGlows);
+  
+  vec3 color = mix(cellColor, u_colorGlow.rgb * u_colorGlow.a, u_colorGlow.a * innerGlows);
+  float opacity = cellOpacity + innerGlows;
 
   float edge = voronoiRes.x;
-  float smoothEdge = fwidth(edge);
-  color = mix(u_colorEdges.rgb, color, smoothstep(u_edgeWidth - smoothEdge - .25 * u_edgesSoftness, u_edgeWidth + .25 * u_edgesSoftness, edge));
-    
-  float opacity = 1.;
+  float smoothEdge = .02 / (2. * u_scale);
+  edge = smoothstep(u_edgeWidth - smoothEdge, u_edgeWidth, edge);
   
+  color = mix(u_colorEdges.rgb * u_colorEdges.a, color, edge);
+  opacity = mix(u_colorEdges.a, opacity, edge);
+
   fragColor = vec4(color, opacity);
 }
 `;
@@ -154,22 +162,20 @@ void main() {
 export interface VoronoiUniforms extends ShaderSizingUniforms {
   u_colors: vec4[];
   u_colorsCount: number;
-  u_colorSteps: number;
+  u_extraSteps: number;
   u_colorEdges: [number, number, number, number];
   u_colorGlow: [number, number, number, number];
   u_distortion: number;
   u_edgeWidth: number;
-  u_edgesSoftness: number;
   u_innerGlow: number;
 }
 
 export interface VoronoiParams extends ShaderSizingParams, ShaderMotionParams {
   colors?: string[];
-  colorSteps?: number;
+  extraSteps?: number;
   colorEdges?: string;
   colorGlow?: string;
   distortion?: number;
   edgeWidth?: number;
-  edgesSoftness?: number;
   innerGlow?: number;
 }

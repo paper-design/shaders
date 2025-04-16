@@ -26,12 +26,11 @@ export const defaultPreset: VoronoiPreset = {
     speed: 0.5,
     frame: 0,
     colors: ['hsla(15, 80%, 50%, 1)', 'hsla(50, 80%, 50%, 1)', 'hsla(200, 80%, 50%, 1)'],
-    colorSteps: 0,
+    extraSteps: 0,
     colorGlow: 'hsla(266, 100%, 50%, 1)',
     colorEdges: 'hsla(0, 0%, 100%, 1)',
     distortion: 0.42,
     edgeWidth: 0.06,
-    edgesSoftness: 0.03,
     innerGlow: 0,
   },
 };
@@ -43,12 +42,11 @@ export const shadowPreset: VoronoiPreset = {
     speed: 0.5,
     frame: 0,
     colors: ['hsla(259, 29%, 98%, 1)', 'hsla(48, 73%, 98%, 1)', 'hsla(295, 32%, 98%, 1)'],
-    colorSteps: 0,
+    extraSteps: 0,
     colorGlow: 'hsla(290, 18%, 42%, 1)',
     colorEdges: 'hsla(0, 0%, 100%, 1)',
     distortion: 0.23,
     edgeWidth: 0,
-    edgesSoftness: 0.1,
     innerGlow: 0.8,
   },
 };
@@ -60,12 +58,11 @@ export const Voronoi: React.FC<VoronoiProps> = memo(function VoronoiImpl({
   speed = defaultPreset.params.speed,
   frame = defaultPreset.params.frame,
   colors = defaultPreset.params.colors,
-  colorSteps = defaultPreset.params.colorSteps,
+  extraSteps = defaultPreset.params.extraSteps,
   colorGlow = defaultPreset.params.colorGlow,
   colorEdges = defaultPreset.params.colorEdges,
   distortion = defaultPreset.params.distortion,
   edgeWidth = defaultPreset.params.edgeWidth,
-  edgesSoftness = defaultPreset.params.edgesSoftness,
   innerGlow = defaultPreset.params.innerGlow,
 
   // Sizing props
@@ -84,12 +81,11 @@ export const Voronoi: React.FC<VoronoiProps> = memo(function VoronoiImpl({
     // Own uniforms
     u_colors: colors.map(getShaderColorFromString),
     u_colorsCount: colors.length,
-    u_colorSteps: colorSteps,
+    u_extraSteps: extraSteps,
     u_colorGlow: getShaderColorFromString(colorGlow),
     u_colorEdges: getShaderColorFromString(colorEdges),
     u_distortion: distortion,
     u_edgeWidth: edgeWidth,
-    u_edgesSoftness: edgesSoftness,
     u_innerGlow: innerGlow,
 
     // Sizing uniforms
