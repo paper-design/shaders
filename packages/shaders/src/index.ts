@@ -16,6 +16,7 @@ export {
 /** A shader that renders a mesh gradient with a rotating noise pattern and several layers of fractal noise */
 export {
   meshGradientFragmentShader,
+  meshGradientMeta,
   type MeshGradientParams,
   type MeshGradientUniforms,
 } from './shaders/mesh-gradient';
@@ -42,13 +43,14 @@ export {
   type DotGridUniforms,
 } from './shaders/dot-grid';
 
-// ----- Stepped simplex noise ----- //
-/** A shader that calculates a combination of 2 simplex noises with result rendered as a stepped gradient */
+// ----- Simplex noise ----- //
+/** A shader that calculates a combination of 2 simplex noises with result rendered as a gradient */
 export {
-  steppedSimplexNoiseFragmentShader,
-  type SteppedSimplexNoiseParams,
-  type SteppedSimplexNoiseUniforms,
-} from './shaders/stepped-simplex-noise';
+  simplexNoiseMeta,
+  simplexNoiseFragmentShader,
+  type SimplexNoiseParams,
+  type SimplexNoiseUniforms,
+} from './shaders/simplex-noise';
 
 // ----- Metaballs ----- //
 /** A number of circlular shapes blened in a gooey way */

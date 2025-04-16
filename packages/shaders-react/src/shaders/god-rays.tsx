@@ -1,5 +1,6 @@
 import { memo } from 'react';
 import { ShaderMount, type ShaderComponentProps } from '../shader-mount';
+import { colorPropsAreEqual } from '../color-props-are-equal';
 import {
   defaultObjectSizing,
   getShaderColorFromString,
@@ -156,7 +157,7 @@ export const GodRays: React.FC<GodRaysProps> = memo(function GodRaysImpl({
   worldWidth = defaultPreset.params.worldWidth,
   worldHeight = defaultPreset.params.worldHeight,
   ...props
-}) {
+}: GodRaysProps) {
   const uniforms = {
     // Own uniforms
     u_colorBack: getShaderColorFromString(colorBack),
@@ -185,4 +186,4 @@ export const GodRays: React.FC<GodRaysProps> = memo(function GodRaysImpl({
   return (
     <ShaderMount {...props} speed={speed} frame={frame} fragmentShader={godRaysFragmentShader} uniforms={uniforms} />
   );
-});
+}, colorPropsAreEqual);

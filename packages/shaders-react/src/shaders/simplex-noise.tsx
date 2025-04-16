@@ -2,57 +2,44 @@ import { memo } from 'react';
 import { ShaderMount, type ShaderComponentProps } from '../shader-mount';
 import { colorPropsAreEqual } from '../color-props-are-equal';
 import {
-  defaultPatternSizing,
   getShaderColorFromString,
-  neuroNoiseFragmentShader,
+  simplexNoiseFragmentShader,
   ShaderFitOptions,
-  type NeuroNoiseParams,
-  type NeuroNoiseUniforms,
+  type SimplexNoiseUniforms,
+  type SimplexNoiseParams,
   type ShaderPreset,
+  defaultPatternSizing,
 } from '@paper-design/shaders';
 
-export interface NeuroNoiseProps extends ShaderComponentProps, NeuroNoiseParams {}
+export interface SimplexNoiseProps extends ShaderComponentProps, SimplexNoiseParams {}
 
-type NeuroNoisePreset = ShaderPreset<NeuroNoiseParams>;
+type SimplexNoisePreset = ShaderPreset<SimplexNoiseParams>;
 
 // Due to Leva controls limitation:
 // 1) keep default colors in HSLA format to keep alpha channel
 // 2) don't use decimal values on HSL values (to avoid button highlight bug)
 
-export const defaultPreset: NeuroNoisePreset = {
+export const defaultPreset: SimplexNoisePreset = {
   name: 'Default',
   params: {
     ...defaultPatternSizing,
     speed: 1,
     frame: 0,
-    colorFront: 'hsla(261, 100%, 82%, 1)',
-    colorBack: 'hsla(0, 0%, 0%, 1)',
-    brightness: 1.3,
+    colors: ['hsla(259, 100%, 50%, 1)', 'hsla(150, 100%, 50%, 1)', 'hsla(48, 100%, 50%, 1)', 'hsla(295, 100%, 50%, 1)'],
+    stepsPerColor: 0,
+    softness: 0,
   },
 };
 
-const marblePreset: NeuroNoisePreset = {
-  name: 'Marble',
-  params: {
-    ...defaultPatternSizing,
-    scale: 0.4,
-    speed: 0,
-    frame: 0,
-    colorFront: 'hsla(230, 24%, 15%, 1)',
-    colorBack: 'hsla(0, 0%, 97%, 1)',
-    brightness: 1.1,
-  },
-};
+export const simplexNoisePresets: SimplexNoisePreset[] = [defaultPreset];
 
-export const neuroNoisePresets: NeuroNoisePreset[] = [defaultPreset, marblePreset] as const;
-
-export const NeuroNoise: React.FC<NeuroNoiseProps> = memo(function NeuroNoiseImpl({
+export const SimplexNoise: React.FC<SimplexNoiseProps> = memo(function SimplexNoiseImpl({
   // Own props
   speed = defaultPreset.params.speed,
   frame = defaultPreset.params.frame,
-  colorFront = defaultPreset.params.colorFront,
-  colorBack = defaultPreset.params.colorBack,
-  brightness = defaultPreset.params.brightness,
+  colors = defaultPreset.params.colors,
+  stepsPerColor = defaultPreset.params.stepsPerColor,
+  softness = defaultPreset.params.softness,
 
   // Sizing props
   fit = defaultPreset.params.fit,
@@ -65,12 +52,13 @@ export const NeuroNoise: React.FC<NeuroNoiseProps> = memo(function NeuroNoiseImp
   worldWidth = defaultPreset.params.worldWidth,
   worldHeight = defaultPreset.params.worldHeight,
   ...props
-}: NeuroNoiseProps) {
+}: SimplexNoiseProps) {
   const uniforms = {
     // Own uniforms
-    u_colorFront: getShaderColorFromString(colorFront),
-    u_colorBack: getShaderColorFromString(colorBack),
-    u_brightness: brightness,
+    u_colors: colors.map(getShaderColorFromString),
+    u_colorsCount: colors.length,
+    u_stepsPerColor: stepsPerColor,
+    u_softness: softness,
 
     // Sizing uniforms
     u_fit: ShaderFitOptions[fit],
@@ -82,9 +70,15 @@ export const NeuroNoise: React.FC<NeuroNoiseProps> = memo(function NeuroNoiseImp
     u_originY: originY,
     u_worldWidth: worldWidth,
     u_worldHeight: worldHeight,
-  } satisfies NeuroNoiseUniforms;
+  } satisfies SimplexNoiseUniforms;
 
   return (
-    <ShaderMount {...props} speed={speed} frame={frame} fragmentShader={neuroNoiseFragmentShader} uniforms={uniforms} />
+    <ShaderMount
+      {...props}
+      speed={speed}
+      frame={frame}
+      fragmentShader={simplexNoiseFragmentShader}
+      uniforms={uniforms}
+    />
   );
 }, colorPropsAreEqual);

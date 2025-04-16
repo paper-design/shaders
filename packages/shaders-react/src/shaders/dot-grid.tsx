@@ -1,5 +1,6 @@
 import { memo } from 'react';
 import { ShaderMount, type ShaderComponentProps } from '../shader-mount';
+import { colorPropsAreEqual } from '../color-props-are-equal';
 import {
   getShaderColorFromString,
   dotGridFragmentShader,
@@ -211,7 +212,7 @@ export const DotGrid: React.FC<DotGridProps> = memo(function DotGridImpl({
   // Other props
   maxPixelCount = 6016 * 3384, // Higher max resolution for this shader
   ...props
-}) {
+}: DotGridProps) {
   const uniforms = {
     // Own uniforms
     u_colorBack: getShaderColorFromString(colorBack),
@@ -240,4 +241,4 @@ export const DotGrid: React.FC<DotGridProps> = memo(function DotGridImpl({
   return (
     <ShaderMount {...props} maxPixelCount={maxPixelCount} fragmentShader={dotGridFragmentShader} uniforms={uniforms} />
   );
-});
+}, colorPropsAreEqual);
