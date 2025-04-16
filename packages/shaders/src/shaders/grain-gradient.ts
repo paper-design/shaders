@@ -203,7 +203,7 @@ void main() {
   float grainDist = snoise(grainUV * .2) * snoise05 - fbm_4(.002 * grainUV + 10.) - fbm_4(.003 * grainUV);
   float sandGrain = clamp(.6 * snoise05 - fbm_4(.4 * grainUV) - fbm_4(.001 * grainUV), 0., 1.);
 
-  shape += u_grainDistortion * .35 * (grainDist + .5);
+  shape += u_grainDistortion * 2. / u_colorsCount * (grainDist + .5);
   shape += u_sandGrain * 3. * sandGrain;  
 
   float edge_w = fwidth(shape);
