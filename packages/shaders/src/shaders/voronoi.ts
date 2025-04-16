@@ -149,7 +149,8 @@ void main() {
   float opacity = cellOpacity + innerGlows;
 
   float edge = voronoiRes.x;
-  float smoothEdge = .03 / (2. * u_scale);
+  float smoothEdge = .02 / (2. * u_scale);
+  smoothEdge += .02 * step(u_edgeWidth, .02);
   edge = smoothstep(u_edgeWidth - smoothEdge, u_edgeWidth + smoothEdge, edge);
   
   color = mix(u_colorEdges.rgb * u_colorEdges.a, color, edge);
