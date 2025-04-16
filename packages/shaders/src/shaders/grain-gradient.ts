@@ -1,3 +1,4 @@
+import type {vec4} from '../types';
 import type { ShaderMotionParams } from '../shader-mount';
 import {
   sizingUniformsDeclaration,
@@ -7,7 +8,6 @@ import {
   type ShaderSizingUniforms,
 } from '../shader-sizing';
 import { declareSimplexNoise, declarePI, declareRandom, colorBandingFix } from '../shader-utils';
-import { vec4 } from '../types';
 
 export const grainGradientMeta = {
   maxColorCount: 10,
@@ -223,7 +223,9 @@ void main() {
   // vec3 color = vec3(shape);
   vec3 color = gradient;
   float opacity = 1.;
-    
+
+  ${colorBandingFix}
+
   fragColor = vec4(color, opacity);
 }
 `;
