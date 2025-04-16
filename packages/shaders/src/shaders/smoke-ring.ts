@@ -4,6 +4,8 @@ import {
   sizingSquareUV,
   type ShaderSizingParams,
   type ShaderSizingUniforms,
+  viewPortTestOriginPoint,
+  worldBoxTestStroke,
 } from '../shader-sizing';
 import { declarePI, declareRandom, colorBandingFix } from '../shader-utils';
 
@@ -97,7 +99,7 @@ void main() {
   ${sizingSquareUV}
 
   float t = .1 * u_time;
-  
+
   float cycleDuration = 3.;
   float localTime1 = mod(t + cycleDuration, 2. * cycleDuration);
   float localTime2 = mod(t, 2. * cycleDuration);
@@ -110,7 +112,7 @@ void main() {
   vec2 polar_uv2 = vec2(atg, pow(length(uv), -.6) + localTime2);
   polar_uv2 *= u_noiseScale;
   float noise2 = getNoise(uv, polar_uv2, u_time);
-  
+
   float noise = mix(noise1, noise2, timeBlend);
 
   uv *= (.8 + 1.2 * noise);
@@ -135,8 +137,16 @@ void main() {
 
   color += u_colorBack.rgb * ringShapeInner * (1. - u_colorInner.a) * background;
   color += u_colorBack.rgb * ringShapeOuter * (1. - u_colorOuter.a) * background;
-  
+
   ${colorBandingFix}
+
+
+  ${worldBoxTestStroke}
+  ${viewPortTestOriginPoint}
+
+  color = mix(color, vec3(.9, .2, 0.), worldBoxTestStroke);
+  color = mix(color, vec3(0., .2, .9), viewPortTestOriginPoint);
+  color = mix(color, vec3(0., .9, .2), worldTestOriginPoint);
 
   fragColor = vec4(color, opacity);
 }

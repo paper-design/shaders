@@ -4,6 +4,8 @@ import {
   sizingPatternUV,
   type ShaderSizingParams,
   type ShaderSizingUniforms,
+  worldBoxTestStroke,
+  viewPortTestOriginPoint,
 } from '../shader-sizing';
 import { declareRotate, colorBandingFix } from '../shader-utils';
 
@@ -67,6 +69,13 @@ void main() {
   float opacity = mix(u_colorBack.a, u_colorFront.a, noise);
 
   ${colorBandingFix}
+
+  ${worldBoxTestStroke}
+  ${viewPortTestOriginPoint}
+
+  color = mix(color, vec3(.9, .2, 0.), worldBoxTestStroke);
+  color = mix(color, vec3(0., .2, .9), viewPortTestOriginPoint);
+  color = mix(color, vec3(0., .9, .2), worldTestOriginPoint);
 
   fragColor = vec4(color, opacity);
 }
