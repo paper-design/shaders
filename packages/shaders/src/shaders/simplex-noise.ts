@@ -13,11 +13,15 @@ export const simplexNoiseMeta = {
 } as const;
 
 /**
- * Simplex Noise by Ksenia Kondrashova
- * Calculates a combination of 2 simplex noises with result rendered as
- * an X-5-colored gradient
+ * Simplex Noise animation by Ksenia Kondrashova
+ * Calculates a combination of 2 simplex noises with result mapped as
+ * a gradient with dynamic number of main colors and steps between them
  *
  * Uniforms include:
+ * - u_colors (vec4[]): Input RGBA colors
+ * - u_colorsCount (float): Number of active colors (`u_colors` length)
+ * - u_stepsPerColor (float, used as int): Number of rendered colors per input color
+ * - u_softness (float, 0..1): Amount of blur applied to the color steps
  */
 export const simplexNoiseFragmentShader: string = `#version 300 es
 precision highp float;
@@ -30,7 +34,7 @@ ${sizingUniformsDeclaration}
 
 uniform vec4 u_colors[${simplexNoiseMeta.maxColorCount}];
 uniform float u_colorsCount;
-uniform float u_extraSteps;
+uniform float u_stepsPerColor;
 uniform float u_softness;
 
 out vec4 fragColor;
@@ -70,9 +74,7 @@ void main() {
     mixer = (shape - .5 / u_colorsCount) * u_colorsCount;
   }
 
-
-
-  float steps = max(1., u_extraSteps + 1.);
+  float steps = max(1., u_stepsPerColor);
 
   vec4 gradient = u_colors[0];
   gradient.rgb *= gradient.a;
@@ -114,12 +116,12 @@ void main() {
 export interface SimplexNoiseUniforms extends ShaderSizingUniforms {
   u_colors: vec4[];
   u_colorsCount: number;
-  u_extraSteps: number;
+  u_stepsPerColor: number;
   u_softness: number;
 }
 
 export interface SimplexNoiseParams extends ShaderSizingParams, ShaderMotionParams {
   colors?: string[];
-  extraSteps?: number;
+  stepsPerColor?: number;
   softness?: number;
 }

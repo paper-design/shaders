@@ -26,7 +26,7 @@ export const defaultPreset: SimplexNoisePreset = {
     speed: 1,
     frame: 0,
     colors: ['hsla(259, 100%, 50%, 1)', 'hsla(150, 100%, 50%, 1)', 'hsla(48, 100%, 50%, 1)', 'hsla(295, 100%, 50%, 1)'],
-    extraSteps: 0,
+    stepsPerColor: 0,
     softness: 0,
   },
 };
@@ -38,7 +38,7 @@ export const SimplexNoise: React.FC<SimplexNoiseProps> = memo(function SimplexNo
   speed = defaultPreset.params.speed,
   frame = defaultPreset.params.frame,
   colors = defaultPreset.params.colors,
-  extraSteps = defaultPreset.params.extraSteps,
+  stepsPerColor = defaultPreset.params.stepsPerColor,
   softness = defaultPreset.params.softness,
 
   // Sizing props
@@ -57,7 +57,7 @@ export const SimplexNoise: React.FC<SimplexNoiseProps> = memo(function SimplexNo
     // Own uniforms
     u_colors: colors.map(getShaderColorFromString),
     u_colorsCount: colors.length,
-    u_extraSteps: extraSteps,
+    u_stepsPerColor: stepsPerColor,
     u_softness: softness,
 
     // Sizing uniforms
