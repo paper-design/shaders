@@ -1,5 +1,6 @@
 import { memo } from 'react';
 import { ShaderMount, type ShaderComponentProps } from '../shader-mount';
+import { colorPropsAreEqual } from '../color-props-are-equal';
 import {
   defaultPatternSizing,
   getShaderColorFromString,
@@ -289,7 +290,7 @@ export const Warp: React.FC<WarpProps> = memo(function WarpImpl({
   worldWidth = defaultPreset.params.worldWidth,
   worldHeight = defaultPreset.params.worldHeight,
   ...props
-}) {
+}: WarpProps) {
   const uniforms = {
     // Own uniforms
     u_color1: getShaderColorFromString(color1),
@@ -316,4 +317,4 @@ export const Warp: React.FC<WarpProps> = memo(function WarpImpl({
   } satisfies WarpUniforms;
 
   return <ShaderMount {...props} speed={speed} frame={frame} fragmentShader={warpFragmentShader} uniforms={uniforms} />;
-});
+}, colorPropsAreEqual);

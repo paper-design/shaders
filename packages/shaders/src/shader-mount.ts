@@ -353,25 +353,47 @@ export class ShaderMount {
         // Texture case, requires a good amount of code so it gets its own function:
         this.setTextureUniform(key, value);
       } else if (Array.isArray(value)) {
-        // Array case, supports 2, 3, 4, 9, 16 length arrays
-        switch (value.length) {
+        // Array case
+        let flatArray: number[] | null = null;
+        let valueLength: number | null = null;
+
+        // If it's an array of same-sized arrays, flatten it down so we can set the uniform
+        if (value[0] !== undefined && Array.isArray(value[0])) {
+          const firstChildLength = value[0].length;
+          if (value.every((arr) => (arr as number[]).length === firstChildLength)) {
+            // Array of same-sized arrays case, flattens the array sets it
+            flatArray = value.flat();
+            valueLength = firstChildLength;
+          } else {
+            console.warn(`All child arrays must be the same length for ${key}`);
+            return;
+          }
+        } else {
+          // Array of primitive values case, supports 2, 3, 4, 9, 16 length arrays
+          flatArray = value as number[];
+          valueLength = flatArray.length;
+        }
+
+        // Set the uniform based on array length... supports 2, 3, 4, 9, 16 length arrays of primitive values
+        // or arbitrary length arrays of arrays
+        switch (valueLength) {
           case 2:
-            this.gl.uniform2fv(location, value);
+            this.gl.uniform2fv(location, flatArray);
             break;
           case 3:
-            this.gl.uniform3fv(location, value);
+            this.gl.uniform3fv(location, flatArray);
             break;
           case 4:
-            this.gl.uniform4fv(location, value);
+            this.gl.uniform4fv(location, flatArray);
+            break;
+          case 9:
+            this.gl.uniformMatrix3fv(location, false, flatArray);
+            break;
+          case 16:
+            this.gl.uniformMatrix4fv(location, false, flatArray);
             break;
           default:
-            if (value.length === 9) {
-              this.gl.uniformMatrix3fv(location, false, value);
-            } else if (value.length === 16) {
-              this.gl.uniformMatrix4fv(location, false, value);
-            } else {
-              console.warn(`Unsupported uniform array length: ${value.length}`);
-            }
+            console.warn(`Unsupported uniform array length: ${valueLength}`);
         }
       } else if (typeof value === 'number') {
         // Number case, supports floats and ints
@@ -560,7 +582,7 @@ export function isPaperShaderElement(element: HTMLElement): element is PaperShad
 
 /** Uniform types that we support to be auto-mapped into the fragment shader */
 export interface ShaderMountUniforms {
-  [key: string]: number | number[] | HTMLImageElement;
+  [key: string]: boolean | number | number[] | number[][] | HTMLImageElement;
 }
 
 export interface ShaderMotionParams {

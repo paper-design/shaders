@@ -69,7 +69,6 @@ export const homeShaders = [
     image: meshGradientImg,
     url: '/mesh-gradient',
     ShaderComponent: MeshGradient,
-    shaderConfig: meshGradientPresets[0].params,
   },
   {
     name: 'neuro noise',
