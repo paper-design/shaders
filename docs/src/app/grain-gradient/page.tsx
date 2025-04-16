@@ -1,15 +1,15 @@
 'use client';
 
-import { GrainGradient, type GrainGradientParams, grainGradientPresets } from '@paper-design/shaders-react';
-
+import { GrainGradient, grainGradientPresets } from '@paper-design/shaders-react';
 import { useControls, button, folder } from 'leva';
 import { setParamsSafe, useResetLevaParams } from '@/helpers/use-reset-leva-params';
 import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import Link from 'next/link';
 import { BackButton } from '@/components/back-button';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
-import { ShaderFitOptions } from '@paper-design/shaders';
+import { meshGradientMeta, ShaderFitOptions } from '@paper-design/shaders';
 import { ShaderFit } from '@paper-design/shaders';
+import { useColors } from '@/helpers/use-colors';
 
 /**
  * You can copy/paste this example to use GrainGradient in your app
@@ -25,20 +25,16 @@ const GrainGradientExample = () => {
 const { worldWidth, worldHeight, ...defaults } = grainGradientPresets[0].params;
 
 const GrainGradientWithControls = () => {
+  const { colors, setColors } = useColors({
+    defaultColors: defaults.colors,
+    maxColorCount: meshGradientMeta.maxColorCount,
+  });
+
   const [params, setParams] = useControls(() => {
-    const presets = Object.fromEntries(
-      grainGradientPresets.map(({ name, params: { worldWidth, worldHeight, ...preset } }) => [
-        name,
-        button(() => setParamsSafe(params, setParams, preset)),
-      ])
-    );
     return {
       Parameters: folder(
         {
           colorBack: { value: defaults.colorBack, order: 100 },
-          color1: { value: defaults.color1, order: 101 },
-          color2: { value: defaults.color2, order: 102 },
-          color3: { value: defaults.color3, order: 103 },
           softness: { value: defaults.softness, min: 0, max: 0.5, order: 200 },
           grainDistortion: { value: defaults.grainDistortion, min: 0, max: 1, order: 201 },
           sandGrain: { value: defaults.sandGrain, min: 0, max: 1, order: 202 },
@@ -72,6 +68,21 @@ const GrainGradientWithControls = () => {
           collapsed: true,
         }
       ),
+    };
+  }, [colors.length]);
+
+  useControls(() => {
+    const presets = Object.fromEntries(
+      grainGradientPresets.map(({ name, params: { worldWidth, worldHeight, ...preset } }) => [
+        name,
+        button(() => {
+          const { colors, ...presetParams } = preset;
+          setColors(colors);
+          setParamsSafe(params, setParams, presetParams);
+        }),
+      ])
+    );
+    return {
       Presets: folder(presets, { order: 10 }),
     };
   });
@@ -87,7 +98,7 @@ const GrainGradientWithControls = () => {
       <Link href="/">
         <BackButton />
       </Link>
-      <GrainGradient className="fixed size-full" {...params} />
+      <GrainGradient {...params} colors={colors} className="fixed size-full" />
     </>
   );
 };

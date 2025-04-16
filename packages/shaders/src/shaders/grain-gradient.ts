@@ -7,8 +7,14 @@ import {
   type ShaderSizingUniforms,
 } from '../shader-sizing';
 import { declareSimplexNoise, declarePI, declareRandom, colorBandingFix } from '../shader-utils';
+import { vec4 } from '../types';
+
+export const grainGradientMeta = {
+  maxColorCount: 10,
+} as const;
 
 /**
+ * Grainy Gradient Ksenia Kondrashova
  */
 export const grainGradientFragmentShader: string = `#version 300 es
 precision highp float;
@@ -20,9 +26,8 @@ uniform float u_pixelRatio;
 ${sizingUniformsDeclaration}
 
 uniform vec4 u_colorBack;
-uniform vec4 u_color1;
-uniform vec4 u_color2;
-uniform vec4 u_color3;
+uniform vec4 u_colors[${grainGradientMeta.maxColorCount}];
+uniform float u_colorsCount;
 uniform float u_softness;
 uniform float u_grainDistortion;
 uniform float u_sandGrain;
@@ -203,9 +208,10 @@ void main() {
   float edge_w = fwidth(shape);
 
   vec3 colorBack = u_colorBack.rgb * u_colorBack.a;
-  vec3 color1 = u_color1.rgb * u_color1.a;
-  vec3 color2 = u_color2.rgb * u_color2.a;
-  vec3 color3 = u_color3.rgb * u_color3.a;
+  float backOpacity = u_colorBack.a;
+  vec3 color1 = u_colors[0].rgb * u_colors[0].a;
+  vec3 color2 = u_colors[1].rgb * u_colors[1].a;
+  vec3 color3 = u_colors[2].rgb * u_colors[2].a;
   
   vec3 borders = vec3(.25, .5, .75);
   vec2 borders1 = vec2(borders[0] - .5 * u_softness, borders[0] + .5 * u_softness + edge_w);
@@ -219,9 +225,7 @@ void main() {
   color = mix(color, color2, shape2);
   color = mix(color, color3, shape3);
 
-  float opacity = mix(u_colorBack.a, u_color1.a, shape1);
-  opacity = mix(opacity, u_color2.a, shape2);
-  opacity = mix(opacity, u_color3.a, shape3);
+  float opacity = 1.;
     
   fragColor = vec4(color, opacity);
 }
@@ -229,9 +233,8 @@ void main() {
 
 export interface GrainGradientUniforms extends ShaderSizingUniforms {
   u_colorBack: [number, number, number, number];
-  u_color1: [number, number, number, number];
-  u_color2: [number, number, number, number];
-  u_color3: [number, number, number, number];
+  u_colors: vec4[];
+  u_colorsCount: number;
   u_softness: number;
   u_grainDistortion: number;
   u_sandGrain: number;
@@ -240,9 +243,7 @@ export interface GrainGradientUniforms extends ShaderSizingUniforms {
 
 export interface GrainGradientParams extends ShaderSizingParams, ShaderMotionParams {
   colorBack?: string;
-  color1?: string;
-  color2?: string;
-  color3?: string;
+  colors?: string[];
   softness?: number;
   grainDistortion?: number;
   sandGrain?: number;
