@@ -34,8 +34,7 @@ const GrainGradientWithControls = () => {
     return {
       Parameters: folder(
         {
-          colorBack: { value: defaults.colorBack, order: 100 },
-          softness: { value: defaults.softness, min: 0, max: 0.5, order: 200 },
+          softness: { value: defaults.softness, min: 0, max: 1, order: 200 },
           grainDistortion: { value: defaults.grainDistortion, min: 0, max: 1, order: 201 },
           sandGrain: { value: defaults.sandGrain, min: 0, max: 1, order: 202 },
           shape: { value: defaults.shape, min: 1, max: 7, step: 1, order: 300 },

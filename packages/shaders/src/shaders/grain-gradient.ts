@@ -25,7 +25,6 @@ uniform float u_pixelRatio;
 
 ${sizingUniformsDeclaration}
 
-uniform vec4 u_colorBack;
 uniform vec4 u_colors[${grainGradientMeta.maxColorCount}];
 uniform float u_colorsCount;
 uniform float u_softness;
@@ -123,7 +122,7 @@ void main() {
 
     float speed = sign(rand - .5) * ceil(2. + rand);
     shape = sin(shapeUv.x) * cos(shapeUv.y + speed * t);  
-    shape = pow(shape, 6.);
+    shape = pow(shape, 4.);
   
   } else if (u_shape < 3.5) {
     // Truchet pattern
@@ -141,6 +140,8 @@ void main() {
     n2 *= .1;
     shape = smoothstep(.2, .55, distance1 + n2) * smoothstep(.8, .45, distance1 - n2);
     shape += smoothstep(.2, .55, distance2 + n2) * smoothstep(.8, .45, distance2 - n2);
+    
+    shape = pow(shape, 1.5);
       
   } else if (u_shape < 4.5) {  
     // Corners
@@ -157,7 +158,7 @@ void main() {
     tr = smoothstep(vec2(0.), outer, 1. - shapeUv);
     shape -= bl.x * bl.y * tr.x * tr.y; 
     
-    shape = 1. - smoothstep(0., 1.2, shape);
+    shape = 1. - smoothstep(0., 1., shape);
     
   } else if (u_shape < 5.5) {  
     // Ripple
@@ -184,7 +185,7 @@ void main() {
     
     shape = smoothstep(.0, .5, shape);
     float edge = smoothstep(.45, .46, shape);
-    shape = mix(.1, shape, edge);
+    shape = mix(.0, shape, edge);
     
   } else {
     // Sphere
@@ -194,7 +195,7 @@ void main() {
     vec3 pos = vec3(shapeUv, sqrt(1. - clamp(d, 0., 1.)));
     vec3 lightPos = normalize(vec3(cos(3. * t), 0.8, sin(2.5 * t)));
     float lighting = dot(lightPos, pos);
-    float edge = smoothstep(1., .98, d);
+    float edge = smoothstep(1., .97, d);
     shape = mix(.1, .5 + .5 * lighting, edge);
   }
   
@@ -202,29 +203,25 @@ void main() {
   float grainDist = snoise(grainUV * .2) * snoise05 - fbm_4(.002 * grainUV + 10.) - fbm_4(.003 * grainUV);
   float sandGrain = clamp(.6 * snoise05 - fbm_4(.4 * grainUV) - fbm_4(.001 * grainUV), 0., 1.);
 
-  shape += u_grainDistortion * .3 * (grainDist + .3);
-  shape += u_sandGrain * 2. * sandGrain;
+  shape += u_grainDistortion * .35 * (grainDist + .5);
+  shape += u_sandGrain * 3. * sandGrain;  
 
   float edge_w = fwidth(shape);
+      
+  float mixer = shape;
+  vec3 gradient = u_colors[0].rgb;
+  for (int i = 1; i < ${grainGradientMeta.maxColorCount}; i++) {
+      if (i >= int(u_colorsCount)) break;
+            
+      float b = float(i) / u_colorsCount;
+      vec2 borders = vec2(b - 2. / u_colorsCount * u_softness, b + 2. / u_colorsCount * u_softness + edge_w);
+      
+      float localT = smoothstep(borders[0], borders[1], mixer);
+      gradient = mix(gradient, u_colors[i].rgb, localT);
+  }
 
-  vec3 colorBack = u_colorBack.rgb * u_colorBack.a;
-  float backOpacity = u_colorBack.a;
-  vec3 color1 = u_colors[0].rgb * u_colors[0].a;
-  vec3 color2 = u_colors[1].rgb * u_colors[1].a;
-  vec3 color3 = u_colors[2].rgb * u_colors[2].a;
-  
-  vec3 borders = vec3(.25, .5, .75);
-  vec2 borders1 = vec2(borders[0] - .5 * u_softness, borders[0] + .5 * u_softness + edge_w);
-  vec2 borders2 = vec2(borders[1] - .5 * u_softness - edge_w, borders[1] + .5 * u_softness + edge_w);
-  vec2 borders3 = vec2(borders[2] - .5 * u_softness - edge_w, borders[2] + .5 * u_softness + edge_w);
-  float shape1 = smoothstep(borders1[0], borders1[1], shape);
-  float shape2 = smoothstep(borders2[0], borders2[1], shape);
-  float shape3 = smoothstep(borders3[0], borders3[1], shape);
-
-  vec3 color = mix(colorBack, color1, shape1);
-  color = mix(color, color2, shape2);
-  color = mix(color, color3, shape3);
-
+  // vec3 color = vec3(shape);
+  vec3 color = gradient;
   float opacity = 1.;
     
   fragColor = vec4(color, opacity);
@@ -232,7 +229,6 @@ void main() {
 `;
 
 export interface GrainGradientUniforms extends ShaderSizingUniforms {
-  u_colorBack: [number, number, number, number];
   u_colors: vec4[];
   u_colorsCount: number;
   u_softness: number;
@@ -242,7 +238,6 @@ export interface GrainGradientUniforms extends ShaderSizingUniforms {
 }
 
 export interface GrainGradientParams extends ShaderSizingParams, ShaderMotionParams {
-  colorBack?: string;
   colors?: string[];
   softness?: number;
   grainDistortion?: number;
