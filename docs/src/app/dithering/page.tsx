@@ -11,6 +11,7 @@ import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
 import { ShaderFitOptions } from '@paper-design/shaders';
 import { ShaderFit } from '@paper-design/shaders';
 import { levaImageButton } from '@/helpers/leva-image-button';
+import { useState } from 'react';
 
 /**
  * You can copy/paste this example to use Dithering in your app
@@ -26,6 +27,7 @@ const DitheringExample = () => {
 const { worldWidth, worldHeight, ...defaults } = ditheringPresets[0].params;
 
 const DitheringWithControls = () => {
+  const [image, setImage] = useState<HTMLImageElement | null>(null);
   const [params, setParams] = useControls(() => {
     const presets = Object.fromEntries(
       ditheringPresets.map(({ name, params: { worldWidth, worldHeight, ...preset } }) => [
@@ -73,7 +75,7 @@ const DitheringWithControls = () => {
       ),
       Image: folder(
         {
-          'Upload image': levaImageButton((image) => setParamsSafe(params, setParams, { image })),
+          'Upload image': levaImageButton(setImage),
         },
         {
           order: 4,
@@ -96,7 +98,7 @@ const DitheringWithControls = () => {
       <Link href="/">
         <BackButton />
       </Link>
-      <Dithering className="fixed size-full" {...params} />
+      <Dithering className="fixed size-full" {...params} image={image} />
     </>
   );
 };
