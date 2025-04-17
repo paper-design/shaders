@@ -17,7 +17,7 @@ export const grainGradientMeta = {
  * Grainy Gradient Ksenia Kondrashova
  */
 export const grainGradientFragmentShader: string = `#version 300 es
-precision highp float;
+precision lowp float;
 
 uniform float u_time;
 uniform vec2 u_resolution;
