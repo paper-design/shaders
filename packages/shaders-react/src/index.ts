@@ -53,5 +53,9 @@ export { Spiral, spiralPresets } from './shaders/spiral';
 export type { SpiralProps } from './shaders/spiral';
 export type { SpiralUniforms, SpiralParams } from '@paper-design/shaders';
 
+export { GrainGradient, grainGradientPresets } from './shaders/grain-gradient';
+export { type GrainGradientProps } from './shaders/grain-gradient';
+export { type GrainGradientUniforms, type GrainGradientParams } from '@paper-design/shaders';
+
 export { isPaperShaderElement, getShaderColorFromString } from '@paper-design/shaders';
 export type { ShaderFit, ShaderSizingParams, ShaderSizingUniforms } from '@paper-design/shaders';
