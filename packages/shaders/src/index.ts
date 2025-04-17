@@ -82,7 +82,7 @@ export { spiralFragmentShader, type SpiralParams, type SpiralUniforms } from './
 
 // ----- Swirl gradient ----- //
 /**  */
-export { swirlFragmentShader, type SwirlParams, type SwirlUniforms } from './shaders/swirl';
+export { swirlMeta, swirlFragmentShader, type SwirlParams, type SwirlUniforms } from './shaders/swirl';
 
 // ----- Uniform conversion utils ----- //
 export { getShaderColorFromString } from './get-shader-color-from-string';

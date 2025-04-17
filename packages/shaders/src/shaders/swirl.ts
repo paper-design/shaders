@@ -1,3 +1,4 @@
+import type { vec4 } from '../types';
 import type { ShaderMotionParams } from '../shader-mount';
 import {
   sizingUniformsDeclaration,
@@ -6,6 +7,10 @@ import {
   type ShaderSizingUniforms,
 } from '../shader-sizing';
 import { declareSimplexNoise, declarePI, declareRotate, colorBandingFix } from '../shader-utils';
+
+export const swirlMeta = {
+  maxColorCount: 10,
+} as const;
 
 /**
  */
@@ -18,18 +23,19 @@ uniform float u_pixelRatio;
 
 ${sizingUniformsDeclaration}
 
-uniform vec4 u_color1;
-uniform vec4 u_color2;
-uniform vec4 u_color3;
+uniform vec4 u_colors[${swirlMeta.maxColorCount}];
+uniform float u_colorsCount;
 uniform float u_bandCount;
 uniform float u_twist;
+uniform float u_softness;
+uniform float u_noisePower;
+uniform float u_noiseFreq;
 
 out vec4 fragColor;
 
 ${declarePI}
 ${declareSimplexNoise}
 ${declareRotate}
-
 
 void main() {
   ${sizingSquareUV}
@@ -44,33 +50,57 @@ void main() {
   float twist = 3. * clamp(u_twist, 0., 1.);
   float offset = pow(l, -twist) + angle_norm;
   
-  float stripe_map = fract(offset);
-  stripe_map = 1. - abs(2. * stripe_map - 1.);
+  float shape = fract(offset);
+  shape = 1. - abs(2. * shape - 1.);
+  shape += u_noisePower * snoise(pow(u_noiseFreq, 2.) * uv);
 
-  float mid = smoothstep(.0, .25, pow(l, twist));
-  stripe_map = mix(.0, stripe_map, mid);
+  float mid = smoothstep(.2, .4, pow(l, twist));
+  shape = mix(0., shape, mid);
+    
+  float mixer = shape * (u_colorsCount - 1.);
+  float softness = u_softness + (.1 + .012 * u_colorsCount) * smoothstep(.6, .2, pow(l, twist));
+
+  vec4 gradient = u_colors[0];
+  gradient.rgb *= gradient.a;
+  for (int i = 1; i < ${swirlMeta.maxColorCount}; i++) {
+      if (i >= int(u_colorsCount)) break;
+      
+      float localT = clamp(mixer - float(i - 1), 0., 1.);
+      
+      localT = smoothstep(.5 - .5 * u_softness, .5 + .5 * u_softness, localT);
+
+      // localT = smoothstep(0., 1., localT);
+      // localT = 1. / (1. + exp(-1. / (pow(softness, 4.) + 1e-3) * (localT - .5)));
+            
+      vec4 c = u_colors[i];
+      c.rgb *= c.a;
+      gradient = mix(gradient, c, localT);
+  }
+ 
+  vec3 color = gradient.rgb;
+  float opacity = gradient.a;
   
-  vec3 color = vec3(stripe_map);
-  float opacity = 1.;
-
   ${colorBandingFix}
-
+  
   fragColor = vec4(color, opacity);
 }
 `;
 
 export interface SwirlUniforms extends ShaderSizingUniforms {
-  u_color1: [number, number, number, number];
-  u_color2: [number, number, number, number];
-  u_color3: [number, number, number, number];
+  u_colors: vec4[];
+  u_colorsCount: number;
   u_bandCount: number;
   u_twist: number;
+  u_softness: number;
+  u_noiseFreq: number;
+  u_noisePower: number;
 }
 
 export interface SwirlParams extends ShaderSizingParams, ShaderMotionParams {
-  color1?: string;
-  color2?: string;
-  color3?: string;
+  colors?: string[];
   bandCount?: number;
   twist?: number;
+  softness?: number;
+  noiseFreq?: number;
+  noisePower?: number;
 }
