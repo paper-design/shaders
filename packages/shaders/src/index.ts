@@ -84,6 +84,7 @@ export { spiralFragmentShader, type SpiralParams, type SpiralUniforms } from './
 /**  */
 export {
   grainGradientFragmentShader,
+  grainGradientMeta,
   type GrainGradientParams,
   type GrainGradientUniforms,
 } from './shaders/grain-gradient';

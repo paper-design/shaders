@@ -10,7 +10,7 @@ import {
 import { declareSimplexNoise, declarePI, declareRandom, colorBandingFix } from '../shader-utils';
 
 export const grainGradientMeta = {
-  maxColorCount: 10,
+  maxColorCount: 7,
 } as const;
 
 /**
@@ -28,8 +28,8 @@ ${sizingUniformsDeclaration}
 uniform vec4 u_colors[${grainGradientMeta.maxColorCount}];
 uniform float u_colorsCount;
 uniform float u_softness;
-uniform float u_grainDistortion;
-uniform float u_sandGrain;
+uniform float u_intensity;
+uniform float u_noise;
 uniform float u_shape;
 
 out vec4 fragColor;
@@ -183,8 +183,8 @@ void main() {
     shape += .5 * pow(1. - clamp(0., 1., length(shapeUv + f3_traj)), 5.);
     shape += .5 * pow(1. - clamp(0., 1., length(shapeUv + f4_traj)), 5.);
     
-    shape = smoothstep(.0, .5, shape);
-    float edge = smoothstep(.45, .46, shape);
+    shape = smoothstep(.0, .9, shape);
+    float edge = smoothstep(.25, .3, shape);
     shape = mix(.0, shape, edge);
     
   } else {
@@ -201,10 +201,10 @@ void main() {
   
   float snoise05 = snoise(grainUV * .5);
   float grainDist = snoise(grainUV * .2) * snoise05 - fbm_4(.002 * grainUV + 10.) - fbm_4(.003 * grainUV);
-  float sandGrain = clamp(.6 * snoise05 - fbm_4(.4 * grainUV) - fbm_4(.001 * grainUV), 0., 1.);
+  float noise = clamp(.6 * snoise05 - fbm_4(.4 * grainUV) - fbm_4(.001 * grainUV), 0., 1.);
 
-  shape += u_grainDistortion * 2. / u_colorsCount * (grainDist + .5);
-  shape += u_sandGrain * 3. * sandGrain;  
+  shape += u_intensity * 2. / u_colorsCount * (grainDist + .5);
+  shape += u_noise * 10. / u_colorsCount * noise;  
 
   float edge_w = fwidth(shape);
       
@@ -212,15 +212,12 @@ void main() {
   vec3 gradient = u_colors[0].rgb;
   for (int i = 1; i < ${grainGradientMeta.maxColorCount}; i++) {
       if (i >= int(u_colorsCount)) break;
-            
-      float b = float(i) / u_colorsCount;
-      vec2 borders = vec2(b - 2. / u_colorsCount * u_softness, b + 2. / u_colorsCount * u_softness + edge_w);
-      
+
+      vec2 borders = vec2(float(i) - u_softness, float(i) + u_softness + edge_w) / u_colorsCount;
       float localT = smoothstep(borders[0], borders[1], mixer);
       gradient = mix(gradient, u_colors[i].rgb, localT);
   }
 
-  // vec3 color = vec3(shape);
   vec3 color = gradient;
   float opacity = 1.;
 
@@ -234,15 +231,15 @@ export interface GrainGradientUniforms extends ShaderSizingUniforms {
   u_colors: vec4[];
   u_colorsCount: number;
   u_softness: number;
-  u_grainDistortion: number;
-  u_sandGrain: number;
+  u_intensity: number;
+  u_noise: number;
   u_shape: number;
 }
 
 export interface GrainGradientParams extends ShaderSizingParams, ShaderMotionParams {
   colors?: string[];
   softness?: number;
-  grainDistortion?: number;
-  sandGrain?: number;
+  intensity?: number;
+  noise?: number;
   shape?: number;
 }

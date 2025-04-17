@@ -27,8 +27,8 @@ export const defaultPreset: GrainGradientPreset = {
     frame: 0,
     colors: ['hsla(210, 100%, 3%, 1)', 'hsla(32, 89%, 40%, 1)', 'hsla(46, 60%, 60%, 1)', 'hsla(39, 28%, 81%, 1)'],
     softness: 0.7,
-    grainDistortion: 0.15,
-    sandGrain: 0.5,
+    intensity: 0.15,
+    noise: 0.5,
     shape: 1,
   },
 };
@@ -42,8 +42,8 @@ export const dotsPreset: GrainGradientPreset = {
     frame: 0,
     colors: ['hsla(0, 100%, 2%, 1)', 'hsla(0, 100%, 22%, 1)', 'hsla(210, 100%, 50%, 1)', 'hsla(48, 52%, 90%, 1)'],
     softness: 0.75,
-    grainDistortion: 0.15,
-    sandGrain: 0.7,
+    intensity: 0.15,
+    noise: 0.7,
     shape: 2,
   },
 };
@@ -56,8 +56,8 @@ export const truchetPreset: GrainGradientPreset = {
     frame: 0,
     colors: ['hsla(0, 100%, 2%, 1)', 'hsla(24, 100%, 22%, 1)', 'hsla(35, 85%, 69%, 1)', 'hsla(100, 52%, 45%, 1)'],
     softness: 0,
-    grainDistortion: 0.2,
-    sandGrain: 1,
+    intensity: 0.2,
+    noise: 1,
     shape: 3,
   },
 };
@@ -70,8 +70,8 @@ export const cornersPreset: GrainGradientPreset = {
     frame: 0,
     colors: ['hsla(210, 80%, 6%, 1)', 'hsla(200, 100%, 40%, 1)', 'hsla(170, 100%, 50%, 1)', 'hsla(50, 100%, 50%, 1)'],
     softness: 0.4,
-    grainDistortion: 0.35,
-    sandGrain: 0.35,
+    intensity: 0.35,
+    noise: 0.35,
     shape: 4,
   },
 };
@@ -85,8 +85,8 @@ export const ripplePreset: GrainGradientPreset = {
     frame: 0,
     colors: ['hsla(30, 100%, 4%, 1)', 'hsla(25, 100%, 22%, 1)', 'hsla(140, 70%, 70%, 1)', 'hsla(4305, 64%, 11%, 1)'],
     softness: 0.5,
-    grainDistortion: 0.5,
-    sandGrain: 0.5,
+    intensity: 0.5,
+    noise: 0.5,
     shape: 5,
   },
 };
@@ -100,8 +100,8 @@ export const blobPreset: GrainGradientPreset = {
     frame: 0,
     colors: ['hsla(240, 30%, 8%, 1)', 'hsla(200, 30%, 35%, 1)', 'hsla(50, 30%, 55%, 1)', 'hsla(90, 25%, 45%, 1)'],
     softness: 0,
-    grainDistortion: 0.15,
-    sandGrain: 0.5,
+    intensity: 0.15,
+    noise: 0.5,
     shape: 6,
   },
 };
@@ -114,8 +114,8 @@ export const spherePreset: GrainGradientPreset = {
     frame: 0,
     colors: ['hsla(230, 100%, 5%, 1)', 'hsla(210, 100%, 35%, 1)', 'hsla(180, 95%, 60%, 1)', 'hsla(130, 80%, 45%, 1)'],
     softness: 1,
-    grainDistortion: 0.15,
-    sandGrain: 0.5,
+    intensity: 0.15,
+    noise: 0.5,
     shape: 7,
   },
 };
@@ -136,8 +136,8 @@ export const GrainGradient: React.FC<GrainGradientProps> = memo(function GrainGr
   frame = defaultPreset.params.frame,
   colors = defaultPreset.params.colors,
   softness = defaultPreset.params.softness,
-  grainDistortion = defaultPreset.params.grainDistortion,
-  sandGrain = defaultPreset.params.sandGrain,
+  intensity = defaultPreset.params.intensity,
+  noise = defaultPreset.params.noise,
   shape = defaultPreset.params.shape,
 
   // Sizing props
@@ -157,8 +157,8 @@ export const GrainGradient: React.FC<GrainGradientProps> = memo(function GrainGr
     u_colors: colors.map(getShaderColorFromString),
     u_colorsCount: colors.length,
     u_softness: softness,
-    u_grainDistortion: grainDistortion,
-    u_sandGrain: sandGrain,
+    u_intensity: intensity,
+    u_noise: noise,
     u_shape: shape,
 
     // Sizing uniforms
