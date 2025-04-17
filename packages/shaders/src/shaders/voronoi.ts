@@ -10,7 +10,7 @@ import { declarePI } from '../shader-utils';
 import { declareOklchTransforms } from '../shader-color-spaces';
 
 export const voronoiMeta = {
-  maxColorCount: 10,
+  maxColorCount: 5,
 } as const;
 
 /**
@@ -28,7 +28,7 @@ export const voronoiMeta = {
  * u_softness (0 .. 1)
  */
 export const voronoiFragmentShader: string = `#version 300 es
-precision mediump float;
+precision lowp float;
 
 uniform float u_time;
 uniform vec2 u_resolution;
