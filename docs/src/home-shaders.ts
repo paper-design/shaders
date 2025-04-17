@@ -24,8 +24,8 @@ import {
   neuroNoisePresets,
   SmokeRing,
   smokeRingPresets,
-  SteppedSimplexNoise,
-  steppedSimplexNoisePresets,
+  SimplexNoise,
+  simplexNoisePresets,
   Voronoi,
   voronoiPresets,
   Waves,
@@ -60,9 +60,9 @@ export const homeShaders = [
   {
     name: 'simplex noise',
     image: simplexNoiseImg,
-    url: '/stepped-simplex-noise',
-    ShaderComponent: SteppedSimplexNoise,
-    shaderConfig: { ...steppedSimplexNoisePresets[0].params, scale: 0.5, speed: 0.3 },
+    url: '/simplex-noise',
+    ShaderComponent: SimplexNoise,
+    shaderConfig: { ...simplexNoisePresets[0].params, scale: 0.5 },
   },
   {
     name: 'mesh gradient',

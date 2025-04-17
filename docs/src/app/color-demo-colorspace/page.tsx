@@ -17,20 +17,13 @@ const gradientDemoCSSMaxColorCount = 7;
 type GradientDemoCSSUniforms = {
   u_colors: vec4[];
   u_colorsCount: number;
-  u_test: number;
+  u_colorSpace: number;
 };
 
 type GradientDemoCSSParams = {
   colors?: string[];
-  test?: number;
+  colorSpace?: number;
 };
-
-/**
- *
- * Uniforms include:
- * u_colors: An array of colors, each color is an array of 4 numbers [r, g, b, a]
- * u_colorsCount: The number of colors in the u_colors array
- */
 
 const gradientDemoCSSFragmentShader: string = `#version 300 es
 precision highp float;
@@ -39,7 +32,7 @@ uniform float u_pixelRatio;
 uniform vec2 u_resolution;
 uniform float u_time;
 
-uniform float u_test;
+uniform float u_colorSpace;
 uniform vec4 u_colors[${gradientDemoCSSMaxColorCount}];
 uniform float u_colorsCount;
 
@@ -111,34 +104,51 @@ float mixHue(float h1, float h2, float mixer) {
     return h1 + mixer * delta;
 }
 
+vec3 srgbToOklab(vec3 rgb) {
+    return oklabToOklch(LrgbToOklab(srgbToLinear(rgb)));
+}
+
+vec3 oklabToSrgb(vec3 oklab) {
+    return linearToSrgb(OklabToLrgb(oklchToOklab(oklab)));
+}
+
+vec3 mixOklabVector(vec3 color1, vec3 color2, float mixer) {
+  color1.x = mix(color1.x, color2.x, mixer);
+  color1.y = mix(color1.y, color2.y, mixer);
+  if (color1.y > OKLCH_CHROMA_THRESHOLD && color2.y > OKLCH_CHROMA_THRESHOLD) {
+    color1.z = mixHue(color1.z, color2.z, mixer);
+  }
+  return color1;   
+}
+
 void main() {
     vec2 uv = gl_FragCoord.xy / u_resolution.xy;
     float mixer = uv.x * (u_colorsCount - 1.);
     vec3 color = vec3(0.);
-
-    if (u_test == 0.) {
-        vec3 gradient = u_colors[0].rgb;
-        for (int i = 1; i < ${gradientDemoCSSMaxColorCount}; i++) {
-            if (i >= int(u_colorsCount)) break;
-            float localMixer = clamp(mixer - float(i - 1), 0., 1.);
-            gradient = mix(gradient, u_colors[i].rgb, localMixer);
-        }
-        color = gradient;
-    } else {
-        vec3 gradient = oklabToOklch(LrgbToOklab(srgbToLinear(u_colors[0].rgb)));
-        for (int i = 1; i < ${gradientDemoCSSMaxColorCount}; i++) {
-            if (i >= int(u_colorsCount)) break;
-            float localMixer = clamp(mixer - float(i - 1), 0., 1.);
-            vec3 c = oklabToOklch(LrgbToOklab(srgbToLinear(u_colors[i].rgb)));
-            gradient.x = mix(gradient.x, c.x, localMixer);
-            gradient.y = mix(gradient.y, c.y, localMixer);
-            if (gradient.y > OKLCH_CHROMA_THRESHOLD && c.y > OKLCH_CHROMA_THRESHOLD) {
-                gradient.z = mixHue(gradient.z, c.z, localMixer);
-            }
-        }
-        color = linearToSrgb(OklabToLrgb(oklchToOklab(gradient)));
+    
+    vec3 gradient = u_colors[0].rgb;
+    if (u_colorSpace == 1.) {
+      gradient = srgbToOklab(u_colors[0].rgb);
     }
-
+    
+    for (int i = 1; i < ${gradientDemoCSSMaxColorCount}; i++) {
+      if (i >= int(u_colorsCount)) break;
+      float localMixer = clamp(mixer - float(i - 1), 0., 1.);
+      vec3 c = u_colors[i].rgb;
+      if (u_colorSpace == 0.) {
+        gradient = mix(gradient, c, localMixer);
+      } else {
+        c = srgbToOklab(u_colors[i].rgb);
+        gradient = mixOklabVector(gradient, c, localMixer);
+      }
+    }
+    
+    if (u_colorSpace == 0.) {
+      color = gradient;
+    } else {
+      color = oklabToSrgb(gradient);
+    }
+    
     fragColor = vec4(color, 1.);
 }
 `;
@@ -149,7 +159,7 @@ type GradientDemoCSSPreset = ShaderPreset<GradientDemoCSSParams>;
 const defaultPreset: GradientDemoCSSPreset = {
   name: 'Default',
   params: {
-    test: 1,
+    colorSpace: 1,
     colors: [
       'hsla(0, 100%, 50%, 1)',
       'hsla(240, 100%, 50%, 1)',
@@ -162,33 +172,17 @@ const defaultPreset: GradientDemoCSSPreset = {
   },
 };
 
-const beachPreset: GradientDemoCSSPreset = {
-  name: 'Beach',
-  params: {
-    test: 1,
-    colors: ['#999999', '#0000ff'],
-  },
-};
-
-const fadedPreset: GradientDemoCSSPreset = {
-  name: 'Faded',
-  params: {
-    test: 0,
-    colors: ['hsla(186, 41%, 90%, 1)', 'hsla(208, 71%, 85%, 1)', 'hsla(183, 51%, 92%, 1)', 'hsla(201, 72%, 90%, 1)'],
-  },
-};
-
-const gradientDemoCSSPresets: GradientDemoCSSPreset[] = [beachPreset, defaultPreset, fadedPreset];
+const gradientDemoCSSPresets: GradientDemoCSSPreset[] = [defaultPreset];
 
 const GradientDemoCSS: React.FC<GradientDemoCSSProps> = memo(function GradientDemoCSSImpl({
   colors = defaultPreset.params.colors,
-  test = defaultPreset.params.test,
+  colorSpace = defaultPreset.params.colorSpace,
   ...props
 }: GradientDemoCSSProps) {
   const uniforms: GradientDemoCSSUniforms = {
     u_colors: colors.map(getShaderColorFromString),
     u_colorsCount: colors.length,
-    u_test: test ?? defaultPreset.params.test,
+    u_colorSpace: colorSpace ?? defaultPreset.params.colorSpace,
   };
 
   return <ShaderMount {...props} fragmentShader={gradientDemoCSSFragmentShader} uniforms={uniforms} />;
@@ -219,7 +213,7 @@ export default function Page() {
     return {
       Parameters: folder(
         {
-          test: { value: defaults.test, min: 0, max: 1, step: 1, order: 400 },
+          colorSpace: { value: defaults.colorSpace, min: 0, max: 1, step: 1, order: 400 },
         },
         { order: 1 }
       ),
@@ -239,10 +233,8 @@ export default function Page() {
         <BackButton />
       </Link>
       <div className="fixed flex size-full flex-col" style={{ width: 'calc(100% - 300px)' }}>
-        <div className="relative h-1/3">
-          <span className="absolute left-0 top-0 p-2 font-bold text-white">
-            {`CSS: linear-gradient(to right in oklch, ${colors.join(', ')})`}
-          </span>
+        <div className="relative h-1/3 w-full text-center">
+          <span className="absolute left-0 top-0 w-full p-2 font-bold text-white">{`CSS OKLCH`}</span>
           <div
             className="h-full"
             style={{
@@ -251,13 +243,13 @@ export default function Page() {
           />
         </div>
 
-        <div className="relative h-1/3 w-full">
-          <div className="top-half absolute left-0 whitespace-pre p-2 font-bold text-white">Shader</div>
+        <div className="relative h-1/3 w-full text-center">
+          <span className="absolute left-0 top-0 z-10 w-full p-2 font-bold text-white">{`Shader`}</span>
           <GradientDemoCSS {...params} colors={colors} className="h-full w-full" />
         </div>
 
-        <div className="relative h-1/3">
-          <span className="absolute left-0 top-0 p-2 font-bold text-white">{`CSS: linear-gradient(to right, ${colors.join(', ')})`}</span>
+        <div className="relative h-1/3 w-full text-center">
+          <span className="absolute left-0 top-0 w-full p-2 font-bold text-white">{`CSS Default`}</span>
           <div
             className="h-full"
             style={{
