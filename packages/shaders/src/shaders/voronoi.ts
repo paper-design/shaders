@@ -7,25 +7,27 @@ import {
   type ShaderSizingUniforms,
 } from '../shader-sizing';
 import { declarePI } from '../shader-utils';
-import { declareOklchTransforms } from '../shader-color-spaces';
 
 export const voronoiMeta = {
   maxColorCount: 5,
 } as const;
 
 /**
- * Voronoi pattern
- * The artwork by Ksenia Kondrashova
- * Renders a number of circular shapes with gooey effect applied
+ * Voronoi pattern by Ksenia Kondrashova
+ * The variation of Voronoi pattern with cell edges. Big thanks to Inigo Quilez
+ * https://www.shadertoy.com/view/ldl3W8
  *
  * Uniforms include:
- * u_colorBack - color of borders between the cells
- * u_colorGlow - color used to fill the radial shape on the cell edges
- * u_distortion (0 ... 0.5) - how far the cell center can move from regular square grid
- * u_gap (0 .. 1) - the size of borders
- *   (can be set to zero but the edge may get glitchy due to nature of Voronoi diagram)
- * u_innerGlow (0 .. 1) - the size of shape in the center of each cell
- * u_softness (0 .. 1)
+ *
+ * - `u_colors` (`vec4[]`): Array of RGBA colors used for cell filling
+ * - `u_colorsCount` (`float`): Number of active colors in `u_colors`
+ * - `u_colorBack` (`vec4`): RGBA color for the gaps between cells
+ * - `u_colorGlow` (`vec4`): RGBA color for the radial shape on the cell edges
+ * - `u_distortion` (`float`, 0 – 0.5): Controls how far cell centers can be displaced from the regular grid
+ * - `u_gap` (`float`): Width of the gaps between cells (gaps can't be removed completely due to artifacts of Voronoi cells)
+ * - `u_innerGlow` (`float`): Controls the size of the radial glow inside each cell
+ * - `u_stepsPerColor` (`float`): Discretization of the color transition
+ * - `u_noiseTexture` (`sampler2D`): Replacement of standard hash function, added for better performance
  */
 export const voronoiFragmentShader: string = `#version 300 es
 precision lowp float;
@@ -42,8 +44,6 @@ uniform vec4 u_colors[${voronoiMeta.maxColorCount}];
 uniform float u_colorsCount;
 
 uniform float u_stepsPerColor;
-uniform float u_colorSpace;
-
 uniform vec4 u_colorGlow;
 uniform vec4 u_colorBack;
 uniform float u_distortion;
@@ -53,13 +53,6 @@ uniform float u_innerGlow;
 out vec4 fragColor;
 
 ${declarePI}
-
-${declareOklchTransforms}
-
-// vec2 hash(vec2 p) {
-//   p = vec2(dot(p, vec2(127.1, 311.7)), dot(p, vec2(269.5, 183.3)));
-//   return fract(sin(p) * 18.5453);
-// }
 
 vec2 hash(vec2 p) {
   vec2 uv = floor(p) / 100. + .5;
@@ -153,7 +146,7 @@ void main() {
   innerGlows = pow(innerGlows, 1.5);
 
   vec3 color = mix(cellColor, u_colorGlow.rgb * u_colorGlow.a, u_colorGlow.a * innerGlows);
-  float opacity = cellOpacity + innerGlows;
+  float opacity = cellOpacity + u_colorGlow.a * innerGlows;
 
   float edge = voronoiRes.x;
   float smoothEdge = .02 / (2. * u_scale) * (1. + .5 * u_gap);
