@@ -156,15 +156,13 @@ void main() {
   float opacity = cellOpacity + innerGlows;
 
   float edge = voronoiRes.x;
-  float smoothEdge = .02 / (2. * u_scale);
-  smoothEdge += .02 / (2. * u_scale) * step(u_edgeWidth, .02);
+  float smoothEdge = .02 / (2. * u_scale) * (1. + .5 * u_edgeWidth);
   edge = smoothstep(u_edgeWidth - smoothEdge, u_edgeWidth + smoothEdge, edge);
 
   color = mix(u_colorEdges.rgb * u_colorEdges.a, color, edge);
   opacity = mix(u_colorEdges.a, opacity, edge);
 
   fragColor = vec4(color, opacity);  
-  // fragColor = vec4(hash(gl_FragCoord.xy / u_resolution), 0., 1.);  
 }
 `;
 
