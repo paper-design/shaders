@@ -19,10 +19,10 @@ export const voronoiMeta = {
  * Renders a number of circular shapes with gooey effect applied
  *
  * Uniforms include:
- * u_colorEdges - color of borders between the cells
+ * u_colorBack - color of borders between the cells
  * u_colorGlow - color used to fill the radial shape on the cell edges
  * u_distortion (0 ... 0.5) - how far the cell center can move from regular square grid
- * u_edgeWidth (0 .. 1) - the size of borders
+ * u_gap (0 .. 1) - the size of borders
  *   (can be set to zero but the edge may get glitchy due to nature of Voronoi diagram)
  * u_innerGlow (0 .. 1) - the size of shape in the center of each cell
  * u_softness (0 .. 1)
@@ -41,13 +41,13 @@ uniform sampler2D u_noiseTexture;
 uniform vec4 u_colors[${voronoiMeta.maxColorCount}];
 uniform float u_colorsCount;
 
-uniform float u_extraSteps;
+uniform float u_stepsPerColor;
 uniform float u_colorSpace;
 
 uniform vec4 u_colorGlow;
-uniform vec4 u_colorEdges;
+uniform vec4 u_colorBack;
 uniform float u_distortion;
-uniform float u_edgeWidth;
+uniform float u_gap;
 uniform float u_innerGlow;
 
 out vec4 fragColor;
@@ -120,7 +120,7 @@ void main() {
   float shape = clamp(voronoiRes.w, 0., 1.);
   float mixer = shape * (u_colorsCount - 1.);
   mixer = (shape - .5 / u_colorsCount) * u_colorsCount;
-  float steps = max(1., u_extraSteps + 1.);
+  float steps = max(1., u_stepsPerColor + 1.);
 
   vec4 gradient = u_colors[0];
   gradient.rgb *= gradient.a;
@@ -156,11 +156,11 @@ void main() {
   float opacity = cellOpacity + innerGlows;
 
   float edge = voronoiRes.x;
-  float smoothEdge = .02 / (2. * u_scale) * (1. + .5 * u_edgeWidth);
-  edge = smoothstep(u_edgeWidth - smoothEdge, u_edgeWidth + smoothEdge, edge);
+  float smoothEdge = .02 / (2. * u_scale) * (1. + .5 * u_gap);
+  edge = smoothstep(u_gap - smoothEdge, u_gap + smoothEdge, edge);
 
-  color = mix(u_colorEdges.rgb * u_colorEdges.a, color, edge);
-  opacity = mix(u_colorEdges.a, opacity, edge);
+  color = mix(u_colorBack.rgb * u_colorBack.a, color, edge);
+  opacity = mix(u_colorBack.a, opacity, edge);
 
   fragColor = vec4(color, opacity);  
 }
@@ -169,21 +169,21 @@ void main() {
 export interface VoronoiUniforms extends ShaderSizingUniforms {
   u_colors: vec4[];
   u_colorsCount: number;
-  u_extraSteps: number;
-  u_colorEdges: [number, number, number, number];
+  u_stepsPerColor: number;
+  u_colorBack: [number, number, number, number];
   u_colorGlow: [number, number, number, number];
   u_distortion: number;
-  u_edgeWidth: number;
+  u_gap: number;
   u_innerGlow: number;
   u_noiseTexture?: HTMLImageElement;
 }
 
 export interface VoronoiParams extends ShaderSizingParams, ShaderMotionParams {
   colors?: string[];
-  extraSteps?: number;
-  colorEdges?: string;
+  stepsPerColor?: number;
+  colorBack?: string;
   colorGlow?: string;
   distortion?: number;
-  edgeWidth?: number;
+  gap?: number;
   innerGlow?: number;
 }
