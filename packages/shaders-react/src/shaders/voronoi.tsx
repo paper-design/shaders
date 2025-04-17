@@ -4,6 +4,7 @@ import { colorPropsAreEqual } from '../color-props-are-equal';
 import {
   defaultPatternSizing,
   getShaderColorFromString,
+  getShaderNoiseTexture,
   voronoiFragmentShader,
   ShaderFitOptions,
   type VoronoiParams,
@@ -77,6 +78,8 @@ export const Voronoi: React.FC<VoronoiProps> = memo(function VoronoiImpl({
   worldHeight = defaultPreset.params.worldHeight,
   ...props
 }: VoronoiProps) {
+  const noiseTexture = typeof window !== 'undefined' && { u_noiseTexture: getShaderNoiseTexture() };
+
   const uniforms = {
     // Own uniforms
     u_colors: colors.map(getShaderColorFromString),
@@ -87,6 +90,7 @@ export const Voronoi: React.FC<VoronoiProps> = memo(function VoronoiImpl({
     u_distortion: distortion,
     u_edgeWidth: edgeWidth,
     u_innerGlow: innerGlow,
+    ...noiseTexture,
 
     // Sizing uniforms
     u_fit: ShaderFitOptions[fit],

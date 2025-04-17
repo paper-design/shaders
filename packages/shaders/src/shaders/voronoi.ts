@@ -100,16 +100,16 @@ vec4 voronoi(vec2 x, float t) {
 
   return vec4(md, mr, rand);
 }
-  
+
 void main() {
   ${sizingPatternUV}
-  
+
   uv *= .0125;
 
   float t = u_time;
 
   vec4 voronoiRes = voronoi(uv, t);
-    
+
   float shape = clamp(voronoiRes.w, 0., 1.);
   float mixer = shape * (u_colorsCount - 1.);
   mixer = (shape - .5 / u_colorsCount) * u_colorsCount;
@@ -125,7 +125,7 @@ void main() {
       c.rgb *= c.a;
       gradient = mix(gradient, c, localT);
   }
-  
+
   if ((mixer < 0.) || (mixer > (u_colorsCount - 1.))) {
     float localT = mixer + 1.;
     if (mixer > (u_colorsCount - 1.)) {
@@ -138,13 +138,13 @@ void main() {
     cLast.rgb *= cLast.a;
     gradient = mix(cLast, cFst, localT);
   }
-  
+
   vec3 cellColor = gradient.rgb;
   float cellOpacity = gradient.a;
 
   float innerGlows = length(voronoiRes.yz * u_innerGlow + .1);
   innerGlows = pow(innerGlows, 1.5);
-  
+
   vec3 color = mix(cellColor, u_colorGlow.rgb * u_colorGlow.a, u_colorGlow.a * innerGlows);
   float opacity = cellOpacity + innerGlows;
 
@@ -152,7 +152,7 @@ void main() {
   float smoothEdge = .02 / (2. * u_scale);
   smoothEdge += .02 / (2. * u_scale) * step(u_edgeWidth, .02);
   edge = smoothstep(u_edgeWidth - smoothEdge, u_edgeWidth + smoothEdge, edge);
-  
+
   color = mix(u_colorEdges.rgb * u_colorEdges.a, color, edge);
   opacity = mix(u_colorEdges.a, opacity, edge);
 
@@ -169,6 +169,7 @@ export interface VoronoiUniforms extends ShaderSizingUniforms {
   u_distortion: number;
   u_edgeWidth: number;
   u_innerGlow: number;
+  u_noiseTexture?: HTMLImageElement;
 }
 
 export interface VoronoiParams extends ShaderSizingParams, ShaderMotionParams {
