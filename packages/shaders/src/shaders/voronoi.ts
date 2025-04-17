@@ -151,6 +151,7 @@ void main() {
 
   float innerGlows = length(voronoiRes.yz * u_innerGlow + .1);
   innerGlows = pow(innerGlows, 1.5);
+  innerGlows = 0.;
 
   vec3 color = mix(cellColor, u_colorGlow.rgb * u_colorGlow.a, u_colorGlow.a * innerGlows);
   float opacity = cellOpacity + innerGlows;
@@ -164,6 +165,7 @@ void main() {
   opacity = mix(u_colorEdges.a, opacity, edge);
 
   fragColor = vec4(color, opacity);  
+  // fragColor = vec4(hash(gl_FragCoord.xy / u_resolution), 0., 1.);  
 }
 `;
 
