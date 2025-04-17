@@ -36,6 +36,8 @@ uniform float u_pixelRatio;
 
 ${sizingUniformsDeclaration}
 
+uniform sampler2D u_noiseTexture;
+
 uniform vec4 u_colors[${voronoiMeta.maxColorCount}];
 uniform float u_colorsCount;
 
@@ -54,9 +56,14 @@ ${declarePI}
 
 ${declareOklchTransforms}
 
+// vec2 hash(vec2 p) {
+//   p = vec2(dot(p, vec2(127.1, 311.7)), dot(p, vec2(269.5, 183.3)));
+//   return fract(sin(p) * 18.5453);
+// }
+
 vec2 hash(vec2 p) {
-  p = vec2(dot(p, vec2(127.1, 311.7)), dot(p, vec2(269.5, 183.3)));
-  return fract(sin(p) * 18.5453);
+  vec2 uv = floor(p) / 100. + .5;
+  return texture(u_noiseTexture, uv).gb;
 }
 
 vec4 voronoi(vec2 x, float t) {
@@ -156,7 +163,7 @@ void main() {
   color = mix(u_colorEdges.rgb * u_colorEdges.a, color, edge);
   opacity = mix(u_colorEdges.a, opacity, edge);
 
-  fragColor = vec4(color, opacity);
+  fragColor = vec4(color, opacity);  
 }
 `;
 
