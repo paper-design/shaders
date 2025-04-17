@@ -31,7 +31,7 @@ export { neuroNoiseFragmentShader, type NeuroNoiseParams, type NeuroNoiseUniform
 
 // ----- Animated dot pattern: orbit type of animation ----- //
 /** A shader rendering an animated dot pattern based on Voronoi diagram */
-export { dotOrbitFragmentShader, type DotOrbitParams, type DotOrbitUniforms } from './shaders/dot-orbit';
+export { dotOrbitMeta, dotOrbitFragmentShader, type DotOrbitParams, type DotOrbitUniforms } from './shaders/dot-orbit';
 
 // ----- Dot Grid ----- //
 /** A shader rendering a static dot pattern */
