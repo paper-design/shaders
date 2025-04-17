@@ -151,7 +151,6 @@ void main() {
 
   float innerGlows = length(voronoiRes.yz * u_innerGlow + .1);
   innerGlows = pow(innerGlows, 1.5);
-  innerGlows = 0.;
 
   vec3 color = mix(cellColor, u_colorGlow.rgb * u_colorGlow.a, u_colorGlow.a * innerGlows);
   float opacity = cellOpacity + innerGlows;
