@@ -9,17 +9,32 @@ import {
 import { declareSimplexNoise, declarePI, declareRandom } from '../shader-utils';
 
 /**
- * Stepped Simplex Noise by Ksenia Kondrashova
- * Calculates a combination of 2 simplex noises with result rendered as
- * an X-stepped 5-colored gradient
+ * Dithering Fragment Shader by Ksenia Kondrashova
+ * Applies dithering (4 dithering types available) over the
+ * abstract shapes animation (7 animated shapes available)
  *
  * Uniforms include:
- * u_color1 - the first gradient color
- * u_color2 - the second gradient color
- * u_color3 - the third gradient color
- * u_color4 - the fourth gradient color
- * u_color5 - the fifth gradient color
- * u_steps_number - the number of solid colors to show as a stepped gradient
+ * - u_color1: background color, RGBA
+ * - u_color2: pixels color, RGBA
+ *
+ * - u_shape (float, used as int, 1 to 7):
+ *  --- shape = 1: Simplex noise pattern
+ *  --- shape = 2: Warp noise pattern
+ *  --- shape = 3: Columns if dots moving vertically
+ *  --- shape = 4: Sine wave
+ *  --- shape = 5: Ripple effect
+ *  --- shape = 6: Swirl animation
+ *  --- shape = 7: Rotating sphere
+ *
+ *  - u_type (float, used as int, 1 to 4):
+ *  --- type = 1: Random dithering
+ *  --- type = 2: 2x2 Bayer matrix
+ *  --- type = 3: 4x4 Bayer matrix
+ *  --- type = 4: 8x8 Bayer matrix
+ *
+ * - pxSize (float), relative to canvas resolution
+ * - u_pxRounded (bool)
+ *
  */
 export const ditheringFragmentShader: string = `#version 300 es
 precision highp float;
@@ -43,7 +58,7 @@ ${declareSimplexNoise}
 ${declarePI}
 ${declareRandom}
 
-float get_noise(vec2 uv, float t) {
+float getSimplexNoise(vec2 uv, float t) {
   float noise = .5 * snoise(uv - vec2(0., .3 * t));
   noise += .5 * snoise(2. * uv + vec2(0., .32 * t));
 
@@ -114,7 +129,7 @@ void main() {
     // Simplex noise
     shape_uv *= .001;
 
-    shape = 0.5 + 0.5 * get_noise(shape_uv, t);
+    shape = 0.5 + 0.5 * getSimplexNoise(shape_uv, t);
     shape = smoothstep(0.3, 0.9, shape);
       
   } else if (u_shape < 2.5) {  
@@ -130,7 +145,7 @@ void main() {
     shape = smoothstep(0.02, 1., shape);
   
   } else if (u_shape < 3.5) {  
-    // Grid  
+    // Dots  
     shape_uv *= .05;
 
     float stripeIdx = floor(2. * shape_uv.x / TWO_PI);
@@ -159,12 +174,10 @@ void main() {
 
     float l = length(shape_uv);
     float angle = 6. * atan(shape_uv.y, shape_uv.x) + 4. * t;
-    float angle_norm = angle / TWO_PI;  
     float twist = 1.2;
-    float offset = pow(l, -twist) + angle_norm;
-    float stripe_map = fract(offset);
+    float offset = pow(l, -twist) + angle / TWO_PI;  
     float mid = smoothstep(0., 1., pow(l, twist));
-    shape = mix(0., stripe_map, mid);
+    shape = mix(0., fract(offset), mid);
     
   } else {
     // Sphere
