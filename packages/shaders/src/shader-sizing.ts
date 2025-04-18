@@ -16,12 +16,14 @@ export const sizingUV = `
   // uv before sizing
   
   vec2 uv = gl_FragCoord.xy / u_resolution.xy;
-  vec2 pxSizeUv = vec2(0.);
-  vec2 roundedUv = vec2(0.);
-  #ifdef USE_PX_ROUNDING
-    pxSizeUv = gl_FragCoord.xy / (u_pxSize * u_pixelRatio);
-    roundedUv = floor(pxSizeUv) * (u_pxSize * u_pixelRatio) / u_resolution.xy;
-    if (pxSize > 0.) {
+  #ifdef USE_PIXELIZATION
+    float pxSize = u_pxSize * u_pixelRatio;
+    vec2 pxSizeUv = gl_FragCoord.xy;
+    pxSizeUv -= .5 * u_resolution;
+    pxSizeUv /= pxSize;
+    vec2 roundedUv = floor(pxSizeUv) * pxSize / u_resolution.xy;    
+    roundedUv += .5;
+    if (u_pxRounded == true) {
       uv = roundedUv;
     }  
   #endif
@@ -50,31 +52,32 @@ export const sizingUV = `
 
   #ifdef USE_OBJECT_SIZING
   
-  float objectWorldRatio = 1.;
-  vec2 objectWorld = vec2(0.);
-  objectWorld.x = objectWorldRatio * min(worldSize.x / objectWorldRatio, worldSize.y);
-  if (u_fit == 1.) {
-    // contain
-    objectWorld.x = objectWorldRatio * min(maxWidth / objectWorldRatio, maxHeight);
-  } else if (u_fit == 2.) {
-    // cover
-    objectWorld.x = objectWorldRatio * max(maxWidth / objectWorldRatio, maxHeight);
-  }
-  objectWorld.y = objectWorld.x / objectWorldRatio;
-  vec2 objectWorldScale = u_resolution.xy / objectWorld;
-
-  vec2 objectWorldBox = gl_FragCoord.xy / u_resolution.xy;
-  objectWorldBox -= .5;
-  objectWorldBox *= objectWorldScale;
-  objectWorldBox += worldOrigin * (objectWorldScale - 1.);  
+    float objectWorldRatio = 1.;
+    vec2 objectWorld = vec2(0.);
+    objectWorld.x = objectWorldRatio * min(worldSize.x / objectWorldRatio, worldSize.y);
+    if (u_fit == 1.) {
+      // contain
+      objectWorld.x = objectWorldRatio * min(maxWidth / objectWorldRatio, maxHeight);
+    } else if (u_fit == 2.) {
+      // cover
+      objectWorld.x = objectWorldRatio * max(maxWidth / objectWorldRatio, maxHeight);
+    }
+    objectWorld.y = objectWorld.x / objectWorldRatio;
+    vec2 objectWorldScale = u_resolution.xy / objectWorld;
   
-  vec2 objectUV = uv;
-  objectUV *= objectWorldScale;
-  objectUV += worldOrigin * (objectWorldScale - 1.);
-  objectUV += vec2(-u_offsetX, u_offsetY);
-  objectUV /= u_scale;
-  objectUV = mat2(cos(rotationRad), sin(rotationRad), -sin(rotationRad), cos(rotationRad)) * objectUV;
-
+    #ifdef USE_SIZING_DEBUG
+      vec2 objectWorldBox = gl_FragCoord.xy / u_resolution.xy;
+      objectWorldBox -= .5;
+      objectWorldBox *= objectWorldScale;
+      objectWorldBox += worldOrigin * (objectWorldScale - 1.);  
+    #endif
+  
+    vec2 objectUV = uv;
+    objectUV *= objectWorldScale;
+    objectUV += worldOrigin * (objectWorldScale - 1.);
+    objectUV += vec2(-u_offsetX, u_offsetY);
+    objectUV /= u_scale;
+    objectUV = mat2(cos(rotationRad), sin(rotationRad), -sin(rotationRad), cos(rotationRad)) * objectUV;
   #endif
 
   // ===================================================
@@ -86,41 +89,42 @@ export const sizingUV = `
   // Sizing api for patterns (graphics respecting u_worldWidth / u_worldHeight ratio)
   
   #ifdef USE_PATTERN_SIZING
-
-  float patternWorldRatio = worldSize.x / worldSize.y;
-  vec2 patternWorld = vec2(0.);
-  patternWorld.x = patternWorldRatio * min(worldSize.x / patternWorldRatio, worldSize.y);
-  float patternWorldWidthOriginal = patternWorld.x;
-  if (u_fit == 1.) {
-    // contain
-    patternWorld.x = patternWorldRatio * min(maxWidth / patternWorldRatio, maxHeight);
-  } else if (u_fit == 2.) {
-    // cover
-    patternWorld.x = patternWorldRatio * max(maxWidth / patternWorldRatio, maxHeight);
-  }
-  patternWorld.y = patternWorld.x / patternWorldRatio;
-  vec2 patternWorldScale = u_resolution.xy / patternWorld;
   
-  vec2 patternWorldBox = gl_FragCoord.xy / u_resolution.xy;
-  patternWorldBox -= .5;
-  patternWorldBox *= patternWorldScale;
-  patternWorldBox += worldOrigin * (patternWorldScale - 1.);  
+    float patternWorldRatio = worldSize.x / worldSize.y;
+    vec2 patternWorld = vec2(0.);
+    patternWorld.x = patternWorldRatio * min(worldSize.x / patternWorldRatio, worldSize.y);
+    float patternWorldWidthOriginal = patternWorld.x;
+    if (u_fit == 1.) {
+      // contain
+      patternWorld.x = patternWorldRatio * min(maxWidth / patternWorldRatio, maxHeight);
+    } else if (u_fit == 2.) {
+      // cover
+      patternWorld.x = patternWorldRatio * max(maxWidth / patternWorldRatio, maxHeight);
+    }
+    patternWorld.y = patternWorld.x / patternWorldRatio;
+    vec2 patternWorldScale = u_resolution.xy / patternWorld;
   
-  vec2 patternUV = uv;
-  patternUV += vec2(-u_offsetX, u_offsetY) / patternWorldScale;
-  patternUV += worldOrigin;
-  patternUV -= worldOrigin / patternWorldScale;
-  patternUV *= u_resolution.xy;
-  patternUV /= u_pixelRatio;
-  if (u_fit > 0.) {
-    patternUV *= (patternWorldWidthOriginal / patternWorld.x);
-  }
-  patternUV /= u_scale;
-  patternUV = mat2(cos(rotationRad), sin(rotationRad), -sin(rotationRad), cos(rotationRad)) * patternUV;
-  patternUV += worldOrigin / patternWorldScale;
-  patternUV -= worldOrigin;
-  patternUV += .5;
+    #ifdef USE_SIZING_DEBUG  
+      vec2 patternWorldBox = gl_FragCoord.xy / u_resolution.xy;
+      patternWorldBox -= .5;
+      patternWorldBox *= patternWorldScale;
+      patternWorldBox += worldOrigin * (patternWorldScale - 1.);  
+    #endif
   
+    vec2 patternUV = uv;
+    patternUV += vec2(-u_offsetX, u_offsetY) / patternWorldScale;
+    patternUV += worldOrigin;
+    patternUV -= worldOrigin / patternWorldScale;
+    patternUV *= u_resolution.xy;
+    patternUV /= u_pixelRatio;
+    if (u_fit > 0.) {
+      patternUV *= (patternWorldWidthOriginal / patternWorld.x);
+    }
+    patternUV /= u_scale;
+    patternUV = mat2(cos(rotationRad), sin(rotationRad), -sin(rotationRad), cos(rotationRad)) * patternUV;
+    patternUV += worldOrigin / patternWorldScale;
+    patternUV -= worldOrigin;
+    patternUV += .5;
   #endif
 
   // ===================================================
@@ -250,7 +254,8 @@ export const worldBoxTestStroke = `
 `;
 
 export const viewPortTestOriginPoint = `
-  vec2 viewPortTestOriginDist = worldBox + worldOrigin;
+  vec2 worldOriginCopy = vec2(.5 - u_originX, u_originY - .5);
+  vec2 viewPortTestOriginDist = worldBox + worldOriginCopy;
   viewPortTestOriginDist.x *= (world.x / world.y);
   float viewPortTestOriginPoint = 1. - smoothstep(0., .05, length(viewPortTestOriginDist));
   

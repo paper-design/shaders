@@ -1,10 +1,11 @@
 import type { ShaderMotionParams } from '../shader-mount';
 import {
   sizingUniformsDeclaration,
-  sizingPatternUV,
-  sizingSquareUV,
   type ShaderSizingParams,
-  type ShaderSizingUniforms, sizingUV, worldBoxTestStroke, viewPortTestOriginPoint,
+  type ShaderSizingUniforms,
+  sizingUV,
+  worldBoxTestStroke,
+  viewPortTestOriginPoint,
 } from '../shader-sizing';
 import { declareSimplexNoise, declarePI, declareRandom } from '../shader-utils';
 
@@ -52,6 +53,19 @@ uniform float u_type;
 uniform float u_pxSize;
 uniform bool u_pxRounded;
 
+  
+// =================================================
+// Using sizing from vertex shader
+
+// in vec2 v_objectUV;
+// in vec2 v_patternUV;
+// in vec2 v_objectWorld;
+// in vec2 v_patternWorld;
+// in vec2 v_objectWorldBox;
+// in vec2 v_patternWorldBox;
+
+// =================================================
+
 out vec4 fragColor;
 
 ${declareSimplexNoise}
@@ -85,8 +99,8 @@ const int bayer8x8[64] = int[64](
 );
 
 float getBayerValue(vec2 uv, int size) {
-  ivec2 pos = ivec2(uv) % size;
-  int index = (pos.y % size) * size + (pos.x % size);
+  ivec2 pos = ivec2(mod(uv, float(size)));
+  int index = pos.y * size + pos.x;
 
   if (size == 2) {
     return float(bayer2x2[index]) / 4.0;
@@ -101,26 +115,47 @@ float getBayerValue(vec2 uv, int size) {
 
 void main() {
   
-  #define USE_PATTERN_SIZING
-  #define USE_OBJECT_SIZING
-  #define USE_PX_ROUNDING
   
   float t = .5 * u_time;  
   
-  float pxSize = 0.;
-  if (u_pxRounded == true) {
-    pxSize = u_pxSize;
-  }
   
+  // =================================================
+  // Using sizing from vertex shader
+
+  // float pxSize = u_pxSize * u_pixelRatio;
+  // vec2 dithering_uv = gl_FragCoord.xy / pxSize;
+  // vec2 ditheringNoise_uv = floor(dithering_uv) * pxSize / u_resolution.xy;
+  // vec2 shape_uv = v_objectUV;
+  // if (u_shape < 3.5) {
+  //   shape_uv = v_patternUV;
+  // }
+  
+  // =================================================
+
+  
+  // =================================================
+  // Using sizing from fragment shader
+  
+  #define USE_PATTERN_SIZING
+  #define USE_OBJECT_SIZING
+  #define USE_PIXELIZATION
+  #define USE_SIZING_DEBUG
   ${sizingUV}
-  
   vec2 dithering_uv = pxSizeUv;
+  // dithering_uv += .5 * u_resolution;
+  // dithering_uv += floor(.5 * u_resolution * (u_pxSize * u_pixelRatio)) / (u_pxSize * u_pixelRatio);
+
   vec2 ditheringNoise_uv = roundedUv;
   vec2 shape_uv = objectUV;
   if (u_shape < 3.5) {
     shape_uv = patternUV;
   }
   
+  // =================================================
+
+
+
+
   float shape = 0.;    
   if (u_shape < 1.5) {
     // Simplex noise
@@ -209,21 +244,42 @@ void main() {
   
   vec4 color = mix(u_color1, u_color2, res);
   
-  vec2 worldBox = objectWorldBox;
-  vec2 world = objectWorld;
-  if (u_shape < 3.5) {
-    worldBox = patternWorldBox;
-    world = patternWorld;
-  }
-  ${worldBoxTestStroke}
-  ${viewPortTestOriginPoint}
   
-  color.r += worldBoxTestStroke;
-  color.g += viewPortTestOriginPoint;
-  color.b += worldTestOriginPoint;
+  // =================================================
+  // Using sizing from vertex shader
 
-  
+  // vec2 worldBox = v_objectWorldBox;
+  // vec2 world = v_objectWorld;
+  // if (u_shape < 3.5) {
+  //   worldBox = v_patternWorldBox;
+  //   world = v_patternWorld;
+  // }
+
+  // =================================================
+
+
+
+  // =================================================
+  // Using sizing from fragment shader
+
+  #ifdef USE_SIZING_DEBUG
+    vec2 worldBox = objectWorldBox;
+    vec2 world = objectWorld;
+    if (u_shape < 3.5) {
+      worldBox = patternWorldBox;
+      world = patternWorld;
+    }
+    ${worldBoxTestStroke}
+    ${viewPortTestOriginPoint}
+    color.r += worldBoxTestStroke;
+    color.g += viewPortTestOriginPoint;
+    color.b += worldTestOriginPoint;
+  #endif
+
+  // =================================================
+
   fragColor = color;
+  // fragColor = vec4(vec3(shape), 1.);
 }
 `;
 
