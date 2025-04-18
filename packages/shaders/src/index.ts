@@ -62,7 +62,7 @@ export { perlinNoiseFragmentShader, type PerlinNoiseParams, type PerlinNoiseUnif
 
 // ----- Voronoi Diagram ----- //
 /** Voronoi diagram: classic + rounded edges */
-export { voronoiFragmentShader, type VoronoiParams, type VoronoiUniforms } from './shaders/voronoi';
+export { voronoiMeta, voronoiFragmentShader, type VoronoiParams, type VoronoiUniforms } from './shaders/voronoi';
 
 // ----- Waves ----- //
 /** Waves pattern */
@@ -86,3 +86,4 @@ export { ditheringFragmentShader, type DitheringParams, type DitheringUniforms }
 
 // ----- Uniform conversion utils ----- //
 export { getShaderColorFromString } from './get-shader-color-from-string';
+export { getShaderNoiseTexture } from './get-shader-noise-texture';
