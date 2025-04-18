@@ -401,7 +401,7 @@ export class ShaderMount {
       } else if (typeof value === 'boolean') {
         // Boolean case, supports true and false
         this.gl.uniform1i(location, value ? 1 : 0);
-      } else {
+      } else if (value !== null) {
         console.warn(`Unsupported uniform type for ${key}: ${typeof value}`);
       }
     });
