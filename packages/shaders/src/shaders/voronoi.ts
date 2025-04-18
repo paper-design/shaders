@@ -1,3 +1,4 @@
+import type { vec4 } from '../types';
 import type { ShaderMotionParams } from '../shader-mount';
 import {
   sizingUniformsDeclaration,
@@ -5,30 +6,31 @@ import {
   type ShaderSizingParams,
   type ShaderSizingUniforms,
 } from '../shader-sizing';
-import { declarePI, colorBandingFix } from '../shader-utils';
+import { declarePI } from '../shader-utils';
+
+export const voronoiMeta = {
+  maxColorCount: 5,
+} as const;
 
 /**
- * Voronoi pattern
- * The artwork by Ksenia Kondrashova
- * Renders a number of circular shapes with gooey effect applied
+ * Voronoi pattern by Ksenia Kondrashova
+ * The variation of Voronoi pattern with cell edges. Big thanks to Inigo Quilez
+ * https://www.shadertoy.com/view/ldl3W8
  *
  * Uniforms include:
- * u_colorCell1 - color #1 of mix used to fill the cell shape
- * u_colorCell2 - color #2 of mix used to fill the cell shape
- * u_colorCell3 - color #3 of mix used to fill the cell shape
- * u_colorEdges - color of borders between the cells
- * u_colorMid - color used to fill the radial shape in the center of each cell
- * u_colorGradient (0 .. 1) - if the cell color is a gradient of palette colors or one color selection
- * u_distance (0 ... 0.5) - how far the cell center can move from regular square grid
- * u_edgesSize (0 .. 1) - the size of borders
- *   (can be set to zero but the edge may get glitchy due to nature of Voronoi diagram)
- * u_edgesSoftness (0 .. 1) - the blur/sharp for cell border
- * u_middleSize (0 .. 1) - the size of shape in the center of each cell
- * u_middleSoftness (0 .. 1) - the smoothness of shape in the center of each cell
- *   (vary from cell color gradient to sharp dot in the middle)
+ *
+ * - `u_colors` (`vec4[]`): Array of RGBA colors used for cell filling
+ * - `u_colorsCount` (`float`): Number of active colors in `u_colors`
+ * - `u_colorBack` (`vec4`): RGBA color for the gaps between cells
+ * - `u_colorGlow` (`vec4`): RGBA color for the radial shape on the cell edges
+ * - `u_distortion` (`float`, 0 – 0.5): Controls how far cell centers can be displaced from the regular grid
+ * - `u_gap` (`float`): Width of the gaps between cells (gaps can't be removed completely due to artifacts of Voronoi cells)
+ * - `u_innerGlow` (`float`): Controls the size of the radial glow inside each cell
+ * - `u_stepsPerColor` (`float`): Discretization of the color transition
+ * - `u_noiseTexture` (`sampler2D`): Replacement of standard hash function, added for better performance
  */
 export const voronoiFragmentShader: string = `#version 300 es
-precision highp float;
+precision lowp float;
 
 uniform float u_time;
 uniform vec2 u_resolution;
@@ -36,137 +38,145 @@ uniform float u_pixelRatio;
 
 ${sizingUniformsDeclaration}
 
-uniform vec4 u_colorCell1;
-uniform vec4 u_colorCell2;
-uniform vec4 u_colorCell3;
-uniform vec4 u_colorMid;
-uniform vec4 u_colorEdges;
+uniform sampler2D u_noiseTexture;
 
-uniform float u_colorGradient;
-uniform float u_distance;
-uniform float u_edgesSize;
-uniform float u_edgesSoftness;
-uniform float u_middleSize;
-uniform float u_middleSoftness;
+uniform vec4 u_colors[${voronoiMeta.maxColorCount}];
+uniform float u_colorsCount;
 
-#define TWO_PI 6.28318530718
+uniform float u_stepsPerColor;
+uniform vec4 u_colorGlow;
+uniform vec4 u_colorBack;
+uniform float u_distortion;
+uniform float u_gap;
+uniform float u_innerGlow;
 
 out vec4 fragColor;
 
 ${declarePI}
 
 vec2 hash(vec2 p) {
-  p = vec2(dot(p, vec2(127.1, 311.7)), dot(p, vec2(269.5, 183.3)));
-  return fract(sin(p) * 18.5453);
+  vec2 uv = floor(p) / 100. + .5;
+  return texture(u_noiseTexture, uv).gb;
 }
 
-float smin(float angle, float b, float k) {
-  float h = clamp(.5 + .5 * (b - angle) / k, 0., 1.);
-  return mix(b, angle, h) - k * h * (1. - h);
-}
+vec4 voronoi(vec2 x, float t) {
+  vec2 ip = floor(x);
+  vec2 fp = fract(x);
 
-vec4 blend_colors(vec4 c1, vec4 c2, vec4 c3, vec2 randomizer) {
-    vec3 color1 = c1.rgb * c1.a;
-    vec3 color2 = c2.rgb * c2.a;
-    vec3 color3 = c3.rgb * c3.a;
+  vec2 mg, mr;
+  float md = 8.;
+  float rand = 0.;
 
-    float mixer = clamp(u_colorGradient, 0., 1.);
-    float r1 = smoothstep(.5 - .5 * mixer, .5 + .5 * mixer, randomizer[0]);
-    float r2 = smoothstep(.6 - .6 * mixer, .6 + .4 * mixer, randomizer[1]);
-    vec3 blended_color_2 = mix(color1, color2, r1);
-    float blended_opacity_2 = mix(c1.a, c2.a, r1);
-    vec3 c = mix(blended_color_2, color3, r2);
-    float o = mix(blended_opacity_2, c3.a, r2);
+  for (int j = -1; j <= 1; j++) {
+    for (int i = -1; i <= 1; i++) {
+      vec2 g = vec2(float(i), float(j));
+      vec2 raw_hash = hash(ip + g);
+      vec2 o = hash(ip + g);
+      o = .5 + u_distortion * sin(t + TWO_PI * o);
+      vec2 r = g + o - fp;
+      float d = dot(r, r);
 
-    return vec4(c, o);
-}
-
-void main() {
-  ${sizingPatternUV}
-  uv *= .025;
-
-  float t = u_time;
-
-  vec2 i_uv = floor(uv);
-  vec2 f_uv = fract(uv);
-
-  vec2 randomizer = vec2(0.);
-  vec3 distance = vec3(1.);
-
-  for (int y = -1; y <= 1; y++) {
-    for (int x = -1; x <= 1; x++) {
-      vec2 tile_offset = vec2(float(x), float(y));
-      vec2 o = hash(i_uv + tile_offset);
-      tile_offset += (.5 + clamp(u_distance, 0., .5) * sin(t + TWO_PI * o)) - f_uv;
-
-      float dist = dot(tile_offset, tile_offset);
-      float old_min_dist = distance.x;
-
-      distance.z = max(distance.x, max(distance.y, min(distance.z, dist)));
-      distance.y = max(distance.x, min(distance.y, dist));
-      distance.x = min(distance.x, dist);
-
-      if (old_min_dist > distance.x) {
-        randomizer = o;
+      if (d < md) {
+        md = d;
+        mr = r;
+        mg = g;
+        rand = raw_hash.x;
       }
     }
   }
 
-  distance = sqrt(distance);
+  md = 8.;
+  for (int j = -2; j <= 2; j++) {
+    for (int i = -2; i <= 2; i++) {
+      vec2 g = mg + vec2(float(i), float(j));
+      vec2 o = hash(ip + g);
+      o = .5 + u_distortion * sin(t + TWO_PI * o);
+      vec2 r = g + o - fp;
+      if (dot(mr - r, mr - r) > .00001) {
+        md = min(md, dot(.5 * (mr + r), normalize(r - mr)));
+      }
+    }
+  }
 
-  distance = sqrt(distance);
-  float cell_shape = min(smin(distance.z, distance.y, .1) - distance.x, 1.);
+  return vec4(md, mr, rand);
+}
 
-  float dot_shape = pow(distance.x, 2.) / (2. * clamp(u_middleSize, 0., 1.) + 1e-4);
-  float dot_edge_width = fwidth(dot_shape);
-  float dotSharp = clamp(1. - u_middleSoftness, 0., 1.);
-  dot_shape = 1. - smoothstep(.5 * dotSharp - dot_edge_width, 1. - .5 * dotSharp, dot_shape);
+void main() {
+  ${sizingPatternUV}
 
-  float cell_edge_width = fwidth(distance.x);
-  float w = .7 * (clamp(u_edgesSize, 0., 1.) - .1);
-  cell_shape = smoothstep(w, w + cell_edge_width + u_edgesSoftness, cell_shape);
+  uv *= .0125;
 
-  dot_shape *= cell_shape;
+  float t = u_time;
 
-  vec4 cell_mix = blend_colors(u_colorCell1, u_colorCell2, u_colorCell3, randomizer);
+  vec4 voronoiRes = voronoi(uv, t);
 
-  vec4 edges = vec4(u_colorEdges.rgb * u_colorEdges.a, u_colorEdges.a);
+  float shape = clamp(voronoiRes.w, 0., 1.);
+  float mixer = shape * (u_colorsCount - 1.);
+  mixer = (shape - .5 / u_colorsCount) * u_colorsCount;
+  float steps = max(1., u_stepsPerColor);
 
-  vec3 color = mix(edges.rgb, cell_mix.rgb, cell_shape);
-  float opacity = mix(edges.a, cell_mix.a, cell_shape);
+  vec4 gradient = u_colors[0];
+  gradient.rgb *= gradient.a;
+  for (int i = 1; i < ${voronoiMeta.maxColorCount}; i++) {
+      if (i >= int(u_colorsCount)) break;
+      float localT = clamp(mixer - float(i - 1), 0.0, 1.0);
+      localT = round(localT * steps) / steps;
+      vec4 c = u_colors[i];
+      c.rgb *= c.a;
+      gradient = mix(gradient, c, localT);
+  }
 
-  color = mix(color, u_colorMid.rgb, u_colorMid.a * dot_shape);
+  if ((mixer < 0.) || (mixer > (u_colorsCount - 1.))) {
+    float localT = mixer + 1.;
+    if (mixer > (u_colorsCount - 1.)) {
+      localT = mixer - (u_colorsCount - 1.);
+    }
+    localT = round(localT * steps) / steps;
+    vec4 cFst = u_colors[0];
+    cFst.rgb *= cFst.a;
+    vec4 cLast = u_colors[int(u_colorsCount - 1.)];
+    cLast.rgb *= cLast.a;
+    gradient = mix(cLast, cFst, localT);
+  }
 
-  ${colorBandingFix}
-  
-  fragColor = vec4(color, opacity);
+  vec3 cellColor = gradient.rgb;
+  float cellOpacity = gradient.a;
+
+  float innerGlows = length(voronoiRes.yz * u_innerGlow + .1);
+  innerGlows = pow(innerGlows, 1.5);
+
+  vec3 color = mix(cellColor, u_colorGlow.rgb * u_colorGlow.a, u_colorGlow.a * innerGlows);
+  float opacity = cellOpacity + u_colorGlow.a * innerGlows;
+
+  float edge = voronoiRes.x;
+  float smoothEdge = .02 / (2. * u_scale) * (1. + .5 * u_gap);
+  edge = smoothstep(u_gap - smoothEdge, u_gap + smoothEdge, edge);
+
+  color = mix(u_colorBack.rgb * u_colorBack.a, color, edge);
+  opacity = mix(u_colorBack.a, opacity, edge);
+
+  fragColor = vec4(color, opacity);  
 }
 `;
 
 export interface VoronoiUniforms extends ShaderSizingUniforms {
-  u_colorCell1: [number, number, number, number];
-  u_colorCell2: [number, number, number, number];
-  u_colorCell3: [number, number, number, number];
-  u_colorEdges: [number, number, number, number];
-  u_colorMid: [number, number, number, number];
-  u_colorGradient: number;
-  u_distance: number;
-  u_edgesSize: number;
-  u_edgesSoftness: number;
-  u_middleSize: number;
-  u_middleSoftness: number;
+  u_colors: vec4[];
+  u_colorsCount: number;
+  u_stepsPerColor: number;
+  u_colorBack: [number, number, number, number];
+  u_colorGlow: [number, number, number, number];
+  u_distortion: number;
+  u_gap: number;
+  u_innerGlow: number;
+  u_noiseTexture?: HTMLImageElement;
 }
 
 export interface VoronoiParams extends ShaderSizingParams, ShaderMotionParams {
-  colorCell1?: string;
-  colorCell2?: string;
-  colorCell3?: string;
-  colorEdges?: string;
-  colorMid?: string;
-  colorGradient?: number;
-  distance?: number;
-  edgesSize?: number;
-  edgesSoftness?: number;
-  middleSize?: number;
-  middleSoftness?: number;
+  colors?: string[];
+  stepsPerColor?: number;
+  colorBack?: string;
+  colorGlow?: string;
+  distortion?: number;
+  gap?: number;
+  innerGlow?: number;
 }
