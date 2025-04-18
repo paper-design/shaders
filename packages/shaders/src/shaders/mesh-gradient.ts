@@ -1,125 +1,120 @@
 import type { vec4 } from '../types';
 import type { ShaderMotionParams } from '../shader-mount';
-import type { ShaderFit, ShaderSizingParams, ShaderSizingUniforms } from '../shader-sizing';
-import type { ShaderColorSpace, ShaderColorSpaces } from '../shader-color-spaces';
-
-/**
- * Mesh Gradient, based on https://www.shadertoy.com/view/wdyczG
- * Renders a mesh gradient with a rotating noise pattern
- * and several layers of fractal noise
- *
- * Uniforms include:
- * u_color1: The first color of the mesh gradient
- * u_color2: The second color of the mesh gradient
- * u_color3: The third color of the mesh gradient
- * u_color4: The fourth color of the mesh gradient
- */
-export const meshGradientFragmentShader = `#version 300 es
-precision highp float;
-
-uniform float u_pixelRatio;
-uniform vec2 u_resolution;
-uniform float u_time;
-
-uniform vec4 u_color1;
-uniform vec4 u_color2;
-uniform vec4 u_color3;
-uniform vec4 u_color4;
-
-out vec4 fragColor;
-
-#define S(a,b,t) smoothstep(a,b,t)
-
-mat2 Rot(float a) {
-    float s = sin(a);
-    float c = cos(a);
-    return mat2(c, -s, s, c);
-}
-
-vec2 hash(vec2 p) {
-    vec3 p3 = fract(vec3(p.xyx) * vec3(.1031, .1030, .0973));
-    p3 += dot(p3, p3.yzx + 33.33);
-    return fract((p3.xx+p3.yz)*p3.zy);
-}
-
-float noise( in vec2 p ) {
-    vec2 i = floor( p );
-    vec2 f = fract( p );
-    vec2 u = f*f*(3.0-2.0*f);
-
-    float n = mix( mix( dot( -1.0+2.0*hash( i + vec2(0.0,0.0) ), f - vec2(0.0,0.0) ),
-                        dot( -1.0+2.0*hash( i + vec2(1.0,0.0) ), f - vec2(1.0,0.0) ), u.x),
-                   mix( dot( -1.0+2.0*hash( i + vec2(0.0,1.0) ), f - vec2(0.0,1.0) ),
-                        dot( -1.0+2.0*hash( i + vec2(1.0,1.0) ), f - vec2(1.0,1.0) ), u.x), u.y);
-    return 0.5 + 0.5*n;
-}
-
-
-void main() {
-    vec2 uv = gl_FragCoord.xy / u_resolution.xy;
-    float ratio = u_resolution.x / u_resolution.y;
-
-    uv /= u_pixelRatio;
-
-    vec2 tuv = uv;
-    tuv -= .5;
-
-    // rotate with Noise
-    float degree = noise(vec2(u_time, tuv.x * tuv.y));
-
-    tuv.y *= 1./ratio;
-    tuv *= Rot(radians((degree-.5)*720.+180.));
-    tuv.y *= ratio;
-
-
-    // Wave warp with sin
-    float frequency = 5.;
-    float amplitude = 30.;
-    float speed = u_time * 2.;
-    tuv.x += sin(tuv.y*frequency+speed)/amplitude;
-    tuv.y += sin(tuv.x*frequency*1.5+speed)/(amplitude*.5);
-
-
-    float proportion_1 = S(-.3, .2, (tuv*Rot(radians(-5.))).x);
-    vec3 layer1_color = mix(u_color1.rgb * u_color1.a, u_color2.rgb * u_color2.a, proportion_1);
-    float layer1_opacity = mix(u_color1.a, u_color2.a, proportion_1);
-    vec3 layer2_color = mix(u_color3.rgb * u_color3.a, u_color4.rgb * u_color4.a, proportion_1);
-    float layer2_opacity = mix(u_color3.a, u_color4.a, proportion_1);
-
-    float proportion_2 = S(.5, -.3, tuv.y);
-    vec3 color = mix(layer1_color, layer2_color, proportion_2);
-    float opacity = mix(layer1_opacity, layer2_opacity, proportion_2);
-
-    color += 1. / 256. * (fract(sin(dot(.014 * gl_FragCoord.xy, vec2(12.9898, 78.233))) * 43758.5453123) - .5);
-
-    fragColor = vec4(color, opacity);
-}
-`;
-
-export interface MeshGradientUniforms {
-  u_color1: [number, number, number, number];
-  u_color2: [number, number, number, number];
-  u_color3: [number, number, number, number];
-  u_color4: [number, number, number, number];
-}
-
-export interface MeshGradientParams extends ShaderMotionParams {
-  color1?: string;
-  color2?: string;
-  color3?: string;
-  color4?: string;
-}
+import {
+  sizingUniformsDeclaration,
+  sizingSquareUV,
+  type ShaderSizingParams,
+  type ShaderSizingUniforms,
+} from '../shader-sizing';
+import { declarePI, declareRotate, colorBandingFix } from '../shader-utils';
 
 export const meshGradientMeta = {
   maxColorCount: 10,
 } as const;
 
-// export interface MeshGradientUniforms extends ShaderSizingUniforms {
-//   u_colors: vec4[];
-//   u_colorSpace: (typeof ShaderColorSpaces)[ShaderColorSpace];
-// }
+/**
+ * Mesh Gradient Ksenia Kondrashova
+ * Smooth, animated mesh gradient using a dynamic list of colors
+ *
+ * Uniforms include:
+ * - u_colors (vec4[]): Input RGBA colors
+ * - u_colorsCount (float): Number of active colors (`u_colors` length)
+ * - u_distortion (float): Amount of animated wavy distortion applied to UV coordinates
+ * - u_swirl (float): Amount of radial swirl distortion applied to UV coordinates
+ */
+export const meshGradientFragmentShader: string = `#version 300 es
+precision highp float;
 
-// export interface MeshGradientParams extends ShaderSizingParams, ShaderMotionParams {
-//   colors?: string[];
-//   colorSpace?: ShaderColorSpace;
-// }
+uniform float u_time;
+uniform float u_pixelRatio;
+uniform vec2 u_resolution;
+
+${sizingUniformsDeclaration}
+
+uniform vec4 u_colors[${meshGradientMeta.maxColorCount}];
+uniform float u_colorsCount;
+
+uniform float u_distortion;
+uniform float u_swirl;
+
+out vec4 fragColor;
+
+${declarePI}
+${declareRotate}
+
+vec2 getPosition(int i, float t) {
+  float a = float(i) * .37;
+  float b = .6 + mod(float(i), 3.) * .3;
+  float c = .8 + mod(float(i + 1), 4.) * 0.25;
+
+  float x = sin(t * b + a);
+  float y = cos(t * c + a * 1.5);
+
+  return .5 + .5 * vec2(x, y);
+}
+
+void main() {
+  ${sizingSquareUV}
+  uv += .5;
+
+  float t = .5 * u_time;
+
+  float radius = smoothstep(0., 1., length(uv - .5));
+  float center = 1. - radius;
+  for (float i = 1.; i <= 2.; i++) {
+    uv.x += u_distortion * center / i * sin(t + i * .4 * smoothstep(.0, 1., uv.y)) * cos(.2 * t + i * 2.4 * smoothstep(.0, 1., uv.y));
+    uv.y += u_distortion * center / i * cos(t + i * 2. * smoothstep(.0, 1., uv.x));
+  }
+
+  vec2 uvRotated = uv;
+  uvRotated -= vec2(.5);
+  float angle = 3. * u_swirl * radius;
+  uvRotated = rotate(uvRotated, -angle);
+  uvRotated += vec2(.5);
+
+  vec3 color = vec3(0.);
+  float opacity = 0.;
+  float totalWeight = 0.;
+  
+  for (int i = 0; i < ${meshGradientMeta.maxColorCount}; i++) {
+    if (i >= int(u_colorsCount)) break;
+    
+    vec2 pos = getPosition(i, t);
+    vec3 colorFraction = u_colors[i].rgb * u_colors[i].a;
+    float opacityFraction = u_colors[i].a;
+      
+    float dist = 0.;
+    if (mod(float(i), 2.) > 1.) {
+      dist = length(uv - pos);
+    } else {
+      dist = length(uvRotated - pos);
+    }
+
+    dist = pow(dist, 3.5);
+    float weight = 1. / (dist + 1e-3);
+    color += colorFraction * weight;
+    opacity += opacityFraction * weight;
+    totalWeight += weight;
+  }
+
+  color /= totalWeight;
+  opacity /= totalWeight;
+  
+  ${colorBandingFix}
+
+  fragColor = vec4(color, opacity);
+}
+`;
+
+export interface MeshGradientUniforms extends ShaderSizingUniforms {
+  u_colors: vec4[];
+  u_colorsCount: number;
+  u_distortion: number;
+  u_swirl: number;
+}
+
+export interface MeshGradientParams extends ShaderSizingParams, ShaderMotionParams {
+  colors?: string[];
+  distortion?: number;
+  swirl?: number;
+}
