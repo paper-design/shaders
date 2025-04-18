@@ -4,7 +4,7 @@ import {
   sizingPatternUV,
   sizingSquareUV,
   type ShaderSizingParams,
-  type ShaderSizingUniforms,
+  type ShaderSizingUniforms, sizingUV, worldBoxTestStroke, viewPortTestOriginPoint,
 } from '../shader-sizing';
 import { declareSimplexNoise, declarePI, declareRandom } from '../shader-utils';
 
@@ -98,9 +98,12 @@ float getBayerValue(vec2 uv, int size) {
   return 0.0;
 }
 
-#define USE_PX_ROUNDING
 
 void main() {
+  
+  #define USE_PATTERN_SIZING
+  #define USE_OBJECT_SIZING
+  #define USE_PX_ROUNDING
   
   float t = .5 * u_time;  
   
@@ -109,19 +112,13 @@ void main() {
     pxSize = u_pxSize;
   }
   
-  vec2 shape_uv = vec2(0.);
-  vec2 dithering_uv = vec2(0.);
-  vec2 ditheringNoise_uv = vec2(0.);
+  ${sizingUV}
+  
+  vec2 dithering_uv = pxSizeUv;
+  vec2 ditheringNoise_uv = roundedUv;
+  vec2 shape_uv = objectUV;
   if (u_shape < 3.5) {
-    ${sizingPatternUV}
-    shape_uv = uv;
-    dithering_uv = pxSizeUv;
-    ditheringNoise_uv = roundedUv;
-  } else {
-    ${sizingSquareUV}
-    shape_uv = uv;
-    dithering_uv = pxSizeUv;
-    ditheringNoise_uv = roundedUv;
+    shape_uv = patternUV;
   }
   
   float shape = 0.;    
@@ -211,6 +208,21 @@ void main() {
   float res = step(.5, shape + dithering);  
   
   vec4 color = mix(u_color1, u_color2, res);
+  
+  vec2 worldBox = objectWorldBox;
+  vec2 world = objectWorld;
+  if (u_shape < 3.5) {
+    worldBox = patternWorldBox;
+    world = patternWorld;
+  }
+  ${worldBoxTestStroke}
+  ${viewPortTestOriginPoint}
+  
+  color.r += worldBoxTestStroke;
+  color.g += viewPortTestOriginPoint;
+  color.b += worldTestOriginPoint;
+
+  
   fragColor = color;
 }
 `;
