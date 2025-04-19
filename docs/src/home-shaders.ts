@@ -37,6 +37,8 @@ import {
   godRaysPresets,
   Spiral,
   spiralPresets,
+  Dithering,
+  ditheringPresets,
 } from '@paper-design/shaders-react';
 import { StaticImageData } from 'next/image';
 import TextureTest from './app/texture-test/page';
@@ -147,5 +149,12 @@ export const homeShaders = [
     ShaderComponent: Spiral,
     image: spiralImg,
     shaderConfig: { ...spiralPresets[1].params, scale: 0.5 },
+  },
+  {
+    name: 'dithering',
+    url: '/dithering',
+    ShaderComponent: Dithering,
+    image: spiralImg,
+    shaderConfig: { ...ditheringPresets[0].params },
   },
 ] satisfies HomeShaderConfig[];

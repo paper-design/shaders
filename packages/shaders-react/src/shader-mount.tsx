@@ -10,7 +10,7 @@ import { useMergeRefs } from './use-merge-refs';
 
 /** React Shader Mount can also accept strings as uniform values, which will assumed to be URLs and loaded as images */
 interface ShaderMountUniformsReact {
-  [key: string]: string | boolean | number | number[] | number[][] | HTMLImageElement;
+  [key: string]: string | boolean | number | number[] | number[][] | HTMLImageElement | null;
 }
 
 export interface ShaderMountProps extends Omit<React.ComponentProps<'div'>, 'color'>, ShaderMotionParams {
