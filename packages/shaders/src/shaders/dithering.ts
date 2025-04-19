@@ -1,6 +1,7 @@
 import type { ShaderMotionParams } from '../shader-mount';
 import {
   sizingUniformsDeclaration,
+  sizingVariablesDeclaration,
   type ShaderSizingParams,
   type ShaderSizingUniforms,
   sizingUV,
@@ -57,12 +58,8 @@ uniform bool u_pxRounded;
 // =================================================
 // Using sizing from vertex shader
 
-// in vec2 v_objectUV;
-// in vec2 v_patternUV;
-// in vec2 v_objectWorld;
-// in vec2 v_patternWorld;
-// in vec2 v_objectWorldBox;
-// in vec2 v_patternWorldBox;
+// $ {sizingVariablesDeclaration}
+// $ {sizingDebugVariablesDeclaration}
 
 // =================================================
 
@@ -142,8 +139,6 @@ void main() {
   #define USE_SIZING_DEBUG
   ${sizingUV}
   vec2 dithering_uv = pxSizeUv;
-  // dithering_uv += .5 * u_resolution;
-  // dithering_uv += floor(.5 * u_resolution * (u_pxSize * u_pixelRatio)) / (u_pxSize * u_pixelRatio);
 
   vec2 ditheringNoise_uv = roundedUv;
   vec2 shape_uv = objectUV;

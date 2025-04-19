@@ -1,6 +1,5 @@
 import {
-  sizingUniformsDeclaration,
-  sizingPatternUV,
+  sizingVariablesDeclaration,
   type ShaderSizingParams,
   type ShaderSizingUniforms,
 } from '../shader-sizing';
@@ -25,11 +24,6 @@ import { declarePI, declareSimplexNoise } from '../shader-utils';
 export const dotGridFragmentShader: string = `#version 300 es
 precision highp float;
 
-uniform vec2 u_resolution;
-uniform float u_pixelRatio;
-
-${sizingUniformsDeclaration}
-
 uniform vec4 u_colorBack;
 uniform vec4 u_colorFill;
 uniform vec4 u_colorStroke;
@@ -40,6 +34,8 @@ uniform float u_strokeWidth;
 uniform float u_sizeRange;
 uniform float u_opacityRange;
 uniform float u_shape;
+
+${sizingVariablesDeclaration}
 
 out vec4 fragColor;
 
@@ -54,12 +50,12 @@ float polygon(vec2 p, float N, float rot) {
 }
 
 void main() {
-  ${sizingPatternUV}
+  
+  vec2 shape_uv = v_patternUV;
+  shape_uv += .5;
 
-  uv += .5;
-
-  vec2 grid = fract(uv / vec2(u_gridSpacingX, u_gridSpacingY)) + 1e-4;
-  vec2 grid_idx = floor(uv / vec2(u_gridSpacingX, u_gridSpacingY));
+  vec2 grid = fract(shape_uv / vec2(u_gridSpacingX, u_gridSpacingY)) + 1e-4;
+  vec2 grid_idx = floor(shape_uv / vec2(u_gridSpacingX, u_gridSpacingY));
   float sizeRandomizer = .5 + .8 * snoise(2. * vec2(grid_idx.x * 100., grid_idx.y));
   float opacity_randomizer = .5 + .7 * snoise(2. * vec2(grid_idx.y, grid_idx.x));
 

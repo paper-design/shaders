@@ -1,8 +1,7 @@
 import type { vec4 } from '../types';
 import type { ShaderMotionParams } from '../shader-mount';
 import {
-  sizingUniformsDeclaration,
-  sizingPatternUV,
+  sizingVariablesDeclaration,
   type ShaderSizingParams,
   type ShaderSizingUniforms,
 } from '../shader-sizing';
@@ -27,15 +26,14 @@ export const simplexNoiseFragmentShader: string = `#version 300 es
 precision highp float;
 
 uniform float u_time;
-uniform vec2 u_resolution;
-uniform float u_pixelRatio;
-
-${sizingUniformsDeclaration}
+uniform float u_scale;
 
 uniform vec4 u_colors[${simplexNoiseMeta.maxColorCount}];
 uniform float u_colorsCount;
 uniform float u_stepsPerColor;
 uniform float u_softness;
+
+${sizingVariablesDeclaration}
 
 out vec4 fragColor;
 
@@ -59,13 +57,13 @@ float steppedSmooth(float t, float steps, float softness) {
 }
 
 void main() {
+  vec2 shape_uv = v_patternUV;
 
-  ${sizingPatternUV}
-  uv *= .001;
+  shape_uv *= .001;
 
   float t = .2 * u_time;
 
-  float shape = .5 + .5 * getNoise(uv, t);
+  float shape = .5 + .5 * getNoise(shape_uv, t);
   
   bool u_extraSides = true;
   

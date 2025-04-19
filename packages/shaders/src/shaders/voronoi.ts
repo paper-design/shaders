@@ -1,8 +1,7 @@
 import type { vec4 } from '../types';
 import type { ShaderMotionParams } from '../shader-mount';
 import {
-  sizingUniformsDeclaration,
-  sizingPatternUV,
+  sizingVariablesDeclaration,
   type ShaderSizingParams,
   type ShaderSizingUniforms,
 } from '../shader-sizing';
@@ -30,13 +29,11 @@ export const voronoiMeta = {
  * - `u_noiseTexture` (`sampler2D`): Replacement of standard hash function, added for better performance
  */
 export const voronoiFragmentShader: string = `#version 300 es
-precision lowp float;
+precision highp float;
 
 uniform float u_time;
-uniform vec2 u_resolution;
-uniform float u_pixelRatio;
 
-${sizingUniformsDeclaration}
+uniform float u_scale;
 
 uniform sampler2D u_noiseTexture;
 
@@ -49,6 +46,8 @@ uniform vec4 u_colorBack;
 uniform float u_distortion;
 uniform float u_gap;
 uniform float u_innerGlow;
+
+${sizingVariablesDeclaration}
 
 out vec4 fragColor;
 
@@ -102,13 +101,12 @@ vec4 voronoi(vec2 x, float t) {
 }
 
 void main() {
-  ${sizingPatternUV}
-
-  uv *= .0125;
+  vec2 shape_uv = v_patternUV;
+  shape_uv *= .0125;
 
   float t = u_time;
 
-  vec4 voronoiRes = voronoi(uv, t);
+  vec4 voronoiRes = voronoi(shape_uv, t);
 
   float shape = clamp(voronoiRes.w, 0., 1.);
   float mixer = shape * (u_colorsCount - 1.);
