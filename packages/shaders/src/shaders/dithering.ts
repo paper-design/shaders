@@ -1,7 +1,6 @@
 import type { ShaderMotionParams } from '../shader-mount';
 import {
   sizingUniformsDeclaration,
-  sizingVariablesDeclaration,
   type ShaderSizingParams,
   type ShaderSizingUniforms,
   sizingUV,
@@ -54,15 +53,6 @@ uniform float u_type;
 uniform float u_pxSize;
 uniform bool u_pxRounded;
 
-  
-// =================================================
-// Using sizing from vertex shader
-
-// $ {sizingVariablesDeclaration}
-// $ {sizingDebugVariablesDeclaration}
-
-// =================================================
-
 out vec4 fragColor;
 
 ${declareSimplexNoise}
@@ -110,46 +100,22 @@ float getBayerValue(vec2 uv, int size) {
 }
 
 
-void main() {
-  
-  
+void main() {  
   float t = .5 * u_time;  
-  
-  
-  // =================================================
-  // Using sizing from vertex shader
 
-  // float pxSize = u_pxSize * u_pixelRatio;
-  // vec2 dithering_uv = gl_FragCoord.xy / pxSize;
-  // vec2 ditheringNoise_uv = floor(dithering_uv) * pxSize / u_resolution.xy;
-  // vec2 shape_uv = v_objectUV;
-  // if (u_shape < 3.5) {
-  //   shape_uv = v_patternUV;
-  // }
-  
-  // =================================================
-
-  
-  // =================================================
-  // Using sizing from fragment shader
-  
   #define USE_PATTERN_SIZING
   #define USE_OBJECT_SIZING
   #define USE_PIXELIZATION
-  #define USE_SIZING_DEBUG
+  // #define USE_SIZING_DEBUG
+  
   ${sizingUV}
+  
   vec2 dithering_uv = pxSizeUv;
-
   vec2 ditheringNoise_uv = roundedUv;
   vec2 shape_uv = objectUV;
   if (u_shape < 3.5) {
     shape_uv = patternUV;
   }
-  
-  // =================================================
-
-
-
 
   float shape = 0.;    
   if (u_shape < 1.5) {
@@ -238,24 +204,6 @@ void main() {
   float res = step(.5, shape + dithering);  
   
   vec4 color = mix(u_color1, u_color2, res);
-  
-  
-  // =================================================
-  // Using sizing from vertex shader
-
-  // vec2 worldBox = v_objectWorldBox;
-  // vec2 world = v_objectWorld;
-  // if (u_shape < 3.5) {
-  //   worldBox = v_patternWorldBox;
-  //   world = v_patternWorld;
-  // }
-
-  // =================================================
-
-
-
-  // =================================================
-  // Using sizing from fragment shader
 
   #ifdef USE_SIZING_DEBUG
     vec2 worldBox = objectWorldBox;
@@ -271,10 +219,7 @@ void main() {
     color.b += worldTestOriginPoint;
   #endif
 
-  // =================================================
-
   fragColor = color;
-  // fragColor = vec4(vec3(shape), 1.);
 }
 `;
 
