@@ -192,7 +192,8 @@ void main() {
 
     shapeUv *= 2.;
     float d = length(shapeUv);
-    vec3 pos = vec3(shapeUv, sqrt(1. - clamp(d, 0., 1.)));
+    float z = sqrt(1.0 - clamp(pow(d, 2.0), 0.0, 1.0));
+    vec3 pos = vec3(shapeUv, z);
     vec3 lightPos = normalize(vec3(cos(3. * t), 0.8, sin(2.5 * t)));
     float lighting = dot(lightPos, pos);
     float edge = smoothstep(1., .97, d);
