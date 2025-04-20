@@ -303,8 +303,8 @@ export class ShaderMount {
     this.gl.bindTexture(this.gl.TEXTURE_2D, texture);
 
     // Set texture parameters
-    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_S, this.gl.CLAMP_TO_EDGE);
-    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_T, this.gl.CLAMP_TO_EDGE);
+    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_S, this.gl.REPEAT);
+    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_T, this.gl.REPEAT);
     this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.LINEAR);
     this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MAG_FILTER, this.gl.LINEAR);
 
@@ -498,8 +498,97 @@ export class ShaderMount {
 const vertexShaderSource = `#version 300 es
 layout(location = 0) in vec4 a_position;
 
+uniform vec2 u_resolution;
+uniform float u_pixelRatio;
+
+uniform float u_originX;
+uniform float u_originY;
+uniform float u_worldWidth;
+uniform float u_worldHeight;
+uniform float u_fit;
+
+uniform float u_scale;
+uniform float u_rotation;
+uniform float u_offsetX;
+uniform float u_offsetY;
+
+uniform float u_pxSize;
+
+out vec2 v_objectUV;
+out vec2 v_patternUV;
+
 void main() {
   gl_Position = a_position;
+  
+  vec2 uv = gl_Position.xy * .5;  
+
+  vec2 worldOrigin = vec2(.5 - u_originX, u_originY - .5);
+  vec2 worldSize = vec2(u_worldWidth, u_worldHeight);
+  worldSize = max(worldSize, vec2(1.)) * u_pixelRatio;
+  float maxWidth = max(u_resolution.x, worldSize.x);
+  float maxHeight = max(u_resolution.y, worldSize.y);
+  float rotationRad = u_rotation * 3.14159265358979323846 / 180.;
+  
+  
+  // ===================================================
+  // Sizing api for objects (graphics with fixed ratio)
+  
+  float objectWorldRatio = 1.;
+  vec2 objectWorld = vec2(0.);
+  objectWorld.x = objectWorldRatio * min(worldSize.x / objectWorldRatio, worldSize.y);
+  if (u_fit == 1.) {
+    // contain
+    objectWorld.x = objectWorldRatio * min(maxWidth / objectWorldRatio, maxHeight);
+  } else if (u_fit == 2.) {
+    // cover
+    objectWorld.x = objectWorldRatio * max(maxWidth / objectWorldRatio, maxHeight);
+  }
+  objectWorld.y = objectWorld.x / objectWorldRatio;
+  vec2 objectWorldScale = u_resolution.xy / objectWorld;
+  
+  v_objectUV = uv;
+  v_objectUV *= objectWorldScale;
+  v_objectUV += worldOrigin * (objectWorldScale - 1.);
+  v_objectUV += vec2(-u_offsetX, u_offsetY);
+  v_objectUV /= u_scale;
+  v_objectUV = mat2(cos(rotationRad), sin(rotationRad), -sin(rotationRad), cos(rotationRad)) * v_objectUV;
+
+  // ===================================================
+
+  
+  // ===================================================
+  // Sizing api for patterns (graphics respecting u_worldWidth / u_worldHeight ratio)
+  
+  float patternWorldRatio = worldSize.x / worldSize.y;
+  vec2 patternWorld = vec2(0.);
+  patternWorld.x = patternWorldRatio * min(worldSize.x / patternWorldRatio, worldSize.y);
+  float patternWorldWidthOriginal = patternWorld.x;
+  if (u_fit == 1.) {
+    // contain
+    patternWorld.x = patternWorldRatio * min(maxWidth / patternWorldRatio, maxHeight);
+  } else if (u_fit == 2.) {
+    // cover
+    patternWorld.x = patternWorldRatio * max(maxWidth / patternWorldRatio, maxHeight);
+  }
+  patternWorld.y = patternWorld.x / patternWorldRatio;
+  vec2 patternWorldScale = u_resolution.xy / patternWorld;
+
+  v_patternUV = uv;
+  v_patternUV += vec2(-u_offsetX, u_offsetY) / patternWorldScale;
+  v_patternUV += worldOrigin;
+  v_patternUV -= worldOrigin / patternWorldScale;
+  v_patternUV *= u_resolution.xy;
+  v_patternUV /= u_pixelRatio;
+  if (u_fit > 0.) {
+    v_patternUV *= (patternWorldWidthOriginal / patternWorld.x);
+  }
+  v_patternUV /= u_scale;
+  v_patternUV = mat2(cos(rotationRad), sin(rotationRad), -sin(rotationRad), cos(rotationRad)) * v_patternUV;
+  v_patternUV += worldOrigin / patternWorldScale;
+  v_patternUV -= worldOrigin;
+  v_patternUV += .5;
+  
+  // ===================================================
 }
 `;
 

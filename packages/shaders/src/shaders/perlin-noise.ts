@@ -1,7 +1,6 @@
 import type { ShaderMotionParams } from '../shader-mount';
 import {
-  sizingUniformsDeclaration,
-  sizingPatternUV,
+  sizingVariablesDeclaration,
   type ShaderSizingParams,
   type ShaderSizingUniforms,
 } from '../shader-sizing';
@@ -27,10 +26,6 @@ export const perlinNoiseFragmentShader: string = `#version 300 es
 precision highp float;
 
 uniform float u_time;
-uniform vec2 u_resolution;
-uniform float u_pixelRatio;
-
-${sizingUniformsDeclaration}
 
 uniform vec4 u_color1;
 uniform vec4 u_color2;
@@ -39,6 +34,8 @@ uniform float u_softness;
 uniform float u_octaveCount;
 uniform float u_persistence;
 uniform float u_lacunarity;
+
+${sizingVariablesDeclaration}
 
 out vec4 fragColor;
 
@@ -178,12 +175,12 @@ float get_max_amp(float persistence, float octaveCount) {
 }
 
 void main() {
+  vec2 shape_uv = v_patternUV;
 
-  ${sizingPatternUV}
-  uv *= .005;
+  shape_uv *= .005;
   float t = .2 * u_time;
 
-    vec3 p = vec3(uv, t);
+    vec3 p = vec3(shape_uv, t);
 
     float oct_count = max(0., floor(u_octaveCount));
     float persistence = clamp(u_persistence, 0., 1.);
@@ -204,7 +201,7 @@ void main() {
 
   ${colorBandingFix}
 
-    fragColor = vec4(color, opacity);
+  fragColor = vec4(color, opacity);
 }
 `;
 

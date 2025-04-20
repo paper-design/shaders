@@ -171,6 +171,19 @@
           "type": "registry:component"
         }
       ]
+    },
+    {
+      "name": "dithering",
+      "type": "registry:component",
+      "title": "Dithering Example",
+      "description": "Dithering shader example.",
+      "dependencies": ["@paper-design/shaders-react"],
+      "files": [
+        {
+          "path": "registry/dithering-example.tsx",
+          "type": "registry:component"
+        }
+      ]
     }
   ]
 }

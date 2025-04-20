@@ -1,8 +1,7 @@
 import type { vec4 } from '../types';
 import type { ShaderMotionParams } from '../shader-mount';
 import {
-  sizingUniformsDeclaration,
-  sizingSquareUV,
+  sizingVariablesDeclaration,
   type ShaderSizingParams,
   type ShaderSizingUniforms,
 } from '../shader-sizing';
@@ -26,16 +25,14 @@ export const meshGradientFragmentShader: string = `#version 300 es
 precision highp float;
 
 uniform float u_time;
-uniform float u_pixelRatio;
-uniform vec2 u_resolution;
-
-${sizingUniformsDeclaration}
 
 uniform vec4 u_colors[${meshGradientMeta.maxColorCount}];
 uniform float u_colorsCount;
 
 uniform float u_distortion;
 uniform float u_swirl;
+
+${sizingVariablesDeclaration}
 
 out vec4 fragColor;
 
@@ -54,19 +51,20 @@ vec2 getPosition(int i, float t) {
 }
 
 void main() {
-  ${sizingSquareUV}
-  uv += .5;
+  vec2 shape_uv = v_objectUV;
+
+  shape_uv += .5;
 
   float t = .5 * u_time;
 
-  float radius = smoothstep(0., 1., length(uv - .5));
+  float radius = smoothstep(0., 1., length(shape_uv - .5));
   float center = 1. - radius;
   for (float i = 1.; i <= 2.; i++) {
-    uv.x += u_distortion * center / i * sin(t + i * .4 * smoothstep(.0, 1., uv.y)) * cos(.2 * t + i * 2.4 * smoothstep(.0, 1., uv.y));
-    uv.y += u_distortion * center / i * cos(t + i * 2. * smoothstep(.0, 1., uv.x));
+    shape_uv.x += u_distortion * center / i * sin(t + i * .4 * smoothstep(.0, 1., shape_uv.y)) * cos(.2 * t + i * 2.4 * smoothstep(.0, 1., shape_uv.y));
+    shape_uv.y += u_distortion * center / i * cos(t + i * 2. * smoothstep(.0, 1., shape_uv.x));
   }
 
-  vec2 uvRotated = uv;
+  vec2 uvRotated = shape_uv;
   uvRotated -= vec2(.5);
   float angle = 3. * u_swirl * radius;
   uvRotated = rotate(uvRotated, -angle);
@@ -85,7 +83,7 @@ void main() {
       
     float dist = 0.;
     if (mod(float(i), 2.) > 1.) {
-      dist = length(uv - pos);
+      dist = length(shape_uv - pos);
     } else {
       dist = length(uvRotated - pos);
     }
