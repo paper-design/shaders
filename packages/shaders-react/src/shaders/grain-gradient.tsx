@@ -127,12 +127,7 @@ export const moonPreset: GrainGradientPreset = {
     scale: 0.6,
     speed: 1,
     frame: 0,
-    colors: [
-      'hsla(0, 0%, 0%, 1)',
-      'hsla(0, 0%, 0%, 1)',
-      'hsla(240, 8%, 17%, 1)',
-      'hsla(40, 100%, 90%, 1)',
-    ],
+    colors: ['hsla(0, 0%, 0%, 1)', 'hsla(0, 0%, 0%, 1)', 'hsla(240, 8%, 17%, 1)', 'hsla(40, 100%, 90%, 1)'],
     softness: 1,
     intensity: 0.56,
     noise: 1,
@@ -148,7 +143,7 @@ export const grainGradientPresets: GrainGradientPreset[] = [
   ripplePreset,
   blobPreset,
   spherePreset,
-  moonPreset
+  moonPreset,
 ];
 
 export const GrainGradient: React.FC<GrainGradientProps> = memo(function GrainGradientImpl({

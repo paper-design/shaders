@@ -1,8 +1,4 @@
-import {
-  sizingVariablesDeclaration,
-  type ShaderSizingParams,
-  type ShaderSizingUniforms,
-} from '../shader-sizing';
+import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing';
 import { declarePI, declareRotate } from '../shader-utils';
 
 /**

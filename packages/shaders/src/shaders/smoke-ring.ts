@@ -1,9 +1,5 @@
 import type { ShaderMotionParams } from '../shader-mount';
-import {
-  sizingVariablesDeclaration,
-  type ShaderSizingParams,
-  type ShaderSizingUniforms,
-} from '../shader-sizing';
+import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing';
 import { declarePI, declareRandom, colorBandingFix } from '../shader-utils';
 
 /**
