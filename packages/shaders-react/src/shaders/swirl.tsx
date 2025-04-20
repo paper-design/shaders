@@ -36,7 +36,7 @@ export const defaultPreset: SwirlPreset = {
     ],
     bandCount: 5,
     twist: 0.11,
-    softness: 0,
+    softness: 0.01,
     noiseFreq: 1.2,
     noisePower: 0.46,
   },
