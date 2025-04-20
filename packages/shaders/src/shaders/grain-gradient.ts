@@ -1,11 +1,6 @@
-import type {vec4} from '../types';
+import type { vec4 } from '../types';
 import type { ShaderMotionParams } from '../shader-mount';
-import {
-  sizingUniformsDeclaration,
-  sizingUV,
-  type ShaderSizingParams,
-  type ShaderSizingUniforms,
-} from '../shader-sizing';
+import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing';
 import { declareSimplexNoise, declarePI, declareRandom, colorBandingFix } from '../shader-utils';
 
 export const grainGradientMeta = {
@@ -16,13 +11,11 @@ export const grainGradientMeta = {
  * Grainy Gradient Ksenia Kondrashova
  */
 export const grainGradientFragmentShader: string = `#version 300 es
-precision lowp float;
+precision highp float;
 
 uniform float u_time;
 uniform vec2 u_resolution;
 uniform float u_pixelRatio;
-
-${sizingUniformsDeclaration}
 
 uniform vec4 u_colors[${grainGradientMeta.maxColorCount}];
 uniform float u_colorsCount;
@@ -30,6 +23,8 @@ uniform float u_softness;
 uniform float u_intensity;
 uniform float u_noise;
 uniform float u_shape;
+
+${sizingVariablesDeclaration}
 
 out vec4 fragColor;
 
@@ -91,15 +86,10 @@ void main() {
   
   float t = .1 * u_time;
   
-  #define USE_PATTERN_SIZING
-  #define USE_OBJECT_SIZING
-  
-  ${sizingUV}
-  
   vec2 grain_uv = (gl_FragCoord.xy - .5 * u_resolution) / u_pixelRatio;
-  vec2 shape_uv = objectUV;
+  vec2 shape_uv = v_objectUV;
   if (u_shape < 3.5) {
-    shape_uv = patternUV * .005;
+    shape_uv = v_patternUV * .005;
   }
   
   
