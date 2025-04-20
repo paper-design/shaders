@@ -2,8 +2,7 @@ import type {vec4} from '../types';
 import type { ShaderMotionParams } from '../shader-mount';
 import {
   sizingUniformsDeclaration,
-  sizingPatternUV,
-  sizingSquareUV,
+  sizingUV,
   type ShaderSizingParams,
   type ShaderSizingUniforms,
 } from '../shader-sizing';
@@ -91,47 +90,45 @@ vec2 truchet(vec2 uv, float idx){
 void main() {
   
   float t = .1 * u_time;
-
-  vec2 shapeUv = vec2(0.);
-  vec2 grainUV = vec2(0.);
-
+  
+  #define USE_PATTERN_SIZING
+  #define USE_OBJECT_SIZING
+  
+  ${sizingUV}
+  
+  vec2 grain_uv = (gl_FragCoord.xy - .5 * u_resolution) / u_pixelRatio;
+  vec2 shape_uv = objectUV;
   if (u_shape < 3.5) {
-    ${sizingPatternUV}
-    shapeUv = uv;
-    shapeUv *= .005;
-    grainUV = pxSizeUv;
-  } else {
-    ${sizingSquareUV}
-    shapeUv = uv;
-    grainUV = pxSizeUv;
+    shape_uv = patternUV * .005;
   }
+  
   
   float shape = 0.;
   
   if (u_shape < 1.5) {
     // Sine wave
     
-    float wave = cos(.5 * shapeUv.x - 2. * t) * sin(1.5 * shapeUv.x + t) * (.75 + .25 * cos(3. * t));
-    shape = 1. - smoothstep(-1., 1., shapeUv.y + wave);
+    float wave = cos(.5 * shape_uv.x - 2. * t) * sin(1.5 * shape_uv.x + t) * (.75 + .25 * cos(3. * t));
+    shape = 1. - smoothstep(-1., 1., shape_uv.y + wave);
       
   } else if (u_shape < 2.5) {
     // Grid (dots)
 
-    float stripeIdx = floor(2. * shapeUv.x / TWO_PI);
+    float stripeIdx = floor(2. * shape_uv.x / TWO_PI);
     float rand = fract(sin(stripeIdx * 12.9898) * 43758.5453);
 
     float speed = sign(rand - .5) * ceil(2. + rand);
-    shape = sin(shapeUv.x) * cos(shapeUv.y + speed * t);  
+    shape = sin(shape_uv.x) * cos(shape_uv.y + speed * t);  
     shape = pow(shape, 4.);
   
   } else if (u_shape < 3.5) {
     // Truchet pattern
     
-    float n2 = noisenoise(shapeUv * .4 - 2.5 * t);
-    shapeUv.x += 10.;
-    shapeUv *= .6;
+    float n2 = noisenoise(shape_uv * .4 - 2.5 * t);
+    shape_uv.x += 10.;
+    shape_uv *= .6;
 
-    vec2 tile = truchet(fract(shapeUv), random(floor(shapeUv)));
+    vec2 tile = truchet(fract(shape_uv), random(floor(shape_uv)));
 
     float distance1 = length(tile);
     float distance2 = length(tile - vec2(1.));
@@ -146,16 +143,16 @@ void main() {
   } else if (u_shape < 4.5) {  
     // Corners
 
-    shapeUv *= .6;
+    shape_uv *= .6;
     vec2 outer = vec2(.5);
     
-    vec2 bl = smoothstep(vec2(0.), outer, shapeUv + vec2(.1 + .1 * sin(2. * t), .2 - .1 * sin(3. * t)));
-    vec2 tr = smoothstep(vec2(0.), outer, 1. - shapeUv);
+    vec2 bl = smoothstep(vec2(0.), outer, shape_uv + vec2(.1 + .1 * sin(2. * t), .2 - .1 * sin(3. * t)));
+    vec2 tr = smoothstep(vec2(0.), outer, 1. - shape_uv);
     shape = 1. - bl.x * bl.y * tr.x * tr.y;
     
-    shapeUv = -shapeUv;
-    bl = smoothstep(vec2(0.), outer, shapeUv + vec2(.1 + .1 * sin(2. * t), .2 - .1 * cos(3. * t)));
-    tr = smoothstep(vec2(0.), outer, 1. - shapeUv);
+    shape_uv = -shape_uv;
+    bl = smoothstep(vec2(0.), outer, shape_uv + vec2(.1 + .1 * sin(2. * t), .2 - .1 * cos(3. * t)));
+    tr = smoothstep(vec2(0.), outer, 1. - shape_uv);
     shape -= bl.x * bl.y * tr.x * tr.y; 
     
     shape = 1. - smoothstep(0., 1., shape);
@@ -163,8 +160,8 @@ void main() {
   } else if (u_shape < 5.5) {  
     // Ripple
   
-    shapeUv *= 2.;
-    float dist = length(.4 * shapeUv);
+    shape_uv *= 2.;
+    float dist = length(.4 * shape_uv);
     float waves = sin(pow(dist, 1.2) * 5. - 3. * t) * .5 + .5;
     shape = waves;
 
@@ -178,10 +175,10 @@ void main() {
     vec2 f3_traj = .25 * vec2(1.7 * cos(-.6 * t), cos(-1.6 * t));
     vec2 f4_traj = .3 * vec2(1.4 * cos(.8 * t), 1.2 * sin(-.6 * t - 3.));
     
-    shape = .5 * pow(1. - clamp(0., 1., length(shapeUv + f1_traj)), 5.);
-    shape += .5 * pow(1. - clamp(0., 1., length(shapeUv + f2_traj)), 5.);
-    shape += .5 * pow(1. - clamp(0., 1., length(shapeUv + f3_traj)), 5.);
-    shape += .5 * pow(1. - clamp(0., 1., length(shapeUv + f4_traj)), 5.);
+    shape = .5 * pow(1. - clamp(0., 1., length(shape_uv + f1_traj)), 5.);
+    shape += .5 * pow(1. - clamp(0., 1., length(shape_uv + f2_traj)), 5.);
+    shape += .5 * pow(1. - clamp(0., 1., length(shape_uv + f3_traj)), 5.);
+    shape += .5 * pow(1. - clamp(0., 1., length(shape_uv + f4_traj)), 5.);
     
     shape = smoothstep(.0, .9, shape);
     float edge = smoothstep(.25, .3, shape);
@@ -190,19 +187,19 @@ void main() {
   } else {
     // Sphere
 
-    shapeUv *= 2.;
-    float d = length(shapeUv);
+    shape_uv *= 2.;
+    float d = length(shape_uv);
     float z = sqrt(1.0 - clamp(pow(d, 2.0), 0.0, 1.0));
-    vec3 pos = vec3(shapeUv, z);
+    vec3 pos = vec3(shape_uv, z);
     vec3 lightPos = normalize(vec3(cos(3. * t), 0.8, sin(2.5 * t)));
     float lighting = dot(lightPos, pos);
     float edge = smoothstep(1., .97, d);
     shape = mix(.1, .5 + .5 * lighting, edge);
   }
   
-  float snoise05 = snoise(grainUV * .5);
-  float grainDist = snoise(grainUV * .2) * snoise05 - fbm_4(.002 * grainUV + 10.) - fbm_4(.003 * grainUV);
-  float noise = clamp(.6 * snoise05 - fbm_4(.4 * grainUV) - fbm_4(.001 * grainUV), 0., 1.);
+  float snoise05 = snoise(grain_uv * .5);
+  float grainDist = snoise(grain_uv * .2) * snoise05 - fbm_4(.002 * grain_uv + 10.) - fbm_4(.003 * grain_uv);
+  float noise = clamp(.6 * snoise05 - fbm_4(.4 * grain_uv) - fbm_4(.001 * grain_uv), 0., 1.);
 
   shape += u_intensity * 2. / u_colorsCount * (grainDist + .5);
   shape += u_noise * 10. / u_colorsCount * noise;  
