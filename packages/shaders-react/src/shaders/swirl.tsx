@@ -28,12 +28,7 @@ export const defaultPreset: SwirlPreset = {
     offsetY: 0.3,
     speed: 0.32,
     frame: 0,
-    colors: [
-      'hsla(0, 29%, 20%, 1)',
-      'hsla(105, 93%, 27%, 1)',
-      'hsla(43, 100%, 76%, 1)',
-      'hsla(351, 100%, 60%, 1)',
-    ],
+    colors: ['hsla(0, 29%, 20%, 1)', 'hsla(105, 93%, 27%, 1)', 'hsla(43, 100%, 76%, 1)', 'hsla(351, 100%, 60%, 1)'],
     bandCount: 5,
     twist: 0.11,
     softness: 0.01,

@@ -1,11 +1,6 @@
 import type { vec4 } from '../types';
 import type { ShaderMotionParams } from '../shader-mount';
-import {
-  sizingUniformsDeclaration,
-  sizingSquareUV,
-  type ShaderSizingParams,
-  type ShaderSizingUniforms,
-} from '../shader-sizing';
+import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing';
 import { declareSimplexNoise, declarePI, declareRotate, colorBandingFix } from '../shader-utils';
 
 export const swirlMeta = {
@@ -18,10 +13,6 @@ export const swirlFragmentShader: string = `#version 300 es
 precision highp float;
 
 uniform float u_time;
-uniform vec2 u_resolution;
-uniform float u_pixelRatio;
-
-${sizingUniformsDeclaration}
 
 uniform vec4 u_colors[${swirlMeta.maxColorCount}];
 uniform float u_colorsCount;
@@ -31,6 +22,8 @@ uniform float u_softness;
 uniform float u_noisePower;
 uniform float u_noiseFreq;
 
+${sizingVariablesDeclaration}
+
 out vec4 fragColor;
 
 ${declarePI}
@@ -38,13 +31,13 @@ ${declareSimplexNoise}
 ${declareRotate}
 
 void main() {
-  ${sizingSquareUV}
+  vec2 shape_uv = v_objectUV;
     
-  float l = length(uv);
+  float l = length(shape_uv);
 
   float t = u_time;
 
-  float angle = ceil(u_bandCount) * atan(uv.y, uv.x) + t;
+  float angle = ceil(u_bandCount) * atan(shape_uv.y, shape_uv.x) + t;
   float angle_norm = angle / TWO_PI;  
     
   float twist = 3. * clamp(u_twist, 0., 1.);
@@ -52,7 +45,7 @@ void main() {
   
   float shape = fract(offset);
   shape = 1. - abs(2. * shape - 1.);
-  shape += u_noisePower * snoise(pow(u_noiseFreq, 2.) * uv);
+  shape += u_noisePower * snoise(pow(u_noiseFreq, 2.) * shape_uv);
 
   float mid = smoothstep(.2, .4, pow(l, twist));
   shape = mix(0., shape, mid);
@@ -65,13 +58,9 @@ void main() {
   for (int i = 1; i < ${swirlMeta.maxColorCount}; i++) {
       if (i >= int(u_colorsCount)) break;
       
-      float localT = clamp(mixer - float(i - 1), 0., 1.);
-      
+      float localT = clamp(mixer - float(i - 1), 0., 1.);      
       localT = smoothstep(.5 - .5 * u_softness, .5 + .5 * u_softness, localT);
 
-      // localT = smoothstep(0., 1., localT);
-      // localT = 1. / (1. + exp(-1. / (pow(softness, 4.) + 1e-3) * (localT - .5)));
-            
       vec4 c = u_colors[i];
       c.rgb *= c.a;
       gradient = mix(gradient, c, localT);

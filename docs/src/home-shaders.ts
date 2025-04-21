@@ -162,7 +162,6 @@ export const homeShaders = [
     name: 'dithering',
     url: '/dithering',
     ShaderComponent: Dithering,
-    image: spiralImg,
     shaderConfig: { ...ditheringPresets[0].params },
   },
 ] satisfies HomeShaderConfig[];

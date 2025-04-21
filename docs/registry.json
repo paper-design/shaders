@@ -177,9 +177,7 @@
       "type": "registry:component",
       "title": "Swirl Example",
       "description": "Swirl shader example.",
-      "dependencies": [
-        "@paper-design/shaders-react"
-      ],
+      "dependencies": ["@paper-design/shaders-react"],
       "files": [
         {
           "path": "registry/swirl-example.tsx",
@@ -208,7 +206,7 @@
       "dependencies": ["@paper-design/shaders-react"],
       "files": [
         {
-          "path": "registry/grain-gradient.tsx",
+          "path": "registry/grain-gradient-example.tsx",
           "type": "registry:component"
         }
       ]
