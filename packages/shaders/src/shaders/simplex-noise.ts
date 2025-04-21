@@ -1,10 +1,6 @@
 import type { vec4 } from '../types';
 import type { ShaderMotionParams } from '../shader-mount';
-import {
-  sizingVariablesDeclaration,
-  type ShaderSizingParams,
-  type ShaderSizingUniforms,
-} from '../shader-sizing';
+import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing';
 import { declareSimplexNoise, colorBandingFix } from '../shader-utils';
 
 export const simplexNoiseMeta = {
