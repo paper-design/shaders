@@ -173,6 +173,21 @@
       ]
     },
     {
+      "name": "swirl",
+      "type": "registry:component",
+      "title": "Swirl Example",
+      "description": "Swirl shader example.",
+      "dependencies": [
+        "@paper-design/shaders-react"
+      ],
+      "files": [
+        {
+          "path": "registry/swirl-example.tsx",
+          "type": "registry:component"
+        }
+      ]
+    },
+    {
       "name": "dithering",
       "type": "registry:component",
       "title": "Dithering Example",
@@ -181,6 +196,19 @@
       "files": [
         {
           "path": "registry/dithering-example.tsx",
+          "type": "registry:component"
+        }
+      ]
+    },
+    {
+      "name": "grain-gradient",
+      "type": "registry:component",
+      "title": "Grain Gradient Example",
+      "description": "Grain Gradient shader example.",
+      "dependencies": ["@paper-design/shaders-react"],
+      "files": [
+        {
+          "path": "registry/grain-gradient.tsx",
           "type": "registry:component"
         }
       ]

@@ -31,7 +31,7 @@ export { neuroNoiseFragmentShader, type NeuroNoiseParams, type NeuroNoiseUniform
 
 // ----- Animated dot pattern: orbit type of animation ----- //
 /** A shader rendering an animated dot pattern based on Voronoi diagram */
-export { dotOrbitFragmentShader, type DotOrbitParams, type DotOrbitUniforms } from './shaders/dot-orbit';
+export { dotOrbitMeta, dotOrbitFragmentShader, type DotOrbitParams, type DotOrbitUniforms } from './shaders/dot-orbit';
 
 // ----- Dot Grid ----- //
 /** A shader rendering a static dot pattern */
@@ -80,9 +80,13 @@ export { godRaysFragmentShader, type GodRaysParams, type GodRaysUniforms } from 
 /** Single-color spiral shape */
 export { spiralFragmentShader, type SpiralParams, type SpiralUniforms } from './shaders/spiral';
 
+// ----- Swirl gradient ----- //
+/** Multi-color radial swirl  */
+export { swirlMeta, swirlFragmentShader, type SwirlParams, type SwirlUniforms } from './shaders/swirl';
+
 // ----- Dithering ----- //
 /** Dithering effect applied over abstract shapes */
-export { ditheringFragmentShader, type DitheringParams, type DitheringUniforms } from './shaders/dithering';
+export {ditheringFragmentShader, type DitheringParams, type DitheringUniforms} from './shaders/dithering';
 
 // ----- Grainy Gradient ----- //
 /**  */
@@ -93,6 +97,6 @@ export {
   type GrainGradientUniforms,
 } from './shaders/grain-gradient';
 
-// ----- Uniform conversion utils ----- //
+// ----- Utils ----- //
 export { getShaderColorFromString } from './get-shader-color-from-string';
 export { getShaderNoiseTexture } from './get-shader-noise-texture';

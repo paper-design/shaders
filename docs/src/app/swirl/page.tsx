@@ -1,49 +1,44 @@
 'use client';
 
+import { Swirl, type SwirlParams, swirlPresets } from '@paper-design/shaders-react';
+import { useControls, button, folder } from 'leva';
+import { setParamsSafe, useResetLevaParams } from '@/helpers/use-reset-leva-params';
+import { usePresetHighlight } from '@/helpers/use-preset-highlight';
+import Link from 'next/link';
 import { BackButton } from '@/components/back-button';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
-import { usePresetHighlight } from '@/helpers/use-preset-highlight';
-import { setParamsSafe, useResetLevaParams } from '@/helpers/use-reset-leva-params';
-import { dotOrbitMeta, ShaderFit, ShaderFitOptions } from '@paper-design/shaders';
-import { DotOrbit, dotOrbitPresets } from '@paper-design/shaders-react';
-import { useControls, button, folder } from 'leva';
-import Link from 'next/link';
+import { ShaderFit, ShaderFitOptions, simplexNoiseMeta } from '@paper-design/shaders';
 import { useColors } from '@/helpers/use-colors';
 
 /**
- * You can copy/paste this example to use DotOrbit in your app
+ * You can copy/paste this example to use Swirl in your app
  */
-const DotOrbitExample = () => {
-  return <DotOrbit style={{ position: 'fixed', width: '100%', height: '100%' }} />;
+const SwirlExample = () => {
+  return <Swirl style={{ position: 'fixed', width: '100%', height: '100%' }} />;
 };
 
 /**
  * This example has controls added so you can play with settings in the example app
  */
 
-const { worldWidth, worldHeight, ...defaults } = dotOrbitPresets[0].params;
+const { worldWidth, worldHeight, ...defaults } = swirlPresets[0].params;
 
-const DotOrbitWithControls = () => {
+const SwirlWithControls = () => {
   const { colors, setColors } = useColors({
     defaultColors: defaults.colors,
-    maxColorCount: dotOrbitMeta.maxColorCount,
+    maxColorCount: simplexNoiseMeta.maxColorCount,
   });
-  const [params, setParams] = useControls(() => {
-    const presets = Object.fromEntries(
-      dotOrbitPresets.map(({ name, params: { worldWidth, worldHeight, ...preset } }) => [
-        name,
-        button(() => setParamsSafe(params, setParams, preset)),
-      ])
-    );
 
+  const [params, setParams] = useControls(() => {
     return {
       Parameters: folder(
         {
-          stepsPerColor: { value: defaults.dotSize, min: 1, max: 4, step: 1, order: 200 },
-          dotSize: { value: defaults.dotSize, min: 0, max: 1, order: 300 },
-          dotSizeRange: { value: defaults.dotSizeRange, min: 0, max: 1, order: 301 },
-          spreading: { value: defaults.spreading, min: 0, max: 1, order: 302 },
-          speed: { value: defaults.speed, min: 0, max: 6, order: 400 },
+          bandCount: { value: defaults.bandCount, min: 0, max: 15, step: 1, order: 201 },
+          twist: { value: defaults.twist, min: 0, max: 1, order: 202 },
+          softness: { value: defaults.softness, min: 0, max: 1, order: 203 },
+          noiseFreq: { value: defaults.speed, min: 0, max: 15, order: 300 },
+          noisePower: { value: defaults.speed, min: 0, max: 1, order: 301 },
+          speed: { value: defaults.speed, min: 0, max: 2, order: 400 },
         },
         { order: 1 }
       ),
@@ -77,7 +72,7 @@ const DotOrbitWithControls = () => {
 
   useControls(() => {
     const presets = Object.fromEntries(
-      dotOrbitPresets.map(({ name, params: { worldWidth, worldHeight, ...preset } }) => [
+      swirlPresets.map(({ name, params: { worldWidth, worldHeight, ...preset } }) => [
         name,
         button(() => {
           const { colors, ...presetParams } = preset;
@@ -92,9 +87,9 @@ const DotOrbitWithControls = () => {
   });
 
   // Reset to defaults on mount, so that Leva doesn't show values from other
-  // shaders when navigating (if two shaders have a color1 param for example)
+  // shaders when navigating (if two shaders have a colorBack param for example)
   useResetLevaParams(params, setParams, defaults);
-  usePresetHighlight(dotOrbitPresets, params);
+  usePresetHighlight(swirlPresets, params);
   cleanUpLevaParams(params);
 
   return (
@@ -102,9 +97,9 @@ const DotOrbitWithControls = () => {
       <Link href="/">
         <BackButton />
       </Link>
-      <DotOrbit {...params} colors={colors} className="fixed size-full" />
+      <Swirl {...params} colors={colors} className="fixed size-full" />
     </>
   );
 };
 
-export default DotOrbitWithControls;
+export default SwirlWithControls;

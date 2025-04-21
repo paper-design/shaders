@@ -25,13 +25,11 @@ export const defaultPreset: DotOrbitPreset = {
     ...defaultPatternSizing,
     speed: 2,
     frame: 0,
-    color1: 'hsla(358, 66%, 49%, 1)',
-    color2: 'hsla(145, 30%, 33%, 1)',
-    color3: 'hsla(39, 88%, 52%, 1)',
-    color4: 'hsla(274, 30%, 35%, 1)',
-    dotSize: 0.7,
-    dotSizeRange: 0.4,
+    colors: ['hsla(200, 100%, 20%, 1)', 'hsla(290, 100%, 70%, 1)'],
+    dotSize: 1,
+    dotSizeRange: 0,
     spreading: 1,
+    stepsPerColor: 1,
   },
 };
 
@@ -41,13 +39,11 @@ export const DotOrbit: React.FC<DotOrbitProps> = memo(function DotOrbitImpl({
   // Own props
   speed = defaultPreset.params.speed,
   frame = defaultPreset.params.frame,
-  color1 = defaultPreset.params.color1,
-  color2 = defaultPreset.params.color2,
-  color3 = defaultPreset.params.color3,
-  color4 = defaultPreset.params.color4,
+  colors = defaultPreset.params.colors,
   dotSize = defaultPreset.params.dotSize,
   dotSizeRange = defaultPreset.params.dotSizeRange,
   spreading = defaultPreset.params.spreading,
+  stepsPerColor = defaultPreset.params.stepsPerColor,
 
   // Sizing props
   fit = defaultPreset.params.fit,
@@ -63,13 +59,12 @@ export const DotOrbit: React.FC<DotOrbitProps> = memo(function DotOrbitImpl({
 }: DotOrbitProps) {
   const uniforms = {
     // Own uniforms
-    u_color1: getShaderColorFromString(color1),
-    u_color2: getShaderColorFromString(color2),
-    u_color3: getShaderColorFromString(color3),
-    u_color4: getShaderColorFromString(color4),
+    u_colors: colors.map(getShaderColorFromString),
+    u_colorsCount: colors.length,
     u_dotSize: dotSize,
     u_dotSizeRange: dotSizeRange,
     u_spreading: spreading,
+    u_stepsPerColor: stepsPerColor,
 
     // Sizing uniforms
     u_fit: ShaderFitOptions[fit],
