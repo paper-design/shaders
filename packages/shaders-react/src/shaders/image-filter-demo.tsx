@@ -1,0 +1,79 @@
+import { memo } from 'react';
+import { ShaderMount, type ShaderComponentProps } from '../shader-mount';
+import {
+  getShaderColorFromString,
+  imageFilterDemoFragmentShader,
+  ShaderFitOptions,
+  type ImageFilterDemoUniforms,
+  type ImageFilterDemoParams,
+  type ShaderPreset,
+  defaultObjectSizing,
+} from '@paper-design/shaders';
+
+export interface ImageFilterDemoProps extends ShaderComponentProps, ImageFilterDemoParams {}
+
+type ImageFilterDemoPreset = ShaderPreset<ImageFilterDemoParams>;
+
+// Due to Leva controls limitation:
+// 1) keep default colors in HSLA format to keep alpha channel
+// 2) don't use decimal values on HSL values (to avoid button highlight bug)
+
+export const defaultPreset: ImageFilterDemoPreset = {
+  name: 'Default',
+  params: {
+    ...defaultObjectSizing,
+    speed: 1,
+    frame: 0,
+    pxSize: 2,
+    image: null,
+  },
+};
+
+export const imageFilterDemoPresets: ImageFilterDemoPreset[] = [defaultPreset];
+
+export const ImageFilterDemo: React.FC<ImageFilterDemoProps> = memo(function ImageFilterDemoImpl({
+  // Own props
+  speed = defaultPreset.params.speed,
+  frame = defaultPreset.params.frame,
+  pxSize = defaultPreset.params.pxSize,
+  image = defaultPreset.params.image,
+
+  // Sizing props
+  fit = defaultPreset.params.fit,
+  scale = defaultPreset.params.scale,
+  rotation = defaultPreset.params.rotation,
+  originX = defaultPreset.params.originX,
+  originY = defaultPreset.params.originY,
+  offsetX = defaultPreset.params.offsetX,
+  offsetY = defaultPreset.params.offsetY,
+  worldWidth = defaultPreset.params.worldWidth,
+  worldHeight = defaultPreset.params.worldHeight,
+  ...props
+}) {
+  const uniforms = {
+    // Own uniforms
+    u_pxSize: pxSize,
+    u_image: image,
+
+    // Sizing uniforms
+    u_fit: ShaderFitOptions[fit],
+    u_scale: scale,
+    u_rotation: rotation,
+    u_offsetX: offsetX,
+    u_offsetY: offsetY,
+    u_originX: originX,
+    u_originY: originY,
+    u_worldWidth: worldWidth,
+    u_worldHeight: worldHeight,
+  } satisfies ImageFilterDemoUniforms;
+
+  return (
+    <ShaderMount
+      {...props}
+      speed={speed}
+      frame={frame}
+      fragmentShader={imageFilterDemoFragmentShader}
+      uniforms={uniforms}
+    />
+  );
+});

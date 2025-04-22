@@ -100,3 +100,11 @@ export {
 // ----- Utils ----- //
 export { getShaderColorFromString } from './get-shader-color-from-string';
 export { getShaderNoiseTexture } from './get-shader-noise-texture';
+
+// ----- Image Demo: temporary ----- //
+/** ImageFilterDemo effect applied over abstract shapes */
+export {
+  imageFilterDemoFragmentShader,
+  type ImageFilterDemoParams,
+  type ImageFilterDemoUniforms,
+} from './shaders/image-filter-demo';
