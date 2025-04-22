@@ -113,6 +113,7 @@ void main() {
 
 export interface MetaballsUniforms extends ShaderSizingUniforms {
   u_colors: vec4[];
+  u_colorsCount: number;
   u_ballsNumber: number;
   u_ballSize: number;
 }
