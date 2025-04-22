@@ -1,10 +1,5 @@
 import type { ShaderMotionParams } from '../shader-mount';
-import {
-  sizingUniformsDeclaration,
-  sizingSquareUV,
-  type ShaderSizingParams,
-  type ShaderSizingUniforms,
-} from '../shader-sizing';
+import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing';
 import { declarePI, declareRandom, declareRotate, colorBandingFix } from '../shader-utils';
 
 /**
@@ -29,10 +24,6 @@ export const godRaysFragmentShader: string = `#version 300 es
 precision highp float;
 
 uniform float u_time;
-uniform float u_pixelRatio;
-uniform vec2 u_resolution;
-
-${sizingUniformsDeclaration}
 
 uniform vec4 u_colorBack;
 uniform vec4 u_color1;
@@ -45,6 +36,8 @@ uniform float u_midSize;
 uniform float u_midIntensity;
 uniform float u_density;
 uniform float u_blending;
+
+${sizingVariablesDeclaration}
 
 out vec4 fragColor;
 
@@ -81,23 +74,24 @@ float get_noise_shape(vec2 uv, float r, float freq, float density, float time) {
 }
 
 void main() {
-  ${sizingSquareUV}
-  uv -= .5;
+
+  vec2 shape_uv = v_objectUV;
+  shape_uv -= .5;
 
   float t = .2 * u_time;
 
-  float radius = length(uv);
+  float radius = length(shape_uv);
   float spots = 4. * abs(u_spotty);
   float density = 4. - 3. * clamp(u_density, 0., 1.);
 
-  float rays1 = get_noise_shape(uv, radius * spots, 5. * u_frequency, density, t);
-  rays1 *= get_noise_shape(uv, .5 + .75 * radius * spots, 4. * u_frequency, density, -.5 * t);
+  float rays1 = get_noise_shape(shape_uv, radius * spots, 5. * u_frequency, density, t);
+  rays1 *= get_noise_shape(shape_uv, .5 + .75 * radius * spots, 4. * u_frequency, density, -.5 * t);
 
-  float rays2 = get_noise_shape(uv, 1.5 * radius, 12. * u_frequency, density, t);
-  rays2 *= get_noise_shape(uv, -.5 + 1.1 * radius * spots, 7. * u_frequency, density, .75 * t);
+  float rays2 = get_noise_shape(shape_uv, 1.5 * radius, 12. * u_frequency, density, t);
+  rays2 *= get_noise_shape(shape_uv, -.5 + 1.1 * radius * spots, 7. * u_frequency, density, .75 * t);
 
-  float rays3 = get_noise_shape(uv, 2. * radius * spots, 10. * u_frequency, density, t);
-  rays3 *= get_noise_shape(uv, 1.1 * radius, 12. * u_frequency, density, .2 * t);
+  float rays3 = get_noise_shape(shape_uv, 2. * radius * spots, 10. * u_frequency, density, t);
+  rays3 *= get_noise_shape(shape_uv, 1.1 * radius, 12. * u_frequency, density, .2 * t);
 
   float mid_shape = smoothstep(1. * abs(u_midSize), .05 * abs(u_midSize), radius);
   rays3 = mix(rays3, 1., (.5 + .5 * rays1) * u_midIntensity * pow(mid_shape, 7.));

@@ -1,10 +1,5 @@
 import type { ShaderMotionParams } from '../shader-mount';
-import {
-  sizingUniformsDeclaration,
-  sizingPatternUV,
-  type ShaderSizingParams,
-  type ShaderSizingUniforms,
-} from '../shader-sizing';
+import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing';
 import { declarePI, declareRandom, declareRotate, colorBandingFix } from '../shader-utils';
 
 /**
@@ -30,10 +25,8 @@ export const warpFragmentShader: string = `#version 300 es
 precision highp float;
 
 uniform float u_time;
+uniform float u_scale;
 uniform vec2 u_resolution;
-uniform float u_pixelRatio;
-
-${sizingUniformsDeclaration}
 
 uniform vec4 u_color1;
 uniform vec4 u_color2;
@@ -45,6 +38,8 @@ uniform float u_shapeScale;
 uniform float u_distortion;
 uniform float u_swirl;
 uniform float u_swirlIterations;
+
+${sizingVariablesDeclaration}
 
 out vec4 fragColor;
 
@@ -88,24 +83,23 @@ vec4 blend_colors(vec4 c1, vec4 c2, vec4 c3, float mixer, float edgesWidth, floa
 }
 
 void main() {
-
-  ${sizingPatternUV}
-  uv *= .005;
+  vec2 shape_uv = v_patternUV;
+  shape_uv *= .005;
 
   float t = .5 * u_time;
 
   float noise_scale = .0005 + .006 * u_scale;
 
-  float n1 = noise(uv * 1. + t);
-  float n2 = noise(uv * 2. - t);
+  float n1 = noise(shape_uv * 1. + t);
+  float n2 = noise(shape_uv * 2. - t);
   float angle = n1 * TWO_PI;
-  uv.x += 4. * u_distortion * n2 * cos(angle);
-  uv.y += 4. * u_distortion * n2 * sin(angle);
+  shape_uv.x += 4. * u_distortion * n2 * cos(angle);
+  shape_uv.y += 4. * u_distortion * n2 * sin(angle);
 
   float iterations_number = ceil(clamp(u_swirlIterations, 1., 30.));
   for (float i = 1.; i <= iterations_number; i++) {
-    uv.x += clamp(u_swirl, 0., 2.) / i * cos(t + i * 1.5 * uv.y);
-    uv.y += clamp(u_swirl, 0., 2.) / i * cos(t + i * 1. * uv.x);
+    shape_uv.x += clamp(u_swirl, 0., 2.) / i * cos(t + i * 1.5 * shape_uv.y);
+    shape_uv.y += clamp(u_swirl, 0., 2.) / i * cos(t + i * 1. * shape_uv.x);
   }
 
   float proportion = clamp(u_proportion, 0., 1.);
@@ -113,16 +107,16 @@ void main() {
   float shape = 0.;
   float mixer = 0.;
   if (u_shape < .5) {
-    vec2 checks_shape_uv = uv * (.5 + 3.5 * u_shapeScale);
+    vec2 checks_shape_uv = shape_uv * (.5 + 3.5 * u_shapeScale);
     shape = .5 + .5 * sin(checks_shape_uv.x) * cos(checks_shape_uv.y);
     mixer = shape + .48 * sign(proportion - .5) * pow(abs(proportion - .5), .5);
   } else if (u_shape < 1.5) {
-    vec2 stripes_shape_uv = uv * (.25 + 3. * u_shapeScale);
+    vec2 stripes_shape_uv = shape_uv * (.25 + 3. * u_shapeScale);
     float f = fract(stripes_shape_uv.y);
     shape = smoothstep(.0, .55, f) * smoothstep(1., .45, f);
     mixer = shape + .48 * sign(proportion - .5) * pow(abs(proportion - .5), .5);
   } else {
-    float sh = 1. - uv.y;
+    float sh = 1. - shape_uv.y;
     sh -= .5;
     sh /= (noise_scale * u_resolution.y);
     sh += .5;

@@ -37,6 +37,8 @@ import {
   godRaysPresets,
   Spiral,
   spiralPresets,
+  Swirl,
+  swirlPresets,
   Dithering,
   ditheringPresets,
 } from '@paper-design/shaders-react';
@@ -151,10 +153,15 @@ export const homeShaders = [
     shaderConfig: { ...spiralPresets[1].params, scale: 0.5 },
   },
   {
+    name: 'swirl',
+    url: '/swirl',
+    ShaderComponent: Swirl,
+    shaderConfig: { ...swirlPresets[0].params, scale: 1 },
+  },
+  {
     name: 'dithering',
     url: '/dithering',
     ShaderComponent: Dithering,
-    image: spiralImg,
     shaderConfig: { ...ditheringPresets[0].params },
   },
 ] satisfies HomeShaderConfig[];

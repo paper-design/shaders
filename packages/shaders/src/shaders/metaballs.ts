@@ -1,10 +1,5 @@
 import type { ShaderMotionParams } from '../shader-mount';
-import {
-  sizingUniformsDeclaration,
-  sizingSquareUV,
-  type ShaderSizingParams,
-  type ShaderSizingUniforms,
-} from '../shader-sizing';
+import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing';
 import { declarePI, colorBandingFix } from '../shader-utils';
 
 /**
@@ -22,16 +17,14 @@ export const metaballsFragmentShader: string = `#version 300 es
 precision highp float;
 
 uniform float u_time;
-uniform float u_pixelRatio;
-uniform vec2 u_resolution;
-
-${sizingUniformsDeclaration}
 
 uniform vec4 u_color1;
 uniform vec4 u_color2;
 uniform vec4 u_color3;
 uniform float u_ballSize;
 uniform float u_visibilityRange;
+
+${sizingVariablesDeclaration}
 
 out vec4 fragColor;
 
@@ -58,9 +51,9 @@ float get_ball_shape(vec2 uv, vec2 c, float p) {
 }
 
 void main() {
-  ${sizingSquareUV}
+  vec2 shape_uv = v_objectUV;
 
-  uv += .5;
+  shape_uv += .5;
 
   float t = u_time + 1.;
 
@@ -88,7 +81,7 @@ void main() {
       ball_color = u_color3;
     }
 
-    float shape = get_ball_shape(uv, pos, 100. - 70. * u_ballSize) * ball_color.a;
+    float shape = get_ball_shape(shape_uv, pos, 100. - 70. * u_ballSize) * ball_color.a;
 
     shape *= smoothstep((float(i) - 1.) / float(max_balls_number), idx_fract, u_visibilityRange);
 

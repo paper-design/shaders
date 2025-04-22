@@ -1,46 +1,43 @@
 'use client';
 
-import { Dithering, type DitheringParams, ditheringPresets } from '@paper-design/shaders-react';
-
+import { Swirl, type SwirlParams, swirlPresets } from '@paper-design/shaders-react';
 import { useControls, button, folder } from 'leva';
 import { setParamsSafe, useResetLevaParams } from '@/helpers/use-reset-leva-params';
 import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import Link from 'next/link';
 import { BackButton } from '@/components/back-button';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
-import { ShaderFitOptions } from '@paper-design/shaders';
-import { ShaderFit } from '@paper-design/shaders';
+import { ShaderFit, ShaderFitOptions, simplexNoiseMeta } from '@paper-design/shaders';
+import { useColors } from '@/helpers/use-colors';
 
 /**
- * You can copy/paste this example to use Dithering in your app
+ * You can copy/paste this example to use Swirl in your app
  */
-const DitheringExample = () => {
-  return <Dithering color1="#56758f" color2="#91be6f" style={{ position: 'fixed', width: '100%', height: '100%' }} />;
+const SwirlExample = () => {
+  return <Swirl style={{ position: 'fixed', width: '100%', height: '100%' }} />;
 };
 
 /**
  * This example has controls added so you can play with settings in the example app
  */
 
-const { worldWidth, worldHeight, ...defaults } = ditheringPresets[0].params;
+const { worldWidth, worldHeight, ...defaults } = swirlPresets[0].params;
 
-const DitheringWithControls = () => {
+const SwirlWithControls = () => {
+  const { colors, setColors } = useColors({
+    defaultColors: defaults.colors,
+    maxColorCount: simplexNoiseMeta.maxColorCount,
+  });
+
   const [params, setParams] = useControls(() => {
-    const presets = Object.fromEntries(
-      ditheringPresets.map(({ name, params: { worldWidth, worldHeight, ...preset } }) => [
-        name,
-        button(() => setParamsSafe(params, setParams, preset)),
-      ])
-    );
     return {
       Parameters: folder(
         {
-          color1: { value: defaults.color1, order: 100 },
-          color2: { value: defaults.color2, order: 101 },
-          shape: { value: defaults.shape, min: 1, max: 7, step: 1, order: 200 },
-          type: { value: defaults.type, min: 1, max: 4, step: 1, order: 250 },
-          pxRounded: { value: defaults.pxRounded, order: 251 },
-          pxSize: { value: defaults.pxSize, min: 1, max: 20, order: 252 },
+          bandCount: { value: defaults.bandCount, min: 0, max: 15, step: 1, order: 201 },
+          twist: { value: defaults.twist, min: 0, max: 1, order: 202 },
+          softness: { value: defaults.softness, min: 0, max: 1, order: 203 },
+          noiseFreq: { value: defaults.speed, min: 0, max: 15, order: 300 },
+          noisePower: { value: defaults.speed, min: 0, max: 1, order: 301 },
           speed: { value: defaults.speed, min: 0, max: 2, order: 400 },
         },
         { order: 1 }
@@ -70,14 +67,29 @@ const DitheringWithControls = () => {
           collapsed: true,
         }
       ),
+    };
+  }, [colors.length]);
+
+  useControls(() => {
+    const presets = Object.fromEntries(
+      swirlPresets.map(({ name, params: { worldWidth, worldHeight, ...preset } }) => [
+        name,
+        button(() => {
+          const { colors, ...presetParams } = preset;
+          setColors(colors);
+          setParamsSafe(params, setParams, presetParams);
+        }),
+      ])
+    );
+    return {
       Presets: folder(presets, { order: 10 }),
     };
   });
 
   // Reset to defaults on mount, so that Leva doesn't show values from other
-  // shaders when navigating (if two shaders have a color1 param for example)
+  // shaders when navigating (if two shaders have a colorBack param for example)
   useResetLevaParams(params, setParams, defaults);
-  usePresetHighlight(ditheringPresets, params);
+  usePresetHighlight(swirlPresets, params);
   cleanUpLevaParams(params);
 
   return (
@@ -85,9 +97,9 @@ const DitheringWithControls = () => {
       <Link href="/">
         <BackButton />
       </Link>
-      <Dithering className="fixed size-full" {...params} />
+      <Swirl {...params} colors={colors} className="fixed size-full" />
     </>
   );
 };
 
-export default DitheringWithControls;
+export default SwirlWithControls;

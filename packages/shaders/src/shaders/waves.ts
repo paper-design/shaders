@@ -1,9 +1,4 @@
-import {
-  sizingUniformsDeclaration,
-  sizingPatternUV,
-  type ShaderSizingParams,
-  type ShaderSizingUniforms,
-} from '../shader-sizing';
+import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing';
 import { declarePI, declareRotate } from '../shader-utils';
 
 /**
@@ -27,10 +22,7 @@ import { declarePI, declareRotate } from '../shader-utils';
 export const wavesFragmentShader: string = `#version 300 es
 precision highp float;
 
-uniform vec2 u_resolution;
-uniform float u_pixelRatio;
-
-${sizingUniformsDeclaration}
+uniform float u_scale;
 
 uniform vec4 u_color1;
 uniform vec4 u_color2;
@@ -41,20 +33,21 @@ uniform float u_spacing;
 uniform float u_dutyCycle;
 uniform float u_softness;
 
+${sizingVariablesDeclaration}
+
 out vec4 fragColor;
 
 ${declarePI}
 ${declareRotate}
 
 void main() {
+  vec2 shape_uv = v_patternUV;
+  shape_uv *= .05;
 
-  ${sizingPatternUV}
-  uv *= .05;
-
-  float wave = .5 * cos(uv.x * u_frequency * TWO_PI);
-  float zigzag = 2. * abs(fract(uv.x * u_frequency) - .5);
-  float irregular = sin(uv.x * .25 * u_frequency * TWO_PI) * cos(uv.x * u_frequency * TWO_PI);
-  float irregular2 = .75 * (sin(uv.x * u_frequency * TWO_PI) + .5 * cos(uv.x * .5 * u_frequency * TWO_PI));
+  float wave = .5 * cos(shape_uv.x * u_frequency * TWO_PI);
+  float zigzag = 2. * abs(fract(shape_uv.x * u_frequency) - .5);
+  float irregular = sin(shape_uv.x * .25 * u_frequency * TWO_PI) * cos(shape_uv.x * u_frequency * TWO_PI);
+  float irregular2 = .75 * (sin(shape_uv.x * u_frequency * TWO_PI) + .5 * cos(shape_uv.x * .5 * u_frequency * TWO_PI));
 
   float offset = mix(zigzag, wave, smoothstep(0., 1., u_shape));
   offset = mix(offset, irregular, smoothstep(1., 2., u_shape));
@@ -62,7 +55,7 @@ void main() {
   offset *= 2. * u_amplitude;
 
   float spacing = .02 + .98 * u_spacing;
-  float shape = .5 + .5 * sin((uv.y + offset) * PI / spacing);
+  float shape = .5 + .5 * sin((shape_uv.y + offset) * PI / spacing);
 
   float edge_width = .02 / (1. + abs(shape)) * (.001 + u_scale);
   edge_width += .5 * max(0., u_softness);

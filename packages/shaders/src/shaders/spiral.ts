@@ -1,10 +1,5 @@
 import type { ShaderMotionParams } from '../shader-mount';
-import {
-  sizingUniformsDeclaration,
-  sizingPatternUV,
-  type ShaderSizingParams,
-  type ShaderSizingUniforms,
-} from '../shader-sizing';
+import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing';
 import { declareSimplexNoise, declarePI, colorBandingFix } from '../shader-utils';
 
 /**
@@ -31,10 +26,6 @@ export const spiralFragmentShader: string = `#version 300 es
 precision highp float;
 
 uniform float u_time;
-uniform vec2 u_resolution;
-uniform float u_pixelRatio;
-
-${sizingUniformsDeclaration}
 
 uniform vec4 u_color1;
 uniform vec4 u_color2;
@@ -48,8 +39,7 @@ uniform float u_noiseFreq;
 uniform float u_noisePower;
 uniform float u_softness;
 
-#define TWO_PI 6.28318530718
-#define PI 3.14159265358979323846
+${sizingVariablesDeclaration}
 
 out vec4 fragColor;
 
@@ -57,24 +47,22 @@ ${declarePI}
 ${declareSimplexNoise}
 
 void main() {
-  ${sizingPatternUV}
-  
-  uv *= .02;
+  vec2 shape_uv = v_patternUV * .02;
 
-  float t = 0. * u_time;
+  float t = u_time;
 
-  float l = length(uv);
-  float angle = atan(uv.y, uv.x) - 2. * t;
+  float l = length(shape_uv);
+  float angle = atan(shape_uv.y, shape_uv.x) - 2. * t;
   float angle_norm = angle / TWO_PI;
 
-  angle_norm += .125 * u_noisePower * snoise(.5 * u_noiseFreq * uv);
+  angle_norm += .125 * u_noisePower * snoise(.5 * u_noiseFreq * shape_uv);
 
   float offset = pow(l, 1. - clamp(u_spiralDensity, 0., 1.)) + angle_norm;
 
   float stripe_map = fract(offset);
   stripe_map -= .5 * u_strokeTaper * l;
 
-  stripe_map += .25 * u_noisePower * snoise(u_noiseFreq * uv);
+  stripe_map += .25 * u_noisePower * snoise(u_noiseFreq * shape_uv);
 
   float shape = 2. * abs(stripe_map - .5);
 

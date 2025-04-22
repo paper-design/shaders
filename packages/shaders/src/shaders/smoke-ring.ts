@@ -1,10 +1,5 @@
 import type { ShaderMotionParams } from '../shader-mount';
-import {
-  sizingUniformsDeclaration,
-  sizingSquareUV,
-  type ShaderSizingParams,
-  type ShaderSizingUniforms,
-} from '../shader-sizing';
+import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing';
 import { declarePI, declareRandom, colorBandingFix } from '../shader-utils';
 
 /**
@@ -27,10 +22,6 @@ export const smokeRingFragmentShader: string = `#version 300 es
 precision highp float;
 
 uniform float u_time;
-uniform float u_pixelRatio;
-uniform vec2 u_resolution;
-
-${sizingUniformsDeclaration}
 
 uniform vec4 u_colorBack;
 uniform vec4 u_colorInner;
@@ -40,6 +31,8 @@ uniform float u_thickness;
 uniform float u_radius;
 uniform float u_innerShape;
 uniform float u_noiseIterations;
+
+${sizingVariablesDeclaration}
 
 out vec4 fragColor;
 
@@ -94,7 +87,8 @@ float getRingShape(vec2 uv) {
 }
 
 void main() {
-  ${sizingSquareUV}
+  vec2 shape_uv = v_objectUV;
+  vec2 uv = shape_uv;
 
   float t = .1 * u_time;
   

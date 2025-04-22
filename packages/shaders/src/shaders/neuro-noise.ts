@@ -1,10 +1,5 @@
 import type { ShaderMotionParams } from '../shader-mount';
-import {
-  sizingUniformsDeclaration,
-  sizingPatternUV,
-  type ShaderSizingParams,
-  type ShaderSizingUniforms,
-} from '../shader-sizing';
+import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing';
 import { declareRotate, colorBandingFix } from '../shader-utils';
 
 /**
@@ -24,11 +19,11 @@ uniform float u_time;
 uniform vec2 u_resolution;
 uniform float u_pixelRatio;
 
-${sizingUniformsDeclaration}
-
 uniform vec4 u_colorFront;
 uniform vec4 u_colorBack;
 uniform float u_brightness;
+
+${sizingVariablesDeclaration}
 
 out vec4 fragColor;
 
@@ -51,13 +46,13 @@ float neuro_shape(vec2 uv, float t) {
 }
 
 void main() {
+  vec2 shape_uv = v_patternUV;
 
-  ${sizingPatternUV}
-  uv *= .002;
+  shape_uv *= .002;
 
   float t = .5 * u_time;
 
-  float noise = neuro_shape(uv, t);
+  float noise = neuro_shape(shape_uv, t);
 
   noise = u_brightness * pow(noise, 3.);
   noise += pow(noise, 12.);

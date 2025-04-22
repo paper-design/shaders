@@ -1,46 +1,43 @@
 'use client';
 
-import { Dithering, type DitheringParams, ditheringPresets } from '@paper-design/shaders-react';
-
+import { GrainGradient, grainGradientPresets } from '@paper-design/shaders-react';
 import { useControls, button, folder } from 'leva';
 import { setParamsSafe, useResetLevaParams } from '@/helpers/use-reset-leva-params';
 import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import Link from 'next/link';
 import { BackButton } from '@/components/back-button';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
-import { ShaderFitOptions } from '@paper-design/shaders';
+import { grainGradientMeta, ShaderFitOptions } from '@paper-design/shaders';
 import { ShaderFit } from '@paper-design/shaders';
+import { useColors } from '@/helpers/use-colors';
 
 /**
- * You can copy/paste this example to use Dithering in your app
+ * You can copy/paste this example to use GrainGradient in your app
  */
-const DitheringExample = () => {
-  return <Dithering color1="#56758f" color2="#91be6f" style={{ position: 'fixed', width: '100%', height: '100%' }} />;
+const GrainGradientExample = () => {
+  return <GrainGradient style={{ position: 'fixed', width: '100%', height: '100%' }} />;
 };
 
 /**
  * This example has controls added so you can play with settings in the example app
  */
 
-const { worldWidth, worldHeight, ...defaults } = ditheringPresets[0].params;
+const { worldWidth, worldHeight, ...defaults } = grainGradientPresets[0].params;
 
-const DitheringWithControls = () => {
+const GrainGradientWithControls = () => {
+  const { colors, setColors } = useColors({
+    defaultColors: defaults.colors,
+    maxColorCount: grainGradientMeta.maxColorCount,
+  });
+
   const [params, setParams] = useControls(() => {
-    const presets = Object.fromEntries(
-      ditheringPresets.map(({ name, params: { worldWidth, worldHeight, ...preset } }) => [
-        name,
-        button(() => setParamsSafe(params, setParams, preset)),
-      ])
-    );
     return {
       Parameters: folder(
         {
-          color1: { value: defaults.color1, order: 100 },
-          color2: { value: defaults.color2, order: 101 },
-          shape: { value: defaults.shape, min: 1, max: 7, step: 1, order: 200 },
-          type: { value: defaults.type, min: 1, max: 4, step: 1, order: 250 },
-          pxRounded: { value: defaults.pxRounded, order: 251 },
-          pxSize: { value: defaults.pxSize, min: 1, max: 20, order: 252 },
+          softness: { value: defaults.softness, min: 0, max: 1, order: 200 },
+          intensity: { value: defaults.intensity, min: 0, max: 1, order: 201 },
+          noise: { value: defaults.noise, min: 0, max: 1, order: 202 },
+          shape: { value: defaults.shape, min: 1, max: 7, step: 1, order: 300 },
           speed: { value: defaults.speed, min: 0, max: 2, order: 400 },
         },
         { order: 1 }
@@ -54,7 +51,7 @@ const DitheringWithControls = () => {
         },
         {
           order: 2,
-          collapsed: false,
+          collapsed: true,
         }
       ),
       Fit: folder(
@@ -70,6 +67,21 @@ const DitheringWithControls = () => {
           collapsed: true,
         }
       ),
+    };
+  }, [colors.length]);
+
+  useControls(() => {
+    const presets = Object.fromEntries(
+      grainGradientPresets.map(({ name, params: { worldWidth, worldHeight, ...preset } }) => [
+        name,
+        button(() => {
+          const { colors, ...presetParams } = preset;
+          setColors(colors);
+          setParamsSafe(params, setParams, presetParams);
+        }),
+      ])
+    );
+    return {
       Presets: folder(presets, { order: 10 }),
     };
   });
@@ -77,7 +89,7 @@ const DitheringWithControls = () => {
   // Reset to defaults on mount, so that Leva doesn't show values from other
   // shaders when navigating (if two shaders have a color1 param for example)
   useResetLevaParams(params, setParams, defaults);
-  usePresetHighlight(ditheringPresets, params);
+  usePresetHighlight(grainGradientPresets, params);
   cleanUpLevaParams(params);
 
   return (
@@ -85,9 +97,9 @@ const DitheringWithControls = () => {
       <Link href="/">
         <BackButton />
       </Link>
-      <Dithering className="fixed size-full" {...params} />
+      <GrainGradient {...params} colors={colors} className="fixed size-full" />
     </>
   );
 };
 
-export default DitheringWithControls;
+export default GrainGradientWithControls;
