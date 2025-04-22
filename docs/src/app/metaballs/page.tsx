@@ -7,9 +7,8 @@ import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import Link from 'next/link';
 import { BackButton } from '@/components/back-button';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
-import { ShaderFit, ShaderFitOptions, simplexNoiseMeta } from '@paper-design/shaders';
+import { ShaderFit, ShaderFitOptions, metaballsMeta } from '@paper-design/shaders';
 import { useColors } from '@/helpers/use-colors';
-import { metaballsMeta } from '@paper-design/shaders/shaders/metaballs';
 
 /**
  * You can copy/paste this example to use Metaballs in your app
