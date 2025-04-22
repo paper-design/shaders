@@ -23,7 +23,12 @@ export {
 
 // ----- Smoke ring ----- //
 /** Fractional Brownian motion (fBm) noise over the polar coordinates, masked with ring shape */
-export { smokeRingFragmentShader, type SmokeRingParams, type SmokeRingUniforms } from './shaders/smoke-ring';
+export {
+  smokeRingMeta,
+  smokeRingFragmentShader,
+  type SmokeRingParams,
+  type SmokeRingUniforms,
+} from './shaders/smoke-ring';
 
 // ----- Neuro noise ----- //
 /** A shader rendering a fractal-like structure made of several layers of since-arches */
