@@ -23,8 +23,8 @@ precision highp float;
 
 uniform float u_time;
 
-uniform vec4 uColors[${metaballsMeta.maxColorCount}];
-uniform float uColorsCount;
+uniform vec4 u_colors[${metaballsMeta.maxColorCount}];
+uniform float u_colorsCount;
 uniform float u_ballSize;
 uniform float u_ballSizeRange;
 uniform float u_ballsNumber;
@@ -75,8 +75,8 @@ void main() {
   
     vec2 pos = vec2(.5) + 1e-4 + .9 * (vec2(noiseX, noiseY) - .5);
   
-    int safeIndex = i % int(uColorsCount + 0.5);
-    vec4 ballColor = uColors[safeIndex];
+    int safeIndex = i % int(u_colorsCount + 0.5);
+    vec4 ballColor = u_colors[safeIndex];
     ballColor.rgb *= ballColor.a;
 
     float sizeFrac = 1.;
@@ -112,7 +112,7 @@ void main() {
 `;
 
 export interface MetaballsUniforms extends ShaderSizingUniforms {
-  uColors: vec4[];
+  u_colors: vec4[];
   u_ballsNumber: number;
   u_ballSize: number;
 }
