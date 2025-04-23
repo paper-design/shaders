@@ -7,30 +7,14 @@ import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import Link from 'next/link';
 import { BackButton } from '@/components/back-button';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
-import { ShaderFit, ShaderFitOptions, WarpPatterns } from '@paper-design/shaders';
+import { warpMeta, ShaderFit, ShaderFitOptions, WarpPatterns, simplexNoiseMeta } from '@paper-design/shaders';
+import { useColors } from '@/helpers/use-colors';
 
 /**
  * You can copy/paste this example to use Warp in your app
  */
 const WarpExample = () => {
-  return (
-    <Warp
-      color1="#262626"
-      color2="#75c1f0"
-      color3="#ffffff"
-      scale={1}
-      rotation={0}
-      proportion={0.5}
-      softness={1}
-      distortion={0.25}
-      swirl={0.9}
-      swirlIterations={10}
-      shape="checks"
-      shapeScale={0.5}
-      speed={0.3}
-      style={{ position: 'fixed', width: '100%', height: '100%' }}
-    />
-  );
+  return <Warp style={{ position: 'fixed', width: '100%', height: '100%' }} />;
 };
 
 /**
@@ -40,20 +24,15 @@ const WarpExample = () => {
 const { worldWidth, worldHeight, ...defaults } = warpPresets[0].params;
 
 const WarpWithControls = () => {
-  const [params, setParams] = useControls(() => {
-    const presets = Object.fromEntries(
-      warpPresets.map(({ name, params: { worldWidth, worldHeight, ...preset } }) => [
-        name,
-        button(() => setParamsSafe(params, setParams, preset)),
-      ])
-    );
+  const { colors, setColors } = useColors({
+    defaultColors: defaults.colors,
+    maxColorCount: warpMeta.maxColorCount,
+  });
 
+  const [params, setParams] = useControls(() => {
     return {
       Parameters: folder(
         {
-          color1: { value: defaults.color1, order: 100 },
-          color2: { value: defaults.color2, order: 101 },
-          color3: { value: defaults.color3, order: 102 },
           proportion: { value: defaults.proportion, min: 0, max: 1, order: 300 },
           softness: { value: defaults.softness, min: 0, max: 1, order: 301 },
           distortion: { value: defaults.distortion, min: 0, max: 1, order: 302 },
@@ -90,6 +69,21 @@ const WarpWithControls = () => {
           collapsed: true,
         }
       ),
+    };
+  }, [colors.length]);
+
+  useControls(() => {
+    const presets = Object.fromEntries(
+      warpPresets.map(({ name, params: { worldWidth, worldHeight, ...preset } }) => [
+        name,
+        button(() => {
+          const { colors, ...presetParams } = preset;
+          setColors(colors);
+          setParamsSafe(params, setParams, presetParams);
+        }),
+      ])
+    );
+    return {
       Presets: folder(presets, { order: 10 }),
     };
   });
@@ -105,7 +99,7 @@ const WarpWithControls = () => {
       <Link href="/">
         <BackButton />
       </Link>
-      <Warp className="fixed size-full" {...params} />
+      <Warp {...params} colors={colors} className="fixed size-full" />
     </>
   );
 };

@@ -80,7 +80,14 @@ export { wavesFragmentShader, type WavesParams, type WavesUniforms } from './sha
 
 // ----- Warping Distortion ----- //
 /** Warp: distortion + swirl + underlying shapes */
-export { warpFragmentShader, WarpPatterns, type WarpParams, type WarpUniforms, type WarpPattern } from './shaders/warp';
+export {
+  warpMeta,
+  warpFragmentShader,
+  WarpPatterns,
+  type WarpParams,
+  type WarpUniforms,
+  type WarpPattern,
+} from './shaders/warp';
 
 // ----- God Rays Effect ----- //
 /** Radial shape made of randomized stripes */

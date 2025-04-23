@@ -1,24 +1,28 @@
+import type { vec4 } from '../types';
 import type { ShaderMotionParams } from '../shader-mount';
 import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing';
 import { declarePI, declareRandom, declareRotate, colorBandingFix } from '../shader-utils';
+
+export const warpMeta = {
+  maxColorCount: 6,
+} as const;
 
 /**
  * 3d Perlin noise with exposed parameters
  *
  * Uniforms include:
- * u_color1 - the first pattern color
- * u_color2 - the second pattern color
- * u_color3 - the third pattern color
- * u_proportion (0 .. 1) - the proportion between colors (on 0.5 colors are equally distributed)
- * u_softness (0 .. 1) - the color blur (0 for pronounced edges, 1 for gradient)
- * u_shape (0 ... 2) - the color pattern to be distorted with noise & swirl
+ * - u_colors (vec4[]): Input RGBA colors
+ * - u_colorsCount (float): Number of active colors (`u_colors` length)
+ * - u_proportion (0 .. 1): the proportion between colors (on 0.5 colors are equally distributed)
+ * - u_softness (0 .. 1): the color blur (0 for pronounced edges, 1 for gradient)
+ * - u_shape (0 ... 2): the color pattern to be distorted with noise & swirl
  *    - u_shape = 0 is checks
  *    - u_shape = 1 is stripes
  *    - u_shape = 2 is 2 halves of canvas (mapping the canvas height regardless of resolution)
- * u_shapeScale - the scale of color pattern (appies over the global scaling)
- * u_distortion - the noisy distortion over the UV coordinate (applied before the overlapping swirl)
- * u_swirl - the power of swirly distortion
- * u_swirlIterations - the number of swirl iterations (layering curves effect)
+ * - u_shapeScale: the scale of color pattern (appies over the global scaling)
+ * - u_distortion: the noisy distortion over the UV coordinate (applied before the overlapping swirl)
+ * - u_swirl: the power of swirly distortion
+ * - u_swirlIterations: the number of swirl iterations (layering curves effect)
  *
  */
 export const warpFragmentShader: string = `#version 300 es
@@ -28,9 +32,8 @@ uniform float u_time;
 uniform float u_scale;
 uniform vec2 u_resolution;
 
-uniform vec4 u_color1;
-uniform vec4 u_color2;
-uniform vec4 u_color3;
+uniform vec4 u_colors[${warpMeta.maxColorCount}];
+uniform float u_colorsCount;
 uniform float u_proportion;
 uniform float u_softness;
 uniform float u_shape;
@@ -105,16 +108,15 @@ void main() {
   float proportion = clamp(u_proportion, 0., 1.);
 
   float shape = 0.;
-  float mixer = 0.;
   if (u_shape < .5) {
     vec2 checks_shape_uv = shape_uv * (.5 + 3.5 * u_shapeScale);
     shape = .5 + .5 * sin(checks_shape_uv.x) * cos(checks_shape_uv.y);
-    mixer = shape + .48 * sign(proportion - .5) * pow(abs(proportion - .5), .5);
+    shape += .48 * sign(proportion - .5) * pow(abs(proportion - .5), .5);
   } else if (u_shape < 1.5) {
     vec2 stripes_shape_uv = shape_uv * (.25 + 3. * u_shapeScale);
     float f = fract(stripes_shape_uv.y);
     shape = smoothstep(.0, .55, f) * smoothstep(1., .45, f);
-    mixer = shape + .48 * sign(proportion - .5) * pow(abs(proportion - .5), .5);
+    shape += .48 * sign(proportion - .5) * pow(abs(proportion - .5), .5);
   } else {
     float sh = 1. - shape_uv.y;
     sh -= .5;
@@ -122,13 +124,23 @@ void main() {
     sh += .5;
     float shape_scaling = .2 * (1. - u_shapeScale);
     shape = smoothstep(.45 - shape_scaling, .55 + shape_scaling, sh + .3 * (proportion - .5));
-    mixer = shape;
   }
 
-  vec4 color_mix = blend_colors(u_color1, u_color2, u_color3, mixer, 1. - clamp(u_softness, 0., 1.), .01 + .01 * u_scale);
-
-  vec3 color = color_mix.rgb;
-  float opacity = color_mix.a;
+  float mixer = shape * (u_colorsCount - 1.);
+  mixer = (shape - .5 / u_colorsCount) * u_colorsCount;
+  vec4 gradient = u_colors[0];
+  gradient.rgb *= gradient.a;
+  for (int i = 1; i < ${warpMeta.maxColorCount}; i++) {
+      if (i >= int(u_colorsCount)) break;
+      float localT = clamp(mixer - float(i - 1), 0.0, 1.0);
+      vec4 c = u_colors[i];
+      c.rgb *= c.a;
+      gradient = mix(gradient, c, localT);
+  }
+  
+  vec3 color = gradient.rgb;
+  float opacity = gradient.a;
+  
   ${colorBandingFix}
 
   fragColor = vec4(color, opacity);
@@ -136,9 +148,8 @@ void main() {
 `;
 
 export interface WarpUniforms extends ShaderSizingUniforms {
-  u_color1: [number, number, number, number];
-  u_color2: [number, number, number, number];
-  u_color3: [number, number, number, number];
+  u_colors: vec4[];
+  u_colorsCount: number;
   u_proportion: number;
   u_softness: number;
   u_shape: (typeof WarpPatterns)[WarpPattern];
@@ -149,9 +160,7 @@ export interface WarpUniforms extends ShaderSizingUniforms {
 }
 
 export interface WarpParams extends ShaderSizingParams, ShaderMotionParams {
-  color1?: string;
-  color2?: string;
-  color3?: string;
+  colors?: string[];
   rotation?: number;
   proportion?: number;
   softness?: number;
