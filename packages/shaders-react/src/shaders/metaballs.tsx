@@ -26,7 +26,7 @@ export const defaultPreset: MetaballsPreset = {
     scale: 1,
     speed: 0.6,
     frame: 0,
-    colors: ['hsla(259, 100%, 50%, 1)', 'hsla(150, 100%, 50%, 1)', 'hsla(48, 100%, 50%, 1)', 'hsla(295, 100%, 50%, 1)'],
+    colors: ['hsla(259, 100%, 80%, 1)', 'hsla(150, 100%, 80%, 1)', 'hsla(48, 100%, 80%, 1)', 'hsla(295, 100%, 80%, 1)'],
     ballsNumber: 7,
     ballSize: 1,
   },
