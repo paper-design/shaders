@@ -85,7 +85,7 @@ void main() {
   
   float delta = 1. - smoothstep(0., 1., radius);
 
-  float middleShape = u_midIntensity * smoothstep(abs(u_midSize), 0.02 * abs(u_midSize), 2.0 * radius);
+  float middleShape = pow(u_midIntensity, .3) * smoothstep(abs(u_midSize), 0.02 * abs(u_midSize), 3.0 * radius);
   middleShape = pow(middleShape, 5.0);
 
   vec3 accumColor = vec3(0.0);
@@ -99,10 +99,7 @@ void main() {
     float r1 = radius * (1.0 + 0.4 * float(i)) - 3.0 * t;
     float r2 = 0.5 * radius * (1.0 + spots) - 2.0 * t;
     float f = mix(1.0, 3.0 + 0.5 * float(i), hash(float(i) + 10.0)) * u_frequency;
-    
-    density -= (3. / u_colorsCount) * pow(smoothstep(.4 * u_midSize, .0, radius), 10.);
-    density = max(0., density);
-  
+
     float ray = raysShape(rotatedUV, r1, 5.0 * f, density, radius);
     ray *= raysShape(rotatedUV, r2, 4.0 * f, density, radius);
     ray += (1. + 4. * ray) * middleShape;
