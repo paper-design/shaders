@@ -73,7 +73,7 @@ export const cloudPreset: SmokeRingPreset = {
     ...defaultObjectSizing,
     frame: 0,
     colorBack: 'hsla(218, 100%, 62%, 1)',
-    colors: ['hsla(0, 0%, 100%, 1)', 'hsla(0, 0%, 100%, 1)'],
+    colors: ['hsla(0, 0%, 100%, 1)'],
     noiseScale: 1.5,
     noiseIterations: 10,
     radius: 0.5,
