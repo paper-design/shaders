@@ -36,7 +36,7 @@ const GodRaysWithControls = () => {
           colorBack: { value: defaults.colorBack, order: 100 },
           frequency: { value: defaults.frequency, min: 0, max: 30, order: 303 },
           spotty: { value: defaults.spotty, min: 0, max: 1, order: 304 },
-          midSize: { value: defaults.midSize, min: 0, max: 5, order: 305 },
+          midSize: { value: defaults.midSize, min: 0, max: 8, order: 305 },
           midIntensity: { value: defaults.midIntensity, min: 0, max: 1, order: 306 },
           density: { value: defaults.density, min: 0, max: 1, order: 307 },
           speed: { value: defaults.speed, min: 0, max: 2, order: 400 },
