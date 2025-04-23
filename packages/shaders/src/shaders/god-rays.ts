@@ -1,6 +1,11 @@
+import type { vec4 } from '../types';
 import type { ShaderMotionParams } from '../shader-mount';
 import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing';
 import { declarePI, declareRandom, declareRotate, colorBandingFix } from '../shader-utils';
+
+export const godRaysMeta = {
+  maxColorCount: 6,
+} as const;
 
 /**
  * GodRays pattern
@@ -9,16 +14,13 @@ import { declarePI, declareRandom, declareRotate, colorBandingFix } from '../sha
  *
  * Uniforms include:
  *
- * u_colorBack - background RGBA color
- * u_color1 - ray color #1 (also main color of middle spot)
- * u_color2 - ray color #2
- * u_color3 - ray color #3
- * u_frequency - the frequency of rays (the number of sectors)
- * u_spotty - the density of spots in the rings (higher = more spots)
- * u_midSize - the size of the central shape within the rings
- * u_midIntensity - the influence of the central shape on the rings
- * u_density (0 .. 1) - the number of visible rays
- * u_blending (0 .. 1) - blending mode (0 for color mix, 1 for additive blending)
+ * - u_colorBack: background RGBA color
+ * - uColors (vec4[]): Input RGBA colors
+ * - u_frequency: the frequency of rays (the number of sectors)
+ * - u_spotty: the density of spots in the rings (higher = more spots)
+ * - u_midSize: the size of the central shape within the rings
+ * - u_midIntensity: the influence of the central shape on the rings
+ * - u_density (0 .. 1): the number of visible rays
  */
 export const godRaysFragmentShader: string = `#version 300 es
 precision highp float;
@@ -26,16 +28,14 @@ precision highp float;
 uniform float u_time;
 
 uniform vec4 u_colorBack;
-uniform vec4 u_color1;
-uniform vec4 u_color2;
-uniform vec4 u_color3;
+uniform vec4 u_colors[${godRaysMeta.maxColorCount}];
+uniform float u_colorsCount;
 
 uniform float u_frequency;
 uniform float u_spotty;
 uniform float u_midSize;
 uniform float u_midIntensity;
 uniform float u_density;
-uniform float u_blending;
 
 ${sizingVariablesDeclaration}
 
@@ -45,7 +45,11 @@ ${declarePI}
 ${declareRandom}
 ${declareRotate}
 
-float noise(vec2 uv) {
+float hash(float n) {
+  return fract(sin(n * 43758.5453123) * 43758.5453123);
+}
+
+float valueNoise(vec2 uv) {
   vec2 i = floor(uv);
   vec2 f = fract(uv);
 
@@ -61,63 +65,64 @@ float noise(vec2 uv) {
   return mix(x1, x2, u.y);
 }
 
-float get_noise_shape(vec2 uv, float r, float freq, float density, float time) {
-  uv = rotate(uv, .05 * time);
-  float a = atan(uv.y, uv.x);
-  r -= 3. * time;
-  vec2 left = vec2(a * freq, r);
-  vec2 right = vec2(mod(a, TWO_PI) * freq, r);
-  float n_left = pow(noise(left), density);
-  float n_right = pow(noise(right), density);
-  float shape = mix(n_right, n_left, smoothstep(-.2, .2, uv.x));
-  return shape;
+float raysShape(vec2 uv, float r, float freq, float density, float radius) {
+  float a = atan(uv.y, uv.x) * freq;
+  float ray = pow(valueNoise(vec2(a, r)), density);  
+  uv = rotate(uv, PI);
+  float mask = smoothstep(.0, .03, abs(atan(uv.y, uv.x)));
+  return ray * (.5 + .5 * mask);
 }
 
 void main() {
-
   vec2 shape_uv = v_objectUV;
-  shape_uv -= .5;
 
   float t = .2 * u_time;
 
   float radius = length(shape_uv);
-  float spots = 4. * abs(u_spotty);
+  float spots = 5. * abs(u_spotty);
+  
   float density = 4. - 3. * clamp(u_density, 0., 1.);
+  
+  float delta = 1. - smoothstep(0., 1., radius);
 
-  float rays1 = get_noise_shape(shape_uv, radius * spots, 5. * u_frequency, density, t);
-  rays1 *= get_noise_shape(shape_uv, .5 + .75 * radius * spots, 4. * u_frequency, density, -.5 * t);
+  float middleShape = u_midIntensity * smoothstep(abs(u_midSize), 0.02 * abs(u_midSize), 2.0 * radius);
+  middleShape = pow(middleShape, 5.0);
 
-  float rays2 = get_noise_shape(shape_uv, 1.5 * radius, 12. * u_frequency, density, t);
-  rays2 *= get_noise_shape(shape_uv, -.5 + 1.1 * radius * spots, 7. * u_frequency, density, .75 * t);
+  vec3 accumColor = vec3(0.0);
+  float accumAlpha = 0.0;
+  
+  for (int i = 0; i < ${godRaysMeta.maxColorCount}; i++) {
+    if (i >= int(u_colorsCount)) break;
+  
+    vec2 rotatedUV = rotate(shape_uv, float(i) + 1.0);
+  
+    float r1 = radius * (1.0 + 0.4 * float(i)) - 3.0 * t;
+    float r2 = 0.5 * radius * (1.0 + spots) - 2.0 * t;
+    float f = mix(1.0, 3.0 + 0.5 * float(i), hash(float(i) + 10.0)) * u_frequency;
+    
+    density -= (3. / u_colorsCount) * pow(smoothstep(.4 * u_midSize, .0, radius), 10.);
+    density = max(0., density);
+  
+    float ray = raysShape(rotatedUV, r1, 5.0 * f, density, radius);
+    ray *= raysShape(rotatedUV, r2, 4.0 * f, density, radius);
+    ray += (1. + 4. * ray) * middleShape;
+    ray = clamp(ray, 0.0, 1.0);
+  
+    float srcAlpha = u_colors[i].a * ray;
+    vec3 srcColor = u_colors[i].rgb * srcAlpha;
+  
+    accumColor = accumColor + (1. - accumAlpha) * srcColor;
+    accumAlpha = accumAlpha + (1. - accumAlpha) * srcAlpha;
+  }
+  
+  vec3 bgColor = u_colorBack.rgb * u_colorBack.a;
+  accumColor = accumColor + (1.0 - accumAlpha) * bgColor;
+  accumAlpha = accumAlpha + (1.0 - accumAlpha) * u_colorBack.a;
+  
+  vec3 color = accumColor;
+  float opacity = accumAlpha;
 
-  float rays3 = get_noise_shape(shape_uv, 2. * radius * spots, 10. * u_frequency, density, t);
-  rays3 *= get_noise_shape(shape_uv, 1.1 * radius, 12. * u_frequency, density, .2 * t);
 
-  float mid_shape = smoothstep(1. * abs(u_midSize), .05 * abs(u_midSize), radius);
-  rays3 = mix(rays3, 1., (.5 + .5 * rays1) * u_midIntensity * pow(mid_shape, 7.));
-  rays2 = mix(rays2, 1., (.5 + .5 * rays3) * u_midIntensity * pow(mid_shape, 3.));
-  rays1 = mix(rays1, 1., u_midIntensity * pow(mid_shape, 5.));
-
-  float opacity = rays2 * u_color2.a;
-  opacity += rays3 * u_color3.a;
-  opacity += rays1 * u_color1.a;
-  opacity += u_colorBack.a * (1.0 - rays1 * u_color1.a - rays2 * u_color2.a - rays3 * u_color3.a);
-  opacity = clamp(opacity, 0.0, 1.0);
-
-  vec3 added_color = u_colorBack.rgb * (1. - (rays1 + rays2 + rays3)) * u_colorBack.a;
-  added_color += u_color1.rgb * rays1 * u_color1.a;
-  added_color += u_color2.rgb * rays2 * u_color2.a;
-  added_color += u_color3.rgb * rays3 * u_color3.a;
-
-  added_color += u_colorBack.rgb * rays1 * (1.0 - u_color1.a) * u_colorBack.a;
-  added_color += u_colorBack.rgb * rays2 * (1.0 - u_color2.a) * u_colorBack.a;
-  added_color += u_colorBack.rgb * rays3 * (1.0 - u_color3.a) * u_colorBack.a;
-
-  vec3 mixed_color = mix(u_colorBack.rgb * u_colorBack.a, u_color2.rgb, rays2 * u_color2.a);
-  mixed_color = mix(mixed_color, u_color3.rgb, rays3 * u_color3.a);
-  mixed_color = mix(mixed_color, u_color1.rgb, rays1 * u_color1.a);
-
-  vec3 color = mix(mixed_color, added_color, clamp(u_blending, 0., 1.));
   ${colorBandingFix}
 
   fragColor = vec4(color, opacity);
@@ -126,26 +131,21 @@ void main() {
 
 export interface GodRaysUniforms extends ShaderSizingUniforms {
   u_colorBack: [number, number, number, number];
-  u_color1: [number, number, number, number];
-  u_color2: [number, number, number, number];
-  u_color3: [number, number, number, number];
+  u_colors: vec4[];
+  u_colorsCount: number;
   u_spotty: number;
   u_midSize: number;
   u_midIntensity: number;
   u_frequency: number;
   u_density: number;
-  u_blending: number;
 }
 
 export interface GodRaysParams extends ShaderSizingParams, ShaderMotionParams {
   colorBack?: string;
-  color1?: string;
-  color2?: string;
-  color3?: string;
+  colors?: string[];
   spotty?: number;
   midSize?: number;
   midIntensity?: number;
   frequency?: number;
   density?: number;
-  blending?: number;
 }

@@ -84,7 +84,7 @@ export { warpFragmentShader, WarpPatterns, type WarpParams, type WarpUniforms, t
 
 // ----- God Rays Effect ----- //
 /** Radial shape made of randomized stripes */
-export { godRaysFragmentShader, type GodRaysParams, type GodRaysUniforms } from './shaders/god-rays';
+export { godRaysMeta, godRaysFragmentShader, type GodRaysParams, type GodRaysUniforms } from './shaders/god-rays';
 
 // ----- Spiral Shape ----- //
 /** Single-color spiral shape */
