@@ -32,6 +32,7 @@ export const defaultPreset: GodRaysPreset = {
     midIntensity: 1,
     midSize: 3,
     density: 0.3,
+    blending: 0,
     speed: 1,
     frame: 0,
   },
@@ -49,6 +50,7 @@ export const auroraPreset: GodRaysPreset = {
     midIntensity: 0.8,
     midSize: 2.1,
     density: 0.5,
+    blending: 1,
     speed: 0.5,
     frame: 0,
   },
@@ -65,6 +67,7 @@ export const warpPreset: GodRaysPreset = {
     midIntensity: 0,
     midSize: 0,
     density: 0.79,
+    blending: 0.4,
     speed: 2,
     frame: 0,
   },
@@ -83,6 +86,7 @@ export const linearPreset: GodRaysPreset = {
     midSize: 1.1,
     midIntensity: 0.75,
     density: 0.79,
+    blending: 1,
     speed: 0.5,
     frame: 0,
   },
@@ -100,6 +104,7 @@ export const etherPreset: GodRaysPreset = {
     midSize: 1.1,
     midIntensity: 0.5,
     density: 0.6,
+    blending: 0.6,
     speed: 1,
     frame: 0,
   },
@@ -118,6 +123,7 @@ export const GodRays: React.FC<GodRaysProps> = memo(function GodRaysImpl({
   midIntensity = defaultPreset.params.midIntensity,
   midSize = defaultPreset.params.midSize,
   density = defaultPreset.params.density,
+  blending = defaultPreset.params.blending,
 
   // Sizing props
   fit = defaultPreset.params.fit,
@@ -141,6 +147,7 @@ export const GodRays: React.FC<GodRaysProps> = memo(function GodRaysImpl({
     u_midIntensity: midIntensity,
     u_midSize: midSize,
     u_density: density,
+    u_blending: blending,
 
     // Sizing uniforms
     u_fit: ShaderFitOptions[fit],

@@ -21,6 +21,7 @@ export const godRaysMeta = {
  * - u_midSize: the size of the central shape within the rings
  * - u_midIntensity: the influence of the central shape on the rings
  * - u_density (0 .. 1): the number of visible rays
+ * - u_blending (0 .. 1): normal / additive blending
  */
 export const godRaysFragmentShader: string = `#version 300 es
 precision highp float;
@@ -36,6 +37,7 @@ uniform float u_spotty;
 uniform float u_midSize;
 uniform float u_midIntensity;
 uniform float u_density;
+uniform float u_blending;
 
 ${sizingVariablesDeclaration}
 
@@ -108,16 +110,29 @@ void main() {
     float srcAlpha = u_colors[i].a * ray;
     vec3 srcColor = u_colors[i].rgb * srcAlpha;
   
-    accumColor = accumColor + (1. - accumAlpha) * srcColor;
-    accumAlpha = accumAlpha + (1. - accumAlpha) * srcAlpha;
+    vec3 alphaBlendColor = accumColor + (1.0 - accumAlpha) * srcColor;
+    float alphaBlendAlpha = accumAlpha + (1.0 - accumAlpha) * srcAlpha;
+  
+    vec3 addBlendColor = accumColor + srcColor;
+    float addBlendAlpha = accumAlpha + srcAlpha;
+  
+    accumColor = mix(alphaBlendColor, addBlendColor, u_blending);
+    accumAlpha = mix(alphaBlendAlpha, addBlendAlpha, u_blending);
   }
   
   vec3 bgColor = u_colorBack.rgb * u_colorBack.a;
-  accumColor = accumColor + (1.0 - accumAlpha) * bgColor;
-  accumAlpha = accumAlpha + (1.0 - accumAlpha) * u_colorBack.a;
   
-  vec3 color = accumColor;
-  float opacity = accumAlpha;
+  vec3 alphaBlendColor = accumColor + (1.0 - accumAlpha) * bgColor;
+  float alphaBlendAlpha = accumAlpha + (1.0 - accumAlpha) * u_colorBack.a;
+  
+  vec3 addBlendColor = accumColor + bgColor;
+  float addBlendAlpha = accumAlpha + u_colorBack.a;
+  
+  accumColor = mix(alphaBlendColor, addBlendColor, u_blending);
+  accumAlpha = mix(alphaBlendAlpha, addBlendAlpha, u_blending);
+  
+  vec3 color = clamp(accumColor, 0.0, 1.0);
+  float opacity = clamp(accumAlpha, 0.0, 1.0);
 
 
   ${colorBandingFix}
@@ -135,6 +150,7 @@ export interface GodRaysUniforms extends ShaderSizingUniforms {
   u_midIntensity: number;
   u_frequency: number;
   u_density: number;
+  u_blending: number;
 }
 
 export interface GodRaysParams extends ShaderSizingParams, ShaderMotionParams {
@@ -145,4 +161,5 @@ export interface GodRaysParams extends ShaderSizingParams, ShaderMotionParams {
   midIntensity?: number;
   frequency?: number;
   density?: number;
+  blending?: number;
 }

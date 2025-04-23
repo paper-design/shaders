@@ -39,6 +39,7 @@ const GodRaysWithControls = () => {
           midSize: { value: defaults.midSize, min: 0, max: 8, order: 305 },
           midIntensity: { value: defaults.midIntensity, min: 0, max: 1, order: 306 },
           density: { value: defaults.density, min: 0, max: 1, order: 307 },
+          blending: { value: defaults.blending, min: 0, max: 1, order: 308 },
           speed: { value: defaults.speed, min: 0, max: 2, order: 400 },
         },
         { order: 1 }
