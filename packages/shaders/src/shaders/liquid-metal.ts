@@ -106,7 +106,7 @@ void main() {
     // shape_uv.y += .5;
     shape_uv *= 5.;
     float wave = cos(1.5 * shape_uv.x - 2. * t) * sin(.8 * shape_uv.x + t) * (.75 + .25 * cos(-3. * t));
-    mask = .7 * smoothstep(.3, .6, shape_uv.y - 1.1 + wave);
+    mask = smoothstep(.2, .6, shape_uv.y - 1.1 + wave);
     mask += .5 * smoothstep(-.4, .6, shape_uv.y - 1.1 + wave);
     shape_uv /= 4.;
   } else if (u_shape < 4.) {
