@@ -8,7 +8,7 @@ import {
   type LiquidMetalUniforms,
   type LiquidMetalParams,
   type ShaderPreset,
-  defaultPatternSizing,
+  defaultObjectSizing,
 } from '@paper-design/shaders';
 
 export interface LiquidMetalProps extends ShaderComponentProps, LiquidMetalParams {}
@@ -22,7 +22,7 @@ type LiquidMetalPreset = ShaderPreset<LiquidMetalParams>;
 export const defaultPreset: LiquidMetalPreset = {
   name: 'Default',
   params: {
-    ...defaultPatternSizing,
+    ...defaultObjectSizing,
     speed: 1,
     frame: 0,
     patternBlur: 0.005,

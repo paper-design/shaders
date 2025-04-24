@@ -1,6 +1,6 @@
 'use client';
 
-import { ditheringPresets, LiquidMetal, type LiquidMetalParams, liquidMetalPresets } from '@paper-design/shaders-react';
+import { LiquidMetal, type LiquidMetalParams, liquidMetalPresets } from '@paper-design/shaders-react';
 
 import { useControls, button, folder } from 'leva';
 import { setParamsSafe, useResetLevaParams } from '@/helpers/use-reset-leva-params';
@@ -8,15 +8,15 @@ import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import Link from 'next/link';
 import { BackButton } from '@/components/back-button';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
-import { liquidMetalMeta, ShaderFit, ShaderFitOptions, meshGradientMeta } from '@paper-design/shaders';
+import { liquidMetalMeta, ShaderFit, ShaderFitOptions } from '@paper-design/shaders';
 import { useColors } from '@/helpers/use-colors';
 
 /**
  * You can copy/paste this example to use LiquidMetal in your app
  */
-const LiquidMetalExample = () => {
-  return <LiquidMetal style={{ position: 'fixed', width: '100%', height: '100%' }} />;
-};
+// const LiquidMetalExample = () => {
+//   return <LiquidMetal style={{ position: 'fixed', width: '100%', height: '100%' }} />;
+// };
 
 /**
  * This example has controls added so you can play with settings in the example app
@@ -38,7 +38,7 @@ const LiquidMetalWithControls = () => {
           patternBlur: { value: defaults.patternBlur, min: 0, max: 0.1, order: 300 },
           patternScale: { value: defaults.patternScale, min: 1, max: 10, order: 301 },
           dispersion: { value: defaults.dispersion, min: 0, max: 0.05, order: 302 },
-          // edge: { value: defaults.edge, min: 0, max: 1, order: 303 },
+          edge: { value: defaults.edge, min: 0, max: 0, order: 303 },
           liquid: { value: defaults.liquid, min: 0, max: 1, order: 305 },
           shape: { value: defaults.shape, min: 0, max: 3, step: 1, order: 305 },
           speed: { value: defaults.speed, min: 0, max: 2, order: 400 },
