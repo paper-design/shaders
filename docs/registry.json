@@ -210,6 +210,19 @@
           "type": "registry:component"
         }
       ]
+    },
+    {
+      "name": "liquid-metal",
+      "type": "registry:component",
+      "title": "Liquid Metal Example",
+      "description": "Liquid Metal shader example.",
+      "dependencies": ["@paper-design/shaders-react"],
+      "files": [
+        {
+          "path": "registry/liquid-metal-example.tsx",
+          "type": "registry:component"
+        }
+      ]
     }
   ]
 }

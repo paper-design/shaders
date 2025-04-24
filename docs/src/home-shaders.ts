@@ -41,6 +41,8 @@ import {
   swirlPresets,
   Dithering,
   ditheringPresets,
+  LiquidMetal,
+  liquidMetalPresets,
 } from '@paper-design/shaders-react';
 import { StaticImageData } from 'next/image';
 import TextureTest from './app/texture-test/page';
@@ -163,5 +165,11 @@ export const homeShaders = [
     url: '/dithering',
     ShaderComponent: Dithering,
     shaderConfig: { ...ditheringPresets[0].params },
+  },
+  {
+    name: 'liquid metal',
+    url: '/liquid-metal',
+    ShaderComponent: LiquidMetal,
+    shaderConfig: { ...liquidMetalPresets[0].params },
   },
 ] satisfies HomeShaderConfig[];

@@ -516,11 +516,12 @@ uniform float u_pxSize;
 
 out vec2 v_objectUV;
 out vec2 v_patternUV;
+out vec2 v_normalizedUV;
 
 void main() {
   gl_Position = a_position;
   
-  vec2 uv = gl_Position.xy * .5;  
+  v_normalizedUV = gl_Position.xy * .5;  
 
   vec2 worldOrigin = vec2(.5 - u_originX, u_originY - .5);
   vec2 worldSize = vec2(u_worldWidth, u_worldHeight);
@@ -546,7 +547,7 @@ void main() {
   objectWorld.y = objectWorld.x / objectWorldRatio;
   vec2 objectWorldScale = u_resolution.xy / objectWorld;
   
-  v_objectUV = uv;
+  v_objectUV = v_normalizedUV;
   v_objectUV *= objectWorldScale;
   v_objectUV += worldOrigin * (objectWorldScale - 1.);
   v_objectUV += vec2(-u_offsetX, u_offsetY);
@@ -573,7 +574,7 @@ void main() {
   patternWorld.y = patternWorld.x / patternWorldRatio;
   vec2 patternWorldScale = u_resolution.xy / patternWorld;
 
-  v_patternUV = uv;
+  v_patternUV = v_normalizedUV;
   v_patternUV += vec2(-u_offsetX, u_offsetY) / patternWorldScale;
   v_patternUV += worldOrigin;
   v_patternUV -= worldOrigin / patternWorldScale;
