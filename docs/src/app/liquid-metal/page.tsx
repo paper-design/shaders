@@ -1,7 +1,6 @@
 'use client';
 
 import { LiquidMetal, type LiquidMetalParams, liquidMetalPresets } from '@paper-design/shaders-react';
-
 import { useControls, button, folder } from 'leva';
 import { setParamsSafe, useResetLevaParams } from '@/helpers/use-reset-leva-params';
 import { usePresetHighlight } from '@/helpers/use-preset-highlight';
@@ -14,9 +13,9 @@ import { useColors } from '@/helpers/use-colors';
 /**
  * You can copy/paste this example to use LiquidMetal in your app
  */
-// const LiquidMetalExample = () => {
-//   return <LiquidMetal style={{ position: 'fixed', width: '100%', height: '100%' }} />;
-// };
+const LiquidMetalExample = () => {
+  return <LiquidMetal style={{ position: 'fixed', width: '100%', height: '100%' }} />;
+};
 
 /**
  * This example has controls added so you can play with settings in the example app

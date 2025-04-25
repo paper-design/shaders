@@ -30,7 +30,7 @@ export const defaultPreset: LiquidMetalPreset = {
     dispersion: 0.015,
     edge: 0,
     liquid: 0.07,
-    shape: 3,
+    shape: 0,
   },
 };
 

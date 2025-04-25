@@ -60,7 +60,7 @@ float get_color_channel(float c1, float c2, float stripe_p, vec3 w, float extra_
 }
 
 float get_border_map(vec2 uv_normalised) {
-  vec2 outer = vec2(.5);
+  vec2 outer = vec2(.3);
 
   vec2 bl = smoothstep(vec2(0.), outer, uv_normalised);
   vec2 tr = smoothstep(vec2(0.), outer, 1. - uv_normalised);
@@ -68,8 +68,7 @@ float get_border_map(vec2 uv_normalised) {
   bl = pow(bl, vec2(.04));
   tr = pow(tr, vec2(.04));
   float s = 1. - bl.x * bl.y * tr.x * tr.y;
-  s = smoothstep(0., .8, s);
-  s = pow(s, .4);
+  s = smoothstep(0., .3, s);
   return s;
 }
 
@@ -79,14 +78,14 @@ void main() {
   float t = .25 * u_time;
 
   vec2 shape_uv = v_objectUV;
-  if (u_shape == 0. || u_shape == 2.) {
+  if (u_shape < 2.) {
     shape_uv = v_normalizedUV;
   }
   shape_uv += .5;
   shape_uv.y = 1. - shape_uv.y;
 
   float cycleWidth = .5 * u_patternScale;
-  if (u_shape == 0. || u_shape == 2.) {
+  if (u_shape < 2.) {
     float ratio = u_resolution.x / u_resolution.y;
     if (ratio > 1.) {
       shape_uv.y /= ratio;
@@ -101,16 +100,16 @@ void main() {
   if (u_shape < 1.) {  
     mask = get_border_map(v_normalizedUV + .5);
   } else if (u_shape < 2.) {  
-    mask = pow(clamp(2. * length(shape_uv - .5), 0., 1.), 8.);
-  } else if (u_shape < 3.) {  
-    // shape_uv.y += .5;
     shape_uv *= 5.;
     float wave = cos(1.5 * shape_uv.x - 2. * t) * sin(.8 * shape_uv.x + t) * (.75 + .25 * cos(-3. * t));
     mask = smoothstep(.2, .6, shape_uv.y - 1.1 + wave);
     mask += .5 * smoothstep(-.4, .6, shape_uv.y - 1.1 + wave);
     shape_uv /= 4.;
+  } else if (u_shape < 3.) {  
+    mask = pow(clamp(2. * length(shape_uv - .5), 0., 1.), 8.);
   } else if (u_shape < 4.) {
     shape_uv -= .5;
+    shape_uv *= 1.3;
     float a = atan(shape_uv.y, shape_uv.x);
     mask = pow(clamp(1.7 * length(shape_uv) + .2 * sin(2. * a + t) - .1 * sin(5. * a - 2. * t) + .15 * sin(3. * a - .5 * t), 0., 1.), 8.);
     shape_uv += .5;
@@ -222,10 +221,10 @@ export interface LiquidMetalUniforms extends ShaderSizingUniforms {
 }
 
 export interface LiquidMetalParams extends ShaderSizingParams, ShaderMotionParams {
-  patternBlur: number;
-  patternScale: number;
-  dispersion: number;
-  edge: number;
-  liquid: number;
-  shape: number;
+  patternBlur?: number;
+  patternScale?: number;
+  dispersion?: number;
+  edge?: number;
+  liquid?: number;
+  shape?: number;
 }
