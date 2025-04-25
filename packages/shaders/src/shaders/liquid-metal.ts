@@ -59,7 +59,7 @@ float get_color_channel(float c1, float c2, float stripe_p, vec3 w, float extra_
 }
 
 float get_border_map(vec2 uv_normalised) {
-  vec2 outer = vec2(.3);
+  vec2 outer = vec2(.1);
 
   vec2 bl = smoothstep(vec2(0.), outer, uv_normalised);
   vec2 tr = smoothstep(vec2(0.), outer, 1. - uv_normalised);
@@ -67,7 +67,8 @@ float get_border_map(vec2 uv_normalised) {
   bl = pow(bl, vec2(.04));
   tr = pow(tr, vec2(.04));
   float s = 1. - bl.x * bl.y * tr.x * tr.y;
-  s = smoothstep(0., .3, s);
+  s = smoothstep(0., .5, s);
+  s = pow(s, .5);
   return s;
 }
 
@@ -98,11 +99,12 @@ void main() {
   float mask = 1.;
   if (u_shape < 1.) {  
     mask = get_border_map(v_normalizedUV + .5);
+    shape_uv /= .75;
+    shape_uv.y += .3;
   } else if (u_shape < 2.) {  
     shape_uv *= 3.;
     float wave = cos(1.5 * shape_uv.x - 2. * t) * sin(.8 * shape_uv.x + t) * (.75 + .25 * cos(-3. * t));
     mask = smoothstep(.45, .6, shape_uv.y - .2 + wave);
-    // mask += 2.7 * smoothstep(-.4, .6, shape_uv.y - 1.1 + wave);
     shape_uv /= 1.7;
   } else if (u_shape < 3.) {  
     mask = pow(clamp(2. * length(shape_uv - .5), 0., 1.), 8.);
