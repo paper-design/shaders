@@ -18,7 +18,6 @@ uniform vec2 u_resolution;
 uniform float u_patternBlur;
 uniform float u_patternScale;
 uniform float u_dispersion;
-uniform float u_edge;
 uniform float u_liquid;
 uniform float u_shape;
 
@@ -78,14 +77,14 @@ void main() {
   float t = .25 * u_time;
 
   vec2 shape_uv = v_objectUV;
-  if (u_shape < 2.) {
+  if (u_shape < 1.) {
     shape_uv = v_normalizedUV;
   }
   shape_uv += .5;
   shape_uv.y = 1. - shape_uv.y;
 
   float cycleWidth = .5 * u_patternScale;
-  if (u_shape < 2.) {
+  if (u_shape < 1.) {
     float ratio = u_resolution.x / u_resolution.y;
     if (ratio > 1.) {
       shape_uv.y /= ratio;
@@ -103,7 +102,8 @@ void main() {
     shape_uv *= 5.;
     float wave = cos(1.5 * shape_uv.x - 2. * t) * sin(.8 * shape_uv.x + t) * (.75 + .25 * cos(-3. * t));
     mask = smoothstep(.2, .6, shape_uv.y - 1.1 + wave);
-    mask += .5 * smoothstep(-.4, .6, shape_uv.y - 1.1 + wave);
+    mask += .2 * smoothstep(-.4, .6, shape_uv.y - 1.1 + wave);
+    shape_uv.x -= 3.;
     shape_uv /= 4.;
   } else if (u_shape < 3.) {  
     mask = pow(clamp(2. * length(shape_uv - .5), 0., 1.), 8.);
@@ -147,7 +147,7 @@ void main() {
   float thin_strip_1_width = cycleWidth * thin_strip_1_ratio;
   float thin_strip_2_width = cycleWidth * thin_strip_2_ratio;
 
-  opacity = 1. - smoothstep(.9 - .5 * u_edge, .92 - .5 * u_edge, mask);
+  opacity = 1. - smoothstep(.9, .92, mask);
 
   float noise = snoise(shape_uv - t);
 
@@ -162,8 +162,8 @@ void main() {
   direction -= 2. * noise * contour;
   direction -= 2. * contour;
 
-  // bump *= clamp(pow(shape_uv.y, .1), .3, 1.);
-  // direction *= (.1 + (1.1 - mask) * bump);
+  bump *= clamp(pow(shape_uv.y, .1), .3, 1.);
+  direction *= (.1 + (1.1 - mask) * bump);
   direction *= smoothstep(1., .2, mask);
 
   float ridge = .18 * (smoothstep(.1, .2, shape_uv.y) * smoothstep(.4, .2, shape_uv.y));
@@ -215,7 +215,6 @@ export interface LiquidMetalUniforms extends ShaderSizingUniforms {
   u_patternBlur: number;
   u_patternScale: number;
   u_dispersion: number;
-  u_edge: number;
   u_liquid: number;
   u_shape: number;
 }
@@ -224,7 +223,6 @@ export interface LiquidMetalParams extends ShaderSizingParams, ShaderMotionParam
   patternBlur?: number;
   patternScale?: number;
   dispersion?: number;
-  edge?: number;
   liquid?: number;
   shape?: number;
 }

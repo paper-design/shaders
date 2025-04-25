@@ -166,10 +166,10 @@ export const homeShaders = [
     ShaderComponent: Dithering,
     shaderConfig: { ...ditheringPresets[0].params },
   },
-  // {
-  //   name: 'liquid metal',
-  //   url: '/liquid-metal',
-  //   ShaderComponent: LiquidMetal,
-  //   shaderConfig: { ...liquidMetalPresets[0].params },
-  // },
+  {
+    name: 'liquid metal',
+    url: '/liquid-metal',
+    ShaderComponent: LiquidMetal,
+    shaderConfig: { ...liquidMetalPresets[0].params },
+  },
 ] satisfies HomeShaderConfig[];

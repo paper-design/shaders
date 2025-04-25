@@ -26,11 +26,10 @@ export const defaultPreset: LiquidMetalPreset = {
     speed: 1,
     frame: 0,
     patternBlur: 0.005,
-    patternScale: 2,
+    patternScale: 3,
     dispersion: 0.015,
-    edge: 0,
     liquid: 0.07,
-    shape: 0,
+    shape: 1,
   },
 };
 
@@ -43,7 +42,6 @@ export const LiquidMetal: React.FC<LiquidMetalProps> = memo(function LiquidMetal
   patternBlur = defaultPreset.params.patternBlur,
   patternScale = defaultPreset.params.patternScale,
   dispersion = defaultPreset.params.dispersion,
-  edge = defaultPreset.params.edge,
   liquid = defaultPreset.params.liquid,
   shape = defaultPreset.params.shape,
 
@@ -64,7 +62,6 @@ export const LiquidMetal: React.FC<LiquidMetalProps> = memo(function LiquidMetal
     u_patternBlur: patternBlur,
     u_patternScale: patternScale,
     u_dispersion: dispersion,
-    u_edge: edge,
     u_liquid: liquid,
     u_shape: shape,
 
