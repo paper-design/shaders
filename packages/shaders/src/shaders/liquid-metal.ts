@@ -99,12 +99,11 @@ void main() {
   if (u_shape < 1.) {  
     mask = get_border_map(v_normalizedUV + .5);
   } else if (u_shape < 2.) {  
-    shape_uv *= 5.;
+    shape_uv *= 3.;
     float wave = cos(1.5 * shape_uv.x - 2. * t) * sin(.8 * shape_uv.x + t) * (.75 + .25 * cos(-3. * t));
-    mask = smoothstep(.2, .6, shape_uv.y - 1.1 + wave);
-    mask += .2 * smoothstep(-.4, .6, shape_uv.y - 1.1 + wave);
-    shape_uv.x -= 3.;
-    shape_uv /= 4.;
+    mask = smoothstep(.45, .6, shape_uv.y - .2 + wave);
+    // mask += 2.7 * smoothstep(-.4, .6, shape_uv.y - 1.1 + wave);
+    shape_uv /= 1.7;
   } else if (u_shape < 3.) {  
     mask = pow(clamp(2. * length(shape_uv - .5), 0., 1.), 8.);
   } else if (u_shape < 4.) {
@@ -195,7 +194,7 @@ void main() {
   float stripe_r = mod(direction + dispersionRed, 1.);
   float r = get_color_channel(color1.r, color2.r, stripe_r, w, 0.02 + .03 * u_dispersion * bump, extraBlur);
   float stripe_g = mod(direction, 1.);
-  float g = get_color_channel(color1.g, color2.g, stripe_g, w, 0.01 / (1. - diagBLtoTR), extraBlur);
+  float g = get_color_channel(color1.g, color2.g, stripe_g, w, 0.01 / (1. - 0. * diagBLtoTR), extraBlur);
   float stripe_b = mod(direction - dispersionBlue, 1.);
   float b = get_color_channel(color1.b, color2.b, stripe_b, w, .01, extraBlur);
 
