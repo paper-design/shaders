@@ -65,5 +65,9 @@ export { GrainGradient, grainGradientPresets } from './shaders/grain-gradient';
 export { type GrainGradientProps } from './shaders/grain-gradient';
 export { type GrainGradientUniforms, type GrainGradientParams } from '@paper-design/shaders';
 
+export { PulsingBorder, pulsingBorderPresets } from './shaders/pulsing-border';
+export { type PulsingBorderProps } from './shaders/pulsing-border';
+export { type PulsingBorderUniforms, type PulsingBorderParams } from '@paper-design/shaders';
+
 export { isPaperShaderElement, getShaderColorFromString } from '@paper-design/shaders';
 export type { ShaderFit, ShaderSizingParams, ShaderSizingUniforms } from '@paper-design/shaders';
