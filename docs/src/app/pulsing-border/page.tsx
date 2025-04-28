@@ -33,9 +33,9 @@ const PulsingBorderWithControls = () => {
       Parameters: folder(
         {
           colorBack: { value: defaults.colorBack, order: 100 },
-          radius: { value: defaults.radius, min: 0, max: 1, order: 300 },
-          thickness: { value: defaults.radius, min: 0, max: 0.2, order: 301 },
-          softness: { value: defaults.radius, min: 0, max: 1, order: 302 },
+          roundness: { value: defaults.roundness, min: 0, max: 1, order: 300 },
+          thickness: { value: defaults.thickness, min: 0, max: 0.2, order: 301 },
+          softness: { value: defaults.softness, min: 0, max: 1, order: 302 },
           intensity: { value: defaults.intensity, min: 0, max: 4, order: 302 },
           spotsNumber: { value: defaults.spotsNumber, min: 0, max: 10, step: 1, order: 302 },
           spotSize: { value: defaults.spotSize, min: 0, max: 0.35, order: 302 },

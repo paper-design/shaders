@@ -17,7 +17,7 @@ uniform float u_time;
 uniform vec4 u_colorBack;
 uniform vec4 u_colors[${pulsingBorderMeta.maxColorCount}];
 uniform float u_colorsCount;
-uniform float u_radius;
+uniform float u_roundness;
 uniform float u_thickness;
 uniform float u_softness;
 uniform float u_intensity;
@@ -41,46 +41,20 @@ float roundedBoxSDF(vec2 uv, vec2 boxCenter, vec2 boxSize, float radius, float t
     vec2 p = uv - boxCenter;
     vec2 halfSize = boxSize * .5;
 
+    float minRadius = edgeSoftness * .33;
+    radius = max(radius, minRadius);
+
     vec2 d = abs(p) - halfSize + vec2(radius);
     float outsideDistance = length(max(d, 0.)) - radius;
     float insideDistance = min(max(d.x, d.y), 0.0);
     float distance = outsideDistance + insideDistance;
 
     float borderDistance = abs(distance) - thickness;
-    float smoothedAlpha = 1. - smoothstep(-.5 * edgeSoftness, .5 * edgeSoftness, borderDistance);
-    
-    smoothedAlpha *= smoothedAlpha;
+    float border = 1. - smoothstep(-.5 * edgeSoftness, .5 * edgeSoftness, borderDistance);
+    border *= border;
 
-    return smoothedAlpha;
+    return border;
 }
-
-
-
-float get_border_map(vec2 uv) {
-    vec2 outer = vec2(0.1);
-
-    // Distance to the inner edges
-    vec2 bl = smoothstep(vec2(0.0), outer, uv);
-    vec2 tr = smoothstep(vec2(0.0), outer, 1.0 - uv);
-
-    // Distance to the outer edges (outside the 0..1 box)
-    vec2 outer_bl = smoothstep(outer, vec2(0.0), uv);
-    vec2 outer_tr = smoothstep(outer, vec2(0.0), 1.0 - uv);
-
-    // Combine inside and outside
-    bl = pow(bl, vec2(0.04));
-    tr = pow(tr, vec2(0.04));
-    outer_bl = pow(outer_bl, vec2(0.04));
-    outer_tr = pow(outer_tr, vec2(0.04));
-
-    float inside = bl.x * bl.y * tr.x * tr.y;
-    float outside = outer_bl.x * outer_bl.y * outer_tr.x * outer_tr.y;
-
-    float s = 1.0 - inside * outside;
-
-    return clamp(s, 0.0, 1.0);
-}
-
 
 float rand(vec2 n) {
   return fract(cos(dot(n, vec2(12.9898, 4.1414))) * 43758.5453);
@@ -126,13 +100,13 @@ void main() {
   vec2 uv_centered = uv_normalised - .5;;
   float angle = atan(uv_centered.y, uv_centered.x) / TWO_PI;
 
-  // float border = roundedBoxSDF(uv_normalised, vec2(.0), vec2(1.), u_radius, .01, .1);
+  // float border = roundedBoxSDF(uv_normalised, vec2(.0), vec2(1.), u_roundness, .01, .1);
   vec2 center = vec2(.5);
   center.x *= (u_resolution.x / u_resolution.y);
   vec2 size = vec2(2.);
   size.x *= (u_resolution.x / u_resolution.y);
   uv_normalised.x *= (u_resolution.x / u_resolution.y);
-  float border = roundedBoxSDF(uv_normalised, center, size, u_radius, u_thickness, u_softness);
+  float border = roundedBoxSDF(uv_normalised, center, size, u_roundness, u_thickness, u_softness);
 
   float pulse = speech_like_pulse(.02 * t);
   pulse = (1. + u_pulsing * pulse);
@@ -187,7 +161,7 @@ export interface PulsingBorderUniforms extends ShaderSizingUniforms {
   u_colorBack: [number, number, number, number];
   u_colors: vec4[];
   u_colorsCount: number;
-  u_radius: number;
+  u_roundness: number;
   u_thickness: number;
   u_softness: number;
   u_intensity: number;
@@ -199,7 +173,7 @@ export interface PulsingBorderUniforms extends ShaderSizingUniforms {
 export interface PulsingBorderParams extends ShaderSizingParams, ShaderMotionParams {
   colorBack?: string;
   colors?: string[];
-  radius?: number;
+  roundness?: number;
   thickness?: number;
   softness?: number;
   intensity?: number;
