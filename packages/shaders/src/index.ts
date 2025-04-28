@@ -99,12 +99,7 @@ export {
 
 // ----- Liquid Metal ----- //
 /**  */
-export {
-  liquidMetalFragmentShader,
-  liquidMetalMeta,
-  type LiquidMetalParams,
-  type LiquidMetalUniforms,
-} from './shaders/liquid-metal';
+export { liquidMetalFragmentShader, type LiquidMetalParams, type LiquidMetalUniforms } from './shaders/liquid-metal';
 
 // ----- Utils ----- //
 export { getShaderColorFromString } from './get-shader-color-from-string';

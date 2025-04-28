@@ -3,10 +3,6 @@ import type { ShaderMotionParams } from '../shader-mount';
 import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing';
 import { declarePI, declareRotate, declareSimplexNoise, colorBandingFix } from '../shader-utils';
 
-export const liquidMetalMeta = {
-  maxColorCount: 10,
-} as const;
-
 /**
  */
 
@@ -15,11 +11,15 @@ precision highp float;
 
 uniform float u_time;
 uniform vec2 u_resolution;
+uniform float u_pixelRatio;
+
 uniform float u_patternBlur;
 uniform float u_patternScale;
 uniform float u_dispersion;
 uniform float u_liquid;
 uniform float u_shape;
+
+uniform float u_scale;
 
 ${sizingVariablesDeclaration}
 in vec2 v_normalizedUV;
@@ -58,24 +58,9 @@ float get_color_channel(float c1, float c2, float stripe_p, vec3 w, float extra_
   return ch;
 }
 
-float get_border_map(vec2 uv_normalised) {
-  vec2 outer = vec2(.1);
-
-  vec2 bl = smoothstep(vec2(0.), outer, uv_normalised);
-  vec2 tr = smoothstep(vec2(0.), outer, 1. - uv_normalised);
-
-  bl = pow(bl, vec2(.04));
-  tr = pow(tr, vec2(.04));
-  float s = 1. - bl.x * bl.y * tr.x * tr.y;
-  s = smoothstep(0., .5, s);
-  s = pow(s, .5);
-  return s;
-}
-
-
 void main() {
   
-  float t = .25 * u_time;
+  float t = .1 * u_time;
 
   vec2 shape_uv = v_objectUV;
   if (u_shape < 1.) {
@@ -84,38 +69,59 @@ void main() {
   shape_uv += .5;
   shape_uv.y = 1. - shape_uv.y;
 
-  float cycleWidth = .5 * u_patternScale;
+  float cycleWidth = .5 * u_patternScale; 
+  
+  float mask = 1.;
   if (u_shape < 1.) {
+  
     float ratio = u_resolution.x / u_resolution.y;
+    vec2 edge = min(shape_uv, 1. - shape_uv);
+    vec2 pixel_thickness = vec2(350.0) / (u_resolution * u_pixelRatio);
+    float maskX = smoothstep(0.0, pixel_thickness.x, edge.x);
+    float maskY = smoothstep(0.0, pixel_thickness.y, edge.y);
+    maskX = pow(maskX, .25);
+    maskY = pow(maskY, .25);
+    mask = clamp(1. - maskX * maskY, 0., 1.);
     if (ratio > 1.) {
       shape_uv.y /= ratio;
-      cycleWidth *= 2.;
     } else {
       shape_uv.x *= ratio;
     }
-  }
- 
-  
-  float mask = 1.;
-  if (u_shape < 1.) {  
-    mask = get_border_map(v_normalizedUV + .5);
-    shape_uv /= .75;
-    shape_uv.y += .3;
+    cycleWidth *= (.7 + ratio);
   } else if (u_shape < 2.) {  
-    shape_uv *= 3.;
-    float wave = cos(1.5 * shape_uv.x - 2. * t) * sin(.8 * shape_uv.x + t) * (.75 + .25 * cos(-3. * t));
-    mask = smoothstep(.45, .6, shape_uv.y - .2 + wave);
-    shape_uv /= 1.7;
-  } else if (u_shape < 3.) {  
-    mask = pow(clamp(2. * length(shape_uv - .5), 0., 1.), 8.);
+    mask = pow(clamp(3. * length(shape_uv - .5), 0., 1.), 8.);
+    shape_uv *= 1.4;
+  } else if (u_shape < 3.) {
+  
+    shape_uv -= .5;
+    shape_uv *= 2.;
+    
+    float r = length(shape_uv) * 2.;
+    float a = atan(shape_uv.y, shape_uv.x) + .2;
+    r *= (1. + .05 * sin(3. * a + 2. * t));
+    float f = abs(cos(a * 3.));
+    mask = smoothstep(f, f + .7, r);
+    shape_uv *= .7;
+    shape_uv += .5;
+    shape_uv.y += .2;
+    
   } else if (u_shape < 4.) {
     shape_uv -= .5;
-    shape_uv *= 1.3;
-    float a = atan(shape_uv.y, shape_uv.x);
-    mask = pow(clamp(1.7 * length(shape_uv) + .2 * sin(2. * a + t) - .1 * sin(5. * a - 2. * t) + .15 * sin(3. * a - .5 * t), 0., 1.), 8.);
+    mask = 0.;
+    for (int i = 0; i < 5; i++) {
+      float fi = float(i);
+      float speed = 4.5 + 2. * sin(fi * 12.345);
+      float angle = -fi * 1.5;
+      vec2 dir1 = vec2(cos(angle), sin(angle));
+      vec2 dir2 = vec2(cos(angle + 1.57), sin(angle + 1.));
+      vec2 traj = .4 * (dir1 * sin(t * speed + fi * 1.23) + dir2 * cos(t * (speed * 0.7) + fi * 2.17));
+      float d = length(shape_uv + traj);
+      mask += pow(1.0 - clamp(d, 0.0, 1.0), 4.0);
+    }
+    
+    mask = 1. - smoothstep(.85, 1., mask);
     shape_uv += .5;
-    shape_uv.y += .6;
-    shape_uv *= .7;
+    shape_uv *= 1.3;
   }
 
   float contour = smoothstep(0., 1., mask) * smoothstep(1., 0., mask);
@@ -155,19 +161,18 @@ void main() {
   mask += (1. - mask) * u_liquid * noise;
 
   float colorDispersion = 0.;
-  colorDispersion += (1. - 2. * bump);
+  colorDispersion += (1. - bump);
   colorDispersion = clamp(colorDispersion, 0., 1.);
 
   direction += diagBLtoTR;
 
   direction -= 2. * noise * contour;
-  direction -= 2. * contour;
 
   bump *= clamp(pow(shape_uv.y, .1), .3, 1.);
   direction *= (.1 + (1.1 - mask) * bump);
-  direction *= smoothstep(1., .2, mask);
+  direction *= smoothstep(1., .7, mask);
 
-  float ridge = .18 * (smoothstep(.1, .2, shape_uv.y) * smoothstep(.4, .2, shape_uv.y));
+  float ridge = .2 * (smoothstep(.0, .15, shape_uv.y) * smoothstep(.4, .15, shape_uv.y));
   ridge += .03 * (smoothstep(.1, .2, 1. - shape_uv.y) * smoothstep(.4, .2, 1. - shape_uv.y));
   direction += ridge;
 
@@ -192,7 +197,10 @@ void main() {
 
   vec3 w = vec3(thin_strip_1_width, thin_strip_2_width, wide_strip_ratio);
   w[1] -= .02 * smoothstep(.0, 1., mask + bump);
-  float extraBlur = bump + .2 * contour;
+  float extraBlur = bump;
+  if (u_shape < 1.) {
+    extraBlur += smoothstep(-.35, -.6, v_normalizedUV.y);
+  }
   float stripe_r = mod(direction + dispersionRed, 1.);
   float r = get_color_channel(color1.r, color2.r, stripe_r, w, 0.02 + .03 * u_dispersion * bump, extraBlur);
   float stripe_g = mod(direction, 1.);
@@ -206,9 +214,7 @@ void main() {
 
   color *= opacity;
 
-  fragColor = vec4(color, opacity);  
-  // fragColor = vec4(vec3(mask), 1.);
-  // fragColor = vec4(vec3(v_normalizedUV, 0.), 1.);
+  fragColor = vec4(color, opacity);
 }
 `;
 

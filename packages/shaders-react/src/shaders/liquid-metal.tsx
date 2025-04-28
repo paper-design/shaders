@@ -25,11 +25,11 @@ export const defaultPreset: LiquidMetalPreset = {
     ...defaultObjectSizing,
     speed: 1,
     frame: 0,
-    patternBlur: 0.005,
+    patternBlur: 0.02,
     patternScale: 3,
     dispersion: 0.015,
     liquid: 0.07,
-    shape: 3,
+    shape: 0,
   },
 };
 

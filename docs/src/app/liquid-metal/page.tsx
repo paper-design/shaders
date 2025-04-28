@@ -7,8 +7,7 @@ import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import Link from 'next/link';
 import { BackButton } from '@/components/back-button';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
-import { liquidMetalMeta, ShaderFit, ShaderFitOptions } from '@paper-design/shaders';
-import { useColors } from '@/helpers/use-colors';
+import { ShaderFit, ShaderFitOptions } from '@paper-design/shaders';
 
 /**
  * You can copy/paste this example to use LiquidMetal in your app
