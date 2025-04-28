@@ -88,6 +88,7 @@ void main() {
       shape_uv.x *= ratio;
     }
     cycleWidth *= (.7 + ratio);
+    shape_uv *= 1.2;
   } else if (u_shape < 2.) {  
     mask = pow(clamp(3. * length(shape_uv - .5), 0., 1.), 8.);
     shape_uv *= 1.4;
