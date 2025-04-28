@@ -1,6 +1,11 @@
+import type { vec4 } from '../types';
 import type { ShaderMotionParams } from '../shader-mount';
 import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing';
 import { declarePI, declareSimplexNoise, colorBandingFix } from '../shader-utils';
+
+export const pulsingBorderMeta = {
+  maxColorCount: 5,
+} as const;
 
 /**
  */
@@ -10,12 +15,13 @@ precision highp float;
 uniform float u_time;
 
 uniform vec4 u_colorBack;
-uniform vec4 u_color1;
-uniform vec4 u_color2;
+uniform vec4 u_colors[${pulsingBorderMeta.maxColorCount}];
+uniform float u_colorsCount;
 uniform float u_radius;
 uniform float u_thickness;
 uniform float u_softness;
 uniform float u_intensity;
+uniform float u_spotSize;
 uniform float u_spotsNumber;
 uniform float u_pulsing;
 
@@ -95,7 +101,7 @@ float speech_like_pulse(float time) {
   return s;
 }
 
-float sector_shape(float a, float mask, float width) {
+float sectorShape(float a, float mask, float width) {
   float atg1 = mod(a, 1.);
   float s = smoothstep(.5 - width, .5, atg1) * smoothstep(.5 + width, .5, atg1);
   s *= mask;
@@ -136,72 +142,68 @@ void main() {
 
   float shape1 = 0.;
   float shape2 = 0.;
+  float sectorsTotal = 0.;
 
-  for (int i = 0; i < int(u_spotsNumber); i++) {
-    float fi = float(i);
-    float time = (.1 + .15 * abs(sin(fi * 4.) * cos(fi * 2.))) * t + rand(vec2(fi * 10.)) * 3.;
-    time *= mix(1., -1., float(i % 2 == 0));
-    float mask = .2 + sin(t + fi * 6. - fi);
-    float width = .1;
-    shape1 += sector_shape(angle + time, mask, width);
-  }
+  float width = u_spotSize;
 
-  for (int i = 0; i < int(u_spotsNumber); i++) {
-    float fi = float(i);
-    float time = (.1 + .15 * abs(sin(fi * 2.) * cos(fi * 5.))) * t + rand(vec2(fi * 2. - 20.)) * 3.;
-    time *= mix(-1., 1., float(i % 2 == 0));
-    float mask = .2 + cos(t + fi * 5. - 2. * fi);
-    float width = .1;
-    shape2 += sector_shape(angle + time, mask, width);
-  }
-
-  // shape2 *= 1. - shape1;
-  // shape2 = max(0., shape2);
-
-  // float shape3 = 1. - max(shape1, shape2);
-  // shape3 *= sector_shape(angle + .2 * t, 1., .6);
-
-  shape1 *= border;
-  shape2 *= border;
-  
-  float shape_total = shape1 + shape2;
-
+  vec3 color = vec3(0.);
   float opacity = 0.;
-  opacity += shape1 * u_color1.a;
-  opacity += shape2 * u_color2.a;
-  opacity += u_colorBack.a;
 
-  vec3 color = u_colorBack.rgb * (1. - clamp(shape_total, 0., 1.)) * u_colorBack.a;
-  color += u_color1.rgb * shape1 * u_color1.a;
-  color += u_color2.rgb * shape2 * u_color2.a;
+  for (int i = 0; i < int(u_spotsNumber); i++) {
+    float idx = float(i);
+  
+    for (int j = 0; j < int(u_colorsCount); j++) {
+      float colorIdx = float(j);
+  
+      float time = (.1 + .15 * abs(sin(idx * (2. + colorIdx)) * cos(idx * (2. + colorIdx * 2.5)))) * t + rand(vec2(idx * (10. - colorIdx * 4.))) * 3.;
+                 
+      float randVal = rand(vec2(idx, colorIdx));
+      float direction = mix(1.0, -1.0, step(0.5, randVal));
+      time *= direction;
+  
+      float mask = .2 + mix(
+        sin(t + idx * (6. - colorIdx) - idx * (1. + colorIdx * .5)),
+        cos(t + idx * (5. + colorIdx) - idx * (2. - colorIdx * .3)),
+        step(mod(colorIdx, 2.), .5)
+      );
+  
+      float sector = sectorShape(angle + time, mask, width) * border;
+      sectorsTotal += sector;
+      opacity += sector * u_colors[j].a;
+      color += sector * u_colors[j].rgb * u_colors[j].a;
+    }
+  }
+  
+  opacity += u_colorBack.a;
+  color += u_colorBack.rgb * (1. - clamp(sectorsTotal, 0., 1.)) * u_colorBack.a;
   
   ${colorBandingFix}
 
   fragColor = vec4(color, opacity);
-  // fragColor = vec4(vec3(border), 1.);
 }
 `;
 
 export interface PulsingBorderUniforms extends ShaderSizingUniforms {
   u_colorBack: [number, number, number, number];
-  u_color1: [number, number, number, number];
-  u_color2: [number, number, number, number];
+  u_colors: vec4[];
+  u_colorsCount: number;
   u_radius: number;
   u_thickness: number;
   u_softness: number;
   u_intensity: number;
   u_spotsNumber: number;
+  u_spotSize: number;
   u_pulsing: number;
 }
 
 export interface PulsingBorderParams extends ShaderSizingParams, ShaderMotionParams {
   colorBack?: string;
-  color1?: string;
-  color2?: string;
+  colors?: string[];
   radius?: number;
   thickness?: number;
   softness?: number;
   intensity?: number;
   spotsNumber?: number;
+  spotSize?: number;
   pulsing?: number;
 }

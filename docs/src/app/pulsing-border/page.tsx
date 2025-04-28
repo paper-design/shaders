@@ -7,7 +7,8 @@ import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import Link from 'next/link';
 import { BackButton } from '@/components/back-button';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
-import { ShaderFit, ShaderFitOptions } from '@paper-design/shaders';
+import { pulsingBorderMeta, ShaderFit, ShaderFitOptions, simplexNoiseMeta } from '@paper-design/shaders';
+import { useColors } from '@/helpers/use-colors';
 
 /**
  * You can copy/paste this example to use PulsingBorder in your app
@@ -20,25 +21,25 @@ const PulsingBorderExample = () => {
  * This example has controls added so you can play with settings in the example app
  */
 
-const { worldWidth, worldHeight, ...defaults } = {
-  ...pulsingBorderPresets[0].params,
-  style: { background: 'hsla(0, 0%, 0%, 0)' },
-};
+const { worldWidth, worldHeight, ...defaults } = pulsingBorderPresets[0].params;
 
 const PulsingBorderWithControls = () => {
+  const { colors, setColors } = useColors({
+    defaultColors: defaults.colors,
+    maxColorCount: pulsingBorderMeta.maxColorCount,
+  });
   const [params, setParams] = useControls(() => {
     return {
       Parameters: folder(
         {
           colorBack: { value: defaults.colorBack, order: 100 },
-          color1: { value: defaults.color1, order: 100 },
-          color2: { value: defaults.color2, order: 101 },
           radius: { value: defaults.radius, min: 0, max: 1, order: 300 },
-          thickness: { value: defaults.radius, min: 0, max: 0.3, order: 301 },
+          thickness: { value: defaults.radius, min: 0, max: 0.2, order: 301 },
           softness: { value: defaults.radius, min: 0, max: 1, order: 302 },
           intensity: { value: defaults.intensity, min: 0, max: 4, order: 302 },
           spotsNumber: { value: defaults.spotsNumber, min: 0, max: 10, step: 1, order: 302 },
-          pulsing: { value: defaults.pulsing, min: 0, max: 1, order: 302 },
+          spotSize: { value: defaults.spotSize, min: 0, max: 0.35, order: 302 },
+          // pulsing: { value: defaults.pulsing, min: 0, max: 1, order: 302 },
           speed: { value: defaults.speed, min: 0, max: 1, order: 400 },
         },
         { order: 1 }
@@ -69,13 +70,17 @@ const PulsingBorderWithControls = () => {
         }
       ),
     };
-  });
+  }, [colors.length]);
 
   useControls(() => {
     const presets = Object.fromEntries(
       pulsingBorderPresets.map(({ name, params: { worldWidth, worldHeight, ...preset } }) => [
         name,
-        button(() => setParamsSafe(params, setParams, preset)),
+        button(() => {
+          const { colors, ...presetParams } = preset;
+          setColors(colors);
+          setParamsSafe(params, setParams, presetParams);
+        }),
       ])
     );
     return {
@@ -94,7 +99,7 @@ const PulsingBorderWithControls = () => {
       <Link href="/">
         <BackButton />
       </Link>
-      <PulsingBorder className="fixed size-full" {...params} />
+      <PulsingBorder {...params} colors={colors} className="fixed size-full" />
     </>
   );
 };

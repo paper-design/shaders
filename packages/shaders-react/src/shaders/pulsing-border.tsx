@@ -23,18 +23,18 @@ export const defaultPreset: PulsingBorderPreset = {
   name: 'Default',
   params: {
     ...defaultObjectSizing,
-    scale: 1.4,
+    scale: 1.5,
     speed: 0.6,
     frame: 0,
     colorBack: 'hsla(0, 0%, 0%, 1)',
-    color1: 'hsla(350, 90%, 55%, 1)',
-    color2: 'hsla(200, 80%, 60%, 1)',
+    colors: ['hsla(350, 90%, 55%, 1)', 'hsla(200, 80%, 60%, 1)'],
     radius: 0.5,
     thickness: 0.02,
     softness: 0.5,
-    intensity: 0.5,
-    spotsNumber: 10,
-    pulsing: 0.5,
+    intensity: 2.4,
+    spotsNumber: 4,
+    spotSize: 0.15,
+    pulsing: 0,
   },
 };
 
@@ -44,14 +44,14 @@ export const PulsingBorder: React.FC<PulsingBorderProps> = memo(function Pulsing
   // Own props
   speed = defaultPreset.params.speed,
   frame = defaultPreset.params.frame,
+  colors = defaultPreset.params.colors,
   colorBack = defaultPreset.params.colorBack,
-  color1 = defaultPreset.params.color1,
-  color2 = defaultPreset.params.color2,
   radius = defaultPreset.params.radius,
   thickness = defaultPreset.params.thickness,
   softness = defaultPreset.params.softness,
   intensity = defaultPreset.params.intensity,
   spotsNumber = defaultPreset.params.spotsNumber,
+  spotSize = defaultPreset.params.spotSize,
   pulsing = defaultPreset.params.pulsing,
 
   // Sizing props
@@ -69,13 +69,14 @@ export const PulsingBorder: React.FC<PulsingBorderProps> = memo(function Pulsing
   const uniforms = {
     // Own uniforms
     u_colorBack: getShaderColorFromString(colorBack),
-    u_color1: getShaderColorFromString(color1),
-    u_color2: getShaderColorFromString(color2),
+    u_colors: colors.map(getShaderColorFromString),
+    u_colorsCount: colors.length,
     u_radius: radius,
     u_thickness: thickness,
     u_softness: softness,
     u_intensity: intensity,
     u_spotsNumber: spotsNumber,
+    u_spotSize: spotSize,
     u_pulsing: pulsing,
 
     // Sizing uniforms

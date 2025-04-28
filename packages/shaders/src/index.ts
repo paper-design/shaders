@@ -100,6 +100,7 @@ export {
 // ----- Pulsing Border ----- //
 /**  */
 export {
+  pulsingBorderMeta,
   pulsingBorderFragmentShader,
   type PulsingBorderParams,
   type PulsingBorderUniforms,
