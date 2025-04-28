@@ -41,7 +41,7 @@ float roundedBoxSDF(vec2 uv, vec2 boxCenter, vec2 boxSize, float radius, float t
     vec2 p = uv - boxCenter;
     vec2 halfSize = boxSize * .5;
 
-    float minRadius = edgeSoftness * .33;
+    float minRadius = (edgeSoftness + thickness) * .33;
     radius = max(radius, minRadius);
 
     vec2 d = abs(p) - halfSize + vec2(radius);
@@ -122,7 +122,7 @@ void main() {
 
   vec3 color = vec3(0.);
   float opacity = 0.;
-
+  
   for (int i = 0; i < int(u_spotsNumber); i++) {
     float idx = float(i);
   
