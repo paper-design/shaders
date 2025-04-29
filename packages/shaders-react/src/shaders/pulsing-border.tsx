@@ -69,7 +69,8 @@ export const PulsingBorder: React.FC<PulsingBorderProps> = memo(function Pulsing
   worldHeight = defaultPreset.params.worldHeight,
   ...props
 }: PulsingBorderProps) {
-  const noiseTexture = typeof window !== 'undefined' && { u_noiseTexture: getShaderNoiseTexture() };
+  const simplexNoiseTexture = typeof window !== 'undefined' && { u_simplexNoiseTexture: getShaderNoiseTexture(3) };
+  const pulseTexture = typeof window !== 'undefined' && { u_pulseTexture: getShaderNoiseTexture(1) };
   const uniforms = {
     // Own uniforms
     u_colorBack: getShaderColorFromString(colorBack),
@@ -83,7 +84,8 @@ export const PulsingBorder: React.FC<PulsingBorderProps> = memo(function Pulsing
     u_spotSize: spotSize,
     u_pulsing: pulsing,
     u_smoke: smoke,
-    ...noiseTexture,
+    ...pulseTexture,
+    ...simplexNoiseTexture,
 
     // Sizing uniforms
     u_fit: ShaderFitOptions[fit],

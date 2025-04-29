@@ -28,7 +28,8 @@ uniform float u_smoke;
 
 uniform float u_scale;
 
-uniform sampler2D u_noiseTexture;
+uniform sampler2D u_pulseTexture;
+uniform sampler2D u_simplexNoiseTexture;
 
 uniform vec2 u_resolution;
 uniform float u_pixelRatio;
@@ -67,7 +68,7 @@ float getWaveformValue(float time) {
   float dur = 5.;
   float wrappedTime = mod(time, dur);
   float normalizedTime = wrappedTime / dur;
-  float value = texture(u_noiseTexture, vec2(normalizedTime, 0.5)).r;
+  float value = texture(u_pulseTexture, vec2(normalizedTime, 0.5)).r;
   return value * 2.0 - 1.0;
 }
 
@@ -102,7 +103,7 @@ void main() {
   vec2 center = vec2(.5);
   center.x *= ratio;
   vec2 size = vec2(2.);
-  size.x *= (u_resolution.x / u_resolution.y);
+  size.x *= ratio;
   uv_normalised.x *= ratio;
   float border = roundedBoxSDF(uv_normalised, center, size, u_roundness, u_thickness, u_softness);
 
@@ -111,11 +112,12 @@ void main() {
   border *= (1. + .5 * pulse);
   border *= (1. + u_intensity);
 
-  float simplex = .5 + .5 * snoise(.5 * uv_normalised);
-  simplex *= roundedBoxSDF(uv_normalised, center, size, u_roundness, .4, 4. * u_softness);
-  simplex *= u_smoke;
+  float smoke = texture(u_simplexNoiseTexture, .0002 * gl_FragCoord.xy).r;
+  // float smoke = .5 + .5 * snoise(.5 * uv_normalised);
+  smoke *= roundedBoxSDF(uv_normalised, center, size, 1., .4, 1.);
+  smoke *= u_smoke;
   
-  border += simplex;
+  border += smoke;
 
   float shape1 = 0.;
   float shape2 = 0.;
@@ -172,7 +174,8 @@ export interface PulsingBorderUniforms extends ShaderSizingUniforms {
   u_spotSize: number;
   u_pulsing: number;
   u_smoke: number;
-  u_noiseTexture?: HTMLImageElement;
+  u_pulseTexture?: HTMLImageElement;
+  u_simplexNoiseTexture?: HTMLImageElement;
 }
 
 export interface PulsingBorderParams extends ShaderSizingParams, ShaderMotionParams {
