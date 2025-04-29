@@ -4,7 +4,7 @@ import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingU
 import { declarePI, declareRandom, declareRotate, colorBandingFix } from '../shader-utils';
 
 export const warpMeta = {
-  maxColorCount: 6,
+  maxColorCount: 10,
 } as const;
 
 /**
@@ -137,10 +137,10 @@ void main() {
       c.rgb *= c.a;
       gradient = mix(gradient, c, localT);
   }
-  
+
   vec3 color = gradient.rgb;
   float opacity = gradient.a;
-  
+
   ${colorBandingFix}
 
   fragColor = vec4(color, opacity);

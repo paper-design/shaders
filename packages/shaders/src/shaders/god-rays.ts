@@ -4,7 +4,7 @@ import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingU
 import { declarePI, declareRandom, declareRotate, colorBandingFix } from '../shader-utils';
 
 export const godRaysMeta = {
-  maxColorCount: 6,
+  maxColorCount: 10,
 } as const;
 
 /**
@@ -69,7 +69,7 @@ float valueNoise(vec2 uv) {
 
 float raysShape(vec2 uv, float r, float freq, float density, float radius) {
   float a = atan(uv.y, uv.x) * freq;
-  float ray = pow(valueNoise(vec2(a, r)), density);  
+  float ray = pow(valueNoise(vec2(a, r)), density);
   uv = rotate(uv, PI);
   float mask = smoothstep(.0, .03, abs(atan(uv.y, uv.x)));
   return ray * (.5 + .5 * mask);
@@ -82,9 +82,9 @@ void main() {
 
   float radius = length(shape_uv);
   float spots = 5. * abs(u_spotty);
-  
+
   float density = 4. - 3. * clamp(u_density, 0., 1.);
-  
+
   float delta = 1. - smoothstep(0., 1., radius);
 
   float middleShape = pow(u_midIntensity, .3) * smoothstep(abs(u_midSize), 0.02 * abs(u_midSize), 3.0 * radius);
@@ -92,12 +92,12 @@ void main() {
 
   vec3 accumColor = vec3(0.0);
   float accumAlpha = 0.0;
-  
+
   for (int i = 0; i < ${godRaysMeta.maxColorCount}; i++) {
     if (i >= int(u_colorsCount)) break;
-  
+
     vec2 rotatedUV = rotate(shape_uv, float(i) + 1.0);
-  
+
     float r1 = radius * (1.0 + 0.4 * float(i)) - 3.0 * t;
     float r2 = 0.5 * radius * (1.0 + spots) - 2.0 * t;
     float f = mix(1.0, 3.0 + 0.5 * float(i), hash(float(i) + 10.0)) * u_frequency;
@@ -106,31 +106,31 @@ void main() {
     ray *= raysShape(rotatedUV, r2, 4.0 * f, density, radius);
     ray += (1. + 4. * ray) * middleShape;
     ray = clamp(ray, 0.0, 1.0);
-  
+
     float srcAlpha = u_colors[i].a * ray;
     vec3 srcColor = u_colors[i].rgb * srcAlpha;
-  
+
     vec3 alphaBlendColor = accumColor + (1.0 - accumAlpha) * srcColor;
     float alphaBlendAlpha = accumAlpha + (1.0 - accumAlpha) * srcAlpha;
-  
+
     vec3 addBlendColor = accumColor + srcColor;
     float addBlendAlpha = accumAlpha + srcAlpha;
-  
+
     accumColor = mix(alphaBlendColor, addBlendColor, u_blending);
     accumAlpha = mix(alphaBlendAlpha, addBlendAlpha, u_blending);
   }
-  
+
   vec3 bgColor = u_colorBack.rgb * u_colorBack.a;
-  
+
   vec3 alphaBlendColor = accumColor + (1.0 - accumAlpha) * bgColor;
   float alphaBlendAlpha = accumAlpha + (1.0 - accumAlpha) * u_colorBack.a;
-  
+
   vec3 addBlendColor = accumColor + bgColor;
   float addBlendAlpha = accumAlpha + u_colorBack.a;
-  
+
   accumColor = mix(alphaBlendColor, addBlendColor, u_blending);
   accumAlpha = mix(alphaBlendAlpha, addBlendAlpha, u_blending);
-  
+
   vec3 color = clamp(accumColor, 0.0, 1.0);
   float opacity = clamp(accumAlpha, 0.0, 1.0);
 

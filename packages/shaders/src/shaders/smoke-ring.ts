@@ -4,7 +4,7 @@ import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingU
 import { declarePI, declareRandom, colorBandingFix } from '../shader-utils';
 
 export const smokeRingMeta = {
-  maxColorCount: 3,
+  maxColorCount: 10,
   maxNoiseIterations: 8,
 } as const;
 
@@ -96,7 +96,7 @@ void main() {
   vec2 shape_uv = v_objectUV;
 
   float t = u_time;
-  
+
   float cycleDuration = 3.;
   float localTime1 = mod(.1 * t + cycleDuration, 2. * cycleDuration);
   float localTime2 = mod(.1 * t, 2. * cycleDuration);
@@ -109,14 +109,14 @@ void main() {
   vec2 polar_uv2 = vec2(atg, pow(length(shape_uv), -.6) + localTime2);
   polar_uv2 *= u_noiseScale;
   float noise2 = getNoise(shape_uv, polar_uv2, t);
-  
+
   float noise = mix(noise1, noise2, timeBlend);
 
   shape_uv *= (.8 + 1.2 * noise);
 
   float ringShape = getRingShape(shape_uv);
-  
-  float mixer = pow(ringShape, 3.) * (u_colorsCount - 1.);  
+
+  float mixer = pow(ringShape, 3.) * (u_colorsCount - 1.);
   vec4 gradient = u_colors[0];
   gradient.rgb *= gradient.a;
   for (int i = 1; i < ${smokeRingMeta.maxColorCount}; i++) {
@@ -129,11 +129,11 @@ void main() {
 
   float opacity = gradient.a * ringShape;
   opacity += u_colorBack.a;
-    
+
   vec3 color = gradient.rgb * ringShape;
   color += u_colorBack.rgb * u_colorBack.a * (1. - ringShape);
   color += u_colorBack.rgb * u_colorBack.a * ringShape * (1. - gradient.a);
-  
+
   ${colorBandingFix}
 
   fragColor = vec4(color, opacity);
