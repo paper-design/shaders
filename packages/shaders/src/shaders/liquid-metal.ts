@@ -35,6 +35,10 @@ float get_color_channel(float c1, float c2, float stripe_p, vec3 w, float extra_
   float ch = c2;
   float border = 0.;
   float blur = u_patternBlur + extra_blur;
+  
+  if (u_shape < 1.) {
+    blur += .1 * smoothstep(-.4, -.6, v_normalizedUV.y);
+  }
 
   ch = mix(ch, c1, smoothstep(.0, blur, stripe_p));
 
@@ -122,7 +126,8 @@ void main() {
     
     mask = 1. - smoothstep(.85, 1., mask);
     shape_uv += .5;
-    shape_uv *= 1.3;
+    shape_uv *= 1.15;
+    shape_uv.y += .2;
   }
 
   float contour = smoothstep(0., 1., mask) * smoothstep(1., 0., mask);
@@ -199,9 +204,6 @@ void main() {
   vec3 w = vec3(thin_strip_1_width, thin_strip_2_width, wide_strip_ratio);
   w[1] -= .02 * smoothstep(.0, 1., mask + bump);
   float extraBlur = bump;
-  if (u_shape < 1.) {
-    extraBlur += smoothstep(-.35, -.6, v_normalizedUV.y);
-  }
   float stripe_r = mod(direction + dispersionRed, 1.);
   float r = get_color_channel(color1.r, color2.r, stripe_r, w, 0.02 + .03 * u_dispersion * bump, extraBlur);
   float stripe_g = mod(direction, 1.);
