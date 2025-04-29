@@ -28,7 +28,7 @@ precision mediump float;
 
 uniform float u_time;
 
-// uniform sampler2D u_noiseTexture;
+uniform sampler2D u_noiseTexture;
 
 uniform vec4 u_colorBack;
 uniform vec4 u_colors[${godRaysMeta.maxColorCount}];
@@ -46,17 +46,17 @@ ${sizingVariablesDeclaration}
 out vec4 fragColor;
 
 ${declarePI}
-${declareRandom}
+//$ {declareRandom}
 ${declareRotate}
 
 float hash(float n) {
   return fract(sin(n * 43758.5453123) * 43758.5453123);
 }
 
-// float random(vec2 p) {
-//   vec2 uv = floor(p) / 170. + .5;
-//   return texture(u_noiseTexture, uv).r;
-// }
+float random(vec2 p) {
+  vec2 uv = floor(p) / 170. + .5;
+  return texture(u_noiseTexture, uv).r;
+}
 
 float valueNoise(vec2 uv) {
   vec2 i = floor(uv);

@@ -3,7 +3,7 @@ import { ShaderMount, type ShaderComponentProps } from '../shader-mount';
 import { colorPropsAreEqual } from '../color-props-are-equal';
 import {
   defaultObjectSizing,
-  // getShaderNoiseTexture,
+  getShaderNoiseTexture,
   getShaderColorFromString,
   godRaysFragmentShader,
   ShaderFitOptions,
@@ -138,7 +138,7 @@ export const GodRays: React.FC<GodRaysProps> = memo(function GodRaysImpl({
   worldHeight = defaultPreset.params.worldHeight,
   ...props
 }: GodRaysProps) {
-  // const noiseTexture = typeof window !== 'undefined' && {u_noiseTexture: getShaderNoiseTexture()};
+  const noiseTexture = typeof window !== 'undefined' && {u_noiseTexture: getShaderNoiseTexture()};
 
   const uniforms = {
     // Own uniforms
@@ -151,7 +151,7 @@ export const GodRays: React.FC<GodRaysProps> = memo(function GodRaysImpl({
     u_midSize: midSize,
     u_density: density,
     u_blending: blending,
-    // ...noiseTexture,
+    ...noiseTexture,
 
     // Sizing uniforms
     u_fit: ShaderFitOptions[fit],
