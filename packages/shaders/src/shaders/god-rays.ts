@@ -24,9 +24,11 @@ export const godRaysMeta = {
  * - u_blending (0 .. 1): normal / additive blending
  */
 export const godRaysFragmentShader: string = `#version 300 es
-precision highp float;
+precision mediump float;
 
 uniform float u_time;
+
+// uniform sampler2D u_noiseTexture;
 
 uniform vec4 u_colorBack;
 uniform vec4 u_colors[${godRaysMeta.maxColorCount}];
@@ -44,12 +46,17 @@ ${sizingVariablesDeclaration}
 out vec4 fragColor;
 
 ${declarePI}
-${declareRandom}
 ${declareRotate}
 
 float hash(float n) {
   return fract(sin(n * 43758.5453123) * 43758.5453123);
 }
+
+${declareRandom}
+// float random(vec2 p) {
+//   vec2 uv = floor(p) / 170. + .5;
+//   return texture(u_noiseTexture, uv).r;
+// }
 
 float valueNoise(vec2 uv) {
   vec2 i = floor(uv);
@@ -68,11 +75,13 @@ float valueNoise(vec2 uv) {
 }
 
 float raysShape(vec2 uv, float r, float freq, float density, float radius) {
-  float a = atan(uv.y, uv.x) * freq;
-  float ray = pow(valueNoise(vec2(a, r)), density);  
-  uv = rotate(uv, PI);
-  float mask = smoothstep(.0, .03, abs(atan(uv.y, uv.x)));
-  return ray * (.5 + .5 * mask);
+  float a = atan(uv.y, uv.x);
+  vec2 left = vec2(a * freq, r);
+  vec2 right = vec2(mod(a, TWO_PI) * freq, r);
+  float n_left = pow(valueNoise(left), density);
+  float n_right = pow(valueNoise(right), density);
+  float shape = mix(n_right, n_left, smoothstep(-.15, .15, uv.x));
+  return shape;
 }
 
 void main() {
@@ -116,8 +125,8 @@ void main() {
     vec3 addBlendColor = accumColor + srcColor;
     float addBlendAlpha = accumAlpha + srcAlpha;
   
-    accumColor = mix(alphaBlendColor, addBlendColor, u_blending);
-    accumAlpha = mix(alphaBlendAlpha, addBlendAlpha, u_blending);
+    accumColor = mix(alphaBlendColor, addBlendColor, 0.);
+    accumAlpha = mix(alphaBlendAlpha, addBlendAlpha, 0.);
   }
   
   vec3 bgColor = u_colorBack.rgb * u_colorBack.a;
@@ -128,12 +137,11 @@ void main() {
   vec3 addBlendColor = accumColor + bgColor;
   float addBlendAlpha = accumAlpha + u_colorBack.a;
   
-  accumColor = mix(alphaBlendColor, addBlendColor, u_blending);
-  accumAlpha = mix(alphaBlendAlpha, addBlendAlpha, u_blending);
+  accumColor = mix(alphaBlendColor, addBlendColor, 0.);
+  accumAlpha = mix(alphaBlendAlpha, addBlendAlpha, 0.);
   
   vec3 color = clamp(accumColor, 0.0, 1.0);
   float opacity = clamp(accumAlpha, 0.0, 1.0);
-
 
   ${colorBandingFix}
 
@@ -151,6 +159,7 @@ export interface GodRaysUniforms extends ShaderSizingUniforms {
   u_frequency: number;
   u_density: number;
   u_blending: number;
+  // u_noiseTexture?: HTMLImageElement;
 }
 
 export interface GodRaysParams extends ShaderSizingParams, ShaderMotionParams {
