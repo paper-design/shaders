@@ -27,6 +27,8 @@ uniform float u_pulsing;
 
 uniform float u_scale;
 
+uniform sampler2D u_noiseTexture;
+
 uniform vec2 u_resolution;
 uniform float u_pixelRatio;
 
@@ -60,19 +62,15 @@ float rand(vec2 n) {
   return fract(cos(dot(n, vec2(12.9898, 4.1414))) * 43758.5453);
 }
 
-float speech_like_pulse(float time) {
-  float baseFreq = 300.0 + sin(time * 0.1) * 100.0;
-  float midFreq = 600.0 + cos(time * 0.3) * 50.0;
-  float highFreq = 1200.0 + sin(time * 0.6) * 150.0;
+float getWaveformValue(float time) {
+  float dur = 5.;
+    float wrappedTime = mod(time, dur);
+    float normalizedTime = wrappedTime / dur;
 
-  float lowWave = sin(time * baseFreq);
-  float midWave = sin(time * midFreq) * 0.5;
-  float highWave = sin(time * highFreq) * 0.2;
+    float value = texture(u_noiseTexture, vec2(normalizedTime, 0.5)).r;
 
-  float s = lowWave + midWave + highWave;
-  s *= 0.5 + 0.5 * sin(time * 0.05);
-
-  return s;
+    // Convert from [0, 1] to [-1, 1]
+    return value * 2.0 - 1.0;
 }
 
 float sectorShape(float a, float mask, float width) {
@@ -108,10 +106,9 @@ void main() {
   uv_normalised.x *= (u_resolution.x / u_resolution.y);
   float border = roundedBoxSDF(uv_normalised, center, size, u_roundness, u_thickness, u_softness);
 
-  float pulse = speech_like_pulse(.02 * t);
-  pulse = (1. + u_pulsing * pulse);
-
-  border *= pulse;
+  float pulse = u_pulsing * getWaveformValue(.005 * t);
+  
+  border *= (1. + .5 * pulse);
   border *= (1. + u_intensity);
 
   float shape1 = 0.;
@@ -141,7 +138,7 @@ void main() {
         step(mod(colorIdx, 2.), .5)
       );
   
-      float sector = sectorShape(angle + time, mask, width) * border;
+      float sector = sectorShape(angle + time, mask + pulse, width) * border;
       sectorsTotal += sector;
       opacity += sector * u_colors[j].a;
       color += sector * u_colors[j].rgb * u_colors[j].a;
@@ -168,6 +165,7 @@ export interface PulsingBorderUniforms extends ShaderSizingUniforms {
   u_spotsNumber: number;
   u_spotSize: number;
   u_pulsing: number;
+  u_noiseTexture?: HTMLImageElement;
 }
 
 export interface PulsingBorderParams extends ShaderSizingParams, ShaderMotionParams {

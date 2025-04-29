@@ -39,7 +39,7 @@ const PulsingBorderWithControls = () => {
           intensity: { value: defaults.intensity, min: 0, max: 4, order: 302 },
           spotsNumber: { value: defaults.spotsNumber, min: 0, max: 10, step: 1, order: 302 },
           spotSize: { value: defaults.spotSize, min: 0.1, max: 0.35, order: 302 },
-          // pulsing: { value: defaults.pulsing, min: 0, max: 1, order: 302 },
+          pulsing: { value: defaults.pulsing, min: 0, max: 1, order: 302 },
           speed: { value: defaults.speed, min: 0, max: 1, order: 400 },
         },
         { order: 1 }
