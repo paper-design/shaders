@@ -57,7 +57,7 @@ void main() {
 
   shape_uv += .5;
 
-  float t = u_time + 1.;
+  float t = .2 * u_time + 1.;
 
   vec3 totalColor = vec3(0.);
   float totalShape = 0.;
