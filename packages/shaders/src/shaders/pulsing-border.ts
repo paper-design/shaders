@@ -24,6 +24,7 @@ uniform float u_intensity;
 uniform float u_spotSize;
 uniform float u_spotsNumber;
 uniform float u_pulsing;
+uniform float u_smoke;
 
 uniform float u_scale;
 
@@ -64,13 +65,10 @@ float rand(vec2 n) {
 
 float getWaveformValue(float time) {
   float dur = 5.;
-    float wrappedTime = mod(time, dur);
-    float normalizedTime = wrappedTime / dur;
-
-    float value = texture(u_noiseTexture, vec2(normalizedTime, 0.5)).r;
-
-    // Convert from [0, 1] to [-1, 1]
-    return value * 2.0 - 1.0;
+  float wrappedTime = mod(time, dur);
+  float normalizedTime = wrappedTime / dur;
+  float value = texture(u_noiseTexture, vec2(normalizedTime, 0.5)).r;
+  return value * 2.0 - 1.0;
 }
 
 float sectorShape(float a, float mask, float width) {
@@ -97,19 +95,27 @@ void main() {
   
   vec2 uv_centered = uv_normalised - .5;;
   float angle = atan(uv_centered.y, uv_centered.x) / TWO_PI;
+  
+  float ratio = u_resolution.x / u_resolution.y;
 
   // float border = roundedBoxSDF(uv_normalised, vec2(.0), vec2(1.), u_roundness, .01, .1);
   vec2 center = vec2(.5);
-  center.x *= (u_resolution.x / u_resolution.y);
+  center.x *= ratio;
   vec2 size = vec2(2.);
   size.x *= (u_resolution.x / u_resolution.y);
-  uv_normalised.x *= (u_resolution.x / u_resolution.y);
+  uv_normalised.x *= ratio;
   float border = roundedBoxSDF(uv_normalised, center, size, u_roundness, u_thickness, u_softness);
 
   float pulse = u_pulsing * getWaveformValue(.005 * t);
   
   border *= (1. + .5 * pulse);
   border *= (1. + u_intensity);
+
+  float simplex = .5 + .5 * snoise(.5 * uv_normalised);
+  simplex *= roundedBoxSDF(uv_normalised, center, size, u_roundness, .4, 4. * u_softness);
+  simplex *= u_smoke;
+  
+  border += simplex;
 
   float shape1 = 0.;
   float shape2 = 0.;
@@ -165,6 +171,7 @@ export interface PulsingBorderUniforms extends ShaderSizingUniforms {
   u_spotsNumber: number;
   u_spotSize: number;
   u_pulsing: number;
+  u_smoke: number;
   u_noiseTexture?: HTMLImageElement;
 }
 
@@ -178,4 +185,5 @@ export interface PulsingBorderParams extends ShaderSizingParams, ShaderMotionPar
   spotsNumber?: number;
   spotSize?: number;
   pulsing?: number;
+  smoke?: number;
 }
