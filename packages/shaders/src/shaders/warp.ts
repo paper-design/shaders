@@ -69,27 +69,11 @@ float noise(vec2 st) {
 
 }
 
-vec4 blend_colors(vec4 c1, vec4 c2, vec4 c3, float mixer, float edgesWidth, float edge_blur) {
-  vec3 color1 = c1.rgb * c1.a;
-  vec3 color2 = c2.rgb * c2.a;
-  vec3 color3 = c3.rgb * c3.a;
-
-  float r1 = smoothstep(.0 + .35 * edgesWidth, .7 - .35 * edgesWidth + .5 * edge_blur, mixer);
-  float r2 = smoothstep(.3 + .35 * edgesWidth, 1. - .35 * edgesWidth + edge_blur, mixer);
-
-  vec3 blended_color_2 = mix(color1, color2, r1);
-  float blended_opacity_2 = mix(c1.a, c2.a, r1);
-
-  vec3 c = mix(blended_color_2, color3, r2);
-  float o = mix(blended_opacity_2, c3.a, r2);
-  return vec4(c, o);
-}
-
 void main() {
   vec2 shape_uv = v_patternUV;
   shape_uv *= .005;
 
-  float t = .5 * u_time;
+  float t = .01 * u_time;
 
   float noise_scale = .0005 + .006 * u_scale;
 
@@ -133,6 +117,7 @@ void main() {
   for (int i = 1; i < ${warpMeta.maxColorCount}; i++) {
       if (i >= int(u_colorsCount)) break;
       float localT = clamp(mixer - float(i - 1), 0.0, 1.0);
+      localT = smoothstep(.5 - .5 * u_softness, .5 + .5 * u_softness, localT);
       vec4 c = u_colors[i];
       c.rgb *= c.a;
       gradient = mix(gradient, c, localT);
