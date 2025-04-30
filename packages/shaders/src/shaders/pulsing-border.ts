@@ -26,8 +26,6 @@ uniform float u_spotsNumber;
 uniform float u_pulsing;
 uniform float u_smoke;
 
-uniform float u_scale;
-
 uniform sampler2D u_pulseTexture;
 uniform sampler2D u_simplexNoiseTexture;
 
@@ -41,14 +39,18 @@ out vec4 fragColor;
 ${declarePI}
 ${declareSimplexNoise}
 
-float roundedBoxSDF(vec2 uv, vec2 boxCenter, vec2 boxSize, float radius, float thickness, float edgeSoftness) {
-    vec2 p = uv - boxCenter;
+float roundedBoxSDF(vec2 uv, vec2 boxSize, float radius, float thickness, float edgeSoftness) {
+    float aspect = u_resolution.x / u_resolution.y;
+    uv.x *= aspect;
+    vec2 p = uv;
+    
     vec2 halfSize = boxSize * .5;
-
+    halfSize.x *= aspect;
+    
     float minRadius = (edgeSoftness + thickness) * .33;
-    radius = max(radius, minRadius);
-
-    vec2 d = abs(p) - halfSize + vec2(radius);
+    // radius = max(radius, minRadius);
+    
+    vec2 d = abs(p) - halfSize + radius;
     float outsideDistance = length(max(d, 0.)) - radius;
     float insideDistance = min(max(d.x, d.y), 0.0);
     float distance = outsideDistance + insideDistance;
@@ -82,39 +84,24 @@ float sectorShape(float a, float mask, float width) {
 
 void main() {
 
-  vec2 uv = gl_FragCoord.xy;
-  uv /= u_pixelRatio;
-
   float t = u_time + 2.;
 
-  vec2 uv_normalised = gl_FragCoord.xy / u_resolution.xy;
-  uv_normalised -= .5;
-  uv_normalised *= 2. * u_scale;
-  uv_normalised += .5;
-
-  // vec2 uv_normalised = v_objectUV;
-  
-  vec2 uv_centered = uv_normalised - .5;;
+  vec2 uv_centered = v_objectUV;
   float angle = atan(uv_centered.y, uv_centered.x) / TWO_PI;
   
   float ratio = u_resolution.x / u_resolution.y;
 
-  // float border = roundedBoxSDF(uv_normalised, vec2(.0), vec2(1.), u_roundness, .01, .1);
-  vec2 center = vec2(.5);
-  center.x *= ratio;
-  vec2 size = vec2(2.);
-  size.x *= ratio;
-  uv_normalised.x *= ratio;
-  float border = roundedBoxSDF(uv_normalised, center, size, u_roundness, u_thickness, u_softness);
+  float border = roundedBoxSDF(v_objectUV, vec2(1.), .5 * u_roundness, u_thickness, u_softness);
 
   float pulse = u_pulsing * getWaveformValue(.005 * t);
   
   border *= (1. + .5 * pulse);
   border *= (1. + u_intensity);
 
-  float smoke = texture(u_simplexNoiseTexture, .0002 * gl_FragCoord.xy).r;
-  // float smoke = .5 + .5 * snoise(.5 * uv_normalised);
-  smoke *= roundedBoxSDF(uv_normalised, center, size, 1., .4, 1.);
+  // float smoke = texture(u_simplexNoiseTexture, .0002 * gl_FragCoord.xy).r;
+  float smoke = .5 + .5 * snoise(.7 * v_objectUV);
+  smoke *= roundedBoxSDF(v_objectUV, vec2(1.), .5 * u_roundness, max(2.5 * u_thickness, .35), 1.);
+  smoke *= smoothstep(0., 1., length(v_objectUV));
   smoke *= u_smoke;
   
   border += smoke;
@@ -158,6 +145,8 @@ void main() {
   
   ${colorBandingFix}
 
+  color += u_colorBack.rgb * (1. - clamp(sectorsTotal, 0., 1.)) * u_colorBack.a;
+  
   fragColor = vec4(color, opacity);
 }
 `;

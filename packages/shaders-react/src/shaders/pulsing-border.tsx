@@ -24,7 +24,7 @@ export const defaultPreset: PulsingBorderPreset = {
   name: 'Default',
   params: {
     ...defaultObjectSizing,
-    scale: 1.5,
+    scale: 0.8,
     speed: 0.6,
     frame: 0,
     colorBack: 'hsla(0, 0%, 0%, 1)',

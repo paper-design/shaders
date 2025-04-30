@@ -533,7 +533,7 @@ void main() {
   // ===================================================
   // Sizing api for objects (graphics with fixed ratio)
   
-  float objectWorldRatio = 1.;
+  float objectWorldRatio = u_resolution.x / u_resolution.y;
   vec2 objectWorld = vec2(0.);
   objectWorld.x = objectWorldRatio * min(worldSize.x / objectWorldRatio, worldSize.y);
   if (u_fit == 1.) {

@@ -47,7 +47,7 @@ const PulsingBorderWithControls = () => {
       ),
       Transform: folder(
         {
-          scale: { value: defaults.scale, min: 1, max: 4, order: 400 },
+          scale: { value: defaults.scale, min: 0.01, max: 1, order: 400 },
           rotation: { value: defaults.rotation, min: 0, max: 360, order: 401 },
           offsetX: { value: defaults.offsetX, min: -1, max: 1, order: 402 },
           offsetY: { value: defaults.offsetY, min: -1, max: 1, order: 403 },
