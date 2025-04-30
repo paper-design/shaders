@@ -91,7 +91,7 @@ void main() {
   
   float ratio = u_resolution.x / u_resolution.y;
 
-  float border = roundedBoxSDF(v_objectUV, vec2(1.), .5 * u_roundness, u_thickness, u_softness);
+  float border = roundedBoxSDF(v_objectUV, vec2(1.), .5 * u_roundness, .5 * u_thickness, .5 * u_softness);
 
   float pulse = u_pulsing * getWaveformValue(.005 * t);
   
@@ -100,8 +100,8 @@ void main() {
 
   // float smoke = texture(u_simplexNoiseTexture, .0002 * gl_FragCoord.xy).r;
   float smoke = .5 + .5 * snoise(.7 * v_objectUV);
-  smoke *= roundedBoxSDF(v_objectUV, vec2(1.), .5 * u_roundness, max(2.5 * u_thickness, .35), 1.);
-  smoke *= smoothstep(0., 1., length(v_objectUV));
+  smoke *= roundedBoxSDF(v_objectUV, vec2(.9), .5, max(2.5 * u_thickness, .35), .5);
+  smoke *= smoothstep(0., 1., 1.1 * length(v_objectUV));
   smoke *= u_smoke;
   
   border += smoke;
