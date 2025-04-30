@@ -103,10 +103,12 @@ void main() {
   float timeBlend = .5 + .5 * sin(.1 * t * PI / cycleDuration - .5 * PI);
 
   float atg = atan(shape_uv.y, shape_uv.x) + .001;
-  vec2 polar_uv1 = vec2(atg, pow(length(shape_uv), -.6) + localTime1);
+  float l = length(shape_uv);
+  vec2 polar_uv1 = vec2(atg, localTime1 - (.5 * l) + 1. / pow(l, .5));
   polar_uv1 *= u_noiseScale;
   float noise1 = getNoise(shape_uv, polar_uv1, t);
-  vec2 polar_uv2 = vec2(atg, pow(length(shape_uv), -.6) + localTime2);
+
+  vec2 polar_uv2 = vec2(atg, localTime2 - (.5 * l) + 1. / pow(l, .5));
   polar_uv2 *= u_noiseScale;
   float noise2 = getNoise(shape_uv, polar_uv2, t);
 
