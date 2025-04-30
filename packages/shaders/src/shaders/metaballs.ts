@@ -15,8 +15,8 @@ export const metaballsMeta = {
  * Uniforms include:
  * - uColors (vec4[]): Input RGBA colors
  * - uColorsCount (float): Number of active colors (`uColors` length)
- * - u_ballsNumber (float)
- * - u_ballSize (float)
+ * - u_count (float)
+ * - u_size (float)
  */
 export const metaballsFragmentShader: string = `#version 300 es
 precision highp float;
@@ -25,9 +25,9 @@ uniform float u_time;
 
 uniform vec4 u_colors[${metaballsMeta.maxColorCount}];
 uniform float u_colorsCount;
-uniform float u_ballSize;
-uniform float u_ballSizeRange;
-uniform float u_ballsNumber;
+uniform float u_size;
+uniform float u_sizeRange;
+uniform float u_count;
 
 ${sizingVariablesDeclaration}
 
@@ -64,7 +64,7 @@ void main() {
   float totalOpacity = 0.;
   
   for (int i = 0; i < ${metaballsMeta.maxBallsCount}; i++) {
-    if (i >= int(ceil(u_ballsNumber))) break;
+    if (i >= int(ceil(u_count))) break;
   
     float idxFract = float(i) / float(${metaballsMeta.maxBallsCount});
     float angle = TWO_PI * idxFract;
@@ -80,11 +80,11 @@ void main() {
     ballColor.rgb *= ballColor.a;
 
     float sizeFrac = 1.;
-    if (float(i) > floor(u_ballsNumber - 1.)) {
-      sizeFrac *= fract(u_ballsNumber);
+    if (float(i) > floor(u_count - 1.)) {
+      sizeFrac *= fract(u_count);
     }
 
-    float shape = getBallShape(shape_uv, pos, 50. - 30. * u_ballSize * sizeFrac);
+    float shape = getBallShape(shape_uv, pos, 50. - 30. * u_size * sizeFrac);
     shape = smoothstep(0., 1., shape);
 
     totalColor += ballColor.rgb * shape;
@@ -114,12 +114,12 @@ void main() {
 export interface MetaballsUniforms extends ShaderSizingUniforms {
   u_colors: vec4[];
   u_colorsCount: number;
-  u_ballsNumber: number;
-  u_ballSize: number;
+  u_count: number;
+  u_size: number;
 }
 
 export interface MetaballsParams extends ShaderSizingParams, ShaderMotionParams {
   colors?: string[];
-  ballsNumber?: number;
-  ballSize?: number;
+  count?: number;
+  size?: number;
 }

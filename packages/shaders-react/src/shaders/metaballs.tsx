@@ -27,8 +27,8 @@ export const defaultPreset: MetaballsPreset = {
     speed: 1,
     frame: 0,
     colors: ['hsla(259, 100%, 80%, 1)', 'hsla(150, 100%, 80%, 1)', 'hsla(48, 100%, 80%, 1)', 'hsla(295, 100%, 80%, 1)'],
-    ballsNumber: 7,
-    ballSize: 1,
+    count: 7,
+    size: 1,
   },
 };
 
@@ -39,8 +39,8 @@ export const Metaballs: React.FC<MetaballsProps> = memo(function MetaballsImpl({
   speed = defaultPreset.params.speed,
   frame = defaultPreset.params.frame,
   colors = defaultPreset.params.colors,
-  ballSize = defaultPreset.params.ballSize,
-  ballsNumber = defaultPreset.params.ballsNumber,
+  size = defaultPreset.params.size,
+  count = defaultPreset.params.count,
 
   // Sizing props
   fit = defaultPreset.params.fit,
@@ -58,8 +58,8 @@ export const Metaballs: React.FC<MetaballsProps> = memo(function MetaballsImpl({
     // Own uniforms
     u_colors: colors.map(getShaderColorFromString),
     u_colorsCount: colors.length,
-    u_ballSize: ballSize,
-    u_ballsNumber: ballsNumber,
+    u_size: size,
+    u_count: count,
 
     // Sizing uniforms
     u_fit: ShaderFitOptions[fit],
