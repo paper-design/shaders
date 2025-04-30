@@ -28,6 +28,8 @@ precision highp float;
 
 uniform float u_time;
 
+uniform sampler2D u_noiseTexture;
+
 uniform vec4 u_colorBack;
 uniform vec4 u_colors[${smokeRingMeta.maxColorCount}];
 uniform float u_colorsCount;
@@ -43,7 +45,12 @@ ${sizingVariablesDeclaration}
 out vec4 fragColor;
 
 ${declarePI}
-${declareRandom}
+//$ {declareRandom}
+
+float random(vec2 p) {
+  vec2 uv = floor(p) / 100. + .5;
+  return texture(u_noiseTexture, uv).r;
+}
 
 float noise(vec2 st) {
   vec2 i = floor(st);
@@ -151,6 +158,7 @@ export interface SmokeRingUniforms extends ShaderSizingUniforms {
   u_radius: number;
   u_innerShape: number;
   u_noiseIterations: number;
+  u_noiseTexture?: HTMLImageElement;
 }
 
 export interface SmokeRingParams extends ShaderSizingParams, ShaderMotionParams {

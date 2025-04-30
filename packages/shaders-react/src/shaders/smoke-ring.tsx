@@ -4,6 +4,7 @@ import { colorPropsAreEqual } from '../color-props-are-equal';
 import {
   defaultObjectSizing,
   getShaderColorFromString,
+  getShaderNoiseTexture,
   smokeRingFragmentShader,
   ShaderFitOptions,
   type ShaderPreset,
@@ -109,6 +110,8 @@ export const SmokeRing: React.FC<SmokeRingProps> = memo(function SmokeRingImpl({
   worldHeight = defaultPreset.params.worldHeight,
   ...props
 }: SmokeRingProps) {
+  const noiseTexture = typeof window !== 'undefined' && { u_noiseTexture: getShaderNoiseTexture() };
+
   const uniforms = {
     // Own uniforms
     u_colorBack: getShaderColorFromString(colorBack),
@@ -119,6 +122,7 @@ export const SmokeRing: React.FC<SmokeRingProps> = memo(function SmokeRingImpl({
     u_radius: radius,
     u_innerShape: innerShape,
     u_noiseIterations: noiseIterations,
+    ...noiseTexture,
 
     // Sizing uniforms
     u_fit: ShaderFitOptions[fit],
