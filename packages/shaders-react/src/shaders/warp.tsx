@@ -34,7 +34,7 @@ export const defaultPreset: WarpPreset = {
     swirl: 0.8,
     swirlIterations: 10,
     shapeScale: 0.1,
-    shape: 'checks',
+    shape: 'edge',
   },
 };
 

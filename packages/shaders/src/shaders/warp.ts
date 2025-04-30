@@ -103,10 +103,7 @@ void main() {
     shape += .48 * sign(proportion - .5) * pow(abs(proportion - .5), .5);
   } else {
     float sh = 1. - shape_uv.y;
-    sh -= .5;
-    sh /= (noise_scale * u_resolution.y);
-    sh += .5;
-    float shape_scaling = .2 * (1. - u_shapeScale);
+    float shape_scaling = 5. * (1. - u_shapeScale);
     shape = smoothstep(.45 - shape_scaling, .55 + shape_scaling, sh + .3 * (proportion - .5));
   }
 

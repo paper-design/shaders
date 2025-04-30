@@ -137,7 +137,6 @@ export const GodRays: React.FC<GodRaysProps> = memo(function GodRaysImpl({
   worldHeight = defaultPreset.params.worldHeight,
   ...props
 }: GodRaysProps) {
-
   const uniforms = {
     // Own uniforms
     u_colorBack: getShaderColorFromString(colorBack),
