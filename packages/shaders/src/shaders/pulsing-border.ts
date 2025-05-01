@@ -37,9 +37,6 @@ uniform float u_smoke;
 uniform sampler2D u_pulseTexture;
 uniform sampler2D u_simplexNoiseTexture;
 
-uniform vec2 u_resolution;
-uniform float u_pixelRatio;
-
 ${sizingUniformsDeclaration}
 
 ${sizingVariablesDeclaration}
@@ -51,12 +48,12 @@ ${declarePI}
 ${declareSimplexNoise}
 
 float roundedBoxSDF(vec2 uv, vec2 boxSize, float radius, float thickness, float edgeSoftness) {
-    float aspect = v_worldSizeRatio;
-    uv.x *= aspect;
+    float ratio = v_worldSizeTest.x / v_worldSizeTest.y;;
+    uv.x *= ratio;
     vec2 p = uv;
     
     vec2 halfSize = boxSize * .5;
-    halfSize.x *= aspect;
+    halfSize.x *= ratio;
     
     float minRadius = (edgeSoftness + thickness) * .33;
     // radius = max(radius, minRadius);
@@ -108,9 +105,9 @@ void main() {
   border *= (1. + .5 * pulse);
   border *= (1. + u_intensity);
 
-  float smoke = .5 + .5 * snoise(.7 * borderUV);
-  smoke *= roundedBoxSDF(borderUV, vec2(.9), .5, max(2.5 * u_thickness, .35), .5);
-  smoke *= smoothstep(0., 1., 1.1 * length(borderUV));
+  float smoke = .5 + .5 * snoise(1.7 * borderUV);
+  smoke *= roundedBoxSDF(borderUV, vec2(.9), .5, max(2. * u_thickness, .35), .5);
+  smoke *= smoothstep(0., 1., .7 * length(borderUV));
   smoke *= u_smoke;
   
   border += smoke;

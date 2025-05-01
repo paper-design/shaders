@@ -11,7 +11,7 @@ uniform float u_offsetX;
 uniform float u_offsetY;`;
 
 export const sizingVariablesDeclaration = `
-in float v_worldSizeRatio;
+in vec2 v_worldSizeTest;
 in vec2 v_objectUV;
 in vec2 v_screenSizeUV;
 in vec2 v_patternUV;`;
