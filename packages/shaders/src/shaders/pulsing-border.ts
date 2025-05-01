@@ -51,7 +51,7 @@ ${declarePI}
 ${declareSimplexNoise}
 
 float roundedBoxSDF(vec2 uv, vec2 boxSize, float radius, float thickness, float edgeSoftness) {
-    float aspect = u_resolution.x / u_resolution.y;
+    float aspect = v_worldSizeRatio;
     uv.x *= aspect;
     vec2 p = uv;
     
@@ -96,23 +96,21 @@ float sectorShape(float a, float mask, float width) {
 void main() {
 
   float t = u_time + 2.;
-
-  vec2 uv_centered = v_objectUV;
-  float angle = atan(uv_centered.y, uv_centered.x) / TWO_PI;
   
-  float ratio = u_resolution.x / u_resolution.y;
+  vec2 borderUV = v_screenSizeUV;
 
-  float border = roundedBoxSDF(v_objectUV, vec2(1.), .5 * u_roundness, .5 * u_thickness, .5 * u_softness);
+  float angle = atan(borderUV.y, borderUV.x) / TWO_PI;
+  
+  float border = roundedBoxSDF(borderUV, vec2(1.), .5 * u_roundness, .5 * u_thickness, .5 * u_softness);
 
   float pulse = u_pulsing * getWaveformValue(.005 * t);
   
   border *= (1. + .5 * pulse);
   border *= (1. + u_intensity);
 
-  // float smoke = texture(u_simplexNoiseTexture, .0002 * gl_FragCoord.xy).r;
-  float smoke = .5 + .5 * snoise(.7 * v_objectUV);
-  smoke *= roundedBoxSDF(v_objectUV, vec2(.9), .5, max(2.5 * u_thickness, .35), .5);
-  smoke *= smoothstep(0., 1., 1.1 * length(v_objectUV));
+  float smoke = .5 + .5 * snoise(.7 * borderUV);
+  smoke *= roundedBoxSDF(borderUV, vec2(.9), .5, max(2.5 * u_thickness, .35), .5);
+  smoke *= smoothstep(0., 1., 1.1 * length(borderUV));
   smoke *= u_smoke;
   
   border += smoke;

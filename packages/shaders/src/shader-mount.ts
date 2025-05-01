@@ -514,11 +514,16 @@ uniform float u_offsetY;
 
 uniform float u_pxSize;
 
+out float v_worldSizeRatio;
+
 out vec2 v_objectUV;
+out vec2 v_screenSizeUV;
 out vec2 v_patternUV;
 out vec2 v_objectWorld;
+out vec2 v_screenSizeWorld;
 out vec2 v_patternWorld;
 out vec2 v_objectWorldBox;
+out vec2 v_screenSizeWorldBox;
 out vec2 v_patternWorldBox;
 
 
@@ -538,7 +543,7 @@ void main() {
   // ===================================================
   // Sizing api for objects (graphics with fixed ratio)
   
-  float objectWorldRatio = u_resolution.x / u_resolution.y;
+  float objectWorldRatio = 1.;
   v_objectWorld = vec2(0.);
   v_objectWorld.x = objectWorldRatio * min(worldSize.x / objectWorldRatio, worldSize.y);
   if (u_fit == 1.) {
@@ -560,10 +565,44 @@ void main() {
   v_objectUV += worldOrigin * (objectWorldScale - 1.);
   v_objectUV += vec2(-u_offsetX, u_offsetY);
   v_objectUV /= u_scale;
-  
-  v_objectUV.x *= objectWorldRatio;
   v_objectUV = mat2(cos(rotationRad), sin(rotationRad), -sin(rotationRad), cos(rotationRad)) * v_objectUV;
-  v_objectUV.x /= objectWorldRatio;
+
+  // ===================================================
+  
+  
+  // ===================================================
+  // Sizing api for objects (graphics with canvas ratio)
+  
+  if (u_worldWidth == 0.) {
+    worldSize.x = u_resolution.x;
+  }
+  if (u_worldHeight == 0.) {
+    worldSize.y = u_resolution.y;
+  }  
+  v_worldSizeRatio = worldSize.x / worldSize.y;
+  v_screenSizeWorld.x = v_worldSizeRatio * min(worldSize.x / v_worldSizeRatio, worldSize.y);
+  if (u_fit == 1.) {
+    // contain
+    v_screenSizeWorld.x = v_worldSizeRatio * min(maxWidth / v_worldSizeRatio, maxHeight);
+  } else if (u_fit == 2.) {
+    // cover
+    v_screenSizeWorld.x = v_worldSizeRatio * max(maxWidth / v_worldSizeRatio, maxHeight);
+  }
+  v_screenSizeWorld.y = v_screenSizeWorld.x / v_worldSizeRatio;
+  vec2 screenSizeWorldScale = u_resolution.xy / v_screenSizeWorld;
+  v_screenSizeWorldBox = gl_Position.xy * .5;
+  v_screenSizeWorldBox *= screenSizeWorldScale;
+  v_screenSizeWorldBox += worldOrigin * (screenSizeWorldScale - 1.);  
+  
+  v_screenSizeUV = uv;
+  v_screenSizeUV *= screenSizeWorldScale;
+  v_screenSizeUV += worldOrigin * (screenSizeWorldScale - 1.);
+  v_screenSizeUV += vec2(-u_offsetX, u_offsetY);
+  v_screenSizeUV /= u_scale;
+  v_screenSizeUV.x *= v_worldSizeRatio;
+  v_screenSizeUV = mat2(cos(rotationRad), sin(rotationRad), -sin(rotationRad), cos(rotationRad)) * v_screenSizeUV;
+  v_screenSizeUV.x /= v_worldSizeRatio;
+
 
   // ===================================================
 
