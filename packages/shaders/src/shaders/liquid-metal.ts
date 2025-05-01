@@ -75,9 +75,6 @@ void main() {
   float t = .1 * u_time;
 
   vec2 shape_uv = v_objectUV;
-  if (u_shape < 1.) {
-    shape_uv = v_screenSizeUV;
-  }
   shape_uv += .5;
   shape_uv.y = 1. - shape_uv.y;
 
@@ -86,21 +83,27 @@ void main() {
   float mask = 1.;
   if (u_shape < 1.) {
   
+    vec2 borderUV = v_screenSizeUV + .5;
     float ratio = u_resolution.x / u_resolution.y;
-    vec2 edge = min(shape_uv, 1. - shape_uv);
+    vec2 edge = min(borderUV, 1. - borderUV);
     vec2 pixel_thickness = vec2(350.0) / (u_resolution * u_pixelRatio);
     float maskX = smoothstep(0.0, pixel_thickness.x, edge.x);
     float maskY = smoothstep(0.0, pixel_thickness.y, edge.y);
     maskX = pow(maskX, .25);
     maskY = pow(maskY, .25);
     mask = clamp(1. - maskX * maskY, 0., 1.);
+    
+    shape_uv = v_screenSizeUV;
     if (ratio > 1.) {
-      shape_uv.y /= ratio;
+      shape_uv.x *= v_worldSizeRatio;
+      shape_uv /= ratio;
     } else {
-      shape_uv.x *= ratio;
+      shape_uv.y /= v_worldSizeRatio;
+      shape_uv *= ratio;
     }
-    cycleWidth *= (.7 + ratio);
-    shape_uv *= 1.2;
+    shape_uv += .5;
+    shape_uv.y = 1. - shape_uv.y;
+
   } else if (u_shape < 2.) {  
     mask = pow(clamp(3. * length(shape_uv - .5), 0., 1.), 8.);
     shape_uv *= 1.4;
