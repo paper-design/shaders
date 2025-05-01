@@ -71,7 +71,7 @@ float noise(vec2 st) {
 
 void main() {
   vec2 shape_uv = v_patternUV;
-  shape_uv *= .005;
+  shape_uv *= .0025;
 
   float t = .01 * u_time;
 

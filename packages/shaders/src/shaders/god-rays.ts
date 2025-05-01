@@ -4,7 +4,7 @@ import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingU
 import { declarePI, declareRandom, declareRotate, colorBandingFix } from '../shader-utils';
 
 export const godRaysMeta = {
-  maxColorCount: 6,
+  maxColorCount: 5,
 } as const;
 
 /**
