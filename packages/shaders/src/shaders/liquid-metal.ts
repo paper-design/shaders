@@ -1,6 +1,14 @@
 import type { vec4 } from '../types';
 import type { ShaderMotionParams } from '../shader-mount';
-import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing';
+import {
+  sizingVariablesDeclaration,
+  worldBoxTestStroke,
+  sizingDebugVariablesDeclaration,
+  sizingUniformsDeclaration,
+  viewPortTestOriginPoint,
+  type ShaderSizingParams,
+  type ShaderSizingUniforms,
+} from '../shader-sizing';
 import { declarePI, declareRotate, declareSimplexNoise, colorBandingFix } from '../shader-utils';
 
 /**
@@ -19,10 +27,10 @@ uniform float u_dispersion;
 uniform float u_liquid;
 uniform float u_shape;
 
-uniform float u_scale;
 
+${sizingUniformsDeclaration}
 ${sizingVariablesDeclaration}
-in vec2 v_normalizedUV;
+${sizingDebugVariablesDeclaration}
 
 out vec4 fragColor;
 
@@ -37,7 +45,7 @@ float get_color_channel(float c1, float c2, float stripe_p, vec3 w, float extra_
   float blur = u_patternBlur + extra_blur;
   
   if (u_shape < 1.) {
-    blur += .1 * smoothstep(-.4, -.6, v_normalizedUV.y);
+    blur += .1 * smoothstep(-.4, -.6, v_screenSizeUV.y);
   }
 
   ch = mix(ch, c1, smoothstep(.0, blur, stripe_p));
@@ -68,7 +76,7 @@ void main() {
 
   vec2 shape_uv = v_objectUV;
   if (u_shape < 1.) {
-    shape_uv = v_normalizedUV;
+    shape_uv = v_screenSizeUV;
   }
   shape_uv += .5;
   shape_uv.y = 1. - shape_uv.y;
@@ -214,7 +222,17 @@ void main() {
   color = vec3(r, g, b);
 
   ${colorBandingFix}
+  
+  ${worldBoxTestStroke}
+  color = mix(color, vec3(1., 0., 0.), worldBoxTestStroke);
+  opacity += worldBoxTestStroke;
 
+  ${viewPortTestOriginPoint}
+  color = mix(color, vec3(0., 1., 0.), viewPortTestOriginPoint);
+  color = mix(color, vec3(0., 0., 1.), worldTestOriginPoint);
+  opacity += viewPortTestOriginPoint;
+  opacity += worldTestOriginPoint;
+  
   color *= opacity;
 
   fragColor = vec4(color, opacity);

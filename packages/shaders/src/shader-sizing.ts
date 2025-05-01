@@ -12,12 +12,15 @@ uniform float u_offsetY;`;
 
 export const sizingVariablesDeclaration = `
 in vec2 v_objectUV;
+in vec2 v_screenSizeUV;
 in vec2 v_patternUV;`;
 
 export const sizingDebugVariablesDeclaration = `
 in vec2 v_objectWorld;
+in vec2 v_screenSizeWorld;
 in vec2 v_patternWorld;
 in vec2 v_objectWorldBox;
+in vec2 v_screenSizeWorldBox;
 in vec2 v_patternWorldBox;`;
 
 export const sizingUV = `
@@ -252,18 +255,18 @@ void main() {
 }`;
 
 export const worldBoxTestStroke = `
-  vec2 worldBoxDist = abs(worldBox);
+  vec2 worldBoxDist = abs(v_screenSizeWorldBox);
   float worldBoxTestStroke = (step(max(worldBoxDist.x, worldBoxDist.y), .5) - step(max(worldBoxDist.x, worldBoxDist.y), .49));
 `;
 
 export const viewPortTestOriginPoint = `
   vec2 worldOriginCopy = vec2(.5 - u_originX, u_originY - .5);
-  vec2 viewPortTestOriginDist = worldBox + worldOriginCopy;
-  viewPortTestOriginDist.x *= (world.x / world.y);
+  vec2 viewPortTestOriginDist = v_screenSizeWorldBox + worldOriginCopy;
+  viewPortTestOriginDist.x *= (v_screenSizeWorld.x / v_screenSizeWorld.y);
   float viewPortTestOriginPoint = 1. - smoothstep(0., .05, length(viewPortTestOriginDist));
   
-  vec2 worldTestOriginPointDist = worldBox + vec2(-u_offsetX, u_offsetY);
-  worldTestOriginPointDist.x *= (world.x / world.y);
+  vec2 worldTestOriginPointDist = v_screenSizeWorldBox + vec2(-u_offsetX, u_offsetY);
+  worldTestOriginPointDist.x *= (v_screenSizeWorld.x / v_screenSizeWorld.y);
   float worldTestOriginPoint = 1. - smoothstep(0., .05, length(worldTestOriginPointDist));
 `;
 
