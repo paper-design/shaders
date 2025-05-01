@@ -18,8 +18,6 @@ export const liquidMetalFragmentShader: string = `#version 300 es
 precision highp float;
 
 uniform float u_time;
-uniform vec2 u_resolution;
-uniform float u_pixelRatio;
 
 uniform float u_patternBlur;
 uniform float u_patternScale;
@@ -84,9 +82,9 @@ void main() {
   if (u_shape < 1.) {
   
     vec2 borderUV = v_screenSizeUV + .5;
-    float ratio = u_resolution.x / u_resolution.y;
+    float ratio = v_worldSizeTest.x / v_worldSizeTest.y;
     vec2 edge = min(borderUV, 1. - borderUV);
-    vec2 pixel_thickness = vec2(350.0) / (u_resolution * u_pixelRatio);
+    vec2 pixel_thickness = 250. / v_worldSizeTest;
     float maskX = smoothstep(0.0, pixel_thickness.x, edge.x);
     float maskY = smoothstep(0.0, pixel_thickness.y, edge.y);
     maskX = pow(maskX, .25);
@@ -95,11 +93,9 @@ void main() {
     
     shape_uv = v_screenSizeUV;
     if (ratio > 1.) {
-      shape_uv.x *= v_worldSizeRatio;
-      shape_uv /= ratio;
+      shape_uv.y /= ratio;
     } else {
-      shape_uv.y /= v_worldSizeRatio;
-      shape_uv *= ratio;
+      shape_uv.x *= ratio;
     }
     shape_uv += .5;
     shape_uv.y = 1. - shape_uv.y;

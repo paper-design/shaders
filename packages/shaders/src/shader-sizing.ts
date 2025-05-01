@@ -11,7 +11,7 @@ uniform float u_offsetX;
 uniform float u_offsetY;`;
 
 export const sizingVariablesDeclaration = `
-in float v_worldSizeRatio;
+in vec2 v_worldSizeTest;
 in vec2 v_objectUV;
 in vec2 v_screenSizeUV;
 in vec2 v_patternUV;`;
@@ -257,7 +257,7 @@ void main() {
 
 export const worldBoxTestStroke = `
   vec2 worldBoxDist = abs(v_screenSizeWorldBox);
-  float worldBoxTestStroke = (step(max(worldBoxDist.x, worldBoxDist.y), .5) - step(max(worldBoxDist.x, worldBoxDist.y), .49));
+  float worldBoxTestStroke = (step(max(worldBoxDist.x, worldBoxDist.y), .5) - step(max(worldBoxDist.x, worldBoxDist.y), .495));
 `;
 
 export const viewPortTestOriginPoint = `
