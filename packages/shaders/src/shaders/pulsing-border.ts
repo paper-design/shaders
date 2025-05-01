@@ -1,6 +1,14 @@
 import type { vec4 } from '../types';
 import type { ShaderMotionParams } from '../shader-mount';
-import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing';
+import {
+  sizingUniformsDeclaration,
+  sizingVariablesDeclaration,
+  sizingDebugVariablesDeclaration,
+  worldBoxTestStroke,
+  viewPortTestOriginPoint,
+  type ShaderSizingParams,
+  type ShaderSizingUniforms,
+} from '../shader-sizing';
 import { declarePI, declareSimplexNoise, colorBandingFix } from '../shader-utils';
 
 export const pulsingBorderMeta = {
@@ -32,7 +40,10 @@ uniform sampler2D u_simplexNoiseTexture;
 uniform vec2 u_resolution;
 uniform float u_pixelRatio;
 
+${sizingUniformsDeclaration}
+
 ${sizingVariablesDeclaration}
+${sizingDebugVariablesDeclaration}
 
 out vec4 fragColor;
 
@@ -146,7 +157,15 @@ void main() {
   ${colorBandingFix}
 
   color += u_colorBack.rgb * (1. - clamp(sectorsTotal, 0., 1.)) * u_colorBack.a;
+
+  ${worldBoxTestStroke}
   
+  color.r += worldBoxTestStroke;
+  
+  ${viewPortTestOriginPoint}
+  color.g += viewPortTestOriginPoint;
+  color.b += worldTestOriginPoint;
+
   fragColor = vec4(color, opacity);
 }
 `;

@@ -252,18 +252,18 @@ void main() {
 }`;
 
 export const worldBoxTestStroke = `
-  vec2 worldBoxDist = abs(worldBox);
+  vec2 worldBoxDist = abs(v_objectWorldBox);
   float worldBoxTestStroke = (step(max(worldBoxDist.x, worldBoxDist.y), .5) - step(max(worldBoxDist.x, worldBoxDist.y), .49));
 `;
 
 export const viewPortTestOriginPoint = `
   vec2 worldOriginCopy = vec2(.5 - u_originX, u_originY - .5);
-  vec2 viewPortTestOriginDist = worldBox + worldOriginCopy;
-  viewPortTestOriginDist.x *= (world.x / world.y);
+  vec2 viewPortTestOriginDist = v_objectWorldBox + worldOriginCopy;
+  viewPortTestOriginDist.x *= (v_objectWorld.x / v_objectWorld.y);
   float viewPortTestOriginPoint = 1. - smoothstep(0., .05, length(viewPortTestOriginDist));
   
-  vec2 worldTestOriginPointDist = worldBox + vec2(-u_offsetX, u_offsetY);
-  worldTestOriginPointDist.x *= (world.x / world.y);
+  vec2 worldTestOriginPointDist = v_objectWorldBox + vec2(-u_offsetX, u_offsetY);
+  worldTestOriginPointDist.x *= (v_objectWorld.x / v_objectWorld.y);
   float worldTestOriginPoint = 1. - smoothstep(0., .05, length(worldTestOriginPointDist));
 `;
 

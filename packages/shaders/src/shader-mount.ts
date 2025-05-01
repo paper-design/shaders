@@ -516,6 +516,11 @@ uniform float u_pxSize;
 
 out vec2 v_objectUV;
 out vec2 v_patternUV;
+out vec2 v_objectWorld;
+out vec2 v_patternWorld;
+out vec2 v_objectWorldBox;
+out vec2 v_patternWorldBox;
+
 
 void main() {
   gl_Position = a_position;
@@ -534,17 +539,21 @@ void main() {
   // Sizing api for objects (graphics with fixed ratio)
   
   float objectWorldRatio = u_resolution.x / u_resolution.y;
-  vec2 objectWorld = vec2(0.);
-  objectWorld.x = objectWorldRatio * min(worldSize.x / objectWorldRatio, worldSize.y);
+  v_objectWorld = vec2(0.);
+  v_objectWorld.x = objectWorldRatio * min(worldSize.x / objectWorldRatio, worldSize.y);
   if (u_fit == 1.) {
     // contain
-    objectWorld.x = objectWorldRatio * min(maxWidth / objectWorldRatio, maxHeight);
+    v_objectWorld.x = objectWorldRatio * min(maxWidth / objectWorldRatio, maxHeight);
   } else if (u_fit == 2.) {
     // cover
-    objectWorld.x = objectWorldRatio * max(maxWidth / objectWorldRatio, maxHeight);
+    v_objectWorld.x = objectWorldRatio * max(maxWidth / objectWorldRatio, maxHeight);
   }
-  objectWorld.y = objectWorld.x / objectWorldRatio;
-  vec2 objectWorldScale = u_resolution.xy / objectWorld;
+  v_objectWorld.y = v_objectWorld.x / objectWorldRatio;
+  vec2 objectWorldScale = u_resolution.xy / v_objectWorld;
+
+  v_objectWorldBox = gl_Position.xy * .5;
+  v_objectWorldBox *= objectWorldScale;
+  v_objectWorldBox += worldOrigin * (objectWorldScale - 1.);  
   
   v_objectUV = uv;
   v_objectUV *= objectWorldScale;
@@ -560,19 +569,23 @@ void main() {
   // Sizing api for patterns (graphics respecting u_worldWidth / u_worldHeight ratio)
   
   float patternWorldRatio = worldSize.x / worldSize.y;
-  vec2 patternWorld = vec2(0.);
-  patternWorld.x = patternWorldRatio * min(worldSize.x / patternWorldRatio, worldSize.y);
-  float patternWorldWidthOriginal = patternWorld.x;
+  v_patternWorld = vec2(0.);
+  v_patternWorld.x = patternWorldRatio * min(worldSize.x / patternWorldRatio, worldSize.y);
+  float patternWorldWidthOriginal = v_patternWorld.x;
   if (u_fit == 1.) {
     // contain
-    patternWorld.x = patternWorldRatio * min(maxWidth / patternWorldRatio, maxHeight);
+    v_patternWorld.x = patternWorldRatio * min(maxWidth / patternWorldRatio, maxHeight);
   } else if (u_fit == 2.) {
     // cover
-    patternWorld.x = patternWorldRatio * max(maxWidth / patternWorldRatio, maxHeight);
+    v_patternWorld.x = patternWorldRatio * max(maxWidth / patternWorldRatio, maxHeight);
   }
-  patternWorld.y = patternWorld.x / patternWorldRatio;
-  vec2 patternWorldScale = u_resolution.xy / patternWorld;
-
+  v_patternWorld.y = v_patternWorld.x / patternWorldRatio;
+  vec2 patternWorldScale = u_resolution.xy / v_patternWorld;
+  
+  v_patternWorldBox = gl_Position.xy * .5;
+  v_patternWorldBox *= patternWorldScale;
+  v_patternWorldBox += worldOrigin * (patternWorldScale - 1.);  
+  
   v_patternUV = uv;
   v_patternUV += vec2(-u_offsetX, u_offsetY) / patternWorldScale;
   v_patternUV += worldOrigin;
@@ -580,7 +593,7 @@ void main() {
   v_patternUV *= u_resolution.xy;
   v_patternUV /= u_pixelRatio;
   if (u_fit > 0.) {
-    v_patternUV *= (patternWorldWidthOriginal / patternWorld.x);
+    v_patternUV *= (patternWorldWidthOriginal / v_patternWorld.x);
   }
   v_patternUV /= u_scale;
   v_patternUV = mat2(cos(rotationRad), sin(rotationRad), -sin(rotationRad), cos(rotationRad)) * v_patternUV;
@@ -589,8 +602,8 @@ void main() {
   v_patternUV += .5;
   
   // ===================================================
-}
-`;
+
+}`;
 
 function createShader(gl: WebGLRenderingContext, type: number, source: string): WebGLShader | null {
   const shader = gl.createShader(type);
