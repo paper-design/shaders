@@ -560,7 +560,10 @@ void main() {
   v_objectUV += worldOrigin * (objectWorldScale - 1.);
   v_objectUV += vec2(-u_offsetX, u_offsetY);
   v_objectUV /= u_scale;
+  
+  v_objectUV.x *= objectWorldRatio;
   v_objectUV = mat2(cos(rotationRad), sin(rotationRad), -sin(rotationRad), cos(rotationRad)) * v_objectUV;
+  v_objectUV.x /= objectWorldRatio;
 
   // ===================================================
 
