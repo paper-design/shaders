@@ -34,8 +34,11 @@ const ColorPanelsWithControls = () => {
     return {
       Parameters: folder(
         {
-          stepsPerColor: { value: defaults.stepsPerColor, min: 1, max: 10, step: 1, order: 300 },
-          softness: { value: defaults.softness, min: 0, max: 1, order: 301 },
+          colorBack: { value: defaults.colorBack, order: 100 },
+          proportion: { value: defaults.proportion, min: 0.1, max: 3, order: 200 },
+          density: { value: defaults.density, min: 1, max: colorPanelsMeta.maxDensity, step: 1, order: 201 },
+          frontTransparency: { value: defaults.frontTransparency, min: 0, max: 1, order: 300 },
+          sideBlur: { value: defaults.sideBlur, min: 0, max: 1, order: 301 },
           speed: { value: defaults.speed, min: 0, max: 2, order: 400 },
         },
         { order: 1 }

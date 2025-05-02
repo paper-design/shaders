@@ -97,6 +97,15 @@ export {
   type GrainGradientUniforms,
 } from './shaders/grain-gradient';
 
+// ----- Color Gradient Panels ----- //
+/**  */
+export {
+  colorPanelsFragmentShader,
+  colorPanelsMeta,
+  type ColorPanelsParams,
+  type ColorPanelsUniforms,
+} from './shaders/color-panels';
+
 // ----- Utils ----- //
 export { getShaderColorFromString } from './get-shader-color-from-string';
 export { getShaderNoiseTexture } from './get-shader-noise-texture';
