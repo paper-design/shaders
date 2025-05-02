@@ -15,7 +15,12 @@ uniform vec2 u_resolution;
 uniform float u_pixelRatio;
 
 uniform vec4 u_colorBack;
-uniform float u_brightness;
+uniform vec4 u_specularColor;
+uniform vec4 u_shadowColor;
+uniform float u_dropShapeDistortion;
+uniform float u_reflectedImage;
+uniform float u_specularSize;
+
 
 ${sizingVariablesDeclaration}
 
@@ -39,62 +44,78 @@ vec2 noise(vec2 p) {
   return mix(mix(a, b, mu.x), mix(c, d, mu.x), mu.y);
 }
 
+vec2 hash(vec2 p) {
+  return fract(sin(vec2(dot(p, vec2(127.1, 311.7)), dot(p, vec2(269.5, 183.3)))) * 43758.5453);
+}
+
+float voronoi(vec2 x) {
+  vec2 n = floor(x);
+  vec2 f = fract(x);
+
+  float minDist = 8.0;
+  for (int j = -1; j <= 1; ++j) {
+    for (int i = -1; i <= 1; ++i) {
+      vec2 g = vec2(i, j);
+      vec2 o = hash(n + g); // hash() should return vec2 in 0-1 range
+      vec2 r = g + o - f;
+      float d = dot(r, r);
+      minDist = min(minDist, d);
+    }
+  }
+  return sqrt(minDist);
+}
+
 void main() {
   vec2 shape_uv = v_patternUV;
-  shape_uv *= .002;
+  shape_uv *= .04;
 
-  float t = .5 * u_time;
-
-  float grid_scale = 23.;
-
-  vec2 dropShapeDistortion = noise(shape_uv * grid_scale * 2.5);
+  float t = .1 * u_time;
 
   vec3 color = u_colorBack.rgb;
   float opacity = 1.;
 
-  vec3 light_dir = normalize(vec3(.5, .5, -.7));
+  vec3 lightDirection = normalize(vec3(.5, .5, -.65));
 
-  vec2 grid_pos = TWO_PI * shape_uv * grid_scale + dropShapeDistortion;
+  vec2 dropDistortion = noise(shape_uv * u_dropShapeDistortion);
+  vec2 grid_pos = TWO_PI * shape_uv + dropDistortion;
 
-  grid_pos -= light_dir.xy;
+  grid_pos -= lightDirection.xy;
   vec2 s = sin(grid_pos);
   float shape = (s.x + s.y);
 
-  grid_pos += light_dir.xy;
+  grid_pos += lightDirection.xy;
   s = sin(grid_pos);
   float shapeShifted = (s.x + s.y);
 
-  vec2 uvRounded = floor(shape_uv * grid_scale + .25) / grid_scale;
-
-  vec4 noise_detail = vec4(noise(uvRounded * 200.), noise(uvRounded));
+  vec2 cellIdx = floor(shape_uv + .25);
 
   float shapeSaved = shape;
-  float dropLife = max(0., 1. - 2. * fract(t * (noise_detail.b + .5) + noise_detail.g));
-  shape *= dropLife;
-  shapeShifted *= dropLife;
+  vec2 dropLifeTimeNoise = noise(cellIdx * 200.);
+  float dropLifeTime = max(0., 1. - 2. * fract(t * (dropLifeTimeNoise[0] + .5) + dropLifeTimeNoise[1]));
+  shape *= dropLifeTime;
+  shapeShifted *= dropLifeTime;
 
-  float showCell = step(noise_detail.r, .2);
-  vec3 shadowColor = vec3(0.);
-  float shadowOpacity = .3;
-  float edge = shadowOpacity * smoothstep(.3, .7, shapeShifted);
-  vec3 shadow = mix(color, shadowColor, edge);
+  float showCell = step(noise(cellIdx).r, .15);
+  float dropInnerContour = showCell * smoothstep(.38, .4, shape);
+  
+  float shadow = u_shadowColor.a * smoothstep(.3, .7, shapeShifted);
+  shadow *= showCell * (1. - dropInnerContour);
 
-  float dropInner = showCell * step(.4, shape);
-
-  color = mix(color, shadow, showCell * (1. - dropInner));
 
   vec3 normal = normalize(-vec3(cos(grid_pos), shape));
 
-  float diffuse = clamp(dot(normal, light_dir), .0, 1.);
-  float specular = smoothstep(.95, .96, dot(normal, light_dir));
+  float diffuse = clamp(dot(normal, lightDirection), .0, 1.);
+  float specular = smoothstep(1. - .1 * u_specularSize, 1.01 - .1 * u_specularSize, dot(normal, lightDirection));
 
   vec2 texUv = shape_uv + .5;
   texUv.y = 1. - texUv.y;
-  vec3 test = texture(u_noiseTexture, texUv - normal.xy * .3).rgb;
+  vec2 textureDistortion = normal.xy * .7;
+  vec3 reflectedImage = texture(u_noiseTexture, texUv - textureDistortion).rgb;
 
-  color = mix(color, vec3(1.) * diffuse, .7 * smoothstep(.7, .2, shape) * dropInner);
-  color = mix(color, test, .4 * smoothstep(2., .0, shapeSaved) * dropInner);
-  color = mix(color, vec3(1.), specular * dropInner);
+  color = mix(color, u_shadowColor.rgb, shadow);
+  color = mix(color, reflectedImage, u_reflectedImage * smoothstep(2., .7, shapeSaved) * dropInnerContour);
+  color = mix(color, u_shadowColor.rgb * diffuse, .7 * smoothstep(.7, .2, shape) * dropInnerContour);
+  color = mix(color, u_specularColor.rgb, specular * dropInnerContour);
 
   fragColor = vec4(color, opacity);
 }
@@ -103,11 +124,19 @@ void main() {
 
 export interface WaterDropsUniforms extends ShaderSizingUniforms {
   u_colorBack: [number, number, number, number];
-  u_brightness: number;
+  u_specularColor: [number, number, number, number];
+  u_shadowColor: [number, number, number, number];
+  u_dropShapeDistortion: number;
+  u_specularSize: number;
+  u_reflectedImage: number;
   u_noiseTexture?: HTMLImageElement;
 }
 
 export interface WaterDropsParams extends ShaderSizingParams, ShaderMotionParams {
   colorBack?: string;
-  brightness?: number;
+  specularColor?: string;
+  shadowColor?: string;
+  reflectedImage?: number;
+  dropShapeDistortion?: number;
+  specularSize?: number;
 }

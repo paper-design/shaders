@@ -28,7 +28,11 @@ export const defaultPreset: WaterDropsPreset = {
     speed: 1,
     frame: 0,
     colorBack: 'hsla(0, 0%, 95%, 1)',
-    brightness: 1.3,
+    specularColor: 'hsla(0, 0%, 100%, 1)',
+    shadowColor: 'hsla(0, 0%, 70%, .5)',
+    dropShapeDistortion: 2.5,
+    reflectedImage: 0.2,
+    specularSize: 0.9,
   },
 };
 
@@ -39,7 +43,11 @@ export const WaterDrops: React.FC<WaterDropsProps> = memo(function WaterDropsImp
   speed = defaultPreset.params.speed,
   frame = defaultPreset.params.frame,
   colorBack = defaultPreset.params.colorBack,
-  brightness = defaultPreset.params.brightness,
+  specularColor = defaultPreset.params.specularColor,
+  shadowColor = defaultPreset.params.shadowColor,
+  dropShapeDistortion = defaultPreset.params.dropShapeDistortion,
+  reflectedImage = defaultPreset.params.reflectedImage,
+  specularSize = defaultPreset.params.specularSize,
 
   // Sizing props
   fit = defaultPreset.params.fit,
@@ -57,7 +65,11 @@ export const WaterDrops: React.FC<WaterDropsProps> = memo(function WaterDropsImp
   const uniforms = {
     // Own uniforms
     u_colorBack: getShaderColorFromString(colorBack),
-    u_brightness: brightness,
+    u_specularColor: getShaderColorFromString(specularColor),
+    u_shadowColor: getShaderColorFromString(shadowColor),
+    u_dropShapeDistortion: dropShapeDistortion,
+    u_reflectedImage: reflectedImage,
+    u_specularSize: specularSize,
     ...noiseTexture,
 
     // Sizing uniforms

@@ -35,7 +35,11 @@ const WaterDropsWithControls = () => {
       Parameters: folder(
         {
           colorBack: { value: defaults.colorBack, order: 101 },
-          brightness: { value: defaults.brightness, min: 0, max: 2, order: 300 },
+          specularColor: { value: defaults.specularColor, order: 101 },
+          shadowColor: { value: defaults.shadowColor, order: 300 },
+          dropShapeDistortion: { value: defaults.dropShapeDistortion, min: 0, max: 4, order: 400 },
+          specularSize: { value: defaults.specularSize, min: 0, max: 1, order: 400 },
+          reflectedImage: { value: defaults.reflectedImage, min: 0, max: 1, order: 400 },
           speed: { value: defaults.speed, min: 0, max: 2, order: 400 },
         },
         { order: 1 }
