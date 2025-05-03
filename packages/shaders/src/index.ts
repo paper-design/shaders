@@ -23,7 +23,12 @@ export {
 
 // ----- Smoke ring ----- //
 /** Fractional Brownian motion (fBm) noise over the polar coordinates, masked with ring shape */
-export { smokeRingFragmentShader, type SmokeRingParams, type SmokeRingUniforms } from './shaders/smoke-ring';
+export {
+  smokeRingMeta,
+  smokeRingFragmentShader,
+  type SmokeRingParams,
+  type SmokeRingUniforms,
+} from './shaders/smoke-ring';
 
 // ----- Neuro noise ----- //
 /** A shader rendering a fractal-like structure made of several layers of since-arches */
@@ -54,7 +59,12 @@ export {
 
 // ----- Metaballs ----- //
 /** A number of circlular shapes blened in a gooey way */
-export { metaballsFragmentShader, type MetaballsParams, type MetaballsUniforms } from './shaders/metaballs';
+export {
+  metaballsMeta,
+  metaballsFragmentShader,
+  type MetaballsParams,
+  type MetaballsUniforms,
+} from './shaders/metaballs';
 
 // ----- Perlin noise ----- //
 /** 2d noise with max number of parameters to be exposed to users */
@@ -70,11 +80,18 @@ export { wavesFragmentShader, type WavesParams, type WavesUniforms } from './sha
 
 // ----- Warping Distortion ----- //
 /** Warp: distortion + swirl + underlying shapes */
-export { warpFragmentShader, WarpPatterns, type WarpParams, type WarpUniforms, type WarpPattern } from './shaders/warp';
+export {
+  warpMeta,
+  warpFragmentShader,
+  WarpPatterns,
+  type WarpParams,
+  type WarpUniforms,
+  type WarpPattern,
+} from './shaders/warp';
 
 // ----- God Rays Effect ----- //
 /** Radial shape made of randomized stripes */
-export { godRaysFragmentShader, type GodRaysParams, type GodRaysUniforms } from './shaders/god-rays';
+export { godRaysMeta, godRaysFragmentShader, type GodRaysParams, type GodRaysUniforms } from './shaders/god-rays';
 
 // ----- Spiral Shape ----- //
 /** Single-color spiral shape */

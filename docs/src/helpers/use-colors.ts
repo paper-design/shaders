@@ -11,7 +11,7 @@ export function useColors({ defaultColors, maxColorCount }: UseColorsArgs) {
     Colors: folder({
       colorCount: {
         value: defaultColors.length,
-        min: 2,
+        min: 1,
         max: maxColorCount,
         step: 1,
       },
