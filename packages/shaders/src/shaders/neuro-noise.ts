@@ -1,8 +1,6 @@
 import type { ShaderMotionParams } from '../shader-mount';
 import {
   sizingVariablesDeclaration,
-  sizingDebugVariablesDeclaration,
-  sizingUniformsDeclaration,
   type ShaderSizingParams,
   type ShaderSizingUniforms,
 } from '../shader-sizing';
@@ -30,9 +28,7 @@ uniform vec4 u_colorBack;
 uniform float u_brightness;
 
 
-${sizingUniformsDeclaration}
 ${sizingVariablesDeclaration}
-${sizingDebugVariablesDeclaration}
 
 out vec4 fragColor;
 
@@ -69,27 +65,6 @@ void main() {
 
   vec3 color = mix(u_colorBack.rgb * u_colorBack.a, u_colorFront.rgb * u_colorFront.a, noise);
   float opacity = mix(u_colorBack.a, u_colorFront.a, noise);
-
-  vec2 worldBoxDist = abs(v_patternWorldBox);
-  float worldBoxTestStroke = (step(max(worldBoxDist.x, worldBoxDist.y), .5) - step(max(worldBoxDist.x, worldBoxDist.y), .49));
-
-  color = mix(color, vec3(1., 0., 0.), worldBoxTestStroke);
-  opacity += worldBoxTestStroke;
-
-
-  vec2 worldOriginCopy = vec2(.5 - u_originX, u_originY - .5);
-  vec2 viewPortTestOriginDist = v_patternWorldBox + worldOriginCopy;
-  viewPortTestOriginDist.x *= (v_patternWorld.x / v_patternWorld.y);
-  float viewPortTestOriginPoint = 1. - smoothstep(0., .05, length(viewPortTestOriginDist));
-  
-  vec2 worldTestOriginPointDist = v_patternWorldBox + vec2(-u_offsetX, u_offsetY);
-  worldTestOriginPointDist.x *= (v_patternWorld.x / v_patternWorld.y);
-  float worldTestOriginPoint = 1. - smoothstep(0., .05, length(worldTestOriginPointDist));
-  
-  color = mix(color, vec3(0., 1., 0.), viewPortTestOriginPoint);
-  color = mix(color, vec3(0., 0., 1.), worldTestOriginPoint);
-  opacity += viewPortTestOriginPoint;
-  opacity += worldTestOriginPoint;
   
   ${colorBandingFix}
 

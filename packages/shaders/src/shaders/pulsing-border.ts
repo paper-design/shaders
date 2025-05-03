@@ -1,11 +1,7 @@
 import type { vec4 } from '../types';
 import type { ShaderMotionParams } from '../shader-mount';
 import {
-  sizingUniformsDeclaration,
   sizingVariablesDeclaration,
-  sizingDebugVariablesDeclaration,
-  worldBoxTestStroke,
-  viewPortTestOriginPoint,
   type ShaderSizingParams,
   type ShaderSizingUniforms,
 } from '../shader-sizing';
@@ -37,10 +33,7 @@ uniform float u_smoke;
 uniform sampler2D u_pulseTexture;
 uniform sampler2D u_simplexNoiseTexture;
 
-${sizingUniformsDeclaration}
-
 ${sizingVariablesDeclaration}
-${sizingDebugVariablesDeclaration}
 
 out vec4 fragColor;
 
@@ -150,16 +143,6 @@ void main() {
   color += u_colorBack.rgb * (1. - clamp(sectorsTotal, 0., 1.)) * u_colorBack.a;
   
   ${colorBandingFix}
-
-  color += u_colorBack.rgb * (1. - clamp(sectorsTotal, 0., 1.)) * u_colorBack.a;
-
-  ${worldBoxTestStroke}
-  
-  color.r += worldBoxTestStroke;
-  
-  ${viewPortTestOriginPoint}
-  color.g += viewPortTestOriginPoint;
-  color.b += worldTestOriginPoint;
 
   fragColor = vec4(color, opacity);
 }
