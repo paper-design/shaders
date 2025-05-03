@@ -1,11 +1,6 @@
-import type { vec4 } from '../types';
 import type { ShaderMotionParams } from '../shader-mount';
 import {
   sizingVariablesDeclaration,
-  worldBoxTestStroke,
-  sizingDebugVariablesDeclaration,
-  sizingUniformsDeclaration,
-  viewPortTestOriginPoint,
   type ShaderSizingParams,
   type ShaderSizingUniforms,
 } from '../shader-sizing';
@@ -25,10 +20,7 @@ uniform float u_dispersion;
 uniform float u_liquid;
 uniform float u_shape;
 
-
-${sizingUniformsDeclaration}
 ${sizingVariablesDeclaration}
-${sizingDebugVariablesDeclaration}
 
 out vec4 fragColor;
 
@@ -219,20 +211,9 @@ void main() {
   float b = get_color_channel(color1.b, color2.b, stripe_b, w, .01, extraBlur);
 
   color = vec3(r, g, b);
+  color *= opacity;
 
   ${colorBandingFix}
-  
-  ${worldBoxTestStroke}
-  color = mix(color, vec3(1., 0., 0.), worldBoxTestStroke);
-  opacity += worldBoxTestStroke;
-
-  ${viewPortTestOriginPoint}
-  color = mix(color, vec3(0., 1., 0.), viewPortTestOriginPoint);
-  color = mix(color, vec3(0., 0., 1.), worldTestOriginPoint);
-  opacity += viewPortTestOriginPoint;
-  opacity += worldTestOriginPoint;
-  
-  color *= opacity;
 
   fragColor = vec4(color, opacity);
 }
