@@ -40,7 +40,8 @@ vec2 getPanel(float angle, vec2 panelSize, float px, float py) {
     float sinA = sin(angle);
     float cosA = cos(angle);
   
-    float z = py / (sinA - py * cosA);
+    // float z = py / (sinA - py * cosA);
+    float z = py / clamp((sinA - py * cosA), -0.999, 0.999);
     float x = px * (cosA * z + 1.) * (1. / u_proportion * 1.5);
   
     float zLimit = 0.5;
@@ -49,7 +50,7 @@ vec2 getPanel(float angle, vec2 panelSize, float px, float py) {
     float panel = smoothstep(-panelSize.x - sideBlurX, -panelSize.x + sideBlurX, x);
     panel *= (1. - smoothstep(panelSize.x - sideBlurX, panelSize.x + sideBlurX, x));
     panel *= smoothstep(-u_sideBlur * zLimit, u_sideBlur * zLimit, z);
-    panel *= (1. - smoothstep(zLimit - u_frontTransparency, zLimit + u_frontTransparency, z));
+    panel *= (1. - smoothstep(zLimit - u_frontTransparency - .03, zLimit + u_frontTransparency, z));
     
     return vec2(panel, panelMap);
 }
@@ -86,8 +87,8 @@ void main() {
       if (hidden == 0.) continue;
 
       vec2 panel = getPanel(angle, panelSize, px, py);
-      float panelMask = panel.x;
-      float panelMap = panel.y;
+      float panelMask = panel[0];
+      float panelMap = panel[1];
   
       int index = int(mod(floor(float(j)), u_colorsCount));
       int indexNext = int(mod(floor(float(j + 1)), u_colorsCount));
