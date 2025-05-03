@@ -24,13 +24,11 @@ export const defaultPreset: MetaballsPreset = {
   params: {
     ...defaultObjectSizing,
     scale: 1,
-    speed: 0.6,
+    speed: 1,
     frame: 0,
-    color1: 'hsla(350, 90%, 55%, 1)',
-    color2: 'hsla(350, 80%, 60%, 1)',
-    color3: 'hsla(20, 85%, 70%, 1)',
-    ballSize: 1,
-    visibilityRange: 0.4,
+    colors: ['hsla(259, 100%, 80%, 1)', 'hsla(150, 100%, 80%, 1)', 'hsla(48, 100%, 80%, 1)', 'hsla(295, 100%, 80%, 1)'],
+    count: 7,
+    size: 1,
   },
 };
 
@@ -40,11 +38,9 @@ export const Metaballs: React.FC<MetaballsProps> = memo(function MetaballsImpl({
   // Own props
   speed = defaultPreset.params.speed,
   frame = defaultPreset.params.frame,
-  color1 = defaultPreset.params.color1,
-  color2 = defaultPreset.params.color2,
-  color3 = defaultPreset.params.color3,
-  ballSize = defaultPreset.params.ballSize,
-  visibilityRange = defaultPreset.params.visibilityRange,
+  colors = defaultPreset.params.colors,
+  size = defaultPreset.params.size,
+  count = defaultPreset.params.count,
 
   // Sizing props
   fit = defaultPreset.params.fit,
@@ -60,11 +56,10 @@ export const Metaballs: React.FC<MetaballsProps> = memo(function MetaballsImpl({
 }: MetaballsProps) {
   const uniforms = {
     // Own uniforms
-    u_color1: getShaderColorFromString(color1),
-    u_color2: getShaderColorFromString(color2),
-    u_color3: getShaderColorFromString(color3),
-    u_ballSize: ballSize,
-    u_visibilityRange: visibilityRange,
+    u_colors: colors.map(getShaderColorFromString),
+    u_colorsCount: colors.length,
+    u_size: size,
+    u_count: count,
 
     // Sizing uniforms
     u_fit: ShaderFitOptions[fit],

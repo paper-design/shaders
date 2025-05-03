@@ -7,45 +7,34 @@ import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import Link from 'next/link';
 import { BackButton } from '@/components/back-button';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
-import { ShaderFit, ShaderFitOptions } from '@paper-design/shaders';
+import { ShaderFit, ShaderFitOptions, metaballsMeta } from '@paper-design/shaders';
+import { useColors } from '@/helpers/use-colors';
 
 /**
  * You can copy/paste this example to use Metaballs in your app
  */
 const MetaballsExample = () => {
-  return (
-    <Metaballs
-      color1="#f42547"
-      color2="#eb4763"
-      color3="#f49d71"
-      scale={1}
-      ballSize={1}
-      visibilityRange={0.4}
-      speed={1}
-      style={{ position: 'fixed', width: '100%', height: '100%' }}
-    />
-  );
+  return <Metaballs style={{ position: 'fixed', width: '100%', height: '100%' }} />;
 };
 
 /**
  * This example has controls added so you can play with settings in the example app
  */
 
-const { worldWidth, worldHeight, ...defaults } = {
-  ...metaballsPresets[0].params,
-  style: { background: 'hsla(0, 0%, 0%, 0)' },
-};
+const { worldWidth, worldHeight, ...defaults } = metaballsPresets[0].params;
 
 const MetaballsWithControls = () => {
+  const { colors, setColors } = useColors({
+    defaultColors: defaults.colors,
+    maxColorCount: metaballsMeta.maxColorCount,
+  });
+
   const [params, setParams] = useControls(() => {
     return {
       Parameters: folder(
         {
-          color1: { value: defaults.color1, order: 100 },
-          color2: { value: defaults.color2, order: 101 },
-          color3: { value: defaults.color3, order: 102 },
-          ballSize: { value: defaults.ballSize, min: 0, max: 2, order: 300 },
-          visibilityRange: { value: defaults.visibilityRange, min: 0.05, max: 1, order: 301 },
+          count: { value: defaults.count, min: 1, max: metaballsMeta.maxBallsCount, order: 301 },
+          size: { value: defaults.size, min: 0, max: 1.2, order: 302 },
           speed: { value: defaults.speed, min: 0, max: 1, order: 400 },
         },
         { order: 1 }
@@ -82,7 +71,11 @@ const MetaballsWithControls = () => {
     const presets = Object.fromEntries(
       metaballsPresets.map(({ name, params: { worldWidth, worldHeight, ...preset } }) => [
         name,
-        button(() => setParamsSafe(params, setParams, preset)),
+        button(() => {
+          const { colors, ...presetParams } = preset;
+          setColors(colors);
+          setParamsSafe(params, setParams, presetParams);
+        }),
       ])
     );
     return {
@@ -101,7 +94,7 @@ const MetaballsWithControls = () => {
       <Link href="/">
         <BackButton />
       </Link>
-      <Metaballs className="fixed size-full" {...params} />
+      <Metaballs {...params} colors={colors} className="fixed size-full" />
     </>
   );
 };
