@@ -1,10 +1,12 @@
+import type { vec4 } from '../types';
 import type { ShaderMotionParams } from '../shader-mount';
-import {
-  sizingVariablesDeclaration,
-  type ShaderSizingParams,
-  type ShaderSizingUniforms,
-} from '../shader-sizing';
+import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing';
 import { declarePI, declareRandom, colorBandingFix } from '../shader-utils';
+
+export const smokeRingMeta = {
+  maxColorCount: 10,
+  maxNoiseIterations: 8,
+} as const;
 
 /**
  * Smoke Ring by Ksenia Kondrashova
@@ -12,14 +14,13 @@ import { declarePI, declareRandom, colorBandingFix } from '../shader-utils';
  * polar coordinates masked with ring shape
  *
  * Uniforms include:
- * u_colorBack - the background color of the scene
- * u_colorInner - the inner color of the ring gradient
- * u_colorOuter - the outer color of the ring gradient
- * u_noiseScale - the resolution of noise texture
- * u_thickness - the thickness of the ring
- * u_radius - the radius of the ring (u_radius = 0.5 to fit in contain mode)
- * u_innerShape - if we fill the shape inside the radius (u_innerShape = 1 to render only the thickness)
- * u_noiseIterations - how detailed is the noise (number of fbm layers)
+ * - u_colorBack: the background color of the scene
+ * - uColors (vec4[]): Input RGBA colors
+ * - uColorsCount (float): Number of active colors (`uColors` length) * u_noiseScale - the resolution of noise texture
+ * - u_thickness (float): the thickness of the ring
+ * - u_radius (float): the radius of the ring (u_radius = 0.5 to fit in contain mode)
+ * - u_innerShape (float): if we fill the shape inside the radius (u_innerShape = 1 to render only the thickness)
+ * - u_noiseIterations (float): how detailed is the noise (number of fbm layers)
  */
 
 export const smokeRingFragmentShader: string = `#version 300 es
@@ -27,9 +28,12 @@ precision highp float;
 
 uniform float u_time;
 
+uniform sampler2D u_noiseTexture;
+
 uniform vec4 u_colorBack;
-uniform vec4 u_colorInner;
-uniform vec4 u_colorOuter;
+uniform vec4 u_colors[${smokeRingMeta.maxColorCount}];
+uniform float u_colorsCount;
+
 uniform float u_noiseScale;
 uniform float u_thickness;
 uniform float u_radius;
@@ -41,7 +45,12 @@ ${sizingVariablesDeclaration}
 out vec4 fragColor;
 
 ${declarePI}
-${declareRandom}
+//$ {declareRandom}
+
+float random(vec2 p) {
+  vec2 uv = floor(p) / 100. + .5;
+  return texture(u_noiseTexture, uv).r;
+}
 
 float noise(vec2 st) {
   vec2 i = floor(st);
@@ -63,7 +72,7 @@ float noise(vec2 st) {
 }
 float fbm(in vec2 n) {
   float total = 0.0, amplitude = .4;
-  for (int i = 0; i < 10; i++) {
+  for (int i = 0; i < ${smokeRingMeta.maxNoiseIterations}; i++) {
     if (i >= int(u_noiseIterations)) break;
     total += noise(n) * amplitude;
     n *= 1.99;
@@ -85,76 +94,76 @@ float getRingShape(vec2 uv) {
 
   float distance = length(uv);
   float ringValue = 1. - smoothstep(radius, radius + thickness, distance);
-  ringValue *= smoothstep(radius - pow(u_innerShape, 4.) * thickness, radius, distance);
+  ringValue *= smoothstep(radius - pow(u_innerShape, 3.) * thickness, radius, distance);
 
   return ringValue;
 }
 
 void main() {
   vec2 shape_uv = v_objectUV;
-  vec2 uv = shape_uv;
 
-  float t = .1 * u_time;
-  
+  float t = u_time;
+
   float cycleDuration = 3.;
-  float localTime1 = mod(t + cycleDuration, 2. * cycleDuration);
-  float localTime2 = mod(t, 2. * cycleDuration);
-  float timeBlend = .5 + .5 * sin(t * PI / cycleDuration - .5 * PI);
+  float localTime1 = mod(.1 * t + cycleDuration, 2. * cycleDuration);
+  float localTime2 = mod(.1 * t, 2. * cycleDuration);
+  float timeBlend = .5 + .5 * sin(.1 * t * PI / cycleDuration - .5 * PI);
 
-  float atg = atan(uv.y, uv.x) + .001;
-  vec2 polar_uv1 = vec2(atg, pow(length(uv), -.6) + localTime1);
+  float atg = atan(shape_uv.y, shape_uv.x) + .001;
+  float l = length(shape_uv);
+  vec2 polar_uv1 = vec2(atg, localTime1 - (.5 * l) + 1. / pow(l, .5));
   polar_uv1 *= u_noiseScale;
-  float noise1 = getNoise(uv, polar_uv1, .1 * t);
-  vec2 polar_uv2 = vec2(atg, pow(length(uv), -.6) + localTime2);
+  float noise1 = getNoise(shape_uv, polar_uv1, t);
+
+  vec2 polar_uv2 = vec2(atg, localTime2 - (.5 * l) + 1. / pow(l, .5));
   polar_uv2 *= u_noiseScale;
-  float noise2 = getNoise(uv, polar_uv2, .1 * t);
-  
+  float noise2 = getNoise(shape_uv, polar_uv2, t);
+
   float noise = mix(noise1, noise2, timeBlend);
 
-  uv *= (.8 + 1.2 * noise);
+  shape_uv *= (.8 + 1.2 * noise);
 
-  float ringShape = getRingShape(uv);
+  float ringShape = getRingShape(shape_uv);
 
-  float ringShapeOuter = 1. - pow(ringShape, 7.);
-  ringShapeOuter *= ringShape;
+  float mixer = pow(ringShape, 3.) * (u_colorsCount - 1.);
+  vec4 gradient = u_colors[0];
+  gradient.rgb *= gradient.a;
+  for (int i = 1; i < ${smokeRingMeta.maxColorCount}; i++) {
+      if (i >= int(u_colorsCount)) break;
+      float localT = clamp(mixer - float(i - 1), 0., 1.);
+      vec4 c = u_colors[i];
+      c.rgb *= c.a;
+      gradient = mix(gradient, c, localT);
+  }
 
-  float ringShapeInner = ringShape - ringShapeOuter;
-  ringShapeInner *= ringShape;
+  float opacity = gradient.a * ringShape;
+  opacity += u_colorBack.a;
 
-  float background = u_colorBack.a;
+  vec3 color = gradient.rgb * ringShape;
+  color += u_colorBack.rgb * u_colorBack.a * (1. - ringShape);
+  color += u_colorBack.rgb * u_colorBack.a * ringShape * (1. - gradient.a);
 
-  float opacity = ringShapeOuter * u_colorOuter.a;
-  opacity += ringShapeInner * u_colorInner.a;
-  opacity += background * (1. - ringShapeInner * u_colorInner.a - ringShapeOuter * u_colorOuter.a);
-
-  vec3 color = u_colorBack.rgb * (1. - ringShape) * background;
-  color += u_colorOuter.rgb * ringShapeOuter * u_colorOuter.a;
-  color += u_colorInner.rgb * ringShapeInner * u_colorInner.a;
-
-  color += u_colorBack.rgb * ringShapeInner * (1. - u_colorInner.a) * background;
-  color += u_colorBack.rgb * ringShapeOuter * (1. - u_colorOuter.a) * background;
-  
   ${colorBandingFix}
-  
+
   fragColor = vec4(color, opacity);
 }
 `;
 
 export interface SmokeRingUniforms extends ShaderSizingUniforms {
   u_colorBack: [number, number, number, number];
-  u_colorInner: [number, number, number, number];
-  u_colorOuter: [number, number, number, number];
+  u_colors: vec4[];
+  u_colorsCount: number;
   u_noiseScale: number;
   u_thickness: number;
   u_radius: number;
   u_innerShape: number;
   u_noiseIterations: number;
+  u_noiseTexture?: HTMLImageElement;
 }
 
 export interface SmokeRingParams extends ShaderSizingParams, ShaderMotionParams {
   colorBack?: string;
-  colorInner?: string;
-  colorOuter?: string;
+  colors?: string[];
   noiseScale?: number;
   thickness?: number;
   radius?: number;
