@@ -23,7 +23,7 @@ export const defaultPreset: ColorPanelsPreset = {
   name: 'Default',
   params: {
     ...defaultObjectSizing,
-    speed: 0.5,
+    speed: 1,
     frame: 0,
     colors: ['hsla(259, 100%, 50%, 1)', 'hsla(150, 100%, 50%, 1)', 'hsla(48, 100%, 50%, 1)', 'hsla(295, 100%, 50%, 1)'],
     colorBack: 'hsla(0, 0%, 0%, 1)',

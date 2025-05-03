@@ -40,19 +40,23 @@ vec2 getPanel(float angle, vec2 panelSize, float px, float py) {
     float sinA = sin(angle);
     float cosA = cos(angle);
   
-    // float z = py / (sinA - py * cosA);
-    float z = py / clamp((sinA - py * cosA), -0.999, 0.999);
+    float z = py / (sinA - py * cosA);
     float x = px * (cosA * z + 1.) * (1. / u_proportion * 1.5);
   
     float zLimit = 0.5;
     float panelMap = (z - zLimit) / (0. - zLimit);
+
+    float zMidBlur = smoothstep(.0, .02, sin(angle + PI));
+    zMidBlur += smoothstep(.0, .02, sin(angle));
+
     float sideBlurX = panelMap * (.02 + u_sideBlur);
     float panel = smoothstep(-panelSize.x - sideBlurX, -panelSize.x + sideBlurX, x);
     panel *= (1. - smoothstep(panelSize.x - sideBlurX, panelSize.x + sideBlurX, x));
     panel *= smoothstep(-u_sideBlur * zLimit, u_sideBlur * zLimit, z);
-    panel *= (1. - smoothstep(zLimit - u_frontTransparency - .03, zLimit + u_frontTransparency, z));
     
-    return vec2(panel, panelMap);
+    panel *= (1. - smoothstep(zLimit - u_frontTransparency, zLimit + u_frontTransparency, z));
+    
+    return vec2(panel * zMidBlur, panelMap);
 }
 
 void main() {
@@ -64,7 +68,7 @@ void main() {
   float px = uv.x * panelSize.x * 2.;
   float py = uv.y * panelSize.y * 2.;
   
-  float t = .4 * u_time;
+  float t = .1 * u_time;
   t = -.5 * PI + mod(t, PI);
     
   vec3 color = u_colorBack.rgb;
@@ -81,13 +85,13 @@ void main() {
       int j = (pass == 0) ? i : int(panelsNumber) - i;
       float angle = t + float(j) / panelsNumber * TWO_PI;
       
-      float hidden = (1. - step(0., cos(angle)));
-      hidden *= isTop ? step(0., sin(angle)) : step(sin(angle), 0.);
+      float hidden = (1. - smoothstep(.0, .1, cos(angle)));
+      hidden *= isTop ? step(.0, sin(angle)) : step(sin(angle), .0);
       
-      if (hidden == 0.) continue;
+      if (hidden < 0.1) continue;
 
       vec2 panel = getPanel(angle, panelSize, px, py);
-      float panelMask = panel[0];
+      float panelMask = panel[0] * hidden;
       float panelMap = panel[1];
   
       int index = int(mod(floor(float(j)), u_colorsCount));
