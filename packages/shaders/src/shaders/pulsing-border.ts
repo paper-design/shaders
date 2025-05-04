@@ -44,13 +44,14 @@ float roundedBoxSDF(vec2 uv, vec2 boxSize, float radius, float thickness, float 
     vec2 halfSize = boxSize * .5;
     halfSize.x *= ratio;
     
-    float minRadius = (edgeSoftness + thickness) * .33;
-    // radius = max(radius, minRadius);
+    radius = min(radius, halfSize.x);
     
     vec2 d = abs(p) - halfSize + radius;
     float outsideDistance = length(max(d, 0.)) - radius;
     float insideDistance = min(max(d.x, d.y), 0.0);
     float distance = outsideDistance + insideDistance;
+    
+    float fill = 1.0 - smoothstep(-.5 * edgeSoftness, .1, distance);
 
     float borderDistance = abs(distance) - thickness;
     float border = 1. - smoothstep(-.5 * edgeSoftness, .5 * edgeSoftness, borderDistance);
@@ -95,7 +96,7 @@ void main() {
   border *= (1. + u_intensity);
 
   float smoke = .5 + .5 * snoise(1.7 * borderUV);
-  smoke *= roundedBoxSDF(borderUV, vec2(.9), .5, max(2. * u_thickness, .35), .5);
+  smoke *= roundedBoxSDF(borderUV, vec2(.9), .5, min(.65, max(2. * u_thickness, .35)), .5);
   smoke *= smoothstep(0., 1., .7 * length(borderUV));
   smoke *= u_smoke;
   
