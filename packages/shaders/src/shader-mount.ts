@@ -590,17 +590,17 @@ void main() {
   );
   float responsiveRatio = v_responsiveBoxGivenSize.x / v_responsiveBoxGivenSize.y;
   v_responsiveBoxSize = getBoxSize(responsiveRatio, v_responsiveBoxGivenSize, maxBoxSize).xy;
-  vec2 screenSizeWorldScale = u_resolution.xy / v_responsiveBoxSize;
+  vec2 responsiveBoxScale = u_resolution.xy / v_responsiveBoxSize;
   
   #ifdef ADD_HELPERS
     v_responsiveHelperBox = uv;
-    v_responsiveHelperBox *= screenSizeWorldScale;
-    v_responsiveHelperBox += boxOrigin * (screenSizeWorldScale - 1.);
+    v_responsiveHelperBox *= responsiveBoxScale;
+    v_responsiveHelperBox += boxOrigin * (responsiveBoxScale - 1.);
   #endif
   
   v_responsiveUV = uv;
-  v_responsiveUV *= screenSizeWorldScale;
-  v_responsiveUV += boxOrigin * (screenSizeWorldScale - 1.);
+  v_responsiveUV *= responsiveBoxScale;
+  v_responsiveUV += boxOrigin * (responsiveBoxScale - 1.);
   v_responsiveUV += graphicOffset;
   v_responsiveUV /= u_scale;
   v_responsiveUV.x *= responsiveRatio;
@@ -617,27 +617,27 @@ void main() {
   float patternBoxRatio = givenBoxSize.x / givenBoxSize.y;  
   vec3 boxSizeData = getBoxSize(patternBoxRatio, givenBoxSize, maxBoxSize);
   v_patternBoxSize = boxSizeData.xy;
-  float patternWorldNoFitBoxWidth = boxSizeData.z;
-  vec2 patternWorldScale = u_resolution.xy / v_patternBoxSize;
+  float patternBoxNoFitBoxWidth = boxSizeData.z;
+  vec2 patternBoxScale = u_resolution.xy / v_patternBoxSize;
   
   #ifdef ADD_HELPERS
     v_patternHelperBox = uv;
-    v_patternHelperBox *= patternWorldScale;
-    v_patternHelperBox += boxOrigin * (patternWorldScale - 1.);
+    v_patternHelperBox *= patternBoxScale;
+    v_patternHelperBox += boxOrigin * (patternBoxScale - 1.);
   #endif
   
   v_patternUV = uv;
-  v_patternUV += graphicOffset / patternWorldScale;
+  v_patternUV += graphicOffset / patternBoxScale;
   v_patternUV += boxOrigin;
-  v_patternUV -= boxOrigin / patternWorldScale;
+  v_patternUV -= boxOrigin / patternBoxScale;
   v_patternUV *= u_resolution.xy;
   v_patternUV /= u_pixelRatio;
   if (u_fit > 0.) {
-    v_patternUV *= (patternWorldNoFitBoxWidth / v_patternBoxSize.x);
+    v_patternUV *= (patternBoxNoFitBoxWidth / v_patternBoxSize.x);
   }
   v_patternUV /= u_scale;
   v_patternUV = graphicRotation * v_patternUV;
-  v_patternUV += boxOrigin / patternWorldScale;
+  v_patternUV += boxOrigin / patternBoxScale;
   v_patternUV -= boxOrigin;
   v_patternUV += .5;
   
