@@ -25,8 +25,8 @@ uniform float u_shape;
 
 ${sizingVariablesDeclaration}
 
-// $ {sizingUniformsDeclaration}
-// $ {sizingDebugVariablesDeclaration}
+${sizingUniformsDeclaration}
+${sizingDebugVariablesDeclaration}
 
 out vec4 fragColor;
 
@@ -223,13 +223,13 @@ void main() {
   color = vec3(r, g, b);
   color *= opacity;
   
-  // vec2 helperBox = v_objectHelperBox;
-  // vec2 boxSize = v_objectBoxSize;
-  // if (u_shape < 1.) {
-  //   helperBox = v_responsiveHelperBox;
-  //   boxSize = v_responsiveBoxSize;
-  // }
-  // $ {drawSizingHelpers}
+  vec2 helperBox = v_objectHelperBox;
+  vec2 boxSize = v_objectBoxSize;
+  if (u_shape < 1.) {
+    helperBox = v_responsiveHelperBox;
+    boxSize = v_responsiveBoxSize;
+  }
+  ${drawSizingHelpers}
 
   ${colorBandingFix}
 
