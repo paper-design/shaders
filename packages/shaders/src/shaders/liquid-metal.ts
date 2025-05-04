@@ -1,8 +1,11 @@
 import type { ShaderMotionParams } from '../shader-mount';
 import {
   sizingVariablesDeclaration,
+  sizingDebugVariablesDeclaration,
   type ShaderSizingParams,
   type ShaderSizingUniforms,
+  drawSizingHelpers,
+  sizingUniformsDeclaration,
 } from '../shader-sizing';
 import { declarePI, declareRotate, declareSimplexNoise, colorBandingFix } from '../shader-utils';
 
@@ -22,6 +25,9 @@ uniform float u_shape;
 
 ${sizingVariablesDeclaration}
 
+// $ {sizingUniformsDeclaration}
+// $ {sizingDebugVariablesDeclaration}
+
 out vec4 fragColor;
 
 ${declarePI}
@@ -35,7 +41,7 @@ float get_color_channel(float c1, float c2, float stripe_p, vec3 w, float extra_
   float blur = u_patternBlur + extra_blur;
   
   if (u_shape < 1.) {
-    blur += .1 * smoothstep(-.4, -.6, v_screenSizeUV.y);
+    blur += .1 * smoothstep(-.4, -.6, v_responsiveUV.y);
   }
 
   ch = mix(ch, c1, smoothstep(.0, blur, stripe_p));
@@ -64,53 +70,58 @@ void main() {
   
   float t = .1 * u_time;
 
-  vec2 shape_uv = v_objectUV;
-  shape_uv += .5;
-  shape_uv.y = 1. - shape_uv.y;
+  vec2 uv = v_objectUV;
+  uv += .5;
+  uv.y = 1. - uv.y;
 
   float cycleWidth = .5 * u_patternScale; 
   
   float mask = 1.;
   if (u_shape < 1.) {
   
-    vec2 borderUV = v_screenSizeUV + .5;
-    float ratio = v_worldSizeTest.x / v_worldSizeTest.y;
+    vec2 borderUV = v_responsiveUV + .5;
+    float ratio = v_responsiveBoxGivenSize.x / v_responsiveBoxGivenSize.y;
     vec2 edge = min(borderUV, 1. - borderUV);
-    vec2 pixel_thickness = 250. / v_worldSizeTest;
+    vec2 pixel_thickness = 250. / v_responsiveBoxGivenSize;
     float maskX = smoothstep(0.0, pixel_thickness.x, edge.x);
     float maskY = smoothstep(0.0, pixel_thickness.y, edge.y);
     maskX = pow(maskX, .25);
     maskY = pow(maskY, .25);
     mask = clamp(1. - maskX * maskY, 0., 1.);
     
-    shape_uv = v_screenSizeUV;
+    uv = v_responsiveUV;
     if (ratio > 1.) {
-      shape_uv.y /= ratio;
+      uv.y /= ratio;
     } else {
-      shape_uv.x *= ratio;
+      uv.x *= ratio;
     }
-    shape_uv += .5;
-    shape_uv.y = 1. - shape_uv.y;
+    uv += .5;
+    uv.y = 1. - uv.y;
+    
+    cycleWidth *= 2.;
 
   } else if (u_shape < 2.) {  
-    mask = pow(clamp(3. * length(shape_uv - .5), 0., 1.), 8.);
-    shape_uv *= 1.4;
-  } else if (u_shape < 3.) {
-  
-    shape_uv -= .5;
-    shape_uv *= 2.;
+    vec2 shapeUV = uv - .5;
+    shapeUV *= .67;
+    mask = pow(clamp(3. * length(shapeUV), 0., 1.), 8.);
     
-    float r = length(shape_uv) * 2.;
-    float a = atan(shape_uv.y, shape_uv.x) + .2;
+    uv *= 1.3;
+  } else if (u_shape < 3.) {
+    vec2 shapeUV = uv - .5;
+    shapeUV *= 1.68;
+    
+    float r = length(shapeUV) * 2.;
+    float a = atan(shapeUV.y, shapeUV.x) + .2;
     r *= (1. + .05 * sin(3. * a + 2. * t));
     float f = abs(cos(a * 3.));
     mask = smoothstep(f, f + .7, r);
-    shape_uv *= .7;
-    shape_uv += .5;
-    shape_uv.y += .2;
     
+    uv *= .8;
+    cycleWidth *= 1.6;
+
   } else if (u_shape < 4.) {
-    shape_uv -= .5;
+    vec2 shapeUV = uv - .5;
+    shapeUV *= 1.3;
     mask = 0.;
     for (int i = 0; i < 5; i++) {
       float fi = float(i);
@@ -119,21 +130,20 @@ void main() {
       vec2 dir1 = vec2(cos(angle), sin(angle));
       vec2 dir2 = vec2(cos(angle + 1.57), sin(angle + 1.));
       vec2 traj = .4 * (dir1 * sin(t * speed + fi * 1.23) + dir2 * cos(t * (speed * 0.7) + fi * 2.17));
-      float d = length(shape_uv + traj);
+      float d = length(shapeUV + traj);
       mask += pow(1.0 - clamp(d, 0.0, 1.0), 4.0);
     }
-    
     mask = 1. - smoothstep(.85, 1., mask);
-    shape_uv += .5;
-    shape_uv *= 1.15;
-    shape_uv.y += .2;
+    
+    uv *= 1.3;
+    uv.y += .2;
   }
 
   float contour = smoothstep(0., 1., mask) * smoothstep(1., 0., mask);
 
 
-  float diagBLtoTR = shape_uv.x - shape_uv.y;    
-  float diagTLtoBR = shape_uv.x + shape_uv.y;
+  float diagBLtoTR = uv.x - uv.y;    
+  float diagTLtoBR = uv.x + uv.y;
 
   vec3 color = vec3(0.);
   float opacity = 1.;
@@ -141,7 +151,7 @@ void main() {
   vec3 color1 = vec3(.98, 0.98, 1.);
   vec3 color2 = vec3(.1, .1, .1 + .1 * smoothstep(.7, 1.3, diagTLtoBR));
 
-  vec2 grad_uv = shape_uv - .5;
+  vec2 grad_uv = uv - .5;
   
   float dist = length(grad_uv + vec2(0., .2 * diagBLtoTR));
   grad_uv = rotate(grad_uv, (.25 - .2 * diagBLtoTR) * PI);
@@ -149,7 +159,7 @@ void main() {
 
   float bump = pow(1.8 * dist, 1.2);
   bump = 1. - bump;
-  bump *= pow(shape_uv.y, .3);
+  bump *= pow(uv.y, .3);
 
 
   float thin_strip_1_ratio = .12 / cycleWidth * (1. - .4 * bump);
@@ -161,7 +171,7 @@ void main() {
 
   opacity = 1. - smoothstep(.9, .92, mask);
 
-  float noise = snoise(shape_uv - t);
+  float noise = snoise(uv - t);
 
   mask += (1. - mask) * u_liquid * noise;
 
@@ -173,15 +183,15 @@ void main() {
 
   direction -= 2. * noise * contour;
 
-  bump *= clamp(pow(shape_uv.y, .1), .3, 1.);
+  bump *= clamp(pow(uv.y, .1), .3, 1.);
   direction *= (.1 + (1.1 - mask) * bump);
   direction *= smoothstep(1., .7, mask);
 
-  float ridge = .2 * (smoothstep(.0, .15, shape_uv.y) * smoothstep(.4, .15, shape_uv.y));
-  ridge += .03 * (smoothstep(.1, .2, 1. - shape_uv.y) * smoothstep(.4, .2, 1. - shape_uv.y));
+  float ridge = .2 * (smoothstep(.0, .15, uv.y) * smoothstep(.4, .15, uv.y));
+  ridge += .03 * (smoothstep(.1, .2, 1. - uv.y) * smoothstep(.4, .2, 1. - uv.y));
   direction += ridge;
 
-  direction *= (.5 + .5 * pow(shape_uv.y, 2.));
+  direction *= (.5 + .5 * pow(uv.y, 2.));
 
   direction *= cycleWidth;
 
@@ -191,10 +201,10 @@ void main() {
   dispersionRed += .03 * bump * noise;
   float dispersionBlue = 1.3 * colorDispersion;
 
-  dispersionRed += 5. * (smoothstep(-.1, .2, shape_uv.y) * smoothstep(.5, .1, shape_uv.y)) * (smoothstep(.4, .6, bump) * smoothstep(1., .4, bump));
+  dispersionRed += 5. * (smoothstep(-.1, .2, uv.y) * smoothstep(.5, .1, uv.y)) * (smoothstep(.4, .6, bump) * smoothstep(1., .4, bump));
   dispersionRed -= diagBLtoTR;
 
-  dispersionBlue += (smoothstep(0., .4, shape_uv.y) * smoothstep(.8, .1, shape_uv.y)) * (smoothstep(.4, .6, bump) * smoothstep(.8, .4, bump));
+  dispersionBlue += (smoothstep(0., .4, uv.y) * smoothstep(.8, .1, uv.y)) * (smoothstep(.4, .6, bump) * smoothstep(.8, .4, bump));
   dispersionBlue -= .2 * mask;
 
   dispersionRed *= u_dispersion;
@@ -212,6 +222,14 @@ void main() {
 
   color = vec3(r, g, b);
   color *= opacity;
+  
+  // vec2 helperBox = v_objectHelperBox;
+  // vec2 boxSize = v_objectBoxSize;
+  // if (u_shape < 1.) {
+  //   helperBox = v_responsiveHelperBox;
+  //   boxSize = v_responsiveBoxSize;
+  // }
+  // $ {drawSizingHelpers}
 
   ${colorBandingFix}
 
