@@ -1,7 +1,7 @@
 import type { vec4 } from '../types';
 import type { ShaderMotionParams } from '../shader-mount';
 import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing';
-import { declarePI, declareSimplexNoise, colorBandingFix } from '../shader-utils';
+import { declarePI, colorBandingFix } from '../shader-utils';
 
 export const colorPanelsMeta = {
   maxColorCount: 6,
@@ -71,9 +71,10 @@ void main() {
   float t = .1 * u_time;
   t = -.5 * PI + mod(t, PI);
     
-  vec3 color = u_colorBack.rgb;
-  float opacity = 1.;
+  vec3 color = vec3(0.);
+  float opacity = 0.;
   
+  float totalColorWeight = 0.;
   float panelsNumber = 2. * u_colorsCount * u_density;
   float totalPanelsShape = 0.;
   
@@ -96,18 +97,28 @@ void main() {
   
       int index = int(mod(floor(float(j)), u_colorsCount));
       int indexNext = int(mod(floor(float(j + 1)), u_colorsCount));
-      panelMap = clamp(2. * panelMap, 0.0, 1.0);
+      panelMap = clamp(2. * panelMap, 0., 1.);
       
       vec3 panelColor = mix(u_colors[index].rgb * u_colors[index].a, u_colors[indexNext].rgb * u_colors[indexNext].a, panelMap);
       float panelOpacity = mix(u_colors[index].a, u_colors[indexNext].a, panelMap);
-      
-      panelColor = mix(u_colorBack.rgb, panelColor, panelMask);
-      color = mix(color, panelColor, panelMask);
+
+      opacity = mix(opacity, panelMask * panelOpacity, panelMask);
+      float depthWeight = pow(cos(angle - PI), 20.) * panelOpacity;      
+      color += panelColor * panelMask * depthWeight;
+      totalColorWeight += panelMask * depthWeight * panelOpacity;
     }
   }
   
+  if (totalColorWeight > 0.) color /= totalColorWeight;
+  color = clamp(color, 0., 1.);
+    
+  color = mix(u_colorBack.rgb * u_colorBack.a, color, opacity);
+  opacity += (1. - opacity) * u_colorBack.a;
+
+  ${colorBandingFix}
+
   fragColor = vec4(color, opacity);
-} 
+}
 `;
 
 export interface ColorPanelsUniforms extends ShaderSizingUniforms {
