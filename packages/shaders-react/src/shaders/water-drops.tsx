@@ -27,12 +27,15 @@ export const defaultPreset: WaterDropsPreset = {
     scale: 2,
     speed: 1,
     frame: 0,
-    colorBack: 'hsla(0, 0%, 15%, 1)',
+    colorBack: 'hsla(0, 0%, 5%, 1)',
     specularColor: 'hsla(0, 0%, 100%, .25)',
     shadowColor: 'hsla(0, 0%, 0%, 1)',
     dropShapeDistortion: 7,
-    reflectedImage: 0,
-    specularSize: 0.9,
+    texturing: 0.04,
+    specularSize: 1,
+    visibility: 1,
+    test1: 0,
+    test2: 0.9,
   },
 };
 
@@ -46,8 +49,11 @@ export const WaterDrops: React.FC<WaterDropsProps> = memo(function WaterDropsImp
   specularColor = defaultPreset.params.specularColor,
   shadowColor = defaultPreset.params.shadowColor,
   dropShapeDistortion = defaultPreset.params.dropShapeDistortion,
-  reflectedImage = defaultPreset.params.reflectedImage,
+  texturing = defaultPreset.params.texturing,
   specularSize = defaultPreset.params.specularSize,
+  visibility = defaultPreset.params.visibility,
+  test1 = defaultPreset.params.test1,
+  test2 = defaultPreset.params.test2,
 
   // Sizing props
   fit = defaultPreset.params.fit,
@@ -68,8 +74,11 @@ export const WaterDrops: React.FC<WaterDropsProps> = memo(function WaterDropsImp
     u_specularColor: getShaderColorFromString(specularColor),
     u_shadowColor: getShaderColorFromString(shadowColor),
     u_dropShapeDistortion: dropShapeDistortion,
-    u_reflectedImage: reflectedImage,
+    u_textureing: texturing,
     u_specularSize: specularSize,
+    u_visibility: visibility,
+    u_test1: test1,
+    u_test2: test2,
     ...noiseTexture,
 
     // Sizing uniforms

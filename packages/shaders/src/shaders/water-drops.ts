@@ -18,8 +18,11 @@ uniform vec4 u_colorBack;
 uniform vec4 u_specularColor;
 uniform vec4 u_shadowColor;
 uniform float u_dropShapeDistortion;
-uniform float u_reflectedImage;
+uniform float u_textureing;
 uniform float u_specularSize;
+uniform float u_visibility;
+uniform float u_test1;
+uniform float u_test2;
 
 
 ${sizingVariablesDeclaration}
@@ -91,7 +94,7 @@ void main() {
    vec3 color = u_colorBack.rgb;
    float opacity = 1.;
 
-   vec3 lightDir = normalize(vec3(.5, .5, -.65));
+   vec3 lightDir = normalize(vec3(-.5, .5, -.65));
 
    vec2 dropDistortion = noise(uv * u_dropShapeDistortion + t);
    vec2 grid_pos = TWO_PI * uv + dropDistortion;
@@ -101,24 +104,26 @@ void main() {
 
   vec2 cellIdx = floor(grid_pos);
   cellIdx = noise(cellIdx);
-  vec2 cellIdx2 = noise(cellIdx * 100. + 1000.);
+  vec2 cellIdx2 = noise(cellIdx);
+  
+  shape *= (.5 + .5 * u_visibility);
   
    float dropInnerContour = smoothstep(.41 - fwidth(shape), .41, shape);
-
-    vec3 normal = normalize(vec3(normalize(pos) * sin(length(pos) * 6.), -2.));
+   
+    vec3 normal = normalize(vec3(normalize(pos) * sin(length(pos) * 20. * u_test1), -2.));
     vec3 normal2 = normalize(vec3(normalize(pos) * sin(length(pos) * 10.), -2.));
    
-   float specular = smoothstep(1. - .17 * u_specularSize, 1.002 - .17 * u_specularSize, dot(normal, lightDir));
-   specular += smoothstep(1. - .1 * u_specularSize, 1.002 - .1 * u_specularSize, dot(normal2, lightDir));
+   float specular = smoothstep(1. - .17 * u_specularSize, 1.001 - .17 * u_specularSize, dot(normal, lightDir));
+   specular += smoothstep(1. - .1 * u_specularSize, 1.001 - .1 * u_specularSize, dot(normal2, lightDir));
    specular *= u_specularColor.a;
 
-   vec2 texUv = uv + .5;
-   texUv = .2 * texUv + normal.xy + .5;
-   vec3 reflectedImage = texture(u_noiseTexture, texUv).rgb;
+   vec3 texturing = 2. * texture(u_noiseTexture, normal.xy + .5).rgb;
 
-   color = mix(u_colorBack.rgb, vec3(.2 + .5 * cellIdx2.x, .7 - .5 * cellIdx2.y, 1.), dropInnerContour);
-   color = mix(color, reflectedImage, u_reflectedImage * dropInnerContour);
-   color = mix(color, .2 * vec3(.7 + .5 * cellIdx.x, .7 - .5 * cellIdx.y, 1.), smoothstep(.7, .3, shape) * dot(normal, lightDir) * dropInnerContour);
+    vec3 c = vec3(1.5 + .5 * cellIdx2.x, 1.1 - .5 * cellIdx2.y, 1.);
+   color = mix(u_colorBack.rgb, c, dropInnerContour);
+   color = mix(color, texturing, u_textureing * dropInnerContour);
+   color = mix(color, .2 * c, dot(normal, lightDir) * dropInnerContour);
+   color = mix(color, .1 * c, (u_test2 * smoothstep(.6, .3, shape)) * dropInnerContour);
    color = mix(color, u_specularColor.rgb, specular * dropInnerContour);
    
 
@@ -133,7 +138,10 @@ export interface WaterDropsUniforms extends ShaderSizingUniforms {
   u_shadowColor: [number, number, number, number];
   u_dropShapeDistortion: number;
   u_specularSize: number;
-  u_reflectedImage: number;
+  u_textureing: number;
+  u_visibility: number;
+  u_test1: number;
+  u_test2: number;
   u_noiseTexture?: HTMLImageElement;
 }
 
@@ -141,7 +149,10 @@ export interface WaterDropsParams extends ShaderSizingParams, ShaderMotionParams
   colorBack?: string;
   specularColor?: string;
   shadowColor?: string;
-  reflectedImage?: number;
+  texturing?: number;
   dropShapeDistortion?: number;
   specularSize?: number;
+  visibility?: number;
+  test1?: number;
+  test2?: number;
 }
