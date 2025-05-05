@@ -65,5 +65,9 @@ export { GrainGradient, grainGradientPresets } from './shaders/grain-gradient';
 export { type GrainGradientProps } from './shaders/grain-gradient';
 export { type GrainGradientUniforms, type GrainGradientParams } from '@paper-design/shaders';
 
+export { WaterDrops, waterDropsPresets } from './shaders/water-drops';
+export type { WaterDropsProps } from './shaders/water-drops';
+export type { WaterDropsUniforms, WaterDropsParams } from '@paper-design/shaders';
+
 export { isPaperShaderElement, getShaderColorFromString } from '@paper-design/shaders';
 export type { ShaderFit, ShaderSizingParams, ShaderSizingUniforms } from '@paper-design/shaders';
