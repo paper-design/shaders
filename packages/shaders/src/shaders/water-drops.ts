@@ -1,6 +1,6 @@
 import type { ShaderMotionParams } from '../shader-mount';
 import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing';
-import { declarePI, declareRotate, colorBandingFix } from '../shader-utils';
+import { declareRandom, declarePI, declareRotate, declareSimplexNoise, colorBandingFix } from '../shader-utils';
 
 /**
 
@@ -27,6 +27,7 @@ ${sizingVariablesDeclaration}
 out vec4 fragColor;
 
 ${declarePI}
+${declareSimplexNoise}
 
 vec2 rand2(vec2 c) {
   mat2 m = mat2(12.9898, .16180, 78.233, .31415);
@@ -44,80 +45,84 @@ vec2 noise(vec2 p) {
   return mix(mix(a, b, mu.x), mix(c, d, mu.x), mu.y);
 }
 
-vec2 hash(vec2 p) {
-  return fract(sin(vec2(dot(p, vec2(127.1, 311.7)), dot(p, vec2(269.5, 183.3)))) * 43758.5453);
+${declareRandom}
+${declareRotate}
+
+vec2 random2(vec2 p) {
+  return vec2(random(p), random(200. * p));
 }
 
-float voronoi(vec2 x) {
-  vec2 n = floor(x);
-  vec2 f = fract(x);
+vec3 voronoi(vec2 uv, float time) {
+  vec2 i_uv = floor(uv);
+  vec2 f_uv = fract(uv);
+  
+  float spreading = .25;
 
-  float minDist = 8.0;
-  for (int j = -1; j <= 1; ++j) {
-    for (int i = -1; i <= 1; ++i) {
-      vec2 g = vec2(i, j);
-      vec2 o = hash(n + g); // hash() should return vec2 in 0-1 range
-      vec2 r = g + o - f;
-      float d = dot(r, r);
-      minDist = min(minDist, d);
+  float minDist = 1.;
+  vec2 randomizer = vec2(0.);
+  for (int y = -1; y <= 1; y++) {
+    for (int x = -1; x <= 1; x++) {
+      vec2 tileOffset = vec2(float(x), float(y));
+      vec2 rand = random2(i_uv + tileOffset);
+      vec2 cellCenter = vec2(.5 + 1e-4);
+      cellCenter += spreading * cos(time + TWO_PI * rand);
+      cellCenter -= .5;
+      cellCenter = rotate(cellCenter, random(vec2(rand.x, rand.y)) + .1 * time);
+      cellCenter += .5;
+      float dist = length(tileOffset + cellCenter - f_uv);
+      if (dist < minDist) {
+        minDist = dist;
+        randomizer = rand;
+      }
+      minDist = min(minDist, dist);
     }
   }
-  return sqrt(minDist);
+
+  return vec3(1. - minDist, randomizer);
 }
 
+
 void main() {
-  vec2 shape_uv = v_patternUV;
-  shape_uv *= .04;
 
-  float t = .1 * u_time;
+    vec2 uv = v_patternUV * .002;
+    
+   float t = .1 * u_time;
 
-  vec3 color = u_colorBack.rgb;
-  float opacity = 1.;
+   vec3 color = u_colorBack.rgb;
+   float opacity = 1.;
 
-  vec3 lightDirection = normalize(vec3(.5, .5, -.65));
+   vec3 lightDir = normalize(vec3(.5, .5, -.65));
 
-  vec2 dropDistortion = noise(shape_uv * u_dropShapeDistortion);
-  vec2 grid_pos = TWO_PI * shape_uv + dropDistortion;
+   vec2 dropDistortion = noise(uv * u_dropShapeDistortion + t);
+   vec2 grid_pos = TWO_PI * uv + dropDistortion;
 
-  grid_pos -= lightDirection.xy;
-  vec2 s = sin(grid_pos);
-  float shape = (s.x + s.y);
+    vec2 pos = fract(grid_pos) - .5;
+    float shape = 1. - length(pos);
 
-  grid_pos += lightDirection.xy;
-  s = sin(grid_pos);
-  float shapeShifted = (s.x + s.y);
-
-  vec2 cellIdx = floor(shape_uv + .25);
-
-  float shapeSaved = shape;
-  vec2 dropLifeTimeNoise = noise(cellIdx * 200.);
-  float dropLifeTime = max(0., 1. - 2. * fract(t * (dropLifeTimeNoise[0] + .5) + dropLifeTimeNoise[1]));
-  shape *= dropLifeTime;
-  shapeShifted *= dropLifeTime;
-
-  float showCell = step(noise(cellIdx).r, .15);
-  float dropInnerContour = showCell * smoothstep(.38, .4, shape);
+  vec2 cellIdx = floor(grid_pos);
+  cellIdx = noise(cellIdx);
+  vec2 cellIdx2 = noise(cellIdx * 100. + 1000.);
   
-  float shadow = u_shadowColor.a * smoothstep(.3, .7, shapeShifted);
-  shadow *= showCell * (1. - dropInnerContour);
+   float dropInnerContour = smoothstep(.41 - fwidth(shape), .41, shape);
 
+    vec3 normal = normalize(vec3(normalize(pos) * sin(length(pos) * 6.), -2.));
+    vec3 normal2 = normalize(vec3(normalize(pos) * sin(length(pos) * 10.), -2.));
+   
+   float specular = smoothstep(1. - .17 * u_specularSize, 1.002 - .17 * u_specularSize, dot(normal, lightDir));
+   specular += smoothstep(1. - .1 * u_specularSize, 1.002 - .1 * u_specularSize, dot(normal2, lightDir));
+   specular *= u_specularColor.a;
 
-  vec3 normal = normalize(-vec3(cos(grid_pos), shape));
+   vec2 texUv = uv + .5;
+   texUv = .2 * texUv + normal.xy + .5;
+   vec3 reflectedImage = texture(u_noiseTexture, texUv).rgb;
 
-  float diffuse = clamp(dot(normal, lightDirection), .0, 1.);
-  float specular = smoothstep(1. - .1 * u_specularSize, 1.01 - .1 * u_specularSize, dot(normal, lightDirection));
+   color = mix(u_colorBack.rgb, vec3(.2 + .5 * cellIdx2.x, .7 - .5 * cellIdx2.y, 1.), dropInnerContour);
+   color = mix(color, reflectedImage, u_reflectedImage * dropInnerContour);
+   color = mix(color, .2 * vec3(.7 + .5 * cellIdx.x, .7 - .5 * cellIdx.y, 1.), smoothstep(.7, .3, shape) * dot(normal, lightDir) * dropInnerContour);
+   color = mix(color, u_specularColor.rgb, specular * dropInnerContour);
+   
 
-  vec2 texUv = shape_uv + .5;
-  texUv.y = 1. - texUv.y;
-  vec2 textureDistortion = normal.xy * .7;
-  vec3 reflectedImage = texture(u_noiseTexture, texUv - textureDistortion).rgb;
-
-  color = mix(color, u_shadowColor.rgb, shadow);
-  color = mix(color, reflectedImage, u_reflectedImage * smoothstep(2., .7, shapeSaved) * dropInnerContour);
-  color = mix(color, u_shadowColor.rgb * diffuse, .7 * smoothstep(.7, .2, shape) * dropInnerContour);
-  color = mix(color, u_specularColor.rgb, specular * dropInnerContour);
-
-  fragColor = vec4(color, opacity);
+   fragColor = vec4(color, opacity);
 }
 
 `;
