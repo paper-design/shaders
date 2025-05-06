@@ -561,14 +561,13 @@ void main() {
   // (currently supports only ratio = 1)
   
   float fixedRatio = 1.;
-  
-  if (u_worldWidth == 0. || u_worldHeight == 0.) {
-   givenBoxSize.x = u_resolution.x;
-   givenBoxSize.y = u_resolution.y;
-   fixedRatio = u_resolution.x / u_resolution.y;
-  }
+  vec2 fixedRatioBoxGivenSize = vec2(
+    (u_worldWidth == 0.) ? u_resolution.x : givenBoxSize.x,
+    (u_worldHeight == 0.) ? u_resolution.y : givenBoxSize.y
+  );
+  fixedRatio = fixedRatioBoxGivenSize.x / fixedRatioBoxGivenSize.y;
 
-  v_objectBoxSize = getBoxSize(fixedRatio, givenBoxSize, maxBoxSize).xy;
+  v_objectBoxSize = getBoxSize(fixedRatio, fixedRatioBoxGivenSize, maxBoxSize).xy;
   vec2 objectWorldScale = u_resolution.xy / v_objectBoxSize;
 
   #ifdef ADD_HELPERS
@@ -629,14 +628,13 @@ void main() {
   // (treating graphics as a image u_worldWidth x u_worldHeight size)
   
   float patternBoxRatio = givenBoxSize.x / givenBoxSize.y;  
-    
-  if (u_worldWidth == 0. || u_worldHeight == 0.) {
-   givenBoxSize.x = u_resolution.x;
-   givenBoxSize.y = u_resolution.y;
-   patternBoxRatio = u_resolution.x / u_resolution.y;
-  }
+  vec2 patternBoxGivenSize = vec2(
+    (u_worldWidth == 0.) ? u_resolution.x : givenBoxSize.x,
+    (u_worldHeight == 0.) ? u_resolution.y : givenBoxSize.y
+  );
+  patternBoxRatio = patternBoxGivenSize.x / patternBoxGivenSize.y;
   
-  vec3 boxSizeData = getBoxSize(patternBoxRatio, givenBoxSize, maxBoxSize);
+  vec3 boxSizeData = getBoxSize(patternBoxRatio, patternBoxGivenSize, maxBoxSize);
   v_patternBoxSize = boxSizeData.xy;
   float patternBoxNoFitBoxWidth = boxSizeData.z;
   vec2 patternBoxScale = u_resolution.xy / v_patternBoxSize;
