@@ -561,6 +561,13 @@ void main() {
   // (currently supports only ratio = 1)
   
   float fixedRatio = 1.;
+  
+  if (u_worldWidth == 0. || u_worldHeight == 0.) {
+   givenBoxSize.x = u_resolution.x;
+   givenBoxSize.y = u_resolution.y;
+   fixedRatio = u_resolution.x / u_resolution.y;
+  }
+
   v_objectBoxSize = getBoxSize(fixedRatio, givenBoxSize, maxBoxSize).xy;
   vec2 objectWorldScale = u_resolution.xy / v_objectBoxSize;
 
@@ -575,7 +582,14 @@ void main() {
   v_objectUV += boxOrigin * (objectWorldScale - 1.);
   v_objectUV += graphicOffset;
   v_objectUV /= u_scale;
+  
+  if (fixedRatio > 1.) {
+    v_objectUV.x *= fixedRatio;  
+  } else {
+    v_objectUV.y /= fixedRatio;    
+  }
   v_objectUV = graphicRotation * v_objectUV;
+  
 
   // ===================================================
   
@@ -615,6 +629,13 @@ void main() {
   // (treating graphics as a image u_worldWidth x u_worldHeight size)
   
   float patternBoxRatio = givenBoxSize.x / givenBoxSize.y;  
+    
+  if (u_worldWidth == 0. || u_worldHeight == 0.) {
+   givenBoxSize.x = u_resolution.x;
+   givenBoxSize.y = u_resolution.y;
+   patternBoxRatio = u_resolution.x / u_resolution.y;
+  }
+  
   vec3 boxSizeData = getBoxSize(patternBoxRatio, givenBoxSize, maxBoxSize);
   v_patternBoxSize = boxSizeData.xy;
   float patternBoxNoFitBoxWidth = boxSizeData.z;

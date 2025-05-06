@@ -1,5 +1,12 @@
 import type { ShaderMotionParams } from '../shader-mount';
-import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing';
+import {
+  sizingVariablesDeclaration,
+  sizingDebugVariablesDeclaration,
+  type ShaderSizingParams,
+  type ShaderSizingUniforms,
+  drawSizingHelpers,
+  sizingUniformsDeclaration,
+} from '../shader-sizing';
 import { declareRotate, colorBandingFix } from '../shader-utils';
 
 /**
@@ -24,6 +31,9 @@ uniform vec4 u_colorBack;
 uniform float u_brightness;
 
 ${sizingVariablesDeclaration}
+
+${sizingUniformsDeclaration}
+${sizingDebugVariablesDeclaration}
 
 out vec4 fragColor;
 
@@ -60,6 +70,10 @@ void main() {
 
   vec3 color = mix(u_colorBack.rgb * u_colorBack.a, u_colorFront.rgb * u_colorFront.a, noise);
   float opacity = mix(u_colorBack.a, u_colorFront.a, noise);
+
+  vec2 helperBox = v_patternHelperBox;
+  vec2 boxSize = v_patternBoxSize;
+  ${drawSizingHelpers}
   
   ${colorBandingFix}
 
