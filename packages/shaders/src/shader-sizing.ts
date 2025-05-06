@@ -91,9 +91,13 @@ export const sizingUV = `
 
   #ifdef USE_OBJECT_SIZING
     float fixedRatio = 1.;
+    vec2 fixedRatioBoxGivenSize = vec2(
+      (u_worldWidth == 0.) ? u_resolution.x : givenBoxSize.x,
+      (u_worldHeight == 0.) ? u_resolution.y : givenBoxSize.y
+    );
     vec2 objectBoxSize = vec2(0.);
     // fit = none
-    objectBoxSize.x = fixedRatio * min(givenBoxSize.x / fixedRatio, givenBoxSize.y);
+    objectBoxSize.x = fixedRatio * min(fixedRatioBoxGivenSize.x / fixedRatio, fixedRatioBoxGivenSize.y);
     if (u_fit == 1.) { // fit = contain
       objectBoxSize.x = fixedRatio * min(maxBoxSize.x / fixedRatio, maxBoxSize.y);
     } else if (u_fit == 2.) {  // fit = cover
@@ -124,9 +128,13 @@ export const sizingUV = `
   
   #ifdef USE_PATTERN_SIZING
     float patternBoxRatio = givenBoxSize.x / givenBoxSize.y;
+    vec2 patternBoxGivenSize = vec2(
+      (u_worldWidth == 0.) ? u_resolution.x : givenBoxSize.x,
+      (u_worldHeight == 0.) ? u_resolution.y : givenBoxSize.y
+    );
     vec2 patternBoxSize = vec2(0.);
     // fit = none
-    patternBoxSize.x = patternBoxRatio * min(givenBoxSize.x / patternBoxRatio, givenBoxSize.y);
+    patternBoxSize.x = patternBoxRatio * min(patternBoxGivenSize.x / patternBoxRatio, patternBoxGivenSize.y);
     float patternWorldNoFitBoxWidth = patternBoxSize.x;
     if (u_fit == 1.) {  // fit = contain
       patternBoxSize.x = patternBoxRatio * min(maxBoxSize.x / patternBoxRatio, maxBoxSize.y);
