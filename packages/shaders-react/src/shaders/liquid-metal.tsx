@@ -30,6 +30,8 @@ export const defaultPreset: LiquidMetalPreset = {
     dispersion: 0.015,
     liquid: 0.07,
     shape: 0,
+    worldWidth: 0,
+    worldHeight: 0
   },
 };
 
