@@ -565,7 +565,9 @@ void main() {
     (u_worldWidth == 0.) ? u_resolution.x : givenBoxSize.x,
     (u_worldHeight == 0.) ? u_resolution.y : givenBoxSize.y
   );
-  fixedRatio = fixedRatioBoxGivenSize.x / fixedRatioBoxGivenSize.y;
+  if (u_worldWidth == 0. || u_worldHeight == 0.) {
+    fixedRatio = fixedRatioBoxGivenSize.x / fixedRatioBoxGivenSize.y;
+  }
 
   v_objectBoxSize = getBoxSize(fixedRatio, fixedRatioBoxGivenSize, maxBoxSize).xy;
   vec2 objectWorldScale = u_resolution.xy / v_objectBoxSize;
