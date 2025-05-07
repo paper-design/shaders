@@ -60,10 +60,11 @@ float roundedBoxSDF(vec2 uv, vec2 boxSize, float radius, float thickness, float 
     vec2 v2 = p - vec2(halfSize.x, -halfSize.y);
     vec2 v3 = p - halfSize;
     
-    float m0 = .07 * clamp(pow(1. - abs(v0.x - v0.y), 20.), 0., 1.);
-    float m1 = .07 * clamp(pow(1. - abs(v1.x + v1.y), 20.), 0., 1.);
-    float m2 = .07 * clamp(pow(1. - abs(v2.x + v2.y), 20.), 0., 1.);
-    float m3 = .07 * clamp(pow(1. - abs(v3.x - v3.y), 20.), 0., 1.);
+    float mult = (.07 - .25 * radius);
+    float m0 = mult * clamp(pow(1. - abs(v0.x - v0.y), 20.), 0., 1.);
+    float m1 = mult * clamp(pow(1. - abs(v1.x + v1.y), 20.), 0., 1.);
+    float m2 = mult * clamp(pow(1. - abs(v2.x + v2.y), 20.), 0., 1.);
+    float m3 = mult * clamp(pow(1. - abs(v3.x - v3.y), 20.), 0., 1.);
     
     float l = edgeSoftness * .5 + 1.5 * thickness;
     float fade0 = 1. - clamp(length(v0) / l, 0., 1.);
@@ -80,6 +81,7 @@ float roundedBoxSDF(vec2 uv, vec2 boxSize, float radius, float thickness, float 
     fill *= step(distance, 0.);
     fill *= (1. + 6. * thickness);
     fill *= (1.5 - .5 * smoothstep(0., .5, edgeSoftness));
+    fill = clamp(fill, 0., 1.);
 
     return border + fillFix * fill;
 }
@@ -166,6 +168,7 @@ void main() {
   ${colorBandingFix}
 
   fragColor = vec4(color, opacity);
+  // fragColor = vec4(vec3(border), 1.);
 }
 `;
 
