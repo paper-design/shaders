@@ -27,10 +27,11 @@ export const defaultPreset: ColorPanelsPreset = {
     frame: 0,
     colors: ['hsla(259, 100%, 50%, 1)', 'hsla(150, 100%, 50%, 1)', 'hsla(48, 100%, 50%, 1)', 'hsla(295, 100%, 50%, 1)'],
     colorBack: 'hsla(0, 0%, 0%, 1)',
-    sideBlur: 0.3,
+    angle: 0.1,
+    length: 1,
+    sideBlur: 0,
     frontTransparency: 0.1,
-    density: 3,
-    proportion: 1,
+    panelsPerColor: 2,
   },
 };
 
@@ -42,10 +43,11 @@ export const ColorPanels: React.FC<ColorPanelsProps> = memo(function ColorPanels
   frame = defaultPreset.params.frame,
   colors = defaultPreset.params.colors,
   colorBack = defaultPreset.params.colorBack,
+  angle = defaultPreset.params.angle,
+  length = defaultPreset.params.length,
   sideBlur = defaultPreset.params.sideBlur,
   frontTransparency = defaultPreset.params.frontTransparency,
-  density = defaultPreset.params.density,
-  proportion = defaultPreset.params.proportion,
+  panelsPerColor = defaultPreset.params.panelsPerColor,
 
   // Sizing props
   fit = defaultPreset.params.fit,
@@ -64,10 +66,11 @@ export const ColorPanels: React.FC<ColorPanelsProps> = memo(function ColorPanels
     u_colors: colors.map(getShaderColorFromString),
     u_colorsCount: colors.length,
     u_colorBack: getShaderColorFromString(colorBack),
+    u_angle: angle,
+    u_length: length,
     u_sideBlur: sideBlur,
     u_frontTransparency: frontTransparency,
-    u_density: density,
-    u_proportion: proportion,
+    u_panelsPerColor: panelsPerColor,
 
     // Sizing uniforms
     u_fit: ShaderFitOptions[fit],
