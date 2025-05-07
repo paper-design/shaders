@@ -228,8 +228,8 @@ export const defaultObjectSizing: Required<ShaderSizingParams> = {
   offsetY: 0,
   originX: 0.5,
   originY: 0.5,
-  worldWidth: 1,
-  worldHeight: 1,
+  worldWidth: 0,
+  worldHeight: 0,
 };
 
 export const defaultPatternSizing: Required<ShaderSizingParams> = {
@@ -240,8 +240,8 @@ export const defaultPatternSizing: Required<ShaderSizingParams> = {
   offsetY: 0,
   originX: 0.5,
   originY: 0.5,
-  worldWidth: 1,
-  worldHeight: 1,
+  worldWidth: 0,
+  worldHeight: 0,
 };
 
 export const ShaderFitOptions = {
