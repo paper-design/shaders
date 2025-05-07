@@ -1,6 +1,6 @@
 'use client';
 
-import { SimplexNoise, type SimplexNoiseParams, simplexNoisePresets } from '@paper-design/shaders-react';
+import { ColorPanels, type ColorPanelsParams, colorPanelsPresets } from '@paper-design/shaders-react';
 
 import { useControls, button, folder } from 'leva';
 import { setParamsSafe, useResetLevaParams } from '@/helpers/use-reset-leva-params';
@@ -8,34 +8,38 @@ import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import Link from 'next/link';
 import { BackButton } from '@/components/back-button';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
-import { simplexNoiseMeta, ShaderFit, ShaderFitOptions } from '@paper-design/shaders';
+import { colorPanelsMeta, ShaderFit, ShaderFitOptions, meshGradientMeta } from '@paper-design/shaders';
 import { useColors } from '@/helpers/use-colors';
 
 /**
- * You can copy/paste this example to use SimplexNoise in your app
+ * You can copy/paste this example to use ColorPanels in your app
  */
-const SimplexNoiseExample = () => {
-  return <SimplexNoise style={{ position: 'fixed', width: '100%', height: '100%' }} />;
+const ColorPanelsExample = () => {
+  return <ColorPanels style={{ position: 'fixed', width: '100%', height: '100%' }} />;
 };
 
 /**
  * This example has controls added so you can play with settings in the example app
  */
 
-const { worldWidth, worldHeight, ...defaults } = simplexNoisePresets[0].params;
+const { worldWidth, worldHeight, ...defaults } = colorPanelsPresets[0].params;
 
-const SimplexNoiseWithControls = () => {
+const ColorPanelsWithControls = () => {
   const { colors, setColors } = useColors({
     defaultColors: defaults.colors,
-    maxColorCount: simplexNoiseMeta.maxColorCount,
+    maxColorCount: colorPanelsMeta.maxColorCount,
   });
 
   const [params, setParams] = useControls(() => {
     return {
       Parameters: folder(
         {
-          stepsPerColor: { value: defaults.stepsPerColor, min: 1, max: 10, step: 1, order: 300 },
-          softness: { value: defaults.softness, min: 0, max: 1, order: 301 },
+          colorBack: { value: defaults.colorBack, order: 100 },
+          angle: { value: defaults.angle, min: -1, max: 1, order: 200 },
+          length: { value: defaults.length, min: 0.1, max: 3, order: 200 },
+          panelsPerColor: { value: defaults.panelsPerColor, min: 1, max: colorPanelsMeta.maxPanelsPerColor, step: 1, order: 201 },
+          frontTransparency: { value: defaults.frontTransparency, min: 0, max: 1, order: 300 },
+          sideBlur: { value: defaults.sideBlur, min: 0, max: 1, order: 301 },
           speed: { value: defaults.speed, min: 0, max: 2, order: 400 },
         },
         { order: 1 }
@@ -70,7 +74,7 @@ const SimplexNoiseWithControls = () => {
 
   useControls(() => {
     const presets = Object.fromEntries(
-      simplexNoisePresets.map(({ name, params: { worldWidth, worldHeight, ...preset } }) => [
+      colorPanelsPresets.map(({ name, params: { worldWidth, worldHeight, ...preset } }) => [
         name,
         button(() => {
           const { colors, ...presetParams } = preset;
@@ -87,7 +91,7 @@ const SimplexNoiseWithControls = () => {
   // Reset to defaults on mount, so that Leva doesn't show values from other
   // shaders when navigating (if two shaders have a color1 param for example)
   useResetLevaParams(params, setParams, defaults);
-  usePresetHighlight(simplexNoisePresets, params);
+  usePresetHighlight(colorPanelsPresets, params);
   cleanUpLevaParams(params);
 
   return (
@@ -95,9 +99,9 @@ const SimplexNoiseWithControls = () => {
       <Link href="/">
         <BackButton />
       </Link>
-      <SimplexNoise {...params} colors={colors} className="fixed size-full" />
+      <ColorPanels {...params} colors={colors} className="fixed size-full" />
     </>
   );
 };
 
-export default SimplexNoiseWithControls;
+export default ColorPanelsWithControls;
