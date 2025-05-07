@@ -36,7 +36,7 @@ out vec4 fragColor;
 ${declarePI}
 ${declareSimplexNoise}
 
-float roundedBoxSDF(vec2 uv, vec2 boxSize, float radius, float thickness, float edgeSoftness) {
+float roundedBoxSDF(vec2 uv, vec2 boxSize, float radius, float thickness, float edgeSoftness, float fillFix) {
     float ratio = v_worldSizeTest.x / v_worldSizeTest.y;;
     uv.x *= ratio;
     vec2 p = uv;
@@ -51,13 +51,37 @@ float roundedBoxSDF(vec2 uv, vec2 boxSize, float radius, float thickness, float 
     float insideDistance = min(max(d.x, d.y), 0.0);
     float distance = outsideDistance + insideDistance;
     
-    float fill = 1.0 - smoothstep(-.5 * edgeSoftness, .1, distance);
-
     float borderDistance = abs(distance) - thickness;
     float border = 1. - smoothstep(-.5 * edgeSoftness, .5 * edgeSoftness, borderDistance);
     border *= border;
 
-    return border;
+    vec2 v0 = p + halfSize;
+    vec2 v1 = p - vec2(-halfSize.x, halfSize.y);
+    vec2 v2 = p - vec2(halfSize.x, -halfSize.y);
+    vec2 v3 = p - halfSize;
+    
+    float m0 = .07 * clamp(pow(1. - abs(v0.x - v0.y), 20.), 0., 1.);
+    float m1 = .07 * clamp(pow(1. - abs(v1.x + v1.y), 20.), 0., 1.);
+    float m2 = .07 * clamp(pow(1. - abs(v2.x + v2.y), 20.), 0., 1.);
+    float m3 = .07 * clamp(pow(1. - abs(v3.x - v3.y), 20.), 0., 1.);
+    
+    float l = edgeSoftness * .5 + 1.5 * thickness;
+    float fade0 = 1. - clamp(length(v0) / l, 0., 1.);
+    float fade1 = 1. - clamp(length(v1) / l, 0., 1.);
+    float fade2 = 1. - clamp(length(v2) / l, 0., 1.);
+    float fade3 = 1. - clamp(length(v3) / l, 0., 1.);
+    
+    m0 *= fade0;
+    m1 *= fade1;
+    m2 *= fade2;
+    m3 *= fade3;
+    
+    float fill = m0 + m1 + m2 + m3;
+    fill *= step(distance, 0.);
+    fill *= (1. + 6. * thickness);
+    fill *= (1.5 - .5 * smoothstep(0., .5, edgeSoftness));
+
+    return border + fillFix * fill;
 }
 
 float rand(vec2 n) {
@@ -88,7 +112,7 @@ void main() {
 
   float angle = atan(borderUV.y, borderUV.x) / TWO_PI;
   
-  float border = roundedBoxSDF(borderUV, vec2(1.), .5 * u_roundness, .5 * u_thickness, .5 * u_softness);
+  float border = roundedBoxSDF(borderUV, vec2(1.), .5 * u_roundness, .5 * u_thickness, .5 * u_softness, 1.);
 
   float pulse = u_pulsing * getWaveformValue(.005 * t);
   
@@ -96,7 +120,7 @@ void main() {
   border *= (1. + u_intensity);
 
   float smoke = .5 + .5 * snoise(1.7 * borderUV);
-  smoke *= roundedBoxSDF(borderUV, vec2(.9), .5, min(.65, max(2. * u_thickness, .35)), .5);
+  smoke *= roundedBoxSDF(borderUV, vec2(.9), .5, min(.65, max(2. * u_thickness, .35)), .5, 0.);
   smoke *= smoothstep(0., 1., .7 * length(borderUV));
   smoke *= u_smoke;
   
