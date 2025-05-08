@@ -9,7 +9,24 @@ export const pulsingBorderMeta = {
 } as const;
 
 /**
- */
+ * Pulsing Border Pattern with Smoke Effect
+ * This shader creates a rounded border mask with multiple color spots
+ * traveling along the border
+ *
+ * Uniforms include:
+ * u_colorBack   - The background color of the pattern
+ * u_colors      - An array of colors for the pulsing spots (with up to `u_colorsCount` entries)
+ * u_colorsCount - The number of colors used in the pattern
+ * u_roundness   - The roundness of the border corners
+ * u_thickness   - The thickness of the border
+ * u_softness    - The blur around the border edges
+ * u_intensity   - The intensity multiplier for the pulsing effect
+ * u_spotSize    - The size of the color spots
+ * u_spotsPerColor - The number of spots for each color (not all the spots are visible all the time)
+ * u_pulsing     - A multiplier for the pulsing strength (pulsing signal taken from the u_pulseTexture)
+ * u_smoke       - The strength of the smoke effect (the noise aroung the border)
+*/
+
 export const pulsingBorderFragmentShader: string = `#version 300 es
 precision lowp float;
 
