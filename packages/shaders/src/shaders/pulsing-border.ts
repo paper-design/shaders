@@ -127,7 +127,7 @@ void main() {
   border *= (1. + .5 * pulse);
   border *= (1. + u_intensity);
 
-  float smoke = clamp(3. * noise(.003 * v_patternUV + t) - noise(.004 * v_patternUV - t), 0., 1.);
+  float smoke = clamp(3. * noise(.0045 * v_patternUV + t) - noise(.006 * v_patternUV - t), 0., 1.);
   smoke *= roundedBoxSDF(borderUV, vec2(.9), .5, min(.65, max(2. * u_thickness, .35)), .5, 0.);
   smoke *= smoothstep(0., 1., .7 * length(borderUV));
   smoke *= u_smoke;
