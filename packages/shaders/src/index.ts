@@ -106,7 +106,7 @@ export { swirlMeta, swirlFragmentShader, type SwirlParams, type SwirlUniforms } 
 export { ditheringFragmentShader, type DitheringParams, type DitheringUniforms } from './shaders/dithering';
 
 // ----- Grainy Gradient ----- //
-/**  */
+/** N-color gradient applied to the abstract shapes w/ grainy overlay & distortion  */
 export {
   grainGradientFragmentShader,
   grainGradientMeta,
@@ -114,8 +114,12 @@ export {
   type GrainGradientUniforms,
 } from './shaders/grain-gradient';
 
+// ----- Liquid Metal ----- //
+/** Liquid metal effect applied to the abstract shapes */
+export { liquidMetalFragmentShader, type LiquidMetalParams, type LiquidMetalUniforms } from './shaders/liquid-metal';
+
 // ----- Pulsing Border ----- //
-/**  */
+/** Border with configurable size & radius ade of rotating pulsing light spots  */
 export {
   pulsingBorderMeta,
   pulsingBorderFragmentShader,
