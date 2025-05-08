@@ -5,7 +5,7 @@ import { declarePI, colorBandingFix } from '../shader-utils';
 
 export const pulsingBorderMeta = {
   maxColorCount: 5,
-  maxSpotsNumber: 8,
+  maxSpotsPerColor: 5,
 } as const;
 
 /**
@@ -23,7 +23,7 @@ uniform float u_thickness;
 uniform float u_softness;
 uniform float u_intensity;
 uniform float u_spotSize;
-uniform float u_spotsNumber;
+uniform float u_spotsPerColor;
 uniform float u_pulsing;
 uniform float u_smoke;
 
@@ -149,8 +149,8 @@ void main() {
   vec3 color = vec3(0.);
   float opacity = 0.;
   
-  for (int i = 0; i < ${pulsingBorderMeta.maxSpotsNumber}; i++) {
-    if (i >= int(u_spotsNumber)) break;
+  for (int i = 0; i < ${pulsingBorderMeta.maxSpotsPerColor}; i++) {
+    if (i >= int(u_spotsPerColor)) break;
     float idx = float(i);
   
     for (int j = 0; j < ${pulsingBorderMeta.maxColorCount}; j++) {
@@ -192,7 +192,7 @@ export interface PulsingBorderUniforms extends ShaderSizingUniforms {
   u_thickness: number;
   u_softness: number;
   u_intensity: number;
-  u_spotsNumber: number;
+  u_spotsPerColor: number;
   u_spotSize: number;
   u_pulsing: number;
   u_smoke: number;
@@ -207,7 +207,7 @@ export interface PulsingBorderParams extends ShaderSizingParams, ShaderMotionPar
   thickness?: number;
   softness?: number;
   intensity?: number;
-  spotsNumber?: number;
+  spotsPerColor?: number;
   spotSize?: number;
   pulsing?: number;
   smoke?: number;

@@ -37,10 +37,10 @@ const PulsingBorderWithControls = () => {
           thickness: { value: defaults.thickness, min: 0, max: 0.2, order: 301 },
           softness: { value: defaults.softness, min: 0, max: 1, order: 302 },
           intensity: { value: defaults.intensity, min: 0, max: 4, order: 303 },
-          spotsNumber: {
-            value: defaults.spotsNumber,
+          spotsPerColor: {
+            value: defaults.spotsPerColor,
             min: 1,
-            max: pulsingBorderMeta.maxSpotsNumber,
+            max: pulsingBorderMeta.maxSpotsPerColor,
             step: 1,
             order: 304,
           },
