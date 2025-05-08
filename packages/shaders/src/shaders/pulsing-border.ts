@@ -5,7 +5,7 @@ import { declarePI, colorBandingFix } from '../shader-utils';
 
 export const pulsingBorderMeta = {
   maxColorCount: 5,
-  maxSpotsPerColor: 5,
+  maxSpotsPerColor: 10,
 } as const;
 
 /**
@@ -112,14 +112,6 @@ float getWaveformValue(float time) {
   return value * 2.0 - 1.0;
 }
 
-float sectorShape(float a, float mask, float width) {
-  float atg1 = mod(a, 1.);
-  float s = smoothstep(.5 - width, .5, atg1) * smoothstep(.5 + width, .5, atg1);
-  s *= mask;
-  s = max(0., s);
-  return s;
-}
-
 void main() {
 
   float t = u_time + 2.;
@@ -143,8 +135,6 @@ void main() {
   border += smoke;
 
   float sectorsTotal = 0.;
-
-  float width = u_spotSize;
 
   vec3 color = vec3(0.);
   float opacity = 0.;
@@ -170,9 +160,17 @@ void main() {
         cos(t + idx * (3. + 1.3 * colorIdx)),
         step(mod(colorIdx, 2.), .5)
       );
+      
+      mask += pulse;
+      if (mask < 0.) continue;
   
-      float sector = sectorShape(angle + time, mask + pulse, width) * border;
+      float atg1 = fract(angle + time);
+      float sector = smoothstep(.5 - u_spotSize, .5, atg1) * smoothstep(.5 + u_spotSize, .5, atg1);
+      sector *= border;
+      sector *= mask;
+      
       sectorsTotal += sector;
+      
       float alpha = sector * u_colors[j].a;
       accumColor += u_colors[j].rgb * alpha;
       accumAlpha += alpha;
