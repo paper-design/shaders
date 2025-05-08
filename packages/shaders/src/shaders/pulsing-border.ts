@@ -37,7 +37,7 @@ ${declarePI}
 ${declareSimplexNoise}
 
 float roundedBoxSDF(vec2 uv, vec2 boxSize, float radius, float thickness, float edgeSoftness, float fillFix) {
-    float ratio = v_worldSizeTest.x / v_worldSizeTest.y;;
+    float ratio = v_responsiveBoxGivenSize.x / v_responsiveBoxGivenSize.y;
     uv.x *= ratio;
     vec2 p = uv;
     
@@ -110,7 +110,7 @@ void main() {
 
   float t = u_time + 2.;
   
-  vec2 borderUV = v_screenSizeUV;
+  vec2 borderUV = v_responsiveUV;
 
   float angle = atan(borderUV.y, borderUV.x) / TWO_PI;
   

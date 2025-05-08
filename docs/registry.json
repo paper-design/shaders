@@ -229,9 +229,7 @@
       "type": "registry:component",
       "title": "Pulsing Border Example",
       "description": "Pulsing Border shader example.",
-      "dependencies": [
-        "@paper-design/shaders-react"
-      ],
+      "dependencies": ["@paper-design/shaders-react"],
       "files": [
         {
           "path": "registry/pulsing-border-example.tsx",
