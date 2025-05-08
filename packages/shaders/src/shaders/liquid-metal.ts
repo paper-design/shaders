@@ -1,12 +1,5 @@
 import type { ShaderMotionParams } from '../shader-mount';
-import {
-  sizingVariablesDeclaration,
-  sizingDebugVariablesDeclaration,
-  type ShaderSizingParams,
-  type ShaderSizingUniforms,
-  drawSizingHelpers,
-  sizingUniformsDeclaration,
-} from '../shader-sizing';
+import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing';
 import { declarePI, declareRotate, declareSimplexNoise, colorBandingFix } from '../shader-utils';
 
 /**
@@ -24,9 +17,6 @@ uniform float u_liquid;
 uniform float u_shape;
 
 ${sizingVariablesDeclaration}
-
-${sizingUniformsDeclaration}
-${sizingDebugVariablesDeclaration}
 
 out vec4 fragColor;
 
@@ -222,14 +212,6 @@ void main() {
 
   color = vec3(r, g, b);
   color *= opacity;
-  
-  vec2 helperBox = v_objectHelperBox;
-  vec2 boxSize = v_objectBoxSize;
-  if (u_shape < 1.) {
-    helperBox = v_responsiveHelperBox;
-    boxSize = v_responsiveBoxSize;
-  }
-  ${drawSizingHelpers}
 
   ${colorBandingFix}
 

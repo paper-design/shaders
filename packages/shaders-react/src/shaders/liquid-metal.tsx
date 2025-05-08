@@ -31,7 +31,7 @@ export const defaultPreset: LiquidMetalPreset = {
     liquid: 0.07,
     shape: 0,
     worldWidth: 0,
-    worldHeight: 0
+    worldHeight: 0,
   },
 };
 

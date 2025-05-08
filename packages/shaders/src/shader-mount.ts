@@ -527,7 +527,7 @@ out vec2 v_patternUV;
 out vec2 v_patternBoxSize;
 out vec2 v_patternHelperBox;
 
-#define ADD_HELPERS
+// #define ADD_HELPERS
 
 vec3 getBoxSize(float boxRatio, vec2 givenBoxSize, vec2 maxBoxSize) {
   vec2 box = vec2(0.);
@@ -580,12 +580,6 @@ void main() {
   v_objectUV += boxOrigin * (objectWorldScale - 1.);
   v_objectUV += graphicOffset;
   v_objectUV /= u_scale;
-  
-  if (fixedRatio > 1.) {
-    v_objectUV.x *= fixedRatio;  
-  } else {
-    v_objectUV.y /= fixedRatio;    
-  }
   v_objectUV = graphicRotation * v_objectUV;
   
 
