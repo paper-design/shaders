@@ -149,6 +149,9 @@ void main() {
   vec3 color = vec3(0.);
   float opacity = 0.;
   
+  vec3 accumColor = vec3(0.);
+  float accumAlpha = 0.;
+  
   for (int i = 0; i < ${pulsingBorderMeta.maxSpotsPerColor}; i++) {
     if (i >= int(u_spotsPerColor)) break;
     float idx = float(i);
@@ -170,13 +173,18 @@ void main() {
   
       float sector = sectorShape(angle + time, mask + pulse, width) * border;
       sectorsTotal += sector;
-      opacity += sector * u_colors[j].a;
-      color += sector * u_colors[j].rgb * u_colors[j].a;
+      float alpha = sector * u_colors[j].a;
+      accumColor += u_colors[j].rgb * alpha;
+      accumAlpha += alpha;
     }
   }
   
-  opacity += u_colorBack.a;
-  color += u_colorBack.rgb * (1. - clamp(sectorsTotal, 0., 1.)) * u_colorBack.a;
+  color = accumColor;
+  opacity = clamp(accumAlpha, 0.0, 1.0);
+  
+  vec3 bgColor = u_colorBack.rgb * u_colorBack.a;
+  color = color + bgColor * (1.0 - opacity);
+  opacity = opacity + u_colorBack.a * (1.0 - opacity);
   
   ${colorBandingFix}
 
