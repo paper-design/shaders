@@ -5,7 +5,7 @@ import { declarePI, colorBandingFix } from '../shader-utils';
 
 export const pulsingBorderMeta = {
   maxColorCount: 5,
-  maxSpotsNumber: 8
+  maxSpotsNumber: 8,
 } as const;
 
 /**
