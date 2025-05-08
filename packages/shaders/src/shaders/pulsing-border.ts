@@ -11,7 +11,7 @@ export const pulsingBorderMeta = {
 /**
  */
 export const pulsingBorderFragmentShader: string = `#version 300 es
-precision mediump float;
+precision lowp float;
 
 uniform float u_time;
 
