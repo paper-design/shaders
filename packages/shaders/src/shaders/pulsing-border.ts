@@ -1,16 +1,17 @@
 import type { vec4 } from '../types';
 import type { ShaderMotionParams } from '../shader-mount';
 import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing';
-import { declarePI, declareSimplexNoise, colorBandingFix } from '../shader-utils';
+import { declarePI, colorBandingFix } from '../shader-utils';
 
 export const pulsingBorderMeta = {
   maxColorCount: 5,
+  maxSpotsNumber: 8
 } as const;
 
 /**
  */
 export const pulsingBorderFragmentShader: string = `#version 300 es
-precision highp float;
+precision mediump float;
 
 uniform float u_time;
 
@@ -27,14 +28,13 @@ uniform float u_pulsing;
 uniform float u_smoke;
 
 uniform sampler2D u_pulseTexture;
-uniform sampler2D u_simplexNoiseTexture;
+uniform sampler2D u_noiseTexture;
 
 ${sizingVariablesDeclaration}
 
 out vec4 fragColor;
 
 ${declarePI}
-${declareSimplexNoise}
 
 float roundedBoxSDF(vec2 uv, vec2 boxSize, float radius, float thickness, float edgeSoftness, float fillFix) {
     float ratio = v_responsiveBoxGivenSize.x / v_responsiveBoxGivenSize.y;
@@ -86,8 +86,22 @@ float roundedBoxSDF(vec2 uv, vec2 boxSize, float radius, float thickness, float 
     return border + fillFix * fill;
 }
 
-float rand(vec2 n) {
-  return fract(cos(dot(n, vec2(12.9898, 4.1414))) * 43758.5453);
+vec2 rand(vec2 p) {
+  vec2 uv = floor(p) / 100. + .5;
+  return texture(u_noiseTexture, uv).gb;
+}
+
+float noise(vec2 st) {
+  vec2 i = floor(st);
+  vec2 f = fract(st);
+  float a = rand(i).x;
+  float b = rand(i + vec2(1.0, 0.0)).x;
+  float c = rand(i + vec2(0.0, 1.0)).x;
+  float d = rand(i + vec2(1.0, 1.0)).x;
+  vec2 u = f * f * (3.0 - 2.0 * f);
+  float x1 = mix(a, b, u.x);
+  float x2 = mix(c, d, u.x);
+  return mix(x1, x2, u.y);
 }
 
 float getWaveformValue(float time) {
@@ -121,15 +135,13 @@ void main() {
   border *= (1. + .5 * pulse);
   border *= (1. + u_intensity);
 
-  float smoke = .5 + .5 * snoise(1.7 * borderUV);
+  float smoke = clamp(3. * noise(.003 * v_patternUV + t) - noise(.004 * v_patternUV - t), 0., 1.);
   smoke *= roundedBoxSDF(borderUV, vec2(.9), .5, min(.65, max(2. * u_thickness, .35)), .5, 0.);
   smoke *= smoothstep(0., 1., .7 * length(borderUV));
   smoke *= u_smoke;
   
   border += smoke;
 
-  float shape1 = 0.;
-  float shape2 = 0.;
   float sectorsTotal = 0.;
 
   float width = u_spotSize;
@@ -137,21 +149,22 @@ void main() {
   vec3 color = vec3(0.);
   float opacity = 0.;
   
-  for (int i = 0; i < int(u_spotsNumber); i++) {
+  for (int i = 0; i < ${pulsingBorderMeta.maxSpotsNumber}; i++) {
+    if (i >= int(u_spotsNumber)) break;
     float idx = float(i);
   
-    for (int j = 0; j < int(u_colorsCount); j++) {
+    for (int j = 0; j < ${pulsingBorderMeta.maxColorCount}; j++) {
+      if (j >= int(u_colorsCount)) break;
       float colorIdx = float(j);
+
+      vec2 randVal = rand(vec2(idx * 10. + 2., 40. + colorIdx));
   
-      float time = (.1 + .15 * abs(sin(idx * (2. + colorIdx)) * cos(idx * (2. + colorIdx * 2.5)))) * t + rand(vec2(idx * (10. - colorIdx * 4.))) * 3.;
-                 
-      float randVal = rand(vec2(idx, colorIdx));
-      float direction = mix(1.0, -1.0, step(0.5, randVal));
-      time *= direction;
+      float time = (.1 + .15 * abs(sin(idx * (2. + colorIdx)) * cos(idx * (2. + 2.5 * colorIdx)))) * t + randVal.x * 3.;
+      time *= mix(1., -1., step(.5, randVal.y));
   
       float mask = .2 + mix(
-        sin(t + idx * (6. - colorIdx) - idx * (1. + colorIdx * .5)),
-        cos(t + idx * (5. + colorIdx) - idx * (2. - colorIdx * .3)),
+        sin(t + idx * (5. - 1.5 * colorIdx)),
+        cos(t + idx * (3. + 1.3 * colorIdx)),
         step(mod(colorIdx, 2.), .5)
       );
   
@@ -168,7 +181,6 @@ void main() {
   ${colorBandingFix}
 
   fragColor = vec4(color, opacity);
-  // fragColor = vec4(vec3(border), 1.);
 }
 `;
 
