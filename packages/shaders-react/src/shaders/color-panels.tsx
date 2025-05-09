@@ -25,13 +25,13 @@ export const defaultPreset: ColorPanelsPreset = {
     ...defaultObjectSizing,
     speed: 1,
     frame: 0,
-    colors: ['hsla(259, 100%, 50%, 1)', 'hsla(150, 100%, 50%, 1)', 'hsla(48, 100%, 50%, 1)', 'hsla(295, 100%, 50%, 1)'],
-    colorBack: 'hsla(0, 0%, 0%, 1)',
+    colors: ['hsla(259, 100%, 50%, .5)', 'hsla(150, 100%, 50%, 1)'],//, 'hsla(48, 100%, 50%, 1)', 'hsla(295, 100%, 50%, 1)'],
+    colorBack: 'hsla(0, 100%, 50%, 0.5)',
     angle: 0.1,
     length: 1,
     sideBlur: 0,
     frontTransparency: 0.1,
-    panelsPerColor: 2,
+    count: 7,
   },
 };
 
@@ -47,7 +47,7 @@ export const ColorPanels: React.FC<ColorPanelsProps> = memo(function ColorPanels
   length = defaultPreset.params.length,
   sideBlur = defaultPreset.params.sideBlur,
   frontTransparency = defaultPreset.params.frontTransparency,
-  panelsPerColor = defaultPreset.params.panelsPerColor,
+  count = defaultPreset.params.count,
 
   // Sizing props
   fit = defaultPreset.params.fit,
@@ -70,7 +70,7 @@ export const ColorPanels: React.FC<ColorPanelsProps> = memo(function ColorPanels
     u_length: length,
     u_sideBlur: sideBlur,
     u_frontTransparency: frontTransparency,
-    u_panelsPerColor: panelsPerColor,
+    u_count: count,
 
     // Sizing uniforms
     u_fit: ShaderFitOptions[fit],

@@ -5,7 +5,7 @@ import { declarePI, colorBandingFix } from '../shader-utils';
 
 export const colorPanelsMeta = {
   maxColorCount: 6,
-  maxPanelsPerColor: 3,
+  maxPanelsCount: 14,
 } as const;
 
 /**
@@ -29,7 +29,7 @@ uniform float u_angle;
 uniform float u_length;
 uniform float u_sideBlur;
 uniform float u_frontTransparency;
-uniform float u_panelsPerColor;
+uniform float u_count;
 
 ${sizingVariablesDeclaration}
 
@@ -55,14 +55,13 @@ vec2 getPanel(float angle, vec2 panelSize, float px, float py) {
     float left = -panelSize.x + skew;
     float right = panelSize.x - skew;
     
-    panel = smoothstep(left - sideBlurX, left + sideBlurX, x);
-    panel *= 1. - smoothstep(right - sideBlurX, right + sideBlurX, x);    
+    panel = smoothstep(left - .5 * sideBlurX, left + sideBlurX, x);
+    panel *= (1. - smoothstep(right - sideBlurX, right + .5 * sideBlurX, x));
     
-    panel *= smoothstep(-sideBlurX * zLimit, sideBlurX * zLimit, z);
-        
-    panel *= (1. - smoothstep(zLimit - u_frontTransparency, zLimit + u_frontTransparency, z));        
+    panel *= step(0., z);
+    panel *= (1. - step(zLimit, z));        
 
-    return vec2(panel, panelMap);
+    return vec2(.9 * panel, panelMap);
 }
 
 void main() {
@@ -74,12 +73,12 @@ void main() {
   float px = uv.x * panelSize.x * 2.;
   float py = uv.y * panelSize.y * 2.;
   
-  float t = .03 * u_time;
+  float t = .08 * u_time;
   vec3 color = vec3(0.);
   float opacity = 0.;
   
   float totalColorWeight = 0.;
-  float panelsNumber = 2. * u_colorsCount * u_panelsPerColor;
+  float panelsNumber = 2. * u_count;
   float totalPanelsShape = 0.;
   
   t = fract(t);
@@ -89,7 +88,7 @@ void main() {
     bool skip = (t < .5) == (mode == 0 || mode == 3);
     if (skip) continue;
 
-    for (int i = 0; i <= ${2 * colorPanelsMeta.maxColorCount * colorPanelsMeta.maxPanelsPerColor}; i++) {
+    for (int i = 0; i <= ${2 * colorPanelsMeta.maxPanelsCount}; i++) {
       if (i >= int(panelsNumber)) break;
 
       bool bottomHalf = (mode >= 2);
@@ -97,12 +96,15 @@ void main() {
   
       int j = bottomHalf ? int(panelsNumber) - i : i;
       float offset = float(j) / panelsNumber;
+
       if (doublingSet) {
         offset += .5;
       }
   
-      float angleNorm = 0.25 + 0.5 * fract(t + offset);
-      // float angleNorm = fract(t + offset);
+      float angleNorm = fract(t + offset);
+      if (angleNorm < .25) continue;
+      if (angleNorm > .75) continue;
+
       if (!bottomHalf && angleNorm > 0.5) continue;
       if (bottomHalf && angleNorm < 0.5) continue;
       
@@ -112,22 +114,21 @@ void main() {
       float panelMap = panel[1];
       
       if (!bottomHalf) {
-        panelMask *= smoothstep(0.25, 0.3, angleNorm);
-        panelMask *= smoothstep(0.5, 0.49, angleNorm);
+        panelMask *= smoothstep(0.25, 0.3, angleNorm) * smoothstep(0.5, 0.49, angleNorm);
       } else {
-        panelMask *= smoothstep(0.75, 0.7, angleNorm);
-        panelMask *= smoothstep(0.5, 0.51, angleNorm);
+        panelMask *= smoothstep(0.75, 0.7, angleNorm) * smoothstep(0.5, 0.51, angleNorm);
       }
   
-      int index = int(mod(floor(float(j)), u_colorsCount));
-      int indexNext = int(mod(floor(float(j + 1)), u_colorsCount));
+      int index = int(fract(2. * offset) * u_colorsCount);
+      vec4 colorA = u_colors[index];      
 
-      vec4 colorA = u_colors[index];
       // vec4 colorB = u_colors[indexNext];
-      vec4 colorB = u_colorBack;
+      // vec4 colorB = u_colorBack;
+      vec4 colorB = vec4(colorA.rgb, 0.);
 
-      vec3 blendedRGB = mix(colorA.rgb * colorA.a, colorB.rgb * colorB.a, panelMap);
-      float blendedAlpha = mix(colorA.a, colorB.a, panelMap);
+      float midOpacity = clamp(pow(panelMap, .5), 0., 1.);
+      vec3 blendedRGB = mix(colorA.rgb * colorA.a, colorB.rgb * colorB.a, midOpacity);
+      float blendedAlpha = mix(colorA.a, colorB.a, midOpacity);
       
       float finalOpacity = panelMask * blendedAlpha;
       vec3 finalColor = blendedRGB * panelMask;
@@ -155,7 +156,7 @@ export interface ColorPanelsUniforms extends ShaderSizingUniforms {
   u_length: number;
   u_sideBlur: number;
   u_frontTransparency: number;
-  u_panelsPerColor: number;
+  u_count: number;
 }
 
 export interface ColorPanelsParams extends ShaderSizingParams, ShaderMotionParams {
@@ -165,5 +166,5 @@ export interface ColorPanelsParams extends ShaderSizingParams, ShaderMotionParam
   length?: number;
   sideBlur?: number;
   frontTransparency?: number;
-  panelsPerColor?: number;
+  count?: number;
 }

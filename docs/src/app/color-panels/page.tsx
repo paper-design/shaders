@@ -37,9 +37,9 @@ const ColorPanelsWithControls = () => {
           colorBack: { value: defaults.colorBack, order: 100 },
           angle: { value: defaults.angle, min: -1, max: 1, order: 200 },
           length: { value: defaults.length, min: 0.1, max: 3, order: 200 },
-          panelsPerColor: { value: defaults.panelsPerColor, min: 1, max: colorPanelsMeta.maxPanelsPerColor, step: 1, order: 201 },
+          count: { value: defaults.count, min: 1, max: colorPanelsMeta.maxPanelsCount, step: 1, order: 201 },
           frontTransparency: { value: defaults.frontTransparency, min: 0, max: 1, order: 300 },
-          sideBlur: { value: defaults.sideBlur, min: 0, max: 1, order: 301 },
+          sideBlur: { value: defaults.sideBlur, min: 0, max: 0.5, order: 301 },
           speed: { value: defaults.speed, min: 0, max: 2, order: 400 },
         },
         { order: 1 }
