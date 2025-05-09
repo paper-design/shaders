@@ -71,3 +71,7 @@ export { type LiquidMetalUniforms, type LiquidMetalParams } from '@paper-design/
 
 export { isPaperShaderElement, getShaderColorFromString } from '@paper-design/shaders';
 export type { ShaderFit, ShaderSizingParams, ShaderSizingUniforms } from '@paper-design/shaders';
+
+export { ImageFilterDemo, imageFilterDemoPresets } from './shaders/image-filter-demo';
+export { type ImageFilterDemoProps } from './shaders/image-filter-demo';
+export { type ImageFilterDemoUniforms, type ImageFilterDemoParams } from '@paper-design/shaders';

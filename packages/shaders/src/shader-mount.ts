@@ -401,7 +401,7 @@ export class ShaderMount {
       } else if (typeof value === 'boolean') {
         // Boolean case, supports true and false
         this.gl.uniform1i(location, value ? 1 : 0);
-      } else {
+      } else if (value !== null) {
         console.warn(`Unsupported uniform type for ${key}: ${typeof value}`);
       }
     });
@@ -736,7 +736,7 @@ export function isPaperShaderElement(element: HTMLElement): element is PaperShad
 
 /** Uniform types that we support to be auto-mapped into the fragment shader */
 export interface ShaderMountUniforms {
-  [key: string]: boolean | number | number[] | number[][] | HTMLImageElement;
+  [key: string]: boolean | number | number[] | number[][] | HTMLImageElement | null;
 }
 
 export interface ShaderMotionParams {
