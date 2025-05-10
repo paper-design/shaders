@@ -28,7 +28,7 @@ uniform vec4 u_colorBack;
 uniform float u_angle;
 uniform float u_length;
 uniform float u_sideBlur;
-uniform float u_frontTransparency;
+uniform float u_midOpacity;
 uniform float u_count;
 
 ${sizingVariablesDeclaration}
@@ -73,7 +73,7 @@ void main() {
   float px = uv.x * panelSize.x * 2.;
   float py = uv.y * panelSize.y * 2.;
   
-  float t = .08 * u_time;
+  float t = .05 * u_time;
   vec3 color = vec3(0.);
   float opacity = 0.;
   
@@ -119,16 +119,16 @@ void main() {
         panelMask *= smoothstep(0.75, 0.7, angleNorm) * smoothstep(0.5, 0.51, angleNorm);
       }
   
-      int index = int(fract(2. * offset) * u_colorsCount);
-      vec4 colorA = u_colors[index];      
+      float cIdx = fract(2. * offset) * u_colorsCount;
+      int index = int(cIdx);
+      int indexNext = int(mod(cIdx + 1., float(u_colorsCount)));
 
-      // vec4 colorB = u_colors[indexNext];
-      // vec4 colorB = u_colorBack;
-      vec4 colorB = vec4(colorA.rgb, 0.);
+      vec4 colorA = u_colors[index];
+      vec4 colorB = u_colors[indexNext];
 
       float midOpacity = clamp(pow(panelMap, .5), 0., 1.);
-      vec3 blendedRGB = mix(colorA.rgb * colorA.a, colorB.rgb * colorB.a, midOpacity);
-      float blendedAlpha = mix(colorA.a, colorB.a, midOpacity);
+      vec3 blendedRGB = mix(colorA.rgb * colorA.a, colorA.rgb * 0., midOpacity);
+      float blendedAlpha = mix(colorA.a, 0., midOpacity);
       
       float finalOpacity = panelMask * blendedAlpha;
       vec3 finalColor = blendedRGB * panelMask;
@@ -155,7 +155,7 @@ export interface ColorPanelsUniforms extends ShaderSizingUniforms {
   u_angle: number;
   u_length: number;
   u_sideBlur: number;
-  u_frontTransparency: number;
+  u_midOpacity: number;
   u_count: number;
 }
 
@@ -165,6 +165,6 @@ export interface ColorPanelsParams extends ShaderSizingParams, ShaderMotionParam
   angle?: number;
   length?: number;
   sideBlur?: number;
-  frontTransparency?: number;
+  midOpacity?: number;
   count?: number;
 }

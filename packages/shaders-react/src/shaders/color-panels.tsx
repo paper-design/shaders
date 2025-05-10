@@ -30,7 +30,7 @@ export const defaultPreset: ColorPanelsPreset = {
     angle: 0.1,
     length: 1,
     sideBlur: 0,
-    frontTransparency: 0.1,
+    midOpacity: 1,
     count: 7,
   },
 };
@@ -46,7 +46,7 @@ export const ColorPanels: React.FC<ColorPanelsProps> = memo(function ColorPanels
   angle = defaultPreset.params.angle,
   length = defaultPreset.params.length,
   sideBlur = defaultPreset.params.sideBlur,
-  frontTransparency = defaultPreset.params.frontTransparency,
+  midOpacity = defaultPreset.params.midOpacity,
   count = defaultPreset.params.count,
 
   // Sizing props
@@ -69,7 +69,7 @@ export const ColorPanels: React.FC<ColorPanelsProps> = memo(function ColorPanels
     u_angle: angle,
     u_length: length,
     u_sideBlur: sideBlur,
-    u_frontTransparency: frontTransparency,
+    u_midOpacity: midOpacity,
     u_count: count,
 
     // Sizing uniforms
