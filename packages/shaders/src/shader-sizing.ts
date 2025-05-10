@@ -172,7 +172,7 @@ export const sizingUV = `
  ===================================================================
  Helpers used to draw the sizing (box, box origin and graphic origin)
  over the shader. Can be used with both vertex sizing and vector sizing
- 
+
  helperBox and boxSize should be defined before inserting the code
 */
 export const drawSizingHelpers = `

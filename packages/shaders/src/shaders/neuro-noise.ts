@@ -23,6 +23,7 @@ uniform vec4 u_colorFront;
 uniform vec4 u_colorBack;
 uniform float u_brightness;
 
+
 ${sizingVariablesDeclaration}
 
 out vec4 fragColor;

@@ -43,6 +43,8 @@ import {
   ditheringPresets,
   LiquidMetal,
   liquidMetalPresets,
+  PulsingBorder,
+  pulsingBorderPresets,
 } from '@paper-design/shaders-react';
 import { StaticImageData } from 'next/image';
 import TextureTest from './app/texture-test/page';
@@ -171,5 +173,11 @@ export const homeShaders = [
     url: '/liquid-metal',
     ShaderComponent: LiquidMetal,
     shaderConfig: { ...liquidMetalPresets[0].params },
+  },
+  {
+    name: 'pulsing border',
+    url: '/pulsing-border',
+    ShaderComponent: PulsingBorder,
+    shaderConfig: { ...pulsingBorderPresets[0].params },
   },
 ] satisfies HomeShaderConfig[];

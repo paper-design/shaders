@@ -69,5 +69,9 @@ export { LiquidMetal, liquidMetalPresets } from './shaders/liquid-metal';
 export { type LiquidMetalProps } from './shaders/liquid-metal';
 export { type LiquidMetalUniforms, type LiquidMetalParams } from '@paper-design/shaders';
 
+export { PulsingBorder, pulsingBorderPresets } from './shaders/pulsing-border';
+export { type PulsingBorderProps } from './shaders/pulsing-border';
+export { type PulsingBorderUniforms, type PulsingBorderParams } from '@paper-design/shaders';
+
 export { isPaperShaderElement, getShaderColorFromString } from '@paper-design/shaders';
 export type { ShaderFit, ShaderSizingParams, ShaderSizingUniforms } from '@paper-design/shaders';
