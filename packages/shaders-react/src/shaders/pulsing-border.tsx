@@ -24,8 +24,8 @@ export const defaultPreset: PulsingBorderPreset = {
   name: 'Default',
   params: {
     ...defaultObjectSizing,
-    scale: 0.8,
-    speed: 0.6,
+    scale: 0.35,
+    speed: 1,
     frame: 0,
     colorBack: 'hsla(0, 0%, 0%, 1)',
     colors: ['hsla(350, 90%, 55%, 1)', 'hsla(200, 80%, 60%, 1)'],
@@ -35,12 +35,36 @@ export const defaultPreset: PulsingBorderPreset = {
     intensity: 2.4,
     spotsPerColor: 4,
     spotSize: 0.15,
-    pulsing: 0,
+    pulse: 0.5,
     smoke: 1,
+    smokeScale: 1,
   },
 };
 
-export const pulsingBorderPresets: PulsingBorderPreset[] = [defaultPreset];
+export const circlePreset: PulsingBorderPreset = {
+  name: 'Circle',
+  params: {
+    ...defaultObjectSizing,
+    worldWidth: 200,
+    worldHeight: 200,
+    scale: 0.5,
+    speed: 1,
+    frame: 0,
+    colorBack: 'hsla(0, 0%, 100%, 1)',
+    colors: ['hsla(340, 90%, 60%, 1)', 'hsla(25, 80%, 50%, 1)', 'hsla(2, 100%, 60%, 1)'],
+    roundness: 1,
+    thickness: 0.02,
+    softness: 0.5,
+    intensity: 2.4,
+    spotsPerColor: 4,
+    spotSize: 0.15,
+    pulse: 0,
+    smoke: 1,
+    smokeScale: 1,
+  },
+};
+
+export const pulsingBorderPresets: PulsingBorderPreset[] = [defaultPreset, circlePreset];
 
 export const PulsingBorder: React.FC<PulsingBorderProps> = memo(function PulsingBorderImpl({
   // Own props
@@ -54,8 +78,9 @@ export const PulsingBorder: React.FC<PulsingBorderProps> = memo(function Pulsing
   intensity = defaultPreset.params.intensity,
   spotsPerColor = defaultPreset.params.spotsPerColor,
   spotSize = defaultPreset.params.spotSize,
-  pulsing = defaultPreset.params.pulsing,
+  pulse = defaultPreset.params.pulse,
   smoke = defaultPreset.params.smoke,
+  smokeScale = defaultPreset.params.smokeScale,
 
   // Sizing props
   fit = defaultPreset.params.fit,
@@ -82,8 +107,9 @@ export const PulsingBorder: React.FC<PulsingBorderProps> = memo(function Pulsing
     u_intensity: intensity,
     u_spotsPerColor: spotsPerColor,
     u_spotSize: spotSize,
-    u_pulsing: pulsing,
+    u_pulse: pulse,
     u_smoke: smoke,
+    u_smokeScale: smokeScale,
     ...pulseTexture,
     ...noiseTexture,
 

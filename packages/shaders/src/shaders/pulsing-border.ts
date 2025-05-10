@@ -23,9 +23,9 @@ export const pulsingBorderMeta = {
  * u_intensity   - The intensity multiplier for the pulsing effect
  * u_spotSize    - The size of the color spots
  * u_spotsPerColor - The number of spots for each color (not all the spots are visible all the time)
- * u_pulsing     - A multiplier for the pulsing strength (pulsing signal taken from the u_pulseTexture)
+ * u_pulse     - A multiplier for the pulsing strength (pulsing signal taken from the u_pulseTexture)
  * u_smoke       - The strength of the smoke effect (the noise aroung the border)
-*/
+ */
 
 export const pulsingBorderFragmentShader: string = `#version 300 es
 precision lowp float;
@@ -41,8 +41,9 @@ uniform float u_softness;
 uniform float u_intensity;
 uniform float u_spotSize;
 uniform float u_spotsPerColor;
-uniform float u_pulsing;
+uniform float u_pulse;
 uniform float u_smoke;
+uniform float u_smokeScale;
 
 uniform sampler2D u_pulseTexture;
 uniform sampler2D u_noiseTexture;
@@ -53,29 +54,16 @@ out vec4 fragColor;
 
 ${declarePI}
 
-float roundedBoxSDF(vec2 uv, vec2 boxSize, float radius, float thickness, float edgeSoftness, float fillFix) {
-    float ratio = v_responsiveBoxGivenSize.x / v_responsiveBoxGivenSize.y;
-    uv.x *= ratio;
-    vec2 p = uv;
+float roundedBox(vec2 uv, vec2 halfSize, float radius, float distance, float edgeSoftness) {
     
-    vec2 halfSize = boxSize * .5;
-    halfSize.x *= ratio;
-    
-    radius = min(radius, halfSize.x);
-    
-    vec2 d = abs(p) - halfSize + radius;
-    float outsideDistance = length(max(d, 0.)) - radius;
-    float insideDistance = min(max(d.x, d.y), 0.0);
-    float distance = outsideDistance + insideDistance;
-    
-    float borderDistance = abs(distance) - thickness;
+    float borderDistance = abs(distance) - .5 * u_thickness;
     float border = 1. - smoothstep(-.5 * edgeSoftness, .5 * edgeSoftness, borderDistance);
     border *= border;
 
-    vec2 v0 = p + halfSize;
-    vec2 v1 = p - vec2(-halfSize.x, halfSize.y);
-    vec2 v2 = p - vec2(halfSize.x, -halfSize.y);
-    vec2 v3 = p - halfSize;
+    vec2 v0 = uv + halfSize;
+    vec2 v1 = uv - vec2(-halfSize.x, halfSize.y);
+    vec2 v2 = uv - vec2(halfSize.x, -halfSize.y);
+    vec2 v3 = uv - halfSize;
     
     float mult = (.07 - .25 * radius);
     float m0 = mult * clamp(pow(1. - abs(v0.x - v0.y), 20.), 0., 1.);
@@ -83,7 +71,7 @@ float roundedBoxSDF(vec2 uv, vec2 boxSize, float radius, float thickness, float 
     float m2 = mult * clamp(pow(1. - abs(v2.x + v2.y), 20.), 0., 1.);
     float m3 = mult * clamp(pow(1. - abs(v3.x - v3.y), 20.), 0., 1.);
     
-    float l = edgeSoftness * .5 + 1.5 * thickness;
+    float l = edgeSoftness * .5 + .75 * u_thickness;
     float fade0 = 1. - clamp(length(v0) / l, 0., 1.);
     float fade1 = 1. - clamp(length(v1) / l, 0., 1.);
     float fade2 = 1. - clamp(length(v2) / l, 0., 1.);
@@ -94,13 +82,32 @@ float roundedBoxSDF(vec2 uv, vec2 boxSize, float radius, float thickness, float 
     m2 *= fade2;
     m3 *= fade3;
     
-    float fill = m0 + m1 + m2 + m3;
-    fill *= step(distance, 0.);
-    fill *= (1. + 6. * thickness);
-    fill *= (1.5 - .5 * smoothstep(0., .5, edgeSoftness));
-    fill = clamp(fill, 0., 1.);
+    float fillFix = m0 + m1 + m2 + m3;
+    fillFix *= step(distance, 0.);
+    fillFix *= (1. + 3. * u_thickness);
+    fillFix *= (1.5 - .5 * smoothstep(0., .5, edgeSoftness));
+    fillFix = clamp(fillFix, 0., 1.);
 
-    return border + fillFix * fill;
+    return border + fillFix;
+}
+
+float roundedBoxSmoke(vec2 uv, vec2 halfSize, float radius, float distance, float size) {
+    float borderDistance = abs(distance);
+    float border = 1. - smoothstep(-.75 * size, .75 * size, borderDistance);
+    border *= border;
+
+    vec2 v0 = uv + halfSize;
+    vec2 v1 = uv - vec2(-halfSize.x, halfSize.y);
+    vec2 v2 = uv - vec2(halfSize.x, -halfSize.y);
+    vec2 v3 = uv - halfSize;
+    
+    float l_mask = .5;
+    float mask = smoothstep(0., 1., length(v0) / l_mask);
+    mask *= smoothstep(0., 1., length(v1) / l_mask);
+    mask *= smoothstep(0., 1., length(v2) / l_mask);
+    mask *= smoothstep(0., 1., length(v3) / l_mask);
+
+    return border * mask;
 }
 
 vec2 rand(vec2 p) {
@@ -126,29 +133,44 @@ float getWaveformValue(float time) {
   float wrappedTime = mod(time, dur);
   float normalizedTime = wrappedTime / dur;
   float value = texture(u_pulseTexture, vec2(normalizedTime, 0.5)).r;
-  return value * 2.0 - 1.0;
+  return value * 2. - 1.;
 }
 
 void main() {
 
-  float t = u_time + 2.;
+  float t = .5 * u_time + 2.;
   
   vec2 borderUV = v_responsiveUV;
 
   float angle = atan(borderUV.y, borderUV.x) / TWO_PI;
   
-  float border = roundedBoxSDF(borderUV, vec2(1.), .5 * u_roundness, .5 * u_thickness, .5 * u_softness, 1.);
-
-  float pulse = u_pulsing * getWaveformValue(.005 * t);
   
-  border *= (1. + .5 * pulse);
+  float borderRatio = v_responsiveBoxGivenSize.x / v_responsiveBoxGivenSize.y;
+  borderUV.x *= borderRatio;
+  vec2 halfSize = vec2(.5);
+  halfSize.x *= borderRatio;
+  float radius = min(.5 * u_roundness, halfSize.x);
+  vec2 d = abs(borderUV) - halfSize + radius;
+  float outsideDistance = length(max(d, 0.)) - radius;
+  float insideDistance = min(max(d.x, d.y), 0.0);
+  float distance = outsideDistance + insideDistance;
+    
+  float border = roundedBox(borderUV, halfSize, radius, distance, .5 * u_softness);
+
+  float pulse = u_pulse * getWaveformValue(.33 * u_time);
+  
+  border *= (1. + .1 * pulse);
   border *= (1. + u_intensity);
 
-  float smoke = clamp(3. * noise(.0045 * v_patternUV + t) - noise(.006 * v_patternUV - t), 0., 1.);
-  smoke *= roundedBoxSDF(borderUV, vec2(.9), .5, min(.65, max(2. * u_thickness, .35)), .5, 0.);
-  smoke *= smoothstep(0., 1., .7 * length(borderUV));
+  vec2 smokeUV = .001 * u_smokeScale * v_patternUV;
+  float smoke = clamp(2.7 * noise(2.3 * smokeUV + t), 0., 1.);
+  smoke -= noise(3.9 * smokeUV - t);
+  smoke *= roundedBoxSmoke(borderUV, halfSize, radius, distance, u_smoke);
+  smoke = 50. * pow(smoke, 2.);
   smoke *= u_smoke;
-  
+  smoke *= (.8 + .4 * pulse);
+  smoke = clamp(smoke, 0., 1.);
+
   border += smoke;
 
   float sectorsTotal = 0.;
@@ -185,6 +207,7 @@ void main() {
       float sector = smoothstep(.5 - u_spotSize, .5, atg1) * smoothstep(.5 + u_spotSize, .5, atg1);
       sector *= border;
       sector *= mask;
+      sector = clamp(sector, 0., 1.);
       
       sectorsTotal += sector;
       
@@ -195,11 +218,11 @@ void main() {
   }
   
   color = accumColor;
-  opacity = clamp(accumAlpha, 0.0, 1.0);
+  opacity = clamp(accumAlpha, 0., 1.);
   
   vec3 bgColor = u_colorBack.rgb * u_colorBack.a;
-  color = color + bgColor * (1.0 - opacity);
-  opacity = opacity + u_colorBack.a * (1.0 - opacity);
+  color = color + bgColor * (1. - opacity);
+  opacity = opacity + u_colorBack.a * (1. - opacity);
   
   ${colorBandingFix}
 
@@ -217,8 +240,9 @@ export interface PulsingBorderUniforms extends ShaderSizingUniforms {
   u_intensity: number;
   u_spotsPerColor: number;
   u_spotSize: number;
-  u_pulsing: number;
+  u_pulse: number;
   u_smoke: number;
+  u_smokeScale: number;
   u_pulseTexture?: HTMLImageElement;
   u_simplexNoiseTexture?: HTMLImageElement;
 }
@@ -232,6 +256,7 @@ export interface PulsingBorderParams extends ShaderSizingParams, ShaderMotionPar
   intensity?: number;
   spotsPerColor?: number;
   spotSize?: number;
-  pulsing?: number;
+  pulse?: number;
   smoke?: number;
+  smokeScale?: number;
 }
