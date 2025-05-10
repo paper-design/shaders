@@ -48,7 +48,7 @@ const PulsingBorderWithControls = () => {
           pulse: { value: defaults.pulse, min: 0, max: 1, order: 306 },
           smoke: { value: defaults.smoke, min: 0, max: 1, order: 307 },
           smokeScale: { value: defaults.smokeScale, min: 0, max: 2, order: 308 },
-          speed: { value: defaults.speed, min: 0, max: 1, order: 400 },
+          speed: { value: defaults.speed, min: 0, max: 2, order: 400 },
         },
         { order: 1 }
       ),

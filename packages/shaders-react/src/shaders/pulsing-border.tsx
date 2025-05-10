@@ -24,7 +24,7 @@ export const defaultPreset: PulsingBorderPreset = {
   name: 'Default',
   params: {
     ...defaultObjectSizing,
-    scale: 0.35,
+    scale: 0.7,
     speed: 1,
     frame: 0,
     colorBack: 'hsla(0, 0%, 0%, 1)',
@@ -35,9 +35,9 @@ export const defaultPreset: PulsingBorderPreset = {
     intensity: 2.4,
     spotsPerColor: 4,
     spotSize: 0.15,
-    pulse: 0.5,
+    pulse: 0,
     smoke: 1,
-    smokeScale: 1,
+    smokeScale: 1.3,
   },
 };
 
@@ -50,21 +50,41 @@ export const circlePreset: PulsingBorderPreset = {
     scale: 0.5,
     speed: 1,
     frame: 0,
-    colorBack: 'hsla(0, 0%, 100%, 1)',
-    colors: ['hsla(340, 90%, 60%, 1)', 'hsla(25, 80%, 50%, 1)', 'hsla(2, 100%, 60%, 1)'],
+    colorBack: 'hsla(200, 40%, 25%, 1)',
+    colors: ['hsla(50, 100%, 60%, 1)', 'hsla(25, 100%, 50%, 1)', 'hsla(350, 100%, 50%, 1)'],
     roundness: 1,
-    thickness: 0.02,
-    softness: 0.5,
-    intensity: 2.4,
+    thickness: 0.03,
+    softness: 0.2,
+    intensity: 2,
     spotsPerColor: 4,
     spotSize: 0.15,
     pulse: 0,
-    smoke: 1,
+    smoke: 0,
     smokeScale: 1,
   },
 };
 
-export const pulsingBorderPresets: PulsingBorderPreset[] = [defaultPreset, circlePreset];
+export const innerBorderPreset: PulsingBorderPreset = {
+  name: 'Inner Border',
+  params: {
+    ...defaultObjectSizing,
+    speed: 1.0,
+    frame: 0,
+    colorBack: 'hsla(240, 13%, 11%, 1)',
+    colors: ['hsla(38, 89%, 60%, 1)', 'hsla(204, 75%, 52%, 1)', 'hsla(302, 100%, 50%, 1)'],
+    roundness: 0,
+    thickness: 0,
+    softness: 0.4,
+    intensity: 0,
+    spotsPerColor: 3,
+    spotSize: 0.18,
+    pulse: 0.04,
+    smoke: 0.75,
+    smokeScale: 0.92,
+  },
+};
+
+export const pulsingBorderPresets: PulsingBorderPreset[] = [defaultPreset, circlePreset, innerBorderPreset];
 
 export const PulsingBorder: React.FC<PulsingBorderProps> = memo(function PulsingBorderImpl({
   // Own props

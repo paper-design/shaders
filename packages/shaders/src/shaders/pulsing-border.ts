@@ -138,7 +138,7 @@ float getWaveformValue(float time) {
 
 void main() {
 
-  float t = .5 * u_time + 2.;
+  float t = .5 * u_time + 20.;
   
   vec2 borderUV = v_responsiveUV;
 
@@ -157,7 +157,7 @@ void main() {
     
   float border = roundedBox(borderUV, halfSize, radius, distance, .5 * u_softness);
 
-  float pulse = u_pulse * getWaveformValue(.33 * u_time);
+  float pulse = u_pulse * getWaveformValue(.27 * u_time);
   
   border *= (1. + .1 * pulse);
   border *= (1. + u_intensity);
