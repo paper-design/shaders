@@ -25,13 +25,15 @@ export const defaultPreset: ColorPanelsPreset = {
     ...defaultObjectSizing,
     speed: 1,
     frame: 0,
-    colors: ['hsla(259, 100%, 50%, .5)', 'hsla(150, 100%, 50%, 1)'],//, 'hsla(48, 100%, 50%, 1)', 'hsla(295, 100%, 50%, 1)'],
-    colorBack: 'hsla(0, 100%, 50%, 0.5)',
+    colors: ['hsla(259, 100%, 50%, .5)', 'hsla(295, 100%, 50%, .5)', 'hsla(48, 100%, 50%, .5)'],
+    colorBack: 'hsla(0, 0%, 15%, 1)',
+    count: 7,
     angle: 0.1,
     length: 1,
-    sideBlur: 0,
-    midOpacity: 1,
-    count: 7,
+    blur: 0.5,
+    middle: 1,
+    singleColor: 0.15,
+    colorShuffler: 0,
   },
 };
 
@@ -45,9 +47,11 @@ export const ColorPanels: React.FC<ColorPanelsProps> = memo(function ColorPanels
   colorBack = defaultPreset.params.colorBack,
   angle = defaultPreset.params.angle,
   length = defaultPreset.params.length,
-  sideBlur = defaultPreset.params.sideBlur,
-  midOpacity = defaultPreset.params.midOpacity,
+  blur = defaultPreset.params.blur,
+  middle = defaultPreset.params.middle,
   count = defaultPreset.params.count,
+  colorShuffler = defaultPreset.params.colorShuffler,
+  singleColor = defaultPreset.params.singleColor,
 
   // Sizing props
   fit = defaultPreset.params.fit,
@@ -68,9 +72,11 @@ export const ColorPanels: React.FC<ColorPanelsProps> = memo(function ColorPanels
     u_colorBack: getShaderColorFromString(colorBack),
     u_angle: angle,
     u_length: length,
-    u_sideBlur: sideBlur,
-    u_midOpacity: midOpacity,
+    u_blur: blur,
+    u_middle: middle,
     u_count: count,
+    u_colorShuffler: colorShuffler,
+    u_singleColor: singleColor,
 
     // Sizing uniforms
     u_fit: ShaderFitOptions[fit],

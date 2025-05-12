@@ -4,14 +4,25 @@ import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingU
 import { declarePI, colorBandingFix } from '../shader-utils';
 
 export const colorPanelsMeta = {
-  maxColorCount: 6,
-  maxPanelsCount: 14,
+  maxColorCount: 10,
+  maxPanelsCount: 10,
 } as const;
 
 /**
+ * Animated, pseudo-3D color panels with dynamic layering and directional blur
+ * by Ksenia Kondrashova
+ *
  * Uniforms include:
- * - u_colors (vec4[]): Input RGBA colors
+ * - u_colors (vec4[]): Input RGBA colors for panels
  * - u_colorsCount (float): Number of active colors (`u_colors` length)
+ * - u_colorBack (vec4): Background color to blend behind panels
+ * - u_count (float): Number of active panels
+ * - u_angle (float): Panel skew angle to morph rect to triangle panels
+ * - u_length (float): Length of panels (relative to total height)
+ * - u_blur (float): Horizontal blur amount along panel edges
+ * - u_middle (float): Controls transparency toward the center of panels
+ * - u_colorShuffler (float): Affects how panel colors cycle
+ * - u_singleColor (float): Controls blending of adjacent colors per panel
  */
 
 export const colorPanelsFragmentShader: string = `#version 300 es
@@ -27,9 +38,11 @@ uniform float u_colorsCount;
 uniform vec4 u_colorBack;
 uniform float u_angle;
 uniform float u_length;
-uniform float u_sideBlur;
-uniform float u_midOpacity;
+uniform float u_blur;
+uniform float u_middle;
 uniform float u_count;
+uniform float u_colorShuffler;
+uniform float u_singleColor;
 
 ${sizingVariablesDeclaration}
 
@@ -37,41 +50,34 @@ out vec4 fragColor;
 
 ${declarePI}
 
-vec2 getPanel(float angle, vec2 panelSize, float px, float py) {
-    float sinA = sin(angle);
-    float cosA = cos(angle);
+vec2 getPanel(float angle, vec2 uv) {
+  float sinA = sin(angle);
+  float cosA = cos(angle);
 
-    float z = py / (sinA - py * cosA);
-    float x = px * (cosA * z + 1.) * (1. / u_length * 1.5);
-    
-    float zLimit = 0.5;
-    float panelMap = (zLimit - z) / zLimit;
+  float denom = sinA - uv.y * cosA;
+  if (abs(denom) < 1e-5) return vec2(0.);
 
-    float sideBlurX = panelMap * (.02 + u_sideBlur);
-    float panel = 1.;
-    
-    float skew = z * u_angle;
-    
-    float left = -panelSize.x + skew;
-    float right = panelSize.x - skew;
-    
-    panel = smoothstep(left - .5 * sideBlurX, left + sideBlurX, x);
-    panel *= (1. - smoothstep(right - sideBlurX, right + .5 * sideBlurX, x));
-    
-    panel *= step(0., z);
-    panel *= (1. - step(zLimit, z));        
+  float z = uv.y / denom;
+  float zLimit = 0.5;
 
-    return vec2(.9 * panel, panelMap);
+  if (z < 0. || z > zLimit) return vec2(0.);
+
+  float x = uv.x * (cosA * z + 1.) * (1. / u_length * 1.5);
+  float panelMap = (zLimit - z) / zLimit;
+
+  float skew = z * u_angle;
+
+  float left = -.5 + skew;
+  float right = .5 - skew;
+  float blurX = panelMap * u_blur;
+  float panel = smoothstep(left - .5 * blurX, left + blurX, x) * (1. - smoothstep(right - blurX, right + .5 * blurX, x));
+
+  return vec2(panel, panelMap);
 }
 
 void main() {
   vec2 uv = v_objectUV;
   uv *= 1.25;
-
-  vec2 panelSize = vec2(.5);
-  
-  float px = uv.x * panelSize.x * 2.;
-  float py = uv.y * panelSize.y * 2.;
   
   float t = .05 * u_time;
   vec3 color = vec3(0.);
@@ -81,8 +87,6 @@ void main() {
   float panelsNumber = 2. * u_count;
   float totalPanelsShape = 0.;
   
-  t = fract(t);
-
   for (int mode = 0; mode < 4; mode++) {
 
     bool skip = (t < .5) == (mode == 0 || mode == 3);
@@ -102,33 +106,39 @@ void main() {
       }
   
       float angleNorm = fract(t + offset);
-      if (angleNorm < .25) continue;
-      if (angleNorm > .75) continue;
-
-      if (!bottomHalf && angleNorm > 0.5) continue;
-      if (bottomHalf && angleNorm < 0.5) continue;
+      bool skipPanel = false;
+      skipPanel = skipPanel || (angleNorm < .25);
+      skipPanel = skipPanel || (angleNorm > .75);
+      skipPanel = skipPanel || (!bottomHalf && angleNorm > 0.5);
+      skipPanel = skipPanel || (bottomHalf && angleNorm < 0.5);
+    
+      if (skipPanel) continue;
       
       float angle = angleNorm * TWO_PI;
-      vec2 panel = getPanel(angle, panelSize, px, py);
+      vec2 panel = getPanel(angle, uv);
       float panelMask = panel[0];
-      float panelMap = panel[1];
+      float panelMap = clamp(panel[1], 0., 1.);
       
       if (!bottomHalf) {
-        panelMask *= smoothstep(0.25, 0.3, angleNorm) * smoothstep(0.5, 0.49, angleNorm);
+        panelMask *= smoothstep(.25, .3, angleNorm) * smoothstep(0.5, 0.49, angleNorm);
       } else {
-        panelMask *= smoothstep(0.75, 0.7, angleNorm) * smoothstep(0.5, 0.51, angleNorm);
+        panelMask *= smoothstep(.75, .7, angleNorm) * smoothstep(0.5, 0.51, angleNorm);
       }
   
-      float cIdx = fract(2. * offset) * u_colorsCount;
-      int index = int(cIdx);
-      int indexNext = int(mod(cIdx + 1., float(u_colorsCount)));
+      float cIdx = fract(2. * offset * (1. + u_colorShuffler)) * u_colorsCount;
+      int colorIdx = int(cIdx);
+      int nextColorIdx = int(mod(cIdx + 1., float(u_colorsCount)));
+      
+      vec4 colorA = u_colors[colorIdx];
+      colorA.rgb *= colorA.a;
+      vec4 colorB = u_colors[nextColorIdx];
+      colorB.rgb *= colorB.a;
+      
+      colorA = mix(colorA, colorB, max(0., pow(panelMap, .4) - u_singleColor));
 
-      vec4 colorA = u_colors[index];
-      vec4 colorB = u_colors[indexNext];
-
-      float midOpacity = clamp(pow(panelMap, .5), 0., 1.);
-      vec3 blendedRGB = mix(colorA.rgb * colorA.a, colorA.rgb * 0., midOpacity);
-      float blendedAlpha = mix(colorA.a, 0., midOpacity);
+      float middle = pow(panelMap, 1. / (.5 + u_middle));
+      vec3 blendedRGB = mix(colorA.rgb, vec3(0.), middle);
+      float blendedAlpha = mix(colorA.a, 0., middle);
       
       float finalOpacity = panelMask * blendedAlpha;
       vec3 finalColor = blendedRGB * panelMask;
@@ -154,9 +164,11 @@ export interface ColorPanelsUniforms extends ShaderSizingUniforms {
   u_colorBack: [number, number, number, number];
   u_angle: number;
   u_length: number;
-  u_sideBlur: number;
-  u_midOpacity: number;
+  u_blur: number;
+  u_middle: number;
   u_count: number;
+  u_colorShuffler: number;
+  u_singleColor: number;
 }
 
 export interface ColorPanelsParams extends ShaderSizingParams, ShaderMotionParams {
@@ -164,7 +176,9 @@ export interface ColorPanelsParams extends ShaderSizingParams, ShaderMotionParam
   colorBack?: string;
   angle?: number;
   length?: number;
-  sideBlur?: number;
-  midOpacity?: number;
+  blur?: number;
+  middle?: number;
   count?: number;
+  colorShuffler?: number;
+  singleColor?: number;
 }
