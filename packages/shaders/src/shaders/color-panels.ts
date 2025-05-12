@@ -136,7 +136,7 @@ void main() {
       
       colorA = mix(colorA, colorB, max(0., pow(panelMap, .4) - u_singleColor));
 
-      float middle = pow(panelMap, 1. / (.5 + u_middle));
+      float middle = clamp(pow(panelMap, 2. - 1.7 * u_middle) + .2 * u_middle, 0., 1.);
       vec3 blendedRGB = mix(colorA.rgb, vec3(0.), middle);
       float blendedAlpha = mix(colorA.a, 0., middle);
       
