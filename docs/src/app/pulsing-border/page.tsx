@@ -82,7 +82,7 @@ const PulsingBorderWithControls = () => {
 
   useControls(() => {
     const presets = Object.fromEntries(
-      pulsingBorderPresets.map(({ name, params: { worldWidth, worldHeight, ...preset } }) => [
+      pulsingBorderPresets.map(({ name, params: preset }) => [
         name,
         button(() => {
           const { colors, ...presetParams } = preset;
