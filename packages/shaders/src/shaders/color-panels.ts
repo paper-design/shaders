@@ -146,7 +146,7 @@ void main() {
       vec4 colorB = u_colors[nextColorIdx];
       colorB.rgb *= colorB.a;
       
-      colorA = mix(colorA, colorB, max(0., smoothstep(.0, .5, panelMap) - panelGrad));
+      colorA = mix(colorA, colorB, max(0., smoothstep(.0, .45, panelMap) - panelGrad));
 
       float fade = clamp(pow(panelMap, fadeFactor), 0., 1.);
       vec3 blendedRGB = mix(colorA.rgb, vec3(0.), fade);
