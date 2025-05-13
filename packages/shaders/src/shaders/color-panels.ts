@@ -4,8 +4,7 @@ import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingU
 import { declarePI, colorBandingFix } from '../shader-utils';
 
 export const colorPanelsMeta = {
-  maxColorCount: 10,
-  maxPanelsCount: 10,
+  maxColorCount: 6,
 } as const;
 
 /**
@@ -40,9 +39,9 @@ uniform float u_angle1;
 uniform float u_angle2;
 uniform float u_length;
 uniform float u_blur;
-uniform float u_middle;
+uniform float u_fade;
 uniform float u_count;
-uniform float u_colorShuffler;
+uniform float u_density;
 uniform float u_gradient;
 
 ${sizingVariablesDeclaration}
@@ -78,24 +77,29 @@ void main() {
   vec2 uv = v_objectUV;
   uv *= 1.25;
   
-  float t = .03 * u_time;
+  // float t = .1 * u_time * (1. + u_density);
+  float t = .1 * u_time;
   t = fract(t);
 
   vec3 color = vec3(0.);
   float opacity = 0.;
   
   float totalColorWeight = 0.;
-  float panelsNumber = 2. * u_count;
+  float panelsNumber = 2. * u_colorsCount;
   float totalPanelsShape = 0.;
   
   float panelGrad = 1. - clamp(u_gradient, 0., 1.);
-  
+  float limTop = .5 * u_density;
+  limTop = max(limTop, .25);
+  float limBottom = 1. - limTop;
+  float fadeFactor = 4.2 - 4. * pow(u_fade, .5);
+
   for (int mode = 0; mode < 4; mode++) {
 
     bool skip = (t < .5) == (mode == 0 || mode == 3);
     if (skip) continue;
 
-    for (int i = 0; i <= ${2 * colorPanelsMeta.maxPanelsCount}; i++) {
+    for (int i = 0; i <= ${2 * colorPanelsMeta.maxColorCount}; i++) {
       if (i >= int(panelsNumber)) break;
 
       bool bottomHalf = (mode >= 2);
@@ -108,12 +112,12 @@ void main() {
         offset += .5;
       }
   
-      float angleNorm = fract(t + offset);
+      float angleNorm = limTop + (1. - u_density) * fract(t + offset);
       bool skipPanel = false;
-      skipPanel = skipPanel || (angleNorm < .25);
-      skipPanel = skipPanel || (angleNorm > .75);
-      skipPanel = skipPanel || (!bottomHalf && angleNorm > 0.5);
-      skipPanel = skipPanel || (bottomHalf && angleNorm < 0.5);
+      skipPanel = skipPanel || (angleNorm < limTop);
+      skipPanel = skipPanel || (angleNorm > limBottom);
+      skipPanel = skipPanel || (!bottomHalf && angleNorm > .5);
+      skipPanel = skipPanel || (bottomHalf && angleNorm < .5);
     
       if (skipPanel) continue;
       
@@ -123,15 +127,14 @@ void main() {
       float panelMap = clamp(panel[1], 0., 1.);
       
       if (!bottomHalf) {
-        panelMask *= smoothstep(.25, .3, angleNorm) * smoothstep(0.5, 0.49, angleNorm);
+        panelMask *= smoothstep(limTop, limTop + .05, angleNorm) * smoothstep(.5, .495, angleNorm);
       } else {
-        panelMask *= smoothstep(.75, .7, angleNorm) * smoothstep(0.5, 0.51, angleNorm);
+        panelMask *= smoothstep(limBottom, limBottom - .05, angleNorm) * smoothstep(.5, .505, angleNorm);
       }
-  
-      float cIdx = fract(2. * offset) * u_colorsCount;
-      int colorIdx = int(cIdx);
-      int nextColorIdx = int(mod(cIdx + 1., float(u_colorsCount)));
       
+      int colorIdx = int(mod(floor(float(j)), u_colorsCount));
+      int nextColorIdx = int(mod(floor(float(j + 1)), u_colorsCount));
+
       vec4 colorA = u_colors[colorIdx];
       colorA.rgb *= colorA.a;
       vec4 colorB = u_colors[nextColorIdx];
@@ -139,9 +142,9 @@ void main() {
       
       colorA = mix(colorA, colorB, max(0., pow(panelMap, .4) - panelGrad));
 
-      float middle = clamp(pow(panelMap, 2. - 1.7 * u_middle) + .2 * u_middle, 0., 1.);
-      vec3 blendedRGB = mix(colorA.rgb, vec3(0.), middle);
-      float blendedAlpha = mix(colorA.a, 0., middle);
+      float fade = clamp(pow(panelMap, fadeFactor), 0., 1.);
+      vec3 blendedRGB = mix(colorA.rgb, vec3(0.), fade);
+      float blendedAlpha = mix(colorA.a, 0., fade);
       
       float finalOpacity = panelMask * blendedAlpha;
       vec3 finalColor = blendedRGB * panelMask;
@@ -169,9 +172,9 @@ export interface ColorPanelsUniforms extends ShaderSizingUniforms {
   u_angle2: number;
   u_length: number;
   u_blur: number;
-  u_middle: number;
+  u_fade: number;
   u_count: number;
-  u_colorShuffler: number;
+  u_density: number;
   u_gradient: number;
 }
 
@@ -182,8 +185,8 @@ export interface ColorPanelsParams extends ShaderSizingParams, ShaderMotionParam
   angle2?: number;
   length?: number;
   blur?: number;
-  middle?: number;
+  fade?: number;
   count?: number;
-  colorShuffler?: number;
+  density?: number;
   gradient?: number;
 }

@@ -35,13 +35,12 @@ const ColorPanelsWithControls = () => {
       Parameters: folder(
         {
           colorBack: { value: defaults.colorBack, order: 100 },
-          count: { value: defaults.count, min: 1, max: colorPanelsMeta.maxPanelsCount, step: 1, order: 201 },
+          density: { value: defaults.density, min: -0.99, max: 0.99, order: 303 },
           angle1: { value: defaults.angle1, min: -1, max: 1, order: 202 },
           angle2: { value: defaults.angle2, min: -1, max: 1, order: 202 },
           length: { value: defaults.length, min: 0, max: 3, order: 203 },
           blur: { value: defaults.blur, min: 0, max: 0.5, order: 301 },
-          middle: { value: defaults.middle, min: 0, max: 1, order: 302 },
-          colorShuffler: { value: defaults.colorShuffler, min: 0, max: 5, step: 1, order: 303 },
+          fade: { value: defaults.fade, min: 0, max: 1, order: 302 },
           gradient: { value: defaults.gradient, min: 0, max: 1, order: 304 },
           speed: { value: defaults.speed, min: 0, max: 2, order: 400 },
         },

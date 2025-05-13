@@ -25,17 +25,22 @@ export const defaultPreset: ColorPanelsPreset = {
     ...defaultObjectSizing,
     speed: 1,
     frame: 0,
-    // colors: ['hsla(259, 100%, 50%, .5)', 'hsla(295, 100%, 50%, .5)', 'hsla(150, 100%, 50%, .5)'],
-    colors: ['hsla(259, 100%, 50%, 1)', 'hsla(295, 100%, 50%, 1)', 'hsla(150, 100%, 50%, 1)'],
-    colorBack: 'hsla(0, 0%, 15%, 1)',
-    count: 7,
+    colors: [
+      'hsla(15, 100%, 50%, 0.75)',
+      'hsla(170, 100%, 50%, 0.75)',
+      'hsla(260, 100%, 50%, 0.75)',
+      'hsla(65, 100%, 50%, 0.75)',
+      'hsla(280, 100%, 50%, 0.75)',
+    ],
+    colorBack: 'hsla(0, 0%, 3%, 1)',
+    count: 1,
     angle1: 0.1,
     angle2: 0.1,
     length: 1,
     blur: 0.5,
-    middle: 0.6,
-    gradient: 0.15,
-    colorShuffler: 0,
+    fade: 0.6,
+    gradient: 0.75,
+    density: 0.6,
   },
 };
 
@@ -51,9 +56,9 @@ export const ColorPanels: React.FC<ColorPanelsProps> = memo(function ColorPanels
   angle2 = defaultPreset.params.angle2,
   length = defaultPreset.params.length,
   blur = defaultPreset.params.blur,
-  middle = defaultPreset.params.middle,
+  fade = defaultPreset.params.fade,
   count = defaultPreset.params.count,
-  colorShuffler = defaultPreset.params.colorShuffler,
+  density = defaultPreset.params.density,
   gradient = defaultPreset.params.gradient,
 
   // Sizing props
@@ -77,9 +82,9 @@ export const ColorPanels: React.FC<ColorPanelsProps> = memo(function ColorPanels
     u_angle2: angle2,
     u_length: length,
     u_blur: blur,
-    u_middle: middle,
+    u_fade: fade,
     u_count: count,
-    u_colorShuffler: colorShuffler,
+    u_density: density,
     u_gradient: gradient,
 
     // Sizing uniforms
