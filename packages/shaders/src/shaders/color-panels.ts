@@ -80,6 +80,8 @@ void main() {
   uv *= 1.25;
   
   float t = .05 * u_time;
+  t = fract(t);
+
   vec3 color = vec3(0.);
   float opacity = 0.;
   
