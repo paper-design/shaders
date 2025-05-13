@@ -4,7 +4,7 @@ import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingU
 import { declarePI, colorBandingFix } from '../shader-utils';
 
 export const colorPanelsMeta = {
-  maxColorCount: 6,
+  maxColorCount: 7,
 } as const;
 
 /**
@@ -14,8 +14,8 @@ export const colorPanelsMeta = {
  * Uniforms include:
  * - u_colors (vec4[]): Input RGBA colors for panels
  * - u_colorsCount (float): Number of active colors (`u_colors` length)
+ * - u_density (float): Panels to show
  * - u_colorBack (vec4): Background color to blend behind panels
- * - u_count (float): Number of active panels
  * - u_angle (float): Panel skew angle to morph rect to triangle panels
  * - u_length (float): Length of panels (relative to total height)
  * - u_blur (float): Horizontal blur amount along panel edges
@@ -25,7 +25,7 @@ export const colorPanelsMeta = {
  */
 
 export const colorPanelsFragmentShader: string = `#version 300 es
-precision highp float;
+precision lowp float;
 
 uniform vec2 u_resolution;
 
@@ -40,7 +40,6 @@ uniform float u_angle2;
 uniform float u_length;
 uniform float u_blur;
 uniform float u_fade;
-uniform float u_count;
 uniform float u_density;
 uniform float u_gradient;
 
@@ -67,7 +66,7 @@ vec2 getPanel(float angle, vec2 uv) {
 
   float left = -.5 + (z / zLimit - .5) * u_angle1;
   float right = .5 - (z / zLimit - .5) * u_angle2;
-  float blurX = panelMap * u_blur;
+  float blurX = .15 * smoothstep(.05, .0, abs(angle / TWO_PI - .5)) + panelMap * u_blur;
   float panel = smoothstep(left - .5 * blurX, left + blurX, x) * (1. - smoothstep(right - blurX, right + .5 * blurX, x));
 
   return vec2(panel, panelMap);
@@ -77,19 +76,26 @@ void main() {
   vec2 uv = v_objectUV;
   uv *= 1.25;
   
-  // float t = .1 * u_time * (1. + u_density);
-  float t = .1 * u_time;
+  float t = .02 * u_time;
   t = fract(t);
 
   vec3 color = vec3(0.);
   float opacity = 0.;
   
   float totalColorWeight = 0.;
-  float panelsNumber = 2. * u_colorsCount;
+  float panelsNumber = 12.;
+  if (u_colorsCount == 4.) {
+    panelsNumber = 16.;
+  } else if (u_colorsCount == 5.) {
+    panelsNumber = 10.;
+  } else if (u_colorsCount == 7.) {
+    panelsNumber = 14.;
+  }
   float totalPanelsShape = 0.;
   
   float panelGrad = 1. - clamp(u_gradient, 0., 1.);
-  float limTop = .5 * u_density;
+  float density = min(.95, u_density);
+  float limTop = .5 * density;
   limTop = max(limTop, .25);
   float limBottom = 1. - limTop;
   float fadeFactor = 4.2 - 4. * pow(u_fade, .5);
@@ -99,7 +105,7 @@ void main() {
     bool skip = (t < .5) == (mode == 0 || mode == 3);
     if (skip) continue;
 
-    for (int i = 0; i <= ${2 * colorPanelsMeta.maxColorCount}; i++) {
+    for (int i = 0; i <= 16; i++) {
       if (i >= int(panelsNumber)) break;
 
       bool bottomHalf = (mode >= 2);
@@ -112,7 +118,7 @@ void main() {
         offset += .5;
       }
   
-      float angleNorm = limTop + (1. - u_density) * fract(t + offset);
+      float angleNorm = limTop + (1. - density) * fract(t + offset);
       bool skipPanel = false;
       skipPanel = skipPanel || (angleNorm < limTop);
       skipPanel = skipPanel || (angleNorm > limBottom);
@@ -127,9 +133,9 @@ void main() {
       float panelMap = clamp(panel[1], 0., 1.);
       
       if (!bottomHalf) {
-        panelMask *= smoothstep(limTop, limTop + .05, angleNorm) * smoothstep(.5, .495, angleNorm);
+        panelMask *= smoothstep(limTop, limTop + .05, angleNorm) * smoothstep(.5, .497, angleNorm);
       } else {
-        panelMask *= smoothstep(limBottom, limBottom - .05, angleNorm) * smoothstep(.5, .505, angleNorm);
+        panelMask *= smoothstep(limBottom, limBottom - .05, angleNorm) * smoothstep(.5, .503, angleNorm);
       }
       
       int colorIdx = int(mod(floor(float(j)), u_colorsCount));
@@ -173,7 +179,6 @@ export interface ColorPanelsUniforms extends ShaderSizingUniforms {
   u_length: number;
   u_blur: number;
   u_fade: number;
-  u_count: number;
   u_density: number;
   u_gradient: number;
 }
@@ -186,7 +191,6 @@ export interface ColorPanelsParams extends ShaderSizingParams, ShaderMotionParam
   length?: number;
   blur?: number;
   fade?: number;
-  count?: number;
   density?: number;
   gradient?: number;
 }

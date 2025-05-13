@@ -33,7 +33,6 @@ export const defaultPreset: ColorPanelsPreset = {
       'hsla(280, 100%, 50%, 0.75)',
     ],
     colorBack: 'hsla(0, 0%, 3%, 1)',
-    count: 1,
     angle1: 0.1,
     angle2: 0.1,
     length: 1,
@@ -57,7 +56,6 @@ export const ColorPanels: React.FC<ColorPanelsProps> = memo(function ColorPanels
   length = defaultPreset.params.length,
   blur = defaultPreset.params.blur,
   fade = defaultPreset.params.fade,
-  count = defaultPreset.params.count,
   density = defaultPreset.params.density,
   gradient = defaultPreset.params.gradient,
 
@@ -83,7 +81,6 @@ export const ColorPanels: React.FC<ColorPanelsProps> = memo(function ColorPanels
     u_length: length,
     u_blur: blur,
     u_fade: fade,
-    u_count: count,
     u_density: density,
     u_gradient: gradient,
 
