@@ -34,7 +34,7 @@ export const defaultPreset: ColorPanelsPreset = {
     length: 1,
     blur: 0.5,
     middle: 0.6,
-    singleColor: 0.15,
+    gradient: 0.15,
     colorShuffler: 0,
   },
 };
@@ -54,7 +54,7 @@ export const ColorPanels: React.FC<ColorPanelsProps> = memo(function ColorPanels
   middle = defaultPreset.params.middle,
   count = defaultPreset.params.count,
   colorShuffler = defaultPreset.params.colorShuffler,
-  singleColor = defaultPreset.params.singleColor,
+  gradient = defaultPreset.params.gradient,
 
   // Sizing props
   fit = defaultPreset.params.fit,
@@ -80,7 +80,7 @@ export const ColorPanels: React.FC<ColorPanelsProps> = memo(function ColorPanels
     u_middle: middle,
     u_count: count,
     u_colorShuffler: colorShuffler,
-    u_singleColor: singleColor,
+    u_gradient: gradient,
 
     // Sizing uniforms
     u_fit: ShaderFitOptions[fit],

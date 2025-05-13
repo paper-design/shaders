@@ -43,7 +43,7 @@ uniform float u_blur;
 uniform float u_middle;
 uniform float u_count;
 uniform float u_colorShuffler;
-uniform float u_singleColor;
+uniform float u_gradient;
 
 ${sizingVariablesDeclaration}
 
@@ -87,6 +87,8 @@ void main() {
   float totalColorWeight = 0.;
   float panelsNumber = 2. * u_count;
   float totalPanelsShape = 0.;
+  
+  float panelGrad = 1. - clamp(u_gradient, 0., 1.);
   
   for (int mode = 0; mode < 4; mode++) {
 
@@ -135,7 +137,7 @@ void main() {
       vec4 colorB = u_colors[nextColorIdx];
       colorB.rgb *= colorB.a;
       
-      colorA = mix(colorA, colorB, max(0., pow(panelMap, .4) - u_singleColor));
+      colorA = mix(colorA, colorB, max(0., pow(panelMap, .4) - panelGrad));
 
       float middle = clamp(pow(panelMap, 2. - 1.7 * u_middle) + .2 * u_middle, 0., 1.);
       vec3 blendedRGB = mix(colorA.rgb, vec3(0.), middle);
@@ -170,7 +172,7 @@ export interface ColorPanelsUniforms extends ShaderSizingUniforms {
   u_middle: number;
   u_count: number;
   u_colorShuffler: number;
-  u_singleColor: number;
+  u_gradient: number;
 }
 
 export interface ColorPanelsParams extends ShaderSizingParams, ShaderMotionParams {
@@ -183,5 +185,5 @@ export interface ColorPanelsParams extends ShaderSizingParams, ShaderMotionParam
   middle?: number;
   count?: number;
   colorShuffler?: number;
-  singleColor?: number;
+  gradient?: number;
 }

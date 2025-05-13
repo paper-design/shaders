@@ -42,7 +42,7 @@ const ColorPanelsWithControls = () => {
           blur: { value: defaults.blur, min: 0, max: 0.5, order: 301 },
           middle: { value: defaults.middle, min: 0, max: 1, order: 302 },
           colorShuffler: { value: defaults.colorShuffler, min: 0, max: 5, step: 1, order: 303 },
-          singleColor: { value: defaults.singleColor, min: 0, max: 1, order: 304 },
+          gradient: { value: defaults.gradient, min: 0, max: 1, order: 304 },
           speed: { value: defaults.speed, min: 0, max: 2, order: 400 },
         },
         { order: 1 }
