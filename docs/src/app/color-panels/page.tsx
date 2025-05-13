@@ -36,8 +36,9 @@ const ColorPanelsWithControls = () => {
         {
           colorBack: { value: defaults.colorBack, order: 100 },
           count: { value: defaults.count, min: 1, max: colorPanelsMeta.maxPanelsCount, step: 1, order: 201 },
-          angle: { value: defaults.angle, min: -1, max: 1, order: 202 },
-          length: { value: defaults.length, min: 0.1, max: 3, order: 203 },
+          angle1: { value: defaults.angle1, min: -1, max: 1, order: 202 },
+          angle2: { value: defaults.angle2, min: -1, max: 1, order: 202 },
+          length: { value: defaults.length, min: 0, max: 3, order: 203 },
           blur: { value: defaults.blur, min: 0, max: 0.5, order: 301 },
           middle: { value: defaults.middle, min: 0, max: 1, order: 302 },
           colorShuffler: { value: defaults.colorShuffler, min: 0, max: 5, step: 1, order: 303 },

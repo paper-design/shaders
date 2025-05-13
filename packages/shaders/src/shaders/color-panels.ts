@@ -36,7 +36,8 @@ uniform float u_scale;
 uniform vec4 u_colors[${colorPanelsMeta.maxColorCount}];
 uniform float u_colorsCount;
 uniform vec4 u_colorBack;
-uniform float u_angle;
+uniform float u_angle1;
+uniform float u_angle2;
 uniform float u_length;
 uniform float u_blur;
 uniform float u_middle;
@@ -62,13 +63,11 @@ vec2 getPanel(float angle, vec2 uv) {
 
   if (z < 0. || z > zLimit) return vec2(0.);
 
-  float x = uv.x * (cosA * z + 1.) * (1. / u_length * 1.5);
+  float x = uv.x * (cosA * z + 1.) * (1. / (u_length + .001) * 1.5);
   float panelMap = (zLimit - z) / zLimit;
 
-  float skew = z * u_angle;
-
-  float left = -.5 + skew;
-  float right = .5 - skew;
+  float left = -.5 + (z / zLimit - .5) * u_angle1;
+  float right = .5 - (z / zLimit - .5) * u_angle2;
   float blurX = panelMap * u_blur;
   float panel = smoothstep(left - .5 * blurX, left + blurX, x) * (1. - smoothstep(right - blurX, right + .5 * blurX, x));
 
@@ -79,7 +78,7 @@ void main() {
   vec2 uv = v_objectUV;
   uv *= 1.25;
   
-  float t = .05 * u_time;
+  float t = .03 * u_time;
   t = fract(t);
 
   vec3 color = vec3(0.);
@@ -127,7 +126,7 @@ void main() {
         panelMask *= smoothstep(.75, .7, angleNorm) * smoothstep(0.5, 0.51, angleNorm);
       }
   
-      float cIdx = fract(2. * offset * (1. + u_colorShuffler)) * u_colorsCount;
+      float cIdx = fract(2. * offset) * u_colorsCount;
       int colorIdx = int(cIdx);
       int nextColorIdx = int(mod(cIdx + 1., float(u_colorsCount)));
       
@@ -164,7 +163,8 @@ export interface ColorPanelsUniforms extends ShaderSizingUniforms {
   u_colors: vec4[];
   u_colorsCount: number;
   u_colorBack: [number, number, number, number];
-  u_angle: number;
+  u_angle1: number;
+  u_angle2: number;
   u_length: number;
   u_blur: number;
   u_middle: number;
@@ -176,7 +176,8 @@ export interface ColorPanelsUniforms extends ShaderSizingUniforms {
 export interface ColorPanelsParams extends ShaderSizingParams, ShaderMotionParams {
   colors?: string[];
   colorBack?: string;
-  angle?: number;
+  angle1?: number;
+  angle2?: number;
   length?: number;
   blur?: number;
   middle?: number;
