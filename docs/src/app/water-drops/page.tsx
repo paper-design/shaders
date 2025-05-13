@@ -34,15 +34,18 @@ const WaterDropsWithControls = () => {
     return {
       Parameters: folder(
         {
-          colorBack: { value: defaults.colorBack, order: 101 },
+          colorBack: { value: defaults.colorBack, order: 100 },
+          shadeColor: { value: defaults.shadeColor, order: 101 },
           specularColor: { value: defaults.specularColor, order: 101 },
-          shadowColor: { value: defaults.shadowColor, order: 300 },
+          outlineColor: { value: defaults.outlineColor, order: 102 },
           dropShapeDistortion: { value: defaults.dropShapeDistortion, min: 0, max: 20, order: 400 },
-          specularSize: { value: defaults.specularSize, min: 0, max: 1, order: 400 },
+          specular: { value: defaults.specular, min: 0, max: 1, order: 400 },
+          specularNormal: { value: defaults.specularNormal, min: 0, max: 1, order: 400 },
           texturing: { value: defaults.texturing, min: 0, max: 1, order: 400 },
           visibility: { value: defaults.visibility, min: 0, max: 1, order: 400 },
           test1: { value: defaults.test1, min: 0, max: 1, order: 400 },
           test2: { value: defaults.test2, min: 0, max: 1, order: 400 },
+          outline: { value: defaults.outline, min: 0, max: 1, order: 400 },
           speed: { value: defaults.speed, min: 0, max: 2, order: 400 },
         },
         { order: 1 }

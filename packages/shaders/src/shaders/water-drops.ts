@@ -15,14 +15,17 @@ uniform vec2 u_resolution;
 uniform float u_pixelRatio;
 
 uniform vec4 u_colorBack;
+uniform vec4 u_shadeColor;
 uniform vec4 u_specularColor;
-uniform vec4 u_shadowColor;
+uniform vec4 u_outlineColor;
 uniform float u_dropShapeDistortion;
 uniform float u_textureing;
-uniform float u_specularSize;
+uniform float u_specular;
+uniform float u_specularNormal;
 uniform float u_visibility;
 uniform float u_test1;
 uniform float u_test2;
+uniform float u_outline;
 
 
 ${sizingVariablesDeclaration}
@@ -51,48 +54,11 @@ vec2 noise(vec2 p) {
 ${declareRandom}
 ${declareRotate}
 
-vec2 random2(vec2 p) {
-  return vec2(random(p), random(200. * p));
-}
-
-vec3 voronoi(vec2 uv, float time) {
-  vec2 i_uv = floor(uv);
-  vec2 f_uv = fract(uv);
-  
-  float spreading = .25;
-
-  float minDist = 1.;
-  vec2 randomizer = vec2(0.);
-  for (int y = -1; y <= 1; y++) {
-    for (int x = -1; x <= 1; x++) {
-      vec2 tileOffset = vec2(float(x), float(y));
-      vec2 rand = random2(i_uv + tileOffset);
-      vec2 cellCenter = vec2(.5 + 1e-4);
-      cellCenter += spreading * cos(time + TWO_PI * rand);
-      cellCenter -= .5;
-      cellCenter = rotate(cellCenter, random(vec2(rand.x, rand.y)) + .1 * time);
-      cellCenter += .5;
-      float dist = length(tileOffset + cellCenter - f_uv);
-      if (dist < minDist) {
-        minDist = dist;
-        randomizer = rand;
-      }
-      minDist = min(minDist, dist);
-    }
-  }
-
-  return vec3(1. - minDist, randomizer);
-}
-
-
 void main() {
 
     vec2 uv = v_patternUV * .002;
     
    float t = .1 * u_time;
-
-   vec3 color = u_colorBack.rgb;
-   float opacity = 1.;
 
    vec3 lightDir = normalize(vec3(-.5, .5, -.65));
 
@@ -108,23 +74,36 @@ void main() {
   
   shape *= (.5 + .5 * u_visibility);
   
-   float dropInnerContour = smoothstep(.41 - fwidth(shape), .41, shape);
+   float contour = smoothstep(.41, .43, shape);
    
-    vec3 normal = normalize(vec3(normalize(pos) * sin(length(pos) * 20. * u_test1), -2.));
-    vec3 normal2 = normalize(vec3(normalize(pos) * sin(length(pos) * 10.), -2.));
+    vec3 normal = normalize(vec3(normalize(pos) * sin(length(pos) * 35. * pow(u_test1, 2.)), -2.));
    
-   float specular = smoothstep(1. - .17 * u_specularSize, 1.001 - .17 * u_specularSize, dot(normal, lightDir));
-   specular += smoothstep(1. - .1 * u_specularSize, 1.001 - .1 * u_specularSize, dot(normal2, lightDir));
-   specular *= u_specularColor.a;
+
 
    vec3 texturing = 2. * texture(u_noiseTexture, normal.xy + .5).rgb;
 
-    vec3 c = vec3(1.5 + .5 * cellIdx2.x, 1.1 - .5 * cellIdx2.y, 1.);
-   color = mix(u_colorBack.rgb, c, dropInnerContour);
-   color = mix(color, texturing, u_textureing * dropInnerContour);
-   color = mix(color, .2 * c, dot(normal, lightDir) * dropInnerContour);
-   color = mix(color, .1 * c, (u_test2 * smoothstep(.6, .3, shape)) * dropInnerContour);
-   color = mix(color, u_specularColor.rgb, specular * dropInnerContour);
+
+
+   vec3 color = u_colorBack.rgb;
+   float opacity = 1.;
+   
+   vec3 cellColor = vec3(.0, 1.1 - .5 * cellIdx2.y, cellIdx2.x);
+   color = mix(u_colorBack.rgb, cellColor, contour);
+   
+   // color = mix(color, texturing, u_textureing * contour);
+   
+   float shadow = 1. - dot(normal, lightDir);
+   color = mix(color, u_shadeColor.rgb, shadow * contour);
+   
+   
+   float outlineRandomizer = .5 + .5 * cellIdx2.x;
+   float outline = smoothstep(.6, .3, shape) * contour;
+   color = mix(color, u_outlineColor.rgb, u_outline * outlineRandomizer * outline);
+
+   vec3 specularNormal = normalize(vec3(normalize(pos) * sin(length(pos) * (5. + 10. * u_specularNormal)), -2.));
+   float specular = smoothstep(1. - .2 * u_specular, 1.001 - .2 * u_specular, dot(specularNormal, lightDir));
+   specular *= u_specularColor.a;   
+   color = mix(color, u_specularColor.rgb, specular * contour);
    
 
    fragColor = vec4(color, opacity);
@@ -134,25 +113,31 @@ void main() {
 
 export interface WaterDropsUniforms extends ShaderSizingUniforms {
   u_colorBack: [number, number, number, number];
+  u_shadeColor: [number, number, number, number];
   u_specularColor: [number, number, number, number];
-  u_shadowColor: [number, number, number, number];
+  u_outlineColor: [number, number, number, number];
   u_dropShapeDistortion: number;
-  u_specularSize: number;
+  u_specular: number;
+  u_specularNormal: number;
   u_textureing: number;
   u_visibility: number;
   u_test1: number;
   u_test2: number;
+  u_outline: number;
   u_noiseTexture?: HTMLImageElement;
 }
 
 export interface WaterDropsParams extends ShaderSizingParams, ShaderMotionParams {
   colorBack?: string;
+  shadeColor?: string;
   specularColor?: string;
-  shadowColor?: string;
+  outlineColor?: string;
   texturing?: number;
   dropShapeDistortion?: number;
-  specularSize?: number;
+  specular?: number;
+  specularNormal?: number;
   visibility?: number;
   test1?: number;
   test2?: number;
+  outline?: number;
 }
