@@ -37,7 +37,7 @@ export const defaultPreset: PulsingBorderPreset = {
     spotSize: 0.15,
     pulse: 0,
     smoke: 1,
-    smokeScale: 1.3,
+    smokeSize: 1.3,
   },
 };
 
@@ -50,7 +50,7 @@ export const circlePreset: PulsingBorderPreset = {
     scale: 0.5,
     speed: 1,
     frame: 0,
-    colorBack: 'hsla(200, 40%, 25%, 1)',
+    colorBack: 'hsla(200, 40%, 10%, 1)',
     colors: ['hsla(50, 100%, 60%, 1)', 'hsla(25, 100%, 50%, 1)', 'hsla(350, 100%, 50%, 1)'],
     roundness: 1,
     thickness: 0.03,
@@ -60,7 +60,7 @@ export const circlePreset: PulsingBorderPreset = {
     spotSize: 0.15,
     pulse: 0,
     smoke: 0,
-    smokeScale: 1,
+    smokeSize: 1,
   },
 };
 
@@ -80,7 +80,7 @@ export const innerBorderPreset: PulsingBorderPreset = {
     spotSize: 0.18,
     pulse: 0.04,
     smoke: 0.75,
-    smokeScale: 0.92,
+    smokeSize: 0.92,
   },
 };
 
@@ -100,7 +100,7 @@ export const PulsingBorder: React.FC<PulsingBorderProps> = memo(function Pulsing
   spotSize = defaultPreset.params.spotSize,
   pulse = defaultPreset.params.pulse,
   smoke = defaultPreset.params.smoke,
-  smokeScale = defaultPreset.params.smokeScale,
+  smokeSize = defaultPreset.params.smokeSize,
 
   // Sizing props
   fit = defaultPreset.params.fit,
@@ -129,7 +129,7 @@ export const PulsingBorder: React.FC<PulsingBorderProps> = memo(function Pulsing
     u_spotSize: spotSize,
     u_pulse: pulse,
     u_smoke: smoke,
-    u_smokeScale: smokeScale,
+    u_smokeSize: smokeSize,
     ...pulseTexture,
     ...noiseTexture,
 

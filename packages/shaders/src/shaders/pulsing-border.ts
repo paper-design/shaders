@@ -43,7 +43,7 @@ uniform float u_spotSize;
 uniform float u_spotsPerColor;
 uniform float u_pulse;
 uniform float u_smoke;
-uniform float u_smokeScale;
+uniform float u_smokeSize;
 
 uniform sampler2D u_pulseTexture;
 uniform sampler2D u_noiseTexture;
@@ -157,12 +157,12 @@ void main() {
     
   float border = roundedBox(borderUV, halfSize, radius, distance, .5 * u_softness);
 
-  float pulse = u_pulse * getWaveformValue(.27 * u_time);
+  float pulse = u_pulse * getWaveformValue(.18 * u_time);
   
   border *= (1. + .1 * pulse);
   border *= (1. + u_intensity);
 
-  vec2 smokeUV = .001 * u_smokeScale * v_patternUV;
+  vec2 smokeUV = .001 * u_smokeSize * v_patternUV;
   float smoke = clamp(3. * noise(2.7 * smokeUV + .5 * t), 0., 1.);
   smoke -= noise(3.4 * smokeUV - .5 * t);
   smoke *= roundedBoxSmoke(borderUV, halfSize, radius, distance, u_smoke);
@@ -242,7 +242,7 @@ export interface PulsingBorderUniforms extends ShaderSizingUniforms {
   u_spotSize: number;
   u_pulse: number;
   u_smoke: number;
-  u_smokeScale: number;
+  u_smokeSize: number;
   u_pulseTexture?: HTMLImageElement;
   u_simplexNoiseTexture?: HTMLImageElement;
 }
@@ -258,5 +258,5 @@ export interface PulsingBorderParams extends ShaderSizingParams, ShaderMotionPar
   spotSize?: number;
   pulse?: number;
   smoke?: number;
-  smokeScale?: number;
+  smokeSize?: number;
 }
