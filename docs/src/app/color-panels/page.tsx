@@ -41,6 +41,7 @@ const ColorPanelsWithControls = () => {
           length: { value: defaults.length, min: 0, max: 3, order: 203 },
           blur: { value: defaults.blur, min: 0, max: 0.5, order: 301 },
           fade: { value: defaults.fade, min: 0, max: 1, order: 302 },
+          fadePosition: { value: defaults.fadePosition, min: 0, max: 1, order: 303 },
           gradient: { value: defaults.gradient, min: 0, max: 1, order: 304 },
           speed: { value: defaults.speed, min: 0, max: 2, order: 400 },
         },

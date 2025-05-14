@@ -19,7 +19,7 @@ export const colorPanelsMeta = {
  * - u_angle (float): Panel skew angle to morph rect to triangle panels
  * - u_length (float): Length of panels (relative to total height)
  * - u_blur (float): Horizontal blur amount along panel edges
- * - u_middle (float): Controls transparency toward the center of panels
+ * - u_fadePosition (float): Controls transparency toward the center of panels
  * - u_colorShuffler (float): Affects how panel colors cycle
  * - u_singleColor (float): Controls blending of adjacent colors per panel
  */
@@ -40,6 +40,7 @@ uniform float u_angle2;
 uniform float u_length;
 uniform float u_blur;
 uniform float u_fade;
+uniform float u_fadePosition;
 uniform float u_density;
 uniform float u_gradient;
 
@@ -72,6 +73,18 @@ vec2 getPanel(float angle, vec2 uv) {
   return vec2(panel, clamp(panelMap, 0., 1.));
 }
 
+vec4 blendColor(vec4 colorA, float panelMask, float panelMap) {
+  float step1 = mix(0.0, 1.0, clamp((panelMap - u_fadePosition) / (1.0 - u_fadePosition), 0.0, 1.0));
+  float step2 = mix(0.0, 1.0, clamp((panelMap - u_fadePosition) / (0.0 - u_fadePosition), 0.0, 1.0));
+  float fade = 1.2 * u_fade * step1 + u_fade * step2;
+  fade = clamp(fade, 0.0, 1.0);
+
+  vec3 blendedRGB = mix(colorA.rgb, vec3(0.), fade);
+  float blendedAlpha = mix(colorA.a, 0., fade);
+
+  return vec4(blendedRGB * panelMask, blendedAlpha * panelMask);
+}
+
 void main() {
   vec2 uv = v_objectUV;
   uv *= 1.25;
@@ -91,10 +104,10 @@ void main() {
     premultipliedColors[i] = c;
   }
   
-  float densityNormalizer = 1.;
-
   float totalColorWeight = 0.;
   float panelsNumber = 12.;
+
+  float densityNormalizer = 1.;
   switch (int(u_colorsCount)) {
     case 4:
       panelsNumber = 16.;
@@ -112,8 +125,6 @@ void main() {
   
   float totalPanelsShape = 0.;
   float panelGrad = 1. - clamp(u_gradient, 0., 1.);
-  float fadeFactor = 4.2 - 4. * pow(u_fade, .5);
-
 
   for (int set = 0; set < 2; set++) {
     bool doublingSet = (set == 1);
@@ -144,17 +155,10 @@ void main() {
       vec4 colorA = premultipliedColors[colorIdx];
       vec4 colorB = premultipliedColors[nextColorIdx];
       
-      colorA = mix(colorA, colorB, max(0., smoothstep(.0, .45, panelMap) - panelGrad));
-
-      float fade = clamp(pow(panelMap, fadeFactor), 0., 1.);
-      vec3 blendedRGB = mix(colorA.rgb, vec3(0.), fade);
-      float blendedAlpha = mix(colorA.a, 0., fade);
-      
-      float finalOpacity = panelMask * blendedAlpha;
-      vec3 finalColor = blendedRGB * panelMask;
-      
-      color = finalColor + color * (1. - finalOpacity);
-      opacity = finalOpacity + opacity * (1. - finalOpacity);
+      colorA = mix(colorA, colorB, max(0., smoothstep(.0, .45, panelMap) - panelGrad)); 
+      vec4 blended = blendColor(colorA, panelMask, panelMap);
+      color = blended.rgb + color * (1. - blended.a);
+      opacity = blended.a + opacity * (1. - blended.a);
     }
   }
 
@@ -188,17 +192,10 @@ void main() {
       vec4 colorA = premultipliedColors[colorIdx];
       vec4 colorB = premultipliedColors[nextColorIdx];
       
-      colorA = mix(colorA, colorB, max(0., smoothstep(.0, .45, panelMap) - panelGrad));
-
-      float fade = clamp(pow(panelMap, fadeFactor), 0., 1.);
-      vec3 blendedRGB = mix(colorA.rgb, vec3(0.), fade);
-      float blendedAlpha = mix(colorA.a, 0., fade);
-      
-      float finalOpacity = panelMask * blendedAlpha;
-      vec3 finalColor = blendedRGB * panelMask;
-      
-      color = finalColor + color * (1. - finalOpacity);
-      opacity = finalOpacity + opacity * (1. - finalOpacity);
+      colorA = mix(colorA, colorB, max(0., smoothstep(.0, .45, panelMap) - panelGrad));       
+      vec4 blended = blendColor(colorA, panelMask, panelMap);
+      color = blended.rgb + color * (1. - blended.a);
+      opacity = blended.a + opacity * (1. - blended.a);
     }
   }
 
@@ -221,6 +218,7 @@ export interface ColorPanelsUniforms extends ShaderSizingUniforms {
   u_length: number;
   u_blur: number;
   u_fade: number;
+  u_fadePosition: number;
   u_density: number;
   u_gradient: number;
 }
@@ -233,6 +231,7 @@ export interface ColorPanelsParams extends ShaderSizingParams, ShaderMotionParam
   length?: number;
   blur?: number;
   fade?: number;
+  fadePosition?: number;
   density?: number;
   gradient?: number;
 }
