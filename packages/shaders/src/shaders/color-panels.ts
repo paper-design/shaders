@@ -69,7 +69,7 @@ vec2 getPanel(float angle, vec2 uv) {
   float blurX = .15 * smoothstep(.05, .0, abs(angle / TWO_PI - .5)) + panelMap * u_blur;
   float panel = smoothstep(left - .5 * blurX, left + blurX, x) * (1. - smoothstep(right - blurX, right + .5 * blurX, x));
 
-  return vec2(panel, panelMap);
+  return vec2(panel, clamp(panelMap, 0., 1.));
 }
 
 void main() {
@@ -81,70 +81,68 @@ void main() {
 
   vec3 color = vec3(0.);
   float opacity = 0.;
+
+
+  vec4 premultipliedColors[${colorPanelsMeta.maxColorCount}];
+  for (int i = 0; i < ${colorPanelsMeta.maxColorCount}; i++) {
+    if (float(i) >= u_colorsCount) break;
+    vec4 c = u_colors[i];
+    c.rgb *= c.a;
+    premultipliedColors[i] = c;
+  }
   
+  float densityNormalizer = 1.;
+
   float totalColorWeight = 0.;
   float panelsNumber = 12.;
-  if (u_colorsCount == 4.) {
-    panelsNumber = 16.;
-  } else if (u_colorsCount == 5.) {
-    panelsNumber = 10.;
-  } else if (u_colorsCount == 7.) {
-    panelsNumber = 14.;
+  switch (int(u_colorsCount)) {
+    case 4:
+      panelsNumber = 16.;
+      densityNormalizer *= 1.34;
+      break;
+    case 5:
+      panelsNumber = 20.;
+      densityNormalizer *= 1.67;
+      break;
+    case 7:
+      panelsNumber = 14.;
+      densityNormalizer *= 1.17;
+      break;
   }
-  float totalPanelsShape = 0.;
   
+  float totalPanelsShape = 0.;
   float panelGrad = 1. - clamp(u_gradient, 0., 1.);
-  float density = min(.95, u_density);
-  float limTop = .5 * density;
-  limTop = max(limTop, .25);
-  float limBottom = 1. - limTop;
   float fadeFactor = 4.2 - 4. * pow(u_fade, .5);
 
-  for (int mode = 0; mode < 4; mode++) {
 
-    bool skip = (t < .5) == (mode == 0 || mode == 3);
-    if (skip) continue;
+  for (int set = 0; set < 2; set++) {
+    bool doublingSet = (set == 1);
+    if ((t > .5) == doublingSet) continue;
 
-    for (int i = 0; i <= 16; i++) {
-      if (i >= int(panelsNumber)) break;
-
-      bool bottomHalf = (mode >= 2);
-      bool doublingSet = (mode % 2 == 1);
-  
-      int j = bottomHalf ? int(panelsNumber) - i : i;
-      float offset = float(j) / panelsNumber;
-
+    for (int i = int(panelsNumber); i >= 0; i--) {
+    
+      float offset = float(i) / panelsNumber;
       if (doublingSet) {
         offset += .5;
       }
-  
-      float angleNorm = limTop + (1. - density) * fract(t + offset);
-      bool skipPanel = false;
-      skipPanel = skipPanel || (angleNorm < limTop);
-      skipPanel = skipPanel || (angleNorm > limBottom);
-      skipPanel = skipPanel || (!bottomHalf && angleNorm > .5);
-      skipPanel = skipPanel || (bottomHalf && angleNorm < .5);
-    
-      if (skipPanel) continue;
-      
-      float angle = angleNorm * TWO_PI;
-      vec2 panel = getPanel(angle, uv);
-      float panelMask = panel[0];
-      float panelMap = clamp(panel[1], 0., 1.);
-      
-      if (!bottomHalf) {
-        panelMask *= smoothstep(limTop, limTop + .05, angleNorm) * smoothstep(.5, .497, angleNorm);
-      } else {
-        panelMask *= smoothstep(limBottom, limBottom - .05, angleNorm) * smoothstep(.5, .503, angleNorm);
-      }
-      
-      int colorIdx = int(mod(floor(float(j)), u_colorsCount));
-      int nextColorIdx = int(mod(floor(float(j + 1)), u_colorsCount));
 
-      vec4 colorA = u_colors[colorIdx];
-      colorA.rgb *= colorA.a;
-      vec4 colorB = u_colors[nextColorIdx];
-      colorB.rgb *= colorB.a;
+      float densityFract = densityNormalizer * fract(t + offset);
+      if (densityFract >= .5) continue;
+      
+      float angleNorm = u_density * densityFract;
+      vec2 panel = getPanel(angleNorm * TWO_PI + PI, uv);
+      float panelMap = panel[1];
+      float panelMask = panel[0]
+       * smoothstep(.5, .4, densityFract)
+       * smoothstep(.3, .25, angleNorm)
+       * smoothstep(0., .01, densityFract);
+      if (panelMask < 0.) continue;
+
+      int colorIdx = int(mod(floor(float(i)), u_colorsCount));
+      int nextColorIdx = int(mod(floor(float(i + 1)), u_colorsCount));
+
+      vec4 colorA = premultipliedColors[colorIdx];
+      vec4 colorB = premultipliedColors[nextColorIdx];
       
       colorA = mix(colorA, colorB, max(0., smoothstep(.0, .45, panelMap) - panelGrad));
 
@@ -159,7 +157,51 @@ void main() {
       opacity = finalOpacity + opacity * (1. - finalOpacity);
     }
   }
-  
+
+  for (int set = 0; set < 2; set++) {
+    bool doublingSet = (set == 1);  
+    if ((t < .5) == doublingSet) continue;
+
+    for (int i = int(panelsNumber); i >= 0; i--) {
+    
+      float offset = float(i) / panelsNumber;
+      if (doublingSet) {
+        offset += .5;
+      }
+
+      float densityFract = densityNormalizer * fract(-t + offset);
+      if (densityFract >= .5) continue;
+      float angleNorm = -u_density * densityFract;      
+
+      vec2 panel = getPanel(angleNorm * TWO_PI + PI, uv);
+      float panelMap = panel[1];
+      
+      float panelMask = panel[0]
+       * smoothstep(.5, .4, densityFract)
+       * smoothstep(-.3, -.25, angleNorm)
+       * smoothstep(0., .01, densityFract);
+      if (panelMask < 0.) continue;
+
+      int colorIdx = int(mod(floor(u_colorsCount - float(i)), u_colorsCount));
+      int nextColorIdx = int(mod(floor(u_colorsCount - float(i - 1)), u_colorsCount));
+
+      vec4 colorA = premultipliedColors[colorIdx];
+      vec4 colorB = premultipliedColors[nextColorIdx];
+      
+      colorA = mix(colorA, colorB, max(0., smoothstep(.0, .45, panelMap) - panelGrad));
+
+      float fade = clamp(pow(panelMap, fadeFactor), 0., 1.);
+      vec3 blendedRGB = mix(colorA.rgb, vec3(0.), fade);
+      float blendedAlpha = mix(colorA.a, 0., fade);
+      
+      float finalOpacity = panelMask * blendedAlpha;
+      vec3 finalColor = blendedRGB * panelMask;
+      
+      color = finalColor + color * (1. - finalOpacity);
+      opacity = finalOpacity + opacity * (1. - finalOpacity);
+    }
+  }
+
   vec3 bgColor = u_colorBack.rgb * u_colorBack.a;
   color = color + bgColor * (1.0 - opacity);
   opacity = opacity + u_colorBack.a * (1.0 - opacity);
