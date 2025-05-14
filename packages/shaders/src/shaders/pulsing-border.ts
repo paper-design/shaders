@@ -244,7 +244,6 @@ export interface PulsingBorderUniforms extends ShaderSizingUniforms {
   u_smoke: number;
   u_smokeSize: number;
   u_pulseTexture?: HTMLImageElement;
-  u_simplexNoiseTexture?: HTMLImageElement;
 }
 
 export interface PulsingBorderParams extends ShaderSizingParams, ShaderMotionParams {
