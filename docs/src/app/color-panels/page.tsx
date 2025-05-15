@@ -35,7 +35,7 @@ const ColorPanelsWithControls = () => {
       Parameters: folder(
         {
           colorBack: { value: defaults.colorBack, order: 100 },
-          density: { value: defaults.density, min: 0.1, max: 3, order: 200 },
+          density: { value: defaults.density, min: 0.25, max: 7, order: 200 },
           angle1: { value: defaults.angle1, min: -1, max: 1, order: 202 },
           angle2: { value: defaults.angle2, min: -1, max: 1, order: 202 },
           length: { value: defaults.length, min: 0, max: 3, order: 203 },

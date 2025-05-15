@@ -50,7 +50,7 @@ out vec4 fragColor;
 
 ${declarePI}
 
-vec2 getPanel(float angle, vec2 uv) {
+vec2 getPanel(float angle, vec2 uv, float invLength) {
   float sinA = sin(angle);
   float cosA = cos(angle);
 
@@ -62,7 +62,7 @@ vec2 getPanel(float angle, vec2 uv) {
 
   if (z < 0. || z > zLimit) return vec2(0.);
 
-  float x = uv.x * (cosA * z + 1.) * (1. / (u_length + .001) * 1.5);
+  float x = uv.x * (cosA * z + 1.) * invLength;
   float panelMap = (zLimit - z) / zLimit;
 
   float left = -.5 + (z / zLimit - .5) * u_angle1;
@@ -89,26 +89,29 @@ void main() {
   vec2 uv = v_objectUV;
   uv *= 1.25;
   
-  float t = .02 * u_time;
+  float t = .07 * u_time;
   t = fract(t);
 
   vec3 color = vec3(0.);
   float opacity = 0.;
-
+  
+  int colorsCount = int(u_colorsCount);
 
   vec4 premultipliedColors[${colorPanelsMeta.maxColorCount}];
   for (int i = 0; i < ${colorPanelsMeta.maxColorCount}; i++) {
-    if (float(i) >= u_colorsCount) break;
+    if (i >= colorsCount) break;
     vec4 c = u_colors[i];
     c.rgb *= c.a;
     premultipliedColors[i] = c;
   }
   
+  float invLength = 1.5 / (u_length + 0.001);
+  
   float totalColorWeight = 0.;
   float panelsNumber = 12.;
 
   float densityNormalizer = 1.;
-  switch (int(u_colorsCount)) {
+  switch (colorsCount) {
     case 4:
       panelsNumber = 16.;
       densityNormalizer *= 1.34;
@@ -127,21 +130,24 @@ void main() {
   float panelGrad = 1. - clamp(u_gradient, 0., 1.);
 
   for (int set = 0; set < 2; set++) {
-    bool doublingSet = (set == 1);
-    if ((t > .5) == doublingSet) continue;
+    bool reverse = (t < 0.5);
+    float localT = reverse ? -t : t;
+    if ((reverse && set == 0) || (!reverse && set == 1)) continue;
 
     for (int i = int(panelsNumber); i >= 0; i--) {
     
       float offset = float(i) / panelsNumber;
-      if (doublingSet) {
+      if (set == 1) {
         offset += .5;
       }
 
       float densityFract = densityNormalizer * fract(t + offset);
       if (densityFract >= .5) continue;
-      
-      float angleNorm = u_density * densityFract;
-      vec2 panel = getPanel(angleNorm * TWO_PI + PI, uv);
+
+      float angleNorm = densityFract / u_density;
+      if (angleNorm >= .3) continue;
+
+      vec2 panel = getPanel(angleNorm * TWO_PI + PI, uv, invLength);
       float panelMap = panel[1];
       float panelMask = panel[0]
        * smoothstep(.5, .4, densityFract)
@@ -149,8 +155,8 @@ void main() {
        * smoothstep(0., .01, densityFract);
       if (panelMask < 0.) continue;
 
-      int colorIdx = int(mod(floor(float(i)), u_colorsCount));
-      int nextColorIdx = int(mod(floor(float(i + 1)), u_colorsCount));
+      int colorIdx = i % colorsCount;
+      int nextColorIdx = (i + 1) % colorsCount;
 
       vec4 colorA = premultipliedColors[colorIdx];
       vec4 colorB = premultipliedColors[nextColorIdx];
@@ -160,24 +166,22 @@ void main() {
       color = blended.rgb + color * (1. - blended.a);
       opacity = blended.a + opacity * (1. - blended.a);
     }
-  }
 
-  for (int set = 0; set < 2; set++) {
-    bool doublingSet = (set == 1);  
-    if ((t < .5) == doublingSet) continue;
 
     for (int i = int(panelsNumber); i >= 0; i--) {
     
       float offset = float(i) / panelsNumber;
-      if (doublingSet) {
+      if (set == 0) {
         offset += .5;
       }
 
       float densityFract = densityNormalizer * fract(-t + offset);
       if (densityFract >= .5) continue;
-      float angleNorm = -u_density * densityFract;      
+      
+      float angleNorm = -densityFract / u_density;
+      if (angleNorm < -.3) continue;
 
-      vec2 panel = getPanel(angleNorm * TWO_PI + PI, uv);
+      vec2 panel = getPanel(angleNorm * TWO_PI + PI, uv, invLength);
       float panelMap = panel[1];
       
       float panelMask = panel[0]
@@ -186,8 +190,8 @@ void main() {
        * smoothstep(0., .01, densityFract);
       if (panelMask < 0.) continue;
 
-      int colorIdx = int(mod(floor(u_colorsCount - float(i)), u_colorsCount));
-      int nextColorIdx = int(mod(floor(u_colorsCount - float(i - 1)), u_colorsCount));
+      int colorIdx = ((colorsCount - i) % colorsCount + colorsCount) % colorsCount;
+      int nextColorIdx = ((colorsCount - (i - 1)) % colorsCount + colorsCount) % colorsCount;
 
       vec4 colorA = premultipliedColors[colorIdx];
       vec4 colorB = premultipliedColors[nextColorIdx];

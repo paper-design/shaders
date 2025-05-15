@@ -40,7 +40,7 @@ export const defaultPreset: ColorPanelsPreset = {
     fade: 0.65,
     fadePosition: 0.35,
     gradient: 0,
-    density: 0.6,
+    density: 2,
   },
 };
 
