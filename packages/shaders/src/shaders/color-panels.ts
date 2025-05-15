@@ -39,8 +39,8 @@ uniform float u_angle1;
 uniform float u_angle2;
 uniform float u_length;
 uniform float u_blur;
-uniform float u_fade;
-uniform float u_fadePosition;
+uniform float u_fadeIn;
+uniform float u_fadeOut;
 uniform float u_density;
 uniform float u_gradient;
 
@@ -67,29 +67,27 @@ vec2 getPanel(float angle, vec2 uv, float invLength) {
 
   float left = -.5 + (z / zLimit - .5) * u_angle1;
   float right = .5 - (z / zLimit - .5) * u_angle2;
-  float blurX = .15 * smoothstep(.05, .0, abs(angle / TWO_PI - .5)) + panelMap * u_blur;
+  float blurX = .15 * (1. - panelMap) * smoothstep(.015, .0, abs(angle / TWO_PI - .5)) + panelMap * u_blur;
   float panel = smoothstep(left - .5 * blurX, left + blurX, x) * (1. - smoothstep(right - blurX, right + .5 * blurX, x));
 
   return vec2(panel, clamp(panelMap, 0., 1.));
 }
 
 vec4 blendColor(vec4 colorA, float panelMask, float panelMap) {
-  float step1 = mix(0.0, 1.0, clamp((panelMap - u_fadePosition) / (1.0 - u_fadePosition), 0.0, 1.0));
-  float step2 = mix(0.0, 1.0, clamp((panelMap - u_fadePosition) / (0.0 - u_fadePosition), 0.0, 1.0));
-  float fade = 1.2 * u_fade * step1 + u_fade * step2;
-  fade = clamp(fade, 0.0, 1.0);
+  float fade = smoothstep(-.2 * (1. - u_fadeOut), u_fadeOut, panelMap)
+   * (1. - smoothstep(1. - u_fadeIn, 1., panelMap));
 
-  vec3 blendedRGB = mix(colorA.rgb, vec3(0.), fade);
-  float blendedAlpha = mix(colorA.a, 0., fade);
+  vec3 blendedRGB = mix(vec3(0.), colorA.rgb, fade);
+  float blendedAlpha = mix(0., colorA.a, fade);
 
-  return vec4(blendedRGB * panelMask, blendedAlpha * panelMask);
+  return vec4(blendedRGB, blendedAlpha) * panelMask;
 }
 
 void main() {
   vec2 uv = v_objectUV;
   uv *= 1.25;
   
-  float t = .07 * u_time;
+  float t = .015 * u_time;
   t = fract(t);
 
   vec3 color = vec3(0.);
@@ -161,6 +159,8 @@ void main() {
       vec4 colorA = premultipliedColors[colorIdx];
       vec4 colorB = premultipliedColors[nextColorIdx];
       
+
+      // colorA = vec4(panelMap, 0., 0., 1.);
       colorA = mix(colorA, colorB, max(0., smoothstep(.0, .45, panelMap) - panelGrad)); 
       vec4 blended = blendColor(colorA, panelMask, panelMap);
       color = blended.rgb + color * (1. - blended.a);
@@ -196,6 +196,7 @@ void main() {
       vec4 colorA = premultipliedColors[colorIdx];
       vec4 colorB = premultipliedColors[nextColorIdx];
       
+      // colorA = vec4(panelMap, 0., 0., 1.);
       colorA = mix(colorA, colorB, max(0., smoothstep(.0, .45, panelMap) - panelGrad));       
       vec4 blended = blendColor(colorA, panelMask, panelMap);
       color = blended.rgb + color * (1. - blended.a);
@@ -221,8 +222,8 @@ export interface ColorPanelsUniforms extends ShaderSizingUniforms {
   u_angle2: number;
   u_length: number;
   u_blur: number;
-  u_fade: number;
-  u_fadePosition: number;
+  u_fadeIn: number;
+  u_fadeOut: number;
   u_density: number;
   u_gradient: number;
 }
@@ -234,8 +235,8 @@ export interface ColorPanelsParams extends ShaderSizingParams, ShaderMotionParam
   angle2?: number;
   length?: number;
   blur?: number;
-  fade?: number;
-  fadePosition?: number;
+  fadeIn?: number;
+  fadeOut?: number;
   density?: number;
   gradient?: number;
 }
