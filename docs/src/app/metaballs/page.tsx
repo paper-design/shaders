@@ -34,7 +34,7 @@ const MetaballsWithControls = () => {
       Parameters: folder(
         {
           count: { value: defaults.count, min: 1, max: metaballsMeta.maxBallsCount, order: 301 },
-          size: { value: defaults.size, min: 0, max: 1.2, order: 302 },
+          size: { value: defaults.size, min: 0, max: 1, order: 302 },
           speed: { value: defaults.speed, min: 0, max: 1, order: 400 },
         },
         { order: 1 }
