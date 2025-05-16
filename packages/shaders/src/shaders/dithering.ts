@@ -4,8 +4,7 @@ import {
   type ShaderSizingParams,
   type ShaderSizingUniforms,
   sizingUV,
-  worldBoxTestStroke,
-  viewPortTestOriginPoint,
+  drawSizingHelpers,
 } from '../shader-sizing';
 import { declareSimplexNoise, declarePI, declareRandom } from '../shader-utils';
 
@@ -106,7 +105,7 @@ void main() {
   #define USE_PATTERN_SIZING
   #define USE_OBJECT_SIZING
   #define USE_PIXELIZATION
-  // #define USE_SIZING_DEBUG
+  // #define ADD_HELPERS
   
   ${sizingUV}
   
@@ -203,23 +202,20 @@ void main() {
   dithering -= .5;  
   float res = step(.5, shape + dithering);  
   
-  vec4 color = mix(u_color1, u_color2, res);
+  vec3 color = mix(u_color1.rgb, u_color2.rgb, res);
+  float opacity = mix(u_color1.a, u_color2.a, res);
 
-  #ifdef USE_SIZING_DEBUG
-    vec2 worldBox = objectWorldBox;
-    vec2 world = objectWorld;
+  #ifdef ADD_HELPERS
+    vec2 helperBox = objectHelperBox;
+    vec2 boxSize = objectBoxSize;
     if (u_shape < 3.5) {
-      worldBox = patternWorldBox;
-      world = patternWorld;
+      helperBox = patternHelperBox;
+      boxSize = patternBoxSize;
     }
-    ${worldBoxTestStroke}
-    ${viewPortTestOriginPoint}
-    color.r += worldBoxTestStroke;
-    color.g += viewPortTestOriginPoint;
-    color.b += worldTestOriginPoint;
+    ${drawSizingHelpers}
   #endif
 
-  fragColor = color;
+  fragColor = vec4(color, opacity);
 }
 `;
 

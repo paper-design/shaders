@@ -84,7 +84,8 @@ void main() {
       sizeFrac *= fract(u_count);
     }
 
-    float shape = getBallShape(shape_uv, pos, 50. - 30. * u_size * sizeFrac);
+    float shape = getBallShape(shape_uv, pos, 45. - 30. * u_size * sizeFrac);
+    shape *= pow(u_size, .2);
     shape = smoothstep(0., 1., shape);
 
     totalColor += ballColor.rgb * shape;

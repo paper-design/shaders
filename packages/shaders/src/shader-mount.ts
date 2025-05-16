@@ -515,82 +515,147 @@ uniform float u_offsetY;
 uniform float u_pxSize;
 
 out vec2 v_objectUV;
+out vec2 v_objectBoxSize;
+out vec2 v_objectHelperBox;
+
+out vec2 v_responsiveUV;
+out vec2 v_responsiveBoxSize;
+out vec2 v_responsiveHelperBox;
+out vec2 v_responsiveBoxGivenSize;
+
 out vec2 v_patternUV;
+out vec2 v_patternBoxSize;
+out vec2 v_patternHelperBox;
+
+// #define ADD_HELPERS
+
+vec3 getBoxSize(float boxRatio, vec2 givenBoxSize, vec2 maxBoxSize) {
+  vec2 box = vec2(0.);
+  // fit = none
+  box.x = boxRatio * min(givenBoxSize.x / boxRatio, givenBoxSize.y);
+  float noFitBoxWidth = box.x;
+  if (u_fit == 1.) { // fit = contain
+    box.x = boxRatio * min(maxBoxSize[0] / boxRatio, maxBoxSize[1]);
+  } else if (u_fit == 2.) { // fit = cover
+    box.x = boxRatio * max(maxBoxSize[0] / boxRatio, maxBoxSize[1]);
+  }
+  box.y = box.x / boxRatio;
+  return vec3(box, noFitBoxWidth);
+}
 
 void main() {
   gl_Position = a_position;
   
   vec2 uv = gl_Position.xy * .5;  
-
-  vec2 worldOrigin = vec2(.5 - u_originX, u_originY - .5);
-  vec2 worldSize = vec2(u_worldWidth, u_worldHeight);
-  worldSize = max(worldSize, vec2(1.)) * u_pixelRatio;
-  float maxWidth = max(u_resolution.x, worldSize.x);
-  float maxHeight = max(u_resolution.y, worldSize.y);
-  float rotationRad = u_rotation * 3.14159265358979323846 / 180.;
+  vec2 boxOrigin = vec2(.5 - u_originX, u_originY - .5);
+  vec2 givenBoxSize = vec2(u_worldWidth, u_worldHeight);
+  givenBoxSize = max(givenBoxSize, vec2(1.)) * u_pixelRatio;
+  vec2 maxBoxSize = vec2(max(u_resolution.x, givenBoxSize.x), max(u_resolution.y, givenBoxSize.y));
+  float r = u_rotation * 3.14159265358979323846 / 180.;
+  mat2 graphicRotation = mat2(cos(r), sin(r), -sin(r), cos(r));
+  vec2 graphicOffset = vec2(-u_offsetX, u_offsetY);
   
   
   // ===================================================
-  // Sizing api for objects (graphics with fixed ratio)
+  // Sizing api for graphic objects with fixed ratio
+  // (currently supports only ratio = 1)
   
-  float objectWorldRatio = 1.;
-  vec2 objectWorld = vec2(0.);
-  objectWorld.x = objectWorldRatio * min(worldSize.x / objectWorldRatio, worldSize.y);
-  if (u_fit == 1.) {
-    // contain
-    objectWorld.x = objectWorldRatio * min(maxWidth / objectWorldRatio, maxHeight);
-  } else if (u_fit == 2.) {
-    // cover
-    objectWorld.x = objectWorldRatio * max(maxWidth / objectWorldRatio, maxHeight);
-  }
-  objectWorld.y = objectWorld.x / objectWorldRatio;
-  vec2 objectWorldScale = u_resolution.xy / objectWorld;
+  float fixedRatio = 1.;
+  vec2 fixedRatioBoxGivenSize = vec2(
+    (u_worldWidth == 0.) ? u_resolution.x : givenBoxSize.x,
+    (u_worldHeight == 0.) ? u_resolution.y : givenBoxSize.y
+  );
+
+  v_objectBoxSize = getBoxSize(fixedRatio, fixedRatioBoxGivenSize, maxBoxSize).xy;
+  vec2 objectWorldScale = u_resolution.xy / v_objectBoxSize;
+
+  #ifdef ADD_HELPERS
+    v_objectHelperBox = uv;
+    v_objectHelperBox *= objectWorldScale;
+    v_objectHelperBox += boxOrigin * (objectWorldScale - 1.);
+  #endif
   
   v_objectUV = uv;
   v_objectUV *= objectWorldScale;
-  v_objectUV += worldOrigin * (objectWorldScale - 1.);
-  v_objectUV += vec2(-u_offsetX, u_offsetY);
+  v_objectUV += boxOrigin * (objectWorldScale - 1.);
+  v_objectUV += graphicOffset;
   v_objectUV /= u_scale;
-  v_objectUV = mat2(cos(rotationRad), sin(rotationRad), -sin(rotationRad), cos(rotationRad)) * v_objectUV;
+  v_objectUV = graphicRotation * v_objectUV;
+  
+
+  // ===================================================
+  
+  
+  // ===================================================
+  // Sizing api for graphic objects with either givenBoxSize ratio or canvas ratio.
+  // Full-screen mode available with u_worldWidth = u_worldHeight = 0
+  
+  v_responsiveBoxGivenSize = vec2(
+    (u_worldWidth == 0.) ? u_resolution.x : givenBoxSize.x,
+    (u_worldHeight == 0.) ? u_resolution.y : givenBoxSize.y
+  );
+  float responsiveRatio = v_responsiveBoxGivenSize.x / v_responsiveBoxGivenSize.y;
+  v_responsiveBoxSize = getBoxSize(responsiveRatio, v_responsiveBoxGivenSize, maxBoxSize).xy;
+  vec2 responsiveBoxScale = u_resolution.xy / v_responsiveBoxSize;
+  
+  #ifdef ADD_HELPERS
+    v_responsiveHelperBox = uv;
+    v_responsiveHelperBox *= responsiveBoxScale;
+    v_responsiveHelperBox += boxOrigin * (responsiveBoxScale - 1.);
+  #endif
+  
+  v_responsiveUV = uv;
+  v_responsiveUV *= responsiveBoxScale;
+  v_responsiveUV += boxOrigin * (responsiveBoxScale - 1.);
+  v_responsiveUV += graphicOffset;
+  v_responsiveUV /= u_scale;
+  v_responsiveUV.x *= responsiveRatio;
+  v_responsiveUV = graphicRotation * v_responsiveUV;
+  v_responsiveUV.x /= responsiveRatio;
 
   // ===================================================
 
   
   // ===================================================
-  // Sizing api for patterns (graphics respecting u_worldWidth / u_worldHeight ratio)
+  // Sizing api for patterns 
+  // (treating graphics as a image u_worldWidth x u_worldHeight size)
   
-  float patternWorldRatio = worldSize.x / worldSize.y;
-  vec2 patternWorld = vec2(0.);
-  patternWorld.x = patternWorldRatio * min(worldSize.x / patternWorldRatio, worldSize.y);
-  float patternWorldWidthOriginal = patternWorld.x;
-  if (u_fit == 1.) {
-    // contain
-    patternWorld.x = patternWorldRatio * min(maxWidth / patternWorldRatio, maxHeight);
-  } else if (u_fit == 2.) {
-    // cover
-    patternWorld.x = patternWorldRatio * max(maxWidth / patternWorldRatio, maxHeight);
-  }
-  patternWorld.y = patternWorld.x / patternWorldRatio;
-  vec2 patternWorldScale = u_resolution.xy / patternWorld;
-
+  float patternBoxRatio = givenBoxSize.x / givenBoxSize.y;  
+  vec2 patternBoxGivenSize = vec2(
+    (u_worldWidth == 0.) ? u_resolution.x : givenBoxSize.x,
+    (u_worldHeight == 0.) ? u_resolution.y : givenBoxSize.y
+  );
+  patternBoxRatio = patternBoxGivenSize.x / patternBoxGivenSize.y;
+  
+  vec3 boxSizeData = getBoxSize(patternBoxRatio, patternBoxGivenSize, maxBoxSize);
+  v_patternBoxSize = boxSizeData.xy;
+  float patternBoxNoFitBoxWidth = boxSizeData.z;
+  vec2 patternBoxScale = u_resolution.xy / v_patternBoxSize;
+  
+  #ifdef ADD_HELPERS
+    v_patternHelperBox = uv;
+    v_patternHelperBox *= patternBoxScale;
+    v_patternHelperBox += boxOrigin * (patternBoxScale - 1.);
+  #endif
+  
   v_patternUV = uv;
-  v_patternUV += vec2(-u_offsetX, u_offsetY) / patternWorldScale;
-  v_patternUV += worldOrigin;
-  v_patternUV -= worldOrigin / patternWorldScale;
+  v_patternUV += graphicOffset / patternBoxScale;
+  v_patternUV += boxOrigin;
+  v_patternUV -= boxOrigin / patternBoxScale;
   v_patternUV *= u_resolution.xy;
   v_patternUV /= u_pixelRatio;
   if (u_fit > 0.) {
-    v_patternUV *= (patternWorldWidthOriginal / patternWorld.x);
+    v_patternUV *= (patternBoxNoFitBoxWidth / v_patternBoxSize.x);
   }
   v_patternUV /= u_scale;
-  v_patternUV = mat2(cos(rotationRad), sin(rotationRad), -sin(rotationRad), cos(rotationRad)) * v_patternUV;
-  v_patternUV += worldOrigin / patternWorldScale;
-  v_patternUV -= worldOrigin;
+  v_patternUV = graphicRotation * v_patternUV;
+  v_patternUV += boxOrigin / patternBoxScale;
+  v_patternUV -= boxOrigin;
   v_patternUV += .5;
   
   // ===================================================
-}
-`;
+
+}`;
 
 function createShader(gl: WebGLRenderingContext, type: number, source: string): WebGLShader | null {
   const shader = gl.createShader(type);
