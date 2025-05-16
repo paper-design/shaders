@@ -26,8 +26,8 @@ export const defaultPreset: DotOrbitPreset = {
     speed: 2,
     frame: 0,
     colors: ['hsla(200, 100%, 20%, 1)', 'hsla(290, 100%, 70%, 1)'],
-    dotSize: 1,
-    dotSizeRange: 0,
+    size: 1,
+    sizeRange: 0,
     spreading: 1,
     stepsPerColor: 1,
   },
@@ -40,8 +40,8 @@ export const DotOrbit: React.FC<DotOrbitProps> = memo(function DotOrbitImpl({
   speed = defaultPreset.params.speed,
   frame = defaultPreset.params.frame,
   colors = defaultPreset.params.colors,
-  dotSize = defaultPreset.params.dotSize,
-  dotSizeRange = defaultPreset.params.dotSizeRange,
+  size = defaultPreset.params.size,
+  sizeRange = defaultPreset.params.sizeRange,
   spreading = defaultPreset.params.spreading,
   stepsPerColor = defaultPreset.params.stepsPerColor,
 
@@ -61,8 +61,8 @@ export const DotOrbit: React.FC<DotOrbitProps> = memo(function DotOrbitImpl({
     // Own uniforms
     u_colors: colors.map(getShaderColorFromString),
     u_colorsCount: colors.length,
-    u_dotSize: dotSize,
-    u_dotSizeRange: dotSizeRange,
+    u_size: size,
+    u_sizeRange: sizeRange,
     u_spreading: spreading,
     u_stepsPerColor: stepsPerColor,
 

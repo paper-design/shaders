@@ -39,9 +39,9 @@ const DotOrbitWithControls = () => {
     return {
       Parameters: folder(
         {
-          stepsPerColor: { value: defaults.dotSize, min: 1, max: 4, step: 1, order: 200 },
-          dotSize: { value: defaults.dotSize, min: 0, max: 1, order: 300 },
-          dotSizeRange: { value: defaults.dotSizeRange, min: 0, max: 1, order: 301 },
+          stepsPerColor: { value: defaults.stepsPerColor, min: 1, max: 4, step: 1, order: 200 },
+          size: { value: defaults.size, min: 0, max: 1, order: 300 },
+          sizeRange: { value: defaults.sizeRange, min: 0, max: 1, order: 301 },
           spreading: { value: defaults.spreading, min: 0, max: 1, order: 302 },
           speed: { value: defaults.speed, min: 0, max: 6, order: 400 },
         },
