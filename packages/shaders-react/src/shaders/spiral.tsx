@@ -178,7 +178,7 @@ export const Spiral: React.FC<SpiralProps> = memo(function SpiralImpl({
   strokeWidth = defaultPreset.params.strokeWidth,
   strokeTaper = defaultPreset.params.strokeTaper,
   strokeCap = defaultPreset.params.strokeCap,
-  noiseFrequency = defaultPreset.params.noiseFreq,
+  noiseFrequency = defaultPreset.params.noiseFrequency,
   noisePower = defaultPreset.params.noisePower,
   softness = defaultPreset.params.softness,
 
