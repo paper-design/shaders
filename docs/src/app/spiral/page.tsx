@@ -20,12 +20,12 @@ const SpiralExample = () => {
       scale={1.3}
       offsetX={0}
       offsetY={0}
-      spiralDensity={0.5}
-      spiralDistortion={0}
+      density={0.5}
+      distortion={0}
       strokeWidth={0.5}
       strokeTaper={0}
       strokeCap={0.5}
-      noiseFreq={0.1}
+      noiseFrequency={0.1}
       noisePower={1}
       softness={0}
       speed={1}
@@ -53,12 +53,12 @@ const SpiralWithControls = () => {
         {
           color1: { value: defaults.color1, order: 100 },
           color2: { value: defaults.color2, order: 101 },
-          spiralDensity: { value: defaults.spiralDensity, min: 0, max: 1, order: 203 },
-          spiralDistortion: { value: defaults.spiralDistortion, min: 0, max: 1, order: 204 },
+          density: { value: defaults.density, min: 0, max: 1, order: 203 },
+          distortion: { value: defaults.distortion, min: 0, max: 1, order: 204 },
           strokeWidth: { value: defaults.strokeWidth, min: 0, max: 1, order: 205 },
           strokeTaper: { value: defaults.strokeTaper, min: 0, max: 1, order: 206 },
           strokeCap: { value: defaults.strokeCap, min: 0, max: 1, order: 207 },
-          noiseFreq: { value: defaults.noiseFreq, min: 0, max: 30, order: 350 },
+          noiseFrequency: { value: defaults.noiseFrequency, min: 0, max: 30, order: 350 },
           noisePower: { value: defaults.noisePower, min: 0, max: 1, order: 351 },
           softness: { value: defaults.softness, min: 0, max: 1, order: 352 },
           speed: { value: defaults.speed, min: 0, max: 2, order: 400 },
