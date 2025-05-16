@@ -25,11 +25,11 @@ export const defaultPreset: DotOrbitPreset = {
     ...defaultPatternSizing,
     speed: 2,
     frame: 0,
-    colors: ['hsla(200, 100%, 20%, 1)', 'hsla(290, 100%, 70%, 1)'],
+    colors: ['hsla(12, 100%, 20%, 1)', 'hsla(55, 100%, 40%, 1)', 'hsla(320, 100%, 40%, 1)'],
     size: 1,
     sizeRange: 0,
     spreading: 1,
-    stepsPerColor: 1,
+    stepsPerColor: 2,
   },
 };
 
