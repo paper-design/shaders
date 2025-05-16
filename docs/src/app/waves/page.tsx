@@ -22,7 +22,7 @@ const WavesExample = () => {
       frequency={0.5}
       amplitude={0.5}
       spacing={0.75}
-      dutyCycle={0.2}
+      proportion={0.2}
       softness={0}
       shape={1}
       style={{ position: 'fixed', width: '100%', height: '100%' }}
@@ -49,7 +49,7 @@ const WavesWithControls = () => {
           frequency: { value: defaults.frequency, min: 0, max: 2, order: 300 },
           amplitude: { value: defaults.amplitude, min: 0, max: 1, order: 301 },
           spacing: { value: defaults.spacing, min: 0, max: 2, order: 302 },
-          dutyCycle: { value: defaults.dutyCycle, min: 0, max: 1, order: 303 },
+          proportion: { value: defaults.proportion, min: 0, max: 1, order: 303 },
           softness: { value: defaults.softness, min: 0, max: 1, order: 304 },
           shape: { value: defaults.shape, min: 0, max: 3, order: 350 },
         },

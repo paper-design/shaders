@@ -31,7 +31,7 @@ export const defaultPreset: WavesPreset = {
     frequency: 0.5,
     amplitude: 0.6,
     spacing: 0.65,
-    dutyCycle: 0.15,
+    proportion: 0.15,
     softness: 0,
   },
 };
@@ -48,7 +48,7 @@ export const spikesPreset: WavesPreset = {
     frequency: 0.5,
     amplitude: 0.9,
     spacing: 0.37,
-    dutyCycle: 0.93,
+    proportion: 0.93,
     softness: 0.15,
   },
 };
@@ -65,7 +65,7 @@ export const groovyPreset: WavesPreset = {
     frequency: 0.2,
     amplitude: 0.67,
     spacing: 1.17,
-    dutyCycle: 0.57,
+    proportion: 0.57,
     softness: 0,
   },
 };
@@ -82,7 +82,7 @@ export const tangledUpPreset: WavesPreset = {
     frequency: 0.44,
     amplitude: 0.57,
     spacing: 1.05,
-    dutyCycle: 0.97,
+    proportion: 0.97,
     softness: 0,
   },
 };
@@ -99,7 +99,7 @@ export const zigZagPreset: WavesPreset = {
     frequency: 0.6,
     amplitude: 0.8,
     spacing: 0.5,
-    dutyCycle: 1,
+    proportion: 1,
     softness: 0.5,
   },
 };
@@ -116,7 +116,7 @@ export const waveRidePreset: WavesPreset = {
     frequency: 0.1,
     amplitude: 0.6,
     spacing: 0.41,
-    dutyCycle: 0.99,
+    proportion: 0.99,
     softness: 0,
   },
 };
@@ -138,7 +138,7 @@ export const Waves: React.FC<WavesProps> = memo(function WavesImpl({
   frequency = defaultPreset.params.frequency,
   amplitude = defaultPreset.params.amplitude,
   spacing = defaultPreset.params.spacing,
-  dutyCycle = defaultPreset.params.dutyCycle,
+  proportion = defaultPreset.params.proportion,
   softness = defaultPreset.params.softness,
 
   // Sizing props
@@ -164,7 +164,7 @@ export const Waves: React.FC<WavesProps> = memo(function WavesImpl({
     u_frequency: frequency,
     u_amplitude: amplitude,
     u_spacing: spacing,
-    u_dutyCycle: dutyCycle,
+    u_proportion: proportion,
     u_softness: softness,
 
     // Sizing uniforms
