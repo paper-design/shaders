@@ -32,7 +32,7 @@ export const defaultPreset: SwirlPreset = {
     bandCount: 5,
     twist: 0.11,
     softness: 0.01,
-    noiseFreq: 1.2,
+    noiseFrequency: 1.2,
     noisePower: 0.46,
   },
 };
@@ -56,7 +56,7 @@ export const openingPreset: SwirlPreset = {
     bandCount: 3,
     twist: 0.3,
     softness: 0,
-    noiseFreq: 2,
+    noiseFrequency: 2,
     noisePower: 0,
   },
 } as const;
@@ -71,7 +71,7 @@ export const jamesBondPreset: SwirlPreset = {
     bandCount: 4,
     twist: 0.4,
     softness: 0,
-    noiseFreq: 0,
+    noiseFrequency: 0,
     noisePower: 0,
   },
 } as const;
@@ -86,7 +86,7 @@ export const candyPreset: SwirlPreset = {
     bandCount: 2.5,
     twist: 0.2,
     softness: 1,
-    noiseFreq: 0,
+    noiseFrequency: 0,
     noisePower: 0,
   },
 } as const;
@@ -101,7 +101,7 @@ export const Swirl: React.FC<SwirlProps> = memo(function SwirlImpl({
   bandCount = defaultPreset.params.bandCount,
   twist = defaultPreset.params.twist,
   softness = defaultPreset.params.softness,
-  noiseFreq = defaultPreset.params.noiseFreq,
+  noiseFrequency = defaultPreset.params.noiseFrequency,
   noisePower = defaultPreset.params.noisePower,
 
   // Sizing props
@@ -123,7 +123,7 @@ export const Swirl: React.FC<SwirlProps> = memo(function SwirlImpl({
     u_bandCount: bandCount,
     u_twist: twist,
     u_softness: softness,
-    u_noiseFreq: noiseFreq,
+    u_noiseFrequency: noiseFrequency,
     u_noisePower: noisePower,
 
     // Sizing uniforms

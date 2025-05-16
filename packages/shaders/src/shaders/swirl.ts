@@ -20,7 +20,7 @@ uniform float u_bandCount;
 uniform float u_twist;
 uniform float u_softness;
 uniform float u_noisePower;
-uniform float u_noiseFreq;
+uniform float u_noiseFrequency;
 
 ${sizingVariablesDeclaration}
 
@@ -45,7 +45,7 @@ void main() {
   
   float shape = fract(offset);
   shape = 1. - abs(2. * shape - 1.);
-  shape += u_noisePower * snoise(pow(u_noiseFreq, 2.) * shape_uv);
+  shape += u_noisePower * snoise(pow(u_noiseFrequency, 2.) * shape_uv);
 
   float mid = smoothstep(.2, .4, pow(l, twist));
   shape = mix(0., shape, mid);
@@ -81,7 +81,7 @@ export interface SwirlUniforms extends ShaderSizingUniforms {
   u_bandCount: number;
   u_twist: number;
   u_softness: number;
-  u_noiseFreq: number;
+  u_noiseFrequency: number;
   u_noisePower: number;
 }
 
@@ -90,6 +90,6 @@ export interface SwirlParams extends ShaderSizingParams, ShaderMotionParams {
   bandCount?: number;
   twist?: number;
   softness?: number;
-  noiseFreq?: number;
+  noiseFrequency?: number;
   noisePower?: number;
 }
