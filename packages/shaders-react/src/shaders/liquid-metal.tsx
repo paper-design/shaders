@@ -2,7 +2,6 @@ import { memo } from 'react';
 import { ShaderMount, type ShaderComponentProps } from '../shader-mount';
 import { colorPropsAreEqual } from '../color-props-are-equal';
 import {
-  getShaderColorFromString,
   liquidMetalFragmentShader,
   ShaderFitOptions,
   type LiquidMetalUniforms,
@@ -25,10 +24,10 @@ export const defaultPreset: LiquidMetalPreset = {
     ...defaultObjectSizing,
     speed: 1,
     frame: 0,
-    patternBlur: 0.005,
-    patternScale: 3,
-    dispersion: 0.015,
-    liquid: 0.07,
+    softness: 0.05,
+    repetition: 3,
+    dispersion: 0.3,
+    distortion: 0.07,
     shape: 0,
     worldWidth: 0,
     worldHeight: 0,
@@ -41,10 +40,10 @@ export const LiquidMetal: React.FC<LiquidMetalProps> = memo(function LiquidMetal
   // Own props
   speed = defaultPreset.params.speed,
   frame = defaultPreset.params.frame,
-  patternBlur = defaultPreset.params.patternBlur,
-  patternScale = defaultPreset.params.patternScale,
+  softness = defaultPreset.params.softness,
+  repetition = defaultPreset.params.repetition,
   dispersion = defaultPreset.params.dispersion,
-  liquid = defaultPreset.params.liquid,
+  distortion = defaultPreset.params.distortion,
   shape = defaultPreset.params.shape,
 
   // Sizing props
@@ -61,10 +60,10 @@ export const LiquidMetal: React.FC<LiquidMetalProps> = memo(function LiquidMetal
 }: LiquidMetalProps) {
   const uniforms = {
     // Own uniforms
-    u_patternBlur: patternBlur,
-    u_patternScale: patternScale,
+    u_softness: softness,
+    u_repetition: repetition,
     u_dispersion: dispersion,
-    u_liquid: liquid,
+    u_distortion: distortion,
     u_shape: shape,
 
     // Sizing uniforms

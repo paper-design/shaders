@@ -10,10 +10,10 @@ precision highp float;
 
 uniform float u_time;
 
-uniform float u_patternBlur;
-uniform float u_patternScale;
+uniform float u_softness;
+uniform float u_repetition;
 uniform float u_dispersion;
-uniform float u_liquid;
+uniform float u_distortion;
 uniform float u_shape;
 
 ${sizingVariablesDeclaration}
@@ -28,7 +28,7 @@ float get_color_channel(float c1, float c2, float stripe_p, vec3 w, float extra_
 
   float ch = c2;
   float border = 0.;
-  float blur = u_patternBlur + extra_blur;
+  float blur = u_softness / 10. + extra_blur;
   
   if (u_shape < 1.) {
     blur += .1 * smoothstep(-.4, -.6, v_responsiveUV.y);
@@ -64,7 +64,7 @@ void main() {
   uv += .5;
   uv.y = 1. - uv.y;
 
-  float cycleWidth = .5 * u_patternScale; 
+  float cycleWidth = .5 * u_repetition; 
   
   float mask = 1.;
   if (u_shape < 1.) {
@@ -163,7 +163,7 @@ void main() {
 
   float noise = snoise(uv - t);
 
-  mask += (1. - mask) * u_liquid * noise;
+  mask += (1. - mask) * u_distortion * noise;
 
   float colorDispersion = 0.;
   colorDispersion += (1. - bump);
@@ -197,14 +197,14 @@ void main() {
   dispersionBlue += (smoothstep(0., .4, uv.y) * smoothstep(.8, .1, uv.y)) * (smoothstep(.4, .6, bump) * smoothstep(.8, .4, bump));
   dispersionBlue -= .2 * mask;
 
-  dispersionRed *= u_dispersion;
-  dispersionBlue *= u_dispersion;
+  dispersionRed *= u_dispersion / 20.;
+  dispersionBlue *= u_dispersion / 20.;
 
   vec3 w = vec3(thin_strip_1_width, thin_strip_2_width, wide_strip_ratio);
   w[1] -= .02 * smoothstep(.0, 1., mask + bump);
   float extraBlur = bump;
   float stripe_r = mod(direction + dispersionRed, 1.);
-  float r = get_color_channel(color1.r, color2.r, stripe_r, w, 0.02 + .03 * u_dispersion * bump, extraBlur);
+  float r = get_color_channel(color1.r, color2.r, stripe_r, w, 0.02 + .03 * u_dispersion / 20. * bump, extraBlur);
   float stripe_g = mod(direction, 1.);
   float g = get_color_channel(color1.g, color2.g, stripe_g, w, 0.01 / (1. - 0. * diagBLtoTR), extraBlur);
   float stripe_b = mod(direction - dispersionBlue, 1.);
@@ -220,17 +220,17 @@ void main() {
 `;
 
 export interface LiquidMetalUniforms extends ShaderSizingUniforms {
-  u_patternBlur: number;
-  u_patternScale: number;
+  u_softness: number;
+  u_repetition: number;
   u_dispersion: number;
-  u_liquid: number;
+  u_distortion: number;
   u_shape: number;
 }
 
 export interface LiquidMetalParams extends ShaderSizingParams, ShaderMotionParams {
-  patternBlur?: number;
-  patternScale?: number;
+  softness?: number;
+  repetition?: number;
   dispersion?: number;
-  liquid?: number;
+  distortion?: number;
   shape?: number;
 }
