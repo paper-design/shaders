@@ -14,20 +14,7 @@ import { ShaderFit, ShaderFitOptions } from '@paper-design/shaders';
  * You can copy/paste this example to use Waves in your app
  */
 const WavesExample = () => {
-  return (
-    <Waves
-      color1="#90BE6D"
-      color2="#000000"
-      scale={1}
-      frequency={0.5}
-      amplitude={0.5}
-      spacing={0.75}
-      proportion={0.2}
-      softness={0}
-      shape={1}
-      style={{ position: 'fixed', width: '100%', height: '100%' }}
-    />
-  );
+  return <Waves style={{ position: 'fixed', width: '100%', height: '100%' }} />;
 };
 
 /**

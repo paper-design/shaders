@@ -12,20 +12,7 @@ import { ShaderFit, ShaderFitOptions } from '@paper-design/shaders';
  * You can copy/paste this example to use PerlinNoise in your app
  */
 const PerlinNoiseExample = () => {
-  return (
-    <PerlinNoise
-      color1="#222222"
-      color2="#eeeeee"
-      scale={1}
-      proportion={0.34}
-      softness={0.1}
-      octaveCount={2}
-      persistence={1}
-      lacunarity={1.5}
-      speed={0.5}
-      style={{ position: 'fixed', width: '100%', height: '100%' }}
-    />
-  );
+  return <PerlinNoise style={{ position: 'fixed', width: '100%', height: '100%' }} />;
 };
 
 /**

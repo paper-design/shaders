@@ -13,21 +13,7 @@ import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
  * You can copy/paste this example to use DotGrid in your app
  */
 const DotGridExample = () => {
-  return (
-    <DotGrid
-      colorBack="#000000"
-      colorFill="#ffffff"
-      colorStroke="#f0a519"
-      size={2}
-      gridSpacingX={50}
-      gridSpacingY={50}
-      strokeWidth={0}
-      sizeRange={0}
-      opacityRange={0}
-      shape="circle"
-      style={{ position: 'fixed', width: '100%', height: '100%' }}
-    />
-  );
+  return <DotGrid style={{ position: 'fixed', width: '100%', height: '100%' }} />;
 };
 
 /**

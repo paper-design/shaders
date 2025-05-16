@@ -15,7 +15,7 @@ import { ShaderFit } from '@paper-design/shaders';
  * You can copy/paste this example to use Dithering in your app
  */
 const DitheringExample = () => {
-  return <Dithering color1="#56758f" color2="#91be6f" style={{ position: 'fixed', width: '100%', height: '100%' }} />;
+  return <Dithering style={{ position: 'fixed', width: '100%', height: '100%' }} />;
 };
 
 /**

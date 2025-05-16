@@ -14,7 +14,7 @@ import { useColors } from '@/helpers/use-colors';
  * You can copy/paste this example to use SmokeRing in your app
  */
 const SmokeRingExample = () => {
-  return <SmokeRing speed={1} style={{ position: 'fixed', width: '100%', height: '100%' }} />;
+  return <SmokeRing style={{ position: 'fixed', width: '100%', height: '100%' }} />;
 };
 
 /**

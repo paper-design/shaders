@@ -13,25 +13,7 @@ import { ShaderFit, ShaderFitOptions } from '@paper-design/shaders';
  * You can copy/paste this example to use Spiral in your app
  */
 const SpiralExample = () => {
-  return (
-    <Spiral
-      color1="#90e32b"
-      color2="#2c8618"
-      scale={1.3}
-      offsetX={0}
-      offsetY={0}
-      density={0.5}
-      distortion={0}
-      strokeWidth={0.5}
-      strokeTaper={0}
-      strokeCap={0.5}
-      noiseFrequency={0.1}
-      noisePower={1}
-      softness={0}
-      speed={1}
-      style={{ position: 'fixed', width: '100%', height: '100%' }}
-    />
-  );
+  return <Spiral style={{ position: 'fixed', width: '100%', height: '100%' }} />;
 };
 
 /**
