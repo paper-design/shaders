@@ -48,7 +48,7 @@ import {
   PulsingBorder,
   pulsingBorderPresets,
   BlobsGrid,
-  BlobsGridPresets,
+  blobsGridPresets,
 } from '@paper-design/shaders-react';
 import { StaticImageData } from 'next/image';
 import TextureTest from './app/texture-test/page';
