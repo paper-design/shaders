@@ -7,7 +7,8 @@ import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import Link from 'next/link';
 import { BackButton } from '@/components/back-button';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
-import { ShaderFit, ShaderFitOptions } from '@paper-design/shaders';
+import { ShaderFit, ShaderFitOptions, voronoiMeta } from '@paper-design/shaders';
+import { useColors } from '@/helpers/use-colors';
 
 /**
  * You can copy/paste this example to use WaterDrops in your app
@@ -23,29 +24,26 @@ const WaterDropsExample = () => {
 const { worldWidth, worldHeight, ...defaults } = waterDropsPresets[0].params;
 
 const WaterDropsWithControls = () => {
-  const [params, setParams] = useControls(() => {
-    const presets = Object.fromEntries(
-      waterDropsPresets.map(({ name, params: { worldWidth, worldHeight, ...preset } }) => [
-        name,
-        button(() => setParamsSafe(params, setParams, preset)),
-      ])
-    );
+  const { colors, setColors } = useColors({
+    defaultColors: defaults.colors,
+    maxColorCount: voronoiMeta.maxColorCount,
+  });
 
+  const [params, setParams] = useControls(() => {
     return {
       Parameters: folder(
         {
+          stepsPerColor: { value: defaults.stepsPerColor, min: 1, max: 3, step: 1, order: 0 },
           colorBack: { value: defaults.colorBack, order: 100 },
           shadeColor: { value: defaults.shadeColor, order: 101 },
           specularColor: { value: defaults.specularColor, order: 101 },
           outlineColor: { value: defaults.outlineColor, order: 102 },
-          dropShapeDistortion: { value: defaults.dropShapeDistortion, min: 0, max: 20, order: 400 },
-          specular: { value: defaults.specular, min: 0, max: 1, order: 400 },
-          specularNormal: { value: defaults.specularNormal, min: 0, max: 1, order: 400 },
-          texturing: { value: defaults.texturing, min: 0, max: 1, order: 400 },
-          visibility: { value: defaults.visibility, min: 0, max: 1, order: 400 },
-          test1: { value: defaults.test1, min: 0, max: 1, order: 400 },
-          test2: { value: defaults.test2, min: 0, max: 1, order: 400 },
-          outline: { value: defaults.outline, min: 0, max: 1, order: 400 },
+          distortion: { value: defaults.distortion, min: 0, max: 20, order: 300 },
+          size: { value: defaults.size, min: 0, max: 1, order: 301 },
+          specular: { value: defaults.specular, min: 0, max: 1, order: 302 },
+          specularNormal: { value: defaults.specularNormal, min: 0, max: 1, order: 303 },
+          shade: { value: defaults.shade, min: 0, max: 1, order: 304 },
+          outline: { value: defaults.outline, min: 0, max: 1, order: 305 },
           speed: { value: defaults.speed, min: 0, max: 2, order: 400 },
         },
         { order: 1 }
@@ -75,6 +73,21 @@ const WaterDropsWithControls = () => {
           collapsed: true,
         }
       ),
+    };
+  }, [colors.length]);
+
+  useControls(() => {
+    const presets = Object.fromEntries(
+      waterDropsPresets.map(({ name, params: { worldWidth, worldHeight, ...preset } }) => [
+        name,
+        button(() => {
+          const { colors, ...presetParams } = preset;
+          setColors(colors);
+          setParamsSafe(params, setParams, presetParams);
+        }),
+      ])
+    );
+    return {
       Presets: folder(presets, { order: 10 }),
     };
   });
@@ -90,7 +103,7 @@ const WaterDropsWithControls = () => {
       <Link href="/">
         <BackButton />
       </Link>
-      <WaterDrops className="fixed size-full" {...params} />
+      <WaterDrops {...params} colors={colors} className="fixed size-full" />
     </>
   );
 };

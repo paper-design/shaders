@@ -4,7 +4,6 @@ import { colorPropsAreEqual } from '../color-props-are-equal';
 import {
   defaultPatternSizing,
   getShaderColorFromString,
-  getShaderNoiseTexture,
   waterDropsFragmentShader,
   ShaderFitOptions,
   type WaterDropsParams,
@@ -24,41 +23,106 @@ export const defaultPreset: WaterDropsPreset = {
   name: 'Default',
   params: {
     ...defaultPatternSizing,
-    scale: 2,
     speed: 1,
     frame: 0,
+    colors: ['hsla(200, 80%, 50%, 1)', 'hsla(105, 80%, 50%, 1)', 'hsla(50, 80%, 50%, 1)', 'hsla(35, 80%, 50%, 1)'],
+    stepsPerColor: 2,
     colorBack: 'hsla(0, 50%, 0%, 1)',
-    shadeColor: 'hsla(300, 100%, 50%, 1)',
-    specularColor: 'hsla(0, 0%, 100%, .25)',
-    outlineColor: 'hsla(190, 50%, 0%, 1)',
-    dropShapeDistortion: 7,
-    texturing: 0.04,
-    specular: 0,
-    specularNormal: 1,
-    visibility: 1,
-    test1: 0.3,
-    test2: 0.9,
-    outline: 1,
+    shadeColor: 'hsla(340, 100%, 50%, 1)',
+    specularColor: 'hsla(0, 0%, 100%, .5)',
+    outlineColor: 'hsla(246, 50%, 50%, 0.5)',
+    distortion: 7,
+    shade: 0.3,
+    specular: 0.5,
+    specularNormal: 0.75,
+    size: 0.75,
+    outline: 0.4,
   },
 };
 
-export const waterDropsPresets: WaterDropsPreset[] = [defaultPreset] as const;
+export const flatPreset: WaterDropsPreset = {
+  name: 'Flat',
+  params: {
+    ...defaultPatternSizing,
+    scale: 2,
+    speed: 0.5,
+    frame: 0,
+    colors: ['hsla(43, 79%, 50%, 1)', 'hsla(203, 100%, 60%, 1)', 'hsla(329, 65%, 60%, 1)', 'hsla(0, 0%, 100%, 1)'],
+    stepsPerColor: 2,
+    colorBack: 'hsla(0, 0%, 100%, 1)',
+    shadeColor: 'hsla(340, 30%, 58%, 1)',
+    specularColor: 'hsla(0, 0%, 100%, 0.34)',
+    outlineColor: 'hsla(246, 28%, 20%, 1)',
+    distortion: 8.6,
+    shade: 0.0,
+    specular: 1,
+    specularNormal: 0.12,
+    size: 0.52,
+    outline: 0.0,
+  },
+};
+
+export const dropsPreset: WaterDropsPreset = {
+  name: 'Drops',
+  params: {
+    ...defaultPatternSizing,
+    scale: 1,
+    speed: 2,
+    frame: 0,
+    colors: ['hsla(43, 81%, 50%, 1)', 'hsla(207, 100%, 71%, 1)', 'hsla(329, 66%, 37%, 1)', 'hsla(0, 100%, 50%, 1)'],
+    stepsPerColor: 2,
+    colorBack: 'hsla(0, 0%, 16%, 1)',
+    shadeColor: 'hsla(0, 0%, 0%, 1)',
+    specularColor: 'hsla(0, 0%, 100%, 0.34)',
+    outlineColor: 'hsla(0, 0%, 0%, 1)',
+    distortion: 8,
+    shade: 1.0,
+    specular: 0.0,
+    specularNormal: 0.82,
+    size: 0.1,
+    outline: 0.03,
+  },
+};
+
+export const shadowsPreset: WaterDropsPreset = {
+  name: 'Shadows',
+  params: {
+    ...defaultPatternSizing,
+    scale: 2,
+    speed: 2.0,
+    frame: 0,
+    colors: ['hsla(120, 43%, 85%, 1)', 'hsla(252, 60%, 75%, 1)', 'hsla(319, 90%, 80%, 1)', 'hsla(252, 60%, 75%, 1)'],
+    stepsPerColor: 3,
+    colorBack: 'hsla(252, 60%, 75%, 1)',
+    shadeColor: 'hsla(0, 0%, 0%, 1)',
+    specularColor: 'hsla(0, 0%, 100%, 0.34)',
+    outlineColor: 'hsla(0, 0%, 0%, 1)',
+    distortion: 5.6,
+    shade: 1.0,
+    specular: 0.0,
+    specularNormal: 0.82,
+    size: 0.51,
+    outline: 0.0,
+  },
+};
+
+export const waterDropsPresets: WaterDropsPreset[] = [defaultPreset, flatPreset, dropsPreset, shadowsPreset] as const;
 
 export const WaterDrops: React.FC<WaterDropsProps> = memo(function WaterDropsImpl({
   // Own props
   speed = defaultPreset.params.speed,
   frame = defaultPreset.params.frame,
+  colors = defaultPreset.params.colors,
+  stepsPerColor = defaultPreset.params.stepsPerColor,
   colorBack = defaultPreset.params.colorBack,
   shadeColor = defaultPreset.params.shadeColor,
   specularColor = defaultPreset.params.specularColor,
   outlineColor = defaultPreset.params.outlineColor,
-  dropShapeDistortion = defaultPreset.params.dropShapeDistortion,
-  texturing = defaultPreset.params.texturing,
+  distortion = defaultPreset.params.distortion,
+  shade = defaultPreset.params.shade,
   specular = defaultPreset.params.specular,
   specularNormal = defaultPreset.params.specularNormal,
-  visibility = defaultPreset.params.visibility,
-  test1 = defaultPreset.params.test1,
-  test2 = defaultPreset.params.test2,
+  size = defaultPreset.params.size,
   outline = defaultPreset.params.outline,
 
   // Sizing props
@@ -73,22 +137,21 @@ export const WaterDrops: React.FC<WaterDropsProps> = memo(function WaterDropsImp
   worldHeight = defaultPreset.params.worldHeight,
   ...props
 }: WaterDropsProps) {
-  const noiseTexture = typeof window !== 'undefined' && { u_noiseTexture: getShaderNoiseTexture() };
   const uniforms = {
     // Own uniforms
+    u_colors: colors.map(getShaderColorFromString),
+    u_colorsCount: colors.length,
+    u_stepsPerColor: stepsPerColor,
     u_colorBack: getShaderColorFromString(colorBack),
     u_shadeColor: getShaderColorFromString(shadeColor),
     u_specularColor: getShaderColorFromString(specularColor),
     u_outlineColor: getShaderColorFromString(outlineColor),
-    u_dropShapeDistortion: dropShapeDistortion,
-    u_textureing: texturing,
+    u_distortion: distortion,
+    u_shade: shade,
     u_specular: specular,
     u_specularNormal: specularNormal,
-    u_visibility: visibility,
-    u_test1: test1,
-    u_test2: test2,
+    u_size: size,
     u_outline: outline,
-    ...noiseTexture,
 
     // Sizing uniforms
     u_fit: ShaderFitOptions[fit],
