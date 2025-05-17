@@ -45,6 +45,8 @@ import {
   ditheringPresets,
   LiquidMetal,
   liquidMetalPresets,
+  GrainGradient,
+  grainGradientPresets,
   PulsingBorder,
   pulsingBorderPresets,
 } from '@paper-design/shaders-react';
@@ -175,6 +177,12 @@ export const homeShaders = [
     url: '/liquid-metal',
     ShaderComponent: LiquidMetal,
     shaderConfig: { ...liquidMetalPresets[0].params },
+  },
+  {
+    name: 'grain gradient',
+    url: '/grain-gradient',
+    ShaderComponent: GrainGradient,
+    shaderConfig: { ...grainGradientPresets[0].params },
   },
   {
     name: 'pulsing border',
