@@ -496,6 +496,8 @@ export class ShaderMount {
 
 /** Vertex shader for the shader mount */
 const vertexShaderSource = `#version 300 es
+precision mediump float;
+
 layout(location = 0) in vec4 a_position;
 
 uniform vec2 u_resolution;
