@@ -14,20 +14,7 @@ import { ShaderFit, ShaderFitOptions } from '@paper-design/shaders';
  * You can copy/paste this example to use Waves in your app
  */
 const WavesExample = () => {
-  return (
-    <Waves
-      color1="#90BE6D"
-      color2="#000000"
-      scale={1}
-      frequency={0.5}
-      amplitude={0.5}
-      spacing={0.75}
-      dutyCycle={0.2}
-      softness={0}
-      shape={1}
-      style={{ position: 'fixed', width: '100%', height: '100%' }}
-    />
-  );
+  return <Waves style={{ position: 'fixed', width: '100%', height: '100%' }} />;
 };
 
 /**
@@ -49,7 +36,7 @@ const WavesWithControls = () => {
           frequency: { value: defaults.frequency, min: 0, max: 2, order: 300 },
           amplitude: { value: defaults.amplitude, min: 0, max: 1, order: 301 },
           spacing: { value: defaults.spacing, min: 0, max: 2, order: 302 },
-          dutyCycle: { value: defaults.dutyCycle, min: 0, max: 1, order: 303 },
+          proportion: { value: defaults.proportion, min: 0, max: 1, order: 303 },
           softness: { value: defaults.softness, min: 0, max: 1, order: 304 },
           shape: { value: defaults.shape, min: 0, max: 3, order: 350 },
         },
@@ -70,8 +57,8 @@ const WavesWithControls = () => {
       Fit: folder(
         {
           fit: { value: defaults.fit, options: Object.keys(ShaderFitOptions) as ShaderFit[], order: 404 },
-          worldWidth: { value: 1000, min: 1, max: 5120, order: 405 },
-          worldHeight: { value: 500, min: 1, max: 5120, order: 406 },
+          worldWidth: { value: 1000, min: 0, max: 5120, order: 405 },
+          worldHeight: { value: 500, min: 0, max: 5120, order: 406 },
           originX: { value: defaults.originX, min: 0, max: 1, order: 407 },
           originY: { value: defaults.originY, min: 0, max: 1, order: 408 },
         },

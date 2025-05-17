@@ -23,6 +23,7 @@ uniform vec4 u_colorFront;
 uniform vec4 u_colorBack;
 uniform float u_brightness;
 
+
 ${sizingVariablesDeclaration}
 
 out vec4 fragColor;
@@ -60,7 +61,7 @@ void main() {
 
   vec3 color = mix(u_colorBack.rgb * u_colorBack.a, u_colorFront.rgb * u_colorFront.a, noise);
   float opacity = mix(u_colorBack.a, u_colorFront.a, noise);
-
+  
   ${colorBandingFix}
 
   fragColor = vec4(color, opacity);

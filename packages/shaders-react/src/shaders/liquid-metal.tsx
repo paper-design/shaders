@@ -3,47 +3,49 @@ import { ShaderMount, type ShaderComponentProps } from '../shader-mount';
 import { colorPropsAreEqual } from '../color-props-are-equal';
 import {
   getShaderColorFromString,
-  dotOrbitFragmentShader,
+  liquidMetalFragmentShader,
   ShaderFitOptions,
-  type DotOrbitParams,
-  type DotOrbitUniforms,
+  type LiquidMetalUniforms,
+  type LiquidMetalParams,
   type ShaderPreset,
-  defaultPatternSizing,
+  defaultObjectSizing,
 } from '@paper-design/shaders';
 
-export interface DotOrbitProps extends ShaderComponentProps, DotOrbitParams {}
+export interface LiquidMetalProps extends ShaderComponentProps, LiquidMetalParams {}
 
-type DotOrbitPreset = ShaderPreset<DotOrbitParams>;
+type LiquidMetalPreset = ShaderPreset<LiquidMetalParams>;
 
 // Due to Leva controls limitation:
 // 1) keep default colors in HSLA format to keep alpha channel
 // 2) don't use decimal values on HSL values (to avoid button highlight bug)
 
-export const defaultPreset: DotOrbitPreset = {
+export const defaultPreset: LiquidMetalPreset = {
   name: 'Default',
   params: {
-    ...defaultPatternSizing,
-    speed: 2,
+    ...defaultObjectSizing,
+    speed: 1,
     frame: 0,
-    colors: ['hsla(12, 100%, 20%, 1)', 'hsla(55, 100%, 40%, 1)', 'hsla(320, 100%, 40%, 1)'],
-    size: 1,
-    sizeRange: 0,
-    spreading: 1,
-    stepsPerColor: 2,
+    patternBlur: 0.005,
+    patternScale: 3,
+    dispersion: 0.015,
+    liquid: 0.07,
+    shape: 0,
+    worldWidth: 0,
+    worldHeight: 0,
   },
 };
 
-export const dotOrbitPresets: DotOrbitPreset[] = [defaultPreset];
+export const liquidMetalPresets: LiquidMetalPreset[] = [defaultPreset];
 
-export const DotOrbit: React.FC<DotOrbitProps> = memo(function DotOrbitImpl({
+export const LiquidMetal: React.FC<LiquidMetalProps> = memo(function LiquidMetalImpl({
   // Own props
   speed = defaultPreset.params.speed,
   frame = defaultPreset.params.frame,
-  colors = defaultPreset.params.colors,
-  size = defaultPreset.params.size,
-  sizeRange = defaultPreset.params.sizeRange,
-  spreading = defaultPreset.params.spreading,
-  stepsPerColor = defaultPreset.params.stepsPerColor,
+  patternBlur = defaultPreset.params.patternBlur,
+  patternScale = defaultPreset.params.patternScale,
+  dispersion = defaultPreset.params.dispersion,
+  liquid = defaultPreset.params.liquid,
+  shape = defaultPreset.params.shape,
 
   // Sizing props
   fit = defaultPreset.params.fit,
@@ -56,15 +58,14 @@ export const DotOrbit: React.FC<DotOrbitProps> = memo(function DotOrbitImpl({
   worldWidth = defaultPreset.params.worldWidth,
   worldHeight = defaultPreset.params.worldHeight,
   ...props
-}: DotOrbitProps) {
+}: LiquidMetalProps) {
   const uniforms = {
     // Own uniforms
-    u_colors: colors.map(getShaderColorFromString),
-    u_colorsCount: colors.length,
-    u_size: size,
-    u_sizeRange: sizeRange,
-    u_spreading: spreading,
-    u_stepsPerColor: stepsPerColor,
+    u_patternBlur: patternBlur,
+    u_patternScale: patternScale,
+    u_dispersion: dispersion,
+    u_liquid: liquid,
+    u_shape: shape,
 
     // Sizing uniforms
     u_fit: ShaderFitOptions[fit],
@@ -76,9 +77,15 @@ export const DotOrbit: React.FC<DotOrbitProps> = memo(function DotOrbitImpl({
     u_originY: originY,
     u_worldWidth: worldWidth,
     u_worldHeight: worldHeight,
-  } satisfies DotOrbitUniforms;
+  } satisfies LiquidMetalUniforms;
 
   return (
-    <ShaderMount {...props} speed={speed} frame={frame} fragmentShader={dotOrbitFragmentShader} uniforms={uniforms} />
+    <ShaderMount
+      {...props}
+      speed={speed}
+      frame={frame}
+      fragmentShader={liquidMetalFragmentShader}
+      uniforms={uniforms}
+    />
   );
 }, colorPropsAreEqual);

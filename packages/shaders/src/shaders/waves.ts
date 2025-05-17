@@ -16,7 +16,7 @@ import { declarePI, declareRotate } from '../shader-utils';
  * u_frequency - the wave frequency
  * u_amplitude - the wave amplitude
  * u_spacing - the density of pattern lines
- * u_dutyCycle (0 ... 1) - the proportion of stroke width to the pattern step
+ * u_proportion (0 ... 1) - the proportion of stroke width to the pattern step
  * u_softness (0 ... 1) - the blur applied to the lines edges
  */
 export const wavesFragmentShader: string = `#version 300 es
@@ -30,7 +30,7 @@ uniform float u_shape;
 uniform float u_frequency;
 uniform float u_amplitude;
 uniform float u_spacing;
-uniform float u_dutyCycle;
+uniform float u_proportion;
 uniform float u_softness;
 
 ${sizingVariablesDeclaration}
@@ -59,7 +59,7 @@ void main() {
 
   float edge_width = .02 / (1. + abs(shape)) * (.001 + u_scale);
   edge_width += .5 * max(0., u_softness);
-  float dc = clamp(u_dutyCycle, 0., 1.);
+  float dc = clamp(u_proportion, 0., 1.);
   float t = smoothstep(dc - edge_width, dc + edge_width, shape);
 
   vec3 color = mix(u_color1.rgb * u_color1.a, u_color2.rgb * u_color2.a, t);
@@ -76,7 +76,7 @@ export interface WavesUniforms extends ShaderSizingUniforms {
   u_frequency: number;
   u_amplitude: number;
   u_spacing: number;
-  u_dutyCycle: number;
+  u_proportion: number;
   u_softness: number;
 }
 
@@ -88,6 +88,6 @@ export interface WavesParams extends ShaderSizingParams {
   frequency?: number;
   amplitude?: number;
   spacing?: number;
-  dutyCycle?: number;
+  proportion?: number;
   softness?: number;
 }

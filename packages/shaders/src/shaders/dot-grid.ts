@@ -11,8 +11,8 @@ import { declarePI, declareSimplexNoise } from '../shader-utils';
  * u_colorStroke - the stroke color
  * u_dotSize (px) - the base dot radius
  * u_strokeWidth (px) - the stroke (to be subtracted from u_dotSize)
- * u_gridSpacingX (px) - horizontal grid spacing
- * u_gridSpacingY (px) - xertical grid spacing
+ * u_gapX (px) - horizontal grid spacing
+ * u_gapY (px) - vertical grid spacing
  * u_sizeRange (0 .. 1) - variety of dot size
  * u_opacityRange(0 .. 1) - variety of dot opacity to be applied equally to fill and stroke
  * u_shape - shape code (0 - circle, 1 - diamond, 2 - square, 3 - triangle)
@@ -24,8 +24,8 @@ uniform vec4 u_colorBack;
 uniform vec4 u_colorFill;
 uniform vec4 u_colorStroke;
 uniform float u_dotSize;
-uniform float u_gridSpacingX;
-uniform float u_gridSpacingY;
+uniform float u_gapX;
+uniform float u_gapY;
 uniform float u_strokeWidth;
 uniform float u_sizeRange;
 uniform float u_opacityRange;
@@ -50,13 +50,13 @@ void main() {
   vec2 shape_uv = v_patternUV;
   shape_uv += .5;
 
-  vec2 grid = fract(shape_uv / vec2(u_gridSpacingX, u_gridSpacingY)) + 1e-4;
-  vec2 grid_idx = floor(shape_uv / vec2(u_gridSpacingX, u_gridSpacingY));
+  vec2 grid = fract(shape_uv / vec2(u_gapX, u_gapY)) + 1e-4;
+  vec2 grid_idx = floor(shape_uv / vec2(u_gapX, u_gapY));
   float sizeRandomizer = .5 + .8 * snoise(2. * vec2(grid_idx.x * 100., grid_idx.y));
   float opacity_randomizer = .5 + .7 * snoise(2. * vec2(grid_idx.y, grid_idx.x));
 
   vec2 center = vec2(0.5) - 1e-3;
-  vec2 p = (grid - center) * vec2(u_gridSpacingX, u_gridSpacingY);
+  vec2 p = (grid - center) * vec2(u_gapX, u_gapY);
 
   float baseSize = u_dotSize * (1. - sizeRandomizer * u_sizeRange);
   float strokeWidth = u_strokeWidth * (1. - sizeRandomizer * u_sizeRange);
@@ -105,8 +105,8 @@ export interface DotGridUniforms extends ShaderSizingUniforms {
   u_colorFill: [number, number, number, number];
   u_colorStroke: [number, number, number, number];
   u_dotSize: number;
-  u_gridSpacingX: number;
-  u_gridSpacingY: number;
+  u_gapX: number;
+  u_gapY: number;
   u_strokeWidth: number;
   u_sizeRange: number;
   u_opacityRange: number;
@@ -117,9 +117,9 @@ export interface DotGridParams extends ShaderSizingParams {
   colorBack?: string;
   colorFill?: string;
   colorStroke?: string;
-  dotSize?: number;
-  gridSpacingX?: number;
-  gridSpacingY?: number;
+  size?: number;
+  gapX?: number;
+  gapY?: number;
   strokeWidth?: number;
   sizeRange?: number;
   opacityRange?: number;
