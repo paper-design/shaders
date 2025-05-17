@@ -18,7 +18,7 @@ import { declarePI, declareSimplexNoise } from '../shader-utils';
  * u_shape - shape code (0 - circle, 1 - diamond, 2 - square, 3 - triangle)
  */
 export const dotGridFragmentShader: string = `#version 300 es
-precision highp float;
+precision mediump float;
 
 uniform vec4 u_colorBack;
 uniform vec4 u_colorFill;

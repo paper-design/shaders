@@ -18,7 +18,7 @@ export const meshGradientMeta = {
  * - u_swirl (float): Amount of radial swirl distortion applied to UV coordinates
  */
 export const meshGradientFragmentShader: string = `#version 300 es
-precision highp float;
+precision mediump float;
 
 uniform float u_time;
 

@@ -19,7 +19,7 @@ export const metaballsMeta = {
  * - u_size (float)
  */
 export const metaballsFragmentShader: string = `#version 300 es
-precision highp float;
+precision mediump float;
 
 uniform float u_time;
 

@@ -33,7 +33,7 @@ type GradientDemoStepsParams = {
 };
 
 const gradientDemoStepsFragmentShader: string = `#version 300 es
-precision highp float;
+precision mediump float;
 
 uniform float u_pixelRatio;
 uniform vec2 u_resolution;

@@ -24,7 +24,7 @@ export const smokeRingMeta = {
  */
 
 export const smokeRingFragmentShader: string = `#version 300 es
-precision highp float;
+precision mediump float;
 
 uniform float u_time;
 

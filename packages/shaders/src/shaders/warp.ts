@@ -26,7 +26,7 @@ export const warpMeta = {
  *
  */
 export const warpFragmentShader: string = `#version 300 es
-precision highp float;
+precision mediump float;
 
 uniform float u_time;
 uniform float u_scale;

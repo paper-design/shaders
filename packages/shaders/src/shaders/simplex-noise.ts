@@ -19,7 +19,7 @@ export const simplexNoiseMeta = {
  * - u_softness (float, 0..1): Amount of blur applied to the color steps
  */
 export const simplexNoiseFragmentShader: string = `#version 300 es
-precision highp float;
+precision mediump float;
 
 uniform float u_time;
 uniform float u_scale;

@@ -21,7 +21,7 @@ export const dotOrbitMeta = {
  * - u_spreading (float, 0 .. 1): the distance each dot can move around the regular grid
  */
 export const dotOrbitFragmentShader: string = `#version 300 es
-precision highp float;
+precision mediump float;
 
 uniform float u_time;
 

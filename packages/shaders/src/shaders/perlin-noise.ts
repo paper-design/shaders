@@ -19,7 +19,7 @@ import { declarePI, colorBandingFix } from '../shader-utils';
  *    higher values increase the detail
  */
 export const perlinNoiseFragmentShader: string = `#version 300 es
-precision highp float;
+precision mediump float;
 
 uniform float u_time;
 

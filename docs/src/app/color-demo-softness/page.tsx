@@ -33,7 +33,7 @@ type GradientDemoMixerParams = {
 };
 
 const gradientDemoMixerFragmentShader: string = `#version 300 es
-precision highp float;
+precision mediump float;
 
 uniform float u_pixelRatio;
 uniform vec2 u_resolution;
