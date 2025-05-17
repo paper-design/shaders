@@ -236,6 +236,19 @@
           "type": "registry:component"
         }
       ]
+    },
+    {
+      "name": "blobs-grid",
+      "type": "registry:component",
+      "title": "Blobs Grid Example",
+      "description": "Blobs Grid shader example.",
+      "dependencies": ["@paper-design/shaders-react"],
+      "files": [
+        {
+          "path": "registry/blobs-grid-example.tsx",
+          "type": "registry:component"
+        }
+      ]
     }
   ]
 }
