@@ -24,10 +24,12 @@ export const defaultPreset: LiquidMetalPreset = {
     ...defaultObjectSizing,
     speed: 1,
     frame: 0,
-    softness: 0.05,
+    softness: 0.15,
     repetition: 3,
-    dispersion: 0.3,
+    rDispersion: 0.3,
+    bDispersion: 0.3,
     distortion: 0.07,
+    contour: 0,
     shape: 0,
     worldWidth: 0,
     worldHeight: 0,
@@ -42,8 +44,10 @@ export const LiquidMetal: React.FC<LiquidMetalProps> = memo(function LiquidMetal
   frame = defaultPreset.params.frame,
   softness = defaultPreset.params.softness,
   repetition = defaultPreset.params.repetition,
-  dispersion = defaultPreset.params.dispersion,
+  rDispersion = defaultPreset.params.rDispersion,
+  bDispersion = defaultPreset.params.bDispersion,
   distortion = defaultPreset.params.distortion,
+  contour = defaultPreset.params.contour,
   shape = defaultPreset.params.shape,
 
   // Sizing props
@@ -62,8 +66,10 @@ export const LiquidMetal: React.FC<LiquidMetalProps> = memo(function LiquidMetal
     // Own uniforms
     u_softness: softness,
     u_repetition: repetition,
-    u_dispersion: dispersion,
+    u_rDispersion: rDispersion,
+    u_bDispersion: bDispersion,
     u_distortion: distortion,
+    u_contour: contour,
     u_shape: shape,
 
     // Sizing uniforms

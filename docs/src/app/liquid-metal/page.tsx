@@ -33,11 +33,13 @@ const LiquidMetalWithControls = () => {
     return {
       Parameters: folder(
         {
-          softness: { value: defaults.softness, min: 0, max: 1, order: 300 },
-          repetition: { value: defaults.repetition, min: 1, max: 10, order: 301 },
-          dispersion: { value: defaults.dispersion, min: 0, max: 1, order: 302 },
-          distortion: { value: defaults.distortion, min: 0, max: 1, order: 305 },
-          shape: { value: defaults.shape, min: 0, max: 3, step: 1, order: 305 },
+          repetition: { value: defaults.repetition, min: 1, max: 10, order: 300 },
+          softness: { value: defaults.softness, min: 0, max: 1, order: 301 },
+          rDispersion: { value: defaults.rDispersion, min: -1, max: 1, order: 302 },
+          bDispersion: { value: defaults.bDispersion, min: -1, max: 1, order: 302 },
+          distortion: { value: defaults.distortion, min: 0, max: 1, order: 303 },
+          contour: { value: defaults.contour, min: 0, max: 1, order: 304 },
+          shape: { value: defaults.shape, min: 0, max: 3, step: 1, order: 350 },
           speed: { value: defaults.speed, min: 0, max: 2, order: 400 },
         },
         { order: 1 }
