@@ -24,7 +24,7 @@ export const defaultPreset: LiquidMetalPreset = {
     ...defaultObjectSizing,
     speed: 1,
     frame: 0,
-    softness: 0.15,
+    softness: 0.3,
     repetition: 3,
     rDispersion: 0.3,
     bDispersion: 0.3,
