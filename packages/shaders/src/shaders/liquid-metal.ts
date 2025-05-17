@@ -180,7 +180,7 @@ void main() {
   dispersionRed *= (u_rDispersion / 20.);
   dispersionBlue *= (u_bDispersion / 20.);
   
-  float blur = u_softness / 25. + .3 * contour;
+  float blur = u_softness / 15. + .3 * contour;
 
   vec3 w = vec3(thin_strip_1_width, thin_strip_2_width, wide_strip_ratio);
   w[1] -= .02 * smoothstep(.0, 1., mask + bump);
