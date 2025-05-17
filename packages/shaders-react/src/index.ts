@@ -73,9 +73,9 @@ export { PulsingBorder, pulsingBorderPresets } from './shaders/pulsing-border';
 export type { PulsingBorderProps } from './shaders/pulsing-border';
 export type { PulsingBorderUniforms, PulsingBorderParams } from '@paper-design/shaders';
 
-export { WaterDrops, waterDropsPresets } from './shaders/water-drops';
-export type { WaterDropsProps } from './shaders/water-drops';
-export type { WaterDropsUniforms, WaterDropsParams } from '@paper-design/shaders';
+export { BlobsGrid, blobsGridPresets } from './shaders/blobs-grid';
+export type { BlobsGridProps } from './shaders/blobs-grid';
+export type { BlobsGridUniforms, BlobsGridParams } from '@paper-design/shaders';
 
 export { isPaperShaderElement, getShaderColorFromString } from '@paper-design/shaders';
 export type { ShaderFit, ShaderSizingParams, ShaderSizingUniforms } from '@paper-design/shaders';

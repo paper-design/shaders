@@ -4,31 +4,31 @@ import { colorPropsAreEqual } from '../color-props-are-equal';
 import {
   defaultPatternSizing,
   getShaderColorFromString,
-  waterDropsFragmentShader,
+  blobsGridFragmentShader,
   ShaderFitOptions,
-  type WaterDropsParams,
-  type WaterDropsUniforms,
+  type BlobsGridParams,
+  type BlobsGridUniforms,
   type ShaderPreset,
 } from '@paper-design/shaders';
 
-export interface WaterDropsProps extends ShaderComponentProps, WaterDropsParams {}
+export interface BlobsGridProps extends ShaderComponentProps, BlobsGridParams {}
 
-type WaterDropsPreset = ShaderPreset<WaterDropsParams>;
+type BlobsGridPreset = ShaderPreset<BlobsGridParams>;
 
 // Due to Leva controls limitation:
 // 1) keep default colors in HSLA format to keep alpha channel
 // 2) don't use decimal values on HSL values (to avoid button highlight bug)
 
-export const defaultPreset: WaterDropsPreset = {
+export const defaultPreset: BlobsGridPreset = {
   name: 'Default',
   params: {
     ...defaultPatternSizing,
     speed: 1,
     frame: 0,
-    colors: ['hsla(200, 80%, 50%, 1)', 'hsla(105, 80%, 50%, 1)', 'hsla(50, 80%, 50%, 1)', 'hsla(35, 80%, 50%, 1)'],
+    colors: ['hsla(15, 80%, 50%, 1)', 'hsla(105, 80%, 50%, 1)', 'hsla(200, 80%, 50%, 1)', 'hsla(35, 80%, 50%, 1)'],
     stepsPerColor: 2,
     colorBack: 'hsla(0, 50%, 0%, 1)',
-    shadeColor: 'hsla(340, 100%, 50%, 1)',
+    shadeColor: 'hsla(341, 32%, 27%, 1)',
     specularColor: 'hsla(0, 0%, 100%, .5)',
     outlineColor: 'hsla(246, 50%, 50%, 0.5)',
     distortion: 7,
@@ -40,7 +40,7 @@ export const defaultPreset: WaterDropsPreset = {
   },
 };
 
-export const flatPreset: WaterDropsPreset = {
+export const flatPreset: BlobsGridPreset = {
   name: 'Flat',
   params: {
     ...defaultPatternSizing,
@@ -62,7 +62,7 @@ export const flatPreset: WaterDropsPreset = {
   },
 };
 
-export const dropsPreset: WaterDropsPreset = {
+export const dropsPreset: BlobsGridPreset = {
   name: 'Drops',
   params: {
     ...defaultPatternSizing,
@@ -84,7 +84,7 @@ export const dropsPreset: WaterDropsPreset = {
   },
 };
 
-export const shadowsPreset: WaterDropsPreset = {
+export const shadowsPreset: BlobsGridPreset = {
   name: 'Shadows',
   params: {
     ...defaultPatternSizing,
@@ -106,9 +106,9 @@ export const shadowsPreset: WaterDropsPreset = {
   },
 };
 
-export const waterDropsPresets: WaterDropsPreset[] = [defaultPreset, flatPreset, dropsPreset, shadowsPreset] as const;
+export const blobsGridPresets: BlobsGridPreset[] = [defaultPreset, flatPreset, dropsPreset, shadowsPreset] as const;
 
-export const WaterDrops: React.FC<WaterDropsProps> = memo(function WaterDropsImpl({
+export const BlobsGrid: React.FC<BlobsGridProps> = memo(function BlobsGridImpl({
   // Own props
   speed = defaultPreset.params.speed,
   frame = defaultPreset.params.frame,
@@ -136,7 +136,7 @@ export const WaterDrops: React.FC<WaterDropsProps> = memo(function WaterDropsImp
   worldWidth = defaultPreset.params.worldWidth,
   worldHeight = defaultPreset.params.worldHeight,
   ...props
-}: WaterDropsProps) {
+}: BlobsGridProps) {
   const uniforms = {
     // Own uniforms
     u_colors: colors.map(getShaderColorFromString),
@@ -163,9 +163,9 @@ export const WaterDrops: React.FC<WaterDropsProps> = memo(function WaterDropsImp
     u_originY: originY,
     u_worldWidth: worldWidth,
     u_worldHeight: worldHeight,
-  } satisfies WaterDropsUniforms;
+  } satisfies BlobsGridUniforms;
 
   return (
-    <ShaderMount {...props} speed={speed} frame={frame} fragmentShader={waterDropsFragmentShader} uniforms={uniforms} />
+    <ShaderMount {...props} speed={speed} frame={frame} fragmentShader={blobsGridFragmentShader} uniforms={uniforms} />
   );
 }, colorPropsAreEqual);

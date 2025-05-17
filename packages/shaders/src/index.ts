@@ -129,7 +129,7 @@ export {
 
 // ----- Water drops pattern ----- //
 /** */
-export {waterDropsMeta, waterDropsFragmentShader, type WaterDropsParams, type WaterDropsUniforms} from './shaders/water-drops';
+export {blobsGridMeta, blobsGridFragmentShader, type BlobsGridParams, type BlobsGridUniforms} from './shaders/blobs-grid';
 
 // ----- Utils ----- //
 export { getShaderColorFromString } from './get-shader-color-from-string';

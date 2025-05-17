@@ -3,21 +3,21 @@ import type { ShaderMotionParams } from '../shader-mount';
 import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing';
 import { declareRandom, declarePI, declareRotate, declareSimplexNoise, colorBandingFix } from '../shader-utils';
 
-export const waterDropsMeta = {
+export const blobsGridMeta = {
   maxColorCount: 4,
 } as const;
 
 /**
 
  */
-export const waterDropsFragmentShader: string = `#version 300 es
+export const blobsGridFragmentShader: string = `#version 300 es
 precision highp float;
 
 uniform float u_time;
 uniform vec2 u_resolution;
 uniform float u_pixelRatio;
 
-uniform vec4 u_colors[${waterDropsMeta.maxColorCount}];
+uniform vec4 u_colors[${blobsGridMeta.maxColorCount}];
 uniform float u_colorsCount;
 uniform float u_stepsPerColor;
 
@@ -100,7 +100,7 @@ void main() {
 
   vec4 gradient = u_colors[0];
   gradient.rgb *= gradient.a;
-  for (int i = 1; i < ${waterDropsMeta.maxColorCount}; i++) {
+  for (int i = 1; i < ${blobsGridMeta.maxColorCount}; i++) {
     if (i >= int(u_colorsCount)) break;
     float localT = clamp(mixer - float(i - 1), 0.0, 1.0);
     localT = round(localT * steps) / steps;
@@ -156,7 +156,7 @@ void main() {
 
 `;
 
-export interface WaterDropsUniforms extends ShaderSizingUniforms {
+export interface BlobsGridUniforms extends ShaderSizingUniforms {
   u_colors: vec4[];
   u_colorsCount: number;
   u_stepsPerColor: number;
@@ -173,7 +173,7 @@ export interface WaterDropsUniforms extends ShaderSizingUniforms {
   u_noiseTexture?: HTMLImageElement;
 }
 
-export interface WaterDropsParams extends ShaderSizingParams, ShaderMotionParams {
+export interface BlobsGridParams extends ShaderSizingParams, ShaderMotionParams {
   colors?: string[];
   stepsPerColor?: number;
   colorBack?: string;

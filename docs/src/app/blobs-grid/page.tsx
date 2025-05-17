@@ -1,32 +1,32 @@
 'use client';
 
-import { WaterDrops, type WaterDropsParams, waterDropsPresets } from '@paper-design/shaders-react';
+import { BlobsGrid, type BlobsGridParams, blobsGridPresets } from '@paper-design/shaders-react';
 import { useControls, button, folder } from 'leva';
 import { setParamsSafe, useResetLevaParams } from '@/helpers/use-reset-leva-params';
 import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import Link from 'next/link';
 import { BackButton } from '@/components/back-button';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
-import { ShaderFit, ShaderFitOptions, waterDropsMeta } from '@paper-design/shaders';
+import { ShaderFit, ShaderFitOptions, blobsGridMeta } from '@paper-design/shaders';
 import { useColors } from '@/helpers/use-colors';
 
 /**
- * You can copy/paste this example to use WaterDrops in your app
+ * You can copy/paste this example to use BlobsGrid in your app
  */
-const WaterDropsExample = () => {
-  return <WaterDrops style={{ position: 'fixed', width: '100%', height: '100%' }} />;
+const BlobsGridExample = () => {
+  return <BlobsGrid style={{ position: 'fixed', width: '100%', height: '100%' }} />;
 };
 
 /**
  * This example has controls added so you can play with settings in the example app
  */
 
-const { worldWidth, worldHeight, ...defaults } = waterDropsPresets[0].params;
+const { worldWidth, worldHeight, ...defaults } = blobsGridPresets[0].params;
 
-const WaterDropsWithControls = () => {
+const BlobsGridWithControls = () => {
   const { colors, setColors } = useColors({
     defaultColors: defaults.colors,
-    maxColorCount: waterDropsMeta.maxColorCount,
+    maxColorCount: blobsGridMeta.maxColorCount,
   });
 
   const [params, setParams] = useControls(() => {
@@ -78,7 +78,7 @@ const WaterDropsWithControls = () => {
 
   useControls(() => {
     const presets = Object.fromEntries(
-      waterDropsPresets.map(({ name, params: { worldWidth, worldHeight, ...preset } }) => [
+      blobsGridPresets.map(({ name, params: { worldWidth, worldHeight, ...preset } }) => [
         name,
         button(() => {
           const { colors, ...presetParams } = preset;
@@ -95,7 +95,7 @@ const WaterDropsWithControls = () => {
   // Reset to defaults on mount, so that Leva doesn't show values from other
   // shaders when navigating (if two shaders have a color1 param for example)
   useResetLevaParams(params, setParams, defaults);
-  usePresetHighlight(waterDropsPresets, params);
+  usePresetHighlight(blobsGridPresets, params);
   cleanUpLevaParams(params);
 
   return (
@@ -103,9 +103,9 @@ const WaterDropsWithControls = () => {
       <Link href="/">
         <BackButton />
       </Link>
-      <WaterDrops {...params} colors={colors} className="fixed size-full" />
+      <BlobsGrid {...params} colors={colors} className="fixed size-full" />
     </>
   );
 };
 
-export default WaterDropsWithControls;
+export default BlobsGridWithControls;
