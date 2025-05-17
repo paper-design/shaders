@@ -7,7 +7,7 @@ import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import Link from 'next/link';
 import { BackButton } from '@/components/back-button';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
-import { ShaderFit, ShaderFitOptions, voronoiMeta } from '@paper-design/shaders';
+import { ShaderFit, ShaderFitOptions, waterDropsMeta } from '@paper-design/shaders';
 import { useColors } from '@/helpers/use-colors';
 
 /**
@@ -26,7 +26,7 @@ const { worldWidth, worldHeight, ...defaults } = waterDropsPresets[0].params;
 const WaterDropsWithControls = () => {
   const { colors, setColors } = useColors({
     defaultColors: defaults.colors,
-    maxColorCount: voronoiMeta.maxColorCount,
+    maxColorCount: waterDropsMeta.maxColorCount,
   });
 
   const [params, setParams] = useControls(() => {
