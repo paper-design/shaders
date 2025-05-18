@@ -25,9 +25,10 @@ export const defaultPreset: PaperTexturePreset = {
     ...defaultPatternSizing,
     speed: 1,
     frame: 0,
-    colorFront: 'hsla(261, 100%, 82%, 1)',
+    colorFront: 'hsla(15, 100%, 95%, 1)',
     colorBack: 'hsla(0, 0%, 0%, 1)',
     brightness: 1.3,
+    height: 0.5,
   },
 };
 
@@ -40,6 +41,7 @@ export const PaperTexture: React.FC<PaperTextureProps> = memo(function PaperText
   colorFront = defaultPreset.params.colorFront,
   colorBack = defaultPreset.params.colorBack,
   brightness = defaultPreset.params.brightness,
+  height = defaultPreset.params.height,
 
   // Sizing props
   fit = defaultPreset.params.fit,
@@ -58,6 +60,7 @@ export const PaperTexture: React.FC<PaperTextureProps> = memo(function PaperText
     u_colorFront: getShaderColorFromString(colorFront),
     u_colorBack: getShaderColorFromString(colorBack),
     u_brightness: brightness,
+    u_height: height,
 
     // Sizing uniforms
     u_fit: ShaderFitOptions[fit],
