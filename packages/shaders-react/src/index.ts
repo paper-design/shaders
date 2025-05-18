@@ -73,6 +73,10 @@ export { PulsingBorder, pulsingBorderPresets } from './shaders/pulsing-border';
 export type { PulsingBorderProps } from './shaders/pulsing-border';
 export type { PulsingBorderUniforms, PulsingBorderParams } from '@paper-design/shaders';
 
+export { PaperTexture, paperTexturePresets } from './shaders/paper-texture';
+export type { PaperTextureProps } from './shaders/paper-texture';
+export type { PaperTextureUniforms, PaperTextureParams } from '@paper-design/shaders';
+
 export { isPaperShaderElement, getShaderColorFromString } from '@paper-design/shaders';
 export type { ShaderFit, ShaderSizingParams, ShaderSizingUniforms } from '@paper-design/shaders';
 

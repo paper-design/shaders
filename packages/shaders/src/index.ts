@@ -127,6 +127,14 @@ export {
   type PulsingBorderUniforms,
 } from './shaders/pulsing-border';
 
+// ----- ----- //
+/**  */
+export {
+  paperTextureFragmentShader,
+  type PaperTextureParams,
+  type PaperTextureUniforms,
+} from './shaders/paper-texture';
+
 // ----- Utils ----- //
 export { getShaderColorFromString } from './get-shader-color-from-string';
 export { getShaderNoiseTexture } from './get-shader-noise-texture';
