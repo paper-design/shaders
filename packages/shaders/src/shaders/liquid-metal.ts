@@ -138,8 +138,10 @@ void main() {
   // vec3 color1 = vec3(.98, 0.98, 1.);
   // vec3 color2 = vec3(.1, .1, .1 + .1 * smoothstep(.7, 1.3, diagTLtoBR));
 
-  vec3 color1 = u_color1.rgb;
-  vec3 color2 = u_color2.rgb;
+  // vec3 color1 = u_color1.rgb;
+  // vec3 color2 = u_color2.rgb;
+  vec3 color1 = vec3(1.);
+  vec3 color2 = vec3(0.);
 
 
   vec2 grad_uv = uv - .5;
@@ -199,6 +201,13 @@ void main() {
   float b = getColorChanges(color1.b, color2.b, stripe_b, w, blur, bump);
 
   color = vec3(r, g, b);
+  
+  float diff = distance(color, vec3(0.));
+  color = mix(color, u_color1.rgb, pow(diff / sqrt(3.), 3.));
+  
+  float diff2 = distance(color, vec3(1.));
+  color = mix(color, u_color2.rgb, pow(diff2 / sqrt(3.), 3.));
+
   color *= opacity;
 
   ${colorBandingFix}
@@ -226,6 +235,7 @@ export interface LiquidMetalParams extends ShaderSizingParams, ShaderMotionParam
   repetition?: number;
   rDispersion?: number;
   bDispersion?: number;
+  gDispersion?: number;
   distortion?: number;
   contour?: number;
   shape?: LiquidMetalShape;
