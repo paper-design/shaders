@@ -103,7 +103,15 @@ export { swirlMeta, swirlFragmentShader, type SwirlParams, type SwirlUniforms } 
 
 // ----- Dithering ----- //
 /** Dithering effect applied over abstract shapes */
-export { ditheringFragmentShader, type DitheringParams, type DitheringUniforms } from './shaders/dithering';
+export {
+  ditheringFragmentShader,
+  DitheringShapes,
+  DitheringTypes,
+  type DitheringParams,
+  type DitheringUniforms,
+  type DitheringShape,
+  type DitheringType,
+} from './shaders/dithering';
 
 // ----- Grainy Gradient ----- //
 /** N-color gradient applied to the abstract shapes w/ grainy overlay & distortion  */

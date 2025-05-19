@@ -82,20 +82,27 @@ void main() {
   }
 
   float edgeWidth = fwidth(dist);
-  float shapeOuter = smoothstep(baseSize + edgeWidth + strokeWidth, baseSize - edgeWidth + strokeWidth, dist);
+  float shapeOuter = smoothstep(baseSize + edgeWidth, baseSize - edgeWidth, dist - strokeWidth);
   float shapeInner = smoothstep(baseSize + edgeWidth, baseSize - edgeWidth, dist);
-  float stroke = clamp(shapeOuter - shapeInner, 0., 1.);
+  float stroke = shapeOuter - shapeInner;
 
-  float dot_opacity = max(0., 1. - opacity_randomizer * u_opacityRange);
+  float dotOpacity = max(0., 1. - opacity_randomizer * u_opacityRange);
+  stroke *= dotOpacity;
+  shapeInner *= dotOpacity;
 
-  vec3 color = u_colorBack.rgb * u_colorBack.a;
-  color = mix(color, u_colorFill.rgb, u_colorFill.a * dot_opacity * shapeInner);
-  color = mix(color, u_colorStroke.rgb, u_colorStroke.a * dot_opacity * stroke);
+  stroke *= u_colorStroke.a;
+  shapeInner *= u_colorFill.a;
 
-  float opacity = u_colorBack.a;
-  opacity += u_colorFill.a * shapeInner * dot_opacity;
-  opacity += u_colorStroke.a * stroke * dot_opacity;
+  vec3 color = vec3(0.);
+  color += stroke * u_colorStroke.rgb;
+  color += shapeInner * u_colorFill.rgb;
+  color += (1. - shapeInner - stroke) * u_colorBack.rgb * u_colorBack.a;
 
+  float opacity = 0.;
+  opacity += stroke;
+  opacity += shapeInner;
+  opacity += (1. - opacity) * u_colorBack.a;
+  
   fragColor = vec4(color, opacity);
 }
 `;
