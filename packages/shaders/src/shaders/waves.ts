@@ -20,7 +20,7 @@ import { declarePI, declareRotate } from '../shader-utils';
  * u_softness (0 ... 1) - the blur applied to the lines edges
  */
 export const wavesFragmentShader: string = `#version 300 es
-precision highp float;
+precision mediump float;
 
 uniform float u_scale;
 

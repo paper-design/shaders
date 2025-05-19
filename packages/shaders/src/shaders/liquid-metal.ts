@@ -6,7 +6,7 @@ import { declarePI, declareRotate, declareSimplexNoise, colorBandingFix } from '
  */
 
 export const liquidMetalFragmentShader: string = `#version 300 es
-precision highp float;
+precision mediump float;
 
 uniform float u_time;
 

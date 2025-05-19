@@ -1,6 +1,6 @@
 {
   "name": "@paper-design/shaders",
-  "version": "0.0.28",
+  "version": "0.0.29",
   "license": "MIT",
   "type": "module",
   "sideEffects": false,
