@@ -36,7 +36,7 @@ export const defaultPreset: LiquidMetalPreset = {
     worldWidth: 0,
     worldHeight: 0,
     color1: 'hsla(0, 0%, 100%, 1)',
-    color2: 'hsla(225, 75%, 0%, 1)',
+    color2: 'hsla(225, 75%, 24%, 1)',
   },
 };
 
