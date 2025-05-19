@@ -8,6 +8,7 @@ import {
   type LiquidMetalParams,
   type ShaderPreset,
   defaultObjectSizing,
+  getShaderColorFromString,
 } from '@paper-design/shaders';
 
 export interface LiquidMetalProps extends ShaderComponentProps, LiquidMetalParams {}
@@ -33,6 +34,8 @@ export const defaultPreset: LiquidMetalPreset = {
     shape: 0,
     worldWidth: 0,
     worldHeight: 0,
+    color1: 'hsla(0, 0%, 100%, 1)',
+    color2: 'hsla(225, 75%, 24%, 1)',
   },
 };
 
@@ -40,6 +43,8 @@ export const liquidMetalPresets: LiquidMetalPreset[] = [defaultPreset];
 
 export const LiquidMetal: React.FC<LiquidMetalProps> = memo(function LiquidMetalImpl({
   // Own props
+  color1 = defaultPreset.params.color1,
+  color2 = defaultPreset.params.color2,
   speed = defaultPreset.params.speed,
   frame = defaultPreset.params.frame,
   softness = defaultPreset.params.softness,
@@ -64,6 +69,9 @@ export const LiquidMetal: React.FC<LiquidMetalProps> = memo(function LiquidMetal
 }: LiquidMetalProps) {
   const uniforms = {
     // Own uniforms
+    u_color1: getShaderColorFromString(color1),
+    u_color2: getShaderColorFromString(color2),
+
     u_softness: softness,
     u_repetition: repetition,
     u_rDispersion: rDispersion,

@@ -10,6 +10,9 @@ precision highp float;
 
 uniform float u_time;
 
+uniform vec4 u_color1;
+uniform vec4 u_color2;
+
 uniform float u_softness;
 uniform float u_repetition;
 uniform float u_rDispersion;
@@ -132,8 +135,12 @@ void main() {
   float diagTLtoBR = uv.x + uv.y;
 
   vec3 color = vec3(0.);
-  vec3 color1 = vec3(.98, 0.98, 1.);
-  vec3 color2 = vec3(.1, .1, .1 + .1 * smoothstep(.7, 1.3, diagTLtoBR));
+  // vec3 color1 = vec3(.98, 0.98, 1.);
+  // vec3 color2 = vec3(.1, .1, .1 + .1 * smoothstep(.7, 1.3, diagTLtoBR));
+
+  vec3 color1 = u_color1.rgb;
+  vec3 color2 = u_color2.rgb;
+
 
   vec2 grad_uv = uv - .5;
   
@@ -201,6 +208,8 @@ void main() {
 `;
 
 export interface LiquidMetalUniforms extends ShaderSizingUniforms {
+  u_color1: [number, number, number, number];
+  u_color2: [number, number, number, number];
   u_softness: number;
   u_repetition: number;
   u_rDispersion: number;
@@ -211,6 +220,8 @@ export interface LiquidMetalUniforms extends ShaderSizingUniforms {
 }
 
 export interface LiquidMetalParams extends ShaderSizingParams, ShaderMotionParams {
+  color1?: string;
+  color2?: string;
   softness?: number;
   repetition?: number;
   rDispersion?: number;
