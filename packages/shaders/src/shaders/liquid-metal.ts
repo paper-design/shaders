@@ -235,7 +235,6 @@ export interface LiquidMetalParams extends ShaderSizingParams, ShaderMotionParam
   repetition?: number;
   rDispersion?: number;
   bDispersion?: number;
-  gDispersion?: number;
   distortion?: number;
   contour?: number;
   shape?: LiquidMetalShape;
