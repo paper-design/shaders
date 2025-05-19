@@ -37,7 +37,7 @@ import { declareSimplexNoise, declarePI, declareRandom } from '../shader-utils';
  *
  */
 export const ditheringFragmentShader: string = `#version 300 es
-precision highp float;
+precision mediump float;
 
 uniform float u_time;
 uniform vec2 u_resolution;
@@ -67,9 +67,9 @@ float getSimplexNoise(vec2 uv, float t) {
 
 const int bayer2x2[4] = int[4](0, 2, 3, 1);
 const int bayer4x4[16] = int[16](
-  0,  8,  2, 10, 
- 12,  4, 14,  6, 
-  3, 11,  1,  9, 
+  0,  8,  2, 10,
+ 12,  4, 14,  6,
+  3, 11,  1,  9,
  15,  7, 13,  5
 );
 
@@ -99,16 +99,16 @@ float getBayerValue(vec2 uv, int size) {
 }
 
 
-void main() {  
-  float t = .5 * u_time;  
+void main() {
+  float t = .5 * u_time;
 
   #define USE_PATTERN_SIZING
   #define USE_OBJECT_SIZING
   #define USE_PIXELIZATION
   // #define ADD_HELPERS
-  
+
   ${sizingUV}
-  
+
   vec2 dithering_uv = pxSizeUv;
   vec2 ditheringNoise_uv = roundedUv;
   vec2 shape_uv = objectUV;
@@ -116,92 +116,92 @@ void main() {
     shape_uv = patternUV;
   }
 
-  float shape = 0.;    
+  float shape = 0.;
   if (u_shape < 1.5) {
     // Simplex noise
     shape_uv *= .001;
 
     shape = 0.5 + 0.5 * getSimplexNoise(shape_uv, t);
     shape = smoothstep(0.3, 0.9, shape);
-      
-  } else if (u_shape < 2.5) {  
+
+  } else if (u_shape < 2.5) {
     // Warp
     shape_uv *= .003;
 
-    for (float i = 1.0; i < 6.0; i++) {  
-      shape_uv.x += 0.6 / i * cos(i * 2.5 * shape_uv.y + t);  
-      shape_uv.y += 0.6 / i * cos(i * 1.5 * shape_uv.x + t);  
-    }  
-    
-    shape = .15 / abs(sin(t - shape_uv.y - shape_uv.x));  
+    for (float i = 1.0; i < 6.0; i++) {
+      shape_uv.x += 0.6 / i * cos(i * 2.5 * shape_uv.y + t);
+      shape_uv.y += 0.6 / i * cos(i * 1.5 * shape_uv.x + t);
+    }
+
+    shape = .15 / abs(sin(t - shape_uv.y - shape_uv.x));
     shape = smoothstep(0.02, 1., shape);
-  
-  } else if (u_shape < 3.5) {  
-    // Dots  
+
+  } else if (u_shape < 3.5) {
+    // Dots
     shape_uv *= .05;
 
     float stripeIdx = floor(2. * shape_uv.x / TWO_PI);
     float rand = fract(sin(stripeIdx * 12.9898) * 43758.5453);
 
     float speed = sign(rand - .5) * ceil(2. + rand);
-    shape = sin(shape_uv.x) * cos(shape_uv.y + speed * t);  
+    shape = sin(shape_uv.x) * cos(shape_uv.y + speed * t);
     shape = pow(shape, 6.);
 
-  } else if (u_shape < 4.5) {  
+  } else if (u_shape < 4.5) {
     // Sine wave
     shape_uv *= 4.;
 
     float wave = cos(.5 * shape_uv.x - 2. * t) * sin(1.5 * shape_uv.x + t) * (.75 + .25 * cos(3. * t));
     shape = 1. - smoothstep(-1., 1., shape_uv.y + wave);
-    
-  } else if (u_shape < 5.5) {  
+
+  } else if (u_shape < 5.5) {
     // Ripple
 
     float dist = length(shape_uv);
     float waves = sin(pow(dist, 1.7) * 7. - 3. * t) * .5 + .5;
     shape = waves;
-    
-  } else if (u_shape < 6.5) {  
-    // Swirl  
+
+  } else if (u_shape < 6.5) {
+    // Swirl
 
     float l = length(shape_uv);
     float angle = 6. * atan(shape_uv.y, shape_uv.x) + 4. * t;
     float twist = 1.2;
-    float offset = pow(l, -twist) + angle / TWO_PI;  
+    float offset = pow(l, -twist) + angle / TWO_PI;
     float mid = smoothstep(0., 1., pow(l, twist));
     shape = mix(0., fract(offset), mid);
-    
+
   } else {
     // Sphere
     shape_uv *= 2.;
-    
+
     vec3 pos = vec3(shape_uv, sqrt(1. - pow(length(shape_uv), 2.)));
     vec3 lightPos = normalize(vec3(cos(1.5 * t), .8, sin(1.25 * t)));
     shape = .5 + .5 * dot(lightPos, pos);
-  }  
-  
-  
-  int type = int(floor(u_type));  
-  float dithering = 0.0;  
-  
-  switch (type) {  
+  }
+
+
+  int type = int(floor(u_type));
+  float dithering = 0.0;
+
+  switch (type) {
     case 1: {
-      dithering = step(random(ditheringNoise_uv), shape);  
-    } break;  
-    case 2:  
-      dithering = getBayerValue(dithering_uv, 2);  
-      break;  
-    case 3:  
-      dithering = getBayerValue(dithering_uv, 4);  
-      break;  
-    default:  
-      dithering = getBayerValue(dithering_uv, 8);  
-      break;  
-  }  
-  
-  dithering -= .5;  
-  float res = step(.5, shape + dithering);  
-  
+      dithering = step(random(ditheringNoise_uv), shape);
+    } break;
+    case 2:
+      dithering = getBayerValue(dithering_uv, 2);
+      break;
+    case 3:
+      dithering = getBayerValue(dithering_uv, 4);
+      break;
+    default:
+      dithering = getBayerValue(dithering_uv, 8);
+      break;
+  }
+
+  dithering -= .5;
+  float res = step(.5, shape + dithering);
+
   vec3 color = mix(u_color1.rgb, u_color2.rgb, res);
   float opacity = mix(u_color1.a, u_color2.a, res);
 
@@ -222,8 +222,8 @@ void main() {
 export interface DitheringUniforms extends ShaderSizingUniforms {
   u_color1: [number, number, number, number];
   u_color2: [number, number, number, number];
-  u_shape: number;
-  u_type: number;
+  u_shape: (typeof DitheringShapes)[DitheringShape];
+  u_type: (typeof DitheringTypes)[DitheringType];
   u_pxSize: number;
   u_pxRounded: boolean;
 }
@@ -231,8 +231,29 @@ export interface DitheringUniforms extends ShaderSizingUniforms {
 export interface DitheringParams extends ShaderSizingParams, ShaderMotionParams {
   color1?: string;
   color2?: string;
-  shape?: number;
-  type?: number;
+  shape?: DitheringShape;
+  type?: DitheringType;
   pxSize?: number;
   pxRounded?: boolean;
 }
+
+export const DitheringShapes = {
+  simplex: 1,
+  warp: 2,
+  dots: 3,
+  wave: 4,
+  ripple: 5,
+  swirl: 6,
+  sphere: 7,
+} as const;
+
+export type DitheringShape = keyof typeof DitheringShapes;
+
+export const DitheringTypes = {
+  random: 1,
+  '2x2': 2,
+  '4x4': 3,
+  '8x8': 4,
+} as const;
+
+export type DitheringType = keyof typeof DitheringTypes;

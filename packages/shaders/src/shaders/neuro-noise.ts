@@ -13,7 +13,7 @@ import { declareRotate, colorBandingFix } from '../shader-utils';
  * u_brightness - the power (brightness) of pattern lines
  */
 export const neuroNoiseFragmentShader: string = `#version 300 es
-precision highp float;
+precision mediump float;
 
 uniform float u_time;
 uniform vec2 u_resolution;
