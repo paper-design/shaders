@@ -30,7 +30,7 @@ ${declareRotate}
 ${declareSimplexNoise}
 
 float getColorChanges(float c1, float c2, float stripe_p, vec3 w, float blur, float bump) {
-  
+
   float ch = mix(c2, c1, smoothstep(.0, blur, stripe_p));
 
   float border = w[0];
@@ -53,20 +53,20 @@ float getColorChanges(float c1, float c2, float stripe_p, vec3 w, float blur, fl
 }
 
 void main() {
-  
+
   float t = .1 * u_time;
 
   vec2 uv = v_objectUV;
   uv += .5;
   uv.y = 1. - uv.y;
 
-  float cycleWidth = .5 * u_repetition; 
-  
+  float cycleWidth = .5 * u_repetition;
+
   float mask = 1.;
   float contOffset = 1.;
-  
+
   if (u_shape < 1.) {
-  
+
     vec2 borderUV = v_responsiveUV + .5;
     float ratio = v_responsiveBoxGivenSize.x / v_responsiveBoxGivenSize.y;
     vec2 edge = min(borderUV, 1. - borderUV);
@@ -76,7 +76,7 @@ void main() {
     maskX = pow(maskX, .25);
     maskY = pow(maskY, .25);
     mask = clamp(1. - maskX * maskY, 0., 1.);
-    
+
     uv = v_responsiveUV;
     if (ratio > 1.) {
       uv.y /= ratio;
@@ -85,25 +85,25 @@ void main() {
     }
     uv += .5;
     uv.y = 1. - uv.y;
-    
+
     cycleWidth *= 2.;
     contOffset = 1.5;
 
-  } else if (u_shape < 2.) {  
+  } else if (u_shape < 2.) {
     vec2 shapeUV = uv - .5;
     shapeUV *= .67;
     mask = pow(clamp(3. * length(shapeUV), 0., 1.), 18.);
   } else if (u_shape < 3.) {
     vec2 shapeUV = uv - .5;
     shapeUV *= 1.68;
-    
+
     float r = length(shapeUV) * 2.;
     float a = atan(shapeUV.y, shapeUV.x) + .2;
     r *= (1. + .05 * sin(3. * a + 2. * t));
     float f = abs(cos(a * 3.));
     mask = smoothstep(f, f + .7, r);
     mask = pow(mask, 2.);
-    
+
     uv *= .8;
     cycleWidth *= 1.6;
 
@@ -124,14 +124,14 @@ void main() {
     mask = 1. - smoothstep(.65, .9, mask);
     mask = pow(mask, 4.);
   }
-  
+
   float opacity = 1. - smoothstep(.8, .82, mask);
 
   float ridge = .15 * (smoothstep(.0, .15, uv.y) * smoothstep(.4, .15, uv.y));
   ridge += .05 * (smoothstep(.1, .2, 1. - uv.y) * smoothstep(.4, .2, 1. - uv.y));
   mask += ridge;
 
-  float diagBLtoTR = uv.x - uv.y;    
+  float diagBLtoTR = uv.x - uv.y;
   float diagTLtoBR = uv.x + uv.y;
 
   vec3 color = vec3(0.);
@@ -143,7 +143,7 @@ void main() {
 
 
   vec2 grad_uv = uv - .5;
-  
+
   float dist = length(grad_uv + vec2(0., .2 * diagBLtoTR));
   grad_uv = rotate(grad_uv, (.25 - .2 * diagBLtoTR) * PI);
   float direction = grad_uv.x;
@@ -186,7 +186,7 @@ void main() {
 
   dispersionRed *= (u_rDispersion / 20.);
   dispersionBlue *= (u_bDispersion / 20.);
-  
+
   float blur = u_softness / 15. + .3 * contour;
 
   vec3 w = vec3(thin_strip_1_width, thin_strip_2_width, wide_strip_ratio);
@@ -216,7 +216,7 @@ export interface LiquidMetalUniforms extends ShaderSizingUniforms {
   u_bDispersion: number;
   u_distortion: number;
   u_contour: number;
-  u_shape: number;
+  u_shape: (typeof LiquidMetalShapes)[LiquidMetalShape];
 }
 
 export interface LiquidMetalParams extends ShaderSizingParams, ShaderMotionParams {
@@ -228,5 +228,14 @@ export interface LiquidMetalParams extends ShaderSizingParams, ShaderMotionParam
   bDispersion?: number;
   distortion?: number;
   contour?: number;
-  shape?: number;
+  shape?: LiquidMetalShape;
 }
+
+export const LiquidMetalShapes = {
+  none: 0,
+  circle: 1,
+  daisy: 2,
+  metaballs: 3,
+} as const;
+
+export type LiquidMetalShape = keyof typeof LiquidMetalShapes;

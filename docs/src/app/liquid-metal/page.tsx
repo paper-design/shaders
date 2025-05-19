@@ -7,7 +7,7 @@ import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import Link from 'next/link';
 import { BackButton } from '@/components/back-button';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
-import { ShaderFit, ShaderFitOptions } from '@paper-design/shaders';
+import { LiquidMetalShapes, LiquidMetalShape, ShaderFit, ShaderFitOptions } from '@paper-design/shaders';
 
 /**
  * You can copy/paste this example to use LiquidMetal in your app
@@ -41,7 +41,7 @@ const LiquidMetalWithControls = () => {
           bDispersion: { value: defaults.bDispersion, min: -1, max: 1, order: 302 },
           distortion: { value: defaults.distortion, min: 0, max: 1, order: 303 },
           contour: { value: defaults.contour, min: 0, max: 1, order: 304 },
-          shape: { value: defaults.shape, min: 0, max: 3, step: 1, order: 350 },
+          shape: { value: defaults.shape, options: Object.keys(LiquidMetalShapes) as LiquidMetalShape[], order: 350 },
           speed: { value: defaults.speed, min: 0, max: 2, order: 400 },
         },
         { order: 1 }

@@ -9,6 +9,7 @@ import {
   type ShaderPreset,
   defaultObjectSizing,
   getShaderColorFromString,
+  LiquidMetalShapes,
 } from '@paper-design/shaders';
 
 export interface LiquidMetalProps extends ShaderComponentProps, LiquidMetalParams {}
@@ -31,7 +32,7 @@ export const defaultPreset: LiquidMetalPreset = {
     bDispersion: 0.3,
     distortion: 0.07,
     contour: 0,
-    shape: 0,
+    shape: 'none',
     worldWidth: 0,
     worldHeight: 0,
     color1: 'hsla(0, 0%, 100%, 1)',
@@ -78,7 +79,7 @@ export const LiquidMetal: React.FC<LiquidMetalProps> = memo(function LiquidMetal
     u_bDispersion: bDispersion,
     u_distortion: distortion,
     u_contour: contour,
-    u_shape: shape,
+    u_shape: LiquidMetalShapes[shape],
 
     // Sizing uniforms
     u_fit: ShaderFitOptions[fit],
