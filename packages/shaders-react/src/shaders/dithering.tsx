@@ -32,7 +32,6 @@ export const defaultPreset: DitheringPreset = {
     shape: 'simplex',
     type: '4x4',
     pxSize: 2,
-    pxRounded: true,
   },
 };
 
@@ -47,7 +46,6 @@ export const warpPreset: DitheringPreset = {
     shape: 'warp',
     type: '4x4',
     pxSize: 2,
-    pxRounded: true,
   },
 } as const;
 
@@ -62,7 +60,6 @@ export const sinePreset: DitheringPreset = {
     shape: 'wave',
     type: '4x4',
     pxSize: 11,
-    pxRounded: true,
   },
 } as const;
 
@@ -77,7 +74,6 @@ export const bugsPreset: DitheringPreset = {
     shape: 'dots',
     type: 'random',
     pxSize: 9,
-    pxRounded: true,
   },
 } as const;
 
@@ -92,7 +88,6 @@ export const ripplePreset: DitheringPreset = {
     shape: 'ripple',
     type: '2x2',
     pxSize: 3,
-    pxRounded: false,
   },
 } as const;
 
@@ -107,7 +102,6 @@ export const swirlPreset: DitheringPreset = {
     shape: 'swirl',
     type: '8x8',
     pxSize: 2,
-    pxRounded: false,
   },
 } as const;
 
@@ -124,7 +118,6 @@ export const spherePreset: DitheringPreset = {
     shape: 'sphere',
     type: '4x4',
     pxSize: 2.5,
-    pxRounded: true,
   },
 } as const;
 
@@ -147,7 +140,6 @@ export const Dithering: React.FC<DitheringProps> = memo(function DitheringImpl({
   shape = defaultPreset.params.shape,
   type = defaultPreset.params.type,
   pxSize = defaultPreset.params.pxSize,
-  pxRounded = defaultPreset.params.pxRounded,
 
   // Sizing props
   fit = defaultPreset.params.fit,
@@ -168,7 +160,6 @@ export const Dithering: React.FC<DitheringProps> = memo(function DitheringImpl({
     u_shape: DitheringShapes[shape],
     u_type: DitheringTypes[type],
     u_pxSize: pxSize,
-    u_pxRounded: pxRounded,
 
     // Sizing uniforms
     u_fit: ShaderFitOptions[fit],
