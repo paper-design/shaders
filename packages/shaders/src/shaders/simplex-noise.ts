@@ -102,6 +102,8 @@ void main() {
   float opacity = gradient.a;
   
   ${colorBandingFix}
+  
+  opacity *= step(.01, u_colorsCount);
 
   fragColor = vec4(color, opacity);
 }

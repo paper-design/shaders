@@ -385,9 +385,6 @@ export class ShaderMount {
             break;
           case 4:
             this.gl.uniform4fv(location, flatArray);
-            if (key === "u_colors" && value.length === 0) {
-              this.gl.uniform4fv(location, [0, 0, 0, 0]);
-            }
             break;
           case 9:
             this.gl.uniformMatrix3fv(location, false, flatArray);
