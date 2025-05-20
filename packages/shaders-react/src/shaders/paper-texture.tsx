@@ -4,6 +4,7 @@ import { colorPropsAreEqual } from '../color-props-are-equal';
 import {
   defaultPatternSizing,
   getShaderColorFromString,
+  getShaderNoiseTexture,
   paperTextureFragmentShader,
   ShaderFitOptions,
   type PaperTextureParams,
@@ -25,10 +26,17 @@ export const defaultPreset: PaperTexturePreset = {
     ...defaultPatternSizing,
     speed: 1,
     frame: 0,
-    colorFront: 'hsla(15, 100%, 95%, 1)',
+    colorFront: 'hsla(15, 100%, 100%, 1)',
     colorBack: 'hsla(0, 0%, 0%, 1)',
-    brightness: 1.3,
-    height: 0.5,
+    brightness: 1,
+    height: 5,
+    grain: 0.5,
+    curles: 0.5,
+    crumples: 0.4,
+    crumplesScale: 0.5,
+    foldsScale: 1,
+    folds: 0.6,
+    blurScale: 0.5,
   },
 };
 
@@ -42,6 +50,13 @@ export const PaperTexture: React.FC<PaperTextureProps> = memo(function PaperText
   colorBack = defaultPreset.params.colorBack,
   brightness = defaultPreset.params.brightness,
   height = defaultPreset.params.height,
+  grain = defaultPreset.params.grain,
+  curles = defaultPreset.params.curles,
+  crumples = defaultPreset.params.crumples,
+  foldsScale = defaultPreset.params.foldsScale,
+  folds = defaultPreset.params.folds,
+  blurScale = defaultPreset.params.blurScale,
+  crumplesScale = defaultPreset.params.crumplesScale,
 
   // Sizing props
   fit = defaultPreset.params.fit,
@@ -55,12 +70,22 @@ export const PaperTexture: React.FC<PaperTextureProps> = memo(function PaperText
   worldHeight = defaultPreset.params.worldHeight,
   ...props
 }: PaperTextureProps) {
+  const noiseTexture = typeof window !== 'undefined' && { u_noiseTexture: getShaderNoiseTexture() };
+
   const uniforms = {
     // Own uniforms
     u_colorFront: getShaderColorFromString(colorFront),
     u_colorBack: getShaderColorFromString(colorBack),
     u_brightness: brightness,
     u_height: height,
+    u_grain: grain,
+    u_curles: curles,
+    u_crumples: crumples,
+    u_foldsScale: foldsScale,
+    u_folds: folds,
+    u_blurScale: blurScale,
+    u_crumplesScale: crumplesScale,
+    ...noiseTexture,
 
     // Sizing uniforms
     u_fit: ShaderFitOptions[fit],

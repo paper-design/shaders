@@ -1,6 +1,6 @@
 import type { ShaderMotionParams } from '../shader-mount';
 import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing';
-import { declareRotate, declareSimplexNoise } from '../shader-utils';
+import { declareRandom, declareRotate, declareSimplexNoise } from '../shader-utils';
 
 /**
 
@@ -13,14 +13,21 @@ import { declareRotate, declareSimplexNoise } from '../shader-utils';
 export const paperTextureFragmentShader: string = `#version 300 es
 precision highp float;
 
-uniform float u_time;
-uniform vec2 u_resolution;
-uniform float u_pixelRatio;
 
 uniform vec4 u_colorFront;
 uniform vec4 u_colorBack;
 uniform float u_brightness;
 uniform float u_height;
+
+uniform float u_grain;
+uniform float u_curles;
+uniform float u_crumples;
+uniform float u_foldsScale;
+uniform float u_folds;
+uniform float u_blurScale;
+uniform float u_crumplesScale;
+
+uniform sampler2D u_noiseTexture;
 
 uniform float u_scale;
 
@@ -34,11 +41,12 @@ ${declareSimplexNoise}
 
 
 
+
 float grain_hash(vec2 p) {
-    vec3 t  = fract(vec3(p.xyx) * .1031);
-    t += dot(t, t.yzx + 33.33);
-    return fract((t.x + t.y) * t.z);
+  vec2 uv = floor(p) / 50. + .5;
+  return texture(u_noiseTexture, uv).g;
 }
+
 float grain_fbm(vec2 p) {
     p *= .1;
     float o = 0.;
@@ -49,7 +57,7 @@ float grain_fbm(vec2 p) {
           mix(grain_hash(w.xy), grain_hash(w.xw), f.y),
           mix(grain_hash(w.zy), grain_hash(w.zw), f.y), 
           f.x);
-        o += .2 / exp(2. * abs(sin(.2 * p.x + .1 * p.y)));
+        o += .2 / exp(2. * abs(sin(.2 * p.x + .5 * p.y)));
     }
     return o / 3.;
 }
@@ -58,21 +66,46 @@ float grain_fbm(vec2 p) {
 
 
 
-float crumpled_hash(float n) {
-    n = mod(n, 64.);
-    return fract(sin(n)*43758.5453);
+
+float curley_random(vec2 p) {
+  vec2 uv = floor(p) / 50. + .5;
+  return texture(u_noiseTexture, uv).r;
 }
+
+float curley_valueNoise(vec2 st) {
+  vec2 i = floor(st);
+  vec2 f = fract(st);
+  float a = curley_random(i);
+  float b = curley_random(i + vec2(1.0, 0.0));
+  float c = curley_random(i + vec2(0.0, 1.0));
+  float d = curley_random(i + vec2(1.0, 1.0));
+  vec2 u = f * f * (3.0 - 2.0 * f);
+  float x1 = mix(a, b, u.x);
+  float x2 = mix(c, d, u.x);
+  return mix(x1, x2, u.y);
+}
+
+float curley_fbm(vec2 uv) {    
+    float amp = 1.;
+    float val = 0.;
+    for(int i = 0; i < 6; i++) {
+        val += amp * (curley_valueNoise(uv + float(i)) - 1.);
+        uv *= 2.;
+        amp *= .5;
+    }
+    return val;
+}
+
+
+
+
+
+
+
+
 float crumpled_noise(vec2 p) {
-    return crumpled_hash(p.x + p.y*57.0);
-}
-float smoothNoise2(vec2 p) {
-    vec2 p0 = floor(p + vec2(0.0, 0.0));
-    vec2 p1 = floor(p + vec2(1.0, 0.0));
-    vec2 p2 = floor(p + vec2(0.0, 1.0));
-    vec2 p3 = floor(p + vec2(1.0, 1.0));
-    vec2 pf = fract(p);
-    return mix( mix(crumpled_noise(p0), crumpled_noise(p1), pf.x), 
-               mix(crumpled_noise(p2), crumpled_noise(p3), pf.x), pf.y);
+  vec2 uv = floor(p) / 50. + .5;
+  return texture(u_noiseTexture, uv).b;
 }
 vec2 crumpled_cellPoint(vec2 cell) {
     return vec2(crumpled_noise(cell)+cos(cell.y)*0.3, crumpled_noise(cell*0.3)+sin(cell.x)*0.3);
@@ -112,35 +145,16 @@ float crumpled_voronoi(vec2 uv) {
 
 
 
-
-float curley_fbm(vec2 uv) {    
-    float amp = 1.;
-    float val = 0.;
-    for(int i = 0; i < 6; i++) {
-        val += amp * snoise(uv + float(i));
-        uv *= 2.;
-        amp *= .5;
-    }
-    return val;
+vec2 rand(vec2 p) {
+  vec2 uv = floor(p) / 50. + .5;
+  return texture(u_noiseTexture, uv).rb;
 }
-
-
-
-
-
-float rand(float n) {
- return fract(cos(n*89.42)*343.42);
-}
-vec2 rand(vec2 n) {
- return vec2(rand(n.x*23.62-300.0+n.y*34.35),rand(n.x*45.13+256.0+n.y*38.89)); 
-}
-
 vec3 worley(vec2 n, float s) {
     vec3 ret = vec3(1.);
     for(int x = -1; x < 2; x++) {
         for(int y = -1; y < 2; y++) {
             vec2 xy = vec2(x, y);
-            vec2 cellIndex = floor(n / s) + xy + 100. * s;
+            vec2 cellIndex = floor(n / s) + xy;
             vec2 worleyPoint = rand(cellIndex);
             worleyPoint += xy - fract(n / s);
             float d = length(worleyPoint) * s;
@@ -159,56 +173,56 @@ void main() {
 
   // // CHEAP GRAINY NOISE
   //
-   float grainScale = 1.3;// * u_scale;
-   float grain = grain_fbm(v_patternUV * grainScale + vec2(1., 0.));
-   grain -= grain_fbm(v_patternUV * grainScale - vec2(1., 0.));
+   vec2 grainUv = v_patternUV * 1.3;
+   float grain = grain_fbm(grainUv + vec2(1., 0.));
+   grain -= grain_fbm(grainUv - vec2(1., 0.));
   
   
    // EXPENSIVE CRUMPLED
 
-    vec2 tt = fract(v_patternUV * .001) * 32.;
+    vec2 tt = fract(v_patternUV * .001 * u_crumplesScale) * 32.;
     float x = crumpled_voronoi(tt);
     float x1 = crumpled_voronoi(tt + vec2(.1, 0.));
-    float mixer = x1 - x;
+    float crumples = x1 - x;
   
   
   
   // // CURLY 
   //
-    vec2 curlesUV = v_patternUV * .003;
+    vec2 curlesUV = v_patternUV * .03;
     float noise = curley_fbm(curlesUV);
     float curles = length(vec2(dFdx(noise), dFdy(noise)));
-    curles = pow(curles, .3);
+    curles = (pow(curles, .4) - .5);
   
   
   
-  float simplexx = snoise(v_patternUV * .002);
   
   
   
     vec2 uv = v_patternUV * .002;
     
-    float wsize = 1.;
-    const int iterationCount = 5;
+    float wsize = u_foldsScale;
+    float simplexx = .5 + .5 * snoise(v_patternUV * .0005 / u_foldsScale + u_blurScale);
+
+    const int iterationCount = 2;
     vec2 normal = vec2(0.);
-    float influenceFactor = 1.;
+    float influenceFactor = u_folds * .3 * simplexx;
     for(int i = 0; i < iterationCount; ++ i) {
-        vec3 w = worley(uv, wsize);
-        wsize *= .8;
-
+        vec3 w = worley(uv + float(i), wsize);
+        wsize *= .6;
         normal.xy += influenceFactor * w.xy;
-
-        influenceFactor *= simplexx;
     }
     
-    normal.xy += grain;
-    normal.xy += (-.5 + curles);
-    normal.xy += .2 * mixer;
+    normal.xy += u_grain * grain;
+    normal.xy += u_curles * curles;
+    normal.xy += u_crumples * .2 * crumples;// * simplexx;
 
-    vec3 lightPos = vec3(1., 2., 3.);
-    float folds = max(dot(normalize(vec3(normal, 5.)), normalize(lightPos)), 0.);
+    vec3 lightPos = vec3(1., 2., u_height);
+    float res = max(dot(normalize(vec3(normal, 2.)), normalize(lightPos)), 0.);
+    
+    res = pow(res, u_brightness);
         
-    vec3 color = mix(u_colorBack.rgb, u_colorFront.rgb, folds);
+    vec3 color = mix(u_colorBack.rgb, u_colorFront.rgb, res);
     float opacity = 1.;
   
   
@@ -221,6 +235,14 @@ export interface PaperTextureUniforms extends ShaderSizingUniforms {
   u_colorBack: [number, number, number, number];
   u_brightness: number;
   u_height: number;
+  u_grain: number;
+  u_curles: number;
+  u_crumples: number;
+  u_foldsScale: number;
+  u_folds: number;
+  u_blurScale: number;
+  u_crumplesScale: number;
+  u_noiseTexture?: HTMLImageElement;
 }
 
 export interface PaperTextureParams extends ShaderSizingParams, ShaderMotionParams {
@@ -228,4 +250,11 @@ export interface PaperTextureParams extends ShaderSizingParams, ShaderMotionPara
   colorBack?: string;
   brightness?: number;
   height?: number;
+  grain?: number;
+  curles?: number;
+  crumples?: number;
+  foldsScale?: number;
+  folds?: number;
+  blurScale?: number;
+  crumplesScale?: number;
 }
