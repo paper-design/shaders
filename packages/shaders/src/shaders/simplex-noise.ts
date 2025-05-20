@@ -53,6 +53,11 @@ float steppedSmooth(float t, float steps, float softness) {
 }
 
 void main() {
+  if (u_colorsCount < 0.5) {
+    fragColor = vec4(0.0);
+    return;
+  }
+  
   vec2 shape_uv = v_patternUV;
 
   shape_uv *= .001;
@@ -102,8 +107,6 @@ void main() {
   float opacity = gradient.a;
   
   ${colorBandingFix}
-  
-  opacity *= step(.01, u_colorsCount);
 
   fragColor = vec4(color, opacity);
 }
