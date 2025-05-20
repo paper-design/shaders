@@ -11,8 +11,8 @@ import { declareSimplexNoise, declarePI, colorBandingFix } from '../shader-utils
  * u_scale - controls the overall scale of the spiral (u_scale = 1 makes it fit the viewport height)
  * u_offsetX - left / right pan
  * u_offsetY - up / down pan
- * u_color1 - the first color used in the spiral (stroke)
- * u_color2 - the second color used in the spiral (back)
+ * u_colorBack - the first color used in the spiral (stroke)
+ * u_colorFront - the second color used in the spiral (back)
  * u_density (0 .. 1) - the spacing of the spiral arms
  * u_distortion (0 .. 1) - adds a wavy distortion effect to the spiral arms
  * u_strokeWidth (0 .. 1) - defines the thickness of the spiral lines.
@@ -27,8 +27,8 @@ precision mediump float;
 
 uniform float u_time;
 
-uniform vec4 u_color1;
-uniform vec4 u_color2;
+uniform vec4 u_colorBack;
+uniform vec4 u_colorFront;
 uniform float u_density;
 uniform float u_distortion;
 uniform float u_strokeWidth;
@@ -78,8 +78,8 @@ void main() {
 
   shape = smoothstep(stroke_width - edge_width - u_softness, stroke_width + edge_width + u_softness, shape);
 
-  vec3 color = mix(u_color1.rgb * u_color1.a, u_color2.rgb * u_color2.a, shape);
-  float opacity = mix(u_color1.a, u_color2.a, shape);
+  vec3 color = mix(u_colorBack.rgb * u_colorBack.a, u_colorFront.rgb * u_colorFront.a, shape);
+  float opacity = mix(u_colorBack.a, u_colorFront.a, shape);
 
   ${colorBandingFix}
 
@@ -88,8 +88,8 @@ void main() {
 `;
 
 export interface SpiralUniforms extends ShaderSizingUniforms {
-  u_color1: [number, number, number, number];
-  u_color2: [number, number, number, number];
+  u_colorBack: [number, number, number, number];
+  u_colorFront: [number, number, number, number];
   u_density: number;
   u_distortion: number;
   u_strokeWidth: number;
@@ -101,8 +101,8 @@ export interface SpiralUniforms extends ShaderSizingUniforms {
 }
 
 export interface SpiralParams extends ShaderSizingParams, ShaderMotionParams {
-  color1?: string;
-  color2?: string;
+  colorBack?: string;
+  colorFront?: string;
   density?: number;
   distortion?: number;
   strokeWidth?: number;

@@ -32,8 +32,8 @@ const WavesWithControls = () => {
     return {
       Parameters: folder(
         {
-          color1: { value: toHsla(defaults.color1), order: 101 },
-          color2: { value: toHsla(defaults.color2), order: 102 },
+          colorFront: { value: toHsla(defaults.colorFront), order: 101 },
+          colorBack: { value: toHsla(defaults.colorBack), order: 102 },
           frequency: { value: defaults.frequency, min: 0, max: 2, order: 300 },
           amplitude: { value: defaults.amplitude, min: 0, max: 1, order: 301 },
           spacing: { value: defaults.spacing, min: 0, max: 2, order: 302 },
@@ -84,7 +84,7 @@ const WavesWithControls = () => {
   });
 
   // Reset to defaults on mount, so that Leva doesn't show values from other
-  // shaders when navigating (if two shaders have a color1 param for example)
+  // shaders when navigating (if two shaders have a colorFront param for example)
   useResetLevaParams(params, setParams, defaults);
   usePresetHighlight(wavesPresets, params);
   cleanUpLevaParams(params);
