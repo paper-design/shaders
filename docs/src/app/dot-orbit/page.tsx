@@ -9,6 +9,7 @@ import { DotOrbit, dotOrbitPresets } from '@paper-design/shaders-react';
 import { useControls, button, folder } from 'leva';
 import Link from 'next/link';
 import { useColors } from '@/helpers/use-colors';
+import { toHsla } from '@/helpers/to-hsla';
 
 /**
  * You can copy/paste this example to use DotOrbit in your app
@@ -39,6 +40,7 @@ const DotOrbitWithControls = () => {
     return {
       Parameters: folder(
         {
+          colorBack: { value: toHsla(defaults.colorBack ), order: 100},
           stepsPerColor: { value: defaults.stepsPerColor, min: 1, max: 4, step: 1, order: 200 },
           size: { value: defaults.size, min: 0, max: 1, order: 300 },
           sizeRange: { value: defaults.sizeRange, min: 0, max: 1, order: 301 },
