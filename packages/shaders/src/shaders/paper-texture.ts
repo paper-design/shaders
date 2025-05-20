@@ -218,10 +218,8 @@ void main() {
     normal.xy += u_crumples * .2 * crumples;// * simplexx;
 
     vec3 lightPos = vec3(1., 2., u_height);
-    float res = max(dot(normalize(vec3(normal, 2.)), normalize(lightPos)), 0.);
-    
-    res = pow(res, u_brightness);
-        
+    float res = clamp(dot(normalize(vec3(normal, 2.)), normalize(lightPos)), 0., 1.);
+            
     vec3 color = mix(u_colorBack.rgb, u_colorFront.rgb, res);
     float opacity = 1.;
   

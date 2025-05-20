@@ -29,7 +29,7 @@ export const defaultPreset: PaperTexturePreset = {
     colorFront: 'hsla(15, 100%, 100%, 1)',
     colorBack: 'hsla(0, 0%, 0%, 1)',
     brightness: 1,
-    height: 5,
+    height: 6,
     grain: 0.5,
     curles: 0.5,
     crumples: 0.4,
