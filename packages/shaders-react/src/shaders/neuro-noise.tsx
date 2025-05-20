@@ -25,11 +25,11 @@ export const defaultPreset: NeuroNoisePreset = {
     ...defaultPatternSizing,
     speed: 1,
     frame: 0,
-    colorTest: 'hsla(0, 100%, 100%, 1)',
-    colorFront: 'hsla(261, 100%, 82%, 1)',
+    colorFront: 'hsla(0, 100%, 100%, 1)',
+    colorMid: 'hsla(261, 100%, 82%, 1)',
     colorBack: 'hsla(0, 0%, 0%, 1)',
-    brightness: 1.3,
-    depth: 0.5,
+    brightness: 0.3,
+    contrast: 0.5,
   },
 };
 
@@ -39,11 +39,11 @@ export const NeuroNoise: React.FC<NeuroNoiseProps> = memo(function NeuroNoiseImp
   // Own props
   speed = defaultPreset.params.speed,
   frame = defaultPreset.params.frame,
-  colorTest = defaultPreset.params.colorTest,
   colorFront = defaultPreset.params.colorFront,
+  colorMid = defaultPreset.params.colorMid,
   colorBack = defaultPreset.params.colorBack,
   brightness = defaultPreset.params.brightness,
-  depth = defaultPreset.params.depth,
+  contrast = defaultPreset.params.contrast,
 
   // Sizing props
   fit = defaultPreset.params.fit,
@@ -59,11 +59,11 @@ export const NeuroNoise: React.FC<NeuroNoiseProps> = memo(function NeuroNoiseImp
 }: NeuroNoiseProps) {
   const uniforms = {
     // Own uniforms
-    u_colorTest: getShaderColorFromString(colorTest),
     u_colorFront: getShaderColorFromString(colorFront),
+    u_colorMid: getShaderColorFromString(colorMid),
     u_colorBack: getShaderColorFromString(colorBack),
     u_brightness: brightness,
-    u_depth: depth,
+    u_contrast: contrast,
 
     // Sizing uniforms
     u_fit: ShaderFitOptions[fit],

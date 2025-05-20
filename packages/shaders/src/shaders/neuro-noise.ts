@@ -4,13 +4,15 @@ import { declareRotate, colorBandingFix } from '../shader-utils';
 
 /**
  * Neuro Noise Pattern
- * The original artwork: https://codepen.io/ksenia-k/full/vYwgrWv by Ksenia Kondrashova
+ * Original algo: https://x.com/zozuar/status/1625182758745128981/
  * Renders a fractal-like structure made of several layers of since-arches
  *
  * Uniforms include:
- * u_colorFront - the front color of pattern
- * u_colorBack - the back color of pattern
- * u_brightness - the power (brightness) of pattern lines
+ * u_colorFront - the highlights (overexposed noise areas)
+ * u_colorMid - the base color of pattern
+ * u_colorBack - the backgrond color of pattern
+ * u_brightness - increase/decrease the weight of strong lines
+ * u_contrast - show/hide the weak pattern lines
  */
 export const neuroNoiseFragmentShader: string = `#version 300 es
 precision mediump float;
@@ -19,11 +21,11 @@ uniform float u_time;
 uniform vec2 u_resolution;
 uniform float u_pixelRatio;
 
-uniform vec4 u_colorTest;
 uniform vec4 u_colorFront;
+uniform vec4 u_colorMid;
 uniform vec4 u_colorBack;
 uniform float u_brightness;
-uniform float u_depth;
+uniform float u_contrast;
 
 
 ${sizingVariablesDeclaration}
@@ -57,18 +59,17 @@ void main() {
 
   float noise = neuroShape(shape_uv, t);
 
-  float depth = (1. - clamp(u_depth, 0., 1.));
-  noise = u_brightness * pow(noise, 2.);
-  noise = pow(noise, 1. + 6. * depth);
+  noise = (1. + u_brightness) * pow(noise, 2.);
+  noise = pow(noise, .7 + 6. * u_contrast);
   noise = min(1.4, noise);
   
   float blend = smoothstep(0.7, 1.4, noise);
 
   vec4 frontC = u_colorFront;
   frontC.rgb *= frontC.a;
-  vec4 testC = u_colorTest;
-  testC.rgb *= testC.a;
-  vec4 blendFront = mix(frontC, testC, blend);
+  vec4 midC = u_colorMid;
+  midC.rgb *= midC.a;
+  vec4 blendFront = mix(midC, frontC, blend);
 
   float safeNoise = max(noise, 0.0);
   vec3 color = blendFront.rgb * safeNoise;
@@ -85,17 +86,17 @@ void main() {
 `;
 
 export interface NeuroNoiseUniforms extends ShaderSizingUniforms {
-  u_colorTest: [number, number, number, number];
   u_colorFront: [number, number, number, number];
+  u_colorMid: [number, number, number, number];
   u_colorBack: [number, number, number, number];
   u_brightness: number;
-  u_depth: number;
+  u_contrast: number;
 }
 
 export interface NeuroNoiseParams extends ShaderSizingParams, ShaderMotionParams {
-  colorTest?: string;
   colorFront?: string;
+  colorMid?: string;
   colorBack?: string;
   brightness?: number;
-  depth?: number;
+  contrast?: number;
 }
