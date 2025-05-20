@@ -29,25 +29,49 @@ ${declarePI}
 ${declareRotate}
 ${declareSimplexNoise}
 
-float getColorChanges(float c1, float c2, float stripe_p, vec3 w, float blur, float bump) {
-
+float getColorChanges(float c1, float c2, float stripe_p, vec3 w, float blur, float bump, float test, float test2) {
   float ch = mix(c2, c1, smoothstep(.0, blur, stripe_p));
+  float c1_used = smoothstep(.0, blur, stripe_p);
+  float c2_used = 1. - c1_used;
 
   float border = w[0];
-  ch = mix(ch, c2, smoothstep(border - blur, border + blur, stripe_p));
+  float weight = smoothstep(border - blur, border + blur, stripe_p);
+  ch = mix(ch, c2, weight);
+  c1_used *= (1. - weight);
+  c2_used = mix(c2_used, 1., weight);
 
   border = w[0] + .4 * (1. - bump) * w[1];
-  ch = mix(ch, c1, smoothstep(border - blur, border + blur, stripe_p));
+  weight = smoothstep(border - blur, border + blur, stripe_p);
+  ch = mix(ch, c1, weight);
+  c1_used = mix(c1_used, 1., weight);
+  c2_used *= (1. - weight);
 
   border = w[0] + .5 * (1. - bump) * w[1];
-  ch = mix(ch, c2, smoothstep(border - blur, border + blur, stripe_p));
+  weight = smoothstep(border - blur, border + blur, stripe_p);
+  ch = mix(ch, c2, weight);
+  c1_used *= (1. - weight);
+  c2_used = mix(c2_used, 1., weight);
 
   border = w[0] + w[1];
-  ch = mix(ch, c1, smoothstep(border - blur, border + blur, stripe_p));
+  weight = smoothstep(border - blur, border + blur, stripe_p);
+  ch = mix(ch, c1, weight);
+  c1_used = mix(c1_used, 1., weight);
+  c2_used *= (1. - weight);
 
   float gradient_t = (stripe_p - w[0] - w[1]) / w[2];
   float gradient = mix(c1, c2, smoothstep(0., 1., gradient_t));
-  ch = mix(ch, gradient, smoothstep(border - blur, border + blur, stripe_p));
+  weight = smoothstep(border - blur, border + blur, stripe_p);
+  ch = mix(ch, gradient, weight);
+  
+  float grad_weight = smoothstep(0., 1., gradient_t);
+  
+  float grad_c1_contrib = mix(1., 0.0, grad_weight);
+  float grad_c2_contrib = 1. - grad_c1_contrib;
+  c1_used = mix(c1_used, grad_c1_contrib, weight);
+  c2_used = mix(c2_used, grad_c2_contrib, weight);
+  
+  ch = mix(ch, test, c1_used);
+  ch = mix(ch, test2, c2_used);
 
   return ch;
 }
@@ -194,19 +218,13 @@ void main() {
   vec3 w = vec3(thin_strip_1_width, thin_strip_2_width, wide_strip_ratio);
   w[1] -= .02 * smoothstep(.0, 1., mask + bump);
   float stripe_r = mod(direction + dispersionRed, 1.);
-  float r = getColorChanges(color1.r, color2.r, stripe_r, w, blur, bump);
+  float r = getColorChanges(color1.r, color2.r, stripe_r, w, blur, bump, u_color1.r, u_color2.r);
   float stripe_g = mod(direction, 1.);
-  float g = getColorChanges(color1.g, color2.g, stripe_g, w, blur, bump);
+  float g = getColorChanges(color1.g, color2.g, stripe_g, w, blur, bump, u_color1.g, u_color2.g);
   float stripe_b = mod(direction - dispersionBlue, 1.);
-  float b = getColorChanges(color1.b, color2.b, stripe_b, w, blur, bump);
+  float b = getColorChanges(color1.b, color2.b, stripe_b, w, blur, bump, u_color1.b, u_color2.b);
 
   color = vec3(r, g, b);
-  
-  float diff = distance(color, vec3(0.));
-  color = mix(color, u_color1.rgb, pow(diff / sqrt(3.), 3.));
-  
-  float diff2 = distance(color, vec3(1.));
-  color = mix(color, u_color2.rgb, pow(diff2 / sqrt(3.), 3.));
 
   color *= opacity;
 
