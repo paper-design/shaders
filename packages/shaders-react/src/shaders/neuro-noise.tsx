@@ -25,34 +25,25 @@ export const defaultPreset: NeuroNoisePreset = {
     ...defaultPatternSizing,
     speed: 1,
     frame: 0,
+    colorTest: 'hsla(0, 100%, 100%, 1)',
     colorFront: 'hsla(261, 100%, 82%, 1)',
     colorBack: 'hsla(0, 0%, 0%, 1)',
     brightness: 1.3,
+    depth: 0.5,
   },
 };
 
-const marblePreset: NeuroNoisePreset = {
-  name: 'Marble',
-  params: {
-    ...defaultPatternSizing,
-    scale: 0.4,
-    speed: 0,
-    frame: 0,
-    colorFront: 'hsla(230, 24%, 15%, 1)',
-    colorBack: 'hsla(0, 0%, 97%, 1)',
-    brightness: 1.1,
-  },
-};
-
-export const neuroNoisePresets: NeuroNoisePreset[] = [defaultPreset, marblePreset] as const;
+export const neuroNoisePresets: NeuroNoisePreset[] = [defaultPreset] as const;
 
 export const NeuroNoise: React.FC<NeuroNoiseProps> = memo(function NeuroNoiseImpl({
   // Own props
   speed = defaultPreset.params.speed,
   frame = defaultPreset.params.frame,
+  colorTest = defaultPreset.params.colorTest,
   colorFront = defaultPreset.params.colorFront,
   colorBack = defaultPreset.params.colorBack,
   brightness = defaultPreset.params.brightness,
+  depth = defaultPreset.params.depth,
 
   // Sizing props
   fit = defaultPreset.params.fit,
@@ -68,9 +59,11 @@ export const NeuroNoise: React.FC<NeuroNoiseProps> = memo(function NeuroNoiseImp
 }: NeuroNoiseProps) {
   const uniforms = {
     // Own uniforms
+    u_colorTest: getShaderColorFromString(colorTest),
     u_colorFront: getShaderColorFromString(colorFront),
     u_colorBack: getShaderColorFromString(colorBack),
     u_brightness: brightness,
+    u_depth: depth,
 
     // Sizing uniforms
     u_fit: ShaderFitOptions[fit],

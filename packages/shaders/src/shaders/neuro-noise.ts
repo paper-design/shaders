@@ -19,9 +19,11 @@ uniform float u_time;
 uniform vec2 u_resolution;
 uniform float u_pixelRatio;
 
+uniform vec4 u_colorTest;
 uniform vec4 u_colorFront;
 uniform vec4 u_colorBack;
 uniform float u_brightness;
+uniform float u_depth;
 
 
 ${sizingVariablesDeclaration}
@@ -30,7 +32,7 @@ out vec4 fragColor;
 
 ${declareRotate}
 
-float neuro_shape(vec2 uv, float t) {
+float neuroShape(vec2 uv, float t) {
   vec2 sine_acc = vec2(0.);
   vec2 res = vec2(0.);
   float scale = 8.;
@@ -53,14 +55,22 @@ void main() {
 
   float t = .5 * u_time;
 
-  float noise = neuro_shape(shape_uv, t);
+  float noise = neuroShape(shape_uv, t);
 
-  noise = u_brightness * pow(noise, 3.);
-  noise += pow(noise, 12.);
-  noise = max(.0, noise - .5);
+  float depth = (1. - clamp(u_depth, 0., 1.));
+  noise = u_brightness * pow(noise, .5 + 5. * depth);
+  noise = min(1.4, noise);
+  
+  float blend = smoothstep(.7, 1.4, noise);
 
-  vec3 color = mix(u_colorBack.rgb * u_colorBack.a, u_colorFront.rgb * u_colorFront.a, noise);
-  float opacity = mix(u_colorBack.a, u_colorFront.a, noise);
+  vec4 blendFront = mix(u_colorFront, u_colorTest, blend);
+
+  vec3 color = blendFront.rgb * blendFront.a * noise;
+  float opacity = clamp(blendFront.a * noise, 0., 1.);
+  
+  vec3 bgColor = u_colorBack.rgb * u_colorBack.a;
+  color = color + bgColor * (1. - opacity);
+  opacity = opacity + u_colorBack.a * (1. - opacity);
   
   ${colorBandingFix}
 
@@ -69,13 +79,17 @@ void main() {
 `;
 
 export interface NeuroNoiseUniforms extends ShaderSizingUniforms {
+  u_colorTest: [number, number, number, number];
   u_colorFront: [number, number, number, number];
   u_colorBack: [number, number, number, number];
   u_brightness: number;
+  u_depth: number;
 }
 
 export interface NeuroNoiseParams extends ShaderSizingParams, ShaderMotionParams {
+  colorTest?: string;
   colorFront?: string;
   colorBack?: string;
   brightness?: number;
+  depth?: number;
 }
