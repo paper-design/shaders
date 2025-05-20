@@ -9,6 +9,7 @@ import { ShaderFitOptions, ShaderFit, metaballsMeta, godRaysMeta } from '@paper-
 import { useControls, button, folder } from 'leva';
 import Link from 'next/link';
 import { useColors } from '@/helpers/use-colors';
+import { toHsla } from "@/helpers/to-hsla";
 
 /**
  * You can copy/paste this example to use GodRays in your app
@@ -33,7 +34,7 @@ const GodRaysWithControls = () => {
     return {
       Parameters: folder(
         {
-          colorBack: { value: defaults.colorBack, order: 100 },
+          colorBack: { value: toHsla(defaults.colorBack), order: 100 },
           frequency: { value: defaults.frequency, min: 0, max: 30, order: 303 },
           spotty: { value: defaults.spotty, min: 0, max: 1, order: 304 },
           midSize: { value: defaults.midSize, min: 0, max: 8, order: 305 },

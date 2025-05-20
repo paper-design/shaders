@@ -124,17 +124,10 @@ void main() {
 
   vec3 bgColor = u_colorBack.rgb * u_colorBack.a;
 
-  vec3 alphaBlendColor = accumColor + (1.0 - accumAlpha) * bgColor;
-  float alphaBlendAlpha = accumAlpha + (1.0 - accumAlpha) * u_colorBack.a;
-
-  vec3 addBlendColor = accumColor + bgColor;
-  float addBlendAlpha = accumAlpha + u_colorBack.a;
-
-  accumColor = mix(alphaBlendColor, addBlendColor, u_blending);
-  accumAlpha = mix(alphaBlendAlpha, addBlendAlpha, u_blending);
-
-  vec3 color = clamp(accumColor, 0.0, 1.0);
-  float opacity = clamp(accumAlpha, 0.0, 1.0);
+  vec3 color = accumColor + (1.0 - accumAlpha) * bgColor;
+  float opacity = accumAlpha + (1.0 - accumAlpha) * u_colorBack.a;
+  color = clamp(color, 0., 1.);
+  opacity = clamp(opacity, 0., 1.);
 
 
   ${colorBandingFix}
