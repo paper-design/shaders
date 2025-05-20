@@ -25,7 +25,7 @@ export const defaultPreset: SimplexNoisePreset = {
     ...defaultPatternSizing,
     speed: 1,
     frame: 0,
-    colors: ['hsla(200, 50%, 50%, 1)', 'hsla(0, 50%, 50%, 1)', 'hsla(48, 100%, 50%, 1)'],
+    colors: ['#40a0bf', '#bf4040', '#ffcc00'],
     stepsPerColor: 3,
     softness: 0,
   },

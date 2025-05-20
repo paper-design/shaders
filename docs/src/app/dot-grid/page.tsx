@@ -8,6 +8,7 @@ import Link from 'next/link';
 import { BackButton } from '@/components/back-button';
 import { DotGridShape, DotGridShapes, ShaderFit, ShaderFitOptions } from '@paper-design/shaders';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
+import { toHsla } from '@/helpers/to-hsla';
 
 /**
  * You can copy/paste this example to use DotGrid in your app
@@ -27,9 +28,9 @@ const DotGridWithControls = () => {
     return {
       Parameters: folder(
         {
-          colorBack: { value: defaults.colorBack, order: 100 },
-          colorFill: { value: defaults.colorFill, order: 101 },
-          colorStroke: { value: defaults.colorStroke, order: 102 },
+          colorBack: { value: toHsla(defaults.colorBack), order: 100 },
+          colorFill: { value: toHsla(defaults.colorFill), order: 101 },
+          colorStroke: { value: toHsla(defaults.colorStroke), order: 102 },
           size: { value: defaults.size, min: 1, max: 100, order: 301 },
           gapX: { value: defaults.gapX, min: 2, max: 500, order: 302 },
           gapY: { value: defaults.gapY, min: 2, max: 500, order: 303 },

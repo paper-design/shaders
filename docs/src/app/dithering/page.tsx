@@ -16,6 +16,7 @@ import {
   ShaderFitOptions,
 } from '@paper-design/shaders';
 import { ShaderFit } from '@paper-design/shaders';
+import { toHsla } from '@/helpers/to-hsla';
 
 /**
  * You can copy/paste this example to use Dithering in your app
@@ -41,8 +42,8 @@ const DitheringWithControls = () => {
     return {
       Parameters: folder(
         {
-          color1: { value: defaults.color1, order: 100 },
-          color2: { value: defaults.color2, order: 101 },
+          color1: { value: toHsla(defaults.color1), order: 100 },
+          color2: { value: toHsla(defaults.color2), order: 101 },
           shape: { value: defaults.shape, options: Object.keys(DitheringShapes) as DitheringShape[], order: 102 },
           type: { value: defaults.type, options: Object.keys(DitheringTypes) as DitheringType[], order: 103 },
           pxSize: { value: defaults.pxSize, min: 1, max: 20, order: 104 },
