@@ -58,7 +58,8 @@ void main() {
   float noise = neuroShape(shape_uv, t);
 
   float depth = (1. - clamp(u_depth, 0., 1.));
-  noise = u_brightness * pow(noise, .5 + 5. * depth);
+  noise = u_brightness * pow(noise, 2.);
+  noise = pow(noise, 1. + 6. * depth);
   noise = min(1.4, noise);
   
   float blend = smoothstep(0.7, 1.4, noise);
