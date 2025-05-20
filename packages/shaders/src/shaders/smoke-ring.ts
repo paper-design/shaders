@@ -136,12 +136,12 @@ void main() {
       gradient = mix(gradient, c, localT);
   }
 
-  float opacity = gradient.a * ringShape;
-  opacity += u_colorBack.a;
-
   vec3 color = gradient.rgb * ringShape;
-  color += u_colorBack.rgb * u_colorBack.a * (1. - ringShape);
-  color += u_colorBack.rgb * u_colorBack.a * ringShape * (1. - gradient.a);
+  float opacity = gradient.a * ringShape;
+  
+  vec3 bgColor = u_colorBack.rgb * u_colorBack.a;
+  color = color + bgColor * (1. - opacity);
+  opacity = opacity + u_colorBack.a * (1. - opacity);
 
   ${colorBandingFix}
 
