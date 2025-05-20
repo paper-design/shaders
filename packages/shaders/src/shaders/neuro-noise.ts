@@ -61,12 +61,17 @@ void main() {
   noise = u_brightness * pow(noise, .5 + 5. * depth);
   noise = min(1.4, noise);
   
-  float blend = smoothstep(.7, 1.4, noise);
+  float blend = smoothstep(0.7, 1.4, noise);
 
-  vec4 blendFront = mix(u_colorFront, u_colorTest, blend);
+  vec4 frontC = u_colorFront;
+  frontC.rgb *= frontC.a;
+  vec4 testC = u_colorTest;
+  testC.rgb *= testC.a;
+  vec4 blendFront = mix(frontC, testC, blend);
 
-  vec3 color = blendFront.rgb * blendFront.a * noise;
-  float opacity = clamp(blendFront.a * noise, 0., 1.);
+  float safeNoise = max(noise, 0.0);
+  vec3 color = blendFront.rgb * safeNoise;
+  float opacity = clamp(blendFront.a * safeNoise, 0., 1.);
   
   vec3 bgColor = u_colorBack.rgb * u_colorBack.a;
   color = color + bgColor * (1. - opacity);
