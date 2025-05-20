@@ -8,6 +8,7 @@ import Link from 'next/link';
 import { BackButton } from '@/components/back-button';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
 import { ShaderFit, ShaderFitOptions } from '@paper-design/shaders';
+import { toHsla } from '@/helpers/to-rgba';
 
 /**
  * You can copy/paste this example to use NeuroNoise in your app
@@ -34,8 +35,8 @@ const NeuroNoiseWithControls = () => {
     return {
       Parameters: folder(
         {
-          colorFront: { value: defaults.colorFront, order: 100 },
-          colorBack: { value: defaults.colorBack, order: 101 },
+          colorFront: { value: toHsla(defaults.colorFront), order: 100 },
+          colorBack: { value: toHsla(defaults.colorBack), order: 101 },
           brightness: { value: defaults.brightness, min: 0.8, max: 2, order: 300 },
           speed: { value: defaults.speed, min: 0, max: 2, order: 400 },
         },

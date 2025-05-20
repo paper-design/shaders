@@ -9,6 +9,7 @@ import { BackButton } from '@/components/back-button';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
 import { smokeRingMeta, ShaderFit, ShaderFitOptions } from '@paper-design/shaders';
 import { useColors } from '@/helpers/use-colors';
+import { toHsla } from '@/helpers/to-rgba';
 
 /**
  * You can copy/paste this example to use SmokeRing in your app
@@ -33,7 +34,7 @@ const SmokeRingWithControls = () => {
     return {
       Parameters: folder(
         {
-          colorBack: { value: defaults.colorBack, order: 100 },
+          colorBack: { value: toHsla(defaults.colorBack), order: 100 },
           noiseScale: { value: defaults.noiseScale, min: 0.01, max: 5, order: 300 },
           noiseIterations: {
             value: defaults.noiseIterations,

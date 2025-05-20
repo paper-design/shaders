@@ -9,6 +9,7 @@ import Link from 'next/link';
 import { BackButton } from '@/components/back-button';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
 import { ShaderFit, ShaderFitOptions } from '@paper-design/shaders';
+import { toHsla } from '@/helpers/to-rgba';
 
 /**
  * You can copy/paste this example to use Waves in your app
@@ -31,8 +32,8 @@ const WavesWithControls = () => {
     return {
       Parameters: folder(
         {
-          color1: { value: defaults.color1, order: 101 },
-          color2: { value: defaults.color2, order: 102 },
+          color1: { value: toHsla(defaults.color1), order: 101 },
+          color2: { value: toHsla(defaults.color2), order: 102 },
           frequency: { value: defaults.frequency, min: 0, max: 2, order: 300 },
           amplitude: { value: defaults.amplitude, min: 0, max: 1, order: 301 },
           spacing: { value: defaults.spacing, min: 0, max: 2, order: 302 },

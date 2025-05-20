@@ -9,6 +9,7 @@ import { voronoiMeta, ShaderFitOptions, ShaderFit } from '@paper-design/shaders'
 import { useControls, button, folder } from 'leva';
 import Link from 'next/link';
 import { useColors } from '@/helpers/use-colors';
+import { toHsla } from '@/helpers/to-rgba';
 
 /**
  * You can copy/paste this example to use Voronoi in your app
@@ -34,8 +35,8 @@ const VoronoiWithControls = () => {
       Parameters: folder(
         {
           stepsPerColor: { value: defaults.stepsPerColor, min: 1, max: 3, step: 1, order: 200 },
-          colorGlow: { value: defaults.colorGlow, order: 201 },
-          colorBack: { value: defaults.colorBack, order: 202 },
+          colorGlow: { value: toHsla(defaults.colorGlow), order: 201 },
+          colorBack: { value: toHsla(defaults.colorBack), order: 202 },
           distortion: { value: defaults.distortion, min: 0, max: 0.5, order: 300 },
           gap: { value: defaults.gap, min: 0, max: 0.1, order: 301 },
           innerGlow: { value: defaults.innerGlow, min: 0, max: 1, order: 303 },
