@@ -33,7 +33,6 @@ import { declareSimplexNoise, declarePI, declareRandom } from '../shader-utils';
  *  --- type = 4: 8x8 Bayer matrix
  *
  * - pxSize (float), relative to canvas resolution
- * - u_pxRounded (bool)
  *
  */
 export const ditheringFragmentShader: string = `#version 300 es
@@ -50,7 +49,6 @@ uniform vec4 u_color2;
 uniform float u_shape;
 uniform float u_type;
 uniform float u_pxSize;
-uniform bool u_pxRounded;
 
 out vec4 fragColor;
 
@@ -110,7 +108,7 @@ void main() {
   ${sizingUV}
 
   vec2 dithering_uv = pxSizeUv;
-  vec2 ditheringNoise_uv = roundedUv;
+  vec2 ditheringNoise_uv = uv;
   vec2 shape_uv = objectUV;
   if (u_shape < 3.5) {
     shape_uv = patternUV;
@@ -225,7 +223,6 @@ export interface DitheringUniforms extends ShaderSizingUniforms {
   u_shape: (typeof DitheringShapes)[DitheringShape];
   u_type: (typeof DitheringTypes)[DitheringType];
   u_pxSize: number;
-  u_pxRounded: boolean;
 }
 
 export interface DitheringParams extends ShaderSizingParams, ShaderMotionParams {
@@ -234,7 +231,6 @@ export interface DitheringParams extends ShaderSizingParams, ShaderMotionParams 
   shape?: DitheringShape;
   type?: DitheringType;
   pxSize?: number;
-  pxRounded?: boolean;
 }
 
 export const DitheringShapes = {
