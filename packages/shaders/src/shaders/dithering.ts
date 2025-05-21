@@ -200,8 +200,16 @@ void main() {
   dithering -= .5;
   float res = step(.5, shape + dithering);
 
-  vec3 color = mix(u_colorBack.rgb, u_colorFront.rgb, res);
-  float opacity = mix(u_colorBack.a, u_colorFront.a, res);
+  vec3 fgColor = u_colorFront.rgb * u_colorFront.a;
+  float fgOpacity = u_colorFront.a;
+  vec3 bgColor = u_colorBack.rgb * u_colorBack.a;
+  float bgOpacity = u_colorBack.a;
+
+  vec3 color = fgColor * res;
+  float opacity = fgOpacity * res;
+  
+  color += bgColor * (1. - opacity);
+  opacity += bgOpacity * (1. - opacity);
 
   #ifdef ADD_HELPERS
     vec2 helperBox = objectHelperBox;

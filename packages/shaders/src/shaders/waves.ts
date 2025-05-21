@@ -59,11 +59,19 @@ void main() {
 
   float edge_width = .02 / (1. + abs(shape)) * (.001 + u_scale);
   edge_width += .5 * max(0., u_softness);
-  float dc = clamp(u_proportion, 0., 1.);
-  float t = smoothstep(dc - edge_width, dc + edge_width, shape);
+  float dc = 1. - clamp(u_proportion, 0., 1.);
+  float res = smoothstep(dc - edge_width, dc + edge_width, shape);
 
-  vec3 color = mix(u_colorFront.rgb * u_colorFront.a, u_colorBack.rgb * u_colorBack.a, t);
-  float opacity = mix(u_colorFront.a, u_colorBack.a, t);
+  vec3 fgColor = u_colorFront.rgb * u_colorFront.a;
+  float fgOpacity = u_colorFront.a;
+  vec3 bgColor = u_colorBack.rgb * u_colorBack.a;
+  float bgOpacity = u_colorBack.a;
+
+  vec3 color = fgColor * res;
+  float opacity = fgOpacity * res;
+  
+  color += bgColor * (1. - opacity);
+  opacity += bgOpacity * (1. - opacity);
 
   fragColor = vec4(color, opacity);
 }

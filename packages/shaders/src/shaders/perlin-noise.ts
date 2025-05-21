@@ -171,29 +171,37 @@ float get_max_amp(float persistence, float octaveCount) {
 }
 
 void main() {
-  vec2 shape_uv = v_patternUV;
-
-  shape_uv *= .005;
+  vec2 uv = v_patternUV;
+  
+  uv *= .005;
   float t = .2 * u_time;
-
-    vec3 p = vec3(shape_uv, t);
-
-    float oct_count = max(0., floor(u_octaveCount));
-    float persistence = clamp(u_persistence, 0., 1.);
-    float noise = p_noise(p, int(oct_count), persistence, u_lacunarity);
-
-    float max_amp = get_max_amp(persistence, oct_count);
-    float noise_normalized = (noise + max_amp) / (2. * max_amp) + (u_proportion - .5);
-    float sharpness = clamp(u_softness, 0., 1.);
-    float smooth_w = 0.5 * fwidth(noise_normalized);
-    float sharp_noise = smoothstep(
-        .5 - .5 * sharpness - smooth_w,
-        .5 + .5 * sharpness + smooth_w,
-        noise_normalized
-    );
-
-    vec3 color = mix(u_colorBack.rgb * u_colorBack.a, u_colorFront.rgb * u_colorFront.a, sharp_noise);
-    float opacity = mix(u_colorBack.a, u_colorFront.a, sharp_noise);
+  
+  vec3 p = vec3(uv, t);
+  
+  float oct_count = max(0., floor(u_octaveCount));
+  float persistence = clamp(u_persistence, 0., 1.);
+  float noise = p_noise(p, int(oct_count), persistence, u_lacunarity);
+  
+  float max_amp = get_max_amp(persistence, oct_count);
+  float noise_normalized = (noise + max_amp) / (2. * max_amp) + (u_proportion - .5);
+  float sharpness = clamp(u_softness, 0., 1.);
+  float smooth_w = 0.5 * fwidth(noise_normalized);
+  float res = smoothstep(
+    .5 - .5 * sharpness - smooth_w,
+    .5 + .5 * sharpness + smooth_w,
+    noise_normalized
+  );
+  
+  vec3 fgColor = u_colorFront.rgb * u_colorFront.a;
+  float fgOpacity = u_colorFront.a;
+  vec3 bgColor = u_colorBack.rgb * u_colorBack.a;
+  float bgOpacity = u_colorBack.a;
+  
+  vec3 color = fgColor * res;
+  float opacity = fgOpacity * res;
+  
+  color += bgColor * (1. - opacity);
+  opacity += bgOpacity * (1. - opacity);
 
   ${colorBandingFix}
 

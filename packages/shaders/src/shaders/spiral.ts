@@ -76,11 +76,19 @@ void main() {
   mid = pow(mid, 2.);
   shape -= .5 * u_strokeCap * mid;
 
-  shape = smoothstep(stroke_width - edge_width - u_softness, stroke_width + edge_width + u_softness, shape);
+  float res = smoothstep(stroke_width - edge_width - u_softness, stroke_width + edge_width + u_softness, shape);
 
-  vec3 color = mix(u_colorBack.rgb * u_colorBack.a, u_colorFront.rgb * u_colorFront.a, shape);
-  float opacity = mix(u_colorBack.a, u_colorFront.a, shape);
+  vec3 fgColor = u_colorFront.rgb * u_colorFront.a;
+  float fgOpacity = u_colorFront.a;
+  vec3 bgColor = u_colorBack.rgb * u_colorBack.a;
+  float bgOpacity = u_colorBack.a;
 
+  vec3 color = fgColor * res;
+  float opacity = fgOpacity * res;
+  
+  color += bgColor * (1. - opacity);
+  opacity += bgOpacity * (1. - opacity);
+  
   ${colorBandingFix}
 
   fragColor = vec4(color, opacity);

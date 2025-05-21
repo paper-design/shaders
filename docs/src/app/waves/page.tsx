@@ -22,18 +22,15 @@ const WavesExample = () => {
  * This example has controls added so you can play with settings in the example app
  */
 
-const { worldWidth, worldHeight, ...defaults } = {
-  ...wavesPresets[0].params,
-  style: { background: 'hsla(0, 0%, 0%, 0)' },
-};
+const { worldWidth, worldHeight, ...defaults } = wavesPresets[0].params;
 
 const WavesWithControls = () => {
   const [params, setParams] = useControls(() => {
     return {
       Parameters: folder(
         {
+          colorBack: { value: toHsla(defaults.colorBack), order: 100 },
           colorFront: { value: toHsla(defaults.colorFront), order: 101 },
-          colorBack: { value: toHsla(defaults.colorBack), order: 102 },
           frequency: { value: defaults.frequency, min: 0, max: 2, order: 300 },
           amplitude: { value: defaults.amplitude, min: 0, max: 1, order: 301 },
           spacing: { value: defaults.spacing, min: 0, max: 2, order: 302 },
