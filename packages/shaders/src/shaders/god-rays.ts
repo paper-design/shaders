@@ -134,7 +134,6 @@ void main() {
   alphaWithOverlay = clamp(alphaWithOverlay, 0., 1.);
   
   accumColor = mix(accumColor, colorWithOverlay, u_blending);
-  accumAlpha = mix(accumAlpha, alphaWithOverlay, u_blending);
 
   vec3 bgColor = u_colorBack.rgb * u_colorBack.a;
 
