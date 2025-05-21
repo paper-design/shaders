@@ -40,13 +40,13 @@ const WarpWithControls = () => {
           swirlIterations: { value: defaults.swirlIterations, min: 0, max: 20, order: 304 },
           shape: { value: defaults.shape, options: Object.keys(WarpPatterns) as WarpPattern[], order: 305 },
           shapeScale: { value: defaults.shapeScale, min: 0, max: 1, order: 306 },
-          speed: { value: defaults.speed, min: 0, max: 20, order: 400 },
+          speed: { value: defaults.speed, min: 0, max: 100, order: 400 },
         },
         { order: 1 }
       ),
       Transform: folder(
         {
-          scale: { value: defaults.scale, min: 0.01, max: 4, order: 400 },
+          scale: { value: defaults.scale, min: 0.01, max: 5, order: 400 },
           rotation: { value: defaults.rotation, min: 0, max: 360, order: 401 },
           offsetX: { value: defaults.offsetX, min: -1, max: 1, order: 402 },
           offsetY: { value: defaults.offsetY, min: -1, max: 1, order: 403 },

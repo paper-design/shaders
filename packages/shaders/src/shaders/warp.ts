@@ -71,7 +71,7 @@ float noise(vec2 st) {
 
 void main() {
   vec2 shape_uv = v_patternUV;
-  shape_uv *= .0025;
+  shape_uv *= .005;
 
   float t = .01 * u_time;
 
@@ -97,7 +97,7 @@ void main() {
     shape = .5 + .5 * sin(checks_shape_uv.x) * cos(checks_shape_uv.y);
     shape += .48 * sign(proportion - .5) * pow(abs(proportion - .5), .5);
   } else if (u_shape < 1.5) {
-    vec2 stripes_shape_uv = shape_uv * (.25 + 3. * u_shapeScale);
+    vec2 stripes_shape_uv = shape_uv * (2. * u_shapeScale);
     float f = fract(stripes_shape_uv.y);
     shape = smoothstep(.0, .55, f) * smoothstep(1., .45, f);
     shape += .48 * sign(proportion - .5) * pow(abs(proportion - .5), .5);
