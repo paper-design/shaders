@@ -127,12 +127,7 @@ void main() {
   float overlayAlpha = u_colorOverlay.a;
   vec3 overlayColor = u_colorOverlay.rgb * overlayAlpha;
 
-  vec3 colorWithOverlay = accumColor + accumAlpha * overlayColor;
-  float alphaWithOverlay = accumAlpha + accumAlpha * overlayAlpha;
-  
-  colorWithOverlay = clamp(colorWithOverlay, 0., 1.);
-  alphaWithOverlay = clamp(alphaWithOverlay, 0., 1.);
-  
+  vec3 colorWithOverlay = accumColor + accumAlpha * overlayColor;  
   accumColor = mix(accumColor, colorWithOverlay, u_blending);
 
   vec3 bgColor = u_colorBack.rgb * u_colorBack.a;
