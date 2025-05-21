@@ -26,6 +26,7 @@ export const defaultPreset: GodRaysPreset = {
     offsetX: -0.4,
     offsetY: -0.4,
     colorBack: '#002238',
+    colorOverlay: '#000000',
     colors: ['#ffcd66', '#ffb899', '#a8fffb'],
     frequency: 6,
     spotty: 0.28,
@@ -44,6 +45,7 @@ export const auroraPreset: GodRaysPreset = {
     ...defaultObjectSizing,
     offsetY: 1,
     colorBack: '#404040',
+    colorOverlay: '#000000',
     colors: ['#666eff', '#66ff99', '#66d9ff'],
     frequency: 2.4,
     spotty: 0.9,
@@ -61,6 +63,7 @@ export const warpPreset: GodRaysPreset = {
   params: {
     ...defaultObjectSizing,
     colorBack: '#000000',
+    colorOverlay: '#000000',
     colors: ['#ff00c4', '#ff8c00', '#ffffff'],
     frequency: 1.2,
     spotty: 0.15,
@@ -80,6 +83,7 @@ export const linearPreset: GodRaysPreset = {
     offsetX: 0.2,
     offsetY: -0.7,
     colorBack: '#000000',
+    colorOverlay: '#000000',
     colors: ['#ffffff1f', '#ffffff3d', '#ffffff29'],
     frequency: 1.2,
     spotty: 0.25,
@@ -98,6 +102,7 @@ export const etherPreset: GodRaysPreset = {
     ...defaultObjectSizing,
     offsetX: -0.6,
     colorBack: '#090f1d',
+    colorOverlay: '#000000',
     colors: ['#148effa6', '#c4dffebe', '#232a47'],
     frequency: 0.3,
     spotty: 0.77,
@@ -116,6 +121,7 @@ export const GodRays: React.FC<GodRaysProps> = memo(function GodRaysImpl({
   // Own props
   speed = defaultPreset.params.speed,
   frame = defaultPreset.params.frame,
+  colorOverlay = defaultPreset.params.colorOverlay,
   colorBack = defaultPreset.params.colorBack,
   colors = defaultPreset.params.colors,
   frequency = defaultPreset.params.frequency,
@@ -139,6 +145,7 @@ export const GodRays: React.FC<GodRaysProps> = memo(function GodRaysImpl({
 }: GodRaysProps) {
   const uniforms = {
     // Own uniforms
+    u_colorOverlay: getShaderColorFromString(colorOverlay),
     u_colorBack: getShaderColorFromString(colorBack),
     u_colors: colors.map(getShaderColorFromString),
     u_colorsCount: colors.length,

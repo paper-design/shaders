@@ -35,6 +35,7 @@ const GodRaysWithControls = () => {
       Parameters: folder(
         {
           colorBack: { value: toHsla(defaults.colorBack), order: 100 },
+          colorOverlay: { value: toHsla(defaults.colorOverlay), order: 101 },
           frequency: { value: defaults.frequency, min: 0, max: 30, order: 303 },
           spotty: { value: defaults.spotty, min: 0, max: 1, order: 304 },
           midSize: { value: defaults.midSize, min: 0, max: 8, order: 305 },

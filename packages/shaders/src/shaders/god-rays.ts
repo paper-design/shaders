@@ -15,6 +15,7 @@ export const godRaysMeta = {
  * Uniforms include:
  *
  * - u_colorBack: background RGBA color
+ * - u_colorOverlay:
  * - uColors (vec4[]): Input RGBA colors
  * - u_frequency: the frequency of rays (the number of sectors)
  * - u_spotty: the density of spots in the rings (higher = more spots)
@@ -29,6 +30,7 @@ precision mediump float;
 uniform float u_time;
 
 uniform vec4 u_colorBack;
+uniform vec4 u_colorOverlay;
 uniform vec4 u_colors[${godRaysMeta.maxColorCount}];
 uniform float u_colorsCount;
 
@@ -121,14 +123,25 @@ void main() {
     accumColor = mix(alphaBlendColor, addBlendColor, u_blending);
     accumAlpha = mix(alphaBlendAlpha, addBlendAlpha, u_blending);
   }
+  
+  float overlayAlpha = u_colorOverlay.a;
+  vec3 overlayColor = u_colorOverlay.rgb * overlayAlpha;
+
+  vec3 colorWithOverlay = accumColor + accumAlpha * overlayColor;
+  float alphaWithOverlay = accumAlpha + accumAlpha * overlayAlpha;
+  
+  colorWithOverlay = clamp(colorWithOverlay, 0., 1.);
+  alphaWithOverlay = clamp(alphaWithOverlay, 0., 1.);
+  
+  accumColor = mix(accumColor, colorWithOverlay, u_blending);
+  accumAlpha = mix(accumAlpha, alphaWithOverlay, u_blending);
 
   vec3 bgColor = u_colorBack.rgb * u_colorBack.a;
 
-  vec3 color = accumColor + (1.0 - accumAlpha) * bgColor;
-  float opacity = accumAlpha + (1.0 - accumAlpha) * u_colorBack.a;
+  vec3 color = accumColor + (1. - accumAlpha) * bgColor;
+  float opacity = accumAlpha + (1. - accumAlpha) * u_colorBack.a;
   color = clamp(color, 0., 1.);
   opacity = clamp(opacity, 0., 1.);
-
 
   ${colorBandingFix}
 
@@ -138,6 +151,7 @@ void main() {
 
 export interface GodRaysUniforms extends ShaderSizingUniforms {
   u_colorBack: [number, number, number, number];
+  u_colorOverlay: [number, number, number, number];
   u_colors: vec4[];
   u_colorsCount: number;
   u_spotty: number;
@@ -150,6 +164,7 @@ export interface GodRaysUniforms extends ShaderSizingUniforms {
 
 export interface GodRaysParams extends ShaderSizingParams, ShaderMotionParams {
   colorBack?: string;
+  colorOverlay?: string;
   colors?: string[];
   spotty?: number;
   midSize?: number;
