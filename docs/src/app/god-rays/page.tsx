@@ -9,7 +9,7 @@ import { ShaderFitOptions, ShaderFit, metaballsMeta, godRaysMeta } from '@paper-
 import { useControls, button, folder } from 'leva';
 import Link from 'next/link';
 import { useColors } from '@/helpers/use-colors';
-import { toHsla } from "@/helpers/to-hsla";
+import { toHsla } from '@/helpers/to-hsla';
 
 /**
  * You can copy/paste this example to use GodRays in your app

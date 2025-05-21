@@ -40,7 +40,7 @@ const DotOrbitWithControls = () => {
     return {
       Parameters: folder(
         {
-          colorBack: { value: toHsla(defaults.colorBack ), order: 100},
+          colorBack: { value: toHsla(defaults.colorBack), order: 100 },
           stepsPerColor: { value: defaults.stepsPerColor, min: 1, max: 4, step: 1, order: 200 },
           size: { value: defaults.size, min: 0, max: 1, order: 300 },
           sizeRange: { value: defaults.sizeRange, min: 0, max: 1, order: 301 },
