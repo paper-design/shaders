@@ -60,7 +60,7 @@ vec3 getColorChanges(vec3 c1, vec3 c2, vec3 stripe_p, vec3 w, float blur, float 
   ch = mix(ch, c1, weight);
 
   vec3 gradientMixer = (stripe_p - (w[0] + w[1])) / w[2];
-  vec3 gradient = mix(c1 - (1. - u_color1.rgb), c2 + u_color2.rgb, gradientMixer);
+  vec3 gradient = mix(u_color1.rgb, u_color2.rgb, gradientMixer);
 
   weight = smoothstep(border - blur, border + blur, stripe_p);
   ch = mix(ch, gradient, weight);  
