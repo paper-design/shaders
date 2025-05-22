@@ -157,7 +157,7 @@ export class ShaderMount {
         this.parentHeight = entry.borderBoxSize[0].blockSize;
       }
 
-      this.handleNewContainerPixelSize();
+      this.handleResize();
     });
 
     this.resizeObserver.observe(this.parentElement);
@@ -166,7 +166,7 @@ export class ShaderMount {
     const rect = this.parentElement.getBoundingClientRect();
     this.parentWidth = rect.width;
     this.parentHeight = rect.height;
-    this.handleNewContainerPixelSize();
+    this.handleResize();
   };
 
   // Visual viewport resize handler, mainly used to react to browser zoom changes.
@@ -184,13 +184,13 @@ export class ShaderMount {
 
     this.resizeRafId = requestAnimationFrame(() => {
       this.resizeRafId = requestAnimationFrame(() => {
-        this.handleNewContainerPixelSize();
+        this.handleResize();
       });
     });
   };
 
   /** Resize handler for when the container div changes size or the max pixel count changes and we want to resize our canvas to match */
-  private handleNewContainerPixelSize = () => {
+  private handleResize = () => {
     // Cancel any scheduled resize handlers
     if (this.resizeRafId !== null) {
       cancelAnimationFrame(this.resizeRafId);
@@ -443,14 +443,14 @@ export class ShaderMount {
   public setMaxPixelCount = (newMaxPixelCount: number = DEFAULT_MAX_PIXEL_COUNT): void => {
     this.maxPixelCount = newMaxPixelCount;
 
-    this.handleNewContainerPixelSize();
+    this.handleResize();
   };
 
   /** Set the minimum pixel ratio for the shader */
   public setMinPixelRatio = (newMinPixelRatio: number = 2): void => {
     this.minPixelRatio = newMinPixelRatio;
 
-    this.handleNewContainerPixelSize();
+    this.handleResize();
   };
 
   /** Update the uniforms that are provided by the outside shader, can be a partial set with only the uniforms that have changed */
