@@ -75,7 +75,7 @@ const MeshGradientWithControls = () => {
         },
         {
           order: 4,
-          collapsed: false,
+          collapsed: true,
         }
       ),
     };

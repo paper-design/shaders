@@ -73,7 +73,7 @@ const MetaballsWithControls = () => {
             order: 409,
           },
         },
-        { order: 4, collapsed: false }
+        { order: 4, collapsed: true }
       ),
     };
   });

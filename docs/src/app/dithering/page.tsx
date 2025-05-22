@@ -89,7 +89,7 @@ const DitheringWithControls = () => {
         },
         {
           order: 4,
-          collapsed: false,
+          collapsed: true,
         }
       ),
     };
