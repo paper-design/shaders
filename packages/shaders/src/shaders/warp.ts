@@ -34,6 +34,7 @@ uniform vec2 u_resolution;
 
 uniform vec4 u_colors[${warpMeta.maxColorCount}];
 uniform float u_colorsCount;
+uniform float u_stepsPerColor;
 uniform float u_proportion;
 uniform float u_softness;
 uniform float u_shape;
@@ -49,22 +50,6 @@ out vec4 fragColor;
 ${declarePI}
 ${declareRandom}
 ${declareRotate}
-
-vec4 blend_colors(vec4 c1, vec4 c2, vec4 c3, float mixer, float edgesWidth, float edge_blur) {
-  vec3 color1 = c1.rgb * c1.a;
-  vec3 color2 = c2.rgb * c2.a;
-  vec3 color3 = c3.rgb * c3.a;
-
-  float r1 = smoothstep(.0 + .35 * edgesWidth, .7 - .35 * edgesWidth + .5 * edge_blur, mixer);
-  float r2 = smoothstep(.3 + .35 * edgesWidth, 1. - .35 * edgesWidth + edge_blur, mixer);
-
-  vec3 blended_color_2 = mix(color1, color2, r1);
-  float blended_opacity_2 = mix(c1.a, c2.a, r1);
-
-  vec3 c = mix(blended_color_2, color3, r2);
-  float o = mix(blended_opacity_2, c3.a, r2);
-  return vec4(c, o);
-}
 
 float noise(vec2 st) {
   vec2 i = floor(st);
@@ -122,27 +107,30 @@ void main() {
     float shape_scaling = 5. * (1. - u_shapeScale);
     shape = smoothstep(.45 - shape_scaling, .55 + shape_scaling, sh + .3 * (proportion - .5));
   }
-
-  // float mixer = shape * (u_colorsCount - 1.);
-  // mixer = (shape - .5 / u_colorsCount) * u_colorsCount;
-  // vec4 gradient = u_colors[0];
-  // gradient.rgb *= gradient.a;
-  // for (int i = 1; i < ${warpMeta.maxColorCount}; i++) {
-  //     if (i >= int(u_colorsCount)) break;
-  //     float localT = clamp(mixer - float(i - 1), 0.0, 1.0);
-  //     localT = smoothstep(.5 - .5 * u_softness, .5 + .5 * u_softness, localT);
-  //     vec4 c = u_colors[i];
-  //     c.rgb *= c.a;
-  //     gradient = mix(gradient, c, localT);
-  // }
-  //
-  // vec3 color = gradient.rgb;
-  // float opacity = gradient.a;
   
-  float mixer = shape;
-  vec4 color_mix = blend_colors(u_colors[0], u_colors[1], u_colors[2], mixer, 1. - clamp(u_softness, 0., 1.), .01 + .01 * u_scale);
-  vec3 color = color_mix.rgb;
-  float opacity = color_mix.a;
+  float mixer = shape * (u_colorsCount - 1.);
+  float steps = max(1., u_stepsPerColor);
+  vec4 gradient = u_colors[0];
+  gradient.rgb *= gradient.a;
+  for (int i = 1; i < ${warpMeta.maxColorCount}; i++) {
+    if (i >= int(u_colorsCount)) break;
+    float localT = clamp(mixer - float(i - 1), 0.0, 1.0);
+
+    float stepT = floor(localT * steps) / steps;
+    float f = localT * steps - floor(localT * steps);
+    float center = .5;
+    float smoothed = smoothstep(center - u_softness * center, center + u_softness * (1. - center), f);
+    float localTStepped = stepT + smoothed / steps;
+    
+    localT = mix(localTStepped, localT, u_softness);
+  
+    vec4 c = u_colors[i];
+    c.rgb *= c.a;
+    gradient = mix(gradient, c, localT);
+  }
+
+  vec3 color = gradient.rgb;
+  float opacity = gradient.a;
   
   ${colorBandingFix}
 
@@ -153,6 +141,7 @@ void main() {
 export interface WarpUniforms extends ShaderSizingUniforms {
   u_colors: vec4[];
   u_colorsCount: number;
+  u_stepsPerColor: number;
   u_proportion: number;
   u_softness: number;
   u_shape: (typeof WarpPatterns)[WarpPattern];
@@ -164,6 +153,7 @@ export interface WarpUniforms extends ShaderSizingUniforms {
 
 export interface WarpParams extends ShaderSizingParams, ShaderMotionParams {
   colors?: string[];
+  stepsPerColor?: number;
   rotation?: number;
   proportion?: number;
   softness?: number;
