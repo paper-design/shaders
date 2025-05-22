@@ -58,8 +58,8 @@ export const dropletPreset: SpiralPreset = {
   name: 'Droplet',
   params: {
     ...defaultPatternSizing,
-    colorBack: '#bf40a0',
-    colorFront: '#effafe',
+    colorBack: '#effafe',
+    colorFront: '#bf40a0',
     scale: 0.65,
     density: 0,
     distortion: 0,
@@ -78,8 +78,8 @@ export const sandPreset: SpiralPreset = {
   name: 'Sand',
   params: {
     ...defaultPatternSizing,
-    colorBack: '#a09560',
-    colorFront: '#dedede',
+    colorBack: '#dedede',
+    colorFront: '#a09560',
     scale: 3,
     density: 0,
     distortion: 0,
@@ -118,8 +118,8 @@ export const hookPreset: SpiralPreset = {
   name: 'Hook',
   params: {
     ...defaultPatternSizing,
-    colorBack: '#000000',
-    colorFront: '#85c2e0',
+    colorBack: '#85c2e0',
+    colorFront: '#000000',
     scale: 0.8,
     density: 0,
     distortion: 0,
@@ -138,8 +138,8 @@ export const vinylPreset: SpiralPreset = {
   name: 'Vinyl',
   params: {
     ...defaultPatternSizing,
-    colorBack: '#262626',
-    colorFront: '#c2babb',
+    colorBack: '#c2babb',
+    colorFront: '#262626',
     density: 0,
     distortion: 0.3,
     strokeWidth: 0.95,

@@ -83,11 +83,11 @@ void main() {
   vec3 bgColor = u_colorBack.rgb * u_colorBack.a;
   float bgOpacity = u_colorBack.a;
 
-  vec3 color = fgColor * res;
-  float opacity = fgOpacity * res;
+  vec3 color = bgColor * res;
+  float opacity = bgOpacity * res;
   
-  color += bgColor * (1. - opacity);
-  opacity += bgOpacity * (1. - opacity);
+  color += fgColor * (1. - opacity);
+  opacity += fgOpacity * (1. - opacity);
   
   ${colorBandingFix}
 
