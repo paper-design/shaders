@@ -70,6 +70,15 @@ const DotGridWithControls = () => {
           collapsed: true,
         }
       ),
+      Resolution: folder(
+        {
+          maxPixelCount: { value: 1920 * 1080 * 4, min: 1, max: 1920 * 1080 * 4, order: 409 },
+        },
+        {
+          order: 4,
+          collapsed: false,
+        }
+      ),
     };
   });
 

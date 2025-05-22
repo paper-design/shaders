@@ -153,6 +153,12 @@ export const ShaderMount: React.FC<ShaderMountProps> = forwardRef<HTMLDivElement
       shaderMountRef.current?.setSpeed(speed);
     }, [speed, isInitialized]);
 
+    // Max Pixel Count
+    useEffect(() => {
+      console.log('maxPixelCount', maxPixelCount);
+      shaderMountRef.current?.setMaxPixelCount(maxPixelCount);
+    }, [maxPixelCount, isInitialized]);
+
     // Frame
     useEffect(() => {
       shaderMountRef.current?.setFrame(frame);

@@ -20,6 +20,8 @@ export class ShaderMount {
   private hasBeenDisposed = false;
   /** If the resolution of the canvas has changed since the last render */
   private resolutionChanged = true;
+  /** If the max pixel count has changed since the last render */
+  private maxPixelCountChanged = true;
   /** Store textures that are provided by the user */
   private textures: Map<string, WebGLTexture> = new Map();
   private minPixelRatio;
@@ -269,6 +271,12 @@ export class ShaderMount {
       this.resolutionChanged = false;
     }
 
+    // If the max pixel count has changed, we need to update the uniform
+    if (this.maxPixelCountChanged) {
+      this.gl.uniform1f(this.uniformLocations.u_maxPixelCount!, this.maxPixelCount);
+      this.maxPixelCountChanged = false;
+    }
+
     this.gl.drawArrays(this.gl.TRIANGLES, 0, 6);
 
     // Loop if we're animating
@@ -435,6 +443,15 @@ export class ShaderMount {
       cancelAnimationFrame(this.rafId);
       this.rafId = null;
     }
+  };
+
+  /** Set the maximum pixel count for the shader, this will limit the number of pixels that will be rendered */
+  public setMaxPixelCount = (newMaxPixelCount: number = 1920 * 1080 * 4): void => {
+    // Set the new animation speed
+    this.maxPixelCount = newMaxPixelCount;
+
+    // CAMERON: clean this up
+    this.handleResize();
   };
 
   /** Update the uniforms that are provided by the outside shader, can be a partial set with only the uniforms that have changed */

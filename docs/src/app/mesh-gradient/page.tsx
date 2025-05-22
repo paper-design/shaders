@@ -29,7 +29,7 @@ const MeshGradientWithControls = () => {
     maxColorCount: meshGradientMeta.maxColorCount,
   });
 
-  const [params, setParams] = useControls(() => {
+  const [{ logMaxPixelCount, ...params }, setParams] = useControls(() => {
     return {
       Parameters: folder(
         {
@@ -64,6 +64,15 @@ const MeshGradientWithControls = () => {
           collapsed: true,
         }
       ),
+      Resolution: folder(
+        {
+          logMaxPixelCount: { value: Math.log(1920 * 1080 * 4), min: 0, max: Math.log(1920 * 1080 * 4), order: 409 },
+        },
+        {
+          order: 4,
+          collapsed: false,
+        }
+      ),
     };
   }, [colors.length]);
 
@@ -94,7 +103,12 @@ const MeshGradientWithControls = () => {
       <Link href="/">
         <BackButton />
       </Link>
-      <MeshGradient {...params} colors={colors} className="fixed size-full" />
+      <MeshGradient
+        {...params}
+        maxPixelCount={Math.exp(logMaxPixelCount)}
+        colors={colors}
+        className="fixed size-full"
+      />
     </>
   );
 };
