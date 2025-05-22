@@ -7,7 +7,7 @@ import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import Link from 'next/link';
 import { BackButton } from '@/components/back-button';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
-import { pulsingBorderMeta, ShaderFit, ShaderFitOptions, simplexNoiseMeta } from '@paper-design/shaders';
+import { DEFAULT_MAX_PIXEL_COUNT, pulsingBorderMeta, ShaderFit, ShaderFitOptions } from '@paper-design/shaders';
 import { useColors } from '@/helpers/use-colors';
 
 /**
@@ -28,7 +28,7 @@ const PulsingBorderWithControls = () => {
     defaultColors: defaults.colors,
     maxColorCount: pulsingBorderMeta.maxColorCount,
   });
-  const [params, setParams] = useControls(() => {
+  const [{ logMaxPixelCount, ...params }, setParams] = useControls(() => {
     return {
       Parameters: folder(
         {
@@ -77,6 +77,17 @@ const PulsingBorderWithControls = () => {
           collapsed: true,
         }
       ),
+      Resolution: folder(
+        {
+          logMaxPixelCount: {
+            value: Math.log(DEFAULT_MAX_PIXEL_COUNT),
+            min: 0,
+            max: Math.log(DEFAULT_MAX_PIXEL_COUNT),
+            order: 409,
+          },
+        },
+        { order: 4, collapsed: false }
+      ),
     };
   }, [colors.length]);
 
@@ -107,7 +118,12 @@ const PulsingBorderWithControls = () => {
       <Link href="/">
         <BackButton />
       </Link>
-      <PulsingBorder {...params} colors={colors} className="fixed size-full" />
+      <PulsingBorder
+        {...params}
+        colors={colors}
+        className="fixed size-full"
+        maxPixelCount={Math.exp(logMaxPixelCount)}
+      />
     </>
   );
 };

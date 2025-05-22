@@ -7,7 +7,7 @@ import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import Link from 'next/link';
 import { BackButton } from '@/components/back-button';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
-import { grainGradientMeta, ShaderFitOptions } from '@paper-design/shaders';
+import { DEFAULT_MAX_PIXEL_COUNT, grainGradientMeta, ShaderFitOptions } from '@paper-design/shaders';
 import { ShaderFit } from '@paper-design/shaders';
 import { useColors } from '@/helpers/use-colors';
 
@@ -30,7 +30,7 @@ const GrainGradientWithControls = () => {
     maxColorCount: grainGradientMeta.maxColorCount,
   });
 
-  const [params, setParams] = useControls(() => {
+  const [{ logMaxPixelCount, ...params }, setParams] = useControls(() => {
     return {
       Parameters: folder(
         {
@@ -67,6 +67,17 @@ const GrainGradientWithControls = () => {
           collapsed: true,
         }
       ),
+      Resolution: folder(
+        {
+          logMaxPixelCount: {
+            value: Math.log(DEFAULT_MAX_PIXEL_COUNT),
+            min: 0,
+            max: Math.log(DEFAULT_MAX_PIXEL_COUNT),
+            order: 409,
+          },
+        },
+        { order: 4, collapsed: false }
+      ),
     };
   }, [colors.length]);
 
@@ -97,7 +108,12 @@ const GrainGradientWithControls = () => {
       <Link href="/">
         <BackButton />
       </Link>
-      <GrainGradient {...params} colors={colors} className="fixed size-full" />
+      <GrainGradient
+        {...params}
+        colors={colors}
+        className="fixed size-full"
+        maxPixelCount={Math.exp(logMaxPixelCount)}
+      />
     </>
   );
 };

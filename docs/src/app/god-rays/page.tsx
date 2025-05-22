@@ -5,7 +5,13 @@ import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
 import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import { setParamsSafe, useResetLevaParams } from '@/helpers/use-reset-leva-params';
 import { GodRays, godRaysPresets } from '@paper-design/shaders-react';
-import { ShaderFitOptions, ShaderFit, metaballsMeta, godRaysMeta } from '@paper-design/shaders';
+import {
+  ShaderFitOptions,
+  ShaderFit,
+  metaballsMeta,
+  godRaysMeta,
+  DEFAULT_MAX_PIXEL_COUNT,
+} from '@paper-design/shaders';
 import { useControls, button, folder } from 'leva';
 import Link from 'next/link';
 import { useColors } from '@/helpers/use-colors';
@@ -29,7 +35,7 @@ const GodRaysWithControls = () => {
     maxColorCount: godRaysMeta.maxColorCount,
   });
 
-  const [params, setParams] = useControls(() => {
+  const [{ logMaxPixelCount, ...params }, setParams] = useControls(() => {
     return {
       Parameters: folder(
         {
@@ -69,6 +75,20 @@ const GodRaysWithControls = () => {
           collapsed: true,
         }
       ),
+      Resolution: folder(
+        {
+          logMaxPixelCount: {
+            value: Math.log(DEFAULT_MAX_PIXEL_COUNT),
+            min: 0,
+            max: Math.log(DEFAULT_MAX_PIXEL_COUNT),
+            order: 409,
+          },
+        },
+        {
+          order: 4,
+          collapsed: false,
+        }
+      ),
     };
   });
 
@@ -99,7 +119,7 @@ const GodRaysWithControls = () => {
       <Link href="/">
         <BackButton />
       </Link>
-      <GodRays {...params} colors={colors} className="fixed size-full" />
+      <GodRays {...params} colors={colors} className="fixed size-full" maxPixelCount={Math.exp(logMaxPixelCount)} />
     </>
   );
 };

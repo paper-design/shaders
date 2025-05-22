@@ -7,7 +7,7 @@ import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import Link from 'next/link';
 import { BackButton } from '@/components/back-button';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
-import { smokeRingMeta, ShaderFit, ShaderFitOptions } from '@paper-design/shaders';
+import { DEFAULT_MAX_PIXEL_COUNT, smokeRingMeta, ShaderFit, ShaderFitOptions } from '@paper-design/shaders';
 import { useColors } from '@/helpers/use-colors';
 import { toHsla } from '@/helpers/to-hsla';
 
@@ -30,7 +30,7 @@ const SmokeRingWithControls = () => {
     maxColorCount: smokeRingMeta.maxColorCount,
   });
 
-  const [params, setParams] = useControls(() => {
+  const [{ logMaxPixelCount, ...params }, setParams] = useControls(() => {
     return {
       Parameters: folder(
         {
@@ -76,6 +76,17 @@ const SmokeRingWithControls = () => {
           collapsed: true,
         }
       ),
+      Resolution: folder(
+        {
+          logMaxPixelCount: {
+            value: Math.log(DEFAULT_MAX_PIXEL_COUNT),
+            min: 0,
+            max: Math.log(DEFAULT_MAX_PIXEL_COUNT),
+            order: 409,
+          },
+        },
+        { order: 4, collapsed: false }
+      ),
     };
   });
 
@@ -108,7 +119,7 @@ const SmokeRingWithControls = () => {
       <Link href="/">
         <BackButton />
       </Link>
-      <SmokeRing {...params} colors={colors} className="fixed size-full" />
+      <SmokeRing {...params} colors={colors} className="fixed size-full" maxPixelCount={Math.exp(logMaxPixelCount)} />
     </>
   );
 };

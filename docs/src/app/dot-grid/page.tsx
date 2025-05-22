@@ -6,7 +6,13 @@ import { setParamsSafe, useResetLevaParams } from '@/helpers/use-reset-leva-para
 import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import Link from 'next/link';
 import { BackButton } from '@/components/back-button';
-import { DotGridShape, DotGridShapes, ShaderFit, ShaderFitOptions } from '@paper-design/shaders';
+import {
+  DEFAULT_MAX_PIXEL_COUNT,
+  DotGridShape,
+  DotGridShapes,
+  ShaderFit,
+  ShaderFitOptions,
+} from '@paper-design/shaders';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
 import { toHsla } from '@/helpers/to-hsla';
 
@@ -24,7 +30,7 @@ const DotGridExample = () => {
 const { worldWidth, worldHeight, ...defaults } = dotGridPresets[0].params;
 
 const DotGridWithControls = () => {
-  const [params, setParams] = useControls(() => {
+  const [{ logMaxPixelCount, ...params }, setParams] = useControls(() => {
     return {
       Parameters: folder(
         {
@@ -72,7 +78,12 @@ const DotGridWithControls = () => {
       ),
       Resolution: folder(
         {
-          maxPixelCount: { value: 1920 * 1080 * 4, min: 1, max: 1920 * 1080 * 4, order: 409 },
+          logMaxPixelCount: {
+            value: Math.log(DEFAULT_MAX_PIXEL_COUNT),
+            min: 0,
+            max: Math.log(DEFAULT_MAX_PIXEL_COUNT),
+            order: 409,
+          },
         },
         {
           order: 4,
@@ -105,7 +116,7 @@ const DotGridWithControls = () => {
       <Link href="/">
         <BackButton />
       </Link>
-      <DotGrid className="fixed size-full" {...params} />
+      <DotGrid className="fixed size-full" {...params} maxPixelCount={Math.exp(logMaxPixelCount)} />
     </>
   );
 };

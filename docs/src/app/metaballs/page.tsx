@@ -7,7 +7,7 @@ import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import Link from 'next/link';
 import { BackButton } from '@/components/back-button';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
-import { ShaderFit, ShaderFitOptions, metaballsMeta } from '@paper-design/shaders';
+import { DEFAULT_MAX_PIXEL_COUNT, ShaderFit, ShaderFitOptions, metaballsMeta } from '@paper-design/shaders';
 import { useColors } from '@/helpers/use-colors';
 
 /**
@@ -29,7 +29,7 @@ const MetaballsWithControls = () => {
     maxColorCount: metaballsMeta.maxColorCount,
   });
 
-  const [params, setParams] = useControls(() => {
+  const [{ logMaxPixelCount, ...params }, setParams] = useControls(() => {
     return {
       Parameters: folder(
         {
@@ -64,6 +64,17 @@ const MetaballsWithControls = () => {
           collapsed: true,
         }
       ),
+      Resolution: folder(
+        {
+          logMaxPixelCount: {
+            value: Math.log(DEFAULT_MAX_PIXEL_COUNT),
+            min: 0,
+            max: Math.log(DEFAULT_MAX_PIXEL_COUNT),
+            order: 409,
+          },
+        },
+        { order: 4, collapsed: false }
+      ),
     };
   });
 
@@ -94,7 +105,7 @@ const MetaballsWithControls = () => {
       <Link href="/">
         <BackButton />
       </Link>
-      <Metaballs {...params} colors={colors} className="fixed size-full" />
+      <Metaballs {...params} colors={colors} className="fixed size-full" maxPixelCount={Math.exp(logMaxPixelCount)} />
     </>
   );
 };
