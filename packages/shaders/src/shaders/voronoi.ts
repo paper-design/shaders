@@ -20,7 +20,7 @@ export const voronoiMeta = {
  * - `u_colorGlow` (`vec4`): RGBA color for the radial shape on the cell edges
  * - `u_distortion` (`float`, 0 – 0.5): Controls how far cell centers can be displaced from the regular grid
  * - `u_gap` (`float`): Width of the gaps between cells (gaps can't be removed completely due to artifacts of Voronoi cells)
- * - `u_innerGlow` (`float`): Controls the size of the radial glow inside each cell
+ * - `u_glow` (`float`): Controls the size of the radial glow inside each cell
  * - `u_stepsPerColor` (`float`): Discretization of the color transition
  * - `u_noiseTexture` (`sampler2D`): Replacement of standard hash function, added for better performance
  */
@@ -41,7 +41,7 @@ uniform vec4 u_colorGlow;
 uniform vec4 u_colorBack;
 uniform float u_distortion;
 uniform float u_gap;
-uniform float u_innerGlow;
+uniform float u_glow;
 
 ${sizingVariablesDeclaration}
 
@@ -136,11 +136,11 @@ void main() {
   vec3 cellColor = gradient.rgb;
   float cellOpacity = gradient.a;
 
-  float innerGlows = length(voronoiRes.yz * u_innerGlow + .1);
-  innerGlows = pow(innerGlows, 1.5);
+  float glows = length(voronoiRes.yz * u_glow + .1);
+  glows = pow(glows, 1.5);
 
-  vec3 color = mix(cellColor, u_colorGlow.rgb * u_colorGlow.a, u_colorGlow.a * innerGlows);
-  float opacity = cellOpacity + u_colorGlow.a * innerGlows;
+  vec3 color = mix(cellColor, u_colorGlow.rgb * u_colorGlow.a, u_colorGlow.a * glows);
+  float opacity = cellOpacity + u_colorGlow.a * glows;
 
   float edge = voronoiRes.x;
   float smoothEdge = .02 / (2. * u_scale) * (1. + .5 * u_gap);
@@ -161,7 +161,7 @@ export interface VoronoiUniforms extends ShaderSizingUniforms {
   u_colorGlow: [number, number, number, number];
   u_distortion: number;
   u_gap: number;
-  u_innerGlow: number;
+  u_glow: number;
   u_noiseTexture?: HTMLImageElement;
 }
 
@@ -172,5 +172,5 @@ export interface VoronoiParams extends ShaderSizingParams, ShaderMotionParams {
   colorGlow?: string;
   distortion?: number;
   gap?: number;
-  innerGlow?: number;
+  glow?: number;
 }

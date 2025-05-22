@@ -85,7 +85,7 @@ export const Voronoi: React.FC<VoronoiProps> = memo(function VoronoiImpl({
     u_colorBack: getShaderColorFromString(colorBack),
     u_distortion: distortion,
     u_gap: gap,
-    u_innerGlow: innerGlow,
+    u_glow: innerGlow,
     ...noiseTexture,
 
     // Sizing uniforms
