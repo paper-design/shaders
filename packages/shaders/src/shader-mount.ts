@@ -1,3 +1,5 @@
+export const DEFAULT_MAX_PIXEL_COUNT: number = 1920 * 1080 * 4;
+
 export class ShaderMount {
   public parentElement: PaperShaderElement;
   public canvasElement: HTMLCanvasElement;
@@ -20,8 +22,6 @@ export class ShaderMount {
   private hasBeenDisposed = false;
   /** If the resolution of the canvas has changed since the last render */
   private resolutionChanged = true;
-  /** If the max pixel count has changed since the last render */
-  private maxPixelCountChanged = true;
   /** Store textures that are provided by the user */
   private textures: Map<string, WebGLTexture> = new Map();
   private minPixelRatio;
@@ -50,7 +50,7 @@ export class ShaderMount {
      *
      * May be reduced to improve performance or increased to improve quality on high-resolution screens.
      */
-    maxPixelCount: number = 1920 * 1080 * 4
+    maxPixelCount: number = DEFAULT_MAX_PIXEL_COUNT
   ) {
     if (parentElement instanceof HTMLElement) {
       this.parentElement = parentElement as PaperShaderElement;
@@ -157,7 +157,7 @@ export class ShaderMount {
         this.parentHeight = entry.borderBoxSize[0].blockSize;
       }
 
-      this.handleResize();
+      this.handleNewContainerPixelSize();
     });
 
     this.resizeObserver.observe(this.parentElement);
@@ -166,7 +166,7 @@ export class ShaderMount {
     const rect = this.parentElement.getBoundingClientRect();
     this.parentWidth = rect.width;
     this.parentHeight = rect.height;
-    this.handleResize();
+    this.handleNewContainerPixelSize();
   };
 
   // Visual viewport resize handler, mainly used to react to browser zoom changes.
@@ -184,13 +184,13 @@ export class ShaderMount {
 
     this.resizeRafId = requestAnimationFrame(() => {
       this.resizeRafId = requestAnimationFrame(() => {
-        this.handleResize();
+        this.handleNewContainerPixelSize();
       });
     });
   };
 
-  /** Resize handler for when the container div changes size and we want to resize our canvas to match */
-  private handleResize = () => {
+  /** Resize handler for when the container div changes size or the max pixel count changes and we want to resize our canvas to match */
+  private handleNewContainerPixelSize = () => {
     // Cancel any scheduled resize handlers
     if (this.resizeRafId !== null) {
       cancelAnimationFrame(this.resizeRafId);
@@ -269,12 +269,6 @@ export class ShaderMount {
       this.gl.uniform2f(this.uniformLocations.u_resolution!, this.gl.canvas.width, this.gl.canvas.height);
       this.gl.uniform1f(this.uniformLocations.u_pixelRatio!, this.renderScale);
       this.resolutionChanged = false;
-    }
-
-    // If the max pixel count has changed, we need to update the uniform
-    if (this.maxPixelCountChanged) {
-      this.gl.uniform1f(this.uniformLocations.u_maxPixelCount!, this.maxPixelCount);
-      this.maxPixelCountChanged = false;
     }
 
     this.gl.drawArrays(this.gl.TRIANGLES, 0, 6);
@@ -446,12 +440,17 @@ export class ShaderMount {
   };
 
   /** Set the maximum pixel count for the shader, this will limit the number of pixels that will be rendered */
-  public setMaxPixelCount = (newMaxPixelCount: number = 1920 * 1080 * 4): void => {
-    // Set the new animation speed
+  public setMaxPixelCount = (newMaxPixelCount: number = DEFAULT_MAX_PIXEL_COUNT): void => {
     this.maxPixelCount = newMaxPixelCount;
 
-    // CAMERON: clean this up
-    this.handleResize();
+    this.handleNewContainerPixelSize();
+  };
+
+  /** Set the minimum pixel ratio for the shader */
+  public setMinPixelRatio = (newMinPixelRatio: number = 2): void => {
+    this.minPixelRatio = newMinPixelRatio;
+
+    this.handleNewContainerPixelSize();
   };
 
   /** Update the uniforms that are provided by the outside shader, can be a partial set with only the uniforms that have changed */

@@ -7,7 +7,7 @@ import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import Link from 'next/link';
 import { BackButton } from '@/components/back-button';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
-import { meshGradientMeta, ShaderFit, ShaderFitOptions } from '@paper-design/shaders';
+import { DEFAULT_MAX_PIXEL_COUNT, meshGradientMeta, ShaderFit, ShaderFitOptions } from '@paper-design/shaders';
 import { useColors } from '@/helpers/use-colors';
 
 /**
@@ -66,7 +66,12 @@ const MeshGradientWithControls = () => {
       ),
       Resolution: folder(
         {
-          logMaxPixelCount: { value: Math.log(1920 * 1080 * 4), min: 0, max: Math.log(1920 * 1080 * 4), order: 409 },
+          logMaxPixelCount: {
+            value: Math.log(DEFAULT_MAX_PIXEL_COUNT),
+            min: 0,
+            max: Math.log(DEFAULT_MAX_PIXEL_COUNT),
+            order: 409,
+          },
         },
         {
           order: 4,
