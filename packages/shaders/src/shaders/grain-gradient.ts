@@ -236,7 +236,7 @@ export interface GrainGradientUniforms extends ShaderSizingUniforms {
   u_softness: number;
   u_intensity: number;
   u_noise: number;
-  u_shape: number;
+  u_shape: (typeof GrainGradientShapes)[GrainGradientShape];
 }
 
 export interface GrainGradientParams extends ShaderSizingParams, ShaderMotionParams {
@@ -245,5 +245,17 @@ export interface GrainGradientParams extends ShaderSizingParams, ShaderMotionPar
   softness?: number;
   intensity?: number;
   noise?: number;
-  shape?: number;
+  shape?: GrainGradientShape;
 }
+
+export const GrainGradientShapes = {
+  wave: 1,
+  dots: 2,
+  truchet: 3,
+  corners: 4,
+  ripple: 5,
+  blob: 6,
+  sphere: 7,
+};
+
+export type GrainGradientShape = keyof typeof GrainGradientShapes;

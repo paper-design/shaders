@@ -9,6 +9,7 @@ import {
   type ShaderPreset,
   defaultPatternSizing,
   defaultObjectSizing,
+  GrainGradientShapes,
 } from '@paper-design/shaders';
 
 export interface GrainGradientProps extends ShaderComponentProps, GrainGradientParams {}
@@ -26,7 +27,7 @@ export const defaultPreset: GrainGradientPreset = {
     softness: 0.7,
     intensity: 0.15,
     noise: 0.5,
-    shape: 1,
+    shape: 'wave',
   },
 };
 
@@ -42,7 +43,7 @@ export const dotsPreset: GrainGradientPreset = {
     softness: 0.75,
     intensity: 0.15,
     noise: 0.7,
-    shape: 2,
+    shape: 'dots',
   },
 };
 
@@ -52,8 +53,7 @@ export const truchetPreset: GrainGradientPreset = {
     ...defaultPatternSizing,
     speed: 1,
     frame: 0,
-    colorBack: '#0a0000',
-    colors: ['#6f2200', '#eabb7c', '#39b523'],
+    colors: ['#0a0000', '#6f2200', '#eabb7c', '#39b523'],
     softness: 0,
     intensity: 0.2,
     noise: 1,
@@ -69,13 +69,10 @@ export const cornersPreset: GrainGradientPreset = {
     frame: 0,
     colorBack: '#031018',
     colors: ['#00aeff', '#00ffcc', '#ffc800'],
-    // softness: 0.4,
-    // intensity: 0.35,
-    // noise: 0.35,
-    softness: 0,
-    intensity: 0,
-    noise: 0,
-    shape: 4,
+    softness: 0.4,
+    intensity: 0.35,
+    noise: 0.35,
+    shape: 'corners',
   },
 };
 
@@ -91,7 +88,7 @@ export const ripplePreset: GrainGradientPreset = {
     softness: 0.5,
     intensity: 0.5,
     noise: 0.5,
-    shape: 5,
+    shape: 'ripple',
   },
 };
 
@@ -107,7 +104,7 @@ export const blobPreset: GrainGradientPreset = {
     softness: 0,
     intensity: 0.15,
     noise: 0.5,
-    shape: 6,
+    shape: 'blob',
   },
 };
 
@@ -122,7 +119,7 @@ export const spherePreset: GrainGradientPreset = {
     softness: 1,
     intensity: 0.15,
     noise: 0.5,
-    shape: 7,
+    shape: 'sphere',
   },
 };
 
@@ -138,7 +135,7 @@ export const moonPreset: GrainGradientPreset = {
     softness: 1,
     intensity: 0.56,
     noise: 1,
-    shape: 7,
+    shape: 'sphere',
   },
 };
 
@@ -184,7 +181,7 @@ export const GrainGradient: React.FC<GrainGradientProps> = memo(function GrainGr
     u_softness: softness,
     u_intensity: intensity,
     u_noise: noise,
-    u_shape: shape,
+    u_shape: GrainGradientShapes[shape],
 
     // Sizing uniforms
     u_fit: ShaderFitOptions[fit],

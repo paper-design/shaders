@@ -7,7 +7,7 @@ import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import Link from 'next/link';
 import { BackButton } from '@/components/back-button';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
-import { grainGradientMeta, ShaderFitOptions } from '@paper-design/shaders';
+import { grainGradientMeta, GrainGradientShape, GrainGradientShapes, ShaderFitOptions } from '@paper-design/shaders';
 import { ShaderFit } from '@paper-design/shaders';
 import { useColors } from '@/helpers/use-colors';
 import { toHsla } from '@/helpers/to-hsla';
@@ -39,7 +39,11 @@ const GrainGradientWithControls = () => {
           softness: { value: defaults.softness, min: 0, max: 1, order: 200 },
           intensity: { value: defaults.intensity, min: 0, max: 1, order: 201 },
           noise: { value: defaults.noise, min: 0, max: 1, order: 202 },
-          shape: { value: defaults.shape, min: 1, max: 7, step: 1, order: 300 },
+          shape: {
+            value: defaults.shape,
+            options: Object.keys(GrainGradientShapes) as GrainGradientShape[],
+            order: 203,
+          },
           speed: { value: defaults.speed, min: 0, max: 2, order: 400 },
         },
         { order: 1 }
