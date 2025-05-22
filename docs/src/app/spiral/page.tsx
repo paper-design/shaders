@@ -7,7 +7,7 @@ import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import Link from 'next/link';
 import { BackButton } from '@/components/back-button';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
-import { DEFAULT_MAX_PIXEL_COUNT, ShaderFit, ShaderFitOptions } from '@paper-design/shaders';
+import { ShaderFit, ShaderFitOptions } from '@paper-design/shaders';
 import { toHsla } from '@/helpers/to-hsla';
 
 /**
@@ -30,7 +30,7 @@ const { worldWidth, worldHeight, ...defaults } = {
 };
 
 const SpiralWithControls = () => {
-  const [{ logMaxPixelCount, ...params }, setParams] = useControls(() => {
+  const [params, setParams] = useControls(() => {
     return {
       Parameters: folder(
         {
@@ -74,17 +74,6 @@ const SpiralWithControls = () => {
           collapsed: true,
         }
       ),
-      Resolution: folder(
-        {
-          logMaxPixelCount: {
-            value: Math.log(DEFAULT_MAX_PIXEL_COUNT),
-            min: 0,
-            max: Math.log(DEFAULT_MAX_PIXEL_COUNT),
-            order: 409,
-          },
-        },
-        { order: 4, collapsed: true }
-      ),
     };
   });
 
@@ -113,7 +102,7 @@ const SpiralWithControls = () => {
       <Link href="/">
         <BackButton />
       </Link>
-      <Spiral className="fixed size-full" {...shaderParams} maxPixelCount={Math.exp(logMaxPixelCount)} />
+      <Spiral className="fixed size-full" {...shaderParams} />
     </>
   );
 };

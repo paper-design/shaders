@@ -7,7 +7,7 @@ import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import Link from 'next/link';
 import { BackButton } from '@/components/back-button';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
-import { DEFAULT_MAX_PIXEL_COUNT, ShaderFit, ShaderFitOptions } from '@paper-design/shaders';
+import { ShaderFit, ShaderFitOptions } from '@paper-design/shaders';
 
 /**
  * You can copy/paste this example to use LiquidMetal in your app
@@ -23,7 +23,7 @@ const LiquidMetalExample = () => {
 const { worldWidth, worldHeight, ...defaults } = liquidMetalPresets[0].params;
 
 const LiquidMetalWithControls = () => {
-  const [{ logMaxPixelCount, ...params }, setParams] = useControls(() => {
+  const [params, setParams] = useControls(() => {
     const presets = Object.fromEntries(
       liquidMetalPresets.map(({ name, params: { worldWidth, worldHeight, ...preset } }) => [
         name,
@@ -68,17 +68,6 @@ const LiquidMetalWithControls = () => {
         }
       ),
       Presets: folder(presets, { order: 10 }),
-      Resolution: folder(
-        {
-          logMaxPixelCount: {
-            value: Math.log(DEFAULT_MAX_PIXEL_COUNT),
-            min: 0,
-            max: Math.log(DEFAULT_MAX_PIXEL_COUNT),
-            order: 409,
-          },
-        },
-        { order: 4, collapsed: true }
-      ),
     };
   });
 
@@ -93,7 +82,7 @@ const LiquidMetalWithControls = () => {
       <Link href="/">
         <BackButton />
       </Link>
-      <LiquidMetal {...params} className="fixed size-full" maxPixelCount={Math.exp(logMaxPixelCount)} />
+      <LiquidMetal {...params} className="fixed size-full" />
     </>
   );
 };

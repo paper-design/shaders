@@ -1,4 +1,4 @@
-export const DEFAULT_MAX_PIXEL_COUNT: number = 1920 * 1080 * 4;
+const DEFAULT_MAX_PIXEL_COUNT: number = 1920 * 1080 * 4;
 
 export class ShaderMount {
   public parentElement: PaperShaderElement;

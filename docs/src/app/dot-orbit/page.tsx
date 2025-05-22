@@ -4,7 +4,7 @@ import { BackButton } from '@/components/back-button';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
 import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import { setParamsSafe, useResetLevaParams } from '@/helpers/use-reset-leva-params';
-import { DEFAULT_MAX_PIXEL_COUNT, dotOrbitMeta, ShaderFit, ShaderFitOptions } from '@paper-design/shaders';
+import { dotOrbitMeta, ShaderFit, ShaderFitOptions } from '@paper-design/shaders';
 import { DotOrbit, dotOrbitPresets } from '@paper-design/shaders-react';
 import { useControls, button, folder } from 'leva';
 import Link from 'next/link';
@@ -28,7 +28,7 @@ const DotOrbitWithControls = () => {
     defaultColors: defaults.colors,
     maxColorCount: dotOrbitMeta.maxColorCount,
   });
-  const [{ logMaxPixelCount, ...params }, setParams] = useControls(() => {
+  const [params, setParams] = useControls(() => {
     const presets = Object.fromEntries(
       dotOrbitPresets.map(({ name, params: { worldWidth, worldHeight, ...preset } }) => [
         name,
@@ -72,20 +72,6 @@ const DotOrbitWithControls = () => {
           collapsed: true,
         }
       ),
-      Resolution: folder(
-        {
-          logMaxPixelCount: {
-            value: Math.log(DEFAULT_MAX_PIXEL_COUNT),
-            min: 0,
-            max: Math.log(DEFAULT_MAX_PIXEL_COUNT),
-            order: 409,
-          },
-        },
-        {
-          order: 4,
-          collapsed: true,
-        }
-      ),
     };
   }, [colors.length]);
 
@@ -116,7 +102,7 @@ const DotOrbitWithControls = () => {
       <Link href="/">
         <BackButton />
       </Link>
-      <DotOrbit {...params} colors={colors} className="fixed size-full" maxPixelCount={Math.exp(logMaxPixelCount)} />
+      <DotOrbit {...params} colors={colors} className="fixed size-full" />
     </>
   );
 };

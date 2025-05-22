@@ -1,5 +1,5 @@
 /** The core Shader Mount class. Pass it a parent element and a fragment shader to get started. */
-export { ShaderMount, isPaperShaderElement, DEFAULT_MAX_PIXEL_COUNT } from './shader-mount';
+export { ShaderMount, isPaperShaderElement } from './shader-mount';
 export type { PaperShaderElement, ShaderMotionParams, ShaderMountUniforms, ShaderPreset } from './shader-mount';
 
 /** Shader sizing options and uniforms */

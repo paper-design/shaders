@@ -5,7 +5,7 @@ import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
 import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import { setParamsSafe, useResetLevaParams } from '@/helpers/use-reset-leva-params';
 import { Voronoi, voronoiPresets } from '@paper-design/shaders-react';
-import { DEFAULT_MAX_PIXEL_COUNT, voronoiMeta, ShaderFitOptions, ShaderFit } from '@paper-design/shaders';
+import { voronoiMeta, ShaderFitOptions, ShaderFit } from '@paper-design/shaders';
 import { useControls, button, folder } from 'leva';
 import Link from 'next/link';
 import { useColors } from '@/helpers/use-colors';
@@ -30,7 +30,7 @@ const VoronoiWithControls = () => {
     maxColorCount: voronoiMeta.maxColorCount,
   });
 
-  const [{ logMaxPixelCount, ...params }, setParams] = useControls(() => {
+  const [params, setParams] = useControls(() => {
     return {
       Parameters: folder(
         {
@@ -69,17 +69,6 @@ const VoronoiWithControls = () => {
           collapsed: true,
         }
       ),
-      Resolution: folder(
-        {
-          logMaxPixelCount: {
-            value: Math.log(DEFAULT_MAX_PIXEL_COUNT),
-            min: 0,
-            max: Math.log(DEFAULT_MAX_PIXEL_COUNT),
-            order: 409,
-          },
-        },
-        { order: 4, collapsed: true }
-      ),
     };
   }, [colors.length]);
 
@@ -110,7 +99,7 @@ const VoronoiWithControls = () => {
       <Link href="/">
         <BackButton />
       </Link>
-      <Voronoi {...params} colors={colors} className="fixed size-full" maxPixelCount={Math.exp(logMaxPixelCount)} />
+      <Voronoi {...params} colors={colors} className="fixed size-full" />
     </>
   );
 };

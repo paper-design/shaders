@@ -7,7 +7,7 @@ import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import Link from 'next/link';
 import { BackButton } from '@/components/back-button';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
-import { DEFAULT_MAX_PIXEL_COUNT, ShaderFit, ShaderFitOptions, simplexNoiseMeta } from '@paper-design/shaders';
+import { ShaderFit, ShaderFitOptions, simplexNoiseMeta } from '@paper-design/shaders';
 import { useColors } from '@/helpers/use-colors';
 
 /**
@@ -29,7 +29,7 @@ const SwirlWithControls = () => {
     maxColorCount: simplexNoiseMeta.maxColorCount,
   });
 
-  const [{ logMaxPixelCount, ...params }, setParams] = useControls(() => {
+  const [params, setParams] = useControls(() => {
     return {
       Parameters: folder(
         {
@@ -67,17 +67,6 @@ const SwirlWithControls = () => {
           collapsed: true,
         }
       ),
-      Resolution: folder(
-        {
-          logMaxPixelCount: {
-            value: Math.log(DEFAULT_MAX_PIXEL_COUNT),
-            min: 0,
-            max: Math.log(DEFAULT_MAX_PIXEL_COUNT),
-            order: 409,
-          },
-        },
-        { order: 4, collapsed: true }
-      ),
     };
   }, [colors.length]);
 
@@ -108,7 +97,7 @@ const SwirlWithControls = () => {
       <Link href="/">
         <BackButton />
       </Link>
-      <Swirl {...params} colors={colors} className="fixed size-full" maxPixelCount={Math.exp(logMaxPixelCount)} />
+      <Swirl {...params} colors={colors} className="fixed size-full" />
     </>
   );
 };
