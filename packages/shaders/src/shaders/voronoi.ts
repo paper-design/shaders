@@ -38,7 +38,7 @@ uniform float u_colorsCount;
 
 uniform float u_stepsPerColor;
 uniform vec4 u_colorGlow;
-uniform vec4 u_colorBack;
+uniform vec4 u_colorGap;
 uniform float u_distortion;
 uniform float u_gap;
 uniform float u_glow;
@@ -146,8 +146,8 @@ void main() {
   float smoothEdge = .02 / (2. * u_scale) * (1. + .5 * u_gap);
   edge = smoothstep(u_gap - smoothEdge, u_gap + smoothEdge, edge);
 
-  color = mix(u_colorBack.rgb * u_colorBack.a, color, edge);
-  opacity = mix(u_colorBack.a, opacity, edge);
+  color = mix(u_colorGap.rgb * u_colorGap.a, color, edge);
+  opacity = mix(u_colorGap.a, opacity, edge);
 
   fragColor = vec4(color, opacity);  
 }
@@ -157,7 +157,7 @@ export interface VoronoiUniforms extends ShaderSizingUniforms {
   u_colors: vec4[];
   u_colorsCount: number;
   u_stepsPerColor: number;
-  u_colorBack: [number, number, number, number];
+  u_colorGap: [number, number, number, number];
   u_colorGlow: [number, number, number, number];
   u_distortion: number;
   u_gap: number;
@@ -168,7 +168,7 @@ export interface VoronoiUniforms extends ShaderSizingUniforms {
 export interface VoronoiParams extends ShaderSizingParams, ShaderMotionParams {
   colors?: string[];
   stepsPerColor?: number;
-  colorBack?: string;
+  colorGap?: string;
   colorGlow?: string;
   distortion?: number;
   gap?: number;
