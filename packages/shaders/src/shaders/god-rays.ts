@@ -15,14 +15,14 @@ export const godRaysMeta = {
  * Uniforms include:
  *
  * - u_colorBack: background RGBA color
- * - u_colorOverlay:
+ * - u_colorBloom:
  * - uColors (vec4[]): Input RGBA colors
  * - u_frequency: the frequency of rays (the number of sectors)
  * - u_spotty: the density of spots in the rings (higher = more spots)
  * - u_midSize: the size of the central shape within the rings
  * - u_midIntensity: the influence of the central shape on the rings
  * - u_density (0 .. 1): the number of visible rays
- * - u_blending (0 .. 1): normal / additive blending
+ * - u_bloom (0 .. 1): normal / additive bloom
  */
 export const godRaysFragmentShader: string = `#version 300 es
 precision mediump float;
@@ -30,7 +30,7 @@ precision mediump float;
 uniform float u_time;
 
 uniform vec4 u_colorBack;
-uniform vec4 u_colorOverlay;
+uniform vec4 u_colorBloom;
 uniform vec4 u_colors[${godRaysMeta.maxColorCount}];
 uniform float u_colorsCount;
 
@@ -39,7 +39,7 @@ uniform float u_spotty;
 uniform float u_midSize;
 uniform float u_midIntensity;
 uniform float u_density;
-uniform float u_blending;
+uniform float u_bloom;
 
 ${sizingVariablesDeclaration}
 
@@ -120,15 +120,15 @@ void main() {
     vec3 addBlendColor = accumColor + srcColor;
     float addBlendAlpha = accumAlpha + srcAlpha;
 
-    accumColor = mix(alphaBlendColor, addBlendColor, u_blending);
-    accumAlpha = mix(alphaBlendAlpha, addBlendAlpha, u_blending);
+    accumColor = mix(alphaBlendColor, addBlendColor, u_bloom);
+    accumAlpha = mix(alphaBlendAlpha, addBlendAlpha, u_bloom);
   }
   
-  float overlayAlpha = u_colorOverlay.a;
-  vec3 overlayColor = u_colorOverlay.rgb * overlayAlpha;
+  float overlayAlpha = u_colorBloom.a;
+  vec3 overlayColor = u_colorBloom.rgb * overlayAlpha;
 
   vec3 colorWithOverlay = accumColor + accumAlpha * overlayColor;  
-  accumColor = mix(accumColor, colorWithOverlay, u_blending);
+  accumColor = mix(accumColor, colorWithOverlay, u_bloom);
 
   vec3 bgColor = u_colorBack.rgb * u_colorBack.a;
 
@@ -145,7 +145,7 @@ void main() {
 
 export interface GodRaysUniforms extends ShaderSizingUniforms {
   u_colorBack: [number, number, number, number];
-  u_colorOverlay: [number, number, number, number];
+  u_colorBloom: [number, number, number, number];
   u_colors: vec4[];
   u_colorsCount: number;
   u_spotty: number;
@@ -153,17 +153,17 @@ export interface GodRaysUniforms extends ShaderSizingUniforms {
   u_midIntensity: number;
   u_frequency: number;
   u_density: number;
-  u_blending: number;
+  u_bloom: number;
 }
 
 export interface GodRaysParams extends ShaderSizingParams, ShaderMotionParams {
   colorBack?: string;
-  colorOverlay?: string;
+  colorBloom?: string;
   colors?: string[];
   spotty?: number;
   midSize?: number;
   midIntensity?: number;
   frequency?: number;
   density?: number;
-  blending?: number;
+  bloom?: number;
 }
