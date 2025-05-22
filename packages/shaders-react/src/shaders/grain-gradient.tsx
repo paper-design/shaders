@@ -53,11 +53,12 @@ export const truchetPreset: GrainGradientPreset = {
     ...defaultPatternSizing,
     speed: 1,
     frame: 0,
-    colors: ['#0a0000', '#6f2200', '#eabb7c', '#39b523'],
+    colorBack: '#0a0000',
+    colors: ['#6f2200', '#eabb7c', '#39b523'],
     softness: 0,
     intensity: 0.2,
     noise: 1,
-    shape: 3,
+    shape: 'truchet',
   },
 };
 
