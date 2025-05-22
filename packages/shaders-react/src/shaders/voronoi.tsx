@@ -28,7 +28,7 @@ export const defaultPreset: VoronoiPreset = {
     colorBack: '#ffffff',
     distortion: 0.42,
     gap: 0.06,
-    innerGlow: 0,
+    glow: 0,
   },
 };
 
@@ -44,7 +44,7 @@ export const shadowPreset: VoronoiPreset = {
     colorBack: '#ffffff',
     distortion: 0.23,
     gap: 0,
-    innerGlow: 0.8,
+    glow: 0.8,
   },
 };
 
@@ -60,7 +60,7 @@ export const Voronoi: React.FC<VoronoiProps> = memo(function VoronoiImpl({
   colorBack = defaultPreset.params.colorBack,
   distortion = defaultPreset.params.distortion,
   gap = defaultPreset.params.gap,
-  innerGlow = defaultPreset.params.innerGlow,
+  glow = defaultPreset.params.glow,
 
   // Sizing props
   fit = defaultPreset.params.fit,
@@ -85,7 +85,7 @@ export const Voronoi: React.FC<VoronoiProps> = memo(function VoronoiImpl({
     u_colorBack: getShaderColorFromString(colorBack),
     u_distortion: distortion,
     u_gap: gap,
-    u_glow: innerGlow,
+    u_glow: glow,
     ...noiseTexture,
 
     // Sizing uniforms
