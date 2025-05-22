@@ -15,10 +15,6 @@ export interface GodRaysProps extends ShaderComponentProps, GodRaysParams {}
 
 type GodRaysPreset = ShaderPreset<GodRaysParams>;
 
-// Due to Leva controls limitation:
-// 1) keep default colors in HSLA format to keep alpha channel
-// 2) don't use decimal values on HSL values (to avoid button highmidIntensity bug)
-
 export const defaultPreset: GodRaysPreset = {
   name: 'Default',
   params: {

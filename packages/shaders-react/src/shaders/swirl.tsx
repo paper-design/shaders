@@ -15,10 +15,6 @@ export interface SwirlProps extends ShaderComponentProps, SwirlParams {}
 
 type SwirlPreset = ShaderPreset<SwirlParams>;
 
-// Due to Leva controls limitation:
-// 1) keep default colors in HSLA format to keep alpha channel
-// 2) don't use decimal values on HSL values (to avoid button highmidIntensity bug)
-
 export const defaultPreset: SwirlPreset = {
   name: 'Default',
   params: {
