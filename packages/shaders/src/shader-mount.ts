@@ -28,6 +28,41 @@ export class ShaderMount {
   private maxPixelCount;
   private isSafari = isSafari();
 
+  /** Framebuffer for virtual resolution rendering */
+  private framebuffer: WebGLFramebuffer | null = null;
+  /** Renderbuffer for virtual resolution rendering */
+  private renderbuffer: WebGLRenderbuffer | null = null;
+  /** Texture for blitting framebuffer content */
+  private blitTexture: WebGLTexture | null = null;
+  /** The actual resolution we're rendering at */
+  private virtualWidth = 0;
+  private virtualHeight = 0;
+
+  /** Simple vertex shader for blitting */
+  private blitVertexShader = `#version 300 es
+    in vec4 a_position;
+    void main() {
+      gl_Position = a_position;
+    }
+  `;
+
+  /** Simple fragment shader for blitting */
+  private blitFragmentShader = `#version 300 es
+    precision mediump float;
+    uniform sampler2D u_texture;
+    uniform vec2 u_canvasSize;
+
+    out vec4 outColor;
+    void main() {
+      outColor = texture(u_texture, gl_FragCoord.xy / u_canvasSize);
+    }
+  `;
+
+  /** Program for blitting */
+  private blitProgram: WebGLProgram | null = null;
+  /** Location of the canvas size uniform in the blit program */
+  private blitCanvasSizeLocation: WebGLUniformLocation | null = null;
+
   constructor(
     /** The div you'd like to mount the shader to. The shader will match its size. */
     parentElement: HTMLElement,
@@ -223,26 +258,125 @@ export class ShaderMount {
     const newWidth = Math.round(this.parentWidth * newRenderScale);
     const newHeight = Math.round(this.parentHeight * newRenderScale);
 
+    // Only resize the canvas if the display size has changed
     if (
-      this.canvasElement.width !== newWidth ||
-      this.canvasElement.height !== newHeight ||
-      this.renderScale !== newRenderScale // Usually, only render scale change when the user zooms in/out
+      this.canvasElement.width !== Math.round(this.parentWidth * targetRenderScale) ||
+      this.canvasElement.height !== Math.round(this.parentHeight * targetRenderScale)
     ) {
-      this.renderScale = newRenderScale;
-      this.canvasElement.width = newWidth;
-      this.canvasElement.height = newHeight;
-      this.resolutionChanged = true;
-      this.gl.viewport(0, 0, this.gl.canvas.width, this.gl.canvas.height);
+      this.canvasElement.width = Math.round(this.parentWidth * targetRenderScale);
+      this.canvasElement.height = Math.round(this.parentHeight * targetRenderScale);
+    }
 
-      // this is necessary to avoid flashes while resizing (the next scheduled render will set uniforms)
-      this.render(performance.now());
+    // Update virtual resolution if needed
+    if (this.virtualWidth !== newWidth || this.virtualHeight !== newHeight) {
+      this.virtualWidth = newWidth;
+      this.virtualHeight = newHeight;
+      this.createFramebuffer();
+      this.resolutionChanged = true;
+    }
+
+    // Update viewport to match canvas size
+    this.gl.viewport(0, 0, this.gl.canvas.width, this.gl.canvas.height);
+
+    // this is necessary to avoid flashes while resizing (the next scheduled render will set uniforms)
+    this.render(performance.now());
+  };
+
+  private createFramebuffer = () => {
+    // Clean up existing framebuffer if it exists
+    if (this.framebuffer) {
+      this.gl.deleteFramebuffer(this.framebuffer);
+      this.framebuffer = null;
+    }
+    if (this.renderbuffer) {
+      this.gl.deleteRenderbuffer(this.renderbuffer);
+      this.renderbuffer = null;
+    }
+    if (this.blitTexture) {
+      this.gl.deleteTexture(this.blitTexture);
+      this.blitTexture = null;
+    }
+
+    // Create new framebuffer
+    this.framebuffer = this.gl.createFramebuffer();
+    this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, this.framebuffer);
+
+    // Create and attach texture
+    this.blitTexture = this.gl.createTexture();
+    this.gl.bindTexture(this.gl.TEXTURE_2D, this.blitTexture);
+    this.gl.texImage2D(
+      this.gl.TEXTURE_2D,
+      0,
+      this.gl.RGBA,
+      this.virtualWidth,
+      this.virtualHeight,
+      0,
+      this.gl.RGBA,
+      this.gl.UNSIGNED_BYTE,
+      null
+    );
+    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.LINEAR);
+    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MAG_FILTER, this.gl.LINEAR);
+    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_S, this.gl.CLAMP_TO_EDGE);
+    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_T, this.gl.CLAMP_TO_EDGE);
+    this.gl.framebufferTexture2D(
+      this.gl.FRAMEBUFFER,
+      this.gl.COLOR_ATTACHMENT0,
+      this.gl.TEXTURE_2D,
+      this.blitTexture,
+      0
+    );
+
+    // Check if framebuffer is complete
+    if (this.gl.checkFramebufferStatus(this.gl.FRAMEBUFFER) !== this.gl.FRAMEBUFFER_COMPLETE) {
+      console.error('Framebuffer is not complete');
+      this.disposeFramebuffer();
+    }
+
+    // Create blit program if it doesn't exist
+    if (!this.blitProgram) {
+      const vertexShader = createShader(this.gl, this.gl.VERTEX_SHADER, this.blitVertexShader);
+      const fragmentShader = createShader(this.gl, this.gl.FRAGMENT_SHADER, this.blitFragmentShader);
+      if (!vertexShader || !fragmentShader) {
+        console.error('Failed to create blit shaders');
+        return;
+      }
+      this.blitProgram = createProgram(this.gl, this.blitVertexShader, this.blitFragmentShader);
+      if (!this.blitProgram) {
+        console.error('Failed to create blit program');
+        return;
+      }
+      this.blitCanvasSizeLocation = this.gl.getUniformLocation(this.blitProgram, 'u_canvasSize');
+    }
+
+    // Unbind framebuffer
+    this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, null);
+    this.gl.bindTexture(this.gl.TEXTURE_2D, null);
+  };
+
+  private disposeFramebuffer = () => {
+    if (this.framebuffer) {
+      this.gl.deleteFramebuffer(this.framebuffer);
+      this.framebuffer = null;
+    }
+    if (this.renderbuffer) {
+      this.gl.deleteRenderbuffer(this.renderbuffer);
+      this.renderbuffer = null;
+    }
+    if (this.blitTexture) {
+      this.gl.deleteTexture(this.blitTexture);
+      this.blitTexture = null;
+    }
+    if (this.blitProgram) {
+      this.gl.deleteProgram(this.blitProgram);
+      this.blitProgram = null;
     }
   };
 
   private render = (currentTime: number) => {
     if (this.hasBeenDisposed) return;
 
-    if (this.program === null) {
+    if (this.program === null || this.blitProgram === null) {
       console.warn('Tried to render before program or gl was initialized');
       return;
     }
@@ -255,7 +389,11 @@ export class ShaderMount {
       this.totalFrameTime += dt * this.speed;
     }
 
-    // Clear the canvas
+    // Bind framebuffer for offscreen rendering
+    this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, this.framebuffer);
+    this.gl.viewport(0, 0, this.virtualWidth, this.virtualHeight);
+
+    // Clear the framebuffer
     this.gl.clear(this.gl.COLOR_BUFFER_BIT);
 
     // Update uniforms
@@ -266,11 +404,24 @@ export class ShaderMount {
 
     // If the resolution has changed, we need to update the uniform
     if (this.resolutionChanged) {
-      this.gl.uniform2f(this.uniformLocations.u_resolution!, this.gl.canvas.width, this.gl.canvas.height);
+      this.gl.uniform2f(this.uniformLocations.u_resolution!, this.virtualWidth, this.virtualHeight);
       this.gl.uniform1f(this.uniformLocations.u_pixelRatio!, this.renderScale);
       this.resolutionChanged = false;
     }
 
+    this.gl.drawArrays(this.gl.TRIANGLES, 0, 6);
+
+    // Unbind framebuffer and render to canvas
+    this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, null);
+    this.gl.viewport(0, 0, this.gl.canvas.width, this.gl.canvas.height);
+
+    // Clear the canvas
+    this.gl.clear(this.gl.COLOR_BUFFER_BIT);
+
+    // Draw the framebuffer content to the canvas using the blit program
+    this.gl.useProgram(this.blitProgram);
+    this.gl.bindTexture(this.gl.TEXTURE_2D, this.blitTexture);
+    this.gl.uniform2f(this.blitCanvasSizeLocation!, this.gl.canvas.width, this.gl.canvas.height);
     this.gl.drawArrays(this.gl.TRIANGLES, 0, 6);
 
     // Loop if we're animating
@@ -482,6 +633,9 @@ export class ShaderMount {
         this.gl.deleteTexture(texture);
       });
       this.textures.clear();
+
+      // Clean up framebuffer
+      this.disposeFramebuffer();
 
       this.gl.deleteProgram(this.program);
       this.program = null;
