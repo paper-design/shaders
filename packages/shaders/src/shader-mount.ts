@@ -28,6 +28,30 @@ export class ShaderMount {
   private maxPixelCount;
   private isSafari = isSafari();
 
+  /** Framebuffer for virtual resolution rendering */
+  private framebuffer: WebGLFramebuffer | null = null;
+  /** Renderbuffer for depth/stencil attachment */
+  private renderbuffer: WebGLRenderbuffer | null = null;
+  /** Texture used as color attachment for the framebuffer */
+  private framebufferTexture: WebGLTexture | null = null;
+  /** Current virtual resolution width */
+  private virtualWidth = 0;
+  /** Current virtual resolution height */
+  private virtualHeight = 0;
+  /** Whether the framebuffer needs to be recreated */
+  private framebufferDirty = true;
+
+  /** The scale that we should render at.
+   * - Used to target 2x rendering even on 1x screens for better antialiasing
+   * - Prevents the virtual resolution from going beyond the maximum resolution
+   * - Accounts for the page zoom level so we render in physical device pixels rather than CSS pixels
+   */
+  private renderScale = 1;
+  private parentWidth = 0;
+  private parentHeight = 0;
+
+  private resizeObserver: ResizeObserver | null = null;
+
   constructor(
     /** The div you'd like to mount the shader to. The shader will match its size. */
     parentElement: HTMLElement,
@@ -139,17 +163,6 @@ export class ShaderMount {
     this.uniformLocations = uniformLocations;
   };
 
-  /**
-   * The scale that we should render at.
-   * - Used to target 2x rendering even on 1x screens for better antialiasing
-   * - Prevents the virtual resolution from going beyond the maximum resolution
-   * - Accounts for the page zoom level so we render in physical device pixels rather than CSS pixels
-   */
-  private renderScale = 1;
-  private parentWidth = 0;
-  private parentHeight = 0;
-
-  private resizeObserver: ResizeObserver | null = null;
   private setupResizeObserver = () => {
     this.resizeObserver = new ResizeObserver(([entry]) => {
       if (entry?.borderBoxSize[0]) {
@@ -223,20 +236,31 @@ export class ShaderMount {
     const newWidth = Math.round(this.parentWidth * newRenderScale);
     const newHeight = Math.round(this.parentHeight * newRenderScale);
 
-    if (
-      this.canvasElement.width !== newWidth ||
-      this.canvasElement.height !== newHeight ||
-      this.renderScale !== newRenderScale // Usually, only render scale change when the user zooms in/out
-    ) {
-      this.renderScale = newRenderScale;
+    // Update canvas size to match display size
+    if (this.canvasElement.width !== newWidth || this.canvasElement.height !== newHeight) {
       this.canvasElement.width = newWidth;
       this.canvasElement.height = newHeight;
-      this.resolutionChanged = true;
       this.gl.viewport(0, 0, this.gl.canvas.width, this.gl.canvas.height);
-
-      // this is necessary to avoid flashes while resizing (the next scheduled render will set uniforms)
-      this.render(performance.now());
     }
+
+    // Update virtual resolution if needed
+    const newVirtualWidth = Math.round(this.parentWidth * targetRenderScale);
+    const newVirtualHeight = Math.round(this.parentHeight * targetRenderScale);
+
+    if (
+      this.virtualWidth !== newVirtualWidth ||
+      this.virtualHeight !== newVirtualHeight ||
+      this.renderScale !== newRenderScale
+    ) {
+      this.virtualWidth = newVirtualWidth;
+      this.virtualHeight = newVirtualHeight;
+      this.renderScale = newRenderScale;
+      this.framebufferDirty = true;
+      this.resolutionChanged = true;
+    }
+
+    // this is necessary to avoid flashes while resizing (the next scheduled render will set uniforms)
+    this.render(performance.now());
   };
 
   private render = (currentTime: number) => {
@@ -255,7 +279,14 @@ export class ShaderMount {
       this.totalFrameTime += dt * this.speed;
     }
 
-    // Clear the canvas
+    // Set up framebuffer if needed
+    this.setupFramebuffer();
+
+    // Bind framebuffer for rendering
+    this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, this.framebuffer);
+    this.gl.viewport(0, 0, this.virtualWidth, this.virtualHeight);
+
+    // Clear the framebuffer
     this.gl.clear(this.gl.COLOR_BUFFER_BIT);
 
     // Update uniforms
@@ -266,11 +297,20 @@ export class ShaderMount {
 
     // If the resolution has changed, we need to update the uniform
     if (this.resolutionChanged) {
-      this.gl.uniform2f(this.uniformLocations.u_resolution!, this.gl.canvas.width, this.gl.canvas.height);
+      this.gl.uniform2f(this.uniformLocations.u_resolution!, this.virtualWidth, this.virtualHeight);
       this.gl.uniform1f(this.uniformLocations.u_pixelRatio!, this.renderScale);
       this.resolutionChanged = false;
     }
 
+    // Render to framebuffer
+    this.gl.drawArrays(this.gl.TRIANGLES, 0, 6);
+
+    // Unbind framebuffer and render to canvas
+    this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, null);
+    this.gl.viewport(0, 0, this.gl.canvas.width, this.gl.canvas.height);
+
+    // Use a simple quad shader to blit the framebuffer to the canvas
+    // TODO: Add a blit shader program for better quality scaling
     this.gl.drawArrays(this.gl.TRIANGLES, 0, 6);
 
     // Loop if we're animating
@@ -483,6 +523,20 @@ export class ShaderMount {
       });
       this.textures.clear();
 
+      // Clean up framebuffer resources
+      if (this.framebuffer) {
+        this.gl.deleteFramebuffer(this.framebuffer);
+        this.framebuffer = null;
+      }
+      if (this.renderbuffer) {
+        this.gl.deleteRenderbuffer(this.renderbuffer);
+        this.renderbuffer = null;
+      }
+      if (this.framebufferTexture) {
+        this.gl.deleteTexture(this.framebufferTexture);
+        this.framebufferTexture = null;
+      }
+
       this.gl.deleteProgram(this.program);
       this.program = null;
 
@@ -507,6 +561,74 @@ export class ShaderMount {
 
     // Remove the shader mount from the div wrapper element to avoid any GC issues
     this.parentElement.paperShaderMount = undefined;
+  };
+
+  private setupFramebuffer = () => {
+    if (!this.framebufferDirty) return;
+
+    // Clean up existing framebuffer resources
+    if (this.framebuffer) {
+      this.gl.deleteFramebuffer(this.framebuffer);
+      this.framebuffer = null;
+    }
+    if (this.renderbuffer) {
+      this.gl.deleteRenderbuffer(this.renderbuffer);
+      this.renderbuffer = null;
+    }
+    if (this.framebufferTexture) {
+      this.gl.deleteTexture(this.framebufferTexture);
+      this.framebufferTexture = null;
+    }
+
+    // Create new framebuffer
+    this.framebuffer = this.gl.createFramebuffer();
+    this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, this.framebuffer);
+
+    // Create and attach color texture
+    this.framebufferTexture = this.gl.createTexture();
+    this.gl.bindTexture(this.gl.TEXTURE_2D, this.framebufferTexture);
+    this.gl.texImage2D(
+      this.gl.TEXTURE_2D,
+      0,
+      this.gl.RGBA,
+      this.virtualWidth,
+      this.virtualHeight,
+      0,
+      this.gl.RGBA,
+      this.gl.UNSIGNED_BYTE,
+      null
+    );
+    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.LINEAR);
+    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MAG_FILTER, this.gl.LINEAR);
+    this.gl.framebufferTexture2D(
+      this.gl.FRAMEBUFFER,
+      this.gl.COLOR_ATTACHMENT0,
+      this.gl.TEXTURE_2D,
+      this.framebufferTexture,
+      0
+    );
+
+    // Create and attach renderbuffer for depth/stencil
+    this.renderbuffer = this.gl.createRenderbuffer();
+    this.gl.bindRenderbuffer(this.gl.RENDERBUFFER, this.renderbuffer);
+    this.gl.renderbufferStorage(this.gl.RENDERBUFFER, this.gl.DEPTH_STENCIL, this.virtualWidth, this.virtualHeight);
+    this.gl.framebufferRenderbuffer(
+      this.gl.FRAMEBUFFER,
+      this.gl.DEPTH_STENCIL_ATTACHMENT,
+      this.gl.RENDERBUFFER,
+      this.renderbuffer
+    );
+
+    // Check framebuffer status
+    const status = this.gl.checkFramebufferStatus(this.gl.FRAMEBUFFER);
+    if (status !== this.gl.FRAMEBUFFER_COMPLETE) {
+      console.error('Framebuffer is not complete:', status);
+      return;
+    }
+
+    // Unbind framebuffer
+    this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, null);
+    this.framebufferDirty = false;
   };
 }
 
