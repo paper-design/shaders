@@ -100,8 +100,8 @@ export class ShaderMount {
   private framebufferTexture: WebGLTexture | null = null;
   private framebufferWidth = 0;
   private framebufferHeight = 0;
-  private framebufferProgram: WebGLProgram | null = null;
-  private framebufferUniformLocations: Record<string, WebGLUniformLocation | null> = {};
+  private framebufferSamplingProgram: WebGLProgram | null = null;
+  private framebufferSamplingUniformLocations: Record<string, WebGLUniformLocation | null> = {};
 
   private resizeProfiler = new Profiler('handleResize');
   private resolutionProfiler = new Profiler('handleResolutionChange');
@@ -212,8 +212,8 @@ export class ShaderMount {
     const framebufferProgram = createProgram(this.gl, framebufferVertexShader, framebufferFragmentShader);
     if (!framebufferProgram) return;
 
-    this.framebufferProgram = framebufferProgram;
-    this.framebufferUniformLocations = {
+    this.framebufferSamplingProgram = framebufferProgram;
+    this.framebufferSamplingUniformLocations = {
       u_texture: this.gl.getUniformLocation(framebufferProgram, 'u_texture'),
     };
   };
@@ -398,8 +398,8 @@ export class ShaderMount {
   private render = (currentTime: number) => {
     if (this.hasBeenDisposed) return;
 
-    if (this.program === null || this.framebufferProgram === null) {
-      console.warn('Tried to render before program or gl was initialized');
+    if (this.program === null || this.framebufferSamplingProgram === null) {
+      console.warn('Tried to render before program or framebuffer or gl was initialized');
       return;
     }
 
@@ -436,10 +436,10 @@ export class ShaderMount {
     this.gl.viewport(0, 0, this.gl.canvas.width, this.gl.canvas.height);
     this.gl.clear(this.gl.COLOR_BUFFER_BIT);
 
-    this.gl.useProgram(this.framebufferProgram);
+    this.gl.useProgram(this.framebufferSamplingProgram);
     this.gl.activeTexture(this.gl.TEXTURE0);
     this.gl.bindTexture(this.gl.TEXTURE_2D, this.framebufferTexture);
-    this.gl.uniform1i(this.framebufferUniformLocations.u_texture!, 0);
+    this.gl.uniform1i(this.framebufferSamplingUniformLocations.u_texture!, 0);
     this.gl.drawArrays(this.gl.TRIANGLES, 0, 6);
 
     // Loop if we're animating
@@ -664,10 +664,9 @@ export class ShaderMount {
       this.gl.UNSIGNED_BYTE,
       null
     );
+
     this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.LINEAR);
     this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MAG_FILTER, this.gl.LINEAR);
-    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_S, this.gl.CLAMP_TO_EDGE);
-    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_T, this.gl.CLAMP_TO_EDGE);
 
     this.gl.framebufferTexture2D(
       this.gl.FRAMEBUFFER,
@@ -681,10 +680,7 @@ export class ShaderMount {
     const status = this.gl.checkFramebufferStatus(this.gl.FRAMEBUFFER);
     if (status !== this.gl.FRAMEBUFFER_COMPLETE) {
       console.error('Framebuffer is not complete:', status);
-      return false;
     }
-
-    return true;
   };
 
   /** Dispose of the shader mount, cleaning up all of the WebGL resources */
@@ -714,9 +710,9 @@ export class ShaderMount {
         this.gl.deleteTexture(this.framebufferTexture);
         this.framebufferTexture = null;
       }
-      if (this.framebufferProgram) {
-        this.gl.deleteProgram(this.framebufferProgram);
-        this.framebufferProgram = null;
+      if (this.framebufferSamplingProgram) {
+        this.gl.deleteProgram(this.framebufferSamplingProgram);
+        this.framebufferSamplingProgram = null;
       }
 
       if (this.program) {
@@ -742,7 +738,7 @@ export class ShaderMount {
     visualViewport?.removeEventListener('resize', this.handleVisualViewportChange);
 
     this.uniformLocations = {};
-    this.framebufferUniformLocations = {};
+    this.framebufferSamplingUniformLocations = {};
 
     // Reset profilers
     this.resizeProfiler.reset();
