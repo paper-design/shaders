@@ -1,5 +1,72 @@
 const DEFAULT_MAX_PIXEL_COUNT: number = 1920 * 1080 * 4;
 
+class Profiler {
+  private measurements: number[] = [];
+  private readonly maxSamples: number;
+  private readonly name: string;
+
+  constructor(name: string, maxSamples = 100) {
+    this.name = name;
+    this.maxSamples = maxSamples;
+  }
+
+  measure(fn: () => void) {
+    const startTime = performance.now();
+    fn();
+    const endTime = performance.now();
+    const duration = endTime - startTime;
+
+    this.measurements.push(duration);
+    if (this.measurements.length > this.maxSamples) {
+      this.measurements.shift();
+    }
+
+    this.logStats();
+  }
+
+  private calculateStats() {
+    if (this.measurements.length === 0) return null;
+
+    const sorted = [...this.measurements].sort((a, b) => a - b);
+    const mean = this.measurements.reduce((a, b) => a + b) / this.measurements.length;
+    const median =
+      sorted.length % 2 === 0
+        ? (sorted[sorted.length / 2 - 1]! + sorted[sorted.length / 2]!) / 2
+        : sorted[Math.floor(sorted.length / 2)]!;
+    const min = sorted[0]!;
+    const max = sorted[sorted.length - 1]!;
+    const p95 = sorted[Math.floor(sorted.length * 0.95)]!;
+
+    return {
+      mean,
+      median,
+      min,
+      max,
+      p95,
+      samples: this.measurements.length,
+    } as const;
+  }
+
+  private logStats() {
+    const stats = this.calculateStats();
+    if (!stats) return;
+
+    const { mean, median, min, max, p95, samples } = stats;
+
+    console.log(`[${this.name}] Stats (${samples} samples):`, {
+      mean: `${mean.toFixed(2)}ms`,
+      median: `${median.toFixed(2)}ms`,
+      min: `${min.toFixed(2)}ms`,
+      max: `${max.toFixed(2)}ms`,
+      p95: `${p95.toFixed(2)}ms`,
+    });
+  }
+
+  reset() {
+    this.measurements = [];
+  }
+}
+
 export class ShaderMount {
   public parentElement: PaperShaderElement;
   public canvasElement: HTMLCanvasElement;
@@ -27,6 +94,17 @@ export class ShaderMount {
   private minPixelRatio;
   private maxPixelCount;
   private isSafari = isSafari();
+
+  // Framebuffer properties
+  private framebuffer: WebGLFramebuffer | null = null;
+  private framebufferTexture: WebGLTexture | null = null;
+  private framebufferWidth = 0;
+  private framebufferHeight = 0;
+  private framebufferProgram: WebGLProgram | null = null;
+  private framebufferUniformLocations: Record<string, WebGLUniformLocation | null> = {};
+
+  private resizeProfiler = new Profiler('handleResize');
+  private resolutionProfiler = new Profiler('handleResolutionChange');
 
   constructor(
     /** The div you'd like to mount the shader to. The shader will match its size. */
@@ -105,6 +183,39 @@ export class ShaderMount {
     const program = createProgram(this.gl, vertexShaderSource, this.fragmentShader);
     if (!program) return;
     this.program = program;
+
+    // Initialize framebuffer program
+    const framebufferVertexShader = `#version 300 es
+      precision mediump float;
+
+      layout(location = 0) in vec4 a_position;
+      out vec2 v_texCoord;
+
+      void main() {
+        gl_Position = a_position;
+        v_texCoord = a_position.xy * 0.5 + 0.5;
+      }
+    `;
+
+    const framebufferFragmentShader = `#version 300 es
+      precision mediump float;
+      uniform sampler2D u_texture;
+
+      in vec2 v_texCoord;
+      out vec4 fragColor;
+
+      void main() {
+        fragColor = texture(u_texture, v_texCoord);
+      }
+    `;
+
+    const framebufferProgram = createProgram(this.gl, framebufferVertexShader, framebufferFragmentShader);
+    if (!framebufferProgram) return;
+
+    this.framebufferProgram = framebufferProgram;
+    this.framebufferUniformLocations = {
+      u_texture: this.gl.getUniformLocation(framebufferProgram, 'u_texture'),
+    };
   };
 
   private setupPositionAttribute = () => {
@@ -191,58 +302,103 @@ export class ShaderMount {
 
   /** Resize handler for when the container div changes size or the max pixel count changes and we want to resize our canvas to match */
   private handleResize = () => {
-    // Cancel any scheduled resize handlers
-    if (this.resizeRafId !== null) {
-      cancelAnimationFrame(this.resizeRafId);
-    }
+    this.resizeProfiler.measure(() => {
+      // Cancel any scheduled resize handlers
+      if (this.resizeRafId !== null) {
+        cancelAnimationFrame(this.resizeRafId);
+      }
 
-    const pinchZoom = visualViewport?.scale ?? 1;
+      const pinchZoom = visualViewport?.scale ?? 1;
 
-    // Zoom level can be calculated comparing the browser's outerWidth and the viewport width.
-    // Note: avoid innerWidth, use visualViewport.width instead.
-    // - innerWidth is affected by pinch zoom in Safari, but not other browsers.
-    //   visualViewport.width works consistently in all browsers.
-    // - innerWidth is rounded to integer, but not visualViewport.width.
-    const innerWidth = visualViewport ? visualViewport.width * visualViewport.scale : window.innerWidth;
+      // Zoom level can be calculated comparing the browser's outerWidth and the viewport width.
+      // Note: avoid innerWidth, use visualViewport.width instead.
+      // - innerWidth is affected by pinch zoom in Safari, but not other browsers.
+      //   visualViewport.width works consistently in all browsers.
+      // - innerWidth is rounded to integer, but not visualViewport.width.
+      const innerWidth = visualViewport ? visualViewport.width * visualViewport.scale : window.innerWidth;
 
-    // Slight rounding here helps the <canvas> maintain a consistent computed size as the zoom level changes
-    const classicZoom = Math.round((10000 * window.outerWidth) / innerWidth) / 10000;
+      // Slight rounding here helps the <canvas> maintain a consistent computed size as the zoom level changes
+      const classicZoom = Math.round((10000 * window.outerWidth) / innerWidth) / 10000;
 
-    // As of 2025, Safari reports physical devicePixelRatio, but other browsers add the current zoom level
-    // https://bugs.webkit.org/show_bug.cgi?id=124862
-    const realPixelRatio = this.isSafari ? devicePixelRatio : devicePixelRatio / classicZoom;
-    const targetPixelRatio = Math.max(realPixelRatio, this.minPixelRatio);
-    const targetRenderScale = targetPixelRatio * classicZoom * pinchZoom;
-    const targetPixelWidth = this.parentWidth * targetRenderScale;
-    const targetPixelHeight = this.parentHeight * targetRenderScale;
+      // As of 2025, Safari reports physical devicePixelRatio, but other browsers add the current zoom level
+      // https://bugs.webkit.org/show_bug.cgi?id=124862
+      const realPixelRatio = this.isSafari ? devicePixelRatio : devicePixelRatio / classicZoom;
+      const targetPixelRatio = Math.max(realPixelRatio, this.minPixelRatio);
+      const targetRenderScale = targetPixelRatio * classicZoom * pinchZoom;
+      const targetPixelWidth = this.parentWidth * targetRenderScale;
+      const targetPixelHeight = this.parentHeight * targetRenderScale;
 
-    // Prevent the total rendered pixel count from exceeding maxPixelCount
-    const maxPixelCountHeadroom = Math.sqrt(this.maxPixelCount) / Math.sqrt(targetPixelWidth * targetPixelHeight);
+      // Prevent the total rendered pixel count from exceeding maxPixelCount
+      const maxPixelCountHeadroom = Math.sqrt(this.maxPixelCount) / Math.sqrt(targetPixelWidth * targetPixelHeight);
 
-    const newRenderScale = targetRenderScale * Math.min(1, maxPixelCountHeadroom);
-    const newWidth = Math.round(this.parentWidth * newRenderScale);
-    const newHeight = Math.round(this.parentHeight * newRenderScale);
+      const newRenderScale = targetRenderScale * Math.min(1, maxPixelCountHeadroom);
+      const newWidth = Math.round(this.parentWidth * newRenderScale);
+      const newHeight = Math.round(this.parentHeight * newRenderScale);
 
-    if (
-      this.canvasElement.width !== newWidth ||
-      this.canvasElement.height !== newHeight ||
-      this.renderScale !== newRenderScale // Usually, only render scale change when the user zooms in/out
-    ) {
-      this.renderScale = newRenderScale;
-      this.canvasElement.width = newWidth;
-      this.canvasElement.height = newHeight;
-      this.resolutionChanged = true;
-      this.gl.viewport(0, 0, this.gl.canvas.width, this.gl.canvas.height);
+      if (
+        this.canvasElement.width !== newWidth ||
+        this.canvasElement.height !== newHeight ||
+        this.renderScale !== newRenderScale // Usually, only render scale change when the user zooms in/out
+      ) {
+        this.renderScale = newRenderScale;
+        this.canvasElement.width = newWidth;
+        this.canvasElement.height = newHeight;
+        this.resolutionChanged = true;
+        this.gl.viewport(0, 0, this.gl.canvas.width, this.gl.canvas.height);
 
-      // this is necessary to avoid flashes while resizing (the next scheduled render will set uniforms)
-      this.render(performance.now());
-    }
+        // this is necessary to avoid flashes while resizing (the next scheduled render will set uniforms)
+        this.render(performance.now());
+      }
+    });
+  };
+
+  private handleResolutionChange = () => {
+    this.resolutionProfiler.measure(() => {
+      const pinchZoom = visualViewport?.scale ?? 1;
+      const innerWidth = visualViewport ? visualViewport.width * visualViewport.scale : window.innerWidth;
+      const classicZoom = Math.round((10000 * window.outerWidth) / innerWidth) / 10000;
+      const realPixelRatio = this.isSafari ? devicePixelRatio : devicePixelRatio / classicZoom;
+      const targetPixelRatio = Math.max(realPixelRatio, this.minPixelRatio);
+      const targetRenderScale = targetPixelRatio * classicZoom * pinchZoom;
+      const targetPixelWidth = this.parentWidth * targetRenderScale;
+      const targetPixelHeight = this.parentHeight * targetRenderScale;
+
+      // Calculate framebuffer dimensions based on maxPixelCount
+      const maxPixelCountHeadroom = Math.sqrt(this.maxPixelCount) / Math.sqrt(targetPixelWidth * targetPixelHeight);
+      const newRenderScale = targetRenderScale * Math.min(1, maxPixelCountHeadroom);
+
+      // Set canvas size to match display size
+      const newWidth = Math.round(this.parentWidth * targetRenderScale);
+      const newHeight = Math.round(this.parentHeight * targetRenderScale);
+
+      // Set framebuffer size to match maxPixelCount
+      const newFramebufferWidth = Math.round(this.parentWidth * newRenderScale);
+      const newFramebufferHeight = Math.round(this.parentHeight * newRenderScale);
+
+      if (
+        this.canvasElement.width !== newWidth ||
+        this.canvasElement.height !== newHeight ||
+        this.framebufferWidth !== newFramebufferWidth ||
+        this.framebufferHeight !== newFramebufferHeight ||
+        this.renderScale !== newRenderScale
+      ) {
+        this.renderScale = newRenderScale;
+        this.canvasElement.width = newWidth;
+        this.canvasElement.height = newHeight;
+        this.framebufferWidth = newFramebufferWidth;
+        this.framebufferHeight = newFramebufferHeight;
+        this.resolutionChanged = true;
+
+        // Update framebuffer
+        this.setupFramebuffer();
+      }
+    });
   };
 
   private render = (currentTime: number) => {
     if (this.hasBeenDisposed) return;
 
-    if (this.program === null) {
+    if (this.program === null || this.framebufferProgram === null) {
       console.warn('Tried to render before program or gl was initialized');
       return;
     }
@@ -255,7 +411,9 @@ export class ShaderMount {
       this.totalFrameTime += dt * this.speed;
     }
 
-    // Clear the canvas
+    // Render to framebuffer
+    this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, this.framebuffer);
+    this.gl.viewport(0, 0, this.framebufferWidth, this.framebufferHeight);
     this.gl.clear(this.gl.COLOR_BUFFER_BIT);
 
     // Update uniforms
@@ -266,11 +424,22 @@ export class ShaderMount {
 
     // If the resolution has changed, we need to update the uniform
     if (this.resolutionChanged) {
-      this.gl.uniform2f(this.uniformLocations.u_resolution!, this.gl.canvas.width, this.gl.canvas.height);
+      this.gl.uniform2f(this.uniformLocations.u_resolution!, this.framebufferWidth, this.framebufferHeight);
       this.gl.uniform1f(this.uniformLocations.u_pixelRatio!, this.renderScale);
       this.resolutionChanged = false;
     }
 
+    this.gl.drawArrays(this.gl.TRIANGLES, 0, 6);
+
+    // Render framebuffer to canvas
+    this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, null);
+    this.gl.viewport(0, 0, this.gl.canvas.width, this.gl.canvas.height);
+    this.gl.clear(this.gl.COLOR_BUFFER_BIT);
+
+    this.gl.useProgram(this.framebufferProgram);
+    this.gl.activeTexture(this.gl.TEXTURE0);
+    this.gl.bindTexture(this.gl.TEXTURE_2D, this.framebufferTexture);
+    this.gl.uniform1i(this.framebufferUniformLocations.u_texture!, 0);
     this.gl.drawArrays(this.gl.TRIANGLES, 0, 6);
 
     // Loop if we're animating
@@ -443,14 +612,14 @@ export class ShaderMount {
   public setMaxPixelCount = (newMaxPixelCount: number = DEFAULT_MAX_PIXEL_COUNT): void => {
     this.maxPixelCount = newMaxPixelCount;
 
-    this.handleResize();
+    this.handleResolutionChange();
   };
 
   /** Set the minimum pixel ratio for the shader */
   public setMinPixelRatio = (newMinPixelRatio: number = 2): void => {
     this.minPixelRatio = newMinPixelRatio;
 
-    this.handleResize();
+    this.handleResolutionChange();
   };
 
   /** Update the uniforms that are provided by the outside shader, can be a partial set with only the uniforms that have changed */
@@ -465,6 +634,59 @@ export class ShaderMount {
     this.render(performance.now());
   };
 
+  private setupFramebuffer = () => {
+    // Clean up existing framebuffer if it exists
+    if (this.framebuffer) {
+      this.gl.deleteFramebuffer(this.framebuffer);
+      this.framebuffer = null;
+    }
+
+    if (this.framebufferTexture) {
+      this.gl.deleteTexture(this.framebufferTexture);
+      this.framebufferTexture = null;
+    }
+
+    // Create new framebuffer
+    this.framebuffer = this.gl.createFramebuffer();
+    this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, this.framebuffer);
+
+    // Create and attach texture
+    this.framebufferTexture = this.gl.createTexture();
+    this.gl.bindTexture(this.gl.TEXTURE_2D, this.framebufferTexture);
+    this.gl.texImage2D(
+      this.gl.TEXTURE_2D,
+      0,
+      this.gl.RGBA,
+      this.framebufferWidth,
+      this.framebufferHeight,
+      0,
+      this.gl.RGBA,
+      this.gl.UNSIGNED_BYTE,
+      null
+    );
+    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.LINEAR);
+    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MAG_FILTER, this.gl.LINEAR);
+    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_S, this.gl.CLAMP_TO_EDGE);
+    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_T, this.gl.CLAMP_TO_EDGE);
+
+    this.gl.framebufferTexture2D(
+      this.gl.FRAMEBUFFER,
+      this.gl.COLOR_ATTACHMENT0,
+      this.gl.TEXTURE_2D,
+      this.framebufferTexture,
+      0
+    );
+
+    // Check framebuffer status
+    const status = this.gl.checkFramebufferStatus(this.gl.FRAMEBUFFER);
+    if (status !== this.gl.FRAMEBUFFER_COMPLETE) {
+      console.error('Framebuffer is not complete:', status);
+      return false;
+    }
+
+    return true;
+  };
+
   /** Dispose of the shader mount, cleaning up all of the WebGL resources */
   public dispose = (): void => {
     // Immediately mark as disposed to prevent future renders from leaking in
@@ -476,15 +698,31 @@ export class ShaderMount {
       this.rafId = null;
     }
 
-    if (this.gl && this.program) {
+    if (this.gl) {
       // Clean up all textures
       this.textures.forEach((texture) => {
         this.gl.deleteTexture(texture);
       });
       this.textures.clear();
 
-      this.gl.deleteProgram(this.program);
-      this.program = null;
+      // Clean up framebuffer resources
+      if (this.framebuffer) {
+        this.gl.deleteFramebuffer(this.framebuffer);
+        this.framebuffer = null;
+      }
+      if (this.framebufferTexture) {
+        this.gl.deleteTexture(this.framebufferTexture);
+        this.framebufferTexture = null;
+      }
+      if (this.framebufferProgram) {
+        this.gl.deleteProgram(this.framebufferProgram);
+        this.framebufferProgram = null;
+      }
+
+      if (this.program) {
+        this.gl.deleteProgram(this.program);
+        this.program = null;
+      }
 
       // Reset the WebGL context
       this.gl.bindBuffer(this.gl.ARRAY_BUFFER, null);
@@ -504,6 +742,11 @@ export class ShaderMount {
     visualViewport?.removeEventListener('resize', this.handleVisualViewportChange);
 
     this.uniformLocations = {};
+    this.framebufferUniformLocations = {};
+
+    // Reset profilers
+    this.resizeProfiler.reset();
+    this.resolutionProfiler.reset();
 
     // Remove the shader mount from the div wrapper element to avoid any GC issues
     this.parentElement.paperShaderMount = undefined;
