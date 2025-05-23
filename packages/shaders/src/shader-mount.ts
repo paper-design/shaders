@@ -371,7 +371,7 @@ export class ShaderMount {
       const newWidth = Math.round(this.parentWidth * targetRenderScale);
       const newHeight = Math.round(this.parentHeight * targetRenderScale);
 
-      // Set framebuffer size to match maxPixelCount
+      // Set framebuffer size
       const newFramebufferWidth = Math.round(this.parentWidth * newRenderScale);
       const newFramebufferHeight = Math.round(this.parentHeight * newRenderScale);
 
@@ -667,6 +667,10 @@ export class ShaderMount {
 
     this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.LINEAR);
     this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MAG_FILTER, this.gl.LINEAR);
+
+    // We need clamp to edge to avoid sampling artifacts from outside the canvas
+    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_S, this.gl.CLAMP_TO_EDGE);
+    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_T, this.gl.CLAMP_TO_EDGE);
 
     this.gl.framebufferTexture2D(
       this.gl.FRAMEBUFFER,
