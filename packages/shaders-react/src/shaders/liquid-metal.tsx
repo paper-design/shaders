@@ -35,8 +35,7 @@ export const defaultPreset: LiquidMetalPreset = {
     shape: 'none',
     worldWidth: 0,
     worldHeight: 0,
-    color1: '#FAFAFF',
-    color2: '#0F0F19',
+    colorTint: '#ffffff',
   },
 };
 
@@ -44,8 +43,7 @@ export const liquidMetalPresets: LiquidMetalPreset[] = [defaultPreset];
 
 export const LiquidMetal: React.FC<LiquidMetalProps> = memo(function LiquidMetalImpl({
   // Own props
-  color1 = defaultPreset.params.color1,
-  color2 = defaultPreset.params.color2,
+  colorTint = defaultPreset.params.colorTint,
   speed = defaultPreset.params.speed,
   frame = defaultPreset.params.frame,
   softness = defaultPreset.params.softness,
@@ -70,8 +68,7 @@ export const LiquidMetal: React.FC<LiquidMetalProps> = memo(function LiquidMetal
 }: LiquidMetalProps) {
   const uniforms = {
     // Own uniforms
-    u_color1: getShaderColorFromString(color1),
-    u_color2: getShaderColorFromString(color2),
+    u_colorTint: getShaderColorFromString(colorTint),
 
     u_softness: softness,
     u_repetition: repetition,

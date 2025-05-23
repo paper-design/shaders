@@ -10,8 +10,7 @@ precision mediump float;
 
 uniform float u_time;
 
-uniform vec4 u_color1;
-uniform vec4 u_color2;
+uniform vec4 u_colorTint;
 
 uniform float u_softness;
 uniform float u_repetition;
@@ -29,44 +28,28 @@ ${declarePI}
 ${declareRotate}
 ${declareSimplexNoise}
 
-vec3 getColorChanges(vec3 c1, vec3 c2, vec3 stripe_p, vec3 w, float blur, float bump) {
+float getColorChanges(float c1, float c2, float stripe_p, vec3 w, float blur, float bump, float tint) {
 
-  float border;
-  vec3 weight;
+  float ch = mix(c2, c1, smoothstep(.0, blur, stripe_p));
 
-  weight = smoothstep(0., blur, stripe_p);
-  vec3 ch = mix(c2, c1, weight);
-  ch = mix(ch, u_color1.rgb, .2 + .2 * weight);
-  
-  ch = mix(vec3(0.), ch, smoothstep(0., .5 * blur, stripe_p));
+  float border = w[0];
+  ch = mix(ch, c2, smoothstep(border - blur, border + blur, stripe_p));
 
-  border = w[0];
-  weight = smoothstep(border - blur, border + blur, stripe_p);
-  ch = mix(ch, c2, weight);
+  border = w[0] + .4 * (1. - bump) * w[1];
+  ch = mix(ch, c1, smoothstep(border - blur, border + blur, stripe_p));
 
-  border = w[0] + 0.4 * (1.0 - bump) * w[1];
-  weight = smoothstep(border - blur, border + blur, stripe_p);
-  ch = mix(ch, c1, weight);
-
-  border = w[0] + 0.5 * (1.0 - bump) * w[1];
-  weight = smoothstep(border - blur, border + blur, stripe_p);
-  ch = mix(ch, c2, weight);
-
-  weight = smoothstep(border - .01 * blur, border + .01, stripe_p);
-  ch = mix(ch, u_color2.rgb, weight);
+  border = w[0] + .5 * (1. - bump) * w[1];
+  ch = mix(ch, c2, smoothstep(border - blur, border + blur, stripe_p));
 
   border = w[0] + w[1];
-  weight = smoothstep(border - blur, border + blur, stripe_p);
-  ch = mix(ch, c1, weight);
+  ch = mix(ch, c1, smoothstep(border - blur, border + blur, stripe_p));
 
-  vec3 gradientMixer = (stripe_p - (w[0] + w[1])) / w[2];
-  vec3 gradient = mix(u_color1.rgb, u_color2.rgb, gradientMixer);
-
-  weight = smoothstep(border - blur, border + blur, stripe_p);
-  ch = mix(ch, gradient, weight);  
-
-  ch = mix(vec3(0.), ch, smoothstep(1., 1. - .5 * blur, stripe_p));
-
+  float gradient_t = (stripe_p - w[0] - w[1]) / w[2];
+  float gradient = mix(c1, c2, smoothstep(0., 1., gradient_t));
+  ch = mix(ch, gradient, smoothstep(border - blur, border + blur, stripe_p));
+  
+  // ch = 1. - min(1., (1. - ch) / max(tint, .0001));
+  ch = mix(ch, 1. - min(1., (1. - ch) / max(tint, 0.0001)), u_colorTint.a);
   return ch;
 }
 
@@ -205,15 +188,15 @@ void main() {
 
   vec3 w = vec3(thin_strip_1_width, thin_strip_2_width, wide_strip_ratio);
   w[1] -= .02 * smoothstep(.0, 1., mask + bump);
+  float stripe_r = mod(direction + dispersionRed, 1.);
+  float r = getColorChanges(color1.r, color2.r, stripe_r, w, blur, bump, u_colorTint.r);
+  float stripe_g = mod(direction, 1.);
+  float g = getColorChanges(color1.g, color2.g, stripe_g, w, blur, bump, u_colorTint.g);
+  float stripe_b = mod(direction - dispersionBlue, 1.);
+  float b = getColorChanges(color1.b, color2.b, stripe_b, w, blur, bump, u_colorTint.b);
+
+  color = vec3(r, g, b);
   
-  vec3 stripe_p = vec3(
-    mod(direction + dispersionRed, 1.0),
-    mod(direction, 1.0),
-    mod(direction - dispersionBlue, 1.0)
-  );
-
-  color = getColorChanges(color1, color2, stripe_p, w, blur, bump);
-
   color *= opacity;
 
   ${colorBandingFix}
@@ -223,8 +206,7 @@ void main() {
 `;
 
 export interface LiquidMetalUniforms extends ShaderSizingUniforms {
-  u_color1: [number, number, number, number];
-  u_color2: [number, number, number, number];
+  u_colorTint: [number, number, number, number];
   u_softness: number;
   u_repetition: number;
   u_rDispersion: number;
@@ -235,8 +217,7 @@ export interface LiquidMetalUniforms extends ShaderSizingUniforms {
 }
 
 export interface LiquidMetalParams extends ShaderSizingParams, ShaderMotionParams {
-  color1?: string;
-  color2?: string;
+  colorTint?: string;
   softness?: number;
   repetition?: number;
   rDispersion?: number;
