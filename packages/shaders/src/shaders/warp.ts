@@ -34,7 +34,6 @@ uniform vec2 u_resolution;
 
 uniform vec4 u_colors[${warpMeta.maxColorCount}];
 uniform float u_colorsCount;
-uniform float u_stepsPerColor;
 uniform float u_proportion;
 uniform float u_softness;
 uniform float u_shape;
@@ -109,21 +108,19 @@ void main() {
   }
   
   float mixer = shape * (u_colorsCount - 1.);
-  float steps = max(1., u_stepsPerColor);
   vec4 gradient = u_colors[0];
   gradient.rgb *= gradient.a;
   for (int i = 1; i < ${warpMeta.maxColorCount}; i++) {
     if (i >= int(u_colorsCount)) break;
     float localT = clamp(mixer - float(i - 1), 0.0, 1.0);
 
-    float stepT = floor(localT * steps) / steps;
-    float f = localT * steps - floor(localT * steps);
+    float stepT = floor(localT);
+    float f = localT * 1. - stepT;
     float center = .5;
     float smoothed = smoothstep(center - u_softness * center, center + u_softness * (1. - center), f);
-    float localTStepped = stepT + smoothed / steps;
+    float localTStepped = stepT + smoothed;
     
-    localT = localTStepped;
-    // localT = mix(localTStepped, localT, u_softness);
+    localT = mix(localTStepped, localT, u_softness);
   
     vec4 c = u_colors[i];
     c.rgb *= c.a;
@@ -142,7 +139,6 @@ void main() {
 export interface WarpUniforms extends ShaderSizingUniforms {
   u_colors: vec4[];
   u_colorsCount: number;
-  u_stepsPerColor: number;
   u_proportion: number;
   u_softness: number;
   u_shape: (typeof WarpPatterns)[WarpPattern];
@@ -154,7 +150,6 @@ export interface WarpUniforms extends ShaderSizingUniforms {
 
 export interface WarpParams extends ShaderSizingParams, ShaderMotionParams {
   colors?: string[];
-  stepsPerColor?: number;
   rotation?: number;
   proportion?: number;
   softness?: number;

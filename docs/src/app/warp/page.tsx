@@ -35,7 +35,6 @@ const WarpWithControls = () => {
         {
           proportion: { value: defaults.proportion, min: 0, max: 1, order: 300 },
           softness: { value: defaults.softness, min: 0, max: 1, order: 301 },
-          stepsPerColor: { value: defaults.stepsPerColor, min: 1, max: 5, step: 1, order: 301 },
           distortion: { value: defaults.distortion, min: 0, max: 1, order: 302 },
           swirl: { value: defaults.swirl, min: 0, max: 1, order: 303 },
           swirlIterations: { value: defaults.swirlIterations, min: 0, max: 20, order: 304 },
