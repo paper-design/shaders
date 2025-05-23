@@ -122,7 +122,8 @@ void main() {
     float smoothed = smoothstep(center - u_softness * center, center + u_softness * (1. - center), f);
     float localTStepped = stepT + smoothed / steps;
     
-    localT = mix(localTStepped, localT, u_softness);
+    localT = localTStepped;
+    // localT = mix(localTStepped, localT, u_softness);
   
     vec4 c = u_colors[i];
     c.rgb *= c.a;
