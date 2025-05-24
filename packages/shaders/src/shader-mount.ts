@@ -1,3 +1,5 @@
+const DEFAULT_MAX_PIXEL_COUNT: number = 1920 * 1080 * 4;
+
 export class ShaderMount {
   public parentElement: PaperShaderElement;
   public canvasElement: HTMLCanvasElement;
@@ -48,7 +50,7 @@ export class ShaderMount {
      *
      * May be reduced to improve performance or increased to improve quality on high-resolution screens.
      */
-    maxPixelCount: number = 1920 * 1080 * 4
+    maxPixelCount: number = DEFAULT_MAX_PIXEL_COUNT
   ) {
     if (parentElement instanceof HTMLElement) {
       this.parentElement = parentElement as PaperShaderElement;
@@ -187,7 +189,7 @@ export class ShaderMount {
     });
   };
 
-  /** Resize handler for when the container div changes size and we want to resize our canvas to match */
+  /** Resize handler for when the container div changes size or the max pixel count changes and we want to resize our canvas to match */
   private handleResize = () => {
     // Cancel any scheduled resize handlers
     if (this.resizeRafId !== null) {
@@ -437,6 +439,20 @@ export class ShaderMount {
     }
   };
 
+  /** Set the maximum pixel count for the shader, this will limit the number of pixels that will be rendered */
+  public setMaxPixelCount = (newMaxPixelCount: number = DEFAULT_MAX_PIXEL_COUNT): void => {
+    this.maxPixelCount = newMaxPixelCount;
+
+    this.handleResize();
+  };
+
+  /** Set the minimum pixel ratio for the shader */
+  public setMinPixelRatio = (newMinPixelRatio: number = 2): void => {
+    this.minPixelRatio = newMinPixelRatio;
+
+    this.handleResize();
+  };
+
   /** Update the uniforms that are provided by the outside shader, can be a partial set with only the uniforms that have changed */
   public setUniforms = (newUniforms: ShaderMountUniforms): void => {
     this.providedUniforms = { ...this.providedUniforms, ...newUniforms };
@@ -496,6 +512,8 @@ export class ShaderMount {
 
 /** Vertex shader for the shader mount */
 const vertexShaderSource = `#version 300 es
+precision mediump float;
+
 layout(location = 0) in vec4 a_position;
 
 uniform vec2 u_resolution;
@@ -545,8 +563,8 @@ vec3 getBoxSize(float boxRatio, vec2 givenBoxSize, vec2 maxBoxSize) {
 
 void main() {
   gl_Position = a_position;
-  
-  vec2 uv = gl_Position.xy * .5;  
+
+  vec2 uv = gl_Position.xy * .5;
   vec2 boxOrigin = vec2(.5 - u_originX, u_originY - .5);
   vec2 givenBoxSize = vec2(u_worldWidth, u_worldHeight);
   givenBoxSize = max(givenBoxSize, vec2(1.)) * u_pixelRatio;
@@ -554,12 +572,12 @@ void main() {
   float r = u_rotation * 3.14159265358979323846 / 180.;
   mat2 graphicRotation = mat2(cos(r), sin(r), -sin(r), cos(r));
   vec2 graphicOffset = vec2(-u_offsetX, u_offsetY);
-  
-  
+
+
   // ===================================================
   // Sizing api for graphic objects with fixed ratio
   // (currently supports only ratio = 1)
-  
+
   float fixedRatio = 1.;
   vec2 fixedRatioBoxGivenSize = vec2(
     (u_worldWidth == 0.) ? u_resolution.x : givenBoxSize.x,
@@ -574,22 +592,22 @@ void main() {
     v_objectHelperBox *= objectWorldScale;
     v_objectHelperBox += boxOrigin * (objectWorldScale - 1.);
   #endif
-  
+
   v_objectUV = uv;
   v_objectUV *= objectWorldScale;
   v_objectUV += boxOrigin * (objectWorldScale - 1.);
   v_objectUV += graphicOffset;
   v_objectUV /= u_scale;
   v_objectUV = graphicRotation * v_objectUV;
-  
+
 
   // ===================================================
-  
-  
+
+
   // ===================================================
   // Sizing api for graphic objects with either givenBoxSize ratio or canvas ratio.
   // Full-screen mode available with u_worldWidth = u_worldHeight = 0
-  
+
   v_responsiveBoxGivenSize = vec2(
     (u_worldWidth == 0.) ? u_resolution.x : givenBoxSize.x,
     (u_worldHeight == 0.) ? u_resolution.y : givenBoxSize.y
@@ -597,13 +615,13 @@ void main() {
   float responsiveRatio = v_responsiveBoxGivenSize.x / v_responsiveBoxGivenSize.y;
   v_responsiveBoxSize = getBoxSize(responsiveRatio, v_responsiveBoxGivenSize, maxBoxSize).xy;
   vec2 responsiveBoxScale = u_resolution.xy / v_responsiveBoxSize;
-  
+
   #ifdef ADD_HELPERS
     v_responsiveHelperBox = uv;
     v_responsiveHelperBox *= responsiveBoxScale;
     v_responsiveHelperBox += boxOrigin * (responsiveBoxScale - 1.);
   #endif
-  
+
   v_responsiveUV = uv;
   v_responsiveUV *= responsiveBoxScale;
   v_responsiveUV += boxOrigin * (responsiveBoxScale - 1.);
@@ -615,29 +633,29 @@ void main() {
 
   // ===================================================
 
-  
+
   // ===================================================
-  // Sizing api for patterns 
+  // Sizing api for patterns
   // (treating graphics as a image u_worldWidth x u_worldHeight size)
-  
-  float patternBoxRatio = givenBoxSize.x / givenBoxSize.y;  
+
+  float patternBoxRatio = givenBoxSize.x / givenBoxSize.y;
   vec2 patternBoxGivenSize = vec2(
     (u_worldWidth == 0.) ? u_resolution.x : givenBoxSize.x,
     (u_worldHeight == 0.) ? u_resolution.y : givenBoxSize.y
   );
   patternBoxRatio = patternBoxGivenSize.x / patternBoxGivenSize.y;
-  
+
   vec3 boxSizeData = getBoxSize(patternBoxRatio, patternBoxGivenSize, maxBoxSize);
   v_patternBoxSize = boxSizeData.xy;
   float patternBoxNoFitBoxWidth = boxSizeData.z;
   vec2 patternBoxScale = u_resolution.xy / v_patternBoxSize;
-  
+
   #ifdef ADD_HELPERS
     v_patternHelperBox = uv;
     v_patternHelperBox *= patternBoxScale;
     v_patternHelperBox += boxOrigin * (patternBoxScale - 1.);
   #endif
-  
+
   v_patternUV = uv;
   v_patternUV += graphicOffset / patternBoxScale;
   v_patternUV += boxOrigin;
@@ -652,7 +670,7 @@ void main() {
   v_patternUV += boxOrigin / patternBoxScale;
   v_patternUV -= boxOrigin;
   v_patternUV += .5;
-  
+
   // ===================================================
 
 }`;
@@ -707,7 +725,7 @@ function createProgram(
   return program;
 }
 
-const defaultStyle = `@layer base {
+const defaultStyle = `@layer paper-shaders {
   :where([data-paper-shaders]) {
     isolation: isolate;
     position: relative;
@@ -720,6 +738,7 @@ const defaultStyle = `@layer base {
       z-index: -1;
       width: 100%;
       height: 100%;
+      border-radius: inherit;
     }
   }
 }`;

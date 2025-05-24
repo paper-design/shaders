@@ -9,7 +9,9 @@ import {
   type ShaderPreset,
   defaultPatternSizing,
   defaultObjectSizing,
+  DitheringTypes,
 } from '@paper-design/shaders';
+import { DitheringShapes } from '@paper-design/shaders';
 
 export interface DitheringProps extends ShaderComponentProps, DitheringParams {}
 
@@ -25,12 +27,11 @@ export const defaultPreset: DitheringPreset = {
     ...defaultPatternSizing,
     speed: 1,
     frame: 0,
-    color1: 'hsla(240, 14%, 17%, 1)',
-    color2: 'hsla(34, 26%, 61%, 1)',
-    shape: 1,
-    type: 3,
+    color1: '#252531',
+    color2: '#b59f82',
+    shape: 'simplex',
+    type: '4x4',
     pxSize: 2,
-    pxRounded: true,
   },
 };
 
@@ -40,12 +41,11 @@ export const warpPreset: DitheringPreset = {
     ...defaultPatternSizing,
     speed: 1,
     frame: 0,
-    color1: 'hsla(195, 47%, 35%, 1)',
-    color2: 'hsla(171, 26%, 89%, 1)',
-    shape: 2,
-    type: 3,
+    color1: '#2f6e83',
+    color2: '#dceae8',
+    shape: 'warp',
+    type: '4x4',
     pxSize: 2,
-    pxRounded: true,
   },
 } as const;
 
@@ -55,12 +55,11 @@ export const sinePreset: DitheringPreset = {
     ...defaultPatternSizing,
     speed: 1,
     frame: 0,
-    color1: 'hsla(318, 80%, 25%, 1)',
-    color2: 'hsla(184, 100%, 40%, 1)',
-    shape: 4,
-    type: 4,
+    color1: '#730d54',
+    color2: '#00becc',
+    shape: 'wave',
+    type: '4x4',
     pxSize: 11,
-    pxRounded: true,
   },
 } as const;
 
@@ -70,12 +69,11 @@ export const bugsPreset: DitheringPreset = {
     ...defaultPatternSizing,
     speed: 1,
     frame: 0,
-    color1: 'hsla(0, 0%, 0%, 1)',
-    color2: 'hsla(120, 100%, 25%, 1)',
-    shape: 3,
-    type: 1,
+    color1: '#000000',
+    color2: '#008000',
+    shape: 'dots',
+    type: 'random',
     pxSize: 9,
-    pxRounded: true,
   },
 } as const;
 
@@ -85,12 +83,11 @@ export const ripplePreset: DitheringPreset = {
     ...defaultObjectSizing,
     speed: 1,
     frame: 0,
-    color1: 'hsla(20, 50%, 25%, 1)',
-    color2: 'hsla(20, 50%, 55%, 1)',
-    shape: 5,
-    type: 2,
+    color1: '#603520',
+    color2: '#c67953',
+    shape: 'ripple',
+    type: '2x2',
     pxSize: 3,
-    pxRounded: false,
   },
 } as const;
 
@@ -100,12 +97,11 @@ export const swirlPreset: DitheringPreset = {
     ...defaultObjectSizing,
     speed: 1,
     frame: 0,
-    color1: 'hsla(0, 0%, 0%, 1)',
-    color2: 'hsla(200, 26%, 20%, 1)',
-    shape: 6,
-    type: 4,
+    color1: '#000000',
+    color2: '#263740',
+    shape: 'swirl',
+    type: '8x8',
     pxSize: 2,
-    pxRounded: false,
   },
 } as const;
 
@@ -113,16 +109,13 @@ export const spherePreset: DitheringPreset = {
   name: 'Sphere',
   params: {
     ...defaultObjectSizing,
-    offsetX: -0.5,
-    offsetY: 0.23,
     speed: 1,
     frame: 0,
-    color1: 'hsla(320, 26%, 15%, 1)',
-    color2: 'hsla(135, 30%, 30%, 1)',
-    shape: 7,
-    type: 3,
+    color1: '#301c2a',
+    color2: '#366341',
+    shape: 'sphere',
+    type: '4x4',
     pxSize: 2.5,
-    pxRounded: true,
   },
 } as const;
 
@@ -145,7 +138,6 @@ export const Dithering: React.FC<DitheringProps> = memo(function DitheringImpl({
   shape = defaultPreset.params.shape,
   type = defaultPreset.params.type,
   pxSize = defaultPreset.params.pxSize,
-  pxRounded = defaultPreset.params.pxRounded,
 
   // Sizing props
   fit = defaultPreset.params.fit,
@@ -163,10 +155,9 @@ export const Dithering: React.FC<DitheringProps> = memo(function DitheringImpl({
     // Own uniforms
     u_color1: getShaderColorFromString(color1),
     u_color2: getShaderColorFromString(color2),
-    u_shape: shape,
-    u_type: type,
+    u_shape: DitheringShapes[shape],
+    u_type: DitheringTypes[type],
     u_pxSize: pxSize,
-    u_pxRounded: pxRounded,
 
     // Sizing uniforms
     u_fit: ShaderFitOptions[fit],

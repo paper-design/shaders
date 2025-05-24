@@ -25,8 +25,8 @@ export const defaultPreset: NeuroNoisePreset = {
     ...defaultPatternSizing,
     speed: 1,
     frame: 0,
-    colorFront: 'hsla(261, 100%, 82%, 1)',
-    colorBack: 'hsla(0, 0%, 0%, 1)',
+    colorFront: '#bf9eff',
+    colorBack: '#000000',
     brightness: 1.3,
   },
 };
@@ -38,8 +38,8 @@ const marblePreset: NeuroNoisePreset = {
     scale: 0.4,
     speed: 0,
     frame: 0,
-    colorFront: 'hsla(230, 24%, 15%, 1)',
-    colorBack: 'hsla(0, 0%, 97%, 1)',
+    colorFront: '#1d2131',
+    colorBack: '#f7f7f7',
     brightness: 1.1,
   },
 };

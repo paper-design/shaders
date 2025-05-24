@@ -16,20 +16,20 @@ export const dotOrbitMeta = {
  * - u_colors (vec4[]): Input RGBA colors
  * - u_colorsCount (float): Number of active colors (`u_colors` length)
  * - u_stepsPerColor (float): Discretization of the color transition
- * - u_dotSize (float, 0 .. 1): Base dot radius (relative to cell size)
- * - u_dotSizeRange (float, 0 .. 1): Dot radius to vary between the cells
+ * - u_size (float, 0 .. 1): Base dot radius (relative to cell size)
+ * - u_sizeRange (float, 0 .. 1): Dot radius to vary between the cells
  * - u_spreading (float, 0 .. 1): the distance each dot can move around the regular grid
  */
 export const dotOrbitFragmentShader: string = `#version 300 es
-precision highp float;
+precision mediump float;
 
 uniform float u_time;
 
 uniform vec4 u_colors[${dotOrbitMeta.maxColorCount}];
 uniform float u_colorsCount;
 uniform float u_stepsPerColor;
-uniform float u_dotSize;
-uniform float u_dotSizeRange;
+uniform float u_size;
+uniform float u_sizeRange;
 uniform float u_spreading;
 
 ${sizingVariablesDeclaration}
@@ -83,7 +83,7 @@ void main() {
 
   vec3 voronoi = voronoiShape(shape_uv, t) + 1e-4;
 
-  float radius = .25 * clamp(u_dotSize, 0., 1.) - .5 * clamp(u_dotSizeRange, 0., 1.) * voronoi[2];
+  float radius = .25 * clamp(u_size, 0., 1.) - .5 * clamp(u_sizeRange, 0., 1.) * voronoi[2];
   float dist = voronoi[0];
   float edgeWidth = fwidth(dist);
   float dots = smoothstep(radius + edgeWidth, radius - edgeWidth, dist);
@@ -129,16 +129,16 @@ void main() {
 export interface DotOrbitUniforms extends ShaderSizingUniforms {
   u_colors: vec4[];
   u_colorsCount: number;
-  u_dotSize: number;
-  u_dotSizeRange: number;
+  u_size: number;
+  u_sizeRange: number;
   u_spreading: number;
   u_stepsPerColor: number;
 }
 
 export interface DotOrbitParams extends ShaderSizingParams, ShaderMotionParams {
   colors?: string[];
-  dotSize?: number;
-  dotSizeRange?: number;
+  size?: number;
+  sizeRange?: number;
   spreading?: number;
   stepsPerColor?: number;
 }

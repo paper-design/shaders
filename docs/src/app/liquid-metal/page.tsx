@@ -7,7 +7,8 @@ import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import Link from 'next/link';
 import { BackButton } from '@/components/back-button';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
-import { ShaderFit, ShaderFitOptions } from '@paper-design/shaders';
+import { LiquidMetalShapes, LiquidMetalShape, ShaderFit, ShaderFitOptions } from '@paper-design/shaders';
+import { toHsla } from '@/helpers/to-hsla';
 
 /**
  * You can copy/paste this example to use LiquidMetal in your app
@@ -33,11 +34,14 @@ const LiquidMetalWithControls = () => {
     return {
       Parameters: folder(
         {
-          patternBlur: { value: defaults.patternBlur, min: 0, max: 0.1, order: 300 },
-          patternScale: { value: defaults.patternScale, min: 1, max: 10, order: 301 },
-          dispersion: { value: defaults.dispersion, min: 0, max: 0.05, order: 302 },
-          liquid: { value: defaults.liquid, min: 0, max: 1, order: 305 },
-          shape: { value: defaults.shape, min: 0, max: 3, step: 1, order: 305 },
+          colorTint: { value: toHsla(defaults.colorTint), order: 100 },
+          repetition: { value: defaults.repetition, min: 1, max: 10, order: 300 },
+          softness: { value: defaults.softness, min: 0, max: 1, order: 301 },
+          shiftRed: { value: defaults.shiftRed, min: -1, max: 1, order: 302 },
+          shiftBlue: { value: defaults.shiftBlue, min: -1, max: 1, order: 302 },
+          distortion: { value: defaults.distortion, min: 0, max: 1, order: 303 },
+          contour: { value: defaults.contour, min: 0, max: 1, order: 304 },
+          shape: { value: defaults.shape, options: Object.keys(LiquidMetalShapes) as LiquidMetalShape[], order: 350 },
           speed: { value: defaults.speed, min: 0, max: 2, order: 400 },
         },
         { order: 1 }
@@ -64,7 +68,7 @@ const LiquidMetalWithControls = () => {
         },
         {
           order: 3,
-          collapsed: false,
+          collapsed: true,
         }
       ),
       Presets: folder(presets, { order: 10 }),

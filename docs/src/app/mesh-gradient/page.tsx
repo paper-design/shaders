@@ -14,14 +14,7 @@ import { useColors } from '@/helpers/use-colors';
  * You can copy/paste this example to use MeshGradient in your app
  */
 const MeshGradientExample = () => {
-  return (
-    <MeshGradient
-      distortion={0.5}
-      swirl={0.1}
-      speed={0.15}
-      style={{ position: 'fixed', width: '100%', height: '100%' }}
-    />
-  );
+  return <MeshGradient style={{ position: 'fixed', width: '100%', height: '100%' }} />;
 };
 
 /**

@@ -9,25 +9,13 @@ import Link from 'next/link';
 import { BackButton } from '@/components/back-button';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
 import { ShaderFit, ShaderFitOptions } from '@paper-design/shaders';
+import { toHsla } from '@/helpers/to-hsla';
 
 /**
  * You can copy/paste this example to use Waves in your app
  */
 const WavesExample = () => {
-  return (
-    <Waves
-      color1="#90BE6D"
-      color2="#000000"
-      scale={1}
-      frequency={0.5}
-      amplitude={0.5}
-      spacing={0.75}
-      dutyCycle={0.2}
-      softness={0}
-      shape={1}
-      style={{ position: 'fixed', width: '100%', height: '100%' }}
-    />
-  );
+  return <Waves style={{ position: 'fixed', width: '100%', height: '100%' }} />;
 };
 
 /**
@@ -44,12 +32,12 @@ const WavesWithControls = () => {
     return {
       Parameters: folder(
         {
-          color1: { value: defaults.color1, order: 101 },
-          color2: { value: defaults.color2, order: 102 },
+          color1: { value: toHsla(defaults.color1), order: 101 },
+          color2: { value: toHsla(defaults.color2), order: 102 },
           frequency: { value: defaults.frequency, min: 0, max: 2, order: 300 },
           amplitude: { value: defaults.amplitude, min: 0, max: 1, order: 301 },
           spacing: { value: defaults.spacing, min: 0, max: 2, order: 302 },
-          dutyCycle: { value: defaults.dutyCycle, min: 0, max: 1, order: 303 },
+          proportion: { value: defaults.proportion, min: 0, max: 1, order: 303 },
           softness: { value: defaults.softness, min: 0, max: 1, order: 304 },
           shape: { value: defaults.shape, min: 0, max: 3, order: 350 },
         },
