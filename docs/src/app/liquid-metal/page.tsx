@@ -34,7 +34,8 @@ const LiquidMetalWithControls = () => {
     return {
       Parameters: folder(
         {
-          colorTint: { value: toHsla(defaults.colorTint), order: 100 },
+          colorBack: { value: toHsla(defaults.colorBack), order: 100 },
+          colorTint: { value: toHsla(defaults.colorTint), order: 101 },
           repetition: { value: defaults.repetition, min: 1, max: 10, order: 300 },
           softness: { value: defaults.softness, min: 0, max: 1, order: 301 },
           shiftRed: { value: defaults.shiftRed, min: -1, max: 1, order: 302 },

@@ -10,6 +10,7 @@ precision mediump float;
 
 uniform float u_time;
 
+uniform vec4 u_colorBack;
 uniform vec4 u_colorTint;
 
 uniform float u_softness;
@@ -196,8 +197,11 @@ void main() {
   float b = getColorChanges(color1.b, color2.b, stripe_b, w, blur, bump, u_colorTint.b);
 
   color = vec3(r, g, b);
-  
   color *= opacity;
+  
+  vec3 bgColor = u_colorBack.rgb * u_colorBack.a;
+  color = color + bgColor * (1. - opacity);
+  opacity = opacity + u_colorBack.a * (1. - opacity);
 
   ${colorBandingFix}
 
@@ -206,6 +210,7 @@ void main() {
 `;
 
 export interface LiquidMetalUniforms extends ShaderSizingUniforms {
+  u_colorBack: [number, number, number, number];
   u_colorTint: [number, number, number, number];
   u_softness: number;
   u_repetition: number;
@@ -217,6 +222,7 @@ export interface LiquidMetalUniforms extends ShaderSizingUniforms {
 }
 
 export interface LiquidMetalParams extends ShaderSizingParams, ShaderMotionParams {
+  colorBack?: string;
   colorTint?: string;
   softness?: number;
   repetition?: number;

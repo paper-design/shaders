@@ -22,16 +22,18 @@ export const defaultPreset: LiquidMetalPreset = {
     ...defaultObjectSizing,
     speed: 1,
     frame: 0,
+    colorBack: '#ffff00',
+    colorTint: '#ffffff',
     softness: 0.3,
     repetition: 3,
     shiftRed: 0.3,
     shiftBlue: 0.3,
     distortion: 0.07,
     contour: 0,
-    shape: 'none',
-    worldWidth: 0,
-    worldHeight: 0,
-    colorTint: '#ffffff',
+    // shape: 'none',
+    shape: 'metaballs',
+    // worldWidth: 0,
+    // worldHeight: 0,
   },
 };
 
@@ -42,6 +44,8 @@ export const spherePreset: LiquidMetalPreset = {
     scale: 0.7,
     speed: 1,
     frame: 0,
+    colorBack: '#ffff00',
+    colorTint: '#ffffff',
     softness: 0.45,
     repetition: 4,
     shiftRed: -1,
@@ -51,7 +55,6 @@ export const spherePreset: LiquidMetalPreset = {
     shape: 'circle',
     worldWidth: 0,
     worldHeight: 0,
-    colorTint: '#ffffff',
   },
 };
 
@@ -59,6 +62,7 @@ export const liquidMetalPresets: LiquidMetalPreset[] = [defaultPreset, spherePre
 
 export const LiquidMetal: React.FC<LiquidMetalProps> = memo(function LiquidMetalImpl({
   // Own props
+  colorBack = defaultPreset.params.colorBack,
   colorTint = defaultPreset.params.colorTint,
   speed = defaultPreset.params.speed,
   frame = defaultPreset.params.frame,
@@ -84,6 +88,7 @@ export const LiquidMetal: React.FC<LiquidMetalProps> = memo(function LiquidMetal
 }: LiquidMetalProps) {
   const uniforms = {
     // Own uniforms
+    u_colorBack: getShaderColorFromString(colorBack),
     u_colorTint: getShaderColorFromString(colorTint),
 
     u_softness: softness,
