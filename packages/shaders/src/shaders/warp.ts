@@ -26,7 +26,7 @@ export const warpMeta = {
  *
  */
 export const warpFragmentShader: string = `#version 300 es
-precision highp float;
+precision mediump float;
 
 uniform float u_time;
 uniform float u_scale;
@@ -50,7 +50,7 @@ ${declarePI}
 ${declareRandom}
 ${declareRotate}
 
-float noise(vec2 st) {
+float valueNoise(vec2 st) {
   vec2 i = floor(st);
   vec2 f = fract(st);
   float a = random(i);
@@ -70,59 +70,63 @@ float noise(vec2 st) {
 }
 
 void main() {
-  vec2 shape_uv = v_patternUV;
-  shape_uv *= .0025;
+  vec2 uv = v_patternUV;
+  uv *= .005;
 
   float t = .01 * u_time;
 
   float noise_scale = .0005 + .006 * u_scale;
 
-  float n1 = noise(shape_uv * 1. + t);
-  float n2 = noise(shape_uv * 2. - t);
+  float n1 = valueNoise(uv * 1. + t);
+  float n2 = valueNoise(uv * 2. - t);
   float angle = n1 * TWO_PI;
-  shape_uv.x += 4. * u_distortion * n2 * cos(angle);
-  shape_uv.y += 4. * u_distortion * n2 * sin(angle);
+  uv.x += 4. * u_distortion * n2 * cos(angle);
+  uv.y += 4. * u_distortion * n2 * sin(angle);
 
-  float iterations_number = ceil(clamp(u_swirlIterations, 1., 30.));
-  for (float i = 1.; i <= iterations_number; i++) {
-    shape_uv.x += clamp(u_swirl, 0., 2.) / i * cos(t + i * 1.5 * shape_uv.y);
-    shape_uv.y += clamp(u_swirl, 0., 2.) / i * cos(t + i * 1. * shape_uv.x);
+  float iterationsNumber = ceil(clamp(u_swirlIterations, 1., 30.));
+  for (float i = 1.; i <= iterationsNumber; i++) {
+    uv.x += clamp(u_swirl, 0., 2.) / i * cos(t + i * 1.5 * uv.y);
+    uv.y += clamp(u_swirl, 0., 2.) / i * cos(t + i * 1. * uv.x);
   }
 
   float proportion = clamp(u_proportion, 0., 1.);
 
   float shape = 0.;
   if (u_shape < .5) {
-    vec2 checks_shape_uv = shape_uv * (.5 + 3.5 * u_shapeScale);
-    shape = .5 + .5 * sin(checks_shape_uv.x) * cos(checks_shape_uv.y);
+    vec2 checksShape_uv = uv * (.5 + 3.5 * u_shapeScale);
+    shape = .5 + .5 * sin(checksShape_uv.x) * cos(checksShape_uv.y);
     shape += .48 * sign(proportion - .5) * pow(abs(proportion - .5), .5);
   } else if (u_shape < 1.5) {
-    vec2 stripes_shape_uv = shape_uv * (.25 + 3. * u_shapeScale);
-    float f = fract(stripes_shape_uv.y);
+    vec2 stripesShape_uv = uv * (2. * u_shapeScale);
+    float f = fract(stripesShape_uv.y);
     shape = smoothstep(.0, .55, f) * smoothstep(1., .45, f);
     shape += .48 * sign(proportion - .5) * pow(abs(proportion - .5), .5);
   } else {
-    float sh = 1. - shape_uv.y;
-    float shape_scaling = 5. * (1. - u_shapeScale);
-    shape = smoothstep(.45 - shape_scaling, .55 + shape_scaling, sh + .3 * (proportion - .5));
+    float shapeScaling = 5. * (1. - u_shapeScale);
+    shape = smoothstep(.45 - shapeScaling, .55 + shapeScaling, 1. - uv.y + .3 * (proportion - .5));
   }
-
+  
   float mixer = shape * (u_colorsCount - 1.);
-  mixer = (shape - .5 / u_colorsCount) * u_colorsCount;
   vec4 gradient = u_colors[0];
   gradient.rgb *= gradient.a;
   for (int i = 1; i < ${warpMeta.maxColorCount}; i++) {
-      if (i >= int(u_colorsCount)) break;
-      float localT = clamp(mixer - float(i - 1), 0.0, 1.0);
-      localT = smoothstep(.5 - .5 * u_softness, .5 + .5 * u_softness, localT);
-      vec4 c = u_colors[i];
-      c.rgb *= c.a;
-      gradient = mix(gradient, c, localT);
+    if (i >= int(u_colorsCount)) break;
+    float localMixer = clamp(mixer - float(i - 1), 0.0, 1.0);
+
+    float localMixerStart = floor(localMixer);
+    float smoothed = smoothstep(.5 - u_softness * .5, .5 + u_softness * .5, localMixer - localMixerStart);
+    float localTStepped = localMixerStart + smoothed;
+    
+    localMixer = mix(localTStepped, localMixer, u_softness);
+  
+    vec4 c = u_colors[i];
+    c.rgb *= c.a;
+    gradient = mix(gradient, c, localMixer);
   }
 
   vec3 color = gradient.rgb;
   float opacity = gradient.a;
-
+  
   ${colorBandingFix}
 
   fragColor = vec4(color, opacity);
