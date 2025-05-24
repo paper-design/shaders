@@ -11,7 +11,7 @@ export const blobsGridMeta = {
 
  */
 export const blobsGridFragmentShader: string = `#version 300 es
-precision highp float;
+precision mediump float;
 
 uniform float u_time;
 uniform vec2 u_resolution;
@@ -22,9 +22,9 @@ uniform float u_colorsCount;
 uniform float u_stepsPerColor;
 
 uniform vec4 u_colorBack;
-uniform vec4 u_shadeColor;
-uniform vec4 u_specularColor;
-uniform vec4 u_outlineColor;
+uniform vec4 u_colorShade;
+uniform vec4 u_colorSpecular;
+uniform vec4 u_colorOutline;
 uniform float u_distortion;
 uniform float u_specular;
 uniform float u_specularNormal;
@@ -129,22 +129,22 @@ void main() {
   vec3 shadeNormal = normalize(vec3(posNorm * sin(l * 10. * u_shade), -2.));
   float shade = 1. - dot(shadeNormal, lightDir);
   shade *= smoothstep(.0, .4, u_shade);
-  shade *= u_shadeColor.a;
-  color = mix(color, u_shadeColor.rgb * u_shadeColor.a, shade);
+  shade *= u_colorShade.a;
+  color = mix(color, u_colorShade.rgb * u_colorShade.a, shade);
   
   float outline = (1. - smoothstep(shapeOuter, shapeOuter + .5 * u_outline, dist));
-  outline *= u_outlineColor.a;
-  color = mix(color, u_outlineColor.rgb * u_outlineColor.a, outline);
+  outline *= u_colorOutline.a;
+  color = mix(color, u_colorOutline.rgb * u_colorOutline.a, outline);
   
   vec3 specularNormal = normalize(vec3(posNorm * sin(l * (3. + 20. * u_specularNormal)), -2.));
   float specular = smoothstep(1. - .25 * u_specular, 1.001 - .25 * u_specular, dot(specularNormal, lightDir));
-  specular *= u_specularColor.a;
+  specular *= u_colorSpecular.a;
   specular -= outline;
   specular -= smoothstep(.3, .5, shade);
   specular = clamp(specular, 0., 1.);
-  color = mix(color, u_specularColor.rgb, specular);
+  color = mix(color, u_colorSpecular.rgb, specular);
   
-  color = mix(mix(u_colorBack.rgb, u_outlineColor.rgb, pow(u_outline, .2)), color, cellInnerShadow);
+  color = mix(mix(u_colorBack.rgb, u_colorOutline.rgb, pow(u_outline, .2)), color, cellInnerShadow);
 
   color = mix(u_colorBack.rgb * u_colorBack.a, color, contour);
   opacity = mix(u_colorBack.a, opacity, contour);
@@ -161,9 +161,9 @@ export interface BlobsGridUniforms extends ShaderSizingUniforms {
   u_colorsCount: number;
   u_stepsPerColor: number;
   u_colorBack: [number, number, number, number];
-  u_shadeColor: [number, number, number, number];
-  u_specularColor: [number, number, number, number];
-  u_outlineColor: [number, number, number, number];
+  u_colorShade: [number, number, number, number];
+  u_colorSpecular: [number, number, number, number];
+  u_colorOutline: [number, number, number, number];
   u_distortion: number;
   u_specular: number;
   u_specularNormal: number;
@@ -177,9 +177,9 @@ export interface BlobsGridParams extends ShaderSizingParams, ShaderMotionParams 
   colors?: string[];
   stepsPerColor?: number;
   colorBack?: string;
-  shadeColor?: string;
-  specularColor?: string;
-  outlineColor?: string;
+  colorShade?: string;
+  colorSpecular?: string;
+  colorOutline?: string;
   shade?: number;
   distortion?: number;
   specular?: number;

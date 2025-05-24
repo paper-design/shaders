@@ -9,6 +9,7 @@ import { BackButton } from '@/components/back-button';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
 import { ShaderFit, ShaderFitOptions, blobsGridMeta } from '@paper-design/shaders';
 import { useColors } from '@/helpers/use-colors';
+import { toHsla } from '@/helpers/to-hsla';
 
 /**
  * You can copy/paste this example to use BlobsGrid in your app
@@ -34,10 +35,10 @@ const BlobsGridWithControls = () => {
       Parameters: folder(
         {
           stepsPerColor: { value: defaults.stepsPerColor, min: 1, max: 3, step: 1, order: 0 },
-          colorBack: { value: defaults.colorBack, order: 100 },
-          shadeColor: { value: defaults.shadeColor, order: 101 },
-          specularColor: { value: defaults.specularColor, order: 101 },
-          outlineColor: { value: defaults.outlineColor, order: 102 },
+          colorBack: { value: toHsla(defaults.colorBack), order: 100 },
+          colorShade: { value: toHsla(defaults.colorShade), order: 101 },
+          colorSpecular: { value: toHsla(defaults.colorSpecular), order: 101 },
+          colorOutline: { value: toHsla(defaults.colorOutline), order: 102 },
           distortion: { value: defaults.distortion, min: 0, max: 20, order: 300 },
           size: { value: defaults.size, min: 0, max: 1, order: 301 },
           specular: { value: defaults.specular, min: 0, max: 1, order: 302 },
