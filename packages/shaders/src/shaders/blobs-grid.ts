@@ -143,13 +143,13 @@ void main() {
   specular -= smoothstep(.3, .5, shade);
   specular = clamp(specular, 0., 1.);
   color = mix(color, u_colorSpecular.rgb, specular);
-  
-  color = mix(mix(u_colorBack.rgb, u_colorOutline.rgb, pow(u_outline, .2)), color, cellInnerShadow);
 
-  color = mix(u_colorBack.rgb * u_colorBack.a, color, contour);
-  opacity = mix(u_colorBack.a, opacity, contour);
-   
-  ${colorBandingFix}
+  color *= contour;
+  opacity *= contour;
+  
+  vec3 bgColor = u_colorBack.rgb * u_colorBack.a;
+  color = color + bgColor * (1. - opacity);
+  opacity = opacity + u_colorBack.a * (1. - opacity);
 
   fragColor = vec4(color, opacity);
 }
