@@ -143,6 +143,15 @@ export {
   type PulsingBorderUniforms,
 } from './shaders/pulsing-border';
 
+// ----- Blobs Grid Pattern ----- //
+/** the dot grid with shape distortion and additional overlays (shades, outlines, highlights) */
+export {
+  blobsGridMeta,
+  blobsGridFragmentShader,
+  type BlobsGridParams,
+  type BlobsGridUniforms,
+} from './shaders/blobs-grid';
+
 // ----- Utils ----- //
 export { getShaderColorFromString } from './get-shader-color-from-string';
 export { getShaderNoiseTexture } from './get-shader-noise-texture';
