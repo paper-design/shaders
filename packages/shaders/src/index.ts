@@ -118,8 +118,10 @@ export {
 export {
   grainGradientFragmentShader,
   grainGradientMeta,
+  GrainGradientShapes,
   type GrainGradientParams,
   type GrainGradientUniforms,
+  type GrainGradientShape,
 } from './shaders/grain-gradient';
 
 // ----- Liquid Metal ----- //

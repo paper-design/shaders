@@ -38,13 +38,13 @@
     },
     "packages/shaders": {
       "name": "@paper-design/shaders",
-      "version": "0.0.29",
+      "version": "0.0.30",
     },
     "packages/shaders-react": {
       "name": "@paper-design/shaders-react",
-      "version": "0.0.32",
+      "version": "0.0.33",
       "dependencies": {
-        "@paper-design/shaders": "0.0.29",
+        "@paper-design/shaders": "workspace:*",
       },
       "devDependencies": {
         "@types/react": "19.1.0",
