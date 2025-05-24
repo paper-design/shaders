@@ -37,8 +37,8 @@ const LiquidMetalWithControls = () => {
           colorTint: { value: toHsla(defaults.colorTint), order: 100 },
           repetition: { value: defaults.repetition, min: 1, max: 10, order: 300 },
           softness: { value: defaults.softness, min: 0, max: 1, order: 301 },
-          rDispersion: { value: defaults.rDispersion, min: -1, max: 1, order: 302 },
-          bDispersion: { value: defaults.bDispersion, min: -1, max: 1, order: 302 },
+          shiftRed: { value: defaults.shiftRed, min: -1, max: 1, order: 302 },
+          shiftBlue: { value: defaults.shiftBlue, min: -1, max: 1, order: 302 },
           distortion: { value: defaults.distortion, min: 0, max: 1, order: 303 },
           contour: { value: defaults.contour, min: 0, max: 1, order: 304 },
           shape: { value: defaults.shape, options: Object.keys(LiquidMetalShapes) as LiquidMetalShape[], order: 350 },
@@ -68,7 +68,7 @@ const LiquidMetalWithControls = () => {
         },
         {
           order: 3,
-          collapsed: false,
+          collapsed: true,
         }
       ),
       Presets: folder(presets, { order: 10 }),

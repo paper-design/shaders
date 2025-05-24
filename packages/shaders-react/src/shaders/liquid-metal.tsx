@@ -28,8 +28,8 @@ export const defaultPreset: LiquidMetalPreset = {
     frame: 0,
     softness: 0.3,
     repetition: 3,
-    rDispersion: 0.3,
-    bDispersion: 0.3,
+    shiftRed: 0.3,
+    shiftBlue: 0.3,
     distortion: 0.07,
     contour: 0,
     shape: 'none',
@@ -39,7 +39,27 @@ export const defaultPreset: LiquidMetalPreset = {
   },
 };
 
-export const liquidMetalPresets: LiquidMetalPreset[] = [defaultPreset];
+export const spherePreset: LiquidMetalPreset = {
+  name: 'Sphere',
+  params: {
+    ...defaultObjectSizing,
+    scale: 0.7,
+    speed: 1,
+    frame: 0,
+    softness: 0.45,
+    repetition: 4,
+    shiftRed: -1,
+    shiftBlue: 0.3,
+    distortion: 0.1,
+    contour: 1,
+    shape: 'circle',
+    worldWidth: 0,
+    worldHeight: 0,
+    colorTint: '#ffffff',
+  },
+};
+
+export const liquidMetalPresets: LiquidMetalPreset[] = [defaultPreset, spherePreset];
 
 export const LiquidMetal: React.FC<LiquidMetalProps> = memo(function LiquidMetalImpl({
   // Own props
@@ -48,8 +68,8 @@ export const LiquidMetal: React.FC<LiquidMetalProps> = memo(function LiquidMetal
   frame = defaultPreset.params.frame,
   softness = defaultPreset.params.softness,
   repetition = defaultPreset.params.repetition,
-  rDispersion = defaultPreset.params.rDispersion,
-  bDispersion = defaultPreset.params.bDispersion,
+  shiftRed = defaultPreset.params.shiftRed,
+  shiftBlue = defaultPreset.params.shiftBlue,
   distortion = defaultPreset.params.distortion,
   contour = defaultPreset.params.contour,
   shape = defaultPreset.params.shape,
@@ -72,8 +92,8 @@ export const LiquidMetal: React.FC<LiquidMetalProps> = memo(function LiquidMetal
 
     u_softness: softness,
     u_repetition: repetition,
-    u_rDispersion: rDispersion,
-    u_bDispersion: bDispersion,
+    u_shiftRed: shiftRed,
+    u_shiftBlue: shiftBlue,
     u_distortion: distortion,
     u_contour: contour,
     u_shape: LiquidMetalShapes[shape],

@@ -14,8 +14,8 @@ uniform vec4 u_colorTint;
 
 uniform float u_softness;
 uniform float u_repetition;
-uniform float u_rDispersion;
-uniform float u_bDispersion;
+uniform float u_shiftRed;
+uniform float u_shiftBlue;
 uniform float u_distortion;
 uniform float u_contour;
 uniform float u_shape;
@@ -181,8 +181,8 @@ void main() {
   dispersionRed += bump * noise;
   float dispersionBlue = colorDispersion;
 
-  dispersionRed *= (u_rDispersion / 20.);
-  dispersionBlue *= (u_bDispersion / 20.);
+  dispersionRed *= (u_shiftRed / 20.);
+  dispersionBlue *= (u_shiftBlue / 20.);
 
   float blur = u_softness / 15. + .3 * contour;
 
@@ -209,8 +209,8 @@ export interface LiquidMetalUniforms extends ShaderSizingUniforms {
   u_colorTint: [number, number, number, number];
   u_softness: number;
   u_repetition: number;
-  u_rDispersion: number;
-  u_bDispersion: number;
+  u_shiftRed: number;
+  u_shiftBlue: number;
   u_distortion: number;
   u_contour: number;
   u_shape: (typeof LiquidMetalShapes)[LiquidMetalShape];
@@ -220,8 +220,8 @@ export interface LiquidMetalParams extends ShaderSizingParams, ShaderMotionParam
   colorTint?: string;
   softness?: number;
   repetition?: number;
-  rDispersion?: number;
-  bDispersion?: number;
+  shiftRed?: number;
+  shiftBlue?: number;
   distortion?: number;
   contour?: number;
   shape?: LiquidMetalShape;
