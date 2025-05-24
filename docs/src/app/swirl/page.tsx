@@ -9,6 +9,7 @@ import { BackButton } from '@/components/back-button';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
 import { ShaderFit, ShaderFitOptions, simplexNoiseMeta } from '@paper-design/shaders';
 import { useColors } from '@/helpers/use-colors';
+import { toHsla } from '@/helpers/to-hsla';
 
 /**
  * You can copy/paste this example to use Swirl in your app
@@ -33,6 +34,7 @@ const SwirlWithControls = () => {
     return {
       Parameters: folder(
         {
+          colorBack: { value: toHsla(defaults.colorBack), order: 100 },
           bandCount: { value: defaults.bandCount, min: 0, max: 15, step: 1, order: 201 },
           twist: { value: defaults.twist, min: 0, max: 1, order: 202 },
           softness: { value: defaults.softness, min: 0, max: 1, order: 203 },

@@ -17,6 +17,7 @@ uniform float u_time;
 uniform vec2 u_resolution;
 uniform float u_pixelRatio;
 
+uniform vec4 u_colorBack;
 uniform vec4 u_colors[${grainGradientMeta.maxColorCount}];
 uniform float u_colorsCount;
 uniform float u_softness;
@@ -195,19 +196,32 @@ void main() {
   shape += u_noise * 10. / u_colorsCount * noise;  
 
   float edge_w = fwidth(shape);
-      
-  float mixer = shape;
-  vec3 gradient = u_colors[0].rgb;
+
+  float mixer = shape * (u_colorsCount + 1.) / u_colorsCount;
+  vec4 gradient = u_colors[0];
+  gradient.rgb *= gradient.a;
+    
   for (int i = 1; i < ${grainGradientMeta.maxColorCount}; i++) {
-      if (i >= int(u_colorsCount)) break;
-
-      vec2 borders = vec2(float(i) - u_softness, float(i) + u_softness + edge_w) / u_colorsCount;
+      if (i > int(u_colorsCount) - 1) break;
+  
+      vec2 borders = vec2(float(i + 1) - u_softness - edge_w, float(i + 1) + u_softness + edge_w) / u_colorsCount;
       float localT = smoothstep(borders[0], borders[1], mixer);
-      gradient = mix(gradient, u_colors[i].rgb, localT);
+      vec4 c = u_colors[i];
+      c.rgb *= c.a;
+      gradient = mix(gradient, c, localT);
   }
-
-  vec3 color = gradient;
-  float opacity = 1.;
+  
+  vec2 borders = vec2(2. / (u_colorsCount - 1.));
+  borders = vec2(borders[0] - u_softness - edge_w, borders[1] + u_softness + edge_w) / u_colorsCount;
+  borders[0] = max(0., borders[0]);
+  float gradientShape = smoothstep(borders[0], borders[1], mixer);
+  
+  vec3 color = gradient.rgb * gradientShape;
+  float opacity = gradient.a * gradientShape;
+  
+  vec3 bgColor = u_colorBack.rgb * u_colorBack.a;
+  color = color + bgColor * (1.0 - opacity);
+  opacity = opacity + u_colorBack.a * (1.0 - opacity);
 
   ${colorBandingFix}
 
@@ -216,6 +230,7 @@ void main() {
 `;
 
 export interface GrainGradientUniforms extends ShaderSizingUniforms {
+  u_colorBack: [number, number, number, number];
   u_colors: vec4[];
   u_colorsCount: number;
   u_softness: number;
@@ -225,6 +240,7 @@ export interface GrainGradientUniforms extends ShaderSizingUniforms {
 }
 
 export interface GrainGradientParams extends ShaderSizingParams, ShaderMotionParams {
+  colorBack?: string;
   colors?: string[];
   softness?: number;
   intensity?: number;

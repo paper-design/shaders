@@ -27,8 +27,8 @@ const PerlinNoiseWithControls = () => {
     return {
       Parameters: folder(
         {
-          color1: { value: toHsla(defaults.color1), order: 100 },
-          color2: { value: toHsla(defaults.color2), order: 101 },
+          colorBack: { value: toHsla(defaults.colorBack), order: 100 },
+          colorFront: { value: toHsla(defaults.colorFront), order: 101 },
           proportion: { value: defaults.proportion, min: 0, max: 1, order: 300 },
           softness: { value: defaults.softness, min: 0, max: 1, order: 301 },
           octaveCount: { value: defaults.octaveCount, min: 1, max: 8, step: 1, order: 302 },
@@ -79,7 +79,7 @@ const PerlinNoiseWithControls = () => {
   });
 
   // Reset to defaults on mount, so that Leva doesn't show values from other
-  // shaders when navigating (if two shaders have a color1 param for example)
+  // shaders when navigating (if two shaders have a colorFront param for example)
   useResetLevaParams(params, setParams, defaults);
   usePresetHighlight(perlinNoisePresets, params);
   cleanUpLevaParams(params);

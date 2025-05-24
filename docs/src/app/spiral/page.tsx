@@ -34,8 +34,8 @@ const SpiralWithControls = () => {
     return {
       Parameters: folder(
         {
-          color1: { value: toHsla(defaults.color1), order: 100 },
-          color2: { value: toHsla(defaults.color2), order: 101 },
+          colorBack: { value: toHsla(defaults.colorBack), order: 100 },
+          colorFront: { value: toHsla(defaults.colorFront), order: 101 },
           density: { value: defaults.density, min: 0, max: 1, order: 203 },
           distortion: { value: defaults.distortion, min: 0, max: 1, order: 204 },
           strokeWidth: { value: defaults.strokeWidth, min: 0, max: 1, order: 205 },

@@ -36,8 +36,10 @@ const NeuroNoiseWithControls = () => {
       Parameters: folder(
         {
           colorFront: { value: toHsla(defaults.colorFront), order: 100 },
+          colorMid: { value: toHsla(defaults.colorMid), order: 101 },
           colorBack: { value: toHsla(defaults.colorBack), order: 101 },
-          brightness: { value: defaults.brightness, min: 0.8, max: 2, order: 300 },
+          brightness: { value: defaults.brightness, min: 0, max: 1, order: 300 },
+          contrast: { value: defaults.contrast, min: 0, max: 1, order: 301 },
           speed: { value: defaults.speed, min: 0, max: 2, order: 400 },
         },
         { order: 1 }

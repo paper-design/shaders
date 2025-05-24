@@ -9,6 +9,7 @@ import { BackButton } from '@/components/back-button';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
 import { ShaderFit, ShaderFitOptions, metaballsMeta } from '@paper-design/shaders';
 import { useColors } from '@/helpers/use-colors';
+import { toHsla } from '@/helpers/to-hsla';
 
 /**
  * You can copy/paste this example to use Metaballs in your app
@@ -33,6 +34,7 @@ const MetaballsWithControls = () => {
     return {
       Parameters: folder(
         {
+          colorBack: { value: toHsla(defaults.colorBack), order: 100 },
           count: { value: defaults.count, min: 1, max: metaballsMeta.maxBallsCount, order: 301 },
           size: { value: defaults.size, min: 0, max: 1, order: 302 },
           speed: { value: defaults.speed, min: 0, max: 1, order: 400 },

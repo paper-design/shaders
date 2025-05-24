@@ -15,10 +15,6 @@ export interface SwirlProps extends ShaderComponentProps, SwirlParams {}
 
 type SwirlPreset = ShaderPreset<SwirlParams>;
 
-// Due to Leva controls limitation:
-// 1) keep default colors in HSLA format to keep alpha channel
-// 2) don't use decimal values on HSL values (to avoid button highmidIntensity bug)
-
 export const defaultPreset: SwirlPreset = {
   name: 'Default',
   params: {
@@ -28,7 +24,8 @@ export const defaultPreset: SwirlPreset = {
     offsetY: 0.3,
     speed: 0.32,
     frame: 0,
-    colors: ['#452424', '#0b7f05', '#ffe785', '#ff335c'],
+    colorBack: '#452424',
+    colors: ['#0b7f05', '#ffe785', '#ff335c'],
     bandCount: 5,
     twist: 0.11,
     softness: 0.01,
@@ -45,7 +42,8 @@ export const openingPreset: SwirlPreset = {
     offsetY: 0.86,
     speed: 0.6,
     frame: 0,
-    colors: ['#8b2e5f', '#b14467', '#e67a62', '#ff715c', '#ffc55c', '#f9f97c'],
+    colorBack: '#8b2e5f',
+    colors: ['#b14467', '#e67a62', '#ff715c', '#ffc55c', '#f9f97c'],
     bandCount: 3,
     twist: 0.3,
     softness: 0,
@@ -60,7 +58,8 @@ export const jamesBondPreset: SwirlPreset = {
     ...defaultObjectSizing,
     speed: 1,
     frame: 0,
-    colors: ['#000000', '#2e2e2e', '#000000', '#ffffff'],
+    colorBack: '#000000',
+    colors: ['#2e2e2e', '#000000', '#ffffff'],
     bandCount: 4,
     twist: 0.4,
     softness: 0,
@@ -75,7 +74,8 @@ export const candyPreset: SwirlPreset = {
     ...defaultObjectSizing,
     speed: 1,
     frame: 0,
-    colors: ['#ffcd66', '#6bbceb', '#8a1fff'],
+    colorBack: '#ffcd66',
+    colors: ['#6bbceb', '#8a1fff'],
     bandCount: 2.5,
     twist: 0.2,
     softness: 1,
@@ -90,6 +90,7 @@ export const Swirl: React.FC<SwirlProps> = memo(function SwirlImpl({
   // Own props
   speed = defaultPreset.params.speed,
   frame = defaultPreset.params.frame,
+  colorBack = defaultPreset.params.colorBack,
   colors = defaultPreset.params.colors,
   bandCount = defaultPreset.params.bandCount,
   twist = defaultPreset.params.twist,
@@ -111,6 +112,7 @@ export const Swirl: React.FC<SwirlProps> = memo(function SwirlImpl({
 }: SwirlProps) {
   const uniforms = {
     // Own uniforms
+    u_colorBack: getShaderColorFromString(colorBack),
     u_colors: colors.map(getShaderColorFromString),
     u_colorsCount: colors.length,
     u_bandCount: bandCount,

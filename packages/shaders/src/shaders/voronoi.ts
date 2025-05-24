@@ -20,7 +20,7 @@ export const voronoiMeta = {
  * - `u_colorGlow` (`vec4`): RGBA color for the radial shape on the cell edges
  * - `u_distortion` (`float`, 0 – 0.5): Controls how far cell centers can be displaced from the regular grid
  * - `u_gap` (`float`): Width of the gaps between cells (gaps can't be removed completely due to artifacts of Voronoi cells)
- * - `u_innerGlow` (`float`): Controls the size of the radial glow inside each cell
+ * - `u_glow` (`float`): Controls the size of the radial glow inside each cell
  * - `u_stepsPerColor` (`float`): Discretization of the color transition
  * - `u_noiseTexture` (`sampler2D`): Replacement of standard hash function, added for better performance
  */
@@ -38,10 +38,10 @@ uniform float u_colorsCount;
 
 uniform float u_stepsPerColor;
 uniform vec4 u_colorGlow;
-uniform vec4 u_colorBack;
+uniform vec4 u_colorGap;
 uniform float u_distortion;
 uniform float u_gap;
-uniform float u_innerGlow;
+uniform float u_glow;
 
 ${sizingVariablesDeclaration}
 
@@ -136,18 +136,18 @@ void main() {
   vec3 cellColor = gradient.rgb;
   float cellOpacity = gradient.a;
 
-  float innerGlows = length(voronoiRes.yz * u_innerGlow + .1);
-  innerGlows = pow(innerGlows, 1.5);
+  float glows = length(voronoiRes.yz * u_glow + .1);
+  glows = pow(glows, 1.5);
 
-  vec3 color = mix(cellColor, u_colorGlow.rgb * u_colorGlow.a, u_colorGlow.a * innerGlows);
-  float opacity = cellOpacity + u_colorGlow.a * innerGlows;
+  vec3 color = mix(cellColor, u_colorGlow.rgb * u_colorGlow.a, u_colorGlow.a * glows);
+  float opacity = cellOpacity + u_colorGlow.a * glows;
 
   float edge = voronoiRes.x;
   float smoothEdge = .02 / (2. * u_scale) * (1. + .5 * u_gap);
   edge = smoothstep(u_gap - smoothEdge, u_gap + smoothEdge, edge);
 
-  color = mix(u_colorBack.rgb * u_colorBack.a, color, edge);
-  opacity = mix(u_colorBack.a, opacity, edge);
+  color = mix(u_colorGap.rgb * u_colorGap.a, color, edge);
+  opacity = mix(u_colorGap.a, opacity, edge);
 
   fragColor = vec4(color, opacity);  
 }
@@ -157,20 +157,20 @@ export interface VoronoiUniforms extends ShaderSizingUniforms {
   u_colors: vec4[];
   u_colorsCount: number;
   u_stepsPerColor: number;
-  u_colorBack: [number, number, number, number];
+  u_colorGap: [number, number, number, number];
   u_colorGlow: [number, number, number, number];
   u_distortion: number;
   u_gap: number;
-  u_innerGlow: number;
+  u_glow: number;
   u_noiseTexture?: HTMLImageElement;
 }
 
 export interface VoronoiParams extends ShaderSizingParams, ShaderMotionParams {
   colors?: string[];
   stepsPerColor?: number;
-  colorBack?: string;
+  colorGap?: string;
   colorGlow?: string;
   distortion?: number;
   gap?: number;
-  innerGlow?: number;
+  glow?: number;
 }

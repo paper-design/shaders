@@ -16,10 +16,6 @@ export interface SmokeRingProps extends ShaderComponentProps, SmokeRingParams {}
 
 type SmokeRingPreset = ShaderPreset<SmokeRingParams>;
 
-// Due to Leva controls limitation:
-// 1) keep default colors in HSLA format to keep alpha channel
-// 2) don't use decimal values on HSL values (to avoid button highlight bug)
-
 export const defaultPreset: SmokeRingPreset = {
   name: 'Default',
   params: {

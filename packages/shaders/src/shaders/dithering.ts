@@ -14,8 +14,8 @@ import { declareSimplexNoise, declarePI, declareRandom } from '../shader-utils';
  * abstract shapes animation (7 animated shapes available)
  *
  * Uniforms include:
- * - u_color1: background color, RGBA
- * - u_color2: pixels color, RGBA
+ * - u_colorBack: background color, RGBA
+ * - u_colorFront: pixels color, RGBA
  *
  * - u_shape (float, used as int, 1 to 7):
  *  --- shape = 1: Simplex noise pattern
@@ -44,8 +44,8 @@ uniform float u_pixelRatio;
 
 ${sizingUniformsDeclaration}
 
-uniform vec4 u_color1;
-uniform vec4 u_color2;
+uniform vec4 u_colorBack;
+uniform vec4 u_colorFront;
 uniform float u_shape;
 uniform float u_type;
 uniform float u_pxSize;
@@ -200,8 +200,16 @@ void main() {
   dithering -= .5;
   float res = step(.5, shape + dithering);
 
-  vec3 color = mix(u_color1.rgb, u_color2.rgb, res);
-  float opacity = mix(u_color1.a, u_color2.a, res);
+  vec3 fgColor = u_colorFront.rgb * u_colorFront.a;
+  float fgOpacity = u_colorFront.a;
+  vec3 bgColor = u_colorBack.rgb * u_colorBack.a;
+  float bgOpacity = u_colorBack.a;
+
+  vec3 color = fgColor * res;
+  float opacity = fgOpacity * res;
+  
+  color += bgColor * (1. - opacity);
+  opacity += bgOpacity * (1. - opacity);
 
   #ifdef ADD_HELPERS
     vec2 helperBox = objectHelperBox;
@@ -218,16 +226,16 @@ void main() {
 `;
 
 export interface DitheringUniforms extends ShaderSizingUniforms {
-  u_color1: [number, number, number, number];
-  u_color2: [number, number, number, number];
+  u_colorBack: [number, number, number, number];
+  u_colorFront: [number, number, number, number];
   u_shape: (typeof DitheringShapes)[DitheringShape];
   u_type: (typeof DitheringTypes)[DitheringType];
   u_pxSize: number;
 }
 
 export interface DitheringParams extends ShaderSizingParams, ShaderMotionParams {
-  color1?: string;
-  color2?: string;
+  colorBack?: string;
+  colorFront?: string;
   shape?: DitheringShape;
   type?: DitheringType;
   pxSize?: number;
