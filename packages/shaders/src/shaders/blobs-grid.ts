@@ -144,6 +144,9 @@ void main() {
   specular = clamp(specular, 0., 1.);
   color = mix(color, u_colorSpecular.rgb, specular);
 
+  color = mix(mix(u_colorBack.rgb, u_colorOutline.rgb, pow(u_outline, .3)), color, cellInnerShadow);
+  opacity = mix(mix(u_colorBack.a, u_colorOutline.a, pow(u_outline, .3)), opacity, cellInnerShadow);
+
   color *= contour;
   opacity *= contour;
   
