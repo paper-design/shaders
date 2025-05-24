@@ -236,6 +236,19 @@
           "type": "registry:component"
         }
       ]
+    },
+    {
+      "name": "paper-texture",
+      "type": "registry:component",
+      "title": "Paper Texture Example",
+      "description": "Paper Texture shader example.",
+      "dependencies": ["@paper-design/shaders-react"],
+      "files": [
+        {
+          "path": "registry/paper-texture-example.tsx",
+          "type": "registry:component"
+        }
+      ]
     }
   ]
 }

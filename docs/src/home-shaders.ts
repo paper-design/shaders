@@ -49,6 +49,8 @@ import {
   grainGradientPresets,
   PulsingBorder,
   pulsingBorderPresets,
+  PaperTexture,
+  paperTexturePresets,
 } from '@paper-design/shaders-react';
 import { StaticImageData } from 'next/image';
 import TextureTest from './app/texture-test/page';
@@ -189,5 +191,11 @@ export const homeShaders = [
     url: '/pulsing-border',
     ShaderComponent: PulsingBorder,
     shaderConfig: { ...pulsingBorderPresets[0].params },
+  },
+  {
+    name: 'paper texture',
+    url: '/paper-texture',
+    ShaderComponent: PaperTexture,
+    shaderConfig: { ...paperTexturePresets[0].params },
   },
 ] satisfies HomeShaderConfig[];
