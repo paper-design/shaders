@@ -2,13 +2,14 @@ import { memo } from 'react';
 import { ShaderMount, type ShaderComponentProps } from '../shader-mount';
 import { colorPropsAreEqual } from '../color-props-are-equal';
 import {
-  getShaderColorFromString,
   liquidMetalFragmentShader,
   ShaderFitOptions,
   type LiquidMetalUniforms,
   type LiquidMetalParams,
   type ShaderPreset,
   defaultObjectSizing,
+  getShaderColorFromString,
+  LiquidMetalShapes,
 } from '@paper-design/shaders';
 
 export interface LiquidMetalProps extends ShaderComponentProps, LiquidMetalParams {}
@@ -21,26 +22,52 @@ export const defaultPreset: LiquidMetalPreset = {
     ...defaultObjectSizing,
     speed: 1,
     frame: 0,
-    patternBlur: 0.005,
-    patternScale: 3,
-    dispersion: 0.015,
-    liquid: 0.07,
-    shape: 0,
+    softness: 0.3,
+    repetition: 3,
+    shiftRed: 0.3,
+    shiftBlue: 0.3,
+    distortion: 0.07,
+    contour: 0,
+    shape: 'none',
     worldWidth: 0,
     worldHeight: 0,
+    colorTint: '#ffffff',
   },
 };
 
-export const liquidMetalPresets: LiquidMetalPreset[] = [defaultPreset];
+export const spherePreset: LiquidMetalPreset = {
+  name: 'Sphere',
+  params: {
+    ...defaultObjectSizing,
+    scale: 0.7,
+    speed: 1,
+    frame: 0,
+    softness: 0.45,
+    repetition: 4,
+    shiftRed: -1,
+    shiftBlue: 0.3,
+    distortion: 0.1,
+    contour: 1,
+    shape: 'circle',
+    worldWidth: 0,
+    worldHeight: 0,
+    colorTint: '#ffffff',
+  },
+};
+
+export const liquidMetalPresets: LiquidMetalPreset[] = [defaultPreset, spherePreset];
 
 export const LiquidMetal: React.FC<LiquidMetalProps> = memo(function LiquidMetalImpl({
   // Own props
+  colorTint = defaultPreset.params.colorTint,
   speed = defaultPreset.params.speed,
   frame = defaultPreset.params.frame,
-  patternBlur = defaultPreset.params.patternBlur,
-  patternScale = defaultPreset.params.patternScale,
-  dispersion = defaultPreset.params.dispersion,
-  liquid = defaultPreset.params.liquid,
+  softness = defaultPreset.params.softness,
+  repetition = defaultPreset.params.repetition,
+  shiftRed = defaultPreset.params.shiftRed,
+  shiftBlue = defaultPreset.params.shiftBlue,
+  distortion = defaultPreset.params.distortion,
+  contour = defaultPreset.params.contour,
   shape = defaultPreset.params.shape,
 
   // Sizing props
@@ -57,11 +84,15 @@ export const LiquidMetal: React.FC<LiquidMetalProps> = memo(function LiquidMetal
 }: LiquidMetalProps) {
   const uniforms = {
     // Own uniforms
-    u_patternBlur: patternBlur,
-    u_patternScale: patternScale,
-    u_dispersion: dispersion,
-    u_liquid: liquid,
-    u_shape: shape,
+    u_colorTint: getShaderColorFromString(colorTint),
+
+    u_softness: softness,
+    u_repetition: repetition,
+    u_shiftRed: shiftRed,
+    u_shiftBlue: shiftBlue,
+    u_distortion: distortion,
+    u_contour: contour,
+    u_shape: LiquidMetalShapes[shape],
 
     // Sizing uniforms
     u_fit: ShaderFitOptions[fit],
