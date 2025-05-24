@@ -22,7 +22,7 @@ export const defaultPreset: LiquidMetalPreset = {
     ...defaultObjectSizing,
     speed: 1,
     frame: 0,
-    colorBack: '#ffff00',
+    colorBack: '#111111',
     colorTint: '#ffffff',
     softness: 0.3,
     repetition: 3,
@@ -30,10 +30,9 @@ export const defaultPreset: LiquidMetalPreset = {
     shiftBlue: 0.3,
     distortion: 0.07,
     contour: 0,
-    // shape: 'none',
-    shape: 'metaballs',
-    // worldWidth: 0,
-    // worldHeight: 0,
+    shape: 'none',
+    worldWidth: 0,
+    worldHeight: 0,
   },
 };
 
@@ -44,7 +43,7 @@ export const spherePreset: LiquidMetalPreset = {
     scale: 0.7,
     speed: 1,
     frame: 0,
-    colorBack: '#ffff00',
+    colorBack: '#ffffff',
     colorTint: '#ffffff',
     softness: 0.45,
     repetition: 4,
@@ -53,12 +52,29 @@ export const spherePreset: LiquidMetalPreset = {
     distortion: 0.1,
     contour: 1,
     shape: 'circle',
-    worldWidth: 0,
-    worldHeight: 0,
   },
 };
 
-export const liquidMetalPresets: LiquidMetalPreset[] = [defaultPreset, spherePreset];
+export const metaballsPreset: LiquidMetalPreset = {
+  name: 'Metaballs',
+  params: {
+    ...defaultObjectSizing,
+    scale: 2.2,
+    speed: 1,
+    frame: 0,
+    colorBack: '#00042e',
+    colorTint: '#5b4dc7',
+    softness: 0.45,
+    repetition: 4,
+    shiftRed: -0.5,
+    shiftBlue: -1,
+    distortion: 0.1,
+    contour: 1,
+    shape: 'metaballs',
+  },
+};
+
+export const liquidMetalPresets: LiquidMetalPreset[] = [defaultPreset, metaballsPreset, spherePreset];
 
 export const LiquidMetal: React.FC<LiquidMetalProps> = memo(function LiquidMetalImpl({
   // Own props
