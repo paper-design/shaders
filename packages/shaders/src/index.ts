@@ -126,7 +126,13 @@ export {
 
 // ----- Liquid Metal ----- //
 /** Liquid metal effect applied to the abstract shapes */
-export { liquidMetalFragmentShader, type LiquidMetalParams, type LiquidMetalUniforms } from './shaders/liquid-metal';
+export {
+  liquidMetalFragmentShader,
+  LiquidMetalShapes,
+  type LiquidMetalParams,
+  type LiquidMetalUniforms,
+  type LiquidMetalShape,
+} from './shaders/liquid-metal';
 
 // ----- Pulsing Border ----- //
 /** Border with configurable size & radius ade of rotating pulsing light spots  */
