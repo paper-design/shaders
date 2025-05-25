@@ -106,6 +106,42 @@ export class ShaderMount {
   private resizeProfiler = new Profiler('handleResize');
   private resolutionProfiler = new Profiler('handleResolutionChange');
 
+  private ensureSceneTarget = (w: number, h: number) => {
+    if (w <= this.framebufferWidth && h <= this.framebufferHeight) return; // already big enough
+
+    this.framebufferWidth = Math.max(w, this.framebufferWidth);
+    this.framebufferHeight = Math.max(h, this.framebufferHeight);
+
+    // Update texture size
+    this.gl.bindTexture(this.gl.TEXTURE_2D, this.framebufferTexture);
+    this.gl.texImage2D(
+      this.gl.TEXTURE_2D,
+      0,
+      this.gl.RGBA,
+      this.framebufferWidth,
+      this.framebufferHeight,
+      0,
+      this.gl.RGBA,
+      this.gl.UNSIGNED_BYTE,
+      null
+    );
+
+    // Attach texture to framebuffer
+    this.gl.framebufferTexture2D(
+      this.gl.FRAMEBUFFER,
+      this.gl.COLOR_ATTACHMENT0,
+      this.gl.TEXTURE_2D,
+      this.framebufferTexture,
+      0
+    );
+
+    // Check framebuffer status
+    const status = this.gl.checkFramebufferStatus(this.gl.FRAMEBUFFER);
+    if (status !== this.gl.FRAMEBUFFER_COMPLETE) {
+      console.error('Framebuffer is not complete:', status);
+    }
+  };
+
   constructor(
     /** The div you'd like to mount the shader to. The shader will match its size. */
     parentElement: HTMLElement,
@@ -160,6 +196,17 @@ export class ShaderMount {
     }
     this.gl = gl;
 
+    // Initialize framebuffer and texture
+    this.framebuffer = this.gl.createFramebuffer();
+    this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, this.framebuffer);
+
+    this.framebufferTexture = this.gl.createTexture();
+    this.gl.bindTexture(this.gl.TEXTURE_2D, this.framebufferTexture);
+    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.LINEAR);
+    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MAG_FILTER, this.gl.LINEAR);
+    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_S, this.gl.CLAMP_TO_EDGE);
+    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_T, this.gl.CLAMP_TO_EDGE);
+
     this.initProgram();
     this.setupPositionAttribute();
     // Grab the locations of the uniforms in the fragment shader
@@ -200,12 +247,20 @@ export class ShaderMount {
     const framebufferFragmentShader = `#version 300 es
       precision mediump float;
       uniform sampler2D u_texture;
+      uniform vec2 u_textureSize;
+      uniform vec2 u_targetSize;
 
       in vec2 v_texCoord;
       out vec4 fragColor;
 
       void main() {
-        fragColor = texture(u_texture, v_texCoord);
+        // Calculate the scale factor between target size and texture size
+        vec2 scale = u_targetSize / u_textureSize;
+        
+        // Scale UVs to only sample the portion of the texture that contains our render
+        vec2 uv = v_texCoord * scale;
+        
+        fragColor = texture(u_texture, uv);
       }
     `;
 
@@ -215,6 +270,8 @@ export class ShaderMount {
     this.framebufferSamplingProgram = framebufferProgram;
     this.framebufferSamplingUniformLocations = {
       u_texture: this.gl.getUniformLocation(framebufferProgram, 'u_texture'),
+      u_textureSize: this.gl.getUniformLocation(framebufferProgram, 'u_textureSize'),
+      u_targetSize: this.gl.getUniformLocation(framebufferProgram, 'u_targetSize'),
     };
   };
 
@@ -378,19 +435,15 @@ export class ShaderMount {
       if (
         this.canvasElement.width !== newWidth ||
         this.canvasElement.height !== newHeight ||
-        this.framebufferWidth !== newFramebufferWidth ||
-        this.framebufferHeight !== newFramebufferHeight ||
         this.renderScale !== newRenderScale
       ) {
         this.renderScale = newRenderScale;
         this.canvasElement.width = newWidth;
         this.canvasElement.height = newHeight;
-        this.framebufferWidth = newFramebufferWidth;
-        this.framebufferHeight = newFramebufferHeight;
         this.resolutionChanged = true;
 
-        // Update framebuffer
-        this.setupFramebuffer();
+        // Update framebuffer size if needed
+        this.ensureSceneTarget(newFramebufferWidth, newFramebufferHeight);
       }
     });
   };
@@ -411,9 +464,16 @@ export class ShaderMount {
       this.totalFrameTime += dt * this.speed;
     }
 
+    // Calculate target framebuffer dimensions
+    const targetFramebufferWidth = Math.round(this.parentWidth * this.renderScale);
+    const targetFramebufferHeight = Math.round(this.parentHeight * this.renderScale);
+
+    // Ensure framebuffer is large enough for current render
+    this.ensureSceneTarget(targetFramebufferWidth, targetFramebufferHeight);
+
     // Render to framebuffer
     this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, this.framebuffer);
-    this.gl.viewport(0, 0, this.framebufferWidth, this.framebufferHeight);
+    this.gl.viewport(0, 0, targetFramebufferWidth, targetFramebufferHeight);
     this.gl.clear(this.gl.COLOR_BUFFER_BIT);
 
     // Update uniforms
@@ -424,7 +484,7 @@ export class ShaderMount {
 
     // If the resolution has changed, we need to update the uniform
     if (this.resolutionChanged) {
-      this.gl.uniform2f(this.uniformLocations.u_resolution!, this.framebufferWidth, this.framebufferHeight);
+      this.gl.uniform2f(this.uniformLocations.u_resolution!, targetFramebufferWidth, targetFramebufferHeight);
       this.gl.uniform1f(this.uniformLocations.u_pixelRatio!, this.renderScale);
       this.resolutionChanged = false;
     }
@@ -440,6 +500,16 @@ export class ShaderMount {
     this.gl.activeTexture(this.gl.TEXTURE0);
     this.gl.bindTexture(this.gl.TEXTURE_2D, this.framebufferTexture);
     this.gl.uniform1i(this.framebufferSamplingUniformLocations.u_texture!, 0);
+    this.gl.uniform2f(
+      this.framebufferSamplingUniformLocations.u_textureSize!,
+      this.framebufferWidth,
+      this.framebufferHeight
+    );
+    this.gl.uniform2f(
+      this.framebufferSamplingUniformLocations.u_targetSize!,
+      targetFramebufferWidth,
+      targetFramebufferHeight
+    );
     this.gl.drawArrays(this.gl.TRIANGLES, 0, 6);
 
     // Loop if we're animating
@@ -632,59 +702,6 @@ export class ShaderMount {
 
     this.setUniformValues(newUniforms);
     this.render(performance.now());
-  };
-
-  private setupFramebuffer = () => {
-    // Clean up existing framebuffer if it exists
-    if (this.framebuffer) {
-      this.gl.deleteFramebuffer(this.framebuffer);
-      this.framebuffer = null;
-    }
-
-    if (this.framebufferTexture) {
-      this.gl.deleteTexture(this.framebufferTexture);
-      this.framebufferTexture = null;
-    }
-
-    // Create new framebuffer
-    this.framebuffer = this.gl.createFramebuffer();
-    this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, this.framebuffer);
-
-    // Create and attach texture
-    this.framebufferTexture = this.gl.createTexture();
-    this.gl.bindTexture(this.gl.TEXTURE_2D, this.framebufferTexture);
-    this.gl.texImage2D(
-      this.gl.TEXTURE_2D,
-      0,
-      this.gl.RGBA,
-      this.framebufferWidth,
-      this.framebufferHeight,
-      0,
-      this.gl.RGBA,
-      this.gl.UNSIGNED_BYTE,
-      null
-    );
-
-    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.LINEAR);
-    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MAG_FILTER, this.gl.LINEAR);
-
-    // We need clamp to edge to avoid sampling artifacts from outside the canvas
-    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_S, this.gl.CLAMP_TO_EDGE);
-    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_T, this.gl.CLAMP_TO_EDGE);
-
-    this.gl.framebufferTexture2D(
-      this.gl.FRAMEBUFFER,
-      this.gl.COLOR_ATTACHMENT0,
-      this.gl.TEXTURE_2D,
-      this.framebufferTexture,
-      0
-    );
-
-    // Check framebuffer status
-    const status = this.gl.checkFramebufferStatus(this.gl.FRAMEBUFFER);
-    if (status !== this.gl.FRAMEBUFFER_COMPLETE) {
-      console.error('Framebuffer is not complete:', status);
-    }
   };
 
   /** Dispose of the shader mount, cleaning up all of the WebGL resources */
