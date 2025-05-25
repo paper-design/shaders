@@ -22,8 +22,6 @@ const GrainGradientExample = () => {
  * This example has controls added so you can play with settings in the example app
  */
 
-const MAX_PIXEL_COUNT = 1920 * 1080 * 2;
-
 const { worldWidth, worldHeight, ...defaults } = grainGradientPresets[0].params;
 
 const GrainGradientWithControls = () => {
@@ -32,7 +30,7 @@ const GrainGradientWithControls = () => {
     maxColorCount: grainGradientMeta.maxColorCount,
   });
 
-  const [{ logMaxPixelCount, ...params }, setParams] = useControls(() => {
+  const [params, setParams] = useControls(() => {
     return {
       Parameters: folder(
         {
@@ -73,15 +71,6 @@ const GrainGradientWithControls = () => {
           collapsed: true,
         }
       ),
-      Resolution: folder(
-        {
-          logMaxPixelCount: { value: Math.log(MAX_PIXEL_COUNT), min: 0, max: Math.log(MAX_PIXEL_COUNT), order: 409 },
-        },
-        {
-          order: 4,
-          collapsed: false,
-        }
-      ),
     };
   }, [colors.length]);
 
@@ -112,12 +101,7 @@ const GrainGradientWithControls = () => {
       <Link href="/">
         <BackButton />
       </Link>
-      <GrainGradient
-        {...params}
-        colors={colors}
-        className="fixed size-full"
-        maxPixelCount={Math.exp(logMaxPixelCount)}
-      />
+      <GrainGradient {...params} colors={colors} className="fixed size-full" />
     </>
   );
 };
