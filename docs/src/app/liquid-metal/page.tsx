@@ -43,7 +43,7 @@ const LiquidMetalWithControls = () => {
           distortion: { value: defaults.distortion, min: 0, max: 1, order: 303 },
           contour: { value: defaults.contour, min: 0, max: 1, order: 304 },
           shape: { value: defaults.shape, options: Object.keys(LiquidMetalShapes) as LiquidMetalShape[], order: 350 },
-          speed: { value: defaults.speed, min: 0, max: 2, order: 400 },
+          speed: { value: defaults.speed, min: 0, max: 4, order: 400 },
         },
         { order: 1 }
       ),

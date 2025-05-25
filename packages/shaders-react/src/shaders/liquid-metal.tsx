@@ -22,6 +22,24 @@ export const defaultPreset: LiquidMetalPreset = {
     ...defaultObjectSizing,
     speed: 1,
     frame: 0,
+    colorBack: '#000000',
+    colorTint: '#ffffff',
+    softness: 0.3,
+    repetition: 3,
+    shiftRed: 0.3,
+    shiftBlue: 0.3,
+    distortion: 0.3,
+    contour: 0.88,
+    shape: 'metaballs',
+  },
+};
+
+export const fullScreenPreset: LiquidMetalPreset = {
+  name: 'Full Screen',
+  params: {
+    ...defaultObjectSizing,
+    speed: 1,
+    frame: 0,
     colorBack: '#111111',
     colorTint: '#ffffff',
     softness: 0.3,
@@ -41,22 +59,22 @@ export const spherePreset: LiquidMetalPreset = {
   params: {
     ...defaultObjectSizing,
     scale: 0.7,
-    speed: 1,
+    speed: 2,
     frame: 0,
     colorBack: '#ffffff',
-    colorTint: '#ffffff',
+    colorTint: '#709dff',
     softness: 0.45,
     repetition: 4,
-    shiftRed: -1,
+    shiftRed: 1,
     shiftBlue: 0.3,
     distortion: 0.1,
-    contour: 1,
+    contour: 0.4,
     shape: 'circle',
   },
 };
 
-export const metaballsPreset: LiquidMetalPreset = {
-  name: 'Metaballs',
+export const dropsPreset: LiquidMetalPreset = {
+  name: 'Drops',
   params: {
     ...defaultObjectSizing,
     scale: 2.2,
@@ -74,7 +92,7 @@ export const metaballsPreset: LiquidMetalPreset = {
   },
 };
 
-export const liquidMetalPresets: LiquidMetalPreset[] = [defaultPreset, metaballsPreset, spherePreset];
+export const liquidMetalPresets: LiquidMetalPreset[] = [defaultPreset, spherePreset, dropsPreset, fullScreenPreset];
 
 export const LiquidMetal: React.FC<LiquidMetalProps> = memo(function LiquidMetalImpl({
   // Own props
