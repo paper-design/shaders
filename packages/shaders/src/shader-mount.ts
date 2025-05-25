@@ -319,10 +319,6 @@ export class ShaderMount {
     const newWidth = Math.round(this.parentWidth * targetRenderScale);
     const newHeight = Math.round(this.parentHeight * targetRenderScale);
 
-    // Set framebuffer size
-    const newFramebufferWidth = Math.round(this.parentWidth * newRenderScale);
-    const newFramebufferHeight = Math.round(this.parentHeight * newRenderScale);
-
     if (
       this.canvasElement.width !== newWidth ||
       this.canvasElement.height !== newHeight ||
@@ -650,10 +646,12 @@ export class ShaderMount {
         this.gl.deleteFramebuffer(this.framebuffer);
         this.framebuffer = null;
       }
+
       if (this.framebufferTexture) {
         this.gl.deleteTexture(this.framebufferTexture);
         this.framebufferTexture = null;
       }
+
       if (this.framebufferSamplingProgram) {
         this.gl.deleteProgram(this.framebufferSamplingProgram);
         this.framebufferSamplingProgram = null;
