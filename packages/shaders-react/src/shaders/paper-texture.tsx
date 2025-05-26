@@ -1,6 +1,6 @@
 import { memo } from 'react';
-import { ShaderMount, type ShaderComponentProps } from '../shader-mount';
-import { colorPropsAreEqual } from '../color-props-are-equal';
+import { ShaderMount, type ShaderComponentProps } from '../shader-mount.js';
+import { colorPropsAreEqual } from '../color-props-are-equal.js';
 import {
   defaultPatternSizing,
   getShaderColorFromString,
@@ -16,31 +16,76 @@ export interface PaperTextureProps extends ShaderComponentProps, PaperTexturePar
 
 type PaperTexturePreset = ShaderPreset<PaperTextureParams>;
 
-// Due to Leva controls limitation:
-// 1) keep default colors in HSLA format to keep alpha channel
-// 2) don't use decimal values on HSL values (to avoid button highlight bug)
-
 export const defaultPreset: PaperTexturePreset = {
   name: 'Default',
   params: {
     ...defaultPatternSizing,
-    speed: 1,
+    speed: 0,
     frame: 0,
-    colorFront: 'hsla(15, 100%, 100%, 1)',
-    colorBack: 'hsla(0, 0%, 0%, 1)',
-    brightness: 1,
-    height: 6,
-    grain: 0.5,
-    curles: 0.5,
-    crumples: 0.4,
+    colorFront: '#5e80ba',
+    colorBack: '#ffffff',
+    contrast: 0.3,
+    grain: 0.55,
+    curles: 0.4,
+    curlesScale: 0.1,
+    crumples: 0.7,
     crumplesScale: 0.5,
-    foldsScale: 1,
-    folds: 0.6,
-    blurScale: 0.5,
+    crumplesSeed: 1,
+    folds: 0.65,
+    foldsScale: 0.5,
+    foldsSeed: 1,
+    blur: 0.75,
+    blurSeed: 0.5,
   },
 };
 
-export const paperTexturePresets: PaperTexturePreset[] = [defaultPreset] as const;
+export const abstractPreset: PaperTexturePreset = {
+  name: 'Abstract',
+  params: {
+    ...defaultPatternSizing,
+    speed: 0,
+    frame: 0,
+    colorFront: '#ff8f8f',
+    colorBack: '#3a53f8',
+    contrast: 0.75,
+    grain: 1,
+    curles: 0.6,
+    curlesScale: 0.2,
+    crumples: 0.6,
+    crumplesScale: 0.5,
+    crumplesSeed: 1,
+    folds: 0.9,
+    foldsScale: 0.25,
+    foldsSeed: 181,
+    blur: 0.5,
+    blurSeed: 0.5,
+  },
+};
+
+export const cardboardPreset: PaperTexturePreset = {
+  name: 'Cardboard',
+  params: {
+    ...defaultPatternSizing,
+    speed: 0,
+    frame: 0,
+    colorFront: '#834b02',
+    colorBack: '#3d2300',
+    contrast: 0.5,
+    grain: 1,
+    curles: 0.6,
+    curlesScale: 0.85,
+    crumples: 0.5,
+    crumplesScale: 1.75,
+    crumplesSeed: 1,
+    folds: 0,
+    foldsScale: 0.25,
+    foldsSeed: 181,
+    blur: 0.5,
+    blurSeed: 0.5,
+  },
+};
+
+export const paperTexturePresets: PaperTexturePreset[] = [defaultPreset, cardboardPreset, abstractPreset] as const;
 
 export const PaperTexture: React.FC<PaperTextureProps> = memo(function PaperTextureImpl({
   // Own props
@@ -48,14 +93,17 @@ export const PaperTexture: React.FC<PaperTextureProps> = memo(function PaperText
   frame = defaultPreset.params.frame,
   colorFront = defaultPreset.params.colorFront,
   colorBack = defaultPreset.params.colorBack,
-  brightness = defaultPreset.params.brightness,
-  height = defaultPreset.params.height,
+  crumplesSeed = defaultPreset.params.crumplesSeed,
+  foldsSeed = defaultPreset.params.foldsSeed,
+  contrast = defaultPreset.params.contrast,
   grain = defaultPreset.params.grain,
   curles = defaultPreset.params.curles,
+  curlesScale = defaultPreset.params.curlesScale,
   crumples = defaultPreset.params.crumples,
   foldsScale = defaultPreset.params.foldsScale,
   folds = defaultPreset.params.folds,
-  blurScale = defaultPreset.params.blurScale,
+  blur = defaultPreset.params.blur,
+  blurSeed = defaultPreset.params.blurSeed,
   crumplesScale = defaultPreset.params.crumplesScale,
 
   // Sizing props
@@ -76,14 +124,17 @@ export const PaperTexture: React.FC<PaperTextureProps> = memo(function PaperText
     // Own uniforms
     u_colorFront: getShaderColorFromString(colorFront),
     u_colorBack: getShaderColorFromString(colorBack),
-    u_brightness: brightness,
-    u_height: height,
+    u_crumplesSeed: crumplesSeed,
+    u_foldsSeed: foldsSeed,
+    u_contrast: contrast,
     u_grain: grain,
     u_curles: curles,
+    u_curlesScale: curlesScale,
     u_crumples: crumples,
     u_foldsScale: foldsScale,
     u_folds: folds,
-    u_blurScale: blurScale,
+    u_blur: blur,
+    u_blurSeed: blurSeed,
     u_crumplesScale: crumplesScale,
     ...noiseTexture,
 

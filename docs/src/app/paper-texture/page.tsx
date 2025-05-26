@@ -8,6 +8,7 @@ import Link from 'next/link';
 import { BackButton } from '@/components/back-button';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
 import { ShaderFit, ShaderFitOptions } from '@paper-design/shaders';
+import { toHsla } from '@/helpers/to-hsla';
 
 /**
  * You can copy/paste this example to use PaperTexture in your app
@@ -34,31 +35,38 @@ const PaperTextureWithControls = () => {
     return {
       Parameters: folder(
         {
-          colorFront: { value: defaults.colorFront, order: 100 },
-          colorBack: { value: defaults.colorBack, order: 101 },
-          brightness: { value: defaults.brightness, min: 0, max: 10, order: 300 },
-          height: { value: defaults.height, min: 0, max: 6, order: 300 },
-          grain: { value: defaults.grain, min: 0, max: 2, order: 300 },
-          curles: { value: defaults.curles, min: 0, max: 2, order: 300 },
-          crumples: { value: defaults.crumples, min: 0, max: 2, order: 300 },
-          foldsScale: { value: defaults.foldsScale, min: 0, max: 1, order: 300 },
-          folds: { value: defaults.folds, min: 0, max: 2, order: 300 },
-          blurScale: { value: defaults.blurScale, min: 0, max: 10, order: 300 },
-          crumplesScale: { value: defaults.crumplesScale, min: 0.3, max: 5, order: 300 },
-          speed: { value: defaults.speed, min: 0, max: 2, order: 400 },
+          colorFront: { value: toHsla(defaults.colorFront), order: 100 },
+          colorBack: { value: toHsla(defaults.colorBack), order: 101 },
+          contrast: { value: defaults.contrast, min: 0, max: 1, order: 200 },
+
+          grain: { value: defaults.grain, min: 0, max: 1, order: 300 },
+
+          curles: { value: defaults.curles, min: 0, max: 1, order: 310 },
+          curlesScale: { value: defaults.curlesScale, min: 0, max: 1, order: 310 },
+
+          crumples: { value: defaults.crumples, min: 0, max: 1, order: 320 },
+          crumplesSeed: { value: defaults.crumplesSeed, min: 0, max: 1000, order: 321 },
+          crumplesScale: { value: defaults.crumplesScale, min: 0.3, max: 3, order: 322 },
+
+          folds: { value: defaults.folds, min: 0, max: 1, order: 330 },
+          foldsScale: { value: defaults.foldsScale, min: 0.25, max: 1, order: 331 },
+          foldsSeed: { value: defaults.foldsSeed, min: 0, max: 1000, order: 332 },
+
+          blur: { value: defaults.blur, min: 0, max: 1, order: 340 },
+          blurSeed: { value: defaults.blurSeed, min: 0, max: 10, order: 341 },
         },
         { order: 1 }
       ),
       Transform: folder(
         {
-          scale: { value: defaults.scale, min: 0.01, max: 4, order: 400 },
+          scale: { value: defaults.scale, min: 0.5, max: 2, order: 400 },
           rotation: { value: defaults.rotation, min: 0, max: 360, order: 401 },
           offsetX: { value: defaults.offsetX, min: -1, max: 1, order: 402 },
           offsetY: { value: defaults.offsetY, min: -1, max: 1, order: 403 },
         },
         {
           order: 2,
-          collapsed: false,
+          collapsed: true,
         }
       ),
       Fit: folder(
@@ -71,7 +79,7 @@ const PaperTextureWithControls = () => {
         },
         {
           order: 3,
-          collapsed: false,
+          collapsed: true,
         }
       ),
       Presets: folder(presets, { order: 10 }),

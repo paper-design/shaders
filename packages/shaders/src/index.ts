@@ -163,7 +163,7 @@ export {
   paperTextureFragmentShader,
   type PaperTextureParams,
   type PaperTextureUniforms,
-} from './shaders/paper-texture';
+} from './shaders/paper-texture.js';
 
 // ----- Utils ----- //
 export { getShaderColorFromString } from './get-shader-color-from-string.js';
