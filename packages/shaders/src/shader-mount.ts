@@ -312,10 +312,16 @@ export class ShaderMount {
   };
 
   private handleResolutionChange = () => {
-    const { renderScale } = this.getCanvasSize();
+    const { renderScale, width, height } = this.getCanvasSize();
 
-    if (this.renderScale !== renderScale) {
+    if (
+      this.renderScale !== renderScale ||
+      this.canvasElement.width !== width ||
+      this.canvasElement.height !== height
+    ) {
       this.renderScale = renderScale;
+      this.canvasElement.width = width;
+      this.canvasElement.height = height;
       this.resolutionChanged = true;
     }
   };
@@ -422,6 +428,7 @@ export class ShaderMount {
 
     // Render framebuffer to canvas
     this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, null);
+    // console.log('render', this.gl.canvas.width, this.gl.canvas.height);
     this.gl.viewport(0, 0, this.gl.canvas.width, this.gl.canvas.height);
     this.gl.clear(this.gl.COLOR_BUFFER_BIT);
 
