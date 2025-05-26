@@ -258,6 +258,25 @@ export class ShaderMount {
       cancelAnimationFrame(this.resizeRafId);
     }
 
+    const { width, height, renderScale } = this.calculateCanvasData();
+
+    if (
+      this.canvasElement.width !== width ||
+      this.canvasElement.height !== height ||
+      this.renderScale !== renderScale // Usually, only render scale change when the user zooms in/out
+    ) {
+      this.renderScale = renderScale;
+      this.canvasElement.width = width;
+      this.canvasElement.height = height;
+      this.resolutionChanged = true;
+      this.gl.viewport(0, 0, this.gl.canvas.width, this.gl.canvas.height);
+
+      // this is necessary to avoid flashes while resizing (the next scheduled render will set uniforms)
+      this.render(performance.now());
+    }
+  };
+
+  private calculateCanvasData = () => {
     const pinchZoom = visualViewport?.scale ?? 1;
 
     // Zoom level can be calculated comparing the browser's outerWidth and the viewport width.
@@ -285,39 +304,15 @@ export class ShaderMount {
     const newWidth = Math.round(this.parentWidth * newRenderScale);
     const newHeight = Math.round(this.parentHeight * newRenderScale);
 
-    if (
-      this.canvasElement.width !== newWidth ||
-      this.canvasElement.height !== newHeight ||
-      this.renderScale !== newRenderScale // Usually, only render scale change when the user zooms in/out
-    ) {
-      this.renderScale = newRenderScale;
-      this.canvasElement.width = newWidth;
-      this.canvasElement.height = newHeight;
-      this.resolutionChanged = true;
-      this.gl.viewport(0, 0, this.gl.canvas.width, this.gl.canvas.height);
-
-      // this is necessary to avoid flashes while resizing (the next scheduled render will set uniforms)
-      this.render(performance.now());
-    }
+    return {
+      width: newWidth,
+      height: newHeight,
+      renderScale: newRenderScale,
+    };
   };
 
   private handleResolutionChange = () => {
-    const pinchZoom = visualViewport?.scale ?? 1;
-    const innerWidth = visualViewport ? visualViewport.width * visualViewport.scale : window.innerWidth;
-    const classicZoom = Math.round((10000 * window.outerWidth) / innerWidth) / 10000;
-    const realPixelRatio = this.isSafari ? devicePixelRatio : devicePixelRatio / classicZoom;
-    const targetPixelRatio = Math.max(realPixelRatio, this.minPixelRatio);
-    const targetRenderScale = targetPixelRatio * classicZoom * pinchZoom;
-    const targetPixelWidth = this.parentWidth * targetRenderScale;
-    const targetPixelHeight = this.parentHeight * targetRenderScale;
-
-    // Calculate framebuffer dimensions based on maxPixelCount
-    const maxPixelCountHeadroom = Math.sqrt(this.maxPixelCount) / Math.sqrt(targetPixelWidth * targetPixelHeight);
-    const newRenderScale = targetRenderScale * Math.min(1, maxPixelCountHeadroom);
-
-    // Set canvas size to match display size
-    const newWidth = Math.round(this.parentWidth * targetRenderScale);
-    const newHeight = Math.round(this.parentHeight * targetRenderScale);
+    const { width: newWidth, height: newHeight, renderScale: newRenderScale } = this.calculateCanvasData();
 
     if (
       this.canvasElement.width !== newWidth ||
@@ -510,6 +505,7 @@ export class ShaderMount {
       }
 
       if (value instanceof HTMLImageElement) {
+        console.log('setting texture uniform', key);
         // Texture case, requires a good amount of code so it gets its own function:
         this.setTextureUniform(key, value);
       } else if (Array.isArray(value)) {
