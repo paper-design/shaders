@@ -22,7 +22,7 @@ export const defaultPreset: PaperTexturePreset = {
     ...defaultPatternSizing,
     speed: 0,
     frame: 0,
-    colorFront: '#5e80ba',
+    colorFront: '#828282',
     colorBack: '#ffffff',
     contrast: 0.3,
     grain: 0.55,
