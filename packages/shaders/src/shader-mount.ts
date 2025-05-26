@@ -1,3 +1,5 @@
+const DEFAULT_MAX_PIXEL_COUNT: number = 1920 * 1080 * 4;
+
 export class ShaderMount {
   public parentElement: PaperShaderElement;
   public canvasElement: HTMLCanvasElement;
@@ -48,7 +50,7 @@ export class ShaderMount {
      *
      * May be reduced to improve performance or increased to improve quality on high-resolution screens.
      */
-    maxPixelCount: number = 1920 * 1080 * 4
+    maxPixelCount: number = DEFAULT_MAX_PIXEL_COUNT
   ) {
     if (parentElement instanceof HTMLElement) {
       this.parentElement = parentElement as PaperShaderElement;
@@ -187,7 +189,7 @@ export class ShaderMount {
     });
   };
 
-  /** Resize handler for when the container div changes size and we want to resize our canvas to match */
+  /** Resize handler for when the container div changes size or the max pixel count changes and we want to resize our canvas to match */
   private handleResize = () => {
     // Cancel any scheduled resize handlers
     if (this.resizeRafId !== null) {
@@ -435,6 +437,20 @@ export class ShaderMount {
       cancelAnimationFrame(this.rafId);
       this.rafId = null;
     }
+  };
+
+  /** Set the maximum pixel count for the shader, this will limit the number of pixels that will be rendered */
+  public setMaxPixelCount = (newMaxPixelCount: number = DEFAULT_MAX_PIXEL_COUNT): void => {
+    this.maxPixelCount = newMaxPixelCount;
+
+    this.handleResize();
+  };
+
+  /** Set the minimum pixel ratio for the shader */
+  public setMinPixelRatio = (newMinPixelRatio: number = 2): void => {
+    this.minPixelRatio = newMinPixelRatio;
+
+    this.handleResize();
   };
 
   /** Update the uniforms that are provided by the outside shader, can be a partial set with only the uniforms that have changed */

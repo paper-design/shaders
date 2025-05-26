@@ -1,5 +1,5 @@
 import { memo } from 'react';
-import { ShaderMount, type ShaderComponentProps } from '../shader-mount';
+import { ShaderMount, type ShaderComponentProps } from '../shader-mount.js';
 import {
   getShaderColorFromString,
   ditheringFragmentShader,
@@ -17,18 +17,14 @@ export interface DitheringProps extends ShaderComponentProps, DitheringParams {}
 
 type DitheringPreset = ShaderPreset<DitheringParams>;
 
-// Due to Leva controls limitation:
-// 1) keep default colors in HSLA format to keep alpha channel
-// 2) don't use decimal values on HSL values (to avoid button highlight bug)
-
 export const defaultPreset: DitheringPreset = {
   name: 'Default',
   params: {
     ...defaultPatternSizing,
     speed: 1,
     frame: 0,
-    color1: 'hsla(240, 14%, 17%, 1)',
-    color2: 'hsla(34, 26%, 61%, 1)',
+    colorBack: '#252531',
+    colorFront: '#b59f82',
     shape: 'simplex',
     type: '4x4',
     pxSize: 2,
@@ -41,8 +37,8 @@ export const warpPreset: DitheringPreset = {
     ...defaultPatternSizing,
     speed: 1,
     frame: 0,
-    color1: 'hsla(195, 47%, 35%, 1)',
-    color2: 'hsla(171, 26%, 89%, 1)',
+    colorBack: '#2f6e83',
+    colorFront: '#dceae8',
     shape: 'warp',
     type: '4x4',
     pxSize: 2,
@@ -55,8 +51,8 @@ export const sinePreset: DitheringPreset = {
     ...defaultPatternSizing,
     speed: 1,
     frame: 0,
-    color1: 'hsla(318, 80%, 25%, 1)',
-    color2: 'hsla(184, 100%, 40%, 1)',
+    colorBack: '#730d54',
+    colorFront: '#00becc',
     shape: 'wave',
     type: '4x4',
     pxSize: 11,
@@ -69,8 +65,8 @@ export const bugsPreset: DitheringPreset = {
     ...defaultPatternSizing,
     speed: 1,
     frame: 0,
-    color1: 'hsla(0, 0%, 0%, 1)',
-    color2: 'hsla(120, 100%, 25%, 1)',
+    colorBack: '#000000',
+    colorFront: '#008000',
     shape: 'dots',
     type: 'random',
     pxSize: 9,
@@ -83,8 +79,8 @@ export const ripplePreset: DitheringPreset = {
     ...defaultObjectSizing,
     speed: 1,
     frame: 0,
-    color1: 'hsla(20, 50%, 25%, 1)',
-    color2: 'hsla(20, 50%, 55%, 1)',
+    colorBack: '#603520',
+    colorFront: '#c67953',
     shape: 'ripple',
     type: '2x2',
     pxSize: 3,
@@ -97,8 +93,8 @@ export const swirlPreset: DitheringPreset = {
     ...defaultObjectSizing,
     speed: 1,
     frame: 0,
-    color1: 'hsla(0, 0%, 0%, 1)',
-    color2: 'hsla(200, 26%, 20%, 1)',
+    colorBack: '#000000',
+    colorFront: '#263740',
     shape: 'swirl',
     type: '8x8',
     pxSize: 2,
@@ -109,12 +105,10 @@ export const spherePreset: DitheringPreset = {
   name: 'Sphere',
   params: {
     ...defaultObjectSizing,
-    offsetX: -0.5,
-    offsetY: 0.23,
     speed: 1,
     frame: 0,
-    color1: 'hsla(320, 26%, 15%, 1)',
-    color2: 'hsla(135, 30%, 30%, 1)',
+    colorBack: '#301c2a',
+    colorFront: '#366341',
     shape: 'sphere',
     type: '4x4',
     pxSize: 2.5,
@@ -135,8 +129,8 @@ export const Dithering: React.FC<DitheringProps> = memo(function DitheringImpl({
   // Own props
   speed = defaultPreset.params.speed,
   frame = defaultPreset.params.frame,
-  color1 = defaultPreset.params.color1,
-  color2 = defaultPreset.params.color2,
+  colorBack = defaultPreset.params.colorBack,
+  colorFront = defaultPreset.params.colorFront,
   shape = defaultPreset.params.shape,
   type = defaultPreset.params.type,
   pxSize = defaultPreset.params.pxSize,
@@ -155,8 +149,8 @@ export const Dithering: React.FC<DitheringProps> = memo(function DitheringImpl({
 }) {
   const uniforms = {
     // Own uniforms
-    u_color1: getShaderColorFromString(color1),
-    u_color2: getShaderColorFromString(color2),
+    u_colorBack: getShaderColorFromString(colorBack),
+    u_colorFront: getShaderColorFromString(colorFront),
     u_shape: DitheringShapes[shape],
     u_type: DitheringTypes[type],
     u_pxSize: pxSize,

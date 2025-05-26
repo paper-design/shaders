@@ -1,33 +1,34 @@
 'use client';
 
-import { Swirl, type SwirlParams, swirlPresets } from '@paper-design/shaders-react';
+import { ColorPanels, type ColorPanelsParams, colorPanelsPresets } from '@paper-design/shaders-react';
+
 import { useControls, button, folder } from 'leva';
 import { setParamsSafe, useResetLevaParams } from '@/helpers/use-reset-leva-params';
 import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import Link from 'next/link';
 import { BackButton } from '@/components/back-button';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
-import { ShaderFit, ShaderFitOptions, simplexNoiseMeta } from '@paper-design/shaders';
+import { colorPanelsMeta, ShaderFit, ShaderFitOptions } from '@paper-design/shaders';
 import { useColors } from '@/helpers/use-colors';
 import { toHsla } from '@/helpers/to-hsla';
 
 /**
- * You can copy/paste this example to use Swirl in your app
+ * You can copy/paste this example to use ColorPanels in your app
  */
-const SwirlExample = () => {
-  return <Swirl style={{ position: 'fixed', width: '100%', height: '100%' }} />;
+const ColorPanelsExample = () => {
+  return <ColorPanels style={{ position: 'fixed', width: '100%', height: '100%' }} />;
 };
 
 /**
  * This example has controls added so you can play with settings in the example app
  */
 
-const { worldWidth, worldHeight, ...defaults } = swirlPresets[0].params;
+const { worldWidth, worldHeight, ...defaults } = colorPanelsPresets[0].params;
 
-const SwirlWithControls = () => {
+const ColorPanelsWithControls = () => {
   const { colors, setColors } = useColors({
     defaultColors: defaults.colors,
-    maxColorCount: simplexNoiseMeta.maxColorCount,
+    maxColorCount: colorPanelsMeta.maxColorCount,
   });
 
   const [params, setParams] = useControls(() => {
@@ -35,11 +36,14 @@ const SwirlWithControls = () => {
       Parameters: folder(
         {
           colorBack: { value: toHsla(defaults.colorBack), order: 100 },
-          bandCount: { value: defaults.bandCount, min: 0, max: 15, step: 1, order: 201 },
-          twist: { value: defaults.twist, min: 0, max: 1, order: 202 },
-          softness: { value: defaults.softness, min: 0, max: 1, order: 203 },
-          noiseFrequency: { value: defaults.speed, min: 0, max: 15, order: 300 },
-          noisePower: { value: defaults.speed, min: 0, max: 1, order: 301 },
+          density: { value: defaults.density, min: 0.25, max: 7, order: 200 },
+          angle1: { value: defaults.angle1, min: -1, max: 1, order: 202 },
+          angle2: { value: defaults.angle2, min: -1, max: 1, order: 202 },
+          length: { value: defaults.length, min: 0, max: 3, order: 203 },
+          blur: { value: defaults.blur, min: 0, max: 0.5, order: 301 },
+          fadeIn: { value: defaults.fadeIn, min: 0, max: 1, order: 302 },
+          fadeOut: { value: defaults.fadeOut, min: 0, max: 1, order: 303 },
+          gradient: { value: defaults.gradient, min: 0, max: 1, order: 304 },
           speed: { value: defaults.speed, min: 0, max: 2, order: 400 },
         },
         { order: 1 }
@@ -59,8 +63,8 @@ const SwirlWithControls = () => {
       Fit: folder(
         {
           fit: { value: defaults.fit, options: Object.keys(ShaderFitOptions) as ShaderFit[], order: 404 },
-          worldWidth: { value: 1000, min: 0, max: 5120, order: 405 },
-          worldHeight: { value: 500, min: 0, max: 5120, order: 406 },
+          worldWidth: { value: 1000, min: 1, max: 5120, order: 405 },
+          worldHeight: { value: 500, min: 1, max: 5120, order: 406 },
           originX: { value: defaults.originX, min: 0, max: 1, order: 407 },
           originY: { value: defaults.originY, min: 0, max: 1, order: 408 },
         },
@@ -74,7 +78,7 @@ const SwirlWithControls = () => {
 
   useControls(() => {
     const presets = Object.fromEntries(
-      swirlPresets.map(({ name, params: { worldWidth, worldHeight, ...preset } }) => [
+      colorPanelsPresets.map(({ name, params: { worldWidth, worldHeight, ...preset } }) => [
         name,
         button(() => {
           const { colors, ...presetParams } = preset;
@@ -89,9 +93,9 @@ const SwirlWithControls = () => {
   });
 
   // Reset to defaults on mount, so that Leva doesn't show values from other
-  // shaders when navigating (if two shaders have a colorBack param for example)
+  // shaders when navigating (if two shaders have a color1 param for example)
   useResetLevaParams(params, setParams, defaults);
-  usePresetHighlight(swirlPresets, params);
+  usePresetHighlight(colorPanelsPresets, params);
   cleanUpLevaParams(params);
 
   return (
@@ -99,9 +103,9 @@ const SwirlWithControls = () => {
       <Link href="/">
         <BackButton />
       </Link>
-      <Swirl {...params} colors={colors} className="fixed size-full" />
+      <ColorPanels {...params} colors={colors} className="fixed size-full" />
     </>
   );
 };
 
-export default SwirlWithControls;
+export default ColorPanelsWithControls;

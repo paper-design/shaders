@@ -1,40 +1,36 @@
-import type { ShaderMotionParams } from '../shader-mount';
+import type { ShaderMotionParams } from '../shader-mount.js';
 import {
   sizingUniformsDeclaration,
   type ShaderSizingParams,
   type ShaderSizingUniforms,
   sizingUV,
   drawSizingHelpers,
-} from '../shader-sizing';
-import { declareSimplexNoise, declarePI, declareRandom } from '../shader-utils';
+} from '../shader-sizing.js';
+import { declareSimplexNoise, declarePI, declareRandom } from '../shader-utils.js';
 
 /**
- * Dithering Fragment Shader by Ksenia Kondrashova
- * Applies dithering (4 dithering types available) over the
- * abstract shapes animation (7 animated shapes available)
+ * 2-color dithering effect over animated abstract shapes
  *
- * Uniforms include:
- * - u_color1: background color, RGBA
- * - u_color2: pixels color, RGBA
+ * Uniforms:
+ * - u_colorBack, u_colorFront (RGBA)
+ * - pxSize: px size relative to canvas resolution
+ * - u_shape (float used as integer):
+ * ---- 1: simplex noise pattern
+ * ---- 2: warp noise pattern
+ * ---- 3: columns if dots moving vertically
+ * ---- 4: sine wave
+ * ---- 5: ripple effect
+ * ---- 6: swirl animation
+ * ---- 7: rotating sphere
+ *  - u_type (float used as integer)
+ * ---- 1: random dithering
+ * ---- 2: 2x2 Bayer matrix
+ * ---- 3: 4x4 Bayer matrix
+ * ---- 4: 8x8 Bayer matrix
  *
- * - u_shape (float, used as int, 1 to 7):
- *  --- shape = 1: Simplex noise pattern
- *  --- shape = 2: Warp noise pattern
- *  --- shape = 3: Columns if dots moving vertically
- *  --- shape = 4: Sine wave
- *  --- shape = 5: Ripple effect
- *  --- shape = 6: Swirl animation
- *  --- shape = 7: Rotating sphere
- *
- *  - u_type (float, used as int, 1 to 4):
- *  --- type = 1: Random dithering
- *  --- type = 2: 2x2 Bayer matrix
- *  --- type = 3: 4x4 Bayer matrix
- *  --- type = 4: 8x8 Bayer matrix
- *
- * - pxSize (float), relative to canvas resolution
- *
+ * Note: pixelization is applied to the shapes BEFORE dithering, meaning pixels don't react to scaling and fit
  */
+
 export const ditheringFragmentShader: string = `#version 300 es
 precision mediump float;
 
@@ -44,8 +40,8 @@ uniform float u_pixelRatio;
 
 ${sizingUniformsDeclaration}
 
-uniform vec4 u_color1;
-uniform vec4 u_color2;
+uniform vec4 u_colorBack;
+uniform vec4 u_colorFront;
 uniform float u_shape;
 uniform float u_type;
 uniform float u_pxSize;
@@ -200,8 +196,16 @@ void main() {
   dithering -= .5;
   float res = step(.5, shape + dithering);
 
-  vec3 color = mix(u_color1.rgb, u_color2.rgb, res);
-  float opacity = mix(u_color1.a, u_color2.a, res);
+  vec3 fgColor = u_colorFront.rgb * u_colorFront.a;
+  float fgOpacity = u_colorFront.a;
+  vec3 bgColor = u_colorBack.rgb * u_colorBack.a;
+  float bgOpacity = u_colorBack.a;
+
+  vec3 color = fgColor * res;
+  float opacity = fgOpacity * res;
+
+  color += bgColor * (1. - opacity);
+  opacity += bgOpacity * (1. - opacity);
 
   #ifdef ADD_HELPERS
     vec2 helperBox = objectHelperBox;
@@ -218,16 +222,16 @@ void main() {
 `;
 
 export interface DitheringUniforms extends ShaderSizingUniforms {
-  u_color1: [number, number, number, number];
-  u_color2: [number, number, number, number];
+  u_colorBack: [number, number, number, number];
+  u_colorFront: [number, number, number, number];
   u_shape: (typeof DitheringShapes)[DitheringShape];
   u_type: (typeof DitheringTypes)[DitheringType];
   u_pxSize: number;
 }
 
 export interface DitheringParams extends ShaderSizingParams, ShaderMotionParams {
-  color1?: string;
-  color2?: string;
+  colorBack?: string;
+  colorFront?: string;
   shape?: DitheringShape;
   type?: DitheringType;
   pxSize?: number;
@@ -246,7 +250,7 @@ export const DitheringShapes = {
 export type DitheringShape = keyof typeof DitheringShapes;
 
 export const DitheringTypes = {
-  random: 1,
+  'random': 1,
   '2x2': 2,
   '4x4': 3,
   '8x8': 4,

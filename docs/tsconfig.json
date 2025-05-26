@@ -15,11 +15,7 @@
     "incremental": true,
     "plugins": [{ "name": "next" }],
     "paths": {
-      "@/*": ["./src/*"],
-      "@paper-design/shaders": ["../packages/shaders/src"],
-      "@paper-design/shaders/*": ["../packages/shaders/src/*"],
-      "@paper-design/shaders-react": ["../packages/shaders-react/src"],
-      "@paper-design/shaders-react/*": ["../packages/shaders-react/src/*"]
+      "@/*": ["./src/*"]
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],

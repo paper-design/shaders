@@ -6,7 +6,11 @@ import {
   type ShaderMotionParams,
   type ShaderMountUniforms,
 } from '@paper-design/shaders';
-import { useMergeRefs } from './use-merge-refs';
+import { useMergeRefs } from './use-merge-refs.js';
+
+export interface ShaderMountRef extends HTMLDivElement {
+  paperShaderMount?: ShaderMountVanilla;
+}
 
 /** React Shader Mount can also accept strings as uniform values, which will assumed to be URLs and loaded as images */
 interface ShaderMountUniformsReact {
@@ -91,7 +95,7 @@ async function processUniforms(uniformsProp: ShaderMountUniformsReact): Promise<
  * A React component that mounts a shader and updates its uniforms as the component's props change
  * If you pass a string as a uniform value, it will be assumed to be a URL and attempted to be loaded as an image
  */
-export const ShaderMount: React.FC<ShaderMountProps> = forwardRef<HTMLDivElement, ShaderMountProps>(
+export const ShaderMount: React.FC<ShaderMountProps> = forwardRef<ShaderMountRef, ShaderMountProps>(
   function ShaderMountImpl(
     {
       fragmentShader,
@@ -152,6 +156,16 @@ export const ShaderMount: React.FC<ShaderMountProps> = forwardRef<HTMLDivElement
     useEffect(() => {
       shaderMountRef.current?.setSpeed(speed);
     }, [speed, isInitialized]);
+
+    // Max Pixel Count
+    useEffect(() => {
+      shaderMountRef.current?.setMaxPixelCount(maxPixelCount);
+    }, [maxPixelCount, isInitialized]);
+
+    // Min Pixel Ratio
+    useEffect(() => {
+      shaderMountRef.current?.setMinPixelRatio(minPixelRatio);
+    }, [minPixelRatio, isInitialized]);
 
     // Frame
     useEffect(() => {

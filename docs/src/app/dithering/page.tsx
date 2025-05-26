@@ -16,6 +16,7 @@ import {
   ShaderFitOptions,
 } from '@paper-design/shaders';
 import { ShaderFit } from '@paper-design/shaders';
+import { toHsla } from '@/helpers/to-hsla';
 
 /**
  * You can copy/paste this example to use Dithering in your app
@@ -41,8 +42,8 @@ const DitheringWithControls = () => {
     return {
       Parameters: folder(
         {
-          color1: { value: defaults.color1, order: 100 },
-          color2: { value: defaults.color2, order: 101 },
+          colorBack: { value: toHsla(defaults.colorBack), order: 100 },
+          colorFront: { value: toHsla(defaults.colorFront), order: 101 },
           shape: { value: defaults.shape, options: Object.keys(DitheringShapes) as DitheringShape[], order: 102 },
           type: { value: defaults.type, options: Object.keys(DitheringTypes) as DitheringType[], order: 103 },
           pxSize: { value: defaults.pxSize, min: 1, max: 20, order: 104 },
@@ -80,7 +81,7 @@ const DitheringWithControls = () => {
   });
 
   // Reset to defaults on mount, so that Leva doesn't show values from other
-  // shaders when navigating (if two shaders have a color1 param for example)
+  // shaders when navigating (if two shaders have a colorBack param for example)
   useResetLevaParams(params, setParams, defaults);
   usePresetHighlight(ditheringPresets, params);
   cleanUpLevaParams(params);

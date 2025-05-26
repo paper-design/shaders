@@ -1,6 +1,6 @@
 import { memo } from 'react';
-import { ShaderMount, type ShaderComponentProps } from '../shader-mount';
-import { colorPropsAreEqual } from '../color-props-are-equal';
+import { ShaderMount, type ShaderComponentProps } from '../shader-mount.js';
+import { colorPropsAreEqual } from '../color-props-are-equal.js';
 import {
   getShaderColorFromString,
   dotGridFragmentShader,
@@ -12,10 +12,6 @@ import {
   defaultPatternSizing,
 } from '@paper-design/shaders';
 
-// Due to Leva controls limitation:
-// 1) keep default colors in HSLA format to keep alpha channel
-// 2) don't use decimal values on HSL values (to avoid button highlight bug)
-
 export interface DotGridProps extends ShaderComponentProps, DotGridParams {}
 
 type DotGridPreset = ShaderPreset<DotGridParams>;
@@ -24,9 +20,9 @@ export const defaultPreset: DotGridPreset = {
   name: 'Default',
   params: {
     ...defaultPatternSizing,
-    colorBack: 'hsla(0, 0%, 0%, 1)',
-    colorFill: 'hsla(0, 0%, 100%, 1)',
-    colorStroke: 'hsla(40, 100%, 50%, 1)',
+    colorBack: '#000000',
+    colorFill: '#ffffff',
+    colorStroke: '#dd5500',
     size: 2,
     gapX: 50,
     gapY: 50,
@@ -41,9 +37,9 @@ export const macrodataPreset: DotGridPreset = {
   name: 'Macrodata',
   params: {
     ...defaultPatternSizing,
-    colorBack: 'hsla(211, 37%, 13%, 1)',
-    colorFill: 'hsla(218, 100%, 67%, 1)',
-    colorStroke: 'hsla(0, 0%, 0%, 1)',
+    colorBack: '#15212d',
+    colorFill: '#5794ff',
+    colorStroke: '#0000ff',
     size: 3,
     gapX: 25,
     gapY: 25,
@@ -58,9 +54,9 @@ const trianglesPreset: DotGridPreset = {
   name: 'Triangles',
   params: {
     ...defaultPatternSizing,
-    colorBack: 'hsla(0, 0%, 100%, 1)',
-    colorFill: 'hsla(0, 0%, 100%, 1)',
-    colorStroke: 'hsla(0, 0%, 0%, .5)',
+    colorBack: '#ffffff',
+    colorFill: '#ffffff',
+    colorStroke: '#808080',
     size: 5,
     gapX: 32,
     gapY: 32,
@@ -75,10 +71,10 @@ const bubblesPreset: DotGridPreset = {
   name: 'Bubbles',
   params: {
     ...defaultPatternSizing,
-    colorBack: 'hsla(234, 100%, 31%, .5)',
-    colorFill: 'hsla(100, 30%, 100%, 1)',
-    colorStroke: 'hsla(0, 100%, 0%, 1)',
-    size: 28,
+    colorBack: '#002c9e80',
+    colorFill: '#ffffff',
+    colorStroke: '#000000',
+    size: 15,
     gapX: 60,
     gapY: 60,
     strokeWidth: 12,
@@ -92,9 +88,9 @@ const treeLinePreset: DotGridPreset = {
   name: 'Tree line',
   params: {
     ...defaultPatternSizing,
-    colorBack: 'hsla(100, 100%, 36%, .05)',
-    colorFill: 'hsla(150, 80%, 10%, 1)',
-    colorStroke: 'hsla(0, 0%, 0%, 1)',
+    colorBack: '#f4fce7',
+    colorFill: '#052e19',
+    colorStroke: '#000000',
     size: 8,
     gapX: 20,
     gapY: 90,
@@ -109,9 +105,9 @@ const diamondsPreset: DotGridPreset = {
   name: 'Diamonds',
   params: {
     ...defaultPatternSizing,
-    colorBack: 'hsla(0, 0%, 0%, 0)',
-    colorFill: 'hsla(0, 100%, 50%, 1)',
-    colorStroke: 'hsla(0, 0%, 0%, 1)',
+    colorBack: '#ffffff',
+    colorFill: '#ff0000',
+    colorStroke: '#000000',
     size: 15,
     gapX: 30,
     gapY: 30,
@@ -126,9 +122,9 @@ const wallpaperPreset: DotGridPreset = {
   name: 'Wallpaper',
   params: {
     ...defaultPatternSizing,
-    colorBack: 'hsla(154, 33%, 19%, 1)',
-    colorFill: 'hsla(0, 0%, 0%, 0)',
-    colorStroke: 'hsla(36, 48%, 58%, 1)',
+    colorBack: '#204030',
+    colorFill: '#000000',
+    colorStroke: '#bd955b',
     size: 9,
     gapX: 32,
     gapY: 32,
@@ -143,9 +139,9 @@ const matrixPreset: DotGridPreset = {
   name: 'Enter the Matrix',
   params: {
     ...defaultPatternSizing,
-    colorBack: 'hsla(0, 100%, 0%, 1)',
-    colorFill: 'hsla(182, 100%, 64%, 1)',
-    colorStroke: 'hsla(0, 100%, 100%, 0)',
+    colorBack: '#000000',
+    colorFill: '#47ffea',
+    colorStroke: '#000000',
     size: 2,
     gapX: 10,
     gapY: 10,
@@ -160,9 +156,9 @@ const waveformPreset: DotGridPreset = {
   name: 'Waveform',
   params: {
     ...defaultPatternSizing,
-    colorBack: 'hsla(0, 100%, 100%, 1)',
-    colorFill: 'hsla(227, 93%, 38%, 1)',
-    colorStroke: 'hsla(0, 0%, 0%, 0)',
+    colorBack: '#ffffff',
+    colorFill: '#0934b8',
+    colorStroke: '#000000',
     size: 100,
     gapX: 2,
     gapY: 215,

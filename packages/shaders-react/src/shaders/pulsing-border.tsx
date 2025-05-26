@@ -1,6 +1,6 @@
 import { memo } from 'react';
-import { ShaderMount, type ShaderComponentProps } from '../shader-mount';
-import { colorPropsAreEqual } from '../color-props-are-equal';
+import { ShaderMount, type ShaderComponentProps } from '../shader-mount.js';
+import { colorPropsAreEqual } from '../color-props-are-equal.js';
 import {
   defaultObjectSizing,
   getShaderColorFromString,
@@ -16,10 +16,6 @@ export interface PulsingBorderProps extends ShaderComponentProps, PulsingBorderP
 
 type PulsingBorderPreset = ShaderPreset<PulsingBorderParams>;
 
-// Due to Leva controls limitation:
-// 1) keep default colors in HSLA format to keep alpha channel
-// 2) don't use decimal values on HSL values (to avoid button highlight bug)
-
 export const defaultPreset: PulsingBorderPreset = {
   name: 'Default',
   params: {
@@ -27,8 +23,8 @@ export const defaultPreset: PulsingBorderPreset = {
     scale: 0.7,
     speed: 1,
     frame: 0,
-    colorBack: 'hsla(0, 0%, 0%, 1)',
-    colors: ['hsla(350, 90%, 55%, 1)', 'hsla(200, 80%, 60%, 1)'],
+    colorBack: '#000000',
+    colors: ['#f2244f', '#4da6e6'],
     roundness: 0.5,
     thickness: 0.02,
     softness: 0.5,
@@ -50,8 +46,8 @@ export const circlePreset: PulsingBorderPreset = {
     scale: 0.5,
     speed: 1,
     frame: 0,
-    colorBack: 'hsla(200, 40%, 10%, 1)',
-    colors: ['hsla(50, 100%, 60%, 1)', 'hsla(25, 100%, 50%, 1)', 'hsla(350, 100%, 50%, 1)'],
+    colorBack: '#0f191f',
+    colors: ['#ffdd33', '#ff8c00', '#ff002b'],
     roundness: 1,
     thickness: 0.03,
     softness: 0.2,
@@ -70,8 +66,8 @@ export const innerBorderPreset: PulsingBorderPreset = {
     ...defaultObjectSizing,
     speed: 1.0,
     frame: 0,
-    colorBack: 'hsla(240, 13%, 11%, 1)',
-    colors: ['hsla(38, 89%, 60%, 1)', 'hsla(204, 75%, 52%, 1)', 'hsla(302, 100%, 50%, 1)'],
+    colorBack: '#181821',
+    colors: ['#f5ad2b', '#2294d9', '#bf00ff'],
     roundness: 0,
     thickness: 0,
     softness: 0.4,

@@ -3,13 +3,13 @@
     // Enable latest features
     "lib": ["ESNext", "DOM", "DOM.Iterable"],
     "target": "ESNext",
-    "module": "ESNext",
-    "moduleDetection": "force",
     "declaration": true,
     "outDir": "./dist",
 
-    // Bundler mode
-    "moduleResolution": "bundler",
+    // Module resolution
+    "module": "NodeNext",
+    "moduleDetection": "force",
+    "moduleResolution": "nodenext",
     "verbatimModuleSyntax": true,
     "isolatedDeclarations": true, // good for libs, ensures bundled type declarations are robust
 

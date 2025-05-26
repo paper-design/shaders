@@ -3,14 +3,14 @@
     // Enable latest features
     "lib": ["ESNext", "DOM", "DOM.Iterable"],
     "target": "ESNext",
-    "module": "ESNext",
-    "moduleDetection": "force",
     "jsx": "react-jsx",
     "declaration": true,
     "outDir": "./dist",
 
-    // Bundler mode
-    "moduleResolution": "bundler",
+    // Module resolution
+    "module": "NodeNext",
+    "moduleDetection": "force",
+    "moduleResolution": "nodenext",
     "verbatimModuleSyntax": true,
     "isolatedDeclarations": true,
 

@@ -1,6 +1,6 @@
 import { memo } from 'react';
-import { ShaderMount, type ShaderComponentProps } from '../shader-mount';
-import { colorPropsAreEqual } from '../color-props-are-equal';
+import { ShaderMount, type ShaderComponentProps } from '../shader-mount.js';
+import { colorPropsAreEqual } from '../color-props-are-equal.js';
 import {
   defaultObjectSizing,
   getShaderColorFromString,
@@ -15,10 +15,6 @@ export interface MetaballsProps extends ShaderComponentProps, MetaballsParams {}
 
 type MetaballsPreset = ShaderPreset<MetaballsParams>;
 
-// Due to Leva controls limitation:
-// 1) keep default colors in HSLA format to keep alpha channel
-// 2) don't use decimal values on HSL values (to avoid button highlight bug)
-
 export const defaultPreset: MetaballsPreset = {
   name: 'Default',
   params: {
@@ -26,7 +22,8 @@ export const defaultPreset: MetaballsPreset = {
     scale: 1,
     speed: 1,
     frame: 0,
-    colors: ['hsla(259, 100%, 80%, 1)', 'hsla(150, 100%, 80%, 1)', 'hsla(48, 100%, 80%, 1)', 'hsla(295, 100%, 80%, 1)'],
+    colorBack: '#ffffff',
+    colors: ['#b399ff', '#99ffc4', '#ffe699', '#e099ff'],
     count: 7,
     size: 1,
   },
@@ -38,6 +35,7 @@ export const Metaballs: React.FC<MetaballsProps> = memo(function MetaballsImpl({
   // Own props
   speed = defaultPreset.params.speed,
   frame = defaultPreset.params.frame,
+  colorBack = defaultPreset.params.colorBack,
   colors = defaultPreset.params.colors,
   size = defaultPreset.params.size,
   count = defaultPreset.params.count,
@@ -56,6 +54,7 @@ export const Metaballs: React.FC<MetaballsProps> = memo(function MetaballsImpl({
 }: MetaballsProps) {
   const uniforms = {
     // Own uniforms
+    u_colorBack: getShaderColorFromString(colorBack),
     u_colors: colors.map(getShaderColorFromString),
     u_colorsCount: colors.length,
     u_size: size,

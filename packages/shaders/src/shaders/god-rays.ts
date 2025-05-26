@@ -1,34 +1,33 @@
-import type { vec4 } from '../types';
-import type { ShaderMotionParams } from '../shader-mount';
-import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing';
-import { declarePI, declareRandom, declareRotate, colorBandingFix } from '../shader-utils';
+import type { vec4 } from '../types.js';
+import type { ShaderMotionParams } from '../shader-mount.js';
+import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
+import { declarePI, declareRandom, declareRotate, declareValueNoise, colorBandingFix } from '../shader-utils.js';
 
 export const godRaysMeta = {
   maxColorCount: 5,
 } as const;
 
 /**
- * GodRays pattern
- * The artwork by Ksenia Kondrashova
- * Renders a number of circular shapes with gooey effect applied
+ * Radial rays animated from center
  *
- * Uniforms include:
+ * Uniforms:
+ * - u_colorBack, u_colorBloom (RGBA)
+ * - u_colors (vec4[]), u_colorsCount (float used as integer)
+ * - u_frequency: rays density
+ * - u_density (0..1): number of visible rays
+ * - u_spotty: density of spots on the ray (higher = more spots)
+ * - u_midSize, u_midIntensity: central shape over the rays
+ * - u_bloom (0..1): normal to additive blending mix
  *
- * - u_colorBack: background RGBA color
- * - uColors (vec4[]): Input RGBA colors
- * - u_frequency: the frequency of rays (the number of sectors)
- * - u_spotty: the density of spots in the rings (higher = more spots)
- * - u_midSize: the size of the central shape within the rings
- * - u_midIntensity: the influence of the central shape on the rings
- * - u_density (0 .. 1): the number of visible rays
- * - u_blending (0 .. 1): normal / additive blending
  */
+
 export const godRaysFragmentShader: string = `#version 300 es
 precision mediump float;
 
 uniform float u_time;
 
 uniform vec4 u_colorBack;
+uniform vec4 u_colorBloom;
 uniform vec4 u_colors[${godRaysMeta.maxColorCount}];
 uniform float u_colorsCount;
 
@@ -37,7 +36,7 @@ uniform float u_spotty;
 uniform float u_midSize;
 uniform float u_midIntensity;
 uniform float u_density;
-uniform float u_blending;
+uniform float u_bloom;
 
 ${sizingVariablesDeclaration}
 
@@ -46,25 +45,10 @@ out vec4 fragColor;
 ${declarePI}
 ${declareRandom}
 ${declareRotate}
+${declareValueNoise}
 
 float hash(float n) {
   return fract(sin(n * 43758.5453123) * 43758.5453123);
-}
-
-float valueNoise(vec2 uv) {
-  vec2 i = floor(uv);
-  vec2 f = fract(uv);
-
-  float a = random(i);
-  float b = random(i + vec2(1.0, 0.0));
-  float c = random(i + vec2(0.0, 1.0));
-  float d = random(i + vec2(1.0, 1.0));
-
-  vec2 u = f * f * (3.0 - 2.0 * f);
-
-  float x1 = mix(a, b, u.x);
-  float x2 = mix(c, d, u.x);
-  return mix(x1, x2, u.y);
 }
 
 float raysShape(vec2 uv, float r, float freq, float density, float radius) {
@@ -118,24 +102,22 @@ void main() {
     vec3 addBlendColor = accumColor + srcColor;
     float addBlendAlpha = accumAlpha + srcAlpha;
 
-    accumColor = mix(alphaBlendColor, addBlendColor, u_blending);
-    accumAlpha = mix(alphaBlendAlpha, addBlendAlpha, u_blending);
+    accumColor = mix(alphaBlendColor, addBlendColor, u_bloom);
+    accumAlpha = mix(alphaBlendAlpha, addBlendAlpha, u_bloom);
   }
+
+  float overlayAlpha = u_colorBloom.a;
+  vec3 overlayColor = u_colorBloom.rgb * overlayAlpha;
+
+  vec3 colorWithOverlay = accumColor + accumAlpha * overlayColor;
+  accumColor = mix(accumColor, colorWithOverlay, u_bloom);
 
   vec3 bgColor = u_colorBack.rgb * u_colorBack.a;
 
-  vec3 alphaBlendColor = accumColor + (1.0 - accumAlpha) * bgColor;
-  float alphaBlendAlpha = accumAlpha + (1.0 - accumAlpha) * u_colorBack.a;
-
-  vec3 addBlendColor = accumColor + bgColor;
-  float addBlendAlpha = accumAlpha + u_colorBack.a;
-
-  accumColor = mix(alphaBlendColor, addBlendColor, u_blending);
-  accumAlpha = mix(alphaBlendAlpha, addBlendAlpha, u_blending);
-
-  vec3 color = clamp(accumColor, 0.0, 1.0);
-  float opacity = clamp(accumAlpha, 0.0, 1.0);
-
+  vec3 color = accumColor + (1. - accumAlpha) * bgColor;
+  float opacity = accumAlpha + (1. - accumAlpha) * u_colorBack.a;
+  color = clamp(color, 0., 1.);
+  opacity = clamp(opacity, 0., 1.);
 
   ${colorBandingFix}
 
@@ -145,6 +127,7 @@ void main() {
 
 export interface GodRaysUniforms extends ShaderSizingUniforms {
   u_colorBack: [number, number, number, number];
+  u_colorBloom: [number, number, number, number];
   u_colors: vec4[];
   u_colorsCount: number;
   u_spotty: number;
@@ -152,16 +135,17 @@ export interface GodRaysUniforms extends ShaderSizingUniforms {
   u_midIntensity: number;
   u_frequency: number;
   u_density: number;
-  u_blending: number;
+  u_bloom: number;
 }
 
 export interface GodRaysParams extends ShaderSizingParams, ShaderMotionParams {
   colorBack?: string;
+  colorBloom?: string;
   colors?: string[];
   spotty?: number;
   midSize?: number;
   midIntensity?: number;
   frequency?: number;
   density?: number;
-  blending?: number;
+  bloom?: number;
 }

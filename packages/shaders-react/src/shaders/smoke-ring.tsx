@@ -1,6 +1,6 @@
 import { memo } from 'react';
-import { ShaderMount, type ShaderComponentProps } from '../shader-mount';
-import { colorPropsAreEqual } from '../color-props-are-equal';
+import { ShaderMount, type ShaderComponentProps } from '../shader-mount.js';
+import { colorPropsAreEqual } from '../color-props-are-equal.js';
 import {
   defaultObjectSizing,
   getShaderColorFromString,
@@ -16,18 +16,14 @@ export interface SmokeRingProps extends ShaderComponentProps, SmokeRingParams {}
 
 type SmokeRingPreset = ShaderPreset<SmokeRingParams>;
 
-// Due to Leva controls limitation:
-// 1) keep default colors in HSLA format to keep alpha channel
-// 2) don't use decimal values on HSL values (to avoid button highlight bug)
-
 export const defaultPreset: SmokeRingPreset = {
   name: 'Default',
   params: {
     ...defaultObjectSizing,
     speed: 0.4,
     frame: 0,
-    colorBack: 'hsla(0, 100%, 100%, 1)',
-    colors: ['hsla(173, 69%, 25%, 1)', 'hsla(256, 85%, 5%, 1)'],
+    colorBack: '#ffffff',
+    colors: ['#136c5e', '#0f0224'],
     noiseScale: 5,
     noiseIterations: 10,
     radius: 0.5,
@@ -42,8 +38,8 @@ export const poisonPreset: SmokeRingPreset = {
     ...defaultObjectSizing,
     speed: 1,
     frame: 0,
-    colorBack: 'hsla(0, 0%, 0%, 1)',
-    colors: ['hsla(61, 100%, 50%, 1)', 'hsla(111, 89%, 27%, 1)'],
+    colorBack: '#000000',
+    colors: ['#d4ff00', '#0c7f08'],
     noiseScale: 2.2,
     noiseIterations: 10,
     radius: 0.4,
@@ -57,8 +53,8 @@ export const linePreset: SmokeRingPreset = {
   params: {
     ...defaultObjectSizing,
     frame: 0,
-    colorBack: 'hsla(0, 0%, 0%, 1)',
-    colors: ['hsla(185, 100%, 56%, 1)', 'hsla(251, 39%, 45%, 1)'],
+    colorBack: '#000000',
+    colors: ['#1fe8ff', '#4540a4'],
     noiseScale: 1.1,
     noiseIterations: 2,
     radius: 0.38,
@@ -73,8 +69,8 @@ export const cloudPreset: SmokeRingPreset = {
   params: {
     ...defaultObjectSizing,
     frame: 0,
-    colorBack: 'hsla(218, 100%, 62%, 1)',
-    colors: ['hsla(0, 0%, 100%, 1)'],
+    colorBack: '#3b9bff',
+    colors: ['#ffffff'],
     noiseScale: 1.5,
     noiseIterations: 10,
     radius: 0.5,

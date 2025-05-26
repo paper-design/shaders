@@ -1,5 +1,6 @@
 import { folder, useControls } from 'leva';
 import { setParamsSafe } from './use-reset-leva-params';
+import { toHsla } from './to-hsla';
 
 interface UseColorsArgs {
   defaultColors: string[];
@@ -23,7 +24,7 @@ export function useColors({ defaultColors, maxColorCount }: UseColorsArgs) {
 
     for (let i = 0; i < colorCount; i++) {
       colors[`color${i + 1}`] = {
-        value: defaultColors[i] ?? 'hsla(' + ((40 * i) % 360) + ', 100%, 50%, 1)',
+        value: defaultColors[i] ? toHsla(defaultColors[i]) : `hsla(${(40 * i) % 360}, 100%, 50%, 1)`,
       };
     }
 

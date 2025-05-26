@@ -1,6 +1,6 @@
 {
   "name": "@paper-design/shaders-react",
-  "version": "0.0.32",
+  "version": "0.0.34",
   "license": "MIT",
   "type": "module",
   "sideEffects": false,
@@ -24,7 +24,7 @@
     "type-check": "tsc --project tsconfig.json"
   },
   "dependencies": {
-    "@paper-design/shaders": "0.0.29"
+    "@paper-design/shaders": "workspace:*"
   },
   "devDependencies": {
     "@types/react": "19.1.0"

@@ -3,39 +3,53 @@ import { ShaderMount, type ShaderComponentProps } from '../shader-mount.js';
 import { colorPropsAreEqual } from '../color-props-are-equal.js';
 import {
   getShaderColorFromString,
-  simplexNoiseFragmentShader,
+  colorPanelsFragmentShader,
   ShaderFitOptions,
-  type SimplexNoiseUniforms,
-  type SimplexNoiseParams,
+  type ColorPanelsUniforms,
+  type ColorPanelsParams,
   type ShaderPreset,
-  defaultPatternSizing,
+  defaultObjectSizing,
 } from '@paper-design/shaders';
 
-export interface SimplexNoiseProps extends ShaderComponentProps, SimplexNoiseParams {}
+export interface ColorPanelsProps extends ShaderComponentProps, ColorPanelsParams {}
 
-type SimplexNoisePreset = ShaderPreset<SimplexNoiseParams>;
+type ColorPanelsPreset = ShaderPreset<ColorPanelsParams>;
 
-export const defaultPreset: SimplexNoisePreset = {
+export const defaultPreset: ColorPanelsPreset = {
   name: 'Default',
   params: {
-    ...defaultPatternSizing,
+    ...defaultObjectSizing,
     speed: 1,
     frame: 0,
-    colors: ['#40a0bf', '#bf4040', '#ffcc00'],
-    stepsPerColor: 3,
-    softness: 0,
+    colors: ['#ff4000', '#00ffd4', '#5500ff', '#eaff00', '#aa00ff'],
+    colorBack: '#080808',
+    angle1: 0.1,
+    angle2: 0.1,
+    length: 1,
+    blur: 0.25,
+    fadeIn: 0.85,
+    fadeOut: 0.3,
+    gradient: 0,
+    density: 2,
   },
 };
 
-export const simplexNoisePresets: SimplexNoisePreset[] = [defaultPreset];
+export const colorPanelsPresets: ColorPanelsPreset[] = [defaultPreset];
 
-export const SimplexNoise: React.FC<SimplexNoiseProps> = memo(function SimplexNoiseImpl({
+export const ColorPanels: React.FC<ColorPanelsProps> = memo(function ColorPanelsImpl({
   // Own props
   speed = defaultPreset.params.speed,
   frame = defaultPreset.params.frame,
   colors = defaultPreset.params.colors,
-  stepsPerColor = defaultPreset.params.stepsPerColor,
-  softness = defaultPreset.params.softness,
+  colorBack = defaultPreset.params.colorBack,
+  angle1 = defaultPreset.params.angle1,
+  angle2 = defaultPreset.params.angle2,
+  length = defaultPreset.params.length,
+  blur = defaultPreset.params.blur,
+  fadeIn = defaultPreset.params.fadeIn,
+  fadeOut = defaultPreset.params.fadeOut,
+  density = defaultPreset.params.density,
+  gradient = defaultPreset.params.gradient,
 
   // Sizing props
   fit = defaultPreset.params.fit,
@@ -48,13 +62,20 @@ export const SimplexNoise: React.FC<SimplexNoiseProps> = memo(function SimplexNo
   worldWidth = defaultPreset.params.worldWidth,
   worldHeight = defaultPreset.params.worldHeight,
   ...props
-}: SimplexNoiseProps) {
+}: ColorPanelsProps) {
   const uniforms = {
     // Own uniforms
     u_colors: colors.map(getShaderColorFromString),
     u_colorsCount: colors.length,
-    u_stepsPerColor: stepsPerColor,
-    u_softness: softness,
+    u_colorBack: getShaderColorFromString(colorBack),
+    u_angle1: angle1,
+    u_angle2: angle2,
+    u_length: length,
+    u_blur: blur,
+    u_fadeIn: fadeIn,
+    u_fadeOut: fadeOut,
+    u_density: density,
+    u_gradient: gradient,
 
     // Sizing uniforms
     u_fit: ShaderFitOptions[fit],
@@ -66,14 +87,14 @@ export const SimplexNoise: React.FC<SimplexNoiseProps> = memo(function SimplexNo
     u_originY: originY,
     u_worldWidth: worldWidth,
     u_worldHeight: worldHeight,
-  } satisfies SimplexNoiseUniforms;
+  } satisfies ColorPanelsUniforms;
 
   return (
     <ShaderMount
       {...props}
       speed={speed}
       frame={frame}
-      fragmentShader={simplexNoiseFragmentShader}
+      fragmentShader={colorPanelsFragmentShader}
       uniforms={uniforms}
     />
   );

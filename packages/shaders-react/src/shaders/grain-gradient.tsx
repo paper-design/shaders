@@ -1,5 +1,5 @@
 import { memo } from 'react';
-import { ShaderMount, type ShaderComponentProps } from '../shader-mount';
+import { ShaderMount, type ShaderComponentProps } from '../shader-mount.js';
 import {
   getShaderColorFromString,
   grainGradientFragmentShader,
@@ -9,15 +9,12 @@ import {
   type ShaderPreset,
   defaultPatternSizing,
   defaultObjectSizing,
+  GrainGradientShapes,
 } from '@paper-design/shaders';
 
 export interface GrainGradientProps extends ShaderComponentProps, GrainGradientParams {}
 
 type GrainGradientPreset = ShaderPreset<GrainGradientParams>;
-
-// Due to Leva controls limitation:
-// 1) keep default colors in HSLA format to keep alpha channel
-// 2) don't use decimal values on HSL values (to avoid button highlight bug)
 
 export const defaultPreset: GrainGradientPreset = {
   name: 'Default',
@@ -25,11 +22,12 @@ export const defaultPreset: GrainGradientPreset = {
     ...defaultPatternSizing,
     speed: 1,
     frame: 0,
-    colors: ['hsla(210, 100%, 3%, 1)', 'hsla(32, 89%, 40%, 1)', 'hsla(46, 60%, 60%, 1)', 'hsla(39, 28%, 81%, 1)'],
+    colorBack: '#000a0f',
+    colors: ['#c4730b', '#bdad5f', '#d8ccc7'],
     softness: 0.7,
     intensity: 0.15,
     noise: 0.5,
-    shape: 1,
+    shape: 'wave',
   },
 };
 
@@ -40,11 +38,12 @@ export const dotsPreset: GrainGradientPreset = {
     scale: 0.6,
     speed: 1,
     frame: 0,
-    colors: ['hsla(0, 100%, 2%, 1)', 'hsla(0, 100%, 22%, 1)', 'hsla(210, 100%, 50%, 1)', 'hsla(48, 52%, 90%, 1)'],
+    colorBack: '#0a0000',
+    colors: ['#6f0000', '#0080ff', '#f2ebc9'],
     softness: 0.75,
     intensity: 0.15,
     noise: 0.7,
-    shape: 2,
+    shape: 'dots',
   },
 };
 
@@ -54,11 +53,12 @@ export const truchetPreset: GrainGradientPreset = {
     ...defaultPatternSizing,
     speed: 1,
     frame: 0,
-    colors: ['hsla(0, 100%, 2%, 1)', 'hsla(24, 100%, 22%, 1)', 'hsla(35, 85%, 69%, 1)', 'hsla(100, 52%, 45%, 1)'],
+    colorBack: '#0a0000',
+    colors: ['#6f2200', '#eabb7c', '#39b523'],
     softness: 0,
     intensity: 0.2,
     noise: 1,
-    shape: 3,
+    shape: 'truchet',
   },
 };
 
@@ -68,11 +68,12 @@ export const cornersPreset: GrainGradientPreset = {
     ...defaultObjectSizing,
     speed: 1,
     frame: 0,
-    colors: ['hsla(210, 80%, 6%, 1)', 'hsla(200, 100%, 40%, 1)', 'hsla(170, 100%, 50%, 1)', 'hsla(50, 100%, 50%, 1)'],
+    colorBack: '#031018',
+    colors: ['#00aeff', '#00ffcc', '#ffc800'],
     softness: 0.4,
     intensity: 0.35,
     noise: 0.35,
-    shape: 4,
+    shape: 'corners',
   },
 };
 
@@ -83,11 +84,12 @@ export const ripplePreset: GrainGradientPreset = {
     scale: 0.5,
     speed: 1,
     frame: 0,
-    colors: ['hsla(30, 100%, 4%, 1)', 'hsla(25, 100%, 22%, 1)', 'hsla(140, 70%, 70%, 1)', 'hsla(4305, 64%, 11%, 1)'],
+    colorBack: '#140a00',
+    colors: ['#6f2d00', '#88ddae', '#2c0b1d'],
     softness: 0.5,
     intensity: 0.5,
     noise: 0.5,
-    shape: 5,
+    shape: 'ripple',
   },
 };
 
@@ -98,11 +100,12 @@ export const blobPreset: GrainGradientPreset = {
     scale: 1.3,
     speed: 1,
     frame: 0,
-    colors: ['hsla(240, 30%, 8%, 1)', 'hsla(200, 30%, 35%, 1)', 'hsla(50, 30%, 55%, 1)', 'hsla(90, 25%, 45%, 1)'],
+    colorBack: '#0f0e18',
+    colors: ['#3e6172', '#a49b74', '#568c50'],
     softness: 0,
     intensity: 0.15,
     noise: 0.5,
-    shape: 6,
+    shape: 'blob',
   },
 };
 
@@ -112,11 +115,12 @@ export const spherePreset: GrainGradientPreset = {
     ...defaultObjectSizing,
     speed: 1,
     frame: 0,
-    colors: ['hsla(230, 100%, 5%, 1)', 'hsla(210, 100%, 35%, 1)', 'hsla(180, 95%, 60%, 1)', 'hsla(130, 80%, 45%, 1)'],
+    colorBack: '#000319',
+    colors: ['#0059b3', '#37f5f5', '#18c039'],
     softness: 1,
     intensity: 0.15,
     noise: 0.5,
-    shape: 7,
+    shape: 'sphere',
   },
 };
 
@@ -127,11 +131,12 @@ export const moonPreset: GrainGradientPreset = {
     scale: 0.6,
     speed: 1,
     frame: 0,
-    colors: ['hsla(0, 0%, 0%, 1)', 'hsla(0, 0%, 0%, 1)', 'hsla(240, 8%, 17%, 1)', 'hsla(40, 100%, 90%, 1)'],
+    colorBack: '#000000',
+    colors: ['#000000', '#28272d', '#ffeccc'],
     softness: 1,
     intensity: 0.56,
     noise: 1,
-    shape: 7,
+    shape: 'sphere',
   },
 };
 
@@ -150,6 +155,7 @@ export const GrainGradient: React.FC<GrainGradientProps> = memo(function GrainGr
   // Own props
   speed = defaultPreset.params.speed,
   frame = defaultPreset.params.frame,
+  colorBack = defaultPreset.params.colorBack,
   colors = defaultPreset.params.colors,
   softness = defaultPreset.params.softness,
   intensity = defaultPreset.params.intensity,
@@ -170,12 +176,13 @@ export const GrainGradient: React.FC<GrainGradientProps> = memo(function GrainGr
 }) {
   const uniforms = {
     // Own uniforms
+    u_colorBack: getShaderColorFromString(colorBack),
     u_colors: colors.map(getShaderColorFromString),
     u_colorsCount: colors.length,
     u_softness: softness,
     u_intensity: intensity,
     u_noise: noise,
-    u_shape: shape,
+    u_shape: GrainGradientShapes[shape],
 
     // Sizing uniforms
     u_fit: ShaderFitOptions[fit],

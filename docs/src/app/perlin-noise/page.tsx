@@ -8,6 +8,7 @@ import Link from 'next/link';
 import { BackButton } from '@/components/back-button';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
 import { ShaderFit, ShaderFitOptions } from '@paper-design/shaders';
+import { toHsla } from '@/helpers/to-hsla';
 /**
  * You can copy/paste this example to use PerlinNoise in your app
  */
@@ -26,8 +27,8 @@ const PerlinNoiseWithControls = () => {
     return {
       Parameters: folder(
         {
-          color1: { value: defaults.color1, order: 100 },
-          color2: { value: defaults.color2, order: 101 },
+          colorBack: { value: toHsla(defaults.colorBack), order: 100 },
+          colorFront: { value: toHsla(defaults.colorFront), order: 101 },
           proportion: { value: defaults.proportion, min: 0, max: 1, order: 300 },
           softness: { value: defaults.softness, min: 0, max: 1, order: 301 },
           octaveCount: { value: defaults.octaveCount, min: 1, max: 8, step: 1, order: 302 },
@@ -78,7 +79,7 @@ const PerlinNoiseWithControls = () => {
   });
 
   // Reset to defaults on mount, so that Leva doesn't show values from other
-  // shaders when navigating (if two shaders have a color1 param for example)
+  // shaders when navigating (if two shaders have a colorFront param for example)
   useResetLevaParams(params, setParams, defaults);
   usePresetHighlight(perlinNoisePresets, params);
   cleanUpLevaParams(params);

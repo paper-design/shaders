@@ -1,7 +1,7 @@
-import type { vec4 } from '../types';
-import type { ShaderMotionParams } from '../shader-mount';
-import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing';
-import { declarePI, declareRandom, colorBandingFix } from '../shader-utils';
+import type { vec4 } from '../types.js';
+import type { ShaderMotionParams } from '../shader-mount.js';
+import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
+import { declarePI, declareValueNoise, colorBandingFix } from '../shader-utils.js';
 
 export const smokeRingMeta = {
   maxColorCount: 10,
@@ -9,18 +9,15 @@ export const smokeRingMeta = {
 } as const;
 
 /**
- * Smoke Ring by Ksenia Kondrashova
- * Renders a fractional Brownian motion (fBm) noise over the
- * polar coordinates masked with ring shape
+ * Radial gradient with layered FBM displacement, masked with ring shape
  *
- * Uniforms include:
- * - u_colorBack: the background color of the scene
- * - uColors (vec4[]): Input RGBA colors
- * - uColorsCount (float): Number of active colors (`uColors` length) * u_noiseScale - the resolution of noise texture
- * - u_thickness (float): the thickness of the ring
- * - u_radius (float): the radius of the ring (u_radius = 0.5 to fit in contain mode)
- * - u_innerShape (float): if we fill the shape inside the radius (u_innerShape = 1 to render only the thickness)
- * - u_noiseIterations (float): how detailed is the noise (number of fbm layers)
+ * Uniforms:
+ * - u_colorBack (RGBA)
+ * - u_colors (vec4[]), u_colorsCount (float used as integer)
+ * - u_thickness, u_radius, u_innerShape: ring mask settings
+ * - u_noiseIterations, u_noiseScale: how detailed is the noise (number of fbm layers & noise frequency)
+ *
+ * - u_noiseTexture (sampler2D): pre-computed randomizer source
  */
 
 export const smokeRingFragmentShader: string = `#version 300 es
@@ -34,10 +31,10 @@ uniform vec4 u_colorBack;
 uniform vec4 u_colors[${smokeRingMeta.maxColorCount}];
 uniform float u_colorsCount;
 
-uniform float u_noiseScale;
 uniform float u_thickness;
 uniform float u_radius;
 uniform float u_innerShape;
+uniform float u_noiseScale;
 uniform float u_noiseIterations;
 
 ${sizingVariablesDeclaration}
@@ -45,36 +42,19 @@ ${sizingVariablesDeclaration}
 out vec4 fragColor;
 
 ${declarePI}
-//$ {declareRandom}
 
 float random(vec2 p) {
   vec2 uv = floor(p) / 100. + .5;
   return texture(u_noiseTexture, uv).r;
 }
 
-float noise(vec2 st) {
-  vec2 i = floor(st);
-  vec2 f = fract(st);
-  float a = random(i);
-  float b = random(i + vec2(1.0, 0.0));
-  float c = random(i + vec2(0.0, 1.0));
-  float d = random(i + vec2(1.0, 1.0));
+${declareValueNoise}
 
-  // Smoothstep for interpolation
-  vec2 u = f * f * (3.0 - 2.0 * f);
-
-  // Do the interpolation as two nested mix operations
-  // If you try to do this in one big operation, there's enough precision loss to be off by 1px at cell boundaries
-  float x1 = mix(a, b, u.x);
-  float x2 = mix(c, d, u.x);
-  return mix(x1, x2, u.y);
-
-}
 float fbm(in vec2 n) {
   float total = 0.0, amplitude = .4;
   for (int i = 0; i < ${smokeRingMeta.maxNoiseIterations}; i++) {
     if (i >= int(u_noiseIterations)) break;
-    total += noise(n) * amplitude;
+    total += valueNoise(n) * amplitude;
     n *= 1.99;
     amplitude *= 0.65;
   }
@@ -136,12 +116,12 @@ void main() {
       gradient = mix(gradient, c, localT);
   }
 
-  float opacity = gradient.a * ringShape;
-  opacity += u_colorBack.a;
-
   vec3 color = gradient.rgb * ringShape;
-  color += u_colorBack.rgb * u_colorBack.a * (1. - ringShape);
-  color += u_colorBack.rgb * u_colorBack.a * ringShape * (1. - gradient.a);
+  float opacity = gradient.a * ringShape;
+
+  vec3 bgColor = u_colorBack.rgb * u_colorBack.a;
+  color = color + bgColor * (1. - opacity);
+  opacity = opacity + u_colorBack.a * (1. - opacity);
 
   ${colorBandingFix}
 

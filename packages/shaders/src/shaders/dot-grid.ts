@@ -1,22 +1,25 @@
-import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing';
-import { declarePI, declareSimplexNoise } from '../shader-utils';
+import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
+import { declarePI, declareSimplexNoise } from '../shader-utils.js';
 
 /**
- * Dot Grid Pattern
- * (the size parameters are set in pixels)
+ * Static grid pattern
  *
- * Uniforms include:
- * u_colorBack - the background color
- * u_colorFill - the fill color
- * u_colorStroke - the stroke color
- * u_dotSize (px) - the base dot radius
- * u_strokeWidth (px) - the stroke (to be subtracted from u_dotSize)
- * u_gapX (px) - horizontal grid spacing
- * u_gapY (px) - vertical grid spacing
- * u_sizeRange (0 .. 1) - variety of dot size
- * u_opacityRange(0 .. 1) - variety of dot opacity to be applied equally to fill and stroke
- * u_shape - shape code (0 - circle, 1 - diamond, 2 - square, 3 - triangle)
+ * Uniforms:
+ * - u_colorBack, u_colorFill, u_colorStroke (vec4 RGBA)
+ * - u_dotSize (px): base shape size
+ * - u_sizeRange (0..1): randomizes the size of shape between 0 and u_dotSize
+ * - u_strokeWidth (px): the stroke (to be added to u_dotSize)
+ * - u_gapX, u_gapY (px): pattern spacing
+ * - u_opacityRange (0..1): variety of shape opacity
+ * - u_shape (float used as integer):
+ *   ---- 1: circle
+ *   ---- 2: square
+ *   ---- 3: triangle
+ *   ---- 4: diamond
+ *   ---- 5: cross
+ *
  */
+
 export const dotGridFragmentShader: string = `#version 300 es
 precision mediump float;
 
@@ -46,7 +49,7 @@ float polygon(vec2 p, float N, float rot) {
 }
 
 void main() {
-  
+
   vec2 shape_uv = v_patternUV;
   shape_uv += .5;
 
@@ -102,7 +105,7 @@ void main() {
   opacity += stroke;
   opacity += shapeInner;
   opacity += (1. - opacity) * u_colorBack.a;
-  
+
   fragColor = vec4(color, opacity);
 }
 `;

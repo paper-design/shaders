@@ -49,6 +49,8 @@ import {
   grainGradientPresets,
   PulsingBorder,
   pulsingBorderPresets,
+  ColorPanels,
+  colorPanelsPresets,
   PaperTexture,
   paperTexturePresets,
 } from '@paper-design/shaders-react';
@@ -193,9 +195,15 @@ export const homeShaders = [
     shaderConfig: { ...pulsingBorderPresets[0].params },
   },
   {
+    name: 'color panels',
+    url: '/color-panels',
+    ShaderComponent: ColorPanels,
+    shaderConfig: { ...colorPanelsPresets[0].params },
+  },
+  {
     name: 'paper texture',
     url: '/paper-texture',
     ShaderComponent: PaperTexture,
-    shaderConfig: { ...paperTexturePresets[0].params },
+    shaderConfig: {...paperTexturePresets[0].params},
   },
 ] satisfies HomeShaderConfig[];
