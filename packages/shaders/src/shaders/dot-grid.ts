@@ -1,5 +1,5 @@
-import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing';
-import { declarePI, declareSimplexNoise } from '../shader-utils';
+import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
+import { declarePI, declareSimplexNoise } from '../shader-utils.js';
 
 /**
  * Static grid pattern
@@ -49,7 +49,7 @@ float polygon(vec2 p, float N, float rot) {
 }
 
 void main() {
-  
+
   vec2 shape_uv = v_patternUV;
   shape_uv += .5;
 
@@ -105,7 +105,7 @@ void main() {
   opacity += stroke;
   opacity += shapeInner;
   opacity += (1. - opacity) * u_colorBack.a;
-  
+
   fragColor = vec4(color, opacity);
 }
 `;

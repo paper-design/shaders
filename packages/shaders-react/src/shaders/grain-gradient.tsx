@@ -1,5 +1,5 @@
 import { memo } from 'react';
-import { ShaderMount, type ShaderComponentProps } from '../shader-mount';
+import { ShaderMount, type ShaderComponentProps } from '../shader-mount.js';
 import {
   getShaderColorFromString,
   grainGradientFragmentShader,

@@ -1,6 +1,6 @@
 import { memo } from 'react';
-import { ShaderMount, type ShaderComponentProps } from '../shader-mount';
-import { colorPropsAreEqual } from '../color-props-are-equal';
+import { ShaderMount, type ShaderComponentProps } from '../shader-mount.js';
+import { colorPropsAreEqual } from '../color-props-are-equal.js';
 import {
   defaultPatternSizing,
   getShaderColorFromString,

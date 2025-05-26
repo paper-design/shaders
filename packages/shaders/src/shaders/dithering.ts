@@ -1,12 +1,12 @@
-import type { ShaderMotionParams } from '../shader-mount';
+import type { ShaderMotionParams } from '../shader-mount.js';
 import {
   sizingUniformsDeclaration,
   type ShaderSizingParams,
   type ShaderSizingUniforms,
   sizingUV,
   drawSizingHelpers,
-} from '../shader-sizing';
-import { declareSimplexNoise, declarePI, declareRandom } from '../shader-utils';
+} from '../shader-sizing.js';
+import { declareSimplexNoise, declarePI, declareRandom } from '../shader-utils.js';
 
 /**
  * 2-color dithering effect over animated abstract shapes
@@ -203,7 +203,7 @@ void main() {
 
   vec3 color = fgColor * res;
   float opacity = fgOpacity * res;
-  
+
   color += bgColor * (1. - opacity);
   opacity += bgOpacity * (1. - opacity);
 
@@ -250,7 +250,7 @@ export const DitheringShapes = {
 export type DitheringShape = keyof typeof DitheringShapes;
 
 export const DitheringTypes = {
-  random: 1,
+  'random': 1,
   '2x2': 2,
   '4x4': 3,
   '8x8': 4,

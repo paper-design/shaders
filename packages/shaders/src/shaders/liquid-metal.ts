@@ -1,6 +1,6 @@
-import type { ShaderMotionParams } from '../shader-mount';
-import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing';
-import { declarePI, declareRotate, declareSimplexNoise, colorBandingFix } from '../shader-utils';
+import type { ShaderMotionParams } from '../shader-mount.js';
+import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
+import { declarePI, declareRotate, declareSimplexNoise, colorBandingFix } from '../shader-utils.js';
 
 /**
  *
@@ -215,7 +215,7 @@ void main() {
 
   color = vec3(r, g, b);
   color *= opacity;
-  
+
   vec3 bgColor = u_colorBack.rgb * u_colorBack.a;
   color = color + bgColor * (1. - opacity);
   opacity = opacity + u_colorBack.a * (1. - opacity);

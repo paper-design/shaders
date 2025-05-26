@@ -1,7 +1,7 @@
-import type { vec4 } from '../types';
-import type { ShaderMotionParams } from '../shader-mount';
-import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing';
-import { declareSimplexNoise, colorBandingFix } from '../shader-utils';
+import type { vec4 } from '../types.js';
+import type { ShaderMotionParams } from '../shader-mount.js';
+import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
+import { declareSimplexNoise, colorBandingFix } from '../shader-utils.js';
 
 export const simplexNoiseMeta = {
   maxColorCount: 10,
@@ -44,10 +44,10 @@ float getNoise(vec2 uv, float t) {
 float steppedSmooth(float t, float steps, float softness) {
     float stepT = floor(t * steps) / steps;
     float f = t * steps - floor(t * steps);
-    
+
     float fw = 0.005 / u_scale;
     float smoothed = smoothstep(.5 - softness * .5 - fw, .5 + softness * .5 + fw, f);
-        
+
     return stepT + smoothed / steps;
 }
 
@@ -59,9 +59,9 @@ void main() {
   float t = .2 * u_time;
 
   float shape = .5 + .5 * getNoise(shape_uv, t);
-  
+
   bool u_extraSides = true;
-  
+
   float mixer = shape * (u_colorsCount - 1.);
   if (u_extraSides == true) {
     mixer = (shape - .5 / u_colorsCount) * u_colorsCount;
@@ -73,22 +73,22 @@ void main() {
   gradient.rgb *= gradient.a;
   for (int i = 1; i < ${simplexNoiseMeta.maxColorCount}; i++) {
       if (i >= int(u_colorsCount)) break;
-      
+
       float localT = clamp(mixer - float(i - 1), 0., 1.);
-      localT = steppedSmooth(localT, steps, u_softness);   
-      
+      localT = steppedSmooth(localT, steps, u_softness);
+
       vec4 c = u_colors[i];
       c.rgb *= c.a;
       gradient = mix(gradient, c, localT);
   }
-  
+
   if (u_extraSides == true) {
    if ((mixer < 0.) || (mixer > (u_colorsCount - 1.))) {
      float localT = mixer + 1.;
      if (mixer > (u_colorsCount - 1.)) {
        localT = mixer - (u_colorsCount - 1.);
      }
-     localT = steppedSmooth(localT, steps, u_softness);   
+     localT = steppedSmooth(localT, steps, u_softness);
      vec4 cFst = u_colors[0];
      cFst.rgb *= cFst.a;
      vec4 cLast = u_colors[int(u_colorsCount - 1.)];
@@ -99,7 +99,7 @@ void main() {
 
   vec3 color = gradient.rgb;
   float opacity = gradient.a;
-  
+
   ${colorBandingFix}
 
   fragColor = vec4(color, opacity);

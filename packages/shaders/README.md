@@ -13,10 +13,13 @@ myDiv.style.width = '600px';
 myDiv.style.height = '400px';
 
 const shaderParams = {
-  u_color1: getShaderColorFromString("#283BFC"),
-  u_color2: getShaderColorFromString("#FF2828"),
-  u_color3: getShaderColorFromString("#dddddd"),
-  u_color4: getShaderColorFromString("#800080")
+  u_colorsCount: 4,
+  u_colors: [
+    getShaderColorFromString("#283bfc"),
+    getShaderColorFromString("#ff2828"),
+    getShaderColorFromString("#dddddd"),
+    getShaderColorFromString("#800080")
+  ],
 };
 
 const speed = 0.25;

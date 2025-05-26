@@ -1,7 +1,7 @@
-import type { vec4 } from '../types';
-import type { ShaderMotionParams } from '../shader-mount';
-import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing';
-import { declarePI } from '../shader-utils';
+import type { vec4 } from '../types.js';
+import type { ShaderMotionParams } from '../shader-mount.js';
+import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
+import { declarePI } from '../shader-utils.js';
 
 export const voronoiMeta = {
   maxColorCount: 5,
@@ -150,7 +150,7 @@ void main() {
   color = mix(u_colorGap.rgb * u_colorGap.a, color, edge);
   opacity = mix(u_colorGap.a, opacity, edge);
 
-  fragColor = vec4(color, opacity);  
+  fragColor = vec4(color, opacity);
 }
 `;
 

@@ -6,7 +6,7 @@ import {
   type ShaderMotionParams,
   type ShaderMountUniforms,
 } from '@paper-design/shaders';
-import { useMergeRefs } from './use-merge-refs';
+import { useMergeRefs } from './use-merge-refs.js';
 
 export interface ShaderMountRef extends HTMLDivElement {
   paperShaderMount?: ShaderMountVanilla;

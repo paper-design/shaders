@@ -1,6 +1,6 @@
-import type { ShaderMotionParams } from '../shader-mount';
-import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing';
-import { declarePI, colorBandingFix } from '../shader-utils';
+import type { ShaderMotionParams } from '../shader-mount.js';
+import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
+import { declarePI, colorBandingFix } from '../shader-utils.js';
 
 /**
  * 3d Perlin noise; original algorithm: https://www.shadertoy.com/view/NlSGDz
@@ -169,16 +169,16 @@ float get_max_amp(float persistence, float octaveCount) {
 
 void main() {
   vec2 uv = v_patternUV;
-  
+
   uv *= .005;
   float t = .2 * u_time;
-  
+
   vec3 p = vec3(uv, t);
-  
+
   float oct_count = max(0., floor(u_octaveCount));
   float persistence = clamp(u_persistence, 0., 1.);
   float noise = p_noise(p, int(oct_count), persistence, u_lacunarity);
-  
+
   float max_amp = get_max_amp(persistence, oct_count);
   float noise_normalized = (noise + max_amp) / (2. * max_amp) + (u_proportion - .5);
   float sharpness = clamp(u_softness, 0., 1.);
@@ -188,15 +188,15 @@ void main() {
     .5 + .5 * sharpness + smooth_w,
     noise_normalized
   );
-  
+
   vec3 fgColor = u_colorFront.rgb * u_colorFront.a;
   float fgOpacity = u_colorFront.a;
   vec3 bgColor = u_colorBack.rgb * u_colorBack.a;
   float bgOpacity = u_colorBack.a;
-  
+
   vec3 color = fgColor * res;
   float opacity = fgOpacity * res;
-  
+
   color += bgColor * (1. - opacity);
   opacity += bgOpacity * (1. - opacity);
 

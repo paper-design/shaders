@@ -1,7 +1,7 @@
-import type { vec4 } from '../types';
-import type { ShaderMotionParams } from '../shader-mount';
-import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing';
-import { declarePI, colorBandingFix, declareValueNoise } from '../shader-utils';
+import type { vec4 } from '../types.js';
+import type { ShaderMotionParams } from '../shader-mount.js';
+import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
+import { declarePI, declareValueNoise, colorBandingFix } from '../shader-utils.js';
 
 export const smokeRingMeta = {
   maxColorCount: 10,
@@ -118,7 +118,7 @@ void main() {
 
   vec3 color = gradient.rgb * ringShape;
   float opacity = gradient.a * ringShape;
-  
+
   vec3 bgColor = u_colorBack.rgb * u_colorBack.a;
   color = color + bgColor * (1. - opacity);
   opacity = opacity + u_colorBack.a * (1. - opacity);

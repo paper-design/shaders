@@ -1,5 +1,5 @@
-import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing';
-import { declarePI, declareRotate } from '../shader-utils';
+import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
+import { declarePI, declareRotate } from '../shader-utils.js';
 
 /**
  * Waveform pattern
@@ -67,7 +67,7 @@ void main() {
 
   vec3 color = fgColor * res;
   float opacity = fgOpacity * res;
-  
+
   color += bgColor * (1. - opacity);
   opacity += bgOpacity * (1. - opacity);
 

@@ -1,7 +1,7 @@
-import type { vec4 } from '../types';
-import type { ShaderMotionParams } from '../shader-mount';
-import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing';
-import { declarePI, declareRandom, declareRotate } from '../shader-utils';
+import type { vec4 } from '../types.js';
+import type { ShaderMotionParams } from '../shader-mount.js';
+import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
+import { declarePI, declareRandom, declareRotate } from '../shader-utils.js';
 
 export const dotOrbitMeta = {
   maxColorCount: 10,
@@ -48,7 +48,7 @@ vec2 random2(vec2 p) {
 vec3 voronoiShape(vec2 uv, float time) {
   vec2 i_uv = floor(uv);
   vec2 f_uv = fract(uv);
-  
+
   float spreading = .25 * clamp(u_spreading, 0., 1.);
 
   float minDist = 1.;
@@ -75,11 +75,11 @@ vec3 voronoiShape(vec2 uv, float time) {
 }
 
 void main() {
-  
+
   vec2 shape_uv = v_patternUV;
   shape_uv += .5;
   shape_uv *= .015;
-  
+
   float t = u_time;
 
   vec3 voronoi = voronoiShape(shape_uv, t) + 1e-4;
@@ -90,11 +90,11 @@ void main() {
   float dots = smoothstep(radius + edgeWidth, radius - edgeWidth, dist);
 
   float shape = voronoi[1];
-  
+
   float mixer = shape * (u_colorsCount - 1.);
   mixer = (shape - .5 / u_colorsCount) * u_colorsCount;
   float steps = max(1., u_stepsPerColor);
-  
+
   vec4 gradient = u_colors[0];
   gradient.rgb *= gradient.a;
   for (int i = 1; i < ${dotOrbitMeta.maxColorCount}; i++) {

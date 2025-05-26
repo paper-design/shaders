@@ -1,7 +1,7 @@
-import type { vec4 } from '../types';
-import type { ShaderMotionParams } from '../shader-mount';
-import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing';
-import { declarePI, colorBandingFix } from '../shader-utils';
+import type { vec4 } from '../types.js';
+import type { ShaderMotionParams } from '../shader-mount.js';
+import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
+import { declarePI, colorBandingFix } from '../shader-utils.js';
 
 export const metaballsMeta = {
   maxColorCount: 8,
@@ -65,19 +65,19 @@ void main() {
   vec3 totalColor = vec3(0.);
   float totalShape = 0.;
   float totalOpacity = 0.;
-  
+
   for (int i = 0; i < ${metaballsMeta.maxBallsCount}; i++) {
     if (i >= int(ceil(u_count))) break;
-  
+
     float idxFract = float(i) / float(${metaballsMeta.maxBallsCount});
     float angle = TWO_PI * idxFract;
-  
+
     float speed = 1. - .2 * idxFract;
     float noiseX = noise(angle * 10. + float(i) + t * speed);
     float noiseY = noise(angle * 20. + float(i) - t * speed);
-  
+
     vec2 pos = vec2(.5) + 1e-4 + .9 * (vec2(noiseX, noiseY) - .5);
-  
+
     int safeIndex = i % int(u_colorsCount + 0.5);
     vec4 ballColor = u_colors[safeIndex];
     ballColor.rgb *= ballColor.a;
