@@ -15,24 +15,14 @@ export interface ColorPanelsProps extends ShaderComponentProps, ColorPanelsParam
 
 type ColorPanelsPreset = ShaderPreset<ColorPanelsParams>;
 
-// Due to Leva controls limitation:
-// 1) keep default colors in HSLA format to keep alpha channel
-// 2) don't use decimal values on HSL values (to avoid button highlight bug)
-
 export const defaultPreset: ColorPanelsPreset = {
   name: 'Default',
   params: {
     ...defaultObjectSizing,
     speed: 1,
     frame: 0,
-    colors: [
-      'hsla(15, 100%, 50%, 1)',
-      'hsla(170, 100%, 50%, 1)',
-      'hsla(260, 100%, 50%, 1)',
-      'hsla(65, 100%, 50%, 1)',
-      'hsla(280, 100%, 50%, 1)',
-    ],
-    colorBack: 'hsla(0, 0%, 3%, 1)',
+    colors: ['#ff4000', '#00ffd4', '#5500ff', '#eaff00', '#aa00ff'],
+    colorBack: '#080808',
     angle1: 0.1,
     angle2: 0.1,
     length: 1,

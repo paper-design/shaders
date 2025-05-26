@@ -8,8 +8,9 @@ import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import Link from 'next/link';
 import { BackButton } from '@/components/back-button';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
-import { colorPanelsMeta, ShaderFit, ShaderFitOptions, meshGradientMeta } from '@paper-design/shaders';
+import { colorPanelsMeta, ShaderFit, ShaderFitOptions } from '@paper-design/shaders';
 import { useColors } from '@/helpers/use-colors';
+import { toHsla } from '@/helpers/to-hsla';
 
 /**
  * You can copy/paste this example to use ColorPanels in your app
@@ -34,7 +35,7 @@ const ColorPanelsWithControls = () => {
     return {
       Parameters: folder(
         {
-          colorBack: { value: defaults.colorBack, order: 100 },
+          colorBack: { value: toHsla(defaults.colorBack), order: 100 },
           density: { value: defaults.density, min: 0.25, max: 7, order: 200 },
           angle1: { value: defaults.angle1, min: -1, max: 1, order: 202 },
           angle2: { value: defaults.angle2, min: -1, max: 1, order: 202 },
