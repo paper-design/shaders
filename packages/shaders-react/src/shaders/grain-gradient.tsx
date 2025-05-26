@@ -16,17 +16,14 @@ export interface GrainGradientProps extends ShaderComponentProps, GrainGradientP
 
 type GrainGradientPreset = ShaderPreset<GrainGradientParams>;
 
-// Due to Leva controls limitation:
-// 1) keep default colors in HSLA format to keep alpha channel
-// 2) don't use decimal values on HSL values (to avoid button highlight bug)
-
 export const defaultPreset: GrainGradientPreset = {
   name: 'Default',
   params: {
     ...defaultPatternSizing,
     speed: 1,
     frame: 0,
-    colors: ['#000a0f', '#c4730b', '#bdad5f', '#d8ccc7'],
+    colorBack: '#000a0f',
+    colors: ['#c4730b', '#bdad5f', '#d8ccc7'],
     softness: 0.7,
     intensity: 0.15,
     noise: 0.5,
@@ -41,7 +38,8 @@ export const dotsPreset: GrainGradientPreset = {
     scale: 0.6,
     speed: 1,
     frame: 0,
-    colors: ['#0a0000', '#6f0000', '#0080ff', '#f2ebc9'],
+    colorBack: '#0a0000',
+    colors: ['#6f0000', '#0080ff', '#f2ebc9'],
     softness: 0.75,
     intensity: 0.15,
     noise: 0.7,
@@ -55,7 +53,8 @@ export const truchetPreset: GrainGradientPreset = {
     ...defaultPatternSizing,
     speed: 1,
     frame: 0,
-    colors: ['#0a0000', '#6f2200', '#eabb7c', '#39b523'],
+    colorBack: '#0a0000',
+    colors: ['#6f2200', '#eabb7c', '#39b523'],
     softness: 0,
     intensity: 0.2,
     noise: 1,
@@ -69,7 +68,8 @@ export const cornersPreset: GrainGradientPreset = {
     ...defaultObjectSizing,
     speed: 1,
     frame: 0,
-    colors: ['#031018', '#00aeff', '#00ffcc', '#ffc800'],
+    colorBack: '#031018',
+    colors: ['#00aeff', '#00ffcc', '#ffc800'],
     softness: 0.4,
     intensity: 0.35,
     noise: 0.35,
@@ -84,7 +84,8 @@ export const ripplePreset: GrainGradientPreset = {
     scale: 0.5,
     speed: 1,
     frame: 0,
-    colors: ['#140a00', '#6f2d00', '#88ddae', '#2c0b1d'],
+    colorBack: '#140a00',
+    colors: ['#6f2d00', '#88ddae', '#2c0b1d'],
     softness: 0.5,
     intensity: 0.5,
     noise: 0.5,
@@ -99,7 +100,8 @@ export const blobPreset: GrainGradientPreset = {
     scale: 1.3,
     speed: 1,
     frame: 0,
-    colors: ['#0f0e18', '#3e6172', '#a49b74', '#568c50'],
+    colorBack: '#0f0e18',
+    colors: ['#3e6172', '#a49b74', '#568c50'],
     softness: 0,
     intensity: 0.15,
     noise: 0.5,
@@ -113,7 +115,8 @@ export const spherePreset: GrainGradientPreset = {
     ...defaultObjectSizing,
     speed: 1,
     frame: 0,
-    colors: ['#000319', '#0059b3', '#37f5f5', '#18c039'],
+    colorBack: '#000319',
+    colors: ['#0059b3', '#37f5f5', '#18c039'],
     softness: 1,
     intensity: 0.15,
     noise: 0.5,
@@ -128,7 +131,8 @@ export const moonPreset: GrainGradientPreset = {
     scale: 0.6,
     speed: 1,
     frame: 0,
-    colors: ['#000000', '#000000', '#28272d', '#ffeccc'],
+    colorBack: '#000000',
+    colors: ['#000000', '#28272d', '#ffeccc'],
     softness: 1,
     intensity: 0.56,
     noise: 1,
@@ -151,6 +155,7 @@ export const GrainGradient: React.FC<GrainGradientProps> = memo(function GrainGr
   // Own props
   speed = defaultPreset.params.speed,
   frame = defaultPreset.params.frame,
+  colorBack = defaultPreset.params.colorBack,
   colors = defaultPreset.params.colors,
   softness = defaultPreset.params.softness,
   intensity = defaultPreset.params.intensity,
@@ -171,6 +176,7 @@ export const GrainGradient: React.FC<GrainGradientProps> = memo(function GrainGr
 }) {
   const uniforms = {
     // Own uniforms
+    u_colorBack: getShaderColorFromString(colorBack),
     u_colors: colors.map(getShaderColorFromString),
     u_colorsCount: colors.length,
     u_softness: softness,

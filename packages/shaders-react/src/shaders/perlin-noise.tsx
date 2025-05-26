@@ -15,18 +15,14 @@ export interface PerlinNoiseProps extends ShaderComponentProps, PerlinNoiseParam
 
 type PerlinNoisePreset = ShaderPreset<PerlinNoiseParams>;
 
-// Due to Leva controls limitation:
-// 1) keep default colors in HSLA format to keep alpha channel
-// 2) don't use decimal values on HSL values (to avoid button highlight bug)
-
 export const defaultPreset: PerlinNoisePreset = {
   name: 'Default',
   params: {
     ...defaultPatternSizing,
     speed: 0.5,
     frame: 0,
-    color1: '#262626',
-    color2: '#d9d9d9',
+    colorBack: '#262626',
+    colorFront: '#d9d9d9',
     proportion: 0.35,
     softness: 0.1,
     octaveCount: 2,
@@ -42,8 +38,8 @@ export const nintendoWaterPreset: PerlinNoisePreset = {
     scale: 1 / 0.2,
     speed: 0.4,
     frame: 0,
-    color1: '#2d69d4',
-    color2: '#d1eefc',
+    colorBack: '#2d69d4',
+    colorFront: '#d1eefc',
     proportion: 0.42,
     softness: 0,
     octaveCount: 2,
@@ -59,8 +55,8 @@ export const colonyPreset: PerlinNoisePreset = {
     scale: 1 / 0.15,
     speed: 0,
     frame: 0,
-    color1: '#f4f0ae',
-    color2: '#0a1a5e',
+    colorBack: '#f4f0ae',
+    colorFront: '#0a1a5e',
     octaveCount: 6,
     persistence: 1,
     lacunarity: 2.55,
@@ -76,8 +72,8 @@ export const phosphenesPreset: PerlinNoisePreset = {
     scale: 1 / 0.03,
     speed: 0.15,
     frame: 0,
-    color1: '#ec7c8b',
-    color2: '#66cc99',
+    colorBack: '#ec7c8b',
+    colorFront: '#66cc99',
     proportion: 0.45,
     softness: 0.45,
     octaveCount: 6,
@@ -93,8 +89,8 @@ export const mossPreset: PerlinNoisePreset = {
     scale: 1 / 0.15,
     speed: 0.02,
     frame: 0,
-    color1: '#05ff4a',
-    color2: '#262626',
+    colorBack: '#05ff4a',
+    colorFront: '#262626',
     proportion: 0.65,
     softness: 0.35,
     octaveCount: 6,
@@ -110,8 +106,8 @@ export const wormsPreset: PerlinNoisePreset = {
     scale: 1 / 2,
     speed: 0,
     frame: 0,
-    color1: '#ffffff',
-    color2: '#595959',
+    colorBack: '#ffffff',
+    colorFront: '#595959',
     proportion: 0.5,
     softness: 0,
     octaveCount: 1,
@@ -133,8 +129,8 @@ export const PerlinNoise: React.FC<PerlinNoiseProps> = memo(function PerlinNoise
   // Own props
   speed = defaultPreset.params.speed,
   frame = defaultPreset.params.frame,
-  color1 = defaultPreset.params.color1,
-  color2 = defaultPreset.params.color2,
+  colorFront = defaultPreset.params.colorFront,
+  colorBack = defaultPreset.params.colorBack,
   proportion = defaultPreset.params.proportion,
   softness = defaultPreset.params.softness,
   octaveCount = defaultPreset.params.octaveCount,
@@ -155,8 +151,8 @@ export const PerlinNoise: React.FC<PerlinNoiseProps> = memo(function PerlinNoise
 }: PerlinNoiseProps) {
   const uniforms = {
     // Own uniforms
-    u_color1: getShaderColorFromString(color1),
-    u_color2: getShaderColorFromString(color2),
+    u_colorBack: getShaderColorFromString(colorBack),
+    u_colorFront: getShaderColorFromString(colorFront),
     u_proportion: proportion,
     u_softness: softness ?? defaultPreset.params.softness,
     u_octaveCount: octaveCount ?? defaultPreset.params.octaveCount,

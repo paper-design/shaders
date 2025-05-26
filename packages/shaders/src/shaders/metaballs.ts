@@ -13,6 +13,7 @@ export const metaballsMeta = {
  * The artwork by Ksenia Kondrashova
  *
  * Uniforms include:
+ * - u_colorBack: the background color of the scene
  * - uColors (vec4[]): Input RGBA colors
  * - uColorsCount (float): Number of active colors (`uColors` length)
  * - u_count (float)
@@ -23,6 +24,7 @@ precision mediump float;
 
 uniform float u_time;
 
+uniform vec4 u_colorBack;
 uniform vec4 u_colors[${metaballsMeta.maxColorCount}];
 uniform float u_colorsCount;
 uniform float u_size;
@@ -102,9 +104,9 @@ void main() {
   vec3 color = totalColor * finalShape;
   float opacity = totalOpacity * finalShape;
 
-  if (opacity < .005) {
-    discard;
-  }
+  vec3 bgColor = u_colorBack.rgb * u_colorBack.a;
+  color = color + bgColor * (1. - opacity);
+  opacity = opacity + u_colorBack.a * (1. - opacity);
 
   ${colorBandingFix}
 
@@ -113,6 +115,7 @@ void main() {
 `;
 
 export interface MetaballsUniforms extends ShaderSizingUniforms {
+  u_colorBack: [number, number, number, number];
   u_colors: vec4[];
   u_colorsCount: number;
   u_count: number;
@@ -120,6 +123,7 @@ export interface MetaballsUniforms extends ShaderSizingUniforms {
 }
 
 export interface MetaballsParams extends ShaderSizingParams, ShaderMotionParams {
+  colorBack?: string;
   colors?: string[];
   count?: number;
   size?: number;

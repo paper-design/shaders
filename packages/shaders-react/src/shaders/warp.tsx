@@ -16,10 +16,6 @@ export interface WarpProps extends ShaderComponentProps, WarpParams {}
 
 type WarpPreset = ShaderPreset<WarpParams>;
 
-// Due to Leva controls limitation:
-// 1) keep default colors in HSLA format to keep alpha channel
-// 2) don't use decimal values on HSL values (to avoid button highlight bug)
-
 export const defaultPreset: WarpPreset = {
   name: 'Default',
   params: {
@@ -27,8 +23,8 @@ export const defaultPreset: WarpPreset = {
     rotation: 0,
     speed: 1,
     frame: 0,
-    colors: ['#262626', '#7accf2', '#ffffff'],
-    proportion: 0.35,
+    colors: ['#262626', '#2e383d', '#64a5ce', '#ffffff'],
+    proportion: 0.45,
     softness: 1,
     distortion: 0.25,
     swirl: 0.8,
@@ -124,8 +120,8 @@ export const presetInk: WarpPreset = {
     offsetY: -0.3,
     speed: 10,
     frame: 0,
-    colors: ['#111314', '#9faeab', '#f3fee7'],
-    proportion: 0.35,
+    colors: ['#111314', '#9faeab', '#f3fee7', '#f3fee7'],
+    proportion: 0.05,
     softness: 0,
     distortion: 0.25,
     swirl: 0.8,
@@ -139,12 +135,12 @@ export const presetKelp: WarpPreset = {
   name: 'Kelp',
   params: {
     ...defaultPatternSizing,
-    scale: 0.88,
+    scale: 0.65,
     rotation: 50,
     speed: 80,
     frame: 0,
     colors: ['#dbff8f', '#404f3e', '#091316'],
-    proportion: 0.93,
+    proportion: 0.67,
     softness: 0.05,
     distortion: 0,
     swirl: 0.15,

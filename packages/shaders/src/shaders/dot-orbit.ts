@@ -13,6 +13,7 @@ export const dotOrbitMeta = {
  * Renders a dot pattern with dot placed in the center of each cell of animated Voronoi diagram
  *
  * Uniforms include:
+ * - u_colorBack (vec4): the background color of the scene
  * - u_colors (vec4[]): Input RGBA colors
  * - u_colorsCount (float): Number of active colors (`u_colors` length)
  * - u_stepsPerColor (float): Discretization of the color transition
@@ -25,6 +26,7 @@ precision mediump float;
 
 uniform float u_time;
 
+uniform vec4 u_colorBack;
 uniform vec4 u_colors[${dotOrbitMeta.maxColorCount}];
 uniform float u_colorsCount;
 uniform float u_stepsPerColor;
@@ -118,15 +120,19 @@ void main() {
     gradient = mix(cLast, cFst, localT);
   }
 
-  gradient *= dots;
-  vec3 color = gradient.rgb;
-  float opacity = gradient.a;
+  vec3 color = gradient.rgb * dots;
+  float opacity = gradient.a * dots;
+
+  vec3 bgColor = u_colorBack.rgb * u_colorBack.a;
+  color = color + bgColor * (1. - opacity);
+  opacity = opacity + u_colorBack.a * (1. - opacity);
 
   fragColor = vec4(color, opacity);
 }
 `;
 
 export interface DotOrbitUniforms extends ShaderSizingUniforms {
+  u_colorBack: [number, number, number, number];
   u_colors: vec4[];
   u_colorsCount: number;
   u_size: number;
@@ -136,6 +142,7 @@ export interface DotOrbitUniforms extends ShaderSizingUniforms {
 }
 
 export interface DotOrbitParams extends ShaderSizingParams, ShaderMotionParams {
+  colorBack?: string;
   colors?: string[];
   size?: number;
   sizeRange?: number;

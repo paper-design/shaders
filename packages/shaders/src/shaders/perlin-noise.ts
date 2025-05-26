@@ -7,10 +7,10 @@ import { declarePI, colorBandingFix } from '../shader-utils';
  * Based on https://www.shadertoy.com/view/NlSGDz
  *
  * Uniforms include:
- * u_color1 - the first mixed color
- * u_color2 - the second mixed color
- * u_proportion (0 .. 1) - the proportion between u_color1 and u_color2;
- * u_softness - the sharpness of the transition between u_color1 and u_color2 in the noise output
+ * u_colorFront - the first mixed color
+ * u_colorBack - the second mixed color
+ * u_proportion (0 .. 1) - the proportion between u_colorFront and u_colorBack;
+ * u_softness - the sharpness of the transition between u_colorFront and u_colorBack in the noise output
  * u_octaveCount - the number of octaves for Perlin noise;
  *    higher values increase the complexity of the noise
  * u_persistence (0 .. 1) - the amplitude of each successive octave of the noise;
@@ -23,8 +23,8 @@ precision mediump float;
 
 uniform float u_time;
 
-uniform vec4 u_color1;
-uniform vec4 u_color2;
+uniform vec4 u_colorFront;
+uniform vec4 u_colorBack;
 uniform float u_proportion;
 uniform float u_softness;
 uniform float u_octaveCount;
@@ -171,29 +171,37 @@ float get_max_amp(float persistence, float octaveCount) {
 }
 
 void main() {
-  vec2 shape_uv = v_patternUV;
-
-  shape_uv *= .005;
+  vec2 uv = v_patternUV;
+  
+  uv *= .005;
   float t = .2 * u_time;
-
-    vec3 p = vec3(shape_uv, t);
-
-    float oct_count = max(0., floor(u_octaveCount));
-    float persistence = clamp(u_persistence, 0., 1.);
-    float noise = p_noise(p, int(oct_count), persistence, u_lacunarity);
-
-    float max_amp = get_max_amp(persistence, oct_count);
-    float noise_normalized = (noise + max_amp) / (2. * max_amp) + (u_proportion - .5);
-    float sharpness = clamp(u_softness, 0., 1.);
-    float smooth_w = 0.5 * fwidth(noise_normalized);
-    float sharp_noise = smoothstep(
-        .5 - .5 * sharpness - smooth_w,
-        .5 + .5 * sharpness + smooth_w,
-        noise_normalized
-    );
-
-    vec3 color = mix(u_color1.rgb * u_color1.a, u_color2.rgb * u_color2.a, sharp_noise);
-    float opacity = mix(u_color1.a, u_color2.a, sharp_noise);
+  
+  vec3 p = vec3(uv, t);
+  
+  float oct_count = max(0., floor(u_octaveCount));
+  float persistence = clamp(u_persistence, 0., 1.);
+  float noise = p_noise(p, int(oct_count), persistence, u_lacunarity);
+  
+  float max_amp = get_max_amp(persistence, oct_count);
+  float noise_normalized = (noise + max_amp) / (2. * max_amp) + (u_proportion - .5);
+  float sharpness = clamp(u_softness, 0., 1.);
+  float smooth_w = 0.5 * fwidth(noise_normalized);
+  float res = smoothstep(
+    .5 - .5 * sharpness - smooth_w,
+    .5 + .5 * sharpness + smooth_w,
+    noise_normalized
+  );
+  
+  vec3 fgColor = u_colorFront.rgb * u_colorFront.a;
+  float fgOpacity = u_colorFront.a;
+  vec3 bgColor = u_colorBack.rgb * u_colorBack.a;
+  float bgOpacity = u_colorBack.a;
+  
+  vec3 color = fgColor * res;
+  float opacity = fgOpacity * res;
+  
+  color += bgColor * (1. - opacity);
+  opacity += bgOpacity * (1. - opacity);
 
   ${colorBandingFix}
 
@@ -202,8 +210,8 @@ void main() {
 `;
 
 export interface PerlinNoiseUniforms extends ShaderSizingUniforms {
-  u_color1: [number, number, number, number];
-  u_color2: [number, number, number, number];
+  u_colorFront: [number, number, number, number];
+  u_colorBack: [number, number, number, number];
   u_proportion: number;
   u_softness: number;
   u_octaveCount: number;
@@ -212,8 +220,8 @@ export interface PerlinNoiseUniforms extends ShaderSizingUniforms {
 }
 
 export interface PerlinNoiseParams extends ShaderSizingParams, ShaderMotionParams {
-  color1?: string;
-  color2?: string;
+  colorFront?: string;
+  colorBack?: string;
   proportion?: number;
   softness?: number;
   octaveCount?: number;
