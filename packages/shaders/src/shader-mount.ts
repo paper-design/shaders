@@ -385,6 +385,12 @@ export class ShaderMount {
     // Ensure framebuffer is large enough for current render
     this.ensureSceneTarget(targetFramebufferWidth, targetFramebufferHeight);
 
+    // Unbind all textures before rendering to framebuffer to prevent feedback loops
+    for (let i = 0; i < this.textures.size; i++) {
+      this.gl.activeTexture(this.gl.TEXTURE0 + i);
+      this.gl.bindTexture(this.gl.TEXTURE_2D, null);
+    }
+
     // Render to framebuffer
     this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, this.framebuffer);
     this.gl.viewport(0, 0, targetFramebufferWidth, targetFramebufferHeight);
@@ -402,6 +408,18 @@ export class ShaderMount {
       this.gl.uniform1f(this.uniformLocations.u_pixelRatio!, this.renderScale);
       this.resolutionChanged = false;
     }
+
+    // Rebind textures for the shader and set their uniforms
+    let textureUnit = 0;
+    this.textures.forEach((texture, uniformName) => {
+      const location = this.uniformLocations[uniformName];
+      if (location) {
+        this.gl.activeTexture(this.gl.TEXTURE0 + textureUnit);
+        this.gl.bindTexture(this.gl.TEXTURE_2D, texture);
+        this.gl.uniform1i(location, textureUnit);
+        textureUnit++;
+      }
+    });
 
     this.gl.drawArrays(this.gl.TRIANGLES, 0, 6);
 
