@@ -7,7 +7,7 @@ import { declarePI, colorBandingFix } from '../shader-utils';
  *
  * Uniforms:
  * - u_colorBack, u_colorFront (RGBA)
- * - u_proportion: (0..1) blend point between 2 colors (0.5 = equal mixing)
+ * - u_proportion: (0..1) blend point between 2 colors (0.5 = equal distribution)
  * - u_softness: color transition sharpness (0 = hard edge, 1 = smooth fade)
  * - u_octaveCount: more octaves => more detailed pattern
  * - u_persistence: roughness, falloff between octaves

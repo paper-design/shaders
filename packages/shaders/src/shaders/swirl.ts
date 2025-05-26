@@ -8,7 +8,18 @@ export const swirlMeta = {
 } as const;
 
 /**
+ * Twisting radial bands
+ *
+ * Uniforms:
+ * - u_colorBack (RGBA)
+ * - u_colors (vec4[]), u_colorsCount (float used as integer)
+ * - u_bandCount (float, used as int): number of sectors
+ * - u_twist: sectors twist intensity (0 = linear)
+ * - u_softness: color transition sharpness (0 = hard edge, 1 = smooth fade)
+ * - u_noisePower, u_noiseFrequency: simplex noise distortion over the shape
+ *
  */
+
 export const swirlFragmentShader: string = `#version 300 es
 precision mediump float;
 

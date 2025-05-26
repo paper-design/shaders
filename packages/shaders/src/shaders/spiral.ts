@@ -3,25 +3,20 @@ import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingU
 import { declareSimplexNoise, declarePI, colorBandingFix } from '../shader-utils';
 
 /**
- * Spiral shape by Ksenia Kondrashova
- * Generates a dynamic spiral shape with configurable parameters
+ * 2-color spiral shape
  *
  * Uniforms:
+ * - u_colorBack, u_colorFront (RGBA)
+ * - u_density: spacing falloff to simulate radial perspective (0 = no perspective)
+ * - u_strokeWidth: thickness of stroke
+ * - u_strokeTaper: stroke loosing width further from center (0 for full visibility)
+ * - u_distortion: per-arch shift
+ * - u_strokeCap: extra width at the center (no effect on u_strokeWidth = 0.5)
+ * - u_noiseFrequency, u_noisePower: simplex noise distortion over the shape
+ * - u_softness: color transition sharpness (0 = hard edge, 1 = smooth fade)
  *
- * u_scale - controls the overall scale of the spiral (u_scale = 1 makes it fit the viewport height)
- * u_offsetX - left / right pan
- * u_offsetY - up / down pan
- * u_colorBack - the first color used in the spiral (stroke)
- * u_colorFront - the second color used in the spiral (back)
- * u_density (0..1) - the spacing of the spiral arms
- * u_distortion (0..1) - adds a wavy distortion effect to the spiral arms
- * u_strokeWidth (0..1) - defines the thickness of the spiral lines.
- * u_strokeCap (0..1) - adjusts the fading of the spiral edges.
- * u_strokeTaper (0..1) - controls the tapering effect along the spiral arms.
- * u_noiseFrequency - frequency of the noise applied to the spiral.
- * u_noisePower (0..1) - strength of the noise effect.
- * u_softness - softens the edges of the spiral for a smoother appearance.
  */
+
 export const spiralFragmentShader: string = `#version 300 es
 precision mediump float;
 
@@ -65,6 +60,7 @@ void main() {
   stripe_map += .25 * u_noisePower * snoise(u_noiseFrequency * shape_uv);
 
   float shape = 2. * abs(stripe_map - .5);
+  float test = step(.5, stripe_map);
 
   shape *= (1. + u_distortion * sin(4. * l - t) * cos(PI + l + t));
 

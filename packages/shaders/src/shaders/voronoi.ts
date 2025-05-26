@@ -8,22 +8,23 @@ export const voronoiMeta = {
 } as const;
 
 /**
- * Voronoi pattern by Ksenia Kondrashova
- * The variation of Voronoi pattern with cell edges. Big thanks to Inigo Quilez
- * https://www.shadertoy.com/view/ldl3W8
+ * Double-pass Voronoi pattern cell edges
+ * Original algorithm: https://www.shadertoy.com/view/ldl3W8
  *
  * Uniforms:
+ * - u_colorBack, u_colorGlow (RGBA)
+ * - u_colors (vec4[]), u_colorsCount (float used as integer)
+ * - u_stepsPerColor: discrete color steps between u_colors
+ * - u_distortion (0..0.5): max distance the cell center moves away from regular grid
+ * - u_gap: width of the stroke between the cells
+ * - u_glow: radial glow around each cell center
  *
- * - `u_colors` (`vec4[]`): Array of RGBA colors used for cell filling
- * - `u_colorsCount` (`float`): Number of active colors in `u_colors`
- * - `u_colorBack` (`vec4`): RGBA color for the gaps between cells
- * - `u_colorGlow` (`vec4`): RGBA color for the radial shape on the cell edges
- * - `u_distortion` (`float`, 0 – 0.5): Controls how far cell centers can be displaced from the regular grid
- * - `u_gap` (`float`): Width of the gaps between cells (gaps can't be removed completely due to artifacts of Voronoi cells)
- * - `u_glow` (`float`): Controls the size of the radial glow inside each cell
- * - `u_stepsPerColor` (`float`): Discretization of the color transition
- * - `u_noiseTexture` (`sampler2D`): Replacement of standard hash function, added for better performance
+ * - u_noiseTexture (sampler2D): pre-computed randomizer source
+ *
+ * Note: gaps can't be removed completely due to artifacts of Voronoi cells
+ *
  */
+
 export const voronoiFragmentShader: string = `#version 300 es
 precision mediump float;
 

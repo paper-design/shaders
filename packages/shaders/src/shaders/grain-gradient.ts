@@ -1,7 +1,7 @@
 import type { vec4 } from '../types';
 import type { ShaderMotionParams } from '../shader-mount';
 import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing';
-import { declareSimplexNoise, declarePI, declareRandom, colorBandingFix } from '../shader-utils';
+import { declareSimplexNoise, declarePI, declareRandom, colorBandingFix, declareValueNoise } from '../shader-utils';
 
 export const grainGradientMeta = {
   maxColorCount: 7,
@@ -9,7 +9,7 @@ export const grainGradientMeta = {
 
 /**
  * Abstract N-color gradient with noise & grain over animated abstract shapes
- * 
+ *
  * Uniforms:
  * - u_colorBack (RGBA)
  * - u_colors (vec4[]), u_colorsCount (float used as integer)
@@ -24,6 +24,9 @@ export const grainGradientMeta = {
  * ---- 5: ripple
  * ---- 6: blob (metaballs)
  * ---- 7: circle imitating 3d look
+ *
+ * Note: grains are calculated using gl_FragCoord & u_resolution, meaning grains don't react to scaling and fit
+ *
  */
 export const grainGradientFragmentShader: string = `#version 300 es
 precision mediump float;
@@ -47,25 +50,8 @@ out vec4 fragColor;
 ${declarePI}
 ${declareSimplexNoise}
 ${declareRandom}
+${declareValueNoise}
 
-
-float noisenoise(vec2 st) {
-  vec2 i = floor(st);
-  vec2 f = fract(st);
-  float a = random(i);
-  float b = random(i + vec2(1.0, 0.0));
-  float c = random(i + vec2(0.0, 1.0));
-  float d = random(i + vec2(1.0, 1.0));
-
-  // Smoothstep for interpolation
-  vec2 u = f * f * (3.0 - 2.0 * f);
-
-  // Do the interpolation as two nested mix operations
-  // If you try to do this in one big operation, there's enough precision loss to be off by 1px at cell boundaries
-  float x1 = mix(a, b, u.x);
-  float x2 = mix(c, d, u.x);
-  return mix(x1, x2, u.y);
-}
 
 float rand(vec2 n) {
   return fract(cos(dot(n, vec2(12.9898, 4.1414))) * 43758.5453);
@@ -130,7 +116,7 @@ void main() {
   } else if (u_shape < 3.5) {
     // Truchet pattern
     
-    float n2 = noisenoise(shape_uv * .4 - 2.5 * t);
+    float n2 = valueNoise(shape_uv * .4 - 2.5 * t);
     shape_uv.x += 10.;
     shape_uv *= .6;
 

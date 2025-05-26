@@ -1,7 +1,7 @@
 import type { vec4 } from '../types';
 import type { ShaderMotionParams } from '../shader-mount';
 import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing';
-import { declarePI, colorBandingFix } from '../shader-utils';
+import { declarePI, colorBandingFix, declareValueNoise } from '../shader-utils';
 
 export const smokeRingMeta = {
   maxColorCount: 10,
@@ -42,36 +42,19 @@ ${sizingVariablesDeclaration}
 out vec4 fragColor;
 
 ${declarePI}
-//$ {declareRandom}
 
 float random(vec2 p) {
   vec2 uv = floor(p) / 100. + .5;
   return texture(u_noiseTexture, uv).r;
 }
 
-float noise(vec2 st) {
-  vec2 i = floor(st);
-  vec2 f = fract(st);
-  float a = random(i);
-  float b = random(i + vec2(1.0, 0.0));
-  float c = random(i + vec2(0.0, 1.0));
-  float d = random(i + vec2(1.0, 1.0));
+${declareValueNoise}
 
-  // Smoothstep for interpolation
-  vec2 u = f * f * (3.0 - 2.0 * f);
-
-  // Do the interpolation as two nested mix operations
-  // If you try to do this in one big operation, there's enough precision loss to be off by 1px at cell boundaries
-  float x1 = mix(a, b, u.x);
-  float x2 = mix(c, d, u.x);
-  return mix(x1, x2, u.y);
-
-}
 float fbm(in vec2 n) {
   float total = 0.0, amplitude = .4;
   for (int i = 0; i < ${smokeRingMeta.maxNoiseIterations}; i++) {
     if (i >= int(u_noiseIterations)) break;
-    total += noise(n) * amplitude;
+    total += valueNoise(n) * amplitude;
     n *= 1.99;
     amplitude *= 0.65;
   }

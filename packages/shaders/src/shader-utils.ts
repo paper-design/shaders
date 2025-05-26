@@ -15,6 +15,21 @@ float random(vec2 st) {
 }
 `;
 
+export const declareValueNoise = `
+float valueNoise(vec2 st) {
+  vec2 i = floor(st);
+  vec2 f = fract(st);
+  float a = random(i);
+  float b = random(i + vec2(1.0, 0.0));
+  float c = random(i + vec2(0.0, 1.0));
+  float d = random(i + vec2(1.0, 1.0));
+  vec2 u = f * f * (3.0 - 2.0 * f);
+  float x1 = mix(a, b, u.x);
+  float x2 = mix(c, d, u.x);
+  return mix(x1, x2, u.y);
+}
+`;
+
 // It does use the standard random function but we don't call it to keep
 // colorBandingFix insertion independent from declareRandom
 export const colorBandingFix = `

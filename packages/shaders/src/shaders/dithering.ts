@@ -13,8 +13,7 @@ import { declareSimplexNoise, declarePI, declareRandom } from '../shader-utils';
  *
  * Uniforms:
  * - u_colorBack, u_colorFront (RGBA)
- * - pxSize: pixelization applied to the shapes BEFORE dithering
- *      (px size relative to canvas resolution, it doesn't react to scaling and fit)
+ * - pxSize: px size relative to canvas resolution
  * - u_shape (float used as integer):
  * ---- 1: simplex noise pattern
  * ---- 2: warp noise pattern
@@ -29,6 +28,7 @@ import { declareSimplexNoise, declarePI, declareRandom } from '../shader-utils';
  * ---- 3: 4x4 Bayer matrix
  * ---- 4: 8x8 Bayer matrix
  *
+ * Note: pixelization is applied to the shapes BEFORE dithering, meaning pixels don't react to scaling and fit
  */
 
 export const ditheringFragmentShader: string = `#version 300 es

@@ -2,23 +2,21 @@ import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingU
 import { declarePI, declareRotate } from '../shader-utils';
 
 /**
- * Waves static pattern on the transparent background
+ * Waveform pattern
  *
  * Uniforms:
- * u_colorFront - the first color
- * u_colorBack - the second color
- * u_shape (0 ... 3) - the line shaping coefficient, non-integer
-   values allowed and produce mixed shapes
-   - u_shape = 0 is zigzag
-   - u_shape = 1 is perfect sine wave
-   - u_shape = 2 is irregular wave #1
-   - u_shape = 3 is irregular wave #2
- * u_frequency - the wave frequency
- * u_amplitude - the wave amplitude
- * u_spacing - the density of pattern lines
- * u_proportion (0 ... 1) - the proportion of stroke width to the pattern step
- * u_softness (0 ... 1) - the blur applied to the lines edges
- */
+ * - u_colorBack, u_colorFront (RGBA)
+ * - u_shape (float, fractional numbers allowed):
+ *   ---- 0: zigzag
+ *   ---- 1: sine wave
+ *   ---- 2: irregular wave
+ *   ---- 3: irregular wave
+ * - u_amplitude, u_frequency, u_spacing: wave settings
+ * - u_proportion: (0..1) blend point between 2 colors (0.5 = equal distribution)
+ * - u_softness: color transition sharpness (0 = hard edge, 1 = smooth fade)
+ *
+ * */
+
 export const wavesFragmentShader: string = `#version 300 es
 precision mediump float;
 

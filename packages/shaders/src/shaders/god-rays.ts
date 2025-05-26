@@ -1,7 +1,7 @@
 import type { vec4 } from '../types';
 import type { ShaderMotionParams } from '../shader-mount';
 import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing';
-import { declarePI, declareRandom, declareRotate, colorBandingFix } from '../shader-utils';
+import { declarePI, declareRandom, declareRotate, colorBandingFix, declareValueNoise } from '../shader-utils';
 
 export const godRaysMeta = {
   maxColorCount: 5,
@@ -14,9 +14,9 @@ export const godRaysMeta = {
  * - u_colorBack, u_colorBloom (RGBA)
  * - u_colors (vec4[]), u_colorsCount (float used as integer)
  * - u_frequency: rays density
+ * - u_density (0..1): number of visible rays
  * - u_spotty: density of spots on the ray (higher = more spots)
  * - u_midSize, u_midIntensity: central shape over the rays
- * - u_density (0..1): number of visible rays
  * - u_bloom (0..1): normal to additive blending mix
  *
  */
@@ -45,25 +45,10 @@ out vec4 fragColor;
 ${declarePI}
 ${declareRandom}
 ${declareRotate}
+${declareValueNoise}
 
 float hash(float n) {
   return fract(sin(n * 43758.5453123) * 43758.5453123);
-}
-
-float valueNoise(vec2 uv) {
-  vec2 i = floor(uv);
-  vec2 f = fract(uv);
-
-  float a = random(i);
-  float b = random(i + vec2(1.0, 0.0));
-  float c = random(i + vec2(0.0, 1.0));
-  float d = random(i + vec2(1.0, 1.0));
-
-  vec2 u = f * f * (3.0 - 2.0 * f);
-
-  float x1 = mix(a, b, u.x);
-  float x2 = mix(c, d, u.x);
-  return mix(x1, x2, u.y);
 }
 
 float raysShape(vec2 uv, float r, float freq, float density, float radius) {

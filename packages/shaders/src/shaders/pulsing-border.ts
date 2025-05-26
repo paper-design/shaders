@@ -1,7 +1,7 @@
 import type { vec4 } from '../types';
 import type { ShaderMotionParams } from '../shader-mount';
 import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing';
-import { declarePI, colorBandingFix } from '../shader-utils';
+import { declarePI, declareValueNoise, colorBandingFix } from '../shader-utils';
 
 export const pulsingBorderMeta = {
   maxColorCount: 5,
@@ -109,23 +109,16 @@ float roundedBoxSmoke(vec2 uv, vec2 halfSize, float radius, float distance, floa
     return border * mask;
 }
 
-vec2 rand(vec2 p) {
+float random(vec2 p) {
+  vec2 uv = floor(p) / 100. + .5;
+  return texture(u_noiseTexture, uv).g;
+}
+vec2 rand2(vec2 p) {
   vec2 uv = floor(p) / 100. + .5;
   return texture(u_noiseTexture, uv).gb;
 }
 
-float noise(vec2 st) {
-  vec2 i = floor(st);
-  vec2 f = fract(st);
-  float a = rand(i).x;
-  float b = rand(i + vec2(1.0, 0.0)).x;
-  float c = rand(i + vec2(0.0, 1.0)).x;
-  float d = rand(i + vec2(1.0, 1.0)).x;
-  vec2 u = f * f * (3.0 - 2.0 * f);
-  float x1 = mix(a, b, u.x);
-  float x2 = mix(c, d, u.x);
-  return mix(x1, x2, u.y);
-}
+${declareValueNoise}
 
 float getWaveformValue(float time) {
   float dur = 5.;
@@ -162,8 +155,8 @@ void main() {
   border *= (1. + u_intensity);
 
   vec2 smokeUV = .001 * u_smokeSize * v_patternUV;
-  float smoke = clamp(3. * noise(2.7 * smokeUV + .5 * t), 0., 1.);
-  smoke -= noise(3.4 * smokeUV - .5 * t);
+  float smoke = clamp(3. * valueNoise(2.7 * smokeUV + .5 * t), 0., 1.);
+  smoke -= valueNoise(3.4 * smokeUV - .5 * t);
   smoke *= roundedBoxSmoke(borderUV, halfSize, radius, distance, u_smoke);
   smoke = 50. * pow(smoke, 2.);
   smoke *= u_smoke;
@@ -188,7 +181,7 @@ void main() {
       if (j >= int(u_colorsCount)) break;
       float colorIdx = float(j);
 
-      vec2 randVal = rand(vec2(idx * 10. + 2., 40. + colorIdx));
+      vec2 randVal = rand2(vec2(idx * 10. + 2., 40. + colorIdx));
   
       float time = (.1 + .15 * abs(sin(idx * (2. + colorIdx)) * cos(idx * (2. + 2.5 * colorIdx)))) * t + randVal.x * 3.;
       time *= mix(1., -1., step(.5, randVal.y));
