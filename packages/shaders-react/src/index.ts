@@ -73,9 +73,9 @@ export { PulsingBorder, pulsingBorderPresets } from './shaders/pulsing-border.js
 export type { PulsingBorderProps } from './shaders/pulsing-border.js';
 export type { PulsingBorderUniforms, PulsingBorderParams } from '@paper-design/shaders';
 
-export { ColorPanels, colorPanelsPresets } from './shaders/color-panels';
-export { type ColorPanelsProps } from './shaders/color-panels';
-export { type ColorPanelsUniforms, type ColorPanelsParams } from '@paper-design/shaders';
+export { ColorPanels, colorPanelsPresets } from './shaders/color-panels.js';
+export type { ColorPanelsProps } from './shaders/color-panels.js';
+export type { ColorPanelsUniforms, ColorPanelsParams } from '@paper-design/shaders';
 
 export { isPaperShaderElement, getShaderColorFromString } from '@paper-design/shaders';
 export type { ShaderFit, ShaderSizingParams, ShaderSizingUniforms } from '@paper-design/shaders';

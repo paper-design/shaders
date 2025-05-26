@@ -155,7 +155,7 @@ export {
   colorPanelsMeta,
   type ColorPanelsParams,
   type ColorPanelsUniforms,
-} from './shaders/color-panels';
+} from './shaders/color-panels.js';
 
 // ----- Utils ----- //
 export { getShaderColorFromString } from './get-shader-color-from-string.js';
