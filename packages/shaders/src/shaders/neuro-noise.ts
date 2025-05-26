@@ -3,17 +3,16 @@ import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingU
 import { declareRotate, colorBandingFix } from '../shader-utils';
 
 /**
- * Neuro Noise Pattern
- * Original algo: https://x.com/zozuar/status/1625182758745128981/
- * Renders a fractal-like structure made of several layers of since-arches
  *
- * Uniforms include:
- * u_colorFront - the highlights (overexposed noise areas)
- * u_colorMid - the base color of pattern
- * u_colorBack - the backgrond color of pattern
- * u_brightness - increase/decrease the weight of strong lines
- * u_contrast - show/hide the weak pattern lines
+ * Fractal-like structure made of several layers of since arches
+ * Original algorithm: https://x.com/zozuar/status/1625182758745128981/
+ *
+ * Uniforms:
+ * - u_colorBack, u_colorMid, u_colorFront (RGBA)
+ * - u_brightness, u_contrast
+ *
  */
+
 export const neuroNoiseFragmentShader: string = `#version 300 es
 precision mediump float;
 

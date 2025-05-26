@@ -9,16 +9,17 @@ export const metaballsMeta = {
 } as const;
 
 /**
- * Metaballs (circular shapes with gooey effect applied)
- * The artwork by Ksenia Kondrashova
+ * N circular shapes moving around the center, blending and merging based on distance
  *
- * Uniforms include:
- * - u_colorBack: the background color of the scene
- * - uColors (vec4[]): Input RGBA colors
- * - uColorsCount (float): Number of active colors (`uColors` length)
- * - u_count (float)
- * - u_size (float)
+ * Uniforms:
+ * - u_colorBack (RGBA)
+ * - u_colors (vec4[]), u_colorsCount (float used as integer)
+ * - u_size: ball base size
+ * - u_sizeRange (0..1): randomizes the size of balls between 0 and u_size
+ * - u_count: number of balls on the canvas
+ *
  */
+
 export const metaballsFragmentShader: string = `#version 300 es
 precision mediump float;
 

@@ -12,7 +12,7 @@ export const voronoiMeta = {
  * The variation of Voronoi pattern with cell edges. Big thanks to Inigo Quilez
  * https://www.shadertoy.com/view/ldl3W8
  *
- * Uniforms include:
+ * Uniforms:
  *
  * - `u_colors` (`vec4[]`): Array of RGBA colors used for cell filling
  * - `u_colorsCount` (`float`): Number of active colors in `u_colors`

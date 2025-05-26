@@ -3,21 +3,18 @@ import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingU
 import { declarePI, colorBandingFix } from '../shader-utils';
 
 /**
- * 3d Perlin noise with exposed parameters
- * Based on https://www.shadertoy.com/view/NlSGDz
+ * 3d Perlin noise; original algorithm: https://www.shadertoy.com/view/NlSGDz
  *
- * Uniforms include:
- * u_colorFront - the first mixed color
- * u_colorBack - the second mixed color
- * u_proportion (0 .. 1) - the proportion between u_colorFront and u_colorBack;
- * u_softness - the sharpness of the transition between u_colorFront and u_colorBack in the noise output
- * u_octaveCount - the number of octaves for Perlin noise;
- *    higher values increase the complexity of the noise
- * u_persistence (0 .. 1) - the amplitude of each successive octave of the noise;
- *    lower values make higher octaves less pronounced
- * u_lacunarity - the frequency of each successive octave of the noise;
- *    higher values increase the detail
+ * Uniforms:
+ * - u_colorBack, u_colorFront (RGBA)
+ * - u_proportion: (0..1) blend point between 2 colors (0.5 = equal mixing)
+ * - u_softness: color transition sharpness (0 = hard edge, 1 = smooth fade)
+ * - u_octaveCount: more octaves => more detailed pattern
+ * - u_persistence: roughness, falloff between octaves
+ * - u_lacunarity: frequency step, typically around 2, defines how compressed is the pattern
+ *
  */
+
 export const perlinNoiseFragmentShader: string = `#version 300 es
 precision mediump float;
 

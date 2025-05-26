@@ -10,11 +10,11 @@ export const warpMeta = {
 /**
  * 3d Perlin noise with exposed parameters
  *
- * Uniforms include:
+ * Uniforms:
  * - u_colors (vec4[]): Input RGBA colors
- * - u_colorsCount (float): Number of active colors (`u_colors` length)
- * - u_proportion (0 .. 1): the proportion between colors (on 0.5 colors are equally distributed)
- * - u_softness (0 .. 1): the color blur (0 for pronounced edges, 1 for gradient)
+ * - u_colorsCount (float used as integer): Number of active colors (`u_colors` length)
+ * - u_proportion (0..1): the proportion between colors (on 0.5 colors are equally distributed)
+ * - u_softness (0..1): the color blur (0 for pronounced edges, 1 for gradient)
  * - u_shape (0 ... 2): the color pattern to be distorted with noise & swirl
  *    - u_shape = 0 is checks
  *    - u_shape = 1 is stripes

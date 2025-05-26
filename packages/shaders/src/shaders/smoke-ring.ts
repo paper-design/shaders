@@ -1,7 +1,7 @@
 import type { vec4 } from '../types';
 import type { ShaderMotionParams } from '../shader-mount';
 import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing';
-import { declarePI, declareRandom, colorBandingFix } from '../shader-utils';
+import { declarePI, colorBandingFix } from '../shader-utils';
 
 export const smokeRingMeta = {
   maxColorCount: 10,
@@ -9,18 +9,15 @@ export const smokeRingMeta = {
 } as const;
 
 /**
- * Smoke Ring by Ksenia Kondrashova
- * Renders a fractional Brownian motion (fBm) noise over the
- * polar coordinates masked with ring shape
+ * Radial gradient with layered FBM displacement, masked with ring shape
  *
- * Uniforms include:
- * - u_colorBack: the background color of the scene
- * - uColors (vec4[]): Input RGBA colors
- * - uColorsCount (float): Number of active colors (`uColors` length) * u_noiseScale - the resolution of noise texture
- * - u_thickness (float): the thickness of the ring
- * - u_radius (float): the radius of the ring (u_radius = 0.5 to fit in contain mode)
- * - u_innerShape (float): if we fill the shape inside the radius (u_innerShape = 1 to render only the thickness)
- * - u_noiseIterations (float): how detailed is the noise (number of fbm layers)
+ * Uniforms:
+ * - u_colorBack (RGBA)
+ * - u_colors (vec4[]), u_colorsCount (float used as integer)
+ * - u_thickness, u_radius, u_innerShape: ring mask settings
+ * - u_noiseIterations, u_noiseScale: how detailed is the noise (number of fbm layers & noise frequency)
+ *
+ * - u_noiseTexture (sampler2D): pre-computed randomizer source
  */
 
 export const smokeRingFragmentShader: string = `#version 300 es
@@ -34,10 +31,10 @@ uniform vec4 u_colorBack;
 uniform vec4 u_colors[${smokeRingMeta.maxColorCount}];
 uniform float u_colorsCount;
 
-uniform float u_noiseScale;
 uniform float u_thickness;
 uniform float u_radius;
 uniform float u_innerShape;
+uniform float u_noiseScale;
 uniform float u_noiseIterations;
 
 ${sizingVariablesDeclaration}

@@ -8,16 +8,15 @@ export const simplexNoiseMeta = {
 } as const;
 
 /**
- * Simplex Noise animation by Ksenia Kondrashova
- * Calculates a combination of 2 simplex noises with result mapped as
- * a gradient with dynamic number of main colors and steps between them
+ * Color Gradient mapped over a combination of 2 Simplex noises
  *
- * Uniforms include:
- * - u_colors (vec4[]): Input RGBA colors
- * - u_colorsCount (float): Number of active colors (`u_colors` length)
- * - u_stepsPerColor (float, used as int): Number of rendered colors per input color
- * - u_softness (float, 0..1): Amount of blur applied to the color steps
- */
+ * Uniforms:
+ * - u_colors (vec4[]), u_colorsCount (float used as integer)
+ * - u_stepsPerColor (float, used as int): discrete color steps between u_colors
+ * - u_softness: color transition sharpness (0 = hard edge, 1 = smooth fade)
+ *
+ * */
+
 export const simplexNoiseFragmentShader: string = `#version 300 es
 precision mediump float;
 

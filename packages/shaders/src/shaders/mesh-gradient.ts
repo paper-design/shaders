@@ -8,15 +8,16 @@ export const meshGradientMeta = {
 } as const;
 
 /**
- * Mesh Gradient Ksenia Kondrashova
- * Smooth, animated mesh gradient using a dynamic list of colors
+ * A composition of N color spots (one per color) with 2 types of
+ * distortions applied to the coordinate space
  *
- * Uniforms include:
- * - u_colors (vec4[]): Input RGBA colors
- * - u_colorsCount (float): Number of active colors (`u_colors` length)
- * - u_distortion (float): Amount of animated wavy distortion applied to UV coordinates
- * - u_swirl (float): Amount of radial swirl distortion applied to UV coordinates
+ * Uniforms:
+ * - u_colors (vec4[]), u_colorsCount (float used as integer)
+ * - u_distortion: warp distortion
+ * - u_swirl: vortex distortion
+ *
  */
+
 export const meshGradientFragmentShader: string = `#version 300 es
 precision mediump float;
 

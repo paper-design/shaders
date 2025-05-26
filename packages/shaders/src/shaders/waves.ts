@@ -4,7 +4,7 @@ import { declarePI, declareRotate } from '../shader-utils';
 /**
  * Waves static pattern on the transparent background
  *
- * Uniforms include:
+ * Uniforms:
  * u_colorFront - the first color
  * u_colorBack - the second color
  * u_shape (0 ... 3) - the line shaping coefficient, non-integer

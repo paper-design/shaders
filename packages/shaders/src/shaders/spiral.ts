@@ -6,20 +6,20 @@ import { declareSimplexNoise, declarePI, colorBandingFix } from '../shader-utils
  * Spiral shape by Ksenia Kondrashova
  * Generates a dynamic spiral shape with configurable parameters
  *
- * Uniforms include:
+ * Uniforms:
  *
  * u_scale - controls the overall scale of the spiral (u_scale = 1 makes it fit the viewport height)
  * u_offsetX - left / right pan
  * u_offsetY - up / down pan
  * u_colorBack - the first color used in the spiral (stroke)
  * u_colorFront - the second color used in the spiral (back)
- * u_density (0 .. 1) - the spacing of the spiral arms
- * u_distortion (0 .. 1) - adds a wavy distortion effect to the spiral arms
- * u_strokeWidth (0 .. 1) - defines the thickness of the spiral lines.
- * u_strokeCap (0 .. 1) - adjusts the fading of the spiral edges.
- * u_strokeTaper (0 .. 1) - controls the tapering effect along the spiral arms.
+ * u_density (0..1) - the spacing of the spiral arms
+ * u_distortion (0..1) - adds a wavy distortion effect to the spiral arms
+ * u_strokeWidth (0..1) - defines the thickness of the spiral lines.
+ * u_strokeCap (0..1) - adjusts the fading of the spiral edges.
+ * u_strokeTaper (0..1) - controls the tapering effect along the spiral arms.
  * u_noiseFrequency - frequency of the noise applied to the spiral.
- * u_noisePower (0 .. 1) - strength of the noise effect.
+ * u_noisePower (0..1) - strength of the noise effect.
  * u_softness - softens the edges of the spiral for a smoother appearance.
  */
 export const spiralFragmentShader: string = `#version 300 es

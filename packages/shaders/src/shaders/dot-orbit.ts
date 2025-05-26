@@ -8,19 +8,18 @@ export const dotOrbitMeta = {
 } as const;
 
 /**
- * Dot Pattern with dot moving around their grid position
- * The artwork by Ksenia Kondrashova
- * Renders a dot pattern with dot placed in the center of each cell of animated Voronoi diagram
+ * Animated dot pattern with dots orbiting around their grid positions
  *
- * Uniforms include:
- * - u_colorBack (vec4): the background color of the scene
- * - u_colors (vec4[]): Input RGBA colors
- * - u_colorsCount (float): Number of active colors (`u_colors` length)
- * - u_stepsPerColor (float): Discretization of the color transition
- * - u_size (float, 0 .. 1): Base dot radius (relative to cell size)
- * - u_sizeRange (float, 0 .. 1): Dot radius to vary between the cells
- * - u_spreading (float, 0 .. 1): the distance each dot can move around the regular grid
+ * Uniforms:
+ * - u_colorBack (RGBA)
+ * - u_colors (vec4[]), u_colorsCount (float used as integer)
+ * - u_stepsPerColor: discrete color steps between u_colors
+ * - u_size (0..1): dot radius (relative to cell size)
+ * - u_sizeRange (0..1): randomizes dot radius between 0 and u_size
+ * - u_spreading (0..1): max orbit distance of each dot around the cell center
+ *
  */
+
 export const dotOrbitFragmentShader: string = `#version 300 es
 precision mediump float;
 

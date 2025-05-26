@@ -8,7 +8,22 @@ export const grainGradientMeta = {
 } as const;
 
 /**
- * Grainy Gradient Ksenia Kondrashova
+ * Abstract N-color gradient with noise & grain over animated abstract shapes
+ * 
+ * Uniforms:
+ * - u_colorBack (RGBA)
+ * - u_colors (vec4[]), u_colorsCount (float used as integer)
+ * - u_softness (0..1): blur between color bands
+ * - u_intensity (0..1): distortion between color bands
+ * - u_noise (0..1): grainy noise independent of softness
+ * - u_shape (float used as integer):
+ * ---- 1: single sine wave
+ * ---- 2: dots pattern
+ * ---- 3: truchet pattern
+ * ---- 4: corners (2 rounded rectangles)
+ * ---- 5: ripple
+ * ---- 6: blob (metaballs)
+ * ---- 7: circle imitating 3d look
  */
 export const grainGradientFragmentShader: string = `#version 300 es
 precision mediump float;

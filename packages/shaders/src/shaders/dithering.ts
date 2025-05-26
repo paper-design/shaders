@@ -9,32 +9,28 @@ import {
 import { declareSimplexNoise, declarePI, declareRandom } from '../shader-utils';
 
 /**
- * Dithering Fragment Shader by Ksenia Kondrashova
- * Applies dithering (4 dithering types available) over the
- * abstract shapes animation (7 animated shapes available)
+ * 2-color dithering effect over animated abstract shapes
  *
- * Uniforms include:
- * - u_colorBack: background color, RGBA
- * - u_colorFront: pixels color, RGBA
- *
- * - u_shape (float, used as int, 1 to 7):
- *  --- shape = 1: Simplex noise pattern
- *  --- shape = 2: Warp noise pattern
- *  --- shape = 3: Columns if dots moving vertically
- *  --- shape = 4: Sine wave
- *  --- shape = 5: Ripple effect
- *  --- shape = 6: Swirl animation
- *  --- shape = 7: Rotating sphere
- *
- *  - u_type (float, used as int, 1 to 4):
- *  --- type = 1: Random dithering
- *  --- type = 2: 2x2 Bayer matrix
- *  --- type = 3: 4x4 Bayer matrix
- *  --- type = 4: 8x8 Bayer matrix
- *
- * - pxSize (float), relative to canvas resolution
+ * Uniforms:
+ * - u_colorBack, u_colorFront (RGBA)
+ * - pxSize: pixelization applied to the shapes BEFORE dithering
+ *      (px size relative to canvas resolution, it doesn't react to scaling and fit)
+ * - u_shape (float used as integer):
+ * ---- 1: simplex noise pattern
+ * ---- 2: warp noise pattern
+ * ---- 3: columns if dots moving vertically
+ * ---- 4: sine wave
+ * ---- 5: ripple effect
+ * ---- 6: swirl animation
+ * ---- 7: rotating sphere
+ *  - u_type (float used as integer)
+ * ---- 1: random dithering
+ * ---- 2: 2x2 Bayer matrix
+ * ---- 3: 4x4 Bayer matrix
+ * ---- 4: 8x8 Bayer matrix
  *
  */
+
 export const ditheringFragmentShader: string = `#version 300 es
 precision mediump float;
 

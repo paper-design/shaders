@@ -3,6 +3,23 @@ import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingU
 import { declarePI, declareRotate, declareSimplexNoise, colorBandingFix } from '../shader-utils';
 
 /**
+ *
+ * Fluid motion imitation applied over abstract shapes
+ * (animated stripe pattern getting distorted with shape edges)
+ *
+ * Uniforms:
+ * - u_colorBack, u_colorTint (RGBA)
+ * - u_repetition: density of pattern stripes
+ * - u_softness: blur between stripes
+ * - u_shiftRed & u_shiftBlue: color dispersion between the stripes
+ * - u_distortion: pattern distortion on the whole canvas
+ * - u_contour: distortion power over the shape edges
+ * - u_shape (float used as integer):
+ * ---- 0: canvas-screen rectangle, needs u_worldWidth = u_worldHeight = 0 to be responsive (see vertex shader)
+ * ---- 1: static circle
+ * ---- 2: animated flower-like polar shape
+ * ---- 3: animated metaballs
+ *
  */
 
 export const liquidMetalFragmentShader: string = `#version 300 es
@@ -49,7 +66,7 @@ float getColorChanges(float c1, float c2, float stripe_p, vec3 w, float blur, fl
   float gradient = mix(c1, c2, smoothstep(0., 1., gradient_t));
   ch = mix(ch, gradient, smoothstep(border - blur, border + blur, stripe_p));
   
-  // ch = 1. - min(1., (1. - ch) / max(tint, .0001));
+  // Tint color is applied with color burn blending
   ch = mix(ch, 1. - min(1., (1. - ch) / max(tint, 0.0001)), u_colorTint.a);
   return ch;
 }

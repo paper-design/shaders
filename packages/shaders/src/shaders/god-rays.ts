@@ -8,22 +8,19 @@ export const godRaysMeta = {
 } as const;
 
 /**
- * GodRays pattern
- * The artwork by Ksenia Kondrashova
- * Renders a number of circular shapes with gooey effect applied
+ * Radial rays animated from center
  *
- * Uniforms include:
+ * Uniforms:
+ * - u_colorBack, u_colorBloom (RGBA)
+ * - u_colors (vec4[]), u_colorsCount (float used as integer)
+ * - u_frequency: rays density
+ * - u_spotty: density of spots on the ray (higher = more spots)
+ * - u_midSize, u_midIntensity: central shape over the rays
+ * - u_density (0..1): number of visible rays
+ * - u_bloom (0..1): normal to additive blending mix
  *
- * - u_colorBack: background RGBA color
- * - u_colorBloom:
- * - uColors (vec4[]): Input RGBA colors
- * - u_frequency: the frequency of rays (the number of sectors)
- * - u_spotty: the density of spots in the rings (higher = more spots)
- * - u_midSize: the size of the central shape within the rings
- * - u_midIntensity: the influence of the central shape on the rings
- * - u_density (0 .. 1): the number of visible rays
- * - u_bloom (0 .. 1): normal / additive bloom
  */
+
 export const godRaysFragmentShader: string = `#version 300 es
 precision mediump float;
 

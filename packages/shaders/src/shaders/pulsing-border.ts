@@ -9,22 +9,21 @@ export const pulsingBorderMeta = {
 } as const;
 
 /**
- * Pulsing Border Pattern with Smoke Effect
- * This shader creates a rounded border mask with multiple color spots
- * traveling along the border
+ * Color spots traveling around rectangular stroke (border)
  *
- * Uniforms include:
- * u_colorBack   - The background color of the pattern
- * u_colors      - An array of colors for the pulsing spots (with up to `u_colorsCount` entries)
- * u_colorsCount - The number of colors used in the pattern
- * u_roundness   - The roundness of the border corners
- * u_thickness   - The thickness of the border
- * u_softness    - The blur around the border edges
- * u_intensity   - The intensity multiplier for the pulsing effect
- * u_spotSize    - The size of the color spots
- * u_spotsPerColor - The number of spots for each color (not all the spots are visible all the time)
- * u_pulse     - A multiplier for the pulsing strength (pulsing signal taken from the u_pulseTexture)
- * u_smoke       - The strength of the smoke effect (the noise aroung the border)
+ * Uniforms:
+ * - u_colorBack (RGBA)
+ * - u_colors (vec4[]), u_colorsCount (float used as integer)
+ * - u_roundness, u_thickness, u_softness: border parameters
+ * - u_intensity: global multiplier for spots shape & color
+ * - u_spotSize: angular size of spots
+ * - u_spotsPerColor (float used as int): number of spots rendered per color (not all visible at the same time)
+ * - u_pulse: optional pulsing animation
+ * - u_smoke, u_smokeSize: optional noisy shapes around the border
+ *
+ * - u_pulseTexture (sampler2D): pulsing signal source
+ * - u_noiseTexture (sampler2D): pre-computed randomizer source
+ *
  */
 
 export const pulsingBorderFragmentShader: string = `#version 300 es
