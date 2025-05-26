@@ -1,5 +1,5 @@
 export { ShaderMount } from './shader-mount';
-export type { ShaderMountProps, ShaderComponentProps } from './shader-mount';
+export type { ShaderMountProps, ShaderComponentProps, ShaderMountRef } from './shader-mount';
 
 export { MeshGradient, meshGradientPresets } from './shaders/mesh-gradient';
 export type { MeshGradientProps } from './shaders/mesh-gradient';
