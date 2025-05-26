@@ -8,40 +8,36 @@ export const colorPanelsMeta = {
 } as const;
 
 /**
- * Animated, pseudo-3D color panels with dynamic layering and directional blur
- * by Ksenia Kondrashova
+ * Pseudo-3D panels rotating around a central axis
  *
  * Uniforms include:
- * - u_colors (vec4[]): Input RGBA colors for panels
- * - u_colorsCount (float): Number of active colors (`u_colors` length)
- * - u_density (float): Panels to show
- * - u_colorBack (vec4): Background color to blend behind panels
- * - u_angle (float): Panel skew angle to morph rect to triangle panels
- * - u_length (float): Length of panels (relative to total height)
- * - u_blur (float): Horizontal blur amount along panel edges
- * - u_fadePosition (float): Controls transparency toward the center of panels
- * - u_colorShuffler (float): Affects how panel colors cycle
- * - u_singleColor (float): Controls blending of adjacent colors per panel
+ * - u_colorBack (RGBA)
+ * - u_colors (vec4[]), u_colorsCount (float used as integer)
+ * - u_density: angle between every 2 panels
+ * - u_angle1, u_angle2: skew angle applied to all panes
+ * - u_length: panel length (relative to total height)
+ * - u_blur: side blur (0 for sharp edges)
+ * - u_fadeIn: transparency near central axis
+ * - u_fadeOut: transparency near viewer
+ * - u_gradient: color mixing within panes (0 = single color, 1 = two colors)
+ *
  */
 
 export const colorPanelsFragmentShader: string = `#version 300 es
 precision lowp float;
 
-uniform vec2 u_resolution;
-
 uniform float u_time;
-uniform float u_scale;
 
 uniform vec4 u_colors[${colorPanelsMeta.maxColorCount}];
 uniform float u_colorsCount;
 uniform vec4 u_colorBack;
+uniform float u_density;
 uniform float u_angle1;
 uniform float u_angle2;
 uniform float u_length;
 uniform float u_blur;
 uniform float u_fadeIn;
 uniform float u_fadeOut;
-uniform float u_density;
 uniform float u_gradient;
 
 ${sizingVariablesDeclaration}
