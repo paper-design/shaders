@@ -25,13 +25,15 @@ const GrainGradientExample = () => {
 
 const { worldWidth, worldHeight, ...defaults } = grainGradientPresets[0].params;
 
+const MAX_PIXEL_COUNT = 1920 * 1080 * 2;
+
 const GrainGradientWithControls = () => {
   const { colors, setColors } = useColors({
     defaultColors: defaults.colors,
     maxColorCount: grainGradientMeta.maxColorCount,
   });
 
-  const [params, setParams] = useControls(() => {
+  const [{ logMaxPixelCount, ...params }, setParams] = useControls(() => {
     return {
       Parameters: folder(
         {
@@ -73,6 +75,9 @@ const GrainGradientWithControls = () => {
           collapsed: true,
         }
       ),
+      Resolution: folder({
+        logMaxPixelCount: { value: Math.log(MAX_PIXEL_COUNT), min: 0, max: Math.log(MAX_PIXEL_COUNT), order: 409 },
+      }),
     };
   }, [colors.length]);
 
@@ -103,7 +108,12 @@ const GrainGradientWithControls = () => {
       <Link href="/">
         <BackButton />
       </Link>
-      <GrainGradient {...params} colors={colors} className="fixed size-full" />
+      <GrainGradient
+        {...params}
+        colors={colors}
+        className="fixed size-full"
+        maxPixelCount={Math.exp(logMaxPixelCount)}
+      />
     </>
   );
 };

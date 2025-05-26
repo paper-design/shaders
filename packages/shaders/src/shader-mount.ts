@@ -258,7 +258,7 @@ export class ShaderMount {
       cancelAnimationFrame(this.resizeRafId);
     }
 
-    const { width, height, renderScale } = this.calculateCanvasData();
+    const { width, height, renderScale } = this.getCanvasSize();
 
     if (
       this.canvasElement.width !== width ||
@@ -276,7 +276,7 @@ export class ShaderMount {
     }
   };
 
-  private calculateCanvasData = () => {
+  private getCanvasSize = () => {
     const pinchZoom = visualViewport?.scale ?? 1;
 
     // Zoom level can be calculated comparing the browser's outerWidth and the viewport width.
@@ -312,16 +312,10 @@ export class ShaderMount {
   };
 
   private handleResolutionChange = () => {
-    const { width: newWidth, height: newHeight, renderScale: newRenderScale } = this.calculateCanvasData();
+    const { renderScale } = this.getCanvasSize();
 
-    if (
-      this.canvasElement.width !== newWidth ||
-      this.canvasElement.height !== newHeight ||
-      this.renderScale !== newRenderScale
-    ) {
-      this.renderScale = newRenderScale;
-      this.canvasElement.width = newWidth;
-      this.canvasElement.height = newHeight;
+    if (this.renderScale !== renderScale) {
+      this.renderScale = renderScale;
       this.resolutionChanged = true;
     }
   };
@@ -523,7 +517,6 @@ export class ShaderMount {
       }
 
       if (value instanceof HTMLImageElement) {
-        console.log('setting texture uniform', key);
         // Texture case, requires a good amount of code so it gets its own function:
         this.setTextureUniform(key, value);
       } else if (Array.isArray(value)) {
