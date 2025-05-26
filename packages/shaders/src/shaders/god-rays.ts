@@ -1,7 +1,7 @@
-import type { vec4 } from '../types';
-import type { ShaderMotionParams } from '../shader-mount';
-import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing';
-import { declarePI, declareRandom, declareRotate, colorBandingFix } from '../shader-utils';
+import type { vec4 } from '../types.js';
+import type { ShaderMotionParams } from '../shader-mount.js';
+import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
+import { declarePI, declareRandom, declareRotate, colorBandingFix } from '../shader-utils.js';
 
 export const godRaysMeta = {
   maxColorCount: 5,
@@ -123,11 +123,11 @@ void main() {
     accumColor = mix(alphaBlendColor, addBlendColor, u_bloom);
     accumAlpha = mix(alphaBlendAlpha, addBlendAlpha, u_bloom);
   }
-  
+
   float overlayAlpha = u_colorBloom.a;
   vec3 overlayColor = u_colorBloom.rgb * overlayAlpha;
 
-  vec3 colorWithOverlay = accumColor + accumAlpha * overlayColor;  
+  vec3 colorWithOverlay = accumColor + accumAlpha * overlayColor;
   accumColor = mix(accumColor, colorWithOverlay, u_bloom);
 
   vec3 bgColor = u_colorBack.rgb * u_colorBack.a;

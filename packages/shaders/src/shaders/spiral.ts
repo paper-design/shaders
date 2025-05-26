@@ -1,6 +1,6 @@
-import type { ShaderMotionParams } from '../shader-mount';
-import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing';
-import { declareSimplexNoise, declarePI, colorBandingFix } from '../shader-utils';
+import type { ShaderMotionParams } from '../shader-mount.js';
+import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
+import { declareSimplexNoise, declarePI, colorBandingFix } from '../shader-utils.js';
 
 /**
  * Spiral shape by Ksenia Kondrashova
@@ -85,10 +85,10 @@ void main() {
 
   vec3 color = bgColor * res;
   float opacity = bgOpacity * res;
-  
+
   color += fgColor * (1. - opacity);
   opacity += fgOpacity * (1. - opacity);
-  
+
   ${colorBandingFix}
 
   fragColor = vec4(color, opacity);

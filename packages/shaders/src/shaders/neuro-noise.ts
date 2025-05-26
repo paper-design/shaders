@@ -1,6 +1,6 @@
-import type { ShaderMotionParams } from '../shader-mount';
-import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing';
-import { declareRotate, colorBandingFix } from '../shader-utils';
+import type { ShaderMotionParams } from '../shader-mount.js';
+import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
+import { declareRotate, colorBandingFix } from '../shader-utils.js';
 
 /**
  * Neuro Noise Pattern
@@ -62,7 +62,7 @@ void main() {
   noise = (1. + u_brightness) * pow(noise, 2.);
   noise = pow(noise, .7 + 6. * u_contrast);
   noise = min(1.4, noise);
-  
+
   float blend = smoothstep(0.7, 1.4, noise);
 
   vec4 frontC = u_colorFront;
@@ -74,11 +74,11 @@ void main() {
   float safeNoise = max(noise, 0.0);
   vec3 color = blendFront.rgb * safeNoise;
   float opacity = clamp(blendFront.a * safeNoise, 0., 1.);
-  
+
   vec3 bgColor = u_colorBack.rgb * u_colorBack.a;
   color = color + bgColor * (1. - opacity);
   opacity = opacity + u_colorBack.a * (1. - opacity);
-  
+
   ${colorBandingFix}
 
   fragColor = vec4(color, opacity);

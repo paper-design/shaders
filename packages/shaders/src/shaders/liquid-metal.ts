@@ -1,6 +1,6 @@
-import type { ShaderMotionParams } from '../shader-mount';
-import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing';
-import { declarePI, declareRotate, declareSimplexNoise, colorBandingFix } from '../shader-utils';
+import type { ShaderMotionParams } from '../shader-mount.js';
+import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
+import { declarePI, declareRotate, declareSimplexNoise, colorBandingFix } from '../shader-utils.js';
 
 /**
  */
@@ -48,7 +48,7 @@ float getColorChanges(float c1, float c2, float stripe_p, vec3 w, float blur, fl
   float gradient_t = (stripe_p - w[0] - w[1]) / w[2];
   float gradient = mix(c1, c2, smoothstep(0., 1., gradient_t));
   ch = mix(ch, gradient, smoothstep(border - blur, border + blur, stripe_p));
-  
+
   // ch = 1. - min(1., (1. - ch) / max(tint, .0001));
   ch = mix(ch, 1. - min(1., (1. - ch) / max(tint, 0.0001)), u_colorTint.a);
   return ch;
@@ -198,7 +198,7 @@ void main() {
 
   color = vec3(r, g, b);
   color *= opacity;
-  
+
   vec3 bgColor = u_colorBack.rgb * u_colorBack.a;
   color = color + bgColor * (1. - opacity);
   opacity = opacity + u_colorBack.a * (1. - opacity);

@@ -1,7 +1,7 @@
-import type { vec4 } from '../types';
-import type { ShaderMotionParams } from '../shader-mount';
-import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing';
-import { declareSimplexNoise, declarePI, declareRandom, colorBandingFix } from '../shader-utils';
+import type { vec4 } from '../types.js';
+import type { ShaderMotionParams } from '../shader-mount.js';
+import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
+import { declareSimplexNoise, declarePI, declareRandom, colorBandingFix } from '../shader-utils.js';
 
 export const grainGradientMeta = {
   maxColorCount: 7,
@@ -84,24 +84,24 @@ vec2 truchet(vec2 uv, float idx){
 }
 
 void main() {
-  
+
   float t = .1 * u_time;
-  
+
   vec2 grain_uv = (gl_FragCoord.xy - .5 * u_resolution) / u_pixelRatio;
   vec2 shape_uv = v_objectUV;
   if (u_shape < 3.5) {
     shape_uv = v_patternUV * .005;
   }
-  
-  
+
+
   float shape = 0.;
-  
+
   if (u_shape < 1.5) {
     // Sine wave
-    
+
     float wave = cos(.5 * shape_uv.x - 2. * t) * sin(1.5 * shape_uv.x + t) * (.75 + .25 * cos(3. * t));
     shape = 1. - smoothstep(-1., 1., shape_uv.y + wave);
-      
+
   } else if (u_shape < 2.5) {
     // Grid (dots)
 
@@ -109,12 +109,12 @@ void main() {
     float rand = fract(sin(stripeIdx * 12.9898) * 43758.5453);
 
     float speed = sign(rand - .5) * ceil(2. + rand);
-    shape = sin(shape_uv.x) * cos(shape_uv.y + speed * t);  
+    shape = sin(shape_uv.x) * cos(shape_uv.y + speed * t);
     shape = pow(shape, 4.);
-  
+
   } else if (u_shape < 3.5) {
     // Truchet pattern
-    
+
     float n2 = noisenoise(shape_uv * .4 - 2.5 * t);
     shape_uv.x += 10.;
     shape_uv *= .6;
@@ -128,29 +128,29 @@ void main() {
     n2 *= .1;
     shape = smoothstep(.2, .55, distance1 + n2) * smoothstep(.8, .45, distance1 - n2);
     shape += smoothstep(.2, .55, distance2 + n2) * smoothstep(.8, .45, distance2 - n2);
-    
+
     shape = pow(shape, 1.5);
-      
-  } else if (u_shape < 4.5) {  
+
+  } else if (u_shape < 4.5) {
     // Corners
 
     shape_uv *= .6;
     vec2 outer = vec2(.5);
-    
+
     vec2 bl = smoothstep(vec2(0.), outer, shape_uv + vec2(.1 + .1 * sin(2. * t), .2 - .1 * sin(3. * t)));
     vec2 tr = smoothstep(vec2(0.), outer, 1. - shape_uv);
     shape = 1. - bl.x * bl.y * tr.x * tr.y;
-    
+
     shape_uv = -shape_uv;
     bl = smoothstep(vec2(0.), outer, shape_uv + vec2(.1 + .1 * sin(2. * t), .2 - .1 * cos(3. * t)));
     tr = smoothstep(vec2(0.), outer, 1. - shape_uv);
-    shape -= bl.x * bl.y * tr.x * tr.y; 
-    
+    shape -= bl.x * bl.y * tr.x * tr.y;
+
     shape = 1. - smoothstep(0., 1., shape);
-    
-  } else if (u_shape < 5.5) {  
+
+  } else if (u_shape < 5.5) {
     // Ripple
-  
+
     shape_uv *= 2.;
     float dist = length(.4 * shape_uv);
     float waves = sin(pow(dist, 1.2) * 5. - 3. * t) * .5 + .5;
@@ -160,21 +160,21 @@ void main() {
     // Blob
 
     t *= 2.;
-       
+
     vec2 f1_traj = .25 * vec2(1.3 * sin(t), .2 + 1.3 * cos(.6 * t + 4.));
     vec2 f2_traj = .2 * vec2(1.2 * sin(-t), 1.3 * sin(1.6 * t));
     vec2 f3_traj = .25 * vec2(1.7 * cos(-.6 * t), cos(-1.6 * t));
     vec2 f4_traj = .3 * vec2(1.4 * cos(.8 * t), 1.2 * sin(-.6 * t - 3.));
-    
+
     shape = .5 * pow(1. - clamp(0., 1., length(shape_uv + f1_traj)), 5.);
     shape += .5 * pow(1. - clamp(0., 1., length(shape_uv + f2_traj)), 5.);
     shape += .5 * pow(1. - clamp(0., 1., length(shape_uv + f3_traj)), 5.);
     shape += .5 * pow(1. - clamp(0., 1., length(shape_uv + f4_traj)), 5.);
-    
+
     shape = smoothstep(.0, .9, shape);
     float edge = smoothstep(.25, .3, shape);
     shape = mix(.0, shape, edge);
-    
+
   } else {
     // Sphere
 
@@ -187,38 +187,38 @@ void main() {
     float edge = smoothstep(1., .97, d);
     shape = mix(.1, .5 + .5 * lighting, edge);
   }
-  
+
   float snoise05 = snoise(grain_uv * .5);
   float grainDist = snoise(grain_uv * .2) * snoise05 - fbm_4(.002 * grain_uv + 10.) - fbm_4(.003 * grain_uv);
   float noise = clamp(.6 * snoise05 - fbm_4(.4 * grain_uv) - fbm_4(.001 * grain_uv), 0., 1.);
 
   shape += u_intensity * 2. / u_colorsCount * (grainDist + .5);
-  shape += u_noise * 10. / u_colorsCount * noise;  
+  shape += u_noise * 10. / u_colorsCount * noise;
 
   float edge_w = fwidth(shape);
 
   float mixer = shape * (u_colorsCount + 1.) / u_colorsCount;
   vec4 gradient = u_colors[0];
   gradient.rgb *= gradient.a;
-    
+
   for (int i = 1; i < ${grainGradientMeta.maxColorCount}; i++) {
       if (i > int(u_colorsCount) - 1) break;
-  
+
       vec2 borders = vec2(float(i + 1) - u_softness - edge_w, float(i + 1) + u_softness + edge_w) / u_colorsCount;
       float localT = smoothstep(borders[0], borders[1], mixer);
       vec4 c = u_colors[i];
       c.rgb *= c.a;
       gradient = mix(gradient, c, localT);
   }
-  
+
   vec2 borders = vec2(2. / (u_colorsCount - 1.));
   borders = vec2(borders[0] - u_softness - edge_w, borders[1] + u_softness + edge_w) / u_colorsCount;
   borders[0] = max(0., borders[0]);
   float gradientShape = smoothstep(borders[0], borders[1], mixer);
-  
+
   vec3 color = gradient.rgb * gradientShape;
   float opacity = gradient.a * gradientShape;
-  
+
   vec3 bgColor = u_colorBack.rgb * u_colorBack.a;
   color = color + bgColor * (1.0 - opacity);
   opacity = opacity + u_colorBack.a * (1.0 - opacity);

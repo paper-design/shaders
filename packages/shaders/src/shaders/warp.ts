@@ -1,7 +1,7 @@
-import type { vec4 } from '../types';
-import type { ShaderMotionParams } from '../shader-mount';
-import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing';
-import { declarePI, declareRandom, declareRotate, colorBandingFix } from '../shader-utils';
+import type { vec4 } from '../types.js';
+import type { ShaderMotionParams } from '../shader-mount.js';
+import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
+import { declarePI, declareRandom, declareRotate, colorBandingFix } from '../shader-utils.js';
 
 export const warpMeta = {
   maxColorCount: 10,
@@ -105,7 +105,7 @@ void main() {
     float shapeScaling = 5. * (1. - u_shapeScale);
     shape = smoothstep(.45 - shapeScaling, .55 + shapeScaling, 1. - uv.y + .3 * (proportion - .5));
   }
-  
+
   float mixer = shape * (u_colorsCount - 1.);
   vec4 gradient = u_colors[0];
   gradient.rgb *= gradient.a;
@@ -116,9 +116,9 @@ void main() {
     float localMixerStart = floor(localMixer);
     float smoothed = smoothstep(.5 - u_softness * .5, .5 + u_softness * .5, localMixer - localMixerStart);
     float localTStepped = localMixerStart + smoothed;
-    
+
     localMixer = mix(localTStepped, localMixer, u_softness);
-  
+
     vec4 c = u_colors[i];
     c.rgb *= c.a;
     gradient = mix(gradient, c, localMixer);
@@ -126,7 +126,7 @@ void main() {
 
   vec3 color = gradient.rgb;
   float opacity = gradient.a;
-  
+
   ${colorBandingFix}
 
   fragColor = vec4(color, opacity);

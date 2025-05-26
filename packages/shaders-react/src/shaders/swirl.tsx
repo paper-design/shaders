@@ -1,5 +1,5 @@
 import { memo } from 'react';
-import { ShaderMount, type ShaderComponentProps } from '../shader-mount';
+import { ShaderMount, type ShaderComponentProps } from '../shader-mount.js';
 import {
   defaultObjectSizing,
   getShaderColorFromString,
@@ -9,7 +9,7 @@ import {
   type SwirlParams,
   type SwirlUniforms,
 } from '@paper-design/shaders';
-import { colorPropsAreEqual } from '../color-props-are-equal';
+import { colorPropsAreEqual } from '../color-props-are-equal.js';
 
 export interface SwirlProps extends ShaderComponentProps, SwirlParams {}
 

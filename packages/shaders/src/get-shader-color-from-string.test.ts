@@ -1,5 +1,5 @@
 import { expect, test, describe } from 'bun:test';
-import { getShaderColorFromString } from './get-shader-color-from-string';
+import { getShaderColorFromString } from './get-shader-color-from-string.js';
 
 describe('getShaderColorFromString', () => {
   // Test array inputs

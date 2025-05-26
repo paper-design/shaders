@@ -1,7 +1,7 @@
-import type { vec4 } from '../types';
-import type { ShaderMotionParams } from '../shader-mount';
-import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing';
-import { declarePI, declareRotate, colorBandingFix } from '../shader-utils';
+import type { vec4 } from '../types.js';
+import type { ShaderMotionParams } from '../shader-mount.js';
+import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
+import { declarePI, declareRotate, colorBandingFix } from '../shader-utils.js';
 
 export const meshGradientMeta = {
   maxColorCount: 10,
@@ -69,14 +69,14 @@ void main() {
   vec3 color = vec3(0.);
   float opacity = 0.;
   float totalWeight = 0.;
-  
+
   for (int i = 0; i < ${meshGradientMeta.maxColorCount}; i++) {
     if (i >= int(u_colorsCount)) break;
-    
+
     vec2 pos = getPosition(i, t);
     vec3 colorFraction = u_colors[i].rgb * u_colors[i].a;
     float opacityFraction = u_colors[i].a;
-      
+
     float dist = 0.;
     if (mod(float(i), 2.) > 1.) {
       dist = length(shape_uv - pos);
@@ -93,7 +93,7 @@ void main() {
 
   color /= totalWeight;
   opacity /= totalWeight;
-  
+
   ${colorBandingFix}
 
   fragColor = vec4(color, opacity);
