@@ -340,6 +340,9 @@ export class ShaderMount {
       null
     );
 
+    // Bind framebuffer before attaching texture
+    this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, this.framebuffer);
+
     // Attach texture to framebuffer
     this.gl.framebufferTexture2D(
       this.gl.FRAMEBUFFER,
