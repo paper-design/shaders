@@ -1,6 +1,6 @@
 import { memo } from 'react';
-import { ShaderMount, type ShaderComponentProps } from '../shader-mount';
-import { colorPropsAreEqual } from '../color-props-are-equal';
+import { ShaderMount, type ShaderComponentProps } from '../shader-mount.js';
+import { colorPropsAreEqual } from '../color-props-are-equal.js';
 import {
   defaultPatternSizing,
   getShaderColorFromString,
@@ -16,21 +16,15 @@ export interface WarpProps extends ShaderComponentProps, WarpParams {}
 
 type WarpPreset = ShaderPreset<WarpParams>;
 
-// Due to Leva controls limitation:
-// 1) keep default colors in HSLA format to keep alpha channel
-// 2) don't use decimal values on HSL values (to avoid button highlight bug)
-
 export const defaultPreset: WarpPreset = {
   name: 'Default',
   params: {
     ...defaultPatternSizing,
     rotation: 0,
-    speed: 0.1,
+    speed: 1,
     frame: 0,
-    color1: 'hsla(0, 0%, 15%, 1)',
-    color2: 'hsla(203, 80%, 70%, 1)',
-    color3: 'hsla(0, 0%, 100%, 1)',
-    proportion: 0.35,
+    colors: ['#262626', '#2e383d', '#64a5ce', '#ffffff'],
+    proportion: 0.45,
     softness: 1,
     distortion: 0.25,
     swirl: 0.8,
@@ -40,45 +34,139 @@ export const defaultPreset: WarpPreset = {
   },
 };
 
-export const presetCauldron: WarpPreset = {
-  name: 'Cauldron Pot',
+export const presetAbyss: WarpPreset = {
+  name: 'The Abyss',
   params: {
     ...defaultPatternSizing,
-    scale: 1 / 1.1,
-    rotation: 1.62,
-    speed: 1,
+    scale: 3,
+    rotation: 2,
+    speed: 0.6,
     frame: 0,
-    color1: 'hsla(100, 51%, 75%, 1)',
-    color2: 'hsla(220, 39%, 32%, 1)',
-    color3: 'hsla(129.2, 41.9%, 6.1%, 1)',
-    proportion: 0.64,
-    softness: 0.95,
-    distortion: 0.2,
-    swirl: 0.86,
-    swirlIterations: 7,
-    shapeScale: 0,
+    colors: ['#15122e', '#7b89f2', '#ffffff'],
+    proportion: 0,
+    softness: 1,
+    distortion: 0.09,
+    swirl: 0.48,
+    swirlIterations: 5,
+    shapeScale: 0.85,
     shape: 'edge',
   },
 };
 
-export const presetSilk: WarpPreset = {
-  name: 'Silk',
+export const presetCauldron: WarpPreset = {
+  name: 'Cauldron Pot',
   params: {
     ...defaultPatternSizing,
-    scale: 1 / 0.26,
-    rotation: 0,
+    scale: 0.9,
+    rotation: 160,
+    speed: 20,
+    frame: 0,
+    colors: ['#a7e58b', '#324472', '#0a180d'],
+    proportion: 0.64,
+    softness: 1.5,
+    distortion: 0.2,
+    swirl: 0.86,
+    swirlIterations: 7,
+    shapeScale: 0.6,
+    shape: 'edge',
+  },
+};
+
+export const presetFilteredLight: WarpPreset = {
+  name: 'Filtered Light',
+  params: {
+    ...defaultPatternSizing,
+    scale: 0.3,
+    rotation: 45,
+    speed: 3.2,
+    frame: 0,
+    colors: ['#171714', '#d4d8be', '#f9f9e0'],
+    proportion: 0.4,
+    softness: 1,
+    distortion: 0.09,
+    swirl: 0.1,
+    swirlIterations: 0,
+    shapeScale: 0.1,
+    shape: 'stripes',
+  },
+};
+
+export const presetIceberg: WarpPreset = {
+  name: 'Iceberg',
+  params: {
+    ...defaultPatternSizing,
+    scale: 0.8,
+    rotation: 190,
+    offsetX: 0.3,
     speed: 0.5,
     frame: 0,
-    color1: 'hsla(0, 9%, 7%, 1)',
-    color2: 'hsla(8, 13%, 34%, 1)',
-    color3: 'hsla(5, 8%, 71%, 1)',
-    proportion: 0,
-    softness: 1,
-    distortion: 0.3,
-    swirl: 0.6,
-    swirlIterations: 11,
-    shapeScale: 0.05,
+    colors: ['#ffffff', '#324771', '#0a180d'],
+    proportion: 0.3,
+    softness: 1.2,
+    distortion: 0.2,
+    swirl: 0.86,
+    swirlIterations: 7,
+    shapeScale: 0,
+    shape: 'checks',
+  },
+};
+
+export const presetInk: WarpPreset = {
+  name: 'Live Ink',
+  params: {
+    ...defaultPatternSizing,
+    scale: 1.2,
+    rotation: 44,
+    offsetY: -0.3,
+    speed: 10,
+    frame: 0,
+    colors: ['#111314', '#9faeab', '#f3fee7', '#f3fee7'],
+    proportion: 0.05,
+    softness: 0,
+    distortion: 0.25,
+    swirl: 0.8,
+    swirlIterations: 10,
+    shapeScale: 0.28,
+    shape: 'checks',
+  },
+};
+
+export const presetKelp: WarpPreset = {
+  name: 'Kelp',
+  params: {
+    ...defaultPatternSizing,
+    scale: 0.65,
+    rotation: 50,
+    speed: 80,
+    frame: 0,
+    colors: ['#dbff8f', '#404f3e', '#091316'],
+    proportion: 0.67,
+    softness: 0.05,
+    distortion: 0,
+    swirl: 0.15,
+    swirlIterations: 0,
+    shapeScale: 0.74,
     shape: 'stripes',
+  },
+};
+
+export const presetNectar: WarpPreset = {
+  name: 'Nectar',
+  params: {
+    ...defaultPatternSizing,
+    scale: 2,
+    offsetY: 0.6,
+    rotation: 0,
+    speed: 30,
+    frame: 0,
+    colors: ['#151310', '#d3a86b', '#f0edea'],
+    proportion: 0.24,
+    softness: 1,
+    distortion: 0.21,
+    swirl: 0.57,
+    swirlIterations: 10,
+    shapeScale: 0.75,
+    shape: 'edge',
   },
 };
 
@@ -86,13 +174,11 @@ export const presetPassion: WarpPreset = {
   name: 'Passion',
   params: {
     ...defaultPatternSizing,
-    scale: 1 / 0.25,
+    scale: 2.5,
     rotation: 1.35,
-    speed: 0.3,
+    speed: 15,
     frame: 0,
-    color1: 'hsla(0, 44.7%, 14.9%, 1)',
-    color2: 'hsla(353.4, 34%, 42.2%, 1)',
-    color3: 'hsla(29, 100%, 76.1%, 1)',
+    colors: ['#3b1515', '#954751', '#ffc085'],
     proportion: 0.5,
     softness: 1,
     distortion: 0.09,
@@ -107,16 +193,15 @@ export const presetPhantom: WarpPreset = {
   name: 'Phantom',
   params: {
     ...defaultPatternSizing,
-    scale: 1 / 0.68,
-    rotation: 1.8,
-    speed: 1.25,
+    scale: 1.2,
+    rotation: 180,
+    offsetY: -0.2,
+    speed: 30,
     frame: 0,
-    color1: 'hsla(242.2, 44.3%, 12%, 1)',
-    color2: 'hsla(236.1, 80.4%, 70%, 1)',
-    color3: 'hsla(0, 0%, 100%, 1)',
-    proportion: 0.45,
+    colors: ['#12112c', '#7b89f2', '#d7dcfb'],
+    proportion: 0.5,
     softness: 1,
-    distortion: 0.16,
+    distortion: 0.2,
     swirl: 0.3,
     swirlIterations: 7,
     shapeScale: 0.1,
@@ -124,128 +209,21 @@ export const presetPhantom: WarpPreset = {
   },
 };
 
-export const presetAbyss: WarpPreset = {
-  name: 'The Abyss',
-  params: {
-    ...defaultPatternSizing,
-    scale: 1 / 0.1,
-    rotation: 2,
-    speed: 0.06,
-    frame: 0,
-    color1: 'hsla(242.2, 44.3%, 12%, 1)',
-    color2: 'hsla(236.1, 80.4%, 70%, 1)',
-    color3: 'hsla(0, 0%, 100%, 1)',
-    proportion: 0,
-    softness: 1,
-    distortion: 0.09,
-    swirl: 0.48,
-    swirlIterations: 4,
-    shapeScale: 0.1,
-    shape: 'edge',
-  },
-};
-
-export const presetInk: WarpPreset = {
-  name: 'Live Ink',
-  params: {
-    ...defaultPatternSizing,
-    scale: 1 / 0.7,
-    rotation: 1.5,
-    speed: 0.25,
-    frame: 0,
-    color1: 'hsla(210, 11.1%, 7.1%, 1)',
-    color2: 'hsla(165, 9%, 65.1%, 1)',
-    color3: 'hsla(84, 100%, 97.1%, 1)',
-    proportion: 0.35,
-    softness: 0,
-    distortion: 0.25,
-    swirl: 0.8,
-    swirlIterations: 10,
-    shapeScale: 0.26,
-    shape: 'checks',
-  },
-};
-
-export const presetIceberg: WarpPreset = {
-  name: 'Iceberg',
-  params: {
-    ...defaultPatternSizing,
-    scale: 1 / 1.1,
-    rotation: 2,
-    speed: 0.05,
-    frame: 0,
-    color1: 'hsla(0, 0%, 100%, 1)',
-    color2: 'hsla(220, 38.7%, 32%, 1)',
-    color3: 'hsla(129.2, 41.9%, 6.1%, 1)',
-    proportion: 0.3,
-    softness: 1,
-    distortion: 0.2,
-    swirl: 0.86,
-    swirlIterations: 7,
-    shapeScale: 0,
-    shape: 'checks',
-  },
-};
-
-export const presetNectar: WarpPreset = {
-  name: 'Nectar',
-  params: {
-    ...defaultPatternSizing,
-    scale: 1 / 0.24,
-    rotation: 0,
-    speed: 0.42,
-    frame: 0,
-    color1: 'hsla(37.5, 22.2%, 7.1%, 1)',
-    color2: 'hsla(38.5, 59.1%, 63.1%, 1)',
-    color3: 'hsla(37.6, 30%, 95.2%, 1)',
-    proportion: 0.24,
-    softness: 1,
-    distortion: 0.21,
-    swirl: 0.57,
-    swirlIterations: 10,
-    shapeScale: 0.32,
-    shape: 'edge',
-  },
-};
-
-export const presetFilteredLight: WarpPreset = {
-  name: 'Filtered Light',
+export const presetSilk: WarpPreset = {
+  name: 'Silk',
   params: {
     ...defaultPatternSizing,
     scale: 2,
-    rotation: 0.44,
-    speed: 0.32,
+    rotation: 0,
+    speed: 5,
     frame: 0,
-    color1: 'hsla(60.2, 7.8%, 8.3%, 1)',
-    color2: 'hsla(64.4, 27.8%, 81%, 1)',
-    color3: 'hsla(60, 100%, 93.9%, 1)',
-    proportion: 0.25,
+    colors: ['#141111', '#665551', '#baaea9'],
+    proportion: 0,
     softness: 1,
-    distortion: 0.06,
-    swirl: 0,
-    swirlIterations: 0,
-    shapeScale: 0,
-    shape: 'stripes',
-  },
-};
-
-export const presetKelp: WarpPreset = {
-  name: 'Kelp',
-  params: {
-    ...defaultPatternSizing,
-    scale: 0.38,
-    rotation: 0.6,
-    speed: 2,
-    frame: 0,
-    color1: 'hsla(79.3, 100%, 78%, 1)',
-    color2: 'hsla(112, 10.5%, 28%, 1)',
-    color3: 'hsla(203.3, 50%, 7.1%, 1)',
-    proportion: 1,
-    softness: 0,
-    distortion: 0,
-    swirl: 0.15,
-    swirlIterations: 0,
-    shapeScale: 0.74,
+    distortion: 0.3,
+    swirl: 0.6,
+    swirlIterations: 11,
+    shapeScale: 0.25,
     shape: 'stripes',
   },
 };
@@ -268,9 +246,7 @@ export const Warp: React.FC<WarpProps> = memo(function WarpImpl({
   // Own props
   speed = defaultPreset.params.speed,
   frame = defaultPreset.params.frame,
-  color1 = defaultPreset.params.color1,
-  color2 = defaultPreset.params.color2,
-  color3 = defaultPreset.params.color3,
+  colors = defaultPreset.params.colors,
   proportion = defaultPreset.params.proportion,
   softness = defaultPreset.params.softness,
   distortion = defaultPreset.params.distortion,
@@ -293,9 +269,8 @@ export const Warp: React.FC<WarpProps> = memo(function WarpImpl({
 }: WarpProps) {
   const uniforms = {
     // Own uniforms
-    u_color1: getShaderColorFromString(color1),
-    u_color2: getShaderColorFromString(color2),
-    u_color3: getShaderColorFromString(color3),
+    u_colors: colors.map(getShaderColorFromString),
+    u_colorsCount: colors.length,
     u_proportion: proportion,
     u_softness: softness,
     u_distortion: distortion,

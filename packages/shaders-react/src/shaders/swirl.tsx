@@ -1,5 +1,5 @@
 import { memo } from 'react';
-import { ShaderMount, type ShaderComponentProps } from '../shader-mount';
+import { ShaderMount, type ShaderComponentProps } from '../shader-mount.js';
 import {
   defaultObjectSizing,
   getShaderColorFromString,
@@ -9,15 +9,11 @@ import {
   type SwirlParams,
   type SwirlUniforms,
 } from '@paper-design/shaders';
-import { colorPropsAreEqual } from '../color-props-are-equal';
+import { colorPropsAreEqual } from '../color-props-are-equal.js';
 
 export interface SwirlProps extends ShaderComponentProps, SwirlParams {}
 
 type SwirlPreset = ShaderPreset<SwirlParams>;
-
-// Due to Leva controls limitation:
-// 1) keep default colors in HSLA format to keep alpha channel
-// 2) don't use decimal values on HSL values (to avoid button highmidIntensity bug)
 
 export const defaultPreset: SwirlPreset = {
   name: 'Default',
@@ -28,11 +24,12 @@ export const defaultPreset: SwirlPreset = {
     offsetY: 0.3,
     speed: 0.32,
     frame: 0,
-    colors: ['hsla(0, 29%, 20%, 1)', 'hsla(105, 93%, 27%, 1)', 'hsla(43, 100%, 76%, 1)', 'hsla(351, 100%, 60%, 1)'],
+    colorBack: '#452424',
+    colors: ['#0b7f05', '#ffe785', '#ff335c'],
     bandCount: 5,
     twist: 0.11,
     softness: 0.01,
-    noiseFreq: 1.2,
+    noiseFrequency: 1.2,
     noisePower: 0.46,
   },
 };
@@ -45,18 +42,12 @@ export const openingPreset: SwirlPreset = {
     offsetY: 0.86,
     speed: 0.6,
     frame: 0,
-    colors: [
-      'hsla(330, 49%, 36%, 1)',
-      'hsla(336, 47%, 50%, 1)',
-      'hsla(6, 72%, 66%, 1)',
-      'hsla(20, 100%, 68%, 1)',
-      'hsla(45, 100%, 68%, 1)',
-      'hsla(60, 94%, 75%, 1)',
-    ],
+    colorBack: '#8b2e5f',
+    colors: ['#b14467', '#e67a62', '#ff715c', '#ffc55c', '#f9f97c'],
     bandCount: 3,
     twist: 0.3,
     softness: 0,
-    noiseFreq: 2,
+    noiseFrequency: 2,
     noisePower: 0,
   },
 } as const;
@@ -67,11 +58,12 @@ export const jamesBondPreset: SwirlPreset = {
     ...defaultObjectSizing,
     speed: 1,
     frame: 0,
-    colors: ['hsla(0, 0%, 0%, 1)', 'hsla(0, 0%, 18%, 1)', 'hsla(0, 0%, 0%, 1)', 'hsla(0, 0%, 100%, 1)'],
+    colorBack: '#000000',
+    colors: ['#2e2e2e', '#000000', '#ffffff'],
     bandCount: 4,
     twist: 0.4,
     softness: 0,
-    noiseFreq: 0,
+    noiseFrequency: 0,
     noisePower: 0,
   },
 } as const;
@@ -82,11 +74,12 @@ export const candyPreset: SwirlPreset = {
     ...defaultObjectSizing,
     speed: 1,
     frame: 0,
-    colors: ['hsla(45, 100%, 70%, 1)', 'hsla(200, 80%, 65%, 1)', 'hsla(280, 90%, 60%, 1)'],
+    colorBack: '#ffcd66',
+    colors: ['#6bbceb', '#8a1fff'],
     bandCount: 2.5,
     twist: 0.2,
     softness: 1,
-    noiseFreq: 0,
+    noiseFrequency: 0,
     noisePower: 0,
   },
 } as const;
@@ -97,11 +90,12 @@ export const Swirl: React.FC<SwirlProps> = memo(function SwirlImpl({
   // Own props
   speed = defaultPreset.params.speed,
   frame = defaultPreset.params.frame,
+  colorBack = defaultPreset.params.colorBack,
   colors = defaultPreset.params.colors,
   bandCount = defaultPreset.params.bandCount,
   twist = defaultPreset.params.twist,
   softness = defaultPreset.params.softness,
-  noiseFreq = defaultPreset.params.noiseFreq,
+  noiseFrequency = defaultPreset.params.noiseFrequency,
   noisePower = defaultPreset.params.noisePower,
 
   // Sizing props
@@ -118,12 +112,13 @@ export const Swirl: React.FC<SwirlProps> = memo(function SwirlImpl({
 }: SwirlProps) {
   const uniforms = {
     // Own uniforms
+    u_colorBack: getShaderColorFromString(colorBack),
     u_colors: colors.map(getShaderColorFromString),
     u_colorsCount: colors.length,
     u_bandCount: bandCount,
     u_twist: twist,
     u_softness: softness,
-    u_noiseFreq: noiseFreq,
+    u_noiseFrequency: noiseFrequency,
     u_noisePower: noisePower,
 
     // Sizing uniforms

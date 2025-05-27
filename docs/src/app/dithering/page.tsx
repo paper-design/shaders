@@ -1,6 +1,6 @@
 'use client';
 
-import { Dithering, type DitheringParams, ditheringPresets } from '@paper-design/shaders-react';
+import { Dithering, ditheringPresets } from '@paper-design/shaders-react';
 
 import { useControls, button, folder } from 'leva';
 import { setParamsSafe, useResetLevaParams } from '@/helpers/use-reset-leva-params';
@@ -8,14 +8,21 @@ import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import Link from 'next/link';
 import { BackButton } from '@/components/back-button';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
-import { ShaderFitOptions } from '@paper-design/shaders';
+import {
+  DitheringShape,
+  DitheringShapes,
+  DitheringType,
+  DitheringTypes,
+  ShaderFitOptions,
+} from '@paper-design/shaders';
 import { ShaderFit } from '@paper-design/shaders';
+import { toHsla } from '@/helpers/to-hsla';
 
 /**
  * You can copy/paste this example to use Dithering in your app
  */
 const DitheringExample = () => {
-  return <Dithering color1="#56758f" color2="#91be6f" style={{ position: 'fixed', width: '100%', height: '100%' }} />;
+  return <Dithering style={{ position: 'fixed', width: '100%', height: '100%' }} />;
 };
 
 /**
@@ -35,12 +42,11 @@ const DitheringWithControls = () => {
     return {
       Parameters: folder(
         {
-          color1: { value: defaults.color1, order: 100 },
-          color2: { value: defaults.color2, order: 101 },
-          shape: { value: defaults.shape, min: 1, max: 7, step: 1, order: 200 },
-          type: { value: defaults.type, min: 1, max: 4, step: 1, order: 250 },
-          pxRounded: { value: defaults.pxRounded, order: 251 },
-          pxSize: { value: defaults.pxSize, min: 1, max: 20, order: 252 },
+          colorBack: { value: toHsla(defaults.colorBack), order: 100 },
+          colorFront: { value: toHsla(defaults.colorFront), order: 101 },
+          shape: { value: defaults.shape, options: Object.keys(DitheringShapes) as DitheringShape[], order: 102 },
+          type: { value: defaults.type, options: Object.keys(DitheringTypes) as DitheringType[], order: 103 },
+          pxSize: { value: defaults.pxSize, min: 1, max: 20, order: 104 },
           speed: { value: defaults.speed, min: 0, max: 2, order: 400 },
         },
         { order: 1 }
@@ -60,8 +66,8 @@ const DitheringWithControls = () => {
       Fit: folder(
         {
           fit: { value: defaults.fit, options: Object.keys(ShaderFitOptions) as ShaderFit[], order: 404 },
-          worldWidth: { value: 1000, min: 1, max: 5120, order: 405 },
-          worldHeight: { value: 500, min: 1, max: 5120, order: 406 },
+          worldWidth: { value: 1000, min: 0, max: 5120, order: 405 },
+          worldHeight: { value: 500, min: 0, max: 5120, order: 406 },
           originX: { value: defaults.originX, min: 0, max: 1, order: 407 },
           originY: { value: defaults.originY, min: 0, max: 1, order: 408 },
         },
@@ -75,7 +81,7 @@ const DitheringWithControls = () => {
   });
 
   // Reset to defaults on mount, so that Leva doesn't show values from other
-  // shaders when navigating (if two shaders have a color1 param for example)
+  // shaders when navigating (if two shaders have a colorBack param for example)
   useResetLevaParams(params, setParams, defaults);
   usePresetHighlight(ditheringPresets, params);
   cleanUpLevaParams(params);

@@ -8,7 +8,7 @@ import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import Link from 'next/link';
 import { BackButton } from '@/components/back-button';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
-import { simplexNoiseMeta, ShaderFit, ShaderFitOptions, meshGradientMeta } from '@paper-design/shaders';
+import { simplexNoiseMeta, ShaderFit, ShaderFitOptions } from '@paper-design/shaders';
 import { useColors } from '@/helpers/use-colors';
 
 /**
@@ -55,8 +55,8 @@ const SimplexNoiseWithControls = () => {
       Fit: folder(
         {
           fit: { value: defaults.fit, options: Object.keys(ShaderFitOptions) as ShaderFit[], order: 404 },
-          worldWidth: { value: 1000, min: 1, max: 5120, order: 405 },
-          worldHeight: { value: 500, min: 1, max: 5120, order: 406 },
+          worldWidth: { value: 1000, min: 0, max: 5120, order: 405 },
+          worldHeight: { value: 500, min: 0, max: 5120, order: 406 },
           originX: { value: defaults.originX, min: 0, max: 1, order: 407 },
           originY: { value: defaults.originY, min: 0, max: 1, order: 408 },
         },

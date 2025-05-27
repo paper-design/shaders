@@ -1,6 +1,6 @@
 import { memo } from 'react';
-import { ShaderMount, type ShaderComponentProps } from '../shader-mount';
-import { colorPropsAreEqual } from '../color-props-are-equal';
+import { ShaderMount, type ShaderComponentProps } from '../shader-mount.js';
+import { colorPropsAreEqual } from '../color-props-are-equal.js';
 import {
   defaultPatternSizing,
   getShaderColorFromString,
@@ -15,23 +15,19 @@ export interface WavesProps extends ShaderComponentProps, WavesParams {}
 
 type WavesPreset = ShaderPreset<WavesParams>;
 
-// Due to Leva controls limitation:
-// 1) keep default colors in HSLA format to keep alpha channel
-// 2) don't use decimal values on HSL values (to avoid button highlight bug)
-
 export const defaultPreset: WavesPreset = {
   name: 'Default',
   params: {
     ...defaultPatternSizing,
     scale: 1.6,
     rotation: 0,
-    color1: 'hsla(0, 0%, 100%, 1)',
-    color2: 'hsla(225, 75%, 24%, 1)',
+    colorFront: '#ffffff',
+    colorBack: '#102c70',
     shape: 0,
     frequency: 0.5,
     amplitude: 0.6,
     spacing: 0.65,
-    dutyCycle: 0.15,
+    proportion: 0.15,
     softness: 0,
   },
 };
@@ -42,13 +38,13 @@ export const spikesPreset: WavesPreset = {
     ...defaultPatternSizing,
     scale: 1 / 2.3,
     rotation: 0,
-    color1: 'hsla(65, 100%, 95%, 1)',
-    color2: 'hsla(290, 52%, 15%, 1)',
+    colorFront: '#fdffe6',
+    colorBack: '#34123b',
     shape: 0,
     frequency: 0.5,
     amplitude: 0.9,
     spacing: 0.37,
-    dutyCycle: 0.93,
+    proportion: 0.93,
     softness: 0.15,
   },
 };
@@ -59,13 +55,13 @@ export const groovyPreset: WavesPreset = {
     ...defaultPatternSizing,
     scale: 1 / 0.5,
     rotation: 1,
-    color1: 'hsla(60, 100%, 97%, 1)',
-    color2: 'hsla(20, 100%, 71%, 1)',
+    colorFront: '#fcfcee',
+    colorBack: '#ff896b',
     shape: 2.37,
     frequency: 0.2,
     amplitude: 0.67,
     spacing: 1.17,
-    dutyCycle: 0.57,
+    proportion: 0.57,
     softness: 0,
   },
 };
@@ -76,13 +72,13 @@ export const tangledUpPreset: WavesPreset = {
     ...defaultPatternSizing,
     scale: 1 / 3.04,
     rotation: 1,
-    color1: 'hsla(198.7, 66.7%, 14.1%, 1)',
-    color2: 'hsla(85.5, 35.7%, 78%, 1)',
+    colorFront: '#133a41',
+    colorBack: '#c2d8b6',
     shape: 3,
     frequency: 0.44,
     amplitude: 0.57,
     spacing: 1.05,
-    dutyCycle: 0.97,
+    proportion: 0.97,
     softness: 0,
   },
 };
@@ -93,13 +89,13 @@ export const zigZagPreset: WavesPreset = {
     ...defaultPatternSizing,
     scale: 1 / 2.7,
     rotation: 1,
-    color1: 'hsla(0, 0%, 0%, 1)',
-    color2: 'hsla(0, 0%, 90%, 1)',
+    colorFront: '#000000',
+    colorBack: '#e6e6e6',
     shape: 0,
     frequency: 0.6,
     amplitude: 0.8,
     spacing: 0.5,
-    dutyCycle: 1,
+    proportion: 1,
     softness: 0.5,
   },
 };
@@ -110,13 +106,13 @@ export const waveRidePreset: WavesPreset = {
     ...defaultPatternSizing,
     scale: 1 / 0.84,
     rotation: 0,
-    color1: 'hsla(65, 100%, 95%, 1)',
-    color2: 'hsla(0, 0%, 12%, 1)',
+    colorFront: '#fdffe6',
+    colorBack: '#1f1f1f',
     shape: 2.23,
     frequency: 0.1,
     amplitude: 0.6,
     spacing: 0.41,
-    dutyCycle: 0.99,
+    proportion: 0.99,
     softness: 0,
   },
 };
@@ -132,13 +128,13 @@ export const wavesPresets: WavesPreset[] = [
 
 export const Waves: React.FC<WavesProps> = memo(function WavesImpl({
   // Own props
-  color1 = defaultPreset.params.color1,
-  color2 = defaultPreset.params.color2,
+  colorFront = defaultPreset.params.colorFront,
+  colorBack = defaultPreset.params.colorBack,
   shape = defaultPreset.params.shape,
   frequency = defaultPreset.params.frequency,
   amplitude = defaultPreset.params.amplitude,
   spacing = defaultPreset.params.spacing,
-  dutyCycle = defaultPreset.params.dutyCycle,
+  proportion = defaultPreset.params.proportion,
   softness = defaultPreset.params.softness,
 
   // Sizing props
@@ -158,13 +154,13 @@ export const Waves: React.FC<WavesProps> = memo(function WavesImpl({
 }: WavesProps) {
   const uniforms = {
     // Own uniforms
-    u_color1: getShaderColorFromString(color1),
-    u_color2: getShaderColorFromString(color2),
+    u_colorFront: getShaderColorFromString(colorFront),
+    u_colorBack: getShaderColorFromString(colorBack),
     u_shape: shape,
     u_frequency: frequency,
     u_amplitude: amplitude,
     u_spacing: spacing,
-    u_dutyCycle: dutyCycle,
+    u_proportion: proportion,
     u_softness: softness,
 
     // Sizing uniforms

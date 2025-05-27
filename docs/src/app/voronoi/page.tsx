@@ -9,6 +9,7 @@ import { voronoiMeta, ShaderFitOptions, ShaderFit } from '@paper-design/shaders'
 import { useControls, button, folder } from 'leva';
 import Link from 'next/link';
 import { useColors } from '@/helpers/use-colors';
+import { toHsla } from '@/helpers/to-hsla';
 
 /**
  * You can copy/paste this example to use Voronoi in your app
@@ -34,11 +35,11 @@ const VoronoiWithControls = () => {
       Parameters: folder(
         {
           stepsPerColor: { value: defaults.stepsPerColor, min: 1, max: 3, step: 1, order: 200 },
-          colorGlow: { value: defaults.colorGlow, order: 201 },
-          colorBack: { value: defaults.colorBack, order: 202 },
+          colorGlow: { value: toHsla(defaults.colorGlow), order: 201 },
+          colorGap: { value: toHsla(defaults.colorGap), order: 202 },
           distortion: { value: defaults.distortion, min: 0, max: 0.5, order: 300 },
           gap: { value: defaults.gap, min: 0, max: 0.1, order: 301 },
-          innerGlow: { value: defaults.innerGlow, min: 0, max: 1, order: 303 },
+          glow: { value: defaults.glow, min: 0, max: 1, order: 303 },
           speed: { value: defaults.speed, min: 0, max: 1, order: 400 },
         },
         { order: 1 }
@@ -58,8 +59,8 @@ const VoronoiWithControls = () => {
       Fit: folder(
         {
           fit: { value: defaults.fit, options: Object.keys(ShaderFitOptions) as ShaderFit[], order: 404 },
-          worldWidth: { value: 1000, min: 1, max: 5120, order: 405 },
-          worldHeight: { value: 500, min: 1, max: 5120, order: 406 },
+          worldWidth: { value: 1000, min: 0, max: 5120, order: 405 },
+          worldHeight: { value: 500, min: 0, max: 5120, order: 406 },
           originX: { value: defaults.originX, min: 0, max: 1, order: 407 },
           originY: { value: defaults.originY, min: 0, max: 1, order: 408 },
         },

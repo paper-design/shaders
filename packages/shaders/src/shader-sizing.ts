@@ -1,3 +1,40 @@
+/*
+ ===================================================================
+ The space coordinates passed from the vertex shader.
+
+ `sizingVariablesDeclaration` must be included in every fragment
+ shader—unless we want to apply sizing to the coordinates directly
+ in the fragment shader.
+
+ So far, the only exception is when we need to apply pixelization
+ before sizing (e.g., to make dithering pixels independent of sizing).
+*/
+export const sizingVariablesDeclaration = `
+in vec2 v_objectUV;
+in vec2 v_responsiveUV;
+in vec2 v_responsiveBoxGivenSize;
+in vec2 v_patternUV;`;
+
+/*
+ ===================================================================
+ Additional variables used only for drawing a sizing overlay.
+*/
+export const sizingDebugVariablesDeclaration = `
+in vec2 v_objectBoxSize;
+in vec2 v_objectHelperBox;
+in vec2 v_responsiveBoxSize;
+in vec2 v_responsiveHelperBox;
+in vec2 v_patternBoxSize;
+in vec2 v_patternHelperBox;`;
+
+/*
+ ===================================================================
+ In most cases, sizing UNIFORMS are used only in the vertex shader.
+ But there are cases where we need to pass them to the fragment shader
+ as well:
+  - dithering pixelization where all the sizing happens in fragment
+  - drawing the sizing helpers
+*/
 export const sizingUniformsDeclaration = `
 uniform float u_originX;
 uniform float u_originY;
@@ -10,261 +47,150 @@ uniform float u_rotation;
 uniform float u_offsetX;
 uniform float u_offsetY;`;
 
-export const sizingVariablesDeclaration = `
-in vec2 v_objectUV;
-in vec2 v_patternUV;`;
+/*
+ ===================================================================
+ In most cases, sizing TRANSFORMS are applied in the vertex shader.
+ For exceptions (e.g., dithering pixelization), the operations below
+ need to be included in the fragment shader instead.
 
-export const sizingDebugVariablesDeclaration = `
-in vec2 v_objectWorld;
-in vec2 v_patternWorld;
-in vec2 v_objectWorldBox;
-in vec2 v_patternWorldBox;`;
-
+ Currently, only `objectUV` and `patternUV` are supported.
+ The transforms are identical to those in the vertex shader,
+ except for the `USE_PIXELIZATION` part.
+*/
 export const sizingUV = `
 
-  // ===================================================
-  // uv before sizing
-  
   vec2 uv = gl_FragCoord.xy / u_resolution.xy;
   #ifdef USE_PIXELIZATION
     float pxSize = u_pxSize * u_pixelRatio;
     vec2 pxSizeUv = gl_FragCoord.xy;
     pxSizeUv -= .5 * u_resolution;
     pxSizeUv /= pxSize;
-    vec2 roundedUv = floor(pxSizeUv) * pxSize / u_resolution.xy;    
-    roundedUv += .5;
-    if (u_pxRounded == true) {
-      uv = roundedUv;
-    }  
+    uv = floor(pxSizeUv) * pxSize / u_resolution.xy;    
+    uv += .5;
   #endif
   uv -= .5;
-  
-  // ===================================================
-  
-  
+
   
   // ===================================================
   // sizing params shared between objects and patterns
   
-  vec2 worldOrigin = vec2(.5 - u_originX, u_originY - .5);
-  vec2 worldSize = vec2(u_worldWidth, u_worldHeight);
-  worldSize = max(worldSize, vec2(1.)) * u_pixelRatio;
-  float maxWidth = max(u_resolution.x, worldSize.x);
-  float maxHeight = max(u_resolution.y, worldSize.y);
-  float rotationRad = u_rotation * 3.14159265358979323846 / 180.;
+  vec2 boxOrigin = vec2(.5 - u_originX, u_originY - .5);
+  vec2 givenBoxSize = vec2(u_worldWidth, u_worldHeight);
+  givenBoxSize = max(givenBoxSize, vec2(1.)) * u_pixelRatio;
+  vec2 maxBoxSize = vec2(max(u_resolution.x, givenBoxSize.x), max(u_resolution.y, givenBoxSize.y));
+  float r = u_rotation * 3.14159265358979323846 / 180.;
+  mat2 graphicRotation = mat2(cos(r), sin(r), -sin(r), cos(r));
+  vec2 graphicOffset = vec2(-u_offsetX, u_offsetY);
 
-  // ===================================================
-  
-  
   
   // ===================================================
   // Sizing api for objects (graphics with fixed ratio)
 
   #ifdef USE_OBJECT_SIZING
-  
-    float objectWorldRatio = 1.;
-    vec2 objectWorld = vec2(0.);
-    objectWorld.x = objectWorldRatio * min(worldSize.x / objectWorldRatio, worldSize.y);
-    if (u_fit == 1.) {
-      // contain
-      objectWorld.x = objectWorldRatio * min(maxWidth / objectWorldRatio, maxHeight);
-    } else if (u_fit == 2.) {
-      // cover
-      objectWorld.x = objectWorldRatio * max(maxWidth / objectWorldRatio, maxHeight);
+    float fixedRatio = 1.;
+    vec2 fixedRatioBoxGivenSize = vec2(
+      (u_worldWidth == 0.) ? u_resolution.x : givenBoxSize.x,
+      (u_worldHeight == 0.) ? u_resolution.y : givenBoxSize.y
+    );
+    vec2 objectBoxSize = vec2(0.);
+    // fit = none
+    objectBoxSize.x = fixedRatio * min(fixedRatioBoxGivenSize.x / fixedRatio, fixedRatioBoxGivenSize.y);
+    if (u_fit == 1.) { // fit = contain
+      objectBoxSize.x = fixedRatio * min(maxBoxSize.x / fixedRatio, maxBoxSize.y);
+    } else if (u_fit == 2.) {  // fit = cover
+      objectBoxSize.x = fixedRatio * max(maxBoxSize.x / fixedRatio, maxBoxSize.y);
     }
-    objectWorld.y = objectWorld.x / objectWorldRatio;
-    vec2 objectWorldScale = u_resolution.xy / objectWorld;
+    objectBoxSize.y = objectBoxSize.x / fixedRatio;
+    vec2 objectWorldScale = u_resolution.xy / objectBoxSize;
   
-    #ifdef USE_SIZING_DEBUG
-      vec2 objectWorldBox = gl_FragCoord.xy / u_resolution.xy;
-      objectWorldBox -= .5;
-      objectWorldBox *= objectWorldScale;
-      objectWorldBox += worldOrigin * (objectWorldScale - 1.);  
+    #ifdef ADD_HELPERS
+      vec2 objectHelperBox = gl_FragCoord.xy / u_resolution.xy;
+      objectHelperBox -= .5;
+      objectHelperBox *= objectWorldScale;
+      objectHelperBox += boxOrigin * (objectWorldScale - 1.);  
     #endif
   
     vec2 objectUV = uv;
     objectUV *= objectWorldScale;
-    objectUV += worldOrigin * (objectWorldScale - 1.);
+    objectUV += boxOrigin * (objectWorldScale - 1.);
     objectUV += vec2(-u_offsetX, u_offsetY);
     objectUV /= u_scale;
-    objectUV = mat2(cos(rotationRad), sin(rotationRad), -sin(rotationRad), cos(rotationRad)) * objectUV;
+    objectUV = graphicRotation * objectUV;
   #endif
-
-  // ===================================================
-
-
-
   
+  // ===================================================
+ 
   // ===================================================
   // Sizing api for patterns (graphics respecting u_worldWidth / u_worldHeight ratio)
   
   #ifdef USE_PATTERN_SIZING
-  
-    float patternWorldRatio = worldSize.x / worldSize.y;
-    vec2 patternWorld = vec2(0.);
-    patternWorld.x = patternWorldRatio * min(worldSize.x / patternWorldRatio, worldSize.y);
-    float patternWorldWidthOriginal = patternWorld.x;
-    if (u_fit == 1.) {
-      // contain
-      patternWorld.x = patternWorldRatio * min(maxWidth / patternWorldRatio, maxHeight);
-    } else if (u_fit == 2.) {
-      // cover
-      patternWorld.x = patternWorldRatio * max(maxWidth / patternWorldRatio, maxHeight);
+    float patternBoxRatio = givenBoxSize.x / givenBoxSize.y;
+    vec2 patternBoxGivenSize = vec2(
+      (u_worldWidth == 0.) ? u_resolution.x : givenBoxSize.x,
+      (u_worldHeight == 0.) ? u_resolution.y : givenBoxSize.y
+    );
+    vec2 patternBoxSize = vec2(0.);
+    // fit = none
+    patternBoxSize.x = patternBoxRatio * min(patternBoxGivenSize.x / patternBoxRatio, patternBoxGivenSize.y);
+    float patternWorldNoFitBoxWidth = patternBoxSize.x;
+    if (u_fit == 1.) {  // fit = contain
+      patternBoxSize.x = patternBoxRatio * min(maxBoxSize.x / patternBoxRatio, maxBoxSize.y);
+    } else if (u_fit == 2.) {  // fit = cover
+      patternBoxSize.x = patternBoxRatio * max(maxBoxSize.x / patternBoxRatio, maxBoxSize.y);
     }
-    patternWorld.y = patternWorld.x / patternWorldRatio;
-    vec2 patternWorldScale = u_resolution.xy / patternWorld;
+    patternBoxSize.y = patternBoxSize.x / patternBoxRatio;
+    vec2 patternWorldScale = u_resolution.xy / patternBoxSize;
   
-    #ifdef USE_SIZING_DEBUG  
-      vec2 patternWorldBox = gl_FragCoord.xy / u_resolution.xy;
-      patternWorldBox -= .5;
-      patternWorldBox *= patternWorldScale;
-      patternWorldBox += worldOrigin * (patternWorldScale - 1.);  
+    #ifdef ADD_HELPERS  
+      vec2 patternHelperBox = gl_FragCoord.xy / u_resolution.xy;
+      patternHelperBox -= .5;
+      patternHelperBox *= patternWorldScale;
+      patternHelperBox += boxOrigin * (patternWorldScale - 1.);  
     #endif
   
     vec2 patternUV = uv;
     patternUV += vec2(-u_offsetX, u_offsetY) / patternWorldScale;
-    patternUV += worldOrigin;
-    patternUV -= worldOrigin / patternWorldScale;
+    patternUV += boxOrigin;
+    patternUV -= boxOrigin / patternWorldScale;
     patternUV *= u_resolution.xy;
     patternUV /= u_pixelRatio;
     if (u_fit > 0.) {
-      patternUV *= (patternWorldWidthOriginal / patternWorld.x);
+      patternUV *= (patternWorldNoFitBoxWidth / patternBoxSize.x);
     }
     patternUV /= u_scale;
-    patternUV = mat2(cos(rotationRad), sin(rotationRad), -sin(rotationRad), cos(rotationRad)) * patternUV;
-    patternUV += worldOrigin / patternWorldScale;
-    patternUV -= worldOrigin;
+    patternUV = graphicRotation * patternUV;
+    patternUV += boxOrigin / patternWorldScale;
+    patternUV -= boxOrigin;
     patternUV += .5;
   #endif
-
-  // ===================================================
-
 `;
 
-const vertexShaderWithDebugSizing = `#version 300 es
-layout(location = 0) in vec4 a_position;
+/*
+ ===================================================================
+ Helpers used to draw the sizing (box, box origin and graphic origin)
+ over the shader. Can be used with both vertex sizing and vector sizing
 
-uniform vec2 u_resolution;
-uniform float u_pixelRatio;
+ helperBox and boxSize should be defined before inserting the code
+*/
+export const drawSizingHelpers = `
+  vec2 worldBoxDist = abs(helperBox);
+  float boxStroke = (step(max(worldBoxDist.x, worldBoxDist.y), .5) - step(max(worldBoxDist.x, worldBoxDist.y), .495));
+  color.rgb = mix(color.rgb, vec3(1., 0., 0.), boxStroke);
+  opacity += boxStroke;
 
-uniform float u_originX;
-uniform float u_originY;
-uniform float u_worldWidth;
-uniform float u_worldHeight;
-uniform float u_fit;
-
-uniform float u_scale;
-uniform float u_rotation;
-uniform float u_offsetX;
-uniform float u_offsetY;
-
-uniform float u_pxSize;
-
-out vec2 v_objectUV;
-out vec2 v_patternUV;
-out vec2 v_objectWorld;
-out vec2 v_patternWorld;
-out vec2 v_objectWorldBox;
-out vec2 v_patternWorldBox;
-
-
-void main() {
-  gl_Position = a_position;
+  vec2 boxOriginCopy = vec2(.5 - u_originX, u_originY - .5);
+  vec2 boxOriginDist = helperBox + boxOriginCopy;
+  boxOriginDist.x *= (boxSize.x / boxSize.y);
+  float boxOriginPoint = 1. - smoothstep(0., .05, length(boxOriginDist));
   
-  vec2 uv = gl_Position.xy * .5;  
-
-  vec2 worldOrigin = vec2(.5 - u_originX, u_originY - .5);
-  vec2 worldSize = vec2(u_worldWidth, u_worldHeight);
-  worldSize = max(worldSize, vec2(1.)) * u_pixelRatio;
-  float maxWidth = max(u_resolution.x, worldSize.x);
-  float maxHeight = max(u_resolution.y, worldSize.y);
-  float rotationRad = u_rotation * 3.14159265358979323846 / 180.;
+  vec2 graphicOriginPointDist = helperBox + vec2(-u_offsetX, u_offsetY);
+  graphicOriginPointDist.x *= (boxSize.x / boxSize.y);
+  float graphicOriginPoint = 1. - smoothstep(0., .05, length(graphicOriginPointDist));
   
-  
-  // ===================================================
-  // Sizing api for objects (graphics with fixed ratio)
-  
-  float objectWorldRatio = 1.;
-  v_objectWorld = vec2(0.);
-  v_objectWorld.x = objectWorldRatio * min(worldSize.x / objectWorldRatio, worldSize.y);
-  if (u_fit == 1.) {
-    // contain
-    v_objectWorld.x = objectWorldRatio * min(maxWidth / objectWorldRatio, maxHeight);
-  } else if (u_fit == 2.) {
-    // cover
-    v_objectWorld.x = objectWorldRatio * max(maxWidth / objectWorldRatio, maxHeight);
-  }
-  v_objectWorld.y = v_objectWorld.x / objectWorldRatio;
-  vec2 objectWorldScale = u_resolution.xy / v_objectWorld;
-
-  v_objectWorldBox = gl_Position.xy * .5;
-  v_objectWorldBox *= objectWorldScale;
-  v_objectWorldBox += worldOrigin * (objectWorldScale - 1.);  
-  
-  v_objectUV = uv;
-  v_objectUV *= objectWorldScale;
-  v_objectUV += worldOrigin * (objectWorldScale - 1.);
-  v_objectUV += vec2(-u_offsetX, u_offsetY);
-  v_objectUV /= u_scale;
-  v_objectUV = mat2(cos(rotationRad), sin(rotationRad), -sin(rotationRad), cos(rotationRad)) * v_objectUV;
-
-  // ===================================================
-
-  
-  // ===================================================
-  // Sizing api for patterns (graphics respecting u_worldWidth / u_worldHeight ratio)
-  
-  float patternWorldRatio = worldSize.x / worldSize.y;
-  v_patternWorld = vec2(0.);
-  v_patternWorld.x = patternWorldRatio * min(worldSize.x / patternWorldRatio, worldSize.y);
-  float patternWorldWidthOriginal = v_patternWorld.x;
-  if (u_fit == 1.) {
-    // contain
-    v_patternWorld.x = patternWorldRatio * min(maxWidth / patternWorldRatio, maxHeight);
-  } else if (u_fit == 2.) {
-    // cover
-    v_patternWorld.x = patternWorldRatio * max(maxWidth / patternWorldRatio, maxHeight);
-  }
-  v_patternWorld.y = v_patternWorld.x / patternWorldRatio;
-  vec2 patternWorldScale = u_resolution.xy / v_patternWorld;
-  
-  v_patternWorldBox = gl_Position.xy * .5;
-  v_patternWorldBox *= patternWorldScale;
-  v_patternWorldBox += worldOrigin * (patternWorldScale - 1.);  
-  
-  v_patternUV = uv;
-  v_patternUV += vec2(-u_offsetX, u_offsetY) / patternWorldScale;
-  v_patternUV += worldOrigin;
-  v_patternUV -= worldOrigin / patternWorldScale;
-  v_patternUV *= u_resolution.xy;
-  v_patternUV /= u_pixelRatio;
-  if (u_fit > 0.) {
-    v_patternUV *= (patternWorldWidthOriginal / v_patternWorld.x);
-  }
-  v_patternUV /= u_scale;
-  v_patternUV = mat2(cos(rotationRad), sin(rotationRad), -sin(rotationRad), cos(rotationRad)) * v_patternUV;
-  v_patternUV += worldOrigin / patternWorldScale;
-  v_patternUV -= worldOrigin;
-  v_patternUV += .5;
-  
-  // ===================================================
-
-}`;
-
-export const worldBoxTestStroke = `
-  vec2 worldBoxDist = abs(worldBox);
-  float worldBoxTestStroke = (step(max(worldBoxDist.x, worldBoxDist.y), .5) - step(max(worldBoxDist.x, worldBoxDist.y), .49));
-`;
-
-export const viewPortTestOriginPoint = `
-  vec2 worldOriginCopy = vec2(.5 - u_originX, u_originY - .5);
-  vec2 viewPortTestOriginDist = worldBox + worldOriginCopy;
-  viewPortTestOriginDist.x *= (world.x / world.y);
-  float viewPortTestOriginPoint = 1. - smoothstep(0., .05, length(viewPortTestOriginDist));
-  
-  vec2 worldTestOriginPointDist = worldBox + vec2(-u_offsetX, u_offsetY);
-  worldTestOriginPointDist.x *= (world.x / world.y);
-  float worldTestOriginPoint = 1. - smoothstep(0., .05, length(worldTestOriginPointDist));
+  color.rgb = mix(color.rgb, vec3(0., 1., 0.), boxOriginPoint);
+  opacity += boxOriginPoint;
+  color.rgb = mix(color.rgb, vec3(0., 0., 1.), graphicOriginPoint);
+  opacity += graphicOriginPoint;
 `;
 
 export interface ShaderSizingUniforms {
@@ -299,8 +225,8 @@ export const defaultObjectSizing: Required<ShaderSizingParams> = {
   offsetY: 0,
   originX: 0.5,
   originY: 0.5,
-  worldWidth: 1,
-  worldHeight: 1,
+  worldWidth: 0,
+  worldHeight: 0,
 };
 
 export const defaultPatternSizing: Required<ShaderSizingParams> = {
@@ -311,8 +237,8 @@ export const defaultPatternSizing: Required<ShaderSizingParams> = {
   offsetY: 0,
   originX: 0.5,
   originY: 0.5,
-  worldWidth: 1,
-  worldHeight: 1,
+  worldWidth: 0,
+  worldHeight: 0,
 };
 
 export const ShaderFitOptions = {

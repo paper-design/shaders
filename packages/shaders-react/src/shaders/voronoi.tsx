@@ -1,6 +1,6 @@
 import { memo } from 'react';
-import { ShaderMount, type ShaderComponentProps } from '../shader-mount';
-import { colorPropsAreEqual } from '../color-props-are-equal';
+import { ShaderMount, type ShaderComponentProps } from '../shader-mount.js';
+import { colorPropsAreEqual } from '../color-props-are-equal.js';
 import {
   defaultPatternSizing,
   getShaderColorFromString,
@@ -16,23 +16,19 @@ export interface VoronoiProps extends ShaderComponentProps, VoronoiParams {}
 
 type VoronoiPreset = ShaderPreset<VoronoiParams>;
 
-// Due to Leva controls limitation:
-// 1) keep default colors in HSLA format to keep alpha channel
-// 2) don't use decimal values on HSL values (to avoid button highlight bug)
-
 export const defaultPreset: VoronoiPreset = {
   name: 'Default',
   params: {
     ...defaultPatternSizing,
     speed: 0.5,
     frame: 0,
-    colors: ['hsla(15, 80%, 50%, 1)', 'hsla(50, 80%, 50%, 1)', 'hsla(200, 80%, 50%, 1)'],
+    colors: ['#e65c1a', '#e6c31a', '#1aace6'],
     stepsPerColor: 1,
-    colorGlow: 'hsla(266, 100%, 50%, 1)',
-    colorBack: 'hsla(0, 0%, 100%, 1)',
+    colorGlow: '#5500ff',
+    colorGap: '#ffffff',
     distortion: 0.42,
     gap: 0.06,
-    innerGlow: 0,
+    glow: 0,
   },
 };
 
@@ -42,13 +38,13 @@ export const shadowPreset: VoronoiPreset = {
     ...defaultPatternSizing,
     speed: 0.5,
     frame: 0,
-    colors: ['hsla(259, 29%, 98%, 1)', 'hsla(48, 73%, 98%, 1)', 'hsla(295, 32%, 98%, 1)'],
+    colors: ['#faf7fe', '#fefdf7', '#fbf7fe'],
     stepsPerColor: 1,
-    colorGlow: 'hsla(290, 18%, 42%, 1)',
-    colorBack: 'hsla(0, 0%, 100%, 1)',
+    colorGlow: '#76587a',
+    colorGap: '#ffffff',
     distortion: 0.23,
     gap: 0,
-    innerGlow: 0.8,
+    glow: 0.8,
   },
 };
 
@@ -61,10 +57,10 @@ export const Voronoi: React.FC<VoronoiProps> = memo(function VoronoiImpl({
   colors = defaultPreset.params.colors,
   stepsPerColor = defaultPreset.params.stepsPerColor,
   colorGlow = defaultPreset.params.colorGlow,
-  colorBack = defaultPreset.params.colorBack,
+  colorGap = defaultPreset.params.colorGap,
   distortion = defaultPreset.params.distortion,
   gap = defaultPreset.params.gap,
-  innerGlow = defaultPreset.params.innerGlow,
+  glow = defaultPreset.params.glow,
 
   // Sizing props
   fit = defaultPreset.params.fit,
@@ -86,10 +82,10 @@ export const Voronoi: React.FC<VoronoiProps> = memo(function VoronoiImpl({
     u_colorsCount: colors.length,
     u_stepsPerColor: stepsPerColor,
     u_colorGlow: getShaderColorFromString(colorGlow),
-    u_colorBack: getShaderColorFromString(colorBack),
+    u_colorGap: getShaderColorFromString(colorGap),
     u_distortion: distortion,
     u_gap: gap,
-    u_innerGlow: innerGlow,
+    u_glow: glow,
     ...noiseTexture,
 
     // Sizing uniforms

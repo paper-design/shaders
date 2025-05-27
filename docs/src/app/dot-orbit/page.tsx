@@ -9,6 +9,7 @@ import { DotOrbit, dotOrbitPresets } from '@paper-design/shaders-react';
 import { useControls, button, folder } from 'leva';
 import Link from 'next/link';
 import { useColors } from '@/helpers/use-colors';
+import { toHsla } from '@/helpers/to-hsla';
 
 /**
  * You can copy/paste this example to use DotOrbit in your app
@@ -39,9 +40,10 @@ const DotOrbitWithControls = () => {
     return {
       Parameters: folder(
         {
-          stepsPerColor: { value: defaults.dotSize, min: 1, max: 4, step: 1, order: 200 },
-          dotSize: { value: defaults.dotSize, min: 0, max: 1, order: 300 },
-          dotSizeRange: { value: defaults.dotSizeRange, min: 0, max: 1, order: 301 },
+          colorBack: { value: toHsla(defaults.colorBack), order: 100 },
+          stepsPerColor: { value: defaults.stepsPerColor, min: 1, max: 4, step: 1, order: 200 },
+          size: { value: defaults.size, min: 0, max: 1, order: 300 },
+          sizeRange: { value: defaults.sizeRange, min: 0, max: 1, order: 301 },
           spreading: { value: defaults.spreading, min: 0, max: 1, order: 302 },
           speed: { value: defaults.speed, min: 0, max: 6, order: 400 },
         },
@@ -62,8 +64,8 @@ const DotOrbitWithControls = () => {
       Fit: folder(
         {
           fit: { value: defaults.fit, options: Object.keys(ShaderFitOptions) as ShaderFit[], order: 404 },
-          worldWidth: { value: 1000, min: 1, max: 5120, order: 405 },
-          worldHeight: { value: 500, min: 1, max: 5120, order: 406 },
+          worldWidth: { value: 1000, min: 0, max: 5120, order: 405 },
+          worldHeight: { value: 500, min: 0, max: 5120, order: 406 },
           originX: { value: defaults.originX, min: 0, max: 1, order: 407 },
           originY: { value: defaults.originY, min: 0, max: 1, order: 408 },
         },

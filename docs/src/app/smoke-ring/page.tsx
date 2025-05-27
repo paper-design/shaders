@@ -1,60 +1,53 @@
 'use client';
 
-import { SmokeRing, type SmokeRingParams, smokeRingPresets } from '@paper-design/shaders-react';
+import { SmokeRing, smokeRingPresets } from '@paper-design/shaders-react';
 import { useControls, button, folder } from 'leva';
 import { setParamsSafe, useResetLevaParams } from '@/helpers/use-reset-leva-params';
 import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import Link from 'next/link';
 import { BackButton } from '@/components/back-button';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
-import { ShaderFit, ShaderFitOptions } from '@paper-design/shaders';
+import { smokeRingMeta, ShaderFit, ShaderFitOptions } from '@paper-design/shaders';
+import { useColors } from '@/helpers/use-colors';
+import { toHsla } from '@/helpers/to-hsla';
 
 /**
  * You can copy/paste this example to use SmokeRing in your app
  */
 const SmokeRingExample = () => {
-  return (
-    <SmokeRing
-      colorBack="#000000"
-      colorInner="#ffffff"
-      colorOuter="#4f566a"
-      scale={1}
-      noiseScale={1.4}
-      thickness={0.33}
-      radius={0.5}
-      innerShape={1}
-      speed={1}
-      style={{ position: 'fixed', width: '100%', height: '100%' }}
-    />
-  );
+  return <SmokeRing style={{ position: 'fixed', width: '100%', height: '100%' }} />;
 };
 
 /**
  * This example has controls added so you can play with settings in the example app
  */
 
-const firstPresetParams = smokeRingPresets[0].params;
-const { worldWidth, worldHeight, ...defaults } = {
-  ...firstPresetParams,
-  speed: Math.abs(firstPresetParams.speed),
-  reverse: firstPresetParams.speed < 0,
-};
+const { worldWidth, worldHeight, ...defaults } = smokeRingPresets[0].params;
 
 const SmokeRingWithControls = () => {
+  const { colors, setColors } = useColors({
+    defaultColors: defaults.colors,
+    maxColorCount: smokeRingMeta.maxColorCount,
+  });
+
   const [params, setParams] = useControls(() => {
     return {
       Parameters: folder(
         {
-          colorBack: { value: defaults.colorBack, order: 100 },
-          colorInner: { value: defaults.colorInner, order: 101 },
-          colorOuter: { value: defaults.colorOuter, order: 102 },
+          colorBack: { value: toHsla(defaults.colorBack), order: 100 },
           noiseScale: { value: defaults.noiseScale, min: 0.01, max: 5, order: 300 },
-          noiseIterations: { value: defaults.noiseIterations, min: 1, max: 10, step: 1, order: 301 },
+          noiseIterations: {
+            value: defaults.noiseIterations,
+            min: 1,
+            max: smokeRingMeta.maxNoiseIterations,
+            step: 1,
+            order: 301,
+          },
           radius: { value: defaults.radius, min: 0, max: 1, order: 302 },
           thickness: { value: defaults.thickness, min: 0.01, max: 1, order: 303 },
           innerShape: { value: defaults.innerShape, min: 0, max: 4, order: 304 },
           speed: { value: defaults.speed, min: 0, max: 4, order: 400 },
-          reverse: { value: defaults.reverse, order: 401 },
+          // reverse: { value: defaults.reverse, order: 401 },
         },
         { order: 1 }
       ),
@@ -73,8 +66,8 @@ const SmokeRingWithControls = () => {
       Fit: folder(
         {
           fit: { value: defaults.fit, options: Object.keys(ShaderFitOptions) as ShaderFit[], order: 404 },
-          worldWidth: { value: 1000, min: 1, max: 5120, order: 405 },
-          worldHeight: { value: 500, min: 1, max: 5120, order: 406 },
+          worldWidth: { value: 1000, min: 0, max: 5120, order: 405 },
+          worldHeight: { value: 500, min: 0, max: 5120, order: 406 },
           originX: { value: defaults.originX, min: 0, max: 1, order: 407 },
           originY: { value: defaults.originY, min: 0, max: 1, order: 408 },
         },
@@ -91,11 +84,9 @@ const SmokeRingWithControls = () => {
       smokeRingPresets.map(({ name, params: { worldWidth, worldHeight, ...preset } }) => [
         name,
         button(() => {
-          setParamsSafe(params, setParams, {
-            ...preset,
-            speed: Math.abs(params.speed),
-            reverse: params.speed < 0,
-          });
+          const { colors, ...presetParams } = preset;
+          setColors(colors);
+          setParamsSafe(params, setParams, presetParams);
         }),
       ])
     );
@@ -110,14 +101,14 @@ const SmokeRingWithControls = () => {
   usePresetHighlight(smokeRingPresets, params);
   cleanUpLevaParams(params);
 
-  const { reverse, ...shaderParams } = { ...params, speed: params.speed * (params.reverse ? -1 : 1) };
+  // const { reverse, ...shaderParams } = { ...params, speed: params.speed * (params.reverse ? -1 : 1) };
 
   return (
     <>
       <Link href="/">
         <BackButton />
       </Link>
-      <SmokeRing className="fixed size-full" {...shaderParams} />
+      <SmokeRing {...params} colors={colors} className="fixed size-full" />
     </>
   );
 };

@@ -1,6 +1,6 @@
 import { memo } from 'react';
-import { ShaderMount, type ShaderComponentProps } from '../shader-mount';
-import { colorPropsAreEqual } from '../color-props-are-equal';
+import { ShaderMount, type ShaderComponentProps } from '../shader-mount.js';
+import { colorPropsAreEqual } from '../color-props-are-equal.js';
 import {
   getShaderColorFromString,
   dotOrbitFragmentShader,
@@ -15,21 +15,18 @@ export interface DotOrbitProps extends ShaderComponentProps, DotOrbitParams {}
 
 type DotOrbitPreset = ShaderPreset<DotOrbitParams>;
 
-// Due to Leva controls limitation:
-// 1) keep default colors in HSLA format to keep alpha channel
-// 2) don't use decimal values on HSL values (to avoid button highlight bug)
-
 export const defaultPreset: DotOrbitPreset = {
   name: 'Default',
   params: {
     ...defaultPatternSizing,
     speed: 2,
     frame: 0,
-    colors: ['hsla(200, 100%, 20%, 1)', 'hsla(290, 100%, 70%, 1)'],
-    dotSize: 1,
-    dotSizeRange: 0,
+    colorBack: '#03001f',
+    colors: ['#661400', '#ccbb00', '#cc0088'],
+    size: 0.9,
+    sizeRange: 0,
     spreading: 1,
-    stepsPerColor: 1,
+    stepsPerColor: 2,
   },
 };
 
@@ -39,9 +36,10 @@ export const DotOrbit: React.FC<DotOrbitProps> = memo(function DotOrbitImpl({
   // Own props
   speed = defaultPreset.params.speed,
   frame = defaultPreset.params.frame,
+  colorBack = defaultPreset.params.colorBack,
   colors = defaultPreset.params.colors,
-  dotSize = defaultPreset.params.dotSize,
-  dotSizeRange = defaultPreset.params.dotSizeRange,
+  size = defaultPreset.params.size,
+  sizeRange = defaultPreset.params.sizeRange,
   spreading = defaultPreset.params.spreading,
   stepsPerColor = defaultPreset.params.stepsPerColor,
 
@@ -59,10 +57,11 @@ export const DotOrbit: React.FC<DotOrbitProps> = memo(function DotOrbitImpl({
 }: DotOrbitProps) {
   const uniforms = {
     // Own uniforms
+    u_colorBack: getShaderColorFromString(colorBack),
     u_colors: colors.map(getShaderColorFromString),
     u_colorsCount: colors.length,
-    u_dotSize: dotSize,
-    u_dotSizeRange: dotSizeRange,
+    u_size: size,
+    u_sizeRange: sizeRange,
     u_spreading: spreading,
     u_stepsPerColor: stepsPerColor,
 

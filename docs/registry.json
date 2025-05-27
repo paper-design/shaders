@@ -210,6 +210,45 @@
           "type": "registry:component"
         }
       ]
+    },
+    {
+      "name": "liquid-metal",
+      "type": "registry:component",
+      "title": "Liquid Metal Example",
+      "description": "Liquid Metal shader example.",
+      "dependencies": ["@paper-design/shaders-react"],
+      "files": [
+        {
+          "path": "registry/liquid-metal-example.tsx",
+          "type": "registry:component"
+        }
+      ]
+    },
+    {
+      "name": "pulsing-border",
+      "type": "registry:component",
+      "title": "Pulsing Border Example",
+      "description": "Pulsing Border shader example.",
+      "dependencies": ["@paper-design/shaders-react"],
+      "files": [
+        {
+          "path": "registry/pulsing-border-example.tsx",
+          "type": "registry:component"
+        }
+      ]
+    },
+    {
+      "name": "color-panels",
+      "type": "registry:component",
+      "title": "Color Panels Example",
+      "description": "Color Panels shader example.",
+      "dependencies": ["@paper-design/shaders-react"],
+      "files": [
+        {
+          "path": "registry/color-panels-example.tsx",
+          "type": "registry:component"
+        }
+      ]
     }
   ]
 }

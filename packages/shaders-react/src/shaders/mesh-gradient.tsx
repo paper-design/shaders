@@ -1,6 +1,6 @@
 import { memo } from 'react';
-import { ShaderMount, type ShaderComponentProps } from '../shader-mount';
-import { colorPropsAreEqual } from '../color-props-are-equal';
+import { ShaderMount, type ShaderComponentProps } from '../shader-mount.js';
+import { colorPropsAreEqual } from '../color-props-are-equal.js';
 import {
   defaultObjectSizing,
   getShaderColorFromString,
@@ -15,17 +15,13 @@ export interface MeshGradientProps extends ShaderComponentProps, MeshGradientPar
 
 type MeshGradientPreset = ShaderPreset<MeshGradientParams>;
 
-// Due to Leva controls limitation:
-// 1) keep default colors in HSLA format to keep alpha channel
-// 2) don't use decimal values on HSL values (to avoid button highlight bug)
-
 export const defaultPreset: MeshGradientPreset = {
   name: 'Default',
   params: {
     ...defaultObjectSizing,
     speed: 1,
     frame: 40000,
-    colors: ['hsla(259, 100%, 50%, 1)', 'hsla(150, 100%, 50%, 1)', 'hsla(48, 100%, 50%, 1)', 'hsla(295, 100%, 50%, 1)'],
+    colors: ['#5100ff', '#00ff80', '#ffcc00', '#ea00ff'],
     distortion: 0.8,
     swirl: 0.1,
   },
@@ -37,7 +33,7 @@ export const purplePreset: MeshGradientPreset = {
     ...defaultObjectSizing,
     speed: 0.6,
     frame: 100,
-    colors: ['hsla(259, 29%, 73%, 1)', 'hsla(263, 57%, 39%, 1)', 'hsla(48, 73%, 84%, 1)', 'hsla(295, 32%, 70%, 1)'],
+    colors: ['#aaa7d7', '#3c2b8e', '#f4eabb', '#c99cd5'],
     distortion: 0.3,
     swirl: 0.5,
   },
@@ -49,7 +45,7 @@ export const beachPreset: MeshGradientPreset = {
     ...defaultObjectSizing,
     speed: 0.1,
     frame: 0,
-    colors: ['hsla(186, 81%, 83%, 1)', 'hsla(198, 55%, 68%, 1)', 'hsla(53, 67%, 88%, 1)', 'hsla(45, 93%, 73%, 1)'],
+    colors: ['#bcecf6', '#80c3e4', '#f3eccb', '#f3d987'],
     distortion: 0.8,
     swirl: 0.35,
   },

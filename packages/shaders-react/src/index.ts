@@ -1,73 +1,99 @@
-export { ShaderMount } from './shader-mount';
-export type { ShaderMountProps, ShaderComponentProps } from './shader-mount';
+export { ShaderMount } from './shader-mount.js';
+export type { ShaderMountProps, ShaderComponentProps, ShaderMountRef } from './shader-mount.js';
 
-export { MeshGradient, meshGradientPresets } from './shaders/mesh-gradient';
-export type { MeshGradientProps } from './shaders/mesh-gradient';
+export { MeshGradient, meshGradientPresets } from './shaders/mesh-gradient.js';
+export type { MeshGradientProps } from './shaders/mesh-gradient.js';
 export type { MeshGradientUniforms, MeshGradientParams } from '@paper-design/shaders';
 
-export { SmokeRing, smokeRingPresets } from './shaders/smoke-ring';
-export type { SmokeRingProps } from './shaders/smoke-ring';
+export { SmokeRing, smokeRingPresets } from './shaders/smoke-ring.js';
+export type { SmokeRingProps } from './shaders/smoke-ring.js';
 export type { SmokeRingUniforms, SmokeRingParams } from '@paper-design/shaders';
 
-export { NeuroNoise, neuroNoisePresets } from './shaders/neuro-noise';
-export type { NeuroNoiseProps } from './shaders/neuro-noise';
+export { NeuroNoise, neuroNoisePresets } from './shaders/neuro-noise.js';
+export type { NeuroNoiseProps } from './shaders/neuro-noise.js';
 export type { NeuroNoiseUniforms, NeuroNoiseParams } from '@paper-design/shaders';
 
-export { DotOrbit, dotOrbitPresets } from './shaders/dot-orbit';
-export type { DotOrbitProps } from './shaders/dot-orbit';
+export { DotOrbit, dotOrbitPresets } from './shaders/dot-orbit.js';
+export type { DotOrbitProps } from './shaders/dot-orbit.js';
 export type { DotOrbitUniforms, DotOrbitParams } from '@paper-design/shaders';
 
-export { DotGrid, dotGridPresets } from './shaders/dot-grid';
-export type { DotGridProps } from './shaders/dot-grid';
-export type { DotGridUniforms, DotGridParams, DotGridShape } from '@paper-design/shaders';
+export { DotGrid, dotGridPresets } from './shaders/dot-grid.js';
+export type { DotGridProps } from './shaders/dot-grid.js';
+export type { DotGridUniforms, DotGridParams } from '@paper-design/shaders';
 
-export { SimplexNoise, simplexNoisePresets } from './shaders/simplex-noise';
-export type { SimplexNoiseProps } from './shaders/simplex-noise';
+export { SimplexNoise, simplexNoisePresets } from './shaders/simplex-noise.js';
+export type { SimplexNoiseProps } from './shaders/simplex-noise.js';
 export type { SimplexNoiseUniforms, SimplexNoiseParams } from '@paper-design/shaders';
 
-export { Metaballs, metaballsPresets } from './shaders/metaballs';
-export type { MetaballsProps } from './shaders/metaballs';
+export { Metaballs, metaballsPresets } from './shaders/metaballs.js';
+export type { MetaballsProps } from './shaders/metaballs.js';
 export type { MetaballsUniforms, MetaballsParams } from '@paper-design/shaders';
 
-export { Waves, wavesPresets } from './shaders/waves';
-export type { WavesProps } from './shaders/waves';
+export { Waves, wavesPresets } from './shaders/waves.js';
+export type { WavesProps } from './shaders/waves.js';
 export type { WavesUniforms, WavesParams } from '@paper-design/shaders';
 
-export { PerlinNoise, perlinNoisePresets } from './shaders/perlin-noise';
-export type { PerlinNoiseProps } from './shaders/perlin-noise';
+export { PerlinNoise, perlinNoisePresets } from './shaders/perlin-noise.js';
+export type { PerlinNoiseProps } from './shaders/perlin-noise.js';
 export type { PerlinNoiseUniforms, PerlinNoiseParams } from '@paper-design/shaders';
 
-export { Voronoi, voronoiPresets } from './shaders/voronoi';
-export type { VoronoiProps } from './shaders/voronoi';
+export { Voronoi, voronoiPresets } from './shaders/voronoi.js';
+export type { VoronoiProps } from './shaders/voronoi.js';
 export type { VoronoiUniforms, VoronoiParams } from '@paper-design/shaders';
 
-export { Warp, warpPresets } from './shaders/warp';
-export type { WarpProps } from './shaders/warp';
+export { Warp, warpPresets } from './shaders/warp.js';
+export type { WarpProps } from './shaders/warp.js';
 export type { WarpUniforms, WarpParams, WarpPattern } from '@paper-design/shaders';
 
-export { GodRays, godRaysPresets } from './shaders/god-rays';
-export type { GodRaysProps } from './shaders/god-rays';
+export { GodRays, godRaysPresets } from './shaders/god-rays.js';
+export type { GodRaysProps } from './shaders/god-rays.js';
 export type { GodRaysUniforms, GodRaysParams } from '@paper-design/shaders';
 
-export { Spiral, spiralPresets } from './shaders/spiral';
-export type { SpiralProps } from './shaders/spiral';
+export { Spiral, spiralPresets } from './shaders/spiral.js';
+export type { SpiralProps } from './shaders/spiral.js';
 export type { SpiralUniforms, SpiralParams } from '@paper-design/shaders';
 
-export { Swirl, swirlPresets } from './shaders/swirl';
-export type { SwirlProps } from './shaders/swirl';
+export { Swirl, swirlPresets } from './shaders/swirl.js';
+export type { SwirlProps } from './shaders/swirl.js';
 export type { SwirlUniforms, SwirlParams } from '@paper-design/shaders';
 
-export { Dithering, ditheringPresets } from './shaders/dithering';
-export { type DitheringProps } from './shaders/dithering';
-export { type DitheringUniforms, type DitheringParams } from '@paper-design/shaders';
+export { Dithering, ditheringPresets } from './shaders/dithering.js';
+export type { DitheringProps } from './shaders/dithering.js';
+export type { DitheringUniforms, DitheringParams } from '@paper-design/shaders';
 
-export { GrainGradient, grainGradientPresets } from './shaders/grain-gradient';
-export { type GrainGradientProps } from './shaders/grain-gradient';
-export { type GrainGradientUniforms, type GrainGradientParams } from '@paper-design/shaders';
+export { GrainGradient, grainGradientPresets } from './shaders/grain-gradient.js';
+export type { GrainGradientProps } from './shaders/grain-gradient.js';
+export type { GrainGradientUniforms, GrainGradientParams } from '@paper-design/shaders';
 
-export { isPaperShaderElement, getShaderColorFromString } from '@paper-design/shaders';
-export type { ShaderFit, ShaderSizingParams, ShaderSizingUniforms } from '@paper-design/shaders';
+export { LiquidMetal, liquidMetalPresets } from './shaders/liquid-metal.js';
+export type { LiquidMetalProps } from './shaders/liquid-metal.js';
+export type { LiquidMetalUniforms, LiquidMetalParams } from '@paper-design/shaders';
 
-export { ImageFilterDemo, imageFilterDemoPresets } from './shaders/image-filter-demo';
-export { type ImageFilterDemoProps } from './shaders/image-filter-demo';
-export { type ImageFilterDemoUniforms, type ImageFilterDemoParams } from '@paper-design/shaders';
+export { PulsingBorder, pulsingBorderPresets } from './shaders/pulsing-border.js';
+export type { PulsingBorderProps } from './shaders/pulsing-border.js';
+export type { PulsingBorderUniforms, PulsingBorderParams } from '@paper-design/shaders';
+
+export { ColorPanels, colorPanelsPresets } from './shaders/color-panels.js';
+export type { ColorPanelsProps } from './shaders/color-panels.js';
+export type { ColorPanelsUniforms, ColorPanelsParams } from '@paper-design/shaders';
+
+export {ImageFilterDemo, imageFilterDemoPresets} from './shaders/image-filter-demo';
+export {type ImageFilterDemoProps} from './shaders/image-filter-demo';
+export {type ImageFilterDemoUniforms, type ImageFilterDemoParams} from '@paper-design/shaders';
+
+export {isPaperShaderElement, getShaderColorFromString} from '@paper-design/shaders';
+export type {ShaderFit, ShaderSizingParams, ShaderSizingUniforms} from '@paper-design/shaders';
+
+export {
+  dotOrbitMeta,
+  godRaysMeta,
+  grainGradientMeta,
+  meshGradientMeta,
+  metaballsMeta,
+  pulsingBorderMeta,
+  simplexNoiseMeta,
+  smokeRingMeta,
+  swirlMeta,
+  voronoiMeta,
+  warpMeta,
+} from '@paper-design/shaders';

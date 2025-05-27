@@ -8,30 +8,13 @@ import Link from 'next/link';
 import { BackButton } from '@/components/back-button';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
 import { ShaderFit, ShaderFitOptions } from '@paper-design/shaders';
+import { toHsla } from '@/helpers/to-hsla';
 
 /**
  * You can copy/paste this example to use Spiral in your app
  */
 const SpiralExample = () => {
-  return (
-    <Spiral
-      color1="#90e32b"
-      color2="#2c8618"
-      scale={1.3}
-      offsetX={0}
-      offsetY={0}
-      spiralDensity={0.5}
-      spiralDistortion={0}
-      strokeWidth={0.5}
-      strokeTaper={0}
-      strokeCap={0.5}
-      noiseFreq={0.1}
-      noisePower={1}
-      softness={0}
-      speed={1}
-      style={{ position: 'fixed', width: '100%', height: '100%' }}
-    />
-  );
+  return <Spiral style={{ position: 'fixed', width: '100%', height: '100%' }} />;
 };
 
 /**
@@ -51,14 +34,14 @@ const SpiralWithControls = () => {
     return {
       Parameters: folder(
         {
-          color1: { value: defaults.color1, order: 100 },
-          color2: { value: defaults.color2, order: 101 },
-          spiralDensity: { value: defaults.spiralDensity, min: 0, max: 1, order: 203 },
-          spiralDistortion: { value: defaults.spiralDistortion, min: 0, max: 1, order: 204 },
+          colorBack: { value: toHsla(defaults.colorBack), order: 100 },
+          colorFront: { value: toHsla(defaults.colorFront), order: 101 },
+          density: { value: defaults.density, min: 0, max: 1, order: 203 },
+          distortion: { value: defaults.distortion, min: 0, max: 1, order: 204 },
           strokeWidth: { value: defaults.strokeWidth, min: 0, max: 1, order: 205 },
           strokeTaper: { value: defaults.strokeTaper, min: 0, max: 1, order: 206 },
           strokeCap: { value: defaults.strokeCap, min: 0, max: 1, order: 207 },
-          noiseFreq: { value: defaults.noiseFreq, min: 0, max: 30, order: 350 },
+          noiseFrequency: { value: defaults.noiseFrequency, min: 0, max: 30, order: 350 },
           noisePower: { value: defaults.noisePower, min: 0, max: 1, order: 351 },
           softness: { value: defaults.softness, min: 0, max: 1, order: 352 },
           speed: { value: defaults.speed, min: 0, max: 2, order: 400 },
@@ -81,8 +64,8 @@ const SpiralWithControls = () => {
       Fit: folder(
         {
           fit: { value: defaults.fit, options: Object.keys(ShaderFitOptions) as ShaderFit[], order: 404 },
-          worldWidth: { value: 1000, min: 1, max: 5120, order: 405 },
-          worldHeight: { value: 500, min: 1, max: 5120, order: 406 },
+          worldWidth: { value: 1000, min: 0, max: 5120, order: 405 },
+          worldHeight: { value: 500, min: 0, max: 5120, order: 406 },
           originX: { value: defaults.originX, min: 0, max: 1, order: 407 },
           originY: { value: defaults.originY, min: 0, max: 1, order: 408 },
         },

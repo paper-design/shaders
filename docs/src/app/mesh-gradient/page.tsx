@@ -14,14 +14,7 @@ import { useColors } from '@/helpers/use-colors';
  * You can copy/paste this example to use MeshGradient in your app
  */
 const MeshGradientExample = () => {
-  return (
-    <MeshGradient
-      distortion={0.5}
-      swirl={0.1}
-      speed={0.15}
-      style={{ position: 'fixed', width: '100%', height: '100%' }}
-    />
-  );
+  return <MeshGradient style={{ position: 'fixed', width: '100%', height: '100%' }} />;
 };
 
 /**
@@ -61,8 +54,8 @@ const MeshGradientWithControls = () => {
       Fit: folder(
         {
           fit: { value: defaults.fit, options: Object.keys(ShaderFitOptions) as ShaderFit[], order: 404 },
-          worldWidth: { value: 1000, min: 1, max: 5120, order: 405 },
-          worldHeight: { value: 500, min: 1, max: 5120, order: 406 },
+          worldWidth: { value: 1000, min: 0, max: 5120, order: 405 },
+          worldHeight: { value: 500, min: 0, max: 5120, order: 406 },
           originX: { value: defaults.originX, min: 0, max: 1, order: 407 },
           originY: { value: defaults.originY, min: 0, max: 1, order: 408 },
         },

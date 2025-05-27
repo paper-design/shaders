@@ -1,6 +1,6 @@
 import { memo } from 'react';
-import { ShaderMount, type ShaderComponentProps } from '../shader-mount';
-import { colorPropsAreEqual } from '../color-props-are-equal';
+import { ShaderMount, type ShaderComponentProps } from '../shader-mount.js';
+import { colorPropsAreEqual } from '../color-props-are-equal.js';
 import {
   defaultObjectSizing,
   getShaderColorFromString,
@@ -15,22 +15,17 @@ export interface MetaballsProps extends ShaderComponentProps, MetaballsParams {}
 
 type MetaballsPreset = ShaderPreset<MetaballsParams>;
 
-// Due to Leva controls limitation:
-// 1) keep default colors in HSLA format to keep alpha channel
-// 2) don't use decimal values on HSL values (to avoid button highlight bug)
-
 export const defaultPreset: MetaballsPreset = {
   name: 'Default',
   params: {
     ...defaultObjectSizing,
     scale: 1,
-    speed: 0.6,
+    speed: 1,
     frame: 0,
-    color1: 'hsla(350, 90%, 55%, 1)',
-    color2: 'hsla(350, 80%, 60%, 1)',
-    color3: 'hsla(20, 85%, 70%, 1)',
-    ballSize: 1,
-    visibilityRange: 0.4,
+    colorBack: '#ffffff',
+    colors: ['#b399ff', '#99ffc4', '#ffe699', '#e099ff'],
+    count: 7,
+    size: 1,
   },
 };
 
@@ -40,11 +35,10 @@ export const Metaballs: React.FC<MetaballsProps> = memo(function MetaballsImpl({
   // Own props
   speed = defaultPreset.params.speed,
   frame = defaultPreset.params.frame,
-  color1 = defaultPreset.params.color1,
-  color2 = defaultPreset.params.color2,
-  color3 = defaultPreset.params.color3,
-  ballSize = defaultPreset.params.ballSize,
-  visibilityRange = defaultPreset.params.visibilityRange,
+  colorBack = defaultPreset.params.colorBack,
+  colors = defaultPreset.params.colors,
+  size = defaultPreset.params.size,
+  count = defaultPreset.params.count,
 
   // Sizing props
   fit = defaultPreset.params.fit,
@@ -60,11 +54,11 @@ export const Metaballs: React.FC<MetaballsProps> = memo(function MetaballsImpl({
 }: MetaballsProps) {
   const uniforms = {
     // Own uniforms
-    u_color1: getShaderColorFromString(color1),
-    u_color2: getShaderColorFromString(color2),
-    u_color3: getShaderColorFromString(color3),
-    u_ballSize: ballSize,
-    u_visibilityRange: visibilityRange,
+    u_colorBack: getShaderColorFromString(colorBack),
+    u_colors: colors.map(getShaderColorFromString),
+    u_colorsCount: colors.length,
+    u_size: size,
+    u_count: count,
 
     // Sizing uniforms
     u_fit: ShaderFitOptions[fit],

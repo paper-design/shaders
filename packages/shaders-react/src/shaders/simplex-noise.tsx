@@ -1,6 +1,6 @@
 import { memo } from 'react';
-import { ShaderMount, type ShaderComponentProps } from '../shader-mount';
-import { colorPropsAreEqual } from '../color-props-are-equal';
+import { ShaderMount, type ShaderComponentProps } from '../shader-mount.js';
+import { colorPropsAreEqual } from '../color-props-are-equal.js';
 import {
   getShaderColorFromString,
   simplexNoiseFragmentShader,
@@ -15,18 +15,14 @@ export interface SimplexNoiseProps extends ShaderComponentProps, SimplexNoisePar
 
 type SimplexNoisePreset = ShaderPreset<SimplexNoiseParams>;
 
-// Due to Leva controls limitation:
-// 1) keep default colors in HSLA format to keep alpha channel
-// 2) don't use decimal values on HSL values (to avoid button highlight bug)
-
 export const defaultPreset: SimplexNoisePreset = {
   name: 'Default',
   params: {
     ...defaultPatternSizing,
     speed: 1,
     frame: 0,
-    colors: ['hsla(259, 100%, 50%, 1)', 'hsla(150, 100%, 50%, 1)', 'hsla(48, 100%, 50%, 1)', 'hsla(295, 100%, 50%, 1)'],
-    stepsPerColor: 1,
+    colors: ['#40a0bf', '#bf4040', '#ffcc00'],
+    stepsPerColor: 3,
     softness: 0,
   },
 };
