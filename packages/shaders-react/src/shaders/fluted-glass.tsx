@@ -1,24 +1,20 @@
 import { memo } from 'react';
-import { ShaderMount, type ShaderComponentProps } from '../shader-mount';
+import { ShaderMount, type ShaderComponentProps } from '../shader-mount.js';
 import {
   getShaderColorFromString,
-  imageFilterDemoFragmentShader,
+  flutedGlassFragmentShader,
   ShaderFitOptions,
-  type ImageFilterDemoUniforms,
-  type ImageFilterDemoParams,
+  type FlutedGlassUniforms,
+  type FlutedGlassParams,
   type ShaderPreset,
   defaultObjectSizing,
 } from '@paper-design/shaders';
 
-export interface ImageFilterDemoProps extends ShaderComponentProps, ImageFilterDemoParams {}
+export interface FlutedGlassProps extends ShaderComponentProps, FlutedGlassParams {}
 
-type ImageFilterDemoPreset = ShaderPreset<ImageFilterDemoParams>;
+type FlutedGlassPreset = ShaderPreset<FlutedGlassParams>;
 
-// Due to Leva controls limitation:
-// 1) keep default colors in HSLA format to keep alpha channel
-// 2) don't use decimal values on HSL values (to avoid button highlight bug)
-
-export const defaultPreset: ImageFilterDemoPreset = {
+export const defaultPreset: FlutedGlassPreset = {
   name: 'Default',
   params: {
     ...defaultObjectSizing,
@@ -29,9 +25,9 @@ export const defaultPreset: ImageFilterDemoPreset = {
   },
 };
 
-export const imageFilterDemoPresets: ImageFilterDemoPreset[] = [defaultPreset];
+export const flutedGlassPresets: FlutedGlassPreset[] = [defaultPreset];
 
-export const ImageFilterDemo: React.FC<ImageFilterDemoProps> = memo(function ImageFilterDemoImpl({
+export const FlutedGlass: React.FC<FlutedGlassProps> = memo(function FlutedGlassImpl({
   // Own props
   speed = defaultPreset.params.speed,
   frame = defaultPreset.params.frame,
@@ -65,14 +61,14 @@ export const ImageFilterDemo: React.FC<ImageFilterDemoProps> = memo(function Ima
     u_originY: originY,
     u_worldWidth: worldWidth,
     u_worldHeight: worldHeight,
-  } satisfies ImageFilterDemoUniforms;
+  } satisfies FlutedGlassUniforms;
 
   return (
     <ShaderMount
       {...props}
       speed={speed}
       frame={frame}
-      fragmentShader={imageFilterDemoFragmentShader}
+      fragmentShader={flutedGlassFragmentShader}
       uniforms={uniforms}
     />
   );

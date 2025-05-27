@@ -1,6 +1,6 @@
 /** The core Shader Mount class. Pass it a parent element and a fragment shader to get started. */
-export { ShaderMount, isPaperShaderElement } from './shader-mount';
-export type { PaperShaderElement, ShaderMotionParams, ShaderMountUniforms, ShaderPreset } from './shader-mount';
+export { ShaderMount, isPaperShaderElement } from './shader-mount.js';
+export type { PaperShaderElement, ShaderMotionParams, ShaderMountUniforms, ShaderPreset } from './shader-mount.js';
 
 /** Shader sizing options and uniforms */
 export {
@@ -157,12 +157,12 @@ export {
   type ColorPanelsUniforms,
 } from './shaders/color-panels.js';
 
-/** ImageFilterDemo effect applied over abstract shapes */
+/** */
 export {
-  imageFilterDemoFragmentShader,
-  type ImageFilterDemoParams,
-  type ImageFilterDemoUniforms,
-} from './shaders/image-filter-demo.js';
+  flutedGlassFragmentShader,
+  type FlutedGlassParams,
+  type FlutedGlassUniforms,
+} from './shaders/fluted-glass.js';
 
 // ----- Utils ----- //
 export { getShaderColorFromString } from './get-shader-color-from-string.js';

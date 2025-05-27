@@ -1,6 +1,6 @@
 'use client';
 
-import { ImageFilterDemo, imageFilterDemoPresets } from '@paper-design/shaders-react';
+import { FlutedGlass, flutedGlassPresets } from '@paper-design/shaders-react';
 
 import { useControls, button, folder } from 'leva';
 import { setParamsSafe, useResetLevaParams } from '@/helpers/use-reset-leva-params';
@@ -17,13 +17,13 @@ import { useState } from 'react';
  * This example has controls added so you can play with settings in the example app
  */
 
-const { worldWidth, worldHeight, ...defaults } = imageFilterDemoPresets[0].params;
+const { worldWidth, worldHeight, ...defaults } = flutedGlassPresets[0].params;
 
-const ImageFilterDemoWithControls = () => {
+const FlutedGlassWithControls = () => {
   const [image, setImage] = useState<HTMLImageElement | null>(null);
   const [params, setParams] = useControls(() => {
     const presets = Object.fromEntries(
-      imageFilterDemoPresets.map(({ name, params: { worldWidth, worldHeight, ...preset } }) => [
+      flutedGlassPresets.map(({ name, params: { worldWidth, worldHeight, ...preset } }) => [
         name,
         button(() => setParamsSafe(params, setParams, preset)),
       ])
@@ -78,7 +78,7 @@ const ImageFilterDemoWithControls = () => {
   // Reset to defaults on mount, so that Leva doesn't show values from other
   // shaders when navigating (if two shaders have a color1 param for example)
   useResetLevaParams(params, setParams, defaults);
-  usePresetHighlight(imageFilterDemoPresets, params);
+  usePresetHighlight(flutedGlassPresets, params);
   cleanUpLevaParams(params);
 
   return (
@@ -86,9 +86,9 @@ const ImageFilterDemoWithControls = () => {
       <Link href="/">
         <BackButton />
       </Link>
-      <ImageFilterDemo className="fixed size-full" {...params} image={image} />
+      <FlutedGlass className="fixed size-full" {...params} image={image} />
     </>
   );
 };
 
-export default ImageFilterDemoWithControls;
+export default FlutedGlassWithControls;

@@ -77,12 +77,12 @@ export { ColorPanels, colorPanelsPresets } from './shaders/color-panels.js';
 export type { ColorPanelsProps } from './shaders/color-panels.js';
 export type { ColorPanelsUniforms, ColorPanelsParams } from '@paper-design/shaders';
 
-export {ImageFilterDemo, imageFilterDemoPresets} from './shaders/image-filter-demo';
-export {type ImageFilterDemoProps} from './shaders/image-filter-demo';
-export {type ImageFilterDemoUniforms, type ImageFilterDemoParams} from '@paper-design/shaders';
+export { FlutedGlass, flutedGlassPresets } from './shaders/fluted-glass.js';
+export { type FlutedGlassProps } from './shaders/fluted-glass.js';
+export { type FlutedGlassUniforms, type FlutedGlassParams } from '@paper-design/shaders';
 
-export {isPaperShaderElement, getShaderColorFromString} from '@paper-design/shaders';
-export type {ShaderFit, ShaderSizingParams, ShaderSizingUniforms} from '@paper-design/shaders';
+export { isPaperShaderElement, getShaderColorFromString } from '@paper-design/shaders';
+export type { ShaderFit, ShaderSizingParams, ShaderSizingUniforms } from '@paper-design/shaders';
 
 export {
   dotOrbitMeta,

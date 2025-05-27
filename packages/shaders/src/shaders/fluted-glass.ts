@@ -1,11 +1,10 @@
-import type { ShaderMotionParams } from '../shader-mount';
-import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing';
-import { declareSimplexNoise, declarePI, declareRandom } from '../shader-utils';
+import type { ShaderMotionParams } from '../shader-mount.js';
+import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
 
 /**
  */
-export const imageFilterDemoFragmentShader: string = `#version 300 es
-precision highp float;
+export const flutedGlassFragmentShader: string = `#version 300 es
+precision mediump float;
 
 uniform float u_time;
 uniform vec2 u_resolution;
@@ -43,12 +42,12 @@ void main() {
 }
 `;
 
-export interface ImageFilterDemoUniforms extends ShaderSizingUniforms {
+export interface FlutedGlassUniforms extends ShaderSizingUniforms {
   u_pxSize: number;
   u_image: HTMLImageElement | null;
 }
 
-export interface ImageFilterDemoParams extends ShaderSizingParams, ShaderMotionParams {
+export interface FlutedGlassParams extends ShaderSizingParams, ShaderMotionParams {
   pxSize?: number;
   image?: HTMLImageElement | null;
 }
