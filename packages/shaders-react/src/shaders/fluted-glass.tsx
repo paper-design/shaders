@@ -22,6 +22,11 @@ export const defaultPreset: FlutedGlassPreset = {
     speed: 0,
     frame: 0,
     image: null,
+    numSegments: 10,
+    inputOutputRatio: 1,
+    overlap: 0.5,
+    // frost: 0.1,
+    lightStrength: 0.2,
   },
 };
 
@@ -32,6 +37,11 @@ export const FlutedGlass: React.FC<FlutedGlassProps> = memo(function FlutedGlass
   speed = defaultPreset.params.speed,
   frame = defaultPreset.params.frame,
   image = defaultPreset.params.image,
+  numSegments = defaultPreset.params.numSegments,
+  inputOutputRatio = defaultPreset.params.inputOutputRatio,
+  overlap = defaultPreset.params.overlap,
+  // frost = defaultPreset.params.frost,
+  lightStrength = defaultPreset.params.lightStrength,
 
   // Sizing props
   fit = defaultPreset.params.fit,
@@ -48,6 +58,11 @@ export const FlutedGlass: React.FC<FlutedGlassProps> = memo(function FlutedGlass
   const uniforms = {
     // Own uniforms
     u_image: image,
+    u_numSegments: numSegments,
+    u_inputOutputRatio: inputOutputRatio,
+    u_overlap: overlap,
+    // u_frost: frost,
+    u_lightStrength: lightStrength,
 
     // Sizing uniforms
     u_fit: ShaderFitOptions[fit],

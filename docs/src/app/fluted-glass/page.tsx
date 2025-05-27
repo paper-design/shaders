@@ -12,6 +12,7 @@ import { ShaderFitOptions } from '@paper-design/shaders';
 import { ShaderFit } from '@paper-design/shaders';
 import { levaImageButton } from '@/helpers/leva-image-button';
 import { useState, useEffect } from 'react';
+import { toHsla } from '@/helpers/to-hsla';
 
 /**
  * This example has controls added so you can play with settings in the example app
@@ -39,7 +40,16 @@ const FlutedGlassWithControls = () => {
       ])
     );
     return {
-      Parameters: folder({}, { order: 1 }),
+      Parameters: folder(
+        {
+          numSegments: { value: defaults.numSegments, min: 0, max: 20, step: 1, order: 100 },
+          inputOutputRatio: { value: defaults.inputOutputRatio, min: 0, max: 2, order: 101 },
+          overlap: { value: defaults.overlap, min: -1, max: 1, order: 300 },
+          // frost: { value: defaults.frost, min: 0, max: 1, order: 301 },
+          lightStrength: { value: defaults.lightStrength, min: 0, max: 0.2, order: 302 },
+        },
+        { order: 1 }
+      ),
       Transform: folder(
         {
           scale: { value: defaults.scale, min: 0.01, max: 4, order: 400 },
