@@ -11,7 +11,7 @@ import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
 import { ShaderFitOptions } from '@paper-design/shaders';
 import { ShaderFit } from '@paper-design/shaders';
 import { levaImageButton } from '@/helpers/leva-image-button';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 /**
  * This example has controls added so you can play with settings in the example app
@@ -21,6 +21,16 @@ const { worldWidth, worldHeight, ...defaults } = flutedGlassPresets[0].params;
 
 const FlutedGlassWithControls = () => {
   const [image, setImage] = useState<HTMLImageElement | null>(null);
+
+  useEffect(() => {
+    const img = new Image();
+    // img.src = '/image-landscape.webp';
+    img.src = '/image-portrait.webp';
+    img.onload = () => {
+      setImage(img);
+    };
+  }, []);
+
   const [params, setParams] = useControls(() => {
     const presets = Object.fromEntries(
       flutedGlassPresets.map(({ name, params: { worldWidth, worldHeight, ...preset } }) => [
@@ -29,13 +39,7 @@ const FlutedGlassWithControls = () => {
       ])
     );
     return {
-      Parameters: folder(
-        {
-          pxSize: { value: defaults.pxSize, min: 1, max: 40, step: 1, order: 252 },
-          speed: { value: defaults.speed, min: 0, max: 2, order: 400 },
-        },
-        { order: 1 }
-      ),
+      Parameters: folder({}, { order: 1 }),
       Transform: folder(
         {
           scale: { value: defaults.scale, min: 0.01, max: 4, order: 400 },
@@ -51,8 +55,8 @@ const FlutedGlassWithControls = () => {
       Fit: folder(
         {
           fit: { value: defaults.fit, options: Object.keys(ShaderFitOptions) as ShaderFit[], order: 404 },
-          worldWidth: { value: 1000, min: 1, max: 5120, order: 405 },
-          worldHeight: { value: 500, min: 1, max: 5120, order: 406 },
+          worldWidth: { value: 0, min: 0, max: 5120, order: 405 },
+          worldHeight: { value: 0, min: 0, max: 5120, order: 406 },
           originX: { value: defaults.originX, min: 0, max: 1, order: 407 },
           originY: { value: defaults.originY, min: 0, max: 1, order: 408 },
         },
@@ -80,6 +84,10 @@ const FlutedGlassWithControls = () => {
   useResetLevaParams(params, setParams, defaults);
   usePresetHighlight(flutedGlassPresets, params);
   cleanUpLevaParams(params);
+
+  if (image === null) {
+    return null;
+  }
 
   return (
     <>

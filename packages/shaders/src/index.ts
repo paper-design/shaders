@@ -158,11 +158,7 @@ export {
 } from './shaders/color-panels.js';
 
 /** */
-export {
-  flutedGlassFragmentShader,
-  type FlutedGlassParams,
-  type FlutedGlassUniforms,
-} from './shaders/fluted-glass.js';
+export { flutedGlassFragmentShader, type FlutedGlassParams, type FlutedGlassUniforms } from './shaders/fluted-glass.js';
 
 // ----- Utils ----- //
 export { getShaderColorFromString } from './get-shader-color-from-string.js';

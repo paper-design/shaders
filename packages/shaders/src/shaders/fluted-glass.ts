@@ -7,47 +7,47 @@ export const flutedGlassFragmentShader: string = `#version 300 es
 precision mediump float;
 
 uniform float u_time;
-uniform vec2 u_resolution;
-uniform float u_pixelRatio;
 
 uniform sampler2D u_image;
-uniform float u_image_width;
-uniform float u_image_height;
-
-uniform float u_pxSize;
+uniform float u_image_aspect_ratio;
 
 ${sizingVariablesDeclaration}
 
 out vec4 fragColor;
 
+float uvFrame(vec2 uv) {
+  return step(1e-3, uv.x) * step(uv.x, 1. - 1e-3) * step(1e-3, uv.y) * step(uv.y, 1. - 1e-3);
+}
+
 void main() {
+  vec2 patternUV = v_patternUV;
 
-  vec2 object_uv = v_objectUV - .5;
-  vec2 pattern_uv = v_patternUV;
-  
-  vec2 image_uv = object_uv;
-  image_uv.y = 1. - image_uv.y;
+  vec2 imageUV = v_responsiveUV + .5;
+  float screenRatio = v_responsiveBoxGivenSize.x / v_responsiveBoxGivenSize.y;
+  float imageRatio = u_image_aspect_ratio;
 
-  float pxSize = u_pxSize * u_pixelRatio;
-  pxSize = 1000. / pxSize;
-  
-  image_uv = floor(image_uv * pxSize) / pxSize;
+  imageUV.y = 1. - imageUV.y;
 
-  vec4 color = texture(u_image, image_uv);
+  imageUV -= .5;
+  if (screenRatio > imageRatio) {
+    imageUV.x = imageUV.x * screenRatio / imageRatio;
+  } else {
+    imageUV.y = imageUV.y * imageRatio / screenRatio;
+  }
+  imageUV += .5;
+
+  vec4 imgTexture = texture(u_image, imageUV);
+  vec3 color = imgTexture.rgb;
+  float opacity = uvFrame(imageUV);
   
-  color.a *= step(object_uv.x, 0.);
-  color.a *= step(.0, object_uv.x + 1.);
-  
-  fragColor = color;
+  fragColor = vec4(color, opacity);
 }
 `;
 
 export interface FlutedGlassUniforms extends ShaderSizingUniforms {
-  u_pxSize: number;
   u_image: HTMLImageElement | null;
 }
 
 export interface FlutedGlassParams extends ShaderSizingParams, ShaderMotionParams {
-  pxSize?: number;
   image?: HTMLImageElement | null;
 }
