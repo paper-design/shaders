@@ -1,7 +1,6 @@
 import { memo } from 'react';
 import { ShaderMount, type ShaderComponentProps } from '../shader-mount.js';
 import {
-  getShaderColorFromString,
   flutedGlassFragmentShader,
   ShaderFitOptions,
   type FlutedGlassUniforms,
@@ -18,9 +17,10 @@ export const defaultPreset: FlutedGlassPreset = {
   name: 'Default',
   params: {
     ...defaultObjectSizing,
-    speed: 1,
+    worldWidth: 0,
+    worldHeight: 0,
+    speed: 0,
     frame: 0,
-    pxSize: 2,
     image: null,
   },
 };
@@ -31,7 +31,6 @@ export const FlutedGlass: React.FC<FlutedGlassProps> = memo(function FlutedGlass
   // Own props
   speed = defaultPreset.params.speed,
   frame = defaultPreset.params.frame,
-  pxSize = defaultPreset.params.pxSize,
   image = defaultPreset.params.image,
 
   // Sizing props
@@ -48,7 +47,6 @@ export const FlutedGlass: React.FC<FlutedGlassProps> = memo(function FlutedGlass
 }) {
   const uniforms = {
     // Own uniforms
-    u_pxSize: pxSize,
     u_image: image,
 
     // Sizing uniforms
