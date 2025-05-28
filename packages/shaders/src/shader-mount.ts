@@ -28,6 +28,14 @@ export class ShaderMount {
   private maxPixelCount;
   private isSafari = isSafari();
 
+  // Framebuffer properties
+  private framebuffer: WebGLFramebuffer | null = null;
+  private framebufferTexture: WebGLTexture | null = null;
+  private framebufferWidth = 0;
+  private framebufferHeight = 0;
+  private framebufferSamplingProgram: WebGLProgram | null = null;
+  private framebufferSamplingUniformLocations: Record<string, WebGLUniformLocation | null> = {};
+
   constructor(
     /** The div you'd like to mount the shader to. The shader will match its size. */
     parentElement: HTMLElement,
@@ -82,6 +90,17 @@ export class ShaderMount {
     }
     this.gl = gl;
 
+    // Initialize framebuffer and texture
+    this.framebuffer = this.gl.createFramebuffer();
+    this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, this.framebuffer);
+
+    this.framebufferTexture = this.gl.createTexture();
+    this.gl.bindTexture(this.gl.TEXTURE_2D, this.framebufferTexture);
+    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.LINEAR);
+    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MAG_FILTER, this.gl.LINEAR);
+    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_S, this.gl.CLAMP_TO_EDGE);
+    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_T, this.gl.CLAMP_TO_EDGE);
+
     this.initProgram();
     this.setupPositionAttribute();
     // Grab the locations of the uniforms in the fragment shader
@@ -105,6 +124,49 @@ export class ShaderMount {
     const program = createProgram(this.gl, vertexShaderSource, this.fragmentShader);
     if (!program) return;
     this.program = program;
+
+    // Initialize framebuffer program
+    const framebufferVertexShader = `#version 300 es
+      precision mediump float;
+
+      layout(location = 0) in vec4 a_position;
+      out vec2 v_texCoord;
+
+      void main() {
+        gl_Position = a_position;
+        v_texCoord = a_position.xy * 0.5 + 0.5;
+      }
+    `;
+
+    const framebufferFragmentShader = `#version 300 es
+      precision mediump float;
+      uniform sampler2D u_texture;
+      uniform vec2 u_textureSize;
+      uniform vec2 u_targetSize;
+
+      in vec2 v_texCoord;
+      out vec4 fragColor;
+
+      void main() {
+        // Calculate the scale factor between target size and texture size
+        vec2 scale = u_targetSize / u_textureSize;
+        
+        // Scale UVs to only sample the portion of the texture that contains our render
+        vec2 uv = v_texCoord * scale;
+        
+        fragColor = texture(u_texture, uv);
+      }
+    `;
+
+    const framebufferProgram = createProgram(this.gl, framebufferVertexShader, framebufferFragmentShader);
+    if (!framebufferProgram) return;
+
+    this.framebufferSamplingProgram = framebufferProgram;
+    this.framebufferSamplingUniformLocations = {
+      u_texture: this.gl.getUniformLocation(framebufferProgram, 'u_texture'),
+      u_textureSize: this.gl.getUniformLocation(framebufferProgram, 'u_textureSize'),
+      u_targetSize: this.gl.getUniformLocation(framebufferProgram, 'u_targetSize'),
+    };
   };
 
   private setupPositionAttribute = () => {
@@ -196,6 +258,25 @@ export class ShaderMount {
       cancelAnimationFrame(this.resizeRafId);
     }
 
+    const { width, height, renderScale } = this.getCanvasSize();
+
+    if (
+      this.canvasElement.width !== width ||
+      this.canvasElement.height !== height ||
+      this.renderScale !== renderScale // Usually, only render scale change when the user zooms in/out
+    ) {
+      this.renderScale = renderScale;
+      this.canvasElement.width = width;
+      this.canvasElement.height = height;
+      this.resolutionChanged = true;
+      this.gl.viewport(0, 0, this.gl.canvas.width, this.gl.canvas.height);
+
+      // this is necessary to avoid flashes while resizing (the next scheduled render will set uniforms)
+      this.render(performance.now());
+    }
+  };
+
+  private getCanvasSize = () => {
     const pinchZoom = visualViewport?.scale ?? 1;
 
     // Zoom level can be calculated comparing the browser's outerWidth and the viewport width.
@@ -223,27 +304,72 @@ export class ShaderMount {
     const newWidth = Math.round(this.parentWidth * newRenderScale);
     const newHeight = Math.round(this.parentHeight * newRenderScale);
 
-    if (
-      this.canvasElement.width !== newWidth ||
-      this.canvasElement.height !== newHeight ||
-      this.renderScale !== newRenderScale // Usually, only render scale change when the user zooms in/out
-    ) {
-      this.renderScale = newRenderScale;
-      this.canvasElement.width = newWidth;
-      this.canvasElement.height = newHeight;
-      this.resolutionChanged = true;
-      this.gl.viewport(0, 0, this.gl.canvas.width, this.gl.canvas.height);
+    return {
+      width: newWidth,
+      height: newHeight,
+      renderScale: newRenderScale,
+    };
+  };
 
-      // this is necessary to avoid flashes while resizing (the next scheduled render will set uniforms)
-      this.render(performance.now());
+  private handleResolutionChange = () => {
+    const { renderScale, width, height } = this.getCanvasSize();
+
+    if (
+      this.renderScale !== renderScale ||
+      this.canvasElement.width !== width ||
+      this.canvasElement.height !== height
+    ) {
+      this.renderScale = renderScale;
+      this.canvasElement.width = width;
+      this.canvasElement.height = height;
+      this.resolutionChanged = true;
+    }
+  };
+
+  private ensureSceneTarget = (targetFramebufferWidth: number, targetFramebufferHeight: number) => {
+    if (targetFramebufferWidth <= this.framebufferWidth && targetFramebufferHeight <= this.framebufferHeight) return; // already big enough
+
+    this.framebufferWidth = Math.max(targetFramebufferWidth, this.framebufferWidth);
+    this.framebufferHeight = Math.max(targetFramebufferHeight, this.framebufferHeight);
+
+    // Update texture size
+    this.gl.bindTexture(this.gl.TEXTURE_2D, this.framebufferTexture);
+    this.gl.texImage2D(
+      this.gl.TEXTURE_2D,
+      0,
+      this.gl.RGBA,
+      this.framebufferWidth,
+      this.framebufferHeight,
+      0,
+      this.gl.RGBA,
+      this.gl.UNSIGNED_BYTE,
+      null
+    );
+
+    // Bind framebuffer before attaching texture
+    this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, this.framebuffer);
+
+    // Attach texture to framebuffer
+    this.gl.framebufferTexture2D(
+      this.gl.FRAMEBUFFER,
+      this.gl.COLOR_ATTACHMENT0,
+      this.gl.TEXTURE_2D,
+      this.framebufferTexture,
+      0
+    );
+
+    // Check framebuffer status
+    const status = this.gl.checkFramebufferStatus(this.gl.FRAMEBUFFER);
+    if (status !== this.gl.FRAMEBUFFER_COMPLETE) {
+      console.error('Framebuffer is not complete:', status);
     }
   };
 
   private render = (currentTime: number) => {
     if (this.hasBeenDisposed) return;
 
-    if (this.program === null) {
-      console.warn('Tried to render before program or gl was initialized');
+    if (this.program === null || this.framebufferSamplingProgram === null) {
+      console.warn('Tried to render before program or framebuffer or gl was initialized');
       return;
     }
 
@@ -255,7 +381,22 @@ export class ShaderMount {
       this.totalFrameTime += dt * this.speed;
     }
 
-    // Clear the canvas
+    // Calculate target framebuffer dimensions
+    const targetFramebufferWidth = Math.round(this.parentWidth * this.renderScale);
+    const targetFramebufferHeight = Math.round(this.parentHeight * this.renderScale);
+
+    // Ensure framebuffer is large enough for current render
+    this.ensureSceneTarget(targetFramebufferWidth, targetFramebufferHeight);
+
+    // Unbind all textures before rendering to framebuffer to prevent feedback loops
+    for (let i = 0; i < this.textures.size; i++) {
+      this.gl.activeTexture(this.gl.TEXTURE0 + i);
+      this.gl.bindTexture(this.gl.TEXTURE_2D, null);
+    }
+
+    // Render to framebuffer
+    this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, this.framebuffer);
+    this.gl.viewport(0, 0, targetFramebufferWidth, targetFramebufferHeight);
     this.gl.clear(this.gl.COLOR_BUFFER_BIT);
 
     // Update uniforms
@@ -266,11 +407,45 @@ export class ShaderMount {
 
     // If the resolution has changed, we need to update the uniform
     if (this.resolutionChanged) {
-      this.gl.uniform2f(this.uniformLocations.u_resolution!, this.gl.canvas.width, this.gl.canvas.height);
+      this.gl.uniform2f(this.uniformLocations.u_resolution!, targetFramebufferWidth, targetFramebufferHeight);
       this.gl.uniform1f(this.uniformLocations.u_pixelRatio!, this.renderScale);
       this.resolutionChanged = false;
     }
 
+    // Rebind textures for the shader and set their uniforms
+    let textureUnit = 0;
+    this.textures.forEach((texture, uniformName) => {
+      const location = this.uniformLocations[uniformName];
+      if (location) {
+        this.gl.activeTexture(this.gl.TEXTURE0 + textureUnit);
+        this.gl.bindTexture(this.gl.TEXTURE_2D, texture);
+        this.gl.uniform1i(location, textureUnit);
+        textureUnit++;
+      }
+    });
+
+    this.gl.drawArrays(this.gl.TRIANGLES, 0, 6);
+
+    // Render framebuffer to canvas
+    this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, null);
+    // console.log('render', this.gl.canvas.width, this.gl.canvas.height);
+    this.gl.viewport(0, 0, this.gl.canvas.width, this.gl.canvas.height);
+    this.gl.clear(this.gl.COLOR_BUFFER_BIT);
+
+    this.gl.useProgram(this.framebufferSamplingProgram);
+    this.gl.activeTexture(this.gl.TEXTURE0);
+    this.gl.bindTexture(this.gl.TEXTURE_2D, this.framebufferTexture);
+    this.gl.uniform1i(this.framebufferSamplingUniformLocations.u_texture!, 0);
+    this.gl.uniform2f(
+      this.framebufferSamplingUniformLocations.u_textureSize!,
+      this.framebufferWidth,
+      this.framebufferHeight
+    );
+    this.gl.uniform2f(
+      this.framebufferSamplingUniformLocations.u_targetSize!,
+      targetFramebufferWidth,
+      targetFramebufferHeight
+    );
     this.gl.drawArrays(this.gl.TRIANGLES, 0, 6);
 
     // Loop if we're animating
@@ -443,14 +618,14 @@ export class ShaderMount {
   public setMaxPixelCount = (newMaxPixelCount: number = DEFAULT_MAX_PIXEL_COUNT): void => {
     this.maxPixelCount = newMaxPixelCount;
 
-    this.handleResize();
+    this.handleResolutionChange();
   };
 
   /** Set the minimum pixel ratio for the shader */
   public setMinPixelRatio = (newMinPixelRatio: number = 2): void => {
     this.minPixelRatio = newMinPixelRatio;
 
-    this.handleResize();
+    this.handleResolutionChange();
   };
 
   /** Update the uniforms that are provided by the outside shader, can be a partial set with only the uniforms that have changed */
@@ -476,15 +651,33 @@ export class ShaderMount {
       this.rafId = null;
     }
 
-    if (this.gl && this.program) {
+    if (this.gl) {
       // Clean up all textures
       this.textures.forEach((texture) => {
         this.gl.deleteTexture(texture);
       });
       this.textures.clear();
 
-      this.gl.deleteProgram(this.program);
-      this.program = null;
+      // Clean up framebuffer resources
+      if (this.framebuffer) {
+        this.gl.deleteFramebuffer(this.framebuffer);
+        this.framebuffer = null;
+      }
+
+      if (this.framebufferTexture) {
+        this.gl.deleteTexture(this.framebufferTexture);
+        this.framebufferTexture = null;
+      }
+
+      if (this.framebufferSamplingProgram) {
+        this.gl.deleteProgram(this.framebufferSamplingProgram);
+        this.framebufferSamplingProgram = null;
+      }
+
+      if (this.program) {
+        this.gl.deleteProgram(this.program);
+        this.program = null;
+      }
 
       // Reset the WebGL context
       this.gl.bindBuffer(this.gl.ARRAY_BUFFER, null);
@@ -504,6 +697,7 @@ export class ShaderMount {
     visualViewport?.removeEventListener('resize', this.handleVisualViewportChange);
 
     this.uniformLocations = {};
+    this.framebufferSamplingUniformLocations = {};
 
     // Remove the shader mount from the div wrapper element to avoid any GC issues
     this.parentElement.paperShaderMount = undefined;
