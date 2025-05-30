@@ -30,7 +30,7 @@ export const defaultPreset: FlutedGlassPreset = {
     xShift: 0,
     frost: 0.3,
     blur: 7,
-    gridLines: 0,
+    gridLines: 0.15,
     gridLinesBrightness: 0,
     extraLeft: 0,
     extraLeftDirection: 0,
