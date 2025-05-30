@@ -1,17 +1,16 @@
 'use client';
 
 import { FlutedGlass, flutedGlassPresets } from '@paper-design/shaders-react';
-
 import { useControls, button, folder } from 'leva';
 import { setParamsSafe, useResetLevaParams } from '@/helpers/use-reset-leva-params';
 import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import Link from 'next/link';
 import { BackButton } from '@/components/back-button';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
-import { ShaderFitOptions } from '@paper-design/shaders';
+import { GlassDistortion, GlassDistortionTypes, ShaderFitOptions } from '@paper-design/shaders';
 import { ShaderFit } from '@paper-design/shaders';
 import { levaImageButton } from '@/helpers/leva-image-button';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { toHsla } from '@/helpers/to-hsla';
 
 /**
@@ -21,15 +20,39 @@ import { toHsla } from '@/helpers/to-hsla';
 const { worldWidth, worldHeight, ...defaults } = flutedGlassPresets[0].params;
 
 const FlutedGlassWithControls = () => {
+  const [imageIdx, setImageIdx] = useState(0);
+
   const [image, setImage] = useState<HTMLImageElement | null>(null);
+
+  const imageFiles = [
+    '023.jpg',
+    '01.png',
+    '07.jpg',
+    '09.jpg',
+    '010.jpg',
+    '011.jpg',
+    '012.jpg',
+    '013.jpg',
+    '014.png',
+    '015.jpg',
+    '017.png',
+    '018.png',
+    '019.webp',
+    '020.jpeg',
+    '021.png',
+    '022.png',
+  ] as const;
 
   useEffect(() => {
     const img = new Image();
-    // img.src = '/image-landscape.webp';
-    img.src = '/image-portrait.webp';
+    img.src = `/images/${imageFiles[imageIdx]}`;
     img.onload = () => {
       setImage(img);
     };
+  }, [imageIdx]);
+
+  const handleClick = useCallback(() => {
+    setImageIdx((prev) => (prev + 1) % imageFiles.length);
   }, []);
 
   const [params, setParams] = useControls(() => {
@@ -42,13 +65,37 @@ const FlutedGlassWithControls = () => {
     return {
       Parameters: folder(
         {
-          numSegments: { value: defaults.numSegments, min: 0, max: 20, step: 1, order: 100 },
-          inputOutputRatio: { value: defaults.inputOutputRatio, min: 0, max: 2, order: 101 },
-          overlap: { value: defaults.overlap, min: -1, max: 1, order: 300 },
-          // frost: { value: defaults.frost, min: 0, max: 1, order: 301 },
-          lightStrength: { value: defaults.lightStrength, min: 0, max: 0.2, order: 302 },
+          grid: { value: defaults.grid, min: 4, max: 100, step: 1, order: 100 },
+          gridRotation: { value: defaults.gridRotation, min: 0, max: 180, order: 101 },
+          distortion: { value: defaults.distortion, min: 0, max: 1, order: 200 },
+          distortionType: {
+            value: defaults.distortionType,
+            options: Object.keys(GlassDistortionTypes) as GlassDistortion[],
+            order: 201,
+          },
+          xShift: { value: defaults.xShift, min: -1, max: 1, order: 205 },
+          frost: { value: defaults.frost, min: 0, max: 1, order: 250 },
+          blur: { value: defaults.blur, min: 0, max: 15, order: 251 },
+          gridLines: { value: defaults.gridLines, min: 0, max: 1, order: 270 },
+          gridLinesBrightness: { value: defaults.gridLinesBrightness, min: 0, max: 1, order: 271 },
+          extraLeft: { value: defaults.extraLeft, min: 0, max: 1, order: 300 },
+          extraLeftDirection: { value: defaults.extraLeftDirection, min: -0.5, max: 0.5, order: 301 },
+          extraRight: { value: defaults.extraRight, min: 0, max: 1, order: 302 },
+          extraRightDirection: { value: defaults.extraRightDirection, min: -0.5, max: 0.5, order: 303 },
         },
         { order: 1 }
+      ),
+      FilterArea: folder(
+        {
+          marginLeft: { value: defaults.marginLeft, min: 0, max: 1, order: 100 },
+          marginRight: { value: defaults.marginRight, min: 0, max: 1, order: 101 },
+          marginTop: { value: defaults.marginTop, min: 0, max: 1, order: 102 },
+          marginBottom: { value: defaults.marginBottom, min: 0, max: 1, order: 103 },
+        },
+        {
+          order: 2,
+          collapsed: false,
+        }
       ),
       Transform: folder(
         {
@@ -58,8 +105,8 @@ const FlutedGlassWithControls = () => {
           offsetY: { value: defaults.offsetY, min: -1, max: 1, order: 403 },
         },
         {
-          order: 2,
-          collapsed: false,
+          order: 4,
+          collapsed: true,
         }
       ),
       Fit: folder(
@@ -71,7 +118,7 @@ const FlutedGlassWithControls = () => {
           originY: { value: defaults.originY, min: 0, max: 1, order: 408 },
         },
         {
-          order: 3,
+          order: 5,
           collapsed: true,
         }
       ),
@@ -80,7 +127,7 @@ const FlutedGlassWithControls = () => {
           'Upload image': levaImageButton(setImage),
         },
         {
-          order: 4,
+          order: 3,
           collapsed: false,
         }
       ),
@@ -104,7 +151,7 @@ const FlutedGlassWithControls = () => {
       <Link href="/">
         <BackButton />
       </Link>
-      <FlutedGlass className="fixed size-full" {...params} image={image} />
+      <FlutedGlass className="fixed size-full" onClick={handleClick} {...params} image={image} />
     </>
   );
 };
