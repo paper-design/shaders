@@ -157,6 +157,15 @@ export {
   type ColorPanelsUniforms,
 } from './shaders/color-panels.js';
 
+/** */
+export {
+  flutedGlassFragmentShader,
+  GlassDistortionTypes,
+  type GlassDistortion,
+  type FlutedGlassParams,
+  type FlutedGlassUniforms,
+} from './shaders/fluted-glass.js';
+
 // ----- Utils ----- //
 export { getShaderColorFromString } from './get-shader-color-from-string.js';
 export { getShaderNoiseTexture } from './get-shader-noise-texture.js';
