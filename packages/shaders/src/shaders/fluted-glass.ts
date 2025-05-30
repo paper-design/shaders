@@ -91,11 +91,12 @@ void main() {
   float patternRotation = u_gridRotation * PI / 180.;
 
   vec2 uv = imageUV;
-  vec2 uvOrig = uv;
+  float frame = uvFrame(imageUV);
+  if (frame < .05) discard;
   
   float mask = 
-    step(u_marginLeft, uvOrig.x) * step(u_marginRight, 1. - uvOrig.x)
-    * step(u_marginTop, uvOrig.y) * step(u_marginBottom, 1. - uvOrig.y);
+    step(u_marginLeft, imageUV.x) * step(u_marginRight, 1. - imageUV.x)
+    * step(u_marginTop, imageUV.y) * step(u_marginBottom, 1. - imageUV.y);
   
   uv = rotate(uv - vec2(.5), patternRotation);
   uv.x -= .5;
@@ -146,7 +147,7 @@ void main() {
 
   vec2 uvLine = (floorUV) / u_grid;  
   
-  uv = mix(uvOrig, uv, mask);
+  uv = mix(imageUV, uv, mask);
   float blur = mix(0., u_blur, mask);
   
 //  vec4 color = texture(u_image, uv);
@@ -157,7 +158,7 @@ void main() {
   color.rgb = mix(color.rgb, highlight, u_gridLines * gridLines);
 
   float opacity = color.a;
-  opacity *= uvFrame(uvOrig);
+  opacity *= frame;
   fragColor = vec4(color.rgb, opacity); 
 }
 
