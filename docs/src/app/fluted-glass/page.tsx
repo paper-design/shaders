@@ -151,7 +151,7 @@ const FlutedGlassWithControls = () => {
       <Link href="/">
         <BackButton />
       </Link>
-      <FlutedGlass className="fixed size-full" onClick={handleClick} {...params} image={image} />
+      <FlutedGlass className="fixed size-full" onClick={handleClick} {...params} />
     </>
   );
 };

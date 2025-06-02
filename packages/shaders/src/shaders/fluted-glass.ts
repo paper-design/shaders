@@ -165,7 +165,7 @@ void main() {
 `;
 
 export interface FlutedGlassUniforms extends ShaderSizingUniforms {
-  u_image: HTMLImageElement | null;
+  u_image: HTMLImageElement | string | null;
   u_grid: number;
   u_gridRotation: number;
   u_distortion: number;
@@ -186,7 +186,7 @@ export interface FlutedGlassUniforms extends ShaderSizingUniforms {
 }
 
 export interface FlutedGlassParams extends ShaderSizingParams, ShaderMotionParams {
-  image?: HTMLImageElement | null;
+  image?: HTMLImageElement | string | null;
   grid?: number;
   gridRotation?: number;
   distortion?: number;
