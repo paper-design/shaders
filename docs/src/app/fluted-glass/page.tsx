@@ -75,7 +75,7 @@ const FlutedGlassWithControls = () => {
             options: Object.keys(GlassDistortionTypes) as GlassDistortion[],
             order: 201,
           },
-          xShift: { value: defaults.xShift, min: -1, max: 1, order: 205 },
+          shift: { value: defaults.shift, min: -1, max: 1, order: 205 },
           frost: { value: defaults.frost, min: 0, max: 1, order: 250 },
           frostScale: { value: defaults.frostScale, min: 0, max: 1, order: 250 },
           blur: { value: defaults.blur, min: 0, max: 25, order: 251 },

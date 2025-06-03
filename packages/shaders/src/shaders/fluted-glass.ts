@@ -27,7 +27,7 @@ uniform float u_extraRightDirection;
 uniform float u_extraLeftDirection;
 uniform float u_frost;
 uniform float u_frostScale;
-uniform float u_xShift;
+uniform float u_shift;
 uniform float u_blur;
 uniform float u_marginLeft;
 uniform float u_marginRight;
@@ -52,22 +52,20 @@ float hash(float x) {
   return fract(sin(x) * 43758.5453123);
 }
 
-const int MAX_RADIUS = 25;   // compile-time upper bound (≙ ±25 texels)
+const int MAX_RADIUS = 25;
 
 vec4 gaussian1D(sampler2D tex, vec2 uv, vec2 texelSize, vec2 dir, float sigma) {
-    if (sigma <= 0.0) return texture(tex, uv);           // no blur
-
-    // Choose a practical radius: ±3·σ is enough for visual convergence
+    if (sigma <= .5) return texture(tex, uv);
     int radius = int(min(float(MAX_RADIUS), ceil(3.0 * sigma)));
 
     float twoSigma2 = 2.0 * sigma * sigma;
-    float gaussianNorm = 1.0 / sqrt(6.2831853 * sigma * sigma); // 1/(sqrt(2π)·σ)
+    float gaussianNorm = 1.0 / sqrt(TWO_PI * sigma * sigma);
 
-    vec4 sum        = texture(tex, uv) * gaussianNorm;   // centre sample
+    vec4 sum        = texture(tex, uv) * gaussianNorm;
     float weightSum = gaussianNorm;
 
     for (int i = 1; i <= MAX_RADIUS; ++i) {
-        if (i > radius) break;                           // stop early
+        if (i > radius) break; 
 
         float x  = float(i);
         float w  = exp(-(x * x) / twoSigma2) * gaussianNorm;
@@ -80,7 +78,7 @@ vec4 gaussian1D(sampler2D tex, vec2 uv, vec2 texelSize, vec2 dir, float sigma) {
         weightSum  += 2.0 * w;
     }
 
-    return sum / weightSum;                              // renormalise
+    return sum / weightSum;
 }
 
 void main() {
@@ -139,8 +137,8 @@ void main() {
   linesLeft *= mask;
   linesRight *= mask;
   
-  fractUV.y -= clamp(uv.y - .5 + u_extraRightDirection * u_grid, -6., 6.) * u_extraRight * linesRight;
-  fractUV.y -= clamp(uv.y + .5 + u_extraLeftDirection * u_grid, -6., 6.) * u_extraLeft * linesLeft;
+  fractOrigUV.y -= clamp(uv.y - .5 + u_extraRightDirection * u_grid, -6., 6.) * u_extraRight * linesRight;
+  fractOrigUV.y -= clamp(uv.y + .5 + u_extraLeftDirection * u_grid, -6., 6.) * u_extraLeft * linesLeft;
   
   float frostScale = .6 * pow(u_frostScale, 2.);
   vec2 frost = .15 * vec2(snoise(v_patternUV * frostScale * .7), snoise(v_patternUV * frostScale));
@@ -151,22 +149,22 @@ void main() {
   if (u_distortionType == 1.) {
     // skew
     float distortion = pow(1.5 * fractUV.x, 3.);
-    distortion -= .5 + u_xShift;
+    distortion -= .5 + u_shift;
     // fractUV.x -= u_distortion * distortion;
     xDistortion = -u_distortion * distortion;
   } else if (u_distortionType == 2.) {
     // shrink
     float distortion = pow(fractUV.x, 2.);
-    distortion -= .5 + u_xShift;
+    distortion -= .5 + u_shift;
     // fractUV.x += u_distortion * distortion;
     xDistortion = u_distortion * distortion;
   } else if (u_distortionType == 3.) {
     // stretch
-    // fractUV.x = mix(fractUV.x, .5 + u_xShift, u_distortion);
-    fractUV.x = mix(fractUV.x, mix(fractUV.x, .5 + u_xShift, fractUV.x), u_distortion);
+    // fractUV.x = mix(fractUV.x, .5 + u_shift, u_distortion);
+    fractUV.x = mix(fractUV.x, mix(fractUV.x, .5 + u_shift, fractUV.x), u_distortion);
   } else if (u_distortionType == 4.) {
     // wave
-    float distortion = sin((fractUV.x + .25 + u_xShift) * TWO_PI);
+    float distortion = sin((fractUV.x + .25 + u_shift) * TWO_PI);
     // fractUV.x += u_distortion * distortion;
     xDistortion = u_distortion * distortion;
   }
@@ -206,7 +204,7 @@ export interface FlutedGlassUniforms extends ShaderSizingUniforms {
   u_extraLeftDirection: number;
   u_frost: number;
   u_frostScale: number;
-  u_xShift: number;
+  u_shift: number;
   u_blur: number;
   u_marginLeft: number;
   u_marginRight: number;
@@ -230,7 +228,7 @@ export interface FlutedGlassParams extends ShaderSizingParams, ShaderMotionParam
   extraLeftDirection?: number;
   frost?: number;
   frostScale?: number;
-  xShift?: number;
+  shift?: number;
   blur?: number;
   marginLeft?: number;
   marginRight?: number;
