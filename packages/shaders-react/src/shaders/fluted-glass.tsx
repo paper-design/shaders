@@ -29,7 +29,7 @@ export const defaultPreset: FlutedGlassPreset = {
     gridRotation: 136,
     distortionType: 'shrink',
     distortion: 1,
-    xShift: 0,
+    shift: 0,
     frost: 0,
     frostScale: 1,
     blur: 0,
