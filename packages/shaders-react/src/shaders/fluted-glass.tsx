@@ -27,7 +27,7 @@ export const defaultPreset: FlutedGlassPreset = {
     curve: 0.2,
     curveFreq: 0.5,
     gridRotation: 136,
-    distortionType: 'stretch',
+    distortionType: 'shrink',
     distortion: 1,
     xShift: 0,
     frost: 0,

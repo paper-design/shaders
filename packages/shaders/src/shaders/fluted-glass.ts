@@ -116,10 +116,15 @@ void main() {
   float curve = sin(20. * u_curveFreq * uv.y / u_grid);
   curve *= (u_curve * .2 * u_grid);
 
+
+  vec2 uvOrig = uv;
   uv += curve;
 
   vec2 fractUV = fract(uv);
   vec2 floorUV = floor(uv);  
+  
+  vec2 fractOrigUV = fract(uvOrig);
+  vec2 floorOrigUV = floor(uvOrig);  
 
   float gridLines = pow(fractUV.x, 14.);
   gridLines *= mask;
@@ -142,16 +147,19 @@ void main() {
   
   fractUV = mix(fractUV, fractUV + frost, u_frost);
 
+  float xDistortion = 0.;
   if (u_distortionType == 1.) {
     // skew
     float distortion = pow(1.5 * fractUV.x, 3.);
     distortion -= .5 + u_xShift;
-    fractUV.x -= u_distortion * distortion;
+    // fractUV.x -= u_distortion * distortion;
+    xDistortion = -u_distortion * distortion;
   } else if (u_distortionType == 2.) {
     // shrink
     float distortion = pow(fractUV.x, 2.);
     distortion -= .5 + u_xShift;
-    fractUV.x += u_distortion * distortion;
+    // fractUV.x += u_distortion * distortion;
+    xDistortion = u_distortion * distortion;
   } else if (u_distortionType == 3.) {
     // stretch
     // fractUV.x = mix(fractUV.x, .5 + u_xShift, u_distortion);
@@ -159,10 +167,14 @@ void main() {
   } else if (u_distortionType == 4.) {
     // wave
     float distortion = sin((fractUV.x + .25 + u_xShift) * TWO_PI);
-    fractUV.x += u_distortion * distortion;
+    // fractUV.x += u_distortion * distortion;
+    xDistortion = u_distortion * distortion;
   }
 
-  uv = (floorUV + fractUV) / u_grid;  
+  xDistortion /= u_grid;
+
+  uv = (floorOrigUV + fractOrigUV) / u_grid;  
+  uv.x += xDistortion;
   uv = rotate(uv, -patternRotation) + vec2(.5);
   
   uv = mix(imageUV, uv, mask);
@@ -232,7 +244,7 @@ export interface FlutedGlassParams extends ShaderSizingParams, ShaderMotionParam
 export const GlassDistortionTypes = {
   skew: 1,
   shrink: 2,
-  stretch: 3,
+  // stretch: 3,
   wave: 4,
 } as const;
 
