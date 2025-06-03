@@ -15,6 +15,8 @@ uniform sampler2D u_image;
 uniform float u_image_aspect_ratio;
 
 uniform float u_grid;
+uniform float u_curve;
+uniform float u_curveFreq;
 uniform float u_gridRotation;
 uniform float u_distortion;
 uniform float u_distortionType;
@@ -24,6 +26,7 @@ uniform float u_extraLeft;
 uniform float u_extraRightDirection;
 uniform float u_extraLeftDirection;
 uniform float u_frost;
+uniform float u_frostScale;
 uniform float u_xShift;
 uniform float u_blur;
 uniform float u_marginLeft;
@@ -49,26 +52,35 @@ float hash(float x) {
   return fract(sin(x) * 43758.5453123);
 }
 
-vec4 gaussianBlur(sampler2D tex, vec2 uv, vec2 texSize, float sigma) {
-    if (sigma <= 1.) {
-        return texture(tex, uv);
-    }
-    float kernel[9];
-    kernel[0] = 0.077847; kernel[1] = 0.123317; kernel[2] = 0.077847;
-    kernel[3] = 0.123317; kernel[4] = 0.195346; kernel[5] = 0.123317;
-    kernel[6] = 0.077847; kernel[7] = 0.123317; kernel[8] = 0.077847;
+const int MAX_RADIUS = 25;   // compile-time upper bound (≙ ±25 texels)
 
-    vec2 texel = (sigma / 1.0) * (1.0 / texSize);
+vec4 gaussian1D(sampler2D tex, vec2 uv, vec2 texelSize, vec2 dir, float sigma) {
+    if (sigma <= 0.0) return texture(tex, uv);           // no blur
 
-    vec4 sum = vec4(0.0);
-    int k = 0;
-    for (int j = -1; j <= 1; ++j) {
-        for (int i = -1; i <= 1; ++i) {
-            vec2 offset = vec2(float(i), float(j)) * texel;
-            sum += texture(tex, uv + offset) * kernel[k++];
-        }
+    // Choose a practical radius: ±3·σ is enough for visual convergence
+    int radius = int(min(float(MAX_RADIUS), ceil(3.0 * sigma)));
+
+    float twoSigma2 = 2.0 * sigma * sigma;
+    float gaussianNorm = 1.0 / sqrt(6.2831853 * sigma * sigma); // 1/(sqrt(2π)·σ)
+
+    vec4 sum        = texture(tex, uv) * gaussianNorm;   // centre sample
+    float weightSum = gaussianNorm;
+
+    for (int i = 1; i <= MAX_RADIUS; ++i) {
+        if (i > radius) break;                           // stop early
+
+        float x  = float(i);
+        float w  = exp(-(x * x) / twoSigma2) * gaussianNorm;
+
+        vec2 offset = dir * texelSize * x;
+        vec4 s1 = texture(tex, uv + offset);
+        vec4 s2 = texture(tex, uv - offset);
+
+        sum        += (s1 + s2) * w;
+        weightSum  += 2.0 * w;
     }
-    return sum;
+
+    return sum / weightSum;                              // renormalise
 }
 
 void main() {
@@ -99,13 +111,15 @@ void main() {
     * step(u_marginTop, imageUV.y) * step(u_marginBottom, 1. - imageUV.y);
   
   uv = rotate(uv - vec2(.5), patternRotation);
-  uv.x -= .5;
-  
   uv *= u_grid;
 
+  float curve = sin(20. * u_curveFreq * uv.y / u_grid);
+  curve *= (u_curve * .2 * u_grid);
+
+  uv += curve;
+
   vec2 fractUV = fract(uv);
-  vec2 fractUVOrig = fractUV;
-  vec2 floorUV = floor(uv);
+  vec2 floorUV = floor(uv);  
 
   float gridLines = pow(fractUV.x, 14.);
   gridLines *= mask;
@@ -123,42 +137,45 @@ void main() {
   fractUV.y -= clamp(uv.y - .5 + u_extraRightDirection * u_grid, -6., 6.) * u_extraRight * linesRight;
   fractUV.y -= clamp(uv.y + .5 + u_extraLeftDirection * u_grid, -6., 6.) * u_extraLeft * linesLeft;
   
-  vec2 frost = .15 * vec2(snoise(v_patternUV * .5), snoise(v_patternUV * .7));
+  float frostScale = .6 * pow(u_frostScale, 2.);
+  vec2 frost = .15 * vec2(snoise(v_patternUV * frostScale * .7), snoise(v_patternUV * frostScale));
   
   fractUV = mix(fractUV, fractUV + frost, u_frost);
 
   if (u_distortionType == 1.) {
-    float distortion = pow(1.5 * (fractUV.x - .5 + u_xShift), 3.);
+    // skew
+    float distortion = pow(1.5 * fractUV.x, 3.);
+    distortion -= .5 + u_xShift;
     fractUV.x -= u_distortion * distortion;
   } else if (u_distortionType == 2.) {
+    // shrink
     float distortion = pow(fractUV.x, 2.);
-    distortion -= 0.5 + u_xShift;
+    distortion -= .5 + u_xShift;
     fractUV.x += u_distortion * distortion;
   } else if (u_distortionType == 3.) {
-    fractUV.x = mix(fractUV.x, .5 + u_xShift, u_distortion);
+    // stretch
+    // fractUV.x = mix(fractUV.x, .5 + u_xShift, u_distortion);
+    fractUV.x = mix(fractUV.x, mix(fractUV.x, .5 + u_xShift, fractUV.x), u_distortion);
   } else if (u_distortionType == 4.) {
+    // wave
     float distortion = sin((fractUV.x + .25 + u_xShift) * TWO_PI);
     fractUV.x += u_distortion * distortion;
   }
 
   uv = (floorUV + fractUV) / u_grid;  
-  uv.x += .5;
   uv = rotate(uv, -patternRotation) + vec2(.5);
-
-  vec2 uvLine = (floorUV) / u_grid;  
   
   uv = mix(imageUV, uv, mask);
   float blur = mix(0., u_blur, mask);
   
 //  vec4 color = texture(u_image, uv);
-  vec4 color = gaussianBlur(u_image, uv, u_resolution, blur);
+  vec4 color = gaussian1D(u_image, uv, 1. / u_resolution, vec2(1.0, 0.0), blur);
 
-  vec3 midColor = texture(u_image, vec2(uvLine.x, .4 + .2 * hash(floorUV.x))).rgb;
+  vec3 midColor = texture(u_image, vec2(floorUV.x / u_grid - .5, .4 + .2 * hash(floorUV.x))).rgb;
   vec3 highlight = mix(midColor, vec3(1.), u_gridLinesBrightness);
   color.rgb = mix(color.rgb, highlight, u_gridLines * gridLines);
 
   float opacity = color.a;
-  opacity *= frame;
   fragColor = vec4(color.rgb, opacity); 
 }
 
@@ -167,6 +184,8 @@ void main() {
 export interface FlutedGlassUniforms extends ShaderSizingUniforms {
   u_image: HTMLImageElement | string | null;
   u_grid: number;
+  u_curve: number;
+  u_curveFreq: number;
   u_gridRotation: number;
   u_distortion: number;
   u_extraRight: number;
@@ -174,6 +193,7 @@ export interface FlutedGlassUniforms extends ShaderSizingUniforms {
   u_extraRightDirection: number;
   u_extraLeftDirection: number;
   u_frost: number;
+  u_frostScale: number;
   u_xShift: number;
   u_blur: number;
   u_marginLeft: number;
@@ -188,6 +208,8 @@ export interface FlutedGlassUniforms extends ShaderSizingUniforms {
 export interface FlutedGlassParams extends ShaderSizingParams, ShaderMotionParams {
   image?: HTMLImageElement | string | null;
   grid?: number;
+  curve?: number;
+  curveFreq?: number;
   gridRotation?: number;
   distortion?: number;
   extraRight?: number;
@@ -195,6 +217,7 @@ export interface FlutedGlassParams extends ShaderSizingParams, ShaderMotionParam
   extraRightDirection?: number;
   extraLeftDirection?: number;
   frost?: number;
+  frostScale?: number;
   xShift?: number;
   blur?: number;
   marginLeft?: number;
@@ -207,10 +230,10 @@ export interface FlutedGlassParams extends ShaderSizingParams, ShaderMotionParam
 }
 
 export const GlassDistortionTypes = {
-  'skew': 1,
-  'shrink': 2,
-  'stretch': 3,
-  'wave': 4,
+  skew: 1,
+  shrink: 2,
+  stretch: 3,
+  wave: 4,
 } as const;
 
 export type GlassDistortion = keyof typeof GlassDistortionTypes;

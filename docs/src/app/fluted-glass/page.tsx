@@ -66,7 +66,9 @@ const FlutedGlassWithControls = () => {
       Parameters: folder(
         {
           grid: { value: defaults.grid, min: 4, max: 100, step: 1, order: 100 },
-          gridRotation: { value: defaults.gridRotation, min: 0, max: 180, order: 101 },
+          curve: { value: defaults.curve, min: 0, max: 1, order: 101 },
+          curveFreq: { value: defaults.curveFreq, min: 0, max: 1, order: 102 },
+          gridRotation: { value: defaults.gridRotation, min: 0, max: 180, order: 103 },
           distortion: { value: defaults.distortion, min: 0, max: 1, order: 200 },
           distortionType: {
             value: defaults.distortionType,
@@ -75,7 +77,8 @@ const FlutedGlassWithControls = () => {
           },
           xShift: { value: defaults.xShift, min: -1, max: 1, order: 205 },
           frost: { value: defaults.frost, min: 0, max: 1, order: 250 },
-          blur: { value: defaults.blur, min: 0, max: 15, order: 251 },
+          frostScale: { value: defaults.frostScale, min: 0, max: 1, order: 250 },
+          blur: { value: defaults.blur, min: 0, max: 25, order: 251 },
           gridLines: { value: defaults.gridLines, min: 0, max: 1, order: 270 },
           gridLinesBrightness: { value: defaults.gridLinesBrightness, min: 0, max: 1, order: 271 },
           extraLeft: { value: defaults.extraLeft, min: 0, max: 1, order: 300 },
@@ -151,7 +154,7 @@ const FlutedGlassWithControls = () => {
       <Link href="/">
         <BackButton />
       </Link>
-      <FlutedGlass className="fixed size-full" onClick={handleClick} {...params} />
+      <FlutedGlass className="fixed size-full" onClick={handleClick} {...params} image={image} />
     </>
   );
 };
