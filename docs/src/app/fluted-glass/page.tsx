@@ -79,12 +79,9 @@ const FlutedGlassWithControls = () => {
           frost: { value: defaults.frost, min: 0, max: 1, order: 250 },
           frostScale: { value: defaults.frostScale, min: 0, max: 1, order: 250 },
           blur: { value: defaults.blur, min: 0, max: 25, order: 251 },
+          stretch: { value: defaults.stretch, min: -1, max: 1, order: 252 },
           gridLines: { value: defaults.gridLines, min: 0, max: 1, order: 270 },
           gridLinesBrightness: { value: defaults.gridLinesBrightness, min: 0, max: 1, order: 271 },
-          extraLeft: { value: defaults.extraLeft, min: 0, max: 1, order: 300 },
-          extraLeftDirection: { value: defaults.extraLeftDirection, min: -0.5, max: 0.5, order: 301 },
-          extraRight: { value: defaults.extraRight, min: 0, max: 1, order: 302 },
-          extraRightDirection: { value: defaults.extraRightDirection, min: -0.5, max: 0.5, order: 303 },
         },
         { order: 1 }
       ),
