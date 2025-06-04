@@ -27,6 +27,7 @@ export class ShaderMount {
   private minPixelRatio;
   private maxPixelCount;
   private isSafari = isSafari();
+  private uniformCache: Record<string, unknown> = {};
 
   constructor(
     /** The div you'd like to mount the shader to. The shader will match its size. */
@@ -341,10 +342,21 @@ export class ShaderMount {
     }
   };
 
+  /** Utility: recursive equality test for all the uniforms */
+  private areUniformValuesEqual = (a: any, b: any): boolean => {
+    if (a === b) return true;
+    if (Array.isArray(a) && Array.isArray(b) && a.length === b.length) {
+      return a.every((val, i) => this.areUniformValuesEqual(val, (b as any)[i]));
+    }
+    return false;
+  };
+
   /** Sets the provided uniform values into the WebGL program, can be a partial list of uniforms that have changed */
   private setUniformValues = (updatedUniforms: ShaderMountUniforms) => {
     this.gl.useProgram(this.program);
     Object.entries(updatedUniforms).forEach(([key, value]) => {
+      if (this.areUniformValuesEqual(this.uniformCache[key], value)) return;
+
       const location = this.uniformLocations[key];
       if (!location) {
         console.warn(`Uniform location for ${key} not found`);
@@ -406,6 +418,8 @@ export class ShaderMount {
       } else {
         console.warn(`Unsupported uniform type for ${key}: ${typeof value}`);
       }
+
+      this.uniformCache[key] = value as any;
     });
   };
 
@@ -455,13 +469,9 @@ export class ShaderMount {
 
   /** Update the uniforms that are provided by the outside shader, can be a partial set with only the uniforms that have changed */
   public setUniforms = (newUniforms: ShaderMountUniforms): void => {
-    this.providedUniforms = { ...this.providedUniforms, ...newUniforms };
-
-    // If we need to allow users to add uniforms after the shader has been created, we can do that here
-    // But right now we're expecting the uniform list to be predictable and static
-    // this.setupUniforms();
-
     this.setUniformValues(newUniforms);
+    this.providedUniforms = {...this.providedUniforms, ...newUniforms};
+
     this.render(performance.now());
   };
 

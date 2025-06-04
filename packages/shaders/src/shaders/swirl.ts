@@ -62,34 +62,32 @@ void main() {
   float mid = smoothstep(.2, .4, pow(l, twist));
   shape = mix(0., shape, mid);
 
-  float edge_w = fwidth(shape);
+  shape = clamp(shape - .5 / u_colorsCount, 0., 1.);
 
-  float mixer = shape * (u_colorsCount + 1.) / u_colorsCount;
+  float edge_w = fwidth(shape);
+  
+  float totalShape = smoothstep(0., u_softness + 2. * edge_w, clamp(shape * u_colorsCount, 0., 1.));
+  float mixer = shape * (u_colorsCount - 1.);
+
   vec4 gradient = u_colors[0];
   gradient.rgb *= gradient.a;
-
   for (int i = 1; i < ${swirlMeta.maxColorCount}; i++) {
-      if (i > int(u_colorsCount) - 1) break;
+    if (i >= int(u_colorsCount)) break;
 
-      vec2 borders = vec2(float(i + 1) - u_softness - edge_w, float(i + 1) + u_softness + edge_w) / u_colorsCount;
-      float localT = smoothstep(borders[0], borders[1], mixer);
-      vec4 c = u_colors[i];
-      c.rgb *= c.a;
-      gradient = mix(gradient, c, localT);
+    float localT = clamp(mixer - float(i - 1), 0., 1.);
+    localT = smoothstep(.5 - .5 * u_softness, .5 + .5 * u_softness + edge_w, localT);
+
+    vec4 c = u_colors[i];
+    c.rgb *= c.a;
+    gradient = mix(gradient, c, localT);
   }
 
-  vec2 borders = vec2(2. / (u_colorsCount - 1.));
-  borders = vec2(borders[0] - u_softness - edge_w, borders[1] + u_softness + edge_w) / u_colorsCount;
-  borders[0] = max(0., borders[0]);
-  float gradientShape = smoothstep(borders[0], borders[1], mixer);
-
-  vec3 color = gradient.rgb * gradientShape;
-  float opacity = gradient.a * gradientShape;
+  vec3 color = gradient.rgb * totalShape;
+  float opacity = gradient.a * totalShape;
 
   vec3 bgColor = u_colorBack.rgb * u_colorBack.a;
   color = color + bgColor * (1.0 - opacity);
   opacity = opacity + u_colorBack.a * (1.0 - opacity);
-
 
   ${colorBandingFix}
 

@@ -13,8 +13,8 @@ export const godRaysMeta = {
  * Uniforms:
  * - u_colorBack, u_colorBloom (RGBA)
  * - u_colors (vec4[]), u_colorsCount (float used as integer)
- * - u_frequency: rays density
- * - u_density (0..1): number of visible rays
+ * - u_density: frequency of sector shapes
+ * - u_intensity: rays visibility within sectors
  * - u_spotty: density of spots on the ray (higher = more spots)
  * - u_midSize, u_midIntensity: central shape over the rays
  * - u_bloom (0..1): normal to additive blending mix
@@ -31,11 +31,11 @@ uniform vec4 u_colorBloom;
 uniform vec4 u_colors[${godRaysMeta.maxColorCount}];
 uniform float u_colorsCount;
 
-uniform float u_frequency;
+uniform float u_density;
 uniform float u_spotty;
 uniform float u_midSize;
 uniform float u_midIntensity;
-uniform float u_density;
+uniform float u_intensity;
 uniform float u_bloom;
 
 ${sizingVariablesDeclaration}
@@ -51,12 +51,12 @@ float hash(float n) {
   return fract(sin(n * 43758.5453123) * 43758.5453123);
 }
 
-float raysShape(vec2 uv, float r, float freq, float density, float radius) {
+float raysShape(vec2 uv, float r, float freq, float intensity, float radius) {
   float a = atan(uv.y, uv.x);
   vec2 left = vec2(a * freq, r);
   vec2 right = vec2(mod(a, TWO_PI) * freq, r);
-  float n_left = pow(valueNoise(left), density);
-  float n_right = pow(valueNoise(right), density);
+  float n_left = pow(valueNoise(left), intensity);
+  float n_right = pow(valueNoise(right), intensity);
   float shape = mix(n_right, n_left, smoothstep(-.15, .15, uv.x));
   return shape;
 }
@@ -69,7 +69,7 @@ void main() {
   float radius = length(shape_uv);
   float spots = 5. * abs(u_spotty);
 
-  float density = 4. - 3. * clamp(u_density, 0., 1.);
+  float intensity = 4. - 3. * clamp(u_intensity, 0., 1.);
 
   float delta = 1. - smoothstep(0., 1., radius);
 
@@ -86,10 +86,10 @@ void main() {
 
     float r1 = radius * (1.0 + 0.4 * float(i)) - 3.0 * t;
     float r2 = 0.5 * radius * (1.0 + spots) - 2.0 * t;
-    float f = mix(1.0, 3.0 + 0.5 * float(i), hash(float(i) + 10.0)) * u_frequency;
+    float f = mix(1.0, 3.0 + 0.5 * float(i), hash(float(i) + 10.0)) * u_density;
 
-    float ray = raysShape(rotatedUV, r1, 5.0 * f, density, radius);
-    ray *= raysShape(rotatedUV, r2, 4.0 * f, density, radius);
+    float ray = raysShape(rotatedUV, r1, 5.0 * f, intensity, radius);
+    ray *= raysShape(rotatedUV, r2, 4.0 * f, intensity, radius);
     ray += (1. + 4. * ray) * middleShape;
     ray = clamp(ray, 0.0, 1.0);
 
@@ -133,8 +133,8 @@ export interface GodRaysUniforms extends ShaderSizingUniforms {
   u_spotty: number;
   u_midSize: number;
   u_midIntensity: number;
-  u_frequency: number;
   u_density: number;
+  u_intensity: number;
   u_bloom: number;
 }
 
@@ -145,7 +145,7 @@ export interface GodRaysParams extends ShaderSizingParams, ShaderMotionParams {
   spotty?: number;
   midSize?: number;
   midIntensity?: number;
-  frequency?: number;
   density?: number;
+  intensity?: number;
   bloom?: number;
 }

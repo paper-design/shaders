@@ -80,6 +80,7 @@ void main() {
     strokeWidth *= 1.5;
     p = p * 2. - 1.;
     p *= .9;
+    p.y = 1. - p.y;
     p.y -= .75 * baseSize;
     dist = polygon(p, 3., 1e-3);
   }
