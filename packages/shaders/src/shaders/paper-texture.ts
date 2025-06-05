@@ -1,6 +1,6 @@
 import type { ShaderMotionParams } from '../shader-mount.js';
 import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
-import { declareRotate, declareValueNoise, declareSimplexNoise } from '../shader-utils.js';
+import { declareRotate, declarePI, declareValueNoise, declareSimplexNoise } from '../shader-utils.js';
 
 /**
 
@@ -27,7 +27,7 @@ uniform float u_grain;
 uniform float u_curles;
 uniform float u_curlesScale;
 uniform float u_crumples;
-uniform float u_foldsScale;
+uniform float u_foldsNumber;
 uniform float u_folds;
 uniform float u_crumplesScale;
 
@@ -41,6 +41,7 @@ ${sizingVariablesDeclaration}
 out vec4 fragColor;
 
 ${declareRotate}
+${declarePI}
 ${declareSimplexNoise}
 
 
@@ -107,7 +108,7 @@ float curleyFbm(vec2 uv) {
   float val = 0.;
   for (int i = 0; i < 4; i++) {
     val += amp * (curley_valueNoise(uv + float(i)) - 1.);
-    uv *= 2.;
+    uv *= 1.8;
     amp *= .5;
   }
   return val;
@@ -142,25 +143,31 @@ float crumpled(vec2 uv) {
   return crumpled_voronoi2(uv * .25, 16.) * crumpled_voronoi2(uv * .5, 2.);
 }
 
-vec2 rand(vec2 p) {
-  vec2 uv = floor(p) / 50. + .5;
-  return texture(u_noiseTexture, uv).bg;
+
+
+
+
+float foldsHash(in float n) {
+  return fract(sin(n)*43758.5453123);
 }
-vec3 worley(vec2 n, float s) {
-  vec3 ret = vec3(1.);
-  for (int x = -1; x < 2; x++) {
-    for (int y = -1; y < 2; y++) {
-      vec2 xy = vec2(x, y);
-      vec2 cellIndex = floor(n / s) + xy;
-      vec2 worleyPoint = rand(cellIndex);
-      worleyPoint += xy - fract(n / s);
-      float d = length(worleyPoint) * s;
-      if (d < ret.z) {
-        ret = vec3(worleyPoint, d);
+vec2 folds(vec2 uv) {
+    vec3 pp = vec3(0.);
+    float l = 9.;
+    for (float i = 0.; i < 15.; i++) {
+      if (i >= u_foldsNumber) break;
+      
+      float an = foldsHash(i + u_foldsSeed) * TWO_PI;
+      float ra = sqrt(foldsHash(an));
+      vec2 p = vec2(cos(an), sin(an)) * ra;
+      float dist = distance(uv, p);
+      l = min(l, dist);
+      
+      if (l == dist) {
+        pp.xy = (uv - p.xy);
+        pp.z = dist;
       }
     }
-  }
-  return ret;
+    return mix(pp.xy, vec2(0.), pow(pp.z, .25));
 }
 
 void main() {
@@ -180,21 +187,20 @@ void main() {
   vec2 normal = vec2(0.);
 
   vec2 foldsUV = v_patternUV * .002;
-  float foldsSeed = u_foldsSeed;
-  float wsize = u_foldsScale;  
-  foldsUV = rotate(foldsUV, 4. * foldsSeed);
-  vec3 w = worley(.3 * foldsUV, wsize);
-  foldsUV = rotate(foldsUV, .03);
-  vec3 w2 = worley(.3 * foldsUV, wsize);
-  normal.xy += u_folds * .25 * (w.xy + w2.xy);
+  foldsUV = rotate(foldsUV, 4. * u_foldsSeed);
+  vec2 w = folds(foldsUV);
+  foldsUV = rotate(foldsUV + .004, .007);
+  vec2 w2 = folds(foldsUV);
+
+  normal.xy += u_folds * 4. * (w + w2);
 
   normal.xy += u_crumples * crumples;
   
   float blur = u_blur * 2. * smoothstep(0., 1., fbm(.0017 * v_patternUV + 10. * u_blurSeed));
   normal *= (1. - blur);
 
-  normal.xy += u_grain * grain;
-  normal.xy += u_curles * curles * 2. * (1. - .5 * blur);
+  normal.xy += u_grain * 1.5 * grain;
+  normal.xy += u_curles * curles * 3. * (1. - .5 * blur);
 
   vec3 lightPos = vec3(1., 2., 1.);
   float res = clamp(dot(normalize(vec3(normal, 9.5 - 9. * pow(u_contrast, .1))), normalize(lightPos)), 0., 1.);
@@ -216,7 +222,7 @@ export interface PaperTextureUniforms extends ShaderSizingUniforms {
   u_curles: number;
   u_curlesScale: number;
   u_crumples: number;
-  u_foldsScale: number;
+  u_foldsNumber: number;
   u_folds: number;
   u_blur: number;
   u_blurSeed: number;
@@ -234,7 +240,7 @@ export interface PaperTextureParams extends ShaderSizingParams, ShaderMotionPara
   curles?: number;
   curlesScale?: number;
   crumples?: number;
-  foldsScale?: number;
+  foldsNumber?: number;
   folds?: number;
   blur?: number;
   blurSeed?: number;

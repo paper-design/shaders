@@ -49,7 +49,7 @@ const PaperTextureWithControls = () => {
           crumplesScale: { value: defaults.crumplesScale, min: 0.3, max: 3, order: 322 },
 
           folds: { value: defaults.folds, min: 0, max: 1, order: 330 },
-          foldsScale: { value: defaults.foldsScale, min: 0.25, max: 1, order: 331 },
+          foldsNumber: { value: defaults.foldsNumber, min: 1, max: 15, step: 1, order: 331 },
           foldsSeed: { value: defaults.foldsSeed, min: 0, max: 1000, order: 332 },
 
           blur: { value: defaults.blur, min: 0, max: 1, order: 340 },
