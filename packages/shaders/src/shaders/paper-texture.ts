@@ -192,7 +192,7 @@ void main() {
   foldsUV = rotate(foldsUV + .004, .007);
   vec2 w2 = folds(foldsUV);
 
-  normal.xy += u_folds * 4. * (w + w2);
+  normal.xy += u_folds * min(5. * u_contrast, 1.) * 4. * (w + w2);
 
   normal.xy += u_crumples * crumples;
   
