@@ -55,7 +55,7 @@ import { MeshGradient } from '@paper-design/shaders-react';
 ```jsx
 import { MeshGradient } from '@paper-design/shaders-react';
 
-<MeshGradient colors={['#5100ff', '#00ff80', '#ffcc00', '#ea00ff']} speed={0.25} style={{ width: 500, height: 200 }} />;
+<MeshGradient colors={['#5100ff', '#00ff80', '#ffcc00', '#ea00ff']} speed={0.25} distortion={0.8} swirl={0.7} style={{ width: 500, height: 200 }} />;
 
 // these settings can be configured in code or designed in Paper
 ```
@@ -78,9 +78,9 @@ const shaderParams = {
     getShaderColorFromString('#ffcc00'),
     getShaderColorFromString('#ea00ff'),
   ],
-  u_distortion: 1,
-  u_swirl: 1,
-  u_scale: 1,
+  u_distortion: 0.8,
+  u_swirl: 0.7,
+  u_scale: 1, // has to be set for any shader
 };
 
 const speed = 0.25;
