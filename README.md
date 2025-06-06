@@ -55,14 +55,7 @@ import { MeshGradient } from '@paper-design/shaders-react';
 ```jsx
 import { MeshGradient } from '@paper-design/shaders-react';
 
-<MeshGradient
-  color1="#FFC0CB" // pink
-  color2="#FFFF00" // yellow
-  color3="#0000FF" // blue
-  color4="#800080" // purple
-  speed={0.25}
-  style={{ width: 500, height: 200 }}
-/>;
+<MeshGradient colors={['#5100ff', '#00ff80', '#ffcc00', '#ea00ff']} speed={0.25} style={{ width: 500, height: 200 }} />;
 
 // these settings can be configured in code or designed in Paper
 ```
@@ -73,15 +66,21 @@ import { MeshGradient } from '@paper-design/shaders-react';
 import { ShaderMount, meshGradientFragmentShader, getShaderColorFromString } from '@paper-design/shaders';
 
 const myDiv = document.createElement('div');
-document.body.appendChild(myCanvas);
+document.body.appendChild(myDiv);
 myDiv.style.width = '600px';
 myDiv.style.height = '400px';
 
 const shaderParams = {
-  u_color1: getShaderColorFromString('#283BFC'),
-  u_color2: getShaderColorFromString('#FF2828'),
-  u_color3: getShaderColorFromString('#dddddd'),
-  u_color4: getShaderColorFromString('#800080'),
+  u_colorsCount: 4,
+  u_colors: [
+    getShaderColorFromString('#5100ff'),
+    getShaderColorFromString('#00ff80'),
+    getShaderColorFromString('#ffcc00'),
+    getShaderColorFromString('#ea00ff'),
+  ],
+  u_distortion: 1,
+  u_swirl: 1,
+  u_scale: 1,
 };
 
 const speed = 0.25;
