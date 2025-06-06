@@ -66,7 +66,7 @@ const FlutedGlassWithControls = () => {
       Parameters: folder(
         {
           grid: { value: defaults.grid, min: 4, max: 100, step: 1, order: 100 },
-          curve: { value: defaults.curve, min: 0, max: 1, order: 101 },
+          curve: { value: defaults.curve, min: 0, max: 2, order: 101 },
           curveFreq: { value: defaults.curveFreq, min: 0, max: 1, order: 102 },
           gridRotation: { value: defaults.gridRotation, min: 0, max: 180, order: 103 },
           distortion: { value: defaults.distortion, min: 0, max: 1, order: 200 },

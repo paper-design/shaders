@@ -1,6 +1,6 @@
 import type { ShaderMotionParams } from '../shader-mount.js';
 import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
-import { declarePI, declareRotate, declareRandom, declareSimplexNoise } from '../shader-utils.js';
+import { declarePI, declareRotate, declareRandom } from '../shader-utils.js';
 
 /**
  */
@@ -96,21 +96,27 @@ void main() {
   }
   imageUV += .5;
 
-  float patternRotation = u_gridRotation * PI / 180.;
-
   vec2 uv = imageUV;
   float frame = uvFrame(imageUV);
   if (frame < .05) discard;
+  
+  float gridNumber = u_grid * u_image_aspect_ratio;
   
   float mask = 
     step(u_marginLeft, imageUV.x) * step(u_marginRight, 1. - imageUV.x)
     * step(u_marginTop, imageUV.y) * step(u_marginBottom, 1. - imageUV.y);
   
+  float patternRotation = u_gridRotation * PI / 180.;
   uv = rotate(uv - vec2(.5), patternRotation);
-  uv *= u_grid;
+  uv *= gridNumber;
 
-  float curve = sin(20. * u_curveFreq * uv.y / u_grid);
-  curve *= (u_curve * .2 * u_grid);
+  float curveX = 15. * u_curveFreq * uv.y / gridNumber;
+  
+  float wave = sin(curveX);
+  float zigzag = abs(fract(curveX) - .5);
+  
+  float curve = mix(wave, zigzag, clamp(u_curve, 1., 2.) - 1.);
+  curve *= (clamp(u_curve, 0., 1.) * .2 * gridNumber / u_image_aspect_ratio);
 
 
   vec2 uvOrig = uv;
@@ -141,10 +147,10 @@ void main() {
   
   xDistortion *= u_distortion;
 
-  uv = (floorOrigUV + fractOrigUV) / u_grid;  
-  uv.x += xDistortion / u_grid;
+  uv = (floorOrigUV + fractOrigUV) / gridNumber;  
+  uv.x += xDistortion / gridNumber;
   
-  uv.y += 1.5 * u_skew * xDistortion / u_grid;
+  uv.y += 1.5 * u_skew * xDistortion / gridNumber;
   
   uv = rotate(uv, -patternRotation) + vec2(.5);
   
@@ -155,7 +161,7 @@ void main() {
   
   vec4 color = gaussian1D(u_image, uv, 1. / u_resolution, vec2(1.0, 0.0), blur);
 
-  vec3 midColor = texture(u_image, vec2(floorUV.x / u_grid - .5, .4 + .2 * hash(floorUV.x))).rgb;
+  vec3 midColor = texture(u_image, vec2(floorUV.x / gridNumber - .5, .4 + .2 * hash(floorUV.x))).rgb;
   vec3 highlight = mix(midColor, vec3(1.), u_gridLinesBrightness);
   color.rgb = mix(color.rgb, highlight, u_gridLines * gridLines);
 
