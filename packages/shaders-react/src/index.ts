@@ -85,6 +85,7 @@ export { isPaperShaderElement, getShaderColorFromString } from '@paper-design/sh
 export type { ShaderFit, ShaderSizingParams, ShaderSizingUniforms } from '@paper-design/shaders';
 
 export {
+  colorPanelsMeta,
   dotOrbitMeta,
   godRaysMeta,
   grainGradientMeta,
