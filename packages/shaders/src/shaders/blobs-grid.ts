@@ -11,13 +11,12 @@ export const blobsGridMeta = {
  * A dot grid with distortion + 3d-simulating overlays (shades, outlines, highlights)
  *
  * Uniforms:
- * - u_colorBack, u_colorBloom (RGBA)
+ * - u_colorBack, u_colorShade, u_colorSpecular, u_colorOutline (RGBA)
  * - u_colors (vec4[]), u_colorsCount (float used as integer)
- * - u_density: frequency of sector shapes
- * - u_intensity: rays visibility within sectors
- * - u_spotty: density of spots on the ray (higher = more spots)
- * - u_midSize, u_midIntensity: central shape over the rays
- * - u_bloom (0..1): normal to additive blending mix
+ * - u_stepsPerColor: discrete color steps between u_colors
+ * - u_size, u_distortion: blob size & shape
+ * - u_specular, u_specularNormal: highlight size & shape (on each cell)
+ * - u_outline, u_shade: 2 additional color overlays (on each cell)
  *
  */
 
