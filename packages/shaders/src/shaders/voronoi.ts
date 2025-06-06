@@ -52,7 +52,7 @@ ${declarePI}
 
 vec2 hash(vec2 p) {
   vec2 uv = floor(p) / 100. + .5;
-  return texture(u_noiseTexture, uv).gb;
+  return texture(u_noiseTexture, fract(uv)).gb;
 }
 
 vec4 voronoi(vec2 x, float t) {
