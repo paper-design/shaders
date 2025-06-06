@@ -164,7 +164,7 @@ export {
   blobsGridFragmentShader,
   type BlobsGridParams,
   type BlobsGridUniforms,
-} from './shaders/blobs-grid';
+} from './shaders/blobs-grid.js';
 
 // ----- Utils ----- //
 export { getShaderColorFromString } from './get-shader-color-from-string.js';

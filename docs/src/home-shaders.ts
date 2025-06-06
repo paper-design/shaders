@@ -198,7 +198,7 @@ export const homeShaders = [
     name: 'color panels',
     url: '/color-panels',
     ShaderComponent: ColorPanels,
-    shaderConfig: {...colorPanelsPresets[0].params},
+    shaderConfig: { ...colorPanelsPresets[0].params },
   },
   {
     name: 'blobs grid',

@@ -1,21 +1,30 @@
-import type { vec4 } from '../types';
-import type { ShaderMotionParams } from '../shader-mount';
-import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing';
-import { declareRandom, declarePI, declareRotate, declareSimplexNoise, colorBandingFix } from '../shader-utils';
+import type { vec4 } from '../types.js';
+import type { ShaderMotionParams } from '../shader-mount.js';
+import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
+import { declareRandom, declarePI, declareRotate, declareSimplexNoise } from '../shader-utils.js';
 
 export const blobsGridMeta = {
   maxColorCount: 4,
 } as const;
 
 /**
-
+ * A dot grid with distortion + 3d-simulating overlays (shades, outlines, highlights)
+ *
+ * Uniforms:
+ * - u_colorBack, u_colorBloom (RGBA)
+ * - u_colors (vec4[]), u_colorsCount (float used as integer)
+ * - u_density: frequency of sector shapes
+ * - u_intensity: rays visibility within sectors
+ * - u_spotty: density of spots on the ray (higher = more spots)
+ * - u_midSize, u_midIntensity: central shape over the rays
+ * - u_bloom (0..1): normal to additive blending mix
+ *
  */
+
 export const blobsGridFragmentShader: string = `#version 300 es
 precision mediump float;
 
 uniform float u_time;
-uniform vec2 u_resolution;
-uniform float u_pixelRatio;
 
 uniform vec4 u_colors[${blobsGridMeta.maxColorCount}];
 uniform float u_colorsCount;
@@ -74,13 +83,12 @@ void main() {
   vec2 cellUV = fract(grid);
   vec2 cellIdx = floor(grid);
 
-  float cellInnerShadowBlur = .02 / u_scale;
-  float cellInnerShadow = 1.;
-  cellInnerShadow *= clamp(cellUV.x / cellInnerShadowBlur, 0., 1.);
-  cellInnerShadow *= clamp(cellUV.y / cellInnerShadowBlur, 0., 1.);
-  cellInnerShadow *= clamp((1. - cellUV.x) / cellInnerShadowBlur, 0., 1.);
-  cellInnerShadow *= clamp((1. - cellUV.y) / cellInnerShadowBlur, 0., 1.);
-  cellInnerShadow = pow(cellInnerShadow, .3);
+  // float cellInnerShadowBlur = .1;
+  // float cellInnerShadow = 1.;
+  // cellInnerShadow *= clamp(cellUV.x / cellInnerShadowBlur, 0., 1.);
+  // cellInnerShadow *= clamp(cellUV.y / cellInnerShadowBlur, 0., 1.);
+  // cellInnerShadow *= clamp((1. - cellUV.x) / cellInnerShadowBlur, 0., 1.);
+  // cellInnerShadow *= clamp((1. - cellUV.y) / cellInnerShadowBlur, 0., 1.);
 
   vec2 pos = cellUV - .5;
   float l = length(pos);
@@ -144,9 +152,9 @@ void main() {
   specular = clamp(specular, 0., 1.);
   color = mix(color, u_colorSpecular.rgb, specular);
 
-  color = mix(mix(u_colorBack.rgb, u_colorOutline.rgb, pow(u_outline, .3)), color, cellInnerShadow);
-  opacity = mix(mix(u_colorBack.a, u_colorOutline.a, pow(u_outline, .3)), opacity, cellInnerShadow);
-
+  // color = mix(u_colorBack.rgb, color, cellInnerShadow);
+  // opacity = mix(u_colorBack.a, opacity, cellInnerShadow);
+  
   color *= contour;
   opacity *= contour;
   
@@ -173,7 +181,6 @@ export interface BlobsGridUniforms extends ShaderSizingUniforms {
   u_shade: number;
   u_size: number;
   u_outline: number;
-  u_noiseTexture?: HTMLImageElement;
 }
 
 export interface BlobsGridParams extends ShaderSizingParams, ShaderMotionParams {
