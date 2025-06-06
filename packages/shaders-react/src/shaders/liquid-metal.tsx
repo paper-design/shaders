@@ -1,6 +1,6 @@
 import { memo } from 'react';
-import { ShaderMount, type ShaderComponentProps } from '../shader-mount';
-import { colorPropsAreEqual } from '../color-props-are-equal';
+import { ShaderMount, type ShaderComponentProps } from '../shader-mount.js';
+import { colorPropsAreEqual } from '../color-props-are-equal.js';
 import {
   liquidMetalFragmentShader,
   ShaderFitOptions,
@@ -16,16 +16,32 @@ export interface LiquidMetalProps extends ShaderComponentProps, LiquidMetalParam
 
 type LiquidMetalPreset = ShaderPreset<LiquidMetalParams>;
 
-// Due to Leva controls limitation:
-// 1) keep default colors in HSLA format to keep alpha channel
-// 2) don't use decimal values on HSL values (to avoid button highlight bug)
-
 export const defaultPreset: LiquidMetalPreset = {
   name: 'Default',
   params: {
     ...defaultObjectSizing,
     speed: 1,
     frame: 0,
+    colorBack: '#ffffff',
+    colorTint: '#ffffff',
+    softness: 0.3,
+    repetition: 3,
+    shiftRed: 0.3,
+    shiftBlue: 0.3,
+    distortion: 0.3,
+    contour: 0.88,
+    shape: 'metaballs',
+  },
+};
+
+export const fullScreenPreset: LiquidMetalPreset = {
+  name: 'Full Screen',
+  params: {
+    ...defaultObjectSizing,
+    speed: 1,
+    frame: 0,
+    colorBack: '#111111',
+    colorTint: '#ffffff',
     softness: 0.3,
     repetition: 3,
     shiftRed: 0.3,
@@ -35,7 +51,6 @@ export const defaultPreset: LiquidMetalPreset = {
     shape: 'none',
     worldWidth: 0,
     worldHeight: 0,
-    colorTint: '#ffffff',
   },
 };
 
@@ -44,25 +59,44 @@ export const spherePreset: LiquidMetalPreset = {
   params: {
     ...defaultObjectSizing,
     scale: 0.7,
-    speed: 1,
+    speed: 2,
     frame: 0,
+    colorBack: '#ffffff',
+    colorTint: '#d1e0ff',
     softness: 0.45,
     repetition: 4,
-    shiftRed: -1,
+    shiftRed: 1,
     shiftBlue: 0.3,
     distortion: 0.1,
-    contour: 1,
+    contour: 0.4,
     shape: 'circle',
-    worldWidth: 0,
-    worldHeight: 0,
-    colorTint: '#ffffff',
   },
 };
 
-export const liquidMetalPresets: LiquidMetalPreset[] = [defaultPreset, spherePreset];
+export const dropsPreset: LiquidMetalPreset = {
+  name: 'Drops',
+  params: {
+    ...defaultObjectSizing,
+    scale: 2.2,
+    speed: 1,
+    frame: 0,
+    colorBack: '#00042e',
+    colorTint: '#5b4dc7',
+    softness: 0.45,
+    repetition: 4,
+    shiftRed: -0.5,
+    shiftBlue: -1,
+    distortion: 0.1,
+    contour: 1,
+    shape: 'metaballs',
+  },
+};
+
+export const liquidMetalPresets: LiquidMetalPreset[] = [defaultPreset, spherePreset, dropsPreset, fullScreenPreset];
 
 export const LiquidMetal: React.FC<LiquidMetalProps> = memo(function LiquidMetalImpl({
   // Own props
+  colorBack = defaultPreset.params.colorBack,
   colorTint = defaultPreset.params.colorTint,
   speed = defaultPreset.params.speed,
   frame = defaultPreset.params.frame,
@@ -88,6 +122,7 @@ export const LiquidMetal: React.FC<LiquidMetalProps> = memo(function LiquidMetal
 }: LiquidMetalProps) {
   const uniforms = {
     // Own uniforms
+    u_colorBack: getShaderColorFromString(colorBack),
     u_colorTint: getShaderColorFromString(colorTint),
 
     u_softness: softness,

@@ -238,11 +238,26 @@
       ]
     },
     {
+      "name": "color-panels",
+      "type": "registry:component",
+      "title": "Color Panels Example",
+      "description": "Color Panels shader example.",
+      "dependencies": ["@paper-design/shaders-react"],
+      "files": [
+        {
+          "path": "registry/color-panels-example.tsx",
+          "type": "registry:component"
+        }
+      ]
+    },
+    {
       "name": "blobs-grid",
       "type": "registry:component",
       "title": "Blobs Grid Example",
       "description": "Blobs Grid shader example.",
-      "dependencies": ["@paper-design/shaders-react"],
+      "dependencies": [
+        "@paper-design/shaders-react"
+      ],
       "files": [
         {
           "path": "registry/blobs-grid-example.tsx",

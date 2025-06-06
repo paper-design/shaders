@@ -36,10 +36,10 @@ const VoronoiWithControls = () => {
         {
           stepsPerColor: { value: defaults.stepsPerColor, min: 1, max: 3, step: 1, order: 200 },
           colorGlow: { value: toHsla(defaults.colorGlow), order: 201 },
-          colorBack: { value: toHsla(defaults.colorBack), order: 202 },
+          colorGap: { value: toHsla(defaults.colorGap), order: 202 },
           distortion: { value: defaults.distortion, min: 0, max: 0.5, order: 300 },
           gap: { value: defaults.gap, min: 0, max: 0.1, order: 301 },
-          innerGlow: { value: defaults.innerGlow, min: 0, max: 1, order: 303 },
+          glow: { value: defaults.glow, min: 0, max: 1, order: 303 },
           speed: { value: defaults.speed, min: 0, max: 1, order: 400 },
         },
         { order: 1 }

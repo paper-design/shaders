@@ -1,6 +1,6 @@
 import { memo } from 'react';
-import { ShaderMount, type ShaderComponentProps } from '../shader-mount';
-import { colorPropsAreEqual } from '../color-props-are-equal';
+import { ShaderMount, type ShaderComponentProps } from '../shader-mount.js';
+import { colorPropsAreEqual } from '../color-props-are-equal.js';
 import {
   defaultObjectSizing,
   getShaderColorFromString,
@@ -15,10 +15,6 @@ import {
 export interface PulsingBorderProps extends ShaderComponentProps, PulsingBorderParams {}
 
 type PulsingBorderPreset = ShaderPreset<PulsingBorderParams>;
-
-// Due to Leva controls limitation:
-// 1) keep default colors in HSLA format to keep alpha channel
-// 2) don't use decimal values on HSL values (to avoid button highlight bug)
 
 export const defaultPreset: PulsingBorderPreset = {
   name: 'Default',

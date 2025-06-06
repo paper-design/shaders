@@ -1,8 +1,25 @@
-import type { ShaderMotionParams } from '../shader-mount';
-import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing';
-import { declarePI, declareRotate, declareSimplexNoise, colorBandingFix } from '../shader-utils';
+import type { ShaderMotionParams } from '../shader-mount.js';
+import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
+import { declarePI, declareRotate, declareSimplexNoise, colorBandingFix } from '../shader-utils.js';
 
 /**
+ *
+ * Fluid motion imitation applied over abstract shapes
+ * (animated stripe pattern getting distorted with shape edges)
+ *
+ * Uniforms:
+ * - u_colorBack, u_colorTint (RGBA)
+ * - u_repetition: density of pattern stripes
+ * - u_softness: blur between stripes
+ * - u_shiftRed & u_shiftBlue: color dispersion between the stripes
+ * - u_distortion: pattern distortion on the whole canvas
+ * - u_contour: distortion power over the shape edges
+ * - u_shape (float used as integer):
+ * ---- 0: canvas-screen rectangle, needs u_worldWidth = u_worldHeight = 0 to be responsive (see vertex shader)
+ * ---- 1: static circle
+ * ---- 2: animated flower-like polar shape
+ * ---- 3: animated metaballs
+ *
  */
 
 export const liquidMetalFragmentShader: string = `#version 300 es
@@ -10,6 +27,7 @@ precision mediump float;
 
 uniform float u_time;
 
+uniform vec4 u_colorBack;
 uniform vec4 u_colorTint;
 
 uniform float u_softness;
@@ -48,7 +66,7 @@ float getColorChanges(float c1, float c2, float stripe_p, vec3 w, float blur, fl
   float gradient = mix(c1, c2, smoothstep(0., 1., gradient_t));
   ch = mix(ch, gradient, smoothstep(border - blur, border + blur, stripe_p));
   
-  // ch = 1. - min(1., (1. - ch) / max(tint, .0001));
+  // Tint color is applied with color burn blending
   ch = mix(ch, 1. - min(1., (1. - ch) / max(tint, 0.0001)), u_colorTint.a);
   return ch;
 }
@@ -196,8 +214,11 @@ void main() {
   float b = getColorChanges(color1.b, color2.b, stripe_b, w, blur, bump, u_colorTint.b);
 
   color = vec3(r, g, b);
-  
   color *= opacity;
+
+  vec3 bgColor = u_colorBack.rgb * u_colorBack.a;
+  color = color + bgColor * (1. - opacity);
+  opacity = opacity + u_colorBack.a * (1. - opacity);
 
   ${colorBandingFix}
 
@@ -206,6 +227,7 @@ void main() {
 `;
 
 export interface LiquidMetalUniforms extends ShaderSizingUniforms {
+  u_colorBack: [number, number, number, number];
   u_colorTint: [number, number, number, number];
   u_softness: number;
   u_repetition: number;
@@ -217,6 +239,7 @@ export interface LiquidMetalUniforms extends ShaderSizingUniforms {
 }
 
 export interface LiquidMetalParams extends ShaderSizingParams, ShaderMotionParams {
+  colorBack?: string;
   colorTint?: string;
   softness?: number;
   repetition?: number;

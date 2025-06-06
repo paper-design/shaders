@@ -1,7 +1,7 @@
-import type { vec4 } from '../types';
-import type { ShaderMotionParams } from '../shader-mount';
-import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing';
-import { declarePI, colorBandingFix } from '../shader-utils';
+import type { vec4 } from '../types.js';
+import type { ShaderMotionParams } from '../shader-mount.js';
+import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
+import { declarePI, colorBandingFix } from '../shader-utils.js';
 
 export const metaballsMeta = {
   maxColorCount: 8,
@@ -9,20 +9,23 @@ export const metaballsMeta = {
 } as const;
 
 /**
- * Metaballs (circular shapes with gooey effect applied)
- * The artwork by Ksenia Kondrashova
+ * N circular shapes moving around the center, blending and merging based on distance
  *
- * Uniforms include:
- * - uColors (vec4[]): Input RGBA colors
- * - uColorsCount (float): Number of active colors (`uColors` length)
- * - u_count (float)
- * - u_size (float)
+ * Uniforms:
+ * - u_colorBack (RGBA)
+ * - u_colors (vec4[]), u_colorsCount (float used as integer)
+ * - u_size: ball base size
+ * - u_sizeRange (0..1): randomizes the size of balls between 0 and u_size
+ * - u_count: number of balls on the canvas
+ *
  */
+
 export const metaballsFragmentShader: string = `#version 300 es
 precision mediump float;
 
 uniform float u_time;
 
+uniform vec4 u_colorBack;
 uniform vec4 u_colors[${metaballsMeta.maxColorCount}];
 uniform float u_colorsCount;
 uniform float u_size;
@@ -62,19 +65,19 @@ void main() {
   vec3 totalColor = vec3(0.);
   float totalShape = 0.;
   float totalOpacity = 0.;
-  
+
   for (int i = 0; i < ${metaballsMeta.maxBallsCount}; i++) {
     if (i >= int(ceil(u_count))) break;
-  
+
     float idxFract = float(i) / float(${metaballsMeta.maxBallsCount});
     float angle = TWO_PI * idxFract;
-  
+
     float speed = 1. - .2 * idxFract;
     float noiseX = noise(angle * 10. + float(i) + t * speed);
     float noiseY = noise(angle * 20. + float(i) - t * speed);
-  
+
     vec2 pos = vec2(.5) + 1e-4 + .9 * (vec2(noiseX, noiseY) - .5);
-  
+
     int safeIndex = i % int(u_colorsCount + 0.5);
     vec4 ballColor = u_colors[safeIndex];
     ballColor.rgb *= ballColor.a;
@@ -102,9 +105,9 @@ void main() {
   vec3 color = totalColor * finalShape;
   float opacity = totalOpacity * finalShape;
 
-  if (opacity < .005) {
-    discard;
-  }
+  vec3 bgColor = u_colorBack.rgb * u_colorBack.a;
+  color = color + bgColor * (1. - opacity);
+  opacity = opacity + u_colorBack.a * (1. - opacity);
 
   ${colorBandingFix}
 
@@ -113,6 +116,7 @@ void main() {
 `;
 
 export interface MetaballsUniforms extends ShaderSizingUniforms {
+  u_colorBack: [number, number, number, number];
   u_colors: vec4[];
   u_colorsCount: number;
   u_count: number;
@@ -120,6 +124,7 @@ export interface MetaballsUniforms extends ShaderSizingUniforms {
 }
 
 export interface MetaballsParams extends ShaderSizingParams, ShaderMotionParams {
+  colorBack?: string;
   colors?: string[];
   count?: number;
   size?: number;

@@ -1,6 +1,6 @@
 import { memo } from 'react';
-import { ShaderMount, type ShaderComponentProps } from '../shader-mount';
-import { colorPropsAreEqual } from '../color-props-are-equal';
+import { ShaderMount, type ShaderComponentProps } from '../shader-mount.js';
+import { colorPropsAreEqual } from '../color-props-are-equal.js';
 import {
   defaultPatternSizing,
   getShaderColorFromString,
@@ -15,44 +15,31 @@ export interface NeuroNoiseProps extends ShaderComponentProps, NeuroNoiseParams 
 
 type NeuroNoisePreset = ShaderPreset<NeuroNoiseParams>;
 
-// Due to Leva controls limitation:
-// 1) keep default colors in HSLA format to keep alpha channel
-// 2) don't use decimal values on HSL values (to avoid button highlight bug)
-
 export const defaultPreset: NeuroNoisePreset = {
   name: 'Default',
   params: {
     ...defaultPatternSizing,
     speed: 1,
     frame: 0,
-    colorFront: '#bf9eff',
+    colorFront: '#ffffff',
+    colorMid: '#bf9eff',
     colorBack: '#000000',
-    brightness: 1.3,
+    brightness: 0.3,
+    contrast: 0.6,
   },
 };
 
-const marblePreset: NeuroNoisePreset = {
-  name: 'Marble',
-  params: {
-    ...defaultPatternSizing,
-    scale: 0.4,
-    speed: 0,
-    frame: 0,
-    colorFront: '#1d2131',
-    colorBack: '#f7f7f7',
-    brightness: 1.1,
-  },
-};
-
-export const neuroNoisePresets: NeuroNoisePreset[] = [defaultPreset, marblePreset] as const;
+export const neuroNoisePresets: NeuroNoisePreset[] = [defaultPreset] as const;
 
 export const NeuroNoise: React.FC<NeuroNoiseProps> = memo(function NeuroNoiseImpl({
   // Own props
   speed = defaultPreset.params.speed,
   frame = defaultPreset.params.frame,
   colorFront = defaultPreset.params.colorFront,
+  colorMid = defaultPreset.params.colorMid,
   colorBack = defaultPreset.params.colorBack,
   brightness = defaultPreset.params.brightness,
+  contrast = defaultPreset.params.contrast,
 
   // Sizing props
   fit = defaultPreset.params.fit,
@@ -69,8 +56,10 @@ export const NeuroNoise: React.FC<NeuroNoiseProps> = memo(function NeuroNoiseImp
   const uniforms = {
     // Own uniforms
     u_colorFront: getShaderColorFromString(colorFront),
+    u_colorMid: getShaderColorFromString(colorMid),
     u_colorBack: getShaderColorFromString(colorBack),
     u_brightness: brightness,
+    u_contrast: contrast,
 
     // Sizing uniforms
     u_fit: ShaderFitOptions[fit],

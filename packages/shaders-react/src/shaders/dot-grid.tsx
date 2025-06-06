@@ -1,6 +1,6 @@
 import { memo } from 'react';
-import { ShaderMount, type ShaderComponentProps } from '../shader-mount';
-import { colorPropsAreEqual } from '../color-props-are-equal';
+import { ShaderMount, type ShaderComponentProps } from '../shader-mount.js';
+import { colorPropsAreEqual } from '../color-props-are-equal.js';
 import {
   getShaderColorFromString,
   dotGridFragmentShader,
@@ -12,10 +12,6 @@ import {
   defaultPatternSizing,
 } from '@paper-design/shaders';
 
-// Due to Leva controls limitation:
-// 1) keep default colors in HSLA format to keep alpha channel
-// 2) don't use decimal values on HSL values (to avoid button highlight bug)
-
 export interface DotGridProps extends ShaderComponentProps, DotGridParams {}
 
 type DotGridPreset = ShaderPreset<DotGridParams>;
@@ -26,7 +22,7 @@ export const defaultPreset: DotGridPreset = {
     ...defaultPatternSizing,
     colorBack: '#000000',
     colorFill: '#ffffff',
-    colorStroke: '#00000000',
+    colorStroke: '#dd5500',
     size: 2,
     gapX: 50,
     gapY: 50,
@@ -43,7 +39,7 @@ export const macrodataPreset: DotGridPreset = {
     ...defaultPatternSizing,
     colorBack: '#15212d',
     colorFill: '#5794ff',
-    colorStroke: '#00000000',
+    colorStroke: '#0000ff',
     size: 3,
     gapX: 25,
     gapY: 25,
@@ -94,7 +90,7 @@ const treeLinePreset: DotGridPreset = {
     ...defaultPatternSizing,
     colorBack: '#f4fce7',
     colorFill: '#052e19',
-    colorStroke: '#00000000',
+    colorStroke: '#000000',
     size: 8,
     gapX: 20,
     gapY: 90,
@@ -111,7 +107,7 @@ const diamondsPreset: DotGridPreset = {
     ...defaultPatternSizing,
     colorBack: '#ffffff',
     colorFill: '#ff0000',
-    colorStroke: '#00000000',
+    colorStroke: '#000000',
     size: 15,
     gapX: 30,
     gapY: 30,
@@ -127,7 +123,7 @@ const wallpaperPreset: DotGridPreset = {
   params: {
     ...defaultPatternSizing,
     colorBack: '#204030',
-    colorFill: '#00000000',
+    colorFill: '#000000',
     colorStroke: '#bd955b',
     size: 9,
     gapX: 32,
@@ -145,7 +141,7 @@ const matrixPreset: DotGridPreset = {
     ...defaultPatternSizing,
     colorBack: '#000000',
     colorFill: '#47ffea',
-    colorStroke: '#00000000',
+    colorStroke: '#000000',
     size: 2,
     gapX: 10,
     gapY: 10,
@@ -162,7 +158,7 @@ const waveformPreset: DotGridPreset = {
     ...defaultPatternSizing,
     colorBack: '#ffffff',
     colorFill: '#0934b8',
-    colorStroke: '#00000000',
+    colorStroke: '#000000',
     size: 100,
     gapX: 2,
     gapY: 215,

@@ -10,6 +10,7 @@ import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
 import { grainGradientMeta, GrainGradientShape, GrainGradientShapes, ShaderFitOptions } from '@paper-design/shaders';
 import { ShaderFit } from '@paper-design/shaders';
 import { useColors } from '@/helpers/use-colors';
+import { toHsla } from '@/helpers/to-hsla';
 
 /**
  * You can copy/paste this example to use GrainGradient in your app
@@ -34,6 +35,7 @@ const GrainGradientWithControls = () => {
     return {
       Parameters: folder(
         {
+          colorBack: { value: toHsla(defaults.colorBack), order: 100 },
           softness: { value: defaults.softness, min: 0, max: 1, order: 200 },
           intensity: { value: defaults.intensity, min: 0, max: 1, order: 201 },
           noise: { value: defaults.noise, min: 0, max: 1, order: 202 },

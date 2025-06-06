@@ -1,30 +1,31 @@
-import type { vec4 } from '../types';
-import type { ShaderMotionParams } from '../shader-mount';
-import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing';
-import { declarePI, declareRandom, declareRotate } from '../shader-utils';
+import type { vec4 } from '../types.js';
+import type { ShaderMotionParams } from '../shader-mount.js';
+import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
+import { declarePI, declareRandom, declareRotate } from '../shader-utils.js';
 
 export const dotOrbitMeta = {
   maxColorCount: 10,
 } as const;
 
 /**
- * Dot Pattern with dot moving around their grid position
- * The artwork by Ksenia Kondrashova
- * Renders a dot pattern with dot placed in the center of each cell of animated Voronoi diagram
+ * Animated dot pattern with dots orbiting around their grid positions
  *
- * Uniforms include:
- * - u_colors (vec4[]): Input RGBA colors
- * - u_colorsCount (float): Number of active colors (`u_colors` length)
- * - u_stepsPerColor (float): Discretization of the color transition
- * - u_size (float, 0 .. 1): Base dot radius (relative to cell size)
- * - u_sizeRange (float, 0 .. 1): Dot radius to vary between the cells
- * - u_spreading (float, 0 .. 1): the distance each dot can move around the regular grid
+ * Uniforms:
+ * - u_colorBack (RGBA)
+ * - u_colors (vec4[]), u_colorsCount (float used as integer)
+ * - u_stepsPerColor: discrete color steps between u_colors
+ * - u_size (0..1): dot radius (relative to cell size)
+ * - u_sizeRange (0..1): randomizes dot radius between 0 and u_size
+ * - u_spreading (0..1): max orbit distance of each dot around the cell center
+ *
  */
+
 export const dotOrbitFragmentShader: string = `#version 300 es
 precision mediump float;
 
 uniform float u_time;
 
+uniform vec4 u_colorBack;
 uniform vec4 u_colors[${dotOrbitMeta.maxColorCount}];
 uniform float u_colorsCount;
 uniform float u_stepsPerColor;
@@ -47,7 +48,7 @@ vec2 random2(vec2 p) {
 vec3 voronoiShape(vec2 uv, float time) {
   vec2 i_uv = floor(uv);
   vec2 f_uv = fract(uv);
-  
+
   float spreading = .25 * clamp(u_spreading, 0., 1.);
 
   float minDist = 1.;
@@ -74,11 +75,11 @@ vec3 voronoiShape(vec2 uv, float time) {
 }
 
 void main() {
-  
+
   vec2 shape_uv = v_patternUV;
   shape_uv += .5;
   shape_uv *= .015;
-  
+
   float t = u_time;
 
   vec3 voronoi = voronoiShape(shape_uv, t) + 1e-4;
@@ -89,11 +90,11 @@ void main() {
   float dots = smoothstep(radius + edgeWidth, radius - edgeWidth, dist);
 
   float shape = voronoi[1];
-  
+
   float mixer = shape * (u_colorsCount - 1.);
   mixer = (shape - .5 / u_colorsCount) * u_colorsCount;
   float steps = max(1., u_stepsPerColor);
-  
+
   vec4 gradient = u_colors[0];
   gradient.rgb *= gradient.a;
   for (int i = 1; i < ${dotOrbitMeta.maxColorCount}; i++) {
@@ -118,15 +119,19 @@ void main() {
     gradient = mix(cLast, cFst, localT);
   }
 
-  gradient *= dots;
-  vec3 color = gradient.rgb;
-  float opacity = gradient.a;
+  vec3 color = gradient.rgb * dots;
+  float opacity = gradient.a * dots;
+
+  vec3 bgColor = u_colorBack.rgb * u_colorBack.a;
+  color = color + bgColor * (1. - opacity);
+  opacity = opacity + u_colorBack.a * (1. - opacity);
 
   fragColor = vec4(color, opacity);
 }
 `;
 
 export interface DotOrbitUniforms extends ShaderSizingUniforms {
+  u_colorBack: [number, number, number, number];
   u_colors: vec4[];
   u_colorsCount: number;
   u_size: number;
@@ -136,6 +141,7 @@ export interface DotOrbitUniforms extends ShaderSizingUniforms {
 }
 
 export interface DotOrbitParams extends ShaderSizingParams, ShaderMotionParams {
+  colorBack?: string;
   colors?: string[];
   size?: number;
   sizeRange?: number;
