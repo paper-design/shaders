@@ -189,7 +189,7 @@ void main() {
   vec2 foldsUV = v_patternUV * .002;
   foldsUV = rotate(foldsUV, 4. * u_foldsSeed);
   vec2 w = folds(foldsUV);
-  foldsUV = rotate(foldsUV + .004, .007);
+  foldsUV = rotate(foldsUV + .007 * cos(u_foldsSeed), .01 * sin(u_foldsSeed));
   vec2 w2 = folds(foldsUV);
 
   normal.xy += u_folds * min(5. * u_contrast, 1.) * 4. * (w + w2);
