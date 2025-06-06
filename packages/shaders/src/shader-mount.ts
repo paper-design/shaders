@@ -470,7 +470,7 @@ export class ShaderMount {
   /** Update the uniforms that are provided by the outside shader, can be a partial set with only the uniforms that have changed */
   public setUniforms = (newUniforms: ShaderMountUniforms): void => {
     this.setUniformValues(newUniforms);
-    this.providedUniforms = {...this.providedUniforms, ...newUniforms};
+    this.providedUniforms = { ...this.providedUniforms, ...newUniforms };
 
     this.render(performance.now());
   };
