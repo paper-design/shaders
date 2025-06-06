@@ -51,6 +51,8 @@ import {
   pulsingBorderPresets,
   ColorPanels,
   colorPanelsPresets,
+  BlobsGrid,
+  blobsGridPresets,
 } from '@paper-design/shaders-react';
 import { StaticImageData } from 'next/image';
 import TextureTest from './app/texture-test/page';
@@ -197,5 +199,11 @@ export const homeShaders = [
     url: '/color-panels',
     ShaderComponent: ColorPanels,
     shaderConfig: { ...colorPanelsPresets[0].params },
+  },
+  {
+    name: 'blobs grid',
+    url: '/blobs-grid',
+    ShaderComponent: BlobsGrid,
+    shaderConfig: { ...blobsGridPresets[0].params },
   },
 ] satisfies HomeShaderConfig[];

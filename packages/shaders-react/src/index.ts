@@ -77,6 +77,10 @@ export { ColorPanels, colorPanelsPresets } from './shaders/color-panels.js';
 export type { ColorPanelsProps } from './shaders/color-panels.js';
 export type { ColorPanelsUniforms, ColorPanelsParams } from '@paper-design/shaders';
 
+export { BlobsGrid, blobsGridPresets } from './shaders/blobs-grid.js';
+export type { BlobsGridProps } from './shaders/blobs-grid.js';
+export type { BlobsGridUniforms, BlobsGridParams } from '@paper-design/shaders';
+
 export { isPaperShaderElement, getShaderColorFromString } from '@paper-design/shaders';
 export type { ShaderFit, ShaderSizingParams, ShaderSizingUniforms } from '@paper-design/shaders';
 
