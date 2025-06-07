@@ -111,11 +111,11 @@ float roundedBoxSmoke(vec2 uv, vec2 halfSize, float radius, float distance, floa
 
 float random(vec2 p) {
   vec2 uv = floor(p) / 100. + .5;
-  return texture(u_noiseTexture, uv).g;
+  return texture(u_noiseTexture, fract(uv)).g;
 }
 vec2 rand2(vec2 p) {
   vec2 uv = floor(p) / 100. + .5;
-  return texture(u_noiseTexture, uv).gb;
+  return texture(u_noiseTexture, fract(uv)).gb;
 }
 
 ${declareValueNoise}
