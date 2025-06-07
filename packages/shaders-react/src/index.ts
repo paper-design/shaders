@@ -81,6 +81,10 @@ export { FlutedGlass, flutedGlassPresets } from './shaders/fluted-glass.js';
 export { type FlutedGlassProps } from './shaders/fluted-glass.js';
 export { type FlutedGlassUniforms, type FlutedGlassParams } from '@paper-design/shaders';
 
+export { Water, waterPresets } from './shaders/water.js';
+export type { WaterProps } from './shaders/water.js';
+export type { WaterUniforms, WaterParams } from '@paper-design/shaders';
+
 export { isPaperShaderElement, getShaderColorFromString } from '@paper-design/shaders';
 export type { ShaderFit, ShaderSizingParams, ShaderSizingUniforms } from '@paper-design/shaders';
 

@@ -1,0 +1,94 @@
+import { memo } from 'react';
+import { ShaderMount, type ShaderComponentProps } from '../shader-mount.js';
+import { colorPropsAreEqual } from '../color-props-are-equal.js';
+import {
+  waterFragmentShader,
+  getShaderColorFromString,
+  ShaderFitOptions,
+  type WaterUniforms,
+  type WaterParams,
+  type ShaderPreset,
+  defaultObjectSizing,
+} from '@paper-design/shaders';
+
+export interface WaterProps extends ShaderComponentProps, WaterParams {}
+
+type WaterPreset = ShaderPreset<WaterParams>;
+
+export const defaultPreset: WaterPreset = {
+  name: 'Default',
+  params: {
+    ...defaultObjectSizing,
+    worldWidth: 0,
+    worldHeight: 0,
+    scale: 0.75,
+    speed: 1,
+    frame: 0,
+    colorBack: '#0db550',
+    image: '/images/09.jpg',
+    highlights: 0.2,
+    temperature: 0.5,
+    distortion: 1,
+    layering: 0.5,
+    edges: 0.15,
+    waves: 0.3,
+    caustic: 0.3,
+  },
+};
+
+export const waterPresets: WaterPreset[] = [defaultPreset];
+
+export const Water: React.FC<WaterProps> = memo(function WaterImpl({
+  // Own props
+  speed = defaultPreset.params.speed,
+  frame = defaultPreset.params.frame,
+  colorBack = defaultPreset.params.colorBack,
+  image = defaultPreset.params.image,
+  highlights = defaultPreset.params.highlights,
+  temperature = defaultPreset.params.temperature,
+  distortion = defaultPreset.params.distortion,
+  layering = defaultPreset.params.layering,
+  waves = defaultPreset.params.waves,
+  edges = defaultPreset.params.edges,
+  caustic = defaultPreset.params.caustic,
+
+  // Sizing props
+  fit = defaultPreset.params.fit,
+  scale = defaultPreset.params.scale,
+  rotation = defaultPreset.params.rotation,
+  originX = defaultPreset.params.originX,
+  originY = defaultPreset.params.originY,
+  offsetX = defaultPreset.params.offsetX,
+  offsetY = defaultPreset.params.offsetY,
+  worldWidth = defaultPreset.params.worldWidth,
+  worldHeight = defaultPreset.params.worldHeight,
+  ...props
+}: WaterProps) {
+  const uniforms = {
+    // Own uniforms
+    u_image: image,
+    u_colorBack: getShaderColorFromString(colorBack),
+    u_highlights: highlights,
+    u_temperature: temperature,
+    u_distortion: distortion,
+    u_layering: layering,
+    u_waves: waves,
+    u_edges: edges,
+    u_caustic: caustic,
+
+    // Sizing uniforms
+    u_fit: ShaderFitOptions[fit],
+    u_rotation: rotation,
+    u_scale: scale,
+    u_offsetX: offsetX,
+    u_offsetY: offsetY,
+    u_originX: originX,
+    u_originY: originY,
+    u_worldWidth: worldWidth,
+    u_worldHeight: worldHeight,
+  } satisfies WaterUniforms;
+
+  return (
+    <ShaderMount {...props} speed={speed} frame={frame} fragmentShader={waterFragmentShader} uniforms={uniforms} />
+  );
+}, colorPropsAreEqual);
