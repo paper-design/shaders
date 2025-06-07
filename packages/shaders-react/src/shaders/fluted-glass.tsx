@@ -77,7 +77,7 @@ export const FlutedGlass: React.FC<FlutedGlassProps> = memo(function FlutedGlass
   worldWidth = defaultPreset.params.worldWidth,
   worldHeight = defaultPreset.params.worldHeight,
   ...props
-}) {
+}: FlutedGlassProps) {
   const uniforms = {
     // Own uniforms
     u_image: image,

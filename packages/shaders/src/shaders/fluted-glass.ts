@@ -211,11 +211,11 @@ export interface FlutedGlassParams extends ShaderSizingParams, ShaderMotionParam
 }
 
 export const GlassDistortionTypes = {
-  "type #1": 1,
-  "type #2": 2,
-  "type #3": 3,
-  "type #4": 4,
-  "type #5": 5,
+  'type #1': 1,
+  'type #2': 2,
+  'type #3': 3,
+  'type #4': 4,
+  'type #5': 5,
 } as const;
 
 export type GlassDistortion = keyof typeof GlassDistortionTypes;
