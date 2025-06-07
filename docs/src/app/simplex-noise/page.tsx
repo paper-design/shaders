@@ -1,5 +1,6 @@
 'use client';
 
+import React, { useState } from 'react';
 import { SimplexNoise, type SimplexNoiseParams, simplexNoisePresets } from '@paper-design/shaders-react';
 
 import { useControls, button, folder } from 'leva';
@@ -10,7 +11,6 @@ import { BackButton } from '@/components/back-button';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
 import { simplexNoiseMeta, ShaderFit, ShaderFitOptions } from '@paper-design/shaders';
 import { useColors } from '@/helpers/use-colors';
-import { useState } from 'react';
 
 /**
  * You can copy/paste this example to use SimplexNoise in your app
@@ -39,173 +39,138 @@ const Slider = ({ label, value, onChange, min, max, step = 0.01, displayValue }:
   const percentage = ((value - min) / (max - min)) * 100;
   const inputId = `slider-${label.replace(/\s+/g, '-').toLowerCase()}`;
 
+  const getDisplayValue = () => {
+    if (displayValue) return displayValue;
+    return step >= 1 || value % 1 === 0 ? value.toString() : value.toFixed(2);
+  };
+
   return (
-    <>
-      <style jsx>{`
-        .custom-slider {
-          -webkit-appearance: none;
-          appearance: none;
-          width: 100%;
-          height: 2px;
-          border-radius: 2px;
-          outline: none;
-          cursor: pointer;
-          background: #484848;
-        }
+    <div className="block last:mb-0">
+      <label htmlFor={inputId} className="line-clamp-1 text-xs opacity-70">
+        {label}
+      </label>
+      <div className="flex items-center gap-3">
+        <input
+          id={inputId}
+          type="range"
+          min={min}
+          max={max}
+          step={step}
+          value={value}
+          onChange={(e) => onChange(parseFloat(e.target.value))}
+          className="h-0.5 flex-1 appearance-none rounded-sm bg-[#484848] outline-none [&::-moz-range-thumb]:h-3 [&::-moz-range-thumb]:w-3 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-none [&::-moz-range-thumb]:bg-[#f2f2f2] [&::-moz-range-thumb]:transition-transform [&::-moz-range-thumb]:hover:scale-110 [&::-moz-range-thumb]:active:scale-95 [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-[#f2f2f2] [&::-webkit-slider-thumb]:transition-transform [&::-webkit-slider-thumb]:hover:scale-110 [&::-webkit-slider-thumb]:active:scale-95"
+          style={{
+            background: `linear-gradient(to right, #f2f2f2 0%, #f2f2f2 ${percentage}%, #484848 ${percentage}%, #484848 100%)`,
+          }}
+          aria-label={label}
+        />
+        <input
+          type="number"
+          min={min}
+          max={max}
+          step={step}
+          value={getDisplayValue()}
+          onChange={(e) => {
+            const newValue = parseFloat(e.target.value);
+            if (!isNaN(newValue)) {
+              onChange(Math.min(Math.max(newValue, min), max));
+            }
+          }}
+          className="min-w-[3rem] rounded-sm bg-white/10 px-2 py-0.5 text-center text-xs outline-none [appearance:textfield] focus:bg-white/20 focus:ring-1 focus:ring-white/50 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+          aria-label={`${label} value`}
+        />
+      </div>
+    </div>
+  );
+};
 
-        /* WebKit browsers - use gradient for progress */
-        .custom-slider::-webkit-slider-runnable-track {
-          height: 2px;
-          background: linear-gradient(
-            to right,
-            #f2f2f2 0%,
-            #f2f2f2 var(--progress),
-            #484848 var(--progress),
-            #484848 100%
-          );
-          border-radius: 2px;
-        }
+interface SelectProps {
+  label: string;
+  value: string;
+  options: string[];
+  onChange: (value: string) => void;
+}
 
-        /* Firefox - native progress support */
-        .custom-slider::-moz-range-progress {
-          height: 2px;
-          background: #f2f2f2;
-          border-radius: 2px;
-        }
+const Select = ({ label, value, options, onChange }: SelectProps) => {
+  const selectId = `select-${label.replace(/\s+/g, '-').toLowerCase()}`;
 
-        .custom-slider::-moz-range-track {
-          height: 2px;
-          background: #f2f2f2;
-          border-radius: 2px;
-        }
+  return (
+    <div className="mb-2 block">
+      <label htmlFor={selectId} className="text-xs opacity-70">
+        {label}
+      </label>
+      <select
+        id={selectId}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="w-full rounded-sm bg-white/10 px-2 py-1 text-xs outline-none hover:bg-white/20 focus:bg-white/20 focus:ring-1 focus:ring-white/50"
+        aria-label={label}
+      >
+        {options.map((option) => (
+          <option key={option} value={option}>
+            {option}
+          </option>
+        ))}
+      </select>
+    </div>
+  );
+};
 
-        /* Chrome, Safari, Edge - Thumb */
-        .custom-slider::-webkit-slider-thumb {
-          -webkit-appearance: none;
-          appearance: none;
-          width: 12px;
-          height: 12px;
-          background: #f2f2f2;
-          border-radius: 50%;
-          cursor: pointer;
-          transition: transform 0.15s ease;
-          margin-top: -5px;
-        }
+interface ControlGroupProps {
+  title: string;
+  children: React.ReactNode;
+  className?: string;
+  defaultCollapsed?: boolean;
+}
 
-        .custom-slider::-webkit-slider-thumb:hover {
-          transform: scale(1.1);
-        }
+const ControlGroup = ({ title, children, className, defaultCollapsed = false }: ControlGroupProps) => {
+  const [isCollapsed, setIsCollapsed] = useState(defaultCollapsed);
 
-        .custom-slider::-webkit-slider-thumb:active {
-          transform: scale(0.95);
-        }
-
-        /* Firefox - Thumb */
-        .custom-slider::-moz-range-thumb {
-          width: 12px;
-          height: 12px;
-          background: #f2f2f2;
-          border: none;
-          border-radius: 50%;
-          cursor: pointer;
-          transition: transform 0.15s ease;
-        }
-
-        .custom-slider::-moz-range-thumb:hover {
-          transform: scale(1.1);
-        }
-
-        .custom-slider::-moz-range-thumb:active {
-          transform: scale(0.95);
-        }
-
-        /* Style for number input */
-        .custom-number-input {
-          -webkit-appearance: none;
-          -moz-appearance: textfield;
-        }
-        .custom-number-input::-webkit-inner-spin-button,
-        .custom-number-input::-webkit-outer-spin-button {
-          -webkit-appearance: none;
-          margin: 0;
-        }
-      `}</style>
-
-      <div className="block last:mb-0">
-        <label htmlFor={inputId} className="line-clamp-1 text-xs opacity-70">
-          {label}
-        </label>
-        <div className="flex items-center gap-3">
-          <input
-            id={inputId}
-            type="range"
-            min={min}
-            max={max}
-            step={step}
-            value={value}
-            onChange={(e) => onChange(parseFloat(e.target.value))}
-            className="custom-slider flex-1"
-            style={{ '--progress': `${percentage}%` } as React.CSSProperties}
-            aria-label={label}
-          />
-          <input
-            type="number"
-            min={min}
-            max={max}
-            step={step}
-            value={displayValue || value.toFixed(2)}
-            onChange={(e) => {
-              const newValue = parseFloat(e.target.value);
-              if (!isNaN(newValue)) {
-                onChange(Math.min(Math.max(newValue, min), max));
-              }
-            }}
-            className="custom-number-input min-w-[3rem] rounded-sm bg-white/10 px-2 py-0.5 text-center text-xs outline-none focus:bg-white/20 focus:ring-1 focus:ring-blue-500"
-            aria-label={`${label} value`}
-          />
+  return (
+    <div className={className}>
+      <button
+        type="button"
+        onClick={() => setIsCollapsed(!isCollapsed)}
+        className="mb-1 flex w-full items-center gap-1 text-xs font-medium hover:opacity-80"
+      >
+        <svg
+          className={`h-3 w-3 transition-transform ${isCollapsed ? '' : 'rotate-90'}`}
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+        </svg>
+        <span>{title}</span>
+      </button>
+      <div
+        className={`overflow-hidden transition-all duration-200 ease-in-out ${
+          isCollapsed ? 'max-h-0 opacity-0' : 'max-h-[500px] opacity-100'
+        }`}
+      >
+        <div className="relative ml-1.5 mt-1">
+          <div className="absolute bottom-0 left-0 top-0 w-px bg-white/10" style={{ marginTop: '-0.375rem' }} />
+          <div className="ml-2.5 space-y-0.5 pl-1">{children}</div>
         </div>
       </div>
-    </>
+    </div>
   );
 };
 
 interface ControllersProps {
-  scale: number;
-  rotation: number;
-  offsetX: number;
-  offsetY: number;
-  onScaleChange: (scale: number) => void;
-  onRotationChange: (rotation: number) => void;
-  onOffsetXChange: (offsetX: number) => void;
-  onOffsetYChange: (offsetY: number) => void;
+  children: React.ReactNode;
 }
 
-const Controllers = ({
-  scale,
-  rotation,
-  offsetX,
-  offsetY,
-  onScaleChange,
-  onRotationChange,
-  onOffsetXChange,
-  onOffsetYChange,
-}: ControllersProps) => {
+const Controllers = ({ children }: ControllersProps) => {
   return (
-    <div className="fixed bottom-5 left-5 z-[1000] rounded bg-black/70 p-5 text-white">
-      <p className="mb-3 text-xs font-medium">Transform</p>
-
-      <Slider label="scale" value={scale} onChange={onScaleChange} min={0.01} max={4} />
-      <Slider
-        label="rotation"
-        value={rotation}
-        onChange={onRotationChange}
-        min={0}
-        max={360}
-        step={1}
-        displayValue={rotation.toString()}
-      />
-      <Slider label="offsetX" value={offsetX} onChange={onOffsetXChange} min={-1} max={1} />
-      <Slider label="offsetY" value={offsetY} onChange={onOffsetYChange} min={-1} max={1} />
+    <div className="fixed left-5 top-5 z-[1000] rounded bg-black/70 text-white">
+      <div className="min-w-[260px] divide-y divide-white/20">
+        {React.Children.map(children, (child, index) => (
+          <div className="py-3 pl-2 pr-3" key={index}>
+            {child}
+          </div>
+        ))}
+      </div>
     </div>
   );
 };
@@ -258,6 +223,14 @@ const SimplexNoiseWithControls = () => {
   const [customRotation, setCustomRotation] = useState(defaults.rotation);
   const [customOffsetX, setCustomOffsetX] = useState(defaults.offsetX);
   const [customOffsetY, setCustomOffsetY] = useState(defaults.offsetY);
+  const [customStepsPerColor, setCustomStepsPerColor] = useState(defaults.stepsPerColor);
+  const [customSoftness, setCustomSoftness] = useState(defaults.softness);
+  const [customSpeed, setCustomSpeed] = useState(defaults.speed);
+  const [customFit, setCustomFit] = useState<ShaderFit>(defaults.fit);
+  const [customWorldWidth, setCustomWorldWidth] = useState(1000);
+  const [customWorldHeight, setCustomWorldHeight] = useState(500);
+  const [customOriginX, setCustomOriginX] = useState(defaults.originX);
+  const [customOriginY, setCustomOriginY] = useState(defaults.originY);
 
   useControls(() => {
     const presets = Object.fromEntries(
@@ -287,28 +260,141 @@ const SimplexNoiseWithControls = () => {
         <BackButton />
       </Link>
 
-      <Controllers
-        scale={customScale}
-        rotation={customRotation}
-        offsetX={customOffsetX}
-        offsetY={customOffsetY}
-        onScaleChange={(scale) => {
-          setCustomScale(scale);
-          setParams({ scale });
-        }}
-        onRotationChange={(rotation) => {
-          setCustomRotation(rotation);
-          setParams({ rotation });
-        }}
-        onOffsetXChange={(offsetX) => {
-          setCustomOffsetX(offsetX);
-          setParams({ offsetX });
-        }}
-        onOffsetYChange={(offsetY) => {
-          setCustomOffsetY(offsetY);
-          setParams({ offsetY });
-        }}
-      />
+      <Controllers>
+        <ControlGroup title="Parameters">
+          <Slider
+            label="stepsPerColor"
+            value={customStepsPerColor}
+            onChange={(value) => {
+              setCustomStepsPerColor(value);
+              setParams({ stepsPerColor: value });
+            }}
+            min={1}
+            max={10}
+            step={1}
+            displayValue={customStepsPerColor.toString()}
+          />
+          <Slider
+            label="softness"
+            value={customSoftness}
+            onChange={(value) => {
+              setCustomSoftness(value);
+              setParams({ softness: value });
+            }}
+            min={0}
+            max={1}
+          />
+          <Slider
+            label="speed"
+            value={customSpeed}
+            onChange={(value) => {
+              setCustomSpeed(value);
+              setParams({ speed: value });
+            }}
+            min={0}
+            max={2}
+          />
+        </ControlGroup>
+
+        <ControlGroup title="Transform">
+          <Slider
+            label="scale"
+            value={customScale}
+            onChange={(value) => {
+              setCustomScale(value);
+              setParams({ scale: value });
+            }}
+            min={0.01}
+            max={4}
+          />
+          <Slider
+            label="rotation"
+            value={customRotation}
+            onChange={(value) => {
+              setCustomRotation(value);
+              setParams({ rotation: value });
+            }}
+            min={0}
+            max={360}
+            step={1}
+            displayValue={customRotation.toString()}
+          />
+          <Slider
+            label="offsetX"
+            value={customOffsetX}
+            onChange={(value) => {
+              setCustomOffsetX(value);
+              setParams({ offsetX: value });
+            }}
+            min={-1}
+            max={1}
+          />
+          <Slider
+            label="offsetY"
+            value={customOffsetY}
+            onChange={(value) => {
+              setCustomOffsetY(value);
+              setParams({ offsetY: value });
+            }}
+            min={-1}
+            max={1}
+          />
+        </ControlGroup>
+
+        <ControlGroup title="Fit" defaultCollapsed={true}>
+          <Select
+            label="fit"
+            value={customFit}
+            options={Object.keys(ShaderFitOptions) as ShaderFit[]}
+            onChange={(value) => {
+              setCustomFit(value as ShaderFit);
+              setParams({ fit: value as ShaderFit });
+            }}
+          />
+          <Slider
+            label="worldWidth"
+            value={customWorldWidth}
+            onChange={(value) => {
+              setCustomWorldWidth(value);
+              setParams({ worldWidth: value });
+            }}
+            min={0}
+            max={5120}
+            step={1}
+          />
+          <Slider
+            label="worldHeight"
+            value={customWorldHeight}
+            onChange={(value) => {
+              setCustomWorldHeight(value);
+              setParams({ worldHeight: value });
+            }}
+            min={0}
+            max={5120}
+            step={1}
+          />
+          <Slider
+            label="originX"
+            value={customOriginX}
+            onChange={(value) => {
+              setCustomOriginX(value);
+              setParams({ originX: value });
+            }}
+            min={0}
+            max={1}
+          />
+          <Slider
+            label="originY"
+            value={customOriginY}
+            onChange={(value) => {
+              setCustomOriginY(value);
+              setParams({ originY: value });
+            }}
+            min={0}
+            max={1}
+          />
+        </ControlGroup>
+      </Controllers>
 
       <SimplexNoise
         {...params}
@@ -317,6 +403,14 @@ const SimplexNoiseWithControls = () => {
         rotation={customRotation}
         offsetX={customOffsetX}
         offsetY={customOffsetY}
+        stepsPerColor={customStepsPerColor}
+        softness={customSoftness}
+        speed={customSpeed}
+        fit={customFit}
+        worldWidth={customWorldWidth}
+        worldHeight={customWorldHeight}
+        originX={customOriginX}
+        originY={customOriginY}
         className="fixed size-full"
       />
     </>
