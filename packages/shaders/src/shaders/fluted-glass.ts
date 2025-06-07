@@ -134,9 +134,9 @@ void main() {
   if (u_distortionType == 1.) {
     xDistortion = -pow(1.5 * fractUV.x, 3.) + (.5 + u_shift);
   } else if (u_distortionType == 2.) {
-    xDistortion = pow(fractUV.x, 2.) - (.5 + u_shift);
+    xDistortion = 2. * pow(fractUV.x, 2.) - (.5 + u_shift);
   } else if (u_distortionType == 3.) {
-    xDistortion = pow(2. * (fractUV.x - .5), 10.) + .5 - .5 + u_shift;
+    xDistortion = pow(2. * (fractUV.x - .5), 6.) + .5 - .5 + u_shift;
   } else if (u_distortionType == 4.) {
     xDistortion = sin((fractUV.x + .25 + u_shift) * TWO_PI);
   } else if (u_distortionType == 5.) {

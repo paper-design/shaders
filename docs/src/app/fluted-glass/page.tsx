@@ -25,22 +25,20 @@ const FlutedGlassWithControls = () => {
   const [image, setImage] = useState<HTMLImageElement | null>(null);
 
   const imageFiles = [
-    '023.jpg',
     '01.png',
-    '07.jpg',
-    '09.jpg',
-    '010.jpg',
-    '011.jpg',
-    '012.jpg',
-    '013.jpg',
+    '02.jpg',
+    '04.png',
+    '05.jpg',
+    '06.jpg',
+    '07.webp',
+    '08.png',
+    '010.png',
+    '011.png',
+    '012.png',
+    '013.png',
     '014.png',
-    '015.jpg',
-    '017.png',
-    '018.png',
-    '019.webp',
-    '020.jpeg',
-    '021.png',
-    '022.png',
+    '015.png',
+    '016.jpg',
   ] as const;
 
   useEffect(() => {
