@@ -11,17 +11,7 @@ import { createColorControls } from '@/helpers/shader-controls/color-controls';
 import { createPresetControls } from '@/helpers/shader-controls/preset-controls';
 
 const FIRST_PRESET = simplexNoisePresets[0].params;
-const { worldWidth, worldHeight, colors: defaultColors, ...defaultParams } = FIRST_PRESET;
-
-const DEFAULT_WORLD_DIMENSIONS = {
-  worldWidth: worldWidth || 1000,
-  worldHeight: worldHeight || 500,
-};
-
-type SimplexNoiseControlParams = Omit<SimplexNoiseParams, 'colors'> & {
-  worldWidth: number;
-  worldHeight: number;
-};
+const { colors: defaultColors, ...defaultParams } = FIRST_PRESET;
 
 /**
  * You can copy/paste this example to use SimplexNoise in your app
@@ -34,22 +24,23 @@ const SimplexNoiseExample = () => {
  * This example has controls added so you can play with settings in the example app
  */
 const SimplexNoiseWithControls = () => {
-  const { colors, setColors, params, updateParams, resetToPreset } = useShaderControls<SimplexNoiseControlParams>({
+  const { colors, setColors, params, updateParams, resetToPreset } = useShaderControls({
     defaultParams: {
       ...defaultParams,
-      ...DEFAULT_WORLD_DIMENSIONS,
-    } as SimplexNoiseControlParams,
+      worldWidth: defaultParams.worldWidth || 1000,
+      worldHeight: defaultParams.worldHeight || 500,
+    },
     defaultColors,
     maxColorCount: simplexNoiseMeta.maxColorCount,
   });
 
   const controlSchema = useMemo<ControlSchema>(() => {
-    const handlePresetSelect = (presetColors: string[], presetParams: Partial<SimplexNoiseControlParams>) => {
+    const handlePresetSelect = (presetColors: string[], presetParams: Partial<typeof params>) => {
       resetToPreset(presetColors, {
         ...presetParams,
-        worldWidth: presetParams.worldWidth || DEFAULT_WORLD_DIMENSIONS.worldWidth,
-        worldHeight: presetParams.worldHeight || DEFAULT_WORLD_DIMENSIONS.worldHeight,
-      } as SimplexNoiseControlParams);
+        worldWidth: presetParams.worldWidth || 1000,
+        worldHeight: presetParams.worldHeight || 500,
+      } as typeof params);
     };
 
     return {
@@ -105,8 +96,6 @@ const SimplexNoiseWithControls = () => {
     };
   }, [colors, params, updateParams, setColors, resetToPreset]);
 
-  const { worldWidth: _, worldHeight: __, ...shaderParams } = params;
-
   return (
     <>
       <Link href="/" className="relative z-10">
@@ -115,13 +104,7 @@ const SimplexNoiseWithControls = () => {
 
       <Controllers>{renderControlSchema(controlSchema)}</Controllers>
 
-      <SimplexNoise
-        {...shaderParams}
-        worldWidth={params.worldWidth}
-        worldHeight={params.worldHeight}
-        colors={colors}
-        className="fixed size-full"
-      />
+      <SimplexNoise {...params} colors={colors} className="fixed size-full" />
     </>
   );
 };

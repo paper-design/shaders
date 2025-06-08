@@ -10,18 +10,7 @@ import { useShaderControls } from '@/hooks/use-shader-controls';
 import { ColorPicker } from '@/components/color-picker';
 
 const FIRST_PRESET = spiralPresets[0].params;
-const { worldWidth, worldHeight, colorBack, colorFront, ...defaultParams } = FIRST_PRESET;
-
-const DEFAULT_WORLD_DIMENSIONS = {
-  worldWidth: worldWidth || 1000,
-  worldHeight: worldHeight || 500,
-};
-
-type SpiralControlParams = Omit<SpiralParams, 'colorBack' | 'colorFront'> & {
-  worldWidth: number;
-  worldHeight: number;
-  reverse: boolean;
-};
+const { colorBack, colorFront, ...defaultParams } = FIRST_PRESET;
 
 /**
  * You can copy/paste this example to use Spiral in your app
@@ -34,13 +23,14 @@ const SpiralExample = () => {
  * This example has controls added so you can play with settings in the example app
  */
 const SpiralWithControls = () => {
-  const { colors, setColors, params, updateParams, resetToPreset } = useShaderControls<SpiralControlParams>({
+  const { colors, setColors, params, updateParams, resetToPreset } = useShaderControls({
     defaultParams: {
       ...defaultParams,
-      ...DEFAULT_WORLD_DIMENSIONS,
+      worldWidth: defaultParams.worldWidth || 1000,
+      worldHeight: defaultParams.worldHeight || 500,
       speed: Math.abs(defaultParams.speed || 0),
       reverse: (defaultParams.speed || 0) < 0,
-    } as SpiralControlParams,
+    },
     defaultColors: [colorBack, colorFront],
     maxColorCount: 2,
   });
@@ -52,9 +42,9 @@ const SpiralWithControls = () => {
         ...otherParams,
         speed: Math.abs(speed || 0),
         reverse: (speed || 0) < 0,
-        worldWidth: preset.params.worldWidth || DEFAULT_WORLD_DIMENSIONS.worldWidth,
-        worldHeight: preset.params.worldHeight || DEFAULT_WORLD_DIMENSIONS.worldHeight,
-      } as SpiralControlParams);
+        worldWidth: otherParams.worldWidth || 1000,
+        worldHeight: otherParams.worldHeight || 500,
+      } as typeof params);
     };
 
     const handleColorChange = (index: number, newColor: string) => {
@@ -129,7 +119,7 @@ const SpiralWithControls = () => {
     };
   }, [colors, params, updateParams, setColors, resetToPreset]);
 
-  const { worldWidth: _, worldHeight: __, reverse, ...shaderParams } = params;
+  const { reverse, ...shaderParams } = params;
 
   return (
     <>
@@ -141,8 +131,6 @@ const SpiralWithControls = () => {
 
       <Spiral
         {...shaderParams}
-        worldWidth={params.worldWidth}
-        worldHeight={params.worldHeight}
         colorBack={colors[0]}
         colorFront={colors[1]}
         speed={(params.speed || 0) * (params.reverse ? -1 : 1)}
