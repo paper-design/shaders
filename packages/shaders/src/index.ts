@@ -162,7 +162,8 @@ export {
   flutedGlassFragmentShader,
   GlassDistortionShapes,
   GlassGridShapes,
-  type GlassDistortion,
+  type GlassDistortionShape,
+  type GlassGridShape,
   type FlutedGlassParams,
   type FlutedGlassUniforms,
 } from './shaders/fluted-glass.js';

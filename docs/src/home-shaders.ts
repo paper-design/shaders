@@ -54,7 +54,7 @@ import {
   FlutedGlass,
   flutedGlassPresets,
   Water,
-  waterPresets
+  waterPresets,
 } from '@paper-design/shaders-react';
 import { StaticImageData } from 'next/image';
 import TextureTest from './app/texture-test/page';

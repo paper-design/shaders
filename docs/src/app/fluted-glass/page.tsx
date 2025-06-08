@@ -7,12 +7,17 @@ import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import Link from 'next/link';
 import { BackButton } from '@/components/back-button';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
-import { GlassDistortion, GlassDistortionShapes, GlassGridShapes, ShaderFitOptions } from '@paper-design/shaders';
+import {
+  GlassGridShape,
+  GlassGridShapes,
+  GlassDistortionShape,
+  GlassDistortionShapes,
+  ShaderFitOptions,
+} from '@paper-design/shaders';
 import { ShaderFit } from '@paper-design/shaders';
 import { levaImageButton } from '@/helpers/leva-image-button';
 import { useState, useEffect, useCallback } from 'react';
 import { toHsla } from '@/helpers/to-hsla';
-import { GridShape } from '@paper-design/shaders/dist/shaders/fluted-glass';
 
 /**
  * This example has controls added so you can play with settings in the example app
@@ -67,13 +72,13 @@ const FlutedGlassWithControls = () => {
           grid: { value: defaults.grid, min: 4, max: 100, step: 1, order: 100 },
           gridShape: {
             value: defaults.gridShape,
-            options: Object.keys(GlassGridShapes) as GridShape[],
+            options: Object.keys(GlassGridShapes) as GlassGridShape[],
             order: 101,
           },
           gridRotation: { value: defaults.gridRotation, min: 0, max: 180, order: 102 },
           distortionShape: {
             value: defaults.distortionShape,
-            options: Object.keys(GlassDistortionShapes) as GlassDistortion[],
+            options: Object.keys(GlassDistortionShapes) as GlassDistortionShape[],
             order: 200,
           },
           distortion: { value: defaults.distortion, min: 0, max: 1, order: 201 },
