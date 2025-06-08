@@ -1,17 +1,12 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, ReactNode } from 'react';
 import { SimplexNoise, type SimplexNoiseParams, simplexNoisePresets } from '@paper-design/shaders-react';
 import { ColorPicker } from '@/components/color-picker';
 
-import { useControls, button, folder } from 'leva';
-import { setParamsSafe, useResetLevaParams } from '@/helpers/use-reset-leva-params';
-import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import Link from 'next/link';
 import { BackButton } from '@/components/back-button';
-import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
 import { simplexNoiseMeta, ShaderFit, ShaderFitOptions } from '@paper-design/shaders';
-import { useColors } from '@/helpers/use-colors';
 
 /**
  * You can copy/paste this example to use SimplexNoise in your app
@@ -24,7 +19,20 @@ const SimplexNoiseExample = () => {
  * This example has controls added so you can play with settings in the example app
  */
 
-const { worldWidth, worldHeight, ...defaults } = simplexNoisePresets[0].params;
+const firstPreset = simplexNoisePresets[0].params;
+const { worldWidth, worldHeight, ...defaults } = firstPreset;
+
+const useColors = ({ defaultColors, maxColorCount }: { defaultColors: string[]; maxColorCount: number }) => {
+  const [colors, setColorsState] = useState<string[]>(defaultColors);
+
+  const setColors = (newColors: string[]) => {
+    if (newColors.length <= maxColorCount) {
+      setColorsState(newColors);
+    }
+  };
+
+  return { colors, setColors };
+};
 
 interface SliderProps {
   label: string;
@@ -88,7 +96,7 @@ const Slider = ({ label, value, onChange, min, max, step = 0.01, displayValue }:
             setIsFocused(false);
             setInputValue('');
           }}
-          className="w-[44px] rounded-sm bg-white/10 px-2 py-0.5 text-right text-xs outline-none [appearance:textfield] focus:bg-white/20 focus:ring-1 focus:ring-white/50"
+          className="w-[46px] rounded-sm bg-white/10 px-2 py-0.5 text-right text-xs outline-none [appearance:textfield] focus:bg-white/20 focus:ring-1 focus:ring-white/50"
           aria-label={`${label} value`}
         />
       </div>
@@ -140,7 +148,7 @@ const Select = ({ label, value, options, onChange }: SelectProps) => {
 
 interface ControlGroupProps {
   title: string;
-  children: React.ReactNode;
+  children: ReactNode;
   className?: string;
   defaultCollapsed?: boolean;
 }
@@ -180,15 +188,15 @@ const ControlGroup = ({ title, children, className, defaultCollapsed = false }: 
 };
 
 interface ControllersProps {
-  children: React.ReactNode;
+  children: ReactNode;
 }
 
 const Controllers = ({ children }: ControllersProps) => {
   return (
-    <div className="fixed left-5 top-5 z-[1000] rounded bg-black/70 text-white">
+    <div className="fixed right-5 top-5 z-[1000] rounded bg-black/70 text-white">
       <div className="min-w-[220px] divide-y divide-white/20">
         {React.Children.map(children, (child, index) => (
-          <div className="py-3 pl-2 pr-3" key={index}>
+          <div className="p-3" key={index}>
             {child}
           </div>
         ))}
@@ -197,113 +205,210 @@ const Controllers = ({ children }: ControllersProps) => {
   );
 };
 
+type SliderControl = {
+  type?: 'slider';
+  value: number;
+  min: number;
+  max: number;
+  step?: number;
+  onChange: (value: number) => void;
+};
+
+type SelectControl = {
+  type: 'select';
+  value: string;
+  options: string[];
+  onChange: (value: string) => void;
+};
+
+type CustomControl = {
+  type: 'custom';
+  render: () => ReactNode;
+};
+
+type ButtonControl = {
+  type: 'button';
+  onClick: () => void;
+};
+
+type Control = SliderControl | SelectControl | CustomControl | ButtonControl;
+
+type SimpleSliderControl = {
+  min: number;
+  max: number;
+  step?: number;
+};
+
+type SimpleSelectControl = {
+  options: string[];
+};
+
+type SimpleControl = SimpleSliderControl | SimpleSelectControl | CustomControl | ButtonControl;
+
+type FolderConfig = {
+  [key: string]: Control;
+};
+
+type SimpleFolderConfig = {
+  [key: string]: SimpleControl;
+};
+
+type FolderOptions = {
+  collapsed?: boolean;
+};
+
+type FolderDefinition = {
+  _isFolder: true;
+  config: FolderConfig;
+  options: FolderOptions;
+};
+
+type ControlSchema = {
+  [key: string]: Control | FolderDefinition;
+};
+
+const createFolder = <T extends Record<string, unknown>>(
+  simpleConfig: SimpleFolderConfig,
+  params: T,
+  setParams: (updates: Partial<T>) => void,
+  options: FolderOptions = {}
+): FolderDefinition => {
+  const config: FolderConfig = {};
+
+  for (const [key, control] of Object.entries(simpleConfig)) {
+    if ('type' in control && (control.type === 'custom' || control.type === 'button')) {
+      config[key] = control as CustomControl | ButtonControl;
+    } else if ('options' in control) {
+      config[key] = {
+        type: 'select',
+        value: params[key as keyof T] as string,
+        options: control.options,
+        onChange: (v) => setParams({ [key]: v } as Partial<T>),
+      };
+    } else if ('min' in control && 'max' in control) {
+      config[key] = {
+        value: params[key as keyof T] as number,
+        min: control.min,
+        max: control.max,
+        step: control.step,
+        onChange: (v) => setParams({ [key]: v } as Partial<T>),
+      };
+    }
+  }
+
+  return {
+    _isFolder: true,
+    config,
+    options,
+  };
+};
+
+const customButton = (onClick: () => void): ButtonControl => ({
+  type: 'button',
+  onClick,
+});
+
+const renderControl = (key: string, control: Control) => {
+  if (control.type === 'button') {
+    return (
+      <button
+        key={key}
+        onClick={control.onClick}
+        className="w-full rounded-sm bg-white/10 px-3 py-1.5 text-xs font-medium transition-colors hover:bg-white/20 active:bg-white/30"
+      >
+        {key}
+      </button>
+    );
+  }
+
+  if (control.type === 'custom') {
+    return <div key={key}>{control.render()}</div>;
+  }
+
+  if (control.type === 'select') {
+    return <Select key={key} label={key} value={control.value} options={control.options} onChange={control.onChange} />;
+  }
+
+  return (
+    <Slider
+      key={key}
+      label={key}
+      value={control.value}
+      onChange={control.onChange}
+      min={control.min}
+      max={control.max}
+      step={control.step}
+    />
+  );
+};
+
+const renderFolder = (title: string, folder: FolderDefinition) => {
+  return (
+    <ControlGroup key={title} title={title} defaultCollapsed={folder.options?.collapsed}>
+      {Object.entries(folder.config).map(([key, control]) => renderControl(key, control))}
+    </ControlGroup>
+  );
+};
+
+const renderControlSchema = (schema: ControlSchema) => {
+  return Object.entries(schema).map(([key, item]) => {
+    if ('_isFolder' in item) {
+      return renderFolder(key, item);
+    }
+    return <div key={key}>{renderControl(key, item as Control)}</div>;
+  });
+};
+
 const SimplexNoiseWithControls = () => {
   const { colors, setColors } = useColors({
-    defaultColors: defaults.colors,
+    defaultColors: firstPreset.colors,
     maxColorCount: simplexNoiseMeta.maxColorCount,
   });
 
-  const [params, setParams] = useControls(() => {
-    return {
-      Parameters: folder(
-        {
-          stepsPerColor: { value: defaults.stepsPerColor, min: 1, max: 10, step: 1, order: 300 },
-          softness: { value: defaults.softness, min: 0, max: 1, order: 301 },
-          speed: { value: defaults.speed, min: 0, max: 2, order: 400 },
-        },
-        { order: 1 }
-      ),
-      Transform: folder(
-        {
-          scale: { value: defaults.scale, min: 0.01, max: 4, order: 400 },
-          rotation: { value: defaults.rotation, min: 0, max: 360, order: 401 },
-          offsetX: { value: defaults.offsetX, min: -1, max: 1, order: 402 },
-          offsetY: { value: defaults.offsetY, min: -1, max: 1, order: 403 },
-        },
-        {
-          order: 2,
-          collapsed: false,
-        }
-      ),
-      Fit: folder(
-        {
-          fit: { value: defaults.fit, options: Object.keys(ShaderFitOptions) as ShaderFit[], order: 404 },
-          worldWidth: { value: 1000, min: 0, max: 5120, order: 405 },
-          worldHeight: { value: 500, min: 0, max: 5120, order: 406 },
-          originX: { value: defaults.originX, min: 0, max: 1, order: 407 },
-          originY: { value: defaults.originY, min: 0, max: 1, order: 408 },
-        },
-        {
-          order: 3,
-          collapsed: true,
-        }
-      ),
-    };
-  }, [colors.length]);
-
-  const [customScale, setCustomScale] = useState(defaults.scale);
-  const [customRotation, setCustomRotation] = useState(defaults.rotation);
-  const [customOffsetX, setCustomOffsetX] = useState(defaults.offsetX);
-  const [customOffsetY, setCustomOffsetY] = useState(defaults.offsetY);
-  const [customStepsPerColor, setCustomStepsPerColor] = useState(defaults.stepsPerColor);
-  const [customSoftness, setCustomSoftness] = useState(defaults.softness);
-  const [customSpeed, setCustomSpeed] = useState(defaults.speed);
-  const [customFit, setCustomFit] = useState<ShaderFit>(defaults.fit);
-  const [customWorldWidth, setCustomWorldWidth] = useState(1000);
-  const [customWorldHeight, setCustomWorldHeight] = useState(500);
-  const [customOriginX, setCustomOriginX] = useState(defaults.originX);
-  const [customOriginY, setCustomOriginY] = useState(defaults.originY);
-
-  useControls(() => {
-    const presets = Object.fromEntries(
-      simplexNoisePresets.map(({ name, params: { worldWidth, worldHeight, ...preset } }) => [
-        name,
-        button(() => {
-          const { colors, ...presetParams } = preset;
-          setColors(colors);
-          setParamsSafe(params, setParams, presetParams);
-        }),
-      ])
-    );
-    return {
-      Presets: folder(presets, { order: 10 }),
-    };
+  // Independent state for custom controls
+  const [customParams, setCustomParams] = useState({
+    stepsPerColor: defaults.stepsPerColor,
+    softness: defaults.softness,
+    speed: defaults.speed,
+    scale: defaults.scale,
+    rotation: defaults.rotation,
+    offsetX: defaults.offsetX,
+    offsetY: defaults.offsetY,
+    fit: defaults.fit,
+    worldWidth: worldWidth || 1000,
+    worldHeight: worldHeight || 500,
+    originX: defaults.originX,
+    originY: defaults.originY,
   });
 
-  // Reset to defaults on mount, so that Leva doesn't show values from other
-  // shaders when navigating (if two shaders have a color1 param for example)
-  useResetLevaParams(params, setParams, defaults);
-  usePresetHighlight(simplexNoisePresets, params);
-  cleanUpLevaParams(params);
+  const updateCustomParams = (updates: Partial<typeof customParams>) => {
+    setCustomParams((prev) => ({ ...prev, ...updates }));
+  };
 
-  return (
-    <>
-      <Link href="/">
-        <BackButton />
-      </Link>
-
-      <Controllers>
-        <ControlGroup title="Colors">
-          <div className="space-y-1">
-            <Slider
-              label="colorCount"
-              value={colors.length}
-              onChange={(value) => {
-                const newColors = [...colors];
-                if (value > colors.length) {
-                  for (let i = colors.length; i < value; i++) {
-                    newColors.push(`hsla(${(40 * i) % 360}, 100%, 50%, 1)`);
-                  }
-                } else {
-                  newColors.length = value;
-                }
-                setColors(newColors);
-              }}
-              min={1}
-              max={simplexNoiseMeta.maxColorCount}
-              step={1}
-            />
-
+  const controlSchema: ControlSchema = {
+    Colors: {
+      _isFolder: true,
+      config: {
+        colorCount: {
+          value: colors.length,
+          min: 1,
+          max: simplexNoiseMeta.maxColorCount,
+          step: 1,
+          onChange: (value) => {
+            const newColors = [...colors];
+            if (value > colors.length) {
+              for (let i = colors.length; i < value; i++) {
+                newColors.push(`hsla(${(40 * i) % 360}, 100%, 50%, 1)`);
+              }
+            } else {
+              newColors.length = value;
+            }
+            setColors(newColors);
+          },
+        },
+        colorGrid: {
+          type: 'custom',
+          render: () => (
             <div className="grid grid-cols-2">
               {colors.map((color, index) => (
                 <ColorPicker
@@ -318,186 +423,76 @@ const SimplexNoiseWithControls = () => {
                 />
               ))}
             </div>
-          </div>
-        </ControlGroup>
+          ),
+        },
+      },
+      options: {},
+    },
+    Parameters: createFolder(
+      {
+        stepsPerColor: { min: 1, max: 10, step: 1 },
+        softness: { min: 0, max: 1 },
+        speed: { min: 0, max: 2 },
+      },
+      customParams,
+      updateCustomParams
+    ),
+    Transform: createFolder(
+      {
+        scale: { min: 0.01, max: 4 },
+        rotation: { min: 0, max: 360, step: 1 },
+        offsetX: { min: -1, max: 1 },
+        offsetY: { min: -1, max: 1 },
+      },
+      customParams,
+      updateCustomParams
+    ),
+    Fit: createFolder(
+      {
+        fit: { options: Object.keys(ShaderFitOptions) as ShaderFit[] },
+        worldWidth: { min: 0, max: 5120, step: 1 },
+        worldHeight: { min: 0, max: 5120, step: 1 },
+        originX: { min: 0, max: 1 },
+        originY: { min: 0, max: 1 },
+      },
+      customParams,
+      updateCustomParams,
+      { collapsed: true }
+    ),
+    Presets: createFolder(
+      Object.fromEntries(
+        simplexNoisePresets.map(
+          ({ name, params: { worldWidth: presetWorldWidth, worldHeight: presetWorldHeight, ...preset } }) => [
+            name,
+            {
+              type: 'button' as const,
+              onClick: () => {
+                const { colors, ...presetParams } = preset;
+                setColors(colors);
+                updateCustomParams({
+                  ...presetParams,
+                  worldWidth: presetWorldWidth || 1000,
+                  worldHeight: presetWorldHeight || 500,
+                });
+              },
+            },
+          ]
+        )
+      ),
+      customParams,
+      updateCustomParams
+    ),
+  };
 
-        <ControlGroup title="Parameters">
-          <Slider
-            label="stepsPerColor"
-            value={customStepsPerColor}
-            onChange={(value) => {
-              setCustomStepsPerColor(value);
-              setParams({ stepsPerColor: value });
-            }}
-            min={1}
-            max={10}
-            step={1}
-            displayValue={customStepsPerColor.toString()}
-          />
-          <Slider
-            label="softness"
-            value={customSoftness}
-            onChange={(value) => {
-              setCustomSoftness(value);
-              setParams({ softness: value });
-            }}
-            min={0}
-            max={1}
-          />
-          <Slider
-            label="speed"
-            value={customSpeed}
-            onChange={(value) => {
-              setCustomSpeed(value);
-              setParams({ speed: value });
-            }}
-            min={0}
-            max={2}
-          />
-        </ControlGroup>
+  return (
+    <>
+      <Link href="/">
+        <BackButton />
+      </Link>
 
-        <ControlGroup title="Transform">
-          <Slider
-            label="scale"
-            value={customScale}
-            onChange={(value) => {
-              setCustomScale(value);
-              setParams({ scale: value });
-            }}
-            min={0.01}
-            max={4}
-          />
-          <Slider
-            label="rotation"
-            value={customRotation}
-            onChange={(value) => {
-              setCustomRotation(value);
-              setParams({ rotation: value });
-            }}
-            min={0}
-            max={360}
-            step={1}
-            displayValue={customRotation.toString()}
-          />
-          <Slider
-            label="offsetX"
-            value={customOffsetX}
-            onChange={(value) => {
-              setCustomOffsetX(value);
-              setParams({ offsetX: value });
-            }}
-            min={-1}
-            max={1}
-          />
-          <Slider
-            label="offsetY"
-            value={customOffsetY}
-            onChange={(value) => {
-              setCustomOffsetY(value);
-              setParams({ offsetY: value });
-            }}
-            min={-1}
-            max={1}
-          />
-        </ControlGroup>
+      <Controllers>{renderControlSchema(controlSchema)}</Controllers>
 
-        <ControlGroup title="Fit" defaultCollapsed={true}>
-          <Select
-            label="fit"
-            value={customFit}
-            options={Object.keys(ShaderFitOptions) as ShaderFit[]}
-            onChange={(value) => {
-              setCustomFit(value as ShaderFit);
-              setParams({ fit: value as ShaderFit });
-            }}
-          />
-          <Slider
-            label="worldWidth"
-            value={customWorldWidth}
-            onChange={(value) => {
-              setCustomWorldWidth(value);
-              setParams({ worldWidth: value });
-            }}
-            min={0}
-            max={5120}
-            step={1}
-          />
-          <Slider
-            label="worldHeight"
-            value={customWorldHeight}
-            onChange={(value) => {
-              setCustomWorldHeight(value);
-              setParams({ worldHeight: value });
-            }}
-            min={0}
-            max={5120}
-            step={1}
-          />
-          <Slider
-            label="originX"
-            value={customOriginX}
-            onChange={(value) => {
-              setCustomOriginX(value);
-              setParams({ originX: value });
-            }}
-            min={0}
-            max={1}
-          />
-          <Slider
-            label="originY"
-            value={customOriginY}
-            onChange={(value) => {
-              setCustomOriginY(value);
-              setParams({ originY: value });
-            }}
-            min={0}
-            max={1}
-          />
-        </ControlGroup>
-
-        <div>
-          <button
-            onClick={() => {
-              const { colors: defaultColors, ...defaultParams } = defaults;
-              setColors(defaultColors);
-              setParamsSafe(params, setParams, defaultParams);
-              setCustomScale(defaults.scale);
-              setCustomRotation(defaults.rotation);
-              setCustomOffsetX(defaults.offsetX);
-              setCustomOffsetY(defaults.offsetY);
-              setCustomStepsPerColor(defaults.stepsPerColor);
-              setCustomSoftness(defaults.softness);
-              setCustomSpeed(defaults.speed);
-              setCustomFit(defaults.fit);
-              setCustomWorldWidth(1000);
-              setCustomWorldHeight(500);
-              setCustomOriginX(defaults.originX);
-              setCustomOriginY(defaults.originY);
-            }}
-            className="w-full rounded-sm bg-white/10 px-3 py-1.5 text-xs font-medium transition-colors hover:bg-white/20 active:bg-white/30"
-          >
-            Reset to Default
-          </button>
-        </div>
-      </Controllers>
-
-      <SimplexNoise
-        {...params}
-        colors={colors}
-        scale={customScale}
-        rotation={customRotation}
-        offsetX={customOffsetX}
-        offsetY={customOffsetY}
-        stepsPerColor={customStepsPerColor}
-        softness={customSoftness}
-        speed={customSpeed}
-        fit={customFit}
-        worldWidth={customWorldWidth}
-        worldHeight={customWorldHeight}
-        originX={customOriginX}
-        originY={customOriginY}
-        className="fixed size-full"
-      />
+      <SimplexNoise {...customParams} colors={colors} className="fixed size-full" />
     </>
   );
 };

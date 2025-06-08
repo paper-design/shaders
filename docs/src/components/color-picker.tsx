@@ -15,8 +15,14 @@ export const ColorPicker = ({ label, value, onChange }: ColorPickerProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const buttonRef = useRef<HTMLButtonElement>(null);
 
-  const parseHslString = (hslStr: string) => {
-    const stringValue = typeof hslStr === 'string' ? hslStr : String(hslStr);
+  const parseColorString = (colorStr: string) => {
+    const stringValue = typeof colorStr === 'string' ? colorStr : String(colorStr);
+
+    // Handle hex colors
+    if (stringValue.startsWith('#')) {
+      const hsva = hexToHsva(stringValue);
+      return hsvaToHsla(hsva);
+    }
 
     if (stringValue.includes('hsla')) {
       const result = hslStringToHsla(stringValue);
@@ -34,7 +40,7 @@ export const ColorPicker = ({ label, value, onChange }: ColorPickerProps) => {
   };
 
   const colorValue = typeof value === 'string' ? value : String(value);
-  const hsla = parseHslString(colorValue);
+  const hsla = parseColorString(colorValue);
   const hsva = hslaToHsva(hsla);
 
   const [localHsva, setLocalHsva] = useState<HsvaColor | null>(null);
