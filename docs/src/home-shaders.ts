@@ -51,6 +51,10 @@ import {
   pulsingBorderPresets,
   ColorPanels,
   colorPanelsPresets,
+  FlutedGlass,
+  flutedGlassPresets,
+  Water,
+  waterPresets
 } from '@paper-design/shaders-react';
 import { StaticImageData } from 'next/image';
 import TextureTest from './app/texture-test/page';
@@ -197,5 +201,17 @@ export const homeShaders = [
     url: '/color-panels',
     ShaderComponent: ColorPanels,
     shaderConfig: { ...colorPanelsPresets[0].params },
+  },
+  {
+    name: 'water',
+    url: '/water',
+    ShaderComponent: Water,
+    shaderConfig: { ...waterPresets[0].params },
+  },
+  {
+    name: 'fluted glass',
+    url: '/fluted-glass',
+    ShaderComponent: FlutedGlass,
+    shaderConfig: { ...flutedGlassPresets[0].params },
   },
 ] satisfies HomeShaderConfig[];
