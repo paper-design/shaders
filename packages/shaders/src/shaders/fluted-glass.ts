@@ -186,8 +186,8 @@ export interface FlutedGlassUniforms extends ShaderSizingUniforms {
   u_marginBottom: number;
   u_gridLines: number;
   u_gridLinesBrightness: number;
-  u_distortionShape: (typeof GlassDistortionShapes)[GlassDistortion];
-  u_gridShape: (typeof GlassGridShapes)[GridShape];
+  u_distortionShape: (typeof GlassDistortionShapes)[GlassDistortionShape];
+  u_gridShape: (typeof GlassGridShapes)[GlassGridShape];
 }
 
 export interface FlutedGlassParams extends ShaderSizingParams, ShaderMotionParams {
@@ -205,8 +205,8 @@ export interface FlutedGlassParams extends ShaderSizingParams, ShaderMotionParam
   marginBottom?: number;
   gridLines?: number;
   gridLinesBrightness?: number;
-  distortionShape?: GlassDistortion;
-  gridShape?: GridShape;
+  distortionShape?: GlassDistortionShape;
+  gridShape?: GlassGridShape;
 }
 
 export const GlassGridShapes = {
@@ -223,5 +223,5 @@ export const GlassDistortionShapes = {
   'type #5': 5,
 } as const;
 
-export type GlassDistortion = keyof typeof GlassDistortionShapes;
-export type GridShape = keyof typeof GlassGridShapes;
+export type GlassDistortionShape = keyof typeof GlassDistortionShapes;
+export type GlassGridShape = keyof typeof GlassGridShapes;

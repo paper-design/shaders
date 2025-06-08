@@ -344,7 +344,7 @@ export class ShaderMount {
     hash = (hash * 0x01000193) >>> 0;
     hash ^= h;
     hash = (hash * 0x01000193) >>> 0;
-    this.uniformCache[uniformName] = hash;//.toString(16).padStart(8, '0');
+    this.uniformCache[uniformName] = hash; //.toString(16).padStart(8, '0');
 
     // Store the texture
     this.textures.set(uniformName, texture);
