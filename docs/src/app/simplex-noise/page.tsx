@@ -1,13 +1,27 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useMemo } from 'react';
 import { SimplexNoise, type SimplexNoiseParams, simplexNoisePresets } from '@paper-design/shaders-react';
-import { ColorPicker } from '@/components/color-picker';
 import Link from 'next/link';
 import { BackButton } from '@/components/back-button';
 import { simplexNoiseMeta, ShaderFit, ShaderFitOptions } from '@paper-design/shaders';
 import { Controllers, ControlSchema, createFolder, renderControlSchema } from '@/components/controllers';
-import { useColors } from '@/helpers/use-colors-standalone';
+import { useShaderControls } from '@/hooks/use-shader-controls';
+import { createColorControls } from '@/helpers/shader-controls/color-controls';
+import { createPresetControls } from '@/helpers/shader-controls/preset-controls';
+
+const FIRST_PRESET = simplexNoisePresets[0].params;
+const { worldWidth, worldHeight, colors: defaultColors, ...defaultParams } = FIRST_PRESET;
+
+const DEFAULT_WORLD_DIMENSIONS = {
+  worldWidth: worldWidth || 1000,
+  worldHeight: worldHeight || 500,
+};
+
+type SimplexNoiseControlParams = Omit<SimplexNoiseParams, 'colors'> & {
+  worldWidth: number;
+  worldHeight: number;
+};
 
 /**
  * You can copy/paste this example to use SimplexNoise in your app
@@ -19,143 +33,95 @@ const SimplexNoiseExample = () => {
 /**
  * This example has controls added so you can play with settings in the example app
  */
-
-const firstPreset = simplexNoisePresets[0].params;
-const { worldWidth, worldHeight, ...defaults } = firstPreset;
-
 const SimplexNoiseWithControls = () => {
-  const { colors, setColors } = useColors({
-    defaultColors: firstPreset.colors,
+  const { colors, setColors, params, updateParams, resetToPreset } = useShaderControls<SimplexNoiseControlParams>({
+    defaultParams: {
+      ...defaultParams,
+      ...DEFAULT_WORLD_DIMENSIONS,
+    } as SimplexNoiseControlParams,
+    defaultColors,
     maxColorCount: simplexNoiseMeta.maxColorCount,
   });
 
-  const [customParams, setCustomParams] = useState({
-    stepsPerColor: defaults.stepsPerColor,
-    softness: defaults.softness,
-    speed: defaults.speed,
-    scale: defaults.scale,
-    rotation: defaults.rotation,
-    offsetX: defaults.offsetX,
-    offsetY: defaults.offsetY,
-    fit: defaults.fit,
-    worldWidth: worldWidth || 1000,
-    worldHeight: worldHeight || 500,
-    originX: defaults.originX,
-    originY: defaults.originY,
-  });
+  const controlSchema = useMemo<ControlSchema>(() => {
+    const handlePresetSelect = (presetColors: string[], presetParams: Partial<SimplexNoiseControlParams>) => {
+      resetToPreset(presetColors, {
+        ...presetParams,
+        worldWidth: presetParams.worldWidth || DEFAULT_WORLD_DIMENSIONS.worldWidth,
+        worldHeight: presetParams.worldHeight || DEFAULT_WORLD_DIMENSIONS.worldHeight,
+      } as SimplexNoiseControlParams);
+    };
 
-  const updateCustomParams = (updates: Partial<typeof customParams>) => {
-    setCustomParams((prev) => ({ ...prev, ...updates }));
-  };
-
-  const controlSchema: ControlSchema = {
-    Colors: {
-      _isFolder: true,
-      config: {
-        colorCount: {
-          value: colors.length,
-          min: 1,
-          max: simplexNoiseMeta.maxColorCount,
-          step: 1,
-          onChange: (value) => {
-            const newColors = [...colors];
-            if (value > colors.length) {
-              for (let i = colors.length; i < value; i++) {
-                newColors.push(`hsla(${(40 * i) % 360}, 100%, 50%, 1)`);
-              }
-            } else {
-              newColors.length = value;
-            }
-            setColors(newColors);
-          },
+    return {
+      Colors: {
+        _isFolder: true,
+        config: createColorControls({
+          colors,
+          maxColorCount: simplexNoiseMeta.maxColorCount,
+          onColorsChange: setColors,
+        }),
+        options: {},
+      },
+      Parameters: createFolder(
+        {
+          stepsPerColor: { min: 1, max: 10, step: 1 },
+          softness: { min: 0, max: 1 },
+          speed: { min: 0, max: 2 },
         },
-        colorGrid: {
-          type: 'custom',
-          render: () => (
-            <div className="grid grid-cols-2">
-              {colors.map((color, index) => (
-                <ColorPicker
-                  key={index}
-                  label=""
-                  value={color}
-                  onChange={(newColor) => {
-                    const newColors = [...colors];
-                    newColors[index] = newColor;
-                    setColors(newColors);
-                  }}
-                />
-              ))}
-            </div>
-          ),
-        },
-      },
-      options: {},
-    },
-    Parameters: createFolder(
-      {
-        stepsPerColor: { min: 1, max: 10, step: 1 },
-        softness: { min: 0, max: 1 },
-        speed: { min: 0, max: 2 },
-      },
-      customParams,
-      updateCustomParams
-    ),
-    Transform: createFolder(
-      {
-        scale: { min: 0.01, max: 4 },
-        rotation: { min: 0, max: 360, step: 1 },
-        offsetX: { min: -1, max: 1 },
-        offsetY: { min: -1, max: 1 },
-      },
-      customParams,
-      updateCustomParams
-    ),
-    Fit: createFolder(
-      {
-        fit: { options: Object.keys(ShaderFitOptions) as ShaderFit[] },
-        worldWidth: { min: 0, max: 5120, step: 1 },
-        worldHeight: { min: 0, max: 5120, step: 1 },
-        originX: { min: 0, max: 1 },
-        originY: { min: 0, max: 1 },
-      },
-      customParams,
-      updateCustomParams,
-      { collapsed: true }
-    ),
-    Presets: createFolder(
-      Object.fromEntries(
-        simplexNoisePresets.map(
-          ({ name, params: { worldWidth: presetWorldWidth, worldHeight: presetWorldHeight, ...preset } }) => [
-            name,
-            {
-              type: 'button' as const,
-              onClick: () => {
-                const { colors, ...presetParams } = preset;
-                setColors(colors);
-                updateCustomParams({
-                  ...presetParams,
-                  worldWidth: presetWorldWidth || 1000,
-                  worldHeight: presetWorldHeight || 500,
-                });
-              },
-            },
-          ]
-        )
+        params,
+        updateParams
       ),
-      customParams,
-      updateCustomParams
-    ),
-  };
+      Transform: createFolder(
+        {
+          scale: { min: 0.01, max: 4 },
+          rotation: { min: 0, max: 360, step: 1 },
+          offsetX: { min: -1, max: 1 },
+          offsetY: { min: -1, max: 1 },
+        },
+        params,
+        updateParams
+      ),
+      Fit: createFolder(
+        {
+          fit: { options: Object.keys(ShaderFitOptions) as ShaderFit[] },
+          worldWidth: { min: 0, max: 5120, step: 1 },
+          worldHeight: { min: 0, max: 5120, step: 1 },
+          originX: { min: 0, max: 1 },
+          originY: { min: 0, max: 1 },
+        },
+        params,
+        updateParams,
+        { collapsed: true }
+      ),
+      Presets: createFolder(
+        createPresetControls({
+          presets: simplexNoisePresets,
+          onPresetSelect: handlePresetSelect,
+        }),
+        params,
+        updateParams,
+        { spacing: 'space-y-1' }
+      ),
+    };
+  }, [colors, params, updateParams, setColors, resetToPreset]);
+
+  const { worldWidth: _, worldHeight: __, ...shaderParams } = params;
 
   return (
     <>
-      <Link href="/">
+      <Link href="/" className="relative z-10">
         <BackButton />
       </Link>
 
       <Controllers>{renderControlSchema(controlSchema)}</Controllers>
 
-      <SimplexNoise {...customParams} colors={colors} className="fixed size-full" />
+      <SimplexNoise
+        {...shaderParams}
+        worldWidth={params.worldWidth}
+        worldHeight={params.worldHeight}
+        colors={colors}
+        className="fixed size-full"
+      />
     </>
   );
 };

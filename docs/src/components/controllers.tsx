@@ -1,7 +1,6 @@
 'use client';
 
-import React, { useState, ReactNode } from 'react';
-import { ColorPicker } from '@/components/color-picker';
+import React, { useState, ReactNode, memo, useCallback, useMemo } from 'react';
 
 interface SliderProps {
   label: string;
@@ -13,19 +12,54 @@ interface SliderProps {
   displayValue?: string;
 }
 
-export const Slider = ({ label, value, onChange, min, max, step = 0.01, displayValue }: SliderProps) => {
-  const percentage = ((value - min) / (max - min)) * 100;
-  const inputId = `slider-${label.replace(/\s+/g, '-').toLowerCase()}`;
+export const Slider = memo(({ label, value, onChange, min, max, step = 0.01, displayValue }: SliderProps) => {
+  const percentage = useMemo(() => ((value - min) / (max - min)) * 100, [value, min, max]);
+  const inputId = useMemo(() => `slider-${label.replace(/\s+/g, '-').toLowerCase()}`, [label]);
   const [inputValue, setInputValue] = useState('');
   const [isFocused, setIsFocused] = useState(false);
 
-  const getDisplayValue = () => {
+  const getDisplayValue = useCallback(() => {
     if (displayValue) return displayValue;
     if (step >= 1) return value.toString();
     return value.toFixed(2);
-  };
+  }, [displayValue, step, value]);
 
   const displayedValue = isFocused && inputValue !== '' ? inputValue : getDisplayValue();
+
+  const handleRangeChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      onChange(parseFloat(e.target.value));
+    },
+    [onChange]
+  );
+
+  const handleTextChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setInputValue(e.target.value);
+      const newValue = parseFloat(e.target.value);
+      if (!isNaN(newValue)) {
+        onChange(Math.min(Math.max(newValue, min), max));
+      }
+    },
+    [onChange, min, max]
+  );
+
+  const handleFocus = useCallback(() => {
+    setIsFocused(true);
+    setInputValue(value.toString());
+  }, [value]);
+
+  const handleBlur = useCallback(() => {
+    setIsFocused(false);
+    setInputValue('');
+  }, []);
+
+  const sliderStyle = useMemo(
+    () => ({
+      background: `linear-gradient(to right, #f2f2f2 0%, #f2f2f2 ${percentage}%, #484848 ${percentage}%, #484848 100%)`,
+    }),
+    [percentage]
+  );
 
   return (
     <div className="block last:mb-0">
@@ -40,38 +74,26 @@ export const Slider = ({ label, value, onChange, min, max, step = 0.01, displayV
           max={max}
           step={step}
           value={value}
-          onChange={(e) => onChange(parseFloat(e.target.value))}
+          onChange={handleRangeChange}
           className="h-0.5 flex-1 appearance-none rounded-sm bg-[#484848] outline-none [&::-moz-range-thumb]:h-3 [&::-moz-range-thumb]:w-3 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-none [&::-moz-range-thumb]:bg-[#f2f2f2] [&::-moz-range-thumb]:transition-transform [&::-moz-range-thumb]:hover:scale-110 [&::-moz-range-thumb]:active:scale-95 [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-[#f2f2f2] [&::-webkit-slider-thumb]:transition-transform [&::-webkit-slider-thumb]:hover:scale-110 [&::-webkit-slider-thumb]:active:scale-95"
-          style={{
-            background: `linear-gradient(to right, #f2f2f2 0%, #f2f2f2 ${percentage}%, #484848 ${percentage}%, #484848 100%)`,
-          }}
+          style={sliderStyle}
           aria-label={label}
         />
         <input
           type="text"
           value={displayedValue}
-          onChange={(e) => {
-            setInputValue(e.target.value);
-            const newValue = parseFloat(e.target.value);
-            if (!isNaN(newValue)) {
-              onChange(Math.min(Math.max(newValue, min), max));
-            }
-          }}
-          onFocus={() => {
-            setIsFocused(true);
-            setInputValue(value.toString());
-          }}
-          onBlur={() => {
-            setIsFocused(false);
-            setInputValue('');
-          }}
+          onChange={handleTextChange}
+          onFocus={handleFocus}
+          onBlur={handleBlur}
           className="w-[46px] rounded-sm bg-white/10 px-2 py-0.5 text-right text-xs outline-none [appearance:textfield] focus:bg-white/20 focus:ring-1 focus:ring-white/50"
           aria-label={`${label} value`}
         />
       </div>
     </div>
   );
-};
+});
+
+Slider.displayName = 'Slider';
 
 interface SelectProps {
   label: string;
@@ -80,8 +102,15 @@ interface SelectProps {
   onChange: (value: string) => void;
 }
 
-export const Select = ({ label, value, options, onChange }: SelectProps) => {
-  const selectId = `select-${label.replace(/\s+/g, '-').toLowerCase()}`;
+export const Select = memo(({ label, value, options, onChange }: SelectProps) => {
+  const selectId = useMemo(() => `select-${label.replace(/\s+/g, '-').toLowerCase()}`, [label]);
+
+  const handleChange = useCallback(
+    (e: React.ChangeEvent<HTMLSelectElement>) => {
+      onChange(e.target.value);
+    },
+    [onChange]
+  );
 
   return (
     <div className="mb-2 block">
@@ -92,7 +121,7 @@ export const Select = ({ label, value, options, onChange }: SelectProps) => {
         <select
           id={selectId}
           value={value}
-          onChange={(e) => onChange(e.target.value)}
+          onChange={handleChange}
           className="w-full appearance-none rounded-sm bg-white/10 px-2 py-1 pr-8 text-xs outline-none hover:bg-white/20 focus:bg-white/20 focus:ring-1 focus:ring-white/50"
           aria-label={label}
         >
@@ -113,54 +142,69 @@ export const Select = ({ label, value, options, onChange }: SelectProps) => {
       </div>
     </div>
   );
-};
+});
+
+Select.displayName = 'Select';
 
 interface ControlGroupProps {
   title: string;
   children: ReactNode;
   className?: string;
   defaultCollapsed?: boolean;
+  spacing?: string;
 }
 
-export const ControlGroup = ({ title, children, className, defaultCollapsed = false }: ControlGroupProps) => {
-  const [isCollapsed, setIsCollapsed] = useState(defaultCollapsed);
+export const ControlGroup = memo(
+  ({ title, children, className, defaultCollapsed = false, spacing = 'space-y-0.5' }: ControlGroupProps) => {
+    const [isCollapsed, setIsCollapsed] = useState(defaultCollapsed);
 
-  return (
-    <div className={className}>
-      <button
-        type="button"
-        onClick={() => setIsCollapsed(!isCollapsed)}
-        className="mb-1 flex w-full items-center gap-1 text-xs font-medium hover:opacity-80"
-      >
-        <svg
-          className={`h-3 w-3 transition-transform ${isCollapsed ? '' : 'rotate-90'}`}
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
+    const toggleCollapse = useCallback(() => {
+      setIsCollapsed((prev) => !prev);
+    }, []);
+
+    return (
+      <div className={className}>
+        <button
+          type="button"
+          onClick={toggleCollapse}
+          className="mb-1 flex w-full items-center gap-1 text-xs font-medium hover:opacity-80"
+          aria-expanded={!isCollapsed}
+          aria-controls={`control-group-${title}`}
         >
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-        </svg>
-        <span>{title}</span>
-      </button>
-      <div
-        className={`overflow-hidden transition-all duration-200 ease-in-out ${
-          isCollapsed ? 'max-h-0 opacity-0' : 'max-h-[500px] opacity-100'
-        }`}
-      >
-        <div className="relative ml-1.5 mt-1">
-          <div className="absolute bottom-0 left-0 top-0 w-px bg-white/10" style={{ marginTop: '-0.375rem' }} />
-          <div className="ml-2.5 space-y-0.5 pl-1">{children}</div>
+          <svg
+            className={`h-3 w-3 transition-transform ${isCollapsed ? '' : 'rotate-90'}`}
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+          </svg>
+          <span>{title}</span>
+        </button>
+        <div
+          id={`control-group-${title}`}
+          className={`overflow-hidden transition-all duration-200 ease-in-out ${
+            isCollapsed ? 'max-h-0 opacity-0' : 'max-h-[500px] opacity-100'
+          }`}
+        >
+          <div className="relative ml-1.5 mt-1">
+            <div className="absolute bottom-0 left-0 top-0 w-px bg-white/10" style={{ marginTop: '-0.375rem' }} />
+            <div className={`ml-2.5 ${spacing} pl-1`}>{children}</div>
+          </div>
         </div>
       </div>
-    </div>
-  );
-};
+    );
+  }
+);
+
+ControlGroup.displayName = 'ControlGroup';
 
 interface ControllersProps {
   children: ReactNode;
 }
 
-export const Controllers = ({ children }: ControllersProps) => {
+export const Controllers = memo(({ children }: ControllersProps) => {
   return (
     <div className="fixed right-5 top-5 z-[1000] rounded bg-black/70 text-white">
       <div className="min-w-[220px] divide-y divide-white/20">
@@ -172,9 +216,10 @@ export const Controllers = ({ children }: ControllersProps) => {
       </div>
     </div>
   );
-};
+});
 
-// Type definitions for controls
+Controllers.displayName = 'Controllers';
+
 type SliderControl = {
   type?: 'slider';
   value: number;
@@ -225,6 +270,7 @@ type FolderConfig = {
 
 type FolderOptions = {
   collapsed?: boolean;
+  spacing?: string;
 };
 
 type FolderDefinition = {
@@ -237,7 +283,6 @@ export type ControlSchema = {
   [key: string]: Control | FolderDefinition;
 };
 
-// Helper functions
 export const createFolder = <T extends Record<string, unknown>>(
   simpleConfig: SimpleFolderConfig,
   params: T,
@@ -315,7 +360,12 @@ export const renderControl = (key: string, control: Control) => {
 
 export const renderFolder = (title: string, folder: FolderDefinition) => {
   return (
-    <ControlGroup key={title} title={title} defaultCollapsed={folder.options?.collapsed}>
+    <ControlGroup
+      key={title}
+      title={title}
+      defaultCollapsed={folder.options?.collapsed}
+      spacing={folder.options?.spacing}
+    >
       {Object.entries(folder.config).map(([key, control]) => renderControl(key, control))}
     </ControlGroup>
   );

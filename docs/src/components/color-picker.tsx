@@ -18,7 +18,6 @@ export const ColorPicker = ({ label, value, onChange }: ColorPickerProps) => {
   const parseColorString = (colorStr: string) => {
     const stringValue = typeof colorStr === 'string' ? colorStr : String(colorStr);
 
-    // Handle hex colors
     if (stringValue.startsWith('#')) {
       const hsva = hexToHsva(stringValue);
       return hsvaToHsla(hsva);
@@ -82,9 +81,37 @@ export const ColorPicker = ({ label, value, onChange }: ColorPickerProps) => {
   const getPickerPosition = () => {
     if (!buttonRef.current) return { top: 0, left: 0 };
     const rect = buttonRef.current.getBoundingClientRect();
+    const pickerWidth = 280;
+    const pickerHeight = 280;
+    const padding = 8;
+
+    let top = rect.bottom + 4;
+    let left = rect.left;
+
+    if (left + pickerWidth > window.innerWidth - padding) {
+      left = window.innerWidth - pickerWidth - padding;
+    }
+
+    if (left < padding) {
+      left = padding;
+    }
+
+    if (top + pickerHeight > window.innerHeight - padding) {
+      top = rect.top - pickerHeight - 4;
+    }
+
+    if (top < padding) {
+      if (rect.left - pickerWidth - 4 > padding) {
+        top = rect.top;
+        left = rect.left - pickerWidth - 4;
+      } else {
+        top = padding;
+      }
+    }
+
     return {
-      top: rect.bottom + 4,
-      left: rect.left,
+      top: Math.max(padding, top),
+      left: Math.max(padding, left),
     };
   };
 
@@ -130,7 +157,11 @@ export const ColorPicker = ({ label, value, onChange }: ColorPickerProps) => {
             />
             <div
               className="color-picker-portal fixed z-[9999] rounded-lg border border-gray-700 bg-[#1a1a1a] p-3 shadow-xl"
-              style={getPickerPosition()}
+              style={{
+                ...getPickerPosition(),
+                maxHeight: 'calc(100vh - 16px)',
+                overflow: 'auto',
+              }}
             >
               <style
                 dangerouslySetInnerHTML={{
