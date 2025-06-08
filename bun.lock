@@ -19,6 +19,8 @@
       "version": "0.0.0",
       "dependencies": {
         "@paper-design/shaders-react": "workspace:*",
+        "@uiw/color-convert": "^2.5.5",
+        "@uiw/react-color-colorful": "^2.5.5",
         "@vercel/analytics": "^1.5.0",
         "leva": "0.9.34",
         "next": "15.2.3",
@@ -38,11 +40,11 @@
     },
     "packages/shaders": {
       "name": "@paper-design/shaders",
-      "version": "0.0.30",
+      "version": "0.0.34",
     },
     "packages/shaders-react": {
       "name": "@paper-design/shaders-react",
-      "version": "0.0.33",
+      "version": "0.0.38",
       "dependencies": {
         "@paper-design/shaders": "workspace:*",
       },
@@ -371,6 +373,18 @@
     "@typescript-eslint/utils": ["@typescript-eslint/utils@8.29.0", "", { "dependencies": { "@eslint-community/eslint-utils": "^4.4.0", "@typescript-eslint/scope-manager": "8.29.0", "@typescript-eslint/types": "8.29.0", "@typescript-eslint/typescript-estree": "8.29.0" }, "peerDependencies": { "eslint": "^8.57.0 || ^9.0.0", "typescript": ">=4.8.4 <5.9.0" } }, "sha512-gX/A0Mz9Bskm8avSWFcK0gP7cZpbY4AIo6B0hWYFCaIsz750oaiWR4Jr2CI+PQhfW1CpcQr9OlfPS+kMFegjXA=="],
 
     "@typescript-eslint/visitor-keys": ["@typescript-eslint/visitor-keys@8.29.0", "", { "dependencies": { "@typescript-eslint/types": "8.29.0", "eslint-visitor-keys": "^4.2.0" } }, "sha512-Sne/pVz8ryR03NFK21VpN88dZ2FdQXOlq3VIklbrTYEt8yXtRFr9tvUhqvCeKjqYk5FSim37sHbooT6vzBTZcg=="],
+
+    "@uiw/color-convert": ["@uiw/color-convert@2.5.5", "", { "peerDependencies": { "@babel/runtime": ">=7.19.0" } }, "sha512-sNKhJe3h/nMxxoB3NEr02RTjkSE85sLIwQyl1lVK4scVCQumPbz1giWcWlYnSRLBHmrYYat7xShrDf/+Uc3UAg=="],
+
+    "@uiw/react-color-alpha": ["@uiw/react-color-alpha@2.5.5", "", { "dependencies": { "@uiw/color-convert": "2.5.5", "@uiw/react-drag-event-interactive": "2.5.5" }, "peerDependencies": { "@babel/runtime": ">=7.19.0", "react": ">=16.9.0", "react-dom": ">=16.9.0" } }, "sha512-J0SpMtpZFMCaSy1DmWCsVyoWZ0IH6JdSCd7558WdJbKqD/Wt9tzGjZeH9SWb9fGAPFhxoNqh8RCD2mAij4dsYA=="],
+
+    "@uiw/react-color-colorful": ["@uiw/react-color-colorful@2.5.5", "", { "dependencies": { "@uiw/color-convert": "2.5.5", "@uiw/react-color-alpha": "2.5.5", "@uiw/react-color-hue": "2.5.5", "@uiw/react-color-saturation": "2.5.5" }, "peerDependencies": { "@babel/runtime": ">=7.19.0", "react": ">=16.9.0", "react-dom": ">=16.9.0" } }, "sha512-F1Z9Z3uhDUuZWjLpv0YFxn29USqvTd9E6uYHYl7hdAHBjtAUKhWUhUCsq0YsRwieHvof9jYhMhUMAu6/Z7WcIA=="],
+
+    "@uiw/react-color-hue": ["@uiw/react-color-hue@2.5.5", "", { "dependencies": { "@uiw/color-convert": "2.5.5", "@uiw/react-color-alpha": "2.5.5" }, "peerDependencies": { "@babel/runtime": ">=7.19.0", "react": ">=16.9.0", "react-dom": ">=16.9.0" } }, "sha512-PxofC2303OthiHf7EOOz1+U+Oa8jmIpUY6SnOFdXIpgKMxaiTk+UUvV9uZRXyJ3onweNhK/zAN+8uEuSkQkpTg=="],
+
+    "@uiw/react-color-saturation": ["@uiw/react-color-saturation@2.5.5", "", { "dependencies": { "@uiw/color-convert": "2.5.5", "@uiw/react-drag-event-interactive": "2.5.5" }, "peerDependencies": { "@babel/runtime": ">=7.19.0", "react": ">=16.9.0", "react-dom": ">=16.9.0" } }, "sha512-InHxYWpyTYwpHZXjsoG6tKI7QObCva/TfjobbPhB2UMYxpL07u8l9RiB0IOvejIybWuZDPVqjueawV7+wesepA=="],
+
+    "@uiw/react-drag-event-interactive": ["@uiw/react-drag-event-interactive@2.5.5", "", { "peerDependencies": { "@babel/runtime": ">=7.19.0", "react": ">=16.9.0", "react-dom": ">=16.9.0" } }, "sha512-RO31lRPh0pDFM++dTT42K5zrJsYb5kGy502Ou5aTIP/XJg05+Xy5QpF4o4EPsuzNJ1GOpPYg+V5FsvafQ+LONQ=="],
 
     "@unrs/resolver-binding-darwin-arm64": ["@unrs/resolver-binding-darwin-arm64@1.4.1", "", { "os": "darwin", "cpu": "arm64" }, "sha512-8Tv+Bsd0BjGwfEedIyor4inw8atppRxM5BdUnIt+3mAm/QXUm7Dw74CHnXpfZKXkp07EXJGiA8hStqCINAWhdw=="],
 

@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { SimplexNoise, type SimplexNoiseParams, simplexNoisePresets } from '@paper-design/shaders-react';
+import { ColorPicker } from '@/components/color-picker';
 
 import { useControls, button, folder } from 'leva';
 import { setParamsSafe, useResetLevaParams } from '@/helpers/use-reset-leva-params';
@@ -38,11 +39,16 @@ interface SliderProps {
 const Slider = ({ label, value, onChange, min, max, step = 0.01, displayValue }: SliderProps) => {
   const percentage = ((value - min) / (max - min)) * 100;
   const inputId = `slider-${label.replace(/\s+/g, '-').toLowerCase()}`;
+  const [inputValue, setInputValue] = useState('');
+  const [isFocused, setIsFocused] = useState(false);
 
   const getDisplayValue = () => {
     if (displayValue) return displayValue;
-    return step >= 1 || value % 1 === 0 ? value.toString() : value.toFixed(2);
+    if (step >= 1) return value.toString();
+    return value.toFixed(2);
   };
+
+  const displayedValue = isFocused && inputValue !== '' ? inputValue : getDisplayValue();
 
   return (
     <div className="block last:mb-0">
@@ -65,18 +71,24 @@ const Slider = ({ label, value, onChange, min, max, step = 0.01, displayValue }:
           aria-label={label}
         />
         <input
-          type="number"
-          min={min}
-          max={max}
-          step={step}
-          value={getDisplayValue()}
+          type="text"
+          value={displayedValue}
           onChange={(e) => {
+            setInputValue(e.target.value);
             const newValue = parseFloat(e.target.value);
             if (!isNaN(newValue)) {
               onChange(Math.min(Math.max(newValue, min), max));
             }
           }}
-          className="min-w-[3rem] rounded-sm bg-white/10 px-2 py-0.5 text-center text-xs outline-none [appearance:textfield] focus:bg-white/20 focus:ring-1 focus:ring-white/50 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+          onFocus={() => {
+            setIsFocused(true);
+            setInputValue(value.toString());
+          }}
+          onBlur={() => {
+            setIsFocused(false);
+            setInputValue('');
+          }}
+          className="w-[44px] rounded-sm bg-white/10 px-2 py-0.5 text-right text-xs outline-none [appearance:textfield] focus:bg-white/20 focus:ring-1 focus:ring-white/50"
           aria-label={`${label} value`}
         />
       </div>
@@ -99,19 +111,29 @@ const Select = ({ label, value, options, onChange }: SelectProps) => {
       <label htmlFor={selectId} className="text-xs opacity-70">
         {label}
       </label>
-      <select
-        id={selectId}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className="w-full rounded-sm bg-white/10 px-2 py-1 text-xs outline-none hover:bg-white/20 focus:bg-white/20 focus:ring-1 focus:ring-white/50"
-        aria-label={label}
-      >
-        {options.map((option) => (
-          <option key={option} value={option}>
-            {option}
-          </option>
-        ))}
-      </select>
+      <div className="relative">
+        <select
+          id={selectId}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          className="w-full appearance-none rounded-sm bg-white/10 px-2 py-1 pr-8 text-xs outline-none hover:bg-white/20 focus:bg-white/20 focus:ring-1 focus:ring-white/50"
+          aria-label={label}
+        >
+          {options.map((option) => (
+            <option key={option} value={option}>
+              {option}
+            </option>
+          ))}
+        </select>
+        <svg
+          className="pointer-events-none absolute right-2 top-1/2 h-3 w-3 -translate-y-1/2 text-white"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+        </svg>
+      </div>
     </div>
   );
 };
@@ -164,7 +186,7 @@ interface ControllersProps {
 const Controllers = ({ children }: ControllersProps) => {
   return (
     <div className="fixed left-5 top-5 z-[1000] rounded bg-black/70 text-white">
-      <div className="min-w-[260px] divide-y divide-white/20">
+      <div className="min-w-[220px] divide-y divide-white/20">
         {React.Children.map(children, (child, index) => (
           <div className="py-3 pl-2 pr-3" key={index}>
             {child}
@@ -261,6 +283,44 @@ const SimplexNoiseWithControls = () => {
       </Link>
 
       <Controllers>
+        <ControlGroup title="Colors">
+          <div className="space-y-1">
+            <Slider
+              label="colorCount"
+              value={colors.length}
+              onChange={(value) => {
+                const newColors = [...colors];
+                if (value > colors.length) {
+                  for (let i = colors.length; i < value; i++) {
+                    newColors.push(`hsla(${(40 * i) % 360}, 100%, 50%, 1)`);
+                  }
+                } else {
+                  newColors.length = value;
+                }
+                setColors(newColors);
+              }}
+              min={1}
+              max={simplexNoiseMeta.maxColorCount}
+              step={1}
+            />
+
+            <div className="grid grid-cols-2">
+              {colors.map((color, index) => (
+                <ColorPicker
+                  key={index}
+                  label=""
+                  value={color}
+                  onChange={(newColor) => {
+                    const newColors = [...colors];
+                    newColors[index] = newColor;
+                    setColors(newColors);
+                  }}
+                />
+              ))}
+            </div>
+          </div>
+        </ControlGroup>
+
         <ControlGroup title="Parameters">
           <Slider
             label="stepsPerColor"
@@ -394,6 +454,31 @@ const SimplexNoiseWithControls = () => {
             max={1}
           />
         </ControlGroup>
+
+        <div>
+          <button
+            onClick={() => {
+              const { colors: defaultColors, ...defaultParams } = defaults;
+              setColors(defaultColors);
+              setParamsSafe(params, setParams, defaultParams);
+              setCustomScale(defaults.scale);
+              setCustomRotation(defaults.rotation);
+              setCustomOffsetX(defaults.offsetX);
+              setCustomOffsetY(defaults.offsetY);
+              setCustomStepsPerColor(defaults.stepsPerColor);
+              setCustomSoftness(defaults.softness);
+              setCustomSpeed(defaults.speed);
+              setCustomFit(defaults.fit);
+              setCustomWorldWidth(1000);
+              setCustomWorldHeight(500);
+              setCustomOriginX(defaults.originX);
+              setCustomOriginY(defaults.originY);
+            }}
+            className="w-full rounded-sm bg-white/10 px-3 py-1.5 text-xs font-medium transition-colors hover:bg-white/20 active:bg-white/30"
+          >
+            Reset to Default
+          </button>
+        </div>
       </Controllers>
 
       <SimplexNoise

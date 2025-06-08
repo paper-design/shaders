@@ -11,6 +11,8 @@
   },
   "dependencies": {
     "@paper-design/shaders-react": "workspace:*",
+    "@uiw/color-convert": "^2.5.5",
+    "@uiw/react-color-colorful": "^2.5.5",
     "@vercel/analytics": "^1.5.0",
     "leva": "0.9.34",
     "next": "15.2.3"

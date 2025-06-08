@@ -29,6 +29,19 @@ export const defaultPreset: SimplexNoisePreset = {
 
 export const simplexNoisePresets: SimplexNoisePreset[] = [defaultPreset];
 
+// Helper function to ensure colors are in the correct format
+const normalizeColors = (colors: (string | { value: string })[]): string[] => {
+  return colors.map((color) => {
+    if (typeof color === 'string') {
+      return color;
+    }
+    if (typeof color === 'object' && color !== null && 'value' in color) {
+      return String(color.value);
+    }
+    return String(color);
+  });
+};
+
 export const SimplexNoise: React.FC<SimplexNoiseProps> = memo(function SimplexNoiseImpl({
   // Own props
   speed = defaultPreset.params.speed,
@@ -49,10 +62,13 @@ export const SimplexNoise: React.FC<SimplexNoiseProps> = memo(function SimplexNo
   worldHeight = defaultPreset.params.worldHeight,
   ...props
 }: SimplexNoiseProps) {
+  // Normalize colors to ensure they're strings
+  const normalizedColors = normalizeColors(colors);
+
   const uniforms = {
     // Own uniforms
-    u_colors: colors.map(getShaderColorFromString),
-    u_colorsCount: colors.length,
+    u_colors: normalizedColors.map(getShaderColorFromString),
+    u_colorsCount: normalizedColors.length,
     u_stepsPerColor: stepsPerColor,
     u_softness: softness,
 
