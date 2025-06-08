@@ -1,14 +1,27 @@
 'use client';
 
+import React, { useMemo } from 'react';
 import { Spiral, type SpiralParams, spiralPresets } from '@paper-design/shaders-react';
-import { useControls, button, folder } from 'leva';
-import { setParamsSafe, useResetLevaParams } from '@/helpers/use-reset-leva-params';
-import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import Link from 'next/link';
 import { BackButton } from '@/components/back-button';
-import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
 import { ShaderFit, ShaderFitOptions } from '@paper-design/shaders';
-import { toHsla } from '@/helpers/to-hsla';
+import { Controllers, ControlSchema, createFolder, renderControlSchema, customButton } from '@/components/controllers';
+import { useShaderControls } from '@/hooks/use-shader-controls';
+import { ColorPicker } from '@/components/color-picker';
+
+const FIRST_PRESET = spiralPresets[0].params;
+const { worldWidth, worldHeight, colorBack, colorFront, ...defaultParams } = FIRST_PRESET;
+
+const DEFAULT_WORLD_DIMENSIONS = {
+  worldWidth: worldWidth || 1000,
+  worldHeight: worldHeight || 500,
+};
+
+type SpiralControlParams = Omit<SpiralParams, 'colorBack' | 'colorFront'> & {
+  worldWidth: number;
+  worldHeight: number;
+  reverse: boolean;
+};
 
 /**
  * You can copy/paste this example to use Spiral in your app
@@ -20,89 +33,121 @@ const SpiralExample = () => {
 /**
  * This example has controls added so you can play with settings in the example app
  */
-
-const firstPresetParams = spiralPresets[0].params;
-const { worldWidth, worldHeight, ...defaults } = {
-  ...firstPresetParams,
-  speed: Math.abs(firstPresetParams.speed),
-  reverse: firstPresetParams.speed < 0,
-  style: { background: 'hsla(0, 0%, 0%, 0)' },
-};
-
 const SpiralWithControls = () => {
-  const [params, setParams] = useControls(() => {
-    return {
-      Parameters: folder(
-        {
-          colorBack: { value: toHsla(defaults.colorBack), order: 100 },
-          colorFront: { value: toHsla(defaults.colorFront), order: 101 },
-          density: { value: defaults.density, min: 0, max: 1, order: 203 },
-          distortion: { value: defaults.distortion, min: 0, max: 1, order: 204 },
-          strokeWidth: { value: defaults.strokeWidth, min: 0, max: 1, order: 205 },
-          strokeTaper: { value: defaults.strokeTaper, min: 0, max: 1, order: 206 },
-          strokeCap: { value: defaults.strokeCap, min: 0, max: 1, order: 207 },
-          noiseFrequency: { value: defaults.noiseFrequency, min: 0, max: 30, order: 350 },
-          noisePower: { value: defaults.noisePower, min: 0, max: 1, order: 351 },
-          softness: { value: defaults.softness, min: 0, max: 1, order: 352 },
-          speed: { value: defaults.speed, min: 0, max: 2, order: 400 },
-          reverse: { value: defaults.reverse, order: 401 },
-        },
-        { order: 1 }
-      ),
-      Transform: folder(
-        {
-          scale: { value: defaults.scale, min: 0.01, max: 4, order: 400 },
-          rotation: { value: defaults.rotation, min: 0, max: 360, order: 401 },
-          offsetX: { value: defaults.offsetX, min: -1, max: 1, order: 402 },
-          offsetY: { value: defaults.offsetY, min: -1, max: 1, order: 403 },
-        },
-        {
-          order: 2,
-          collapsed: false,
-        }
-      ),
-      Fit: folder(
-        {
-          fit: { value: defaults.fit, options: Object.keys(ShaderFitOptions) as ShaderFit[], order: 404 },
-          worldWidth: { value: 1000, min: 0, max: 5120, order: 405 },
-          worldHeight: { value: 500, min: 0, max: 5120, order: 406 },
-          originX: { value: defaults.originX, min: 0, max: 1, order: 407 },
-          originY: { value: defaults.originY, min: 0, max: 1, order: 408 },
-        },
-        {
-          order: 3,
-          collapsed: true,
-        }
-      ),
-    };
+  const { colors, setColors, params, updateParams, resetToPreset } = useShaderControls<SpiralControlParams>({
+    defaultParams: {
+      ...defaultParams,
+      ...DEFAULT_WORLD_DIMENSIONS,
+      speed: Math.abs(defaultParams.speed || 0),
+      reverse: (defaultParams.speed || 0) < 0,
+    } as SpiralControlParams,
+    defaultColors: [colorBack, colorFront],
+    maxColorCount: 2,
   });
 
-  useControls(() => {
-    const presets = Object.fromEntries(
-      spiralPresets.map(({ name, params: { worldWidth, worldHeight, ...preset } }) => [
-        name,
-        button(() => setParamsSafe(params, setParams, preset)),
-      ])
-    );
-    return {
-      Presets: folder(presets, { order: 10 }),
+  const controlSchema = useMemo<ControlSchema>(() => {
+    const handlePresetSelect = (preset: (typeof spiralPresets)[0]) => {
+      const { colorBack, colorFront, speed, ...otherParams } = preset.params;
+      resetToPreset([colorBack, colorFront], {
+        ...otherParams,
+        speed: Math.abs(speed || 0),
+        reverse: (speed || 0) < 0,
+        worldWidth: preset.params.worldWidth || DEFAULT_WORLD_DIMENSIONS.worldWidth,
+        worldHeight: preset.params.worldHeight || DEFAULT_WORLD_DIMENSIONS.worldHeight,
+      } as SpiralControlParams);
     };
-  });
 
-  // Reset to defaults on mount, so that Leva doesn't show values from other
-  // shaders when navigating (if two shaders have a colorBack param for example)
-  useResetLevaParams(params, setParams, defaults);
-  usePresetHighlight(spiralPresets, params);
-  cleanUpLevaParams(params);
+    const handleColorChange = (index: number, newColor: string) => {
+      const newColors = [...colors];
+      newColors[index] = newColor;
+      setColors(newColors);
+    };
 
-  const { reverse, ...shaderParams } = { ...params, speed: params.speed * (params.reverse ? -1 : 1) };
+    return {
+      Colors: {
+        _isFolder: true,
+        config: {
+          colorGrid: {
+            type: 'custom' as const,
+            render: () => (
+              <div className="grid grid-cols-2 gap-1">
+                <ColorPicker label="" value={colors[0]} onChange={(newColor) => handleColorChange(0, newColor)} />
+                <ColorPicker label="" value={colors[1]} onChange={(newColor) => handleColorChange(1, newColor)} />
+              </div>
+            ),
+          },
+        },
+        options: {},
+      },
+      Parameters: createFolder(
+        {
+          density: { min: 0, max: 1 },
+          distortion: { min: 0, max: 1 },
+          strokeWidth: { min: 0, max: 1 },
+          strokeTaper: { min: 0, max: 1 },
+          strokeCap: { min: 0, max: 1 },
+          noiseFrequency: { min: 0, max: 30 },
+          noisePower: { min: 0, max: 1 },
+          softness: { min: 0, max: 1 },
+          speed: { min: 0, max: 2 },
+          reverse: {},
+        },
+        params,
+        updateParams
+      ),
+      Transform: createFolder(
+        {
+          scale: { min: 0.01, max: 4 },
+          rotation: { min: 0, max: 360, step: 1 },
+          offsetX: { min: -1, max: 1 },
+          offsetY: { min: -1, max: 1 },
+        },
+        params,
+        updateParams,
+        { collapsed: false }
+      ),
+      Fit: createFolder(
+        {
+          fit: { options: Object.keys(ShaderFitOptions) as ShaderFit[] },
+          worldWidth: { min: 0, max: 5120, step: 1 },
+          worldHeight: { min: 0, max: 5120, step: 1 },
+          originX: { min: 0, max: 1 },
+          originY: { min: 0, max: 1 },
+        },
+        params,
+        updateParams,
+        { collapsed: true }
+      ),
+      Presets: createFolder(
+        Object.fromEntries(
+          spiralPresets.map((preset) => [preset.name, customButton(() => handlePresetSelect(preset))])
+        ),
+        params,
+        updateParams,
+        { spacing: 'space-y-1' }
+      ),
+    };
+  }, [colors, params, updateParams, setColors, resetToPreset]);
+
+  const { worldWidth: _, worldHeight: __, reverse, ...shaderParams } = params;
 
   return (
     <>
-      <Link href="/">
+      <Link href="/" className="relative z-10">
         <BackButton />
       </Link>
-      <Spiral className="fixed size-full" {...shaderParams} />
+
+      <Controllers>{renderControlSchema(controlSchema)}</Controllers>
+
+      <Spiral
+        {...shaderParams}
+        worldWidth={params.worldWidth}
+        worldHeight={params.worldHeight}
+        colorBack={colors[0]}
+        colorFront={colors[1]}
+        speed={(params.speed || 0) * (params.reverse ? -1 : 1)}
+        className="fixed size-full"
+      />
     </>
   );
 };

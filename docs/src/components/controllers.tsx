@@ -63,7 +63,7 @@ export const Slider = memo(({ label, value, onChange, min, max, step = 0.01, dis
 
   return (
     <div className="block last:mb-0">
-      <label htmlFor={inputId} className="line-clamp-1 text-xs opacity-70">
+      <label htmlFor={inputId} className="line-clamp-1 text-xs opacity-80">
         {label}
       </label>
       <div className="flex items-center gap-3">
@@ -146,6 +146,41 @@ export const Select = memo(({ label, value, options, onChange }: SelectProps) =>
 
 Select.displayName = 'Select';
 
+interface CheckboxProps {
+  label: string;
+  value: boolean;
+  onChange: (value: boolean) => void;
+}
+
+export const Checkbox = memo(({ label, value, onChange }: CheckboxProps) => {
+  const checkboxId = useMemo(() => `checkbox-${label.replace(/\s+/g, '-').toLowerCase()}`, [label]);
+
+  const handleChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      onChange(e.target.checked);
+    },
+    [onChange]
+  );
+
+  return (
+    <div className="mb-2 block">
+      <label htmlFor={checkboxId} className="flex cursor-pointer items-center gap-2 text-xs">
+        <input
+          id={checkboxId}
+          type="checkbox"
+          checked={value}
+          onChange={handleChange}
+          className="h-3.5 w-3.5 cursor-pointer rounded-sm border border-white/30 bg-white/10 text-white accent-white transition-colors hover:bg-white/20 focus:ring-1 focus:ring-white/50 focus:ring-offset-0"
+          aria-label={label}
+        />
+        <span className="opacity-70">{label}</span>
+      </label>
+    </div>
+  );
+});
+
+Checkbox.displayName = 'Checkbox';
+
 interface ControlGroupProps {
   title: string;
   children: ReactNode;
@@ -207,7 +242,7 @@ interface ControllersProps {
 export const Controllers = memo(({ children }: ControllersProps) => {
   return (
     <div className="fixed right-5 top-5 z-[1000] rounded bg-black/70 text-white">
-      <div className="min-w-[220px] divide-y divide-white/20">
+      <div className="min-w-[220px] max-w-[240px] divide-y divide-white/20">
         {React.Children.map(children, (child, index) => (
           <div className="p-3" key={index}>
             {child}
@@ -236,6 +271,12 @@ type SelectControl = {
   onChange: (value: string) => void;
 };
 
+type CheckboxControl = {
+  type: 'checkbox';
+  value: boolean;
+  onChange: (value: boolean) => void;
+};
+
 type CustomControl = {
   type: 'custom';
   render: () => ReactNode;
@@ -246,7 +287,7 @@ type ButtonControl = {
   onClick: () => void;
 };
 
-export type Control = SliderControl | SelectControl | CustomControl | ButtonControl;
+export type Control = SliderControl | SelectControl | CheckboxControl | CustomControl | ButtonControl;
 
 type SimpleSliderControl = {
   min: number;
@@ -258,7 +299,11 @@ type SimpleSelectControl = {
   options: string[];
 };
 
-type SimpleControl = SimpleSliderControl | SimpleSelectControl | CustomControl | ButtonControl;
+type SimpleCheckboxControl = {
+  value?: boolean;
+};
+
+type SimpleControl = SimpleSliderControl | SimpleSelectControl | SimpleCheckboxControl | CustomControl | ButtonControl;
 
 type SimpleFolderConfig = {
   [key: string]: SimpleControl;
@@ -309,6 +354,12 @@ export const createFolder = <T extends Record<string, unknown>>(
         step: control.step,
         onChange: (v) => setParams({ [key]: v } as Partial<T>),
       };
+    } else if (typeof params[key as keyof T] === 'boolean') {
+      config[key] = {
+        type: 'checkbox',
+        value: params[key as keyof T] as boolean,
+        onChange: (v) => setParams({ [key]: v } as Partial<T>),
+      };
     }
   }
 
@@ -343,6 +394,10 @@ export const renderControl = (key: string, control: Control) => {
 
   if (control.type === 'select') {
     return <Select key={key} label={key} value={control.value} options={control.options} onChange={control.onChange} />;
+  }
+
+  if (control.type === 'checkbox') {
+    return <Checkbox key={key} label={key} value={control.value} onChange={control.onChange} />;
   }
 
   return (
