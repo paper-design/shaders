@@ -160,7 +160,8 @@ export {
 /** */
 export {
   flutedGlassFragmentShader,
-  GlassDistortionTypes,
+  GlassDistortionShapes,
+  GlassGridShapes,
   type GlassDistortion,
   type FlutedGlassParams,
   type FlutedGlassUniforms,

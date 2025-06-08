@@ -7,11 +7,12 @@ import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import Link from 'next/link';
 import { BackButton } from '@/components/back-button';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
-import { GlassDistortion, GlassDistortionTypes, ShaderFitOptions } from '@paper-design/shaders';
+import { GlassDistortion, GlassDistortionShapes, GlassGridShapes, ShaderFitOptions } from '@paper-design/shaders';
 import { ShaderFit } from '@paper-design/shaders';
 import { levaImageButton } from '@/helpers/leva-image-button';
 import { useState, useEffect, useCallback } from 'react';
 import { toHsla } from '@/helpers/to-hsla';
+import { GridShape } from '@paper-design/shaders/dist/shaders/fluted-glass';
 
 /**
  * This example has controls added so you can play with settings in the example app
@@ -64,19 +65,22 @@ const FlutedGlassWithControls = () => {
       Parameters: folder(
         {
           grid: { value: defaults.grid, min: 4, max: 100, step: 1, order: 100 },
-          curve: { value: defaults.curve, min: 0, max: 2, order: 101 },
-          curveFreq: { value: defaults.curveFreq, min: 0, max: 1, order: 102 },
-          gridRotation: { value: defaults.gridRotation, min: 0, max: 180, order: 103 },
-          distortion: { value: defaults.distortion, min: 0, max: 1, order: 200 },
-          distortionType: {
-            value: defaults.distortionType,
-            options: Object.keys(GlassDistortionTypes) as GlassDistortion[],
-            order: 201,
+          gridShape: {
+            value: defaults.gridShape,
+            options: Object.keys(GlassGridShapes) as GridShape[],
+            order: 101,
           },
+          gridRotation: { value: defaults.gridRotation, min: 0, max: 180, order: 102 },
+          distortionShape: {
+            value: defaults.distortionShape,
+            options: Object.keys(GlassDistortionShapes) as GlassDistortion[],
+            order: 200,
+          },
+          distortion: { value: defaults.distortion, min: 0, max: 1, order: 201 },
           shift: { value: defaults.shift, min: -1, max: 1, order: 205 },
+          skew: { value: defaults.skew, min: 0, max: 1, order: 206 },
           frost: { value: defaults.frost, min: 0, max: 1, order: 250 },
           blur: { value: defaults.blur, min: 0, max: 25, order: 251 },
-          skew: { value: defaults.skew, min: 0, max: 1, order: 252 },
           gridLines: { value: defaults.gridLines, min: 0, max: 1, order: 270 },
           gridLinesBrightness: { value: defaults.gridLinesBrightness, min: 0, max: 1, order: 271 },
         },
