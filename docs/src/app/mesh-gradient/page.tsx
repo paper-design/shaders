@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { BackButton } from '@/components/back-button';
 import { meshGradientMeta, ShaderFit, ShaderFitOptions } from '@paper-design/shaders';
 import { Controllers, ControlSchema, createFolder, renderControlSchema } from '@/components/controllers';
-import { useShaderControls } from '@/hooks/use-shader-controls';
+import { useShaderControls } from '@/helpers/shader-controls/use-shader-controls';
 import { createColorControls } from '@/helpers/shader-controls/color-controls';
 import { createPresetControls } from '@/helpers/shader-controls/preset-controls';
 
@@ -99,7 +99,7 @@ const MeshGradientWithControls = () => {
 
   return (
     <>
-      <Link href="/" className="relative z-10">
+      <Link href="/">
         <BackButton />
       </Link>
 

@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { BackButton } from '@/components/back-button';
 import { ShaderFit, ShaderFitOptions } from '@paper-design/shaders';
 import { Controllers, ControlSchema, createFolder, renderControlSchema, customButton } from '@/components/controllers';
-import { useShaderControls } from '@/hooks/use-shader-controls';
+import { useShaderControls } from '@/helpers/shader-controls/use-shader-controls';
 import { ColorPicker } from '@/components/color-picker';
 
 const FIRST_PRESET = spiralPresets[0].params;
@@ -123,7 +123,7 @@ const SpiralWithControls = () => {
 
   return (
     <>
-      <Link href="/" className="relative z-10">
+      <Link href="/">
         <BackButton />
       </Link>
 
