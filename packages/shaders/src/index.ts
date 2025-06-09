@@ -178,7 +178,7 @@ export {
 
 // -----  ----- //
 /**  */
-export {waterFragmentShader, type WaterParams, type WaterUniforms} from './shaders/water.js';
+export { waterFragmentShader, type WaterParams, type WaterUniforms } from './shaders/water.js';
 
 // ----- Utils ----- //
 export { getShaderColorFromString } from './get-shader-color-from-string.js';

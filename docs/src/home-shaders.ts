@@ -214,12 +214,12 @@ export const homeShaders = [
     name: 'water',
     url: '/water',
     ShaderComponent: Water,
-    shaderConfig: {...waterPresets[0].params},
+    shaderConfig: { ...waterPresets[0].params },
   },
   {
     name: 'fluted glass',
     url: '/fluted-glass',
     ShaderComponent: FlutedGlass,
-    shaderConfig: {...flutedGlassPresets[0].params},
+    shaderConfig: { ...flutedGlassPresets[0].params },
   },
 ] satisfies HomeShaderConfig[];
