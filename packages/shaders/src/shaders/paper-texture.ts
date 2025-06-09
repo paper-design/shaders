@@ -248,13 +248,12 @@ void main() {
   vec3 color = mix(u_colorBack.rgb, u_colorFront.rgb, res);
   float opacity = 1.;
 
-  float frame = uvFrame(imageUV);
   imageUV += .02 * (res - .5);
   vec4 image = texture(u_image, imageUV);
   
   image.rgb += .5 * (res - .6);
 
-  frame = mix(frame, uvFrame(imageUV), .5);
+  float frame = uvFrame(imageUV);
 
   color.rgb = mix(color, image.rgb, min(.8 * frame, image.a));
 
