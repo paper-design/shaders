@@ -225,6 +225,7 @@ void main() {
   curles = pow(curles, .4) - .2;
 
   vec2 normal = vec2(0.);
+  vec2 normalImage = vec2(0.);
 
   vec2 foldsUV = v_patternUV * .002;
   foldsUV = rotate(foldsUV, 4. * u_foldsSeed);
@@ -233,14 +234,19 @@ void main() {
   vec2 w2 = folds(foldsUV);
 
   normal.xy += u_folds * min(5. * u_contrast, 1.) * 4. * (w + w2);
+  normalImage.xy += u_folds * 2. * w;
 
   normal.xy += u_crumples * crumples;
+  normalImage.xy += 1.5 * u_crumples * crumples;
   
   float blur = u_blur * 2. * smoothstep(0., 1., fbm(.0017 * v_patternUV + 10. * u_blurSeed));
   normal *= (1. - blur);
 
   normal.xy += u_grain * 1.5 * grain;
   normal.xy += u_curles * curles * 3. * (1. - .5 * blur);
+  
+  normalImage += .2 * u_grain * 1.5 * grain;
+  normalImage += .2 * u_curles * curles * 3. * (1. - .5 * blur);
 
   vec3 lightPos = vec3(1., 2., 1.);
   float res = clamp(dot(normalize(vec3(normal, 9.5 - 9. * pow(u_contrast, .1))), normalize(lightPos)), 0., 1.);
@@ -248,7 +254,7 @@ void main() {
   vec3 color = mix(u_colorBack.rgb, u_colorFront.rgb, res);
   float opacity = 1.;
 
-  imageUV += .02 * (res - .5);
+  imageUV += .02 * normalImage;
   vec4 image = texture(u_image, imageUV);
   
   image.rgb += .5 * (res - .6);
