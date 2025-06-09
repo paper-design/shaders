@@ -157,6 +157,14 @@ export {
   type ColorPanelsUniforms,
 } from './shaders/color-panels.js';
 
+// ----- ----- //
+/**  */
+export {
+  paperTextureFragmentShader,
+  type PaperTextureParams,
+  type PaperTextureUniforms,
+} from './shaders/paper-texture.js';
+
 /** */
 export {
   flutedGlassFragmentShader,
@@ -170,7 +178,7 @@ export {
 
 // -----  ----- //
 /**  */
-export { waterFragmentShader, type WaterParams, type WaterUniforms } from './shaders/water.js';
+export {waterFragmentShader, type WaterParams, type WaterUniforms} from './shaders/water.js';
 
 // ----- Utils ----- //
 export { getShaderColorFromString } from './get-shader-color-from-string.js';

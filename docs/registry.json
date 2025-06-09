@@ -251,11 +251,26 @@
       ]
     },
     {
+      "name": "paper-texture",
+      "type": "registry:component",
+      "title": "Paper Texture Example",
+      "description": "Paper Texture shader example.",
+      "dependencies": ["@paper-design/shaders-react"],
+      "files": [
+        {
+          "path": "registry/paper-texture-example.tsx",
+          "type": "registry:component"
+        }
+      ]
+    },
+    {
       "name": "fluted-glass",
       "type": "registry:component",
       "title": "Fluted Glass Example",
       "description": "Fluted Glass shader example.",
-      "dependencies": ["@paper-design/shaders-react"],
+      "dependencies": [
+        "@paper-design/shaders-react"
+      ],
       "files": [
         {
           "path": "registry/fluted-glass-example.tsx",
@@ -268,7 +283,9 @@
       "type": "registry:component",
       "title": "Water Example",
       "description": "Water shader example.",
-      "dependencies": ["@paper-design/shaders-react"],
+      "dependencies": [
+        "@paper-design/shaders-react"
+      ],
       "files": [
         {
           "path": "registry/water-example.tsx",

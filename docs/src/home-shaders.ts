@@ -51,6 +51,8 @@ import {
   pulsingBorderPresets,
   ColorPanels,
   colorPanelsPresets,
+  PaperTexture,
+  paperTexturePresets,
   FlutedGlass,
   flutedGlassPresets,
   Water,
@@ -203,15 +205,21 @@ export const homeShaders = [
     shaderConfig: { ...colorPanelsPresets[0].params },
   },
   {
+    name: 'paper texture',
+    url: '/paper-texture',
+    ShaderComponent: PaperTexture,
+    shaderConfig: { ...paperTexturePresets[0].params },
+  },
+  {
     name: 'water',
     url: '/water',
     ShaderComponent: Water,
-    shaderConfig: { ...waterPresets[0].params },
+    shaderConfig: {...waterPresets[0].params},
   },
   {
     name: 'fluted glass',
     url: '/fluted-glass',
     ShaderComponent: FlutedGlass,
-    shaderConfig: { ...flutedGlassPresets[0].params },
+    shaderConfig: {...flutedGlassPresets[0].params},
   },
 ] satisfies HomeShaderConfig[];
