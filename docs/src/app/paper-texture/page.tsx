@@ -8,6 +8,8 @@ import Link from 'next/link';
 import { BackButton } from '@/components/back-button';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
 import { ShaderFit, ShaderFitOptions } from '@paper-design/shaders';
+import { levaImageButton } from '@/helpers/leva-image-button';
+import { useState, useEffect, useCallback } from 'react';
 import { toHsla } from '@/helpers/to-hsla';
 
 /**
@@ -24,6 +26,39 @@ const PaperTextureExample = () => {
 const { worldWidth, worldHeight, ...defaults } = paperTexturePresets[0].params;
 
 const PaperTextureWithControls = () => {
+  const [imageIdx, setImageIdx] = useState(0);
+
+  const [image, setImage] = useState<HTMLImageElement | null>(null);
+
+  const imageFiles = [
+    '08.png',
+    '01.png',
+    '02.jpg',
+    '04.png',
+    '05.jpg',
+    '06.jpg',
+    '07.webp',
+    '010.png',
+    '011.png',
+    '012.png',
+    '013.png',
+    '014.png',
+    '015.png',
+    '016.jpg',
+  ] as const;
+
+  useEffect(() => {
+    const img = new Image();
+    img.src = `/images/${imageFiles[imageIdx]}`;
+    img.onload = () => {
+      setImage(img);
+    };
+  }, [imageIdx]);
+
+  const handleClick = useCallback(() => {
+    setImageIdx((prev) => (prev + 1) % imageFiles.length);
+  }, []);
+
   const [params, setParams] = useControls(() => {
     const presets = Object.fromEntries(
       paperTexturePresets.map(({ name, params: { worldWidth, worldHeight, ...preset } }) => [
@@ -82,6 +117,16 @@ const PaperTextureWithControls = () => {
           collapsed: true,
         }
       ),
+      Image: folder(
+        {
+          'Upload image': levaImageButton(setImage),
+        },
+        {
+          order: 3,
+          collapsed: false,
+        }
+      ),
+
       Presets: folder(presets, { order: 10 }),
     };
   });
@@ -92,12 +137,16 @@ const PaperTextureWithControls = () => {
   usePresetHighlight(paperTexturePresets, params);
   cleanUpLevaParams(params);
 
+  if (image === null) {
+    return null;
+  }
+
   return (
     <>
       <Link href="/">
         <BackButton />
       </Link>
-      <PaperTexture className="fixed size-full" {...params} />
+      <PaperTexture className="fixed size-full" onClick={handleClick} {...params} image={image} />
     </>
   );
 };

@@ -22,17 +22,18 @@ export const defaultPreset: PaperTexturePreset = {
     ...defaultPatternSizing,
     speed: 0,
     frame: 0,
-    colorFront: '#bbcdd3',
+    colorFront: '#859093',
     colorBack: '#ffffff',
+    image: '/images/02.jpg',
     contrast: 0.3,
-    grain: 0.3,
-    curles: 0.4,
+    grain: 0.1,
+    curles: 0.1,
     curlesScale: 0.4,
-    crumples: 0,
+    crumples: 0.7,
     crumplesScale: 0.5,
     crumplesSeed: 1,
     folds: 0.65,
-    foldsNumber: 8,
+    foldsNumber: 15,
     foldsSeed: 1,
     blur: 0.5,
     blurSeed: 0.5,
@@ -47,6 +48,7 @@ export const abstractPreset: PaperTexturePreset = {
     frame: 0,
     colorFront: '#a2ff8f',
     colorBack: '#3a53f8',
+    image: '/images/02.jpg',
     contrast: 0.3,
     grain: 0.8,
     curles: 0.6,
@@ -70,6 +72,7 @@ export const cardboardPreset: PaperTexturePreset = {
     frame: 0,
     colorFront: '#a26b22',
     colorBack: '#77490e',
+    image: '/images/02.jpg',
     contrast: 0.5,
     grain: 1,
     curles: 0.6,
@@ -93,6 +96,7 @@ export const PaperTexture: React.FC<PaperTextureProps> = memo(function PaperText
   frame = defaultPreset.params.frame,
   colorFront = defaultPreset.params.colorFront,
   colorBack = defaultPreset.params.colorBack,
+  image = defaultPreset.params.image,
   crumplesSeed = defaultPreset.params.crumplesSeed,
   foldsSeed = defaultPreset.params.foldsSeed,
   contrast = defaultPreset.params.contrast,
@@ -118,10 +122,11 @@ export const PaperTexture: React.FC<PaperTextureProps> = memo(function PaperText
   worldHeight = defaultPreset.params.worldHeight,
   ...props
 }: PaperTextureProps) {
-  const noiseTexture = typeof window !== 'undefined' && { u_noiseTexture: getShaderNoiseTexture() };
+  // const noiseTexture = typeof window !== 'undefined' && { u_noiseTexture: getShaderNoiseTexture() };
 
   const uniforms = {
     // Own uniforms
+    u_image: image,
     u_colorFront: getShaderColorFromString(colorFront),
     u_colorBack: getShaderColorFromString(colorBack),
     u_crumplesSeed: crumplesSeed,
@@ -136,7 +141,7 @@ export const PaperTexture: React.FC<PaperTextureProps> = memo(function PaperText
     u_blur: blur,
     u_blurSeed: blurSeed,
     u_crumplesScale: crumplesScale,
-    ...noiseTexture,
+    // ...noiseTexture,
 
     // Sizing uniforms
     u_fit: ShaderFitOptions[fit],

@@ -20,6 +20,9 @@ uniform float u_pixelRatio;
 uniform vec4 u_colorFront;
 uniform vec4 u_colorBack;
 
+uniform sampler2D u_image;
+uniform float u_image_aspect_ratio;
+
 uniform float u_crumplesSeed;
 uniform float u_foldsSeed;
 uniform float u_contrast;
@@ -34,7 +37,7 @@ uniform float u_crumplesScale;
 uniform float u_blur;
 uniform float u_blurSeed;
 
-uniform sampler2D u_noiseTexture;
+// uniform sampler2D u_noiseTexture;
 
 ${sizingVariablesDeclaration}
 
@@ -45,9 +48,12 @@ ${declarePI}
 ${declareSimplexNoise}
 
 
-float random(vec2 p) {
-  vec2 uv = floor(p) / 100. + .5;
-  return texture(u_noiseTexture, uv).r;
+// float random(vec2 p) {
+//   vec2 uv = floor(p) / 100. + .5;
+//   return texture(u_noiseTexture, fract(uv)).r;
+// }
+float random(vec2 st) {
+  return fract(sin(dot(st.xy, vec2(12.9898, 78.233))) * 43758.5453123);
 }
 
 ${declareValueNoise}
@@ -64,9 +70,12 @@ float fbm(in vec2 n) {
 
 
 
-float grain_hash(vec2 p) {
-  vec2 uv = floor(p) / 50. + .5;
-  return texture(u_noiseTexture, uv).g;
+// float grain_hash(vec2 p) {
+//   vec2 uv = floor(p) / 50. + .5;
+//   return texture(u_noiseTexture, fract(uv)).g;
+// }
+float grain_hash(vec2 st) {
+  return fract(sin(dot(st.xy, vec2(12.9898, 78.233))) * 43758.5453123);
 }
 
 float grain_fbm(vec2 p) {
@@ -85,9 +94,12 @@ float grain_fbm(vec2 p) {
 }
 
 
-float curley_random(vec2 p) {
-  vec2 uv = floor(p) / 50. + .5;
-  return texture(u_noiseTexture, uv).r;
+// float curley_random(vec2 p) {
+//   vec2 uv = floor(p) / 50. + .5;
+//   return texture(u_noiseTexture, fract(uv)).r;
+// }
+float curley_random(vec2 st) {
+  return fract(sin(dot(st.xy, vec2(12.9898, 78.233))) * 43758.5453123);
 }
 
 float curley_valueNoise(vec2 st) {
@@ -114,10 +126,17 @@ float curleyFbm(vec2 uv) {
   return val;
 }
 
-vec2 crumpled_noise(vec2 p) {
-  vec2 uv = floor(p) / 50. + .5;
-  return texture(u_noiseTexture, uv).gb;
+// vec2 crumpled_noise(vec2 p) {
+//   vec2 uv = floor(p) / 50. + .5;
+//   return texture(u_noiseTexture, fract(uv)).gb;
+// }
+vec2 crumpled_noise(vec2 st) {
+  return vec2(
+    fract(sin(dot(st.xy + 100., vec2(12.9898, 78.233))) * 43758.5453123),
+    fract(sin(dot(st.xy + 1000. , vec2(12.9898, 78.233))) * 43758.5453123)
+  );  
 }
+
 float crumpled_voronoi2(vec2 t, float pw) {
   vec2 p = floor(t);
   float wsum = 0.;
@@ -170,7 +189,28 @@ vec2 folds(vec2 uv) {
     return mix(pp.xy, vec2(0.), pow(pp.z, .25));
 }
 
+
+float uvFrame(vec2 uv) {
+  return step(1e-3, uv.x) * step(uv.x, 1. - 1e-3) * step(1e-3, uv.y) * step(uv.y, 1. - 1e-3);
+}
+
+
 void main() {
+
+
+  vec2 imageUV = v_responsiveUV + .5;
+  float screenRatio = v_responsiveBoxGivenSize.x / v_responsiveBoxGivenSize.y;
+  float imageRatio = u_image_aspect_ratio;
+
+  imageUV.y = 1. - imageUV.y;
+
+  imageUV -= .5;
+  if (screenRatio > imageRatio) {
+    imageUV.x *= (screenRatio / imageRatio);
+  } else {
+    imageUV.y *= (imageRatio / screenRatio);
+  }
+  imageUV += .5;  
 
   vec2 grainUv = 1.5 * (gl_FragCoord.xy - .5 * u_resolution) / u_pixelRatio;
   float grain = grain_fbm(grainUv + vec2(1., 0.)) - grain_fbm(grainUv - vec2(1., 0.));
@@ -207,12 +247,23 @@ void main() {
 
   vec3 color = mix(u_colorBack.rgb, u_colorFront.rgb, res);
   float opacity = 1.;
+
+  float frame = uvFrame(imageUV);
+  imageUV += .02 * (res - .5);
+  vec4 image = texture(u_image, imageUV);
   
+  image.rgb += .5 * (res - .6);
+
+  frame = mix(frame, uvFrame(imageUV), .5);
+
+  color.rgb = mix(color, image.rgb, min(.8 * frame, image.a));
+
   fragColor = vec4(color, opacity);
 }
 `;
 
 export interface PaperTextureUniforms extends ShaderSizingUniforms {
+  u_image: HTMLImageElement | string | null;
   u_colorFront: [number, number, number, number];
   u_colorBack: [number, number, number, number];
   u_crumplesSeed: number;
@@ -227,10 +278,11 @@ export interface PaperTextureUniforms extends ShaderSizingUniforms {
   u_blur: number;
   u_blurSeed: number;
   u_crumplesScale: number;
-  u_noiseTexture?: HTMLImageElement;
+  // u_noiseTexture?: HTMLImageElement;
 }
 
 export interface PaperTextureParams extends ShaderSizingParams, ShaderMotionParams {
+  image?: HTMLImageElement | string | null;
   colorFront?: string;
   colorBack?: string;
   crumplesSeed?: number;
