@@ -1,6 +1,12 @@
 import type { vec4 } from '../types.js';
 import type { ShaderMotionParams } from '../shader-mount.js';
-import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
+import {
+  sizingVariablesDeclaration,
+  type ShaderSizingParams,
+  type ShaderSizingUniforms,
+  sizingDebugVariablesDeclaration,
+  sizingUniformsDeclaration
+} from '../shader-sizing.js';
 import { declareSimplexNoise, declarePI, declareRandom, declareValueNoise, colorBandingFix } from '../shader-utils.js';
 
 export const grainGradientMeta = {
@@ -44,6 +50,8 @@ uniform float u_noise;
 uniform float u_shape;
 
 ${sizingVariablesDeclaration}
+${sizingDebugVariablesDeclaration}
+${sizingUniformsDeclaration}
 
 out vec4 fragColor;
 
@@ -87,11 +95,43 @@ vec2 truchet(vec2 uv, float idx){
 void main() {
 
   float t = .1 * u_time;
+    
+  vec2 boxOrigin = vec2(.5 - u_originX, u_originY - .5);
+  vec2 objectWorldScale = u_resolution.xy / v_objectBoxSize;
+  float r = u_rotation * 3.14159265358979323846 / 180.;
+  mat2 graphicRotation = mat2(cos(r), sin(r), -sin(r), cos(r));
+  vec2 graphicOffset = vec2(-u_offsetX, u_offsetY);
 
-  vec2 grain_uv = (gl_FragCoord.xy - .5 * u_resolution) / u_pixelRatio;
   vec2 shape_uv = v_objectUV;
-  if (u_shape < 3.5) {
-    shape_uv = v_patternUV * .005;
+  vec2 grain_uv = shape_uv;
+
+  if (u_shape > 3.5) {
+    grain_uv = transpose(graphicRotation) * grain_uv;
+    grain_uv *= u_scale;
+    grain_uv -= graphicOffset;
+    grain_uv *= v_objectBoxSize;
+    grain_uv *= .5;
+  } else {
+    shape_uv = .005 * v_patternUV;
+
+    grain_uv = v_patternUV;
+    vec2 patternBoxScale = u_resolution.xy / v_patternBoxSize;
+    
+    grain_uv = transpose(graphicRotation) * grain_uv;
+    grain_uv *= u_scale;
+    if (u_fit > 0.) {
+      vec2 givenBoxSize = vec2(u_worldWidth, u_worldHeight);
+      givenBoxSize = max(givenBoxSize, vec2(1.)) * u_pixelRatio;
+      float patternBoxRatio = givenBoxSize.x / givenBoxSize.y;
+      vec2 patternBoxGivenSize = vec2(
+        (u_worldWidth == 0.) ? u_resolution.x : givenBoxSize.x,
+        (u_worldHeight == 0.) ? u_resolution.y : givenBoxSize.y
+      );
+      patternBoxRatio = patternBoxGivenSize.x / patternBoxGivenSize.y;
+      float patternBoxNoFitBoxWidth = patternBoxRatio * min(patternBoxGivenSize.x / patternBoxRatio, patternBoxGivenSize.y);
+      grain_uv /= (patternBoxNoFitBoxWidth / v_patternBoxSize.x);
+    }
+    grain_uv -= graphicOffset / patternBoxScale;
   }
 
 
