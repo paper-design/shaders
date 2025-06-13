@@ -96,16 +96,17 @@ void main() {
 
   float t = .1 * u_time;
     
-  vec2 boxOrigin = vec2(.5 - u_originX, u_originY - .5);
-  vec2 objectWorldScale = u_resolution.xy / v_objectBoxSize;
-  float r = u_rotation * 3.14159265358979323846 / 180.;
-  mat2 graphicRotation = mat2(cos(r), sin(r), -sin(r), cos(r));
-  vec2 graphicOffset = vec2(-u_offsetX, u_offsetY);
-
-  vec2 shape_uv = v_objectUV;
-  vec2 grain_uv = shape_uv;
+  vec2 shape_uv = vec2(0.);
+  vec2 grain_uv = vec2(0.);
 
   if (u_shape > 3.5) {
+    shape_uv = v_objectUV;
+    grain_uv = shape_uv;
+
+    // apply inverse transform to grain_uv so it respects the originXY
+    float r = u_rotation * 3.14159265358979323846 / 180.;
+    mat2 graphicRotation = mat2(cos(r), sin(r), -sin(r), cos(r));
+    vec2 graphicOffset = vec2(-u_offsetX, u_offsetY);    
     grain_uv = transpose(graphicRotation) * grain_uv;
     grain_uv *= u_scale;
     grain_uv -= graphicOffset;
@@ -113,10 +114,12 @@ void main() {
     grain_uv *= .5;
   } else {
     shape_uv = .005 * v_patternUV;
-
     grain_uv = v_patternUV;
-    vec2 patternBoxScale = u_resolution.xy / v_patternBoxSize;
     
+    // apply inverse transform to grain_uv so it respects the originXY
+    float r = u_rotation * 3.14159265358979323846 / 180.;
+    mat2 graphicRotation = mat2(cos(r), sin(r), -sin(r), cos(r));
+    vec2 graphicOffset = vec2(-u_offsetX, u_offsetY);    
     grain_uv = transpose(graphicRotation) * grain_uv;
     grain_uv *= u_scale;
     if (u_fit > 0.) {
@@ -131,6 +134,7 @@ void main() {
       float patternBoxNoFitBoxWidth = patternBoxRatio * min(patternBoxGivenSize.x / patternBoxRatio, patternBoxGivenSize.y);
       grain_uv /= (patternBoxNoFitBoxWidth / v_patternBoxSize.x);
     }
+    vec2 patternBoxScale = u_resolution.xy / v_patternBoxSize;
     grain_uv -= graphicOffset / patternBoxScale;
   }
 
