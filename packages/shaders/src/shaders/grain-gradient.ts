@@ -144,7 +144,7 @@ void main() {
   if (u_shape < 1.5) {
     // Sine wave
 
-    float wave = cos(.5 * shape_uv.x - 2. * t) * sin(1.5 * shape_uv.x + t) * (.75 + .25 * cos(3. * t));
+    float wave = cos(.5 * shape_uv.x - 4. * t) * sin(1.5 * shape_uv.x + 2. * t) * (.75 + .25 * cos(6. * t));
     shape = 1. - smoothstep(-1., 1., shape_uv.y + wave);
 
   } else if (u_shape < 2.5) {
@@ -160,7 +160,7 @@ void main() {
   } else if (u_shape < 3.5) {
     // Truchet pattern
     
-    float n2 = valueNoise(shape_uv * .4 - 2.5 * t);
+    float n2 = valueNoise(shape_uv * .4 - 3.75 * t);
     shape_uv.x += 10.;
     shape_uv *= .6;
 
@@ -182,12 +182,12 @@ void main() {
     shape_uv *= .6;
     vec2 outer = vec2(.5);
 
-    vec2 bl = smoothstep(vec2(0.), outer, shape_uv + vec2(.1 + .1 * sin(2. * t), .2 - .1 * sin(3. * t)));
+    vec2 bl = smoothstep(vec2(0.), outer, shape_uv + vec2(.1 + .1 * sin(3. * t), .2 - .1 * sin(5.25 * t)));
     vec2 tr = smoothstep(vec2(0.), outer, 1. - shape_uv);
     shape = 1. - bl.x * bl.y * tr.x * tr.y;
 
     shape_uv = -shape_uv;
-    bl = smoothstep(vec2(0.), outer, shape_uv + vec2(.1 + .1 * sin(2. * t), .2 - .1 * cos(3. * t)));
+    bl = smoothstep(vec2(0.), outer, shape_uv + vec2(.1 + .1 * sin(3. * t), .2 - .1 * cos(5.25 * t)));
     tr = smoothstep(vec2(0.), outer, 1. - shape_uv);
     shape -= bl.x * bl.y * tr.x * tr.y;
 
@@ -227,7 +227,7 @@ void main() {
     float d = length(shape_uv);
     float z = sqrt(1.0 - clamp(pow(d, 2.0), 0.0, 1.0));
     vec3 pos = vec3(shape_uv, z);
-    vec3 lightPos = normalize(vec3(cos(3. * t), 0.8, sin(2.5 * t)));
+    vec3 lightPos = normalize(vec3(cos(4.5 * t), 0.8, sin(3.75 * t)));
     float lighting = dot(lightPos, pos);
     float edge = smoothstep(1., .97, d);
     shape = mix(.1, .5 + .5 * lighting, edge);
