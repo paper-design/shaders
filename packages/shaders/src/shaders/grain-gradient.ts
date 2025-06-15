@@ -66,10 +66,6 @@ ${declareRotate}
 float randomGeneric(vec2 st) {
   return fract(sin(dot(st.xy, vec2(12.9898, 78.233))) * 43758.5453123);
 }
-float randomG(vec2 p) {
-  vec2 uv = floor(p) / 100. + .5;
-  return texture(u_noiseTexture, uv).g;
-}
 float random(vec2 p) {
   vec2 uv = floor(p) / 100. + .5;
   return texture(u_noiseTexture, uv).r;
@@ -77,7 +73,7 @@ float random(vec2 p) {
 ${declareValueNoise}
 float fbm(in vec2 n) {
   float total = 0.0, amplitude = .2;
-  for (int i = 0; i < 4; i++) {
+  for (int i = 0; i < 3; i++) {
     total += valueNoise(n) * amplitude;
     n += n;
     amplitude *= 0.6;
@@ -239,9 +235,9 @@ void main() {
     shape = mix(.1, .5 + .5 * lighting, edge);
   }
 
-  float snoise = snoise(grain_uv * .5);
-  float grainDist = snoise * randomG(grain_uv) - fbm(.006 * grain_uv) - fbm(.003 * grain_uv);
-  float noise = clamp(.75 * snoise - fbm(rotate(.4 * grain_uv, 2.)) - fbm(.001 * grain_uv) - .08 * clamp(1. - length(.002 * grain_uv), 0., 1.), 0., 1.);
+  float simplex = snoise(grain_uv * .5);
+  float grainDist = simplex * snoise(grain_uv * .2) - fbm(.006 * grain_uv) - fbm(.003 * grain_uv);
+  float noise = clamp(.75 * simplex - fbm(rotate(.4 * grain_uv, 2.)) - fbm(.001 * grain_uv) - .15 * clamp(1. - length(.002 * grain_uv), 0., 1.), 0., 1.);
 
   shape += u_intensity * 2. / u_colorsCount * (grainDist + .5);
   shape += u_noise * 15. / u_colorsCount * noise;
