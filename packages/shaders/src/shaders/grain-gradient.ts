@@ -5,9 +5,9 @@ import {
   type ShaderSizingParams,
   type ShaderSizingUniforms,
   sizingDebugVariablesDeclaration,
-  sizingUniformsDeclaration
+  sizingUniformsDeclaration,
 } from '../shader-sizing.js';
-import { declareSimplexNoise, declarePI, declareRandom, declareValueNoise, colorBandingFix } from '../shader-utils.js';
+import { declareSimplexNoise, declarePI, declareValueNoise, declareRotate } from '../shader-utils.js';
 
 export const grainGradientMeta = {
   maxColorCount: 7,
@@ -31,6 +31,8 @@ export const grainGradientMeta = {
  * ---- 6: blob (metaballs)
  * ---- 7: circle imitating 3d look
  *
+ * - u_noiseTexture (sampler2D): pre-computed randomizer source
+ *
  * Note: grains are calculated using gl_FragCoord & u_resolution, meaning grains don't react to scaling and fit
  *
  */
@@ -40,6 +42,8 @@ precision mediump float;
 uniform float u_time;
 uniform vec2 u_resolution;
 uniform float u_pixelRatio;
+
+uniform sampler2D u_noiseTexture;
 
 uniform vec4 u_colorBack;
 uniform vec4 u_colors[${grainGradientMeta.maxColorCount}];
@@ -57,22 +61,20 @@ out vec4 fragColor;
 
 ${declarePI}
 ${declareSimplexNoise}
-${declareRandom}
+${declareRotate}
+
+float randomGeneric(vec2 st) {
+  return fract(sin(dot(st.xy, vec2(12.9898, 78.233))) * 43758.5453123);
+}
+float random(vec2 p) {
+  vec2 uv = floor(p) / 100. + .5;
+  return texture(u_noiseTexture, uv).r;
+}
 ${declareValueNoise}
-
-
-float rand(vec2 n) {
-  return fract(cos(dot(n, vec2(12.9898, 4.1414))) * 43758.5453);
-}
-float noise(vec2 n) {
-  const vec2 d = vec2(0.0, 1.0);
-  vec2 b = floor(n), f = smoothstep(vec2(0.0), vec2(1.0), fract(n));
-  return mix(mix(rand(b), rand(b + d.yx), f.x), mix(rand(b + d.xy), rand(b + d.yy), f.x), f.y);
-}
-float fbm_4(vec2 n) {
+float fbm(in vec2 n) {
   float total = 0.0, amplitude = .2;
-  for (int i = 0; i < 4; i++) {
-    total += noise(n) * amplitude;
+  for (int i = 0; i < 3; i++) {
+    total += valueNoise(n) * amplitude;
     n += n;
     amplitude *= 0.6;
   }
@@ -111,7 +113,7 @@ void main() {
     grain_uv *= u_scale;
     grain_uv -= graphicOffset;
     grain_uv *= v_objectBoxSize;
-    grain_uv *= .5;
+    grain_uv *= .45;
   } else {
     shape_uv = .005 * v_patternUV;
     grain_uv = v_patternUV;
@@ -164,7 +166,7 @@ void main() {
     shape_uv.x += 10.;
     shape_uv *= .6;
 
-    vec2 tile = truchet(fract(shape_uv), random(floor(shape_uv)));
+    vec2 tile = truchet(fract(shape_uv), randomGeneric(floor(shape_uv)));
 
     float distance1 = length(tile);
     float distance2 = length(tile - vec2(1.));
@@ -233,12 +235,12 @@ void main() {
     shape = mix(.1, .5 + .5 * lighting, edge);
   }
 
-  float snoise05 = snoise(grain_uv * .5);
-  float grainDist = snoise(grain_uv * .2) * snoise05 - fbm_4(.002 * grain_uv + 10.) - fbm_4(.003 * grain_uv);
-  float noise = clamp(.6 * snoise05 - fbm_4(.4 * grain_uv) - fbm_4(.001 * grain_uv), 0., 1.);
+  float simplex = snoise(grain_uv * .5);
+  float grainDist = simplex * snoise(grain_uv * .2) - fbm(.006 * grain_uv) - fbm(.003 * grain_uv);
+  float noise = clamp(.75 * simplex - fbm(rotate(.4 * grain_uv, 2.)) - fbm(.001 * grain_uv) - .15 * clamp(1. - length(.002 * grain_uv), 0., 1.), 0., 1.);
 
   shape += u_intensity * 2. / u_colorsCount * (grainDist + .5);
-  shape += u_noise * 10. / u_colorsCount * noise;
+  shape += u_noise * 15. / u_colorsCount * noise;
 
   float edge_w = fwidth(shape);
 
@@ -249,7 +251,7 @@ void main() {
   vec4 gradient = u_colors[0];
   gradient.rgb *= gradient.a;
   for (int i = 1; i < ${grainGradientMeta.maxColorCount}; i++) {
-      if (i > int(u_colorsCount) - 1) break;
+    if (i > int(u_colorsCount) - 1) break;
 
     float localT = clamp(mixer - float(i - 1), 0., 1.);
     localT = smoothstep(.5 - .5 * u_softness, .5 + .5 * u_softness + edge_w, localT);
@@ -265,8 +267,6 @@ void main() {
   vec3 bgColor = u_colorBack.rgb * u_colorBack.a;
   color = color + bgColor * (1.0 - opacity);
   opacity = opacity + u_colorBack.a * (1.0 - opacity);
-
-  ${colorBandingFix}
 
   fragColor = vec4(color, opacity);
 }
