@@ -5,9 +5,9 @@ import {
   type ShaderSizingParams,
   type ShaderSizingUniforms,
   sizingDebugVariablesDeclaration,
-  sizingUniformsDeclaration
+  sizingUniformsDeclaration,
 } from '../shader-sizing.js';
-import {declareSimplexNoise, declarePI, declareValueNoise, declareRotate} from '../shader-utils.js';
+import { declareSimplexNoise, declarePI, declareValueNoise, declareRotate } from '../shader-utils.js';
 
 export const grainGradientMeta = {
   maxColorCount: 7,
