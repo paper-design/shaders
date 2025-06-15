@@ -117,7 +117,7 @@ void main() {
     grain_uv *= u_scale;
     grain_uv -= graphicOffset;
     grain_uv *= v_objectBoxSize;
-    grain_uv *= .5;
+    grain_uv *= .45;
   } else {
     shape_uv = .005 * v_patternUV;
     grain_uv = v_patternUV;
@@ -240,8 +240,8 @@ void main() {
   }
 
   float snoise = snoise(grain_uv * .5);
-  float grainDist = snoise * randomG(grain_uv) - fbm(.006 * grain_uv + 10.) - fbm(.003 * rotate(grain_uv, -2.));
-  float noise = clamp(.75 * snoise - fbm(rotate(.4 * grain_uv, 2.)) - fbm(.001 * grain_uv + 2.) - .13 * clamp(1. - length(.002 * grain_uv), 0., 1.), 0., 1.);
+  float grainDist = snoise * randomG(grain_uv) - fbm(.006 * grain_uv) - fbm(.003 * grain_uv);
+  float noise = clamp(.75 * snoise - fbm(rotate(.4 * grain_uv, 2.)) - fbm(.001 * grain_uv) - .12 * clamp(1. - length(.002 * grain_uv), 0., 1.), 0., 1.);
 
   shape += u_intensity * 2. / u_colorsCount * (grainDist + .5);
   shape += u_noise * 15. / u_colorsCount * noise;
