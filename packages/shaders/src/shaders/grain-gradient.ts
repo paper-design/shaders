@@ -233,42 +233,47 @@ void main() {
     shape = mix(.1, .5 + .5 * lighting, edge);
   }
 
+  grain_uv *= .15;
+  
   float snoise05 = snoise(grain_uv * .5);
   float grainDist = snoise(grain_uv * .2) * snoise05 - fbm_4(.002 * grain_uv + 10.) - fbm_4(.003 * grain_uv);
   float noise = clamp(.6 * snoise05 - fbm_4(.4 * grain_uv) - fbm_4(.001 * grain_uv), 0., 1.);
 
-  shape += u_intensity * 2. / u_colorsCount * (grainDist + .5);
-  shape += u_noise * 10. / u_colorsCount * noise;
+  // shape += u_intensity * 2. / u_colorsCount * (grainDist + .5);
+  // shape += u_noise * 10. / u_colorsCount * noise;
+  
+  vec2 test = vec2(u_intensity * (grainDist + .5), u_noise * 5. * noise);
+  fragColor = vec4(test, 0., 1.);
 
-  float edge_w = fwidth(shape);
-
-  shape = clamp(shape - .5 / u_colorsCount, 0., 1.);
-  float totalShape = smoothstep(0., u_softness + 2. * edge_w, clamp(shape * u_colorsCount, 0., 1.));
-  float mixer = shape * (u_colorsCount - 1.);
-
-  vec4 gradient = u_colors[0];
-  gradient.rgb *= gradient.a;
-  for (int i = 1; i < ${grainGradientMeta.maxColorCount}; i++) {
-      if (i > int(u_colorsCount) - 1) break;
-
-    float localT = clamp(mixer - float(i - 1), 0., 1.);
-    localT = smoothstep(.5 - .5 * u_softness, .5 + .5 * u_softness + edge_w, localT);
-
-    vec4 c = u_colors[i];
-    c.rgb *= c.a;
-    gradient = mix(gradient, c, localT);
-  }
-
-  vec3 color = gradient.rgb * totalShape;
-  float opacity = gradient.a * totalShape;
-
-  vec3 bgColor = u_colorBack.rgb * u_colorBack.a;
-  color = color + bgColor * (1.0 - opacity);
-  opacity = opacity + u_colorBack.a * (1.0 - opacity);
-
-  ${colorBandingFix}
-
-  fragColor = vec4(color, opacity);
+  // float edge_w = fwidth(shape);
+  //
+  // shape = clamp(shape - .5 / u_colorsCount, 0., 1.);
+  // float totalShape = smoothstep(0., u_softness + 2. * edge_w, clamp(shape * u_colorsCount, 0., 1.));
+  // float mixer = shape * (u_colorsCount - 1.);
+  //
+  // vec4 gradient = u_colors[0];
+  // gradient.rgb *= gradient.a;
+  // for (int i = 1; i < ${grainGradientMeta.maxColorCount}; i++) {
+  //     if (i > int(u_colorsCount) - 1) break;
+  //
+  //   float localT = clamp(mixer - float(i - 1), 0., 1.);
+  //   localT = smoothstep(.5 - .5 * u_softness, .5 + .5 * u_softness + edge_w, localT);
+  //
+  //   vec4 c = u_colors[i];
+  //   c.rgb *= c.a;
+  //   gradient = mix(gradient, c, localT);
+  // }
+  //
+  // vec3 color = gradient.rgb * totalShape;
+  // float opacity = gradient.a * totalShape;
+  //
+  // vec3 bgColor = u_colorBack.rgb * u_colorBack.a;
+  // color = color + bgColor * (1.0 - opacity);
+  // opacity = opacity + u_colorBack.a * (1.0 - opacity);
+  //
+  // $ {colorBandingFix}
+  //
+  // fragColor = vec4(color, opacity);
 }
 `;
 

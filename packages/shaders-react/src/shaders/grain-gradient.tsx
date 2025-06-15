@@ -20,13 +20,13 @@ export const defaultPreset: GrainGradientPreset = {
   name: 'Default',
   params: {
     ...defaultPatternSizing,
-    speed: 1,
+    speed: 0,
     frame: 0,
     colorBack: '#000a0f',
     colors: ['#c4730b', '#bdad5f', '#d8ccc7'],
     softness: 0.7,
-    intensity: 0.15,
-    noise: 0.5,
+    intensity: 1,
+    noise: 1,
     shape: 'wave',
   },
 };
@@ -141,8 +141,8 @@ export const moonPreset: GrainGradientPreset = {
 };
 
 export const grainGradientPresets: GrainGradientPreset[] = [
-  cornersPreset,
   defaultPreset,
+  cornersPreset,
   dotsPreset,
   truchetPreset,
   ripplePreset,
