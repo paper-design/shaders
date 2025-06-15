@@ -7,7 +7,7 @@ import {
   sizingDebugVariablesDeclaration,
   sizingUniformsDeclaration
 } from '../shader-sizing.js';
-import {declareSimplexNoise, declarePI, declareValueNoise, colorBandingFix, declareRotate} from '../shader-utils.js';
+import {declareSimplexNoise, declarePI, declareValueNoise, declareRotate} from '../shader-utils.js';
 
 export const grainGradientMeta = {
   maxColorCount: 7,
@@ -240,11 +240,11 @@ void main() {
   }
 
   float snoise = snoise(grain_uv * .5);
-  float grainDist = snoise * randomG(grain_uv) - fbm(.007 * grain_uv + 10.) - fbm(.003 * grain_uv);
-  float noise = clamp(.74 * snoise - fbm(rotate(.4 * grain_uv, 2.)) - fbm(.001 * grain_uv), 0., 1.);
+  float grainDist = snoise * randomG(grain_uv) - fbm(.006 * grain_uv + 10.) - fbm(.003 * grain_uv);
+  float noise = clamp(.75 * snoise - fbm(rotate(.4 * grain_uv, 2.)) - fbm(.001 * grain_uv) - .1 * clamp(1. - length(.002 * grain_uv), 0., 1.), 0., 1.);
 
   shape += u_intensity * 2. / u_colorsCount * (grainDist + .5);
-  shape += u_noise * 12. / u_colorsCount * noise;
+  shape += u_noise * 15. / u_colorsCount * noise;
 
   float edge_w = fwidth(shape);
 
@@ -271,8 +271,6 @@ void main() {
   vec3 bgColor = u_colorBack.rgb * u_colorBack.a;
   color = color + bgColor * (1.0 - opacity);
   opacity = opacity + u_colorBack.a * (1.0 - opacity);
-
-  ${colorBandingFix}
 
   fragColor = vec4(color, opacity);
 }
