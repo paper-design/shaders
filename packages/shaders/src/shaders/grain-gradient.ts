@@ -236,11 +236,11 @@ void main() {
   }
 
   float simplex = snoise(grain_uv * .5);
-  float grainDist = simplex * snoise(grain_uv * .2) - fbm(.006 * grain_uv) - fbm(.003 * grain_uv);
-  float noise = clamp(.75 * simplex - fbm(rotate(.4 * grain_uv, 2.)) - fbm(.001 * grain_uv) - .15 * clamp(1. - length(.002 * grain_uv), 0., 1.), 0., 1.);
+  float grainDist = simplex * snoise(grain_uv * .2) - fbm(.003 * grain_uv) - fbm(.003 * grain_uv);
+  float noise = clamp(.65 * simplex - fbm(rotate(.4 * grain_uv, 2.)) - fbm(.001 * grain_uv), 0., 1.);
 
   shape += u_intensity * 2. / u_colorsCount * (grainDist + .5);
-  shape += u_noise * 15. / u_colorsCount * noise;
+  shape += u_noise * 10. / u_colorsCount * noise;
 
   float edge_w = fwidth(shape);
 
