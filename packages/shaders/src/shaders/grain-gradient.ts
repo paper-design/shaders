@@ -36,6 +36,7 @@ export const grainGradientMeta = {
  * Note: grains are calculated using gl_FragCoord & u_resolution, meaning grains don't react to scaling and fit
  *
  */
+// language=GLSL
 export const grainGradientFragmentShader: string = `#version 300 es
 precision mediump float;
 
@@ -113,7 +114,7 @@ void main() {
     grain_uv *= u_scale;
     grain_uv -= graphicOffset;
     grain_uv *= v_objectBoxSize;
-    grain_uv *= .45;
+    grain_uv *= .8;
   } else {
     shape_uv = .005 * v_patternUV;
     grain_uv = v_patternUV;
@@ -138,6 +139,7 @@ void main() {
     }
     vec2 patternBoxScale = u_resolution.xy / v_patternBoxSize;
     grain_uv -= graphicOffset / patternBoxScale;
+    grain_uv *= 1.7;
   }
 
 
@@ -236,7 +238,7 @@ void main() {
   }
 
   float simplex = snoise(grain_uv * .5);
-  float grainDist = simplex * snoise(grain_uv * .2) - fbm(.003 * grain_uv) - fbm(.003 * grain_uv);
+  float grainDist = simplex * snoise(grain_uv * .2) - fbm(.002 * grain_uv + 10.) - fbm(.003 * grain_uv);
   float noise = clamp(.65 * simplex - fbm(rotate(.4 * grain_uv, 2.)) - fbm(.001 * grain_uv), 0., 1.);
 
   shape += u_intensity * 2. / u_colorsCount * (grainDist + .5);
