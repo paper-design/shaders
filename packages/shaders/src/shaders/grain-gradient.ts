@@ -114,7 +114,7 @@ void main() {
     grain_uv *= u_scale;
     grain_uv -= graphicOffset;
     grain_uv *= v_objectBoxSize;
-    grain_uv *= .8;
+    grain_uv *= .7;
   } else {
     shape_uv = .005 * v_patternUV;
     grain_uv = v_patternUV;
@@ -139,7 +139,7 @@ void main() {
     }
     vec2 patternBoxScale = u_resolution.xy / v_patternBoxSize;
     grain_uv -= graphicOffset / patternBoxScale;
-    grain_uv *= 1.7;
+    grain_uv *= 1.6;
   }
 
 
