@@ -41,7 +41,7 @@ ${declareRotate}
 
 void main() {
   vec2 shape_uv = v_patternUV;
-  shape_uv *= .02;
+  shape_uv *= .04;
 
   float wave = .5 * cos(shape_uv.x * u_frequency * TWO_PI);
   float zigzag = 2. * abs(fract(shape_uv.x * u_frequency) - .5);
@@ -56,8 +56,8 @@ void main() {
   float spacing = .02 + .98 * u_spacing;
   float shape = .5 + .5 * sin((shape_uv.y + offset) * PI / spacing);
 
-  float edge_width = .002 * (.0001 + u_scale);
-  edge_width += u_softness;
+  float edge_width = .01 + .1 * abs(min(u_scale, 1.) - 1.);
+  edge_width += .5 * max(0., u_softness);
   float dc = 1. - clamp(u_proportion, 0., 1.);
   float res = smoothstep(dc - edge_width, dc + edge_width, shape);
 

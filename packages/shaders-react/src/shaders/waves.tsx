@@ -20,32 +20,14 @@ export const defaultPreset: WavesPreset = {
   params: {
     ...defaultPatternSizing,
     scale: 1,
-    rotation: 0,
-    colorFront: '#f9f971',
-    colorBack: '#c94a76',
-    shape: 1,
-    frequency: 0.5,
-    amplitude: 0.6,
-    spacing: 0.5,
-    proportion: 0.15,
-    softness: 0.01,
-  },
-};
-
-export const spikesPreset: WavesPreset = {
-  name: 'Spikes',
-  params: {
-    ...defaultPatternSizing,
-    scale: 0.45,
-    rotation: 0,
-    colorFront: '#fdffe6',
-    colorBack: '#34123b',
+    colorFront: '#ffffff',
+    colorBack: '#102c70',
     shape: 0,
     frequency: 0.5,
-    amplitude: 0.9,
-    spacing: 0.37,
-    proportion: 0.93,
-    softness: 0.15,
+    amplitude: 0.6,
+    spacing: 0.65,
+    proportion: 0.15,
+    softness: 0,
   },
 };
 
@@ -53,7 +35,7 @@ export const groovyPreset: WavesPreset = {
   name: 'Groovy',
   params: {
     ...defaultPatternSizing,
-    scale: 2.2,
+    scale: 5,
     rotation: 90,
     colorFront: '#fcfcee',
     colorBack: '#ff896b',
@@ -70,7 +52,7 @@ export const tangledUpPreset: WavesPreset = {
   name: 'Tangled up',
   params: {
     ...defaultPatternSizing,
-    scale: 0.6,
+    scale: 0.5,
     rotation: 0,
     colorFront: '#133a41',
     colorBack: '#c2d8b6',
@@ -87,7 +69,7 @@ export const waveRidePreset: WavesPreset = {
   name: 'Ride the wave',
   params: {
     ...defaultPatternSizing,
-    scale: 0.85,
+    scale: 1.7,
     rotation: 0,
     colorFront: '#fdffe6',
     colorBack: '#1f1f1f',
@@ -100,7 +82,7 @@ export const waveRidePreset: WavesPreset = {
   },
 };
 
-export const wavesPresets: WavesPreset[] = [defaultPreset, spikesPreset, groovyPreset, tangledUpPreset, waveRidePreset];
+export const wavesPresets: WavesPreset[] = [defaultPreset, groovyPreset, tangledUpPreset, waveRidePreset];
 
 export const Waves: React.FC<WavesProps> = memo(function WavesImpl({
   // Own props
