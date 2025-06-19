@@ -27,7 +27,7 @@ export const defaultPreset: GodRaysPreset = {
     density: 6,
     spotty: 0.28,
     midIntensity: 1,
-    midSize: 3,
+    midSize: 6,
     intensity: 0.3,
     bloom: 0,
     speed: 1,

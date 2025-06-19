@@ -23,7 +23,7 @@ export const defaultPreset: VoronoiPreset = {
     speed: 0.5,
     frame: 0,
     colors: ['#e65c1a', '#e6c31a', '#1aace6'],
-    stepsPerColor: 1,
+    stepsPerColor: 2,
     colorGlow: '#5500ff',
     colorGap: '#ffffff',
     distortion: 0.42,
@@ -32,23 +32,24 @@ export const defaultPreset: VoronoiPreset = {
   },
 };
 
-export const shadowPreset: VoronoiPreset = {
-  name: 'Shadow',
+export const cellsPreset: VoronoiPreset = {
+  name: 'Cells',
   params: {
     ...defaultPatternSizing,
+    scale: 0.5,
     speed: 0.5,
     frame: 0,
-    colors: ['#faf7fe', '#fefdf7', '#fbf7fe'],
+    colors: ['#ffffff'],
     stepsPerColor: 1,
-    colorGlow: '#76587a',
-    colorGap: '#ffffff',
-    distortion: 0.23,
-    gap: 0,
+    colorGlow: '#ffffff',
+    colorGap: '#ff0073',
+    distortion: 0.5,
+    gap: 0.03,
     glow: 0.8,
   },
 };
 
-export const voronoiPresets: VoronoiPreset[] = [defaultPreset, shadowPreset];
+export const voronoiPresets: VoronoiPreset[] = [defaultPreset, cellsPreset];
 
 export const Voronoi: React.FC<VoronoiProps> = memo(function VoronoiImpl({
   // Own props

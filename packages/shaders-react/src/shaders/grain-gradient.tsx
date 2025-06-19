@@ -110,21 +110,6 @@ export const blobPreset: GrainGradientPreset = {
   },
 };
 
-export const spherePreset: GrainGradientPreset = {
-  name: 'Sphere',
-  params: {
-    ...defaultObjectSizing,
-    speed: 1,
-    frame: 0,
-    colorBack: '#000319',
-    colors: ['#0059b3', '#37f5f5', '#18c039'],
-    softness: 1,
-    intensity: 0.15,
-    noise: 0.5,
-    shape: 'sphere',
-  },
-};
-
 export const moonPreset: GrainGradientPreset = {
   name: 'Moon',
   params: {
@@ -148,7 +133,6 @@ export const grainGradientPresets: GrainGradientPreset[] = [
   truchetPreset,
   ripplePreset,
   blobPreset,
-  spherePreset,
   moonPreset,
 ];
 

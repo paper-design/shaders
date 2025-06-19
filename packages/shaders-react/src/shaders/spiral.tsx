@@ -80,7 +80,7 @@ export const sandPreset: SpiralPreset = {
     ...defaultPatternSizing,
     colorBack: '#dedede',
     colorFront: '#a09560',
-    scale: 3,
+    scale: 0.75,
     density: 0,
     distortion: 0,
     strokeWidth: 0.15,
