@@ -27,7 +27,7 @@ export const defaultPreset: WavesPreset = {
     amplitude: 0.6,
     spacing: 0.65,
     proportion: 0.15,
-    softness: 0,
+    softness: 0.05,
   },
 };
 
