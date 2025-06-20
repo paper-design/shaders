@@ -15,7 +15,7 @@ interface ShaderMountUniformsReact {
 }
 
 export interface ShaderMountProps extends Omit<React.ComponentProps<'div'>, 'color' | 'ref'>, ShaderMotionParams {
-  ref?: React.RefObject<PaperShaderElement>;
+  ref?: React.Ref<PaperShaderElement>;
   fragmentShader: string;
   uniforms: ShaderMountUniformsReact;
   minPixelRatio?: number;
@@ -24,7 +24,7 @@ export interface ShaderMountProps extends Omit<React.ComponentProps<'div'>, 'col
 }
 
 export interface ShaderComponentProps extends Omit<React.ComponentProps<'div'>, 'color' | 'ref'> {
-  ref?: React.RefObject<PaperShaderElement>;
+  ref?: React.Ref<PaperShaderElement>;
   minPixelRatio?: number;
   maxPixelCount?: number;
   webGlContextAttributes?: WebGLContextAttributes;

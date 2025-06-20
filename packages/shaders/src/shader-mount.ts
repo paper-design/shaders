@@ -204,7 +204,11 @@ export class ShaderMount {
     // - innerWidth is affected by pinch zoom in Safari, but not other browsers.
     //   visualViewport.width works consistently in all browsers.
     // - innerWidth is rounded to integer, but not visualViewport.width.
-    const innerWidth = visualViewport ? visualViewport.width * visualViewport.scale : window.innerWidth;
+    // - visualViewport.width is affected by hard scrollbars, so they need to be added manually
+    const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
+    const innerWidth = visualViewport
+      ? visualViewport.scale * (visualViewport.width + scrollbarWidth)
+      : window.innerWidth;
 
     // Slight rounding here helps the <canvas> maintain a consistent computed size as the zoom level changes
     const classicZoom = Math.round((10000 * window.outerWidth) / innerWidth) / 10000;
