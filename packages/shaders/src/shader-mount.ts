@@ -754,12 +754,12 @@ const defaultStyle = `@layer paper-shaders {
   }
 }`;
 
-/** A canvas element that has a ShaderMount available on it */
+/** The parent `<div>` element that has a ShaderMount available on it */
 export interface PaperShaderElement extends HTMLElement {
   paperShaderMount: ShaderMount | undefined;
 }
 
-/** Check if a canvas element is a ShaderCanvas */
+/** Check if an element is a Paper shader element */
 export function isPaperShaderElement(element: HTMLElement): element is PaperShaderElement {
   return 'paperShaderMount' in element;
 }
