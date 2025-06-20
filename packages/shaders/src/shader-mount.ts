@@ -59,10 +59,10 @@ export class ShaderMount {
       throw new Error('Paper Shaders: parent element must be an HTMLElement');
     }
 
-    if (!document.querySelector('style[data-paper-shaders]')) {
+    if (!document.querySelector('style[data-paper-shader]')) {
       const styleElement = document.createElement('style');
       styleElement.innerHTML = defaultStyle;
-      styleElement.setAttribute('data-paper-shaders', '');
+      styleElement.setAttribute('data-paper-shader', '');
       document.head.prepend(styleElement);
     }
 
@@ -96,7 +96,7 @@ export class ShaderMount {
     this.setSpeed(speed);
 
     // Mark parent element as paper shader mount
-    this.parentElement.setAttribute('data-paper-shaders', '');
+    this.parentElement.setAttribute('data-paper-shader', '');
 
     // Add the shaderMount instance to the div mount element to make it easily accessible
     this.parentElement.paperShaderMount = this;
@@ -737,7 +737,7 @@ function createProgram(
 }
 
 const defaultStyle = `@layer paper-shaders {
-  :where([data-paper-shaders]) {
+  :where([data-paper-shader]) {
     isolation: isolate;
     position: relative;
 
