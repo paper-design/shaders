@@ -83,6 +83,12 @@ export class ShaderMount {
     }
     this.gl = gl;
 
+    const info = gl.getShaderPrecisionFormat(
+        gl.FRAGMENT_SHADER,
+        gl.MEDIUM_FLOAT
+    );
+    console.log(info)
+
     this.initProgram();
     this.setupPositionAttribute();
     // Grab the locations of the uniforms in the fragment shader
