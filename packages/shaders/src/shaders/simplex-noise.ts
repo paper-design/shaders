@@ -25,13 +25,6 @@ uniform float u_time;
 uniform float u_scale;
 uniform vec2 u_resolution;
 
-uniform vec4 u_colors[${simplexNoiseMeta.maxColorCount}];
-uniform float u_colorsCount;
-uniform float u_stepsPerColor;
-uniform float u_softness;
-
-${sizingVariablesDeclaration}
-
 out vec4 fragColor;
 
 vec3 mod289(vec3 x) {
@@ -68,6 +61,7 @@ float snoise(vec2 v) {
   g.yz = a0.yz * x12.xz + h.yz * x12.yw;
   return 130. * dot(m, g);
 }
+
 float getNoise(vec2 uv, float t) {
   float noise = .5 * snoise(uv - vec2(0., .3 * t));
   noise += .5 * snoise(2. * uv + vec2(0., .32 * t));
@@ -75,68 +69,16 @@ float getNoise(vec2 uv, float t) {
   return noise;
 }
 
-float steppedSmooth(float t, float steps, float softness) {
-    float stepT = floor(t * steps) / steps;
-    float f = t * steps - floor(t * steps);
-
-    float fw = 0.005 / u_scale;
-    float smoothed = smoothstep(.5 - softness * .5 - fw, .5 + softness * .5 + fw, f);
-
-    return stepT + smoothed / steps;
-}
 
 void main() {
 //  vec2 shape_uv = v_patternUV;
 //  shape_uv *= .001;
 
   vec2 shape_uv = gl_FragCoord.xy / u_resolution.xy;
-
-
+  
   float t = .2 * u_time;
 
   float shape = .5 + .5 * getNoise(shape_uv, t);
-
-  // bool u_extraSides = true;
-  //
-  // float mixer = shape * (u_colorsCount - 1.);
-  // if (u_extraSides == true) {
-  //   mixer = (shape - .5 / u_colorsCount) * u_colorsCount;
-  // }
-  //
-  // float steps = max(1., u_stepsPerColor);
-  //
-  // vec4 gradient = u_colors[0];
-  // gradient.rgb *= gradient.a;
-  // for (int i = 1; i < ${simplexNoiseMeta.maxColorCount}; i++) {
-  //     if (i >= int(u_colorsCount)) break;
-  //
-  //     float localT = clamp(mixer - float(i - 1), 0., 1.);
-  //     localT = steppedSmooth(localT, steps, u_softness);
-  //
-  //     vec4 c = u_colors[i];
-  //     c.rgb *= c.a;
-  //     gradient = mix(gradient, c, localT);
-  // }
-  //
-  // if (u_extraSides == true) {
-  //  if ((mixer < 0.) || (mixer > (u_colorsCount - 1.))) {
-  //    float localT = mixer + 1.;
-  //    if (mixer > (u_colorsCount - 1.)) {
-  //      localT = mixer - (u_colorsCount - 1.);
-  //    }
-  //    localT = steppedSmooth(localT, steps, u_softness);
-  //    vec4 cFst = u_colors[0];
-  //    cFst.rgb *= cFst.a;
-  //    vec4 cLast = u_colors[int(u_colorsCount - 1.)];
-  //    cLast.rgb *= cLast.a;
-  //    gradient = mix(cLast, cFst, localT);
-  //  }
-  // }
-  //
-  // vec3 color = gradient.rgb;
-  // float opacity = gradient.a;
-  //
-  // $ {colorBandingFix}
 
   fragColor = vec4(vec3(shape), 1.);
 }
