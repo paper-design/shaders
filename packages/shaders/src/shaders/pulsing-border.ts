@@ -28,7 +28,7 @@ export const pulsingBorderMeta = {
 
 // language=GLSL
 export const pulsingBorderFragmentShader: string = `#version 300 es
-precision lowp float;
+precision highp float;
 
 uniform float u_time;
 

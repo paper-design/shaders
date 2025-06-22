@@ -22,7 +22,7 @@ import { declarePI, declareSimplexNoise } from '../shader-utils.js';
 
 // language=GLSL
 export const dotGridFragmentShader: string = `#version 300 es
-precision lowp float;
+precision highp float;
 
 uniform vec4 u_colorBack;
 uniform vec4 u_colorFill;

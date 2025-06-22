@@ -4,7 +4,7 @@ import { flushSync } from 'react-dom';
 import { ShaderMount } from '@paper-design/shaders-react';
 
 const fragmentShader = `#version 300 es
-precision lowp float;
+precision highp float;
 
 uniform sampler2D u_texture;
 uniform float u_texture_aspect_ratio;

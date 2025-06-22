@@ -19,7 +19,7 @@ export const simplexNoiseMeta = {
 
 // language=GLSL
 export const simplexNoiseFragmentShader: string = `#version 300 es
-precision lowp float;
+precision highp float;
 
 uniform float u_time;
 uniform float u_scale;

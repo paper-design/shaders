@@ -33,7 +33,7 @@ import { declareSimplexNoise, declarePI, declareRandom } from '../shader-utils.j
 
 // language=GLSL
 export const ditheringFragmentShader: string = `#version 300 es
-precision lowp float;
+precision highp float;
 
 uniform float u_time;
 uniform vec2 u_resolution;

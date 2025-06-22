@@ -22,7 +22,7 @@ export const smokeRingMeta = {
 
 // language=GLSL
 export const smokeRingFragmentShader: string = `#version 300 es
-precision lowp float;
+precision highp float;
 
 uniform float u_time;
 
