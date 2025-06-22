@@ -27,7 +27,7 @@ export const voronoiMeta = {
 
 // language=GLSL
 export const voronoiFragmentShader: string = `#version 300 es
-precision mediump float;
+precision highp float;
 
 uniform float u_time;
 

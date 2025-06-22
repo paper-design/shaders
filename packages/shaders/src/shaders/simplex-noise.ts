@@ -19,7 +19,7 @@ export const simplexNoiseMeta = {
 
 // language=GLSL
 export const simplexNoiseFragmentShader: string = `#version 300 es
-precision mediump float;
+precision highp float;
 
 uniform float u_time;
 uniform float u_scale;
@@ -28,7 +28,7 @@ uniform vec2 u_resolution;
 out vec4 fragColor;
 
 vec3 mod289(vec3 x) {
-  return x - floor(x * (1. / 289.)) * 289.;
+  return x - 289.0 * floor(x / 289.0);
 }
 
 vec2 mod289(vec2 x) {

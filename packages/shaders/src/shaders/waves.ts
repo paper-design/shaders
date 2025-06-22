@@ -19,7 +19,7 @@ import { declarePI, declareRotate } from '../shader-utils.js';
 
 // language=GLSL
 export const wavesFragmentShader: string = `#version 300 es
-precision mediump float;
+precision highp float;
 
 uniform float u_scale;
 

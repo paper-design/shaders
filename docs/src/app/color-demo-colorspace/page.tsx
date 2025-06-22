@@ -26,7 +26,7 @@ type GradientDemoCSSParams = {
 };
 
 const gradientDemoCSSFragmentShader: string = `#version 300 es
-precision mediump float;
+precision highp float;
 
 uniform float u_pixelRatio;
 uniform vec2 u_resolution;

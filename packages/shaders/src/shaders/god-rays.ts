@@ -23,7 +23,7 @@ export const godRaysMeta = {
 
 // language=GLSL
 export const godRaysFragmentShader: string = `#version 300 es
-precision mediump float;
+precision highp float;
 
 uniform float u_time;
 
