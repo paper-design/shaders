@@ -23,6 +23,7 @@ precision mediump float;
 
 uniform float u_time;
 uniform float u_scale;
+uniform vec2 u_resolution;
 
 uniform vec4 u_colors[${simplexNoiseMeta.maxColorCount}];
 uniform float u_colorsCount;
