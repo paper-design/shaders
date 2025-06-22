@@ -69,7 +69,7 @@ float snoise(vec2 v) {
 }
 float getNoise(vec2 uv, float t) {
   float noise = .5 * snoise(uv - vec2(0., .3 * t));
-  noise += .5 * snoise(2. * uv + vec2(0., .32 * t));
+//  noise += .5 * snoise(2. * uv + vec2(0., .32 * t));
 
   return noise;
 }
