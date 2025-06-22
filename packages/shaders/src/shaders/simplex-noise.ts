@@ -19,10 +19,10 @@ export const simplexNoiseMeta = {
 
 // language=GLSL
 export const simplexNoiseFragmentShader: string = `#version 300 es
-precision highp float;
+precision mediump float;
 
 uniform float u_time;
-uniform float u_scale;
+uniform highp float u_scale;
 
 uniform vec4 u_colors[${simplexNoiseMeta.maxColorCount}];
 uniform float u_colorsCount;
@@ -53,15 +53,15 @@ float steppedSmooth(float t, float steps, float softness) {
 }
 
 void main() {
-  vec2 shape_uv = v_patternUV;
+  highp vec2 shape_uv = v_patternUV;
 
   shape_uv *= .001;
 
   float t = .2 * u_time;
 
-  float shape = .5 + .5 * getNoise(shape_uv, t);
-  
-  float mixer = shape * (u_colorsCount - 1.);
+  highp float shape = .5 + .5 * getNoise(shape_uv, t);
+
+  highp float mixer = shape * (u_colorsCount - 1.);
   mixer = (shape - .5 / u_colorsCount) * u_colorsCount;
 
   float steps = max(1., u_stepsPerColor);

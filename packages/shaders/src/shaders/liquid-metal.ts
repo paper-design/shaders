@@ -24,7 +24,7 @@ import { declarePI, declareRotate, declareSimplexNoise, colorBandingFix } from '
 
 // language=GLSL
 export const liquidMetalFragmentShader: string = `#version 300 es
-precision highp float;
+precision mediump float;
 
 uniform float u_time;
 
@@ -76,7 +76,7 @@ void main() {
 
   float t = .1 * u_time;
 
-  vec2 uv = v_objectUV;
+  highp vec2 uv = v_objectUV;
   uv += .5;
   uv.y = 1. - uv.y;
 
@@ -87,7 +87,7 @@ void main() {
 
   if (u_shape < 1.) {
 
-    vec2 borderUV = v_responsiveUV + .5;
+    highp vec2 borderUV = v_responsiveUV + .5;
     float ratio = v_responsiveBoxGivenSize.x / v_responsiveBoxGivenSize.y;
     vec2 edge = min(borderUV, 1. - borderUV);
     vec2 pixel_thickness = 250. / v_responsiveBoxGivenSize;
@@ -110,11 +110,11 @@ void main() {
     contOffset = 1.5;
 
   } else if (u_shape < 2.) {
-    vec2 shapeUV = uv - .5;
+    highp vec2 shapeUV = uv - .5;
     shapeUV *= .67;
     mask = pow(clamp(3. * length(shapeUV), 0., 1.), 18.);
   } else if (u_shape < 3.) {
-    vec2 shapeUV = uv - .5;
+    highp vec2 shapeUV = uv - .5;
     shapeUV *= 1.68;
 
     float r = length(shapeUV) * 2.;
@@ -128,7 +128,7 @@ void main() {
     cycleWidth *= 1.6;
 
   } else if (u_shape < 4.) {
-    vec2 shapeUV = uv - .5;
+    highp vec2 shapeUV = uv - .5;
     shapeUV *= 1.3;
     mask = 0.;
     for (int i = 0; i < 5; i++) {

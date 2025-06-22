@@ -28,7 +28,7 @@ export const pulsingBorderMeta = {
 
 // language=GLSL
 export const pulsingBorderFragmentShader: string = `#version 300 es
-precision highp float;
+precision mediump float;
 
 uniform float u_time;
 
@@ -133,9 +133,9 @@ void main() {
 
   float t = .5 * u_time + 20.;
 
-  vec2 borderUV = v_responsiveUV;
+  highp vec2 borderUV = v_responsiveUV;
 
-  float angle = atan(borderUV.y, borderUV.x) / TWO_PI;
+  highp float angle = atan(borderUV.y, borderUV.x) / TWO_PI;
 
 
   float borderRatio = v_responsiveBoxGivenSize.x / v_responsiveBoxGivenSize.y;
@@ -166,13 +166,13 @@ void main() {
 
   border += smoke;
 
-  float sectorsTotal = 0.;
+  highp float sectorsTotal = 0.;
 
-  vec3 color = vec3(0.);
-  float opacity = 0.;
+  highp vec3 color = vec3(0.);
+  highp float opacity = 0.;
 
-  vec3 accumColor = vec3(0.);
-  float accumAlpha = 0.;
+  highp vec3 accumColor = vec3(0.);
+  highp float accumAlpha = 0.;
 
   for (int i = 0; i < ${pulsingBorderMeta.maxSpotsPerColor}; i++) {
     if (i >= int(u_spotsPerColor)) break;
@@ -196,15 +196,15 @@ void main() {
       mask += pulse;
       if (mask < 0.) continue;
 
-      float atg1 = fract(angle + time);
-      float sector = smoothstep(.5 - u_spotSize, .5, atg1) * smoothstep(.5 + u_spotSize, .5, atg1);
+      highp float atg1 = fract(angle + time);
+      highp float sector = smoothstep(.5 - u_spotSize, .5, atg1) * smoothstep(.5 + u_spotSize, .5, atg1);
       sector *= border;
       sector *= mask;
       sector = clamp(sector, 0., 1.);
 
       sectorsTotal += sector;
 
-      float alpha = sector * u_colors[j].a;
+      highp float alpha = sector * u_colors[j].a;
       accumColor += u_colors[j].rgb * alpha;
       accumAlpha += alpha;
     }
