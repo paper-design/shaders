@@ -69,7 +69,7 @@ float snoise(vec2 v) {
 }
 float getNoise(vec2 uv, float t) {
   float noise = .5 * snoise(uv - vec2(0., .3 * t));
-//  noise += .5 * snoise(2. * uv + vec2(0., .32 * t));
+  noise += .5 * snoise(2. * uv + vec2(0., .32 * t));
 
   return noise;
 }
@@ -85,9 +85,11 @@ float steppedSmooth(float t, float steps, float softness) {
 }
 
 void main() {
-  vec2 shape_uv = v_patternUV;
+//  vec2 shape_uv = v_patternUV;
+//  shape_uv *= .001;
 
-  shape_uv *= .001;
+  vec2 shape_uv = gl_FragCoord.xy / u_resolution.xy;
+
 
   float t = .2 * u_time;
 
