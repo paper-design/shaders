@@ -711,6 +711,18 @@ function createProgram(
   vertexShaderSource: string,
   fragmentShaderSource: string
 ): WebGLProgram | null {
+
+  const format = gl.getShaderPrecisionFormat(gl.FRAGMENT_SHADER, gl.MEDIUM_FLOAT);
+  const precision = format ? format.precision : null;
+  // MEDIUM_FLOAT precision can be 10, 16 or 23 bits depending on device;
+  // Shaders fail on 10 bit (and 16 bit is hard to test) => we force 23-bit by switching to highp
+  if (precision && precision < 23) {
+    vertexShaderSource = vertexShaderSource.replace(/precision\s+(lowp|mediump)\s+float;/g, 'precision highp float;');
+    fragmentShaderSource = fragmentShaderSource.replace(/precision\s+(lowp|mediump)\s+float;/g, 'precision highp float;');
+  }
+  console.log(vertexShaderSource)
+  console.log(fragmentShaderSource)
+
   const vertexShader = createShader(gl, gl.VERTEX_SHADER, vertexShaderSource);
   const fragmentShader = createShader(gl, gl.FRAGMENT_SHADER, fragmentShaderSource);
 
