@@ -9,7 +9,7 @@ import { useState, useEffect } from 'react';
 // and to be an example for building out more shaders that accept textures
 
 const fragmentShader = `#version 300 es
-precision highp float;
+precision lowp float;
 
 uniform sampler2D u_texture;
 uniform float u_texture_aspect_ratio;

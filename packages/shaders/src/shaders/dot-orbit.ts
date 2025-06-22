@@ -22,7 +22,7 @@ export const dotOrbitMeta = {
 
 // language=GLSL
 export const dotOrbitFragmentShader: string = `#version 300 es
-precision highp float;
+precision lowp float;
 
 uniform float u_time;
 

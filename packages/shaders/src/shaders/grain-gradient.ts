@@ -39,7 +39,7 @@ export const grainGradientMeta = {
 
 // language=GLSL
 export const grainGradientFragmentShader: string = `#version 300 es
-precision highp float;
+precision lowp float;
 
 uniform float u_time;
 uniform vec2 u_resolution;

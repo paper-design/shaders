@@ -22,7 +22,7 @@ export const metaballsMeta = {
 
 // language=GLSL
 export const metaballsFragmentShader: string = `#version 300 es
-precision highp float;
+precision lowp float;
 
 uniform float u_time;
 

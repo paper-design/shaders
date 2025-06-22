@@ -17,7 +17,7 @@ import { declarePI, colorBandingFix } from '../shader-utils.js';
 
 // language=GLSL
 export const perlinNoiseFragmentShader: string = `#version 300 es
-precision highp float;
+precision lowp float;
 
 uniform float u_time;
 

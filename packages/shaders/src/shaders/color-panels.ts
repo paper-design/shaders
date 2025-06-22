@@ -25,7 +25,7 @@ export const colorPanelsMeta = {
 
 // language=GLSL
 export const colorPanelsFragmentShader: string = `#version 300 es
-precision highp float;
+precision lowp float;
 
 uniform float u_time;
 
