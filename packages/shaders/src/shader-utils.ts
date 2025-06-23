@@ -10,7 +10,7 @@ vec2 rotate(vec2 uv, float th) {
 `;
 
 export const declareRandom = `
-float random(vec2 st) {
+highp float random(highp vec2 st) {
   return fract(sin(dot(st.xy, vec2(12.9898, 78.233))) * 43758.5453123);
 }
 `;

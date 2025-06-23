@@ -85,10 +85,10 @@ void main() {
 
   highp vec3 voronoi = voronoiShape(shape_uv, t) + 1e-4;
 
-  float radius = .25 * clamp(u_size, 0., 1.) - .5 * clamp(u_sizeRange, 0., 1.) * voronoi[2];
+  highp float radius = .25 * clamp(u_size, 0., 1.) - .5 * clamp(u_sizeRange, 0., 1.) * voronoi[2];
   float dist = voronoi[0];
   float edgeWidth = fwidth(dist);
-  float dots = smoothstep(radius + edgeWidth, radius - edgeWidth, dist);
+  highp float dots = smoothstep(radius + edgeWidth, radius - edgeWidth, dist);
 
   float shape = voronoi[1];
 
