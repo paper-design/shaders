@@ -5,21 +5,24 @@ This is the vanilla JS of Paper Shaders. You can also find framework specific wr
 ## Example usage:
 
 ```
-import { ShaderMount, meshGradientFragmentShader, getShaderColorFromString } from "@paper-design/shaders";
+import { ShaderMount, meshGradientFragmentShader, getShaderColorFromString } from '@paper-design/shaders';
 
 const myDiv = document.createElement('div');
-document.body.appendChild(myCanvas);
+document.body.appendChild(myDiv);
 myDiv.style.width = '600px';
 myDiv.style.height = '400px';
 
 const shaderParams = {
   u_colorsCount: 4,
   u_colors: [
-    getShaderColorFromString("#283bfc"),
-    getShaderColorFromString("#ff2828"),
-    getShaderColorFromString("#dddddd"),
-    getShaderColorFromString("#800080")
+    getShaderColorFromString('#5100ff'),
+    getShaderColorFromString('#00ff80'),
+    getShaderColorFromString('#ffcc00'),
+    getShaderColorFromString('#ea00ff'),
   ],
+  u_distortion: 0.8,
+  u_swirl: 0.7,
+  u_scale: 1, // has to be set for any shader
 };
 
 const speed = 0.25;

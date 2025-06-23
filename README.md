@@ -55,7 +55,7 @@ import { MeshGradient } from '@paper-design/shaders-react';
 ```jsx
 import { MeshGradient } from '@paper-design/shaders-react';
 
-<MeshGradient colors={['#5100ff', '#00ff80', '#ffcc00', '#ea00ff']} speed={0.25} distortion={0.8} swirl={0.7} style={{ width: 500, height: 200 }} />;
+<MeshGradient colors={['#5100ff', '#00ff80', '#ffcc00', '#ea00ff']} speed={0.5} distortion={0.8} swirl={0.7} style={{width: 500, height: 500}}/>
 
 // these settings can be configured in code or designed in Paper
 ```
