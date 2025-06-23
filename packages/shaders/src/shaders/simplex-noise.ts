@@ -1,7 +1,7 @@
 import type { vec4 } from '../types.js';
 import type { ShaderMotionParams } from '../shader-mount.js';
 import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
-import { declareSimplexNoiseHighPr, colorBandingFix } from '../shader-utils.js';
+import { declareSimplexNoise, colorBandingFix } from '../shader-utils.js';
 
 export const simplexNoiseMeta = {
   maxColorCount: 10,
@@ -33,7 +33,7 @@ ${sizingVariablesDeclaration}
 
 out vec4 fragColor;
 
-${declareSimplexNoiseHighPr}
+${declareSimplexNoise}
 
 highp float getNoise(highp vec2 uv, highp float t) {
   float noise = .5 * snoise(uv - vec2(0., .3 * t));
