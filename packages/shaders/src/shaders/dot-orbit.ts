@@ -24,7 +24,7 @@ export const dotOrbitMeta = {
 export const dotOrbitFragmentShader: string = `#version 300 es
 precision mediump float;
 
-uniform float u_time;
+uniform highp float u_time;
 
 uniform vec4 u_colorBack;
 uniform vec4 u_colors[${dotOrbitMeta.maxColorCount}];
@@ -42,28 +42,28 @@ ${declarePI}
 ${declareRandom}
 ${declareRotate}
 
-vec2 random2(vec2 p) {
+highp vec2 random2(highp vec2 p) {
   return vec2(random(p), random(200. * p));
 }
 
-vec3 voronoiShape(vec2 uv, float time) {
+highp vec3 voronoiShape(highp vec2 uv, highp float time) {
   vec2 i_uv = floor(uv);
-  vec2 f_uv = fract(uv);
+  highp vec2 f_uv = fract(uv);
 
   float spreading = .25 * clamp(u_spreading, 0., 1.);
 
-  float minDist = 1.;
-  vec2 randomizer = vec2(0.);
+  highp float minDist = 1.;
+  highp vec2 randomizer = vec2(0.);
   for (int y = -1; y <= 1; y++) {
     for (int x = -1; x <= 1; x++) {
-      vec2 tileOffset = vec2(float(x), float(y));
-      vec2 rand = random2(i_uv + tileOffset);
+      highp vec2 tileOffset = vec2(float(x), float(y));
+      highp vec2 rand = random2(i_uv + tileOffset);
       vec2 cellCenter = vec2(.5 + 1e-4);
       cellCenter += spreading * cos(time + TWO_PI * rand);
       cellCenter -= .5;
       cellCenter = rotate(cellCenter, random(vec2(rand.x, rand.y)) + .1 * time);
       cellCenter += .5;
-      float dist = length(tileOffset + cellCenter - f_uv);
+      highp float dist = length(tileOffset + cellCenter - f_uv);
       if (dist < minDist) {
         minDist = dist;
         randomizer = rand;
@@ -77,13 +77,13 @@ vec3 voronoiShape(vec2 uv, float time) {
 
 void main() {
 
-  vec2 shape_uv = v_patternUV;
+  highp vec2 shape_uv = v_patternUV;
   shape_uv += .5;
   shape_uv *= .015;
 
-  float t = u_time;
+  highp float t = u_time;
 
-  vec3 voronoi = voronoiShape(shape_uv, t) + 1e-4;
+  highp vec3 voronoi = voronoiShape(shape_uv, t) + 1e-4;
 
   float radius = .25 * clamp(u_size, 0., 1.) - .5 * clamp(u_sizeRange, 0., 1.) * voronoi[2];
   float dist = voronoi[0];

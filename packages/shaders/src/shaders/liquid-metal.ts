@@ -136,7 +136,7 @@ void main() {
       float angle = -fi * 1.5;
       vec2 dir1 = vec2(cos(angle), sin(angle));
       vec2 dir2 = vec2(cos(angle + 1.57), sin(angle + 1.));
-      highp vec2 traj = .3 * (dir1 * sin(t * speed + fi * 1.23) + dir2 * cos(t * (speed * 0.7) + fi * 2.17));
+      highp vec2 traj = .25 * (dir1 * sin(t * speed + fi * 1.23) + dir2 * cos(t * (speed * 0.7) + fi * 2.17));
       highp float d = length(shapeUV + traj);
       mask += pow(1.0 - clamp(d, 0.0, 1.0), 6.0);
     }
