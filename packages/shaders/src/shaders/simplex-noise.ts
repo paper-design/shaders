@@ -21,7 +21,7 @@ export const simplexNoiseMeta = {
 export const simplexNoiseFragmentShader: string = `#version 300 es
 precision mediump float;
 
-uniform highp float u_time;
+uniform float u_time;
 uniform highp float u_scale;
 
 uniform vec4 u_colors[${simplexNoiseMeta.maxColorCount}];
@@ -31,7 +31,7 @@ uniform float u_softness;
 
 ${sizingVariablesDeclaration}
 
-out highp vec4 fragColor;
+out vec4 fragColor;
 
 highp vec3 permute(highp vec3 x) { return mod(((x * 34.0) + 1.0) * x, 289.0); }
 highp float snoise(highp vec2 v) {
@@ -62,18 +62,18 @@ highp float snoise(highp vec2 v) {
 }
 
 highp float getNoise(highp vec2 uv, float t) {
-  highp float noise = .5 * snoise(uv - vec2(0., .3 * t));
+  float noise = .5 * snoise(uv - vec2(0., .3 * t));
   noise += .5 * snoise(2. * uv + vec2(0., .32 * t));
 
   return noise;
 }
 
-float steppedSmooth(highp float t, highp float steps, highp float softness) {
-  highp float stepT = floor(t * steps) / steps;
-  highp float f = t * steps - floor(t * steps);
+highp float steppedSmooth(highp float shape, float steps, float softness) {
+  float stepT = floor(shape * steps) / steps;
+  float f = shape * steps - floor(shape * steps);
 
-  highp float fw = 0.005 / u_scale;
-  highp float smoothed = smoothstep(.5 - softness * .5 - fw, .5 + softness * .5 + fw, f);
+  float fw = 0.005 / u_scale;
+  float smoothed = smoothstep(.5 - softness * .5 - fw, .5 + softness * .5 + fw, f);
 
   return stepT + smoothed / steps;
 }
