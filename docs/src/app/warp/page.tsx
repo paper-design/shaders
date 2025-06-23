@@ -40,7 +40,7 @@ const WarpWithControls = () => {
           swirlIterations: { value: defaults.swirlIterations, min: 0, max: 20, order: 304 },
           shape: { value: defaults.shape, options: Object.keys(WarpPatterns) as WarpPattern[], order: 305 },
           shapeScale: { value: defaults.shapeScale, min: 0, max: 1, order: 306 },
-          speed: { value: defaults.speed, min: 0, max: 100, order: 400 },
+          speed: { value: defaults.speed, min: 0, max: 20, order: 400 },
         },
         { order: 1 }
       ),

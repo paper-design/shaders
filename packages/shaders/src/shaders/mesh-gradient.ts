@@ -18,6 +18,7 @@ export const meshGradientMeta = {
  *
  */
 
+// language=GLSL
 export const meshGradientFragmentShader: string = `#version 300 es
 precision mediump float;
 

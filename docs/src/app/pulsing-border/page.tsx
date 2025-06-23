@@ -9,6 +9,7 @@ import { BackButton } from '@/components/back-button';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
 import { pulsingBorderMeta, ShaderFit, ShaderFitOptions, simplexNoiseMeta } from '@paper-design/shaders';
 import { useColors } from '@/helpers/use-colors';
+import { toHsla } from '@/helpers/to-hsla';
 
 /**
  * You can copy/paste this example to use PulsingBorder in your app
@@ -32,7 +33,7 @@ const PulsingBorderWithControls = () => {
     return {
       Parameters: folder(
         {
-          colorBack: { value: defaults.colorBack, order: 100 },
+          colorBack: { value: toHsla(defaults.colorBack), order: 100 },
           roundness: { value: defaults.roundness, min: 0, max: 1, order: 300 },
           thickness: { value: defaults.thickness, min: 0, max: 0.2, order: 301 },
           softness: { value: defaults.softness, min: 0, max: 1, order: 302 },

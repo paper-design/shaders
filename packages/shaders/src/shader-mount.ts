@@ -59,10 +59,10 @@ export class ShaderMount {
       throw new Error('Paper Shaders: parent element must be an HTMLElement');
     }
 
-    if (!document.querySelector('style[data-paper-shaders]')) {
+    if (!document.querySelector('style[data-paper-shader]')) {
       const styleElement = document.createElement('style');
       styleElement.innerHTML = defaultStyle;
-      styleElement.setAttribute('data-paper-shaders', '');
+      styleElement.setAttribute('data-paper-shader', '');
       document.head.prepend(styleElement);
     }
 
@@ -96,7 +96,7 @@ export class ShaderMount {
     this.setSpeed(speed);
 
     // Mark parent element as paper shader mount
-    this.parentElement.setAttribute('data-paper-shaders', '');
+    this.parentElement.setAttribute('data-paper-shader', '');
 
     // Add the shaderMount instance to the div mount element to make it easily accessible
     this.parentElement.paperShaderMount = this;
@@ -204,7 +204,11 @@ export class ShaderMount {
     // - innerWidth is affected by pinch zoom in Safari, but not other browsers.
     //   visualViewport.width works consistently in all browsers.
     // - innerWidth is rounded to integer, but not visualViewport.width.
-    const innerWidth = visualViewport ? visualViewport.width * visualViewport.scale : window.innerWidth;
+    // - visualViewport.width is affected by hard scrollbars, so they need to be added manually
+    const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
+    const innerWidth = visualViewport
+      ? visualViewport.scale * visualViewport.width + scrollbarWidth
+      : window.innerWidth;
 
     // Slight rounding here helps the <canvas> maintain a consistent computed size as the zoom level changes
     const classicZoom = Math.round((10000 * window.outerWidth) / innerWidth) / 10000;
@@ -470,7 +474,7 @@ export class ShaderMount {
   /** Update the uniforms that are provided by the outside shader, can be a partial set with only the uniforms that have changed */
   public setUniforms = (newUniforms: ShaderMountUniforms): void => {
     this.setUniformValues(newUniforms);
-    this.providedUniforms = {...this.providedUniforms, ...newUniforms};
+    this.providedUniforms = { ...this.providedUniforms, ...newUniforms };
 
     this.render(performance.now());
   };
@@ -521,6 +525,7 @@ export class ShaderMount {
 }
 
 /** Vertex shader for the shader mount */
+// language=GLSL
 const vertexShaderSource = `#version 300 es
 precision mediump float;
 
@@ -736,7 +741,7 @@ function createProgram(
 }
 
 const defaultStyle = `@layer paper-shaders {
-  :where([data-paper-shaders]) {
+  :where([data-paper-shader]) {
     isolation: isolate;
     position: relative;
 
@@ -753,12 +758,12 @@ const defaultStyle = `@layer paper-shaders {
   }
 }`;
 
-/** A canvas element that has a ShaderMount available on it */
+/** The parent `<div>` element that has a ShaderMount available on it */
 export interface PaperShaderElement extends HTMLElement {
   paperShaderMount: ShaderMount | undefined;
 }
 
-/** Check if a canvas element is a ShaderCanvas */
+/** Check if an element is a Paper shader element */
 export function isPaperShaderElement(element: HTMLElement): element is PaperShaderElement {
   return 'paperShaderMount' in element;
 }

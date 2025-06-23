@@ -1,5 +1,5 @@
 export { ShaderMount } from './shader-mount.js';
-export type { ShaderMountProps, ShaderComponentProps, ShaderMountRef } from './shader-mount.js';
+export type { ShaderMountProps, ShaderComponentProps } from './shader-mount.js';
 
 export { MeshGradient, meshGradientPresets } from './shaders/mesh-gradient.js';
 export type { MeshGradientProps } from './shaders/mesh-gradient.js';
@@ -78,7 +78,7 @@ export type { ColorPanelsProps } from './shaders/color-panels.js';
 export type { ColorPanelsUniforms, ColorPanelsParams } from '@paper-design/shaders';
 
 export { isPaperShaderElement, getShaderColorFromString } from '@paper-design/shaders';
-export type { ShaderFit, ShaderSizingParams, ShaderSizingUniforms } from '@paper-design/shaders';
+export type { PaperShaderElement, ShaderFit, ShaderSizingParams, ShaderSizingUniforms } from '@paper-design/shaders';
 
 export {
   colorPanelsMeta,

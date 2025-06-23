@@ -20,6 +20,7 @@ import { declarePI, declareSimplexNoise } from '../shader-utils.js';
  *
  */
 
+// language=GLSL
 export const dotGridFragmentShader: string = `#version 300 es
 precision mediump float;
 

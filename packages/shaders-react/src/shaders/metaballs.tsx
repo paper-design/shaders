@@ -22,10 +22,10 @@ export const defaultPreset: MetaballsPreset = {
     scale: 1,
     speed: 1,
     frame: 0,
-    colorBack: '#ffffff',
-    colors: ['#b399ff', '#99ffc4', '#ffe699', '#e099ff'],
+    colorBack: '#103086',
+    colors: ['#FFC802', '#FF5601', '#FFC206'],
     count: 7,
-    size: 1,
+    size: 0.75,
   },
 };
 
