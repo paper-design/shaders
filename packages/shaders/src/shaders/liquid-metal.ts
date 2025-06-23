@@ -82,7 +82,7 @@ void main() {
 
   float cycleWidth = .5 * u_repetition;
 
-  float mask = 1.;
+  highp float mask = 1.;
   float contOffset = 1.;
 
   if (u_shape < 1.) {
@@ -151,8 +151,8 @@ void main() {
   ridge += .05 * (smoothstep(.1, .2, 1. - uv.y) * smoothstep(.4, .2, 1. - uv.y));
   mask += ridge;
 
-  float diagBLtoTR = uv.x - uv.y;
-  float diagTLtoBR = uv.x + uv.y;
+  highp float diagBLtoTR = uv.x - uv.y;
+  highp float diagTLtoBR = uv.x + uv.y;
 
   vec3 color = vec3(0.);
   vec3 color1 = vec3(.98, 0.98, 1.);
@@ -169,12 +169,12 @@ void main() {
   bump *= pow(uv.y, .3);
 
 
-  float thin_strip_1_ratio = .12 / cycleWidth * (1. - .4 * bump);
-  float thin_strip_2_ratio = .07 / cycleWidth * (1. + .4 * bump);
-  float wide_strip_ratio = (1. - thin_strip_1_ratio - thin_strip_2_ratio);
+  highp float thin_strip_1_ratio = .12 / cycleWidth * (1. - .4 * bump);
+  highp float thin_strip_2_ratio = .07 / cycleWidth * (1. + .4 * bump);
+  highp float wide_strip_ratio = (1. - thin_strip_1_ratio - thin_strip_2_ratio);
 
-  float thin_strip_1_width = cycleWidth * thin_strip_1_ratio;
-  float thin_strip_2_width = cycleWidth * thin_strip_2_ratio;
+  highp float thin_strip_1_width = cycleWidth * thin_strip_1_ratio;
+  highp float thin_strip_2_width = cycleWidth * thin_strip_2_ratio;
 
   highp float noise = snoise(uv - t);
 
@@ -182,7 +182,7 @@ void main() {
 
   direction += diagBLtoTR;
 
-  float contour = u_contour * smoothstep(0., contOffset, mask) * smoothstep(contOffset, 0., mask);
+  highp float contour = u_contour * smoothstep(0., contOffset, mask) * smoothstep(contOffset, 0., mask);
   direction -= 14. * noise * contour;
 
   bump *= clamp(pow(uv.y, .1), .3, 1.);
@@ -203,7 +203,7 @@ void main() {
   dispersionRed *= (u_shiftRed / 20.);
   dispersionBlue *= (u_shiftBlue / 20.);
 
-  float blur = u_softness / 15. + .3 * contour;
+  highp float blur = u_softness / 15. + .3 * contour;
 
   vec3 w = vec3(thin_strip_1_width, thin_strip_2_width, wide_strip_ratio);
   w[1] -= .02 * smoothstep(.0, 1., mask + bump);
