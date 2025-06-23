@@ -35,8 +35,8 @@ out vec4 fragColor;
 
 ${declareSimplexNoise}
 
-float getNoise(vec2 uv, float t) {
-  float noise = .5 * snoise(uv - vec2(0., .3 * t));
+highp float getNoise(highp vec2 uv, float t) {
+  highp float noise = .5 * snoise(uv - vec2(0., .3 * t));
   noise += .5 * snoise(2. * uv + vec2(0., .32 * t));
 
   return noise;
@@ -53,20 +53,16 @@ float steppedSmooth(float t, float steps, float softness) {
 }
 
 void main() {
-  vec2 shape_uv = v_patternUV;
-
+  highp vec2 shape_uv = v_patternUV;
   shape_uv *= .001;
 
-  float t = .2 * u_time;
+  highp float t = .2 * u_time;
 
-  float shape = .5 + .5 * getNoise(shape_uv, t);
+  highp float shape = .5 + .5 * getNoise(shape_uv, t);
 
-  bool u_extraSides = true;
 
-  float mixer = shape * (u_colorsCount - 1.);
-  if (u_extraSides == true) {
-    mixer = (shape - .5 / u_colorsCount) * u_colorsCount;
-  }
+  highp float mixer = shape * (u_colorsCount - 1.);
+  mixer = (shape - .5 / u_colorsCount) * u_colorsCount;
 
   float steps = max(1., u_stepsPerColor);
 
@@ -75,7 +71,7 @@ void main() {
   for (int i = 1; i < ${simplexNoiseMeta.maxColorCount}; i++) {
       if (i >= int(u_colorsCount)) break;
 
-      float localT = clamp(mixer - float(i - 1), 0., 1.);
+      highp float localT = clamp(mixer - float(i - 1), 0., 1.);
       localT = steppedSmooth(localT, steps, u_softness);
 
       vec4 c = u_colors[i];
@@ -83,7 +79,6 @@ void main() {
       gradient = mix(gradient, c, localT);
   }
 
-  if (u_extraSides == true) {
    if ((mixer < 0.) || (mixer > (u_colorsCount - 1.))) {
      float localT = mixer + 1.;
      if (mixer > (u_colorsCount - 1.)) {
@@ -96,7 +91,6 @@ void main() {
      cLast.rgb *= cLast.a;
      gradient = mix(cLast, cFst, localT);
    }
-  }
 
   vec3 color = gradient.rgb;
   float opacity = gradient.a;

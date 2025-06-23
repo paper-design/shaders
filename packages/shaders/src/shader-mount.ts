@@ -531,7 +531,7 @@ precision mediump float;
 
 layout(location = 0) in vec4 a_position;
 
-uniform vec2 u_resolution;
+uniform highp vec2 u_resolution;
 uniform float u_pixelRatio;
 
 uniform float u_originX;
@@ -547,17 +547,17 @@ uniform float u_offsetY;
 
 uniform float u_pxSize;
 
-out vec2 v_objectUV;
-out vec2 v_objectBoxSize;
+out highp vec2 v_objectUV;
+out highp vec2 v_objectBoxSize;
 out vec2 v_objectHelperBox;
 
-out vec2 v_responsiveUV;
-out vec2 v_responsiveBoxSize;
+out highp vec2 v_responsiveUV;
+out highp vec2 v_responsiveBoxSize;
 out vec2 v_responsiveHelperBox;
-out vec2 v_responsiveBoxGivenSize;
+out highp vec2 v_responsiveBoxGivenSize;
 
-out vec2 v_patternUV;
-out vec2 v_patternBoxSize;
+out highp vec2 v_patternUV;
+out highp vec2 v_patternBoxSize;
 out vec2 v_patternHelperBox;
 
 // #define ADD_HELPERS

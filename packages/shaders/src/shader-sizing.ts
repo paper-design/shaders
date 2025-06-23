@@ -10,21 +10,21 @@
  before sizing (e.g., to make dithering pixels independent of sizing).
 */
 export const sizingVariablesDeclaration = `
-in vec2 v_objectUV;
-in vec2 v_responsiveUV;
-in vec2 v_responsiveBoxGivenSize;
-in vec2 v_patternUV;`;
+in highp vec2 v_objectUV;
+in highp vec2 v_responsiveUV;
+in highp vec2 v_responsiveBoxGivenSize;
+in highp vec2 v_patternUV;`;
 
 /*
  ===================================================================
  Additional variables used only for drawing a sizing overlay.
 */
 export const sizingDebugVariablesDeclaration = `
-in vec2 v_objectBoxSize;
+in highp vec2 v_objectBoxSize;
 in vec2 v_objectHelperBox;
-in vec2 v_responsiveBoxSize;
+in highp vec2 v_responsiveBoxSize;
 in vec2 v_responsiveHelperBox;
-in vec2 v_patternBoxSize;
+in highp vec2 v_patternBoxSize;
 in vec2 v_patternHelperBox;`;
 
 /*
