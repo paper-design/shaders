@@ -31,7 +31,7 @@ uniform float u_softness;
 
 ${sizingVariablesDeclaration}
 
-highp vec4 fragColor;
+out highp vec4 fragColor;
 
 highp vec3 permute(highp vec3 x) { return mod(((x * 34.0) + 1.0) * x, 289.0); }
 highp float snoise(highp vec2 v) {
@@ -89,9 +89,9 @@ void main() {
   highp float mixer = shape * (u_colorsCount - 1.);
   mixer = (shape - .5 / u_colorsCount) * u_colorsCount;
 
-  highp float steps = max(1., u_stepsPerColor);
+  float steps = max(1., u_stepsPerColor);
 
-  highp vec4 gradient = u_colors[0];
+  vec4 gradient = u_colors[0];
   gradient.rgb *= gradient.a;
   for (int i = 1; i < ${simplexNoiseMeta.maxColorCount}; i++) {
       if (i >= int(u_colorsCount)) break;
@@ -99,7 +99,7 @@ void main() {
       highp float localT = clamp(mixer - float(i - 1), 0., 1.);
       localT = steppedSmooth(localT, steps, u_softness);
 
-      highp vec4 c = u_colors[i];
+      vec4 c = u_colors[i];
       c.rgb *= c.a;
       gradient = mix(gradient, c, localT);
   }
@@ -110,9 +110,9 @@ void main() {
        localT = mixer - (u_colorsCount - 1.);
      }
      localT = steppedSmooth(localT, steps, u_softness);
-     highp vec4 cFst = u_colors[0];
+     vec4 cFst = u_colors[0];
      cFst.rgb *= cFst.a;
-     highp vec4 cLast = u_colors[int(u_colorsCount - 1.)];
+     vec4 cLast = u_colors[int(u_colorsCount - 1.)];
      cLast.rgb *= cLast.a;
      gradient = mix(cLast, cFst, localT);
    }
