@@ -24,14 +24,14 @@ precision mediump float;
 uniform highp float u_time;
 uniform highp float u_scale;
 
-uniform highp vec4 u_colors[${simplexNoiseMeta.maxColorCount}];
-uniform highp float u_colorsCount;
-uniform highp float u_stepsPerColor;
-uniform highp float u_softness;
+uniform vec4 u_colors[${simplexNoiseMeta.maxColorCount}];
+uniform float u_colorsCount;
+uniform float u_stepsPerColor;
+uniform float u_softness;
 
 ${sizingVariablesDeclaration}
 
-out highp vec4 fragColor;
+highp vec4 fragColor;
 
 highp vec3 permute(highp vec3 x) { return mod(((x * 34.0) + 1.0) * x, 289.0); }
 highp float snoise(highp vec2 v) {
@@ -117,8 +117,8 @@ void main() {
      gradient = mix(cLast, cFst, localT);
    }
 
-  highp vec3 color = gradient.rgb;
-  highp float opacity = gradient.a;
+  vec3 color = gradient.rgb;
+  float opacity = gradient.a;
 
   //$ {colorBandingFix}
 
