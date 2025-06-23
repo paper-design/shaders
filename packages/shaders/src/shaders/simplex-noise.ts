@@ -22,7 +22,7 @@ export const simplexNoiseFragmentShader: string = `#version 300 es
 precision mediump float;
 
 uniform float u_time;
-uniform float u_scale;
+uniform highp float u_scale;
 
 uniform vec4 u_colors[${simplexNoiseMeta.maxColorCount}];
 uniform float u_colorsCount;
@@ -56,7 +56,7 @@ void main() {
   highp vec2 shape_uv = v_patternUV;
   shape_uv *= .001;
 
-  highp float t = .2 * u_time;
+  float t = .2 * u_time;
 
   highp float shape = .5 + .5 * getNoise(shape_uv, t);
 
