@@ -1,6 +1,6 @@
 import type { ShaderMotionParams } from '../shader-mount.js';
 import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
-import { declarePI, declareRotate, declareSimplexNoise, colorBandingFix } from '../shader-utils.js';
+import { declarePI, declareRotate, declareSimplexNoiseHighPr, colorBandingFix } from '../shader-utils.js';
 
 /**
  *
@@ -26,7 +26,7 @@ import { declarePI, declareRotate, declareSimplexNoise, colorBandingFix } from '
 export const liquidMetalFragmentShader: string = `#version 300 es
 precision mediump float;
 
-uniform float u_time;
+uniform highp float u_time;
 
 uniform vec4 u_colorBack;
 uniform vec4 u_colorTint;
@@ -45,7 +45,7 @@ out vec4 fragColor;
 
 ${declarePI}
 ${declareRotate}
-${declareSimplexNoise}
+${declareSimplexNoiseHighPr}
 
 float getColorChanges(float c1, float c2, float stripe_p, vec3 w, float blur, float bump, float tint) {
 
@@ -74,9 +74,9 @@ float getColorChanges(float c1, float c2, float stripe_p, vec3 w, float blur, fl
 
 void main() {
 
-  float t = .1 * u_time;
+  highp float t = .1 * u_time;
 
-  vec2 uv = v_objectUV;
+  highp vec2 uv = v_objectUV;
   uv += .5;
   uv.y = 1. - uv.y;
 
@@ -87,12 +87,12 @@ void main() {
 
   if (u_shape < 1.) {
 
-    vec2 borderUV = v_responsiveUV + .5;
-    float ratio = v_responsiveBoxGivenSize.x / v_responsiveBoxGivenSize.y;
-    vec2 edge = min(borderUV, 1. - borderUV);
-    vec2 pixel_thickness = 250. / v_responsiveBoxGivenSize;
-    float maskX = smoothstep(0.0, pixel_thickness.x, edge.x);
-    float maskY = smoothstep(0.0, pixel_thickness.y, edge.y);
+    highp vec2 borderUV = v_responsiveUV + .5;
+    highp float ratio = v_responsiveBoxGivenSize.x / v_responsiveBoxGivenSize.y;
+    highp vec2 edge = min(borderUV, 1. - borderUV);
+    highp vec2 pixel_thickness = 250. / v_responsiveBoxGivenSize;
+    highp float maskX = smoothstep(0.0, pixel_thickness.x, edge.x);
+    highp float maskY = smoothstep(0.0, pixel_thickness.y, edge.y);
     maskX = pow(maskX, .25);
     maskY = pow(maskY, .25);
     mask = clamp(1. - maskX * maskY, 0., 1.);
@@ -110,17 +110,17 @@ void main() {
     contOffset = 1.5;
 
   } else if (u_shape < 2.) {
-    vec2 shapeUV = uv - .5;
+    highp vec2 shapeUV = uv - .5;
     shapeUV *= .67;
     mask = pow(clamp(3. * length(shapeUV), 0., 1.), 18.);
   } else if (u_shape < 3.) {
-    vec2 shapeUV = uv - .5;
+    highp vec2 shapeUV = uv - .5;
     shapeUV *= 1.68;
 
-    float r = length(shapeUV) * 2.;
-    float a = atan(shapeUV.y, shapeUV.x) + .2;
+    highp float r = length(shapeUV) * 2.;
+    highp float a = atan(shapeUV.y, shapeUV.x) + .2;
     r *= (1. + .05 * sin(3. * a + 2. * t));
-    float f = abs(cos(a * 3.));
+    highp float f = abs(cos(a * 3.));
     mask = smoothstep(f, f + .7, r);
     mask = pow(mask, 2.);
 
@@ -128,17 +128,17 @@ void main() {
     cycleWidth *= 1.6;
 
   } else if (u_shape < 4.) {
-    vec2 shapeUV = uv - .5;
+    highp vec2 shapeUV = uv - .5;
     shapeUV *= 1.3;
     mask = 0.;
     for (int i = 0; i < 5; i++) {
-      float fi = float(i);
-      float speed = 4.5 + 2. * sin(fi * 12.345);
-      float angle = -fi * 1.5;
-      vec2 dir1 = vec2(cos(angle), sin(angle));
-      vec2 dir2 = vec2(cos(angle + 1.57), sin(angle + 1.));
-      vec2 traj = .4 * (dir1 * sin(t * speed + fi * 1.23) + dir2 * cos(t * (speed * 0.7) + fi * 2.17));
-      float d = length(shapeUV + traj);
+      highp float fi = float(i);
+      highp float speed = 4.5 + 2. * sin(fi * 12.345);
+      highp float angle = -fi * 1.5;
+      highp vec2 dir1 = vec2(cos(angle), sin(angle));
+      highp vec2 dir2 = vec2(cos(angle + 1.57), sin(angle + 1.));
+      highp vec2 traj = .4 * (dir1 * sin(t * speed + fi * 1.23) + dir2 * cos(t * (speed * 0.7) + fi * 2.17));
+      highp float d = length(shapeUV + traj);
       mask += pow(1.0 - clamp(d, 0.0, 1.0), 4.0);
     }
     mask = 1. - smoothstep(.65, .9, mask);
@@ -147,7 +147,7 @@ void main() {
 
   float opacity = 1. - smoothstep(.8, .82, mask);
 
-  float ridge = .15 * (smoothstep(.0, .15, uv.y) * smoothstep(.4, .15, uv.y));
+  highp float ridge = .15 * (smoothstep(.0, .15, uv.y) * smoothstep(.4, .15, uv.y));
   ridge += .05 * (smoothstep(.1, .2, 1. - uv.y) * smoothstep(.4, .2, 1. - uv.y));
   mask += ridge;
 
@@ -158,13 +158,13 @@ void main() {
   vec3 color1 = vec3(.98, 0.98, 1.);
   vec3 color2 = vec3(.1, .1, .1 + .1 * smoothstep(.7, 1.3, diagTLtoBR));
 
-  vec2 grad_uv = uv - .5;
+  highp vec2 grad_uv = uv - .5;
 
-  float dist = length(grad_uv + vec2(0., .2 * diagBLtoTR));
+  highp float dist = length(grad_uv + vec2(0., .2 * diagBLtoTR));
   grad_uv = rotate(grad_uv, (.25 - .2 * diagBLtoTR) * PI);
-  float direction = grad_uv.x;
+  highp float direction = grad_uv.x;
 
-  float bump = pow(1.8 * dist, 1.2);
+  highp float bump = pow(1.8 * dist, 1.2);
   bump = 1. - bump;
   bump *= pow(uv.y, .3);
 
@@ -176,7 +176,7 @@ void main() {
   float thin_strip_1_width = cycleWidth * thin_strip_1_ratio;
   float thin_strip_2_width = cycleWidth * thin_strip_2_ratio;
 
-  float noise = snoise(uv - t);
+  highp float noise = snoise(uv - t);
 
   mask += (1. - mask) * u_distortion * noise;
 
