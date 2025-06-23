@@ -88,9 +88,9 @@ void main() {
   if (u_shape < 1.) {
 
     highp vec2 borderUV = v_responsiveUV + .5;
-    highp float ratio = v_responsiveBoxGivenSize.x / v_responsiveBoxGivenSize.y;
+    float ratio = v_responsiveBoxGivenSize.x / v_responsiveBoxGivenSize.y;
     highp vec2 edge = min(borderUV, 1. - borderUV);
-    highp vec2 pixel_thickness = 250. / v_responsiveBoxGivenSize;
+    vec2 pixel_thickness = 250. / v_responsiveBoxGivenSize;
     highp float maskX = smoothstep(0.0, pixel_thickness.x, edge.x);
     highp float maskY = smoothstep(0.0, pixel_thickness.y, edge.y);
     maskX = pow(maskX, .25);
@@ -132,12 +132,12 @@ void main() {
     shapeUV *= 1.3;
     mask = 0.;
     for (int i = 0; i < 5; i++) {
-      highp float fi = float(i);
-      highp float speed = 4.5 + 2. * sin(fi * 12.345);
-      highp float angle = -fi * 1.5;
-      highp vec2 dir1 = vec2(cos(angle), sin(angle));
-      highp vec2 dir2 = vec2(cos(angle + 1.57), sin(angle + 1.));
-      highp vec2 traj = .4 * (dir1 * sin(t * speed + fi * 1.23) + dir2 * cos(t * (speed * 0.7) + fi * 2.17));
+      float fi = float(i);
+      float speed = 4.5 + 2. * sin(fi * 12.345);
+      float angle = -fi * 1.5;
+      vec2 dir1 = vec2(cos(angle), sin(angle));
+      vec2 dir2 = vec2(cos(angle + 1.57), sin(angle + 1.));
+      highp vec2 traj = .7 * (dir1 * sin(t * speed + fi * 1.23) + dir2 * cos(t * (speed * 0.7) + fi * 2.17));
       highp float d = length(shapeUV + traj);
       mask += pow(1.0 - clamp(d, 0.0, 1.0), 4.0);
     }
