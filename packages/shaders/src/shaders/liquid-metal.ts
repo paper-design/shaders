@@ -139,7 +139,7 @@ void main() {
       vec2 dir2 = vec2(cos(angle + 1.57), sin(angle + 1.));
       highp vec2 traj = .7 * (dir1 * sin(t * speed + fi * 1.23) + dir2 * cos(t * (speed * 0.7) + fi * 2.17));
       highp float d = length(shapeUV + traj);
-      mask += pow(1.0 - clamp(d, 0.0, 1.0), 4.0);
+      mask += pow(1.0 - clamp(d, 0.0, 1.0), 2.0);
     }
     mask = 1. - smoothstep(.65, .9, mask);
     mask = pow(mask, 4.);
@@ -195,23 +195,23 @@ void main() {
   direction -= t;
 
 
-  float colorDispersion = (1. - bump);
-  float dispersionRed = colorDispersion;
+  highp float colorDispersion = (1. - bump);
+  highp float dispersionRed = colorDispersion;
   dispersionRed += bump * noise;
-  float dispersionBlue = colorDispersion;
+  highp float dispersionBlue = colorDispersion;
 
   dispersionRed *= (u_shiftRed / 20.);
   dispersionBlue *= (u_shiftBlue / 20.);
 
   highp float blur = u_softness / 15. + .3 * contour;
 
-  vec3 w = vec3(thin_strip_1_width, thin_strip_2_width, wide_strip_ratio);
+  highp vec3 w = vec3(thin_strip_1_width, thin_strip_2_width, wide_strip_ratio);
   w[1] -= .02 * smoothstep(.0, 1., mask + bump);
-  float stripe_r = mod(direction + dispersionRed, 1.);
+  highp float stripe_r = mod(direction + dispersionRed, 1.);
   float r = getColorChanges(color1.r, color2.r, stripe_r, w, blur, bump, u_colorTint.r);
-  float stripe_g = mod(direction, 1.);
+  highp float stripe_g = mod(direction, 1.);
   float g = getColorChanges(color1.g, color2.g, stripe_g, w, blur, bump, u_colorTint.g);
-  float stripe_b = mod(direction - dispersionBlue, 1.);
+  highp float stripe_b = mod(direction - dispersionBlue, 1.);
   float b = getColorChanges(color1.b, color2.b, stripe_b, w, blur, bump, u_colorTint.b);
 
   color = vec3(r, g, b);
