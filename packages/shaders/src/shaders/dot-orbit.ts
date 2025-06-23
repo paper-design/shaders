@@ -53,11 +53,11 @@ highp vec3 voronoiShape(highp vec2 uv, highp float time) {
   float spreading = .25 * clamp(u_spreading, 0., 1.);
 
   highp float minDist = 1.;
-  highp vec2 randomizer = vec2(0.);
+  vec2 randomizer = vec2(0.);
   for (int y = -1; y <= 1; y++) {
     for (int x = -1; x <= 1; x++) {
       highp vec2 tileOffset = vec2(float(x), float(y));
-      highp vec2 rand = random2(i_uv + tileOffset);
+      vec2 rand = random2(i_uv + tileOffset);
       vec2 cellCenter = vec2(.5 + 1e-4);
       cellCenter += spreading * cos(time + TWO_PI * rand);
       cellCenter -= .5;
