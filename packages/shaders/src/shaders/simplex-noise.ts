@@ -21,13 +21,13 @@ export const simplexNoiseMeta = {
 export const simplexNoiseFragmentShader: string = `#version 300 es
 precision mediump float;
 
-uniform float u_time;
+uniform highp float u_time;
 uniform highp float u_scale;
 
-uniform vec4 u_colors[${simplexNoiseMeta.maxColorCount}];
-uniform float u_colorsCount;
-uniform float u_stepsPerColor;
-uniform float u_softness;
+uniform highp vec4 u_colors[${simplexNoiseMeta.maxColorCount}];
+uniform highp float u_colorsCount;
+uniform highp float u_stepsPerColor;
+uniform highp float u_softness;
 
 ${sizingVariablesDeclaration}
 
@@ -35,38 +35,37 @@ out vec4 fragColor;
 
 ${declareSimplexNoise}
 
-highp float getNoise(highp vec2 uv, float t) {
+highp float getNoise(highp vec2 uv, highp float t) {
   highp float noise = .5 * snoise(uv - vec2(0., .3 * t));
   noise += .5 * snoise(2. * uv + vec2(0., .32 * t));
 
   return noise;
 }
 
-float steppedSmooth(float t, float steps, float softness) {
-    float stepT = floor(t * steps) / steps;
-    float f = t * steps - floor(t * steps);
+float steppedSmooth(highp float t, highp float steps, highp float softness) {
+  highp float stepT = floor(t * steps) / steps;
+  highp float f = t * steps - floor(t * steps);
 
-    float fw = 0.005 / u_scale;
-    float smoothed = smoothstep(.5 - softness * .5 - fw, .5 + softness * .5 + fw, f);
+  highp float fw = 0.005 / u_scale;
+  highp float smoothed = smoothstep(.5 - softness * .5 - fw, .5 + softness * .5 + fw, f);
 
-    return stepT + smoothed / steps;
+  return stepT + smoothed / steps;
 }
 
 void main() {
   highp vec2 shape_uv = v_patternUV;
   shape_uv *= .001;
 
-  float t = .2 * u_time;
+  highp float t = .2 * u_time;
 
   highp float shape = .5 + .5 * getNoise(shape_uv, t);
-
 
   highp float mixer = shape * (u_colorsCount - 1.);
   mixer = (shape - .5 / u_colorsCount) * u_colorsCount;
 
-  float steps = max(1., u_stepsPerColor);
+  highp float steps = max(1., u_stepsPerColor);
 
-  vec4 gradient = u_colors[0];
+  highp vec4 gradient = u_colors[0];
   gradient.rgb *= gradient.a;
   for (int i = 1; i < ${simplexNoiseMeta.maxColorCount}; i++) {
       if (i >= int(u_colorsCount)) break;
@@ -74,26 +73,26 @@ void main() {
       highp float localT = clamp(mixer - float(i - 1), 0., 1.);
       localT = steppedSmooth(localT, steps, u_softness);
 
-      vec4 c = u_colors[i];
+      highp vec4 c = u_colors[i];
       c.rgb *= c.a;
       gradient = mix(gradient, c, localT);
   }
 
    if ((mixer < 0.) || (mixer > (u_colorsCount - 1.))) {
-     float localT = mixer + 1.;
+     highp float localT = mixer + 1.;
      if (mixer > (u_colorsCount - 1.)) {
        localT = mixer - (u_colorsCount - 1.);
      }
      localT = steppedSmooth(localT, steps, u_softness);
-     vec4 cFst = u_colors[0];
+     highp vec4 cFst = u_colors[0];
      cFst.rgb *= cFst.a;
-     vec4 cLast = u_colors[int(u_colorsCount - 1.)];
+     highp vec4 cLast = u_colors[int(u_colorsCount - 1.)];
      cLast.rgb *= cLast.a;
      gradient = mix(cLast, cFst, localT);
    }
 
-  vec3 color = gradient.rgb;
-  float opacity = gradient.a;
+  highp vec3 color = gradient.rgb;
+  highp float opacity = gradient.a;
 
   ${colorBandingFix}
 
