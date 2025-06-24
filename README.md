@@ -1,6 +1,6 @@
 # Paper Shaders
 
-![mesh-gradient-shader](https://github.com/user-attachments/assets/2db6e087-764c-4c36-bee7-451b09c4c91e)
+![mesh-gradient-shader](./docs/public/images/git-readme-picture.png)
 
 ### Getting started
 
