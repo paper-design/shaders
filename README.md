@@ -17,9 +17,22 @@ npm i @paper-design/shaders
 ### React example
 
 ```jsx
-import { MeshGradient } from '@paper-design/shaders-react';
+import {MeshGradient, DotOrbit} from '@paper-design/shaders-react';
 
-<MeshGradient speed={0.25} colors={['#FFC0CB', '#FFFF00', '#0000FF', '#800080']} style={{ width: 500, height: 200 }} />;
+<MeshGradient
+    colors={['#5100ff', '#00ff80', '#ffcc00', '#ea00ff']}
+    distortion={1}
+    swirl={0.8}
+    speed={0.2}
+    style={{width: 200, height: 200}}
+/>
+
+<DotOrbit
+    colors={['#d2822d', '#0c3b7e', '#b31a57', '#37a066']}
+    colorBack={'#000000'}
+    scale={0.3}
+    style={{width: 200, height: 200}}
+/>
 
 // these settings can be configured in code or designed in Paper
 ```
@@ -47,68 +60,6 @@ import { MeshGradient } from '@paper-design/shaders-react';
 - Vanilla JS (@paper-design/shaders)
 - React JS (@paper-design/shaders-react)
 - Vue and others: intent to accept community PRs in the future
-
-### Examples:
-
-#### React
-
-```jsx
-import { MeshGradient } from '@paper-design/shaders-react';
-
-<MeshGradient colors={['#5100ff', '#00ff80', '#ffcc00', '#ea00ff']} speed={0.5} distortion={0.8} swirl={0.7} style={{width: 500, height: 500}}/>
-
-// these settings can be configured in code or designed in Paper
-```
-
-#### Vanilla JS
-
-```js
-import { ShaderMount, meshGradientFragmentShader, getShaderColorFromString } from '@paper-design/shaders';
-
-const myDiv = document.createElement('div');
-document.body.appendChild(myDiv);
-myDiv.style.width = '600px';
-myDiv.style.height = '400px';
-
-const shaderParams = {
-  u_colorsCount: 4,
-  u_colors: [
-    getShaderColorFromString('#5100ff'),
-    getShaderColorFromString('#00ff80'),
-    getShaderColorFromString('#ffcc00'),
-    getShaderColorFromString('#ea00ff'),
-  ],
-  u_distortion: 0.8,
-  u_swirl: 0.7,
-  u_scale: 1, // has to be set for any shader
-};
-
-const speed = 0.25;
-const meshGradient = new ShaderMount(myDiv, meshGradientFragmentShader, shaderParams, undefined, speed);
-```
-
-## Roadmap:
-
-### Patterns:
-
-- Perlin noise (done)
-- Meta balls (done)
-- Mesh gradient (done)
-- Dot Grid (done)
-- Voronoi
-- Dither
-- Vector fields
-- Sine wave
-
-### VFX
-
-- God rays
-- Stripe
-- Water
-- Lo-fi
-- Warp
-- Swirl
-- Crystals
 
 ## Building and publishing
 
