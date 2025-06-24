@@ -433,7 +433,7 @@ export class ShaderMount {
   };
 
   /** Set a frame to get a deterministic result, frames are literally just milliseconds from zero since the animation started */
-  public setCurrentFrame = (newFrame: number): void => {
+  public setFrame = (newFrame: number): void => {
     this.currentFrame = newFrame;
     this.lastRenderTime = performance.now();
     this.render(performance.now());
