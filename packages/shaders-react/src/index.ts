@@ -77,6 +77,18 @@ export { ColorPanels, colorPanelsPresets } from './shaders/color-panels.js';
 export type { ColorPanelsProps } from './shaders/color-panels.js';
 export type { ColorPanelsUniforms, ColorPanelsParams } from '@paper-design/shaders';
 
+export { PaperTexture, paperTexturePresets } from './shaders/paper-texture.js';
+export type { PaperTextureProps } from './shaders/paper-texture.js';
+export type { PaperTextureUniforms, PaperTextureParams } from '@paper-design/shaders';
+
+export { FlutedGlass, flutedGlassPresets } from './shaders/fluted-glass.js';
+export { type FlutedGlassProps } from './shaders/fluted-glass.js';
+export { type FlutedGlassUniforms, type FlutedGlassParams } from '@paper-design/shaders';
+
+export { Water, waterPresets } from './shaders/water.js';
+export type { WaterProps } from './shaders/water.js';
+export type { WaterUniforms, WaterParams } from '@paper-design/shaders';
+
 export { isPaperShaderElement, getShaderColorFromString } from '@paper-design/shaders';
 export type { PaperShaderElement, ShaderFit, ShaderSizingParams, ShaderSizingUniforms } from '@paper-design/shaders';
 
