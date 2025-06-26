@@ -77,6 +77,10 @@ export { ColorPanels, colorPanelsPresets } from './shaders/color-panels.js';
 export type { ColorPanelsProps } from './shaders/color-panels.js';
 export type { ColorPanelsUniforms, ColorPanelsParams } from '@paper-design/shaders';
 
+export { PaperTexture, paperTexturePresets } from './shaders/paper-texture.js';
+export type { PaperTextureProps } from './shaders/paper-texture.js';
+export type { PaperTextureUniforms, PaperTextureParams } from '@paper-design/shaders';
+
 export { isPaperShaderElement, getShaderColorFromString } from '@paper-design/shaders';
 export type { PaperShaderElement, ShaderFit, ShaderSizingParams, ShaderSizingUniforms } from '@paper-design/shaders';
 
