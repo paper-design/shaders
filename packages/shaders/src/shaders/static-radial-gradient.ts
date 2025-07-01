@@ -1,14 +1,7 @@
 import type { vec4 } from '../types.js';
 import type { ShaderMotionParams } from '../shader-mount.js';
 import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
-import {
-  declarePI,
-  declareSimplexNoise,
-  declareRandom,
-  declareValueNoise,
-  declareRotate,
-  colorBandingFix,
-} from '../shader-utils.js';
+import { declarePI, declareRotate, colorBandingFix } from '../shader-utils.js';
 
 export const staticRadialGradientMeta = {
   maxColorCount: 10,
@@ -30,20 +23,16 @@ export const staticRadialGradientMeta = {
 export const staticRadialGradientFragmentShader: string = `#version 300 es
 precision mediump float;
 
-//uniform vec4 u_colorBack;
 uniform vec4 u_colors[${staticRadialGradientMeta.maxColorCount}];
 uniform float u_colorsCount;
 
 uniform float u_focalAngle;
 uniform float u_focalDistance;
-uniform float u_grainMixer;
-uniform float u_grainOverlay;
-//uniform float u_grainScale;
-
 uniform float u_falloff;
 uniform float u_mixing;
-//uniform float u_outer;
 uniform bool u_maskFocalOverflow;
+uniform float u_grainMixer;
+uniform float u_grainOverlay;
 
 ${sizingVariablesDeclaration}
 
@@ -51,7 +40,6 @@ out vec4 fragColor;
 
 ${declarePI}
 ${declareRotate}
-${declareSimplexNoise}
 
 vec2 randomGradient(vec2 p) {
   float angle = fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);
@@ -143,9 +131,8 @@ void main() {
   shape = 1. - clamp(shape, 0., 1.);
 
 
-  vec2 st = .7 * v_patternUV;
-  
-  float grain = fractalNoise(st, .6, 6, vec2(100.));
+  vec2 grainUV = .7 * v_patternUV;
+  float grain = fractalNoise(grainUV, .6, 6, vec2(100.));
   grain = length(vec2(dFdx(grain), dFdy(grain)));
   
   float outerMask = .001 + .1 * u_focalDistance;
@@ -172,9 +159,9 @@ void main() {
   
   color = gradient.rgb;
 
-  float rr = fractalNoise(st, .6, 3, vec2(0.));
-  float gg = fractalNoise(st, .6, 3, vec2(-1.));
-  float bb = fractalNoise(st, .6, 3, vec2(2.));
+  float rr = fractalNoise(grainUV, .6, 3, vec2(0.));
+  float gg = fractalNoise(grainUV, .6, 3, vec2(-1.));
+  float bb = fractalNoise(grainUV, .6, 3, vec2(2.));
   rr = length(vec2(dFdx(rr), dFdy(rr)));
   gg = length(vec2(dFdx(gg), dFdy(gg)));
   bb = length(vec2(dFdx(bb), dFdy(bb)));
@@ -195,27 +182,22 @@ export interface StaticRadialGradientUniforms extends ShaderSizingUniforms {
   // u_colorBack: [number, number, number, number];
   u_colors: vec4[];
   u_colorsCount: number;
-  u_grainMixer: number;
-  u_grainOverlay: number;
-  u_grainScale: number;
   u_falloff: number;
   u_mixing: number;
   u_focalAngle: number;
   u_focalDistance: number;
-  // u_outer: number;
   u_maskFocalOverflow: boolean;
+  u_grainMixer: number;
+  u_grainOverlay: number;
 }
 
 export interface StaticRadialGradientParams extends ShaderSizingParams, ShaderMotionParams {
-  // colorBack?: string;
   colors?: string[];
-  grainMixer?: number;
-  grainOverlay?: number;
-  grainScale?: number;
   falloff?: number;
   mixing?: number;
   focalAngle?: number;
   focalDistance?: number;
-  // outer?: number;
   maskFocalOverflow?: boolean;
+  grainMixer?: number;
+  grainOverlay?: number;
 }

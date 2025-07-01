@@ -19,20 +19,17 @@ export const defaultPreset: StaticRadialGradientPreset = {
   name: 'Default',
   params: {
     ...defaultObjectSizing,
-    scale: 0.95,
-    speed: 1,
+    scale: 0.85,
+    speed: 0,
     frame: 0,
-    // colorBack: '#020406',
-    colors: ['#000000', '#00ff80', '#ffcc00', '#ea00ff'],
-    grainMixer: 0.4,
-    grainOverlay: 0.4,
+    colors: ['#264653', '#2a9d8f', '#f4a261', '#ffffff'],
     falloff: 1,
-    grainScale: 1,
     mixing: 0.7,
     focalAngle: 0,
-    focalDistance: 0.9,
-    // outer: 0.1,
+    focalDistance: 1.2,
     maskFocalOverflow: false,
+    grainMixer: 0.4,
+    grainOverlay: 0.4,
   },
 };
 
@@ -42,17 +39,14 @@ export const StaticRadialGradient: React.FC<StaticRadialGradientProps> = memo(fu
   // Own props
   speed = defaultPreset.params.speed,
   frame = defaultPreset.params.frame,
-  // colorBack = defaultPreset.params.colorBack,
   colors = defaultPreset.params.colors,
-  grainMixer = defaultPreset.params.grainMixer,
-  grainOverlay = defaultPreset.params.grainOverlay,
-  grainScale = defaultPreset.params.grainScale,
   falloff = defaultPreset.params.falloff,
   mixing = defaultPreset.params.mixing,
   focalAngle = defaultPreset.params.focalAngle,
   focalDistance = defaultPreset.params.focalDistance,
-  // outer = defaultPreset.params.outer,
   maskFocalOverflow = defaultPreset.params.maskFocalOverflow,
+  grainMixer = defaultPreset.params.grainMixer,
+  grainOverlay = defaultPreset.params.grainOverlay,
 
   // Sizing props
   fit = defaultPreset.params.fit,
@@ -68,18 +62,15 @@ export const StaticRadialGradient: React.FC<StaticRadialGradientProps> = memo(fu
 }: StaticRadialGradientProps) {
   const uniforms = {
     // Own uniforms
-    // u_colorBack: getShaderColorFromString(colorBack),
     u_colors: colors.map(getShaderColorFromString),
     u_colorsCount: colors.length,
-    u_grainMixer: grainMixer,
-    u_grainOverlay: grainOverlay,
     u_falloff: falloff,
-    u_grainScale: grainScale,
     u_mixing: mixing,
     u_focalAngle: focalAngle,
     u_focalDistance: focalDistance,
-    // u_outer: outer,
     u_maskFocalOverflow: maskFocalOverflow,
+    u_grainMixer: grainMixer,
+    u_grainOverlay: grainOverlay,
 
     // Sizing uniforms
     u_fit: ShaderFitOptions[fit],

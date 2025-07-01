@@ -19,12 +19,17 @@ export const defaultPreset: StaticLinearGradientPreset = {
   name: 'Default',
   params: {
     ...defaultObjectSizing,
+    scale: 0.5,
+    rotation: 160,
     speed: 1,
-    frame: 40000,
-    colors: ['#000000', '#00ff80', '#ffcc00', '#ea00ff'],
-    distortion: 0.8,
-    swirl: 0.1,
+    frame: 0,
+    colors: ['#264653', '#2a9d8f', '#f4a261', '#ffffff'],
+    distortion: 0.6,
+    swirl: 0.5,
     mixing: 0.7,
+    repeatY: true,
+    grainMixer: 0.25,
+    grainOverlay: 0.25,
   },
 };
 
@@ -38,6 +43,9 @@ export const StaticLinearGradient: React.FC<StaticLinearGradientProps> = memo(fu
   distortion = defaultPreset.params.distortion,
   swirl = defaultPreset.params.swirl,
   mixing = defaultPreset.params.swirl,
+  repeatY = defaultPreset.params.repeatY,
+  grainMixer = defaultPreset.params.grainMixer,
+  grainOverlay = defaultPreset.params.grainOverlay,
 
   // Sizing props
   fit = defaultPreset.params.fit,
@@ -58,6 +66,9 @@ export const StaticLinearGradient: React.FC<StaticLinearGradientProps> = memo(fu
     u_distortion: distortion,
     u_swirl: swirl,
     u_mixing: mixing,
+    u_repeatY: repeatY,
+    u_grainMixer: grainMixer,
+    u_grainOverlay: grainOverlay,
 
     // Sizing uniforms
     u_fit: ShaderFitOptions[fit],

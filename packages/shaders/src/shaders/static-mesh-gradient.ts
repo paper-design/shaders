@@ -101,7 +101,7 @@ void main() {
     shape_uv.y += u_waveY * center / i * cos(TWO_PI * u_waveYShift + i * 2. * smoothstep(.0, 1., shape_uv.x));
   }
 
-  float mixerGrain = 6. * u_grainMixer * (grain - .05);
+  float mixerGrain = 3. * u_grainMixer * (grain - .05);
 
   vec2 uvRotated = shape_uv;
   uvRotated -= vec2(.5);
