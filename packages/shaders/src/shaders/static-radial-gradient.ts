@@ -26,11 +26,11 @@ precision mediump float;
 uniform vec4 u_colors[${staticRadialGradientMeta.maxColorCount}];
 uniform float u_colorsCount;
 
-uniform float u_focalAngle;
 uniform float u_focalDistance;
+uniform float u_focalAngle;
+uniform bool u_focalMask;
 uniform float u_falloff;
 uniform float u_mixing;
-uniform bool u_maskFocalOverflow;
 uniform float u_grainMixer;
 uniform float u_grainOverlay;
 
@@ -136,7 +136,7 @@ void main() {
   grain = length(vec2(dFdx(grain), dFdy(grain)));
   
   float outerMask = .001 + .1 * u_focalDistance;
-  if (u_maskFocalOverflow == false) {
+  if (u_focalMask == false) {
     outerMask = .005;
   }
   float outer = smoothstep(radius + outerMask, radius - outerMask, length(c_to_uv));
@@ -182,22 +182,22 @@ export interface StaticRadialGradientUniforms extends ShaderSizingUniforms {
   // u_colorBack: [number, number, number, number];
   u_colors: vec4[];
   u_colorsCount: number;
+  u_focalDistance: number;
+  u_focalAngle: number;
+  u_focalMask: boolean;
   u_falloff: number;
   u_mixing: number;
-  u_focalAngle: number;
-  u_focalDistance: number;
-  u_maskFocalOverflow: boolean;
   u_grainMixer: number;
   u_grainOverlay: number;
 }
 
 export interface StaticRadialGradientParams extends ShaderSizingParams, ShaderMotionParams {
   colors?: string[];
+  focalDistance?: number;
+  focalAngle?: number;
+  focalMask?: boolean;
   falloff?: number;
   mixing?: number;
-  focalAngle?: number;
-  focalDistance?: number;
-  maskFocalOverflow?: boolean;
   grainMixer?: number;
   grainOverlay?: number;
 }

@@ -45,9 +45,9 @@ export const StaticMeshGradient: React.FC<StaticMeshGradientProps> = memo(functi
   waveXShift = defaultPreset.params.waveXShift,
   waveY = defaultPreset.params.waveY,
   waveYShift = defaultPreset.params.waveYShift,
+  mixing = defaultPreset.params.mixing,
   grainMixer = defaultPreset.params.grainMixer,
   grainOverlay = defaultPreset.params.grainOverlay,
-  mixing = defaultPreset.params.mixing,
 
   // Sizing props
   fit = defaultPreset.params.fit,
@@ -70,9 +70,9 @@ export const StaticMeshGradient: React.FC<StaticMeshGradientProps> = memo(functi
     u_waveXShift: waveXShift,
     u_waveY: waveY,
     u_waveYShift: waveYShift,
+    u_mixing: mixing,
     u_grainMixer: grainMixer,
     u_grainOverlay: grainOverlay,
-    u_mixing: mixing,
 
     // Sizing uniforms
     u_fit: ShaderFitOptions[fit],

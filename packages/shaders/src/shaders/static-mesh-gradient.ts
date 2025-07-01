@@ -30,9 +30,9 @@ uniform float u_waveX;
 uniform float u_waveXShift;
 uniform float u_waveY;
 uniform float u_waveYShift;
+uniform float u_mixing;
 uniform float u_grainMixer;
 uniform float u_grainOverlay;
-uniform float u_mixing;
 
 ${sizingVariablesDeclaration}
 
@@ -159,9 +159,9 @@ export interface StaticMeshGradientUniforms extends ShaderSizingUniforms {
   u_waveXShift: number;
   u_waveY: number;
   u_waveYShift: number;
+  u_mixing: number;
   u_grainMixer: number;
   u_grainOverlay: number;
-  u_mixing: number;
 }
 
 export interface StaticMeshGradientParams extends ShaderSizingParams, ShaderMotionParams {
@@ -171,7 +171,7 @@ export interface StaticMeshGradientParams extends ShaderSizingParams, ShaderMoti
   waveXShift?: number;
   waveY?: number;
   waveYShift?: number;
+  mixing?: number;
   grainMixer?: number;
   grainOverlay?: number;
-  mixing?: number;
 }

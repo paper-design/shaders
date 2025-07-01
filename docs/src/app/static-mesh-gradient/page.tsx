@@ -38,9 +38,9 @@ const StaticMeshGradientWithControls = () => {
           waveY: { value: defaults.waveY, min: 0, max: 1, order: 202 },
           waveYShift: { value: defaults.waveYShift, min: 0, max: 1, order: 203 },
           swirl: { value: defaults.swirl, min: 0, max: 1, order: 204 },
-          grainMixer: { value: defaults.grainMixer, min: 0, max: 1, order: 300 },
-          grainOverlay: { value: defaults.grainOverlay, min: 0, max: 1, order: 301 },
-          mixing: { value: defaults.mixing, min: 0, max: 1, order: 350 },
+          mixing: { value: defaults.mixing, min: 0, max: 1, order: 300 },
+          grainMixer: { value: defaults.grainMixer, min: 0, max: 1, order: 350 },
+          grainOverlay: { value: defaults.grainOverlay, min: 0, max: 1, order: 351 },
         },
         { order: 1 }
       ),

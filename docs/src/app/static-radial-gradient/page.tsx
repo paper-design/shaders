@@ -34,13 +34,13 @@ const StaticRadialGradientWithControls = () => {
     return {
       Parameters: folder(
         {
-          falloff: { value: defaults.falloff, min: 0, max: 6, order: 201 },
-          mixing: { value: defaults.mixing, min: 0, max: 1, order: 201 },
+          focalDistance: { value: defaults.focalDistance, min: 0, max: 3, order: 200 },
           focalAngle: { value: defaults.focalAngle, min: 0, max: 360, order: 201 },
-          focalDistance: { value: defaults.focalDistance, min: 0, max: 3, order: 201 },
-          maskFocalOverflow: { value: defaults.maskFocalOverflow, order: 201 },
-          grainMixer: { value: defaults.grainMixer, min: 0, max: 1, order: 300 },
-          grainOverlay: { value: defaults.grainOverlay, min: 0, max: 1, order: 301 },
+          focalMask: { value: defaults.focalMask, order: 202 },
+          falloff: { value: defaults.falloff, min: 0, max: 6, order: 203 },
+          mixing: { value: defaults.mixing, min: 0, max: 1, order: 300 },
+          grainMixer: { value: defaults.grainMixer, min: 0, max: 1, order: 350 },
+          grainOverlay: { value: defaults.grainOverlay, min: 0, max: 1, order: 351 },
         },
         { order: 1 }
       ),

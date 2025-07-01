@@ -33,8 +33,8 @@ const StaticLinearGradientWithControls = () => {
     return {
       Parameters: folder(
         {
-          distortion: { value: defaults.distortion, min: 0, max: 4, order: 200 },
-          swirl: { value: defaults.swirl, min: 0, max: 4, order: 201 },
+          falloffTop: { value: defaults.falloffTop, min: 0, max: 4, order: 200 },
+          falloffBottom: { value: defaults.falloffBottom, min: 0, max: 4, order: 201 },
           mixing: { value: defaults.mixing, min: 0, max: 1, order: 201 },
           repeatY: { value: defaults.repeatY, order: 201 },
           grainMixer: { value: defaults.grainMixer, min: 0, max: 1, order: 300 },

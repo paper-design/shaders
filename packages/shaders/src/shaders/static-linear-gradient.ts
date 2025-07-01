@@ -9,12 +9,12 @@ export const staticLinearGradientMeta = {
 
 /**
  * A composition of N color spots (one per color) with 2 types of
- * distortions applied to the coordinate space
+ * falloffTops applied to the coordinate space
  *
  * Uniforms:
  * - u_colors (vec4[]), u_colorsCount (float used as integer)
- * - u_distortion: warp distortion
- * - u_swirl: vortex distortion
+ * - u_falloffTop: warp falloffTop
+ * - u_falloffBottom: vortex falloffTop
  *
  */
 
@@ -25,8 +25,8 @@ precision mediump float;
 uniform vec4 u_colors[${staticLinearGradientMeta.maxColorCount}];
 uniform float u_colorsCount;
 
-uniform float u_distortion;
-uniform float u_swirl;
+uniform float u_falloffTop;
+uniform float u_falloffBottom;
 uniform float u_mixing;
 uniform bool u_repeatY;
 uniform float u_grainMixer;
@@ -98,7 +98,7 @@ void main() {
     shape = mod(shape, 1.0);
   }
   
-  shape = symmetricSmooth(shape, u_distortion, u_swirl);
+  shape = symmetricSmooth(shape, u_falloffTop, u_falloffBottom);
 
   vec2 grainUV = .7 * v_patternUV;
   float grain = fractalNoise(grainUV, .6, 6, vec2(100.));
@@ -141,8 +141,8 @@ void main() {
 export interface StaticLinearGradientUniforms extends ShaderSizingUniforms {
   u_colors: vec4[];
   u_colorsCount: number;
-  u_distortion: number;
-  u_swirl: number;
+  u_falloffTop: number;
+  u_falloffBottom: number;
   u_mixing: number;
   u_repeatY: boolean;
   u_grainMixer: number;
@@ -151,8 +151,8 @@ export interface StaticLinearGradientUniforms extends ShaderSizingUniforms {
 
 export interface StaticLinearGradientParams extends ShaderSizingParams, ShaderMotionParams {
   colors?: string[];
-  distortion?: number;
-  swirl?: number;
+  falloffTop?: number;
+  falloffBottom?: number;
   mixing?: number;
   repeatY?: boolean;
   grainMixer?: number;
