@@ -113,7 +113,7 @@ void main() {
   float angleDiff = fragAngle - angleRad;
   angleDiff = mod(angleDiff + PI, TWO_PI) - PI;
   
-    float halfAngle = acos(clamp(radius / u_focalDistance, 0.0, 1.0));
+  float halfAngle = acos(clamp(radius / u_focalDistance, 0.0, 1.0));
   float isInSector = 1.0 - smoothstep(.6 * PI, halfAngle, abs(angleDiff));
 
   
@@ -148,14 +148,15 @@ void main() {
   float grain = fractalNoise(st, .6, 6, vec2(100.));
   grain = length(vec2(dFdx(grain), dFdy(grain)));
   
-  float outerMask = .1 * u_focalDistance;
+  float outerMask = .001 + .1 * u_focalDistance;
   if (u_maskFocalOverflow == false) {
     outerMask = .005;
   }
-  float outer = smoothstep(radius, radius - outerMask, length(c_to_uv));
+  float outer = smoothstep(radius + outerMask, radius - outerMask, length(c_to_uv));
   outer = mix(outer, 1., isInSector);
   
   shape = mix(0., shape, outer);
+  shape *= smoothstep(radius, radius - .01, length(c_to_uv));
 
   float mixerGrain = 6. * u_grainMixer * (grain - .05);
   float mixer = shape * u_colorsCount + mixerGrain;

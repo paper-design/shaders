@@ -22,10 +22,14 @@ export const defaultPreset: StaticMeshGradientPreset = {
     speed: 0,
     frame: 0,
     colors: ['#000000', '#00ff80', '#ffcc00', '#ea00ff'],
-    distortion: 0.8,
-    distortionSeed: 0,
     swirl: 0.1,
-    swirlSeed: 0,
+    waveX: 0.5,
+    waveXShift: 0,
+    waveY: 0,
+    waveYShift: 0,
+    grainMixer: 0,
+    grainOverlay: 0,
+    mixing: 0,
   },
 };
 
@@ -36,10 +40,14 @@ export const StaticMeshGradient: React.FC<StaticMeshGradientProps> = memo(functi
   speed = defaultPreset.params.speed,
   frame = defaultPreset.params.frame,
   colors = defaultPreset.params.colors,
-  distortion = defaultPreset.params.distortion,
-  distortionSeed = defaultPreset.params.distortionSeed,
   swirl = defaultPreset.params.swirl,
-  swirlSeed = defaultPreset.params.swirlSeed,
+  waveX = defaultPreset.params.waveX,
+  waveXShift = defaultPreset.params.waveXShift,
+  waveY = defaultPreset.params.waveY,
+  waveYShift = defaultPreset.params.waveYShift,
+  grainMixer = defaultPreset.params.grainMixer,
+  grainOverlay = defaultPreset.params.grainOverlay,
+  mixing = defaultPreset.params.mixing,
 
   // Sizing props
   fit = defaultPreset.params.fit,
@@ -57,10 +65,14 @@ export const StaticMeshGradient: React.FC<StaticMeshGradientProps> = memo(functi
     // Own uniforms
     u_colors: colors.map(getShaderColorFromString),
     u_colorsCount: colors.length,
-    u_distortion: distortion,
-    u_distortionSeed: distortionSeed,
     u_swirl: swirl,
-    u_swirlSeed: swirlSeed,
+    u_waveX: waveX,
+    u_waveXShift: waveXShift,
+    u_waveY: waveY,
+    u_waveYShift: waveYShift,
+    u_grainMixer: grainMixer,
+    u_grainOverlay: grainOverlay,
+    u_mixing: mixing,
 
     // Sizing uniforms
     u_fit: ShaderFitOptions[fit],

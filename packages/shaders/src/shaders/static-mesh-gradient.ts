@@ -25,10 +25,14 @@ precision mediump float;
 uniform vec4 u_colors[${staticMeshGradientMeta.maxColorCount}];
 uniform float u_colorsCount;
 
-uniform float u_distortion;
-uniform float u_distortionSeed;
 uniform float u_swirl;
-uniform float u_swirlSeed;
+uniform float u_waveX;
+uniform float u_waveXShift;
+uniform float u_waveY;
+uniform float u_waveYShift;
+uniform float u_grainMixer;
+uniform float u_grainOverlay;
+uniform float u_mixing;
 
 ${sizingVariablesDeclaration}
 
@@ -37,21 +41,44 @@ out vec4 fragColor;
 ${declarePI}
 ${declareRotate}
 
-//vec2 getPosition(int i, float t) {
-//  float a = float(i) * .37;
-//  float b = .6 + mod(float(i), 3.) * .3;
-//  float c = .8 + mod(float(i + 1), 4.) * 0.25;
-//
-//  float x = sin(t * b + a);
-//  float y = cos(t * c + a * 1.5);
-//
-//  return .5 + .5 * vec2(x, y);
-//}
 
+vec2 randomGradient(vec2 p) {
+  float angle = fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);
+  angle *= 6.2831853;
+  return vec2(cos(angle), sin(angle));
+}
+
+float perlinNoise(vec2 p) {
+  vec2 i = floor(p);
+  vec2 f = fract(p);
+  vec2 u = f * f * (3.0 - 2.0 * f);
+
+  float n00 = dot(randomGradient(i + vec2(0.0, 0.0)), f - vec2(0.0, 0.0));
+  float n10 = dot(randomGradient(i + vec2(1.0, 0.0)), f - vec2(1.0, 0.0));
+  float n01 = dot(randomGradient(i + vec2(0.0, 1.0)), f - vec2(0.0, 1.0));
+  float n11 = dot(randomGradient(i + vec2(1.0, 1.0)), f - vec2(1.0, 1.0));
+
+  float nx0 = mix(n00, n10, u.x);
+  float nx1 = mix(n01, n11, u.x);
+  return mix(nx0, nx1, u.y);
+}
+
+float fractalNoise(vec2 uv, float baseFreq, int octaves, vec2 seedOffset) {
+  float total = 0.0;
+  float amplitude = 0.5;
+  float frequency = baseFreq;
+
+  for (int i = 0; i < octaves; i++) {
+    total += amplitude * perlinNoise(uv * frequency + seedOffset);
+    frequency *= 2.0;
+    amplitude *= 0.5;
+  }
+
+  return 0.5 + 0.5 * total;// normalize to [0,1]
+}
+
+// grid option?
 vec2 getPosition(float i) {
-//  float a = float(i) * .37;
-//  float b = .6 + mod(float(i), 3.) * .3;
-//  float c = .8 + mod(float(i + 1), 4.) * 0.25;
 
   float x = sin(i * TWO_PI);
   float y = cos(i * TWO_PI);
@@ -61,17 +88,20 @@ vec2 getPosition(float i) {
 
 void main() {
   vec2 shape_uv = v_objectUV;
-
   shape_uv += .5;
 
+  vec2 st = .7 * v_patternUV;
+  float grain = fractalNoise(st, .6, 6, vec2(100.));
+  grain = length(vec2(dFdx(grain), dFdy(grain)));
 
   float radius = smoothstep(0., 1., length(shape_uv - .5));
   float center = 1. - radius;
-  float distortionSeed = 10. * u_distortionSeed;
   for (float i = 1.; i <= 2.; i++) {
-    shape_uv.x += u_distortion * center / i * sin(distortionSeed + i * .4 * smoothstep(.0, 1., shape_uv.y)) * cos(.2 * distortionSeed + i * 2.4 * smoothstep(.0, 1., shape_uv.y));
-    shape_uv.y += u_distortion * center / i * cos(distortionSeed + i * 2. * smoothstep(.0, 1., shape_uv.x));
+    shape_uv.x += u_waveX * center / i * cos(TWO_PI * u_waveXShift + i * 2. * smoothstep(.0, 1., shape_uv.y));
+    shape_uv.y += u_waveY * center / i * cos(TWO_PI * u_waveYShift + i * 2. * smoothstep(.0, 1., shape_uv.x));
   }
+
+  float mixerGrain = 6. * u_grainMixer * (grain - .05);
 
   vec2 uvRotated = shape_uv;
   uvRotated -= vec2(.5);
@@ -83,24 +113,17 @@ void main() {
   float opacity = 0.;
   float totalWeight = 0.;
 
-  float swirlSeed = 10. * u_swirlSeed;
 
   for (int i = 0; i < ${staticMeshGradientMeta.maxColorCount}; i++) {
     if (i >= int(u_colorsCount)) break;
 
-//    vec2 pos = getPosition(i, 0.);
-    vec2 pos = getPosition(float(i) / u_colorsCount);
+    vec2 pos = getPosition(float(i) / u_colorsCount) + mixerGrain;
     vec3 colorFraction = u_colors[i].rgb * u_colors[i].a;
     float opacityFraction = u_colors[i].a;
 
-    float dist = 0.;
-    if (mod(float(i), 2.) > 1.) {
-      dist = length(shape_uv - pos);
-    } else {
-      dist = length(uvRotated - pos);
-    }
-
-    dist = pow(dist, 3.5);
+    float dist = length(uvRotated - pos);
+    
+    dist = pow(dist, 2. + 4. * u_mixing);
     float weight = 1. / (dist + 1e-3);
     color += colorFraction * weight;
     opacity += opacityFraction * weight;
@@ -109,6 +132,18 @@ void main() {
 
   color /= totalWeight;
   opacity /= totalWeight;
+
+
+  float rr = fractalNoise(st, .6, 3, vec2(0.));
+  float gg = fractalNoise(st, .6, 3, vec2(-1.));
+  float bb = fractalNoise(st, .6, 3, vec2(2.));
+  rr = length(vec2(dFdx(rr), dFdy(rr)));
+  gg = length(vec2(dFdx(gg), dFdy(gg)));
+  bb = length(vec2(dFdx(bb), dFdy(bb)));
+
+  vec3 grainColor = 10. * vec3(rr, gg, bb);
+  float grainOverlay = 6. * u_grainOverlay * grain;
+  color = mix(color, grainColor, grainOverlay);
 
   ${colorBandingFix}
 
@@ -119,16 +154,24 @@ void main() {
 export interface StaticMeshGradientUniforms extends ShaderSizingUniforms {
   u_colors: vec4[];
   u_colorsCount: number;
-  u_distortion: number;
-  u_distortionSeed: number;
   u_swirl: number;
-  u_swirlSeed: number;
+  u_waveX: number;
+  u_waveXShift: number;
+  u_waveY: number;
+  u_waveYShift: number;
+  u_grainMixer: number;
+  u_grainOverlay: number;
+  u_mixing: number;
 }
 
 export interface StaticMeshGradientParams extends ShaderSizingParams, ShaderMotionParams {
   colors?: string[];
-  distortion?: number;
-  distortionSeed?: number;
   swirl?: number;
-  swirlSeed?: number;
+  waveX?: number;
+  waveXShift?: number;
+  waveY?: number;
+  waveYShift?: number;
+  grainMixer?: number;
+  grainOverlay?: number;
+  mixing?: number;
 }
