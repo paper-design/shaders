@@ -26,7 +26,7 @@ export const defaultPreset: StaticRadialGradientPreset = {
     focalDistance: 1.2,
     focalAngle: 0,
     focalMask: false,
-    falloff: 1,
+    falloff: 0,
     mixing: 0.7,
     grainMixer: 0.4,
     grainOverlay: 0.4,

@@ -37,7 +37,7 @@ const StaticRadialGradientWithControls = () => {
           focalDistance: { value: defaults.focalDistance, min: 0, max: 3, order: 200 },
           focalAngle: { value: defaults.focalAngle, min: 0, max: 360, order: 201 },
           focalMask: { value: defaults.focalMask, order: 202 },
-          falloff: { value: defaults.falloff, min: 0, max: 6, order: 203 },
+          falloff: { value: defaults.falloff, min: -1, max: 1, order: 203 },
           mixing: { value: defaults.mixing, min: 0, max: 1, order: 300 },
           grainMixer: { value: defaults.grainMixer, min: 0, max: 1, order: 350 },
           grainOverlay: { value: defaults.grainOverlay, min: 0, max: 1, order: 351 },

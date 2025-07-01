@@ -74,15 +74,15 @@ float fractalNoise(vec2 uv, float baseFreq, int octaves, vec2 seedOffset) {
   return 0.5 + 0.5 * total;// normalize to [0,1]
 }
 
+float remapFallOff(float f) {
+  return mix(.2 + .8 * max(0., f + 1.), mix(1., 15., pow(f, 2.)), step(.0, f));
+}
+
 float symmetricSmooth(float x, float gammaIn, float gammaOut) {
   x = clamp(x, 0.0, 1.0);
-
   float inSide = 0.5 * pow(2.0 * x, gammaIn);
   float outSide = 1.0 - 0.5 * pow(2.0 * (1.0 - x), gammaOut);
-
   float t = smoothstep(.45, .55, x);
-
-  // Mix the two sides
   return mix(inSide, outSide, t);
 }
 
@@ -97,8 +97,10 @@ void main() {
   if (u_repeatY == true) {
     shape = mod(shape, 1.0);
   }
-  
-  shape = symmetricSmooth(shape, u_falloffTop, u_falloffBottom);
+
+  float falloffTopMapped = remapFallOff(u_falloffTop);
+  float falloffBottomMapped = remapFallOff(u_falloffBottom);
+  shape = symmetricSmooth(shape, falloffTopMapped, falloffBottomMapped);
 
   vec2 grainUV = .7 * v_patternUV;
   float grain = fractalNoise(grainUV, .6, 6, vec2(100.));

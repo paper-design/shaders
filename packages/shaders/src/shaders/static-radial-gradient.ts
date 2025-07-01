@@ -124,8 +124,10 @@ void main() {
   float dist = length(f_to_uv);
   float normalized = dist / (length(f_to_uv * t));
   float shape = clamp(normalized, 0.0, 1.0);
+
+  float falloffMapped = mix(.2 + .8 * max(0., u_falloff + 1.), mix(1., 15., pow(u_falloff, 2.)), step(.0, u_falloff));
   
-  float falloffExp = mix(u_falloff, 1., shape);
+  float falloffExp = mix(falloffMapped, 1., shape);
   shape = pow(shape, falloffExp);
 
   shape = 1. - clamp(shape, 0., 1.);
