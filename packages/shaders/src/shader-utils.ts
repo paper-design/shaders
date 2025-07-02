@@ -1,20 +1,24 @@
+// language=GLSL
 export const declarePI = `
 #define TWO_PI 6.28318530718
 #define PI 3.14159265358979323846
 `;
 
+// language=GLSL
 export const declareRotate = `
 vec2 rotate(vec2 uv, float th) {
   return mat2(cos(th), sin(th), -sin(th), cos(th)) * uv;
 }
 `;
 
+// language=GLSL
 export const declareRandom = `
 float random(vec2 st) {
   return fract(sin(dot(st.xy, vec2(12.9898, 78.233))) * 43758.5453123);
 }
 `;
 
+// language=GLSL
 export const declareValueNoise = `
 float valueNoise(vec2 st) {
   vec2 i = floor(st);
@@ -36,6 +40,7 @@ export const colorBandingFix = `
   color += 1. / 256. * (fract(sin(dot(.014 * gl_FragCoord.xy, vec2(12.9898, 78.233))) * 43758.5453123) - .5);
 `;
 
+// language=GLSL
 export const declareSimplexNoise = `
 vec3 permute(vec3 x) { return mod(((x * 34.0) + 1.0) * x, 289.0); }
 float snoise(vec2 v) {
@@ -63,5 +68,44 @@ float snoise(vec2 v) {
   g.x = a0.x * x0.x + h.x * x0.y;
   g.yz = a0.yz * x12.xz + h.yz * x12.yw;
   return 130.0 * dot(m, g);
+}
+`;
+
+// language=GLSL
+export const declareGrainShape = `
+vec2 grainRandom(vec2 p) {
+  float angle = fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);
+  angle *= 6.2831853;
+  return vec2(cos(angle), sin(angle));
+}
+
+float grainNoise(vec2 p) {
+  vec2 i = floor(p);
+  vec2 f = fract(p);
+  vec2 u = f * f * (3.0 - 2.0 * f);
+
+  float n00 = dot(grainRandom(i + vec2(0.0, 0.0)), f - vec2(0.0, 0.0));
+  float n10 = dot(grainRandom(i + vec2(1.0, 0.0)), f - vec2(1.0, 0.0));
+  float n01 = dot(grainRandom(i + vec2(0.0, 1.0)), f - vec2(0.0, 1.0));
+  float n11 = dot(grainRandom(i + vec2(1.0, 1.0)), f - vec2(1.0, 1.0));
+
+  float nx0 = mix(n00, n10, u.x);
+  float nx1 = mix(n01, n11, u.x);
+  return mix(nx0, nx1, u.y);
+}
+
+float grainShape(vec2 uv, vec2 seedOffset) {
+  float total = 0.0;
+  float amp = 0.5;
+  float freq = .6;
+
+  for (int i = 0; i < 4; i++) {
+    total += amp * grainNoise(uv * freq + seedOffset);
+    freq *= 2.;
+    amp *= .5;
+  }
+
+  total = .5 + .5 * total;
+  return 10. * u_scale * length(vec2(dFdx(total), dFdy(total)));
 }
 `;
