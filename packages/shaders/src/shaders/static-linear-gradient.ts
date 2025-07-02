@@ -61,9 +61,6 @@ float symmetricSmooth(float x, float gammaIn, float gammaOut) {
 
 void main() {
   vec2 uv = v_objectUV + .5;
-
-  vec3 color = vec3(0.);
-  float opacity = 0.;
   
   float shape = uv.y;
   
@@ -80,25 +77,27 @@ void main() {
 
   float mixerGrain = 1.5 * u_grainMixer * (grain - .25);
   float mixer = shape * (u_colorsCount - 1.) + mixerGrain;
-  vec3 gradient = u_colors[0].rgb;
+  vec4 gradient = u_colors[0];
+  gradient.rgb *= gradient.a;
   for (int i = 1; i < ${staticLinearGradientMeta.maxColorCount}; i++) {
     if (i >= int(u_colorsCount)) break;
     float mLinear = clamp(mixer - float(i - 1), 0.0, 1.0);
     float mSmooth = smoothstep(0., 1., mLinear);
     float m = mix(mLinear, mSmooth, u_mixing);
-    gradient = mix(gradient, u_colors[i].rgb, m);
+    vec4 c = u_colors[i];
+    c.rgb *= c.a;
+    gradient = mix(gradient, c, m);
   }
 
-  color = gradient.rgb;
+  vec3 color = gradient.rgb;
+  float opacity = gradient.a;
 
   float rr = grainShape(grainUV, vec2(0.));
   float gg = grainShape(grainUV, vec2(-1.));
   float bb = grainShape(grainUV, vec2(2.));
   vec3 grainColor = 2. * vec3(rr, gg, bb);
   color = mix(color, grainColor, u_grainOverlay * grain);
-
-  opacity = 1.;
-
+  
   ${colorBandingFix}
 
   fragColor = vec4(color, opacity);
