@@ -26,7 +26,7 @@ export const defaultPreset: StaticMeshGradientPreset = {
     waveX: 1,
     waveXShift: 0.65,
     waveY: 0.6,
-    waveYShift: 0.65,
+    waveYShift: 0.52,
     mixing: 0.2,
     grainMixer: 0.4,
     grainOverlay: 0.4,

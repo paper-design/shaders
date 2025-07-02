@@ -19,7 +19,7 @@ export const defaultPreset: StaticRadialGradientPreset = {
   name: 'Default',
   params: {
     ...defaultObjectSizing,
-    scale: 0.85,
+    scale: 1,
     speed: 0,
     frame: 0,
     colors: ['#264653', '#2a9d8f', '#f4a261', '#ffffff'],
