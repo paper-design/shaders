@@ -35,20 +35,20 @@ const PulsingBorderWithControls = () => {
         {
           colorBack: { value: toHsla(defaults.colorBack), order: 100 },
           roundness: { value: defaults.roundness, min: 0, max: 1, order: 300 },
-          thickness: { value: defaults.thickness, min: 0, max: 0.2, order: 301 },
+          thickness: { value: defaults.thickness, min: 0, max: 3, order: 301 },
           softness: { value: defaults.softness, min: 0, max: 1, order: 302 },
-          intensity: { value: defaults.intensity, min: 0, max: 4, order: 303 },
-          spotsPerColor: {
-            value: defaults.spotsPerColor,
+          bloom: { value: defaults.bloom, min: 0, max: 1, order: 303 },
+          spotsNumber: {
+            value: defaults.spotsNumber,
             min: 1,
             max: pulsingBorderMeta.maxSpotsPerColor,
             step: 1,
             order: 304,
           },
-          spotSize: { value: defaults.spotSize, min: 0.1, max: 0.35, order: 305 },
+          spotSize: { value: defaults.spotSize, min: 0.1, max: 0.5, order: 305 },
           pulse: { value: defaults.pulse, min: 0, max: 1, order: 306 },
           smoke: { value: defaults.smoke, min: 0, max: 1, order: 307 },
-          smokeSize: { value: defaults.smokeSize, min: 0, max: 2, order: 308 },
+          smokeSize: { value: defaults.smokeSize, min: 0, max: 1, order: 308 },
           speed: { value: defaults.speed, min: 0, max: 2, order: 400 },
         },
         { order: 1 }
@@ -68,8 +68,8 @@ const PulsingBorderWithControls = () => {
       Fit: folder(
         {
           fit: { value: defaults.fit, options: Object.keys(ShaderFitOptions) as ShaderFit[], order: 404 },
-          worldWidth: { value: 0, min: 0, max: 5120, order: 405 },
-          worldHeight: { value: 0, min: 0, max: 5120, order: 406 },
+          worldWidth: { value: 1000, min: 0, max: 5120, order: 405 },
+          worldHeight: { value: 1000, min: 0, max: 5120, order: 406 },
           originX: { value: defaults.originX, min: 0, max: 1, order: 407 },
           originY: { value: defaults.originY, min: 0, max: 1, order: 408 },
         },

@@ -28,8 +28,8 @@ export const defaultPreset: PulsingBorderPreset = {
     roundness: 0.5,
     thickness: 0.02,
     softness: 0.5,
-    intensity: 2.4,
-    spotsPerColor: 4,
+    bloom: 2.4,
+    spotsNumber: 4,
     spotSize: 0.15,
     pulse: 0,
     smoke: 1,
@@ -46,17 +46,17 @@ export const circlePreset: PulsingBorderPreset = {
     scale: 0.5,
     speed: 1,
     frame: 0,
-    colorBack: '#0f191f',
-    colors: ['#ffdd33', '#ff8c00', '#ff002b'],
+    colorBack: '#000000',
+    colors: ['#ffdd33', '#ff0000', '#00ffff'],
     roundness: 1,
-    thickness: 0.03,
-    softness: 0.2,
-    intensity: 2,
-    spotsPerColor: 4,
+    thickness: 0.5,
+    softness: 1,
+    bloom: 0.8,
+    spotsNumber: 3,
     spotSize: 0.15,
     pulse: 0,
-    smoke: 0,
-    smokeSize: 1,
+    smoke: 0.5,
+    smokeSize: 0.5,
   },
 };
 
@@ -71,8 +71,8 @@ export const innerBorderPreset: PulsingBorderPreset = {
     roundness: 0,
     thickness: 0.05,
     softness: 1,
-    intensity: 2,
-    spotsPerColor: 3,
+    bloom: 2,
+    spotsNumber: 3,
     spotSize: 0.15,
     pulse: 0.5,
     smoke: 0,
@@ -80,7 +80,7 @@ export const innerBorderPreset: PulsingBorderPreset = {
   },
 };
 
-export const pulsingBorderPresets: PulsingBorderPreset[] = [defaultPreset, circlePreset, innerBorderPreset];
+export const pulsingBorderPresets: PulsingBorderPreset[] = [circlePreset, defaultPreset, innerBorderPreset];
 
 export const PulsingBorder: React.FC<PulsingBorderProps> = memo(function PulsingBorderImpl({
   // Own props
@@ -91,8 +91,8 @@ export const PulsingBorder: React.FC<PulsingBorderProps> = memo(function Pulsing
   roundness = defaultPreset.params.roundness,
   thickness = defaultPreset.params.thickness,
   softness = defaultPreset.params.softness,
-  intensity = defaultPreset.params.intensity,
-  spotsPerColor = defaultPreset.params.spotsPerColor,
+  bloom = defaultPreset.params.bloom,
+  spotsNumber = defaultPreset.params.spotsNumber,
   spotSize = defaultPreset.params.spotSize,
   pulse = defaultPreset.params.pulse,
   smoke = defaultPreset.params.smoke,
@@ -120,8 +120,8 @@ export const PulsingBorder: React.FC<PulsingBorderProps> = memo(function Pulsing
     u_roundness: roundness,
     u_thickness: thickness,
     u_softness: softness,
-    u_intensity: intensity,
-    u_spotsPerColor: spotsPerColor,
+    u_bloom: bloom,
+    u_spotsPerColor: spotsNumber,
     u_spotSize: spotSize,
     u_pulse: pulse,
     u_smoke: smoke,
