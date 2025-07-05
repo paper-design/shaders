@@ -33,7 +33,7 @@ precision lowp float;
 uniform float u_time;
 
 uniform vec4 u_colorBack;
-uniform vec4 u_colors[${ pulsingBorderMeta.maxColorCount }];
+uniform vec4 u_colors[${pulsingBorderMeta.maxColorCount}];
 uniform float u_colorsCount;
 uniform float u_roundness;
 uniform float u_thickness;
@@ -48,11 +48,11 @@ uniform float u_smokeSize;
 uniform sampler2D u_pulseTexture;
 uniform sampler2D u_noiseTexture;
 
-${ sizingVariablesDeclaration }
+${sizingVariablesDeclaration}
 
 out vec4 fragColor;
 
-${ declarePI }
+${declarePI}
 
 float beat(float time) {
   float first = pow(sin(time * TWO_PI), 10.);
@@ -87,17 +87,21 @@ vec2 rand2(vec2 p) {
   return texture(u_noiseTexture, uv).gb;
 }
 
-${ declareValueNoise }
+${declareValueNoise}
+
+float linearstep(float edge0, float edge1, float x) {
+  return clamp((x - edge0) / (edge1 - edge0), 0.0, 1.0);
+}
 
 void main() {
 
-  float t = u_time;
+  float t = 1.2 * u_time;
 
   vec2 borderUV = v_responsiveUV;
 
   float angle = atan(borderUV.y, borderUV.x) / TWO_PI;
 
-  float pulse = u_pulse * beat(.4 * u_time);
+  float pulse = u_pulse * beat(.25 * u_time);
 
   float borderRatio = v_responsiveBoxGivenSize.x / v_responsiveBoxGivenSize.y;
   borderUV.x *= borderRatio;
@@ -110,13 +114,61 @@ void main() {
   float distance = outsideDistance + insideDistance;
 
   float border = roundedBox(borderUV, distance);
+  
+  vec2 v0 = borderUV + halfSize;
+  vec2 v1 = borderUV - vec2(-halfSize.x, halfSize.y);
+  vec2 v2 = borderUV - vec2(halfSize.x, -halfSize.y);
+  vec2 v3 = borderUV - halfSize;
+  
+  float cornerFade = 1. - abs(v0.x - v0.y);
+  cornerFade = max(cornerFade, 1. - abs(v1.x + v1.y));
+  cornerFade = max(cornerFade, 1. - abs(v2.x + v2.y));
+  cornerFade = max(cornerFade, 1. - abs(v3.x - v3.y));
+  cornerFade = .75 * pow(cornerFade, 20.);
+
+  float cornerFadeMask = 0.;
+  float maskR = (.35 * u_thickness - .25 * radius);
+  float maskHL = linearstep(halfSize.x - .25 * u_thickness, halfSize.x, borderUV.x);
+  float maskHR = linearstep(halfSize.x - .25 * u_thickness, halfSize.x, -borderUV.x);
+  float maskVT = linearstep(halfSize.y - .25 * u_thickness, halfSize.y, -borderUV.y);
+  float maskVB = linearstep(halfSize.y - .25 * u_thickness, halfSize.y, borderUV.y);
+  float maskOffset = .25 * (u_thickness + radius);
+  {
+    float m = maskHR;
+    m *= maskVT;
+    m *= (1. - clamp(length((v0 - maskOffset) / maskR), 0., 1.));
+    cornerFadeMask += m;
+  }
+  {
+    float m = maskHR;
+    m *= maskVB;
+    m *= (1. - clamp(length((v1 - vec2(1., -1.) * maskOffset) / maskR), 0., 1.));
+    cornerFadeMask += m;
+  }
+  {
+    float m = maskHL;
+    m *= maskVT;
+    m *= (1. - clamp(length((v2 - vec2(-1., 1.) * maskOffset) / maskR), 0., 1.));
+    cornerFadeMask += m;
+  }
+  {
+    float m = maskHL;
+    m *= maskVB;
+    m *= (1. - clamp(length((v3 + maskOffset) / maskR), 0., 1.));
+    cornerFadeMask += m;
+  }
+
+  cornerFade *= cornerFadeMask;
+  border += cornerFade;
 
   vec2 smokeUV = 2. * u_smokeSize * v_objectUV;
   float smoke = clamp(3. * valueNoise(2.7 * smokeUV + .5 * t), 0., 1.);
   smoke -= valueNoise(3.4 * smokeUV - .5 * t);
   smoke *= roundedBoxSmoke(borderUV, distance, u_smoke);
   smoke = 30. * pow(smoke, 2.);
+  smoke += cornerFadeMask;
   smoke *= u_smoke;
+  smoke *= mix(1., pulse, u_pulse);
   smoke = clamp(smoke, 0., 1.);
 
   border += smoke;
@@ -127,14 +179,14 @@ void main() {
   
   float shapeTotal = 0.;
 
-  for (int colorIdx = 0; colorIdx < ${ pulsingBorderMeta.maxColorCount }; colorIdx++) {
+  for (int colorIdx = 0; colorIdx < ${pulsingBorderMeta.maxColorCount}; colorIdx++) {
     if (colorIdx >= int(u_colorsCount)) break;
     float colorIdxF = float(colorIdx);
 
     vec3 c = u_colors[colorIdx].rgb * u_colors[colorIdx].a;
     float a = u_colors[colorIdx].a;
 
-    for (int spotIdx = 0; spotIdx < ${ pulsingBorderMeta.maxSpotsPerColor }; spotIdx++) {
+    for (int spotIdx = 0; spotIdx < ${pulsingBorderMeta.maxSpotsPerColor}; spotIdx++) {
       if (spotIdx >= int(u_spotsPerColor)) break;
       float spotIdxF = float(spotIdx);
 
@@ -149,7 +201,7 @@ void main() {
         step(mod(colorIdxF, 2.), .5)
       );
 
-      mask = mix(mask, pulse, u_pulse);;
+      mask = mix(mask, pulse, clamp(2. * u_pulse - randVal.x, 0., 1.));
 
       float atg1 = fract(angle + time);
       float spotSize = u_spotSize + .05 * randVal.x;
@@ -184,7 +236,6 @@ void main() {
   ${colorBandingFix}
 
   fragColor = vec4(color, opacity);
-//  fragColor = vec4(smoke, smoke, smoke, opacity);
 }`;
 
 export interface PulsingBorderUniforms extends ShaderSizingUniforms {

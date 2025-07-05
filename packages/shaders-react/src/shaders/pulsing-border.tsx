@@ -33,7 +33,7 @@ export const defaultPreset: PulsingBorderPreset = {
     spotSize: 0.1,
     pulse: 0,
     smoke: 0.35,
-    smokeSize: 0.63
+    smokeSize: 0.63,
   },
 };
 
@@ -55,7 +55,7 @@ export const circlePreset: PulsingBorderPreset = {
     spotsNumber: 2,
     spotSize: 0.15,
     pulse: 0,
-    smoke: 1,
+    smoke: 0.6,
     smokeSize: 0.62,
   },
 };
