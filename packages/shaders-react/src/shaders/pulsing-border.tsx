@@ -91,7 +91,6 @@ export const PulsingBorder: React.FC<PulsingBorderProps> = memo(function Pulsing
   ...props
 }: PulsingBorderProps) {
   const noiseTexture = typeof window !== 'undefined' && { u_noiseTexture: getShaderNoiseTexture(0) };
-  const pulseTexture = typeof window !== 'undefined' && { u_pulseTexture: getShaderNoiseTexture(1) };
   const uniforms = {
     // Own uniforms
     u_colorBack: getShaderColorFromString(colorBack),
@@ -106,7 +105,6 @@ export const PulsingBorder: React.FC<PulsingBorderProps> = memo(function Pulsing
     u_pulse: pulse,
     u_smoke: smoke,
     u_smokeSize: smokeSize,
-    ...pulseTexture,
     ...noiseTexture,
 
     // Sizing uniforms

@@ -21,7 +21,6 @@ export const pulsingBorderMeta = {
  * - u_pulse: optional pulsing animation
  * - u_smoke, u_smokeSize: optional noisy shapes around the border
  *
- * - u_pulseTexture (sampler2D): pulsing signal source
  * - u_noiseTexture (sampler2D): pre-computed randomizer source
  *
  */
@@ -45,7 +44,6 @@ uniform float u_pulse;
 uniform float u_smoke;
 uniform float u_smokeSize;
 
-uniform sampler2D u_pulseTexture;
 uniform sampler2D u_noiseTexture;
 
 ${sizingVariablesDeclaration}
@@ -201,7 +199,7 @@ void main() {
         step(mod(colorIdxF, 2.), .5)
       );
 
-      mask = mix(mask, pulse, clamp(2. * u_pulse - randVal.x, 0., 1.));
+      mask = mix(mask, pulse, clamp(1.2 * u_pulse - randVal.x, 0., 1.));
 
       float atg1 = fract(angle + time);
       float spotSize = u_spotSize + .05 * randVal.x;
@@ -251,7 +249,6 @@ export interface PulsingBorderUniforms extends ShaderSizingUniforms {
   u_pulse: number;
   u_smoke: number;
   u_smokeSize: number;
-  u_pulseTexture?: HTMLImageElement;
 }
 
 export interface PulsingBorderParams extends ShaderSizingParams, ShaderMotionParams {
