@@ -35,7 +35,7 @@ const PulsingBorderWithControls = () => {
         {
           colorBack: { value: toHsla(defaults.colorBack), order: 100 },
           roundness: { value: defaults.roundness, min: 0, max: 1, order: 300 },
-          thickness: { value: defaults.thickness, min: 0, max: 3, order: 301 },
+          thickness: { value: defaults.thickness, min: 0, max: 1, order: 301 },
           softness: { value: defaults.softness, min: 0, max: 1, order: 302 },
           bloom: { value: defaults.bloom, min: 0, max: 1, order: 303 },
           spotsNumber: {
@@ -68,8 +68,8 @@ const PulsingBorderWithControls = () => {
       Fit: folder(
         {
           fit: { value: defaults.fit, options: Object.keys(ShaderFitOptions) as ShaderFit[], order: 404 },
-          worldWidth: { value: 1000, min: 0, max: 5120, order: 405 },
-          worldHeight: { value: 1000, min: 0, max: 5120, order: 406 },
+          worldWidth: { value: 0, min: 0, max: 5120, order: 405 },
+          worldHeight: { value: 0, min: 0, max: 5120, order: 406 },
           originX: { value: defaults.originX, min: 0, max: 1, order: 407 },
           originY: { value: defaults.originY, min: 0, max: 1, order: 408 },
         },

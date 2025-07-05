@@ -20,20 +20,20 @@ export const defaultPreset: PulsingBorderPreset = {
   name: 'Default',
   params: {
     ...defaultObjectSizing,
-    scale: 0.85,
+    scale: 0.55,
     speed: 1,
     frame: 0,
     colorBack: '#000000',
-    colors: ['#f2244f', '#4da6e6'],
-    roundness: 0.5,
-    thickness: 0.02,
-    softness: 0.5,
-    bloom: 2.4,
+    colors: ['#f2244f', '#4da6e6', '#379590'],
+    roundness: 0.35,
+    thickness: 0.05,
+    softness: 0.75,
+    bloom: 1,
     spotsNumber: 4,
-    spotSize: 0.15,
+    spotSize: 0.1,
     pulse: 0,
-    smoke: 1,
-    smokeSize: 1.3,
+    smoke: 0.35,
+    smokeSize: 0.63
   },
 };
 
@@ -43,44 +43,24 @@ export const circlePreset: PulsingBorderPreset = {
     ...defaultObjectSizing,
     worldWidth: 200,
     worldHeight: 200,
-    scale: 0.5,
+    scale: 0.6,
     speed: 1,
     frame: 0,
-    colorBack: '#000000',
+    colorBack: '#110222',
     colors: ['#ffdd33', '#ff0000', '#00ffff'],
     roundness: 1,
-    thickness: 0.5,
+    thickness: 0.4,
     softness: 1,
     bloom: 0.8,
-    spotsNumber: 3,
+    spotsNumber: 2,
     spotSize: 0.15,
     pulse: 0,
-    smoke: 0.5,
-    smokeSize: 0.5,
+    smoke: 1,
+    smokeSize: 0.62,
   },
 };
 
-export const innerBorderPreset: PulsingBorderPreset = {
-  name: 'Inner Border',
-  params: {
-    ...defaultObjectSizing,
-    speed: 1.0,
-    frame: 0,
-    colorBack: '#181821',
-    colors: ['#2294d9', '#79fac5', '#e39e22'],
-    roundness: 0,
-    thickness: 0.05,
-    softness: 1,
-    bloom: 2,
-    spotsNumber: 3,
-    spotSize: 0.15,
-    pulse: 0.5,
-    smoke: 0,
-    smokeSize: 0,
-  },
-};
-
-export const pulsingBorderPresets: PulsingBorderPreset[] = [circlePreset, defaultPreset, innerBorderPreset];
+export const pulsingBorderPresets: PulsingBorderPreset[] = [defaultPreset, circlePreset];
 
 export const PulsingBorder: React.FC<PulsingBorderProps> = memo(function PulsingBorderImpl({
   // Own props

@@ -28,7 +28,7 @@ export const pulsingBorderMeta = {
 
 // language=GLSL
 export const pulsingBorderFragmentShader: string = `#version 300 es
-precision highp float;
+precision lowp float;
 
 uniform float u_time;
 
@@ -55,16 +55,16 @@ out vec4 fragColor;
 ${ declarePI }
 
 float beat(float time) {
-  float first = pow(sin(time * TWO_PI), 16.0);
-  float second = pow(sin((time - 0.3) * TWO_PI), 16.0);
+  float first = pow(sin(time * TWO_PI), 10.);
+  float second = pow(sin((time - 0.3) * TWO_PI), 10.);
 
   return clamp(first + 0.5 * second, 0.0, 1.0);
 }
 
-float roundedBox(vec2 uv, float distance, float pulse) {
+float roundedBox(vec2 uv, float distance) {
   float edgeSoftness = .5 * u_softness;
-  float thickness = .25 * u_thickness;
-  float borderDistance = abs(distance) - .5 * thickness + .05 * pulse;
+  float thickness = .5 * u_thickness;
+  float borderDistance = abs(distance) - .5 * thickness;
   float border = 1. - smoothstep(-2. * edgeSoftness * thickness, edgeSoftness * thickness, borderDistance);
   border = pow(border, 2.);
 
@@ -91,7 +91,7 @@ ${ declareValueNoise }
 
 void main() {
 
-  float t = 1.5 * u_time;
+  float t = u_time;
 
   vec2 borderUV = v_responsiveUV;
 
@@ -109,26 +109,23 @@ void main() {
   float insideDistance = min(max(d.x, d.y), 0.0);
   float distance = outsideDistance + insideDistance;
 
-  float border = roundedBox(borderUV, distance, pulse);
+  float border = roundedBox(borderUV, distance);
 
-  vec2 smokeUV = .0018 * u_smokeSize * v_patternUV;
+  vec2 smokeUV = 2. * u_smokeSize * v_objectUV;
   float smoke = clamp(3. * valueNoise(2.7 * smokeUV + .5 * t), 0., 1.);
   smoke -= valueNoise(3.4 * smokeUV - .5 * t);
   smoke *= roundedBoxSmoke(borderUV, distance, u_smoke);
-  smoke = 50. * pow(smoke, 2.);
-//  smoke += .2 * pulse;
+  smoke = 30. * pow(smoke, 2.);
   smoke *= u_smoke;
   smoke = clamp(smoke, 0., 1.);
 
   border += smoke;
-
   border = clamp(border, 0., 1.);
   
   vec3 accumColor = vec3(0.0);
   float accumAlpha = 0.0;
   
   float shapeTotal = 0.;
-  
 
   for (int colorIdx = 0; colorIdx < ${ pulsingBorderMeta.maxColorCount }; colorIdx++) {
     if (colorIdx >= int(u_colorsCount)) break;
@@ -152,7 +149,7 @@ void main() {
         step(mod(colorIdxF, 2.), .5)
       );
 
-      mask += .5 * pulse * (randVal.x + randVal.y);
+      mask = mix(mask, pulse, u_pulse);;
 
       float atg1 = fract(angle + time);
       float spotSize = u_spotSize + .05 * randVal.x;
@@ -187,6 +184,7 @@ void main() {
   ${colorBandingFix}
 
   fragColor = vec4(color, opacity);
+//  fragColor = vec4(smoke, smoke, smoke, opacity);
 }`;
 
 export interface PulsingBorderUniforms extends ShaderSizingUniforms {
