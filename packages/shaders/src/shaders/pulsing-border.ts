@@ -5,7 +5,7 @@ import { declarePI, declareValueNoise, colorBandingFix } from '../shader-utils.j
 
 export const pulsingBorderMeta = {
   maxColorCount: 5,
-  maxSpotsPerColor: 4,
+  maxSpots: 4,
 } as const;
 
 /**
@@ -17,7 +17,7 @@ export const pulsingBorderMeta = {
  * - u_roundness, u_thickness, u_softness: border parameters
  * - u_bloom: global multiplier for spots shape & color
  * - u_spotSize: angular size of spots
- * - u_spotsPerColor (float used as int): number of spots rendered per color (not all visible at the same time)
+ * - u_spots (float used as int): number of spots rendered per color
  * - u_pulse: optional pulsing animation
  * - u_smoke, u_smokeSize: optional noisy shapes around the border
  *
@@ -40,7 +40,7 @@ uniform float u_softness;
 uniform float u_intensity;
 uniform float u_bloom;
 uniform float u_spotSize;
-uniform float u_spotsPerColor;
+uniform float u_spots;
 uniform float u_pulse;
 uniform float u_smoke;
 uniform float u_smokeSize;
@@ -188,8 +188,8 @@ void main() {
     vec3 c = u_colors[colorIdx].rgb * u_colors[colorIdx].a;
     float a = u_colors[colorIdx].a;
 
-    for (int spotIdx = 0; spotIdx < ${pulsingBorderMeta.maxSpotsPerColor}; spotIdx++) {
-      if (spotIdx >= int(u_spotsPerColor)) break;
+    for (int spotIdx = 0; spotIdx < ${pulsingBorderMeta.maxSpots}; spotIdx++) {
+      if (spotIdx >= int(u_spots)) break;
       float spotIdxF = float(spotIdx);
 
       vec2 randVal = rand2(vec2(spotIdxF * 10. + 2., 40. + colorIdxF));
@@ -246,7 +246,7 @@ export interface PulsingBorderUniforms extends ShaderSizingUniforms {
   u_softness: number;
   u_bloom: number;
   u_intensity: number;
-  u_spotsPerColor: number;
+  u_spots: number;
   u_spotSize: number;
   u_pulse: number;
   u_smoke: number;
@@ -261,7 +261,7 @@ export interface PulsingBorderParams extends ShaderSizingParams, ShaderMotionPar
   softness?: number;
   bloom?: number;
   intensity?: number;
-  spotsNumber?: number;
+  spots?: number;
   spotSize?: number;
   pulse?: number;
   smoke?: number;
