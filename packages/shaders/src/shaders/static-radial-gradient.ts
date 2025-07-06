@@ -33,7 +33,6 @@ uniform float u_colorsCount;
 
 uniform float u_focalDistance;
 uniform float u_focalAngle;
-uniform bool u_focalMask;
 uniform float u_falloff;
 uniform float u_mixing;
 uniform float u_grainMixer;
@@ -47,7 +46,6 @@ out vec4 fragColor;
 ${declarePI}
 ${declareRotate}
 ${declareGrainShape}
-
 
 void main() {
   vec2 uv = 2. * v_objectUV;
@@ -97,10 +95,7 @@ void main() {
   shape = 1. - clamp(shape, 0., 1.);
 
 
-  float outerMask = .001 + .1 * u_focalDistance;
-  if (u_focalMask == false) {
-    outerMask = .005;
-  }
+  float outerMask = .002;
   float outer = smoothstep(radius + outerMask, radius - outerMask, length(c_to_uv));
   outer = mix(outer, 1., isInSector);
   
@@ -112,14 +107,24 @@ void main() {
   float grain = grainShape(grainUV, vec2(100.));
 
   float mixerGrain = 1. * u_grainMixer * (grain - .3);
-  float mixer = shape * u_colorsCount + mixerGrain;
+  float mixer = shape * (u_colorsCount - 1.) + mixerGrain;
   vec4 gradient = u_colors[0];
   gradient.rgb *= gradient.a;
   for (int i = 1; i < ${staticRadialGradientMeta.maxColorCount}; i++) { 
     if (i >= int(u_colorsCount)) break;
     float mLinear = clamp(mixer - float(i - 1), 0.0, 1.0);
-    float mSmooth = smoothstep(0., 1., mLinear);
-    float m = mix(mLinear, mSmooth, u_mixing);
+    
+    float m = 0.;
+    float mixing = u_mixing * 3.;
+    if (mixing > 2.) {
+      float tt = pow(mLinear, 2.);
+      m = mix(mLinear, tt, clamp((mixing - 2.), 0., 1.));
+    } else if (mixing > 1.) {
+      m = mix(smoothstep(0., 1., mLinear), mLinear, clamp((mixing - 1.), 0., 1.));
+    } else {
+      m = smoothstep(.5 - .5 * mixing, .5 + .5 * mixing, mLinear);
+    }
+    
     vec4 c = u_colors[i];
     c.rgb *= c.a;
     gradient = mix(gradient, c, m);
@@ -145,7 +150,6 @@ export interface StaticRadialGradientUniforms extends ShaderSizingUniforms {
   u_colorsCount: number;
   u_focalDistance: number;
   u_focalAngle: number;
-  u_focalMask: boolean;
   u_falloff: number;
   u_mixing: number;
   u_grainMixer: number;
@@ -156,7 +160,6 @@ export interface StaticRadialGradientParams extends ShaderSizingParams, ShaderMo
   colors?: string[];
   focalDistance?: number;
   focalAngle?: number;
-  focalMask?: boolean;
   falloff?: number;
   mixing?: number;
   grainMixer?: number;
