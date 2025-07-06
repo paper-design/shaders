@@ -15,7 +15,8 @@ export const pulsingBorderMeta = {
  * - u_colorBack (RGBA)
  * - u_colors (vec4[]), u_colorsCount (float used as integer)
  * - u_roundness, u_thickness, u_softness: border parameters
- * - u_bloom: global multiplier for spots shape & color
+ * - u_intensity: thickness of individual spots
+ * - u_bloom: normal / additive color blending
  * - u_spotSize: angular size of spots
  * - u_spots (float used as int): number of spots rendered per color
  * - u_pulse: optional pulsing animation
@@ -244,8 +245,8 @@ export interface PulsingBorderUniforms extends ShaderSizingUniforms {
   u_roundness: number;
   u_thickness: number;
   u_softness: number;
-  u_bloom: number;
   u_intensity: number;
+  u_bloom: number;
   u_spots: number;
   u_spotSize: number;
   u_pulse: number;
@@ -259,8 +260,8 @@ export interface PulsingBorderParams extends ShaderSizingParams, ShaderMotionPar
   roundness?: number;
   thickness?: number;
   softness?: number;
-  bloom?: number;
   intensity?: number;
+  bloom?: number;
   spots?: number;
   spotSize?: number;
   pulse?: number;
