@@ -204,10 +204,12 @@ void main() {
         step(mod(colorIdxF, 2.), .5)
       );
 
-      mask = mix(mask, pulse, clamp(1.2 * u_pulse - randVal.x, 0., 1.));
+      float p = clamp(2. * u_pulse - randVal.x, 0., 1.);
+      mask = mix(mask, pulse, p);
 
       float atg1 = fract(angle + time);
       float spotSize = u_spotSize + .05 * randVal.x;
+      spotSize = mix(spotSize, .1, p);
       float sector = smoothstep(.5 - spotSize, .5, atg1) * smoothstep(.5 + spotSize, .5, atg1);
       
       sector *= mask;
