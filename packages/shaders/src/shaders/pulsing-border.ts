@@ -5,7 +5,7 @@ import { declarePI, declareValueNoise, colorBandingFix } from '../shader-utils.j
 
 export const pulsingBorderMeta = {
   maxColorCount: 5,
-  maxSpotsPerColor: 5,
+  maxSpotsPerColor: 4,
 } as const;
 
 /**
@@ -37,6 +37,7 @@ uniform float u_colorsCount;
 uniform float u_roundness;
 uniform float u_thickness;
 uniform float u_softness;
+uniform float u_intensity;
 uniform float u_bloom;
 uniform float u_spotSize;
 uniform float u_spotsPerColor;
@@ -172,10 +173,13 @@ void main() {
   border += smoke;
   border = clamp(border, 0., 1.);
   
-  vec3 accumColor = vec3(0.0);
-  float accumAlpha = 0.0;
+  vec3 blendColor = vec3(0.);
+  float blendAlpha = 0.0;
+  vec3 addColor = vec3(0.);
+  float addAlpha = 0.0;
   
-  float shapeTotal = 0.;
+  float bloom = 4. * u_bloom;
+  float intensity = 1. + 4. * u_intensity;
 
   for (int colorIdx = 0; colorIdx < ${pulsingBorderMeta.maxColorCount}; colorIdx++) {
     if (colorIdx >= int(u_colorsCount)) break;
@@ -207,29 +211,26 @@ void main() {
       
       sector *= mask;
       sector *= border;
+      sector *= intensity;
+      sector = clamp(sector, 0., 1.);
 
       vec3 srcColor = c * sector;
       float srcAlpha = a * sector;
 
-      vec3 alphaBlendColor = accumColor + (1. - accumAlpha) * srcColor;
-      float alphaBlendAlpha = accumAlpha + (1. - accumAlpha) * srcAlpha;
-
-      vec3 addBlendColor = accumColor + srcColor;
-      float addBlendAlpha = accumAlpha + srcAlpha;
-
-      accumColor = mix(alphaBlendColor, addBlendColor, 3. * u_bloom);
-      accumAlpha = mix(alphaBlendAlpha, addBlendAlpha, 3. * u_bloom);
-
-      shapeTotal = max(shapeTotal, sector);
+      blendColor += ((1. - blendAlpha) * srcColor);
+      blendAlpha = blendAlpha + (1. - blendAlpha) * srcAlpha;
+      addColor += srcColor;
+      addAlpha += srcAlpha;
     }
   }
 
+  vec3 accumColor = mix(blendColor, addColor, bloom);
+  float accumAlpha = mix(blendAlpha, addAlpha, bloom);
+  accumAlpha = clamp(accumAlpha, 0., 1.);
 
   vec3 bgColor = u_colorBack.rgb * u_colorBack.a;
-  
-  vec3 color = accumColor + (1. - shapeTotal) * bgColor;
-  float opacity = shapeTotal + (1. - shapeTotal) * u_colorBack.a;
-  
+  vec3 color = accumColor + (1. - accumAlpha) * bgColor;
+  float opacity = accumAlpha + (1. - accumAlpha) * u_colorBack.a;
   
   ${colorBandingFix}
 
@@ -244,6 +245,7 @@ export interface PulsingBorderUniforms extends ShaderSizingUniforms {
   u_thickness: number;
   u_softness: number;
   u_bloom: number;
+  u_intensity: number;
   u_spotsPerColor: number;
   u_spotSize: number;
   u_pulse: number;
@@ -258,6 +260,7 @@ export interface PulsingBorderParams extends ShaderSizingParams, ShaderMotionPar
   thickness?: number;
   softness?: number;
   bloom?: number;
+  intensity?: number;
   spotsNumber?: number;
   spotSize?: number;
   pulse?: number;
