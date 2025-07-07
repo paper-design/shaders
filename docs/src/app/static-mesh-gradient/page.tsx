@@ -33,11 +33,11 @@ const StaticMeshGradientWithControls = () => {
     return {
       Parameters: folder(
         {
+          positioning: { value: defaults.positioning, min: 0, max: 100, order: 100 },
           waveX: { value: defaults.waveX, min: 0, max: 1, order: 200 },
           waveXShift: { value: defaults.waveXShift, min: 0, max: 1, order: 201 },
           waveY: { value: defaults.waveY, min: 0, max: 1, order: 202 },
           waveYShift: { value: defaults.waveYShift, min: 0, max: 1, order: 203 },
-          swirl: { value: defaults.swirl, min: 0, max: 1, order: 204 },
           mixing: { value: defaults.mixing, min: 0, max: 1, order: 300 },
           grainMixer: { value: defaults.grainMixer, min: 0, max: 1, order: 350 },
           grainOverlay: { value: defaults.grainOverlay, min: 0, max: 1, order: 351 },
