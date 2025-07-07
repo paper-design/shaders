@@ -33,7 +33,7 @@ const StaticMeshGradientWithControls = () => {
     return {
       Parameters: folder(
         {
-          positioning: { value: defaults.positioning, min: 0, max: 100, order: 100 },
+          positions: { value: defaults.positions, min: 0, max: 100, order: 100 },
           waveX: { value: defaults.waveX, min: 0, max: 1, order: 200 },
           waveXShift: { value: defaults.waveXShift, min: 0, max: 1, order: 201 },
           waveY: { value: defaults.waveY, min: 0, max: 1, order: 202 },

@@ -28,7 +28,7 @@ precision mediump float;
 uniform vec4 u_colors[${staticMeshGradientMeta.maxColorCount}];
 uniform float u_colorsCount;
 
-uniform float u_positionSeed;
+uniform float u_positions;
 uniform float u_waveX;
 uniform float u_waveXShift;
 uniform float u_waveY;
@@ -77,7 +77,7 @@ void main() {
   vec3 color = vec3(0.);
   float opacity = 0.;
   float totalWeight = 0.;
-  float positionSeed = 25. + .33 * u_positionSeed;
+  float positionSeed = 25. + .33 * u_positions;
 
   for (int i = 0; i < ${staticMeshGradientMeta.maxColorCount}; i++) {
     if (i >= int(u_colorsCount)) break;
@@ -113,7 +113,7 @@ void main() {
 export interface StaticMeshGradientUniforms extends ShaderSizingUniforms {
   u_colors: vec4[];
   u_colorsCount: number;
-  u_positioning: number;
+  u_positions: number;
   u_waveX: number;
   u_waveXShift: number;
   u_waveY: number;
@@ -125,7 +125,7 @@ export interface StaticMeshGradientUniforms extends ShaderSizingUniforms {
 
 export interface StaticMeshGradientParams extends ShaderSizingParams, ShaderMotionParams {
   colors?: string[];
-  positioning?: number;
+  positions?: number;
   waveX?: number;
   waveXShift?: number;
   waveY?: number;
