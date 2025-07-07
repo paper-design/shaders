@@ -22,7 +22,7 @@ export const defaultPreset: StaticRadialGradientPreset = {
     scale: 1,
     speed: 0,
     frame: 0,
-    colors: ['#264653', '#2a9d8f', '#f4a261', '#ffffff'],
+    colors: ['#264653', '#9c2b2b', '#f4a261', '#ffffff'],
     focalDistance: 0,
     focalAngle: 0,
     falloff: 0,

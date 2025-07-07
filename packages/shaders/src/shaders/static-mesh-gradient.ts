@@ -113,7 +113,7 @@ void main() {
 export interface StaticMeshGradientUniforms extends ShaderSizingUniforms {
   u_colors: vec4[];
   u_colorsCount: number;
-  u_positionSeed: number;
+  u_positioning: number;
   u_waveX: number;
   u_waveXShift: number;
   u_waveY: number;
@@ -125,7 +125,7 @@ export interface StaticMeshGradientUniforms extends ShaderSizingUniforms {
 
 export interface StaticMeshGradientParams extends ShaderSizingParams, ShaderMotionParams {
   colors?: string[];
-  positionSeed?: number;
+  positioning?: number;
   waveX?: number;
   waveXShift?: number;
   waveY?: number;
