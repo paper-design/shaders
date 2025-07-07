@@ -31,6 +31,7 @@ precision mediump float;
 uniform vec4 u_colors[${staticRadialGradientMeta.maxColorCount}];
 uniform float u_colorsCount;
 
+uniform float u_radius;
 uniform float u_focalDistance;
 uniform float u_focalAngle;
 uniform float u_falloff;
@@ -55,7 +56,7 @@ void main() {
   vec2 center = vec2(0.);
   float angleRad = radians(u_focalAngle - 90.);
   vec2 focalPoint = vec2(cos(angleRad), sin(angleRad)) * u_focalDistance;
-  float radius = 1.;
+  float radius = u_radius;
   
   vec2 c_to_uv = uv - center;
   vec2 f_to_uv = uv - focalPoint;
@@ -151,6 +152,7 @@ void main() {
 export interface StaticRadialGradientUniforms extends ShaderSizingUniforms {
   u_colors: vec4[];
   u_colorsCount: number;
+  u_radius: number;
   u_focalDistance: number;
   u_focalAngle: number;
   u_falloff: number;
@@ -162,6 +164,7 @@ export interface StaticRadialGradientUniforms extends ShaderSizingUniforms {
 
 export interface StaticRadialGradientParams extends ShaderSizingParams, ShaderMotionParams {
   colors?: string[];
+  radius?: number;
   focalDistance?: number;
   focalAngle?: number;
   falloff?: number;

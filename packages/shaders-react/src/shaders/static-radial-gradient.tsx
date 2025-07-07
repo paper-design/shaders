@@ -23,6 +23,7 @@ export const defaultPreset: StaticRadialGradientPreset = {
     speed: 0,
     frame: 0,
     colors: ['#264653', '#9c2b2b', '#f4a261', '#ffffff'],
+    radius: 1,
     focalDistance: 0,
     focalAngle: 0,
     falloff: 0,
@@ -40,6 +41,7 @@ export const StaticRadialGradient: React.FC<StaticRadialGradientProps> = memo(fu
   speed = defaultPreset.params.speed,
   frame = defaultPreset.params.frame,
   colors = defaultPreset.params.colors,
+  radius = defaultPreset.params.radius,
   focalDistance = defaultPreset.params.focalDistance,
   focalAngle = defaultPreset.params.focalAngle,
   falloff = defaultPreset.params.falloff,
@@ -64,6 +66,7 @@ export const StaticRadialGradient: React.FC<StaticRadialGradientProps> = memo(fu
     // Own uniforms
     u_colors: colors.map(getShaderColorFromString),
     u_colorsCount: colors.length,
+    u_radius: radius,
     u_focalDistance: focalDistance,
     u_focalAngle: focalAngle,
     u_falloff: falloff,
