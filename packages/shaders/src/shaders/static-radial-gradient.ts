@@ -35,6 +35,7 @@ uniform float u_focalDistance;
 uniform float u_focalAngle;
 uniform float u_falloff;
 uniform float u_mixing;
+uniform float u_distortion;
 uniform float u_grainMixer;
 uniform float u_grainOverlay;
 
@@ -59,9 +60,9 @@ void main() {
   vec2 c_to_uv = uv - center;
   vec2 f_to_uv = uv - focalPoint;
   vec2 f_to_c = center - focalPoint;
+  float r = length(c_to_uv);
   
-  vec2 centerToUV = uv - center;
-  float fragAngle = atan(centerToUV.y, centerToUV.x);
+  float fragAngle = atan(c_to_uv.y, c_to_uv.x);
   float angleDiff = fragAngle - angleRad;
   angleDiff = mod(angleDiff + PI, TWO_PI) - PI;
   
@@ -91,16 +92,18 @@ void main() {
   
   float falloffExp = mix(falloffMapped, 1., shape);
   shape = pow(shape, falloffExp);
-
   shape = 1. - clamp(shape, 0., 1.);
 
 
   float outerMask = .002;
-  float outer = smoothstep(radius + outerMask, radius - outerMask, length(c_to_uv));
+  float outer = smoothstep(radius + outerMask, radius - outerMask, r);
   outer = mix(outer, 1., isInSector);
   
   shape = mix(0., shape, outer);
-  shape *= smoothstep(radius, radius - .01, length(c_to_uv));
+  shape *= smoothstep(radius, radius - .01, r);
+
+  float angle = atan(f_to_uv.y, f_to_uv.x);
+  shape -= pow(u_distortion, 2.) * shape * pow(sin(PI * length(f_to_uv) - .2), 4.) * (sin(12. * angle) + cos(7. * angle));
 
 
   vec2 grainUV = rotate(v_objectUV, 2.) * 180.;
@@ -118,7 +121,7 @@ void main() {
     float mixing = u_mixing * 3.;
     if (mixing > 2.) {
       float tt = pow(mLinear, 2.);
-      m = mix(mLinear, tt, clamp((mixing - 2.), 0., 1.));
+      m = mix(mLinear, tt, .5 * clamp((mixing - 2.), 0., 1.));
     } else if (mixing > 1.) {
       m = mix(smoothstep(0., 1., mLinear), mLinear, clamp((mixing - 1.), 0., 1.));
     } else {
@@ -152,6 +155,7 @@ export interface StaticRadialGradientUniforms extends ShaderSizingUniforms {
   u_focalAngle: number;
   u_falloff: number;
   u_mixing: number;
+  u_distortion: number;
   u_grainMixer: number;
   u_grainOverlay: number;
 }
@@ -162,6 +166,7 @@ export interface StaticRadialGradientParams extends ShaderSizingParams, ShaderMo
   focalAngle?: number;
   falloff?: number;
   mixing?: number;
+  distortion?: number;
   grainMixer?: number;
   grainOverlay?: number;
 }

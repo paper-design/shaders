@@ -27,6 +27,7 @@ export const defaultPreset: StaticRadialGradientPreset = {
     focalAngle: 0,
     falloff: 0,
     mixing: 0.7,
+    distortion: 0,
     grainMixer: 0,
     grainOverlay: 0,
   },
@@ -44,6 +45,7 @@ export const StaticRadialGradient: React.FC<StaticRadialGradientProps> = memo(fu
   falloff = defaultPreset.params.falloff,
   grainMixer = defaultPreset.params.grainMixer,
   mixing = defaultPreset.params.mixing,
+  distortion = defaultPreset.params.distortion,
   grainOverlay = defaultPreset.params.grainOverlay,
 
   // Sizing props
@@ -66,6 +68,7 @@ export const StaticRadialGradient: React.FC<StaticRadialGradientProps> = memo(fu
     u_focalAngle: focalAngle,
     u_falloff: falloff,
     u_mixing: mixing,
+    u_distortion: distortion,
     u_grainMixer: grainMixer,
     u_grainOverlay: grainOverlay,
 
