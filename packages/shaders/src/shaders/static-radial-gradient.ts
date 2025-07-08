@@ -119,7 +119,7 @@ void main() {
     float mLinear = clamp(mixer - float(i - 1), 0.0, 1.0);
     
     float m = 0.;
-    float mixing = u_mixing * 3.;
+    float mixing = .001 + u_mixing * 3.;
     if (mixing > 2.) {
       float tt = pow(mLinear, 2.);
       m = mix(mLinear, tt, .5 * clamp((mixing - 2.), 0., 1.));

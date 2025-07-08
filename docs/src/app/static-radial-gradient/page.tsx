@@ -54,7 +54,7 @@ const StaticRadialGradientWithControls = () => {
         },
         {
           order: 2,
-          collapsed: false,
+          collapsed: true,
         }
       ),
       Fit: folder(

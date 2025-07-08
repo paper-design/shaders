@@ -34,7 +34,69 @@ export const defaultPreset: StaticRadialGradientPreset = {
   },
 };
 
-export const staticRadialGradientPresets: StaticRadialGradientPreset[] = [defaultPreset];
+export const crossSectionPreset: StaticRadialGradientPreset = {
+  name: 'Cross Section',
+  params: {
+    ...defaultObjectSizing,
+    scale: 1,
+    speed: 0,
+    frame: 0,
+    colors: ['#3d348b', '#7678ed', '#f7b801', '#f18701'],
+    radius: 1,
+    focalDistance: 0,
+    focalAngle: 0,
+    falloff: 0,
+    mixing: 0,
+    distortion: 1,
+    grainMixer: 0,
+    grainOverlay: 0,
+  },
+};
+
+export const glowPreset: StaticRadialGradientPreset = {
+  name: 'Glow',
+  params: {
+    ...defaultObjectSizing,
+    scale: 1,
+    speed: 0,
+    frame: 0,
+    colors: ['#2e2e2e', '#def4cd', '#ffb3fa', '#ff0040'],
+    radius: 0.7,
+    focalDistance: 0.99,
+    focalAngle: 0,
+    falloff: 0.24,
+    mixing: 0.35,
+    distortion: 0.0,
+    grainMixer: 0.0,
+    grainOverlay: 0.0,
+  },
+};
+
+export const loFiPreset: StaticRadialGradientPreset = {
+  name: 'Lo-Fi',
+  params: {
+    ...defaultObjectSizing,
+    scale: 1,
+    speed: 0,
+    frame: 0,
+    colors: ['#2e1f27', '#d72638', '#3f88c5', '#f49d37'],
+    radius: 1,
+    focalDistance: 0,
+    focalAngle: 0,
+    falloff: 0.9,
+    mixing: 0.5,
+    distortion: 0,
+    grainMixer: 1,
+    grainOverlay: 0.5,
+  },
+};
+
+export const staticRadialGradientPresets: StaticRadialGradientPreset[] = [
+  defaultPreset,
+  loFiPreset,
+  crossSectionPreset,
+  glowPreset,
+];
 
 export const StaticRadialGradient: React.FC<StaticRadialGradientProps> = memo(function StaticRadialGradientImpl({
   // Own props
