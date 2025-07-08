@@ -81,10 +81,6 @@ export { StaticMeshGradient, staticMeshGradientPresets } from './shaders/static-
 export type { StaticMeshGradientProps } from './shaders/static-mesh-gradient.js';
 export type { StaticMeshGradientUniforms, StaticMeshGradientParams } from '@paper-design/shaders';
 
-export { StaticLinearGradient, staticLinearGradientPresets } from './shaders/static-linear-gradient.js';
-export type { StaticLinearGradientProps } from './shaders/static-linear-gradient.js';
-export type { StaticLinearGradientUniforms, StaticLinearGradientParams } from '@paper-design/shaders';
-
 export { StaticRadialGradient, staticRadialGradientPresets } from './shaders/static-radial-gradient.js';
 export type { StaticRadialGradientProps } from './shaders/static-radial-gradient.js';
 export type { StaticRadialGradientUniforms, StaticRadialGradientParams } from '@paper-design/shaders';
@@ -106,6 +102,5 @@ export {
   voronoiMeta,
   warpMeta,
   staticMeshGradientMeta,
-  staticLinearGradientMeta,
   staticRadialGradientMeta,
 } from '@paper-design/shaders';

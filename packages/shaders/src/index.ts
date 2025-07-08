@@ -165,13 +165,6 @@ export {
 } from './shaders/static-mesh-gradient.js';
 
 export {
-  staticLinearGradientFragmentShader,
-  staticLinearGradientMeta,
-  type StaticLinearGradientParams,
-  type StaticLinearGradientUniforms,
-} from './shaders/static-linear-gradient.js';
-
-export {
   staticRadialGradientFragmentShader,
   staticRadialGradientMeta,
   type StaticRadialGradientParams,
