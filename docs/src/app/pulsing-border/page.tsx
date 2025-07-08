@@ -46,7 +46,7 @@ const PulsingBorderWithControls = () => {
             step: 1,
             order: 305,
           },
-          spotSize: { value: defaults.spotSize, min: 0.1, max: 0.5, order: 306 },
+          spotSize: { value: defaults.spotSize, min: 0, max: 1, order: 306 },
           pulse: { value: defaults.pulse, min: 0, max: 1, order: 307 },
           smoke: { value: defaults.smoke, min: 0, max: 1, order: 350 },
           smokeSize: { value: defaults.smokeSize, min: 0, max: 1, order: 351 },

@@ -208,7 +208,7 @@ void main() {
       mask = mix(mask, pulse, p);
 
       float atg1 = fract(angle + time);
-      float spotSize = u_spotSize + .05 * randVal.x;
+      float spotSize = .05 + .6 * pow(u_spotSize, 2.) + .05 * randVal.x;
       spotSize = mix(spotSize, .1, p);
       float sector = smoothstep(.5 - spotSize, .5, atg1) * smoothstep(.5 + spotSize, .5, atg1);
       
