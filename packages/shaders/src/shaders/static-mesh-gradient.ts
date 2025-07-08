@@ -83,16 +83,25 @@ void main() {
     if (i >= int(u_colorsCount)) break;
 
     vec2 pos = getPosition(i, positionSeed) + mixerGrain;
+    float dist = length(uv - pos);
+    dist = length(uv - pos);
+
     vec3 colorFraction = u_colors[i].rgb * u_colors[i].a;
     float opacityFraction = u_colors[i].a;
 
-    float dist = length(uv - pos);
-    dist = length(uv - pos);
-    dist = pow(dist, 2. + 4. * u_mixing);
-    float weight = 1. / (dist + 1e-3);
-    color += colorFraction * weight;
-    opacity += opacityFraction * weight;
-    totalWeight += weight;
+    float power = 4.;
+    if (u_mixing > .5) {
+      power = mix(power, .75, 2. * (u_mixing - .5));
+    }
+    dist = pow(dist, power);
+
+    float w = 1. / (dist + 1e-3);
+    if (u_mixing < .5) {
+      w = pow(w, mix(mix(.01, 5., clamp(w, 0., 1.)), 1., 2. * u_mixing));
+    }
+    color += colorFraction * w;
+    opacity += opacityFraction * w;
+    totalWeight += w;
   }
 
   color /= totalWeight;
