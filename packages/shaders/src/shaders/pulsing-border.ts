@@ -56,9 +56,9 @@ ${declarePI}
 
 float beat(float time) {
   float first = pow(sin(time * TWO_PI), 10.);
-  float second = pow(sin((time - 0.3) * TWO_PI), 10.);
+  float second = pow(sin((time - 0.15) * TWO_PI), 10.);
 
-  return clamp(first + 0.5 * second, 0.0, 1.0);
+  return clamp(first + 0.6 * second, 0.0, 1.0);
 }
 
 float roundedBox(vec2 uv, float distance) {
@@ -101,7 +101,7 @@ void main() {
 
   float angle = atan(borderUV.y, borderUV.x) / TWO_PI;
 
-  float pulse = u_pulse * beat(.25 * u_time);
+  float pulse = u_pulse * beat(.18 * u_time);
 
   float borderRatio = v_responsiveBoxGivenSize.x / v_responsiveBoxGivenSize.y;
   borderUV.x *= borderRatio;
