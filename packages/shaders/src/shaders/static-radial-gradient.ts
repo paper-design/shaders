@@ -37,6 +37,7 @@ uniform float u_focalAngle;
 uniform float u_falloff;
 uniform float u_mixing;
 uniform float u_distortion;
+uniform float u_distortionShift;
 uniform float u_grainMixer;
 uniform float u_grainOverlay;
 
@@ -104,7 +105,7 @@ void main() {
   shape *= smoothstep(radius, radius - .01, r);
 
   float angle = atan(f_to_uv.y, f_to_uv.x);
-  shape -= pow(u_distortion, 2.) * shape * pow(sin(PI * length(f_to_uv) - .2), 4.) * (sin(12. * angle) + cos(7. * angle));
+  shape -= pow(u_distortion, 2.) * shape * pow(sin(PI * clamp(length(f_to_uv) - .2 + u_distortionShift, 0., 1.)), 4.) * (sin(12. * angle) + cos(7. * angle));
 
 
   vec2 grainUV = rotate(v_objectUV, 2.) * 180.;
@@ -158,6 +159,7 @@ export interface StaticRadialGradientUniforms extends ShaderSizingUniforms {
   u_falloff: number;
   u_mixing: number;
   u_distortion: number;
+  u_distortionShift: number;
   u_grainMixer: number;
   u_grainOverlay: number;
 }
@@ -170,6 +172,7 @@ export interface StaticRadialGradientParams extends ShaderSizingParams, ShaderMo
   falloff?: number;
   mixing?: number;
   distortion?: number;
+  distortionShift?: number;
   grainMixer?: number;
   grainOverlay?: number;
 }

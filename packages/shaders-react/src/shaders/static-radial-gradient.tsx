@@ -29,6 +29,7 @@ export const defaultPreset: StaticRadialGradientPreset = {
     falloff: 0,
     mixing: 0.7,
     distortion: 0,
+    distortionShift: 0,
     grainMixer: 0,
     grainOverlay: 0,
   },
@@ -48,6 +49,7 @@ export const crossSectionPreset: StaticRadialGradientPreset = {
     falloff: 0,
     mixing: 0,
     distortion: 1,
+    distortionShift: 0,
     grainMixer: 0,
     grainOverlay: 0,
   },
@@ -67,6 +69,7 @@ export const glowPreset: StaticRadialGradientPreset = {
     falloff: 0.24,
     mixing: 0.35,
     distortion: 0.0,
+    distortionShift: 0,
     grainMixer: 0.0,
     grainOverlay: 0.0,
   },
@@ -86,6 +89,7 @@ export const loFiPreset: StaticRadialGradientPreset = {
     falloff: 0.9,
     mixing: 0.5,
     distortion: 0,
+    distortionShift: 0,
     grainMixer: 1,
     grainOverlay: 0.5,
   },
@@ -110,6 +114,7 @@ export const StaticRadialGradient: React.FC<StaticRadialGradientProps> = memo(fu
   grainMixer = defaultPreset.params.grainMixer,
   mixing = defaultPreset.params.mixing,
   distortion = defaultPreset.params.distortion,
+  distortionShift = defaultPreset.params.distortionShift,
   grainOverlay = defaultPreset.params.grainOverlay,
 
   // Sizing props
@@ -134,6 +139,7 @@ export const StaticRadialGradient: React.FC<StaticRadialGradientProps> = memo(fu
     u_falloff: falloff,
     u_mixing: mixing,
     u_distortion: distortion,
+    u_distortionShift: distortionShift,
     u_grainMixer: grainMixer,
     u_grainOverlay: grainOverlay,
 
