@@ -121,14 +121,15 @@ void main() {
     float mLinear = clamp(mixer - float(i - 1), 0.0, 1.0);
     
     float m = 0.;
-    float mixing = .001 + u_mixing * 3.;
+    float mixing = u_mixing * 3.;
     if (mixing > 2.) {
       float tt = pow(mLinear, 2.);
       m = mix(mLinear, tt, .5 * clamp((mixing - 2.), 0., 1.));
     } else if (mixing > 1.) {
       m = mix(smoothstep(0., 1., mLinear), mLinear, clamp((mixing - 1.), 0., 1.));
     } else {
-      m = smoothstep(.5 - .5 * mixing, .5 + .5 * mixing, mLinear);
+      float aa = fwidth(mLinear);
+      m = smoothstep(.5 - .5 * mixing - aa, .5 + .5 * mixing + aa, mLinear);
     }
     
     vec4 c = u_colors[i];
