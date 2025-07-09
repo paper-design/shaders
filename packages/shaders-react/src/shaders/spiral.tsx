@@ -159,7 +159,7 @@ export const spiralPresets: SpiralPreset[] = [
   dropletPreset,
   swirlPreset,
   sandPreset,
-  hookPreset,
+  // hookPreset,
   vinylPreset,
 ];
 
