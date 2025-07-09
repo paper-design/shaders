@@ -1,5 +1,5 @@
 import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
-import { declarePI, declareRotate } from '../shader-utils.js';
+import { declarePI } from '../shader-utils.js';
 
 /**
  * Waveform pattern
@@ -21,7 +21,8 @@ import { declarePI, declareRotate } from '../shader-utils.js';
 export const wavesFragmentShader: string = `#version 300 es
 precision mediump float;
 
-uniform float u_scale;
+uniform float u_pixelRatio;
+uniform vec2 u_resolution;
 
 uniform vec4 u_colorFront;
 uniform vec4 u_colorBack;
@@ -37,7 +38,6 @@ ${sizingVariablesDeclaration}
 out vec4 fragColor;
 
 ${declarePI}
-${declareRotate}
 
 void main() {
   vec2 shape_uv = v_patternUV;
@@ -53,14 +53,15 @@ void main() {
   offset = mix(offset, irregular2, smoothstep(2., 3., u_shape));
   offset *= 2. * u_amplitude;
 
-  float spacing = .02 + .98 * u_spacing;
+  float spacing = (.001 + u_spacing);
   float shape = .5 + .5 * sin((shape_uv.y + offset) * PI / spacing);
 
-  float edge_width = .01 + .1 * abs(min(u_scale, 1.) - 1.);
-  edge_width += .5 * max(0., u_softness);
-  float dc = 1. - clamp(u_proportion, 0., 1.);
-  float res = smoothstep(dc - edge_width, dc + edge_width, shape);
-
+  float aa = max(fwidth(shape), 1. / (u_pixelRatio * u_resolution.y));
+  float dc = 1. - clamp(u_proportion, dFdy(offset), 1. - dFdy(offset));
+  float edgeFalloff = pow(1. - abs(dc), 20.) + pow(1. - abs(dc - 1.0), 20.);
+  aa *= (1. + .5 * edgeFalloff);
+  float res = smoothstep(dc - u_softness - aa, dc + u_softness + aa, shape);
+  
   vec3 fgColor = u_colorFront.rgb * u_colorFront.a;
   float fgOpacity = u_colorFront.a;
   vec3 bgColor = u_colorBack.rgb * u_colorBack.a;

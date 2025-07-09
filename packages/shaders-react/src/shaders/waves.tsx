@@ -27,7 +27,7 @@ export const defaultPreset: WavesPreset = {
     amplitude: 0.6,
     spacing: 0.65,
     proportion: 0.15,
-    softness: 0.05,
+    softness: 0,
   },
 };
 
@@ -61,7 +61,7 @@ export const tangledUpPreset: WavesPreset = {
     amplitude: 0.57,
     spacing: 1.05,
     proportion: 0.75,
-    softness: 0.02,
+    softness: 0,
   },
 };
 
