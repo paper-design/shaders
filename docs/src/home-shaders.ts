@@ -157,7 +157,7 @@ export const homeShaders = [
     url: '/god-rays',
     ShaderComponent: GodRays,
     image: godRaysImg,
-    shaderConfig: { ...godRaysPresets[0].params, offsetX: -1.1, midSize: 7 },
+    shaderConfig: { ...godRaysPresets[0].params, offsetX: -1.1, midSize: 1, },
   },
   {
     name: 'spiral',
