@@ -47,7 +47,7 @@ export const seaPreset: StaticMeshGradientPreset = {
     waveYShift: 0.64,
     mixing: 0.5,
     grainMixer: 0.0,
-    grainOverlay: 0.0
+    grainOverlay: 0.0,
   },
 };
 
@@ -65,10 +65,9 @@ export const sixtiesPreset: StaticMeshGradientPreset = {
     waveYShift: 0.0,
     mixing: 0.0,
     grainMixer: 0.37,
-    grainOverlay: 0.78
+    grainOverlay: 0.78,
   },
 };
-
 
 export const impressionismPreset: StaticMeshGradientPreset = {
   name: 'Impressionism',
@@ -79,16 +78,21 @@ export const impressionismPreset: StaticMeshGradientPreset = {
     colors: ['#ffad0a', '#6200ff', '#e2a3ff', '#ff99fd'],
     positions: 2,
     waveX: 1.0,
-    waveXShift: 0.60,
+    waveXShift: 0.6,
     waveY: 1.0,
     waveYShift: 0.21,
     mixing: 0.93,
     grainMixer: 0.0,
-    grainOverlay: 0.0
+    grainOverlay: 0.0,
   },
 };
 
-export const staticMeshGradientPresets: StaticMeshGradientPreset[] = [defaultPreset, sixtiesPreset, impressionismPreset, seaPreset];
+export const staticMeshGradientPresets: StaticMeshGradientPreset[] = [
+  defaultPreset,
+  sixtiesPreset,
+  impressionismPreset,
+  seaPreset,
+];
 
 export const StaticMeshGradient: React.FC<StaticMeshGradientProps> = memo(function StaticMeshGradientImpl({
   // Own props

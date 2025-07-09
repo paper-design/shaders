@@ -54,7 +54,7 @@ import {
   StaticMeshGradient,
   staticMeshGradientPresets,
   StaticRadialGradient,
-  staticRadialGradientPresets
+  staticRadialGradientPresets,
 } from '@paper-design/shaders-react';
 import { StaticImageData } from 'next/image';
 import TextureTest from './app/texture-test/page';
