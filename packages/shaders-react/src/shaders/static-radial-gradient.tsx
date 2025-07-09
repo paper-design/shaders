@@ -22,7 +22,8 @@ export const defaultPreset: StaticRadialGradientPreset = {
     scale: 1,
     speed: 0,
     frame: 0,
-    colors: ['#264653', '#9c2b2b', '#f4a261', '#ffffff'],
+    colorBack: '#264653',
+    colors: ['#9c2b2b', '#f4a261', '#ffffff'],
     radius: 1,
     focalDistance: 0,
     focalAngle: 0,
@@ -43,7 +44,8 @@ export const crossSectionPreset: StaticRadialGradientPreset = {
     scale: 1,
     speed: 0,
     frame: 0,
-    colors: ['#3d348b', '#7678ed', '#f7b801', '#f18701'],
+    colorBack: '#3d348b',
+    colors: ['#7678ed', '#f7b801', '#f18701'],
     radius: 1,
     focalDistance: 0,
     focalAngle: 0,
@@ -64,7 +66,8 @@ export const glowPreset: StaticRadialGradientPreset = {
     scale: 1,
     speed: 0,
     frame: 0,
-    colors: ['#2e2e2e', '#def4cd', '#ffb3fa', '#ff0040'],
+    colorBack: '#2e2e2e',
+    colors: ['#def4cd', '#ffb3fa', '#ff0040'],
     radius: 0.7,
     focalDistance: 0.99,
     focalAngle: 0,
@@ -82,10 +85,10 @@ export const loFiPreset: StaticRadialGradientPreset = {
   name: 'Lo-Fi',
   params: {
     ...defaultObjectSizing,
-    scale: 1,
     speed: 0,
     frame: 0,
-    colors: ['#2e1f27', '#d72638', '#3f88c5', '#f49d37'],
+    colorBack: '#2e1f27',
+    colors: ['#d72638', '#3f88c5', '#f49d37'],
     radius: 1,
     focalDistance: 0,
     focalAngle: 0,
@@ -110,6 +113,7 @@ export const StaticRadialGradient: React.FC<StaticRadialGradientProps> = memo(fu
   // Own props
   speed = defaultPreset.params.speed,
   frame = defaultPreset.params.frame,
+  colorBack = defaultPreset.params.colorBack,
   colors = defaultPreset.params.colors,
   radius = defaultPreset.params.radius,
   focalDistance = defaultPreset.params.focalDistance,
@@ -136,6 +140,7 @@ export const StaticRadialGradient: React.FC<StaticRadialGradientProps> = memo(fu
 }: StaticRadialGradientProps) {
   const uniforms = {
     // Own uniforms
+    u_colorBack: getShaderColorFromString(colorBack),
     u_colors: colors.map(getShaderColorFromString),
     u_colorsCount: colors.length,
     u_radius: radius,

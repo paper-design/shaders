@@ -34,7 +34,8 @@ const StaticRadialGradientWithControls = () => {
     return {
       Parameters: folder(
         {
-          radius: { value: defaults.radius, min: 0, max: 3, order: 100 },
+          colorBack: {value: toHsla(defaults.colorBack), order: 100},
+          radius: { value: defaults.radius, min: 0, max: 3, order: 199 },
           focalDistance: { value: defaults.focalDistance, min: 0, max: 3, order: 200 },
           focalAngle: { value: defaults.focalAngle, min: 0, max: 360, order: 201 },
           falloff: { value: defaults.falloff, min: -1, max: 1, order: 203 },

@@ -17,7 +17,6 @@ export const staticRadialGradientMeta = {
  * grainMixers applied to the coordinate space
  *
  * Uniforms:
- * - u_colorBack (RGBA)
  * - u_colors (vec4[]), u_colorsCount (float used as integer)
  * - u_grainMixer: warp grainMixer
  * - u_swirl: vortex grainMixer
@@ -28,6 +27,7 @@ export const staticRadialGradientMeta = {
 export const staticRadialGradientFragmentShader: string = `#version 300 es
 precision mediump float;
 
+uniform vec4 u_colorBack;
 uniform vec4 u_colors[${staticRadialGradientMeta.maxColorCount}];
 uniform float u_colorsCount;
 
@@ -113,11 +113,13 @@ void main() {
   float grain = grainShape(grainUV, vec2(100.));
 
   float mixerGrain = 1. * u_grainMixer * (grain - .3);
-  float mixer = shape * (u_colorsCount - 1.) + mixerGrain;
+  float mixer = shape * (u_colorsCount - 0.) + mixerGrain;
   vec4 gradient = u_colors[0];
   gradient.rgb *= gradient.a;
-  for (int i = 1; i < ${staticRadialGradientMeta.maxColorCount}; i++) { 
-    if (i >= int(u_colorsCount)) break;
+  
+  float outerShape = 0.;
+  for (int i = 1; i < ${staticRadialGradientMeta.maxColorCount + 1}; i++) {
+    if (i > int(u_colorsCount)) break;
     float mLinear = clamp(mixer - float(i - 1), 0.0, 1.0);
     
     float m = 0.;
@@ -132,14 +134,22 @@ void main() {
       m = smoothstep(.5 - .5 * mixing - aa, .5 + .5 * mixing + aa, mLinear);
     }
     
-    vec4 c = u_colors[i];
+    if (i == 1) {
+      outerShape = m;
+    }
+
+    vec4 c = u_colors[i - 1];
     c.rgb *= c.a;
     gradient = mix(gradient, c, m);
   }
 
-  vec3 color = gradient.rgb;
-  float opacity = gradient.a;
+  vec3 color = gradient.rgb * outerShape;
+  float opacity = gradient.a * outerShape;
 
+  vec3 bgColor = u_colorBack.rgb * u_colorBack.a;
+  color = color + bgColor * (1.0 - opacity);
+  opacity = opacity + u_colorBack.a * (1.0 - opacity);
+  
   float rr = grainShape(grainUV, vec2(0.));
   float gg = grainShape(grainUV, vec2(-1.));
   float bb = grainShape(grainUV, vec2(2.));
@@ -153,6 +163,7 @@ void main() {
 `;
 
 export interface StaticRadialGradientUniforms extends ShaderSizingUniforms {
+  u_colorBack: [number, number, number, number];
   u_colors: vec4[];
   u_colorsCount: number;
   u_radius: number;
@@ -168,6 +179,7 @@ export interface StaticRadialGradientUniforms extends ShaderSizingUniforms {
 }
 
 export interface StaticRadialGradientParams extends ShaderSizingParams, ShaderMotionParams {
+  colorBack?: string;
   colors?: string[];
   radius?: number;
   focalDistance?: number;
