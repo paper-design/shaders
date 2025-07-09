@@ -9,7 +9,7 @@ import { declareSimplexNoise, declarePI, colorBandingFix } from '../shader-utils
  * - u_colorBack, u_colorFront (RGBA)
  * - u_density: spacing falloff to simulate radial perspective (0 = no perspective)
  * - u_strokeWidth: thickness of stroke
- * - u_strokeTaper: stroke loosing width further from center (0 for full visibility)
+ // * - u_strokeTaper: stroke loosing width further from center (0 for full visibility)
  * - u_distortion: per-arch shift
  * - u_strokeCap: extra width at the center (no effect on u_strokeWidth = 0.5)
  * - u_noiseFrequency, u_noisePower: simplex noise distortion over the shape
@@ -29,7 +29,7 @@ uniform float u_density;
 uniform float u_distortion;
 uniform float u_strokeWidth;
 uniform float u_strokeCap;
-uniform float u_strokeTaper;
+//uniform float u_strokeTaper;
 
 uniform float u_noiseFrequency;
 uniform float u_noisePower;
@@ -55,25 +55,22 @@ void main() {
 
   float offset = pow(l, 1. - clamp(u_density, 0., 1.)) + angle_norm;
 
-  float stripe_map = fract(offset);
-  stripe_map -= .5 * u_strokeTaper * l;
-
-  stripe_map += .25 * u_noisePower * snoise(u_noiseFrequency * shape_uv);
-
-  float shape = 2. * abs(stripe_map - .5);
-  float test = step(.5, stripe_map);
+  float stripe = fract(offset);
+//  stripe -= .5 * u_strokeTaper * l;
+  stripe = max(0., stripe);
+  stripe += .25 * u_noisePower * snoise(u_noiseFrequency * shape_uv);
+  float shape = 2. * abs(stripe - .5);
 
   shape *= (1. + u_distortion * sin(4. * l - t) * cos(PI + l + t));
 
   float stroke_width = clamp(u_strokeWidth, fwidth(l), 1. - fwidth(l));
-
-  float edge_width = min(fwidth(l), fwidth(offset));
-
+  
   float mid = 1. - smoothstep(.0, .9, l);
   mid = pow(mid, 2.);
   shape -= .5 * u_strokeCap * mid;
 
-  float res = smoothstep(stroke_width - edge_width - u_softness, stroke_width + edge_width + u_softness, shape);
+  float aa = fwidth(shape);
+  float res = smoothstep(stroke_width - aa - u_softness, stroke_width + u_softness, shape);
 
   vec3 fgColor = u_colorFront.rgb * u_colorFront.a;
   float fgOpacity = u_colorFront.a;
@@ -98,7 +95,7 @@ export interface SpiralUniforms extends ShaderSizingUniforms {
   u_density: number;
   u_distortion: number;
   u_strokeWidth: number;
-  u_strokeTaper: number;
+  // u_strokeTaper: number;
   u_strokeCap: number;
   u_noiseFrequency: number;
   u_noisePower: number;
@@ -111,7 +108,7 @@ export interface SpiralParams extends ShaderSizingParams, ShaderMotionParams {
   density?: number;
   distortion?: number;
   strokeWidth?: number;
-  strokeTaper?: number;
+  // strokeTaper?: number;
   strokeCap?: number;
   noiseFrequency?: number;
   noisePower?: number;
