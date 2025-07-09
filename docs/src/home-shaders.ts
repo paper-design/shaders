@@ -51,6 +51,10 @@ import {
   pulsingBorderPresets,
   ColorPanels,
   colorPanelsPresets,
+  StaticMeshGradient,
+  staticMeshGradientPresets,
+  StaticRadialGradient,
+  staticRadialGradientPresets,
 } from '@paper-design/shaders-react';
 import { StaticImageData } from 'next/image';
 import TextureTest from './app/texture-test/page';
@@ -153,7 +157,7 @@ export const homeShaders = [
     url: '/god-rays',
     ShaderComponent: GodRays,
     image: godRaysImg,
-    shaderConfig: { ...godRaysPresets[0].params, offsetX: -1.1, midSize: 7 },
+    shaderConfig: { ...godRaysPresets[0].params, offsetX: -1.1, midSize: 1 },
   },
   {
     name: 'spiral',
@@ -197,5 +201,17 @@ export const homeShaders = [
     url: '/color-panels',
     ShaderComponent: ColorPanels,
     shaderConfig: { ...colorPanelsPresets[0].params },
+  },
+  {
+    name: 'static mesh gradient',
+    url: '/static-mesh-gradient',
+    ShaderComponent: StaticMeshGradient,
+    shaderConfig: { ...staticMeshGradientPresets[0].params },
+  },
+  {
+    name: 'static radial gradient',
+    url: '/static-radial-gradient',
+    ShaderComponent: StaticRadialGradient,
+    shaderConfig: { ...staticRadialGradientPresets[0].params },
   },
 ] satisfies HomeShaderConfig[];
