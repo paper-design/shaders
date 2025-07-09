@@ -21,9 +21,6 @@ import { declarePI } from '../shader-utils.js';
 export const wavesFragmentShader: string = `#version 300 es
 precision mediump float;
 
-uniform float u_pixelRatio;
-uniform vec2 u_resolution;
-
 uniform vec4 u_colorFront;
 uniform vec4 u_colorBack;
 uniform float u_shape;
@@ -56,10 +53,8 @@ void main() {
   float spacing = (.001 + u_spacing);
   float shape = .5 + .5 * sin((shape_uv.y + offset) * PI / spacing);
 
-  float aa = max(fwidth(shape), 1. / (u_pixelRatio * u_resolution.y));
-  float dc = 1. - clamp(u_proportion, dFdy(offset), 1. - dFdy(offset));
-  float edgeFalloff = pow(1. - abs(dc), 20.) + pow(1. - abs(dc - 1.0), 20.);
-  aa *= (1. + .5 * edgeFalloff);
+  float aa = fwidth(shape);
+  float dc = 1. - clamp(u_proportion, 0., 1.);
   float res = smoothstep(dc - u_softness - aa, dc + u_softness + aa, shape);
   
   vec3 fgColor = u_colorFront.rgb * u_colorFront.a;
