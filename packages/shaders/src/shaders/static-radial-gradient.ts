@@ -13,13 +13,18 @@ export const staticRadialGradientMeta = {
 } as const;
 
 /**
- * A composition of N color spots (one per color) with 2 types of
- * grainMixers applied to the coordinate space
+ * N-colors radial gradient
  *
  * Uniforms:
+ * - u_colorBack (RGBA)
  * - u_colors (vec4[]), u_colorsCount (float used as integer)
- * - u_grainMixer: warp grainMixer
- * - u_swirl: vortex grainMixer
+ * - u_radius - circle radius
+ * - u_focalDistance, u_focalAngle (float) - gradient center offset to the circle center
+ * - u_falloff (-1 .. 1, float) - color points distribution (0 for linear gradient)
+ * - u_mixing (0 .. 1, float) - 0 for stepped gradient, 0.5 for smooth transitions, 1 for pronounced color points
+ * - u_distortion, u_distortionShift, u_distortionFreq - radial distortion (effective with u_distortion > 0)
+ * - u_grainMixer - shape distortion
+ * - u_grainOverlay - post-processing blending
  *
  */
 

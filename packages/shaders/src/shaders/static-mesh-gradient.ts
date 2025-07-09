@@ -13,11 +13,16 @@ export const staticMeshGradientMeta = {
 } as const;
 
 /**
- * A composition of N color spots (one per color) with 2 types of
- * distortions applied to the coordinate space
+ * A composition of N color spots (one per color)
  *
  * Uniforms:
+ * - u_colorBack (RGBA)
  * - u_colors (vec4[]), u_colorsCount (float used as integer)
+ * - u_waveX, u_waveY - power of sine wave distortion along X and Y axes
+ * - u_waveXShift, u_waveYShift - each wave phase offset
+ * - u_mixing (0 .. 1, float) - 0 for stepped gradient, 0.5 for smooth transitions, 1 for pronounced color points
+ * - u_grainMixer - shape distortion
+ * - u_grainOverlay - post-processing blending
  *
  */
 
