@@ -54,6 +54,8 @@ ${declareValueNoise}
 void main() {
   vec2 uv = v_patternUV;
   uv *= .005;
+  
+  vec2 preWarpUV = uv;
 
   float t = 0.0625 * u_time;
 
@@ -69,6 +71,10 @@ void main() {
     uv.y += clamp(u_swirl, 0., 2.) / i * cos(t + i * 1. * uv.x);
   }
 
+  float softner = length(fwidth(uv));
+  softner = smoothstep(0., .5 - .01 * u_colorsCount, softner);
+  softner *= u_swirl;
+  
   float proportion = clamp(u_proportion, 0., 1.);
 
   float shape = 0.;
@@ -91,17 +97,18 @@ void main() {
   gradient.rgb *= gradient.a;
   for (int i = 1; i < ${warpMeta.maxColorCount}; i++) {
     if (i >= int(u_colorsCount)) break;
-    float localMixer = clamp(mixer - float(i - 1), 0.0, 1.0);
+    float m = clamp(mixer - float(i - 1), 0.0, 1.0);
 
-    float localMixerStart = floor(localMixer);
-    float smoothed = smoothstep(.5 - u_softness * .5, .5 + u_softness * .5, localMixer - localMixerStart);
-    float localTStepped = localMixerStart + smoothed;
+    float localMixerStart = floor(m);
+    float softness = .5 * u_softness + softner + fwidth(m);
+    float smoothed = smoothstep(max(0., .5 - softness), min(1., .5 + softness), m - localMixerStart);
+    float stepped = localMixerStart + smoothed;
 
-    localMixer = mix(localTStepped, localMixer, u_softness);
+    m = mix(stepped, m, u_softness);
 
     vec4 c = u_colors[i];
     c.rgb *= c.a;
-    gradient = mix(gradient, c, localMixer);
+    gradient = mix(gradient, c, m);
   }
 
   vec3 color = gradient.rgb;
