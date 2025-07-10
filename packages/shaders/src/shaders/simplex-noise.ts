@@ -51,8 +51,7 @@ float steppedSmooth(float m, float steps, float softness) {
 
 void main() {
   vec2 shape_uv = v_patternUV;
-
-  shape_uv *= .001;
+  shape_uv *= .1;
 
   float t = .2 * u_time;
 

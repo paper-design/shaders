@@ -117,8 +117,8 @@ void main() {
     grain_uv *= v_objectBoxSize;
     grain_uv *= .7;
   } else {
-    shape_uv = .005 * v_patternUV;
-    grain_uv = v_patternUV;
+    shape_uv = .5 * v_patternUV;
+    grain_uv = 100. * v_patternUV;
     
     // apply inverse transform to grain_uv so it respects the originXY
     float r = u_rotation * 3.14159265358979323846 / 180.;

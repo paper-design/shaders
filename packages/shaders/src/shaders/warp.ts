@@ -53,7 +53,7 @@ ${declareValueNoise}
 
 void main() {
   vec2 uv = v_patternUV;
-  uv *= .005;
+  uv *= .5;
   
   vec2 preWarpUV = uv;
 

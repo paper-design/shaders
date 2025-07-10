@@ -41,8 +41,8 @@ const SpiralWithControls = () => {
           strokeWidth: { value: defaults.strokeWidth, min: 0, max: 1, order: 205 },
           strokeTaper: { value: defaults.strokeTaper, min: 0, max: 1, order: 206 },
           strokeCap: { value: defaults.strokeCap, min: 0, max: 1, order: 207 },
-          noiseFrequency: { value: defaults.noiseFrequency, min: 0, max: 30, order: 350 },
-          noisePower: { value: defaults.noisePower, min: 0, max: 1, order: 351 },
+          noise: { value: defaults.noise, min: 0, max: 1, order: 350 },
+          noiseFrequency: { value: defaults.noiseFrequency, min: 0, max: 1, order: 351 },
           softness: { value: defaults.softness, min: 0, max: 1, order: 352 },
           speed: { value: defaults.speed, min: 0, max: 2, order: 400 },
           reverse: { value: defaults.reverse, order: 401 },
@@ -58,7 +58,7 @@ const SpiralWithControls = () => {
         },
         {
           order: 2,
-          collapsed: false,
+          collapsed: true,
         }
       ),
       Fit: folder(

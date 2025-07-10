@@ -155,7 +155,7 @@ void main() {
   border *= (1. + .1 * pulse);
   border *= (1. + u_intensity);
 
-  vec2 smokeUV = .001 * u_smokeSize * v_patternUV;
+  vec2 smokeUV = .1 * u_smokeSize * v_patternUV;
   float smoke = clamp(3. * valueNoise(2.7 * smokeUV + .5 * t), 0., 1.);
   smoke -= valueNoise(3.4 * smokeUV - .5 * t);
   smoke *= roundedBoxSmoke(borderUV, halfSize, radius, distance, u_smoke);

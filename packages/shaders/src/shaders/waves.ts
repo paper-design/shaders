@@ -38,7 +38,7 @@ ${declarePI}
 
 void main() {
   vec2 shape_uv = v_patternUV;
-  shape_uv *= .04;
+  shape_uv *= .4;
 
   float wave = .5 * cos(shape_uv.x * u_frequency * TWO_PI);
   float zigzag = 2. * abs(fract(shape_uv.x * u_frequency) - .5);

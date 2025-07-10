@@ -100,7 +100,7 @@ vec4 voronoi(vec2 x, float t) {
 
 void main() {
   vec2 shape_uv = v_patternUV;
-  shape_uv *= .0125;
+  shape_uv *= 1.25;
 
   float t = u_time;
 
