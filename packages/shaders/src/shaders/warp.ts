@@ -63,10 +63,13 @@ void main() {
   uv.x += 4. * u_distortion * n2 * cos(angle);
   uv.y += 4. * u_distortion * n2 * sin(angle);
 
-  float iterationsNumber = ceil(clamp(u_swirlIterations, 1., 30.));
-  for (float i = 1.; i <= iterationsNumber; i++) {
-    uv.x += clamp(u_swirl, 0., 2.) / i * cos(t + i * 1.5 * uv.y);
-    uv.y += clamp(u_swirl, 0., 2.) / i * cos(t + i * 1. * uv.x);
+  float swirl = u_swirl;
+  for (int i = 1; i <= 20; i++) {
+    if (i >= int(u_swirlIterations)) break;
+    float iFloat = float(i);
+//    swirl *= (1. - smoothstep(.0, .25, length(fwidth(uv))));
+    uv.x += swirl / iFloat * cos(t + iFloat * 1.5 * uv.y);
+    uv.y += swirl / iFloat * cos(t + iFloat * 1. * uv.x);
   }
 
   float proportion = clamp(u_proportion, 0., 1.);
@@ -89,13 +92,14 @@ void main() {
   float mixer = shape * (u_colorsCount - 1.);
   vec4 gradient = u_colors[0];
   gradient.rgb *= gradient.a;
+  float aa = fwidth(shape);
   for (int i = 1; i < ${warpMeta.maxColorCount}; i++) {
     if (i >= int(u_colorsCount)) break;
     float m = clamp(mixer - float(i - 1), 0.0, 1.0);
 
     float localMixerStart = floor(m);
     float softness = .5 * u_softness + fwidth(m);
-    float smoothed = smoothstep(max(0., .5 - softness), min(1., .5 + softness), m - localMixerStart);
+    float smoothed = smoothstep(max(0., .5 - softness - aa), min(1., .5 + softness + aa), m - localMixerStart);
     float stepped = localMixerStart + smoothed;
 
     m = mix(stepped, m, u_softness);
