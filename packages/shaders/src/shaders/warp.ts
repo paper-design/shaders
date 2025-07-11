@@ -54,8 +54,6 @@ ${declareValueNoise}
 void main() {
   vec2 uv = v_patternUV;
   uv *= .5;
-  
-  vec2 preWarpUV = uv;
 
   float t = 0.0625 * u_time;
 
@@ -71,10 +69,6 @@ void main() {
     uv.y += clamp(u_swirl, 0., 2.) / i * cos(t + i * 1. * uv.x);
   }
 
-  float softner = length(fwidth(uv));
-  softner = smoothstep(0., .5 - .01 * u_colorsCount, softner);
-  softner *= u_swirl;
-  
   float proportion = clamp(u_proportion, 0., 1.);
 
   float shape = 0.;
@@ -100,7 +94,7 @@ void main() {
     float m = clamp(mixer - float(i - 1), 0.0, 1.0);
 
     float localMixerStart = floor(m);
-    float softness = .5 * u_softness + softner + fwidth(m);
+    float softness = .5 * u_softness + fwidth(m);
     float smoothed = smoothstep(max(0., .5 - softness), min(1., .5 + softness), m - localMixerStart);
     float stepped = localMixerStart + smoothed;
 
