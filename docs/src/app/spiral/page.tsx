@@ -58,7 +58,7 @@ const SpiralWithControls = () => {
         },
         {
           order: 2,
-          collapsed: true,
+          collapsed: false,
         }
       ),
       Fit: folder(

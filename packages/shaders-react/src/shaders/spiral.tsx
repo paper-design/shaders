@@ -29,7 +29,7 @@ export const defaultPreset: SpiralPreset = {
     noise: 1,
     noiseFrequency: 0.25,
     softness: 0,
-    speed: 1,
+    speed: 0.75,
     frame: 0,
   },
 };

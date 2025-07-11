@@ -1,10 +1,5 @@
 import type { ShaderMotionParams } from '../shader-mount.js';
-import {
-  sizingUniformsDeclaration,
-  sizingVariablesDeclaration,
-  type ShaderSizingParams,
-  type ShaderSizingUniforms,
-} from '../shader-sizing.js';
+import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
 import { declareSimplexNoise, declarePI, colorBandingFix } from '../shader-utils.js';
 
 /**
@@ -27,8 +22,6 @@ export const spiralFragmentShader: string = `#version 300 es
 precision mediump float;
 
 uniform float u_time;
-uniform vec2 u_resolution;
-uniform float u_pixelRatio;
 
 uniform vec4 u_colorBack;
 uniform vec4 u_colorFront;
@@ -41,7 +34,6 @@ uniform float u_noise;
 uniform float u_noiseFrequency;
 uniform float u_softness;
 
-${sizingUniformsDeclaration}
 ${sizingVariablesDeclaration}
 
 out vec4 fragColor;
@@ -56,24 +48,26 @@ void main() {
   float l = length(uv);
   float density = 1. - clamp(u_density, 0., 1.);
   l = pow(l, density);
-  float angle = atan(uv.y, uv.x) - 2. * t;
+  float angle = atan(uv.y, uv.x) - t;
   float angleNormalised = angle / TWO_PI;
 
   angleNormalised += .125 * u_noise * snoise(16. * pow(u_noiseFrequency, 3.) * uv);
 
   float offset = l + angleNormalised;
-  offset -= u_distortion * (sin(4. * l - t) * cos(PI + l + t));
+  offset -= u_distortion * (sin(4. * l - .5 * t) * cos(PI + l + .5 * t));
   float stripe = fract(offset);
   
   float shape = 2. * abs(stripe - .5);
   float width = clamp(u_strokeWidth, .005 * u_strokeTaper, 1.);
 
 
-  float wCap = mix(width, (1. - fract(offset)) * (1. - step(.5, stripe)), (1. - clamp(l, 0., 1.)));
+  float wCap = mix(width, (1. - stripe) * (1. - step(.5, stripe)), (1. - clamp(l, 0., 1.)));
   width = mix(width, wCap, u_strokeCap);
   width *= (1. - clamp(u_strokeTaper, 0., 1.) * l);
 
-  float pixelSize = 4. * fwidth(offset);
+  float fw = fwidth(offset);
+  float fwMult = 4. - 3. * (smoothstep(.05, .4, 2. * u_strokeWidth) * smoothstep(.05, .4, 2. * (1. - u_strokeWidth)));
+  float pixelSize = mix(fwMult * fw, fwidth(shape), clamp(fw, 0., 1.));
   pixelSize = mix(pixelSize, .002, u_strokeCap * (1. - clamp(l, 0., 1.)));
 
   float res = smoothstep(width - pixelSize - u_softness, width + pixelSize + u_softness, shape);
@@ -92,7 +86,6 @@ void main() {
   ${colorBandingFix}
 
   fragColor = vec4(color, opacity);
-//  fragColor = vec4(wCap, wCap, wCap, opacity);
 }
 `;
 
