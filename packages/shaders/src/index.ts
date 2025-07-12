@@ -157,8 +157,20 @@ export {
   type ColorPanelsUniforms,
 } from './shaders/color-panels.js';
 
-// ----- Blobs Grid Pattern ----- //
-/** the dot grid with shape distortion and additional overlays (shades, outlines, highlights) */
+export {
+  staticMeshGradientFragmentShader,
+  staticMeshGradientMeta,
+  type StaticMeshGradientParams,
+  type StaticMeshGradientUniforms,
+} from './shaders/static-mesh-gradient.js';
+
+export {
+  staticRadialGradientFragmentShader,
+  staticRadialGradientMeta,
+  type StaticRadialGradientParams,
+  type StaticRadialGradientUniforms,
+} from './shaders/static-radial-gradient.js';
+
 export {
   blobsGridMeta,
   blobsGridFragmentShader,

@@ -1,7 +1,13 @@
 import type { vec4 } from '../types.js';
 import type { ShaderMotionParams } from '../shader-mount.js';
-import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
-import { declareSimplexNoise, declarePI, declareRandom, declareValueNoise, colorBandingFix } from '../shader-utils.js';
+import {
+  sizingVariablesDeclaration,
+  type ShaderSizingParams,
+  type ShaderSizingUniforms,
+  sizingDebugVariablesDeclaration,
+  sizingUniformsDeclaration,
+} from '../shader-sizing.js';
+import { declareSimplexNoise, declarePI, declareValueNoise, declareRotate } from '../shader-utils.js';
 
 export const grainGradientMeta = {
   maxColorCount: 7,
@@ -25,15 +31,21 @@ export const grainGradientMeta = {
  * ---- 6: blob (metaballs)
  * ---- 7: circle imitating 3d look
  *
+ * - u_noiseTexture (sampler2D): pre-computed randomizer source
+ *
  * Note: grains are calculated using gl_FragCoord & u_resolution, meaning grains don't react to scaling and fit
  *
  */
+
+// language=GLSL
 export const grainGradientFragmentShader: string = `#version 300 es
 precision mediump float;
 
 uniform float u_time;
 uniform vec2 u_resolution;
 uniform float u_pixelRatio;
+
+uniform sampler2D u_noiseTexture;
 
 uniform vec4 u_colorBack;
 uniform vec4 u_colors[${grainGradientMeta.maxColorCount}];
@@ -44,27 +56,27 @@ uniform float u_noise;
 uniform float u_shape;
 
 ${sizingVariablesDeclaration}
+${sizingDebugVariablesDeclaration}
+${sizingUniformsDeclaration}
 
 out vec4 fragColor;
 
 ${declarePI}
 ${declareSimplexNoise}
-${declareRandom}
+${declareRotate}
+
+float randomGeneric(vec2 st) {
+  return fract(sin(dot(st.xy, vec2(12.9898, 78.233))) * 43758.5453123);
+}
+float random(vec2 p) {
+  vec2 uv = floor(p) / 100. + .5;
+  return texture(u_noiseTexture, uv).r;
+}
 ${declareValueNoise}
-
-
-float rand(vec2 n) {
-  return fract(cos(dot(n, vec2(12.9898, 4.1414))) * 43758.5453);
-}
-float noise(vec2 n) {
-  const vec2 d = vec2(0.0, 1.0);
-  vec2 b = floor(n), f = smoothstep(vec2(0.0), vec2(1.0), fract(n));
-  return mix(mix(rand(b), rand(b + d.yx), f.x), mix(rand(b + d.xy), rand(b + d.yy), f.x), f.y);
-}
-float fbm_4(vec2 n) {
+float fbm(in vec2 n) {
   float total = 0.0, amplitude = .2;
-  for (int i = 0; i < 4; i++) {
-    total += noise(n) * amplitude;
+  for (int i = 0; i < 3; i++) {
+    total += valueNoise(n) * amplitude;
     n += n;
     amplitude *= 0.6;
   }
@@ -87,11 +99,48 @@ vec2 truchet(vec2 uv, float idx){
 void main() {
 
   float t = .1 * u_time;
+    
+  vec2 shape_uv = vec2(0.);
+  vec2 grain_uv = vec2(0.);
 
-  vec2 grain_uv = (gl_FragCoord.xy - .5 * u_resolution) / u_pixelRatio;
-  vec2 shape_uv = v_objectUV;
-  if (u_shape < 3.5) {
-    shape_uv = v_patternUV * .005;
+  if (u_shape > 3.5) {
+    shape_uv = v_objectUV;
+    grain_uv = shape_uv;
+
+    // apply inverse transform to grain_uv so it respects the originXY
+    float r = u_rotation * 3.14159265358979323846 / 180.;
+    mat2 graphicRotation = mat2(cos(r), sin(r), -sin(r), cos(r));
+    vec2 graphicOffset = vec2(-u_offsetX, u_offsetY);    
+    grain_uv = transpose(graphicRotation) * grain_uv;
+    grain_uv *= u_scale;
+    grain_uv -= graphicOffset;
+    grain_uv *= v_objectBoxSize;
+    grain_uv *= .7;
+  } else {
+    shape_uv = .005 * v_patternUV;
+    grain_uv = v_patternUV;
+    
+    // apply inverse transform to grain_uv so it respects the originXY
+    float r = u_rotation * 3.14159265358979323846 / 180.;
+    mat2 graphicRotation = mat2(cos(r), sin(r), -sin(r), cos(r));
+    vec2 graphicOffset = vec2(-u_offsetX, u_offsetY);    
+    grain_uv = transpose(graphicRotation) * grain_uv;
+    grain_uv *= u_scale;
+    if (u_fit > 0.) {
+      vec2 givenBoxSize = vec2(u_worldWidth, u_worldHeight);
+      givenBoxSize = max(givenBoxSize, vec2(1.)) * u_pixelRatio;
+      float patternBoxRatio = givenBoxSize.x / givenBoxSize.y;
+      vec2 patternBoxGivenSize = vec2(
+        (u_worldWidth == 0.) ? u_resolution.x : givenBoxSize.x,
+        (u_worldHeight == 0.) ? u_resolution.y : givenBoxSize.y
+      );
+      patternBoxRatio = patternBoxGivenSize.x / patternBoxGivenSize.y;
+      float patternBoxNoFitBoxWidth = patternBoxRatio * min(patternBoxGivenSize.x / patternBoxRatio, patternBoxGivenSize.y);
+      grain_uv /= (patternBoxNoFitBoxWidth / v_patternBoxSize.x);
+    }
+    vec2 patternBoxScale = u_resolution.xy / v_patternBoxSize;
+    grain_uv -= graphicOffset / patternBoxScale;
+    grain_uv *= 1.6;
   }
 
 
@@ -100,7 +149,7 @@ void main() {
   if (u_shape < 1.5) {
     // Sine wave
 
-    float wave = cos(.5 * shape_uv.x - 2. * t) * sin(1.5 * shape_uv.x + t) * (.75 + .25 * cos(3. * t));
+    float wave = cos(.5 * shape_uv.x - 4. * t) * sin(1.5 * shape_uv.x + 2. * t) * (.75 + .25 * cos(6. * t));
     shape = 1. - smoothstep(-1., 1., shape_uv.y + wave);
 
   } else if (u_shape < 2.5) {
@@ -116,11 +165,11 @@ void main() {
   } else if (u_shape < 3.5) {
     // Truchet pattern
     
-    float n2 = valueNoise(shape_uv * .4 - 2.5 * t);
+    float n2 = valueNoise(shape_uv * .4 - 3.75 * t);
     shape_uv.x += 10.;
     shape_uv *= .6;
 
-    vec2 tile = truchet(fract(shape_uv), random(floor(shape_uv)));
+    vec2 tile = truchet(fract(shape_uv), randomGeneric(floor(shape_uv)));
 
     float distance1 = length(tile);
     float distance2 = length(tile - vec2(1.));
@@ -138,12 +187,12 @@ void main() {
     shape_uv *= .6;
     vec2 outer = vec2(.5);
 
-    vec2 bl = smoothstep(vec2(0.), outer, shape_uv + vec2(.1 + .1 * sin(2. * t), .2 - .1 * sin(3. * t)));
+    vec2 bl = smoothstep(vec2(0.), outer, shape_uv + vec2(.1 + .1 * sin(3. * t), .2 - .1 * sin(5.25 * t)));
     vec2 tr = smoothstep(vec2(0.), outer, 1. - shape_uv);
     shape = 1. - bl.x * bl.y * tr.x * tr.y;
 
     shape_uv = -shape_uv;
-    bl = smoothstep(vec2(0.), outer, shape_uv + vec2(.1 + .1 * sin(2. * t), .2 - .1 * cos(3. * t)));
+    bl = smoothstep(vec2(0.), outer, shape_uv + vec2(.1 + .1 * sin(3. * t), .2 - .1 * cos(5.25 * t)));
     tr = smoothstep(vec2(0.), outer, 1. - shape_uv);
     shape -= bl.x * bl.y * tr.x * tr.y;
 
@@ -183,15 +232,15 @@ void main() {
     float d = length(shape_uv);
     float z = sqrt(1.0 - clamp(pow(d, 2.0), 0.0, 1.0));
     vec3 pos = vec3(shape_uv, z);
-    vec3 lightPos = normalize(vec3(cos(3. * t), 0.8, sin(2.5 * t)));
+    vec3 lightPos = normalize(vec3(cos(4.5 * t), 0.8, sin(3.75 * t)));
     float lighting = dot(lightPos, pos);
     float edge = smoothstep(1., .97, d);
     shape = mix(.1, .5 + .5 * lighting, edge);
   }
 
-  float snoise05 = snoise(grain_uv * .5);
-  float grainDist = snoise(grain_uv * .2) * snoise05 - fbm_4(.002 * grain_uv + 10.) - fbm_4(.003 * grain_uv);
-  float noise = clamp(.6 * snoise05 - fbm_4(.4 * grain_uv) - fbm_4(.001 * grain_uv), 0., 1.);
+  float simplex = snoise(grain_uv * .5);
+  float grainDist = simplex * snoise(grain_uv * .2) - fbm(.002 * grain_uv + 10.) - fbm(.003 * grain_uv);
+  float noise = clamp(.65 * simplex - fbm(rotate(.4 * grain_uv, 2.)) - fbm(.001 * grain_uv), 0., 1.);
 
   shape += u_intensity * 2. / u_colorsCount * (grainDist + .5);
   shape += u_noise * 10. / u_colorsCount * noise;
@@ -205,7 +254,7 @@ void main() {
   vec4 gradient = u_colors[0];
   gradient.rgb *= gradient.a;
   for (int i = 1; i < ${grainGradientMeta.maxColorCount}; i++) {
-      if (i > int(u_colorsCount) - 1) break;
+    if (i > int(u_colorsCount) - 1) break;
 
     float localT = clamp(mixer - float(i - 1), 0., 1.);
     localT = smoothstep(.5 - .5 * u_softness, .5 + .5 * u_softness + edge_w, localT);
@@ -221,8 +270,6 @@ void main() {
   vec3 bgColor = u_colorBack.rgb * u_colorBack.a;
   color = color + bgColor * (1.0 - opacity);
   opacity = opacity + u_colorBack.a * (1.0 - opacity);
-
-  ${colorBandingFix}
 
   fragColor = vec4(color, opacity);
 }

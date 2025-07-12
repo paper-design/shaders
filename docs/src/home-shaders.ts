@@ -51,6 +51,10 @@ import {
   pulsingBorderPresets,
   ColorPanels,
   colorPanelsPresets,
+  StaticMeshGradient,
+  staticMeshGradientPresets,
+  StaticRadialGradient,
+  staticRadialGradientPresets,
   BlobsGrid,
   blobsGridPresets,
 } from '@paper-design/shaders-react';
@@ -201,9 +205,21 @@ export const homeShaders = [
     shaderConfig: { ...colorPanelsPresets[0].params },
   },
   {
+    name: 'static mesh gradient',
+    url: '/static-mesh-gradient',
+    ShaderComponent: StaticMeshGradient,
+    shaderConfig: { ...staticMeshGradientPresets[0].params },
+  },
+  {
+    name: 'static radial gradient',
+    url: '/static-radial-gradient',
+    ShaderComponent: StaticRadialGradient,
+    shaderConfig: { ...staticRadialGradientPresets[0].params },
+  },
+  {
     name: 'blobs grid',
     url: '/blobs-grid',
     ShaderComponent: BlobsGrid,
-    shaderConfig: { ...blobsGridPresets[0].params },
+    shaderConfig: {...blobsGridPresets[0].params},
   },
 ] satisfies HomeShaderConfig[];
