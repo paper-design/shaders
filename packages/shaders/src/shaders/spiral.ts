@@ -42,11 +42,11 @@ ${declarePI}
 ${declareSimplexNoise}
 
 void main() {
-  vec2 uv = v_patternUV;
+  vec2 uv = 2. * v_patternUV;
   
   float t = u_time;
   float l = length(uv);
-  float density = 1. - clamp(u_density, 0., 1.);
+  float density = clamp(u_density, 0., 1.);
   l = pow(l, density);
   float angle = atan(uv.y, uv.x) - t;
   float angleNormalised = angle / TWO_PI;
