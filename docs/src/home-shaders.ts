@@ -164,7 +164,7 @@ export const homeShaders = [
     url: '/spiral',
     ShaderComponent: Spiral,
     image: spiralImg,
-    shaderConfig: { ...spiralPresets[1].params },
+    shaderConfig: { ...spiralPresets[0].params },
   },
   {
     name: 'swirl',

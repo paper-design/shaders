@@ -22,7 +22,7 @@ export const defaultPreset: SpiralPreset = {
     scale: 1.3,
     colorBack: '#a1ef2a',
     colorFront: '#288918',
-    density: 0.36,
+    density: 0.5,
     distortion: 0,
     strokeWidth: 0.5,
     strokeTaper: 0,
