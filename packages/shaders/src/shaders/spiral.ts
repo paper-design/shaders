@@ -17,6 +17,7 @@ import { declareSimplexNoise, declarePI, colorBandingFix } from '../shader-utils
  *
  */
 
+// language=GLSL
 export const spiralFragmentShader: string = `#version 300 es
 precision mediump float;
 

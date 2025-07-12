@@ -251,11 +251,39 @@
       ]
     },
     {
+      "name": "static-mesh-gradient",
+      "type": "registry:component",
+      "title": "Static Mesh Gradient Example",
+      "description": "Static Mesh Gradient shader example.",
+      "dependencies": ["@paper-design/shaders-react"],
+      "files": [
+        {
+          "path": "registry/static-mesh-gradient-example.tsx",
+          "type": "registry:component"
+        }
+      ]
+    },
+    {
+      "name": "static-radial-gradient",
+      "type": "registry:component",
+      "title": "Static radial Gradient Example",
+      "description": "Static radial Gradient shader example.",
+      "dependencies": ["@paper-design/shaders-react"],
+      "files": [
+        {
+          "path": "registry/static-radial-gradient-example.tsx",
+          "type": "registry:component"
+        }
+      ]
+    },
+    {
       "name": "paper-texture",
       "type": "registry:component",
       "title": "Paper Texture Example",
       "description": "Paper Texture shader example.",
-      "dependencies": ["@paper-design/shaders-react"],
+      "dependencies": [
+        "@paper-design/shaders-react"
+      ],
       "files": [
         {
           "path": "registry/paper-texture-example.tsx",

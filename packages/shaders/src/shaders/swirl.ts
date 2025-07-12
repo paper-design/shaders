@@ -20,6 +20,7 @@ export const swirlMeta = {
  *
  */
 
+// language=GLSL
 export const swirlFragmentShader: string = `#version 300 es
 precision mediump float;
 

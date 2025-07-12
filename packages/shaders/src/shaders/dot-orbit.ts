@@ -20,6 +20,7 @@ export const dotOrbitMeta = {
  *
  */
 
+// language=GLSL
 export const dotOrbitFragmentShader: string = `#version 300 es
 precision mediump float;
 

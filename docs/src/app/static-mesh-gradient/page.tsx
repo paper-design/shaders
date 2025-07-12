@@ -1,59 +1,59 @@
 'use client';
 
-import { Warp, WarpPattern, warpPresets } from '@paper-design/shaders-react';
+import { StaticMeshGradient, staticMeshGradientPresets } from '@paper-design/shaders-react';
 import { useControls, button, folder } from 'leva';
 import { setParamsSafe, useResetLevaParams } from '@/helpers/use-reset-leva-params';
 import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import Link from 'next/link';
 import { BackButton } from '@/components/back-button';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
-import { warpMeta, ShaderFit, ShaderFitOptions, WarpPatterns, simplexNoiseMeta } from '@paper-design/shaders';
+import { staticMeshGradientMeta, ShaderFit, ShaderFitOptions } from '@paper-design/shaders';
 import { useColors } from '@/helpers/use-colors';
 
 /**
- * You can copy/paste this example to use Warp in your app
+ * You can copy/paste this example to use StaticMeshGradient in your app
  */
-const WarpExample = () => {
-  return <Warp style={{ position: 'fixed', width: '100%', height: '100%' }} />;
+const StaticMeshGradientExample = () => {
+  return <StaticMeshGradient style={{ position: 'fixed', width: '100%', height: '100%' }} />;
 };
 
 /**
  * This example has controls added so you can play with settings in the example app
  */
 
-const { worldWidth, worldHeight, ...defaults } = warpPresets[0].params;
+const { worldWidth, worldHeight, ...defaults } = staticMeshGradientPresets[0].params;
 
-const WarpWithControls = () => {
+const StaticMeshGradientWithControls = () => {
   const { colors, setColors } = useColors({
     defaultColors: defaults.colors,
-    maxColorCount: warpMeta.maxColorCount,
+    maxColorCount: staticMeshGradientMeta.maxColorCount,
   });
 
   const [params, setParams] = useControls(() => {
     return {
       Parameters: folder(
         {
-          proportion: { value: defaults.proportion, min: 0, max: 1, order: 300 },
-          softness: { value: defaults.softness, min: 0, max: 1, order: 301 },
-          distortion: { value: defaults.distortion, min: 0, max: 1, order: 302 },
-          swirl: { value: defaults.swirl, min: 0, max: 1, order: 303 },
-          swirlIterations: { value: defaults.swirlIterations, min: 0, max: 20, order: 304 },
-          shape: { value: defaults.shape, options: Object.keys(WarpPatterns) as WarpPattern[], order: 305 },
-          shapeScale: { value: defaults.shapeScale, min: 0, max: 1, order: 306 },
-          speed: { value: defaults.speed, min: 0, max: 20, order: 400 },
+          positions: { value: defaults.positions, min: 0, max: 100, order: 100 },
+          waveX: { value: defaults.waveX, min: 0, max: 1, order: 200 },
+          waveXShift: { value: defaults.waveXShift, min: 0, max: 1, order: 201 },
+          waveY: { value: defaults.waveY, min: 0, max: 1, order: 202 },
+          waveYShift: { value: defaults.waveYShift, min: 0, max: 1, order: 203 },
+          mixing: { value: defaults.mixing, min: 0, max: 1, order: 300 },
+          grainMixer: { value: defaults.grainMixer, min: 0, max: 1, order: 350 },
+          grainOverlay: { value: defaults.grainOverlay, min: 0, max: 1, order: 351 },
         },
         { order: 1 }
       ),
       Transform: folder(
         {
-          scale: { value: defaults.scale, min: 0.01, max: 5, order: 400 },
+          scale: { value: defaults.scale, min: 0.01, max: 4, order: 400 },
           rotation: { value: defaults.rotation, min: 0, max: 360, order: 401 },
           offsetX: { value: defaults.offsetX, min: -1, max: 1, order: 402 },
           offsetY: { value: defaults.offsetY, min: -1, max: 1, order: 403 },
         },
         {
           order: 2,
-          collapsed: false,
+          collapsed: true,
         }
       ),
       Fit: folder(
@@ -74,7 +74,7 @@ const WarpWithControls = () => {
 
   useControls(() => {
     const presets = Object.fromEntries(
-      warpPresets.map(({ name, params: { worldWidth, worldHeight, ...preset } }) => [
+      staticMeshGradientPresets.map(({ name, params: { worldWidth, worldHeight, ...preset } }) => [
         name,
         button(() => {
           const { colors, ...presetParams } = preset;
@@ -91,7 +91,7 @@ const WarpWithControls = () => {
   // Reset to defaults on mount, so that Leva doesn't show values from other
   // shaders when navigating (if two shaders have a color1 param for example)
   useResetLevaParams(params, setParams, defaults);
-  usePresetHighlight(warpPresets, params);
+  usePresetHighlight(staticMeshGradientPresets, params);
   cleanUpLevaParams(params);
 
   return (
@@ -99,9 +99,9 @@ const WarpWithControls = () => {
       <Link href="/">
         <BackButton />
       </Link>
-      <Warp {...params} colors={colors} className="fixed size-full" />
+      <StaticMeshGradient {...params} colors={colors} className="fixed size-full" />
     </>
   );
 };
 
-export default WarpWithControls;
+export default StaticMeshGradientWithControls;

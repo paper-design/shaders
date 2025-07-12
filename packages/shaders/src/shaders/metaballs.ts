@@ -20,6 +20,7 @@ export const metaballsMeta = {
  *
  */
 
+// language=GLSL
 export const metaballsFragmentShader: string = `#version 300 es
 precision mediump float;
 

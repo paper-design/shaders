@@ -1,6 +1,6 @@
 # Paper Shaders
 
-![mesh-gradient-shader](https://github.com/user-attachments/assets/2db6e087-764c-4c36-bee7-451b09c4c91e)
+![mesh-gradient-shader](./docs/public/images/git-readme-picture.png)
 
 ### Getting started
 
@@ -17,9 +17,22 @@ npm i @paper-design/shaders
 ### React example
 
 ```jsx
-import { MeshGradient } from '@paper-design/shaders-react';
+import {MeshGradient, DotOrbit} from '@paper-design/shaders-react';
 
-<MeshGradient speed={0.25} colors={['#FFC0CB', '#FFFF00', '#0000FF', '#800080']} style={{ width: 500, height: 200 }} />;
+<MeshGradient
+    colors={['#5100ff', '#00ff80', '#ffcc00', '#ea00ff']}
+    distortion={1}
+    swirl={0.8}
+    speed={0.2}
+    style={{width: 200, height: 200}}
+/>
+
+<DotOrbit
+    colors={['#d2822d', '#0c3b7e', '#b31a57', '#37a066']}
+    colorBack={'#000000'}
+    scale={0.3}
+    style={{width: 200, height: 200}}
+/>
 
 // these settings can be configured in code or designed in Paper
 ```
@@ -47,69 +60,6 @@ import { MeshGradient } from '@paper-design/shaders-react';
 - Vanilla JS (@paper-design/shaders)
 - React JS (@paper-design/shaders-react)
 - Vue and others: intent to accept community PRs in the future
-
-### Examples:
-
-#### React
-
-```jsx
-import { MeshGradient } from '@paper-design/shaders-react';
-
-<MeshGradient
-  color1="#FFC0CB" // pink
-  color2="#FFFF00" // yellow
-  color3="#0000FF" // blue
-  color4="#800080" // purple
-  speed={0.25}
-  style={{ width: 500, height: 200 }}
-/>;
-
-// these settings can be configured in code or designed in Paper
-```
-
-#### Vanilla JS
-
-```js
-import { ShaderMount, meshGradientFragmentShader, getShaderColorFromString } from '@paper-design/shaders';
-
-const myDiv = document.createElement('div');
-document.body.appendChild(myCanvas);
-myDiv.style.width = '600px';
-myDiv.style.height = '400px';
-
-const shaderParams = {
-  u_color1: getShaderColorFromString('#283BFC'),
-  u_color2: getShaderColorFromString('#FF2828'),
-  u_color3: getShaderColorFromString('#dddddd'),
-  u_color4: getShaderColorFromString('#800080'),
-};
-
-const speed = 0.25;
-const meshGradient = new ShaderMount(myDiv, meshGradientFragmentShader, shaderParams, undefined, speed);
-```
-
-## Roadmap:
-
-### Patterns:
-
-- Perlin noise (done)
-- Meta balls (done)
-- Mesh gradient (done)
-- Dot Grid (done)
-- Voronoi
-- Dither
-- Vector fields
-- Sine wave
-
-### VFX
-
-- God rays
-- Stripe
-- Water
-- Lo-fi
-- Warp
-- Swirl
-- Crystals
 
 ## Building and publishing
 
