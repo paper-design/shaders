@@ -281,9 +281,7 @@
       "type": "registry:component",
       "title": "Blobs Grid Example",
       "description": "Blobs Grid shader example.",
-      "dependencies": [
-        "@paper-design/shaders-react"
-      ],
+      "dependencies": ["@paper-design/shaders-react"],
       "files": [
         {
           "path": "registry/blobs-grid-example.tsx",

@@ -220,6 +220,6 @@ export const homeShaders = [
     name: 'blobs grid',
     url: '/blobs-grid',
     ShaderComponent: BlobsGrid,
-    shaderConfig: {...blobsGridPresets[0].params},
+    shaderConfig: { ...blobsGridPresets[0].params },
   },
 ] satisfies HomeShaderConfig[];

@@ -20,6 +20,7 @@ export const blobsGridMeta = {
  *
  */
 
+// language=GLSL
 export const blobsGridFragmentShader: string = `#version 300 es
 precision mediump float;
 
