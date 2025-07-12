@@ -38,20 +38,20 @@ const BlobsGridWithControls = () => {
           colorBack: { value: toHsla(defaults.colorBack), order: 100 },
           colorShade: { value: toHsla(defaults.colorShade), order: 101 },
           colorSpecular: { value: toHsla(defaults.colorSpecular), order: 101 },
-          colorOutline: { value: toHsla(defaults.colorOutline), order: 102 },
+          colorInnerShadow: { value: toHsla(defaults.colorInnerShadow), order: 102 },
           distortion: { value: defaults.distortion, min: 0, max: 20, order: 300 },
           size: { value: defaults.size, min: 0, max: 1, order: 301 },
           specular: { value: defaults.specular, min: 0, max: 1, order: 302 },
           specularNormal: { value: defaults.specularNormal, min: 0, max: 1, order: 303 },
           shade: { value: defaults.shade, min: 0, max: 1, order: 304 },
-          outline: { value: defaults.outline, min: 0, max: 1, order: 305 },
+          innerShadow: { value: defaults.innerShadow, min: 0, max: 1, order: 305 },
           speed: { value: defaults.speed, min: 0, max: 2, order: 400 },
         },
         { order: 1 }
       ),
       Transform: folder(
         {
-          scale: { value: defaults.scale, min: 0.01, max: 10, order: 400 },
+          scale: { value: defaults.scale, min: 0.01, max: 4, order: 400 },
           rotation: { value: defaults.rotation, min: 0, max: 360, order: 401 },
           offsetX: { value: defaults.offsetX, min: -1, max: 1, order: 402 },
           offsetY: { value: defaults.offsetY, min: -1, max: 1, order: 403 },

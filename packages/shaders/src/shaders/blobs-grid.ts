@@ -11,12 +11,12 @@ export const blobsGridMeta = {
  * A dot grid with distortion + 3d-simulating overlays (shades, outlines, highlights)
  *
  * Uniforms:
- * - u_colorBack, u_colorShade, u_colorSpecular, u_colorOutline (RGBA)
+ * - u_colorBack, u_colorShade, u_colorSpecular, u_colorInnerShadow (RGBA)
  * - u_colors (vec4[]), u_colorsCount (float used as integer)
  * - u_stepsPerColor: discrete color steps between u_colors
  * - u_size, u_distortion: blob size & shape
  * - u_specular, u_specularNormal: highlight size & shape (on each cell)
- * - u_outline, u_shade: 2 additional color overlays (on each cell)
+ * - u_innerShadow, u_shade: 2 additional color overlays (on each cell)
  *
  */
 
@@ -33,12 +33,12 @@ uniform float u_stepsPerColor;
 uniform vec4 u_colorBack;
 uniform vec4 u_colorShade;
 uniform vec4 u_colorSpecular;
-uniform vec4 u_colorOutline;
+uniform vec4 u_colorInnerShadow;
 uniform float u_distortion;
 uniform float u_specular;
 uniform float u_specularNormal;
 uniform float u_size;
-uniform float u_outline;
+uniform float u_innerShadow;
 uniform float u_shade;
 
 uniform float u_scale;
@@ -71,7 +71,7 @@ ${declareRotate}
 
 void main() {
 
-  vec2 uv = v_patternUV * .004;
+  vec2 uv = v_patternUV * .001;
 
   float t = .1 * u_time;
 
@@ -83,23 +83,25 @@ void main() {
   vec2 cellUV = fract(grid);
   vec2 cellIdx = floor(grid);
 
-  // float cellInnerShadowBlur = .1;
-  // float cellInnerShadow = 1.;
-  // cellInnerShadow *= clamp(cellUV.x / cellInnerShadowBlur, 0., 1.);
-  // cellInnerShadow *= clamp(cellUV.y / cellInnerShadowBlur, 0., 1.);
-  // cellInnerShadow *= clamp((1. - cellUV.x) / cellInnerShadowBlur, 0., 1.);
-  // cellInnerShadow *= clamp((1. - cellUV.y) / cellInnerShadowBlur, 0., 1.);
-
+  
   vec2 pos = cellUV - .5;
   float l = length(pos);
+  float aa = fwidth(l);
+
+  float cellInnerShadow = smoothstep(0., fwidth(grid.x), cellUV.x);
+  cellInnerShadow *= smoothstep(0., fwidth(grid.y), cellUV.y);
+  cellInnerShadow *= (smoothstep(1., 1. - fwidth(grid.x), cellUV.x));
+  cellInnerShadow *= (smoothstep(1., 1. - fwidth(grid.y), cellUV.y));
+  cellInnerShadow = clamp(cellInnerShadow, 0., 1.);
+  
   vec2 posNorm = normalize(pos);
   float dist = 1. - l;
 
   dist *= (.5 + .7 * u_size);
 
   const float shapeOuter = .43;
-  float shapeOuterBlur = .025 / u_scale;
-  float contour = smoothstep(shapeOuter, shapeOuter + shapeOuterBlur, dist);
+  float contour = smoothstep(shapeOuter, shapeOuter + 2. * aa, dist);
+  contour *= (.5 + .5 * cellInnerShadow);
 
   float colorCode = random(noise(cellIdx));
   float mixer = colorCode * (u_colorsCount - 1.);
@@ -140,24 +142,22 @@ void main() {
   shade *= u_colorShade.a;
   color = mix(color, u_colorShade.rgb * u_colorShade.a, shade);
   
-  float outline = (1. - smoothstep(shapeOuter, shapeOuter + .5 * u_outline, dist));
-  outline *= u_colorOutline.a;
-  color = mix(color, u_colorOutline.rgb * u_colorOutline.a, outline);
-  
+  float innerShadow = (1. - smoothstep(shapeOuter, shapeOuter + .5 * u_innerShadow, dist));
+  innerShadow *= u_colorInnerShadow.a;
+  color = mix(color, u_colorInnerShadow.rgb * u_colorInnerShadow.a, innerShadow);
+
+  posNorm = normalize(pos - .08);
   vec3 specularNormal = normalize(vec3(posNorm * sin(l * (3. + 20. * u_specularNormal)), -2.));
-  float specular = smoothstep(1. - .25 * u_specular, 1.001 - .25 * u_specular, dot(specularNormal, lightDir));
+  float specular = smoothstep(1. - .25 * u_specular, 1. + aa - .25 * u_specular, dot(specularNormal, lightDir));
   specular *= u_colorSpecular.a;
-  specular -= outline;
+  specular -= innerShadow;
   specular -= smoothstep(.3, .5, shade);
   specular = clamp(specular, 0., 1.);
   color = mix(color, u_colorSpecular.rgb, specular);
-
-  // color = mix(u_colorBack.rgb, color, cellInnerShadow);
-  // opacity = mix(u_colorBack.a, opacity, cellInnerShadow);
   
   color *= contour;
   opacity *= contour;
-  
+
   vec3 bgColor = u_colorBack.rgb * u_colorBack.a;
   color = color + bgColor * (1. - opacity);
   opacity = opacity + u_colorBack.a * (1. - opacity);
@@ -174,13 +174,13 @@ export interface BlobsGridUniforms extends ShaderSizingUniforms {
   u_colorBack: [number, number, number, number];
   u_colorShade: [number, number, number, number];
   u_colorSpecular: [number, number, number, number];
-  u_colorOutline: [number, number, number, number];
+  u_colorInnerShadow: [number, number, number, number];
   u_distortion: number;
   u_specular: number;
   u_specularNormal: number;
   u_shade: number;
   u_size: number;
-  u_outline: number;
+  u_innerShadow: number;
 }
 
 export interface BlobsGridParams extends ShaderSizingParams, ShaderMotionParams {
@@ -189,11 +189,11 @@ export interface BlobsGridParams extends ShaderSizingParams, ShaderMotionParams 
   colorBack?: string;
   colorShade?: string;
   colorSpecular?: string;
-  colorOutline?: string;
+  colorInnerShadow?: string;
   shade?: number;
   distortion?: number;
   specular?: number;
   specularNormal?: number;
   size?: number;
-  outline?: number;
+  innerShadow?: number;
 }
