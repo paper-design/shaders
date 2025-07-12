@@ -10,6 +10,8 @@ import { declareRotate, declarePI, declareValueNoise, declareSimplexNoise } from
  https://www.shadertoy.com/view/4tj3DG - worley
 
  */
+
+// language=GLSL
 export const paperTextureFragmentShader: string = `#version 300 es
 precision mediump float;
 
@@ -30,6 +32,8 @@ uniform float u_crumples;
 uniform float u_foldsNumber;
 uniform float u_folds;
 uniform float u_crumplesScale;
+uniform float u_drops;
+uniform float u_dropsSeed;
 
 uniform float u_blur;
 uniform float u_blurSeed;
@@ -192,9 +196,26 @@ void main() {
   foldsUV = rotate(foldsUV + .007 * cos(u_foldsSeed), .01 * sin(u_foldsSeed));
   vec2 w2 = folds(foldsUV);
 
+  vec2 dropsUV = v_patternUV * .02;
+  vec2 iDropsUV = floor(dropsUV);
+  vec2 fDropsUV = fract(dropsUV);
+  float dropsMinDist = 1.;
+  for (int j = -1; j <= 1; j++) {
+    for (int i = -1; i <= 1; i++) {
+      vec2 neighbor = vec2(float(i), float(j));
+      vec2 offset = crumpled_noise(iDropsUV + neighbor);
+      offset = .5 + .5 * sin(10. * u_dropsSeed + TWO_PI * offset);
+      vec2 pos = neighbor + offset - fDropsUV;
+      float dist = length(pos);
+      dropsMinDist = min(dropsMinDist, dropsMinDist*dist);
+    }
+  }
+  float drops = 1. - smoothstep(.05, .09, pow(dropsMinDist, .5));
+  
   normal.xy += u_folds * min(5. * u_contrast, 1.) * 4. * (w + w2);
 
   normal.xy += u_crumples * crumples;
+  normal.xy += 3. * u_drops * drops;
   
   float blur = u_blur * 2. * smoothstep(0., 1., fbm(.0017 * v_patternUV + 10. * u_blurSeed));
   normal *= (1. - blur);
@@ -227,6 +248,8 @@ export interface PaperTextureUniforms extends ShaderSizingUniforms {
   u_blur: number;
   u_blurSeed: number;
   u_crumplesScale: number;
+  u_drops: number;
+  u_dropsSeed: number;
   u_noiseTexture?: HTMLImageElement;
 }
 
@@ -245,4 +268,6 @@ export interface PaperTextureParams extends ShaderSizingParams, ShaderMotionPara
   blur?: number;
   blurSeed?: number;
   crumplesScale?: number;
+  drops?: number;
+  dropsSeed?: number;
 }

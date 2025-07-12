@@ -54,6 +54,9 @@ const PaperTextureWithControls = () => {
 
           blur: { value: defaults.blur, min: 0, max: 1, order: 340 },
           blurSeed: { value: defaults.blurSeed, min: 0, max: 10, order: 341 },
+
+          drops: { value: defaults.drops, min: 0, max: 1, order: 350 },
+          dropsSeed: { value: defaults.dropsSeed, min: 0, max: 10, order: 351 },
         },
         { order: 1 }
       ),

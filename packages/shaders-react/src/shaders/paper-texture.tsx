@@ -36,6 +36,8 @@ export const defaultPreset: PaperTexturePreset = {
     foldsSeed: 1,
     blur: 0.5,
     blurSeed: 0.5,
+    drops: 0.5,
+    dropsSeed: 0,
   },
 };
 
@@ -59,6 +61,8 @@ export const abstractPreset: PaperTexturePreset = {
     foldsSeed: 281,
     blur: 0.5,
     blurSeed: 0.5,
+    drops: 0.5,
+    dropsSeed: 0,
   },
 };
 
@@ -82,6 +86,8 @@ export const cardboardPreset: PaperTexturePreset = {
     foldsSeed: 181,
     blur: 0.5,
     blurSeed: 0.5,
+    drops: 0.5,
+    dropsSeed: 0,
   },
 };
 
@@ -100,11 +106,13 @@ export const PaperTexture: React.FC<PaperTextureProps> = memo(function PaperText
   curles = defaultPreset.params.curles,
   curlesScale = defaultPreset.params.curlesScale,
   crumples = defaultPreset.params.crumples,
+  crumplesScale = defaultPreset.params.crumplesScale,
   foldsNumber = defaultPreset.params.foldsNumber,
   folds = defaultPreset.params.folds,
   blur = defaultPreset.params.blur,
   blurSeed = defaultPreset.params.blurSeed,
-  crumplesScale = defaultPreset.params.crumplesScale,
+  drops = defaultPreset.params.drops,
+  dropsSeed = defaultPreset.params.dropsSeed,
 
   // Sizing props
   fit = defaultPreset.params.fit,
@@ -131,11 +139,13 @@ export const PaperTexture: React.FC<PaperTextureProps> = memo(function PaperText
     u_curles: curles,
     u_curlesScale: curlesScale,
     u_crumples: crumples,
+    u_crumplesScale: crumplesScale,
     u_foldsNumber: foldsNumber,
     u_folds: folds,
     u_blur: blur,
     u_blurSeed: blurSeed,
-    u_crumplesScale: crumplesScale,
+    u_drops: drops,
+    u_dropsSeed: dropsSeed,
     ...noiseTexture,
 
     // Sizing uniforms
