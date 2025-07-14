@@ -85,21 +85,22 @@ void main() {
 
   
   vec2 pos = cellUV - .5;
-  float l = length(pos);
-  float aa = fwidth(l);
-
-  float cellInnerShadow = smoothstep(0., fwidth(grid.x), cellUV.x);
-  cellInnerShadow *= smoothstep(0., fwidth(grid.y), cellUV.y);
-  cellInnerShadow *= (smoothstep(1., 1. - fwidth(grid.x), cellUV.x));
-  cellInnerShadow *= (smoothstep(1., 1. - fwidth(grid.y), cellUV.y));
+  float aax = 2. * fwidth(grid.x);
+  float aay = 2. * fwidth(grid.y);
+  float cellInnerShadow = smoothstep(0., aax, cellUV.x);
+  cellInnerShadow *= smoothstep(0., aay, cellUV.y);
+  cellInnerShadow *= (smoothstep(1., 1. - aax, cellUV.x));
+  cellInnerShadow *= (smoothstep(1., 1. - aay, cellUV.y));
   cellInnerShadow = clamp(cellInnerShadow, 0., 1.);
   
   vec2 posNorm = normalize(pos);
+  float l = length(pos);
   float dist = 1. - l;
 
   dist *= (.5 + .7 * u_size);
 
   const float shapeOuter = .43;
+  float aa = fwidth(l);
   float contour = smoothstep(shapeOuter, shapeOuter + 2. * aa, dist);
   contour *= (.5 + .5 * cellInnerShadow);
 

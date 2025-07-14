@@ -19,42 +19,46 @@ export const defaultPreset: BlobsGridPreset = {
   name: 'Default',
   params: {
     ...defaultPatternSizing,
-    speed: 1,
-    frame: 0,
-    colors: ['#ffd129', '#66ff96', '#f480ff'],
-    stepsPerColor: 2,
-    colorBack: '#000000',
-    colorShade: '#5b2f3d',
-    colorSpecular: '#ffffff80',
-    colorInnerShadow: '#000000',
-    distortion: 7,
-    shade: 0.3,
-    specular: 0.75,
-    specularNormal: 0.75,
-    size: 0.75,
-    innerShadow: 0.27,
-  },
-};
-
-export const flatPreset: BlobsGridPreset = {
-  name: 'Flat',
-  params: {
-    ...defaultPatternSizing,
-    scale: 1.3,
+    scale: 0.45,
     speed: 0.5,
     frame: 0,
     colors: ['#e4ab1b', '#33b1ff', '#db579b'],
     stepsPerColor: 2,
     colorBack: '#000000',
     colorShade: '#ffffff',
-    colorSpecular: '#ffffff',
-    colorInnerShadow: '#ffffff',
+    colorSpecular: '#ffffffa1',
+    colorInnerShadow: '#000000',
     distortion: 8.6,
     shade: 0.0,
     specular: 0,
     specularNormal: 0,
     size: 0.49,
     innerShadow: 0,
+  },
+};
+
+export const dropsPreset: BlobsGridPreset = {
+  name: 'Drops',
+  params: {
+    ...defaultPatternSizing,
+    scale: 0.5,
+    speed: 2,
+    frame: 0,
+    colors: ['#ff00aa'],
+    stepsPerColor: 3,
+    colorBack: '#ffaa00',
+    colorShade: '#ffffff',
+    colorSpecular: '#ffffffa1',
+    colorInnerShadow: '#00ffd0',
+    distortion: 9.2,
+    size: 0.04,
+    specular: 1.0,
+    specularNormal: 1.0,
+    shade: 1.0,
+    innerShadow: 0.06,
+    offsetX: 0,
+    offsetY: 0,
+    rotation: 0,
   },
 };
 
@@ -69,7 +73,7 @@ export const shadowsPreset: BlobsGridPreset = {
     stepsPerColor: 3,
     colorBack: '#ffffff',
     colorShade: '#ffffff',
-    colorSpecular: '#ffffff',
+    colorSpecular: '#ffffffa1',
     colorInnerShadow: '#000000',
     distortion: 5.6,
     shade: 1.0,
@@ -80,7 +84,28 @@ export const shadowsPreset: BlobsGridPreset = {
   },
 };
 
-export const blobsGridPresets: BlobsGridPreset[] = [defaultPreset, flatPreset, shadowsPreset] as const;
+export const specularPreset: BlobsGridPreset = {
+  name: 'Specular',
+  params: {
+    ...defaultPatternSizing,
+    speed: 1,
+    frame: 0,
+    colors: ['#ff7b00', '#ff29f1', '#00b2ff'],
+    stepsPerColor: 2,
+    colorBack: '#000000',
+    colorShade: '#5b2f3d',
+    colorSpecular: '#ffffff80',
+    colorInnerShadow: '#000000',
+    distortion: 7,
+    shade: 0.3,
+    specular: 0.75,
+    specularNormal: 0.75,
+    size: 0.75,
+    innerShadow: 0.27,
+  },
+};
+
+export const blobsGridPresets: BlobsGridPreset[] = [defaultPreset, shadowsPreset, dropsPreset, specularPreset] as const;
 
 export const BlobsGrid: React.FC<BlobsGridProps> = memo(function BlobsGridImpl({
   // Own props
