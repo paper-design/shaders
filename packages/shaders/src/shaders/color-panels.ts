@@ -48,30 +48,29 @@ out vec4 fragColor;
 
 ${declarePI}
 
-vec2 getPanel(float angle, vec2 uv, float invLength) {
+const float zLimit = 0.5;
+
+vec2 getPanel(float angleNorm, float angle, vec2 uv, float invLength) {
   float sinA = sin(angle);
   float cosA = cos(angle);
 
   float denom = sinA - uv.y * cosA;
   if (abs(denom) < 1e-5) return vec2(0.);
   
-  float rawZ = uv.y / denom;
-  float zLimit = 0.5;
+  float z = uv.y / denom;
 
-  if (rawZ <= 0. || rawZ > zLimit) return vec2(0.);
+  if (z <= 0. || z > zLimit) return vec2(0.);
 
-  float aa = .015 / u_scale * zLimit;
-  float z = mix(0.01, rawZ, smoothstep(zLimit, zLimit - .015 / u_scale * zLimit, rawZ));
   float zRatio = z / zLimit;
   float panelMap = 1.0 - zRatio;
   float x = uv.x * (cosA * z + 1.) * invLength;
 
-  float zOffset = zRatio - .5;
+  float zOffset = z / zLimit - .5;
   float left = -.5 + zOffset * u_angle1;
   float right = .5 - zOffset * u_angle2;
 
-  float blurFactor = (1. - panelMap) * clamp((abs(angle / TWO_PI - .5) - .01) / (-.01), 0., 1.);;
-  float blurX = .15 * blurFactor + panelMap * u_blur;
+  float blurFactor = (1. - panelMap) * clamp((abs(angleNorm) - .1) / (-.1), 0., 1.);;
+  float blurX = .005 / u_scale + .15 * blurFactor + panelMap * u_blur;
 
   float leftEdge1 = left - .5 * blurX;
   float leftEdge2 = left + blurX;
@@ -79,13 +78,14 @@ vec2 getPanel(float angle, vec2 uv, float invLength) {
   float rightEdge2 = right + .5 * blurX;
 
   float panel = smoothstep(leftEdge1, leftEdge2, x) * (1.0 - smoothstep(rightEdge1, rightEdge2, x));
+  panel *= mix(0., panel, smoothstep(0., .01 / u_scale, panelMap));
 
-  return vec2(panel, clamp(panelMap, 0., 1.));
+  return vec2(panel, panelMap);
 }
 
 vec4 blendColor(vec4 colorA, float panelMask, float panelMap) {
-  float fade = smoothstep(-.2 * (1. - u_fadeOut), u_fadeOut, panelMap)
-   * (1. - smoothstep(1. - u_fadeIn - .25, 1., panelMap));
+  float fade = smoothstep(1., .97 - .97 * u_fadeIn, panelMap);
+  fade *= smoothstep(-.2 * (1. - u_fadeOut), u_fadeOut, panelMap);
 
   vec3 blendedRGB = mix(vec3(0.), colorA.rgb, fade);
   float blendedAlpha = mix(0., colorA.a, fade);
@@ -158,7 +158,7 @@ void main() {
       float smoothAngle = clamp((.3 - angleNorm) / .05, 0., 1.);
       if (smoothDensity * smoothAngle < .001) continue;
 
-      vec2 panel = getPanel(angleNorm * TWO_PI + PI, uv, invLength);
+      vec2 panel = getPanel(angleNorm, angleNorm * TWO_PI + PI, uv, invLength);
       float panelMask = panel[0] * smoothDensity * smoothAngle;
       if (panelMask <= .001) continue;
       float panelMap = panel[1];
@@ -194,7 +194,7 @@ void main() {
       float smoothAngle = clamp((angleNorm + .3) / .05, 0., 1.);
       if (smoothDensity * smoothAngle < .001) continue;
 
-      vec2 panel = getPanel(angleNorm * TWO_PI + PI, uv, invLength);
+      vec2 panel = getPanel(angleNorm, angleNorm * TWO_PI + PI, uv, invLength);
       float panelMask = panel[0] * smoothDensity * smoothAngle;
       if (panelMask <= .001) continue;
       float panelMap = panel[1];
