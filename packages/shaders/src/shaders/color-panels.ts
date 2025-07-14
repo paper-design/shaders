@@ -54,9 +54,7 @@ vec2 getPanel(float angle, vec2 uv, float invLength) {
 
   float denom = sinA - uv.y * cosA;
   if (abs(denom) < 1e-5) return vec2(0.);
-
-  denom = mix(0.01, denom, smoothstep(1., 1. - .015 / u_scale, denom));
-
+  
   float rawZ = uv.y / denom;
   float zLimit = 0.5;
 
