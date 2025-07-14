@@ -28,6 +28,7 @@ export const colorPanelsFragmentShader: string = `#version 300 es
 precision lowp float;
 
 uniform float u_time;
+uniform mediump float u_scale;
 
 uniform vec4 u_colors[${colorPanelsMeta.maxColorCount}];
 uniform float u_colorsCount;
@@ -54,11 +55,15 @@ vec2 getPanel(float angle, vec2 uv, float invLength) {
   float denom = sinA - uv.y * cosA;
   if (abs(denom) < 1e-5) return vec2(0.);
 
-  float z = uv.y / denom;
+  denom = mix(0.01, denom, smoothstep(1., 1. - .015 / u_scale, denom));
+
+  float rawZ = uv.y / denom;
   float zLimit = 0.5;
 
-  if (z < 0. || z > zLimit) return vec2(0.);
+  if (rawZ <= 0. || rawZ > zLimit) return vec2(0.);
 
+  float aa = .015 / u_scale * zLimit;
+  float z = mix(0.01, rawZ, smoothstep(zLimit, zLimit - .015 / u_scale * zLimit, rawZ));
   float zRatio = z / zLimit;
   float panelMap = 1.0 - zRatio;
   float x = uv.x * (cosA * z + 1.) * invLength;
@@ -82,7 +87,7 @@ vec2 getPanel(float angle, vec2 uv, float invLength) {
 
 vec4 blendColor(vec4 colorA, float panelMask, float panelMap) {
   float fade = smoothstep(-.2 * (1. - u_fadeOut), u_fadeOut, panelMap)
-   * (1. - smoothstep(1. - u_fadeIn, 1., panelMap));
+   * (1. - smoothstep(1. - u_fadeIn - .25, 1., panelMap));
 
   vec3 blendedRGB = mix(vec3(0.), colorA.rgb, fade);
   float blendedAlpha = mix(0., colorA.a, fade);
