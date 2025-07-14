@@ -6,6 +6,7 @@ export class ShaderMount {
   private gl: WebGLRenderingContext;
   private program: WebGLProgram | null = null;
   private uniformLocations: Record<string, WebGLUniformLocation | null> = {};
+  private hashFBO: WebGLFramebuffer | null = null;
   /** The fragment shader that we are using */
   private fragmentShader: string;
   /** Stores the RAF for the render loop */
@@ -323,6 +324,32 @@ export class ShaderMount {
       return;
     }
 
+    if (!this.hashFBO) {
+      this.hashFBO = this.gl.createFramebuffer();
+    }
+    this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, this.hashFBO);
+    const w = image.naturalWidth;
+    const h = image.naturalHeight;
+    const pxData = new Uint8Array(8);
+    this.gl.generateMipmap(this.gl.TEXTURE_2D);
+    const level = Math.max(0, Math.floor(Math.log2(Math.max(w, h))) - 1);
+    this.gl.framebufferTexture2D(this.gl.FRAMEBUFFER, this.gl.COLOR_ATTACHMENT0, this.gl.TEXTURE_2D, texture, level);
+
+    /* read exactly 8 bytes = 2 texels = RGBA RGBA */
+    this.gl.readPixels(0, 0, 2, 1, this.gl.RGBA, this.gl.UNSIGNED_BYTE, pxData);
+    this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, null);
+
+    let hash = 0x811c9dc5;
+    for (let i = 0; i < 8; ++i) {
+      hash ^= pxData[i]!;
+      hash = (hash * 0x01000193) >>> 0;
+    }
+    hash ^= w;
+    hash = (hash * 0x01000193) >>> 0;
+    hash ^= h;
+    hash = (hash * 0x01000193) >>> 0;
+    this.uniformCache[uniformName] = hash; //.toString(16).padStart(8, '0');
+
     // Store the texture
     this.textures.set(uniformName, texture);
 
@@ -423,7 +450,9 @@ export class ShaderMount {
         console.warn(`Unsupported uniform type for ${key}: ${typeof value}`);
       }
 
-      this.uniformCache[key] = value as any;
+      if (!(value instanceof HTMLImageElement)) {
+        this.uniformCache[key] = value as any;
+      }
     });
   };
 
@@ -782,7 +811,7 @@ export function isPaperShaderElement(element: HTMLElement): element is PaperShad
 
 /** Uniform types that we support to be auto-mapped into the fragment shader */
 export interface ShaderMountUniforms {
-  [key: string]: boolean | number | number[] | number[][] | HTMLImageElement;
+  [key: string]: boolean | number | number[] | number[][] | HTMLImageElement | null;
 }
 
 export interface ShaderMotionParams {
