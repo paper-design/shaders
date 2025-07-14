@@ -127,8 +127,8 @@ export const moonPreset: GrainGradientPreset = {
 };
 
 export const grainGradientPresets: GrainGradientPreset[] = [
-  cornersPreset,
   defaultPreset,
+  cornersPreset,
   dotsPreset,
   truchetPreset,
   ripplePreset,
