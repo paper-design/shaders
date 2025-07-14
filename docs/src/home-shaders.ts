@@ -220,6 +220,6 @@ export const homeShaders = [
     name: 'paper texture',
     url: '/paper-texture',
     ShaderComponent: PaperTexture,
-    shaderConfig: {...paperTexturePresets[0].params},
+    shaderConfig: { ...paperTexturePresets[0].params },
   },
 ] satisfies HomeShaderConfig[];

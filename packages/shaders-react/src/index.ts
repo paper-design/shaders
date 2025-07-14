@@ -85,9 +85,9 @@ export { StaticRadialGradient, staticRadialGradientPresets } from './shaders/sta
 export type { StaticRadialGradientProps } from './shaders/static-radial-gradient.js';
 export type { StaticRadialGradientUniforms, StaticRadialGradientParams } from '@paper-design/shaders';
 
-export { PaperTexture, paperTexturePresets} from './shaders/paper-texture.js';
-export type { PaperTextureProps} from './shaders/paper-texture.js';
-export type { PaperTextureUniforms, PaperTextureParams} from '@paper-design/shaders';
+export { PaperTexture, paperTexturePresets } from './shaders/paper-texture.js';
+export type { PaperTextureProps } from './shaders/paper-texture.js';
+export type { PaperTextureUniforms, PaperTextureParams } from '@paper-design/shaders';
 
 export { isPaperShaderElement, getShaderColorFromString } from '@paper-design/shaders';
 export type { PaperShaderElement, ShaderFit, ShaderSizingParams, ShaderSizingUniforms } from '@paper-design/shaders';
