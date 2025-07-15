@@ -364,6 +364,7 @@ export class ShaderMount {
       if (value instanceof HTMLImageElement) {
         // Images use their src for the cache value to save memory
         cacheValue = value.src.slice(0, 200);
+        console.log("value", value);
       }
 
       // Check if the uniform value has changed and, if not, bail early to avoid extra work
