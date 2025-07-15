@@ -177,6 +177,8 @@ export {
   type PaperTextureUniforms,
 } from './shaders/paper-texture.js';
 
+export { waterFragmentShader, type WaterParams, type WaterUniforms } from './shaders/water.js';
+
 export {
   flutedGlassFragmentShader,
   GlassDistortionShapes,
