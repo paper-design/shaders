@@ -82,7 +82,7 @@ vec2 getPanel(float angle, vec2 uv, float invLength, float aa) {
 
   float midScreen = abs(sinA);
   if (u_edges == true) {
-    panelMap = mix(.99, panelMap, panel * clamp(panelMap / (.25 * (1. - pow(midScreen, .1))), 0.0, 1.0));
+    panelMap = mix(.99, panelMap, panel * clamp(panelMap / (.15 * (1. - pow(midScreen, .1))), 0.0, 1.0));
   } else if (midScreen < .07) {
     panel *= (midScreen * 15.);
   }
