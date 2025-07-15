@@ -347,12 +347,10 @@ export class ShaderMount {
   };
 
   /** Utility: recursive equality test for all the uniforms */
-  private areUniformValuesEqual = (cachedValue: any, newValue: any): boolean => {
-    // Strict equality check
-    if (cachedValue === newValue) return true;
-    // Arrays do recursive value check
-    if (Array.isArray(cachedValue) && Array.isArray(newValue) && cachedValue.length === newValue.length) {
-      return cachedValue.every((val, i) => this.areUniformValuesEqual(val, (newValue as any)[i]));
+  private areUniformValuesEqual = (a: any, b: any): boolean => {
+    if (a === b) return true;
+    if (Array.isArray(a) && Array.isArray(b) && a.length === b.length) {
+      return a.every((val, i) => this.areUniformValuesEqual(val, (b as any)[i]));
     }
     return false;
   };
