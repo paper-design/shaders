@@ -364,7 +364,7 @@ export class ShaderMount {
       // Grab the value to use in the uniform cache
       let cacheValue: ShaderMountUniforms[keyof ShaderMountUniforms] | string = value;
       if (value instanceof HTMLImageElement) {
-        // Images use their src and natural width/height for the cache value to save memory
+        // Images use their src for the cache value to save memory
         cacheValue = value.src.slice(0, 200);
       }
 
