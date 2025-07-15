@@ -31,6 +31,7 @@ import { declareSimplexNoise, declarePI, declareRandom } from '../shader-utils.j
  * Note: pixelization is applied to the shapes BEFORE dithering, meaning pixels don't react to scaling and fit
  */
 
+// language=GLSL
 export const ditheringFragmentShader: string = `#version 300 es
 precision mediump float;
 

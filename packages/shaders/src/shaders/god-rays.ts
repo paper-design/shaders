@@ -21,6 +21,7 @@ export const godRaysMeta = {
  *
  */
 
+// language=GLSL
 export const godRaysFragmentShader: string = `#version 300 es
 precision mediump float;
 
@@ -73,7 +74,8 @@ void main() {
 
   float delta = 1. - smoothstep(0., 1., radius);
 
-  float middleShape = pow(u_midIntensity, .3) * smoothstep(abs(u_midSize), 0.02 * abs(u_midSize), 3.0 * radius);
+  float midSize = 10. * abs(u_midSize);
+  float middleShape = pow(u_midIntensity, .3) * smoothstep(midSize, 0.02 * midSize, 3.0 * radius);
   middleShape = pow(middleShape, 5.0);
 
   vec3 accumColor = vec3(0.0);
@@ -86,7 +88,8 @@ void main() {
 
     float r1 = radius * (1.0 + 0.4 * float(i)) - 3.0 * t;
     float r2 = 0.5 * radius * (1.0 + spots) - 2.0 * t;
-    float f = mix(1.0, 3.0 + 0.5 * float(i), hash(float(i) + 10.0)) * u_density;
+    float density = 6. * u_density + step(.5, u_density) * pow(4.5 * (u_density - .5), 4.);
+    float f = mix(1.0, 3.0 + 0.5 * float(i), hash(float(i) + 10.0)) * density;
 
     float ray = raysShape(rotatedUV, r1, 5.0 * f, intensity, radius);
     ray *= raysShape(rotatedUV, r2, 4.0 * f, intensity, radius);

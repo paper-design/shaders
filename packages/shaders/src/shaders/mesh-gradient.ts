@@ -18,6 +18,7 @@ export const meshGradientMeta = {
  *
  */
 
+// language=GLSL
 export const meshGradientFragmentShader: string = `#version 300 es
 precision mediump float;
 
@@ -78,12 +79,7 @@ void main() {
     vec3 colorFraction = u_colors[i].rgb * u_colors[i].a;
     float opacityFraction = u_colors[i].a;
 
-    float dist = 0.;
-    if (mod(float(i), 2.) > 1.) {
-      dist = length(shape_uv - pos);
-    } else {
-      dist = length(uvRotated - pos);
-    }
+    float dist = length(uvRotated - pos);
 
     dist = pow(dist, 3.5);
     float weight = 1. / (dist + 1e-3);

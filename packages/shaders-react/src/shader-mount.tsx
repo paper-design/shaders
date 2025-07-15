@@ -3,21 +3,19 @@
 import { useEffect, useRef, forwardRef, useState } from 'react';
 import {
   ShaderMount as ShaderMountVanilla,
+  type PaperShaderElement,
   type ShaderMotionParams,
   type ShaderMountUniforms,
 } from '@paper-design/shaders';
 import { useMergeRefs } from './use-merge-refs.js';
-
-export interface ShaderMountRef extends HTMLDivElement {
-  paperShaderMount?: ShaderMountVanilla;
-}
 
 /** React Shader Mount can also accept strings as uniform values, which will assumed to be URLs and loaded as images */
 interface ShaderMountUniformsReact {
   [key: string]: string | boolean | number | number[] | number[][] | HTMLImageElement | null;
 }
 
-export interface ShaderMountProps extends Omit<React.ComponentProps<'div'>, 'color'>, ShaderMotionParams {
+export interface ShaderMountProps extends Omit<React.ComponentProps<'div'>, 'color' | 'ref'>, ShaderMotionParams {
+  ref?: React.Ref<PaperShaderElement>;
   fragmentShader: string;
   uniforms: ShaderMountUniformsReact;
   minPixelRatio?: number;
@@ -25,7 +23,8 @@ export interface ShaderMountProps extends Omit<React.ComponentProps<'div'>, 'col
   webGlContextAttributes?: WebGLContextAttributes;
 }
 
-export interface ShaderComponentProps extends Omit<React.ComponentProps<'div'>, 'color'> {
+export interface ShaderComponentProps extends Omit<React.ComponentProps<'div'>, 'color' | 'ref'> {
+  ref?: React.Ref<PaperShaderElement>;
   minPixelRatio?: number;
   maxPixelCount?: number;
   webGlContextAttributes?: WebGLContextAttributes;
@@ -95,7 +94,7 @@ async function processUniforms(uniformsProp: ShaderMountUniformsReact): Promise<
  * A React component that mounts a shader and updates its uniforms as the component's props change
  * If you pass a string as a uniform value, it will be assumed to be a URL and attempted to be loaded as an image
  */
-export const ShaderMount: React.FC<ShaderMountProps> = forwardRef<ShaderMountRef, ShaderMountProps>(
+export const ShaderMount: React.FC<ShaderMountProps> = forwardRef<PaperShaderElement, ShaderMountProps>(
   function ShaderMountImpl(
     {
       fragmentShader,
@@ -110,7 +109,7 @@ export const ShaderMount: React.FC<ShaderMountProps> = forwardRef<ShaderMountRef
     forwardedRef
   ) {
     const [isInitialized, setIsInitialized] = useState(false);
-    const divRef = useRef<HTMLDivElement>(null);
+    const divRef = useRef<PaperShaderElement>(null);
     const shaderMountRef: React.RefObject<ShaderMountVanilla | null> = useRef<ShaderMountVanilla>(null);
 
     // Initialize the ShaderMountVanilla
@@ -172,7 +171,8 @@ export const ShaderMount: React.FC<ShaderMountProps> = forwardRef<ShaderMountRef
       shaderMountRef.current?.setFrame(frame);
     }, [frame, isInitialized]);
 
-    return <div ref={useMergeRefs([divRef, forwardedRef])} {...divProps} />;
+    const mergedRef = useMergeRefs([divRef, forwardedRef]) as unknown as React.RefObject<HTMLDivElement>;
+    return <div ref={mergedRef} {...divProps} />;
   }
 );
 

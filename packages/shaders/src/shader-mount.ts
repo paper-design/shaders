@@ -13,7 +13,7 @@ export class ShaderMount {
   /** Time of the last rendered frame */
   private lastRenderTime = 0;
   /** Total time that we have played any animation, passed as a uniform to the shader for time-based VFX */
-  private totalFrameTime = 0;
+  private currentFrame = 0;
   /** The current speed that we progress through animation time (multiplies by delta time every update). Allows negatives to play in reverse. If set to 0, rAF will stop entirely so static shaders have no recurring performance costs */
   private speed = 0;
   /** Uniforms that are provided by the user for the specific shader being mounted (not including uniforms that this Mount adds, like time and resolution) */
@@ -59,10 +59,10 @@ export class ShaderMount {
       throw new Error('Paper Shaders: parent element must be an HTMLElement');
     }
 
-    if (!document.querySelector('style[data-paper-shaders]')) {
+    if (!document.querySelector('style[data-paper-shader]')) {
       const styleElement = document.createElement('style');
       styleElement.innerHTML = defaultStyle;
-      styleElement.setAttribute('data-paper-shaders', '');
+      styleElement.setAttribute('data-paper-shader', '');
       document.head.prepend(styleElement);
     }
 
@@ -73,7 +73,7 @@ export class ShaderMount {
     this.fragmentShader = fragmentShader;
     this.providedUniforms = uniforms;
     // Base our starting animation time on the provided frame value
-    this.totalFrameTime = frame;
+    this.currentFrame = frame;
     this.minPixelRatio = minPixelRatio;
     this.maxPixelCount = maxPixelCount;
 
@@ -96,7 +96,7 @@ export class ShaderMount {
     this.setSpeed(speed);
 
     // Mark parent element as paper shader mount
-    this.parentElement.setAttribute('data-paper-shaders', '');
+    this.parentElement.setAttribute('data-paper-shader', '');
 
     // Add the shaderMount instance to the div mount element to make it easily accessible
     this.parentElement.paperShaderMount = this;
@@ -204,7 +204,11 @@ export class ShaderMount {
     // - innerWidth is affected by pinch zoom in Safari, but not other browsers.
     //   visualViewport.width works consistently in all browsers.
     // - innerWidth is rounded to integer, but not visualViewport.width.
-    const innerWidth = visualViewport ? visualViewport.width * visualViewport.scale : window.innerWidth;
+    // - visualViewport.width is affected by hard scrollbars, so they need to be added manually
+    const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
+    const innerWidth = visualViewport
+      ? visualViewport.scale * visualViewport.width + scrollbarWidth
+      : window.innerWidth;
 
     // Slight rounding here helps the <canvas> maintain a consistent computed size as the zoom level changes
     const classicZoom = Math.round((10000 * window.outerWidth) / innerWidth) / 10000;
@@ -253,7 +257,7 @@ export class ShaderMount {
     this.lastRenderTime = currentTime;
     // Increase the total animation time by dt * animationSpeed
     if (this.speed !== 0) {
-      this.totalFrameTime += dt * this.speed;
+      this.currentFrame += dt * this.speed;
     }
 
     // Clear the canvas
@@ -263,7 +267,7 @@ export class ShaderMount {
     this.gl.useProgram(this.program);
 
     // Update the time uniform
-    this.gl.uniform1f(this.uniformLocations.u_time!, this.totalFrameTime * 0.001);
+    this.gl.uniform1f(this.uniformLocations.u_time!, this.currentFrame * 0.001);
 
     // If the resolution has changed, we need to update the uniform
     if (this.resolutionChanged) {
@@ -424,13 +428,13 @@ export class ShaderMount {
   };
 
   /** Gets the current total animation time from 0ms */
-  public getCurrentFrameTime = (): number => {
-    return this.totalFrameTime;
+  public getCurrentFrame = (): number => {
+    return this.currentFrame;
   };
 
   /** Set a frame to get a deterministic result, frames are literally just milliseconds from zero since the animation started */
   public setFrame = (newFrame: number): void => {
-    this.totalFrameTime = newFrame;
+    this.currentFrame = newFrame;
     this.lastRenderTime = performance.now();
     this.render(performance.now());
   };
@@ -521,6 +525,7 @@ export class ShaderMount {
 }
 
 /** Vertex shader for the shader mount */
+// language=GLSL
 const vertexShaderSource = `#version 300 es
 precision mediump float;
 
@@ -706,6 +711,18 @@ function createProgram(
   vertexShaderSource: string,
   fragmentShaderSource: string
 ): WebGLProgram | null {
+  const format = gl.getShaderPrecisionFormat(gl.FRAGMENT_SHADER, gl.MEDIUM_FLOAT);
+  const precision = format ? format.precision : null;
+  // MEDIUM_FLOAT precision can be 10, 16 or 23 bits depending on device;
+  // Shaders fail on 10 bit (and 16 bit is hard to test) => we force 23-bit by switching to highp
+  if (precision && precision < 23) {
+    vertexShaderSource = vertexShaderSource.replace(/precision\s+(lowp|mediump)\s+float;/g, 'precision highp float;');
+    fragmentShaderSource = fragmentShaderSource.replace(
+      /precision\s+(lowp|mediump)\s+float;/g,
+      'precision highp float;'
+    );
+  }
+
   const vertexShader = createShader(gl, gl.VERTEX_SHADER, vertexShaderSource);
   const fragmentShader = createShader(gl, gl.FRAGMENT_SHADER, fragmentShaderSource);
 
@@ -736,7 +753,7 @@ function createProgram(
 }
 
 const defaultStyle = `@layer paper-shaders {
-  :where([data-paper-shaders]) {
+  :where([data-paper-shader]) {
     isolation: isolate;
     position: relative;
 
@@ -753,12 +770,12 @@ const defaultStyle = `@layer paper-shaders {
   }
 }`;
 
-/** A canvas element that has a ShaderMount available on it */
+/** The parent `<div>` element that has a ShaderMount available on it */
 export interface PaperShaderElement extends HTMLElement {
   paperShaderMount: ShaderMount | undefined;
 }
 
-/** Check if a canvas element is a ShaderCanvas */
+/** Check if an element is a Paper shader element */
 export function isPaperShaderElement(element: HTMLElement): element is PaperShaderElement {
   return 'paperShaderMount' in element;
 }

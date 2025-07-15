@@ -2,6 +2,7 @@ import { memo } from 'react';
 import { ShaderMount, type ShaderComponentProps } from '../shader-mount.js';
 import {
   getShaderColorFromString,
+  getShaderNoiseTexture,
   grainGradientFragmentShader,
   ShaderFitOptions,
   type GrainGradientUniforms,
@@ -109,21 +110,6 @@ export const blobPreset: GrainGradientPreset = {
   },
 };
 
-export const spherePreset: GrainGradientPreset = {
-  name: 'Sphere',
-  params: {
-    ...defaultObjectSizing,
-    speed: 1,
-    frame: 0,
-    colorBack: '#000319',
-    colors: ['#0059b3', '#37f5f5', '#18c039'],
-    softness: 1,
-    intensity: 0.15,
-    noise: 0.5,
-    shape: 'sphere',
-  },
-};
-
 export const moonPreset: GrainGradientPreset = {
   name: 'Moon',
   params: {
@@ -141,13 +127,12 @@ export const moonPreset: GrainGradientPreset = {
 };
 
 export const grainGradientPresets: GrainGradientPreset[] = [
-  cornersPreset,
   defaultPreset,
+  cornersPreset,
   dotsPreset,
   truchetPreset,
   ripplePreset,
   blobPreset,
-  spherePreset,
   moonPreset,
 ];
 
@@ -173,7 +158,9 @@ export const GrainGradient: React.FC<GrainGradientProps> = memo(function GrainGr
   worldWidth = defaultPreset.params.worldWidth,
   worldHeight = defaultPreset.params.worldHeight,
   ...props
-}) {
+}: GrainGradientProps) {
+  const noiseTexture = typeof window !== 'undefined' && { u_noiseTexture: getShaderNoiseTexture() };
+
   const uniforms = {
     // Own uniforms
     u_colorBack: getShaderColorFromString(colorBack),
@@ -183,6 +170,7 @@ export const GrainGradient: React.FC<GrainGradientProps> = memo(function GrainGr
     u_intensity: intensity,
     u_noise: noise,
     u_shape: GrainGradientShapes[shape],
+    ...noiseTexture,
 
     // Sizing uniforms
     u_fit: ShaderFitOptions[fit],

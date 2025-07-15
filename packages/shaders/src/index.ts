@@ -157,15 +157,26 @@ export {
   type ColorPanelsUniforms,
 } from './shaders/color-panels.js';
 
-// ----- ----- //
-/**  */
+export {
+  staticMeshGradientFragmentShader,
+  staticMeshGradientMeta,
+  type StaticMeshGradientParams,
+  type StaticMeshGradientUniforms,
+} from './shaders/static-mesh-gradient.js';
+
+export {
+  staticRadialGradientFragmentShader,
+  staticRadialGradientMeta,
+  type StaticRadialGradientParams,
+  type StaticRadialGradientUniforms,
+} from './shaders/static-radial-gradient.js';
+
 export {
   paperTextureFragmentShader,
   type PaperTextureParams,
   type PaperTextureUniforms,
 } from './shaders/paper-texture.js';
 
-/** */
 export {
   flutedGlassFragmentShader,
   GlassDistortionShapes,
@@ -175,10 +186,6 @@ export {
   type FlutedGlassParams,
   type FlutedGlassUniforms,
 } from './shaders/fluted-glass.js';
-
-// -----  ----- //
-/**  */
-export { waterFragmentShader, type WaterParams, type WaterUniforms } from './shaders/water.js';
 
 // ----- Utils ----- //
 export { getShaderColorFromString } from './get-shader-color-from-string.js';

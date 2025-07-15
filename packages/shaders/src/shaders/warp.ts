@@ -24,6 +24,7 @@ export const warpMeta = {
  *
  */
 
+// language=GLSL
 export const warpFragmentShader: string = `#version 300 es
 precision mediump float;
 
@@ -54,7 +55,7 @@ void main() {
   vec2 uv = v_patternUV;
   uv *= .005;
 
-  float t = .01 * u_time;
+  float t = 0.0625 * u_time;
 
   float n1 = valueNoise(uv * 1. + t);
   float n2 = valueNoise(uv * 2. - t);

@@ -20,6 +20,7 @@ export const smokeRingMeta = {
  * - u_noiseTexture (sampler2D): pre-computed randomizer source
  */
 
+// language=GLSL
 export const smokeRingFragmentShader: string = `#version 300 es
 precision mediump float;
 

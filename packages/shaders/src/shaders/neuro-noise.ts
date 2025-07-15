@@ -13,6 +13,7 @@ import { declareRotate, colorBandingFix } from '../shader-utils.js';
  *
  */
 
+// language=GLSL
 export const neuroNoiseFragmentShader: string = `#version 300 es
 precision mediump float;
 

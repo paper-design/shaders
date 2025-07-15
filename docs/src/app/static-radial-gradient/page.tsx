@@ -1,59 +1,63 @@
 'use client';
 
-import { Warp, WarpPattern, warpPresets } from '@paper-design/shaders-react';
+import { StaticRadialGradient, staticRadialGradientPresets } from '@paper-design/shaders-react';
 import { useControls, button, folder } from 'leva';
 import { setParamsSafe, useResetLevaParams } from '@/helpers/use-reset-leva-params';
 import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import Link from 'next/link';
 import { BackButton } from '@/components/back-button';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
-import { warpMeta, ShaderFit, ShaderFitOptions, WarpPatterns, simplexNoiseMeta } from '@paper-design/shaders';
+import { staticRadialGradientMeta, ShaderFit, ShaderFitOptions } from '@paper-design/shaders';
 import { useColors } from '@/helpers/use-colors';
+import { toHsla } from '@/helpers/to-hsla';
 
 /**
- * You can copy/paste this example to use Warp in your app
+ * You can copy/paste this example to use StaticRadialGradient in your app
  */
-const WarpExample = () => {
-  return <Warp style={{ position: 'fixed', width: '100%', height: '100%' }} />;
+const StaticRadialGradientExample = () => {
+  return <StaticRadialGradient style={{ position: 'fixed', width: '100%', height: '100%' }} />;
 };
 
 /**
  * This example has controls added so you can play with settings in the example app
  */
 
-const { worldWidth, worldHeight, ...defaults } = warpPresets[0].params;
+const { worldWidth, worldHeight, ...defaults } = staticRadialGradientPresets[0].params;
 
-const WarpWithControls = () => {
+const StaticRadialGradientWithControls = () => {
   const { colors, setColors } = useColors({
     defaultColors: defaults.colors,
-    maxColorCount: warpMeta.maxColorCount,
+    maxColorCount: staticRadialGradientMeta.maxColorCount,
   });
 
   const [params, setParams] = useControls(() => {
     return {
       Parameters: folder(
         {
-          proportion: { value: defaults.proportion, min: 0, max: 1, order: 300 },
-          softness: { value: defaults.softness, min: 0, max: 1, order: 301 },
+          colorBack: { value: toHsla(defaults.colorBack), order: 100 },
+          radius: { value: defaults.radius, min: 0, max: 3, order: 199 },
+          focalDistance: { value: defaults.focalDistance, min: 0, max: 3, order: 200 },
+          focalAngle: { value: defaults.focalAngle, min: 0, max: 360, order: 201 },
+          falloff: { value: defaults.falloff, min: -1, max: 1, order: 203 },
+          mixing: { value: defaults.mixing, min: 0, max: 1, order: 300 },
           distortion: { value: defaults.distortion, min: 0, max: 1, order: 302 },
-          swirl: { value: defaults.swirl, min: 0, max: 1, order: 303 },
-          swirlIterations: { value: defaults.swirlIterations, min: 0, max: 20, order: 304 },
-          shape: { value: defaults.shape, options: Object.keys(WarpPatterns) as WarpPattern[], order: 305 },
-          shapeScale: { value: defaults.shapeScale, min: 0, max: 1, order: 306 },
-          speed: { value: defaults.speed, min: 0, max: 20, order: 400 },
+          distortionShift: { value: defaults.distortionShift, min: -1, max: 1, order: 302 },
+          distortionFreq: { value: defaults.distortionFreq, min: 0, max: 20, step: 1, order: 302 },
+          grainMixer: { value: defaults.grainMixer, min: 0, max: 1, order: 350 },
+          grainOverlay: { value: defaults.grainOverlay, min: 0, max: 1, order: 351 },
         },
         { order: 1 }
       ),
       Transform: folder(
         {
-          scale: { value: defaults.scale, min: 0.01, max: 5, order: 400 },
+          scale: { value: defaults.scale, min: 0.01, max: 4, order: 400 },
           rotation: { value: defaults.rotation, min: 0, max: 360, order: 401 },
           offsetX: { value: defaults.offsetX, min: -1, max: 1, order: 402 },
           offsetY: { value: defaults.offsetY, min: -1, max: 1, order: 403 },
         },
         {
           order: 2,
-          collapsed: false,
+          collapsed: true,
         }
       ),
       Fit: folder(
@@ -74,7 +78,7 @@ const WarpWithControls = () => {
 
   useControls(() => {
     const presets = Object.fromEntries(
-      warpPresets.map(({ name, params: { worldWidth, worldHeight, ...preset } }) => [
+      staticRadialGradientPresets.map(({ name, params: { worldWidth, worldHeight, ...preset } }) => [
         name,
         button(() => {
           const { colors, ...presetParams } = preset;
@@ -91,7 +95,7 @@ const WarpWithControls = () => {
   // Reset to defaults on mount, so that Leva doesn't show values from other
   // shaders when navigating (if two shaders have a color1 param for example)
   useResetLevaParams(params, setParams, defaults);
-  usePresetHighlight(warpPresets, params);
+  usePresetHighlight(staticRadialGradientPresets, params);
   cleanUpLevaParams(params);
 
   return (
@@ -99,9 +103,9 @@ const WarpWithControls = () => {
       <Link href="/">
         <BackButton />
       </Link>
-      <Warp {...params} colors={colors} className="fixed size-full" />
+      <StaticRadialGradient {...params} colors={colors} className="fixed size-full" />
     </>
   );
 };
 
-export default WarpWithControls;
+export default StaticRadialGradientWithControls;

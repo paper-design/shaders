@@ -22,6 +22,7 @@ import { declarePI, declareRotate, declareSimplexNoise, colorBandingFix } from '
  *
  */
 
+// language=GLSL
 export const liquidMetalFragmentShader: string = `#version 300 es
 precision mediump float;
 
