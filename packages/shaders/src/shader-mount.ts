@@ -359,7 +359,17 @@ export class ShaderMount {
   private setUniformValues = (updatedUniforms: ShaderMountUniforms) => {
     this.gl.useProgram(this.program);
     Object.entries(updatedUniforms).forEach(([key, value]) => {
-      if (this.areUniformValuesEqual(this.uniformCache[key], value)) return;
+      // Grab the value to use in the uniform cache
+      let cacheValue: ShaderMountUniforms[keyof ShaderMountUniforms] | string = value;
+      if (value instanceof HTMLImageElement) {
+        // Images use their src for the cache value to save memory
+        cacheValue = value.src.slice(0, 200);
+      }
+
+      // Check if the uniform value has changed and, if not, bail early to avoid extra work
+      if (this.areUniformValuesEqual(this.uniformCache[key], cacheValue)) return;
+      // Update the uniform cache if we are still here
+      this.uniformCache[key] = cacheValue;
 
       const location = this.uniformLocations[key];
       if (!location) {
@@ -422,8 +432,6 @@ export class ShaderMount {
       } else {
         console.warn(`Unsupported uniform type for ${key}: ${typeof value}`);
       }
-
-      this.uniformCache[key] = value as any;
     });
   };
 
