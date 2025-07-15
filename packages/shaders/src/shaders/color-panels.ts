@@ -80,12 +80,10 @@ vec2 getPanel(float angle, vec2 uv, float invLength, float aa) {
   float panel = smoothstep(leftEdge1, leftEdge2, x) * (1.0 - smoothstep(rightEdge1, rightEdge2, x));
   panel *= mix(0., panel, smoothstep(0., .01 / u_scale, panelMap));
 
-  if (u_edges == true) {
-    panelMap = mix(.99, panelMap, panel * smoothstep(.0, .02, panelMap));
-  }
-
   float midScreen = abs(sinA);
-  if (midScreen < .07) {
+  if (u_edges == true) {
+    panelMap = mix(.99, panelMap, panel * smoothstep(.0, .25 * (1. - pow(midScreen, .1)), panelMap));
+  } else if (midScreen < .07) {
     panel *= (midScreen * 15.);
   }
   
@@ -168,6 +166,9 @@ void main() {
       float smoothAngle = clamp((.3 - angleNorm) / .05, 0., 1.);
       if (smoothDensity * smoothAngle < .001) continue;
 
+      if (angleNorm > .5) {
+        angleNorm = 0.5;
+      }
       vec2 panel = getPanel(angleNorm * TWO_PI + PI, uv, invLength, aa);
       if (panel[0] <= .001) continue;
       float panelMask = panel[0] * smoothDensity * smoothAngle;
