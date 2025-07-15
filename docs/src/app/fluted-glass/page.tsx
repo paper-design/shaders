@@ -148,16 +148,12 @@ const FlutedGlassWithControls = () => {
   usePresetHighlight(flutedGlassPresets, params);
   cleanUpLevaParams(params);
 
-  if (image === null) {
-    return null;
-  }
-
   return (
     <>
       <Link href="/">
         <BackButton />
       </Link>
-      <FlutedGlass className="fixed size-full" onClick={handleClick} {...params} image={image} />
+      <FlutedGlass className="fixed size-full" onClick={ handleClick } { ...params } image={ image || undefined }/>
     </>
   );
 };
