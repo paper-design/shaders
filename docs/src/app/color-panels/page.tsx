@@ -40,6 +40,7 @@ const ColorPanelsWithControls = () => {
           angle1: { value: defaults.angle1, min: -1, max: 1, order: 202 },
           angle2: { value: defaults.angle2, min: -1, max: 1, order: 202 },
           length: { value: defaults.length, min: 0, max: 3, order: 203 },
+          edges: { value: defaults.edges, order: 204 },
           blur: { value: defaults.blur, min: 0, max: 0.5, order: 301 },
           fadeIn: { value: defaults.fadeIn, min: 0, max: 1, order: 302 },
           fadeOut: { value: defaults.fadeOut, min: 0, max: 1, order: 303 },

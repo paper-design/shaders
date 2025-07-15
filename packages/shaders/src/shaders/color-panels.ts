@@ -16,6 +16,7 @@ export const colorPanelsMeta = {
  * - u_density: angle between every 2 panels
  * - u_angle1, u_angle2: skew angle applied to all panes
  * - u_length: panel length (relative to total height)
+ * - u_edges: faking edges effect
  * - u_blur: side blur (0 for sharp edges)
  * - u_fadeIn: transparency near central axis
  * - u_fadeOut: transparency near viewer
@@ -37,6 +38,7 @@ uniform float u_density;
 uniform float u_angle1;
 uniform float u_angle2;
 uniform float u_length;
+uniform bool u_edges;
 uniform float u_blur;
 uniform float u_fadeIn;
 uniform float u_fadeOut;
@@ -48,29 +50,27 @@ out vec4 fragColor;
 
 ${declarePI}
 
-const float zLimit = 0.5;
+const float zLimit = .5;
 
-vec2 getPanel(float angleNorm, float angle, vec2 uv, float invLength) {
+vec2 getPanel(float angle, vec2 uv, float invLength, float aa) {
   float sinA = sin(angle);
   float cosA = cos(angle);
 
   float denom = sinA - uv.y * cosA;
-  if (abs(denom) < 1e-5) return vec2(0.);
+  if (abs(denom) < .01) return vec2(0.);
   
   float z = uv.y / denom;
 
   if (z <= 0. || z > zLimit) return vec2(0.);
 
   float zRatio = z / zLimit;
-  float panelMap = 1.0 - zRatio;
+  float panelMap = 1. - zRatio;
   float x = uv.x * (cosA * z + 1.) * invLength;
 
-  float zOffset = z / zLimit - .5;
+  float zOffset = zRatio - .5;
   float left = -.5 + zOffset * u_angle1;
   float right = .5 - zOffset * u_angle2;
-
-  float blurFactor = (1. - panelMap) * clamp((abs(angleNorm) - .1) / (-.1), 0., 1.);;
-  float blurX = .005 / u_scale + .15 * blurFactor + panelMap * u_blur;
+  float blurX = aa + panelMap * u_blur;
 
   float leftEdge1 = left - .5 * blurX;
   float leftEdge2 = left + blurX;
@@ -80,6 +80,15 @@ vec2 getPanel(float angleNorm, float angle, vec2 uv, float invLength) {
   float panel = smoothstep(leftEdge1, leftEdge2, x) * (1.0 - smoothstep(rightEdge1, rightEdge2, x));
   panel *= mix(0., panel, smoothstep(0., .01 / u_scale, panelMap));
 
+  if (u_edges == true) {
+    panelMap = mix(.99, panelMap, panel * smoothstep(.0, .02, panelMap));
+  }
+
+  float midScreen = abs(sinA);
+  if (midScreen < .07) {
+    panel *= (midScreen * 15.);
+  }
+  
   return vec2(panel, panelMap);
 }
 
@@ -97,13 +106,14 @@ void main() {
   vec2 uv = v_objectUV;
   uv *= 1.25;
 
-  float t = .05 * u_time;
+  float t = .02 * u_time;
   t = fract(t);
   bool reverseTime = (t < 0.5);
 
   vec3 color = vec3(0.);
   float opacity = 0.;
 
+  float aa = .005 / u_scale;
   int colorsCount = int(u_colorsCount);
 
   vec4 premultipliedColors[${colorPanelsMeta.maxColorCount}];
@@ -158,9 +168,9 @@ void main() {
       float smoothAngle = clamp((.3 - angleNorm) / .05, 0., 1.);
       if (smoothDensity * smoothAngle < .001) continue;
 
-      vec2 panel = getPanel(angleNorm, angleNorm * TWO_PI + PI, uv, invLength);
+      vec2 panel = getPanel(angleNorm * TWO_PI + PI, uv, invLength, aa);
+      if (panel[0] <= .001) continue;
       float panelMask = panel[0] * smoothDensity * smoothAngle;
-      if (panelMask <= .001) continue;
       float panelMap = panel[1];
 
       int colorIdx = idx % colorsCount;
@@ -194,7 +204,7 @@ void main() {
       float smoothAngle = clamp((angleNorm + .3) / .05, 0., 1.);
       if (smoothDensity * smoothAngle < .001) continue;
 
-      vec2 panel = getPanel(angleNorm, angleNorm * TWO_PI + PI, uv, invLength);
+      vec2 panel = getPanel(angleNorm * TWO_PI + PI, uv, invLength, aa);
       float panelMask = panel[0] * smoothDensity * smoothAngle;
       if (panelMask <= .001) continue;
       float panelMap = panel[1];
@@ -230,6 +240,7 @@ export interface ColorPanelsUniforms extends ShaderSizingUniforms {
   u_angle1: number;
   u_angle2: number;
   u_length: number;
+  u_edges: boolean;
   u_blur: number;
   u_fadeIn: number;
   u_fadeOut: number;
@@ -243,6 +254,7 @@ export interface ColorPanelsParams extends ShaderSizingParams, ShaderMotionParam
   angle1?: number;
   angle2?: number;
   length?: number;
+  edges?: boolean;
   blur?: number;
   fadeIn?: number;
   fadeOut?: number;
