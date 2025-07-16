@@ -26,7 +26,7 @@ import { toHsla } from '@/helpers/to-hsla';
 const { worldWidth, worldHeight, ...defaults } = flutedGlassPresets[0].params;
 
 const FlutedGlassWithControls = () => {
-  const [imageIdx, setImageIdx] = useState(0);
+  const [imageIdx, setImageIdx] = useState(null);
 
   const [image, setImage] = useState<HTMLImageElement | null>(null);
 
@@ -153,7 +153,7 @@ const FlutedGlassWithControls = () => {
       <Link href="/">
         <BackButton />
       </Link>
-      <FlutedGlass className="fixed size-full" onClick={ handleClick } { ...params } image={ image || undefined }/>
+      <FlutedGlass className="fixed size-full" onClick={handleClick} {...params} image={image || undefined} />
     </>
   );
 };

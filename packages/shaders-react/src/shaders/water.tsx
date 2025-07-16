@@ -25,7 +25,7 @@ export const defaultPreset: WaterPreset = {
     speed: 1,
     frame: 0,
     colorBack: '#0db5a7',
-    image: '/images/02.jpg',
+    image: '/images/010.png',
     highlights: 0.2,
     temperature: 0.5,
     distortion: 1,

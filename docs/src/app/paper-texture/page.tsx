@@ -1,6 +1,6 @@
 'use client';
 
-import { PaperTexture, type PaperTextureParams, paperTexturePresets } from '@paper-design/shaders-react';
+import { PaperTexture, paperTexturePresets } from '@paper-design/shaders-react';
 import { useControls, button, folder } from 'leva';
 import { setParamsSafe, useResetLevaParams } from '@/helpers/use-reset-leva-params';
 import { usePresetHighlight } from '@/helpers/use-preset-highlight';
@@ -26,18 +26,18 @@ const PaperTextureExample = () => {
 const { worldWidth, worldHeight, ...defaults } = paperTexturePresets[0].params;
 
 const PaperTextureWithControls = () => {
-  const [imageIdx, setImageIdx] = useState(0);
+  const [imageIdx, setImageIdx] = useState(null);
 
   const [image, setImage] = useState<HTMLImageElement | null>(null);
 
   const imageFiles = [
-    '08.png',
     '01.png',
     '02.jpg',
     '04.png',
     '05.jpg',
     '06.jpg',
     '07.webp',
+    '08.png',
     '010.png',
     '011.png',
     '012.png',
@@ -66,7 +66,6 @@ const PaperTextureWithControls = () => {
         button(() => setParamsSafe(params, setParams, preset)),
       ])
     );
-
     return {
       Parameters: folder(
         {
@@ -137,16 +136,12 @@ const PaperTextureWithControls = () => {
   usePresetHighlight(paperTexturePresets, params);
   cleanUpLevaParams(params);
 
-  if (image === null) {
-    return null;
-  }
-
   return (
     <>
       <Link href="/">
         <BackButton />
       </Link>
-      <PaperTexture className="fixed size-full" onClick={handleClick} {...params} image={image} />
+      <PaperTexture className="fixed size-full" onClick={handleClick} {...params} image={image || undefined} />
     </>
   );
 };

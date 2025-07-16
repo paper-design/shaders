@@ -7,8 +7,7 @@ import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import Link from 'next/link';
 import { BackButton } from '@/components/back-button';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
-import { ShaderFitOptions } from '@paper-design/shaders';
-import { ShaderFit } from '@paper-design/shaders';
+import { ShaderFit, ShaderFitOptions } from '@paper-design/shaders';
 import { levaImageButton } from '@/helpers/leva-image-button';
 import { useState, useEffect, useCallback } from 'react';
 import { toHsla } from '@/helpers/to-hsla';
@@ -20,18 +19,18 @@ import { toHsla } from '@/helpers/to-hsla';
 const { worldWidth, worldHeight, ...defaults } = waterPresets[0].params;
 
 const WaterWithControls = () => {
-  const [imageIdx, setImageIdx] = useState(0);
+  const [imageIdx, setImageIdx] = useState(null);
 
   const [image, setImage] = useState<HTMLImageElement | null>(null);
 
   const imageFiles = [
-    '08.png',
     '01.png',
     '02.jpg',
     '04.png',
     '05.jpg',
     '06.jpg',
     '07.webp',
+    '08.png',
     '010.png',
     '011.png',
     '012.png',
@@ -119,16 +118,12 @@ const WaterWithControls = () => {
   usePresetHighlight(waterPresets, params);
   cleanUpLevaParams(params);
 
-  if (image === null) {
-    return null;
-  }
-
   return (
     <>
       <Link href="/">
         <BackButton />
       </Link>
-      <Water className="fixed size-full" onClick={handleClick} {...params} image={image} />
+      <Water className="fixed size-full" onClick={handleClick} {...params} image={image || undefined} />
     </>
   );
 };
