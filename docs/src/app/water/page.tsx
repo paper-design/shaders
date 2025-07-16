@@ -19,7 +19,7 @@ import { toHsla } from '@/helpers/to-hsla';
 const { worldWidth, worldHeight, ...defaults } = waterPresets[0].params;
 
 const WaterWithControls = () => {
-  const [imageIdx, setImageIdx] = useState(null);
+  const [imageIdx, setImageIdx] = useState(-1);
 
   const [image, setImage] = useState<HTMLImageElement | null>(null);
 

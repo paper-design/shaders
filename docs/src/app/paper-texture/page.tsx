@@ -26,7 +26,7 @@ const PaperTextureExample = () => {
 const { worldWidth, worldHeight, ...defaults } = paperTexturePresets[0].params;
 
 const PaperTextureWithControls = () => {
-  const [imageIdx, setImageIdx] = useState(null);
+  const [imageIdx, setImageIdx] = useState(-1);
 
   const [image, setImage] = useState<HTMLImageElement | null>(null);
 
