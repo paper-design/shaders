@@ -85,6 +85,10 @@ export { StaticRadialGradient, staticRadialGradientPresets } from './shaders/sta
 export type { StaticRadialGradientProps } from './shaders/static-radial-gradient.js';
 export type { StaticRadialGradientUniforms, StaticRadialGradientParams } from '@paper-design/shaders';
 
+export { BlobsGrid, blobsGridPresets } from './shaders/blobs-grid.js';
+export type { BlobsGridProps } from './shaders/blobs-grid.js';
+export type { BlobsGridUniforms, BlobsGridParams } from '@paper-design/shaders';
+
 export { isPaperShaderElement, getShaderColorFromString } from '@paper-design/shaders';
 export type { PaperShaderElement, ShaderFit, ShaderSizingParams, ShaderSizingUniforms } from '@paper-design/shaders';
 
