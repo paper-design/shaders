@@ -310,8 +310,8 @@ export class ShaderMount {
     this.gl.bindTexture(this.gl.TEXTURE_2D, texture);
 
     // Set texture parameters
-    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_S, this.gl.REPEAT);
-    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_T, this.gl.REPEAT);
+    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_S, this.gl.CLAMP_TO_EDGE);
+    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_T, this.gl.CLAMP_TO_EDGE);
     this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.LINEAR);
     this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MAG_FILTER, this.gl.LINEAR);
 
@@ -792,7 +792,7 @@ export function isPaperShaderElement(element: HTMLElement): element is PaperShad
 
 /** Uniform types that we support to be auto-mapped into the fragment shader */
 export interface ShaderMountUniforms {
-  [key: string]: boolean | number | number[] | number[][] | HTMLImageElement;
+  [key: string]: boolean | number | number[] | number[][] | HTMLImageElement | null;
 }
 
 export interface ShaderMotionParams {

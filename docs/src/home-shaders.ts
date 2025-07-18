@@ -55,6 +55,12 @@ import {
   staticMeshGradientPresets,
   StaticRadialGradient,
   staticRadialGradientPresets,
+  PaperTexture,
+  paperTexturePresets,
+  FlutedGlass,
+  flutedGlassPresets,
+  Water,
+  waterPresets,
 } from '@paper-design/shaders-react';
 import { StaticImageData } from 'next/image';
 import TextureTest from './app/texture-test/page';
@@ -213,5 +219,23 @@ export const homeShaders = [
     url: '/static-radial-gradient',
     ShaderComponent: StaticRadialGradient,
     shaderConfig: { ...staticRadialGradientPresets[0].params },
+  },
+  {
+    name: 'paper texture',
+    url: '/paper-texture',
+    ShaderComponent: PaperTexture,
+    shaderConfig: { ...paperTexturePresets[0].params },
+  },
+  {
+    name: 'water',
+    url: '/water',
+    ShaderComponent: Water,
+    shaderConfig: { ...waterPresets[0].params },
+  },
+  {
+    name: 'fluted glass',
+    url: '/fluted-glass',
+    ShaderComponent: FlutedGlass,
+    shaderConfig: { ...flutedGlassPresets[0].params },
   },
 ] satisfies HomeShaderConfig[];
