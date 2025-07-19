@@ -189,6 +189,8 @@ export {
   type FlutedGlassUniforms,
 } from './shaders/fluted-glass.js';
 
+export { pixelateFragmentShader, type PixelateParams, type PixelateUniforms } from './shaders/pixelate.js';
+
 // ----- Utils ----- //
 export { getShaderColorFromString } from './get-shader-color-from-string.js';
 export { getShaderNoiseTexture } from './get-shader-noise-texture.js';
