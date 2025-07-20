@@ -102,7 +102,7 @@ export const homeShaders = [
     image: neuroNoiseImg,
     url: '/neuro-noise',
     ShaderComponent: NeuroNoise,
-    shaderConfig: { ...neuroNoisePresets[0].params, scale: 0.2 },
+    shaderConfig: { ...neuroNoisePresets[0].params, scale: 0.2, speed: 2 },
   },
   {
     name: 'dot orbit',
@@ -116,14 +116,14 @@ export const homeShaders = [
     image: smokeRingImg,
     url: '/smoke-ring',
     ShaderComponent: SmokeRing,
-    shaderConfig: { ...smokeRingPresets[3].params },
+    shaderConfig: { ...smokeRingPresets[3].params, speed: 2 },
   },
   {
     name: 'metaballs',
     image: metaballsImg,
     url: '/metaballs',
     ShaderComponent: Metaballs,
-    shaderConfig: { ...metaballsPresets[0].params, scale: 1.3 },
+    shaderConfig: { ...metaballsPresets[0].params, scale: 1.3, speed: 2 },
   },
   {
     name: 'dot grid',
@@ -144,7 +144,7 @@ export const homeShaders = [
     url: '/voronoi',
     ShaderComponent: Voronoi,
     image: voronoiImg,
-    shaderConfig: { ...voronoiPresets[0].params, scale: 0.5 },
+    shaderConfig: { ...voronoiPresets[0].params, scale: 0.5, speed: 2 },
   },
   {
     name: 'waves',
@@ -158,7 +158,7 @@ export const homeShaders = [
     url: '/warp',
     ShaderComponent: Warp,
     image: warpImg,
-    shaderConfig: { ...warpPresets[0].params, scale: 0.25 },
+    shaderConfig: { ...warpPresets[0].params, scale: 0.25, speed: 2 },
   },
   {
     name: 'god rays',
@@ -172,14 +172,14 @@ export const homeShaders = [
     url: '/spiral',
     ShaderComponent: Spiral,
     image: spiralImg,
-    shaderConfig: { ...spiralPresets[0].params },
+    shaderConfig: { ...spiralPresets[0].params, speed: 2 },
   },
   {
     name: 'swirl',
     url: '/swirl',
     ShaderComponent: Swirl,
     image: swirlImg,
-    shaderConfig: { ...swirlPresets[0].params },
+    shaderConfig: { ...swirlPresets[0].params, speed: 1.6 },
   },
   {
     name: 'dithering',
@@ -200,7 +200,7 @@ export const homeShaders = [
     url: '/grain-gradient',
     ShaderComponent: GrainGradient,
     image: grainGradientImg,
-    shaderConfig: { ...grainGradientPresets[0].params },
+    shaderConfig: { ...grainGradientPresets[0].params, speed: 2 },
   },
   {
     name: 'pulsing border',
@@ -214,7 +214,7 @@ export const homeShaders = [
     url: '/color-panels',
     ShaderComponent: ColorPanels,
     image: colorPanelsImg,
-    shaderConfig: { ...colorPanelsPresets[1].params, scale: 1.5, offsetX: 0.3, },
+    shaderConfig: { ...colorPanelsPresets[1].params, scale: 1.5, offsetX: 0.3 },
   },
   {
     name: 'static mesh gradient',
