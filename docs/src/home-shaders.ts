@@ -11,6 +11,14 @@ import wavesImg from '../public/shaders/waves.webp';
 import warpImg from '../public/shaders/warp.webp';
 import godRaysImg from '../public/shaders/god-rays.webp';
 import spiralImg from '../public/shaders/spiral.webp';
+import swirlImg from '../public/shaders/swirl.webp';
+import ditheringImg from '../public/shaders/dithering.webp';
+import liquidMetalImg from '../public/shaders/liquid-metal.webp';
+import grainGradientImg from '../public/shaders/grain-gradient.webp';
+import pulsingBorderImg from '../public/shaders/pulsing-border.webp';
+import colorPanelsImg from '../public/shaders/color-panels.webp';
+import staticMeshGradientImg from '../public/shaders/static-mesh-gradient.webp';
+import staticRadialGradientImg from '../public/shaders/static-radial-gradient.webp';
 
 import {
   DotGrid,
@@ -94,7 +102,7 @@ export const homeShaders = [
     image: neuroNoiseImg,
     url: '/neuro-noise',
     ShaderComponent: NeuroNoise,
-    shaderConfig: { ...neuroNoisePresets[0].params },
+    shaderConfig: { ...neuroNoisePresets[0].params, scale: 0.2 },
   },
   {
     name: 'dot orbit',
@@ -115,7 +123,7 @@ export const homeShaders = [
     image: metaballsImg,
     url: '/metaballs',
     ShaderComponent: Metaballs,
-    shaderConfig: { ...metaballsPresets[0].params },
+    shaderConfig: { ...metaballsPresets[0].params, scale: 1.3 },
   },
   {
     name: 'dot grid',
@@ -150,7 +158,7 @@ export const homeShaders = [
     url: '/warp',
     ShaderComponent: Warp,
     image: warpImg,
-    shaderConfig: { ...warpPresets[2].params, scale: 0.25 },
+    shaderConfig: { ...warpPresets[0].params, scale: 0.25 },
   },
   {
     name: 'god rays',
@@ -170,48 +178,56 @@ export const homeShaders = [
     name: 'swirl',
     url: '/swirl',
     ShaderComponent: Swirl,
+    image: swirlImg,
     shaderConfig: { ...swirlPresets[0].params },
   },
   {
     name: 'dithering',
     url: '/dithering',
     ShaderComponent: Dithering,
-    shaderConfig: { ...ditheringPresets[0].params },
+    image: ditheringImg,
+    shaderConfig: { ...ditheringPresets[1].params, scale: 0.85 },
   },
   {
     name: 'liquid metal',
     url: '/liquid-metal',
     ShaderComponent: LiquidMetal,
-    shaderConfig: { ...liquidMetalPresets[0].params },
+    image: liquidMetalImg,
+    shaderConfig: { ...liquidMetalPresets[0].params, scale: 3, colorBack: '#000000', frame: 20000 },
   },
   {
     name: 'grain gradient',
     url: '/grain-gradient',
     ShaderComponent: GrainGradient,
+    image: grainGradientImg,
     shaderConfig: { ...grainGradientPresets[0].params },
   },
   {
     name: 'pulsing border',
     url: '/pulsing-border',
     ShaderComponent: PulsingBorder,
-    shaderConfig: { ...pulsingBorderPresets[0].params },
+    image: pulsingBorderImg,
+    shaderConfig: { ...pulsingBorderPresets[1].params, scale: 0.2 },
   },
   {
     name: 'color panels',
     url: '/color-panels',
     ShaderComponent: ColorPanels,
-    shaderConfig: { ...colorPanelsPresets[0].params },
+    image: colorPanelsImg,
+    shaderConfig: { ...colorPanelsPresets[1].params, scale: 1.5, offsetX: 0.3, },
   },
   {
     name: 'static mesh gradient',
     url: '/static-mesh-gradient',
     ShaderComponent: StaticMeshGradient,
+    image: staticMeshGradientImg,
     shaderConfig: { ...staticMeshGradientPresets[0].params },
   },
   {
     name: 'static radial gradient',
     url: '/static-radial-gradient',
     ShaderComponent: StaticRadialGradient,
+    image: staticRadialGradientImg,
     shaderConfig: { ...staticRadialGradientPresets[0].params },
   },
 ] satisfies HomeShaderConfig[];

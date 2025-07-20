@@ -20,7 +20,7 @@ export const defaultPreset: MeshGradientPreset = {
   params: {
     ...defaultObjectSizing,
     speed: 1,
-    frame: 40000,
+    frame: 0,
     colors: ['#5100ff', '#00ff80', '#ffcc00', '#ea00ff'],
     distortion: 0.8,
     swirl: 0.1,
