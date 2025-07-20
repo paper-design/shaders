@@ -88,7 +88,7 @@ const GrainGradientWithControls = () => {
       ])
     );
     return {
-      Presets: folder(presets, { order: 10 }),
+      Presets: folder(presets, { order: -1 }),
     };
   });
 

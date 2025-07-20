@@ -21,13 +21,57 @@ export const defaultPreset: SimplexNoisePreset = {
     ...defaultPatternSizing,
     speed: 1,
     frame: 0,
-    colors: ['#40a0bf', '#ffffff', '#ffcc00'],
+    colors: ['#5F7F99', '#A5C977', '#F94C4C', '#F9C94C', '#FFFFFF'],
     stepsPerColor: 3,
     softness: 0,
   },
 };
 
-export const simplexNoisePresets: SimplexNoisePreset[] = [defaultPreset];
+export const bubblegumPreset: SimplexNoisePreset = {
+  name: 'Bubblegum',
+  params: {
+    ...defaultPatternSizing,
+    speed: 2,
+    frame: 0,
+    colors: ['#ffffff', '#ff9e9e', '#5f57ff', '#00f7ff'],
+    stepsPerColor: 1,
+    softness: 1.0,
+    scale: 1.6,
+  },
+};
+
+export const spotsPreset: SimplexNoisePreset = {
+  name: 'Spots',
+  params: {
+    ...defaultPatternSizing,
+    speed: 0.6,
+    frame: 0,
+    colors: ['#ff7b00', '#f9ffeb', '#320d82'],
+    stepsPerColor: 1,
+    softness: 0.0,
+    scale: 1.0,
+  },
+};
+
+export const firstContactPreset: SimplexNoisePreset = {
+  name: 'First contact',
+  params: {
+    ...defaultPatternSizing,
+    speed: 2,
+    frame: 0,
+    colors: ['#e8cce6', '#120d22', '#442c44', '#e6baba', '#fff5f5'],
+    stepsPerColor: 2,
+    softness: 0.0,
+    scale: 0.2,
+  },
+};
+
+export const simplexNoisePresets: SimplexNoisePreset[] = [
+  defaultPreset,
+  spotsPreset,
+  firstContactPreset,
+  bubblegumPreset,
+];
 
 export const SimplexNoise: React.FC<SimplexNoiseProps> = memo(function SimplexNoiseImpl({
   // Own props

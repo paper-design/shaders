@@ -43,7 +43,7 @@ export const openingPreset: SwirlPreset = {
     speed: 0.6,
     frame: 0,
     colorBack: '#8b2e5f',
-    colors: ['#b14467', '#e67a62', '#ffbdb3'],
+    colors: ['#ce5d43', '#f7c251', '#f9f871'],
     bandCount: 3,
     twist: 0.3,
     softness: 0,
@@ -59,7 +59,7 @@ export const jamesBondPreset: SwirlPreset = {
     speed: 1,
     frame: 0,
     colorBack: '#000000',
-    colors: ['#2e2e2e', '#000000', '#ffffff'],
+    colors: ['#2e2e2e', '#ffffff'],
     bandCount: 4,
     twist: 0.4,
     softness: 0,
@@ -75,16 +75,16 @@ export const candyPreset: SwirlPreset = {
     speed: 1,
     frame: 0,
     colorBack: '#ffcd66',
-    colors: ['#6bbceb', '#8a1fff', '#ff9fff'],
-    bandCount: 2.5,
-    twist: 0.2,
+    colors: ['#6bbceb', '#d7b3ff', '#ff9fff'],
+    bandCount: 2,
+    twist: 0.15,
     softness: 1,
     noiseFrequency: 0,
     noisePower: 0,
   },
 } as const;
 
-export const swirlPresets: SwirlPreset[] = [defaultPreset, openingPreset, jamesBondPreset, candyPreset];
+export const swirlPresets: SwirlPreset[] = [defaultPreset, jamesBondPreset, openingPreset, candyPreset];
 
 export const Swirl: React.FC<SwirlProps> = memo(function SwirlImpl({
   // Own props

@@ -48,39 +48,39 @@ export const nintendoWaterPreset: PerlinNoisePreset = {
   },
 };
 
-export const colonyPreset: PerlinNoisePreset = {
-  name: 'Colony',
-  params: {
-    ...defaultPatternSizing,
-    scale: 1 / 0.15,
-    speed: 0,
-    frame: 0,
-    colorBack: '#f4f0ae',
-    colorFront: '#0a1a5e',
-    octaveCount: 6,
-    persistence: 1,
-    lacunarity: 2.55,
-    proportion: 0.65,
-    softness: 0.35,
-  },
-};
-
-export const phosphenesPreset: PerlinNoisePreset = {
-  name: 'Phosphenes',
-  params: {
-    ...defaultPatternSizing,
-    scale: 1 / 0.03,
-    speed: 0.15,
-    frame: 0,
-    colorBack: '#ec7c8b',
-    colorFront: '#66cc99',
-    proportion: 0.45,
-    softness: 0.45,
-    octaveCount: 6,
-    persistence: 0.3,
-    lacunarity: 3,
-  },
-};
+// export const colonyPreset: PerlinNoisePreset = {
+//   name: 'Colony',
+//   params: {
+//     ...defaultPatternSizing,
+//     scale: 1 / 0.15,
+//     speed: 0,
+//     frame: 0,
+//     colorBack: '#f4f0ae',
+//     colorFront: '#0a1a5e',
+//     octaveCount: 6,
+//     persistence: 1,
+//     lacunarity: 2.55,
+//     proportion: 0.65,
+//     softness: 0.35,
+//   },
+// };
+//
+// export const phosphenesPreset: PerlinNoisePreset = {
+//   name: 'Phosphenes',
+//   params: {
+//     ...defaultPatternSizing,
+//     scale: 1 / 0.03,
+//     speed: 0.15,
+//     frame: 0,
+//     colorBack: '#ec7c8b',
+//     colorFront: '#66cc99',
+//     proportion: 0.45,
+//     softness: 0.45,
+//     octaveCount: 6,
+//     persistence: 0.3,
+//     lacunarity: 3,
+//   },
+// };
 
 export const mossPreset: PerlinNoisePreset = {
   name: 'Moss',
@@ -103,7 +103,7 @@ export const wormsPreset: PerlinNoisePreset = {
   name: 'Worms',
   params: {
     ...defaultPatternSizing,
-    scale: 1 / 2,
+    scale: 0.9,
     speed: 0,
     frame: 0,
     colorBack: '#ffffff',
@@ -119,8 +119,8 @@ export const wormsPreset: PerlinNoisePreset = {
 export const perlinNoisePresets: PerlinNoisePreset[] = [
   defaultPreset,
   nintendoWaterPreset,
-  colonyPreset,
-  phosphenesPreset,
+  // colonyPreset,
+  // phosphenesPreset,
   mossPreset,
   wormsPreset,
 ];

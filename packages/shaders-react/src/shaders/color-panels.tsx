@@ -35,7 +35,75 @@ export const defaultPreset: ColorPanelsPreset = {
   },
 };
 
-export const colorPanelsPresets: ColorPanelsPreset[] = [defaultPreset];
+export const glassPreset: ColorPanelsPreset = {
+  name: 'Glass',
+  params: {
+    ...defaultObjectSizing,
+    rotation: 112,
+    speed: 1,
+    frame: 0,
+    colors: ['#00cfff', '#ff2d55', '#34c759', '#af52de'],
+    colorBack: '#ffffff',
+    angle1: 0.3,
+    angle2: 0.3,
+    length: 1,
+    edges: true,
+    blur: 0.25,
+    fadeIn: 0.85,
+    fadeOut: 0.3,
+    gradient: 0,
+    density: 1.6,
+  },
+};
+
+export const gradientPreset: ColorPanelsPreset = {
+  name: 'Gradient',
+  params: {
+    ...defaultObjectSizing,
+    speed: 0.5,
+    frame: 0,
+    colors: ['#f2ff00', '#00000000', '#00000000', '#5a0283', '#005eff'],
+    colorBack: '#8ffff2',
+    angle1: 0.4,
+    angle2: 0.4,
+    length: 3,
+    edges: false,
+    blur: 0.5,
+    fadeIn: 1.0,
+    fadeOut: 0.39,
+    gradient: 0.78,
+    density: 1.65,
+    scale: 1.72,
+    rotation: 270,
+    offsetX: 0.18,
+  },
+};
+
+export const openingPreset: ColorPanelsPreset = {
+  name: 'Opening',
+  params: {
+    ...defaultObjectSizing,
+    speed: 2.0,
+    frame: 0,
+    colors: ['#00ffff'],
+    colorBack: '#570044',
+    angle1: -1.0,
+    angle2: -1.0,
+    length: 0.52,
+    edges: false,
+    blur: 0.0,
+    fadeIn: 0.0,
+    fadeOut: 1.0,
+    gradient: 0.0,
+    density: 2.21,
+    scale: 2.32,
+    rotation: 360,
+    offsetX: -0.3,
+    offsetY: 0.6,
+  },
+};
+
+export const colorPanelsPresets: ColorPanelsPreset[] = [defaultPreset, glassPreset, gradientPreset, openingPreset];
 
 export const ColorPanels: React.FC<ColorPanelsProps> = memo(function ColorPanelsImpl({
   // Own props

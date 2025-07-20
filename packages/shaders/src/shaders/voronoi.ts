@@ -138,7 +138,7 @@ void main() {
   vec3 cellColor = gradient.rgb;
   float cellOpacity = gradient.a;
 
-  float glows = length(voronoiRes.yz * u_glow + .1);
+  float glows = length(voronoiRes.yz * u_glow);
   glows = pow(glows, 1.5);
 
   vec3 color = mix(cellColor, u_colorGlow.rgb * u_colorGlow.a, u_colorGlow.a * glows);

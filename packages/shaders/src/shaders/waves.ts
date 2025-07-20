@@ -53,7 +53,7 @@ void main() {
   float spacing = (.001 + u_spacing);
   float shape = .5 + .5 * sin((shape_uv.y + offset) * PI / spacing);
 
-  float aa = fwidth(shape);
+  float aa = .0001 + fwidth(shape);
   float dc = 1. - clamp(u_proportion, 0., 1.);
   float res = smoothstep(dc - u_softness - aa, dc + u_softness + aa, shape);
   

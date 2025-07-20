@@ -64,7 +64,7 @@ float beat(float time) {
 float roundedBox(vec2 uv, float distance) {
   float thickness = .5 * u_thickness;
   float borderDistance = abs(distance);
-  float border = 1. - smoothstep(-u_softness * thickness - .01, .5 * u_softness * thickness, borderDistance - .5 * thickness);
+  float border = 1. - smoothstep(-u_softness * thickness - 2. * fwidth(borderDistance), .5 * u_softness * thickness, borderDistance - .5 * thickness);
   border = pow(border, 2.);
 
   return border;
