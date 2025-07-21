@@ -4,6 +4,8 @@ import { declarePI, declareRotate, declareRandom } from '../shader-utils.js';
 
 /**
  */
+
+// language=GLSL
 export const flutedGlassFragmentShader: string = `#version 300 es
 precision mediump float;
 
@@ -79,7 +81,7 @@ vec4 getBlur(sampler2D tex, vec2 uv, vec2 texelSize, vec2 dir, float sigma) {
 }
 
 void main() {
-  vec2 patternUV = v_patternUV;
+  vec2 patternUV = 100. * v_patternUV;
 
   vec2 imageUV = v_responsiveUV + .5;
   float screenRatio = v_responsiveBoxGivenSize.x / v_responsiveBoxGivenSize.y;

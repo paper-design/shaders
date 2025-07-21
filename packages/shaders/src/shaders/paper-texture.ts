@@ -10,6 +10,8 @@ import { declareRotate, declarePI, declareValueNoise, declareSimplexNoise } from
  https://www.shadertoy.com/view/4tj3DG - worley
 
  */
+
+// language=GLSL
 export const paperTextureFragmentShader: string = `#version 300 es
 precision mediump float;
 
@@ -216,10 +218,10 @@ void main() {
   float grain = grain_fbm(grainUv + vec2(1., 0.)) - grain_fbm(grainUv - vec2(1., 0.));
 
   float crumplesSeed = .01 * u_crumplesSeed;
-  vec2 crumplesUV = fract(v_patternUV * .001 * u_crumplesScale + crumplesSeed) * 32.;
+  vec2 crumplesUV = fract(v_patternUV * .1 * u_crumplesScale + crumplesSeed) * 32.;
   float crumples = crumpled(crumplesUV + vec2(.05, 0.)) - crumpled(crumplesUV);
 
-  vec2 curlesUV = v_patternUV * mix(.02, .25, u_curlesScale);
+  vec2 curlesUV = 100. * v_patternUV * mix(.02, .25, u_curlesScale);
   float noise = curleyFbm(curlesUV);
   float curles = length(vec2(dFdx(noise), dFdy(noise)));
   curles = pow(curles, .4) - .2;
@@ -227,7 +229,7 @@ void main() {
   vec2 normal = vec2(0.);
   vec2 normalImage = vec2(0.);
 
-  vec2 foldsUV = v_patternUV * .002;
+  vec2 foldsUV = v_patternUV * .2;
   foldsUV = rotate(foldsUV, 4. * u_foldsSeed);
   vec2 w = folds(foldsUV);
   foldsUV = rotate(foldsUV + .007 * cos(u_foldsSeed), .01 * sin(u_foldsSeed));
@@ -239,7 +241,7 @@ void main() {
   normal.xy += u_crumples * crumples;
   normalImage.xy += 1.5 * u_crumples * crumples;
   
-  float blur = u_blur * 2. * smoothstep(0., 1., fbm(.0017 * v_patternUV + 10. * u_blurSeed));
+  float blur = u_blur * 2. * smoothstep(0., 1., fbm(.17 * v_patternUV + 10. * u_blurSeed));
   normal *= (1. - blur);
 
   normal.xy += u_grain * 1.5 * grain;

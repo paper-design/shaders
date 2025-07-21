@@ -4,6 +4,8 @@ import { declarePI, declareRotate, declareRandom, declareSimplexNoise } from '..
 
 /**
  */
+
+// language=GLSL
 export const waterFragmentShader: string = `#version 300 es
 precision mediump float;
 
@@ -76,7 +78,7 @@ void main() {
   imageUV += .5;
 
   vec2 uv = imageUV;
-  vec2 patternUV = .01 * v_patternUV;
+  vec2 patternUV = v_patternUV;
   
   
   float origFrame = uvFrame(uv);
