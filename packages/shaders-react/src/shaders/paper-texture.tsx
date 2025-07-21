@@ -9,7 +9,7 @@ import {
   ShaderFitOptions,
   type PaperTextureParams,
   type PaperTextureUniforms,
-  type ShaderPreset,
+  type ShaderPreset, defaultObjectSizing,
 } from '@paper-design/shaders';
 
 export interface PaperTextureProps extends ShaderComponentProps, PaperTextureParams {}
@@ -19,9 +19,12 @@ type PaperTexturePreset = ShaderPreset<PaperTextureParams>;
 export const defaultPreset: PaperTexturePreset = {
   name: 'Default',
   params: {
-    ...defaultPatternSizing,
+    ...defaultObjectSizing,
+    worldWidth: 0,
+    worldHeight: 0,
     speed: 0,
     frame: 0,
+    scale: 0.8,
     colorFront: '#b9bfc6',
     colorBack: '#ffffff',
     image: '/images/010.png',
@@ -45,7 +48,9 @@ export const defaultPreset: PaperTexturePreset = {
 export const abstractPreset: PaperTexturePreset = {
   name: 'Abstract',
   params: {
-    ...defaultPatternSizing,
+    ...defaultObjectSizing,
+    worldWidth: 0,
+    worldHeight: 0,
     speed: 0,
     frame: 0,
     colorFront: '#a2ff8f',
@@ -71,7 +76,9 @@ export const abstractPreset: PaperTexturePreset = {
 export const cardboardPreset: PaperTexturePreset = {
   name: 'Cardboard',
   params: {
-    ...defaultPatternSizing,
+    ...defaultObjectSizing,
+    worldWidth: 0,
+    worldHeight: 0,
     speed: 0,
     frame: 0,
     colorFront: '#a26b22',

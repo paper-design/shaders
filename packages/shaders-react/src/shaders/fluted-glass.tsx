@@ -21,6 +21,7 @@ export const defaultPreset: FlutedGlassPreset = {
     ...defaultObjectSizing,
     worldWidth: 0,
     worldHeight: 0,
+    scale: 0.8,
     speed: 0,
     frame: 0,
     image: '/images/010.png',

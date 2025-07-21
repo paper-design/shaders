@@ -21,7 +21,7 @@ export const defaultPreset: WaterPreset = {
     ...defaultObjectSizing,
     worldWidth: 0,
     worldHeight: 0,
-    scale: 0.75,
+    scale: 0.8,
     speed: 1,
     frame: 0,
     colorBack: '#0db5a7',
