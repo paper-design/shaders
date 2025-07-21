@@ -94,26 +94,6 @@ export const swirlPreset: SpiralPreset = {
   },
 };
 
-// export const vinylPreset: SpiralPreset = {
-//   name: 'Vinyl',
-//   params: {
-//     ...defaultPatternSizing,
-//     scale: 0.3,
-//     colorBack: '#1b1818',
-//     colorFront: '#ffebd6',
-//     density: 0.95,
-//     distortion: 1,
-//     strokeWidth: 0.17,
-//     strokeTaper: 0.13,
-//     strokeCap: 0,
-//     noise: 0,
-//     noiseFrequency: 0.3,
-//     softness: 0.37,
-//     speed: 1.3,
-//     frame: 0,
-//   },
-// };
-
 export const spiralPresets: SpiralPreset[] = [defaultPreset, sandPreset, dropletPreset, swirlPreset];
 
 export const Spiral: React.FC<SpiralProps> = memo(function SpiralImpl({

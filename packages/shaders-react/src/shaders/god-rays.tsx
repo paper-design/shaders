@@ -35,25 +35,6 @@ export const defaultPreset: GodRaysPreset = {
   },
 };
 
-// export const auroraPreset: GodRaysPreset = {
-//   name: 'Aurora',
-//   params: {
-//     ...defaultObjectSizing,
-//     offsetY: 1,
-//     colorBack: '#404040',
-//     colorBloom: '#ff8888',
-//     colors: ['#666eff', '#66ff99', '#66d9ff'],
-//     density: 0.5,
-//     spotty: 0.9,
-//     midIntensity: 0.8,
-//     midSize: 0.2,
-//     intensity: 0.5,
-//     bloom: 1,
-//     speed: 0.5,
-//     frame: 0,
-//   },
-// };
-
 export const warpPreset: GodRaysPreset = {
   name: 'Warp',
   params: {

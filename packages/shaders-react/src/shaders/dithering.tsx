@@ -17,20 +17,6 @@ export interface DitheringProps extends ShaderComponentProps, DitheringParams {}
 
 type DitheringPreset = ShaderPreset<DitheringParams>;
 
-// export const defaultPreset: DitheringPreset = {
-//   name: 'Default',
-//   params: {
-//     ...defaultPatternSizing,
-//     speed: 1,
-//     frame: 0,
-//     colorBack: '#252531',
-//     colorFront: '#b59f82',
-//     shape: 'simplex',
-//     type: '4x4',
-//     pxSize: 2,
-//   },
-// };
-
 export const defaultPreset: DitheringPreset = {
   name: 'Default',
   params: {
