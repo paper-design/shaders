@@ -180,23 +180,23 @@ void main() {
   float grain = grain_fbm(grainUv + vec2(1., 0.)) - grain_fbm(grainUv - vec2(1., 0.));
 
   float crumplesSeed = .01 * u_crumplesSeed;
-  vec2 crumplesUV = fract(v_patternUV * .001 * u_crumplesScale + crumplesSeed) * 32.;
+  vec2 crumplesUV = fract(v_patternUV * .1 * u_crumplesScale + crumplesSeed) * 32.;
   float crumples = crumpled(crumplesUV + vec2(.05, 0.)) - crumpled(crumplesUV);
 
-  vec2 curlesUV = v_patternUV * mix(.02, .25, u_curlesScale);
+  vec2 curlesUV = 100. * v_patternUV * mix(.02, .25, u_curlesScale);
   float noise = curleyFbm(curlesUV);
   float curles = length(vec2(dFdx(noise), dFdy(noise)));
   curles = pow(curles, .4) - .2;
 
   vec2 normal = vec2(0.);
 
-  vec2 foldsUV = v_patternUV * .002;
+  vec2 foldsUV = v_patternUV * .2;
   foldsUV = rotate(foldsUV, 4. * u_foldsSeed);
   vec2 w = folds(foldsUV);
   foldsUV = rotate(foldsUV + .007 * cos(u_foldsSeed), .01 * sin(u_foldsSeed));
   vec2 w2 = folds(foldsUV);
 
-  vec2 dropsUV = v_patternUV * .02;
+  vec2 dropsUV = v_patternUV * 2.;
   vec2 iDropsUV = floor(dropsUV);
   vec2 fDropsUV = fract(dropsUV);
   float dropsMinDist = 1.;
@@ -217,7 +217,7 @@ void main() {
   normal.xy += u_crumples * crumples;
   normal.xy += 3. * u_drops * drops;
   
-  float blur = u_blur * 2. * smoothstep(0., 1., fbm(.0017 * v_patternUV + 10. * u_blurSeed));
+  float blur = u_blur * 2. * smoothstep(0., 1., fbm(.17 * v_patternUV + 10. * u_blurSeed));
   normal *= (1. - blur);
 
   normal.xy += u_grain * 1.5 * grain;
