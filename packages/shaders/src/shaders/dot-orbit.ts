@@ -78,8 +78,7 @@ vec3 voronoiShape(vec2 uv, float time) {
 void main() {
 
   vec2 shape_uv = v_patternUV;
-  shape_uv += .5;
-  shape_uv *= .015;
+  shape_uv *= 1.5;
 
   float t = u_time;
 

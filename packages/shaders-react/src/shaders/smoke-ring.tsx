@@ -75,8 +75,9 @@ export const cloudPreset: SmokeRingPreset = {
     noiseIterations: 10,
     radius: 0.5,
     thickness: 0.65,
-    innerShape: 0.9,
+    innerShape: 0.85,
     speed: 0.5,
+    scale: 0.8,
   },
 };
 

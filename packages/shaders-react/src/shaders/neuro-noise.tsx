@@ -24,12 +24,62 @@ export const defaultPreset: NeuroNoisePreset = {
     colorFront: '#ffffff',
     colorMid: '#bf9eff',
     colorBack: '#000000',
-    brightness: 0.3,
+    brightness: 0.15,
     contrast: 0.6,
   },
 };
 
-export const neuroNoisePresets: NeuroNoisePreset[] = [defaultPreset] as const;
+export const sensationPreset: NeuroNoisePreset = {
+  name: 'Sensation',
+  params: {
+    ...defaultPatternSizing,
+    speed: 1,
+    frame: 0,
+    colorFront: '#00c8ff',
+    colorMid: '#fbff00',
+    colorBack: '#8b42ff',
+    brightness: 0.19,
+    contrast: 0.12,
+    scale: 3,
+  },
+};
+
+export const bloodstreamPreset: NeuroNoisePreset = {
+  name: 'Bloodstream',
+  params: {
+    ...defaultPatternSizing,
+    speed: 1,
+    frame: 0,
+    colorFront: '#ff0000',
+    colorMid: '#ff0000',
+    colorBack: '#ffffff',
+    brightness: 0.24,
+    contrast: 0.17,
+    scale: 0.7,
+  },
+};
+
+export const ghostPreset: NeuroNoisePreset = {
+  name: 'Ghost',
+  params: {
+    ...defaultPatternSizing,
+    speed: 1,
+    frame: 0,
+    colorFront: '#ffffff',
+    colorMid: '#000000',
+    colorBack: '#ffffff',
+    brightness: 0.0,
+    contrast: 1.0,
+    scale: 0.55,
+  },
+};
+
+export const neuroNoisePresets: NeuroNoisePreset[] = [
+  defaultPreset,
+  sensationPreset,
+  bloodstreamPreset,
+  ghostPreset,
+] as const;
 
 export const NeuroNoise: React.FC<NeuroNoiseProps> = memo(function NeuroNoiseImpl({
   // Own props

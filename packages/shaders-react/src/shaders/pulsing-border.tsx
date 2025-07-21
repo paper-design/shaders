@@ -28,7 +28,7 @@ export const defaultPreset: PulsingBorderPreset = {
     roundness: 0.35,
     thickness: 0.05,
     softness: 0.75,
-    intensity: 0,
+    intensity: 0.3,
     bloom: 0.5,
     spots: 3,
     spotSize: 0.3,
@@ -42,8 +42,8 @@ export const circlePreset: PulsingBorderPreset = {
   name: 'Circle',
   params: {
     ...defaultObjectSizing,
-    worldWidth: 200,
-    worldHeight: 200,
+    worldWidth: 400,
+    worldHeight: 400,
     scale: 0.6,
     speed: 1,
     frame: 0,
@@ -55,14 +55,61 @@ export const circlePreset: PulsingBorderPreset = {
     intensity: 0.8,
     bloom: 0.8,
     spots: 2,
-    spotSize: 0.3,
+    spotSize: 0.45,
     pulse: 0,
     smoke: 0.25,
     smokeSize: 0.62,
   },
 };
 
-export const pulsingBorderPresets: PulsingBorderPreset[] = [defaultPreset, circlePreset];
+export const northernLightsPreset: PulsingBorderPreset = {
+  name: 'Northern lights',
+  params: {
+    ...defaultObjectSizing,
+    speed: 0.18,
+    frame: 0,
+    colors: ['#3426f2', '#156ba8', '#126964', '#0affba', '#4733cc'],
+    colorBack: '#002942',
+    roundness: 0,
+    thickness: 1,
+    softness: 1,
+    intensity: 0,
+    bloom: 0.5,
+    spots: 4,
+    spotSize: 0,
+    pulse: 0,
+    smoke: 0.7,
+    smokeSize: 0.7,
+  },
+};
+
+export const solidLinePreset: PulsingBorderPreset = {
+  name: 'Solid line',
+  params: {
+    ...defaultObjectSizing,
+    speed: 2,
+    frame: 0,
+    colors: ['#759717', '#ff0073', '#00ffb3'],
+    colorBack: '#000000',
+    roundness: 0.05,
+    thickness: 0.03,
+    softness: 0.0,
+    intensity: 0.0,
+    bloom: 0.15,
+    spots: 4,
+    spotSize: 0.28,
+    pulse: 0.0,
+    smoke: 0,
+    smokeSize: 0.63,
+  },
+};
+
+export const pulsingBorderPresets: PulsingBorderPreset[] = [
+  defaultPreset,
+  circlePreset,
+  northernLightsPreset,
+  solidLinePreset,
+];
 
 export const PulsingBorder: React.FC<PulsingBorderProps> = memo(function PulsingBorderImpl({
   // Own props

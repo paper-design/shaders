@@ -35,25 +35,6 @@ export const defaultPreset: GodRaysPreset = {
   },
 };
 
-export const auroraPreset: GodRaysPreset = {
-  name: 'Aurora',
-  params: {
-    ...defaultObjectSizing,
-    offsetY: 1,
-    colorBack: '#404040',
-    colorBloom: '#ff8888',
-    colors: ['#666eff', '#66ff99', '#66d9ff'],
-    density: 0.5,
-    spotty: 0.9,
-    midIntensity: 0.8,
-    midSize: 0.2,
-    intensity: 0.5,
-    bloom: 1,
-    speed: 0.5,
-    frame: 0,
-  },
-};
-
 export const warpPreset: GodRaysPreset = {
   name: 'Warp',
   params: {
@@ -63,8 +44,8 @@ export const warpPreset: GodRaysPreset = {
     colors: ['#ff00c4', '#ff8c00', '#ffffff'],
     density: 0.45,
     spotty: 0.15,
-    midIntensity: 0,
-    midSize: 0,
+    midIntensity: 0.4,
+    midSize: 0.33,
     intensity: 0.79,
     bloom: 0.4,
     speed: 2,
@@ -77,7 +58,7 @@ export const linearPreset: GodRaysPreset = {
   params: {
     ...defaultObjectSizing,
     offsetX: 0.2,
-    offsetY: -0.7,
+    offsetY: -0.8,
     colorBack: '#000000',
     colorBloom: '#eeeeee',
     colors: ['#ffffff1f', '#ffffff3d', '#ffffff29'],
@@ -100,10 +81,10 @@ export const etherPreset: GodRaysPreset = {
     colorBack: '#090f1d',
     colorBloom: '#ffffff',
     colors: ['#148effa6', '#c4dffebe', '#232a47'],
-    density: 0.3,
+    density: 0.03,
     spotty: 0.77,
     midSize: 0.1,
-    midIntensity: 0.5,
+    midIntensity: 0.6,
     intensity: 0.6,
     bloom: 0.6,
     speed: 1,
@@ -111,7 +92,7 @@ export const etherPreset: GodRaysPreset = {
   },
 };
 
-export const godRaysPresets: GodRaysPreset[] = [defaultPreset, auroraPreset, warpPreset, linearPreset, etherPreset];
+export const godRaysPresets: GodRaysPreset[] = [defaultPreset, warpPreset, linearPreset, etherPreset];
 
 export const GodRays: React.FC<GodRaysProps> = memo(function GodRaysImpl({
   // Own props

@@ -45,7 +45,7 @@ export const crossSectionPreset: StaticRadialGradientPreset = {
     speed: 0,
     frame: 0,
     colorBack: '#3d348b',
-    colors: ['#7678ed', '#f7b801', '#f18701'],
+    colors: ['#7678ed', '#f7b801', '#f18701', '#37a066'],
     radius: 1,
     focalDistance: 0,
     focalAngle: 0,

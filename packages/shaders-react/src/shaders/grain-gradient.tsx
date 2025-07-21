@@ -17,20 +17,20 @@ export interface GrainGradientProps extends ShaderComponentProps, GrainGradientP
 
 type GrainGradientPreset = ShaderPreset<GrainGradientParams>;
 
-export const defaultPreset: GrainGradientPreset = {
-  name: 'Default',
-  params: {
-    ...defaultPatternSizing,
-    speed: 1,
-    frame: 0,
-    colorBack: '#000a0f',
-    colors: ['#c4730b', '#bdad5f', '#d8ccc7'],
-    softness: 0.7,
-    intensity: 0.15,
-    noise: 0.5,
-    shape: 'wave',
-  },
-};
+// export const defaultPreset: GrainGradientPreset = {
+//   name: 'Default',
+//   params: {
+//     ...defaultPatternSizing,
+//     speed: 1,
+//     frame: 0,
+//     colorBack: '#000a0f',
+//     colors: ['#c4730b', '#bdad5f', '#d8ccc7'],
+//     softness: 0.7,
+//     intensity: 0.15,
+//     noise: 0.5,
+//     shape: 'wave',
+//   },
+// };
 
 export const dotsPreset: GrainGradientPreset = {
   name: 'Dots',
@@ -40,9 +40,9 @@ export const dotsPreset: GrainGradientPreset = {
     speed: 1,
     frame: 0,
     colorBack: '#0a0000',
-    colors: ['#6f0000', '#0080ff', '#f2ebc9'],
-    softness: 0.75,
-    intensity: 0.15,
+    colors: ['#6f0000', '#0080ff', '#f2ebc9', '#33cc33'],
+    softness: 1,
+    intensity: 1,
     noise: 0.7,
     shape: 'dots',
   },
@@ -63,8 +63,8 @@ export const truchetPreset: GrainGradientPreset = {
   },
 };
 
-export const cornersPreset: GrainGradientPreset = {
-  name: 'Corners',
+export const defaultPreset: GrainGradientPreset = {
+  name: 'Default',
   params: {
     ...defaultObjectSizing,
     speed: 1,
@@ -128,7 +128,7 @@ export const moonPreset: GrainGradientPreset = {
 
 export const grainGradientPresets: GrainGradientPreset[] = [
   defaultPreset,
-  cornersPreset,
+  // cornersPreset,
   dotsPreset,
   truchetPreset,
   ripplePreset,

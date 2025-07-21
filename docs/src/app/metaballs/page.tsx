@@ -37,7 +37,7 @@ const MetaballsWithControls = () => {
           colorBack: { value: toHsla(defaults.colorBack), order: 100 },
           count: { value: defaults.count, min: 1, max: metaballsMeta.maxBallsCount, order: 301 },
           size: { value: defaults.size, min: 0, max: 1, order: 302 },
-          speed: { value: defaults.speed, min: 0, max: 1, order: 400 },
+          speed: { value: defaults.speed, min: 0, max: 2, order: 400 },
         },
         { order: 1 }
       ),
@@ -81,7 +81,7 @@ const MetaballsWithControls = () => {
       ])
     );
     return {
-      Presets: folder(presets, { order: 10 }),
+      Presets: folder(presets, { order: -1 }),
     };
   });
 

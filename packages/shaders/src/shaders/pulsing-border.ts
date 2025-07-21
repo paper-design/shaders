@@ -64,7 +64,7 @@ float beat(float time) {
 float roundedBox(vec2 uv, float distance) {
   float thickness = .5 * u_thickness;
   float borderDistance = abs(distance);
-  float border = 1. - smoothstep(-u_softness * thickness - .01, .5 * u_softness * thickness, borderDistance - .5 * thickness);
+  float border = 1. - smoothstep(-u_softness * thickness - 2. * fwidth(borderDistance), .5 * u_softness * thickness, borderDistance - .5 * thickness);
   border = pow(border, 2.);
 
   return border;
@@ -160,7 +160,7 @@ void main() {
   cornerFade *= cornerFadeMask;
   border += cornerFade;
 
-  vec2 smokeUV = 2. * u_smokeSize * v_objectUV;
+  vec2 smokeUV = .2 * u_smokeSize * v_patternUV;
   float smoke = clamp(3. * valueNoise(2.7 * smokeUV + .5 * t), 0., 1.);
   smoke -= valueNoise(3.4 * smokeUV - .5 * t);
   smoke *= roundedBoxSmoke(borderUV, distance, u_smoke);

@@ -692,7 +692,9 @@ void main() {
   v_patternUV = graphicRotation * v_patternUV;
   v_patternUV += boxOrigin / patternBoxScale;
   v_patternUV -= boxOrigin;
-  v_patternUV += .5;
+  // x100 is a default multiplier between vertex and fragmant shaders
+  // we use it to avoid UV presision issues
+  v_patternUV *= .01;
 
   // ===================================================
 

@@ -170,8 +170,8 @@ float get_max_amp(float persistence, float octaveCount) {
 
 void main() {
   vec2 uv = v_patternUV;
-
-  uv *= .005;
+  uv *= .5;
+  
   float t = .2 * u_time;
 
   vec3 p = vec3(uv, t);

@@ -63,28 +63,29 @@ void main() {
   float mid = smoothstep(.2, .4, pow(l, twist));
   shape = mix(0., shape, mid);
 
-  shape = clamp(shape - .5 / u_colorsCount, 0., 1.);
-
-  float edge_w = fwidth(shape);
-  
-  float totalShape = smoothstep(0., u_softness + 2. * edge_w, clamp(shape * u_colorsCount, 0., 1.));
-  float mixer = shape * (u_colorsCount - 1.);
-
+  float mixer = shape * u_colorsCount;
   vec4 gradient = u_colors[0];
   gradient.rgb *= gradient.a;
-  for (int i = 1; i < ${swirlMeta.maxColorCount}; i++) {
-    if (i >= int(u_colorsCount)) break;
+  
+  float outerShape = 0.;
+  for (int i = 1; i < ${swirlMeta.maxColorCount + 1}; i++) {
+    if (i > int(u_colorsCount)) break;
 
-    float localT = clamp(mixer - float(i - 1), 0., 1.);
-    localT = smoothstep(.5 - .5 * u_softness, .5 + .5 * u_softness + edge_w, localT);
+    float m = clamp(mixer - float(i - 1), 0., 1.);
+    float aa = fwidth(m);
+    m = smoothstep(.5 - .5 * u_softness - aa, .5 + .5 * u_softness + aa, m);
 
-    vec4 c = u_colors[i];
+    if (i == 1) {
+      outerShape = m;
+    }
+
+    vec4 c = u_colors[i - 1];
     c.rgb *= c.a;
-    gradient = mix(gradient, c, localT);
+    gradient = mix(gradient, c, m);
   }
 
-  vec3 color = gradient.rgb * totalShape;
-  float opacity = gradient.a * totalShape;
+  vec3 color = gradient.rgb * outerShape;
+  float opacity = gradient.a * outerShape;
 
   vec3 bgColor = u_colorBack.rgb * u_colorBack.a;
   color = color + bgColor * (1.0 - opacity);
