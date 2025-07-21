@@ -23,20 +23,6 @@ export const defaultPreset: DitheringPreset = {
     ...defaultPatternSizing,
     speed: 1,
     frame: 0,
-    colorBack: '#252531',
-    colorFront: '#b59f82',
-    shape: 'simplex',
-    type: '4x4',
-    pxSize: 2,
-  },
-};
-
-export const warpPreset: DitheringPreset = {
-  name: 'Warp',
-  params: {
-    ...defaultPatternSizing,
-    speed: 1,
-    frame: 0,
     colorBack: '#2f6e83',
     colorFront: '#dceae8',
     shape: 'warp',
@@ -56,6 +42,7 @@ export const sinePreset: DitheringPreset = {
     shape: 'wave',
     type: '4x4',
     pxSize: 11,
+    scale: 1.2,
   },
 } as const;
 
@@ -119,7 +106,6 @@ export const ditheringPresets: DitheringPreset[] = [
   defaultPreset,
   spherePreset,
   sinePreset,
-  warpPreset,
   ripplePreset,
   bugsPreset,
   swirlPreset,

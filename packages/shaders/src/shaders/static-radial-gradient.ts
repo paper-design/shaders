@@ -117,8 +117,8 @@ void main() {
   vec2 grainUV = rotate(v_objectUV, 2.) * 180.;
   float grain = grainShape(grainUV, vec2(100.));
 
-  float mixerGrain = 1. * u_grainMixer * (grain - .3);
-  float mixer = shape * (u_colorsCount - 0.) + mixerGrain;
+  float mixerGrain = u_grainMixer * (grain - .3);
+  float mixer = shape * u_colorsCount + mixerGrain;
   vec4 gradient = u_colors[0];
   gradient.rgb *= gradient.a;
   

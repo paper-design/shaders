@@ -48,24 +48,24 @@ ${declareRotate}
 ${declareSimplexNoise}
 
 float getColorChanges(float c1, float c2, float stripe_p, vec3 w, float blur, float bump, float tint) {
-
-  float ch = mix(c2, c1, smoothstep(.0, blur, stripe_p));
+  
+  float ch = mix(c2, c1, smoothstep(.0, 2. * blur, stripe_p));
 
   float border = w[0];
-  ch = mix(ch, c2, smoothstep(border - blur, border + blur, stripe_p));
+  ch = mix(ch, c2, smoothstep(border, border + 2. * blur, stripe_p));
 
   border = w[0] + .4 * (1. - bump) * w[1];
-  ch = mix(ch, c1, smoothstep(border - blur, border + blur, stripe_p));
+  ch = mix(ch, c1, smoothstep(border, border + 2. * blur, stripe_p));
 
   border = w[0] + .5 * (1. - bump) * w[1];
-  ch = mix(ch, c2, smoothstep(border - blur, border + blur, stripe_p));
+  ch = mix(ch, c2, smoothstep(border, border + 2. * blur, stripe_p));
 
   border = w[0] + w[1];
-  ch = mix(ch, c1, smoothstep(border - blur, border + blur, stripe_p));
+  ch = mix(ch, c1, smoothstep(border, border + 2. * blur, stripe_p));
 
   float gradient_t = (stripe_p - w[0] - w[1]) / w[2];
   float gradient = mix(c1, c2, smoothstep(0., 1., gradient_t));
-  ch = mix(ch, gradient, smoothstep(border - blur, border + blur, stripe_p));
+  ch = mix(ch, gradient, smoothstep(border, border + .5 * blur, stripe_p));
   
   // Tint color is applied with color burn blending
   ch = mix(ch, 1. - min(1., (1. - ch) / max(tint, 0.0001)), u_colorTint.a);
@@ -182,7 +182,7 @@ void main() {
 
   direction += diagBLtoTR;
 
-  float contour = u_contour * smoothstep(0., contOffset, mask) * smoothstep(contOffset, 0., mask);
+  float contour = u_contour * smoothstep(0., contOffset + .01, mask) * smoothstep(contOffset + .01, 0., mask);
   direction -= 14. * noise * contour;
 
   bump *= clamp(pow(uv.y, .1), .3, 1.);
@@ -208,11 +208,11 @@ void main() {
   vec3 w = vec3(thin_strip_1_width, thin_strip_2_width, wide_strip_ratio);
   w[1] -= .02 * smoothstep(.0, 1., mask + bump);
   float stripe_r = mod(direction + dispersionRed, 1.);
-  float r = getColorChanges(color1.r, color2.r, stripe_r, w, blur, bump, u_colorTint.r);
+  float r = getColorChanges(color1.r, color2.r, stripe_r, w, blur + fwidth(stripe_r), bump, u_colorTint.r);
   float stripe_g = mod(direction, 1.);
-  float g = getColorChanges(color1.g, color2.g, stripe_g, w, blur, bump, u_colorTint.g);
+  float g = getColorChanges(color1.g, color2.g, stripe_g, w, blur + fwidth(stripe_g), bump, u_colorTint.g);
   float stripe_b = mod(direction - dispersionBlue, 1.);
-  float b = getColorChanges(color1.b, color2.b, stripe_b, w, blur, bump, u_colorTint.b);
+  float b = getColorChanges(color1.b, color2.b, stripe_b, w, blur + fwidth(stripe_b), bump, u_colorTint.b);
 
   color = vec3(r, g, b);
   color *= opacity;

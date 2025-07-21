@@ -359,7 +359,17 @@ export class ShaderMount {
   private setUniformValues = (updatedUniforms: ShaderMountUniforms) => {
     this.gl.useProgram(this.program);
     Object.entries(updatedUniforms).forEach(([key, value]) => {
-      if (this.areUniformValuesEqual(this.uniformCache[key], value)) return;
+      // Grab the value to use in the uniform cache
+      let cacheValue: ShaderMountUniforms[keyof ShaderMountUniforms] | string = value;
+      if (value instanceof HTMLImageElement) {
+        // Images use their src for the cache value to save memory
+        cacheValue = `${value.src.slice(0, 200)}|${value.naturalWidth}x${value.naturalHeight}`;
+      }
+
+      // Check if the uniform value has changed and, if not, bail early to avoid extra work
+      if (this.areUniformValuesEqual(this.uniformCache[key], cacheValue)) return;
+      // Update the uniform cache if we are still here
+      this.uniformCache[key] = cacheValue;
 
       const location = this.uniformLocations[key];
       if (!location) {
@@ -422,8 +432,6 @@ export class ShaderMount {
       } else {
         console.warn(`Unsupported uniform type for ${key}: ${typeof value}`);
       }
-
-      this.uniformCache[key] = value as any;
     });
   };
 
@@ -684,7 +692,9 @@ void main() {
   v_patternUV = graphicRotation * v_patternUV;
   v_patternUV += boxOrigin / patternBoxScale;
   v_patternUV -= boxOrigin;
-  v_patternUV += .5;
+  // x100 is a default multiplier between vertex and fragmant shaders
+  // we use it to avoid UV presision issues
+  v_patternUV *= .01;
 
   // ===================================================
 
