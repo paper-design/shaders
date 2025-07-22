@@ -133,7 +133,7 @@ export class ShaderMount {
 
       // For texture uniforms, also look for the aspect ratio uniform
       if (value instanceof HTMLImageElement) {
-        const aspectRatioUniformName = `${key}_aspect_ratio`;
+        const aspectRatioUniformName = `${key}AspectRatio`;
         uniformLocations[aspectRatioUniformName] = this.gl.getUniformLocation(this.program!, aspectRatioUniformName);
       }
     });
@@ -339,7 +339,7 @@ export class ShaderMount {
       this.gl.uniform1i(location, textureUnit);
 
       // Calculate and set the aspect ratio uniform
-      const aspectRatioUniformName = `${uniformName}_aspect_ratio`;
+      const aspectRatioUniformName = `${uniformName}AspectRatio`;
       const aspectRatioLocation = this.uniformLocations[aspectRatioUniformName];
       if (aspectRatioLocation) {
         const aspectRatio = image.naturalWidth / image.naturalHeight;

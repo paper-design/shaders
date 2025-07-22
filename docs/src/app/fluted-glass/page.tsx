@@ -83,11 +83,9 @@ const FlutedGlassWithControls = () => {
           },
           distortion: { value: defaults.distortion, min: 0, max: 1, order: 201 },
           shift: { value: defaults.shift, min: -1, max: 1, order: 205 },
-          skew: { value: defaults.skew, min: 0, max: 1, order: 206 },
           frost: { value: defaults.frost, min: 0, max: 1, order: 250 },
           blur: { value: defaults.blur, min: 0, max: 25, order: 251 },
           gridLines: { value: defaults.gridLines, min: 0, max: 1, order: 270 },
-          gridLinesBrightness: { value: defaults.gridLinesBrightness, min: 0, max: 1, order: 271 },
         },
         { order: 1 }
       ),

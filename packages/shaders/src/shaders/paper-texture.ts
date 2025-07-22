@@ -1,6 +1,12 @@
 import type { ShaderMotionParams } from '../shader-mount.js';
 import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
-import { declareRotate, declarePI, declareValueNoise, declareSimplexNoise } from '../shader-utils.js';
+import {
+  declareImageUV,
+  declareRotate,
+  declarePI,
+  declareValueNoise,
+  declareSimplexNoise,
+} from '../shader-utils.js';
 
 /**
 
@@ -23,7 +29,7 @@ uniform vec4 u_colorFront;
 uniform vec4 u_colorBack;
 
 uniform sampler2D u_image;
-uniform float u_image_aspect_ratio;
+uniform float u_imageAspectRatio;
 
 uniform float u_crumplesSeed;
 uniform float u_foldsSeed;
@@ -47,9 +53,10 @@ ${sizingVariablesDeclaration}
 
 out vec4 fragColor;
 
-${declareRotate}
 ${declarePI}
+${declareRotate}
 ${declareSimplexNoise}
+${declareImageUV}
 
 
 float random(vec2 p) {
@@ -174,28 +181,9 @@ vec2 folds(vec2 uv) {
     return mix(pp.xy, vec2(0.), pow(pp.z, .25));
 }
 
-
-float uvFrame(vec2 uv) {
-  return step(1e-3, uv.x) * step(uv.x, 1. - 1e-3) * step(1e-3, uv.y) * step(uv.y, 1. - 1e-3);
-}
-
-
 void main() {
 
-
-  vec2 imageUV = v_responsiveUV + .5;
-  float screenRatio = v_responsiveBoxGivenSize.x / v_responsiveBoxGivenSize.y;
-  float imageRatio = u_image_aspect_ratio;
-
-  imageUV.y = 1. - imageUV.y;
-
-  imageUV -= .5;
-  if (screenRatio > imageRatio) {
-    imageUV.x *= (screenRatio / imageRatio);
-  } else {
-    imageUV.y *= (imageRatio / screenRatio);
-  }
-  imageUV += .5;  
+  vec2 imageUV = getImageUV(v_responsiveUV, v_responsiveBoxGivenSize.x / v_responsiveBoxGivenSize.y, u_imageAspectRatio);
 
   vec2 grainUv = 1.5 * (gl_FragCoord.xy - .5 * u_resolution) / u_pixelRatio;
   float grain = grain_fbm(grainUv + vec2(1., 0.)) - grain_fbm(grainUv - vec2(1., 0.));
@@ -264,7 +252,7 @@ void main() {
   
   image.rgb += .5 * (res - .6);
 
-  float frame = uvFrame(imageUV);
+  float frame = getUvFrame(imageUV);
 
   color.rgb = mix(color, image.rgb, min(.8 * frame, image.a));
 

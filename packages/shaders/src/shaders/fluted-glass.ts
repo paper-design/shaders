@@ -1,6 +1,6 @@
 import type { ShaderMotionParams } from '../shader-mount.js';
 import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
-import { declarePI, declareRotate, declareRandom } from '../shader-utils.js';
+import { declareImageUV, declarePI, declareRotate, declareRandom } from '../shader-utils.js';
 
 /**
  */
@@ -14,13 +14,12 @@ uniform vec2 u_resolution;
 uniform float u_pixelRatio;
 
 uniform sampler2D u_image;
-uniform float u_image_aspect_ratio;
+uniform float u_imageAspectRatio;
 
 uniform float u_grid;
 uniform float u_gridRotation;
 uniform float u_distortion;
 uniform float u_distortionShape;
-uniform float u_skew;
 uniform float u_shift;
 uniform float u_blur;
 uniform float u_frost;
@@ -28,23 +27,21 @@ uniform float u_marginLeft;
 uniform float u_marginRight;
 uniform float u_marginTop;
 uniform float u_marginBottom;
-uniform float u_gridLinesBrightness;
 uniform float u_gridLines;
 uniform float u_gridShape;
 
 ${sizingVariablesDeclaration}
-${declarePI}
-${declareRotate}
-${declareRandom}
 
 out vec4 fragColor;
 
+${declarePI}
+${declareRotate}
+${declareRandom}
+${declareImageUV}
+
+
 vec2 random2(vec2 p) {
   return vec2(random(p), random(200. * p));
-}
-
-float uvFrame(vec2 uv) {
-  return step(1e-3, uv.x) * step(uv.x, 1. - 1e-3) * step(1e-3, uv.y) * step(uv.y, 1. - 1e-3);
 }
 
 float hash(float x) {
@@ -81,27 +78,14 @@ vec4 getBlur(sampler2D tex, vec2 uv, vec2 texelSize, vec2 dir, float sigma) {
 }
 
 void main() {
+  vec2 imageUV = getImageUV(v_responsiveUV, v_responsiveBoxGivenSize.x / v_responsiveBoxGivenSize.y, u_imageAspectRatio);
   vec2 patternUV = 100. * v_patternUV;
-
-  vec2 imageUV = v_responsiveUV + .5;
-  float screenRatio = v_responsiveBoxGivenSize.x / v_responsiveBoxGivenSize.y;
-  float imageRatio = u_image_aspect_ratio;
-
-  imageUV.y = 1. - imageUV.y;
-
-  imageUV -= .5;
-  if (screenRatio > imageRatio) {
-    imageUV.x *= (screenRatio / imageRatio);
-  } else {
-    imageUV.y *= (imageRatio / screenRatio);
-  }
-  imageUV += .5;
-
+  
   vec2 uv = imageUV;
-  float frame = uvFrame(imageUV);
+  float frame = getUvFrame(imageUV);
   if (frame < .05) discard;
 
-  float gridNumber = u_grid * u_image_aspect_ratio;
+  float gridNumber = u_grid * u_imageAspectRatio;
 
   float mask =
     step(u_marginLeft, imageUV.x) * step(u_marginRight, 1. - imageUV.x)
@@ -112,12 +96,21 @@ void main() {
   uv *= gridNumber;
   
   float curve = 0.;
-  if (u_gridShape > 2.5) {
-    curve = 10. * abs(fract(.04 * uv.y) - .5);
+  if (u_gridShape > 4.5) {
+    // pattern
+    curve = .5 + .5 * sin(1.5 * uv.x) * cos(1.5 * uv.y);
+  } else if (u_gridShape > 3.5) {
+    // zigzag
+    curve = 10. * abs(fract(.1 * uv.y) - .5);
+  } else if (u_gridShape > 2.5) {
+    // wave
+    curve = 4. * sin(.23 * uv.y);
   } else if (u_gridShape > 1.5) {
-    curve = 4. * sin(.2 * uv.y);
+    // lines irregular
+    curve = .5 + .5 * sin(.5 * uv.x) * sin(1.7 * uv.x);
   } else {
-    curve = .2 * gridNumber / u_image_aspect_ratio;
+    // lines
+    curve = .2 * gridNumber / u_imageAspectRatio;
   }
 
   vec2 uvOrig = uv;
@@ -129,7 +122,7 @@ void main() {
   vec2 fractOrigUV = fract(uvOrig);
   vec2 floorOrigUV = floor(uvOrig);
 
-  float gridLines = pow(fractUV.x, 14.);
+  float gridLines = pow(fractUV.x, 10.);
   gridLines *= mask;
 
   float xDistortion = 0.;
@@ -151,26 +144,22 @@ void main() {
 
   uv = (floorOrigUV + fractOrigUV) / gridNumber;
   uv.x += xDistortion / gridNumber;
-
-  uv.y += 1.5 * u_skew * xDistortion / gridNumber;
-
+  
   uv = rotate(uv, -patternRotation) + vec2(.5);
 
   uv = mix(imageUV, uv, mask);
   float blur = mix(0., u_blur, mask);
 
-  uv += mask * (random2(uv).xy - .5) * .015 * u_frost;
+  uv += mask * (random2(uv).xy - .5) * .03 * u_frost;
 
   vec4 color = getBlur(u_image, uv, 1. / u_resolution, vec2(0., 1.), blur);
 
-  vec3 midColor = texture(u_image, vec2(floorUV.x / gridNumber - .5, .4 + .2 * hash(floorUV.x))).rgb;
-  vec3 highlight = mix(midColor, vec3(1.), u_gridLinesBrightness);
-  color.rgb = mix(color.rgb, highlight, u_gridLines * gridLines);
+  vec3 midColor = texture(u_image, vec2(floorUV.x / gridNumber - .5, .4 + .7 * hash(floorUV.x))).rgb;
+  color.rgb = mix(color.rgb, midColor, u_gridLines * gridLines);
 
   float opacity = color.a;
   fragColor = vec4(color.rgb, opacity);
 }
-
 `;
 
 export interface FlutedGlassUniforms extends ShaderSizingUniforms {
@@ -178,7 +167,6 @@ export interface FlutedGlassUniforms extends ShaderSizingUniforms {
   u_grid: number;
   u_gridRotation: number;
   u_distortion: number;
-  u_skew: number;
   u_shift: number;
   u_blur: number;
   u_frost: number;
@@ -187,7 +175,6 @@ export interface FlutedGlassUniforms extends ShaderSizingUniforms {
   u_marginTop: number;
   u_marginBottom: number;
   u_gridLines: number;
-  u_gridLinesBrightness: number;
   u_distortionShape: (typeof GlassDistortionShapes)[GlassDistortionShape];
   u_gridShape: (typeof GlassGridShapes)[GlassGridShape];
 }
@@ -197,7 +184,6 @@ export interface FlutedGlassParams extends ShaderSizingParams, ShaderMotionParam
   grid?: number;
   gridRotation?: number;
   distortion?: number;
-  skew?: number;
   shift?: number;
   blur?: number;
   frost?: number;
@@ -206,15 +192,16 @@ export interface FlutedGlassParams extends ShaderSizingParams, ShaderMotionParam
   marginTop?: number;
   marginBottom?: number;
   gridLines?: number;
-  gridLinesBrightness?: number;
   distortionShape?: GlassDistortionShape;
   gridShape?: GlassGridShape;
 }
 
 export const GlassGridShapes = {
   lines: 1,
-  wave: 2,
-  zigzag: 3,
+  linesIrregular: 2,
+  wave: 3,
+  zigzag: 4,
+  pattern: 5,
 } as const;
 
 export const GlassDistortionShapes = {
