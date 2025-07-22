@@ -264,13 +264,6 @@ export class ShaderMount {
     // Clear the canvas
     this.gl.clear(this.gl.COLOR_BUFFER_BIT);
 
-    // Rebind all the textures
-    this.textures.forEach((texture, uniformName) => {
-      const textureUnit = this.textureUnitMap.get(uniformName)!;
-      this.gl.activeTexture(this.gl.TEXTURE0 + textureUnit);
-      this.gl.bindTexture(this.gl.TEXTURE_2D, texture);
-    });
-
     // Update uniforms
     this.gl.useProgram(this.program);
 
@@ -353,6 +346,13 @@ export class ShaderMount {
         this.gl.uniform1f(aspectRatioLocation, aspectRatio);
       }
     }
+
+    // Rebind all the textures
+    this.textures.forEach((texture, uniformName) => {
+      const textureUnit = this.textureUnitMap.get(uniformName)!;
+      this.gl.activeTexture(this.gl.TEXTURE0 + textureUnit);
+      this.gl.bindTexture(this.gl.TEXTURE_2D, texture);
+    });
   };
 
   /** Utility: recursive equality test for all the uniforms */
