@@ -28,6 +28,7 @@ export class ShaderMount {
   private maxPixelCount;
   private isSafari = isSafari();
   private uniformCache: Record<string, unknown> = {};
+  private textureUnitMap: Map<string, number> = new Map();
 
   constructor(
     /** The div you'd like to mount the shader to. The shader will match its size. */
@@ -263,6 +264,13 @@ export class ShaderMount {
     // Clear the canvas
     this.gl.clear(this.gl.COLOR_BUFFER_BIT);
 
+    // Rebind all the textures
+    this.textures.forEach((texture, uniformName) => {
+      const textureUnit = this.textureUnitMap.get(uniformName)!;
+      this.gl.activeTexture(this.gl.TEXTURE0 + textureUnit);
+      this.gl.bindTexture(this.gl.TEXTURE_2D, texture);
+    });
+
     // Update uniforms
     this.gl.useProgram(this.program);
 
@@ -329,9 +337,10 @@ export class ShaderMount {
     // Set up texture unit and uniform
     const location = this.uniformLocations[uniformName];
     if (location) {
-      // Use texture unit based on the order textures were added
-      const textureUnit = this.textures.size - 1;
-      this.gl.useProgram(this.program);
+      if (!this.textureUnitMap.has(uniformName)) {
+        this.textureUnitMap.set(uniformName, this.textureUnitMap.size);
+      }
+      const textureUnit = this.textureUnitMap.get(uniformName)!;
       this.gl.activeTexture(this.gl.TEXTURE0 + textureUnit);
       this.gl.bindTexture(this.gl.TEXTURE_2D, texture);
       this.gl.uniform1i(location, textureUnit);
