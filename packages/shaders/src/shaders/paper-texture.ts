@@ -275,7 +275,7 @@ void main() {
 
 export interface PaperTextureUniforms extends ShaderSizingUniforms {
   u_image: HTMLImageElement | string | null;
-  u_noiseTexture?: HTMLImageElement | string | null;
+  u_noiseTexture?: HTMLImageElement;
   u_colorFront: [number, number, number, number];
   u_colorBack: [number, number, number, number];
   u_crumplesSeed: number;
@@ -296,7 +296,6 @@ export interface PaperTextureUniforms extends ShaderSizingUniforms {
 
 export interface PaperTextureParams extends ShaderSizingParams, ShaderMotionParams {
   image?: HTMLImageElement | string | null;
-  noiseTexture?: HTMLImageElement | string | null;
   colorFront?: string;
   colorBack?: string;
   crumplesSeed?: number;
