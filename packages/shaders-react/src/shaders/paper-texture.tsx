@@ -2,14 +2,14 @@ import { memo } from 'react';
 import { ShaderMount, type ShaderComponentProps } from '../shader-mount.js';
 import { colorPropsAreEqual } from '../color-props-are-equal.js';
 import {
-  defaultPatternSizing,
+  defaultObjectSizing,
   getShaderColorFromString,
   getShaderNoiseTexture,
   paperTextureFragmentShader,
   ShaderFitOptions,
   type PaperTextureParams,
   type PaperTextureUniforms,
-  type ShaderPreset, defaultObjectSizing,
+  type ShaderPreset,
 } from '@paper-design/shaders';
 
 export interface PaperTextureProps extends ShaderComponentProps, PaperTextureParams {}
@@ -20,8 +20,6 @@ export const defaultPreset: PaperTexturePreset = {
   name: 'Default',
   params: {
     ...defaultObjectSizing,
-    worldWidth: 0,
-    worldHeight: 0,
     speed: 0,
     frame: 0,
     scale: 0.8,
@@ -49,8 +47,6 @@ export const abstractPreset: PaperTexturePreset = {
   name: 'Abstract',
   params: {
     ...defaultObjectSizing,
-    worldWidth: 0,
-    worldHeight: 0,
     speed: 0,
     frame: 0,
     colorFront: '#a2ff8f',
@@ -77,8 +73,6 @@ export const cardboardPreset: PaperTexturePreset = {
   name: 'Cardboard',
   params: {
     ...defaultObjectSizing,
-    worldWidth: 0,
-    worldHeight: 0,
     speed: 0,
     frame: 0,
     colorFront: '#a26b22',
@@ -137,7 +131,7 @@ export const PaperTexture: React.FC<PaperTextureProps> = memo(function PaperText
   worldHeight = defaultPreset.params.worldHeight,
   ...props
 }: PaperTextureProps) {
-  // const noiseTexture = typeof window !== 'undefined' && { u_noiseTexture: getShaderNoiseTexture() };
+  const noiseTexture = typeof window !== 'undefined' && { u_noiseTexture: getShaderNoiseTexture() };
 
   const uniforms = {
     // Own uniforms
@@ -158,7 +152,7 @@ export const PaperTexture: React.FC<PaperTextureProps> = memo(function PaperText
     u_blurSeed: blurSeed,
     u_drops: drops,
     u_dropsSeed: dropsSeed,
-    // ...noiseTexture,
+    ...noiseTexture,
 
     // Sizing uniforms
     u_fit: ShaderFitOptions[fit],

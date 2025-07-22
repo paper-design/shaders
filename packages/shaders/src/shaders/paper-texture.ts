@@ -41,7 +41,7 @@ uniform float u_dropsSeed;
 uniform float u_blur;
 uniform float u_blurSeed;
 
-// uniform sampler2D u_noiseTexture;
+uniform sampler2D u_noiseTexture;
 
 ${sizingVariablesDeclaration}
 
@@ -52,16 +52,11 @@ ${declarePI}
 ${declareSimplexNoise}
 
 
-// float random(vec2 p) {
-//   vec2 uv = floor(p) / 100. + .5;
-//   return texture(u_noiseTexture, fract(uv)).r;
-// }
-float random(vec2 st) {
-  return fract(sin(dot(st.xy, vec2(12.9898, 78.233))) * 43758.5453123);
+float random(vec2 p) {
+  vec2 uv = floor(p) / 100. + .5;
+  return texture(u_noiseTexture, fract(uv)).r;
 }
-
 ${declareValueNoise}
-
 float fbm(in vec2 n) {
   float total = 0.0, amplitude = .4;
   for (int i = 0; i < 3; i++) {
@@ -73,13 +68,9 @@ float fbm(in vec2 n) {
 }
 
 
-
-// float grain_hash(vec2 p) {
-//   vec2 uv = floor(p) / 50. + .5;
-//   return texture(u_noiseTexture, fract(uv)).g;
-// }
-float grain_hash(vec2 st) {
-  return fract(sin(dot(st.xy, vec2(12.9898, 78.233))) * 43758.5453123);
+float grain_hash(vec2 p) {
+  vec2 uv = floor(p) / 50. + .5;
+  return texture(u_noiseTexture, fract(uv)).g;
 }
 
 float grain_fbm(vec2 p) {
@@ -97,13 +88,9 @@ float grain_fbm(vec2 p) {
   return o / 3.;
 }
 
-
-// float curley_random(vec2 p) {
-//   vec2 uv = floor(p) / 50. + .5;
-//   return texture(u_noiseTexture, fract(uv)).r;
-// }
-float curley_random(vec2 st) {
-  return fract(sin(dot(st.xy, vec2(12.9898, 78.233))) * 43758.5453123);
+float curley_random(vec2 p) {
+  vec2 uv = floor(p) / 50. + .5;
+  return texture(u_noiseTexture, fract(uv)).r;
 }
 
 float curley_valueNoise(vec2 st) {
@@ -130,15 +117,9 @@ float curleyFbm(vec2 uv) {
   return val;
 }
 
-// vec2 crumpled_noise(vec2 p) {
-//   vec2 uv = floor(p) / 50. + .5;
-//   return texture(u_noiseTexture, fract(uv)).gb;
-// }
-vec2 crumpled_noise(vec2 st) {
-  return vec2(
-    fract(sin(dot(st.xy + 100., vec2(12.9898, 78.233))) * 43758.5453123),
-    fract(sin(dot(st.xy + 1000. , vec2(12.9898, 78.233))) * 43758.5453123)
-  );  
+vec2 crumpled_noise(vec2 p) {
+  vec2 uv = floor(p) / 50. + .5;
+  return texture(u_noiseTexture, fract(uv)).gb;
 }
 
 float crumpled_voronoi2(vec2 t, float pw) {
@@ -288,11 +269,13 @@ void main() {
   color.rgb = mix(color, image.rgb, min(.8 * frame, image.a));
 
   fragColor = vec4(color, opacity);
+//  fragColor = mix(texture(u_noiseTexture, .5 * v_patternUV), texture(u_image, imageUV), step(.5, imageUV.y));
 }
 `;
 
 export interface PaperTextureUniforms extends ShaderSizingUniforms {
   u_image: HTMLImageElement | string | null;
+  u_noiseTexture?: HTMLImageElement | string | null;
   u_colorFront: [number, number, number, number];
   u_colorBack: [number, number, number, number];
   u_crumplesSeed: number;
@@ -309,11 +292,11 @@ export interface PaperTextureUniforms extends ShaderSizingUniforms {
   u_crumplesScale: number;
   u_drops: number;
   u_dropsSeed: number;
-  // u_noiseTexture?: HTMLImageElement;
 }
 
 export interface PaperTextureParams extends ShaderSizingParams, ShaderMotionParams {
   image?: HTMLImageElement | string | null;
+  noiseTexture?: HTMLImageElement | string | null;
   colorFront?: string;
   colorBack?: string;
   crumplesSeed?: number;
