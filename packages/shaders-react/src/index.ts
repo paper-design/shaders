@@ -97,6 +97,10 @@ export { Water, waterPresets } from './shaders/water.js';
 export type { WaterProps } from './shaders/water.js';
 export type { WaterUniforms, WaterParams } from '@paper-design/shaders';
 
+export { Pixelate, pixelatePresets } from './shaders/pixelate.js';
+export { type PixelateProps } from './shaders/pixelate.js';
+export { type PixelateUniforms, type PixelateParams } from '@paper-design/shaders';
+
 export { isPaperShaderElement, getShaderColorFromString } from '@paper-design/shaders';
 export type { PaperShaderElement, ShaderFit, ShaderSizingParams, ShaderSizingUniforms } from '@paper-design/shaders';
 

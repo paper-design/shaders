@@ -69,6 +69,8 @@ import {
   flutedGlassPresets,
   Water,
   waterPresets,
+  Pixelate,
+  pixelatePresets,
 } from '@paper-design/shaders-react';
 import { StaticImageData } from 'next/image';
 import TextureTest from './app/texture-test/page';
@@ -253,5 +255,11 @@ export const homeShaders = [
     url: '/fluted-glass',
     ShaderComponent: FlutedGlass,
     shaderConfig: { ...flutedGlassPresets[0].params },
+  },
+  {
+    name: 'pixelate',
+    url: '/pixelate',
+    ShaderComponent: Pixelate,
+    shaderConfig: { ...pixelatePresets[0].params },
   },
 ] satisfies HomeShaderConfig[];
