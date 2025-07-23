@@ -78,7 +78,7 @@ vec4 getBlur(sampler2D tex, vec2 uv, vec2 texelSize, vec2 dir, float sigma) {
 }
 
 void main() {
-  vec2 imageUV = getImageUV(v_responsiveUV, v_responsiveBoxGivenSize.x / v_responsiveBoxGivenSize.y, u_imageAspectRatio);
+  vec2 imageUV = v_imageUV;
   vec2 patternUV = 100. * v_patternUV;
   
   vec2 uv = imageUV;

@@ -550,6 +550,7 @@ layout(location = 0) in vec4 a_position;
 
 uniform vec2 u_resolution;
 uniform float u_pixelRatio;
+uniform float u_imageAspectRatio;
 
 uniform float u_originX;
 uniform float u_originY;
@@ -576,6 +577,8 @@ out vec2 v_responsiveBoxGivenSize;
 out vec2 v_patternUV;
 out vec2 v_patternBoxSize;
 out vec2 v_patternHelperBox;
+
+out vec2 v_imageUV;
 
 // #define ADD_HELPERS
 
@@ -704,6 +707,41 @@ void main() {
   // x100 is a default multiplier between vertex and fragmant shaders
   // we use it to avoid UV presision issues
   v_patternUV *= .01;
+
+  // ===================================================
+
+
+  // ===================================================
+  // Sizing api for images
+  
+  vec2 imageBoxSize;
+  if (u_fit == 1.) { // contain
+    imageBoxSize.x = min(maxBoxSize.x / u_imageAspectRatio, maxBoxSize.y) * u_imageAspectRatio;
+  } else if (u_fit == 2.) { // cover
+    imageBoxSize.x = max(maxBoxSize.x / u_imageAspectRatio, maxBoxSize.y) * u_imageAspectRatio;
+  } else {
+    imageBoxSize.x = min(10.0, 10.0 / u_imageAspectRatio * u_imageAspectRatio);
+  }
+  imageBoxSize.y = imageBoxSize.x / u_imageAspectRatio;
+  vec2 imageBoxScale = u_resolution.xy / imageBoxSize;
+
+  #ifdef ADD_HELPERS
+    vec2 imageHelperBox = uv;
+    imageHelperBox *= imageBoxScale;
+    imageHelperBox += boxOrigin * (imageBoxScale - 1.);
+  #endif
+
+  v_imageUV = uv;
+  v_imageUV *= imageBoxScale;
+  v_imageUV += boxOrigin * (imageBoxScale - 1.);
+  v_imageUV += graphicOffset;
+  v_imageUV /= u_scale;
+  v_imageUV.x *= u_imageAspectRatio;
+  v_imageUV = graphicRotation * v_imageUV;
+  v_imageUV.x /= u_imageAspectRatio;
+
+  v_imageUV += .5;
+  v_imageUV.y = 1. - v_imageUV.y;
 
   // ===================================================
 

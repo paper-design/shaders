@@ -1,12 +1,6 @@
 import type { ShaderMotionParams } from '../shader-mount.js';
 import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
-import {
-  declareImageUV,
-  declarePI,
-  declareRotate,
-  declareRandom,
-  declareSimplexNoise,
-} from '../shader-utils.js';
+import { declareImageUV, declarePI, declareRotate, declareRandom, declareSimplexNoise } from '../shader-utils.js';
 
 /**
  */
@@ -66,7 +60,7 @@ float getCausticNoise(vec2 uv, float t, float scale) {
 }
 
 void main() {
-  vec2 imageUV = getImageUV(v_responsiveUV, v_responsiveBoxGivenSize.x / v_responsiveBoxGivenSize.y, u_imageAspectRatio);
+  vec2 imageUV = v_imageUV;
 
   float t = 2. * u_time;
 

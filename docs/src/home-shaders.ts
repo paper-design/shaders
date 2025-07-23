@@ -69,6 +69,8 @@ import {
   flutedGlassPresets,
   Water,
   waterPresets,
+  ImageDithering,
+  imageDitheringPresets,
 } from '@paper-design/shaders-react';
 import { StaticImageData } from 'next/image';
 import TextureTest from './app/texture-test/page';
@@ -253,5 +255,11 @@ export const homeShaders = [
     url: '/fluted-glass',
     ShaderComponent: FlutedGlass,
     shaderConfig: { ...flutedGlassPresets[0].params },
+  },
+  {
+    name: 'image dithering',
+    url: '/image-dithering',
+    ShaderComponent: ImageDithering,
+    shaderConfig: { ...imageDitheringPresets[0].params },
   },
 ] satisfies HomeShaderConfig[];

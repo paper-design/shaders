@@ -123,19 +123,4 @@ export const declareImageUV = `
 
     return left * right * bottom * top;
   }
-
-  vec2 getImageUV(vec2 uv, float screenRatio, float imageRatio) {
-    vec2 imageUV = uv + .5;
-    imageUV.y = 1. - imageUV.y;
-
-    imageUV -= .5;
-    if (screenRatio > imageRatio) {
-      imageUV.x *= (screenRatio / imageRatio);
-    } else {
-      imageUV.y *= (imageRatio / screenRatio);
-    }
-    imageUV += .5;
-    
-    return imageUV;
-  }
 `;

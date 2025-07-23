@@ -97,6 +97,10 @@ export { Water, waterPresets } from './shaders/water.js';
 export type { WaterProps } from './shaders/water.js';
 export type { WaterUniforms, WaterParams } from '@paper-design/shaders';
 
+export { ImageDithering, imageDitheringPresets } from './shaders/image-dithering.js';
+export type { ImageDitheringProps } from './shaders/image-dithering.js';
+export type { ImageDitheringUniforms, ImageDitheringParams } from '@paper-design/shaders';
+
 export { isPaperShaderElement, getShaderColorFromString } from '@paper-design/shaders';
 export type { PaperShaderElement, ShaderFit, ShaderSizingParams, ShaderSizingUniforms } from '@paper-design/shaders';
 
