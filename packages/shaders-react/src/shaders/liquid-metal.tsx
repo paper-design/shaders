@@ -20,6 +20,25 @@ export const defaultPreset: LiquidMetalPreset = {
   name: 'Default',
   params: {
     ...defaultObjectSizing,
+    scale: 2.2,
+    speed: 1,
+    frame: 0,
+    colorBack: '#00042e',
+    colorTint: '#5b4dc7',
+    softness: 0.45,
+    repetition: 4,
+    shiftRed: -0.5,
+    shiftBlue: -1,
+    distortion: 0.1,
+    contour: 1,
+    shape: 'metaballs',
+  },
+};
+
+export const dropsPreset: LiquidMetalPreset = {
+  name: 'Drops',
+  params: {
+    ...defaultObjectSizing,
     speed: 1,
     frame: 0,
     colorBack: '#ffffff00',
@@ -70,25 +89,6 @@ export const spherePreset: LiquidMetalPreset = {
     distortion: 0.1,
     contour: 0.4,
     shape: 'circle',
-  },
-};
-
-export const dropsPreset: LiquidMetalPreset = {
-  name: 'Drops',
-  params: {
-    ...defaultObjectSizing,
-    scale: 2.2,
-    speed: 1,
-    frame: 0,
-    colorBack: '#00042e',
-    colorTint: '#5b4dc7',
-    softness: 0.45,
-    repetition: 4,
-    shiftRed: -0.5,
-    shiftBlue: -1,
-    distortion: 0.1,
-    contour: 1,
-    shape: 'metaballs',
   },
 };
 
