@@ -39,7 +39,7 @@ export const defaultPreset: PaperTexturePreset = {
     blur: 0.5,
     blurSeed: 0.5,
     drops: 0.5,
-    dropsSeed: 0,
+    dropsSeed: 1.6,
   },
 };
 
