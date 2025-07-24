@@ -30,7 +30,7 @@ export default function Home() {
       </header>
       <main className="-mt-12 pb-16">
         <div className="container mx-auto max-w-screen-lg px-4">
-          <div className="grid gap-16 gap-x-16 gap-y-8 sm:grid-cols-2 md:grid-cols-3 md:gap-y-16">
+          <div className="grid grid-cols-2 gap-6 gap-x-6 gap-y-8 sm:gap-16 sm:gap-x-16 md:grid-cols-3 md:gap-y-16">
             <ShaderItems />
           </div>
         </div>
