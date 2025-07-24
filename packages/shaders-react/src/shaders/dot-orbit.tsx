@@ -23,7 +23,7 @@ export const defaultPreset: DotOrbitPreset = {
     frame: 0,
     colorBack: '#000000',
     colors: ['#ff6f00', '#610000', '#0f0000', '#ffdfa8'],
-    size: 0.9,
+    size: 1,
     sizeRange: 0,
     spreading: 1,
     stepsPerColor: 4,

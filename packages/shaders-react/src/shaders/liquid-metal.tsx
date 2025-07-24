@@ -31,7 +31,7 @@ export const defaultPreset: LiquidMetalPreset = {
     shiftBlue: -1,
     distortion: 0.1,
     contour: 1,
-    shape: 'metaballs',
+    shape: 'circle',
   },
 };
 
