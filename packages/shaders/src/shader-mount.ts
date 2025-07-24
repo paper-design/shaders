@@ -28,6 +28,7 @@ export class ShaderMount {
   private maxPixelCount;
   private isSafari = isSafari();
   private uniformCache: Record<string, unknown> = {};
+  private textureUnitMap: Map<string, number> = new Map();
 
   constructor(
     /** The div you'd like to mount the shader to. The shader will match its size. */
@@ -132,7 +133,7 @@ export class ShaderMount {
 
       // For texture uniforms, also look for the aspect ratio uniform
       if (value instanceof HTMLImageElement) {
-        const aspectRatioUniformName = `${key}_aspect_ratio`;
+        const aspectRatioUniformName = `${key}AspectRatio`;
         uniformLocations[aspectRatioUniformName] = this.gl.getUniformLocation(this.program!, aspectRatioUniformName);
       }
     });
@@ -310,8 +311,8 @@ export class ShaderMount {
     this.gl.bindTexture(this.gl.TEXTURE_2D, texture);
 
     // Set texture parameters
-    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_S, this.gl.REPEAT);
-    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_T, this.gl.REPEAT);
+    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_S, this.gl.CLAMP_TO_EDGE);
+    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_T, this.gl.CLAMP_TO_EDGE);
     this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.LINEAR);
     this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MAG_FILTER, this.gl.LINEAR);
 
@@ -329,21 +330,29 @@ export class ShaderMount {
     // Set up texture unit and uniform
     const location = this.uniformLocations[uniformName];
     if (location) {
-      // Use texture unit based on the order textures were added
-      const textureUnit = this.textures.size - 1;
-      this.gl.useProgram(this.program);
+      if (!this.textureUnitMap.has(uniformName)) {
+        this.textureUnitMap.set(uniformName, this.textureUnitMap.size);
+      }
+      const textureUnit = this.textureUnitMap.get(uniformName)!;
       this.gl.activeTexture(this.gl.TEXTURE0 + textureUnit);
       this.gl.bindTexture(this.gl.TEXTURE_2D, texture);
       this.gl.uniform1i(location, textureUnit);
 
       // Calculate and set the aspect ratio uniform
-      const aspectRatioUniformName = `${uniformName}_aspect_ratio`;
+      const aspectRatioUniformName = `${uniformName}AspectRatio`;
       const aspectRatioLocation = this.uniformLocations[aspectRatioUniformName];
       if (aspectRatioLocation) {
         const aspectRatio = image.naturalWidth / image.naturalHeight;
         this.gl.uniform1f(aspectRatioLocation, aspectRatio);
       }
     }
+
+    // Rebind all the textures
+    this.textures.forEach((texture, uniformName) => {
+      const textureUnit = this.textureUnitMap.get(uniformName)!;
+      this.gl.activeTexture(this.gl.TEXTURE0 + textureUnit);
+      this.gl.bindTexture(this.gl.TEXTURE_2D, texture);
+    });
   };
 
   /** Utility: recursive equality test for all the uniforms */
@@ -541,6 +550,7 @@ layout(location = 0) in vec4 a_position;
 
 uniform vec2 u_resolution;
 uniform float u_pixelRatio;
+uniform float u_imageAspectRatio;
 
 uniform float u_originX;
 uniform float u_originY;
@@ -567,6 +577,8 @@ out vec2 v_responsiveBoxGivenSize;
 out vec2 v_patternUV;
 out vec2 v_patternBoxSize;
 out vec2 v_patternHelperBox;
+
+out vec2 v_imageUV;
 
 // #define ADD_HELPERS
 
@@ -698,6 +710,41 @@ void main() {
 
   // ===================================================
 
+
+  // ===================================================
+  // Sizing api for images
+  
+  vec2 imageBoxSize;
+  if (u_fit == 1.) { // contain
+    imageBoxSize.x = min(maxBoxSize.x / u_imageAspectRatio, maxBoxSize.y) * u_imageAspectRatio;
+  } else if (u_fit == 2.) { // cover
+    imageBoxSize.x = max(maxBoxSize.x / u_imageAspectRatio, maxBoxSize.y) * u_imageAspectRatio;
+  } else {
+    imageBoxSize.x = min(10.0, 10.0 / u_imageAspectRatio * u_imageAspectRatio);
+  }
+  imageBoxSize.y = imageBoxSize.x / u_imageAspectRatio;
+  vec2 imageBoxScale = u_resolution.xy / imageBoxSize;
+
+  #ifdef ADD_HELPERS
+    vec2 imageHelperBox = uv;
+    imageHelperBox *= imageBoxScale;
+    imageHelperBox += boxOrigin * (imageBoxScale - 1.);
+  #endif
+
+  v_imageUV = uv;
+  v_imageUV *= imageBoxScale;
+  v_imageUV += boxOrigin * (imageBoxScale - 1.);
+  v_imageUV += graphicOffset;
+  v_imageUV /= u_scale;
+  v_imageUV.x *= u_imageAspectRatio;
+  v_imageUV = graphicRotation * v_imageUV;
+  v_imageUV.x /= u_imageAspectRatio;
+
+  v_imageUV += .5;
+  v_imageUV.y = 1. - v_imageUV.y;
+
+  // ===================================================
+
 }`;
 
 function createShader(gl: WebGLRenderingContext, type: number, source: string): WebGLShader | null {
@@ -792,7 +839,7 @@ export function isPaperShaderElement(element: HTMLElement): element is PaperShad
 
 /** Uniform types that we support to be auto-mapped into the fragment shader */
 export interface ShaderMountUniforms {
-  [key: string]: boolean | number | number[] | number[][] | HTMLImageElement;
+  [key: string]: boolean | number | number[] | number[][] | HTMLImageElement | null;
 }
 
 export interface ShaderMotionParams {
