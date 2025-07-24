@@ -23,14 +23,41 @@ export const defaultPreset: PaperTexturePreset = {
     speed: 0,
     frame: 0,
     scale: 0.8,
-    colorFront: '#b9bfc6',
+    colorFront: '#add3ff',
     colorBack: '#ffffff',
     image: '/images/010.png',
     contrast: 0.4,
-    grain: 0.15,
+    grain: 0.7,
     curles: 0.1,
     curlesScale: 0.4,
-    crumples: 0.7,
+    crumples: 0.2,
+    crumplesScale: 0.5,
+    crumplesSeed: 1,
+    folds: 0.65,
+    foldsNumber: 15,
+    foldsSeed: 1,
+    blur: 0.5,
+    blurSeed: 0.5,
+    drops: 0.5,
+    dropsSeed: 0,
+  },
+};
+
+export const emptyPaperPreset: PaperTexturePreset = {
+  name: 'Empty Paper',
+  params: {
+    ...defaultObjectSizing,
+    speed: 0,
+    frame: 0,
+    scale: 0.8,
+    colorFront: '#b9bfc6',
+    colorBack: '#ffffff',
+    image: 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==',
+    contrast: 0.4,
+    grain: 0.6,
+    curles: 0.1,
+    curlesScale: 0.4,
+    crumples: 0.4,
     crumplesScale: 0.5,
     crumplesSeed: 1,
     folds: 0.65,
@@ -97,7 +124,7 @@ export const cardboardPreset: PaperTexturePreset = {
   },
 };
 
-export const paperTexturePresets: PaperTexturePreset[] = [defaultPreset, cardboardPreset, abstractPreset] as const;
+export const paperTexturePresets: PaperTexturePreset[] = [defaultPreset, emptyPaperPreset, cardboardPreset, abstractPreset] as const;
 
 export const PaperTexture: React.FC<PaperTextureProps> = memo(function PaperTextureImpl({
   // Own props
