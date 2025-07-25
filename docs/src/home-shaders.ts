@@ -137,7 +137,7 @@ export const homeShaders = [
     url: '/warp',
     ShaderComponent: Warp,
     image: warpImg,
-    shaderConfig: { ...warpPresets[0].params, scale: 0.5, speed: 2 },
+    shaderConfig: { ...warpPresets[0].params, speed: 2, offsetX: -0.2, scale: 0.8, frame: 4000 },
   },
   {
     name: 'spiral',
