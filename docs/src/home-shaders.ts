@@ -88,7 +88,7 @@ export const homeShaders = [
     url: '/grain-gradient',
     ShaderComponent: GrainGradient,
     image: grainGradientImg,
-    shaderConfig: { ...grainGradientPresets[0].params, frame: 6000, speed: 2 },
+    shaderConfig: { ...grainGradientPresets[0].params, frame: 7000, speed: 2 },
   },
   {
     name: 'mesh gradient',
@@ -172,7 +172,7 @@ export const homeShaders = [
     url: '/perlin-noise',
     ShaderComponent: PerlinNoise,
     image: perlinNoiseImg,
-    shaderConfig: { ...perlinNoisePresets[0].params, scale: 1, speed: 0.2 },
+    shaderConfig: { ...perlinNoisePresets[0].params, scale: 0.8, speed: 0.2 },
   },
   {
     name: 'simplex noise',
@@ -186,7 +186,7 @@ export const homeShaders = [
     url: '/voronoi',
     ShaderComponent: Voronoi,
     image: voronoiImg,
-    shaderConfig: { ...voronoiPresets[0].params, scale: 0.4 },
+    shaderConfig: { ...voronoiPresets[0].params, scale: 0.35 },
   },
   {
     name: 'pulsing border',

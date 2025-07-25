@@ -25,9 +25,9 @@ export const defaultPreset: GrainGradientPreset = {
     frame: 0,
     colorBack: '#000000',
     colors: ['#7300ff', '#eba8ff', '#00bfff', '#2a00ff'],
-    softness: 0.4,
-    intensity: 0.35,
-    noise: 0.35,
+    softness: 0.5,
+    intensity: 0.5,
+    noise: 1,
     shape: 'corners',
   },
 };
