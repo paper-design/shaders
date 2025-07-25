@@ -95,14 +95,14 @@ export const homeShaders = [
     image: meshGradientImg,
     url: '/mesh-gradient',
     ShaderComponent: MeshGradient,
-    shaderConfig: { ...meshGradientPresets[0].params },
+    shaderConfig: { ...meshGradientPresets[0].params, frame: 41500 },
   },
   {
     name: 'neuro noise',
     image: neuroNoiseImg,
     url: '/neuro-noise',
     ShaderComponent: NeuroNoise,
-    shaderConfig: { ...neuroNoisePresets[0].params, scale: 0.4 },
+    shaderConfig: { ...neuroNoisePresets[0].params, scale: 0.6, frame: 800 },
   },
   {
     name: 'dot orbit',
@@ -123,7 +123,7 @@ export const homeShaders = [
     image: metaballsImg,
     url: '/metaballs',
     ShaderComponent: Metaballs,
-    shaderConfig: { ...metaballsPresets[0].params },
+    shaderConfig: { ...metaballsPresets[0].params, frame: 13000, offsetY: 0.05 },
   },
   {
     name: 'dot grid',
@@ -200,7 +200,7 @@ export const homeShaders = [
     url: '/grain-gradient',
     ShaderComponent: GrainGradient,
     image: grainGradientImg,
-    shaderConfig: { ...grainGradientPresets[0].params },
+    shaderConfig: { ...grainGradientPresets[0].params, frame: 6000 },
   },
   {
     name: 'pulsing border',
