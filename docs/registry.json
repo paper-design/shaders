@@ -275,6 +275,19 @@
           "type": "registry:component"
         }
       ]
+    },
+    {
+      "name": "grain-and-noise",
+      "type": "registry:component",
+      "title": "Grain And Noise Example",
+      "description": "Grain And Noise shader example.",
+      "dependencies": ["@paper-design/shaders-react"],
+      "files": [
+        {
+          "path": "registry/grain-and-noise-example.tsx",
+          "type": "registry:component"
+        }
+      ]
     }
   ]
 }

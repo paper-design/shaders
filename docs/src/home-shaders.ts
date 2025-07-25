@@ -63,6 +63,8 @@ import {
   staticMeshGradientPresets,
   StaticRadialGradient,
   staticRadialGradientPresets,
+  GrainAndNoise,
+  grainAndNoisePresets,
 } from '@paper-design/shaders-react';
 import { StaticImageData } from 'next/image';
 import TextureTest from './app/texture-test/page';
@@ -229,5 +231,11 @@ export const homeShaders = [
     ShaderComponent: StaticRadialGradient,
     image: staticRadialGradientImg,
     shaderConfig: { ...staticRadialGradientPresets[0].params },
+  },
+  {
+    name: 'grain and noise',
+    url: '/grain-and-noise',
+    ShaderComponent: GrainAndNoise,
+    shaderConfig: { ...grainAndNoisePresets[0].params },
   },
 ] satisfies HomeShaderConfig[];

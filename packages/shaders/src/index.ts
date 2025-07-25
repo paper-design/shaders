@@ -171,6 +171,12 @@ export {
   type StaticRadialGradientUniforms,
 } from './shaders/static-radial-gradient.js';
 
+export {
+  grainAndNoiseFragmentShader,
+  type GrainAndNoiseParams,
+  type GrainAndNoiseUniforms,
+} from './shaders/grain-and-noise.js';
+
 // ----- Utils ----- //
 export { getShaderColorFromString } from './get-shader-color-from-string.js';
 export { getShaderNoiseTexture } from './get-shader-noise-texture.js';
