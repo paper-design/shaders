@@ -23,7 +23,7 @@ export const defaultPreset: WarpPreset = {
     rotation: 0,
     speed: 1,
     frame: 0,
-    colors: ['#262626', '#2e383d', '#64a5ce', '#ffffff'],
+    colors: ['#121212', '#9470ff', '#121212', '#8838ff'],
     proportion: 0.45,
     softness: 1,
     distortion: 0.25,

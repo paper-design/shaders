@@ -29,7 +29,7 @@ export function ShaderItem({
   return (
     <Link href={url} className="flex flex-col gap-2">
       <div
-        className="relative h-32 overflow-hidden rounded-full bg-[#f7f6f0] shadow"
+        className="relative aspect-[4/3] overflow-hidden rounded-3xl bg-[#f7f6f0] shadow"
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
@@ -52,7 +52,7 @@ export function ShaderItem({
                   position: 'absolute',
                   inset: 0,
                   // Some shaders are transparent, adding a background to not see the preview image through
-                  background: 'white',
+                  background: 'black',
                   ...style,
                 }}
                 {...shaderConfig}
