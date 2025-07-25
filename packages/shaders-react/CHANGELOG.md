@@ -9,9 +9,7 @@
 - Fixed precision errors on Android devices by checking actual device float precision. `highp` is now forced
   if `mediump` float has less than 23 bits
 - Added hash-based caching for texture uniforms
-- Updated usage documentation (`README.md`)
-
----
+- Updated repo and npm `README.md`
 
 ### Existing Shader Improvements
 
