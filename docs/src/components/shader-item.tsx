@@ -52,7 +52,7 @@ export function ShaderItem({
                   position: 'absolute',
                   inset: 0,
                   // Some shaders are transparent, adding a background to not see the preview image through
-                  background: 'white',
+                  background: 'black',
                   ...style,
                 }}
                 {...shaderConfig}

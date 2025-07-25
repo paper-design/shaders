@@ -24,11 +24,12 @@ export const defaultPreset: VoronoiPreset = {
     frame: 0,
     colors: ['#ff8247', '#ffe53d'],
     stepsPerColor: 3,
-    colorGlow: '#ff4800',
-    colorGap: '#121212',
+    colorGlow: '#ffffff',
+    colorGap: '#2e0000',
     distortion: 0.4,
     gap: 0.06,
     glow: 0,
+    scale: 0.5,
   },
 };
 

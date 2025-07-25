@@ -165,14 +165,14 @@ export const homeShaders = [
     image: neuroNoiseImg,
     url: '/neuro-noise',
     ShaderComponent: NeuroNoise,
-    shaderConfig: { ...neuroNoisePresets[0].params, scale: 0.6, frame: 800 },
+    shaderConfig: { ...neuroNoisePresets[0].params, scale: 0.6, frame: 1500, offsetX: -0.17 },
   },
   {
     name: 'perlin',
     url: '/perlin-noise',
     ShaderComponent: PerlinNoise,
     image: perlinNoiseImg,
-    shaderConfig: { ...perlinNoisePresets[0].params, scale: 1.3, speed: 0.2 },
+    shaderConfig: { ...perlinNoisePresets[0].params, scale: 1, speed: 0.2 },
   },
   {
     name: 'simplex noise',
@@ -186,7 +186,7 @@ export const homeShaders = [
     url: '/voronoi',
     ShaderComponent: Voronoi,
     image: voronoiImg,
-    shaderConfig: { ...voronoiPresets[0].params, scale: 0.5 },
+    shaderConfig: { ...voronoiPresets[0].params, scale: 0.4 },
   },
   {
     name: 'pulsing border',
