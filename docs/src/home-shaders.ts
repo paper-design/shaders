@@ -88,7 +88,7 @@ export const homeShaders = [
     url: '/grain-gradient',
     ShaderComponent: GrainGradient,
     image: grainGradientImg,
-    shaderConfig: { ...grainGradientPresets[0].params, frame: 6000 },
+    shaderConfig: { ...grainGradientPresets[0].params, frame: 6000, speed: 2 },
   },
   {
     name: 'mesh gradient',
@@ -102,7 +102,7 @@ export const homeShaders = [
     url: '/static-mesh-gradient',
     ShaderComponent: StaticMeshGradient,
     image: staticMeshGradientImg,
-    shaderConfig: { ...staticMeshGradientPresets[0].params, rotation: 270, scale: 1.4 },
+    shaderConfig: { ...staticMeshGradientPresets[0].params, rotation: 270 },
   },
   {
     name: 'static radial gradient',
@@ -116,7 +116,7 @@ export const homeShaders = [
     url: '/dithering',
     ShaderComponent: Dithering,
     image: ditheringImg,
-    shaderConfig: { ...ditheringPresets[0].params, scale: 0.8 },
+    shaderConfig: { ...ditheringPresets[0].params, scale: 0.62 },
   },
   {
     name: 'dot orbit',
@@ -130,28 +130,28 @@ export const homeShaders = [
     url: '/dot-grid',
     ShaderComponent: DotGrid,
     image: dotGridImg,
-    shaderConfig: { ...dotGridPresets[0].params, scale: 1.1, size: 6 },
+    shaderConfig: { ...dotGridPresets[0].params, scale: 1.1, size: 2 },
   },
   {
     name: 'warp',
     url: '/warp',
     ShaderComponent: Warp,
     image: warpImg,
-    shaderConfig: { ...warpPresets[0].params, scale: 0.5 },
+    shaderConfig: { ...warpPresets[0].params, scale: 0.5, speed: 2 },
   },
   {
     name: 'spiral',
     url: '/spiral',
     ShaderComponent: Spiral,
     image: spiralImg,
-    shaderConfig: { ...spiralPresets[0].params, scale: 0.65 },
+    shaderConfig: { ...spiralPresets[0].params, scale: 0.5, speed: 2 },
   },
   {
     name: 'swirl',
     url: '/swirl',
     ShaderComponent: Swirl,
     image: swirlImg,
-    shaderConfig: { ...swirlPresets[0].params },
+    shaderConfig: { ...swirlPresets[0].params, speed: 0.7 },
   },
   {
     name: 'waves',
@@ -172,7 +172,7 @@ export const homeShaders = [
     url: '/perlin-noise',
     ShaderComponent: PerlinNoise,
     image: perlinNoiseImg,
-    shaderConfig: { ...perlinNoisePresets[0].params, scale: 1.3 },
+    shaderConfig: { ...perlinNoisePresets[0].params, scale: 1.3, speed: 0.2 },
   },
   {
     name: 'simplex noise',
@@ -207,14 +207,14 @@ export const homeShaders = [
     url: '/color-panels',
     ShaderComponent: ColorPanels,
     image: colorPanelsImg,
-    shaderConfig: { ...colorPanelsPresets[0].params },
+    shaderConfig: { ...colorPanelsPresets[0].params, speed: 2 },
   },
   {
     name: 'smoke ring',
     image: smokeRingImg,
     url: '/smoke-ring',
     ShaderComponent: SmokeRing,
-    shaderConfig: { ...smokeRingPresets[0].params, scale: 0.8 },
+    shaderConfig: { ...smokeRingPresets[0].params, scale: 0.8, speed: 2 },
   },
   {
     name: 'liquid metal',
@@ -228,6 +228,6 @@ export const homeShaders = [
     url: '/god-rays',
     ShaderComponent: GodRays,
     image: godRaysImg,
-    shaderConfig: { ...godRaysPresets[0].params },
+    shaderConfig: { ...godRaysPresets[0].params, speed: 2 },
   },
 ] satisfies HomeShaderConfig[];
