@@ -31,8 +31,6 @@ export const grainGradientMeta = {
  * ---- 6: blob (metaballs)
  * ---- 7: circle imitating 3d look
  *
- * - u_noiseTexture (sampler2D): pre-computed randomizer source
- *
  * Note: grains are calculated using gl_FragCoord & u_resolution, meaning grains don't react to scaling and fit
  *
  */
@@ -44,8 +42,6 @@ precision mediump float;
 uniform float u_time;
 uniform vec2 u_resolution;
 uniform float u_pixelRatio;
-
-uniform sampler2D u_noiseTexture;
 
 uniform vec4 u_colorBack;
 uniform vec4 u_colors[${grainGradientMeta.maxColorCount}];
@@ -65,12 +61,9 @@ ${declarePI}
 ${declareSimplexNoise}
 ${declareRotate}
 
-float randomGeneric(vec2 st) {
-  return fract(sin(dot(st.xy, vec2(12.9898, 78.233))) * 43758.5453123);
-}
 float random(vec2 p) {
-  vec2 uv = floor(p) / 100. + .5;
-  return texture(u_noiseTexture, uv).r;
+  p += 1000.;
+  return fract(sin(dot(p.xy, vec2(12.9898, 78.233))) * 43758.5453123);
 }
 ${declareValueNoise}
 float fbm(in vec2 n) {
@@ -169,7 +162,7 @@ void main() {
     shape_uv.x += 10.;
     shape_uv *= .6;
 
-    vec2 tile = truchet(fract(shape_uv), randomGeneric(floor(shape_uv)));
+    vec2 tile = truchet(fract(shape_uv), random(floor(shape_uv)));
 
     float distance1 = length(tile);
     float distance2 = length(tile - vec2(1.));
@@ -283,7 +276,6 @@ export interface GrainGradientUniforms extends ShaderSizingUniforms {
   u_intensity: number;
   u_noise: number;
   u_shape: (typeof GrainGradientShapes)[GrainGradientShape];
-  u_noiseTexture?: HTMLImageElement;
 }
 
 export interface GrainGradientParams extends ShaderSizingParams, ShaderMotionParams {

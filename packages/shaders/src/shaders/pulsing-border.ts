@@ -22,8 +22,6 @@ export const pulsingBorderMeta = {
  * - u_pulse: optional pulsing animation
  * - u_smoke, u_smokeSize: optional noisy shapes around the border
  *
- * - u_noiseTexture (sampler2D): pre-computed randomizer source
- *
  */
 
 // language=GLSL
@@ -45,8 +43,6 @@ uniform float u_spots;
 uniform float u_pulse;
 uniform float u_smoke;
 uniform float u_smokeSize;
-
-uniform sampler2D u_noiseTexture;
 
 ${sizingVariablesDeclaration}
 
@@ -78,12 +74,11 @@ float roundedBoxSmoke(vec2 uv, float distance, float size) {
 }
 
 float random(vec2 p) {
-  vec2 uv = floor(p) / 100. + .5;
-  return texture(u_noiseTexture, uv).g;
+  return fract(sin(dot(p.xy, vec2(12.9898, 78.233))) * 18.5453123);
 }
 vec2 rand2(vec2 p) {
-  vec2 uv = floor(p) / 100. + .5;
-  return texture(u_noiseTexture, uv).gb;
+  p = vec2(dot(p, vec2(127.1, 311.7)), dot(p, vec2(269.5, 183.3)));
+  return fract(sin(p) * 18.5453);
 }
 
 ${declareValueNoise}
@@ -253,7 +248,6 @@ export interface PulsingBorderUniforms extends ShaderSizingUniforms {
   u_pulse: number;
   u_smoke: number;
   u_smokeSize: number;
-  u_noiseTexture?: HTMLImageElement;
 }
 
 export interface PulsingBorderParams extends ShaderSizingParams, ShaderMotionParams {

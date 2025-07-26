@@ -4,7 +4,6 @@ import { colorPropsAreEqual } from '../color-props-are-equal.js';
 import {
   defaultObjectSizing,
   getShaderColorFromString,
-  getShaderNoiseTexture,
   pulsingBorderFragmentShader,
   ShaderFitOptions,
   type PulsingBorderParams,
@@ -155,7 +154,6 @@ export const PulsingBorder: React.FC<PulsingBorderProps> = memo(function Pulsing
     u_pulse: pulse,
     u_smoke: smoke,
     u_smokeSize: smokeSize,
-    u_noiseTexture: getShaderNoiseTexture(),
 
     // Sizing uniforms
     u_fit: ShaderFitOptions[fit],

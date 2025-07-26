@@ -16,8 +16,6 @@ export const smokeRingMeta = {
  * - u_colors (vec4[]), u_colorsCount (float used as integer)
  * - u_thickness, u_radius, u_innerShape: ring mask settings
  * - u_noiseIterations, u_noiseScale: how detailed is the noise (number of fbm layers & noise frequency)
- *
- * - u_noiseTexture (sampler2D): pre-computed randomizer source
  */
 
 // language=GLSL
@@ -25,8 +23,6 @@ export const smokeRingFragmentShader: string = `#version 300 es
 precision mediump float;
 
 uniform float u_time;
-
-uniform sampler2D u_noiseTexture;
 
 uniform vec4 u_colorBack;
 uniform vec4 u_colors[${smokeRingMeta.maxColorCount}];
@@ -44,9 +40,8 @@ out vec4 fragColor;
 
 ${declarePI}
 
-float random(vec2 p) {
-  vec2 uv = floor(p) / 100. + .5;
-  return texture(u_noiseTexture, uv).r;
+float random(vec2 st) {
+  return fract(sin(dot(st.xy, vec2(12.9898, 78.233))) * 43758.5453123);
 }
 
 ${declareValueNoise}
@@ -139,7 +134,6 @@ export interface SmokeRingUniforms extends ShaderSizingUniforms {
   u_radius: number;
   u_innerShape: number;
   u_noiseIterations: number;
-  u_noiseTexture?: HTMLImageElement;
 }
 
 export interface SmokeRingParams extends ShaderSizingParams, ShaderMotionParams {

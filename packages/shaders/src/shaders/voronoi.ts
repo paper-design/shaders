@@ -19,8 +19,6 @@ export const voronoiMeta = {
  * - u_gap: width of the stroke between the cells
  * - u_glow: radial glow around each cell center
  *
- * - u_noiseTexture (sampler2D): pre-computed randomizer source
- *
  * Note: gaps can't be removed completely due to artifacts of Voronoi cells
  *
  */
@@ -32,8 +30,6 @@ precision mediump float;
 uniform float u_time;
 
 uniform float u_scale;
-
-uniform sampler2D u_noiseTexture;
 
 uniform vec4 u_colors[${voronoiMeta.maxColorCount}];
 uniform float u_colorsCount;
@@ -52,8 +48,9 @@ out vec4 fragColor;
 ${declarePI}
 
 vec2 hash(vec2 p) {
-  vec2 uv = floor(p) / 100. + .5;
-  return texture(u_noiseTexture, uv).gb;
+  p = floor(p) / 100. + .5;
+  p = vec2(dot(p, vec2(127.1, 311.7)), dot(p, vec2(269.5, 183.3)));
+  return fract(sin(p) * 18.5453);
 }
 
 vec4 voronoi(vec2 x, float t) {
@@ -164,7 +161,6 @@ export interface VoronoiUniforms extends ShaderSizingUniforms {
   u_distortion: number;
   u_gap: number;
   u_glow: number;
-  u_noiseTexture?: HTMLImageElement;
 }
 
 export interface VoronoiParams extends ShaderSizingParams, ShaderMotionParams {

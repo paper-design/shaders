@@ -173,4 +173,3 @@ export {
 
 // ----- Utils ----- //
 export { getShaderColorFromString } from './get-shader-color-from-string.js';
-export { getShaderNoiseTexture } from './get-shader-noise-texture.js';
