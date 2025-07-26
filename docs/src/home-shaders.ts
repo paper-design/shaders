@@ -63,6 +63,8 @@ import {
   staticMeshGradientPresets,
   StaticRadialGradient,
   staticRadialGradientPresets,
+  BlobsGrid,
+  blobsGridPresets,
 } from '@paper-design/shaders-react';
 import { StaticImageData } from 'next/image';
 import TextureTest from './app/texture-test/page';
@@ -165,7 +167,7 @@ export const homeShaders = [
     url: '/god-rays',
     ShaderComponent: GodRays,
     image: godRaysImg,
-    shaderConfig: { ...godRaysPresets[0].params, offsetX: -1.1, midSize: 1 },
+    shaderConfig: { ...godRaysPresets[0].params, offsetX: -1.1, midSize: 7 },
   },
   {
     name: 'spiral',
@@ -229,5 +231,11 @@ export const homeShaders = [
     ShaderComponent: StaticRadialGradient,
     image: staticRadialGradientImg,
     shaderConfig: { ...staticRadialGradientPresets[0].params },
+  },
+  {
+    name: 'blobs grid',
+    url: '/blobs-grid',
+    ShaderComponent: BlobsGrid,
+    shaderConfig: { ...blobsGridPresets[0].params },
   },
 ] satisfies HomeShaderConfig[];
