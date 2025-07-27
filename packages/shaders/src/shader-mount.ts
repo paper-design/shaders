@@ -2,10 +2,27 @@ import { vertexShaderSource } from './vertex-shader.js';
 
 const DEFAULT_MAX_PIXEL_COUNT: number = 1920 * 1080 * 4;
 
+// Type definition for the WebGL timer query extension
+interface EXT_disjoint_timer_query_webgl2 {
+  readonly TIME_ELAPSED_EXT: 0x88bf;
+  readonly GPU_DISJOINT_EXT: 0x8fbb;
+}
+
+// Interface for performance statistics
+interface PerformanceStats {
+  avgFrameTime: number;
+  avgGPUTime: number;
+  fps: number;
+  resolution: { width: number; height: number };
+  renderScale: number;
+  pixelCount: number;
+  supportsTimerQueries: boolean;
+}
+
 export class ShaderMount {
   public parentElement: PaperShaderElement;
   public canvasElement: HTMLCanvasElement;
-  private gl: WebGLRenderingContext;
+  private gl: WebGL2RenderingContext;
   private program: WebGLProgram | null = null;
   private uniformLocations: Record<string, WebGLUniformLocation | null> = {};
   /** The fragment shader that we are using */
@@ -30,6 +47,14 @@ export class ShaderMount {
   private maxPixelCount;
   private isSafari = isSafari();
   private uniformCache: Record<string, unknown> = {};
+
+  // Performance measurement properties
+  private timerExt: EXT_disjoint_timer_query_webgl2 | null = null;
+  private performanceQueries: WebGLQuery[] = [];
+  private performanceResults: number[] = [];
+  private frameTimeHistory: number[] = [];
+  private lastPerformanceLog = 0;
+  private performanceLoggingEnabled = true;
 
   constructor(
     /** The div you'd like to mount the shader to. The shader will match its size. */
@@ -85,6 +110,9 @@ export class ShaderMount {
     }
     this.gl = gl;
 
+    // Initialize performance measurement
+    this.initPerformanceMeasurement();
+
     this.initProgram();
     this.setupPositionAttribute();
     // Grab the locations of the uniforms in the fragment shader
@@ -103,6 +131,163 @@ export class ShaderMount {
     // Add the shaderMount instance to the div mount element to make it easily accessible
     this.parentElement.paperShaderMount = this;
   }
+
+  private initPerformanceMeasurement = (): void => {
+    // Try to get timer query extension
+    this.timerExt = this.gl.getExtension('EXT_disjoint_timer_query_webgl2');
+
+    if (!this.timerExt) {
+      console.warn('Timer queries not supported - using frame timing fallback');
+    } else {
+      console.log('✓ GPU timer queries supported');
+    }
+  };
+
+  // Enable/disable performance logging
+  public enablePerformanceLogging = (enabled: boolean = true): void => {
+    this.performanceLoggingEnabled = enabled;
+    if (enabled) {
+      console.log('🎮 Performance logging enabled');
+    }
+  };
+
+  private measureGPUTime = (): WebGLQuery | null => {
+    if (!this.timerExt) {
+      return null;
+    }
+
+    const query = this.gl.createQuery();
+    if (!query) return null;
+
+    this.gl.beginQuery(this.timerExt.TIME_ELAPSED_EXT, query);
+    return query;
+  };
+
+  private endGPUMeasurement = (query: WebGLQuery | null) => {
+    if (!query || !this.timerExt) return;
+
+    this.gl.endQuery(this.timerExt.TIME_ELAPSED_EXT);
+    this.performanceQueries.push(query);
+  };
+
+  private checkPerformanceResults = () => {
+    if (!this.timerExt || this.performanceQueries.length === 0) return;
+
+    // Check completed queries
+    const completedQueries: WebGLQuery[] = [];
+
+    this.performanceQueries.forEach((query) => {
+      const available = this.gl.getQueryParameter(query, this.gl.QUERY_RESULT_AVAILABLE);
+      const disjoint = this.gl.getParameter(this.timerExt!.GPU_DISJOINT_EXT);
+
+      if (available && !disjoint) {
+        const timeElapsed = this.gl.getQueryParameter(query, this.gl.QUERY_RESULT);
+        const timeInMs = timeElapsed / 1000000; // Convert to milliseconds
+
+        this.performanceResults.push(timeInMs);
+        completedQueries.push(query);
+
+        // Keep only last 100 results
+        if (this.performanceResults.length > 100) {
+          this.performanceResults.shift();
+        }
+      }
+    });
+
+    // Remove completed queries
+    completedQueries.forEach((completedQuery) => {
+      const index = this.performanceQueries.indexOf(completedQuery);
+      if (index > -1) {
+        this.performanceQueries.splice(index, 1);
+      }
+      this.gl.deleteQuery(completedQuery);
+    });
+  };
+
+  private logPerformanceStats = (frameTime: number) => {
+    if (!this.performanceLoggingEnabled) return;
+
+    const now = performance.now();
+    if (now - this.lastPerformanceLog < 2000) return; // Log every 2 seconds
+
+    this.lastPerformanceLog = now;
+
+    // Frame time stats
+    const avgFrameTime = this.frameTimeHistory.reduce((a, b) => a + b, 0) / this.frameTimeHistory.length;
+    const maxFrameTime = Math.max(...this.frameTimeHistory);
+    const minFrameTime = Math.min(...this.frameTimeHistory);
+
+    console.group('🎮 Shader Performance Stats');
+    console.log(`📊 Frame Time: ${frameTime.toFixed(2)}ms (avg: ${avgFrameTime.toFixed(2)}ms)`);
+    console.log(
+      `⚡ FPS: ${(1000 / avgFrameTime).toFixed(1)} (range: ${(1000 / maxFrameTime).toFixed(1)}-${(1000 / minFrameTime).toFixed(1)})`
+    );
+    console.log(
+      `🖥️  Resolution: ${this.gl.canvas.width}x${this.gl.canvas.height} (${((this.gl.canvas.width * this.gl.canvas.height) / 1000000).toFixed(1)}MP)`
+    );
+    console.log(`📏 Render Scale: ${this.renderScale.toFixed(2)}x`);
+
+    // GPU timing stats (if available)
+    if (this.performanceResults.length > 0) {
+      const avgGPUTime = this.performanceResults.reduce((a, b) => a + b, 0) / this.performanceResults.length;
+      const maxGPUTime = Math.max(...this.performanceResults);
+      const minGPUTime = Math.min(...this.performanceResults);
+
+      console.log(
+        `🎯 GPU Time: ${avgGPUTime.toFixed(2)}ms (range: ${minGPUTime.toFixed(2)}-${maxGPUTime.toFixed(2)}ms)`
+      );
+      console.log(`⚙️  GPU Usage: ${((avgGPUTime / avgFrameTime) * 100).toFixed(1)}% of frame time`);
+    } else {
+      console.log('⚠️  GPU timing not available (timer queries not supported)');
+    }
+    console.groupEnd();
+  };
+
+  // Public method to get current performance stats
+  public getPerformanceStats = (): PerformanceStats => {
+    const avgFrameTime =
+      this.frameTimeHistory.length > 0
+        ? this.frameTimeHistory.reduce((a, b) => a + b, 0) / this.frameTimeHistory.length
+        : 0;
+
+    const avgGPUTime =
+      this.performanceResults.length > 0
+        ? this.performanceResults.reduce((a, b) => a + b, 0) / this.performanceResults.length
+        : 0;
+
+    return {
+      avgFrameTime,
+      avgGPUTime,
+      fps: avgFrameTime > 0 ? 1000 / avgFrameTime : 0,
+      resolution: { width: this.gl.canvas.width, height: this.gl.canvas.height },
+      renderScale: this.renderScale,
+      pixelCount: this.gl.canvas.width * this.gl.canvas.height,
+      supportsTimerQueries: !!this.timerExt,
+    };
+  };
+
+  // Method to stress test with multiple passes
+  public stressTest = (passes: number = 10): void => {
+    if (!this.program) return;
+
+    console.log(`🔥 Starting stress test with ${passes} passes...`);
+
+    const gpuQuery = this.measureGPUTime();
+    const startTime = performance.now();
+
+    for (let i = 0; i < passes; i++) {
+      this.gl.drawArrays(this.gl.TRIANGLES, 0, 6);
+    }
+
+    this.endGPUMeasurement(gpuQuery);
+
+    const endTime = performance.now();
+    const totalTime = endTime - startTime;
+
+    console.log(
+      `⏱️  Stress test completed: ${totalTime.toFixed(2)}ms total, ${(totalTime / passes).toFixed(2)}ms per pass`
+    );
+  };
 
   private initProgram = () => {
     const program = createProgram(this.gl, vertexShaderSource, this.fragmentShader);
@@ -254,6 +439,13 @@ export class ShaderMount {
       return;
     }
 
+    // Calculate frame timing
+    const frameTime = currentTime - this.lastRenderTime;
+    this.frameTimeHistory.push(frameTime);
+    if (this.frameTimeHistory.length > 60) {
+      this.frameTimeHistory.shift(); // Keep last 60 frames
+    }
+
     // Calculate the delta time
     const dt = currentTime - this.lastRenderTime;
     this.lastRenderTime = currentTime;
@@ -278,7 +470,16 @@ export class ShaderMount {
       this.resolutionChanged = false;
     }
 
+    // === PERFORMANCE MEASUREMENT START ===
+    const gpuQuery = this.measureGPUTime();
+
+    // Your main draw call - this is what we're measuring
     this.gl.drawArrays(this.gl.TRIANGLES, 0, 6);
+
+    this.endGPUMeasurement(gpuQuery);
+    this.checkPerformanceResults();
+    this.logPerformanceStats(frameTime);
+    // === PERFORMANCE MEASUREMENT END ===
 
     // Loop if we're animating
     if (this.speed !== 0) {
@@ -501,6 +702,12 @@ export class ShaderMount {
       this.rafId = null;
     }
 
+    // Clean up performance queries
+    this.performanceQueries.forEach((query) => {
+      this.gl.deleteQuery(query);
+    });
+    this.performanceQueries = [];
+
     if (this.gl && this.program) {
       // Clean up all textures
       this.textures.forEach((texture) => {
@@ -535,7 +742,7 @@ export class ShaderMount {
   };
 }
 
-function createShader(gl: WebGLRenderingContext, type: number, source: string): WebGLShader | null {
+function createShader(gl: WebGL2RenderingContext, type: number, source: string): WebGLShader | null {
   const shader = gl.createShader(type);
   if (!shader) return null;
 
@@ -552,7 +759,7 @@ function createShader(gl: WebGLRenderingContext, type: number, source: string): 
 }
 
 function createProgram(
-  gl: WebGLRenderingContext,
+  gl: WebGL2RenderingContext,
   vertexShaderSource: string,
   fragmentShaderSource: string
 ): WebGLProgram | null {
