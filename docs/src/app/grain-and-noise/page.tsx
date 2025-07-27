@@ -43,9 +43,9 @@ const GrainAndNoiseWithControls = () => {
           curles: { value: defaults.curles, min: 0, max: 1, order: 310 },
           curlesScale: { value: defaults.curlesScale, min: 0, max: 1, order: 310 },
 
-          crumples: { value: defaults.crumples, min: 0, max: 1, order: 320 },
-          crumplesSeed: { value: defaults.crumplesSeed, min: 0, max: 1000, order: 321 },
-          crumplesScale: { value: defaults.crumplesScale, min: 0.3, max: 3, order: 322 },
+          channelR: { value: defaults.channelR, min: 0, max: 1, order: 320 },
+          channelG: { value: defaults.channelG, min: 0, max: 1, order: 321 },
+          channelB: { value: defaults.channelB, min: 0, max: 1, order: 322 },
 
           folds: { value: defaults.folds, min: 0, max: 1, order: 330 },
           foldsNumber: { value: defaults.foldsNumber, min: 1, max: 15, step: 1, order: 331 },
