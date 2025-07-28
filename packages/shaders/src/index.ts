@@ -171,6 +171,9 @@ export {
   type StaticRadialGradientUniforms,
 } from './shaders/static-radial-gradient.js';
 
+// ----- Tartan ----- //
+export { tartanMeta, tartanFragmentShader, type TartanParams, type TartanUniforms } from './shaders/tartan.js';
+
 // ----- Utils ----- //
 export { getShaderColorFromString } from './get-shader-color-from-string.js';
 export { getShaderNoiseTexture } from './get-shader-noise-texture.js';
