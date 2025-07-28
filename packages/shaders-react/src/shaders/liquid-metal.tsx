@@ -53,8 +53,8 @@ export const dropsPreset: LiquidMetalPreset = {
   },
 };
 
-export const fullScreenPreset: LiquidMetalPreset = {
-  name: 'Full Screen',
+export const containedPreset: LiquidMetalPreset = {
+  name: 'Contained',
   params: {
     ...defaultObjectSizing,
     speed: 1,
@@ -73,26 +73,26 @@ export const fullScreenPreset: LiquidMetalPreset = {
   },
 };
 
-export const spherePreset: LiquidMetalPreset = {
-  name: 'Sphere',
+export const fullScreenPreset: LiquidMetalPreset = {
+  name: 'Full Screen',
   params: {
     ...defaultObjectSizing,
-    scale: 0.7,
-    speed: 2,
+    scale: 2.2,
+    speed: 1,
     frame: 0,
-    colorBack: '#ffffff00',
-    colorTint: '#d1e0ff',
+    colorBack: '#00042e',
+    colorTint: '#5b4dc7',
     softness: 0.45,
     repetition: 4,
-    shiftRed: 1,
-    shiftBlue: 0.3,
+    shiftRed: -0.5,
+    shiftBlue: -1,
     distortion: 0.1,
-    contour: 0.4,
+    contour: 1,
     shape: 'circle',
   },
 };
 
-export const liquidMetalPresets: LiquidMetalPreset[] = [defaultPreset, spherePreset, dropsPreset, fullScreenPreset];
+export const liquidMetalPresets: LiquidMetalPreset[] = [defaultPreset, containedPreset, dropsPreset, fullScreenPreset];
 
 export const LiquidMetal: React.FC<LiquidMetalProps> = memo(function LiquidMetalImpl({
   // Own props
