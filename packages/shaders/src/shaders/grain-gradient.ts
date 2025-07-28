@@ -99,7 +99,7 @@ vec2 truchet(vec2 uv, float idx){
 void main() {
 
   float t = .1 * u_time;
-    
+
   vec2 shape_uv = vec2(0.);
   vec2 grain_uv = vec2(0.);
 
@@ -110,7 +110,7 @@ void main() {
     // apply inverse transform to grain_uv so it respects the originXY
     float r = u_rotation * 3.14159265358979323846 / 180.;
     mat2 graphicRotation = mat2(cos(r), sin(r), -sin(r), cos(r));
-    vec2 graphicOffset = vec2(-u_offsetX, u_offsetY);    
+    vec2 graphicOffset = vec2(-u_offsetX, u_offsetY);
     grain_uv = transpose(graphicRotation) * grain_uv;
     grain_uv *= u_scale;
     grain_uv -= graphicOffset;
@@ -119,11 +119,11 @@ void main() {
   } else {
     shape_uv = .5 * v_patternUV;
     grain_uv = 100. * v_patternUV;
-    
+
     // apply inverse transform to grain_uv so it respects the originXY
     float r = u_rotation * 3.14159265358979323846 / 180.;
     mat2 graphicRotation = mat2(cos(r), sin(r), -sin(r), cos(r));
-    vec2 graphicOffset = vec2(-u_offsetX, u_offsetY);    
+    vec2 graphicOffset = vec2(-u_offsetX, u_offsetY);
     grain_uv = transpose(graphicRotation) * grain_uv;
     grain_uv *= u_scale;
     if (u_fit > 0.) {
@@ -164,7 +164,7 @@ void main() {
 
   } else if (u_shape < 3.5) {
     // Truchet pattern
-    
+
     float n2 = valueNoise(shape_uv * .4 - 3.75 * t);
     shape_uv.x += 10.;
     shape_uv *= .6;
@@ -283,6 +283,7 @@ export interface GrainGradientUniforms extends ShaderSizingUniforms {
   u_intensity: number;
   u_noise: number;
   u_shape: (typeof GrainGradientShapes)[GrainGradientShape];
+  u_noiseTexture?: HTMLImageElement;
 }
 
 export interface GrainGradientParams extends ShaderSizingParams, ShaderMotionParams {

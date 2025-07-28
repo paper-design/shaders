@@ -107,8 +107,6 @@ export const SmokeRing: React.FC<SmokeRingProps> = memo(function SmokeRingImpl({
   worldHeight = defaultPreset.params.worldHeight,
   ...props
 }: SmokeRingProps) {
-  const noiseTexture = typeof window !== 'undefined' && { u_noiseTexture: getShaderNoiseTexture() };
-
   const uniforms = {
     // Own uniforms
     u_colorBack: getShaderColorFromString(colorBack),
@@ -119,7 +117,7 @@ export const SmokeRing: React.FC<SmokeRingProps> = memo(function SmokeRingImpl({
     u_radius: radius,
     u_innerShape: innerShape,
     u_noiseIterations: noiseIterations,
-    ...noiseTexture,
+    u_noiseTexture: getShaderNoiseTexture(),
 
     // Sizing uniforms
     u_fit: ShaderFitOptions[fit],

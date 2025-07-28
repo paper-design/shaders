@@ -16,7 +16,7 @@ export const swirlMeta = {
  * - u_bandCount (float, used as int): number of sectors
  * - u_twist: sectors twist intensity (0 = linear)
  * - u_softness: color transition sharpness (0 = hard edge, 1 = smooth fade)
- * - u_noisePower, u_noiseFrequency: simplex noise distortion over the shape
+ * - u_noise, u_noiseFrequency: simplex noise distortion over the shape
  *
  */
 
@@ -32,7 +32,7 @@ uniform float u_colorsCount;
 uniform float u_bandCount;
 uniform float u_twist;
 uniform float u_softness;
-uniform float u_noisePower;
+uniform float u_noise;
 uniform float u_noiseFrequency;
 
 ${sizingVariablesDeclaration}
@@ -58,7 +58,7 @@ void main() {
 
   float shape = fract(offset);
   shape = 1. - abs(2. * shape - 1.);
-  shape += u_noisePower * snoise(pow(u_noiseFrequency, 2.) * shape_uv);
+  shape += u_noise * snoise(15. * pow(u_noiseFrequency, 2.) * shape_uv);
 
   float mid = smoothstep(.2, .4, pow(l, twist));
   shape = mix(0., shape, mid);
@@ -105,7 +105,7 @@ export interface SwirlUniforms extends ShaderSizingUniforms {
   u_twist: number;
   u_softness: number;
   u_noiseFrequency: number;
-  u_noisePower: number;
+  u_noise: number;
 }
 
 export interface SwirlParams extends ShaderSizingParams, ShaderMotionParams {
@@ -115,5 +115,5 @@ export interface SwirlParams extends ShaderSizingParams, ShaderMotionParams {
   twist?: number;
   softness?: number;
   noiseFrequency?: number;
-  noisePower?: number;
+  noise?: number;
 }
