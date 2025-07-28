@@ -23,11 +23,11 @@ export const defaultPreset: PerlinNoisePreset = {
     frame: 0,
     colorBack: '#632ad5',
     colorFront: '#fccff7',
-    proportion: 0.45,
+    proportion: 0.35,
     softness: 0.1,
     octaveCount: 1,
     persistence: 1,
-    lacunarity: 3.5,
+    lacunarity: 1.5,
   },
 };
 

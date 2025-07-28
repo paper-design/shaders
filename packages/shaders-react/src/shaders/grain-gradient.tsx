@@ -110,22 +110,6 @@ export const blobPreset: GrainGradientPreset = {
   },
 };
 
-export const moonPreset: GrainGradientPreset = {
-  name: 'Moon',
-  params: {
-    ...defaultObjectSizing,
-    scale: 0.6,
-    speed: 1,
-    frame: 0,
-    colorBack: '#000000',
-    colors: ['#000000', '#28272d', '#ffeccc'],
-    softness: 1,
-    intensity: 0.56,
-    noise: 1,
-    shape: 'sphere',
-  },
-};
-
 export const grainGradientPresets: GrainGradientPreset[] = [
   defaultPreset,
   wavePreset,
@@ -133,7 +117,6 @@ export const grainGradientPresets: GrainGradientPreset[] = [
   truchetPreset,
   ripplePreset,
   blobPreset,
-  moonPreset,
 ];
 
 export const GrainGradient: React.FC<GrainGradientProps> = memo(function GrainGradientImpl({

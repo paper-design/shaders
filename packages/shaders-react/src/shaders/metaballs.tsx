@@ -59,21 +59,21 @@ export const backgroundPreset: MetaballsPreset = {
   },
 };
 
-export const metallicPreset: MetaballsPreset = {
-  name: 'Metallic',
+export const solarPreset: MetaballsPreset = {
+  name: 'Solar',
   params: {
     ...defaultObjectSizing,
-    speed: 2.0,
+    speed: 1,
     frame: 0,
-    colors: ['#000000bb', '#00000000', '#33ffaa54'],
-    colorBack: '#003e6b',
-    count: 10,
-    size: 0.81,
-    scale: 1.7,
+    colors: ['#ffc800', '#ff5500', '#ffc105'],
+    colorBack: '#102f84',
+    count: 7,
+    size: 0.75,
+    scale: 1,
   },
 };
 
-export const metaballsPresets: MetaballsPreset[] = [defaultPreset, inkDropsPreset, metallicPreset, backgroundPreset];
+export const metaballsPresets: MetaballsPreset[] = [defaultPreset, inkDropsPreset, solarPreset, backgroundPreset];
 
 export const Metaballs: React.FC<MetaballsProps> = memo(function MetaballsImpl({
   // Own props
