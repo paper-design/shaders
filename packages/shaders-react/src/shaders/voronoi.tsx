@@ -109,8 +109,6 @@ export const Voronoi: React.FC<VoronoiProps> = memo(function VoronoiImpl({
   worldHeight = defaultPreset.params.worldHeight,
   ...props
 }: VoronoiProps) {
-  const noiseTexture = typeof window !== 'undefined' && { u_noiseTexture: getShaderNoiseTexture() };
-
   const uniforms = {
     // Own uniforms
     u_colors: colors.map(getShaderColorFromString),
@@ -121,7 +119,7 @@ export const Voronoi: React.FC<VoronoiProps> = memo(function VoronoiImpl({
     u_distortion: distortion,
     u_gap: gap,
     u_glow: glow,
-    ...noiseTexture,
+    u_noiseTexture: getShaderNoiseTexture(),
 
     // Sizing uniforms
     u_fit: ShaderFitOptions[fit],

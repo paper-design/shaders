@@ -67,8 +67,8 @@ vec4 voronoi(vec2 x, float t) {
   for (int j = -1; j <= 1; j++) {
     for (int i = -1; i <= 1; i++) {
       vec2 g = vec2(float(i), float(j));
-      vec2 raw_hash = hash(ip + g);
       vec2 o = hash(ip + g);
+      float raw_hash = o.x;
       o = .5 + u_distortion * sin(t + TWO_PI * o);
       vec2 r = g + o - fp;
       float d = dot(r, r);
@@ -77,7 +77,7 @@ vec4 voronoi(vec2 x, float t) {
         md = d;
         mr = r;
         mg = g;
-        rand = raw_hash.x;
+        rand = raw_hash;
       }
     }
   }
