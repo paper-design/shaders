@@ -36,24 +36,16 @@ export function ShaderItem({
         {image && (
           <>
             <Image
-              className="absolute left-1/2 top-1/2 -ml-[200px] -mt-[150px] block h-[300px] w-[400px] max-w-none"
+              className="absolute left-1/2 top-1/2 -ml-[150px] -mt-[112px] block h-[225px] w-[300px] max-w-none sm:-ml-[200px] sm:-mt-[150px] sm:h-[300px] sm:w-[400px]"
               src={image}
               alt={`Preview of ${name}`}
-              width={400}
-              height={300}
               unoptimized // The images are already optimized
               priority
             />
             {isHovered && shaderConfig && (
               <ShaderComponent
+                className="absolute left-1/2 top-1/2 -ml-[150px] -mt-[112px] block h-[225px] w-[300px] max-w-none sm:-ml-[200px] sm:-mt-[150px] sm:h-[300px] sm:w-[400px]"
                 style={{
-                  width: 400,
-                  height: 300,
-                  position: 'absolute',
-                  top: '50%',
-                  left: '50%',
-                  marginTop: '-150px',
-                  marginLeft: '-200px',
                   // Some shaders are transparent, adding a background to not see the preview image through
                   background: 'black',
                   ...style,
