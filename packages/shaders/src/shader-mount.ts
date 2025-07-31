@@ -563,8 +563,8 @@ function createProgram(
   if (precision && precision < 23) {
     vertexShaderSource = vertexShaderSource.replace(/precision\s+(lowp|mediump)\s+float;/g, 'precision highp float;');
     fragmentShaderSource = fragmentShaderSource.replace(
-      /precision\s+(lowp|mediump)\s+float;/g,
-      'precision highp float;'
+      /precision\s+(lowp|mediump)\s+float/g,
+      'precision highp float'
     );
   }
 
