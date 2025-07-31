@@ -30,7 +30,6 @@ export class ShaderMount {
   private maxPixelCount;
   private isSafari = isSafari();
   private uniformCache: Record<string, unknown> = {};
-  private hasSavedFirstFrame = false;
 
   constructor(
     /** The div you'd like to mount the shader to. The shader will match its size. */
@@ -141,15 +140,6 @@ export class ShaderMount {
     });
 
     this.uniformLocations = uniformLocations;
-  };
-
-  /** Captures the current canvas as a PNG and triggers a download */
-  public saveFirstFrameImage = (filename: string = 'shader-frame.webp'): void => {
-    const dataURL = this.canvasElement.toDataURL('image/webp', 1);
-    const link = document.createElement('a');
-    link.download = filename;
-    link.href = dataURL;
-    link.click();
   };
 
   /**
@@ -289,11 +279,6 @@ export class ShaderMount {
     }
 
     this.gl.drawArrays(this.gl.TRIANGLES, 0, 6);
-
-    if (!this.hasSavedFirstFrame) {
-      this.hasSavedFirstFrame = true;
-      // this.saveFirstFrameImage();
-    }
 
     // Loop if we're animating
     if (this.speed !== 0) {
