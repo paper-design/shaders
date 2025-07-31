@@ -567,6 +567,9 @@ function createProgram(
       /precision\s+(lowp|mediump)\s+float/g,
       'precision highp float'
     );
+
+    console.log("vertexShaderSource", vertexShaderSource)
+    console.log("fragmentShaderSource", fragmentShaderSource)
   }
 
   const vertexShader = createShader(gl, gl.VERTEX_SHADER, vertexShaderSource);
