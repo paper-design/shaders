@@ -145,7 +145,7 @@ void main() {
     mask = pow(mask, 4.);
   }
 
-  float opacity = 1. - smoothstep(.8, .82, mask);
+  float opacity = 1. - smoothstep(.82 - 2. * fwidth(mask), .82, mask);
 
   float ridge = .15 * (smoothstep(.0, .15, uv.y) * smoothstep(.4, .15, uv.y));
   ridge += .05 * (smoothstep(.1, .2, 1. - uv.y) * smoothstep(.4, .2, 1. - uv.y));

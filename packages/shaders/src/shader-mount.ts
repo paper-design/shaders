@@ -5,7 +5,7 @@ const DEFAULT_MAX_PIXEL_COUNT: number = 1920 * 1080 * 4;
 export class ShaderMount {
   public parentElement: PaperShaderElement;
   public canvasElement: HTMLCanvasElement;
-  private gl: WebGLRenderingContext;
+  private gl: WebGL2RenderingContext;
   private program: WebGLProgram | null = null;
   private uniformLocations: Record<string, WebGLUniformLocation | null> = {};
   /** The fragment shader that we are using */
@@ -535,7 +535,7 @@ export class ShaderMount {
   };
 }
 
-function createShader(gl: WebGLRenderingContext, type: number, source: string): WebGLShader | null {
+function createShader(gl: WebGL2RenderingContext, type: number, source: string): WebGLShader | null {
   const shader = gl.createShader(type);
   if (!shader) return null;
 
@@ -552,7 +552,7 @@ function createShader(gl: WebGLRenderingContext, type: number, source: string): 
 }
 
 function createProgram(
-  gl: WebGLRenderingContext,
+  gl: WebGL2RenderingContext,
   vertexShaderSource: string,
   fragmentShaderSource: string
 ): WebGLProgram | null {
