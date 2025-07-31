@@ -61,6 +61,10 @@ import {MeshGradient, DotOrbit} from '@paper-design/shaders-react';
 - React JS (@paper-design/shaders-react)
 - Vue and others: intent to accept community PRs in the future
 
+## Release notes
+
+[View changelog →](./CHANGELOG.md)
+
 ## Building and publishing
 
 1. Bump the version numbers as desired manually

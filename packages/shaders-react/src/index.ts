@@ -1,3 +1,5 @@
+'use client';
+
 export { ShaderMount } from './shader-mount.js';
 export type { ShaderMountProps, ShaderComponentProps } from './shader-mount.js';
 
