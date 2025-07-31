@@ -4,6 +4,7 @@ import { colorPropsAreEqual } from '../color-props-are-equal.js';
 import {
   defaultPatternSizing,
   getShaderColorFromString,
+  getShaderNoiseTexture,
   warpFragmentShader,
   ShaderFitOptions,
   type WarpParams,
@@ -176,6 +177,7 @@ export const Warp: React.FC<WarpProps> = memo(function WarpImpl({
     u_swirlIterations: swirlIterations,
     u_shapeScale: shapeScale,
     u_shape: WarpPatterns[shape],
+    u_noiseTexture: getShaderNoiseTexture(),
 
     // Sizing uniforms
     u_scale: scale,

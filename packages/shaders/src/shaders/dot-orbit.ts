@@ -1,7 +1,7 @@
 import type { vec4 } from '../types.js';
 import type { ShaderMotionParams } from '../shader-mount.js';
 import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
-import { declarePI, declareRandom, declareRotate } from '../shader-utils.js';
+import { declarePI, declareRotate } from '../shader-utils.js';
 
 export const dotOrbitMeta = {
   maxColorCount: 10,
@@ -18,6 +18,8 @@ export const dotOrbitMeta = {
  * - u_sizeRange (0..1): randomizes dot radius between 0 and u_size
  * - u_spreading (0..1): max orbit distance of each dot around the cell center
  *
+ * - u_noiseTexture (sampler2D): pre-computed randomizer source
+ *
  */
 
 // language=GLSL
@@ -25,6 +27,8 @@ export const dotOrbitFragmentShader: string = `#version 300 es
 precision mediump float;
 
 uniform float u_time;
+
+uniform sampler2D u_noiseTexture;
 
 uniform vec4 u_colorBack;
 uniform vec4 u_colors[${dotOrbitMeta.maxColorCount}];
@@ -39,11 +43,15 @@ ${sizingVariablesDeclaration}
 out vec4 fragColor;
 
 ${declarePI}
-${declareRandom}
 ${declareRotate}
 
+float random(vec2 p) {
+  vec2 uv = floor(p) / 100. + .5;
+  return texture(u_noiseTexture, uv).r;
+}
 vec2 random2(vec2 p) {
-  return vec2(random(p), random(200. * p));
+  vec2 uv = floor(p) / 100. + .5;
+  return texture(u_noiseTexture, uv).gb;
 }
 
 vec3 voronoiShape(vec2 uv, float time) {
@@ -80,7 +88,7 @@ void main() {
   vec2 shape_uv = v_patternUV;
   shape_uv *= 1.5;
 
-  float t = u_time;
+  float t = u_time - 10.;
 
   vec3 voronoi = voronoiShape(shape_uv, t) + 1e-4;
 
@@ -138,6 +146,7 @@ export interface DotOrbitUniforms extends ShaderSizingUniforms {
   u_sizeRange: number;
   u_spreading: number;
   u_stepsPerColor: number;
+  u_noiseTexture?: HTMLImageElement;
 }
 
 export interface DotOrbitParams extends ShaderSizingParams, ShaderMotionParams {

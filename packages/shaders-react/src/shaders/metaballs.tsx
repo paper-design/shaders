@@ -4,6 +4,7 @@ import { colorPropsAreEqual } from '../color-props-are-equal.js';
 import {
   defaultObjectSizing,
   getShaderColorFromString,
+  getShaderNoiseTexture,
   metaballsFragmentShader,
   ShaderFitOptions,
   type MetaballsParams,
@@ -103,6 +104,7 @@ export const Metaballs: React.FC<MetaballsProps> = memo(function MetaballsImpl({
     u_colorsCount: colors.length,
     u_size: size,
     u_count: count,
+    u_noiseTexture: getShaderNoiseTexture(),
 
     // Sizing uniforms
     u_fit: ShaderFitOptions[fit],
