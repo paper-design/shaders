@@ -560,6 +560,7 @@ function createProgram(
   const precision = format ? format.precision : null;
   // MEDIUM_FLOAT precision can be 10, 16 or 23 bits depending on device;
   // Shaders fail on 10 bit (and 16 bit is hard to test) => we force 23-bit by switching to highp
+  console.log("precision", precision)
   if (precision && precision < 23) {
     vertexShaderSource = vertexShaderSource.replace(/precision\s+(lowp|mediump)\s+float;/g, 'precision highp float;');
     fragmentShaderSource = fragmentShaderSource.replace(
