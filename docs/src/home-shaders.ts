@@ -137,7 +137,7 @@ export const homeShaders = [
     url: '/warp',
     ShaderComponent: Warp,
     image: warpImg,
-    shaderConfig: { ...warpPresets[0].params, speed: 2, offsetX: -0.2, scale: 0.8, frame: 4000 },
+    shaderConfig: { ...warpPresets[0].params, speed: 2, offsetX: -0.2, scale: 0.6, frame: 20000 },
   },
   {
     name: 'spiral',
@@ -200,7 +200,7 @@ export const homeShaders = [
     image: metaballsImg,
     url: '/metaballs',
     ShaderComponent: Metaballs,
-    shaderConfig: { ...metaballsPresets[0].params, scale: 0.65, frame: 13000, offsetY: 0 },
+    shaderConfig: { ...metaballsPresets[0].params, scale: 0.7, frame: 21300, offsetY: -0.01 },
   },
   {
     name: 'color panels',
