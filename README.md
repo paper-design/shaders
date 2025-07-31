@@ -1,6 +1,6 @@
 # Paper Shaders
 
-![mesh-gradient-shader](./docs/public/images/git-readme-picture.png)
+![mesh-gradient-shader](./docs/public/images/git-readme-picture.png?v=2)
 
 ### Getting started
 
