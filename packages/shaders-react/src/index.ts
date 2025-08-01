@@ -87,6 +87,10 @@ export { StaticRadialGradient, staticRadialGradientPresets } from './shaders/sta
 export type { StaticRadialGradientProps } from './shaders/static-radial-gradient.js';
 export type { StaticRadialGradientUniforms, StaticRadialGradientParams } from '@paper-design/shaders';
 
+export { Tartan, tartanPresets } from './shaders/tartan.js';
+export type { TartanProps } from './shaders/tartan.js';
+export type { TartanUniforms, TartanParams } from '@paper-design/shaders';
+
 export { isPaperShaderElement, getShaderColorFromString } from '@paper-design/shaders';
 export type { PaperShaderElement, ShaderFit, ShaderSizingParams, ShaderSizingUniforms } from '@paper-design/shaders';
 
