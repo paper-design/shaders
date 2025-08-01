@@ -1,13 +1,13 @@
-import { memo } from 'react';
 import {
   defaultPatternSizing,
   getShaderColorFromString,
   ShaderFitOptions,
   type ShaderPreset,
-  tartanFragmentShader,
   type TartanParams,
   type TartanUniforms,
+  tartanFragmentShader,
 } from '@paper-design/shaders';
+import { memo } from 'react';
 import { colorPropsAreEqual } from '../color-props-are-equal.js';
 import { type ShaderComponentProps, ShaderMount } from '../shader-mount.js';
 
@@ -19,8 +19,10 @@ export const defaultPreset: TartanPreset = {
   name: 'Default',
   params: {
     ...defaultPatternSizing,
-    stripeColors: ['#19600b', '#aa0909', '#19600b', '#041a07', '#c3a855', '#041a07'],
+    stripeColors: ['#19600b', '#aa0909', '#19600b', '#083a0f', '#c3a855', '#083a0f'],
     stripeWidths: [30, 4, 40, 30, 1, 30],
+    weaveSize: 3.0,
+    weaveStrength: 0.25,
   },
 };
 
@@ -30,6 +32,8 @@ export const Tartan: React.FC<TartanProps> = memo(function TartanImpl({
   // Own props
   stripeColors = defaultPreset.params.stripeColors,
   stripeWidths = defaultPreset.params.stripeWidths,
+  weaveSize = defaultPreset.params.weaveSize,
+  weaveStrength = defaultPreset.params.weaveStrength,
 
   // Sizing props
   fit = defaultPreset.params.fit,
@@ -48,6 +52,8 @@ export const Tartan: React.FC<TartanProps> = memo(function TartanImpl({
     u_stripeColors: stripeColors.map(getShaderColorFromString),
     u_stripeWidths: stripeWidths,
     u_stripeCount: stripeColors.length,
+    u_weaveSize: weaveSize,
+    u_weaveStrength: weaveStrength,
 
     // Sizing uniforms
     u_fit: ShaderFitOptions[fit],

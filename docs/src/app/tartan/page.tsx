@@ -74,6 +74,28 @@ const TartanWithControls = () => {
 
   const [params, setParams] = useControls(() => {
     return {
+      Parameters: folder(
+        {
+          weaveSize: {
+            value: defaults.weaveSize,
+            min: 1.0,
+            max: 10.0,
+            step: 0.25,
+            order: 0,
+          },
+          weaveStrength: {
+            value: defaults.weaveStrength,
+            min: 0.0,
+            max: 1.0,
+            step: 0.05,
+            order: 1,
+          },
+        },
+        {
+          order: 0,
+          collapsed: false,
+        }
+      ),
       Transform: folder(
         {
           scale: { value: defaults.scale, min: 0.01, max: 4, order: 400 },
