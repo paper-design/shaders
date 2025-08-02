@@ -27,36 +27,91 @@ const { worldWidth, worldHeight, ...defaults } = paperTexturePresets[0].params;
 
 const PaperTextureWithControls = () => {
   const [imageIdx, setImageIdx] = useState(-1);
-
-  const [image, setImage] = useState<HTMLImageElement | null>(null);
+  const [image, setImage] = useState<HTMLImageElement | undefined>(undefined);
+  const [status, setStatus] = useState('Click to load an image');
 
   const imageFiles = [
-    '01.png',
+    '086.png',
+    '085.png',
+    '072.jpg',
+    '073.jpg',
+    '074.jpg',
+    '075.jpg',
+    '062.jpg',
+    '083.jpg',
+
+    '068.jpg',
+    '040.jpg',
+
+    '049.jpg',
+    '054.jpg',
+    '059.jpg',
+    '060.jpg',
+
     '02.jpg',
-    '04.png',
-    '05.jpg',
     '06.jpg',
-    '07.webp',
-    '08.png',
-    '010.png',
-    '011.png',
-    '012.png',
-    '013.png',
-    '014.png',
-    '015.png',
-    '016.jpg',
+    '030.jpg',
+    '031.jpg',
+    '032.jpg',
+    '034.jpg',
+
+    '051.jpg',
+    '052.jpg',
+    '053.jpg',
+    '055.jpg',
+    '057.jpg',
+    '058.jpg',
+    '061.jpg',
+    '063.jpg',
+    '064.jpg',
+    '065.jpg',
+    '066.jpg',
+    '03.jpg',
+    '04.jpg',
+    '05.jpg',
+    '09.jpg',
+    '010.jpg',
+    '013.jpg',
+    '015.jpg',
+    '019.jpg',
+    '020.jpg',
+    '022.jpg',
+    '023.jpg',
+    '024.jpg',
+    '025.jpg',
+    '027.jpg',
+    '028.jpg',
+    '029.jpg',
+    '033.jpg',
+    '035.jpg',
+    '037.jpg',
+    '038.jpg',
+    '039.jpg',
+    '041.jpg',
+    '046.jpg',
+    '047.jpg',
+    '048.jpg',
   ] as const;
 
+  const fileName = imageIdx >= 0 ? imageFiles[imageIdx] : null;
+
   useEffect(() => {
-    const img = new Image();
-    img.src = `/images/${imageFiles[imageIdx]}`;
-    img.onload = () => {
-      setImage(img);
-    };
+    if (imageIdx >= 0) {
+      const name = imageFiles[imageIdx];
+      setStatus(`Displaying image: ${name}`);
+      const img = new Image();
+      img.src = `/images/${name}`;
+      img.onload = () => setImage(img);
+    }
   }, [imageIdx]);
 
   const handleClick = useCallback(() => {
     setImageIdx((prev) => (prev + 1) % imageFiles.length);
+  }, []);
+
+  const setImageWithStatus = useCallback((img?: HTMLImageElement) => {
+    setImage(img);
+    setStatus(`Displaying image: uploaded image`);
   }, []);
 
   const [params, setParams] = useControls(() => {
@@ -114,22 +169,21 @@ const PaperTextureWithControls = () => {
           originX: { value: defaults.originX, min: 0, max: 1, order: 407 },
           originY: { value: defaults.originY, min: 0, max: 1, order: 408 },
         },
-        {
-          order: 3,
-          collapsed: true,
-        }
+        { order: 0 }
       ),
       Image: folder(
         {
-          'Upload image': levaImageButton(setImage),
+          'fit': { value: defaults.fit, options: ['contain', 'cover'] as ShaderFit[], order: 100 },
+          'scale': { value: defaults.scale, min: 0.01, max: 4, order: 101 },
+          // rotation: {value: defaults.rotation, min: 0, max: 360, order: 401},
+          // offsetX: {value: defaults.offsetX, min: -1, max: 1, order: 402},
+          // offsetY: {value: defaults.offsetY, min: -1, max: 1, order: 403},
+          'Upload image': levaImageButton(setImageWithStatus),
         },
-        {
-          order: 3,
-          collapsed: false,
-        }
+        { order: 2 }
       ),
 
-      Presets: folder(presets, { order: 10 }),
+      Presets: folder(presets, { order: -1 }),
     };
   });
 
@@ -145,6 +199,12 @@ const PaperTextureWithControls = () => {
         <BackButton />
       </Link>
       <PaperTexture className="fixed size-full" onClick={handleClick} {...params} image={image || undefined} />
+      <div
+        className="fixed bottom-3 left-3 rounded px-2 py-1 text-xs"
+        style={{ background: 'rgba(0,0,0,0.7)', color: 'white' }}
+      >
+        {fileName ? `Displaying image: ${fileName}` : 'Click to load an image'}
+      </div>
     </>
   );
 };

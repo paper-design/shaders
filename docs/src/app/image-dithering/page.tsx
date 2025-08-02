@@ -20,36 +20,59 @@ const { worldWidth, worldHeight, ...defaults } = imageDitheringPresets[0].params
 
 const ImageDitheringWithControls = () => {
   const [imageIdx, setImageIdx] = useState(-1);
-
-  const [image, setImage] = useState<HTMLImageElement | null>(null);
+  const [image, setImage] = useState<HTMLImageElement | undefined>(undefined);
+  const [status, setStatus] = useState('Click to load an image');
 
   const imageFiles = [
-    '01.png',
-    '02.jpg',
-    '04.png',
-    '05.jpg',
-    '06.jpg',
-    '07.webp',
-    '08.png',
-    '010.png',
-    '011.png',
-    '012.png',
-    '013.png',
-    '014.png',
-    '015.png',
-    '016.jpg',
+    '083.jpg',
+
+    '074.jpg',
+    '075.jpg',
+    '068.jpg',
+    '054.jpg',
+    '059.jpg',
+    '060.jpg',
+
+    '031.jpg',
+    '030.jpg',
+    '032.jpg',
+    '058.jpg',
+    '061.jpg',
+    '063.jpg',
+    '019.jpg',
+    '020.jpg',
+    '034.jpg',
+    '039.jpg',
+    '041.jpg',
+    '042.jpg',
+    '043.jpg',
+    '044.jpg',
+    '046.jpg',
+    '047.jpg',
+    '048.jpg',
+    '082.jpg',
+
   ] as const;
 
+  const fileName = imageIdx >= 0 ? imageFiles[imageIdx] : null;
+
   useEffect(() => {
-    const img = new Image();
-    img.src = `/images/${imageFiles[imageIdx]}`;
-    img.onload = () => {
-      setImage(img);
-    };
+    if (imageIdx >= 0) {
+      const name = imageFiles[imageIdx];
+      setStatus(`Displaying image: ${name}`);
+      const img = new Image();
+      img.src = `/images/${name}`;
+      img.onload = () => setImage(img);
+    }
   }, [imageIdx]);
 
   const handleClick = useCallback(() => {
     setImageIdx((prev) => (prev + 1) % imageFiles.length);
+  }, []);
+
+  const setImageWithStatus = useCallback((img?: HTMLImageElement) => {
+    setImage(img);
+    setStatus(`Displaying image: uploaded image`);
   }, []);
 
   const [params, setParams] = useControls(() => {
@@ -69,44 +92,21 @@ const ImageDitheringWithControls = () => {
           stepsPerColor: { value: defaults.stepsPerColor, min: 1, max: 10, step: 1, order: 105 },
           ownPalette: { value: defaults.ownPalette, order: 106 },
         },
-        { order: 1 }
-      ),
-      Transform: folder(
-        {
-          scale: { value: defaults.scale, min: 0.01, max: 4, order: 400 },
-          rotation: { value: defaults.rotation, min: 0, max: 360, order: 401 },
-          offsetX: { value: defaults.offsetX, min: -1, max: 1, order: 402 },
-          offsetY: { value: defaults.offsetY, min: -1, max: 1, order: 403 },
-        },
-        {
-          order: 4,
-          collapsed: true,
-        }
-      ),
-      Fit: folder(
-        {
-          fit: { value: defaults.fit, options: Object.keys(ShaderFitOptions) as ShaderFit[], order: 404 },
-          // worldWidth: { value: 0, min: 0, max: 5120, order: 405 },
-          // worldHeight: { value: 0, min: 0, max: 5120, order: 406 },
-          originX: { value: defaults.originX, min: 0, max: 1, order: 407 },
-          originY: { value: defaults.originY, min: 0, max: 1, order: 408 },
-        },
-        {
-          order: 5,
-          collapsed: true,
-        }
+        { order: 0 }
       ),
       Image: folder(
         {
-          'Upload image': levaImageButton(setImage),
+          'fit': { value: defaults.fit, options: ['contain', 'cover'] as ShaderFit[], order: 100 },
+          'scale': { value: defaults.scale, min: 0.01, max: 4, order: 101 },
+          // rotation: {value: defaults.rotation, min: 0, max: 360, order: 401},
+          // offsetX: {value: defaults.offsetX, min: -1, max: 1, order: 402},
+          // offsetY: {value: defaults.offsetY, min: -1, max: 1, order: 403},
+          'Upload image': levaImageButton(setImageWithStatus),
         },
-        {
-          order: 3,
-          collapsed: false,
-        }
+        { order: 2 }
       ),
 
-      Presets: folder(presets, { order: 10 }),
+      Presets: folder(presets, { order: -1 }),
     };
   });
 
@@ -122,6 +122,12 @@ const ImageDitheringWithControls = () => {
         <BackButton />
       </Link>
       <ImageDithering className="fixed size-full" onClick={handleClick} {...params} image={image || undefined} />
+      <div
+        className="fixed bottom-3 left-3 rounded px-2 py-1 text-xs"
+        style={{ background: 'rgba(0,0,0,0.7)', color: 'white' }}
+      >
+        {fileName ? `Displaying image: ${fileName}` : 'Click to load an image'}
+      </div>
     </>
   );
 };

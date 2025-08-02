@@ -114,6 +114,7 @@ void main() {
   if (u_ownPalette == true) {
     float quantLum = floor((lum + dithering) * (steps + 1.)) / steps;
     quantLum = mix(0., quantLum, frame);
+    opacity = mix(0., 1., frame);
     vec3 normColor = image.rgb / max(lum, .001);
     color = normColor * quantLum;
   } else {
@@ -145,7 +146,7 @@ void main() {
 `;
 
 export interface ImageDitheringUniforms extends ShaderSizingUniforms {
-  u_image: HTMLImageElement | string | null;
+  u_image: HTMLImageElement | string | undefined;
   u_colorFront: [number, number, number, number];
   u_colorBack: [number, number, number, number];
   u_type: (typeof DitheringTypes)[DitheringType];
@@ -155,7 +156,7 @@ export interface ImageDitheringUniforms extends ShaderSizingUniforms {
 }
 
 export interface ImageDitheringParams extends ShaderSizingParams, ShaderMotionParams {
-  image?: HTMLImageElement | string | null;
+  image?: HTMLImageElement | string | undefined;
   colorFront?: string;
   colorBack?: string;
   type?: DitheringType;

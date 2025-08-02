@@ -27,36 +27,59 @@ const { worldWidth, worldHeight, ...defaults } = flutedGlassPresets[0].params;
 
 const FlutedGlassWithControls = () => {
   const [imageIdx, setImageIdx] = useState(-1);
-
-  const [image, setImage] = useState<HTMLImageElement | null>(null);
+  const [image, setImage] = useState<HTMLImageElement | undefined>(undefined);
+  const [status, setStatus] = useState('Click to load an image');
 
   const imageFiles = [
-    '01.png',
-    '02.jpg',
-    '04.png',
-    '05.jpg',
-    '06.jpg',
-    '07.webp',
-    '08.png',
-    '010.png',
-    '011.png',
-    '012.png',
-    '013.png',
-    '014.png',
-    '015.png',
-    '016.jpg',
+    '083.jpg',
+    '082.jpg',
+    '072.jpg',
+    '075.jpg',
+    '074.jpg',
+    '068.jpg',
+    '037.jpg',
+    '070.jpg',
+
+    '049.jpg',
+    '059.jpg',
+    '060.jpg',
+    '066.jpg',
+    '031.jpg',
+    '032.jpg',
+    '034.jpg',
+    '030.jpg',
+    '006.jpg',
+
+    '028.jpg',
+    '038.jpg',
+    '039.jpg',
+    '041.jpg',
+    '042.jpg',
+    '043.jpg',
+    '044.jpg',
+    '047.jpg',
+    '048.jpg',
   ] as const;
 
+  const fileName = imageIdx >= 0 ? imageFiles[imageIdx] : null;
+
   useEffect(() => {
-    const img = new Image();
-    img.src = `/images/${imageFiles[imageIdx]}`;
-    img.onload = () => {
-      setImage(img);
-    };
+    if (imageIdx >= 0) {
+      const name = imageFiles[imageIdx];
+      setStatus(`Displaying image: ${name}`);
+      const img = new Image();
+      img.src = `/images/${name}`;
+      img.onload = () => setImage(img);
+    }
   }, [imageIdx]);
 
   const handleClick = useCallback(() => {
     setImageIdx((prev) => (prev + 1) % imageFiles.length);
+  }, []);
+
+  const setImageWithStatus = useCallback((img?: HTMLImageElement) => {
+    setImage(img);
+    setStatus(`Displaying image: uploaded image`);
   }, []);
 
   const [params, setParams] = useControls(() => {
@@ -87,56 +110,25 @@ const FlutedGlassWithControls = () => {
           blur: { value: defaults.blur, min: 0, max: 25, order: 251 },
           gridLines: { value: defaults.gridLines, min: 0, max: 1, order: 270 },
         },
-        { order: 1 }
-      ),
-      FilterArea: folder(
-        {
-          marginLeft: { value: defaults.marginLeft, min: 0, max: 1, order: 100 },
-          marginRight: { value: defaults.marginRight, min: 0, max: 1, order: 101 },
-          marginTop: { value: defaults.marginTop, min: 0, max: 1, order: 102 },
-          marginBottom: { value: defaults.marginBottom, min: 0, max: 1, order: 103 },
-        },
-        {
-          order: 2,
-          collapsed: false,
-        }
-      ),
-      Transform: folder(
-        {
-          scale: { value: defaults.scale, min: 0.01, max: 4, order: 400 },
-          rotation: { value: defaults.rotation, min: 0, max: 360, order: 401 },
-          offsetX: { value: defaults.offsetX, min: -1, max: 1, order: 402 },
-          offsetY: { value: defaults.offsetY, min: -1, max: 1, order: 403 },
-        },
-        {
-          order: 4,
-          collapsed: true,
-        }
-      ),
-      Fit: folder(
-        {
-          fit: { value: defaults.fit, options: Object.keys(ShaderFitOptions) as ShaderFit[], order: 404 },
-          worldWidth: { value: 0, min: 0, max: 5120, order: 405 },
-          worldHeight: { value: 0, min: 0, max: 5120, order: 406 },
-          originX: { value: defaults.originX, min: 0, max: 1, order: 407 },
-          originY: { value: defaults.originY, min: 0, max: 1, order: 408 },
-        },
-        {
-          order: 5,
-          collapsed: true,
-        }
+        { order: 0 }
       ),
       Image: folder(
         {
-          'Upload image': levaImageButton(setImage),
+          'fit': { value: defaults.fit, options: ['contain', 'cover'] as ShaderFit[], order: 100 },
+          'scale': { value: defaults.scale, min: 0.01, max: 4, order: 101 },
+          'marginLeft': { value: defaults.marginLeft, min: 0, max: 1, order: 200 },
+          'marginRight': { value: defaults.marginRight, min: 0, max: 1, order: 201 },
+          'marginTop': { value: defaults.marginTop, min: 0, max: 1, order: 202 },
+          'marginBottom': { value: defaults.marginBottom, min: 0, max: 1, order: 203 },
+          // rotation: {value: defaults.rotation, min: 0, max: 360, order: 401},
+          // offsetX: {value: defaults.offsetX, min: -1, max: 1, order: 402},
+          // offsetY: {value: defaults.offsetY, min: -1, max: 1, order: 403},
+          'Upload image': levaImageButton(setImageWithStatus),
         },
-        {
-          order: 3,
-          collapsed: false,
-        }
+        { order: 2 }
       ),
 
-      Presets: folder(presets, { order: 10 }),
+      Presets: folder(presets, { order: -1 }),
     };
   });
 
@@ -152,6 +144,12 @@ const FlutedGlassWithControls = () => {
         <BackButton />
       </Link>
       <FlutedGlass className="fixed size-full" onClick={handleClick} {...params} image={image || undefined} />
+      <div
+        className="fixed bottom-3 left-3 rounded px-2 py-1 text-xs"
+        style={{ background: 'rgba(0,0,0,0.7)', color: 'white' }}
+      >
+        {fileName ? `Displaying image: ${fileName}` : 'Click to load an image'}
+      </div>
     </>
   );
 };

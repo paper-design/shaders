@@ -79,7 +79,6 @@ vec4 getBlur(sampler2D tex, vec2 uv, vec2 texelSize, vec2 dir, float sigma) {
 
 void main() {
   vec2 imageUV = v_imageUV;
-  vec2 patternUV = 100. * v_patternUV;
   
   vec2 uv = imageUV;
   float frame = getUvFrame(imageUV);
@@ -163,7 +162,7 @@ void main() {
 `;
 
 export interface FlutedGlassUniforms extends ShaderSizingUniforms {
-  u_image: HTMLImageElement | string | null;
+  u_image: HTMLImageElement | string | undefined;
   u_grid: number;
   u_gridRotation: number;
   u_distortion: number;
@@ -180,7 +179,7 @@ export interface FlutedGlassUniforms extends ShaderSizingUniforms {
 }
 
 export interface FlutedGlassParams extends ShaderSizingParams, ShaderMotionParams {
-  image?: HTMLImageElement | string | null;
+  image?: HTMLImageElement | string | undefined;
   grid?: number;
   gridRotation?: number;
   distortion?: number;

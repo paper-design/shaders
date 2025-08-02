@@ -16,6 +16,7 @@ uniform vec4 u_colorBack;
 uniform sampler2D u_image;
 uniform float u_imageAspectRatio;
 
+uniform float u_effectScale;
 uniform float u_highlights;
 uniform float u_temperature;
 uniform float u_distortion;
@@ -61,8 +62,7 @@ float getCausticNoise(vec2 uv, float t, float scale) {
 
 void main() {
   vec2 imageUV = v_imageUV;
-    vec2 patternUV = v_patternUV;
-//  vec2 patternUV = 7. * (v_imageUV / vec2(1., u_imageAspectRatio) - .5);
+  vec2 patternUV = u_effectScale * (v_imageUV / vec2(1., u_imageAspectRatio) - .5);
 
   float t = 2. * u_time;
   
@@ -112,7 +112,7 @@ void main() {
 `;
 
 export interface WaterUniforms extends ShaderSizingUniforms {
-  u_image: HTMLImageElement | string | null;
+  u_image: HTMLImageElement | string | undefined;
   u_colorBack: [number, number, number, number];
   u_highlights: number;
   u_temperature: number;
@@ -121,10 +121,11 @@ export interface WaterUniforms extends ShaderSizingUniforms {
   u_edges: number;
   u_caustic: number;
   u_waves: number;
+  u_effectScale: number;
 }
 
 export interface WaterParams extends ShaderSizingParams, ShaderMotionParams {
-  image?: HTMLImageElement | string | null;
+  image?: HTMLImageElement | string | undefined;
   colorBack?: string;
   highlights?: number;
   temperature?: number;
@@ -133,4 +134,5 @@ export interface WaterParams extends ShaderSizingParams, ShaderMotionParams {
   edges?: number;
   caustic?: number;
   waves?: number;
+  effectScale?: number;
 }

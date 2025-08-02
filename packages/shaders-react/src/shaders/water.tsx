@@ -19,11 +19,11 @@ export const defaultPreset: WaterPreset = {
   name: 'Default',
   params: {
     ...defaultObjectSizing,
-    scale: 0.8,
+    scale: 0.85,
     speed: 1,
     frame: 0,
     colorBack: '#0db5a7',
-    image: '/images/010.png',
+    image: '/images/085.png',
     highlights: 0.2,
     temperature: 0.5,
     distortion: 1,
@@ -31,6 +31,7 @@ export const defaultPreset: WaterPreset = {
     edges: 0.15,
     waves: 0.3,
     caustic: 0.3,
+    effectScale: 10,
   },
 };
 
@@ -49,6 +50,7 @@ export const Water: React.FC<WaterProps> = memo(function WaterImpl({
   waves = defaultPreset.params.waves,
   edges = defaultPreset.params.edges,
   caustic = defaultPreset.params.caustic,
+  effectScale = defaultPreset.params.effectScale,
 
   // Sizing props
   fit = defaultPreset.params.fit,
@@ -73,6 +75,7 @@ export const Water: React.FC<WaterProps> = memo(function WaterImpl({
     u_waves: waves,
     u_edges: edges,
     u_caustic: caustic,
+    u_effectScale: effectScale,
 
     // Sizing uniforms
     u_fit: ShaderFitOptions[fit],

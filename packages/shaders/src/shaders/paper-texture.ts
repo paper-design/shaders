@@ -178,8 +178,7 @@ vec2 folds(vec2 uv) {
 void main() {
 
   vec2 imageUV = v_imageUV;
-  vec2 patternUV = v_patternUV;
-//  vec2 patternUV = 10. * (v_imageUV / vec2(1., u_imageAspectRatio) - .5);
+  vec2 patternUV = 5. * (v_imageUV / vec2(1., u_imageAspectRatio) - .5);
 
   vec2 grainUv = 1.5 * (gl_FragCoord.xy - .5 * u_resolution) / u_pixelRatio;
   float grain = grain_fbm(grainUv + vec2(1., 0.)) - grain_fbm(grainUv - vec2(1., 0.));
@@ -218,7 +217,7 @@ void main() {
   }
   float drops = 1. - smoothstep(.05, .09, pow(dropsMinDist, .5));
   
-  normal.xy += u_folds * min(5. * u_contrast, 1.) * 4. * (w + w2);
+  normal.xy += u_folds * min(5. * u_contrast, 1.) * 4. * max(vec2(0.), w + w2);
   normalImage.xy += u_folds * 2. * w;
 
   normal.xy += u_crumples * crumples;
@@ -258,7 +257,7 @@ void main() {
 `;
 
 export interface PaperTextureUniforms extends ShaderSizingUniforms {
-  u_image: HTMLImageElement | string | null;
+  u_image: HTMLImageElement | string | undefined;
   u_noiseTexture?: HTMLImageElement;
   u_colorFront: [number, number, number, number];
   u_colorBack: [number, number, number, number];
@@ -279,7 +278,7 @@ export interface PaperTextureUniforms extends ShaderSizingUniforms {
 }
 
 export interface PaperTextureParams extends ShaderSizingParams, ShaderMotionParams {
-  image?: HTMLImageElement | string | null;
+  image?: HTMLImageElement | string | undefined;
   colorFront?: string;
   colorBack?: string;
   crumplesSeed?: number;

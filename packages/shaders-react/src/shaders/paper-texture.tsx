@@ -22,10 +22,10 @@ export const defaultPreset: PaperTexturePreset = {
     ...defaultObjectSizing,
     speed: 0,
     frame: 0,
-    scale: 0.8,
-    colorFront: '#add3ff',
+    scale: 0.6,
+    colorFront: '#bfbdab',
     colorBack: '#ffffff',
-    image: '/images/010.png',
+    image: '/images/086.png',
     contrast: 0.4,
     grain: 0.7,
     curles: 0.1,
@@ -36,7 +36,7 @@ export const defaultPreset: PaperTexturePreset = {
     folds: 0.65,
     foldsNumber: 15,
     foldsSeed: 1,
-    blur: 0.5,
+    blur: 0,
     blurSeed: 0.5,
     drops: 0.5,
     dropsSeed: 1.6,
@@ -49,7 +49,7 @@ export const emptyPaperPreset: PaperTexturePreset = {
     ...defaultObjectSizing,
     speed: 0,
     frame: 0,
-    scale: 0.8,
+    scale: 0.85,
     colorFront: '#b9bfc6',
     colorBack: '#ffffff',
     image: 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==',
@@ -76,10 +76,10 @@ export const abstractPreset: PaperTexturePreset = {
     ...defaultObjectSizing,
     speed: 0,
     frame: 0,
-    scale: 0.8,
+    scale: 0.85,
     colorFront: '#a2ff8f',
     colorBack: '#3a53f8',
-    image: '/images/010.png',
+    image: '/images/01.jpg',
     contrast: 0.3,
     grain: 0.8,
     curles: 0.6,
@@ -103,10 +103,10 @@ export const cardboardPreset: PaperTexturePreset = {
     ...defaultObjectSizing,
     speed: 0,
     frame: 0,
-    scale: 0.8,
+    scale: 0.85,
     colorFront: '#a26b22',
     colorBack: '#77490e',
-    image: '/images/010.png',
+    image: '/images/01.jpg',
     contrast: 0.5,
     grain: 1,
     curles: 0.6,
@@ -124,7 +124,12 @@ export const cardboardPreset: PaperTexturePreset = {
   },
 };
 
-export const paperTexturePresets: PaperTexturePreset[] = [defaultPreset, emptyPaperPreset, cardboardPreset, abstractPreset] as const;
+export const paperTexturePresets: PaperTexturePreset[] = [
+  defaultPreset,
+  emptyPaperPreset,
+  cardboardPreset,
+  abstractPreset,
+] as const;
 
 export const PaperTexture: React.FC<PaperTextureProps> = memo(function PaperTextureImpl({
   // Own props

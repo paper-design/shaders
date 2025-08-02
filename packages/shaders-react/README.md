@@ -25,4 +25,5 @@ import { MeshGradient, DotOrbit } from '@paper-design/shaders-react';
 ```
 
 ## Release notes
+
 [View changelog →](https://github.com/paper-design/shaders/blob/main/CHANGELOG.md)

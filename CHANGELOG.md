@@ -22,28 +22,23 @@
 ### Existing Shader Improvements
 
 - **Antialiasing** improved across multiple shaders:
-
   - _Waves, Warp, Swirl, Spiral, SimplexNoise, PulsingBorder, LiquidMetal, GrainGradient_
 
 - **Voronoi**
-
   - Fixed glow color behavior: glow is now fully hidden when `glow = 0`
 
 - **Swirl**
-
   - Improved color distribution
   - Renamed `noisePower` to `noise`
   - Normalized `noiseFrequency`
 
 - **Spiral**
-
   - Enhanced algorithm for `lineWidth`, `strokeTaper`, `strokeCap`, `noise`, and `distortion`
   - Swapped `colorBack` and `colorFront`
   - Renamed `noisePower` to `noise`
   - Normalized `noiseFrequency`
 
 - **PulsingBorder**
-
   - Normalized `thickness`, `intensity`, `spotSize`, and `smokeSize`
   - Renamed `spotsPerColor` to `spots`
   - `intensity` now affects only the shape, not color mixing
@@ -56,11 +51,9 @@
     data)
 
 - **MeshGradient**
-
   - Minor performance improvements
 
 - **ColorPanels**
-
   - Added new `edges` parameter
 
 - **Default Presets** updated for the following shaders:
