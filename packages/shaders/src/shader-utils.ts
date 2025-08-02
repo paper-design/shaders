@@ -109,3 +109,18 @@ float grainShape(vec2 uv, vec2 seedOffset) {
   return 10. * u_scale * length(vec2(dFdx(total), dFdy(total)));
 }
 `;
+
+// language=GLSL
+export const declareImageUV = `
+  float getUvFrame(vec2 uv) {
+    float aax = 2. * fwidth(uv.x);
+    float aay = 2. * fwidth(uv.y);
+
+    float left   = smoothstep(0., aax, uv.x);
+    float right  = smoothstep(1., 1. - aax, uv.x);
+    float bottom = smoothstep(0., aay, uv.y);
+    float top    = smoothstep(1., 1. - aay, uv.y);
+
+    return left * right * bottom * top;
+  }
+`;

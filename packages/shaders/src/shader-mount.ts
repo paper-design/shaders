@@ -30,6 +30,7 @@ export class ShaderMount {
   private maxPixelCount;
   private isSafari = isSafari();
   private uniformCache: Record<string, unknown> = {};
+  private textureUnitMap: Map<string, number> = new Map();
 
   constructor(
     /** The div you'd like to mount the shader to. The shader will match its size. */
@@ -134,7 +135,7 @@ export class ShaderMount {
 
       // For texture uniforms, also look for the aspect ratio uniform
       if (value instanceof HTMLImageElement) {
-        const aspectRatioUniformName = `${key}_aspect_ratio`;
+        const aspectRatioUniformName = `${key}AspectRatio`;
         uniformLocations[aspectRatioUniformName] = this.gl.getUniformLocation(this.program!, aspectRatioUniformName);
       }
     });
@@ -312,8 +313,8 @@ export class ShaderMount {
     this.gl.bindTexture(this.gl.TEXTURE_2D, texture);
 
     // Set texture parameters
-    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_S, this.gl.REPEAT);
-    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_T, this.gl.REPEAT);
+    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_S, this.gl.CLAMP_TO_EDGE);
+    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_T, this.gl.CLAMP_TO_EDGE);
     this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.LINEAR);
     this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MAG_FILTER, this.gl.LINEAR);
 
@@ -331,21 +332,29 @@ export class ShaderMount {
     // Set up texture unit and uniform
     const location = this.uniformLocations[uniformName];
     if (location) {
-      // Use texture unit based on the order textures were added
-      const textureUnit = this.textures.size - 1;
-      this.gl.useProgram(this.program);
+      if (!this.textureUnitMap.has(uniformName)) {
+        this.textureUnitMap.set(uniformName, this.textureUnitMap.size);
+      }
+      const textureUnit = this.textureUnitMap.get(uniformName)!;
       this.gl.activeTexture(this.gl.TEXTURE0 + textureUnit);
       this.gl.bindTexture(this.gl.TEXTURE_2D, texture);
       this.gl.uniform1i(location, textureUnit);
 
       // Calculate and set the aspect ratio uniform
-      const aspectRatioUniformName = `${uniformName}_aspect_ratio`;
+      const aspectRatioUniformName = `${uniformName}AspectRatio`;
       const aspectRatioLocation = this.uniformLocations[aspectRatioUniformName];
       if (aspectRatioLocation) {
         const aspectRatio = image.naturalWidth / image.naturalHeight;
         this.gl.uniform1f(aspectRatioLocation, aspectRatio);
       }
     }
+
+    // Rebind all the textures
+    this.textures.forEach((texture, uniformName) => {
+      const textureUnit = this.textureUnitMap.get(uniformName)!;
+      this.gl.activeTexture(this.gl.TEXTURE0 + textureUnit);
+      this.gl.bindTexture(this.gl.TEXTURE_2D, texture);
+    });
   };
 
   /** Utility: recursive equality test for all the uniforms */
@@ -563,8 +572,8 @@ function createProgram(
   if (precision && precision < 23) {
     vertexShaderSource = vertexShaderSource.replace(/precision\s+(lowp|mediump)\s+float;/g, 'precision highp float;');
     fragmentShaderSource = fragmentShaderSource
-        .replace(/precision\s+(lowp|mediump)\s+float/g, 'precision highp float')
-        .replace(/\b(uniform|varying|attribute)\s+(lowp|mediump)\s+float/g, '$1 highp float');
+      .replace(/precision\s+(lowp|mediump)\s+float/g, 'precision highp float')
+      .replace(/\b(uniform|varying|attribute)\s+(lowp|mediump)\s+float/g, '$1 highp float');
   }
 
   const vertexShader = createShader(gl, gl.VERTEX_SHADER, vertexShaderSource);

@@ -115,7 +115,7 @@ export default function Page() {
   const [scale, setScale] = useState(1);
   const [offsetX, setOffsetX] = useState(0);
   const [offsetY, setOffsetY] = useState(0);
-  const [image, setImage] = useState<HTMLImageElement | null>(null);
+  const [image, setImage] = useState<HTMLImageElement | undefined>(undefined);
 
   useEffect(() => {
     const img = new Image();
@@ -126,13 +126,13 @@ export default function Page() {
     };
   }, []);
 
-  const canvasResizeObserver = useRef<ResizeObserver | null>(null);
-  const canvasNodeRef = useRef<HTMLDivElement>(null);
+  const canvasResizeObserver = useRef<ResizeObserver | undefined>(undefined);
+  const canvasNodeRef = useRef<HTMLDivElement>(undefined);
 
   const fitCode = fit === 'crop' ? 0 : fit === 'cover' ? 1 : 2;
 
-  if (image === null) {
-    return null;
+  if (image === undefined) {
+    return undefined;
   }
 
   return (

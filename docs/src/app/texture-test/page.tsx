@@ -73,7 +73,7 @@ void main() {
 }`;
 
 const TextureTest = () => {
-  const [image, setImage] = useState<HTMLImageElement | null>(null);
+  const [image, setImage] = useState<HTMLImageElement | undefined>(undefined);
 
   useEffect(() => {
     const img = new Image();
@@ -83,8 +83,8 @@ const TextureTest = () => {
     };
   }, []);
 
-  if (image === null) {
-    return null;
+  if (image === undefined) {
+    return undefined;
   }
 
   return (
