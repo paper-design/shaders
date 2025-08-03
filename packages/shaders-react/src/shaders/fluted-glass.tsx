@@ -23,7 +23,7 @@ export const defaultPreset: FlutedGlassPreset = {
     speed: 0,
     frame: 0,
     image: '/images/049.jpg',
-    grid: 25,
+    grid: 40,
     gridRotation: 0,
     distortionShape: 'type #1',
     gridShape: 'lines',

@@ -53,8 +53,6 @@ const FlutedGlassWithControls = () => {
     '028.jpg',
     '038.jpg',
     '039.jpg',
-    '041.jpg',
-    '042.jpg',
     '043.jpg',
     '044.jpg',
     '047.jpg',

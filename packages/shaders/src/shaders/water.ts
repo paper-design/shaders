@@ -19,7 +19,6 @@ uniform float u_imageAspectRatio;
 uniform float u_effectScale;
 uniform float u_highlights;
 uniform float u_temperature;
-uniform float u_distortion;
 uniform float u_layering;
 uniform float u_edges;
 uniform float u_caustic;
@@ -116,7 +115,6 @@ export interface WaterUniforms extends ShaderSizingUniforms {
   u_colorBack: [number, number, number, number];
   u_highlights: number;
   u_temperature: number;
-  u_distortion: number;
   u_layering: number;
   u_edges: number;
   u_caustic: number;
@@ -129,7 +127,6 @@ export interface WaterParams extends ShaderSizingParams, ShaderMotionParams {
   colorBack?: string;
   highlights?: number;
   temperature?: number;
-  distortion?: number;
   layering?: number;
   edges?: number;
   caustic?: number;

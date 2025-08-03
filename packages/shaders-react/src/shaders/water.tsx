@@ -19,23 +19,82 @@ export const defaultPreset: WaterPreset = {
   name: 'Default',
   params: {
     ...defaultObjectSizing,
-    scale: 0.85,
+    scale: 0.9,
     speed: 1,
     frame: 0,
     colorBack: '#0db5a7',
-    image: '/images/085.png',
+    image: '/images/087.png',
     highlights: 0.2,
     temperature: 0.5,
-    distortion: 1,
     layering: 0.5,
     edges: 0.15,
-    waves: 0.3,
-    caustic: 0.3,
-    effectScale: 10,
+    waves: 0.15,
+    caustic: 0.2,
+    effectScale: 11,
   },
 };
 
-export const waterPresets: WaterPreset[] = [defaultPreset];
+export const tilePreset: WaterPreset = {
+  name: 'Tiles',
+  params: {
+    ...defaultObjectSizing,
+    fit: 'cover',
+    scale: 1.02,
+    speed: 1,
+    frame: 0,
+    colorBack: '#ffffff',
+    image: '/images/069.jpg',
+    highlights: 0.2,
+    temperature: 0.5,
+    layering: 1,
+    edges: 0,
+    waves: 0,
+    caustic: 0.1,
+    effectScale: 20,
+  },
+};
+
+export const flowersPreset: WaterPreset = {
+  name: 'Flowers',
+  params: {
+    ...defaultObjectSizing,
+    fit: 'contain',
+    scale: 0.75,
+    speed: 1,
+    frame: 0,
+    colorBack: '#ffffff',
+    image: '/images/031.jpg',
+    highlights: 0.2,
+    temperature: 0.5,
+    layering: 1,
+    edges: 0.25,
+    waves: 0,
+    caustic: 0.1,
+    effectScale: 20,
+  },
+};
+
+export const palmsPreset: WaterPreset = {
+  name: 'Palms',
+  params: {
+    ...defaultObjectSizing,
+    fit: 'cover',
+    scale: 1.25,
+    speed: 1,
+    frame: 0,
+    colorBack: '#ffffff',
+    image: '/images/083.jpg',
+    highlights: 0.2,
+    temperature: 0,
+    layering: 0.35,
+    edges: 0,
+    waves: 0.4,
+    caustic: 0.11,
+    effectScale: 15,
+  },
+};
+
+export const waterPresets: WaterPreset[] = [defaultPreset, flowersPreset, tilePreset, palmsPreset];
 
 export const Water: React.FC<WaterProps> = memo(function WaterImpl({
   // Own props
@@ -45,7 +104,6 @@ export const Water: React.FC<WaterProps> = memo(function WaterImpl({
   image = defaultPreset.params.image,
   highlights = defaultPreset.params.highlights,
   temperature = defaultPreset.params.temperature,
-  distortion = defaultPreset.params.distortion,
   layering = defaultPreset.params.layering,
   waves = defaultPreset.params.waves,
   edges = defaultPreset.params.edges,
@@ -70,7 +128,6 @@ export const Water: React.FC<WaterProps> = memo(function WaterImpl({
     u_colorBack: getShaderColorFromString(colorBack),
     u_highlights: highlights,
     u_temperature: temperature,
-    u_distortion: distortion,
     u_layering: layering,
     u_waves: waves,
     u_edges: edges,

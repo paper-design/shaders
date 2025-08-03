@@ -13,13 +13,6 @@ import { useState, useEffect, useCallback } from 'react';
 import { toHsla } from '@/helpers/to-hsla';
 
 /**
- * You can copy/paste this example to use PaperTexture in your app
- */
-const PaperTextureExample = () => {
-  return <PaperTexture style={{ position: 'fixed', width: '100%', height: '100%' }} />;
-};
-
-/**
  * This example has controls added so you can play with settings in the example app
  */
 
@@ -31,26 +24,27 @@ const PaperTextureWithControls = () => {
   const [status, setStatus] = useState('Click to load an image');
 
   const imageFiles = [
-    '086.png',
-    '085.png',
+      '068.jpg',
+      // '086.png',
+      '040.jpg',
+      '049.jpg',
+      '059.jpg',
+      '06.jpg',
+      '030.jpg',
+      '063.jpg',
+      '023.jpg',
+      '048.jpg',
+
+      '085.png',
     '072.jpg',
     '073.jpg',
     '074.jpg',
-    '075.jpg',
-    '062.jpg',
     '083.jpg',
 
-    '068.jpg',
-    '040.jpg',
 
-    '049.jpg',
-    '054.jpg',
-    '059.jpg',
     '060.jpg',
 
     '02.jpg',
-    '06.jpg',
-    '030.jpg',
     '031.jpg',
     '032.jpg',
     '034.jpg',
@@ -62,7 +56,6 @@ const PaperTextureWithControls = () => {
     '057.jpg',
     '058.jpg',
     '061.jpg',
-    '063.jpg',
     '064.jpg',
     '065.jpg',
     '066.jpg',
@@ -76,7 +69,6 @@ const PaperTextureWithControls = () => {
     '019.jpg',
     '020.jpg',
     '022.jpg',
-    '023.jpg',
     '024.jpg',
     '025.jpg',
     '027.jpg',
@@ -90,7 +82,6 @@ const PaperTextureWithControls = () => {
     '041.jpg',
     '046.jpg',
     '047.jpg',
-    '048.jpg',
   ] as const;
 
   const fileName = imageIdx >= 0 ? imageFiles[imageIdx] : null;
@@ -160,16 +151,6 @@ const PaperTextureWithControls = () => {
           order: 2,
           collapsed: true,
         }
-      ),
-      Fit: folder(
-        {
-          fit: { value: defaults.fit, options: Object.keys(ShaderFitOptions) as ShaderFit[], order: 404 },
-          worldWidth: { value: 0, min: 0, max: 5120, order: 405 },
-          worldHeight: { value: 0, min: 0, max: 5120, order: 406 },
-          originX: { value: defaults.originX, min: 0, max: 1, order: 407 },
-          originY: { value: defaults.originY, min: 0, max: 1, order: 408 },
-        },
-        { order: 0 }
       ),
       Image: folder(
         {
