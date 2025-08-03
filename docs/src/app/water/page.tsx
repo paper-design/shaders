@@ -37,7 +37,6 @@ const WaterWithControls = () => {
     '040.jpg',
     '066.jpg',
 
-
     // '087.png',
     '086.png',
     '085.png',

@@ -31,30 +31,26 @@ const FlutedGlassWithControls = () => {
   const [status, setStatus] = useState('Click to load an image');
 
   const imageFiles = [
-    '083.jpg',
-    '082.jpg',
-    '072.jpg',
     '075.jpg',
+    '072.jpg',
+    '030.jpg',
     '074.jpg',
     '068.jpg',
-    '037.jpg',
     '070.jpg',
-
+    '083.jpg',
     '049.jpg',
     '059.jpg',
     '060.jpg',
-    '066.jpg',
     '031.jpg',
     '032.jpg',
     '034.jpg',
-    '030.jpg',
     '006.jpg',
-
+    '082.jpg',
+    '037.jpg',
     '028.jpg',
     '038.jpg',
+    '088.jpg',
     '039.jpg',
-    '043.jpg',
-    '044.jpg',
     '047.jpg',
     '048.jpg',
   ] as const;
@@ -113,7 +109,7 @@ const FlutedGlassWithControls = () => {
       Image: folder(
         {
           'fit': { value: defaults.fit, options: ['contain', 'cover'] as ShaderFit[], order: 100 },
-          'scale': { value: defaults.scale, min: 0.01, max: 4, order: 101 },
+          'scale': { value: defaults.scale, min: 1, max: 4, order: 101 },
           'marginLeft': { value: defaults.marginLeft, min: 0, max: 1, order: 200 },
           'marginRight': { value: defaults.marginRight, min: 0, max: 1, order: 201 },
           'marginTop': { value: defaults.marginTop, min: 0, max: 1, order: 202 },

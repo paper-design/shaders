@@ -19,7 +19,6 @@ export const defaultPreset: FlutedGlassPreset = {
   name: 'Default',
   params: {
     ...defaultObjectSizing,
-    scale: 0.85,
     speed: 0,
     frame: 0,
     image: '/images/049.jpg',
@@ -39,7 +38,76 @@ export const defaultPreset: FlutedGlassPreset = {
   },
 };
 
-export const flutedGlassPresets: FlutedGlassPreset[] = [defaultPreset];
+export const wavesPreset: FlutedGlassPreset = {
+  name: 'Waves',
+  params: {
+    ...defaultObjectSizing,
+    speed: 0,
+    frame: 0,
+    image: '/images/060.jpg',
+    grid: 22,
+    gridRotation: 45,
+    distortionShape: 'type #2',
+    gridShape: 'wave',
+    distortion: 0.4,
+    shift: 0,
+    frost: 0,
+    blur: 3,
+    gridLines: 0,
+    marginLeft: 0,
+    marginRight: 0,
+    marginTop: 0,
+    marginBottom: 0,
+  },
+};
+
+export const irregularPreset: FlutedGlassPreset = {
+  name: 'Irregular lines',
+  params: {
+    ...defaultObjectSizing,
+    speed: 0,
+    frame: 0,
+    image: '/images/059.jpg',
+    grid: 60,
+    gridRotation: 60,
+    distortionShape: 'type #3',
+    gridShape: 'linesIrregular',
+    distortion: 1,
+    shift: 0,
+    frost: 0,
+    blur: 3,
+    gridLines: 0,
+    marginLeft: 0,
+    marginRight: 0,
+    marginTop: 0,
+    marginBottom: 0,
+  },
+};
+
+export const foldsPreset: FlutedGlassPreset = {
+  name: 'Folds',
+  params: {
+    ...defaultObjectSizing,
+    speed: 0,
+    frame: 0,
+    image: '/images/075.jpg',
+    grid: 40,
+    gridRotation: 0,
+    distortionShape: 'type #4',
+    gridShape: 'lines',
+    distortion: 0.4,
+    shift: 0,
+    frost: 0,
+    blur: 3,
+    gridLines: 0,
+    marginLeft: 0,
+    marginRight: 0,
+    marginTop: 0,
+    marginBottom: 0,
+  },
+};
+
+export const flutedGlassPresets: FlutedGlassPreset[] = [defaultPreset, wavesPreset, irregularPreset, foldsPreset];
 
 export const FlutedGlass: React.FC<FlutedGlassProps> = memo(function FlutedGlassImpl({
   // Own props

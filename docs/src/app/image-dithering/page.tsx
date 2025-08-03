@@ -25,18 +25,18 @@ const ImageDitheringWithControls = () => {
 
   const imageFiles = [
     '083.jpg',
+    '088.jpg',
+    '030.jpg',
 
     '074.jpg',
     '075.jpg',
     '068.jpg',
-    '054.jpg',
     '059.jpg',
     '060.jpg',
 
+    '054.jpg',
     '031.jpg',
-    '030.jpg',
     '032.jpg',
-    '058.jpg',
     '061.jpg',
     '063.jpg',
     '019.jpg',
@@ -46,12 +46,8 @@ const ImageDitheringWithControls = () => {
     '041.jpg',
     '042.jpg',
     '043.jpg',
-    '044.jpg',
-    '046.jpg',
-    '047.jpg',
-    '048.jpg',
     '082.jpg',
-
+    '046.jpg',
   ] as const;
 
   const fileName = imageIdx >= 0 ? imageFiles[imageIdx] : null;
@@ -97,7 +93,7 @@ const ImageDitheringWithControls = () => {
       Image: folder(
         {
           'fit': { value: defaults.fit, options: ['contain', 'cover'] as ShaderFit[], order: 100 },
-          'scale': { value: defaults.scale, min: 0.01, max: 4, order: 101 },
+          'scale': { value: defaults.scale, min: 0.5, max: 4, order: 101 },
           // rotation: {value: defaults.rotation, min: 0, max: 360, order: 401},
           // offsetX: {value: defaults.offsetX, min: -1, max: 1, order: 402},
           // offsetY: {value: defaults.offsetY, min: -1, max: 1, order: 403},

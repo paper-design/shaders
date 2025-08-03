@@ -178,7 +178,8 @@ vec2 folds(vec2 uv) {
 void main() {
 
   vec2 imageUV = v_imageUV;
-  vec2 patternUV = 5. * (v_imageUV / vec2(1., u_imageAspectRatio) - .5);
+  vec2 patternUV = v_imageUV - .5;
+  patternUV = 5. * (patternUV * vec2(u_imageAspectRatio, 1.));
 
   vec2 grainUv = 1.5 * (gl_FragCoord.xy - .5 * u_resolution) / u_pixelRatio;
   float grain = grain_fbm(grainUv + vec2(1., 0.)) - grain_fbm(grainUv - vec2(1., 0.));
