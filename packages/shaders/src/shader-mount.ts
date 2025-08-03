@@ -308,6 +308,14 @@ export class ShaderMount {
       this.gl.deleteTexture(existingTexture);
     }
 
+    // Get texture unit
+    if (!this.textureUnitMap.has(uniformName)) {
+      this.textureUnitMap.set(uniformName, this.textureUnitMap.size);
+    }
+    const textureUnit = this.textureUnitMap.get(uniformName)!;
+    // Activate correct texture unit before creating the texture
+    this.gl.activeTexture(this.gl.TEXTURE0 + textureUnit);
+
     // Create and set up the new texture
     const texture = this.gl.createTexture();
     this.gl.bindTexture(this.gl.TEXTURE_2D, texture);
@@ -332,12 +340,6 @@ export class ShaderMount {
     // Set up texture unit and uniform
     const location = this.uniformLocations[uniformName];
     if (location) {
-      if (!this.textureUnitMap.has(uniformName)) {
-        this.textureUnitMap.set(uniformName, this.textureUnitMap.size);
-      }
-      const textureUnit = this.textureUnitMap.get(uniformName)!;
-      this.gl.activeTexture(this.gl.TEXTURE0 + textureUnit);
-      this.gl.bindTexture(this.gl.TEXTURE_2D, texture);
       this.gl.uniform1i(location, textureUnit);
 
       // Calculate and set the aspect ratio uniform
@@ -348,13 +350,6 @@ export class ShaderMount {
         this.gl.uniform1f(aspectRatioLocation, aspectRatio);
       }
     }
-
-    // Rebind all the textures
-    this.textures.forEach((texture, uniformName) => {
-      const textureUnit = this.textureUnitMap.get(uniformName)!;
-      this.gl.activeTexture(this.gl.TEXTURE0 + textureUnit);
-      this.gl.bindTexture(this.gl.TEXTURE_2D, texture);
-    });
   };
 
   /** Utility: recursive equality test for all the uniforms */
