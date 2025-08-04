@@ -58,7 +58,7 @@ void main() {
   float stripe = fract(offset);
   
   float shape = 2. * abs(stripe - .5);
-  float width = clamp(u_strokeWidth, .005 * u_strokeTaper, 1.);
+  float width = 1. - clamp(u_strokeWidth, .005 * u_strokeTaper, 1.);
 
 
   float wCap = mix(width, (1. - stripe) * (1. - step(.5, stripe)), (1. - clamp(l, 0., 1.)));

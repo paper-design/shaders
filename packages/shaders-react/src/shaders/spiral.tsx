@@ -20,17 +20,17 @@ export const defaultPreset: SpiralPreset = {
   params: {
     ...defaultPatternSizing,
     scale: 1.3,
-    colorBack: '#a1ef2a',
-    colorFront: '#288918',
-    density: 0.5,
+    colorBack: '#001429',
+    colorFront: '#79D1FF',
+    density: 1,
     distortion: 0,
     strokeWidth: 0.5,
     strokeTaper: 0,
     strokeCap: 0,
-    noise: 1,
-    noiseFrequency: 0.25,
+    noise: 0,
+    noiseFrequency: 0,
     softness: 0,
-    speed: 0.75,
+    speed: 1,
     frame: 0,
   },
 };
@@ -43,7 +43,7 @@ export const dropletPreset: SpiralPreset = {
     colorFront: '#bf40a0',
     density: 0.9,
     distortion: 0,
-    strokeWidth: 0.25,
+    strokeWidth: 0.75,
     strokeTaper: 0.18,
     strokeCap: 1,
     noise: 0.74,
@@ -54,22 +54,22 @@ export const dropletPreset: SpiralPreset = {
   },
 };
 
-export const sandPreset: SpiralPreset = {
-  name: 'Sand',
+export const junglePreset: SpiralPreset = {
+  name: 'Jungle',
   params: {
     ...defaultPatternSizing,
-    scale: 0.7,
-    colorBack: '#ffffff',
-    colorFront: '#a09560',
-    density: 1,
+    scale: 1.3,
+    density: 0.5,
+    colorBack: '#a0ef2a',
+    colorFront: '#288b18',
     distortion: 0,
     strokeWidth: 0.5,
     strokeTaper: 0,
     strokeCap: 0,
     noise: 1,
-    noiseFrequency: 1,
-    softness: 1,
-    speed: 0,
+    noiseFrequency: 0.25,
+    softness: 0,
+    speed: 0.75,
     frame: 0,
   },
 };
@@ -94,7 +94,7 @@ export const swirlPreset: SpiralPreset = {
   },
 };
 
-export const spiralPresets: SpiralPreset[] = [defaultPreset, sandPreset, dropletPreset, swirlPreset];
+export const spiralPresets: SpiralPreset[] = [defaultPreset, junglePreset, dropletPreset, swirlPreset];
 
 export const Spiral: React.FC<SpiralProps> = memo(function SpiralImpl({
   // Own props
