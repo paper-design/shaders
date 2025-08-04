@@ -113,6 +113,7 @@ export interface TartanUniforms extends ShaderSizingUniforms {
 }
 
 export interface TartanParams extends ShaderSizingParams {
+  stripeCount?: number;
   stripeColors?: string[];
   stripeWidths?: number[];
   weaveSize?: number;

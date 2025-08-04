@@ -19,8 +19,9 @@ export const defaultPreset: TartanPreset = {
   name: 'Default',
   params: {
     ...defaultPatternSizing,
+    stripeCount: 6,
     stripeColors: ['#19600b', '#aa0909', '#19600b', '#083a0f', '#c3a855', '#083a0f'],
-    stripeWidths: [30, 4, 40, 30, 1, 30],
+    stripeWidths: [15, 2, 20, 15, 1, 15],
     weaveSize: 3.0,
     weaveStrength: 0.25,
   },
@@ -30,6 +31,7 @@ export const tartanPresets: TartanPreset[] = [defaultPreset];
 
 export const Tartan: React.FC<TartanProps> = memo(function TartanImpl({
   // Own props
+  stripeCount = defaultPreset.params.stripeCount,
   stripeColors = defaultPreset.params.stripeColors,
   stripeWidths = defaultPreset.params.stripeWidths,
   weaveSize = defaultPreset.params.weaveSize,
@@ -49,9 +51,9 @@ export const Tartan: React.FC<TartanProps> = memo(function TartanImpl({
 }: TartanProps) {
   const uniforms = {
     // Own uniforms
+    u_stripeCount: stripeCount,
     u_stripeColors: stripeColors.map(getShaderColorFromString),
     u_stripeWidths: stripeWidths,
-    u_stripeCount: stripeColors.length,
     u_weaveSize: weaveSize,
     u_weaveStrength: weaveStrength,
 
