@@ -27,7 +27,19 @@ export const defaultPreset: TartanPreset = {
   },
 };
 
-export const tartanPresets: TartanPreset[] = [defaultPreset];
+export const colorfulPreset: TartanPreset = {
+  name: 'Colorful',
+  params: {
+    ...defaultPatternSizing,
+    stripeCount: 9,
+    stripeColors: ['#cc3333', '#cc9933', '#99cc33', '#33cc33', '#33cc99', '#3399cc', '#3333cc', '#9933cc', '#cc3399'],
+    stripeWidths: [1, 2, 2, 2, 2, 2, 2, 2, 1],
+    weaveSize: 6.0,
+    weaveStrength: 0.25,
+  },
+};
+
+export const tartanPresets: TartanPreset[] = [defaultPreset, colorfulPreset];
 
 export const Tartan: React.FC<TartanProps> = memo(function TartanImpl({
   // Own props
