@@ -1,157 +1,162 @@
 'use client';
 
 import { BackButton } from '@/components/back-button';
-import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
-import { toHsla } from '@/helpers/to-hsla';
-import { usePresetHighlight } from '@/helpers/use-preset-highlight';
-import { setParamsSafe, useResetLevaParams } from '@/helpers/use-reset-leva-params';
+import { createNumberedObject } from '@/helpers/create-numbered-object';
+import { getValuesSortedByKey } from '@/helpers/get-values-sorted-by-key';
 import { type ShaderFit, ShaderFitOptions, tartanMeta } from '@paper-design/shaders';
 import { Tartan, tartanPresets } from '@paper-design/shaders-react';
-import { button, folder, useControls } from 'leva';
+import { button, folder, levaStore, useControls } from 'leva';
+import type { Schema } from 'leva/dist/declarations/src/types';
 import Link from 'next/link';
+import { useEffect } from 'react';
 
-/**
- * You can copy/paste this example to use Tartan in your app
- */
-const TartanExample = () => {
-  return <Tartan style={{ position: 'fixed', width: '100%', height: '100%' }} />;
-};
+const defaults = tartanPresets[0].params;
 
 /**
  * This example has controls added so you can play with settings in the example app
  */
-
-const defaults = tartanPresets[0].params;
-
 const TartanWithControls = () => {
-  const [{ count: stripeCount }, setStripeCount] = useControls(() => ({
+  // Presets
+  useControls({
+    Presets: folder(
+      Object.fromEntries(
+        tartanPresets.map(({ name, params: { worldWidth, worldHeight, ...preset } }) => [
+          name,
+          button(() => {
+            const { stripeColors, stripeWidths, ...presetParams } = preset;
+            setParams(presetParams);
+            setColors(
+              createNumberedObject('color', tartanMeta.maxStripeCount, (i) => stripeColors[i % stripeColors.length])
+            );
+            setWidths(
+              createNumberedObject('width', tartanMeta.maxStripeCount, (i) => stripeWidths[i % stripeWidths.length])
+            );
+          }),
+        ])
+      ),
+      {
+        order: -1,
+        collapsed: false,
+      }
+    ),
+  });
+
+  // Scalar parameters
+  const [params, setParams] = useControls(() => ({
+    Parameters: folder(
+      {
+        weaveSize: {
+          value: defaults.weaveSize,
+          min: 1.0,
+          max: 10.0,
+          step: 0.25,
+          order: 0,
+        },
+        weaveStrength: {
+          value: defaults.weaveStrength,
+          min: 0.0,
+          max: 1.0,
+          step: 0.05,
+          order: 1,
+        },
+      },
+      {
+        order: 0,
+        collapsed: false,
+      }
+    ),
     Stripes: folder(
       {
-        count: {
-          value: defaults.stripeColors.length,
+        stripeCount: {
+          value: defaults.stripeCount,
           min: 2,
           max: tartanMeta.maxStripeCount,
           step: 1,
           order: 0,
+          label: 'count',
         },
       },
-      { order: 1 }
+      {
+        order: 1,
+        collapsed: false,
+      }
+    ),
+    Transform: folder(
+      {
+        scale: { value: defaults.scale, min: 0.01, max: 4, order: 400 },
+        rotation: { value: defaults.rotation, min: 0, max: 360, order: 401 },
+        offsetX: { value: defaults.offsetX, min: -1, max: 1, order: 402 },
+        offsetY: { value: defaults.offsetY, min: -1, max: 1, order: 403 },
+      },
+      {
+        order: 2,
+        collapsed: false,
+      }
+    ),
+    Fit: folder(
+      {
+        fit: { value: defaults.fit, options: Object.keys(ShaderFitOptions) as ShaderFit[], order: 404 },
+        worldWidth: { value: 1000, min: 0, max: 5120, order: 405 },
+        worldHeight: { value: 500, min: 0, max: 5120, order: 406 },
+        originX: { value: defaults.originX, min: 0, max: 1, order: 407 },
+        originY: { value: defaults.originY, min: 0, max: 1, order: 408 },
+      },
+      {
+        order: 3,
+        collapsed: true,
+      }
     ),
   }));
 
-  const [colors, setColors] = useControls(() => {
-    const stripe: Record<string, { value: string; [key: string]: unknown }> = {};
+  // Stripe colors
+  const [colors, setColors] = useControls(
+    () => ({
+      Stripes: folder({
+        ...createNumberedObject(
+          'color',
+          tartanMeta.maxStripeCount,
+          (i) =>
+            ({
+              label: `color${i + 1}`,
+              order: i * 2 + 1,
+              render: () => params.stripeCount > i,
+              value: defaults.stripeColors[i % defaults.stripeColors.length],
+            }) satisfies Schema[string]
+        ),
+      }),
+    }),
+    [params.stripeCount]
+  );
 
-    for (let i = 0; i < stripeCount; i++) {
-      stripe[`color${i + 1}`] = {
-        value: defaults.stripeColors[i] ? toHsla(defaults.stripeColors[i]) : `hsla(${(40 * i) % 360}, 60%, 50%, 1)`,
-        order: 1 + i * 2,
-      };
-    }
+  // Stripe widths
+  const [widths, setWidths] = useControls(
+    () => ({
+      Stripes: folder({
+        ...createNumberedObject(
+          'width',
+          tartanMeta.maxStripeCount,
+          (i) =>
+            ({
+              label: `width${i + 1}`,
+              max: 100,
+              min: 1,
+              order: i * 2 + 2,
+              render: () => params.stripeCount > i,
+              step: 1,
+              value: defaults.stripeWidths[i % defaults.stripeWidths.length],
+            }) satisfies Schema[string]
+        ),
+      }),
+    }),
+    [params.stripeCount]
+  );
 
-    return {
-      Stripes: folder(stripe),
+  // Clear the Leva store when the component unmounts.
+  useEffect(() => {
+    return () => {
+      levaStore.dispose();
     };
-  }, [stripeCount]);
-
-  const [widths, setWidths] = useControls(() => {
-    const stripe: Record<string, { value: number; [key: string]: unknown }> = {};
-
-    for (let i = 0; i < stripeCount; i++) {
-      stripe[`width${i + 1}`] = {
-        value: defaults.stripeWidths[i],
-        min: 1,
-        max: 400,
-        step: 1,
-        order: 1 + i * 2 + 1,
-      };
-    }
-
-    return {
-      Stripes: folder(stripe),
-    };
-  }, [stripeCount]);
-
-  const [params, setParams] = useControls(() => {
-    return {
-      Parameters: folder(
-        {
-          weaveSize: {
-            value: defaults.weaveSize,
-            min: 1.0,
-            max: 10.0,
-            step: 0.25,
-            order: 0,
-          },
-          weaveStrength: {
-            value: defaults.weaveStrength,
-            min: 0.0,
-            max: 1.0,
-            step: 0.05,
-            order: 1,
-          },
-        },
-        {
-          order: 0,
-          collapsed: false,
-        }
-      ),
-      Transform: folder(
-        {
-          scale: { value: defaults.scale, min: 0.01, max: 4, order: 400 },
-          rotation: { value: defaults.rotation, min: 0, max: 360, order: 401 },
-          offsetX: { value: defaults.offsetX, min: -1, max: 1, order: 402 },
-          offsetY: { value: defaults.offsetY, min: -1, max: 1, order: 403 },
-        },
-        {
-          order: 2,
-          collapsed: false,
-        }
-      ),
-      Fit: folder(
-        {
-          fit: { value: defaults.fit, options: Object.keys(ShaderFitOptions) as ShaderFit[], order: 404 },
-          worldWidth: { value: 1000, min: 0, max: 5120, order: 405 },
-          worldHeight: { value: 500, min: 0, max: 5120, order: 406 },
-          originX: { value: defaults.originX, min: 0, max: 1, order: 407 },
-          originY: { value: defaults.originY, min: 0, max: 1, order: 408 },
-        },
-        {
-          order: 3,
-          collapsed: true,
-        }
-      ),
-    };
-  });
-
-  useControls(() => {
-    const presets = Object.fromEntries(
-      tartanPresets.map(({ name, params: { worldWidth, worldHeight, ...preset } }) => [
-        name,
-        button(() => {
-          const { stripeColors, stripeWidths, ...presetParams } = preset;
-          setStripeCount({ count: stripeColors.length });
-          setColors(
-            Object.fromEntries(stripeColors.map((value, i) => [`color${i + 1}`, toHsla(value)])) as unknown as Record<
-              string,
-              { value: string; [key: string]: unknown }
-            >
-          );
-          setWidths(Object.fromEntries(stripeWidths.map((value, i) => [`width${i + 1}`, value])));
-          setParamsSafe(params, setParams, presetParams);
-        }),
-      ])
-    );
-    return {
-      Presets: folder(presets, { order: -1 }),
-    };
-  });
-
-  // Reset to defaults on mount, so that Leva doesn't show values from other
-  // shaders when navigating (if two shaders have a color1 param for example)
-  useResetLevaParams(params, setParams, defaults);
-  usePresetHighlight(tartanPresets, params);
-  cleanUpLevaParams(params);
+  }, []);
 
   return (
     <>
@@ -160,8 +165,8 @@ const TartanWithControls = () => {
       </Link>
       <Tartan
         {...params}
-        stripeColors={Object.values(colors) as unknown as Array<string>}
-        stripeWidths={[...Object.values(widths), ...Array(9 - stripeCount).fill(0)]}
+        stripeColors={getValuesSortedByKey(colors)}
+        stripeWidths={getValuesSortedByKey(widths)}
         className="fixed size-full"
       />
     </>
