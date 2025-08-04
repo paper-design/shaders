@@ -54,8 +54,8 @@ export const tilePreset: WaterPreset = {
   },
 };
 
-export const flowersPreset: WaterPreset = {
-  name: 'Flowers',
+export const causticPreset: WaterPreset = {
+  name: 'Caustic',
   params: {
     ...defaultObjectSizing,
     fit: 'contain',
@@ -74,8 +74,8 @@ export const flowersPreset: WaterPreset = {
   },
 };
 
-export const palmsPreset: WaterPreset = {
-  name: 'Palms',
+export const distortionPreset: WaterPreset = {
+  name: 'Distortion',
   params: {
     ...defaultObjectSizing,
     fit: 'cover',
@@ -83,18 +83,18 @@ export const palmsPreset: WaterPreset = {
     speed: 1,
     frame: 0,
     colorBack: '#ffffff',
-    image: '/images/083.jpg',
-    highlights: 0.2,
+    image: '/images/066.jpg',
+    highlights: 0,
     temperature: 0,
     layering: 0.35,
     edges: 0,
     waves: 0.4,
     caustic: 0.11,
-    effectScale: 15,
+    effectScale: 19,
   },
 };
 
-export const waterPresets: WaterPreset[] = [defaultPreset, flowersPreset, tilePreset, palmsPreset];
+export const waterPresets: WaterPreset[] = [defaultPreset, causticPreset, tilePreset, distortionPreset];
 
 export const Water: React.FC<WaterProps> = memo(function WaterImpl({
   // Own props

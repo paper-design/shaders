@@ -32,7 +32,7 @@ uniform mediump float u_imageAspectRatio;
 uniform float u_type;
 uniform float u_pxSize;
 uniform bool u_ownPalette;
-uniform float u_stepsPerColor;
+uniform float u_colorSteps;
 
 out vec4 fragColor;
 
@@ -108,7 +108,7 @@ void main() {
   float lum = dot(vec3(.2126, .7152, .0722), image.rgb);
 
 
-  float steps = ceil(u_stepsPerColor);
+  float steps = ceil(u_colorSteps);
   vec3 color = vec3(0.);
   float opacity = 1.;
   if (u_ownPalette == true) {
@@ -151,7 +151,7 @@ export interface ImageDitheringUniforms extends ShaderSizingUniforms {
   u_colorBack: [number, number, number, number];
   u_type: (typeof DitheringTypes)[DitheringType];
   u_pxSize: number;
-  u_stepsPerColor: number;
+  u_colorSteps: number;
   u_ownPalette: boolean;
 }
 
@@ -161,7 +161,7 @@ export interface ImageDitheringParams extends ShaderSizingParams, ShaderMotionPa
   colorBack?: string;
   type?: DitheringType;
   pxSize?: number;
-  stepsPerColor?: number;
+  colorSteps?: number;
   ownPalette?: boolean;
 }
 
