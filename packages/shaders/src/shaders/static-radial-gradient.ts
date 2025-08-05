@@ -160,6 +160,7 @@ void main() {
   float bb = grainShape(grainUV, vec2(2.));
   vec3 grainColor = 2. * vec3(rr, gg, bb);
   color = mix(color, grainColor, u_grainOverlay * grain);
+  opacity += u_grainOverlay * grain;
   
   ${colorBandingFix}
 
