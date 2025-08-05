@@ -52,8 +52,7 @@ float neuroShape(vec2 uv, float t) {
 
 void main() {
   vec2 shape_uv = v_patternUV;
-
-  shape_uv *= .0013;
+  shape_uv *= .13;
 
   float t = .5 * u_time;
 

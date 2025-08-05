@@ -1,7 +1,7 @@
 import type { vec4 } from '../types.js';
 import type { ShaderMotionParams } from '../shader-mount.js';
 import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
-import { declarePI, declareRandom, declareValueNoise, declareRotate, colorBandingFix } from '../shader-utils.js';
+import { declarePI, declareValueNoise, declareRotate, colorBandingFix } from '../shader-utils.js';
 
 export const warpMeta = {
   maxColorCount: 10,
@@ -22,6 +22,8 @@ export const warpMeta = {
  * - u_distortion: value noise distortion over the UV coordinate
  * - u_swirl, u_swirlIterations: swirly distortion (layering curves effect)
  *
+ * - u_noiseTexture (sampler2D): pre-computed randomizer source
+ *
  */
 
 // language=GLSL
@@ -30,6 +32,8 @@ precision mediump float;
 
 uniform float u_time;
 uniform float u_scale;
+
+uniform sampler2D u_noiseTexture;
 
 uniform vec4 u_colors[${warpMeta.maxColorCount}];
 uniform float u_colorsCount;
@@ -46,14 +50,18 @@ ${sizingVariablesDeclaration}
 out vec4 fragColor;
 
 ${declarePI}
-${declareRandom}
+
+float random(vec2 p) {
+  vec2 uv = floor(p) / 100. + .5;
+  return texture(u_noiseTexture, uv).g;
+}
 ${declareRotate}
 ${declareValueNoise}
 
 
 void main() {
   vec2 uv = v_patternUV;
-  uv *= .005;
+  uv *= .5;
 
   float t = 0.0625 * u_time;
 
@@ -63,10 +71,13 @@ void main() {
   uv.x += 4. * u_distortion * n2 * cos(angle);
   uv.y += 4. * u_distortion * n2 * sin(angle);
 
-  float iterationsNumber = ceil(clamp(u_swirlIterations, 1., 30.));
-  for (float i = 1.; i <= iterationsNumber; i++) {
-    uv.x += clamp(u_swirl, 0., 2.) / i * cos(t + i * 1.5 * uv.y);
-    uv.y += clamp(u_swirl, 0., 2.) / i * cos(t + i * 1. * uv.x);
+  float swirl = u_swirl;
+  for (int i = 1; i <= 20; i++) {
+    if (i >= int(u_swirlIterations)) break;
+    float iFloat = float(i);
+//    swirl *= (1. - smoothstep(.0, .25, length(fwidth(uv))));
+    uv.x += swirl / iFloat * cos(t + iFloat * 1.5 * uv.y);
+    uv.y += swirl / iFloat * cos(t + iFloat * 1. * uv.x);
   }
 
   float proportion = clamp(u_proportion, 0., 1.);
@@ -89,19 +100,21 @@ void main() {
   float mixer = shape * (u_colorsCount - 1.);
   vec4 gradient = u_colors[0];
   gradient.rgb *= gradient.a;
+  float aa = fwidth(shape);
   for (int i = 1; i < ${warpMeta.maxColorCount}; i++) {
     if (i >= int(u_colorsCount)) break;
-    float localMixer = clamp(mixer - float(i - 1), 0.0, 1.0);
+    float m = clamp(mixer - float(i - 1), 0.0, 1.0);
 
-    float localMixerStart = floor(localMixer);
-    float smoothed = smoothstep(.5 - u_softness * .5, .5 + u_softness * .5, localMixer - localMixerStart);
-    float localTStepped = localMixerStart + smoothed;
+    float localMixerStart = floor(m);
+    float softness = .5 * u_softness + fwidth(m);
+    float smoothed = smoothstep(max(0., .5 - softness - aa), min(1., .5 + softness + aa), m - localMixerStart);
+    float stepped = localMixerStart + smoothed;
 
-    localMixer = mix(localTStepped, localMixer, u_softness);
+    m = mix(stepped, m, u_softness);
 
     vec4 c = u_colors[i];
     c.rgb *= c.a;
-    gradient = mix(gradient, c, localMixer);
+    gradient = mix(gradient, c, m);
   }
 
   vec3 color = gradient.rgb;
@@ -123,6 +136,7 @@ export interface WarpUniforms extends ShaderSizingUniforms {
   u_distortion: number;
   u_swirl: number;
   u_swirlIterations: number;
+  u_noiseTexture?: HTMLImageElement;
 }
 
 export interface WarpParams extends ShaderSizingParams, ShaderMotionParams {

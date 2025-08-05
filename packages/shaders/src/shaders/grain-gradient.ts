@@ -99,7 +99,7 @@ vec2 truchet(vec2 uv, float idx){
 void main() {
 
   float t = .1 * u_time;
-    
+
   vec2 shape_uv = vec2(0.);
   vec2 grain_uv = vec2(0.);
 
@@ -110,20 +110,20 @@ void main() {
     // apply inverse transform to grain_uv so it respects the originXY
     float r = u_rotation * 3.14159265358979323846 / 180.;
     mat2 graphicRotation = mat2(cos(r), sin(r), -sin(r), cos(r));
-    vec2 graphicOffset = vec2(-u_offsetX, u_offsetY);    
+    vec2 graphicOffset = vec2(-u_offsetX, u_offsetY);
     grain_uv = transpose(graphicRotation) * grain_uv;
     grain_uv *= u_scale;
     grain_uv -= graphicOffset;
     grain_uv *= v_objectBoxSize;
     grain_uv *= .7;
   } else {
-    shape_uv = .005 * v_patternUV;
-    grain_uv = v_patternUV;
-    
+    shape_uv = .5 * v_patternUV;
+    grain_uv = 100. * v_patternUV;
+
     // apply inverse transform to grain_uv so it respects the originXY
     float r = u_rotation * 3.14159265358979323846 / 180.;
     mat2 graphicRotation = mat2(cos(r), sin(r), -sin(r), cos(r));
-    vec2 graphicOffset = vec2(-u_offsetX, u_offsetY);    
+    vec2 graphicOffset = vec2(-u_offsetX, u_offsetY);
     grain_uv = transpose(graphicRotation) * grain_uv;
     grain_uv *= u_scale;
     if (u_fit > 0.) {
@@ -164,7 +164,7 @@ void main() {
 
   } else if (u_shape < 3.5) {
     // Truchet pattern
-    
+
     float n2 = valueNoise(shape_uv * .4 - 3.75 * t);
     shape_uv.x += 10.;
     shape_uv *= .6;
@@ -245,10 +245,10 @@ void main() {
   shape += u_intensity * 2. / u_colorsCount * (grainDist + .5);
   shape += u_noise * 10. / u_colorsCount * noise;
 
-  float edge_w = fwidth(shape);
+  float aa = fwidth(shape);
 
   shape = clamp(shape - .5 / u_colorsCount, 0., 1.);
-  float totalShape = smoothstep(0., u_softness + 2. * edge_w, clamp(shape * u_colorsCount, 0., 1.));
+  float totalShape = smoothstep(0., u_softness + 2. * aa, clamp(shape * u_colorsCount, 0., 1.));
   float mixer = shape * (u_colorsCount - 1.);
 
   vec4 gradient = u_colors[0];
@@ -257,7 +257,7 @@ void main() {
     if (i > int(u_colorsCount) - 1) break;
 
     float localT = clamp(mixer - float(i - 1), 0., 1.);
-    localT = smoothstep(.5 - .5 * u_softness, .5 + .5 * u_softness + edge_w, localT);
+    localT = smoothstep(.5 - .5 * u_softness - aa, .5 + .5 * u_softness + aa, localT);
 
     vec4 c = u_colors[i];
     c.rgb *= c.a;
@@ -283,6 +283,7 @@ export interface GrainGradientUniforms extends ShaderSizingUniforms {
   u_intensity: number;
   u_noise: number;
   u_shape: (typeof GrainGradientShapes)[GrainGradientShape];
+  u_noiseTexture?: HTMLImageElement;
 }
 
 export interface GrainGradientParams extends ShaderSizingParams, ShaderMotionParams {

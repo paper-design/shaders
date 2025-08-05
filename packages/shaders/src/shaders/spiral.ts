@@ -12,7 +12,7 @@ import { declareSimplexNoise, declarePI, colorBandingFix } from '../shader-utils
  * - u_strokeTaper: stroke loosing width further from center (0 for full visibility)
  * - u_distortion: per-arch shift
  * - u_strokeCap: extra width at the center (no effect on u_strokeWidth = 0.5)
- * - u_noiseFrequency, u_noisePower: simplex noise distortion over the shape
+ * - u_noiseFrequency, u_noise: simplex noise distortion over the shape
  * - u_softness: color transition sharpness (0 = hard edge, 1 = smooth fade)
  *
  */
@@ -30,9 +30,8 @@ uniform float u_distortion;
 uniform float u_strokeWidth;
 uniform float u_strokeCap;
 uniform float u_strokeTaper;
-
+uniform float u_noise;
 uniform float u_noiseFrequency;
-uniform float u_noisePower;
 uniform float u_softness;
 
 ${sizingVariablesDeclaration}
@@ -43,48 +42,46 @@ ${declarePI}
 ${declareSimplexNoise}
 
 void main() {
-  vec2 shape_uv = v_patternUV * .02;
-
+  vec2 uv = 2. * v_patternUV;
+  
   float t = u_time;
+  float l = length(uv);
+  float density = clamp(u_density, 0., 1.);
+  l = pow(l, density);
+  float angle = atan(uv.y, uv.x) - t;
+  float angleNormalised = angle / TWO_PI;
 
-  float l = length(shape_uv);
-  float angle = atan(shape_uv.y, shape_uv.x) - 2. * t;
-  float angle_norm = angle / TWO_PI;
+  angleNormalised += .125 * u_noise * snoise(16. * pow(u_noiseFrequency, 3.) * uv);
 
-  angle_norm += .125 * u_noisePower * snoise(.5 * u_noiseFrequency * shape_uv);
+  float offset = l + angleNormalised;
+  offset -= u_distortion * (sin(4. * l - .5 * t) * cos(PI + l + .5 * t));
+  float stripe = fract(offset);
+  
+  float shape = 2. * abs(stripe - .5);
+  float width = 1. - clamp(u_strokeWidth, .005 * u_strokeTaper, 1.);
 
-  float offset = pow(l, 1. - clamp(u_density, 0., 1.)) + angle_norm;
 
-  float stripe_map = fract(offset);
-  stripe_map -= .5 * u_strokeTaper * l;
+  float wCap = mix(width, (1. - stripe) * (1. - step(.5, stripe)), (1. - clamp(l, 0., 1.)));
+  width = mix(width, wCap, u_strokeCap);
+  width *= (1. - clamp(u_strokeTaper, 0., 1.) * l);
 
-  stripe_map += .25 * u_noisePower * snoise(u_noiseFrequency * shape_uv);
+  float fw = fwidth(offset);
+  float fwMult = 4. - 3. * (smoothstep(.05, .4, 2. * u_strokeWidth) * smoothstep(.05, .4, 2. * (1. - u_strokeWidth)));
+  float pixelSize = mix(fwMult * fw, fwidth(shape), clamp(fw, 0., 1.));
+  pixelSize = mix(pixelSize, .002, u_strokeCap * (1. - clamp(l, 0., 1.)));
 
-  float shape = 2. * abs(stripe_map - .5);
-  float test = step(.5, stripe_map);
-
-  shape *= (1. + u_distortion * sin(4. * l - t) * cos(PI + l + t));
-
-  float stroke_width = clamp(u_strokeWidth, fwidth(l), 1. - fwidth(l));
-
-  float edge_width = min(fwidth(l), fwidth(offset));
-
-  float mid = 1. - smoothstep(.0, .9, l);
-  mid = pow(mid, 2.);
-  shape -= .5 * u_strokeCap * mid;
-
-  float res = smoothstep(stroke_width - edge_width - u_softness, stroke_width + edge_width + u_softness, shape);
+  float res = smoothstep(width - pixelSize - u_softness, width + pixelSize + u_softness, shape);
 
   vec3 fgColor = u_colorFront.rgb * u_colorFront.a;
   float fgOpacity = u_colorFront.a;
   vec3 bgColor = u_colorBack.rgb * u_colorBack.a;
   float bgOpacity = u_colorBack.a;
 
-  vec3 color = bgColor * res;
-  float opacity = bgOpacity * res;
+  vec3 color = fgColor * res;
+  float opacity = fgOpacity * res;
 
-  color += fgColor * (1. - opacity);
-  opacity += fgOpacity * (1. - opacity);
+  color += bgColor * (1. - opacity);
+  opacity += bgOpacity * (1. - opacity);
 
   ${colorBandingFix}
 
@@ -100,8 +97,8 @@ export interface SpiralUniforms extends ShaderSizingUniforms {
   u_strokeWidth: number;
   u_strokeTaper: number;
   u_strokeCap: number;
+  u_noise: number;
   u_noiseFrequency: number;
-  u_noisePower: number;
   u_softness: number;
 }
 
@@ -113,7 +110,7 @@ export interface SpiralParams extends ShaderSizingParams, ShaderMotionParams {
   strokeWidth?: number;
   strokeTaper?: number;
   strokeCap?: number;
+  noise?: number;
   noiseFrequency?: number;
-  noisePower?: number;
   softness?: number;
 }

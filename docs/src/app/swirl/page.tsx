@@ -38,8 +38,8 @@ const SwirlWithControls = () => {
           bandCount: { value: defaults.bandCount, min: 0, max: 15, step: 1, order: 201 },
           twist: { value: defaults.twist, min: 0, max: 1, order: 202 },
           softness: { value: defaults.softness, min: 0, max: 1, order: 203 },
-          noiseFrequency: { value: defaults.speed, min: 0, max: 15, order: 300 },
-          noisePower: { value: defaults.speed, min: 0, max: 1, order: 301 },
+          noiseFrequency: { value: defaults.speed, min: 0, max: 1, order: 300 },
+          noise: { value: defaults.speed, min: 0, max: 1, order: 301 },
           speed: { value: defaults.speed, min: 0, max: 2, order: 400 },
         },
         { order: 1 }
@@ -84,7 +84,7 @@ const SwirlWithControls = () => {
       ])
     );
     return {
-      Presets: folder(presets, { order: 10 }),
+      Presets: folder(presets, { order: -1 }),
     };
   });
 

@@ -3,6 +3,7 @@ import { ShaderMount, type ShaderComponentProps } from '../shader-mount.js';
 import { colorPropsAreEqual } from '../color-props-are-equal.js';
 import {
   getShaderColorFromString,
+  getShaderNoiseTexture,
   dotOrbitFragmentShader,
   ShaderFitOptions,
   type DotOrbitParams,
@@ -22,15 +23,63 @@ export const defaultPreset: DotOrbitPreset = {
     speed: 2,
     frame: 0,
     colorBack: '#000000',
-    colors: ['#D2822D', '#0C3D80', '#B41A57', '#37A166'],
-    size: 0.9,
+    colors: ['#ff6f00', '#610000', '#0f0000', '#ffdfa8'],
+    size: 1,
     sizeRange: 0,
     spreading: 1,
-    stepsPerColor: 2,
+    stepsPerColor: 4,
   },
 };
 
-export const dotOrbitPresets: DotOrbitPreset[] = [defaultPreset];
+export const shinePreset: DotOrbitPreset = {
+  name: 'Shine',
+  params: {
+    ...defaultPatternSizing,
+    speed: 0.1,
+    frame: 0,
+    colors: ['#ffffff', '#006aff', '#fff675'],
+    colorBack: '#000000',
+    stepsPerColor: 4,
+    size: 0.3,
+    sizeRange: 0.2,
+    spreading: 1,
+    scale: 0.4,
+  },
+};
+
+export const bubblesPreset: DotOrbitPreset = {
+  name: 'Bubbles',
+  params: {
+    ...defaultPatternSizing,
+    speed: 0.4,
+    frame: 0,
+    colors: ['#29b9e0'],
+    colorBack: '#009494',
+    stepsPerColor: 2,
+    size: 0.9,
+    sizeRange: 0.7,
+    spreading: 1.0,
+    scale: 1.64,
+  },
+};
+
+export const hallucinatoryPreset: DotOrbitPreset = {
+  name: 'Hallucinatory',
+  params: {
+    ...defaultPatternSizing,
+    speed: 5,
+    frame: 0,
+    colors: ['#000000'],
+    colorBack: '#ffe500',
+    stepsPerColor: 2,
+    size: 0.65,
+    sizeRange: 0,
+    spreading: 0.3,
+    scale: 0.5,
+  },
+};
+
+export const dotOrbitPresets: DotOrbitPreset[] = [defaultPreset, bubblesPreset, shinePreset, hallucinatoryPreset];
 
 export const DotOrbit: React.FC<DotOrbitProps> = memo(function DotOrbitImpl({
   // Own props
@@ -64,6 +113,7 @@ export const DotOrbit: React.FC<DotOrbitProps> = memo(function DotOrbitImpl({
     u_sizeRange: sizeRange,
     u_spreading: spreading,
     u_stepsPerColor: stepsPerColor,
+    u_noiseTexture: getShaderNoiseTexture(),
 
     // Sizing uniforms
     u_fit: ShaderFitOptions[fit],

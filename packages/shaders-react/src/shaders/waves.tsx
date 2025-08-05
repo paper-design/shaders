@@ -19,15 +19,15 @@ export const defaultPreset: WavesPreset = {
   name: 'Default',
   params: {
     ...defaultPatternSizing,
-    scale: 1,
-    colorFront: '#ffffff',
-    colorBack: '#102c70',
+    scale: 2,
+    colorFront: '#ffbb00',
+    colorBack: '#000000',
     shape: 0,
     frequency: 0.5,
-    amplitude: 0.6,
-    spacing: 0.65,
-    proportion: 0.15,
-    softness: 0.05,
+    amplitude: 0.5,
+    spacing: 1,
+    proportion: 0.1,
+    softness: 0,
   },
 };
 
@@ -56,12 +56,12 @@ export const tangledUpPreset: WavesPreset = {
     rotation: 0,
     colorFront: '#133a41',
     colorBack: '#c2d8b6',
-    shape: 3,
+    shape: 2.07,
     frequency: 0.44,
     amplitude: 0.57,
     spacing: 1.05,
     proportion: 0.75,
-    softness: 0.02,
+    softness: 0,
   },
 };
 

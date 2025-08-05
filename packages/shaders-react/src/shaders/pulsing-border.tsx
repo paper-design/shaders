@@ -20,21 +20,21 @@ export const defaultPreset: PulsingBorderPreset = {
   name: 'Default',
   params: {
     ...defaultObjectSizing,
-    scale: 0.55,
+    scale: 0.5,
     speed: 1,
     frame: 0,
     colorBack: '#000000',
-    colors: ['#f2244f', '#4da6e6', '#379590'],
-    roundness: 0.35,
-    thickness: 0.05,
+    colors: ['#f22652', '#4da6e6', '#ffa600'],
+    roundness: 0.25,
+    thickness: 0.2,
     softness: 0.75,
-    intensity: 0,
-    bloom: 0.5,
+    intensity: 0.2,
+    bloom: 0.45,
     spots: 3,
-    spotSize: 0.3,
-    pulse: 0,
+    spotSize: 0.4,
+    pulse: 0.2,
     smoke: 0.35,
-    smokeSize: 0.63,
+    smokeSize: 0.6,
   },
 };
 
@@ -42,8 +42,8 @@ export const circlePreset: PulsingBorderPreset = {
   name: 'Circle',
   params: {
     ...defaultObjectSizing,
-    worldWidth: 200,
-    worldHeight: 200,
+    worldWidth: 400,
+    worldHeight: 400,
     scale: 0.6,
     speed: 1,
     frame: 0,
@@ -55,14 +55,61 @@ export const circlePreset: PulsingBorderPreset = {
     intensity: 0.8,
     bloom: 0.8,
     spots: 2,
-    spotSize: 0.3,
+    spotSize: 0.45,
     pulse: 0,
     smoke: 0.25,
     smokeSize: 0.62,
   },
 };
 
-export const pulsingBorderPresets: PulsingBorderPreset[] = [defaultPreset, circlePreset];
+export const northernLightsPreset: PulsingBorderPreset = {
+  name: 'Northern lights',
+  params: {
+    ...defaultObjectSizing,
+    speed: 0.18,
+    frame: 0,
+    colors: ['#3426f2', '#156ba8', '#126964', '#0affba', '#4733cc'],
+    colorBack: '#002942',
+    roundness: 0,
+    thickness: 1,
+    softness: 1,
+    intensity: 0,
+    bloom: 0.5,
+    spots: 4,
+    spotSize: 0,
+    pulse: 0,
+    smoke: 0.7,
+    smokeSize: 0.7,
+  },
+};
+
+export const solidLinePreset: PulsingBorderPreset = {
+  name: 'Solid line',
+  params: {
+    ...defaultObjectSizing,
+    speed: 2,
+    frame: 0,
+    colors: ['#759717', '#ff0073', '#00ffb3'],
+    colorBack: '#000000',
+    roundness: 0.05,
+    thickness: 0.03,
+    softness: 0.0,
+    intensity: 0.0,
+    bloom: 0.15,
+    spots: 4,
+    spotSize: 0.28,
+    pulse: 0.0,
+    smoke: 0,
+    smokeSize: 0.63,
+  },
+};
+
+export const pulsingBorderPresets: PulsingBorderPreset[] = [
+  defaultPreset,
+  circlePreset,
+  northernLightsPreset,
+  solidLinePreset,
+];
 
 export const PulsingBorder: React.FC<PulsingBorderProps> = memo(function PulsingBorderImpl({
   // Own props
@@ -93,7 +140,6 @@ export const PulsingBorder: React.FC<PulsingBorderProps> = memo(function Pulsing
   worldHeight = defaultPreset.params.worldHeight,
   ...props
 }: PulsingBorderProps) {
-  const noiseTexture = typeof window !== 'undefined' && { u_noiseTexture: getShaderNoiseTexture(0) };
   const uniforms = {
     // Own uniforms
     u_colorBack: getShaderColorFromString(colorBack),
@@ -109,7 +155,7 @@ export const PulsingBorder: React.FC<PulsingBorderProps> = memo(function Pulsing
     u_pulse: pulse,
     u_smoke: smoke,
     u_smokeSize: smokeSize,
-    ...noiseTexture,
+    u_noiseTexture: getShaderNoiseTexture(),
 
     // Sizing uniforms
     u_fit: ShaderFitOptions[fit],

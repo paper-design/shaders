@@ -20,8 +20,8 @@ export const defaultPreset: MeshGradientPreset = {
   params: {
     ...defaultObjectSizing,
     speed: 1,
-    frame: 40000,
-    colors: ['#5100ff', '#00ff80', '#ffcc00', '#ea00ff'],
+    frame: 0,
+    colors: ['#e0eaff', '#241d9a', '#f75092', '#9f50d3'],
     distortion: 0.8,
     swirl: 0.1,
   },
@@ -32,10 +32,10 @@ export const purplePreset: MeshGradientPreset = {
   params: {
     ...defaultObjectSizing,
     speed: 0.6,
-    frame: 100,
-    colors: ['#aaa7d7', '#3c2b8e', '#f4eabb', '#c99cd5'],
-    distortion: 0.3,
-    swirl: 0.5,
+    frame: 0,
+    colors: ['#aaa7d7', '#3c2b8e'],
+    distortion: 1,
+    swirl: 1,
   },
 };
 
@@ -45,13 +45,26 @@ export const beachPreset: MeshGradientPreset = {
     ...defaultObjectSizing,
     speed: 0.1,
     frame: 0,
-    colors: ['#bcecf6', '#80c3e4', '#f3eccb', '#f3d987'],
+    colors: ['#bcecf6', '#00aaff', '#00f7ff', '#ffd447'],
     distortion: 0.8,
     swirl: 0.35,
   },
 };
 
-export const meshGradientPresets: MeshGradientPreset[] = [defaultPreset, purplePreset, beachPreset];
+export const inkPreset: MeshGradientPreset = {
+  name: 'Ink',
+  params: {
+    ...defaultObjectSizing,
+    speed: 1,
+    frame: 0,
+    colors: ['#ffffff', '#000000'],
+    distortion: 1,
+    swirl: 0.2,
+    rotation: 90,
+  },
+};
+
+export const meshGradientPresets: MeshGradientPreset[] = [defaultPreset, inkPreset, purplePreset, beachPreset];
 
 export const MeshGradient: React.FC<MeshGradientProps> = memo(function MeshGradientImpl({
   // Own props

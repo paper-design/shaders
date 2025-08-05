@@ -66,10 +66,10 @@ const NeuroNoiseWithControls = () => {
         },
         {
           order: 3,
-          collapsed: false,
+          collapsed: true,
         }
       ),
-      Presets: folder(presets, { order: 10 }),
+      Presets: folder(presets, { order: -1 }),
     };
   });
 

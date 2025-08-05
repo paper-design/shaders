@@ -11,6 +11,14 @@ import wavesImg from '../public/shaders/waves.webp';
 import warpImg from '../public/shaders/warp.webp';
 import godRaysImg from '../public/shaders/god-rays.webp';
 import spiralImg from '../public/shaders/spiral.webp';
+import swirlImg from '../public/shaders/swirl.webp';
+import ditheringImg from '../public/shaders/dithering.webp';
+import liquidMetalImg from '../public/shaders/liquid-metal.webp';
+import grainGradientImg from '../public/shaders/grain-gradient.webp';
+import pulsingBorderImg from '../public/shaders/pulsing-border.webp';
+import colorPanelsImg from '../public/shaders/color-panels.webp';
+import staticMeshGradientImg from '../public/shaders/static-mesh-gradient.webp';
+import staticRadialGradientImg from '../public/shaders/static-radial-gradient.webp';
 
 import {
   DotGrid,
@@ -159,7 +167,7 @@ export const homeShaders = [
     url: '/god-rays',
     ShaderComponent: GodRays,
     image: godRaysImg,
-    shaderConfig: { ...godRaysPresets[0].params, offsetX: -1.1, midSize: 7 },
+    shaderConfig: { ...godRaysPresets[0].params, offsetX: -1.1, midSize: 1 },
   },
   {
     name: 'spiral',

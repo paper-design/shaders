@@ -19,35 +19,16 @@ export const defaultPreset: SpiralPreset = {
   name: 'Default',
   params: {
     ...defaultPatternSizing,
-    colorBack: '#fafafa',
-    colorFront: '#808080',
-    density: 0,
+    scale: 1.3,
+    colorBack: '#001429',
+    colorFront: '#79D1FF',
+    density: 1,
     distortion: 0,
     strokeWidth: 0.5,
     strokeTaper: 0,
     strokeCap: 0,
+    noise: 0,
     noiseFrequency: 0,
-    noisePower: 0,
-    softness: 0.01,
-    speed: 1,
-    frame: 0,
-  },
-};
-
-export const noisyPreset: SpiralPreset = {
-  name: 'Noisy',
-  params: {
-    ...defaultPatternSizing,
-    colorBack: '#a1ef2a',
-    colorFront: '#288918',
-    scale: 1.3,
-    density: 0.5,
-    distortion: 0,
-    strokeWidth: 0.5,
-    strokeTaper: 0,
-    strokeCap: 0.5,
-    noiseFrequency: 0.1,
-    noisePower: 1,
     softness: 0,
     speed: 1,
     frame: 0,
@@ -60,36 +41,35 @@ export const dropletPreset: SpiralPreset = {
     ...defaultPatternSizing,
     colorBack: '#effafe',
     colorFront: '#bf40a0',
-    scale: 0.65,
-    density: 0,
+    density: 0.9,
     distortion: 0,
-    strokeWidth: 0.05,
-    strokeTaper: 0,
+    strokeWidth: 0.75,
+    strokeTaper: 0.18,
     strokeCap: 1,
-    noiseFrequency: 0,
-    noisePower: 0,
-    softness: 0,
+    noise: 0.74,
+    noiseFrequency: 0.33,
+    softness: 0.02,
     speed: 1,
     frame: 0,
   },
 };
 
-export const sandPreset: SpiralPreset = {
-  name: 'Sand',
+export const junglePreset: SpiralPreset = {
+  name: 'Jungle',
   params: {
     ...defaultPatternSizing,
-    colorBack: '#dedede',
-    colorFront: '#a09560',
-    scale: 0.75,
-    density: 0,
+    scale: 1.3,
+    density: 0.5,
+    colorBack: '#a0ef2a',
+    colorFront: '#288b18',
     distortion: 0,
-    strokeWidth: 0.15,
+    strokeWidth: 0.5,
     strokeTaper: 0,
     strokeCap: 0,
-    noiseFrequency: 30,
-    noisePower: 1,
-    softness: 0.2,
-    speed: 0,
+    noise: 1,
+    noiseFrequency: 0.25,
+    softness: 0,
+    speed: 0.75,
     frame: 0,
   },
 };
@@ -98,70 +78,23 @@ export const swirlPreset: SpiralPreset = {
   name: 'Swirl',
   params: {
     ...defaultPatternSizing,
+    scale: 0.45,
     colorBack: '#b3e6d9',
     colorFront: '#1a2b4d',
-    scale: 4,
-    density: 0.8,
+    density: 0.2,
     distortion: 0,
     strokeWidth: 0.5,
     strokeTaper: 0,
     strokeCap: 0,
-    noiseFrequency: 0,
-    noisePower: 0,
+    noise: 0,
+    noiseFrequency: 0.3,
     softness: 0.5,
     speed: 1,
     frame: 0,
   },
 };
 
-export const hookPreset: SpiralPreset = {
-  name: 'Hook',
-  params: {
-    ...defaultPatternSizing,
-    colorBack: '#85c2e0',
-    colorFront: '#000000',
-    scale: 0.8,
-    density: 0,
-    distortion: 0,
-    strokeWidth: 0.5,
-    strokeTaper: 0.5,
-    strokeCap: 0,
-    noiseFrequency: 0,
-    noisePower: 0,
-    softness: 0.02,
-    speed: 3,
-    frame: 0,
-  },
-};
-
-export const vinylPreset: SpiralPreset = {
-  name: 'Vinyl',
-  params: {
-    ...defaultPatternSizing,
-    colorBack: '#c2babb',
-    colorFront: '#262626',
-    density: 0,
-    distortion: 0.3,
-    strokeWidth: 0.95,
-    strokeTaper: 0,
-    strokeCap: 1,
-    noiseFrequency: 0,
-    noisePower: 0,
-    softness: 0.11,
-    speed: 1,
-    frame: 0,
-  },
-};
-
-export const spiralPresets: SpiralPreset[] = [
-  defaultPreset,
-  noisyPreset,
-  dropletPreset,
-  swirlPreset,
-  sandPreset,
-  hookPreset,
-  vinylPreset,
-];
+export const spiralPresets: SpiralPreset[] = [defaultPreset, junglePreset, dropletPreset, swirlPreset];
 
 export const Spiral: React.FC<SpiralProps> = memo(function SpiralImpl({
   // Own props
@@ -175,7 +108,7 @@ export const Spiral: React.FC<SpiralProps> = memo(function SpiralImpl({
   strokeTaper = defaultPreset.params.strokeTaper,
   strokeCap = defaultPreset.params.strokeCap,
   noiseFrequency = defaultPreset.params.noiseFrequency,
-  noisePower = defaultPreset.params.noisePower,
+  noise = defaultPreset.params.noise,
   softness = defaultPreset.params.softness,
 
   // Sizing props
@@ -200,7 +133,7 @@ export const Spiral: React.FC<SpiralProps> = memo(function SpiralImpl({
     u_strokeTaper: strokeTaper,
     u_strokeCap: strokeCap,
     u_noiseFrequency: noiseFrequency,
-    u_noisePower: noisePower,
+    u_noise: noise,
     u_softness: softness,
 
     // Sizing uniforms

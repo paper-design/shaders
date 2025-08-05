@@ -22,30 +22,13 @@ export const defaultPreset: DotGridPreset = {
     ...defaultPatternSizing,
     colorBack: '#000000',
     colorFill: '#ffffff',
-    colorStroke: '#dd5500',
+    colorStroke: '#ffaa00',
     size: 2,
-    gapX: 50,
-    gapY: 50,
+    gapX: 32,
+    gapY: 32,
     strokeWidth: 0,
     sizeRange: 0,
     opacityRange: 0,
-    shape: 'circle',
-  },
-};
-
-export const macrodataPreset: DotGridPreset = {
-  name: 'Macrodata',
-  params: {
-    ...defaultPatternSizing,
-    colorBack: '#15212d',
-    colorFill: '#5794ff',
-    colorStroke: '#0000ff',
-    size: 3,
-    gapX: 25,
-    gapY: 25,
-    strokeWidth: 0,
-    sizeRange: 0.25,
-    opacityRange: 0.9,
     shape: 'circle',
   },
 };
@@ -67,23 +50,6 @@ const trianglesPreset: DotGridPreset = {
   },
 };
 
-const bubblesPreset: DotGridPreset = {
-  name: 'Bubbles',
-  params: {
-    ...defaultPatternSizing,
-    colorBack: '#002c9e80',
-    colorFill: '#ffffff',
-    colorStroke: '#000000',
-    size: 15,
-    gapX: 60,
-    gapY: 60,
-    strokeWidth: 12,
-    sizeRange: 0.7,
-    opacityRange: 1.3,
-    shape: 'circle',
-  },
-};
-
 const treeLinePreset: DotGridPreset = {
   name: 'Tree line',
   params: {
@@ -98,23 +64,6 @@ const treeLinePreset: DotGridPreset = {
     sizeRange: 1,
     opacityRange: 0.6,
     shape: 'circle',
-  },
-};
-
-const diamondsPreset: DotGridPreset = {
-  name: 'Diamonds',
-  params: {
-    ...defaultPatternSizing,
-    colorBack: '#ffffff',
-    colorFill: '#ff0000',
-    colorStroke: '#000000',
-    size: 15,
-    gapX: 30,
-    gapY: 30,
-    strokeWidth: 0,
-    sizeRange: 0,
-    opacityRange: 2,
-    shape: 'diamond',
   },
 };
 
@@ -135,51 +84,7 @@ const wallpaperPreset: DotGridPreset = {
   },
 };
 
-const matrixPreset: DotGridPreset = {
-  name: 'Enter the Matrix',
-  params: {
-    ...defaultPatternSizing,
-    colorBack: '#000000',
-    colorFill: '#47ffea',
-    colorStroke: '#000000',
-    size: 2,
-    gapX: 10,
-    gapY: 10,
-    strokeWidth: 0.5,
-    sizeRange: 0.25,
-    opacityRange: 1,
-    shape: 'triangle',
-  },
-};
-
-const waveformPreset: DotGridPreset = {
-  name: 'Waveform',
-  params: {
-    ...defaultPatternSizing,
-    colorBack: '#ffffff',
-    colorFill: '#0934b8',
-    colorStroke: '#000000',
-    size: 100,
-    gapX: 2,
-    gapY: 215,
-    strokeWidth: 0,
-    sizeRange: 1,
-    opacityRange: 0,
-    shape: 'square',
-  },
-};
-
-export const dotGridPresets: DotGridPreset[] = [
-  defaultPreset,
-  macrodataPreset,
-  trianglesPreset,
-  bubblesPreset,
-  treeLinePreset,
-  diamondsPreset,
-  wallpaperPreset,
-  matrixPreset,
-  waveformPreset,
-];
+export const dotGridPresets: DotGridPreset[] = [defaultPreset, trianglesPreset, treeLinePreset, wallpaperPreset];
 
 export const DotGrid: React.FC<DotGridProps> = memo(function DotGridImpl({
   // Own props

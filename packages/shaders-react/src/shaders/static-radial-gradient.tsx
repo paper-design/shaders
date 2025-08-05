@@ -22,18 +22,18 @@ export const defaultPreset: StaticRadialGradientPreset = {
     scale: 1,
     speed: 0,
     frame: 0,
-    colorBack: '#264653',
-    colors: ['#9c2b2b', '#f4a261', '#ffffff'],
-    radius: 1,
-    focalDistance: 0,
+    colorBack: '#121212',
+    colors: ['#00bbff', '#00ffe1', '#ffffff'],
+    radius: 0.7,
+    focalDistance: 0.99,
     focalAngle: 0,
-    falloff: 0,
-    mixing: 0.7,
-    distortion: 0,
+    falloff: 0.24,
+    mixing: 0.35,
+    distortion: 0.0,
     distortionShift: 0,
     distortionFreq: 12,
-    grainMixer: 0,
-    grainOverlay: 0,
+    grainMixer: 0.0,
+    grainOverlay: 0.0,
   },
 };
 
@@ -45,7 +45,7 @@ export const crossSectionPreset: StaticRadialGradientPreset = {
     speed: 0,
     frame: 0,
     colorBack: '#3d348b',
-    colors: ['#7678ed', '#f7b801', '#f18701'],
+    colors: ['#7678ed', '#f7b801', '#f18701', '#37a066'],
     radius: 1,
     focalDistance: 0,
     focalAngle: 0,
@@ -59,25 +59,25 @@ export const crossSectionPreset: StaticRadialGradientPreset = {
   },
 };
 
-export const glowPreset: StaticRadialGradientPreset = {
-  name: 'Glow',
+export const radialPreset: StaticRadialGradientPreset = {
+  name: 'Radial',
   params: {
     ...defaultObjectSizing,
     scale: 1,
     speed: 0,
     frame: 0,
-    colorBack: '#2e2e2e',
-    colors: ['#def4cd', '#ffb3fa', '#ff0040'],
-    radius: 0.7,
-    focalDistance: 0.99,
+    colorBack: '#264653',
+    colors: ['#9c2b2b', '#f4a261', '#ffffff'],
+    radius: 1,
+    focalDistance: 0,
     focalAngle: 0,
-    falloff: 0.24,
-    mixing: 0.35,
-    distortion: 0.0,
+    falloff: 0,
+    mixing: 0.7,
+    distortion: 0,
     distortionShift: 0,
     distortionFreq: 12,
-    grainMixer: 0.0,
-    grainOverlay: 0.0,
+    grainMixer: 0,
+    grainOverlay: 0,
   },
 };
 
@@ -106,7 +106,7 @@ export const staticRadialGradientPresets: StaticRadialGradientPreset[] = [
   defaultPreset,
   loFiPreset,
   crossSectionPreset,
-  glowPreset,
+  radialPreset,
 ];
 
 export const StaticRadialGradient: React.FC<StaticRadialGradientProps> = memo(function StaticRadialGradientImpl({

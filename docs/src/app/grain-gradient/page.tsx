@@ -57,7 +57,7 @@ const GrainGradientWithControls = () => {
         },
         {
           order: 2,
-          collapsed: true,
+          collapsed: false,
         }
       ),
       Fit: folder(
@@ -88,7 +88,7 @@ const GrainGradientWithControls = () => {
       ])
     );
     return {
-      Presets: folder(presets, { order: 10 }),
+      Presets: folder(presets, { order: -1 }),
     };
   });
 

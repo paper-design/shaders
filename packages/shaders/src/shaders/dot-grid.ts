@@ -51,8 +51,9 @@ float polygon(vec2 p, float N, float rot) {
 
 void main() {
 
-  vec2 shape_uv = v_patternUV;
-  shape_uv += .5;
+  // x100 is a default multiplier between vertex and fragmant shaders
+  // we use it to avoid UV presision issues
+  vec2 shape_uv = 100. * v_patternUV;
 
   vec2 grid = fract(shape_uv / vec2(u_gapX, u_gapY)) + 1e-4;
   vec2 grid_idx = floor(shape_uv / vec2(u_gapX, u_gapY));

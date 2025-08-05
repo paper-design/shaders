@@ -64,7 +64,7 @@ float beat(float time) {
 float roundedBox(vec2 uv, float distance) {
   float thickness = .5 * u_thickness;
   float borderDistance = abs(distance);
-  float border = 1. - smoothstep(-u_softness * thickness - .01, .5 * u_softness * thickness, borderDistance - .5 * thickness);
+  float border = 1. - smoothstep(-u_softness * thickness - 2. * fwidth(borderDistance), .5 * u_softness * thickness, borderDistance - .5 * thickness);
   border = pow(border, 2.);
 
   return border;
@@ -113,12 +113,12 @@ void main() {
   float distance = outsideDistance + insideDistance;
 
   float border = roundedBox(borderUV, distance);
-  
+
   vec2 v0 = borderUV + halfSize;
   vec2 v1 = borderUV - vec2(-halfSize.x, halfSize.y);
   vec2 v2 = borderUV - vec2(halfSize.x, -halfSize.y);
   vec2 v3 = borderUV - halfSize;
-  
+
   float cornerFade = 1. - abs(v0.x - v0.y);
   cornerFade = max(cornerFade, 1. - abs(v1.x + v1.y));
   cornerFade = max(cornerFade, 1. - abs(v2.x + v2.y));
@@ -160,7 +160,7 @@ void main() {
   cornerFade *= cornerFadeMask;
   border += cornerFade;
 
-  vec2 smokeUV = 2. * u_smokeSize * v_objectUV;
+  vec2 smokeUV = .2 * u_smokeSize * v_patternUV;
   float smoke = clamp(3. * valueNoise(2.7 * smokeUV + .5 * t), 0., 1.);
   smoke -= valueNoise(3.4 * smokeUV - .5 * t);
   smoke *= roundedBoxSmoke(borderUV, distance, u_smoke);
@@ -172,12 +172,12 @@ void main() {
 
   border += smoke;
   border = clamp(border, 0., 1.);
-  
+
   vec3 blendColor = vec3(0.);
   float blendAlpha = 0.0;
   vec3 addColor = vec3(0.);
   float addAlpha = 0.0;
-  
+
   float bloom = 4. * u_bloom;
   float intensity = 1. + 4. * u_intensity;
 
@@ -210,7 +210,7 @@ void main() {
       float spotSize = .05 + .6 * pow(u_spotSize, 2.) + .05 * randVal.x;
       spotSize = mix(spotSize, .1, p);
       float sector = smoothstep(.5 - spotSize, .5, atg1) * smoothstep(.5 + spotSize, .5, atg1);
-      
+
       sector *= mask;
       sector *= border;
       sector *= intensity;
@@ -233,7 +233,7 @@ void main() {
   vec3 bgColor = u_colorBack.rgb * u_colorBack.a;
   vec3 color = accumColor + (1. - accumAlpha) * bgColor;
   float opacity = accumAlpha + (1. - accumAlpha) * u_colorBack.a;
-  
+
   ${colorBandingFix}
 
   fragColor = vec4(color, opacity);
@@ -253,6 +253,7 @@ export interface PulsingBorderUniforms extends ShaderSizingUniforms {
   u_pulse: number;
   u_smoke: number;
   u_smokeSize: number;
+  u_noiseTexture?: HTMLImageElement;
 }
 
 export interface PulsingBorderParams extends ShaderSizingParams, ShaderMotionParams {

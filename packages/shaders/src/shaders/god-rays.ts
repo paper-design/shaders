@@ -1,7 +1,7 @@
 import type { vec4 } from '../types.js';
 import type { ShaderMotionParams } from '../shader-mount.js';
 import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
-import { declarePI, declareRandom, declareRotate, declareValueNoise, colorBandingFix } from '../shader-utils.js';
+import { declarePI, declareRotate, declareValueNoise, colorBandingFix } from '../shader-utils.js';
 
 export const godRaysMeta = {
   maxColorCount: 5,
@@ -19,6 +19,7 @@ export const godRaysMeta = {
  * - u_midSize, u_midIntensity: central shape over the rays
  * - u_bloom (0..1): normal to additive blending mix
  *
+ * - u_noiseTexture (sampler2D): pre-computed randomizer source
  */
 
 // language=GLSL
@@ -26,6 +27,8 @@ export const godRaysFragmentShader: string = `#version 300 es
 precision mediump float;
 
 uniform float u_time;
+
+uniform sampler2D u_noiseTexture;
 
 uniform vec4 u_colorBack;
 uniform vec4 u_colorBloom;
@@ -44,12 +47,20 @@ ${sizingVariablesDeclaration}
 out vec4 fragColor;
 
 ${declarePI}
-${declareRandom}
+
+float random(vec2 p) {
+  vec2 uv = floor(p) / 100. + .5;
+  return texture(u_noiseTexture, uv).r;
+}
+
 ${declareRotate}
 ${declareValueNoise}
 
 float hash(float n) {
-  return fract(sin(n * 43758.5453123) * 43758.5453123);
+  n = fract(n * 0.1031);
+  n *= n + 33.33;
+  n *= n + n;
+  return fract(n);
 }
 
 float raysShape(vec2 uv, float r, float freq, float intensity, float radius) {
@@ -68,7 +79,7 @@ void main() {
   float t = .2 * u_time;
 
   float radius = length(shape_uv);
-  float spots = 5. * abs(u_spotty);
+  float spots = 6.5 * abs(u_spotty);
 
   float intensity = 4. - 3. * clamp(u_intensity, 0., 1.);
 
@@ -139,6 +150,7 @@ export interface GodRaysUniforms extends ShaderSizingUniforms {
   u_density: number;
   u_intensity: number;
   u_bloom: number;
+  u_noiseTexture?: HTMLImageElement;
 }
 
 export interface GodRaysParams extends ShaderSizingParams, ShaderMotionParams {

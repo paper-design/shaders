@@ -4,6 +4,7 @@ import { colorPropsAreEqual } from '../color-props-are-equal.js';
 import {
   defaultPatternSizing,
   getShaderColorFromString,
+  getShaderNoiseTexture,
   warpFragmentShader,
   ShaderFitOptions,
   type WarpParams,
@@ -23,7 +24,7 @@ export const defaultPreset: WarpPreset = {
     rotation: 0,
     speed: 1,
     frame: 0,
-    colors: ['#262626', '#2e383d', '#64a5ce', '#ffffff'],
+    colors: ['#121212', '#9470ff', '#121212', '#8838ff'],
     proportion: 0.45,
     softness: 1,
     distortion: 0.25,
@@ -31,25 +32,6 @@ export const defaultPreset: WarpPreset = {
     swirlIterations: 10,
     shapeScale: 0.1,
     shape: 'checks',
-  },
-};
-
-export const presetAbyss: WarpPreset = {
-  name: 'The Abyss',
-  params: {
-    ...defaultPatternSizing,
-    scale: 3,
-    rotation: 2,
-    speed: 0.6,
-    frame: 0,
-    colors: ['#15122e', '#7b89f2', '#ffffff'],
-    proportion: 0,
-    softness: 1,
-    distortion: 0.09,
-    swirl: 0.48,
-    swirlIterations: 5,
-    shapeScale: 0.85,
-    shape: 'edge',
   },
 };
 
@@ -69,45 +51,6 @@ export const presetCauldron: WarpPreset = {
     swirlIterations: 7,
     shapeScale: 0.6,
     shape: 'edge',
-  },
-};
-
-export const presetFilteredLight: WarpPreset = {
-  name: 'Filtered Light',
-  params: {
-    ...defaultPatternSizing,
-    scale: 0.3,
-    rotation: 45,
-    speed: 3.2,
-    frame: 0,
-    colors: ['#171714', '#d4d8be', '#f9f9e0'],
-    proportion: 0.4,
-    softness: 1,
-    distortion: 0.09,
-    swirl: 0.1,
-    swirlIterations: 0,
-    shapeScale: 0.1,
-    shape: 'stripes',
-  },
-};
-
-export const presetIceberg: WarpPreset = {
-  name: 'Iceberg',
-  params: {
-    ...defaultPatternSizing,
-    scale: 0.8,
-    rotation: 190,
-    offsetX: 0.3,
-    speed: 0.5,
-    frame: 0,
-    colors: ['#ffffff', '#324771', '#0a180d'],
-    proportion: 0.3,
-    softness: 1.2,
-    distortion: 0.2,
-    swirl: 0.86,
-    swirlIterations: 7,
-    shapeScale: 0,
-    shape: 'checks',
   },
 };
 
@@ -135,17 +78,17 @@ export const presetKelp: WarpPreset = {
   name: 'Kelp',
   params: {
     ...defaultPatternSizing,
-    scale: 0.65,
+    scale: 0.8,
     rotation: 50,
     speed: 20,
     frame: 0,
     colors: ['#dbff8f', '#404f3e', '#091316'],
     proportion: 0.67,
-    softness: 0.05,
+    softness: 0,
     distortion: 0,
-    swirl: 0.15,
-    swirlIterations: 0,
-    shapeScale: 0.74,
+    swirl: 0.2,
+    swirlIterations: 3,
+    shapeScale: 1,
     shape: 'stripes',
   },
 };
@@ -189,57 +132,13 @@ export const presetPassion: WarpPreset = {
   },
 };
 
-export const presetPhantom: WarpPreset = {
-  name: 'Phantom',
-  params: {
-    ...defaultPatternSizing,
-    scale: 1.2,
-    rotation: 180,
-    offsetY: -0.2,
-    speed: 12.5,
-    frame: 0,
-    colors: ['#12112c', '#7b89f2', '#d7dcfb'],
-    proportion: 0.5,
-    softness: 1,
-    distortion: 0.2,
-    swirl: 0.3,
-    swirlIterations: 7,
-    shapeScale: 0.1,
-    shape: 'checks',
-  },
-};
-
-export const presetSilk: WarpPreset = {
-  name: 'Silk',
-  params: {
-    ...defaultPatternSizing,
-    scale: 2,
-    rotation: 0,
-    speed: 5,
-    frame: 0,
-    colors: ['#141111', '#665551', '#baaea9'],
-    proportion: 0,
-    softness: 1,
-    distortion: 0.3,
-    swirl: 0.6,
-    swirlIterations: 11,
-    shapeScale: 0.25,
-    shape: 'stripes',
-  },
-};
-
 export const warpPresets: WarpPreset[] = [
   defaultPreset,
-  presetAbyss,
   presetCauldron,
-  presetFilteredLight,
-  presetIceberg,
   presetInk,
   presetKelp,
   presetNectar,
   presetPassion,
-  presetPhantom,
-  presetSilk,
 ];
 
 export const Warp: React.FC<WarpProps> = memo(function WarpImpl({
@@ -278,6 +177,7 @@ export const Warp: React.FC<WarpProps> = memo(function WarpImpl({
     u_swirlIterations: swirlIterations,
     u_shapeScale: shapeScale,
     u_shape: WarpPatterns[shape],
+    u_noiseTexture: getShaderNoiseTexture(),
 
     // Sizing uniforms
     u_scale: scale,
