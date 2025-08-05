@@ -108,7 +108,7 @@ void main() {
   float lum = dot(vec3(.2126, .7152, .0722), image.rgb);
 
 
-  float steps = ceil(u_colorSteps);
+  float steps = floor(u_colorSteps);
   vec3 color = vec3(0.);
   float opacity = 1.;
   if (u_ownPalette == true) {

@@ -20,11 +20,10 @@ export const defaultPreset: ImageDitheringPreset = {
   name: 'Default',
   params: {
     ...defaultObjectSizing,
-    scale: 0.9,
     speed: 0,
     frame: 0,
-    colorFront: '#eeeeee',
-    colorBack: '#5452ff',
+    colorFront: '#ff8585',
+    colorBack: '#03009e',
     image: '/images/059.jpg',
     type: '4x4',
     pxSize: 2,
@@ -37,12 +36,11 @@ export const retroPreset: ImageDitheringPreset = {
   name: 'Retro',
   params: {
     ...defaultObjectSizing,
-    scale: 0.9,
     speed: 0,
     frame: 0,
     colorFront: '#eeeeee',
     colorBack: '#5452ff',
-    image: '/images/054.jpg',
+    image: '/images/059.jpg',
     type: '4x4',
     pxSize: 2,
     colorSteps: 1,
@@ -54,12 +52,11 @@ export const noisePreset: ImageDitheringPreset = {
   name: 'Noise',
   params: {
     ...defaultObjectSizing,
-    fit: 'cover',
     speed: 0,
     frame: 0,
     colorFront: '#eeeeee',
     colorBack: '#000000',
-    image: '/images/083.jpg',
+    image: '/images/059.jpg',
     type: 'random',
     pxSize: 1,
     colorSteps: 1,
@@ -75,7 +72,7 @@ export const naturalPreset: ImageDitheringPreset = {
     frame: 0,
     colorFront: '#ffffff',
     colorBack: '#000000',
-    image: '/images/068.jpg',
+    image: '/images/059.jpg',
     type: '8x8',
     pxSize: 1,
     colorSteps: 5,
@@ -83,7 +80,7 @@ export const naturalPreset: ImageDitheringPreset = {
   },
 } as const;
 
-export const imageDitheringPresets: ImageDitheringPreset[] = [defaultPreset, naturalPreset, noisePreset, retroPreset];
+export const imageDitheringPresets: ImageDitheringPreset[] = [defaultPreset, noisePreset, retroPreset, naturalPreset];
 
 export const ImageDithering: React.FC<ImageDitheringProps> = memo(function ImageDitheringImpl({
   // Own props

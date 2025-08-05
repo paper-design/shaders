@@ -86,7 +86,7 @@ const FlutedGlassWithControls = () => {
     return {
       Parameters: folder(
         {
-          grid: { value: defaults.grid, min: 4, max: 100, step: 1, order: 100 },
+          grid: { value: defaults.grid, min: 4, max: 200, step: 1, order: 100 },
           gridShape: {
             value: defaults.gridShape,
             options: Object.keys(GlassGridShapes) as GlassGridShape[],
