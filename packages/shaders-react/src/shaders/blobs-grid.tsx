@@ -69,7 +69,7 @@ export const shadowsPreset: BlobsGridPreset = {
     scale: 0.5,
     speed: 2,
     frame: 0,
-    colors: ['#c8e9c8', '#a899e6', '#fa9edd'],
+    colors: ['#c8e9c8', '#037c6e', '#ff9100'],
     stepsPerColor: 3,
     colorBack: '#ffffff',
     colorShade: '#ffffff',
