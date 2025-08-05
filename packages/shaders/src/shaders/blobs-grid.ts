@@ -71,7 +71,7 @@ ${declareRotate}
 
 void main() {
 
-  vec2 uv = v_patternUV * .001;
+  vec2 uv = v_patternUV * .1;
 
   float t = .1 * u_time;
 
