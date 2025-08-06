@@ -1,7 +1,7 @@
 'use client';
 
 import { GrainAndNoise, grainAndNoisePresets } from '@paper-design/shaders-react';
-import { useState, useCallback, useControls, button, folder } from 'leva';
+import { useControls, button, folder } from 'leva';
 import { setParamsSafe, useResetLevaParams } from '@/helpers/use-reset-leva-params';
 import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import Link from 'next/link';
@@ -9,6 +9,7 @@ import { BackButton } from '@/components/back-button';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
 import { ShaderFit, ShaderFitOptions } from '@paper-design/shaders';
 import { toHsla } from '@/helpers/to-hsla';
+import { useState, useEffect, useCallback } from 'react';
 
 /**
  * You can copy/paste this example to use GrainAndNoise in your app
@@ -24,6 +25,93 @@ const GrainAndNoiseExample = () => {
 const { worldWidth, worldHeight, ...defaults } = grainAndNoisePresets[0].params;
 
 const GrainAndNoiseWithControls = () => {
+  const [imageIdx, setImageIdx] = useState(0);
+
+  const imageFiles = [
+    '068.jpg',
+    '086.png',
+    '040.jpg',
+    '049.jpg',
+    '059.jpg',
+    '06.jpg',
+    '030.jpg',
+    '063.jpg',
+    '023.jpg',
+    '048.jpg',
+
+    '085.png',
+    '072.jpg',
+    '073.jpg',
+    '074.jpg',
+    '083.jpg',
+
+    '060.jpg',
+
+    '02.jpg',
+    '031.jpg',
+    '032.jpg',
+    '034.jpg',
+
+    '051.jpg',
+    '052.jpg',
+    '053.jpg',
+    '055.jpg',
+    '057.jpg',
+    '058.jpg',
+    '061.jpg',
+    '065.jpg',
+    '066.jpg',
+    '03.jpg',
+    '09.jpg',
+    '010.jpg',
+    '013.jpg',
+    '019.jpg',
+    '020.jpg',
+    '022.jpg',
+    '024.jpg',
+    '025.jpg',
+    '027.jpg',
+    '028.jpg',
+    '029.jpg',
+    '035.jpg',
+    '037.jpg',
+    '039.jpg',
+    '041.jpg',
+    '046.jpg',
+    '047.jpg',
+  ] as const;
+
+  const fileName = imageIdx >= 0 ? imageFiles[imageIdx] : null;
+
+  const handleClick = useCallback(() => {
+    const randomIdx = Math.floor(Math.random() * imageFiles.length);
+    setImageIdx(randomIdx);
+  }, []);
+
+  const { blendMode } = useControls('Blend', {
+    blendMode: {
+      value: 'normal',
+      options: [
+        'normal',
+        'darken',
+        'multiply',
+        'color-burn',
+        'lighten',
+        'screen',
+        'color-dodge',
+        'overlay',
+        'soft-light',
+        'hard-light',
+        'difference',
+        'exclusion',
+        'hue',
+        'saturation',
+        'color',
+        'luminosity',
+      ],
+    },
+  });
+
   const [params, setParams] = useControls(() => {
     const presets = Object.fromEntries(
       grainAndNoisePresets.map(({ name, params: { worldWidth, worldHeight, ...preset } }) => [
@@ -34,27 +122,12 @@ const GrainAndNoiseWithControls = () => {
     return {
       Parameters: folder(
         {
-          colorFront: { value: toHsla(defaults.colorFront), order: 100 },
-          colorBack: { value: toHsla(defaults.colorBack), order: 101 },
-          contrast: { value: defaults.contrast, min: 0, max: 1, order: 200 },
-
+          colorGrain: { value: toHsla(defaults.colorGrain), order: 100 },
+          colorFiber: { value: toHsla(defaults.colorFiber), order: 101 },
+          colorDrops: { value: toHsla(defaults.colorDrops), order: 102 },
           grain: { value: defaults.grain, min: 0, max: 1, order: 300 },
-
-          curles: { value: defaults.curles, min: 0, max: 1, order: 310 },
-          curlesScale: { value: defaults.curlesScale, min: 0, max: 1, order: 310 },
-
-          channelR: { value: defaults.channelR, min: 0, max: 1, order: 320 },
-          channelG: { value: defaults.channelG, min: 0, max: 1, order: 321 },
-          channelB: { value: defaults.channelB, min: 0, max: 1, order: 322 },
-
-          folds: { value: defaults.folds, min: 0, max: 1, order: 330 },
-          foldsNumber: { value: defaults.foldsNumber, min: 1, max: 15, step: 1, order: 331 },
-          foldsSeed: { value: defaults.foldsSeed, min: 0, max: 1000, order: 332 },
-
-          blur: { value: defaults.blur, min: 0, max: 1, order: 340 },
-          blurSeed: { value: defaults.blurSeed, min: 0, max: 10, order: 341 },
-
-          drops: { value: defaults.drops, min: 0, max: 1, order: 350 },
+          fiber: { value: defaults.fiber, min: 0, max: 1, order: 300 },
+          drops: { value: defaults.drops, min: 0, max: 1, order: 300 },
           dropsSeed: { value: defaults.dropsSeed, min: 0, max: 10, order: 351 },
         },
         { order: 1 }
@@ -99,11 +172,13 @@ const GrainAndNoiseWithControls = () => {
       <Link href="/">
         <BackButton />
       </Link>
-        <img
-            src={ `../images/031.jpg` }
-            className="fixed top-0 left-0 w-full h-full object-cover z-0"
-        />
-        <GrainAndNoise  {...params} className="inset-0 mix-blend-overlay fixed size-full" />
+      <img src={fileName ? `/images/${fileName}` : ''} className="fixed left-0 top-0 z-0 h-full w-full object-cover" />
+      <GrainAndNoise
+        onClick={handleClick}
+        {...params}
+        className="fixed inset-0 size-full"
+        style={{ mixBlendMode: blendMode }}
+      />
     </>
   );
 };
