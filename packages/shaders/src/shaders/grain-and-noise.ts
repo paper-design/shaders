@@ -51,16 +51,29 @@ ${declareRotate}
 ${declareSimplexNoise}
 
 
-float random(vec2 st) {
-  return fract(sin(dot(st.xy, vec2(12.9898, 78.233))) * 43758.5453123);
+float random(vec2 p) {
+  vec2 uv = floor(p) / 50. + .5;
+  return texture(u_noiseTexture, fract(uv)).r;
 }
-${declareValueNoise}
+float valueNoise(vec2 st) {
+  vec2 i = floor(st);
+  vec2 f = fract(st);
+  float a = random(i);
+  float b = random(i + vec2(1.0, 0.0));
+  float c = random(i + vec2(0.0, 1.0));
+  float d = random(i + vec2(1.0, 1.0));
+  vec2 u = f * f * (3.0 - 2.0 * f);
+  float x1 = mix(a, b, u.x);
+  float x2 = mix(c, d, u.x);
+  return mix(x1, x2, u.y);
+}
 float fbm(in vec2 n) {
-  float total = 0.0, amplitude = .4;
+  float total = 0.0, amplitude = 1.;
   for (int i = 0; i < 3; i++) {
+    n = rotate(n, .4);
     total += valueNoise(n) * amplitude;
-    n *= 1.99;
-    amplitude *= 0.65;
+    n *= 2.;
+    amplitude *= 0.5;
   }
   return total;
 }
@@ -70,7 +83,6 @@ float grain_hash(vec2 p) {
   vec2 uv = floor(p) / 50. + .5;
   return texture(u_noiseTexture, fract(uv)).g;
 }
-
 float grain_fbm(vec2 p) {
   p *= .1;
   float o = 0.;
@@ -90,7 +102,6 @@ float curley_random(vec2 p) {
   vec2 uv = floor(p) / 50. + .5;
   return texture(u_noiseTexture, fract(uv)).r;
 }
-
 float curley_valueNoise(vec2 st) {
   vec2 i = floor(st);
   vec2 f = fract(st);
@@ -103,7 +114,6 @@ float curley_valueNoise(vec2 st) {
   float x2 = mix(c, d, u.x);
   return mix(x1, x2, u.y);
 }
-
 float curleyFbm(vec2 uv) {
   float amp = 1.;
   float val = 0.;
@@ -114,12 +124,10 @@ float curleyFbm(vec2 uv) {
   }
   return val;
 }
-
 vec2 crumpled_noise(vec2 p) {
   vec2 uv = floor(p) / 50. + .5;
   return texture(u_noiseTexture, fract(uv)).gb;
 }
-
 float crumpled_voronoi2(vec2 t, float pw) {
   vec2 p = floor(t);
   float wsum = 0.;
@@ -140,14 +148,9 @@ float crumpled_voronoi2(vec2 t, float pw) {
   }
   return pow(cl / wsum, .5) * 2.;
 }
-
 float crumpled(vec2 uv) {
   return crumpled_voronoi2(uv * .25, 16.) * crumpled_voronoi2(uv * .5, 2.);
 }
-
-
-
-
 
 float foldsHash(in float n) {
   return fract(sin(n)*43758.5453123);
@@ -172,13 +175,11 @@ vec2 folds(vec2 uv) {
     return mix(pp.xy, vec2(0.), pow(pp.z, .25));
 }
 
-
 vec2 grainRandom(vec2 p) {
   float angle = fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);
   angle *= 6.2831853;
   return vec2(cos(angle), sin(angle));
 }
-
 float grainNoise(vec2 p) {
   vec2 i = floor(p);
   vec2 f = fract(p);
@@ -206,22 +207,44 @@ float grainShape(vec2 uv, vec2 seedOffset) {
   }
 
   total = .5 + .5 * total;
-//  return total;
   return 25. * fwidth(total);
 }
 
 void main() {
 
+  float t = u_time;
   vec2 patternUV = v_patternUV;
 
-  vec2 grainUv = -100. + 10. * v_patternUV;
+
+
+
+  
+  
+    vec2 grainUv = -10. + 10. * v_patternUV;
+//  vec2 grainUv = .05 * (gl_FragCoord.xy - .5 * u_resolution);
 //  vec2 grainUv = 1.5 * (gl_FragCoord.xy - .5 * u_resolution) / u_pixelRatio;
 
-//  float grain = grain_fbm(grainUv + vec2(1., 0.)) - grain_fbm(grainUv - vec2(1., 0.));
+//  grainUv = rotate(grainUv, u_time);
+  float epsilon = 0.01;
+
+  float n1 = fbm(grainUv + vec2(epsilon, 0.0));
+  float n2 = fbm(grainUv - vec2(epsilon, 0.0));
+  float n3 = fbm(grainUv + vec2(0.0, epsilon));
+  float n4 = fbm(grainUv - vec2(0.0, epsilon));
+  float derivative = length(vec2(n1 - n2, n3 - n4)) / (2.0 * epsilon);
+
+  
+  //  float grain = grain_fbm(grainUv + vec2(1., 0.)) - grain_fbm(grainUv - vec2(1., 0.));
   float rr = u_channelR * grainShape(grainUv, vec2(0.));
   float gg = u_channelG * grainShape(grainUv, vec2(-1.));
   float bb = u_channelB * grainShape(grainUv, vec2(2.));
   vec3 grainColor = vec3(rr, gg, bb);
+  
+//  float noise = fbm(grainUv);
+//  float test = derivative;
+//  test = pow(test, 1.);
+//  test = smoothstep(.5, .6, test);
+//  vec3 grainColor = vec3(test);
   
 //  float channelB = .01 * u_channelB;
 //  vec2 crumplesUV = fract(patternUV * .1 * u_channelB + channelB) * 32.;
@@ -240,21 +263,21 @@ void main() {
 //  foldsUV = rotate(foldsUV + .007 * cos(u_foldsSeed), .01 * sin(u_foldsSeed));
 //  vec2 w2 = folds(foldsUV);
 //
-//  vec2 dropsUV = patternUV * 2.;
-//  vec2 iDropsUV = floor(dropsUV);
-//  vec2 fDropsUV = fract(dropsUV);
-//  float dropsMinDist = 1.;
-//  for (int j = -1; j <= 1; j++) {
-//    for (int i = -1; i <= 1; i++) {
-//      vec2 neighbor = vec2(float(i), float(j));
-//      vec2 offset = crumpled_noise(iDropsUV + neighbor);
-//      offset = .5 + .5 * sin(10. * u_dropsSeed + TWO_PI * offset);
-//      vec2 pos = neighbor + offset - fDropsUV;
-//      float dist = length(pos);
-//      dropsMinDist = min(dropsMinDist, dropsMinDist*dist);
-//    }
-//  }
-//  float drops = 1. - smoothstep(.05, .09, pow(dropsMinDist, .5));
+  vec2 dropsUV = patternUV * .2;
+  vec2 iDropsUV = floor(dropsUV);
+  vec2 fDropsUV = fract(dropsUV);
+  float dropsMinDist = 1.;
+  for (int j = -1; j <= 1; j++) {
+    for (int i = -1; i <= 1; i++) {
+      vec2 neighbor = vec2(float(i), float(j));
+      vec2 offset = crumpled_noise(iDropsUV + neighbor);
+      offset = .5 + .5 * sin(10. * u_dropsSeed + TWO_PI * offset);
+      vec2 pos = neighbor + offset - fDropsUV;
+      float dist = length(pos);
+      dropsMinDist = min(dropsMinDist, dropsMinDist*dist);
+    }
+  }
+  float drops = 1. - smoothstep(.05, .09, pow(dropsMinDist, .5));
 //  
 //  normal.xy += u_folds * min(5. * u_contrast, 1.) * 4. * (w + w2);
 //  normal.xy += u_channelR * crumples;
@@ -269,7 +292,8 @@ void main() {
 //  vec3 lightPos = vec3(1., 2., 1.);
 //  float res = clamp(dot(normalize(vec3(normal, 9.5 - 9. * pow(u_contrast, .1))), normalize(lightPos)), 0., 1.);
 
-  vec3 color = grainColor;
+  vec3 color = grainColor - drops;
+//  vec3 color = vec3(drops);
 //  vec3 color = mix(u_colorBack.rgb, u_colorFront.rgb, res);
 //  color -= .02 * u_drops * drops;
   float opacity = 1.;

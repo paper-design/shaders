@@ -20,7 +20,7 @@ export const defaultPreset: GrainAndNoisePreset = {
   name: 'Default',
   params: {
     ...defaultObjectSizing,
-    speed: 0,
+    speed: 1,
     frame: 0,
     scale: 0.8,
     colorFront: '#add3ff',

@@ -1,7 +1,7 @@
 'use client';
 
 import { GrainAndNoise, grainAndNoisePresets } from '@paper-design/shaders-react';
-import { useControls, button, folder } from 'leva';
+import { useState, useCallback, useControls, button, folder } from 'leva';
 import { setParamsSafe, useResetLevaParams } from '@/helpers/use-reset-leva-params';
 import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import Link from 'next/link';
@@ -99,7 +99,11 @@ const GrainAndNoiseWithControls = () => {
       <Link href="/">
         <BackButton />
       </Link>
-      <GrainAndNoise {...params} className="fixed size-full" />
+        <img
+            src={ `../images/031.jpg` }
+            className="fixed top-0 left-0 w-full h-full object-cover z-0"
+        />
+        <GrainAndNoise  {...params} className="inset-0 mix-blend-overlay fixed size-full" />
     </>
   );
 };
