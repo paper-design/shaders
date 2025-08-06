@@ -28,6 +28,7 @@ const GrainAndNoiseWithControls = () => {
   const [imageIdx, setImageIdx] = useState(0);
 
   const imageFiles = [
+    '063.jpg',
     '068.jpg',
     '086.png',
     '040.jpg',
@@ -35,7 +36,6 @@ const GrainAndNoiseWithControls = () => {
     '059.jpg',
     '06.jpg',
     '030.jpg',
-    '063.jpg',
     '023.jpg',
     '048.jpg',
 
@@ -90,7 +90,7 @@ const GrainAndNoiseWithControls = () => {
 
   const { blendMode } = useControls('Blend', {
     blendMode: {
-      value: 'normal',
+      value: 'overlay',
       options: [
         'normal',
         'darken',
