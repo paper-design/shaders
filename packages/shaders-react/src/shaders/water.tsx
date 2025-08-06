@@ -15,51 +15,50 @@ export interface WaterProps extends ShaderComponentProps, WaterParams {}
 
 type WaterPreset = ShaderPreset<WaterParams>;
 
+// export const logoPreset: WaterPreset = {
+//   name: 'Logo',
+//   params: {
+//     ...defaultObjectSizing,
+//     scale: 0.9,
+//     speed: 1,
+//     frame: 0,
+//     colorBack: '#0db5a7',
+//     image: '/images/087.png',
+//     highlights: 0.2,
+//     temperature: 0.5,
+//     layering: 0.5,
+//     edges: 0.15,
+//     waves: 0.15,
+//     caustic: 0.2,
+//     effectScale: 11,
+//   },
+// };
+//
+// export const tilePreset: WaterPreset = {
+//   name: 'Tiles',
+//   params: {
+//     ...defaultObjectSizing,
+//     fit: 'cover',
+//     scale: 1.02,
+//     speed: 1,
+//     frame: 0,
+//     colorBack: '#ffffff',
+//     image: '/images/069.jpg',
+//     highlights: 0.2,
+//     temperature: 0.5,
+//     layering: 1,
+//     edges: 0,
+//     waves: 0,
+//     caustic: 0.1,
+//     effectScale: 20,
+//   },
+// };
+
 export const defaultPreset: WaterPreset = {
   name: 'Default',
   params: {
     ...defaultObjectSizing,
-    scale: 0.9,
-    speed: 1,
-    frame: 0,
-    colorBack: '#0db5a7',
-    image: '/images/087.png',
-    highlights: 0.2,
-    temperature: 0.5,
-    layering: 0.5,
-    edges: 0.15,
-    waves: 0.15,
-    caustic: 0.2,
-    effectScale: 11,
-  },
-};
-
-export const tilePreset: WaterPreset = {
-  name: 'Tiles',
-  params: {
-    ...defaultObjectSizing,
-    fit: 'cover',
-    scale: 1.02,
-    speed: 1,
-    frame: 0,
-    colorBack: '#ffffff',
-    image: '/images/069.jpg',
-    highlights: 0.2,
-    temperature: 0.5,
-    layering: 1,
-    edges: 0,
-    waves: 0,
-    caustic: 0.1,
-    effectScale: 20,
-  },
-};
-
-export const causticPreset: WaterPreset = {
-  name: 'Caustic',
-  params: {
-    ...defaultObjectSizing,
     fit: 'contain',
-    scale: 0.75,
     speed: 1,
     frame: 0,
     colorBack: '#ffffff',
@@ -74,27 +73,27 @@ export const causticPreset: WaterPreset = {
   },
 };
 
-export const distortionPreset: WaterPreset = {
-  name: 'Distortion',
-  params: {
-    ...defaultObjectSizing,
-    fit: 'cover',
-    scale: 1.25,
-    speed: 1,
-    frame: 0,
-    colorBack: '#ffffff',
-    image: '/images/066.jpg',
-    highlights: 0,
-    temperature: 0,
-    layering: 0.35,
-    edges: 0,
-    waves: 0.4,
-    caustic: 0.11,
-    effectScale: 19,
-  },
-};
+// export const distortionPreset: WaterPreset = {
+//   name: 'Distortion',
+//   params: {
+//     ...defaultObjectSizing,
+//     fit: 'cover',
+//     scale: 1.25,
+//     speed: 1,
+//     frame: 0,
+//     colorBack: '#ffffff',
+//     image: '/images/066.jpg',
+//     highlights: 0,
+//     temperature: 0,
+//     layering: 0.35,
+//     edges: 0,
+//     waves: 0.4,
+//     caustic: 0.11,
+//     effectScale: 19,
+//   },
+// };
 
-export const waterPresets: WaterPreset[] = [defaultPreset, causticPreset, tilePreset, distortionPreset];
+export const waterPresets: WaterPreset[] = [defaultPreset];
 
 export const Water: React.FC<WaterProps> = memo(function WaterImpl({
   // Own props
