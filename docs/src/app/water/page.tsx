@@ -109,7 +109,7 @@ const WaterWithControls = () => {
           waves: { value: defaults.waves, min: 0, max: 1, order: 250 },
           caustic: { value: defaults.caustic, min: 0, max: 1, order: 251 },
           speed: { value: defaults.speed, min: 0, max: 1, order: 400 },
-          effectScale: { value: defaults.effectScale, min: 0, max: 50, order: 0 },
+          effectScale: { value: defaults.effectScale, min: 0.01, max: 5, order: 0 },
         },
         { order: 0 }
       ),

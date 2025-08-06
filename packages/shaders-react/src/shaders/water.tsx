@@ -30,7 +30,7 @@ type WaterPreset = ShaderPreset<WaterParams>;
 //     edges: 0.15,
 //     waves: 0.15,
 //     caustic: 0.2,
-//     effectScale: 11,
+//     effectScale: 0.2,
 //   },
 // };
 //
@@ -50,7 +50,7 @@ type WaterPreset = ShaderPreset<WaterParams>;
 //     edges: 0,
 //     waves: 0,
 //     caustic: 0.1,
-//     effectScale: 20,
+//     effectScale: 1,
 //   },
 // };
 
@@ -69,7 +69,7 @@ export const defaultPreset: WaterPreset = {
     edges: 0.25,
     waves: 0,
     caustic: 0.1,
-    effectScale: 20,
+    effectScale: 1,
   },
 };
 
@@ -89,7 +89,7 @@ export const defaultPreset: WaterPreset = {
 //     edges: 0,
 //     waves: 0.4,
 //     caustic: 0.11,
-//     effectScale: 19,
+//     effectScale: 0.9,
 //   },
 // };
 
