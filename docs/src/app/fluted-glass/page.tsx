@@ -80,7 +80,7 @@ const FlutedGlassWithControls = () => {
     const presets = Object.fromEntries(
       flutedGlassPresets.map(({ name, params: { worldWidth, worldHeight, ...preset } }) => [
         name,
-        button(() => setParamsSafe(params, setParams, preset, setImage)),
+        button(() => setParamsSafe(params, setParams, preset)),
       ])
     );
     return {

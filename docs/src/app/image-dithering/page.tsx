@@ -75,7 +75,7 @@ const ImageDitheringWithControls = () => {
     const presets = Object.fromEntries(
       imageDitheringPresets.map(({ name, params: { worldWidth, worldHeight, ...preset } }) => [
         name,
-        button(() => setParamsSafe(params, setParams, preset, setImage)),
+        button(() => setParamsSafe(params, setParams, preset)),
       ])
     );
     return {
