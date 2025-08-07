@@ -70,7 +70,7 @@ float randomGeneric(vec2 st) {
 }
 float random(vec2 p) {
   vec2 uv = floor(p) / 100. + .5;
-  return texture(u_noiseTexture, uv).r;
+  return texture(u_noiseTexture, fract(uv)).r;
 }
 ${declareValueNoise}
 float fbm(in vec2 n) {

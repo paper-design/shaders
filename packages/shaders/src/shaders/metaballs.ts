@@ -44,7 +44,7 @@ out vec4 fragColor;
 ${declarePI}
 float random(vec2 p) {
   vec2 uv = floor(p) / 100. + .5;
-  return texture(u_noiseTexture, uv).r;
+  return texture(u_noiseTexture, fract(uv)).r;
 }
 float noise(float x) {
   float i = floor(x);

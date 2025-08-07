@@ -253,7 +253,6 @@ void main() {
   color.rgb = mix(color, image.rgb, min(.8 * frame, image.a));
 
   fragColor = vec4(color, opacity);
-//  fragColor = mix(texture(u_noiseTexture, .5 * patternUV), texture(u_image, imageUV), step(.5, imageUV.y));
 }
 `;
 

@@ -47,11 +47,11 @@ ${declareRotate}
 
 float random(vec2 p) {
   vec2 uv = floor(p) / 100. + .5;
-  return texture(u_noiseTexture, uv).r;
+  return texture(u_noiseTexture, fract(uv)).r;
 }
 vec2 random2(vec2 p) {
   vec2 uv = floor(p) / 100. + .5;
-  return texture(u_noiseTexture, uv).gb;
+  return texture(u_noiseTexture, fract(uv)).gb;
 }
 
 vec3 voronoiShape(vec2 uv, float time) {
