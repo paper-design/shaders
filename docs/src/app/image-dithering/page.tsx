@@ -25,6 +25,7 @@ const ImageDitheringWithControls = () => {
 
   const imageFiles = [
     '083.jpg',
+    // 'transparency-test-chatgpt.png',
     '088.jpg',
     '030.jpg',
 

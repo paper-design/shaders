@@ -104,42 +104,41 @@ void main() {
       break;
   }
 
-  dithering -= .5;
   float lum = dot(vec3(.2126, .7152, .0722), image.rgb);
 
-
-  float steps = floor(u_colorSteps);
-  vec3 color = vec3(0.);
+  float steps = max(floor(u_colorSteps), 1.);
+  float ditherAmount = 1.0 / (steps);
+  
+  vec3 color = vec3(0.0);
   float opacity = 1.;
+
   if (u_ownPalette == true) {
-    float quantLum = floor((lum + dithering) * (steps + 1.)) / steps;
-    quantLum = mix(0., quantLum, frame);
-    opacity = mix(0., 1., frame);
-    vec3 normColor = image.rgb / max(lum, .001);
+    dithering -= .5;
+    float brightness = clamp(lum + dithering * ditherAmount, 0.0, 1.0);
+    brightness = mix(0.0, brightness, frame);
+    float quantLum = floor(brightness * steps + 0.5) / steps;
+    vec3 normColor = image.rgb / max(lum, 0.001);
     color = normColor * quantLum;
+
+    float quantAlpha = floor(image.a * steps + 0.5) / steps;
+    opacity = mix(quantLum, 1., frame * quantAlpha);
   } else {
-    float brightness = clamp(lum + dithering, 0.0, 1.0);
-    brightness = mix(0., brightness, frame);
-    float level = floor(brightness * (steps + 1.0)) / steps;
-    color = mix(u_colorBack, u_colorFront, level).rgb;
+    dithering -= .5;
+    float brightness = clamp(lum + dithering * ditherAmount, 0.0, 1.0);
+    brightness = mix(0.0, brightness, frame);
+    float quantLum = floor(brightness * steps + 0.5) / steps;
+
+    vec3 fgColor = u_colorFront.rgb * u_colorFront.a;
+    float fgOpacity = u_colorFront.a;
+    vec3 bgColor = u_colorBack.rgb * u_colorBack.a;
+    float bgOpacity = u_colorBack.a;
+
+    color = fgColor * quantLum;
+    opacity = fgOpacity * quantLum;
+    color += bgColor * (1.0 - opacity);
+    opacity += bgOpacity * (1.0 - opacity);
   }
-  
 
-  
-
-
-//  float res = step(.5, lum + dithering);
-//  res = mix(0., res, frame);
-//  vec3 fgColor = u_colorFront.rgb * u_colorFront.a;
-//  float fgOpacity = u_colorFront.a;
-//  vec3 bgColor = u_colorBack.rgb * u_colorBack.a;
-//  float bgOpacity = u_colorBack.a;
-//
-//  vec3 color = fgColor * res;
-//  float opacity = fgOpacity * res;
-//  
-//  color += bgColor * (1. - opacity);
-//  opacity += bgOpacity * (1. - opacity);
 
   fragColor = vec4(color, opacity);
 }
