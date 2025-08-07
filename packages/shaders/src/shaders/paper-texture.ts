@@ -239,17 +239,24 @@ void main() {
   vec3 lightPos = vec3(1., 2., 1.);
   float res = clamp(dot(normalize(vec3(normal, 9.5 - 9. * pow(u_contrast, .1))), normalize(lightPos)), 0., 1.);
 
-  vec3 color = mix(u_colorBack.rgb, u_colorFront.rgb, res);
+  vec3 fgColor = u_colorFront.rgb * u_colorFront.a;
+  float fgOpacity = u_colorFront.a;
+  vec3 bgColor = u_colorBack.rgb * u_colorBack.a;
+  float bgOpacity = u_colorBack.a;
+
+  vec3 color = fgColor * res;
+  float opacity = fgOpacity * res;
+
+  color += bgColor * (1. - opacity);
+  opacity += bgOpacity * (1. - opacity);
+  
   color -= .02 * u_drops * drops;
-  float opacity = 1.;
 
   imageUV += .02 * normalImage;
   vec4 image = texture(u_image, imageUV);
-  
   image.rgb += .5 * (res - .6);
 
   float frame = getUvFrame(imageUV);
-
   color.rgb = mix(color, image.rgb, min(.8 * frame, image.a));
 
   fragColor = vec4(color, opacity);
