@@ -90,7 +90,7 @@ const GrainAndNoiseWithControls = () => {
 
   const { blendMode } = useControls('Blend', {
     blendMode: {
-      value: 'overlay',
+      value: 'overlay' as React.CSSProperties['mixBlendMode'],
       options: [
         'normal',
         'darken',
