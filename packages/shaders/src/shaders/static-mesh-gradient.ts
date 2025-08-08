@@ -6,7 +6,7 @@ import {
   type ShaderSizingParams,
   type ShaderSizingUniforms,
 } from '../shader-sizing.js';
-import { declarePI, declareRotate, declareGrainShape, colorBandingFix } from '../shader-utils.js';
+import { declarePI, declareRotate, declareFiberNoise, colorBandingFix } from '../shader-utils.js';
 
 export const staticMeshGradientMeta = {
   maxColorCount: 10,
@@ -24,6 +24,7 @@ export const staticMeshGradientMeta = {
  * - u_grainMixer - shape distortion
  * - u_grainOverlay - post-processing blending
  *
+ * - u_noiseTexture (sampler2D): pre-computed randomizer source
  */
 
 // language=GLSL
@@ -42,6 +43,8 @@ uniform float u_mixing;
 uniform float u_grainMixer;
 uniform float u_grainOverlay;
 
+uniform sampler2D u_noiseTexture;
+
 ${sizingVariablesDeclaration}
 ${sizingUniformsDeclaration}
 
@@ -49,7 +52,7 @@ out vec4 fragColor;
 
 ${declarePI}
 ${declareRotate}
-${declareGrainShape}
+${declareFiberNoise}
 
 
 vec2 getPosition(int i, float t) {
@@ -67,8 +70,9 @@ void main() {
   vec2 uv = v_objectUV;
   uv += .5;
 
-  vec2 grainUV = rotate(v_objectUV, 2.) * 180.;
-  float grain = grainShape(grainUV, vec2(100.));
+  vec2 grainUV = v_objectUV * 120.;
+  float grain = fiberNoise(grainUV, vec2(0.));
+  float mixerGrain = .2 * u_grainMixer * (grain - .5);
 
   float radius = smoothstep(0., 1., length(uv - .5));
   float center = 1. - radius;
@@ -76,9 +80,7 @@ void main() {
     uv.x += u_waveX * center / i * cos(TWO_PI * u_waveXShift + i * 2. * smoothstep(.0, 1., uv.y));
     uv.y += u_waveY * center / i * cos(TWO_PI * u_waveYShift + i * 2. * smoothstep(.0, 1., uv.x));
   }
-
-  float mixerGrain = .4 * u_grainMixer * (grain - .3);
-
+  
   vec3 color = vec3(0.);
   float opacity = 0.;
   float totalWeight = 0.;
@@ -112,12 +114,12 @@ void main() {
   color /= totalWeight;
   opacity /= totalWeight;
 
-  float rr = grainShape(grainUV, vec2(0.));
-  float gg = grainShape(grainUV, vec2(-1.));
-  float bb = grainShape(grainUV, vec2(2.));
-  vec3 grainColor = 2. * vec3(rr, gg, bb);
-  color = mix(color, grainColor, u_grainOverlay * grain);
-
+  float rr = fiberNoise(rotate(grainUV, 1.), vec2(3.));
+  float gg = fiberNoise(rotate(grainUV, 2.) + 10., vec2(-1.));
+  float bb = fiberNoise(grainUV - 2., vec2(5.));
+  vec3 grainColor = vec3(rr, gg, bb) - 1.;
+  color = mix(color, grainColor, .2 * u_grainOverlay);
+  
   ${colorBandingFix}
 
   fragColor = vec4(color, opacity);
@@ -135,6 +137,7 @@ export interface StaticMeshGradientUniforms extends ShaderSizingUniforms {
   u_mixing: number;
   u_grainMixer: number;
   u_grainOverlay: number;
+  u_noiseTexture?: HTMLImageElement;
 }
 
 export interface StaticMeshGradientParams extends ShaderSizingParams, ShaderMotionParams {
