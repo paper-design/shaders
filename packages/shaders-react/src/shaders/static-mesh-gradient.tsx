@@ -4,6 +4,7 @@ import { colorPropsAreEqual } from '../color-props-are-equal.js';
 import {
   defaultObjectSizing,
   getShaderColorFromString,
+  getShaderNoiseTexture,
   staticMeshGradientFragmentShader,
   ShaderFitOptions,
   type StaticMeshGradientParams,
@@ -132,6 +133,7 @@ export const StaticMeshGradient: React.FC<StaticMeshGradientProps> = memo(functi
     u_mixing: mixing,
     u_grainMixer: grainMixer,
     u_grainOverlay: grainOverlay,
+    u_noiseTexture: getShaderNoiseTexture(),
 
     // Sizing uniforms
     u_fit: ShaderFitOptions[fit],
