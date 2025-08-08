@@ -25,6 +25,7 @@ uniform mediump float u_offsetY;
 
 uniform vec4 u_colorFront;
 uniform vec4 u_colorBack;
+uniform vec4 u_colorHighlight;
 
 uniform sampler2D u_image;
 uniform mediump float u_imageAspectRatio;
@@ -112,26 +113,27 @@ void main() {
   vec3 color = vec3(0.0);
   float opacity = 1.;
 
+  dithering -= .5;
+  float brightness = clamp(lum + dithering * ditherAmount, 0.0, 1.0);
+  brightness = mix(0.0, brightness, frame);
+  float quantLum = floor(brightness * steps + 0.5) / steps;
+
   if (u_ownPalette == true) {
-    dithering -= .5;
-    float brightness = clamp(lum + dithering * ditherAmount, 0.0, 1.0);
-    brightness = mix(0.0, brightness, frame);
-    float quantLum = floor(brightness * steps + 0.5) / steps;
     vec3 normColor = image.rgb / max(lum, 0.001);
     color = normColor * quantLum;
 
     float quantAlpha = floor(image.a * steps + 0.5) / steps;
     opacity = mix(quantLum, 1., frame * quantAlpha);
   } else {
-    dithering -= .5;
-    float brightness = clamp(lum + dithering * ditherAmount, 0.0, 1.0);
-    brightness = mix(0.0, brightness, frame);
-    float quantLum = floor(brightness * steps + 0.5) / steps;
-
     vec3 fgColor = u_colorFront.rgb * u_colorFront.a;
     float fgOpacity = u_colorFront.a;
     vec3 bgColor = u_colorBack.rgb * u_colorBack.a;
     float bgOpacity = u_colorBack.a;
+    vec3 hlColor = u_colorHighlight.rgb * u_colorHighlight.a;
+    float hlOpacity = u_colorHighlight.a;
+
+    fgColor = mix(fgColor, hlColor, step(1., brightness));
+    fgOpacity = mix(fgOpacity, hlOpacity, step(1., brightness));
 
     color = fgColor * quantLum;
     opacity = fgOpacity * quantLum;
@@ -148,6 +150,7 @@ export interface ImageDitheringUniforms extends ShaderSizingUniforms {
   u_image: HTMLImageElement | string | undefined;
   u_colorFront: [number, number, number, number];
   u_colorBack: [number, number, number, number];
+  u_colorHighlight: [number, number, number, number];
   u_type: (typeof DitheringTypes)[DitheringType];
   u_pxSize: number;
   u_colorSteps: number;
@@ -158,6 +161,7 @@ export interface ImageDitheringParams extends ShaderSizingParams, ShaderMotionPa
   image?: HTMLImageElement | string | undefined;
   colorFront?: string;
   colorBack?: string;
+  colorHighlight?: string;
   type?: DitheringType;
   pxSize?: number;
   colorSteps?: number;
