@@ -1,6 +1,13 @@
 import type { ShaderMotionParams } from '../shader-mount.js';
 import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
-import { declareImageUV, declareRotate, declarePI, declareValueNoise, declareSimplexNoise } from '../shader-utils.js';
+import {
+  declareImageUV,
+  declareRotate,
+  declarePI,
+  declareValueNoise,
+  declareSimplexNoise,
+  declareFiberNoise,
+} from '../shader-utils.js';
 
 /**
 
@@ -89,34 +96,7 @@ float grain_fbm(vec2 p) {
   return o / 3.;
 }
 
-float curley_random(vec2 p) {
-  vec2 uv = floor(p) / 50. + .5;
-  return texture(u_noiseTexture, fract(uv)).r;
-}
-
-float curley_valueNoise(vec2 st) {
-  vec2 i = floor(st);
-  vec2 f = fract(st);
-  float a = curley_random(i);
-  float b = curley_random(i + vec2(1.0, 0.0));
-  float c = curley_random(i + vec2(0.0, 1.0));
-  float d = curley_random(i + vec2(1.0, 1.0));
-  vec2 u = f * f * (3.0 - 2.0 * f);
-  float x1 = mix(a, b, u.x);
-  float x2 = mix(c, d, u.x);
-  return mix(x1, x2, u.y);
-}
-
-float curleyFbm(vec2 uv) {
-  float amp = 1.;
-  float val = 0.;
-  for (int i = 0; i < 4; i++) {
-    val += amp * (curley_valueNoise(uv + float(i)) - 1.);
-    uv *= 1.8;
-    amp *= .5;
-  }
-  return val;
-}
+${declareFiberNoise}
 
 vec2 crumpled_noise(vec2 p) {
   vec2 uv = floor(p) / 50. + .5;
@@ -188,10 +168,9 @@ void main() {
   vec2 crumplesUV = fract(patternUV * .1 * u_crumplesScale + crumplesSeed) * 32.;
   float crumples = crumpled(crumplesUV + vec2(.05, 0.)) - crumpled(crumplesUV);
 
-  vec2 curlesUV = 100. * patternUV * mix(.02, .25, u_curlesScale);
-  float noise = curleyFbm(curlesUV);
-  float curles = length(vec2(dFdx(noise), dFdy(noise)));
-  curles = pow(curles, .4) - .2;
+  vec2 fiberUV = 10. * u_curlesScale * patternUV;
+  float fiber = fiberNoise(fiberUV, vec2(0.));
+  fiber = .5 * (fiber - 1.);
 
   vec2 normal = vec2(0.);
   vec2 normalImage = vec2(0.);
@@ -231,10 +210,10 @@ void main() {
   normal *= (1. - blur);
 
   normal.xy += u_grain * 1.5 * grain;
-  normal.xy += u_curles * curles * 3. * (1. - .5 * blur);
+  normal.xy += u_curles * fiber * (1. - .5 * blur);
   
   normalImage += .2 * u_grain * 1.5 * grain;
-  normalImage += .2 * u_curles * curles * 3. * (1. - .5 * blur);
+  normalImage += .2 * u_curles * fiber * (1. - .5 * blur);
 
   vec3 lightPos = vec3(1., 2., 1.);
   float res = clamp(dot(normalize(vec3(normal, 9.5 - 9. * pow(u_contrast, .1))), normalize(lightPos)), 0., 1.);
