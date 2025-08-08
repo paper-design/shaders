@@ -132,8 +132,8 @@ void main() {
     vec3 hlColor = u_colorHighlight.rgb * u_colorHighlight.a;
     float hlOpacity = u_colorHighlight.a;
 
-    fgColor = mix(fgColor, hlColor, step(1., brightness));
-    fgOpacity = mix(fgOpacity, hlOpacity, step(1., brightness));
+    fgColor = mix(fgColor, hlColor, step(1.02 - .02 * u_colorSteps, brightness));
+    fgOpacity = mix(fgOpacity, hlOpacity, step(1.02 - .02 * u_colorSteps, brightness));
 
     color = fgColor * quantLum;
     opacity = fgOpacity * quantLum;
