@@ -563,8 +563,8 @@ function createProgram(
   if (precision && precision < 23) {
     vertexShaderSource = vertexShaderSource.replace(/precision\s+(lowp|mediump)\s+float;/g, 'precision highp float;');
     fragmentShaderSource = fragmentShaderSource
-        .replace(/precision\s+(lowp|mediump)\s+float/g, 'precision highp float')
-        .replace(/\b(uniform|varying|attribute)\s+(lowp|mediump)\s+float/g, '$1 highp float');
+      .replace(/precision\s+(lowp|mediump)\s+float/g, 'precision highp float')
+      .replace(/\b(uniform|varying|attribute)\s+(lowp|mediump)\s+float/g, '$1 highp float');
   }
 
   const vertexShader = createShader(gl, gl.VERTEX_SHADER, vertexShaderSource);
