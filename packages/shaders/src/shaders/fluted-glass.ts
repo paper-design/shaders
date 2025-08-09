@@ -1,6 +1,6 @@
 import type { ShaderMotionParams } from '../shader-mount.js';
 import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
-import { declareImageUV, declarePI, declareRotate } from '../shader-utils.js';
+import { declareImageFrame, declarePI, declareRotate } from '../shader-utils.js';
 
 /**
  * Mimicking glass surface distortion over the image by distorting the texture
@@ -60,7 +60,7 @@ out vec4 fragColor;
 
 ${declarePI}
 ${declareRotate}
-${declareImageUV}
+${declareImageFrame}
 
 
 vec2 random2(vec2 p) {

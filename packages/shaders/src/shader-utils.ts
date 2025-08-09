@@ -113,7 +113,7 @@ float fiberNoise(vec2 uv, vec2 seedOffset) {
 `;
 
 // language=GLSL
-export const declareImageUV = `
+export const declareImageFrame = `
   float getUvFrame(vec2 uv) {
     float aax = 2. * fwidth(uv.x);
     float aay = 2. * fwidth(uv.y);

@@ -1,7 +1,7 @@
 import type { ShaderMotionParams } from '../shader-mount.js';
 import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
 import {
-  declareImageUV,
+  declareImageFrame,
   declareRotate,
   declarePI,
   declareValueNoise,
@@ -55,7 +55,7 @@ out vec4 fragColor;
 
 ${declarePI}
 ${declareRotate}
-${declareImageUV}
+${declareImageFrame}
 
 
 float random(vec2 p) {

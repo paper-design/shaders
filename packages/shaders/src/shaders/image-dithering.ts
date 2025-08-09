@@ -1,6 +1,6 @@
 import type { ShaderMotionParams } from '../shader-mount.js';
 import { sizingUV, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
-import { declareImageUV, declareRandom } from '../shader-utils.js';
+import { declareRandom } from '../shader-utils.js';
 
 /**
  * Dithering effect over user texture using 3-color palette
@@ -54,7 +54,15 @@ uniform float u_colorSteps;
 
 out vec4 fragColor;
 
-${declareImageUV}
+float getUvFrame(vec2 uv, vec2 px) {
+  float left   = step(-px.x, uv.x);
+  float right  = step(uv.x, 1.);
+  float bottom = step(-px.y, uv.y);
+  float top    = step(uv.y, 1. + px.y);
+
+  return left * right * bottom * top;
+}
+
 ${declareRandom}
 
 const int bayer2x2[4] = int[4](0, 2, 3, 1);
@@ -101,7 +109,7 @@ void main() {
   vec2 ditheringNoise_uv = uv;
   
   vec4 image = texture(u_image, imageUV);
-  float frame = getUvFrame(imageUV);
+  float frame = getUvFrame(imageUV, pxSize / u_resolution.xy);
 //  if (frame < .05) discard;
   
   int type = int(floor(u_type));
@@ -140,7 +148,7 @@ void main() {
     color = normColor * quantLum;
 
     float quantAlpha = floor(image.a * steps + 0.5) / steps;
-    opacity = mix(quantLum, 1., frame * quantAlpha);
+    opacity = mix(quantLum, 1., quantAlpha);
   } else {
     vec3 fgColor = u_colorFront.rgb * u_colorFront.a;
     float fgOpacity = u_colorFront.a;
