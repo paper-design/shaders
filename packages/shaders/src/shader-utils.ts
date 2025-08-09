@@ -111,3 +111,18 @@ float fiberNoise(vec2 uv, vec2 seedOffset) {
   return length(vec2(n1 - n2, n3 - n4)) / (2.0 * epsilon);
 }
 `;
+
+// language=GLSL
+export const declareImageFrame = `
+  float getUvFrame(vec2 uv) {
+    float aax = 2. * fwidth(uv.x);
+    float aay = 2. * fwidth(uv.y);
+
+    float left   = smoothstep(0., aax, uv.x);
+    float right  = smoothstep(1., 1. - aax, uv.x);
+    float bottom = smoothstep(0., aay, uv.y);
+    float top    = smoothstep(1., 1. - aay, uv.y);
+
+    return left * right * bottom * top;
+  }
+`;

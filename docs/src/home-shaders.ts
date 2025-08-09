@@ -63,6 +63,14 @@ import {
   staticMeshGradientPresets,
   StaticRadialGradient,
   staticRadialGradientPresets,
+  PaperTexture,
+  paperTexturePresets,
+  FlutedGlass,
+  flutedGlassPresets,
+  Water,
+  waterPresets,
+  ImageDithering,
+  imageDitheringPresets,
 } from '@paper-design/shaders-react';
 import { StaticImageData } from 'next/image';
 import TextureTest from './app/texture-test/page';
@@ -229,5 +237,29 @@ export const homeShaders = [
     ShaderComponent: GodRays,
     image: godRaysImg,
     shaderConfig: { ...godRaysPresets[0].params, speed: 2, scale: 0.5, offsetY: -0.5 },
+  },
+  {
+    name: 'paper texture',
+    url: '/paper-texture',
+    ShaderComponent: PaperTexture,
+    shaderConfig: { ...paperTexturePresets[0].params },
+  },
+  {
+    name: 'water',
+    url: '/water',
+    ShaderComponent: Water,
+    shaderConfig: { ...waterPresets[0].params },
+  },
+  {
+    name: 'fluted glass',
+    url: '/fluted-glass',
+    ShaderComponent: FlutedGlass,
+    shaderConfig: { ...flutedGlassPresets[0].params },
+  },
+  {
+    name: 'image dithering',
+    url: '/image-dithering',
+    ShaderComponent: ImageDithering,
+    shaderConfig: { ...imageDitheringPresets[0].params },
   },
 ] satisfies HomeShaderConfig[];
