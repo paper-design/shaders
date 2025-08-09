@@ -21,3 +21,11 @@ export function levaImageButton(onLoad: (image: HTMLImageElement) => void) {
     input.click();
   });
 }
+
+export function levaDeleteImageButton(onLoad: (image?: HTMLImageElement) => void) {
+  return button(() => {
+    const img = new Image();
+    img.src = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==';
+    img.onload = () => onLoad(img);
+  });
+}

@@ -8,7 +8,7 @@ import Link from 'next/link';
 import { BackButton } from '@/components/back-button';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
 import { ShaderFit, ShaderFitOptions } from '@paper-design/shaders';
-import { levaImageButton } from '@/helpers/leva-image-button';
+import { levaImageButton, levaDeleteImageButton } from '@/helpers/leva-image-button';
 import { useState, useEffect, useCallback } from 'react';
 import { toHsla } from '@/helpers/to-hsla';
 
@@ -86,9 +86,10 @@ const WaterWithControls = () => {
     setImageIdx((prev) => (prev + 1) % imageFiles.length);
   }, []);
 
-  const setImageWithStatus = useCallback((img?: HTMLImageElement) => {
+  const setImageWithoutStatus = useCallback((img?: HTMLImageElement) => {
     setImage(img);
-    setStatus(`Displaying image: uploaded image`);
+    setImageIdx(-1);
+    setStatus(``);
   }, []);
 
   const [params, setParams] = useControls(() => {
@@ -111,7 +112,7 @@ const WaterWithControls = () => {
           speed: { value: defaults.speed, min: 0, max: 1, order: 400 },
           effectScale: { value: defaults.effectScale, min: 0.01, max: 5, order: 0 },
         },
-        { order: 0 }
+        { order: 1 }
       ),
       Image: folder(
         {
@@ -120,9 +121,10 @@ const WaterWithControls = () => {
           // rotation: {value: defaults.rotation, min: 0, max: 360, order: 401},
           // offsetX: {value: defaults.offsetX, min: -1, max: 1, order: 402},
           // offsetY: {value: defaults.offsetY, min: -1, max: 1, order: 403},
-          'Upload image': levaImageButton(setImageWithStatus),
+          'Upload image': levaImageButton(setImageWithoutStatus),
+          'Delete image': levaDeleteImageButton(setImageWithoutStatus),
         },
-        { order: 2 }
+        { order: 0 }
       ),
 
       Presets: folder(presets, { order: -1 }),

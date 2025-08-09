@@ -8,7 +8,7 @@ import Link from 'next/link';
 import { BackButton } from '@/components/back-button';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
 import { ShaderFit, ShaderFitOptions } from '@paper-design/shaders';
-import { levaImageButton } from '@/helpers/leva-image-button';
+import { levaImageButton, levaDeleteImageButton } from '@/helpers/leva-image-button';
 import { useState, useEffect, useCallback } from 'react';
 import { toHsla } from '@/helpers/to-hsla';
 
@@ -93,9 +93,10 @@ const PaperTextureWithControls = () => {
     setImageIdx((prev) => (prev + 1) % imageFiles.length);
   }, []);
 
-  const setImageWithStatus = useCallback((img?: HTMLImageElement) => {
+  const setImageWithoutStatus = useCallback((img?: HTMLImageElement) => {
     setImage(img);
-    setStatus(`Displaying image: uploaded image`);
+    setImageIdx(-1);
+    setStatus(``);
   }, []);
 
   const [params, setParams] = useControls(() => {
@@ -152,9 +153,10 @@ const PaperTextureWithControls = () => {
           // rotation: {value: defaults.rotation, min: 0, max: 360, order: 401},
           // offsetX: {value: defaults.offsetX, min: -1, max: 1, order: 402},
           // offsetY: {value: defaults.offsetY, min: -1, max: 1, order: 403},
-          'Upload image': levaImageButton(setImageWithStatus),
+          'Upload image': levaImageButton(setImageWithoutStatus),
+          'Delete image': levaDeleteImageButton(setImageWithoutStatus),
         },
-        { order: 2 }
+        { order: 0 }
       ),
 
       Presets: folder(presets, { order: -1 }),
@@ -177,7 +179,7 @@ const PaperTextureWithControls = () => {
         className="fixed bottom-3 left-3 rounded px-2 py-1 text-xs"
         style={{ background: 'rgba(0,0,0,0.7)', color: 'white' }}
       >
-        {fileName ? `Displaying image: ${fileName}` : 'Click to load an image'}
+        {fileName ? `Displaying image: ${fileName}` : 'Click to load a new image'}
       </div>
     </>
   );

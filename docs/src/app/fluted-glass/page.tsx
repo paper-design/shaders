@@ -71,9 +71,10 @@ const FlutedGlassWithControls = () => {
     setImageIdx((prev) => (prev + 1) % imageFiles.length);
   }, []);
 
-  const setImageWithStatus = useCallback((img?: HTMLImageElement) => {
+  const setImageWithoutStatus = useCallback((img?: HTMLImageElement) => {
     setImage(img);
-    setStatus(`Displaying image: uploaded image`);
+    setImageIdx(-1);
+    setStatus(``);
   }, []);
 
   const [params, setParams] = useControls(() => {
@@ -104,7 +105,7 @@ const FlutedGlassWithControls = () => {
           blur: { value: defaults.blur, min: 0, max: 25, order: 251 },
           gridLines: { value: defaults.gridLines, min: 0, max: 1, order: 270 },
         },
-        { order: 0 }
+        { order: 1 }
       ),
       Image: folder(
         {
@@ -117,9 +118,9 @@ const FlutedGlassWithControls = () => {
           // rotation: {value: defaults.rotation, min: 0, max: 360, order: 401},
           // offsetX: {value: defaults.offsetX, min: -1, max: 1, order: 402},
           // offsetY: {value: defaults.offsetY, min: -1, max: 1, order: 403},
-          'Upload image': levaImageButton(setImageWithStatus),
+          'Upload image': levaImageButton(setImageWithoutStatus),
         },
-        { order: 2 }
+        { order: 0 }
       ),
 
       Presets: folder(presets, { order: -1 }),
