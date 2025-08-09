@@ -116,15 +116,20 @@ const WaterWithControls = () => {
       ),
       Image: folder(
         {
-          'fit': { value: defaults.fit, options: ['contain', 'cover'] as ShaderFit[], order: 100 },
-          'scale': { value: defaults.scale, min: 0.01, max: 4, order: 101 },
-          // rotation: {value: defaults.rotation, min: 0, max: 360, order: 401},
-          // offsetX: {value: defaults.offsetX, min: -1, max: 1, order: 402},
-          // offsetY: {value: defaults.offsetY, min: -1, max: 1, order: 403},
           'Upload image': levaImageButton(setImageWithoutStatus),
           'Delete image': levaDeleteImageButton(setImageWithoutStatus),
         },
         { order: 0 }
+      ),
+      ImageControls: folder(
+        {
+          'fit': { value: defaults.fit, options: ['contain', 'cover'] as ShaderFit[], order: 100 },
+          'scale': { value: defaults.scale, min: 0.5, max: 4, order: 101 },
+          // rotation: {value: defaults.rotation, min: 0, max: 360, order: 401},
+          // offsetX: {value: defaults.offsetX, min: -1, max: 1, order: 402},
+          // offsetY: {value: defaults.offsetY, min: -1, max: 1, order: 403},
+        },
+        { order: 3 }
       ),
 
       Presets: folder(presets, { order: -1 }),

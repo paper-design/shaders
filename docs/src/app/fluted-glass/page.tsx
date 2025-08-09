@@ -109,6 +109,12 @@ const FlutedGlassWithControls = () => {
       ),
       Image: folder(
         {
+          'Upload image': levaImageButton(setImageWithoutStatus),
+        },
+        { order: 0 }
+      ),
+      ImageControls: folder(
+        {
           'fit': { value: defaults.fit, options: ['contain', 'cover'] as ShaderFit[], order: 100 },
           'scale': { value: defaults.scale, min: 1, max: 4, order: 101 },
           'marginLeft': { value: defaults.marginLeft, min: 0, max: 1, order: 200 },
@@ -118,9 +124,8 @@ const FlutedGlassWithControls = () => {
           // rotation: {value: defaults.rotation, min: 0, max: 360, order: 401},
           // offsetX: {value: defaults.offsetX, min: -1, max: 1, order: 402},
           // offsetY: {value: defaults.offsetY, min: -1, max: 1, order: 403},
-          'Upload image': levaImageButton(setImageWithoutStatus),
         },
-        { order: 0 }
+        { order: 3 }
       ),
 
       Presets: folder(presets, { order: -1 }),
