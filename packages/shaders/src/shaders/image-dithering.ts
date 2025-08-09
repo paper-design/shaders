@@ -1,5 +1,5 @@
 import type { ShaderMotionParams } from '../shader-mount.js';
-import { sizingUV, sizingUniformsDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
+import { sizingUV, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
 import { declareImageUV, declareRandom } from '../shader-utils.js';
 
 /**
@@ -29,15 +29,23 @@ precision lowp float;
 uniform float u_time;
 uniform mediump vec2 u_resolution;
 uniform mediump float u_pixelRatio;
+uniform mediump float u_originX;
+uniform mediump float u_originY;
+uniform mediump float u_worldWidth;
+uniform mediump float u_worldHeight;
+uniform mediump float u_fit;
 
-${sizingUniformsDeclaration}
-
-uniform sampler2D u_image;
-uniform mediump float u_imageAspectRatio;
+uniform mediump float u_scale;
+uniform mediump float u_rotation;
+uniform mediump float u_offsetX;
+uniform mediump float u_offsetY;
 
 uniform vec4 u_colorFront;
 uniform vec4 u_colorBack;
 uniform vec4 u_colorHighlight;
+
+uniform sampler2D u_image;
+uniform mediump float u_imageAspectRatio;
 
 uniform float u_type;
 uniform float u_pxSize;
