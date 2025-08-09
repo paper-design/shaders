@@ -1,8 +1,21 @@
 import type { ShaderMotionParams } from '../shader-mount.js';
 import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
-import { declareImageUV, declarePI, declareRotate, declareRandom, declareSimplexNoise } from '../shader-utils.js';
+import { declareImageUV, declarePI, declareRotate, declareSimplexNoise } from '../shader-utils.js';
 
 /**
+ * Mimicking water surface distortion with a combination of noises;
+ * Can be applied over the texture or just be used as an animated pattern
+ *
+ * Uniforms:
+ * - u_colorBack (RGBA)
+ * - u_effectScale: pattern scale relative to the image
+ * - u_caustic: power of caustic distortion
+ * - u_layering: the power of 2nd layer of caustic distortion
+ * - u_edges: caustic distortion power on the image edges
+ * - u_waves: additional distortion based in Simplex noise, independent from caustic
+ * - u_highlights: a coloring added over the image/background, following the caustic shape
+ * - u_temperature: a color of u_highlights
+ *
  */
 
 // language=GLSL
@@ -24,21 +37,14 @@ uniform float u_edges;
 uniform float u_caustic;
 uniform float u_waves;
 
-
 ${sizingVariablesDeclaration}
 
 out vec4 fragColor;
 
 ${declarePI}
 ${declareRotate}
-${declareRandom}
 ${declareSimplexNoise}
 ${declareImageUV}
-
-
-vec2 random2(vec2 p) {
-  return vec2(random(p), random(200. * p));
-}
 
 mat2 rotate2D(float r) {
   return mat2(cos(r), sin(r), -sin(r), cos(r));

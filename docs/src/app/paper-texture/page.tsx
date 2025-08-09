@@ -114,8 +114,8 @@ const PaperTextureWithControls = () => {
 
           grain: { value: defaults.grain, min: 0, max: 1, order: 300 },
 
-          curles: { value: defaults.curles, min: 0, max: 1, order: 310 },
-          curlesScale: { value: defaults.curlesScale, min: 0.1, max: 2, order: 310 },
+          fiber: { value: defaults.fiber, min: 0, max: 1, order: 310 },
+          fiberScale: { value: defaults.fiberScale, min: 0.1, max: 2, order: 310 },
 
           crumples: { value: defaults.crumples, min: 0, max: 1, order: 320 },
           crumplesSeed: { value: defaults.crumplesSeed, min: 0, max: 1000, order: 321 },

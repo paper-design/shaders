@@ -1,8 +1,30 @@
 import type { ShaderMotionParams } from '../shader-mount.js';
 import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
-import { declareImageUV, declarePI, declareRotate, declareRandom } from '../shader-utils.js';
+import { declareImageUV, declarePI, declareRotate } from '../shader-utils.js';
 
 /**
+ * Mimicking glass surface distortion over the image by distorting the texture
+ * coordinates within line patterns
+ *
+ * Uniforms:
+ * - u_grid, u_gridRotation - number and direction of grid relative to the image
+ * - u_gridShape (float used as integer):
+ * ---- 1: uniformly spaced stripes
+ * ---- 2: randomly spaced stripes
+ * ---- 3: sine wave stripes
+ * ---- 4: zigzag stripes
+ * ---- 5: wave-based pattern
+ * - u_distortion - the power of distortion applied along within each stripe
+ * - u_distortionShape (float used as integer):
+ * ---- 5 shapes available
+ * - u_shift - texture shift in direction opposite to the grid
+ * - u_blur, u_frost - additional distortions applied over the main one
+ * - u_gridLines - thin color lines along the grid (independent from distortion)
+ * - u_marginLeft, u_marginRight, u_marginTop, u_marginBottom - paddings
+ *   within picture to be shown without any distortion
+ *
+ * - u_noiseTexture (sampler2D): pre-computed randomizer source
+ *
  */
 
 // language=GLSL
@@ -18,6 +40,8 @@ uniform float u_imageAspectRatio;
 
 uniform float u_grid;
 uniform float u_gridRotation;
+uniform float u_gridLines;
+uniform float u_gridShape;
 uniform float u_distortion;
 uniform float u_distortionShape;
 uniform float u_shift;
@@ -27,8 +51,8 @@ uniform float u_marginLeft;
 uniform float u_marginRight;
 uniform float u_marginTop;
 uniform float u_marginBottom;
-uniform float u_gridLines;
-uniform float u_gridShape;
+
+uniform sampler2D u_noiseTexture;
 
 ${sizingVariablesDeclaration}
 
@@ -36,14 +60,13 @@ out vec4 fragColor;
 
 ${declarePI}
 ${declareRotate}
-${declareRandom}
 ${declareImageUV}
 
 
 vec2 random2(vec2 p) {
-  return vec2(random(p), random(200. * p));
+  vec2 uv = floor(p) / 100. + .5;
+  return texture(u_noiseTexture, fract(uv)).gb;
 }
-
 float hash(float x) {
   return fract(sin(x) * 43758.5453123);
 }
@@ -151,7 +174,7 @@ void main() {
 
   uv += mask * (random2(uv).xy - .5) * .03 * u_frost;
 
-  vec4 color = getBlur(u_image, uv, 1. / u_resolution, vec2(0., 1.), blur);
+  vec4 color = getBlur(u_image, uv, 1. / u_resolution / u_pixelRatio, vec2(0., 1.), blur);
 
   vec3 midColor = texture(u_image, vec2(floorUV.x / gridNumber - .5, .4 + .7 * hash(floorUV.x))).rgb;
   color.rgb = mix(color.rgb, midColor, u_gridLines * gridLines);
@@ -176,6 +199,7 @@ export interface FlutedGlassUniforms extends ShaderSizingUniforms {
   u_gridLines: number;
   u_distortionShape: (typeof GlassDistortionShapes)[GlassDistortionShape];
   u_gridShape: (typeof GlassGridShapes)[GlassGridShape];
+  u_noiseTexture?: HTMLImageElement;
 }
 
 export interface FlutedGlassParams extends ShaderSizingParams, ShaderMotionParams {

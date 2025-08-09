@@ -5,17 +5,16 @@ import {
   declareRotate,
   declarePI,
   declareValueNoise,
-  declareSimplexNoise,
   declareFiberNoise,
 } from '../shader-utils.js';
 
 /**
-
- https://www.shadertoy.com/view/fsjyR3 - grain
- https://www.shadertoy.com/view/fdt3RN - curls
- https://www.shadertoy.com/view/ltsSDf - crumple
- https://www.shadertoy.com/view/4tj3DG - worley
-
+ * Mimicking paper texture with a combination of noises
+ *
+ * Uniforms:
+ *
+ * - u_noiseTexture (sampler2D): pre-computed randomizer source
+ *
  */
 
 // language=GLSL
@@ -36,8 +35,8 @@ uniform float u_crumplesSeed;
 uniform float u_foldsSeed;
 uniform float u_contrast;
 uniform float u_grain;
-uniform float u_curles;
-uniform float u_curlesScale;
+uniform float u_fiber;
+uniform float u_fiberScale;
 uniform float u_crumples;
 uniform float u_foldsNumber;
 uniform float u_folds;
@@ -56,7 +55,6 @@ out vec4 fragColor;
 
 ${declarePI}
 ${declareRotate}
-${declareSimplexNoise}
 ${declareImageUV}
 
 
@@ -168,7 +166,7 @@ void main() {
   vec2 crumplesUV = fract(patternUV * .1 * u_crumplesScale + crumplesSeed) * 32.;
   float crumples = crumpled(crumplesUV + vec2(.05, 0.)) - crumpled(crumplesUV);
 
-  vec2 fiberUV = 10. * u_curlesScale * patternUV;
+  vec2 fiberUV = 10. * u_fiberScale * patternUV;
   float fiber = fiberNoise(fiberUV, vec2(0.));
   fiber = .5 * (fiber - 1.);
 
@@ -210,10 +208,10 @@ void main() {
   normal *= (1. - blur);
 
   normal.xy += u_grain * 1.5 * grain;
-  normal.xy += u_curles * fiber * (1. - .5 * blur);
+  normal.xy += u_fiber * fiber * (1. - .5 * blur);
   
   normalImage += .2 * u_grain * 1.5 * grain;
-  normalImage += .2 * u_curles * fiber * (1. - .5 * blur);
+  normalImage += .2 * u_fiber * fiber * (1. - .5 * blur);
 
   vec3 lightPos = vec3(1., 2., 1.);
   float res = clamp(dot(normalize(vec3(normal, 9.5 - 9. * pow(u_contrast, .1))), normalize(lightPos)), 0., 1.);
@@ -251,8 +249,8 @@ export interface PaperTextureUniforms extends ShaderSizingUniforms {
   u_foldsSeed: number;
   u_contrast: number;
   u_grain: number;
-  u_curles: number;
-  u_curlesScale: number;
+  u_fiber: number;
+  u_fiberScale: number;
   u_crumples: number;
   u_foldsNumber: number;
   u_folds: number;
@@ -271,8 +269,8 @@ export interface PaperTextureParams extends ShaderSizingParams, ShaderMotionPara
   foldsSeed?: number;
   contrast?: number;
   grain?: number;
-  curles?: number;
-  curlesScale?: number;
+  fiber?: number;
+  fiberScale?: number;
   crumples?: number;
   foldsNumber?: number;
   folds?: number;

@@ -1,8 +1,25 @@
 import type { ShaderMotionParams } from '../shader-mount.js';
-import { sizingUV, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
+import { sizingUV, sizingUniformsDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
 import { declareImageUV, declareRandom } from '../shader-utils.js';
 
 /**
+ * Dithering effect over user texture using 3-color palette
+ * or colors sampled from original image
+ *
+ * Uniforms:
+ * - u_colorBack, u_colorFront, u_colorHighlight (RGBA)
+ *   (u_colorHighlight to be the lightest parts of u_colorFront pixels)
+ * - pxSize: px size set relative to canvas resolution
+ * - u_type (float used as integer)
+ * ---- 1: random dithering
+ * ---- 2: 2x2 Bayer matrix
+ * ---- 3: 4x4 Bayer matrix
+ * ---- 4: 8x8 Bayer matrix
+ * - u_ownPalette - switching between 3 colors palette and original image colors
+ * - u_colorSteps - number of colors to use (applies to both color modes)
+ *
+ * Note: pixelization is applied to the shapes BEFORE dithering,
+ *       meaning pixels don't react to scaling and fit
  */
 
 // language=GLSL
@@ -12,23 +29,15 @@ precision lowp float;
 uniform float u_time;
 uniform mediump vec2 u_resolution;
 uniform mediump float u_pixelRatio;
-uniform mediump float u_originX;
-uniform mediump float u_originY;
-uniform mediump float u_worldWidth;
-uniform mediump float u_worldHeight;
-uniform mediump float u_fit;
 
-uniform mediump float u_scale;
-uniform mediump float u_rotation;
-uniform mediump float u_offsetX;
-uniform mediump float u_offsetY;
+${sizingUniformsDeclaration}
+
+uniform sampler2D u_image;
+uniform mediump float u_imageAspectRatio;
 
 uniform vec4 u_colorFront;
 uniform vec4 u_colorBack;
 uniform vec4 u_colorHighlight;
-
-uniform sampler2D u_image;
-uniform mediump float u_imageAspectRatio;
 
 uniform float u_type;
 uniform float u_pxSize;
