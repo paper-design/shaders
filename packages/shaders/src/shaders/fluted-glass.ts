@@ -71,7 +71,7 @@ float hash(float x) {
   return fract(sin(x) * 43758.5453123);
 }
 
-const int MAX_RADIUS = 25;
+const int MAX_RADIUS = 50;
 
 vec4 getBlur(sampler2D tex, vec2 uv, vec2 texelSize, vec2 dir, float sigma) {
   if (sigma <= .5) return texture(tex, uv);
@@ -109,9 +109,18 @@ void main() {
 
   float gridNumber = u_count * u_imageAspectRatio;
 
+  vec2 strokeWidth = vec2(.008) * vec2(1., u_imageAspectRatio);
+  float maskOuter =
+    smoothstep(u_marginLeft - strokeWidth.x, u_marginLeft, imageUV.x) *
+    smoothstep(u_marginRight - strokeWidth.x, u_marginRight, 1.0 - imageUV.x) *
+    smoothstep(u_marginTop - strokeWidth.y, u_marginTop, imageUV.y) *
+    smoothstep(u_marginBottom - strokeWidth.y, u_marginBottom, 1.0 - imageUV.y);
   float mask =
-    step(u_marginLeft, imageUV.x) * step(u_marginRight, 1. - imageUV.x)
-    * step(u_marginTop, imageUV.y) * step(u_marginBottom, 1. - imageUV.y);
+    smoothstep(u_marginLeft, u_marginLeft + strokeWidth.x, imageUV.x) *
+    smoothstep(u_marginRight, u_marginRight + strokeWidth.x, 1.0 - imageUV.x) *
+    smoothstep(u_marginTop, u_marginTop + strokeWidth.y, imageUV.y) *
+    smoothstep(u_marginBottom, u_marginBottom + strokeWidth.y, 1.0 - imageUV.y);
+  float stroke = (1. - mask) * maskOuter;
 
   float patternRotation = u_angle * PI / 180.;
   uv = rotate(uv - vec2(.5), patternRotation);
@@ -167,6 +176,7 @@ void main() {
 
   uv = (floorOrigUV + fractOrigUV) / gridNumber;
   uv.x += xDistortion / gridNumber;
+  uv += 1.2 * pow(stroke, 5.);
   
   uv = rotate(uv, -patternRotation) + vec2(.5);
 
@@ -182,6 +192,7 @@ void main() {
 
   float opacity = color.a;
   fragColor = vec4(color.rgb, opacity);
+//  fragColor = vec4(vec3(.5 * mask), 1.);
 }
 `;
 

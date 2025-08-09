@@ -31,11 +31,11 @@ export const defaultPreset: FlutedGlassPreset = {
     shift: 0,
     frost: 0,
     blur: 3,
-    gridLines: 0,
-    marginLeft: 0,
-    marginRight: 0,
-    marginTop: 0,
-    marginBottom: 0,
+    gridLines: 0.2,
+    marginLeft: 0.2,
+    marginRight: 0.2,
+    marginTop: 0.2,
+    marginBottom: 0.2,
   },
 };
 
