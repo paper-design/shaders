@@ -15,7 +15,7 @@ import { declareRandom } from '../shader-utils.js';
  * ---- 2: 2x2 Bayer matrix
  * ---- 3: 4x4 Bayer matrix
  * ---- 4: 8x8 Bayer matrix
- * - u_ownPalette - switching between 3 colors palette and original image colors
+ * - u_originalColors - switching between 3 colors palette and original image colors
  * - u_colorSteps - number of colors to use (applies to both color modes)
  *
  * Note: pixelization is applied to the shapes BEFORE dithering,
@@ -49,7 +49,7 @@ uniform mediump float u_imageAspectRatio;
 
 uniform float u_type;
 uniform float u_pxSize;
-uniform bool u_ownPalette;
+uniform bool u_originalColors;
 uniform float u_colorSteps;
 
 out vec4 fragColor;
@@ -143,7 +143,7 @@ void main() {
   brightness = mix(0.0, brightness, frame);
   float quantLum = floor(brightness * steps + 0.5) / steps;
 
-  if (u_ownPalette == true) {
+  if (u_originalColors == true) {
     vec3 normColor = image.rgb / max(lum, 0.001);
     color = normColor * quantLum;
 
@@ -179,7 +179,7 @@ export interface ImageDitheringUniforms extends ShaderSizingUniforms {
   u_type: (typeof DitheringTypes)[DitheringType];
   u_pxSize: number;
   u_colorSteps: number;
-  u_ownPalette: boolean;
+  u_originalColors: boolean;
 }
 
 export interface ImageDitheringParams extends ShaderSizingParams, ShaderMotionParams {
@@ -190,7 +190,7 @@ export interface ImageDitheringParams extends ShaderSizingParams, ShaderMotionPa
   type?: DitheringType;
   pxSize?: number;
   colorSteps?: number;
-  ownPalette?: boolean;
+  originalColors?: boolean;
 }
 
 export const DitheringTypes = {

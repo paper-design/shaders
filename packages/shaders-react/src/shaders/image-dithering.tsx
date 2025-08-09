@@ -29,7 +29,7 @@ export const defaultPreset: ImageDitheringPreset = {
     type: '4x4',
     pxSize: 2,
     colorSteps: 1,
-    ownPalette: false,
+    originalColors: false,
   },
 } as const;
 
@@ -46,7 +46,7 @@ export const retroPreset: ImageDitheringPreset = {
     type: '4x4',
     pxSize: 2,
     colorSteps: 1,
-    ownPalette: true,
+    originalColors: true,
   },
 } as const;
 
@@ -63,7 +63,7 @@ export const noisePreset: ImageDitheringPreset = {
     type: 'random',
     pxSize: 1,
     colorSteps: 1,
-    ownPalette: false,
+    originalColors: false,
   },
 } as const;
 
@@ -80,7 +80,7 @@ export const naturalPreset: ImageDitheringPreset = {
     type: '8x8',
     pxSize: 1,
     colorSteps: 5,
-    ownPalette: true,
+    originalColors: true,
   },
 } as const;
 
@@ -97,7 +97,7 @@ export const ImageDithering: React.FC<ImageDitheringProps> = memo(function Image
   type = defaultPreset.params.type,
   pxSize = defaultPreset.params.pxSize,
   colorSteps = defaultPreset.params.colorSteps,
-  ownPalette = defaultPreset.params.ownPalette,
+  originalColors = defaultPreset.params.originalColors,
 
   // Sizing props
   fit = defaultPreset.params.fit,
@@ -120,7 +120,7 @@ export const ImageDithering: React.FC<ImageDitheringProps> = memo(function Image
     u_type: DitheringTypes[type],
     u_pxSize: pxSize,
     u_colorSteps: colorSteps,
-    u_ownPalette: ownPalette,
+    u_originalColors: originalColors,
 
     // Sizing uniforms
     u_fit: ShaderFitOptions[fit],
