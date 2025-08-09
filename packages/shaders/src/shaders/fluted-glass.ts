@@ -7,8 +7,8 @@ import { declareImageFrame, declarePI, declareRotate } from '../shader-utils.js'
  * coordinates within line patterns
  *
  * Uniforms:
- * - u_grid, u_gridRotation - number and direction of grid relative to the image
- * - u_gridShape (float used as integer):
+ * - u_count, u_angle - number and direction of grid relative to the image
+ * - u_shape (float used as integer):
  * ---- 1: uniformly spaced stripes
  * ---- 2: randomly spaced stripes
  * ---- 3: sine wave stripes
@@ -38,10 +38,10 @@ uniform float u_pixelRatio;
 uniform sampler2D u_image;
 uniform float u_imageAspectRatio;
 
-uniform float u_grid;
-uniform float u_gridRotation;
+uniform float u_count;
+uniform float u_angle;
 uniform float u_gridLines;
-uniform float u_gridShape;
+uniform float u_shape;
 uniform float u_distortion;
 uniform float u_distortionShape;
 uniform float u_shift;
@@ -107,27 +107,27 @@ void main() {
   float frame = getUvFrame(imageUV);
   if (frame < .05) discard;
 
-  float gridNumber = u_grid * u_imageAspectRatio;
+  float gridNumber = u_count * u_imageAspectRatio;
 
   float mask =
     step(u_marginLeft, imageUV.x) * step(u_marginRight, 1. - imageUV.x)
     * step(u_marginTop, imageUV.y) * step(u_marginBottom, 1. - imageUV.y);
 
-  float patternRotation = u_gridRotation * PI / 180.;
+  float patternRotation = u_angle * PI / 180.;
   uv = rotate(uv - vec2(.5), patternRotation);
   uv *= gridNumber;
   
   float curve = 0.;
-  if (u_gridShape > 4.5) {
+  if (u_shape > 4.5) {
     // pattern
     curve = .5 + .5 * sin(1.5 * uv.x) * cos(1.5 * uv.y);
-  } else if (u_gridShape > 3.5) {
+  } else if (u_shape > 3.5) {
     // zigzag
     curve = 10. * abs(fract(.1 * uv.y) - .5);
-  } else if (u_gridShape > 2.5) {
+  } else if (u_shape > 2.5) {
     // wave
     curve = 4. * sin(.23 * uv.y);
-  } else if (u_gridShape > 1.5) {
+  } else if (u_shape > 1.5) {
     // lines irregular
     curve = .5 + .5 * sin(.5 * uv.x) * sin(1.7 * uv.x);
   } else {
@@ -156,6 +156,7 @@ void main() {
     xDistortion = pow(2. * (fractUV.x - .5), 6.) + .5 - .5 + u_shift;
   } else if (u_distortionShape == 4.) {
     xDistortion = sin((fractUV.x + .25 + u_shift) * TWO_PI);
+    xDistortion *= .5;
   } else if (u_distortionShape == 5.) {
     xDistortion += (.5 + u_shift);
     xDistortion -= pow(abs(fractUV.x), .2) * fractUV.x;
@@ -186,8 +187,8 @@ void main() {
 
 export interface FlutedGlassUniforms extends ShaderSizingUniforms {
   u_image: HTMLImageElement | string | undefined;
-  u_grid: number;
-  u_gridRotation: number;
+  u_count: number;
+  u_angle: number;
   u_distortion: number;
   u_shift: number;
   u_blur: number;
@@ -198,14 +199,14 @@ export interface FlutedGlassUniforms extends ShaderSizingUniforms {
   u_marginBottom: number;
   u_gridLines: number;
   u_distortionShape: (typeof GlassDistortionShapes)[GlassDistortionShape];
-  u_gridShape: (typeof GlassGridShapes)[GlassGridShape];
+  u_shape: (typeof GlassGridShapes)[GlassGridShape];
   u_noiseTexture?: HTMLImageElement;
 }
 
 export interface FlutedGlassParams extends ShaderSizingParams, ShaderMotionParams {
   image?: HTMLImageElement | string | undefined;
-  grid?: number;
-  gridRotation?: number;
+  count?: number;
+  angle?: number;
   distortion?: number;
   shift?: number;
   blur?: number;
@@ -216,7 +217,7 @@ export interface FlutedGlassParams extends ShaderSizingParams, ShaderMotionParam
   marginBottom?: number;
   gridLines?: number;
   distortionShape?: GlassDistortionShape;
-  gridShape?: GlassGridShape;
+  shape?: GlassGridShape;
 }
 
 export const GlassGridShapes = {
@@ -228,11 +229,11 @@ export const GlassGridShapes = {
 } as const;
 
 export const GlassDistortionShapes = {
-  'type #1': 1,
-  'type #2': 2,
-  'type #3': 3,
-  'type #4': 4,
-  'type #5': 5,
+  'prism': 1,
+  'lens': 2,
+  'сontour': 3,
+  'сascade': 4,
+  'facete': 5,
 } as const;
 
 export type GlassDistortionShape = keyof typeof GlassDistortionShapes;

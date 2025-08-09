@@ -87,13 +87,13 @@ const FlutedGlassWithControls = () => {
     return {
       Parameters: folder(
         {
-          grid: { value: defaults.grid, min: 4, max: 200, step: 1, order: 100 },
-          gridShape: {
-            value: defaults.gridShape,
+          count: { value: defaults.count, min: 4, max: 200, step: 1, order: 100 },
+          shape: {
+            value: defaults.shape,
             options: Object.keys(GlassGridShapes) as GlassGridShape[],
             order: 101,
           },
-          gridRotation: { value: defaults.gridRotation, min: 0, max: 180, order: 102 },
+          angle: { value: defaults.angle, min: 0, max: 180, order: 102 },
           distortionShape: {
             value: defaults.distortionShape,
             options: Object.keys(GlassDistortionShapes) as GlassDistortionShape[],
