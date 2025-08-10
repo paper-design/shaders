@@ -77,7 +77,6 @@ import {
   imageDitheringPresets,
 } from '@paper-design/shaders-react';
 import { StaticImageData } from 'next/image';
-import TextureTest from './app/texture-test/page';
 
 type HomeShaderConfig = {
   name: string;
@@ -89,12 +88,6 @@ type HomeShaderConfig = {
 };
 
 export const homeShaders = [
-  // {
-  //   name: 'texture test',
-  //   url: '/texture-test',
-  //   ShaderComponent: TextureTest,
-  //   shaderConfig: {},
-  // },
   {
     name: 'grain gradient',
     url: '/grain-gradient',
