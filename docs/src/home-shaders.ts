@@ -77,7 +77,6 @@ import {
   imageDitheringPresets,
 } from '@paper-design/shaders-react';
 import { StaticImageData } from 'next/image';
-import TextureTest from './app/texture-test/page';
 
 type HomeShaderConfig = {
   name: string;
