@@ -103,13 +103,13 @@ const WaterWithControls = () => {
       Parameters: folder(
         {
           colorBack: { value: toHsla(defaults.colorBack), order: 100 },
-          highlights: { value: defaults.highlights, min: 0, max: 1, order: 101 },
-          temperature: { value: defaults.temperature, min: 0, max: 1, order: 102 },
-          layering: { value: defaults.layering, min: 0, max: 1, order: 102 },
-          edges: { value: defaults.edges, min: 0, max: 1, order: 102 },
+          highlightColor: { value: toHsla(defaults.highlightColor), order: 101 },
+          highlights: { value: defaults.highlights, min: 0, max: 1, order: 102 },
+          layering: { value: defaults.layering, min: 0, max: 1, order: 103 },
+          edges: { value: defaults.edges, min: 0, max: 1, order: 104 },
           waves: { value: defaults.waves, min: 0, max: 1, order: 250 },
           caustic: { value: defaults.caustic, min: 0, max: 1, order: 251 },
-          speed: { value: defaults.speed, min: 0, max: 1, order: 400 },
+          speed: { value: defaults.speed, min: 0, max: 3, order: 400 },
           effectScale: { value: defaults.effectScale, min: 0.01, max: 5, order: 0 },
         },
         { order: 1 }

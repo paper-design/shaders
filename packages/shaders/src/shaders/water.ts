@@ -7,14 +7,13 @@ import { declareImageFrame, declarePI, declareRotate, declareSimplexNoise } from
  * Can be applied over the texture or just be used as an animated pattern
  *
  * Uniforms:
- * - u_colorBack (RGBA)
+ * - u_colorBack, u_highlightColor (RGBA)
  * - u_effectScale: pattern scale relative to the image
  * - u_caustic: power of caustic distortion
  * - u_layering: the power of 2nd layer of caustic distortion
  * - u_edges: caustic distortion power on the image edges
  * - u_waves: additional distortion based in Simplex noise, independent from caustic
  * - u_highlights: a coloring added over the image/background, following the caustic shape
- * - u_temperature: a color of u_highlights
  *
  */
 
@@ -25,13 +24,13 @@ precision mediump float;
 uniform float u_time;
 
 uniform vec4 u_colorBack;
+uniform vec4 u_highlightColor;
 
 uniform sampler2D u_image;
 uniform float u_imageAspectRatio;
 
 uniform float u_effectScale;
 uniform float u_highlights;
-uniform float u_temperature;
 uniform float u_layering;
 uniform float u_edges;
 uniform float u_caustic;
@@ -68,15 +67,15 @@ float getCausticNoise(vec2 uv, float t, float scale) {
 void main() {
   vec2 imageUV = v_imageUV;
   vec2 patternUV = v_imageUV - .5;
-  patternUV = 12. * u_effectScale * (patternUV * vec2(u_imageAspectRatio, 1.));
+  patternUV = 10. * u_effectScale * (patternUV * vec2(u_imageAspectRatio, 1.));
   
-  float t = 2. * u_time;
+  float t = u_time;
   
   float wavesNoise = snoise((.3 + .1 * sin(t)) * .1 * patternUV + vec2(0., .4 * t));
 
-  float causticNoise = getCausticNoise(patternUV + u_waves * wavesNoise, 2. * t, 1.5);
+  float causticNoise = getCausticNoise(patternUV + u_waves * vec2(1., -1.) * wavesNoise, 2. * t, 1.5);
 
-  causticNoise += u_layering * getCausticNoise(patternUV + 2. * u_waves * wavesNoise, 1.5 * t, 2.);
+  causticNoise += u_layering * getCausticNoise(patternUV + 2. * u_waves * vec2(1., -1.) * wavesNoise, 1.5 * t, 2.);
   causticNoise = pow(causticNoise, 2.);
   
   float edgesDistortion = smoothstep(0., .1, imageUV.x);
@@ -85,7 +84,7 @@ void main() {
   edgesDistortion *= smoothstep(1., .9, imageUV.y);
   edgesDistortion = mix(edgesDistortion, 1., u_edges);
   
-  float causticNoiseDistortion = .01 * causticNoise * edgesDistortion;
+  float causticNoiseDistortion = .02 * causticNoise * edgesDistortion;
   
   float wavesDistortion = .1 * u_waves * wavesNoise;
   
@@ -104,8 +103,9 @@ void main() {
   causticNoise = max(-.2, causticNoise);
   
   float hightlight = .025 * u_highlights * causticNoise;
+  hightlight *= u_highlightColor.a;
   color *= (1. + hightlight);
-  color += hightlight * vec3(.7 * u_temperature, .5 - .2 * u_temperature, 1. - u_temperature);
+  color = mix(color, u_highlightColor.rgb, hightlight);
   opacity += hightlight;
   
   color += hightlight * (.5 + .5 * wavesNoise);
@@ -120,8 +120,8 @@ void main() {
 export interface WaterUniforms extends ShaderSizingUniforms {
   u_image: HTMLImageElement | string | undefined;
   u_colorBack: [number, number, number, number];
+  u_highlightColor: [number, number, number, number];
   u_highlights: number;
-  u_temperature: number;
   u_layering: number;
   u_edges: number;
   u_caustic: number;
@@ -132,8 +132,8 @@ export interface WaterUniforms extends ShaderSizingUniforms {
 export interface WaterParams extends ShaderSizingParams, ShaderMotionParams {
   image?: HTMLImageElement | string | undefined;
   colorBack?: string;
+  highlightColor?: string;
   highlights?: number;
-  temperature?: number;
   layering?: number;
   edges?: number;
   caustic?: number;

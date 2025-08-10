@@ -15,45 +15,6 @@ export interface WaterProps extends ShaderComponentProps, WaterParams {}
 
 type WaterPreset = ShaderPreset<WaterParams>;
 
-// export const logoPreset: WaterPreset = {
-//   name: 'Logo',
-//   params: {
-//     ...defaultObjectSizing,
-//     scale: 0.9,
-//     speed: 1,
-//     frame: 0,
-//     colorBack: '#0db5a7',
-//     image: '/images/087.png',
-//     highlights: 0.2,
-//     temperature: 0.5,
-//     layering: 0.5,
-//     edges: 0.15,
-//     waves: 0.15,
-//     caustic: 0.2,
-//     effectScale: 0.2,
-//   },
-// };
-//
-// export const tilePreset: WaterPreset = {
-//   name: 'Tiles',
-//   params: {
-//     ...defaultObjectSizing,
-//     fit: 'cover',
-//     scale: 1.02,
-//     speed: 1,
-//     frame: 0,
-//     colorBack: '#ffffff',
-//     image: '/images/069.jpg',
-//     highlights: 0.2,
-//     temperature: 0.5,
-//     layering: 1,
-//     edges: 0,
-//     waves: 0,
-//     caustic: 0.1,
-//     effectScale: 1,
-//   },
-// };
-
 export const defaultPreset: WaterPreset = {
   name: 'Default',
   params: {
@@ -61,48 +22,89 @@ export const defaultPreset: WaterPreset = {
     fit: 'contain',
     speed: 1,
     frame: 0,
-    colorBack: '#ffffff',
-    image: '/images/031.jpg',
-    highlights: 0.2,
-    temperature: 0.5,
-    layering: 1,
-    edges: 0.25,
-    waves: 0,
+    colorBack: '#1b5765',
+    highlightColor: '#8fffff',
+    image: '/images/059.jpg',
+    highlights: 0.12,
+    layering: 0.5,
+    edges: 0.8,
+    waves: 0.2,
     caustic: 0.1,
     effectScale: 1,
   },
 };
 
-// export const distortionPreset: WaterPreset = {
-//   name: 'Distortion',
-//   params: {
-//     ...defaultObjectSizing,
-//     fit: 'cover',
-//     scale: 1.25,
-//     speed: 1,
-//     frame: 0,
-//     colorBack: '#ffffff',
-//     image: '/images/066.jpg',
-//     highlights: 0,
-//     temperature: 0,
-//     layering: 0.35,
-//     edges: 0,
-//     waves: 0.4,
-//     caustic: 0.11,
-//     effectScale: 0.9,
-//   },
-// };
+export const abstractPreset: WaterPreset = {
+  name: 'Abstract',
+  params: {
+    ...defaultObjectSizing,
+    fit: 'cover',
+    scale: 1.2,
+    speed: 1,
+    frame: 0,
+    colorBack: '#ff6166',
+    highlightColor: '#19ff66',
+    image: '/images/059.jpg',
+    highlights: 1,
+    layering: 1,
+    edges: 0,
+    waves: 0.5,
+    caustic: 1,
+    effectScale: 5,
+  },
+};
 
-export const waterPresets: WaterPreset[] = [defaultPreset];
+export const streamingPreset: WaterPreset = {
+  name: 'Streaming',
+  params: {
+    ...defaultObjectSizing,
+    fit: 'contain',
+    scale: 0.7,
+    speed: 1.6,
+    frame: 0,
+    colorBack: '#ffffff',
+    highlightColor: '#ffffff',
+    image: '/images/059.jpg',
+    highlights: 0,
+    layering: 0,
+    edges: 0,
+    waves: 0.5,
+    caustic: 0,
+    effectScale: 5,
+  },
+};
+
+export const slowMoPreset: WaterPreset = {
+  name: 'Slow Mo',
+  params: {
+    ...defaultObjectSizing,
+    fit: 'contain',
+    scale: 1,
+    speed: 0.1,
+    frame: 0,
+    colorBack: '#ffffff',
+    highlightColor: '#ffffff',
+    image: '/images/059.jpg',
+    highlights: 0.4,
+    layering: 0,
+    edges: 0,
+    waves: 0,
+    caustic: 0.2,
+    effectScale: 2,
+  },
+};
+
+
+export const waterPresets: WaterPreset[] = [defaultPreset, slowMoPreset, abstractPreset, streamingPreset];
 
 export const Water: React.FC<WaterProps> = memo(function WaterImpl({
   // Own props
   speed = defaultPreset.params.speed,
   frame = defaultPreset.params.frame,
   colorBack = defaultPreset.params.colorBack,
+  highlightColor = defaultPreset.params.highlightColor,
   image = defaultPreset.params.image,
   highlights = defaultPreset.params.highlights,
-  temperature = defaultPreset.params.temperature,
   layering = defaultPreset.params.layering,
   waves = defaultPreset.params.waves,
   edges = defaultPreset.params.edges,
@@ -125,8 +127,8 @@ export const Water: React.FC<WaterProps> = memo(function WaterImpl({
     // Own uniforms
     u_image: image,
     u_colorBack: getShaderColorFromString(colorBack),
+    u_highlightColor: getShaderColorFromString(highlightColor),
     u_highlights: highlights,
-    u_temperature: temperature,
     u_layering: layering,
     u_waves: waves,
     u_edges: edges,
