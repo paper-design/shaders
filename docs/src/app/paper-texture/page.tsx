@@ -45,9 +45,9 @@ const PaperTextureWithControls = () => {
     '0019.webp',
     '0020.webp',
     '0021.webp',
-    '0022.jpg',
-    '0023.jpg',
-    '0024.jpg',
+    '0022.webp',
+    '0023.webp',
+    '0024.webp',
   ] as const;
 
   const fileName = imageIdx >= 0 ? imageFiles[imageIdx] : null;

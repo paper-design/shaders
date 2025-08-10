@@ -85,7 +85,7 @@ export const slowMoPreset: WaterPreset = {
     frame: 0,
     colorBack: '#ffffff00',
     highlightColor: '#ffffff',
-    image: '/images/image-filters/0024.jpg',
+    image: '/images/image-filters/0024.webp',
     highlights: 0.4,
     layering: 0,
     edges: 0,
