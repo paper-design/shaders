@@ -20,9 +20,11 @@ export const defaultPreset: FlutedGlassPreset = {
   name: 'Default',
   params: {
     ...defaultObjectSizing,
+    // fit: 'cover',
+    scale: 0.95,
     speed: 0,
     frame: 0,
-    image: '/images/059.jpg',
+    image: '/images/049.jpg',
     count: 30,
     angle: 0,
     distortionShape: 'lens',

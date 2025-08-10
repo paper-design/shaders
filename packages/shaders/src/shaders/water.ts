@@ -104,8 +104,7 @@ void main() {
   
   float hightlight = .025 * u_highlights * causticNoise;
   hightlight *= u_highlightColor.a;
-  color *= (1. + hightlight);
-  color = mix(color, u_highlightColor.rgb, hightlight);
+  color = mix(color, u_highlightColor.rgb, .05 * u_highlights * causticNoise);
   opacity += hightlight;
   
   color += hightlight * (.5 + .5 * wavesNoise);

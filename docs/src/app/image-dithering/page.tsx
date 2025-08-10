@@ -88,7 +88,7 @@ const ImageDitheringWithControls = () => {
           colorHighlight: { value: toHsla(defaults.colorHighlight), order: 102 },
           originalColors: { value: defaults.originalColors, order: 103 },
           type: { value: defaults.type, options: Object.keys(DitheringTypes) as DitheringType[], order: 110 },
-          pxSize: { value: defaults.pxSize, min: 1, max: 20, step: 1, order: 111 },
+          pxSize: { value: defaults.pxSize, min: 0.5, max: 20, step: 1, order: 111 },
           colorSteps: { value: defaults.colorSteps, min: 1, max: 7, step: 1, order: 112 },
         },
         { order: 1 }
