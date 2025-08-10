@@ -88,12 +88,6 @@ type HomeShaderConfig = {
 };
 
 export const homeShaders = [
-  // {
-  //   name: 'texture test',
-  //   url: '/texture-test',
-  //   ShaderComponent: TextureTest,
-  //   shaderConfig: {},
-  // },
   {
     name: 'grain gradient',
     url: '/grain-gradient',
