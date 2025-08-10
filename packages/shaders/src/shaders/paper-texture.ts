@@ -1,12 +1,6 @@
 import type { ShaderMotionParams } from '../shader-mount.js';
 import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
-import {
-  declareImageFrame,
-  declareRotate,
-  declarePI,
-  declareValueNoise,
-  declareFiberNoise,
-} from '../shader-utils.js';
+import { declareImageFrame, declareRotate, declarePI, declareValueNoise, declareFiberNoise } from '../shader-utils.js';
 
 /**
  * Mimicking paper texture with a combination of noises

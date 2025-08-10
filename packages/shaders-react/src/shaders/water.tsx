@@ -20,12 +20,12 @@ export const defaultPreset: WaterPreset = {
   params: {
     ...defaultObjectSizing,
     // fit: 'cover',
-    scale: 0.95,
+    scale: 0.8,
     speed: 1,
     frame: 0,
-    colorBack: '#b08d78',
-    highlightColor: '#ffffff',
-    image: '/images/049.jpg',
+    colorBack: '#b08b78',
+    highlightColor: '#fff9d1',
+    image: '/images/0024.jpg',
     highlights: 0.12,
     layering: 0.5,
     edges: 0.8,
@@ -40,18 +40,18 @@ export const abstractPreset: WaterPreset = {
   params: {
     ...defaultObjectSizing,
     fit: 'cover',
-    scale: 1.2,
+    scale: 6,
     speed: 1,
     frame: 0,
-    colorBack: '#ff6166',
-    highlightColor: '#19ff66',
-    image: '/images/059.jpg',
+    colorBack: '#ffff00',
+    highlightColor: '#9500ff',
+    image: '/images/0024.jpg',
     highlights: 0.3,
     layering: 1,
     edges: 0,
     waves: 0.5,
     caustic: 1,
-    effectScale: 5,
+    effectScale: 6,
   },
 };
 
@@ -65,7 +65,7 @@ export const streamingPreset: WaterPreset = {
     frame: 0,
     colorBack: '#ffffff00',
     highlightColor: '#ffffff',
-    image: '/images/059.jpg',
+    image: '/images/0024.jpg',
     highlights: 0,
     layering: 0,
     edges: 0,
@@ -85,7 +85,7 @@ export const slowMoPreset: WaterPreset = {
     frame: 0,
     colorBack: '#ffffff00',
     highlightColor: '#ffffff',
-    image: '/images/059.jpg',
+    image: '/images/0024.jpg',
     highlights: 0.4,
     layering: 0,
     edges: 0,
@@ -94,7 +94,6 @@ export const slowMoPreset: WaterPreset = {
     effectScale: 2,
   },
 };
-
 
 export const waterPresets: WaterPreset[] = [defaultPreset, slowMoPreset, abstractPreset, streamingPreset];
 

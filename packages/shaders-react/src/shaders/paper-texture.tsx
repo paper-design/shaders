@@ -21,12 +21,12 @@ export const defaultPreset: PaperTexturePreset = {
   params: {
     ...defaultObjectSizing,
     // fit: 'cover',
-    scale: 0.95,
+    scale: 0.8,
     speed: 0,
     frame: 0,
-    colorFront: '#bfbdab',
+    colorFront: '#8da09d',
     colorBack: '#ffffff',
-    image: '/images/049.jpg',
+    image: '/images/0024.jpg',
     contrast: 0.3,
     roughness: 0.7,
     fiber: 0.1,
@@ -48,9 +48,9 @@ export const abstractPreset: PaperTexturePreset = {
     speed: 0,
     frame: 0,
     scale: 0.8,
-    colorFront: '#00d9ff',
+    colorFront: '#ffe500',
     colorBack: '#ff00fb',
-    image: '/images/059.jpg',
+    image: '/images/0024.jpg',
     contrast: 0.85,
     roughness: 0,
     fiber: 0.1,
@@ -74,7 +74,7 @@ export const cardboardPreset: PaperTexturePreset = {
     scale: 0.8,
     colorFront: '#c98e26',
     colorBack: '#5e4d2b',
-    image: '/images/059.jpg',
+    image: '/images/0024.jpg',
     contrast: 0.4,
     roughness: 0,
     fiber: 0.35,
@@ -99,7 +99,7 @@ export const detailsPreset: PaperTexturePreset = {
     scale: 3,
     colorFront: '#00000000',
     colorBack: '#ffffff',
-    image: '/images/059.jpg',
+    image: '/images/0024.jpg',
     contrast: 0,
     roughness: 1,
     fiber: 0.27,
@@ -110,13 +110,15 @@ export const detailsPreset: PaperTexturePreset = {
     foldsNumber: 15,
     blur: 0,
     drops: 0,
-    seed: 3.4,
+    seed: 6,
   },
 };
 
-
 export const paperTexturePresets: PaperTexturePreset[] = [
-  defaultPreset, cardboardPreset, abstractPreset, detailsPreset
+  defaultPreset,
+  cardboardPreset,
+  abstractPreset,
+  detailsPreset,
 ] as const;
 
 export const PaperTexture: React.FC<PaperTextureProps> = memo(function PaperTextureImpl({
