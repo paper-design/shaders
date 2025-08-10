@@ -19,6 +19,10 @@ import pulsingBorderImg from '../public/shaders/pulsing-border.webp';
 import colorPanelsImg from '../public/shaders/color-panels.webp';
 import staticMeshGradientImg from '../public/shaders/static-mesh-gradient.webp';
 import staticRadialGradientImg from '../public/shaders/static-radial-gradient.webp';
+import flutedGlassImg from '../public/shaders/fluted-glass.webp';
+import imageDitheringImg from '../public/shaders/image-dithering.webp';
+import paperTextureImg from '../public/shaders/paper-texture.webp';
+import waterImg from '../public/shaders/water.webp';
 
 import {
   DotGrid,
@@ -242,28 +246,28 @@ export const homeShaders = [
     name: 'paper texture',
     url: '/paper-texture',
     ShaderComponent: PaperTexture,
-    image: godRaysImg,
+    image: paperTextureImg,
     shaderConfig: { ...paperTexturePresets[0].params, scale: 1 },
-  },
-  {
-    name: 'water',
-    url: '/water',
-    ShaderComponent: Water,
-    image: godRaysImg,
-    shaderConfig: { ...waterPresets[0].params, scale: 1 },
   },
   {
     name: 'fluted glass',
     url: '/fluted-glass',
     ShaderComponent: FlutedGlass,
-    image: godRaysImg,
+    image: flutedGlassImg,
     shaderConfig: { ...flutedGlassPresets[0].params, scale: 1 },
   },
   {
     name: 'image dithering',
     url: '/image-dithering',
     ShaderComponent: ImageDithering,
-    image: godRaysImg,
-    shaderConfig: { ...imageDitheringPresets[0].params, scale: 1, pxSize: 0.5 },
+    image: imageDitheringImg,
+    shaderConfig: { ...imageDitheringPresets[0].params, scale: 1, pxSize: 1 },
+  },
+  {
+    name: 'water',
+    url: '/water',
+    ShaderComponent: Water,
+    image: waterImg,
+    shaderConfig: {...waterPresets[0].params, scale: 1},
   },
 ] satisfies HomeShaderConfig[];
