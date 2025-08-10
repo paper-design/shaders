@@ -24,29 +24,29 @@ const WaterWithControls = () => {
   const [status, setStatus] = useState('Click to load an image');
 
   const imageFiles = [
-    '001.jpg',
-    '002.jpg',
-    '003.jpg',
-    '004.jpg',
-    '005.jpg',
-    '006.jpg',
-    '007.jpg',
-    '008.jpg',
-    '009.jpg',
-    '0010.jpg',
-    '0011.jpg',
-    '0012.jpg',
-    '0013.jpg',
-    '0014.jpg',
-    '0015.jpg',
-    '0016.jpg',
-    '0017.jpg',
-    '0018.jpg',
-    '0019.jpg',
-    '0020.jpg',
-    '0021.jpg',
-    '0022.jpg',
-    '0023.jpg',
+    '001.webp',
+    '002.webp',
+    '003.webp',
+    '004.webp',
+    '005.webp',
+    '006.webp',
+    '007.webp',
+    '008.webp',
+    '009.webp',
+    '0010.webp',
+    '0011.webp',
+    '0012.webp',
+    '0013.webp',
+    '0014.webp',
+    '0015.webp',
+    '0016.webp',
+    '0017.webp',
+    '0018.webp',
+    '0019.webp',
+    '0020.webp',
+    '0021.webp',
+    '0022.webp',
+    '0023.webp',
     '0024.jpg',
   ] as const;
 
@@ -57,7 +57,7 @@ const WaterWithControls = () => {
       const name = imageFiles[imageIdx];
       setStatus(`Displaying image: ${name}`);
       const img = new Image();
-      img.src = `/images/${name}`;
+      img.src = `/images/image-filters/${name}`;
       img.onload = () => setImage(img);
     }
   }, [imageIdx]);
