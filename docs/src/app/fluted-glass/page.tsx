@@ -115,7 +115,7 @@ const FlutedGlassWithControls = () => {
       ImageControls: folder(
         {
           'fit': { value: defaults.fit, options: ['contain', 'cover'] as ShaderFit[], order: 100 },
-          'scale': { value: defaults.scale, min: 1, max: 4, order: 101 },
+          'scale': { value: defaults.scale, min: 0.5, max: 4, order: 101 },
           'marginLeft': { value: defaults.marginLeft, min: 0, max: 1, order: 200 },
           'marginRight': { value: defaults.marginRight, min: 0, max: 1, order: 201 },
           'marginTop': { value: defaults.marginTop, min: 0, max: 1, order: 202 },

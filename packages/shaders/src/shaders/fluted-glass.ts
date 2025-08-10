@@ -108,7 +108,7 @@ void main() {
 
   float gridNumber = u_count * u_imageAspectRatio;
 
-  vec2 sw = vec2(.005) * vec2(1., u_imageAspectRatio);
+  vec2 sw = vec2(.007) * vec2(1., u_imageAspectRatio);
   float maskOuter =
     smoothstep(u_marginLeft - sw.x, u_marginLeft, imageUV.x + sw.x) *
     smoothstep(u_marginRight - sw.x, u_marginRight, 1.0 - imageUV.x + sw.x) *
