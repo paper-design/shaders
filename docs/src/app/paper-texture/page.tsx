@@ -113,24 +113,21 @@ const PaperTextureWithControls = () => {
           colorBack: { value: toHsla(defaults.colorBack), order: 101 },
           contrast: { value: defaults.contrast, min: 0, max: 1, order: 200 },
 
-          grain: { value: defaults.grain, min: 0, max: 1, order: 300 },
+          roughness: { value: defaults.roughness, min: 0, max: 1, order: 300 },
 
           fiber: { value: defaults.fiber, min: 0, max: 1, order: 310 },
           fiberScale: { value: defaults.fiberScale, min: 0.1, max: 2, order: 310 },
 
           crumples: { value: defaults.crumples, min: 0, max: 1, order: 320 },
-          crumplesSeed: { value: defaults.crumplesSeed, min: 0, max: 1000, order: 321 },
           crumplesScale: { value: defaults.crumplesScale, min: 0.3, max: 3, order: 322 },
 
           folds: { value: defaults.folds, min: 0, max: 1, order: 330 },
           foldsNumber: { value: defaults.foldsNumber, min: 1, max: 15, step: 1, order: 331 },
-          foldsSeed: { value: defaults.foldsSeed, min: 0, max: 1000, order: 332 },
 
           blur: { value: defaults.blur, min: 0, max: 1, order: 340 },
-          blurSeed: { value: defaults.blurSeed, min: 0, max: 10, order: 341 },
 
           drops: { value: defaults.drops, min: 0, max: 1, order: 350 },
-          dropsSeed: { value: defaults.dropsSeed, min: 0, max: 10, order: 351 },
+          seed: { value: defaults.seed, min: 0, max: 10, order: 351 },
         },
         { order: 1 }
       ),
