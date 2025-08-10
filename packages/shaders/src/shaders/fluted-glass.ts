@@ -18,8 +18,8 @@ import { declareImageFrame, declarePI, declareRotate } from '../shader-utils.js'
  * - u_distortionShape (float used as integer):
  * ---- 5 shapes available
  * - u_shift - texture shift in direction opposite to the grid
- * - u_blur, u_frost - additional distortions applied over the main one
- * - u_gridLines - thin color lines along the grid (independent from distortion)
+ * - u_blur - one-directional blur applied over the main distortion
+ * - u_highlights - thin color lines along the grid (independent from distortion)
  * - u_marginLeft, u_marginRight, u_marginTop, u_marginBottom - paddings
  *   within picture to be shown without any distortion
  *
@@ -40,13 +40,12 @@ uniform float u_imageAspectRatio;
 
 uniform float u_count;
 uniform float u_angle;
-uniform float u_gridLines;
+uniform float u_highlights;
 uniform float u_shape;
 uniform float u_distortion;
 uniform float u_distortionShape;
 uniform float u_shift;
 uniform float u_blur;
-uniform float u_frost;
 uniform float u_marginLeft;
 uniform float u_marginRight;
 uniform float u_marginTop;
@@ -109,17 +108,17 @@ void main() {
 
   float gridNumber = u_count * u_imageAspectRatio;
 
-  vec2 strokeWidth = vec2(.008) * vec2(1., u_imageAspectRatio);
+  vec2 sw = vec2(.005) * vec2(1., u_imageAspectRatio);
   float maskOuter =
-    smoothstep(u_marginLeft - strokeWidth.x, u_marginLeft, imageUV.x) *
-    smoothstep(u_marginRight - strokeWidth.x, u_marginRight, 1.0 - imageUV.x) *
-    smoothstep(u_marginTop - strokeWidth.y, u_marginTop, imageUV.y) *
-    smoothstep(u_marginBottom - strokeWidth.y, u_marginBottom, 1.0 - imageUV.y);
+    smoothstep(u_marginLeft - sw.x, u_marginLeft, imageUV.x + sw.x) *
+    smoothstep(u_marginRight - sw.x, u_marginRight, 1.0 - imageUV.x + sw.x) *
+    smoothstep(u_marginTop - sw.y, u_marginTop, imageUV.y + sw.y) *
+    smoothstep(u_marginBottom - sw.y, u_marginBottom, 1.0 - imageUV.y + sw.y);
   float mask =
-    smoothstep(u_marginLeft, u_marginLeft + strokeWidth.x, imageUV.x) *
-    smoothstep(u_marginRight, u_marginRight + strokeWidth.x, 1.0 - imageUV.x) *
-    smoothstep(u_marginTop, u_marginTop + strokeWidth.y, imageUV.y) *
-    smoothstep(u_marginBottom, u_marginBottom + strokeWidth.y, 1.0 - imageUV.y);
+    smoothstep(u_marginLeft, u_marginLeft + sw.x, imageUV.x + sw.x) *
+    smoothstep(u_marginRight, u_marginRight + sw.x, 1.0 - imageUV.x + sw.x) *
+    smoothstep(u_marginTop, u_marginTop + sw.y, imageUV.y + sw.y) *
+    smoothstep(u_marginBottom, u_marginBottom + sw.y, 1.0 - imageUV.y + sw.y);
   float stroke = (1. - mask) * maskOuter;
 
   float patternRotation = u_angle * PI / 180.;
@@ -153,8 +152,8 @@ void main() {
   vec2 fractOrigUV = fract(uvOrig);
   vec2 floorOrigUV = floor(uvOrig);
 
-  float gridLines = pow(fractUV.x, 10.);
-  gridLines *= mask;
+  float highlights = smoothstep(.85, .95, fractUV.x);
+  highlights *= mask;
 
   float xDistortion = 0.;
   if (u_distortionShape == 1.) {
@@ -176,23 +175,18 @@ void main() {
 
   uv = (floorOrigUV + fractOrigUV) / gridNumber;
   uv.x += xDistortion / gridNumber;
-  uv += 1.2 * pow(stroke, 5.);
+  uv += pow(stroke, 4.);
+  uv.y = mix(uv.y, .0, .4 * u_highlights * highlights);
   
   uv = rotate(uv, -patternRotation) + vec2(.5);
 
   uv = mix(imageUV, uv, mask);
   float blur = mix(0., u_blur, mask);
-
-  uv += mask * (random2(uv).xy - .5) * .03 * u_frost;
-
+  
   vec4 color = getBlur(u_image, uv, 1. / u_resolution / u_pixelRatio, vec2(0., 1.), blur);
-
-  vec3 midColor = texture(u_image, vec2(floorUV.x / gridNumber - .5, .4 + .7 * hash(floorUV.x))).rgb;
-  color.rgb = mix(color.rgb, midColor, u_gridLines * gridLines);
 
   float opacity = color.a;
   fragColor = vec4(color.rgb, opacity);
-//  fragColor = vec4(vec3(.5 * mask), 1.);
 }
 `;
 
@@ -203,12 +197,11 @@ export interface FlutedGlassUniforms extends ShaderSizingUniforms {
   u_distortion: number;
   u_shift: number;
   u_blur: number;
-  u_frost: number;
   u_marginLeft: number;
   u_marginRight: number;
   u_marginTop: number;
   u_marginBottom: number;
-  u_gridLines: number;
+  u_highlights: number;
   u_distortionShape: (typeof GlassDistortionShapes)[GlassDistortionShape];
   u_shape: (typeof GlassGridShapes)[GlassGridShape];
   u_noiseTexture?: HTMLImageElement;
@@ -221,12 +214,11 @@ export interface FlutedGlassParams extends ShaderSizingParams, ShaderMotionParam
   distortion?: number;
   shift?: number;
   blur?: number;
-  frost?: number;
   marginLeft?: number;
   marginRight?: number;
   marginTop?: number;
   marginBottom?: number;
-  gridLines?: number;
+  highlights?: number;
   distortionShape?: GlassDistortionShape;
   shape?: GlassGridShape;
 }
