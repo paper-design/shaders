@@ -63,7 +63,7 @@ export const noisePreset: ImageDitheringPreset = {
     colorHighlight: '#ededed',
     image: '/images/image-filters/0024.webp',
     type: 'random',
-    pxSize: 1,
+    pxSize: 2,
     colorSteps: 1,
     originalColors: false,
   },
