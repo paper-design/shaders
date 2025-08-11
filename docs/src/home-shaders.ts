@@ -63,6 +63,8 @@ import {
   staticMeshGradientPresets,
   StaticRadialGradient,
   staticRadialGradientPresets,
+  Tartan,
+  tartanPresets,
 } from '@paper-design/shaders-react';
 import { StaticImageData } from 'next/image';
 import TextureTest from './app/texture-test/page';
@@ -229,5 +231,11 @@ export const homeShaders = [
     ShaderComponent: GodRays,
     image: godRaysImg,
     shaderConfig: { ...godRaysPresets[0].params, speed: 2, scale: 0.5, offsetY: -0.5 },
+  },
+  {
+    name: 'tartan',
+    url: '/tartan',
+    ShaderComponent: Tartan,
+    shaderConfig: { ...tartanPresets[0].params },
   },
 ] satisfies HomeShaderConfig[];

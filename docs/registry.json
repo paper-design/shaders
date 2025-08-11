@@ -275,6 +275,19 @@
           "type": "registry:component"
         }
       ]
+    },
+    {
+      "name": "tartan",
+      "type": "registry:component",
+      "title": "Tartan Example",
+      "description": "Tartan shader example.",
+      "dependencies": ["@paper-design/shaders-react"],
+      "files": [
+        {
+          "path": "registry/tartan-example.tsx",
+          "type": "registry:component"
+        }
+      ]
     }
   ]
 }
