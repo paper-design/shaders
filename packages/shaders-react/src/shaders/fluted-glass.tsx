@@ -66,11 +66,12 @@ export const irregularPreset: FlutedGlassPreset = {
   name: 'Irregular lines',
   params: {
     ...defaultObjectSizing,
+    scale: 4,
     speed: 0,
     frame: 0,
     image: '/images/image-filters/0024.webp',
     count: 32,
-    angle: 0,
+    angle: 150,
     distortionShape: 'facete',
     shape: 'linesIrregular',
     distortion: 1,
