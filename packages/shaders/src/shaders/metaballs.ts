@@ -1,7 +1,7 @@
 import type { vec4 } from '../types.js';
 import type { ShaderMotionParams } from '../shader-mount.js';
 import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
-import { declarePI, colorBandingFix } from '../shader-utils.js';
+import { declarePI, declareValueNoise, colorBandingFix } from '../shader-utils.js';
 
 export const metaballsMeta = {
   maxColorCount: 8,
@@ -18,6 +18,8 @@ export const metaballsMeta = {
  * - u_sizeRange (0..1): randomizes the size of balls between 0 and u_size
  * - u_count: number of balls on the canvas
  *
+ * - u_noiseTexture (sampler2D): pre-computed randomizer source
+ *
  */
 
 // language=GLSL
@@ -25,6 +27,8 @@ export const metaballsFragmentShader: string = `#version 300 es
 precision mediump float;
 
 uniform float u_time;
+
+uniform sampler2D u_noiseTexture;
 
 uniform vec4 u_colorBack;
 uniform vec4 u_colors[${metaballsMeta.maxColorCount}];
@@ -38,15 +42,17 @@ ${sizingVariablesDeclaration}
 out vec4 fragColor;
 
 ${declarePI}
-
-float hash(float x) {
-  return fract(sin(x) * 43758.5453123);
+float random(vec2 p) {
+  vec2 uv = floor(p) / 100. + .5;
+  return texture(u_noiseTexture, uv).r;
 }
 float noise(float x) {
   float i = floor(x);
   float f = fract(x);
   float u = f * f * (3.0 - 2.0 * f);
-  return mix(hash(i), hash(i + 1.0), u);
+  vec2 p0 = vec2(i, 0.0);
+  vec2 p1 = vec2(i + 1.0, 0.0);
+  return mix(random(p0), random(p1), u);
 }
 
 float getBallShape(vec2 uv, vec2 c, float p) {
@@ -61,7 +67,7 @@ void main() {
 
   shape_uv += .5;
 
-  float t = .2 * u_time + 1.;
+  float t = .2 * u_time + 500.;
 
   vec3 totalColor = vec3(0.);
   float totalShape = 0.;
@@ -122,6 +128,7 @@ export interface MetaballsUniforms extends ShaderSizingUniforms {
   u_colorsCount: number;
   u_count: number;
   u_size: number;
+  u_noiseTexture?: HTMLImageElement;
 }
 
 export interface MetaballsParams extends ShaderSizingParams, ShaderMotionParams {

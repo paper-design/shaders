@@ -20,21 +20,21 @@ export const defaultPreset: PulsingBorderPreset = {
   name: 'Default',
   params: {
     ...defaultObjectSizing,
-    scale: 0.55,
+    scale: 0.5,
     speed: 1,
     frame: 0,
     colorBack: '#000000',
-    colors: ['#f2244f', '#4da6e6', '#379590'],
-    roundness: 0.35,
-    thickness: 0.05,
+    colors: ['#f22652', '#4da6e6', '#ffa600'],
+    roundness: 0.25,
+    thickness: 0.2,
     softness: 0.75,
-    intensity: 0.3,
-    bloom: 0.5,
+    intensity: 0.2,
+    bloom: 0.45,
     spots: 3,
-    spotSize: 0.3,
-    pulse: 0,
+    spotSize: 0.4,
+    pulse: 0.2,
     smoke: 0.35,
-    smokeSize: 0.63,
+    smokeSize: 0.6,
   },
 };
 
@@ -140,7 +140,6 @@ export const PulsingBorder: React.FC<PulsingBorderProps> = memo(function Pulsing
   worldHeight = defaultPreset.params.worldHeight,
   ...props
 }: PulsingBorderProps) {
-  const noiseTexture = typeof window !== 'undefined' && { u_noiseTexture: getShaderNoiseTexture(0) };
   const uniforms = {
     // Own uniforms
     u_colorBack: getShaderColorFromString(colorBack),
@@ -156,7 +155,7 @@ export const PulsingBorder: React.FC<PulsingBorderProps> = memo(function Pulsing
     u_pulse: pulse,
     u_smoke: smoke,
     u_smokeSize: smokeSize,
-    ...noiseTexture,
+    u_noiseTexture: getShaderNoiseTexture(),
 
     // Sizing uniforms
     u_fit: ShaderFitOptions[fit],

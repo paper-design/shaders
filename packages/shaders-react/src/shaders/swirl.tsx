@@ -19,18 +19,15 @@ export const defaultPreset: SwirlPreset = {
   name: 'Default',
   params: {
     ...defaultObjectSizing,
-    scale: 2.28,
-    offsetX: -0.4,
-    offsetY: 0.3,
     speed: 0.32,
     frame: 0,
-    colorBack: '#452424',
-    colors: ['#0b7f05', '#ffe785', '#ff335c'],
-    bandCount: 5,
-    twist: 0.11,
+    colorBack: '#330000',
+    colors: ['#ffd1d1', '#ff8a8a', '#660000'],
+    bandCount: 4,
+    twist: 0.1,
     softness: 0,
-    noiseFrequency: 1.2,
-    noisePower: 0.46,
+    noiseFrequency: 0.4,
+    noise: 0.2,
   },
 };
 
@@ -47,8 +44,8 @@ export const openingPreset: SwirlPreset = {
     bandCount: 3,
     twist: 0.3,
     softness: 0,
-    noiseFrequency: 2,
-    noisePower: 0,
+    noiseFrequency: 0.5,
+    noise: 0,
   },
 } as const;
 
@@ -63,8 +60,8 @@ export const jamesBondPreset: SwirlPreset = {
     bandCount: 4,
     twist: 0.4,
     softness: 0,
-    noiseFrequency: 0,
-    noisePower: 0,
+    noiseFrequency: 0.5,
+    noise: 0,
   },
 } as const;
 
@@ -79,8 +76,8 @@ export const candyPreset: SwirlPreset = {
     bandCount: 2,
     twist: 0.15,
     softness: 1,
-    noiseFrequency: 0,
-    noisePower: 0,
+    noiseFrequency: 0.5,
+    noise: 0,
   },
 } as const;
 
@@ -96,7 +93,7 @@ export const Swirl: React.FC<SwirlProps> = memo(function SwirlImpl({
   twist = defaultPreset.params.twist,
   softness = defaultPreset.params.softness,
   noiseFrequency = defaultPreset.params.noiseFrequency,
-  noisePower = defaultPreset.params.noisePower,
+  noise = defaultPreset.params.noise,
 
   // Sizing props
   fit = defaultPreset.params.fit,
@@ -119,7 +116,7 @@ export const Swirl: React.FC<SwirlProps> = memo(function SwirlImpl({
     u_twist: twist,
     u_softness: softness,
     u_noiseFrequency: noiseFrequency,
-    u_noisePower: noisePower,
+    u_noise: noise,
 
     // Sizing uniforms
     u_fit: ShaderFitOptions[fit],

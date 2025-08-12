@@ -22,13 +22,13 @@ export const defaultPreset: SmokeRingPreset = {
     ...defaultObjectSizing,
     speed: 0.4,
     frame: 0,
-    colorBack: '#ffffff',
-    colors: ['#136c5e', '#0f0224'],
-    noiseScale: 5,
-    noiseIterations: 10,
-    radius: 0.5,
-    thickness: 0.25,
-    innerShape: 1.2,
+    colorBack: '#121212',
+    colors: ['#ffffff'],
+    noiseScale: 3,
+    noiseIterations: 8,
+    radius: 0.25,
+    thickness: 0.65,
+    innerShape: 0.7,
   },
 };
 
@@ -107,8 +107,6 @@ export const SmokeRing: React.FC<SmokeRingProps> = memo(function SmokeRingImpl({
   worldHeight = defaultPreset.params.worldHeight,
   ...props
 }: SmokeRingProps) {
-  const noiseTexture = typeof window !== 'undefined' && { u_noiseTexture: getShaderNoiseTexture() };
-
   const uniforms = {
     // Own uniforms
     u_colorBack: getShaderColorFromString(colorBack),
@@ -119,7 +117,7 @@ export const SmokeRing: React.FC<SmokeRingProps> = memo(function SmokeRingImpl({
     u_radius: radius,
     u_innerShape: innerShape,
     u_noiseIterations: noiseIterations,
-    ...noiseTexture,
+    u_noiseTexture: getShaderNoiseTexture(),
 
     // Sizing uniforms
     u_fit: ShaderFitOptions[fit],

@@ -9,9 +9,14 @@ import {
 } from '@paper-design/shaders';
 import { useMergeRefs } from './use-merge-refs.js';
 
-/** React Shader Mount can also accept strings as uniform values, which will assumed to be URLs and loaded as images */
+/**
+ * React Shader Mount can also accept strings as uniform values, which will assumed to be URLs and loaded as images
+ *
+ * We accept undefined as a convenience for server rendering, when some things may be undefined
+ * We just skip setting the uniform if it's undefined. This allows the shader mount to still take up space during server rendering
+ */
 interface ShaderMountUniformsReact {
-  [key: string]: string | boolean | number | number[] | number[][] | HTMLImageElement;
+  [key: string]: string | boolean | number | number[] | number[][] | HTMLImageElement | undefined;
 }
 
 export interface ShaderMountProps extends Omit<React.ComponentProps<'div'>, 'color' | 'ref'>, ShaderMotionParams {

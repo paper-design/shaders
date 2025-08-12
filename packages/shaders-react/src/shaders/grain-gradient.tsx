@@ -17,20 +17,35 @@ export interface GrainGradientProps extends ShaderComponentProps, GrainGradientP
 
 type GrainGradientPreset = ShaderPreset<GrainGradientParams>;
 
-// export const defaultPreset: GrainGradientPreset = {
-//   name: 'Default',
-//   params: {
-//     ...defaultPatternSizing,
-//     speed: 1,
-//     frame: 0,
-//     colorBack: '#000a0f',
-//     colors: ['#c4730b', '#bdad5f', '#d8ccc7'],
-//     softness: 0.7,
-//     intensity: 0.15,
-//     noise: 0.5,
-//     shape: 'wave',
-//   },
-// };
+export const defaultPreset: GrainGradientPreset = {
+  name: 'Default',
+  params: {
+    ...defaultObjectSizing,
+    speed: 1,
+    frame: 0,
+    colorBack: '#000000',
+    colors: ['#7300ff', '#eba8ff', '#00bfff', '#2a00ff'],
+    softness: 0.5,
+    intensity: 0.5,
+    noise: 1,
+    shape: 'corners',
+  },
+};
+
+export const wavePreset: GrainGradientPreset = {
+  name: 'Wave',
+  params: {
+    ...defaultPatternSizing,
+    speed: 1,
+    frame: 0,
+    colorBack: '#000a0f',
+    colors: ['#c4730b', '#bdad5f', '#d8ccc7'],
+    softness: 0.7,
+    intensity: 0.15,
+    noise: 0.5,
+    shape: 'wave',
+  },
+};
 
 export const dotsPreset: GrainGradientPreset = {
   name: 'Dots',
@@ -60,21 +75,6 @@ export const truchetPreset: GrainGradientPreset = {
     intensity: 0.2,
     noise: 1,
     shape: 'truchet',
-  },
-};
-
-export const defaultPreset: GrainGradientPreset = {
-  name: 'Default',
-  params: {
-    ...defaultObjectSizing,
-    speed: 1,
-    frame: 0,
-    colorBack: '#031018',
-    colors: ['#00aeff', '#00ffcc', '#ffc800'],
-    softness: 0.4,
-    intensity: 0.35,
-    noise: 0.35,
-    shape: 'corners',
   },
 };
 
@@ -110,30 +110,13 @@ export const blobPreset: GrainGradientPreset = {
   },
 };
 
-export const moonPreset: GrainGradientPreset = {
-  name: 'Moon',
-  params: {
-    ...defaultObjectSizing,
-    scale: 0.6,
-    speed: 1,
-    frame: 0,
-    colorBack: '#000000',
-    colors: ['#000000', '#28272d', '#ffeccc'],
-    softness: 1,
-    intensity: 0.56,
-    noise: 1,
-    shape: 'sphere',
-  },
-};
-
 export const grainGradientPresets: GrainGradientPreset[] = [
   defaultPreset,
-  // cornersPreset,
+  wavePreset,
   dotsPreset,
   truchetPreset,
   ripplePreset,
   blobPreset,
-  moonPreset,
 ];
 
 export const GrainGradient: React.FC<GrainGradientProps> = memo(function GrainGradientImpl({
@@ -159,8 +142,6 @@ export const GrainGradient: React.FC<GrainGradientProps> = memo(function GrainGr
   worldHeight = defaultPreset.params.worldHeight,
   ...props
 }: GrainGradientProps) {
-  const noiseTexture = typeof window !== 'undefined' && { u_noiseTexture: getShaderNoiseTexture() };
-
   const uniforms = {
     // Own uniforms
     u_colorBack: getShaderColorFromString(colorBack),
@@ -170,7 +151,7 @@ export const GrainGradient: React.FC<GrainGradientProps> = memo(function GrainGr
     u_intensity: intensity,
     u_noise: noise,
     u_shape: GrainGradientShapes[shape],
-    ...noiseTexture,
+    u_noiseTexture: getShaderNoiseTexture(),
 
     // Sizing uniforms
     u_fit: ShaderFitOptions[fit],

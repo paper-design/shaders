@@ -22,13 +22,14 @@ export const defaultPreset: VoronoiPreset = {
     ...defaultPatternSizing,
     speed: 0.5,
     frame: 0,
-    colors: ['#e65c1a', '#e6c31a', '#1aace6'],
-    stepsPerColor: 2,
-    colorGlow: '#5500ff',
-    colorGap: '#ffffff',
-    distortion: 0.42,
+    colors: ['#ff8247', '#ffe53d'],
+    stepsPerColor: 3,
+    colorGlow: '#ffffff',
+    colorGap: '#2e0000',
+    distortion: 0.4,
     gap: 0.06,
     glow: 0,
+    scale: 0.5,
   },
 };
 
@@ -109,8 +110,6 @@ export const Voronoi: React.FC<VoronoiProps> = memo(function VoronoiImpl({
   worldHeight = defaultPreset.params.worldHeight,
   ...props
 }: VoronoiProps) {
-  const noiseTexture = typeof window !== 'undefined' && { u_noiseTexture: getShaderNoiseTexture() };
-
   const uniforms = {
     // Own uniforms
     u_colors: colors.map(getShaderColorFromString),
@@ -121,7 +120,7 @@ export const Voronoi: React.FC<VoronoiProps> = memo(function VoronoiImpl({
     u_distortion: distortion,
     u_gap: gap,
     u_glow: glow,
-    ...noiseTexture,
+    u_noiseTexture: getShaderNoiseTexture(),
 
     // Sizing uniforms
     u_fit: ShaderFitOptions[fit],

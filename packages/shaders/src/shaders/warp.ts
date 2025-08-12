@@ -1,7 +1,7 @@
 import type { vec4 } from '../types.js';
 import type { ShaderMotionParams } from '../shader-mount.js';
 import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
-import { declarePI, declareRandom, declareValueNoise, declareRotate, colorBandingFix } from '../shader-utils.js';
+import { declarePI, declareValueNoise, declareRotate, colorBandingFix } from '../shader-utils.js';
 
 export const warpMeta = {
   maxColorCount: 10,
@@ -22,6 +22,8 @@ export const warpMeta = {
  * - u_distortion: value noise distortion over the UV coordinate
  * - u_swirl, u_swirlIterations: swirly distortion (layering curves effect)
  *
+ * - u_noiseTexture (sampler2D): pre-computed randomizer source
+ *
  */
 
 // language=GLSL
@@ -30,6 +32,8 @@ precision mediump float;
 
 uniform float u_time;
 uniform float u_scale;
+
+uniform sampler2D u_noiseTexture;
 
 uniform vec4 u_colors[${warpMeta.maxColorCount}];
 uniform float u_colorsCount;
@@ -46,7 +50,11 @@ ${sizingVariablesDeclaration}
 out vec4 fragColor;
 
 ${declarePI}
-${declareRandom}
+
+float random(vec2 p) {
+  vec2 uv = floor(p) / 100. + .5;
+  return texture(u_noiseTexture, uv).g;
+}
 ${declareRotate}
 ${declareValueNoise}
 
@@ -128,6 +136,7 @@ export interface WarpUniforms extends ShaderSizingUniforms {
   u_distortion: number;
   u_swirl: number;
   u_swirlIterations: number;
+  u_noiseTexture?: HTMLImageElement;
 }
 
 export interface WarpParams extends ShaderSizingParams, ShaderMotionParams {

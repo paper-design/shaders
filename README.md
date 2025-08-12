@@ -1,6 +1,6 @@
 # Paper Shaders
 
-![mesh-gradient-shader](./docs/public/images/git-readme-picture.png)
+![mesh-gradient-shader](./docs/public/images/git-readme-picture.png?v=2)
 
 ### Getting started
 
@@ -60,6 +60,10 @@ import {MeshGradient, DotOrbit} from '@paper-design/shaders-react';
 - Vanilla JS (@paper-design/shaders)
 - React JS (@paper-design/shaders-react)
 - Vue and others: intent to accept community PRs in the future
+
+## Release notes
+
+[View changelog →](./CHANGELOG.md)
 
 ## Building and publishing
 
