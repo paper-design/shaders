@@ -288,12 +288,6 @@ export class ShaderMount {
       this.rafId = null;
     }
 
-    // // Loop if we're animating
-    // if (this.speed !== 0) {
-    //   this.requestRender();
-    // } else {
-    //   this.rafId = null;
-    // }
   };
 
   private requestRender = () => {
