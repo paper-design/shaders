@@ -88,27 +88,31 @@ const GrainAndNoiseWithControls = () => {
     setImageIdx(randomIdx);
   }, []);
 
-  const { blendMode } = useControls('Blend', {
+  const blendModes = [
+    'normal',
+    'darken',
+    'multiply',
+    'color-burn',
+    'lighten',
+    'screen',
+    'color-dodge',
+    'overlay',
+    'soft-light',
+    'hard-light',
+    'difference',
+    'exclusion',
+    'hue',
+    'saturation',
+    'color',
+    'luminosity',
+  ] as const satisfies ReadonlyArray<React.CSSProperties['mixBlendMode']>;
+
+  type BlendMode = (typeof blendModes)[number];
+
+  const { blendMode } = useControls<{ blendMode: BlendMode }>('Blend', {
     blendMode: {
-      value: 'overlay' as React.CSSProperties['mixBlendMode'],
-      options: [
-        'normal',
-        'darken',
-        'multiply',
-        'color-burn',
-        'lighten',
-        'screen',
-        'color-dodge',
-        'overlay',
-        'soft-light',
-        'hard-light',
-        'difference',
-        'exclusion',
-        'hue',
-        'saturation',
-        'color',
-        'luminosity',
-      ],
+      value: 'overlay',
+      options: blendModes,
     },
   });
 
