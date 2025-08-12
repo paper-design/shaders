@@ -42,12 +42,6 @@ const ImageDitheringWithControls = () => {
     '0016.webp',
     '0017.webp',
     '0018.webp',
-    '0019.webp',
-    '0020.webp',
-    '0021.webp',
-    '0022.webp',
-    '0023.webp',
-    '0024.webp',
   ] as const;
 
   const fileName = imageIdx >= 0 ? imageFiles[imageIdx] : null;
