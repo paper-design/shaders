@@ -1,52 +1,54 @@
+import { Input } from '@/app/input';
 import { ShaderItems } from '@/components/shader-item';
 import { GithubIcon } from '@/icons';
 import Link from 'next/link';
 
 export default function Home() {
   return (
-    <>
-      <header className="bg-[#f7f6f0] pb-24 pt-5 sm:pb-32">
-        <div className="container mx-auto max-w-screen-lg px-4">
-          <div className="mb-8 flex items-center justify-between">
-            <Link
-              className="flex items-center gap-1 font-[matter] text-2xl font-semibold"
-              href="https://paper.design/"
-              target="_blank"
-            >
-              <Logo />
-            </Link>
-            <Link href="https://github.com/paper-design/shaders" target="_blank">
-              <GithubIcon className="size-7" />
-            </Link>
-          </div>
-          <div className="mx-auto flex max-w-64 flex-col gap-2 text-center">
-            <h1 className="font-[matter] text-4xl font-bold">Paper Shaders</h1>
-            <p className="text-lg text-gray-600">ultra fast zero-dependency shaders for your designs</p>
-          </div>
+    <div className="sm:dot-pattern p-4 sm:p-6 sm:pb-24 md:px-12 lg:pt-6">
+      <header className="mb-4 sm:mb-6">
+        <div className="bg-background max-w-screen-container h-nav container mx-auto flex items-center justify-between rounded-xl px-6">
+          <Link
+            className="flex items-center gap-1 font-[matter] text-2xl font-semibold"
+            href="https://paper.design/"
+            target="_blank"
+          >
+            <Logo />
+          </Link>
+          <Link href="https://github.com/paper-design/shaders" target="_blank" className="flex items-center gap-2">
+            <GithubIcon className="size-7" />
+          </Link>
         </div>
       </header>
-      <main className="-mt-12 pb-16">
-        <div className="container mx-auto max-w-screen-lg px-4">
-          <div className="grid grid-cols-2 gap-6 gap-x-6 gap-y-8 sm:gap-16 sm:gap-x-16 md:grid-cols-3 md:gap-y-16">
-            <ShaderItems />
-          </div>
+
+      <main className="bg-background max-w-screen-container container mx-auto rounded-xl px-4 pb-16 sm:px-6 md:px-12 xl:px-24">
+        <div className="mx-auto w-full py-6 text-4xl sm:py-12 lg:py-16 lg:text-5xl">
+          <h1 className="m-0 font-[matter] font-normal leading-tight text-[#222]">Paper shaders.</h1>
+          <p className="text-balance font-light leading-tight text-[#909090]">
+            Ultra fast zero-dependency <br /> shaders for your designs.
+          </p>
+          <Input />
+        </div>
+
+        <div className="grid grid-cols-2 gap-4 gap-y-8 sm:gap-16 sm:gap-x-12 md:gap-y-16 lg:grid-cols-3">
+          <ShaderItems />
         </div>
       </main>
-    </>
+    </div>
   );
 }
 
 function Logo() {
   return (
-    <svg width="90" height="28" viewBox="0 0 90 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <svg height="40" viewBox="0 0 110 40" className="dark:text-paper light:text-off-black" aria-label="Paper">
       <path
-        d="M28.5133 22.0374V4.7446H34.5658C38.0985 4.7446 40.4207 6.84444 40.4207 10.0313C40.4207 13.2181 38.0985 15.3179 34.5658 15.3179H31.3296V22.0374H28.5133ZM31.3296 12.7487H34.5658C36.4433 12.7487 37.555 11.7112 37.555 10.0313C37.555 8.35142 36.4433 7.33856 34.5658 7.33856H31.3296V12.7487ZM40.2952 15.9849C40.2952 19.7151 42.6421 22.3091 46.0019 22.3091C47.7558 22.3091 49.2875 21.4939 50.0286 20.2093V22.0373H52.7214V9.90764H50.0286V11.6123C49.3616 10.4512 47.7558 9.63588 46.0019 9.63588C42.6421 9.63588 40.2952 12.2298 40.2952 15.9849ZM46.5453 19.8634C44.4702 19.8634 42.988 18.2577 42.988 15.9849C42.988 13.7121 44.4702 12.0816 46.5453 12.0816C48.6453 12.0816 50.1274 13.6874 50.1274 15.9849C50.1274 18.2577 48.6453 19.8634 46.5453 19.8634ZM54.9239 26.9782V9.90764H57.592V11.7604C58.3084 10.4759 59.8648 9.63588 61.6434 9.63588C65.0032 9.63588 67.3501 12.2298 67.3501 15.9602C67.3501 19.7151 65.0032 22.3091 61.6434 22.3091C59.8895 22.3091 58.2837 21.4939 57.592 20.3081V26.9782H54.9239ZM57.5179 15.9602C57.5179 18.2577 58.9754 19.8634 61.0752 19.8634C63.1751 19.8634 64.6326 18.2329 64.6326 15.9602C64.6326 13.6874 63.1751 12.0816 61.0752 12.0816C59.0001 12.0816 57.5179 13.6874 57.5179 15.9602ZM68.3923 15.9849C68.3923 19.641 70.9615 22.3091 74.593 22.3091C77.2272 22.3091 79.518 20.7634 80.2183 18.4545H77.4624C76.8523 19.3953 75.7992 19.9622 74.593 19.9622C72.6908 19.9622 71.332 18.7023 71.085 16.7013H80.1761C80.2255 16.4789 80.2502 16.1825 80.2502 15.7625C80.2502 11.9828 78.0515 9.63588 74.5436 9.63588C70.9862 9.63588 68.3923 12.2792 68.3923 15.9849ZM77.6316 14.725H71.1839C71.6038 13.045 72.8637 11.9581 74.5436 11.9581C76.2976 11.9581 77.4092 12.9956 77.6316 14.725ZM82.1148 9.90764V22.0373H84.783V15.8366C84.783 13.5145 85.9195 12.2545 88.0928 12.2545C88.7846 12.2545 89.4269 12.3781 89.921 12.5016V9.90764C89.4763 9.7347 88.8834 9.63588 88.2658 9.63588C86.6854 9.63588 85.4501 10.4512 84.783 11.9581V9.90764H82.1148Z"
-        fill="black"
-      />
+        d="M34.9805 30.974V9.97559H42.3299C46.6196 9.97559 49.4394 12.5254 49.4394 16.3951C49.4394 20.2648 46.6196 22.8146 42.3299 22.8146H38.4002V30.974H34.9805ZM38.4002 19.6949H42.3299C44.6098 19.6949 45.9597 18.435 45.9597 16.3951C45.9597 14.3553 44.6098 13.1254 42.3299 13.1254H38.4002V19.6949ZM49.2871 23.6245C49.2871 28.1541 52.1369 31.3039 56.2166 31.3039C58.3464 31.3039 60.2063 30.314 61.1062 28.7541V30.9739H64.376V16.245H61.1062V18.3149C60.2963 16.905 58.3464 15.915 56.2166 15.915C52.1369 15.915 49.2871 19.0648 49.2871 23.6245ZM56.8765 28.3341C54.3567 28.3341 52.5569 26.3843 52.5569 23.6245C52.5569 20.8647 54.3567 18.8848 56.8765 18.8848C59.4264 18.8848 61.2262 20.8347 61.2262 23.6245C61.2262 26.3843 59.4264 28.3341 56.8765 28.3341ZM67.0505 36.9735V16.245H70.2903V18.4948C71.1602 16.935 73.0501 15.915 75.2099 15.915C79.2896 15.915 82.1394 19.0648 82.1394 23.5945C82.1394 28.1541 79.2896 31.3039 75.2099 31.3039C73.0801 31.3039 71.1302 30.314 70.2903 28.8741V36.9735H67.0505ZM70.2003 23.5945C70.2003 26.3843 71.9701 28.3341 74.5199 28.3341C77.0698 28.3341 78.8396 26.3543 78.8396 23.5945C78.8396 20.8347 77.0698 18.8848 74.5199 18.8848C72.0001 18.8848 70.2003 20.8347 70.2003 23.5945ZM83.4049 23.6245C83.4049 28.0641 86.5247 31.3039 90.9344 31.3039C94.1331 31.3039 96.9147 29.427 97.7651 26.6233H94.4187C93.6778 27.7657 92.3991 28.4541 90.9344 28.4541C88.6245 28.4541 86.9746 26.9242 86.6747 24.4944H97.7139C97.7739 24.2244 97.8038 23.8645 97.8038 23.3545C97.8038 18.7648 95.134 15.915 90.8744 15.915C86.5547 15.915 83.4049 19.1248 83.4049 23.6245ZM94.6241 22.0946H86.7947C87.3046 20.0547 88.8345 18.7348 90.8744 18.7348C93.0042 18.7348 94.3541 19.9947 94.6241 22.0946ZM100.068 16.245V30.9739H103.308V23.4445C103.308 20.6247 104.688 19.0948 107.327 19.0948C108.167 19.0948 108.947 19.2448 109.547 19.3948V16.245C109.007 16.035 108.287 15.915 107.537 15.915C105.618 15.915 104.118 16.905 103.308 18.7348V16.245H100.068Z"
+        fill="#222"
+      ></path>
       <path
-        d="M13.619 3H3V6.14286H14L14 17L3 17V6.14286L0 6.14286V16.3794V25L3 25L14 25L14 17L22 17L22 6.14286V3H13.619Z"
-        fill="black"
-      />
+        d="M15.9874 7H3.99685V10.9969H15.9874V22.9874H3.99685V10.9969L0 10.9969V22.9874V32.9795H3.99685H15.9874V22.9874H25.9795V10.9969V7H15.9874Z"
+        fill="var(--paper-blue)"
+      ></path>
     </svg>
   );
 }

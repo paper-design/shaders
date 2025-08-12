@@ -30,7 +30,7 @@ export function ShaderItem({
   return (
     <Link href={url} className="flex flex-col gap-2">
       <div
-        className="relative aspect-[4/3] overflow-hidden rounded-3xl bg-[#f7f6f0] shadow"
+        className="bg-background relative aspect-[4/3] overflow-hidden rounded-lg shadow sm:rounded-3xl"
         onMouseEnter={() => {
           // Disable shaders on small (touch) devices to prevent choppy hover transitions.
           // On these screens, prioritize a sharp static preview over a degraded shader effect.

@@ -9,6 +9,14 @@
   src: url('https://assets.paper.design/fonts/matter-variable.woff2') format('woff2');
 }
 
+:root {
+  --paper-blue: oklch(74% 0.104 258);
+  --root: #f0efe4;
+  --foreground: #222;
+  --background: #fcfcf9;
+  --device-pixel-ratio: 2;
+}
+
 body {
   font-family: matter, system-ui, sans-serif;
 }
@@ -20,5 +28,22 @@ body {
   &:active,
   &:focus {
     box-shadow: inset 0 0 0 var(--leva-borderWidths-hover) var(--leva-colors-elevation3);
+  }
+}
+
+@layer utilities {
+  .dot-pattern {
+    --dot-color: #0008;
+    --dot-size: 0.9px;
+    --dot-step: 24px;
+    --dot-stop: calc(var(--dot-size) - min(0.5px, 1px / var(--device-pixel-ratio)));
+
+    background-size: var(--dot-step) var(--dot-step);
+    background-position: calc(50% + var(--dot-step) / 2) 0;
+    background-image: radial-gradient(
+      var(--dot-step) circle,
+      var(--dot-color) var(--dot-stop),
+      transparent var(--dot-size)
+    );
   }
 }
