@@ -14,12 +14,14 @@ export function ShaderItem({
   image,
   url,
   style,
+  isStatic = false,
   ShaderComponent,
   shaderConfig,
 }: {
   name: string;
   image?: StaticImageData;
   url: string;
+  isStatic?: boolean;
   ShaderComponent: React.ComponentType<{ style: React.CSSProperties } & Record<string, unknown>>;
   style?: React.CSSProperties;
   shaderConfig?: Record<string, unknown>;
@@ -30,11 +32,11 @@ export function ShaderItem({
   return (
     <Link href={url} className="flex flex-col gap-2">
       <div
-        className="bg-background relative aspect-[4/3] overflow-hidden rounded-lg shadow sm:rounded-3xl"
+        className="bg-background relative aspect-[4/3] overflow-hidden rounded-lg shadow sm:rounded-xl"
         onMouseEnter={() => {
-          // Disable shaders on small (touch) devices to prevent choppy hover transitions.
+          // Disable shaders on small (touch) devices or static shaders to prevent choppy hover transitions.
           // On these screens, prioritize a sharp static preview over a degraded shader effect.
-          if (window.innerWidth > 640) {
+          if (!isStatic && window.innerWidth > 640) {
             setIsHovered(true);
             setShowShader(true);
           }

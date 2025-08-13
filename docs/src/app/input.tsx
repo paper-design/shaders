@@ -7,7 +7,7 @@ export function Input() {
   const [copied, setCopied] = useState(false);
 
   return (
-    <div className="relative mt-6 hidden w-full max-w-[580px] sm:block">
+    <div className="relative mt-6 w-full max-w-[580px]">
       <input
         type="text"
         readOnly
@@ -15,7 +15,7 @@ export function Input() {
         ref={inputRef}
         value="npm i @paper-design/shaders-react"
         onClick={() => inputRef.current?.select()}
-        className="outline-blue h-16 w-full rounded-lg border border-neutral-300 pl-6 font-mono text-base"
+        className="outline-blue h-12 w-full truncate rounded-lg border border-neutral-300 pl-4 pr-[48px] font-mono text-sm sm:h-14 sm:pl-6 md:text-base"
       />
       <button
         className="absolute right-0 top-0 h-full w-10 text-neutral-500"

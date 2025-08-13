@@ -14,6 +14,7 @@
   --root: #f0efe4;
   --foreground: #222;
   --background: #fcfcf9;
+  --muted-foreground: #909090;
   --device-pixel-ratio: 2;
 }
 

@@ -9,10 +9,11 @@ export default {
   theme: {
     extend: {
       colors: {
-        root: 'var(--root)',
-        background: 'var(--background)',
-        foreground: 'var(--foreground)',
-        blue: 'var(--paper-blue)',
+        'root': 'var(--root)',
+        'background': 'var(--background)',
+        'foreground': 'var(--foreground)',
+        'blue': 'var(--paper-blue)',
+        'muted-foreground': 'var(--muted-foreground)',
       },
       screens: {
         container: '1300px',
