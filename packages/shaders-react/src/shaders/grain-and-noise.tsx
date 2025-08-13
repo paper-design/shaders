@@ -23,12 +23,11 @@ export const defaultPreset: GrainAndNoisePreset = {
     speed: 1,
     frame: 0,
     colorGrain: '#ff4444',
-    colorFiber: '#ffffff',
-    colorDrops: '#449f22',
+    colorFiber: '#00ff00',
+    colorFiberScd: '#0000ff',
     grain: 0.4,
     fiber: 0.32,
-    drops: 0.5,
-    dropsSeed: 1.6,
+    seed: 0,
   },
 };
 
@@ -40,11 +39,10 @@ export const GrainAndNoise: React.FC<GrainAndNoiseProps> = memo(function GrainAn
   frame = defaultPreset.params.frame,
   colorGrain = defaultPreset.params.colorGrain,
   colorFiber = defaultPreset.params.colorFiber,
-  colorDrops = defaultPreset.params.colorDrops,
+  colorFiberScd = defaultPreset.params.colorFiberScd,
   grain = defaultPreset.params.grain,
   fiber = defaultPreset.params.fiber,
-  drops = defaultPreset.params.drops,
-  dropsSeed = defaultPreset.params.dropsSeed,
+  seed = defaultPreset.params.seed,
 
   // Sizing props
   fit = defaultPreset.params.fit,
@@ -64,11 +62,10 @@ export const GrainAndNoise: React.FC<GrainAndNoiseProps> = memo(function GrainAn
     // Own uniforms
     u_colorGrain: getShaderColorFromString(colorGrain),
     u_colorFiber: getShaderColorFromString(colorFiber),
-    u_colorDrops: getShaderColorFromString(colorDrops),
+    u_colorFiberScd: getShaderColorFromString(colorFiberScd),
     u_grain: grain,
     u_fiber: fiber,
-    u_drops: drops,
-    u_dropsSeed: dropsSeed,
+    u_seed: seed,
     ...noiseTexture,
 
     // Sizing uniforms

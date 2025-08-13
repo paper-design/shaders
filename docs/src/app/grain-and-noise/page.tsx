@@ -28,57 +28,19 @@ const GrainAndNoiseWithControls = () => {
   const [imageIdx, setImageIdx] = useState(0);
 
   const imageFiles = [
-    '063.jpg',
-    '068.jpg',
-    '086.png',
-    '040.jpg',
-    '049.jpg',
-    '059.jpg',
-    '06.jpg',
-    '030.jpg',
-    '023.jpg',
-    '048.jpg',
-
-    '085.png',
-    '072.jpg',
-    '073.jpg',
-    '074.jpg',
-    '083.jpg',
-
-    '060.jpg',
-
-    '02.jpg',
-    '031.jpg',
-    '032.jpg',
-    '034.jpg',
-
-    '051.jpg',
-    '052.jpg',
-    '053.jpg',
-    '055.jpg',
-    '057.jpg',
-    '058.jpg',
-    '061.jpg',
-    '065.jpg',
-    '066.jpg',
-    '03.jpg',
-    '09.jpg',
-    '010.jpg',
-    '013.jpg',
-    '019.jpg',
-    '020.jpg',
-    '022.jpg',
-    '024.jpg',
-    '025.jpg',
-    '027.jpg',
-    '028.jpg',
-    '029.jpg',
-    '035.jpg',
-    '037.jpg',
-    '039.jpg',
-    '041.jpg',
-    '046.jpg',
-    '047.jpg',
+    '01.webp',
+    '02.webp',
+    '03.webp',
+    '04.webp',
+    '05.webp',
+    '06.webp',
+    '07.webp',
+    '08.webp',
+    '09.webp',
+    '010.webp',
+    '011.webp',
+    '012.webp',
+    '013.webp',
   ] as const;
 
   const fileName = imageIdx >= 0 ? imageFiles[imageIdx] : null;
@@ -127,39 +89,18 @@ const GrainAndNoiseWithControls = () => {
       Parameters: folder(
         {
           colorGrain: { value: toHsla(defaults.colorGrain), order: 100 },
+          // colorGrainScd: { value: toHsla(defaults.colorGrainScd), order: 100 },
           colorFiber: { value: toHsla(defaults.colorFiber), order: 101 },
-          colorDrops: { value: toHsla(defaults.colorDrops), order: 102 },
+          colorFiberScd: { value: toHsla(defaults.colorFiberScd), order: 101 },
+          // colorFiberTrd: { value: toHsla(defaults.colorFiberTrd), order: 102 },
           grain: { value: defaults.grain, min: 0, max: 1, order: 300 },
           fiber: { value: defaults.fiber, min: 0, max: 1, order: 300 },
-          drops: { value: defaults.drops, min: 0, max: 1, order: 300 },
-          dropsSeed: { value: defaults.dropsSeed, min: 0, max: 10, order: 351 },
+          // drops: { value: defaults.drops, min: 0, max: 1, order: 300 },
+          // seed: { value: defaults.seed, min: 0, max: 10, order: 351 },
+          speed: { value: defaults.speed, min: 0, max: 10, order: 351 },
+          scale: {value: defaults.scale, min: 0.02, max: 10, order: 400},
         },
         { order: 1 }
-      ),
-      Transform: folder(
-        {
-          scale: { value: defaults.scale, min: 0.5, max: 2, order: 400 },
-          rotation: { value: defaults.rotation, min: 0, max: 360, order: 401 },
-          offsetX: { value: defaults.offsetX, min: -1, max: 1, order: 402 },
-          offsetY: { value: defaults.offsetY, min: -1, max: 1, order: 403 },
-        },
-        {
-          order: 2,
-          collapsed: true,
-        }
-      ),
-      Fit: folder(
-        {
-          fit: { value: defaults.fit, options: Object.keys(ShaderFitOptions) as ShaderFit[], order: 404 },
-          worldWidth: { value: 0, min: 0, max: 5120, order: 405 },
-          worldHeight: { value: 0, min: 0, max: 5120, order: 406 },
-          originX: { value: defaults.originX, min: 0, max: 1, order: 407 },
-          originY: { value: defaults.originY, min: 0, max: 1, order: 408 },
-        },
-        {
-          order: 3,
-          collapsed: true,
-        }
       ),
       Presets: folder(presets, { order: -1 }),
     };
@@ -176,7 +117,7 @@ const GrainAndNoiseWithControls = () => {
       <Link href="/">
         <BackButton />
       </Link>
-      <img src={fileName ? `/images/${fileName}` : ''} className="fixed left-0 top-0 z-0 h-full w-full object-cover" />
+      <img src={fileName ? `/images/image-filters/${fileName}` : ''} className="fixed left-0 top-0 z-0 h-full w-full object-cover" />
       <GrainAndNoise
         onClick={handleClick}
         {...params}

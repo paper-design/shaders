@@ -10,12 +10,12 @@ uniform float u_time;
 
 uniform vec4 u_colorGrain;
 uniform vec4 u_colorFiber;
-uniform vec4 u_colorDrops;
+uniform vec4 u_colorFiberScd;
 
 uniform float u_grain;
 uniform float u_fiber;
 uniform float u_drops;
-uniform float u_dropsSeed;
+uniform float u_seed;
 
 uniform sampler2D u_noiseTexture;
 
@@ -27,31 +27,27 @@ ${declarePI}
 ${declareRotate}
 ${declareSimplexNoise}
 
-float random(vec2 p) {
+vec3 random(vec2 p) {
   vec2 uv = floor(p) / 100.;
-  return texture(u_noiseTexture, fract(uv)).b;
+  return texture(u_noiseTexture, fract(uv + .003 * u_time)).rgb;
 }
 
-vec2 random2(vec2 p) {
-  vec2 uv = floor(p) / 50. + .5;
-  return texture(u_noiseTexture, fract(uv)).gb;
-}
-
-float valueNoise(vec2 st) {
+vec3 valueNoise(vec2 st) {
   vec2 i = floor(st);
   vec2 f = fract(st);
-  float a = random(i);
-  float b = random(i + vec2(1.0, 0.0));
-  float c = random(i + vec2(0.0, 1.0));
-  float d = random(i + vec2(1.0, 1.0));
+  vec3 a = random(i);
+  vec3 b = random(i + vec2(1.0, 0.0));
+  vec3 c = random(i + vec2(0.0, 1.0));
+  vec3 d = random(i + vec2(1.0, 1.0));
   vec2 u = f * f * (3.0 - 2.0 * f);
-  float x1 = mix(a, b, u.x);
-  float x2 = mix(c, d, u.x);
+  vec3 x1 = mix(a, b, u.x);
+  vec3 x2 = mix(c, d, u.x);
   return mix(x1, x2, u.y);
 }
-float fbm(in vec2 n) {
-  float total = 0.0, amplitude = 1.;
-  for (int i = 0; i < 3; i++) {
+vec3 fbm(vec2 n) {
+  vec3 total = vec3(0.);
+  float amplitude = 1.;
+  for (int i = 0; i < 5; i++) {
     n = rotate(n, .4);
     total += valueNoise(n) * amplitude;
     n *= 2.;
@@ -60,14 +56,30 @@ float fbm(in vec2 n) {
   return total;
 }
 
-float fiber(vec2 uv) {
+vec3 fiberShape(vec2 uv) {
   float epsilon = 0.01;
-  float n1 = fbm(uv + vec2(epsilon, 0.0));
-  float n2 = fbm(uv - vec2(epsilon, 0.0));
-  float n3 = fbm(uv + vec2(0.0, epsilon));
-  float n4 = fbm(uv - vec2(0.0, epsilon));
-  return length(vec2(n1 - n2, n3 - n4)) / (2.0 * epsilon);
+  vec3 n1 = fbm(uv + vec2(epsilon, 0.0));
+  vec3 n2 = fbm(uv - vec2(epsilon, 0.0));
+  vec3 n3 = fbm(uv + vec2(0.0, epsilon));
+  vec3 n4 = fbm(uv - vec2(0.0, epsilon));
+  vec3 n12 = n1 - n2;
+  vec3 n34 = n3 - n4;
+  float epsilon2 = 2.0 * epsilon;
+  return vec3(
+    length(vec2(n12.x, n34.x)) / epsilon2,
+    length(vec2(n12.y, n34.y)) / epsilon2,
+    length(vec2(n12.z, n34.z)) / epsilon2
+  );
 }
+
+
+float getNoise(vec2 uv, float t) {
+  float noise = .5 * snoise(uv - vec2(0., .3 * t));
+  noise += .5 * snoise(2. * uv + vec2(0., .32 * t));
+
+  return noise;
+}
+
 
 void main() {
 
@@ -75,48 +87,40 @@ void main() {
   vec2 patternUV = v_patternUV;
 
   vec2 fiberUV = -10. + 10. * v_patternUV;
-  float fiber = fiber(fiberUV);
-
-  vec2 grainUV = 40. * v_patternUV;
-  float grain = 4. * random(grainUV + 20.) * random(1.2 * grainUV - 20.) * random(1.5 * grainUV);
-
-  vec2 dropsUV = 1. * patternUV;
-  vec2 dropsUVi = floor(dropsUV);
-  vec2 dropsUVf = fract(dropsUV);
-  float dropsMinDist = 1.;
-  for (int j = -1; j <= 1; j++) {
-    for (int i = -1; i <= 1; i++) {
-      vec2 neighbor = vec2(float(i), float(j));
-      vec2 offset = random2(dropsUVi + neighbor);
-      offset = .5 + .5 * sin(10. * u_dropsSeed + TWO_PI * offset);
-      vec2 pos = neighbor + offset - dropsUVf;
-      float dist = length(pos);
-      dropsMinDist = min(dropsMinDist, dropsMinDist * dist);
-    }
-  }
-  float dropSize = .25 * u_drops;
-  float drops = 1. - smoothstep(dropSize, dropSize + .02, pow(dropsMinDist, .5));
-
+  vec3 fiber = .5 * fiberShape(fiberUV);
   fiber *= u_fiber;
-  grain *= u_grain;
-
+  
   vec3 grainColor = u_colorGrain.rgb * u_colorGrain.a;
   vec3 fiberColor = u_colorFiber.rgb * u_colorFiber.a;
-  vec3 dropsColor = u_colorDrops.rgb * u_colorDrops.a;
-
-  vec4 colFiber = u_colorFiber * fiber;
-  vec4 colDrops = u_colorDrops * drops;
-
+  vec3 fiberColorScd = u_colorFiberScd.rgb * u_colorFiberScd.a;
+  
   vec3 color = vec3(0.);
   float opacity = 0.;
 
-  color += grainColor * grain;
-  color += fiberColor * fiber;
-  color += dropsColor * drops;
 
-  opacity += u_colorGrain.a * grain;
-  opacity += u_colorFiber.a * fiber;
-  opacity += u_colorDrops.a * drops;
+  vec2 uv = 40. * v_patternUV;
+  float grain1 = -1. + 1.5 * u_grain + snoise(uv + vec2(0., -.3 * u_time));
+  float grain2 = -1. + 1.5 * u_grain + snoise(2. * uv + vec2(0., .32 * u_time));
+  float grain3 = -1. + 1.5 * u_grain + snoise(1.5 * uv + vec2(-.4 * u_time, .1 * u_time));
+  grain1 = clamp(grain1, 0., 1.);
+  grain2 = clamp(grain2, 0., 1.);
+  grain3 = clamp(grain3, 0., 1.);
+
+  color += fiberColor * fiber.x;
+  color += fiberColorScd * fiber.y;
+  color += grainColor * fiber.z;
+  
+  color += fiberColor * grain1;
+  color += fiberColorScd * grain2;
+  color += grainColor * grain3;
+
+  opacity += u_colorFiber.a * fiber.x;
+  opacity += u_colorFiberScd.a * fiber.y;
+  opacity += u_colorGrain.a * fiber.z;
+  
+  opacity += u_colorFiber.a * grain1;
+  opacity += u_colorFiberScd.a * grain2;
+  opacity += u_colorGrain.a * grain3;
   
   opacity = min(opacity, 1.0);
 
@@ -129,19 +133,17 @@ export interface GrainAndNoiseUniforms extends ShaderSizingUniforms {
   u_noiseTexture?: HTMLImageElement;
   u_colorGrain: [number, number, number, number];
   u_colorFiber: [number, number, number, number];
-  u_colorDrops: [number, number, number, number];
+  u_colorFiberScd: [number, number, number, number];
   u_grain: number;
   u_fiber: number;
-  u_drops: number;
-  u_dropsSeed: number;
+  u_seed: number;
 }
 
 export interface GrainAndNoiseParams extends ShaderSizingParams, ShaderMotionParams {
   colorGrain?: string;
   colorFiber?: string;
-  colorDrops?: string;
+  colorFiberScd?: string;
   grain?: number;
   fiber?: number;
-  drops?: number;
-  dropsSeed?: number;
+  seed?: number;
 }
