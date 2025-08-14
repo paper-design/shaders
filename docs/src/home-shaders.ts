@@ -163,7 +163,7 @@ export const homeShaders = [
     url: '/waves',
     ShaderComponent: Waves,
     image: wavesImg,
-    shaderConfig: { ...wavesPresets[0].params, scale: 0.9 },
+    shaderConfig: { ...wavesPresets[0].params, scale: 0.9, spacing: 1.15, proportion: 0.15 },
   },
   {
     name: 'neuro noise',
