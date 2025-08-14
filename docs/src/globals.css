@@ -1,28 +1,27 @@
 @import 'tailwindcss';
 
 @theme {
-  --color-root: var(--root);
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-blue: var(--paper-blue);
-  --color-muted-foreground: var(--muted-foreground);
-
-  --breakpoint-container: 1300px;
-
-  --height-nav: 72px;
+  --color-root: #f0efe4;
+  --color-foreground: #222;
+  --color-background: #fcfcf9;
+  --color-blue: oklch(74% 0.104 258);
+  --color-muted-foreground: #909090;
+  --width-container: 1321px; /* make sure it's on the dot pixel */
 
   /* code */
+  --color-code-line-number: var(--color-neutral-400);
+  --color-code-string: var(--color-blue-800);
+  --color-code-component: var(--color-blue-800);
   --color-code-keyword: var(--color-red-500);
-  --color-code-default: var(--color-neutral-400);
-  --color-code-string: var(--color-orange-600);
-  --color-code-component: var(--color-blue-600);
-  --color-code-property: var(--color-green-700);
+  --color-code-default: var(--color-neutral-600);
+  --color-code-property: var(--color-purple-600);
+  --color-code-object-property: var(--color-blue-600);
   --color-code-number: var(--color-purple-600);
   --color-code-boolean: var(--color-pink-600);
   --color-code-function: var(--color-yellow-600);
   --color-code-comment: var(--color-gray-400);
+  --color-code-bracket: var(--color-neutral-600);
 }
-
 @font-face {
   font-family: matter;
   font-style: normal;
@@ -31,16 +30,19 @@
 }
 
 :root {
-  --paper-blue: oklch(74% 0.104 258);
-  --root: #f0efe4;
-  --foreground: #222;
-  --background: #fcfcf9;
-  --muted-foreground: #909090;
   --device-pixel-ratio: 2;
 }
 
+*,
+*::before,
+*::after {
+  border-color: var(--color-neutral-200);
+}
+
 body {
-  font-family: matter, system-ui, sans-serif;
+  font-family:
+    matter, ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
+    'Noto Color Emoji';
 }
 
 #leva__root button {
@@ -68,10 +70,29 @@ body {
   );
 }
 
-.line {
-  @apply relative block [counter-increment:line] before:absolute before:top-0 before:left-0 before:w-8 before:pr-4 before:text-right before:text-xs before:text-neutral-400 before:content-[counter(line)] before:select-none;
+@utility scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-neutral-400) transparent;
 }
 
-.keyword {
-  @apply text-red-500;
+@utility line {
+  display: block;
+  position: relative;
+}
+
+@utility line-number {
+  counter-increment: line;
+  padding-left: 1.5rem;
+
+  ::before {
+    content: counter(line);
+    position: absolute;
+    display: flex;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    justify-content: center;
+    padding-right: 1rem;
+    text-align: right;
+  }
 }

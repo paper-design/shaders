@@ -1,13 +1,12 @@
-import { Input } from '@/app/input';
+import { Code, Example, Install } from '@/components/code';
 import { ShaderItems } from '@/components/shader-item';
 import { GithubIcon } from '@/icons';
 import Link from 'next/link';
-import { Code } from '@/app/code';
 
 export default function Home() {
   return (
     <main className="sm:dot-pattern p-4 sm:p-6 sm:pb-24 md:px-12 lg:pt-6">
-      <header className="bg-background max-w-(--breakpoint-container) container mx-auto mb-4 rounded-xl pb-4 sm:mb-6 sm:pb-[100px]">
+      <header className="bg-background container mx-auto mb-4 max-w-[var(--width-container)] rounded-xl pb-4 sm:mb-6 sm:pb-6 md:pb-12 lg:pb-[100px]">
         <div className="mb-8 flex w-full items-center justify-between p-4">
           <Link href="https://paper.design/" target="_blank" className="transition-opacity hover:opacity-70">
             <Logo />
@@ -21,22 +20,35 @@ export default function Home() {
           </Link>
         </div>
 
-        <div className="grid grid-cols-2 px-4">
-          <div className="grow text-[26px] md:text-4xl lg:text-[48px]">
-            <h1 className="font-[matter] font-normal leading-tight text-[#222]">Paper Shaders</h1>
-            <p className="text-muted-foreground text-balance font-light leading-tight">
+        <div className="grid-cols-2 items-center gap-4 px-4 sm:gap-6 sm:px-6 md:gap-16 md:px-12 lg:grid xl:px-24">
+          <div className="mb-8 text-[26px] md:text-4xl lg:mb-0">
+            <h1 className="font-[matter] leading-tight font-normal text-[#222]">Paper Shaders</h1>
+            <p className="text-muted-foreground leading-tight font-light text-balance">
               ultra fast zero-dependency <br className="hidden sm:block" /> shaders for your designs
             </p>
           </div>
 
-          <div className="grow">
-            {/* <Input /> */}
-            <Code />
+          <div className="flex flex-col gap-1">
+            <Code copyText="npm i @paper-design/shaders-react">
+              <Install />
+            </Code>
+            <Code
+              copyText={`import {MeshGradient} from '@paper-design/shaders-react';
+ 
+export default () => (
+  <MeshGradient
+    style={{width: 200, height: 200}}
+    colors={['#5100ff', '#00ff80', '#ffcc00', '#ea00ff']}
+  />
+)`}
+            >
+              <Example />
+            </Code>
           </div>
         </div>
       </header>
 
-      <div className="bg-background max-w-(--breakpoint-container) container mx-auto rounded-xl p-4 pb-6 sm:p-6 md:p-12 xl:p-24">
+      <div className="bg-background container mx-auto max-w-(--width-container) rounded-xl p-4 pb-6 sm:p-6 md:p-12 xl:p-24">
         <div className="grid grid-cols-2 gap-4 gap-y-8 sm:gap-16 sm:gap-x-6 md:gap-16 lg:grid-cols-3">
           <ShaderItems />
         </div>
