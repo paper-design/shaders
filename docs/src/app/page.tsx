@@ -33,11 +33,11 @@ export default function Home() {
               <Install />
             </Code>
             <Code
-              copyText={`import {MeshGradient} from '@paper-design/shaders-react';
+              copyText={`import { MeshGradient } from '@paper-design/shaders-react';
  
 export default () => (
   <MeshGradient
-    style={{width: 200, height: 200}}
+    style={{ width: 200, height: 200 }}
     colors={['#5100ff', '#00ff80', '#ffcc00', '#ea00ff']}
   />
 )`}

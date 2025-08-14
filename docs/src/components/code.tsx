@@ -59,13 +59,13 @@ export function Example() {
         <span className="text-code-property"> style</span>
         <span className="text-code-default">=</span>
         <span className="text-code-bracket">{'{'}</span>
-        <span className="text-code-bracket">{'{'}</span>
+        <span className="text-code-bracket">{'{ '}</span>
         <span className="text-code-object-property">width:</span>
         <span className="text-code-number"> 200</span>
         <span className="text-code-default">, </span>
         <span className="text-code-object-property">height:</span>
         <span className="text-code-number"> 200</span>
-        <span className="text-code-bracket">{'}'}</span>
+        <span className="text-code-bracket">{' }'}</span>
         <span className="text-code-bracket">{'}'}</span>
       </span>
       <span className="line">
