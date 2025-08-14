@@ -61,7 +61,7 @@ export const abstractPreset: PaperTexturePreset = {
     foldsNumber: 3,
     blur: 0,
     drops: 0.2,
-    seed: 4.8,
+    seed: 2.2,
   },
 };
 
