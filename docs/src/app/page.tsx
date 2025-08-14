@@ -21,7 +21,7 @@ export default function Home() {
         </div>
 
         <div className="grid-cols-2 items-center gap-4 px-4 sm:gap-6 sm:px-6 md:px-12 lg:grid xl:px-24">
-          <div className="mb-8 text-3xl md:text-[32px] lg:mb-0 xl:text-[40px]">
+          <div className="mb-8 text-[26px] md:text-[32px] lg:mb-0 xl:text-[40px]">
             <h1 className="leading-tight font-normal text-[#222]">Paper Shaders</h1>
             <p className="text-muted-foreground leading-tight font-light text-balance">
               ultra fast zero-dependency <br className="hidden sm:block" /> shaders for your designs
