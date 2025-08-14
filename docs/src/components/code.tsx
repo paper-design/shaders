@@ -18,7 +18,7 @@ export function Code({ children, copyText }: { children: React.ReactNode; copyTe
 export function Install() {
   return (
     <>
-      <span className="line">
+      <span className="line line-tilde">
         <span className="text-code-default">npm i @paper-design/shaders-react</span>
       </span>
     </>

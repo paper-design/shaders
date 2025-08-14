@@ -7,7 +7,7 @@ export function CopyButton({ text }: { text: string }) {
 
   return (
     <button
-      className="p-4.5"
+      className="text-muted-foreground p-4.5"
       onClick={() => {
         navigator.clipboard.writeText(text);
         setCopied(true);

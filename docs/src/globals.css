@@ -84,7 +84,7 @@ body {
   counter-increment: line;
   padding-left: 1.5rem;
 
-  ::before {
+  &::before {
     content: counter(line);
     position: absolute;
     display: flex;
@@ -94,5 +94,24 @@ body {
     justify-content: center;
     padding-right: 1rem;
     text-align: right;
+    color: var(--color-code-line-number);
+  }
+}
+
+@utility line-tilde {
+  counter-increment: line;
+  padding-left: 1.5rem;
+
+  &::before {
+    content: '~';
+    position: absolute;
+    display: flex;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    justify-content: center;
+    padding-right: 1rem;
+    text-align: right;
+    color: var(--color-code-line-number);
   }
 }
