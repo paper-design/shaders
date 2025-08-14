@@ -40,7 +40,6 @@ const GrainAndNoiseWithControls = () => {
     '010.webp',
     '011.webp',
     '012.webp',
-    '013.webp',
   ] as const;
 
   const fileName = imageIdx >= 0 ? imageFiles[imageIdx] : null;
@@ -71,13 +70,14 @@ const GrainAndNoiseWithControls = () => {
 
   type BlendMode = (typeof blendModes)[number];
 
-  const { blendMode } = useControls<{ blendMode: BlendMode }>('Blend', {
+  const blendControls = useControls('Blend', {
     blendMode: {
-      value: 'overlay',
+      value: 'overlay' as const,
       options: blendModes,
     },
   });
 
+  const blendMode: BlendMode = blendControls.blendMode;
   const { colors, setColors } = useColors({
     defaultColors: defaults.colors,
     maxColorCount: grainAndNoiseNoiseMeta.maxColorCount,
