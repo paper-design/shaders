@@ -7,9 +7,9 @@ import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import Link from 'next/link';
 import { BackButton } from '@/components/back-button';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
-import { ShaderFit, ShaderFitOptions } from '@paper-design/shaders';
-import { toHsla } from '@/helpers/to-hsla';
+import { ShaderFit, ShaderFitOptions, grainAndNoiseNoiseMeta } from '@paper-design/shaders';
 import { useState, useEffect, useCallback } from 'react';
+import { useColors } from '@/helpers/use-colors';
 
 /**
  * You can copy/paste this example to use GrainAndNoise in your app
@@ -78,30 +78,37 @@ const GrainAndNoiseWithControls = () => {
     },
   });
 
+  const { colors, setColors } = useColors({
+    defaultColors: defaults.colors,
+    maxColorCount: grainAndNoiseNoiseMeta.maxColorCount,
+  });
+
   const [params, setParams] = useControls(() => {
-    const presets = Object.fromEntries(
-      grainAndNoisePresets.map(({ name, params: { worldWidth, worldHeight, ...preset } }) => [
-        name,
-        button(() => setParamsSafe(params, setParams, preset)),
-      ])
-    );
     return {
       Parameters: folder(
         {
-          colorGrain: { value: toHsla(defaults.colorGrain), order: 100 },
-          // colorGrainScd: { value: toHsla(defaults.colorGrainScd), order: 100 },
-          colorFiber: { value: toHsla(defaults.colorFiber), order: 101 },
-          colorFiberScd: { value: toHsla(defaults.colorFiberScd), order: 101 },
-          // colorFiberTrd: { value: toHsla(defaults.colorFiberTrd), order: 102 },
           grain: { value: defaults.grain, min: 0, max: 1, order: 300 },
           fiber: { value: defaults.fiber, min: 0, max: 1, order: 300 },
-          // drops: { value: defaults.drops, min: 0, max: 1, order: 300 },
-          // seed: { value: defaults.seed, min: 0, max: 10, order: 351 },
           speed: { value: defaults.speed, min: 0, max: 10, order: 351 },
-          scale: {value: defaults.scale, min: 0.02, max: 10, order: 400},
+          scale: { value: defaults.scale, min: 0.02, max: 4, order: 400 },
         },
         { order: 1 }
       ),
+    };
+  }, [colors.length]);
+
+  useControls(() => {
+    const presets = Object.fromEntries(
+      grainAndNoisePresets.map(({ name, params: { worldWidth, worldHeight, ...preset } }) => [
+        name,
+        button(() => {
+          const { colors, ...presetParams } = preset;
+          setColors(colors);
+          setParamsSafe(params, setParams, presetParams);
+        }),
+      ])
+    );
+    return {
       Presets: folder(presets, { order: -1 }),
     };
   });
@@ -117,11 +124,15 @@ const GrainAndNoiseWithControls = () => {
       <Link href="/">
         <BackButton />
       </Link>
-      <img src={fileName ? `/images/image-filters/${fileName}` : ''} className="fixed left-0 top-0 z-0 h-full w-full object-cover" />
+      <img
+        src={fileName ? `/images/image-filters/${fileName}` : ''}
+        className="fixed left-0 top-0 z-0 h-full w-full object-cover"
+      />
       <GrainAndNoise
         onClick={handleClick}
         {...params}
-        className="fixed inset-0 size-full"
+        colors={colors}
+        className="fixed size-full"
         style={{ mixBlendMode: blendMode }}
       />
     </>

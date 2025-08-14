@@ -1,21 +1,21 @@
+import type { vec4 } from '../types.js';
 import type { ShaderMotionParams } from '../shader-mount.js';
 import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
 import { declareRotate, declarePI, declareValueNoise, declareSimplexNoise } from '../shader-utils.js';
 
+export const grainAndNoiseNoiseMeta = {
+  maxColorCount: 3,
+} as const;
+
 // language=GLSL
 export const grainAndNoiseFragmentShader: string = `#version 300 es
-precision mediump float;
+precision lowp float;
 
 uniform float u_time;
-
-uniform vec4 u_colorGrain;
-uniform vec4 u_colorFiber;
-uniform vec4 u_colorFiberScd;
-
+uniform vec4 u_colors[${grainAndNoiseNoiseMeta.maxColorCount}];
+uniform float u_colorsCount;
 uniform float u_grain;
 uniform float u_fiber;
-uniform float u_drops;
-uniform float u_seed;
 
 uniform sampler2D u_noiseTexture;
 
@@ -64,7 +64,7 @@ vec3 fiberShape(vec2 uv) {
   vec3 n4 = fbm(uv - vec2(0.0, epsilon));
   vec3 n12 = n1 - n2;
   vec3 n34 = n3 - n4;
-  float epsilon2 = 2.0 * epsilon;
+  float epsilon2 = 2. * epsilon;
   return vec3(
     length(vec2(n12.x, n34.x)) / epsilon2,
     length(vec2(n12.y, n34.y)) / epsilon2,
@@ -73,77 +73,66 @@ vec3 fiberShape(vec2 uv) {
 }
 
 
-float getNoise(vec2 uv, float t) {
-  float noise = .5 * snoise(uv - vec2(0., .3 * t));
-  noise += .5 * snoise(2. * uv + vec2(0., .32 * t));
+float getNoise(vec2 uv) {
+  float noise = .5 * snoise(uv + vec2(0., -.3 * u_time));
+  noise += .5 * snoise(1.4 * uv + vec2(0., .4 * u_time));
 
   return noise;
 }
 
-
 void main() {
-
-  float t = u_time;
-  vec2 patternUV = v_patternUV;
-
   vec2 fiberUV = -10. + 10. * v_patternUV;
-  vec3 fiber = .5 * fiberShape(fiberUV);
-  fiber *= u_fiber;
-  
-  vec3 grainColor = u_colorGrain.rgb * u_colorGrain.a;
-  vec3 fiberColor = u_colorFiber.rgb * u_colorFiber.a;
-  vec3 fiberColorScd = u_colorFiberScd.rgb * u_colorFiberScd.a;
-  
+  vec3 fiber = u_fiber / u_colorsCount * fiberShape(fiberUV);
+
+  vec2 grainUV = 20. * v_patternUV;
+  float grainShape = clamp(-1. + 1.5 * u_grain + getNoise(grainUV), 0., 1.);
+
+  vec3 grainColor;
+  float grainOpacity;
+  int cc = int(u_colorsCount);
+  float grainColorMixer = .5 + .5 * snoise(1.5 * grainUV);
+
+  if (cc == 1) {
+    grainColor = u_colors[0].rgb;
+    grainOpacity = u_colors[0].a;
+  } else if (cc == 2) {
+    float t = smoothstep(0., 1., grainColorMixer);
+    grainColor = mix(u_colors[0].rgb, u_colors[1].rgb, t);
+    grainOpacity = mix(u_colors[0].a, u_colors[1].a, t);
+  } else {
+    vec3 m1 = mix(u_colors[0].rgb, u_colors[1].rgb, smoothstep(0.0, 0.5, grainColorMixer));
+    grainColor = mix(m1, u_colors[2].rgb, smoothstep(0.5, 1.0, grainColorMixer));
+    float a1 = mix(u_colors[0].a, u_colors[1].a, smoothstep(0.0, 0.5, grainColorMixer));
+    grainOpacity = mix(a1, u_colors[2].a, smoothstep(0.5, 1.0, grainColorMixer));
+  }
+
   vec3 color = vec3(0.);
   float opacity = 0.;
 
+  for (int i = 0; i < cc && i < 3; i++) {
+    float fiberContribution = fiber[i] * u_colors[i].a;
+    color += u_colors[i].rgb * fiberContribution;
+    opacity += fiberContribution;
+  }
 
-  vec2 uv = 40. * v_patternUV;
-  float grain1 = -1. + 1.5 * u_grain + snoise(uv + vec2(0., -.3 * u_time));
-  float grain2 = -1. + 1.5 * u_grain + snoise(2. * uv + vec2(0., .32 * u_time));
-  float grain3 = -1. + 1.5 * u_grain + snoise(1.5 * uv + vec2(-.4 * u_time, .1 * u_time));
-  grain1 = clamp(grain1, 0., 1.);
-  grain2 = clamp(grain2, 0., 1.);
-  grain3 = clamp(grain3, 0., 1.);
-
-  color += fiberColor * fiber.x;
-  color += fiberColorScd * fiber.y;
-  color += grainColor * fiber.z;
-  
-  color += fiberColor * grain1;
-  color += fiberColorScd * grain2;
-  color += grainColor * grain3;
-
-  opacity += u_colorFiber.a * fiber.x;
-  opacity += u_colorFiberScd.a * fiber.y;
-  opacity += u_colorGrain.a * fiber.z;
-  
-  opacity += u_colorFiber.a * grain1;
-  opacity += u_colorFiberScd.a * grain2;
-  opacity += u_colorGrain.a * grain3;
-  
-  opacity = min(opacity, 1.0);
+  float grainContribution = grainShape * grainOpacity;
+  color += grainColor * grainContribution;
+  opacity = min(opacity + grainContribution, 1.);
 
   fragColor = vec4(color, opacity);
 }
-
 `;
 
 export interface GrainAndNoiseUniforms extends ShaderSizingUniforms {
   u_noiseTexture?: HTMLImageElement;
-  u_colorGrain: [number, number, number, number];
-  u_colorFiber: [number, number, number, number];
-  u_colorFiberScd: [number, number, number, number];
+  u_colors: vec4[];
+  u_colorsCount: number;
   u_grain: number;
   u_fiber: number;
-  u_seed: number;
 }
 
 export interface GrainAndNoiseParams extends ShaderSizingParams, ShaderMotionParams {
-  colorGrain?: string;
-  colorFiber?: string;
-  colorFiberScd?: string;
+  colors?: string[];
   grain?: number;
   fiber?: number;
-  seed?: number;
 }

@@ -173,6 +173,7 @@ export {
 
 export {
   grainAndNoiseFragmentShader,
+  grainAndNoiseNoiseMeta,
   type GrainAndNoiseParams,
   type GrainAndNoiseUniforms,
 } from './shaders/grain-and-noise.js';
