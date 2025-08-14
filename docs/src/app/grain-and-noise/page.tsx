@@ -70,14 +70,13 @@ const GrainAndNoiseWithControls = () => {
 
   type BlendMode = (typeof blendModes)[number];
 
-  const blendControls = useControls('Blend', {
+  const { blendMode } = useControls('Blend', {
     blendMode: {
-      value: 'overlay' as const,
+      value: 'overlay',
       options: blendModes,
     },
-  });
+  }) as { blendMode: BlendMode };
 
-  const blendMode: BlendMode = blendControls.blendMode;
   const { colors, setColors } = useColors({
     defaultColors: defaults.colors,
     maxColorCount: grainAndNoiseNoiseMeta.maxColorCount,
