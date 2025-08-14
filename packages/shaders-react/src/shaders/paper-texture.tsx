@@ -34,10 +34,10 @@ export const defaultPreset: PaperTexturePreset = {
     crumples: 0.3,
     crumplesScale: 0.6,
     folds: 0.65,
-    foldsNumber: 12,
+    foldsNumber: 5,
     blur: 0,
     drops: 0.2,
-    seed: 3.5,
+    seed: 5.8,
   },
 };
 

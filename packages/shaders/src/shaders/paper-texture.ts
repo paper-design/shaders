@@ -117,21 +117,14 @@ float crumpled(vec2 uv) {
 }
 
 
-
-
-
-float foldsHash(in float n) {
-  return fract(sin(n)*43758.5453123);
-}
 vec2 folds(vec2 uv) {
     vec3 pp = vec3(0.);
     float l = 9.;
     for (float i = 0.; i < 15.; i++) {
       if (i >= u_foldsNumber) break;
-      
-      float an = foldsHash(i + u_seed) * TWO_PI;
-      float ra = sqrt(foldsHash(an));
-      vec2 p = vec2(cos(an), sin(an)) * ra;
+      vec2 rand = crumpled_noise(vec2(i, i * u_seed));
+      float an = rand.x * TWO_PI;
+      vec2 p = vec2(cos(an), sin(an)) * rand.y;
       float dist = distance(uv, p);
       l = min(l, dist);
       
@@ -163,7 +156,7 @@ void main() {
   vec2 normal = vec2(0.);
   vec2 normalImage = vec2(0.);
 
-  vec2 foldsUV = patternUV * .2;
+  vec2 foldsUV = patternUV * .12;
   foldsUV = rotate(foldsUV, 4. * u_seed);
   vec2 w = folds(foldsUV);
   foldsUV = rotate(foldsUV + .007 * cos(u_seed), .01 * sin(u_seed));
