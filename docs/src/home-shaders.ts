@@ -134,7 +134,7 @@ export const homeShaders = [
     url: '/dot-grid',
     ShaderComponent: DotGrid,
     image: dotGridImg,
-    shaderConfig: { ...dotGridPresets[0].params, scale: 1.1, size: 2 },
+    shaderConfig: { ...dotGridPresets[0].params, scale: 0.96, gapY: 24, size: 2 },
   },
   {
     name: 'warp',
