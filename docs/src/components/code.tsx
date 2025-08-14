@@ -7,7 +7,7 @@ export function Code({ children, copyText }: { children: React.ReactNode; copyTe
         <pre className="scrollbar-thin grow overflow-x-auto p-4 py-3.5 font-mono text-xs leading-relaxed [counter-reset:line]">
           <code>{children}</code>
         </pre>
-        <div>
+        <div className="from-background absolute top-0 right-0 bottom-4 bg-gradient-to-l from-70% to-transparent">
           <CopyButton text={copyText} />
         </div>
       </div>
@@ -18,7 +18,7 @@ export function Code({ children, copyText }: { children: React.ReactNode; copyTe
 export function Install() {
   return (
     <>
-      <span className="line line-tilde">
+      <span className="line">
         <span className="text-code-default">npm i @paper-design/shaders-react</span>
       </span>
     </>
@@ -28,31 +28,31 @@ export function Install() {
 export function Example() {
   return (
     <>
-      <span className="line line-number">
+      <span className="line">
         <span className="text-code-keyword">import</span>
-        <span className="text-code-bracket"> {'{'}</span>
+        <span className="text-code-bracket"> {'{ '}</span>
         <span className="text-code-component">MeshGradient</span>
-        <span className="text-code-bracket">{'}'}</span>
+        <span className="text-code-bracket">{' }'}</span>
         <span className="text-code-keyword"> from </span>
         <span className="text-code-string">&apos;@paper-design/shaders-react&apos;</span>
         <span className="text-code-default">;</span>
       </span>
-      <span className="line line-number">
+      <span className="line">
         <span className="text-code-default">&nbsp;</span>
       </span>
-      <span className="line line-number">
+      <span className="line">
         <span className="text-code-keyword">export </span>
         <span className="text-code-keyword">default </span>
         <span className="text-code-bracket">() </span>
         <span className="text-code-default">=&gt;</span>
         <span className="text-code-bracket"> (</span>
       </span>
-      <span className="line line-number">
+      <span className="line">
         <span className="text-code-default"> </span>
         <span className="text-code-default"> &lt;</span>
         <span className="text-code-component">MeshGradient</span>
       </span>
-      <span className="line line-number">
+      <span className="line">
         <span className="text-code-default"> </span>
         <span className="text-code-default"> </span>
         <span className="text-code-default"> </span>
@@ -68,7 +68,7 @@ export function Example() {
         <span className="text-code-bracket">{'}'}</span>
         <span className="text-code-bracket">{'}'}</span>
       </span>
-      <span className="line line-number">
+      <span className="line">
         <span className="text-code-default"> </span>
         <span className="text-code-default"> </span>
         <span className="text-code-default"> </span>
@@ -86,11 +86,11 @@ export function Example() {
         <span className="text-code-bracket">{']'}</span>
         <span className="text-code-bracket">{'}'}</span>
       </span>
-      <span className="line line-number">
+      <span className="line">
         <span className="text-code-default"> </span>
         <span className="text-code-default"> /&gt;</span>
       </span>
-      <span className="line line-number">
+      <span className="line">
         <span className="text-code-bracket">)</span>
       </span>
     </>

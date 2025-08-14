@@ -6,8 +6,8 @@ import Link from 'next/link';
 export default function Home() {
   return (
     <main className="sm:dot-pattern p-4 sm:p-6 sm:pb-24 md:px-12 lg:pt-6">
-      <header className="bg-background container mx-auto mb-4 max-w-[var(--width-container)] rounded-xl pb-4 sm:mb-6 sm:pb-6 md:pb-12 lg:pb-[100px]">
-        <div className="mb-8 flex w-full items-center justify-between p-4">
+      <header className="bg-background container mx-auto mb-4 max-w-[var(--width-container)] rounded-xl pb-4 sm:mb-6 sm:pb-6 md:pb-12 lg:pb-[84px]">
+        <div className="mb-6 flex w-full items-center justify-between p-4">
           <Link href="https://paper.design/" target="_blank" className="transition-opacity hover:opacity-70">
             <Logo />
           </Link>
@@ -16,12 +16,12 @@ export default function Home() {
             target="_blank"
             className="transition-opacity hover:opacity-70"
           >
-            <GithubIcon className="size-7" />
+            <GithubIcon className="text-muted-foreground size-7" />
           </Link>
         </div>
 
-        <div className="grid-cols-2 items-center gap-4 px-4 sm:gap-6 sm:px-6 md:gap-16 md:px-12 lg:grid xl:px-24">
-          <div className="mb-8 text-[26px] md:text-4xl lg:mb-0">
+        <div className="grid-cols-2 items-center gap-4 px-4 sm:gap-6 sm:px-6 md:px-12 lg:grid xl:px-24">
+          <div className="mb-8 text-3xl md:text-[32px] lg:mb-0 xl:text-[40px]">
             <h1 className="leading-tight font-normal text-[#222]">Paper Shaders</h1>
             <p className="text-muted-foreground leading-tight font-light text-balance">
               ultra fast zero-dependency <br className="hidden sm:block" /> shaders for your designs
@@ -59,7 +59,7 @@ export default () => (
 
 function Logo() {
   return (
-    <svg width="28" height="28" viewBox="0 0 28 28" className="text-foreground" aria-label="Paper">
+    <svg width="28" height="28" viewBox="0 0 28 28" aria-label="Paper" className="text-blue">
       <path d="M17.2308 0H4V4.30775H17V17H4V4.30775H0V17V28H4.3077H17V17H28V4.30775V0H17.2308Z" fill="currentColor" />
     </svg>
   );
