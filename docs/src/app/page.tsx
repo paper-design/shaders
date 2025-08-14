@@ -2,10 +2,11 @@ import { Input } from '@/app/input';
 import { ShaderItems } from '@/components/shader-item';
 import { GithubIcon } from '@/icons';
 import Link from 'next/link';
+import { Code } from '@/app/code';
 
 export default function Home() {
   return (
-    <div className="sm:dot-pattern p-4 sm:p-6 sm:pb-24 md:px-12 lg:pt-6">
+    <main className="sm:dot-pattern p-4 sm:p-6 sm:pb-24 md:px-12 lg:pt-6">
       <header className="bg-background max-w-screen-container container mx-auto mb-4 rounded-xl pb-4 sm:mb-6 sm:pb-[100px]">
         <div className="mb-8 flex w-full items-center justify-between p-4">
           <Link href="https://paper.design/" target="_blank" className="transition-opacity hover:opacity-70">
@@ -20,21 +21,27 @@ export default function Home() {
           </Link>
         </div>
 
-        <div className="mx-auto w-fit px-4 text-[26px] sm:min-w-[480px] md:text-4xl lg:text-[48px]">
-          <h1 className="font-[matter] font-normal leading-tight text-[#222]">Paper Shaders</h1>
-          <p className="text-muted-foreground text-balance font-light leading-tight">
-            ultra fast zero-dependency <br className="hidden sm:block" /> shaders for your designs
-          </p>
-          <Input />
+        <div className="grid grid-cols-2 px-4">
+          <div className="grow text-[26px] md:text-4xl lg:text-[48px]">
+            <h1 className="font-[matter] font-normal leading-tight text-[#222]">Paper Shaders</h1>
+            <p className="text-muted-foreground text-balance font-light leading-tight">
+              ultra fast zero-dependency <br className="hidden sm:block" /> shaders for your designs
+            </p>
+          </div>
+
+          <div className="grow">
+            {/* <Input /> */}
+            <Code />
+          </div>
         </div>
       </header>
 
-      <main className="bg-background max-w-screen-container container mx-auto rounded-xl p-4 pb-6 sm:p-6 md:p-12 xl:p-24">
+      <div className="bg-background max-w-screen-container container mx-auto rounded-xl p-4 pb-6 sm:p-6 md:p-12 xl:p-24">
         <div className="grid grid-cols-2 gap-4 gap-y-8 sm:gap-16 sm:gap-x-6 md:gap-16 lg:grid-cols-3">
           <ShaderItems />
         </div>
-      </main>
-    </div>
+      </div>
+    </main>
   );
 }
 

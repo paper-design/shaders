@@ -1,22 +1,6 @@
 {
   "name": "paper-shaders",
-  "private": true,
   "version": "0.0.0",
-  "license": "MIT",
-  "workspaces": [
-    "docs",
-    "packages/shaders",
-    "packages/shaders-react"
-  ],
-  "scripts": {
-    "build": "bun run build.js",
-    "publish-all": "run-s clean build && bun run publish.js",
-    "publish-all-test": "run-s clean build && bun run publish.js --dry-run",
-    "dev:docs": "bun run --filter docs dev",
-    "dev:packages": "nodemon --watch 'packages/*/src/**/*' --ext ts,tsx --exec 'bun run build' --on-change-only",
-    "dev": "run-s clean build && run-p dev:*",
-    "clean": "rimraf packages/*/dist"
-  },
   "devDependencies": {
     "@types/bun": "^1.1.11",
     "esbuild": "^0.24.0",
@@ -27,7 +11,23 @@
     "rimraf": "^6.0.1",
     "typescript": "^5.6.3"
   },
+  "license": "MIT",
   "patchedDependencies": {
     "leva@0.9.34": "patches/leva@0.9.34.patch"
-  }
+  },
+  "private": true,
+  "scripts": {
+    "build": "bun run build.js",
+    "publish-all": "run-s clean build && bun run publish.js",
+    "publish-all-test": "run-s clean build && bun run publish.js --dry-run",
+    "dev:docs": "bun run --filter docs dev",
+    "dev:packages": "nodemon --watch 'packages/*/src/**/*' --ext ts,tsx --exec 'bun run build' --on-change-only",
+    "dev": "run-s clean build && run-p dev:*",
+    "clean": "rimraf packages/*/dist"
+  },
+  "workspaces": [
+    "docs",
+    "packages/shaders",
+    "packages/shaders-react"
+  ]
 }

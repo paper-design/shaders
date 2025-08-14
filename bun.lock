@@ -38,11 +38,11 @@
     },
     "packages/shaders": {
       "name": "@paper-design/shaders",
-      "version": "0.0.30",
+      "version": "0.0.45",
     },
     "packages/shaders-react": {
       "name": "@paper-design/shaders-react",
-      "version": "0.0.33",
+      "version": "0.0.45",
       "dependencies": {
         "@paper-design/shaders": "workspace:*",
       },
