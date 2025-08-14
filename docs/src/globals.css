@@ -1,27 +1,30 @@
 @import 'tailwindcss';
 
 @theme {
+  --width-container: 1321px; /* make sure it's on the dot pixel */
+
   --color-root: #f0efe4;
   --color-foreground: #222;
   --color-background: #fcfcf9;
   --color-blue: oklch(74% 0.104 258);
   --color-muted-foreground: #909090;
-  --width-container: 1321px; /* make sure it's on the dot pixel */
+  --color-selection: oklch(78% 35% 258/50%);
 
   /* code */
   --color-code-line-number: var(--color-neutral-400);
-  --color-code-string: var(--color-blue-800);
-  --color-code-component: var(--color-blue-800);
-  --color-code-keyword: var(--color-red-500);
+  --color-code-string: var(--color-violet-500);
+  --color-code-component: var(--color-amber-500);
+  --color-code-keyword: var(--color-blue-500);
   --color-code-default: var(--color-neutral-600);
-  --color-code-property: var(--color-purple-600);
-  --color-code-object-property: var(--color-blue-600);
-  --color-code-number: var(--color-purple-600);
+  --color-code-property: var(--color-sky-500);
+  --color-code-object-property: var(--color-neutral-500);
+  --color-code-number: var(--color-orange-400);
   --color-code-boolean: var(--color-pink-600);
   --color-code-function: var(--color-yellow-600);
   --color-code-comment: var(--color-gray-400);
-  --color-code-bracket: var(--color-neutral-600);
+  --color-code-bracket: var(--color-neutral-500);
 }
+
 @font-face {
   font-family: matter;
   font-style: normal;
@@ -31,6 +34,11 @@
 
 :root {
   --device-pixel-ratio: 2;
+}
+
+::selection {
+  color: var(--color-foreground);
+  background-color: var(--color-selection);
 }
 
 *,
