@@ -189,7 +189,7 @@ export default function Page() {
               type="number"
               min={0}
               value={canvasWidth}
-              className="h-7 rounded bg-black/5 px-2 text-base"
+              className="h-7 rounded-sm bg-black/5 px-2 text-base"
               onChange={(e) => setCanvasWidth(Number(e.target.value))}
             />
           </div>
@@ -203,7 +203,7 @@ export default function Page() {
               type="number"
               min={0}
               value={canvasHeight}
-              className="h-7 rounded bg-black/5 px-2 text-base"
+              className="h-7 rounded-sm bg-black/5 px-2 text-base"
               onChange={(e) => setCanvasHeight(Number(e.target.value))}
             />
           </div>
@@ -217,7 +217,7 @@ export default function Page() {
               type="number"
               min={0}
               value={worldWidth}
-              className="h-7 rounded bg-black/5 px-2 text-base"
+              className="h-7 rounded-sm bg-black/5 px-2 text-base"
               onChange={(e) => setWorldWidth(Number(e.target.value))}
             />
           </div>
@@ -231,7 +231,7 @@ export default function Page() {
               type="number"
               min={0}
               value={worldHeight}
-              className="h-7 rounded bg-black/5 px-2 text-base"
+              className="h-7 rounded-sm bg-black/5 px-2 text-base"
               onChange={(e) => setWorldHeight(Number(e.target.value))}
             />
           </div>
@@ -242,7 +242,7 @@ export default function Page() {
             </label>
             <select
               id="fit"
-              className="h-7 appearance-none rounded bg-black/5 px-2 text-base"
+              className="h-7 appearance-none rounded-sm bg-black/5 px-2 text-base"
               value={fit}
               onChange={(e) => setFit(e.target.value as 'cover' | 'contain' | 'crop')}
             >
@@ -263,7 +263,7 @@ export default function Page() {
               max={1}
               step={0.01}
               value={originX}
-              className="h-7 rounded bg-black/5 px-2 text-base"
+              className="h-7 rounded-sm bg-black/5 px-2 text-base"
               onChange={(e) => setOriginX(Number(e.target.value))}
             />
           </div>
@@ -279,7 +279,7 @@ export default function Page() {
               max={1}
               step={0.01}
               value={originY}
-              className="h-7 rounded bg-black/5 px-2 text-base"
+              className="h-7 rounded-sm bg-black/5 px-2 text-base"
               onChange={(e) => setOriginY(Number(e.target.value))}
             />
           </div>
@@ -296,7 +296,7 @@ export default function Page() {
               max={2}
               step={0.01}
               value={scale}
-              className="h-7 rounded bg-black/5 px-2 text-base"
+              className="h-7 rounded-sm bg-black/5 px-2 text-base"
               onChange={(e) => setScale(Number(e.target.value))}
             />
           </div>
@@ -313,7 +313,7 @@ export default function Page() {
               max={1}
               step={0.01}
               value={offsetX}
-              className="h-7 rounded bg-black/5 px-2 text-base"
+              className="h-7 rounded-sm bg-black/5 px-2 text-base"
               onChange={(e) => setOffsetX(Number(e.target.value))}
             />
           </div>
@@ -330,7 +330,7 @@ export default function Page() {
               max={1}
               step={0.01}
               value={offsetY}
-              className="h-7 rounded bg-black/5 px-2 text-base"
+              className="h-7 rounded-sm bg-black/5 px-2 text-base"
               onChange={(e) => setOffsetY(Number(e.target.value))}
             />
           </div>

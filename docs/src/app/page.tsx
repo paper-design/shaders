@@ -7,7 +7,7 @@ import { Code } from '@/app/code';
 export default function Home() {
   return (
     <main className="sm:dot-pattern p-4 sm:p-6 sm:pb-24 md:px-12 lg:pt-6">
-      <header className="bg-background max-w-screen-container container mx-auto mb-4 rounded-xl pb-4 sm:mb-6 sm:pb-[100px]">
+      <header className="bg-background max-w-(--breakpoint-container) container mx-auto mb-4 rounded-xl pb-4 sm:mb-6 sm:pb-[100px]">
         <div className="mb-8 flex w-full items-center justify-between p-4">
           <Link href="https://paper.design/" target="_blank" className="transition-opacity hover:opacity-70">
             <Logo />
@@ -36,7 +36,7 @@ export default function Home() {
         </div>
       </header>
 
-      <div className="bg-background max-w-screen-container container mx-auto rounded-xl p-4 pb-6 sm:p-6 md:p-12 xl:p-24">
+      <div className="bg-background max-w-(--breakpoint-container) container mx-auto rounded-xl p-4 pb-6 sm:p-6 md:p-12 xl:p-24">
         <div className="grid grid-cols-2 gap-4 gap-y-8 sm:gap-16 sm:gap-x-6 md:gap-16 lg:grid-cols-3">
           <ShaderItems />
         </div>
