@@ -7,7 +7,7 @@ import {
   sizingDebugVariablesDeclaration,
   sizingUniformsDeclaration,
 } from '../shader-sizing.js';
-import { declareSimplexNoise, declarePI, declareValueNoise, declareRotate } from '../shader-utils.js';
+import { declareSimplexNoise, declarePI, declareRotate } from '../shader-utils.js';
 
 export const grainGradientMeta = {
   maxColorCount: 7,
@@ -69,10 +69,21 @@ float randomB(vec2 p) {
   vec2 uv = floor(p) / 100. + .5;
   return texture(u_noiseTexture, fract(uv)).b;
 }
-${declareValueNoise}
+float valueNoise(vec2 st) {
+  vec2 i = floor(st);
+  vec2 f = fract(st);
+  float a = randomB(i);
+  float b = randomB(i + vec2(1.0, 0.0));
+  float c = randomB(i + vec2(0.0, 1.0));
+  float d = randomB(i + vec2(1.0, 1.0));
+  vec2 u = f * f * (3.0 - 2.0 * f);
+  float x1 = mix(a, b, u.x);
+  float x2 = mix(c, d, u.x);
+  return mix(x1, x2, u.y);
+}
 float fbm(in vec2 n) {
   float total = 0.0, amplitude = .2;
-  for (int i = 0; i < 3; i++) {
+  for (int i = 0; i < 4; i++) {
     total += valueNoise(n) * amplitude;
     n += n;
     amplitude *= 0.6;
@@ -139,6 +150,8 @@ void main() {
     grain_uv -= graphicOffset / patternBoxScale;
     grain_uv *= 1.6;
   }
+
+  grain_uv += 1000.;
 
 
   float shape = 0.;
