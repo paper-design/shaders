@@ -2,6 +2,7 @@ import { memo } from 'react';
 import { ShaderMount, type ShaderComponentProps } from '../shader-mount.js';
 import {
   getShaderColorFromString,
+  getShaderNoiseTexture,
   ditheringFragmentShader,
   ShaderFitOptions,
   type DitheringUniforms,
@@ -140,6 +141,7 @@ export const Dithering: React.FC<DitheringProps> = memo(function DitheringImpl({
     u_shape: DitheringShapes[shape],
     u_type: DitheringTypes[type],
     u_pxSize: pxSize,
+    u_noiseTexture: getShaderNoiseTexture(),
 
     // Sizing uniforms
     u_fit: ShaderFitOptions[fit],

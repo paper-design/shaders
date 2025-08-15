@@ -4,6 +4,7 @@ import { colorPropsAreEqual } from '../color-props-are-equal.js';
 import {
   imageDitheringFragmentShader,
   getShaderColorFromString,
+  getShaderNoiseTexture,
   ShaderFitOptions,
   type ImageDitheringUniforms,
   type ImageDitheringParams,
@@ -123,6 +124,7 @@ export const ImageDithering: React.FC<ImageDitheringProps> = memo(function Image
     u_pxSize: pxSize,
     u_colorSteps: colorSteps,
     u_originalColors: originalColors,
+    u_noiseTexture: getShaderNoiseTexture(),
 
     // Sizing uniforms
     u_fit: ShaderFitOptions[fit],
