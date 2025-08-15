@@ -106,9 +106,7 @@ const PulsingBorderWithControls = () => {
 
   return (
     <>
-      <Link href="/">
-        <BackButton />
-      </Link>
+      <BackButton />
       <PulsingBorder {...params} colors={colors} className="fixed size-full" />
     </>
   );

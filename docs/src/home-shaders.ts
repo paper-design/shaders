@@ -85,6 +85,7 @@ type HomeShaderConfig = {
   ShaderComponent: React.ComponentType;
   shaderConfig?: Record<string, unknown>;
   style?: React.CSSProperties;
+  isStatic?: boolean;
 };
 
 export const homeShaders = [
@@ -103,6 +104,7 @@ export const homeShaders = [
     shaderConfig: { ...meshGradientPresets[0].params, frame: 41500 },
   },
   {
+    isStatic: true,
     name: 'static mesh gradient',
     url: '/static-mesh-gradient',
     ShaderComponent: StaticMeshGradient,
@@ -110,6 +112,7 @@ export const homeShaders = [
     shaderConfig: { ...staticMeshGradientPresets[0].params, rotation: 270 },
   },
   {
+    isStatic: true,
     name: 'static radial gradient',
     url: '/static-radial-gradient',
     ShaderComponent: StaticRadialGradient,
@@ -131,11 +134,12 @@ export const homeShaders = [
     shaderConfig: { ...dotOrbitPresets[0].params, scale: 0.45 },
   },
   {
+    isStatic: true,
     name: 'dot grid',
     url: '/dot-grid',
     ShaderComponent: DotGrid,
     image: dotGridImg,
-    shaderConfig: { ...dotGridPresets[0].params, scale: 1.1, size: 2 },
+    shaderConfig: { ...dotGridPresets[0].params, scale: 0.96, gapY: 24, size: 2 },
   },
   {
     name: 'warp',
@@ -159,11 +163,12 @@ export const homeShaders = [
     shaderConfig: { ...swirlPresets[0].params, speed: 0.7 },
   },
   {
+    isStatic: true,
     name: 'waves',
     url: '/waves',
     ShaderComponent: Waves,
     image: wavesImg,
-    shaderConfig: { ...wavesPresets[0].params, scale: 0.9 },
+    shaderConfig: { ...wavesPresets[0].params, scale: 0.9, spacing: 1.15, proportion: 0.15 },
   },
   {
     name: 'neuro noise',

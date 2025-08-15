@@ -1,0 +1,66 @@
+@font-face {
+  font-family: Matter;
+  src: url('/fonts/matter.woff2');
+}
+
+@font-face {
+  font-family: 'Paper Mono';
+  src: url('/fonts/paper-mono.woff2');
+}
+
+@theme {
+  --default-font-family: Matter, system-ui;
+  --default-mono-font-family: 'Paper Mono', monospace;
+
+  --text-xs: 14px;
+  --text-xs--line-height: 20px;
+  --text-xs--letter-spacing: 0.015em;
+
+  --text-sm: 16px;
+  --text-sm--line-height: 24px;
+  --text-sm--letter-spacing: 0.015em;
+
+  --text-base: 18px;
+  --text-base--line-height: 28px;
+  --text-base--letter-spacing: 0.01em;
+
+  --text-lg: 24px;
+  --text-lg--line-height: 32px;
+  --text-lg--letter-spacing: 0.005em;
+
+  --text-xl: 30px;
+  --text-xl--line-height: 38px;
+  --text-xl--letter-spacing: -0.015em;
+
+  --text-2xl: 40px;
+  --text-2xl--line-height: 48px;
+  --text-2xl--letter-spacing: -0.015em;
+
+  --text-3xl: 48px;
+  --text-3xl--line-height: 52px;
+  --text-3xl--letter-spacing: -0.02em;
+
+  --font-weight-extralight: 150;
+  --font-weight-light: 270;
+  --font-weight-semilight: 360;
+  --font-weight-normal: 400;
+  --font-weight-caption: 430;
+  --font-weight-medium: 480;
+  --font-weight-semibold: 550;
+  --font-weight-bold: 670;
+}
+
+@layer base {
+  :root {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+
+    font-size: var(--text-base);
+    font-weight: var(--font-weight-normal);
+    line-height: var(--text-base--line-height);
+    letter-spacing: var(--text-base--letter-spacing);
+
+    font-synthesis: none;
+    font-feature-settings: 'calt';
+  }
+}

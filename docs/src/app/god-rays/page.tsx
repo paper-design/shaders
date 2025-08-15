@@ -98,9 +98,7 @@ const GodRaysWithControls = () => {
 
   return (
     <>
-      <Link href="/">
-        <BackButton />
-      </Link>
+      <BackButton />
       <GodRays {...params} colors={colors} className="fixed size-full" />
     </>
   );

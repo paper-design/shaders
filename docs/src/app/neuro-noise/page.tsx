@@ -81,9 +81,7 @@ const NeuroNoiseWithControls = () => {
 
   return (
     <>
-      <Link href="/">
-        <BackButton />
-      </Link>
+      <BackButton />
       <NeuroNoise className="fixed size-full" {...params} />
     </>
   );

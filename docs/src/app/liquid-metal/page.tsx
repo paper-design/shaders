@@ -84,9 +84,7 @@ const LiquidMetalWithControls = () => {
 
   return (
     <>
-      <Link href="/">
-        <BackButton />
-      </Link>
+      <BackButton />
       <LiquidMetal {...params} className="fixed size-full" />
     </>
   );

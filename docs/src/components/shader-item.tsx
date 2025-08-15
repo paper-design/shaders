@@ -14,12 +14,14 @@ export function ShaderItem({
   image,
   url,
   style,
+  isStatic = false,
   ShaderComponent,
   shaderConfig,
 }: {
   name: string;
   image?: StaticImageData;
   url: string;
+  isStatic?: boolean;
   ShaderComponent: React.ComponentType<{ style: React.CSSProperties } & Record<string, unknown>>;
   style?: React.CSSProperties;
   shaderConfig?: Record<string, unknown>;
@@ -30,11 +32,11 @@ export function ShaderItem({
   return (
     <Link href={url} className="flex flex-col gap-2">
       <div
-        className="relative aspect-[4/3] overflow-hidden rounded-3xl bg-[#f7f6f0] shadow"
+        className="card relative aspect-4/3 overflow-hidden"
         onMouseEnter={() => {
-          // Disable shaders on small (touch) devices to prevent choppy hover transitions.
+          // Disable shaders on small (touch) devices or static shaders to prevent choppy hover transitions.
           // On these screens, prioritize a sharp static preview over a degraded shader effect.
-          if (window.innerWidth > 640) {
+          if (!isStatic && window.innerWidth > 640) {
             setIsHovered(true);
             setShowShader(true);
           }
@@ -44,7 +46,7 @@ export function ShaderItem({
         {image && (
           <>
             <Image
-              className="absolute left-1/2 top-1/2 -ml-[150px] -mt-[112px] block h-[225px] w-[300px] max-w-none sm:-ml-[200px] sm:-mt-[150px] sm:h-[300px] sm:w-[400px]"
+              className="absolute top-1/2 left-1/2 -mt-[112px] -ml-[150px] block h-[225px] w-[300px] max-w-none sm:-mt-[150px] sm:-ml-[200px] sm:h-[300px] sm:w-[400px]"
               src={image}
               alt={`Preview of ${name}`}
               unoptimized // The images are already optimized
@@ -52,7 +54,7 @@ export function ShaderItem({
             />
             {showShader && shaderConfig && (
               <ShaderComponent
-                className="absolute left-1/2 top-1/2 -ml-[150px] -mt-[112px] block h-[225px] w-[300px] max-w-none sm:-ml-[200px] sm:-mt-[150px] sm:h-[300px] sm:w-[400px]"
+                className="absolute top-1/2 left-1/2 -mt-[112px] -ml-[150px] block h-[225px] w-[300px] max-w-none sm:-mt-[150px] sm:-ml-[200px] sm:h-[300px] sm:w-[400px]"
                 style={{
                   // Some shaders are transparent, adding a background to not see the preview image through
                   opacity: isHovered ? 1 : 0,

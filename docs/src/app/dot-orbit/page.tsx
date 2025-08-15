@@ -101,9 +101,7 @@ const DotOrbitWithControls = () => {
 
   return (
     <>
-      <Link href="/">
-        <BackButton />
-      </Link>
+      <BackButton />
       <DotOrbit {...params} colors={colors} className="fixed size-full" />
     </>
   );
