@@ -57,7 +57,6 @@ export function ShaderItem({
                 className="absolute top-1/2 left-1/2 -mt-[112px] -ml-[150px] block h-[225px] w-[300px] max-w-none sm:-mt-[150px] sm:-ml-[200px] sm:h-[300px] sm:w-[400px]"
                 style={{
                   // Some shaders are transparent, adding a background to not see the preview image through
-                  background: 'white',
                   opacity: isHovered ? 1 : 0,
                   transition: 'opacity 400ms ease-out',
                   ...style,

@@ -13,7 +13,8 @@ export const sizingVariablesDeclaration = `
 in vec2 v_objectUV;
 in vec2 v_responsiveUV;
 in vec2 v_responsiveBoxGivenSize;
-in vec2 v_patternUV;`;
+in vec2 v_patternUV;
+in vec2 v_imageUV;`;
 
 /*
  ===================================================================
@@ -53,9 +54,8 @@ uniform float u_offsetY;`;
  For exceptions (e.g., dithering pixelization), the operations below
  need to be included in the fragment shader instead.
 
- Currently, only `objectUV` and `patternUV` are supported.
  The transforms are identical to those in the vertex shader,
- except for the `USE_PIXELIZATION` part.
+ except for the `USE_PIXELIZATION` part we insert at start.
 */
 export const sizingUV = `
 
@@ -162,6 +162,43 @@ export const sizingUV = `
     patternUV += boxOrigin / patternWorldScale;
     patternUV -= boxOrigin;
     patternUV += .5;
+  #endif
+    
+  // ===================================================
+ 
+  // ===================================================
+  // Sizing api for image filters
+  
+  #ifdef USE_IMAGE_SIZING
+
+    vec2 imageBoxSize;
+    if (u_fit == 1.) { // contain
+      imageBoxSize.x = min(maxBoxSize.x / u_imageAspectRatio, maxBoxSize.y) * u_imageAspectRatio;
+    } else if (u_fit == 2.) { // cover
+      imageBoxSize.x = max(maxBoxSize.x / u_imageAspectRatio, maxBoxSize.y) * u_imageAspectRatio;
+    } else {
+      imageBoxSize.x = min(10.0, 10.0 / u_imageAspectRatio * u_imageAspectRatio);
+    }
+    imageBoxSize.y = imageBoxSize.x / u_imageAspectRatio;
+    vec2 imageBoxScale = u_resolution.xy / imageBoxSize;
+
+    #ifdef ADD_HELPERS
+      vec2 imageHelperBox = uv;
+      imageHelperBox *= imageBoxScale;
+      imageHelperBox += boxOrigin * (imageBoxScale - 1.);
+    #endif
+
+    vec2 imageUV = uv;
+    imageUV *= imageBoxScale;
+    imageUV += boxOrigin * (imageBoxScale - 1.);
+    imageUV += graphicOffset;
+    imageUV /= u_scale;
+    imageUV.x *= u_imageAspectRatio;
+    imageUV = graphicRotation * imageUV;
+    imageUV.x /= u_imageAspectRatio;
+    
+    imageUV += .5;
+    imageUV.y = 1. - imageUV.y;
   #endif
 `;
 
