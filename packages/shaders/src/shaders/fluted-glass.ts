@@ -66,9 +66,6 @@ vec2 random2(vec2 p) {
   vec2 uv = floor(p) / 100. + .5;
   return texture(u_noiseTexture, fract(uv)).gb;
 }
-float hash(float x) {
-  return fract(sin(x) * 43758.5453123);
-}
 
 const int MAX_RADIUS = 50;
 
