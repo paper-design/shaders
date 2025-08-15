@@ -1,7 +1,7 @@
 import type { vec4 } from '../types.js';
 import type { ShaderMotionParams } from '../shader-mount.js';
 import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
-import { declarePI, declareValueNoise, declareRotate, colorBandingFix } from '../shader-utils.js';
+import { declarePI, declareRandomG, declareValueNoiseG, declareRotate, colorBandingFix } from '../shader-utils.js';
 
 export const warpMeta = {
   maxColorCount: 10,
@@ -50,13 +50,9 @@ ${sizingVariablesDeclaration}
 out vec4 fragColor;
 
 ${declarePI}
-
-float random(vec2 p) {
-  vec2 uv = floor(p) / 100. + .5;
-  return texture(u_noiseTexture, fract(uv)).g;
-}
+${declareRandomG}
 ${declareRotate}
-${declareValueNoise}
+${declareValueNoiseG}
 
 
 void main() {

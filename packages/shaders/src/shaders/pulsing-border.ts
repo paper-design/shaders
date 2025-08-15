@@ -1,7 +1,7 @@
 import type { vec4 } from '../types.js';
 import type { ShaderMotionParams } from '../shader-mount.js';
 import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
-import { declarePI, declareValueNoise, colorBandingFix } from '../shader-utils.js';
+import { declarePI, declareRandomGB, colorBandingFix, declareRandomG, declareValueNoiseG } from '../shader-utils.js';
 
 export const pulsingBorderMeta = {
   maxColorCount: 5,
@@ -77,16 +77,9 @@ float roundedBoxSmoke(vec2 uv, float distance, float size) {
   return border;
 }
 
-float random(vec2 p) {
-  vec2 uv = floor(p) / 100. + .5;
-  return texture(u_noiseTexture, fract(uv)).g;
-}
-vec2 rand2(vec2 p) {
-  vec2 uv = floor(p) / 100. + .5;
-  return texture(u_noiseTexture, fract(uv)).gb;
-}
-
-${declareValueNoise}
+${declareRandomGB}
+${declareRandomG}
+${declareValueNoiseG}
 
 float linearstep(float edge0, float edge1, float x) {
   return clamp((x - edge0) / (edge1 - edge0), 0.0, 1.0);
@@ -192,7 +185,7 @@ void main() {
       if (spotIdx >= int(u_spots)) break;
       float spotIdxF = float(spotIdx);
 
-      vec2 randVal = rand2(vec2(spotIdxF * 10. + 2., 40. + colorIdxF));
+      vec2 randVal = randomGB(vec2(spotIdxF * 10. + 2., 40. + colorIdxF));
 
       float time = (.1 + .15 * abs(sin(spotIdxF * (2. + colorIdxF)) * cos(spotIdxF * (2. + 2.5 * colorIdxF)))) * t + randVal.x * 3.;
       time *= mix(1., -1., step(.5, randVal.y));

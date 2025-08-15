@@ -1,7 +1,7 @@
 import type { vec4 } from '../types.js';
 import type { ShaderMotionParams } from '../shader-mount.js';
 import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
-import { declarePI, declareRotate, declareValueNoise, colorBandingFix } from '../shader-utils.js';
+import { declarePI, declareRotate, declareRandomR, declareValueNoiseR, colorBandingFix } from '../shader-utils.js';
 
 export const godRaysMeta = {
   maxColorCount: 5,
@@ -48,16 +48,12 @@ out vec4 fragColor;
 
 ${declarePI}
 
-float random(vec2 p) {
-  vec2 uv = floor(p) / 100. + .5;
-  return texture(u_noiseTexture, fract(uv)).r;
-}
-
 ${declareRotate}
-${declareValueNoise}
+${declareRandomR}
+${declareValueNoiseR}
 
 float hash(float n) {
-  n = fract(n * 0.1031);
+  n = fract(n * 0.1);
   n *= n + 33.33;
   n *= n + n;
   return fract(n);

@@ -6,7 +6,7 @@ import {
   sizingUV,
   drawSizingHelpers,
 } from '../shader-sizing.js';
-import { declareSimplexNoise, declarePI } from '../shader-utils.js';
+import { declareSimplexNoise, declarePI, declareRandomB } from '../shader-utils.js';
 
 /**
  * 2-color dithering effect over animated abstract shapes
@@ -55,11 +55,7 @@ out vec4 fragColor;
 
 ${declareSimplexNoise}
 ${declarePI}
-
-float randomB(vec2 p) {
-  vec2 uv = floor(p) / 100. + .5;
-  return texture(u_noiseTexture, fract(uv)).b;
-}
+${declareRandomB}
 
 float getSimplexNoise(vec2 uv, float t) {
   float noise = .5 * snoise(uv - vec2(0., .3 * t));

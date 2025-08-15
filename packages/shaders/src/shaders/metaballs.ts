@@ -1,7 +1,7 @@
 import type { vec4 } from '../types.js';
 import type { ShaderMotionParams } from '../shader-mount.js';
 import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
-import { declarePI, colorBandingFix } from '../shader-utils.js';
+import { declarePI, declareRandomR, colorBandingFix } from '../shader-utils.js';
 
 export const metaballsMeta = {
   maxColorCount: 8,
@@ -42,17 +42,14 @@ ${sizingVariablesDeclaration}
 out vec4 fragColor;
 
 ${declarePI}
-float random(vec2 p) {
-  vec2 uv = floor(p) / 100. + .5;
-  return texture(u_noiseTexture, fract(uv)).r;
-}
+${declareRandomR}
 float noise(float x) {
   float i = floor(x);
   float f = fract(x);
   float u = f * f * (3.0 - 2.0 * f);
   vec2 p0 = vec2(i, 0.0);
   vec2 p1 = vec2(i + 1.0, 0.0);
-  return mix(random(p0), random(p1), u);
+  return mix(randomR(p0), randomR(p1), u);
 }
 
 float getBallShape(vec2 uv, vec2 c, float p) {

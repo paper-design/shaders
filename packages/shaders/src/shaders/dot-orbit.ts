@@ -1,7 +1,7 @@
 import type { vec4 } from '../types.js';
 import type { ShaderMotionParams } from '../shader-mount.js';
 import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
-import { declarePI, declareRotate } from '../shader-utils.js';
+import { declarePI, declareRotate, declareRandomR, declareRandomGB } from '../shader-utils.js';
 
 export const dotOrbitMeta = {
   maxColorCount: 10,
@@ -44,15 +44,9 @@ out vec4 fragColor;
 
 ${declarePI}
 ${declareRotate}
+${declareRandomR}
+${declareRandomGB}
 
-float random(vec2 p) {
-  vec2 uv = floor(p) / 100. + .5;
-  return texture(u_noiseTexture, fract(uv)).r;
-}
-vec2 random2(vec2 p) {
-  vec2 uv = floor(p) / 100. + .5;
-  return texture(u_noiseTexture, fract(uv)).gb;
-}
 
 vec3 voronoiShape(vec2 uv, float time) {
   vec2 i_uv = floor(uv);
@@ -65,11 +59,11 @@ vec3 voronoiShape(vec2 uv, float time) {
   for (int y = -1; y <= 1; y++) {
     for (int x = -1; x <= 1; x++) {
       vec2 tileOffset = vec2(float(x), float(y));
-      vec2 rand = random2(i_uv + tileOffset);
+      vec2 rand = randomGB(i_uv + tileOffset);
       vec2 cellCenter = vec2(.5 + 1e-4);
       cellCenter += spreading * cos(time + TWO_PI * rand);
       cellCenter -= .5;
-      cellCenter = rotate(cellCenter, random(vec2(rand.x, rand.y)) + .1 * time);
+      cellCenter = rotate(cellCenter, randomR(vec2(rand.x, rand.y)) + .1 * time);
       cellCenter += .5;
       float dist = length(tileOffset + cellCenter - f_uv);
       if (dist < minDist) {

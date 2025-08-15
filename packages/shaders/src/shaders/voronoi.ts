@@ -1,7 +1,7 @@
 import type { vec4 } from '../types.js';
 import type { ShaderMotionParams } from '../shader-mount.js';
 import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
-import { declarePI } from '../shader-utils.js';
+import { declarePI, declareRandomGB } from '../shader-utils.js';
 
 export const voronoiMeta = {
   maxColorCount: 5,
@@ -50,11 +50,7 @@ ${sizingVariablesDeclaration}
 out vec4 fragColor;
 
 ${declarePI}
-
-vec2 hash(vec2 p) {
-  vec2 uv = floor(p) / 100. + .5;
-  return texture(u_noiseTexture, fract(uv)).gb;
-}
+${declareRandomGB}
 
 vec4 voronoi(vec2 x, float t) {
   vec2 ip = floor(x);
@@ -67,7 +63,7 @@ vec4 voronoi(vec2 x, float t) {
   for (int j = -1; j <= 1; j++) {
     for (int i = -1; i <= 1; i++) {
       vec2 g = vec2(float(i), float(j));
-      vec2 o = hash(ip + g);
+      vec2 o = randomGB(ip + g);
       float raw_hash = o.x;
       o = .5 + u_distortion * sin(t + TWO_PI * o);
       vec2 r = g + o - fp;
@@ -86,7 +82,7 @@ vec4 voronoi(vec2 x, float t) {
   for (int j = -2; j <= 2; j++) {
     for (int i = -2; i <= 2; i++) {
       vec2 g = mg + vec2(float(i), float(j));
-      vec2 o = hash(ip + g);
+      vec2 o = randomGB(ip + g);
       o = .5 + u_distortion * sin(t + TWO_PI * o);
       vec2 r = g + o - fp;
       if (dot(mr - r, mr - r) > .00001) {

@@ -61,12 +61,6 @@ ${declarePI}
 ${declareRotate}
 ${declareImageFrame}
 
-
-vec2 random2(vec2 p) {
-  vec2 uv = floor(p) / 100. + .5;
-  return texture(u_noiseTexture, fract(uv)).gb;
-}
-
 const int MAX_RADIUS = 50;
 
 vec4 getBlur(sampler2D tex, vec2 uv, vec2 texelSize, vec2 dir, float sigma) {

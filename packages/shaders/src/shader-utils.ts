@@ -12,21 +12,78 @@ vec2 rotate(vec2 uv, float th) {
 `;
 
 // language=GLSL
-export const declareRandom = `
-float random(vec2 st) {
-  return fract(sin(dot(st.xy, vec2(12.9898, 78.233))) * 43758.5453123);
+export const declareRandomR = `
+  float randomR(vec2 p) {
+    vec2 uv = floor(p) / 100. + .5;
+    return texture(u_noiseTexture, fract(uv)).r;
+  }
+`;
+
+// language=GLSL
+export const declareRandomG = `
+  float randomG(vec2 p) {
+    vec2 uv = floor(p) / 100. + .5;
+    return texture(u_noiseTexture, fract(uv)).g;
+  }
+`;
+
+// language=GLSL
+export const declareRandomB = `
+  float randomB(vec2 p) {
+    vec2 uv = floor(p) / 100. + .5;
+    return texture(u_noiseTexture, fract(uv)).b;
+  }
+`;
+
+// language=GLSL
+export const declareRandomGB = `
+  vec2 randomGB(vec2 p) {
+    vec2 uv = floor(p) / 100. + .5;
+    return texture(u_noiseTexture, fract(uv)).gb;
+  }
+`;
+
+// language=GLSL
+export const declareValueNoiseR = `
+float valueNoise(vec2 st) {
+  vec2 i = floor(st);
+  vec2 f = fract(st);
+  float a = randomR(i);
+  float b = randomR(i + vec2(1.0, 0.0));
+  float c = randomR(i + vec2(0.0, 1.0));
+  float d = randomR(i + vec2(1.0, 1.0));
+  vec2 u = f * f * (3.0 - 2.0 * f);
+  float x1 = mix(a, b, u.x);
+  float x2 = mix(c, d, u.x);
+  return mix(x1, x2, u.y);
 }
 `;
 
 // language=GLSL
-export const declareValueNoise = `
+export const declareValueNoiseG = `
 float valueNoise(vec2 st) {
   vec2 i = floor(st);
   vec2 f = fract(st);
-  float a = random(i);
-  float b = random(i + vec2(1.0, 0.0));
-  float c = random(i + vec2(0.0, 1.0));
-  float d = random(i + vec2(1.0, 1.0));
+  float a = randomG(i);
+  float b = randomG(i + vec2(1.0, 0.0));
+  float c = randomG(i + vec2(0.0, 1.0));
+  float d = randomG(i + vec2(1.0, 1.0));
+  vec2 u = f * f * (3.0 - 2.0 * f);
+  float x1 = mix(a, b, u.x);
+  float x2 = mix(c, d, u.x);
+  return mix(x1, x2, u.y);
+}
+`;
+
+// language=GLSL
+export const declareValueNoiseB = `
+float valueNoise(vec2 st) {
+  vec2 i = floor(st);
+  vec2 f = fract(st);
+  float a = randomB(i);
+  float b = randomB(i + vec2(1.0, 0.0));
+  float c = randomB(i + vec2(0.0, 1.0));
+  float d = randomB(i + vec2(1.0, 1.0));
   vec2 u = f * f * (3.0 - 2.0 * f);
   float x1 = mix(a, b, u.x);
   float x2 = mix(c, d, u.x);
