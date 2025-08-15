@@ -18,7 +18,7 @@ export default function Home() {
               <Link
                 href="https://paper.design/"
                 target="_blank"
-                className="bg-foreground text-background flex h-[48px] w-full items-center justify-center rounded-sm px-6 text-base font-medium md:w-auto"
+                className="bg-foreground text-background flex h-[48px] w-full items-center justify-center rounded-sm px-6 text-base font-medium text-nowrap md:w-auto"
               >
                 <Logo className="mr-2 size-4" />
                 open in Paper
@@ -26,7 +26,7 @@ export default function Home() {
               <Link
                 href="https://github.com/paper-design/shaders"
                 target="_blank"
-                className="text-foreground flex h-[48px] w-full items-center justify-center rounded-sm border bg-white px-6 text-base font-medium md:w-auto"
+                className="text-foreground flex h-[48px] w-full items-center justify-center rounded-sm border bg-white px-6 text-base font-medium text-nowrap md:w-auto"
               >
                 <GithubIcon className="mr-2 size-4" />
                 view on Github
@@ -36,7 +36,7 @@ export default function Home() {
 
           <div className="relative flex flex-col gap-2">
             <div className="relative flex h-[48px] items-center overflow-hidden rounded-md border bg-white">
-              <Code className="py-0">
+              <Code className="flex h-full items-center py-0">
                 <Install />
               </Code>
               <div className="absolute top-0 right-0 bottom-0 bg-gradient-to-l from-white from-70% to-transparent">
