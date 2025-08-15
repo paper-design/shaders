@@ -27,6 +27,10 @@
   *::before,
   *::after {
     border-color: var(--color-neutral-200);
+
+    @media (prefers-color-scheme: dark) {
+      border-color: var(--color-neutral-800);
+    }
   }
 
   :root {
