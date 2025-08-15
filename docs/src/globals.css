@@ -1,22 +1,19 @@
 @import 'tailwindcss';
 
+@import './typography.css';
+@import './components.css';
+@import './colors.css';
+
 @theme {
   --width-container: 1321px; /* make sure it's on the dot pixel */
-
-  --color-root: #f0efe4;
-  --color-foreground: #222;
-  --color-background: #fcfcf9;
-  --color-blue: oklch(74% 0.104 258);
-  --color-muted-foreground: #909090;
-  --color-selection: oklch(78% 35% 258/50%);
 
   /* code */
   --color-code-line-number: var(--color-neutral-400);
   --color-code-string: var(--color-violet-500);
-  --color-code-component: var(--color-amber-500);
+  --color-code-component: var(--color-indigo-800);
   --color-code-keyword: var(--color-blue-500);
   --color-code-default: var(--color-neutral-600);
-  --color-code-property: var(--color-sky-500);
+  --color-code-property: var(--color-neutral-700);
   --color-code-object-property: var(--color-neutral-500);
   --color-code-number: var(--color-orange-400);
   --color-code-boolean: var(--color-pink-600);
@@ -25,101 +22,30 @@
   --color-code-bracket: var(--color-neutral-500);
 }
 
-@font-face {
-  font-family: matter;
-  font-style: normal;
-  font-display: swap;
-  src: url('https://assets.paper.design/fonts/matter-variable.woff2') format('woff2');
-}
-
-:root {
-  --device-pixel-ratio: 2;
-}
-
-::selection {
-  color: var(--color-foreground);
-  background-color: var(--color-selection);
-}
-
-*,
-*::before,
-*::after {
-  border-color: var(--color-neutral-200);
-}
-
-body {
-  font-family:
-    matter, ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
-    'Noto Color Emoji';
-}
-
-#leva__root button {
-  background-color: var(--leva-colors-elevation1);
-
-  &:hover,
-  &:active,
-  &:focus {
-    box-shadow: inset 0 0 0 var(--leva-borderWidths-hover) var(--leva-colors-elevation3);
+@layer base {
+  *,
+  *::before,
+  *::after {
+    border-color: var(--color-neutral-200);
   }
-}
 
-@utility dot-pattern {
-  --dot-color: #0008;
-  --dot-size: 0.9px;
-  --dot-step: 24px;
-  --dot-stop: calc(var(--dot-size) - min(0.5px, 1px / var(--device-pixel-ratio)));
-
-  background-size: var(--dot-step) var(--dot-step);
-  background-position: calc(50% + var(--dot-step) / 2) 0;
-  background-image: radial-gradient(
-    var(--dot-step) circle,
-    var(--dot-color) var(--dot-stop),
-    transparent var(--dot-size)
-  );
-}
-
-@utility scrollbar-thin {
-  scrollbar-width: thin;
-  scrollbar-color: var(--color-neutral-400) transparent;
-}
-
-@utility line {
-  display: block;
-  position: relative;
-}
-
-@utility line-number {
-  counter-increment: line;
-  padding-left: 1.5rem;
-
-  &::before {
-    content: counter(line);
-    position: absolute;
-    display: flex;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    justify-content: center;
-    padding-right: 1rem;
-    text-align: right;
-    color: var(--color-code-line-number);
+  :root {
+    color-scheme: light dark;
+    --device-pixel-ratio: 2;
   }
-}
 
-@utility line-tilde {
-  counter-increment: line;
-  padding-left: 1.5rem;
+  ::selection {
+    color: var(--color-foreground);
+    background-color: var(--color-selection);
+  }
 
-  &::before {
-    content: '~';
-    position: absolute;
-    display: flex;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    justify-content: center;
-    padding-right: 1rem;
-    text-align: right;
-    color: var(--color-code-line-number);
+  #leva__root button {
+    background-color: var(--leva-colors-elevation1);
+
+    &:hover,
+    &:active,
+    &:focus {
+      box-shadow: inset 0 0 0 var(--leva-borderWidths-hover) var(--leva-colors-elevation3);
+    }
   }
 }

@@ -1,0 +1,144 @@
+@utility dot-pattern {
+  --dot-color: #0008;
+  --dot-size: 0.9px;
+  --dot-step: 24px;
+  --dot-stop: calc(var(--dot-size) - min(0.5px, 1px / var(--device-pixel-ratio)));
+
+  background-size: var(--dot-step) var(--dot-step);
+  background-position: calc(50% + var(--dot-step) / 2) 0%;
+  background-image: radial-gradient(
+    var(--dot-step) circle,
+    var(--dot-color) var(--dot-stop),
+    transparent var(--dot-size)
+  );
+
+  @media (prefers-color-scheme: dark) {
+    --dot-color: #fff4;
+  }
+}
+
+@utility link {
+  @apply decoration-foreground/20 dark:decoration-foreground/30 hover:decoration-foreground/60 underline focus-visible:no-underline;
+}
+
+@utility link-no-underline {
+  @apply decoration-foreground/20 dark:decoration-foreground/30 hover:underline focus-visible:no-underline;
+}
+
+@utility scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-neutral-400) transparent;
+}
+
+@utility line {
+  display: block;
+  position: relative;
+}
+
+@utility line-number {
+  counter-increment: line;
+  padding-left: 1.5rem;
+
+  &::before {
+    content: counter(line);
+    position: absolute;
+    display: flex;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    justify-content: center;
+    padding-right: 1rem;
+    text-align: right;
+    color: var(--color-code-line-number);
+  }
+}
+
+@utility line-tilde {
+  counter-increment: line;
+  padding-left: 1.5rem;
+
+  &::before {
+    content: '~';
+    position: absolute;
+    display: flex;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    justify-content: center;
+    padding-right: 1rem;
+    text-align: right;
+    color: var(--color-code-line-number);
+  }
+}
+
+@utility card {
+  position: relative;
+  overflow: hidden;
+  border-radius: 10px;
+  background-color: var(--color-background);
+
+  @media (prefers-color-scheme: dark) {
+    outline: 1px solid rgb(255 255 255 / 10%);
+  }
+}
+
+@utility lines-horizontal {
+  position: absolute;
+  inset: 0;
+
+  &::before {
+    position: absolute;
+    z-index: 2;
+    top: -1.5rem;
+    bottom: 0;
+    left: -4rem;
+    height: 1px;
+    width: calc(100% + 8rem);
+    content: '';
+    background-color: var(--color-neutral-400);
+    mask-image: linear-gradient(270deg, transparent, white 4rem, white calc(100% - 4rem), transparent);
+  }
+  &::after {
+    position: absolute;
+    z-index: 2;
+    top: auto;
+    bottom: -1.5rem;
+    left: -4rem;
+    height: 1px;
+    width: calc(100% + 8rem);
+    content: '';
+    background-color: var(--color-neutral-400);
+    mask-image: linear-gradient(270deg, transparent, white 4rem, white calc(100% - 4rem), transparent);
+  }
+}
+
+@utility lines-vertical {
+  position: absolute;
+  inset: 0;
+
+  &::before {
+    position: absolute;
+    z-index: 2;
+    top: -4rem;
+    left: -1.5rem;
+    bottom: 0;
+    width: 1px;
+    height: calc(100% + 8rem);
+    content: '';
+    background-color: var(--color-neutral-400);
+    mask-image: linear-gradient(0deg, transparent, white 4rem, white calc(100% - 4rem), transparent);
+  }
+  &::after {
+    position: absolute;
+    z-index: 2;
+    top: -4rem;
+    left: auto;
+    right: -1.5rem;
+    bottom: 0;
+    width: 1px;
+    height: calc(100% + 8rem);
+    content: '';
+    background-color: var(--color-neutral-400);
+    mask-image: linear-gradient(0deg, transparent, white 4rem, white calc(100% - 4rem), transparent);
+  }
+}

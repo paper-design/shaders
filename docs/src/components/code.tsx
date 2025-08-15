@@ -1,17 +1,10 @@
-import { CopyButton } from '@/components/copy-button';
-
-export function Code({ children, copyText }: { children: React.ReactNode; copyText: string }) {
+export function Code({ className, children }: { className?: string; children: React.ReactNode }) {
   return (
-    <div className="relative w-full overflow-hidden rounded-lg border">
-      <div className="relative flex">
-        <pre className="scrollbar-thin grow overflow-x-auto p-4 py-3.5 font-mono text-xs leading-relaxed font-medium [counter-reset:line]">
-          <code>{children}</code>
-        </pre>
-        <div className="from-background absolute top-0 right-0 bottom-4 bg-gradient-to-l from-70% to-transparent">
-          <CopyButton text={copyText} />
-        </div>
-      </div>
-    </div>
+    <pre
+      className={`scrollbar-thin block grow overflow-x-auto p-4 font-mono text-xs [counter-reset:line] ${className}`}
+    >
+      <code>{children}</code>
+    </pre>
   );
 }
 

@@ -32,7 +32,7 @@ export function ShaderItem({
   return (
     <Link href={url} className="flex flex-col gap-2">
       <div
-        className="bg-background relative aspect-4/3 overflow-hidden rounded-lg shadow-sm sm:rounded-xl"
+        className="card relative aspect-4/3 overflow-hidden"
         onMouseEnter={() => {
           // Disable shaders on small (touch) devices or static shaders to prevent choppy hover transitions.
           // On these screens, prioritize a sharp static preview over a degraded shader effect.
