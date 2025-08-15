@@ -89,9 +89,7 @@ const TextureTest = () => {
 
   return (
     <>
-      <Link href="/">
-        <BackButton />
-      </Link>
+      <BackButton />
 
       <h1>Texture Aspect Ratio Test</h1>
       <p>

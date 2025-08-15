@@ -92,9 +92,7 @@ const SimplexNoiseWithControls = () => {
 
   return (
     <>
-      <Link href="/">
-        <BackButton />
-      </Link>
+      <BackButton />
       <SimplexNoise {...params} colors={colors} className="fixed size-full" />
     </>
   );

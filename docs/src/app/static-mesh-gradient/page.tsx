@@ -96,9 +96,7 @@ const StaticMeshGradientWithControls = () => {
 
   return (
     <>
-      <Link href="/">
-        <BackButton />
-      </Link>
+      <BackButton />
       <StaticMeshGradient {...params} colors={colors} className="fixed size-full" />
     </>
   );

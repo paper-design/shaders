@@ -93,9 +93,7 @@ const DotGridWithControls = () => {
 
   return (
     <>
-      <Link href="/">
-        <BackButton />
-      </Link>
+      <BackButton />
       <DotGrid className="fixed size-full" {...params} />
     </>
   );

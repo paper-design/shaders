@@ -91,9 +91,7 @@ const MeshGradientWithControls = () => {
 
   return (
     <>
-      <Link href="/">
-        <BackButton />
-      </Link>
+      <BackButton />
       <MeshGradient {...params} colors={colors} className="fixed size-full" />
     </>
   );

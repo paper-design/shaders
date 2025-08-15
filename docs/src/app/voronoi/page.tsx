@@ -96,9 +96,7 @@ const VoronoiWithControls = () => {
 
   return (
     <>
-      <Link href="/">
-        <BackButton />
-      </Link>
+      <BackButton />
       <Voronoi {...params} colors={colors} className="fixed size-full" />
     </>
   );

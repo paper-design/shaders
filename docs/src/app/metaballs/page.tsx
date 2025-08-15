@@ -93,9 +93,7 @@ const MetaballsWithControls = () => {
 
   return (
     <>
-      <Link href="/">
-        <BackButton />
-      </Link>
+      <BackButton />
       <Metaballs {...params} colors={colors} className="fixed size-full" />
     </>
   );

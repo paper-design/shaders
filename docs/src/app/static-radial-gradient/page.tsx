@@ -100,9 +100,7 @@ const StaticRadialGradientWithControls = () => {
 
   return (
     <>
-      <Link href="/">
-        <BackButton />
-      </Link>
+      <BackButton />
       <StaticRadialGradient {...params} colors={colors} className="fixed size-full" />
     </>
   );

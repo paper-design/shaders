@@ -101,9 +101,7 @@ const ColorPanelsWithControls = () => {
 
   return (
     <>
-      <Link href="/">
-        <BackButton />
-      </Link>
+      <BackButton />
       <ColorPanels {...params} colors={colors} className="fixed size-full" />
     </>
   );

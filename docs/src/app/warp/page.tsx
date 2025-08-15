@@ -96,9 +96,7 @@ const WarpWithControls = () => {
 
   return (
     <>
-      <Link href="/">
-        <BackButton />
-      </Link>
+      <BackButton />
       <Warp {...params} colors={colors} className="fixed size-full" />
     </>
   );
