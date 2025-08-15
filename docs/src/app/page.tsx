@@ -8,11 +8,13 @@ export default function Home() {
   return (
     <main className="sm:dot-pattern p-4 sm:p-6 sm:pb-24 md:px-12">
       <header className="card mx-auto mb-4 max-w-[var(--width-container)] sm:mb-6">
-        <div className="grid-cols-2 items-center gap-4 p-4 sm:grid sm:gap-6 sm:p-6 md:p-12 xl:p-24 xl:py-14">
-          <div className="mb-8 text-2xl lg:mb-0">
-            <h1>Paper Shaders</h1>
-            <p className="text-gray font-light text-balance">ultra fast zero-dependency shaders for your designs</p>
-            <div className="mt-4 flex flex-col items-center gap-2 sm:flex-row">
+        <div className="grid-cols-2 items-center gap-4 p-4 sm:gap-6 sm:p-6 md:p-12 lg:grid xl:p-24 xl:py-14">
+          <div className="mb-8 text-2xl md:mb-12 lg:mb-0">
+            <Link href="https://paper.design/" target="_blank">
+              <FullLogo className="block" />
+            </Link>
+            <h1 className="my-6 font-light text-balance">ultra fast zero-dependency shaders for your designs</h1>
+            <div className="flex flex-col items-center gap-2 sm:flex-row">
               <Link
                 href="https://paper.design/"
                 target="_blank"
