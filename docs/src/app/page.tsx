@@ -1,7 +1,7 @@
 import { Code, Example, Install } from '@/components/code';
 import { CopyButton } from '@/components/copy-button';
 import { ShaderItems } from '@/components/shader-item';
-import { ArrowRightIcon, GithubIcon } from '@/icons';
+import { GithubIcon } from '@/icons';
 import Link from 'next/link';
 
 export default function Home() {
