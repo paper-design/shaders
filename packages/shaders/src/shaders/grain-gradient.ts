@@ -65,12 +65,9 @@ ${declarePI}
 ${declareSimplexNoise}
 ${declareRotate}
 
-float randomGeneric(vec2 st) {
-  return fract(sin(dot(st.xy, vec2(12.9898, 78.233))) * 43758.5453123);
-}
-float random(vec2 p) {
+float randomB(vec2 p) {
   vec2 uv = floor(p) / 100. + .5;
-  return texture(u_noiseTexture, fract(uv)).r;
+  return texture(u_noiseTexture, fract(uv)).b;
 }
 ${declareValueNoise}
 float fbm(in vec2 n) {
@@ -156,10 +153,9 @@ void main() {
     // Grid (dots)
 
     float stripeIdx = floor(2. * shape_uv.x / TWO_PI);
-    float rand = fract(sin(stripeIdx * 12.9898) * 43758.5453);
-
-    float speed = sign(rand - .5) * ceil(2. + rand);
-    shape = sin(shape_uv.x) * cos(shape_uv.y + speed * t);
+    float rand = randomB(20. * vec2(stripeIdx - 1.) - 2.);
+    rand = sign(rand - .5) * pow(abs(rand), .4);
+    shape = sin(shape_uv.x) * cos(shape_uv.y - 5. * rand * t);
     shape = pow(shape, 4.);
 
   } else if (u_shape < 3.5) {
@@ -169,7 +165,7 @@ void main() {
     shape_uv.x += 10.;
     shape_uv *= .6;
 
-    vec2 tile = truchet(fract(shape_uv), randomGeneric(floor(shape_uv)));
+    vec2 tile = truchet(fract(shape_uv), randomB(floor(shape_uv)));
 
     float distance1 = length(tile);
     float distance2 = length(tile - vec2(1.));
