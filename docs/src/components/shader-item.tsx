@@ -34,30 +34,30 @@ export function ShaderItem({
   return (
     <Link href={url} className="flex flex-col gap-2">
       <div
-          className={ `relative aspect-[4/3] overflow-hidden rounded-3xl shadow border-4 ${
-              showShader ? 'border-green-500' : 'border-red-500'
-          }` }
-          onClick={ handleClick }
+        className={`relative aspect-[4/3] overflow-hidden rounded-3xl border-4 shadow ${
+          showShader ? 'border-green-500' : 'border-red-500'
+        }`}
+        onClick={handleClick}
       >
-        { image && !showShader && (
-            <Image
-                className="absolute left-1/2 top-1/2 -ml-[150px] -mt-[112px] block h-[225px] w-[300px] max-w-none sm:-ml-[200px] sm:-mt-[150px] sm:h-[300px] sm:w-[400px]"
-                src={ image }
-                alt={ `Preview of ${ name }` }
-                unoptimized
-                priority
-            />
-        ) }
+        {image && !showShader && (
+          <Image
+            className="absolute left-1/2 top-1/2 -ml-[150px] -mt-[112px] block h-[225px] w-[300px] max-w-none sm:-ml-[200px] sm:-mt-[150px] sm:h-[300px] sm:w-[400px]"
+            src={image}
+            alt={`Preview of ${name}`}
+            unoptimized
+            priority
+          />
+        )}
 
-        { showShader && shaderConfig && (
-            <ShaderComponent
-                className="absolute left-1/2 top-1/2 -ml-[150px] -mt-[112px] block h-[225px] w-[300px] max-w-none sm:-ml-[200px] sm:-mt-[150px] sm:h-[300px] sm:w-[400px]"
-                style={ {
-                  ...style,
-                } }
-                { ...shaderConfig }
-            />
-        ) }
+        {showShader && shaderConfig && (
+          <ShaderComponent
+            className="absolute left-1/2 top-1/2 -ml-[150px] -mt-[112px] block h-[225px] w-[300px] max-w-none sm:-ml-[200px] sm:-mt-[150px] sm:h-[300px] sm:w-[400px]"
+            style={{
+              ...style,
+            }}
+            {...shaderConfig}
+          />
+        )}
       </div>
       <div className="text-center">{name}</div>
     </Link>
