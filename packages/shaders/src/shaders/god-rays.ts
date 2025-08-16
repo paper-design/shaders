@@ -109,7 +109,7 @@ void main() {
     float r1 = radius * (1.0 + 0.4 * float(i)) - 3.0 * t;
     float r2 = 0.5 * radius * (1.0 + spots) - 2.0 * t;
     float density = 6. * u_density + step(.5, u_density) * pow(4.5 * (u_density - .5), 4.);
-    float f = mix(1.0, 3.0 + 0.5 * float(i), hash11(float(i) + 10.0)) * density;
+    float f = mix(1.0, 3.0 + 0.5 * float(i), hash11(float(i) * 15.)) * density;
 
     float ray = raysShape(rotatedUV, r1, 5.0 * f, intensity, radius);
     ray *= raysShape(rotatedUV, r2, 4.0 * f, intensity, radius);
