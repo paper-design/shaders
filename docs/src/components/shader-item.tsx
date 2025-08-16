@@ -56,7 +56,7 @@ export function ShaderItem({
                 style={{
                   // Some shaders are transparent, adding a background to not see the preview image through
                   opacity: isHovered ? 1 : 0,
-                  transition: 'opacity 400ms ease-out',
+                  // transition: 'opacity 400ms ease-out',
                   ...style,
                 }}
                 {...shaderConfig}

@@ -121,7 +121,7 @@ export const homeShaders = [
     url: '/dithering',
     ShaderComponent: Dithering,
     image: ditheringImg,
-    shaderConfig: { ...ditheringPresets[0].params, scale: 0.45, speed: 0, type: 'random' },
+    shaderConfig: { ...ditheringPresets[0].params, scale: 0.45, speed: 0, type: 'random', shape: 'simplex' },
   },
   {
     name: 'dot orbit',
