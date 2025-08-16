@@ -24,11 +24,13 @@ export function ShaderItem({
   style?: React.CSSProperties;
   shaderConfig?: Record<string, unknown>;
 }) {
+  const [isHovered, setIsHovered] = useState(false);
   const [showShader, setShowShader] = useState(false);
 
   const handleClick = (e: React.MouseEvent) => {
     e.preventDefault();
     setShowShader((prev) => !prev); // toggle instead of always true
+    setIsHovered((prev) => !prev); // toggle instead of always true
   };
 
   return (
@@ -39,24 +41,26 @@ export function ShaderItem({
         }`}
         onClick={handleClick}
       >
-        {image && !showShader && (
-          <Image
-            className="absolute left-1/2 top-1/2 -ml-[150px] -mt-[112px] block h-[225px] w-[300px] max-w-none sm:-ml-[200px] sm:-mt-[150px] sm:h-[300px] sm:w-[400px]"
-            src={image}
-            alt={`Preview of ${name}`}
-            unoptimized
-            priority
-          />
-        )}
-
-        {showShader && shaderConfig && (
-          <ShaderComponent
-            className="absolute left-1/2 top-1/2 -ml-[150px] -mt-[112px] block h-[225px] w-[300px] max-w-none sm:-ml-[200px] sm:-mt-[150px] sm:h-[300px] sm:w-[400px]"
-            style={{
-              ...style,
-            }}
-            {...shaderConfig}
-          />
+        {image && (
+          <>
+            <Image
+              className="absolute left-1/2 top-1/2 -ml-[150px] -mt-[112px] block h-[225px] w-[300px] max-w-none sm:-ml-[200px] sm:-mt-[150px] sm:h-[300px] sm:w-[400px]"
+              src={image}
+              alt={`Preview of ${name}`}
+              unoptimized // The images are already optimized
+              priority
+            />
+            {showShader && shaderConfig && (
+              <ShaderComponent
+                className="absolute left-1/2 top-1/2 -ml-[150px] -mt-[112px] block h-[225px] w-[300px] max-w-none sm:-ml-[200px] sm:-mt-[150px] sm:h-[300px] sm:w-[400px]"
+                style={{
+                  opacity: isHovered ? 1 : 0,
+                  ...style,
+                }}
+                {...shaderConfig}
+              />
+            )}
+          </>
         )}
       </div>
       <div className="text-center">{name}</div>
