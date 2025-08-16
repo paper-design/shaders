@@ -4,6 +4,7 @@ import { colorPropsAreEqual } from '../color-props-are-equal.js';
 import {
   defaultObjectSizing,
   getShaderColorFromString,
+  getShaderNoiseTexture,
   metaballsFragmentShader,
   ShaderFitOptions,
   type MetaballsParams,
@@ -22,10 +23,10 @@ export const defaultPreset: MetaballsPreset = {
     scale: 1,
     speed: 1,
     frame: 0,
-    colorBack: '#103086',
-    colors: ['#FFC802', '#FF5601', '#FFC206'],
-    count: 7,
-    size: 0.75,
+    colorBack: '#121212',
+    colors: ['#6e33cc', '#ff5500', '#ffc105', '#ffc800', '#f585ff'],
+    count: 10,
+    size: 0.83,
   },
 };
 
@@ -59,21 +60,21 @@ export const backgroundPreset: MetaballsPreset = {
   },
 };
 
-export const metallicPreset: MetaballsPreset = {
-  name: 'Metallic',
+export const solarPreset: MetaballsPreset = {
+  name: 'Solar',
   params: {
     ...defaultObjectSizing,
-    speed: 2.0,
+    speed: 1,
     frame: 0,
-    colors: ['#000000bb', '#00000000', '#33ffaa54'],
-    colorBack: '#003e6b',
-    count: 10,
-    size: 0.81,
-    scale: 1.7,
+    colors: ['#ffc800', '#ff5500', '#ffc105'],
+    colorBack: '#102f84',
+    count: 7,
+    size: 0.75,
+    scale: 1,
   },
 };
 
-export const metaballsPresets: MetaballsPreset[] = [defaultPreset, inkDropsPreset, metallicPreset, backgroundPreset];
+export const metaballsPresets: MetaballsPreset[] = [defaultPreset, inkDropsPreset, solarPreset, backgroundPreset];
 
 export const Metaballs: React.FC<MetaballsProps> = memo(function MetaballsImpl({
   // Own props
@@ -103,6 +104,7 @@ export const Metaballs: React.FC<MetaballsProps> = memo(function MetaballsImpl({
     u_colorsCount: colors.length,
     u_size: size,
     u_count: count,
+    u_noiseTexture: getShaderNoiseTexture(),
 
     // Sizing uniforms
     u_fit: ShaderFitOptions[fit],

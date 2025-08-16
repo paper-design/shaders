@@ -22,10 +22,10 @@ export const defaultPreset: NeuroNoisePreset = {
     speed: 1,
     frame: 0,
     colorFront: '#ffffff',
-    colorMid: '#bf9eff',
+    colorMid: '#00a2ff',
     colorBack: '#000000',
-    brightness: 0.15,
-    contrast: 0.6,
+    brightness: 0.05,
+    contrast: 0.3,
   },
 };
 

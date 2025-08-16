@@ -4,6 +4,7 @@ import { colorPropsAreEqual } from '../color-props-are-equal.js';
 import {
   defaultObjectSizing,
   getShaderColorFromString,
+  getShaderNoiseTexture,
   staticMeshGradientFragmentShader,
   ShaderFitOptions,
   type StaticMeshGradientParams,
@@ -21,15 +22,15 @@ export const defaultPreset: StaticMeshGradientPreset = {
     ...defaultObjectSizing,
     speed: 0,
     frame: 0,
-    colors: ['#264653', '#9c2b2b', '#f4a261', '#ffffff'],
-    positions: 0,
-    waveX: 0.6,
-    waveXShift: 0.7,
-    waveY: 0.7,
-    waveYShift: 0.7,
-    mixing: 0.5,
-    grainMixer: 0,
-    grainOverlay: 0,
+    colors: ['#ffad0a', '#6200ff', '#e2a3ff', '#ff99fd'],
+    positions: 2,
+    waveX: 1.0,
+    waveXShift: 0.6,
+    waveY: 1.0,
+    waveYShift: 0.21,
+    mixing: 0.93,
+    grainMixer: 0.0,
+    grainOverlay: 0.0,
   },
 };
 
@@ -69,28 +70,28 @@ export const sixtiesPreset: StaticMeshGradientPreset = {
   },
 };
 
-export const impressionismPreset: StaticMeshGradientPreset = {
-  name: 'Impressionism',
+export const sunsetPreset: StaticMeshGradientPreset = {
+  name: 'Sunset',
   params: {
     ...defaultObjectSizing,
     speed: 0,
     frame: 0,
-    colors: ['#ffad0a', '#6200ff', '#e2a3ff', '#ff99fd'],
-    positions: 2,
-    waveX: 1.0,
-    waveXShift: 0.6,
-    waveY: 1.0,
-    waveYShift: 0.21,
-    mixing: 0.93,
-    grainMixer: 0.0,
-    grainOverlay: 0.0,
+    colors: ['#264653', '#9c2b2b', '#f4a261', '#ffffff'],
+    positions: 0,
+    waveX: 0.6,
+    waveXShift: 0.7,
+    waveY: 0.7,
+    waveYShift: 0.7,
+    mixing: 0.5,
+    grainMixer: 0,
+    grainOverlay: 0,
   },
 };
 
 export const staticMeshGradientPresets: StaticMeshGradientPreset[] = [
   defaultPreset,
   sixtiesPreset,
-  impressionismPreset,
+  sunsetPreset,
   seaPreset,
 ];
 
@@ -132,6 +133,7 @@ export const StaticMeshGradient: React.FC<StaticMeshGradientProps> = memo(functi
     u_mixing: mixing,
     u_grainMixer: grainMixer,
     u_grainOverlay: grainOverlay,
+    u_noiseTexture: getShaderNoiseTexture(),
 
     // Sizing uniforms
     u_fit: ShaderFitOptions[fit],

@@ -171,6 +171,30 @@ export {
   type StaticRadialGradientUniforms,
 } from './shaders/static-radial-gradient.js';
 
+export {
+  paperTextureFragmentShader,
+  type PaperTextureParams,
+  type PaperTextureUniforms,
+} from './shaders/paper-texture.js';
+
+export { waterFragmentShader, type WaterParams, type WaterUniforms } from './shaders/water.js';
+
+export {
+  flutedGlassFragmentShader,
+  GlassDistortionShapes,
+  GlassGridShapes,
+  type GlassDistortionShape,
+  type GlassGridShape,
+  type FlutedGlassParams,
+  type FlutedGlassUniforms,
+} from './shaders/fluted-glass.js';
+
+export {
+  imageDitheringFragmentShader,
+  type ImageDitheringParams,
+  type ImageDitheringUniforms,
+} from './shaders/image-dithering.js';
+
 // ----- Utils ----- //
 export { getShaderColorFromString } from './get-shader-color-from-string.js';
 export { getShaderNoiseTexture } from './get-shader-noise-texture.js';
