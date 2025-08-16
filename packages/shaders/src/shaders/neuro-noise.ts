@@ -1,6 +1,6 @@
 import type { ShaderMotionParams } from '../shader-mount.js';
 import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
-import { declareRotate, colorBandingFix } from '../shader-utils.js';
+import { rotation2, colorBandingFix } from '../shader-utils.js';
 
 /**
  *
@@ -32,7 +32,7 @@ ${sizingVariablesDeclaration}
 
 out vec4 fragColor;
 
-${declareRotate}
+${rotation2}
 
 float neuroShape(vec2 uv, float t) {
   vec2 sine_acc = vec2(0.);

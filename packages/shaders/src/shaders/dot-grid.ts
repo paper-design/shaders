@@ -1,5 +1,5 @@
 import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
-import { declarePI, declareSimplexNoise } from '../shader-utils.js';
+import { declarePI, simplexNoise } from '../shader-utils.js';
 
 /**
  * Static grid pattern
@@ -40,7 +40,7 @@ ${sizingVariablesDeclaration}
 out vec4 fragColor;
 
 ${declarePI}
-${declareSimplexNoise}
+${simplexNoise}
 
 float polygon(vec2 p, float N, float rot) {
   float a = atan(p.x, p.y) + rot;

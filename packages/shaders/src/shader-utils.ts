@@ -5,14 +5,47 @@ export const declarePI = `
 `;
 
 // language=GLSL
-export const declareRotate = `
+export const rotation2 = `
 vec2 rotate(vec2 uv, float th) {
   return mat2(cos(th), sin(th), -sin(th), cos(th)) * uv;
 }
 `;
 
 // language=GLSL
-export const declareRandomR = `
+export const proceduralHashU32 = `
+  uint hash_u32(uint x) {
+    x ^= x >> 16;
+    x *= 0x7feb352du;
+    x ^= x >> 15;
+    x *= 0x846ca68bu;
+    x ^= x >> 16;
+    return x;
+  }
+`;
+
+// language=GLSL
+export const proceduralHash11 = `
+  float hash11(float p) {
+    uint x = uint(int(floor(p)));
+    uint h = hash_u32(x);
+    return (float(h) + 0.5) / 4294967296.0;
+  }
+`;
+
+// language=GLSL
+export const proceduralHash21 = `
+  uint hash_uvec2(uvec2 v) {
+    return hash_u32(v.x ^ (v.y * 0x9E3779B9u));
+  }
+  float hash21(vec2 p) {
+    uvec2 v = uvec2(ivec2(floor(p)));
+    uint h = hash_uvec2(v);
+    return (float(h) + 0.5) / 4294967296.0;
+  }
+`;
+
+// language=GLSL
+export const textureRandomizerR = `
   float randomR(vec2 p) {
     vec2 uv = floor(p) / 100. + .5;
     return texture(u_noiseTexture, fract(uv)).r;
@@ -20,23 +53,7 @@ export const declareRandomR = `
 `;
 
 // language=GLSL
-export const declareRandomG = `
-  float randomG(vec2 p) {
-    vec2 uv = floor(p) / 100. + .5;
-    return texture(u_noiseTexture, fract(uv)).g;
-  }
-`;
-
-// language=GLSL
-export const declareRandomB = `
-  float randomB(vec2 p) {
-    vec2 uv = floor(p) / 100. + .5;
-    return texture(u_noiseTexture, fract(uv)).b;
-  }
-`;
-
-// language=GLSL
-export const declareRandomGB = `
+export const textureRandomizerGB = `
   vec2 randomGB(vec2 p) {
     vec2 uv = floor(p) / 100. + .5;
     return texture(u_noiseTexture, fract(uv)).gb;
@@ -44,61 +61,12 @@ export const declareRandomGB = `
 `;
 
 // language=GLSL
-export const declareValueNoiseR = `
-float valueNoise(vec2 st) {
-  vec2 i = floor(st);
-  vec2 f = fract(st);
-  float a = randomR(i);
-  float b = randomR(i + vec2(1.0, 0.0));
-  float c = randomR(i + vec2(0.0, 1.0));
-  float d = randomR(i + vec2(1.0, 1.0));
-  vec2 u = f * f * (3.0 - 2.0 * f);
-  float x1 = mix(a, b, u.x);
-  float x2 = mix(c, d, u.x);
-  return mix(x1, x2, u.y);
-}
-`;
-
-// language=GLSL
-export const declareValueNoiseG = `
-float valueNoise(vec2 st) {
-  vec2 i = floor(st);
-  vec2 f = fract(st);
-  float a = randomG(i);
-  float b = randomG(i + vec2(1.0, 0.0));
-  float c = randomG(i + vec2(0.0, 1.0));
-  float d = randomG(i + vec2(1.0, 1.0));
-  vec2 u = f * f * (3.0 - 2.0 * f);
-  float x1 = mix(a, b, u.x);
-  float x2 = mix(c, d, u.x);
-  return mix(x1, x2, u.y);
-}
-`;
-
-// language=GLSL
-export const declareValueNoiseB = `
-float valueNoise(vec2 st) {
-  vec2 i = floor(st);
-  vec2 f = fract(st);
-  float a = randomB(i);
-  float b = randomB(i + vec2(1.0, 0.0));
-  float c = randomB(i + vec2(0.0, 1.0));
-  float d = randomB(i + vec2(1.0, 1.0));
-  vec2 u = f * f * (3.0 - 2.0 * f);
-  float x1 = mix(a, b, u.x);
-  float x2 = mix(c, d, u.x);
-  return mix(x1, x2, u.y);
-}
-`;
-
-// It does use the standard random function but we don't call it to keep
-// colorBandingFix insertion independent from declareRandom
 export const colorBandingFix = `
   color += 1. / 256. * (fract(sin(dot(.014 * gl_FragCoord.xy, vec2(12.9898, 78.233))) * 43758.5453123) - .5);
 `;
 
 // language=GLSL
-export const declareSimplexNoise = `
+export const simplexNoise = `
 vec3 permute(vec3 x) { return mod(((x * 34.0) + 1.0) * x, 289.0); }
 float snoise(vec2 v) {
   const vec4 C = vec4(0.211324865405187, 0.366025403784439,
@@ -129,7 +97,7 @@ float snoise(vec2 v) {
 `;
 
 // language=GLSL
-export const declareFiberNoise = `
+export const fiberNoise = `
 float fiberRandom(vec2 p) {
   vec2 uv = floor(p) / 100.;
   return texture(u_noiseTexture, fract(uv)).b;
@@ -167,19 +135,4 @@ float fiberNoise(vec2 uv, vec2 seedOffset) {
   float n4 = fiberNoiseFbm(uv - vec2(0.0, epsilon), seedOffset);
   return length(vec2(n1 - n2, n3 - n4)) / (2.0 * epsilon);
 }
-`;
-
-// language=GLSL
-export const declareImageFrame = `
-  float getUvFrame(vec2 uv) {
-    float aax = 2. * fwidth(uv.x);
-    float aay = 2. * fwidth(uv.y);
-
-    float left   = smoothstep(0., aax, uv.x);
-    float right  = smoothstep(1., 1. - aax, uv.x);
-    float bottom = smoothstep(0., aay, uv.y);
-    float top    = smoothstep(1., 1. - aay, uv.y);
-
-    return left * right * bottom * top;
-  }
 `;

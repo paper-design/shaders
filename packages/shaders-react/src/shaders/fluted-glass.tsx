@@ -7,7 +7,6 @@ import {
   type FlutedGlassParams,
   type ShaderPreset,
   defaultObjectSizing,
-  getShaderNoiseTexture,
   GlassDistortionShapes,
   GlassGridShapes,
 } from '@paper-design/shaders';
@@ -154,7 +153,6 @@ export const FlutedGlass: React.FC<FlutedGlassProps> = memo(function FlutedGlass
     u_marginRight: marginRight,
     u_marginTop: marginTop,
     u_marginBottom: marginBottom,
-    u_noiseTexture: getShaderNoiseTexture(),
 
     // Sizing uniforms
     u_fit: ShaderFitOptions[fit],

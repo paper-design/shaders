@@ -6,7 +6,7 @@ import {
   sizingUV,
   drawSizingHelpers,
 } from '../shader-sizing.js';
-import { declareSimplexNoise, declarePI, declareRandomB } from '../shader-utils.js';
+import { simplexNoise, declarePI, proceduralHashU32, proceduralHash11, proceduralHash21 } from '../shader-utils.js';
 
 /**
  * 2-color dithering effect over animated abstract shapes
@@ -28,8 +28,6 @@ import { declareSimplexNoise, declarePI, declareRandomB } from '../shader-utils.
  * ---- 3: 4x4 Bayer matrix
  * ---- 4: 8x8 Bayer matrix
  *
- * - u_noiseTexture (sampler2D): pre-computed randomizer source
- *
  * Note: pixelization is applied to the shapes BEFORE dithering, meaning pixels don't react to scaling and fit
  */
 
@@ -41,8 +39,6 @@ uniform float u_time;
 uniform vec2 u_resolution;
 uniform float u_pixelRatio;
 
-uniform sampler2D u_noiseTexture;
-
 ${sizingUniformsDeclaration}
 
 uniform vec4 u_colorBack;
@@ -53,9 +49,11 @@ uniform float u_pxSize;
 
 out vec4 fragColor;
 
-${declareSimplexNoise}
+${simplexNoise}
 ${declarePI}
-${declareRandomB}
+${proceduralHashU32}
+${proceduralHash11}
+${proceduralHash21}
 
 float getSimplexNoise(vec2 uv, float t) {
   float noise = .5 * snoise(uv - vec2(0., .3 * t));
@@ -109,7 +107,7 @@ void main() {
   ${sizingUV}
 
   vec2 dithering_uv = pxSizeUv;
-  vec2 ditheringNoise_uv = 500. * uv;
+  vec2 ditheringNoise_uv = uv * u_resolution;
   vec2 shape_uv = objectUV;
   if (u_shape < 3.5) {
     shape_uv = patternUV;
@@ -140,8 +138,8 @@ void main() {
     shape_uv *= .05;
 
     float stripeIdx = floor(2. * shape_uv.x / TWO_PI);
-    float rand = randomB(20. * vec2(stripeIdx - 1.) - 2.);
-    rand = sign(rand - .5) * pow(abs(rand), .4);
+    float rand = hash11(stripeIdx * 10.);
+    rand = sign(rand - .5) * pow(.1 + abs(rand), .4);
     shape = sin(shape_uv.x) * cos(shape_uv.y - 5. * rand * t);
     shape = pow(shape, 6.);
 
@@ -184,7 +182,7 @@ void main() {
 
   switch (type) {
     case 1: {
-      dithering = step(.5 + .5 * snoise(ditheringNoise_uv), shape);
+      dithering = step(hash21(ditheringNoise_uv), shape);
     } break;
     case 2:
       dithering = getBayerValue(dithering_uv, 2);
@@ -231,7 +229,6 @@ export interface DitheringUniforms extends ShaderSizingUniforms {
   u_shape: (typeof DitheringShapes)[DitheringShape];
   u_type: (typeof DitheringTypes)[DitheringType];
   u_pxSize: number;
-  u_noiseTexture?: HTMLImageElement;
 }
 
 export interface DitheringParams extends ShaderSizingParams, ShaderMotionParams {

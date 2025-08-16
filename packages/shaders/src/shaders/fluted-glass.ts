@@ -1,6 +1,6 @@
 import type { ShaderMotionParams } from '../shader-mount.js';
 import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
-import { declareImageFrame, declarePI, declareRotate } from '../shader-utils.js';
+import { declarePI, rotation2 } from '../shader-utils.js';
 
 /**
  * Mimicking glass surface distortion over the image by distorting the texture
@@ -22,8 +22,6 @@ import { declareImageFrame, declarePI, declareRotate } from '../shader-utils.js'
  * - u_highlights - thin color lines along the grid (independent from distortion)
  * - u_marginLeft, u_marginRight, u_marginTop, u_marginBottom - paddings
  *   within picture to be shown without any distortion
- *
- * - u_noiseTexture (sampler2D): pre-computed randomizer source
  *
  */
 
@@ -51,15 +49,24 @@ uniform float u_marginRight;
 uniform float u_marginTop;
 uniform float u_marginBottom;
 
-uniform sampler2D u_noiseTexture;
-
 ${sizingVariablesDeclaration}
 
 out vec4 fragColor;
 
 ${declarePI}
-${declareRotate}
-${declareImageFrame}
+${rotation2}
+
+float getUvFrame(vec2 uv) {
+  float aax = 2. * fwidth(uv.x);
+  float aay = 2. * fwidth(uv.y);
+
+  float left   = smoothstep(0., aax, uv.x);
+  float right  = smoothstep(1., 1. - aax, uv.x);
+  float bottom = smoothstep(0., aay, uv.y);
+  float top    = smoothstep(1., 1. - aay, uv.y);
+
+  return left * right * bottom * top;
+}
 
 const int MAX_RADIUS = 50;
 

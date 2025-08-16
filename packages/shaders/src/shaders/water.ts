@@ -1,6 +1,6 @@
 import type { ShaderMotionParams } from '../shader-mount.js';
 import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
-import { declareImageFrame, declarePI, declareRotate, declareSimplexNoise } from '../shader-utils.js';
+import { declarePI, rotation2, simplexNoise } from '../shader-utils.js';
 
 /**
  * Mimicking water surface distortion with a combination of noises;
@@ -41,9 +41,20 @@ ${sizingVariablesDeclaration}
 out vec4 fragColor;
 
 ${declarePI}
-${declareRotate}
-${declareSimplexNoise}
-${declareImageFrame}
+${rotation2}
+${simplexNoise}
+
+float getUvFrame(vec2 uv) {
+  float aax = 2. * fwidth(uv.x);
+  float aay = 2. * fwidth(uv.y);
+
+  float left   = smoothstep(0., aax, uv.x);
+  float right  = smoothstep(1., 1. - aax, uv.x);
+  float bottom = smoothstep(0., aay, uv.y);
+  float top    = smoothstep(1., 1. - aay, uv.y);
+
+  return left * right * bottom * top;
+}
 
 mat2 rotate2D(float r) {
   return mat2(cos(r), sin(r), -sin(r), cos(r));

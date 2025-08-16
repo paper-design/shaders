@@ -1,15 +1,6 @@
 import type { ShaderMotionParams } from '../shader-mount.js';
 import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
-import {
-  declareImageFrame,
-  declareRotate,
-  declareRandomG,
-  declarePI,
-  declareFiberNoise,
-  declareRandomR,
-  declareRandomGB,
-  declareValueNoiseR,
-} from '../shader-utils.js';
+import { rotation2, declarePI, fiberNoise, textureRandomizerR } from '../shader-utils.js';
 
 /**
  * Mimicking paper texture with a combination of noises
@@ -61,12 +52,33 @@ ${sizingVariablesDeclaration}
 
 out vec4 fragColor;
 
-${declarePI}
-${declareRotate}
-${declareImageFrame}
-${declareRandomR}
-${declareValueNoiseR}
+float getUvFrame(vec2 uv) {
+  float aax = 2. * fwidth(uv.x);
+  float aay = 2. * fwidth(uv.y);
 
+  float left   = smoothstep(0., aax, uv.x);
+  float right  = smoothstep(1., 1. - aax, uv.x);
+  float bottom = smoothstep(0., aay, uv.y);
+  float top    = smoothstep(1., 1. - aay, uv.y);
+
+  return left * right * bottom * top;
+}
+
+${declarePI}
+${rotation2}
+${textureRandomizerR}
+float valueNoise(vec2 st) {
+  vec2 i = floor(st);
+  vec2 f = fract(st);
+  float a = randomR(i);
+  float b = randomR(i + vec2(1.0, 0.0));
+  float c = randomR(i + vec2(0.0, 1.0));
+  float d = randomR(i + vec2(1.0, 1.0));
+  vec2 u = f * f * (3.0 - 2.0 * f);
+  float x1 = mix(a, b, u.x);
+  float x2 = mix(c, d, u.x);
+  return mix(x1, x2, u.y);
+}
 float fbm(vec2 n) {
   float total = 0.0, amplitude = .4;
   for (int i = 0; i < 3; i++) {
@@ -97,7 +109,7 @@ float roughness(vec2 p) {
   return o / 3.;
 }
 
-${declareFiberNoise}
+${fiberNoise}
 
 vec2 randomGB(vec2 p) {
   vec2 uv = floor(p) / 50. + .5;

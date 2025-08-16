@@ -1,7 +1,7 @@
 import type { vec4 } from '../types.js';
 import type { ShaderMotionParams } from '../shader-mount.js';
 import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
-import { declarePI, declareRandomGB, colorBandingFix, declareRandomG, declareValueNoiseG } from '../shader-utils.js';
+import { declarePI, textureRandomizerGB, colorBandingFix } from '../shader-utils.js';
 
 export const pulsingBorderMeta = {
   maxColorCount: 5,
@@ -77,9 +77,24 @@ float roundedBoxSmoke(vec2 uv, float distance, float size) {
   return border;
 }
 
-${declareRandomGB}
-${declareRandomG}
-${declareValueNoiseG}
+${textureRandomizerGB}
+
+float randomG(vec2 p) {
+  vec2 uv = floor(p) / 100. + .5;
+  return texture(u_noiseTexture, fract(uv)).g;
+}
+float valueNoise(vec2 st) {
+  vec2 i = floor(st);
+  vec2 f = fract(st);
+  float a = randomG(i);
+  float b = randomG(i + vec2(1.0, 0.0));
+  float c = randomG(i + vec2(0.0, 1.0));
+  float d = randomG(i + vec2(1.0, 1.0));
+  vec2 u = f * f * (3.0 - 2.0 * f);
+  float x1 = mix(a, b, u.x);
+  float x2 = mix(c, d, u.x);
+  return mix(x1, x2, u.y);
+}
 
 float linearstep(float edge0, float edge1, float x) {
   return clamp((x - edge0) / (edge1 - edge0), 0.0, 1.0);

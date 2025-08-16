@@ -1,7 +1,7 @@
 import type { vec4 } from '../types.js';
 import type { ShaderMotionParams } from '../shader-mount.js';
 import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
-import { declarePI, declareRandomR, declareValueNoiseR, colorBandingFix } from '../shader-utils.js';
+import { declarePI, textureRandomizerR, colorBandingFix } from '../shader-utils.js';
 
 export const smokeRingMeta = {
   maxColorCount: 10,
@@ -43,9 +43,19 @@ ${sizingVariablesDeclaration}
 out vec4 fragColor;
 
 ${declarePI}
-${declareRandomR}
-${declareValueNoiseR}
-
+${textureRandomizerR}
+float valueNoise(vec2 st) {
+  vec2 i = floor(st);
+  vec2 f = fract(st);
+  float a = randomR(i);
+  float b = randomR(i + vec2(1.0, 0.0));
+  float c = randomR(i + vec2(0.0, 1.0));
+  float d = randomR(i + vec2(1.0, 1.0));
+  vec2 u = f * f * (3.0 - 2.0 * f);
+  float x1 = mix(a, b, u.x);
+  float x2 = mix(c, d, u.x);
+  return mix(x1, x2, u.y);
+}
 float fbm(in vec2 n) {
   float total = 0.0, amplitude = .4;
   for (int i = 0; i < ${smokeRingMeta.maxNoiseIterations}; i++) {

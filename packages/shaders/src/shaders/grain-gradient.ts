@@ -7,7 +7,15 @@ import {
   sizingDebugVariablesDeclaration,
   sizingUniformsDeclaration,
 } from '../shader-sizing.js';
-import { declareSimplexNoise, declarePI, declareRotate, declareRandomB, declareValueNoiseB } from '../shader-utils.js';
+import {
+  simplexNoise,
+  declarePI,
+  rotation2,
+  textureRandomizerR,
+  proceduralHashU32,
+  proceduralHash21,
+  proceduralHash11,
+} from '../shader-utils.js';
 
 export const grainGradientMeta = {
   maxColorCount: 7,
@@ -62,10 +70,21 @@ ${sizingUniformsDeclaration}
 out vec4 fragColor;
 
 ${declarePI}
-${declareSimplexNoise}
-${declareRotate}
-${declareRandomB}
-${declareValueNoiseB}
+${simplexNoise}
+${rotation2}
+${textureRandomizerR}
+float valueNoise(vec2 st) {
+  vec2 i = floor(st);
+  vec2 f = fract(st);
+  float a = randomR(i);
+  float b = randomR(i + vec2(1.0, 0.0));
+  float c = randomR(i + vec2(0.0, 1.0));
+  float d = randomR(i + vec2(1.0, 1.0));
+  vec2 u = f * f * (3.0 - 2.0 * f);
+  float x1 = mix(a, b, u.x);
+  float x2 = mix(c, d, u.x);
+  return mix(x1, x2, u.y);
+}
 float fbm(in vec2 n) {
   float total = 0.0, amplitude = .2;
   for (int i = 0; i < 4; i++) {
@@ -76,6 +95,9 @@ float fbm(in vec2 n) {
   return total;
 }
 
+${proceduralHashU32}
+${proceduralHash11}
+${proceduralHash21}
 
 vec2 truchet(vec2 uv, float idx){
     idx = fract(((idx - .5) * 2.));
@@ -151,8 +173,8 @@ void main() {
     // Grid (dots)
 
     float stripeIdx = floor(2. * shape_uv.x / TWO_PI);
-    float rand = randomB(20. * vec2(stripeIdx - 1.) - 2.);
-    rand = sign(rand - .5) * pow(abs(rand), .4);
+    float rand = hash11(stripeIdx + 2.);
+    rand = sign(rand - .5) * pow(.2 + abs(rand), .3);
     shape = sin(shape_uv.x) * cos(shape_uv.y - 5. * rand * t);
     shape = pow(shape, 4.);
 
@@ -163,7 +185,7 @@ void main() {
     shape_uv.x += 10.;
     shape_uv *= .6;
 
-    vec2 tile = truchet(fract(shape_uv), randomB(floor(shape_uv)));
+    vec2 tile = truchet(fract(shape_uv), randomR(floor(shape_uv)));
 
     float distance1 = length(tile);
     float distance2 = length(tile - vec2(1.));

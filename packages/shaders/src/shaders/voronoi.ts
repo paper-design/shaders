@@ -1,7 +1,7 @@
 import type { vec4 } from '../types.js';
 import type { ShaderMotionParams } from '../shader-mount.js';
 import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
-import { declarePI, declareRandomGB } from '../shader-utils.js';
+import { declarePI, textureRandomizerGB } from '../shader-utils.js';
 
 export const voronoiMeta = {
   maxColorCount: 5,
@@ -50,7 +50,7 @@ ${sizingVariablesDeclaration}
 out vec4 fragColor;
 
 ${declarePI}
-${declareRandomGB}
+${textureRandomizerGB}
 
 vec4 voronoi(vec2 x, float t) {
   vec2 ip = floor(x);
