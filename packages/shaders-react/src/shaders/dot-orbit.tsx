@@ -3,6 +3,7 @@ import { ShaderMount, type ShaderComponentProps } from '../shader-mount.js';
 import { colorPropsAreEqual } from '../color-props-are-equal.js';
 import {
   getShaderColorFromString,
+  getShaderNoiseTexture,
   dotOrbitFragmentShader,
   ShaderFitOptions,
   type DotOrbitParams,
@@ -22,11 +23,11 @@ export const defaultPreset: DotOrbitPreset = {
     speed: 2,
     frame: 0,
     colorBack: '#000000',
-    colors: ['#D2822D', '#0C3D80', '#B41A57', '#37A166'],
-    size: 0.9,
+    colors: ['#ff6f00', '#610000', '#0f0000', '#ffdfa8'],
+    size: 1,
     sizeRange: 0,
     spreading: 1,
-    stepsPerColor: 2,
+    stepsPerColor: 4,
   },
 };
 
@@ -112,6 +113,7 @@ export const DotOrbit: React.FC<DotOrbitProps> = memo(function DotOrbitImpl({
     u_sizeRange: sizeRange,
     u_spreading: spreading,
     u_stepsPerColor: stepsPerColor,
+    u_noiseTexture: getShaderNoiseTexture(),
 
     // Sizing uniforms
     u_fit: ShaderFitOptions[fit],

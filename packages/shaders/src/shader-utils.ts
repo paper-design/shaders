@@ -72,40 +72,57 @@ float snoise(vec2 v) {
 `;
 
 // language=GLSL
-export const declareGrainShape = `
-vec2 grainRandom(vec2 p) {
-  float angle = fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);
-  angle *= 6.2831853;
-  return vec2(cos(angle), sin(angle));
+export const declareFiberNoise = `
+float fiberRandom(vec2 p) {
+  vec2 uv = floor(p) / 100.;
+  return texture(u_noiseTexture, fract(uv)).b;
 }
 
-float grainNoise(vec2 p) {
-  vec2 i = floor(p);
-  vec2 f = fract(p);
+float fiberValueNoise(vec2 st) {
+  vec2 i = floor(st);
+  vec2 f = fract(st);
+  float a = fiberRandom(i);
+  float b = fiberRandom(i + vec2(1.0, 0.0));
+  float c = fiberRandom(i + vec2(0.0, 1.0));
+  float d = fiberRandom(i + vec2(1.0, 1.0));
   vec2 u = f * f * (3.0 - 2.0 * f);
-
-  float n00 = dot(grainRandom(i + vec2(0.0, 0.0)), f - vec2(0.0, 0.0));
-  float n10 = dot(grainRandom(i + vec2(1.0, 0.0)), f - vec2(1.0, 0.0));
-  float n01 = dot(grainRandom(i + vec2(0.0, 1.0)), f - vec2(0.0, 1.0));
-  float n11 = dot(grainRandom(i + vec2(1.0, 1.0)), f - vec2(1.0, 1.0));
-
-  float nx0 = mix(n00, n10, u.x);
-  float nx1 = mix(n01, n11, u.x);
-  return mix(nx0, nx1, u.y);
+  float x1 = mix(a, b, u.x);
+  float x2 = mix(c, d, u.x);
+  return mix(x1, x2, u.y);
 }
 
-float grainShape(vec2 uv, vec2 seedOffset) {
-  float total = 0.0;
-  float amp = 0.5;
-  float freq = .6;
-
+float fiberNoiseFbm(in vec2 n, vec2 seedOffset) {
+  float total = 0.0, amplitude = 1.;
   for (int i = 0; i < 4; i++) {
-    total += amp * grainNoise(uv * freq + seedOffset);
-    freq *= 2.;
-    amp *= .5;
+    n = rotate(n, .7);
+    total += fiberValueNoise(n + seedOffset) * amplitude;
+    n *= 2.;
+    amplitude *= 0.6;
   }
-
-  total = .5 + .5 * total;
-  return 10. * u_scale * length(vec2(dFdx(total), dFdy(total)));
+  return total;
 }
+
+float fiberNoise(vec2 uv, vec2 seedOffset) {
+  float epsilon = 0.001;
+  float n1 = fiberNoiseFbm(uv + vec2(epsilon, 0.0), seedOffset);
+  float n2 = fiberNoiseFbm(uv - vec2(epsilon, 0.0), seedOffset);
+  float n3 = fiberNoiseFbm(uv + vec2(0.0, epsilon), seedOffset);
+  float n4 = fiberNoiseFbm(uv - vec2(0.0, epsilon), seedOffset);
+  return length(vec2(n1 - n2, n3 - n4)) / (2.0 * epsilon);
+}
+`;
+
+// language=GLSL
+export const declareImageFrame = `
+  float getUvFrame(vec2 uv) {
+    float aax = 2. * fwidth(uv.x);
+    float aay = 2. * fwidth(uv.y);
+
+    float left   = smoothstep(0., aax, uv.x);
+    float right  = smoothstep(1., 1. - aax, uv.x);
+    float bottom = smoothstep(0., aay, uv.y);
+    float top    = smoothstep(1., 1. - aay, uv.y);
+
+    return left * right * bottom * top;
+  }
 `;
