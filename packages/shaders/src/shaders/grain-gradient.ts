@@ -74,18 +74,18 @@ ${simplexNoise}
 ${rotation2}
 ${proceduralHash21}
 ${textureRandomizerR}
-//float valueNoise(vec2 st) {
-//  vec2 i = floor(st);
-//  vec2 f = fract(st);
-//  float a = hash21(i);
-//  float b = hash21(i + vec2(1.0, 0.0));
-//  float c = hash21(i + vec2(0.0, 1.0));
-//  float d = hash21(i + vec2(1.0, 1.0));
-//  vec2 u = f * f * (3.0 - 2.0 * f);
-//  float x1 = mix(a, b, u.x);
-//  float x2 = mix(c, d, u.x);
-//  return mix(x1, x2, u.y);
-//}
+float valueNoise(vec2 st) {
+  vec2 i = floor(st);
+  vec2 f = fract(st);
+  float a = hash21(i);
+  float b = hash21(i + vec2(1.0, 0.0));
+  float c = hash21(i + vec2(0.0, 1.0));
+  float d = hash21(i + vec2(1.0, 1.0));
+  vec2 u = f * f * (3.0 - 2.0 * f);
+  float x1 = mix(a, b, u.x);
+  float x2 = mix(c, d, u.x);
+  return mix(x1, x2, u.y);
+}
 float valueNoiseR(vec2 st) {
   vec2 i = floor(st);
   vec2 f = fract(st);
@@ -103,7 +103,7 @@ float fbm(in vec2 n) {
   float amplitude = .2;
   for (int i = 0; i < 3; i++) {
     n = rotate(n, .4);
-    total += valueNoiseR(n) * amplitude;
+    total += valueNoise(n) * amplitude;
     n += n;
     amplitude *= 0.6;
   }
