@@ -245,10 +245,8 @@ void main() {
     shape_uv *= 2.;
     float d = 1. - pow(length(shape_uv), 2.);
     vec3 pos = vec3(shape_uv, sqrt(d));
-    vec3 lightPos = normalize(vec3(cos(4.5 * t), 0.8, sin(3.75 * t)));
-    float lighting = dot(lightPos, pos);
-    float edge = smoothstep(1., .97, d);
-    shape = mix(.1, .5 + .5 * lighting, edge);
+    vec3 lightPos = normalize(vec3(cos(1.5 * t), .8, sin(1.25 * t)));
+    shape = .5 + .5 * dot(lightPos, pos);
     shape *= step(0., d);
   }
 
