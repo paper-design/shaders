@@ -86,7 +86,8 @@ float valueNoise(vec2 st) {
 }
 float fbm(in vec2 n) {
   float total = 0.0, amplitude = .2;
-  for (int i = 0; i < 4; i++) {
+  for (int i = 0; i < 3; i++) {
+    n = rotate(n, .4);
     total += valueNoise(n) * amplitude;
     n += n;
     amplitude *= 0.6;
