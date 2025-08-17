@@ -74,29 +74,28 @@ ${simplexNoise}
 ${rotation2}
 ${proceduralHash21}
 ${textureRandomizerR}
-${textureRandomizerGB}
-float valueNoise(vec2 st) {
+//float valueNoise(vec2 st) {
+//  vec2 i = floor(st);
+//  vec2 f = fract(st);
+//  float a = hash21(i);
+//  float b = hash21(i + vec2(1.0, 0.0));
+//  float c = hash21(i + vec2(0.0, 1.0));
+//  float d = hash21(i + vec2(1.0, 1.0));
+//  vec2 u = f * f * (3.0 - 2.0 * f);
+//  float x1 = mix(a, b, u.x);
+//  float x2 = mix(c, d, u.x);
+//  return mix(x1, x2, u.y);
+//}
+float valueNoiseR(vec2 st) {
   vec2 i = floor(st);
   vec2 f = fract(st);
-  float a = hash21(i);
-  float b = hash21(i + vec2(1.0, 0.0));
-  float c = hash21(i + vec2(0.0, 1.0));
-  float d = hash21(i + vec2(1.0, 1.0));
+  float a = randomR(i);
+  float b = randomR(i + vec2(1.0, 0.0));
+  float c = randomR(i + vec2(0.0, 1.0));
+  float d = randomR(i + vec2(1.0, 1.0));
   vec2 u = f * f * (3.0 - 2.0 * f);
   float x1 = mix(a, b, u.x);
   float x2 = mix(c, d, u.x);
-  return mix(x1, x2, u.y);
-}
-vec2 valueNoiseGB(vec2 st) {
-  vec2 i = floor(st);
-  vec2 f = fract(st);
-  vec2 a = randomGB(i);
-  vec2 b = randomGB(i + vec2(1.0, 0.0));
-  vec2 c = randomGB(i + vec2(0.0, 1.0));
-  vec2 d = randomGB(i + vec2(1.0, 1.0));
-  vec2 u = f * f * (3.0 - 2.0 * f);
-  vec2 x1 = mix(a, b, u.x);
-  vec2 x2 = mix(c, d, u.x);
   return mix(x1, x2, u.y);
 }
 float fbm(in vec2 n) {
@@ -104,18 +103,7 @@ float fbm(in vec2 n) {
   float amplitude = .2;
   for (int i = 0; i < 3; i++) {
     n = rotate(n, .4);
-    total += valueNoise(n) * amplitude;
-    n += n;
-    amplitude *= 0.6;
-  }
-  return total;
-}
-vec2 fbm2(in vec2 n) {
-  vec2 total = vec2(0.);
-  float amplitude = .2;
-  for (int i = 0; i < 4; i++) {
-    n = rotate(n, .4);
-    total += valueNoiseGB(n) * amplitude;
+    total += valueNoiseR(n) * amplitude;
     n += n;
     amplitude *= 0.6;
   }
@@ -206,7 +194,7 @@ void main() {
   } else if (u_shape < 3.5) {
     // Truchet pattern
 
-    float n2 = valueNoise(shape_uv * .4 - 3.75 * t);
+    float n2 = valueNoiseR(shape_uv * .4 - 3.75 * t);
     shape_uv.x += 10.;
     shape_uv *= .6;
 
@@ -277,10 +265,9 @@ void main() {
     shape *= step(0., d);
   }
 
-  float simplex = snoise(grain_uv * .5 - 2.);
-  vec2 fbmDouble = fbm2(.2 * grain_uv + 10.);
-  float grainDist = simplex * snoise(grain_uv * .2) - fbmDouble.x;
-  float noise = clamp(.65 * simplex - fbm(rotate(.002 * grain_uv, 2.)) - .7 * fbmDouble.y, 0., 1.);
+  float simplex = snoise(grain_uv * .5);
+  float grainDist = simplex * snoise(grain_uv * .2) - fbm(.002 * grain_uv + 10.) - fbm(.003 * grain_uv);
+  float noise = clamp(.65 * simplex - fbm(rotate(.4 * grain_uv, 2.)) - fbm(.001 * grain_uv), 0., 1.);
 
   shape += u_intensity * 2. / u_colorsCount * (grainDist + .5);
   shape += u_noise * 10. / u_colorsCount * noise;
