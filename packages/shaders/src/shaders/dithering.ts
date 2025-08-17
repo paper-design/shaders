@@ -140,7 +140,7 @@ void main() {
     float rand = hash11(stripeIdx * 10.);
     rand = sign(rand - .5) * pow(.1 + abs(rand), .4);
     shape = sin(shape_uv.x) * cos(shape_uv.y - 5. * rand * t);
-    shape = pow(shape, 6.);
+    shape = pow(abs(shape), 6.);
 
   } else if (u_shape < 4.5) {
     // Sine wave
@@ -170,7 +170,9 @@ void main() {
     // Sphere
     shape_uv *= 2.;
 
-    vec3 pos = vec3(shape_uv, sqrt(1. - pow(length(shape_uv), 2.)));
+    float d = 1. - pow(length(shape_uv), 2.);
+    d = max(0., d);
+    vec3 pos = vec3(shape_uv, sqrt(d));
     vec3 lightPos = normalize(vec3(cos(1.5 * t), .8, sin(1.25 * t)));
     shape = .5 + .5 * dot(lightPos, pos);
   }

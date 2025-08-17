@@ -35,137 +35,135 @@ out vec4 fragColor;
 
 ${declarePI}
 
-uint hash(uint x, uint seed) {
-  const uint m = 0x5bd1e995U;
-  uint hash = seed;
-    // process input
-    uint k = x;
-    k *= m;
-    k ^= k >> 24;
-    k *= m;
-    hash *= m;
-    hash ^= k;
-    // some final mixing
-    hash ^= hash >> 13;
-    hash *= m;
-    hash ^= hash >> 15;
-    return hash;
+float hash11(float p) {
+  p = fract(p * 0.3183099) + 0.1;
+  p *= p + 19.19;
+  return fract(p * p);
 }
 
-uint hash(uvec3 x, uint seed){
-    const uint m = 0x5bd1e995U;
-    uint hash = seed;
-    // process first vector element
-    uint k = x.x;
-    k *= m;
-    k ^= k >> 24;
-    k *= m;
-    hash *= m;
-    hash ^= k;
-    // process second vector element
-    k = x.y;
-    k *= m;
-    k ^= k >> 24;
-    k *= m;
-    hash *= m;
-    hash ^= k;
-    // process third vector element
-    k = x.z;
-    k *= m;
-    k ^= k >> 24;
-    k *= m;
-    hash *= m;
-    hash ^= k;
-    // some final mixing
-    hash ^= hash >> 13;
-    hash *= m;
-    hash ^= hash >> 15;
-    return hash;
+float hash21(vec2 p) {
+  p = fract(p * vec2(0.3183099, 0.3678794)) + 0.1;
+  p += dot(p, p + 19.19);
+  return fract(p.x * p.y);
 }
 
-
-vec3 gradientdy(uint hash) {
-    switch (int(hash) & 15) { // look at the last four bits to pick a gradient dy
-    case 0:
-        return vec3(1, 1, 0);
-    case 1:
-        return vec3(-1, 1, 0);
-    case 2:
-        return vec3(1, -1, 0);
-    case 3:
-        return vec3(-1, -1, 0);
-    case 4:
-        return vec3(1, 0, 1);
-    case 5:
-        return vec3(-1, 0, 1);
-    case 6:
-        return vec3(1, 0, -1);
-    case 7:
-        return vec3(-1, 0, -1);
-    case 8:
-        return vec3(0, 1, 1);
-    case 9:
-        return vec3(0, -1, 1);
-    case 10:
-        return vec3(0, 1, -1);
-    case 11:
-        return vec3(0, -1, -1);
-    case 12:
-        return vec3(1, 1, 0);
-    case 13:
-        return vec3(-1, 1, 0);
-    case 14:
-        return vec3(0, -1, 1);
-    case 15:
-        return vec3(0, -1, -1);
-    }
+float hash31(vec3 p) {
+  p = fract(p * 0.3183099) + 0.1;
+  p += dot(p, p.yzx + 19.19);
+  return fract(p.x * (p.y + p.z));
 }
 
-float interpolate(float value1, float value2, float value3, float value4, float value5, float value6, float value7, float value8, vec3 t) {
-    return mix(
-        mix(mix(value1, value2, t.x), mix(value3, value4, t.x), t.y),
-        mix(mix(value5, value6, t.x), mix(value7, value8, t.x), t.y),
-        t.z
-    );
+vec3 hash33(vec3 p) {
+  p = fract(p * 0.3183099) + 0.1;
+  p += dot(p, p.yzx + 19.19);
+  return fract(vec3(p.x * p.y, p.y * p.z, p.z * p.x));
 }
 
-vec3 fade(vec3 t) {
-    return t * t * t * (t * (t * 6.0 - 15.0) + 10.0);
+vec3 gradientSafe(vec3 p) {
+  vec3 h = hash33(p) * 2.0 - 1.;
+  return normalize(h + 0.001);
 }
 
-float perlinNoise(vec3 position, uint seed) {
-    position += 1e+4;
-    vec3 floorPosition = floor(position);
-    vec3 fractPosition = fract(position);
-    uvec3 cellCoordinates = uvec3(floorPosition);
-    float value1 = dot(gradientdy(hash(cellCoordinates, seed)), fractPosition);
-    float value2 = dot(gradientdy(hash((cellCoordinates + uvec3(1, 0, 0)), seed)), fractPosition - vec3(1, 0, 0));
-    float value3 = dot(gradientdy(hash((cellCoordinates + uvec3(0, 1, 0)), seed)), fractPosition - vec3(0, 1, 0));
-    float value4 = dot(gradientdy(hash((cellCoordinates + uvec3(1, 1, 0)), seed)), fractPosition - vec3(1, 1, 0));
-    float value5 = dot(gradientdy(hash((cellCoordinates + uvec3(0, 0, 1)), seed)), fractPosition - vec3(0, 0, 1));
-    float value6 = dot(gradientdy(hash((cellCoordinates + uvec3(1, 0, 1)), seed)), fractPosition - vec3(1, 0, 1));
-    float value7 = dot(gradientdy(hash((cellCoordinates + uvec3(0, 1, 1)), seed)), fractPosition - vec3(0, 1, 1));
-    float value8 = dot(gradientdy(hash((cellCoordinates + uvec3(1, 1, 1)), seed)), fractPosition - vec3(1, 1, 1));
-    return interpolate(value1, value2, value3, value4, value5, value6, value7, value8, fade(fractPosition));
+vec3 gradientPredefined(float hash) {
+  int idx = int(hash * 12.0) % 12;
+
+  if (idx == 0) return vec3(1, 1, 0);
+  if (idx == 1) return vec3(-1, 1, 0);
+  if (idx == 2) return vec3(1, -1, 0);
+  if (idx == 3) return vec3(-1, -1, 0);
+  if (idx == 4) return vec3(1, 0, 1);
+  if (idx == 5) return vec3(-1, 0, 1);
+  if (idx == 6) return vec3(1, 0, -1);
+  if (idx == 7) return vec3(-1, 0, -1);
+  if (idx == 8) return vec3(0, 1, 1);
+  if (idx == 9) return vec3(0, -1, 1);
+  if (idx == 10) return vec3(0, 1, -1);
+  return vec3(0, -1, -1);// idx == 11
 }
 
-float p_noise(vec3 position, int octaveCount, float persistence, float lacunarity) {
-    float value = 0.0;
-    float amplitude = 1.0;
-    float currentFrequency = 10.;
-    uint currentSeed = uint(0);
-    for (int i = 0; i < octaveCount; i++) {
-        currentSeed = hash(currentSeed, 0x0U);
-        value += perlinNoise(position * currentFrequency, currentSeed) * amplitude;
-        amplitude *= persistence;
-        currentFrequency *= lacunarity;
-    }
-    return value;
+float interpolateSafe(float v000, float v001, float v010, float v011,
+float v100, float v101, float v110, float v111, vec3 t) {
+  t = clamp(t, 0.0, 1.0);
+
+  float v00 = mix(v000, v100, t.x);
+  float v01 = mix(v001, v101, t.x);
+  float v10 = mix(v010, v110, t.x);
+  float v11 = mix(v011, v111, t.x);
+
+  float v0 = mix(v00, v10, t.y);
+  float v1 = mix(v01, v11, t.y);
+
+  return mix(v0, v1, t.z);
 }
 
-float get_max_amp(float persistence, float octaveCount) {
-    persistence *= .999;
-    return (1. - pow(persistence, octaveCount)) / (1. - persistence);
+vec3 fadeSafe(vec3 t) {
+  t = clamp(t, 0.0, 1.0);
+  return t * t * t * (t * (t * 6.0 - 15.0) + 10.0);
+}
+
+float perlinNoiseSafe(vec3 position, float seed) {
+  position += vec3(seed * 127.1, seed * 311.7, seed * 74.7);
+
+  vec3 i = floor(position);
+  vec3 f = fract(position);
+  float h000 = hash31(i);
+  float h001 = hash31(i + vec3(0, 0, 1));
+  float h010 = hash31(i + vec3(0, 1, 0));
+  float h011 = hash31(i + vec3(0, 1, 1));
+  float h100 = hash31(i + vec3(1, 0, 0));
+  float h101 = hash31(i + vec3(1, 0, 1));
+  float h110 = hash31(i + vec3(1, 1, 0));
+  float h111 = hash31(i + vec3(1, 1, 1));
+  vec3 g000 = gradientPredefined(h000);
+  vec3 g001 = gradientPredefined(h001);
+  vec3 g010 = gradientPredefined(h010);
+  vec3 g011 = gradientPredefined(h011);
+  vec3 g100 = gradientPredefined(h100);
+  vec3 g101 = gradientPredefined(h101);
+  vec3 g110 = gradientPredefined(h110);
+  vec3 g111 = gradientPredefined(h111);
+  float v000 = dot(g000, f - vec3(0, 0, 0));
+  float v001 = dot(g001, f - vec3(0, 0, 1));
+  float v010 = dot(g010, f - vec3(0, 1, 0));
+  float v011 = dot(g011, f - vec3(0, 1, 1));
+  float v100 = dot(g100, f - vec3(1, 0, 0));
+  float v101 = dot(g101, f - vec3(1, 0, 1));
+  float v110 = dot(g110, f - vec3(1, 1, 0));
+  float v111 = dot(g111, f - vec3(1, 1, 1));
+
+  vec3 u = fadeSafe(f);
+  return interpolateSafe(v000, v001, v010, v011, v100, v101, v110, v111, u);
+}
+
+float fbmSafe(vec3 position, int octaveCount, float persistence, float lacunarity) {
+  float value = 0.0;
+  float amplitude = 1.0;
+  float frequency = 10.0;
+  float maxValue = 0.0;
+  octaveCount = clamp(octaveCount, 1, 8);
+
+  for (int i = 0; i < octaveCount; i++) {
+    if (i >= octaveCount) break;
+
+    float seed = float(i) * 0.7319;
+    value += perlinNoiseSafe(position * frequency, seed) * amplitude;
+    maxValue += amplitude;
+
+    amplitude *= clamp(persistence, 0.0, 1.0);
+    frequency *= clamp(lacunarity, 0.5, 4.0);
+  }
+  return maxValue > 0.0 ? value / maxValue : 0.0;
+}
+
+float getMaxAmpSafe(float persistence, float octaveCount) {
+  persistence = clamp(persistence * 0.999, 0.0, 0.999);
+  octaveCount = clamp(octaveCount, 1.0, 8.0);
+
+  if (abs(persistence - 1.0) < 0.001) {
+    return octaveCount;
+  }
+
+  return (1.0 - pow(persistence, octaveCount)) / (1.0 - persistence);
 }
 
 void main() {
@@ -176,18 +174,22 @@ void main() {
 
   vec3 p = vec3(uv, t);
 
-  float oct_count = max(0., floor(u_octaveCount));
-  float persistence = clamp(u_persistence, 0., 1.);
-  float noise = p_noise(p, int(oct_count), persistence, u_lacunarity);
+  float octCount = clamp(floor(u_octaveCount), 1.0, 8.0);
+  float persistence = clamp(u_persistence, 0.0, 1.0);
+  float lacunarity = clamp(u_lacunarity, 0.5, 4.0);
 
-  float max_amp = get_max_amp(persistence, oct_count);
-  float noise_normalized = (noise + max_amp) / (2. * max_amp) + (u_proportion - .5);
-  float sharpness = clamp(u_softness, 0., 1.);
-  float smooth_w = 0.5 * fwidth(noise_normalized);
-  float res = smoothstep(
-    .5 - .5 * sharpness - smooth_w,
-    .5 + .5 * sharpness + smooth_w,
-    noise_normalized
+  float noise = fbmSafe(p, int(octCount), persistence, lacunarity);
+
+  float maxAmp = getMaxAmpSafe(persistence, octCount);
+  float noiseNormalized = clamp((noise + maxAmp) / (2.0 * maxAmp) + (u_proportion - 0.5), 0.0, 1.0);
+
+  float sharpness = clamp(u_softness, 0.0, 1.0);
+  float smoothWidth = 0.5 * max(fwidth(noiseNormalized), 0.001);// Prevent zero width
+
+  float result = smoothstep(
+  0.5 - 0.5 * sharpness - smoothWidth,
+  0.5 + 0.5 * sharpness + smoothWidth,
+  noiseNormalized
   );
 
   vec3 fgColor = u_colorFront.rgb * u_colorFront.a;
@@ -195,8 +197,8 @@ void main() {
   vec3 bgColor = u_colorBack.rgb * u_colorBack.a;
   float bgOpacity = u_colorBack.a;
 
-  vec3 color = fgColor * res;
-  float opacity = fgOpacity * res;
+  vec3 color = fgColor * result;
+  float opacity = fgOpacity * result;
 
   color += bgColor * (1. - opacity);
   opacity += bgOpacity * (1. - opacity);

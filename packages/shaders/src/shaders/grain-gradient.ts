@@ -243,9 +243,9 @@ void main() {
     // Sphere
 
     shape_uv *= 2.;
-    float d = length(shape_uv);
-    float z = sqrt(1.0 - clamp(pow(d, 2.0), 0.0, 1.0));
-    vec3 pos = vec3(shape_uv, z);
+    float d = 1. - pow(length(shape_uv), 2.);
+    d = max(0., d);
+    vec3 pos = vec3(shape_uv, sqrt(d));
     vec3 lightPos = normalize(vec3(cos(4.5 * t), 0.8, sin(3.75 * t)));
     float lighting = dot(lightPos, pos);
     float edge = smoothstep(1., .97, d);
