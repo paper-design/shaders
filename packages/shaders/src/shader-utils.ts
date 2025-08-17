@@ -12,35 +12,29 @@ vec2 rotate(vec2 uv, float th) {
 `;
 
 // language=GLSL
-export const proceduralHashU32 = `
-  uint hash_u32(uint x) {
-    x ^= x >> 16;
-    x *= 0x7feb352du;
-    x ^= x >> 15;
-    x *= 0x846ca68bu;
-    x ^= x >> 16;
-    return x;
-  }
-`;
-
-// language=GLSL
 export const proceduralHash11 = `
   float hash11(float p) {
-    uint x = uint(int(floor(p)));
-    uint h = hash_u32(x);
-    return (float(h) + 0.5) / 4294967296.0;
+    p = fract(p * 0.3183099) + 0.1;
+    p *= p + 19.19;
+    return fract(p * p);
   }
 `;
 
 // language=GLSL
 export const proceduralHash21 = `
-  uint hash_uvec2(uvec2 v) {
-    return hash_u32(v.x ^ (v.y * 0x9E3779B9u));
-  }
   float hash21(vec2 p) {
-    uvec2 v = uvec2(ivec2(floor(p)));
-    uint h = hash_uvec2(v);
-    return (float(h) + 0.5) / 4294967296.0;
+    p = fract(p * vec2(0.3183099, 0.3678794)) + 0.1;
+    p += dot(p, p + 19.19);
+    return fract(p.x * p.y);
+  }
+`;
+
+// language=GLSL
+export const proceduralHash22 = `
+  vec2 hash22(vec2 p) {
+    p = fract(p * vec2(0.3183099, 0.3678794)) + 0.1;
+    p += dot(p, p.yx + 19.19);
+    return fract(vec2(p.x * p.y, p.x + p.y));
   }
 `;
 

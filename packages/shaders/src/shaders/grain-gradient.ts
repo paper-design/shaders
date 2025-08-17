@@ -12,7 +12,6 @@ import {
   declarePI,
   rotation2,
   textureRandomizerR,
-  proceduralHashU32,
   proceduralHash21,
   proceduralHash11,
 } from '../shader-utils.js';
@@ -95,7 +94,6 @@ float fbm(in vec2 n) {
   return total;
 }
 
-${proceduralHashU32}
 ${proceduralHash11}
 ${proceduralHash21}
 

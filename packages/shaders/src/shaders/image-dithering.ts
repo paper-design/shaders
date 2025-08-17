@@ -1,6 +1,6 @@
 import type { ShaderMotionParams } from '../shader-mount.js';
 import { sizingUV, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
-import { proceduralHashU32, proceduralHash21 } from '../shader-utils.js';
+import { proceduralHash21 } from '../shader-utils.js';
 
 /**
  * Dithering effect over user texture using 3-color palette
@@ -63,7 +63,6 @@ float getUvFrame(vec2 uv, vec2 px) {
   return left * right * bottom * top;
 }
 
-${proceduralHashU32}
 ${proceduralHash21}
 
 const int bayer2x2[4] = int[4](0, 2, 3, 1);

@@ -6,7 +6,6 @@ import {
   rotation2,
   textureRandomizerR,
   colorBandingFix,
-  proceduralHashU32,
   proceduralHash11,
 } from '../shader-utils.js';
 
@@ -69,7 +68,6 @@ float valueNoise(vec2 st) {
   return mix(x1, x2, u.y);
 }
 
-${proceduralHashU32}
 ${proceduralHash11}
 
 float raysShape(vec2 uv, float r, float freq, float intensity, float radius) {

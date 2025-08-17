@@ -6,7 +6,7 @@ import {
   sizingUV,
   drawSizingHelpers,
 } from '../shader-sizing.js';
-import { simplexNoise, declarePI, proceduralHashU32, proceduralHash11, proceduralHash21 } from '../shader-utils.js';
+import { simplexNoise, declarePI, proceduralHash11, proceduralHash21 } from '../shader-utils.js';
 
 /**
  * 2-color dithering effect over animated abstract shapes
@@ -51,7 +51,6 @@ out vec4 fragColor;
 
 ${simplexNoise}
 ${declarePI}
-${proceduralHashU32}
 ${proceduralHash11}
 ${proceduralHash21}
 
