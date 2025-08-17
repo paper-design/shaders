@@ -244,12 +244,12 @@ void main() {
 
     shape_uv *= 2.;
     float d = 1. - pow(length(shape_uv), 2.);
-    d = max(0., d);
     vec3 pos = vec3(shape_uv, sqrt(d));
     vec3 lightPos = normalize(vec3(cos(4.5 * t), 0.8, sin(3.75 * t)));
     float lighting = dot(lightPos, pos);
     float edge = smoothstep(1., .97, d);
     shape = mix(.1, .5 + .5 * lighting, edge);
+    shape *= step(0., d);
   }
 
   float simplex = snoise(grain_uv * .5);

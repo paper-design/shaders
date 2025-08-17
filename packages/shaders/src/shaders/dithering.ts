@@ -171,10 +171,10 @@ void main() {
     shape_uv *= 2.;
 
     float d = 1. - pow(length(shape_uv), 2.);
-    d = max(0., d);
     vec3 pos = vec3(shape_uv, sqrt(d));
     vec3 lightPos = normalize(vec3(cos(1.5 * t), .8, sin(1.25 * t)));
     shape = .5 + .5 * dot(lightPos, pos);
+    shape *= step(0., d);
   }
 
 

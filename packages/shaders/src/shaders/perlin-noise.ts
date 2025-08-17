@@ -96,12 +96,11 @@ float v100, float v101, float v110, float v111, vec3 t) {
   return mix(v0, v1, t.z);
 }
 
-vec3 fadeSafe(vec3 t) {
-  t = clamp(t, 0.0, 1.0);
-  return t * t * t * (t * (t * 6.0 - 15.0) + 10.0);
+vec3 fade(vec3 t) {
+    return t * t * t * (t * (t * 6.0 - 15.0) + 10.0);
 }
 
-float perlinNoiseSafe(vec3 position, float seed) {
+float perlinNoise(vec3 position, float seed) {
   position += vec3(seed * 127.1, seed * 311.7, seed * 74.7);
 
   vec3 i = floor(position);
@@ -131,11 +130,11 @@ float perlinNoiseSafe(vec3 position, float seed) {
   float v110 = dot(g110, f - vec3(1, 1, 0));
   float v111 = dot(g111, f - vec3(1, 1, 1));
 
-  vec3 u = fadeSafe(f);
+  vec3 u = fade(f);
   return interpolateSafe(v000, v001, v010, v011, v100, v101, v110, v111, u);
 }
 
-float fbmSafe(vec3 position, int octaveCount, float persistence, float lacunarity) {
+float p_noise(vec3 position, int octaveCount, float persistence, float lacunarity) {
   float value = 0.0;
   float amplitude = 1.0;
   float frequency = 10.0;
@@ -143,19 +142,16 @@ float fbmSafe(vec3 position, int octaveCount, float persistence, float lacunarit
   octaveCount = clamp(octaveCount, 1, 8);
 
   for (int i = 0; i < octaveCount; i++) {
-    if (i >= octaveCount) break;
-
     float seed = float(i) * 0.7319;
-    value += perlinNoiseSafe(position * frequency, seed) * amplitude;
+    value += perlinNoise(position * frequency, seed) * amplitude;
     maxValue += amplitude;
-
-    amplitude *= clamp(persistence, 0.0, 1.0);
-    frequency *= clamp(lacunarity, 0.5, 4.0);
+    amplitude *= persistence;
+    frequency *= lacunarity;
   }
-  return maxValue > 0.0 ? value / maxValue : 0.0;
+  return value;
 }
 
-float getMaxAmpSafe(float persistence, float octaveCount) {
+float get_max_amp(float persistence, float octaveCount) {
   persistence = clamp(persistence * 0.999, 0.0, 0.999);
   octaveCount = clamp(octaveCount, 1.0, 8.0);
 
@@ -175,21 +171,17 @@ void main() {
   vec3 p = vec3(uv, t);
 
   float octCount = clamp(floor(u_octaveCount), 1.0, 8.0);
-  float persistence = clamp(u_persistence, 0.0, 1.0);
-  float lacunarity = clamp(u_lacunarity, 0.5, 4.0);
+  float persistence = clamp(u_persistence, 0., 1.);
+  float noise = p_noise(p, int(octCount), persistence, u_lacunarity);
 
-  float noise = fbmSafe(p, int(octCount), persistence, lacunarity);
-
-  float maxAmp = getMaxAmpSafe(persistence, octCount);
-  float noiseNormalized = clamp((noise + maxAmp) / (2.0 * maxAmp) + (u_proportion - 0.5), 0.0, 1.0);
-
-  float sharpness = clamp(u_softness, 0.0, 1.0);
-  float smoothWidth = 0.5 * max(fwidth(noiseNormalized), 0.001);// Prevent zero width
-
-  float result = smoothstep(
-  0.5 - 0.5 * sharpness - smoothWidth,
-  0.5 + 0.5 * sharpness + smoothWidth,
-  noiseNormalized
+  float max_amp = get_max_amp(persistence, octCount);
+  float noise_normalized = clamp((noise + max_amp) / (2. * max_amp) + (u_proportion - .5), 0.0, 1.0);
+  float sharpness = clamp(u_softness, 0., 1.);
+  float smooth_w = 0.5 * max(fwidth(noise_normalized), 0.001);
+  float res = smoothstep(
+    .5 - .5 * sharpness - smooth_w,
+    .5 + .5 * sharpness + smooth_w,
+    noise_normalized
   );
 
   vec3 fgColor = u_colorFront.rgb * u_colorFront.a;
@@ -197,8 +189,8 @@ void main() {
   vec3 bgColor = u_colorBack.rgb * u_colorBack.a;
   float bgOpacity = u_colorBack.a;
 
-  vec3 color = fgColor * result;
-  float opacity = fgOpacity * result;
+  vec3 color = fgColor * res;
+  float opacity = fgOpacity * res;
 
   color += bgColor * (1. - opacity);
   opacity += bgOpacity * (1. - opacity);
