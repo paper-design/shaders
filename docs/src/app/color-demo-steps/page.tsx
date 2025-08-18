@@ -184,9 +184,7 @@ export default function Page() {
 
   return (
     <>
-      <Link href="/">
-        <BackButton />
-      </Link>
+      <BackButton />
       <div className="relative flex size-full h-screen flex-col" style={{ width: 'calc(100% - 300px)' }}>
         <GradientDemoSteps {...params} colors={colors} className="h-full" />
       </div>

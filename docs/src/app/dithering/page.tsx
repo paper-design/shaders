@@ -88,9 +88,7 @@ const DitheringWithControls = () => {
 
   return (
     <>
-      <Link href="/">
-        <BackButton />
-      </Link>
+      <BackButton />
       <Dithering className="fixed size-full" {...params} />
     </>
   );

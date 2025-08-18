@@ -100,9 +100,7 @@ const GrainGradientWithControls = () => {
 
   return (
     <>
-      <Link href="/">
-        <BackButton />
-      </Link>
+      <BackButton />
       <GrainGradient {...params} colors={colors} className="fixed size-full" />
     </>
   );

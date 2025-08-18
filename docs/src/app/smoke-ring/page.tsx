@@ -105,9 +105,7 @@ const SmokeRingWithControls = () => {
 
   return (
     <>
-      <Link href="/">
-        <BackButton />
-      </Link>
+      <BackButton />
       <SmokeRing {...params} colors={colors} className="fixed size-full" />
     </>
   );
