@@ -4,15 +4,12 @@ import {
   sizingVariablesDeclaration,
   type ShaderSizingParams,
   type ShaderSizingUniforms,
-  sizingDebugVariablesDeclaration,
-  sizingUniformsDeclaration,
 } from '../shader-sizing.js';
 import {
   simplexNoise,
   declarePI,
   rotation2,
   textureRandomizerR,
-  textureRandomizerGB,
   proceduralHash21,
   proceduralHash11,
 } from '../shader-utils.js';

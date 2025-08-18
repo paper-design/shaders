@@ -1,13 +1,7 @@
 import type { vec4 } from '../types.js';
 import type { ShaderMotionParams } from '../shader-mount.js';
 import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
-import {
-  declarePI,
-  rotation2,
-  textureRandomizerR,
-  colorBandingFix,
-  proceduralHash11,
-} from '../shader-utils.js';
+import { declarePI, rotation2, textureRandomizerR, colorBandingFix, proceduralHash11 } from '../shader-utils.js';
 
 export const godRaysMeta = {
   maxColorCount: 5,
