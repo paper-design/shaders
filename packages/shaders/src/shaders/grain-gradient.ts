@@ -126,87 +126,47 @@ void main() {
   float t = .1 * u_time;
 
   vec2 shape_uv = vec2(0.);
-  vec2 grain_uv1 = gl_FragCoord.xy / u_resolution.xy;
-  grain_uv1 -= .5;
-  vec2 grain_uv2 = vec2(0.);
-  vec2 grain_uv3 = vec2(0.);
-  vec2 grain_uv4 = vec2(0.);
-  vec2 grain_uv5 = vec2(0.);
-  vec2 grain_uv6 = vec2(0.);
-  vec2 addon = vec2(0.);
-
-  vec2 boxOrigin = vec2(.5 - u_originX, u_originY - .5);
-  vec2 givenBoxSize = vec2(u_worldWidth, u_worldHeight);
-  givenBoxSize = max(givenBoxSize, vec2(1.)) * u_pixelRatio;
-  vec2 maxBoxSize = vec2(max(u_resolution.x, givenBoxSize.x), max(u_resolution.y, givenBoxSize.y));
-  float r = u_rotation * 3.14159265358979323846 / 180.;
-  mat2 graphicRotation = mat2(cos(r), sin(r), -sin(r), cos(r));
-  vec2 graphicOffset = vec2(-u_offsetX, u_offsetY);
+  vec2 grain_uv = vec2(0.);
 
   if (u_shape > 3.5) {
     shape_uv = v_objectUV;
+    grain_uv = shape_uv;
 
-    vec2 fixedRatioBoxGivenSize = vec2(
-    (u_worldWidth == 0.) ? u_resolution.x : givenBoxSize.x,
-    (u_worldHeight == 0.) ? u_resolution.y : givenBoxSize.y
-    );
-    vec2 objectBoxSize = vec2(0.);
-    // fit = none
-    objectBoxSize.x = min(fixedRatioBoxGivenSize.x, fixedRatioBoxGivenSize.y);
-    if (u_fit == 1.) { // fit = contain
-      objectBoxSize.x = min(maxBoxSize.x, maxBoxSize.y);
-    } else if (u_fit == 2.) { // fit = cover
-      objectBoxSize.x = max(maxBoxSize.x, maxBoxSize.y);
-    }
-    objectBoxSize.y = objectBoxSize.x;
-    vec2 objectWorldScale = u_resolution.xy / objectBoxSize;
-
-    grain_uv1 *= objectWorldScale;
-    addon = (boxOrigin * (objectWorldScale - 1.));
-    grain_uv1 *= 320.;
-
+    // apply inverse transform to grain_uv so it respects the originXY
+    float r = u_rotation * 3.14159265358979323846 / 180.;
+    mat2 graphicRotation = mat2(cos(r), sin(r), -sin(r), cos(r));
+    vec2 graphicOffset = vec2(-u_offsetX, u_offsetY);
+    grain_uv = transpose(graphicRotation) * grain_uv;
+    grain_uv *= u_scale;
+    grain_uv -= graphicOffset;
+    grain_uv *= v_objectBoxSize;
+    grain_uv *= .7;
   } else {
     shape_uv = .5 * v_patternUV;
+    grain_uv = 100. * v_patternUV;
 
-    float patternBoxRatio = givenBoxSize.x / givenBoxSize.y;
-    vec2 patternBoxGivenSize = vec2(
-    (u_worldWidth == 0.) ? u_resolution.x : givenBoxSize.x,
-    (u_worldHeight == 0.) ? u_resolution.y : givenBoxSize.y
-    );
-    vec2 patternBoxSize = vec2(0.);
-    // fit = none
-    patternBoxSize.x = patternBoxRatio * min(patternBoxGivenSize.x / patternBoxRatio, patternBoxGivenSize.y);
-    float patternWorldNoFitBoxWidth = patternBoxSize.x;
-    if (u_fit == 1.) { // fit = contain
-      patternBoxSize.x = patternBoxRatio * min(maxBoxSize.x / patternBoxRatio, maxBoxSize.y);
-    } else if (u_fit == 2.) { // fit = cover
-      patternBoxSize.x = patternBoxRatio * max(maxBoxSize.x / patternBoxRatio, maxBoxSize.y);
-    }
-    patternBoxSize.y = patternBoxSize.x / patternBoxRatio;
-    vec2 patternWorldScale = u_resolution.xy / patternBoxSize;
-
-    grain_uv1 += boxOrigin;
-    grain_uv1 -= boxOrigin / patternWorldScale;
-    grain_uv1 *= u_resolution.xy;
-    grain_uv1 /= u_pixelRatio;
+    // apply inverse transform to grain_uv so it respects the originXY
+    float r = u_rotation * 3.14159265358979323846 / 180.;
+    mat2 graphicRotation = mat2(cos(r), sin(r), -sin(r), cos(r));
+    vec2 graphicOffset = vec2(-u_offsetX, u_offsetY);
+    grain_uv = transpose(graphicRotation) * grain_uv;
+    grain_uv *= u_scale;
     if (u_fit > 0.) {
-      grain_uv1 *= (patternWorldNoFitBoxWidth / patternBoxSize.x);
+      vec2 givenBoxSize = vec2(u_worldWidth, u_worldHeight);
+      givenBoxSize = max(givenBoxSize, vec2(1.)) * u_pixelRatio;
+      float patternBoxRatio = givenBoxSize.x / givenBoxSize.y;
+      vec2 patternBoxGivenSize = vec2(
+        (u_worldWidth == 0.) ? u_resolution.x : givenBoxSize.x,
+        (u_worldHeight == 0.) ? u_resolution.y : givenBoxSize.y
+      );
+      patternBoxRatio = patternBoxGivenSize.x / patternBoxGivenSize.y;
+      float patternBoxNoFitBoxWidth = patternBoxRatio * min(patternBoxGivenSize.x / patternBoxRatio, patternBoxGivenSize.y);
+      grain_uv /= (patternBoxNoFitBoxWidth / v_patternBoxSize.x);
     }
-    grain_uv1 *= .5;
-    addon = (boxOrigin / patternWorldScale - boxOrigin + .5);
+    vec2 patternBoxScale = u_resolution.xy / v_patternBoxSize;
+    grain_uv -= graphicOffset / patternBoxScale;
+    grain_uv *= 1.6;
   }
-
-  grain_uv2 = grain_uv1 * .4;
-  grain_uv3 = grain_uv1 * .01;
-  grain_uv4 = grain_uv1 * .015;
-  grain_uv5 = grain_uv1 * .8;
-  grain_uv6 = grain_uv1 * .005;
-  grain_uv1 += addon;
-  grain_uv2 += addon;
-  grain_uv3 += addon;
-  grain_uv4 += addon;
-  grain_uv5 += addon;
-  grain_uv6 += addon;
 
 
   float shape = 0.;
@@ -300,9 +260,10 @@ void main() {
     shape *= step(0., d);
   }
 
-  float simplex = snoise(grain_uv1);
-  float grainDist = simplex * snoise(grain_uv2) - fbmR(grain_uv3) - fbmR(grain_uv4);
-  float noise = clamp(.65 * simplex - fbmR(grain_uv5) - fbmR(grain_uv6), 0., 1.);
+  float simplex = snoise(grain_uv * .5);
+  float grainDist = simplex * snoise(grain_uv * .2) - fbmR(.002 * grain_uv + 10.) - fbmR(.003 * grain_uv);
+  float rawNoise = .65 * simplex - fbmR(rotate(.4 * grain_uv, 2.)) - fbmR(.001 * grain_uv);
+  float noise = smoothstep(0., .5, 1.2 * rawNoise);
 
   shape += u_intensity * 2. / u_colorsCount * (grainDist + .5);
   shape += u_noise * 10. / u_colorsCount * noise;
