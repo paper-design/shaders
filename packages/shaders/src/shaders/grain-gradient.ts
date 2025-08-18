@@ -101,7 +101,7 @@ float fbmR(vec2 n) {
   for (int i = 0; i < 3; i++) {
     n = rotate(n, .3);
     total += valueNoiseR(n) * amplitude;
-    n += n;
+    n *= 1.99;
     amplitude *= 0.6;
   }
   return total;
@@ -262,8 +262,8 @@ void main() {
 
   float simplex = snoise(grain_uv * .5);
   float grainDist = simplex * snoise(grain_uv * .2) - fbmR(.002 * grain_uv + 10.) - fbmR(.003 * grain_uv);
-  float rawNoise = .65 * simplex - fbmR(rotate(.4 * grain_uv, 2.)) - fbmR(.001 * grain_uv);
-  float noise = smoothstep(0., .5, 1.2 * rawNoise);
+  float rawNoise = .8 * simplex - fbmR(rotate(.4 * grain_uv, 2.)) - fbmR(.001 * grain_uv);
+  float noise = smoothstep(0., .7, rawNoise);
 
   shape += u_intensity * 2. / u_colorsCount * (grainDist + .5);
   shape += u_noise * 10. / u_colorsCount * noise;
