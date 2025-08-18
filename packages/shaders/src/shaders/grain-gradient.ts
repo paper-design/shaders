@@ -326,7 +326,7 @@ void main() {
 
   float simplex = snoise(grain_uv1);
   float grainDist = simplex * snoise(grain_uv2) - fbmR(grain_uv3) - fbmR(grain_uv4);
-  float noise = clamp(.65 * simplex - fbmR(grain_uv5) - fbmR(grain_uv6), 0., 1.);
+  float noise = clamp(.65 * simplex - fbm(grain_uv5) - fbm(grain_uv6), 0., 1.);
 
   shape += u_intensity * 2. / u_colorsCount * (grainDist + .5);
   shape += u_noise * 10. / u_colorsCount * noise;
