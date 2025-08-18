@@ -1,5 +1,43 @@
 # Paper Shaders
 
+## Version 0.0.46
+
+### General
+
+- New default presets for all shaders, with adjusted previews for some shaders
+- Replaced procedural randomizer with a more stable hash function
+- Switched from `WebGLRenderingContext` to `WebGL2RenderingContext`
+- Fixed WebGL texture indexing — now possible to use 2+ texture uniforms in one shader
+- Vertex shader now provides `imageUV` for image filters
+- Shader chunks (`shader-utils.ts`) now have clearer naming and unified usage across shaders
+
+### Existing Shader Improvements
+
+- **StaticRadialGradient**, **StaticMeshGradient**
+  - Fixed fiber-shape noise to make it independent of canvas resolution
+
+- **Dithering**
+  - Fixed Sphere and Dots shapes on certain Android models
+  - Improved stability of the `random` dithering type
+
+- **DotOrbit**, **GodRays**, **Metaballs**
+  - Now use `u_noiseTexture` for better performance and stability across devices
+
+- **PerlinNoise**
+  - Fixed randomizer-related issues on some Android models
+
+- **Spiral**
+  - Inverted `strokeWidth` behavior
+
+### New Shaders
+
+- Added **FlutedGlass** component
+- Added **ImageDithering** component
+- Added **PaperTexture** component
+- Added **Water** component
+
+All four new effects work as photo filters. **PaperTexture** and **Water** can also be used without an image.
+
 ## Version 0.0.45
 
 ### General
@@ -58,8 +96,6 @@
 
 - **Default Presets** updated for the following shaders:
   - _Spiral, SimplexNoise, PulsingBorder, NeuroNoise, GrainGradient, DotGrid, Dithering_
-
----
 
 ### New Shaders
 
