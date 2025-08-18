@@ -28,6 +28,9 @@
 
 - **Spiral**
   - Inverted `strokeWidth` behavior
+  
+- **GrainGradient**
+  - Switched to low precision
 
 ### New Shaders
 
