@@ -4,6 +4,7 @@ import {
   sizingVariablesDeclaration,
   type ShaderSizingParams,
   type ShaderSizingUniforms,
+  sizingDebugVariablesDeclaration,
 } from '../shader-sizing.js';
 import {
   simplexNoise,
@@ -72,6 +73,7 @@ uniform mediump float u_offsetX;
 uniform mediump float u_offsetY;
 
 ${sizingVariablesDeclaration}
+${ sizingDebugVariablesDeclaration }
 
 out vec4 fragColor;
 
@@ -80,29 +82,6 @@ ${simplexNoise}
 ${rotation2}
 ${proceduralHash21}
 ${textureRandomizerR}
-float valueNoise(vec2 st) {
-  vec2 i = floor(st);
-  vec2 f = fract(st);
-  float a = hash21(i);
-  float b = hash21(i + vec2(1.0, 0.0));
-  float c = hash21(i + vec2(0.0, 1.0));
-  float d = hash21(i + vec2(1.0, 1.0));
-  vec2 u = f * f * (3.0 - 2.0 * f);
-  float x1 = mix(a, b, u.x);
-  float x2 = mix(c, d, u.x);
-  return mix(x1, x2, u.y);
-}
-float fbm(vec2 n) {
-  float total = 0.;
-  float amplitude = .2;
-  for (int i = 0; i < 3; i++) {
-    n = rotate(n, .3);
-    total += valueNoise(n) * amplitude;
-    n += n;
-    amplitude *= 0.6;
-  }
-  return total;
-}
 
 float valueNoiseR(vec2 st) {
   vec2 i = floor(st);
@@ -184,7 +163,7 @@ void main() {
 
     grain_uv1 *= objectWorldScale;
     addon = (boxOrigin * (objectWorldScale - 1.));
-    grain_uv1 *= 350.;
+    grain_uv1 *= 320.;
 
   } else {
     shape_uv = .5 * v_patternUV;
@@ -218,10 +197,10 @@ void main() {
   }
 
   grain_uv2 = grain_uv1 * .4;
-  grain_uv3 = grain_uv1 * .004;
-  grain_uv4 = grain_uv1 * .006;
+  grain_uv3 = grain_uv1 * .01;
+  grain_uv4 = grain_uv1 * .015;
   grain_uv5 = grain_uv1 * .8;
-  grain_uv6 = grain_uv1 * .002;
+  grain_uv6 = grain_uv1 * .005;
   grain_uv1 += addon;
   grain_uv2 += addon;
   grain_uv3 += addon;
@@ -323,7 +302,7 @@ void main() {
 
   float simplex = snoise(grain_uv1);
   float grainDist = simplex * snoise(grain_uv2) - fbmR(grain_uv3) - fbmR(grain_uv4);
-  float noise = clamp(.65 * simplex - fbm(grain_uv5) - fbm(grain_uv6), 0., 1.);
+  float noise = clamp(.65 * simplex - fbmR(grain_uv5) - fbmR(grain_uv6), 0., 1.);
 
   shape += u_intensity * 2. / u_colorsCount * (grainDist + .5);
   shape += u_noise * 10. / u_colorsCount * noise;

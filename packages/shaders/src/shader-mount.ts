@@ -287,6 +287,7 @@ export class ShaderMount {
     } else {
       this.rafId = null;
     }
+
   };
 
   private requestRender = () => {
