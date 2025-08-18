@@ -1,9 +1,9 @@
 export function Code({ className, children }: { className?: string; children: React.ReactNode }) {
   return (
     <pre
-      className={`scrollbar-thin block grow overflow-x-auto p-4 font-mono text-xs [counter-reset:line] ${className}`}
+      className={`scrollbar-thin text-code block grow overflow-x-auto p-4 font-mono [counter-reset:line] ${className}`}
     >
-      <code>{children}</code>
+      <code className="block w-fit min-w-0 flex-1 pr-5">{children}</code>
     </pre>
   );
 }
@@ -23,9 +23,9 @@ export function Example() {
     <>
       <span className="line">
         <span className="text-code-keyword">import</span>
-        <span className="text-code-bracket"> {'{ '}</span>
+        <span className="text-code-bracket"> {'{'}</span>
         <span className="text-code-component">MeshGradient</span>
-        <span className="text-code-bracket">{' }'}</span>
+        <span className="text-code-bracket">{'}'}</span>
         <span className="text-code-keyword"> from </span>
         <span className="text-code-string">&apos;@paper-design/shaders-react&apos;</span>
         <span className="text-code-default">;</span>
@@ -52,13 +52,13 @@ export function Example() {
         <span className="text-code-property"> style</span>
         <span className="text-code-default">=</span>
         <span className="text-code-bracket">{'{'}</span>
-        <span className="text-code-bracket">{'{ '}</span>
+        <span className="text-code-bracket">{'{'}</span>
         <span className="text-code-object-property">width:</span>
         <span className="text-code-number"> 200</span>
         <span className="text-code-default">, </span>
         <span className="text-code-object-property">height:</span>
         <span className="text-code-number"> 200</span>
-        <span className="text-code-bracket">{' }'}</span>
+        <span className="text-code-bracket">{'}'}</span>
         <span className="text-code-bracket">{'}'}</span>
       </span>
       <span className="line">

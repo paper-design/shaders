@@ -12,6 +12,9 @@
   --default-font-family: Matter, system-ui;
   --default-mono-font-family: 'Paper Mono', monospace;
 
+  --text-code: 13px;
+  --text-code--line-height: 20px;
+
   --text-xs: 14px;
   --text-xs--line-height: 20px;
   --text-xs--letter-spacing: 0.015em;

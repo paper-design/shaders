@@ -8,8 +8,8 @@ export default function Home() {
   return (
     <main className="sm:dot-pattern p-4 sm:p-6 sm:pb-24 md:px-12">
       <header className="card mx-auto mb-4 max-w-[var(--width-container)] sm:mb-6">
-        <div className="grid-cols-2 items-center gap-4 p-4 sm:gap-6 sm:p-6 md:p-12 lg:grid xl:p-24 xl:py-14">
-          <div className="mb-8 md:mb-12 lg:mb-0">
+        <div className="grid-cols-2 items-center gap-4 p-4 sm:p-6 md:p-12 lg:grid xl:p-24 xl:py-14">
+          <div className="mb-8 md:mb-12 md:pr-6 lg:mb-0">
             <Link href="https://paper.design/" target="_blank" className="text-foreground mb-4 block">
               <LogoShaders className="h-8" />
             </Link>
@@ -54,7 +54,7 @@ export default function Home() {
               <Code>
                 <Example />
               </Code>
-              <div className="absolute top-0 right-0 bottom-4 bg-gradient-to-l from-white from-70% to-transparent">
+              <div className="absolute top-0 right-0 bg-gradient-to-l from-white from-70% to-transparent">
                 <CopyButton
                   className="text-muted-foreground flex size-10 items-center justify-center"
                   text={`import { MeshGradient } from '@paper-design/shaders-react';
