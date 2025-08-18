@@ -47,11 +47,11 @@ export const grainGradientMeta = {
 
 // language=GLSL
 export const grainGradientFragmentShader: string = `#version 300 es
-precision mediump float;
+precision lowp float;
 
-uniform float u_time;
-uniform vec2 u_resolution;
-uniform float u_pixelRatio;
+uniform mediump float u_time;
+uniform mediump vec2 u_resolution;
+uniform mediump float u_pixelRatio;
 
 uniform sampler2D u_noiseTexture;
 
@@ -63,9 +63,18 @@ uniform float u_intensity;
 uniform float u_noise;
 uniform float u_shape;
 
+uniform mediump float u_originX;
+uniform mediump float u_originY;
+uniform mediump float u_worldWidth;
+uniform mediump float u_worldHeight;
+uniform mediump float u_fit;
+
+uniform mediump float u_scale;
+uniform mediump float u_rotation;
+uniform mediump float u_offsetX;
+uniform mediump float u_offsetY;
+
 ${sizingVariablesDeclaration}
-${sizingDebugVariablesDeclaration}
-${sizingUniformsDeclaration}
 
 out vec4 fragColor;
 
@@ -143,11 +152,12 @@ void main() {
   vec2 shape_uv = vec2(0.);
   vec2 grain_uv1 = gl_FragCoord.xy / u_resolution.xy;
   grain_uv1 -= .5;
-  vec2 grain_uv2 = grain_uv1;
-  vec2 grain_uv3 = grain_uv1;
-  vec2 grain_uv4 = grain_uv1;
-  vec2 grain_uv5 = grain_uv1;
-  vec2 grain_uv6 = grain_uv1;
+  vec2 grain_uv2 = vec2(0.);
+  vec2 grain_uv3 = vec2(0.);
+  vec2 grain_uv4 = vec2(0.);
+  vec2 grain_uv5 = vec2(0.);
+  vec2 grain_uv6 = vec2(0.);
+  vec2 addon = vec2(0.);
 
   vec2 boxOrigin = vec2(.5 - u_originX, u_originY - .5);
   vec2 givenBoxSize = vec2(u_worldWidth, u_worldHeight);
@@ -176,19 +186,8 @@ void main() {
     vec2 objectWorldScale = u_resolution.xy / objectBoxSize;
 
     grain_uv1 *= objectWorldScale;
+    addon = (boxOrigin * (objectWorldScale - 1.));
     grain_uv1 *= 350.;
-    grain_uv2 = grain_uv1 * .4;
-    grain_uv3 = grain_uv1 * .004;
-    grain_uv4 = grain_uv1 * .006;
-    grain_uv5 = grain_uv1 * .8;
-    grain_uv6 = grain_uv1 * .02;
-    vec2 addon = (boxOrigin * (objectWorldScale - 1.));
-    grain_uv1 += addon;
-    grain_uv2 += addon;
-    grain_uv3 += addon;
-    grain_uv4 += addon;
-    grain_uv5 += addon;
-    grain_uv6 += addon;
 
   } else {
     shape_uv = .5 * v_patternUV;
@@ -218,19 +217,20 @@ void main() {
       grain_uv1 *= (patternWorldNoFitBoxWidth / patternBoxSize.x);
     }
     grain_uv1 *= .5;
-    grain_uv2 = grain_uv1 * .4;
-    grain_uv3 = grain_uv1 * .004;
-    grain_uv4 = grain_uv1 * .006;
-    grain_uv5 = grain_uv1 * .8;
-    grain_uv6 = grain_uv1 * .02;
-    vec2 addon = (boxOrigin / patternWorldScale - boxOrigin + .5);
-    grain_uv1 += addon;
-    grain_uv2 += addon;
-    grain_uv3 += addon;
-    grain_uv4 += addon;
-    grain_uv5 += addon;
-    grain_uv6 += addon;
+    addon = (boxOrigin / patternWorldScale - boxOrigin + .5);
   }
+
+  grain_uv2 = grain_uv1 * .4;
+  grain_uv3 = grain_uv1 * .004;
+  grain_uv4 = grain_uv1 * .006;
+  grain_uv5 = grain_uv1 * .8;
+  grain_uv6 = grain_uv1 * .002;
+  grain_uv1 += addon;
+  grain_uv2 += addon;
+  grain_uv3 += addon;
+  grain_uv4 += addon;
+  grain_uv5 += addon;
+  grain_uv6 += addon;
 
 
   float shape = 0.;
