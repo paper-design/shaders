@@ -42,7 +42,7 @@ export default function Home() {
               <Code className="flex h-full items-center py-0">
                 <Install />
               </Code>
-              <div className="absolute top-0 right-0 bottom-0 bg-gradient-to-l from-white from-70% to-transparent">
+              <div className="from-background absolute top-0 right-0 bottom-0 bg-gradient-to-l from-70% to-transparent">
                 <CopyButton
                   className="text-muted-foreground flex h-full w-10 items-center justify-center"
                   text="npm i @paper-design/shaders-react"
@@ -54,7 +54,7 @@ export default function Home() {
               <Code>
                 <Example />
               </Code>
-              <div className="absolute top-0 right-0 bg-gradient-to-l from-white from-70% to-transparent">
+              <div className="from-background absolute top-0 right-0 bg-gradient-to-l from-70% to-transparent">
                 <CopyButton
                   className="text-muted-foreground flex size-10 items-center justify-center"
                   text={`import { MeshGradient } from '@paper-design/shaders-react';

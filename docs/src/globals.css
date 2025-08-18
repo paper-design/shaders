@@ -36,6 +36,21 @@
   :root {
     color-scheme: light dark;
     --device-pixel-ratio: 2;
+
+    @media (prefers-color-scheme: dark) {
+      --color-code-line-number: var(--color-gray-600);
+      --color-code-string: var(--color-gray-500);
+      --color-code-component: var(--color-gray-200);
+      --color-code-keyword: var(--color-gray-500);
+      --color-code-default: var(--color-gray-400);
+      --color-code-property: var(--color-gray-300);
+      --color-code-object-property: var(--color-gray-500);
+      --color-code-number: var(--color-gray-400);
+      --color-code-boolean: var(--color-gray-600);
+      --color-code-function: var(--color-gray-600);
+      --color-code-comment: var(--color-gray-600);
+      --color-code-bracket: var(--color-gray-500);
+    }
   }
 
   ::selection {
