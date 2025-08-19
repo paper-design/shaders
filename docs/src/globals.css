@@ -18,6 +18,10 @@ body {
   --leva-sizes-controlWidth: 140px;
 }
 
+#leva__root > div {
+  margin-top: 5rem;
+}
+
 #leva__root button {
   background-color: var(--leva-colors-elevation1);
 
