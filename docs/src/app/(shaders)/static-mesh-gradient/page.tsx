@@ -7,6 +7,8 @@ import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
 import { staticMeshGradientMeta, ShaderFit, ShaderFitOptions } from '@paper-design/shaders';
 import { useColors } from '@/helpers/use-colors';
+import { ShaderContainer } from '@/components/shader-container';
+import { ShaderDetails } from '@/components/shader-details';
 
 /**
  * You can copy/paste this example to use StaticMeshGradient in your app
@@ -92,7 +94,14 @@ const StaticMeshGradientWithControls = () => {
   usePresetHighlight(staticMeshGradientPresets, params);
   cleanUpLevaParams(params);
 
-  return <StaticMeshGradient {...params} colors={colors} />;
+  return (
+    <>
+      <ShaderContainer>
+        <StaticMeshGradient {...params} colors={colors} />
+      </ShaderContainer>
+      <ShaderDetails name="Static Mesh Gradient" currentParams={{ ...params, colors }} />
+    </>
+  );
 };
 
 export default StaticMeshGradientWithControls;

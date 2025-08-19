@@ -7,6 +7,8 @@ import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
 import { warpMeta, ShaderFit, ShaderFitOptions, WarpPatterns } from '@paper-design/shaders';
 import { useColors } from '@/helpers/use-colors';
+import { ShaderContainer } from '@/components/shader-container';
+import { ShaderDetails } from '@/components/shader-details';
 
 /**
  * You can copy/paste this example to use Warp in your app
@@ -92,7 +94,14 @@ const WarpWithControls = () => {
   usePresetHighlight(warpPresets, params);
   cleanUpLevaParams(params);
 
-  return <Warp {...params} colors={colors} />;
+  return (
+    <>
+      <ShaderContainer>
+        <Warp {...params} colors={colors} />
+      </ShaderContainer>
+      <ShaderDetails name="Warp" currentParams={{ ...params, colors }} />
+    </>
+  );
 };
 
 export default WarpWithControls;

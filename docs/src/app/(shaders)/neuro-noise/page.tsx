@@ -7,6 +7,8 @@ import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
 import { ShaderFit, ShaderFitOptions } from '@paper-design/shaders';
 import { toHsla } from '@/helpers/to-hsla';
+import { ShaderContainer } from '@/components/shader-container';
+import { ShaderDetails } from '@/components/shader-details';
 
 /**
  * You can copy/paste this example to use NeuroNoise in your app
@@ -77,7 +79,14 @@ const NeuroNoiseWithControls = () => {
   usePresetHighlight(neuroNoisePresets, params);
   cleanUpLevaParams(params);
 
-  return <NeuroNoise {...params} />;
+  return (
+    <>
+      <ShaderContainer>
+        <NeuroNoise {...params} />
+      </ShaderContainer>
+      <ShaderDetails name="Neuro Noise" currentParams={params} />
+    </>
+  );
 };
 
 export default NeuroNoiseWithControls;

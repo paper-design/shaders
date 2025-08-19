@@ -8,6 +8,8 @@ import { voronoiMeta, ShaderFitOptions, ShaderFit } from '@paper-design/shaders'
 import { useControls, button, folder } from 'leva';
 import { useColors } from '@/helpers/use-colors';
 import { toHsla } from '@/helpers/to-hsla';
+import { ShaderContainer } from '@/components/shader-container';
+import { ShaderDetails } from '@/components/shader-details';
 
 /**
  * You can copy/paste this example to use Voronoi in your app
@@ -92,7 +94,14 @@ const VoronoiWithControls = () => {
   usePresetHighlight(voronoiPresets, params);
   cleanUpLevaParams(params);
 
-  return <Voronoi {...params} colors={colors} />;
+  return (
+    <>
+      <ShaderContainer>
+        <Voronoi {...params} colors={colors} />
+      </ShaderContainer>
+      <ShaderDetails name="Voronoi" currentParams={{ ...params, colors }} />
+    </>
+  );
 };
 
 export default VoronoiWithControls;

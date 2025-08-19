@@ -8,6 +8,8 @@ import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
 import { smokeRingMeta, ShaderFit, ShaderFitOptions } from '@paper-design/shaders';
 import { useColors } from '@/helpers/use-colors';
 import { toHsla } from '@/helpers/to-hsla';
+import { ShaderContainer } from '@/components/shader-container';
+import { ShaderDetails } from '@/components/shader-details';
 
 /**
  * You can copy/paste this example to use SmokeRing in your app
@@ -101,7 +103,14 @@ const SmokeRingWithControls = () => {
 
   // const { reverse, ...shaderParams } = { ...params, speed: params.speed * (params.reverse ? -1 : 1) };
 
-  return <SmokeRing {...params} colors={colors} />;
+  return (
+    <>
+      <ShaderContainer>
+        <SmokeRing {...params} colors={colors} />
+      </ShaderContainer>
+      <ShaderDetails name="Smoke Ring" currentParams={{ ...params, colors }} />
+    </>
+  );
 };
 
 export default SmokeRingWithControls;

@@ -15,6 +15,8 @@ import {
 } from '@paper-design/shaders';
 import { ShaderFit } from '@paper-design/shaders';
 import { toHsla } from '@/helpers/to-hsla';
+import { ShaderContainer } from '@/components/shader-container';
+import { ShaderDetails } from '@/components/shader-details';
 
 /**
  * You can copy/paste this example to use Dithering in your app
@@ -84,7 +86,14 @@ const DitheringWithControls = () => {
   usePresetHighlight(ditheringPresets, params);
   cleanUpLevaParams(params);
 
-  return <Dithering {...params} />;
+  return (
+    <>
+      <ShaderContainer>
+        <Dithering {...params} />
+      </ShaderContainer>
+      <ShaderDetails name="Dithering" currentParams={params} />
+    </>
+  );
 };
 
 export default DitheringWithControls;

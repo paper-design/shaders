@@ -9,6 +9,8 @@ import { grainGradientMeta, GrainGradientShape, GrainGradientShapes, ShaderFitOp
 import { ShaderFit } from '@paper-design/shaders';
 import { useColors } from '@/helpers/use-colors';
 import { toHsla } from '@/helpers/to-hsla';
+import { ShaderContainer } from '@/components/shader-container';
+import { ShaderDetails } from '@/components/shader-details';
 
 /**
  * You can copy/paste this example to use GrainGradient in your app
@@ -96,7 +98,14 @@ const GrainGradientWithControls = () => {
   usePresetHighlight(grainGradientPresets, params);
   cleanUpLevaParams(params);
 
-  return <GrainGradient {...params} colors={colors} />;
+  return (
+    <>
+      <ShaderContainer>
+        <GrainGradient {...params} colors={colors} />
+      </ShaderContainer>
+      <ShaderDetails name="Grain Gradient" currentParams={{ ...params, colors }} />
+    </>
+  );
 };
 
 export default GrainGradientWithControls;

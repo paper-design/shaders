@@ -8,6 +8,8 @@ import { ShaderFitOptions, ShaderFit, metaballsMeta, godRaysMeta } from '@paper-
 import { useControls, button, folder } from 'leva';
 import { useColors } from '@/helpers/use-colors';
 import { toHsla } from '@/helpers/to-hsla';
+import { ShaderContainer } from '@/components/shader-container';
+import { ShaderDetails } from '@/components/shader-details';
 
 /**
  * You can copy/paste this example to use GodRays in your app
@@ -94,7 +96,14 @@ const GodRaysWithControls = () => {
   usePresetHighlight(godRaysPresets, params);
   cleanUpLevaParams(params);
 
-  return <GodRays {...params} colors={colors} />;
+  return (
+    <>
+      <ShaderContainer>
+        <GodRays {...params} colors={colors} />
+      </ShaderContainer>
+      <ShaderDetails name="God Rays" currentParams={{ ...params, colors }} />
+    </>
+  );
 };
 
 export default GodRaysWithControls;

@@ -27,7 +27,7 @@ body {
   --leva-colors-highlight1: #555551;
   --leva-colors-highlight2: #222205;
   --leva-colors-highlight3: #222205;
-  --leva-shadows-level1: 0 0 8px 0 #00000033;
+  --leva-shadows-level1: 0 4px 6px 0 #00000033;
   --leva-shadows-level2: 0 4px 14px #00000033;
 }
 
@@ -36,9 +36,14 @@ div[style*='--leva-colors-folderTextColor'] {
   --leva-colors-folderTextColor: #111102 !important;
 }
 
+#leva__root *::selection {
+  background-color: #555551;
+  color: white;
+}
+
 #leva__root > div {
-  margin-top: 5rem;
-  margin-right: 1rem;
+  margin-top: 62px;
+  margin-right: 30px;
 }
 
 #leva__root button {

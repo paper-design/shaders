@@ -8,6 +8,8 @@ import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
 import { ShaderFit, ShaderFitOptions, metaballsMeta } from '@paper-design/shaders';
 import { useColors } from '@/helpers/use-colors';
 import { toHsla } from '@/helpers/to-hsla';
+import { ShaderContainer } from '@/components/shader-container';
+import { ShaderDetails } from '@/components/shader-details';
 
 /**
  * You can copy/paste this example to use Metaballs in your app
@@ -89,7 +91,14 @@ const MetaballsWithControls = () => {
   usePresetHighlight(metaballsPresets, params);
   cleanUpLevaParams(params);
 
-  return <Metaballs {...params} colors={colors} />;
+  return (
+    <>
+      <ShaderContainer>
+        <Metaballs {...params} colors={colors} />
+      </ShaderContainer>
+      <ShaderDetails name="Metaballs" currentParams={{ ...params, colors }} />
+    </>
+  );
 };
 
 export default MetaballsWithControls;

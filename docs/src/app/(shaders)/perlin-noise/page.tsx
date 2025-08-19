@@ -7,6 +7,8 @@ import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
 import { ShaderFit, ShaderFitOptions } from '@paper-design/shaders';
 import { toHsla } from '@/helpers/to-hsla';
+import { ShaderContainer } from '@/components/shader-container';
+import { ShaderDetails } from '@/components/shader-details';
 /**
  * You can copy/paste this example to use PerlinNoise in your app
  */
@@ -82,7 +84,14 @@ const PerlinNoiseWithControls = () => {
   usePresetHighlight(perlinNoisePresets, params);
   cleanUpLevaParams(params);
 
-  return <PerlinNoise {...params} />;
+  return (
+    <>
+      <ShaderContainer>
+        <PerlinNoise {...params} />
+      </ShaderContainer>
+      <ShaderDetails name="Perlin Noise" currentParams={params} />
+    </>
+  );
 };
 
 export default PerlinNoiseWithControls;

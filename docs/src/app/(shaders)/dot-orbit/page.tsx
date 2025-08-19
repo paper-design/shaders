@@ -8,6 +8,8 @@ import { DotOrbit, dotOrbitPresets } from '@paper-design/shaders-react';
 import { useControls, button, folder } from 'leva';
 import { useColors } from '@/helpers/use-colors';
 import { toHsla } from '@/helpers/to-hsla';
+import { ShaderContainer } from '@/components/shader-container';
+import { ShaderDetails } from '@/components/shader-details';
 
 /**
  * You can copy/paste this example to use DotOrbit in your app
@@ -97,7 +99,14 @@ const DotOrbitWithControls = () => {
   usePresetHighlight(dotOrbitPresets, params);
   cleanUpLevaParams(params);
 
-  return <DotOrbit {...params} colors={colors} />;
+  return (
+    <>
+      <ShaderContainer>
+        <DotOrbit {...params} colors={colors} />
+      </ShaderContainer>
+      <ShaderDetails name="Dot Orbit" currentParams={params} />
+    </>
+  );
 };
 
 export default DotOrbitWithControls;

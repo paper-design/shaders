@@ -8,6 +8,8 @@ import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
 import { ShaderFit, ShaderFitOptions } from '@paper-design/shaders';
 import { toHsla } from '@/helpers/to-hsla';
+import { ShaderDetails } from '@/components/shader-details';
+import { ShaderContainer } from '@/components/shader-container';
 
 /**
  * You can copy/paste this example to use Waves in your app
@@ -84,7 +86,14 @@ const WavesWithControls = () => {
   usePresetHighlight(wavesPresets, params);
   cleanUpLevaParams(params);
 
-  return <Waves {...params} />;
+  return (
+    <>
+      <ShaderContainer>
+        <Waves {...params} />
+      </ShaderContainer>
+      <ShaderDetails name="Waves" currentParams={params} />
+    </>
+  );
 };
 
 export default WavesWithControls;

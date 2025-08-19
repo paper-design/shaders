@@ -7,6 +7,8 @@ import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
 import { ShaderFit, ShaderFitOptions } from '@paper-design/shaders';
 import { toHsla } from '@/helpers/to-hsla';
+import { ShaderContainer } from '@/components/shader-container';
+import { ShaderDetails } from '@/components/shader-details';
 
 /**
  * You can copy/paste this example to use Spiral in your app
@@ -95,7 +97,14 @@ const SpiralWithControls = () => {
 
   const { reverse, ...shaderParams } = { ...params, speed: params.speed * (params.reverse ? -1 : 1) };
 
-  return <Spiral {...shaderParams} />;
+  return (
+    <>
+      <ShaderContainer>
+        <Spiral {...shaderParams} />
+      </ShaderContainer>
+      <ShaderDetails name="Spiral" currentParams={shaderParams} />
+    </>
+  );
 };
 
 export default SpiralWithControls;

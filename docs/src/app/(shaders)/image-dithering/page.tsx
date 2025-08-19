@@ -9,6 +9,8 @@ import { DitheringType, DitheringTypes, ShaderFit, ShaderFitOptions } from '@pap
 import { levaImageButton } from '@/helpers/leva-image-button';
 import { useState, useEffect, useCallback } from 'react';
 import { toHsla } from '@/helpers/to-hsla';
+import { ShaderContainer } from '@/components/shader-container';
+import { ShaderDetails } from '@/components/shader-details';
 
 /**
  * This example has controls added so you can play with settings in the example app
@@ -113,13 +115,13 @@ const ImageDitheringWithControls = () => {
 
   return (
     <div>
-      <ImageDithering onClick={handleClick} {...params} image={image || undefined} />
-      <div
-        className="fixed bottom-3 left-3 rounded px-2 py-1 text-xs"
-        style={{ background: 'rgba(0,0,0,0.7)', color: 'white' }}
-      >
-        {fileName ? `Displaying image: ${fileName}` : 'Click to load an image'}
+      <ShaderContainer>
+        <ImageDithering onClick={handleClick} {...params} image={image || undefined} />
+      </ShaderContainer>
+      <div onClick={handleClick} className="select-none py-3 text-center">
+        Click to change sample image
       </div>
+      <ShaderDetails name="Image Dithering" currentParams={params} />
     </div>
   );
 };
