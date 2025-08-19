@@ -94,7 +94,7 @@ const MeshGradientWithControls = () => {
       <ShaderContainer>
         <MeshGradient {...params} colors={colors} />
       </ShaderContainer>
-      <ShaderDetails name="Mesh Gradient" />
+      <ShaderDetails name="Mesh Gradient" currentParams={{ ...params, colors }} />
     </>
   );
 };
