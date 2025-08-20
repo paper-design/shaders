@@ -91,7 +91,61 @@ const DitheringWithControls = () => {
       <ShaderContainer>
         <Dithering {...params} />
       </ShaderContainer>
-      <ShaderDetails name="Dithering" currentParams={params} />
+      <ShaderDetails
+        name="Dithering"
+        currentParams={params}
+        description="2-color dithering effect over animated abstract shapes."
+        props={{
+          'colorBack, colorFront': 'The two colors used for the effect.',
+          'pxSize': 'Pixel size relative to canvas resolution.',
+          'shape': (
+            <>
+              <ul className="list-disc pl-4 [&_b]:font-semibold">
+                <li>
+                  <b>simplex</b>: Simplex noise pattern.
+                </li>
+                <li>
+                  <b>warp</b>: Warp noise pattern.
+                </li>
+                <li>
+                  <b>dots</b>: Columns of dots moving vertically.
+                </li>
+                <li>
+                  <b>wave</b>: Sine wave.
+                </li>
+                <li>
+                  <b>ripple</b>: Ripple effect.
+                </li>
+                <li>
+                  <b>swirl</b>: Swirl animation.
+                </li>
+                <li>
+                  <b>sphere</b>: Rotating sphere.
+                </li>
+              </ul>
+            </>
+          ),
+          'type': (
+            <>
+              <ul className="list-disc pl-4 [&_b]:font-semibold">
+                <li>
+                  <b>random</b>: Random dithering.
+                </li>
+
+                <li>
+                  <b>2x2</b>: 2x2 Bayer matrix.
+                </li>
+                <li>
+                  <b>4x4</b>: 4x4 Bayer matrix.
+                </li>
+                <li>
+                  <b>8x8</b>: 8x8 Bayer matrix.
+                </li>
+              </ul>
+            </>
+          ),
+        }}
+      />
     </>
   );
 };

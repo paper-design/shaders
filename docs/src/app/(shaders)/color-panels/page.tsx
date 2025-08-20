@@ -104,7 +104,21 @@ const ColorPanelsWithControls = () => {
       <ShaderContainer>
         <ColorPanels {...params} colors={colors} />
       </ShaderContainer>
-      <ShaderDetails name="Color Panels" currentParams={{ ...params, colors }} />
+      <ShaderDetails
+        name="Color Panels"
+        currentParams={{ ...params, colors }}
+        description="Pseudo-3D panels rotating around a central axis."
+        props={{
+          'density': 'Angle between every 2 panels.',
+          'angle1, angle2': 'Skew angle applied to all panes.',
+          'length': 'Panel length (relative to total height).',
+          'edges': 'Faking edges effect.',
+          'blur': 'Side blur (0 for sharp edges).',
+          'fadeIn': 'Transparency near central axis.',
+          'fadeOut': 'Transparency near viewer.',
+          'gradient': 'Color mixing within panes (0 = single color, 1 = two colors).',
+        }}
+      />
     </>
   );
 };

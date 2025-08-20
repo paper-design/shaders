@@ -97,11 +97,11 @@ export function ShaderDetails({
         <section>
           <div className="flex flex-col gap-3">
             <h2 className="text-2xl font-medium">Props</h2>
-            <div className="ml-3 flex flex-col gap-2">
+            <div className="flex flex-col gap-2">
               {Object.entries(props).map(([key, value]) => (
-                <div key={key} className="flex flex-col gap-1">
+                <div key={key}>
                   <h3 className="font-medium">{key}</h3>
-                  <p className="text-gray-500">{value}</p>
+                  <div className="text-stone-600">{value}</div>
                 </div>
               ))}
             </div>
@@ -109,7 +109,7 @@ export function ShaderDetails({
         </section>
         <section>
           <h2 className="text-2xl font-medium">Description</h2>
-          <p className="text-gray-500">{description}</p>
+          <p className="text-stone-600">{description}</p>
         </section>
       </div>
     </div>

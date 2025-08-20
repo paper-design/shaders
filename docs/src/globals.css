@@ -76,6 +76,27 @@ div[style*='--leva-colors-folderTextColor'] {
   margin-top: 0;
 }
 
+#leva__root input[type='checkbox'] + label > svg {
+  stroke: white;
+}
+
+pre::-webkit-scrollbar {
+  height: 6px;
+}
+
+pre::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+pre::-webkit-scrollbar-thumb {
+  background-color: #989b96;
+  border-radius: 3px;
+}
+
+pre::-webkit-scrollbar-thumb:hover {
+  background-color: #777772;
+}
+
 @media (max-width: 639px) {
   #leva__root {
     display: none;

@@ -17,7 +17,7 @@ import { simplexNoise, declarePI, proceduralHash11, proceduralHash21 } from '../
  * - u_shape (float used as integer):
  * ---- 1: simplex noise pattern
  * ---- 2: warp noise pattern
- * ---- 3: columns if dots moving vertically
+ * ---- 3: columns of dots moving vertically
  * ---- 4: sine wave
  * ---- 5: ripple effect
  * ---- 6: swirl animation
