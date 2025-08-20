@@ -104,7 +104,19 @@ const DotOrbitWithControls = () => {
       <ShaderContainer>
         <DotOrbit {...params} colors={colors} />
       </ShaderContainer>
-      <ShaderDetails name="Dot Orbit" currentParams={params} />
+      <ShaderDetails
+        name="Dot Orbit"
+        currentParams={{ ...params, colors }}
+        description="Animated dot pattern with dots orbiting around their grid positions."
+        props={{
+          colorBack: 'The background color.',
+          colors: 'Dot colors.',
+          stepsPerColor: 'Discrete color steps between colors.',
+          size: 'Dot radius (relative to cell size).',
+          sizeRange: 'Randomizes dot radius between 0 and size.',
+          spreading: 'Max orbit distance of each dot around the cell center.',
+        }}
+      />
     </>
   );
 };

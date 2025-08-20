@@ -67,6 +67,7 @@ export function ShaderDetails({
 <${componentName}
   style={{ height: 500 }}
   ${Object.entries(currentParams)
+    .filter(([key]) => !['worldWidth', 'worldHeight', 'originX', 'originY'].includes(key))
     .map(([key, value]) => formatJsxAttribute(key, value))
     .join('\n  ')}
 />

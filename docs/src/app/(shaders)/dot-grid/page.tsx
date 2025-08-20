@@ -96,7 +96,20 @@ const DotGridWithControls = () => {
       <ShaderContainer>
         <DotGrid {...params} />
       </ShaderContainer>
-      <ShaderDetails name="Dot Grid" currentParams={params} />
+      <ShaderDetails
+        name="Dot Grid"
+        currentParams={params}
+        description="Static grid pattern."
+        props={{
+          'colorBack, colorFill, colorStroke': 'Colors used for the effect.',
+          'size': 'Base shape size.',
+          'sizeRange': 'Randomizes the size of shape between 0 and size.',
+          'strokeWidth': 'The stroke (to be added to size).',
+          'gapX, gapY': 'Pattern spacing.',
+          'opacityRange': 'Variety of shape opacity.',
+          'shape': 'The shape of the dots (circle, diamond, square, triangle).',
+        }}
+      />
     </>
   );
 };
