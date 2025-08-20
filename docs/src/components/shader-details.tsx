@@ -50,11 +50,17 @@ const CopyButton = ({ text, className = '' }: { text: string; className?: string
 };
 
 export function ShaderDetails({ name, currentParams }: { name: string; currentParams: Record<string, unknown> }) {
-  const code = `<${name.replace(/ /g, '')}
+  const componentName = name.replace(/ /g, '');
+
+  const code = `import { ${componentName} } from '@paper-design/shaders-react';
+
+<${componentName}
+  style={{ height: 500 }}
   ${Object.entries(currentParams)
     .map(([key, value]) => formatJsxAttribute(key, value))
     .join('\n  ')}
-/>`;
+/>
+`;
 
   const installationCode = 'npm i @paper-design/shaders-react';
 
