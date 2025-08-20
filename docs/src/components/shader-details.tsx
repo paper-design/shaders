@@ -3,6 +3,28 @@
 import { useState } from 'react';
 import { CopyIcon, CheckIcon } from '../icons';
 
+const formatJsxAttribute = (key: string, value: unknown): string => {
+  if (value === true) {
+    return key;
+  }
+  if (value === false) {
+    return `${key}={false}`;
+  }
+  if (typeof value === 'string') {
+    return `${key}="${value}"`;
+  }
+  if (typeof value === 'number') {
+    // Format numbers with at most 2 decimal places if they have decimals
+    const formattedNumber = Number.isInteger(value) ? value : parseFloat(value.toFixed(2));
+    return `${key}={${formattedNumber}}`;
+  }
+  if (typeof value === 'object') {
+    return `${key}={${JSON.stringify(value)}}`;
+  }
+
+  return `${key}={${JSON.stringify(value)}}`;
+};
+
 const CopyButton = ({ text, className = '' }: { text: string; className?: string }) => {
   const [copied, setCopied] = useState(false);
 
@@ -30,25 +52,22 @@ const CopyButton = ({ text, className = '' }: { text: string; className?: string
 export function ShaderDetails({ name, currentParams }: { name: string; currentParams: Record<string, unknown> }) {
   const code = `<${name.replace(/ /g, '')}
   ${Object.entries(currentParams)
-    .map(([key, value]) => `${key}={${value}}`)
+    .map(([key, value]) => formatJsxAttribute(key, value))
     .join('\n  ')}
 />`;
 
-  const installationCode = `// React
-npm i @paper-design/shaders-react
-
-// Vanilla
-npm i @paper-design/shaders`;
+  const installationCode = 'npm i @paper-design/shaders-react';
 
   return (
     <div className="flex flex-col gap-4">
       <h1 className="text-4xl font-medium">{name}</h1>
       <div className="flex flex-col gap-4 [&>section]:flex [&>section]:flex-col [&>section]:gap-4">
         <section>
-          <h2 className="text-2xl font-medium">Installation</h2>
-          <pre className="w-full max-w-96 overflow-x-auto rounded-lg bg-[#f7f6f0] px-4 py-4 text-base">
-            {installationCode}
-          </pre>
+          <div className="flex items-center gap-2">
+            <h2 className="text-2xl font-medium">Installation</h2>
+            <CopyButton text={installationCode} />
+          </div>
+          <pre className="w-fit overflow-x-auto rounded-lg bg-[#f7f6f0] px-4 py-4 text-base">{installationCode}</pre>
         </section>
         <section>
           <div className="flex items-center gap-2">
