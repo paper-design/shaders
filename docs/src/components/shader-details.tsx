@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { ReactNode, useState } from 'react';
 import { CopyIcon, CheckIcon } from '../icons';
 
 const formatJsxAttribute = (key: string, value: unknown): string => {
@@ -41,7 +41,7 @@ const CopyButton = ({ text, className = '' }: { text: string; className?: string
   return (
     <button
       onClick={handleCopy}
-      className={`flex items-center justify-center rounded-md p-2 transition-colors hover:bg-gray-200 ${className}`}
+      className={`flex items-center justify-center rounded-md p-2 transition-colors hover:bg-[#e7e7e0] ${className}`}
       title={copied ? 'Copied!' : 'Copy to clipboard'}
     >
       {copied ? <CheckIcon className="size-4" /> : <CopyIcon className="size-4" />}
@@ -49,7 +49,17 @@ const CopyButton = ({ text, className = '' }: { text: string; className?: string
   );
 };
 
-export function ShaderDetails({ name, currentParams }: { name: string; currentParams: Record<string, unknown> }) {
+export function ShaderDetails({
+  name,
+  currentParams,
+  props,
+  description,
+}: {
+  name: string;
+  currentParams: Record<string, unknown>;
+  props: Record<string, ReactNode>;
+  description: ReactNode;
+}) {
   const componentName = name.replace(/ /g, '');
 
   const code = `import { ${componentName} } from '@paper-design/shaders-react';
@@ -67,7 +77,7 @@ export function ShaderDetails({ name, currentParams }: { name: string; currentPa
   return (
     <div className="flex flex-col gap-4">
       <h1 className="text-4xl font-medium">{name}</h1>
-      <div className="flex flex-col gap-4 [&>section]:flex [&>section]:flex-col [&>section]:gap-4">
+      <div className="flex flex-col gap-5 [&>section]:flex [&>section]:flex-col [&>section]:gap-4">
         <section>
           <div className="flex items-center gap-2">
             <h2 className="text-2xl font-medium">Installation</h2>
@@ -81,8 +91,25 @@ export function ShaderDetails({ name, currentParams }: { name: string; currentPa
             <CopyButton text={code} />
           </div>
           <div className="flex flex-col gap-2">
-            <pre className="overflow-x-auto rounded-lg bg-[#f7f6f0] px-4 py-4 text-base">{code}</pre>
+            <pre className="overflow-x-auto rounded-lg bg-[#f7f6f0] px-4 py-4 text-sm">{code}</pre>
           </div>
+        </section>
+        <section>
+          <div className="flex flex-col gap-3">
+            <h2 className="text-2xl font-medium">Props</h2>
+            <div className="ml-3 flex flex-col gap-2">
+              {Object.entries(props).map(([key, value]) => (
+                <div key={key} className="flex flex-col gap-1">
+                  <h3 className="font-medium">{key}</h3>
+                  <p className="text-gray-500">{value}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+        <section>
+          <h2 className="text-2xl font-medium">Description</h2>
+          <p className="text-gray-500">{description}</p>
         </section>
       </div>
     </div>

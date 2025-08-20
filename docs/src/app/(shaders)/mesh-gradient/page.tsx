@@ -94,7 +94,12 @@ const MeshGradientWithControls = () => {
       <ShaderContainer>
         <MeshGradient {...params} colors={colors} />
       </ShaderContainer>
-      <ShaderDetails name="Mesh Gradient" currentParams={{ ...params, colors }} />
+      <ShaderDetails
+        name="Mesh Gradient"
+        currentParams={{ ...params, colors }}
+        props={{ distortion: 'Warp distortion.', swirl: 'Vortex distortion.' }}
+        description="A composition of N color spots (one per color) with 2 types of distortions applied to the coordinate space."
+      />
     </>
   );
 };
