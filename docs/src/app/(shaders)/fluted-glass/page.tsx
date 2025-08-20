@@ -140,7 +140,23 @@ const FlutedGlassWithControls = () => {
       <div onClick={handleClick} className="select-none py-3 text-center">
         Click to change sample image
       </div>
-      <ShaderDetails name="Fluted Glass" currentParams={params} />
+      <ShaderDetails
+        name="Fluted Glass"
+        currentParams={params}
+        description="Mimicking glass surface distortion over the image by distorting the texture coordinates within line patterns."
+        props={{
+          'count': 'Number of grid lines.',
+          'angle': 'Direction of the grid relative to the image.',
+          'shape': 'The shape of the grid.',
+          'distortion': 'The power of distortion applied along within each stripe.',
+          'distortionShape': 'The shape of the distortion.',
+          'shift': 'Texture shift in direction opposite to the grid.',
+          'blur': 'One-directional blur applied over the main distortion.',
+          'highlights': 'Thin color lines along the grid (independent from distortion).',
+          'marginLeft, marginRight, marginTop, marginBottom':
+            'Padding within the image to be shown without any distortion.',
+        }}
+      />
     </div>
   );
 };

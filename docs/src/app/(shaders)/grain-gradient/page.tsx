@@ -103,7 +103,44 @@ const GrainGradientWithControls = () => {
       <ShaderContainer>
         <GrainGradient {...params} colors={colors} />
       </ShaderContainer>
-      <ShaderDetails name="Grain Gradient" currentParams={{ ...params, colors }} />
+      <ShaderDetails
+        name="Grain Gradient"
+        currentParams={{ ...params, colors }}
+        description="Multi-color gradient with noise & grain over animated abstract shapes."
+        props={{
+          'colorBack, colors': 'Colors used for the effect.',
+          'softness': 'Blur between color bands.',
+          'intensity': 'Distortion between color bands.',
+          'noise': 'Grainy noise independent of softness.',
+          'shape': (
+            <>
+              <ul className="list-disc pl-4 [&_b]:font-semibold">
+                <li>
+                  <b>wave</b>: Single sine wave.
+                </li>
+                <li>
+                  <b>dots</b>: Dots pattern.
+                </li>
+                <li>
+                  <b>truchet</b>: Truchet pattern.
+                </li>
+                <li>
+                  <b>corners</b>: 2 rounded rectangles.
+                </li>
+                <li>
+                  <b>ripple</b>: Ripple effect.
+                </li>
+                <li>
+                  <b>blob</b>: Metaballs.
+                </li>
+                <li>
+                  <b>sphere</b>: Circle imitating a 3D look.
+                </li>
+              </ul>
+            </>
+          ),
+        }}
+      />
     </>
   );
 };

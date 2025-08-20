@@ -101,7 +101,19 @@ const GodRaysWithControls = () => {
       <ShaderContainer>
         <GodRays {...params} colors={colors} />
       </ShaderContainer>
-      <ShaderDetails name="God Rays" currentParams={{ ...params, colors }} />
+      <ShaderDetails
+        name="God Rays"
+        currentParams={{ ...params, colors }}
+        description="Radial rays animated from center."
+        props={{
+          'colorBack, colorBloom, colors': 'Colors used for the effect.',
+          'density': 'Frequency of sector shapes.',
+          'intensity': 'Rays visibility within sectors.',
+          'spotty': 'Density of spots on the ray (higher = more spots).',
+          'midSize, midIntensity': 'Central shape over the rays.',
+          'bloom': 'Normal to additive blending mix.',
+        }}
+      />
     </>
   );
 };
