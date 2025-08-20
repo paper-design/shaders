@@ -76,7 +76,7 @@ const WaterWithControls = () => {
       Parameters: folder(
         {
           colorBack: { value: toHsla(defaults.colorBack), order: 100 },
-          highlightColor: { value: toHsla(defaults.highlightColor), order: 101 },
+          colorHighlight: { value: toHsla(defaults.colorHighlight), order: 101 },
           highlights: { value: defaults.highlights, min: 0, max: 1, order: 102 },
           layering: { value: defaults.layering, min: 0, max: 1, order: 103 },
           edges: { value: defaults.edges, min: 0, max: 1, order: 104 },
