@@ -1,7 +1,7 @@
 import type { vec4 } from '../types.js';
 import type { ShaderMotionParams } from '../shader-mount.js';
 import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
-import { declareRotate, declarePI, declareValueNoise, declareSimplexNoise } from '../shader-utils.js';
+import { rotation2, declarePI, simplexNoise, textureRandomizerR } from '../shader-utils.js';
 
 export const grainAndNoiseNoiseMeta = {
   maxColorCount: 3,
@@ -24,8 +24,9 @@ ${sizingVariablesDeclaration}
 out vec4 fragColor;
 
 ${declarePI}
-${declareRotate}
-${declareSimplexNoise}
+${rotation2}
+${simplexNoise}
+${textureRandomizerR}
 
 vec3 random(vec2 p) {
   vec2 uv = floor(p) / 100.;
