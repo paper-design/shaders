@@ -46,6 +46,13 @@ div[style*='--leva-colors-folderTextColor'] {
   margin-right: 30px;
 }
 
+/* Farther from the right window edge on wide screens, but tighter on narrow screens */
+@media (max-width: 1340px) {
+  #leva__root > div {
+    margin-right: 10px;
+  }
+}
+
 #leva__root button {
   background-color: #989b96 !important;
   color: white !important;
@@ -67,4 +74,10 @@ div[style*='--leva-colors-folderTextColor'] {
 #leva__root div:has(> button) {
   width: 48%;
   margin-top: 0;
+}
+
+@media (max-width: 639px) {
+  #leva__root {
+    display: none;
+  }
 }
