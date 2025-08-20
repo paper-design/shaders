@@ -57,8 +57,8 @@ export function ShaderDetails({
 }: {
   name: string;
   currentParams: Record<string, unknown>;
-  props: Record<string, ReactNode>;
-  description: ReactNode;
+  props?: Record<string, ReactNode>;
+  description?: ReactNode;
 }) {
   const componentName = name.replace(/ /g, '');
 
@@ -94,23 +94,27 @@ export function ShaderDetails({
             <pre className="overflow-x-auto rounded-lg bg-[#f7f6f0] px-4 py-4 text-sm">{code}</pre>
           </div>
         </section>
-        <section>
-          <div className="flex flex-col gap-3">
-            <h2 className="text-2xl font-medium">Props</h2>
-            <div className="flex flex-col gap-2">
-              {Object.entries(props).map(([key, value]) => (
-                <div key={key}>
-                  <h3 className="font-medium">{key}</h3>
-                  <div className="text-stone-600">{value}</div>
-                </div>
-              ))}
+        {props && (
+          <section>
+            <div className="flex flex-col gap-3">
+              <h2 className="text-2xl font-medium">Props</h2>
+              <div className="flex flex-col gap-2">
+                {Object.entries(props).map(([key, value]) => (
+                  <div key={key}>
+                    <h3 className="font-medium">{key}</h3>
+                    <div className="text-stone-600">{value}</div>
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
-        </section>
-        <section>
-          <h2 className="text-2xl font-medium">Description</h2>
-          <p className="text-stone-600">{description}</p>
-        </section>
+          </section>
+        )}
+        {description && (
+          <section>
+            <h2 className="text-2xl font-medium">Description</h2>
+            <p className="text-stone-600">{description}</p>
+          </section>
+        )}
       </div>
     </div>
   );
