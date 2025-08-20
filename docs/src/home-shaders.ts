@@ -19,6 +19,10 @@ import pulsingBorderImg from '../public/shaders/pulsing-border.webp';
 import colorPanelsImg from '../public/shaders/color-panels.webp';
 import staticMeshGradientImg from '../public/shaders/static-mesh-gradient.webp';
 import staticRadialGradientImg from '../public/shaders/static-radial-gradient.webp';
+import flutedGlassImg from '../public/shaders/fluted-glass.webp';
+import imageDitheringImg from '../public/shaders/image-dithering.webp';
+import paperTextureImg from '../public/shaders/paper-texture.webp';
+import waterImg from '../public/shaders/water.webp';
 
 import {
   DotGrid,
@@ -63,11 +67,18 @@ import {
   staticMeshGradientPresets,
   StaticRadialGradient,
   staticRadialGradientPresets,
+  PaperTexture,
+  paperTexturePresets,
+  FlutedGlass,
+  flutedGlassPresets,
+  Water,
+  waterPresets,
+  ImageDithering,
+  imageDitheringPresets,
   GrainAndNoise,
   grainAndNoisePresets,
 } from '@paper-design/shaders-react';
 import { StaticImageData } from 'next/image';
-import TextureTest from './app/texture-test/page';
 
 type HomeShaderConfig = {
   name: string;
@@ -79,12 +90,6 @@ type HomeShaderConfig = {
 };
 
 export const homeShaders = [
-  // {
-  //   name: 'texture test',
-  //   url: '/texture-test',
-  //   ShaderComponent: TextureTest,
-  //   shaderConfig: {},
-  // },
   {
     name: 'grain gradient',
     url: '/grain-gradient',
@@ -231,6 +236,34 @@ export const homeShaders = [
     ShaderComponent: GodRays,
     image: godRaysImg,
     shaderConfig: { ...godRaysPresets[0].params, speed: 2, scale: 0.5, offsetY: -0.5 },
+  },
+  {
+    name: 'paper texture',
+    url: '/paper-texture',
+    ShaderComponent: PaperTexture,
+    image: paperTextureImg,
+    shaderConfig: { ...paperTexturePresets[0].params, scale: 0.8 },
+  },
+  {
+    name: 'fluted glass',
+    url: '/fluted-glass',
+    ShaderComponent: FlutedGlass,
+    image: flutedGlassImg,
+    shaderConfig: { ...flutedGlassPresets[0].params, scale: 0.8, count: 32 },
+  },
+  {
+    name: 'image dithering',
+    url: '/image-dithering',
+    ShaderComponent: ImageDithering,
+    image: imageDitheringImg,
+    shaderConfig: { ...imageDitheringPresets[0].params, scale: 0.8 },
+  },
+  {
+    name: 'water',
+    url: '/water',
+    ShaderComponent: Water,
+    image: waterImg,
+    shaderConfig: { ...waterPresets[0].params, scale: 0.8 },
   },
   {
     name: 'grain and noise',

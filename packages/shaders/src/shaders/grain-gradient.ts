@@ -5,9 +5,15 @@ import {
   type ShaderSizingParams,
   type ShaderSizingUniforms,
   sizingDebugVariablesDeclaration,
-  sizingUniformsDeclaration,
 } from '../shader-sizing.js';
-import { declareSimplexNoise, declarePI, declareValueNoise, declareRotate } from '../shader-utils.js';
+import {
+  simplexNoise,
+  declarePI,
+  rotation2,
+  textureRandomizerR,
+  proceduralHash21,
+  proceduralHash11,
+} from '../shader-utils.js';
 
 export const grainGradientMeta = {
   maxColorCount: 7,
@@ -39,11 +45,11 @@ export const grainGradientMeta = {
 
 // language=GLSL
 export const grainGradientFragmentShader: string = `#version 300 es
-precision mediump float;
+precision lowp float;
 
-uniform float u_time;
-uniform vec2 u_resolution;
-uniform float u_pixelRatio;
+uniform mediump float u_time;
+uniform mediump vec2 u_resolution;
+uniform mediump float u_pixelRatio;
 
 uniform sampler2D u_noiseTexture;
 
@@ -55,34 +61,53 @@ uniform float u_intensity;
 uniform float u_noise;
 uniform float u_shape;
 
+uniform mediump float u_originX;
+uniform mediump float u_originY;
+uniform mediump float u_worldWidth;
+uniform mediump float u_worldHeight;
+uniform mediump float u_fit;
+
+uniform mediump float u_scale;
+uniform mediump float u_rotation;
+uniform mediump float u_offsetX;
+uniform mediump float u_offsetY;
+
 ${sizingVariablesDeclaration}
-${sizingDebugVariablesDeclaration}
-${sizingUniformsDeclaration}
+${ sizingDebugVariablesDeclaration }
 
 out vec4 fragColor;
 
 ${declarePI}
-${declareSimplexNoise}
-${declareRotate}
+${simplexNoise}
+${rotation2}
+${proceduralHash21}
+${textureRandomizerR}
 
-float randomGeneric(vec2 st) {
-  return fract(sin(dot(st.xy, vec2(12.9898, 78.233))) * 43758.5453123);
+float valueNoiseR(vec2 st) {
+  vec2 i = floor(st);
+  vec2 f = fract(st);
+  float a = randomR(i);
+  float b = randomR(i + vec2(1.0, 0.0));
+  float c = randomR(i + vec2(0.0, 1.0));
+  float d = randomR(i + vec2(1.0, 1.0));
+  vec2 u = f * f * (3.0 - 2.0 * f);
+  float x1 = mix(a, b, u.x);
+  float x2 = mix(c, d, u.x);
+  return mix(x1, x2, u.y);
 }
-float random(vec2 p) {
-  vec2 uv = floor(p) / 100. + .5;
-  return texture(u_noiseTexture, uv).r;
-}
-${declareValueNoise}
-float fbm(in vec2 n) {
-  float total = 0.0, amplitude = .2;
+float fbmR(vec2 n) {
+  float total = 0.;
+  float amplitude = .2;
   for (int i = 0; i < 3; i++) {
-    total += valueNoise(n) * amplitude;
-    n += n;
+    n = rotate(n, .3);
+    total += valueNoiseR(n) * amplitude;
+    n *= 1.99;
     amplitude *= 0.6;
   }
   return total;
 }
 
+${proceduralHash11}
 
 vec2 truchet(vec2 uv, float idx){
     idx = fract(((idx - .5) * 2.));
@@ -156,20 +181,19 @@ void main() {
     // Grid (dots)
 
     float stripeIdx = floor(2. * shape_uv.x / TWO_PI);
-    float rand = fract(sin(stripeIdx * 12.9898) * 43758.5453);
-
-    float speed = sign(rand - .5) * ceil(2. + rand);
-    shape = sin(shape_uv.x) * cos(shape_uv.y + speed * t);
+    float rand = hash11(stripeIdx + 2.);
+    rand = sign(rand - .5) * pow(.2 + abs(rand), .3);
+    shape = sin(shape_uv.x) * cos(shape_uv.y - 5. * rand * t);
     shape = pow(shape, 4.);
 
   } else if (u_shape < 3.5) {
     // Truchet pattern
 
-    float n2 = valueNoise(shape_uv * .4 - 3.75 * t);
+    float n2 = valueNoiseR(shape_uv * .4 - 3.75 * t);
     shape_uv.x += 10.;
     shape_uv *= .6;
 
-    vec2 tile = truchet(fract(shape_uv), randomGeneric(floor(shape_uv)));
+    vec2 tile = truchet(fract(shape_uv), randomR(floor(shape_uv)));
 
     float distance1 = length(tile);
     float distance2 = length(tile - vec2(1.));
@@ -229,18 +253,17 @@ void main() {
     // Sphere
 
     shape_uv *= 2.;
-    float d = length(shape_uv);
-    float z = sqrt(1.0 - clamp(pow(d, 2.0), 0.0, 1.0));
-    vec3 pos = vec3(shape_uv, z);
-    vec3 lightPos = normalize(vec3(cos(4.5 * t), 0.8, sin(3.75 * t)));
-    float lighting = dot(lightPos, pos);
-    float edge = smoothstep(1., .97, d);
-    shape = mix(.1, .5 + .5 * lighting, edge);
+    float d = 1. - pow(length(shape_uv), 2.);
+    vec3 pos = vec3(shape_uv, sqrt(d));
+    vec3 lightPos = normalize(vec3(cos(1.5 * t), .8, sin(1.25 * t)));
+    shape = .5 + .5 * dot(lightPos, pos);
+    shape *= step(0., d);
   }
 
   float simplex = snoise(grain_uv * .5);
-  float grainDist = simplex * snoise(grain_uv * .2) - fbm(.002 * grain_uv + 10.) - fbm(.003 * grain_uv);
-  float noise = clamp(.65 * simplex - fbm(rotate(.4 * grain_uv, 2.)) - fbm(.001 * grain_uv), 0., 1.);
+  float grainDist = simplex * snoise(grain_uv * .2) - fbmR(.002 * grain_uv + 10.) - fbmR(.003 * grain_uv);
+  float rawNoise = .6 * simplex - fbmR(rotate(.4 * grain_uv, 2.)) - fbmR(.001 * grain_uv);
+  float noise = clamp(rawNoise, 0., 1.);
 
   shape += u_intensity * 2. / u_colorsCount * (grainDist + .5);
   shape += u_noise * 10. / u_colorsCount * noise;

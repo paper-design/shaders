@@ -277,11 +277,65 @@
       ]
     },
     {
+      "name": "paper-texture",
+      "type": "registry:component",
+      "title": "Paper Texture Example",
+      "description": "Paper Texture shader example.",
+      "dependencies": ["@paper-design/shaders-react"],
+      "files": [
+        {
+          "path": "registry/paper-texture-example.tsx",
+          "type": "registry:component"
+        }
+      ]
+    },
+    {
+      "name": "fluted-glass",
+      "type": "registry:component",
+      "title": "Fluted Glass Example",
+      "description": "Fluted Glass shader example.",
+      "dependencies": ["@paper-design/shaders-react"],
+      "files": [
+        {
+          "path": "registry/fluted-glass-example.tsx",
+          "type": "registry:component"
+        }
+      ]
+    },
+    {
+      "name": "water",
+      "type": "registry:component",
+      "title": "Water Example",
+      "description": "Water shader example.",
+      "dependencies": ["@paper-design/shaders-react"],
+      "files": [
+        {
+          "path": "registry/water-example.tsx",
+          "type": "registry:component"
+        }
+      ]
+    },
+    {
+      "name": "image-dithering",
+      "type": "registry:component",
+      "title": "Image Dithering Example",
+      "description": "Image dithering example.",
+      "dependencies": ["@paper-design/shaders-react"],
+      "files": [
+        {
+          "path": "registry/image-dithering-example.tsx",
+          "type": "registry:component"
+        }
+      ]
+    },
+    {
       "name": "grain-and-noise",
       "type": "registry:component",
       "title": "Grain And Noise Example",
       "description": "Grain And Noise shader example.",
-      "dependencies": ["@paper-design/shaders-react"],
+      "dependencies": [
+        "@paper-design/shaders-react"
+      ],
       "files": [
         {
           "path": "registry/grain-and-noise-example.tsx",

@@ -87,6 +87,22 @@ export { StaticRadialGradient, staticRadialGradientPresets } from './shaders/sta
 export type { StaticRadialGradientProps } from './shaders/static-radial-gradient.js';
 export type { StaticRadialGradientUniforms, StaticRadialGradientParams } from '@paper-design/shaders';
 
+export { PaperTexture, paperTexturePresets } from './shaders/paper-texture.js';
+export type { PaperTextureProps } from './shaders/paper-texture.js';
+export type { PaperTextureUniforms, PaperTextureParams } from '@paper-design/shaders';
+
+export { FlutedGlass, flutedGlassPresets } from './shaders/fluted-glass.js';
+export { type FlutedGlassProps } from './shaders/fluted-glass.js';
+export { type FlutedGlassUniforms, type FlutedGlassParams } from '@paper-design/shaders';
+
+export { Water, waterPresets } from './shaders/water.js';
+export type { WaterProps } from './shaders/water.js';
+export type { WaterUniforms, WaterParams } from '@paper-design/shaders';
+
+export { ImageDithering, imageDitheringPresets } from './shaders/image-dithering.js';
+export type { ImageDitheringProps } from './shaders/image-dithering.js';
+export type { ImageDitheringUniforms, ImageDitheringParams } from '@paper-design/shaders';
+
 export { GrainAndNoise, grainAndNoisePresets } from './shaders/grain-and-noise.js';
 export type { GrainAndNoiseProps } from './shaders/grain-and-noise.js';
 export type { GrainAndNoiseUniforms, GrainAndNoiseParams } from '@paper-design/shaders';

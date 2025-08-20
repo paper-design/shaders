@@ -1,6 +1,6 @@
 import type { ShaderMotionParams } from '../shader-mount.js';
 import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
-import { declareSimplexNoise, declarePI, colorBandingFix } from '../shader-utils.js';
+import { simplexNoise, declarePI, colorBandingFix } from '../shader-utils.js';
 
 /**
  * 2-color spiral shape
@@ -39,7 +39,7 @@ ${sizingVariablesDeclaration}
 out vec4 fragColor;
 
 ${declarePI}
-${declareSimplexNoise}
+${simplexNoise}
 
 void main() {
   vec2 uv = 2. * v_patternUV;
