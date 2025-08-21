@@ -1,4 +1,5 @@
 // Radix Icons: GitHub Logo
+
 export const GithubIcon = ({ className = '' }: { className?: string }) => (
   <svg className={className} width="15" height="15" viewBox="0 0 15 15" fill="none">
     <path

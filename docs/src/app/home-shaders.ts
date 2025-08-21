@@ -1,29 +1,28 @@
-import meshGradientImg from '../public/shaders/mesh-gradient.webp';
-import simplexNoiseImg from '../public/shaders/simplex-noise.webp';
-import neuroNoiseImg from '../public/shaders/neuro-noise.webp';
-import perlinNoiseImg from '../public/shaders/perlin-noise.webp';
-import dotGridImg from '../public/shaders/dot-grid.webp';
-import dotOrbitImg from '../public/shaders/dot-orbit.webp';
-import smokeRingImg from '../public/shaders/smoke-ring.webp';
-import metaballsImg from '../public/shaders/metaballs.webp';
-import voronoiImg from '../public/shaders/voronoi.webp';
-import wavesImg from '../public/shaders/waves.webp';
-import warpImg from '../public/shaders/warp.webp';
-import godRaysImg from '../public/shaders/god-rays.webp';
-import spiralImg from '../public/shaders/spiral.webp';
-import swirlImg from '../public/shaders/swirl.webp';
-import ditheringImg from '../public/shaders/dithering.webp';
-import liquidMetalImg from '../public/shaders/liquid-metal.webp';
-import grainGradientImg from '../public/shaders/grain-gradient.webp';
-import pulsingBorderImg from '../public/shaders/pulsing-border.webp';
-import colorPanelsImg from '../public/shaders/color-panels.webp';
-import staticMeshGradientImg from '../public/shaders/static-mesh-gradient.webp';
-import staticRadialGradientImg from '../public/shaders/static-radial-gradient.webp';
-import flutedGlassImg from '../public/shaders/fluted-glass.webp';
-import imageDitheringImg from '../public/shaders/image-dithering.webp';
-import paperTextureImg from '../public/shaders/paper-texture.webp';
-import waterImg from '../public/shaders/water.webp';
-
+import meshGradientImg from '../../public/shaders/mesh-gradient.webp';
+import simplexNoiseImg from '../../public/shaders/simplex-noise.webp';
+import neuroNoiseImg from '../../public/shaders/neuro-noise.webp';
+import perlinNoiseImg from '../../public/shaders/perlin-noise.webp';
+import dotGridImg from '../../public/shaders/dot-grid.webp';
+import dotOrbitImg from '../../public/shaders/dot-orbit.webp';
+import smokeRingImg from '../../public/shaders/smoke-ring.webp';
+import metaballsImg from '../../public/shaders/metaballs.webp';
+import voronoiImg from '../../public/shaders/voronoi.webp';
+import wavesImg from '../../public/shaders/waves.webp';
+import warpImg from '../../public/shaders/warp.webp';
+import godRaysImg from '../../public/shaders/god-rays.webp';
+import spiralImg from '../../public/shaders/spiral.webp';
+import swirlImg from '../../public/shaders/swirl.webp';
+import ditheringImg from '../../public/shaders/dithering.webp';
+import liquidMetalImg from '../../public/shaders/liquid-metal.webp';
+import grainGradientImg from '../../public/shaders/grain-gradient.webp';
+import pulsingBorderImg from '../../public/shaders/pulsing-border.webp';
+import colorPanelsImg from '../../public/shaders/color-panels.webp';
+import staticMeshGradientImg from '../../public/shaders/static-mesh-gradient.webp';
+import staticRadialGradientImg from '../../public/shaders/static-radial-gradient.webp';
+import flutedGlassImg from '../../public/shaders/fluted-glass.webp';
+import imageDitheringImg from '../../public/shaders/image-dithering.webp';
+import paperTextureImg from '../../public/shaders/paper-texture.webp';
+import waterImg from '../../public/shaders/water.webp';
 import {
   DotGrid,
   dotGridPresets,
@@ -75,6 +74,7 @@ import {
   waterPresets,
   ImageDithering,
   imageDitheringPresets,
+  ShaderComponentProps,
 } from '@paper-design/shaders-react';
 import { StaticImageData } from 'next/image';
 
@@ -82,7 +82,7 @@ type HomeShaderConfig = {
   name: string;
   image?: StaticImageData;
   url: string;
-  ShaderComponent: React.ComponentType;
+  ShaderComponent: React.FC<ShaderComponentProps>;
   shaderConfig?: Record<string, unknown>;
   style?: React.CSSProperties;
 };
@@ -107,14 +107,14 @@ export const homeShaders = [
     url: '/static-mesh-gradient',
     ShaderComponent: StaticMeshGradient,
     image: staticMeshGradientImg,
-    shaderConfig: { ...staticMeshGradientPresets[0].params, rotation: 270 },
+    shaderConfig: { ...staticMeshGradientPresets[0].params, rotation: 270, speed: 0 },
   },
   {
     name: 'static radial gradient',
     url: '/static-radial-gradient',
     ShaderComponent: StaticRadialGradient,
     image: staticRadialGradientImg,
-    shaderConfig: { ...staticRadialGradientPresets[0].params, scale: 0.7 },
+    shaderConfig: { ...staticRadialGradientPresets[0].params, scale: 0.7, speed: 0 },
   },
   {
     name: 'dithering',
@@ -135,7 +135,7 @@ export const homeShaders = [
     url: '/dot-grid',
     ShaderComponent: DotGrid,
     image: dotGridImg,
-    shaderConfig: { ...dotGridPresets[0].params, scale: 1.1, size: 2 },
+    shaderConfig: { ...dotGridPresets[0].params, scale: 1.1, size: 2, speed: 0 },
   },
   {
     name: 'warp',
@@ -163,7 +163,7 @@ export const homeShaders = [
     url: '/waves',
     ShaderComponent: Waves,
     image: wavesImg,
-    shaderConfig: { ...wavesPresets[0].params, scale: 0.9 },
+    shaderConfig: { ...wavesPresets[0].params, scale: 0.9, speed: 0 },
   },
   {
     name: 'neuro noise',
@@ -184,7 +184,10 @@ export const homeShaders = [
     image: simplexNoiseImg,
     url: '/simplex-noise',
     ShaderComponent: SimplexNoise,
-    shaderConfig: { ...simplexNoisePresets[0].params, scale: 0.4 },
+    shaderConfig: {
+      ...simplexNoisePresets[0].params,
+      scale: 0.4,
+    },
   },
   {
     name: 'voronoi',
@@ -233,28 +236,28 @@ export const homeShaders = [
     url: '/god-rays',
     ShaderComponent: GodRays,
     image: godRaysImg,
-    shaderConfig: { ...godRaysPresets[0].params, speed: 2, scale: 0.5, offsetY: -0.5 },
+    shaderConfig: { ...godRaysPresets[0].params, speed: 2, scale: 0.5, offsetY: -0.5, frame: 48950 },
   },
   {
     name: 'paper texture',
     url: '/paper-texture',
     ShaderComponent: PaperTexture,
     image: paperTextureImg,
-    shaderConfig: { ...paperTexturePresets[0].params, scale: 0.8 },
+    shaderConfig: { ...paperTexturePresets[0].params, scale: 0.8, speed: 0 },
   },
   {
     name: 'fluted glass',
     url: '/fluted-glass',
     ShaderComponent: FlutedGlass,
     image: flutedGlassImg,
-    shaderConfig: { ...flutedGlassPresets[0].params, scale: 0.8, count: 32 },
+    shaderConfig: { ...flutedGlassPresets[0].params, scale: 0.8, count: 32, speed: 0 },
   },
   {
     name: 'image dithering',
     url: '/image-dithering',
     ShaderComponent: ImageDithering,
     image: imageDitheringImg,
-    shaderConfig: { ...imageDitheringPresets[0].params, scale: 0.8 },
+    shaderConfig: { ...imageDitheringPresets[0].params, scale: 0.8, speed: 0 },
   },
   {
     name: 'water',

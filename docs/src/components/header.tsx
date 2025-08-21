@@ -39,7 +39,7 @@ export const Header = () => {
               {!isHomepage && (
                 <>
                   <div className="mx-1 h-6 w-px bg-black/20" />
-                  <span className="font-medium leading-none">Shaders</span>
+                  <span className="leading-none font-medium">Shaders</span>
                 </>
               )}
             </div>

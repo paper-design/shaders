@@ -30,9 +30,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className="overflow-y-scroll antialiased">
-        <Header />
-        <main className="pb-16">{children}</main>
+      <body className="min-w-[320px] overflow-y-scroll antialiased">
+        {children}
         <Analytics />
       </body>
     </html>
