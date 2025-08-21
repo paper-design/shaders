@@ -18,6 +18,16 @@ const formatJsxAttribute = (key: string, value: unknown): string => {
     const formattedNumber = Number.isInteger(value) ? value : parseFloat(value.toFixed(2));
     return `${key}={${formattedNumber}}`;
   }
+  if (Array.isArray(value)) {
+    if (value.length <= 1) {
+      return `${key}={${JSON.stringify(value)}}`;
+    }
+    const formattedArray = JSON.stringify(value, null, 2)
+      .split('\n')
+      .map((line, index) => (index === 0 ? line : `  ${line}`))
+      .join('\n');
+    return `${key}={${formattedArray}}`;
+  }
   if (typeof value === 'object') {
     return `${key}={${JSON.stringify(value)}}`;
   }

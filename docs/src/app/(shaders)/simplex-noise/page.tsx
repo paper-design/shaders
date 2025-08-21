@@ -95,7 +95,16 @@ const SimplexNoiseWithControls = () => {
       <ShaderContainer>
         <SimplexNoise {...params} colors={colors} />
       </ShaderContainer>
-      <ShaderDetails name="Simplex Noise" currentParams={{ ...params, colors }} />
+      <ShaderDetails
+        name="Simplex Noise"
+        currentParams={{ ...params, colors }}
+        description="Color gradient mapped over a combination of 2 simplex noises."
+        props={{
+          colors: 'Colors used for the effect.',
+          stepsPerColor: 'Discrete color steps between colors.',
+          softness: 'Color transition sharpness (0 = hard edge, 1 = smooth fade).',
+        }}
+      />
     </>
   );
 };

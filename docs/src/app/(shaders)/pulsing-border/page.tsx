@@ -109,7 +109,22 @@ const PulsingBorderWithControls = () => {
       <ShaderContainer>
         <PulsingBorder {...params} colors={colors} />
       </ShaderContainer>
-      <ShaderDetails name="Pulsing Border" currentParams={{ ...params, colors }} />
+      <ShaderDetails
+        name="Pulsing Border"
+        currentParams={{ ...params, colors }}
+        description="Color spots traveling around rectangular stroke (border)."
+        props={{
+          'colorBack': 'Background color.',
+          'colors': 'Colors used for the effect.',
+          'roundness, thickness, softness': 'Border parameters.',
+          'intensity': 'Thickness of individual spots.',
+          'bloom': 'Normal / additive color blending.',
+          'spots': 'Number of spots rendered per color.',
+          'spotSize': 'Angular size of spots.',
+          'pulse': 'Optional pulsing animation.',
+          'smoke, smokeSize': 'Optional noisy shapes around the border.',
+        }}
+      />
     </>
   );
 };

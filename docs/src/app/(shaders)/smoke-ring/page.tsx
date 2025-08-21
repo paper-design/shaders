@@ -108,7 +108,17 @@ const SmokeRingWithControls = () => {
       <ShaderContainer>
         <SmokeRing {...params} colors={colors} />
       </ShaderContainer>
-      <ShaderDetails name="Smoke Ring" currentParams={{ ...params, colors }} />
+      <ShaderDetails
+        name="Smoke Ring"
+        currentParams={{ ...params, colors }}
+        description="Radial gradient with layered FBM displacement, masked with ring shape."
+        props={{
+          'colorBack': 'Background color.',
+          'colors': 'Colors used for the effect.',
+          'thickness, radius, innerShape': 'Ring mask settings.',
+          'noiseIterations, noiseScale': 'How detailed the noise is (number of FBM layers and noise frequency).',
+        }}
+      />
     </>
   );
 };
