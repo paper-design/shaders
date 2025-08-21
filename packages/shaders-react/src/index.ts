@@ -103,6 +103,10 @@ export { ImageDithering, imageDitheringPresets } from './shaders/image-dithering
 export type { ImageDitheringProps } from './shaders/image-dithering.js';
 export type { ImageDitheringUniforms, ImageDitheringParams } from '@paper-design/shaders';
 
+export { GrainAndNoise, grainAndNoisePresets } from './shaders/grain-and-noise.js';
+export type { GrainAndNoiseProps } from './shaders/grain-and-noise.js';
+export type { GrainAndNoiseUniforms, GrainAndNoiseParams } from '@paper-design/shaders';
+
 export { isPaperShaderElement, getShaderColorFromString } from '@paper-design/shaders';
 export type { PaperShaderElement, ShaderFit, ShaderSizingParams, ShaderSizingUniforms } from '@paper-design/shaders';
 

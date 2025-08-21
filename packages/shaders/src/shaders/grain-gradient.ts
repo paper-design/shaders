@@ -73,7 +73,7 @@ uniform mediump float u_offsetX;
 uniform mediump float u_offsetY;
 
 ${sizingVariablesDeclaration}
-${ sizingDebugVariablesDeclaration }
+${sizingDebugVariablesDeclaration}
 
 out vec4 fragColor;
 

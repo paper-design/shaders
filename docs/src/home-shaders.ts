@@ -75,6 +75,8 @@ import {
   waterPresets,
   ImageDithering,
   imageDitheringPresets,
+  GrainAndNoise,
+  grainAndNoisePresets,
 } from '@paper-design/shaders-react';
 import { StaticImageData } from 'next/image';
 
@@ -262,5 +264,11 @@ export const homeShaders = [
     ShaderComponent: Water,
     image: waterImg,
     shaderConfig: { ...waterPresets[0].params, scale: 0.8 },
+  },
+  {
+    name: 'grain and noise',
+    url: '/grain-and-noise',
+    ShaderComponent: GrainAndNoise,
+    shaderConfig: { ...grainAndNoisePresets[0].params },
   },
 ] satisfies HomeShaderConfig[];
