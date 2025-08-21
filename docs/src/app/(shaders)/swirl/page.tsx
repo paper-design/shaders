@@ -99,7 +99,18 @@ const SwirlWithControls = () => {
       <ShaderContainer>
         <Swirl {...params} colors={colors} />
       </ShaderContainer>
-      <ShaderDetails name="Swirl" currentParams={{ ...params, colors }} />
+      <ShaderDetails
+        name="Swirl"
+        currentParams={{ ...params, colors }}
+        description="Twisting radial bands."
+        props={{
+          colorBack: 'Background color.',
+          colors: 'Colors used for the effect.',
+          bandCount: 'Number of sectors.',
+          twist: 'Sectors twist intensity (0 = linear).',
+          softness: 'Color transition sharpness (0 = hard edge, 1 = smooth fade).',
+        }}
+      />
     </>
   );
 };

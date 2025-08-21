@@ -91,7 +91,18 @@ const WavesWithControls = () => {
       <ShaderContainer>
         <Waves {...params} />
       </ShaderContainer>
-      <ShaderDetails name="Waves" currentParams={params} />
+      <ShaderDetails
+        name="Waves"
+        currentParams={params}
+        description="Waveform pattern."
+        props={{
+          'colorBack, colorFront': 'Colors used for the effect.',
+          'shape': 'Wave shape (0 = zigzag, 1 = sine wave, 1 to 3 = irregular wave).',
+          'amplitude, frequency, spacing': 'Wave settings.',
+          'proportion': 'Blend point between 2 colors (0.5 = equal distribution).',
+          'softness': 'Color transition sharpness (0 = hard edge, 1 = smooth fade).',
+        }}
+      />
     </>
   );
 };

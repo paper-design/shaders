@@ -123,7 +123,20 @@ const WaterWithControls = () => {
       <div onClick={handleClick} className="select-none py-3 text-center">
         Click to change sample image
       </div>
-      <ShaderDetails name="Water" currentParams={params} />
+      <ShaderDetails
+        name="Water"
+        currentParams={params}
+        description="Mimicking water surface distortion with a combination of noises. Can be applied over the texture or just be used as an animated pattern."
+        props={{
+          'colorBack, highlightColor': 'Background and highlight colors.',
+          'effectScale': 'Pattern scale relative to the image.',
+          'caustic': 'Power of caustic distortion.',
+          'layering': 'The power of 2nd layer of caustic distortion.',
+          'edges': 'Caustic distortion power on the image edges.',
+          'waves': 'Additional distortion based in simplex noise, independent from caustic.',
+          'highlights': 'A coloring added over the image/background, following the caustic shape.',
+        }}
+      />
     </div>
   );
 };

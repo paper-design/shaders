@@ -99,7 +99,34 @@ const WarpWithControls = () => {
       <ShaderContainer>
         <Warp {...params} colors={colors} />
       </ShaderContainer>
-      <ShaderDetails name="Warp" currentParams={{ ...params, colors }} />
+      <ShaderDetails
+        name="Warp"
+        currentParams={{ ...params, colors }}
+        description="Iterative layered + swirl-based distortion applied over different layouts (shapes)."
+        props={{
+          'colors': 'Colors used for the effect.',
+          'proportion': 'Blend point between 2 colors (0.5 = equal distribution).',
+          'softness': 'Color transition sharpness (0 = hard edge, 1 = smooth fade).',
+          'distortion': 'Value noise distortion over the UV coordinate.',
+          'shapeScale': 'The scale of layouts (underlying shapes).',
+          'swirl, swirlIterations': 'Swirly distortion (layering curves effect).',
+          'shape': (
+            <>
+              <ul className="list-disc pl-4 [&_b]:font-semibold">
+                <li>
+                  <b>checks</b>: Checks.
+                </li>
+                <li>
+                  <b>stripes</b>: Stripes.
+                </li>
+                <li>
+                  <b>edge</b>: 2x halves of canvas (mapping the canvas height regardless of resolution).
+                </li>
+              </ul>
+            </>
+          ),
+        }}
+      />
     </>
   );
 };

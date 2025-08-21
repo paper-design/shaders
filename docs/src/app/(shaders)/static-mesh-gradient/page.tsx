@@ -99,7 +99,20 @@ const StaticMeshGradientWithControls = () => {
       <ShaderContainer>
         <StaticMeshGradient {...params} colors={colors} />
       </ShaderContainer>
-      <ShaderDetails name="Static Mesh Gradient" currentParams={{ ...params, colors }} />
+      <ShaderDetails
+        name="Static Mesh Gradient"
+        currentParams={{ ...params, colors }}
+        description="A composition of N color spots (one per color)."
+        props={{
+          'colorBack': 'Background color.',
+          'colors': 'Colors used for the effect.',
+          'waveX, waveY': 'Power of sine wave distortion along X and Y axes.',
+          'waveXShift, waveYShift': 'Each wave phase offset.',
+          'mixing': '0 for stepped gradient, 0.5 for smooth transitions, 1 for pronounced color points.',
+          'grainMixer': 'Shape distortion.',
+          'grainOverlay': 'Post-processing blending.',
+        }}
+      />
     </>
   );
 };

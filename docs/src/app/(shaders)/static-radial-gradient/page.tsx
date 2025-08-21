@@ -103,7 +103,22 @@ const StaticRadialGradientWithControls = () => {
       <ShaderContainer>
         <StaticRadialGradient {...params} colors={colors} />
       </ShaderContainer>
-      <ShaderDetails name="Static Radial Gradient" currentParams={{ ...params, colors }} />
+      <ShaderDetails
+        name="Static Radial Gradient"
+        currentParams={{ ...params, colors }}
+        description="N-colors radial gradient."
+        props={{
+          'colorBack': 'Background color.',
+          'colors': 'Colors used for the effect.',
+          'radius': 'Circle radius.',
+          'focalDistance, focalAngle': 'Gradient center offset to the circle center.',
+          'falloff': 'Color points distribution (0 for linear gradient).',
+          'mixing': '0 for stepped gradient, 0.5 for smooth transitions, 1 for pronounced color points.',
+          'distortion, distortionShift, distortionFreq': 'Radial distortion (effective with u_distortion > 0).',
+          'grainMixer': 'Shape distortion.',
+          'grainOverlay': 'Post-processing blending.',
+        }}
+      />
     </>
   );
 };

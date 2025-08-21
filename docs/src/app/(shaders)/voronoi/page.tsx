@@ -99,7 +99,19 @@ const VoronoiWithControls = () => {
       <ShaderContainer>
         <Voronoi {...params} colors={colors} />
       </ShaderContainer>
-      <ShaderDetails name="Voronoi" currentParams={{ ...params, colors }} />
+      <ShaderDetails
+        name="Voronoi"
+        currentParams={{ ...params, colors }}
+        description="Double-pass Voronoi pattern cell edges."
+        props={{
+          'colorBack, colorGlow': 'Background and glow colors.',
+          'colors': 'Colors used for the effect.',
+          'stepsPerColor': 'Discrete color steps between colors.',
+          'distortion': 'Max distance the cell center moves away from regular grid.',
+          'gap': 'Width of the stroke between the cells.',
+          'glow': 'Radial glow around each cell center.',
+        }}
+      />
     </>
   );
 };
