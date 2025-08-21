@@ -20,16 +20,55 @@ export const defaultPreset: GrainAndNoisePreset = {
   name: 'Default',
   params: {
     ...defaultObjectSizing,
-    speed: 2,
+    speed: 1,
     frame: 0,
-    colors: ['#ffffff'],
+    colors: ['#ff0000', '#00ff00', '#0000ff'],
     grain: 0.5,
-    fiber: 0.25,
+    fiber: 0.5,
     scale: 1,
   },
 };
 
-export const grainAndNoisePresets: GrainAndNoisePreset[] = [defaultPreset] as const;
+export const monochromeFiberPreset: GrainAndNoisePreset = {
+  name: 'Monochrome fiber',
+  params: {
+    ...defaultObjectSizing,
+    speed: 1,
+    frame: 0,
+    colors: ['#000000', '#ffffff'],
+    grain: 0,
+    fiber: 1,
+    scale: 1,
+  },
+};
+
+export const smallGrainPreset: GrainAndNoisePreset = {
+  name: 'Small grain',
+  params: {
+    ...defaultObjectSizing,
+    speed: 3,
+    frame: 0,
+    colors: ['#ff0000', '#00ff00', '#0000ff'],
+    grain: 1,
+    fiber: 0,
+    scale: 0.5,
+  },
+};
+
+export const staticPreset: GrainAndNoisePreset = {
+  name: 'Static color',
+  params: {
+    ...defaultObjectSizing,
+    speed: 0,
+    frame: 0,
+    colors: ['#ff00d452'],
+    grain: 1,
+    fiber: 0.5,
+    scale: 1,
+  },
+};
+
+export const grainAndNoisePresets: GrainAndNoisePreset[] = [defaultPreset, smallGrainPreset, monochromeFiberPreset, staticPreset] as const;
 
 export const GrainAndNoise: React.FC<GrainAndNoiseProps> = memo(function GrainAndNoiseImpl({
   // Own props

@@ -26,6 +26,7 @@ const { worldWidth, worldHeight, ...defaults } = grainAndNoisePresets[0].params;
 
 const GrainAndNoiseWithControls = () => {
   const [imageIdx, setImageIdx] = useState(0);
+  const [showImage, setShowImage] = useState(false);
 
   const imageFiles = [
     '001.webp',
@@ -77,6 +78,15 @@ const GrainAndNoiseWithControls = () => {
     },
   }) as { blendMode: BlendMode };
 
+  // Add image visibility control
+  useControls('Image', {
+    'Toggle Image': button(() => setShowImage((prev) => !prev)),
+    'Random Image': button(() => {
+      const randomIdx = Math.floor(Math.random() * imageFiles.length);
+      setImageIdx(randomIdx);
+    }),
+  });
+
   const { colors, setColors } = useColors({
     defaultColors: defaults.colors,
     maxColorCount: grainAndNoiseNoiseMeta.maxColorCount,
@@ -88,8 +98,8 @@ const GrainAndNoiseWithControls = () => {
         {
           grain: { value: defaults.grain, min: 0, max: 1, order: 300 },
           fiber: { value: defaults.fiber, min: 0, max: 1, order: 300 },
-          speed: { value: defaults.speed, min: 0, max: 10, order: 351 },
-          scale: { value: defaults.scale, min: 0.02, max: 4, order: 400 },
+          speed: { value: defaults.speed, min: 0, max: 5, order: 351 },
+          scale: { value: defaults.scale, min: 0.1, max: 5, order: 400 },
         },
         { order: 1 }
       ),
@@ -123,10 +133,12 @@ const GrainAndNoiseWithControls = () => {
       <Link href="/">
         <BackButton />
       </Link>
-      <img
-        src={fileName ? `/images/image-filters/${fileName}` : ''}
-        className="fixed left-0 top-0 z-0 h-full w-full object-cover"
-      />
+      {showImage && (
+        <img
+          src={fileName ? `/images/image-filters/${fileName}` : ''}
+          className="fixed left-0 top-0 z-0 h-full w-full object-cover"
+        />
+      )}
       <GrainAndNoise
         onClick={handleClick}
         {...params}

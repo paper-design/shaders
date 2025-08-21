@@ -26,10 +26,9 @@ out vec4 fragColor;
 ${declarePI}
 ${rotation2}
 ${simplexNoise}
-${textureRandomizerR}
 
 vec3 random(vec2 p) {
-  vec2 uv = floor(p) / 100.;
+  vec2 uv = p / 100.;
   return texture(u_noiseTexture, fract(uv + .003 * u_time)).rgb;
 }
 
@@ -49,10 +48,11 @@ vec3 fbm(vec2 n) {
   vec3 total = vec3(0.);
   float amplitude = 1.;
   for (int i = 0; i < 5; i++) {
-    n = rotate(n, .4);
+    n = rotate(n, .7);
+
     total += valueNoise(n) * amplitude;
     n *= 2.;
-    amplitude *= 0.5;
+    amplitude *= 0.4;
   }
   return total;
 }
@@ -74,24 +74,21 @@ vec3 fiberShape(vec2 uv) {
 }
 
 
-float getNoise(vec2 uv) {
-  float noise = .5 * snoise(uv + vec2(0., -.3 * u_time));
-  noise += .5 * snoise(1.4 * uv + vec2(0., .4 * u_time));
-
-  return noise;
-}
-
 void main() {
-  vec2 fiberUV = -10. + 10. * v_patternUV;
+  vec2 fiberUV = 10. * v_patternUV;
   vec3 fiber = u_fiber / u_colorsCount * fiberShape(fiberUV);
+  
+
+  
 
   vec2 grainUV = 20. * v_patternUV;
-  float grainShape = clamp(-1. + 1.5 * u_grain + getNoise(grainUV), 0., 1.);
+  float grainShapeNoise = snoise(grainUV + vec2(0., -.3 * u_time)) + snoise(1.4 * grainUV + vec2(0., .4 * u_time));
+  float grainShape = smoothstep(0., .5 + .5 * u_grain, u_grain * grainShapeNoise);
 
   vec3 grainColor;
   float grainOpacity;
   int cc = int(u_colorsCount);
-  float grainColorMixer = .5 + .5 * snoise(1.5 * grainUV);
+  float grainColorMixer = .5 + .5 * snoise(2. * grainUV);
 
   if (cc == 1) {
     grainColor = u_colors[0].rgb;
@@ -101,10 +98,10 @@ void main() {
     grainColor = mix(u_colors[0].rgb, u_colors[1].rgb, t);
     grainOpacity = mix(u_colors[0].a, u_colors[1].a, t);
   } else {
-    vec3 m1 = mix(u_colors[0].rgb, u_colors[1].rgb, smoothstep(0.0, 0.5, grainColorMixer));
-    grainColor = mix(m1, u_colors[2].rgb, smoothstep(0.5, 1.0, grainColorMixer));
-    float a1 = mix(u_colors[0].a, u_colors[1].a, smoothstep(0.0, 0.5, grainColorMixer));
-    grainOpacity = mix(a1, u_colors[2].a, smoothstep(0.5, 1.0, grainColorMixer));
+    vec3 m1 = mix(u_colors[0].rgb, u_colors[1].rgb, smoothstep(0.0, 0.7, grainColorMixer));
+    grainColor = mix(m1, u_colors[2].rgb, smoothstep(0.3, 1.0, grainColorMixer));
+    float a1 = mix(u_colors[0].a, u_colors[1].a, smoothstep(0.0, 0.7, grainColorMixer));
+    grainOpacity = mix(a1, u_colors[2].a, smoothstep(0.3, 1.0, grainColorMixer));
   }
 
   vec3 color = vec3(0.);
@@ -119,7 +116,7 @@ void main() {
   float grainContribution = grainShape * grainOpacity;
   color += grainColor * grainContribution;
   opacity = min(opacity + grainContribution, 1.);
-
+  
   fragColor = vec4(color, opacity);
 }
 `;
