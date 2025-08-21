@@ -128,7 +128,25 @@ const PaperTextureWithControls = () => {
       <div onClick={handleClick} className="select-none py-3 text-center">
         Click to change sample image
       </div>
-      <ShaderDetails name="Paper Texture" currentParams={params} />
+      <ShaderDetails
+        name="Paper Texture"
+        currentParams={params}
+        description="Mimicking paper texture with a combination of noises."
+        props={{
+          'colorFront, colorBack': 'Colors used for the effect.',
+          'contrast': 'Mixing front and back colors.',
+          'roughness': 'Pixel noise, related to canvas (not scalable).',
+          'fiber': 'Curly-shaped noise.',
+          'fiberScale': 'Curly-shaped noise scale.',
+          'crumples': 'Cell-based pattern.',
+          'crumplesScale': 'Cell-based pattern scale.',
+          'folds': 'Depth of the folds.',
+          'foldsNumber': 'Number of folds (15 max).',
+          'drops': 'Metaballs-like pattern.',
+          'seed': 'Applied to folds, crumples and dots.',
+          'blur': 'Big-scale noise mask applied to everything but roughness.',
+        }}
+      />
     </div>
   );
 };

@@ -84,7 +84,16 @@ const NeuroNoiseWithControls = () => {
       <ShaderContainer>
         <NeuroNoise {...params} />
       </ShaderContainer>
-      <ShaderDetails name="Neuro Noise" currentParams={params} />
+      <ShaderDetails
+        name="Neuro Noise"
+        currentParams={params}
+        description="Fractal-like structure made of several layers of sine arches."
+        props={{
+          'colorBack, colorMid, colorFront': 'Colors used for the effect.',
+          'brightness': 'Brightness.',
+          'contrast': 'Contrast.',
+        }}
+      />
     </>
   );
 };

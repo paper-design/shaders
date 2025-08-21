@@ -89,7 +89,19 @@ const PerlinNoiseWithControls = () => {
       <ShaderContainer>
         <PerlinNoise {...params} />
       </ShaderContainer>
-      <ShaderDetails name="Perlin Noise" currentParams={params} />
+      <ShaderDetails
+        name="Perlin Noise"
+        currentParams={params}
+        description="3D Perlin noise."
+        props={{
+          'colorBack, colorFront': 'Colors used for the effect.',
+          'proportion': 'Blend point between 2 colors (0.5 = equal distribution).',
+          'softness': 'Color transition sharpness (0 = hard edge, 1 = smooth fade).',
+          'octaveCount': 'More octaves give more detailed patterns.',
+          'persistence': 'Roughness, falloff between octaves.',
+          'lacunarity': 'Frequency step, typically around 2. Defines how compressed the pattern is.',
+        }}
+      />
     </>
   );
 };
