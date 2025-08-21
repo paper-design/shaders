@@ -9,6 +9,7 @@ import { memo } from 'react';
 import { ShaderMount, type ShaderComponentProps } from '@paper-design/shaders-react';
 import { getShaderColorFromString, type ShaderPreset } from '@paper-design/shaders';
 import { useColors } from '@/helpers/use-colors';
+import { ShaderContainer } from '@/components/shader-container';
 
 type vec4 = [number, number, number, number];
 const gradientDemoMixerMaxColorCount = 10;
@@ -204,9 +205,11 @@ export default function Page() {
   };
 
   return (
-    <div className="relative flex flex-col" style={{ width: 'calc(100% - 300px)' }}>
-      <div className="absolute left-0 top-1/3 whitespace-pre p-2 font-bold text-white">{getBlending()}</div>
-      <GradientDemoMixer {...params} colors={colors} className="h-full" />
-    </div>
+    <ShaderContainer>
+      <div className="relative flex flex-col" style={{ width: 'calc(100% - 300px)' }}>
+        <div className="absolute left-0 top-1/3 whitespace-pre p-2 font-bold text-white">{getBlending()}</div>
+        <GradientDemoMixer {...params} colors={colors} className="h-full" />
+      </div>
+    </ShaderContainer>
   );
 }

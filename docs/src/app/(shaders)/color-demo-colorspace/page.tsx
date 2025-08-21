@@ -8,6 +8,7 @@ import { memo } from 'react';
 import { getShaderColorFromString, type ShaderPreset } from '@paper-design/shaders';
 import { ShaderMount, ShaderComponentProps } from '@paper-design/shaders-react';
 import { useColors } from '@/helpers/use-colors';
+import { ShaderContainer } from '@/components/shader-container';
 
 type vec4 = [number, number, number, number];
 const gradientDemoCSSMaxColorCount = 7;
@@ -226,31 +227,33 @@ export default function Page() {
   cleanUpLevaParams(params);
 
   return (
-    <div className="flex flex-col" style={{ width: 'calc(100% - 300px)' }}>
-      <div className="relative h-1/3 w-full text-center">
-        <span className="absolute left-0 top-0 w-full p-2 font-bold text-white">{`CSS OKLCH`}</span>
-        <div
-          className="h-full"
-          style={{
-            background: `linear-gradient(to right in oklch, ${colors.join(', ')})`,
-          }}
-        />
-      </div>
+    <ShaderContainer>
+      <div className="flex flex-col" style={{ width: 'calc(100% - 300px)' }}>
+        <div className="relative h-1/3 w-full text-center">
+          <span className="absolute left-0 top-0 w-full p-2 font-bold text-white">{`CSS OKLCH`}</span>
+          <div
+            className="h-full"
+            style={{
+              background: `linear-gradient(to right in oklch, ${colors.join(', ')})`,
+            }}
+          />
+        </div>
 
-      <div className="relative h-1/3 w-full text-center">
-        <span className="absolute left-0 top-0 z-10 w-full p-2 font-bold text-white">{`Shader`}</span>
-        <GradientDemoCSS {...params} colors={colors} className="h-full w-full" />
-      </div>
+        <div className="relative h-1/3 w-full text-center">
+          <span className="absolute left-0 top-0 z-10 w-full p-2 font-bold text-white">{`Shader`}</span>
+          <GradientDemoCSS {...params} colors={colors} className="h-full w-full" />
+        </div>
 
-      <div className="relative h-1/3 w-full text-center">
-        <span className="absolute left-0 top-0 w-full p-2 font-bold text-white">{`CSS Default`}</span>
-        <div
-          className="h-full"
-          style={{
-            background: `linear-gradient(to right, ${colors.join(', ')})`,
-          }}
-        />
+        <div className="relative h-1/3 w-full text-center">
+          <span className="absolute left-0 top-0 w-full p-2 font-bold text-white">{`CSS Default`}</span>
+          <div
+            className="h-full"
+            style={{
+              background: `linear-gradient(to right, ${colors.join(', ')})`,
+            }}
+          />
+        </div>
       </div>
-    </div>
+    </ShaderContainer>
   );
 }

@@ -114,7 +114,7 @@ const StaticRadialGradientWithControls = () => {
           'focalDistance, focalAngle': 'Gradient center offset to the circle center.',
           'falloff': 'Color points distribution (0 for linear gradient).',
           'mixing': '0 for stepped gradient, 0.5 for smooth transitions, 1 for pronounced color points.',
-          'distortion, distortionShift, distortionFreq': 'Radial distortion (effective with u_distortion > 0).',
+          'distortion, distortionShift, distortionFreq': 'Radial distortion (effective with distortion > 0).',
           'grainMixer': 'Shape distortion.',
           'grainOverlay': 'Post-processing blending.',
         }}
