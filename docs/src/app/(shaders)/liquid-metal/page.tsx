@@ -87,7 +87,20 @@ const LiquidMetalWithControls = () => {
       <ShaderContainer>
         <LiquidMetal {...params} />
       </ShaderContainer>
-      <ShaderDetails name="Liquid Metal" currentParams={params} />
+      <ShaderDetails
+        name="Liquid Metal"
+        currentParams={params}
+        description="Liquid metal fluid motion applied over abstract shapes."
+        props={{
+          'colorBack, colorTint': 'Colors used for the effect.',
+          'repetition': 'Density of pattern stripes.',
+          'softness': 'Blur between stripes.',
+          'shiftRed, shiftBlue': 'Color dispersion between the stripes.',
+          'distortion': 'Pattern distortion on the whole canvas.',
+          'contour': 'Distortion power over the shape edges.',
+          'shape': 'Shape to use for the effect.',
+        }}
+      />
     </>
   );
 };

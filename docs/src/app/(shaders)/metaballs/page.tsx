@@ -96,7 +96,18 @@ const MetaballsWithControls = () => {
       <ShaderContainer>
         <Metaballs {...params} colors={colors} />
       </ShaderContainer>
-      <ShaderDetails name="Metaballs" currentParams={{ ...params, colors }} />
+      <ShaderDetails
+        name="Metaballs"
+        currentParams={{ ...params, colors }}
+        description="Circular shapes moving around the center, blending and merging based on distance."
+        props={{
+          colorBack: 'Background color.',
+          colors: 'Colors used for the effect.',
+          size: 'Base size of the balls.',
+          sizeRange: 'Randomizes the size of balls between 0 and size.',
+          count: 'Number of balls on the canvas.',
+        }}
+      />
     </>
   );
 };

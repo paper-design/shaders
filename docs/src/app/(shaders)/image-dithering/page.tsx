@@ -121,7 +121,35 @@ const ImageDitheringWithControls = () => {
       <div onClick={handleClick} className="select-none py-3 text-center">
         Click to change sample image
       </div>
-      <ShaderDetails name="Image Dithering" currentParams={params} />
+      <ShaderDetails
+        name="Image Dithering"
+        currentParams={params}
+        description="Dithering effect using a 3-color palette."
+        props={{
+          'colorBack, colorFront, colorHighlight': 'Colors used for the effect.',
+          'pxSize': 'Pixel size relative to canvas resolution.',
+          'type': (
+            <>
+              <ul className="list-disc pl-4 [&_b]:font-semibold">
+                <li>
+                  <b>random</b>: Random dithering.
+                </li>
+                <li>
+                  <b>2x2</b>: 2x2 Bayer matrix.
+                </li>
+                <li>
+                  <b>4x4</b>: 4x4 Bayer matrix.
+                </li>
+                <li>
+                  <b>8x8</b>: 8x8 Bayer matrix.
+                </li>
+              </ul>
+            </>
+          ),
+          'originalColors': 'Switch between the 3-color palette and the original image colors.',
+          'colorSteps': 'Number of colors to use (applies to both color modes).',
+        }}
+      />
     </div>
   );
 };
