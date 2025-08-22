@@ -47,13 +47,9 @@ export default function Home() {
           <p className="max-w-64 text-lg text-stone-600">ultra fast zero-dependency shaders for your designs</p>
         </div>
 
-        <div className="mx-auto mt-5 flex h-12 w-fit items-center gap-4 rounded-lg border bg-white pl-4 font-mono text-stone-800">
+        <div className="xs:text-sm mx-auto mt-5 flex h-12 w-fit items-center gap-4 rounded-lg border bg-white pl-4 font-mono text-xs text-pretty text-stone-800 sm:text-base">
           npm i @paper-design/react-shaders
-          <button
-            aria-label="Copy"
-            className="flex size-12 items-center justify-center border-l"
-            onClick={handleCopy}
-          >
+          <button aria-label="Copy" className="flex size-12 items-center justify-center border-l" onClick={handleCopy}>
             {copied ? <CheckIcon className="size-5.5" /> : <CopyIcon className="size-4.5" />}
           </button>
         </div>
