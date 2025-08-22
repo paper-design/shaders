@@ -41,10 +41,10 @@ export default function Home() {
           <p className="max-w-64 text-lg text-stone-600">ultra fast zero-dependency shaders for your designs</p>
         </div>
 
-        <div className="xs:text-sm mx-auto mt-5 flex h-12 w-fit items-center gap-4 rounded-lg border bg-white pl-4 font-mono text-xs text-pretty text-stone-800 sm:text-base">
+        <div className="mx-auto mt-5 flex h-12 w-fit max-w-full items-center gap-4 overflow-x-scroll rounded-lg border bg-white pl-4 font-mono text-sm text-nowrap text-stone-800 sm:text-base">
           npm i @paper-design/react-shaders
           <CopyButton
-            className="flex size-12 items-center justify-center border-l"
+            className="sticky right-0 flex size-12 shrink-0 items-center justify-center border-l bg-white"
             text="npm i @paper-design/react-shaders"
           />
         </div>
