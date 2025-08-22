@@ -111,7 +111,7 @@ const PaperTextureWithControls = () => {
       <ShaderContainer>
         <PaperTexture onClick={handleClick} {...params} image={image || undefined} />
       </ShaderContainer>
-      <div onClick={handleClick} className="select-none py-3 text-center">
+      <div onClick={handleClick} className="py-3 text-center select-none">
         Click to change sample image
       </div>
       <ShaderDetails

@@ -32,14 +32,14 @@ const MetaballsWithControls = () => {
 
   const [params, setParams] = useControls(() => {
     return {
-          colorBack: { value: toHsla(defaults.colorBack), order: 100 },
-          count: { value: defaults.count, min: 1, max: metaballsMeta.maxBallsCount, order: 200 },
-          size: { value: defaults.size, min: 0, max: 1, order: 201 },
-        offsetX: {value: defaults.offsetX, min: -1, max: 1, order: 300},
-        offsetY: {value: defaults.offsetY, min: -1, max: 1, order: 301},
-        scale: { value: defaults.scale, min: 0.01, max: 4, order: 302 },
-          rotation: { value: defaults.rotation, min: 0, max: 360, order: 303 },
-        speed: {value: defaults.speed, min: 0, max: 2, order: 400},
+      colorBack: { value: toHsla(defaults.colorBack), order: 100 },
+      count: { value: defaults.count, min: 1, max: metaballsMeta.maxBallsCount, order: 200 },
+      size: { value: defaults.size, min: 0, max: 1, order: 201 },
+      offsetX: { value: defaults.offsetX, min: -1, max: 1, order: 300 },
+      offsetY: { value: defaults.offsetY, min: -1, max: 1, order: 301 },
+      scale: { value: defaults.scale, min: 0.01, max: 4, order: 302 },
+      rotation: { value: defaults.rotation, min: 0, max: 360, order: 303 },
+      speed: { value: defaults.speed, min: 0, max: 2, order: 400 },
     };
   }, [colors.length]);
 
@@ -76,8 +76,8 @@ const MetaballsWithControls = () => {
         description="Circular shapes moving around the center, blending and merging based on distance."
         props={{
           colorBack: 'Background color.',
-            colors: 'Colors used for the effect.',
-            count: 'Number of balls on the canvas.',
+          colors: 'Colors used for the effect.',
+          count: 'Number of balls on the canvas.',
           size: 'Base size of the balls.',
         }}
       />

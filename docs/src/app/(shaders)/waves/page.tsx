@@ -27,44 +27,16 @@ const { worldWidth, worldHeight, ...defaults } = wavesPresets[0].params;
 const WavesWithControls = () => {
   const [params, setParams] = useControls(() => {
     return {
-      Parameters: folder(
-        {
-          colorBack: { value: toHsla(defaults.colorBack), order: 100 },
-          colorFront: { value: toHsla(defaults.colorFront), order: 101 },
-          frequency: { value: defaults.frequency, min: 0, max: 2, order: 300 },
-          amplitude: { value: defaults.amplitude, min: 0, max: 1, order: 301 },
-          spacing: { value: defaults.spacing, min: 0, max: 2, order: 302 },
-          proportion: { value: defaults.proportion, min: 0, max: 1, order: 303 },
-          softness: { value: defaults.softness, min: 0, max: 1, order: 304 },
-          shape: { value: defaults.shape, min: 0, max: 3, order: 350 },
-        },
-        { order: 1 }
-      ),
-      Transform: folder(
-        {
-          scale: { value: defaults.scale, min: 0.01, max: 4, order: 400 },
-          rotation: { value: defaults.rotation, min: 0, max: 360, order: 401 },
-          offsetX: { value: defaults.offsetX, min: -1, max: 1, order: 402 },
-          offsetY: { value: defaults.offsetY, min: -1, max: 1, order: 403 },
-        },
-        {
-          order: 2,
-          collapsed: false,
-        }
-      ),
-      Fit: folder(
-        {
-          fit: { value: defaults.fit, options: Object.keys(ShaderFitOptions) as ShaderFit[], order: 404 },
-          worldWidth: { value: 1000, min: 0, max: 5120, order: 405 },
-          worldHeight: { value: 500, min: 0, max: 5120, order: 406 },
-          originX: { value: defaults.originX, min: 0, max: 1, order: 407 },
-          originY: { value: defaults.originY, min: 0, max: 1, order: 408 },
-        },
-        {
-          order: 3,
-          collapsed: true,
-        }
-      ),
+      colorBack: { value: toHsla(defaults.colorBack), order: 100 },
+      colorFront: { value: toHsla(defaults.colorFront), order: 101 },
+      frequency: { value: defaults.frequency, min: 0, max: 2, order: 300 },
+      amplitude: { value: defaults.amplitude, min: 0, max: 1, order: 301 },
+      spacing: { value: defaults.spacing, min: 0, max: 2, order: 302 },
+      proportion: { value: defaults.proportion, min: 0, max: 1, order: 303 },
+      softness: { value: defaults.softness, min: 0, max: 1, order: 304 },
+      shape: { value: defaults.shape, min: 0, max: 3, order: 350 },
+      scale: { value: defaults.scale, min: 0.01, max: 4, order: 400 },
+      rotation: { value: defaults.rotation, min: 0, max: 360, order: 401 },
     };
   });
 
@@ -101,6 +73,8 @@ const WavesWithControls = () => {
           'amplitude, frequency, spacing': 'Wave settings.',
           'proportion': 'Blend point between 2 colors (0.5 = equal distribution).',
           'softness': 'Color transition sharpness (0 = hard edge, 1 = smooth fade).',
+          'scale': 'overall pattern zoom',
+          'rotation': 'overall pattern rotation angle',
         }}
       />
     </>

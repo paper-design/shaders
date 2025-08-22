@@ -33,42 +33,14 @@ const NeuroNoiseWithControls = () => {
     );
 
     return {
-      Parameters: folder(
-        {
-          colorFront: { value: toHsla(defaults.colorFront), order: 100 },
-          colorMid: { value: toHsla(defaults.colorMid), order: 101 },
-          colorBack: { value: toHsla(defaults.colorBack), order: 101 },
-          brightness: { value: defaults.brightness, min: 0, max: 1, order: 300 },
-          contrast: { value: defaults.contrast, min: 0, max: 1, order: 301 },
-          speed: { value: defaults.speed, min: 0, max: 2, order: 400 },
-        },
-        { order: 1 }
-      ),
-      Transform: folder(
-        {
-          scale: { value: defaults.scale, min: 0.01, max: 4, order: 400 },
-          rotation: { value: defaults.rotation, min: 0, max: 360, order: 401 },
-          offsetX: { value: defaults.offsetX, min: -1, max: 1, order: 402 },
-          offsetY: { value: defaults.offsetY, min: -1, max: 1, order: 403 },
-        },
-        {
-          order: 2,
-          collapsed: false,
-        }
-      ),
-      Fit: folder(
-        {
-          fit: { value: defaults.fit, options: Object.keys(ShaderFitOptions) as ShaderFit[], order: 404 },
-          worldWidth: { value: 1000, min: 0, max: 5120, order: 405 },
-          worldHeight: { value: 500, min: 0, max: 5120, order: 406 },
-          originX: { value: defaults.originX, min: 0, max: 1, order: 407 },
-          originY: { value: defaults.originY, min: 0, max: 1, order: 408 },
-        },
-        {
-          order: 3,
-          collapsed: true,
-        }
-      ),
+      colorFront: { value: toHsla(defaults.colorFront), order: 100 },
+      colorMid: { value: toHsla(defaults.colorMid), order: 101 },
+      colorBack: { value: toHsla(defaults.colorBack), order: 102 },
+      brightness: { value: defaults.brightness, min: 0, max: 1, order: 200 },
+      contrast: { value: defaults.contrast, min: 0, max: 1, order: 201 },
+      scale: { value: defaults.scale, min: 0.01, max: 4, order: 300 },
+      rotation: { value: defaults.rotation, min: 0, max: 360, order: 301 },
+      speed: { value: defaults.speed, min: 0, max: 2, order: 400 },
       Presets: folder(presets, { order: -1 }),
     };
   });
@@ -92,6 +64,9 @@ const NeuroNoiseWithControls = () => {
           'colorBack, colorMid, colorFront': 'Colors used for the effect.',
           'brightness': 'Brightness.',
           'contrast': 'Contrast.',
+          'scale': 'overall pattern zoom',
+          'rotation': 'overall pattern rotation angle',
+          'speed': 'animation speed',
         }}
       />
     </>

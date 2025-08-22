@@ -31,54 +31,28 @@ const PulsingBorderWithControls = () => {
   });
   const [params, setParams] = useControls(() => {
     return {
-      Parameters: folder(
-        {
-          colorBack: { value: toHsla(defaults.colorBack), order: 100 },
-          roundness: { value: defaults.roundness, min: 0, max: 1, order: 300 },
-          thickness: { value: defaults.thickness, min: 0, max: 1, order: 301 },
-          softness: { value: defaults.softness, min: 0, max: 1, order: 302 },
-          intensity: { value: defaults.intensity, min: 0, max: 1, order: 303 },
-          bloom: { value: defaults.bloom, min: 0, max: 1, order: 304 },
-          spots: {
-            value: defaults.spots,
-            min: 1,
-            max: pulsingBorderMeta.maxSpots,
-            step: 1,
-            order: 305,
-          },
-          spotSize: { value: defaults.spotSize, min: 0, max: 1, order: 306 },
-          pulse: { value: defaults.pulse, min: 0, max: 1, order: 307 },
-          smoke: { value: defaults.smoke, min: 0, max: 1, order: 350 },
-          smokeSize: { value: defaults.smokeSize, min: 0, max: 1, order: 351 },
-          speed: { value: defaults.speed, min: 0, max: 2, order: 400 },
-        },
-        { order: 1 }
-      ),
-      Transform: folder(
-        {
-          scale: { value: defaults.scale, min: 0.01, max: 1, order: 400 },
-          rotation: { value: defaults.rotation, min: 0, max: 360, order: 401 },
-          offsetX: { value: defaults.offsetX, min: -1, max: 1, order: 402 },
-          offsetY: { value: defaults.offsetY, min: -1, max: 1, order: 403 },
-        },
-        {
-          order: 2,
-          collapsed: false,
-        }
-      ),
-      Fit: folder(
-        {
-          fit: { value: defaults.fit, options: Object.keys(ShaderFitOptions) as ShaderFit[], order: 404 },
-          worldWidth: { value: 0, min: 0, max: 5120, order: 405 },
-          worldHeight: { value: 0, min: 0, max: 5120, order: 406 },
-          originX: { value: defaults.originX, min: 0, max: 1, order: 407 },
-          originY: { value: defaults.originY, min: 0, max: 1, order: 408 },
-        },
-        {
-          order: 3,
-          collapsed: true,
-        }
-      ),
+      colorBack: { value: toHsla(defaults.colorBack), order: 100 },
+      roundness: { value: defaults.roundness, min: 0, max: 1, order: 200 },
+      thickness: { value: defaults.thickness, min: 0, max: 1, order: 200 },
+      softness: { value: defaults.softness, min: 0, max: 1, order: 202 },
+      intensity: { value: defaults.intensity, min: 0, max: 1, order: 203 },
+      bloom: { value: defaults.bloom, min: 0, max: 1, order: 204 },
+      spots: {
+        value: defaults.spots,
+        min: 1,
+        max: pulsingBorderMeta.maxSpots,
+        step: 1,
+        order: 205,
+      },
+      spotSize: { value: defaults.spotSize, min: 0, max: 1, order: 206 },
+      pulse: { value: defaults.pulse, min: 0, max: 1, order: 207 },
+      smoke: { value: defaults.smoke, min: 0, max: 1, order: 208 },
+      smokeSize: { value: defaults.smokeSize, min: 0, max: 1, order: 209 },
+      scale: { value: defaults.scale, min: 0.01, max: 1, order: 300 },
+      rotation: { value: defaults.rotation, min: 0, max: 360, order: 301 },
+      offsetX: { value: defaults.offsetX, min: -1, max: 1, order: 302 },
+      offsetY: { value: defaults.offsetY, min: -1, max: 1, order: 303 },
+      speed: { value: defaults.speed, min: 0, max: 2, order: 400 },
     };
   }, [colors.length]);
 
@@ -116,13 +90,20 @@ const PulsingBorderWithControls = () => {
         props={{
           'colorBack': 'Background color.',
           'colors': 'Colors used for the effect.',
-          'roundness, thickness, softness': 'Border parameters.',
+          'roundness': 'Border parameters.',
+          'thickness': 'Border parameters.',
+          'softness': 'Border parameters.',
           'intensity': 'Thickness of individual spots.',
           'bloom': 'Normal / additive color blending.',
           'spots': 'Number of spots rendered per color.',
           'spotSize': 'Angular size of spots.',
           'pulse': 'Optional pulsing animation.',
-          'smoke, smokeSize': 'Optional noisy shapes around the border.',
+          'smoke': 'Optional noisy shapes around the border.',
+          'smokeSize': 'Optional noisy shapes around the border.',
+          'offsetX, offsetY': 'position of the center',
+          'scale': 'overall pattern zoom',
+          'rotation': 'overall pattern rotation angle',
+          'speed': 'animation speed',
         }}
       />
     </>

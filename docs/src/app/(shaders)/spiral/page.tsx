@@ -32,48 +32,21 @@ const { worldWidth, worldHeight, ...defaults } = {
 const SpiralWithControls = () => {
   const [params, setParams] = useControls(() => {
     return {
-      Parameters: folder(
-        {
-          colorBack: { value: toHsla(defaults.colorBack), order: 100 },
-          colorFront: { value: toHsla(defaults.colorFront), order: 101 },
-          density: { value: defaults.density, min: 0, max: 1, order: 203 },
-          distortion: { value: defaults.distortion, min: 0, max: 1, order: 204 },
-          strokeWidth: { value: defaults.strokeWidth, min: 0, max: 1, order: 205 },
-          strokeTaper: { value: defaults.strokeTaper, min: 0, max: 1, order: 206 },
-          strokeCap: { value: defaults.strokeCap, min: 0, max: 1, order: 207 },
-          noise: { value: defaults.noise, min: 0, max: 1, order: 350 },
-          noiseFrequency: { value: defaults.noiseFrequency, min: 0, max: 1, order: 351 },
-          softness: { value: defaults.softness, min: 0, max: 1, order: 352 },
-          speed: { value: defaults.speed, min: 0, max: 2, order: 400 },
-          reverse: { value: defaults.reverse, order: 401 },
-        },
-        { order: 1 }
-      ),
-      Transform: folder(
-        {
-          scale: { value: defaults.scale, min: 0.01, max: 4, order: 400 },
-          rotation: { value: defaults.rotation, min: 0, max: 360, order: 401 },
-          offsetX: { value: defaults.offsetX, min: -1, max: 1, order: 402 },
-          offsetY: { value: defaults.offsetY, min: -1, max: 1, order: 403 },
-        },
-        {
-          order: 2,
-          collapsed: false,
-        }
-      ),
-      Fit: folder(
-        {
-          fit: { value: defaults.fit, options: Object.keys(ShaderFitOptions) as ShaderFit[], order: 404 },
-          worldWidth: { value: 1000, min: 0, max: 5120, order: 405 },
-          worldHeight: { value: 500, min: 0, max: 5120, order: 406 },
-          originX: { value: defaults.originX, min: 0, max: 1, order: 407 },
-          originY: { value: defaults.originY, min: 0, max: 1, order: 408 },
-        },
-        {
-          order: 3,
-          collapsed: true,
-        }
-      ),
+      colorBack: { value: toHsla(defaults.colorBack), order: 100 },
+      colorFront: { value: toHsla(defaults.colorFront), order: 101 },
+      density: { value: defaults.density, min: 0, max: 1, order: 200 },
+      distortion: { value: defaults.distortion, min: 0, max: 1, order: 201 },
+      strokeWidth: { value: defaults.strokeWidth, min: 0, max: 1, order: 202 },
+      strokeTaper: { value: defaults.strokeTaper, min: 0, max: 1, order: 203 },
+      strokeCap: { value: defaults.strokeCap, min: 0, max: 1, order: 204 },
+      noise: { value: defaults.noise, min: 0, max: 1, order: 205 },
+      noiseFrequency: { value: defaults.noiseFrequency, min: 0, max: 1, order: 206 },
+      softness: { value: defaults.softness, min: 0, max: 1, order: 207 },
+      offsetX: { value: defaults.offsetX, min: -1, max: 1, order: 300 },
+      offsetY: { value: defaults.offsetY, min: -1, max: 1, order: 301 },
+      scale: { value: defaults.scale, min: 0.01, max: 4, order: 302 },
+      rotation: { value: defaults.rotation, min: 0, max: 360, order: 303 },
+      speed: { value: defaults.speed, min: 0, max: 2, order: 400 },
     };
   });
 
@@ -115,6 +88,10 @@ const SpiralWithControls = () => {
           'strokeCap': 'Extra width at the center (no effect on strokeWidth = 0.5).',
           'noiseFrequency, noise': 'Simplex noise distortion over the shape.',
           'softness': 'Color transition sharpness (0 = hard edge, 1 = smooth fade).',
+          'offsetX, offsetY': 'position of the center',
+          'scale': 'overall pattern zoom',
+          'rotation': 'overall pattern rotation angle',
+          'speed': 'animation speed',
         }}
       />
     </>

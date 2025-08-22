@@ -32,47 +32,19 @@ const StaticRadialGradientWithControls = () => {
 
   const [params, setParams] = useControls(() => {
     return {
-      Parameters: folder(
-        {
-          colorBack: { value: toHsla(defaults.colorBack), order: 100 },
-          radius: { value: defaults.radius, min: 0, max: 3, order: 199 },
-          focalDistance: { value: defaults.focalDistance, min: 0, max: 3, order: 200 },
-          focalAngle: { value: defaults.focalAngle, min: 0, max: 360, order: 201 },
-          falloff: { value: defaults.falloff, min: -1, max: 1, order: 203 },
-          mixing: { value: defaults.mixing, min: 0, max: 1, order: 300 },
-          distortion: { value: defaults.distortion, min: 0, max: 1, order: 302 },
-          distortionShift: { value: defaults.distortionShift, min: -1, max: 1, order: 302 },
-          distortionFreq: { value: defaults.distortionFreq, min: 0, max: 20, step: 1, order: 302 },
-          grainMixer: { value: defaults.grainMixer, min: 0, max: 1, order: 350 },
-          grainOverlay: { value: defaults.grainOverlay, min: 0, max: 1, order: 351 },
-        },
-        { order: 1 }
-      ),
-      Transform: folder(
-        {
-          scale: { value: defaults.scale, min: 0.01, max: 4, order: 400 },
-          rotation: { value: defaults.rotation, min: 0, max: 360, order: 401 },
-          offsetX: { value: defaults.offsetX, min: -1, max: 1, order: 402 },
-          offsetY: { value: defaults.offsetY, min: -1, max: 1, order: 403 },
-        },
-        {
-          order: 2,
-          collapsed: false,
-        }
-      ),
-      Fit: folder(
-        {
-          fit: { value: defaults.fit, options: Object.keys(ShaderFitOptions) as ShaderFit[], order: 404 },
-          worldWidth: { value: 1000, min: 0, max: 5120, order: 405 },
-          worldHeight: { value: 500, min: 0, max: 5120, order: 406 },
-          originX: { value: defaults.originX, min: 0, max: 1, order: 407 },
-          originY: { value: defaults.originY, min: 0, max: 1, order: 408 },
-        },
-        {
-          order: 3,
-          collapsed: true,
-        }
-      ),
+      colorBack: { value: toHsla(defaults.colorBack), order: 100 },
+      radius: { value: defaults.radius, min: 0, max: 3, order: 200 },
+      focalDistance: { value: defaults.focalDistance, min: 0, max: 3, order: 201 },
+      focalAngle: { value: defaults.focalAngle, min: 0, max: 360, order: 202 },
+      falloff: { value: defaults.falloff, min: -1, max: 1, order: 201 },
+      mixing: { value: defaults.mixing, min: 0, max: 1, order: 204 },
+      distortion: { value: defaults.distortion, min: 0, max: 1, order: 205 },
+      distortionShift: { value: defaults.distortionShift, min: -1, max: 1, order: 206 },
+      distortionFreq: { value: defaults.distortionFreq, min: 0, max: 20, step: 1, order: 207 },
+      grainMixer: { value: defaults.grainMixer, min: 0, max: 1, order: 208 },
+      grainOverlay: { value: defaults.grainOverlay, min: 0, max: 1, order: 209 },
+      offsetX: { value: defaults.offsetX, min: -1, max: 1, order: 300 },
+      offsetY: { value: defaults.offsetY, min: -1, max: 1, order: 300 },
     };
   }, [colors.length]);
 
@@ -117,6 +89,9 @@ const StaticRadialGradientWithControls = () => {
           'distortion, distortionShift, distortionFreq': 'Radial distortion (effective with distortion > 0).',
           'grainMixer': 'Shape distortion.',
           'grainOverlay': 'Post-processing blending.',
+          'offsetX, offsetY': 'position of the center',
+          'scale': 'overall pattern zoom',
+          'rotation': 'overall pattern rotation angle',
         }}
       />
     </>

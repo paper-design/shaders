@@ -40,8 +40,6 @@ const DotGridWithControls = () => {
         options: Object.keys(DotGridShapes) as DotGridShape[],
         order: 350,
       },
-      offsetX: { value: defaults.offsetX, min: -1, max: 1, order: 300 },
-      offsetY: { value: defaults.offsetY, min: -1, max: 1, order: 301 },
       scale: { value: defaults.scale, min: 0.01, max: 4, order: 302 },
       rotation: { value: defaults.rotation, min: 0, max: 360, order: 303 },
     };
@@ -82,7 +80,6 @@ const DotGridWithControls = () => {
           'sizeRange': 'Randomizes the size of shape between 0 and size.',
           'opacityRange': 'Variety of shape opacity.',
           'shape': 'The shape of the dots (circle, diamond, square, triangle).',
-          'offsetX, offsetY': 'position of the center',
           'scale': 'overall pattern zoom',
           'rotation': 'overall pattern rotation angle',
         }}

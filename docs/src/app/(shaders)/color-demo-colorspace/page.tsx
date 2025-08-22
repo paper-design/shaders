@@ -230,7 +230,7 @@ export default function Page() {
     <ShaderContainer>
       <div className="flex flex-col" style={{ width: 'calc(100% - 300px)' }}>
         <div className="relative h-1/3 w-full text-center">
-          <span className="absolute left-0 top-0 w-full p-2 font-bold text-white">{`CSS OKLCH`}</span>
+          <span className="absolute top-0 left-0 w-full p-2 font-bold text-white">{`CSS OKLCH`}</span>
           <div
             className="h-full"
             style={{
@@ -240,12 +240,12 @@ export default function Page() {
         </div>
 
         <div className="relative h-1/3 w-full text-center">
-          <span className="absolute left-0 top-0 z-10 w-full p-2 font-bold text-white">{`Shader`}</span>
+          <span className="absolute top-0 left-0 z-10 w-full p-2 font-bold text-white">{`Shader`}</span>
           <GradientDemoCSS {...params} colors={colors} className="h-full w-full" />
         </div>
 
         <div className="relative h-1/3 w-full text-center">
-          <span className="absolute left-0 top-0 w-full p-2 font-bold text-white">{`CSS Default`}</span>
+          <span className="absolute top-0 left-0 w-full p-2 font-bold text-white">{`CSS Default`}</span>
           <div
             className="h-full"
             style={{

@@ -32,50 +32,23 @@ const SmokeRingWithControls = () => {
 
   const [params, setParams] = useControls(() => {
     return {
-      Parameters: folder(
-        {
-          colorBack: { value: toHsla(defaults.colorBack), order: 100 },
-          noiseScale: { value: defaults.noiseScale, min: 0.01, max: 5, order: 300 },
-          noiseIterations: {
-            value: defaults.noiseIterations,
-            min: 1,
-            max: smokeRingMeta.maxNoiseIterations,
-            step: 1,
-            order: 301,
-          },
-          radius: { value: defaults.radius, min: 0, max: 1, order: 302 },
-          thickness: { value: defaults.thickness, min: 0.01, max: 1, order: 303 },
-          innerShape: { value: defaults.innerShape, min: 0, max: 4, order: 304 },
-          speed: { value: defaults.speed, min: 0, max: 4, order: 400 },
-          // reverse: { value: defaults.reverse, order: 401 },
-        },
-        { order: 1 }
-      ),
-      Transform: folder(
-        {
-          scale: { value: defaults.scale, min: 0.01, max: 4, order: 400 },
-          rotation: { value: defaults.rotation, min: 0, max: 360, order: 401 },
-          offsetX: { value: defaults.offsetX, min: -1, max: 1, order: 402 },
-          offsetY: { value: defaults.offsetY, min: -1, max: 1, order: 403 },
-        },
-        {
-          order: 2,
-          collapsed: false,
-        }
-      ),
-      Fit: folder(
-        {
-          fit: { value: defaults.fit, options: Object.keys(ShaderFitOptions) as ShaderFit[], order: 404 },
-          worldWidth: { value: 1000, min: 0, max: 5120, order: 405 },
-          worldHeight: { value: 500, min: 0, max: 5120, order: 406 },
-          originX: { value: defaults.originX, min: 0, max: 1, order: 407 },
-          originY: { value: defaults.originY, min: 0, max: 1, order: 408 },
-        },
-        {
-          order: 3,
-          collapsed: true,
-        }
-      ),
+      colorBack: { value: toHsla(defaults.colorBack), order: 100 },
+      noiseScale: { value: defaults.noiseScale, min: 0.01, max: 5, order: 200 },
+      noiseIterations: {
+        value: defaults.noiseIterations,
+        min: 1,
+        max: smokeRingMeta.maxNoiseIterations,
+        step: 1,
+        order: 201,
+      },
+      radius: { value: defaults.radius, min: 0, max: 1, order: 202 },
+      thickness: { value: defaults.thickness, min: 0.01, max: 1, order: 203 },
+      innerShape: { value: defaults.innerShape, min: 0, max: 4, order: 204 },
+      offsetX: { value: defaults.offsetX, min: -1, max: 1, order: 300 },
+      offsetY: { value: defaults.offsetY, min: -1, max: 1, order: 301 },
+      scale: { value: defaults.scale, min: 0.01, max: 4, order: 302 },
+      rotation: { value: defaults.rotation, min: 0, max: 360, order: 303 },
+      speed: { value: defaults.speed, min: 0, max: 4, order: 400 },
     };
   });
 
@@ -117,6 +90,10 @@ const SmokeRingWithControls = () => {
           'colors': 'Colors used for the effect.',
           'thickness, radius, innerShape': 'Ring mask settings.',
           'noiseIterations, noiseScale': 'How detailed the noise is (number of FBM layers and noise frequency).',
+          'offsetX, offsetY': 'position of the center',
+          'scale': 'overall pattern zoom',
+          'rotation': 'overall pattern rotation angle',
+          'speed': 'animation speed',
         }}
       />
     </>

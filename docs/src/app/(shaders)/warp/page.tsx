@@ -38,8 +38,6 @@ const WarpWithControls = () => {
       swirlIterations: { value: defaults.swirlIterations, min: 0, max: 20, order: 104 },
       shape: { value: defaults.shape, options: Object.keys(WarpPatterns) as WarpPattern[], order: 105 },
       shapeScale: { value: defaults.shapeScale, min: 0, max: 1, order: 106 },
-      offsetX: { value: defaults.offsetX, min: -1, max: 1, order: 300 },
-      offsetY: { value: defaults.offsetY, min: -1, max: 1, order: 301 },
       scale: { value: defaults.scale, min: 0.01, max: 5, order: 302 },
       rotation: { value: defaults.rotation, min: 0, max: 360, order: 303 },
       speed: { value: defaults.speed, min: 0, max: 20, order: 400 },
@@ -78,13 +76,13 @@ const WarpWithControls = () => {
         currentParams={{ ...params, colors }}
         description="Animated color fields warped by noise and swirls, applied over base patterns (checks, stripes, or split edge). Blends up to 10 colors with adjustable distribution, softness, distortion, and swirl. Great for fluid, smoky, or marbled effects"
         props={{
-          'colors': 'up to 10 RGBA colors in the gradient',
-          'proportion': 'balance point for blending colors',
-          'softness': 'smoothness of color transitions (0 = hard edge, 1 = soft blend)',
-          'distortion': 'strength of noise-based distortion',
-          'swirl': 'strength of the swirl distortion',
-          'swirlIterations': 'number of layered swirl passes',
-          'shape': (
+          colors: 'up to 10 RGBA colors in the gradient',
+          proportion: 'balance point for blending colors',
+          softness: 'smoothness of color transitions (0 = hard edge, 1 = soft blend)',
+          distortion: 'strength of noise-based distortion',
+          swirl: 'strength of the swirl distortion',
+          swirlIterations: 'number of layered swirl passes',
+          shape: (
             <>
               base pattern type
               <ul className="list-disc pl-4 [&_b]:font-semibold">
@@ -100,11 +98,10 @@ const WarpWithControls = () => {
               </ul>
             </>
           ),
-          'shapeScale': 'zoom level of the base pattern',
-          'offsetX, offsetY': 'position shift of the pattern',
-          'scale': 'overall pattern zoom',
-          'rotation': 'overall pattern rotation angle',
-          'speed': 'animation speed',
+          shapeScale: 'zoom level of the base pattern',
+          scale: 'overall pattern zoom',
+          rotation: 'overall pattern rotation angle',
+          speed: 'animation speed',
         }}
       />
     </>
