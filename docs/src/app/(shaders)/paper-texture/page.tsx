@@ -74,24 +74,21 @@ const PaperTextureWithControls = () => {
       ])
     );
     return {
-      Parameters: folder(
-        {
-          colorFront: { value: toHsla(defaults.colorFront), order: 100 },
-          colorBack: { value: toHsla(defaults.colorBack), order: 101 },
-          contrast: { value: defaults.contrast, min: 0, max: 1, order: 200 },
-          roughness: { value: defaults.roughness, min: 0, max: 1, order: 300 },
-          fiber: { value: defaults.fiber, min: 0, max: 1, order: 310 },
-          fiberScale: { value: defaults.fiberScale, min: 0.1, max: 2, order: 310 },
-          crumples: { value: defaults.crumples, min: 0, max: 1, order: 320 },
-          crumplesScale: { value: defaults.crumplesScale, min: 0.3, max: 3, order: 322 },
-          folds: { value: defaults.folds, min: 0, max: 1, order: 330 },
-          foldsNumber: { value: defaults.foldsNumber, min: 1, max: 15, step: 1, order: 331 },
-          blur: { value: defaults.blur, min: 0, max: 1, order: 340 },
-          drops: { value: defaults.drops, min: 0, max: 1, order: 350 },
-          seed: { value: defaults.seed, min: 0, max: 10, order: 351 },
-        },
-        { order: 1 }
-      ),
+      colorBack: { value: toHsla(defaults.colorBack), order: 101 },
+      colorFront: { value: toHsla(defaults.colorFront), order: 100 },
+      contrast: { value: defaults.contrast, min: 0, max: 1, order: 200 },
+      roughness: { value: defaults.roughness, min: 0, max: 1, order: 300 },
+      fiber: { value: defaults.fiber, min: 0, max: 1, order: 310 },
+      fiberScale: { value: defaults.fiberScale, min: 0.1, max: 2, order: 310 },
+      crumples: { value: defaults.crumples, min: 0, max: 1, order: 320 },
+      crumplesScale: { value: defaults.crumplesScale, min: 0.3, max: 3, order: 322 },
+      folds: { value: defaults.folds, min: 0, max: 1, order: 330 },
+      foldsNumber: { value: defaults.foldsNumber, min: 1, max: 15, step: 1, order: 331 },
+      blur: { value: defaults.blur, min: 0, max: 1, order: 340 },
+      drops: { value: defaults.drops, min: 0, max: 1, order: 350 },
+      seed: { value: defaults.seed, min: 0, max: 10, order: 351 },
+      scale: { value: defaults.scale, min: 0.5, max: 10, order: 101 },
+      fit: { value: defaults.fit, options: ['contain', 'cover'] as ShaderFit[], order: 100 },
       Image: folder(
         {
           'Upload image': levaImageButton(setImageWithoutStatus),
@@ -99,17 +96,6 @@ const PaperTextureWithControls = () => {
         },
         { order: 0 }
       ),
-      ImageControls: folder(
-        {
-          fit: { value: defaults.fit, options: ['contain', 'cover'] as ShaderFit[], order: 100 },
-          scale: { value: defaults.scale, min: 0.5, max: 10, order: 101 },
-          // rotation: {value: defaults.rotation, min: 0, max: 360, order: 401},
-          // offsetX: {value: defaults.offsetX, min: -1, max: 1, order: 402},
-          // offsetY: {value: defaults.offsetY, min: -1, max: 1, order: 403},
-        },
-        { order: 3 }
-      ),
-
       Presets: folder(presets, { order: -1 }),
     };
   });

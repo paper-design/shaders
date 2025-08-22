@@ -74,35 +74,21 @@ const ImageDitheringWithControls = () => {
       ])
     );
     return {
-      Parameters: folder(
-        {
-          colorBack: { value: toHsla(defaults.colorBack), order: 100 },
-          colorFront: { value: toHsla(defaults.colorFront), order: 101 },
-          colorHighlight: { value: toHsla(defaults.colorHighlight), order: 102 },
-          originalColors: { value: defaults.originalColors, order: 103 },
-          type: { value: defaults.type, options: Object.keys(DitheringTypes) as DitheringType[], order: 110 },
-          pxSize: { value: defaults.pxSize, min: 0.5, max: 20, step: 1, order: 111 },
-          colorSteps: { value: defaults.colorSteps, min: 1, max: 7, step: 1, order: 112 },
-        },
-        { order: 1 }
-      ),
+      colorBack: { value: toHsla(defaults.colorBack), order: 100 },
+      colorFront: { value: toHsla(defaults.colorFront), order: 102 },
+      colorHighlight: { value: toHsla(defaults.colorHighlight), order: 103 },
+      originalColors: { value: defaults.originalColors, order: 104 },
+      type: { value: defaults.type, options: Object.keys(DitheringTypes) as DitheringType[], order: 200 },
+      pxSize: { value: defaults.pxSize, min: 0.5, max: 20, step: 1, order: 201 },
+      colorSteps: { value: defaults.colorSteps, min: 1, max: 7, step: 1, order: 202 },
+      scale: { value: defaults.scale, min: 0.5, max: 10, order: 300 },
+      fit: { value: defaults.fit, options: ['contain', 'cover'] as ShaderFit[], order: 301 },
       Image: folder(
         {
           'Upload image': levaImageButton(setImageWithoutStatus),
         },
         { order: 0 }
       ),
-      ImageControls: folder(
-        {
-          fit: { value: defaults.fit, options: ['contain', 'cover'] as ShaderFit[], order: 100 },
-          scale: { value: defaults.scale, min: 0.5, max: 10, order: 101 },
-          // rotation: {value: defaults.rotation, min: 0, max: 360, order: 401},
-          // offsetX: {value: defaults.offsetX, min: -1, max: 1, order: 402},
-          // offsetY: {value: defaults.offsetY, min: -1, max: 1, order: 403},
-        },
-        { order: 3 }
-      ),
-
       Presets: folder(presets, { order: -1 }),
     };
   });
@@ -118,7 +104,7 @@ const ImageDitheringWithControls = () => {
       <ShaderContainer>
         <ImageDithering onClick={handleClick} {...params} image={image || undefined} />
       </ShaderContainer>
-      <div onClick={handleClick} className="select-none py-3 text-center">
+      <div onClick={handleClick} className="py-3 text-center select-none">
         Click to change sample image
       </div>
       <ShaderDetails
@@ -127,7 +113,7 @@ const ImageDitheringWithControls = () => {
         description="Dithering effect using a 3-color palette."
         props={{
           'colorBack, colorFront, colorHighlight': 'Colors used for the effect.',
-          'pxSize': 'Pixel size relative to canvas resolution.',
+          'originalColors': '',
           'type': (
             <>
               <ul className="list-disc pl-4 [&_b]:font-semibold">
@@ -146,8 +132,11 @@ const ImageDitheringWithControls = () => {
               </ul>
             </>
           ),
-          'originalColors': 'Switch between the 3-color palette and the original image colors.',
+          'pxSize': 'Pixel size relative to canvas resolution.',
           'colorSteps': 'Number of colors to use (applies to both color modes).',
+          'scale': '',
+          'fit': '',
+          'IMAGE': '',
         }}
       />
     </div>

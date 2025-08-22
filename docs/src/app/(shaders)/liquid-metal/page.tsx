@@ -32,46 +32,20 @@ const LiquidMetalWithControls = () => {
       ])
     );
     return {
-      Parameters: folder(
-        {
-          colorBack: { value: toHsla(defaults.colorBack), order: 100 },
-          colorTint: { value: toHsla(defaults.colorTint), order: 101 },
-          repetition: { value: defaults.repetition, min: 1, max: 10, order: 300 },
-          softness: { value: defaults.softness, min: 0, max: 1, order: 301 },
-          shiftRed: { value: defaults.shiftRed, min: -1, max: 1, order: 302 },
-          shiftBlue: { value: defaults.shiftBlue, min: -1, max: 1, order: 302 },
-          distortion: { value: defaults.distortion, min: 0, max: 1, order: 303 },
-          contour: { value: defaults.contour, min: 0, max: 1, order: 304 },
-          shape: { value: defaults.shape, options: Object.keys(LiquidMetalShapes) as LiquidMetalShape[], order: 350 },
-          speed: { value: defaults.speed, min: 0, max: 4, order: 400 },
-        },
-        { order: 1 }
-      ),
-      Transform: folder(
-        {
-          scale: { value: defaults.scale, min: 0.01, max: 4, order: 400 },
-          rotation: { value: defaults.rotation, min: 0, max: 360, order: 401 },
-          offsetX: { value: defaults.offsetX, min: -1, max: 1, order: 402 },
-          offsetY: { value: defaults.offsetY, min: -1, max: 1, order: 403 },
-        },
-        {
-          order: 2,
-          collapsed: false,
-        }
-      ),
-      Fit: folder(
-        {
-          fit: { value: defaults.fit, options: Object.keys(ShaderFitOptions) as ShaderFit[], order: 404 },
-          worldWidth: { value: 0, min: 0, max: 5120, order: 405 },
-          worldHeight: { value: 0, min: 0, max: 5120, order: 406 },
-          originX: { value: defaults.originX, min: 0, max: 1, order: 407 },
-          originY: { value: defaults.originY, min: 0, max: 1, order: 408 },
-        },
-        {
-          order: 3,
-          collapsed: true,
-        }
-      ),
+      colorBack: { value: toHsla(defaults.colorBack), order: 100 },
+      colorTint: { value: toHsla(defaults.colorTint), order: 101 },
+      repetition: { value: defaults.repetition, min: 1, max: 10, order: 200 },
+      softness: { value: defaults.softness, min: 0, max: 1, order: 201 },
+      shiftRed: { value: defaults.shiftRed, min: -1, max: 1, order: 202 },
+      shiftBlue: { value: defaults.shiftBlue, min: -1, max: 1, order: 203 },
+      distortion: { value: defaults.distortion, min: 0, max: 1, order: 204 },
+      contour: { value: defaults.contour, min: 0, max: 1, order: 205 },
+      shape: { value: defaults.shape, options: Object.keys(LiquidMetalShapes) as LiquidMetalShape[], order: 206 },
+      offsetX: { value: defaults.offsetX, min: -1, max: 1, order: 300 },
+      offsetY: { value: defaults.offsetY, min: -1, max: 1, order: 301 },
+      scale: { value: defaults.scale, min: 0.01, max: 4, order: 302 },
+      rotation: { value: defaults.rotation, min: 0, max: 360, order: 303 },
+      speed: { value: defaults.speed, min: 0, max: 4, order: 400 },
       Presets: folder(presets, { order: -1 }),
     };
   });
@@ -99,6 +73,10 @@ const LiquidMetalWithControls = () => {
           'distortion': 'Pattern distortion on the whole canvas.',
           'contour': 'Distortion power over the shape edges.',
           'shape': 'Shape to use for the effect.',
+          'offsetX, offsetY': 'position of the center',
+          'scale': 'overall pattern zoom',
+          'rotation': 'overall pattern rotation angle',
+          'speed': 'animation speed',
         }}
       />
     </>

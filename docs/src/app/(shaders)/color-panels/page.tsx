@@ -33,47 +33,21 @@ const ColorPanelsWithControls = () => {
 
   const [params, setParams] = useControls(() => {
     return {
-      Parameters: folder(
-        {
-          colorBack: { value: toHsla(defaults.colorBack), order: 100 },
-          density: { value: defaults.density, min: 0.25, max: 7, order: 200 },
-          angle1: { value: defaults.angle1, min: -1, max: 1, order: 202 },
-          angle2: { value: defaults.angle2, min: -1, max: 1, order: 202 },
-          length: { value: defaults.length, min: 0, max: 3, order: 203 },
-          edges: { value: defaults.edges, order: 204 },
-          blur: { value: defaults.blur, min: 0, max: 0.5, order: 301 },
-          fadeIn: { value: defaults.fadeIn, min: 0, max: 1, order: 302 },
-          fadeOut: { value: defaults.fadeOut, min: 0, max: 1, order: 303 },
-          gradient: { value: defaults.gradient, min: 0, max: 1, order: 304 },
-          speed: { value: defaults.speed, min: 0, max: 2, order: 400 },
-        },
-        { order: 1 }
-      ),
-      Transform: folder(
-        {
-          scale: { value: defaults.scale, min: 0.01, max: 4, order: 400 },
-          rotation: { value: defaults.rotation, min: 0, max: 360, order: 401 },
-          offsetX: { value: defaults.offsetX, min: -1, max: 1, order: 402 },
-          offsetY: { value: defaults.offsetY, min: -1, max: 1, order: 403 },
-        },
-        {
-          order: 2,
-          collapsed: false,
-        }
-      ),
-      Fit: folder(
-        {
-          fit: { value: defaults.fit, options: Object.keys(ShaderFitOptions) as ShaderFit[], order: 404 },
-          worldWidth: { value: 1000, min: 1, max: 5120, order: 405 },
-          worldHeight: { value: 500, min: 1, max: 5120, order: 406 },
-          originX: { value: defaults.originX, min: 0, max: 1, order: 407 },
-          originY: { value: defaults.originY, min: 0, max: 1, order: 408 },
-        },
-        {
-          order: 3,
-          collapsed: true,
-        }
-      ),
+      colorBack: { value: toHsla(defaults.colorBack), order: 100 },
+      density: { value: defaults.density, min: 0.25, max: 7, order: 200 },
+      angle1: { value: defaults.angle1, min: -1, max: 1, order: 201 },
+      angle2: { value: defaults.angle2, min: -1, max: 1, order: 202 },
+      length: { value: defaults.length, min: 0, max: 3, order: 203 },
+      edges: { value: defaults.edges, order: 204 },
+      blur: { value: defaults.blur, min: 0, max: 0.5, order: 205 },
+      fadeIn: { value: defaults.fadeIn, min: 0, max: 1, order: 205 },
+      fadeOut: { value: defaults.fadeOut, min: 0, max: 1, order: 207 },
+      gradient: { value: defaults.gradient, min: 0, max: 1, order: 208 },
+      offsetX: { value: defaults.offsetX, min: -1, max: 1, order: 300 },
+      offsetY: { value: defaults.offsetY, min: -1, max: 1, order: 301 },
+      scale: { value: defaults.scale, min: 0.01, max: 4, order: 302 },
+      rotation: { value: defaults.rotation, min: 0, max: 360, order: 303 },
+      speed: { value: defaults.speed, min: 0, max: 2, order: 400 },
     };
   }, [colors.length]);
 
@@ -109,6 +83,8 @@ const ColorPanelsWithControls = () => {
         currentParams={{ ...params, colors }}
         description="Pseudo-3D panels rotating around a central axis."
         props={{
+          'colors': 'up to 5 RGBA ray colors',
+          'colorBack': 'RGBA background color',
           'density': 'Angle between every 2 panels.',
           'angle1, angle2': 'Skew angle applied to all panes.',
           'length': 'Panel length (relative to total height).',
@@ -117,6 +93,10 @@ const ColorPanelsWithControls = () => {
           'fadeIn': 'Transparency near central axis.',
           'fadeOut': 'Transparency near viewer.',
           'gradient': 'Color mixing within panes (0 = single color, 1 = two colors).',
+          'offsetX, offsetY': 'position of the center',
+          'scale': 'overall pattern zoom',
+          'rotation': 'overall pattern rotation angle',
+          'speed': 'animation speed',
         }}
       />
     </>

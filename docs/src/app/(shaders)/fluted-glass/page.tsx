@@ -80,48 +80,35 @@ const FlutedGlassWithControls = () => {
       ])
     );
     return {
-      Parameters: folder(
-        {
-          count: { value: defaults.count, min: 4, max: 200, step: 1, order: 100 },
-          shape: {
-            value: defaults.shape,
-            options: Object.keys(GlassGridShapes) as GlassGridShape[],
-            order: 101,
-          },
-          angle: { value: defaults.angle, min: 0, max: 180, order: 102 },
-          distortionShape: {
-            value: defaults.distortionShape,
-            options: Object.keys(GlassDistortionShapes) as GlassDistortionShape[],
-            order: 200,
-          },
-          distortion: { value: defaults.distortion, min: 0, max: 1, order: 201 },
-          shift: { value: defaults.shift, min: -1, max: 1, order: 205 },
-          blur: { value: defaults.blur, min: 0, max: 50, order: 251 },
-          highlights: { value: defaults.highlights, min: 0, max: 1, order: 270 },
-        },
-        { order: 1 }
-      ),
+      count: { value: defaults.count, min: 4, max: 200, step: 1, order: 200 },
+      shape: {
+        value: defaults.shape,
+        options: Object.keys(GlassGridShapes) as GlassGridShape[],
+        order: 201,
+      },
+      angle: { value: defaults.angle, min: 0, max: 180, order: 202 },
+      distortionShape: {
+        value: defaults.distortionShape,
+        options: Object.keys(GlassDistortionShapes) as GlassDistortionShape[],
+        order: 203,
+      },
+      distortion: { value: defaults.distortion, min: 0, max: 1, order: 204 },
+      shift: { value: defaults.shift, min: -1, max: 1, order: 205 },
+      blur: { value: defaults.blur, min: 0, max: 50, order: 206 },
+      highlights: { value: defaults.highlights, min: 0, max: 1, order: 207 },
+      scale: { value: defaults.scale, min: 0.5, max: 10, order: 300 },
+      fit: { value: defaults.fit, options: ['contain', 'cover'] as ShaderFit[], order: 301 },
+      marginLeft: { value: defaults.marginLeft, min: 0, max: 1, order: 500 },
+      marginRight: { value: defaults.marginRight, min: 0, max: 1, order: 501 },
+      marginTop: { value: defaults.marginTop, min: 0, max: 1, order: 502 },
+      marginBottom: { value: defaults.marginBottom, min: 0, max: 1, order: 503 },
+
       Image: folder(
         {
           'Upload image': levaImageButton(setImageWithoutStatus),
         },
         { order: 0 }
       ),
-      ImageControls: folder(
-        {
-          fit: { value: defaults.fit, options: ['contain', 'cover'] as ShaderFit[], order: 100 },
-          scale: { value: defaults.scale, min: 0.5, max: 10, order: 101 },
-          marginLeft: { value: defaults.marginLeft, min: 0, max: 1, order: 200 },
-          marginRight: { value: defaults.marginRight, min: 0, max: 1, order: 201 },
-          marginTop: { value: defaults.marginTop, min: 0, max: 1, order: 202 },
-          marginBottom: { value: defaults.marginBottom, min: 0, max: 1, order: 203 },
-          // rotation: {value: defaults.rotation, min: 0, max: 360, order: 401},
-          // offsetX: {value: defaults.offsetX, min: -1, max: 1, order: 402},
-          // offsetY: {value: defaults.offsetY, min: -1, max: 1, order: 403},
-        },
-        { order: 3 }
-      ),
-
       Presets: folder(presets, { order: -1 }),
     };
   });
@@ -137,7 +124,7 @@ const FlutedGlassWithControls = () => {
       <ShaderContainer>
         <FlutedGlass onClick={handleClick} {...params} image={image || undefined} />
       </ShaderContainer>
-      <div onClick={handleClick} className="select-none py-3 text-center">
+      <div onClick={handleClick} className="py-3 text-center select-none">
         Click to change sample image
       </div>
       <ShaderDetails
@@ -148,13 +135,16 @@ const FlutedGlassWithControls = () => {
           'count': 'Number of grid lines.',
           'angle': 'Direction of the grid relative to the image.',
           'shape': 'The shape of the grid.',
-          'distortion': 'The power of distortion applied along within each stripe.',
           'distortionShape': 'The shape of the distortion.',
+          'distortion': 'The power of distortion applied along within each stripe.',
           'shift': 'Texture shift in direction opposite to the grid.',
           'blur': 'One-directional blur applied over the main distortion.',
           'highlights': 'Thin color lines along the grid (independent from distortion).',
+          'scale': '',
+          'fit': '',
           'marginLeft, marginRight, marginTop, marginBottom':
             'Padding within the image to be shown without any distortion.',
+          'IMAGE': '',
         }}
       />
     </div>

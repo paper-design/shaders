@@ -73,20 +73,17 @@ const WaterWithControls = () => {
       ])
     );
     return {
-      Parameters: folder(
-        {
-          colorBack: { value: toHsla(defaults.colorBack), order: 100 },
-          highlightColor: { value: toHsla(defaults.highlightColor), order: 101 },
-          highlights: { value: defaults.highlights, min: 0, max: 1, order: 102 },
-          layering: { value: defaults.layering, min: 0, max: 1, order: 103 },
-          edges: { value: defaults.edges, min: 0, max: 1, order: 104 },
-          waves: { value: defaults.waves, min: 0, max: 1, order: 250 },
-          caustic: { value: defaults.caustic, min: 0, max: 1, order: 251 },
-          speed: { value: defaults.speed, min: 0, max: 3, order: 400 },
-          effectScale: { value: defaults.effectScale, min: 0.01, max: 7, order: 0 },
-        },
-        { order: 1 }
-      ),
+      colorBack: { value: toHsla(defaults.colorBack), order: 100 },
+      highlightColor: { value: toHsla(defaults.highlightColor), order: 101 },
+      highlights: { value: defaults.highlights, min: 0, max: 1, order: 200 },
+      layering: { value: defaults.layering, min: 0, max: 1, order: 201 },
+      edges: { value: defaults.edges, min: 0, max: 1, order: 202 },
+      waves: { value: defaults.waves, min: 0, max: 1, order: 203 },
+      caustic: { value: defaults.caustic, min: 0, max: 1, order: 204 },
+      effectScale: { value: defaults.effectScale, min: 0.01, max: 7, order: 205 },
+      scale: { value: defaults.scale, min: 0.1, max: 10, order: 300 },
+      fit: { value: defaults.fit, options: ['contain', 'cover'] as ShaderFit[], order: 301 },
+      speed: { value: defaults.speed, min: 0, max: 3, order: 400 },
       Image: folder(
         {
           'Upload image': levaImageButton(setImageWithoutStatus),
@@ -94,17 +91,6 @@ const WaterWithControls = () => {
         },
         { order: 0 }
       ),
-      ImageControls: folder(
-        {
-          fit: { value: defaults.fit, options: ['contain', 'cover'] as ShaderFit[], order: 100 },
-          scale: { value: defaults.scale, min: 0.1, max: 10, order: 101 },
-          // rotation: {value: defaults.rotation, min: 0, max: 360, order: 401},
-          // offsetX: {value: defaults.offsetX, min: -1, max: 1, order: 402},
-          // offsetY: {value: defaults.offsetY, min: -1, max: 1, order: 403},
-        },
-        { order: 3 }
-      ),
-
       Presets: folder(presets, { order: -1 }),
     };
   });
@@ -120,7 +106,7 @@ const WaterWithControls = () => {
       <ShaderContainer>
         <Water onClick={handleClick} {...params} image={image || undefined} />
       </ShaderContainer>
-      <div onClick={handleClick} className="select-none py-3 text-center">
+      <div onClick={handleClick} className="py-3 text-center select-none">
         Click to change sample image
       </div>
       <ShaderDetails
@@ -129,12 +115,16 @@ const WaterWithControls = () => {
         description="Mimicking water surface distortion with a combination of noises. Can be applied over the texture or just be used as an animated pattern."
         props={{
           'colorBack, highlightColor': 'Background and highlight colors.',
-          'effectScale': 'Pattern scale relative to the image.',
-          'caustic': 'Power of caustic distortion.',
+          'highlights': 'A coloring added over the image/background, following the caustic shape.',
           'layering': 'The power of 2nd layer of caustic distortion.',
           'edges': 'Caustic distortion power on the image edges.',
           'waves': 'Additional distortion based in simplex noise, independent from caustic.',
-          'highlights': 'A coloring added over the image/background, following the caustic shape.',
+          'caustic': 'Power of caustic distortion.',
+          'effectScale': 'Pattern scale relative to the image.',
+          'scale': '',
+          'fit': '',
+          'speed': '',
+          'IMAGE': '',
         }}
       />
     </div>
