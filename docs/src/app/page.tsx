@@ -108,7 +108,7 @@ function ShaderItem({
               unoptimized // The images are already optimized
               priority
             />
-            {shaderVisibility !== 'hidden' && shaderConfig && (
+            {shaderVisibility !== 'hidden' && shaderConfig && shaderConfig.speed !== 0 && (
               <ShaderComponent
                 data-visibility={shaderVisibility}
                 className="absolute aspect-[4/3] h-full w-full"
