@@ -83,7 +83,7 @@ function ShaderItem({
   return (
     <Link href={url} className="flex flex-col gap-2">
       <div
-        className="relative flex aspect-[4/3] items-center justify-center overflow-hidden rounded-xl bg-black will-change-transform supports-[corner-shape:squircle]:rounded-4xl"
+        className="relative flex aspect-[4/3] items-center justify-center overflow-hidden rounded-2xl bg-black will-change-transform supports-[corner-shape:squircle]:rounded-4xl"
         style={{ cornerShape: 'squircle' } as React.CSSProperties}
         onTouchStart={() => setShaderVisibility('visible')}
         onTouchEnd={() => setShaderVisibility('fading-out')}
