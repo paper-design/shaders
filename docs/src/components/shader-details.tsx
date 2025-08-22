@@ -86,9 +86,9 @@ export function ShaderDetails({
   const installationCode = 'npm i @paper-design/shaders-react';
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-10">
       <h1 className="text-4xl font-medium">{name}</h1>
-      <div className="flex flex-col gap-5 [&>section]:flex [&>section]:flex-col [&>section]:gap-4">
+      <div className="flex flex-col gap-8 [&>section]:flex [&>section]:flex-col [&>section]:gap-4">
         <section>
           <div className="flex items-center gap-2">
             <h2 className="text-2xl font-medium">Installation</h2>
@@ -107,9 +107,9 @@ export function ShaderDetails({
         </section>
         {props && (
           <section>
-            <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-4">
               <h2 className="text-2xl font-medium">Props</h2>
-              <div className="flex flex-col gap-2">
+              <div className="flex flex-col gap-4">
                 {Object.entries(props).map(([key, value]) => (
                   <div key={key}>
                     <h3 className="font-medium">{key}</h3>

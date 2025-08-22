@@ -4,33 +4,15 @@
 @theme {
   --default-font-family: 'Matter', system-ui, sans-serif;
   --font-mono: 'Paper Mono';
+
+  --color-foreground: #222;
   --color-blue: oklch(74% 0.104 258);
 
   --breakpoint-xs: 28rem;
   --breakpoint-2xl: 106rem;
 
-  /* --color-black: #000;
-  --color-white: #fff;
-  --color-off-black: #222;
-  --color-transparent: #0000;
-  --color-currentcolor: currentcolor;
-
-  --color-gray: #909090;
-  --color-light-blue: oklch(79% 0.0788 258);
-  --color-paper: #fcfcf9;
-  --color-cream: #f0efe4;
-
-  --color-amber: #ffc81c;
-  --color-focus: oklch(74% 26% 258);
-  --color-error: oklch(74% 26% 29);
-  --color-selection: oklch(78% 35% 258 / 50%);
-
-  --color-root: var(--color-cream);
-  --color-background: var(--color-paper);
-  --color-foreground: var(--color-off-black);
-
-  --color-gray: #909090;
-  --color-link: oklch(54.12% 0.1924 258); */
+  --color-selection: oklch(0.78 0.12 258 / 0.5);
+  --ease-out-smooth: cubic-bezier(0.685, 0.89, 0.315, 0.995);
 }
 
 @font-face {
@@ -47,9 +29,13 @@
   src: url('https://paper.design/paper-mono-0.100.woff2') format('woff2');
 }
 
+::selection {
+  background-color: var(--color-selection);
+}
+
 body {
   font-family: matter, system-ui, sans-serif;
-  color: #222222;
+  color: var(--color-foreground);
 }
 
 pre {

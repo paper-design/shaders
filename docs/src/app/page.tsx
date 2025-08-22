@@ -6,21 +6,15 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { homeShaders } from './home-shaders';
 import { CheckIcon, CopyIcon, GithubIcon } from '@/icons';
+import { Header } from '@/components/header';
+import { CopyButton } from '@/components/copy-button';
 
 export default function Home() {
-  const [copied, setCopied] = useState(false);
-
-  const handleCopy = async () => {
-    await navigator.clipboard.writeText('npm i @paper-design/react-shaders');
-    setCopied(true);
-    setTimeout(() => setCopied(false), 1500);
-  };
-
   return (
     <>
       <div inert className="absolute top-0 right-0 left-0 -z-1 h-200 bg-linear-to-b from-[#F0EFE4]" />
 
-      <div className="mx-auto px-8 pt-5 pb-24 md:px-12 lg:max-w-[1280px] lg:px-24 2xl:max-w-[1824px]">
+      <div className="mx-auto px-8 pt-5 pb-24 md:px-12 lg:max-w-[1280px] lg:px-24 2xl:max-w-[1664px]">
         <div className="mb-8 flex w-full items-center justify-between">
           <Link className="flex" href="https://paper.design/" target="_blank">
             <svg height="40" viewBox="0 0 110 40">
@@ -49,14 +43,15 @@ export default function Home() {
 
         <div className="xs:text-sm mx-auto mt-5 flex h-12 w-fit items-center gap-4 rounded-lg border bg-white pl-4 font-mono text-xs text-pretty text-stone-800 sm:text-base">
           npm i @paper-design/react-shaders
-          <button aria-label="Copy" className="flex size-12 items-center justify-center border-l" onClick={handleCopy}>
-            {copied ? <CheckIcon className="size-5.5" /> : <CopyIcon className="size-4.5" />}
-          </button>
+          <CopyButton
+            className="flex size-12 items-center justify-center border-l"
+            text="npm i @paper-design/react-shaders"
+          />
         </div>
       </div>
 
       <main className="pb-16 text-lg">
-        <div className="mx-auto px-8 md:px-12 lg:max-w-[1280px] lg:px-24 2xl:max-w-[1824px]">
+        <div className="mx-auto px-8 md:px-12 lg:max-w-[1280px] lg:px-24 2xl:max-w-[1664px]">
           <div className="xs:grid-cols-2 grid grid-cols-1 gap-8 md:gap-12 lg:grid-cols-3 xl:gap-16 2xl:grid-cols-4">
             {homeShaders.map((shader) => (
               <ShaderItem key={shader.name} {...shader} />
@@ -107,7 +102,7 @@ function ShaderItem({
         {image && (
           <>
             <Image
-              className="absolute aspect-[4/3] w-[125%] max-w-none"
+              className="absolute aspect-[4/3] h-full w-full"
               src={image}
               alt={`Preview of ${name}`}
               unoptimized // The images are already optimized
@@ -116,7 +111,7 @@ function ShaderItem({
             {shaderVisibility !== 'hidden' && shaderConfig && shaderConfig.speed !== 0 && (
               <ShaderComponent
                 data-visibility={shaderVisibility}
-                className="absolute aspect-[4/3] w-[125%] max-w-none"
+                className="absolute aspect-[4/3] h-full w-full"
                 style={{
                   opacity: shaderVisibility === 'fading-out' ? 0 : 1,
                   filter: shaderVisibility === 'fading-out' ? 'blur(4px)' : 'none',
