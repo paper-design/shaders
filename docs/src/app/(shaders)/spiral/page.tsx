@@ -75,7 +75,7 @@ const SpiralWithControls = () => {
       </ShaderContainer>
       <ShaderDetails
         name="Spiral"
-        currentParams={ params}
+        currentParams={params}
         description="2-color spiral shape."
         props={{
           'colorBack, colorFront': 'Colors used for the effect.',
@@ -86,10 +86,10 @@ const SpiralWithControls = () => {
           'strokeCap': 'Extra width at the center (no effect on strokeWidth = 0.5).',
           'noiseFrequency, noise': 'Simplex noise distortion over the shape.',
           'softness': 'Color transition sharpness (0 = hard edge, 1 = smooth fade).',
-          'offsetX, offsetY': 'position of the center',
-          'scale': 'overall pattern zoom',
-          'rotation': 'overall pattern rotation angle',
-          'speed': 'animation speed',
+          'offsetX, offsetY': 'Position of the center.',
+          'scale': 'Overall pattern zoom.',
+          'rotation': 'Overall pattern rotation angle.',
+          'speed': 'Animation speed.',
         }}
       />
     </>

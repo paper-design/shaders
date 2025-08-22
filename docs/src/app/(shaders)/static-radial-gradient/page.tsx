@@ -89,9 +89,9 @@ const StaticRadialGradientWithControls = () => {
           'distortion, distortionShift, distortionFreq': 'Radial distortion (effective with distortion > 0).',
           'grainMixer': 'Shape distortion.',
           'grainOverlay': 'Post-processing blending.',
-          'offsetX, offsetY': 'position of the center',
-          'scale': 'overall pattern zoom',
-          'rotation': 'overall pattern rotation angle',
+          'offsetX, offsetY': 'Position of the center.',
+          'scale': 'Overall pattern zoom.',
+          'rotation': 'Overall pattern rotation angle.',
         }}
       />
     </>

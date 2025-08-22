@@ -75,10 +75,14 @@ const MetaballsWithControls = () => {
         currentParams={{ ...params, colors }}
         description="Circular shapes moving around the center, blending and merging based on distance."
         props={{
-          colorBack: 'Background color.',
-          colors: 'Colors used for the effect.',
-          count: 'Number of balls on the canvas.',
-          size: 'Base size of the balls.',
+          'colorBack': 'Background color.',
+          'colors': 'Colors used for the effect.',
+          'count': 'Number of balls on the canvas.',
+          'size': 'Base size of the balls.',
+          'offsetX, offsetY': 'Position of the center.',
+          'scale': 'Overall pattern zoom.',
+          'rotation': 'Overall pattern rotation angle.',
+          'speed': 'Animation speed.',
         }}
       />
     </>

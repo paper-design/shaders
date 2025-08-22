@@ -82,9 +82,9 @@ const VoronoiWithControls = () => {
           'distortion': 'Max distance the cell center moves away from regular grid.',
           'gap': 'Width of the stroke between the cells.',
           'glow': 'Radial glow around each cell center.',
-          'scale': 'overall pattern zoom',
-          'rotation': 'overall pattern rotation angle',
-          'speed': 'animation speed',
+          'scale': 'Overall pattern zoom.',
+          'rotation': 'Overall pattern rotation angle.',
+          'speed': 'Animation speed.',
         }}
       />
     </>

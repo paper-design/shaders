@@ -80,19 +80,19 @@ const GodRaysWithControls = () => {
         currentParams={{ ...params, colors }}
         description="Animated rays of light radiating from the center, blended with up to 5 colors. Adjustable for size, density, brightness, center glow. Great for dramatic backgrounds, logo reveals, and VFX like energy bursts or sun shafts"
         props={{
-          'colors': 'up to 5 RGBA ray colors',
-          'colorBack': 'RGBA background color',
-          'colorBloom': 'RGBA color overlay blended with the rays',
-          'bloom': 'strength of the bloom/overlay effect',
-          'density': 'frequency of rays around the circle',
-          'intensity': 'visibility/strength of the rays',
-          'spotty': 'density of spot patterns along the rays',
-          'midSize': 'size of the circular glow in the center',
-          'midIntensity': 'brightness of the central glow',
-          'offsetX, offsetY': 'position of the center',
-          'scale': 'overall pattern zoom',
-          'rotation': 'overall pattern rotation angle',
-          'speed': 'animation speed',
+          'colors': 'Up to 5 ray colors.',
+          'colorBack': 'Background color.',
+          'colorBloom': 'Color overlay blended with the rays.',
+          'bloom': 'Strength of the bloom/overlay effect.',
+          'density': 'Frequency of rays around the circle.',
+          'intensity': 'Visibility/strength of the rays.',
+          'spotty': 'Density of spot patterns along the rays.',
+          'midSize': 'Size of the circular glow in the center.',
+          'midIntensity': 'Brightness of the central glow.',
+          'offsetX, offsetY': 'Position of the center.',
+          'scale': 'Overall pattern zoom.',
+          'rotation': 'Overall pattern rotation angle.',
+          'speed': 'Animation speed.',
         }}
       />
     </>

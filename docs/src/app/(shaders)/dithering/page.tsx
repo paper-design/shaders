@@ -118,10 +118,10 @@ const DitheringWithControls = () => {
               </ul>
             </>
           ),
-          'offsetX, offsetY': '',
-          'scale': '',
-          'rotation': '',
-          'speed': '',
+          'offsetX, offsetY': 'Position of the center.',
+          'scale': 'Overall pattern zoom.',
+          'rotation': 'Overall pattern rotation angle.',
+          'speed': 'Animation speed.',
         }}
       />
     </>

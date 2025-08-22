@@ -123,7 +123,7 @@ export function ShaderDetails({
         {description && (
           <section>
             <h2 className="text-2xl font-medium">Description</h2>
-            <p className="text-stone-600">{description}</p>
+            <p className="max-w-prose text-pretty text-stone-600">{description}</p>
           </section>
         )}
       </div>

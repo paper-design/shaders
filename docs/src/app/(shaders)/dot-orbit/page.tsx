@@ -79,14 +79,14 @@ const DotOrbitWithControls = () => {
         currentParams={{ ...params, colors }}
         description="Animated multi-color dot grid where each dot orbits around its cell center. Supports up to 10 base dot colors with optional 2×, 3×, or 4× extended color steps, along with controls for dot size, variation, and orbit distance. Great for playful, dynamic backgrounds and UI textures"
         props={{
-          colorBack: 'RGBA background color',
-          colors: 'up to 10 base RGBA colors',
-          stepsPerColor: 'number of discrete steps between each 2 base colors',
-          size: 'dot radius relative to cell size',
-          sizeRange: 'randomizes each dot radius between 0 and size',
-          spreading: 'maximum orbit distance',
-          scale: 'overall pattern zoom',
-          speed: 'animation speed',
+          colorBack: 'Background color.',
+          colors: 'Up to 10 base colors.',
+          stepsPerColor: 'Number of discrete steps between each 2 base colors.',
+          size: 'Dot radius relative to cell size.',
+          sizeRange: 'Randomizes each dot radius between 0 and size.',
+          spreading: 'Maximum orbit distance.',
+          scale: 'Overall pattern zoom.',
+          speed: 'Animation speed.',
         }}
       />
     </>

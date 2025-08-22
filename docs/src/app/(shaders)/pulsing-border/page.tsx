@@ -100,10 +100,10 @@ const PulsingBorderWithControls = () => {
           'pulse': 'Optional pulsing animation.',
           'smoke': 'Optional noisy shapes around the border.',
           'smokeSize': 'Optional noisy shapes around the border.',
-          'offsetX, offsetY': 'position of the center',
-          'scale': 'overall pattern zoom',
-          'rotation': 'overall pattern rotation angle',
-          'speed': 'animation speed',
+          'offsetX, offsetY': 'Position of the center.',
+          'scale': 'Overall pattern zoom.',
+          'rotation': 'Overall pattern rotation angle.',
+          'speed': 'Animation speed.',
         }}
       />
     </>

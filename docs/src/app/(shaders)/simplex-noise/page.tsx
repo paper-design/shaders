@@ -75,9 +75,9 @@ const SimplexNoiseWithControls = () => {
           colors: 'Colors used for the effect.',
           stepsPerColor: 'Discrete color steps between colors.',
           softness: 'Color transition sharpness (0 = hard edge, 1 = smooth fade).',
-          scale: 'overall pattern zoom',
-          rotation: 'overall pattern rotation angle',
-          speed: 'animation speed',
+          scale: 'Overall pattern zoom.',
+          rotation: 'Overall pattern rotation angle.',
+          speed: 'Animation speed.',
         }}
       />
     </>

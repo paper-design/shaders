@@ -85,10 +85,10 @@ const SwirlWithControls = () => {
           'softness': 'Color transition sharpness (0 = hard edge, 1 = smooth fade).',
           'noiseFrequency': '',
           'noise': '',
-          'offsetX, offsetY': 'position of the center',
-          'scale': 'overall pattern zoom',
-          'rotation': 'overall pattern rotation angle',
-          'speed': 'animation speed',
+          'offsetX, offsetY': 'Position of the center.',
+          'scale': 'Overall pattern zoom.',
+          'rotation': 'Overall pattern rotation angle.',
+          'speed': 'Animation speed.',
         }}
       />
     </>

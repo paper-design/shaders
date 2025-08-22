@@ -131,6 +131,7 @@ const PaperTextureWithControls = () => {
           'drops': 'Metaballs-like pattern.',
           'seed': 'Applied to folds, crumples and dots.',
           'blur': 'Big-scale noise mask applied to everything but roughness.',
+          'fit': 'How the image fits the canvas.',
         }}
       />
     </div>

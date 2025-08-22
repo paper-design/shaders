@@ -73,8 +73,8 @@ const WavesWithControls = () => {
           'amplitude, frequency, spacing': 'Wave settings.',
           'proportion': 'Blend point between 2 colors (0.5 = equal distribution).',
           'softness': 'Color transition sharpness (0 = hard edge, 1 = smooth fade).',
-          'scale': 'overall pattern zoom',
-          'rotation': 'overall pattern rotation angle',
+          'scale': 'Overall pattern zoom.',
+          'rotation': 'Overall pattern rotation angle.',
         }}
       />
     </>

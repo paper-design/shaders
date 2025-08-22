@@ -90,10 +90,10 @@ const SmokeRingWithControls = () => {
           'colors': 'Colors used for the effect.',
           'thickness, radius, innerShape': 'Ring mask settings.',
           'noiseIterations, noiseScale': 'How detailed the noise is (number of FBM layers and noise frequency).',
-          'offsetX, offsetY': 'position of the center',
-          'scale': 'overall pattern zoom',
-          'rotation': 'overall pattern rotation angle',
-          'speed': 'animation speed',
+          'offsetX, offsetY': 'Position of the center.',
+          'scale': 'Overall pattern zoom.',
+          'rotation': 'Overall pattern rotation angle.',
+          'speed': 'Animation speed.',
         }}
       />
     </>

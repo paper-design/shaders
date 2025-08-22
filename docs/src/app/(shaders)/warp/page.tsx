@@ -76,32 +76,32 @@ const WarpWithControls = () => {
         currentParams={{ ...params, colors }}
         description="Animated color fields warped by noise and swirls, applied over base patterns (checks, stripes, or split edge). Blends up to 10 colors with adjustable distribution, softness, distortion, and swirl. Great for fluid, smoky, or marbled effects"
         props={{
-          colors: 'up to 10 RGBA colors in the gradient',
-          proportion: 'balance point for blending colors',
-          softness: 'smoothness of color transitions (0 = hard edge, 1 = soft blend)',
-          distortion: 'strength of noise-based distortion',
-          swirl: 'strength of the swirl distortion',
-          swirlIterations: 'number of layered swirl passes',
+          colors: 'Up to 10 colors in the gradient.',
+          proportion: 'Balance point for blending colors.',
+          softness: 'Smoothness of color transitions (0 = hard edge, 1 = soft blend).',
+          distortion: 'Strength of noise-based distortion.',
+          swirl: 'Strength of the swirl distortion.',
+          swirlIterations: 'Number of layered swirl passes.',
           shape: (
             <>
-              base pattern type
+              Base pattern type:
               <ul className="list-disc pl-4 [&_b]:font-semibold">
                 <li>
-                  <b>checks</b>: checkerboard
+                  <b>checks</b>: Checkerboard.
                 </li>
                 <li>
-                  <b>stripes</b>: even stripes
+                  <b>stripes</b>: Even stripes.
                 </li>
                 <li>
-                  <b>edge</b>: two halves split across the canvas
+                  <b>edge</b>: Two halves split across the canvas.
                 </li>
               </ul>
             </>
           ),
-          shapeScale: 'zoom level of the base pattern',
-          scale: 'overall pattern zoom',
-          rotation: 'overall pattern rotation angle',
-          speed: 'animation speed',
+          shapeScale: 'Zoom level of the base pattern.',
+          scale: 'Overall pattern zoom.',
+          rotation: 'Overall pattern rotation angle.',
+          speed: 'Animation speed.',
         }}
       />
     </>

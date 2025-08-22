@@ -84,9 +84,9 @@ const StaticMeshGradientWithControls = () => {
           'mixing': '0 for stepped gradient, 0.5 for smooth transitions, 1 for pronounced color points.',
           'grainMixer': 'Shape distortion.',
           'grainOverlay': 'Post-processing blending.',
-          'offsetX, offsetY': 'position of the center',
-          'scale': 'overall pattern zoom',
-          'rotation': 'overall pattern rotation angle',
+          'offsetX, offsetY': 'Position of the center.',
+          'scale': 'Overall pattern zoom.',
+          'rotation': 'Overall pattern rotation angle.',
         }}
       />
     </>

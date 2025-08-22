@@ -83,8 +83,8 @@ const ColorPanelsWithControls = () => {
         currentParams={{ ...params, colors }}
         description="Pseudo-3D panels rotating around a central axis."
         props={{
-          'colors': 'up to 5 RGBA ray colors',
-          'colorBack': 'RGBA background color',
+          'colors': 'Up to 5 colors.',
+          'colorBack': 'Background color.',
           'density': 'Angle between every 2 panels.',
           'angle1, angle2': 'Skew angle applied to all panes.',
           'length': 'Panel length (relative to total height).',
@@ -93,10 +93,10 @@ const ColorPanelsWithControls = () => {
           'fadeIn': 'Transparency near central axis.',
           'fadeOut': 'Transparency near viewer.',
           'gradient': 'Color mixing within panes (0 = single color, 1 = two colors).',
-          'offsetX, offsetY': 'position of the center',
-          'scale': 'overall pattern zoom',
-          'rotation': 'overall pattern rotation angle',
-          'speed': 'animation speed',
+          'offsetX, offsetY': 'Position of the center.',
+          'scale': 'Overall pattern zoom.',
+          'rotation': 'Overall pattern rotation angle.',
+          'speed': 'Animation speed.',
         }}
       />
     </>

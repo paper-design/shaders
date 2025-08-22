@@ -64,9 +64,9 @@ const NeuroNoiseWithControls = () => {
           'colorBack, colorMid, colorFront': 'Colors used for the effect.',
           'brightness': 'Brightness.',
           'contrast': 'Contrast.',
-          'scale': 'overall pattern zoom',
-          'rotation': 'overall pattern rotation angle',
-          'speed': 'animation speed',
+          'scale': 'Overall pattern zoom.',
+          'rotation': 'Overall pattern rotation angle.',
+          'speed': 'Animation speed.',
         }}
       />
     </>

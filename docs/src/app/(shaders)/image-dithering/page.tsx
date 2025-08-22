@@ -113,7 +113,7 @@ const ImageDitheringWithControls = () => {
         description="Dithering effect using a 3-color palette."
         props={{
           'colorBack, colorFront, colorHighlight': 'Colors used for the effect.',
-          'originalColors': '',
+          'originalColors': 'Use the original colors of the image.',
           'type': (
             <>
               <ul className="list-disc pl-4 [&_b]:font-semibold">
@@ -134,9 +134,8 @@ const ImageDitheringWithControls = () => {
           ),
           'pxSize': 'Pixel size relative to canvas resolution.',
           'colorSteps': 'Number of colors to use (applies to both color modes).',
-          'scale': '',
-          'fit': '',
-          'IMAGE': '',
+          'scale': 'Overall pattern zoom.',
+          'fit': 'How the image fits the canvas.',
         }}
       />
     </div>

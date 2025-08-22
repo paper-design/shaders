@@ -80,8 +80,8 @@ const DotGridWithControls = () => {
           'sizeRange': 'Randomizes the size of shape between 0 and size.',
           'opacityRange': 'Variety of shape opacity.',
           'shape': 'The shape of the dots (circle, diamond, square, triangle).',
-          'scale': 'overall pattern zoom',
-          'rotation': 'overall pattern rotation angle',
+          'scale': 'Overall pattern zoom.',
+          'rotation': 'Overall pattern rotation angle.',
         }}
       />
     </>

@@ -121,10 +121,9 @@ const WaterWithControls = () => {
           'waves': 'Additional distortion based in simplex noise, independent from caustic.',
           'caustic': 'Power of caustic distortion.',
           'effectScale': 'Pattern scale relative to the image.',
-          'scale': '',
-          'fit': '',
-          'speed': '',
-          'IMAGE': '',
+          'scale': 'Overall pattern zoom.',
+          'fit': 'How the image fits the canvas.',
+          'speed': 'Animation speed.',
         }}
       />
     </div>

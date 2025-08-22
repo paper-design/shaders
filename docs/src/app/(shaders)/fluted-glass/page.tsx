@@ -140,11 +140,10 @@ const FlutedGlassWithControls = () => {
           'shift': 'Texture shift in direction opposite to the grid.',
           'blur': 'One-directional blur applied over the main distortion.',
           'highlights': 'Thin color lines along the grid (independent from distortion).',
-          'scale': '',
-          'fit': '',
+          'scale': 'Overall pattern zoom.',
+          'fit': 'How the image fits the canvas.',
           'marginLeft, marginRight, marginTop, marginBottom':
             'Padding within the image to be shown without any distortion.',
-          'IMAGE': '',
         }}
       />
     </div>

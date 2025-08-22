@@ -74,10 +74,10 @@ const MeshGradientWithControls = () => {
         props={{
           'distortion': 'Warp distortion.',
           'swirl': 'Vortex distortion.',
-          'offsetX, offsetY': 'position of the center',
-          'scale': 'overall pattern zoom',
-          'rotation': 'overall pattern rotation angle',
-          'speed': 'animation speed',
+          'offsetX, offsetY': 'Position of the center.',
+          'scale': 'Overall pattern zoom.',
+          'rotation': 'Overall pattern rotation angle.',
+          'speed': 'Animation speed.',
         }}
         description="A composition of N color spots (one per color) with 2 types of distortions applied to the coordinate space."
       />

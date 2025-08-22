@@ -72,9 +72,9 @@ const PerlinNoiseWithControls = () => {
           'octaveCount': 'More octaves give more detailed patterns.',
           'persistence': 'Roughness, falloff between octaves.',
           'lacunarity': 'Frequency step, typically around 2. Defines how compressed the pattern is.',
-          'scale': 'overall pattern zoom',
-          'rotation': 'overall pattern rotation angle',
-          'speed': 'animation speed',
+          'scale': 'Overall pattern zoom.',
+          'rotation': 'Overall pattern rotation angle.',
+          'speed': 'Animation speed.',
         }}
       />
     </>
