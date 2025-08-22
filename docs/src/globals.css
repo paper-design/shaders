@@ -36,6 +36,7 @@
 body {
   font-family: matter, system-ui, sans-serif;
   color: var(--color-foreground);
+  text-size-adjust: none;
 }
 
 pre {
