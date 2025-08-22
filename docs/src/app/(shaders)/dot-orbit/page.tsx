@@ -38,45 +38,15 @@ const DotOrbitWithControls = () => {
     );
 
     return {
-      Parameters: folder(
-        {
-          colorBack: { value: toHsla(defaults.colorBack), order: 100 },
-          stepsPerColor: { value: defaults.stepsPerColor, min: 1, max: 4, step: 1, order: 200 },
-          size: { value: defaults.size, min: 0, max: 1, order: 300 },
-          sizeRange: { value: defaults.sizeRange, min: 0, max: 1, order: 301 },
-          spreading: { value: defaults.spreading, min: 0, max: 1, order: 302 },
-          speed: { value: defaults.speed, min: 0, max: 6, order: 400 },
-        },
-        { order: 1 }
-      ),
-      Transform: folder(
-        {
-          scale: { value: defaults.scale, min: 0.01, max: 4, order: 400 },
-          rotation: { value: defaults.rotation, min: 0, max: 360, order: 401 },
-          offsetX: { value: defaults.offsetX, min: -1, max: 1, order: 402 },
-          offsetY: { value: defaults.offsetY, min: -1, max: 1, order: 403 },
-        },
-        {
-          order: 2,
-          collapsed: false,
-        }
-      ),
-      Fit: folder(
-        {
-          fit: { value: defaults.fit, options: Object.keys(ShaderFitOptions) as ShaderFit[], order: 404 },
-          worldWidth: { value: 1000, min: 0, max: 5120, order: 405 },
-          worldHeight: { value: 500, min: 0, max: 5120, order: 406 },
-          originX: { value: defaults.originX, min: 0, max: 1, order: 407 },
-          originY: { value: defaults.originY, min: 0, max: 1, order: 408 },
-        },
-        {
-          order: 3,
-          collapsed: true,
-        }
-      ),
+      colorBack: { value: toHsla(defaults.colorBack), order: 100 },
+      stepsPerColor: { value: defaults.stepsPerColor, min: 1, max: 4, step: 1, order: 200 },
+      size: { value: defaults.size, min: 0, max: 1, order: 201 },
+      sizeRange: { value: defaults.sizeRange, min: 0, max: 1, order: 202 },
+      spreading: { value: defaults.spreading, min: 0, max: 1, order: 203 },
+      scale: { value: defaults.scale, min: 0.01, max: 5, order: 300 },
+      speed: { value: defaults.speed, min: 0, max: 20, order: 400 },
     };
   }, [colors.length]);
-
   useControls(() => {
     const presets = Object.fromEntries(
       dotOrbitPresets.map(({ name, params: { worldWidth, worldHeight, ...preset } }) => [
@@ -107,14 +77,16 @@ const DotOrbitWithControls = () => {
       <ShaderDetails
         name="Dot Orbit"
         currentParams={{ ...params, colors }}
-        description="Animated dot pattern with dots orbiting around their grid positions."
+        description="Animated multi-color dot grid where each dot orbits around its cell center. Supports up to 10 base dot colors with optional 2×, 3×, or 4× extended color steps, along with controls for dot size, variation, and orbit distance. Great for playful, dynamic backgrounds and UI textures"
         props={{
-          colorBack: 'The background color.',
-          colors: 'Dot colors.',
-          stepsPerColor: 'Discrete color steps between colors.',
-          size: 'Dot radius (relative to cell size).',
-          sizeRange: 'Randomizes dot radius between 0 and size.',
-          spreading: 'Max orbit distance of each dot around the cell center.',
+          colorBack: 'RGBA background color',
+          colors: 'up to 10 base RGBA colors',
+          stepsPerColor: 'number of discrete steps between each 2 base colors',
+          size: 'dot radius relative to cell size',
+          sizeRange: 'randomizes each dot radius between 0 and size',
+          spreading: 'maximum orbit distance',
+          scale: 'overall pattern zoom',
+          speed: 'animation speed',
         }}
       />
     </>

@@ -32,45 +32,19 @@ const GodRaysWithControls = () => {
 
   const [params, setParams] = useControls(() => {
     return {
-      Parameters: folder(
-        {
-          colorBack: { value: toHsla(defaults.colorBack), order: 100 },
-          colorBloom: { value: toHsla(defaults.colorBloom), order: 101 },
-          density: { value: defaults.density, min: 0, max: 1, order: 303 },
-          spotty: { value: defaults.spotty, min: 0, max: 1, order: 304 },
-          midSize: { value: defaults.midSize, min: 0, max: 1, order: 305 },
-          midIntensity: { value: defaults.midIntensity, min: 0, max: 1, order: 306 },
-          intensity: { value: defaults.intensity, min: 0, max: 1, order: 307 },
-          bloom: { value: defaults.bloom, min: 0, max: 1, order: 308 },
-          speed: { value: defaults.speed, min: 0, max: 2, order: 400 },
-        },
-        { order: 1 }
-      ),
-      Transform: folder(
-        {
-          scale: { value: defaults.scale, min: 0.01, max: 4, order: 400 },
-          rotation: { value: defaults.rotation, min: 0, max: 360, order: 401 },
-          offsetX: { value: defaults.offsetX, min: -1, max: 1, order: 402 },
-          offsetY: { value: defaults.offsetY, min: -1, max: 1, order: 403 },
-        },
-        {
-          order: 2,
-          collapsed: false,
-        }
-      ),
-      Fit: folder(
-        {
-          fit: { value: defaults.fit, options: Object.keys(ShaderFitOptions) as ShaderFit[], order: 404 },
-          worldWidth: { value: 1000, min: 0, max: 5120, order: 405 },
-          worldHeight: { value: 500, min: 0, max: 5120, order: 406 },
-          originX: { value: defaults.originX, min: 0, max: 1, order: 407 },
-          originY: { value: defaults.originY, min: 0, max: 1, order: 408 },
-        },
-        {
-          order: 3,
-          collapsed: true,
-        }
-      ),
+      colorBack: { value: toHsla(defaults.colorBack), order: 100 },
+      colorBloom: { value: toHsla(defaults.colorBloom), order: 101 },
+      bloom: { value: defaults.bloom, min: 0, max: 1, order: 200 },
+      intensity: { value: defaults.intensity, min: 0, max: 1, order: 201 },
+      density: { value: defaults.density, min: 0, max: 1, order: 204 },
+      spotty: { value: defaults.spotty, min: 0, max: 1, order: 205 },
+      midSize: { value: defaults.midSize, min: 0, max: 1, order: 206 },
+      midIntensity: { value: defaults.midIntensity, min: 0, max: 1, order: 207 },
+      offsetX: { value: defaults.offsetX, min: -1, max: 1, order: 300 },
+      offsetY: { value: defaults.offsetY, min: -1, max: 1, order: 301 },
+      scale: { value: defaults.scale, min: 0.01, max: 4, order: 302 },
+      rotation: { value: defaults.rotation, min: 0, max: 360, order: 303 },
+      speed: { value: defaults.speed, min: 0, max: 2, order: 400 },
     };
   });
 
@@ -104,14 +78,21 @@ const GodRaysWithControls = () => {
       <ShaderDetails
         name="God Rays"
         currentParams={{ ...params, colors }}
-        description="Radial rays animated from center."
+        description="Animated rays of light radiating from the center, blended with up to 5 colors. Adjustable for size, density, brightness, center glow. Great for dramatic backgrounds, logo reveals, and VFX like energy bursts or sun shafts"
         props={{
-          'colorBack, colorBloom, colors': 'Colors used for the effect.',
-          'density': 'Frequency of sector shapes.',
-          'intensity': 'Rays visibility within sectors.',
-          'spotty': 'Density of spots on the ray (higher = more spots).',
-          'midSize, midIntensity': 'Central shape over the rays.',
-          'bloom': 'Normal to additive blending mix.',
+          'colors': 'up to 5 RGBA ray colors',
+          'colorBack': 'RGBA background color',
+          'colorBloom': 'RGBA color overlay blended with the rays',
+          'bloom': 'strength of the bloom/overlay effect',
+          'density': 'frequency of rays around the circle',
+          'intensity': 'visibility/strength of the rays',
+          'spotty': 'density of spot patterns along the rays',
+          'midSize': 'size of the circular glow in the center',
+          'midIntensity': 'brightness of the central glow',
+          'offsetX, offsetY': 'position of the center',
+          'scale': 'overall pattern zoom',
+          'rotation': 'overall pattern rotation angle',
+          'speed': 'animation speed',
         }}
       />
     </>
