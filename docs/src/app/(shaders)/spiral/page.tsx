@@ -68,16 +68,14 @@ const SpiralWithControls = () => {
   usePresetHighlight(spiralPresets, params);
   cleanUpLevaParams(params);
 
-  const { reverse, ...shaderParams } = { ...params, speed: params.speed * (params.reverse ? -1 : 1) };
-
   return (
     <>
       <ShaderContainer>
-        <Spiral {...shaderParams} />
+        <Spiral {...params} />
       </ShaderContainer>
       <ShaderDetails
         name="Spiral"
-        currentParams={shaderParams}
+        currentParams={ params}
         description="2-color spiral shape."
         props={{
           'colorBack, colorFront': 'Colors used for the effect.',
