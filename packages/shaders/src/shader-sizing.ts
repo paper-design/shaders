@@ -77,7 +77,6 @@ export const sizingUV = `
   vec2 boxOrigin = vec2(.5 - u_originX, u_originY - .5);
   vec2 givenBoxSize = vec2(u_worldWidth, u_worldHeight);
   givenBoxSize = max(givenBoxSize, vec2(1.)) * u_pixelRatio;
-  vec2 maxBoxSize = vec2(max(u_resolution.x, givenBoxSize.x), max(u_resolution.y, givenBoxSize.y));
   float r = u_rotation * 3.14159265358979323846 / 180.;
   mat2 graphicRotation = mat2(cos(r), sin(r), -sin(r), cos(r));
   vec2 graphicOffset = vec2(-u_offsetX, u_offsetY);
@@ -96,9 +95,9 @@ export const sizingUV = `
     // fit = none
     objectBoxSize.x = fixedRatio * min(fixedRatioBoxGivenSize.x / fixedRatio, fixedRatioBoxGivenSize.y);
     if (u_fit == 1.) { // fit = contain
-      objectBoxSize.x = fixedRatio * min(maxBoxSize.x / fixedRatio, maxBoxSize.y);
+      objectBoxSize.x = fixedRatio * min(u_resolution.x / fixedRatio, u_resolution.y);
     } else if (u_fit == 2.) {  // fit = cover
-      objectBoxSize.x = fixedRatio * max(maxBoxSize.x / fixedRatio, maxBoxSize.y);
+      objectBoxSize.x = fixedRatio * max(u_resolution.x / fixedRatio, u_resolution.y);
     }
     objectBoxSize.y = objectBoxSize.x / fixedRatio;
     vec2 objectWorldScale = u_resolution.xy / objectBoxSize;
@@ -134,9 +133,9 @@ export const sizingUV = `
     patternBoxSize.x = patternBoxRatio * min(patternBoxGivenSize.x / patternBoxRatio, patternBoxGivenSize.y);
     float patternWorldNoFitBoxWidth = patternBoxSize.x;
     if (u_fit == 1.) {  // fit = contain
-      patternBoxSize.x = patternBoxRatio * min(maxBoxSize.x / patternBoxRatio, maxBoxSize.y);
+      patternBoxSize.x = patternBoxRatio * min(u_resolution.x / patternBoxRatio, u_resolution.y);
     } else if (u_fit == 2.) {  // fit = cover
-      patternBoxSize.x = patternBoxRatio * max(maxBoxSize.x / patternBoxRatio, maxBoxSize.y);
+      patternBoxSize.x = patternBoxRatio * max(u_resolution.x / patternBoxRatio, u_resolution.y);
     }
     patternBoxSize.y = patternBoxSize.x / patternBoxRatio;
     vec2 patternWorldScale = u_resolution.xy / patternBoxSize;
@@ -173,9 +172,9 @@ export const sizingUV = `
 
     vec2 imageBoxSize;
     if (u_fit == 1.) { // contain
-      imageBoxSize.x = min(maxBoxSize.x / u_imageAspectRatio, maxBoxSize.y) * u_imageAspectRatio;
+      imageBoxSize.x = min(u_resolution.x / u_imageAspectRatio, u_resolution.y) * u_imageAspectRatio;
     } else if (u_fit == 2.) { // cover
-      imageBoxSize.x = max(maxBoxSize.x / u_imageAspectRatio, maxBoxSize.y) * u_imageAspectRatio;
+      imageBoxSize.x = max(u_resolution.x / u_imageAspectRatio, u_resolution.y) * u_imageAspectRatio;
     } else {
       imageBoxSize.x = min(10.0, 10.0 / u_imageAspectRatio * u_imageAspectRatio);
     }
