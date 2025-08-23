@@ -1,0 +1,121 @@
+import { godRaysPresets } from '@paper-design/shaders-react';
+import type { ShaderDef } from './shader-def-types';
+
+const defaultParams = godRaysPresets[0].params;
+
+export const godRaysDef: ShaderDef = {
+  name: 'God Rays',
+  description:
+    'Animated rays of light radiating from the center, blended with up to 5 colors. Adjustable for size, density, brightness, center glow. Great for dramatic backgrounds, logo reveals, and VFX like energy bursts or sun shafts',
+  params: [
+    {
+      name: 'colors',
+      type: 'string[]',
+      defaultValue: [],
+      isColor: true,
+      description: 'Up to 5 ray colors.',
+    },
+    {
+      name: 'colorBack',
+      type: 'string',
+      defaultValue: defaultParams.colorBack,
+      isColor: true,
+      description: 'Background color.',
+    },
+    {
+      name: 'colorBloom',
+      type: 'string',
+      defaultValue: defaultParams.colorBloom,
+      isColor: true,
+      description: 'Color overlay blended with the rays.',
+    },
+    {
+      name: 'bloom',
+      type: 'number',
+      min: 0,
+      max: 1,
+      defaultValue: defaultParams.bloom,
+      description: 'Strength of the bloom/overlay effect.',
+    },
+    {
+      name: 'intensity',
+      type: 'number',
+      min: 0,
+      max: 1,
+      defaultValue: defaultParams.intensity,
+      description: 'Visibility/strength of the rays.',
+    },
+    {
+      name: 'density',
+      type: 'number',
+      min: 0,
+      max: 1,
+      defaultValue: defaultParams.density,
+      description: 'Frequency of rays around the circle.',
+    },
+    {
+      name: 'spotty',
+      type: 'number',
+      min: 0,
+      max: 1,
+      defaultValue: defaultParams.spotty,
+      description: 'Density of spot patterns along the rays.',
+    },
+    {
+      name: 'midSize',
+      type: 'number',
+      min: 0,
+      max: 1,
+      defaultValue: defaultParams.midSize,
+      description: 'Size of the circular glow in the center.',
+    },
+    {
+      name: 'midIntensity',
+      type: 'number',
+      min: 0,
+      max: 1,
+      defaultValue: defaultParams.midIntensity,
+      description: 'Brightness of the central glow.',
+    },
+    {
+      name: 'offsetX',
+      type: 'number',
+      min: -1,
+      max: 1,
+      defaultValue: defaultParams.offsetX,
+      description: 'Position of the center.',
+    },
+    {
+      name: 'offsetY',
+      type: 'number',
+      min: -1,
+      max: 1,
+      defaultValue: defaultParams.offsetY,
+      description: 'Position of the center.',
+    },
+    {
+      name: 'scale',
+      type: 'number',
+      min: 0.01,
+      max: 4,
+      defaultValue: defaultParams.scale,
+      description: 'Overall pattern zoom.',
+    },
+    {
+      name: 'rotation',
+      type: 'number',
+      min: 0,
+      max: 360,
+      defaultValue: defaultParams.rotation,
+      description: 'Overall pattern rotation angle.',
+    },
+    {
+      name: 'speed',
+      type: 'number',
+      min: 0,
+      max: 2,
+      defaultValue: defaultParams.speed,
+      description: 'Animation speed.',
+    },
+  ],
+};

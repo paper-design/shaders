@@ -5,11 +5,12 @@ import { useControls, button, folder } from 'leva';
 import { setParamsSafe, useResetLevaParams } from '@/helpers/use-reset-leva-params';
 import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
-import { ShaderFit, ShaderFitOptions, metaballsMeta } from '@paper-design/shaders';
+import { metaballsMeta } from '@paper-design/shaders';
 import { useColors } from '@/helpers/use-colors';
 import { toHsla } from '@/helpers/to-hsla';
 import { ShaderContainer } from '@/components/shader-container';
 import { ShaderDetails } from '@/components/shader-details';
+import { metaballsDef } from '@/shader-defs/metaballs-def';
 
 /**
  * You can copy/paste this example to use Metaballs in your app
@@ -70,21 +71,7 @@ const MetaballsWithControls = () => {
       <ShaderContainer>
         <Metaballs {...params} colors={colors} />
       </ShaderContainer>
-      <ShaderDetails
-        name="Metaballs"
-        currentParams={{ ...params, colors }}
-        description="Circular shapes moving around the center, blending and merging based on distance."
-        props={{
-          'colorBack': 'Background color.',
-          'colors': 'Colors used for the effect.',
-          'count': 'Number of balls on the canvas.',
-          'size': 'Base size of the balls.',
-          'offsetX, offsetY': 'Position of the center.',
-          'scale': 'Overall pattern zoom.',
-          'rotation': 'Overall pattern rotation angle.',
-          'speed': 'Animation speed.',
-        }}
-      />
+      <ShaderDetails shaderDef={metaballsDef} currentParams={{ ...params, colors }} />
     </>
   );
 };

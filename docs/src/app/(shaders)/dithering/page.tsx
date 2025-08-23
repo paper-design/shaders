@@ -6,17 +6,11 @@ import { useControls, button, folder } from 'leva';
 import { setParamsSafe, useResetLevaParams } from '@/helpers/use-reset-leva-params';
 import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
-import {
-  DitheringShape,
-  DitheringShapes,
-  DitheringType,
-  DitheringTypes,
-  ShaderFitOptions,
-} from '@paper-design/shaders';
-import { ShaderFit } from '@paper-design/shaders';
+import { DitheringShape, DitheringShapes, DitheringType, DitheringTypes } from '@paper-design/shaders';
 import { toHsla } from '@/helpers/to-hsla';
 import { ShaderContainer } from '@/components/shader-container';
 import { ShaderDetails } from '@/components/shader-details';
+import { ditheringDef } from '@/shader-defs/dithering-def';
 
 /**
  * You can copy/paste this example to use Dithering in your app
@@ -65,65 +59,7 @@ const DitheringWithControls = () => {
       <ShaderContainer>
         <Dithering {...params} />
       </ShaderContainer>
-      <ShaderDetails
-        name="Dithering"
-        currentParams={params}
-        description="2-color dithering effect over animated abstract shapes."
-        props={{
-          'colorBack, colorFront': 'The two colors used for the effect.',
-          'pxSize': 'Pixel size relative to canvas resolution.',
-          'shape': (
-            <>
-              <ul className="list-disc pl-4 [&_b]:font-semibold">
-                <li>
-                  <b>simplex</b>: Simplex noise pattern.
-                </li>
-                <li>
-                  <b>warp</b>: Warp noise pattern.
-                </li>
-                <li>
-                  <b>dots</b>: Columns of dots moving vertically.
-                </li>
-                <li>
-                  <b>wave</b>: Sine wave.
-                </li>
-                <li>
-                  <b>ripple</b>: Ripple effect.
-                </li>
-                <li>
-                  <b>swirl</b>: Swirl animation.
-                </li>
-                <li>
-                  <b>sphere</b>: Rotating sphere.
-                </li>
-              </ul>
-            </>
-          ),
-          'type': (
-            <>
-              <ul className="list-disc pl-4 [&_b]:font-semibold">
-                <li>
-                  <b>random</b>: Random dithering.
-                </li>
-
-                <li>
-                  <b>2x2</b>: 2x2 Bayer matrix.
-                </li>
-                <li>
-                  <b>4x4</b>: 4x4 Bayer matrix.
-                </li>
-                <li>
-                  <b>8x8</b>: 8x8 Bayer matrix.
-                </li>
-              </ul>
-            </>
-          ),
-          'offsetX, offsetY': 'Position of the center.',
-          'scale': 'Overall pattern zoom.',
-          'rotation': 'Overall pattern rotation angle.',
-          'speed': 'Animation speed.',
-        }}
-      />
+      <ShaderDetails shaderDef={ditheringDef} currentParams={params} />
     </>
   );
 };

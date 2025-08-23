@@ -5,10 +5,10 @@ import { useControls, button, folder } from 'leva';
 import { setParamsSafe, useResetLevaParams } from '@/helpers/use-reset-leva-params';
 import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
-import { ShaderFit, ShaderFitOptions } from '@paper-design/shaders';
 import { toHsla } from '@/helpers/to-hsla';
 import { ShaderContainer } from '@/components/shader-container';
 import { ShaderDetails } from '@/components/shader-details';
+import { neuroNoiseDef } from '@/shader-defs/neuro-noise-def';
 
 /**
  * You can copy/paste this example to use NeuroNoise in your app
@@ -56,19 +56,7 @@ const NeuroNoiseWithControls = () => {
       <ShaderContainer>
         <NeuroNoise {...params} />
       </ShaderContainer>
-      <ShaderDetails
-        name="Neuro Noise"
-        currentParams={params}
-        description="Fractal-like structure made of several layers of sine arches."
-        props={{
-          'colorBack, colorMid, colorFront': 'Colors used for the effect.',
-          'brightness': 'Brightness.',
-          'contrast': 'Contrast.',
-          'scale': 'Overall pattern zoom.',
-          'rotation': 'Overall pattern rotation angle.',
-          'speed': 'Animation speed.',
-        }}
-      />
+      <ShaderDetails shaderDef={neuroNoiseDef} currentParams={params} />
     </>
   );
 };
