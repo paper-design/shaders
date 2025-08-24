@@ -57,7 +57,7 @@ export const colorPanelsDef: ShaderDef = {
       name: 'edges',
       type: 'boolean',
       defaultValue: defaultParams.edges,
-      description: 'Faking edges effect.',
+      description: 'Color highlight on the panels edges.',
       options: ['true', 'false'],
     },
     {
@@ -90,7 +90,7 @@ export const colorPanelsDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.gradient,
-      description: 'Color mixing within panes (0 = single color, 1 = two colors).',
+      description: 'Color mixing within a panel (0 = solid panel color, 1 = gradient of two colors).',
     },
     {
       name: 'offsetX',
@@ -98,7 +98,7 @@ export const colorPanelsDef: ShaderDef = {
       min: -1,
       max: 1,
       defaultValue: defaultParams.offsetX,
-      description: 'Position of the center.',
+      description: 'Horizontal offset of the graphics center.',
     },
     {
       name: 'offsetY',
@@ -106,7 +106,7 @@ export const colorPanelsDef: ShaderDef = {
       min: -1,
       max: 1,
       defaultValue: defaultParams.offsetY,
-      description: 'Position of the center.',
+      description: 'Vertical offset of the graphics center.',
     },
     {
       name: 'scale',
@@ -114,7 +114,7 @@ export const colorPanelsDef: ShaderDef = {
       min: 0.01,
       max: 4,
       defaultValue: defaultParams.scale,
-      description: 'Overall pattern zoom.',
+      description: 'Overall zoom level of the graphics.',
     },
     {
       name: 'rotation',
@@ -122,7 +122,7 @@ export const colorPanelsDef: ShaderDef = {
       min: 0,
       max: 360,
       defaultValue: defaultParams.rotation,
-      description: 'Overall pattern rotation angle.',
+      description: 'Overall rotation angle of the graphics.',
     },
     {
       name: 'speed',
@@ -130,7 +130,7 @@ export const colorPanelsDef: ShaderDef = {
       min: 0,
       max: 2,
       defaultValue: defaultParams.speed,
-      description: 'Animation speed.',
+      description: 'Animation speed (requestAnimationFrame loop stops at speed=0).',
     },
   ],
 };

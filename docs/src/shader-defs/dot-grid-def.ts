@@ -12,21 +12,21 @@ export const dotGridDef: ShaderDef = {
       type: 'string',
       defaultValue: defaultParams.colorBack,
       isColor: true,
-      description: 'Colors used for the effect.',
+      description: 'Background color.',
     },
     {
       name: 'colorFill',
       type: 'string',
       defaultValue: defaultParams.colorFill,
       isColor: true,
-      description: 'Colors used for the effect.',
+      description: 'Shape fill color.',
     },
     {
       name: 'colorStroke',
       type: 'string',
       defaultValue: defaultParams.colorStroke,
       isColor: true,
-      description: 'Colors used for the effect.',
+      description: 'Shape stroke color.',
     },
     {
       name: 'size',
@@ -89,7 +89,7 @@ export const dotGridDef: ShaderDef = {
       min: 0.01,
       max: 4,
       defaultValue: defaultParams.scale,
-      description: 'Overall pattern zoom.',
+      description: 'Overall zoom level of the graphics.',
     },
     {
       name: 'rotation',
@@ -97,7 +97,7 @@ export const dotGridDef: ShaderDef = {
       min: 0,
       max: 360,
       defaultValue: defaultParams.rotation,
-      description: 'Overall pattern rotation angle.',
+      description: 'Overall rotation angle of the graphics.',
     },
   ],
 };

@@ -12,7 +12,7 @@ export const grainGradientDef: ShaderDef = {
       type: 'string',
       defaultValue: defaultParams.colorBack,
       isColor: true,
-      description: 'Colors used for the effect.',
+      description: 'Background color.',
     },
     {
       name: 'colors',
@@ -27,7 +27,7 @@ export const grainGradientDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.softness,
-      description: 'Blur between color bands.',
+      description: 'Color transition sharpness (0 = hard edge, 1 = smooth gradient).',
     },
     {
       name: 'intensity',
@@ -66,7 +66,7 @@ export const grainGradientDef: ShaderDef = {
       min: -1,
       max: 1,
       defaultValue: defaultParams.offsetX,
-      description: 'Position of the center.',
+      description: 'Horizontal offset of the graphics center.',
     },
     {
       name: 'offsetY',
@@ -74,7 +74,7 @@ export const grainGradientDef: ShaderDef = {
       min: -1,
       max: 1,
       defaultValue: defaultParams.offsetY,
-      description: 'Position of the center.',
+      description: 'Vertical offset of the graphics center.',
     },
     {
       name: 'scale',
@@ -82,7 +82,7 @@ export const grainGradientDef: ShaderDef = {
       min: 0.01,
       max: 4,
       defaultValue: defaultParams.scale,
-      description: 'Overall pattern zoom.',
+      description: 'Overall zoom level of the graphics.',
     },
     {
       name: 'rotation',
@@ -90,7 +90,7 @@ export const grainGradientDef: ShaderDef = {
       min: 0,
       max: 360,
       defaultValue: defaultParams.rotation,
-      description: 'Overall pattern rotation angle.',
+      description: 'Overall rotation angle of the graphics.',
     },
     {
       name: 'speed',
@@ -98,7 +98,7 @@ export const grainGradientDef: ShaderDef = {
       min: 0,
       max: 2,
       defaultValue: defaultParams.speed,
-      description: 'Animation speed.',
+      description: 'Animation speed (requestAnimationFrame loop stops at speed=0).',
     },
   ],
 };

@@ -29,7 +29,7 @@ export const warpDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.softness,
-      description: 'Smoothness of color transitions (0 = hard edge, 1 = soft blend).',
+      description: 'Color transition sharpness (0 = hard edge, 1 = smooth gradient).',
     },
     {
       name: 'distortion',
@@ -80,7 +80,7 @@ export const warpDef: ShaderDef = {
       min: 0.01,
       max: 5,
       defaultValue: defaultParams.scale,
-      description: 'Overall pattern zoom.',
+      description: 'Overall zoom level of the graphics.',
     },
     {
       name: 'rotation',
@@ -88,7 +88,7 @@ export const warpDef: ShaderDef = {
       min: 0,
       max: 360,
       defaultValue: defaultParams.rotation,
-      description: 'Overall pattern rotation angle.',
+      description: 'Overall rotation angle of the graphics.',
     },
     {
       name: 'speed',
@@ -96,7 +96,7 @@ export const warpDef: ShaderDef = {
       min: 0,
       max: 20,
       defaultValue: defaultParams.speed,
-      description: 'Animation speed.',
+      description: 'Animation speed (requestAnimationFrame loop stops at speed=0).',
     },
   ],
 };

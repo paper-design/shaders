@@ -12,14 +12,14 @@ export const imageDitheringDef: ShaderDef = {
       type: 'string',
       defaultValue: defaultParams.colorBack,
       isColor: true,
-      description: 'Colors used for the effect.',
+      description: 'Background color.',
     },
     {
       name: 'colorFront',
       type: 'string',
       defaultValue: defaultParams.colorFront,
       isColor: true,
-      description: 'Colors used for the effect.',
+      description: 'The foreground (ink) color.',
     },
     {
       name: 'colorHighlight',
@@ -53,7 +53,7 @@ export const imageDitheringDef: ShaderDef = {
       min: 0.5,
       max: 20,
       defaultValue: defaultParams.pxSize,
-      description: 'Pixel size relative to canvas resolution.',
+      description: 'Pixel size of dithering grid.',
     },
     {
       name: 'colorSteps',
@@ -70,7 +70,7 @@ export const imageDitheringDef: ShaderDef = {
       min: 0.5,
       max: 10,
       defaultValue: defaultParams.scale,
-      description: 'Overall pattern zoom.',
+      description: 'Overall zoom level of the graphics.',
     },
     {
       name: 'fit',

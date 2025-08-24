@@ -21,7 +21,8 @@ export const simplexNoiseDef: ShaderDef = {
       max: 10,
       step: 1,
       defaultValue: defaultParams.stepsPerColor,
-      description: 'Discrete color steps between colors.',
+      description:
+        'Number of extra colors between base colors (1 = N color palette, 2 = 2×N palette, 3 = 3×N palette, etc.',
     },
     {
       name: 'softness',
@@ -29,7 +30,7 @@ export const simplexNoiseDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.softness,
-      description: 'Color transition sharpness (0 = hard edge, 1 = smooth fade).',
+      description: 'Color transition sharpness (0 = hard edge, 1 = smooth gradient).',
     },
     {
       name: 'scale',
@@ -37,7 +38,7 @@ export const simplexNoiseDef: ShaderDef = {
       min: 0.01,
       max: 4,
       defaultValue: defaultParams.scale,
-      description: 'Overall pattern zoom.',
+      description: 'Overall zoom level of the graphics.',
     },
     {
       name: 'rotation',
@@ -45,7 +46,7 @@ export const simplexNoiseDef: ShaderDef = {
       min: 0,
       max: 360,
       defaultValue: defaultParams.rotation,
-      description: 'Overall pattern rotation angle.',
+      description: 'Overall rotation angle of the graphics.',
     },
     {
       name: 'speed',
@@ -53,7 +54,7 @@ export const simplexNoiseDef: ShaderDef = {
       min: 0,
       max: 2,
       defaultValue: defaultParams.speed,
-      description: 'Animation speed.',
+      description: 'Animation speed (requestAnimationFrame loop stops at speed=0).',
     },
   ],
 };

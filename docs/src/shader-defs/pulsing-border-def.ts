@@ -43,7 +43,7 @@ export const pulsingBorderDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.softness,
-      description: 'Border parameters.',
+      description: 'Border edge sharpness (0 = hard edge, 1 = smooth gradient).',
     },
     {
       name: 'intensity',
@@ -108,7 +108,7 @@ export const pulsingBorderDef: ShaderDef = {
       min: 0.01,
       max: 1,
       defaultValue: defaultParams.scale,
-      description: 'Overall pattern zoom.',
+      description: 'Overall zoom level of the graphics.',
     },
     {
       name: 'rotation',
@@ -116,7 +116,7 @@ export const pulsingBorderDef: ShaderDef = {
       min: 0,
       max: 360,
       defaultValue: defaultParams.rotation,
-      description: 'Overall pattern rotation angle.',
+      description: 'Overall rotation angle of the graphics.',
     },
     {
       name: 'offsetX',
@@ -124,7 +124,7 @@ export const pulsingBorderDef: ShaderDef = {
       min: -1,
       max: 1,
       defaultValue: defaultParams.offsetX,
-      description: 'Position of the center.',
+      description: 'Horizontal offset of the graphics center.',
     },
     {
       name: 'offsetY',
@@ -132,7 +132,7 @@ export const pulsingBorderDef: ShaderDef = {
       min: -1,
       max: 1,
       defaultValue: defaultParams.offsetY,
-      description: 'Position of the center.',
+      description: 'Vertical offset of the graphics center.',
     },
     {
       name: 'speed',
@@ -140,7 +140,7 @@ export const pulsingBorderDef: ShaderDef = {
       min: 0,
       max: 2,
       defaultValue: defaultParams.speed,
-      description: 'Animation speed.',
+      description: 'Animation speed (requestAnimationFrame loop stops at speed=0).',
     },
   ],
 };

@@ -44,7 +44,7 @@ export const swirlDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.softness,
-      description: 'Color transition sharpness (0 = hard edge, 1 = smooth fade).',
+      description: 'Color transition sharpness (0 = hard edge, 1 = smooth gradient).',
     },
     {
       name: 'noiseFrequency',
@@ -76,7 +76,7 @@ export const swirlDef: ShaderDef = {
       min: -1,
       max: 1,
       defaultValue: defaultParams.offsetY,
-      description: 'Position of the center.',
+      description: 'Vertical offset of the graphics center.',
     },
     {
       name: 'scale',
@@ -84,7 +84,7 @@ export const swirlDef: ShaderDef = {
       min: 0.01,
       max: 4,
       defaultValue: defaultParams.scale,
-      description: 'Overall pattern zoom.',
+      description: 'Overall zoom level of the graphics.',
     },
     {
       name: 'rotation',
@@ -92,7 +92,7 @@ export const swirlDef: ShaderDef = {
       min: 0,
       max: 360,
       defaultValue: defaultParams.rotation,
-      description: 'Overall pattern rotation angle.',
+      description: 'Overall rotation angle of the graphics.',
     },
     {
       name: 'speed',
@@ -100,7 +100,7 @@ export const swirlDef: ShaderDef = {
       min: 0,
       max: 2,
       defaultValue: defaultParams.speed,
-      description: 'Animation speed.',
+      description: 'Animation speed (requestAnimationFrame loop stops at speed=0).',
     },
   ],
 };

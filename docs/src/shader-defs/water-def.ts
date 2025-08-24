@@ -13,14 +13,14 @@ export const waterDef: ShaderDef = {
       type: 'string',
       defaultValue: defaultParams.colorBack,
       isColor: true,
-      description: 'Background and highlight colors.',
+      description: 'Background color.',
     },
     {
       name: 'highlightColor',
       type: 'string',
       defaultValue: defaultParams.highlightColor,
       isColor: true,
-      description: 'Background and highlight colors.',
+      description: 'Highlight color.',
     },
     {
       name: 'highlights',
@@ -76,7 +76,7 @@ export const waterDef: ShaderDef = {
       min: 0.1,
       max: 10,
       defaultValue: defaultParams.scale,
-      description: 'Overall pattern zoom.',
+      description: 'Overall zoom level of the graphics.',
     },
     {
       name: 'fit',
@@ -91,7 +91,7 @@ export const waterDef: ShaderDef = {
       min: 0,
       max: 3,
       defaultValue: defaultParams.speed,
-      description: 'Animation speed.',
+      description: 'Animation speed (requestAnimationFrame loop stops at speed=0).',
     },
   ],
 };

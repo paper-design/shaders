@@ -5,21 +5,21 @@ const defaultParams = ditheringPresets[0].params;
 
 export const ditheringDef: ShaderDef = {
   name: 'Dithering',
-  description: '2-color dithering effect over animated abstract shapes.',
+  description: 'Animated 2-color dithering over with multiple pattern sources (noise, warp, dots, waves, ripple, swirl, sphere). Great for retro, print-like, or stylized UI textures',
   params: [
     {
       name: 'colorBack',
       type: 'string',
       defaultValue: defaultParams.colorBack,
       isColor: true,
-      description: 'The two colors used for the effect.',
+      description: 'Background color.',
     },
     {
       name: 'colorFront',
       type: 'string',
       defaultValue: defaultParams.colorFront,
       isColor: true,
-      description: 'The two colors used for the effect.',
+      description: 'The foreground (ink) color.',
     },
     {
       name: 'pxSize',
@@ -27,7 +27,7 @@ export const ditheringDef: ShaderDef = {
       min: 1,
       max: 20,
       defaultValue: defaultParams.pxSize,
-      description: 'Pixel size relative to canvas resolution.',
+      description: 'Pixel size of dithering grid.',
     },
     {
       name: 'shape',
@@ -62,7 +62,7 @@ export const ditheringDef: ShaderDef = {
       min: -1,
       max: 1,
       defaultValue: defaultParams.offsetX,
-      description: 'Position of the center.',
+      description: 'Horizontal offset of the graphics center.',
     },
     {
       name: 'offsetY',
@@ -70,7 +70,7 @@ export const ditheringDef: ShaderDef = {
       min: -1,
       max: 1,
       defaultValue: defaultParams.offsetY,
-      description: 'Position of the center.',
+      description: 'Vertical offset of the graphics center.',
     },
     {
       name: 'scale',
@@ -78,7 +78,7 @@ export const ditheringDef: ShaderDef = {
       min: 0.01,
       max: 4,
       defaultValue: defaultParams.scale,
-      description: 'Overall pattern zoom.',
+      description: 'Overall zoom level of the graphics.',
     },
     {
       name: 'rotation',
@@ -86,7 +86,7 @@ export const ditheringDef: ShaderDef = {
       min: 0,
       max: 360,
       defaultValue: defaultParams.rotation,
-      description: 'Overall pattern rotation angle.',
+      description: 'Overall rotation angle of the graphics.',
     },
     {
       name: 'speed',
@@ -94,7 +94,7 @@ export const ditheringDef: ShaderDef = {
       min: 0,
       max: 2,
       defaultValue: defaultParams.speed,
-      description: 'Animation speed.',
+      description: 'Animation speed (requestAnimationFrame loop stops at speed=0).',
     },
   ],
 };

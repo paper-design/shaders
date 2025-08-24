@@ -77,7 +77,7 @@ export const flutedGlassDef: ShaderDef = {
       min: 0.5,
       max: 10,
       defaultValue: defaultParams.scale,
-      description: 'Overall pattern zoom.',
+      description: 'Overall zoom level of the graphics.',
     },
     {
       name: 'fit',

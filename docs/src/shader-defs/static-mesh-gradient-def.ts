@@ -5,14 +5,15 @@ const defaultParams = staticMeshGradientPresets[0].params;
 
 export const staticMeshGradientDef: ShaderDef = {
   name: 'Static Mesh Gradient',
-  description: 'A composition of N color spots (one per color).',
+  description:
+    'Soft, multi-point mesh gradient blending up to 10 color spots. Includes two-direction warping, adjustable blend sharpness, and grain controls. Great for elegant wallpapers and atmospheric backdrops',
   params: [
     {
       name: 'colors',
       type: 'string[]',
       defaultValue: [],
       isColor: true,
-      description: 'Colors used for the effect.',
+      description: 'Colors used in the gradient.',
     },
     {
       name: 'positions',
@@ -20,7 +21,7 @@ export const staticMeshGradientDef: ShaderDef = {
       min: 0,
       max: 100,
       defaultValue: defaultParams.positions,
-      description: 'Color spot positions.',
+      description: 'Color spots placement.',
     },
     {
       name: 'waveX',
@@ -28,7 +29,7 @@ export const staticMeshGradientDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.waveX,
-      description: 'Power of sine wave distortion along X and Y axes.',
+      description: 'Strength of sine wave distortion along X axis.',
     },
     {
       name: 'waveXShift',
@@ -36,7 +37,7 @@ export const staticMeshGradientDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.waveXShift,
-      description: 'Each wave phase offset.',
+      description: 'Phase offset applied to the X-axis wave.',
     },
     {
       name: 'waveY',
@@ -44,7 +45,7 @@ export const staticMeshGradientDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.waveY,
-      description: 'Power of sine wave distortion along X and Y axes.',
+      description: 'Strength of sine wave distortion along Y axis.',
     },
     {
       name: 'waveYShift',
@@ -52,7 +53,7 @@ export const staticMeshGradientDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.waveYShift,
-      description: 'Each wave phase offset.',
+      description: 'Phase offset applied to the Y-axis wave',
     },
     {
       name: 'mixing',
@@ -60,7 +61,7 @@ export const staticMeshGradientDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.mixing,
-      description: '0 for stepped gradient, 0.5 for smooth transitions, 1 for pronounced color points.',
+      description: 'Blending behavior (sharper vs. smoother color transitions).',
     },
     {
       name: 'grainMixer',
@@ -68,7 +69,7 @@ export const staticMeshGradientDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.grainMixer,
-      description: 'Shape distortion.',
+      description: 'Strength of grain distortion applied to color edges.',
     },
     {
       name: 'grainOverlay',
@@ -76,7 +77,7 @@ export const staticMeshGradientDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.grainOverlay,
-      description: 'Post-processing blending.',
+      description: 'Post-processing RGB grain overlay.',
     },
     {
       name: 'offsetX',
@@ -84,7 +85,7 @@ export const staticMeshGradientDef: ShaderDef = {
       min: -1,
       max: 1,
       defaultValue: defaultParams.offsetX,
-      description: 'Position of the center.',
+      description: 'Horizontal offset of the graphics center.',
     },
     {
       name: 'offsetY',
@@ -92,7 +93,7 @@ export const staticMeshGradientDef: ShaderDef = {
       min: -1,
       max: 1,
       defaultValue: defaultParams.offsetY,
-      description: 'Position of the center.',
+      description: 'Vertical offset of the graphics center.',
     },
     {
       name: 'scale',
@@ -100,7 +101,7 @@ export const staticMeshGradientDef: ShaderDef = {
       min: 0.01,
       max: 4,
       defaultValue: defaultParams.scale,
-      description: 'Overall pattern zoom.',
+      description: 'Overall zoom level of the graphics.',
     },
     {
       name: 'rotation',
@@ -108,7 +109,7 @@ export const staticMeshGradientDef: ShaderDef = {
       min: 0,
       max: 360,
       defaultValue: defaultParams.rotation,
-      description: 'Overall pattern rotation angle.',
+      description: 'Overall rotation angle of the graphics.',
     },
   ],
 };

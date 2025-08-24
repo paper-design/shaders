@@ -19,7 +19,7 @@ export const paperTextureDef: ShaderDef = {
       type: 'string',
       defaultValue: defaultParams.colorBack,
       isColor: true,
-      description: 'Colors used for the effect.',
+      description: 'Background color.',
     },
     {
       name: 'contrast',
@@ -116,7 +116,7 @@ export const paperTextureDef: ShaderDef = {
       min: 0.5,
       max: 10,
       defaultValue: defaultParams.scale,
-      description: 'Overall pattern zoom.',
+      description: 'Overall zoom level of the graphics.',
     },
     {
       name: 'fit',

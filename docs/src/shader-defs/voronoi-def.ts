@@ -5,28 +5,28 @@ const defaultParams = voronoiPresets[0].params;
 
 export const voronoiDef: ShaderDef = {
   name: 'Voronoi',
-  description: 'Double-pass Voronoi pattern cell edges.',
+  description: 'Anti-aliased animated Voronoi pattern with smooth edges and customizable cell edges.',
   params: [
     {
       name: 'colors',
       type: 'string[]',
       defaultValue: [],
       isColor: true,
-      description: 'Colors used for the effect.',
+      description: 'Base cell colors (up to 10).',
     },
     {
       name: 'colorGap',
       type: 'string',
       defaultValue: defaultParams.colorGap,
       isColor: true,
-      description: 'Background and glow colors.',
+      description: 'Color used for cell borders/gaps.',
     },
     {
       name: 'colorGlow',
       type: 'string',
       defaultValue: defaultParams.colorGlow,
       isColor: true,
-      description: 'Background and glow colors.',
+      description: 'Color tint for the radial inner shadow effect inside cells (effective with glow > 0).',
     },
     {
       name: 'stepsPerColor',
@@ -35,7 +35,8 @@ export const voronoiDef: ShaderDef = {
       max: 3,
       step: 1,
       defaultValue: defaultParams.stepsPerColor,
-      description: 'Discrete color steps between colors.',
+      description:
+        'Number of extra colors between base colors (1 = N color palette, 2 = 2×N palette, 3 = 3×N palette, etc.',
     },
     {
       name: 'distortion',
@@ -43,7 +44,7 @@ export const voronoiDef: ShaderDef = {
       min: 0,
       max: 0.5,
       defaultValue: defaultParams.distortion,
-      description: 'Max distance the cell center moves away from regular grid.',
+      description: 'Strength of noise-driven displacement of cell centers',
     },
     {
       name: 'gap',
@@ -51,7 +52,7 @@ export const voronoiDef: ShaderDef = {
       min: 0,
       max: 0.1,
       defaultValue: defaultParams.gap,
-      description: 'Width of the stroke between the cells.',
+      description: 'Width of the border/gap between cells.',
     },
     {
       name: 'glow',
@@ -59,7 +60,7 @@ export const voronoiDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.glow,
-      description: 'Radial glow around each cell center.',
+      description: 'Strength of the radial inner shadow inside cells.',
     },
     {
       name: 'scale',
@@ -67,7 +68,7 @@ export const voronoiDef: ShaderDef = {
       min: 0.01,
       max: 4,
       defaultValue: defaultParams.scale,
-      description: 'Overall pattern zoom.',
+      description: 'Overall zoom level of the graphics.',
     },
     {
       name: 'rotation',
@@ -75,7 +76,7 @@ export const voronoiDef: ShaderDef = {
       min: 0,
       max: 360,
       defaultValue: defaultParams.rotation,
-      description: 'Overall pattern rotation angle.',
+      description: 'Overall rotation angle of the graphics.',
     },
     {
       name: 'speed',
@@ -83,7 +84,7 @@ export const voronoiDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.speed,
-      description: 'Animation speed.',
+      description: 'Animation speed (requestAnimationFrame loop stops at speed=0).',
     },
   ],
 };

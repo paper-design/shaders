@@ -12,21 +12,21 @@ export const neuroNoiseDef: ShaderDef = {
       type: 'string',
       defaultValue: defaultParams.colorBack,
       isColor: true,
-      description: 'Colors used for the effect.',
+      description: 'Background color.',
     },
     {
       name: 'colorMid',
       type: 'string',
       defaultValue: defaultParams.colorMid,
       isColor: true,
-      description: 'Colors used for the effect.',
+      description: 'Graphics main color.',
     },
     {
       name: 'colorFront',
       type: 'string',
       defaultValue: defaultParams.colorFront,
       isColor: true,
-      description: 'Colors used for the effect.',
+      description: 'Graphics highlight color.',
     },
     {
       name: 'brightness',
@@ -50,7 +50,7 @@ export const neuroNoiseDef: ShaderDef = {
       min: 0.01,
       max: 4,
       defaultValue: defaultParams.scale,
-      description: 'Overall pattern zoom.',
+      description: 'Overall zoom level of the graphics.',
     },
     {
       name: 'rotation',
@@ -58,7 +58,7 @@ export const neuroNoiseDef: ShaderDef = {
       min: 0,
       max: 360,
       defaultValue: defaultParams.rotation,
-      description: 'Overall pattern rotation angle.',
+      description: 'Overall rotation angle of the graphics.',
     },
     {
       name: 'speed',
@@ -66,7 +66,7 @@ export const neuroNoiseDef: ShaderDef = {
       min: 0,
       max: 2,
       defaultValue: defaultParams.speed,
-      description: 'Animation speed.',
+      description: 'Animation speed (requestAnimationFrame loop stops at speed=0).',
     },
   ],
 };

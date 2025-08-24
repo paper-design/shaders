@@ -12,14 +12,14 @@ export const wavesDef: ShaderDef = {
       type: 'string',
       defaultValue: defaultParams.colorBack,
       isColor: true,
-      description: 'Colors used for the effect.',
+      description: 'Background color.',
     },
     {
       name: 'colorFront',
       type: 'string',
       defaultValue: defaultParams.colorFront,
       isColor: true,
-      description: 'Colors used for the effect.',
+      description: 'The lines color.',
     },
     {
       name: 'shape',
@@ -67,7 +67,7 @@ export const wavesDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.softness,
-      description: 'Color transition sharpness (0 = hard edge, 1 = smooth fade).',
+      description: 'Color transition sharpness (0 = hard edge, 1 = smooth gradient).',
     },
     {
       name: 'scale',
@@ -75,7 +75,7 @@ export const wavesDef: ShaderDef = {
       min: 0.01,
       max: 4,
       defaultValue: defaultParams.scale,
-      description: 'Overall pattern zoom.',
+      description: 'Overall zoom level of the graphics.',
     },
     {
       name: 'rotation',
@@ -83,7 +83,7 @@ export const wavesDef: ShaderDef = {
       min: 0,
       max: 360,
       defaultValue: defaultParams.rotation,
-      description: 'Overall pattern rotation angle.',
+      description: 'Overall rotation angle of the graphics.',
     },
   ],
 };

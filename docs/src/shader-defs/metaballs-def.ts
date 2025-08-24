@@ -5,7 +5,7 @@ const defaultParams = metaballsPresets[0].params;
 
 export const metaballsDef: ShaderDef = {
   name: 'Metaballs',
-  description: 'Circular shapes moving around the center, blending and merging based on distance.',
+  description: 'Gooey blobs that are moving around the center and merging into smooth organic shapes',
   params: [
     {
       name: 'colorBack',
@@ -43,7 +43,7 @@ export const metaballsDef: ShaderDef = {
       min: -1,
       max: 1,
       defaultValue: defaultParams.offsetX,
-      description: 'Position of the center.',
+      description: 'Horizontal offset of the graphics center.',
     },
     {
       name: 'offsetY',
@@ -51,7 +51,7 @@ export const metaballsDef: ShaderDef = {
       min: -1,
       max: 1,
       defaultValue: defaultParams.offsetY,
-      description: 'Position of the center.',
+      description: 'Vertical offset of the graphics center.',
     },
     {
       name: 'scale',
@@ -59,7 +59,7 @@ export const metaballsDef: ShaderDef = {
       min: 0.01,
       max: 4,
       defaultValue: defaultParams.scale,
-      description: 'Overall pattern zoom.',
+      description: 'Overall zoom level of the graphics.',
     },
     {
       name: 'rotation',
@@ -67,7 +67,7 @@ export const metaballsDef: ShaderDef = {
       min: 0,
       max: 360,
       defaultValue: defaultParams.rotation,
-      description: 'Overall pattern rotation angle.',
+      description: 'Overall rotation angle of the graphics.',
     },
     {
       name: 'speed',
@@ -75,7 +75,7 @@ export const metaballsDef: ShaderDef = {
       min: 0,
       max: 2,
       defaultValue: defaultParams.speed,
-      description: 'Animation speed.',
+      description: 'Animation speed (requestAnimationFrame loop stops at speed=0).',
     },
   ],
 };
