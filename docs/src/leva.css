@@ -1,0 +1,72 @@
+#leva__root {
+  --leva-sizes-rootWidth: 300px;
+  --leva-sizes-controlWidth: 140px;
+
+  /* Theme overrides. Note: using the Leva theme prop instead of CSS variables causes overflows with some sections that have a dynamic number of inputs such as colors. */
+  --leva-colors-elevation1: #d8d8d2; /* bg color of the root panel (main title bar) */
+  --leva-colors-elevation2: #f7f6f0; /* bg color of the rows (main panel color) */
+  --leva-colors-elevation3: #d8d8d2; /* bg color of the inputs */
+  --leva-colors-accent1: #989b96;
+  --leva-colors-accent2: #555551;
+  --leva-colors-accent3: #666662;
+  --leva-colors-highlight1: #555551;
+  --leva-colors-highlight2: #222205;
+  --leva-colors-highlight3: #222205;
+  --leva-shadows-level1: 0 4px 6px 0 #00000033;
+  --leva-shadows-level2: 0 4px 14px #00000033;
+}
+
+/* --leva-colors-folderTextColor is set via style tag, so we need an even higher specificity */
+div[style*='--leva-colors-folderTextColor'] {
+  --leva-colors-folderTextColor: #111102 !important;
+}
+
+#leva__root *::selection {
+  background-color: #555551;
+  color: white;
+}
+
+#leva__root > div {
+  margin-top: 62px;
+  margin-right: 30px;
+}
+
+#leva__root button {
+  background-color: #989b96 !important;
+  color: white !important;
+
+  &:hover,
+  &:active,
+  &:focus {
+    background-color: #b8b9b4 !important;
+    box-shadow: none;
+  }
+}
+
+#leva__root div:has(> div > button) {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+
+#leva__root div:has(> button) {
+  width: 48%;
+  margin-top: 0;
+}
+
+#leva__root input[type='checkbox'] + label > svg {
+  stroke: white;
+}
+
+@media (max-width: 639px) {
+  #leva__root {
+    display: none;
+  }
+}
+
+/* Farther from the right window edge on wide screens, but tighter on narrow screens */
+@media (max-width: 1340px) {
+  #leva__root > div {
+    margin-right: 10px;
+  }
+}

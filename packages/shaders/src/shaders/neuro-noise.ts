@@ -4,7 +4,7 @@ import { rotation2, colorBandingFix } from '../shader-utils.js';
 
 /**
  *
- * Fractal-like structure made of several layers of since arches
+ * Fractal-like structure made of several layers of sine arches
  * Original algorithm: https://x.com/zozuar/status/1625182758745128981/
  *
  * Uniforms:

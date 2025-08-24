@@ -1,40 +1,71 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import './leva.css';
+@import 'tailwindcss';
+
+@theme {
+  --default-font-family: 'Matter', system-ui, sans-serif;
+  --font-mono: 'Paper Mono';
+
+  --color-foreground: #222;
+  --color-blue: oklch(74% 0.104 258);
+
+  --breakpoint-xs: 28rem;
+  --breakpoint-2xl: 106rem;
+
+  --color-selection: oklch(0.78 0.12 258 / 0.5);
+  --ease-out-smooth: cubic-bezier(0.685, 0.89, 0.315, 0.995);
+}
+
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
 
 @font-face {
-  font-family: matter;
+  font-family: Matter;
   font-style: normal;
   font-display: swap;
-  src: url('https://assets.paper.design/fonts/matter-variable.woff2') format('woff2');
+  src: url('https://paper.design/matter.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Paper Mono';
+  font-style: normal;
+  font-display: swap;
+  src: url('https://paper.design/paper-mono-0.100.woff2') format('woff2');
+}
+
+::selection {
+  background-color: var(--color-selection);
 }
 
 body {
   font-family: matter, system-ui, sans-serif;
+  color: var(--color-foreground);
+  text-size-adjust: none;
 }
 
-#leva__root {
-  --leva-sizes-rootWidth: 300px;
-  --leva-sizes-controlWidth: 140px;
+pre {
+  font-family: 'Paper Mono', monospace;
 }
 
-#leva__root button {
-  background-color: var(--leva-colors-elevation1);
-
-  &:hover,
-  &:active,
-  &:focus {
-    box-shadow: inset 0 0 0 var(--leva-borderWidths-hover) var(--leva-colors-elevation3);
-  }
+pre::-webkit-scrollbar {
+  height: 6px;
 }
 
-#leva__root div:has(> div > button) {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
+pre::-webkit-scrollbar-track {
+  background: transparent;
 }
 
-#leva__root div:has(> button) {
-  width: 48%;
-  margin-top: 0;
+pre::-webkit-scrollbar-thumb {
+  background-color: #989b96;
+  border-radius: 3px;
+}
+
+pre::-webkit-scrollbar-thumb:hover {
+  background-color: #777772;
 }

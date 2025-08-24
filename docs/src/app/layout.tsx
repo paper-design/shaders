@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import '../globals.css';
 import { Analytics } from '@vercel/analytics/react';
 import openGraphImage from '../../public/images/opengraph-image.png';
+import { Header } from '@/components/header';
 
 export const metadata: Metadata = {
   title: 'Paper Shaders – Zero-dependency ultra-fast shaders',
@@ -29,7 +30,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className="antialiased">
+      <body className="min-w-[320px] overflow-y-scroll antialiased">
         {children}
         <Analytics />
       </body>

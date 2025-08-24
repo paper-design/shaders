@@ -1,0 +1,106 @@
+'use client';
+
+import { ColorPanels, type ColorPanelsParams, colorPanelsPresets } from '@paper-design/shaders-react';
+
+import { useControls, button, folder } from 'leva';
+import { setParamsSafe, useResetLevaParams } from '@/helpers/use-reset-leva-params';
+import { usePresetHighlight } from '@/helpers/use-preset-highlight';
+import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
+import { colorPanelsMeta, ShaderFit, ShaderFitOptions } from '@paper-design/shaders';
+import { useColors } from '@/helpers/use-colors';
+import { toHsla } from '@/helpers/to-hsla';
+import { ShaderContainer } from '@/components/shader-container';
+import { ShaderDetails } from '@/components/shader-details';
+
+/**
+ * You can copy/paste this example to use ColorPanels in your app
+ */
+const ColorPanelsExample = () => {
+  return <ColorPanels style={{ position: 'fixed', width: '100%', height: '100%' }} />;
+};
+
+/**
+ * This example has controls added so you can play with settings in the example app
+ */
+
+const { worldWidth, worldHeight, ...defaults } = colorPanelsPresets[0].params;
+
+const ColorPanelsWithControls = () => {
+  const { colors, setColors } = useColors({
+    defaultColors: defaults.colors,
+    maxColorCount: colorPanelsMeta.maxColorCount,
+  });
+
+  const [params, setParams] = useControls(() => {
+    return {
+      colorBack: { value: toHsla(defaults.colorBack), order: 100 },
+      density: { value: defaults.density, min: 0.25, max: 7, order: 200 },
+      angle1: { value: defaults.angle1, min: -1, max: 1, order: 201 },
+      angle2: { value: defaults.angle2, min: -1, max: 1, order: 202 },
+      length: { value: defaults.length, min: 0, max: 3, order: 203 },
+      edges: { value: defaults.edges, order: 204 },
+      blur: { value: defaults.blur, min: 0, max: 0.5, order: 205 },
+      fadeIn: { value: defaults.fadeIn, min: 0, max: 1, order: 205 },
+      fadeOut: { value: defaults.fadeOut, min: 0, max: 1, order: 207 },
+      gradient: { value: defaults.gradient, min: 0, max: 1, order: 208 },
+      offsetX: { value: defaults.offsetX, min: -1, max: 1, order: 300 },
+      offsetY: { value: defaults.offsetY, min: -1, max: 1, order: 301 },
+      scale: { value: defaults.scale, min: 0.01, max: 4, order: 302 },
+      rotation: { value: defaults.rotation, min: 0, max: 360, order: 303 },
+      speed: { value: defaults.speed, min: 0, max: 2, order: 400 },
+    };
+  }, [colors.length]);
+
+  useControls(() => {
+    const presets = Object.fromEntries(
+      colorPanelsPresets.map(({ name, params: { worldWidth, worldHeight, ...preset } }) => [
+        name,
+        button(() => {
+          const { colors, ...presetParams } = preset;
+          setColors(colors);
+          setParamsSafe(params, setParams, presetParams);
+        }),
+      ])
+    );
+    return {
+      Presets: folder(presets, { order: -1 }),
+    };
+  });
+
+  // Reset to defaults on mount, so that Leva doesn't show values from other
+  // shaders when navigating (if two shaders have a color1 param for example)
+  useResetLevaParams(params, setParams, defaults);
+  usePresetHighlight(colorPanelsPresets, params);
+  cleanUpLevaParams(params);
+
+  return (
+    <>
+      <ShaderContainer>
+        <ColorPanels {...params} colors={colors} />
+      </ShaderContainer>
+      <ShaderDetails
+        name="Color Panels"
+        currentParams={{ ...params, colors }}
+        description="Pseudo-3D panels rotating around a central axis."
+        props={{
+          'colors': 'Up to 5 colors.',
+          'colorBack': 'Background color.',
+          'density': 'Angle between every 2 panels.',
+          'angle1, angle2': 'Skew angle applied to all panes.',
+          'length': 'Panel length (relative to total height).',
+          'edges': 'Faking edges effect.',
+          'blur': 'Side blur (0 for sharp edges).',
+          'fadeIn': 'Transparency near central axis.',
+          'fadeOut': 'Transparency near viewer.',
+          'gradient': 'Color mixing within panes (0 = single color, 1 = two colors).',
+          'offsetX, offsetY': 'Position of the center.',
+          'scale': 'Overall pattern zoom.',
+          'rotation': 'Overall pattern rotation angle.',
+          'speed': 'Animation speed.',
+        }}
+      />
+    </>
+  );
+};
+
+export default ColorPanelsWithControls;

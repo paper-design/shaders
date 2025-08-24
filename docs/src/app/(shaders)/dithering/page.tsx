@@ -1,0 +1,131 @@
+'use client';
+
+import { Dithering, ditheringPresets } from '@paper-design/shaders-react';
+
+import { useControls, button, folder } from 'leva';
+import { setParamsSafe, useResetLevaParams } from '@/helpers/use-reset-leva-params';
+import { usePresetHighlight } from '@/helpers/use-preset-highlight';
+import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
+import {
+  DitheringShape,
+  DitheringShapes,
+  DitheringType,
+  DitheringTypes,
+  ShaderFitOptions,
+} from '@paper-design/shaders';
+import { ShaderFit } from '@paper-design/shaders';
+import { toHsla } from '@/helpers/to-hsla';
+import { ShaderContainer } from '@/components/shader-container';
+import { ShaderDetails } from '@/components/shader-details';
+
+/**
+ * You can copy/paste this example to use Dithering in your app
+ */
+const DitheringExample = () => {
+  return <Dithering style={{ position: 'fixed', width: '100%', height: '100%' }} />;
+};
+
+/**
+ * This example has controls added so you can play with settings in the example app
+ */
+
+const { worldWidth, worldHeight, ...defaults } = ditheringPresets[0].params;
+
+const DitheringWithControls = () => {
+  const [params, setParams] = useControls(() => {
+    const presets = Object.fromEntries(
+      ditheringPresets.map(({ name, params: { worldWidth, worldHeight, ...preset } }) => [
+        name,
+        button(() => setParamsSafe(params, setParams, preset)),
+      ])
+    );
+    return {
+      colorBack: { value: toHsla(defaults.colorBack), order: 100 },
+      colorFront: { value: toHsla(defaults.colorFront), order: 101 },
+      shape: { value: defaults.shape, options: Object.keys(DitheringShapes) as DitheringShape[], order: 200 },
+      type: { value: defaults.type, options: Object.keys(DitheringTypes) as DitheringType[], order: 201 },
+      pxSize: { value: defaults.pxSize, min: 1, max: 20, order: 202 },
+      offsetX: { value: defaults.offsetX, min: -1, max: 1, order: 300 },
+      offsetY: { value: defaults.offsetY, min: -1, max: 1, order: 301 },
+      scale: { value: defaults.scale, min: 0.01, max: 4, order: 302 },
+      rotation: { value: defaults.rotation, min: 0, max: 360, order: 303 },
+      speed: { value: defaults.speed, min: 0, max: 2, order: 400 },
+      Presets: folder(presets, { order: -1 }),
+    };
+  });
+
+  // Reset to defaults on mount, so that Leva doesn't show values from other
+  // shaders when navigating (if two shaders have a colorBack param for example)
+  useResetLevaParams(params, setParams, defaults);
+  usePresetHighlight(ditheringPresets, params);
+  cleanUpLevaParams(params);
+
+  return (
+    <>
+      <ShaderContainer>
+        <Dithering {...params} />
+      </ShaderContainer>
+      <ShaderDetails
+        name="Dithering"
+        currentParams={params}
+        description="2-color dithering effect over animated abstract shapes."
+        props={{
+          'colorBack, colorFront': 'The two colors used for the effect.',
+          'pxSize': 'Pixel size relative to canvas resolution.',
+          'shape': (
+            <>
+              <ul className="list-disc pl-4 [&_b]:font-semibold">
+                <li>
+                  <b>simplex</b>: Simplex noise pattern.
+                </li>
+                <li>
+                  <b>warp</b>: Warp noise pattern.
+                </li>
+                <li>
+                  <b>dots</b>: Columns of dots moving vertically.
+                </li>
+                <li>
+                  <b>wave</b>: Sine wave.
+                </li>
+                <li>
+                  <b>ripple</b>: Ripple effect.
+                </li>
+                <li>
+                  <b>swirl</b>: Swirl animation.
+                </li>
+                <li>
+                  <b>sphere</b>: Rotating sphere.
+                </li>
+              </ul>
+            </>
+          ),
+          'type': (
+            <>
+              <ul className="list-disc pl-4 [&_b]:font-semibold">
+                <li>
+                  <b>random</b>: Random dithering.
+                </li>
+
+                <li>
+                  <b>2x2</b>: 2x2 Bayer matrix.
+                </li>
+                <li>
+                  <b>4x4</b>: 4x4 Bayer matrix.
+                </li>
+                <li>
+                  <b>8x8</b>: 8x8 Bayer matrix.
+                </li>
+              </ul>
+            </>
+          ),
+          'offsetX, offsetY': 'Position of the center.',
+          'scale': 'Overall pattern zoom.',
+          'rotation': 'Overall pattern rotation angle.',
+          'speed': 'Animation speed.',
+        }}
+      />
+    </>
+  );
+};
+
+export default DitheringWithControls;
