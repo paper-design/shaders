@@ -54,7 +54,7 @@ export const bubblesPreset: DotOrbitPreset = {
     speed: 0.4,
     frame: 0,
     colors: ['#29b9e0'],
-    colorBack: '#009494',
+    colorBack: '#00949400',
     stepsPerColor: 2,
     size: 0.9,
     sizeRange: 0.7,
