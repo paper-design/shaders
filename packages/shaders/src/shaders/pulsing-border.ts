@@ -164,7 +164,7 @@ void main() {
     m *= (1. - clamp(length((v3 + maskOffset) / maskR), 0., 1.));
     cornerFadeMask += m;
   }
-
+  cornerFade = clamp(cornerFade, 0., 1.);
   cornerFade *= cornerFadeMask;
   border += cornerFade;
 
