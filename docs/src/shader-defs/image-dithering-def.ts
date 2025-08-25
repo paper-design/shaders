@@ -5,7 +5,7 @@ const defaultParams = imageDitheringPresets[0].params;
 
 export const imageDitheringDef: ShaderDef = {
   name: 'Image Dithering',
-  description: 'Dithering effect using a 3-color palette.',
+  description: 'A dithering image filter with support for 4 dithering modes and multiple color palettes (2-color, 3-color, and multicolor options, using either predefined colors or ones sampled directly from the original image).',
   params: [
     {
       name: 'colorBack',
@@ -19,14 +19,14 @@ export const imageDitheringDef: ShaderDef = {
       type: 'string',
       defaultValue: defaultParams.colorFront,
       isColor: true,
-      description: 'The foreground (ink) color',
+      description: 'The main foreground color',
     },
     {
       name: 'colorHighlight',
       type: 'string',
       defaultValue: defaultParams.colorHighlight,
       isColor: true,
-      description: 'Colors used for the effect',
+      description: 'The secondary foreground color (set it same as colorFront to get a classic 2-color dithering)',
     },
     {
       name: 'originalColors',

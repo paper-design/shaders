@@ -5,7 +5,7 @@ const defaultParams = liquidMetalPresets[0].params;
 
 export const liquidMetalDef: ShaderDef = {
   name: 'Liquid Metal',
-  description: 'Liquid metal fluid motion applied over abstract shapes.',
+  description: 'Futuristic liquid metal material applied to abstract forms, simulating dynamic surface distortion',
   params: [
     {
       name: 'colorBack',
@@ -35,7 +35,7 @@ export const liquidMetalDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.softness,
-      description: 'Blur between stripes',
+      description: 'Color transition sharpness (0 = hard edge, 1 = smooth gradient)',
     },
     {
       name: 'shiftRed',
@@ -43,7 +43,7 @@ export const liquidMetalDef: ShaderDef = {
       min: -1,
       max: 1,
       defaultValue: defaultParams.shiftRed,
-      description: 'Color dispersion between the stripes',
+      description: 'R-channel dispersion',
     },
     {
       name: 'shiftBlue',
@@ -51,7 +51,7 @@ export const liquidMetalDef: ShaderDef = {
       min: -1,
       max: 1,
       defaultValue: defaultParams.shiftBlue,
-      description: 'Color dispersion between the stripes',
+      description: 'B-channel dispersion',
     },
     {
       name: 'distortion',
@@ -59,7 +59,7 @@ export const liquidMetalDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.distortion,
-      description: 'Pattern distortion on the whole canvas',
+      description: 'Noise distortion over the stripes pattern',
     },
     {
       name: 'contour',
@@ -67,14 +67,14 @@ export const liquidMetalDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.contour,
-      description: 'Distortion power over the shape edges',
+      description: 'Strength of the distortion on the shape edges',
     },
     {
       name: 'shape',
       type: 'enum',
       defaultValue: defaultParams.shape,
       options: ['none', 'circle', 'daisy', 'metaballs'],
-      description: 'Shape to use for the effect',
+      description: 'Shape type',
     },
     {
       name: 'offsetX',

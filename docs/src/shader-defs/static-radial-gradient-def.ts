@@ -20,7 +20,7 @@ export const staticRadialGradientDef: ShaderDef = {
       type: 'string[]',
       defaultValue: [],
       isColor: true,
-      description: 'Colors used for the effect',
+      description: 'Up to 10 colors used in the gradient',
     },
     {
       name: 'radius',
@@ -28,7 +28,7 @@ export const staticRadialGradientDef: ShaderDef = {
       min: 0,
       max: 3,
       defaultValue: defaultParams.radius,
-      description: 'Circle radius',
+      description: 'The size of the shape',
     },
     {
       name: 'focalDistance',
@@ -44,7 +44,7 @@ export const staticRadialGradientDef: ShaderDef = {
       min: 0,
       max: 360,
       defaultValue: defaultParams.focalAngle,
-      description: 'Angle of the focal point in degrees',
+      description: 'Angle of the focal point in degrees (effective with focalDistance > 0)',
     },
     {
       name: 'falloff',

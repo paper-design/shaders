@@ -6,7 +6,7 @@ const defaultParams = godRaysPresets[0].params;
 export const godRaysDef: ShaderDef = {
   name: 'God Rays',
   description:
-    'Animated rays of light radiating from the center, blended with up to 5 colors. Adjustable for size, density, brightness, center glow. Great for dramatic backgrounds, logo reveals, and VFX like energy bursts or sun shafts',
+    'Animated rays of light radiating from the center, blended with up to 5 colors. The rays are adjustable by size, density, brightness and center glow. Great for dramatic backgrounds, logo reveals, and VFX like energy bursts or sun shafts',
   params: [
     {
       name: 'colors',
@@ -51,7 +51,7 @@ export const godRaysDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.density,
-      description: 'Frequency of rays around the circle',
+      description: 'The number of rays',
     },
     {
       name: 'spotty',
@@ -59,7 +59,7 @@ export const godRaysDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.spotty,
-      description: 'Density of spot patterns along the rays',
+      description: 'The length of the rays',
     },
     {
       name: 'midSize',
@@ -67,7 +67,7 @@ export const godRaysDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.midSize,
-      description: 'Size of the circular glow in the center',
+      description: 'Size of the circular glow shape in the center',
     },
     {
       name: 'midIntensity',
@@ -75,7 +75,7 @@ export const godRaysDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.midIntensity,
-      description: 'Brightness of the central glow',
+      description: 'Brightness/intensity of the central glow',
     },
     {
       name: 'offsetX',

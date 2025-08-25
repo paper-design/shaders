@@ -39,7 +39,7 @@ export const solarPreset: SmokeRingPreset = {
     speed: 1,
     frame: 0,
     colorBack: '#000000',
-    colors: ['#ffffff', '#ffca0a', '#fc6203', '#ffffff'],
+    colors: ['#ffffff', '#ffca0a', '#fc6203', '#fc620366'],
     noiseScale: 2,
     noiseIterations: 3,
     radius: 0.4,

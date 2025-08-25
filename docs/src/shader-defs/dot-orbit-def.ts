@@ -6,7 +6,7 @@ const defaultParams = dotOrbitPresets[0].params;
 export const dotOrbitDef: ShaderDef = {
   name: 'Dot Orbit',
   description:
-    'Animated multi-color dot grid where each dot orbits around its cell center. Supports up to 10 base dot colors with optional 2×, 3×, or 4× extended color steps, along with controls for dot size, variation, and orbit distance. Great for playful, dynamic backgrounds and UI textures',
+    'Animated multi-color dots pattern with each dot orbiting around its cell center. Supports up to 40 colors and various shape and motion controls. Great for playful, dynamic backgrounds and UI textures',
   params: [
     {
       name: 'colorBack',
@@ -30,7 +30,7 @@ export const dotOrbitDef: ShaderDef = {
       step: 1,
       defaultValue: defaultParams.stepsPerColor,
       description:
-        'Number of extra colors between base colors (1 = N color palette, 2 = 2×N palette, 3 = 3×N palette, etc)',
+          'Number of extra colors between base colors (1 = N color palette, 2 = 2×N color palette, 3 = 3×N color palette, etc)',
     },
     {
       name: 'size',
@@ -46,7 +46,7 @@ export const dotOrbitDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.sizeRange,
-      description: 'Randomizes each dot radius between 0 and size',
+      description: 'Random variation in shape size (0 = uniform size, higher = random value up to base size)',
     },
     {
       name: 'spreading',

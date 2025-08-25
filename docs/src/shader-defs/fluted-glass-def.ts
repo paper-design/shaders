@@ -6,7 +6,7 @@ const defaultParams = flutedGlassPresets[0].params;
 export const flutedGlassDef: ShaderDef = {
   name: 'Fluted Glass',
   description:
-    'Mimicking glass surface distortion over the image by distorting the texture coordinates within line patterns.',
+    'Fluted glass image filter transforms an image into streaked, ribbed distortions, giving a mix of clarity and obscurity',
   params: [
     {
       name: 'count',
@@ -45,7 +45,7 @@ export const flutedGlassDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.distortion,
-      description: 'The power of distortion applied along within each stripe',
+      description: 'The power of distortion applied within each stripe',
     },
     {
       name: 'shift',
@@ -61,7 +61,7 @@ export const flutedGlassDef: ShaderDef = {
       min: 0,
       max: 50,
       defaultValue: defaultParams.blur,
-      description: 'One-directional blur applied over the main distortion',
+      description: 'One-directional blur',
     },
     {
       name: 'highlights',
@@ -69,7 +69,7 @@ export const flutedGlassDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.highlights,
-      description: 'Thin color lines along the grid (independent from distortion)',
+      description: 'Thin highlights along the grid lines',
     },
     {
       name: 'scale',
@@ -92,7 +92,7 @@ export const flutedGlassDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.marginLeft,
-      description: 'Padding within the image to be shown without any distortion',
+      description: 'Showing original image on the left',
     },
     {
       name: 'marginRight',
@@ -100,7 +100,7 @@ export const flutedGlassDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.marginRight,
-      description: 'Padding within the image to be shown without any distortion',
+      description: 'Showing original image on the right',
     },
     {
       name: 'marginTop',
@@ -108,7 +108,7 @@ export const flutedGlassDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.marginTop,
-      description: 'Padding within the image to be shown without any distortion',
+      description: 'Showing original image on the top',
     },
     {
       name: 'marginBottom',
@@ -116,7 +116,7 @@ export const flutedGlassDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.marginBottom,
-      description: 'Padding within the image to be shown without any distortion',
+      description: 'Showing original image on the bottom',
     },
   ],
 };

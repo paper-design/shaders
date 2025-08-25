@@ -5,14 +5,14 @@ const defaultParams = simplexNoisePresets[0].params;
 
 export const simplexNoiseDef: ShaderDef = {
   name: 'Simplex Noise',
-  description: 'Color gradient mapped over a combination of 2 simplex noises.',
+  description: 'A multi-color gradient mapped into smooth, animated curves, delivering a sleek, futuristic visual.',
   params: [
     {
       name: 'colors',
       type: 'string[]',
       defaultValue: [],
       isColor: true,
-      description: 'Colors used for the effect',
+      description: 'Up to 10 base colors',
     },
     {
       name: 'stepsPerColor',
@@ -22,7 +22,7 @@ export const simplexNoiseDef: ShaderDef = {
       step: 1,
       defaultValue: defaultParams.stepsPerColor,
       description:
-        'Number of extra colors between base colors (1 = N color palette, 2 = 2×N palette, 3 = 3×N palette, etc)',
+          'Number of extra colors between base colors (1 = N color palette, 2 = 2×N color palette, 3 = 3×N color palette, etc)',
     },
     {
       name: 'softness',

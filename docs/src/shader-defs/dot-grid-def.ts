@@ -5,7 +5,7 @@ const defaultParams = dotGridPresets[0].params;
 
 export const dotGridDef: ShaderDef = {
   name: 'Dot Grid',
-  description: 'Static grid pattern.',
+  description: 'Static grid pattern made of circles, diamonds, squares or triangles',
   params: [
     {
       name: 'colorBack',
@@ -34,7 +34,7 @@ export const dotGridDef: ShaderDef = {
       min: 1,
       max: 100,
       defaultValue: defaultParams.size,
-      description: 'Base shape size',
+      description: 'Base size of each shape, pixels',
     },
     {
       name: 'gapX',
@@ -42,7 +42,7 @@ export const dotGridDef: ShaderDef = {
       min: 2,
       max: 500,
       defaultValue: defaultParams.gapX,
-      description: 'Pattern spacing',
+      description: 'Pattern horizontal spacing, pixels',
     },
     {
       name: 'gapY',
@@ -50,7 +50,7 @@ export const dotGridDef: ShaderDef = {
       min: 2,
       max: 500,
       defaultValue: defaultParams.gapY,
-      description: 'Pattern spacing',
+      description: 'Pattern vertical spacing, pixels',
     },
     {
       name: 'strokeWidth',
@@ -58,7 +58,7 @@ export const dotGridDef: ShaderDef = {
       min: 0,
       max: 50,
       defaultValue: defaultParams.strokeWidth,
-      description: 'The stroke (to be added to size)',
+      description: 'The outline stroke width, pixels',
     },
     {
       name: 'sizeRange',
@@ -66,7 +66,7 @@ export const dotGridDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.sizeRange,
-      description: 'Randomizes the size of shape between 0 and size',
+      description: 'Random variation in shape size (0 = uniform size, higher = random value up to base size)',
     },
     {
       name: 'opacityRange',
@@ -74,13 +74,13 @@ export const dotGridDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.opacityRange,
-      description: 'Variety of shape opacity',
+      description: 'Random variation in shape opacity (0 = all shapes opaque, higher = semi-transparent dots)',
     },
     {
       name: 'shape',
       type: 'enum',
       defaultValue: defaultParams.shape,
-      description: 'The shape of the dots',
+      description: 'The shape type',
       options: ['circle', 'diamond', 'square', 'triangle'],
     },
     {

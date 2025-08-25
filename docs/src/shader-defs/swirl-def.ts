@@ -5,7 +5,7 @@ const defaultParams = swirlPresets[0].params;
 
 export const swirlDef: ShaderDef = {
   name: 'Swirl',
-  description: 'Twisting radial bands.',
+  description: 'Animated bands of color twisting and bending, producing spirals, arcs, and flowing circular patterns',
   params: [
     {
       name: 'colorBack',
@@ -19,7 +19,7 @@ export const swirlDef: ShaderDef = {
       type: 'string[]',
       defaultValue: [],
       isColor: true,
-      description: 'Colors used for the effect',
+      description: 'Up to 10 colors used for the stripes',
     },
     {
       name: 'bandCount',
@@ -28,7 +28,7 @@ export const swirlDef: ShaderDef = {
       max: 15,
       step: 1,
       defaultValue: defaultParams.bandCount,
-      description: 'Number of sectors',
+      description: 'Number of color bands (0 for concentric ripples)',
     },
     {
       name: 'twist',
@@ -36,7 +36,7 @@ export const swirlDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.twist,
-      description: 'Sectors twist intensity (0 = linear)',
+      description: 'Vortex power (0 = straight sectoral shapes)',
     },
     {
       name: 'softness',
@@ -47,20 +47,20 @@ export const swirlDef: ShaderDef = {
       description: 'Color transition sharpness (0 = hard edge, 1 = smooth gradient)',
     },
     {
-      name: 'noiseFrequency',
-      type: 'number',
-      min: 0,
-      max: 1,
-      defaultValue: defaultParams.noiseFrequency,
-      description: 'Noise scale',
-    },
-    {
       name: 'noise',
       type: 'number',
       min: 0,
       max: 1,
       defaultValue: defaultParams.noise,
-      description: 'Simplex noise distortion amount over the shape',
+      description: 'Strength of noise distortion (not effective with noiseFrequency = 0)',
+    },
+    {
+      name: 'noiseFrequency',
+      type: 'number',
+      min: 0,
+      max: 1,
+      defaultValue: defaultParams.noiseFrequency,
+      description: 'Noise frequency (not effective with noise = 0)',
     },
     {
       name: 'offsetX',

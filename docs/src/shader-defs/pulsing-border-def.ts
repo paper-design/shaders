@@ -5,7 +5,7 @@ const defaultParams = pulsingBorderPresets[0].params;
 
 export const pulsingBorderDef: ShaderDef = {
   name: 'Pulsing Border',
-  description: 'Color spots traveling around rectangular stroke (border).',
+  description: 'Luminous trails of color merging into a glowing gradient frame',
   params: [
     {
       name: 'colorBack',
@@ -19,7 +19,7 @@ export const pulsingBorderDef: ShaderDef = {
       type: 'string[]',
       defaultValue: [],
       isColor: true,
-      description: 'Colors used for the effect',
+      description: 'Up to 5 colors',
     },
     {
       name: 'roundness',
@@ -27,7 +27,7 @@ export const pulsingBorderDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.roundness,
-      description: 'Border parameters',
+      description: 'The border radius',
     },
     {
       name: 'thickness',
@@ -35,7 +35,7 @@ export const pulsingBorderDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.thickness,
-      description: 'Border parameters',
+      description: 'The border base width',
     },
     {
       name: 'softness',
@@ -51,7 +51,7 @@ export const pulsingBorderDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.intensity,
-      description: 'Thickness of individual spots',
+      description: 'Thickness of individual color spots',
     },
     {
       name: 'bloom',
@@ -59,7 +59,7 @@ export const pulsingBorderDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.bloom,
-      description: 'Normal / additive color blending',
+      description: 'The power of glow (0 = normal color blending, 1 = fully additive blending)',
     },
     {
       name: 'spots',
@@ -68,7 +68,7 @@ export const pulsingBorderDef: ShaderDef = {
       max: 20,
       step: 1,
       defaultValue: defaultParams.spots,
-      description: 'Number of spots rendered per color',
+      description: 'Number of spots added for each color',
     },
     {
       name: 'spotSize',
@@ -92,7 +92,7 @@ export const pulsingBorderDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.smoke,
-      description: 'Optional noisy shapes around the border',
+      description: 'Optional noisy shape extending the border width',
     },
     {
       name: 'smokeSize',
@@ -100,7 +100,7 @@ export const pulsingBorderDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.smokeSize,
-      description: 'Optional noisy shapes around the border',
+      description: 'The size of the smoke effect',
     },
     {
       name: 'scale',
