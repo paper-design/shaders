@@ -1,14 +1,17 @@
 import { folder, useControls } from 'leva';
 import { setParamsSafe } from './use-reset-leva-params';
 import { toHsla } from './to-hsla';
-import { useEffect, useLayoutEffect, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 
 interface UseColorsArgs {
   defaultColors: string[];
   maxColorCount: number;
 }
 
+// This cursed pile of garbage should be thrown away asap together with Leva
 export function useColors({ defaultColors, maxColorCount }: UseColorsArgs) {
+  const shouldRerenderInEffects = useRef(true);
+
   const [presetColors, setPresetColors] = useState(() => {
     return Object.fromEntries(
       defaultColors.map((color: string, index: number) => {
@@ -48,13 +51,23 @@ export function useColors({ defaultColors, maxColorCount }: UseColorsArgs) {
     };
   }, [colorCount]);
 
-  useEffect(() => {
-    if (Object.values(presetColors).length === colorCount) {
+  // Needed to not have a prev color flash when changing pages
+  useLayoutEffect(() => {
+    if (Object.values(presetColors).length === colorCount && shouldRerenderInEffects.current) {
       setParamsSafe(presetColors, setLevaColors, presetColors);
     }
   }, [presetColors, colorCount, setLevaColors]);
 
+  // Needed to load in colors when loading page for the first time
+  useEffect(() => {
+    if (Object.values(presetColors).length === colorCount && shouldRerenderInEffects.current) {
+      setParamsSafe(presetColors, setLevaColors, presetColors);
+      shouldRerenderInEffects.current = false;
+    }
+  }, [presetColors, colorCount, setLevaColors]);
+
   const setColors = (colors: string[]) => {
+    shouldRerenderInEffects.current = true;
     setPresetColors(
       Object.fromEntries(
         colors.map((color: string, index: number) => {
