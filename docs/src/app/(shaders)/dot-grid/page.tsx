@@ -4,11 +4,12 @@ import { DotGrid, dotGridPresets } from '@paper-design/shaders-react';
 import { useControls, button, folder } from 'leva';
 import { setParamsSafe, useResetLevaParams } from '@/helpers/use-reset-leva-params';
 import { usePresetHighlight } from '@/helpers/use-preset-highlight';
-import { DotGridShape, DotGridShapes, ShaderFit, ShaderFitOptions } from '@paper-design/shaders';
+import { DotGridShape, DotGridShapes } from '@paper-design/shaders';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
 import { toHsla } from '@/helpers/to-hsla';
 import { ShaderContainer } from '@/components/shader-container';
 import { ShaderDetails } from '@/components/shader-details';
+import { dotGridDef } from '@/shader-defs/dot-grid-def';
 
 /**
  * You can copy/paste this example to use DotGrid in your app
@@ -68,22 +69,7 @@ const DotGridWithControls = () => {
       <ShaderContainer>
         <DotGrid {...params} />
       </ShaderContainer>
-      <ShaderDetails
-        name="Dot Grid"
-        currentParams={params}
-        description="Static grid pattern."
-        props={{
-          'colorBack, colorFill, colorStroke': 'Colors used for the effect.',
-          'size': 'Base shape size.',
-          'gapX, gapY': 'Pattern spacing.',
-          'strokeWidth': 'The stroke (to be added to size).',
-          'sizeRange': 'Randomizes the size of shape between 0 and size.',
-          'opacityRange': 'Variety of shape opacity.',
-          'shape': 'The shape of the dots (circle, diamond, square, triangle).',
-          'scale': 'Overall pattern zoom.',
-          'rotation': 'Overall pattern rotation angle.',
-        }}
-      />
+      <ShaderDetails shaderDef={dotGridDef} currentParams={params} />
     </>
   );
 };

@@ -5,10 +5,11 @@ import { useControls, button, folder } from 'leva';
 import { setParamsSafe, useResetLevaParams } from '@/helpers/use-reset-leva-params';
 import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
-import { meshGradientMeta, ShaderFit, ShaderFitOptions } from '@paper-design/shaders';
+import { meshGradientMeta } from '@paper-design/shaders';
 import { useColors } from '@/helpers/use-colors';
 import { ShaderContainer } from '@/components/shader-container';
 import { ShaderDetails } from '@/components/shader-details';
+import { meshGradientDef } from '@/shader-defs/mesh-gradient-def';
 
 /**
  * You can copy/paste this example to use MeshGradient in your app
@@ -68,19 +69,7 @@ const MeshGradientWithControls = () => {
       <ShaderContainer>
         <MeshGradient {...params} colors={colors} />
       </ShaderContainer>
-      <ShaderDetails
-        name="Mesh Gradient"
-        currentParams={{ ...params, colors }}
-        props={{
-          'distortion': 'Warp distortion.',
-          'swirl': 'Vortex distortion.',
-          'offsetX, offsetY': 'Position of the center.',
-          'scale': 'Overall pattern zoom.',
-          'rotation': 'Overall pattern rotation angle.',
-          'speed': 'Animation speed.',
-        }}
-        description="A composition of N color spots (one per color) with 2 types of distortions applied to the coordinate space."
-      />
+      <ShaderDetails shaderDef={meshGradientDef} currentParams={{ ...params, colors }} />
     </>
   );
 };

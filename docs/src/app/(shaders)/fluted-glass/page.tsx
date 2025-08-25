@@ -5,19 +5,13 @@ import { useControls, button, folder } from 'leva';
 import { setParamsSafe, useResetLevaParams } from '@/helpers/use-reset-leva-params';
 import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
-import {
-  GlassGridShape,
-  GlassGridShapes,
-  GlassDistortionShape,
-  GlassDistortionShapes,
-  ShaderFitOptions,
-} from '@paper-design/shaders';
+import { GlassGridShape, GlassGridShapes, GlassDistortionShape, GlassDistortionShapes } from '@paper-design/shaders';
 import { ShaderFit } from '@paper-design/shaders';
 import { levaImageButton } from '@/helpers/leva-image-button';
 import { useState, useEffect, useCallback } from 'react';
-import { toHsla } from '@/helpers/to-hsla';
 import { ShaderContainer } from '@/components/shader-container';
 import { ShaderDetails } from '@/components/shader-details';
+import { flutedGlassDef } from '@/shader-defs/fluted-glass-def';
 
 /**
  * This example has controls added so you can play with settings in the example app
@@ -127,25 +121,7 @@ const FlutedGlassWithControls = () => {
       <div onClick={handleClick} className="py-3 text-center select-none">
         Click to change sample image
       </div>
-      <ShaderDetails
-        name="Fluted Glass"
-        currentParams={params}
-        description="Mimicking glass surface distortion over the image by distorting the texture coordinates within line patterns."
-        props={{
-          'count': 'Number of grid lines.',
-          'angle': 'Direction of the grid relative to the image.',
-          'shape': 'The shape of the grid.',
-          'distortionShape': 'The shape of the distortion.',
-          'distortion': 'The power of distortion applied along within each stripe.',
-          'shift': 'Texture shift in direction opposite to the grid.',
-          'blur': 'One-directional blur applied over the main distortion.',
-          'highlights': 'Thin color lines along the grid (independent from distortion).',
-          'scale': 'Overall pattern zoom.',
-          'fit': 'How the image fits the canvas.',
-          'marginLeft, marginRight, marginTop, marginBottom':
-            'Padding within the image to be shown without any distortion.',
-        }}
-      />
+      <ShaderDetails shaderDef={flutedGlassDef} currentParams={params} />
     </div>
   );
 };

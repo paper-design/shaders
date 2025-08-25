@@ -11,6 +11,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { toHsla } from '@/helpers/to-hsla';
 import { ShaderContainer } from '@/components/shader-container';
 import { ShaderDetails } from '@/components/shader-details';
+import { waterDef } from '@/shader-defs/water-def';
 
 /**
  * This example has controls added so you can play with settings in the example app
@@ -109,23 +110,7 @@ const WaterWithControls = () => {
       <div onClick={handleClick} className="py-3 text-center select-none">
         Click to change sample image
       </div>
-      <ShaderDetails
-        name="Water"
-        currentParams={params}
-        description="Mimicking water surface distortion with a combination of noises. Can be applied over the texture or just be used as an animated pattern."
-        props={{
-          'colorBack, colorHighlight': 'Background and highlight colors.',
-          'highlights': 'A coloring added over the image/background, following the caustic shape.',
-          'layering': 'The power of 2nd layer of caustic distortion.',
-          'edges': 'Caustic distortion power on the image edges.',
-          'waves': 'Additional distortion based in simplex noise, independent from caustic.',
-          'caustic': 'Power of caustic distortion.',
-          'effectScale': 'Pattern scale relative to the image.',
-          'scale': 'Overall pattern zoom.',
-          'fit': 'How the image fits the canvas.',
-          'speed': 'Animation speed.',
-        }}
-      />
+      <ShaderDetails shaderDef={waterDef} currentParams={params} />
     </div>
   );
 };

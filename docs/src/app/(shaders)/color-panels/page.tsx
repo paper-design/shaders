@@ -1,16 +1,17 @@
 'use client';
 
-import { ColorPanels, type ColorPanelsParams, colorPanelsPresets } from '@paper-design/shaders-react';
+import { ColorPanels, colorPanelsPresets } from '@paper-design/shaders-react';
 
 import { useControls, button, folder } from 'leva';
 import { setParamsSafe, useResetLevaParams } from '@/helpers/use-reset-leva-params';
 import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
-import { colorPanelsMeta, ShaderFit, ShaderFitOptions } from '@paper-design/shaders';
+import { colorPanelsMeta } from '@paper-design/shaders';
 import { useColors } from '@/helpers/use-colors';
 import { toHsla } from '@/helpers/to-hsla';
 import { ShaderContainer } from '@/components/shader-container';
 import { ShaderDetails } from '@/components/shader-details';
+import { colorPanelsDef } from '@/shader-defs/color-panels-def';
 
 /**
  * You can copy/paste this example to use ColorPanels in your app
@@ -78,27 +79,7 @@ const ColorPanelsWithControls = () => {
       <ShaderContainer>
         <ColorPanels {...params} colors={colors} />
       </ShaderContainer>
-      <ShaderDetails
-        name="Color Panels"
-        currentParams={{ ...params, colors }}
-        description="Pseudo-3D panels rotating around a central axis."
-        props={{
-          'colors': 'Up to 5 colors.',
-          'colorBack': 'Background color.',
-          'density': 'Angle between every 2 panels.',
-          'angle1, angle2': 'Skew angle applied to all panes.',
-          'length': 'Panel length (relative to total height).',
-          'edges': 'Faking edges effect.',
-          'blur': 'Side blur (0 for sharp edges).',
-          'fadeIn': 'Transparency near central axis.',
-          'fadeOut': 'Transparency near viewer.',
-          'gradient': 'Color mixing within panes (0 = single color, 1 = two colors).',
-          'offsetX, offsetY': 'Position of the center.',
-          'scale': 'Overall pattern zoom.',
-          'rotation': 'Overall pattern rotation angle.',
-          'speed': 'Animation speed.',
-        }}
-      />
+      <ShaderDetails shaderDef={colorPanelsDef} currentParams={{ ...params, colors }} />
     </>
   );
 };

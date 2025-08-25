@@ -1,0 +1,115 @@
+import { staticMeshGradientPresets } from '@paper-design/shaders-react';
+import type { ShaderDef } from './shader-def-types';
+
+const defaultParams = staticMeshGradientPresets[0].params;
+
+export const staticMeshGradientDef: ShaderDef = {
+  name: 'Static Mesh Gradient',
+  description:
+    'Soft, multi-point mesh gradient blending up to 10 color spots. Includes two-direction warping, adjustable blend sharpness, and grain controls. Great for elegant wallpapers and atmospheric backdrops',
+  params: [
+    {
+      name: 'colors',
+      type: 'string[]',
+      defaultValue: [],
+      isColor: true,
+      description: 'Colors used in the gradient.',
+    },
+    {
+      name: 'positions',
+      type: 'number',
+      min: 0,
+      max: 100,
+      defaultValue: defaultParams.positions,
+      description: 'Color spots placement.',
+    },
+    {
+      name: 'waveX',
+      type: 'number',
+      min: 0,
+      max: 1,
+      defaultValue: defaultParams.waveX,
+      description: 'Strength of sine wave distortion along X axis.',
+    },
+    {
+      name: 'waveXShift',
+      type: 'number',
+      min: 0,
+      max: 1,
+      defaultValue: defaultParams.waveXShift,
+      description: 'Phase offset applied to the X-axis wave.',
+    },
+    {
+      name: 'waveY',
+      type: 'number',
+      min: 0,
+      max: 1,
+      defaultValue: defaultParams.waveY,
+      description: 'Strength of sine wave distortion along Y axis.',
+    },
+    {
+      name: 'waveYShift',
+      type: 'number',
+      min: 0,
+      max: 1,
+      defaultValue: defaultParams.waveYShift,
+      description: 'Phase offset applied to the Y-axis wave',
+    },
+    {
+      name: 'mixing',
+      type: 'number',
+      min: 0,
+      max: 1,
+      defaultValue: defaultParams.mixing,
+      description: 'Blending behavior (sharper vs. smoother color transitions).',
+    },
+    {
+      name: 'grainMixer',
+      type: 'number',
+      min: 0,
+      max: 1,
+      defaultValue: defaultParams.grainMixer,
+      description: 'Strength of grain distortion applied to color edges.',
+    },
+    {
+      name: 'grainOverlay',
+      type: 'number',
+      min: 0,
+      max: 1,
+      defaultValue: defaultParams.grainOverlay,
+      description: 'Post-processing RGB grain overlay.',
+    },
+    {
+      name: 'offsetX',
+      type: 'number',
+      min: -1,
+      max: 1,
+      defaultValue: defaultParams.offsetX,
+      description: 'Horizontal offset of the graphics center.',
+    },
+    {
+      name: 'offsetY',
+      type: 'number',
+      min: -1,
+      max: 1,
+      defaultValue: defaultParams.offsetY,
+      description: 'Vertical offset of the graphics center.',
+    },
+    {
+      name: 'scale',
+      type: 'number',
+      min: 0.01,
+      max: 4,
+      defaultValue: defaultParams.scale,
+      description: 'Overall zoom level of the graphics.',
+    },
+    {
+      name: 'rotation',
+      type: 'number',
+      min: 0,
+      max: 360,
+      defaultValue: defaultParams.rotation,
+      description: 'Overall rotation angle of the graphics.',
+    },
+  ],
+};

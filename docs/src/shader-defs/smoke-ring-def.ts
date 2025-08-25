@@ -1,0 +1,106 @@
+import { smokeRingPresets } from '@paper-design/shaders-react';
+import type { ShaderDef } from './shader-def-types';
+
+const defaultParams = smokeRingPresets[0].params;
+
+export const smokeRingDef: ShaderDef = {
+  name: 'Smoke Ring',
+  description: 'Radial gradient with layered FBM displacement, masked with ring shape.',
+  params: [
+    {
+      name: 'colorBack',
+      type: 'string',
+      defaultValue: defaultParams.colorBack,
+      isColor: true,
+      description: 'Background color.',
+    },
+    {
+      name: 'colors',
+      type: 'string[]',
+      defaultValue: [],
+      isColor: true,
+      description: 'Colors used for the effect.',
+    },
+    {
+      name: 'thickness',
+      type: 'number',
+      min: 0.01,
+      max: 1,
+      defaultValue: defaultParams.thickness,
+      description: 'Ring mask settings.',
+    },
+    {
+      name: 'radius',
+      type: 'number',
+      min: 0,
+      max: 1,
+      defaultValue: defaultParams.radius,
+      description: 'Ring mask settings.',
+    },
+    {
+      name: 'innerShape',
+      type: 'number',
+      min: 0,
+      max: 4,
+      defaultValue: defaultParams.innerShape,
+      description: 'Ring mask settings.',
+    },
+    {
+      name: 'noiseIterations',
+      type: 'number',
+      min: 1,
+      max: 8,
+      step: 1,
+      defaultValue: defaultParams.noiseIterations,
+      description: 'How detailed the noise is (number of FBM layers and noise frequency).',
+    },
+    {
+      name: 'noiseScale',
+      type: 'number',
+      min: 0.01,
+      max: 5,
+      defaultValue: defaultParams.noiseScale,
+      description: 'How detailed the noise is (number of FBM layers and noise frequency).',
+    },
+    {
+      name: 'offsetX',
+      type: 'number',
+      min: -1,
+      max: 1,
+      defaultValue: defaultParams.offsetX,
+      description: 'Horizontal offset of the graphics center.',
+    },
+    {
+      name: 'offsetY',
+      type: 'number',
+      min: -1,
+      max: 1,
+      defaultValue: defaultParams.offsetY,
+      description: 'Vertical offset of the graphics center.',
+    },
+    {
+      name: 'scale',
+      type: 'number',
+      min: 0.01,
+      max: 4,
+      defaultValue: defaultParams.scale,
+      description: 'Overall zoom level of the graphics.',
+    },
+    {
+      name: 'rotation',
+      type: 'number',
+      min: 0,
+      max: 360,
+      defaultValue: defaultParams.rotation,
+      description: 'Overall rotation angle of the graphics.',
+    },
+    {
+      name: 'speed',
+      type: 'number',
+      min: 0,
+      max: 4,
+      defaultValue: defaultParams.speed,
+      description: 'Animation speed (requestAnimationFrame loop stops at speed=0).',
+    },
+  ],
+};

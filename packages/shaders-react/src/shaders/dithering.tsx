@@ -23,6 +23,7 @@ export const defaultPreset: DitheringPreset = {
     ...defaultPatternSizing,
     speed: 1,
     frame: 0,
+    scale: 0.5,
     colorBack: '#000000',
     colorFront: '#00b2ff',
     shape: 'sphere',

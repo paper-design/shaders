@@ -1,0 +1,122 @@
+import { flutedGlassPresets } from '@paper-design/shaders-react';
+import type { ShaderDef } from './shader-def-types';
+
+const defaultParams = flutedGlassPresets[0].params;
+
+export const flutedGlassDef: ShaderDef = {
+  name: 'Fluted Glass',
+  description:
+    'Mimicking glass surface distortion over the image by distorting the texture coordinates within line patterns.',
+  params: [
+    {
+      name: 'count',
+      type: 'number',
+      min: 4,
+      max: 200,
+      step: 1,
+      defaultValue: defaultParams.count,
+      description: 'Number of grid lines.',
+    },
+    {
+      name: 'shape',
+      type: 'string',
+      defaultValue: defaultParams.shape,
+      description: 'The shape of the grid.',
+      options: ['pattern', 'wave', 'lines', 'linesIrregular', 'zigzag'],
+    },
+    {
+      name: 'angle',
+      type: 'number',
+      min: 0,
+      max: 180,
+      defaultValue: defaultParams.angle,
+      description: 'Direction of the grid relative to the image.',
+    },
+    {
+      name: 'distortionShape',
+      type: 'string',
+      defaultValue: defaultParams.distortionShape,
+      description: 'The shape of the distortion.',
+      options: ['prism', 'lens', 'сontour', 'сascade', 'facete'],
+    },
+    {
+      name: 'distortion',
+      type: 'number',
+      min: 0,
+      max: 1,
+      defaultValue: defaultParams.distortion,
+      description: 'The power of distortion applied along within each stripe.',
+    },
+    {
+      name: 'shift',
+      type: 'number',
+      min: -1,
+      max: 1,
+      defaultValue: defaultParams.shift,
+      description: 'Texture shift in direction opposite to the grid.',
+    },
+    {
+      name: 'blur',
+      type: 'number',
+      min: 0,
+      max: 50,
+      defaultValue: defaultParams.blur,
+      description: 'One-directional blur applied over the main distortion.',
+    },
+    {
+      name: 'highlights',
+      type: 'number',
+      min: 0,
+      max: 1,
+      defaultValue: defaultParams.highlights,
+      description: 'Thin color lines along the grid (independent from distortion).',
+    },
+    {
+      name: 'scale',
+      type: 'number',
+      min: 0.5,
+      max: 10,
+      defaultValue: defaultParams.scale,
+      description: 'Overall zoom level of the graphics.',
+    },
+    {
+      name: 'fit',
+      type: 'string',
+      defaultValue: defaultParams.fit,
+      description: 'How the image fits the canvas.',
+      options: ['contain', 'cover'],
+    },
+    {
+      name: 'marginLeft',
+      type: 'number',
+      min: 0,
+      max: 1,
+      defaultValue: defaultParams.marginLeft,
+      description: 'Padding within the image to be shown without any distortion.',
+    },
+    {
+      name: 'marginRight',
+      type: 'number',
+      min: 0,
+      max: 1,
+      defaultValue: defaultParams.marginRight,
+      description: 'Padding within the image to be shown without any distortion.',
+    },
+    {
+      name: 'marginTop',
+      type: 'number',
+      min: 0,
+      max: 1,
+      defaultValue: defaultParams.marginTop,
+      description: 'Padding within the image to be shown without any distortion.',
+    },
+    {
+      name: 'marginBottom',
+      type: 'number',
+      min: 0,
+      max: 1,
+      defaultValue: defaultParams.marginBottom,
+      description: 'Padding within the image to be shown without any distortion.',
+    },
+  ],
+};

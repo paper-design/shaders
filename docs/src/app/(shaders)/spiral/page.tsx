@@ -1,14 +1,14 @@
 'use client';
 
-import { Spiral, type SpiralParams, spiralPresets } from '@paper-design/shaders-react';
+import { Spiral, spiralPresets } from '@paper-design/shaders-react';
 import { useControls, button, folder } from 'leva';
 import { setParamsSafe, useResetLevaParams } from '@/helpers/use-reset-leva-params';
 import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
-import { ShaderFit, ShaderFitOptions } from '@paper-design/shaders';
 import { toHsla } from '@/helpers/to-hsla';
 import { ShaderContainer } from '@/components/shader-container';
 import { ShaderDetails } from '@/components/shader-details';
+import { spiralDef } from '@/shader-defs/spiral-def';
 
 /**
  * You can copy/paste this example to use Spiral in your app
@@ -73,25 +73,7 @@ const SpiralWithControls = () => {
       <ShaderContainer>
         <Spiral {...params} />
       </ShaderContainer>
-      <ShaderDetails
-        name="Spiral"
-        currentParams={params}
-        description="2-color spiral shape."
-        props={{
-          'colorBack, colorFront': 'Colors used for the effect.',
-          'density': 'Spacing falloff to simulate radial perspective (0 = no perspective).',
-          'strokeWidth': 'Thickness of stroke.',
-          'strokeTaper': 'Stroke loosing width further from center (0 for full visibility).',
-          'distortion': 'Per-arch shift.',
-          'strokeCap': 'Extra width at the center (no effect on strokeWidth = 0.5).',
-          'noiseFrequency, noise': 'Simplex noise distortion over the shape.',
-          'softness': 'Color transition sharpness (0 = hard edge, 1 = smooth fade).',
-          'offsetX, offsetY': 'Position of the center.',
-          'scale': 'Overall pattern zoom.',
-          'rotation': 'Overall pattern rotation angle.',
-          'speed': 'Animation speed.',
-        }}
-      />
+      <ShaderDetails shaderDef={spiralDef} currentParams={params} />
     </>
   );
 };

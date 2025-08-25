@@ -5,12 +5,12 @@ import { useControls, button, folder } from 'leva';
 import { setParamsSafe, useResetLevaParams } from '@/helpers/use-reset-leva-params';
 import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
-import { grainGradientMeta, GrainGradientShape, GrainGradientShapes, ShaderFitOptions } from '@paper-design/shaders';
-import { ShaderFit } from '@paper-design/shaders';
+import { grainGradientMeta, GrainGradientShape, GrainGradientShapes } from '@paper-design/shaders';
 import { useColors } from '@/helpers/use-colors';
 import { toHsla } from '@/helpers/to-hsla';
 import { ShaderContainer } from '@/components/shader-container';
 import { ShaderDetails } from '@/components/shader-details';
+import { grainGradientDef } from '@/shader-defs/grain-gradient-def';
 
 /**
  * You can copy/paste this example to use GrainGradient in your app
@@ -77,48 +77,7 @@ const GrainGradientWithControls = () => {
       <ShaderContainer>
         <GrainGradient {...params} colors={colors} />
       </ShaderContainer>
-      <ShaderDetails
-        name="Grain Gradient"
-        currentParams={{ ...params, colors }}
-        description="Multi-color gradient with noise & grain over animated abstract shapes."
-        props={{
-          'colorBack, colors': 'Colors used for the effect.',
-          'softness': 'Blur between color bands.',
-          'intensity': 'Distortion between color bands.',
-          'noise': 'Grainy noise independent of softness.',
-          'shape': (
-            <>
-              <ul className="list-disc pl-4 [&_b]:font-semibold">
-                <li>
-                  <b>wave</b>: Single sine wave.
-                </li>
-                <li>
-                  <b>dots</b>: Dots pattern.
-                </li>
-                <li>
-                  <b>truchet</b>: Truchet pattern.
-                </li>
-                <li>
-                  <b>corners</b>: 2 rounded rectangles.
-                </li>
-                <li>
-                  <b>ripple</b>: Ripple effect.
-                </li>
-                <li>
-                  <b>blob</b>: Metaballs.
-                </li>
-                <li>
-                  <b>sphere</b>: Circle imitating a 3D look.
-                </li>
-              </ul>
-            </>
-          ),
-          'offsetX, offsetY': 'Position of the center.',
-          'scale': 'Overall pattern zoom.',
-          'rotation': 'Overall pattern rotation angle.',
-          'speed': 'Animation speed.',
-        }}
-      />
+      <ShaderDetails shaderDef={grainGradientDef} currentParams={{ ...params, colors }} />
     </>
   );
 };

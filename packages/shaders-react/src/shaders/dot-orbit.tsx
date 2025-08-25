@@ -20,10 +20,10 @@ export const defaultPreset: DotOrbitPreset = {
   name: 'Default',
   params: {
     ...defaultPatternSizing,
-    speed: 2,
+    speed: 1.5,
     frame: 0,
     colorBack: '#000000',
-    colors: ['#ff6f00', '#610000', '#0f0000', '#ffdfa8'],
+    colors: ['#ffc96b', '#ff6200', '#ff2f00', '#421100', '#1a0000'],
     size: 1,
     sizeRange: 0,
     spreading: 1,

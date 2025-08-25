@@ -1,7 +1,7 @@
 import { folder, useControls } from 'leva';
 import { setParamsSafe } from './use-reset-leva-params';
 import { toHsla } from './to-hsla';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 interface UseColorsArgs {
   defaultColors: string[];
@@ -9,6 +9,14 @@ interface UseColorsArgs {
 }
 
 export function useColors({ defaultColors, maxColorCount }: UseColorsArgs) {
+  const [colorsForLeva, setColorsForLeva] = useState(() => {
+    return Object.fromEntries(
+      defaultColors.map((color: string, index: number) => {
+        return [`color${index + 1}`, toHsla(color)];
+      })
+    );
+  });
+
   const [{ colorCount }, setColorCount] = useControls(() => ({
     Colors: folder({
       colorCount: {
@@ -34,6 +42,11 @@ export function useColors({ defaultColors, maxColorCount }: UseColorsArgs) {
     };
   }, [colorCount]);
 
+  // Update params after colorsForLeva changes (timing issues)
+  useEffect(() => {
+    setParamsSafe(colorsForLeva, setLevaColors, colorsForLeva);
+  }, [colorsForLeva, setLevaColors]);
+
   // Reset colors to defaults when component mounts
   useEffect(() => {
     const defaultColorValues = Object.fromEntries(
@@ -47,14 +60,14 @@ export function useColors({ defaultColors, maxColorCount }: UseColorsArgs) {
   }, []);
 
   const setColors = (colors: string[]) => {
-    const presetColors = Object.fromEntries(
+    const colorsAsObj = Object.fromEntries(
       colors.map((color: string, index: number) => {
         return [`color${index + 1}`, toHsla(color)];
       })
     );
 
+    setColorsForLeva(colorsAsObj);
     setColorCount({ colorCount: colors.length });
-    setParamsSafe(levaColors, setLevaColors, presetColors);
   };
 
   const colors = Object.values(levaColors) as unknown as string[];

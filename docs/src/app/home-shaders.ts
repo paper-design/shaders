@@ -114,7 +114,7 @@ export const homeShaders = [
     url: '/static-radial-gradient',
     ShaderComponent: StaticRadialGradient,
     image: staticRadialGradientImg,
-    shaderConfig: { ...staticRadialGradientPresets[0].params, radius: 0.65 },
+    shaderConfig: { ...staticRadialGradientPresets[0].params, radius: 0.65, speed: 0 },
   },
   {
     name: 'dithering',
@@ -135,7 +135,7 @@ export const homeShaders = [
     url: '/dot-grid',
     ShaderComponent: DotGrid,
     image: dotGridImg,
-    shaderConfig: { ...dotGridPresets[0].params },
+    shaderConfig: { ...dotGridPresets[0].params, speed: 0 },
   },
   {
     name: 'warp',
@@ -253,17 +253,17 @@ export const homeShaders = [
     shaderConfig: { ...flutedGlassPresets[0].params, scale: 1.05, count: 20, distortion: 0.2 },
   },
   {
-    name: 'image dithering',
-    url: '/image-dithering',
-    ShaderComponent: ImageDithering,
-    image: imageDitheringImg,
-    shaderConfig: { ...imageDitheringPresets[0].params, scale: 1.05 },
-  },
-  {
     name: 'water',
     url: '/water',
     ShaderComponent: Water,
     image: waterImg,
     shaderConfig: { ...waterPresets[0].params, scale: 1.05, colorBack: '#e0f2ff' },
+  },
+  {
+    name: 'image dithering',
+    url: '/image-dithering',
+    ShaderComponent: ImageDithering,
+    image: imageDitheringImg,
+    shaderConfig: { ...imageDitheringPresets[0].params, scale: 1.05 },
   },
 ] satisfies HomeShaderConfig[];
