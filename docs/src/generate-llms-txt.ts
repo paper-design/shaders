@@ -72,12 +72,12 @@ ${shader.params
     }
 
     if (param.options) {
-      const options = param.options.map((opt) => (typeof opt === 'string' ? opt : opt.name)).join(', ');
-      paramInfo += ` Options: [${options}]`;
+      const options = param.options.map((opt) => (param.type === 'enum' ? `"${opt}"` : opt)).join(', ');
+      paramInfo += ` [${options}]`;
     }
 
     if (param.isColor) {
-      paramInfo += ` (Color value)`;
+      paramInfo += ` [CSS color]`;
     }
 
     return paramInfo;
