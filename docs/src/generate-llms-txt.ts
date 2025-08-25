@@ -4,38 +4,9 @@ import { fileURLToPath } from 'url';
 
 import { shaderDefs } from './shader-defs/shader-defs';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+const directory = dirname(fileURLToPath(import.meta.url));
 
 const BASE_URL = 'https://shaders.paper.design';
-
-const getShaderRoutes = () => {
-  return shaderDefs
-    .map((shaderDef) => ({
-      path: `/${shaderDef.name.toLowerCase().replace(/\s+/g, '-')}`,
-      name: shaderDef.name,
-      description: shaderDef.description,
-    }))
-    .sort((a, b) => a.name.localeCompare(b.name));
-};
-
-const generateLlmsTxt = () => {
-  const shaderRoutes = getShaderRoutes();
-
-  const content = `# Paper Shaders Documentation
-
-Ultra-fast zero-dependency shader library for React and GLSL
-
-Website: ${BASE_URL}
-
-## Shader Routes
-
-${shaderRoutes.map((route) => `- **[${route.name}](${BASE_URL}${route.path})**: ${route.description}`).join('\n')}
-`;
-
-  writeFileSync(join(__dirname, '..', 'public', 'llms.txt'), content, 'utf8');
-  console.log('✅ Generated llms.txt successfully');
-};
 
 const generateLlmsFullTxt = () => {
   const sortedShaders = [...shaderDefs].sort((a, b) => a.name.localeCompare(b.name));
@@ -108,9 +79,11 @@ import { shaderName } from '@paper-design/shaders'
 \`\`\`
 `;
 
-  writeFileSync(join(__dirname, '..', 'public', 'llms-full.txt'), content, 'utf8');
+  writeFileSync(join(directory, '..', 'public', 'llms.txt'), content, 'utf8');
+  console.log('✅ Generated llms.txt successfully');
+
+  writeFileSync(join(directory, '..', 'public', 'llms-full.txt'), content, 'utf8');
   console.log('✅ Generated llms-full.txt successfully');
 };
 
-generateLlmsTxt();
 generateLlmsFullTxt();
