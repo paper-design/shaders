@@ -12,14 +12,14 @@ export const liquidMetalDef: ShaderDef = {
       type: 'string',
       defaultValue: defaultParams.colorBack,
       isColor: true,
-      description: 'Background color.',
+      description: 'Background color',
     },
     {
       name: 'colorTint',
       type: 'string',
       defaultValue: defaultParams.colorTint,
       isColor: true,
-      description: 'Overlay color.',
+      description: 'Overlay color',
     },
     {
       name: 'repetition',
@@ -27,7 +27,7 @@ export const liquidMetalDef: ShaderDef = {
       min: 1,
       max: 10,
       defaultValue: defaultParams.repetition,
-      description: 'Density of pattern stripes.',
+      description: 'Density of pattern stripes',
     },
     {
       name: 'softness',
@@ -35,7 +35,7 @@ export const liquidMetalDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.softness,
-      description: 'Blur between stripes.',
+      description: 'Blur between stripes',
     },
     {
       name: 'shiftRed',
@@ -43,7 +43,7 @@ export const liquidMetalDef: ShaderDef = {
       min: -1,
       max: 1,
       defaultValue: defaultParams.shiftRed,
-      description: 'Color dispersion between the stripes.',
+      description: 'Color dispersion between the stripes',
     },
     {
       name: 'shiftBlue',
@@ -51,7 +51,7 @@ export const liquidMetalDef: ShaderDef = {
       min: -1,
       max: 1,
       defaultValue: defaultParams.shiftBlue,
-      description: 'Color dispersion between the stripes.',
+      description: 'Color dispersion between the stripes',
     },
     {
       name: 'distortion',
@@ -59,7 +59,7 @@ export const liquidMetalDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.distortion,
-      description: 'Pattern distortion on the whole canvas.',
+      description: 'Pattern distortion on the whole canvas',
     },
     {
       name: 'contour',
@@ -67,14 +67,14 @@ export const liquidMetalDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.contour,
-      description: 'Distortion power over the shape edges.',
+      description: 'Distortion power over the shape edges',
     },
     {
       name: 'shape',
-      type: 'string',
+      type: 'enum',
       defaultValue: defaultParams.shape,
       options: ['none', 'circle', 'daisy', 'metaballs'],
-      description: 'Shape to use for the effect.',
+      description: 'Shape to use for the effect',
     },
     {
       name: 'offsetX',
@@ -82,7 +82,7 @@ export const liquidMetalDef: ShaderDef = {
       min: -1,
       max: 1,
       defaultValue: defaultParams.offsetX,
-      description: 'Horizontal offset of the graphics center.',
+      description: 'Horizontal offset of the graphics center',
     },
     {
       name: 'offsetY',
@@ -90,7 +90,7 @@ export const liquidMetalDef: ShaderDef = {
       min: -1,
       max: 1,
       defaultValue: defaultParams.offsetY,
-      description: 'Vertical offset of the graphics center.',
+      description: 'Vertical offset of the graphics center',
     },
     {
       name: 'scale',
@@ -98,7 +98,7 @@ export const liquidMetalDef: ShaderDef = {
       min: 0.01,
       max: 4,
       defaultValue: defaultParams.scale,
-      description: 'Overall zoom level of the graphics.',
+      description: 'Overall zoom level of the graphics',
     },
     {
       name: 'rotation',
@@ -106,7 +106,7 @@ export const liquidMetalDef: ShaderDef = {
       min: 0,
       max: 360,
       defaultValue: defaultParams.rotation,
-      description: 'Overall rotation angle of the graphics.',
+      description: 'Overall rotation angle of the graphics',
     },
     {
       name: 'speed',
@@ -114,7 +114,7 @@ export const liquidMetalDef: ShaderDef = {
       min: 0,
       max: 4,
       defaultValue: defaultParams.speed,
-      description: 'Animation speed (requestAnimationFrame loop stops at speed=0).',
+      description: 'Animation speed',
     },
   ],
 };

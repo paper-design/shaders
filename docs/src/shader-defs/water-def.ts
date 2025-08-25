@@ -13,14 +13,14 @@ export const waterDef: ShaderDef = {
       type: 'string',
       defaultValue: defaultParams.colorBack,
       isColor: true,
-      description: 'Background color.',
+      description: 'Background color',
     },
     {
       name: 'colorHighlight',
       type: 'string',
       defaultValue: defaultParams.colorHighlight,
       isColor: true,
-      description: 'Highlight color.',
+      description: 'Highlight color',
     },
     {
       name: 'highlights',
@@ -28,7 +28,7 @@ export const waterDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.highlights,
-      description: 'A coloring added over the image/background, following the caustic shape.',
+      description: 'A coloring added over the image/background, following the caustic shape',
     },
     {
       name: 'layering',
@@ -36,7 +36,7 @@ export const waterDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.layering,
-      description: 'The power of 2nd layer of caustic distortion.',
+      description: 'The power of 2nd layer of caustic distortion',
     },
     {
       name: 'edges',
@@ -44,7 +44,7 @@ export const waterDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.edges,
-      description: 'Caustic distortion power on the image edges.',
+      description: 'Caustic distortion power on the image edges',
     },
     {
       name: 'waves',
@@ -52,7 +52,7 @@ export const waterDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.waves,
-      description: 'Additional distortion based in simplex noise, independent from caustic.',
+      description: 'Additional distortion based in simplex noise, independent from caustic',
     },
     {
       name: 'caustic',
@@ -60,7 +60,7 @@ export const waterDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.caustic,
-      description: 'Power of caustic distortion.',
+      description: 'Power of caustic distortion',
     },
     {
       name: 'effectScale',
@@ -68,7 +68,7 @@ export const waterDef: ShaderDef = {
       min: 0.01,
       max: 7,
       defaultValue: defaultParams.effectScale,
-      description: 'Pattern scale relative to the image.',
+      description: 'Pattern scale relative to the image',
     },
     {
       name: 'scale',
@@ -76,13 +76,13 @@ export const waterDef: ShaderDef = {
       min: 0.1,
       max: 10,
       defaultValue: defaultParams.scale,
-      description: 'Overall zoom level of the graphics.',
+      description: 'Overall zoom level of the graphics',
     },
     {
       name: 'fit',
-      type: 'string',
+      type: 'enum',
       defaultValue: defaultParams.fit,
-      description: 'How the image fits the canvas.',
+      description: 'How the image fits the canvas',
       options: ['contain', 'cover'],
     },
     {
@@ -91,7 +91,7 @@ export const waterDef: ShaderDef = {
       min: 0,
       max: 3,
       defaultValue: defaultParams.speed,
-      description: 'Animation speed (requestAnimationFrame loop stops at speed=0).',
+      description: 'Animation speed',
     },
   ],
 };

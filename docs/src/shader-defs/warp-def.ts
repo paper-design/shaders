@@ -13,7 +13,7 @@ export const warpDef: ShaderDef = {
       type: 'string[]',
       defaultValue: [],
       isColor: true,
-      description: 'Up to 10 colors in the gradient.',
+      description: 'Up to 10 colors in the gradient',
     },
     {
       name: 'proportion',
@@ -21,7 +21,7 @@ export const warpDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.proportion,
-      description: 'Balance point for blending colors.',
+      description: 'Balance point for blending colors',
     },
     {
       name: 'softness',
@@ -29,7 +29,7 @@ export const warpDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.softness,
-      description: 'Color transition sharpness (0 = hard edge, 1 = smooth gradient).',
+      description: 'Color transition sharpness (0 = hard edge, 1 = smooth gradient)',
     },
     {
       name: 'distortion',
@@ -37,7 +37,7 @@ export const warpDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.distortion,
-      description: 'Strength of noise-based distortion.',
+      description: 'Strength of noise-based distortion',
     },
     {
       name: 'swirl',
@@ -45,7 +45,7 @@ export const warpDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.swirl,
-      description: 'Strength of the swirl distortion.',
+      description: 'Strength of the swirl distortion',
     },
     {
       name: 'swirlIterations',
@@ -53,18 +53,14 @@ export const warpDef: ShaderDef = {
       min: 0,
       max: 20,
       defaultValue: defaultParams.swirlIterations,
-      description: 'Number of layered swirl passes.',
+      description: 'Number of layered swirl passes',
     },
     {
       name: 'shape',
-      type: 'string',
+      type: 'enum',
       defaultValue: defaultParams.shape,
-      description: 'Base pattern type.',
-      options: [
-        { name: 'checks', description: 'Checkerboard.' },
-        { name: 'stripes', description: 'Even stripes.' },
-        { name: 'edge', description: 'Two halves split across the canvas.' },
-      ],
+      description: 'Base pattern type',
+      options: ['checks', 'stripes', 'edge'],
     },
     {
       name: 'shapeScale',
@@ -72,7 +68,7 @@ export const warpDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.shapeScale,
-      description: 'Zoom level of the base pattern.',
+      description: 'Zoom level of the base pattern',
     },
     {
       name: 'scale',
@@ -80,7 +76,7 @@ export const warpDef: ShaderDef = {
       min: 0.01,
       max: 5,
       defaultValue: defaultParams.scale,
-      description: 'Overall zoom level of the graphics.',
+      description: 'Overall zoom level of the graphics',
     },
     {
       name: 'rotation',
@@ -88,7 +84,7 @@ export const warpDef: ShaderDef = {
       min: 0,
       max: 360,
       defaultValue: defaultParams.rotation,
-      description: 'Overall rotation angle of the graphics.',
+      description: 'Overall rotation angle of the graphics',
     },
     {
       name: 'speed',
@@ -96,7 +92,7 @@ export const warpDef: ShaderDef = {
       min: 0,
       max: 20,
       defaultValue: defaultParams.speed,
-      description: 'Animation speed (requestAnimationFrame loop stops at speed=0).',
+      description: 'Animation speed',
     },
   ],
 };

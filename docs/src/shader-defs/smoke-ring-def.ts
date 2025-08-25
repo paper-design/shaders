@@ -12,14 +12,14 @@ export const smokeRingDef: ShaderDef = {
       type: 'string',
       defaultValue: defaultParams.colorBack,
       isColor: true,
-      description: 'Background color.',
+      description: 'Background color',
     },
     {
       name: 'colors',
       type: 'string[]',
       defaultValue: [],
       isColor: true,
-      description: 'Colors used for the effect.',
+      description: 'Colors used for the effect',
     },
     {
       name: 'thickness',
@@ -27,7 +27,7 @@ export const smokeRingDef: ShaderDef = {
       min: 0.01,
       max: 1,
       defaultValue: defaultParams.thickness,
-      description: 'Ring mask settings.',
+      description: 'Ring mask settings',
     },
     {
       name: 'radius',
@@ -35,7 +35,7 @@ export const smokeRingDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.radius,
-      description: 'Ring mask settings.',
+      description: 'Ring mask settings',
     },
     {
       name: 'innerShape',
@@ -43,7 +43,7 @@ export const smokeRingDef: ShaderDef = {
       min: 0,
       max: 4,
       defaultValue: defaultParams.innerShape,
-      description: 'Ring mask settings.',
+      description: 'Ring mask settings',
     },
     {
       name: 'noiseIterations',
@@ -52,7 +52,7 @@ export const smokeRingDef: ShaderDef = {
       max: 8,
       step: 1,
       defaultValue: defaultParams.noiseIterations,
-      description: 'How detailed the noise is (number of FBM layers and noise frequency).',
+      description: 'How detailed the noise is (number of FBM layers and noise frequency)',
     },
     {
       name: 'noiseScale',
@@ -60,7 +60,7 @@ export const smokeRingDef: ShaderDef = {
       min: 0.01,
       max: 5,
       defaultValue: defaultParams.noiseScale,
-      description: 'How detailed the noise is (number of FBM layers and noise frequency).',
+      description: 'How detailed the noise is (number of FBM layers and noise frequency)',
     },
     {
       name: 'offsetX',
@@ -68,7 +68,7 @@ export const smokeRingDef: ShaderDef = {
       min: -1,
       max: 1,
       defaultValue: defaultParams.offsetX,
-      description: 'Horizontal offset of the graphics center.',
+      description: 'Horizontal offset of the graphics center',
     },
     {
       name: 'offsetY',
@@ -76,7 +76,7 @@ export const smokeRingDef: ShaderDef = {
       min: -1,
       max: 1,
       defaultValue: defaultParams.offsetY,
-      description: 'Vertical offset of the graphics center.',
+      description: 'Vertical offset of the graphics center',
     },
     {
       name: 'scale',
@@ -84,7 +84,7 @@ export const smokeRingDef: ShaderDef = {
       min: 0.01,
       max: 4,
       defaultValue: defaultParams.scale,
-      description: 'Overall zoom level of the graphics.',
+      description: 'Overall zoom level of the graphics',
     },
     {
       name: 'rotation',
@@ -92,7 +92,7 @@ export const smokeRingDef: ShaderDef = {
       min: 0,
       max: 360,
       defaultValue: defaultParams.rotation,
-      description: 'Overall rotation angle of the graphics.',
+      description: 'Overall rotation angle of the graphics',
     },
     {
       name: 'speed',
@@ -100,7 +100,7 @@ export const smokeRingDef: ShaderDef = {
       min: 0,
       max: 4,
       defaultValue: defaultParams.speed,
-      description: 'Animation speed (requestAnimationFrame loop stops at speed=0).',
+      description: 'Animation speed',
     },
   ],
 };

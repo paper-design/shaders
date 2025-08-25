@@ -12,14 +12,14 @@ export const metaballsDef: ShaderDef = {
       type: 'string',
       defaultValue: defaultParams.colorBack,
       isColor: true,
-      description: 'Background color.',
+      description: 'Background color',
     },
     {
       name: 'colors',
       type: 'string[]',
       defaultValue: [],
       isColor: true,
-      description: 'Colors used for the effect.',
+      description: 'Colors used for the effect',
     },
     {
       name: 'count',
@@ -27,7 +27,7 @@ export const metaballsDef: ShaderDef = {
       min: 1,
       max: 20,
       defaultValue: defaultParams.count,
-      description: 'Number of balls on the canvas.',
+      description: 'Number of balls on the canvas',
     },
     {
       name: 'size',
@@ -35,7 +35,7 @@ export const metaballsDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.size,
-      description: 'Base size of the balls.',
+      description: 'Base size of the balls',
     },
     {
       name: 'offsetX',
@@ -43,7 +43,7 @@ export const metaballsDef: ShaderDef = {
       min: -1,
       max: 1,
       defaultValue: defaultParams.offsetX,
-      description: 'Horizontal offset of the graphics center.',
+      description: 'Horizontal offset of the graphics center',
     },
     {
       name: 'offsetY',
@@ -51,7 +51,7 @@ export const metaballsDef: ShaderDef = {
       min: -1,
       max: 1,
       defaultValue: defaultParams.offsetY,
-      description: 'Vertical offset of the graphics center.',
+      description: 'Vertical offset of the graphics center',
     },
     {
       name: 'scale',
@@ -59,7 +59,7 @@ export const metaballsDef: ShaderDef = {
       min: 0.01,
       max: 4,
       defaultValue: defaultParams.scale,
-      description: 'Overall zoom level of the graphics.',
+      description: 'Overall zoom level of the graphics',
     },
     {
       name: 'rotation',
@@ -67,7 +67,7 @@ export const metaballsDef: ShaderDef = {
       min: 0,
       max: 360,
       defaultValue: defaultParams.rotation,
-      description: 'Overall rotation angle of the graphics.',
+      description: 'Overall rotation angle of the graphics',
     },
     {
       name: 'speed',
@@ -75,7 +75,7 @@ export const metaballsDef: ShaderDef = {
       min: 0,
       max: 2,
       defaultValue: defaultParams.speed,
-      description: 'Animation speed (requestAnimationFrame loop stops at speed=0).',
+      description: 'Animation speed',
     },
   ],
 };

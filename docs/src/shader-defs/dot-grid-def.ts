@@ -12,21 +12,21 @@ export const dotGridDef: ShaderDef = {
       type: 'string',
       defaultValue: defaultParams.colorBack,
       isColor: true,
-      description: 'Background color.',
+      description: 'Background color',
     },
     {
       name: 'colorFill',
       type: 'string',
       defaultValue: defaultParams.colorFill,
       isColor: true,
-      description: 'Shape fill color.',
+      description: 'Shape fill color',
     },
     {
       name: 'colorStroke',
       type: 'string',
       defaultValue: defaultParams.colorStroke,
       isColor: true,
-      description: 'Shape stroke color.',
+      description: 'Shape stroke color',
     },
     {
       name: 'size',
@@ -34,7 +34,7 @@ export const dotGridDef: ShaderDef = {
       min: 1,
       max: 100,
       defaultValue: defaultParams.size,
-      description: 'Base shape size.',
+      description: 'Base shape size',
     },
     {
       name: 'gapX',
@@ -42,7 +42,7 @@ export const dotGridDef: ShaderDef = {
       min: 2,
       max: 500,
       defaultValue: defaultParams.gapX,
-      description: 'Pattern spacing.',
+      description: 'Pattern spacing',
     },
     {
       name: 'gapY',
@@ -50,7 +50,7 @@ export const dotGridDef: ShaderDef = {
       min: 2,
       max: 500,
       defaultValue: defaultParams.gapY,
-      description: 'Pattern spacing.',
+      description: 'Pattern spacing',
     },
     {
       name: 'strokeWidth',
@@ -58,7 +58,7 @@ export const dotGridDef: ShaderDef = {
       min: 0,
       max: 50,
       defaultValue: defaultParams.strokeWidth,
-      description: 'The stroke (to be added to size).',
+      description: 'The stroke (to be added to size)',
     },
     {
       name: 'sizeRange',
@@ -66,7 +66,7 @@ export const dotGridDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.sizeRange,
-      description: 'Randomizes the size of shape between 0 and size.',
+      description: 'Randomizes the size of shape between 0 and size',
     },
     {
       name: 'opacityRange',
@@ -74,13 +74,13 @@ export const dotGridDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.opacityRange,
-      description: 'Variety of shape opacity.',
+      description: 'Variety of shape opacity',
     },
     {
       name: 'shape',
-      type: 'string',
+      type: 'enum',
       defaultValue: defaultParams.shape,
-      description: 'The shape of the dots.',
+      description: 'The shape of the dots',
       options: ['circle', 'diamond', 'square', 'triangle'],
     },
     {
@@ -89,7 +89,7 @@ export const dotGridDef: ShaderDef = {
       min: 0.01,
       max: 4,
       defaultValue: defaultParams.scale,
-      description: 'Overall zoom level of the graphics.',
+      description: 'Overall zoom level of the graphics',
     },
     {
       name: 'rotation',
@@ -97,7 +97,7 @@ export const dotGridDef: ShaderDef = {
       min: 0,
       max: 360,
       defaultValue: defaultParams.rotation,
-      description: 'Overall rotation angle of the graphics.',
+      description: 'Overall rotation angle of the graphics',
     },
   ],
 };

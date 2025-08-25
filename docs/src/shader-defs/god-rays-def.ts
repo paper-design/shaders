@@ -13,21 +13,21 @@ export const godRaysDef: ShaderDef = {
       type: 'string[]',
       defaultValue: [],
       isColor: true,
-      description: 'Up to 5 ray colors.',
+      description: 'Up to 5 ray colors',
     },
     {
       name: 'colorBack',
       type: 'string',
       defaultValue: defaultParams.colorBack,
       isColor: true,
-      description: 'Background color.',
+      description: 'Background color',
     },
     {
       name: 'colorBloom',
       type: 'string',
       defaultValue: defaultParams.colorBloom,
       isColor: true,
-      description: 'Color overlay blended with the rays.',
+      description: 'Color overlay blended with the rays',
     },
     {
       name: 'bloom',
@@ -35,7 +35,7 @@ export const godRaysDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.bloom,
-      description: 'Strength of the bloom/overlay effect.',
+      description: 'Strength of the bloom/overlay effect',
     },
     {
       name: 'intensity',
@@ -43,7 +43,7 @@ export const godRaysDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.intensity,
-      description: 'Visibility/strength of the rays.',
+      description: 'Visibility/strength of the rays',
     },
     {
       name: 'density',
@@ -51,7 +51,7 @@ export const godRaysDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.density,
-      description: 'Frequency of rays around the circle.',
+      description: 'Frequency of rays around the circle',
     },
     {
       name: 'spotty',
@@ -59,7 +59,7 @@ export const godRaysDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.spotty,
-      description: 'Density of spot patterns along the rays.',
+      description: 'Density of spot patterns along the rays',
     },
     {
       name: 'midSize',
@@ -67,7 +67,7 @@ export const godRaysDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.midSize,
-      description: 'Size of the circular glow in the center.',
+      description: 'Size of the circular glow in the center',
     },
     {
       name: 'midIntensity',
@@ -75,7 +75,7 @@ export const godRaysDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.midIntensity,
-      description: 'Brightness of the central glow.',
+      description: 'Brightness of the central glow',
     },
     {
       name: 'offsetX',
@@ -83,7 +83,7 @@ export const godRaysDef: ShaderDef = {
       min: -1,
       max: 1,
       defaultValue: defaultParams.offsetX,
-      description: 'Horizontal offset of the graphics center.',
+      description: 'Horizontal offset of the graphics center',
     },
     {
       name: 'offsetY',
@@ -91,7 +91,7 @@ export const godRaysDef: ShaderDef = {
       min: -1,
       max: 1,
       defaultValue: defaultParams.offsetY,
-      description: 'Vertical offset of the graphics center.',
+      description: 'Vertical offset of the graphics center',
     },
     {
       name: 'scale',
@@ -99,7 +99,7 @@ export const godRaysDef: ShaderDef = {
       min: 0.01,
       max: 4,
       defaultValue: defaultParams.scale,
-      description: 'Overall zoom level of the graphics.',
+      description: 'Overall zoom level of the graphics',
     },
     {
       name: 'rotation',
@@ -107,7 +107,7 @@ export const godRaysDef: ShaderDef = {
       min: 0,
       max: 360,
       defaultValue: defaultParams.rotation,
-      description: 'Overall rotation angle of the graphics.',
+      description: 'Overall rotation angle of the graphics',
     },
     {
       name: 'speed',
@@ -115,7 +115,7 @@ export const godRaysDef: ShaderDef = {
       min: 0,
       max: 2,
       defaultValue: defaultParams.speed,
-      description: 'Animation speed (requestAnimationFrame loop stops at speed=0).',
+      description: 'Animation speed',
     },
   ],
 };

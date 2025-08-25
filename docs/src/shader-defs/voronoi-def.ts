@@ -12,21 +12,21 @@ export const voronoiDef: ShaderDef = {
       type: 'string[]',
       defaultValue: [],
       isColor: true,
-      description: 'Base cell colors (up to 10).',
+      description: 'Base cell colors (up to 10)',
     },
     {
       name: 'colorGap',
       type: 'string',
       defaultValue: defaultParams.colorGap,
       isColor: true,
-      description: 'Color used for cell borders/gaps.',
+      description: 'Color used for cell borders/gaps',
     },
     {
       name: 'colorGlow',
       type: 'string',
       defaultValue: defaultParams.colorGlow,
       isColor: true,
-      description: 'Color tint for the radial inner shadow effect inside cells (effective with glow > 0).',
+      description: 'Color tint for the radial inner shadow effect inside cells (effective with glow > 0)',
     },
     {
       name: 'stepsPerColor',
@@ -36,7 +36,7 @@ export const voronoiDef: ShaderDef = {
       step: 1,
       defaultValue: defaultParams.stepsPerColor,
       description:
-        'Number of extra colors between base colors (1 = N color palette, 2 = 2×N palette, 3 = 3×N palette, etc.',
+        'Number of extra colors between base colors (1 = N color palette, 2 = 2×N palette, 3 = 3×N palette, etc)',
     },
     {
       name: 'distortion',
@@ -44,7 +44,7 @@ export const voronoiDef: ShaderDef = {
       min: 0,
       max: 0.5,
       defaultValue: defaultParams.distortion,
-      description: 'Strength of noise-driven displacement of cell centers',
+      description: 'Strength of noise-driven displacement of cell centers.',
     },
     {
       name: 'gap',
@@ -52,7 +52,7 @@ export const voronoiDef: ShaderDef = {
       min: 0,
       max: 0.1,
       defaultValue: defaultParams.gap,
-      description: 'Width of the border/gap between cells.',
+      description: 'Width of the border/gap between cells',
     },
     {
       name: 'glow',
@@ -60,7 +60,7 @@ export const voronoiDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.glow,
-      description: 'Strength of the radial inner shadow inside cells.',
+      description: 'Strength of the radial inner shadow inside cells',
     },
     {
       name: 'scale',
@@ -68,7 +68,7 @@ export const voronoiDef: ShaderDef = {
       min: 0.01,
       max: 4,
       defaultValue: defaultParams.scale,
-      description: 'Overall zoom level of the graphics.',
+      description: 'Overall zoom level of the graphics',
     },
     {
       name: 'rotation',
@@ -76,7 +76,7 @@ export const voronoiDef: ShaderDef = {
       min: 0,
       max: 360,
       defaultValue: defaultParams.rotation,
-      description: 'Overall rotation angle of the graphics.',
+      description: 'Overall rotation angle of the graphics',
     },
     {
       name: 'speed',
@@ -84,7 +84,7 @@ export const voronoiDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.speed,
-      description: 'Animation speed (requestAnimationFrame loop stops at speed=0).',
+      description: 'Animation speed',
     },
   ],
 };

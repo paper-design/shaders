@@ -13,7 +13,7 @@ export const staticMeshGradientDef: ShaderDef = {
       type: 'string[]',
       defaultValue: [],
       isColor: true,
-      description: 'Colors used in the gradient.',
+      description: 'Colors used in the gradient',
     },
     {
       name: 'positions',
@@ -21,7 +21,7 @@ export const staticMeshGradientDef: ShaderDef = {
       min: 0,
       max: 100,
       defaultValue: defaultParams.positions,
-      description: 'Color spots placement.',
+      description: 'Color spots placement',
     },
     {
       name: 'waveX',
@@ -29,7 +29,7 @@ export const staticMeshGradientDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.waveX,
-      description: 'Strength of sine wave distortion along X axis.',
+      description: 'Strength of sine wave distortion along X axis',
     },
     {
       name: 'waveXShift',
@@ -37,7 +37,7 @@ export const staticMeshGradientDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.waveXShift,
-      description: 'Phase offset applied to the X-axis wave.',
+      description: 'Phase offset applied to the X-axis wave',
     },
     {
       name: 'waveY',
@@ -45,7 +45,7 @@ export const staticMeshGradientDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.waveY,
-      description: 'Strength of sine wave distortion along Y axis.',
+      description: 'Strength of sine wave distortion along Y axis',
     },
     {
       name: 'waveYShift',
@@ -61,7 +61,7 @@ export const staticMeshGradientDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.mixing,
-      description: 'Blending behavior (sharper vs. smoother color transitions).',
+      description: 'Blending behavior (sharper vs. smoother color transitions)',
     },
     {
       name: 'grainMixer',
@@ -69,7 +69,7 @@ export const staticMeshGradientDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.grainMixer,
-      description: 'Strength of grain distortion applied to color edges.',
+      description: 'Strength of grain distortion applied to color edges',
     },
     {
       name: 'grainOverlay',
@@ -77,7 +77,7 @@ export const staticMeshGradientDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.grainOverlay,
-      description: 'Post-processing RGB grain overlay.',
+      description: 'Post-processing RGB grain overlay',
     },
     {
       name: 'offsetX',
@@ -85,7 +85,7 @@ export const staticMeshGradientDef: ShaderDef = {
       min: -1,
       max: 1,
       defaultValue: defaultParams.offsetX,
-      description: 'Horizontal offset of the graphics center.',
+      description: 'Horizontal offset of the graphics center',
     },
     {
       name: 'offsetY',
@@ -93,7 +93,7 @@ export const staticMeshGradientDef: ShaderDef = {
       min: -1,
       max: 1,
       defaultValue: defaultParams.offsetY,
-      description: 'Vertical offset of the graphics center.',
+      description: 'Vertical offset of the graphics center',
     },
     {
       name: 'scale',
@@ -101,7 +101,7 @@ export const staticMeshGradientDef: ShaderDef = {
       min: 0.01,
       max: 4,
       defaultValue: defaultParams.scale,
-      description: 'Overall zoom level of the graphics.',
+      description: 'Overall zoom level of the graphics',
     },
     {
       name: 'rotation',
@@ -109,7 +109,7 @@ export const staticMeshGradientDef: ShaderDef = {
       min: 0,
       max: 360,
       defaultValue: defaultParams.rotation,
-      description: 'Overall rotation angle of the graphics.',
+      description: 'Overall rotation angle of the graphics',
     },
   ],
 };

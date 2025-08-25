@@ -115,7 +115,7 @@ export function ShaderDetails({
                     <th className="border-b border-stone-200 px-3 py-2 text-left font-medium">Description</th>
                     <th className="border-b border-stone-200 px-3 py-2 text-left font-medium">Type</th>
                     <th className="border-b border-stone-200 px-3 py-2 text-left font-medium">Values</th>
-                    <th className="border-b border-stone-200 px-3 py-2 text-left font-medium">Default</th>
+                    <th className="hidden border-b border-stone-200 px-3 py-2 text-left font-medium">Default</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -126,14 +126,16 @@ export function ShaderDetails({
                       <td className="px-3 py-3 text-stone-600">
                         <code className="rounded bg-stone-100 px-1 py-0.5 text-xs">{param.type}</code>
                       </td>
-                      <td className="px-3 py-3 text-xs text-stone-600">
+                      <td className="max-w-60 px-3 py-3 text-xs text-stone-600">
                         {param.options && param.options.length > 0 ? (
                           typeof param.options[0] === 'string' ? (
                             <div className="text-pretty">
                               {(param.options as string[]).map((option, index) => (
-                                <span key={option}>
-                                  <code className="font-mono">{option}</code>
-                                  {index < param.options!.length - 1 && <span className="mr-1">, </span>}
+                                <span key={option} className={param.type === 'boolean' ? 'whitespace-nowrap' : ''}>
+                                  <code className="font-mono">{param.type === 'enum' ? `"${option}"` : option}</code>
+                                  {index < param.options!.length - 1 && (
+                                    <span className="mx-1 text-stone-300"> | </span>
+                                  )}
                                 </span>
                               ))}
                             </div>
@@ -141,7 +143,9 @@ export function ShaderDetails({
                             <ul className="space-y-1">
                               {(param.options as ParamOption[]).map((option) => (
                                 <li key={option.name}>
-                                  <code className="font-mono">{option.name}</code>{' '}
+                                  <code className="font-mono">
+                                    {param.type === 'enum' ? `"${option.name}"` : option.name}
+                                  </code>{' '}
                                   <span className="text-stone-400">-</span> {option.description}
                                 </li>
                               ))}
@@ -162,7 +166,7 @@ export function ShaderDetails({
                           <span className="text-stone-300">—</span>
                         )}
                       </td>
-                      <td className="px-3 py-3 text-stone-600">
+                      <td className="hidden px-3 py-3 text-stone-600">
                         <span className="font-mono text-xs">{JSON.stringify(param.defaultValue)}</span>
                       </td>
                     </tr>

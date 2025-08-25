@@ -5,21 +5,22 @@ const defaultParams = ditheringPresets[0].params;
 
 export const ditheringDef: ShaderDef = {
   name: 'Dithering',
-  description: 'Animated 2-color dithering over with multiple pattern sources (noise, warp, dots, waves, ripple, swirl, sphere). Great for retro, print-like, or stylized UI textures',
+  description:
+    'Animated 2-color dithering over with multiple pattern sources (noise, warp, dots, waves, ripple, swirl, sphere). Great for retro, print-like, or stylized UI textures.',
   params: [
     {
       name: 'colorBack',
       type: 'string',
       defaultValue: defaultParams.colorBack,
       isColor: true,
-      description: 'Background color.',
+      description: 'Background color',
     },
     {
       name: 'colorFront',
       type: 'string',
       defaultValue: defaultParams.colorFront,
       isColor: true,
-      description: 'The foreground (ink) color.',
+      description: 'The foreground (ink) color',
     },
     {
       name: 'pxSize',
@@ -27,34 +28,21 @@ export const ditheringDef: ShaderDef = {
       min: 1,
       max: 20,
       defaultValue: defaultParams.pxSize,
-      description: 'Pixel size of dithering grid.',
+      description: 'Pixel size of dithering grid',
     },
     {
       name: 'shape',
-      type: 'string',
+      type: 'enum',
       defaultValue: defaultParams.shape,
-      description: 'Shape pattern type.',
-      options: [
-        { name: 'simplex', description: 'Simplex noise.' },
-        { name: 'warp', description: 'Warp noise pattern.' },
-        { name: 'dots', description: 'Columns of moving dots.' },
-        { name: 'wave', description: 'Sine wave.' },
-        { name: 'ripple', description: 'Ripple effect.' },
-        { name: 'swirl', description: 'Swirl animation.' },
-        { name: 'sphere', description: 'Rotating sphere.' },
-      ],
+      description: 'Shape pattern type',
+      options: ['simplex', 'warp', 'dots', 'wave', 'ripple', 'swirl', 'sphere'],
     },
     {
       name: 'type',
-      type: 'string',
+      type: 'enum',
       defaultValue: defaultParams.type,
-      description: 'Dithering type.',
-      options: [
-        { name: 'random', description: 'Random dithering.' },
-        { name: '2x2', description: '2x2 Bayer matrix.' },
-        { name: '4x4', description: '4x4 Bayer matrix.' },
-        { name: '8x8', description: '8x8 Bayer matrix.' },
-      ],
+      description: 'Dithering type',
+      options: ['random', '2x2', '4x4', '8x8'],
     },
     {
       name: 'offsetX',
@@ -62,7 +50,7 @@ export const ditheringDef: ShaderDef = {
       min: -1,
       max: 1,
       defaultValue: defaultParams.offsetX,
-      description: 'Horizontal offset of the graphics center.',
+      description: 'Horizontal offset of the graphics center',
     },
     {
       name: 'offsetY',
@@ -70,7 +58,7 @@ export const ditheringDef: ShaderDef = {
       min: -1,
       max: 1,
       defaultValue: defaultParams.offsetY,
-      description: 'Vertical offset of the graphics center.',
+      description: 'Vertical offset of the graphics center',
     },
     {
       name: 'scale',
@@ -78,7 +66,7 @@ export const ditheringDef: ShaderDef = {
       min: 0.01,
       max: 4,
       defaultValue: defaultParams.scale,
-      description: 'Overall zoom level of the graphics.',
+      description: 'Overall zoom level of the graphics',
     },
     {
       name: 'rotation',
@@ -86,7 +74,7 @@ export const ditheringDef: ShaderDef = {
       min: 0,
       max: 360,
       defaultValue: defaultParams.rotation,
-      description: 'Overall rotation angle of the graphics.',
+      description: 'Overall rotation angle of the graphics',
     },
     {
       name: 'speed',
@@ -94,7 +82,7 @@ export const ditheringDef: ShaderDef = {
       min: 0,
       max: 2,
       defaultValue: defaultParams.speed,
-      description: 'Animation speed (requestAnimationFrame loop stops at speed=0).',
+      description: 'Animation speed',
     },
   ],
 };

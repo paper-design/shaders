@@ -12,14 +12,14 @@ export const pulsingBorderDef: ShaderDef = {
       type: 'string',
       defaultValue: defaultParams.colorBack,
       isColor: true,
-      description: 'Background color.',
+      description: 'Background color',
     },
     {
       name: 'colors',
       type: 'string[]',
       defaultValue: [],
       isColor: true,
-      description: 'Colors used for the effect.',
+      description: 'Colors used for the effect',
     },
     {
       name: 'roundness',
@@ -27,7 +27,7 @@ export const pulsingBorderDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.roundness,
-      description: 'Border parameters.',
+      description: 'Border parameters',
     },
     {
       name: 'thickness',
@@ -35,7 +35,7 @@ export const pulsingBorderDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.thickness,
-      description: 'Border parameters.',
+      description: 'Border parameters',
     },
     {
       name: 'softness',
@@ -43,7 +43,7 @@ export const pulsingBorderDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.softness,
-      description: 'Border edge sharpness (0 = hard edge, 1 = smooth gradient).',
+      description: 'Border edge sharpness (0 = hard edge, 1 = smooth gradient)',
     },
     {
       name: 'intensity',
@@ -51,7 +51,7 @@ export const pulsingBorderDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.intensity,
-      description: 'Thickness of individual spots.',
+      description: 'Thickness of individual spots',
     },
     {
       name: 'bloom',
@@ -59,7 +59,7 @@ export const pulsingBorderDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.bloom,
-      description: 'Normal / additive color blending.',
+      description: 'Normal / additive color blending',
     },
     {
       name: 'spots',
@@ -68,7 +68,7 @@ export const pulsingBorderDef: ShaderDef = {
       max: 20,
       step: 1,
       defaultValue: defaultParams.spots,
-      description: 'Number of spots rendered per color.',
+      description: 'Number of spots rendered per color',
     },
     {
       name: 'spotSize',
@@ -76,7 +76,7 @@ export const pulsingBorderDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.spotSize,
-      description: 'Angular size of spots.',
+      description: 'Angular size of spots',
     },
     {
       name: 'pulse',
@@ -84,7 +84,7 @@ export const pulsingBorderDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.pulse,
-      description: 'Optional pulsing animation.',
+      description: 'Optional pulsing animation',
     },
     {
       name: 'smoke',
@@ -92,7 +92,7 @@ export const pulsingBorderDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.smoke,
-      description: 'Optional noisy shapes around the border.',
+      description: 'Optional noisy shapes around the border',
     },
     {
       name: 'smokeSize',
@@ -100,7 +100,7 @@ export const pulsingBorderDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.smokeSize,
-      description: 'Optional noisy shapes around the border.',
+      description: 'Optional noisy shapes around the border',
     },
     {
       name: 'scale',
@@ -108,7 +108,7 @@ export const pulsingBorderDef: ShaderDef = {
       min: 0.01,
       max: 1,
       defaultValue: defaultParams.scale,
-      description: 'Overall zoom level of the graphics.',
+      description: 'Overall zoom level of the graphics',
     },
     {
       name: 'rotation',
@@ -116,7 +116,7 @@ export const pulsingBorderDef: ShaderDef = {
       min: 0,
       max: 360,
       defaultValue: defaultParams.rotation,
-      description: 'Overall rotation angle of the graphics.',
+      description: 'Overall rotation angle of the graphics',
     },
     {
       name: 'offsetX',
@@ -124,7 +124,7 @@ export const pulsingBorderDef: ShaderDef = {
       min: -1,
       max: 1,
       defaultValue: defaultParams.offsetX,
-      description: 'Horizontal offset of the graphics center.',
+      description: 'Horizontal offset of the graphics center',
     },
     {
       name: 'offsetY',
@@ -132,7 +132,7 @@ export const pulsingBorderDef: ShaderDef = {
       min: -1,
       max: 1,
       defaultValue: defaultParams.offsetY,
-      description: 'Vertical offset of the graphics center.',
+      description: 'Vertical offset of the graphics center',
     },
     {
       name: 'speed',
@@ -140,7 +140,7 @@ export const pulsingBorderDef: ShaderDef = {
       min: 0,
       max: 2,
       defaultValue: defaultParams.speed,
-      description: 'Animation speed (requestAnimationFrame loop stops at speed=0).',
+      description: 'Animation speed',
     },
   ],
 };

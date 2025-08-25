@@ -12,14 +12,14 @@ export const perlinNoiseDef: ShaderDef = {
       type: 'string',
       defaultValue: defaultParams.colorBack,
       isColor: true,
-      description: 'Background color.',
+      description: 'Background color',
     },
     {
       name: 'colorFront',
       type: 'string',
       defaultValue: defaultParams.colorFront,
       isColor: true,
-      description: 'The foreground color.',
+      description: 'The foreground color',
     },
     {
       name: 'proportion',
@@ -27,7 +27,7 @@ export const perlinNoiseDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.proportion,
-      description: 'Blend point between 2 colors (0.5 = equal distribution).',
+      description: 'Blend point between 2 colors (0.5 = equal distribution)',
     },
     {
       name: 'softness',
@@ -35,7 +35,7 @@ export const perlinNoiseDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.softness,
-      description: 'Color transition sharpness (0 = hard edge, 1 = smooth gradient).',
+      description: 'Color transition sharpness (0 = hard edge, 1 = smooth gradient)',
     },
     {
       name: 'octaveCount',
@@ -44,7 +44,7 @@ export const perlinNoiseDef: ShaderDef = {
       max: 8,
       step: 1,
       defaultValue: defaultParams.octaveCount,
-      description: 'More octaves give more detailed patterns.',
+      description: 'More octaves give more detailed patterns',
     },
     {
       name: 'persistence',
@@ -52,7 +52,7 @@ export const perlinNoiseDef: ShaderDef = {
       min: 0.3,
       max: 1,
       defaultValue: defaultParams.persistence,
-      description: 'Roughness, falloff between octaves.',
+      description: 'Roughness, falloff between octaves',
     },
     {
       name: 'lacunarity',
@@ -60,7 +60,7 @@ export const perlinNoiseDef: ShaderDef = {
       min: 1.5,
       max: 10,
       defaultValue: defaultParams.lacunarity,
-      description: 'Frequency step, typically around 2. Defines how compressed the pattern is.',
+      description: 'Frequency step, typically around 2. Defines how compressed the pattern is',
     },
     {
       name: 'scale',
@@ -68,7 +68,7 @@ export const perlinNoiseDef: ShaderDef = {
       min: 0.01,
       max: 4,
       defaultValue: defaultParams.scale,
-      description: 'Overall zoom level of the graphics.',
+      description: 'Overall zoom level of the graphics',
     },
     {
       name: 'rotation',
@@ -76,7 +76,7 @@ export const perlinNoiseDef: ShaderDef = {
       min: 0,
       max: 360,
       defaultValue: defaultParams.rotation,
-      description: 'Overall rotation angle of the graphics.',
+      description: 'Overall rotation angle of the graphics',
     },
     {
       name: 'speed',
@@ -84,7 +84,7 @@ export const perlinNoiseDef: ShaderDef = {
       min: 0,
       max: 0.5,
       defaultValue: defaultParams.speed,
-      description: 'Animation speed (requestAnimationFrame loop stops at speed=0).',
+      description: 'Animation speed',
     },
   ],
 };

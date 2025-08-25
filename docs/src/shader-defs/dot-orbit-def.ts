@@ -13,14 +13,14 @@ export const dotOrbitDef: ShaderDef = {
       type: 'string',
       defaultValue: defaultParams.colorBack,
       isColor: true,
-      description: 'Background color.',
+      description: 'Background color',
     },
     {
       name: 'colors',
       type: 'string[]',
       defaultValue: [],
       isColor: true,
-      description: 'Up to 10 base colors.',
+      description: 'Up to 10 base colors',
     },
     {
       name: 'stepsPerColor',
@@ -30,7 +30,7 @@ export const dotOrbitDef: ShaderDef = {
       step: 1,
       defaultValue: defaultParams.stepsPerColor,
       description:
-        'Number of extra colors between base colors (1 = N color palette, 2 = 2×N palette, 3 = 3×N palette, etc.',
+        'Number of extra colors between base colors (1 = N color palette, 2 = 2×N palette, 3 = 3×N palette, etc)',
     },
     {
       name: 'size',
@@ -38,7 +38,7 @@ export const dotOrbitDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.size,
-      description: 'Dot radius relative to cell size.',
+      description: 'Dot radius relative to cell size',
     },
     {
       name: 'sizeRange',
@@ -46,7 +46,7 @@ export const dotOrbitDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.sizeRange,
-      description: 'Randomizes each dot radius between 0 and size.',
+      description: 'Randomizes each dot radius between 0 and size',
     },
     {
       name: 'spreading',
@@ -54,7 +54,7 @@ export const dotOrbitDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.spreading,
-      description: 'Maximum orbit distance.',
+      description: 'Maximum orbit distance',
     },
     {
       name: 'scale',
@@ -62,7 +62,7 @@ export const dotOrbitDef: ShaderDef = {
       min: 0.01,
       max: 5,
       defaultValue: defaultParams.scale,
-      description: 'Overall zoom level of the graphics.',
+      description: 'Overall zoom level of the graphics',
     },
     {
       name: 'speed',
@@ -70,7 +70,7 @@ export const dotOrbitDef: ShaderDef = {
       min: 0,
       max: 20,
       defaultValue: defaultParams.speed,
-      description: 'Animation speed (requestAnimationFrame loop stops at speed=0).',
+      description: 'Animation speed',
     },
   ],
 };

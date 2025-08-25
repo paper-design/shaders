@@ -13,7 +13,7 @@ export const meshGradientDef: ShaderDef = {
       type: 'string[]',
       defaultValue: [],
       isColor: true,
-      description: 'Colors used for the effect.',
+      description: 'Colors used for the effect',
     },
     {
       name: 'distortion',
@@ -21,7 +21,7 @@ export const meshGradientDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.distortion,
-      description: 'Warp distortion.',
+      description: 'Warp distortion',
     },
     {
       name: 'swirl',
@@ -29,7 +29,7 @@ export const meshGradientDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.swirl,
-      description: 'Vortex distortion.',
+      description: 'Vortex distortion',
     },
     {
       name: 'offsetX',
@@ -37,7 +37,7 @@ export const meshGradientDef: ShaderDef = {
       min: -1,
       max: 1,
       defaultValue: defaultParams.offsetX,
-      description: 'Horizontal offset of the graphics center.',
+      description: 'Horizontal offset of the graphics center',
     },
     {
       name: 'offsetY',
@@ -45,7 +45,7 @@ export const meshGradientDef: ShaderDef = {
       min: -1,
       max: 1,
       defaultValue: defaultParams.offsetY,
-      description: 'Vertical offset of the graphics center.',
+      description: 'Vertical offset of the graphics center',
     },
     {
       name: 'scale',
@@ -53,7 +53,7 @@ export const meshGradientDef: ShaderDef = {
       min: 0.01,
       max: 4,
       defaultValue: defaultParams.scale,
-      description: 'Overall zoom level of the graphics.',
+      description: 'Overall zoom level of the graphics',
     },
     {
       name: 'rotation',
@@ -61,7 +61,7 @@ export const meshGradientDef: ShaderDef = {
       min: 0,
       max: 360,
       defaultValue: defaultParams.rotation,
-      description: 'Overall rotation angle of the graphics.',
+      description: 'Overall rotation angle of the graphics',
     },
     {
       name: 'speed',
@@ -69,7 +69,7 @@ export const meshGradientDef: ShaderDef = {
       min: 0,
       max: 2,
       defaultValue: defaultParams.speed,
-      description: 'Animation speed (requestAnimationFrame loop stops at speed=0).',
+      description: 'Animation speed',
     },
   ],
 };

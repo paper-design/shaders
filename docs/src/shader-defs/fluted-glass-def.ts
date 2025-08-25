@@ -15,13 +15,13 @@ export const flutedGlassDef: ShaderDef = {
       max: 200,
       step: 1,
       defaultValue: defaultParams.count,
-      description: 'Number of grid lines.',
+      description: 'Number of grid lines',
     },
     {
       name: 'shape',
-      type: 'string',
+      type: 'enum',
       defaultValue: defaultParams.shape,
-      description: 'The shape of the grid.',
+      description: 'The shape of the grid',
       options: ['pattern', 'wave', 'lines', 'linesIrregular', 'zigzag'],
     },
     {
@@ -30,13 +30,13 @@ export const flutedGlassDef: ShaderDef = {
       min: 0,
       max: 180,
       defaultValue: defaultParams.angle,
-      description: 'Direction of the grid relative to the image.',
+      description: 'Direction of the grid relative to the image',
     },
     {
       name: 'distortionShape',
-      type: 'string',
+      type: 'enum',
       defaultValue: defaultParams.distortionShape,
-      description: 'The shape of the distortion.',
+      description: 'The shape of the distortion',
       options: ['prism', 'lens', 'сontour', 'сascade', 'facete'],
     },
     {
@@ -45,7 +45,7 @@ export const flutedGlassDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.distortion,
-      description: 'The power of distortion applied along within each stripe.',
+      description: 'The power of distortion applied along within each stripe',
     },
     {
       name: 'shift',
@@ -53,7 +53,7 @@ export const flutedGlassDef: ShaderDef = {
       min: -1,
       max: 1,
       defaultValue: defaultParams.shift,
-      description: 'Texture shift in direction opposite to the grid.',
+      description: 'Texture shift in direction opposite to the grid',
     },
     {
       name: 'blur',
@@ -61,7 +61,7 @@ export const flutedGlassDef: ShaderDef = {
       min: 0,
       max: 50,
       defaultValue: defaultParams.blur,
-      description: 'One-directional blur applied over the main distortion.',
+      description: 'One-directional blur applied over the main distortion',
     },
     {
       name: 'highlights',
@@ -69,7 +69,7 @@ export const flutedGlassDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.highlights,
-      description: 'Thin color lines along the grid (independent from distortion).',
+      description: 'Thin color lines along the grid (independent from distortion)',
     },
     {
       name: 'scale',
@@ -77,13 +77,13 @@ export const flutedGlassDef: ShaderDef = {
       min: 0.5,
       max: 10,
       defaultValue: defaultParams.scale,
-      description: 'Overall zoom level of the graphics.',
+      description: 'Overall zoom level of the graphics',
     },
     {
       name: 'fit',
-      type: 'string',
+      type: 'enum',
       defaultValue: defaultParams.fit,
-      description: 'How the image fits the canvas.',
+      description: 'How the image fits the canvas',
       options: ['contain', 'cover'],
     },
     {
@@ -92,7 +92,7 @@ export const flutedGlassDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.marginLeft,
-      description: 'Padding within the image to be shown without any distortion.',
+      description: 'Padding within the image to be shown without any distortion',
     },
     {
       name: 'marginRight',
@@ -100,7 +100,7 @@ export const flutedGlassDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.marginRight,
-      description: 'Padding within the image to be shown without any distortion.',
+      description: 'Padding within the image to be shown without any distortion',
     },
     {
       name: 'marginTop',
@@ -108,7 +108,7 @@ export const flutedGlassDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.marginTop,
-      description: 'Padding within the image to be shown without any distortion.',
+      description: 'Padding within the image to be shown without any distortion',
     },
     {
       name: 'marginBottom',
@@ -116,7 +116,7 @@ export const flutedGlassDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.marginBottom,
-      description: 'Padding within the image to be shown without any distortion.',
+      description: 'Padding within the image to be shown without any distortion',
     },
   ],
 };

@@ -12,14 +12,14 @@ export const colorPanelsDef: ShaderDef = {
       type: 'string[]',
       defaultValue: [],
       isColor: true,
-      description: 'Up to 7 colors.',
+      description: 'Up to 7 colors',
     },
     {
       name: 'colorBack',
       type: 'string',
       defaultValue: defaultParams.colorBack,
       isColor: true,
-      description: 'Background color.',
+      description: 'Background color',
     },
     {
       name: 'density',
@@ -27,7 +27,7 @@ export const colorPanelsDef: ShaderDef = {
       min: 0.25,
       max: 7,
       defaultValue: defaultParams.density,
-      description: 'Angle between every 2 panels.',
+      description: 'Angle between every 2 panels',
     },
     {
       name: 'angle1',
@@ -35,7 +35,7 @@ export const colorPanelsDef: ShaderDef = {
       min: -1,
       max: 1,
       defaultValue: defaultParams.angle1,
-      description: 'Skew angle applied to all panes.',
+      description: 'Skew angle applied to all panes',
     },
     {
       name: 'angle2',
@@ -43,7 +43,7 @@ export const colorPanelsDef: ShaderDef = {
       min: -1,
       max: 1,
       defaultValue: defaultParams.angle2,
-      description: 'Skew angle applied to all panes.',
+      description: 'Skew angle applied to all panes',
     },
     {
       name: 'length',
@@ -51,13 +51,13 @@ export const colorPanelsDef: ShaderDef = {
       min: 0,
       max: 3,
       defaultValue: defaultParams.length,
-      description: 'Panel length (relative to total height).',
+      description: 'Panel length (relative to total height)',
     },
     {
       name: 'edges',
       type: 'boolean',
       defaultValue: defaultParams.edges,
-      description: 'Color highlight on the panels edges.',
+      description: 'Color highlight on the panels edges',
       options: ['true', 'false'],
     },
     {
@@ -66,7 +66,7 @@ export const colorPanelsDef: ShaderDef = {
       min: 0,
       max: 0.5,
       defaultValue: defaultParams.blur,
-      description: 'Side blur (0 for sharp edges).',
+      description: 'Side blur (0 for sharp edges)',
     },
     {
       name: 'fadeIn',
@@ -74,7 +74,7 @@ export const colorPanelsDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.fadeIn,
-      description: 'Transparency near central axis.',
+      description: 'Transparency near central axis',
     },
     {
       name: 'fadeOut',
@@ -82,7 +82,7 @@ export const colorPanelsDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.fadeOut,
-      description: 'Transparency near viewer.',
+      description: 'Transparency near viewer',
     },
     {
       name: 'gradient',
@@ -90,7 +90,7 @@ export const colorPanelsDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.gradient,
-      description: 'Color mixing within a panel (0 = solid panel color, 1 = gradient of two colors).',
+      description: 'Color mixing within a panel (0 = solid panel color, 1 = gradient of two colors)',
     },
     {
       name: 'offsetX',
@@ -98,7 +98,7 @@ export const colorPanelsDef: ShaderDef = {
       min: -1,
       max: 1,
       defaultValue: defaultParams.offsetX,
-      description: 'Horizontal offset of the graphics center.',
+      description: 'Horizontal offset of the graphics center',
     },
     {
       name: 'offsetY',
@@ -106,7 +106,7 @@ export const colorPanelsDef: ShaderDef = {
       min: -1,
       max: 1,
       defaultValue: defaultParams.offsetY,
-      description: 'Vertical offset of the graphics center.',
+      description: 'Vertical offset of the graphics center',
     },
     {
       name: 'scale',
@@ -114,7 +114,7 @@ export const colorPanelsDef: ShaderDef = {
       min: 0.01,
       max: 4,
       defaultValue: defaultParams.scale,
-      description: 'Overall zoom level of the graphics.',
+      description: 'Overall zoom level of the graphics',
     },
     {
       name: 'rotation',
@@ -122,7 +122,7 @@ export const colorPanelsDef: ShaderDef = {
       min: 0,
       max: 360,
       defaultValue: defaultParams.rotation,
-      description: 'Overall rotation angle of the graphics.',
+      description: 'Overall rotation angle of the graphics',
     },
     {
       name: 'speed',
@@ -130,7 +130,7 @@ export const colorPanelsDef: ShaderDef = {
       min: 0,
       max: 2,
       defaultValue: defaultParams.speed,
-      description: 'Animation speed (requestAnimationFrame loop stops at speed=0).',
+      description: 'Animation speed',
     },
   ],
 };

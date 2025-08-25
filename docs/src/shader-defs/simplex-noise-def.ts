@@ -12,7 +12,7 @@ export const simplexNoiseDef: ShaderDef = {
       type: 'string[]',
       defaultValue: [],
       isColor: true,
-      description: 'Colors used for the effect.',
+      description: 'Colors used for the effect',
     },
     {
       name: 'stepsPerColor',
@@ -22,7 +22,7 @@ export const simplexNoiseDef: ShaderDef = {
       step: 1,
       defaultValue: defaultParams.stepsPerColor,
       description:
-        'Number of extra colors between base colors (1 = N color palette, 2 = 2×N palette, 3 = 3×N palette, etc.',
+        'Number of extra colors between base colors (1 = N color palette, 2 = 2×N palette, 3 = 3×N palette, etc)',
     },
     {
       name: 'softness',
@@ -30,7 +30,7 @@ export const simplexNoiseDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.softness,
-      description: 'Color transition sharpness (0 = hard edge, 1 = smooth gradient).',
+      description: 'Color transition sharpness (0 = hard edge, 1 = smooth gradient)',
     },
     {
       name: 'scale',
@@ -38,7 +38,7 @@ export const simplexNoiseDef: ShaderDef = {
       min: 0.01,
       max: 4,
       defaultValue: defaultParams.scale,
-      description: 'Overall zoom level of the graphics.',
+      description: 'Overall zoom level of the graphics',
     },
     {
       name: 'rotation',
@@ -46,7 +46,7 @@ export const simplexNoiseDef: ShaderDef = {
       min: 0,
       max: 360,
       defaultValue: defaultParams.rotation,
-      description: 'Overall rotation angle of the graphics.',
+      description: 'Overall rotation angle of the graphics',
     },
     {
       name: 'speed',
@@ -54,7 +54,7 @@ export const simplexNoiseDef: ShaderDef = {
       min: 0,
       max: 2,
       defaultValue: defaultParams.speed,
-      description: 'Animation speed (requestAnimationFrame loop stops at speed=0).',
+      description: 'Animation speed',
     },
   ],
 };

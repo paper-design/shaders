@@ -12,14 +12,14 @@ export const spiralDef: ShaderDef = {
       type: 'string',
       defaultValue: defaultParams.colorBack,
       isColor: true,
-      description: 'Background color.',
+      description: 'Background color',
     },
     {
       name: 'colorFront',
       type: 'string',
       defaultValue: defaultParams.colorFront,
       isColor: true,
-      description: 'The spiral color.',
+      description: 'The spiral color',
     },
     {
       name: 'density',
@@ -27,7 +27,7 @@ export const spiralDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.density,
-      description: 'Spacing falloff to simulate radial perspective (0 = no perspective).',
+      description: 'Spacing falloff to simulate radial perspective (0 = no perspective)',
     },
     {
       name: 'distortion',
@@ -35,7 +35,7 @@ export const spiralDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.distortion,
-      description: 'Per-arch shift.',
+      description: 'Per-arch shift',
     },
     {
       name: 'strokeWidth',
@@ -43,7 +43,7 @@ export const spiralDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.strokeWidth,
-      description: 'Thickness of stroke.',
+      description: 'Thickness of stroke',
     },
     {
       name: 'strokeTaper',
@@ -51,7 +51,7 @@ export const spiralDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.strokeTaper,
-      description: 'Stroke loosing width further from center (0 for full visibility).',
+      description: 'Stroke loosing width further from center (0 for full visibility)',
     },
     {
       name: 'strokeCap',
@@ -59,7 +59,7 @@ export const spiralDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.strokeCap,
-      description: 'Extra width at the center (no effect on strokeWidth = 0.5).',
+      description: 'Extra width at the center (no effect on strokeWidth = 0.5)',
     },
     {
       name: 'noise',
@@ -67,7 +67,7 @@ export const spiralDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.noise,
-      description: 'Simplex noise distortion over the shape.',
+      description: 'Simplex noise distortion over the shape',
     },
     {
       name: 'noiseFrequency',
@@ -75,7 +75,7 @@ export const spiralDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.noiseFrequency,
-      description: 'Simplex noise distortion over the shape.',
+      description: 'Simplex noise distortion over the shape',
     },
     {
       name: 'softness',
@@ -83,7 +83,7 @@ export const spiralDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.softness,
-      description: 'Color transition sharpness (0 = hard edge, 1 = smooth gradient).',
+      description: 'Color transition sharpness (0 = hard edge, 1 = smooth gradient)',
     },
     {
       name: 'offsetX',
@@ -91,7 +91,7 @@ export const spiralDef: ShaderDef = {
       min: -1,
       max: 1,
       defaultValue: defaultParams.offsetX,
-      description: 'Horizontal offset of the spiral center.',
+      description: 'Horizontal offset of the spiral center',
     },
     {
       name: 'offsetY',
@@ -99,7 +99,7 @@ export const spiralDef: ShaderDef = {
       min: -1,
       max: 1,
       defaultValue: defaultParams.offsetY,
-      description: 'Vertical offset of the spiral center.',
+      description: 'Vertical offset of the spiral center',
     },
     {
       name: 'scale',
@@ -107,7 +107,7 @@ export const spiralDef: ShaderDef = {
       min: 0.01,
       max: 4,
       defaultValue: defaultParams.scale,
-      description: 'Overall zoom level of the graphics.',
+      description: 'Overall zoom level of the graphics',
     },
     {
       name: 'rotation',
@@ -115,7 +115,7 @@ export const spiralDef: ShaderDef = {
       min: 0,
       max: 360,
       defaultValue: defaultParams.rotation,
-      description: 'Overall rotation angle of the graphics.',
+      description: 'Overall rotation angle of the graphics',
     },
     {
       name: 'speed',
@@ -123,7 +123,7 @@ export const spiralDef: ShaderDef = {
       min: 0,
       max: 2,
       defaultValue: defaultParams.speed,
-      description: 'Animation speed (requestAnimationFrame loop stops at speed=0).',
+      description: 'Animation speed',
     },
   ],
 };

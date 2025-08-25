@@ -12,14 +12,14 @@ export const paperTextureDef: ShaderDef = {
       type: 'string',
       defaultValue: defaultParams.colorFront,
       isColor: true,
-      description: 'Colors used for the effect.',
+      description: 'Colors used for the effect',
     },
     {
       name: 'colorBack',
       type: 'string',
       defaultValue: defaultParams.colorBack,
       isColor: true,
-      description: 'Background color.',
+      description: 'Background color',
     },
     {
       name: 'contrast',
@@ -27,7 +27,7 @@ export const paperTextureDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.contrast,
-      description: 'Mixing front and back colors.',
+      description: 'Mixing front and back colors',
     },
     {
       name: 'roughness',
@@ -35,7 +35,7 @@ export const paperTextureDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.roughness,
-      description: 'Pixel noise, related to canvas (not scalable).',
+      description: 'Pixel noise, related to canvas (not scalable)',
     },
     {
       name: 'fiber',
@@ -43,7 +43,7 @@ export const paperTextureDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.fiber,
-      description: 'Curly-shaped noise.',
+      description: 'Curly-shaped noise',
     },
     {
       name: 'fiberScale',
@@ -51,7 +51,7 @@ export const paperTextureDef: ShaderDef = {
       min: 0.1,
       max: 2,
       defaultValue: defaultParams.fiberScale,
-      description: 'Curly-shaped noise scale.',
+      description: 'Curly-shaped noise scale',
     },
     {
       name: 'crumples',
@@ -59,7 +59,7 @@ export const paperTextureDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.crumples,
-      description: 'Cell-based pattern.',
+      description: 'Cell-based pattern',
     },
     {
       name: 'crumplesScale',
@@ -67,7 +67,7 @@ export const paperTextureDef: ShaderDef = {
       min: 0.3,
       max: 3,
       defaultValue: defaultParams.crumplesScale,
-      description: 'Cell-based pattern scale.',
+      description: 'Cell-based pattern scale',
     },
     {
       name: 'folds',
@@ -75,7 +75,7 @@ export const paperTextureDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.folds,
-      description: 'Depth of the folds.',
+      description: 'Depth of the folds',
     },
     {
       name: 'foldsNumber',
@@ -84,7 +84,7 @@ export const paperTextureDef: ShaderDef = {
       max: 15,
       step: 1,
       defaultValue: defaultParams.foldsNumber,
-      description: 'Number of folds (15 max).',
+      description: 'Number of folds (15 max)',
     },
     {
       name: 'blur',
@@ -92,7 +92,7 @@ export const paperTextureDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.blur,
-      description: 'Big-scale noise mask applied to everything but roughness.',
+      description: 'Big-scale noise mask applied to everything but roughness',
     },
     {
       name: 'drops',
@@ -100,7 +100,7 @@ export const paperTextureDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.drops,
-      description: 'Metaballs-like pattern.',
+      description: 'Metaballs-like pattern',
     },
     {
       name: 'seed',
@@ -108,7 +108,7 @@ export const paperTextureDef: ShaderDef = {
       min: 0,
       max: 10,
       defaultValue: defaultParams.seed,
-      description: 'Applied to folds, crumples and dots.',
+      description: 'Applied to folds, crumples and dots',
     },
     {
       name: 'scale',
@@ -116,13 +116,13 @@ export const paperTextureDef: ShaderDef = {
       min: 0.5,
       max: 10,
       defaultValue: defaultParams.scale,
-      description: 'Overall zoom level of the graphics.',
+      description: 'Overall zoom level of the graphics',
     },
     {
       name: 'fit',
-      type: 'string',
+      type: 'enum',
       defaultValue: defaultParams.fit,
-      description: 'How the image fits the canvas.',
+      description: 'How the image fits the canvas',
       options: ['contain', 'cover'],
     },
   ],

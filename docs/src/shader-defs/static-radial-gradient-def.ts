@@ -13,14 +13,14 @@ export const staticRadialGradientDef: ShaderDef = {
       type: 'string',
       defaultValue: defaultParams.colorBack,
       isColor: true,
-      description: 'Background color.',
+      description: 'Background color',
     },
     {
       name: 'colors',
       type: 'string[]',
       defaultValue: [],
       isColor: true,
-      description: 'Colors used for the effect.',
+      description: 'Colors used for the effect',
     },
     {
       name: 'radius',
@@ -28,7 +28,7 @@ export const staticRadialGradientDef: ShaderDef = {
       min: 0,
       max: 3,
       defaultValue: defaultParams.radius,
-      description: 'Circle radius.',
+      description: 'Circle radius',
     },
     {
       name: 'focalDistance',
@@ -36,7 +36,7 @@ export const staticRadialGradientDef: ShaderDef = {
       min: 0,
       max: 3,
       defaultValue: defaultParams.focalDistance,
-      description: 'Distance of the focal point from center.',
+      description: 'Distance of the focal point from center',
     },
     {
       name: 'focalAngle',
@@ -52,7 +52,7 @@ export const staticRadialGradientDef: ShaderDef = {
       min: -1,
       max: 1,
       defaultValue: defaultParams.falloff,
-      description: 'Gradient decay (0 for linear gradient).',
+      description: 'Gradient decay (0 for linear gradient)',
     },
     {
       name: 'mixing',
@@ -60,7 +60,7 @@ export const staticRadialGradientDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.mixing,
-      description: 'Blending behavior (sharper vs. smoother color transitions).',
+      description: 'Blending behavior (sharper vs. smoother color transitions)',
     },
     {
       name: 'distortion',
@@ -68,7 +68,7 @@ export const staticRadialGradientDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.distortion,
-      description: 'Strength of radial distortion.',
+      description: 'Strength of radial distortion',
     },
     {
       name: 'distortionShift',
@@ -76,7 +76,7 @@ export const staticRadialGradientDef: ShaderDef = {
       min: -1,
       max: 1,
       defaultValue: defaultParams.distortionShift,
-      description: 'Radial distortion offset (effective with distortion > 0).',
+      description: 'Radial distortion offset (effective with distortion > 0)',
     },
     {
       name: 'distortionFreq',
@@ -85,7 +85,7 @@ export const staticRadialGradientDef: ShaderDef = {
       max: 20,
       step: 1,
       defaultValue: defaultParams.distortionFreq,
-      description: 'Radial distortion frequency (effective with distortion > 0).',
+      description: 'Radial distortion frequency (effective with distortion > 0)',
     },
     {
       name: 'grainMixer',
@@ -93,7 +93,7 @@ export const staticRadialGradientDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.grainMixer,
-      description: 'Strength of grain distortion applied to color edges.',
+      description: 'Strength of grain distortion applied to color edges',
     },
     {
       name: 'grainOverlay',
@@ -109,7 +109,7 @@ export const staticRadialGradientDef: ShaderDef = {
       min: -1,
       max: 1,
       defaultValue: defaultParams.offsetX,
-      description: 'Horizontal offset of the graphics center.',
+      description: 'Horizontal offset of the graphics center',
     },
     {
       name: 'offsetY',
@@ -117,7 +117,7 @@ export const staticRadialGradientDef: ShaderDef = {
       min: -1,
       max: 1,
       defaultValue: defaultParams.offsetY,
-      description: 'Vertical offset of the graphics center.',
+      description: 'Vertical offset of the graphics center',
     },
   ],
 };
