@@ -16,9 +16,9 @@ export const waterDef: ShaderDef = {
       description: 'Background color.',
     },
     {
-      name: 'highlightColor',
+      name: 'colorHighlight',
       type: 'string',
-      defaultValue: defaultParams.highlightColor,
+      defaultValue: defaultParams.colorHighlight,
       isColor: true,
       description: 'Highlight color.',
     },
