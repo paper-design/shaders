@@ -5,12 +5,13 @@ import { useControls, button, folder } from 'leva';
 import { setParamsSafe, useResetLevaParams } from '@/helpers/use-reset-leva-params';
 import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
-import { DitheringType, DitheringTypes, ShaderFit, ShaderFitOptions } from '@paper-design/shaders';
+import { DitheringType, DitheringTypes, ShaderFit } from '@paper-design/shaders';
 import { levaImageButton } from '@/helpers/leva-image-button';
 import { useState, useEffect, useCallback } from 'react';
 import { toHsla } from '@/helpers/to-hsla';
 import { ShaderContainer } from '@/components/shader-container';
 import { ShaderDetails } from '@/components/shader-details';
+import { imageDitheringDef } from '@/shader-defs/image-dithering-def';
 
 /**
  * This example has controls added so you can play with settings in the example app
@@ -107,37 +108,7 @@ const ImageDitheringWithControls = () => {
       <div onClick={handleClick} className="py-3 text-center select-none">
         Click to change sample image
       </div>
-      <ShaderDetails
-        name="Image Dithering"
-        currentParams={params}
-        description="Dithering effect using a 3-color palette."
-        props={{
-          'colorBack, colorFront, colorHighlight': 'Colors used for the effect.',
-          'originalColors': 'Use the original colors of the image.',
-          'type': (
-            <>
-              <ul className="list-disc pl-4 [&_b]:font-semibold">
-                <li>
-                  <b>random</b>: Random dithering.
-                </li>
-                <li>
-                  <b>2x2</b>: 2x2 Bayer matrix.
-                </li>
-                <li>
-                  <b>4x4</b>: 4x4 Bayer matrix.
-                </li>
-                <li>
-                  <b>8x8</b>: 8x8 Bayer matrix.
-                </li>
-              </ul>
-            </>
-          ),
-          'pxSize': 'Pixel size relative to canvas resolution.',
-          'colorSteps': 'Number of colors to use (applies to both color modes).',
-          'scale': 'Overall pattern zoom.',
-          'fit': 'How the image fits the canvas.',
-        }}
-      />
+      <ShaderDetails shaderDef={imageDitheringDef} currentParams={params} />
     </div>
   );
 };

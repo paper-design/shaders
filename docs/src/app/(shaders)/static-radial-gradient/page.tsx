@@ -5,11 +5,12 @@ import { useControls, button, folder } from 'leva';
 import { setParamsSafe, useResetLevaParams } from '@/helpers/use-reset-leva-params';
 import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
-import { staticRadialGradientMeta, ShaderFit, ShaderFitOptions } from '@paper-design/shaders';
+import { staticRadialGradientMeta } from '@paper-design/shaders';
 import { useColors } from '@/helpers/use-colors';
 import { toHsla } from '@/helpers/to-hsla';
 import { ShaderContainer } from '@/components/shader-container';
 import { ShaderDetails } from '@/components/shader-details';
+import { staticRadialGradientDef } from '@/shader-defs/static-radial-gradient-def';
 
 /**
  * You can copy/paste this example to use StaticRadialGradient in your app
@@ -75,25 +76,7 @@ const StaticRadialGradientWithControls = () => {
       <ShaderContainer>
         <StaticRadialGradient {...params} colors={colors} />
       </ShaderContainer>
-      <ShaderDetails
-        name="Static Radial Gradient"
-        currentParams={{ ...params, colors }}
-        description="N-colors radial gradient."
-        props={{
-          'colorBack': 'Background color.',
-          'colors': 'Colors used for the effect.',
-          'radius': 'Circle radius.',
-          'focalDistance, focalAngle': 'Gradient center offset to the circle center.',
-          'falloff': 'Color points distribution (0 for linear gradient).',
-          'mixing': '0 for stepped gradient, 0.5 for smooth transitions, 1 for pronounced color points.',
-          'distortion, distortionShift, distortionFreq': 'Radial distortion (effective with distortion > 0).',
-          'grainMixer': 'Shape distortion.',
-          'grainOverlay': 'Post-processing blending.',
-          'offsetX, offsetY': 'Position of the center.',
-          'scale': 'Overall pattern zoom.',
-          'rotation': 'Overall pattern rotation angle.',
-        }}
-      />
+      <ShaderDetails shaderDef={staticRadialGradientDef} currentParams={{ ...params, colors }} />
     </>
   );
 };

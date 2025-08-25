@@ -11,6 +11,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { toHsla } from '@/helpers/to-hsla';
 import { ShaderContainer } from '@/components/shader-container';
 import { ShaderDetails } from '@/components/shader-details';
+import { paperTextureDef } from '@/shader-defs/paper-texture-def';
 
 /**
  * This example has controls added so you can play with settings in the example app
@@ -74,21 +75,21 @@ const PaperTextureWithControls = () => {
       ])
     );
     return {
-      colorBack: { value: toHsla(defaults.colorBack), order: 101 },
-      colorFront: { value: toHsla(defaults.colorFront), order: 100 },
+      colorBack: { value: toHsla(defaults.colorBack), order: 100 },
+      colorFront: { value: toHsla(defaults.colorFront), order: 101 },
       contrast: { value: defaults.contrast, min: 0, max: 1, order: 200 },
-      roughness: { value: defaults.roughness, min: 0, max: 1, order: 300 },
-      fiber: { value: defaults.fiber, min: 0, max: 1, order: 310 },
-      fiberScale: { value: defaults.fiberScale, min: 0.1, max: 2, order: 310 },
-      crumples: { value: defaults.crumples, min: 0, max: 1, order: 320 },
-      crumplesScale: { value: defaults.crumplesScale, min: 0.3, max: 3, order: 322 },
-      folds: { value: defaults.folds, min: 0, max: 1, order: 330 },
-      foldsNumber: { value: defaults.foldsNumber, min: 1, max: 15, step: 1, order: 331 },
-      blur: { value: defaults.blur, min: 0, max: 1, order: 340 },
-      drops: { value: defaults.drops, min: 0, max: 1, order: 350 },
-      seed: { value: defaults.seed, min: 0, max: 10, order: 351 },
-      scale: { value: defaults.scale, min: 0.5, max: 10, order: 101 },
-      fit: { value: defaults.fit, options: ['contain', 'cover'] as ShaderFit[], order: 100 },
+      roughness: { value: defaults.roughness, min: 0, max: 1, order: 201 },
+      fiber: { value: defaults.fiber, min: 0, max: 1, order: 202 },
+      fiberScale: { value: defaults.fiberScale, min: 0.1, max: 2, order: 203 },
+      crumples: { value: defaults.crumples, min: 0, max: 1, order: 204 },
+      crumplesScale: { value: defaults.crumplesScale, min: 0.3, max: 3, order: 205 },
+      folds: { value: defaults.folds, min: 0, max: 1, order: 206 },
+      foldsNumber: { value: defaults.foldsNumber, min: 1, max: 15, step: 1, order: 207 },
+      blur: { value: defaults.blur, min: 0, max: 1, order: 208 },
+      drops: { value: defaults.drops, min: 0, max: 1, order: 209 },
+      seed: { value: defaults.seed, min: 0, max: 10, order: 250 },
+      scale: { value: defaults.scale, min: 0.5, max: 10, order: 300 },
+      fit: { value: defaults.fit, options: ['contain', 'cover'] as ShaderFit[], order: 301 },
       Image: folder(
         {
           'Upload image': levaImageButton(setImageWithoutStatus),
@@ -114,26 +115,7 @@ const PaperTextureWithControls = () => {
       <div onClick={handleClick} className="py-3 text-center select-none">
         Click to change sample image
       </div>
-      <ShaderDetails
-        name="Paper Texture"
-        currentParams={params}
-        description="Mimicking paper texture with a combination of noises."
-        props={{
-          'colorFront, colorBack': 'Colors used for the effect.',
-          'contrast': 'Mixing front and back colors.',
-          'roughness': 'Pixel noise, related to canvas (not scalable).',
-          'fiber': 'Curly-shaped noise.',
-          'fiberScale': 'Curly-shaped noise scale.',
-          'crumples': 'Cell-based pattern.',
-          'crumplesScale': 'Cell-based pattern scale.',
-          'folds': 'Depth of the folds.',
-          'foldsNumber': 'Number of folds (15 max).',
-          'drops': 'Metaballs-like pattern.',
-          'seed': 'Applied to folds, crumples and dots.',
-          'blur': 'Big-scale noise mask applied to everything but roughness.',
-          'fit': 'How the image fits the canvas.',
-        }}
-      />
+      <ShaderDetails shaderDef={paperTextureDef} currentParams={params} />
     </div>
   );
 };

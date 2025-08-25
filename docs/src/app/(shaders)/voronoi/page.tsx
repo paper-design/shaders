@@ -4,12 +4,13 @@ import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
 import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import { setParamsSafe, useResetLevaParams } from '@/helpers/use-reset-leva-params';
 import { Voronoi, voronoiPresets } from '@paper-design/shaders-react';
-import { voronoiMeta, ShaderFitOptions, ShaderFit } from '@paper-design/shaders';
+import { voronoiMeta } from '@paper-design/shaders';
 import { useControls, button, folder } from 'leva';
 import { useColors } from '@/helpers/use-colors';
 import { toHsla } from '@/helpers/to-hsla';
 import { ShaderContainer } from '@/components/shader-container';
 import { ShaderDetails } from '@/components/shader-details';
+import { voronoiDef } from '@/shader-defs/voronoi-def';
 
 /**
  * You can copy/paste this example to use Voronoi in your app
@@ -71,22 +72,7 @@ const VoronoiWithControls = () => {
       <ShaderContainer>
         <Voronoi {...params} colors={colors} />
       </ShaderContainer>
-      <ShaderDetails
-        name="Voronoi"
-        currentParams={{ ...params, colors }}
-        description="Double-pass Voronoi pattern cell edges."
-        props={{
-          'colors': 'Colors used for the effect.',
-          'colorBack, colorGlow': 'Background and glow colors.',
-          'stepsPerColor': 'Discrete color steps between colors.',
-          'distortion': 'Max distance the cell center moves away from regular grid.',
-          'gap': 'Width of the stroke between the cells.',
-          'glow': 'Radial glow around each cell center.',
-          'scale': 'Overall pattern zoom.',
-          'rotation': 'Overall pattern rotation angle.',
-          'speed': 'Animation speed.',
-        }}
-      />
+      <ShaderDetails shaderDef={voronoiDef} currentParams={{ ...params, colors }} />
     </>
   );
 };

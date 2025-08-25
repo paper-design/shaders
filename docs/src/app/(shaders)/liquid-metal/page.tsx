@@ -1,14 +1,15 @@
 'use client';
 
-import { LiquidMetal, type LiquidMetalParams, liquidMetalPresets } from '@paper-design/shaders-react';
+import { LiquidMetal, liquidMetalPresets } from '@paper-design/shaders-react';
 import { useControls, button, folder } from 'leva';
 import { setParamsSafe, useResetLevaParams } from '@/helpers/use-reset-leva-params';
 import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
-import { LiquidMetalShapes, LiquidMetalShape, ShaderFit, ShaderFitOptions } from '@paper-design/shaders';
+import { LiquidMetalShapes, LiquidMetalShape } from '@paper-design/shaders';
 import { toHsla } from '@/helpers/to-hsla';
 import { ShaderContainer } from '@/components/shader-container';
 import { ShaderDetails } from '@/components/shader-details';
+import { liquidMetalDef } from '@/shader-defs/liquid-metal-def';
 
 /**
  * You can copy/paste this example to use LiquidMetal in your app
@@ -61,24 +62,7 @@ const LiquidMetalWithControls = () => {
       <ShaderContainer>
         <LiquidMetal {...params} />
       </ShaderContainer>
-      <ShaderDetails
-        name="Liquid Metal"
-        currentParams={params}
-        description="Liquid metal fluid motion applied over abstract shapes."
-        props={{
-          'colorBack, colorTint': 'Colors used for the effect.',
-          'repetition': 'Density of pattern stripes.',
-          'softness': 'Blur between stripes.',
-          'shiftRed, shiftBlue': 'Color dispersion between the stripes.',
-          'distortion': 'Pattern distortion on the whole canvas.',
-          'contour': 'Distortion power over the shape edges.',
-          'shape': 'Shape to use for the effect.',
-          'offsetX, offsetY': 'Position of the center.',
-          'scale': 'Overall pattern zoom.',
-          'rotation': 'Overall pattern rotation angle.',
-          'speed': 'Animation speed.',
-        }}
-      />
+      <ShaderDetails shaderDef={liquidMetalDef} currentParams={params} />
     </>
   );
 };

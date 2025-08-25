@@ -5,10 +5,11 @@ import { useControls, button, folder } from 'leva';
 import { setParamsSafe, useResetLevaParams } from '@/helpers/use-reset-leva-params';
 import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
-import { staticMeshGradientMeta, ShaderFit, ShaderFitOptions } from '@paper-design/shaders';
+import { staticMeshGradientMeta } from '@paper-design/shaders';
 import { useColors } from '@/helpers/use-colors';
 import { ShaderContainer } from '@/components/shader-container';
 import { ShaderDetails } from '@/components/shader-details';
+import { staticMeshGradientDef } from '@/shader-defs/static-mesh-gradient-def';
 
 /**
  * You can copy/paste this example to use StaticMeshGradient in your app
@@ -73,22 +74,7 @@ const StaticMeshGradientWithControls = () => {
       <ShaderContainer>
         <StaticMeshGradient {...params} colors={colors} />
       </ShaderContainer>
-      <ShaderDetails
-        name="Static Mesh Gradient"
-        currentParams={{ ...params, colors }}
-        description="A composition of N color spots (one per color)."
-        props={{
-          'colors': 'Colors used for the effect.',
-          'waveX, waveY': 'Power of sine wave distortion along X and Y axes.',
-          'waveXShift, waveYShift': 'Each wave phase offset.',
-          'mixing': '0 for stepped gradient, 0.5 for smooth transitions, 1 for pronounced color points.',
-          'grainMixer': 'Shape distortion.',
-          'grainOverlay': 'Post-processing blending.',
-          'offsetX, offsetY': 'Position of the center.',
-          'scale': 'Overall pattern zoom.',
-          'rotation': 'Overall pattern rotation angle.',
-        }}
-      />
+      <ShaderDetails shaderDef={staticMeshGradientDef} currentParams={{ ...params, colors }} />
     </>
   );
 };

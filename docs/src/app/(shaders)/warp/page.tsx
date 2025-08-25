@@ -5,10 +5,11 @@ import { useControls, button, folder } from 'leva';
 import { setParamsSafe, useResetLevaParams } from '@/helpers/use-reset-leva-params';
 import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
-import { warpMeta, ShaderFit, ShaderFitOptions, WarpPatterns } from '@paper-design/shaders';
+import { warpMeta, WarpPatterns } from '@paper-design/shaders';
 import { useColors } from '@/helpers/use-colors';
 import { ShaderContainer } from '@/components/shader-container';
 import { ShaderDetails } from '@/components/shader-details';
+import { warpDef } from '@/shader-defs/warp-def';
 
 /**
  * You can copy/paste this example to use Warp in your app
@@ -71,39 +72,7 @@ const WarpWithControls = () => {
       <ShaderContainer>
         <Warp {...params} colors={colors} />
       </ShaderContainer>
-      <ShaderDetails
-        name="Warp"
-        currentParams={{ ...params, colors }}
-        description="Animated color fields warped by noise and swirls, applied over base patterns (checks, stripes, or split edge). Blends up to 10 colors with adjustable distribution, softness, distortion, and swirl. Great for fluid, smoky, or marbled effects"
-        props={{
-          colors: 'Up to 10 colors in the gradient.',
-          proportion: 'Balance point for blending colors.',
-          softness: 'Smoothness of color transitions (0 = hard edge, 1 = soft blend).',
-          distortion: 'Strength of noise-based distortion.',
-          swirl: 'Strength of the swirl distortion.',
-          swirlIterations: 'Number of layered swirl passes.',
-          shape: (
-            <>
-              Base pattern type:
-              <ul className="list-disc pl-4 [&_b]:font-semibold">
-                <li>
-                  <b>checks</b>: Checkerboard.
-                </li>
-                <li>
-                  <b>stripes</b>: Even stripes.
-                </li>
-                <li>
-                  <b>edge</b>: Two halves split across the canvas.
-                </li>
-              </ul>
-            </>
-          ),
-          shapeScale: 'Zoom level of the base pattern.',
-          scale: 'Overall pattern zoom.',
-          rotation: 'Overall pattern rotation angle.',
-          speed: 'Animation speed.',
-        }}
-      />
+      <ShaderDetails shaderDef={warpDef} currentParams={{ ...params, colors }} />
     </>
   );
 };

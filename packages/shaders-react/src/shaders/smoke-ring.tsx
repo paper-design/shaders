@@ -32,19 +32,21 @@ export const defaultPreset: SmokeRingPreset = {
   },
 };
 
-export const poisonPreset: SmokeRingPreset = {
-  name: 'Poison',
+export const solarPreset: SmokeRingPreset = {
+  name: 'Solar',
   params: {
     ...defaultObjectSizing,
     speed: 1,
     frame: 0,
-    colorBack: '#003d00',
-    colors: ['#d4ff00', '#077d52', '#aaff00'],
-    noiseScale: 3.3,
+    colorBack: '#000000',
+    colors: ['#ffffff', '#ffca0a', '#fc6203', '#fc620366'],
+    noiseScale: 2,
     noiseIterations: 3,
     radius: 0.4,
-    thickness: 0.2,
+    thickness: 0.8,
     innerShape: 4,
+    scale: 2,
+    offsetY: 1,
   },
 };
 
@@ -54,7 +56,7 @@ export const linePreset: SmokeRingPreset = {
     ...defaultObjectSizing,
     frame: 0,
     colorBack: '#000000',
-    colors: ['#1fe8ff', '#4540a4'],
+    colors: ['#4540a4', '#1fe8ff'],
     noiseScale: 1.1,
     noiseIterations: 2,
     radius: 0.38,
@@ -69,7 +71,7 @@ export const cloudPreset: SmokeRingPreset = {
   params: {
     ...defaultObjectSizing,
     frame: 0,
-    colorBack: '#3b9bff',
+    colorBack: '#81ADEC',
     colors: ['#ffffff'],
     noiseScale: 3,
     noiseIterations: 10,
@@ -77,11 +79,11 @@ export const cloudPreset: SmokeRingPreset = {
     thickness: 0.65,
     innerShape: 0.85,
     speed: 0.5,
-    scale: 0.8,
+    scale: 2.5,
   },
 };
 
-export const smokeRingPresets: SmokeRingPreset[] = [defaultPreset, linePreset, poisonPreset, cloudPreset];
+export const smokeRingPresets: SmokeRingPreset[] = [defaultPreset, linePreset, solarPreset, cloudPreset];
 
 export const SmokeRing: React.FC<SmokeRingProps> = memo(function SmokeRingImpl({
   // Own props

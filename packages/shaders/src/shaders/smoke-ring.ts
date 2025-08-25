@@ -111,15 +111,14 @@ void main() {
 
   float ringShape = getRingShape(shape_uv);
 
-  float mixer = pow(ringShape, 3.) * (u_colorsCount - 1.);
-  vec4 gradient = u_colors[0];
+  float mixer = pow(ringShape, 2.) * (u_colorsCount - 1.);
+  vec4 gradient = u_colors[int(u_colorsCount) - 1];
   gradient.rgb *= gradient.a;
-  for (int i = 1; i < ${smokeRingMeta.maxColorCount}; i++) {
-      if (i >= int(u_colorsCount)) break;
-      float localT = clamp(mixer - float(i - 1), 0., 1.);
-      vec4 c = u_colors[i];
-      c.rgb *= c.a;
-      gradient = mix(gradient, c, localT);
+  for (int i = ${smokeRingMeta.maxColorCount} - 2; i >= 0; i--) {
+    float localT = clamp(mixer - float(int(u_colorsCount) - 1 - i - 1), 0., 1.);
+    vec4 c = u_colors[i];
+    c.rgb *= c.a;
+    gradient = mix(gradient, c, localT);
   }
 
   vec3 color = gradient.rgb * ringShape;

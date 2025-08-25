@@ -72,7 +72,7 @@ export const wormsPreset: PerlinNoisePreset = {
     scale: 0.9,
     speed: 0,
     frame: 0,
-    colorBack: '#ffffff',
+    colorBack: '#ffffff00',
     colorFront: '#595959',
     proportion: 0.5,
     softness: 0,

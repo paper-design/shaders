@@ -1,15 +1,16 @@
 'use client';
 
-import { Swirl, type SwirlParams, swirlPresets } from '@paper-design/shaders-react';
+import { Swirl, swirlPresets } from '@paper-design/shaders-react';
 import { useControls, button, folder } from 'leva';
 import { setParamsSafe, useResetLevaParams } from '@/helpers/use-reset-leva-params';
 import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
-import { ShaderFit, ShaderFitOptions, simplexNoiseMeta } from '@paper-design/shaders';
+import { simplexNoiseMeta } from '@paper-design/shaders';
 import { useColors } from '@/helpers/use-colors';
 import { toHsla } from '@/helpers/to-hsla';
 import { ShaderContainer } from '@/components/shader-container';
 import { ShaderDetails } from '@/components/shader-details';
+import { swirlDef } from '@/shader-defs/swirl-def';
 
 /**
  * You can copy/paste this example to use Swirl in your app
@@ -73,24 +74,7 @@ const SwirlWithControls = () => {
       <ShaderContainer>
         <Swirl {...params} colors={colors} />
       </ShaderContainer>
-      <ShaderDetails
-        name="Swirl"
-        currentParams={{ ...params, colors }}
-        description="Twisting radial bands."
-        props={{
-          'colorBack': 'Background color.',
-          'colors': 'Colors used for the effect.',
-          'bandCount': 'Number of sectors.',
-          'twist': 'Sectors twist intensity (0 = linear).',
-          'softness': 'Color transition sharpness (0 = hard edge, 1 = smooth fade).',
-          'noiseFrequency': 'Noise scale.',
-          'noise': 'Simplex noise distortion amount over the shape.',
-          'offsetX, offsetY': 'Position of the center.',
-          'scale': 'Overall pattern zoom.',
-          'rotation': 'Overall pattern rotation angle.',
-          'speed': 'Animation speed.',
-        }}
-      />
+      <ShaderDetails shaderDef={swirlDef} currentParams={{ ...params, colors }} />
     </>
   );
 };

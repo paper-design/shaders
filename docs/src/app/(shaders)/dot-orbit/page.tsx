@@ -3,13 +3,14 @@
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
 import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import { setParamsSafe, useResetLevaParams } from '@/helpers/use-reset-leva-params';
-import { dotOrbitMeta, ShaderFit, ShaderFitOptions } from '@paper-design/shaders';
+import { dotOrbitMeta } from '@paper-design/shaders';
 import { DotOrbit, dotOrbitPresets } from '@paper-design/shaders-react';
 import { useControls, button, folder } from 'leva';
 import { useColors } from '@/helpers/use-colors';
 import { toHsla } from '@/helpers/to-hsla';
 import { ShaderContainer } from '@/components/shader-container';
 import { ShaderDetails } from '@/components/shader-details';
+import { dotOrbitDef } from '@/shader-defs/dot-orbit-def';
 
 /**
  * You can copy/paste this example to use DotOrbit in your app
@@ -74,21 +75,7 @@ const DotOrbitWithControls = () => {
       <ShaderContainer>
         <DotOrbit {...params} colors={colors} />
       </ShaderContainer>
-      <ShaderDetails
-        name="Dot Orbit"
-        currentParams={{ ...params, colors }}
-        description="Animated multi-color dot grid where each dot orbits around its cell center. Supports up to 10 base dot colors with optional 2×, 3×, or 4× extended color steps, along with controls for dot size, variation, and orbit distance. Great for playful, dynamic backgrounds and UI textures"
-        props={{
-          colorBack: 'Background color.',
-          colors: 'Up to 10 base colors.',
-          stepsPerColor: 'Number of discrete steps between each 2 base colors.',
-          size: 'Dot radius relative to cell size.',
-          sizeRange: 'Randomizes each dot radius between 0 and size.',
-          spreading: 'Maximum orbit distance.',
-          scale: 'Overall pattern zoom.',
-          speed: 'Animation speed.',
-        }}
-      />
+      <ShaderDetails shaderDef={dotOrbitDef} currentParams={{ ...params, colors }} />
     </>
   );
 };

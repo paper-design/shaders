@@ -25,7 +25,7 @@ export const Header = () => {
   const isHomepage = pathname === '/';
 
   return (
-    <header className="bg-[#f7f6f0] pt-5">
+    <header className="pt-5">
       <div className="container mx-auto flex max-w-screen-xl flex-col gap-8 px-5">
         <div className="flex items-center justify-between">
           <Link
