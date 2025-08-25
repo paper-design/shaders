@@ -1,6 +1,6 @@
 'use client';
 
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { GithubIcon } from '@/icons';
 import { BackButton } from './back-button';
@@ -23,6 +23,7 @@ const Logo = () => {
 export const Header = () => {
   const pathname = usePathname();
   const isHomepage = pathname === '/';
+  const router = useRouter();
 
   return (
     <header className="pt-5">
@@ -32,6 +33,13 @@ export const Header = () => {
             className="flex items-center gap-3 font-[matter] text-2xl font-semibold"
             href={isHomepage ? 'https://paper.design/' : '/'}
             target={isHomepage ? '_blank' : '_self'}
+            onClick={(e) => {
+              // Scroll restoration when going back to the homepage
+              if (!isHomepage && window.history.length > 1) {
+                e.preventDefault();
+                router.back();
+              }
+            }}
           >
             {!isHomepage && <BackButton />}
             <div className="flex items-center gap-1">
