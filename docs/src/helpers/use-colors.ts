@@ -35,7 +35,6 @@ export function useColors({ defaultColors, maxColorCount }: UseColorsArgs) {
   }, [presetColors, setColorCount]);
 
   const [levaColors, setLevaColors] = useControls(() => {
-    console.log('useControls: leva colors');
     const colors: Record<string, { value: string }> = {};
 
     for (let i = 0; i < colorCount; i++) {
