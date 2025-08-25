@@ -6,14 +6,14 @@ const defaultParams = meshGradientPresets[0].params;
 export const meshGradientDef: ShaderDef = {
   name: 'Mesh Gradient',
   description:
-    'A composition of N color spots (one per color) with 2 types of distortions applied to the coordinate space.',
+    'A flowing interplay of color spots, moving along distinct trajectories and transformed by organic distortion',
   params: [
     {
       name: 'colors',
       type: 'string[]',
       defaultValue: [],
       isColor: true,
-      description: 'Colors used for the effect',
+      description: 'Up to 10 color spots',
     },
     {
       name: 'distortion',
@@ -21,7 +21,7 @@ export const meshGradientDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.distortion,
-      description: 'Warp distortion',
+      description: 'The power of organic noise distortion',
     },
     {
       name: 'swirl',
@@ -29,7 +29,7 @@ export const meshGradientDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.swirl,
-      description: 'Vortex distortion',
+      description: 'The power of vortex distortion',
     },
     {
       name: 'offsetX',

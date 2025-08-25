@@ -5,7 +5,7 @@ const defaultParams = spiralPresets[0].params;
 
 export const spiralDef: ShaderDef = {
   name: 'Spiral',
-  description: '2-color spiral shape.',
+  description: 'A single-colored animated spiral that morphs across a wide range of shapes - from crisp, thin-lined geometry to flowing whirlpool forms and wavy, abstract rings.',
   params: [
     {
       name: 'colorBack',
@@ -19,7 +19,7 @@ export const spiralDef: ShaderDef = {
       type: 'string',
       defaultValue: defaultParams.colorFront,
       isColor: true,
-      description: 'The spiral color',
+      description: 'The color of spiral shape',
     },
     {
       name: 'density',
@@ -27,7 +27,7 @@ export const spiralDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.density,
-      description: 'Spacing falloff to simulate radial perspective (0 = no perspective)',
+      description: 'Spacing falloff simulating perspective (0 = flat spiral)',
     },
     {
       name: 'distortion',
@@ -35,7 +35,7 @@ export const spiralDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.distortion,
-      description: 'Per-arch shift',
+      description: 'Power of shape distortion applied along the spiral',
     },
     {
       name: 'strokeWidth',
@@ -43,7 +43,7 @@ export const spiralDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.strokeWidth,
-      description: 'Thickness of stroke',
+      description: 'Thickness of spiral curve',
     },
     {
       name: 'strokeTaper',
@@ -51,7 +51,7 @@ export const spiralDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.strokeTaper,
-      description: 'Stroke loosing width further from center (0 for full visibility)',
+      description: 'how much the stroke is loosing width away from center (0 = full visibility)',
     },
     {
       name: 'strokeCap',
@@ -59,7 +59,7 @@ export const spiralDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.strokeCap,
-      description: 'Extra width at the center (no effect on strokeWidth = 0.5)',
+      description: 'Extra stroke width at the center (not effective with strokeWidth = 0.5)',
     },
     {
       name: 'noise',
@@ -67,7 +67,7 @@ export const spiralDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.noise,
-      description: 'Simplex noise distortion over the shape',
+      description: 'Noise distortion applied over the canvas (not effective with noiseFrequency = 0)',
     },
     {
       name: 'noiseFrequency',
@@ -75,7 +75,7 @@ export const spiralDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.noiseFrequency,
-      description: 'Simplex noise distortion over the shape',
+      description: 'Moise frequency (not effective with noise = 0)',
     },
     {
       name: 'softness',

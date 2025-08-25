@@ -6,7 +6,7 @@ const defaultParams = waterPresets[0].params;
 export const waterDef: ShaderDef = {
   name: 'Water',
   description:
-    'Mimicking water surface distortion with a combination of noises. Can be applied over the texture or just be used as an animated pattern.',
+    'Water-like surface distortion with natural caustic realism. Works as an image filter or animated texture without image',
   params: [
     {
       name: 'colorBack',

@@ -5,14 +5,14 @@ const defaultParams = colorPanelsPresets[0].params;
 
 export const colorPanelsDef: ShaderDef = {
   name: 'Color Panels',
-  description: 'Pseudo-3D panels rotating around a central axis.',
+  description: 'Glowing translucent 3D panels rotating around a central axis',
   params: [
     {
       name: 'colors',
       type: 'string[]',
       defaultValue: [],
       isColor: true,
-      description: 'Up to 7 colors',
+      description: 'Up to 7 colors used to color the panels',
     },
     {
       name: 'colorBack',

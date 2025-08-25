@@ -5,7 +5,7 @@ const defaultParams = grainGradientPresets[0].params;
 
 export const grainGradientDef: ShaderDef = {
   name: 'Grain Gradient',
-  description: 'Multi-color gradient with noise & grain over animated abstract shapes.',
+  description: 'Multi-color gradients with grainy, noise-textured distortion — available in 7 animated abstract forms',
   params: [
     {
       name: 'colorBack',
@@ -19,7 +19,7 @@ export const grainGradientDef: ShaderDef = {
       type: 'string[]',
       defaultValue: [],
       isColor: true,
-      description: 'Colors used for the effect',
+      description: 'Up to 7 colors used in the gradient',
     },
     {
       name: 'softness',
@@ -43,7 +43,7 @@ export const grainGradientDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.noise,
-      description: 'Grainy noise independent of softness',
+      description: 'Grainy noise overlay',
     },
     {
       name: 'shape',

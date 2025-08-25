@@ -5,7 +5,7 @@ const defaultParams = perlinNoisePresets[0].params;
 
 export const perlinNoiseDef: ShaderDef = {
   name: 'Perlin Noise',
-  description: '3D Perlin noise.',
+  description: 'Animated 3D Perlin noise with exposed controls',
   params: [
     {
       name: 'colorBack',
@@ -19,7 +19,7 @@ export const perlinNoiseDef: ShaderDef = {
       type: 'string',
       defaultValue: defaultParams.colorFront,
       isColor: true,
-      description: 'The foreground color',
+      description: 'Foreground color',
     },
     {
       name: 'proportion',
@@ -44,7 +44,7 @@ export const perlinNoiseDef: ShaderDef = {
       max: 8,
       step: 1,
       defaultValue: defaultParams.octaveCount,
-      description: 'More octaves give more detailed patterns',
+      description: 'Perlin noise octaves number (more octaves for more detailed patterns)',
     },
     {
       name: 'persistence',

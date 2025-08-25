@@ -5,7 +5,7 @@ const defaultParams = metaballsPresets[0].params;
 
 export const metaballsDef: ShaderDef = {
   name: 'Metaballs',
-  description: 'Gooey blobs that are moving around the center and merging into smooth organic shapes',
+  description: 'Up to 20 gooey blobs moving around the center and merging into smooth organic shapes',
   params: [
     {
       name: 'colorBack',
@@ -19,7 +19,7 @@ export const metaballsDef: ShaderDef = {
       type: 'string[]',
       defaultValue: [],
       isColor: true,
-      description: 'Colors used for the effect',
+      description: 'Up to 8 base colors',
     },
     {
       name: 'count',
@@ -27,7 +27,7 @@ export const metaballsDef: ShaderDef = {
       min: 1,
       max: 20,
       defaultValue: defaultParams.count,
-      description: 'Number of balls on the canvas',
+      description: 'Number of balls',
     },
     {
       name: 'size',
@@ -35,7 +35,7 @@ export const metaballsDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.size,
-      description: 'Base size of the balls',
+      description: 'The size of the balls',
     },
     {
       name: 'offsetX',

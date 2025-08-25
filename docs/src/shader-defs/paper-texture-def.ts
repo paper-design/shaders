@@ -5,15 +5,8 @@ const defaultParams = paperTexturePresets[0].params;
 
 export const paperTextureDef: ShaderDef = {
   name: 'Paper Texture',
-  description: 'Mimicking paper texture with a combination of noises.',
+  description: 'A static texture built from multiple noise layers, usable for a realistic paper and cardboard surfaces or generating abstract patterns. Can be used as a image filter or as a texture.',
   params: [
-    {
-      name: 'colorFront',
-      type: 'string',
-      defaultValue: defaultParams.colorFront,
-      isColor: true,
-      description: 'Colors used for the effect',
-    },
     {
       name: 'colorBack',
       type: 'string',
@@ -22,12 +15,19 @@ export const paperTextureDef: ShaderDef = {
       description: 'Background color',
     },
     {
+      name: 'colorFront',
+      type: 'string',
+      defaultValue: defaultParams.colorFront,
+      isColor: true,
+      description: 'The foreground color',
+    },
+    {
       name: 'contrast',
       type: 'number',
       min: 0,
       max: 1,
       defaultValue: defaultParams.contrast,
-      description: 'Mixing front and back colors',
+      description: 'Blending behavior (sharper vs. smoother color transitions)',
     },
     {
       name: 'roughness',
@@ -59,7 +59,7 @@ export const paperTextureDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.crumples,
-      description: 'Cell-based pattern',
+      description: 'Cell-based crumples pattern',
     },
     {
       name: 'crumplesScale',
@@ -67,7 +67,7 @@ export const paperTextureDef: ShaderDef = {
       min: 0.3,
       max: 3,
       defaultValue: defaultParams.crumplesScale,
-      description: 'Cell-based pattern scale',
+      description: 'Cell-based crumples pattern scale',
     },
     {
       name: 'folds',
@@ -100,15 +100,15 @@ export const paperTextureDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.drops,
-      description: 'Metaballs-like pattern',
+      description: 'The visibility of speckle pattern',
     },
     {
       name: 'seed',
       type: 'number',
       min: 0,
-      max: 10,
+      max: 1000,
       defaultValue: defaultParams.seed,
-      description: 'Applied to folds, crumples and dots',
+      description: 'Seed applied to folds, crumples and dots',
     },
     {
       name: 'scale',

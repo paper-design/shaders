@@ -5,7 +5,7 @@ const defaultParams = neuroNoisePresets[0].params;
 
 export const neuroNoiseDef: ShaderDef = {
   name: 'Neuro Noise',
-  description: 'Fractal-like structure made of several layers of sine arches.',
+  description: 'A glowing, web-like structure of fluid lines and soft intersections. Great for creating atmospheric, organic-yet-futuristic visuals',
   params: [
     {
       name: 'colorBack',
@@ -34,7 +34,7 @@ export const neuroNoiseDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.brightness,
-      description: 'Brightness',
+      description: 'Luminosity of the crossing points',
     },
     {
       name: 'contrast',
@@ -42,7 +42,7 @@ export const neuroNoiseDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.contrast,
-      description: 'Contrast',
+      description: 'Sharpness of the bright–dark transition',
     },
     {
       name: 'scale',

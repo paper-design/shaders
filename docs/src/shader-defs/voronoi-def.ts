@@ -5,7 +5,7 @@ const defaultParams = voronoiPresets[0].params;
 
 export const voronoiDef: ShaderDef = {
   name: 'Voronoi',
-  description: 'Anti-aliased animated Voronoi pattern with smooth edges and customizable cell edges.',
+  description: 'Anti-aliased animated Voronoi pattern with smooth and customizable edges.',
   params: [
     {
       name: 'colors',
@@ -36,7 +36,7 @@ export const voronoiDef: ShaderDef = {
       step: 1,
       defaultValue: defaultParams.stepsPerColor,
       description:
-        'Number of extra colors between base colors (1 = N color palette, 2 = 2×N palette, 3 = 3×N palette, etc)',
+          'Number of extra colors between base colors (1 = N color palette, 2 = 2×N color palette, 3 = 3×N color palette, etc)',
     },
     {
       name: 'distortion',
@@ -44,7 +44,7 @@ export const voronoiDef: ShaderDef = {
       min: 0,
       max: 0.5,
       defaultValue: defaultParams.distortion,
-      description: 'Strength of noise-driven displacement of cell centers.',
+      description: 'Strength of noise-driven displacement of cell centers',
     },
     {
       name: 'gap',

@@ -5,21 +5,21 @@ const defaultParams = wavesPresets[0].params;
 
 export const wavesDef: ShaderDef = {
   name: 'Waves',
-  description: 'Waveform pattern.',
+  description: 'Static line pattern configurable into textures ranging from sharp zigzags to smooth flowing waves',
   params: [
     {
       name: 'colorBack',
       type: 'string',
       defaultValue: defaultParams.colorBack,
       isColor: true,
-      description: 'Background color.',
+      description: 'Background color',
     },
     {
       name: 'colorFront',
       type: 'string',
       defaultValue: defaultParams.colorFront,
       isColor: true,
-      description: 'The lines color.',
+      description: 'The color of wavy lines',
     },
     {
       name: 'shape',
@@ -27,7 +27,7 @@ export const wavesDef: ShaderDef = {
       min: 0,
       max: 3,
       defaultValue: defaultParams.shape,
-      description: 'Wave shape (0 = zigzag, 1 = sine wave, 1 to 3 = irregular wave).',
+      description: 'Line shape control: zigzag at 0, sine at 1, irregular waves at 2. Intermediate values morph gradually between these shapes',
     },
     {
       name: 'amplitude',
@@ -35,7 +35,7 @@ export const wavesDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.amplitude,
-      description: 'Wave settings.',
+      description: 'Wave amplitude',
     },
     {
       name: 'frequency',
@@ -43,7 +43,7 @@ export const wavesDef: ShaderDef = {
       min: 0,
       max: 2,
       defaultValue: defaultParams.frequency,
-      description: 'Wave settings.',
+      description: 'Wave frequency',
     },
     {
       name: 'spacing',
@@ -51,7 +51,7 @@ export const wavesDef: ShaderDef = {
       min: 0,
       max: 2,
       defaultValue: defaultParams.spacing,
-      description: 'Wave settings.',
+      description: 'The space between every two wavy lines',
     },
     {
       name: 'proportion',
@@ -59,7 +59,7 @@ export const wavesDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.proportion,
-      description: 'Blend point between 2 colors (0.5 = equal distribution).',
+      description: 'Blend point between front and back colors (0.5 = equal distribution)',
     },
     {
       name: 'softness',
@@ -67,7 +67,7 @@ export const wavesDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.softness,
-      description: 'Color transition sharpness (0 = hard edge, 1 = smooth gradient).',
+      description: 'Color transition sharpness (0 = hard edge, 1 = smooth gradient)',
     },
     {
       name: 'scale',
@@ -75,7 +75,7 @@ export const wavesDef: ShaderDef = {
       min: 0.01,
       max: 4,
       defaultValue: defaultParams.scale,
-      description: 'Overall zoom level of the graphics.',
+      description: 'Overall zoom level of the graphics',
     },
     {
       name: 'rotation',
@@ -83,7 +83,7 @@ export const wavesDef: ShaderDef = {
       min: 0,
       max: 360,
       defaultValue: defaultParams.rotation,
-      description: 'Overall rotation angle of the graphics.',
+      description: 'Overall rotation angle of the graphics',
     },
   ],
 };

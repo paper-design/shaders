@@ -21,7 +21,7 @@ export const warpDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.proportion,
-      description: 'Balance point for blending colors',
+      description: 'Blend point between 2 colors (0.5 = equal distribution)',
     },
     {
       name: 'softness',
@@ -53,7 +53,7 @@ export const warpDef: ShaderDef = {
       min: 0,
       max: 20,
       defaultValue: defaultParams.swirlIterations,
-      description: 'Number of layered swirl passes',
+      description: 'Number of layered swirl passes (effective with swirl > 0)',
     },
     {
       name: 'shape',

@@ -5,7 +5,7 @@ const defaultParams = smokeRingPresets[0].params;
 
 export const smokeRingDef: ShaderDef = {
   name: 'Smoke Ring',
-  description: 'Radial gradient with layered FBM displacement, masked with ring shape.',
+  description: 'Radial multi-colored gradient shaped with layered noise for a natural, smoky aesthetic',
   params: [
     {
       name: 'colorBack',
@@ -19,7 +19,7 @@ export const smokeRingDef: ShaderDef = {
       type: 'string[]',
       defaultValue: [],
       isColor: true,
-      description: 'Colors used for the effect',
+      description: 'Up to 10 colors used for the gradient',
     },
     {
       name: 'thickness',
@@ -27,7 +27,7 @@ export const smokeRingDef: ShaderDef = {
       min: 0.01,
       max: 1,
       defaultValue: defaultParams.thickness,
-      description: 'Ring mask settings',
+      description: 'The thickness of the ring shape',
     },
     {
       name: 'radius',
@@ -35,7 +35,7 @@ export const smokeRingDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.radius,
-      description: 'Ring mask settings',
+      description: 'The radius of the ring shape',
     },
     {
       name: 'innerShape',
@@ -43,7 +43,7 @@ export const smokeRingDef: ShaderDef = {
       min: 0,
       max: 4,
       defaultValue: defaultParams.innerShape,
-      description: 'Ring mask settings',
+      description: 'The ring inner fill',
     },
     {
       name: 'noiseIterations',
@@ -52,7 +52,7 @@ export const smokeRingDef: ShaderDef = {
       max: 8,
       step: 1,
       defaultValue: defaultParams.noiseIterations,
-      description: 'How detailed the noise is (number of FBM layers and noise frequency)',
+      description: 'A number of noise layers, more layers gives more details',
     },
     {
       name: 'noiseScale',
@@ -60,7 +60,7 @@ export const smokeRingDef: ShaderDef = {
       min: 0.01,
       max: 5,
       defaultValue: defaultParams.noiseScale,
-      description: 'How detailed the noise is (number of FBM layers and noise frequency)',
+      description: 'The noise frequency',
     },
     {
       name: 'offsetX',
@@ -68,7 +68,7 @@ export const smokeRingDef: ShaderDef = {
       min: -1,
       max: 1,
       defaultValue: defaultParams.offsetX,
-      description: 'Horizontal offset of the graphics center',
+      description: 'Horizontal offset of the ring center',
     },
     {
       name: 'offsetY',
@@ -76,7 +76,7 @@ export const smokeRingDef: ShaderDef = {
       min: -1,
       max: 1,
       defaultValue: defaultParams.offsetY,
-      description: 'Vertical offset of the graphics center',
+      description: 'Vertical offset of the ring center',
     },
     {
       name: 'scale',
