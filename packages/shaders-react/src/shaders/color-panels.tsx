@@ -43,7 +43,7 @@ export const glassPreset: ColorPanelsPreset = {
     speed: 1,
     frame: 0,
     colors: ['#00cfff', '#ff2d55', '#34c759', '#af52de'],
-    colorBack: '#ffffff',
+    colorBack: '#ffffff00',
     angle1: 0.3,
     angle2: 0.3,
     length: 1,

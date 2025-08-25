@@ -75,7 +75,7 @@ const WaterWithControls = () => {
     );
     return {
       colorBack: { value: toHsla(defaults.colorBack), order: 100 },
-      highlightColor: { value: toHsla(defaults.highlightColor), order: 101 },
+      colorHighlight: { value: toHsla(defaults.colorHighlight), order: 101 },
       highlights: { value: defaults.highlights, min: 0, max: 1, order: 200 },
       layering: { value: defaults.layering, min: 0, max: 1, order: 201 },
       edges: { value: defaults.edges, min: 0, max: 1, order: 202 },

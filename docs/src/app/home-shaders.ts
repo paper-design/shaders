@@ -93,7 +93,7 @@ export const homeShaders = [
     url: '/grain-gradient',
     ShaderComponent: GrainGradient,
     image: grainGradientImg,
-    shaderConfig: { ...grainGradientPresets[0].params, frame: 7000, speed: 2 },
+    shaderConfig: { ...grainGradientPresets[0].params, frame: 7000, noise: 0.5, speed: 2 },
   },
   {
     name: 'mesh gradient',

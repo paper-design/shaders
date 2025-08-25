@@ -221,27 +221,29 @@ void main() {
   normalImage += .2 * fiber;
 
   vec3 lightPos = vec3(1., 2., 1.);
-  float res = clamp(dot(normalize(vec3(normal, 9.5 - 9. * pow(u_contrast, .1))), normalize(lightPos)), 0., 1.);
+  float res = dot(normalize(vec3(normal, 9.5 - 9. * pow(u_contrast, .1))), normalize(lightPos));
 
   vec3 fgColor = u_colorFront.rgb * u_colorFront.a;
   float fgOpacity = u_colorFront.a;
   vec3 bgColor = u_colorBack.rgb * u_colorBack.a;
   float bgOpacity = u_colorBack.a;
 
+  imageUV += .02 * normalImage;
+  float frame = getUvFrame(imageUV);
+
   vec3 color = fgColor * res;
   float opacity = fgOpacity * res;
 
   color += bgColor * (1. - opacity);
   opacity += bgOpacity * (1. - opacity);
+  opacity = mix(opacity, 1., frame);
   
   color -= .007 * drops;
 
-  imageUV += .02 * normalImage;
   vec4 image = texture(u_image, imageUV);
-  image.rgb += .5 * (res - .6);
+  image.rgb += .6 * pow(u_contrast, .4) * (res - .7);
 
-  float frame = getUvFrame(imageUV);
-  color.rgb = mix(color, image.rgb, min(.8 * frame, image.a));
+  color.rgb = mix(color, image.rgb, min(frame, image.a));
 
   fragColor = vec4(color, opacity);
 }
