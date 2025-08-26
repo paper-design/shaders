@@ -242,7 +242,8 @@ void main() {
   vec3 accumColor = mix(blendColor, addColor, bloom);
   float accumAlpha = mix(blendAlpha, addAlpha, bloom);
   accumAlpha = clamp(accumAlpha, 0., 1.);
-  accumAlpha *= border;
+  accumColor *= mix(border, 1., smoothstep(.01, .05, u_softness));
+  accumAlpha *= mix(border, 1., smoothstep(.01, .05, u_softness));
 
   vec3 bgColor = u_colorBack.rgb * u_colorBack.a;
   vec3 color = accumColor + (1. - accumAlpha) * bgColor;
