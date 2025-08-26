@@ -61,12 +61,11 @@ float beat(float time) {
   return clamp(first + 0.6 * second, 0.0, 1.0);
 }
 
-float roundedBox(vec2 uv, float distance) {
-  float thickness = .5 * u_thickness;
+float roundedBox(vec2 uv, float distance, float thickness) {
   float borderDistance = abs(distance);
-  float border = 1. - smoothstep(-u_softness * thickness - 2. * fwidth(borderDistance), .5 * u_softness * thickness, borderDistance - .5 * thickness);
+  float aa = 4. * fwidth(distance) + .002;
+  float border = 1. - smoothstep(-u_softness * thickness - aa, .5 * u_softness * thickness + aa, borderDistance - .5 * thickness);
   border = pow(border, 2.);
-
   return border;
 }
 
@@ -107,6 +106,7 @@ void main() {
   vec2 borderUV = v_responsiveUV;
 
   float angle = atan(borderUV.y, borderUV.x) / TWO_PI;
+  float thickness = .5 * pow(u_thickness, 1.);
 
   float pulse = u_pulse * beat(.18 * u_time);
 
@@ -120,7 +120,7 @@ void main() {
   float insideDistance = min(max(d.x, d.y), 0.0);
   float distance = outsideDistance + insideDistance;
 
-  float border = roundedBox(borderUV, distance);
+  float border = roundedBox(borderUV, distance, thickness);
 
   vec2 v0 = borderUV + halfSize;
   vec2 v1 = borderUV - vec2(-halfSize.x, halfSize.y);
@@ -186,7 +186,7 @@ void main() {
   vec3 addColor = vec3(0.);
   float addAlpha = 0.0;
 
-  float bloom = 4. * u_bloom;
+  float bloom = min(4. * u_bloom, 1.);
   float intensity = 1. + 4. * u_intensity;
 
   for (int colorIdx = 0; colorIdx < ${pulsingBorderMeta.maxColorCount}; colorIdx++) {
@@ -237,6 +237,7 @@ void main() {
   vec3 accumColor = mix(blendColor, addColor, bloom);
   float accumAlpha = mix(blendAlpha, addAlpha, bloom);
   accumAlpha = clamp(accumAlpha, 0., 1.);
+  accumAlpha *= border;
 
   vec3 bgColor = u_colorBack.rgb * u_colorBack.a;
   vec3 color = accumColor + (1. - accumAlpha) * bgColor;
