@@ -61,7 +61,8 @@ float beat(float time) {
   return clamp(first + 0.6 * second, 0.0, 1.0);
 }
 
-float roundedBox(vec2 uv, float distance, float thickness) {
+float roundedBox(vec2 uv, float distance) {
+  float thickness = .5 * u_thickness;
   float borderDistance = abs(distance);
   float aa = 4. * fwidth(distance) + .002;
   float border = 1. - smoothstep(-u_softness * thickness - aa, .5 * u_softness * thickness + aa, borderDistance - .5 * thickness);
@@ -106,21 +107,25 @@ void main() {
   vec2 borderUV = v_responsiveUV;
 
   float angle = atan(borderUV.y, borderUV.x) / TWO_PI;
-  float thickness = .5 * pow(u_thickness, 1.);
 
   float pulse = u_pulse * beat(.18 * u_time);
 
   float borderRatio = v_responsiveBoxGivenSize.x / v_responsiveBoxGivenSize.y;
-  borderUV.x *= borderRatio;
   vec2 halfSize = vec2(.5);
-  halfSize.x *= borderRatio;
+  if (borderRatio > 1.) {
+    borderUV.x *= borderRatio;
+    halfSize.x *= borderRatio;
+  } else {
+    borderUV.y /= borderRatio;
+    halfSize.y /= borderRatio;    
+  }
   float radius = min(.5 * u_roundness, halfSize.x);
   vec2 d = abs(borderUV) - halfSize + radius;
   float outsideDistance = length(max(d, 0.)) - radius;
   float insideDistance = min(max(d.x, d.y), 0.0);
   float distance = outsideDistance + insideDistance;
 
-  float border = roundedBox(borderUV, distance, thickness);
+  float border = roundedBox(borderUV, distance);
 
   vec2 v0 = borderUV + halfSize;
   vec2 v1 = borderUV - vec2(-halfSize.x, halfSize.y);
@@ -166,7 +171,7 @@ void main() {
   }
 
   cornerFade *= cornerFadeMask;
-  border += cornerFade;
+  border += .75 * cornerFade;
 
   vec2 smokeUV = .2 * u_smokeSize * v_patternUV;
   float smoke = clamp(3. * valueNoise(2.7 * smokeUV + .5 * t), 0., 1.);
