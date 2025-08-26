@@ -60,7 +60,7 @@ const PerlinNoiseWithControls = () => {
   return (
     <div className="page-container">
       <Header title={perlinNoiseDef.name} />
-      <PerlinNoise className="my-12 aspect-16/9" {...params} />
+      <PerlinNoise className="page-shader my-12" {...params} />
       <ShaderPageContent shaderDef={perlinNoiseDef} currentParams={params} />
     </div>
   );

@@ -184,7 +184,7 @@ export default function Page() {
   return (
     <div className="page-container">
       <Header title="Color demo: steps" />
-      <div className="mt-12 aspect-16/9" style={{ width: 'calc(100% - 300px)' }}>
+      <div className="page-shader mt-12" style={{ width: 'calc(100% - 300px)' }}>
         <GradientDemoSteps {...params} colors={colors} className="h-full" />
       </div>
     </div>

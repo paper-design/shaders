@@ -73,7 +73,7 @@ const DotOrbitWithControls = () => {
   return (
     <div className="page-container">
       <Header title={dotOrbitDef.name} />
-      <DotOrbit className="my-12 aspect-16/9" {...params} colors={colors} />
+      <DotOrbit className="page-shader my-12" {...params} colors={colors} />
       <ShaderPageContent shaderDef={dotOrbitDef} currentParams={{ ...params, colors }} />
     </div>
   );

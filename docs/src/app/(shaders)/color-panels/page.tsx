@@ -77,7 +77,7 @@ const ColorPanelsWithControls = () => {
   return (
     <div className="page-container">
       <Header title={colorPanelsDef.name} />
-      <ColorPanels className="my-12 aspect-16/9" {...params} colors={colors} />
+      <ColorPanels className="page-shader my-12" {...params} colors={colors} />
       <ShaderPageContent shaderDef={colorPanelsDef} currentParams={{ ...params, colors }} />
     </div>
   );

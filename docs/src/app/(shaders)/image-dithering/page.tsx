@@ -105,7 +105,7 @@ const ImageDitheringWithControls = () => {
       <Header title={imageDitheringDef.name} />
 
       <div className="my-12">
-        <ImageDithering className="my-4 aspect-16/9" onClick={handleClick} {...params} image={image || undefined} />
+        <ImageDithering className="page-shader my-4" onClick={handleClick} {...params} image={image || undefined} />
         <div onClick={handleClick} className="mx-auto w-fit text-base text-stone-600 select-none">
           Click to change the sample image
         </div>

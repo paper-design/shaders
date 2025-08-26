@@ -70,7 +70,7 @@ const VoronoiWithControls = () => {
   return (
     <div className="page-container">
       <Header title={voronoiDef.name} />
-      <Voronoi className="my-12 aspect-16/9" {...params} colors={colors} />
+      <Voronoi className="page-shader my-12" {...params} colors={colors} />
       <ShaderPageContent shaderDef={voronoiDef} currentParams={{ ...params, colors }} />
     </div>
   );

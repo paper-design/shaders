@@ -28,12 +28,12 @@ export default function Home() {
             className="font-mono text-3xl font-medium lowercase xs:text-4xl"
             style={{ fontFeatureSettings: '"ss02"' }}
           >
-            Paper Shaders
+            Paper<span className="mr-[-0.1em]"> </span>Shaders
           </h1>
           <p className="max-w-64 text-lg text-stone-600">ultra fast zero-dependency shaders for your designs</p>
         </div>
 
-        <div className="mx-auto mt-5 flex h-12 w-fit max-w-full items-center rounded-lg border bg-white font-mono text-nowrap text-stone-800">
+        <div className="mx-auto mt-5 flex h-12 w-fit max-w-full items-center rounded-lg border bg-white font-mono text-sm text-nowrap text-stone-800 sm:text-base">
           <div className="no-scrollbar flex h-full w-full items-center overflow-x-scroll overscroll-y-none px-4">
             npm i @paper-design/react-shaders
           </div>

@@ -67,7 +67,7 @@ const MeshGradientWithControls = () => {
   return (
     <div className="page-container">
       <Header title={meshGradientDef.name} />
-      <MeshGradient className="my-12 aspect-16/9" {...params} colors={colors} />
+      <MeshGradient className="page-shader my-12" {...params} colors={colors} />
       <ShaderPageContent shaderDef={meshGradientDef} currentParams={{ ...params, colors }} />
     </div>
   );

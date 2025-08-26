@@ -60,7 +60,7 @@ const LiquidMetalWithControls = () => {
   return (
     <div className="page-container">
       <Header title={liquidMetalDef.name} />
-      <LiquidMetal className="my-12 aspect-16/9" {...params} />
+      <LiquidMetal className="page-shader my-12" {...params} />
       <ShaderPageContent shaderDef={liquidMetalDef} currentParams={params} />
     </div>
   );

@@ -61,7 +61,7 @@ const WavesWithControls = () => {
   return (
     <div className="page-container">
       <Header title={wavesDef.name} />
-      <Waves className="my-12 aspect-16/9" {...params} />
+      <Waves className="page-shader my-12" {...params} />
       <ShaderPageContent shaderDef={wavesDef} currentParams={params} />
     </div>
   );

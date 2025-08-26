@@ -80,7 +80,7 @@ const SmokeRingWithControls = () => {
   return (
     <div className="page-container">
       <Header title={smokeRingDef.name} />
-      <SmokeRing className="my-12 aspect-16/9" {...params} colors={colors} />
+      <SmokeRing className="page-shader my-12" {...params} colors={colors} />
       <ShaderPageContent shaderDef={smokeRingDef} currentParams={{ ...params, colors }} />
     </div>
   );

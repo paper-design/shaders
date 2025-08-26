@@ -74,7 +74,7 @@ const StaticRadialGradientWithControls = () => {
   return (
     <div className="page-container">
       <Header title={staticRadialGradientDef.name} />
-      <StaticRadialGradient className="my-12 aspect-16/9" {...params} colors={colors} />
+      <StaticRadialGradient className="page-shader my-12" {...params} colors={colors} />
       <ShaderPageContent shaderDef={staticRadialGradientDef} currentParams={{ ...params, colors }} />
     </div>
   );

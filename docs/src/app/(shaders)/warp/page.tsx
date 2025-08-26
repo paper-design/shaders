@@ -70,7 +70,7 @@ const WarpWithControls = () => {
   return (
     <div className="page-container">
       <Header title={warpDef.name} />
-      <Warp className="my-12 aspect-16/9" {...params} colors={colors} />
+      <Warp className="page-shader my-12" {...params} colors={colors} />
       <ShaderPageContent shaderDef={warpDef} currentParams={{ ...params, colors }} />
     </div>
   );

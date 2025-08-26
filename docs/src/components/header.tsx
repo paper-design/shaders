@@ -12,29 +12,35 @@ interface HeaderProps {
 export const Header = ({ title }: HeaderProps) => {
   const router = useRouter();
   return (
-    <div className="relative flex w-full items-center justify-center pt-8">
-      <Link
-        href="/"
-        className="mr-auto font-mono text-xl lowercase select-none"
-        style={{ fontFeatureSettings: '"ss02"' }}
-        onClick={(event) => {
-          const prev = getPreviousPathname();
+    <div className="relative pt-8">
+      <div className="mb-4 flex w-full items-center justify-between">
+        <Link
+          href="/"
+          className="mr-auto font-mono text-xl lowercase select-none"
+          style={{ fontFeatureSettings: '"ss02"' }}
+          onClick={(event) => {
+            const prev = getPreviousPathname();
 
-          // Go back if the previous page was the homepage so that the browser can restore the scroll position
-          if (prev === '/') {
-            event.preventDefault();
-            router.back();
-          }
-        }}
-      >
-        <span className="relative top-[0.05em]">←</span> Paper Shaders
-      </Link>
+            // Go back if the previous page was the homepage so that the browser can restore the scroll position
+            if (prev === '/') {
+              event.preventDefault();
+              router.back();
+            }
+          }}
+        >
+          <span className="relative top-[0.05em]">←</span> Paper Shaders
+        </Link>
 
-      {title && <h1 className="absolute mb-1.5 text-3xl font-medium lowercase">{title}</h1>}
+        <Link href="https://github.com/paper-design/shaders" target="_blank" className="ml-auto hidden xs:flex">
+          <GithubIcon className="size-7" />
+        </Link>
+      </div>
 
-      <Link href="https://github.com/paper-design/shaders" target="_blank" className="ml-auto">
-        <GithubIcon className="size-7" />
-      </Link>
+      {title && (
+        <h1 className="top-6.5 left-1/2 -mt-1 text-3xl font-medium lowercase sm:text-4xl lg:absolute lg:-translate-x-1/2 lg:text-3xl">
+          {title}
+        </h1>
+      )}
     </div>
   );
 };

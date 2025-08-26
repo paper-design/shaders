@@ -72,7 +72,7 @@ const SwirlWithControls = () => {
   return (
     <div className="page-container">
       <Header title={swirlDef.name} />
-      <Swirl className="my-12 aspect-16/9" {...params} colors={colors} />
+      <Swirl className="page-shader my-12" {...params} colors={colors} />
       <ShaderPageContent shaderDef={swirlDef} currentParams={{ ...params, colors }} />
     </div>
   );

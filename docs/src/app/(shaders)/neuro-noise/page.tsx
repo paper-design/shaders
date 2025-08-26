@@ -54,7 +54,7 @@ const NeuroNoiseWithControls = () => {
   return (
     <div className="page-container">
       <Header title={neuroNoiseDef.name} />
-      <NeuroNoise className="my-12 aspect-16/9" {...params} />
+      <NeuroNoise className="page-shader my-12" {...params} />
       <ShaderPageContent shaderDef={neuroNoiseDef} currentParams={params} />
     </div>
   );

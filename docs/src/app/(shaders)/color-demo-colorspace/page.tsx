@@ -229,7 +229,7 @@ export default function Page() {
   return (
     <div className="page-container">
       <Header title="Color Demo: Colorspace" />
-      <div className="my-12 aspect-16/9">
+      <div className="page-shader my-12">
         <div className="flex h-full flex-col" style={{ width: 'calc(100% - 300px)' }}>
           <div className="relative h-1/3 w-full text-center">
             <span className="absolute top-0 left-0 w-full p-2 font-bold text-white">{`CSS OKLCH`}</span>

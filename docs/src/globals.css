@@ -16,13 +16,12 @@
   --ease-out-smooth: cubic-bezier(0.685, 0.89, 0.315, 0.995);
 }
 
-@layer utilities {
-  .no-scrollbar::-webkit-scrollbar {
+@utility no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
     display: none;
-  }
-  .no-scrollbar {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
   }
 }
 
@@ -91,5 +90,9 @@ body {
 }
 
 @utility page-container {
-  @apply mx-auto px-8 pb-32 md:px-12 lg:max-w-[1280px] lg:px-24;
+  @apply mx-auto px-6 pb-32 xs:px-8 md:px-12 lg:max-w-[1280px] lg:px-24;
+}
+
+@utility page-shader {
+  @apply aspect-square xs:aspect-4/3 sm:aspect-16/9;
 }

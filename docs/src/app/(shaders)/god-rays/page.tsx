@@ -74,7 +74,7 @@ const GodRaysWithControls = () => {
   return (
     <div className="page-container">
       <Header title={godRaysDef.name} />
-      <GodRays className="my-12 aspect-16/9" {...params} colors={colors} />
+      <GodRays className="page-shader my-12" {...params} colors={colors} />
       <ShaderPageContent shaderDef={godRaysDef} currentParams={{ ...params, colors }} />
     </div>
   );

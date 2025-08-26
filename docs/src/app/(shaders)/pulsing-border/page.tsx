@@ -82,7 +82,7 @@ const PulsingBorderWithControls = () => {
   return (
     <div className="page-container">
       <Header title={pulsingBorderDef.name} />
-      <PulsingBorder className="my-12 aspect-16/9" {...params} colors={colors} />
+      <PulsingBorder className="page-shader my-12" {...params} colors={colors} />
       <ShaderPageContent shaderDef={pulsingBorderDef} currentParams={{ ...params, colors }} />
     </div>
   );

@@ -65,11 +65,11 @@ export function ShaderPageContent({
         <div className="flex items-center gap-2">
           <h2 className="text-2xl font-medium">Installation</h2>
           <CopyButton
-            className="-mt-3.5 -mb-4 size-8 rounded-md transition-colors hover:bg-cream/60 active:bg-[#E9E8E0]"
+            className="-mt-3.5 -mb-4 size-8 rounded-md transition-colors squircle hover:bg-cream/60 active:bg-[#E9E8E0] supports-squircle:rounded-lg"
             text={installationCode}
           />
         </div>
-        <pre className="w-full overflow-x-auto rounded-2xl bg-cream/60 p-6 squircle supports-squircle:rounded-3xl">
+        <pre className="no-scrollbar w-full overflow-x-auto rounded-2xl bg-cream/60 p-6 squircle supports-squircle:rounded-3xl">
           {installationCode}
         </pre>
       </section>
@@ -78,7 +78,7 @@ export function ShaderPageContent({
         <div className="flex items-center gap-2">
           <h2 className="text-2xl font-medium">Code</h2>
           <CopyButton
-            className="-mt-3.5 -mb-4 size-8 rounded-md transition-colors hover:bg-cream/60 active:bg-[#E9E8E0]"
+            className="-mt-3.5 -mb-4 size-8 rounded-md transition-colors squircle hover:bg-cream/60 active:bg-[#E9E8E0] supports-squircle:rounded-lg"
             text={code}
           />
         </div>
@@ -92,7 +92,7 @@ export function ShaderPageContent({
       <section>
         <div className="flex flex-col gap-4">
           <h2 className="text-2xl font-medium">Props</h2>
-          <div className="overflow-x-auto rounded-lg bg-cream/60">
+          <div className="overflow-x-auto rounded-2xl bg-cream/60 squircle supports-squircle:rounded-3xl">
             <table className="w-full text-base">
               <thead>
                 <tr className="bg-[#E9E8E0]">
@@ -107,18 +107,21 @@ export function ShaderPageContent({
                 {shaderDef.params.map((param) => (
                   <tr key={param.name} className="border-[#e5e4db] not-last:border-b">
                     <td className="px-4 py-3 font-medium">{param.name}</td>
-                    <td className="px-4 py-3 text-stone-600">{param.description}</td>
+
+                    <td className="min-w-[240px] px-4 py-3 text-stone-600">{param.description}</td>
+
                     <td className="px-4 py-3 text-sm text-stone-600">
                       <code>{param.type}</code>
                     </td>
+
                     <td className="max-w-60 px-4 py-3 text-sm text-stone-600">
                       {param.options && param.options.length > 0 ? (
                         typeof param.options[0] === 'string' ? (
                           <div className="text-pretty">
                             {(param.options as string[]).map((option, index) => (
                               <span key={option} className={param.type === 'boolean' ? 'whitespace-nowrap' : ''}>
+                                {<span className="mx-1 text-stone-400"> | </span>}
                                 <code className="font-mono">{param.type === 'enum' ? `"${option}"` : option}</code>
-                                {index < param.options!.length - 1 && <span className="mx-1 text-stone-300"> | </span>}
                               </span>
                             ))}
                           </div>
