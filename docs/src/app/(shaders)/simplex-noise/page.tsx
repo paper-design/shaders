@@ -8,9 +8,9 @@ import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
 import { simplexNoiseMeta } from '@paper-design/shaders';
 import { useColors } from '@/helpers/use-colors';
-import { ShaderContainer } from '@/components/shader-container';
 import { ShaderPageContent } from '@/components/shader-page-content';
 import { simplexNoiseDef } from '@/shader-defs/simplex-noise-def';
+import { Header } from '@/components/header';
 
 /**
  * You can copy/paste this example to use SimplexNoise in your app
@@ -64,12 +64,11 @@ const SimplexNoiseWithControls = () => {
   cleanUpLevaParams(params);
 
   return (
-    <>
-      <ShaderContainer>
-        <SimplexNoise {...params} colors={colors} />
-      </ShaderContainer>
+    <div className="page-container">
+      <Header title={simplexNoiseDef.name} />
+      <SimplexNoise className="my-12 aspect-16/9" {...params} colors={colors} />
       <ShaderPageContent shaderDef={simplexNoiseDef} currentParams={{ ...params, colors }} />
-    </>
+    </div>
   );
 };
 

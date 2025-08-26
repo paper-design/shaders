@@ -19,11 +19,10 @@ export const defaultPreset: WaterPreset = {
   name: 'Default',
   params: {
     ...defaultObjectSizing,
-    // fit: 'cover',
-    scale: 0.9,
+    scale: 0.8,
     speed: 1,
     frame: 0,
-    colorBack: '#132a3a',
+    colorBack: '#999999',
     colorHighlight: '#ffffff',
     image: '/images/image-filters/0018.webp',
     highlights: 0.07,
@@ -43,7 +42,7 @@ export const abstractPreset: WaterPreset = {
     scale: 3,
     speed: 1,
     frame: 0,
-    colorBack: '#ffffff',
+    colorBack: '#999999',
     colorHighlight: '#ffffff',
     image: '/images/image-filters/0018.webp',
     highlights: 0,
@@ -63,7 +62,7 @@ export const streamingPreset: WaterPreset = {
     scale: 0.4,
     speed: 2,
     frame: 0,
-    colorBack: '#ffffff00',
+    colorBack: '#999999',
     colorHighlight: '#ffffff',
     image: '/images/image-filters/0018.webp',
     highlights: 0,
@@ -76,14 +75,14 @@ export const streamingPreset: WaterPreset = {
 };
 
 export const slowMoPreset: WaterPreset = {
-  name: 'Slow Mo',
+  name: 'Slow-mo',
   params: {
     ...defaultObjectSizing,
     fit: 'cover',
     scale: 1,
     speed: 0.1,
     frame: 0,
-    colorBack: '#ffffff00',
+    colorBack: '#999999',
     colorHighlight: '#ffffff',
     image: '/images/image-filters/0018.webp',
     highlights: 0.4,

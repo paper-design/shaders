@@ -7,9 +7,9 @@ import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
 import { LiquidMetalShapes, LiquidMetalShape } from '@paper-design/shaders';
 import { toHsla } from '@/helpers/to-hsla';
-import { ShaderContainer } from '@/components/shader-container';
 import { ShaderPageContent } from '@/components/shader-page-content';
 import { liquidMetalDef } from '@/shader-defs/liquid-metal-def';
+import { Header } from '@/components/header';
 
 /**
  * You can copy/paste this example to use LiquidMetal in your app
@@ -58,12 +58,11 @@ const LiquidMetalWithControls = () => {
   cleanUpLevaParams(params);
 
   return (
-    <>
-      <ShaderContainer>
-        <LiquidMetal {...params} />
-      </ShaderContainer>
+    <div className="page-container">
+      <Header title={liquidMetalDef.name} />
+      <LiquidMetal className="my-12 aspect-16/9" {...params} />
       <ShaderPageContent shaderDef={liquidMetalDef} currentParams={params} />
-    </>
+    </div>
   );
 };
 

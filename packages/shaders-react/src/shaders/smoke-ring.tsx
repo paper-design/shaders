@@ -29,6 +29,7 @@ export const defaultPreset: SmokeRingPreset = {
     radius: 0.25,
     thickness: 0.65,
     innerShape: 0.7,
+    scale: 0.8,
   },
 };
 

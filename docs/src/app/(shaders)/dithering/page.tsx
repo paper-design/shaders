@@ -8,9 +8,9 @@ import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
 import { DitheringShape, DitheringShapes, DitheringType, DitheringTypes } from '@paper-design/shaders';
 import { toHsla } from '@/helpers/to-hsla';
-import { ShaderContainer } from '@/components/shader-container';
 import { ShaderPageContent } from '@/components/shader-page-content';
 import { ditheringDef } from '@/shader-defs/dithering-def';
+import { Header } from '@/components/header';
 
 /**
  * You can copy/paste this example to use Dithering in your app
@@ -55,12 +55,11 @@ const DitheringWithControls = () => {
   cleanUpLevaParams(params);
 
   return (
-    <>
-      <ShaderContainer>
-        <Dithering {...params} />
-      </ShaderContainer>
+    <div className="page-container">
+      <Header title={ditheringDef.name} />
+      <Dithering className="my-12 aspect-16/9" {...params} />
       <ShaderPageContent shaderDef={ditheringDef} currentParams={params} />
-    </>
+    </div>
   );
 };
 

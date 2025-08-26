@@ -9,9 +9,9 @@ import { ShaderFit } from '@paper-design/shaders';
 import { levaImageButton, levaDeleteImageButton } from '@/helpers/leva-image-button';
 import { useState, useEffect, useCallback } from 'react';
 import { toHsla } from '@/helpers/to-hsla';
-import { ShaderContainer } from '@/components/shader-container';
 import { ShaderPageContent } from '@/components/shader-page-content';
 import { paperTextureDef } from '@/shader-defs/paper-texture-def';
+import { Header } from '@/components/header';
 
 /**
  * This example has controls added so you can play with settings in the example app
@@ -19,31 +19,31 @@ import { paperTextureDef } from '@/shader-defs/paper-texture-def';
 
 const { worldWidth, worldHeight, ...defaults } = paperTexturePresets[0].params;
 
+const imageFiles = [
+  '001.webp',
+  '002.webp',
+  '003.webp',
+  '004.webp',
+  '005.webp',
+  '006.webp',
+  '007.webp',
+  '008.webp',
+  '009.webp',
+  '0010.webp',
+  '0011.webp',
+  '0012.webp',
+  '0013.webp',
+  '0014.webp',
+  '0015.webp',
+  '0016.webp',
+  '0017.webp',
+  '0018.webp',
+] as const;
+
 const PaperTextureWithControls = () => {
   const [imageIdx, setImageIdx] = useState(-1);
   const [image, setImage] = useState<HTMLImageElement | undefined>(undefined);
   const [status, setStatus] = useState('Click to load an image');
-
-  const imageFiles = [
-    '001.webp',
-    '002.webp',
-    '003.webp',
-    '004.webp',
-    '005.webp',
-    '006.webp',
-    '007.webp',
-    '008.webp',
-    '009.webp',
-    '0010.webp',
-    '0011.webp',
-    '0012.webp',
-    '0013.webp',
-    '0014.webp',
-    '0015.webp',
-    '0016.webp',
-    '0017.webp',
-    '0018.webp',
-  ] as const;
 
   const fileName = imageIdx >= 0 ? imageFiles[imageIdx] : null;
 
@@ -108,10 +108,9 @@ const PaperTextureWithControls = () => {
   cleanUpLevaParams(params);
 
   return (
-    <div>
-      <ShaderContainer>
-        <PaperTexture onClick={handleClick} {...params} image={image || undefined} />
-      </ShaderContainer>
+    <div className="page-container">
+      <Header title={paperTextureDef.name} />
+      <PaperTexture className="my-12 aspect-16/9" onClick={handleClick} {...params} image={image || undefined} />
       <div onClick={handleClick} className="py-3 text-center select-none">
         Click to change sample image
       </div>

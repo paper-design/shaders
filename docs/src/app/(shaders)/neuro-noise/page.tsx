@@ -6,9 +6,9 @@ import { setParamsSafe, useResetLevaParams } from '@/helpers/use-reset-leva-para
 import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
 import { toHsla } from '@/helpers/to-hsla';
-import { ShaderContainer } from '@/components/shader-container';
 import { ShaderPageContent } from '@/components/shader-page-content';
 import { neuroNoiseDef } from '@/shader-defs/neuro-noise-def';
+import { Header } from '@/components/header';
 
 /**
  * You can copy/paste this example to use NeuroNoise in your app
@@ -52,12 +52,11 @@ const NeuroNoiseWithControls = () => {
   cleanUpLevaParams(params);
 
   return (
-    <>
-      <ShaderContainer>
-        <NeuroNoise {...params} />
-      </ShaderContainer>
+    <div className="page-container">
+      <Header title={neuroNoiseDef.name} />
+      <NeuroNoise className="my-12 aspect-16/9" {...params} />
       <ShaderPageContent shaderDef={neuroNoiseDef} currentParams={params} />
-    </>
+    </div>
   );
 };
 

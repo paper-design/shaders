@@ -8,9 +8,9 @@ import { godRaysMeta } from '@paper-design/shaders';
 import { useControls, button, folder } from 'leva';
 import { useColors } from '@/helpers/use-colors';
 import { toHsla } from '@/helpers/to-hsla';
-import { ShaderContainer } from '@/components/shader-container';
 import { ShaderPageContent } from '@/components/shader-page-content';
 import { godRaysDef } from '@/shader-defs/god-rays-def';
+import { Header } from '@/components/header';
 
 /**
  * You can copy/paste this example to use GodRays in your app
@@ -72,12 +72,11 @@ const GodRaysWithControls = () => {
   cleanUpLevaParams(params);
 
   return (
-    <>
-      <ShaderContainer>
-        <GodRays {...params} colors={colors} />
-      </ShaderContainer>
+    <div className="page-container">
+      <Header title={godRaysDef.name} />
+      <GodRays className="my-12 aspect-16/9" {...params} colors={colors} />
       <ShaderPageContent shaderDef={godRaysDef} currentParams={{ ...params, colors }} />
-    </>
+    </div>
   );
 };
 

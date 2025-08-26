@@ -9,7 +9,7 @@ import { memo } from 'react';
 import { ShaderMount, type ShaderComponentProps } from '@paper-design/shaders-react';
 import { getShaderColorFromString, type ShaderPreset } from '@paper-design/shaders';
 import { useColors } from '@/helpers/use-colors';
-import { ShaderContainer } from '@/components/shader-container';
+import { Header } from '@/components/header';
 
 type vec4 = [number, number, number, number];
 const gradientDemoMixerMaxColorCount = 10;
@@ -67,9 +67,9 @@ void main() {
   for (int i = 1; i < ${gradientDemoMixerMaxColorCount}; i++) {
       if (i >= int(u_colorsCount)) break;
       float localT = clamp(mixer - float(i - 1), 0.0, 1.0);
-      
+
       if (u_test == 0.) {
-      
+
       } else if (u_test == 1.) {
         localT = smoothstep(.5 - .5 * u_softness, .5 + .5 * u_softness, localT);
       } else if (u_test == 2.) {
@@ -78,7 +78,7 @@ void main() {
         localT = smoothstep(0., 1., localT);
         localT = 1. / (1. + exp(-1. / (pow(u_softness, 4.) + 1e-3) * (localT - .5)));
       }
-      
+
 
       gradient = mix(gradient, u_colors[i].rgb, localT);
   }
@@ -205,11 +205,14 @@ export default function Page() {
   };
 
   return (
-    <ShaderContainer>
-      <div className="relative flex flex-col" style={{ width: 'calc(100% - 300px)' }}>
-        <div className="absolute top-1/3 left-0 p-2 font-bold whitespace-pre text-white">{getBlending()}</div>
-        <GradientDemoMixer {...params} colors={colors} className="h-full" />
+    <div className="page-container">
+      <Header title="Color Demo: Softness" />
+      <div className="my-12 aspect-16/9">
+        <div className="relative flex h-full flex-col" style={{ width: 'calc(100% - 300px)' }}>
+          <div className="absolute top-1/3 left-0 p-2 font-bold whitespace-pre text-white">{getBlending()}</div>
+          <GradientDemoMixer {...params} colors={colors} className="h-full" />
+        </div>
       </div>
-    </ShaderContainer>
+    </div>
   );
 }

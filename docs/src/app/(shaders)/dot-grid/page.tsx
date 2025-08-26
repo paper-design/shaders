@@ -7,9 +7,9 @@ import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import { DotGridShape, DotGridShapes } from '@paper-design/shaders';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
 import { toHsla } from '@/helpers/to-hsla';
-import { ShaderContainer } from '@/components/shader-container';
 import { ShaderPageContent } from '@/components/shader-page-content';
 import { dotGridDef } from '@/shader-defs/dot-grid-def';
+import { Header } from '@/components/header';
 
 /**
  * You can copy/paste this example to use DotGrid in your app
@@ -65,12 +65,11 @@ const DotGridWithControls = () => {
   cleanUpLevaParams(params);
 
   return (
-    <>
-      <ShaderContainer>
-        <DotGrid {...params} />
-      </ShaderContainer>
+    <div className="page-container">
+      <Header title={dotGridDef.name} />
+      <DotGrid className="my-12 aspect-16/9" {...params} />
       <ShaderPageContent shaderDef={dotGridDef} currentParams={params} />
-    </>
+    </div>
   );
 };
 

@@ -8,9 +8,9 @@ import { voronoiMeta } from '@paper-design/shaders';
 import { useControls, button, folder } from 'leva';
 import { useColors } from '@/helpers/use-colors';
 import { toHsla } from '@/helpers/to-hsla';
-import { ShaderContainer } from '@/components/shader-container';
 import { ShaderPageContent } from '@/components/shader-page-content';
 import { voronoiDef } from '@/shader-defs/voronoi-def';
+import { Header } from '@/components/header';
 
 /**
  * You can copy/paste this example to use Voronoi in your app
@@ -68,12 +68,11 @@ const VoronoiWithControls = () => {
   cleanUpLevaParams(params);
 
   return (
-    <>
-      <ShaderContainer>
-        <Voronoi {...params} colors={colors} />
-      </ShaderContainer>
+    <div className="page-container">
+      <Header title={voronoiDef.name} />
+      <Voronoi className="my-12 aspect-16/9" {...params} colors={colors} />
       <ShaderPageContent shaderDef={voronoiDef} currentParams={{ ...params, colors }} />
-    </>
+    </div>
   );
 };
 

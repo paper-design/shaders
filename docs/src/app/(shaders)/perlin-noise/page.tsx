@@ -6,9 +6,10 @@ import { setParamsSafe, useResetLevaParams } from '@/helpers/use-reset-leva-para
 import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
 import { toHsla } from '@/helpers/to-hsla';
-import { ShaderContainer } from '@/components/shader-container';
 import { ShaderPageContent } from '@/components/shader-page-content';
 import { perlinNoiseDef } from '@/shader-defs/perlin-noise-def';
+import { Header } from '@/components/header';
+
 /**
  * You can copy/paste this example to use PerlinNoise in your app
  */
@@ -57,12 +58,11 @@ const PerlinNoiseWithControls = () => {
   cleanUpLevaParams(params);
 
   return (
-    <>
-      <ShaderContainer>
-        <PerlinNoise {...params} />
-      </ShaderContainer>
+    <div className="page-container">
+      <Header title={perlinNoiseDef.name} />
+      <PerlinNoise className="my-12 aspect-16/9" {...params} />
       <ShaderPageContent shaderDef={perlinNoiseDef} currentParams={params} />
-    </>
+    </div>
   );
 };
 

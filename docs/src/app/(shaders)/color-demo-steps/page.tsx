@@ -9,7 +9,7 @@ import { memo } from 'react';
 import { ShaderMount, type ShaderComponentProps } from '@paper-design/shaders-react';
 import { getShaderColorFromString, type ShaderPreset } from '@paper-design/shaders';
 import { useColors } from '@/helpers/use-colors';
-import { ShaderContainer } from '@/components/shader-container';
+import { Header } from '@/components/header';
 
 type vec4 = [number, number, number, number];
 const gradientDemoStepsMaxColorCount = 10;
@@ -51,10 +51,10 @@ out vec4 fragColor;
 float steppedSmooth(float t, float steps, float softness) {
     float stepT = floor(t * steps) / steps;
     float f = t * steps - floor(t * steps);
-    
+
     float fw = 0.;
     float smoothed = smoothstep(.5 - softness * .5 - fw, .5 + softness * .5 + fw, f);
-        
+
     return stepT + smoothed / steps;
 }
 
@@ -79,7 +79,7 @@ void main() {
       localT = steppedSmooth(localT, steps, u_softness);
       gradient = mix(gradient, u_colors[i].rgb, localT);
   }
-  
+
   if (u_extraSides == true) {
    if ((mixer < 0.) || (mixer > (u_colorsCount - 1.))) {
      float localT = mixer + 1.;
@@ -182,10 +182,11 @@ export default function Page() {
   cleanUpLevaParams(params);
 
   return (
-    <ShaderContainer>
-      <div className="relative flex flex-col" style={{ width: 'calc(100% - 300px)' }}>
+    <div className="page-container">
+      <Header title="Color demo: steps" />
+      <div className="mt-12 aspect-16/9" style={{ width: 'calc(100% - 300px)' }}>
         <GradientDemoSteps {...params} colors={colors} className="h-full" />
       </div>
-    </ShaderContainer>
+    </div>
   );
 }

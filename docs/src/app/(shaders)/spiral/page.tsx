@@ -6,9 +6,9 @@ import { setParamsSafe, useResetLevaParams } from '@/helpers/use-reset-leva-para
 import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
 import { toHsla } from '@/helpers/to-hsla';
-import { ShaderContainer } from '@/components/shader-container';
 import { ShaderPageContent } from '@/components/shader-page-content';
 import { spiralDef } from '@/shader-defs/spiral-def';
+import { Header } from '@/components/header';
 
 /**
  * You can copy/paste this example to use Spiral in your app
@@ -69,12 +69,11 @@ const SpiralWithControls = () => {
   cleanUpLevaParams(params);
 
   return (
-    <>
-      <ShaderContainer>
-        <Spiral {...params} />
-      </ShaderContainer>
+    <div className="page-container">
+      <Header title={spiralDef.name} />
+      <Spiral className="my-12 aspect-16/9" {...params} />
       <ShaderPageContent shaderDef={spiralDef} currentParams={params} />
-    </>
+    </div>
   );
 };
 

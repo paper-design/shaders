@@ -9,14 +9,13 @@ import { GlassGridShape, GlassGridShapes, GlassDistortionShape, GlassDistortionS
 import { ShaderFit } from '@paper-design/shaders';
 import { levaImageButton } from '@/helpers/leva-image-button';
 import { useState, useEffect, useCallback } from 'react';
-import { ShaderContainer } from '@/components/shader-container';
 import { ShaderPageContent } from '@/components/shader-page-content';
 import { flutedGlassDef } from '@/shader-defs/fluted-glass-def';
+import { Header } from '@/components/header';
 
 /**
  * This example has controls added so you can play with settings in the example app
  */
-
 const { worldWidth, worldHeight, ...defaults } = flutedGlassPresets[0].params;
 
 const FlutedGlassWithControls = () => {
@@ -114,10 +113,14 @@ const FlutedGlassWithControls = () => {
   cleanUpLevaParams(params);
 
   return (
-    <div>
-      <ShaderContainer>
-        <FlutedGlass onClick={handleClick} {...params} image={image || undefined} />
-      </ShaderContainer>
+    <div className="page-container">
+      <Header title={flutedGlassDef.name} />
+      <FlutedGlass
+        className="my-12 aspect-16/9 bg-[#999]"
+        onClick={handleClick}
+        {...params}
+        image={image || undefined}
+      />
       <div onClick={handleClick} className="py-3 text-center select-none">
         Click to change sample image
       </div>

@@ -8,9 +8,9 @@ import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
 import { staticRadialGradientMeta } from '@paper-design/shaders';
 import { useColors } from '@/helpers/use-colors';
 import { toHsla } from '@/helpers/to-hsla';
-import { ShaderContainer } from '@/components/shader-container';
 import { ShaderPageContent } from '@/components/shader-page-content';
 import { staticRadialGradientDef } from '@/shader-defs/static-radial-gradient-def';
+import { Header } from '@/components/header';
 
 /**
  * You can copy/paste this example to use StaticRadialGradient in your app
@@ -72,12 +72,11 @@ const StaticRadialGradientWithControls = () => {
   cleanUpLevaParams(params);
 
   return (
-    <>
-      <ShaderContainer>
-        <StaticRadialGradient {...params} colors={colors} />
-      </ShaderContainer>
+    <div className="page-container">
+      <Header title={staticRadialGradientDef.name} />
+      <StaticRadialGradient className="my-12 aspect-16/9" {...params} colors={colors} />
       <ShaderPageContent shaderDef={staticRadialGradientDef} currentParams={{ ...params, colors }} />
-    </>
+    </div>
   );
 };
 

@@ -20,7 +20,7 @@ export const defaultPreset: PaperTexturePreset = {
   name: 'Default',
   params: {
     ...defaultObjectSizing,
-    // fit: 'cover',
+    fit: 'cover',
     scale: 0.6,
     speed: 0,
     frame: 0,
@@ -45,6 +45,7 @@ export const abstractPreset: PaperTexturePreset = {
   name: 'Abstract',
   params: {
     ...defaultObjectSizing,
+    fit: 'cover',
     speed: 0,
     frame: 0,
     scale: 0.6,
@@ -69,10 +70,11 @@ export const cardboardPreset: PaperTexturePreset = {
   name: 'Cardboard',
   params: {
     ...defaultObjectSizing,
+    fit: 'cover',
     speed: 0,
     frame: 0,
     scale: 0.6,
-    colorFront: '#c98e26',
+    colorFront: '#938f85',
     colorBack: '#573b0a',
     image: '/images/image-filters/0018.webp',
     contrast: 0.4,
@@ -98,7 +100,7 @@ export const detailsPreset: PaperTexturePreset = {
     fit: 'cover',
     scale: 3,
     colorFront: '#00000000',
-    colorBack: '#ffffff',
+    colorBack: '#00000000',
     image: '/images/image-filters/0018.webp',
     contrast: 0,
     roughness: 1,

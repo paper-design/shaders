@@ -8,9 +8,9 @@ import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
 import { simplexNoiseMeta } from '@paper-design/shaders';
 import { useColors } from '@/helpers/use-colors';
 import { toHsla } from '@/helpers/to-hsla';
-import { ShaderContainer } from '@/components/shader-container';
 import { ShaderPageContent } from '@/components/shader-page-content';
 import { swirlDef } from '@/shader-defs/swirl-def';
+import { Header } from '@/components/header';
 
 /**
  * You can copy/paste this example to use Swirl in your app
@@ -70,12 +70,11 @@ const SwirlWithControls = () => {
   cleanUpLevaParams(params);
 
   return (
-    <>
-      <ShaderContainer>
-        <Swirl {...params} colors={colors} />
-      </ShaderContainer>
+    <div className="page-container">
+      <Header title={swirlDef.name} />
+      <Swirl className="my-12 aspect-16/9" {...params} colors={colors} />
       <ShaderPageContent shaderDef={swirlDef} currentParams={{ ...params, colors }} />
-    </>
+    </div>
   );
 };
 

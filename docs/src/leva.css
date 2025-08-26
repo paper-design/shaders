@@ -6,7 +6,7 @@
   --leva-colors-elevation1: #e0e0d9; /* bg color of the root panel (main title bar) */
   --leva-colors-elevation2: #f6f5ee; /* bg color of the rows (main panel color) */
   --leva-colors-elevation3: #e0e0d9; /* bg color of the inputs */
-  --leva-colors-accent1: #989b96;
+  --leva-colors-accent1: #999;
   --leva-colors-accent2: #555551;
   --leva-colors-accent3: #666662;
   --leva-colors-highlight1: #555551;
@@ -34,7 +34,7 @@ div[style*='--leva-colors-folderTextColor'] {
 }
 
 #leva__root button {
-  background-color: #989b96 !important;
+  background-color: #999 !important;
   color: white !important;
 
   &:hover,

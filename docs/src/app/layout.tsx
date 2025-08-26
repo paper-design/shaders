@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import '../globals.css';
 import { Analytics } from '@vercel/analytics/react';
 import openGraphImage from '../../public/images/opengraph-image.png';
+import { SavePreviousPathname } from '@/components/save-previous-pathname';
 
 export const metadata: Metadata = {
   title: 'Paper Shaders – Ultra-fast zero-dependency shaders',
@@ -38,6 +39,7 @@ export default function RootLayout({
 
         {children}
         <Analytics />
+        <SavePreviousPathname />
       </body>
     </html>
   );

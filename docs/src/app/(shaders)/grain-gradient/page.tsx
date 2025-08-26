@@ -8,9 +8,9 @@ import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
 import { grainGradientMeta, GrainGradientShape, GrainGradientShapes } from '@paper-design/shaders';
 import { useColors } from '@/helpers/use-colors';
 import { toHsla } from '@/helpers/to-hsla';
-import { ShaderContainer } from '@/components/shader-container';
 import { ShaderPageContent } from '@/components/shader-page-content';
 import { grainGradientDef } from '@/shader-defs/grain-gradient-def';
+import { Header } from '@/components/header';
 
 /**
  * You can copy/paste this example to use GrainGradient in your app
@@ -73,12 +73,11 @@ const GrainGradientWithControls = () => {
   cleanUpLevaParams(params);
 
   return (
-    <>
-      <ShaderContainer>
-        <GrainGradient {...params} colors={colors} />
-      </ShaderContainer>
+    <div className="page-container">
+      <Header title={grainGradientDef.name} />
+      <GrainGradient className="my-12 aspect-16/9" {...params} colors={colors} />
       <ShaderPageContent shaderDef={grainGradientDef} currentParams={{ ...params, colors }} />
-    </>
+    </div>
   );
 };
 

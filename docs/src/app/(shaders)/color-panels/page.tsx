@@ -9,9 +9,9 @@ import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
 import { colorPanelsMeta } from '@paper-design/shaders';
 import { useColors } from '@/helpers/use-colors';
 import { toHsla } from '@/helpers/to-hsla';
-import { ShaderContainer } from '@/components/shader-container';
 import { ShaderPageContent } from '@/components/shader-page-content';
 import { colorPanelsDef } from '@/shader-defs/color-panels-def';
+import { Header } from '@/components/header';
 
 /**
  * You can copy/paste this example to use ColorPanels in your app
@@ -75,12 +75,11 @@ const ColorPanelsWithControls = () => {
   cleanUpLevaParams(params);
 
   return (
-    <>
-      <ShaderContainer>
-        <ColorPanels {...params} colors={colors} />
-      </ShaderContainer>
+    <div className="page-container">
+      <Header title={colorPanelsDef.name} />
+      <ColorPanels className="my-12 aspect-16/9" {...params} colors={colors} />
       <ShaderPageContent shaderDef={colorPanelsDef} currentParams={{ ...params, colors }} />
-    </>
+    </div>
   );
 };
 

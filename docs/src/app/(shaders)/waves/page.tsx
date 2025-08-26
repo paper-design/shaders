@@ -9,7 +9,7 @@ import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
 import { toHsla } from '@/helpers/to-hsla';
 import { ShaderPageContent } from '@/components/shader-page-content';
 import { wavesDef } from '@/shader-defs/waves-def';
-import { ShaderContainer } from '@/components/shader-container';
+import { Header } from '@/components/header';
 
 /**
  * You can copy/paste this example to use Waves in your app
@@ -59,12 +59,11 @@ const WavesWithControls = () => {
   cleanUpLevaParams(params);
 
   return (
-    <>
-      <ShaderContainer>
-        <Waves {...params} />
-      </ShaderContainer>
+    <div className="page-container">
+      <Header title={wavesDef.name} />
+      <Waves className="my-12 aspect-16/9" {...params} />
       <ShaderPageContent shaderDef={wavesDef} currentParams={params} />
-    </>
+    </div>
   );
 };
 

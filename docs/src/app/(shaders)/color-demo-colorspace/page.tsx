@@ -8,7 +8,7 @@ import { memo } from 'react';
 import { getShaderColorFromString, type ShaderPreset } from '@paper-design/shaders';
 import { ShaderMount, ShaderComponentProps } from '@paper-design/shaders-react';
 import { useColors } from '@/helpers/use-colors';
-import { ShaderContainer } from '@/components/shader-container';
+import { Header } from '@/components/header';
 
 type vec4 = [number, number, number, number];
 const gradientDemoCSSMaxColorCount = 7;
@@ -117,19 +117,19 @@ vec3 mixOklabVector(vec3 color1, vec3 color2, float mixer) {
   if (color1.y > OKLCH_CHROMA_THRESHOLD && color2.y > OKLCH_CHROMA_THRESHOLD) {
     color1.z = mixHue(color1.z, color2.z, mixer);
   }
-  return color1;   
+  return color1;
 }
 
 void main() {
     vec2 uv = gl_FragCoord.xy / u_resolution.xy;
     float mixer = uv.x * (u_colorsCount - 1.);
     vec3 color = vec3(0.);
-    
+
     vec3 gradient = u_colors[0].rgb;
     if (u_colorSpace == 1.) {
       gradient = srgbToOklab(u_colors[0].rgb);
     }
-    
+
     for (int i = 1; i < ${gradientDemoCSSMaxColorCount}; i++) {
       if (i >= int(u_colorsCount)) break;
       float localMixer = clamp(mixer - float(i - 1), 0., 1.);
@@ -141,13 +141,13 @@ void main() {
         gradient = mixOklabVector(gradient, c, localMixer);
       }
     }
-    
+
     if (u_colorSpace == 0.) {
       color = gradient;
     } else {
       color = oklabToSrgb(gradient);
     }
-    
+
     fragColor = vec4(color, 1.);
 }
 `;
@@ -227,33 +227,36 @@ export default function Page() {
   cleanUpLevaParams(params);
 
   return (
-    <ShaderContainer>
-      <div className="flex flex-col" style={{ width: 'calc(100% - 300px)' }}>
-        <div className="relative h-1/3 w-full text-center">
-          <span className="absolute top-0 left-0 w-full p-2 font-bold text-white">{`CSS OKLCH`}</span>
-          <div
-            className="h-full"
-            style={{
-              background: `linear-gradient(to right in oklch, ${colors.join(', ')})`,
-            }}
-          />
-        </div>
+    <div className="page-container">
+      <Header title="Color Demo: Colorspace" />
+      <div className="my-12 aspect-16/9">
+        <div className="flex h-full flex-col" style={{ width: 'calc(100% - 300px)' }}>
+          <div className="relative h-1/3 w-full text-center">
+            <span className="absolute top-0 left-0 w-full p-2 font-bold text-white">{`CSS OKLCH`}</span>
+            <div
+              className="h-full"
+              style={{
+                background: `linear-gradient(to right in oklch, ${colors.join(', ')})`,
+              }}
+            />
+          </div>
 
-        <div className="relative h-1/3 w-full text-center">
-          <span className="absolute top-0 left-0 z-10 w-full p-2 font-bold text-white">{`Shader`}</span>
-          <GradientDemoCSS {...params} colors={colors} className="h-full w-full" />
-        </div>
+          <div className="relative h-1/3 w-full text-center">
+            <span className="absolute top-0 left-0 z-10 w-full p-2 font-bold text-white">{`Shader`}</span>
+            <GradientDemoCSS {...params} colors={colors} className="h-full w-full" />
+          </div>
 
-        <div className="relative h-1/3 w-full text-center">
-          <span className="absolute top-0 left-0 w-full p-2 font-bold text-white">{`CSS Default`}</span>
-          <div
-            className="h-full"
-            style={{
-              background: `linear-gradient(to right, ${colors.join(', ')})`,
-            }}
-          />
+          <div className="relative h-1/3 w-full text-center">
+            <span className="absolute top-0 left-0 w-full p-2 font-bold text-white">{`CSS Default`}</span>
+            <div
+              className="h-full"
+              style={{
+                background: `linear-gradient(to right, ${colors.join(', ')})`,
+              }}
+            />
+          </div>
         </div>
       </div>
-    </ShaderContainer>
+    </div>
   );
 }

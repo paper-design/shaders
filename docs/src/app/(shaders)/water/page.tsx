@@ -9,9 +9,9 @@ import { ShaderFit } from '@paper-design/shaders';
 import { levaImageButton, levaDeleteImageButton } from '@/helpers/leva-image-button';
 import { useState, useEffect, useCallback } from 'react';
 import { toHsla } from '@/helpers/to-hsla';
-import { ShaderContainer } from '@/components/shader-container';
 import { ShaderPageContent } from '@/components/shader-page-content';
 import { waterDef } from '@/shader-defs/water-def';
+import { Header } from '@/components/header';
 
 /**
  * This example has controls added so you can play with settings in the example app
@@ -103,10 +103,9 @@ const WaterWithControls = () => {
   cleanUpLevaParams(params);
 
   return (
-    <div>
-      <ShaderContainer>
-        <Water onClick={handleClick} {...params} image={image || undefined} />
-      </ShaderContainer>
+    <div className="page-container">
+      <Header title={waterDef.name} />
+      <Water className="my-12 aspect-16/9" onClick={handleClick} {...params} image={image || undefined} />
       <div onClick={handleClick} className="py-3 text-center select-none">
         Click to change sample image
       </div>

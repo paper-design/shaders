@@ -32,6 +32,7 @@ export const defaultPreset: ColorPanelsPreset = {
     fadeOut: 0.3,
     gradient: 0,
     density: 3,
+    scale: 0.8,
   },
 };
 

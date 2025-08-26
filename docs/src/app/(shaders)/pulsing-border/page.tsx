@@ -8,9 +8,9 @@ import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
 import { pulsingBorderMeta } from '@paper-design/shaders';
 import { useColors } from '@/helpers/use-colors';
 import { toHsla } from '@/helpers/to-hsla';
-import { ShaderContainer } from '@/components/shader-container';
 import { ShaderPageContent } from '@/components/shader-page-content';
 import { pulsingBorderDef } from '@/shader-defs/pulsing-border-def';
+import { Header } from '@/components/header';
 
 /**
  * You can copy/paste this example to use PulsingBorder in your app
@@ -80,12 +80,11 @@ const PulsingBorderWithControls = () => {
   cleanUpLevaParams(params);
 
   return (
-    <>
-      <ShaderContainer>
-        <PulsingBorder {...params} colors={colors} />
-      </ShaderContainer>
+    <div className="page-container">
+      <Header title={pulsingBorderDef.name} />
+      <PulsingBorder className="my-12 aspect-16/9" {...params} colors={colors} />
       <ShaderPageContent shaderDef={pulsingBorderDef} currentParams={{ ...params, colors }} />
-    </>
+    </div>
   );
 };
 

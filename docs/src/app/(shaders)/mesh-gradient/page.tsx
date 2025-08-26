@@ -7,7 +7,6 @@ import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
 import { meshGradientMeta } from '@paper-design/shaders';
 import { useColors } from '@/helpers/use-colors';
-import { ShaderContainer } from '@/components/shader-container';
 import { ShaderPageContent } from '@/components/shader-page-content';
 import { meshGradientDef } from '@/shader-defs/mesh-gradient-def';
 import { Header } from '@/components/header';

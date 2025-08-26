@@ -8,9 +8,9 @@ import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
 import { metaballsMeta } from '@paper-design/shaders';
 import { useColors } from '@/helpers/use-colors';
 import { toHsla } from '@/helpers/to-hsla';
-import { ShaderContainer } from '@/components/shader-container';
 import { ShaderPageContent } from '@/components/shader-page-content';
 import { metaballsDef } from '@/shader-defs/metaballs-def';
+import { Header } from '@/components/header';
 
 /**
  * You can copy/paste this example to use Metaballs in your app
@@ -67,12 +67,11 @@ const MetaballsWithControls = () => {
   cleanUpLevaParams(params);
 
   return (
-    <>
-      <ShaderContainer>
-        <Metaballs {...params} colors={colors} />
-      </ShaderContainer>
+    <div className="page-container">
+      <Header title={metaballsDef.name} />
+      <Metaballs className="my-12 aspect-16/9" {...params} colors={colors} />
       <ShaderPageContent shaderDef={metaballsDef} currentParams={{ ...params, colors }} />
-    </>
+    </div>
   );
 };
 
