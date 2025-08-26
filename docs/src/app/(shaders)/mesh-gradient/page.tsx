@@ -8,7 +8,7 @@ import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
 import { meshGradientMeta } from '@paper-design/shaders';
 import { useColors } from '@/helpers/use-colors';
 import { ShaderContainer } from '@/components/shader-container';
-import { ShaderDetails } from '@/components/shader-details';
+import { ShaderPageContent } from '@/components/shader-page-content';
 import { meshGradientDef } from '@/shader-defs/mesh-gradient-def';
 import { Header } from '@/components/header';
 
@@ -66,20 +66,12 @@ const MeshGradientWithControls = () => {
   cleanUpLevaParams(params);
 
   return (
-    <div className="pb-16">
+    <div className="page-container">
       <Header title={meshGradientDef.name} />
-
-      <div className="mx-auto px-8 md:px-12 lg:max-w-[1280px] lg:px-24">
-        <ShaderContainer>
-          <MeshGradient {...params} colors={colors} />
-        </ShaderContainer>
-
-        <ShaderDetails shaderDef={meshGradientDef} currentParams={{ ...params, colors }} />
-      </div>
+      <MeshGradient className="my-12 aspect-16/9" {...params} colors={colors} />
+      <ShaderPageContent shaderDef={meshGradientDef} currentParams={{ ...params, colors }} />
     </div>
   );
 };
 
 export default MeshGradientWithControls;
-
-// lg:max-w-[1280px] lg:px-24 2xl:max-w-[1664px]

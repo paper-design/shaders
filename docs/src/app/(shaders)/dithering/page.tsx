@@ -9,7 +9,7 @@ import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
 import { DitheringShape, DitheringShapes, DitheringType, DitheringTypes } from '@paper-design/shaders';
 import { toHsla } from '@/helpers/to-hsla';
 import { ShaderContainer } from '@/components/shader-container';
-import { ShaderDetails } from '@/components/shader-details';
+import { ShaderPageContent } from '@/components/shader-page-content';
 import { ditheringDef } from '@/shader-defs/dithering-def';
 
 /**
@@ -59,7 +59,7 @@ const DitheringWithControls = () => {
       <ShaderContainer>
         <Dithering {...params} />
       </ShaderContainer>
-      <ShaderDetails shaderDef={ditheringDef} currentParams={params} />
+      <ShaderPageContent shaderDef={ditheringDef} currentParams={params} />
     </>
   );
 };

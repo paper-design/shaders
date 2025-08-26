@@ -10,7 +10,7 @@ import { levaImageButton, levaDeleteImageButton } from '@/helpers/leva-image-but
 import { useState, useEffect, useCallback } from 'react';
 import { toHsla } from '@/helpers/to-hsla';
 import { ShaderContainer } from '@/components/shader-container';
-import { ShaderDetails } from '@/components/shader-details';
+import { ShaderPageContent } from '@/components/shader-page-content';
 import { paperTextureDef } from '@/shader-defs/paper-texture-def';
 
 /**
@@ -115,7 +115,7 @@ const PaperTextureWithControls = () => {
       <div onClick={handleClick} className="py-3 text-center select-none">
         Click to change sample image
       </div>
-      <ShaderDetails shaderDef={paperTextureDef} currentParams={params} />
+      <ShaderPageContent shaderDef={paperTextureDef} currentParams={params} />
     </div>
   );
 };

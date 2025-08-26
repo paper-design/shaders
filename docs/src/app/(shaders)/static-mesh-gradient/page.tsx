@@ -8,7 +8,7 @@ import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
 import { staticMeshGradientMeta } from '@paper-design/shaders';
 import { useColors } from '@/helpers/use-colors';
 import { ShaderContainer } from '@/components/shader-container';
-import { ShaderDetails } from '@/components/shader-details';
+import { ShaderPageContent } from '@/components/shader-page-content';
 import { staticMeshGradientDef } from '@/shader-defs/static-mesh-gradient-def';
 
 /**
@@ -74,7 +74,7 @@ const StaticMeshGradientWithControls = () => {
       <ShaderContainer>
         <StaticMeshGradient {...params} colors={colors} />
       </ShaderContainer>
-      <ShaderDetails shaderDef={staticMeshGradientDef} currentParams={{ ...params, colors }} />
+      <ShaderPageContent shaderDef={staticMeshGradientDef} currentParams={{ ...params, colors }} />
     </>
   );
 };

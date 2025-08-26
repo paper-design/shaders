@@ -9,7 +9,7 @@ import { pulsingBorderMeta } from '@paper-design/shaders';
 import { useColors } from '@/helpers/use-colors';
 import { toHsla } from '@/helpers/to-hsla';
 import { ShaderContainer } from '@/components/shader-container';
-import { ShaderDetails } from '@/components/shader-details';
+import { ShaderPageContent } from '@/components/shader-page-content';
 import { pulsingBorderDef } from '@/shader-defs/pulsing-border-def';
 
 /**
@@ -84,7 +84,7 @@ const PulsingBorderWithControls = () => {
       <ShaderContainer>
         <PulsingBorder {...params} colors={colors} />
       </ShaderContainer>
-      <ShaderDetails shaderDef={pulsingBorderDef} currentParams={{ ...params, colors }} />
+      <ShaderPageContent shaderDef={pulsingBorderDef} currentParams={{ ...params, colors }} />
     </>
   );
 };

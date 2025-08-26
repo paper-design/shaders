@@ -1,7 +1,7 @@
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Voronoi Diagram Shader | Paper',
+  title: 'Voronoi Diagram shader • Paper',
 };
 
 export default function Layout({ children }: { children: React.ReactNode }) {

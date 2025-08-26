@@ -1,3 +1,3 @@
 export function ShaderContainer({ children }: { children: React.ReactNode }) {
-  return <div className="mb-12 h-[20rem] overflow-hidden sm:h-[36rem] xl:h-[40rem] [&>div]:size-full">{children}</div>;
+  return <div className="mb-12 aspect-16/9 overflow-hidden [&>div]:size-full">{children}</div>;
 }

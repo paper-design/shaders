@@ -7,7 +7,7 @@ import { setParamsSafe, useResetLevaParams } from '@/helpers/use-reset-leva-para
 import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
 import { toHsla } from '@/helpers/to-hsla';
-import { ShaderDetails } from '@/components/shader-details';
+import { ShaderPageContent } from '@/components/shader-page-content';
 import { wavesDef } from '@/shader-defs/waves-def';
 import { ShaderContainer } from '@/components/shader-container';
 
@@ -63,7 +63,7 @@ const WavesWithControls = () => {
       <ShaderContainer>
         <Waves {...params} />
       </ShaderContainer>
-      <ShaderDetails shaderDef={wavesDef} currentParams={params} />
+      <ShaderPageContent shaderDef={wavesDef} currentParams={params} />
     </>
   );
 };

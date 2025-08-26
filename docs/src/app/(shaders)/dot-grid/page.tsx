@@ -8,7 +8,7 @@ import { DotGridShape, DotGridShapes } from '@paper-design/shaders';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
 import { toHsla } from '@/helpers/to-hsla';
 import { ShaderContainer } from '@/components/shader-container';
-import { ShaderDetails } from '@/components/shader-details';
+import { ShaderPageContent } from '@/components/shader-page-content';
 import { dotGridDef } from '@/shader-defs/dot-grid-def';
 
 /**
@@ -69,7 +69,7 @@ const DotGridWithControls = () => {
       <ShaderContainer>
         <DotGrid {...params} />
       </ShaderContainer>
-      <ShaderDetails shaderDef={dotGridDef} currentParams={params} />
+      <ShaderPageContent shaderDef={dotGridDef} currentParams={params} />
     </>
   );
 };

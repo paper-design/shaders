@@ -8,7 +8,7 @@ import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
 import { warpMeta, WarpPatterns } from '@paper-design/shaders';
 import { useColors } from '@/helpers/use-colors';
 import { ShaderContainer } from '@/components/shader-container';
-import { ShaderDetails } from '@/components/shader-details';
+import { ShaderPageContent } from '@/components/shader-page-content';
 import { warpDef } from '@/shader-defs/warp-def';
 
 /**
@@ -72,7 +72,7 @@ const WarpWithControls = () => {
       <ShaderContainer>
         <Warp {...params} colors={colors} />
       </ShaderContainer>
-      <ShaderDetails shaderDef={warpDef} currentParams={{ ...params, colors }} />
+      <ShaderPageContent shaderDef={warpDef} currentParams={{ ...params, colors }} />
     </>
   );
 };

@@ -7,7 +7,7 @@ import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
 import { toHsla } from '@/helpers/to-hsla';
 import { ShaderContainer } from '@/components/shader-container';
-import { ShaderDetails } from '@/components/shader-details';
+import { ShaderPageContent } from '@/components/shader-page-content';
 import { neuroNoiseDef } from '@/shader-defs/neuro-noise-def';
 
 /**
@@ -56,7 +56,7 @@ const NeuroNoiseWithControls = () => {
       <ShaderContainer>
         <NeuroNoise {...params} />
       </ShaderContainer>
-      <ShaderDetails shaderDef={neuroNoiseDef} currentParams={params} />
+      <ShaderPageContent shaderDef={neuroNoiseDef} currentParams={params} />
     </>
   );
 };

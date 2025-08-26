@@ -10,7 +10,7 @@ import { colorPanelsMeta } from '@paper-design/shaders';
 import { useColors } from '@/helpers/use-colors';
 import { toHsla } from '@/helpers/to-hsla';
 import { ShaderContainer } from '@/components/shader-container';
-import { ShaderDetails } from '@/components/shader-details';
+import { ShaderPageContent } from '@/components/shader-page-content';
 import { colorPanelsDef } from '@/shader-defs/color-panels-def';
 
 /**
@@ -79,7 +79,7 @@ const ColorPanelsWithControls = () => {
       <ShaderContainer>
         <ColorPanels {...params} colors={colors} />
       </ShaderContainer>
-      <ShaderDetails shaderDef={colorPanelsDef} currentParams={{ ...params, colors }} />
+      <ShaderPageContent shaderDef={colorPanelsDef} currentParams={{ ...params, colors }} />
     </>
   );
 };

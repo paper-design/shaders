@@ -48,25 +48,48 @@ body {
   font-family: var(--default-font-family);
   color: var(--color-foreground);
   text-size-adjust: none;
+  font-size: 1.125rem;
 }
 
-pre {
-  font-family: 'Paper Mono', monospace;
+@layer base {
+  pre {
+    font-family: 'Paper Mono', monospace;
+    font-size: 0.9rem;
+    line-height: 1.625rem;
+  }
+
+  pre::-webkit-scrollbar {
+    height: 6px;
+  }
+
+  pre::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  pre::-webkit-scrollbar-thumb {
+    background-color: #989b96;
+    border-radius: 3px;
+  }
+
+  pre::-webkit-scrollbar-thumb:hover {
+    background-color: #777772;
+  }
+
+  code {
+    font-size: 0.9em;
+  }
 }
 
-pre::-webkit-scrollbar {
-  height: 6px;
+@custom-variant supports-squircle {
+  @supports (corner-shape: squircle) {
+    @slot;
+  }
 }
 
-pre::-webkit-scrollbar-track {
-  background: transparent;
+@utility squircle {
+  corner-shape: squircle;
 }
 
-pre::-webkit-scrollbar-thumb {
-  background-color: #989b96;
-  border-radius: 3px;
-}
-
-pre::-webkit-scrollbar-thumb:hover {
-  background-color: #777772;
+@utility page-container {
+  @apply mx-auto px-8 pb-32 md:px-12 lg:max-w-[1280px] lg:px-24;
 }

@@ -9,7 +9,7 @@ import { grainGradientMeta, GrainGradientShape, GrainGradientShapes } from '@pap
 import { useColors } from '@/helpers/use-colors';
 import { toHsla } from '@/helpers/to-hsla';
 import { ShaderContainer } from '@/components/shader-container';
-import { ShaderDetails } from '@/components/shader-details';
+import { ShaderPageContent } from '@/components/shader-page-content';
 import { grainGradientDef } from '@/shader-defs/grain-gradient-def';
 
 /**
@@ -77,7 +77,7 @@ const GrainGradientWithControls = () => {
       <ShaderContainer>
         <GrainGradient {...params} colors={colors} />
       </ShaderContainer>
-      <ShaderDetails shaderDef={grainGradientDef} currentParams={{ ...params, colors }} />
+      <ShaderPageContent shaderDef={grainGradientDef} currentParams={{ ...params, colors }} />
     </>
   );
 };

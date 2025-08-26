@@ -10,7 +10,7 @@ import { ShaderFit } from '@paper-design/shaders';
 import { levaImageButton } from '@/helpers/leva-image-button';
 import { useState, useEffect, useCallback } from 'react';
 import { ShaderContainer } from '@/components/shader-container';
-import { ShaderDetails } from '@/components/shader-details';
+import { ShaderPageContent } from '@/components/shader-page-content';
 import { flutedGlassDef } from '@/shader-defs/fluted-glass-def';
 
 /**
@@ -121,7 +121,7 @@ const FlutedGlassWithControls = () => {
       <div onClick={handleClick} className="py-3 text-center select-none">
         Click to change sample image
       </div>
-      <ShaderDetails shaderDef={flutedGlassDef} currentParams={params} />
+      <ShaderPageContent shaderDef={flutedGlassDef} currentParams={params} />
     </div>
   );
 };

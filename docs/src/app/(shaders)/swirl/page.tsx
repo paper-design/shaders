@@ -9,7 +9,7 @@ import { simplexNoiseMeta } from '@paper-design/shaders';
 import { useColors } from '@/helpers/use-colors';
 import { toHsla } from '@/helpers/to-hsla';
 import { ShaderContainer } from '@/components/shader-container';
-import { ShaderDetails } from '@/components/shader-details';
+import { ShaderPageContent } from '@/components/shader-page-content';
 import { swirlDef } from '@/shader-defs/swirl-def';
 
 /**
@@ -74,7 +74,7 @@ const SwirlWithControls = () => {
       <ShaderContainer>
         <Swirl {...params} colors={colors} />
       </ShaderContainer>
-      <ShaderDetails shaderDef={swirlDef} currentParams={{ ...params, colors }} />
+      <ShaderPageContent shaderDef={swirlDef} currentParams={{ ...params, colors }} />
     </>
   );
 };

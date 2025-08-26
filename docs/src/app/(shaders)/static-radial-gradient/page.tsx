@@ -9,7 +9,7 @@ import { staticRadialGradientMeta } from '@paper-design/shaders';
 import { useColors } from '@/helpers/use-colors';
 import { toHsla } from '@/helpers/to-hsla';
 import { ShaderContainer } from '@/components/shader-container';
-import { ShaderDetails } from '@/components/shader-details';
+import { ShaderPageContent } from '@/components/shader-page-content';
 import { staticRadialGradientDef } from '@/shader-defs/static-radial-gradient-def';
 
 /**
@@ -76,7 +76,7 @@ const StaticRadialGradientWithControls = () => {
       <ShaderContainer>
         <StaticRadialGradient {...params} colors={colors} />
       </ShaderContainer>
-      <ShaderDetails shaderDef={staticRadialGradientDef} currentParams={{ ...params, colors }} />
+      <ShaderPageContent shaderDef={staticRadialGradientDef} currentParams={{ ...params, colors }} />
     </>
   );
 };

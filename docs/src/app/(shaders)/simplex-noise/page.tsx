@@ -9,7 +9,7 @@ import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
 import { simplexNoiseMeta } from '@paper-design/shaders';
 import { useColors } from '@/helpers/use-colors';
 import { ShaderContainer } from '@/components/shader-container';
-import { ShaderDetails } from '@/components/shader-details';
+import { ShaderPageContent } from '@/components/shader-page-content';
 import { simplexNoiseDef } from '@/shader-defs/simplex-noise-def';
 
 /**
@@ -68,7 +68,7 @@ const SimplexNoiseWithControls = () => {
       <ShaderContainer>
         <SimplexNoise {...params} colors={colors} />
       </ShaderContainer>
-      <ShaderDetails shaderDef={simplexNoiseDef} currentParams={{ ...params, colors }} />
+      <ShaderPageContent shaderDef={simplexNoiseDef} currentParams={{ ...params, colors }} />
     </>
   );
 };

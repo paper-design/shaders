@@ -9,7 +9,7 @@ import { metaballsMeta } from '@paper-design/shaders';
 import { useColors } from '@/helpers/use-colors';
 import { toHsla } from '@/helpers/to-hsla';
 import { ShaderContainer } from '@/components/shader-container';
-import { ShaderDetails } from '@/components/shader-details';
+import { ShaderPageContent } from '@/components/shader-page-content';
 import { metaballsDef } from '@/shader-defs/metaballs-def';
 
 /**
@@ -71,7 +71,7 @@ const MetaballsWithControls = () => {
       <ShaderContainer>
         <Metaballs {...params} colors={colors} />
       </ShaderContainer>
-      <ShaderDetails shaderDef={metaballsDef} currentParams={{ ...params, colors }} />
+      <ShaderPageContent shaderDef={metaballsDef} currentParams={{ ...params, colors }} />
     </>
   );
 };

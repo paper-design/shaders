@@ -9,12 +9,16 @@ interface HeaderProps {
 
 export const Header = ({ title }: HeaderProps) => {
   return (
-    <div className="relative mx-auto mb-4 flex w-full items-center justify-center px-8 py-8 md:px-12 lg:max-w-[1280px] lg:px-24">
-      <Link href="/" className="mr-auto font-mono text-xl lowercase" style={{ fontFeatureSettings: '"ss02"' }}>
-        ← <span className="-mr-[0.2em]">Paper</span> Shaders
+    <div className="relative flex w-full items-center justify-center pt-8">
+      <Link
+        href="/"
+        className="mr-auto font-mono text-xl lowercase select-none"
+        style={{ fontFeatureSettings: '"ss02"' }}
+      >
+        <span className="relative top-[0.05em]">←</span> Paper Shaders
       </Link>
 
-      {title && <h1 className="absolute text-3xl font-medium lowercase">{title}</h1>}
+      {title && <h1 className="absolute mb-1.5 text-3xl font-medium lowercase">{title}</h1>}
 
       <Link href="https://github.com/paper-design/shaders" target="_blank" className="ml-auto">
         <GithubIcon className="size-7" />
@@ -22,4 +26,3 @@ export const Header = ({ title }: HeaderProps) => {
     </div>
   );
 };
-// lg:max-w-[1280px] lg:px-24 2xl:max-w-[1664px]

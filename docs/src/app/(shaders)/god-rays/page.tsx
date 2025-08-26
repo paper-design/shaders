@@ -9,7 +9,7 @@ import { useControls, button, folder } from 'leva';
 import { useColors } from '@/helpers/use-colors';
 import { toHsla } from '@/helpers/to-hsla';
 import { ShaderContainer } from '@/components/shader-container';
-import { ShaderDetails } from '@/components/shader-details';
+import { ShaderPageContent } from '@/components/shader-page-content';
 import { godRaysDef } from '@/shader-defs/god-rays-def';
 
 /**
@@ -76,7 +76,7 @@ const GodRaysWithControls = () => {
       <ShaderContainer>
         <GodRays {...params} colors={colors} />
       </ShaderContainer>
-      <ShaderDetails shaderDef={godRaysDef} currentParams={{ ...params, colors }} />
+      <ShaderPageContent shaderDef={godRaysDef} currentParams={{ ...params, colors }} />
     </>
   );
 };

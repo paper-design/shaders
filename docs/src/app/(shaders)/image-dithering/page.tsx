@@ -10,7 +10,7 @@ import { levaImageButton } from '@/helpers/leva-image-button';
 import { useState, useEffect, useCallback } from 'react';
 import { toHsla } from '@/helpers/to-hsla';
 import { ShaderContainer } from '@/components/shader-container';
-import { ShaderDetails } from '@/components/shader-details';
+import { ShaderPageContent } from '@/components/shader-page-content';
 import { imageDitheringDef } from '@/shader-defs/image-dithering-def';
 
 /**
@@ -108,7 +108,7 @@ const ImageDitheringWithControls = () => {
       <div onClick={handleClick} className="py-3 text-center select-none">
         Click to change sample image
       </div>
-      <ShaderDetails shaderDef={imageDitheringDef} currentParams={params} />
+      <ShaderPageContent shaderDef={imageDitheringDef} currentParams={params} />
     </div>
   );
 };

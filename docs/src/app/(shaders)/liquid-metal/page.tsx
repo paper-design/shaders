@@ -8,7 +8,7 @@ import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
 import { LiquidMetalShapes, LiquidMetalShape } from '@paper-design/shaders';
 import { toHsla } from '@/helpers/to-hsla';
 import { ShaderContainer } from '@/components/shader-container';
-import { ShaderDetails } from '@/components/shader-details';
+import { ShaderPageContent } from '@/components/shader-page-content';
 import { liquidMetalDef } from '@/shader-defs/liquid-metal-def';
 
 /**
@@ -62,7 +62,7 @@ const LiquidMetalWithControls = () => {
       <ShaderContainer>
         <LiquidMetal {...params} />
       </ShaderContainer>
-      <ShaderDetails shaderDef={liquidMetalDef} currentParams={params} />
+      <ShaderPageContent shaderDef={liquidMetalDef} currentParams={params} />
     </>
   );
 };

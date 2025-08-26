@@ -7,7 +7,7 @@ import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
 import { toHsla } from '@/helpers/to-hsla';
 import { ShaderContainer } from '@/components/shader-container';
-import { ShaderDetails } from '@/components/shader-details';
+import { ShaderPageContent } from '@/components/shader-page-content';
 import { perlinNoiseDef } from '@/shader-defs/perlin-noise-def';
 /**
  * You can copy/paste this example to use PerlinNoise in your app
@@ -61,7 +61,7 @@ const PerlinNoiseWithControls = () => {
       <ShaderContainer>
         <PerlinNoise {...params} />
       </ShaderContainer>
-      <ShaderDetails shaderDef={perlinNoiseDef} currentParams={params} />
+      <ShaderPageContent shaderDef={perlinNoiseDef} currentParams={params} />
     </>
   );
 };

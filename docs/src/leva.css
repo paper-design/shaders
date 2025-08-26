@@ -3,16 +3,18 @@
   --leva-sizes-controlWidth: 140px;
 
   /* Theme overrides. Note: using the Leva theme prop instead of CSS variables causes overflows with some sections that have a dynamic number of inputs such as colors. */
-  --leva-colors-elevation1: #d8d8d2; /* bg color of the root panel (main title bar) */
-  --leva-colors-elevation2: #f7f6f0; /* bg color of the rows (main panel color) */
-  --leva-colors-elevation3: #d8d8d2; /* bg color of the inputs */
+  --leva-colors-elevation1: #e0e0d9; /* bg color of the root panel (main title bar) */
+  --leva-colors-elevation2: #f6f5ee; /* bg color of the rows (main panel color) */
+  --leva-colors-elevation3: #e0e0d9; /* bg color of the inputs */
   --leva-colors-accent1: #989b96;
   --leva-colors-accent2: #555551;
   --leva-colors-accent3: #666662;
   --leva-colors-highlight1: #555551;
   --leva-colors-highlight2: #222205;
   --leva-colors-highlight3: #222205;
-  --leva-shadows-level1: 0 4px 6px 0 #00000033;
+  --leva-shadows-level1:
+    rgba(58, 34, 17, 0.1) 0px 4px 40px -8px, rgba(58, 34, 17, 0.2) 0px 12px 20px -8px,
+    rgba(58, 34, 17, 0.1) 0px 0px 0px 1px;
   --leva-shadows-level2: 0 4px 14px #00000033;
 }
 

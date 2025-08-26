@@ -4,15 +4,15 @@ import { Analytics } from '@vercel/analytics/react';
 import openGraphImage from '../../public/images/opengraph-image.png';
 
 export const metadata: Metadata = {
-  title: 'Paper Shaders – Zero-dependency ultra-fast shaders',
+  title: 'Paper Shaders – Ultra-fast zero-dependency shaders',
   description: 'Shaders for you to use in your projects, as React components or GLSL.',
   openGraph: {
-    title: 'Paper Shaders – Zero-dependency ultra-fast shaders',
+    title: 'Paper Shaders – Ultra-fast zero-dependency shaders',
     description: 'Shaders for you to use in your projects, as React components or GLSL.',
     images: [{ type: 'image/png', width: 1200, height: 630, url: openGraphImage.src }],
   },
   twitter: {
-    title: 'Paper Shaders – Zero-dependency ultra-fast shaders',
+    title: 'Paper Shaders – Ultra-fast zero-dependency shaders',
     description: 'Shaders for you to use in your projects, as React components or GLSL.',
     images: [{ type: 'image/png', width: 1200, height: 630, url: openGraphImage.src }],
   },

@@ -9,7 +9,7 @@ import { useControls, button, folder } from 'leva';
 import { useColors } from '@/helpers/use-colors';
 import { toHsla } from '@/helpers/to-hsla';
 import { ShaderContainer } from '@/components/shader-container';
-import { ShaderDetails } from '@/components/shader-details';
+import { ShaderPageContent } from '@/components/shader-page-content';
 import { dotOrbitDef } from '@/shader-defs/dot-orbit-def';
 
 /**
@@ -75,7 +75,7 @@ const DotOrbitWithControls = () => {
       <ShaderContainer>
         <DotOrbit {...params} colors={colors} />
       </ShaderContainer>
-      <ShaderDetails shaderDef={dotOrbitDef} currentParams={{ ...params, colors }} />
+      <ShaderPageContent shaderDef={dotOrbitDef} currentParams={{ ...params, colors }} />
     </>
   );
 };
