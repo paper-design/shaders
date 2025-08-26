@@ -10,6 +10,7 @@ import { useColors } from '@/helpers/use-colors';
 import { ShaderContainer } from '@/components/shader-container';
 import { ShaderDetails } from '@/components/shader-details';
 import { meshGradientDef } from '@/shader-defs/mesh-gradient-def';
+import { Header } from '@/components/header';
 
 /**
  * You can copy/paste this example to use MeshGradient in your app
@@ -65,13 +66,20 @@ const MeshGradientWithControls = () => {
   cleanUpLevaParams(params);
 
   return (
-    <>
-      <ShaderContainer>
-        <MeshGradient {...params} colors={colors} />
-      </ShaderContainer>
-      <ShaderDetails shaderDef={meshGradientDef} currentParams={{ ...params, colors }} />
-    </>
+    <div className="pb-16">
+      <Header title={meshGradientDef.name} />
+
+      <div className="mx-auto px-8 md:px-12 lg:max-w-[1280px] lg:px-24">
+        <ShaderContainer>
+          <MeshGradient {...params} colors={colors} />
+        </ShaderContainer>
+
+        <ShaderDetails shaderDef={meshGradientDef} currentParams={{ ...params, colors }} />
+      </div>
+    </div>
   );
 };
 
 export default MeshGradientWithControls;
+
+// lg:max-w-[1280px] lg:px-24 2xl:max-w-[1664px]

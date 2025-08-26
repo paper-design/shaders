@@ -84,30 +84,32 @@ export function ShaderDetails({
 
   return (
     <div className="flex flex-col gap-10">
-      <h1 className="text-4xl font-medium">{shaderDef.name}</h1>
-      <div className="flex flex-col gap-8 [&>section]:flex [&>section]:flex-col [&>section]:gap-4">
+      {/* <h1 className="text-4xl font-medium">{shaderDef.name}</h1> */}
+
+      <div className="mx-auto flex w-full flex-col gap-8 [&>section]:flex [&>section]:flex-col [&>section]:gap-4">
         <section>
           <div className="flex items-center gap-2">
             <h2 className="text-2xl font-medium">Installation</h2>
             <CopyButton text={installationCode} />
           </div>
-          <pre className="overflow-x-auto rounded-lg bg-[#f7f6f0] px-4 py-4 text-sm sm:w-fit sm:text-base">
+          <pre className="w-full overflow-x-auto rounded-lg bg-[#f7f6f0] px-4 py-4 text-sm sm:text-base">
             {installationCode}
           </pre>
         </section>
+
         <section>
           <div className="flex items-center gap-2">
             <h2 className="text-2xl font-medium">Code</h2>
             <CopyButton text={code} />
           </div>
           <div className="flex flex-col gap-2">
-            <pre className="max-w-3xl overflow-x-auto rounded-lg bg-[#f7f6f0] px-4 py-4 text-sm">{code}</pre>
+            <pre className="overflow-x-auto rounded-lg bg-[#f7f6f0] px-4 py-4 text-sm">{code}</pre>
           </div>
         </section>
         <section>
           <div className="flex flex-col gap-4">
             <h2 className="text-2xl font-medium">Props</h2>
-            <div className="max-w-3xl overflow-x-auto rounded-lg border border-stone-200">
+            <div className="overflow-x-auto rounded-lg border border-stone-200">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="bg-stone-50">
@@ -179,7 +181,7 @@ export function ShaderDetails({
         {shaderDef.description && (
           <section>
             <h2 className="text-2xl font-medium">Description</h2>
-            <p className="max-w-3xl text-pretty text-stone-600">{shaderDef.description}</p>
+            <p className="text-pretty text-stone-600">{shaderDef.description}</p>
           </section>
         )}
       </div>
