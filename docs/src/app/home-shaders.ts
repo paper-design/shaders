@@ -135,7 +135,7 @@ export const homeShaders = [
     url: '/dot-grid',
     ShaderComponent: DotGrid,
     image: dotGridImg,
-    shaderConfig: { ...dotGridPresets[0].params, speed: 0 },
+    shaderConfig: { ...dotGridPresets[0].params, speed: 0, gapX: 24, gapY: 24, size: 1.5 },
   },
   {
     name: 'warp',
@@ -163,7 +163,7 @@ export const homeShaders = [
     url: '/waves',
     ShaderComponent: Waves,
     image: wavesImg,
-    shaderConfig: { ...wavesPresets[0].params, scale: 0.7 },
+    shaderConfig: { ...wavesPresets[0].params, speed: 0, scale: 0.55, spacing: 1.2 },
   },
   {
     name: 'neuro noise',
@@ -201,14 +201,14 @@ export const homeShaders = [
     url: '/pulsing-border',
     ShaderComponent: PulsingBorder,
     image: pulsingBorderImg,
-    shaderConfig: { ...pulsingBorderPresets[0].params, scale: 0.6 },
+    shaderConfig: { ...pulsingBorderPresets[0].params },
   },
   {
     name: 'metaballs',
     image: metaballsImg,
     url: '/metaballs',
     ShaderComponent: Metaballs,
-    shaderConfig: { ...metaballsPresets[0].params, scale: 1.1, count: 8, frame: 3400, speed: 2 },
+    shaderConfig: { ...metaballsPresets[0].params, scale: 1, count: 8, frame: 3400, speed: 2 },
   },
   {
     name: 'color panels',
