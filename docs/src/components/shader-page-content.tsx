@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { CopyIcon, CheckIcon } from '../icons';
 import { ShaderDef, ParamOption } from '../shader-defs/shader-def-types';
+import { CopyButton } from './copy-button';
 
 const formatJsxAttribute = (key: string, value: unknown): string => {
   if (value === true) {
@@ -36,30 +37,6 @@ const formatJsxAttribute = (key: string, value: unknown): string => {
   return `${key}={${JSON.stringify(value)}}`;
 };
 
-const CopyButton = ({ text, className = '' }: { text: string; className?: string }) => {
-  const [copied, setCopied] = useState(false);
-
-  const handleCopy = async () => {
-    try {
-      await navigator.clipboard.writeText(text);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch (err) {
-      console.error('Failed to copy text:', err);
-    }
-  };
-
-  return (
-    <button
-      onClick={handleCopy}
-      className={`flex items-center justify-center rounded-md p-2 transition-colors hover:bg-[#e7e7e0] ${className}`}
-      title={copied ? 'Copied!' : 'Copy to clipboard'}
-    >
-      {copied ? <CheckIcon className="size-4" /> : <CopyIcon className="size-4" />}
-    </button>
-  );
-};
-
 export function ShaderPageContent({
   shaderDef,
   currentParams,
@@ -87,7 +64,10 @@ export function ShaderPageContent({
       <section>
         <div className="flex items-center gap-2">
           <h2 className="text-2xl font-medium">Installation</h2>
-          <CopyButton text={installationCode} />
+          <CopyButton
+            className="-mt-3.5 -mb-4 size-8 rounded-md transition-colors hover:bg-cream/60 active:bg-[#E9E8E0]"
+            text={installationCode}
+          />
         </div>
         <pre className="w-full overflow-x-auto rounded-2xl bg-cream/60 p-6 squircle supports-squircle:rounded-3xl">
           {installationCode}
@@ -97,7 +77,10 @@ export function ShaderPageContent({
       <section>
         <div className="flex items-center gap-2">
           <h2 className="text-2xl font-medium">Code</h2>
-          <CopyButton text={code} />
+          <CopyButton
+            className="-mt-3.5 -mb-4 size-8 rounded-md transition-colors hover:bg-cream/60 active:bg-[#E9E8E0]"
+            text={code}
+          />
         </div>
         <div className="flex flex-col gap-2">
           <pre className="overflow-x-auto rounded-2xl bg-cream/60 p-6 squircle supports-squircle:rounded-3xl">
@@ -113,22 +96,22 @@ export function ShaderPageContent({
             <table className="w-full text-base">
               <thead>
                 <tr className="bg-[#E9E8E0]">
-                  <th className="px-3 py-2 text-left font-medium">Name</th>
-                  <th className="px-3 py-2 text-left font-medium">Description</th>
-                  <th className="px-3 py-2 text-left font-medium">Type</th>
-                  <th className="px-3 py-2 text-left font-medium">Values</th>
-                  <th className="hidden px-3 py-2 text-left font-medium">Default</th>
+                  <th className="px-4 py-3 text-left font-medium">Name</th>
+                  <th className="px-4 py-3 text-left font-medium">Description</th>
+                  <th className="px-4 py-3 text-left font-medium">Type</th>
+                  <th className="px-4 py-3 text-left font-medium">Values</th>
+                  <th className="hidden px-4 py-3 text-left font-medium">Default</th>
                 </tr>
               </thead>
               <tbody>
                 {shaderDef.params.map((param) => (
                   <tr key={param.name} className="border-[#e5e4db] not-last:border-b">
-                    <td className="px-3 py-3 font-medium text-stone-700">{param.name}</td>
-                    <td className="px-3 py-3 text-stone-600">{param.description}</td>
-                    <td className="px-3 py-3 text-sm text-stone-700">
+                    <td className="px-4 py-3 font-medium">{param.name}</td>
+                    <td className="px-4 py-3 text-stone-600">{param.description}</td>
+                    <td className="px-4 py-3 text-sm text-stone-600">
                       <code>{param.type}</code>
                     </td>
-                    <td className="max-w-60 px-3 py-3 text-sm text-stone-600">
+                    <td className="max-w-60 px-4 py-3 text-sm text-stone-600">
                       {param.options && param.options.length > 0 ? (
                         typeof param.options[0] === 'string' ? (
                           <div className="text-pretty">
@@ -166,7 +149,7 @@ export function ShaderPageContent({
                         <span className="text-stone-300">—</span>
                       )}
                     </td>
-                    <td className="hidden px-3 py-3 text-stone-600">
+                    <td className="hidden px-4 py-3 text-stone-600">
                       <span className="font-mono text-xs">{JSON.stringify(param.defaultValue)}</span>
                     </td>
                   </tr>

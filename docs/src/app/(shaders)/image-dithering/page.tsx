@@ -103,10 +103,14 @@ const ImageDitheringWithControls = () => {
   return (
     <div className="page-container">
       <Header title={imageDitheringDef.name} />
-      <ImageDithering className="my-12 aspect-16/9" onClick={handleClick} {...params} image={image || undefined} />
-      <div onClick={handleClick} className="py-3 text-center select-none">
-        Click to change sample image
+
+      <div className="my-12">
+        <ImageDithering className="my-4 aspect-16/9" onClick={handleClick} {...params} image={image || undefined} />
+        <div onClick={handleClick} className="mx-auto w-fit text-base text-stone-600 select-none">
+          Click to change the sample image
+        </div>
       </div>
+
       <ShaderPageContent shaderDef={imageDitheringDef} currentParams={params} />
     </div>
   );

@@ -102,10 +102,10 @@ export const foldsPreset: FlutedGlassPreset = {
     shift: 0,
     blur: 0,
     highlights: 0,
-    marginLeft: 0.15,
-    marginRight: 0.15,
-    marginTop: 0.15,
-    marginBottom: 0.15,
+    marginLeft: 0.05,
+    marginRight: 0.05,
+    marginTop: 0.2,
+    marginBottom: 0.2,
   },
 };
 
