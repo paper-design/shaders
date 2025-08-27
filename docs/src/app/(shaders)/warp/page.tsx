@@ -60,10 +60,14 @@ const WarpWithControls = () => {
   return (
     <div className="page-container">
       <Header title={warpDef.name} />
+
       <ShaderContainer>
         <Warp {...params} colors={colors} />
       </ShaderContainer>
-      <ShaderPageContent shaderDef={warpDef} currentParams={{ ...params, colors }} />
+
+      <div className="page-contents">
+        <ShaderPageContent shaderDef={warpDef} currentParams={{ ...params, colors }} />
+      </div>
     </div>
   );
 };

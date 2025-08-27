@@ -56,10 +56,14 @@ const SimplexNoiseWithControls = () => {
   return (
     <div className="page-container">
       <Header title={simplexNoiseDef.name} />
+
       <ShaderContainer>
         <SimplexNoise {...params} colors={colors} />
       </ShaderContainer>
-      <ShaderPageContent shaderDef={simplexNoiseDef} currentParams={{ ...params, colors }} />
+
+      <div className="page-contents">
+        <ShaderPageContent shaderDef={simplexNoiseDef} currentParams={{ ...params, colors }} />
+      </div>
     </div>
   );
 };

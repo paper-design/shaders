@@ -65,10 +65,14 @@ const GrainGradientWithControls = () => {
   return (
     <div className="page-container">
       <Header title={grainGradientDef.name} />
+
       <ShaderContainer>
         <GrainGradient {...params} colors={colors} />
       </ShaderContainer>
-      <ShaderPageContent shaderDef={grainGradientDef} currentParams={{ ...params, colors }} />
+
+      <div className="page-contents">
+        <ShaderPageContent shaderDef={grainGradientDef} currentParams={{ ...params, colors }} />
+      </div>
     </div>
   );
 };

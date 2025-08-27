@@ -50,10 +50,14 @@ const LiquidMetalWithControls = () => {
   return (
     <div className="page-container">
       <Header title={liquidMetalDef.name} />
+
       <ShaderContainer>
         <LiquidMetal {...params} />
       </ShaderContainer>
-      <ShaderPageContent shaderDef={liquidMetalDef} currentParams={params} />
+
+      <div className="page-contents">
+        <ShaderPageContent shaderDef={liquidMetalDef} currentParams={params} />
+      </div>
     </div>
   );
 };

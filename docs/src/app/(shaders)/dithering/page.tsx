@@ -47,10 +47,14 @@ const DitheringWithControls = () => {
   return (
     <div className="page-container">
       <Header title={ditheringDef.name} />
+
       <ShaderContainer>
         <Dithering {...params} />
       </ShaderContainer>
-      <ShaderPageContent shaderDef={ditheringDef} currentParams={params} />
+
+      <div className="page-contents">
+        <ShaderPageContent shaderDef={ditheringDef} currentParams={params} />
+      </div>
     </div>
   );
 };

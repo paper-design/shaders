@@ -61,10 +61,14 @@ const SpiralWithControls = () => {
   return (
     <div className="page-container">
       <Header title={spiralDef.name} />
+
       <ShaderContainer>
         <Spiral {...params} />
       </ShaderContainer>
-      <ShaderPageContent shaderDef={spiralDef} currentParams={params} />
+
+      <div className="page-contents">
+        <ShaderPageContent shaderDef={spiralDef} currentParams={params} />
+      </div>
     </div>
   );
 };

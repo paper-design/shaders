@@ -59,10 +59,14 @@ const MetaballsWithControls = () => {
   return (
     <div className="page-container">
       <Header title={metaballsDef.name} />
+
       <ShaderContainer>
         <Metaballs {...params} colors={colors} />
       </ShaderContainer>
-      <ShaderPageContent shaderDef={metaballsDef} currentParams={{ ...params, colors }} />
+
+      <div className="page-contents">
+        <ShaderPageContent shaderDef={metaballsDef} currentParams={{ ...params, colors }} />
+      </div>
     </div>
   );
 };

@@ -57,10 +57,14 @@ const DotGridWithControls = () => {
   return (
     <div className="page-container">
       <Header title={dotGridDef.name} />
+
       <ShaderContainer>
         <DotGrid {...params} />
       </ShaderContainer>
-      <ShaderPageContent shaderDef={dotGridDef} currentParams={params} />
+
+      <div className="page-contents">
+        <ShaderPageContent shaderDef={dotGridDef} currentParams={params} />
+      </div>
     </div>
   );
 };

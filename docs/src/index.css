@@ -58,13 +58,14 @@
     color: var(--color-foreground);
     background-color: white;
     text-size-adjust: none;
-    font-size: 1.125rem;
+    font-size: 18px;
+    line-height: calc(4 / 3);
   }
 
   pre {
     font-family: 'Paper Mono', monospace;
-    font-size: 0.9rem;
-    line-height: 1.625rem;
+    font-size: 14px;
+    line-height: 26px;
   }
 
   pre::-webkit-scrollbar {

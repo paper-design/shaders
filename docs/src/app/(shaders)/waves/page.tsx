@@ -51,10 +51,14 @@ const WavesWithControls = () => {
   return (
     <div className="page-container">
       <Header title={wavesDef.name} />
+
       <ShaderContainer>
         <Waves {...params} />
       </ShaderContainer>
-      <ShaderPageContent shaderDef={wavesDef} currentParams={params} />
+
+      <div className="page-contents">
+        <ShaderPageContent shaderDef={wavesDef} currentParams={params} />
+      </div>
     </div>
   );
 };
