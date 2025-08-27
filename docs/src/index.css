@@ -11,6 +11,8 @@
   --color-blue: oklch(74% 0.104 258);
   --color-cream: #f0efe4;
 
+  --text-3xl: 1.75rem;
+
   --breakpoint-xs: 28rem;
   --breakpoint-2xl: 85rem;
   --breakpoint-3xl: 116rem;

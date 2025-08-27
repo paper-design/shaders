@@ -60,7 +60,9 @@ export function ShaderPageContent({
   const installationCode = 'npm i @paper-design/shaders-react';
 
   return (
-    <div className="flex w-full flex-col gap-32 [&>section]:flex [&>section]:flex-col [&>section]:gap-16">
+    <div className="mt-24 flex w-full flex-col gap-32 md:mt-40 [&>section]:flex [&>section]:flex-col [&>section]:gap-16">
+      <h1 className="border-b border-stone-300 pb-24 text-3xl font-[330] lowercase md:pb-32">{shaderDef.name}</h1>
+
       <section>
         <div className="flex items-center gap-8">
           <h2 className="text-2xl font-medium">Installation</h2>
@@ -69,7 +71,7 @@ export function ShaderPageContent({
             text={installationCode}
           />
         </div>
-        <pre className="no-scrollbar w-full overflow-x-auto rounded-2xl bg-cream/60 p-24 squircle:rounded-3xl">
+        <pre className="no-scrollbar w-full overflow-x-auto rounded-xl bg-cream/60 p-24 squircle:rounded-2xl">
           {installationCode}
         </pre>
       </section>
@@ -83,14 +85,14 @@ export function ShaderPageContent({
           />
         </div>
         <div className="flex flex-col gap-8">
-          <pre className="overflow-x-auto rounded-2xl bg-cream/60 p-24 squircle:rounded-3xl">{code}</pre>
+          <pre className="overflow-x-auto rounded-xl bg-cream/60 p-24 squircle:rounded-2xl">{code}</pre>
         </div>
       </section>
 
       <section>
         <div className="flex flex-col gap-16">
           <h2 className="text-2xl font-medium">Props</h2>
-          <div className="overflow-x-auto rounded-2xl bg-cream/60 squircle:rounded-3xl">
+          <div className="overflow-x-auto rounded-xl bg-cream/60 squircle:rounded-2xl">
             <table className="w-full text-base">
               <thead>
                 <tr className="bg-[#E9E8E0]">

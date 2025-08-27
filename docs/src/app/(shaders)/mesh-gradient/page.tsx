@@ -56,7 +56,7 @@ const MeshGradientWithControls = () => {
 
   return (
     <div className="page-container">
-      <Header />
+      <Header title={meshGradientDef.name} />
 
       <ShaderContainer>
         <MeshGradient {...params} colors={colors} />

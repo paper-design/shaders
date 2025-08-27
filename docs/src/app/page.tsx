@@ -25,10 +25,10 @@ export default function Home() {
 
         <div className="mx-auto mb-8 flex flex-col items-center gap-8 text-center">
           <h1
-            className="font-mono text-3xl font-medium lowercase xs:text-4xl"
-            style={{ fontFeatureSettings: '"ss02"' }}
+            className="text-3xl font-light lowercase xs:text-4xl"
+            style={{ fontFeatureSettings: '"ss01"', wordSpacing: '0.1em' }}
           >
-            Paper<span className="mr-[-0.1em]"> </span>Shaders
+            Paper Shaders
           </h1>
           <p className="max-w-256 text-lg text-stone-600">ultra fast zero-dependency shaders for your designs</p>
         </div>
