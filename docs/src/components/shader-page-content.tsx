@@ -60,16 +60,16 @@ export function ShaderPageContent({
   const installationCode = 'npm i @paper-design/shaders-react';
 
   return (
-    <div className="mx-auto flex w-full flex-col gap-8 [&>section]:flex [&>section]:flex-col [&>section]:gap-4">
+    <div className="flex w-full flex-col gap-8 [&>section]:flex [&>section]:flex-col [&>section]:gap-4">
       <section>
         <div className="flex items-center gap-2">
           <h2 className="text-2xl font-medium">Installation</h2>
           <CopyButton
-            className="-mt-3.5 -mb-4 size-8 rounded-md transition-colors squircle hover:bg-cream/60 active:bg-[#E9E8E0] supports-squircle:rounded-lg"
+            className="-mt-3.5 -mb-4 size-8 rounded-md transition-colors hover:bg-cream/60 active:bg-[#E9E8E0] squircle:rounded-lg"
             text={installationCode}
           />
         </div>
-        <pre className="no-scrollbar w-full overflow-x-auto rounded-2xl bg-cream/60 p-6 squircle supports-squircle:rounded-3xl">
+        <pre className="no-scrollbar w-full overflow-x-auto rounded-2xl bg-cream/60 p-6 squircle:rounded-3xl">
           {installationCode}
         </pre>
       </section>
@@ -78,21 +78,19 @@ export function ShaderPageContent({
         <div className="flex items-center gap-2">
           <h2 className="text-2xl font-medium">Code</h2>
           <CopyButton
-            className="-mt-3.5 -mb-4 size-8 rounded-md transition-colors squircle hover:bg-cream/60 active:bg-[#E9E8E0] supports-squircle:rounded-lg"
+            className="-mt-3.5 -mb-4 size-8 rounded-md transition-colors hover:bg-cream/60 active:bg-[#E9E8E0] squircle:rounded-lg"
             text={code}
           />
         </div>
         <div className="flex flex-col gap-2">
-          <pre className="overflow-x-auto rounded-2xl bg-cream/60 p-6 squircle supports-squircle:rounded-3xl">
-            {code}
-          </pre>
+          <pre className="overflow-x-auto rounded-2xl bg-cream/60 p-6 squircle:rounded-3xl">{code}</pre>
         </div>
       </section>
 
       <section>
         <div className="flex flex-col gap-4">
           <h2 className="text-2xl font-medium">Props</h2>
-          <div className="overflow-x-auto rounded-2xl bg-cream/60 squircle supports-squircle:rounded-3xl">
+          <div className="overflow-x-auto rounded-2xl bg-cream/60 squircle:rounded-3xl">
             <table className="w-full text-base">
               <thead>
                 <tr className="bg-[#E9E8E0]">
@@ -147,7 +145,7 @@ export function ShaderPageContent({
                           {param.step === 1 && ' (integer)'}
                         </>
                       ) : param.isColor ? (
-                        <span className="whitespace-nowrap">CSS color</span>
+                        <span className="whitespace-nowrap">Hex, RGB, or HSL color</span>
                       ) : (
                         <span className="text-stone-300">—</span>
                       )}

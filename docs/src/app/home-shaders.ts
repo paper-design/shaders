@@ -82,6 +82,7 @@ type HomeShaderConfig = {
   name: string;
   image?: StaticImageData;
   url: string;
+  pixelated?: boolean;
   ShaderComponent: React.FC<ShaderComponentProps>;
   shaderConfig?: Record<string, unknown>;
   style?: React.CSSProperties;
@@ -93,7 +94,8 @@ export const homeShaders = [
     url: '/grain-gradient',
     ShaderComponent: GrainGradient,
     image: grainGradientImg,
-    shaderConfig: { ...grainGradientPresets[0].params, frame: 7000, noise: 0.5, speed: 2 },
+    pixelated: true,
+    shaderConfig: { ...grainGradientPresets[0].params, frame: 7000, speed: 1.5 },
   },
   {
     name: 'mesh gradient',
@@ -121,6 +123,7 @@ export const homeShaders = [
     url: '/dithering',
     ShaderComponent: Dithering,
     image: ditheringImg,
+    pixelated: true,
     shaderConfig: { ...ditheringPresets[0].params, scale: 0.6 },
   },
   {

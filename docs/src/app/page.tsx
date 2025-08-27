@@ -11,8 +11,8 @@ import { Logo } from '@/components/logo';
 
 export default function Home() {
   return (
-    <>
-      <div className="mx-auto px-8 pt-5 pb-24 md:px-12 lg:max-w-[1280px] lg:px-24 2xl:max-w-[1664px]">
+    <div className="mx-auto box-content max-w-[69rem] px-8 md:px-12 2xl:max-w-[92rem]">
+      <div className="pt-5 pb-24">
         <div className="mb-16 flex w-full items-center justify-between sm:mb-12 md:mb-8">
           <Link className="flex" href="https://paper.design/" target="_blank">
             <Logo />
@@ -44,16 +44,14 @@ export default function Home() {
         </div>
       </div>
 
-      <main className="pb-64 text-lg">
-        <div className="mx-auto px-8 md:px-12 lg:max-w-[1280px] lg:px-24 2xl:max-w-[1664px]">
-          <div className="grid grid-cols-1 gap-8 xs:grid-cols-2 md:gap-12 lg:grid-cols-3 xl:gap-16 2xl:grid-cols-4">
-            {homeShaders.map((shader) => (
-              <ShaderItem key={shader.name} {...shader} />
-            ))}
-          </div>
+      <main className="pb-32 text-lg">
+        <div className="grid grid-cols-1 gap-8 xs:grid-cols-2 md:gap-12 lg:grid-cols-3 2xl:grid-cols-4 3xl:gap-16">
+          {homeShaders.map((shader) => (
+            <ShaderItem key={shader.name} {...shader} />
+          ))}
         </div>
       </main>
-    </>
+    </div>
   );
 }
 
@@ -62,12 +60,14 @@ function ShaderItem({
   image,
   url,
   style,
+  pixelated,
   shaderConfig,
   ShaderComponent,
 }: {
   name: string;
   image?: StaticImageData;
   url: string;
+  pixelated?: boolean;
   ShaderComponent: React.ComponentType<{ style: React.CSSProperties } & Record<string, unknown>>;
   style?: React.CSSProperties;
   shaderConfig?: Record<string, unknown>;
@@ -77,7 +77,7 @@ function ShaderItem({
   return (
     <Link href={url} className="flex flex-col gap-2">
       <div
-        className="relative flex aspect-[4/3] items-center justify-center overflow-hidden rounded-2xl bg-cream/50 will-change-transform squircle supports-squircle:rounded-4xl"
+        className="relative flex aspect-[4/3] items-center justify-center overflow-hidden rounded-2xl bg-cream/50 will-change-transform squircle:rounded-4xl"
         onTouchStart={() => setShaderVisibility('visible')}
         onTouchEnd={() => setShaderVisibility('fading-out')}
         onTouchCancel={() => setShaderVisibility('fading-out')}
@@ -95,7 +95,8 @@ function ShaderItem({
         {image && (
           <>
             <Image
-              className="absolute aspect-[4/3] h-full w-full"
+              data-pixelated={pixelated ? '' : undefined}
+              className="absolute aspect-[4/3] h-full w-full data-pixelated:pixelated"
               src={image}
               alt={`Preview of ${name}`}
               unoptimized // The images are already optimized

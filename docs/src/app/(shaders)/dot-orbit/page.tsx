@@ -11,6 +11,7 @@ import { toHsla } from '@/helpers/to-hsla';
 import { ShaderPageContent } from '@/components/shader-page-content';
 import { dotOrbitDef } from '@/shader-defs/dot-orbit-def';
 import { Header } from '@/components/header';
+import { LevaCustomized } from '@/components/leva-customized';
 
 /**
  * You can copy/paste this example to use DotOrbit in your app
@@ -73,7 +74,11 @@ const DotOrbitWithControls = () => {
   return (
     <div className="page-container">
       <Header title={dotOrbitDef.name} />
-      <DotOrbit className="page-shader my-12" {...params} colors={colors} />
+
+      <LevaCustomized>
+        <DotOrbit {...params} colors={colors} />
+      </LevaCustomized>
+
       <ShaderPageContent shaderDef={dotOrbitDef} currentParams={{ ...params, colors }} />
     </div>
   );

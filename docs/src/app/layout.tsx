@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from 'next';
-import '../globals.css';
+import '../index.css';
 import { Analytics } from '@vercel/analytics/react';
 import openGraphImage from '../../public/images/opengraph-image.png';
 import { SavePreviousPathname } from '@/components/save-previous-pathname';
@@ -27,17 +27,14 @@ export const viewport: Viewport = {
   themeColor: '#f0efe4',
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export default function RootLayout({ children }: React.PropsWithChildren) {
   return (
     <html lang="en">
       <body className="min-w-[320px] overflow-y-scroll antialiased">
-        <div inert className="absolute top-0 right-0 left-0 -z-1 h-200 bg-linear-to-b from-cream" />
-
-        {children}
+        <div className="isolate">
+          <div inert className="absolute top-0 right-0 left-0 -z-1 h-200 bg-linear-to-b from-cream" />
+          {children}
+        </div>
         <Analytics />
         <SavePreviousPathname />
       </body>

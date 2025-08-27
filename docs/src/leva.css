@@ -1,6 +1,8 @@
 #leva__root {
   --leva-sizes-rootWidth: 300px;
   --leva-sizes-controlWidth: 140px;
+  --leva-sizes-numberInputMinWidth: 6ch;
+  --leva-sizes-folderTitleHeight: 32px;
 
   /* Theme overrides. Note: using the Leva theme prop instead of CSS variables causes overflows with some sections that have a dynamic number of inputs such as colors. */
   --leva-colors-elevation1: #e0e0d9; /* bg color of the root panel (main title bar) */
@@ -29,8 +31,17 @@ div[style*='--leva-colors-folderTextColor'] {
 }
 
 #leva__root > div {
-  margin-top: 62px;
-  margin-right: 30px;
+  font-family: var(--font-mono);
+  margin: 0;
+  top: 108px;
+  right: auto;
+
+  --pl: 3rem;
+  --pr: calc(6rem + 300px);
+  --w: var(--leva-sizes-rootWidth);
+  --max-w: 1168px;
+  /* TODO Vlad also scrollbars? */
+  left: calc(6rem + min(100dvw - var(--pl) - var(--pr), var(--max-w)));
 }
 
 #leva__root button {
@@ -60,15 +71,8 @@ div[style*='--leva-colors-folderTextColor'] {
   stroke: white;
 }
 
-@media (max-width: 639px) {
+@media (width < 1280px) {
   #leva__root {
     display: none;
-  }
-}
-
-/* Farther from the right window edge on wide screens, but tighter on narrow screens */
-@media (max-width: 1340px) {
-  #leva__root > div {
-    margin-right: 10px;
   }
 }

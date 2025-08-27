@@ -10,6 +10,7 @@ import { useColors } from '@/helpers/use-colors';
 import { ShaderPageContent } from '@/components/shader-page-content';
 import { meshGradientDef } from '@/shader-defs/mesh-gradient-def';
 import { Header } from '@/components/header';
+import { LevaCustomized } from '@/components/leva-customized';
 
 /**
  * You can copy/paste this example to use MeshGradient in your app
@@ -66,9 +67,15 @@ const MeshGradientWithControls = () => {
 
   return (
     <div className="page-container">
-      <Header title={meshGradientDef.name} />
-      <MeshGradient className="page-shader my-12" {...params} colors={colors} />
-      <ShaderPageContent shaderDef={meshGradientDef} currentParams={{ ...params, colors }} />
+      <Header />
+
+      <LevaCustomized>
+        <MeshGradient {...params} colors={colors} />
+      </LevaCustomized>
+
+      <div className="max-w-[60rem] 3xl:max-w-[69rem]">
+        <ShaderPageContent shaderDef={meshGradientDef} currentParams={{ ...params, colors }} />
+      </div>
     </div>
   );
 };

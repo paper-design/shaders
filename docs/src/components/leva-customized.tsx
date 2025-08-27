@@ -1,0 +1,63 @@
+'use client';
+import { Leva } from 'leva';
+
+export function LevaCustomized({ children }: React.PropsWithChildren) {
+  return (
+    <div className="relative my-12 max-w-[60rem] 3xl:max-w-[69rem]">
+      <div className="flex aspect-16/9 *:size-full not-has-[[data-paper-shaders]]:bg-cream">{children}</div>
+
+      <div
+        className="absolute top-0 -right-83 hidden w-75 overflow-auto rounded-xl bg-[#F4F3EB] pb-[4px] has-[[data-leva-container]>[style*='display:none']]:hidden 2xl:block squircle:rounded-2xl"
+        style={{
+          boxShadow: `
+            rgba(58, 34, 17, 0.1) 0px 4px 40px -8px,
+            rgba(58, 34, 17, 0.2) 0px 12px 20px -8px,
+            rgba(58, 34, 17, 0.1) 0px 0px 0px 1px
+          `,
+        }}
+      >
+        <div className="-mb-[14px] cursor-default p-[10px] font-mono text-[11px]">Presets</div>
+
+        <div data-leva-container>
+          <Leva
+            fill
+            flat
+            hideCopyButton
+            titleBar={false}
+            theme={{
+              fonts: {
+                mono: 'var(--font-mono)',
+              },
+              colors: {
+                // Separators and slider tracks
+                elevation1: '#e2e1d8',
+                // Main background color
+                elevation2: 'transparent',
+                // Inputs background
+                elevation3: '#dddbd2',
+
+                // Button :active
+                accent1: '#777775',
+                // Buttons at rest
+                accent2: '#999997',
+                // Slider thumb hover
+                accent3: '#777775',
+
+                // Label and input text color
+                highlight2: '#222',
+                // Leva folder title
+                folderTextColor: '#222',
+                // Leva folder chevron and border
+                folderWidgetColor: '#999997',
+              },
+              sizes: {
+                folderTitleHeight: '28px',
+                numberInputMinWidth: '6ch',
+              },
+            }}
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
