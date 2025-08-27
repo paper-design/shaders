@@ -2,7 +2,7 @@
 @import 'tailwindcss';
 
 @theme {
-  --spacing: 0.0625rem;
+  --spacing: 1px;
 
   --default-font-family: 'Matter', system-ui, sans-serif;
   --font-mono: 'Paper Mono', ui-monospace, monospace;
@@ -48,6 +48,7 @@
 
 @layer base {
   html {
+    font-size: 16px; /* Always 16px base */
     background-color: var(--color-cream);
   }
 
