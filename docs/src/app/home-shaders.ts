@@ -204,7 +204,7 @@ export const homeShaders = [
     url: '/pulsing-border',
     ShaderComponent: PulsingBorder,
     image: pulsingBorderImg,
-    shaderConfig: { ...pulsingBorderPresets[0].params },
+    shaderConfig: { ...pulsingBorderPresets[0].params, frame: 4000 },
   },
   {
     name: 'metaballs',
