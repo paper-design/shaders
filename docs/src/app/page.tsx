@@ -11,41 +11,41 @@ import { Logo } from '@/components/logo';
 
 export default function Home() {
   return (
-    <div className="mx-auto box-content max-w-[69rem] px-8 md:px-12 2xl:max-w-[92rem]">
-      <div className="pt-5 pb-24">
-        <div className="mb-16 flex w-full items-center justify-between sm:mb-12 md:mb-8">
+    <div className="mx-auto box-content max-w-1104 px-32 md:px-48 2xl:max-w-1472">
+      <div className="pt-20 pb-96">
+        <div className="mb-64 flex w-full items-center justify-between sm:mb-48 md:mb-32">
           <Link className="flex" href="https://paper.design/" target="_blank">
             <Logo />
           </Link>
 
           <Link href="https://github.com/paper-design/shaders" target="_blank">
-            <GithubIcon className="size-7" />
+            <GithubIcon className="size-28" />
           </Link>
         </div>
 
-        <div className="mx-auto mb-2 flex flex-col items-center gap-2 text-center">
+        <div className="mx-auto mb-8 flex flex-col items-center gap-8 text-center">
           <h1
             className="font-mono text-3xl font-medium lowercase xs:text-4xl"
             style={{ fontFeatureSettings: '"ss02"' }}
           >
             Paper<span className="mr-[-0.1em]"> </span>Shaders
           </h1>
-          <p className="max-w-64 text-lg text-stone-600">ultra fast zero-dependency shaders for your designs</p>
+          <p className="max-w-256 text-lg text-stone-600">ultra fast zero-dependency shaders for your designs</p>
         </div>
 
-        <div className="mx-auto mt-5 flex h-12 w-fit max-w-full items-center rounded-lg border bg-white font-mono text-sm text-nowrap text-stone-800 sm:text-base">
-          <div className="no-scrollbar flex h-full w-full items-center overflow-x-scroll overscroll-y-none px-4">
+        <div className="mx-auto mt-20 flex h-48 w-fit max-w-full items-center rounded-lg border bg-white font-mono text-sm text-nowrap text-stone-800 sm:text-base">
+          <div className="no-scrollbar flex h-full w-full items-center overflow-x-scroll overscroll-y-none px-16">
             npm i @paper-design/react-shaders
           </div>
           <CopyButton
-            className="hidden size-12 shrink-0 items-center justify-center border-l xs:flex"
+            className="hidden size-48 shrink-0 items-center justify-center border-l xs:flex"
             text="npm i @paper-design/react-shaders"
           />
         </div>
       </div>
 
-      <main className="pb-32 text-lg">
-        <div className="grid grid-cols-1 gap-8 xs:grid-cols-2 md:gap-12 lg:grid-cols-3 2xl:grid-cols-4 3xl:gap-16">
+      <main className="pb-128 text-lg">
+        <div className="grid grid-cols-1 gap-32 xs:grid-cols-2 md:gap-48 lg:grid-cols-3 2xl:grid-cols-4 3xl:gap-64">
           {homeShaders.map((shader) => (
             <ShaderItem key={shader.name} {...shader} />
           ))}
@@ -75,7 +75,7 @@ function ShaderItem({
   const [shaderVisibility, setShaderVisibility] = useState<'hidden' | 'visible' | 'fading-out'>('hidden');
 
   return (
-    <Link href={url} className="flex flex-col gap-2">
+    <Link href={url} className="flex flex-col gap-8">
       <div
         className="relative flex aspect-[4/3] items-center justify-center overflow-hidden rounded-2xl bg-cream/50 will-change-transform squircle:rounded-4xl"
         onTouchStart={() => setShaderVisibility('visible')}

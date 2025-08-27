@@ -13,11 +13,11 @@ interface HeaderProps {
 export const Header = ({ title }: HeaderProps) => {
   const router = useRouter();
   return (
-    <div className="relative pt-5">
-      <div className="mb-4 flex w-full items-center justify-between">
+    <div className="relative pt-20">
+      <div className="mb-16 flex w-full items-center justify-between">
         <Link
           href="/"
-          className="mr-auto flex items-center gap-4 text-xl lowercase select-none"
+          className="mr-auto flex items-center gap-16 text-xl lowercase select-none"
           style={{ fontFeatureSettings: '"ss02"' }}
           onClick={(event) => {
             if (event.shiftKey || event.altKey || event.metaKey || event.ctrlKey) {
@@ -38,7 +38,7 @@ export const Header = ({ title }: HeaderProps) => {
         </Link>
 
         <Link href="https://github.com/paper-design/shaders" target="_blank" className="ml-auto hidden xs:flex">
-          <GithubIcon className="size-7" />
+          <GithubIcon className="size-28" />
         </Link>
       </div>
 
