@@ -7,7 +7,7 @@ import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
 import { LiquidMetalShapes, LiquidMetalShape } from '@paper-design/shaders';
 import { toHsla } from '@/helpers/to-hsla';
-import { ShaderPageContent } from '@/components/shader-page-content';
+import { ShaderDetails } from '@/components/shader-details';
 import { liquidMetalDef } from '@/shader-defs/liquid-metal-def';
 import { Header } from '@/components/header';
 import { ShaderContainer } from '@/components/shader-container';
@@ -52,7 +52,7 @@ const LiquidMetalWithControls = () => {
       <ShaderContainer>
         <LiquidMetal {...params} />
       </ShaderContainer>
-      <ShaderPageContent shaderDef={liquidMetalDef} currentParams={params} />
+      <ShaderDetails shaderDef={liquidMetalDef} currentParams={params} />
     </>
   );
 };

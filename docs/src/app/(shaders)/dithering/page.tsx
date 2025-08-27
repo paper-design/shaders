@@ -8,7 +8,7 @@ import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
 import { DitheringShape, DitheringShapes, DitheringType, DitheringTypes } from '@paper-design/shaders';
 import { toHsla } from '@/helpers/to-hsla';
-import { ShaderPageContent } from '@/components/shader-page-content';
+import { ShaderDetails } from '@/components/shader-details';
 import { ditheringDef } from '@/shader-defs/dithering-def';
 import { Header } from '@/components/header';
 import { ShaderContainer } from '@/components/shader-container';
@@ -49,7 +49,7 @@ const DitheringWithControls = () => {
       <ShaderContainer>
         <Dithering {...params} />
       </ShaderContainer>
-      <ShaderPageContent shaderDef={ditheringDef} currentParams={params} />
+      <ShaderDetails shaderDef={ditheringDef} currentParams={params} />
     </>
   );
 };

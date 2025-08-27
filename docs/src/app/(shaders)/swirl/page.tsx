@@ -8,7 +8,7 @@ import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
 import { simplexNoiseMeta } from '@paper-design/shaders';
 import { useColors } from '@/helpers/use-colors';
 import { toHsla } from '@/helpers/to-hsla';
-import { ShaderPageContent } from '@/components/shader-page-content';
+import { ShaderDetails } from '@/components/shader-details';
 import { swirlDef } from '@/shader-defs/swirl-def';
 import { Header } from '@/components/header';
 import { ShaderContainer } from '@/components/shader-container';
@@ -64,7 +64,7 @@ const SwirlWithControls = () => {
       <ShaderContainer>
         <Swirl {...params} colors={colors} />
       </ShaderContainer>
-      <ShaderPageContent shaderDef={swirlDef} currentParams={{ ...params, colors }} />
+      <ShaderDetails shaderDef={swirlDef} currentParams={{ ...params, colors }} />
     </>
   );
 };

@@ -8,7 +8,7 @@ import { godRaysMeta } from '@paper-design/shaders';
 import { useControls, button, folder } from 'leva';
 import { useColors } from '@/helpers/use-colors';
 import { toHsla } from '@/helpers/to-hsla';
-import { ShaderPageContent } from '@/components/shader-page-content';
+import { ShaderDetails } from '@/components/shader-details';
 import { godRaysDef } from '@/shader-defs/god-rays-def';
 import { Header } from '@/components/header';
 import { ShaderContainer } from '@/components/shader-container';
@@ -66,7 +66,7 @@ const GodRaysWithControls = () => {
       <ShaderContainer>
         <GodRays {...params} colors={colors} />
       </ShaderContainer>
-      <ShaderPageContent shaderDef={godRaysDef} currentParams={{ ...params, colors }} />
+      <ShaderDetails shaderDef={godRaysDef} currentParams={{ ...params, colors }} />
     </>
   );
 };

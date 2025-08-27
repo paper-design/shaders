@@ -37,7 +37,7 @@ const formatJsxAttribute = (key: string, value: unknown): string => {
   return `${key}={${JSON.stringify(value)}}`;
 };
 
-export function ShaderPageContent({
+export function ShaderDetails({
   shaderDef,
   currentParams,
 }: {
@@ -61,66 +61,67 @@ export function ShaderPageContent({
 
   return (
     <div className="mt-24 flex w-full flex-col gap-32 md:mt-40 [&>section]:flex [&>section]:flex-col [&>section]:gap-16">
-      <h1 className="border-b border-stone-300 pb-24 text-3xl font-[330] lowercase md:pb-32">{shaderDef.name}</h1>
+      <h1 className="border-b border-current/10 pb-24 text-3xl font-[330] lowercase md:pb-32 dark:border-current/20">
+        {shaderDef.name}
+      </h1>
 
       <section>
         <div className="flex items-center gap-8">
-          <h2 className="text-2xl font-medium">Installation</h2>
+          <h2 className="text-2xl font-medium lowercase">Installation</h2>
           <CopyButton
-            className="-mt-14 -mb-16 size-32 rounded-md transition-colors hover:bg-cream/60 active:bg-[#E9E8E0] squircle:rounded-lg"
+            className="-mt-14 -mb-16 size-32 rounded-md transition-colors hover:bg-backplate-1 active:bg-backplate-2 squircle:rounded-lg"
             text={installationCode}
           />
         </div>
-        <pre className="no-scrollbar w-full overflow-x-auto rounded-xl bg-cream/60 p-24 squircle:rounded-2xl">
+        <pre className="no-scrollbar w-full overflow-x-auto rounded-xl bg-backplate-1 p-24 text-code squircle:rounded-2xl">
           {installationCode}
         </pre>
       </section>
 
       <section>
         <div className="flex items-center gap-8">
-          <h2 className="text-2xl font-medium">Code</h2>
+          <h2 className="text-2xl font-medium lowercase">Code</h2>
           <CopyButton
-            className="-mt-14 -mb-16 size-32 rounded-md transition-colors hover:bg-cream/60 active:bg-[#E9E8E0] squircle:rounded-lg"
+            className="-mt-14 -mb-16 size-32 rounded-md transition-colors hover:bg-backplate-1 active:bg-backplate-2 squircle:rounded-lg"
             text={code}
           />
         </div>
         <div className="flex flex-col gap-8">
-          <pre className="overflow-x-auto rounded-xl bg-cream/60 p-24 squircle:rounded-2xl">{code}</pre>
+          <pre className="overflow-x-auto rounded-xl bg-backplate-1 p-24 text-code squircle:rounded-2xl">{code}</pre>
         </div>
       </section>
 
       <section>
         <div className="flex flex-col gap-16">
-          <h2 className="text-2xl font-medium">Props</h2>
-          <div className="overflow-x-auto rounded-xl bg-cream/60 squircle:rounded-2xl">
+          <h2 className="text-2xl font-medium lowercase">Props</h2>
+          <div className="overflow-x-auto rounded-xl bg-backplate-1 squircle:rounded-2xl">
             <table className="w-full text-base">
               <thead>
-                <tr className="bg-[#E9E8E0]">
-                  <th className="px-16 py-12 text-left font-medium">Name</th>
-                  <th className="px-16 py-12 text-left font-medium">Description</th>
-                  <th className="px-16 py-12 text-left font-medium">Type</th>
-                  <th className="px-16 py-12 text-left font-medium">Values</th>
-                  <th className="hidden px-16 py-12 text-left font-medium">Default</th>
+                <tr className="bg-backplate-2">
+                  <th className="px-16 py-12 text-left font-medium lowercase">Name</th>
+                  <th className="px-16 py-12 text-left font-medium lowercase">Description</th>
+                  <th className="px-16 py-12 text-left font-medium lowercase">Type</th>
+                  <th className="px-16 py-12 text-left font-medium lowercase">Values</th>
                 </tr>
               </thead>
               <tbody>
                 {shaderDef.params.map((param) => (
-                  <tr key={param.name} className="border-[#e5e4db] not-last:border-b">
+                  <tr key={param.name} className="border-current/10 not-last:border-b">
                     <td className="px-16 py-12 font-medium">{param.name}</td>
 
-                    <td className="min-w-[240px] px-16 py-12 text-stone-600">{param.description}</td>
+                    <td className="min-w-[240px] px-16 py-12 text-current/70">{param.description}</td>
 
-                    <td className="px-16 py-12 text-sm text-stone-600">
+                    <td className="px-16 py-12 text-sm text-current/70">
                       <code>{param.type}</code>
                     </td>
 
-                    <td className="max-w-240 px-16 py-12 text-sm text-stone-600">
+                    <td className="max-w-240 px-16 py-12 text-sm text-current/70">
                       {param.options && param.options.length > 0 ? (
                         typeof param.options[0] === 'string' ? (
                           <div className="text-pretty">
                             {(param.options as string[]).map((option, index) => (
                               <span key={option} className={param.type === 'boolean' ? 'whitespace-nowrap' : ''}>
-                                {<span className="mx-4 text-stone-400"> | </span>}
+                                {<span className="text-stone-400 mx-4"> | </span>}
                                 <code className="font-mono">{param.type === 'enum' ? `"${option}"` : option}</code>
                               </span>
                             ))}
@@ -152,9 +153,6 @@ export function ShaderPageContent({
                         <span className="text-stone-300">—</span>
                       )}
                     </td>
-                    <td className="hidden px-16 py-12 text-stone-600">
-                      <span className="font-mono text-xs">{JSON.stringify(param.defaultValue)}</span>
-                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -162,10 +160,11 @@ export function ShaderPageContent({
           </div>
         </div>
       </section>
+
       {shaderDef.description && (
         <section>
-          <h2 className="text-2xl font-medium">Description</h2>
-          <p className="text-pretty text-stone-600">{shaderDef.description}</p>
+          <h2 className="text-2xl font-medium lowercase">Description</h2>
+          <p className="text-pretty text-current/70">{shaderDef.description}</p>
         </section>
       )}
     </div>

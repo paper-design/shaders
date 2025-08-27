@@ -8,7 +8,7 @@ import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
 import { grainGradientMeta, GrainGradientShape, GrainGradientShapes } from '@paper-design/shaders';
 import { useColors } from '@/helpers/use-colors';
 import { toHsla } from '@/helpers/to-hsla';
-import { ShaderPageContent } from '@/components/shader-page-content';
+import { ShaderDetails } from '@/components/shader-details';
 import { grainGradientDef } from '@/shader-defs/grain-gradient-def';
 import { Header } from '@/components/header';
 import { ShaderContainer } from '@/components/shader-container';
@@ -67,7 +67,7 @@ const GrainGradientWithControls = () => {
       <ShaderContainer>
         <GrainGradient {...params} colors={colors} />
       </ShaderContainer>
-      <ShaderPageContent shaderDef={grainGradientDef} currentParams={{ ...params, colors }} />
+      <ShaderDetails shaderDef={grainGradientDef} currentParams={{ ...params, colors }} />
     </>
   );
 };

@@ -8,7 +8,7 @@ import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
 import { smokeRingMeta } from '@paper-design/shaders';
 import { useColors } from '@/helpers/use-colors';
 import { toHsla } from '@/helpers/to-hsla';
-import { ShaderPageContent } from '@/components/shader-page-content';
+import { ShaderDetails } from '@/components/shader-details';
 import { smokeRingDef } from '@/shader-defs/smoke-ring-def';
 import { Header } from '@/components/header';
 import { ShaderContainer } from '@/components/shader-container';
@@ -72,7 +72,7 @@ const SmokeRingWithControls = () => {
       <ShaderContainer>
         <SmokeRing {...params} colors={colors} />
       </ShaderContainer>
-      <ShaderPageContent shaderDef={smokeRingDef} currentParams={{ ...params, colors }} />
+      <ShaderDetails shaderDef={smokeRingDef} currentParams={{ ...params, colors }} />
     </>
   );
 };

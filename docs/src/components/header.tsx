@@ -30,8 +30,8 @@ export const Header = () => {
         }}
       >
         <Logo />
-        <div className="mt-5 h-28 w-1 bg-stone-400/50" />
-        <ShadersWordmark className="text-stone-700" />
+        <div className="mt-5 h-28 w-1 bg-current/20" />
+        <ShadersWordmark />
       </Link>
 
       <Link href="https://github.com/paper-design/shaders" target="_blank" className="ml-auto hidden xs:flex">

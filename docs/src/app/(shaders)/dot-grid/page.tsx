@@ -7,7 +7,7 @@ import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import { DotGridShape, DotGridShapes } from '@paper-design/shaders';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
 import { toHsla } from '@/helpers/to-hsla';
-import { ShaderPageContent } from '@/components/shader-page-content';
+import { ShaderDetails } from '@/components/shader-details';
 import { dotGridDef } from '@/shader-defs/dot-grid-def';
 import { Header } from '@/components/header';
 import { ShaderContainer } from '@/components/shader-container';
@@ -59,7 +59,7 @@ const DotGridWithControls = () => {
       <ShaderContainer>
         <DotGrid {...params} />
       </ShaderContainer>
-      <ShaderPageContent shaderDef={dotGridDef} currentParams={params} />
+      <ShaderDetails shaderDef={dotGridDef} currentParams={params} />
     </>
   );
 };

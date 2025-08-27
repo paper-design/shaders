@@ -9,7 +9,7 @@ import { ShaderFit } from '@paper-design/shaders';
 import { levaImageButton, levaDeleteImageButton } from '@/helpers/leva-image-button';
 import { useState, useEffect, useCallback } from 'react';
 import { toHsla } from '@/helpers/to-hsla';
-import { ShaderPageContent } from '@/components/shader-page-content';
+import { ShaderDetails } from '@/components/shader-details';
 import { paperTextureDef } from '@/shader-defs/paper-texture-def';
 import { Header } from '@/components/header';
 import { ShaderContainer } from '@/components/shader-container';
@@ -109,10 +109,10 @@ const PaperTextureWithControls = () => {
       <ShaderContainer>
         <PaperTexture onClick={handleClick} {...params} image={image || undefined} />
       </ShaderContainer>
-      <div onClick={handleClick} className="mx-auto mt-16 mb-48 w-fit text-base text-stone-600 select-none">
+      <div onClick={handleClick} className="mx-auto mt-16 mb-48 w-fit text-base text-current/70 select-none">
         Click to change the sample image
       </div>
-      <ShaderPageContent shaderDef={paperTextureDef} currentParams={params} />
+      <ShaderDetails shaderDef={paperTextureDef} currentParams={params} />
     </>
   );
 };

@@ -7,7 +7,7 @@ import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
 import { warpMeta, WarpPatterns } from '@paper-design/shaders';
 import { useColors } from '@/helpers/use-colors';
-import { ShaderPageContent } from '@/components/shader-page-content';
+import { ShaderDetails } from '@/components/shader-details';
 import { warpDef } from '@/shader-defs/warp-def';
 import { Header } from '@/components/header';
 import { ShaderContainer } from '@/components/shader-container';
@@ -62,7 +62,7 @@ const WarpWithControls = () => {
       <ShaderContainer>
         <Warp {...params} colors={colors} />
       </ShaderContainer>
-      <ShaderPageContent shaderDef={warpDef} currentParams={{ ...params, colors }} />
+      <ShaderDetails shaderDef={warpDef} currentParams={{ ...params, colors }} />
     </>
   );
 };

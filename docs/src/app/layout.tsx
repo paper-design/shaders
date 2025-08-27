@@ -32,7 +32,10 @@ export default function RootLayout({ children }: React.PropsWithChildren) {
     <html lang="en">
       <body className="min-w-[320px] overflow-y-scroll antialiased">
         <div className="isolate">
-          <div inert className="absolute top-0 right-0 left-0 -z-1 h-800 bg-linear-to-b from-cream" />
+          <div
+            inert
+            className="absolute top-0 right-0 left-0 -z-1 h-800 bg-linear-to-b from-[light-dark(var(--color-cream),#141414)] dark:hidden"
+          />
           {children}
         </div>
         <Analytics />

@@ -8,7 +8,7 @@ import { voronoiMeta } from '@paper-design/shaders';
 import { useControls, button, folder } from 'leva';
 import { useColors } from '@/helpers/use-colors';
 import { toHsla } from '@/helpers/to-hsla';
-import { ShaderPageContent } from '@/components/shader-page-content';
+import { ShaderDetails } from '@/components/shader-details';
 import { voronoiDef } from '@/shader-defs/voronoi-def';
 import { Header } from '@/components/header';
 import { ShaderContainer } from '@/components/shader-container';
@@ -62,7 +62,7 @@ const VoronoiWithControls = () => {
       <ShaderContainer>
         <Voronoi {...params} colors={colors} />
       </ShaderContainer>
-      <ShaderPageContent shaderDef={voronoiDef} currentParams={{ ...params, colors }} />
+      <ShaderDetails shaderDef={voronoiDef} currentParams={{ ...params, colors }} />
     </>
   );
 };

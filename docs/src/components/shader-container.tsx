@@ -9,7 +9,7 @@ export function ShaderContainer({ children }: React.PropsWithChildren) {
       </div>
 
       <div
-        className="absolute top-0 -right-332 hidden w-300 overflow-auto rounded-xl bg-[#F4F3EB] pb-4 has-[[data-leva-container]>[style*='display:none']]:hidden 2xl:block squircle:rounded-2xl"
+        className="absolute top-0 -right-332 hidden w-300 overflow-auto rounded-xl bg-(--color-leva-background) pb-4 has-[[data-leva-container]>[style*='display:none']]:hidden 2xl:block squircle:rounded-2xl"
         style={{
           boxShadow: `
             rgba(58, 34, 17, 0.1) 0px 4px 40px -8px,
@@ -32,29 +32,27 @@ export function ShaderContainer({ children }: React.PropsWithChildren) {
               },
               colors: {
                 // Separators and slider tracks
-                elevation1: '#e2e1d8',
+                elevation1: 'var(--color-leva-separators)',
                 // Main background color
                 elevation2: 'transparent',
                 // Inputs background
-                elevation3: '#dddbd2',
+                elevation3: 'var(--color-leva-input)',
 
                 // Button :active
-                accent1: '#777775',
+                accent1: 'var(--color-leva-control-pressed)',
                 // Buttons at rest
-                accent2: '#999997',
+                accent2: 'var(--color-leva-button)',
                 // Slider thumb hover
-                accent3: '#777775',
+                accent3: 'var(--color-leva-control-pressed)',
 
                 // Label and input text color
-                highlight2: '#222',
+                highlight2: 'var(--color-foreground)',
                 // Leva folder title
-                folderTextColor: '#222',
-                // Leva folder chevron and border
-                folderWidgetColor: '#999997',
+                folderTextColor: 'var(--color-foreground)',
               },
               sizes: {
                 folderTitleHeight: '28px',
-                numberInputMinWidth: '6ch',
+                numberInputMinWidth: '7ch',
               },
             }}
           />

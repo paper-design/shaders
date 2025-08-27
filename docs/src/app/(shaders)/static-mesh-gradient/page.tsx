@@ -7,7 +7,7 @@ import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
 import { staticMeshGradientMeta } from '@paper-design/shaders';
 import { useColors } from '@/helpers/use-colors';
-import { ShaderPageContent } from '@/components/shader-page-content';
+import { ShaderDetails } from '@/components/shader-details';
 import { staticMeshGradientDef } from '@/shader-defs/static-mesh-gradient-def';
 import { Header } from '@/components/header';
 import { ShaderContainer } from '@/components/shader-container';
@@ -64,7 +64,7 @@ const StaticMeshGradientWithControls = () => {
       <ShaderContainer>
         <StaticMeshGradient {...params} colors={colors} />
       </ShaderContainer>
-      <ShaderPageContent shaderDef={staticMeshGradientDef} currentParams={{ ...params, colors }} />
+      <ShaderDetails shaderDef={staticMeshGradientDef} currentParams={{ ...params, colors }} />
     </>
   );
 };

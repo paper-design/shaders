@@ -8,7 +8,7 @@ import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
 import { simplexNoiseMeta } from '@paper-design/shaders';
 import { useColors } from '@/helpers/use-colors';
-import { ShaderPageContent } from '@/components/shader-page-content';
+import { ShaderDetails } from '@/components/shader-details';
 import { simplexNoiseDef } from '@/shader-defs/simplex-noise-def';
 import { Header } from '@/components/header';
 import { ShaderContainer } from '@/components/shader-container';
@@ -58,7 +58,7 @@ const SimplexNoiseWithControls = () => {
       <ShaderContainer>
         <SimplexNoise {...params} colors={colors} />
       </ShaderContainer>
-      <ShaderPageContent shaderDef={simplexNoiseDef} currentParams={{ ...params, colors }} />
+      <ShaderDetails shaderDef={simplexNoiseDef} currentParams={{ ...params, colors }} />
     </>
   );
 };

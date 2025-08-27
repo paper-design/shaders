@@ -8,7 +8,7 @@ import { DotOrbit, dotOrbitPresets } from '@paper-design/shaders-react';
 import { useControls, button, folder } from 'leva';
 import { useColors } from '@/helpers/use-colors';
 import { toHsla } from '@/helpers/to-hsla';
-import { ShaderPageContent } from '@/components/shader-page-content';
+import { ShaderDetails } from '@/components/shader-details';
 import { dotOrbitDef } from '@/shader-defs/dot-orbit-def';
 import { Header } from '@/components/header';
 import { ShaderContainer } from '@/components/shader-container';
@@ -65,7 +65,7 @@ const DotOrbitWithControls = () => {
       <ShaderContainer>
         <DotOrbit {...params} colors={colors} />
       </ShaderContainer>
-      <ShaderPageContent shaderDef={dotOrbitDef} currentParams={{ ...params, colors }} />
+      <ShaderDetails shaderDef={dotOrbitDef} currentParams={{ ...params, colors }} />
     </>
   );
 };

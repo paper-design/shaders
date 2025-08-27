@@ -9,7 +9,7 @@ import { GlassGridShape, GlassGridShapes, GlassDistortionShape, GlassDistortionS
 import { ShaderFit } from '@paper-design/shaders';
 import { levaImageButton } from '@/helpers/leva-image-button';
 import { useState, useEffect, useCallback } from 'react';
-import { ShaderPageContent } from '@/components/shader-page-content';
+import { ShaderDetails } from '@/components/shader-details';
 import { flutedGlassDef } from '@/shader-defs/fluted-glass-def';
 import { Header } from '@/components/header';
 import { ShaderContainer } from '@/components/shader-container';
@@ -117,11 +117,11 @@ const FlutedGlassWithControls = () => {
         <FlutedGlass onClick={handleClick} {...params} image={image || undefined} />
       </ShaderContainer>
 
-      <div onClick={handleClick} className="mx-auto mt-16 mb-48 w-fit text-base text-stone-600 select-none">
+      <div onClick={handleClick} className="mx-auto mt-16 mb-48 w-fit text-base text-current/70 select-none">
         Click to change the sample image
       </div>
 
-      <ShaderPageContent shaderDef={flutedGlassDef} currentParams={params} />
+      <ShaderDetails shaderDef={flutedGlassDef} currentParams={params} />
     </>
   );
 };

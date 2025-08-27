@@ -30,15 +30,15 @@ export default function Home() {
           >
             Paper Shaders
           </h1>
-          <p className="max-w-256 text-lg text-stone-600">ultra fast zero-dependency shaders for your designs</p>
+          <p className="max-w-256 text-lg text-current/70">ultra fast zero-dependency shaders for your designs</p>
         </div>
 
-        <div className="mx-auto mt-20 flex h-48 w-fit max-w-full items-center rounded-lg border bg-white font-mono text-sm text-nowrap text-stone-800 sm:text-base">
+        <div className="mx-auto mt-20 flex h-48 w-fit max-w-full items-center rounded-lg border border-current/20 bg-white font-mono text-sm text-nowrap sm:text-base dark:bg-[#111]">
           <div className="no-scrollbar flex h-full w-full items-center overflow-x-scroll overscroll-y-none px-16">
             npm i @paper-design/react-shaders
           </div>
           <CopyButton
-            className="hidden size-48 shrink-0 items-center justify-center border-l xs:flex"
+            className="hidden h-46 w-48 shrink-0 items-center justify-center border-l border-current/20 xs:flex"
             text="npm i @paper-design/react-shaders"
           />
         </div>

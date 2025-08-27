@@ -6,7 +6,7 @@ import { setParamsSafe, useResetLevaParams } from '@/helpers/use-reset-leva-para
 import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
 import { toHsla } from '@/helpers/to-hsla';
-import { ShaderPageContent } from '@/components/shader-page-content';
+import { ShaderDetails } from '@/components/shader-details';
 import { perlinNoiseDef } from '@/shader-defs/perlin-noise-def';
 import { Header } from '@/components/header';
 import { ShaderContainer } from '@/components/shader-container';
@@ -52,7 +52,7 @@ const PerlinNoiseWithControls = () => {
       <ShaderContainer>
         <PerlinNoise {...params} />
       </ShaderContainer>
-      <ShaderPageContent shaderDef={perlinNoiseDef} currentParams={params} />
+      <ShaderDetails shaderDef={perlinNoiseDef} currentParams={params} />
     </>
   );
 };

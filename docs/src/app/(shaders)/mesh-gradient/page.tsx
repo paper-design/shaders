@@ -7,7 +7,7 @@ import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
 import { meshGradientMeta } from '@paper-design/shaders';
 import { useColors } from '@/helpers/use-colors';
-import { ShaderPageContent } from '@/components/shader-page-content';
+import { ShaderDetails } from '@/components/shader-details';
 import { meshGradientDef } from '@/shader-defs/mesh-gradient-def';
 import { Header } from '@/components/header';
 import { ShaderContainer } from '@/components/shader-container';
@@ -59,7 +59,7 @@ const MeshGradientWithControls = () => {
       <ShaderContainer>
         <MeshGradient {...params} colors={colors} />
       </ShaderContainer>
-      <ShaderPageContent shaderDef={meshGradientDef} currentParams={{ ...params, colors }} />
+      <ShaderDetails shaderDef={meshGradientDef} currentParams={{ ...params, colors }} />
     </>
   );
 };
