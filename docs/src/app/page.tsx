@@ -14,11 +14,19 @@ export default function Home() {
     <div className="mx-auto box-content max-w-1104 px-16 xs:px-24 sm:px-32 md:px-48 2xl:max-w-1472">
       <div className="pt-20 pb-96">
         <div className="mb-64 flex w-full items-center justify-between sm:mb-48 md:mb-32">
-          <Link className="flex" href="https://paper.design/" target="_blank">
+          <Link
+            className="-mx-6 flex px-6 outline-0 outline-offset-2 outline-focus focus-visible:rounded-sm focus-visible:outline-2"
+            href="https://paper.design/"
+            target="_blank"
+          >
             <Logo />
           </Link>
 
-          <Link href="https://github.com/paper-design/shaders" target="_blank">
+          <Link
+            className="flex outline-0 outline-offset-4 outline-focus focus-visible:rounded-full focus-visible:outline-2"
+            href="https://github.com/paper-design/shaders"
+            target="_blank"
+          >
             <GithubIcon className="size-28" />
           </Link>
         </div>
@@ -37,8 +45,9 @@ export default function Home() {
           <div className="no-scrollbar flex h-full w-full items-center overflow-x-scroll overscroll-y-none px-16">
             npm i @paper-design/react-shaders
           </div>
+          <div className="h-full shrink-0 border-l border-current/20" />
           <CopyButton
-            className="hidden h-46 w-48 shrink-0 items-center justify-center border-l border-current/20 xs:flex"
+            className="hidden h-full w-48 shrink-0 items-center justify-center rounded-r-[inherit] outline-0 outline-focus focus-visible:outline-2 xs:flex"
             text="npm i @paper-design/react-shaders"
           />
         </div>
@@ -75,9 +84,9 @@ function ShaderItem({
   const [shaderVisibility, setShaderVisibility] = useState<'hidden' | 'visible' | 'fading-out'>('hidden');
 
   return (
-    <Link href={url} className="flex flex-col gap-8">
+    <Link href={url} className="group flex flex-col gap-8 outline-0">
       <div
-        className="relative flex aspect-[4/3] items-center justify-center overflow-hidden rounded-2xl bg-cream/50 will-change-transform squircle:rounded-4xl"
+        className="relative flex aspect-[4/3] items-center justify-center overflow-hidden rounded-2xl bg-cream/50 outline-offset-4 outline-focus will-change-transform group-focus-visible:outline-2 squircle:rounded-4xl"
         onTouchStart={() => setShaderVisibility('visible')}
         onTouchEnd={() => setShaderVisibility('fading-out')}
         onTouchCancel={() => setShaderVisibility('fading-out')}

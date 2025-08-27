@@ -69,7 +69,7 @@ export function ShaderDetails({
         <div className="flex items-center gap-8">
           <h2 className="text-2xl font-medium lowercase">Installation</h2>
           <CopyButton
-            className="-mt-14 -mb-16 size-32 rounded-md transition-colors hover:bg-backplate-1 active:bg-backplate-2 squircle:rounded-lg"
+            className="-mt-14 -mb-16 size-32 rounded-md outline-0 outline-focus transition-colors hover:bg-backplate-1 focus-visible:outline-2 active:bg-backplate-2 squircle:rounded-lg"
             text={installationCode}
           />
         </div>
@@ -82,7 +82,7 @@ export function ShaderDetails({
         <div className="flex items-center gap-8">
           <h2 className="text-2xl font-medium lowercase">Code</h2>
           <CopyButton
-            className="-mt-14 -mb-16 size-32 rounded-md transition-colors hover:bg-backplate-1 active:bg-backplate-2 squircle:rounded-lg"
+            className="-mt-14 -mb-16 size-32 rounded-md outline-0 outline-focus transition-colors hover:bg-backplate-1 focus-visible:outline-2 active:bg-backplate-2 squircle:rounded-lg"
             text={code}
           />
         </div>

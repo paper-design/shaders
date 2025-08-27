@@ -17,6 +17,7 @@
   --color-code: light-dark(#222, #cdccc0);
   --color-backplate-1: light-dark(--alpha(var(--color-cream) / 60%), #181818);
   --color-backplate-2: light-dark(#e9e8e0, #2a2a2a);
+  --color-focus: light-dark(oklch(0.74 0.12 258), oklch(0.73 0.2 258 / 60%));
 
   --text-3xl: 1.75rem;
 
@@ -33,6 +34,7 @@
   :root {
     --color-leva-background: light-dark(#f4f3eb, #2a2a2a);
     --color-leva-input: light-dark(#dddbd2, #373737);
+    --color-leva-input-focused: light-dark(#f8f8f6, #373737);
     --color-leva-separators: light-dark(#e2e1d8, #3c3c3c);
     --color-leva-button: light-dark(#999997, #777775);
     --color-leva-control-pressed: #777775;
@@ -163,6 +165,27 @@
     & button {
       user-select: none;
       box-shadow: none !important;
+
+      &:focus-visible {
+        outline: 2px solid var(--color-focus) !important;
+        outline-offset: 2px;
+      }
+    }
+
+    & select:focus-visible + * {
+      outline: 2px solid var(--color-focus) !important;
+      outline-offset: 2px;
+    }
+
+    & div:has(> input):hover {
+      box-shadow: none !important;
+    }
+
+    & div:has(> input):focus-within {
+      box-shadow: none !important;
+      outline: 2px solid var(--color-focus) !important;
+      outline-offset: -1px;
+      background-color: var(--color-leva-input-focused) !important;
     }
 
     & [style*='height']:not([style*='overflow: hidden']) {

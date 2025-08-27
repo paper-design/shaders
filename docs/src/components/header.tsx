@@ -13,7 +13,7 @@ export const Header = () => {
     <div className="relative flex w-full items-center justify-between pt-20 pb-24">
       <Link
         href="/"
-        className="mr-auto flex items-center gap-12 text-xl lowercase select-none"
+        className="-mx-6 mr-auto flex items-center gap-12 px-6 text-xl lowercase outline-0 outline-offset-2 outline-focus select-none focus-visible:rounded-sm focus-visible:outline-2"
         style={{ fontFeatureSettings: '"ss02"' }}
         onClick={(event) => {
           if (event.shiftKey || event.altKey || event.metaKey || event.ctrlKey) {
@@ -34,7 +34,11 @@ export const Header = () => {
         <ShadersWordmark />
       </Link>
 
-      <Link href="https://github.com/paper-design/shaders" target="_blank" className="ml-auto hidden xs:flex">
+      <Link
+        href="https://github.com/paper-design/shaders"
+        target="_blank"
+        className="ml-auto hidden outline-0 outline-offset-4 outline-focus focus-visible:rounded-full focus-visible:outline-2 xs:flex"
+      >
         <GithubIcon className="size-28" />
       </Link>
     </div>
