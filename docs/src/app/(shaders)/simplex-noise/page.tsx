@@ -12,17 +12,6 @@ import { ShaderPageContent } from '@/components/shader-page-content';
 import { simplexNoiseDef } from '@/shader-defs/simplex-noise-def';
 import { Header } from '@/components/header';
 
-/**
- * You can copy/paste this example to use SimplexNoise in your app
- */
-const SimplexNoiseExample = () => {
-  return <SimplexNoise style={{ position: 'fixed', width: '100%', height: '100%' }} />;
-};
-
-/**
- * This example has controls added so you can play with settings in the example app
- */
-
 const { worldWidth, worldHeight, ...defaults } = simplexNoisePresets[0].params;
 
 const SimplexNoiseWithControls = () => {
@@ -66,7 +55,7 @@ const SimplexNoiseWithControls = () => {
   return (
     <div className="page-container">
       <Header title={simplexNoiseDef.name} />
-      <SimplexNoise className="page-shader my-12" {...params} colors={colors} />
+      <SimplexNoise className="my-12 page-shader" {...params} colors={colors} />
       <ShaderPageContent shaderDef={simplexNoiseDef} currentParams={{ ...params, colors }} />
     </div>
   );

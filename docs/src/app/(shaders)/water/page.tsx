@@ -13,10 +13,6 @@ import { ShaderPageContent } from '@/components/shader-page-content';
 import { waterDef } from '@/shader-defs/water-def';
 import { Header } from '@/components/header';
 
-/**
- * This example has controls added so you can play with settings in the example app
- */
-
 const { worldWidth, worldHeight, ...defaults } = waterPresets[0].params;
 
 const WaterWithControls = () => {
@@ -107,7 +103,7 @@ const WaterWithControls = () => {
       <Header title={waterDef.name} />
 
       <div className="my-12">
-        <Water className="page-shader my-4" onClick={handleClick} {...params} image={image || undefined} />
+        <Water className="my-4 page-shader" onClick={handleClick} {...params} image={image || undefined} />
         <div onClick={handleClick} className="mx-auto w-fit text-base text-stone-600 select-none">
           Click to change the sample image
         </div>

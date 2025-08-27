@@ -13,9 +13,6 @@ import { ShaderPageContent } from '@/components/shader-page-content';
 import { flutedGlassDef } from '@/shader-defs/fluted-glass-def';
 import { Header } from '@/components/header';
 
-/**
- * This example has controls added so you can play with settings in the example app
- */
 const { worldWidth, worldHeight, ...defaults } = flutedGlassPresets[0].params;
 
 const FlutedGlassWithControls = () => {
@@ -117,7 +114,7 @@ const FlutedGlassWithControls = () => {
       <Header title={flutedGlassDef.name} />
 
       <div className="my-12">
-        <FlutedGlass className="page-shader my-4" onClick={handleClick} {...params} image={image || undefined} />
+        <FlutedGlass className="my-4 page-shader" onClick={handleClick} {...params} image={image || undefined} />
         <div onClick={handleClick} className="mx-auto w-fit text-base text-stone-600 select-none">
           Click to change the sample image
         </div>

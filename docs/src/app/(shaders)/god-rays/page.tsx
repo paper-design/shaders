@@ -12,17 +12,6 @@ import { ShaderPageContent } from '@/components/shader-page-content';
 import { godRaysDef } from '@/shader-defs/god-rays-def';
 import { Header } from '@/components/header';
 
-/**
- * You can copy/paste this example to use GodRays in your app
- */
-const GodRaysExample = () => {
-  return <GodRays style={{ position: 'fixed', width: '100%', height: '100%' }} />;
-};
-
-/**
- * This example has controls added so you can play with settings in the example app
- */
-
 const { worldWidth, worldHeight, ...defaults } = godRaysPresets[0].params;
 
 const GodRaysWithControls = () => {
@@ -74,7 +63,7 @@ const GodRaysWithControls = () => {
   return (
     <div className="page-container">
       <Header title={godRaysDef.name} />
-      <GodRays className="page-shader my-12" {...params} colors={colors} />
+      <GodRays className="my-12 page-shader" {...params} colors={colors} />
       <ShaderPageContent shaderDef={godRaysDef} currentParams={{ ...params, colors }} />
     </div>
   );

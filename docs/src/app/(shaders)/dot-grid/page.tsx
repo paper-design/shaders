@@ -11,17 +11,6 @@ import { ShaderPageContent } from '@/components/shader-page-content';
 import { dotGridDef } from '@/shader-defs/dot-grid-def';
 import { Header } from '@/components/header';
 
-/**
- * You can copy/paste this example to use DotGrid in your app
- */
-const DotGridExample = () => {
-  return <DotGrid style={{ position: 'fixed', width: '100%', height: '100%' }} />;
-};
-
-/**
- * This example has controls added so you can play with settings in the example app
- */
-
 const { worldWidth, worldHeight, ...defaults } = dotGridPresets[0].params;
 
 const DotGridWithControls = () => {
@@ -67,7 +56,7 @@ const DotGridWithControls = () => {
   return (
     <div className="page-container">
       <Header title={dotGridDef.name} />
-      <DotGrid className="page-shader my-12" {...params} />
+      <DotGrid className="my-12 page-shader" {...params} />
       <ShaderPageContent shaderDef={dotGridDef} currentParams={params} />
     </div>
   );

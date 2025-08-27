@@ -11,17 +11,6 @@ import { ShaderPageContent } from '@/components/shader-page-content';
 import { liquidMetalDef } from '@/shader-defs/liquid-metal-def';
 import { Header } from '@/components/header';
 
-/**
- * You can copy/paste this example to use LiquidMetal in your app
- */
-const LiquidMetalExample = () => {
-  return <LiquidMetal style={{ position: 'fixed', width: '100%', height: '100%' }} />;
-};
-
-/**
- * This example has controls added so you can play with settings in the example app
- */
-
 const { worldWidth, worldHeight, ...defaults } = liquidMetalPresets[0].params;
 
 const LiquidMetalWithControls = () => {
@@ -60,7 +49,7 @@ const LiquidMetalWithControls = () => {
   return (
     <div className="page-container">
       <Header title={liquidMetalDef.name} />
-      <LiquidMetal className="page-shader my-12" {...params} />
+      <LiquidMetal className="my-12 page-shader" {...params} />
       <ShaderPageContent shaderDef={liquidMetalDef} currentParams={params} />
     </div>
   );

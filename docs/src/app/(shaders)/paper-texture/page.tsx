@@ -13,10 +13,6 @@ import { ShaderPageContent } from '@/components/shader-page-content';
 import { paperTextureDef } from '@/shader-defs/paper-texture-def';
 import { Header } from '@/components/header';
 
-/**
- * This example has controls added so you can play with settings in the example app
- */
-
 const { worldWidth, worldHeight, ...defaults } = paperTexturePresets[0].params;
 
 const imageFiles = [
@@ -112,7 +108,7 @@ const PaperTextureWithControls = () => {
       <Header title={paperTextureDef.name} />
 
       <div className="my-12">
-        <PaperTexture className="page-shader my-4" onClick={handleClick} {...params} image={image || undefined} />
+        <PaperTexture className="my-4 page-shader" onClick={handleClick} {...params} image={image || undefined} />
         <div onClick={handleClick} className="mx-auto w-fit text-base text-stone-600 select-none">
           Click to change the sample image
         </div>

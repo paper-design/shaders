@@ -12,17 +12,6 @@ import { ShaderPageContent } from '@/components/shader-page-content';
 import { voronoiDef } from '@/shader-defs/voronoi-def';
 import { Header } from '@/components/header';
 
-/**
- * You can copy/paste this example to use Voronoi in your app
- */
-const VoronoiExample = () => {
-  return <Voronoi style={{ position: 'fixed', width: '100%', height: '100%' }} />;
-};
-
-/**
- * This example has controls added so you can play with settings in the example app
- */
-
 const { worldWidth, worldHeight, ...defaults } = voronoiPresets[0].params;
 
 const VoronoiWithControls = () => {
@@ -70,7 +59,7 @@ const VoronoiWithControls = () => {
   return (
     <div className="page-container">
       <Header title={voronoiDef.name} />
-      <Voronoi className="page-shader my-12" {...params} colors={colors} />
+      <Voronoi className="my-12 page-shader" {...params} colors={colors} />
       <ShaderPageContent shaderDef={voronoiDef} currentParams={{ ...params, colors }} />
     </div>
   );

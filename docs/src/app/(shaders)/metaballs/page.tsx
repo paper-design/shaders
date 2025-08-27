@@ -12,17 +12,6 @@ import { ShaderPageContent } from '@/components/shader-page-content';
 import { metaballsDef } from '@/shader-defs/metaballs-def';
 import { Header } from '@/components/header';
 
-/**
- * You can copy/paste this example to use Metaballs in your app
- */
-const MetaballsExample = () => {
-  return <Metaballs style={{ position: 'fixed', width: '100%', height: '100%' }} />;
-};
-
-/**
- * This example has controls added so you can play with settings in the example app
- */
-
 const { worldWidth, worldHeight, ...defaults } = metaballsPresets[0].params;
 
 const MetaballsWithControls = () => {
@@ -69,7 +58,7 @@ const MetaballsWithControls = () => {
   return (
     <div className="page-container">
       <Header title={metaballsDef.name} />
-      <Metaballs className="page-shader my-12" {...params} colors={colors} />
+      <Metaballs className="my-12 page-shader" {...params} colors={colors} />
       <ShaderPageContent shaderDef={metaballsDef} currentParams={{ ...params, colors }} />
     </div>
   );

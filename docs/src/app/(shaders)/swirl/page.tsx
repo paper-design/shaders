@@ -12,17 +12,6 @@ import { ShaderPageContent } from '@/components/shader-page-content';
 import { swirlDef } from '@/shader-defs/swirl-def';
 import { Header } from '@/components/header';
 
-/**
- * You can copy/paste this example to use Swirl in your app
- */
-const SwirlExample = () => {
-  return <Swirl style={{ position: 'fixed', width: '100%', height: '100%' }} />;
-};
-
-/**
- * This example has controls added so you can play with settings in the example app
- */
-
 const { worldWidth, worldHeight, ...defaults } = swirlPresets[0].params;
 
 const SwirlWithControls = () => {
@@ -72,7 +61,7 @@ const SwirlWithControls = () => {
   return (
     <div className="page-container">
       <Header title={swirlDef.name} />
-      <Swirl className="page-shader my-12" {...params} colors={colors} />
+      <Swirl className="my-12 page-shader" {...params} colors={colors} />
       <ShaderPageContent shaderDef={swirlDef} currentParams={{ ...params, colors }} />
     </div>
   );

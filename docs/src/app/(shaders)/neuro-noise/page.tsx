@@ -10,17 +10,6 @@ import { ShaderPageContent } from '@/components/shader-page-content';
 import { neuroNoiseDef } from '@/shader-defs/neuro-noise-def';
 import { Header } from '@/components/header';
 
-/**
- * You can copy/paste this example to use NeuroNoise in your app
- */
-const NeuroNoiseExample = () => {
-  return <NeuroNoise style={{ position: 'fixed', width: '100%', height: '100%' }} />;
-};
-
-/**
- * This example has controls added so you can play with settings in the example app
- */
-
 const { worldWidth, worldHeight, ...defaults } = neuroNoisePresets[0].params;
 
 const NeuroNoiseWithControls = () => {
@@ -54,7 +43,7 @@ const NeuroNoiseWithControls = () => {
   return (
     <div className="page-container">
       <Header title={neuroNoiseDef.name} />
-      <NeuroNoise className="page-shader my-12" {...params} />
+      <NeuroNoise className="my-12 page-shader" {...params} />
       <ShaderPageContent shaderDef={neuroNoiseDef} currentParams={params} />
     </div>
   );

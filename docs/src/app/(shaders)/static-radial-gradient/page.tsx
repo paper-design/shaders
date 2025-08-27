@@ -12,17 +12,6 @@ import { ShaderPageContent } from '@/components/shader-page-content';
 import { staticRadialGradientDef } from '@/shader-defs/static-radial-gradient-def';
 import { Header } from '@/components/header';
 
-/**
- * You can copy/paste this example to use StaticRadialGradient in your app
- */
-const StaticRadialGradientExample = () => {
-  return <StaticRadialGradient style={{ position: 'fixed', width: '100%', height: '100%' }} />;
-};
-
-/**
- * This example has controls added so you can play with settings in the example app
- */
-
 const { worldWidth, worldHeight, ...defaults } = staticRadialGradientPresets[0].params;
 
 const StaticRadialGradientWithControls = () => {
@@ -74,7 +63,7 @@ const StaticRadialGradientWithControls = () => {
   return (
     <div className="page-container">
       <Header title={staticRadialGradientDef.name} />
-      <StaticRadialGradient className="page-shader my-12" {...params} colors={colors} />
+      <StaticRadialGradient className="my-12 page-shader" {...params} colors={colors} />
       <ShaderPageContent shaderDef={staticRadialGradientDef} currentParams={{ ...params, colors }} />
     </div>
   );

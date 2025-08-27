@@ -11,17 +11,6 @@ import { ShaderPageContent } from '@/components/shader-page-content';
 import { warpDef } from '@/shader-defs/warp-def';
 import { Header } from '@/components/header';
 
-/**
- * You can copy/paste this example to use Warp in your app
- */
-const WarpExample = () => {
-  return <Warp style={{ position: 'fixed', width: '100%', height: '100%' }} />;
-};
-
-/**
- * This example has controls added so you can play with settings in the example app
- */
-
 const { worldWidth, worldHeight, ...defaults } = warpPresets[0].params;
 
 const WarpWithControls = () => {
@@ -70,7 +59,7 @@ const WarpWithControls = () => {
   return (
     <div className="page-container">
       <Header title={warpDef.name} />
-      <Warp className="page-shader my-12" {...params} colors={colors} />
+      <Warp className="my-12 page-shader" {...params} colors={colors} />
       <ShaderPageContent shaderDef={warpDef} currentParams={{ ...params, colors }} />
     </div>
   );

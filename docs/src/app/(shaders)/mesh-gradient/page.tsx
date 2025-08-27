@@ -12,17 +12,6 @@ import { meshGradientDef } from '@/shader-defs/mesh-gradient-def';
 import { Header } from '@/components/header';
 import { LevaCustomized } from '@/components/leva-customized';
 
-/**
- * You can copy/paste this example to use MeshGradient in your app
- */
-const MeshGradientExample = () => {
-  return <MeshGradient style={{ position: 'fixed', width: '100%', height: '100%' }} />;
-};
-
-/**
- * This example has controls added so you can play with settings in the example app
- */
-
 const { worldWidth, worldHeight, ...defaults } = meshGradientPresets[0].params;
 
 const MeshGradientWithControls = () => {

@@ -13,17 +13,6 @@ import { dotOrbitDef } from '@/shader-defs/dot-orbit-def';
 import { Header } from '@/components/header';
 import { LevaCustomized } from '@/components/leva-customized';
 
-/**
- * You can copy/paste this example to use DotOrbit in your app
- */
-const DotOrbitExample = () => {
-  return <DotOrbit style={{ position: 'fixed', width: '100%', height: '100%' }} />;
-};
-
-/**
- * This example has controls added so you can play with settings in the example app
- */
-
 const { worldWidth, worldHeight, ...defaults } = dotOrbitPresets[0].params;
 
 const DotOrbitWithControls = () => {

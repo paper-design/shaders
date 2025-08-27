@@ -11,17 +11,6 @@ import { ShaderPageContent } from '@/components/shader-page-content';
 import { staticMeshGradientDef } from '@/shader-defs/static-mesh-gradient-def';
 import { Header } from '@/components/header';
 
-/**
- * You can copy/paste this example to use StaticMeshGradient in your app
- */
-const StaticMeshGradientExample = () => {
-  return <StaticMeshGradient style={{ position: 'fixed', width: '100%', height: '100%' }} />;
-};
-
-/**
- * This example has controls added so you can play with settings in the example app
- */
-
 const { worldWidth, worldHeight, ...defaults } = staticMeshGradientPresets[0].params;
 
 const StaticMeshGradientWithControls = () => {
@@ -72,7 +61,7 @@ const StaticMeshGradientWithControls = () => {
   return (
     <div className="page-container">
       <Header title={staticMeshGradientDef.name} />
-      <StaticMeshGradient className="page-shader my-12" {...params} colors={colors} />
+      <StaticMeshGradient className="my-12 page-shader" {...params} colors={colors} />
       <ShaderPageContent shaderDef={staticMeshGradientDef} currentParams={{ ...params, colors }} />
     </div>
   );

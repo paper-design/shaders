@@ -12,17 +12,6 @@ import { ShaderPageContent } from '@/components/shader-page-content';
 import { ditheringDef } from '@/shader-defs/dithering-def';
 import { Header } from '@/components/header';
 
-/**
- * You can copy/paste this example to use Dithering in your app
- */
-const DitheringExample = () => {
-  return <Dithering style={{ position: 'fixed', width: '100%', height: '100%' }} />;
-};
-
-/**
- * This example has controls added so you can play with settings in the example app
- */
-
 const { worldWidth, worldHeight, ...defaults } = ditheringPresets[0].params;
 
 const DitheringWithControls = () => {
@@ -57,7 +46,7 @@ const DitheringWithControls = () => {
   return (
     <div className="page-container">
       <Header title={ditheringDef.name} />
-      <Dithering className="page-shader my-12" {...params} />
+      <Dithering className="my-12 page-shader" {...params} />
       <ShaderPageContent shaderDef={ditheringDef} currentParams={params} />
     </div>
   );

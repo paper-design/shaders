@@ -10,17 +10,6 @@ import { ShaderPageContent } from '@/components/shader-page-content';
 import { perlinNoiseDef } from '@/shader-defs/perlin-noise-def';
 import { Header } from '@/components/header';
 
-/**
- * You can copy/paste this example to use PerlinNoise in your app
- */
-const PerlinNoiseExample = () => {
-  return <PerlinNoise style={{ position: 'fixed', width: '100%', height: '100%' }} />;
-};
-
-/**
- * This example has controls added so you can play with settings in the example app
- */
-
 const { worldWidth, worldHeight, ...defaults } = perlinNoisePresets[0].params;
 
 const PerlinNoiseWithControls = () => {
@@ -60,7 +49,7 @@ const PerlinNoiseWithControls = () => {
   return (
     <div className="page-container">
       <Header title={perlinNoiseDef.name} />
-      <PerlinNoise className="page-shader my-12" {...params} />
+      <PerlinNoise className="my-12 page-shader" {...params} />
       <ShaderPageContent shaderDef={perlinNoiseDef} currentParams={params} />
     </div>
   );

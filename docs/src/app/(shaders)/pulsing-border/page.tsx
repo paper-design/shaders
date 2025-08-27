@@ -12,17 +12,6 @@ import { ShaderPageContent } from '@/components/shader-page-content';
 import { pulsingBorderDef } from '@/shader-defs/pulsing-border-def';
 import { Header } from '@/components/header';
 
-/**
- * You can copy/paste this example to use PulsingBorder in your app
- */
-const PulsingBorderExample = () => {
-  return <PulsingBorder style={{ position: 'fixed', width: '100%', height: '100%' }} />;
-};
-
-/**
- * This example has controls added so you can play with settings in the example app
- */
-
 const { worldWidth, worldHeight, ...defaults } = pulsingBorderPresets[0].params;
 
 const PulsingBorderWithControls = () => {
@@ -82,7 +71,7 @@ const PulsingBorderWithControls = () => {
   return (
     <div className="page-container">
       <Header title={pulsingBorderDef.name} />
-      <PulsingBorder className="page-shader my-12" {...params} colors={colors} />
+      <PulsingBorder className="my-12 page-shader" {...params} colors={colors} />
       <ShaderPageContent shaderDef={pulsingBorderDef} currentParams={{ ...params, colors }} />
     </div>
   );

@@ -13,17 +13,6 @@ import { ShaderPageContent } from '@/components/shader-page-content';
 import { colorPanelsDef } from '@/shader-defs/color-panels-def';
 import { Header } from '@/components/header';
 
-/**
- * You can copy/paste this example to use ColorPanels in your app
- */
-const ColorPanelsExample = () => {
-  return <ColorPanels style={{ position: 'fixed', width: '100%', height: '100%' }} />;
-};
-
-/**
- * This example has controls added so you can play with settings in the example app
- */
-
 const { worldWidth, worldHeight, ...defaults } = colorPanelsPresets[0].params;
 
 const ColorPanelsWithControls = () => {
@@ -77,7 +66,7 @@ const ColorPanelsWithControls = () => {
   return (
     <div className="page-container">
       <Header title={colorPanelsDef.name} />
-      <ColorPanels className="page-shader my-12" {...params} colors={colors} />
+      <ColorPanels className="my-12 page-shader" {...params} colors={colors} />
       <ShaderPageContent shaderDef={colorPanelsDef} currentParams={{ ...params, colors }} />
     </div>
   );

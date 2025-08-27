@@ -12,17 +12,6 @@ import { ShaderPageContent } from '@/components/shader-page-content';
 import { grainGradientDef } from '@/shader-defs/grain-gradient-def';
 import { Header } from '@/components/header';
 
-/**
- * You can copy/paste this example to use GrainGradient in your app
- */
-const GrainGradientExample = () => {
-  return <GrainGradient style={{ position: 'fixed', width: '100%', height: '100%' }} />;
-};
-
-/**
- * This example has controls added so you can play with settings in the example app
- */
-
 const { worldWidth, worldHeight, ...defaults } = grainGradientPresets[0].params;
 
 const GrainGradientWithControls = () => {
@@ -75,7 +64,7 @@ const GrainGradientWithControls = () => {
   return (
     <div className="page-container">
       <Header title={grainGradientDef.name} />
-      <GrainGradient className="page-shader my-12" {...params} colors={colors} />
+      <GrainGradient className="my-12 page-shader" {...params} colors={colors} />
       <ShaderPageContent shaderDef={grainGradientDef} currentParams={{ ...params, colors }} />
     </div>
   );

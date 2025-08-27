@@ -10,17 +10,6 @@ import { ShaderPageContent } from '@/components/shader-page-content';
 import { spiralDef } from '@/shader-defs/spiral-def';
 import { Header } from '@/components/header';
 
-/**
- * You can copy/paste this example to use Spiral in your app
- */
-const SpiralExample = () => {
-  return <Spiral style={{ position: 'fixed', width: '100%', height: '100%' }} />;
-};
-
-/**
- * This example has controls added so you can play with settings in the example app
- */
-
 const firstPresetParams = spiralPresets[0].params;
 const { worldWidth, worldHeight, ...defaults } = {
   ...firstPresetParams,
@@ -71,7 +60,7 @@ const SpiralWithControls = () => {
   return (
     <div className="page-container">
       <Header title={spiralDef.name} />
-      <Spiral className="page-shader my-12" {...params} />
+      <Spiral className="my-12 page-shader" {...params} />
       <ShaderPageContent shaderDef={spiralDef} currentParams={params} />
     </div>
   );

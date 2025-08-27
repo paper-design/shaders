@@ -11,17 +11,6 @@ import { ShaderPageContent } from '@/components/shader-page-content';
 import { wavesDef } from '@/shader-defs/waves-def';
 import { Header } from '@/components/header';
 
-/**
- * You can copy/paste this example to use Waves in your app
- */
-const WavesExample = () => {
-  return <Waves style={{ position: 'fixed', width: '100%', height: '100%' }} />;
-};
-
-/**
- * This example has controls added so you can play with settings in the example app
- */
-
 const { worldWidth, worldHeight, ...defaults } = wavesPresets[0].params;
 
 const WavesWithControls = () => {
@@ -61,7 +50,7 @@ const WavesWithControls = () => {
   return (
     <div className="page-container">
       <Header title={wavesDef.name} />
-      <Waves className="page-shader my-12" {...params} />
+      <Waves className="my-12 page-shader" {...params} />
       <ShaderPageContent shaderDef={wavesDef} currentParams={params} />
     </div>
   );

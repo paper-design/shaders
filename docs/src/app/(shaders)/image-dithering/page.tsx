@@ -13,10 +13,6 @@ import { ShaderPageContent } from '@/components/shader-page-content';
 import { imageDitheringDef } from '@/shader-defs/image-dithering-def';
 import { Header } from '@/components/header';
 
-/**
- * This example has controls added so you can play with settings in the example app
- */
-
 const { worldWidth, worldHeight, ...defaults } = imageDitheringPresets[0].params;
 
 const imageFiles = [
@@ -105,7 +101,7 @@ const ImageDitheringWithControls = () => {
       <Header title={imageDitheringDef.name} />
 
       <div className="my-12">
-        <ImageDithering className="page-shader my-4" onClick={handleClick} {...params} image={image || undefined} />
+        <ImageDithering className="my-4 page-shader" onClick={handleClick} {...params} image={image || undefined} />
         <div onClick={handleClick} className="mx-auto w-fit text-base text-stone-600 select-none">
           Click to change the sample image
         </div>
