@@ -22,7 +22,7 @@ export const defaultPreset: ColorPanelsPreset = {
     speed: 0.5,
     frame: 0,
     colors: ['#ff9d00', '#fd4f30', '#809bff', '#6d2eff', '#333aff', '#f15cff', '#ffd557'],
-    colorBack: '#080808',
+    colorBack: '#000000',
     angle1: 0,
     angle2: 0,
     length: 1.1,
