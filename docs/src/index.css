@@ -49,10 +49,11 @@
 @layer base {
   html {
     font-size: 16px; /* Always 16px base */
-    background-color: var(--color-cream);
+    background-color: var(--color-cream); /* Overscroll background */
   }
 
   body {
+    min-height: 100dvh;
     font-family: var(--default-font-family);
     color: var(--color-foreground);
     background-color: white;

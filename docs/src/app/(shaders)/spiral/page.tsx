@@ -9,6 +9,7 @@ import { toHsla } from '@/helpers/to-hsla';
 import { ShaderPageContent } from '@/components/shader-page-content';
 import { spiralDef } from '@/shader-defs/spiral-def';
 import { Header } from '@/components/header';
+import { ShaderContainer } from '@/components/shader-container';
 
 const firstPresetParams = spiralPresets[0].params;
 const { worldWidth, worldHeight, ...defaults } = {
@@ -60,7 +61,9 @@ const SpiralWithControls = () => {
   return (
     <div className="page-container">
       <Header title={spiralDef.name} />
-      <Spiral className="my-12 page-shader" {...params} />
+      <ShaderContainer>
+        <Spiral {...params} />
+      </ShaderContainer>
       <ShaderPageContent shaderDef={spiralDef} currentParams={params} />
     </div>
   );

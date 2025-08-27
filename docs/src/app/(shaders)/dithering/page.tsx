@@ -11,6 +11,7 @@ import { toHsla } from '@/helpers/to-hsla';
 import { ShaderPageContent } from '@/components/shader-page-content';
 import { ditheringDef } from '@/shader-defs/dithering-def';
 import { Header } from '@/components/header';
+import { ShaderContainer } from '@/components/shader-container';
 
 const { worldWidth, worldHeight, ...defaults } = ditheringPresets[0].params;
 
@@ -46,7 +47,9 @@ const DitheringWithControls = () => {
   return (
     <div className="page-container">
       <Header title={ditheringDef.name} />
-      <Dithering className="my-12 page-shader" {...params} />
+      <ShaderContainer>
+        <Dithering {...params} />
+      </ShaderContainer>
       <ShaderPageContent shaderDef={ditheringDef} currentParams={params} />
     </div>
   );

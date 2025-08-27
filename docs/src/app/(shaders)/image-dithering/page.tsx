@@ -12,6 +12,7 @@ import { toHsla } from '@/helpers/to-hsla';
 import { ShaderPageContent } from '@/components/shader-page-content';
 import { imageDitheringDef } from '@/shader-defs/image-dithering-def';
 import { Header } from '@/components/header';
+import { ShaderContainer } from '@/components/shader-container';
 
 const { worldWidth, worldHeight, ...defaults } = imageDitheringPresets[0].params;
 
@@ -100,11 +101,12 @@ const ImageDitheringWithControls = () => {
     <div className="page-container">
       <Header title={imageDitheringDef.name} />
 
-      <div className="my-12">
-        <ImageDithering className="my-4 page-shader" onClick={handleClick} {...params} image={image || undefined} />
-        <div onClick={handleClick} className="mx-auto w-fit text-base text-stone-600 select-none">
-          Click to change the sample image
-        </div>
+      <ShaderContainer>
+        <ImageDithering onClick={handleClick} {...params} image={image || undefined} />
+      </ShaderContainer>
+
+      <div onClick={handleClick} className="mx-auto -mt-32 mb-48 w-fit text-base text-stone-600 select-none">
+        Click to change the sample image
       </div>
 
       <ShaderPageContent shaderDef={imageDitheringDef} currentParams={params} />

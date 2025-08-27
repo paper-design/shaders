@@ -10,6 +10,7 @@ import { toHsla } from '@/helpers/to-hsla';
 import { ShaderPageContent } from '@/components/shader-page-content';
 import { dotGridDef } from '@/shader-defs/dot-grid-def';
 import { Header } from '@/components/header';
+import { ShaderContainer } from '@/components/shader-container';
 
 const { worldWidth, worldHeight, ...defaults } = dotGridPresets[0].params;
 
@@ -56,7 +57,9 @@ const DotGridWithControls = () => {
   return (
     <div className="page-container">
       <Header title={dotGridDef.name} />
-      <DotGrid className="my-12 page-shader" {...params} />
+      <ShaderContainer>
+        <DotGrid {...params} />
+      </ShaderContainer>
       <ShaderPageContent shaderDef={dotGridDef} currentParams={params} />
     </div>
   );

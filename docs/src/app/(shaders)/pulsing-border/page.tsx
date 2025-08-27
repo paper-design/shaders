@@ -11,6 +11,7 @@ import { toHsla } from '@/helpers/to-hsla';
 import { ShaderPageContent } from '@/components/shader-page-content';
 import { pulsingBorderDef } from '@/shader-defs/pulsing-border-def';
 import { Header } from '@/components/header';
+import { ShaderContainer } from '@/components/shader-container';
 
 const { worldWidth, worldHeight, ...defaults } = pulsingBorderPresets[0].params;
 
@@ -71,7 +72,9 @@ const PulsingBorderWithControls = () => {
   return (
     <div className="page-container">
       <Header title={pulsingBorderDef.name} />
-      <PulsingBorder className="my-12 page-shader" {...params} colors={colors} />
+      <ShaderContainer>
+        <PulsingBorder {...params} colors={colors} />
+      </ShaderContainer>
       <ShaderPageContent shaderDef={pulsingBorderDef} currentParams={{ ...params, colors }} />
     </div>
   );

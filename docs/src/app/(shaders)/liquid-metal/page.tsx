@@ -10,6 +10,7 @@ import { toHsla } from '@/helpers/to-hsla';
 import { ShaderPageContent } from '@/components/shader-page-content';
 import { liquidMetalDef } from '@/shader-defs/liquid-metal-def';
 import { Header } from '@/components/header';
+import { ShaderContainer } from '@/components/shader-container';
 
 const { worldWidth, worldHeight, ...defaults } = liquidMetalPresets[0].params;
 
@@ -49,7 +50,9 @@ const LiquidMetalWithControls = () => {
   return (
     <div className="page-container">
       <Header title={liquidMetalDef.name} />
-      <LiquidMetal className="my-12 page-shader" {...params} />
+      <ShaderContainer>
+        <LiquidMetal {...params} />
+      </ShaderContainer>
       <ShaderPageContent shaderDef={liquidMetalDef} currentParams={params} />
     </div>
   );

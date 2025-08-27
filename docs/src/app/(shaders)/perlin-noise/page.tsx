@@ -9,6 +9,7 @@ import { toHsla } from '@/helpers/to-hsla';
 import { ShaderPageContent } from '@/components/shader-page-content';
 import { perlinNoiseDef } from '@/shader-defs/perlin-noise-def';
 import { Header } from '@/components/header';
+import { ShaderContainer } from '@/components/shader-container';
 
 const { worldWidth, worldHeight, ...defaults } = perlinNoisePresets[0].params;
 
@@ -49,7 +50,9 @@ const PerlinNoiseWithControls = () => {
   return (
     <div className="page-container">
       <Header title={perlinNoiseDef.name} />
-      <PerlinNoise className="my-12 page-shader" {...params} />
+      <ShaderContainer>
+        <PerlinNoise {...params} />
+      </ShaderContainer>
       <ShaderPageContent shaderDef={perlinNoiseDef} currentParams={params} />
     </div>
   );

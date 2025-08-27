@@ -11,6 +11,7 @@ import { toHsla } from '@/helpers/to-hsla';
 import { ShaderPageContent } from '@/components/shader-page-content';
 import { voronoiDef } from '@/shader-defs/voronoi-def';
 import { Header } from '@/components/header';
+import { ShaderContainer } from '@/components/shader-container';
 
 const { worldWidth, worldHeight, ...defaults } = voronoiPresets[0].params;
 
@@ -59,7 +60,9 @@ const VoronoiWithControls = () => {
   return (
     <div className="page-container">
       <Header title={voronoiDef.name} />
-      <Voronoi className="my-12 page-shader" {...params} colors={colors} />
+      <ShaderContainer>
+        <Voronoi {...params} colors={colors} />
+      </ShaderContainer>
       <ShaderPageContent shaderDef={voronoiDef} currentParams={{ ...params, colors }} />
     </div>
   );

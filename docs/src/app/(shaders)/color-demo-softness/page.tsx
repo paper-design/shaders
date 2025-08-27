@@ -10,6 +10,7 @@ import { ShaderMount, type ShaderComponentProps } from '@paper-design/shaders-re
 import { getShaderColorFromString, type ShaderPreset } from '@paper-design/shaders';
 import { useColors } from '@/helpers/use-colors';
 import { Header } from '@/components/header';
+import { ShaderContainer } from '@/components/shader-container';
 
 type vec4 = [number, number, number, number];
 const gradientDemoMixerMaxColorCount = 10;
@@ -207,12 +208,13 @@ export default function Page() {
   return (
     <div className="page-container">
       <Header title="Color Demo: Softness" />
-      <div className="page-shader my-12">
-        <div className="relative flex h-full flex-col" style={{ width: 'calc(100% - 300px)' }}>
+
+      <ShaderContainer>
+        <div className="relative flex h-full flex-col">
           <div className="absolute top-1/3 left-0 p-2 font-bold whitespace-pre text-white">{getBlending()}</div>
           <GradientDemoMixer {...params} colors={colors} className="h-full" />
         </div>
-      </div>
+      </ShaderContainer>
     </div>
   );
 }

@@ -11,6 +11,7 @@ import { toHsla } from '@/helpers/to-hsla';
 import { ShaderPageContent } from '@/components/shader-page-content';
 import { grainGradientDef } from '@/shader-defs/grain-gradient-def';
 import { Header } from '@/components/header';
+import { ShaderContainer } from '@/components/shader-container';
 
 const { worldWidth, worldHeight, ...defaults } = grainGradientPresets[0].params;
 
@@ -64,7 +65,9 @@ const GrainGradientWithControls = () => {
   return (
     <div className="page-container">
       <Header title={grainGradientDef.name} />
-      <GrainGradient className="my-12 page-shader" {...params} colors={colors} />
+      <ShaderContainer>
+        <GrainGradient {...params} colors={colors} />
+      </ShaderContainer>
       <ShaderPageContent shaderDef={grainGradientDef} currentParams={{ ...params, colors }} />
     </div>
   );

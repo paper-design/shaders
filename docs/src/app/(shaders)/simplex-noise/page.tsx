@@ -11,6 +11,7 @@ import { useColors } from '@/helpers/use-colors';
 import { ShaderPageContent } from '@/components/shader-page-content';
 import { simplexNoiseDef } from '@/shader-defs/simplex-noise-def';
 import { Header } from '@/components/header';
+import { ShaderContainer } from '@/components/shader-container';
 
 const { worldWidth, worldHeight, ...defaults } = simplexNoisePresets[0].params;
 
@@ -55,7 +56,9 @@ const SimplexNoiseWithControls = () => {
   return (
     <div className="page-container">
       <Header title={simplexNoiseDef.name} />
-      <SimplexNoise className="my-12 page-shader" {...params} colors={colors} />
+      <ShaderContainer>
+        <SimplexNoise {...params} colors={colors} />
+      </ShaderContainer>
       <ShaderPageContent shaderDef={simplexNoiseDef} currentParams={{ ...params, colors }} />
     </div>
   );

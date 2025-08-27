@@ -9,6 +9,7 @@ import { toHsla } from '@/helpers/to-hsla';
 import { ShaderPageContent } from '@/components/shader-page-content';
 import { neuroNoiseDef } from '@/shader-defs/neuro-noise-def';
 import { Header } from '@/components/header';
+import { ShaderContainer } from '@/components/shader-container';
 
 const { worldWidth, worldHeight, ...defaults } = neuroNoisePresets[0].params;
 
@@ -43,7 +44,9 @@ const NeuroNoiseWithControls = () => {
   return (
     <div className="page-container">
       <Header title={neuroNoiseDef.name} />
-      <NeuroNoise className="my-12 page-shader" {...params} />
+      <ShaderContainer>
+        <NeuroNoise {...params} />
+      </ShaderContainer>
       <ShaderPageContent shaderDef={neuroNoiseDef} currentParams={params} />
     </div>
   );

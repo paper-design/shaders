@@ -10,6 +10,7 @@ import { useColors } from '@/helpers/use-colors';
 import { ShaderPageContent } from '@/components/shader-page-content';
 import { warpDef } from '@/shader-defs/warp-def';
 import { Header } from '@/components/header';
+import { ShaderContainer } from '@/components/shader-container';
 
 const { worldWidth, worldHeight, ...defaults } = warpPresets[0].params;
 
@@ -59,7 +60,9 @@ const WarpWithControls = () => {
   return (
     <div className="page-container">
       <Header title={warpDef.name} />
-      <Warp className="my-12 page-shader" {...params} colors={colors} />
+      <ShaderContainer>
+        <Warp {...params} colors={colors} />
+      </ShaderContainer>
       <ShaderPageContent shaderDef={warpDef} currentParams={{ ...params, colors }} />
     </div>
   );

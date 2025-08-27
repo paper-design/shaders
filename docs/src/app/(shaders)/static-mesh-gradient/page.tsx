@@ -10,6 +10,7 @@ import { useColors } from '@/helpers/use-colors';
 import { ShaderPageContent } from '@/components/shader-page-content';
 import { staticMeshGradientDef } from '@/shader-defs/static-mesh-gradient-def';
 import { Header } from '@/components/header';
+import { ShaderContainer } from '@/components/shader-container';
 
 const { worldWidth, worldHeight, ...defaults } = staticMeshGradientPresets[0].params;
 
@@ -61,7 +62,9 @@ const StaticMeshGradientWithControls = () => {
   return (
     <div className="page-container">
       <Header title={staticMeshGradientDef.name} />
-      <StaticMeshGradient className="my-12 page-shader" {...params} colors={colors} />
+      <ShaderContainer>
+        <StaticMeshGradient {...params} colors={colors} />
+      </ShaderContainer>
       <ShaderPageContent shaderDef={staticMeshGradientDef} currentParams={{ ...params, colors }} />
     </div>
   );

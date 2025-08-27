@@ -10,6 +10,7 @@ import { ShaderMount, type ShaderComponentProps } from '@paper-design/shaders-re
 import { getShaderColorFromString, type ShaderPreset } from '@paper-design/shaders';
 import { useColors } from '@/helpers/use-colors';
 import { Header } from '@/components/header';
+import { ShaderContainer } from '@/components/shader-container';
 
 type vec4 = [number, number, number, number];
 const gradientDemoStepsMaxColorCount = 10;
@@ -184,9 +185,10 @@ export default function Page() {
   return (
     <div className="page-container">
       <Header title="Color demo: steps" />
-      <div className="page-shader mt-12" style={{ width: 'calc(100% - 300px)' }}>
-        <GradientDemoSteps {...params} colors={colors} className="h-full" />
-      </div>
+
+      <ShaderContainer>
+        <GradientDemoSteps {...params} colors={colors} />
+      </ShaderContainer>
     </div>
   );
 }

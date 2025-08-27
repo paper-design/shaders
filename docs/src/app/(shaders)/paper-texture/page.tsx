@@ -12,6 +12,7 @@ import { toHsla } from '@/helpers/to-hsla';
 import { ShaderPageContent } from '@/components/shader-page-content';
 import { paperTextureDef } from '@/shader-defs/paper-texture-def';
 import { Header } from '@/components/header';
+import { ShaderContainer } from '@/components/shader-container';
 
 const { worldWidth, worldHeight, ...defaults } = paperTexturePresets[0].params;
 
@@ -107,11 +108,12 @@ const PaperTextureWithControls = () => {
     <div className="page-container">
       <Header title={paperTextureDef.name} />
 
-      <div className="my-12">
-        <PaperTexture className="my-4 page-shader" onClick={handleClick} {...params} image={image || undefined} />
-        <div onClick={handleClick} className="mx-auto w-fit text-base text-stone-600 select-none">
-          Click to change the sample image
-        </div>
+      <ShaderContainer>
+        <PaperTexture onClick={handleClick} {...params} image={image || undefined} />
+      </ShaderContainer>
+
+      <div onClick={handleClick} className="mx-auto -mt-32 mb-48 w-fit text-base text-stone-600 select-none">
+        Click to change the sample image
       </div>
 
       <ShaderPageContent shaderDef={paperTextureDef} currentParams={params} />
