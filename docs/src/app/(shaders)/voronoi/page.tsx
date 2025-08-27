@@ -58,17 +58,12 @@ const VoronoiWithControls = () => {
   cleanUpLevaParams(params);
 
   return (
-    <div className="page-container">
-      <Header title={voronoiDef.name} />
-
+    <>
       <ShaderContainer>
         <Voronoi {...params} colors={colors} />
       </ShaderContainer>
-
-      <div className="page-contents">
-        <ShaderPageContent shaderDef={voronoiDef} currentParams={{ ...params, colors }} />
-      </div>
-    </div>
+      <ShaderPageContent shaderDef={voronoiDef} currentParams={{ ...params, colors }} />
+    </>
   );
 };
 

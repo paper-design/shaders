@@ -16,31 +16,32 @@ import { ShaderContainer } from '@/components/shader-container';
 
 const { worldWidth, worldHeight, ...defaults } = waterPresets[0].params;
 
+const imageFiles = [
+  '001.webp',
+  '002.webp',
+  '003.webp',
+  '004.webp',
+  '005.webp',
+  '006.webp',
+  '007.webp',
+  '008.webp',
+  '009.webp',
+  '0010.webp',
+  '0011.webp',
+  '0012.webp',
+  '0013.webp',
+  '0014.webp',
+  '0015.webp',
+  '0016.webp',
+  '0017.webp',
+  '0018.webp',
+] as const;
+
 const WaterWithControls = () => {
   const [imageIdx, setImageIdx] = useState(-1);
   const [image, setImage] = useState<HTMLImageElement | undefined>(undefined);
   const [status, setStatus] = useState('Click to load an image');
 
-  const imageFiles = [
-    '001.webp',
-    '002.webp',
-    '003.webp',
-    '004.webp',
-    '005.webp',
-    '006.webp',
-    '007.webp',
-    '008.webp',
-    '009.webp',
-    '0010.webp',
-    '0011.webp',
-    '0012.webp',
-    '0013.webp',
-    '0014.webp',
-    '0015.webp',
-    '0016.webp',
-    '0017.webp',
-    '0018.webp',
-  ] as const;
   const fileName = imageIdx >= 0 ? imageFiles[imageIdx] : null;
 
   useEffect(() => {
@@ -100,19 +101,15 @@ const WaterWithControls = () => {
   cleanUpLevaParams(params);
 
   return (
-    <div className="page-container">
-      <Header title={waterDef.name} />
-
+    <>
       <ShaderContainer>
         <Water onClick={handleClick} {...params} image={image || undefined} />
       </ShaderContainer>
-
       <div onClick={handleClick} className="mx-auto mt-16 mb-48 w-fit text-base text-stone-600 select-none">
         Click to change the sample image
       </div>
-
       <ShaderPageContent shaderDef={waterDef} currentParams={params} />
-    </div>
+    </>
   );
 };
 

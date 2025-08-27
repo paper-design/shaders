@@ -98,19 +98,15 @@ const ImageDitheringWithControls = () => {
   cleanUpLevaParams(params);
 
   return (
-    <div className="page-container">
-      <Header title={imageDitheringDef.name} />
-
+    <>
       <ShaderContainer>
         <ImageDithering onClick={handleClick} {...params} image={image || undefined} />
       </ShaderContainer>
-
       <div onClick={handleClick} className="mx-auto mt-16 mb-48 w-fit text-base text-stone-600 select-none">
         Click to change the sample image
       </div>
-
       <ShaderPageContent shaderDef={imageDitheringDef} currentParams={params} />
-    </div>
+    </>
   );
 };
 

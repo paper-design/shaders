@@ -16,31 +16,32 @@ import { ShaderContainer } from '@/components/shader-container';
 
 const { worldWidth, worldHeight, ...defaults } = flutedGlassPresets[0].params;
 
+const imageFiles = [
+  '001.webp',
+  '002.webp',
+  '003.webp',
+  '004.webp',
+  '005.webp',
+  '006.webp',
+  '007.webp',
+  '008.webp',
+  '009.webp',
+  '0010.webp',
+  '0011.webp',
+  '0012.webp',
+  '0013.webp',
+  '0014.webp',
+  '0015.webp',
+  '0016.webp',
+  '0017.webp',
+  '0018.webp',
+] as const;
+
 const FlutedGlassWithControls = () => {
   const [imageIdx, setImageIdx] = useState(-1);
   const [image, setImage] = useState<HTMLImageElement | undefined>(undefined);
   const [status, setStatus] = useState('Click to load an image');
 
-  const imageFiles = [
-    '001.webp',
-    '002.webp',
-    '003.webp',
-    '004.webp',
-    '005.webp',
-    '006.webp',
-    '007.webp',
-    '008.webp',
-    '009.webp',
-    '0010.webp',
-    '0011.webp',
-    '0012.webp',
-    '0013.webp',
-    '0014.webp',
-    '0015.webp',
-    '0016.webp',
-    '0017.webp',
-    '0018.webp',
-  ] as const;
   const fileName = imageIdx >= 0 ? imageFiles[imageIdx] : null;
 
   useEffect(() => {
@@ -111,9 +112,7 @@ const FlutedGlassWithControls = () => {
   cleanUpLevaParams(params);
 
   return (
-    <div className="page-container">
-      <Header title={flutedGlassDef.name} />
-
+    <>
       <ShaderContainer>
         <FlutedGlass onClick={handleClick} {...params} image={image || undefined} />
       </ShaderContainer>
@@ -123,7 +122,7 @@ const FlutedGlassWithControls = () => {
       </div>
 
       <ShaderPageContent shaderDef={flutedGlassDef} currentParams={params} />
-    </div>
+    </>
   );
 };
 

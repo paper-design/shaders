@@ -68,17 +68,12 @@ const SmokeRingWithControls = () => {
   // const { reverse, ...shaderParams } = { ...params, speed: params.speed * (params.reverse ? -1 : 1) };
 
   return (
-    <div className="page-container">
-      <Header title={smokeRingDef.name} />
-
+    <>
       <ShaderContainer>
         <SmokeRing {...params} colors={colors} />
       </ShaderContainer>
-
-      <div className="page-contents">
-        <ShaderPageContent shaderDef={smokeRingDef} currentParams={{ ...params, colors }} />
-      </div>
-    </div>
+      <ShaderPageContent shaderDef={smokeRingDef} currentParams={{ ...params, colors }} />
+    </>
   );
 };
 

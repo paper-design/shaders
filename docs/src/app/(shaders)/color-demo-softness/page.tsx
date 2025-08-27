@@ -206,15 +206,11 @@ export default function Page() {
   };
 
   return (
-    <div className="page-container">
-      <Header title="Color Demo: Softness" />
-
-      <ShaderContainer>
-        <div className="relative flex h-full flex-col">
-          <div className="absolute top-1/3 left-0 p-2 font-bold whitespace-pre text-white">{getBlending()}</div>
-          <GradientDemoMixer {...params} colors={colors} className="h-full" />
-        </div>
-      </ShaderContainer>
-    </div>
+    <ShaderContainer>
+      <div className="relative flex h-full flex-col">
+        <div className="absolute top-1/3 left-0 p-2 font-bold whitespace-pre text-white">{getBlending()}</div>
+        <GradientDemoMixer {...params} colors={colors} className="h-full" />
+      </div>
+    </ShaderContainer>
   );
 }

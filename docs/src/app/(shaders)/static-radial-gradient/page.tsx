@@ -62,17 +62,12 @@ const StaticRadialGradientWithControls = () => {
   cleanUpLevaParams(params);
 
   return (
-    <div className="page-container">
-      <Header title={staticRadialGradientDef.name} />
-
+    <>
       <ShaderContainer>
         <StaticRadialGradient {...params} colors={colors} />
       </ShaderContainer>
-
-      <div className="page-contents">
-        <ShaderPageContent shaderDef={staticRadialGradientDef} currentParams={{ ...params, colors }} />
-      </div>
-    </div>
+      <ShaderPageContent shaderDef={staticRadialGradientDef} currentParams={{ ...params, colors }} />
+    </>
   );
 };
 

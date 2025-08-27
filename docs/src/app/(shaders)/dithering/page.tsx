@@ -45,17 +45,12 @@ const DitheringWithControls = () => {
   cleanUpLevaParams(params);
 
   return (
-    <div className="page-container">
-      <Header title={ditheringDef.name} />
-
+    <>
       <ShaderContainer>
         <Dithering {...params} />
       </ShaderContainer>
-
-      <div className="page-contents">
-        <ShaderPageContent shaderDef={ditheringDef} currentParams={params} />
-      </div>
-    </div>
+      <ShaderPageContent shaderDef={ditheringDef} currentParams={params} />
+    </>
   );
 };
 

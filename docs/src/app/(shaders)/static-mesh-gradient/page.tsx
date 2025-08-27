@@ -60,17 +60,12 @@ const StaticMeshGradientWithControls = () => {
   cleanUpLevaParams(params);
 
   return (
-    <div className="page-container">
-      <Header title={staticMeshGradientDef.name} />
-
+    <>
       <ShaderContainer>
         <StaticMeshGradient {...params} colors={colors} />
       </ShaderContainer>
-
-      <div className="page-contents">
-        <ShaderPageContent shaderDef={staticMeshGradientDef} currentParams={{ ...params, colors }} />
-      </div>
-    </div>
+      <ShaderPageContent shaderDef={staticMeshGradientDef} currentParams={{ ...params, colors }} />
+    </>
   );
 };
 

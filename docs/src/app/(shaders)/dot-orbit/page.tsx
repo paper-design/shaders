@@ -61,17 +61,12 @@ const DotOrbitWithControls = () => {
   cleanUpLevaParams(params);
 
   return (
-    <div className="page-container">
-      <Header title={dotOrbitDef.name} />
-
+    <>
       <ShaderContainer>
         <DotOrbit {...params} colors={colors} />
       </ShaderContainer>
-
-      <div className="page-contents">
-        <ShaderPageContent shaderDef={dotOrbitDef} currentParams={{ ...params, colors }} />
-      </div>
-    </div>
+      <ShaderPageContent shaderDef={dotOrbitDef} currentParams={{ ...params, colors }} />
+    </>
   );
 };
 

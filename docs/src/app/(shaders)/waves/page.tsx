@@ -49,17 +49,12 @@ const WavesWithControls = () => {
   cleanUpLevaParams(params);
 
   return (
-    <div className="page-container">
-      <Header title={wavesDef.name} />
-
+    <>
       <ShaderContainer>
         <Waves {...params} />
       </ShaderContainer>
-
-      <div className="page-contents">
-        <ShaderPageContent shaderDef={wavesDef} currentParams={params} />
-      </div>
-    </div>
+      <ShaderPageContent shaderDef={wavesDef} currentParams={params} />
+    </>
   );
 };
 

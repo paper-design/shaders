@@ -55,17 +55,12 @@ const DotGridWithControls = () => {
   cleanUpLevaParams(params);
 
   return (
-    <div className="page-container">
-      <Header title={dotGridDef.name} />
-
+    <>
       <ShaderContainer>
         <DotGrid {...params} />
       </ShaderContainer>
-
-      <div className="page-contents">
-        <ShaderPageContent shaderDef={dotGridDef} currentParams={params} />
-      </div>
-    </div>
+      <ShaderPageContent shaderDef={dotGridDef} currentParams={params} />
+    </>
   );
 };
 

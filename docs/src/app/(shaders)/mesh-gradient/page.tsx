@@ -55,17 +55,12 @@ const MeshGradientWithControls = () => {
   cleanUpLevaParams(params);
 
   return (
-    <div className="page-container">
-      <Header title={meshGradientDef.name} />
-
+    <>
       <ShaderContainer>
         <MeshGradient {...params} colors={colors} />
       </ShaderContainer>
-
-      <div className="page-contents">
-        <ShaderPageContent shaderDef={meshGradientDef} currentParams={{ ...params, colors }} />
-      </div>
-    </div>
+      <ShaderPageContent shaderDef={meshGradientDef} currentParams={{ ...params, colors }} />
+    </>
   );
 };
 

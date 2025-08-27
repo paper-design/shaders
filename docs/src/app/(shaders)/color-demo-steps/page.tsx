@@ -183,12 +183,8 @@ export default function Page() {
   cleanUpLevaParams(params);
 
   return (
-    <div className="page-container">
-      <Header title="Color demo: steps" />
-
-      <ShaderContainer>
-        <GradientDemoSteps {...params} colors={colors} />
-      </ShaderContainer>
-    </div>
+    <ShaderContainer>
+      <GradientDemoSteps {...params} colors={colors} />
+    </ShaderContainer>
   );
 }

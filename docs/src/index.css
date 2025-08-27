@@ -112,7 +112,7 @@
 }
 
 @utility page-contents {
-  @apply 2xl:max-w-[calc(100%-20.75rem)] 3xl:max-w-1104;
+  @apply 2xl:max-w-[calc(100%-332px)] 3xl:max-w-1104;
 }
 
 @layer components {

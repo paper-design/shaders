@@ -62,17 +62,12 @@ const GodRaysWithControls = () => {
   cleanUpLevaParams(params);
 
   return (
-    <div className="page-container">
-      <Header title={godRaysDef.name} />
-
+    <>
       <ShaderContainer>
         <GodRays {...params} colors={colors} />
       </ShaderContainer>
-
-      <div className="page-contents">
-        <ShaderPageContent shaderDef={godRaysDef} currentParams={{ ...params, colors }} />
-      </div>
-    </div>
+      <ShaderPageContent shaderDef={godRaysDef} currentParams={{ ...params, colors }} />
+    </>
   );
 };
 

@@ -48,17 +48,12 @@ const PerlinNoiseWithControls = () => {
   cleanUpLevaParams(params);
 
   return (
-    <div className="page-container">
-      <Header title={perlinNoiseDef.name} />
-
+    <>
       <ShaderContainer>
         <PerlinNoise {...params} />
       </ShaderContainer>
-
-      <div className="page-contents">
-        <ShaderPageContent shaderDef={perlinNoiseDef} currentParams={params} />
-      </div>
-    </div>
+      <ShaderPageContent shaderDef={perlinNoiseDef} currentParams={params} />
+    </>
   );
 };
 

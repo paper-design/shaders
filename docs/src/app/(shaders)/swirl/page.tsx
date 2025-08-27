@@ -60,17 +60,12 @@ const SwirlWithControls = () => {
   cleanUpLevaParams(params);
 
   return (
-    <div className="page-container">
-      <Header title={swirlDef.name} />
-
+    <>
       <ShaderContainer>
         <Swirl {...params} colors={colors} />
       </ShaderContainer>
-
-      <div className="page-contents">
-        <ShaderPageContent shaderDef={swirlDef} currentParams={{ ...params, colors }} />
-      </div>
-    </div>
+      <ShaderPageContent shaderDef={swirlDef} currentParams={{ ...params, colors }} />
+    </>
   );
 };
 

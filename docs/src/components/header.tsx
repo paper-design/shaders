@@ -6,12 +6,9 @@ import { getPreviousPathname } from './save-previous-pathname';
 import { useRouter } from 'next/navigation';
 import { Logo } from './logo';
 
-interface HeaderProps {
-  title?: string;
-}
-
-export const Header = ({ title }: HeaderProps) => {
+export const Header = () => {
   const router = useRouter();
+
   return (
     <div className="relative flex w-full items-center justify-between pt-20 pb-24">
       <Link

@@ -58,17 +58,12 @@ const WarpWithControls = () => {
   cleanUpLevaParams(params);
 
   return (
-    <div className="page-container">
-      <Header title={warpDef.name} />
-
+    <>
       <ShaderContainer>
         <Warp {...params} colors={colors} />
       </ShaderContainer>
-
-      <div className="page-contents">
-        <ShaderPageContent shaderDef={warpDef} currentParams={{ ...params, colors }} />
-      </div>
-    </div>
+      <ShaderPageContent shaderDef={warpDef} currentParams={{ ...params, colors }} />
+    </>
   );
 };
 

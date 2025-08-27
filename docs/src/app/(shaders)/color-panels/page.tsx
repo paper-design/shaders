@@ -65,17 +65,12 @@ const ColorPanelsWithControls = () => {
   cleanUpLevaParams(params);
 
   return (
-    <div className="page-container">
-      <Header title={colorPanelsDef.name} />
-
+    <>
       <ShaderContainer>
         <ColorPanels {...params} colors={colors} />
       </ShaderContainer>
-
-      <div className="page-contents">
-        <ShaderPageContent shaderDef={colorPanelsDef} currentParams={{ ...params, colors }} />
-      </div>
-    </div>
+      <ShaderPageContent shaderDef={colorPanelsDef} currentParams={{ ...params, colors }} />
+    </>
   );
 };
 

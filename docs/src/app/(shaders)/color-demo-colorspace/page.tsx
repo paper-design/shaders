@@ -228,35 +228,31 @@ export default function Page() {
   cleanUpLevaParams(params);
 
   return (
-    <div className="page-container">
-      <Header title="Color Demo: Colorspace" />
+    <ShaderContainer>
+      <div className="relative h-1/3 w-full text-center">
+        <span className="absolute top-0 left-0 w-full p-2 font-bold text-white">{`CSS OKLCH`}</span>
+        <div
+          className="h-full"
+          style={{
+            background: `linear-gradient(to right in oklch, ${colors.join(', ')})`,
+          }}
+        />
+      </div>
 
-      <ShaderContainer>
-        <div className="relative h-1/3 w-full text-center">
-          <span className="absolute top-0 left-0 w-full p-2 font-bold text-white">{`CSS OKLCH`}</span>
-          <div
-            className="h-full"
-            style={{
-              background: `linear-gradient(to right in oklch, ${colors.join(', ')})`,
-            }}
-          />
-        </div>
+      <div className="relative h-1/3 w-full text-center">
+        <span className="absolute top-0 left-0 z-10 w-full p-2 font-bold text-white">{`Shader`}</span>
+        <GradientDemoCSS {...params} colors={colors} className="h-full w-full" />
+      </div>
 
-        <div className="relative h-1/3 w-full text-center">
-          <span className="absolute top-0 left-0 z-10 w-full p-2 font-bold text-white">{`Shader`}</span>
-          <GradientDemoCSS {...params} colors={colors} className="h-full w-full" />
-        </div>
-
-        <div className="relative h-1/3 w-full text-center">
-          <span className="absolute top-0 left-0 w-full p-2 font-bold text-white">{`CSS Default`}</span>
-          <div
-            className="h-full"
-            style={{
-              background: `linear-gradient(to right, ${colors.join(', ')})`,
-            }}
-          />
-        </div>
-      </ShaderContainer>
-    </div>
+      <div className="relative h-1/3 w-full text-center">
+        <span className="absolute top-0 left-0 w-full p-2 font-bold text-white">{`CSS Default`}</span>
+        <div
+          className="h-full"
+          style={{
+            background: `linear-gradient(to right, ${colors.join(', ')})`,
+          }}
+        />
+      </div>
+    </ShaderContainer>
   );
 }

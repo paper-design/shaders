@@ -48,17 +48,12 @@ const LiquidMetalWithControls = () => {
   cleanUpLevaParams(params);
 
   return (
-    <div className="page-container">
-      <Header title={liquidMetalDef.name} />
-
+    <>
       <ShaderContainer>
         <LiquidMetal {...params} />
       </ShaderContainer>
-
-      <div className="page-contents">
-        <ShaderPageContent shaderDef={liquidMetalDef} currentParams={params} />
-      </div>
-    </div>
+      <ShaderPageContent shaderDef={liquidMetalDef} currentParams={params} />
+    </>
   );
 };
 

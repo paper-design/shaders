@@ -59,17 +59,12 @@ const SpiralWithControls = () => {
   cleanUpLevaParams(params);
 
   return (
-    <div className="page-container">
-      <Header title={spiralDef.name} />
-
+    <>
       <ShaderContainer>
         <Spiral {...params} />
       </ShaderContainer>
-
-      <div className="page-contents">
-        <ShaderPageContent shaderDef={spiralDef} currentParams={params} />
-      </div>
-    </div>
+      <ShaderPageContent shaderDef={spiralDef} currentParams={params} />
+    </>
   );
 };
 

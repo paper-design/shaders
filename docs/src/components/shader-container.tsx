@@ -3,13 +3,13 @@ import { Leva } from 'leva';
 
 export function ShaderContainer({ children }: React.PropsWithChildren) {
   return (
-    <div className="relative md:my-24 2xl:max-w-[calc(100%-332px)] 3xl:max-w-1104">
+    <div className="relative md:my-24">
       <div className="flex aspect-4/3 *:size-full not-has-[[data-paper-shader]]:bg-cream xs:aspect-3/2 md:aspect-16/9">
         {children}
       </div>
 
       <div
-        className="absolute top-0 -right-332 hidden min-h-full w-300 overflow-auto rounded-xl bg-[#F4F3EB] pb-4 has-[[data-leva-container]>[style*='display:none']]:hidden 2xl:block squircle:rounded-2xl"
+        className="absolute top-0 -right-332 hidden w-300 overflow-auto rounded-xl bg-[#F4F3EB] pb-4 has-[[data-leva-container]>[style*='display:none']]:hidden 2xl:block squircle:rounded-2xl"
         style={{
           boxShadow: `
             rgba(58, 34, 17, 0.1) 0px 4px 40px -8px,
