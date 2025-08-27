@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import '../index.css';
 import { Analytics } from '@vercel/analytics/react';
-import openGraphImage from '../../public/images/opengraph-image.png';
+import openGraphImage from '../../public/images/opengraph-image.jpg';
 import { SavePreviousPathname } from '@/components/save-previous-pathname';
 
 export const metadata: Metadata = {

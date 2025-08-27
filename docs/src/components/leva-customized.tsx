@@ -3,11 +3,13 @@ import { Leva } from 'leva';
 
 export function LevaCustomized({ children }: React.PropsWithChildren) {
   return (
-    <div className="relative my-48 max-w-960 3xl:max-w-1104">
-      <div className="flex aspect-16/9 *:size-full not-has-[[data-paper-shaders]]:bg-cream">{children}</div>
+    <div className="relative my-48 2xl:max-w-[calc(100%-20.75rem)] 3xl:max-w-1104">
+      <div className="flex aspect-4/3 *:size-full not-has-[[data-paper-shader]]:bg-cream xs:aspect-3/2 md:aspect-16/9">
+        {children}
+      </div>
 
       <div
-        className="absolute top-0 -right-332 hidden w-300 overflow-auto rounded-xl bg-[#F4F3EB] pb-4 has-[[data-leva-container]>[style*='display:none']]:hidden 2xl:block squircle:rounded-2xl"
+        className="absolute top-0 -right-332 hidden min-h-full w-300 overflow-auto rounded-xl bg-[#F4F3EB] pb-4 has-[[data-leva-container]>[style*='display:none']]:hidden 2xl:block squircle:rounded-2xl"
         style={{
           boxShadow: `
             rgba(58, 34, 17, 0.1) 0px 4px 40px -8px,

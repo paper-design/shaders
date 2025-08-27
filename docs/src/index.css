@@ -99,7 +99,7 @@
 }
 
 @utility page-container {
-  @apply mx-auto box-content px-32 pb-96 md:px-48 2xl:max-w-1472 3xl:max-w-1104;
+  @apply mx-auto box-content max-w-1104 px-16 pb-96 xs:px-24 sm:px-32 md:px-48 2xl:max-w-1472 3xl:max-w-1104;
 
   /* @apply mx-auto box-content max-w-[48rem] px-8 md:px-12; */
   /* @apply mx-auto px-6 pb-32 xs:px-8 md:px-12 lg:max-w-[1280px] lg:px-24; */

@@ -73,7 +73,7 @@ const MeshGradientWithControls = () => {
         <MeshGradient {...params} colors={colors} />
       </LevaCustomized>
 
-      <div className="max-w-960 3xl:max-w-1104">
+      <div className="2xl:max-w-[calc(100%-20.75rem)] 3xl:max-w-1104">
         <ShaderPageContent shaderDef={meshGradientDef} currentParams={{ ...params, colors }} />
       </div>
     </div>

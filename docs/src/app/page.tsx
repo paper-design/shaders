@@ -11,7 +11,7 @@ import { Logo } from '@/components/logo';
 
 export default function Home() {
   return (
-    <div className="mx-auto box-content max-w-1104 px-32 md:px-48 2xl:max-w-1472">
+    <div className="mx-auto box-content max-w-1104 px-16 xs:px-24 sm:px-32 md:px-48 2xl:max-w-1472">
       <div className="pt-20 pb-96">
         <div className="mb-64 flex w-full items-center justify-between sm:mb-48 md:mb-32">
           <Link className="flex" href="https://paper.design/" target="_blank">
