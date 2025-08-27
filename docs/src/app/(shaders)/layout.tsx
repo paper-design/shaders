@@ -1,10 +1,10 @@
 import { Header } from '@/components/header';
 
-export default function Layout({ children }: { children: React.ReactNode }) {
+export default function Layout({ children }: React.PropsWithChildren) {
   return (
-    <div className="pb-16">
+    <div className="page-container">
       <Header />
-      <div className="mx-auto -mt-32 flex max-w-screen-xl flex-col gap-8 px-5">{children}</div>
+      <main className="page-contents">{children}</main>
     </div>
   );
 }

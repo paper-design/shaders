@@ -22,13 +22,14 @@ export const defaultPreset: SmokeRingPreset = {
     ...defaultObjectSizing,
     speed: 0.4,
     frame: 0,
-    colorBack: '#121212',
+    colorBack: '#000000',
     colors: ['#ffffff'],
     noiseScale: 3,
     noiseIterations: 8,
     radius: 0.25,
     thickness: 0.65,
     innerShape: 0.7,
+    scale: 0.8,
   },
 };
 

@@ -8,20 +8,10 @@ import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
 import { DitheringShape, DitheringShapes, DitheringType, DitheringTypes } from '@paper-design/shaders';
 import { toHsla } from '@/helpers/to-hsla';
-import { ShaderContainer } from '@/components/shader-container';
 import { ShaderDetails } from '@/components/shader-details';
 import { ditheringDef } from '@/shader-defs/dithering-def';
-
-/**
- * You can copy/paste this example to use Dithering in your app
- */
-const DitheringExample = () => {
-  return <Dithering style={{ position: 'fixed', width: '100%', height: '100%' }} />;
-};
-
-/**
- * This example has controls added so you can play with settings in the example app
- */
+import { Header } from '@/components/header';
+import { ShaderContainer } from '@/components/shader-container';
 
 const { worldWidth, worldHeight, ...defaults } = ditheringPresets[0].params;
 

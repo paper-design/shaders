@@ -8,20 +8,10 @@ import { godRaysMeta } from '@paper-design/shaders';
 import { useControls, button, folder } from 'leva';
 import { useColors } from '@/helpers/use-colors';
 import { toHsla } from '@/helpers/to-hsla';
-import { ShaderContainer } from '@/components/shader-container';
 import { ShaderDetails } from '@/components/shader-details';
 import { godRaysDef } from '@/shader-defs/god-rays-def';
-
-/**
- * You can copy/paste this example to use GodRays in your app
- */
-const GodRaysExample = () => {
-  return <GodRays style={{ position: 'fixed', width: '100%', height: '100%' }} />;
-};
-
-/**
- * This example has controls added so you can play with settings in the example app
- */
+import { Header } from '@/components/header';
+import { ShaderContainer } from '@/components/shader-container';
 
 const { worldWidth, worldHeight, ...defaults } = godRaysPresets[0].params;
 

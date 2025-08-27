@@ -9,41 +9,38 @@ import { DitheringType, DitheringTypes, ShaderFit } from '@paper-design/shaders'
 import { levaImageButton } from '@/helpers/leva-image-button';
 import { useState, useEffect, useCallback } from 'react';
 import { toHsla } from '@/helpers/to-hsla';
-import { ShaderContainer } from '@/components/shader-container';
 import { ShaderDetails } from '@/components/shader-details';
 import { imageDitheringDef } from '@/shader-defs/image-dithering-def';
-
-/**
- * This example has controls added so you can play with settings in the example app
- */
+import { Header } from '@/components/header';
+import { ShaderContainer } from '@/components/shader-container';
 
 const { worldWidth, worldHeight, ...defaults } = imageDitheringPresets[0].params;
+
+const imageFiles = [
+  '001.webp',
+  '002.webp',
+  '003.webp',
+  '004.webp',
+  '005.webp',
+  '006.webp',
+  '007.webp',
+  '008.webp',
+  '009.webp',
+  '0010.webp',
+  '0011.webp',
+  '0012.webp',
+  '0013.webp',
+  '0014.webp',
+  '0015.webp',
+  '0016.webp',
+  '0017.webp',
+  '0018.webp',
+] as const;
 
 const ImageDitheringWithControls = () => {
   const [imageIdx, setImageIdx] = useState(-1);
   const [image, setImage] = useState<HTMLImageElement | undefined>(undefined);
   const [status, setStatus] = useState('Click to load an image');
-
-  const imageFiles = [
-    '001.webp',
-    '002.webp',
-    '003.webp',
-    '004.webp',
-    '005.webp',
-    '006.webp',
-    '007.webp',
-    '008.webp',
-    '009.webp',
-    '0010.webp',
-    '0011.webp',
-    '0012.webp',
-    '0013.webp',
-    '0014.webp',
-    '0015.webp',
-    '0016.webp',
-    '0017.webp',
-    '0018.webp',
-  ] as const;
 
   const fileName = imageIdx >= 0 ? imageFiles[imageIdx] : null;
 
@@ -101,15 +98,15 @@ const ImageDitheringWithControls = () => {
   cleanUpLevaParams(params);
 
   return (
-    <div>
+    <>
       <ShaderContainer>
         <ImageDithering onClick={handleClick} {...params} image={image || undefined} />
       </ShaderContainer>
-      <div onClick={handleClick} className="py-3 text-center select-none">
-        Click to change sample image
+      <div onClick={handleClick} className="mx-auto mt-16 mb-48 w-fit text-base text-current/70 select-none">
+        Click to change the sample image
       </div>
       <ShaderDetails shaderDef={imageDitheringDef} currentParams={params} />
-    </div>
+    </>
   );
 };
 
