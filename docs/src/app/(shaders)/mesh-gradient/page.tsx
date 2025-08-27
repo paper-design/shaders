@@ -10,7 +10,7 @@ import { useColors } from '@/helpers/use-colors';
 import { ShaderPageContent } from '@/components/shader-page-content';
 import { meshGradientDef } from '@/shader-defs/mesh-gradient-def';
 import { Header } from '@/components/header';
-import { LevaCustomized } from '@/components/leva-customized';
+import { ShaderContainer } from '@/components/shader-container';
 
 const { worldWidth, worldHeight, ...defaults } = meshGradientPresets[0].params;
 
@@ -58,11 +58,11 @@ const MeshGradientWithControls = () => {
     <div className="page-container">
       <Header />
 
-      <LevaCustomized>
+      <ShaderContainer>
         <MeshGradient {...params} colors={colors} />
-      </LevaCustomized>
+      </ShaderContainer>
 
-      <div className="2xl:max-w-[calc(100%-20.75rem)] 3xl:max-w-1104">
+      <div className="page-contents">
         <ShaderPageContent shaderDef={meshGradientDef} currentParams={{ ...params, colors }} />
       </div>
     </div>

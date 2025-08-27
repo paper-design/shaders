@@ -101,15 +101,10 @@
 
 @utility page-container {
   @apply mx-auto box-content max-w-1104 px-16 pb-96 xs:px-24 sm:px-32 md:px-48 2xl:max-w-1472 3xl:max-w-1104;
-
-  /* @apply mx-auto box-content max-w-[48rem] px-8 md:px-12; */
-  /* @apply mx-auto px-6 pb-32 xs:px-8 md:px-12 lg:max-w-[1280px] lg:px-24; */
-  /* @apply mr-auto box-content px-6 pb-32 xs:px-8 md:px-12 xl:max-w-[1168px] xl:pr-[calc(6rem+300px)]; */
-  /* TODO Vlad check how rems work in media queries and if container sizes have to be rem */
 }
 
-@utility page-shader {
-  @apply aspect-square xs:aspect-4/3 sm:aspect-16/9;
+@utility page-contents {
+  @apply 2xl:max-w-[calc(100%-20.75rem)] 3xl:max-w-1104;
 }
 
 @layer components {

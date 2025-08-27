@@ -1,7 +1,7 @@
 'use client';
 import { Leva } from 'leva';
 
-export function LevaCustomized({ children }: React.PropsWithChildren) {
+export function ShaderContainer({ children }: React.PropsWithChildren) {
   return (
     <div className="relative my-48 2xl:max-w-[calc(100%-20.75rem)] 3xl:max-w-1104">
       <div className="flex aspect-4/3 *:size-full not-has-[[data-paper-shader]]:bg-cream xs:aspect-3/2 md:aspect-16/9">

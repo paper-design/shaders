@@ -11,7 +11,7 @@ import { toHsla } from '@/helpers/to-hsla';
 import { ShaderPageContent } from '@/components/shader-page-content';
 import { dotOrbitDef } from '@/shader-defs/dot-orbit-def';
 import { Header } from '@/components/header';
-import { LevaCustomized } from '@/components/leva-customized';
+import { ShaderContainer } from '@/components/shader-container';
 
 const { worldWidth, worldHeight, ...defaults } = dotOrbitPresets[0].params;
 
@@ -64,11 +64,13 @@ const DotOrbitWithControls = () => {
     <div className="page-container">
       <Header title={dotOrbitDef.name} />
 
-      <LevaCustomized>
+      <ShaderContainer>
         <DotOrbit {...params} colors={colors} />
-      </LevaCustomized>
+      </ShaderContainer>
 
-      <ShaderPageContent shaderDef={dotOrbitDef} currentParams={{ ...params, colors }} />
+      <div className="page-contents">
+        <ShaderPageContent shaderDef={dotOrbitDef} currentParams={{ ...params, colors }} />
+      </div>
     </div>
   );
 };
