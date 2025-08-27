@@ -15,6 +15,10 @@ export const pulsingBorderMeta = {
  * - u_colorBack (RGBA)
  * - u_colors (vec4[]), u_colorsCount (float used as integer)
  * - u_roundness, u_thickness, u_softness: border parameters
+ * - u_margin
+ * - u_shape (float used as integer):
+ * ---- 0: square
+ * ---- 1: auto
  * - u_intensity: thickness of individual spots
  * - u_bloom: normal / additive color blending
  * - u_spotSize: angular size of spots
@@ -37,6 +41,8 @@ uniform vec4 u_colors[${pulsingBorderMeta.maxColorCount}];
 uniform float u_colorsCount;
 uniform float u_roundness;
 uniform float u_thickness;
+uniform float u_margin;
+uniform float u_shape;
 uniform float u_softness;
 uniform float u_intensity;
 uniform float u_bloom;
@@ -114,12 +120,19 @@ void main() {
   vec2 halfSize = vec2(.5);
   if (borderRatio > 1.) {
     borderUV.x *= borderRatio;
-    halfSize.x *= borderRatio;
+    if (u_shape > 0.) {
+      halfSize.x *= borderRatio;
+    }
   } else {
     borderUV.y /= borderRatio;
-    halfSize.y /= borderRatio;    
+    if (u_shape > 0.) {
+      halfSize.y /= borderRatio;
+    }
   }
-  float radius = min(.5 * u_roundness, halfSize.x);
+
+  halfSize -= u_margin;
+
+  float radius = min(min(.5 * u_roundness, halfSize.x), halfSize.y);
   vec2 d = abs(borderUV) - halfSize + radius;
   float outsideDistance = length(max(d, 0.)) - radius;
   float insideDistance = min(max(d.x, d.y), 0.0);
@@ -260,6 +273,8 @@ export interface PulsingBorderUniforms extends ShaderSizingUniforms {
   u_colorsCount: number;
   u_roundness: number;
   u_thickness: number;
+  u_margin: number;
+  u_shape: (typeof PulsingBorderShapes)[PulsingBorderShape];
   u_softness: number;
   u_intensity: number;
   u_bloom: number;
@@ -276,6 +291,8 @@ export interface PulsingBorderParams extends ShaderSizingParams, ShaderMotionPar
   colors?: string[];
   roundness?: number;
   thickness?: number;
+  margin?: number;
+  shape?: PulsingBorderShape;
   softness?: number;
   intensity?: number;
   bloom?: number;
@@ -285,3 +302,10 @@ export interface PulsingBorderParams extends ShaderSizingParams, ShaderMotionPar
   smoke?: number;
   smokeSize?: number;
 }
+
+export const PulsingBorderShapes = {
+  square: 0,
+  auto: 1,
+} as const;
+
+export type PulsingBorderShape = keyof typeof PulsingBorderShapes;

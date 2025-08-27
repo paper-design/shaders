@@ -5,7 +5,7 @@ import { useControls, button, folder } from 'leva';
 import { setParamsSafe, useResetLevaParams } from '@/helpers/use-reset-leva-params';
 import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
-import { pulsingBorderMeta } from '@paper-design/shaders';
+import { pulsingBorderMeta, PulsingBorderShape, PulsingBorderShapes } from '@paper-design/shaders';
 import { useColors } from '@/helpers/use-colors';
 import { toHsla } from '@/helpers/to-hsla';
 import { ShaderContainer } from '@/components/shader-container';
@@ -34,21 +34,23 @@ const PulsingBorderWithControls = () => {
     return {
       colorBack: { value: toHsla(defaults.colorBack), order: 100 },
       roundness: { value: defaults.roundness, min: 0, max: 1, order: 200 },
-      thickness: { value: defaults.thickness, min: 0, max: 1, order: 200 },
-      softness: { value: defaults.softness, min: 0, max: 1, order: 202 },
-      intensity: { value: defaults.intensity, min: 0, max: 1, order: 203 },
-      bloom: { value: defaults.bloom, min: 0, max: 1, order: 204 },
+      thickness: { value: defaults.thickness, min: 0, max: 1, order: 201 },
+      margin: { value: defaults.margin, min: 0, max: 0.5, order: 202 },
+      shape: { value: defaults.shape, options: Object.keys(PulsingBorderShapes) as PulsingBorderShape[], order: 203 },
+      softness: { value: defaults.softness, min: 0, max: 1, order: 204 },
+      intensity: { value: defaults.intensity, min: 0, max: 1, order: 205 },
+      bloom: { value: defaults.bloom, min: 0, max: 1, order: 206 },
       spots: {
         value: defaults.spots,
         min: 1,
         max: pulsingBorderMeta.maxSpots,
         step: 1,
-        order: 205,
+        order: 207,
       },
-      spotSize: { value: defaults.spotSize, min: 0, max: 1, order: 206 },
-      pulse: { value: defaults.pulse, min: 0, max: 1, order: 207 },
-      smoke: { value: defaults.smoke, min: 0, max: 1, order: 208 },
-      smokeSize: { value: defaults.smokeSize, min: 0, max: 1, order: 209 },
+      spotSize: { value: defaults.spotSize, min: 0, max: 1, order: 208 },
+      pulse: { value: defaults.pulse, min: 0, max: 1, order: 209 },
+      smoke: { value: defaults.smoke, min: 0, max: 1, order: 210 },
+      smokeSize: { value: defaults.smokeSize, min: 0, max: 1, order: 211 },
       scale: { value: defaults.scale, min: 0.01, max: 1, order: 300 },
       rotation: { value: defaults.rotation, min: 0, max: 360, order: 301 },
       offsetX: { value: defaults.offsetX, min: -1, max: 1, order: 302 },
