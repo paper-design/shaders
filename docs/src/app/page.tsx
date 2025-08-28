@@ -4,7 +4,7 @@ import { StaticImageData } from 'next/image';
 import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { homeShaders } from './home-shaders';
+import { HomeShaderConfig, homeShaders } from './home-shaders';
 import { GithubIcon } from '@/icons';
 import { CopyButton } from '@/components/copy-button';
 import { Logo } from '@/components/logo';
@@ -68,25 +68,18 @@ function ShaderItem({
   name,
   image,
   url,
-  style,
   pixelated,
   shaderConfig,
   ShaderComponent,
-}: {
-  name: string;
-  image?: StaticImageData;
-  url: string;
-  pixelated?: boolean;
-  ShaderComponent: React.ComponentType<{ style: React.CSSProperties } & Record<string, unknown>>;
-  style?: React.CSSProperties;
-  shaderConfig?: Record<string, unknown>;
-}) {
+  alwaysLivePreview,
+}: HomeShaderConfig) {
   const [shaderVisibility, setShaderVisibility] = useState<'hidden' | 'visible' | 'fading-out'>('hidden');
 
   return (
     <Link href={url} className="group flex flex-col gap-8 outline-0">
       <div
-        className="relative flex aspect-[4/3] items-center justify-center overflow-hidden rounded-2xl bg-cream/50 outline-offset-4 outline-focus will-change-transform group-focus-visible:outline-2 squircle:rounded-4xl"
+        data-pixelated={pixelated ? '' : undefined}
+        className="relative flex aspect-[4/3] items-center justify-center overflow-hidden rounded-2xl bg-cream/50 outline-offset-4 outline-focus will-change-transform group-focus-visible:outline-2 data-pixelated:pixelated squircle:rounded-4xl"
         onTouchStart={() => setShaderVisibility('visible')}
         onTouchEnd={() => setShaderVisibility('fading-out')}
         onTouchCancel={() => setShaderVisibility('fading-out')}
@@ -100,42 +93,49 @@ function ShaderItem({
             setShaderVisibility('fading-out');
           }
         }}
+        {...(alwaysLivePreview && {
+          style: { background: `${shaderConfig.colorBack ?? 'black'} url(${image.src}) center/cover` },
+        })}
       >
-        {image && (
-          <>
-            <Image
-              data-pixelated={pixelated ? '' : undefined}
-              className="absolute aspect-[4/3] h-full w-full data-pixelated:pixelated"
-              src={image}
-              alt={`Preview of ${name}`}
-              unoptimized // The images are already optimized
-              priority
-            />
-            {shaderVisibility !== 'hidden' && shaderConfig && shaderConfig.speed !== 0 && (
-              <ShaderComponent
-                data-visibility={shaderVisibility}
-                className="absolute aspect-[4/3] h-full w-full"
-                style={{
-                  opacity: shaderVisibility === 'fading-out' ? 0 : 1,
-                  filter: shaderVisibility === 'fading-out' ? 'blur(4px)' : 'none',
-                  transitionProperty: 'opacity, filter',
-                  transitionDuration: '300ms',
-                  transitionTimingFunction: 'ease-out',
-                  ...style,
-                }}
-                {...shaderConfig}
-                // Match the screenshot sizes
-                worldWidth={400}
-                worldHeight={300}
-                fit="contain"
-                onTransitionEnd={() => {
-                  if (shaderVisibility === 'fading-out') {
-                    setShaderVisibility('hidden');
-                  }
-                }}
-              />
-            )}
-          </>
+        {alwaysLivePreview ? (
+          <ShaderComponent
+            className="absolute aspect-[4/3] h-full w-full"
+            {...shaderConfig}
+            speed={0}
+            worldWidth={400}
+            worldHeight={300}
+            fit="contain"
+          />
+        ) : (
+          <Image
+            className="absolute aspect-[4/3] h-full w-full"
+            src={image}
+            alt={`Preview of ${name}`}
+            unoptimized // The images are already optimized
+            priority
+          />
+        )}
+
+        {shaderVisibility !== 'hidden' && shaderConfig.speed !== 0 && (
+          <ShaderComponent
+            className="absolute aspect-[4/3] h-full w-full"
+            style={{
+              opacity: shaderVisibility === 'fading-out' ? 0 : 1,
+              filter: shaderVisibility === 'fading-out' ? 'blur(4px)' : 'none',
+              transitionProperty: 'opacity, filter',
+              transitionDuration: '300ms',
+              transitionTimingFunction: 'ease-out',
+            }}
+            {...shaderConfig}
+            worldWidth={400}
+            worldHeight={300}
+            fit="contain"
+            onTransitionEnd={() => {
+              if (shaderVisibility === 'fading-out') {
+                setShaderVisibility('hidden');
+              }
+            }}
+          />
         )}
       </div>
       <div className="text-center">{name}</div>
