@@ -19,6 +19,9 @@
   --color-backplate-2: light-dark(#e9e8e0, #2a2a2a);
   --color-focus: light-dark(oklch(0.74 0.12 258), oklch(0.73 0.2 258 / 60%));
 
+  /* Can't use transparent colors in tables because Safari overlays them twice */
+  --color-table-border: light-dark(#e2e1d8, #2a2a2a);
+
   --text-3xl: 1.75rem;
 
   --breakpoint-xs: 28rem;

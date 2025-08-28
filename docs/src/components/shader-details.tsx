@@ -106,7 +106,7 @@ export function ShaderDetails({
               </thead>
               <tbody>
                 {shaderDef.params.map((param) => (
-                  <tr key={param.name} className="border-current/10 not-last:border-b">
+                  <tr key={param.name} className="border-table-border not-last:border-b">
                     <td className="px-16 py-12 font-medium">{param.name}</td>
 
                     <td className="min-w-[240px] px-16 py-12 text-current/70">{param.description}</td>
