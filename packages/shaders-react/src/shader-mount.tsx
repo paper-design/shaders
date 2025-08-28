@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, forwardRef, useState } from 'react';
+import { useRef, forwardRef, useState, useLayoutEffect } from 'react';
 import {
   ShaderMount as ShaderMountVanilla,
   type PaperShaderElement,
@@ -118,7 +118,7 @@ export const ShaderMount: React.FC<ShaderMountProps> = forwardRef<PaperShaderEle
     const shaderMountRef: React.RefObject<ShaderMountVanilla | null> = useRef<ShaderMountVanilla>(null);
 
     // Initialize the ShaderMountVanilla
-    useEffect(() => {
+    useLayoutEffect(() => {
       const initShader = async () => {
         const uniforms = await processUniforms(uniformsProp);
 
@@ -147,7 +147,7 @@ export const ShaderMount: React.FC<ShaderMountProps> = forwardRef<PaperShaderEle
     }, [fragmentShader, webGlContextAttributes]);
 
     // Uniforms
-    useEffect(() => {
+    useLayoutEffect(() => {
       const updateUniforms = async () => {
         const uniforms = await processUniforms(uniformsProp);
         shaderMountRef.current?.setUniforms(uniforms);
@@ -157,22 +157,22 @@ export const ShaderMount: React.FC<ShaderMountProps> = forwardRef<PaperShaderEle
     }, [uniformsProp, isInitialized]);
 
     // Speed
-    useEffect(() => {
+    useLayoutEffect(() => {
       shaderMountRef.current?.setSpeed(speed);
     }, [speed, isInitialized]);
 
     // Max Pixel Count
-    useEffect(() => {
+    useLayoutEffect(() => {
       shaderMountRef.current?.setMaxPixelCount(maxPixelCount);
     }, [maxPixelCount, isInitialized]);
 
     // Min Pixel Ratio
-    useEffect(() => {
+    useLayoutEffect(() => {
       shaderMountRef.current?.setMinPixelRatio(minPixelRatio);
     }, [minPixelRatio, isInitialized]);
 
     // Frame
-    useEffect(() => {
+    useLayoutEffect(() => {
       shaderMountRef.current?.setFrame(frame);
     }, [frame, isInitialized]);
 
