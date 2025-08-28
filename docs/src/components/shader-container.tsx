@@ -9,7 +9,7 @@ export function ShaderContainer({ children }: React.PropsWithChildren) {
       </div>
 
       <div
-        className="absolute top-0 -right-332 hidden w-300 overflow-auto rounded-xl bg-(--color-leva-background) pb-4 has-[[data-leva-container]>[style*='display:none']]:hidden 2xl:block squircle:rounded-2xl"
+        className="absolute top-0 -right-332 hidden w-300 overflow-auto rounded-xl bg-(--color-leva-background) pb-4 has-[[data-leva-container]>[style*='display:none']]:hidden lg:block squircle:rounded-2xl"
         style={{
           boxShadow: `
             rgba(58, 34, 17, 0.1) 0px 4px 40px -8px,
