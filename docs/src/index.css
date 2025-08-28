@@ -143,7 +143,6 @@
     }
 
     & div:has(> div > button) {
-      grid-template-columns: 1fr 1fr !important;
       column-gap: 8px;
       margin-top: 8px;
       margin-bottom: 4px;
@@ -152,6 +151,10 @@
         margin-top: 0 !important;
         margin-bottom: 0 !important;
       }
+    }
+
+    & div:has(> div:nth-child(2) > button) {
+      grid-template-columns: 1fr 1fr !important;
     }
 
     & ::after {
