@@ -1,5 +1,9 @@
 import { MeshGradient } from '@paper-design/shaders-react';
 
 export default function Page() {
-  return <MeshGradient className="fixed inset-0" />;
+  return (
+    <div className="fixed inset-0 bg-[red]">
+      <MeshGradient className="fixed inset-0" />
+    </div>
+  );
 }
