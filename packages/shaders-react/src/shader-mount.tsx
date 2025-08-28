@@ -36,7 +36,7 @@ export interface ShaderComponentProps extends Omit<React.ComponentProps<'div'>, 
 }
 
 /** Parse the provided uniforms, turning URL strings into loaded images */
-async function processUniforms(uniformsProp: ShaderMountUniformsReact): Promise<ShaderMountUniforms> {
+function processUniforms(uniformsProp: ShaderMountUniformsReact): ShaderMountUniforms {
   const processedUniforms = {} as ShaderMountUniforms;
   const imageLoadPromises: Promise<void>[] = [];
 
@@ -91,7 +91,6 @@ async function processUniforms(uniformsProp: ShaderMountUniformsReact): Promise<
     }
   });
 
-  await Promise.all(imageLoadPromises);
   return processedUniforms;
 }
 
@@ -119,8 +118,8 @@ export const ShaderMount: React.FC<ShaderMountProps> = forwardRef<PaperShaderEle
 
     // Initialize the ShaderMountVanilla
     useLayoutEffect(() => {
-      const initShader = async () => {
-        const uniforms = await processUniforms(uniformsProp);
+      const initShader = () => {
+        const uniforms = processUniforms(uniformsProp);
 
         if (divRef.current && !shaderMountRef.current) {
           shaderMountRef.current = new ShaderMountVanilla(
@@ -148,8 +147,8 @@ export const ShaderMount: React.FC<ShaderMountProps> = forwardRef<PaperShaderEle
 
     // Uniforms
     useLayoutEffect(() => {
-      const updateUniforms = async () => {
-        const uniforms = await processUniforms(uniformsProp);
+      const updateUniforms = () => {
+        const uniforms = processUniforms(uniformsProp);
         shaderMountRef.current?.setUniforms(uniforms);
       };
 
