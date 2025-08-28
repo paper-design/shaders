@@ -78,25 +78,22 @@ import {
 } from '@paper-design/shaders-react';
 import { StaticImageData } from 'next/image';
 
-type HomeShaderConfig = {
+export type HomeShaderConfig = {
   name: string;
-  image?: StaticImageData;
+  image: StaticImageData;
   url: string;
   pixelated?: boolean;
-  ShaderComponent: React.FC<ShaderComponentProps>;
-  shaderConfig?: Record<string, unknown>;
-  style?: React.CSSProperties;
+  ShaderComponent: React.FC<any>;
+  shaderConfig: Record<string, unknown>;
+
+  /**
+   * Whether to render the shader itself in place of the preview image
+   * (can be used for grainy shaders that look bad when previews are compressed/resized)
+   */
+  alwaysLivePreview?: boolean;
 };
 
 export const homeShaders = [
-  {
-    name: 'grain gradient',
-    url: '/grain-gradient',
-    ShaderComponent: GrainGradient,
-    image: grainGradientImg,
-    pixelated: true,
-    shaderConfig: { ...grainGradientPresets[0].params, frame: 7000, speed: 1.5 },
-  },
   {
     name: 'mesh gradient',
     image: meshGradientImg,
@@ -125,6 +122,14 @@ export const homeShaders = [
     image: ditheringImg,
     pixelated: true,
     shaderConfig: { ...ditheringPresets[0].params, scale: 0.6 },
+  },
+  {
+    name: 'grain gradient',
+    image: grainGradientImg,
+    url: '/grain-gradient',
+    ShaderComponent: GrainGradient,
+    shaderConfig: { ...grainGradientPresets[0].params, frame: 7000, speed: 1.5 },
+    alwaysLivePreview: true,
   },
   {
     name: 'dot orbit',
