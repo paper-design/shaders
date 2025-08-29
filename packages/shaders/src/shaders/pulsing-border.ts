@@ -164,7 +164,7 @@ void main() {
     m *= (1. - clamp(length((v3 + maskOffset) / maskR), 0., 1.));
     cornerFadeMask += m;
   }
-
+  cornerFade = clamp(cornerFade, 0., 1.);
   cornerFade *= cornerFadeMask;
   border += cornerFade;
 
@@ -179,6 +179,8 @@ void main() {
   smoke = clamp(smoke, 0., 1.);
 
   border += smoke;
+  float borderBounds = 1. - smoothstep(.9, 1., length(v_responsiveUV));
+  border *= borderBounds;
   border = clamp(border, 0., 1.);
 
   vec3 blendColor = vec3(0.);
