@@ -27,7 +27,7 @@ export const defaultPreset: GrainGradientPreset = {
     colors: ['#7300ff', '#eba8ff', '#00bfff', '#2a00ff'],
     softness: 0.5,
     intensity: 0.5,
-    noise: 1,
+    noise: 0.25,
     shape: 'corners',
   },
 };

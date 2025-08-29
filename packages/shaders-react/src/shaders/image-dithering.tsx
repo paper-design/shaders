@@ -20,7 +20,7 @@ export const defaultPreset: ImageDitheringPreset = {
   name: 'Default',
   params: {
     ...defaultObjectSizing,
-    // fit: 'cover',
+    fit: 'cover',
     // scale: 0.95,
     speed: 0,
     frame: 0,

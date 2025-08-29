@@ -9,18 +9,8 @@ import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
 import { toHsla } from '@/helpers/to-hsla';
 import { ShaderDetails } from '@/components/shader-details';
 import { wavesDef } from '@/shader-defs/waves-def';
+import { Header } from '@/components/header';
 import { ShaderContainer } from '@/components/shader-container';
-
-/**
- * You can copy/paste this example to use Waves in your app
- */
-const WavesExample = () => {
-  return <Waves style={{ position: 'fixed', width: '100%', height: '100%' }} />;
-};
-
-/**
- * This example has controls added so you can play with settings in the example app
- */
 
 const { worldWidth, worldHeight, ...defaults } = wavesPresets[0].params;
 

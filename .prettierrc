@@ -8,5 +8,5 @@
     "prettier-plugin-tailwindcss"
   ],
   "quoteProps": "consistent",
-  "tailwindStylesheet": "./docs/src/globals.css"
+  "tailwindStylesheet": "./docs/src/index.css"
 }

@@ -8,20 +8,10 @@ import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
 import { simplexNoiseMeta } from '@paper-design/shaders';
 import { useColors } from '@/helpers/use-colors';
-import { ShaderContainer } from '@/components/shader-container';
 import { ShaderDetails } from '@/components/shader-details';
 import { simplexNoiseDef } from '@/shader-defs/simplex-noise-def';
-
-/**
- * You can copy/paste this example to use SimplexNoise in your app
- */
-const SimplexNoiseExample = () => {
-  return <SimplexNoise style={{ position: 'fixed', width: '100%', height: '100%' }} />;
-};
-
-/**
- * This example has controls added so you can play with settings in the example app
- */
+import { Header } from '@/components/header';
+import { ShaderContainer } from '@/components/shader-container';
 
 const { worldWidth, worldHeight, ...defaults } = simplexNoisePresets[0].params;
 

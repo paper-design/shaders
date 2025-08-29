@@ -78,23 +78,22 @@ import {
 } from '@paper-design/shaders-react';
 import { StaticImageData } from 'next/image';
 
-type HomeShaderConfig = {
+export type HomeShaderConfig = {
   name: string;
-  image?: StaticImageData;
+  image: StaticImageData;
   url: string;
-  ShaderComponent: React.FC<ShaderComponentProps>;
-  shaderConfig?: Record<string, unknown>;
-  style?: React.CSSProperties;
+  pixelated?: boolean;
+  ShaderComponent: React.FC<any>;
+  shaderConfig: Record<string, unknown>;
+
+  /**
+   * Whether to render the shader itself in place of the preview image
+   * (can be used for grainy shaders that look bad when previews are compressed/resized)
+   */
+  alwaysLivePreview?: boolean;
 };
 
 export const homeShaders = [
-  {
-    name: 'grain gradient',
-    url: '/grain-gradient',
-    ShaderComponent: GrainGradient,
-    image: grainGradientImg,
-    shaderConfig: { ...grainGradientPresets[0].params, frame: 7000, noise: 0.5, speed: 2 },
-  },
   {
     name: 'mesh gradient',
     image: meshGradientImg,
@@ -121,7 +120,16 @@ export const homeShaders = [
     url: '/dithering',
     ShaderComponent: Dithering,
     image: ditheringImg,
+    pixelated: true,
     shaderConfig: { ...ditheringPresets[0].params, scale: 0.6 },
+  },
+  {
+    name: 'grain gradient',
+    image: grainGradientImg,
+    url: '/grain-gradient',
+    ShaderComponent: GrainGradient,
+    shaderConfig: { ...grainGradientPresets[0].params, frame: 7000, speed: 1.5 },
+    alwaysLivePreview: true,
   },
   {
     name: 'dot orbit',
@@ -135,7 +143,7 @@ export const homeShaders = [
     url: '/dot-grid',
     ShaderComponent: DotGrid,
     image: dotGridImg,
-    shaderConfig: { ...dotGridPresets[0].params, speed: 0 },
+    shaderConfig: { ...dotGridPresets[0].params, speed: 0, gapX: 24, gapY: 24, size: 1.5 },
   },
   {
     name: 'warp',
@@ -163,7 +171,7 @@ export const homeShaders = [
     url: '/waves',
     ShaderComponent: Waves,
     image: wavesImg,
-    shaderConfig: { ...wavesPresets[0].params, scale: 0.7 },
+    shaderConfig: { ...wavesPresets[0].params, speed: 0, scale: 0.55, spacing: 1.2 },
   },
   {
     name: 'neuro noise',
@@ -201,14 +209,14 @@ export const homeShaders = [
     url: '/pulsing-border',
     ShaderComponent: PulsingBorder,
     image: pulsingBorderImg,
-    shaderConfig: { ...pulsingBorderPresets[0].params, scale: 0.6 },
+    shaderConfig: { ...pulsingBorderPresets[0].params, frame: 4000 },
   },
   {
     name: 'metaballs',
     image: metaballsImg,
     url: '/metaballs',
     ShaderComponent: Metaballs,
-    shaderConfig: { ...metaballsPresets[0].params, scale: 1.1, count: 8, frame: 3400, speed: 2 },
+    shaderConfig: { ...metaballsPresets[0].params, scale: 1, count: 8, frame: 3400, speed: 2 },
   },
   {
     name: 'color panels',

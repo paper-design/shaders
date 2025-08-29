@@ -20,7 +20,7 @@ export const defaultPreset: LiquidMetalPreset = {
   name: 'Default',
   params: {
     ...defaultObjectSizing,
-    scale: 0.7,
+    scale: 0.6,
     speed: 1,
     frame: 8000,
     colorBack: '#000000',

@@ -287,7 +287,6 @@ export class ShaderMount {
     } else {
       this.rafId = null;
     }
-
   };
 
   private requestRender = () => {
@@ -615,6 +614,7 @@ const defaultStyle = `@layer paper-shaders {
       width: 100%;
       height: 100%;
       border-radius: inherit;
+      corner-shape: inherit;
     }
   }
 }`;

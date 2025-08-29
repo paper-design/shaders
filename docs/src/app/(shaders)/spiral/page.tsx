@@ -6,20 +6,10 @@ import { setParamsSafe, useResetLevaParams } from '@/helpers/use-reset-leva-para
 import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
 import { toHsla } from '@/helpers/to-hsla';
-import { ShaderContainer } from '@/components/shader-container';
 import { ShaderDetails } from '@/components/shader-details';
 import { spiralDef } from '@/shader-defs/spiral-def';
-
-/**
- * You can copy/paste this example to use Spiral in your app
- */
-const SpiralExample = () => {
-  return <Spiral style={{ position: 'fixed', width: '100%', height: '100%' }} />;
-};
-
-/**
- * This example has controls added so you can play with settings in the example app
- */
+import { Header } from '@/components/header';
+import { ShaderContainer } from '@/components/shader-container';
 
 const firstPresetParams = spiralPresets[0].params;
 const { worldWidth, worldHeight, ...defaults } = {

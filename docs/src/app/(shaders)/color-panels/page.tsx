@@ -9,20 +9,10 @@ import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
 import { colorPanelsMeta } from '@paper-design/shaders';
 import { useColors } from '@/helpers/use-colors';
 import { toHsla } from '@/helpers/to-hsla';
-import { ShaderContainer } from '@/components/shader-container';
 import { ShaderDetails } from '@/components/shader-details';
 import { colorPanelsDef } from '@/shader-defs/color-panels-def';
-
-/**
- * You can copy/paste this example to use ColorPanels in your app
- */
-const ColorPanelsExample = () => {
-  return <ColorPanels style={{ position: 'fixed', width: '100%', height: '100%' }} />;
-};
-
-/**
- * This example has controls added so you can play with settings in the example app
- */
+import { Header } from '@/components/header';
+import { ShaderContainer } from '@/components/shader-container';
 
 const { worldWidth, worldHeight, ...defaults } = colorPanelsPresets[0].params;
 
