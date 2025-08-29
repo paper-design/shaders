@@ -3,10 +3,11 @@
 
 @theme {
   --default-font-family: 'Matter', system-ui, sans-serif;
-  --font-mono: 'Paper Mono';
+  --font-mono: 'Paper Mono', ui-monospace, monospace;
 
   --color-foreground: #222;
   --color-blue: oklch(74% 0.104 258);
+  --color-cream: #f0efe4;
 
   --breakpoint-xs: 28rem;
   --breakpoint-2xl: 106rem;
@@ -44,7 +45,7 @@
 }
 
 body {
-  font-family: matter, system-ui, sans-serif;
+  font-family: var(--default-font-family);
   color: var(--color-foreground);
   text-size-adjust: none;
 }

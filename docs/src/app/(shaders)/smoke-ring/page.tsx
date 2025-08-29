@@ -5,11 +5,12 @@ import { useControls, button, folder } from 'leva';
 import { setParamsSafe, useResetLevaParams } from '@/helpers/use-reset-leva-params';
 import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
-import { smokeRingMeta, ShaderFit, ShaderFitOptions } from '@paper-design/shaders';
+import { smokeRingMeta } from '@paper-design/shaders';
 import { useColors } from '@/helpers/use-colors';
 import { toHsla } from '@/helpers/to-hsla';
 import { ShaderContainer } from '@/components/shader-container';
 import { ShaderDetails } from '@/components/shader-details';
+import { smokeRingDef } from '@/shader-defs/smoke-ring-def';
 
 /**
  * You can copy/paste this example to use SmokeRing in your app
@@ -81,21 +82,7 @@ const SmokeRingWithControls = () => {
       <ShaderContainer>
         <SmokeRing {...params} colors={colors} />
       </ShaderContainer>
-      <ShaderDetails
-        name="Smoke Ring"
-        currentParams={{ ...params, colors }}
-        description="Radial gradient with layered FBM displacement, masked with ring shape."
-        props={{
-          'colorBack': 'Background color.',
-          'colors': 'Colors used for the effect.',
-          'thickness, radius, innerShape': 'Ring mask settings.',
-          'noiseIterations, noiseScale': 'How detailed the noise is (number of FBM layers and noise frequency).',
-          'offsetX, offsetY': 'Position of the center.',
-          'scale': 'Overall pattern zoom.',
-          'rotation': 'Overall pattern rotation angle.',
-          'speed': 'Animation speed.',
-        }}
-      />
+      <ShaderDetails shaderDef={smokeRingDef} currentParams={{ ...params, colors }} />
     </>
   );
 };

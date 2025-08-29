@@ -181,8 +181,8 @@ void main() {
     // Grid (dots)
 
     float stripeIdx = floor(2. * shape_uv.x / TWO_PI);
-    float rand = hash11(stripeIdx + 2.);
-    rand = sign(rand - .5) * pow(.2 + abs(rand), .3);
+    float rand = hash11(stripeIdx * 100.);
+    rand = sign(rand - .5) * pow(4. * abs(rand), .3);
     shape = sin(shape_uv.x) * cos(shape_uv.y - 5. * rand * t);
     shape = pow(shape, 4.);
 
@@ -262,7 +262,7 @@ void main() {
 
   float simplex = snoise(grain_uv * .5);
   float grainDist = simplex * snoise(grain_uv * .2) - fbmR(.002 * grain_uv + 10.) - fbmR(.003 * grain_uv);
-  float rawNoise = .6 * simplex - fbmR(rotate(.4 * grain_uv, 2.)) - fbmR(.001 * grain_uv);
+  float rawNoise = .75 * simplex - fbmR(rotate(.4 * grain_uv, 2.)) - fbmR(.001 * grain_uv);
   float noise = clamp(rawNoise, 0., 1.);
 
   shape += u_intensity * 2. / u_colorsCount * (grainDist + .5);

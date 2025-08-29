@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "next dev",
-    "build": "next build && shadcn build",
+    "llms": "bun src/generate-llms-txt.ts",
+    "build": "bun llms && next build && shadcn build",
     "start": "next start",
     "lint": "next lint"
   },

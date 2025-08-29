@@ -41,3 +41,6 @@ yarn-error.log*
 next-env.d.ts
 
 public/r/
+
+public/llms.txt
+public/llms-full.txt

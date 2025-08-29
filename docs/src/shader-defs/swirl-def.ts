@@ -1,0 +1,106 @@
+import { swirlPresets } from '@paper-design/shaders-react';
+import type { ShaderDef } from './shader-def-types';
+
+const defaultParams = swirlPresets[0].params;
+
+export const swirlDef: ShaderDef = {
+  name: 'Swirl',
+  description: 'Animated bands of color twisting and bending, producing spirals, arcs, and flowing circular patterns',
+  params: [
+    {
+      name: 'colorBack',
+      type: 'string',
+      defaultValue: defaultParams.colorBack,
+      isColor: true,
+      description: 'Background color',
+    },
+    {
+      name: 'colors',
+      type: 'string[]',
+      defaultValue: [],
+      isColor: true,
+      description: 'Up to 10 colors used for the stripes',
+    },
+    {
+      name: 'bandCount',
+      type: 'number',
+      min: 0,
+      max: 15,
+      step: 1,
+      defaultValue: defaultParams.bandCount,
+      description: 'Number of color bands (0 for concentric ripples)',
+    },
+    {
+      name: 'twist',
+      type: 'number',
+      min: 0,
+      max: 1,
+      defaultValue: defaultParams.twist,
+      description: 'Vortex power (0 = straight sectoral shapes)',
+    },
+    {
+      name: 'softness',
+      type: 'number',
+      min: 0,
+      max: 1,
+      defaultValue: defaultParams.softness,
+      description: 'Color transition sharpness (0 = hard edge, 1 = smooth gradient)',
+    },
+    {
+      name: 'noise',
+      type: 'number',
+      min: 0,
+      max: 1,
+      defaultValue: defaultParams.noise,
+      description: 'Strength of noise distortion (not effective with noiseFrequency = 0)',
+    },
+    {
+      name: 'noiseFrequency',
+      type: 'number',
+      min: 0,
+      max: 1,
+      defaultValue: defaultParams.noiseFrequency,
+      description: 'Noise frequency (not effective with noise = 0)',
+    },
+    {
+      name: 'offsetX',
+      type: 'number',
+      min: -1,
+      max: 1,
+      defaultValue: defaultParams.offsetX,
+      description: 'Horizontal offset of the graphics center',
+    },
+    {
+      name: 'offsetY',
+      type: 'number',
+      min: -1,
+      max: 1,
+      defaultValue: defaultParams.offsetY,
+      description: 'Vertical offset of the graphics center',
+    },
+    {
+      name: 'scale',
+      type: 'number',
+      min: 0.01,
+      max: 4,
+      defaultValue: defaultParams.scale,
+      description: 'Overall zoom level of the graphics',
+    },
+    {
+      name: 'rotation',
+      type: 'number',
+      min: 0,
+      max: 360,
+      defaultValue: defaultParams.rotation,
+      description: 'Overall rotation angle of the graphics',
+    },
+    {
+      name: 'speed',
+      type: 'number',
+      min: 0,
+      max: 2,
+      defaultValue: defaultParams.speed,
+      description: 'Animation speed',
+    },
+  ],
+};

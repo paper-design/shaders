@@ -4,12 +4,13 @@ import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
 import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import { setParamsSafe, useResetLevaParams } from '@/helpers/use-reset-leva-params';
 import { GodRays, godRaysPresets } from '@paper-design/shaders-react';
-import { ShaderFitOptions, ShaderFit, metaballsMeta, godRaysMeta } from '@paper-design/shaders';
+import { godRaysMeta } from '@paper-design/shaders';
 import { useControls, button, folder } from 'leva';
 import { useColors } from '@/helpers/use-colors';
 import { toHsla } from '@/helpers/to-hsla';
 import { ShaderContainer } from '@/components/shader-container';
 import { ShaderDetails } from '@/components/shader-details';
+import { godRaysDef } from '@/shader-defs/god-rays-def';
 
 /**
  * You can copy/paste this example to use GodRays in your app
@@ -75,26 +76,7 @@ const GodRaysWithControls = () => {
       <ShaderContainer>
         <GodRays {...params} colors={colors} />
       </ShaderContainer>
-      <ShaderDetails
-        name="God Rays"
-        currentParams={{ ...params, colors }}
-        description="Animated rays of light radiating from the center, blended with up to 5 colors. Adjustable for size, density, brightness, center glow. Great for dramatic backgrounds, logo reveals, and VFX like energy bursts or sun shafts"
-        props={{
-          'colors': 'Up to 5 ray colors.',
-          'colorBack': 'Background color.',
-          'colorBloom': 'Color overlay blended with the rays.',
-          'bloom': 'Strength of the bloom/overlay effect.',
-          'density': 'Frequency of rays around the circle.',
-          'intensity': 'Visibility/strength of the rays.',
-          'spotty': 'Density of spot patterns along the rays.',
-          'midSize': 'Size of the circular glow in the center.',
-          'midIntensity': 'Brightness of the central glow.',
-          'offsetX, offsetY': 'Position of the center.',
-          'scale': 'Overall pattern zoom.',
-          'rotation': 'Overall pattern rotation angle.',
-          'speed': 'Animation speed.',
-        }}
-      />
+      <ShaderDetails shaderDef={godRaysDef} currentParams={{ ...params, colors }} />
     </>
   );
 };

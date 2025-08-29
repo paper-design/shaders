@@ -6,9 +6,9 @@ import { useControls, button, folder } from 'leva';
 import { setParamsSafe, useResetLevaParams } from '@/helpers/use-reset-leva-params';
 import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
-import { ShaderFit, ShaderFitOptions } from '@paper-design/shaders';
 import { toHsla } from '@/helpers/to-hsla';
 import { ShaderDetails } from '@/components/shader-details';
+import { wavesDef } from '@/shader-defs/waves-def';
 import { ShaderContainer } from '@/components/shader-container';
 
 /**
@@ -63,20 +63,7 @@ const WavesWithControls = () => {
       <ShaderContainer>
         <Waves {...params} />
       </ShaderContainer>
-      <ShaderDetails
-        name="Waves"
-        currentParams={params}
-        description="Waveform pattern."
-        props={{
-          'colorBack, colorFront': 'Colors used for the effect.',
-          'shape': 'Wave shape (0 = zigzag, 1 = sine wave, 1 to 3 = irregular wave).',
-          'amplitude, frequency, spacing': 'Wave settings.',
-          'proportion': 'Blend point between 2 colors (0.5 = equal distribution).',
-          'softness': 'Color transition sharpness (0 = hard edge, 1 = smooth fade).',
-          'scale': 'Overall pattern zoom.',
-          'rotation': 'Overall pattern rotation angle.',
-        }}
-      />
+      <ShaderDetails shaderDef={wavesDef} currentParams={params} />
     </>
   );
 };

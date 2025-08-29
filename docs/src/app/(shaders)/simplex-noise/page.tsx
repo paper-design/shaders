@@ -6,10 +6,11 @@ import { useControls, button, folder } from 'leva';
 import { setParamsSafe, useResetLevaParams } from '@/helpers/use-reset-leva-params';
 import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
-import { simplexNoiseMeta, ShaderFit, ShaderFitOptions } from '@paper-design/shaders';
+import { simplexNoiseMeta } from '@paper-design/shaders';
 import { useColors } from '@/helpers/use-colors';
 import { ShaderContainer } from '@/components/shader-container';
 import { ShaderDetails } from '@/components/shader-details';
+import { simplexNoiseDef } from '@/shader-defs/simplex-noise-def';
 
 /**
  * You can copy/paste this example to use SimplexNoise in your app
@@ -67,19 +68,7 @@ const SimplexNoiseWithControls = () => {
       <ShaderContainer>
         <SimplexNoise {...params} colors={colors} />
       </ShaderContainer>
-      <ShaderDetails
-        name="Simplex Noise"
-        currentParams={{ ...params, colors }}
-        description="Color gradient mapped over a combination of 2 simplex noises."
-        props={{
-          colors: 'Colors used for the effect.',
-          stepsPerColor: 'Discrete color steps between colors.',
-          softness: 'Color transition sharpness (0 = hard edge, 1 = smooth fade).',
-          scale: 'Overall pattern zoom.',
-          rotation: 'Overall pattern rotation angle.',
-          speed: 'Animation speed.',
-        }}
-      />
+      <ShaderDetails shaderDef={simplexNoiseDef} currentParams={{ ...params, colors }} />
     </>
   );
 };
