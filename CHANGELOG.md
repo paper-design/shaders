@@ -4,7 +4,7 @@
 
 ### General
 
-- Licence changed from **MIT** to [PolyForm Shield License 1.0.0](https://polyformproject.org/licenses/shield/1.0.0)
+- Licence changed to [PolyForm Shield License 1.0.0](https://polyformproject.org/licenses/shield/1.0.0)
 - Shaders documentation added to **shaders.paper.design** 🎉
 - Sizing behaviour changed so graphics don’t crop if `worldBox` size is larger than canvas
 
