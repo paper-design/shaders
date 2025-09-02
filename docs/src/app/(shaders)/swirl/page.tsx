@@ -7,11 +7,11 @@ import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
 import { simplexNoiseMeta } from '@paper-design/shaders';
 import { useColors } from '@/helpers/use-colors';
-import { toHsla } from '@/helpers/to-hsla';
+import { toHsla } from '@/helpers/color-utils';
 import { ShaderDetails } from '@/components/shader-details';
 import { swirlDef } from '@/shader-defs/swirl-def';
-import { Header } from '@/components/header';
 import { ShaderContainer } from '@/components/shader-container';
+import { useUrlParams } from '@/helpers/use-url-params';
 
 const { worldWidth, worldHeight, ...defaults } = swirlPresets[0].params;
 
@@ -56,6 +56,7 @@ const SwirlWithControls = () => {
   // Reset to defaults on mount, so that Leva doesn't show values from other
   // shaders when navigating (if two shaders have a colorBack param for example)
   useResetLevaParams(params, setParams, defaults);
+  useUrlParams(params, setParams, swirlDef, setColors);
   usePresetHighlight(swirlPresets, params);
   cleanUpLevaParams(params);
 

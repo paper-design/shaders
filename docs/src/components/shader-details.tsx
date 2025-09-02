@@ -1,9 +1,9 @@
 'use client';
 
-import { useState } from 'react';
-import { CopyIcon, CheckIcon } from '../icons';
 import { ShaderDef, ParamOption } from '../shader-defs/shader-def-types';
 import { CopyButton } from './copy-button';
+import { getShareableUrl, type SerializableValue } from '@/helpers/shader-url-params';
+import { normalizeColorString } from '@/helpers/color-utils';
 
 const formatJsxAttribute = (key: string, value: unknown): string => {
   if (value === true) {
@@ -21,14 +21,7 @@ const formatJsxAttribute = (key: string, value: unknown): string => {
     return `${key}={${formattedNumber}}`;
   }
   if (Array.isArray(value)) {
-    if (value.length <= 1) {
-      return `${key}={${JSON.stringify(value)}}`;
-    }
-    const formattedArray = JSON.stringify(value, null, 2)
-      .split('\n')
-      .map((line, index) => (index === 0 ? line : `  ${line}`))
-      .join('\n');
-    return `${key}={${formattedArray}}`;
+    return `${key}={${JSON.stringify(value)}}`;
   }
   if (typeof value === 'object') {
     return `${key}={${JSON.stringify(value)}}`;
@@ -52,18 +45,42 @@ export function ShaderDetails({
   style={{ height: 500 }}
   ${Object.entries(currentParams)
     .filter(([key]) => !['worldWidth', 'worldHeight', 'originX', 'originY'].includes(key))
-    .map(([key, value]) => formatJsxAttribute(key, value))
+    .map(([key, value]) => {
+      const isColor = shaderDef.params.find((p) => p.name === key && p.isColor);
+
+      if (!isColor) {
+        return formatJsxAttribute(key, value);
+      }
+
+      let newColorValue: string | string[] | undefined;
+      if (typeof value === 'string') {
+        newColorValue = normalizeColorString(value);
+      }
+      if (Array.isArray(value)) {
+        newColorValue = value.map((v) => (typeof v === 'string' ? normalizeColorString(v) : v));
+      }
+      return formatJsxAttribute(key, newColorValue);
+    })
     .join('\n  ')}
 />
 `;
 
   const installationCode = 'npm i @paper-design/shaders-react';
 
+  const shareableUrl = getShareableUrl(currentParams as Record<string, SerializableValue>);
+
   return (
     <div className="mt-24 flex w-full flex-col gap-32 md:mt-40 [&>section]:flex [&>section]:flex-col [&>section]:gap-16">
-      <h1 className="border-b border-current/10 pb-24 text-3xl font-[330] lowercase md:pb-32 dark:border-current/20">
-        {shaderDef.name}
-      </h1>
+      <div className="flex items-center justify-between border-b border-current/10 pb-24 md:pb-32 dark:border-current/20">
+        <h1 className="text-3xl font-[330] lowercase">{shaderDef.name}</h1>
+        <CopyButton
+          icon="link"
+          label="Share"
+          copiedLabel="Copied"
+          className="rounded-md px-12 py-8 outline-0 outline-focus transition-colors hover:bg-backplate-1 focus-visible:outline-2 active:bg-backplate-2 squircle:rounded-lg"
+          text={shareableUrl}
+        />
+      </div>
 
       <section>
         <div className="flex items-center gap-8">

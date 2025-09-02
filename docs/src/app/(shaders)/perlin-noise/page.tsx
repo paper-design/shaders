@@ -5,11 +5,11 @@ import { useControls, button, folder } from 'leva';
 import { setParamsSafe, useResetLevaParams } from '@/helpers/use-reset-leva-params';
 import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
-import { toHsla } from '@/helpers/to-hsla';
+import { toHsla } from '@/helpers/color-utils';
 import { ShaderDetails } from '@/components/shader-details';
 import { perlinNoiseDef } from '@/shader-defs/perlin-noise-def';
-import { Header } from '@/components/header';
 import { ShaderContainer } from '@/components/shader-container';
+import { useUrlParams } from '@/helpers/use-url-params';
 
 const { worldWidth, worldHeight, ...defaults } = perlinNoisePresets[0].params;
 
@@ -44,6 +44,7 @@ const PerlinNoiseWithControls = () => {
   // Reset to defaults on mount, so that Leva doesn't show values from other
   // shaders when navigating (if two shaders have a colorFront param for example)
   useResetLevaParams(params, setParams, defaults);
+  useUrlParams(params, setParams, perlinNoiseDef);
   usePresetHighlight(perlinNoisePresets, params);
   cleanUpLevaParams(params);
 
