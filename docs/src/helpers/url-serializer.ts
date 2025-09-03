@@ -43,11 +43,7 @@ export const serializeParams = (params: Record<string, SerializableValue>, param
   return parts.join('&');
 };
 
-const deserializeValue = (str: string, def?: ParamDef): SerializableValue => {
-  if (!def) {
-    return str;
-  }
-
+const deserializeValue = (str: string, def: ParamDef): SerializableValue => {
   if (def.type === 'boolean') {
     return str === 'true';
   }
@@ -57,28 +53,20 @@ const deserializeValue = (str: string, def?: ParamDef): SerializableValue => {
   }
 
   if (def.type === 'string[]') {
-    const elements = str.includes(',') ? str.split(',') : [str];
+    const items = str.includes(',') ? str.split(',') : [str];
     if (def.isColor) {
-      return elements.map((s) => {
-        const cleanHex = s.startsWith('#') ? s.slice(1) : s;
-        return /^[0-9a-fA-F]{6}$|^[0-9a-fA-F]{8}$/.test(cleanHex) ? hexToHsl('#' + cleanHex) : s;
-      });
+      return items.map((s) => hexToHsl(`#${s}`));
     }
-    return elements;
+    return items;
   }
 
   if (def.type === 'number[]') {
-    const elements = str.includes(',') ? str.split(',') : [str];
-    return elements.map((s) => {
-      return Number(s);
-    });
+    const items = str.includes(',') ? str.split(',') : [str];
+    return items.map((s) => Number(s));
   }
 
-  if (def.type === 'string' || def.type === 'enum') {
-    if (def.isColor && /^[0-9a-fA-F]{6}$|^[0-9a-fA-F]{8}$/.test(str)) {
-      return hexToHsl('#' + str);
-    }
-    return str;
+  if (def.type === 'string' && def.isColor) {
+    return hexToHsl(`#${str}`);
   }
 
   return str;
@@ -89,10 +77,6 @@ export const deserializeParams = (serialized: string, paramDefs?: ParamDef[]): R
 
   return serialized.split('&').reduce(
     (result, pair) => {
-      if (!pair) {
-        return result;
-      }
-
       const separatorIndex = pair.indexOf('=');
       if (separatorIndex === -1) {
         throw new Error(`Invalid parameter pair: ${pair}`);
@@ -100,8 +84,8 @@ export const deserializeParams = (serialized: string, paramDefs?: ParamDef[]): R
 
       const key = pair.slice(0, separatorIndex);
       const str = pair.slice(separatorIndex + 1);
-
       result[key] = deserializeValue(str, defsMap[key]);
+
       return result;
     },
     {} as Record<string, SerializableValue>
