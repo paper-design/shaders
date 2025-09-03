@@ -47,19 +47,16 @@ export function ShaderDetails({
     .filter(([key]) => !['worldWidth', 'worldHeight', 'originX', 'originY'].includes(key))
     .map(([key, value]) => {
       const isColor = shaderDef.params.find((p) => p.name === key && p.isColor);
-
       if (!isColor) {
         return formatJsxAttribute(key, value);
+      } else if (typeof value === 'string') {
+        return formatJsxAttribute(key, hslToHex(value));
+      } else if (Array.isArray(value)) {
+        return formatJsxAttribute(
+          key,
+          value.map((v) => hslToHex(v))
+        );
       }
-
-      let newColorValue: string | string[] | undefined;
-      if (typeof value === 'string') {
-        newColorValue = hslToHex(value);
-      }
-      if (Array.isArray(value)) {
-        newColorValue = value.map((v) => (typeof v === 'string' ? hslToHex(v) : v));
-      }
-      return formatJsxAttribute(key, newColorValue);
     })
     .join('\n  ')}
 />
@@ -67,11 +64,9 @@ export function ShaderDetails({
 
   const installationCode = 'npm i @paper-design/shaders-react';
 
-  const shareableUrl = (() => {
-    const baseUrl = typeof window !== 'undefined' ? window.location.href.split('#')[0] : '';
-    const serialized = serializeParams(currentParams as Record<string, SerializableValue>, shaderDef.params);
-    return `${baseUrl}#${serialized}`;
-  })();
+  const baseUrl = typeof window !== 'undefined' ? window.location.href.split('#')[0] : '';
+  const serialized = serializeParams(currentParams as Record<string, SerializableValue>, shaderDef.params);
+  const shareableUrl = `${baseUrl}#${serialized}`;
 
   return (
     <div className="mt-24 flex w-full flex-col gap-32 md:mt-40 [&>section]:flex [&>section]:flex-col [&>section]:gap-16">
