@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import { extractParamsFromUrl, clearUrlParams } from './shader-url-params';
+import { deserializeParams } from './url-serializer';
 import { setParamsSafe } from './use-reset-leva-params';
 import type { ShaderDef } from '../shader-defs/shader-def-types';
 
@@ -12,7 +12,19 @@ export const useUrlParams = (
   setColors?: (colors: string[]) => void
 ) => {
   useEffect(() => {
-    const urlParams = extractParamsFromUrl(shaderDef.params);
+    const urlParams = (() => {
+      if (typeof window === 'undefined') return null;
+
+      const hash = window.location.hash.slice(1); // Remove #
+      if (!hash) return null;
+
+      try {
+        return deserializeParams(hash, shaderDef.params);
+      } catch (error) {
+        console.warn('Failed to parse URL parameters:', error);
+        return null;
+      }
+    })();
 
     if (urlParams && Object.keys(urlParams).length > 0) {
       const colorParams = shaderDef.params.filter((param) => param.isColor);
@@ -32,7 +44,9 @@ export const useUrlParams = (
         setParamsSafe(params, setParams, urlParams);
       }
 
-      clearUrlParams();
+      const url = new URL(window.location.href);
+      url.hash = '';
+      window.history.replaceState({}, '', url.toString());
     }
   }, [params, setParams, setColors, shaderDef]);
 };

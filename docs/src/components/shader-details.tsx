@@ -2,7 +2,7 @@
 
 import { ShaderDef, ParamOption } from '../shader-defs/shader-def-types';
 import { CopyButton } from './copy-button';
-import { getShareableUrl, type SerializableValue } from '@/helpers/shader-url-params';
+import { serializeParams, type SerializableValue } from '@/helpers/url-serializer';
 import { normalizeColorString } from '@/helpers/color-utils';
 
 const formatJsxAttribute = (key: string, value: unknown): string => {
@@ -67,7 +67,11 @@ export function ShaderDetails({
 
   const installationCode = 'npm i @paper-design/shaders-react';
 
-  const shareableUrl = getShareableUrl(currentParams as Record<string, SerializableValue>);
+  const shareableUrl = (() => {
+    const baseUrl = typeof window !== 'undefined' ? window.location.href.split('#')[0] : '';
+    const serialized = serializeParams(currentParams as Record<string, SerializableValue>, shaderDef.params);
+    return `${baseUrl}#${serialized}`;
+  })();
 
   return (
     <div className="mt-24 flex w-full flex-col gap-32 md:mt-40 [&>section]:flex [&>section]:flex-col [&>section]:gap-16">

@@ -117,7 +117,7 @@ export function CopyButton({ text, className, icon = 'copy', label, ...props }: 
           />
         </svg>
       </span>
-      {label ? <span>{copied ? 'Copied' : label}</span> : null}
+      {label && <span>{copied ? 'Copied' : label}</span>}
     </button>
   );
 }
