@@ -66,7 +66,7 @@ export function ShaderDetails({
 
   const baseUrl = typeof window !== 'undefined' ? window.location.href.split('#')[0] : '';
   const serialized = serializeParams(currentParams as Record<string, SerializableValue>, shaderDef.params);
-  const shareableUrl = `${baseUrl}#${serialized}`;
+  const shareUrl = `${baseUrl}#${serialized}`;
 
   return (
     <div className="mt-24 flex w-full flex-col gap-32 md:mt-40 [&>section]:flex [&>section]:flex-col [&>section]:gap-16">
@@ -76,7 +76,7 @@ export function ShaderDetails({
           icon="link"
           label="share"
           className="hidden rounded-md px-12 py-8 outline-0 outline-focus transition-colors hover:bg-backplate-1 focus-visible:outline-2 active:bg-backplate-2 lg:flex squircle:rounded-lg"
-          text={shareableUrl}
+          text={shareUrl}
         />
       </div>
 

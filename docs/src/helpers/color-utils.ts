@@ -7,9 +7,10 @@ import {
   parseHslLegacy,
   serializeHex,
   serializeHex8,
+  Hsl,
 } from 'culori/fn';
 
-const formatHsla = (hslColor: any): string => {
+const formatHsla = (hslColor: Hsl): string => {
   const h = Math.round(hslColor.h ?? 0);
   const s = Math.round((hslColor.s ?? 0) * 100);
   const l = Math.round((hslColor.l ?? 0) * 100);
@@ -18,40 +19,42 @@ const formatHsla = (hslColor: any): string => {
 };
 
 export const toHsla = (value: string): string => {
-  if (value.startsWith('hsl')) {
-    const hslColor = parseHsl(value) || parseHslLegacy(value);
-    if (hslColor) {
-      return formatHsla(hslColor);
-    }
+  if (value.startsWith('hsla')) {
+    return value;
   }
 
-  const rgbArray = getShaderColorFromString(value);
-  const rgbColor = { mode: 'rgb' as const, r: rgbArray[0], g: rgbArray[1], b: rgbArray[2], alpha: rgbArray[3] };
+  const [r, g, b, alpha] = getShaderColorFromString(value);
+  const rgbColor = { mode: 'rgb' as const, r, g, b, alpha };
   const hslColor = convertRgbToHsl(rgbColor);
 
-  return hslColor ? formatHsla(hslColor) : value;
+  if (!hslColor) {
+    throw new Error(`Invalid RGB color: ${JSON.stringify(rgbColor)}`);
+  }
+
+  return formatHsla(hslColor);
 };
 
 export const hslToHex = (hslString: string): string => {
   const hslColor = parseHsl(hslString) || parseHslLegacy(hslString);
-  if (hslColor) {
-    const rgbColor = convertHslToRgb(hslColor);
-    if (rgbColor) {
-      const hasAlpha = rgbColor.alpha !== undefined && rgbColor.alpha !== 1;
-      return hasAlpha ? serializeHex8(rgbColor) : serializeHex(rgbColor);
-    }
+  if (!hslColor) {
+    throw new Error(`Invalid HSL string: ${hslString}`);
   }
-  return hslString;
+  const rgbColor = convertHslToRgb(hslColor);
+  if (!rgbColor) {
+    throw new Error(`Invalid HSL color: ${JSON.stringify(hslColor)}`);
+  }
+  const hasAlpha = rgbColor.alpha !== undefined && rgbColor.alpha !== 1;
+  return hasAlpha ? serializeHex8(rgbColor) : serializeHex(rgbColor);
 };
 
-export const hexToHsl = (hexString: string): string => {
-  const normalizedHex = hexString.startsWith('#') ? hexString : `#${hexString}`;
-  const rgbColor = parseHex(normalizedHex);
-  if (rgbColor) {
-    const hslColor = convertRgbToHsl(rgbColor);
-    if (hslColor) {
-      return formatHsla(hslColor);
-    }
+export const hexToHsl = (hex: string): string => {
+  const rgbColor = parseHex(hex);
+  if (!rgbColor) {
+    throw new Error(`Invalid Hex string: ${hex}`);
   }
-  return hexString;
+  const hslColor = convertRgbToHsl(rgbColor);
+  if (!hslColor) {
+    throw new Error(`Invalid RGB color: ${JSON.stringify(rgbColor)}`);
+  }
+  return formatHsla(hslColor);
 };
