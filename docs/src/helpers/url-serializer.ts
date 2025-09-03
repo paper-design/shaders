@@ -3,42 +3,42 @@ import type { ParamDef } from '../shader-defs/shader-def-types';
 
 export type SerializableValue = string | number | boolean | string[] | number[];
 
-export const serializeParams = (params: Record<string, SerializableValue>, paramDefs?: ParamDef[]): string => {
-  const defsMap = paramDefs ? Object.fromEntries(paramDefs.map((def) => [def.name, def])) : {};
+export const serializeParams = (params: Record<string, SerializableValue>, paramDefs: ParamDef[]): string => {
+  const parts = Object.entries(params).map(([key, value]) => {
+    const paramDef = paramDefs.find((def) => def.name === key);
+    if (!paramDef) {
+      throw new Error(`Parameter definition not found: ${key}`);
+    }
+    const isColor = paramDef.isColor;
+    let serialized: string;
 
-  const parts = Object.entries(params)
-    .filter(([, value]) => value !== undefined && value !== null)
-    .map(([key, value]) => {
-      const isColor = defsMap[key]?.isColor;
-      let serialized: string;
+    if (typeof value === 'boolean') {
+      serialized = value ? 'true' : 'false';
+      return `${key}=${serialized}`;
+    }
 
-      if (typeof value === 'boolean') {
-        serialized = value ? 'true' : 'false';
-        return `${key}=${serialized}`;
-      }
+    if (typeof value === 'number') {
+      serialized = value.toString();
+      return `${key}=${serialized}`;
+    }
 
-      if (typeof value === 'number') {
-        serialized = value.toString();
-        return `${key}=${serialized}`;
-      }
+    if (typeof value === 'string') {
+      serialized = isColor ? hslToHex(value).slice(1) : value;
+      return `${key}=${serialized}`;
+    }
 
-      if (typeof value === 'string') {
-        serialized = isColor ? hslToHex(value).slice(1) : value;
-        return `${key}=${serialized}`;
-      }
+    if (Array.isArray(value)) {
+      serialized = value
+        .map((v) => {
+          const str = String(v);
+          return isColor ? hslToHex(str).slice(1) : str;
+        })
+        .join(',');
+      return `${key}=${serialized}`;
+    }
 
-      if (Array.isArray(value)) {
-        serialized = value
-          .map((v) => {
-            const str = String(v);
-            return isColor ? hslToHex(str).slice(1) : str;
-          })
-          .join(',');
-        return `${key}=${serialized}`;
-      }
-
-      throw new Error(`Unsupported value type: ${typeof value}`);
-    });
+    throw new Error(`Unsupported value type: ${typeof value}`);
+  });
 
   return parts.join('&');
 };
@@ -72,22 +72,22 @@ const deserializeValue = (str: string, def: ParamDef): SerializableValue => {
   return str;
 };
 
-export const deserializeParams = (serialized: string, paramDefs?: ParamDef[]): Record<string, SerializableValue> => {
-  const defsMap = paramDefs ? Object.fromEntries(paramDefs.map((def) => [def.name, def])) : {};
-
-  return serialized.split('&').reduce(
+export const deserializeParams = (serialized: string, paramDefs: ParamDef[]): Record<string, SerializableValue> =>
+  serialized.split('&').reduce(
     (result, pair) => {
       const separatorIndex = pair.indexOf('=');
       if (separatorIndex === -1) {
         throw new Error(`Invalid parameter pair: ${pair}`);
       }
-
       const key = pair.slice(0, separatorIndex);
       const str = pair.slice(separatorIndex + 1);
-      result[key] = deserializeValue(str, defsMap[key]);
+      const paramDef = paramDefs.find((def) => def.name === key);
+      if (!paramDef) {
+        throw new Error(`Parameter definition not found: ${key}`);
+      }
+      result[key] = deserializeValue(str, paramDef);
 
       return result;
     },
     {} as Record<string, SerializableValue>
   );
-};
