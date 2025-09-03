@@ -19,7 +19,6 @@ export const useUrlParams = (
     }
 
     let urlParams;
-
     try {
       urlParams = deserializeParams(hashContent, shaderDef.params);
     } catch (error) {
