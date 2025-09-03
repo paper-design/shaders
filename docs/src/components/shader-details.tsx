@@ -79,8 +79,8 @@ export function ShaderDetails({
         <h1 className="text-3xl font-[330] lowercase">{shaderDef.name}</h1>
         <CopyButton
           icon="link"
-          label="Share"
-          className="rounded-md px-12 py-8 outline-0 outline-focus transition-colors hover:bg-backplate-1 focus-visible:outline-2 active:bg-backplate-2 squircle:rounded-lg"
+          label="share"
+          className="hidden rounded-md px-12 py-8 outline-0 outline-focus transition-colors hover:bg-backplate-1 focus-visible:outline-2 active:bg-backplate-2 lg:flex squircle:rounded-lg"
           text={shareableUrl}
         />
       </div>
