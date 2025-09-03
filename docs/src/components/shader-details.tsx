@@ -76,7 +76,6 @@ export function ShaderDetails({
         <CopyButton
           icon="link"
           label="Share"
-          copiedLabel="Copied"
           className="rounded-md px-12 py-8 outline-0 outline-focus transition-colors hover:bg-backplate-1 focus-visible:outline-2 active:bg-backplate-2 squircle:rounded-lg"
           text={shareableUrl}
         />
