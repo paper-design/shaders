@@ -6,28 +6,41 @@ export type SerializableValue = string | number | boolean | string[] | number[];
 export const serializeParams = (params: Record<string, SerializableValue>, paramDefs?: ParamDef[]): string => {
   const defsMap = paramDefs ? Object.fromEntries(paramDefs.map((def) => [def.name, def])) : {};
 
-  return Object.entries(params)
+  const parts = Object.entries(params)
     .filter(([, value]) => value !== undefined && value !== null)
     .map(([key, value]) => {
       const isColor = defsMap[key]?.isColor;
       let serialized: string;
 
-      if (typeof value === 'boolean') serialized = value ? 'true' : 'false';
-      else if (typeof value === 'number') serialized = value.toString();
-      else if (typeof value === 'string') {
+      if (typeof value === 'boolean') {
+        serialized = value ? 'true' : 'false';
+        return `${key}=${serialized}`;
+      }
+
+      if (typeof value === 'number') {
+        serialized = value.toString();
+        return `${key}=${serialized}`;
+      }
+
+      if (typeof value === 'string') {
         serialized = (isColor || isHslColor(value)) && isHslColor(value) ? hslToHex(value) : value;
-      } else if (Array.isArray(value)) {
+        return `${key}=${serialized}`;
+      }
+
+      if (Array.isArray(value)) {
         serialized = value
           .map((v) => {
             const str = String(v);
             return (isColor || isHslColor(str)) && isHslColor(str) ? hslToHex(str) : str;
           })
           .join(',');
-      } else throw new Error(`Unsupported value type: ${typeof value}`);
+        return `${key}=${serialized}`;
+      }
 
-      return `${key}=${serialized}`;
-    })
-    .join('&');
+      throw new Error(`Unsupported value type: ${typeof value}`);
+    });
+
+  return parts.join('&');
 };
 
 const deserializeValue = (str: string, def?: ParamDef): SerializableValue => {
@@ -56,7 +69,9 @@ const deserializeValue = (str: string, def?: ParamDef): SerializableValue => {
 
   if (def.type === 'number[]') {
     const elements = str.includes(',') ? str.split(',') : [str];
-    return elements.map((s) => Number(s));
+    return elements.map((s) => {
+      return Number(s);
+    });
   }
 
   if (def.type === 'string' || def.type === 'enum') {
@@ -70,10 +85,6 @@ const deserializeValue = (str: string, def?: ParamDef): SerializableValue => {
 };
 
 export const deserializeParams = (serialized: string, paramDefs?: ParamDef[]): Record<string, SerializableValue> => {
-  if (!serialized) {
-    return {};
-  }
-
   const defsMap = paramDefs ? Object.fromEntries(paramDefs.map((def) => [def.name, def])) : {};
 
   return serialized.split('&').reduce(

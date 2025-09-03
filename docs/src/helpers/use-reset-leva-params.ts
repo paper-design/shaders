@@ -3,7 +3,7 @@ import { useEffect } from 'react';
 /** Leva will try to cache values for params with the same name, so we need to explicitly reset params to defaults when a new example is mounted */
 export function useResetLevaParams(params: any, setParams: any, defaults: any) {
   useEffect(() => {
-    // Early exit if there's hash content in the URL
+    // We don't reset to defaults if there is a shader config in the URL
     if (window.location.hash) {
       return;
     }
