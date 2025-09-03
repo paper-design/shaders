@@ -1,4 +1,4 @@
-import { hslToHex, hexToHsl, isHslColor, isHexColor } from './color-utils';
+import { hslToHex, hexToHsl } from './color-utils';
 import type { ParamDef } from '../shader-defs/shader-def-types';
 
 export type SerializableValue = string | number | boolean | string[] | number[];
@@ -23,7 +23,7 @@ export const serializeParams = (params: Record<string, SerializableValue>, param
       }
 
       if (typeof value === 'string') {
-        serialized = (isColor || isHslColor(value)) && isHslColor(value) ? hslToHex(value) : value;
+        serialized = isColor ? hslToHex(value).slice(1) : value;
         return `${key}=${serialized}`;
       }
 
@@ -31,7 +31,7 @@ export const serializeParams = (params: Record<string, SerializableValue>, param
         serialized = value
           .map((v) => {
             const str = String(v);
-            return (isColor || isHslColor(str)) && isHslColor(str) ? hslToHex(str) : str;
+            return isColor ? hslToHex(str).slice(1) : str;
           })
           .join(',');
         return `${key}=${serialized}`;

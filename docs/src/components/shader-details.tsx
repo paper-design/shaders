@@ -3,7 +3,7 @@
 import { ShaderDef, ParamOption } from '../shader-defs/shader-def-types';
 import { CopyButton } from './copy-button';
 import { serializeParams, type SerializableValue } from '@/helpers/url-serializer';
-import { normalizeColorString } from '@/helpers/color-utils';
+import { hslToHex } from '@/helpers/color-utils';
 
 const formatJsxAttribute = (key: string, value: unknown): string => {
   if (value === true) {
@@ -54,10 +54,10 @@ export function ShaderDetails({
 
       let newColorValue: string | string[] | undefined;
       if (typeof value === 'string') {
-        newColorValue = normalizeColorString(value);
+        newColorValue = hslToHex(value);
       }
       if (Array.isArray(value)) {
-        newColorValue = value.map((v) => (typeof v === 'string' ? normalizeColorString(v) : v));
+        newColorValue = value.map((v) => (typeof v === 'string' ? hslToHex(v) : v));
       }
       return formatJsxAttribute(key, newColorValue);
     })

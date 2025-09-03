@@ -38,8 +38,7 @@ export const hslToHex = (hslString: string): string => {
     const rgbColor = convertHslToRgb(hslColor);
     if (rgbColor) {
       const hasAlpha = rgbColor.alpha !== undefined && rgbColor.alpha !== 1;
-      const hexString = hasAlpha ? serializeHex8(rgbColor) : serializeHex(rgbColor);
-      return hexString.replace('#', '');
+      return hasAlpha ? serializeHex8(rgbColor) : serializeHex(rgbColor);
     }
   }
   return hslString;
@@ -55,23 +54,4 @@ export const hexToHsl = (hexString: string): string => {
     }
   }
   return hexString;
-};
-
-export const isHslColor = (str: string): boolean => {
-  return /^hsla?\(/i.test(str);
-};
-
-export const isHexColor = (str: string): boolean => {
-  return /^#?[0-9a-f]{3,8}$/i.test(str);
-};
-
-export const normalizeColorString = (str: string): string => {
-  if (isHslColor(str)) {
-    const hex = hslToHex(str);
-    return (hex.startsWith('#') ? hex : `#${hex}`).toLowerCase();
-  }
-  if (isHexColor(str)) {
-    return (str.startsWith('#') ? str : `#${str}`).toLowerCase();
-  }
-  return str;
 };

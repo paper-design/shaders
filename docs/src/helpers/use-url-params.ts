@@ -38,6 +38,7 @@ export const useUrlParams = (
         setColors(colorsArray as string[]);
       }
     }
+
     setParamsSafe(params, setParams, urlParams);
 
     // Clear hash from URL

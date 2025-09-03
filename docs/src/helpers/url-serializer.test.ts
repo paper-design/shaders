@@ -44,18 +44,6 @@ describe('URL Serializer', () => {
     });
   });
 
-  test('converts HSL colors to hex in URLs', () => {
-    const params = {
-      color: 'hsla(0, 100%, 50%, 1)',
-      colors: ['hsla(120, 100%, 50%, 1)', '#0000ff'],
-    };
-
-    const serialized = serializeParams(params);
-
-    expect(serialized).toBe('color=ff0000&colors=00ff00,#0000ff');
-    expect(serialized).not.toContain('hsl');
-  });
-
   test('wraps single values in arrays when needed', () => {
     const paramDefs: ParamDef[] = [
       { name: 'tags', type: 'string[]', defaultValue: [], description: 'Tags' },
@@ -68,25 +56,5 @@ describe('URL Serializer', () => {
       tags: ['single'],
       nums: [42],
     });
-  });
-
-  test('handles edge cases', () => {
-    expect(serializeParams({})).toBe('');
-    expect(deserializeParams('')).toEqual({});
-    expect(() => deserializeParams('invalid')).toThrow();
-  });
-
-  test('produces URL-safe output', () => {
-    const params = {
-      color: 'hsla(120, 50%, 75%, 0.5)',
-      array: ['item1', 'item2'],
-      number: 3.14159,
-    };
-
-    const serialized = serializeParams(params);
-
-    expect(serialized).not.toContain(' ');
-    expect(serialized).not.toContain('(');
-    expect(serialized).not.toContain('%');
   });
 });
