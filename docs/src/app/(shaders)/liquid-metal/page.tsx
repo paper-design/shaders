@@ -50,7 +50,7 @@ const LiquidMetalWithControls = () => {
 
   return (
     <>
-      <ShaderContainer>
+      <ShaderContainer shaderDef={liquidMetalDef} currentParams={params}>
         <LiquidMetal {...params} />
       </ShaderContainer>
       <ShaderDetails shaderDef={liquidMetalDef} currentParams={params} />

@@ -1,7 +1,49 @@
 'use client';
+import { SerializableValue, serializeParams } from '@/helpers/url-serializer';
+import { ShaderDef } from '@/shader-defs/shader-def-types';
 import { Leva } from 'leva';
+import { useState } from 'react';
 
-export function ShaderContainer({ children }: React.PropsWithChildren) {
+export function CopyLinkButton({
+  currentParams,
+  shaderDef,
+  className,
+}: {
+  currentParams: Record<string, unknown>;
+  shaderDef: ShaderDef;
+  className?: string;
+}) {
+  const [isCopied, setIsCopied] = useState(false);
+  const baseUrl = typeof window !== 'undefined' ? window.location.href.split('#')[0] : '';
+  const serialized = serializeParams(currentParams as Record<string, SerializableValue>, shaderDef.params);
+  const shareUrl = `${baseUrl}#${serialized}`;
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(shareUrl);
+    setIsCopied(true);
+    setTimeout(() => setIsCopied(false), 2000);
+  };
+
+  return (
+    <button
+      type="button"
+      onClick={handleCopy}
+      aria-label={isCopied ? 'Copied!' : 'Copy link to clipboard'}
+      className={className}
+    >
+      {isCopied ? 'copied!' : 'copy link'}
+    </button>
+  );
+}
+
+export function ShaderContainer({
+  children,
+  currentParams,
+  shaderDef,
+}: React.PropsWithChildren<{
+  currentParams?: Record<string, unknown>;
+  shaderDef?: ShaderDef;
+}>) {
   return (
     <div className="relative md:my-24">
       <div className="flex aspect-4/3 *:size-full not-has-[[data-paper-shader]]:bg-cream xs:aspect-3/2 md:aspect-16/9">
@@ -56,6 +98,23 @@ export function ShaderContainer({ children }: React.PropsWithChildren) {
               },
             }}
           />
+        </div>
+        <div className="flex flex-col gap-(--leva-space-colGap) border-t border-(--color-leva-separators) px-10 pt-11 pb-7 font-mono text-[11px]">
+          {shaderDef && currentParams && (
+            <CopyLinkButton
+              currentParams={currentParams}
+              shaderDef={shaderDef}
+              className="cursor-pointer rounded-(--leva-radii-sm) bg-(--color-leva-button) py-4.5 text-(--leva-colors-highlight3) ring-offset-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus active:bg-(--color-leva-control-pressed)"
+            />
+          )}
+          <a
+            href="https://paper.design"
+            target="_blank"
+            rel="noopener"
+            className="cursor-pointer rounded-(--leva-radii-sm) bg-(--color-leva-button) py-4.5 text-center text-(--leva-colors-highlight3) ring-offset-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus active:bg-(--color-leva-control-pressed)"
+          >
+            open Paper
+          </a>
         </div>
       </div>
     </div>

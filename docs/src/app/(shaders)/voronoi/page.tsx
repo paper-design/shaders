@@ -60,7 +60,7 @@ const VoronoiWithControls = () => {
 
   return (
     <>
-      <ShaderContainer>
+      <ShaderContainer shaderDef={voronoiDef} currentParams={{ ...params, colors }}>
         <Voronoi {...params} colors={colors} />
       </ShaderContainer>
       <ShaderDetails shaderDef={voronoiDef} currentParams={{ ...params, colors }} />

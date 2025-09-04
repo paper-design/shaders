@@ -60,7 +60,7 @@ const WarpWithControls = () => {
 
   return (
     <>
-      <ShaderContainer>
+      <ShaderContainer shaderDef={warpDef} currentParams={{ ...params, colors }}>
         <Warp {...params} colors={colors} />
       </ShaderContainer>
       <ShaderDetails shaderDef={warpDef} currentParams={{ ...params, colors }} />

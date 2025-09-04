@@ -63,7 +63,7 @@ const DotOrbitWithControls = () => {
 
   return (
     <>
-      <ShaderContainer>
+      <ShaderContainer shaderDef={dotOrbitDef} currentParams={{ ...params, colors }}>
         <DotOrbit {...params} colors={colors} />
       </ShaderContainer>
       <ShaderDetails shaderDef={dotOrbitDef} currentParams={{ ...params, colors }} />

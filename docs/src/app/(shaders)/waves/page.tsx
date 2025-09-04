@@ -51,7 +51,7 @@ const WavesWithControls = () => {
 
   return (
     <>
-      <ShaderContainer>
+      <ShaderContainer shaderDef={wavesDef} currentParams={params}>
         <Waves {...params} />
       </ShaderContainer>
       <ShaderDetails shaderDef={wavesDef} currentParams={params} />

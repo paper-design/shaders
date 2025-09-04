@@ -103,7 +103,7 @@ const WaterWithControls = () => {
 
   return (
     <>
-      <ShaderContainer>
+      <ShaderContainer shaderDef={waterDef} currentParams={params}>
         <Water onClick={handleClick} {...params} image={image || undefined} />
       </ShaderContainer>
       <div onClick={handleClick} className="mx-auto mt-16 mb-48 w-fit text-base text-current/70 select-none">

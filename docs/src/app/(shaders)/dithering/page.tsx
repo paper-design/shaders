@@ -47,7 +47,7 @@ const DitheringWithControls = () => {
 
   return (
     <>
-      <ShaderContainer>
+      <ShaderContainer shaderDef={ditheringDef} currentParams={params}>
         <Dithering {...params} />
       </ShaderContainer>
       <ShaderDetails shaderDef={ditheringDef} currentParams={params} />

@@ -62,7 +62,7 @@ const StaticMeshGradientWithControls = () => {
 
   return (
     <>
-      <ShaderContainer>
+      <ShaderContainer shaderDef={staticMeshGradientDef} currentParams={{ ...params, colors }}>
         <StaticMeshGradient {...params} colors={colors} />
       </ShaderContainer>
       <ShaderDetails shaderDef={staticMeshGradientDef} currentParams={{ ...params, colors }} />

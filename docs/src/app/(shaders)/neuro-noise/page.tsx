@@ -44,7 +44,7 @@ const NeuroNoiseWithControls = () => {
 
   return (
     <>
-      <ShaderContainer>
+      <ShaderContainer shaderDef={neuroNoiseDef} currentParams={params}>
         <NeuroNoise {...params} />
       </ShaderContainer>
       <ShaderDetails shaderDef={neuroNoiseDef} currentParams={params} />

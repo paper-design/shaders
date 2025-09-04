@@ -50,7 +50,7 @@ const PerlinNoiseWithControls = () => {
 
   return (
     <>
-      <ShaderContainer>
+      <ShaderContainer shaderDef={perlinNoiseDef} currentParams={params}>
         <PerlinNoise {...params} />
       </ShaderContainer>
       <ShaderDetails shaderDef={perlinNoiseDef} currentParams={params} />

@@ -114,7 +114,7 @@ const FlutedGlassWithControls = () => {
 
   return (
     <>
-      <ShaderContainer>
+      <ShaderContainer shaderDef={flutedGlassDef} currentParams={params}>
         <FlutedGlass onClick={handleClick} {...params} image={image || undefined} />
       </ShaderContainer>
 

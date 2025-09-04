@@ -2,7 +2,6 @@
 
 import { ShaderDef, ParamOption } from '../shader-defs/shader-def-types';
 import { CopyButton } from './copy-button';
-import { serializeParams, type SerializableValue } from '@/helpers/url-serializer';
 import { hslToHex } from '@/helpers/color-utils';
 
 const formatJsxAttribute = (key: string, value: unknown): string => {
@@ -39,6 +38,8 @@ export function ShaderDetails({
 }) {
   const componentName = shaderDef.name.replace(/ /g, '');
 
+  const installationCode = 'npm i @paper-design/shaders-react';
+
   const code = `import { ${componentName} } from '@paper-design/shaders-react';
 
 <${componentName}
@@ -62,23 +63,11 @@ export function ShaderDetails({
 />
 `;
 
-  const installationCode = 'npm i @paper-design/shaders-react';
-
-  const baseUrl = typeof window !== 'undefined' ? window.location.href.split('#')[0] : '';
-  const serialized = serializeParams(currentParams as Record<string, SerializableValue>, shaderDef.params);
-  const shareUrl = `${baseUrl}#${serialized}`;
-
   return (
     <div className="mt-24 flex w-full flex-col gap-32 md:mt-40 [&>section]:flex [&>section]:flex-col [&>section]:gap-16">
-      <div className="flex items-center justify-between border-b border-current/10 pb-24 md:pb-32 dark:border-current/20">
-        <h1 className="text-3xl font-[330] lowercase">{shaderDef.name}</h1>
-        <CopyButton
-          icon="link"
-          label="share"
-          className="hidden rounded-md px-12 py-8 outline-0 outline-focus transition-colors hover:bg-backplate-1 focus-visible:outline-2 active:bg-backplate-2 lg:flex squircle:rounded-lg"
-          text={shareUrl}
-        />
-      </div>
+      <h1 className="border-b border-current/10 pb-24 text-3xl font-[330] lowercase md:pb-32 dark:border-current/20">
+        {shaderDef.name}
+      </h1>
 
       <section>
         <div className="flex items-center gap-8">

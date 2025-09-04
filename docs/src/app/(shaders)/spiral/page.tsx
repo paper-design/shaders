@@ -61,7 +61,7 @@ const SpiralWithControls = () => {
 
   return (
     <>
-      <ShaderContainer>
+      <ShaderContainer shaderDef={spiralDef} currentParams={params}>
         <Spiral {...params} />
       </ShaderContainer>
       <ShaderDetails shaderDef={spiralDef} currentParams={params} />

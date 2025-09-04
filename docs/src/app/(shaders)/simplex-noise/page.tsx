@@ -56,7 +56,7 @@ const SimplexNoiseWithControls = () => {
 
   return (
     <>
-      <ShaderContainer>
+      <ShaderContainer shaderDef={simplexNoiseDef} currentParams={{ ...params, colors }}>
         <SimplexNoise {...params} colors={colors} />
       </ShaderContainer>
       <ShaderDetails shaderDef={simplexNoiseDef} currentParams={{ ...params, colors }} />

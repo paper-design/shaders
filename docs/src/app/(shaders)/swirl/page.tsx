@@ -62,7 +62,7 @@ const SwirlWithControls = () => {
 
   return (
     <>
-      <ShaderContainer>
+      <ShaderContainer shaderDef={swirlDef} currentParams={{ ...params, colors }}>
         <Swirl {...params} colors={colors} />
       </ShaderContainer>
       <ShaderDetails shaderDef={swirlDef} currentParams={{ ...params, colors }} />

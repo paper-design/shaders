@@ -107,7 +107,7 @@ const PaperTextureWithControls = () => {
 
   return (
     <>
-      <ShaderContainer>
+      <ShaderContainer shaderDef={paperTextureDef} currentParams={params}>
         <PaperTexture onClick={handleClick} {...params} image={image || undefined} />
       </ShaderContainer>
       <div onClick={handleClick} className="mx-auto mt-16 mb-48 w-fit text-base text-current/70 select-none">

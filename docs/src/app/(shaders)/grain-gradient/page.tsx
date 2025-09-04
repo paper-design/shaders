@@ -65,7 +65,7 @@ const GrainGradientWithControls = () => {
 
   return (
     <>
-      <ShaderContainer>
+      <ShaderContainer shaderDef={grainGradientDef} currentParams={{ ...params, colors }}>
         <GrainGradient {...params} colors={colors} />
       </ShaderContainer>
       <ShaderDetails shaderDef={grainGradientDef} currentParams={{ ...params, colors }} />

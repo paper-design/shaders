@@ -57,7 +57,7 @@ const DotGridWithControls = () => {
 
   return (
     <>
-      <ShaderContainer>
+      <ShaderContainer shaderDef={dotGridDef} currentParams={params}>
         <DotGrid {...params} />
       </ShaderContainer>
       <ShaderDetails shaderDef={dotGridDef} currentParams={params} />
