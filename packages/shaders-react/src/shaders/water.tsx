@@ -103,6 +103,7 @@ export const Water: React.FC<WaterProps> = memo(function WaterImpl({
   frame = defaultPreset.params.frame,
   colorBack = defaultPreset.params.colorBack,
   colorHighlight = defaultPreset.params.colorHighlight,
+  // Image defaults to a transparent pixel instead of the default preset image so "delete image" inside paper works as a user expects.
   image = transparentPixel,
   highlights = defaultPreset.params.highlights,
   layering = defaultPreset.params.layering,

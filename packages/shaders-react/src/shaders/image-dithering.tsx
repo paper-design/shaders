@@ -96,6 +96,7 @@ export const ImageDithering: React.FC<ImageDitheringProps> = memo(function Image
   colorFront = defaultPreset.params.colorFront,
   colorBack = defaultPreset.params.colorBack,
   colorHighlight = defaultPreset.params.colorHighlight,
+  // Image defaults to a transparent pixel instead of the default preset image so "delete image" inside paper works as a user expects.
   image = transparentPixel,
   type = defaultPreset.params.type,
   pxSize = defaultPreset.params.pxSize,

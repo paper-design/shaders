@@ -130,6 +130,7 @@ export const PaperTexture: React.FC<PaperTextureProps> = memo(function PaperText
   frame = defaultPreset.params.frame,
   colorFront = defaultPreset.params.colorFront,
   colorBack = defaultPreset.params.colorBack,
+  // Image defaults to a transparent pixel instead of the default preset image so "delete image" inside paper works as a user expects.
   image = transparentPixel,
   contrast = defaultPreset.params.contrast,
   roughness = defaultPreset.params.roughness,

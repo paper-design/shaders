@@ -116,6 +116,7 @@ export const FlutedGlass: React.FC<FlutedGlassProps> = memo(function FlutedGlass
   // Own props
   speed = defaultPreset.params.speed,
   frame = defaultPreset.params.frame,
+  // Image defaults to a transparent pixel instead of the default preset image so "delete image" inside paper works as a user expects.
   image = transparentPixel,
   count = defaultPreset.params.count,
   angle = defaultPreset.params.angle,
