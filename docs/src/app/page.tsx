@@ -43,12 +43,12 @@ export default function Home() {
 
         <div className="mx-auto mt-20 flex h-48 w-fit max-w-full items-center rounded-lg border border-current/20 bg-white font-mono text-sm text-nowrap sm:text-base dark:bg-[#111]">
           <div className="no-scrollbar flex h-full w-full items-center overflow-x-scroll overscroll-y-none px-16">
-            npm i @paper-design/react-shaders
+            npm i @paper-design/shaders-react
           </div>
           <div className="h-full shrink-0 border-l border-current/20" />
           <CopyButton
             className="hidden h-full w-48 shrink-0 items-center justify-center rounded-r-[inherit] outline-0 outline-focus focus-visible:outline-2 xs:flex"
-            text="npm i @paper-design/react-shaders"
+            text="npm i @paper-design/shaders-react"
           />
         </div>
       </div>
