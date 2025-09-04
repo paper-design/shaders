@@ -7,11 +7,11 @@ import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
 import { staticRadialGradientMeta } from '@paper-design/shaders';
 import { useColors } from '@/helpers/use-colors';
-import { toHsla } from '@/helpers/to-hsla';
+import { toHsla } from '@/helpers/color-utils';
 import { ShaderDetails } from '@/components/shader-details';
 import { staticRadialGradientDef } from '@/shader-defs/static-radial-gradient-def';
-import { Header } from '@/components/header';
 import { ShaderContainer } from '@/components/shader-container';
+import { useUrlParams } from '@/helpers/use-url-params';
 
 const { worldWidth, worldHeight, ...defaults } = staticRadialGradientPresets[0].params;
 
@@ -58,12 +58,13 @@ const StaticRadialGradientWithControls = () => {
   // Reset to defaults on mount, so that Leva doesn't show values from other
   // shaders when navigating (if two shaders have a color1 param for example)
   useResetLevaParams(params, setParams, defaults);
+  useUrlParams(params, setParams, staticRadialGradientDef, setColors);
   usePresetHighlight(staticRadialGradientPresets, params);
   cleanUpLevaParams(params);
 
   return (
     <>
-      <ShaderContainer>
+      <ShaderContainer shaderDef={staticRadialGradientDef} currentParams={{ ...params, colors }}>
         <StaticRadialGradient {...params} colors={colors} />
       </ShaderContainer>
       <ShaderDetails shaderDef={staticRadialGradientDef} currentParams={{ ...params, colors }} />

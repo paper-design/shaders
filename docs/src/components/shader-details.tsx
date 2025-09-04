@@ -1,9 +1,8 @@
 'use client';
 
-import { useState } from 'react';
-import { CopyIcon, CheckIcon } from '../icons';
 import { ShaderDef, ParamOption } from '../shader-defs/shader-def-types';
 import { CopyButton } from './copy-button';
+import { hslToHex } from '@/helpers/color-utils';
 
 const formatJsxAttribute = (key: string, value: unknown): string => {
   if (value === true) {
@@ -21,14 +20,7 @@ const formatJsxAttribute = (key: string, value: unknown): string => {
     return `${key}={${formattedNumber}}`;
   }
   if (Array.isArray(value)) {
-    if (value.length <= 1) {
-      return `${key}={${JSON.stringify(value)}}`;
-    }
-    const formattedArray = JSON.stringify(value, null, 2)
-      .split('\n')
-      .map((line, index) => (index === 0 ? line : `  ${line}`))
-      .join('\n');
-    return `${key}={${formattedArray}}`;
+    return `${key}={${JSON.stringify(value)}}`;
   }
   if (typeof value === 'object') {
     return `${key}={${JSON.stringify(value)}}`;
@@ -46,18 +38,30 @@ export function ShaderDetails({
 }) {
   const componentName = shaderDef.name.replace(/ /g, '');
 
+  const installationCode = 'npm i @paper-design/shaders-react';
+
   const code = `import { ${componentName} } from '@paper-design/shaders-react';
 
 <${componentName}
   style={{ height: 500 }}
   ${Object.entries(currentParams)
     .filter(([key]) => !['worldWidth', 'worldHeight', 'originX', 'originY'].includes(key))
-    .map(([key, value]) => formatJsxAttribute(key, value))
+    .map(([key, value]) => {
+      const isColor = shaderDef.params.find((p) => p.name === key && p.isColor);
+      if (!isColor) {
+        return formatJsxAttribute(key, value);
+      } else if (typeof value === 'string') {
+        return formatJsxAttribute(key, hslToHex(value));
+      } else if (Array.isArray(value)) {
+        return formatJsxAttribute(
+          key,
+          value.map((v) => hslToHex(v))
+        );
+      }
+    })
     .join('\n  ')}
 />
 `;
-
-  const installationCode = 'npm i @paper-design/shaders-react';
 
   return (
     <div className="mt-24 flex w-full flex-col gap-32 md:mt-40 [&>section]:flex [&>section]:flex-col [&>section]:gap-16">

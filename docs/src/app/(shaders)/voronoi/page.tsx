@@ -7,11 +7,11 @@ import { Voronoi, voronoiPresets } from '@paper-design/shaders-react';
 import { voronoiMeta } from '@paper-design/shaders';
 import { useControls, button, folder } from 'leva';
 import { useColors } from '@/helpers/use-colors';
-import { toHsla } from '@/helpers/to-hsla';
+import { toHsla } from '@/helpers/color-utils';
 import { ShaderDetails } from '@/components/shader-details';
 import { voronoiDef } from '@/shader-defs/voronoi-def';
-import { Header } from '@/components/header';
 import { ShaderContainer } from '@/components/shader-container';
+import { useUrlParams } from '@/helpers/use-url-params';
 
 const { worldWidth, worldHeight, ...defaults } = voronoiPresets[0].params;
 
@@ -54,12 +54,13 @@ const VoronoiWithControls = () => {
   // Reset to defaults on mount, so that Leva doesn't show values from other
   // shaders when navigating (if two shaders have a color1 param for example)
   useResetLevaParams(params, setParams, defaults);
+  useUrlParams(params, setParams, voronoiDef, setColors);
   usePresetHighlight(voronoiPresets, params);
   cleanUpLevaParams(params);
 
   return (
     <>
-      <ShaderContainer>
+      <ShaderContainer shaderDef={voronoiDef} currentParams={{ ...params, colors }}>
         <Voronoi {...params} colors={colors} />
       </ShaderContainer>
       <ShaderDetails shaderDef={voronoiDef} currentParams={{ ...params, colors }} />

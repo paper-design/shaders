@@ -1,6 +1,6 @@
 import { folder, useControls } from 'leva';
 import { setParamsSafe } from './use-reset-leva-params';
-import { toHsla } from './to-hsla';
+import { toHsla } from './color-utils';
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 
 interface UseColorsArgs {
