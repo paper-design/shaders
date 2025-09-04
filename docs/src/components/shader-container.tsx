@@ -108,7 +108,7 @@ export function ShaderContainer({
             />
           )}
           <a
-            href="https://paper.design"
+            href="https://app.paper.design"
             target="_blank"
             rel="noopener"
             className="cursor-pointer rounded-(--leva-radii-sm) bg-(--color-leva-button) py-4.5 text-center text-(--leva-colors-highlight3) ring-offset-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus active:bg-(--color-leva-control-pressed)"
