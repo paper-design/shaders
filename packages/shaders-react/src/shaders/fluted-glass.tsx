@@ -10,6 +10,7 @@ import {
   GlassDistortionShapes,
   GlassGridShapes,
 } from '@paper-design/shaders';
+import { transparentPixel } from '../transparent-pixe.js';
 
 export interface FlutedGlassProps extends ShaderComponentProps, FlutedGlassParams {}
 
@@ -115,7 +116,7 @@ export const FlutedGlass: React.FC<FlutedGlassProps> = memo(function FlutedGlass
   // Own props
   speed = defaultPreset.params.speed,
   frame = defaultPreset.params.frame,
-  image = defaultPreset.params.image,
+  image = transparentPixel,
   count = defaultPreset.params.count,
   angle = defaultPreset.params.angle,
   distortion = defaultPreset.params.distortion,

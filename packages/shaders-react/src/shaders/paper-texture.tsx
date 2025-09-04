@@ -11,6 +11,7 @@ import {
   type PaperTextureUniforms,
   type ShaderPreset,
 } from '@paper-design/shaders';
+import { transparentPixel } from '../transparent-pixe.js';
 
 export interface PaperTextureProps extends ShaderComponentProps, PaperTextureParams {}
 
@@ -129,7 +130,7 @@ export const PaperTexture: React.FC<PaperTextureProps> = memo(function PaperText
   frame = defaultPreset.params.frame,
   colorFront = defaultPreset.params.colorFront,
   colorBack = defaultPreset.params.colorBack,
-  image = defaultPreset.params.image,
+  image = transparentPixel,
   contrast = defaultPreset.params.contrast,
   roughness = defaultPreset.params.roughness,
   fiber = defaultPreset.params.fiber,

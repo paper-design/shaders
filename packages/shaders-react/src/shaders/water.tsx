@@ -10,6 +10,7 @@ import {
   type ShaderPreset,
   defaultObjectSizing,
 } from '@paper-design/shaders';
+import { transparentPixel } from '../transparent-pixe.js';
 
 export interface WaterProps extends ShaderComponentProps, WaterParams {}
 
@@ -102,7 +103,7 @@ export const Water: React.FC<WaterProps> = memo(function WaterImpl({
   frame = defaultPreset.params.frame,
   colorBack = defaultPreset.params.colorBack,
   colorHighlight = defaultPreset.params.colorHighlight,
-  image = defaultPreset.params.image,
+  image = transparentPixel,
   highlights = defaultPreset.params.highlights,
   layering = defaultPreset.params.layering,
   waves = defaultPreset.params.waves,

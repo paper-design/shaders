@@ -11,6 +11,7 @@ import {
   defaultObjectSizing,
   DitheringTypes,
 } from '@paper-design/shaders';
+import { transparentPixel } from '../transparent-pixe.js';
 
 export interface ImageDitheringProps extends ShaderComponentProps, ImageDitheringParams {}
 
@@ -95,7 +96,7 @@ export const ImageDithering: React.FC<ImageDitheringProps> = memo(function Image
   colorFront = defaultPreset.params.colorFront,
   colorBack = defaultPreset.params.colorBack,
   colorHighlight = defaultPreset.params.colorHighlight,
-  image = defaultPreset.params.image,
+  image = transparentPixel,
   type = defaultPreset.params.type,
   pxSize = defaultPreset.params.pxSize,
   colorSteps = defaultPreset.params.colorSteps,
