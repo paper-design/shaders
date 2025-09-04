@@ -11,7 +11,7 @@ import {
   type PaperTextureUniforms,
   type ShaderPreset,
 } from '@paper-design/shaders';
-import { transparentPixel } from '../transparent-pixe.js';
+import { transparentPixel } from '../transparent-pixel.js';
 
 export interface PaperTextureProps extends ShaderComponentProps, PaperTextureParams {}
 

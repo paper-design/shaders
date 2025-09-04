@@ -10,7 +10,7 @@ import {
   GlassDistortionShapes,
   GlassGridShapes,
 } from '@paper-design/shaders';
-import { transparentPixel } from '../transparent-pixe.js';
+import { transparentPixel } from '../transparent-pixel.js';
 
 export interface FlutedGlassProps extends ShaderComponentProps, FlutedGlassParams {}
 

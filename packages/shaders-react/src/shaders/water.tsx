@@ -10,7 +10,7 @@ import {
   type ShaderPreset,
   defaultObjectSizing,
 } from '@paper-design/shaders';
-import { transparentPixel } from '../transparent-pixe.js';
+import { transparentPixel } from '../transparent-pixel.js';
 
 export interface WaterProps extends ShaderComponentProps, WaterParams {}
 

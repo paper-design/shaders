@@ -11,7 +11,7 @@ import {
   defaultObjectSizing,
   DitheringTypes,
 } from '@paper-design/shaders';
-import { transparentPixel } from '../transparent-pixe.js';
+import { transparentPixel } from '../transparent-pixel.js';
 
 export interface ImageDitheringProps extends ShaderComponentProps, ImageDitheringParams {}
 
