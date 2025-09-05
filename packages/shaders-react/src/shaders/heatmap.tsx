@@ -21,7 +21,6 @@ export const defaultPreset: HeatmapPreset = {
   params: {
     ...defaultObjectSizing,
     customParam: 0.5,
-    customParamScd: 1,
     frame: 0,
     speed: 1,
     image: 'https://workers.paper-staging.dev/file-assets/01K44QHJ96H7WP54KYYY9VPJHJ/01K4BPJWG3CVFWG7NSR3E7Q0EE.svg',
@@ -32,7 +31,6 @@ export const heatmapPresets: HeatmapPreset[] = [defaultPreset];
 
 export const Heatmap: React.FC<HeatmapProps> = memo(function HeatmapImpl({
   customParam = defaultPreset.params.customParam,
-  customParamScd = defaultPreset.params.customParamScd,
   fit = defaultPreset.params.fit,
   image = transparentPixel,
   offsetX = defaultPreset.params.offsetX,
@@ -75,7 +73,6 @@ export const Heatmap: React.FC<HeatmapProps> = memo(function HeatmapImpl({
   const uniforms = useMemo(
     () => ({
       u_customParam: customParam,
-      u_customParamScd: customParamScd,
       u_image: processedImage,
       u_fit: ShaderFitOptions[fit],
       u_offsetX: offsetX,
@@ -87,20 +84,7 @@ export const Heatmap: React.FC<HeatmapProps> = memo(function HeatmapImpl({
       u_worldHeight: worldHeight,
       u_worldWidth: worldWidth,
     }),
-    [
-      customParam,
-      customParamScd,
-      processedImage,
-      fit,
-      offsetX,
-      offsetY,
-      originX,
-      originY,
-      rotation,
-      scale,
-      worldHeight,
-      worldWidth,
-    ]
+    [customParam, processedImage, fit, offsetX, offsetY, originX, originY, rotation, scale, worldHeight, worldWidth]
   ) satisfies HeatmapUniforms;
 
   return <ShaderMount {...props} fragmentShader={heatmapFragSource} uniforms={uniforms} />;
