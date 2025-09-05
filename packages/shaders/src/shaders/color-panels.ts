@@ -70,12 +70,12 @@ vec2 getPanel(float angle, vec2 uv, float invLength, float aa) {
   float zOffset = zRatio - .5;
   float left = -.5 + zOffset * u_angle1;
   float right = .5 - zOffset * u_angle2;
-  float blurX = aa + panelMap * u_blur;
+  float blurX = aa + 2. * panelMap * u_blur;
 
-  float leftEdge1 = left - .5 * blurX;
-  float leftEdge2 = left + blurX;
-  float rightEdge1 = right - blurX;
-  float rightEdge2 = right + .5 * blurX;
+  float leftEdge1 = left - blurX;
+  float leftEdge2 = left + .25 * blurX;
+  float rightEdge1 = right - .25 * blurX;
+  float rightEdge2 = right + blurX;
 
   float panel = smoothstep(leftEdge1, leftEdge2, x) * (1.0 - smoothstep(rightEdge1, rightEdge2, x));
   panel *= mix(0., panel, smoothstep(0., .01 / u_scale, panelMap));

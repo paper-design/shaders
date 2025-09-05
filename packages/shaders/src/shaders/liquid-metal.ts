@@ -1,6 +1,6 @@
 import type { ShaderMotionParams } from '../shader-mount.js';
 import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
-import { declarePI, declareRotate, declareSimplexNoise, colorBandingFix } from '../shader-utils.js';
+import { declarePI, rotation2, simplexNoise, colorBandingFix } from '../shader-utils.js';
 
 /**
  *
@@ -44,8 +44,8 @@ ${sizingVariablesDeclaration}
 out vec4 fragColor;
 
 ${declarePI}
-${declareRotate}
-${declareSimplexNoise}
+${rotation2}
+${simplexNoise}
 
 float getColorChanges(float c1, float c2, float stripe_p, vec3 w, float blur, float bump, float tint) {
   

@@ -1,10 +1,10 @@
 import type { ShaderMotionParams } from '../shader-mount.js';
 import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
-import { declareRotate, colorBandingFix } from '../shader-utils.js';
+import { rotation2, colorBandingFix } from '../shader-utils.js';
 
 /**
  *
- * Fractal-like structure made of several layers of since arches
+ * Fractal-like structure made of several layers of sine arches
  * Original algorithm: https://x.com/zozuar/status/1625182758745128981/
  *
  * Uniforms:
@@ -32,7 +32,7 @@ ${sizingVariablesDeclaration}
 
 out vec4 fragColor;
 
-${declareRotate}
+${rotation2}
 
 float neuroShape(vec2 uv, float t) {
   vec2 sine_acc = vec2(0.);

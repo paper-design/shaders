@@ -6,7 +6,7 @@ import {
   type ShaderSizingParams,
   type ShaderSizingUniforms,
 } from '../shader-sizing.js';
-import { declarePI, declareRotate, declareFiberNoise, colorBandingFix } from '../shader-utils.js';
+import { declarePI, rotation2, fiberNoise, colorBandingFix } from '../shader-utils.js';
 
 export const staticMeshGradientMeta = {
   maxColorCount: 10,
@@ -51,8 +51,8 @@ ${sizingUniformsDeclaration}
 out vec4 fragColor;
 
 ${declarePI}
-${declareRotate}
-${declareFiberNoise}
+${rotation2}
+${fiberNoise}
 
 
 vec2 getPosition(int i, float t) {

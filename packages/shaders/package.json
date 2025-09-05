@@ -1,7 +1,7 @@
 {
   "name": "@paper-design/shaders",
-  "version": "0.0.45",
-  "license": "MIT",
+  "version": "0.0.47",
+  "license": "SEE LICENSE IN https://github.com/paper-design/shaders/blob/main/LICENSE",
   "type": "module",
   "sideEffects": false,
   "publishConfig": {

@@ -22,7 +22,7 @@ export const defaultPreset: ColorPanelsPreset = {
     speed: 0.5,
     frame: 0,
     colors: ['#ff9d00', '#fd4f30', '#809bff', '#6d2eff', '#333aff', '#f15cff', '#ffd557'],
-    colorBack: '#080808',
+    colorBack: '#000000',
     angle1: 0,
     angle2: 0,
     length: 1.1,
@@ -32,6 +32,7 @@ export const defaultPreset: ColorPanelsPreset = {
     fadeOut: 0.3,
     gradient: 0,
     density: 3,
+    scale: 0.8,
   },
 };
 
@@ -43,7 +44,7 @@ export const glassPreset: ColorPanelsPreset = {
     speed: 1,
     frame: 0,
     colors: ['#00cfff', '#ff2d55', '#34c759', '#af52de'],
-    colorBack: '#ffffff',
+    colorBack: '#ffffff00',
     angle1: 0.3,
     angle2: 0.3,
     length: 1,

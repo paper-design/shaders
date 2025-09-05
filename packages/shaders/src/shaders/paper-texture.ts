@@ -1,6 +1,6 @@
 import type { ShaderMotionParams } from '../shader-mount.js';
 import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
-import { declareImageFrame, declareRotate, declarePI, declareFiberNoise } from '../shader-utils.js';
+import { rotation2, declarePI, fiberNoise, textureRandomizerR } from '../shader-utils.js';
 
 /**
  * Mimicking paper texture with a combination of noises
@@ -52,15 +52,21 @@ ${sizingVariablesDeclaration}
 
 out vec4 fragColor;
 
-${declarePI}
-${declareRotate}
-${declareImageFrame}
+float getUvFrame(vec2 uv) {
+  float aax = 2. * fwidth(uv.x);
+  float aay = 2. * fwidth(uv.y);
 
+  float left   = smoothstep(0., aax, uv.x);
+  float right  = smoothstep(1., 1. - aax, uv.x);
+  float bottom = smoothstep(0., aay, uv.y);
+  float top    = smoothstep(1., 1. - aay, uv.y);
 
-float randomR(vec2 p) {
-  vec2 uv = floor(p) / 100. + .5;
-  return texture(u_noiseTexture, fract(uv)).r;
+  return left * right * bottom * top;
 }
+
+${declarePI}
+${rotation2}
+${textureRandomizerR}
 float valueNoise(vec2 st) {
   vec2 i = floor(st);
   vec2 f = fract(st);
@@ -103,7 +109,7 @@ float roughness(vec2 p) {
   return o / 3.;
 }
 
-${declareFiberNoise}
+${fiberNoise}
 
 vec2 randomGB(vec2 p) {
   vec2 uv = floor(p) / 50. + .5;
@@ -215,27 +221,29 @@ void main() {
   normalImage += .2 * fiber;
 
   vec3 lightPos = vec3(1., 2., 1.);
-  float res = clamp(dot(normalize(vec3(normal, 9.5 - 9. * pow(u_contrast, .1))), normalize(lightPos)), 0., 1.);
+  float res = dot(normalize(vec3(normal, 9.5 - 9. * pow(u_contrast, .1))), normalize(lightPos));
 
   vec3 fgColor = u_colorFront.rgb * u_colorFront.a;
   float fgOpacity = u_colorFront.a;
   vec3 bgColor = u_colorBack.rgb * u_colorBack.a;
   float bgOpacity = u_colorBack.a;
 
+  imageUV += .02 * normalImage;
+  float frame = getUvFrame(imageUV);
+
   vec3 color = fgColor * res;
   float opacity = fgOpacity * res;
 
   color += bgColor * (1. - opacity);
   opacity += bgOpacity * (1. - opacity);
+  opacity = mix(opacity, 1., frame);
   
   color -= .007 * drops;
 
-  imageUV += .02 * normalImage;
   vec4 image = texture(u_image, imageUV);
-  image.rgb += .5 * (res - .6);
+  image.rgb += .6 * pow(u_contrast, .4) * (res - .7);
 
-  float frame = getUvFrame(imageUV);
-  color.rgb = mix(color, image.rgb, min(.8 * frame, image.a));
+  color.rgb = mix(color, image.rgb, min(frame, image.a));
 
   fragColor = vec4(color, opacity);
 }

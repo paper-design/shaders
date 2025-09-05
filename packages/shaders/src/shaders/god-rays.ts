@@ -1,7 +1,7 @@
 import type { vec4 } from '../types.js';
 import type { ShaderMotionParams } from '../shader-mount.js';
 import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
-import { declarePI, declareRotate, declareValueNoise, colorBandingFix } from '../shader-utils.js';
+import { declarePI, rotation2, textureRandomizerR, colorBandingFix, proceduralHash11 } from '../shader-utils.js';
 
 export const godRaysMeta = {
   maxColorCount: 5,
@@ -47,21 +47,22 @@ ${sizingVariablesDeclaration}
 out vec4 fragColor;
 
 ${declarePI}
-
-float random(vec2 p) {
-  vec2 uv = floor(p) / 100. + .5;
-  return texture(u_noiseTexture, fract(uv)).r;
+${rotation2}
+${textureRandomizerR}
+float valueNoise(vec2 st) {
+  vec2 i = floor(st);
+  vec2 f = fract(st);
+  float a = randomR(i);
+  float b = randomR(i + vec2(1.0, 0.0));
+  float c = randomR(i + vec2(0.0, 1.0));
+  float d = randomR(i + vec2(1.0, 1.0));
+  vec2 u = f * f * (3.0 - 2.0 * f);
+  float x1 = mix(a, b, u.x);
+  float x2 = mix(c, d, u.x);
+  return mix(x1, x2, u.y);
 }
 
-${declareRotate}
-${declareValueNoise}
-
-float hash(float n) {
-  n = fract(n * 0.1031);
-  n *= n + 33.33;
-  n *= n + n;
-  return fract(n);
-}
+${proceduralHash11}
 
 float raysShape(vec2 uv, float r, float freq, float intensity, float radius) {
   float a = atan(uv.y, uv.x);
@@ -100,7 +101,7 @@ void main() {
     float r1 = radius * (1.0 + 0.4 * float(i)) - 3.0 * t;
     float r2 = 0.5 * radius * (1.0 + spots) - 2.0 * t;
     float density = 6. * u_density + step(.5, u_density) * pow(4.5 * (u_density - .5), 4.);
-    float f = mix(1.0, 3.0 + 0.5 * float(i), hash(float(i) + 10.0)) * density;
+    float f = mix(1.0, 3.0 + 0.5 * float(i), hash11(float(i) * 15.)) * density;
 
     float ray = raysShape(rotatedUV, r1, 5.0 * f, intensity, radius);
     ray *= raysShape(rotatedUV, r2, 4.0 * f, intensity, radius);

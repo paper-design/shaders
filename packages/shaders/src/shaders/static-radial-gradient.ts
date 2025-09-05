@@ -6,7 +6,7 @@ import {
   type ShaderSizingParams,
   type ShaderSizingUniforms,
 } from '../shader-sizing.js';
-import { declarePI, declareRotate, colorBandingFix, declareFiberNoise } from '../shader-utils.js';
+import { declarePI, rotation2, colorBandingFix, fiberNoise } from '../shader-utils.js';
 
 export const staticRadialGradientMeta = {
   maxColorCount: 10,
@@ -56,8 +56,8 @@ ${sizingUniformsDeclaration}
 out vec4 fragColor;
 
 ${declarePI}
-${declareRotate}
-${declareFiberNoise}
+${rotation2}
+${fiberNoise}
 
 void main() {
   vec2 uv = 2. * v_objectUV;

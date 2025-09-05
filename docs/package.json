@@ -5,13 +5,16 @@
   "type": "module",
   "scripts": {
     "dev": "next dev",
-    "build": "next build && shadcn build",
+    "llms": "bun src/generate-llms-txt.ts",
+    "build": "bun llms && next build && shadcn build",
     "start": "next start",
     "lint": "next lint"
   },
   "dependencies": {
+    "@base-ui-components/react": "1.0.0-beta.2",
     "@paper-design/shaders-react": "workspace:*",
     "@vercel/analytics": "^1.5.0",
+    "clsx": "^2.1.1",
     "leva": "0.9.34",
     "next": "15.2.3"
   },
@@ -20,11 +23,12 @@
     "@types/node": "22.10.2",
     "@types/react": "19.1.0",
     "@types/react-dom": "19.1.1",
+    "@tailwindcss/postcss": "4.1.12",
     "eslint": "9.17.0",
     "eslint-config-next": "15.1.2",
     "postcss": "8.4.49",
     "shadcn": "2.4.0-canary.9",
-    "tailwindcss": "3.4.17",
+    "tailwindcss": "4.1.12",
     "typescript": "5.7.2"
   }
 }

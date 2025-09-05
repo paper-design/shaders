@@ -1,7 +1,7 @@
 import type { vec4 } from '../types.js';
 import type { ShaderMotionParams } from '../shader-mount.js';
 import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
-import { declareSimplexNoise, declarePI, declareRotate, colorBandingFix } from '../shader-utils.js';
+import { simplexNoise, declarePI, rotation2, colorBandingFix } from '../shader-utils.js';
 
 export const swirlMeta = {
   maxColorCount: 10,
@@ -40,8 +40,8 @@ ${sizingVariablesDeclaration}
 out vec4 fragColor;
 
 ${declarePI}
-${declareSimplexNoise}
-${declareRotate}
+${simplexNoise}
+${rotation2}
 
 void main() {
   vec2 shape_uv = v_objectUV;

@@ -7,7 +7,6 @@ import {
   type FlutedGlassParams,
   type ShaderPreset,
   defaultObjectSizing,
-  getShaderNoiseTexture,
   GlassDistortionShapes,
   GlassGridShapes,
 } from '@paper-design/shaders';
@@ -20,11 +19,11 @@ export const defaultPreset: FlutedGlassPreset = {
   name: 'Default',
   params: {
     ...defaultObjectSizing,
-    // fit: 'cover',
+    fit: 'cover',
     // scale: 0.95,
     speed: 0,
     frame: 0,
-    image: '/images/image-filters/0018.webp',
+    image: 'https://shaders.paper.design/images/image-filters/0018.webp',
     count: 80,
     angle: 0,
     distortionShape: 'lens',
@@ -44,9 +43,10 @@ export const wavesPreset: FlutedGlassPreset = {
   name: 'Waves',
   params: {
     ...defaultObjectSizing,
+    fit: 'cover',
     speed: 0,
     frame: 0,
-    image: '/images/image-filters/0018.webp',
+    image: 'https://shaders.paper.design/images/image-filters/0018.webp',
     count: 20,
     angle: 0,
     distortionShape: 'сontour',
@@ -66,10 +66,11 @@ export const irregularPreset: FlutedGlassPreset = {
   name: 'Irregular lines',
   params: {
     ...defaultObjectSizing,
+    fit: 'cover',
     scale: 4,
     speed: 0,
     frame: 0,
-    image: '/images/image-filters/0018.webp',
+    image: 'https://shaders.paper.design/images/image-filters/0018.webp',
     count: 32,
     angle: 150,
     distortionShape: 'facete',
@@ -89,9 +90,10 @@ export const foldsPreset: FlutedGlassPreset = {
   name: 'Folds',
   params: {
     ...defaultObjectSizing,
+    fit: 'cover',
     speed: 0,
     frame: 0,
-    image: '/images/image-filters/0018.webp',
+    image: 'https://shaders.paper.design/images/image-filters/0018.webp',
     count: 50,
     angle: 0,
     distortionShape: 'сascade',
@@ -100,10 +102,10 @@ export const foldsPreset: FlutedGlassPreset = {
     shift: 0,
     blur: 0,
     highlights: 0,
-    marginLeft: 0.15,
-    marginRight: 0.15,
-    marginTop: 0.15,
-    marginBottom: 0.15,
+    marginLeft: 0.05,
+    marginRight: 0.05,
+    marginTop: 0.2,
+    marginBottom: 0.2,
   },
 };
 
@@ -154,7 +156,6 @@ export const FlutedGlass: React.FC<FlutedGlassProps> = memo(function FlutedGlass
     u_marginRight: marginRight,
     u_marginTop: marginTop,
     u_marginBottom: marginBottom,
-    u_noiseTexture: getShaderNoiseTexture(),
 
     // Sizing uniforms
     u_fit: ShaderFitOptions[fit],

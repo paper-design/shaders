@@ -6,7 +6,7 @@ import {
   sizingUV,
   drawSizingHelpers,
 } from '../shader-sizing.js';
-import { declareSimplexNoise, declarePI, declareRandom } from '../shader-utils.js';
+import { simplexNoise, declarePI, proceduralHash11, proceduralHash21 } from '../shader-utils.js';
 
 /**
  * 2-color dithering effect over animated abstract shapes
@@ -17,7 +17,7 @@ import { declareSimplexNoise, declarePI, declareRandom } from '../shader-utils.j
  * - u_shape (float used as integer):
  * ---- 1: simplex noise pattern
  * ---- 2: warp noise pattern
- * ---- 3: columns if dots moving vertically
+ * ---- 3: columns of dots moving vertically
  * ---- 4: sine wave
  * ---- 5: ripple effect
  * ---- 6: swirl animation
@@ -49,9 +49,10 @@ uniform float u_pxSize;
 
 out vec4 fragColor;
 
-${declareSimplexNoise}
+${simplexNoise}
 ${declarePI}
-${declareRandom}
+${proceduralHash11}
+${proceduralHash21}
 
 float getSimplexNoise(vec2 uv, float t) {
   float noise = .5 * snoise(uv - vec2(0., .3 * t));
@@ -105,7 +106,7 @@ void main() {
   ${sizingUV}
 
   vec2 dithering_uv = pxSizeUv;
-  vec2 ditheringNoise_uv = uv;
+  vec2 ditheringNoise_uv = uv * u_resolution;
   vec2 shape_uv = objectUV;
   if (u_shape < 3.5) {
     shape_uv = patternUV;
@@ -136,11 +137,10 @@ void main() {
     shape_uv *= .05;
 
     float stripeIdx = floor(2. * shape_uv.x / TWO_PI);
-    float rand = fract(sin(stripeIdx * 12.9898) * 43758.5453);
-
-    float speed = sign(rand - .5) * ceil(2. + rand);
-    shape = sin(shape_uv.x) * cos(shape_uv.y + speed * t);
-    shape = pow(shape, 6.);
+    float rand = hash11(stripeIdx * 10.);
+    rand = sign(rand - .5) * pow(.1 + abs(rand), .4);
+    shape = sin(shape_uv.x) * cos(shape_uv.y - 5. * rand * t);
+    shape = pow(abs(shape), 6.);
 
   } else if (u_shape < 4.5) {
     // Sine wave
@@ -170,9 +170,11 @@ void main() {
     // Sphere
     shape_uv *= 2.;
 
-    vec3 pos = vec3(shape_uv, sqrt(1. - pow(length(shape_uv), 2.)));
+    float d = 1. - pow(length(shape_uv), 2.);
+    vec3 pos = vec3(shape_uv, sqrt(d));
     vec3 lightPos = normalize(vec3(cos(1.5 * t), .8, sin(1.25 * t)));
     shape = .5 + .5 * dot(lightPos, pos);
+    shape *= step(0., d);
   }
 
 
@@ -181,7 +183,7 @@ void main() {
 
   switch (type) {
     case 1: {
-      dithering = step(random(ditheringNoise_uv), shape);
+      dithering = step(hash21(ditheringNoise_uv), shape);
     } break;
     case 2:
       dithering = getBayerValue(dithering_uv, 2);

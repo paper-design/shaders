@@ -39,15 +39,15 @@ out vec2 v_imageUV;
 
 // #define ADD_HELPERS
 
-vec3 getBoxSize(float boxRatio, vec2 givenBoxSize, vec2 maxBoxSize) {
+vec3 getBoxSize(float boxRatio, vec2 givenBoxSize) {
   vec2 box = vec2(0.);
   // fit = none
   box.x = boxRatio * min(givenBoxSize.x / boxRatio, givenBoxSize.y);
   float noFitBoxWidth = box.x;
   if (u_fit == 1.) { // fit = contain
-    box.x = boxRatio * min(maxBoxSize[0] / boxRatio, maxBoxSize[1]);
+    box.x = boxRatio * min(u_resolution.x / boxRatio, u_resolution.y);
   } else if (u_fit == 2.) { // fit = cover
-    box.x = boxRatio * max(maxBoxSize[0] / boxRatio, maxBoxSize[1]);
+    box.x = boxRatio * max(u_resolution.x / boxRatio, u_resolution.y);
   }
   box.y = box.x / boxRatio;
   return vec3(box, noFitBoxWidth);
@@ -60,7 +60,6 @@ void main() {
   vec2 boxOrigin = vec2(.5 - u_originX, u_originY - .5);
   vec2 givenBoxSize = vec2(u_worldWidth, u_worldHeight);
   givenBoxSize = max(givenBoxSize, vec2(1.)) * u_pixelRatio;
-  vec2 maxBoxSize = vec2(max(u_resolution.x, givenBoxSize.x), max(u_resolution.y, givenBoxSize.y));
   float r = u_rotation * 3.14159265358979323846 / 180.;
   mat2 graphicRotation = mat2(cos(r), sin(r), -sin(r), cos(r));
   vec2 graphicOffset = vec2(-u_offsetX, u_offsetY);
@@ -76,7 +75,7 @@ void main() {
   (u_worldHeight == 0.) ? u_resolution.y : givenBoxSize.y
   );
 
-  v_objectBoxSize = getBoxSize(fixedRatio, fixedRatioBoxGivenSize, maxBoxSize).xy;
+  v_objectBoxSize = getBoxSize(fixedRatio, fixedRatioBoxGivenSize).xy;
   vec2 objectWorldScale = u_resolution.xy / v_objectBoxSize;
 
   #ifdef ADD_HELPERS
@@ -105,7 +104,7 @@ void main() {
   (u_worldHeight == 0.) ? u_resolution.y : givenBoxSize.y
   );
   float responsiveRatio = v_responsiveBoxGivenSize.x / v_responsiveBoxGivenSize.y;
-  v_responsiveBoxSize = getBoxSize(responsiveRatio, v_responsiveBoxGivenSize, maxBoxSize).xy;
+  v_responsiveBoxSize = getBoxSize(responsiveRatio, v_responsiveBoxGivenSize).xy;
   vec2 responsiveBoxScale = u_resolution.xy / v_responsiveBoxSize;
 
   #ifdef ADD_HELPERS
@@ -137,7 +136,7 @@ void main() {
   );
   patternBoxRatio = patternBoxGivenSize.x / patternBoxGivenSize.y;
 
-  vec3 boxSizeData = getBoxSize(patternBoxRatio, patternBoxGivenSize, maxBoxSize);
+  vec3 boxSizeData = getBoxSize(patternBoxRatio, patternBoxGivenSize);
   v_patternBoxSize = boxSizeData.xy;
   float patternBoxNoFitBoxWidth = boxSizeData.z;
   vec2 patternBoxScale = u_resolution.xy / v_patternBoxSize;
@@ -173,9 +172,9 @@ void main() {
 
   vec2 imageBoxSize;
   if (u_fit == 1.) { // contain
-    imageBoxSize.x = min(maxBoxSize.x / u_imageAspectRatio, maxBoxSize.y) * u_imageAspectRatio;
+    imageBoxSize.x = min(u_resolution.x / u_imageAspectRatio, u_resolution.y) * u_imageAspectRatio;
   } else if (u_fit == 2.) { // cover
-    imageBoxSize.x = max(maxBoxSize.x / u_imageAspectRatio, maxBoxSize.y) * u_imageAspectRatio;
+    imageBoxSize.x = max(u_resolution.x / u_imageAspectRatio, u_resolution.y) * u_imageAspectRatio;
   } else {
     imageBoxSize.x = min(10.0, 10.0 / u_imageAspectRatio * u_imageAspectRatio);
   }
