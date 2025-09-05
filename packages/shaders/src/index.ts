@@ -195,6 +195,8 @@ export {
   type ImageDitheringUniforms,
 } from './shaders/image-dithering.js';
 
+export { heatmapFragSource, toProcessedHeatmap, type HeatmapParams, type HeatmapUniforms } from './shaders/heatmap.js';
+
 // ----- Utils ----- //
 export { getShaderColorFromString } from './get-shader-color-from-string.js';
 export { getShaderNoiseTexture } from './get-shader-noise-texture.js';
