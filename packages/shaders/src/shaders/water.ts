@@ -1,13 +1,13 @@
 import type { ShaderMotionParams } from '../shader-mount.js';
 import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
-import { declareImageFrame, declarePI, declareRotate, declareSimplexNoise } from '../shader-utils.js';
+import { declarePI, rotation2, simplexNoise } from '../shader-utils.js';
 
 /**
  * Mimicking water surface distortion with a combination of noises;
  * Can be applied over the texture or just be used as an animated pattern
  *
  * Uniforms:
- * - u_colorBack, u_highlightColor (RGBA)
+ * - u_colorBack, u_colorHighlight (RGBA)
  * - u_effectScale: pattern scale relative to the image
  * - u_caustic: power of caustic distortion
  * - u_layering: the power of 2nd layer of caustic distortion
@@ -24,7 +24,7 @@ precision mediump float;
 uniform float u_time;
 
 uniform vec4 u_colorBack;
-uniform vec4 u_highlightColor;
+uniform vec4 u_colorHighlight;
 
 uniform sampler2D u_image;
 uniform float u_imageAspectRatio;
@@ -41,9 +41,20 @@ ${sizingVariablesDeclaration}
 out vec4 fragColor;
 
 ${declarePI}
-${declareRotate}
-${declareSimplexNoise}
-${declareImageFrame}
+${rotation2}
+${simplexNoise}
+
+float getUvFrame(vec2 uv) {
+  float aax = 2. * fwidth(uv.x);
+  float aay = 2. * fwidth(uv.y);
+
+  float left   = smoothstep(0., aax, uv.x);
+  float right  = smoothstep(1., 1. - aax, uv.x);
+  float bottom = smoothstep(0., aay, uv.y);
+  float top    = smoothstep(1., 1. - aay, uv.y);
+
+  return left * right * bottom * top;
+}
 
 mat2 rotate2D(float r) {
   return mat2(cos(r), sin(r), -sin(r), cos(r));
@@ -103,8 +114,8 @@ void main() {
   causticNoise = max(-.2, causticNoise);
   
   float hightlight = .025 * u_highlights * causticNoise;
-  hightlight *= u_highlightColor.a;
-  color = mix(color, u_highlightColor.rgb, .05 * u_highlights * causticNoise);
+  hightlight *= u_colorHighlight.a;
+  color = mix(color, u_colorHighlight.rgb, .05 * u_highlights * causticNoise);
   opacity += hightlight;
   
   color += hightlight * (.5 + .5 * wavesNoise);
@@ -119,7 +130,7 @@ void main() {
 export interface WaterUniforms extends ShaderSizingUniforms {
   u_image: HTMLImageElement | string | undefined;
   u_colorBack: [number, number, number, number];
-  u_highlightColor: [number, number, number, number];
+  u_colorHighlight: [number, number, number, number];
   u_highlights: number;
   u_layering: number;
   u_edges: number;
@@ -131,7 +142,7 @@ export interface WaterUniforms extends ShaderSizingUniforms {
 export interface WaterParams extends ShaderSizingParams, ShaderMotionParams {
   image?: HTMLImageElement | string | undefined;
   colorBack?: string;
-  highlightColor?: string;
+  colorHighlight?: string;
   highlights?: number;
   layering?: number;
   edges?: number;

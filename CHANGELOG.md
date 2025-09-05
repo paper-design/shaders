@@ -1,5 +1,119 @@
 # Paper Shaders
 
+## Version 0.0.47
+
+### General
+
+- Licence changed to [PolyForm Shield License 1.0.0](https://polyformproject.org/licenses/shield/1.0.0)
+- Shaders documentation added to **shaders.paper.design** 🎉
+- Sizing behaviour changed so graphics don’t crop if `worldBox` size is larger than canvas
+
+### Existing Shader Improvements
+
+- **Water**, **FlutedGlass**, **PaperTexture**, **PaperTexture**
+  - Fixed default image URL
+
+- **FlutedGlass**, **PaperTexture**, **PaperTexture**
+  - Default image sizing changed (`fit`)
+
+- **Water**
+  - `highlightColor` renamed to `colorHighlight`
+  - Default preset changed (`scale`, `colorBack`)
+  
+- **PaperTexture**
+  - Additional presets changed
+  - Image blending bugfix for semi-transparent `colorBack`
+  
+- **FlutedGlass**
+  - Additional presets changed
+
+- **ColorPanels**
+  - Default preset changed (`colorBack`, `scale`)
+  - Additional presets changed
+  - Panels angle now independent from side `blur`
+  
+- **SmokeRing**
+  - Default preset changed (scale, `colorBack`)
+  - Additional presets changed
+  - Reversed order of colors
+
+- **PulsingBorder**
+  - Default preset changed (scale, colors, pulse)
+  - Additional presets changed
+  - Nvidia 3060 bugfix ([issue #146](https://github.com/paper-design/shaders/issues/146))
+  
+- **SimplexNoise**
+  - Default preset changed (`stepsPerColor`)
+  - Antialiasing bugfix
+
+- **GrainGradient**
+  - Default preset changed (`noise`)
+  - Better randomizing on `dots` shape
+
+- **Waves**
+  - Default preset changed (`scale`, `spacing`)
+
+- **Voronoi**
+  - Default preset changed (`gap`)
+
+- **LiquidMetal**
+  - Default preset changed (`scale`)
+
+- **StaticRadialGradient**, **Metaballs**, **GodRays**
+  - Default preset changed (`colorBack`)
+
+- **Dithering**
+  - Default preset changed (`scale`)
+  - Additional presets changed
+
+- **DotOrbit**
+  - Default preset changed (`speed`, `colors`)
+  - Additional presets changed
+
+- **Swirl**, **PerlinNoise**,
+  - Additional presets changes
+
+## Version 0.0.46
+
+### General
+
+- New default presets for all shaders, with adjusted previews for some shaders
+- Replaced procedural randomizer with a more stable hash function
+- Switched from `WebGLRenderingContext` to `WebGL2RenderingContext`
+- Fixed WebGL texture indexing — now possible to use 2+ texture uniforms in one shader
+- Vertex shader now provides `imageUV` for image filters
+- Shader chunks (`shader-utils.ts`) now have clearer naming and unified usage across shaders
+
+### Existing Shader Improvements
+
+- **StaticRadialGradient**, **StaticMeshGradient**
+  - Fixed fiber-shape noise to make it independent of canvas resolution
+
+- **Dithering**
+  - Fixed Sphere and Dots shapes on certain Android models
+  - Improved stability of the `random` dithering type
+
+- **DotOrbit**, **GodRays**, **Metaballs**
+  - Now use `u_noiseTexture` for better performance and stability across devices
+
+- **PerlinNoise**
+  - Fixed randomizer-related issues on some Android models
+
+- **Spiral**
+  - Inverted `strokeWidth` behavior
+  
+- **GrainGradient**
+  - Switched to low precision
+
+### New Shaders
+
+- Added **FlutedGlass** component
+- Added **ImageDithering** component
+- Added **PaperTexture** component
+- Added **Water** component
+
+All four new effects work as photo filters. **PaperTexture** and **Water** can also be used without an image.
+
 ## Version 0.0.45
 
 ### General
@@ -58,8 +172,6 @@
 
 - **Default Presets** updated for the following shaders:
   - _Spiral, SimplexNoise, PulsingBorder, NeuroNoise, GrainGradient, DotGrid, Dithering_
-
----
 
 ### New Shaders
 

@@ -1,8 +1,12 @@
 import { getShaderColorFromString } from '@paper-design/shaders';
 
 export function toHsla(value: string) {
+  if (value.startsWith('hsla')) {
+    return value;
+  }
+
   const [h, s, l, a] = convertRgbToHsl(getShaderColorFromString(value));
-  return `hsla(${h}, ${s * 100}%, ${l * 100}%, ${a})`;
+  return `hsla(${h.toFixed(2)}, ${(s * 100).toFixed(2)}%, ${(l * 100).toFixed(2)}%, ${a.toFixed(2)})`;
 }
 
 export default function convertRgbToHsl([r, g, b, a = 1]: [number, number, number, number]) {

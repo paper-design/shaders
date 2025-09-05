@@ -42,7 +42,7 @@ export const warpPreset: GodRaysPreset = {
     ...defaultObjectSizing,
     colorBack: '#000000',
     colorBloom: '#222288',
-    colors: ['#ff00c4', '#ff8c00', '#ffffff'],
+    colors: ['#ff47d4', '#ff8c00', '#ffffff'],
     density: 0.45,
     spotty: 0.15,
     midIntensity: 0.4,

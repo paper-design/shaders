@@ -27,7 +27,7 @@ export const defaultPreset: VoronoiPreset = {
     colorGlow: '#ffffff',
     colorGap: '#2e0000',
     distortion: 0.4,
-    gap: 0.06,
+    gap: 0.04,
     glow: 0,
     scale: 0.5,
   },

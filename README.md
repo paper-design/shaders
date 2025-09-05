@@ -1,6 +1,6 @@
 # Paper Shaders
 
-![mesh-gradient-shader](./docs/public/images/git-readme-picture.png?v=2)
+![mesh-gradient-shader](./docs/public/images/git-readme-picture.webp)
 
 ### Getting started
 
@@ -73,6 +73,12 @@ import {MeshGradient, DotOrbit} from '@paper-design/shaders-react';
 
 ## License and use
 
-Feel free to use this code in any projects, commercial or otherwise.
+Paper Shaders uses the PolyForm Shield license. This means the code is free to use in any commercial or non-commercial apps, products, and libraries, as long as they do not compete with Paper or Paper Shaders.
 
-If you use this code or wrap the library to create another shader library or tool, we ask that you give attribution and link to Paper Shaders (it helps us continue investing in this project). Thank you!
+You may NOT use this code in library or in a design tool that competes with Paper or Paper Shaders.
+
+We ask that you link to Paper Shaders if you use this code (it helps us continue investing in this project). Thank you!
+
+[Read the full license →](./LICENSE)
+
+Required Notice: Copyright Lost Coast Labs, Inc. (http://paper.design)

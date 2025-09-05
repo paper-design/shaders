@@ -1,7 +1,7 @@
 import type { vec4 } from '../types.js';
 import type { ShaderMotionParams } from '../shader-mount.js';
 import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
-import { declareSimplexNoise, colorBandingFix } from '../shader-utils.js';
+import { simplexNoise, colorBandingFix } from '../shader-utils.js';
 
 export const simplexNoiseMeta = {
   maxColorCount: 10,
@@ -33,7 +33,7 @@ ${sizingVariablesDeclaration}
 
 out vec4 fragColor;
 
-${declareSimplexNoise}
+${simplexNoise}
 
 float getNoise(vec2 uv, float t) {
   float noise = .5 * snoise(uv - vec2(0., .3 * t));
@@ -45,7 +45,8 @@ float getNoise(vec2 uv, float t) {
 float steppedSmooth(float m, float steps, float softness) { 
   float stepT = floor(m * steps) / steps;
   float f = m * steps - floor(m * steps);
-  float smoothed = smoothstep(.5 - softness, .5 + softness, f);
+  float fw = steps * fwidth(m);
+  float smoothed = smoothstep(.5 - softness, min(1., .5 + softness + fw), f);
   return stepT + smoothed / steps;
 }
 
@@ -72,7 +73,7 @@ void main() {
       if (i >= int(u_colorsCount)) break;
 
       float localM = clamp(mixer - float(i - 1), 0., 1.);
-      localM = steppedSmooth(localM, steps, .5 * u_softness + steps * fwidth(localM));
+      localM = steppedSmooth(localM, steps, .5 * u_softness);
 
       vec4 c = u_colors[i];
       c.rgb *= c.a;
@@ -85,7 +86,7 @@ void main() {
      if (mixer > (u_colorsCount - 1.)) {
        localM = mixer - (u_colorsCount - 1.);
      }
-     localM = steppedSmooth(localM, steps, .5 * u_softness + steps * fwidth(localM));
+     localM = steppedSmooth(localM, steps, .5 * u_softness);
      vec4 cFst = u_colors[0];
      cFst.rgb *= cFst.a;
      vec4 cLast = u_colors[int(u_colorsCount - 1.)];

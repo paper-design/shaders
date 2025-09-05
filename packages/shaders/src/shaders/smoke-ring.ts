@@ -1,7 +1,7 @@
 import type { vec4 } from '../types.js';
 import type { ShaderMotionParams } from '../shader-mount.js';
 import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
-import { declarePI, declareValueNoise, colorBandingFix } from '../shader-utils.js';
+import { declarePI, textureRandomizerR, colorBandingFix } from '../shader-utils.js';
 
 export const smokeRingMeta = {
   maxColorCount: 10,
@@ -43,14 +43,19 @@ ${sizingVariablesDeclaration}
 out vec4 fragColor;
 
 ${declarePI}
-
-float random(vec2 p) {
-  vec2 uv = floor(p) / 100. + .5;
-  return texture(u_noiseTexture, fract(uv)).r;
+${textureRandomizerR}
+float valueNoise(vec2 st) {
+  vec2 i = floor(st);
+  vec2 f = fract(st);
+  float a = randomR(i);
+  float b = randomR(i + vec2(1.0, 0.0));
+  float c = randomR(i + vec2(0.0, 1.0));
+  float d = randomR(i + vec2(1.0, 1.0));
+  vec2 u = f * f * (3.0 - 2.0 * f);
+  float x1 = mix(a, b, u.x);
+  float x2 = mix(c, d, u.x);
+  return mix(x1, x2, u.y);
 }
-
-${declareValueNoise}
-
 float fbm(in vec2 n) {
   float total = 0.0, amplitude = .4;
   for (int i = 0; i < ${smokeRingMeta.maxNoiseIterations}; i++) {
@@ -106,15 +111,14 @@ void main() {
 
   float ringShape = getRingShape(shape_uv);
 
-  float mixer = pow(ringShape, 3.) * (u_colorsCount - 1.);
-  vec4 gradient = u_colors[0];
+  float mixer = pow(ringShape, 2.) * (u_colorsCount - 1.);
+  vec4 gradient = u_colors[int(u_colorsCount) - 1];
   gradient.rgb *= gradient.a;
-  for (int i = 1; i < ${smokeRingMeta.maxColorCount}; i++) {
-      if (i >= int(u_colorsCount)) break;
-      float localT = clamp(mixer - float(i - 1), 0., 1.);
-      vec4 c = u_colors[i];
-      c.rgb *= c.a;
-      gradient = mix(gradient, c, localT);
+  for (int i = ${smokeRingMeta.maxColorCount} - 2; i >= 0; i--) {
+    float localT = clamp(mixer - float(int(u_colorsCount) - 1 - i - 1), 0., 1.);
+    vec4 c = u_colors[i];
+    c.rgb *= c.a;
+    gradient = mix(gradient, c, localT);
   }
 
   vec3 color = gradient.rgb * ringShape;

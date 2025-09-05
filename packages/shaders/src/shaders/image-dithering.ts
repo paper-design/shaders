@@ -1,6 +1,6 @@
 import type { ShaderMotionParams } from '../shader-mount.js';
 import { sizingUV, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
-import { declareRandom } from '../shader-utils.js';
+import { proceduralHash21 } from '../shader-utils.js';
 
 /**
  * Dithering effect over user texture using 3-color palette
@@ -63,7 +63,7 @@ float getUvFrame(vec2 uv, vec2 px) {
   return left * right * bottom * top;
 }
 
-${declareRandom}
+${proceduralHash21}
 
 const int bayer2x2[4] = int[4](0, 2, 3, 1);
 const int bayer4x4[16] = int[16](
@@ -106,18 +106,18 @@ void main() {
   ${sizingUV}
 
   vec2 dithering_uv = pxSizeUv;
-  vec2 ditheringNoise_uv = uv;
-  
+  vec2 ditheringNoise_uv = u_resolution * uv;
   vec4 image = texture(u_image, imageUV);
   float frame = getUvFrame(imageUV, pxSize / u_resolution.xy);
-//  if (frame < .05) discard;
-  
+
   int type = int(floor(u_type));
   float dithering = 0.0;
 
+  float lum = dot(vec3(.2126, .7152, .0722), image.rgb);
+
   switch (type) {
     case 1: {
-      dithering = step(random(ditheringNoise_uv), image.r);
+      dithering = step(hash21(ditheringNoise_uv), lum);
     } break;
     case 2:
       dithering = getBayerValue(dithering_uv, 2);
@@ -130,7 +130,6 @@ void main() {
       break;
   }
 
-  float lum = dot(vec3(.2126, .7152, .0722), image.rgb);
 
   float steps = max(floor(u_colorSteps), 1.);
   float ditherAmount = 1.0 / (steps);

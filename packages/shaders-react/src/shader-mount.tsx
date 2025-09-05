@@ -148,12 +148,23 @@ export const ShaderMount: React.FC<ShaderMountProps> = forwardRef<PaperShaderEle
 
     // Uniforms
     useEffect(() => {
+      let isStale = false;
+
       const updateUniforms = async () => {
         const uniforms = await processUniforms(uniformsProp);
-        shaderMountRef.current?.setUniforms(uniforms);
+
+        if (!isStale) {
+          // We only use the freshest uniforms otherwise we can get into race conditions
+          // if some uniforms (images!) take longer to load in subsequent effect runs.
+          shaderMountRef.current?.setUniforms(uniforms);
+        }
       };
 
       updateUniforms();
+
+      return () => {
+        isStale = true;
+      };
     }, [uniformsProp, isInitialized]);
 
     // Speed
