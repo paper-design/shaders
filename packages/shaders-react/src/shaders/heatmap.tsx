@@ -4,11 +4,13 @@ import {
   type HeatmapParams,
   type HeatmapUniforms,
   ShaderFitOptions,
+  getShaderColorFromString,
   type ShaderPreset,
   defaultObjectSizing,
   heatmapFragSource,
   toProcessedHeatmap,
 } from '@paper-design/shaders';
+
 import { preload } from 'react-dom';
 import { transparentPixel } from '../transparent-pixel.js';
 
@@ -20,17 +22,31 @@ export const defaultPreset: HeatmapPreset = {
   name: 'Default',
   params: {
     ...defaultObjectSizing,
-    customParam: 0.5,
-    frame: 0,
-    speed: 1,
     image: 'https://workers.paper-staging.dev/file-assets/01K44QHJ96H7WP54KYYY9VPJHJ/01K4BPJWG3CVFWG7NSR3E7Q0EE.svg',
+    contour: 0.5,
+    angle: 0,
+    proportion: 0.5,
+    noise: 0,
+    inner: 0.5,
+    outer: 0.5,
+    colorBack: '#000000',
+    colors: ['#11206a', '#1f3ba2', '#2f63e7', '#6bd7ff', '#ffe679', '#ff991e', '#ff4c00'],
+    speed: 1,
+    frame: 0,
   },
 } as const satisfies HeatmapPreset;
 
 export const heatmapPresets: HeatmapPreset[] = [defaultPreset];
 
 export const Heatmap: React.FC<HeatmapProps> = memo(function HeatmapImpl({
-  customParam = defaultPreset.params.customParam,
+  contour = defaultPreset.params.contour,
+  angle = defaultPreset.params.angle,
+  proportion = defaultPreset.params.proportion,
+  noise = defaultPreset.params.noise,
+  inner = defaultPreset.params.inner,
+  outer = defaultPreset.params.outer,
+  colorBack = defaultPreset.params.colorBack,
+  colors = defaultPreset.params.colors,
   fit = defaultPreset.params.fit,
   image = transparentPixel,
   offsetX = defaultPreset.params.offsetX,
@@ -72,7 +88,15 @@ export const Heatmap: React.FC<HeatmapProps> = memo(function HeatmapImpl({
 
   const uniforms = useMemo(
     () => ({
-      u_customParam: customParam,
+      u_contour: contour,
+      u_angle: angle,
+      u_proportion: proportion,
+      u_noise: noise,
+      u_inner: inner,
+      u_outer: outer,
+      u_colorBack: getShaderColorFromString(colorBack),
+      u_colors: colors.map(getShaderColorFromString),
+      u_colorsCount: colors.length,
       u_image: processedImage,
       u_fit: ShaderFitOptions[fit],
       u_offsetX: offsetX,
@@ -84,7 +108,26 @@ export const Heatmap: React.FC<HeatmapProps> = memo(function HeatmapImpl({
       u_worldHeight: worldHeight,
       u_worldWidth: worldWidth,
     }),
-    [customParam, processedImage, fit, offsetX, offsetY, originX, originY, rotation, scale, worldHeight, worldWidth]
+    [
+      contour,
+      angle,
+      proportion,
+      noise,
+      inner,
+      outer,
+      colors,
+      colorBack,
+      processedImage,
+      fit,
+      offsetX,
+      offsetY,
+      originX,
+      originY,
+      rotation,
+      scale,
+      worldHeight,
+      worldWidth,
+    ]
   ) satisfies HeatmapUniforms;
 
   return <ShaderMount {...props} fragmentShader={heatmapFragSource} uniforms={uniforms} />;
