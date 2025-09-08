@@ -5,8 +5,14 @@ import { Water, Heatmap, heatmapPresets } from '@paper-design/shaders-react';
 export default function TestPage() {
   return (
     <div style={{ display: 'flex' }}>
-      <Water style={{ width: 600, height: 600 }} />
-      <Heatmap image={heatmapPresets[0].params.image} style={{ width: 600, height: 600 }} />
+      <Heatmap
+          colors={['#ffffff', '#ff0000', '#ffff00']}
+          colorBack={'#000000'}
+          noise={0.5}
+          speed={2}
+          image={'./heatmap-temporary/logo-pics/paper.svg'}
+          style={{ width: 600, height: 600 }}
+      />
     </div>
   );
 }
