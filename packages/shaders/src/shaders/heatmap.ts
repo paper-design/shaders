@@ -7,7 +7,7 @@ export const heatmapMeta = {
 } as const;
 
 // language=GLSL
-export const heatmapFragSource: string = `#version 300 es
+export const heatmapFragmentShader: string = `#version 300 es
 precision highp float;
 
 in mediump vec2 v_imageUV;

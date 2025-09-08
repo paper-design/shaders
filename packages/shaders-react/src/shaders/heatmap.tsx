@@ -1,13 +1,13 @@
-import { ShaderMount, type ShaderComponentProps } from '../shader-mount.js';
 import React, { memo, useLayoutEffect, useMemo, useState } from 'react';
+import { ShaderMount, type ShaderComponentProps } from '../shader-mount.js';
 import {
-  type HeatmapParams,
-  type HeatmapUniforms,
-  ShaderFitOptions,
   getShaderColorFromString,
+  heatmapFragmentShader,
+  ShaderFitOptions,
+  type HeatmapUniforms,
+  type HeatmapParams,
   type ShaderPreset,
   defaultObjectSizing,
-  heatmapFragSource,
   toProcessedHeatmap,
 } from '@paper-design/shaders';
 
@@ -22,6 +22,8 @@ export const defaultPreset: HeatmapPreset = {
   name: 'Default',
   params: {
     ...defaultObjectSizing,
+    speed: 1,
+    frame: 0,
     image: './heatmap-temporary/logo-pics/apple.svg',
     contour: 0.5,
     angle: 0,
@@ -31,14 +33,15 @@ export const defaultPreset: HeatmapPreset = {
     outer: 0.5,
     colorBack: '#000000',
     colors: ['#11206a', '#1f3ba2', '#2f63e7', '#6bd7ff', '#ffe679', '#ff991e', '#ff4c00'],
-    speed: 1,
-    frame: 0,
   },
 } as const satisfies HeatmapPreset;
 
 export const heatmapPresets: HeatmapPreset[] = [defaultPreset];
 
 export const Heatmap: React.FC<HeatmapProps> = memo(function HeatmapImpl({
+  // Own props
+  speed = defaultPreset.params.speed,
+  frame = defaultPreset.params.frame,
   contour = defaultPreset.params.contour,
   angle = defaultPreset.params.angle,
   proportion = defaultPreset.params.proportion,
@@ -47,6 +50,8 @@ export const Heatmap: React.FC<HeatmapProps> = memo(function HeatmapImpl({
   outer = defaultPreset.params.outer,
   colorBack = defaultPreset.params.colorBack,
   colors = defaultPreset.params.colors,
+
+  // Sizing props
   fit = defaultPreset.params.fit,
   image = transparentPixel,
   offsetX = defaultPreset.params.offsetX,
@@ -88,6 +93,8 @@ export const Heatmap: React.FC<HeatmapProps> = memo(function HeatmapImpl({
 
   const uniforms = useMemo(
     () => ({
+      // Own uniforms
+      u_image: processedImage,
       u_contour: contour,
       u_angle: angle,
       u_proportion: proportion,
@@ -97,7 +104,8 @@ export const Heatmap: React.FC<HeatmapProps> = memo(function HeatmapImpl({
       u_colorBack: getShaderColorFromString(colorBack),
       u_colors: colors.map(getShaderColorFromString),
       u_colorsCount: colors.length,
-      u_image: processedImage,
+
+      // Sizing uniforms
       u_fit: ShaderFitOptions[fit],
       u_offsetX: offsetX,
       u_offsetY: offsetY,
@@ -109,6 +117,8 @@ export const Heatmap: React.FC<HeatmapProps> = memo(function HeatmapImpl({
       u_worldWidth: worldWidth,
     }),
     [
+      speed,
+      frame,
       contour,
       angle,
       proportion,
@@ -130,5 +140,5 @@ export const Heatmap: React.FC<HeatmapProps> = memo(function HeatmapImpl({
     ]
   ) satisfies HeatmapUniforms;
 
-  return <ShaderMount {...props} fragmentShader={heatmapFragSource} uniforms={uniforms} />;
+  return <ShaderMount {...props} speed={speed} frame={frame} fragmentShader={heatmapFragmentShader} uniforms={uniforms} />;
 });

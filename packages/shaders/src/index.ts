@@ -197,7 +197,7 @@ export {
 
 export {
   heatmapMeta,
-  heatmapFragSource,
+  heatmapFragmentShader,
   toProcessedHeatmap,
   type HeatmapParams,
   type HeatmapUniforms,
