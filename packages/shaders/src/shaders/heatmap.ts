@@ -23,7 +23,6 @@ uniform vec4 u_colors[${heatmapMeta.maxColorCount}];
 uniform float u_colorsCount;
 
 uniform float u_angle;
-uniform float u_proportion;
 uniform float u_noise;
 uniform float u_inner;
 uniform float u_outer;
@@ -190,8 +189,7 @@ void main() {
     outer *= imgSoftFrame;
   }
 
-  float proportion = clamp(u_proportion, 0., 1.) - .5;
-  float heat = clamp(inner + outer + proportion, 0., 1.);
+  float heat = clamp(inner + outer, 0., 1.);
 
   heat += (.005 + .35 * u_noise) * (fract(sin(dot(uv, vec2(12.9898, 78.233))) * 43758.5453123) - .5);
 
@@ -309,7 +307,6 @@ export interface HeatmapUniforms extends ShaderSizingUniforms {
   u_image: HTMLImageElement | string | undefined;
   u_contour: number;
   u_angle: number;
-  u_proportion: number;
   u_noise: number;
   u_inner: number;
   u_outer: number;
@@ -322,7 +319,6 @@ export interface HeatmapParams extends ShaderSizingParams, ShaderMotionParams {
   image?: HTMLImageElement | string | undefined;
   contour?: number;
   angle?: number;
-  proportion?: number;
   noise?: number;
   inner?: number;
   outer?: number;
