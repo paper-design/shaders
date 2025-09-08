@@ -1,5 +1,20 @@
 # Paper Shaders
 
+## Version 0.0.48
+
+### General
+
+- The `ShaderMount` component no longer has a race condition when updating uniforms.
+
+### Existing Shader Improvements
+
+- **PaperTexture**
+  - Image blending bugfix for semi-transparent `colorBack` (ver46 fix wasn't working properly)
+  
+### New Shaders
+
+- Added **Heatmap** component (not available in the docs yet)
+
 ## Version 0.0.47
 
 ### General
