@@ -1,5 +1,11 @@
 # Paper Shaders
 
+## Version 0.0.48
+
+### General
+
+- The `ShaderMount` component no longer has a race condition when updating uniforms.
+
 ## Version 0.0.47
 
 ### General
