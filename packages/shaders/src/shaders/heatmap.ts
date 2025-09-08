@@ -59,16 +59,14 @@ export function toProcessedHeatmap(file: File | string): Promise<{ blob: Blob }>
 
       const ratio = image.naturalWidth / image.naturalHeight;
 
-      let padding = Math.floor(canvasSize * 0.16);
-      let imgWidth: number;
-      let imgHeight: number;
-
+      const maxBlur = Math.floor(canvasSize * 0.15);
+      const padding = Math.ceil(maxBlur * 2.5);
+      let imgWidth = canvasSize;
+      let imgHeight = canvasSize;
       if (ratio > 1) {
-        imgWidth = canvasSize;
         imgHeight = Math.floor(canvasSize / ratio);
       } else {
         imgWidth = Math.floor(canvasSize * ratio);
-        imgHeight = canvasSize;
       }
 
       canvas.width = imgWidth + 2 * padding;
@@ -81,18 +79,17 @@ export function toProcessedHeatmap(file: File | string): Promise<{ blob: Blob }>
 
       ctx.fillStyle = 'white';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
-      ctx.filter = 'grayscale(100%)';
-      ctx.filter = 'blur(' + Math.round(canvasSize / 13.5) + 'px)';
+      ctx.filter = 'grayscale(100%) blur(' + maxBlur + 'px)';
       ctx.drawImage(image, padding, padding, imgWidth, imgHeight);
       const bigBlurData = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
 
       ctx.fillRect(0, 0, canvas.width, canvas.height);
-      ctx.filter = 'blur(' + Math.round(canvasSize / 100) + 'px)';
+      ctx.filter = 'grayscale(100%) blur(' + Math.round(0.12 * maxBlur) + 'px)';
       ctx.drawImage(image, padding, padding, imgWidth, imgHeight);
       const innerBlurSmallData = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
 
       ctx.fillRect(0, 0, canvas.width, canvas.height);
-      ctx.filter = 'blur(' + Math.round(canvasSize / 250) + 'px)';
+      ctx.filter = 'grayscale(100%) blur(5px)';
       ctx.drawImage(image, padding, padding, imgWidth, imgHeight);
       const contourData = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
 
