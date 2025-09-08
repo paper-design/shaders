@@ -24,8 +24,8 @@ uniform float u_colorsCount;
 
 uniform float u_angle;
 uniform float u_noise;
-uniform float u_inner;
-uniform float u_outer;
+uniform float u_innerGlow;
+uniform float u_outerGlow;
 uniform float u_contour;
 
 #define TWO_PI 6.28318530718
@@ -170,7 +170,7 @@ void main() {
   float leafMask = circle(animationUV, vec2(.53, .1), vec2(.1, .25));
   inner -= .2 * leafMask;
 
-  inner *= mix(0., 2., u_inner);
+  inner *= mix(0., 2., u_innerGlow);
 
   inner += (u_contour * 2.) * contour;
   inner = min(1., inner);
@@ -185,7 +185,7 @@ void main() {
     float animatedMask = sst(.1, .65, mod(animationUV.y - t, 1.)) * sst(1., .65, mod(animationUV.y - t, 1.));
     animatedMask = .5 + animatedMask;
     outer *= animatedMask;
-    outer *= mix(0., 5., pow(u_outer, 2.));
+    outer *= mix(0., 5., pow(u_outerGlow, 2.));
     outer *= imgSoftFrame;
   }
 
@@ -308,8 +308,8 @@ export interface HeatmapUniforms extends ShaderSizingUniforms {
   u_contour: number;
   u_angle: number;
   u_noise: number;
-  u_inner: number;
-  u_outer: number;
+  u_innerGlow: number;
+  u_outerGlow: number;
   u_colorBack: [number, number, number, number];
   u_colors: vec4[];
   u_colorsCount: number;
@@ -320,8 +320,8 @@ export interface HeatmapParams extends ShaderSizingParams, ShaderMotionParams {
   contour?: number;
   angle?: number;
   noise?: number;
-  inner?: number;
-  outer?: number;
+  innerGlow?: number;
+  outerGlow?: number;
   colorBack?: string;
   colors?: string[];
 }
