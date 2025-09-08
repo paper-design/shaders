@@ -127,10 +127,12 @@ void main() {
 
   vec2 imgUV = v_imageUV;
   float imgSoftFrame = getImgFrame(imgUV, .03);
-  //  if (imgSoftFrame == 0.) {
-  //    fragColor = u_colorBack;
-  //    return;
-  //  }
+  
+  vec4 img = texture(u_image, imgUV);
+  if (img.a == 0.) {
+    fragColor = u_colorBack;
+    return;
+  }
 
   float t = .1 * u_time;
 
@@ -140,8 +142,6 @@ void main() {
   t = mod(t, 1.);
   tCopy = mod(tCopy, 1.);
   tCopy2 = mod(tCopy2, 1.);
-
-  vec4 img = texture(u_image, imgUV);
 
   vec2 animationUV = imgUV - vec2(.5);
   float angle = u_angle * PI / 180.;
