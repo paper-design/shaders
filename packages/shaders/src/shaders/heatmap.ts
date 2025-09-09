@@ -68,7 +68,9 @@ float shadowShape(vec2 uv, float t, float contour) {
   float innerR = .4;
   float outerR = 1. - .3 * (sst(.1, .2, t) * sst(.5, .2, t));
   float s = circle(scaledUV, vec2(.5, posY - .2), vec2(innerR, outerR));
-  s = pow(s, 1.2);
+  float shapeSizing = sst(.0, .3, t) * sst(.6, .3, t);
+  s = pow(s, 1.2 + .4 * shapeSizing);
+  s *= (1. + .7 * shapeSizing);
 
   // flat gradient to take over the shadow shape
   float topFlattener = 0.;
@@ -94,10 +96,16 @@ float shadowShape(vec2 uv, float t, float contour) {
   {
     float topCircle = circle(uv, vec2(.5, .19), vec2(.05, .25));
     topCircle += 2. * contour * circle(uv, vec2(.5, .19), vec2(.2, .5));
-    float visibility = .4 * sst(.2, .3, t) * sst(.45, .3, t);
+    float visibility = .55 * sst(.2, .3, t) * sst(.45, .3, t);
     topCircle *= visibility;
     s = mix(s, 0., topCircle);
   }
+
+  float leafMask = circle(uv, vec2(.53, .13), vec2(.08, .19));
+  leafMask = mix(leafMask, 0., sst(.54, .4, uv.x));
+  leafMask = mix(0., leafMask, sst(.0, .2, uv.y));
+  leafMask *= (sst(.5, 1.1, posY) * sst(1.5, 1.3, posY));
+  s += leafMask;
 
   // apple bottom circle
   {
@@ -125,6 +133,9 @@ void main() {
   uv.y = 1. - uv.y;
 
   vec2 imgUV = v_imageUV;
+  imgUV -= .5;
+  imgUV *= 0.5714285714285714;
+  imgUV += .5;
   float imgSoftFrame = getImgFrame(imgUV, .03);
   
   vec4 img = texture(u_image, imgUV);
@@ -134,6 +145,7 @@ void main() {
   }
 
   float t = .1 * u_time;
+  t -= .31;
 
   float tCopy = t + 1. / 3.;
   float tCopy2 = t + 2. / 3.;
@@ -167,9 +179,6 @@ void main() {
   inner = mix(inner, 0., shadowCopy);
   inner = mix(inner, 0., shadowCopy2);
 
-  float leafMask = circle(animationUV, vec2(.53, .1), vec2(.1, .25));
-  inner -= .2 * leafMask;
-
   inner *= mix(0., 2., u_innerGlow);
 
   inner += (u_contour * 2.) * contour;
@@ -189,6 +198,7 @@ void main() {
     outer *= imgSoftFrame;
   }
 
+  inner = pow(inner, 1.2);
   float heat = clamp(inner + outer, 0., 1.);
 
   heat += (.005 + .35 * u_noise) * (fract(sin(dot(uv, vec2(12.9898, 78.233))) * 43758.5453123) - .5);
@@ -216,9 +226,7 @@ void main() {
   opacity = opacity + u_colorBack.a * (1.0 - opacity);
 
   color += .02 * (fract(sin(dot(uv + 1., vec2(12.9898, 78.233))) * 43758.5453123) - .5);
-
-  //  color.r += .2 * imgSoftFrame;
-
+  
   fragColor = vec4(color, 1.);
 }
 `;

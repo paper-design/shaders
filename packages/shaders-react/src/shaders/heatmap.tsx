@@ -22,6 +22,7 @@ export const defaultPreset: HeatmapPreset = {
   name: 'Default',
   params: {
     ...defaultObjectSizing,
+    scale: 0.75,
     speed: 1,
     frame: 0,
     image: './heatmap-temporary/logo-pics/apple.svg',
@@ -35,7 +36,25 @@ export const defaultPreset: HeatmapPreset = {
   },
 } as const satisfies HeatmapPreset;
 
-export const heatmapPresets: HeatmapPreset[] = [defaultPreset];
+export const sepiaPreset: HeatmapPreset = {
+  name: 'Sepia',
+  params: {
+    ...defaultObjectSizing,
+    scale: 0.75,
+    speed: 0.5,
+    frame: 0,
+    image: './heatmap-temporary/logo-pics/apple.svg',
+    contour: 0.5,
+    angle: 0,
+    noise: 0.75,
+    innerGlow: 0.5,
+    outerGlow: 0.5,
+    colorBack: '#000000',
+    colors: ['#997F45', '#ffffff'],
+  },
+} as const satisfies HeatmapPreset;
+
+export const heatmapPresets: HeatmapPreset[] = [defaultPreset, sepiaPreset];
 
 export const Heatmap: React.FC<HeatmapProps> = memo(function HeatmapImpl({
   // Own props
