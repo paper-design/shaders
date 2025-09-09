@@ -11,10 +11,15 @@ import {
   toProcessedHeatmap,
 } from '@paper-design/shaders';
 
-import { preload } from 'react-dom';
 import { transparentPixel } from '../transparent-pixel.js';
+import { suspend } from '../suspend.js';
 
-export interface HeatmapProps extends ShaderComponentProps, HeatmapParams {}
+export interface HeatmapProps extends ShaderComponentProps, HeatmapParams {
+  /**
+   * Suspends the component when the image is being processed.
+   */
+  suspendWhenProcessingImage?: boolean;
+}
 
 export type HeatmapPreset = ShaderPreset<HeatmapParams>;
 
@@ -67,6 +72,7 @@ export const Heatmap: React.FC<HeatmapProps> = memo(function HeatmapImpl({
   outerGlow = defaultPreset.params.outerGlow,
   colorBack = defaultPreset.params.colorBack,
   colors = defaultPreset.params.colors,
+  suspendWhenProcessingImage = false,
 
   // Sizing props
   fit = defaultPreset.params.fit,
@@ -81,14 +87,28 @@ export const Heatmap: React.FC<HeatmapProps> = memo(function HeatmapImpl({
   worldWidth = defaultPreset.params.worldWidth,
   ...props
 }: HeatmapProps) {
-  const [processedImage, setProcessedImage] = useState<string>(transparentPixel);
-
   const imageUrl = typeof image === 'string' ? image : image.src;
-  preload(imageUrl, { as: 'image', crossOrigin: 'anonymous', fetchPriority: 'high' });
+  const [processedStateImage, setProcessedStateImage] = useState<string>(transparentPixel);
+
+  let processedImage: string;
+
+  if (suspendWhenProcessingImage) {
+    processedImage = suspend(
+      (): Promise<string> => toProcessedHeatmap(imageUrl).then((result) => URL.createObjectURL(result.blob)),
+      [imageUrl]
+    );
+  } else {
+    processedImage = processedStateImage;
+  }
 
   useLayoutEffect(() => {
+    if (suspendWhenProcessingImage) {
+      // Skip doing work in the effect as it's been handled by suspense.
+      return;
+    }
+
     if (!imageUrl) {
-      setProcessedImage(transparentPixel);
+      setProcessedStateImage(transparentPixel);
       return;
     }
 
@@ -98,7 +118,7 @@ export const Heatmap: React.FC<HeatmapProps> = memo(function HeatmapImpl({
     toProcessedHeatmap(imageUrl).then((result) => {
       if (current) {
         url = URL.createObjectURL(result.blob);
-        setProcessedImage(url);
+        setProcessedStateImage(url);
       }
     });
 
@@ -106,7 +126,7 @@ export const Heatmap: React.FC<HeatmapProps> = memo(function HeatmapImpl({
       current = false;
       URL.revokeObjectURL(url);
     };
-  }, [imageUrl]);
+  }, [imageUrl, suspendWhenProcessingImage]);
 
   const uniforms = useMemo(
     () => ({
