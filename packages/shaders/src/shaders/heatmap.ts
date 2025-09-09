@@ -227,7 +227,7 @@ void main() {
 
   color += .02 * (fract(sin(dot(uv + 1., vec2(12.9898, 78.233))) * 43758.5453123) - .5);
   
-  fragColor = vec4(color, 1.);
+  fragColor = vec4(color, opacity);
 }
 `;
 
