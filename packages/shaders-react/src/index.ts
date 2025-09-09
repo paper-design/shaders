@@ -123,6 +123,7 @@ export {
   swirlMeta,
   voronoiMeta,
   warpMeta,
+  heatmapMeta,
   staticMeshGradientMeta,
   staticRadialGradientMeta,
 } from '@paper-design/shaders';
