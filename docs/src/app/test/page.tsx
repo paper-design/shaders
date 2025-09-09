@@ -8,6 +8,7 @@ export default function TestPage() {
       <Heatmap
         {...heatmapPresets.find((preset) => preset.name === 'Default')?.params}
         style={{ width: 600, height: 600 }}
+        shouldSuspend
       />
     </div>
   );
