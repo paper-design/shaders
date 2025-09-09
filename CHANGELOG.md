@@ -1,5 +1,10 @@
 # Paper Shaders
 
+## Version 0.0.51
+
+- Add `suspendWhenProcessingImage` prop to the heatmap shader component.
+- Update heatmap shader presets.
+
 ## Version 0.0.50
 
 - Only heatmap related changes
