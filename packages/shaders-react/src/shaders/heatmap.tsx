@@ -27,7 +27,7 @@ export const defaultPreset: HeatmapPreset = {
     frame: 0,
     image: './heatmap-temporary/logo-pics/apple.svg',
     contour: 0.5,
-    angle: 0,
+    angle: 170,
     noise: 0,
     innerGlow: 0.5,
     outerGlow: 0.5,
@@ -155,5 +155,7 @@ export const Heatmap: React.FC<HeatmapProps> = memo(function HeatmapImpl({
     ]
   ) satisfies HeatmapUniforms;
 
-  return <ShaderMount {...props} speed={speed} frame={frame} fragmentShader={heatmapFragmentShader} uniforms={uniforms} />;
+  return (
+    <ShaderMount {...props} speed={speed} frame={frame} fragmentShader={heatmapFragmentShader} uniforms={uniforms} />
+  );
 });
