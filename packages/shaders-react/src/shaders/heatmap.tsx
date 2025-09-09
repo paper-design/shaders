@@ -32,7 +32,7 @@ export const defaultPreset: HeatmapPreset = {
     frame: 0,
     image: 'https://shaders.paper.design/images/image-filters/0019.webp',
     contour: 0.5,
-    angle: 170,
+    angle: 0,
     noise: 0,
     innerGlow: 0.5,
     outerGlow: 0.5,
