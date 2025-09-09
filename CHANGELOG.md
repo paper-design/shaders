@@ -1,5 +1,9 @@
 # Paper Shaders
 
+## Version 0.0.49
+
+- Only heatmap related changes
+
 ## Version 0.0.48
 
 ### General

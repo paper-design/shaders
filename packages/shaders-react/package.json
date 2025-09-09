@@ -1,6 +1,6 @@
 {
   "name": "@paper-design/shaders-react",
-  "version": "0.0.48",
+  "version": "0.0.49",
   "license": "SEE LICENSE IN https://github.com/paper-design/shaders/blob/main/LICENSE",
   "type": "module",
   "sideEffects": false,
