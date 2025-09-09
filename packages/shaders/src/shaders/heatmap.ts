@@ -68,9 +68,9 @@ float shadowShape(vec2 uv, float t, float contour) {
   float innerR = .4;
   float outerR = 1. - .3 * (sst(.1, .2, t) * sst(.5, .2, t));
   float s = circle(scaledUV, vec2(.5, posY - .2), vec2(innerR, outerR));
-  float shapeSizing = sst(.0, .3, t) * sst(.6, .3, t);
-  s = pow(s, 1.2 + .4 * shapeSizing);
-  s *= (1. + .7 * shapeSizing);
+  float shapeSizing = sst(.2, .3, t) * sst(.6, .3, t);
+  s = pow(s, 1.4);
+  s *= 1.2;
 
   // flat gradient to take over the shadow shape
   float topFlattener = 0.;
@@ -145,7 +145,7 @@ void main() {
   }
 
   float t = .1 * u_time;
-  t -= .31;
+  t -= .3;
 
   float tCopy = t + 1. / 3.;
   float tCopy2 = t + 2. / 3.;
@@ -188,10 +188,11 @@ void main() {
   float outer = 0.;
   {
     t *= 3.;
-    t = mod(t - .2, 1.);
+    t = mod(t - .1, 1.);
 
-    outer = outerBlur;
-    float animatedMask = sst(.1, .65, mod(animationUV.y - t, 1.)) * sst(1., .65, mod(animationUV.y - t, 1.));
+    outer = .9 * pow(outerBlur, .8);
+    float y = mod(animationUV.y - t, 1.);
+    float animatedMask = sst(.3, .65, y) * sst(1., .65, y);
     animatedMask = .5 + animatedMask;
     outer *= animatedMask;
     outer *= mix(0., 5., pow(u_outerGlow, 2.));
