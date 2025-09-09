@@ -1,6 +1,6 @@
 # Paper Shaders
 
-## Version 0.0.51
+## Version 0.0.52
 
 - Revert heatmap shader preset param change.
 
