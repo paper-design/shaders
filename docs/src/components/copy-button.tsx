@@ -2,10 +2,10 @@ import clsx from 'clsx';
 import { useRef, useState } from 'react';
 
 interface CopyButtonProps extends React.ComponentProps<'button'> {
-  text: string;
+  getText: () => string;
 }
 
-export function CopyButton({ text, className, ...props }: CopyButtonProps) {
+export function CopyButton({ getText, className, children, ...props }: CopyButtonProps) {
   const [copied, setCopied] = useState(false);
   const timeoutRef = useRef(0);
   const copyIconRef = useRef<SVGSVGElement>(null);
@@ -13,6 +13,7 @@ export function CopyButton({ text, className, ...props }: CopyButtonProps) {
 
   const handleCopy = async () => {
     try {
+      const text = getText();
       await navigator.clipboard.writeText(text);
 
       if (!timeoutRef.current) {
@@ -68,11 +69,12 @@ export function CopyButton({ text, className, ...props }: CopyButtonProps) {
   return (
     <button
       aria-label={copied ? 'Copied!' : 'Copy to clipboard'}
-      className={clsx('group flex items-center justify-center', className)}
+      type="button"
+      className={clsx('group flex cursor-pointer items-center justify-center', className)}
       onClick={handleCopy}
       {...props}
     >
-      <span className="relative flex items-center justify-center will-change-transform">
+      <span className="relative flex size-16 items-center justify-center will-change-transform">
         <svg
           width="16"
           height="16"
@@ -102,6 +104,8 @@ export function CopyButton({ text, className, ...props }: CopyButtonProps) {
           />
         </svg>
       </span>
+
+      {children}
     </button>
   );
 }

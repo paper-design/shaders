@@ -15,11 +15,13 @@
     "@paper-design/shaders-react": "workspace:*",
     "@vercel/analytics": "^1.5.0",
     "clsx": "^2.1.1",
+    "culori": "4.0.2",
     "leva": "0.9.34",
     "next": "15.2.3"
   },
   "devDependencies": {
     "@eslint/eslintrc": "3.2.0",
+    "@types/culori": "4.0.0",
     "@types/node": "22.10.2",
     "@types/react": "19.1.0",
     "@types/react-dom": "19.1.1",
