@@ -18,7 +18,7 @@ export interface HeatmapProps extends ShaderComponentProps, HeatmapParams {
   /**
    * Suspends the component when the image is being processed.
    */
-  shouldSuspend?: boolean;
+  suspendWhenProcessingImage?: boolean;
 }
 
 export type HeatmapPreset = ShaderPreset<HeatmapParams>;
@@ -72,7 +72,7 @@ export const Heatmap: React.FC<HeatmapProps> = memo(function HeatmapImpl({
   outerGlow = defaultPreset.params.outerGlow,
   colorBack = defaultPreset.params.colorBack,
   colors = defaultPreset.params.colors,
-  shouldSuspend = false,
+  suspendWhenProcessingImage = false,
 
   // Sizing props
   fit = defaultPreset.params.fit,
@@ -92,7 +92,7 @@ export const Heatmap: React.FC<HeatmapProps> = memo(function HeatmapImpl({
 
   let processedImage: string;
 
-  if (shouldSuspend) {
+  if (suspendWhenProcessingImage) {
     processedImage = suspend(
       (): Promise<string> => toProcessedHeatmap(imageUrl).then((result) => URL.createObjectURL(result.blob)),
       [imageUrl]
@@ -102,7 +102,7 @@ export const Heatmap: React.FC<HeatmapProps> = memo(function HeatmapImpl({
   }
 
   useLayoutEffect(() => {
-    if (shouldSuspend) {
+    if (suspendWhenProcessingImage) {
       // Skip doing work in the effect as it's been handled by suspense.
       return;
     }
@@ -126,7 +126,7 @@ export const Heatmap: React.FC<HeatmapProps> = memo(function HeatmapImpl({
       current = false;
       URL.revokeObjectURL(url);
     };
-  }, [imageUrl, shouldSuspend]);
+  }, [imageUrl, suspendWhenProcessingImage]);
 
   const uniforms = useMemo(
     () => ({
