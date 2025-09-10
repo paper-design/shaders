@@ -9,7 +9,6 @@ import { memo } from 'react';
 import { ShaderMount, type ShaderComponentProps } from '@paper-design/shaders-react';
 import { getShaderColorFromString, type ShaderPreset } from '@paper-design/shaders';
 import { useColors } from '@/helpers/use-colors';
-import { Header } from '@/components/header';
 import { ShaderContainer } from '@/components/shader-container';
 
 type vec4 = [number, number, number, number];

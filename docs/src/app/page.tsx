@@ -48,7 +48,7 @@ export default function Home() {
           <div className="h-full shrink-0 border-l border-current/20" />
           <CopyButton
             className="hidden h-full w-48 shrink-0 items-center justify-center rounded-r-[inherit] outline-0 outline-focus focus-visible:outline-2 xs:flex"
-            text="npm i @paper-design/react-shaders"
+            getText={() => 'npm i @paper-design/react-shaders'}
           />
         </div>
       </div>

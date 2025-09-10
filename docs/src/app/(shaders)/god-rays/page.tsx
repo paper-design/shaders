@@ -7,11 +7,11 @@ import { GodRays, godRaysPresets } from '@paper-design/shaders-react';
 import { godRaysMeta } from '@paper-design/shaders';
 import { useControls, button, folder } from 'leva';
 import { useColors } from '@/helpers/use-colors';
-import { toHsla } from '@/helpers/to-hsla';
+import { toHsla } from '@/helpers/color-utils';
 import { ShaderDetails } from '@/components/shader-details';
 import { godRaysDef } from '@/shader-defs/god-rays-def';
-import { Header } from '@/components/header';
 import { ShaderContainer } from '@/components/shader-container';
+import { useUrlParams } from '@/helpers/use-url-params';
 
 const { worldWidth, worldHeight, ...defaults } = godRaysPresets[0].params;
 
@@ -58,12 +58,13 @@ const GodRaysWithControls = () => {
   // Reset to defaults on mount, so that Leva doesn't show values from other
   // shaders when navigating (if two shaders have a color1 param for example)
   useResetLevaParams(params, setParams, defaults);
+  useUrlParams(params, setParams, godRaysDef, setColors);
   usePresetHighlight(godRaysPresets, params);
   cleanUpLevaParams(params);
 
   return (
     <>
-      <ShaderContainer>
+      <ShaderContainer shaderDef={godRaysDef} currentParams={{ ...params, colors }}>
         <GodRays {...params} colors={colors} />
       </ShaderContainer>
       <ShaderDetails shaderDef={godRaysDef} currentParams={{ ...params, colors }} />
