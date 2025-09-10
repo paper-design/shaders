@@ -150,7 +150,7 @@ export const homeThumbnails = [
     url: '/warp',
     ShaderComponent: Warp,
     image: warpImg,
-    shaderConfig: { ...warpPresets[0].params, scale: 0.6, frame: 10000 },
+    shaderConfig: { ...warpPresets[0].params, scale: 0.6, frame: 118000 },
   },
   {
     name: 'spiral',

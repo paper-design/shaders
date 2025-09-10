@@ -1,5 +1,5 @@
 import { homeThumbnails } from '@/app/home-thumbnails';
-import { DotGrid, GrainGradient, Waves } from '@paper-design/shaders-react';
+import { DotGrid, GrainGradient, Spiral, Swirl, Waves } from '@paper-design/shaders-react';
 
 export const appThumbnails = homeThumbnails.map((item) => {
   if (item.ShaderComponent === DotGrid) {
@@ -19,6 +19,16 @@ export const appThumbnails = homeThumbnails.map((item) => {
       shaderConfig: {
         ...item.shaderConfig,
         spacing: 0.96,
+      },
+    };
+  }
+
+  if (item.ShaderComponent === Spiral) {
+    return {
+      ...item,
+      shaderConfig: {
+        ...item.shaderConfig,
+        scale: 0.35,
       },
     };
   }
