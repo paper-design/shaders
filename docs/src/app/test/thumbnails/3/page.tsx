@@ -9,7 +9,7 @@ export default function ThumbnailsPage() {
         return (
           <ShaderComponent
             key={name}
-            style={{ borderRadius: '2px' }}
+            style={{ borderRadius: '4px' }}
             {...(shaderConfig as any)}
             speed={0}
             fit="contain"
