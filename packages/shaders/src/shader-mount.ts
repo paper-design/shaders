@@ -32,6 +32,10 @@ export class ShaderMount {
   private uniformCache: Record<string, unknown> = {};
   private textureUnitMap: Map<string, number> = new Map();
 
+  /** Flip to `true` to download the first frame of the shader when rendered */
+  private shouldSaveFirstFrame = false;
+  private hasSavedFirstFrame = false;
+
   constructor(
     /** The div you'd like to mount the shader to. The shader will match its size. */
     parentElement: HTMLElement,
@@ -141,6 +145,15 @@ export class ShaderMount {
     });
 
     this.uniformLocations = uniformLocations;
+  };
+
+  /** Captures the current canvas as a PNG and triggers a download */
+  public saveFirstFrame = (filename: string = 'shader-frame.webp'): void => {
+    const dataURL = this.canvasElement.toDataURL('image/webp', 1);
+    const link = document.createElement('a');
+    link.download = filename;
+    link.href = dataURL;
+    link.click();
   };
 
   /**
@@ -286,6 +299,11 @@ export class ShaderMount {
       this.requestRender();
     } else {
       this.rafId = null;
+    }
+
+    if (!this.hasSavedFirstFrame && this.shouldSaveFirstFrame) {
+      this.hasSavedFirstFrame = true;
+      this.saveFirstFrame();
     }
   };
 

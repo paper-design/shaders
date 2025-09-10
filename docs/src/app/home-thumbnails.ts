@@ -93,7 +93,7 @@ export type HomeShaderConfig = {
   alwaysLivePreview?: boolean;
 };
 
-export const homeShaders = [
+export const homeThumbnails = [
   {
     name: 'mesh gradient',
     image: meshGradientImg,
@@ -113,7 +113,7 @@ export const homeShaders = [
     url: '/static-radial-gradient',
     ShaderComponent: StaticRadialGradient,
     image: staticRadialGradientImg,
-    shaderConfig: { ...staticRadialGradientPresets[0].params, radius: 0.65, speed: 0 },
+    shaderConfig: { ...staticRadialGradientPresets[0].params, radius: 0.65, speed: 1, offsetY: -0.02 },
   },
   {
     name: 'dithering',

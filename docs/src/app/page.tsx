@@ -4,7 +4,7 @@ import { StaticImageData } from 'next/image';
 import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { HomeShaderConfig, homeShaders } from './home-shaders';
+import { HomeShaderConfig, homeThumbnails } from './home-thumbnails';
 import { GithubIcon } from '@/icons';
 import { CopyButton } from '@/components/copy-button';
 import { Logo } from '@/components/logo';
@@ -55,7 +55,7 @@ export default function Home() {
 
       <main className="pb-128 text-lg">
         <div className="grid grid-cols-1 gap-32 xs:grid-cols-2 md:gap-48 lg:grid-cols-3 2xl:grid-cols-4 3xl:gap-64">
-          {homeShaders.map((shader) => (
+          {homeThumbnails.map((shader) => (
             <ShaderItem key={shader.name} {...shader} />
           ))}
         </div>
