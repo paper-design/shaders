@@ -18,7 +18,7 @@ export const appThumbnails = homeThumbnails.map((item) => {
       ...item,
       shaderConfig: {
         ...item.shaderConfig,
-        spacing: 0.95,
+        spacing: 0.96,
       },
     };
   }

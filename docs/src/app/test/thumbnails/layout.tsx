@@ -9,7 +9,6 @@ export default function ThumbnailsLayout({ children }: { children: React.ReactNo
         alignContent: 'center',
         justifyContent: 'center',
         gap: '16px',
-        // scale: 0.5,
       }}
     >
       {children}
