@@ -34,7 +34,6 @@ export class ShaderMount {
 
   /** Flip to `true` to download the first frame of the shader when rendered */
   private shouldSaveFirstFrame = false;
-  private hasSavedFirstFrame = false;
 
   constructor(
     /** The div you'd like to mount the shader to. The shader will match its size. */
@@ -301,8 +300,8 @@ export class ShaderMount {
       this.rafId = null;
     }
 
-    if (!this.hasSavedFirstFrame && this.shouldSaveFirstFrame) {
-      this.hasSavedFirstFrame = true;
+    if (this.shouldSaveFirstFrame) {
+      this.shouldSaveFirstFrame = false;
       this.saveFirstFrame();
     }
   };
