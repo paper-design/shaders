@@ -232,8 +232,8 @@ export const GlassGridShapes = {
 export const GlassDistortionShapes = {
   prism: 1,
   lens: 2,
-  сontour: 3,
-  сascade: 4,
+  contour: 3,
+  cascade: 4,
   facete: 5,
 } as const;
 

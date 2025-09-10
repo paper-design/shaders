@@ -103,6 +103,10 @@ export { ImageDithering, imageDitheringPresets } from './shaders/image-dithering
 export type { ImageDitheringProps } from './shaders/image-dithering.js';
 export type { ImageDitheringUniforms, ImageDitheringParams } from '@paper-design/shaders';
 
+export { Heatmap, heatmapPresets } from './shaders/heatmap.js';
+export type { HeatmapProps } from './shaders/heatmap.js';
+export type { HeatmapUniforms, HeatmapParams } from '@paper-design/shaders';
+
 export { isPaperShaderElement, getShaderColorFromString } from '@paper-design/shaders';
 export type { PaperShaderElement, ShaderFit, ShaderSizingParams, ShaderSizingUniforms } from '@paper-design/shaders';
 
@@ -119,6 +123,7 @@ export {
   swirlMeta,
   voronoiMeta,
   warpMeta,
+  heatmapMeta,
   staticMeshGradientMeta,
   staticRadialGradientMeta,
 } from '@paper-design/shaders';

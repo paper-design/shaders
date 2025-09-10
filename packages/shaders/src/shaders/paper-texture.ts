@@ -230,6 +230,10 @@ void main() {
 
   imageUV += .02 * normalImage;
   float frame = getUvFrame(imageUV);
+  vec4 image = texture(u_image, imageUV);
+  image.rgb += .6 * pow(u_contrast, .4) * (res - .7);
+  
+  frame *= image.a;
 
   vec3 color = fgColor * res;
   float opacity = fgOpacity * res;
@@ -240,10 +244,7 @@ void main() {
   
   color -= .007 * drops;
 
-  vec4 image = texture(u_image, imageUV);
-  image.rgb += .6 * pow(u_contrast, .4) * (res - .7);
-
-  color.rgb = mix(color, image.rgb, min(frame, image.a));
+  color.rgb = mix(color, image.rgb, frame);
 
   fragColor = vec4(color, opacity);
 }

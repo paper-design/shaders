@@ -10,8 +10,8 @@ import { simplexNoiseMeta } from '@paper-design/shaders';
 import { useColors } from '@/helpers/use-colors';
 import { ShaderDetails } from '@/components/shader-details';
 import { simplexNoiseDef } from '@/shader-defs/simplex-noise-def';
-import { Header } from '@/components/header';
 import { ShaderContainer } from '@/components/shader-container';
+import { useUrlParams } from '@/helpers/use-url-params';
 
 const { worldWidth, worldHeight, ...defaults } = simplexNoisePresets[0].params;
 
@@ -50,12 +50,13 @@ const SimplexNoiseWithControls = () => {
   // Reset to defaults on mount, so that Leva doesn't show values from other
   // shaders when navigating (if two shaders have a color1 param for example)
   useResetLevaParams(params, setParams, defaults);
+  useUrlParams(params, setParams, simplexNoiseDef, setColors);
   usePresetHighlight(simplexNoisePresets, params);
   cleanUpLevaParams(params);
 
   return (
     <>
-      <ShaderContainer>
+      <ShaderContainer shaderDef={simplexNoiseDef} currentParams={{ ...params, colors }}>
         <SimplexNoise {...params} colors={colors} />
       </ShaderContainer>
       <ShaderDetails shaderDef={simplexNoiseDef} currentParams={{ ...params, colors }} />

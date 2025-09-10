@@ -37,7 +37,7 @@ export const flutedGlassDef: ShaderDef = {
       type: 'enum',
       defaultValue: defaultParams.distortionShape,
       description: 'The shape of the distortion',
-      options: ['prism', 'lens', 'сontour', 'сascade', 'facete'],
+      options: ['prism', 'lens', 'contour', 'cascade', 'facete'],
     },
     {
       name: 'distortion',
