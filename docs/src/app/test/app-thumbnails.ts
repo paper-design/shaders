@@ -1,7 +1,68 @@
 import { homeThumbnails } from '@/app/home-thumbnails';
-import { DotGrid, GrainGradient, Spiral, Swirl, Waves } from '@paper-design/shaders-react';
+import {
+  Dithering,
+  DotGrid,
+  GrainGradient,
+  LiquidMetal,
+  PulsingBorder,
+  SmokeRing,
+  Spiral,
+  StaticRadialGradient,
+  Swirl,
+  Waves,
+} from '@paper-design/shaders-react';
 
 export const appThumbnails = homeThumbnails.map((item) => {
+  if (item.ShaderComponent === StaticRadialGradient) {
+    return {
+      ...item,
+      shaderConfig: {
+        ...item.shaderConfig,
+        radius: 0.8,
+      },
+    };
+  }
+
+  if (item.ShaderComponent === Dithering) {
+    return {
+      ...item,
+      shaderConfig: {
+        ...item.shaderConfig,
+        scale: 0.67,
+      },
+    };
+  }
+
+  if (item.ShaderComponent === SmokeRing) {
+    return {
+      ...item,
+      shaderConfig: {
+        ...item.shaderConfig,
+        scale: 1.1,
+      },
+    };
+  }
+
+  if (item.ShaderComponent === LiquidMetal) {
+    return {
+      ...item,
+      shaderConfig: {
+        ...item.shaderConfig,
+        scale: 0.67,
+      },
+    };
+  }
+
+  if (item.ShaderComponent === PulsingBorder) {
+    return {
+      ...item,
+      shaderConfig: {
+        ...item.shaderConfig,
+        scale: 0.67,
+      },
+    };
+  }
+
   if (item.ShaderComponent === DotGrid) {
     return {
       ...item,

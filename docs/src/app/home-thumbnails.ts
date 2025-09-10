@@ -113,7 +113,7 @@ export const homeThumbnails = [
     url: '/static-radial-gradient',
     ShaderComponent: StaticRadialGradient,
     image: staticRadialGradientImg,
-    shaderConfig: { ...staticRadialGradientPresets[0].params, radius: 0.65, speed: 0, offsetY: -0.02 },
+    shaderConfig: { ...staticRadialGradientPresets[0].params, radius: 0.65, speed: 0, offsetY: -0.03 },
   },
   {
     name: 'dithering',
