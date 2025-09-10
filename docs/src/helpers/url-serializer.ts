@@ -18,7 +18,8 @@ export const serializeParams = (params: Record<string, SerializableValue>, param
     }
 
     if (typeof value === 'number') {
-      serialized = value.toString();
+      const formattedNumber = Number.isInteger(value) ? value : parseFloat(value.toFixed(2));
+      serialized = formattedNumber.toString();
       return `${key}=${serialized}`;
     }
 
