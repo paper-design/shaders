@@ -8,11 +8,11 @@ export const neuroNoiseDef: ShaderDef = {
   description: 'A glowing, web-like structure of fluid lines and soft intersections. Great for creating atmospheric, organic-yet-futuristic visuals',
   params: [
     {
-      name: 'colorBack',
+      name: 'colorFront',
       type: 'string',
-      defaultValue: defaultParams.colorBack,
+      defaultValue: defaultParams.colorFront,
       isColor: true,
-      description: 'Background color',
+      description: 'Graphics highlight color',
     },
     {
       name: 'colorMid',
@@ -22,11 +22,11 @@ export const neuroNoiseDef: ShaderDef = {
       description: 'Graphics main color',
     },
     {
-      name: 'colorFront',
+      name: 'colorBack',
       type: 'string',
-      defaultValue: defaultParams.colorFront,
+      defaultValue: defaultParams.colorBack,
       isColor: true,
-      description: 'Graphics highlight color',
+      description: 'Background color',
     },
     {
       name: 'brightness',

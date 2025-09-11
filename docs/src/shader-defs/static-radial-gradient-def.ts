@@ -9,18 +9,18 @@ export const staticRadialGradientDef: ShaderDef = {
     'Radial gradient with up to 10 blended colors, featuring advanced focal point control, shape distortion, and grain effects',
   params: [
     {
-      name: 'colorBack',
-      type: 'string',
-      defaultValue: defaultParams.colorBack,
-      isColor: true,
-      description: 'Background color',
-    },
-    {
       name: 'colors',
       type: 'string[]',
       defaultValue: [],
       isColor: true,
       description: 'Up to 10 colors used in the gradient',
+    },
+    {
+      name: 'colorBack',
+      type: 'string',
+      defaultValue: defaultParams.colorBack,
+      isColor: true,
+      description: 'Background color',
     },
     {
       name: 'radius',
@@ -39,20 +39,20 @@ export const staticRadialGradientDef: ShaderDef = {
       description: 'Distance of the focal point from center',
     },
     {
-      name: 'focalAngle',
-      type: 'number',
-      min: 0,
-      max: 360,
-      defaultValue: defaultParams.focalAngle,
-      description: 'Angle of the focal point in degrees (effective with focalDistance > 0)',
-    },
-    {
       name: 'falloff',
       type: 'number',
       min: -1,
       max: 1,
       defaultValue: defaultParams.falloff,
       description: 'Gradient decay (0 for linear gradient)',
+    },
+    {
+      name: 'focalAngle',
+      type: 'number',
+      min: 0,
+      max: 360,
+      defaultValue: defaultParams.focalAngle,
+      description: 'Angle of the focal point in degrees (effective with focalDistance > 0)',
     },
     {
       name: 'mixing',

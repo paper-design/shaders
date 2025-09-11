@@ -9,18 +9,18 @@ export const dotOrbitDef: ShaderDef = {
     'Animated multi-color dots pattern with each dot orbiting around its cell center. Supports up to 40 colors and various shape and motion controls. Great for playful, dynamic backgrounds and UI textures',
   params: [
     {
-      name: 'colorBack',
-      type: 'string',
-      defaultValue: defaultParams.colorBack,
-      isColor: true,
-      description: 'Background color',
-    },
-    {
       name: 'colors',
       type: 'string[]',
       defaultValue: [],
       isColor: true,
       description: 'Up to 10 base colors',
+    },
+    {
+      name: 'colorBack',
+      type: 'string',
+      defaultValue: defaultParams.colorBack,
+      isColor: true,
+      description: 'Background color',
     },
     {
       name: 'stepsPerColor',
