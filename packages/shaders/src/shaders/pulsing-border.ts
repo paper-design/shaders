@@ -102,7 +102,8 @@ float linearstep(float edge0, float edge1, float x) {
 
 void main() {
 
-  float t = 1.2 * u_time;
+  const float firstFrameOffset = 4.;
+  float t = 1.2 * (u_time + firstFrameOffset);
 
   vec2 borderUV = v_responsiveUV;
 

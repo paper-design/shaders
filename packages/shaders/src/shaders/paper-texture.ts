@@ -24,7 +24,6 @@ import { rotation2, declarePI, fiberNoise, textureRandomizerR } from '../shader-
 export const paperTextureFragmentShader: string = `#version 300 es
 precision mediump float;
 
-uniform float u_time;
 uniform vec2 u_resolution;
 uniform float u_pixelRatio;
 

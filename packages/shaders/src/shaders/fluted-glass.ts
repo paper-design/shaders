@@ -29,7 +29,6 @@ import { declarePI, rotation2 } from '../shader-utils.js';
 export const flutedGlassFragmentShader: string = `#version 300 es
 precision mediump float;
 
-uniform float u_time;
 uniform vec2 u_resolution;
 uniform float u_pixelRatio;
 

@@ -73,7 +73,8 @@ void main() {
   vec2 uv = v_patternUV;
   uv *= .5;
 
-  float t = 0.0625 * u_time;
+  const float firstFrameOffset = 118.;
+  float t = 0.0625 * (u_time + firstFrameOffset);
 
   float n1 = valueNoise(uv * 1. + t);
   float n2 = valueNoise(uv * 2. - t);

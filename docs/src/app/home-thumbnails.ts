@@ -102,7 +102,7 @@ export const homeThumbnails = [
     image: meshGradientImg,
     url: '/mesh-gradient',
     ShaderComponent: MeshGradient,
-    shaderConfig: { ...meshGradientPresets[0].params, frame: 41500 },
+    shaderConfig: { ...meshGradientPresets[0].params },
   },
   {
     name: 'static mesh gradient',
@@ -131,7 +131,7 @@ export const homeThumbnails = [
     image: grainGradientImg,
     url: '/grain-gradient',
     ShaderComponent: GrainGradient,
-    shaderConfig: { ...grainGradientPresets[0].params, frame: 7000, speed: 1.5 },
+    shaderConfig: { ...grainGradientPresets[0].params, speed: 1.5 },
     alwaysLivePreview: true,
   },
   {
@@ -153,7 +153,7 @@ export const homeThumbnails = [
     url: '/warp',
     ShaderComponent: Warp,
     image: warpImg,
-    shaderConfig: { ...warpPresets[0].params, scale: 0.6, frame: 118000 },
+    shaderConfig: { ...warpPresets[0].params, scale: 0.6 },
   },
   {
     name: 'spiral',
@@ -212,14 +212,14 @@ export const homeThumbnails = [
     url: '/pulsing-border',
     ShaderComponent: PulsingBorder,
     image: pulsingBorderImg,
-    shaderConfig: { ...pulsingBorderPresets[0].params, frame: 4000 },
+    shaderConfig: { ...pulsingBorderPresets[0].params },
   },
   {
     name: 'metaballs',
     image: metaballsImg,
     url: '/metaballs',
     ShaderComponent: Metaballs,
-    shaderConfig: { ...metaballsPresets[0].params, scale: 1, count: 8, frame: 3400, speed: 1.5 },
+    shaderConfig: { ...metaballsPresets[0].params, scale: 1, count: 8, speed: 1.5 },
   },
   {
     name: 'color panels',
