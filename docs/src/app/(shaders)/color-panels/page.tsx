@@ -38,7 +38,7 @@ const ColorPanelsWithControls = () => {
       offsetY: { value: defaults.offsetY, min: -1, max: 1, order: 301 },
       scale: { value: defaults.scale, min: 0.01, max: 4, order: 302 },
       rotation: { value: defaults.rotation, min: 0, max: 360, order: 303 },
-      speed: { value: defaults.speed, min: 0, max: 2, order: 400 },
+      speed: { value: defaults.speed, min: 0, max: 4, order: 400 },
     };
   }, [colors.length]);
 
