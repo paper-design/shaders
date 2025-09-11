@@ -19,7 +19,7 @@ export const defaultPreset: WavesPreset = {
   name: 'Default',
   params: {
     ...defaultPatternSizing,
-    scale: 0.8,
+    scale: 0.6,
     colorFront: '#ffbb00',
     colorBack: '#000000',
     shape: 0,
