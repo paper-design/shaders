@@ -3,6 +3,7 @@ import {
   Dithering,
   DotGrid,
   GrainGradient,
+  Heatmap,
   LiquidMetal,
   PulsingBorder,
   SmokeRing,
@@ -100,6 +101,16 @@ export const appThumbnails = homeThumbnails.map((item) => {
       shaderConfig: {
         ...item.shaderConfig,
         intensity: 0.75,
+      },
+    };
+  }
+
+  if (item.ShaderComponent === Heatmap) {
+    return {
+      ...item,
+      shaderConfig: {
+        ...item.shaderConfig,
+        scale: 0.97,
       },
     };
   }

@@ -16,12 +16,12 @@ export default function ThumbnailsLayout({ children }: { children: React.ReactNo
       <div
         style={{
           gridColumn: '1 / -1',
-          fontSize: 32,
+          fontSize: 20,
           textAlign: 'center',
           display: 'flex',
-          alignItems: 'center',
           gap: '32px',
           justifyContent: 'center',
+          paddingTop: '12px',
         }}
       >
         <a href="/test/thumbnails/1">Page 1</a>

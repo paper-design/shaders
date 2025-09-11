@@ -23,6 +23,7 @@ import flutedGlassImg from '../../public/shaders/fluted-glass.webp';
 import imageDitheringImg from '../../public/shaders/image-dithering.webp';
 import paperTextureImg from '../../public/shaders/paper-texture.webp';
 import waterImg from '../../public/shaders/water.webp';
+import heatmapImg from '../../public/shaders/heatmap.webp';
 import {
   DotGrid,
   dotGridPresets,
@@ -75,6 +76,8 @@ import {
   ImageDithering,
   imageDitheringPresets,
   ShaderComponentProps,
+  Heatmap,
+  heatmapPresets,
 } from '@paper-design/shaders-react';
 import { StaticImageData } from 'next/image';
 
@@ -274,4 +277,11 @@ export const homeThumbnails = [
     image: imageDitheringImg,
     shaderConfig: { ...imageDitheringPresets[0].params, scale: 1.05 },
   },
+  // {
+  //   name: 'heatmap',
+  //   url: '/heatmap',
+  //   ShaderComponent: Heatmap,
+  //   image: heatmapImg,
+  //   shaderConfig: { ...heatmapPresets[0].params, scale: 0.9, frame: 5800 },
+  // },
 ] satisfies HomeShaderConfig[];
