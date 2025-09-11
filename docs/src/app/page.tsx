@@ -123,7 +123,7 @@ function ShaderItem({
               opacity: shaderVisibility === 'fading-out' ? 0 : 1,
               filter: shaderVisibility === 'fading-out' ? 'blur(4px)' : 'none',
               transitionProperty: 'opacity, filter',
-              transitionDuration: '300ms',
+              transitionDuration: '100ms',
               transitionTimingFunction: 'ease-out',
             }}
             {...shaderConfig}
