@@ -29,6 +29,13 @@ export const dotGridDef: ShaderDef = {
       description: 'Shape stroke color',
     },
     {
+      name: 'shape',
+      type: 'enum',
+      defaultValue: defaultParams.shape,
+      description: 'The shape type',
+      options: ['circle', 'diamond', 'square', 'triangle'],
+    },
+    {
       name: 'size',
       type: 'number',
       min: 1,
@@ -75,21 +82,6 @@ export const dotGridDef: ShaderDef = {
       max: 1,
       defaultValue: defaultParams.opacityRange,
       description: 'Random variation in shape opacity (0 = all shapes opaque, higher = semi-transparent dots)',
-    },
-    {
-      name: 'shape',
-      type: 'enum',
-      defaultValue: defaultParams.shape,
-      description: 'The shape type',
-      options: ['circle', 'diamond', 'square', 'triangle'],
-    },
-    {
-      name: 'scale',
-      type: 'number',
-      min: 0.01,
-      max: 4,
-      defaultValue: defaultParams.scale,
-      description: 'Overall zoom level of the graphics',
     },
     {
       name: 'rotation',
