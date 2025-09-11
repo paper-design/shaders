@@ -79,7 +79,7 @@ function ShaderItem({
     <Link href={url} className="group flex flex-col gap-8 outline-0">
       <div
         data-pixelated={pixelated ? '' : undefined}
-        className="relative flex aspect-[4/3] items-center justify-center overflow-hidden rounded-2xl bg-cream/50 outline-offset-4 outline-focus will-change-transform group-focus-visible:outline-2 data-pixelated:pixelated squircle:rounded-4xl"
+        className="relative flex aspect-[4/3] items-center justify-center overflow-hidden rounded-2xl bg-header/50 outline-offset-4 outline-focus will-change-transform group-focus-visible:outline-2 data-pixelated:pixelated squircle:rounded-4xl"
         onTouchStart={() => setShaderVisibility('visible')}
         onTouchEnd={() => setShaderVisibility('fading-out')}
         onTouchCancel={() => setShaderVisibility('fading-out')}
