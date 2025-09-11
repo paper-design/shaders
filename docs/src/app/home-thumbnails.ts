@@ -109,14 +109,14 @@ export const homeThumbnails = [
     url: '/static-mesh-gradient',
     ShaderComponent: StaticMeshGradient,
     image: staticMeshGradientImg,
-    shaderConfig: { ...staticMeshGradientPresets[0].params, rotation: 270, speed: 0 },
+    shaderConfig: { ...staticMeshGradientPresets[0].params },
   },
   {
     name: 'static radial gradient',
     url: '/static-radial-gradient',
     ShaderComponent: StaticRadialGradient,
     image: staticRadialGradientImg,
-    shaderConfig: { ...staticRadialGradientPresets[0].params, radius: 0.65, speed: 0, offsetY: -0.03 },
+    shaderConfig: { ...staticRadialGradientPresets[0].params, radius: 0.65, offsetY: -0.03 },
   },
   {
     name: 'dithering',
@@ -146,7 +146,7 @@ export const homeThumbnails = [
     url: '/dot-grid',
     ShaderComponent: DotGrid,
     image: dotGridImg,
-    shaderConfig: { ...dotGridPresets[0].params, speed: 0, gapX: 24, gapY: 24, size: 1.5 },
+    shaderConfig: { ...dotGridPresets[0].params, gapX: 24, gapY: 24, size: 1.5 },
   },
   {
     name: 'warp',
@@ -174,7 +174,7 @@ export const homeThumbnails = [
     url: '/waves',
     ShaderComponent: Waves,
     image: wavesImg,
-    shaderConfig: { ...wavesPresets[0].params, speed: 0, scale: 0.55, spacing: 1.2 },
+    shaderConfig: { ...wavesPresets[0].params, scale: 0.55, spacing: 1.2 },
   },
   {
     name: 'neuro noise',
