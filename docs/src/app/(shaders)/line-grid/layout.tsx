@@ -1,7 +1,7 @@
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Ripple • Paper',
+  title: 'Line Grid • Paper',
 };
 
 export default function Layout({ children }: { children: React.ReactNode }) {
