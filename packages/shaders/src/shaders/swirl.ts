@@ -31,6 +31,7 @@ uniform vec4 u_colors[${swirlMeta.maxColorCount}];
 uniform float u_colorsCount;
 uniform float u_bandCount;
 uniform float u_twist;
+uniform float u_middle;
 uniform float u_softness;
 uniform float u_noise;
 uniform float u_noiseFrequency;
@@ -56,11 +57,16 @@ void main() {
   float twist = 3. * clamp(u_twist, 0., 1.);
   float offset = pow(l, -twist) + angle_norm;
 
+  // Calculate the radial frequency - how fast the pattern changes with distance
+  float radial_freq = abs(dFdx(offset) * dFdx(l) + dFdy(offset) * dFdy(l)) / length(vec2(dFdx(l), dFdy(l)));
+  // Or simpler approximation:
+  // float radial_freq = abs(-twist * pow(l, -twist - 1.0)) * fwidth(l);
+
   float shape = fract(offset);
   shape = 1. - abs(2. * shape - 1.);
   shape += u_noise * snoise(15. * pow(u_noiseFrequency, 2.) * shape_uv);
 
-  float mid = smoothstep(.2, .4, pow(l, twist));
+  float mid = smoothstep(.1, .1 + 2. * fwidth(fract(offset)), pow(l, twist));
   shape = mix(0., shape, mid);
 
   float mixer = shape * u_colorsCount;
@@ -103,6 +109,7 @@ export interface SwirlUniforms extends ShaderSizingUniforms {
   u_colorsCount: number;
   u_bandCount: number;
   u_twist: number;
+  u_middle: number;
   u_softness: number;
   u_noiseFrequency: number;
   u_noise: number;
@@ -113,6 +120,7 @@ export interface SwirlParams extends ShaderSizingParams, ShaderMotionParams {
   colors?: string[];
   bandCount?: number;
   twist?: number;
+  middle?: number;
   softness?: number;
   noiseFrequency?: number;
   noise?: number;

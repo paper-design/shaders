@@ -39,6 +39,14 @@ export const swirlDef: ShaderDef = {
       description: 'Vortex power (0 = straight sectoral shapes)',
     },
     {
+      name: 'middle',
+      type: 'number',
+      min: 0,
+      max: 1,
+      defaultValue: defaultParams.middle,
+      description: 'TBD',
+    },
+    {
       name: 'softness',
       type: 'number',
       min: 0,
