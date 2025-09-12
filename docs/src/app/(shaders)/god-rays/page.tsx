@@ -64,10 +64,10 @@ const GodRaysWithControls = () => {
 
   return (
     <>
-      <ShaderContainer shaderDef={godRaysDef} currentParams={{ ...params, colors }}>
+      <ShaderContainer shaderDef={godRaysDef} currentParams={{ colors, ...params }}>
         <GodRays {...params} colors={colors} />
       </ShaderContainer>
-      <ShaderDetails shaderDef={godRaysDef} currentParams={{ ...params, colors }} />
+      <ShaderDetails shaderDef={godRaysDef} currentParams={{ colors, ...params }} />
     </>
   );
 };

@@ -70,10 +70,10 @@ const SmokeRingWithControls = () => {
 
   return (
     <>
-      <ShaderContainer shaderDef={smokeRingDef} currentParams={{ ...params, colors }}>
+      <ShaderContainer shaderDef={smokeRingDef} currentParams={{ colors, ...params }}>
         <SmokeRing {...params} colors={colors} />
       </ShaderContainer>
-      <ShaderDetails shaderDef={smokeRingDef} currentParams={{ ...params, colors }} />
+      <ShaderDetails shaderDef={smokeRingDef} currentParams={{ colors, ...params }} />
     </>
   );
 };
