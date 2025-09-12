@@ -84,14 +84,6 @@ export const dotGridDef: ShaderDef = {
       description: 'Random variation in shape opacity (0 = all shapes opaque, higher = semi-transparent dots)',
     },
     {
-      name: 'scale',
-      type: 'number',
-      min: 0.01,
-      max: 4,
-      defaultValue: defaultParams.scale,
-      description: 'Overall zoom level of the graphics',
-    },
-    {
       name: 'rotation',
       type: 'number',
       min: 0,
