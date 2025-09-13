@@ -5,7 +5,7 @@ const defaultParams = dotGridPresets[0].params;
 
 export const dotGridDef: ShaderDef = {
   name: 'Dot Grid',
-  description: 'Static grid pattern made of circles, diamonds, squares or triangles',
+  description: 'Static grid pattern made of circles, diamonds, squares or triangles.',
   params: [
     {
       name: 'colorBack',

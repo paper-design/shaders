@@ -5,7 +5,7 @@ const defaultParams = wavesPresets[0].params;
 
 export const wavesDef: ShaderDef = {
   name: 'Waves',
-  description: 'Static line pattern configurable into textures ranging from sharp zigzags to smooth flowing waves',
+  description: 'Static line pattern configurable into textures ranging from sharp zigzags to smooth flowing waves.',
   params: [
     {
       name: 'colorBack',
@@ -67,7 +67,8 @@ export const wavesDef: ShaderDef = {
       min: 0,
       max: 3,
       defaultValue: defaultParams.shape,
-      description: 'Line shape control: zigzag at 0, sine at 1, irregular waves at 2. Intermediate values morph gradually between these shapes',
+      description:
+        'Line shape control: zigzag at 0, sine at 1, irregular waves at 2. Intermediate values morph gradually between these shapes',
     },
     {
       name: 'scale',

@@ -5,7 +5,7 @@ const defaultParams = swirlPresets[0].params;
 
 export const swirlDef: ShaderDef = {
   name: 'Swirl',
-  description: 'Animated bands of color twisting and bending, producing spirals, arcs, and flowing circular patterns',
+  description: 'Animated bands of color twisting and bending, producing spirals, arcs, and flowing circular patterns.',
   params: [
     {
       name: 'colors',
