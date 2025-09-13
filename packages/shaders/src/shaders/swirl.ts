@@ -57,16 +57,12 @@ void main() {
   float twist = 3. * clamp(u_twist, 0., 1.);
   float offset = pow(l, -twist) + angle_norm;
 
-  // Calculate the radial frequency - how fast the pattern changes with distance
-  float radial_freq = abs(dFdx(offset) * dFdx(l) + dFdy(offset) * dFdy(l)) / length(vec2(dFdx(l), dFdy(l)));
-  // Or simpler approximation:
-  // float radial_freq = abs(-twist * pow(l, -twist - 1.0)) * fwidth(l);
-
   float shape = fract(offset);
   shape = 1. - abs(2. * shape - 1.);
   shape += u_noise * snoise(15. * pow(u_noiseFrequency, 2.) * shape_uv);
 
-  float mid = smoothstep(.1, .1 + 2. * fwidth(fract(offset)), pow(l, twist));
+  float midAA = .3 * fwidth(pow(l, -twist));
+  float mid = smoothstep(.2, .2 + midAA + .8 * u_middle, pow(l, twist));
   shape = mix(0., shape, mid);
 
   float mixer = shape * u_colorsCount;
@@ -78,7 +74,7 @@ void main() {
     if (i > int(u_colorsCount)) break;
 
     float m = clamp(mixer - float(i - 1), 0., 1.);
-    float aa = fwidth(m);
+    float aa = max(fwidth(m), fwidth(l));
     m = smoothstep(.5 - .5 * u_softness - aa, .5 + .5 * u_softness + aa, m);
 
     if (i == 1) {
