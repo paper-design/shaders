@@ -26,7 +26,7 @@ const SwirlWithControls = () => {
       colorBack: { value: toHsla(defaults.colorBack), order: 100 },
       bandCount: { value: defaults.bandCount, min: 0, max: 15, step: 1, order: 200 },
       twist: { value: defaults.twist, min: 0, max: 1, order: 201 },
-      middle: { value: defaults.middle, min: 0, max: 1, order: 202 },
+      centerFade: { value: defaults.centerFade, min: 0, max: 1, order: 202 },
       softness: { value: defaults.softness, min: 0, max: 1, order: 203 },
       noiseFrequency: { value: defaults.speed, min: 0, max: 1, order: 204 },
       noise: { value: defaults.speed, min: 0, max: 1, order: 205 },
