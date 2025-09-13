@@ -15,18 +15,18 @@ export const voronoiDef: ShaderDef = {
       description: 'Base cell colors (up to 10)',
     },
     {
-      name: 'colorGap',
-      type: 'string',
-      defaultValue: defaultParams.colorGap,
-      isColor: true,
-      description: 'Color used for cell borders/gaps',
-    },
-    {
       name: 'colorGlow',
       type: 'string',
       defaultValue: defaultParams.colorGlow,
       isColor: true,
       description: 'Color tint for the radial inner shadow effect inside cells (effective with glow > 0)',
+    },
+    {
+      name: 'colorGap',
+      type: 'string',
+      defaultValue: defaultParams.colorGap,
+      isColor: true,
+      description: 'Color used for cell borders/gaps',
     },
     {
       name: 'stepsPerColor',

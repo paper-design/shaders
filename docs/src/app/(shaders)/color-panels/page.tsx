@@ -67,10 +67,10 @@ const ColorPanelsWithControls = () => {
 
   return (
     <>
-      <ShaderContainer shaderDef={colorPanelsDef} currentParams={{ ...params, colors }}>
+      <ShaderContainer shaderDef={colorPanelsDef} currentParams={{ colors, ...params }}>
         <ColorPanels {...params} colors={colors} />
       </ShaderContainer>
-      <ShaderDetails shaderDef={colorPanelsDef} currentParams={{ ...params, colors }} />
+      <ShaderDetails shaderDef={colorPanelsDef} currentParams={{ colors, ...params }} />
     </>
   );
 };

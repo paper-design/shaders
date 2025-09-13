@@ -22,14 +22,6 @@ export const wavesDef: ShaderDef = {
       description: 'The color of wavy lines',
     },
     {
-      name: 'shape',
-      type: 'number',
-      min: 0,
-      max: 3,
-      defaultValue: defaultParams.shape,
-      description: 'Line shape control: zigzag at 0, sine at 1, irregular waves at 2. Intermediate values morph gradually between these shapes',
-    },
-    {
       name: 'amplitude',
       type: 'number',
       min: 0,
@@ -68,6 +60,14 @@ export const wavesDef: ShaderDef = {
       max: 1,
       defaultValue: defaultParams.softness,
       description: 'Color transition sharpness (0 = hard edge, 1 = smooth gradient)',
+    },
+    {
+      name: 'shape',
+      type: 'number',
+      min: 0,
+      max: 3,
+      defaultValue: defaultParams.shape,
+      description: 'Line shape control: zigzag at 0, sine at 1, irregular waves at 2. Intermediate values morph gradually between these shapes',
     },
     {
       name: 'scale',

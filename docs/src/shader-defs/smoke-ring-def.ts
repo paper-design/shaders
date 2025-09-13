@@ -8,18 +8,18 @@ export const smokeRingDef: ShaderDef = {
   description: 'Radial multi-colored gradient shaped with layered noise for a natural, smoky aesthetic',
   params: [
     {
-      name: 'colorBack',
-      type: 'string',
-      defaultValue: defaultParams.colorBack,
-      isColor: true,
-      description: 'Background color',
-    },
-    {
       name: 'colors',
       type: 'string[]',
       defaultValue: [],
       isColor: true,
       description: 'Up to 10 colors used for the gradient',
+    },
+    {
+      name: 'colorBack',
+      type: 'string',
+      defaultValue: defaultParams.colorBack,
+      isColor: true,
+      description: 'Background color',
     },
     {
       name: 'thickness',
