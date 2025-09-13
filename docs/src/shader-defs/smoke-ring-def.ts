@@ -5,7 +5,7 @@ const defaultParams = smokeRingPresets[0].params;
 
 export const smokeRingDef: ShaderDef = {
   name: 'Smoke Ring',
-  description: 'Radial multi-colored gradient shaped with layered noise for a natural, smoky aesthetic',
+  description: 'Radial multi-colored gradient shaped with layered noise for a natural, smoky aesthetic.',
   params: [
     {
       name: 'colors',

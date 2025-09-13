@@ -5,7 +5,8 @@ const defaultParams = neuroNoisePresets[0].params;
 
 export const neuroNoiseDef: ShaderDef = {
   name: 'Neuro Noise',
-  description: 'A glowing, web-like structure of fluid lines and soft intersections. Great for creating atmospheric, organic-yet-futuristic visuals',
+  description:
+    'A glowing, web-like structure of fluid lines and soft intersections. Great for creating atmospheric, organic-yet-futuristic visuals.',
   params: [
     {
       name: 'colorFront',

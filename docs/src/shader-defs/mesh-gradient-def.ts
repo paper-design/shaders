@@ -6,7 +6,7 @@ const defaultParams = meshGradientPresets[0].params;
 export const meshGradientDef: ShaderDef = {
   name: 'Mesh Gradient',
   description:
-    'A flowing interplay of color spots, moving along distinct trajectories and transformed by organic distortion',
+    'A flowing interplay of color spots, moving along distinct trajectories and transformed by organic distortion.',
   params: [
     {
       name: 'colors',

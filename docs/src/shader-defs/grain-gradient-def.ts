@@ -5,7 +5,7 @@ const defaultParams = grainGradientPresets[0].params;
 
 export const grainGradientDef: ShaderDef = {
   name: 'Grain Gradient',
-  description: 'Multi-color gradients with grainy, noise-textured distortion available in 7 animated abstract forms',
+  description: 'Multi-color gradients with grainy, noise-textured distortion available in 7 animated abstract forms.',
   params: [
     {
       name: 'colors',

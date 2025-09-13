@@ -47,7 +47,23 @@ const NeuroNoiseWithControls = () => {
       <ShaderContainer shaderDef={neuroNoiseDef} currentParams={params}>
         <NeuroNoise {...params} />
       </ShaderContainer>
-      <ShaderDetails shaderDef={neuroNoiseDef} currentParams={params} />
+      <ShaderDetails
+        shaderDef={neuroNoiseDef}
+        currentParams={params}
+        notes={
+          <>
+            Thank you{' '}
+            <a href="https://x.com/zozuar" target="_blank" rel="noopener">
+              zozuar
+            </a>{' '}
+            for the amazing{' '}
+            <a href="https://twigl.app/?ol=true&ss=-NOAlYulOVLklxMdxBDx" target="_blank" rel="noopener">
+              recursive fractal noise algorithm
+            </a>
+            .
+          </>
+        }
+      />
     </>
   );
 };
