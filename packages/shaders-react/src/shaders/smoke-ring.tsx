@@ -20,7 +20,7 @@ export const defaultPreset: SmokeRingPreset = {
   name: 'Default',
   params: {
     ...defaultObjectSizing,
-    speed: 0.4,
+    speed: 0.5,
     frame: 0,
     colorBack: '#000000',
     colors: ['#ffffff'],

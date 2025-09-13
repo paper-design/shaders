@@ -9,8 +9,8 @@ import { warpMeta, WarpPatterns } from '@paper-design/shaders';
 import { useColors } from '@/helpers/use-colors';
 import { ShaderDetails } from '@/components/shader-details';
 import { warpDef } from '@/shader-defs/warp-def';
-import { Header } from '@/components/header';
 import { ShaderContainer } from '@/components/shader-container';
+import { useUrlParams } from '@/helpers/use-url-params';
 
 const { worldWidth, worldHeight, ...defaults } = warpPresets[0].params;
 
@@ -54,15 +54,16 @@ const WarpWithControls = () => {
   // Reset to defaults on mount, so that Leva doesn't show values from other
   // shaders when navigating (if two shaders have a color1 param for example)
   useResetLevaParams(params, setParams, defaults);
+  useUrlParams(params, setParams, warpDef, setColors);
   usePresetHighlight(warpPresets, params);
   cleanUpLevaParams(params);
 
   return (
     <>
-      <ShaderContainer>
+      <ShaderContainer shaderDef={warpDef} currentParams={{ colors, ...params }}>
         <Warp {...params} colors={colors} />
       </ShaderContainer>
-      <ShaderDetails shaderDef={warpDef} currentParams={{ ...params, colors }} />
+      <ShaderDetails shaderDef={warpDef} currentParams={{ colors, ...params }} />
     </>
   );
 };

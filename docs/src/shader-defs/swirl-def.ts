@@ -5,21 +5,21 @@ const defaultParams = swirlPresets[0].params;
 
 export const swirlDef: ShaderDef = {
   name: 'Swirl',
-  description: 'Animated bands of color twisting and bending, producing spirals, arcs, and flowing circular patterns',
+  description: 'Animated bands of color twisting and bending, producing spirals, arcs, and flowing circular patterns.',
   params: [
-    {
-      name: 'colorBack',
-      type: 'string',
-      defaultValue: defaultParams.colorBack,
-      isColor: true,
-      description: 'Background color',
-    },
     {
       name: 'colors',
       type: 'string[]',
       defaultValue: [],
       isColor: true,
       description: 'Up to 10 colors used for the stripes',
+    },
+    {
+      name: 'colorBack',
+      type: 'string',
+      defaultValue: defaultParams.colorBack,
+      isColor: true,
+      description: 'Background color',
     },
     {
       name: 'bandCount',
@@ -47,20 +47,20 @@ export const swirlDef: ShaderDef = {
       description: 'Color transition sharpness (0 = hard edge, 1 = smooth gradient)',
     },
     {
-      name: 'noise',
-      type: 'number',
-      min: 0,
-      max: 1,
-      defaultValue: defaultParams.noise,
-      description: 'Strength of noise distortion (not effective with noiseFrequency = 0)',
-    },
-    {
       name: 'noiseFrequency',
       type: 'number',
       min: 0,
       max: 1,
       defaultValue: defaultParams.noiseFrequency,
       description: 'Noise frequency (not effective with noise = 0)',
+    },
+    {
+      name: 'noise',
+      type: 'number',
+      min: 0,
+      max: 1,
+      defaultValue: defaultParams.noise,
+      description: 'Strength of noise distortion (not effective with noiseFrequency = 0)',
     },
     {
       name: 'offsetX',

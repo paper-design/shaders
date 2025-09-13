@@ -1,9 +1,9 @@
 'use client';
 
-import { useState } from 'react';
-import { CopyIcon, CheckIcon } from '../icons';
+import type { ReactNode } from 'react';
 import { ShaderDef, ParamOption } from '../shader-defs/shader-def-types';
 import { CopyButton } from './copy-button';
+import { hslToHex } from '@/helpers/color-utils';
 
 const formatJsxAttribute = (key: string, value: unknown): string => {
   if (value === true) {
@@ -21,14 +21,7 @@ const formatJsxAttribute = (key: string, value: unknown): string => {
     return `${key}={${formattedNumber}}`;
   }
   if (Array.isArray(value)) {
-    if (value.length <= 1) {
-      return `${key}={${JSON.stringify(value)}}`;
-    }
-    const formattedArray = JSON.stringify(value, null, 2)
-      .split('\n')
-      .map((line, index) => (index === 0 ? line : `  ${line}`))
-      .join('\n');
-    return `${key}={${formattedArray}}`;
+    return `${key}={${JSON.stringify(value)}}`;
   }
   if (typeof value === 'object') {
     return `${key}={${JSON.stringify(value)}}`;
@@ -40,11 +33,15 @@ const formatJsxAttribute = (key: string, value: unknown): string => {
 export function ShaderDetails({
   shaderDef,
   currentParams,
+  notes,
 }: {
   shaderDef: ShaderDef;
   currentParams: Record<string, unknown>;
+  notes?: ReactNode;
 }) {
   const componentName = shaderDef.name.replace(/ /g, '');
+
+  const installationCode = 'npm i @paper-design/shaders-react';
 
   const code = `import { ${componentName} } from '@paper-design/shaders-react';
 
@@ -52,25 +49,31 @@ export function ShaderDetails({
   style={{ height: 500 }}
   ${Object.entries(currentParams)
     .filter(([key]) => !['worldWidth', 'worldHeight', 'originX', 'originY'].includes(key))
-    .map(([key, value]) => formatJsxAttribute(key, value))
+    .map(([key, value]) => {
+      const isColor = shaderDef.params.find((p) => p.name === key && p.isColor);
+      if (!isColor) {
+        return formatJsxAttribute(key, value);
+      } else if (typeof value === 'string') {
+        return formatJsxAttribute(key, hslToHex(value));
+      } else if (Array.isArray(value)) {
+        return formatJsxAttribute(
+          key,
+          value.map((v) => hslToHex(v))
+        );
+      }
+    })
     .join('\n  ')}
 />
 `;
 
-  const installationCode = 'npm i @paper-design/shaders-react';
-
   return (
     <div className="mt-24 flex w-full flex-col gap-32 md:mt-40 [&>section]:flex [&>section]:flex-col [&>section]:gap-16">
-      <h1 className="border-b border-current/10 pb-24 text-3xl font-[330] lowercase md:pb-32 dark:border-current/20">
-        {shaderDef.name}
-      </h1>
-
       <section>
         <div className="flex items-center gap-8">
           <h2 className="text-2xl font-medium lowercase">Installation</h2>
           <CopyButton
             className="-mt-14 -mb-16 size-32 rounded-md outline-0 outline-focus transition-colors hover:bg-backplate-1 focus-visible:outline-2 active:bg-backplate-2 squircle:rounded-lg"
-            text={installationCode}
+            getText={() => installationCode}
           />
         </div>
         <pre className="no-scrollbar w-full overflow-x-auto rounded-xl bg-backplate-1 p-24 text-code squircle:rounded-2xl">
@@ -83,7 +86,7 @@ export function ShaderDetails({
           <h2 className="text-2xl font-medium lowercase">Code</h2>
           <CopyButton
             className="-mt-14 -mb-16 size-32 rounded-md outline-0 outline-focus transition-colors hover:bg-backplate-1 focus-visible:outline-2 active:bg-backplate-2 squircle:rounded-lg"
-            text={code}
+            getText={() => code}
           />
         </div>
         <div className="flex flex-col gap-8">
@@ -165,6 +168,13 @@ export function ShaderDetails({
         <section>
           <h2 className="text-2xl font-medium lowercase">Description</h2>
           <p className="text-pretty text-current/70">{shaderDef.description}</p>
+        </section>
+      )}
+
+      {notes && (
+        <section>
+          <h2 className="text-2xl font-medium lowercase">Notes</h2>
+          <div className="text-pretty text-current/70 [&_a]:underline [&_a]:underline-offset-4">{notes}</div>
         </section>
       )}
     </div>

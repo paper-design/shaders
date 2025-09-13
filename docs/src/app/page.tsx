@@ -4,7 +4,7 @@ import { StaticImageData } from 'next/image';
 import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { HomeShaderConfig, homeShaders } from './home-shaders';
+import { HomeShaderConfig, homeThumbnails } from './home-thumbnails';
 import { GithubIcon } from '@/icons';
 import { CopyButton } from '@/components/copy-button';
 import { Logo } from '@/components/logo';
@@ -48,14 +48,14 @@ export default function Home() {
           <div className="h-full shrink-0 border-l border-current/20" />
           <CopyButton
             className="hidden h-full w-48 shrink-0 items-center justify-center rounded-r-[inherit] outline-0 outline-focus focus-visible:outline-2 xs:flex"
-            text="npm i @paper-design/shaders-react"
+            getText={() => 'npm i @paper-design/shaders-react'}
           />
         </div>
       </div>
 
       <main className="pb-128 text-lg">
         <div className="grid grid-cols-1 gap-32 xs:grid-cols-2 md:gap-48 lg:grid-cols-3 2xl:grid-cols-4 3xl:gap-64">
-          {homeShaders.map((shader) => (
+          {homeThumbnails.map((shader) => (
             <ShaderItem key={shader.name} {...shader} />
           ))}
         </div>
@@ -79,7 +79,7 @@ function ShaderItem({
     <Link href={url} className="group flex flex-col gap-8 outline-0">
       <div
         data-pixelated={pixelated ? '' : undefined}
-        className="relative flex aspect-[4/3] items-center justify-center overflow-hidden rounded-2xl bg-cream/50 outline-offset-4 outline-focus will-change-transform group-focus-visible:outline-2 data-pixelated:pixelated squircle:rounded-4xl"
+        className="relative flex aspect-[4/3] items-center justify-center overflow-hidden rounded-2xl bg-header/50 outline-offset-4 outline-focus will-change-transform group-focus-visible:outline-2 data-pixelated:pixelated squircle:rounded-4xl"
         onTouchStart={() => setShaderVisibility('visible')}
         onTouchEnd={() => setShaderVisibility('fading-out')}
         onTouchCancel={() => setShaderVisibility('fading-out')}
@@ -123,7 +123,7 @@ function ShaderItem({
               opacity: shaderVisibility === 'fading-out' ? 0 : 1,
               filter: shaderVisibility === 'fading-out' ? 'blur(4px)' : 'none',
               transitionProperty: 'opacity, filter',
-              transitionDuration: '300ms',
+              transitionDuration: '100ms',
               transitionTimingFunction: 'ease-out',
             }}
             {...shaderConfig}

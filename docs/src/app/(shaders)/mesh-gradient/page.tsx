@@ -9,8 +9,8 @@ import { meshGradientMeta } from '@paper-design/shaders';
 import { useColors } from '@/helpers/use-colors';
 import { ShaderDetails } from '@/components/shader-details';
 import { meshGradientDef } from '@/shader-defs/mesh-gradient-def';
-import { Header } from '@/components/header';
 import { ShaderContainer } from '@/components/shader-container';
+import { useUrlParams } from '@/helpers/use-url-params';
 
 const { worldWidth, worldHeight, ...defaults } = meshGradientPresets[0].params;
 
@@ -51,15 +51,16 @@ const MeshGradientWithControls = () => {
   // Reset to defaults on mount, so that Leva doesn't show values from other
   // shaders when navigating (if two shaders have a color1 param for example)
   useResetLevaParams(params, setParams, defaults);
+  useUrlParams(params, setParams, meshGradientDef, setColors);
   usePresetHighlight(meshGradientPresets, params);
   cleanUpLevaParams(params);
 
   return (
     <>
-      <ShaderContainer>
+      <ShaderContainer shaderDef={meshGradientDef} currentParams={{ colors, ...params }}>
         <MeshGradient {...params} colors={colors} />
       </ShaderContainer>
-      <ShaderDetails shaderDef={meshGradientDef} currentParams={{ ...params, colors }} />
+      <ShaderDetails shaderDef={meshGradientDef} currentParams={{ colors, ...params }} />
     </>
   );
 };

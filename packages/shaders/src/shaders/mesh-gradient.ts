@@ -53,7 +53,8 @@ void main() {
 
   shape_uv += .5;
 
-  float t = .5 * u_time;
+  const float firstFrameOffset = 41.5;
+  float t = .5 * (u_time + firstFrameOffset);
 
   float radius = smoothstep(0., 1., length(shape_uv - .5));
   float center = 1. - radius;

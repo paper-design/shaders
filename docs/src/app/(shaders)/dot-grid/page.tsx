@@ -6,11 +6,11 @@ import { setParamsSafe, useResetLevaParams } from '@/helpers/use-reset-leva-para
 import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import { DotGridShape, DotGridShapes } from '@paper-design/shaders';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
-import { toHsla } from '@/helpers/to-hsla';
+import { toHsla } from '@/helpers/color-utils';
 import { ShaderDetails } from '@/components/shader-details';
 import { dotGridDef } from '@/shader-defs/dot-grid-def';
-import { Header } from '@/components/header';
 import { ShaderContainer } from '@/components/shader-container';
+import { useUrlParams } from '@/helpers/use-url-params';
 
 const { worldWidth, worldHeight, ...defaults } = dotGridPresets[0].params;
 
@@ -29,9 +29,8 @@ const DotGridWithControls = () => {
       shape: {
         value: defaults.shape,
         options: Object.keys(DotGridShapes) as DotGridShape[],
-        order: 350,
+        order: 199,
       },
-      scale: { value: defaults.scale, min: 0.01, max: 4, order: 302 },
       rotation: { value: defaults.rotation, min: 0, max: 360, order: 303 },
     };
   });
@@ -51,12 +50,13 @@ const DotGridWithControls = () => {
   // Reset to defaults on mount, so that Leva doesn't show values from other
   // shaders when navigating (if two shaders have a color1 param for example)
   useResetLevaParams(params, setParams, defaults);
+  useUrlParams(params, setParams, dotGridDef);
   usePresetHighlight(dotGridPresets, params);
   cleanUpLevaParams(params);
 
   return (
     <>
-      <ShaderContainer>
+      <ShaderContainer shaderDef={dotGridDef} currentParams={params}>
         <DotGrid {...params} />
       </ShaderContainer>
       <ShaderDetails shaderDef={dotGridDef} currentParams={params} />

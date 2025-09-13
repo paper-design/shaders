@@ -1,5 +1,37 @@
 # Paper Shaders
 
+## Version 0.0.52
+
+- Revert heatmap shader preset param change.
+
+## Version 0.0.51
+
+- Add `suspendWhenProcessingImage` prop to the heatmap shader component.
+- Update heatmap shader presets.
+
+## Version 0.0.50
+
+- Only heatmap related changes
+
+## Version 0.0.49
+
+- Only heatmap related changes
+
+## Version 0.0.48
+
+### General
+
+- The `ShaderMount` component no longer has a race condition when updating uniforms.
+
+### Existing Shader Improvements
+
+- **PaperTexture**
+  - Image blending bugfix for semi-transparent `colorBack` (ver46 fix wasn't working properly)
+  
+### New Shaders
+
+- Added **Heatmap** component (not available in the docs yet)
+
 ## Version 0.0.47
 
 ### General

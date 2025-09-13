@@ -5,7 +5,7 @@ const defaultParams = liquidMetalPresets[0].params;
 
 export const liquidMetalDef: ShaderDef = {
   name: 'Liquid Metal',
-  description: 'Futuristic liquid metal material applied to abstract forms, simulating dynamic surface distortion',
+  description: 'Futuristic liquid metal material applied to abstract forms, simulating dynamic surface distortion.',
   params: [
     {
       name: 'colorBack',

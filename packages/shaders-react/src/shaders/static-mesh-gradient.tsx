@@ -20,6 +20,7 @@ export const defaultPreset: StaticMeshGradientPreset = {
   name: 'Default',
   params: {
     ...defaultObjectSizing,
+    rotation: 270,
     speed: 0,
     frame: 0,
     colors: ['#ffad0a', '#6200ff', '#e2a3ff', '#ff99fd'],

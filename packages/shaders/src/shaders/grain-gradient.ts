@@ -123,7 +123,8 @@ vec2 truchet(vec2 uv, float idx){
 
 void main() {
 
-  float t = .1 * u_time;
+  const float firstFrameOffset = 7.;
+  float t = .1 * (u_time + firstFrameOffset);
 
   vec2 shape_uv = vec2(0.);
   vec2 grain_uv = vec2(0.);

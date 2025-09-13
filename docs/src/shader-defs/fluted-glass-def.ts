@@ -6,7 +6,7 @@ const defaultParams = flutedGlassPresets[0].params;
 export const flutedGlassDef: ShaderDef = {
   name: 'Fluted Glass',
   description:
-    'Fluted glass image filter transforms an image into streaked, ribbed distortions, giving a mix of clarity and obscurity',
+    'Fluted glass image filter transforms an image into streaked, ribbed distortions, giving a mix of clarity and obscurity.',
   params: [
     {
       name: 'count',
@@ -37,7 +37,7 @@ export const flutedGlassDef: ShaderDef = {
       type: 'enum',
       defaultValue: defaultParams.distortionShape,
       description: 'The shape of the distortion',
-      options: ['prism', 'lens', 'сontour', 'сascade', 'facete'],
+      options: ['prism', 'lens', 'contour', 'cascade', 'facete'],
     },
     {
       name: 'distortion',

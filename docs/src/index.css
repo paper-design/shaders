@@ -14,9 +14,11 @@
   --color-foreground: light-dark(#222, #f0efe4);
   --color-blue: oklch(74% 0.104 258);
   --color-cream: #f0efe4;
+  --color-header: light-dark(var(--color-cream), var(--color-background));
   --color-code: light-dark(#222, #cdccc0);
   --color-backplate-1: light-dark(--alpha(var(--color-cream) / 60%), #181818);
   --color-backplate-2: light-dark(#e9e8e0, #2a2a2a);
+  --color-backplate-3: light-dark(#dddbd2, #373737);
   --color-focus: light-dark(oklch(0.74 0.12 258), oklch(0.73 0.2 258 / 60%));
 
   /* Can't use transparent colors in tables because Safari overlays them twice */
@@ -75,7 +77,7 @@
   :root {
     color-scheme: light dark;
     font-size: 16px; /* Always 16px base */
-    background-color: var(--color-cream); /* Overscroll background */
+    background-color: light-dark(var(--color-cream), var(--color-background)); /* Overscroll background */
   }
 
   body {
