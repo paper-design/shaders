@@ -109,7 +109,23 @@ const WaterWithControls = () => {
       <div onClick={handleClick} className="mx-auto mt-16 mb-48 w-fit text-base text-current/70 select-none">
         Click to change the sample image
       </div>
-      <ShaderDetails shaderDef={waterDef} currentParams={params} />
+      <ShaderDetails
+        shaderDef={waterDef}
+        currentParams={params}
+        notes={
+          <>
+            Thank you{' '}
+            <a href="https://x.com/zozuar" target="_blank" rel="noopener">
+              zozuar
+            </a>{' '}
+            for the amazing{' '}
+            <a href="https://twigl.app/?ol=true&ss=-NOAlYulOVLklxMdxBDx" target="_blank" rel="noopener">
+              recursive fractal noise algorithm
+            </a>
+            .
+          </>
+        }
+      />
     </>
   );
 };

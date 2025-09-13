@@ -63,7 +63,23 @@ const VoronoiWithControls = () => {
       <ShaderContainer shaderDef={voronoiDef} currentParams={{ colors, ...params }}>
         <Voronoi {...params} colors={colors} />
       </ShaderContainer>
-      <ShaderDetails shaderDef={voronoiDef} currentParams={{ colors, ...params }} />
+      <ShaderDetails
+        shaderDef={voronoiDef}
+        currentParams={{ colors, ...params }}
+        notes={
+          <>
+            Thank you{' '}
+            <a href="https://x.com/iquilezles" target="_blank" rel="noopener">
+              Inigo Quilez
+            </a>{' '}
+            for the amazing{' '}
+            <a href="https://iquilezles.org/articles/voronoilines/" target="_blank" rel="noopener">
+              solution on Voronoi cell boundaries
+            </a>
+            .
+          </>
+        }
+      />
     </>
   );
 };

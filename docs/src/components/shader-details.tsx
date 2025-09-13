@@ -1,5 +1,6 @@
 'use client';
 
+import type { ReactNode } from 'react';
 import { ShaderDef, ParamOption } from '../shader-defs/shader-def-types';
 import { CopyButton } from './copy-button';
 import { hslToHex } from '@/helpers/color-utils';
@@ -32,9 +33,11 @@ const formatJsxAttribute = (key: string, value: unknown): string => {
 export function ShaderDetails({
   shaderDef,
   currentParams,
+  notes,
 }: {
   shaderDef: ShaderDef;
   currentParams: Record<string, unknown>;
+  notes?: ReactNode;
 }) {
   const componentName = shaderDef.name.replace(/ /g, '');
 
@@ -165,6 +168,13 @@ export function ShaderDetails({
         <section>
           <h2 className="text-2xl font-medium lowercase">Description</h2>
           <p className="text-pretty text-current/70">{shaderDef.description}</p>
+        </section>
+      )}
+
+      {notes && (
+        <section>
+          <h2 className="text-2xl font-medium lowercase">Notes</h2>
+          <div className="text-pretty text-current/70 [&_a]:underline [&_a]:underline-offset-4">{notes}</div>
         </section>
       )}
     </div>
