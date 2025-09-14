@@ -1,5 +1,110 @@
 # Paper Shaders
 
+## Version 0.0.52
+
+- Revert heatmap shader preset param change.
+
+## Version 0.0.51
+
+- Add `suspendWhenProcessingImage` prop to the heatmap shader component.
+- Update heatmap shader presets.
+
+## Version 0.0.50
+
+- Only heatmap related changes
+
+## Version 0.0.49
+
+- Only heatmap related changes
+
+## Version 0.0.48
+
+### General
+
+- The `ShaderMount` component no longer has a race condition when updating uniforms.
+
+### Existing Shader Improvements
+
+- **PaperTexture**
+  - Image blending bugfix for semi-transparent `colorBack` (ver46 fix wasn't working properly)
+  
+### New Shaders
+
+- Added **Heatmap** component (not available in the docs yet)
+
+## Version 0.0.47
+
+### General
+
+- Licence changed to [PolyForm Shield License 1.0.0](https://polyformproject.org/licenses/shield/1.0.0)
+- Shaders documentation added to **shaders.paper.design** 🎉
+- Sizing behaviour changed so graphics don’t crop if `worldBox` size is larger than canvas
+
+### Existing Shader Improvements
+
+- **Water**, **FlutedGlass**, **PaperTexture**, **PaperTexture**
+  - Fixed default image URL
+
+- **FlutedGlass**, **PaperTexture**, **PaperTexture**
+  - Default image sizing changed (`fit`)
+
+- **Water**
+  - `highlightColor` renamed to `colorHighlight`
+  - Default preset changed (`scale`, `colorBack`)
+  
+- **PaperTexture**
+  - Additional presets changed
+  - Image blending bugfix for semi-transparent `colorBack`
+  
+- **FlutedGlass**
+  - Additional presets changed
+
+- **ColorPanels**
+  - Default preset changed (`colorBack`, `scale`)
+  - Additional presets changed
+  - Panels angle now independent from side `blur`
+  
+- **SmokeRing**
+  - Default preset changed (scale, `colorBack`)
+  - Additional presets changed
+  - Reversed order of colors
+
+- **PulsingBorder**
+  - Default preset changed (scale, colors, pulse)
+  - Additional presets changed
+  - Nvidia 3060 bugfix ([issue #146](https://github.com/paper-design/shaders/issues/146))
+  
+- **SimplexNoise**
+  - Default preset changed (`stepsPerColor`)
+  - Antialiasing bugfix
+
+- **GrainGradient**
+  - Default preset changed (`noise`)
+  - Better randomizing on `dots` shape
+
+- **Waves**
+  - Default preset changed (`scale`, `spacing`)
+
+- **Voronoi**
+  - Default preset changed (`gap`)
+
+- **LiquidMetal**
+  - Default preset changed (`scale`)
+
+- **StaticRadialGradient**, **Metaballs**, **GodRays**
+  - Default preset changed (`colorBack`)
+
+- **Dithering**
+  - Default preset changed (`scale`)
+  - Additional presets changed
+
+- **DotOrbit**
+  - Default preset changed (`speed`, `colors`)
+  - Additional presets changed
+
+- **Swirl**, **PerlinNoise**,
+  - Additional presets changes
+
 ## Version 0.0.46
 
 ### General

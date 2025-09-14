@@ -82,7 +82,8 @@ void main() {
   vec2 shape_uv = v_patternUV;
   shape_uv *= 1.5;
 
-  float t = u_time - 10.;
+  const float firstFrameOffset = -10.;
+  float t = u_time + firstFrameOffset;
 
   vec3 voronoi = voronoiShape(shape_uv, t) + 1e-4;
 

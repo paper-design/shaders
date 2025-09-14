@@ -7,21 +7,11 @@ import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
 import { smokeRingMeta } from '@paper-design/shaders';
 import { useColors } from '@/helpers/use-colors';
-import { toHsla } from '@/helpers/to-hsla';
-import { ShaderContainer } from '@/components/shader-container';
+import { toHsla } from '@/helpers/color-utils';
 import { ShaderDetails } from '@/components/shader-details';
 import { smokeRingDef } from '@/shader-defs/smoke-ring-def';
-
-/**
- * You can copy/paste this example to use SmokeRing in your app
- */
-const SmokeRingExample = () => {
-  return <SmokeRing style={{ position: 'fixed', width: '100%', height: '100%' }} />;
-};
-
-/**
- * This example has controls added so you can play with settings in the example app
- */
+import { ShaderContainer } from '@/components/shader-container';
+import { useUrlParams } from '@/helpers/use-url-params';
 
 const { worldWidth, worldHeight, ...defaults } = smokeRingPresets[0].params;
 
@@ -72,6 +62,7 @@ const SmokeRingWithControls = () => {
   // Reset to defaults on mount, so that Leva doesn't show values from other
   // shaders when navigating (if two shaders have a colorInner param for example)
   useResetLevaParams(params, setParams, defaults);
+  useUrlParams(params, setParams, smokeRingDef, setColors);
   usePresetHighlight(smokeRingPresets, params);
   cleanUpLevaParams(params);
 
@@ -79,10 +70,10 @@ const SmokeRingWithControls = () => {
 
   return (
     <>
-      <ShaderContainer>
+      <ShaderContainer shaderDef={smokeRingDef} currentParams={{ colors, ...params }}>
         <SmokeRing {...params} colors={colors} />
       </ShaderContainer>
-      <ShaderDetails shaderDef={smokeRingDef} currentParams={{ ...params, colors }} />
+      <ShaderDetails shaderDef={smokeRingDef} currentParams={{ colors, ...params }} />
     </>
   );
 };

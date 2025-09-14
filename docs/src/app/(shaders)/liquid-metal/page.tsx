@@ -6,21 +6,11 @@ import { setParamsSafe, useResetLevaParams } from '@/helpers/use-reset-leva-para
 import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
 import { LiquidMetalShapes, LiquidMetalShape } from '@paper-design/shaders';
-import { toHsla } from '@/helpers/to-hsla';
-import { ShaderContainer } from '@/components/shader-container';
+import { toHsla } from '@/helpers/color-utils';
 import { ShaderDetails } from '@/components/shader-details';
 import { liquidMetalDef } from '@/shader-defs/liquid-metal-def';
-
-/**
- * You can copy/paste this example to use LiquidMetal in your app
- */
-const LiquidMetalExample = () => {
-  return <LiquidMetal style={{ position: 'fixed', width: '100%', height: '100%' }} />;
-};
-
-/**
- * This example has controls added so you can play with settings in the example app
- */
+import { ShaderContainer } from '@/components/shader-container';
+import { useUrlParams } from '@/helpers/use-url-params';
 
 const { worldWidth, worldHeight, ...defaults } = liquidMetalPresets[0].params;
 
@@ -54,12 +44,13 @@ const LiquidMetalWithControls = () => {
   // Reset to defaults on mount, so that Leva doesn't show values from other
   // shaders when navigating (if two shaders have a color1 param for example)
   useResetLevaParams(params, setParams, defaults);
+  useUrlParams(params, setParams, liquidMetalDef);
   usePresetHighlight(liquidMetalPresets, params);
   cleanUpLevaParams(params);
 
   return (
     <>
-      <ShaderContainer>
+      <ShaderContainer shaderDef={liquidMetalDef} currentParams={params}>
         <LiquidMetal {...params} />
       </ShaderContainer>
       <ShaderDetails shaderDef={liquidMetalDef} currentParams={params} />

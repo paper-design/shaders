@@ -1,18 +1,19 @@
 import type { Metadata, Viewport } from 'next';
-import '../globals.css';
+import '../index.css';
 import { Analytics } from '@vercel/analytics/react';
-import openGraphImage from '../../public/images/opengraph-image.png';
+import openGraphImage from '../../public/images/opengraph-image.jpg';
+import { SavePreviousPathname } from '@/components/save-previous-pathname';
 
 export const metadata: Metadata = {
-  title: 'Paper Shaders – Zero-dependency ultra-fast shaders',
+  title: 'Paper Shaders – Ultra-fast zero-dependency shaders',
   description: 'Shaders for you to use in your projects, as React components or GLSL.',
   openGraph: {
-    title: 'Paper Shaders – Zero-dependency ultra-fast shaders',
+    title: 'Paper Shaders – Ultra-fast zero-dependency shaders',
     description: 'Shaders for you to use in your projects, as React components or GLSL.',
     images: [{ type: 'image/png', width: 1200, height: 630, url: openGraphImage.src }],
   },
   twitter: {
-    title: 'Paper Shaders – Zero-dependency ultra-fast shaders',
+    title: 'Paper Shaders – Ultra-fast zero-dependency shaders',
     description: 'Shaders for you to use in your projects, as React components or GLSL.',
     images: [{ type: 'image/png', width: 1200, height: 630, url: openGraphImage.src }],
   },
@@ -23,21 +24,25 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: '#f0efe4',
+  themeColor: [
+    {
+      color: '#f0efe4', // var(--color-cream)
+      media: '(prefers-color-scheme: light)',
+    },
+    { color: '#000000', media: '(prefers-color-scheme: dark)' },
+  ],
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export default function RootLayout({ children }: React.PropsWithChildren) {
   return (
     <html lang="en">
       <body className="min-w-[320px] overflow-y-scroll antialiased">
-        <div inert className="absolute top-0 right-0 left-0 -z-1 h-200 bg-linear-to-b from-cream" />
-
-        {children}
+        <div className="isolate">
+          <div inert className="from-header absolute top-0 right-0 left-0 -z-1 h-800 bg-linear-to-b" />
+          {children}
+        </div>
         <Analytics />
+        <SavePreviousPathname />
       </body>
     </html>
   );

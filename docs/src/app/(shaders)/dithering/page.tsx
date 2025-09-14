@@ -7,21 +7,11 @@ import { setParamsSafe, useResetLevaParams } from '@/helpers/use-reset-leva-para
 import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
 import { DitheringShape, DitheringShapes, DitheringType, DitheringTypes } from '@paper-design/shaders';
-import { toHsla } from '@/helpers/to-hsla';
-import { ShaderContainer } from '@/components/shader-container';
+import { toHsla } from '@/helpers/color-utils';
 import { ShaderDetails } from '@/components/shader-details';
 import { ditheringDef } from '@/shader-defs/dithering-def';
-
-/**
- * You can copy/paste this example to use Dithering in your app
- */
-const DitheringExample = () => {
-  return <Dithering style={{ position: 'fixed', width: '100%', height: '100%' }} />;
-};
-
-/**
- * This example has controls added so you can play with settings in the example app
- */
+import { ShaderContainer } from '@/components/shader-container';
+import { useUrlParams } from '@/helpers/use-url-params';
 
 const { worldWidth, worldHeight, ...defaults } = ditheringPresets[0].params;
 
@@ -51,12 +41,13 @@ const DitheringWithControls = () => {
   // Reset to defaults on mount, so that Leva doesn't show values from other
   // shaders when navigating (if two shaders have a colorBack param for example)
   useResetLevaParams(params, setParams, defaults);
+  useUrlParams(params, setParams, ditheringDef);
   usePresetHighlight(ditheringPresets, params);
   cleanUpLevaParams(params);
 
   return (
     <>
-      <ShaderContainer>
+      <ShaderContainer shaderDef={ditheringDef} currentParams={params}>
         <Dithering {...params} />
       </ShaderContainer>
       <ShaderDetails shaderDef={ditheringDef} currentParams={params} />

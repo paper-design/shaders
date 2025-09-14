@@ -1,10 +1,10 @@
-import { Header } from '@/components/header';
+import { SiteHeader } from '@/components/site-header';
 
-export default function Layout({ children }: { children: React.ReactNode }) {
+export default function Layout({ children }: React.PropsWithChildren) {
   return (
-    <div className="pb-16">
-      <Header />
-      <div className="mx-auto -mt-32 flex max-w-screen-xl flex-col gap-8 px-5">{children}</div>
+    <div className="mx-auto box-content max-w-1104 px-16 pb-96 xs:px-24 sm:px-32 md:px-48 2xl:max-w-1472 3xl:max-w-1104">
+      <SiteHeader />
+      <main className="lg:max-w-[calc(100%-332px)] 3xl:max-w-1104">{children}</main>
     </div>
   );
 }

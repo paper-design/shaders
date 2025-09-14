@@ -6,7 +6,7 @@ const defaultParams = godRaysPresets[0].params;
 export const godRaysDef: ShaderDef = {
   name: 'God Rays',
   description:
-    'Animated rays of light radiating from the center, blended with up to 5 colors. The rays are adjustable by size, density, brightness and center glow. Great for dramatic backgrounds, logo reveals, and VFX like energy bursts or sun shafts',
+    'Animated rays of light radiating from the center, blended with up to 5 colors. The rays are adjustable by size, density, brightness and center glow. Great for dramatic backgrounds, logo reveals, and VFX like energy bursts or sun shafts.',
   params: [
     {
       name: 'colors',

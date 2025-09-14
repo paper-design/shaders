@@ -9,41 +9,39 @@ import { GlassGridShape, GlassGridShapes, GlassDistortionShape, GlassDistortionS
 import { ShaderFit } from '@paper-design/shaders';
 import { levaImageButton } from '@/helpers/leva-image-button';
 import { useState, useEffect, useCallback } from 'react';
-import { ShaderContainer } from '@/components/shader-container';
 import { ShaderDetails } from '@/components/shader-details';
 import { flutedGlassDef } from '@/shader-defs/fluted-glass-def';
-
-/**
- * This example has controls added so you can play with settings in the example app
- */
+import { ShaderContainer } from '@/components/shader-container';
+import { useUrlParams } from '@/helpers/use-url-params';
 
 const { worldWidth, worldHeight, ...defaults } = flutedGlassPresets[0].params;
+
+const imageFiles = [
+  '001.webp',
+  '002.webp',
+  '003.webp',
+  '004.webp',
+  '005.webp',
+  '006.webp',
+  '007.webp',
+  '008.webp',
+  '009.webp',
+  '0010.webp',
+  '0011.webp',
+  '0012.webp',
+  '0013.webp',
+  '0014.webp',
+  '0015.webp',
+  '0016.webp',
+  '0017.webp',
+  '0018.webp',
+] as const;
 
 const FlutedGlassWithControls = () => {
   const [imageIdx, setImageIdx] = useState(-1);
   const [image, setImage] = useState<HTMLImageElement | undefined>(undefined);
   const [status, setStatus] = useState('Click to load an image');
 
-  const imageFiles = [
-    '001.webp',
-    '002.webp',
-    '003.webp',
-    '004.webp',
-    '005.webp',
-    '006.webp',
-    '007.webp',
-    '008.webp',
-    '009.webp',
-    '0010.webp',
-    '0011.webp',
-    '0012.webp',
-    '0013.webp',
-    '0014.webp',
-    '0015.webp',
-    '0016.webp',
-    '0017.webp',
-    '0018.webp',
-  ] as const;
   const fileName = imageIdx >= 0 ? imageFiles[imageIdx] : null;
 
   useEffect(() => {
@@ -110,19 +108,22 @@ const FlutedGlassWithControls = () => {
   // Reset to defaults on mount, so that Leva doesn't show values from other
   // shaders when navigating (if two shaders have a color1 param for example)
   useResetLevaParams(params, setParams, defaults);
+  useUrlParams(params, setParams, flutedGlassDef);
   usePresetHighlight(flutedGlassPresets, params);
   cleanUpLevaParams(params);
 
   return (
-    <div>
-      <ShaderContainer>
+    <>
+      <ShaderContainer shaderDef={flutedGlassDef} currentParams={params}>
         <FlutedGlass onClick={handleClick} {...params} image={image || undefined} />
       </ShaderContainer>
-      <div onClick={handleClick} className="py-3 text-center select-none">
-        Click to change sample image
+
+      <div onClick={handleClick} className="mx-auto mt-16 mb-48 w-fit text-base text-current/70 select-none">
+        Click to change the sample image
       </div>
+
       <ShaderDetails shaderDef={flutedGlassDef} currentParams={params} />
-    </div>
+    </>
   );
 };
 

@@ -1,0 +1,207 @@
+@import 'tailwindcss';
+
+@theme {
+  --spacing: 1px;
+
+  --default-font-family: 'Matter', system-ui, sans-serif;
+  --font-mono: 'Paper Mono', ui-monospace, monospace;
+
+  --color-*: initial;
+  --color-white: white;
+  --color-black: black;
+  --color-transparent: transparent;
+  --color-background: light-dark(#fff, #000000);
+  --color-foreground: light-dark(#222, #f0efe4);
+  --color-blue: oklch(74% 0.104 258);
+  --color-cream: #f0efe4;
+  --color-header: light-dark(var(--color-cream), var(--color-background));
+  --color-code: light-dark(#222, #cdccc0);
+  --color-backplate-1: light-dark(--alpha(var(--color-cream) / 60%), #181818);
+  --color-backplate-2: light-dark(#e9e8e0, #2a2a2a);
+  --color-backplate-3: light-dark(#dddbd2, #373737);
+  --color-focus: light-dark(oklch(0.74 0.12 258), oklch(0.73 0.2 258 / 60%));
+
+  /* Can't use transparent colors in tables because Safari overlays them twice */
+  --color-table-border: light-dark(#e2e1d8, #2a2a2a);
+
+  --text-3xl: 1.75rem;
+
+  --breakpoint-xs: 28rem;
+  --breakpoint-2xl: 85rem;
+  --breakpoint-3xl: 116rem;
+
+  --color-selection: oklch(78% 35% 258 / 50%);
+  --ease-out-smooth: cubic-bezier(0.685, 0.89, 0.315, 0.995);
+}
+
+/* Non-Tailwind colors */
+@layer theme {
+  :root {
+    --color-leva-background: light-dark(#f4f3eb, #2a2a2a);
+    --color-leva-input: light-dark(#dddbd2, #373737);
+    --color-leva-input-focused: light-dark(#f8f8f6, #373737);
+    --color-leva-separators: light-dark(#e2e1d8, #3c3c3c);
+    --color-leva-button: light-dark(#999997, #777775);
+    --color-leva-control-pressed: #777775;
+  }
+}
+
+@utility no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+@font-face {
+  font-family: Matter;
+  font-style: normal;
+  font-display: swap;
+  src: url('https://paper.design/matter.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Paper Mono';
+  font-style: normal;
+  font-display: swap;
+  src: url('https://paper.design/paper-mono-0.100.woff2') format('woff2');
+}
+
+::selection {
+  background-color: var(--color-selection);
+}
+
+@layer base {
+  :root {
+    color-scheme: light dark;
+    font-size: 16px; /* Always 16px base */
+    background-color: light-dark(var(--color-cream), var(--color-background)); /* Overscroll background */
+  }
+
+  body {
+    min-height: 100dvh;
+    font-family: var(--default-font-family);
+    color: var(--color-foreground);
+    background-color: var(--color-background);
+    text-size-adjust: none;
+    font-size: 18px;
+    line-height: calc(4 / 3);
+  }
+
+  pre {
+    font-family: 'Paper Mono', monospace;
+    font-size: 14px;
+    line-height: 26px;
+  }
+
+  pre::-webkit-scrollbar {
+    height: 6px;
+  }
+
+  pre::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  pre::-webkit-scrollbar-thumb {
+    background-color: #909090;
+    border-radius: 3px;
+  }
+
+  pre::-webkit-scrollbar-thumb:hover {
+    background-color: #777772;
+  }
+
+  code {
+    font-size: 0.9em;
+  }
+}
+
+@custom-variant squircle {
+  @media (min-resolution: 2x) {
+    @supports (corner-shape: squircle) {
+      & {
+        corner-shape: squircle;
+        @slot;
+      }
+    }
+  }
+}
+
+@utility pixelated {
+  image-rendering: pixelated;
+}
+
+@layer components {
+  [data-leva-container] {
+    & > * {
+      background-color: transparent !important;
+    }
+
+    & div:has(> div > button) {
+      column-gap: 8px;
+      margin-top: 8px;
+      margin-bottom: 4px;
+
+      & > div {
+        margin-top: 0 !important;
+        margin-bottom: 0 !important;
+      }
+    }
+
+    & div:has(> div:nth-child(2) > button) {
+      grid-template-columns: 1fr 1fr !important;
+    }
+
+    & ::after {
+      --leva-borderWidths-folder: 0px;
+    }
+
+    & [class*='isRoot-false'] {
+      padding-left: 0 !important;
+    }
+
+    & button {
+      user-select: none;
+      box-shadow: none !important;
+
+      &:focus-visible {
+        outline: 2px solid var(--color-focus) !important;
+        outline-offset: 2px;
+      }
+    }
+
+    & select:focus-visible + * {
+      outline: 2px solid var(--color-focus) !important;
+      outline-offset: 2px;
+    }
+
+    & div:has(> input):hover {
+      box-shadow: none !important;
+    }
+
+    & div:has(> input):focus-within {
+      box-shadow: none !important;
+      outline: 2px solid var(--color-focus) !important;
+      outline-offset: -1px;
+      background-color: var(--color-leva-input-focused) !important;
+    }
+
+    & [style*='height']:not([style*='overflow: hidden']) {
+      height: auto !important;
+    }
+
+    & [style*='--leva-colors-folderWidgetColor'] {
+      margin-top: 0 !important;
+
+      & > :first-child {
+        display: none !important;
+      }
+    }
+
+    & ::selection {
+      background-color: var(--color-selection) !important;
+    }
+  }
+}

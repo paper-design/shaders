@@ -23,6 +23,7 @@ import flutedGlassImg from '../../public/shaders/fluted-glass.webp';
 import imageDitheringImg from '../../public/shaders/image-dithering.webp';
 import paperTextureImg from '../../public/shaders/paper-texture.webp';
 import waterImg from '../../public/shaders/water.webp';
+import heatmapImg from '../../public/shaders/heatmap.webp';
 import {
   DotGrid,
   dotGridPresets,
@@ -75,53 +76,63 @@ import {
   ImageDithering,
   imageDitheringPresets,
   ShaderComponentProps,
+  Heatmap,
+  heatmapPresets,
 } from '@paper-design/shaders-react';
 import { StaticImageData } from 'next/image';
 
-type HomeShaderConfig = {
+export type HomeShaderConfig = {
   name: string;
-  image?: StaticImageData;
+  image: StaticImageData;
   url: string;
-  ShaderComponent: React.FC<ShaderComponentProps>;
-  shaderConfig?: Record<string, unknown>;
-  style?: React.CSSProperties;
+  pixelated?: boolean;
+  ShaderComponent: React.FC<any>;
+  shaderConfig: Record<string, unknown>;
+
+  /**
+   * Whether to render the shader itself in place of the preview image
+   * (can be used for grainy shaders that look bad when previews are compressed/resized)
+   */
+  alwaysLivePreview?: boolean;
 };
 
-export const homeShaders = [
-  {
-    name: 'grain gradient',
-    url: '/grain-gradient',
-    ShaderComponent: GrainGradient,
-    image: grainGradientImg,
-    shaderConfig: { ...grainGradientPresets[0].params, frame: 7000, noise: 0.5, speed: 2 },
-  },
+export const homeThumbnails = [
   {
     name: 'mesh gradient',
     image: meshGradientImg,
     url: '/mesh-gradient',
     ShaderComponent: MeshGradient,
-    shaderConfig: { ...meshGradientPresets[0].params, frame: 41500 },
+    shaderConfig: { ...meshGradientPresets[0].params },
   },
   {
     name: 'static mesh gradient',
     url: '/static-mesh-gradient',
     ShaderComponent: StaticMeshGradient,
     image: staticMeshGradientImg,
-    shaderConfig: { ...staticMeshGradientPresets[0].params, rotation: 270, speed: 0 },
+    shaderConfig: { ...staticMeshGradientPresets[0].params },
   },
   {
     name: 'static radial gradient',
     url: '/static-radial-gradient',
     ShaderComponent: StaticRadialGradient,
     image: staticRadialGradientImg,
-    shaderConfig: { ...staticRadialGradientPresets[0].params, radius: 0.65, speed: 0 },
+    shaderConfig: { ...staticRadialGradientPresets[0].params, radius: 0.65, offsetY: -0.03 },
   },
   {
     name: 'dithering',
     url: '/dithering',
     ShaderComponent: Dithering,
     image: ditheringImg,
-    shaderConfig: { ...ditheringPresets[0].params, scale: 0.6 },
+    pixelated: true,
+    shaderConfig: { ...ditheringPresets[0].params },
+  },
+  {
+    name: 'grain gradient',
+    image: grainGradientImg,
+    url: '/grain-gradient',
+    ShaderComponent: GrainGradient,
+    shaderConfig: { ...grainGradientPresets[0].params, speed: 1.5 },
+    alwaysLivePreview: true,
   },
   {
     name: 'dot orbit',
@@ -135,7 +146,7 @@ export const homeShaders = [
     url: '/dot-grid',
     ShaderComponent: DotGrid,
     image: dotGridImg,
-    shaderConfig: { ...dotGridPresets[0].params, speed: 0 },
+    shaderConfig: { ...dotGridPresets[0].params, gapX: 24, gapY: 24, size: 1.5 },
   },
   {
     name: 'warp',
@@ -163,7 +174,7 @@ export const homeShaders = [
     url: '/waves',
     ShaderComponent: Waves,
     image: wavesImg,
-    shaderConfig: { ...wavesPresets[0].params, scale: 0.7 },
+    shaderConfig: { ...wavesPresets[0].params, scale: 0.55, spacing: 1.2 },
   },
   {
     name: 'neuro noise',
@@ -201,42 +212,42 @@ export const homeShaders = [
     url: '/pulsing-border',
     ShaderComponent: PulsingBorder,
     image: pulsingBorderImg,
-    shaderConfig: { ...pulsingBorderPresets[0].params, scale: 0.6 },
+    shaderConfig: { ...pulsingBorderPresets[0].params },
   },
   {
     name: 'metaballs',
     image: metaballsImg,
     url: '/metaballs',
     ShaderComponent: Metaballs,
-    shaderConfig: { ...metaballsPresets[0].params, scale: 1.1, count: 8, frame: 3400, speed: 2 },
+    shaderConfig: { ...metaballsPresets[0].params, scale: 1, count: 8, speed: 1.5 },
   },
   {
     name: 'color panels',
     url: '/color-panels',
     ShaderComponent: ColorPanels,
     image: colorPanelsImg,
-    shaderConfig: { ...colorPanelsPresets[0].params, scale: 0.75, speed: 3 },
+    shaderConfig: { ...colorPanelsPresets[0].params, scale: 0.75, speed: 2 },
   },
   {
     name: 'smoke ring',
     image: smokeRingImg,
     url: '/smoke-ring',
     ShaderComponent: SmokeRing,
-    shaderConfig: { ...smokeRingPresets[0].params, scale: 0.8, speed: 2 },
+    shaderConfig: { ...smokeRingPresets[0].params, scale: 0.8, speed: 1 },
   },
   {
     name: 'liquid metal',
     url: '/liquid-metal',
     ShaderComponent: LiquidMetal,
     image: liquidMetalImg,
-    shaderConfig: { ...liquidMetalPresets[0].params, scale: 0.6 },
+    shaderConfig: { ...liquidMetalPresets[0].params },
   },
   {
     name: 'god rays',
     url: '/god-rays',
     ShaderComponent: GodRays,
     image: godRaysImg,
-    shaderConfig: { ...godRaysPresets[0].params, offsetY: -0.7 },
+    shaderConfig: { ...godRaysPresets[0].params, offsetY: -0.7, speed: 1.25 },
   },
   {
     name: 'paper texture',
@@ -266,4 +277,11 @@ export const homeShaders = [
     image: imageDitheringImg,
     shaderConfig: { ...imageDitheringPresets[0].params, scale: 1.05 },
   },
+  // {
+  //   name: 'heatmap',
+  //   url: '/heatmap',
+  //   ShaderComponent: Heatmap,
+  //   image: heatmapImg,
+  //   shaderConfig: { ...heatmapPresets[0].params, scale: 0.9, frame: 5800 },
+  // },
 ] satisfies HomeShaderConfig[];

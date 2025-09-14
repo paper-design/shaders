@@ -108,7 +108,8 @@ float linearstep(float edge0, float edge1, float x) {
 
 void main() {
 
-  float t = 1.2 * u_time;
+  const float firstFrameOffset = 4.;
+  float t = 1.2 * (u_time + firstFrameOffset);
 
   vec2 borderUV = v_responsiveUV;
 
@@ -182,7 +183,7 @@ void main() {
     m *= (1. - clamp(length((v3 + maskOffset) / maskR), 0., 1.));
     cornerFadeMask += m;
   }
-
+  cornerFade = clamp(cornerFade, 0., 1.);
   cornerFade *= cornerFadeMask;
   border += .75 * cornerFade;
 
@@ -197,6 +198,8 @@ void main() {
   smoke = clamp(smoke, 0., 1.);
 
   border += smoke;
+  float borderBounds = 1. - smoothstep(.9, 1., length(v_responsiveUV));
+  border *= borderBounds;
   border = clamp(border, 0., 1.);
 
   vec3 blendColor = vec3(0.);
