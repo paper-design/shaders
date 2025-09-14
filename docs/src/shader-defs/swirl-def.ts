@@ -39,11 +39,11 @@ export const swirlDef: ShaderDef = {
       description: 'Vortex power (0 = straight sectoral shapes)',
     },
     {
-      name: 'centerFade',
+      name: 'center',
       type: 'number',
       min: 0,
       max: 1,
-      defaultValue: defaultParams.centerFade,
+      defaultValue: defaultParams.center,
       description: 'How far from the center the swirl colors begin to appear',
     },
     {
