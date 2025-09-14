@@ -61,8 +61,7 @@ void main() {
   shape = 1. - abs(2. * shape - 1.);
   shape += u_noise * snoise(15. * pow(u_noiseFrequency, 2.) * shape_uv);
 
-  float midAA = (.15 + .025 * u_colorsCount) * fwidth(pow(l, -twist));
-  float mid = smoothstep(.2, .2 + midAA + .8 * u_center, pow(l, twist));
+  float mid = smoothstep(.2, .2 + .8 * u_center, pow(l, twist));
   shape = mix(0., shape, mid);
 
   float mixer = shape * u_colorsCount;
@@ -74,7 +73,7 @@ void main() {
     if (i > int(u_colorsCount)) break;
 
     float m = clamp(mixer - float(i - 1), 0., 1.);
-    float aa = max(fwidth(m), fwidth(l));
+    float aa = fwidth(m);
     m = smoothstep(.5 - .5 * u_softness - aa, .5 + .5 * u_softness + aa, m);
 
     if (i == 1) {
@@ -85,6 +84,10 @@ void main() {
     c.rgb *= c.a;
     gradient = mix(gradient, c, m);
   }
+
+  float midAA = .1 * fwidth(pow(l, -twist));
+  float outerMid = smoothstep(.2, .2 + midAA, pow(l, twist));
+  outerShape = mix(0., outerShape, outerMid);
 
   vec3 color = gradient.rgb * outerShape;
   float opacity = gradient.a * outerShape;
