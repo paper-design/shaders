@@ -61,7 +61,7 @@ void main() {
   shape = 1. - abs(2. * shape - 1.);
   shape += u_noise * snoise(15. * pow(u_noiseFrequency, 2.) * shape_uv);
 
-  float midAA = (.15 + .02 * u_colorsCount) * fwidth(pow(l, -twist));
+  float midAA = (.15 + .025 * u_colorsCount) * fwidth(pow(l, -twist));
   float mid = smoothstep(.2, .2 + midAA + .8 * u_centerFade, pow(l, twist));
   shape = mix(0., shape, mid);
 
