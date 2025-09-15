@@ -52,7 +52,7 @@ export const swirlDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.proportion,
-      description: 'proportion between colorBack and colored stripes',
+      description: 'Blend point between colors (0.5 = equal distribution)',
     },
     {
       name: 'softness',
