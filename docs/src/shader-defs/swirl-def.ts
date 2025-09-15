@@ -47,6 +47,14 @@ export const swirlDef: ShaderDef = {
       description: 'How far from the center the swirl colors begin to appear',
     },
     {
+      name: 'proportion',
+      type: 'number',
+      min: 0,
+      max: 1,
+      defaultValue: defaultParams.proportion,
+      description: 'proportion between colorBack and colored stripes',
+    },
+    {
       name: 'softness',
       type: 'number',
       min: 0,
@@ -55,20 +63,20 @@ export const swirlDef: ShaderDef = {
       description: 'Color transition sharpness (0 = hard edge, 1 = smooth gradient)',
     },
     {
-      name: 'noiseFrequency',
-      type: 'number',
-      min: 0,
-      max: 1,
-      defaultValue: defaultParams.noiseFrequency,
-      description: 'Noise frequency (not effective with noise = 0)',
-    },
-    {
       name: 'noise',
       type: 'number',
       min: 0,
       max: 1,
       defaultValue: defaultParams.noise,
       description: 'Strength of noise distortion (not effective with noiseFrequency = 0)',
+    },
+    {
+      name: 'noiseFrequency',
+      type: 'number',
+      min: 0,
+      max: 1,
+      defaultValue: defaultParams.noiseFrequency,
+      description: 'Noise frequency (not effective with noise = 0)',
     },
     {
       name: 'offsetX',

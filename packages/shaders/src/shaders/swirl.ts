@@ -32,6 +32,7 @@ uniform float u_colorsCount;
 uniform float u_bandCount;
 uniform float u_twist;
 uniform float u_center;
+uniform float u_proportion;
 uniform float u_softness;
 uniform float u_noise;
 uniform float u_noiseFrequency;
@@ -63,6 +64,11 @@ void main() {
 
   float mid = smoothstep(.2, .2 + .8 * u_center, pow(l, twist));
   shape = mix(0., shape, mid);
+
+  float proportion = clamp(u_proportion, 0., 1.);
+  float exponent = mix(.25, 1., proportion * 2.);
+  exponent = mix(exponent, 10., max(0., proportion * 2. - 1.));
+  shape = pow(shape, exponent);
 
   float mixer = shape * u_colorsCount;
   vec4 gradient = u_colors[0];
@@ -109,6 +115,7 @@ export interface SwirlUniforms extends ShaderSizingUniforms {
   u_bandCount: number;
   u_twist: number;
   u_center: number;
+  u_proportion: number;
   u_softness: number;
   u_noiseFrequency: number;
   u_noise: number;
@@ -120,6 +127,7 @@ export interface SwirlParams extends ShaderSizingParams, ShaderMotionParams {
   bandCount?: number;
   twist?: number;
   center?: number;
+  proportion?: number;
   softness?: number;
   noiseFrequency?: number;
   noise?: number;
