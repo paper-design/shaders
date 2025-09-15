@@ -87,12 +87,20 @@ export const flutedGlassDef: ShaderDef = {
       options: ['contain', 'cover'],
     },
     {
+      name: 'margin',
+      type: 'number',
+      min: 0,
+      max: 1,
+      defaultValue: undefined,
+      description: 'Distance from image edges to the effect',
+    },
+    {
       name: 'marginLeft',
       type: 'number',
       min: 0,
       max: 1,
       defaultValue: defaultParams.marginLeft,
-      description: 'Showing original image on the left',
+      description: 'Distance from the left edge to the effect',
     },
     {
       name: 'marginRight',
@@ -100,7 +108,7 @@ export const flutedGlassDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.marginRight,
-      description: 'Showing original image on the right',
+      description: 'Distance from the right edge to the effect',
     },
     {
       name: 'marginTop',
@@ -108,7 +116,7 @@ export const flutedGlassDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.marginTop,
-      description: 'Showing original image on the top',
+      description: 'Distance from the top edge to the effect',
     },
     {
       name: 'marginBottom',
@@ -116,7 +124,7 @@ export const flutedGlassDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.marginBottom,
-      description: 'Showing original image on the bottom',
+      description: 'Distance from the bottom edge to the effect',
     },
   ],
 };
