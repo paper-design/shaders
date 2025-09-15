@@ -133,6 +133,19 @@
   image-rendering: pixelated;
 }
 
+@utility link {
+  text-decoration: underline;
+  text-decoration-color: color-mix(in oklab, currentcolor 35%, transparent);
+  text-decoration-thickness: 1px;
+  text-underline-offset: round(up, 0.2em, 0.5px);
+
+  @media (hover: hover) {
+    &:hover {
+      text-decoration-color: color-mix(in oklab, currentcolor 70%, transparent);
+    }
+  }
+}
+
 @layer components {
   [data-leva-container] {
     & > * {

@@ -67,7 +67,7 @@ export function ShaderDetails({
 `;
 
   return (
-    <div className="mt-24 flex w-full flex-col gap-32 md:mt-40 [&>section]:flex [&>section]:flex-col [&>section]:gap-16">
+    <div className="mt-24 flex w-full flex-col gap-32 md:mt-40 [&_a]:link [&>section]:flex [&>section]:flex-col [&>section]:gap-16">
       <section>
         <div className="flex items-center gap-8">
           <h2 className="text-2xl font-medium lowercase">Installation</h2>
@@ -174,7 +174,7 @@ export function ShaderDetails({
       {notes && (
         <section>
           <h2 className="text-2xl font-medium lowercase">Notes</h2>
-          <div className="text-pretty text-current/70 [&_a]:underline [&_a]:underline-offset-4">{notes}</div>
+          <p className="text-pretty text-current/70">{notes}</p>
         </section>
       )}
     </div>
