@@ -119,5 +119,17 @@ export const staticRadialGradientDef: ShaderDef = {
       defaultValue: defaultParams.offsetY,
       description: 'Vertical offset of the graphics center',
     },
+    {
+      name: 'width',
+      type: 'number | string',
+      defaultValue: undefined,
+      description: 'CSS width style of the shader element',
+    },
+    {
+      name: 'height',
+      type: 'number | string',
+      defaultValue: undefined,
+      description: 'CSS height style of the shader element',
+    },
   ],
 };

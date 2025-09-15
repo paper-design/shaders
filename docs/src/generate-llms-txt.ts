@@ -66,8 +66,8 @@ Each shader can be used in React applications with the @paper-design/shaders-rea
 \`\`\`tsx
 import { ShaderName } from '@paper-design/shaders-react'
 
-<ShaderName 
-  style={{ height: 500 }}
+<ShaderName
+  height={500}
   // shader-specific props here
 />
 \`\`\`

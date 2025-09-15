@@ -46,7 +46,7 @@ export function ShaderDetails({
   const code = `import { ${componentName} } from '@paper-design/shaders-react';
 
 <${componentName}
-  style={{ height: 500 }}
+  height={500}
   ${Object.entries(currentParams)
     .filter(([key]) => !['worldWidth', 'worldHeight', 'originX', 'originY'].includes(key))
     .map(([key, value]) => {
@@ -67,7 +67,7 @@ export function ShaderDetails({
 `;
 
   return (
-    <div className="mt-24 flex w-full flex-col gap-32 md:mt-40 [&>section]:flex [&>section]:flex-col [&>section]:gap-16">
+    <div className="mt-24 flex w-full flex-col gap-32 md:mt-40 [&_a]:link [&>section]:flex [&>section]:flex-col [&>section]:gap-16">
       <section>
         <div className="flex items-center gap-8">
           <h2 className="text-2xl font-medium lowercase">Installation</h2>
@@ -153,7 +153,7 @@ export function ShaderDetails({
                       ) : param.isColor ? (
                         <span className="whitespace-nowrap">Hex, RGB, or HSL color</span>
                       ) : (
-                        <span className="text-stone-300">—</span>
+                        <span className="text-current/40">—</span>
                       )}
                     </td>
                   </tr>
@@ -174,7 +174,7 @@ export function ShaderDetails({
       {notes && (
         <section>
           <h2 className="text-2xl font-medium lowercase">Notes</h2>
-          <div className="text-pretty text-current/70 [&_a]:underline [&_a]:underline-offset-4">{notes}</div>
+          <p className="text-pretty text-current/70">{notes}</p>
         </section>
       )}
     </div>

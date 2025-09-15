@@ -71,6 +71,18 @@ export const warpDef: ShaderDef = {
       description: 'Zoom level of the base pattern',
     },
     {
+      name: 'width',
+      type: 'number | string',
+      defaultValue: undefined,
+      description: 'CSS width style of the shader element',
+    },
+    {
+      name: 'height',
+      type: 'number | string',
+      defaultValue: undefined,
+      description: 'CSS height style of the shader element',
+    },
+    {
       name: 'scale',
       type: 'number',
       min: 0.01,

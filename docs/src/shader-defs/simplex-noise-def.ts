@@ -22,7 +22,7 @@ export const simplexNoiseDef: ShaderDef = {
       step: 1,
       defaultValue: defaultParams.stepsPerColor,
       description:
-          'Number of extra colors between base colors (1 = N color palette, 2 = 2×N color palette, 3 = 3×N color palette, etc)',
+        'Number of extra colors between base colors (1 = N color palette, 2 = 2×N color palette, 3 = 3×N color palette, etc)',
     },
     {
       name: 'softness',
@@ -31,6 +31,18 @@ export const simplexNoiseDef: ShaderDef = {
       max: 1,
       defaultValue: defaultParams.softness,
       description: 'Color transition sharpness (0 = hard edge, 1 = smooth gradient)',
+    },
+    {
+      name: 'width',
+      type: 'number | string',
+      defaultValue: undefined,
+      description: 'CSS width style of the shader element',
+    },
+    {
+      name: 'height',
+      type: 'number | string',
+      defaultValue: undefined,
+      description: 'CSS height style of the shader element',
     },
     {
       name: 'scale',

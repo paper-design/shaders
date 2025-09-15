@@ -68,7 +68,7 @@ const VoronoiWithControls = () => {
         currentParams={{ colors, ...params }}
         notes={
           <>
-            Thank you{' '}
+            Thanks to{' '}
             <a href="https://x.com/iquilezles" target="_blank" rel="noopener">
               Inigo Quilez
             </a>{' '}
