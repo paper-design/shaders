@@ -46,7 +46,7 @@ export function ShaderDetails({
   const code = `import { ${componentName} } from '@paper-design/shaders-react';
 
 <${componentName}
-  style={{ height: 500 }}
+  height={500}
   ${Object.entries(currentParams)
     .filter(([key]) => !['worldWidth', 'worldHeight', 'originX', 'originY'].includes(key))
     .map(([key, value]) => {
@@ -153,7 +153,7 @@ export function ShaderDetails({
                       ) : param.isColor ? (
                         <span className="whitespace-nowrap">Hex, RGB, or HSL color</span>
                       ) : (
-                        <span className="text-stone-300">—</span>
+                        <span className="text-current/40">—</span>
                       )}
                     </td>
                   </tr>

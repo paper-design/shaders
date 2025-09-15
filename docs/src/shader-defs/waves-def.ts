@@ -71,6 +71,18 @@ export const wavesDef: ShaderDef = {
         'Line shape control: zigzag at 0, sine at 1, irregular waves at 2. Intermediate values morph gradually between these shapes',
     },
     {
+      name: 'width',
+      type: 'number | string',
+      defaultValue: undefined,
+      description: 'CSS width style of the shader element',
+    },
+    {
+      name: 'height',
+      type: 'number | string',
+      defaultValue: undefined,
+      description: 'CSS height style of the shader element',
+    },
+    {
       name: 'scale',
       type: 'number',
       min: 0.01,

@@ -84,6 +84,18 @@ export const dotGridDef: ShaderDef = {
       description: 'Random variation in shape opacity (0 = all shapes opaque, higher = semi-transparent dots)',
     },
     {
+      name: 'width',
+      type: 'number | string',
+      defaultValue: undefined,
+      description: 'CSS width style of the shader element',
+    },
+    {
+      name: 'height',
+      type: 'number | string',
+      defaultValue: undefined,
+      description: 'CSS height style of the shader element',
+    },
+    {
       name: 'rotation',
       type: 'number',
       min: 0,
