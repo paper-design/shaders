@@ -133,10 +133,9 @@ void main() {
   }
 
   halfSize -= u_margin;
-  halfSize -= .5 * thickness;
+  halfSize -= thickness;
 
-  float radius = .5 * u_roundness;
-  radius = min(radius, min(halfSize.x, halfSize.y));
+  float radius = mix(0., min(halfSize.x, halfSize.y), u_roundness);
   vec2 d = abs(borderUV) - halfSize + radius;
   float outsideDistance = length(max(d, .0001)) - radius;
   float insideDistance = min(max(d.x, d.y), .0001);
@@ -223,8 +222,8 @@ void main() {
 
   ${colorBandingFix}
 
-  fragColor = vec4(color, opacity);
-//  fragColor = vec4(vec3(border), 1.);
+//  fragColor = vec4(color, opacity);
+  fragColor = vec4(vec3(border), 1.);
 }`;
 
 export interface PulsingBorderUniforms extends ShaderSizingUniforms {
