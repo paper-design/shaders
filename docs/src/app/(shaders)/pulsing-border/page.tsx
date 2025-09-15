@@ -25,9 +25,9 @@ const PulsingBorderWithControls = () => {
       colorBack: { value: toHsla(defaults.colorBack), order: 100 },
       roundness: { value: defaults.roundness, min: 0, max: 1, order: 200 },
       thickness: { value: defaults.thickness, min: 0, max: 1, order: 201 },
-      margin: { value: defaults.margin, min: 0, max: 0.5, order: 202 },
-      shape: { value: defaults.shape, options: Object.keys(PulsingBorderShapes) as PulsingBorderShape[], order: 203 },
-      softness: { value: defaults.softness, min: 0, max: 1, order: 204 },
+      softness: { value: defaults.softness, min: 0, max: 1, order: 202 },
+      margin: { value: defaults.margin, min: 0, max: 0.5, order: 203 },
+      shape: { value: defaults.shape, options: Object.keys(PulsingBorderShapes) as PulsingBorderShape[], order: 204 },
       intensity: { value: defaults.intensity, min: 0, max: 1, order: 205 },
       bloom: { value: defaults.bloom, min: 0, max: 1, order: 206 },
       spots: {
