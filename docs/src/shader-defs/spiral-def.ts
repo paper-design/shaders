@@ -5,7 +5,8 @@ const defaultParams = spiralPresets[0].params;
 
 export const spiralDef: ShaderDef = {
   name: 'Spiral',
-  description: 'A single-colored animated spiral that morphs across a wide range of shapes - from crisp, thin-lined geometry to flowing whirlpool forms and wavy, abstract rings.',
+  description:
+    'A single-colored animated spiral that morphs across a wide range of shapes - from crisp, thin-lined geometry to flowing whirlpool forms and wavy, abstract rings.',
   params: [
     {
       name: 'colorBack',
@@ -100,6 +101,18 @@ export const spiralDef: ShaderDef = {
       max: 1,
       defaultValue: defaultParams.offsetY,
       description: 'Vertical offset of the spiral center',
+    },
+    {
+      name: 'width',
+      type: 'number | string',
+      defaultValue: undefined,
+      description: 'CSS width style of the shader element',
+    },
+    {
+      name: 'height',
+      type: 'number | string',
+      defaultValue: undefined,
+      description: 'CSS height style of the shader element',
     },
     {
       name: 'scale',

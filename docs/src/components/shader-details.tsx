@@ -153,7 +153,7 @@ export function ShaderDetails({
                       ) : param.isColor ? (
                         <span className="whitespace-nowrap">Hex, RGB, or HSL color</span>
                       ) : (
-                        <span className="text-stone-300">—</span>
+                        <span className="text-current/40">—</span>
                       )}
                     </td>
                   </tr>
