@@ -13,7 +13,7 @@ import {
 
 export interface FlutedGlassProps extends ShaderComponentProps, FlutedGlassParams {}
 
-type FlutedGlassPreset = ShaderPreset<FlutedGlassParams>;
+type FlutedGlassPreset = ShaderPreset<Omit<FlutedGlassParams, 'margin'>>;
 
 export const defaultPreset: FlutedGlassPreset = {
   name: 'Default',
@@ -123,11 +123,12 @@ export const FlutedGlass: React.FC<FlutedGlassProps> = memo(function FlutedGlass
   shape = defaultPreset.params.shape,
   shift = defaultPreset.params.shift,
   blur = defaultPreset.params.blur,
-  marginLeft = defaultPreset.params.marginLeft,
-  marginRight = defaultPreset.params.marginRight,
-  marginTop = defaultPreset.params.marginTop,
-  marginBottom = defaultPreset.params.marginBottom,
   highlights = defaultPreset.params.highlights,
+  margin,
+  marginLeft = margin ?? defaultPreset.params.marginLeft,
+  marginRight = margin ?? defaultPreset.params.marginRight,
+  marginTop = margin ?? defaultPreset.params.marginTop,
+  marginBottom = margin ?? defaultPreset.params.marginBottom,
 
   // Sizing props
   fit = defaultPreset.params.fit,
