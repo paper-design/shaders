@@ -42,6 +42,10 @@ uniform float u_colorsCount;
 uniform float u_roundness;
 uniform float u_thickness;
 uniform float u_margin;
+uniform float u_marginLeft;
+uniform float u_marginRight;
+uniform float u_marginTop;
+uniform float u_marginBottom;
 uniform float u_shape;
 uniform float u_softness;
 uniform float u_intensity;
@@ -132,8 +136,23 @@ void main() {
     }
   }
 
-  halfSize -= u_margin;
+//  halfSize -= u_margin;
   halfSize -= thickness;
+
+  // --- margins (per-side) ---
+  float sumX = u_marginLeft + u_marginRight;
+  float sumY = u_marginBottom + u_marginTop;
+
+  // shrink half extents by half the total margins per axis
+  halfSize.x -= 0.5 * sumX;
+  halfSize.y -= 0.5 * sumY;
+
+  // shift the box center for asymmetric margins
+  vec2 centerShift = vec2(
+    (u_marginLeft - u_marginRight) * 0.5,
+    (u_marginBottom - u_marginTop) * 0.5
+  );
+  borderUV -= centerShift;
 
   float radius = mix(0., min(halfSize.x, halfSize.y), u_roundness);
   vec2 d = abs(borderUV) - halfSize + radius;
@@ -233,6 +252,10 @@ export interface PulsingBorderUniforms extends ShaderSizingUniforms {
   u_roundness: number;
   u_thickness: number;
   u_margin: number;
+  u_marginLeft: number;
+  u_marginRight: number;
+  u_marginTop: number;
+  u_marginBottom: number;
   u_shape: (typeof PulsingBorderShapes)[PulsingBorderShape];
   u_softness: number;
   u_intensity: number;
@@ -251,6 +274,10 @@ export interface PulsingBorderParams extends ShaderSizingParams, ShaderMotionPar
   roundness?: number;
   thickness?: number;
   margin?: number;
+  marginLeft?: number;
+  marginRight?: number;
+  marginTop?: number;
+  marginBottom?: number;
   shape?: PulsingBorderShape;
   softness?: number;
   intensity?: number;

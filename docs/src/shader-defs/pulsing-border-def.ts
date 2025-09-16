@@ -46,6 +46,23 @@ export const pulsingBorderDef: ShaderDef = {
       description: 'Border edge sharpness (0 = hard edge, 1 = smooth gradient)',
     },
     {
+      name: 'margin',
+      type: 'number',
+      min: 0,
+      max: 1,
+      defaultValue: defaultParams.margin,
+      description: 'TBD',
+    },
+    // separate margins?
+    {
+      name: 'shape',
+      type: 'number',
+      min: 0,
+      max: 1,
+      defaultValue: defaultParams.shape,
+      description: 'TBD',
+    },
+    {
       name: 'intensity',
       type: 'number',
       min: 0,
