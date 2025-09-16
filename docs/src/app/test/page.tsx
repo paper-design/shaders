@@ -1,11 +1,12 @@
 'use client';
 
-import { Heatmap, heatmapPresets } from '@paper-design/shaders-react';
+import { ImageLiquidMetal } from '@paper-design/shaders-react';
+import diamond from '../../../public/images/image-filters/0019.webp';
 
 export default function TestPage() {
   return (
     <div style={{ display: 'flex' }}>
-      <Heatmap width={500} height={500} {...heatmapPresets.find((preset) => preset.name === 'Default')?.params} />
+      <ImageLiquidMetal width={500} height={500} image={diamond.src} />
     </div>
   );
 }

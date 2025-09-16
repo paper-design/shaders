@@ -210,7 +210,7 @@ export {
 } from './shaders/heatmap.js';
 
 export {
-  liquidFragmentShader,
+  imageLiquidMetalFragmentShader,
   toProcessedImageLiquidMetal,
   type ImageLiquidMetalParams,
   type ImageLiquidMetalUniforms,

@@ -1,7 +1,7 @@
 import type { ShaderMotionParams } from '../shader-mount.js';
 import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
 
-export const liquidFragmentShader: string = /* glsl */ `#version 300 es
+export const imageLiquidMetalFragmentShader: string = /* glsl */ `#version 300 es
 precision mediump float;
 
 out vec4 fragColor;
@@ -88,8 +88,6 @@ float get_img_frame_alpha(vec2 uv, float img_frame_width) {
 
 void main() {
     vec2 uv = v_imageUV;
-    uv.y = 1. - uv.y;
-    uv.x *= u_ratio;
 
     float diagonal = uv.x - uv.y;
 
@@ -364,8 +362,18 @@ export function toProcessedImageLiquidMetal(file: File | string): Promise<{ blob
 
 export interface ImageLiquidMetalUniforms extends ShaderSizingUniforms {
   u_image: HTMLImageElement | string | undefined;
+  u_patternScale: number;
+  u_refraction: number;
+  u_edge: number;
+  u_patternBlur: number;
+  u_liquid: number;
 }
 
 export interface ImageLiquidMetalParams extends ShaderSizingParams, ShaderMotionParams {
   image?: HTMLImageElement | string | undefined;
+  patternScale: number;
+  refraction: number;
+  edge: number;
+  patternBlur: number;
+  liquid: number;
 }
