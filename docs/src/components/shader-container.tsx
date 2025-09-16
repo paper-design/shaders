@@ -44,7 +44,7 @@ export function ShaderContainer({
       )}
 
       <div className="relative">
-        <div className="flex aspect-4/3 *:size-full not-has-[[data-paper-shader]]:bg-header xs:aspect-3/2 md:aspect-16/9">
+        <div className="flex aspect-4/3 *:size-full not-has-[[data-paper-shader]]:bg-header xs:aspect-3/2 md:aspect-16/9 resize overflow-auto">
           {children}
         </div>
 

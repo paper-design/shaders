@@ -5,7 +5,8 @@ const defaultParams = paperTexturePresets[0].params;
 
 export const paperTextureDef: ShaderDef = {
   name: 'Paper Texture',
-  description: 'A static texture built from multiple noise layers, usable for a realistic paper and cardboard surfaces or generating abstract patterns. Can be used as a image filter or as a texture.',
+  description:
+    'A static texture built from multiple noise layers, usable for a realistic paper and cardboard surfaces or generating abstract patterns. Can be used as a image filter or as a texture.',
   params: [
     {
       name: 'colorBack',
@@ -109,6 +110,18 @@ export const paperTextureDef: ShaderDef = {
       max: 1000,
       defaultValue: defaultParams.seed,
       description: 'Seed applied to folds, crumples and dots',
+    },
+    {
+      name: 'width',
+      type: 'number | string',
+      defaultValue: undefined,
+      description: 'CSS width style of the shader element',
+    },
+    {
+      name: 'height',
+      type: 'number | string',
+      defaultValue: undefined,
+      description: 'CSS height style of the shader element',
     },
     {
       name: 'scale',

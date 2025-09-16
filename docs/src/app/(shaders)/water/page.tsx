@@ -114,7 +114,7 @@ const WaterWithControls = () => {
         currentParams={params}
         notes={
           <>
-            Thank you{' '}
+            Thanks to{' '}
             <a href="https://x.com/zozuar" target="_blank" rel="noopener">
               zozuar
             </a>{' '}

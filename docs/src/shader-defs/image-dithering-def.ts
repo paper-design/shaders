@@ -5,7 +5,8 @@ const defaultParams = imageDitheringPresets[0].params;
 
 export const imageDitheringDef: ShaderDef = {
   name: 'Image Dithering',
-  description: 'A dithering image filter with support for 4 dithering modes and multiple color palettes (2-color, 3-color, and multicolor options, using either predefined colors or ones sampled directly from the original image).',
+  description:
+    'A dithering image filter with support for 4 dithering modes and multiple color palettes (2-color, 3-color, and multicolor options, using either predefined colors or ones sampled directly from the original image).',
   params: [
     {
       name: 'colorBack',
@@ -58,6 +59,18 @@ export const imageDitheringDef: ShaderDef = {
       step: 1,
       defaultValue: defaultParams.colorSteps,
       description: 'Number of colors to use (applies to both color modes)',
+    },
+    {
+      name: 'width',
+      type: 'number | string',
+      defaultValue: undefined,
+      description: 'CSS width style of the shader element',
+    },
+    {
+      name: 'height',
+      type: 'number | string',
+      defaultValue: undefined,
+      description: 'CSS height style of the shader element',
     },
     {
       name: 'scale',

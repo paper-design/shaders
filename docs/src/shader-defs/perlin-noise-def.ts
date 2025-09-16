@@ -63,6 +63,18 @@ export const perlinNoiseDef: ShaderDef = {
       description: 'Frequency step, typically around 2. Defines how compressed the pattern is',
     },
     {
+      name: 'width',
+      type: 'number | string',
+      defaultValue: undefined,
+      description: 'CSS width style of the shader element',
+    },
+    {
+      name: 'height',
+      type: 'number | string',
+      defaultValue: undefined,
+      description: 'CSS height style of the shader element',
+    },
+    {
       name: 'scale',
       type: 'number',
       min: 0.01,
