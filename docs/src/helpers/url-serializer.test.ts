@@ -1,4 +1,4 @@
-wimport { describe, test, expect } from 'bun:test';
+import { describe, test, expect } from 'bun:test';
 import { serializeParams, deserializeParams } from './url-serializer';
 import type { ParamDef } from '../shader-defs/shader-def-types';
 

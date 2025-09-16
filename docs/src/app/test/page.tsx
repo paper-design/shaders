@@ -1,7 +1,6 @@
 'use client';
 
 import { ImageLiquidMetal, imageLiquidMetalPresets } from '@paper-design/shaders-react';
-import diamond from '../../../public/images/image-filters/0019.webp';
 
 export default function TestPage() {
   return (
