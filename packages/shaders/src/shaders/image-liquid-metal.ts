@@ -196,6 +196,7 @@ export function toProcessedImageLiquidMetal(file: File | string): Promise<{ blob
     }
 
     const img = new Image();
+    img.crossOrigin = 'anonymous';
     img.onload = function () {
       // Force SVG to load at a high fidelity size if it's an SVG
       if (typeof file === 'string' ? file.endsWith('.svg') : file.type === 'image/svg+xml') {
@@ -371,9 +372,9 @@ export interface ImageLiquidMetalUniforms extends ShaderSizingUniforms {
 
 export interface ImageLiquidMetalParams extends ShaderSizingParams, ShaderMotionParams {
   image?: HTMLImageElement | string | undefined;
-  patternScale: number;
-  refraction: number;
-  edge: number;
-  patternBlur: number;
-  liquid: number;
+  patternScale?: number;
+  refraction?: number;
+  edge?: number;
+  patternBlur?: number;
+  liquid?: number;
 }

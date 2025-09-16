@@ -125,8 +125,6 @@ export const ImageLiquidMetal: React.FC<ImageLiquidMetalProps> = memo(function I
     u_worldHeight: worldHeight,
   } satisfies ImageLiquidMetalUniforms;
 
-  console.log(processedImage);
-
   return (
     <ShaderMount
       {...props}
