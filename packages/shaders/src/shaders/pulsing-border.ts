@@ -136,23 +136,23 @@ void main() {
     }
   }
 
-//  halfSize -= u_margin;
+  halfSize -= u_margin;
   halfSize -= thickness;
 
-  // --- margins (per-side) ---
-  float sumX = u_marginLeft + u_marginRight;
-  float sumY = u_marginBottom + u_marginTop;
-
-  // shrink half extents by half the total margins per axis
-  halfSize.x -= 0.5 * sumX;
-  halfSize.y -= 0.5 * sumY;
-
-  // shift the box center for asymmetric margins
-  vec2 centerShift = vec2(
-    (u_marginLeft - u_marginRight) * 0.5,
-    (u_marginBottom - u_marginTop) * 0.5
-  );
-  borderUV -= centerShift;
+//  // --- margins (per-side) ---
+//  float sumX = u_marginLeft + u_marginRight;
+//  float sumY = u_marginBottom + u_marginTop;
+//
+//  // shrink half extents by half the total margins per axis
+//  halfSize.x -= 0.5 * sumX;
+//  halfSize.y -= 0.5 * sumY;
+//
+//  // shift the box center for asymmetric margins
+//  vec2 centerShift = vec2(
+//    (u_marginLeft - u_marginRight) * 0.5,
+//    (u_marginBottom - u_marginTop) * 0.5
+//  );
+//  borderUV -= centerShift;
 
   float radius = mix(0., min(halfSize.x, halfSize.y), u_roundness);
   vec2 d = abs(borderUV) - halfSize + radius;
