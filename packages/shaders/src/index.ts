@@ -209,6 +209,13 @@ export {
   type HeatmapUniforms,
 } from './shaders/heatmap.js';
 
+export {
+  liquidFragmentShader,
+  toProcessedImageLiquidMetal,
+  type ImageLiquidMetalParams,
+  type ImageLiquidMetalUniforms,
+} from './shaders/image-liquid-metal.js';
+
 // ----- Utils ----- //
 export { getShaderColorFromString } from './get-shader-color-from-string.js';
 export { getShaderNoiseTexture } from './get-shader-noise-texture.js';
