@@ -91,7 +91,7 @@ void main() {
 
     float diagonal = uv.x - uv.y;
 
-    float t = .001 * u_time;
+    float t = .1 * u_time;
 
     vec4 img = texture(u_image, v_imageUV);
 
@@ -135,7 +135,6 @@ void main() {
     refr = clamp(refr, 0., 1.);
 
     float dir = grad_uv.x;
-
 
     dir += diagonal;
 
