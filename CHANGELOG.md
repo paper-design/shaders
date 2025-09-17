@@ -1,5 +1,19 @@
 # Paper Shaders
 
+## Version 0.0.53
+
+### New features
+
+- Add width/height props to shader components
+- Add center and proportion params to Swirl shader
+
+### Fixes
+
+- Update shader preset values
+- Remove image from image shader presets
+- Fix effectScale in Water shader
+- Fix first frame not matching for some shaders
+
 ## Version 0.0.52
 
 - Revert heatmap shader preset param change.
