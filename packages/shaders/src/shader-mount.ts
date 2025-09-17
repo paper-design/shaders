@@ -656,7 +656,7 @@ export type ImageShaderPreset<T> = {
    * Image is excluded as it isn't considered a preset,
    * e.g. when switching between presets it shouldn't switch the image.
    *
-   * While we exclude images from presets they should still be set with default values so the code-first usage of shaders remains great.
+   * While we exclude images from presets they should still be set with a default prop value so the code-first usage of shaders remains great.
    */
   params: Required<Omit<T, 'image'>>;
 };
