@@ -218,3 +218,7 @@
     }
   }
 }
+
+::-webkit-resizer {
+  display: none;
+}
