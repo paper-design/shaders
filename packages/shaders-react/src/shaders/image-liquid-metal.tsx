@@ -4,10 +4,10 @@ import {
   imageLiquidMetalFragmentShader,
   ShaderFitOptions,
   defaultObjectSizing,
-  type ShaderPreset,
   type ImageLiquidMetalUniforms,
   type ImageLiquidMetalParams,
   toProcessedImageLiquidMetal,
+  type ImageShaderPreset,
 } from '@paper-design/shaders';
 import { transparentPixel } from '../transparent-pixel.js';
 import { suspend } from '../suspend.js';
@@ -19,7 +19,7 @@ export interface ImageLiquidMetalProps extends ShaderComponentProps, ImageLiquid
   suspendWhenProcessingImage?: boolean;
 }
 
-type ImageLiquidMetalPreset = ShaderPreset<ImageLiquidMetalParams>;
+type ImageLiquidMetalPreset = ImageShaderPreset<ImageLiquidMetalParams>;
 
 export const defaultPreset: ImageLiquidMetalPreset = {
   name: 'Default',
@@ -28,7 +28,6 @@ export const defaultPreset: ImageLiquidMetalPreset = {
     scale: 0.6,
     speed: 1,
     frame: 0,
-    image: 'https://shaders.paper.design/images/image-filters/0019.webp',
     liquid: 0.07,
     patternScale: 2.0,
     refraction: 0.015,
@@ -43,7 +42,7 @@ export const ImageLiquidMetal: React.FC<ImageLiquidMetalProps> = memo(function I
   // Own props
   speed = defaultPreset.params.speed,
   frame = defaultPreset.params.frame,
-  image = defaultPreset.params.image,
+  image = 'https://shaders.paper.design/images/image-filters/0019.webp',
   edge = defaultPreset.params.edge,
   liquid = defaultPreset.params.liquid,
   patternBlur = defaultPreset.params.patternBlur,
