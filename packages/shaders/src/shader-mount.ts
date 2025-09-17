@@ -649,6 +649,11 @@ export type ShaderPreset<T> = {
   params: Required<T>;
 };
 
+export type ImageShaderPreset<T> = {
+  name: string;
+  params: Required<Omit<T, 'image'>>;
+};
+
 function isSafari() {
   const ua = navigator.userAgent.toLowerCase();
   return ua.includes('safari') && !ua.includes('chrome') && !ua.includes('android');

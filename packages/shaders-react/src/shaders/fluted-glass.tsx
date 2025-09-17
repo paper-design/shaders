@@ -5,25 +5,23 @@ import {
   ShaderFitOptions,
   type FlutedGlassUniforms,
   type FlutedGlassParams,
-  type ShaderPreset,
   defaultObjectSizing,
   GlassDistortionShapes,
   GlassGridShapes,
+  type ImageShaderPreset,
 } from '@paper-design/shaders';
 
 export interface FlutedGlassProps extends ShaderComponentProps, FlutedGlassParams {}
 
-type FlutedGlassPreset = ShaderPreset<FlutedGlassParams>;
+type FlutedGlassPreset = ImageShaderPreset<FlutedGlassParams>;
 
 export const defaultPreset: FlutedGlassPreset = {
   name: 'Default',
   params: {
     ...defaultObjectSizing,
     fit: 'cover',
-    // scale: 0.95,
     speed: 0,
     frame: 0,
-    image: 'https://shaders.paper.design/images/image-filters/0018.webp',
     count: 80,
     angle: 0,
     distortionShape: 'lens',
@@ -46,7 +44,6 @@ export const wavesPreset: FlutedGlassPreset = {
     fit: 'cover',
     speed: 0,
     frame: 0,
-    image: 'https://shaders.paper.design/images/image-filters/0018.webp',
     count: 20,
     angle: 0,
     distortionShape: 'contour',
@@ -70,7 +67,6 @@ export const irregularPreset: FlutedGlassPreset = {
     scale: 4,
     speed: 0,
     frame: 0,
-    image: 'https://shaders.paper.design/images/image-filters/0018.webp',
     count: 32,
     angle: 150,
     distortionShape: 'facete',
@@ -93,7 +89,6 @@ export const foldsPreset: FlutedGlassPreset = {
     fit: 'cover',
     speed: 0,
     frame: 0,
-    image: 'https://shaders.paper.design/images/image-filters/0018.webp',
     count: 50,
     angle: 0,
     distortionShape: 'cascade',
@@ -115,7 +110,7 @@ export const FlutedGlass: React.FC<FlutedGlassProps> = memo(function FlutedGlass
   // Own props
   speed = defaultPreset.params.speed,
   frame = defaultPreset.params.frame,
-  image = defaultPreset.params.image,
+  image = 'https://shaders.paper.design/images/image-filters/0018.webp',
   count = defaultPreset.params.count,
   angle = defaultPreset.params.angle,
   distortion = defaultPreset.params.distortion,

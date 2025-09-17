@@ -7,13 +7,13 @@ import {
   ShaderFitOptions,
   type WaterUniforms,
   type WaterParams,
-  type ShaderPreset,
   defaultObjectSizing,
+  type ImageShaderPreset,
 } from '@paper-design/shaders';
 
 export interface WaterProps extends ShaderComponentProps, WaterParams {}
 
-type WaterPreset = ShaderPreset<WaterParams>;
+type WaterPreset = ImageShaderPreset<WaterParams>;
 
 export const defaultPreset: WaterPreset = {
   name: 'Default',
@@ -24,7 +24,6 @@ export const defaultPreset: WaterPreset = {
     frame: 0,
     colorBack: '#909090',
     colorHighlight: '#ffffff',
-    image: 'https://shaders.paper.design/images/image-filters/0018.webp',
     highlights: 0.07,
     layering: 0.5,
     edges: 0.8,
@@ -44,7 +43,6 @@ export const abstractPreset: WaterPreset = {
     frame: 0,
     colorBack: '#909090',
     colorHighlight: '#ffffff',
-    image: 'https://shaders.paper.design/images/image-filters/0018.webp',
     highlights: 0,
     layering: 0,
     edges: 1,
@@ -64,7 +62,6 @@ export const streamingPreset: WaterPreset = {
     frame: 0,
     colorBack: '#909090',
     colorHighlight: '#ffffff',
-    image: 'https://shaders.paper.design/images/image-filters/0018.webp',
     highlights: 0,
     layering: 0,
     edges: 0,
@@ -84,7 +81,6 @@ export const slowMoPreset: WaterPreset = {
     frame: 0,
     colorBack: '#909090',
     colorHighlight: '#ffffff',
-    image: 'https://shaders.paper.design/images/image-filters/0018.webp',
     highlights: 0.4,
     layering: 0,
     edges: 0,
@@ -102,7 +98,7 @@ export const Water: React.FC<WaterProps> = memo(function WaterImpl({
   frame = defaultPreset.params.frame,
   colorBack = defaultPreset.params.colorBack,
   colorHighlight = defaultPreset.params.colorHighlight,
-  image = defaultPreset.params.image,
+  image = 'https://shaders.paper.design/images/image-filters/0018.webp',
   highlights = defaultPreset.params.highlights,
   layering = defaultPreset.params.layering,
   waves = defaultPreset.params.waves,
