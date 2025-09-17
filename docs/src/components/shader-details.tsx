@@ -1,7 +1,7 @@
 'use client';
 
 import type { ReactNode } from 'react';
-import { ShaderDef, ParamOption } from '../shader-defs/shader-def-types';
+import { ShaderDef, ParamOption, ParamDef } from '../shader-defs/shader-def-types';
 import { CopyButton } from './copy-button';
 import { hslToHex } from '@/helpers/color-utils';
 
@@ -29,6 +29,71 @@ const formatJsxAttribute = (key: string, value: unknown): string => {
 
   return `${key}={${JSON.stringify(value)}}`;
 };
+
+function PropsTable({ params }: { params: ParamDef[] }) {
+  return (
+    <table className="w-full text-base">
+      <thead>
+        <tr className="bg-backplate-2">
+          <th className="px-16 py-12 text-left font-medium lowercase">Name</th>
+          <th className="px-16 py-12 text-left font-medium lowercase">Description</th>
+          <th className="px-16 py-12 text-left font-medium lowercase">Type</th>
+          <th className="px-16 py-12 text-left font-medium lowercase">Values</th>
+        </tr>
+      </thead>
+      <tbody>
+        {params.map((param) => (
+          <tr key={param.name} className="border-table-border not-last:border-b">
+            <td className="px-16 py-12 font-medium">{param.name}</td>
+
+            <td className="min-w-[240px] px-16 py-12 text-current/70">{param.description}</td>
+
+            <td className="px-16 py-12 text-sm text-current/70">
+              <code>{param.type}</code>
+            </td>
+
+            <td className="max-w-240 px-16 py-12 text-sm text-current/70">
+              {param.options && param.options.length > 0 ? (
+                typeof param.options[0] === 'string' ? (
+                  <div className="text-pretty">
+                    {(param.options as string[]).map((option, index) => (
+                      <span key={option} className={param.type === 'boolean' ? 'whitespace-nowrap' : ''}>
+                        {<span className="text-stone-400 mx-4"> | </span>}
+                        <code className="font-mono">{param.type === 'enum' ? `"${option}"` : option}</code>
+                      </span>
+                    ))}
+                  </div>
+                ) : (
+                  <ul className="space-y-4">
+                    {(param.options as ParamOption[]).map((option) => (
+                      <li key={option.name}>
+                        <code className="font-mono">{param.type === 'enum' ? `"${option.name}"` : option.name}</code>{' '}
+                        <span className="text-stone-400">-</span> {option.description}
+                      </li>
+                    ))}
+                  </ul>
+                )
+              ) : param.min !== undefined && param.max !== undefined ? (
+                <>
+                  <span className="whitespace-nowrap">
+                    <span className="font-mono">{param.min}</span>
+                    {' to '}
+                    <span className="font-mono">{param.max}</span>
+                  </span>
+                  {param.step === 1 && ' (integer)'}
+                </>
+              ) : param.isColor ? (
+                <span className="whitespace-nowrap">Hex, RGB, or HSL color</span>
+              ) : (
+                <span className="text-current/40">—</span>
+              )}
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  );
+}
 
 export function ShaderDetails({
   shaderDef,
@@ -65,9 +130,35 @@ export function ShaderDetails({
     .join('\n  ')}
 />
 `;
+  const commonPropNames = [
+    'width',
+    'height',
+    'fit',
+    'scale',
+    'rotation',
+    'originX',
+    'originY',
+    'offsetX',
+    'offsetY',
+    'worldWidth',
+    'worldHeight',
+    'speed',
+    'minPixelRatio',
+    'maxPixelCount',
+  ];
+
+  const shaderProps = shaderDef.params.filter((p) => !commonPropNames.includes(p.name));
+  const commonProps = shaderDef.params.filter((p) => commonPropNames.includes(p.name));
 
   return (
     <div className="mt-24 flex w-full flex-col gap-32 md:mt-40 [&_a]:link [&>section]:flex [&>section]:flex-col [&>section]:gap-16">
+      {shaderDef.description && (
+        <section>
+          <h2 className="text-2xl font-medium lowercase">Description</h2>
+          <p className="text-pretty text-current/70">{shaderDef.description}</p>
+        </section>
+      )}
+
       <section>
         <div className="flex items-center gap-8">
           <h2 className="text-2xl font-medium lowercase">Installation</h2>
@@ -96,80 +187,21 @@ export function ShaderDetails({
 
       <section>
         <div className="flex flex-col gap-16">
-          <h2 className="text-2xl font-medium lowercase">Props</h2>
+          <h2 className="text-2xl font-medium lowercase">Shader Props</h2>
           <div className="overflow-x-auto rounded-xl bg-backplate-1 squircle:rounded-2xl">
-            <table className="w-full text-base">
-              <thead>
-                <tr className="bg-backplate-2">
-                  <th className="px-16 py-12 text-left font-medium lowercase">Name</th>
-                  <th className="px-16 py-12 text-left font-medium lowercase">Description</th>
-                  <th className="px-16 py-12 text-left font-medium lowercase">Type</th>
-                  <th className="px-16 py-12 text-left font-medium lowercase">Values</th>
-                </tr>
-              </thead>
-              <tbody>
-                {shaderDef.params.map((param) => (
-                  <tr key={param.name} className="border-table-border not-last:border-b">
-                    <td className="px-16 py-12 font-medium">{param.name}</td>
-
-                    <td className="min-w-[240px] px-16 py-12 text-current/70">{param.description}</td>
-
-                    <td className="px-16 py-12 text-sm text-current/70">
-                      <code>{param.type}</code>
-                    </td>
-
-                    <td className="max-w-240 px-16 py-12 text-sm text-current/70">
-                      {param.options && param.options.length > 0 ? (
-                        typeof param.options[0] === 'string' ? (
-                          <div className="text-pretty">
-                            {(param.options as string[]).map((option, index) => (
-                              <span key={option} className={param.type === 'boolean' ? 'whitespace-nowrap' : ''}>
-                                {<span className="text-stone-400 mx-4"> | </span>}
-                                <code className="font-mono">{param.type === 'enum' ? `"${option}"` : option}</code>
-                              </span>
-                            ))}
-                          </div>
-                        ) : (
-                          <ul className="space-y-4">
-                            {(param.options as ParamOption[]).map((option) => (
-                              <li key={option.name}>
-                                <code className="font-mono">
-                                  {param.type === 'enum' ? `"${option.name}"` : option.name}
-                                </code>{' '}
-                                <span className="text-stone-400">-</span> {option.description}
-                              </li>
-                            ))}
-                          </ul>
-                        )
-                      ) : param.min !== undefined && param.max !== undefined ? (
-                        <>
-                          <span className="whitespace-nowrap">
-                            <span className="font-mono">{param.min}</span>
-                            {' to '}
-                            <span className="font-mono">{param.max}</span>
-                          </span>
-                          {param.step === 1 && ' (integer)'}
-                        </>
-                      ) : param.isColor ? (
-                        <span className="whitespace-nowrap">Hex, RGB, or HSL color</span>
-                      ) : (
-                        <span className="text-current/40">—</span>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            <PropsTable params={shaderProps} />
           </div>
         </div>
       </section>
 
-      {shaderDef.description && (
-        <section>
-          <h2 className="text-2xl font-medium lowercase">Description</h2>
-          <p className="text-pretty text-current/70">{shaderDef.description}</p>
-        </section>
-      )}
+      <section>
+        <div className="flex flex-col gap-16">
+          <h2 className="text-2xl font-medium lowercase">Common Props</h2>
+          <div className="overflow-x-auto rounded-xl bg-backplate-1 squircle:rounded-2xl">
+            <PropsTable params={commonProps} />
+          </div>
+        </div>
+      </section>
 
       {notes && (
         <section>
