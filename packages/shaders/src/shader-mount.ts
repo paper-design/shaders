@@ -649,6 +649,18 @@ export type ShaderPreset<T> = {
   params: Required<T>;
 };
 
+export type ImageShaderPreset<T> = {
+  name: string;
+  /**
+   * Params for the shader excluding the image.
+   * Image is excluded as it isn't considered a preset,
+   * e.g. when switching between presets it shouldn't switch the image.
+   *
+   * While we exclude images from presets they should still be set with a default prop value so the code-first usage of shaders remains great.
+   */
+  params: Required<Omit<T, 'image'>>;
+};
+
 function isSafari() {
   const ua = navigator.userAgent.toLowerCase();
   return ua.includes('safari') && !ua.includes('chrome') && !ua.includes('android');
