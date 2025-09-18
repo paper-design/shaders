@@ -16,9 +16,7 @@ export const pulsingBorderMeta = {
  * - u_colors (vec4[]), u_colorsCount (float used as integer)
  * - u_roundness, u_thickness, u_softness: border parameters
  * - u_margin
- * - u_shape (float used as integer):
- * ---- 0: square
- * ---- 1: auto
+ * - u_aspectRatio
  * - u_intensity: thickness of individual spots
  * - u_bloom: normal / additive color blending
  * - u_spotSize: angular size of spots
@@ -46,7 +44,7 @@ uniform float u_marginLeft;
 uniform float u_marginRight;
 uniform float u_marginTop;
 uniform float u_marginBottom;
-uniform float u_shape;
+uniform float u_aspectRatio;
 uniform float u_softness;
 uniform float u_intensity;
 uniform float u_bloom;
@@ -75,17 +73,17 @@ float sst(float edge0, float edge1, float x) {
   return smoothstep(edge0, edge1, x);
 }
 
-float roundedBox(vec2 uv, vec2 halfSize, float distance, float cornerDistance, float thinkness, float softness) {
+float roundedBox(vec2 uv, vec2 halfSize, float distance, float cornerDistance, float thickness, float softness) {
   float borderDistance = abs(distance);
   float aa = 2. * fwidth(distance);
-  float border = 1. - sst(mix(thinkness, -thinkness, softness), thinkness + aa, borderDistance);
+  float border = 1. - sst(mix(thickness, -thickness, softness), thickness + aa, borderDistance);
   float cornerFadeCircles = 0.;
-  cornerFadeCircles = mix(1., cornerFadeCircles, sst(0., 1., length((uv + halfSize) / thinkness)));
-  cornerFadeCircles = mix(1., cornerFadeCircles, sst(0., 1., length((uv - vec2(-halfSize.x, halfSize.y)) / thinkness)));
-  cornerFadeCircles = mix(1., cornerFadeCircles, sst(0., 1., length((uv - vec2(halfSize.x, -halfSize.y)) / thinkness)));
-  cornerFadeCircles = mix(1., cornerFadeCircles, sst(0., 1., length((uv - halfSize) / thinkness)));
+  cornerFadeCircles = mix(1., cornerFadeCircles, sst(0., 1., length((uv + halfSize) / thickness)));
+  cornerFadeCircles = mix(1., cornerFadeCircles, sst(0., 1., length((uv - vec2(-halfSize.x, halfSize.y)) / thickness)));
+  cornerFadeCircles = mix(1., cornerFadeCircles, sst(0., 1., length((uv - vec2(halfSize.x, -halfSize.y)) / thickness)));
+  cornerFadeCircles = mix(1., cornerFadeCircles, sst(0., 1., length((uv - halfSize) / thickness)));
   aa = fwidth(cornerDistance);
-  float cornerFade = sst(0., mix(aa, thinkness, softness), cornerDistance);
+  float cornerFade = sst(0., mix(aa, thickness, softness), cornerDistance);
   cornerFade *= cornerFadeCircles;
   border += cornerFade;
   return border;
@@ -120,40 +118,52 @@ void main() {
   float angle = atan(borderUV.y, borderUV.x) / TWO_PI;
 
   float pulse = u_pulse * beat(.18 * u_time);
-  float thickness = .3 * pow(u_thickness, 2.);
-
-  float borderRatio = v_responsiveBoxGivenSize.x / v_responsiveBoxGivenSize.y;
+  
+  float canvasRatio = v_responsiveBoxGivenSize.x / v_responsiveBoxGivenSize.y;
   vec2 halfSize = vec2(.5);
-  if (borderRatio > 1.) {
-    borderUV.x *= borderRatio;
-    if (u_shape > 0.) {
-      halfSize.x *= borderRatio;
+  if (canvasRatio > 1.) {
+    borderUV.x *= canvasRatio;
+    if (u_aspectRatio == 0.) {
+      halfSize.x *= canvasRatio;
     }
   } else {
-    borderUV.y /= borderRatio;
-    if (u_shape > 0.) {
-      halfSize.y /= borderRatio;
+    borderUV.y /= canvasRatio;
+    if (u_aspectRatio == 0.) {
+      halfSize.y /= canvasRatio;
     }
   }
+  
+  if (u_aspectRatio > 0.) {
+    if (canvasRatio > u_aspectRatio) {
+      halfSize.x = halfSize.y * u_aspectRatio;
+      if (canvasRatio < 1.) {
+        halfSize.x = halfSize.y * u_aspectRatio;
+        halfSize /= canvasRatio;
+      }
+    } else {
+      halfSize.y = halfSize.x / u_aspectRatio;
+      if (canvasRatio > 1.) {
+        halfSize *= canvasRatio;
+      }
+    }
+  }
+  
+  float thickness = .5 * u_thickness * min(halfSize.x, halfSize.y);
+  halfSize -= mix(thickness, 0., u_softness);
 
-  halfSize -= u_margin;
-  halfSize -= thickness;
 
-//  // --- margins (per-side) ---
-//  float sumX = u_marginLeft + u_marginRight;
-//  float sumY = u_marginBottom + u_marginTop;
-//
-//  // shrink half extents by half the total margins per axis
-//  halfSize.x -= 0.5 * sumX;
-//  halfSize.y -= 0.5 * sumY;
-//
-//  // shift the box center for asymmetric margins
-//  vec2 centerShift = vec2(
-//    (u_marginLeft - u_marginRight) * 0.5,
-//    (u_marginBottom - u_marginTop) * 0.5
-//  );
-//  borderUV -= centerShift;
+  float sumX = u_marginLeft + u_marginRight;
+  float sumY = u_marginBottom + u_marginTop;
+  halfSize.x -= 0.5 * sumX;
+  halfSize.y -= 0.5 * sumY;
+  vec2 centerShift = vec2(
+    (u_marginLeft - u_marginRight) * 0.5,
+    (u_marginBottom - u_marginTop) * 0.5
+  );
+  borderUV -= centerShift;
 
+  
+  
   float radius = mix(0., min(halfSize.x, halfSize.y), u_roundness);
   vec2 d = abs(borderUV) - halfSize + radius;
   float outsideDistance = length(max(d, .0001)) - radius;
@@ -242,7 +252,7 @@ void main() {
   ${colorBandingFix}
 
 //  fragColor = vec4(color, opacity);
-  fragColor = vec4(vec3(border), 1.);
+  fragColor = vec4(border, .5 * border, border, 1.);
 }`;
 
 export interface PulsingBorderUniforms extends ShaderSizingUniforms {
@@ -256,7 +266,7 @@ export interface PulsingBorderUniforms extends ShaderSizingUniforms {
   u_marginRight: number;
   u_marginTop: number;
   u_marginBottom: number;
-  u_shape: (typeof PulsingBorderShapes)[PulsingBorderShape];
+  u_aspectRatio: number;
   u_softness: number;
   u_intensity: number;
   u_bloom: number;
@@ -278,7 +288,7 @@ export interface PulsingBorderParams extends ShaderSizingParams, ShaderMotionPar
   marginRight?: number;
   marginTop?: number;
   marginBottom?: number;
-  shape?: PulsingBorderShape;
+  aspectRatio?: number;
   softness?: number;
   intensity?: number;
   bloom?: number;
@@ -288,10 +298,3 @@ export interface PulsingBorderParams extends ShaderSizingParams, ShaderMotionPar
   smoke?: number;
   smokeSize?: number;
 }
-
-export const PulsingBorderShapes = {
-  square: 0,
-  auto: 1,
-} as const;
-
-export type PulsingBorderShape = keyof typeof PulsingBorderShapes;
