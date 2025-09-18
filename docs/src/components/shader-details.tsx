@@ -32,9 +32,9 @@ const formatJsxAttribute = (key: string, value: unknown): string => {
 
 function PropsTable({ params }: { params: ParamDef[] }) {
   return (
-    // Under md: auto for mobile
+    // Under md: auto widths for mobile
     // md to lg: fixed widths to align columns
-    // lg to 2xl: auto because it gets too tight
+    // lg to 2xl: auto widths because it gets too tight
     // Above 2xl: fixed widths to align columns
     <table className="w-full text-base">
       <colgroup>
@@ -143,18 +143,19 @@ export function ShaderDetails({
 />
 `;
   const commonPropNames = [
+    'speed',
+    'frame',
+    'scale',
+    'rotation',
+    'offsetX',
+    'offsetY',
     'width',
     'height',
     'fit',
-    'scale',
-    'rotation',
-    'originX',
-    'originY',
-    'offsetX',
-    'offsetY',
     'worldWidth',
     'worldHeight',
-    'speed',
+    'originX',
+    'originY',
     'minPixelRatio',
     'maxPixelCount',
   ];
