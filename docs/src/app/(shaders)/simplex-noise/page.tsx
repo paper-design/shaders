@@ -25,9 +25,9 @@ const SimplexNoiseWithControls = () => {
     return {
       stepsPerColor: { value: defaults.stepsPerColor, min: 1, max: 10, step: 1, order: 300 },
       softness: { value: defaults.softness, min: 0, max: 1, order: 301 },
-      scale: { value: defaults.scale, min: 0.01, max: 4, order: 400 },
-      rotation: { value: defaults.rotation, min: 0, max: 360, order: 401 },
-      speed: { value: defaults.speed, min: 0, max: 2, order: 402 },
+      speed: { value: defaults.speed, min: 0, max: 2, order: 400 },
+      scale: { value: defaults.scale, min: 0.01, max: 4, order: 401 },
+      rotation: { value: defaults.rotation, min: 0, max: 360, order: 402 },
     };
   }, [colors.length]);
 

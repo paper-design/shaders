@@ -35,7 +35,7 @@ const StaticRadialGradientWithControls = () => {
       grainMixer: { value: defaults.grainMixer, min: 0, max: 1, order: 208 },
       grainOverlay: { value: defaults.grainOverlay, min: 0, max: 1, order: 209 },
       offsetX: { value: defaults.offsetX, min: -1, max: 1, order: 300 },
-      offsetY: { value: defaults.offsetY, min: -1, max: 1, order: 300 },
+      offsetY: { value: defaults.offsetY, min: -1, max: 1, order: 301 },
     };
   }, [colors.length]);
 
