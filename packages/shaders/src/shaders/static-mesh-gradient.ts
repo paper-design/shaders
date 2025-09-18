@@ -6,7 +6,7 @@ import {
   type ShaderSizingParams,
   type ShaderSizingUniforms,
 } from '../shader-sizing.js';
-import { declarePI, rotation2, fiberNoise, colorBandingFix } from '../shader-utils.js';
+import { declarePI, rotation2, proceduralHash21 } from '../shader-utils.js';
 
 export const staticMeshGradientMeta = {
   maxColorCount: 10,
@@ -52,8 +52,24 @@ out vec4 fragColor;
 
 ${declarePI}
 ${rotation2}
-${fiberNoise}
+${proceduralHash21}
 
+float valueNoise(vec2 st) {
+  vec2 i = floor(st);
+  vec2 f = fract(st);
+  float a = hash21(i);
+  float b = hash21(i + vec2(1.0, 0.0));
+  float c = hash21(i + vec2(0.0, 1.0));
+  float d = hash21(i + vec2(1.0, 1.0));
+  vec2 u = f * f * (3.0 - 2.0 * f);
+  float x1 = mix(a, b, u.x);
+  float x2 = mix(c, d, u.x);
+  return mix(x1, x2, u.y);
+}
+
+float noise(vec2 n, vec2 seedOffset) {
+  return valueNoise(n + seedOffset);
+}
 
 vec2 getPosition(int i, float t) {
   float a = float(i) * .37;
@@ -70,9 +86,9 @@ void main() {
   vec2 uv = v_objectUV;
   uv += .5;
 
-  vec2 grainUV = v_objectUV * 120.;
-  float grain = fiberNoise(grainUV, vec2(0.));
-  float mixerGrain = .2 * u_grainMixer * (grain - .5);
+  vec2 grainUV = v_objectUV * 500.;
+  float grain = noise(grainUV, vec2(0.));
+  float mixerGrain = .4 * u_grainMixer * (grain - .5);
 
   float radius = smoothstep(0., 1., length(uv - .5));
   float center = 1. - radius;
@@ -114,14 +130,12 @@ void main() {
   color /= totalWeight;
   opacity /= totalWeight;
 
-  float rr = fiberNoise(rotate(grainUV, 1.), vec2(3.));
-  float gg = fiberNoise(rotate(grainUV, 2.) + 10., vec2(-1.));
-  float bb = fiberNoise(grainUV - 2., vec2(5.));
-  vec3 grainColor = vec3(rr, gg, bb) - 1.;
-  color = mix(color, grainColor, .2 * u_grainOverlay);
+  float rr = noise(rotate(grainUV, 1.), vec2(3.));
+  float gg = noise(rotate(grainUV, 2.) + 10., vec2(-1.));
+  float bb = noise(grainUV - 2., vec2(5.));
+  vec3 grainColor = vec3(rr, gg, bb);
+  color = mix(color, grainColor, .01 + .3 * u_grainOverlay);
   
-  ${colorBandingFix}
-
   fragColor = vec4(color, opacity);
 }
 `;
