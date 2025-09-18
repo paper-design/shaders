@@ -4,6 +4,7 @@ import type { ReactNode } from 'react';
 import { ShaderDef, ParamOption, ParamDef } from '../shader-defs/shader-def-types';
 import { CopyButton } from './copy-button';
 import { hslToHex } from '@/helpers/color-utils';
+import { commonParams } from '@/shader-defs/common-param-def';
 
 const formatJsxAttribute = (key: string, value: unknown): string => {
   if (value === true) {
@@ -142,24 +143,7 @@ export function ShaderDetails({
     .join('\n  ')}
 />
 `;
-  const commonPropNames = [
-    'speed',
-    'frame',
-    'scale',
-    'rotation',
-    'offsetX',
-    'offsetY',
-    'width',
-    'height',
-    'fit',
-    'worldWidth',
-    'worldHeight',
-    'originX',
-    'originY',
-    'minPixelRatio',
-    'maxPixelCount',
-  ];
-
+  const commonPropNames = Object.keys(commonParams);
   const shaderProps = shaderDef.params.filter((p) => !commonPropNames.includes(p.name));
   const commonProps = shaderDef.params.filter((p) => commonPropNames.includes(p.name));
 
