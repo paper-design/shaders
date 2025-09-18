@@ -226,8 +226,8 @@ export class ShaderMount {
         // To avoid sidebars upscaling the target resolution, set a minimum zoom level of 1.
         // This will render at higher resolution when zoomed out, but that's fine.
         // (We mostly care about maintaining good quality when zoomed in).
-        const zoomLevel = Math.max(1, bestGuessBrowserZoom());
-        targetRenderScale *= zoomLevel;
+        const zoomLevel = bestGuessBrowserZoom();
+        targetRenderScale *= Math.max(1, zoomLevel);
       }
 
       // Rounding the client width/height since they may be fractional in CSS layout values
