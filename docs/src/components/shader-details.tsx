@@ -21,7 +21,7 @@ const formatJsxAttribute = (key: string, value: unknown): string => {
     return `${key}={${formattedNumber}}`;
   }
   if (Array.isArray(value)) {
-    return `${key}={${JSON.stringify(value)}}`;
+    return `${key}={[${value.map((v) => JSON.stringify(v)).join(', ')}]}`;
   }
   if (typeof value === 'object') {
     return `${key}={${JSON.stringify(value)}}`;

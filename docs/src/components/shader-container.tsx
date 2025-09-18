@@ -3,6 +3,7 @@ import { SerializableValue, serializeParams } from '@/helpers/url-serializer';
 import { ShaderDef } from '@/shader-defs/shader-def-types';
 import { Leva } from 'leva';
 import { CopyButton } from './copy-button';
+import { useCallback, useEffect, useState } from 'react';
 
 export function ShaderContainer({
   children,
@@ -44,9 +45,7 @@ export function ShaderContainer({
       )}
 
       <div className="relative">
-        <div className="flex aspect-4/3 *:size-full not-has-[[data-paper-shader]]:bg-header xs:aspect-3/2 md:aspect-16/9 resize overflow-auto">
-          {children}
-        </div>
+        <ResizableShader>{children}</ResizableShader>
 
         <div
           className="absolute -top-4 -right-332 hidden w-300 overflow-auto rounded-xl bg-(--color-leva-background) pb-4 has-[[data-leva-container]>[style*='display:none']]:hidden lg:block squircle:rounded-2xl"
@@ -107,6 +106,25 @@ export function ShaderContainer({
           )}
         </div> */}
         </div>
+      </div>
+    </div>
+  );
+}
+
+function ResizableShader({ children }: React.PropsWithChildren) {
+  const [canStartResize, setCanStartResize] = useState(false);
+
+  return (
+    <div
+      className="flex aspect-4/3 *:size-full *:max-h-full not-has-[[data-paper-shader]]:bg-header xs:aspect-3/2 md:aspect-16/9"
+      onPointerMove={(event) => setCanStartResize(event.altKey)}
+      onPointerLeave={() => setCanStartResize(false)}
+    >
+      <div
+        data-resizable={canStartResize || undefined}
+        className="flex overflow-hidden *:size-full data-resizable:resize [[style*='width']]:resize"
+      >
+        {children}
       </div>
     </div>
   );

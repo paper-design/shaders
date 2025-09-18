@@ -1,6 +1,12 @@
 /** The core Shader Mount class. Pass it a parent element and a fragment shader to get started. */
 export { ShaderMount, isPaperShaderElement } from './shader-mount.js';
-export type { PaperShaderElement, ShaderMotionParams, ShaderMountUniforms, ShaderPreset } from './shader-mount.js';
+export type {
+  PaperShaderElement,
+  ShaderMotionParams,
+  ShaderMountUniforms,
+  ShaderPreset,
+  ImageShaderPreset,
+} from './shader-mount.js';
 
 /** Shader sizing options and uniforms */
 export {
