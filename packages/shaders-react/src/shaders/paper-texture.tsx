@@ -7,14 +7,14 @@ import {
   getShaderNoiseTexture,
   paperTextureFragmentShader,
   ShaderFitOptions,
+  type ImageShaderPreset,
   type PaperTextureParams,
   type PaperTextureUniforms,
-  type ShaderPreset,
 } from '@paper-design/shaders';
 
 export interface PaperTextureProps extends ShaderComponentProps, PaperTextureParams {}
 
-type PaperTexturePreset = ShaderPreset<PaperTextureParams>;
+type PaperTexturePreset = ImageShaderPreset<PaperTextureParams>;
 
 export const defaultPreset: PaperTexturePreset = {
   name: 'Default',
@@ -26,7 +26,6 @@ export const defaultPreset: PaperTexturePreset = {
     frame: 0,
     colorFront: '#9fadbc',
     colorBack: '#ffffff',
-    image: 'https://shaders.paper.design/images/image-filters/0018.webp',
     contrast: 0.3,
     roughness: 0.4,
     fiber: 0.3,
@@ -51,7 +50,6 @@ export const abstractPreset: PaperTexturePreset = {
     scale: 0.6,
     colorFront: '#00eeff',
     colorBack: '#ff0a81',
-    image: 'https://shaders.paper.design/images/image-filters/0018.webp',
     contrast: 0.85,
     roughness: 0,
     fiber: 0.1,
@@ -76,7 +74,6 @@ export const cardboardPreset: PaperTexturePreset = {
     scale: 0.6,
     colorFront: '#c7b89e',
     colorBack: '#999180',
-    image: 'https://shaders.paper.design/images/image-filters/0018.webp',
     contrast: 0.4,
     roughness: 0,
     fiber: 0.35,
@@ -101,7 +98,6 @@ export const detailsPreset: PaperTexturePreset = {
     scale: 3,
     colorFront: '#00000000',
     colorBack: '#00000000',
-    image: 'https://shaders.paper.design/images/image-filters/0018.webp',
     contrast: 0,
     roughness: 1,
     fiber: 0.27,
@@ -129,7 +125,7 @@ export const PaperTexture: React.FC<PaperTextureProps> = memo(function PaperText
   frame = defaultPreset.params.frame,
   colorFront = defaultPreset.params.colorFront,
   colorBack = defaultPreset.params.colorBack,
-  image = defaultPreset.params.image,
+  image = 'https://shaders.paper.design/images/image-filters/0018.webp',
   contrast = defaultPreset.params.contrast,
   roughness = defaultPreset.params.roughness,
   fiber = defaultPreset.params.fiber,

@@ -6,9 +6,9 @@ import {
   ShaderFitOptions,
   type HeatmapUniforms,
   type HeatmapParams,
-  type ShaderPreset,
   defaultObjectSizing,
   toProcessedHeatmap,
+  type ImageShaderPreset,
 } from '@paper-design/shaders';
 
 import { transparentPixel } from '../transparent-pixel.js';
@@ -21,7 +21,7 @@ export interface HeatmapProps extends ShaderComponentProps, HeatmapParams {
   suspendWhenProcessingImage?: boolean;
 }
 
-export type HeatmapPreset = ShaderPreset<HeatmapParams>;
+export type HeatmapPreset = ImageShaderPreset<HeatmapParams>;
 
 export const defaultPreset: HeatmapPreset = {
   name: 'Default',
@@ -30,7 +30,6 @@ export const defaultPreset: HeatmapPreset = {
     scale: 0.75,
     speed: 1,
     frame: 0,
-    image: 'https://shaders.paper.design/images/image-filters/0019.webp',
     contour: 0.5,
     angle: 0,
     noise: 0,
@@ -48,7 +47,6 @@ export const sepiaPreset: HeatmapPreset = {
     scale: 0.75,
     speed: 0.5,
     frame: 0,
-    image: 'https://shaders.paper.design/images/image-filters/0019.webp',
     contour: 0.5,
     angle: 0,
     noise: 0.75,
@@ -65,6 +63,7 @@ export const Heatmap: React.FC<HeatmapProps> = memo(function HeatmapImpl({
   // Own props
   speed = defaultPreset.params.speed,
   frame = defaultPreset.params.frame,
+  image = 'https://shaders.paper.design/images/image-filters/0019.webp',
   contour = defaultPreset.params.contour,
   angle = defaultPreset.params.angle,
   noise = defaultPreset.params.noise,
@@ -76,7 +75,6 @@ export const Heatmap: React.FC<HeatmapProps> = memo(function HeatmapImpl({
 
   // Sizing props
   fit = defaultPreset.params.fit,
-  image = transparentPixel,
   offsetX = defaultPreset.params.offsetX,
   offsetY = defaultPreset.params.offsetY,
   originX = defaultPreset.params.originX,
