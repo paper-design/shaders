@@ -16,10 +16,10 @@ import { useUrlParams } from '@/helpers/use-url-params';
 const { worldWidth, worldHeight, ...defaults } = pulsingBorderPresets[0].params;
 
 const PulsingBorderWithControls = () => {
-  const { colors, setColors } = useColors({
-    defaultColors: defaults.colors,
-    maxColorCount: pulsingBorderMeta.maxColorCount,
-  });
+  // const { colors, setColors } = useColors({
+  //   defaultColors: defaults.colors,
+  //   maxColorCount: pulsingBorderMeta.maxColorCount,
+  // });
   const [params, setParams] = useControls(() => {
     return {
       // colorBack: { value: toHsla(defaults.colorBack), order: 100 },
@@ -51,16 +51,14 @@ const PulsingBorderWithControls = () => {
       rotation: { value: defaults.rotation, min: 0, max: 360, order: 303 },
       // speed: { value: defaults.speed, min: 0, max: 2, order: 400 },
     };
-  }, [colors.length]);
+  }, []);
 
   useControls(() => {
     const presets = Object.fromEntries(
       pulsingBorderPresets.map(({ name, params: preset }) => [
         name,
         button(() => {
-          const { colors, ...presetParams } = preset;
-          setColors(colors);
-          setParamsSafe(params, setParams, presetParams);
+          setParamsSafe(params, setParams, preset);
         }),
       ])
     );
@@ -72,16 +70,16 @@ const PulsingBorderWithControls = () => {
   // Reset to defaults on mount, so that Leva doesn't show values from other
   // shaders when navigating (if two shaders have a color1 param for example)
   useResetLevaParams(params, setParams, defaults);
-  useUrlParams(params, setParams, pulsingBorderDef, setColors);
+  useUrlParams(params, setParams, pulsingBorderDef);
   usePresetHighlight(pulsingBorderPresets, params);
   cleanUpLevaParams(params);
 
   return (
     <>
-      <ShaderContainer shaderDef={pulsingBorderDef} currentParams={{ colors, ...params }}>
-        <PulsingBorder {...params} colors={colors} />
+      <ShaderContainer shaderDef={pulsingBorderDef} currentParams={{ ...params }}>
+        <PulsingBorder {...params} />
       </ShaderContainer>
-      <ShaderDetails shaderDef={pulsingBorderDef} currentParams={{ colors, ...params }} />
+      <ShaderDetails shaderDef={pulsingBorderDef} currentParams={{ ...params }} />
     </>
   );
 };
