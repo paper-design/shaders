@@ -12,7 +12,6 @@ export const imageDitheringDef: ShaderDef = {
     {
       name: 'image',
       type: 'string | HTMLImageElement',
-      defaultValue: defaultParams.image,
       description: 'The image to use for the effect',
     },
     {
