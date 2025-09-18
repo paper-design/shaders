@@ -91,12 +91,45 @@ export const commonParams: Record<string, CommonParamDef> = {
   },
   minPixelRatio: {
     name: 'minPixelRatio',
-    type: 'number | string',
+    type: 'number',
     description: 'Minimum pixel ratio to use when rendering the shader',
   },
   maxPixelCount: {
     name: 'maxPixelCount',
-    type: 'number | string',
+    type: 'number',
     description: 'Maximum pixel count that the shader may process',
   },
 };
+
+export const animatedCommonParams: CommonParamDef[] = [
+  commonParams.speed,
+  commonParams.frame,
+  commonParams.scale,
+  commonParams.rotation,
+  commonParams.offsetX,
+  commonParams.offsetY,
+  commonParams.width,
+  commonParams.height,
+  commonParams.fit,
+  commonParams.worldWidth,
+  commonParams.worldHeight,
+  commonParams.originX,
+  commonParams.originY,
+  commonParams.minPixelRatio,
+  commonParams.maxPixelCount,
+];
+
+export const staticCommonParams: CommonParamDef[] = [
+  commonParams.rotation,
+  commonParams.offsetX,
+  commonParams.offsetY,
+  commonParams.width,
+  commonParams.height,
+  commonParams.fit,
+  commonParams.worldWidth,
+  commonParams.worldHeight,
+  commonParams.originX,
+  commonParams.originY,
+  commonParams.minPixelRatio,
+  commonParams.maxPixelCount,
+];

@@ -1,5 +1,6 @@
 import { paperTexturePresets } from '@paper-design/shaders-react';
 import type { ShaderDef } from './shader-def-types';
+import { staticCommonParams } from './common-param-def';
 
 const defaultParams = paperTexturePresets[0].params;
 
@@ -8,6 +9,12 @@ export const paperTextureDef: ShaderDef = {
   description:
     'A static texture built from multiple noise layers, usable for a realistic paper and cardboard surfaces or generating abstract patterns. Can be used as a image filter or as a texture.',
   params: [
+    {
+      name: 'image',
+      type: 'string | HTMLImageElement',
+      defaultValue: defaultParams.image,
+      description: 'The image to use for the effect',
+    },
     {
       name: 'colorBack',
       type: 'string',
@@ -111,32 +118,6 @@ export const paperTextureDef: ShaderDef = {
       defaultValue: defaultParams.seed,
       description: 'Seed applied to folds, crumples and dots',
     },
-    {
-      name: 'width',
-      type: 'number | string',
-      defaultValue: undefined,
-      description: 'CSS width style of the shader element',
-    },
-    {
-      name: 'height',
-      type: 'number | string',
-      defaultValue: undefined,
-      description: 'CSS height style of the shader element',
-    },
-    {
-      name: 'scale',
-      type: 'number',
-      min: 0.5,
-      max: 10,
-      defaultValue: defaultParams.scale,
-      description: 'Overall zoom level of the graphics',
-    },
-    {
-      name: 'fit',
-      type: 'enum',
-      defaultValue: defaultParams.fit,
-      description: 'How the image fits the canvas',
-      options: ['contain', 'cover'],
-    },
+    ...staticCommonParams,
   ],
 };

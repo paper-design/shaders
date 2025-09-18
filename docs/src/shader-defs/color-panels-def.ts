@@ -1,6 +1,6 @@
 import { colorPanelsPresets } from '@paper-design/shaders-react';
 import type { ShaderDef } from './shader-def-types';
-import { commonParams } from './common-param-def';
+import { animatedCommonParams } from './common-param-def';
 
 const defaultParams = colorPanelsPresets[0].params;
 
@@ -93,20 +93,6 @@ export const colorPanelsDef: ShaderDef = {
       defaultValue: defaultParams.gradient,
       description: 'Color mixing within a panel (0 = solid panel color, 1 = gradient of two colors)',
     },
-    { ...commonParams.speed, defaultValue: defaultParams.speed },
-    { ...commonParams.frame, defaultValue: defaultParams.frame },
-    { ...commonParams.scale, defaultValue: defaultParams.scale },
-    { ...commonParams.rotation, defaultValue: defaultParams.rotation },
-    { ...commonParams.offsetX, defaultValue: defaultParams.offsetX },
-    { ...commonParams.offsetY, defaultValue: defaultParams.offsetY },
-    { ...commonParams.width, defaultValue: undefined },
-    { ...commonParams.height, defaultValue: undefined },
-    { ...commonParams.fit, defaultValue: defaultParams.fit },
-    { ...commonParams.worldWidth, defaultValue: defaultParams.worldWidth },
-    { ...commonParams.worldHeight, defaultValue: defaultParams.worldHeight },
-    { ...commonParams.originX, defaultValue: defaultParams.originX },
-    { ...commonParams.originY, defaultValue: defaultParams.originY },
-    { ...commonParams.minPixelRatio, defaultValue: undefined },
-    { ...commonParams.maxPixelCount, defaultValue: undefined },
+    ...animatedCommonParams,
   ],
 };

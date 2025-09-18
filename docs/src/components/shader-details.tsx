@@ -42,7 +42,8 @@ function PropsTable({ params }: { params: ParamDef[] }) {
         {/* "noiseFrequency" is the longest name (116px + 32px padding = 148px) */}
         <col className="md:max-lg:w-148 2xl:w-148" />
         <col className="min-w-240" />
-        {/* "number | string" is the longest type (118px + 32px padding = 150px) */}
+        {/* "number | string" is the longest most common type (118px + 32px padding = 150px) */}
+        {/* There are a few "string | HTMLImageElement", which are purposely not aligned because too wide */}
         <col className="md:max-lg:w-150 2xl:w-150" />
         <col className="md:max-lg:w-260 2xl:w-260" />
       </colgroup>
