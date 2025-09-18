@@ -1,11 +1,16 @@
 'use client';
 
-import { Heatmap, heatmapPresets } from '@paper-design/shaders-react';
+import { ImageLiquidMetal, imageLiquidMetalPresets } from '@paper-design/shaders-react';
 
 export default function TestPage() {
   return (
     <div style={{ display: 'flex' }}>
-      <Heatmap width={500} height={500} {...heatmapPresets.find((preset) => preset.name === 'Default')?.params} />
+      <ImageLiquidMetal
+        {...imageLiquidMetalPresets.find((preset) => preset.name === 'Default')?.params}
+        style={{ backgroundColor: 'red' }}
+        width={1000}
+        height={500}
+      />
     </div>
   );
 }
