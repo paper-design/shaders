@@ -223,7 +223,10 @@ export class ShaderMount {
         // https://bugs.webkit.org/show_bug.cgi?id=124862
         //
         // In Safari we need to factor in the zoom level manually in order to set the target resolution.
-        const zoomLevel = bestGuessBrowserZoom();
+        // To avoid sidebars upscaling the target resolution, set a minimum zoom level of 1.
+        // This will render at higher resolution when zoomed out, but that's fine.
+        // (We mostly care about maintaining good quality when zoomed in).
+        const zoomLevel = Math.max(1, bestGuessBrowserZoom());
         targetRenderScale *= zoomLevel;
       }
 
