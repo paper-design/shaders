@@ -125,7 +125,8 @@ export function ShaderDetails({
   const code = `import { ${componentName} } from '@paper-design/shaders-react';
 
 <${componentName}
-  height={500}
+  width={1280}
+  height={720}
   ${Object.entries(currentParams)
     .filter(([key]) => !['worldWidth', 'worldHeight', 'originX', 'originY'].includes(key))
     .map(([key, value]) => {
