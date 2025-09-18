@@ -240,7 +240,7 @@ export class ShaderMount {
     const scaleToMeetMaxPixelCount = Math.min(1, maxPixelCountHeadroom);
     const newWidth = Math.round(targetPixelWidth * scaleToMeetMaxPixelCount);
     const newHeight = Math.round(targetPixelHeight * scaleToMeetMaxPixelCount);
-    const newRenderScale = newWidth / this.parentWidth;
+    const newRenderScale = newWidth / Math.round(this.parentWidth);
 
     if (
       this.canvasElement.width !== newWidth ||
