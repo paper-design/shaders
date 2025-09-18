@@ -32,7 +32,19 @@ const formatJsxAttribute = (key: string, value: unknown): string => {
 
 function PropsTable({ params }: { params: ParamDef[] }) {
   return (
+    // Under md: auto for mobile
+    // md to lg: fixed widths to align columns
+    // lg to 2xl: auto because it gets too tight
+    // Above 2xl: fixed widths to align columns
     <table className="w-full text-base">
+      <colgroup>
+        {/* "noiseFrequency" is the longest name (116px + 32px padding = 148px) */}
+        <col className="md:max-lg:w-148 2xl:w-148" />
+        <col className="min-w-240" />
+        {/* "number | string" is the longest type (118px + 32px padding = 150px) */}
+        <col className="md:max-lg:w-150 2xl:w-150" />
+        <col className="md:max-lg:w-260 2xl:w-260" />
+      </colgroup>
       <thead>
         <tr className="bg-backplate-2">
           <th className="px-16 py-12 text-left font-medium lowercase">Name</th>
@@ -46,9 +58,9 @@ function PropsTable({ params }: { params: ParamDef[] }) {
           <tr key={param.name} className="border-table-border not-last:border-b">
             <td className="px-16 py-12 font-medium">{param.name}</td>
 
-            <td className="min-w-[240px] px-16 py-12 text-current/70">{param.description}</td>
+            <td className="px-16 py-12 text-current/70">{param.description}</td>
 
-            <td className="px-16 py-12 text-sm text-current/70">
+            <td className="px-16 py-12 text-sm whitespace-nowrap text-current/70">
               <code>{param.type}</code>
             </td>
 
@@ -56,7 +68,7 @@ function PropsTable({ params }: { params: ParamDef[] }) {
               {param.options && param.options.length > 0 ? (
                 typeof param.options[0] === 'string' ? (
                   <div className="text-pretty">
-                    {(param.options as string[]).map((option, index) => (
+                    {(param.options as string[]).map((option) => (
                       <span key={option} className={param.type === 'boolean' ? 'whitespace-nowrap' : ''}>
                         {<span className="text-stone-400 mx-4"> | </span>}
                         <code className="font-mono">{param.type === 'enum' ? `"${option}"` : option}</code>
@@ -181,14 +193,16 @@ export function ShaderDetails({
           />
         </div>
         <div className="flex flex-col gap-8">
-          <pre className="overflow-x-auto rounded-xl bg-backplate-1 p-24 text-code squircle:rounded-2xl">{code}</pre>
+          <pre className="custom-scrollbar overflow-x-auto rounded-xl bg-backplate-1 p-24 text-code squircle:rounded-2xl">
+            {code}
+          </pre>
         </div>
       </section>
 
       <section>
         <div className="flex flex-col gap-16">
           <h2 className="text-2xl font-medium lowercase">Shader Props</h2>
-          <div className="overflow-x-auto rounded-xl bg-backplate-1 squircle:rounded-2xl">
+          <div className="custom-scrollbar overflow-x-auto rounded-xl bg-backplate-1 squircle:rounded-2xl">
             <PropsTable params={shaderProps} />
           </div>
         </div>
@@ -197,7 +211,7 @@ export function ShaderDetails({
       <section>
         <div className="flex flex-col gap-16">
           <h2 className="text-2xl font-medium lowercase">Common Props</h2>
-          <div className="overflow-x-auto rounded-xl bg-backplate-1 squircle:rounded-2xl">
+          <div className="custom-scrollbar overflow-x-auto rounded-xl bg-backplate-1 squircle:rounded-2xl">
             <PropsTable params={commonProps} />
           </div>
         </div>

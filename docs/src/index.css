@@ -96,23 +96,6 @@
     line-height: 26px;
   }
 
-  pre::-webkit-scrollbar {
-    height: 6px;
-  }
-
-  pre::-webkit-scrollbar-track {
-    background: transparent;
-  }
-
-  pre::-webkit-scrollbar-thumb {
-    background-color: #909090;
-    border-radius: 3px;
-  }
-
-  pre::-webkit-scrollbar-thumb:hover {
-    background-color: #777772;
-  }
-
   code {
     font-size: 0.9em;
   }
@@ -143,6 +126,25 @@
     &:hover {
       text-decoration-color: color-mix(in oklab, currentcolor 70%, transparent);
     }
+  }
+}
+
+@utility custom-scrollbar {
+  &::-webkit-scrollbar {
+    height: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: #909090;
+    border-radius: 3px;
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background-color: #777772;
   }
 }
 
