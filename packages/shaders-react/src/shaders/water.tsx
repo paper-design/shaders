@@ -11,7 +11,10 @@ import {
   type ImageShaderPreset,
 } from '@paper-design/shaders';
 
-export interface WaterProps extends ShaderComponentProps, WaterParams {}
+export interface WaterProps extends ShaderComponentProps, WaterParams {
+  /** @deprecated use `size` instead */
+  effectScale?: number;
+}
 
 type WaterPreset = ImageShaderPreset<WaterParams>;
 
@@ -104,7 +107,11 @@ export const Water: React.FC<WaterProps> = memo(function WaterImpl({
   waves = defaultPreset.params.waves,
   edges = defaultPreset.params.edges,
   caustic = defaultPreset.params.caustic,
-  size = defaultPreset.params.size,
+
+  // `effectScale` was deprecated in favor of `size`
+  // (it was a reverse value by mistake, so we took the opportunity to rename the param too)
+  effectScale,
+  size = effectScale === undefined ? defaultPreset.params.size : 10 / 9 / effectScale - 1 / 9,
 
   // Sizing props
   fit = defaultPreset.params.fit,
