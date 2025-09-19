@@ -126,7 +126,7 @@ export const FlutedGlass: React.FC<FlutedGlassProps> = memo(function FlutedGlass
   marginBottom = defaultPreset.params.marginBottom,
   edges = defaultPreset.params.edges,
 
-  // integer `count` was deprecated in favor of smooth `size`
+  // integer `count` was deprecated in favor of the normalized `size` param
   count,
   size = count === undefined ? defaultPreset.params.edges : Math.pow(1 / (count * 1.6), 1 / 6) / 0.7 - 0.5,
 
