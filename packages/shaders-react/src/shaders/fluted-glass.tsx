@@ -11,7 +11,10 @@ import {
   type ImageShaderPreset,
 } from '@paper-design/shaders';
 
-export interface FlutedGlassProps extends ShaderComponentProps, FlutedGlassParams {}
+export interface FlutedGlassProps extends ShaderComponentProps, FlutedGlassParams {
+  /** @deprecated use `size` instead */
+  count?: number;
+}
 
 type FlutedGlassPreset = ImageShaderPreset<FlutedGlassParams>;
 
@@ -111,7 +114,6 @@ export const FlutedGlass: React.FC<FlutedGlassProps> = memo(function FlutedGlass
   speed = defaultPreset.params.speed,
   frame = defaultPreset.params.frame,
   image = 'https://shaders.paper.design/images/image-filters/0018.webp',
-  size = defaultPreset.params.size,
   angle = defaultPreset.params.angle,
   distortion = defaultPreset.params.distortion,
   distortionShape = defaultPreset.params.distortionShape,
@@ -123,6 +125,10 @@ export const FlutedGlass: React.FC<FlutedGlassProps> = memo(function FlutedGlass
   marginTop = defaultPreset.params.marginTop,
   marginBottom = defaultPreset.params.marginBottom,
   edges = defaultPreset.params.edges,
+
+  // integer `count` was deprecated in favor of smooth `size`
+  count,
+  size = count === undefined ? defaultPreset.params.edges : Math.pow(1 / (count * 1.6), 1 / 6) / 0.7 - 0.5,
 
   // Sizing props
   fit = defaultPreset.params.fit,
