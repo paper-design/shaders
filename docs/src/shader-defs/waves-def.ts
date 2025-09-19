@@ -1,5 +1,6 @@
 import { wavesPresets } from '@paper-design/shaders-react';
 import type { ShaderDef } from './shader-def-types';
+import { staticCommonParams } from './common-param-def';
 
 const defaultParams = wavesPresets[0].params;
 
@@ -70,33 +71,6 @@ export const wavesDef: ShaderDef = {
       description:
         'Line shape control: zigzag at 0, sine at 1, irregular waves at 2. Intermediate values morph gradually between these shapes',
     },
-    {
-      name: 'width',
-      type: 'number | string',
-      defaultValue: undefined,
-      description: 'CSS width style of the shader element',
-    },
-    {
-      name: 'height',
-      type: 'number | string',
-      defaultValue: undefined,
-      description: 'CSS height style of the shader element',
-    },
-    {
-      name: 'scale',
-      type: 'number',
-      min: 0.01,
-      max: 4,
-      defaultValue: defaultParams.scale,
-      description: 'Overall zoom level of the graphics',
-    },
-    {
-      name: 'rotation',
-      type: 'number',
-      min: 0,
-      max: 360,
-      defaultValue: defaultParams.rotation,
-      description: 'Overall rotation angle of the graphics',
-    },
+    ...staticCommonParams,
   ],
 };

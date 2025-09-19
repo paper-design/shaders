@@ -9,7 +9,7 @@ export interface ParamDef {
   min?: number;
   max?: number;
   step?: number;
-  defaultValue: unknown;
+  defaultValue?: unknown;
   description: string;
   options?: ParamOption[] | string[];
   isColor?: boolean;

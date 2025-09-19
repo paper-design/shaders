@@ -23,9 +23,9 @@ const PerlinNoiseWithControls = () => {
       octaveCount: { value: defaults.octaveCount, min: 1, max: 8, step: 1, order: 202 },
       persistence: { value: defaults.persistence, min: 0.3, max: 1, order: 203 },
       lacunarity: { value: defaults.lacunarity, min: 1.5, max: 10, order: 204 },
-      scale: { value: defaults.scale, min: 0.01, max: 4, order: 300 },
-      rotation: { value: defaults.rotation, min: 0, max: 360, order: 301 },
-      speed: { value: defaults.speed, min: 0, max: 0.5, order: 400 },
+      speed: { value: defaults.speed, min: 0, max: 0.5, order: 300 },
+      scale: { value: defaults.scale, min: 0.01, max: 4, order: 301 },
+      rotation: { value: defaults.rotation, min: 0, max: 360, order: 302 },
     };
   });
 

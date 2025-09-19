@@ -1,5 +1,6 @@
 import { smokeRingPresets } from '@paper-design/shaders-react';
 import type { ShaderDef } from './shader-def-types';
+import { animatedCommonParams } from './common-param-def';
 
 const defaultParams = smokeRingPresets[0].params;
 
@@ -62,57 +63,6 @@ export const smokeRingDef: ShaderDef = {
       defaultValue: defaultParams.noiseScale,
       description: 'The noise frequency',
     },
-    {
-      name: 'offsetX',
-      type: 'number',
-      min: -1,
-      max: 1,
-      defaultValue: defaultParams.offsetX,
-      description: 'Horizontal offset of the ring center',
-    },
-    {
-      name: 'offsetY',
-      type: 'number',
-      min: -1,
-      max: 1,
-      defaultValue: defaultParams.offsetY,
-      description: 'Vertical offset of the ring center',
-    },
-    {
-      name: 'width',
-      type: 'number | string',
-      defaultValue: undefined,
-      description: 'CSS width style of the shader element',
-    },
-    {
-      name: 'height',
-      type: 'number | string',
-      defaultValue: undefined,
-      description: 'CSS height style of the shader element',
-    },
-    {
-      name: 'scale',
-      type: 'number',
-      min: 0.01,
-      max: 4,
-      defaultValue: defaultParams.scale,
-      description: 'Overall zoom level of the graphics',
-    },
-    {
-      name: 'rotation',
-      type: 'number',
-      min: 0,
-      max: 360,
-      defaultValue: defaultParams.rotation,
-      description: 'Overall rotation angle of the graphics',
-    },
-    {
-      name: 'speed',
-      type: 'number',
-      min: 0,
-      max: 4,
-      defaultValue: defaultParams.speed,
-      description: 'Animation speed',
-    },
+    ...animatedCommonParams,
   ],
 };
