@@ -261,7 +261,7 @@ export const homeThumbnails = [
     url: '/fluted-glass',
     ShaderComponent: FlutedGlass,
     image: flutedGlassImg,
-    shaderConfig: { ...flutedGlassPresets[0].params, scale: 1.05, count: 20, distortion: 0.2 },
+    shaderConfig: { ...flutedGlassPresets[0].params, scale: 1.05, distortion: 0.2 },
   },
   {
     name: 'water',
