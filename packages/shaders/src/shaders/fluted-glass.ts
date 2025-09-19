@@ -19,7 +19,7 @@ import { declarePI, rotation2 } from '../shader-utils.js';
  * ---- 5 shapes available
  * - u_shift - texture shift in direction opposite to the grid
  * - u_blur - one-directional blur applied over the main distortion
- * - u_highlights - thin color lines along the grid (independent from distortion)
+ * - u_edges - thin color lines along the grid (independent from distortion)
  * - u_marginLeft, u_marginRight, u_marginTop, u_marginBottom - paddings
  *   within picture to be shown without any distortion
  *
@@ -37,7 +37,7 @@ uniform float u_imageAspectRatio;
 
 uniform float u_size;
 uniform float u_angle;
-uniform float u_highlights;
+uniform float u_edges;
 uniform float u_shape;
 uniform float u_distortion;
 uniform float u_distortionShape;
@@ -149,8 +149,8 @@ void main() {
   vec2 fractOrigUV = fract(uvOrig);
   vec2 floorOrigUV = floor(uvOrig);
 
-  float highlights = smoothstep(.85, .95, fractUV.x);
-  highlights *= mask;
+  float edges = smoothstep(.85, .95, fractUV.x);
+  edges *= mask;
 
   float xDistortion = 0.;
   if (u_distortionShape == 1.) {
@@ -173,7 +173,7 @@ void main() {
   uv = (floorOrigUV + fractOrigUV) / effectSize;
   uv.x += xDistortion / effectSize;
   uv += pow(stroke, 4.);
-  uv.y = mix(uv.y, .0, .4 * u_highlights * highlights);
+  uv.y = mix(uv.y, .0, .4 * u_edges * edges);
   
   uv = rotate(uv, -patternRotation) + vec2(.5);
 
@@ -198,7 +198,7 @@ export interface FlutedGlassUniforms extends ShaderSizingUniforms {
   u_marginRight: number;
   u_marginTop: number;
   u_marginBottom: number;
-  u_highlights: number;
+  u_edges: number;
   u_distortionShape: (typeof GlassDistortionShapes)[GlassDistortionShape];
   u_shape: (typeof GlassGridShapes)[GlassGridShape];
   u_noiseTexture?: HTMLImageElement;
@@ -215,7 +215,7 @@ export interface FlutedGlassParams extends ShaderSizingParams, ShaderMotionParam
   marginRight?: number;
   marginTop?: number;
   marginBottom?: number;
-  highlights?: number;
+  edges?: number;
   distortionShape?: GlassDistortionShape;
   shape?: GlassGridShape;
 }

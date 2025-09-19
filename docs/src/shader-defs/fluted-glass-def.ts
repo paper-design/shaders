@@ -64,12 +64,12 @@ export const flutedGlassDef: ShaderDef = {
       description: 'One-directional blur',
     },
     {
-      name: 'highlights',
+      name: 'edges',
       type: 'number',
       min: 0,
       max: 1,
-      defaultValue: defaultParams.highlights,
-      description: 'Thin highlights along the grid lines',
+      defaultValue: defaultParams.edges,
+      description: 'Highlighted edges along the grid lines',
     },
     {
       name: 'width',
