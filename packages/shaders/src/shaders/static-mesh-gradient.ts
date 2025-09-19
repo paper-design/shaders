@@ -1,6 +1,7 @@
 import type { vec4 } from '../types.js';
 import type { ShaderMotionParams } from '../shader-mount.js';
 import {
+  sizingDebugVariablesDeclaration,
   sizingVariablesDeclaration,
   sizingUniformsDeclaration,
   type ShaderSizingParams,
@@ -42,6 +43,7 @@ uniform float u_grainMixer;
 uniform float u_grainOverlay;
 
 ${sizingVariablesDeclaration}
+${sizingDebugVariablesDeclaration}
 ${sizingUniformsDeclaration}
 
 out vec4 fragColor;
@@ -82,7 +84,17 @@ void main() {
   vec2 uv = v_objectUV;
   uv += .5;
 
-  vec2 grainUV = v_objectUV * 500.;
+  vec2 grainUV = v_objectUV;
+  // apply inverse transform to grain_uv so it respects the originXY
+  float grainUVRot = u_rotation * 3.14159265358979323846 / 180.;
+  mat2 graphicRotation = mat2(cos(grainUVRot), sin(grainUVRot), -sin(grainUVRot), cos(grainUVRot));
+  vec2 graphicOffset = vec2(-u_offsetX, u_offsetY);
+  grainUV = transpose(graphicRotation) * grainUV;
+  grainUV *= u_scale;
+  grainUV *= .7;
+  grainUV -= graphicOffset;
+  grainUV *= v_objectBoxSize;
+
   float grain = noise(grainUV, vec2(0.));
   float mixerGrain = .4 * u_grainMixer * (grain - .5);
 

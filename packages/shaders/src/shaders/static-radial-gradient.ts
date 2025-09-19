@@ -1,6 +1,7 @@
 import type { vec4 } from '../types.js';
 import type { ShaderMotionParams } from '../shader-mount.js';
 import {
+  sizingDebugVariablesDeclaration,
   sizingVariablesDeclaration,
   sizingUniformsDeclaration,
   type ShaderSizingParams,
@@ -47,6 +48,7 @@ uniform float u_grainMixer;
 uniform float u_grainOverlay;
 
 ${sizingVariablesDeclaration}
+${sizingDebugVariablesDeclaration}
 ${sizingUniformsDeclaration}
 
 out vec4 fragColor;
@@ -86,6 +88,16 @@ vec2 getPosition(int i, float t) {
 void main() {
   vec2 uv = 2. * v_objectUV;
 
+  vec2 grainUV = v_objectUV;
+  // apply inverse transform to grain_uv so it respects the originXY
+  float grainUVRot = u_rotation * 3.14159265358979323846 / 180.;
+  mat2 graphicRotation = mat2(cos(grainUVRot), sin(grainUVRot), -sin(grainUVRot), cos(grainUVRot));
+  vec2 graphicOffset = vec2(-u_offsetX, u_offsetY);
+  grainUV = transpose(graphicRotation) * grainUV;
+  grainUV *= u_scale;
+  grainUV *= .7;
+  grainUV -= graphicOffset;
+  grainUV *= v_objectBoxSize;
 
   vec2 center = vec2(0.);
   float angleRad = radians(u_focalAngle - 90.);
@@ -140,7 +152,6 @@ void main() {
   float angle = atan(f_to_uv.y, f_to_uv.x);
   shape -= pow(u_distortion, 2.) * shape * pow(sin(PI * clamp(length(f_to_uv) - .2 + u_distortionShift, 0., 1.)), 4.) * (sin(u_distortionFreq * angle) + cos(floor(.65 * u_distortionFreq) * angle));
 
-  vec2 grainUV = v_objectUV * 500.;
   float grain = noise(grainUV, vec2(0.));
   float mixerGrain = .4 * u_grainMixer * (grain - .5);
 
