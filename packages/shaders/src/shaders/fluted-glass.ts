@@ -103,7 +103,7 @@ void main() {
   float frame = getUvFrame(imageUV);
   if (frame < .05) discard;
 
-  float effectSize = (.01 + 1. / u_size);
+  float effectSize = 1. / pow(.7 * (u_size + .5), 6.);
 
   vec2 sw = vec2(.005 * u_distortion) * vec2(1., u_imageAspectRatio);
   float maskOuter =
