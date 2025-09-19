@@ -5,7 +5,7 @@ const defaultParams = perlinNoisePresets[0].params;
 
 export const perlinNoiseDef: ShaderDef = {
   name: 'Perlin Noise',
-  description: 'Animated 3D Perlin noise with exposed controls',
+  description: 'Animated 3D Perlin noise with exposed controls.',
   params: [
     {
       name: 'colorBack',
@@ -61,6 +61,18 @@ export const perlinNoiseDef: ShaderDef = {
       max: 10,
       defaultValue: defaultParams.lacunarity,
       description: 'Frequency step, typically around 2. Defines how compressed the pattern is',
+    },
+    {
+      name: 'width',
+      type: 'number | string',
+      defaultValue: undefined,
+      description: 'CSS width style of the shader element',
+    },
+    {
+      name: 'height',
+      type: 'number | string',
+      defaultValue: undefined,
+      description: 'CSS height style of the shader element',
     },
     {
       name: 'scale',

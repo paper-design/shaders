@@ -5,21 +5,21 @@ const defaultParams = smokeRingPresets[0].params;
 
 export const smokeRingDef: ShaderDef = {
   name: 'Smoke Ring',
-  description: 'Radial multi-colored gradient shaped with layered noise for a natural, smoky aesthetic',
+  description: 'Radial multi-colored gradient shaped with layered noise for a natural, smoky aesthetic.',
   params: [
-    {
-      name: 'colorBack',
-      type: 'string',
-      defaultValue: defaultParams.colorBack,
-      isColor: true,
-      description: 'Background color',
-    },
     {
       name: 'colors',
       type: 'string[]',
       defaultValue: [],
       isColor: true,
       description: 'Up to 10 colors used for the gradient',
+    },
+    {
+      name: 'colorBack',
+      type: 'string',
+      defaultValue: defaultParams.colorBack,
+      isColor: true,
+      description: 'Background color',
     },
     {
       name: 'thickness',
@@ -77,6 +77,18 @@ export const smokeRingDef: ShaderDef = {
       max: 1,
       defaultValue: defaultParams.offsetY,
       description: 'Vertical offset of the ring center',
+    },
+    {
+      name: 'width',
+      type: 'number | string',
+      defaultValue: undefined,
+      description: 'CSS width style of the shader element',
+    },
+    {
+      name: 'height',
+      type: 'number | string',
+      defaultValue: undefined,
+      description: 'CSS height style of the shader element',
     },
     {
       name: 'scale',

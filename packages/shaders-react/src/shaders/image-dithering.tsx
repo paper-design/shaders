@@ -7,14 +7,14 @@ import {
   ShaderFitOptions,
   type ImageDitheringUniforms,
   type ImageDitheringParams,
-  type ShaderPreset,
   defaultObjectSizing,
   DitheringTypes,
+  type ImageShaderPreset,
 } from '@paper-design/shaders';
 
 export interface ImageDitheringProps extends ShaderComponentProps, ImageDitheringParams {}
 
-type ImageDitheringPreset = ShaderPreset<ImageDitheringParams>;
+type ImageDitheringPreset = ImageShaderPreset<ImageDitheringParams>;
 
 export const defaultPreset: ImageDitheringPreset = {
   name: 'Default',
@@ -27,7 +27,6 @@ export const defaultPreset: ImageDitheringPreset = {
     colorFront: '#94ffaf',
     colorBack: '#000c38',
     colorHighlight: '#eaff94',
-    image: 'https://shaders.paper.design/images/image-filters/0018.webp',
     type: '8x8',
     pxSize: 2,
     colorSteps: 2,
@@ -44,7 +43,6 @@ export const retroPreset: ImageDitheringPreset = {
     colorFront: '#eeeeee',
     colorBack: '#5452ff',
     colorHighlight: '#eeeeee',
-    image: 'https://shaders.paper.design/images/image-filters/0018.webp',
     type: '2x2',
     pxSize: 3,
     colorSteps: 1,
@@ -61,7 +59,6 @@ export const noisePreset: ImageDitheringPreset = {
     colorFront: '#a2997c',
     colorBack: '#000000',
     colorHighlight: '#ededed',
-    image: 'https://shaders.paper.design/images/image-filters/0018.webp',
     type: 'random',
     pxSize: 1,
     colorSteps: 1,
@@ -78,7 +75,6 @@ export const naturalPreset: ImageDitheringPreset = {
     colorFront: '#ffffff',
     colorBack: '#000000',
     colorHighlight: '#ffffff',
-    image: 'https://shaders.paper.design/images/image-filters/0018.webp',
     type: '8x8',
     pxSize: 2,
     colorSteps: 5,
@@ -95,7 +91,7 @@ export const ImageDithering: React.FC<ImageDitheringProps> = memo(function Image
   colorFront = defaultPreset.params.colorFront,
   colorBack = defaultPreset.params.colorBack,
   colorHighlight = defaultPreset.params.colorHighlight,
-  image = defaultPreset.params.image,
+  image = 'https://shaders.paper.design/images/image-filters/0018.webp',
   type = defaultPreset.params.type,
   pxSize = defaultPreset.params.pxSize,
   colorSteps = defaultPreset.params.colorSteps,

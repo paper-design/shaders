@@ -1,5 +1,6 @@
 'use client';
 
+import type { ReactNode } from 'react';
 import { ShaderDef, ParamOption } from '../shader-defs/shader-def-types';
 import { CopyButton } from './copy-button';
 import { hslToHex } from '@/helpers/color-utils';
@@ -20,7 +21,7 @@ const formatJsxAttribute = (key: string, value: unknown): string => {
     return `${key}={${formattedNumber}}`;
   }
   if (Array.isArray(value)) {
-    return `${key}={${JSON.stringify(value)}}`;
+    return `${key}={[${value.map((v) => JSON.stringify(v)).join(', ')}]}`;
   }
   if (typeof value === 'object') {
     return `${key}={${JSON.stringify(value)}}`;
@@ -32,9 +33,11 @@ const formatJsxAttribute = (key: string, value: unknown): string => {
 export function ShaderDetails({
   shaderDef,
   currentParams,
+  notes,
 }: {
   shaderDef: ShaderDef;
   currentParams: Record<string, unknown>;
+  notes?: ReactNode;
 }) {
   const componentName = shaderDef.name.replace(/ /g, '');
 
@@ -43,7 +46,7 @@ export function ShaderDetails({
   const code = `import { ${componentName} } from '@paper-design/shaders-react';
 
 <${componentName}
-  style={{ height: 500 }}
+  height={500}
   ${Object.entries(currentParams)
     .filter(([key]) => !['worldWidth', 'worldHeight', 'originX', 'originY'].includes(key))
     .map(([key, value]) => {
@@ -64,7 +67,7 @@ export function ShaderDetails({
 `;
 
   return (
-    <div className="mt-24 flex w-full flex-col gap-32 md:mt-40 [&>section]:flex [&>section]:flex-col [&>section]:gap-16">
+    <div className="mt-24 flex w-full flex-col gap-32 md:mt-40 [&_a]:link [&>section]:flex [&>section]:flex-col [&>section]:gap-16">
       <section>
         <div className="flex items-center gap-8">
           <h2 className="text-2xl font-medium lowercase">Installation</h2>
@@ -150,7 +153,7 @@ export function ShaderDetails({
                       ) : param.isColor ? (
                         <span className="whitespace-nowrap">Hex, RGB, or HSL color</span>
                       ) : (
-                        <span className="text-stone-300">—</span>
+                        <span className="text-current/40">—</span>
                       )}
                     </td>
                   </tr>
@@ -165,6 +168,13 @@ export function ShaderDetails({
         <section>
           <h2 className="text-2xl font-medium lowercase">Description</h2>
           <p className="text-pretty text-current/70">{shaderDef.description}</p>
+        </section>
+      )}
+
+      {notes && (
+        <section>
+          <h2 className="text-2xl font-medium lowercase">Notes</h2>
+          <p className="text-pretty text-current/70">{notes}</p>
         </section>
       )}
     </div>

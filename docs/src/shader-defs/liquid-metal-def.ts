@@ -5,7 +5,7 @@ const defaultParams = liquidMetalPresets[0].params;
 
 export const liquidMetalDef: ShaderDef = {
   name: 'Liquid Metal',
-  description: 'Futuristic liquid metal material applied to abstract forms, simulating dynamic surface distortion',
+  description: 'Futuristic liquid metal material applied to abstract forms, simulating dynamic surface distortion.',
   params: [
     {
       name: 'colorBack',
@@ -91,6 +91,18 @@ export const liquidMetalDef: ShaderDef = {
       max: 1,
       defaultValue: defaultParams.offsetY,
       description: 'Vertical offset of the graphics center',
+    },
+    {
+      name: 'width',
+      type: 'number | string',
+      defaultValue: undefined,
+      description: 'CSS width style of the shader element',
+    },
+    {
+      name: 'height',
+      type: 'number | string',
+      defaultValue: undefined,
+      description: 'CSS height style of the shader element',
     },
     {
       name: 'scale',

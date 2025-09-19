@@ -23,14 +23,6 @@ export const ditheringDef: ShaderDef = {
       description: 'The foreground (ink) color',
     },
     {
-      name: 'pxSize',
-      type: 'number',
-      min: 1,
-      max: 20,
-      defaultValue: defaultParams.pxSize,
-      description: 'Pixel size of dithering grid',
-    },
-    {
       name: 'shape',
       type: 'enum',
       defaultValue: defaultParams.shape,
@@ -43,6 +35,14 @@ export const ditheringDef: ShaderDef = {
       defaultValue: defaultParams.type,
       description: 'Dithering type',
       options: ['random', '2x2', '4x4', '8x8'],
+    },
+    {
+      name: 'pxSize',
+      type: 'number',
+      min: 1,
+      max: 20,
+      defaultValue: defaultParams.pxSize,
+      description: 'Pixel size of dithering grid',
     },
     {
       name: 'offsetX',
@@ -59,6 +59,18 @@ export const ditheringDef: ShaderDef = {
       max: 1,
       defaultValue: defaultParams.offsetY,
       description: 'Vertical offset of the graphics center',
+    },
+    {
+      name: 'width',
+      type: 'number | string',
+      defaultValue: undefined,
+      description: 'CSS width style of the shader element',
+    },
+    {
+      name: 'height',
+      type: 'number | string',
+      defaultValue: undefined,
+      description: 'CSS height style of the shader element',
     },
     {
       name: 'scale',

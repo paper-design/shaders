@@ -6,7 +6,7 @@ const defaultParams = waterPresets[0].params;
 export const waterDef: ShaderDef = {
   name: 'Water',
   description:
-    'Water-like surface distortion with natural caustic realism. Works as an image filter or animated texture without image',
+    'Water-like surface distortion with natural caustic realism. Works as an image filter or animated texture without image.',
   params: [
     {
       name: 'colorBack',
@@ -69,6 +69,18 @@ export const waterDef: ShaderDef = {
       max: 7,
       defaultValue: defaultParams.effectScale,
       description: 'Pattern scale relative to the image',
+    },
+    {
+      name: 'width',
+      type: 'number | string',
+      defaultValue: undefined,
+      description: 'CSS width style of the shader element',
+    },
+    {
+      name: 'height',
+      type: 'number | string',
+      defaultValue: undefined,
+      description: 'CSS height style of the shader element',
     },
     {
       name: 'scale',

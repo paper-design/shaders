@@ -5,7 +5,7 @@ const defaultParams = colorPanelsPresets[0].params;
 
 export const colorPanelsDef: ShaderDef = {
   name: 'Color Panels',
-  description: 'Glowing translucent 3D panels rotating around a central axis',
+  description: 'Glowing translucent 3D panels rotating around a central axis.',
   params: [
     {
       name: 'colors',
@@ -107,6 +107,18 @@ export const colorPanelsDef: ShaderDef = {
       max: 1,
       defaultValue: defaultParams.offsetY,
       description: 'Vertical offset of the graphics center',
+    },
+    {
+      name: 'width',
+      type: 'number | string',
+      defaultValue: undefined,
+      description: 'CSS width style of the shader element',
+    },
+    {
+      name: 'height',
+      type: 'number | string',
+      defaultValue: undefined,
+      description: 'CSS height style of the shader element',
     },
     {
       name: 'scale',

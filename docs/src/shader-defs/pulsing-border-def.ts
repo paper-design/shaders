@@ -5,21 +5,21 @@ const defaultParams = pulsingBorderPresets[0].params;
 
 export const pulsingBorderDef: ShaderDef = {
   name: 'Pulsing Border',
-  description: 'Luminous trails of color merging into a glowing gradient frame',
+  description: 'Luminous trails of color merging into a glowing gradient frame.',
   params: [
-    {
-      name: 'colorBack',
-      type: 'string',
-      defaultValue: defaultParams.colorBack,
-      isColor: true,
-      description: 'Background color',
-    },
     {
       name: 'colors',
       type: 'string[]',
       defaultValue: [],
       isColor: true,
       description: 'Up to 5 colors',
+    },
+    {
+      name: 'colorBack',
+      type: 'string',
+      defaultValue: defaultParams.colorBack,
+      isColor: true,
+      description: 'Background color',
     },
     {
       name: 'roundness',
@@ -103,22 +103,6 @@ export const pulsingBorderDef: ShaderDef = {
       description: 'The size of the smoke effect',
     },
     {
-      name: 'scale',
-      type: 'number',
-      min: 0.01,
-      max: 1,
-      defaultValue: defaultParams.scale,
-      description: 'Overall zoom level of the graphics',
-    },
-    {
-      name: 'rotation',
-      type: 'number',
-      min: 0,
-      max: 360,
-      defaultValue: defaultParams.rotation,
-      description: 'Overall rotation angle of the graphics',
-    },
-    {
       name: 'offsetX',
       type: 'number',
       min: -1,
@@ -133,6 +117,34 @@ export const pulsingBorderDef: ShaderDef = {
       max: 1,
       defaultValue: defaultParams.offsetY,
       description: 'Vertical offset of the graphics center',
+    },
+    {
+      name: 'width',
+      type: 'number | string',
+      defaultValue: undefined,
+      description: 'CSS width style of the shader element',
+    },
+    {
+      name: 'height',
+      type: 'number | string',
+      defaultValue: undefined,
+      description: 'CSS height style of the shader element',
+    },
+    {
+      name: 'scale',
+      type: 'number',
+      min: 0.01,
+      max: 1,
+      defaultValue: defaultParams.scale,
+      description: 'Overall zoom level of the graphics',
+    },
+    {
+      name: 'rotation',
+      type: 'number',
+      min: 0,
+      max: 360,
+      defaultValue: defaultParams.rotation,
+      description: 'Overall rotation angle of the graphics',
     },
     {
       name: 'speed',

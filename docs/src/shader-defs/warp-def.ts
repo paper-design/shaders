@@ -6,7 +6,7 @@ const defaultParams = warpPresets[0].params;
 export const warpDef: ShaderDef = {
   name: 'Warp',
   description:
-    'Animated color fields warped by noise and swirls, applied over base patterns (checks, stripes, or split edge). Blends up to 10 colors with adjustable distribution, softness, distortion, and swirl. Great for fluid, smoky, or marbled effects',
+    'Animated color fields warped by noise and swirls, applied over base patterns (checks, stripes, or split edge). Blends up to 10 colors with adjustable distribution, softness, distortion, and swirl. Great for fluid, smoky, or marbled effects.',
   params: [
     {
       name: 'colors',
@@ -69,6 +69,18 @@ export const warpDef: ShaderDef = {
       max: 1,
       defaultValue: defaultParams.shapeScale,
       description: 'Zoom level of the base pattern',
+    },
+    {
+      name: 'width',
+      type: 'number | string',
+      defaultValue: undefined,
+      description: 'CSS width style of the shader element',
+    },
+    {
+      name: 'height',
+      type: 'number | string',
+      defaultValue: undefined,
+      description: 'CSS height style of the shader element',
     },
     {
       name: 'scale',

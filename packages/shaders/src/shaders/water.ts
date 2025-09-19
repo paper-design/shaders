@@ -78,7 +78,8 @@ float getCausticNoise(vec2 uv, float t, float scale) {
 void main() {
   vec2 imageUV = v_imageUV;
   vec2 patternUV = v_imageUV - .5;
-  patternUV = 10. * u_effectScale * (patternUV * vec2(u_imageAspectRatio, 1.));
+  patternUV = (patternUV * vec2(u_imageAspectRatio, 1.));
+  patternUV /= (.01 + .09 * u_effectScale);
   
   float t = u_time;
   

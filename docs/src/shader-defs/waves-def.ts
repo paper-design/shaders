@@ -5,7 +5,7 @@ const defaultParams = wavesPresets[0].params;
 
 export const wavesDef: ShaderDef = {
   name: 'Waves',
-  description: 'Static line pattern configurable into textures ranging from sharp zigzags to smooth flowing waves',
+  description: 'Static line pattern configurable into textures ranging from sharp zigzags to smooth flowing waves.',
   params: [
     {
       name: 'colorBack',
@@ -20,14 +20,6 @@ export const wavesDef: ShaderDef = {
       defaultValue: defaultParams.colorFront,
       isColor: true,
       description: 'The color of wavy lines',
-    },
-    {
-      name: 'shape',
-      type: 'number',
-      min: 0,
-      max: 3,
-      defaultValue: defaultParams.shape,
-      description: 'Line shape control: zigzag at 0, sine at 1, irregular waves at 2. Intermediate values morph gradually between these shapes',
     },
     {
       name: 'amplitude',
@@ -68,6 +60,27 @@ export const wavesDef: ShaderDef = {
       max: 1,
       defaultValue: defaultParams.softness,
       description: 'Color transition sharpness (0 = hard edge, 1 = smooth gradient)',
+    },
+    {
+      name: 'shape',
+      type: 'number',
+      min: 0,
+      max: 3,
+      defaultValue: defaultParams.shape,
+      description:
+        'Line shape control: zigzag at 0, sine at 1, irregular waves at 2. Intermediate values morph gradually between these shapes',
+    },
+    {
+      name: 'width',
+      type: 'number | string',
+      defaultValue: undefined,
+      description: 'CSS width style of the shader element',
+    },
+    {
+      name: 'height',
+      type: 'number | string',
+      defaultValue: undefined,
+      description: 'CSS height style of the shader element',
     },
     {
       name: 'scale',

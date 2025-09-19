@@ -39,10 +39,10 @@ const PulsingBorderWithControls = () => {
       pulse: { value: defaults.pulse, min: 0, max: 1, order: 207 },
       smoke: { value: defaults.smoke, min: 0, max: 1, order: 208 },
       smokeSize: { value: defaults.smokeSize, min: 0, max: 1, order: 209 },
-      scale: { value: defaults.scale, min: 0.01, max: 1, order: 300 },
-      rotation: { value: defaults.rotation, min: 0, max: 360, order: 301 },
-      offsetX: { value: defaults.offsetX, min: -1, max: 1, order: 302 },
-      offsetY: { value: defaults.offsetY, min: -1, max: 1, order: 303 },
+      offsetX: { value: defaults.offsetX, min: -1, max: 1, order: 300 },
+      offsetY: { value: defaults.offsetY, min: -1, max: 1, order: 301 },
+      scale: { value: defaults.scale, min: 0.01, max: 1, order: 302 },
+      rotation: { value: defaults.rotation, min: 0, max: 360, order: 303 },
       speed: { value: defaults.speed, min: 0, max: 2, order: 400 },
     };
   }, [colors.length]);
@@ -72,10 +72,10 @@ const PulsingBorderWithControls = () => {
 
   return (
     <>
-      <ShaderContainer shaderDef={pulsingBorderDef} currentParams={{ ...params, colors }}>
+      <ShaderContainer shaderDef={pulsingBorderDef} currentParams={{ colors, ...params }}>
         <PulsingBorder {...params} colors={colors} />
       </ShaderContainer>
-      <ShaderDetails shaderDef={pulsingBorderDef} currentParams={{ ...params, colors }} />
+      <ShaderDetails shaderDef={pulsingBorderDef} currentParams={{ colors, ...params }} />
     </>
   );
 };

@@ -26,9 +26,11 @@ const SwirlWithControls = () => {
       colorBack: { value: toHsla(defaults.colorBack), order: 100 },
       bandCount: { value: defaults.bandCount, min: 0, max: 15, step: 1, order: 200 },
       twist: { value: defaults.twist, min: 0, max: 1, order: 201 },
-      softness: { value: defaults.softness, min: 0, max: 1, order: 202 },
-      noiseFrequency: { value: defaults.speed, min: 0, max: 1, order: 203 },
-      noise: { value: defaults.speed, min: 0, max: 1, order: 204 },
+      center: { value: defaults.center, min: 0, max: 1, order: 202 },
+      proportion: { value: defaults.proportion, min: 0, max: 1, order: 203 },
+      softness: { value: defaults.softness, min: 0, max: 1, order: 204 },
+      noise: { value: defaults.noise, min: 0, max: 1, order: 205 },
+      noiseFrequency: { value: defaults.noiseFrequency, min: 0, max: 1, order: 206 },
       offsetX: { value: defaults.offsetX, min: -1, max: 1, order: 300 },
       offsetY: { value: defaults.offsetY, min: -1, max: 1, order: 301 },
       scale: { value: defaults.scale, min: 0.01, max: 4, order: 302 },
@@ -62,10 +64,10 @@ const SwirlWithControls = () => {
 
   return (
     <>
-      <ShaderContainer shaderDef={swirlDef} currentParams={{ ...params, colors }}>
+      <ShaderContainer shaderDef={swirlDef} currentParams={{ colors, ...params }}>
         <Swirl {...params} colors={colors} />
       </ShaderContainer>
-      <ShaderDetails shaderDef={swirlDef} currentParams={{ ...params, colors }} />
+      <ShaderDetails shaderDef={swirlDef} currentParams={{ colors, ...params }} />
     </>
   );
 };

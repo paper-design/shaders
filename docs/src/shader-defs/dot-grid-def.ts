@@ -5,7 +5,7 @@ const defaultParams = dotGridPresets[0].params;
 
 export const dotGridDef: ShaderDef = {
   name: 'Dot Grid',
-  description: 'Static grid pattern made of circles, diamonds, squares or triangles',
+  description: 'Static grid pattern made of circles, diamonds, squares or triangles.',
   params: [
     {
       name: 'colorBack',
@@ -82,6 +82,18 @@ export const dotGridDef: ShaderDef = {
       max: 1,
       defaultValue: defaultParams.opacityRange,
       description: 'Random variation in shape opacity (0 = all shapes opaque, higher = semi-transparent dots)',
+    },
+    {
+      name: 'width',
+      type: 'number | string',
+      defaultValue: undefined,
+      description: 'CSS width style of the shader element',
+    },
+    {
+      name: 'height',
+      type: 'number | string',
+      defaultValue: undefined,
+      description: 'CSS height style of the shader element',
     },
     {
       name: 'rotation',

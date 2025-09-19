@@ -84,10 +84,12 @@
     min-height: 100dvh;
     font-family: var(--default-font-family);
     color: var(--color-foreground);
-    background-color: var(--color-background);
     text-size-adjust: none;
     font-size: 18px;
     line-height: calc(4 / 3);
+
+    /* Note: don't put global background color here, iOS 26.0 uses it for the header overscroll (ignoring theme meta) */
+    /* Instead use a separate container element in the root layout for background */
   }
 
   pre {
@@ -131,6 +133,19 @@
 
 @utility pixelated {
   image-rendering: pixelated;
+}
+
+@utility link {
+  text-decoration: underline;
+  text-decoration-color: color-mix(in oklab, currentcolor 35%, transparent);
+  text-decoration-thickness: 1px;
+  text-underline-offset: round(up, 0.2em, 0.5px);
+
+  @media (hover: hover) {
+    &:hover {
+      text-decoration-color: color-mix(in oklab, currentcolor 70%, transparent);
+    }
+  }
 }
 
 @layer components {
@@ -204,4 +219,8 @@
       background-color: var(--color-selection) !important;
     }
   }
+}
+
+::-webkit-resizer {
+  display: none;
 }

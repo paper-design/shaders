@@ -5,21 +5,21 @@ const defaultParams = grainGradientPresets[0].params;
 
 export const grainGradientDef: ShaderDef = {
   name: 'Grain Gradient',
-  description: 'Multi-color gradients with grainy, noise-textured distortion available in 7 animated abstract forms',
+  description: 'Multi-color gradients with grainy, noise-textured distortion available in 7 animated abstract forms.',
   params: [
-    {
-      name: 'colorBack',
-      type: 'string',
-      defaultValue: defaultParams.colorBack,
-      isColor: true,
-      description: 'Background color',
-    },
     {
       name: 'colors',
       type: 'string[]',
       defaultValue: [],
       isColor: true,
       description: 'Up to 7 colors used in the gradient',
+    },
+    {
+      name: 'colorBack',
+      type: 'string',
+      defaultValue: defaultParams.colorBack,
+      isColor: true,
+      description: 'Background color',
     },
     {
       name: 'softness',
@@ -67,6 +67,18 @@ export const grainGradientDef: ShaderDef = {
       max: 1,
       defaultValue: defaultParams.offsetY,
       description: 'Vertical offset of the graphics center',
+    },
+    {
+      name: 'width',
+      type: 'number | string',
+      defaultValue: undefined,
+      description: 'CSS width style of the shader element',
+    },
+    {
+      name: 'height',
+      type: 'number | string',
+      defaultValue: undefined,
+      description: 'CSS height style of the shader element',
     },
     {
       name: 'scale',

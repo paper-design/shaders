@@ -149,7 +149,7 @@ export const homeThumbnails = [
     url: '/dot-grid',
     ShaderComponent: DotGrid,
     image: dotGridImg,
-    shaderConfig: { ...dotGridPresets[0].params, gapX: 24, gapY: 24, size: 1.5 },
+    shaderConfig: { ...dotGridPresets[0].params, gapX: 24, gapY: 24, size: 1.5, speed: 0 },
   },
   {
     name: 'line grid',
@@ -184,7 +184,7 @@ export const homeThumbnails = [
     url: '/waves',
     ShaderComponent: Waves,
     image: wavesImg,
-    shaderConfig: { ...wavesPresets[0].params, scale: 0.55, spacing: 1.2 },
+    shaderConfig: { ...wavesPresets[0].params, speed: 0, scale: 0.55, spacing: 1.2 },
   },
   {
     name: 'neuro noise',

@@ -6,7 +6,7 @@ const defaultParams = flutedGlassPresets[0].params;
 export const flutedGlassDef: ShaderDef = {
   name: 'Fluted Glass',
   description:
-    'Fluted glass image filter transforms an image into streaked, ribbed distortions, giving a mix of clarity and obscurity',
+    'Fluted glass image filter transforms an image into streaked, ribbed distortions, giving a mix of clarity and obscurity.',
   params: [
     {
       name: 'count',
@@ -70,6 +70,18 @@ export const flutedGlassDef: ShaderDef = {
       max: 1,
       defaultValue: defaultParams.highlights,
       description: 'Thin highlights along the grid lines',
+    },
+    {
+      name: 'width',
+      type: 'number | string',
+      defaultValue: undefined,
+      description: 'CSS width style of the shader element',
+    },
+    {
+      name: 'height',
+      type: 'number | string',
+      defaultValue: undefined,
+      description: 'CSS height style of the shader element',
     },
     {
       name: 'scale',
