@@ -137,7 +137,6 @@ void main() {
     curve = .5 + .5 * sin(.5 * uv.x) * sin(1.7 * uv.x);
   } else {
     // lines
-    curve = .2 * effectSize / u_imageAspectRatio;
   }
 
   vec2 uvOrig = uv;
