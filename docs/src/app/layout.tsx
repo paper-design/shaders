@@ -38,7 +38,7 @@ export default function RootLayout({ children }: React.PropsWithChildren) {
   return (
     <html lang="en">
       <body className="min-w-[320px] overflow-y-scroll antialiased">
-        <div className="isolate">
+        <div className="isolate bg-background">
           <div inert className="absolute top-0 right-0 left-0 -z-1 h-800 bg-linear-to-b from-header" />
           {children}
         </div>
