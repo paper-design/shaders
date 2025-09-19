@@ -72,7 +72,7 @@ const FlutedGlassWithControls = () => {
       ])
     );
     return {
-      count: { value: defaults.count, min: 4, max: 200, step: 1, order: 200 },
+      size: { value: defaults.size, min: 0.01, max: 1, step: 0.01, order: 200 },
       shape: {
         value: defaults.shape,
         options: Object.keys(GlassGridShapes) as GlassGridShape[],

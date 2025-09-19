@@ -9,13 +9,13 @@ export const flutedGlassDef: ShaderDef = {
     'Fluted glass image filter transforms an image into streaked, ribbed distortions, giving a mix of clarity and obscurity.',
   params: [
     {
-      name: 'count',
+      name: 'size',
       type: 'number',
-      min: 4,
-      max: 200,
-      step: 1,
-      defaultValue: defaultParams.count,
-      description: 'Number of grid lines',
+      min: 0,
+      max: 1,
+      step: 0.001,
+      defaultValue: defaultParams.size,
+      description: 'The size of grid',
     },
     {
       name: 'shape',

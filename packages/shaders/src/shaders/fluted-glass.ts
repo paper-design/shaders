@@ -7,7 +7,7 @@ import { declarePI, rotation2 } from '../shader-utils.js';
  * coordinates within line patterns
  *
  * Uniforms:
- * - u_count, u_angle - number and direction of grid relative to the image
+ * - u_size, u_angle - size and direction of grid relative to the image
  * - u_shape (float used as integer):
  * ---- 1: uniformly spaced stripes
  * ---- 2: randomly spaced stripes
@@ -35,7 +35,7 @@ uniform float u_pixelRatio;
 uniform sampler2D u_image;
 uniform float u_imageAspectRatio;
 
-uniform float u_count;
+uniform float u_size;
 uniform float u_angle;
 uniform float u_highlights;
 uniform float u_shape;
@@ -103,7 +103,7 @@ void main() {
   float frame = getUvFrame(imageUV);
   if (frame < .05) discard;
 
-  float gridNumber = u_count * u_imageAspectRatio;
+  float effectSize = (.01 + 5. / u_size);
 
   vec2 sw = vec2(.005 * u_distortion) * vec2(1., u_imageAspectRatio);
   float maskOuter =
@@ -120,7 +120,7 @@ void main() {
 
   float patternRotation = u_angle * PI / 180.;
   uv = rotate(uv - vec2(.5), patternRotation);
-  uv *= gridNumber;
+  uv *= effectSize;
   
   float curve = 0.;
   if (u_shape > 4.5) {
@@ -137,7 +137,7 @@ void main() {
     curve = .5 + .5 * sin(.5 * uv.x) * sin(1.7 * uv.x);
   } else {
     // lines
-    curve = .2 * gridNumber / u_imageAspectRatio;
+    curve = .2 * effectSize / u_imageAspectRatio;
   }
 
   vec2 uvOrig = uv;
@@ -170,8 +170,8 @@ void main() {
 
   xDistortion *= 3. * u_distortion;
 
-  uv = (floorOrigUV + fractOrigUV) / gridNumber;
-  uv.x += xDistortion / gridNumber;
+  uv = (floorOrigUV + fractOrigUV) / effectSize;
+  uv.x += xDistortion / effectSize;
   uv += pow(stroke, 4.);
   uv.y = mix(uv.y, .0, .4 * u_highlights * highlights);
   
@@ -189,7 +189,7 @@ void main() {
 
 export interface FlutedGlassUniforms extends ShaderSizingUniforms {
   u_image: HTMLImageElement | string | undefined;
-  u_count: number;
+  u_size: number;
   u_angle: number;
   u_distortion: number;
   u_shift: number;
@@ -206,7 +206,7 @@ export interface FlutedGlassUniforms extends ShaderSizingUniforms {
 
 export interface FlutedGlassParams extends ShaderSizingParams, ShaderMotionParams {
   image?: HTMLImageElement | string | undefined;
-  count?: number;
+  size?: number;
   angle?: number;
   distortion?: number;
   shift?: number;
