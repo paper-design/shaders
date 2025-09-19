@@ -94,6 +94,8 @@ export class ShaderMount {
     this.setUniformValues(this.providedUniforms);
     // Set up the resize observer to handle window resizing and set u_resolution
     this.setupResizeObserver();
+    // Set up the visual viewport change listener to handle zoom changes (pinch zoom and classic browser zoom)
+    visualViewport?.addEventListener('resize', this.handleVisualViewportChange);
 
     // Set the animation speed after everything is ready to go
     this.setSpeed(speed);
@@ -152,11 +154,22 @@ export class ShaderMount {
   private renderScale = 1;
   private parentWidth = 0;
   private parentHeight = 0;
+  private parentDevicePixelWidth = 0;
+  private parentDevicePixelHeight = 0;
+  private devicePixelsSupported = false;
 
   private resizeObserver: ResizeObserver | null = null;
   private setupResizeObserver = () => {
     this.resizeObserver = new ResizeObserver(([entry]) => {
       if (entry?.borderBoxSize[0]) {
+        const physicalPixelSize = entry.devicePixelContentBoxSize?.[0];
+
+        if (physicalPixelSize !== undefined) {
+          this.devicePixelsSupported = true;
+          this.parentDevicePixelWidth = physicalPixelSize.inlineSize;
+          this.parentDevicePixelHeight = physicalPixelSize.blockSize;
+        }
+
         this.parentWidth = entry.borderBoxSize[0].inlineSize;
         this.parentHeight = entry.borderBoxSize[0].blockSize;
       }
@@ -165,76 +178,74 @@ export class ShaderMount {
     });
 
     this.resizeObserver.observe(this.parentElement);
-    visualViewport?.addEventListener('resize', this.handleVisualViewportChange);
-
-    const rect = this.parentElement.getBoundingClientRect();
-    this.parentWidth = rect.width;
-    this.parentHeight = rect.height;
-    this.handleResize();
   };
 
   // Visual viewport resize handler, mainly used to react to browser zoom changes.
-  // Wait 2 frames to align with when the resize observer callback is done (in case it might follow):
-  // - Frame 1: a paint after the visual viewport resize
-  // - Frame 2: a paint after the resize observer has been handled, if it was ever triggered
-  //
-  // Both resize observer and visual viewport will react to classic browser zoom changes,
-  // so we dedupe the callbacks, but pinch zoom only triggers the visual viewport handler.
-  private resizeRafId: number | null = null;
+  // Resize observer by itself does not react to pinch zoom, and although it usually
+  // reacts to classic browser zoom, it's not guaranteed in edge cases.
+  // Since timing between visual viewport changes and resize observer is complex
+  // and because we'd like to know the device pixel sizes of elements, we just restart
+  // the observer to get a guaranteed fresh callback regardless if it would have triggered or not.
   private handleVisualViewportChange = () => {
-    if (this.resizeRafId !== null) {
-      cancelAnimationFrame(this.resizeRafId);
-    }
+    this.resizeObserver?.disconnect();
+    this.setupResizeObserver();
 
-    this.resizeRafId = requestAnimationFrame(() => {
-      this.resizeRafId = requestAnimationFrame(() => {
-        this.handleResize();
-      });
-    });
+    // In case of debugging timing, from here on:
+    // - animation frame 1: a paint after the visual viewport resize
+    // - animation frame 2: a paint after the resize observer has been handled, if it was ever triggered
   };
 
   /** Resize handler for when the container div changes size or the max pixel count changes and we want to resize our canvas to match */
   private handleResize = () => {
-    // Cancel any scheduled resize handlers
-    if (this.resizeRafId !== null) {
-      cancelAnimationFrame(this.resizeRafId);
-    }
+    // Aim to render at least as many pixels as physically displayed
+    // This will overshoot when the user zooms out, but that's acceptable
 
+    let targetPixelWidth = 0;
+    let targetPixelHeight = 0;
+
+    // If window.devicePixelRatio is below 1, it's safe to say the browser is just zoomed out
+    // We can use 1 as the minimum value not to upscale it needlessly to meet the min pixel ratio param
+    const dpr = Math.max(1, window.devicePixelRatio);
     const pinchZoom = visualViewport?.scale ?? 1;
 
-    // Zoom level can be calculated comparing the browser's outerWidth and the viewport width.
-    // Note: avoid innerWidth, use visualViewport.width instead.
-    // - innerWidth is affected by pinch zoom in Safari, but not other browsers.
-    //   visualViewport.width works consistently in all browsers.
-    // - innerWidth is rounded to integer, but not visualViewport.width.
-    // - visualViewport.width is affected by hard scrollbars, so they need to be added manually
-    const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
-    const innerWidth = visualViewport
-      ? visualViewport.scale * visualViewport.width + scrollbarWidth
-      : window.innerWidth;
+    if (this.devicePixelsSupported) {
+      // Use the real pixel size if we know it, plus meet the min pixel ratio requirement and add in pinch zoom
+      const scaleToMeetMinPixelRatio = Math.max(1, this.minPixelRatio / dpr);
+      targetPixelWidth = this.parentDevicePixelWidth * scaleToMeetMinPixelRatio * pinchZoom;
+      targetPixelHeight = this.parentDevicePixelHeight * scaleToMeetMinPixelRatio * pinchZoom;
+    } else {
+      // Otherwise try to approximate the element size in device pixels using devicePixelRatio.
+      // (devicePixelRatio is imprecise and element's width/height may be fractional CSS sizes, not real pixels).
+      let targetRenderScale = Math.max(dpr, this.minPixelRatio) * pinchZoom;
 
-    // Slight rounding here helps the <canvas> maintain a consistent computed size as the zoom level changes
-    const classicZoom = Math.round((10000 * window.outerWidth) / innerWidth) / 10000;
+      if (this.isSafari) {
+        // As of 2025, Safari reports physical devicePixelRatio, but other browsers add the current zoom level:
+        // https://bugs.webkit.org/show_bug.cgi?id=124862
+        //
+        // In Safari we need to factor in the zoom level manually in order to set the target resolution.
+        // To avoid sidebars upscaling the target resolution, set a minimum zoom level of 1.
+        // This will render at higher resolution when zoomed out, but that's fine.
+        // (We mostly care about maintaining good quality when zoomed in).
+        const zoomLevel = bestGuessBrowserZoom();
+        targetRenderScale *= Math.max(1, zoomLevel);
+      }
 
-    // As of 2025, Safari reports physical devicePixelRatio, but other browsers add the current zoom level
-    // https://bugs.webkit.org/show_bug.cgi?id=124862
-    const realPixelRatio = this.isSafari ? devicePixelRatio : devicePixelRatio / classicZoom;
-    const targetPixelRatio = Math.max(realPixelRatio, this.minPixelRatio);
-    const targetRenderScale = targetPixelRatio * classicZoom * pinchZoom;
-    const targetPixelWidth = this.parentWidth * targetRenderScale;
-    const targetPixelHeight = this.parentHeight * targetRenderScale;
+      // Rounding the client width/height since they may be fractional in CSS layout values
+      targetPixelWidth = Math.round(this.parentWidth) * targetRenderScale;
+      targetPixelHeight = Math.round(this.parentHeight) * targetRenderScale;
+    }
 
     // Prevent the total rendered pixel count from exceeding maxPixelCount
     const maxPixelCountHeadroom = Math.sqrt(this.maxPixelCount) / Math.sqrt(targetPixelWidth * targetPixelHeight);
-
-    const newRenderScale = targetRenderScale * Math.min(1, maxPixelCountHeadroom);
-    const newWidth = Math.round(this.parentWidth * newRenderScale);
-    const newHeight = Math.round(this.parentHeight * newRenderScale);
+    const scaleToMeetMaxPixelCount = Math.min(1, maxPixelCountHeadroom);
+    const newWidth = Math.round(targetPixelWidth * scaleToMeetMaxPixelCount);
+    const newHeight = Math.round(targetPixelHeight * scaleToMeetMaxPixelCount);
+    const newRenderScale = newWidth / Math.round(this.parentWidth);
 
     if (
       this.canvasElement.width !== newWidth ||
       this.canvasElement.height !== newHeight ||
-      this.renderScale !== newRenderScale // Usually, only render scale change when the user zooms in/out
+      this.renderScale !== newRenderScale // Usually, only render scale changes when the user zooms in/out
     ) {
       this.renderScale = newRenderScale;
       this.canvasElement.width = newWidth;
@@ -664,4 +675,59 @@ export type ImageShaderPreset<T> = {
 function isSafari() {
   const ua = navigator.userAgent.toLowerCase();
   return ua.includes('safari') && !ua.includes('chrome') && !ua.includes('android');
+}
+
+// Zoom level can be estimated comparing the browser's outerWidth and the viewport width.
+// It's nowhere near perfect because it's affected by the presence of browser sidebars,
+// like a vertical web inspector or Arc's sidebar. Also, both outerWidth and innerWidth
+// are integers, which would almost never give us a perfect ratio at face values.
+//
+// Still, this is pretty accurate in the vast majority of cases.
+//
+// Note 1:
+// Avoid innerWidth, use visualViewport.width instead.
+// - innerWidth is affected by pinch zoom in Safari, but not other browsers.
+//   visualViewport.width works consistently in all browsers.
+// - innerWidth is rounded to integer, but not visualViewport.width.
+// - visualViewport.width is affected by hard scrollbars, so they need to be added manually
+//
+// Note 2:
+// Opening a sidebar in Safari like web inspector or bookmarks will throw off the zoom
+// level detection and result in a larger target resolution. Not a concern in real-world usage
+// with Safari, but we'd rather not try to detect zoom levels with other browsers
+// (e.g. Arc always has a sidebar, which affects outerWidth vs visualViewport.width).
+function bestGuessBrowserZoom() {
+  const viewportScale = visualViewport?.scale ?? 1;
+  const viewportWidth = visualViewport?.width ?? window.innerWidth;
+  const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
+  const innerWidth = viewportScale * viewportWidth + scrollbarWidth;
+
+  // outerWidth and innerWidth are always integers so we won't often get the original zoom ratio
+  // E.g. given a 125% zoom, outerWidth = 1657, innerWidth = 1325, 1657 / 1325 = 1.2505660377
+  // We check for common zoom levels and return the closest one if found.
+
+  const ratio = outerWidth / innerWidth;
+  const zoomPercentageRounded = Math.round(100 * ratio);
+
+  // All zoom levels divisible by 5%
+  if (zoomPercentageRounded % 5 === 0) {
+    return zoomPercentageRounded / 100;
+  }
+
+  // 33% zoom
+  if (zoomPercentageRounded === 33) {
+    return 1 / 3;
+  }
+
+  // 67% zoom
+  if (zoomPercentageRounded === 67) {
+    return 2 / 3;
+  }
+
+  // 133% zoom
+  if (zoomPercentageRounded === 133) {
+    return 4 / 3;
+  }
+
+  return ratio;
 }
