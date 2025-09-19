@@ -23,8 +23,6 @@ export const staticMeshGradientMeta = {
  * - u_mixing (0 .. 1, float) - 0 for stepped gradient, 0.5 for smooth transitions, 1 for pronounced color points
  * - u_grainMixer - shape distortion
  * - u_grainOverlay - post-processing blending
- *
- * - u_noiseTexture (sampler2D): pre-computed randomizer source
  */
 
 // language=GLSL
@@ -42,8 +40,6 @@ uniform float u_waveYShift;
 uniform float u_mixing;
 uniform float u_grainMixer;
 uniform float u_grainOverlay;
-
-uniform sampler2D u_noiseTexture;
 
 ${sizingVariablesDeclaration}
 ${sizingUniformsDeclaration}
@@ -151,7 +147,6 @@ export interface StaticMeshGradientUniforms extends ShaderSizingUniforms {
   u_mixing: number;
   u_grainMixer: number;
   u_grainOverlay: number;
-  u_noiseTexture?: HTMLImageElement;
 }
 
 export interface StaticMeshGradientParams extends ShaderSizingParams, ShaderMotionParams {

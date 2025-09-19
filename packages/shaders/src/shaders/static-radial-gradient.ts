@@ -25,8 +25,6 @@ export const staticRadialGradientMeta = {
  * - u_distortion, u_distortionShift, u_distortionFreq - radial distortion (effective with u_distortion > 0)
  * - u_grainMixer - shape distortion
  * - u_grainOverlay - post-processing blending
- *
- * - u_noiseTexture (sampler2D): pre-computed randomizer source
  */
 
 // language=GLSL
@@ -47,8 +45,6 @@ uniform float u_distortionShift;
 uniform float u_distortionFreq;
 uniform float u_grainMixer;
 uniform float u_grainOverlay;
-
-uniform sampler2D u_noiseTexture;
 
 ${sizingVariablesDeclaration}
 ${sizingUniformsDeclaration}
@@ -210,7 +206,6 @@ export interface StaticRadialGradientUniforms extends ShaderSizingUniforms {
   u_distortionFreq: number;
   u_grainMixer: number;
   u_grainOverlay: number;
-  u_noiseTexture?: HTMLImageElement;
 }
 
 export interface StaticRadialGradientParams extends ShaderSizingParams, ShaderMotionParams {
