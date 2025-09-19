@@ -24,6 +24,8 @@ export const defaultPreset: MeshGradientPreset = {
     colors: ['#e0eaff', '#241d9a', '#f75092', '#9f50d3'],
     distortion: 0.8,
     swirl: 0.1,
+    grainMixer: 0,
+    grainOverlay: 0,
   },
 };
 
@@ -36,6 +38,8 @@ export const purplePreset: MeshGradientPreset = {
     colors: ['#aaa7d7', '#3c2b8e'],
     distortion: 1,
     swirl: 1,
+    grainMixer: 0,
+    grainOverlay: 0,
   },
 };
 
@@ -48,6 +52,8 @@ export const beachPreset: MeshGradientPreset = {
     colors: ['#bcecf6', '#00aaff', '#00f7ff', '#ffd447'],
     distortion: 0.8,
     swirl: 0.35,
+    grainMixer: 0,
+    grainOverlay: 0,
   },
 };
 
@@ -61,6 +67,8 @@ export const inkPreset: MeshGradientPreset = {
     distortion: 1,
     swirl: 0.2,
     rotation: 90,
+    grainMixer: 0,
+    grainOverlay: 0,
   },
 };
 
@@ -73,6 +81,8 @@ export const MeshGradient: React.FC<MeshGradientProps> = memo(function MeshGradi
   colors = defaultPreset.params.colors,
   distortion = defaultPreset.params.distortion,
   swirl = defaultPreset.params.swirl,
+  grainMixer = defaultPreset.params.grainMixer,
+  grainOverlay = defaultPreset.params.grainOverlay,
 
   // Sizing props
   fit = defaultPreset.params.fit,
@@ -92,6 +102,8 @@ export const MeshGradient: React.FC<MeshGradientProps> = memo(function MeshGradi
     u_colorsCount: colors.length,
     u_distortion: distortion,
     u_swirl: swirl,
+    u_grainMixer: grainMixer,
+    u_grainOverlay: grainOverlay,
 
     // Sizing uniforms
     u_fit: ShaderFitOptions[fit],

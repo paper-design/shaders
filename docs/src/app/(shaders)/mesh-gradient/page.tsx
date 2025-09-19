@@ -24,6 +24,8 @@ const MeshGradientWithControls = () => {
     return {
       distortion: { value: defaults.distortion, min: 0, max: 1, order: 200 },
       swirl: { value: defaults.swirl, min: 0, max: 1, order: 201 },
+      grainMixer: { value: defaults.grainMixer, min: 0, max: 1, order: 202 },
+      grainOverlay: { value: defaults.grainOverlay, min: 0, max: 1, order: 203 },
       offsetX: { value: defaults.offsetX, min: -1, max: 1, order: 300 },
       offsetY: { value: defaults.offsetY, min: -1, max: 1, order: 301 },
       scale: { value: defaults.scale, min: 0.01, max: 4, order: 302 },
