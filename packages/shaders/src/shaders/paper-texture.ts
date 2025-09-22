@@ -14,7 +14,7 @@ import { rotation2, declarePI, fiberNoise, textureRandomizerR } from '../shader-
  * - u_folds, u_foldsNumber - lines pattern, 15 max
  * - u_drops - metaballs-like pattern
  * - u_seed - applied to folds, crumples and dots
- * - u_blur - big-scale noise mask applied to everything but roughness
+ * - u_fade - big-scale noise mask applied to everything but roughness
  *
  * - u_noiseTexture (sampler2D): pre-computed randomizer source
  *
@@ -43,7 +43,7 @@ uniform float u_folds;
 uniform float u_foldsNumber;
 uniform float u_drops;
 uniform float u_seed;
-uniform float u_blur;
+uniform float u_fade;
 
 uniform sampler2D u_noiseTexture;
 
@@ -173,6 +173,10 @@ float drops(vec2 uv) {
   return 1. - smoothstep(.05, .09, pow(dropsMinDist, .5));
 }
 
+float lst(float edge0, float edge1, float x) {
+  return clamp((x - edge0) / (edge1 - edge0), 0.0, 1.0);
+}
+
 void main() {
 
   vec2 imageUV = v_imageUV;
@@ -199,7 +203,17 @@ void main() {
   vec2 w2 = folds(foldsUV);
 
   float drops = u_drops * drops(patternUV * 2.);
+
+  float fade = u_fade * fbm(.17 * patternUV + 10. * u_seed);
+  fade = clamp(8. * pow(fade, 3.), 0., 1.);
   
+  w = mix(w, vec2(0.), fade);
+  w2 = mix(w2, vec2(0.), fade);
+  crumples = mix(crumples, 0., fade);
+  drops = mix(drops, 0., fade);
+  fiber *= mix(1., .5, fade);
+  roughness *= mix(1., .5, fade);
+
   normal.xy += u_folds * min(5. * u_contrast, 1.) * 4. * max(vec2(0.), w + w2);
   normalImage.xy += u_folds * 2. * w;
 
@@ -208,10 +222,6 @@ void main() {
 
   normal.xy += 3. * drops;
   normalImage.xy += .2 * drops;
-
-  float blur = u_blur * smoothstep(0., 1., fbm(.17 * patternUV + 10. * u_seed));
-  normal *= (1. - 2. * blur);
-  fiber *= (1. - blur);
 
   normal.xy += u_roughness * 1.5 * roughness;
   normal.xy += fiber;
@@ -261,7 +271,7 @@ export interface PaperTextureUniforms extends ShaderSizingUniforms {
   u_crumples: number;
   u_foldsNumber: number;
   u_folds: number;
-  u_blur: number;
+  u_fade: number;
   u_crumplesSize: number;
   u_drops: number;
   u_seed: number;
@@ -278,7 +288,7 @@ export interface PaperTextureParams extends ShaderSizingParams, ShaderMotionPara
   crumples?: number;
   foldsNumber?: number;
   folds?: number;
-  blur?: number;
+  fade?: number;
   crumplesSize?: number;
   drops?: number;
   seed?: number;

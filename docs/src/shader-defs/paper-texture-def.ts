@@ -88,12 +88,12 @@ export const paperTextureDef: ShaderDef = {
       description: 'Number of folds (15 max)',
     },
     {
-      name: 'blur',
+      name: 'fade',
       type: 'number',
       min: 0,
       max: 1,
-      defaultValue: defaultParams.blur,
-      description: 'Big-scale noise mask applied to everything but roughness',
+      defaultValue: defaultParams.fade,
+      description: 'Big-scale noise mask applied to the pattern',
     },
     {
       name: 'drops',
