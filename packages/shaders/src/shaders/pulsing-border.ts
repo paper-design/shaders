@@ -15,7 +15,7 @@ export const pulsingBorderMeta = {
  * - u_colorBack (RGBA)
  * - u_colors (vec4[]), u_colorsCount (float used as integer)
  * - u_roundness, u_thickness, u_softness: border parameters
- * - u_shape
+ * - u_aspectRatio
  * - u_intensity: thickness of individual spots
  * - u_bloom: normal / additive color blending
  * - u_spotSize: angular size of spots
@@ -42,7 +42,7 @@ uniform float u_marginLeft;
 uniform float u_marginRight;
 uniform float u_marginTop;
 uniform float u_marginBottom;
-uniform float u_shape;
+uniform float u_aspectRatio;
 uniform float u_softness;
 uniform float u_intensity;
 uniform float u_bloom;
@@ -118,17 +118,17 @@ void main() {
   vec2 halfSize = vec2(.5);
   if (canvasRatio > 1.) {
     borderUV.x *= canvasRatio;
-    if (u_shape == 0.) {
+    if (u_aspectRatio == 0.) {
       halfSize.x *= canvasRatio;
     }
   } else {
     borderUV.y /= canvasRatio;
-    if (u_shape == 0.) {
+    if (u_aspectRatio == 0.) {
       halfSize.y /= canvasRatio;
     }
   }
   
-  if (u_shape > 0.) {
+  if (u_aspectRatio > 0.) {
     if (canvasRatio > 1.) {
       halfSize.x = halfSize.y;
     } else {
@@ -252,7 +252,7 @@ export interface PulsingBorderUniforms extends ShaderSizingUniforms {
   u_marginRight: number;
   u_marginTop: number;
   u_marginBottom: number;
-  u_shape: (typeof PulsingBorderShapes)[PulsingBorderShape];
+  u_aspectRatio: (typeof PulsingBorderAspectRatios)[PulsingBorderAspectRatio];
   u_softness: number;
   u_intensity: number;
   u_bloom: number;
@@ -273,7 +273,7 @@ export interface PulsingBorderParams extends ShaderSizingParams, ShaderMotionPar
   marginRight?: number;
   marginTop?: number;
   marginBottom?: number;
-  shape?: PulsingBorderShape;
+  aspectRatio?: PulsingBorderAspectRatio;
   softness?: number;
   intensity?: number;
   bloom?: number;
@@ -284,9 +284,9 @@ export interface PulsingBorderParams extends ShaderSizingParams, ShaderMotionPar
   smokeSize?: number;
 }
 
-export const PulsingBorderShapes = {
+export const PulsingBorderAspectRatios = {
   auto: 0,
   square: 1,
 } as const;
 
-export type PulsingBorderShape = keyof typeof PulsingBorderShapes;
+export type PulsingBorderAspectRatio = keyof typeof PulsingBorderAspectRatios;

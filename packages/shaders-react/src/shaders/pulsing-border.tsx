@@ -11,7 +11,7 @@ import {
   type PulsingBorderUniforms,
   type ShaderPreset,
 } from '@paper-design/shaders';
-import { PulsingBorderShapes } from '@paper-design/shaders';
+import { PulsingBorderAspectRatios } from '@paper-design/shaders';
 
 export interface PulsingBorderProps extends ShaderComponentProps, PulsingBorderParams {}
 
@@ -31,7 +31,7 @@ export const defaultPreset: PulsingBorderPreset = {
     marginRight: 0.15,
     marginTop: 0.15,
     marginBottom: 0.15,
-    shape: 'square',
+    aspectRatio: 'square',
     softness: 0.75,
     intensity: 0.2,
     bloom: 1,
@@ -59,7 +59,7 @@ export const circlePreset: PulsingBorderPreset = {
     marginRight: 0.2,
     marginTop: 0.2,
     marginBottom: 0.2,
-    shape: 'square',
+    aspectRatio: 'square',
     softness: 1,
     intensity: 0.8,
     bloom: 0.8,
@@ -86,7 +86,7 @@ export const northernLightsPreset: PulsingBorderPreset = {
     marginRight: 0,
     marginTop: 0,
     marginBottom: 0,
-    shape: 'auto',
+    aspectRatio: 'auto',
     intensity: 0,
     bloom: 1,
     spots: 4,
@@ -111,7 +111,7 @@ export const solidLinePreset: PulsingBorderPreset = {
     marginRight: 0,
     marginTop: 0,
     marginBottom: 0,
-    shape: 'auto',
+    aspectRatio: 'auto',
     softness: 0.0,
     intensity: 0.0,
     bloom: 0.15,
@@ -142,7 +142,7 @@ export const PulsingBorder: React.FC<PulsingBorderProps> = memo(function Pulsing
   marginRight = defaultPreset.params.marginRight,
   marginTop = defaultPreset.params.marginTop,
   marginBottom = defaultPreset.params.marginBottom,
-  shape = defaultPreset.params.shape,
+  aspectRatio = defaultPreset.params.aspectRatio,
   softness = defaultPreset.params.softness,
   bloom = defaultPreset.params.bloom,
   intensity = defaultPreset.params.intensity,
@@ -175,7 +175,7 @@ export const PulsingBorder: React.FC<PulsingBorderProps> = memo(function Pulsing
     u_marginRight: marginRight,
     u_marginTop: marginTop,
     u_marginBottom: marginBottom,
-    u_shape: PulsingBorderShapes[shape],
+    u_aspectRatio: PulsingBorderAspectRatios[aspectRatio],
     u_softness: softness,
     u_intensity: intensity,
     u_bloom: bloom,
