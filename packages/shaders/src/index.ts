@@ -150,8 +150,10 @@ export {
 export {
   pulsingBorderMeta,
   pulsingBorderFragmentShader,
+  PulsingBorderShapes,
   type PulsingBorderParams,
   type PulsingBorderUniforms,
+  type PulsingBorderShape,
 } from './shaders/pulsing-border.js';
 
 // ----- Color Gradient Panels ----- //

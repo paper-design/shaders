@@ -54,14 +54,14 @@ export const pulsingBorderDef: ShaderDef = {
       description: 'TBD',
     },
     // separate margins?
-    // {
-    //   name: 'shape',
-    //   type: 'number',
-    //   min: 0,
-    //   max: 1,
-    //   defaultValue: defaultParams.shape,
-    //   description: 'TBD',
-    // },
+    {
+      name: 'shape',
+      type: 'number',
+      min: 0,
+      max: 1,
+      defaultValue: defaultParams.shape,
+      description: 'TBD',
+    },
     {
       name: 'intensity',
       type: 'number',

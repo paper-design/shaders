@@ -15,8 +15,7 @@ export const pulsingBorderMeta = {
  * - u_colorBack (RGBA)
  * - u_colors (vec4[]), u_colorsCount (float used as integer)
  * - u_roundness, u_thickness, u_softness: border parameters
- * - u_margin
- * - u_aspectRatio
+ * - u_shape
  * - u_intensity: thickness of individual spots
  * - u_bloom: normal / additive color blending
  * - u_spotSize: angular size of spots
@@ -39,12 +38,11 @@ uniform vec4 u_colors[${pulsingBorderMeta.maxColorCount}];
 uniform float u_colorsCount;
 uniform float u_roundness;
 uniform float u_thickness;
-uniform float u_margin;
 uniform float u_marginLeft;
 uniform float u_marginRight;
 uniform float u_marginTop;
 uniform float u_marginBottom;
-uniform float u_aspectRatio;
+uniform float u_shape;
 uniform float u_softness;
 uniform float u_intensity;
 uniform float u_bloom;
@@ -114,43 +112,29 @@ void main() {
   float t = 1.2 * (u_time + firstFrameOffset);
 
   vec2 borderUV = v_responsiveUV;
-
-  float angle = atan(borderUV.y, borderUV.x) / TWO_PI;
-
   float pulse = u_pulse * beat(.18 * u_time);
   
   float canvasRatio = v_responsiveBoxGivenSize.x / v_responsiveBoxGivenSize.y;
   vec2 halfSize = vec2(.5);
   if (canvasRatio > 1.) {
     borderUV.x *= canvasRatio;
-    if (u_aspectRatio == 0.) {
+    if (u_shape == 0.) {
       halfSize.x *= canvasRatio;
     }
   } else {
     borderUV.y /= canvasRatio;
-    if (u_aspectRatio == 0.) {
+    if (u_shape == 0.) {
       halfSize.y /= canvasRatio;
     }
   }
   
-  if (u_aspectRatio > 0.) {
-    if (canvasRatio > u_aspectRatio) {
-      halfSize.x = halfSize.y * u_aspectRatio;
-      if (canvasRatio < 1.) {
-        halfSize.x = halfSize.y * u_aspectRatio;
-        halfSize /= canvasRatio;
-      }
+  if (u_shape > 0.) {
+    if (canvasRatio > 1.) {
+      halfSize.x = halfSize.y;
     } else {
-      halfSize.y = halfSize.x / u_aspectRatio;
-      if (canvasRatio > 1.) {
-        halfSize *= canvasRatio;
-      }
+      halfSize.y = halfSize.x;
     }
   }
-  
-  float thickness = .5 * u_thickness * min(halfSize.x, halfSize.y);
-  halfSize -= mix(thickness, 0., u_softness);
-
 
   float sumX = u_marginLeft + u_marginRight;
   float sumY = u_marginBottom + u_marginTop;
@@ -162,17 +146,24 @@ void main() {
   );
   borderUV -= centerShift;
 
-  
-  
-  float radius = mix(0., min(halfSize.x, halfSize.y), u_roundness);
+  float thickness = .5 * u_thickness * min(halfSize.x, halfSize.y);
+  halfSize -= mix(thickness, 0., u_softness);
+
+  float roundness = u_roundness;
+  if (u_shape > 1.) {
+    roundness = 1.;
+  }
+
+  float radius = mix(0., min(halfSize.x, halfSize.y), roundness);
   vec2 d = abs(borderUV) - halfSize + radius;
   float outsideDistance = length(max(d, .0001)) - radius;
   float insideDistance = min(max(d.x, d.y), .0001);
   float cornerDistance = abs(min(max(d.x, d.y) - .45 * radius, .0));
   float distance = outsideDistance + insideDistance;
 
-  float border = roundedBox(borderUV, halfSize, distance, cornerDistance, thickness, u_softness);
-//  border *= border;
+  float borderThickness = mix(thickness, 3. * thickness, u_softness);
+  float border = roundedBox(borderUV, halfSize, distance, cornerDistance, borderThickness, u_softness);
+  border = pow(border, 1. + u_softness);
 
   vec2 smokeUV = .3 * u_smokeSize * v_patternUV;
   float smoke = clamp(3. * valueNoise(2.7 * smokeUV + .5 * t), 0., 1.);
@@ -194,7 +185,9 @@ void main() {
   float addAlpha = 0.;
 
   float bloom = min(4. * u_bloom, 1.);
-  float intensity = 1. + 4. * u_intensity;
+  float intensity = 1. + (1. + 4. * u_softness) * u_intensity;
+  
+  float angle = atan(borderUV.y, borderUV.x) / TWO_PI;
 
   for (int colorIdx = 0; colorIdx < ${pulsingBorderMeta.maxColorCount}; colorIdx++) {
     if (colorIdx >= int(u_colorsCount)) break;
@@ -251,8 +244,7 @@ void main() {
 
   ${colorBandingFix}
 
-//  fragColor = vec4(color, opacity);
-  fragColor = vec4(border, .5 * border, border, 1.);
+  fragColor = vec4(color, opacity);
 }`;
 
 export interface PulsingBorderUniforms extends ShaderSizingUniforms {
@@ -261,12 +253,11 @@ export interface PulsingBorderUniforms extends ShaderSizingUniforms {
   u_colorsCount: number;
   u_roundness: number;
   u_thickness: number;
-  u_margin: number;
   u_marginLeft: number;
   u_marginRight: number;
   u_marginTop: number;
   u_marginBottom: number;
-  u_aspectRatio: number;
+  u_shape: (typeof PulsingBorderShapes)[PulsingBorderShape];
   u_softness: number;
   u_intensity: number;
   u_bloom: number;
@@ -283,12 +274,11 @@ export interface PulsingBorderParams extends ShaderSizingParams, ShaderMotionPar
   colors?: string[];
   roundness?: number;
   thickness?: number;
-  margin?: number;
   marginLeft?: number;
   marginRight?: number;
   marginTop?: number;
   marginBottom?: number;
-  aspectRatio?: number;
+  shape?: PulsingBorderShape;
   softness?: number;
   intensity?: number;
   bloom?: number;
@@ -298,3 +288,11 @@ export interface PulsingBorderParams extends ShaderSizingParams, ShaderMotionPar
   smoke?: number;
   smokeSize?: number;
 }
+
+export const PulsingBorderShapes = {
+  auto: 0,
+  square: 1,
+  circle: 2,
+} as const;
+
+export type PulsingBorderShape = keyof typeof PulsingBorderShapes;
