@@ -26,11 +26,11 @@ const MeshGradientWithControls = () => {
       swirl: { value: defaults.swirl, min: 0, max: 1, order: 201 },
       grainMixer: { value: defaults.grainMixer, min: 0, max: 1, order: 202 },
       grainOverlay: { value: defaults.grainOverlay, min: 0, max: 1, order: 203 },
-      offsetX: { value: defaults.offsetX, min: -1, max: 1, order: 300 },
-      offsetY: { value: defaults.offsetY, min: -1, max: 1, order: 301 },
-      scale: { value: defaults.scale, min: 0.01, max: 4, order: 302 },
-      rotation: { value: defaults.rotation, min: 0, max: 360, order: 303 },
-      speed: { value: defaults.speed, min: 0, max: 2, order: 400 },
+      speed: { value: defaults.speed, min: 0, max: 2, order: 300 },
+      scale: { value: defaults.scale, min: 0.01, max: 4, order: 301 },
+      rotation: { value: defaults.rotation, min: 0, max: 360, order: 302 },
+      offsetX: { value: defaults.offsetX, min: -1, max: 1, order: 303 },
+      offsetY: { value: defaults.offsetY, min: -1, max: 1, order: 304 },
     };
   }, [colors.length]);
 

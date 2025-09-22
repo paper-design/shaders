@@ -1,5 +1,6 @@
 import { colorPanelsPresets } from '@paper-design/shaders-react';
 import type { ShaderDef } from './shader-def-types';
+import { animatedCommonParams } from './common-param-def';
 
 const defaultParams = colorPanelsPresets[0].params;
 
@@ -92,57 +93,6 @@ export const colorPanelsDef: ShaderDef = {
       defaultValue: defaultParams.gradient,
       description: 'Color mixing within a panel (0 = solid panel color, 1 = gradient of two colors)',
     },
-    {
-      name: 'offsetX',
-      type: 'number',
-      min: -1,
-      max: 1,
-      defaultValue: defaultParams.offsetX,
-      description: 'Horizontal offset of the graphics center',
-    },
-    {
-      name: 'offsetY',
-      type: 'number',
-      min: -1,
-      max: 1,
-      defaultValue: defaultParams.offsetY,
-      description: 'Vertical offset of the graphics center',
-    },
-    {
-      name: 'width',
-      type: 'number | string',
-      defaultValue: undefined,
-      description: 'CSS width style of the shader element',
-    },
-    {
-      name: 'height',
-      type: 'number | string',
-      defaultValue: undefined,
-      description: 'CSS height style of the shader element',
-    },
-    {
-      name: 'scale',
-      type: 'number',
-      min: 0.01,
-      max: 4,
-      defaultValue: defaultParams.scale,
-      description: 'Overall zoom level of the graphics',
-    },
-    {
-      name: 'rotation',
-      type: 'number',
-      min: 0,
-      max: 360,
-      defaultValue: defaultParams.rotation,
-      description: 'Overall rotation angle of the graphics',
-    },
-    {
-      name: 'speed',
-      type: 'number',
-      min: 0,
-      max: 2,
-      defaultValue: defaultParams.speed,
-      description: 'Animation speed',
-    },
+    ...animatedCommonParams,
   ],
 };

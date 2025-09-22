@@ -1,5 +1,6 @@
 import { flutedGlassPresets } from '@paper-design/shaders-react';
 import type { ShaderDef } from './shader-def-types';
+import { staticCommonParams } from './common-param-def';
 
 const defaultParams = flutedGlassPresets[0].params;
 
@@ -9,13 +10,18 @@ export const flutedGlassDef: ShaderDef = {
     'Fluted glass image filter transforms an image into streaked, ribbed distortions, giving a mix of clarity and obscurity.',
   params: [
     {
+      name: 'image',
+      type: 'string | HTMLImageElement',
+      description: 'The image to use for the effect',
+    },
+    {
       name: 'size',
       type: 'number',
       min: 0,
       max: 1,
       step: 0.001,
       defaultValue: defaultParams.size,
-      description: 'The size of grid',
+      description: 'The size of the grid',
     },
     {
       name: 'shape',
@@ -72,33 +78,6 @@ export const flutedGlassDef: ShaderDef = {
       description: 'Highlighted edges along the grid lines',
     },
     {
-      name: 'width',
-      type: 'number | string',
-      defaultValue: undefined,
-      description: 'CSS width style of the shader element',
-    },
-    {
-      name: 'height',
-      type: 'number | string',
-      defaultValue: undefined,
-      description: 'CSS height style of the shader element',
-    },
-    {
-      name: 'scale',
-      type: 'number',
-      min: 0.5,
-      max: 10,
-      defaultValue: defaultParams.scale,
-      description: 'Overall zoom level of the graphics',
-    },
-    {
-      name: 'fit',
-      type: 'enum',
-      defaultValue: defaultParams.fit,
-      description: 'How the image fits the canvas',
-      options: ['contain', 'cover'],
-    },
-    {
       name: 'marginLeft',
       type: 'number',
       min: 0,
@@ -130,5 +109,6 @@ export const flutedGlassDef: ShaderDef = {
       defaultValue: defaultParams.marginBottom,
       description: 'Showing original image on the bottom',
     },
+    ...staticCommonParams,
   ],
 };
