@@ -69,11 +69,11 @@ export const waterDef: ShaderDef = {
       description: 'Power of caustic distortion',
     },
     {
-      name: 'effectScale',
+      name: 'size',
       type: 'number',
       min: 0.01,
       max: 7,
-      defaultValue: defaultParams.effectScale,
+      defaultValue: defaultParams.size,
       description: 'Pattern scale relative to the image',
     },
     ...animatedCommonParams,

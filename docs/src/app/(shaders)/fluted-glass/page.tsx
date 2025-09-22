@@ -72,7 +72,7 @@ const FlutedGlassWithControls = () => {
       ])
     );
     return {
-      count: { value: defaults.count, min: 4, max: 200, step: 1, order: 200 },
+      size: { value: defaults.size, min: 0.01, max: 1, step: 0.01, order: 200 },
       shape: {
         value: defaults.shape,
         options: Object.keys(GlassGridShapes) as GlassGridShape[],
@@ -87,7 +87,7 @@ const FlutedGlassWithControls = () => {
       distortion: { value: defaults.distortion, min: 0, max: 1, order: 204 },
       shift: { value: defaults.shift, min: -1, max: 1, order: 205 },
       blur: { value: defaults.blur, min: 0, max: 50, order: 206 },
-      highlights: { value: defaults.highlights, min: 0, max: 1, order: 207 },
+      edges: { value: defaults.edges, min: 0, max: 1, order: 207 },
       marginLeft: { value: defaults.marginLeft, min: 0, max: 1, order: 500 },
       marginRight: { value: defaults.marginRight, min: 0, max: 1, order: 501 },
       marginTop: { value: defaults.marginTop, min: 0, max: 1, order: 502 },
