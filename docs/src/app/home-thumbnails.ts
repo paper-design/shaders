@@ -247,7 +247,7 @@ export const homeThumbnails = [
     url: '/heatmap',
     ShaderComponent: Heatmap,
     image: heatmapImg,
-    shaderConfig: { ...heatmapPresets[0].params, scale: 0.9, frame: 5800 },
+    shaderConfig: { ...heatmapPresets[0].params, scale: 0.9, frame: 5800, suspendWhenProcessingImage: true },
   },
   {
     name: 'god rays',
