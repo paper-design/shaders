@@ -11,7 +11,7 @@ export const paperTextureDef: ShaderDef = {
   params: [
     {
       name: 'image',
-      type: 'string | HTMLImageElement',
+      type: 'HTMLImageElement | string',
       description: 'The image to use for the effect',
     },
     {

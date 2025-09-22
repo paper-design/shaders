@@ -54,7 +54,7 @@ function PropsTable({ params }: { params: ParamDef[] }) {
             <td className="w-full min-w-264 px-16 py-12 text-current/70">{param.description}</td>
 
             {/* "number | string" is the longest most common type (118px + 32px padding = 150px)
-            There are a few "string | HTMLImageElement", which are purposely not aligned because too wide */}
+            There are a few "HTMLImageElement | string ", which are purposely not aligned because too wide */}
             <td className="min-w-150 px-16 py-12 text-sm whitespace-nowrap text-current/70">
               <code>{param.type}</code>
             </td>
@@ -94,6 +94,8 @@ function PropsTable({ params }: { params: ParamDef[] }) {
                 </>
               ) : param.isColor ? (
                 <span className="whitespace-nowrap">Hex, RGB, or HSL color</span>
+              ) : param.name === 'image' ? (
+                <span className="whitespace-nowrap">Image object or URL</span>
               ) : (
                 <span className="text-current/40">—</span>
               )}
@@ -122,9 +124,8 @@ export function ShaderDetails({
 
 <${componentName}
   width={1280}
-  height={720}
+  height={720}${shaderDef.params.find((p) => p.name === 'image') ? `\n  image="https://shaders.paper.design/flowers.webp"` : ''}
   ${Object.entries(currentParams)
-    .filter(([key]) => !['worldWidth', 'worldHeight', 'originX', 'originY'].includes(key))
     .map(([key, value]) => {
       const isColor = shaderDef.params.find((p) => p.name === key && p.isColor);
       if (!isColor) {
