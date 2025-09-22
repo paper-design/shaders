@@ -149,12 +149,7 @@ void main() {
   float thickness = .5 * u_thickness * min(halfSize.x, halfSize.y);
   halfSize -= mix(thickness, 0., u_softness);
 
-  float roundness = u_roundness;
-  if (u_shape > 1.) {
-    roundness = 1.;
-  }
-
-  float radius = mix(0., min(halfSize.x, halfSize.y), roundness);
+  float radius = mix(0., min(halfSize.x, halfSize.y), u_roundness);
   vec2 d = abs(borderUV) - halfSize + radius;
   float outsideDistance = length(max(d, .0001)) - radius;
   float insideDistance = min(max(d.x, d.y), .0001);
@@ -292,7 +287,6 @@ export interface PulsingBorderParams extends ShaderSizingParams, ShaderMotionPar
 export const PulsingBorderShapes = {
   auto: 0,
   square: 1,
-  circle: 2,
 } as const;
 
 export type PulsingBorderShape = keyof typeof PulsingBorderShapes;
