@@ -243,6 +243,13 @@ export const homeThumbnails = [
     shaderConfig: { ...liquidMetalPresets[0].params },
   },
   {
+    name: 'heatmap',
+    url: '/heatmap',
+    ShaderComponent: Heatmap,
+    image: heatmapImg,
+    shaderConfig: { ...heatmapPresets[0].params, scale: 0.9, frame: 5800 },
+  },
+  {
     name: 'god rays',
     url: '/god-rays',
     ShaderComponent: GodRays,
@@ -277,11 +284,4 @@ export const homeThumbnails = [
     image: imageDitheringImg,
     shaderConfig: { ...imageDitheringPresets[0].params, scale: 1.05 },
   },
-  // {
-  //   name: 'heatmap',
-  //   url: '/heatmap',
-  //   ShaderComponent: Heatmap,
-  //   image: heatmapImg,
-  //   shaderConfig: { ...heatmapPresets[0].params, scale: 0.9, frame: 5800 },
-  // },
 ] satisfies HomeShaderConfig[];
