@@ -126,6 +126,15 @@ export function ShaderDetails({
   width={1280}
   height={720}${shaderDef.params.find((p) => p.name === 'image') ? `\n  image="https://shaders.paper.design/flowers.webp"` : ''}
   ${Object.entries(currentParams)
+    .filter(([key, value]) => {
+      if (['offsetX', 'offsetY', 'rotation'].includes(key) && value === 0) {
+        return false;
+      }
+      if (key === 'scale' && value === 1) {
+        return false;
+      }
+      return true;
+    })
     .map(([key, value]) => {
       const isColor = shaderDef.params.find((p) => p.name === key && p.isColor);
       if (!isColor) {
