@@ -112,6 +112,7 @@ export const animatedCommonParams: CommonParamDef[] = [
 ];
 
 export const staticCommonParams: CommonParamDef[] = [
+  commonParams.scale,
   commonParams.rotation,
   commonParams.offsetX,
   commonParams.offsetY,
