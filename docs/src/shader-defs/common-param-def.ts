@@ -6,15 +6,11 @@ export const commonParams: Record<string, CommonParamDef> = {
   speed: {
     name: 'speed',
     type: 'number',
-    min: 0,
-    max: 2,
     description: 'Animation speed',
   },
   frame: {
     name: 'frame',
     type: 'number',
-    min: 0,
-    max: 2,
     description: 'Starting animation frame',
   },
   scale: {
@@ -64,29 +60,25 @@ export const commonParams: Record<string, CommonParamDef> = {
   worldWidth: {
     name: 'worldWidth',
     type: 'number',
-    min: 0,
-    max: 2,
     description: "Virtual width of the graphic before it's scaled to fit the canvas",
   },
   worldHeight: {
     name: 'worldHeight',
     type: 'number',
-    min: 0,
-    max: 2,
     description: "Virtual height of the graphic before it's scaled to fit the canvas",
   },
   originX: {
     name: 'originX',
     type: 'number',
     min: 0,
-    max: 2,
+    max: 1,
     description: 'Reference point for positioning world width in the canvas',
   },
   originY: {
     name: 'originY',
     type: 'number',
     min: 0,
-    max: 2,
+    max: 1,
     description: 'Reference point for positioning world height in the canvas',
   },
   minPixelRatio: {

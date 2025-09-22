@@ -132,6 +132,7 @@
 @utility custom-scrollbar {
   &::-webkit-scrollbar {
     height: 6px;
+    width: 0px; /* Hide the vertical scrollbar, which may appear on Safari when resizing the page */
   }
 
   &::-webkit-scrollbar-track {

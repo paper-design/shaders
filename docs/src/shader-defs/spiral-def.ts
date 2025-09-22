@@ -61,7 +61,7 @@ export const spiralDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.strokeCap,
-      description: 'Extra stroke width at the center (not effective with strokeWidth = 0.5)',
+      description: 'Extra stroke width at the center (no effect with strokeWidth = 0.5)',
     },
     {
       name: 'noise',
@@ -69,7 +69,7 @@ export const spiralDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.noise,
-      description: 'Noise distortion applied over the canvas (not effective with noiseFrequency = 0)',
+      description: 'Noise distortion applied over the canvas (no effect with noiseFrequency = 0)',
     },
     {
       name: 'noiseFrequency',
@@ -77,7 +77,7 @@ export const spiralDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.noiseFrequency,
-      description: 'Moise frequency (not effective with noise = 0)',
+      description: 'Moise frequency (no effect with noise = 0)',
     },
     {
       name: 'softness',

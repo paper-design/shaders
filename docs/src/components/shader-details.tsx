@@ -33,20 +33,7 @@ const formatJsxAttribute = (key: string, value: unknown): string => {
 
 function PropsTable({ params }: { params: ParamDef[] }) {
   return (
-    // Under md: auto widths for mobile
-    // md to lg: fixed widths to align columns
-    // lg to 2xl: auto widths because it gets too tight
-    // Above 2xl: fixed widths to align columns
     <table className="w-full text-base">
-      <colgroup>
-        {/* "noiseFrequency" is the longest name (116px + 32px padding = 148px) */}
-        <col className="md:max-lg:w-148 2xl:w-148" />
-        <col className="min-w-240" />
-        {/* "number | string" is the longest most common type (118px + 32px padding = 150px) */}
-        {/* There are a few "string | HTMLImageElement", which are purposely not aligned because too wide */}
-        <col className="md:max-lg:w-150 2xl:w-150" />
-        <col className="md:max-lg:w-260 2xl:w-260" />
-      </colgroup>
       <thead>
         <tr className="bg-backplate-2">
           <th className="px-16 py-12 text-left font-medium lowercase">Name</th>
@@ -57,21 +44,30 @@ function PropsTable({ params }: { params: ParamDef[] }) {
       </thead>
       <tbody>
         {params.map((param) => (
+          // The approach for column sizing and alignment is that description is w-full,
+          // and everything else has a min width to not be crushed by the description
           <tr key={param.name} className="border-table-border not-last:border-b">
-            <td className="px-16 py-12 font-medium">{param.name}</td>
+            {/* "noiseFrequency" is the longest name (116px + 32px padding = 148px)
+             We go a little smaller on mobile to have less whitespace ("maxPixelCount" = 140px) */}
+            <td className="min-w-140 px-16 py-12 font-medium sm:min-w-148">{param.name}</td>
 
-            <td className="px-16 py-12 text-current/70">{param.description}</td>
+            <td className="w-full min-w-264 px-16 py-12 text-current/70">{param.description}</td>
 
-            <td className="px-16 py-12 text-sm whitespace-nowrap text-current/70">
+            {/* "number | string" is the longest most common type (118px + 32px padding = 150px)
+            There are a few "string | HTMLImageElement", which are purposely not aligned because too wide */}
+            <td className="min-w-150 px-16 py-12 text-sm whitespace-nowrap text-current/70">
               <code>{param.type}</code>
             </td>
 
-            <td className="max-w-240 px-16 py-12 text-sm text-current/70">
+            <td className="min-w-240 px-16 py-12 text-sm text-current/70">
               {param.options && param.options.length > 0 ? (
                 typeof param.options[0] === 'string' ? (
-                  <div className="text-pretty">
+                  <div className="flex flex-wrap text-pretty">
                     {(param.options as string[]).map((option) => (
-                      <span key={option} className={param.type === 'boolean' ? 'whitespace-nowrap' : ''}>
+                      <span
+                        key={option}
+                        className={param.type === 'boolean' || param.type === 'enum' ? 'whitespace-nowrap' : ''}
+                      >
                         {<span className="text-stone-400 mx-4"> | </span>}
                         <code className="font-mono">{param.type === 'enum' ? `"${option}"` : option}</code>
                       </span>

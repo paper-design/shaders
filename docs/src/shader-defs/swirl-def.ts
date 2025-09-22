@@ -69,7 +69,7 @@ export const swirlDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.noise,
-      description: 'Strength of noise distortion (not effective with noiseFrequency = 0)',
+      description: 'Strength of noise distortion (no effect with noiseFrequency = 0)',
     },
     {
       name: 'noiseFrequency',
@@ -77,7 +77,7 @@ export const swirlDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.noiseFrequency,
-      description: 'Noise frequency (not effective with noise = 0)',
+      description: 'Noise frequency (no effect with noise = 0)',
     },
     ...animatedCommonParams,
   ],
