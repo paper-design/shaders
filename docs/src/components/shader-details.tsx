@@ -36,10 +36,10 @@ function PropsTable({ params }: { params: ParamDef[] }) {
     <table className="w-full text-base">
       <thead>
         <tr className="bg-backplate-2">
-          <th className="px-16 py-12 text-left font-medium lowercase">Name</th>
-          <th className="px-16 py-12 text-left font-medium lowercase">Description</th>
-          <th className="px-16 py-12 text-left font-medium lowercase">Type</th>
-          <th className="px-16 py-12 text-left font-medium lowercase">Values</th>
+          <th className="px-16 py-12 text-left align-top font-medium lowercase">Name</th>
+          <th className="px-16 py-12 text-left align-top font-medium lowercase">Description</th>
+          <th className="px-16 py-12 text-left align-top font-medium lowercase">Type</th>
+          <th className="px-16 py-12 text-left align-top font-medium lowercase">Values</th>
         </tr>
       </thead>
       <tbody>
@@ -49,17 +49,17 @@ function PropsTable({ params }: { params: ParamDef[] }) {
           <tr key={param.name} className="border-table-border not-last:border-b">
             {/* "noiseFrequency" is the longest name (116px + 32px padding = 148px)
              We go a little smaller on mobile to have less whitespace ("maxPixelCount" = 140px) */}
-            <td className="min-w-140 px-16 py-12 font-medium sm:min-w-148">{param.name}</td>
+            <td className="min-w-140 px-16 py-12 align-top font-medium sm:min-w-148">{param.name}</td>
 
-            <td className="w-full min-w-264 px-16 py-12 text-current/70">{param.description}</td>
+            <td className="w-full min-w-240 px-16 py-12 align-top text-pretty text-current/70">{param.description}</td>
 
             {/* "number | string" is the longest most common type (118px + 32px padding = 150px)
             There are a few "HTMLImageElement | string ", which are purposely not aligned because too wide */}
-            <td className="min-w-150 px-16 py-12 text-sm whitespace-nowrap text-current/70">
+            <td className="min-w-150 px-16 py-12 align-top text-sm whitespace-nowrap text-current/70">
               <code>{param.type}</code>
             </td>
 
-            <td className="min-w-240 px-16 py-12 text-sm text-current/70">
+            <td className="min-w-240 px-16 py-12 align-top text-sm text-current/70">
               {param.options && param.options.length > 0 ? (
                 typeof param.options[0] === 'string' ? (
                   <div className="flex flex-wrap text-pretty">
