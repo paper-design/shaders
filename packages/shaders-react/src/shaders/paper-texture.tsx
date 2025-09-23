@@ -12,7 +12,14 @@ import {
   type PaperTextureUniforms,
 } from '@paper-design/shaders';
 
-export interface PaperTextureProps extends ShaderComponentProps, PaperTextureParams {}
+export interface PaperTextureProps extends ShaderComponentProps, PaperTextureParams {
+  /** @deprecated use `fiberSize` instead */
+  fiberScale?: number;
+  /** @deprecated use `crumplesSize` instead */
+  crumplesScale?: number;
+  /** @deprecated use `fade` instead */
+  blur?: number;
+}
 
 type PaperTexturePreset = ImageShaderPreset<PaperTextureParams>;
 
@@ -129,14 +136,19 @@ export const PaperTexture: React.FC<PaperTextureProps> = memo(function PaperText
   contrast = defaultPreset.params.contrast,
   roughness = defaultPreset.params.roughness,
   fiber = defaultPreset.params.fiber,
-  fiberSize = defaultPreset.params.fiberSize,
   crumples = defaultPreset.params.crumples,
-  crumplesSize = defaultPreset.params.crumplesSize,
   foldsNumber = defaultPreset.params.foldsNumber,
   folds = defaultPreset.params.folds,
-  fade = defaultPreset.params.fade,
   drops = defaultPreset.params.drops,
   seed = defaultPreset.params.seed,
+
+  // Reworked props
+  fiberScale,
+  fiberSize = fiberScale === undefined ? defaultPreset.params.fiberSize : 0.2 / fiberScale,
+  crumplesScale,
+  crumplesSize = crumplesScale === undefined ? defaultPreset.params.crumplesSize : 0.2 / crumplesScale,
+  blur,
+  fade = blur === undefined ? defaultPreset.params.fade : blur,
 
   // Sizing props
   fit = defaultPreset.params.fit,
