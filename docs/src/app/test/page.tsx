@@ -1,7 +1,11 @@
 'use client';
 
-import { DotGrid } from '@paper-design/shaders-react';
+import { FlutedGlass, Water } from '@paper-design/shaders-react';
 
 export default function TestPage() {
-  return <DotGrid width={500} height={500} />;
+  return (
+    <div className="flex">
+      <FlutedGlass width={1104} height={621} count={5} />
+    </div>
+  );
 }
