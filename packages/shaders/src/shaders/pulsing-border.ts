@@ -141,8 +141,8 @@ void main() {
     float mB = u_marginBottom;
     
     if (u_aspectRatio > 0.) {
-      mL = mix(mL, .5 * mY, step(mX, mY));
-      mR = mix(mR, .5 * mY, step(mX, mY));
+      mL = mix(mL, .5 * mY, step(mX + .001, mY));
+      mR = mix(mR, .5 * mY, step(mX + .001, mY));
       mT = mix(mT, .5 * mX, step(mY, mX));
       mB = mix(mB, .5 * mX, step(mY, mX));
       mX = mL + mR;
