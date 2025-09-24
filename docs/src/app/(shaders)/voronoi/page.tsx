@@ -29,9 +29,9 @@ const VoronoiWithControls = () => {
       distortion: { value: defaults.distortion, min: 0, max: 0.5, order: 201 },
       gap: { value: defaults.gap, min: 0, max: 0.1, order: 202 },
       glow: { value: defaults.glow, min: 0, max: 1, order: 203 },
-      scale: { value: defaults.scale, min: 0.01, max: 4, order: 302 },
-      rotation: { value: defaults.rotation, min: 0, max: 360, order: 303 },
-      speed: { value: defaults.speed, min: 0, max: 1, order: 400 },
+      speed: { value: defaults.speed, min: 0, max: 1, order: 300 },
+      scale: { value: defaults.scale, min: 0.01, max: 4, order: 301 },
+      rotation: { value: defaults.rotation, min: 0, max: 360, order: 302 },
     };
   }, [colors.length]);
 

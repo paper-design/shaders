@@ -1,5 +1,23 @@
 # Paper Shaders
 
+## Version 0.0.54
+
+### General
+
+- Improve how the final render resolution is computed for all shaders. The new heuristc is now accurate down to physical device pixels and has more reliable behavior across browsers.
+
+### Changes
+
+- **Static Mesh Gradient**, **Static Radial Gradient**
+  - Change the grain style from the fiber effect to pixel-based grain
+- **Mesh Gradient**
+  - Add `grainMixer` and `grainOverlay` params
+- **Water**
+  - Replace `effectScale` with the `size` param
+- **Fluted Glass**
+  - Replace `count` with a normalized `size` param
+  - Rename `highlights` to `edges`
+
 ## Version 0.0.53
 
 ### New features
@@ -41,7 +59,7 @@
 
 - **PaperTexture**
   - Image blending bugfix for semi-transparent `colorBack` (ver46 fix wasn't working properly)
-  
+
 ### New Shaders
 
 - Added **Heatmap** component (not available in the docs yet)
@@ -57,28 +75,29 @@
 ### Existing Shader Improvements
 
 - **Water**, **FlutedGlass**, **PaperTexture**, **PaperTexture**
+
   - Fixed default image URL
 
 - **FlutedGlass**, **PaperTexture**, **PaperTexture**
+
   - Default image sizing changed (`fit`)
 
 - **Water**
   - `highlightColor` renamed to `colorHighlight`
   - Default preset changed (`scale`, `colorBack`)
-  
 - **PaperTexture**
   - Additional presets changed
   - Image blending bugfix for semi-transparent `colorBack`
-  
 - **FlutedGlass**
+
   - Additional presets changed
 
 - **ColorPanels**
   - Default preset changed (`colorBack`, `scale`)
   - Additional presets changed
   - Panels angle now independent from side `blur`
-  
 - **SmokeRing**
+
   - Default preset changed (scale, `colorBack`)
   - Additional presets changed
   - Reversed order of colors
@@ -87,32 +106,39 @@
   - Default preset changed (scale, colors, pulse)
   - Additional presets changed
   - Nvidia 3060 bugfix ([issue #146](https://github.com/paper-design/shaders/issues/146))
-  
 - **SimplexNoise**
+
   - Default preset changed (`stepsPerColor`)
   - Antialiasing bugfix
 
 - **GrainGradient**
+
   - Default preset changed (`noise`)
   - Better randomizing on `dots` shape
 
 - **Waves**
+
   - Default preset changed (`scale`, `spacing`)
 
 - **Voronoi**
+
   - Default preset changed (`gap`)
 
 - **LiquidMetal**
+
   - Default preset changed (`scale`)
 
 - **StaticRadialGradient**, **Metaballs**, **GodRays**
+
   - Default preset changed (`colorBack`)
 
 - **Dithering**
+
   - Default preset changed (`scale`)
   - Additional presets changed
 
 - **DotOrbit**
+
   - Default preset changed (`speed`, `colors`)
   - Additional presets changed
 
@@ -133,21 +159,24 @@
 ### Existing Shader Improvements
 
 - **StaticRadialGradient**, **StaticMeshGradient**
+
   - Fixed fiber-shape noise to make it independent of canvas resolution
 
 - **Dithering**
+
   - Fixed Sphere and Dots shapes on certain Android models
   - Improved stability of the `random` dithering type
 
 - **DotOrbit**, **GodRays**, **Metaballs**
+
   - Now use `u_noiseTexture` for better performance and stability across devices
 
 - **PerlinNoise**
+
   - Fixed randomizer-related issues on some Android models
 
 - **Spiral**
   - Inverted `strokeWidth` behavior
-  
 - **GrainGradient**
   - Switched to low precision
 
@@ -182,23 +211,28 @@ All four new effects work as photo filters. **PaperTexture** and **Water** can a
 ### Existing Shader Improvements
 
 - **Antialiasing** improved across multiple shaders:
+
   - _Waves, Warp, Swirl, Spiral, SimplexNoise, PulsingBorder, LiquidMetal, GrainGradient_
 
 - **Voronoi**
+
   - Fixed glow color behavior: glow is now fully hidden when `glow = 0`
 
 - **Swirl**
+
   - Improved color distribution
   - Renamed `noisePower` to `noise`
   - Normalized `noiseFrequency`
 
 - **Spiral**
+
   - Enhanced algorithm for `lineWidth`, `strokeTaper`, `strokeCap`, `noise`, and `distortion`
   - Swapped `colorBack` and `colorFront`
   - Renamed `noisePower` to `noise`
   - Normalized `noiseFrequency`
 
 - **PulsingBorder**
+
   - Normalized `thickness`, `intensity`, `spotSize`, and `smokeSize`
   - Renamed `spotsPerColor` to `spots`
   - `intensity` now affects only the shape, not color mixing
@@ -211,9 +245,11 @@ All four new effects work as photo filters. **PaperTexture** and **Water** can a
     data)
 
 - **MeshGradient**
+
   - Minor performance improvements
 
 - **ColorPanels**
+
   - Added new `edges` parameter
 
 - **Default Presets** updated for the following shaders:

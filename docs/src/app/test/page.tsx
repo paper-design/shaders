@@ -1,9 +1,11 @@
 'use client';
 
-import { PulsingBorder } from '@paper-design/shaders-react';
+import { FlutedGlass, Water } from '@paper-design/shaders-react';
 
 export default function TestPage() {
   return (
-      <PulsingBorder width={'100vw'} height={'100vh'} />
+    <div className="flex">
+      <FlutedGlass width={1104} height={621} count={5} />
+    </div>
   );
 }

@@ -9,12 +9,12 @@ import { rotation2, declarePI, fiberNoise, textureRandomizerR } from '../shader-
  * - u_colorFront, u_colorBack (RGBA)
  * - u_contrast - mixing front and back colors
  * - u_roughness - pixel noise, related to canvas => not scalable
- * - u_fiber, u_fiberScale - curly shaped noise
- * - u_crumples, u_crumplesScale - cell-based pattern
+ * - u_fiber, u_fiberSize - curly shaped noise
+ * - u_crumples, u_crumplesSize - cell-based pattern
  * - u_folds, u_foldsNumber - lines pattern, 15 max
  * - u_drops - metaballs-like pattern
  * - u_seed - applied to folds, crumples and dots
- * - u_blur - big-scale noise mask applied to everything but roughness
+ * - u_fade - big-scale noise mask applied to everything but roughness
  *
  * - u_noiseTexture (sampler2D): pre-computed randomizer source
  *
@@ -36,14 +36,14 @@ uniform float u_imageAspectRatio;
 uniform float u_contrast;
 uniform float u_roughness;
 uniform float u_fiber;
-uniform float u_fiberScale;
+uniform float u_fiberSize;
 uniform float u_crumples;
-uniform float u_crumplesScale;
+uniform float u_crumplesSize;
 uniform float u_folds;
 uniform float u_foldsNumber;
 uniform float u_drops;
 uniform float u_seed;
-uniform float u_blur;
+uniform float u_fade;
 
 uniform sampler2D u_noiseTexture;
 
@@ -173,6 +173,10 @@ float drops(vec2 uv) {
   return 1. - smoothstep(.05, .09, pow(dropsMinDist, .5));
 }
 
+float lst(float edge0, float edge1, float x) {
+  return clamp((x - edge0) / (edge1 - edge0), 0.0, 1.0);
+}
+
 void main() {
 
   vec2 imageUV = v_imageUV;
@@ -182,10 +186,10 @@ void main() {
   vec2 roughnessUv = 1.5 * (gl_FragCoord.xy - .5 * u_resolution) / u_pixelRatio;
   float roughness = roughness(roughnessUv + vec2(1., 0.)) - roughness(roughnessUv - vec2(1., 0.));
 
-  vec2 crumplesUV = fract(patternUV * .1 * u_crumplesScale - u_seed) * 32.;
+  vec2 crumplesUV = fract(patternUV * .02 / u_crumplesSize - u_seed) * 32.;
   float crumples = u_crumples * (crumplesShape(crumplesUV + vec2(.05, 0.)) - crumplesShape(crumplesUV));
 
-  vec2 fiberUV = 10. * u_fiberScale * patternUV;
+  vec2 fiberUV = 2. / u_fiberSize * patternUV;
   float fiber = fiberNoise(fiberUV, vec2(0.));
   fiber = .5 * u_fiber * (fiber - 1.);
 
@@ -199,7 +203,17 @@ void main() {
   vec2 w2 = folds(foldsUV);
 
   float drops = u_drops * drops(patternUV * 2.);
+
+  float fade = u_fade * fbm(.17 * patternUV + 10. * u_seed);
+  fade = clamp(8. * pow(fade, 3.), 0., 1.);
   
+  w = mix(w, vec2(0.), fade);
+  w2 = mix(w2, vec2(0.), fade);
+  crumples = mix(crumples, 0., fade);
+  drops = mix(drops, 0., fade);
+  fiber *= mix(1., .5, fade);
+  roughness *= mix(1., .5, fade);
+
   normal.xy += u_folds * min(5. * u_contrast, 1.) * 4. * max(vec2(0.), w + w2);
   normalImage.xy += u_folds * 2. * w;
 
@@ -208,10 +222,6 @@ void main() {
 
   normal.xy += 3. * drops;
   normalImage.xy += .2 * drops;
-
-  float blur = u_blur * smoothstep(0., 1., fbm(.17 * patternUV + 10. * u_seed));
-  normal *= (1. - 2. * blur);
-  fiber *= (1. - blur);
 
   normal.xy += u_roughness * 1.5 * roughness;
   normal.xy += fiber;
@@ -257,12 +267,12 @@ export interface PaperTextureUniforms extends ShaderSizingUniforms {
   u_contrast: number;
   u_roughness: number;
   u_fiber: number;
-  u_fiberScale: number;
+  u_fiberSize: number;
   u_crumples: number;
   u_foldsNumber: number;
   u_folds: number;
-  u_blur: number;
-  u_crumplesScale: number;
+  u_fade: number;
+  u_crumplesSize: number;
   u_drops: number;
   u_seed: number;
 }
@@ -274,12 +284,12 @@ export interface PaperTextureParams extends ShaderSizingParams, ShaderMotionPara
   contrast?: number;
   roughness?: number;
   fiber?: number;
-  fiberScale?: number;
+  fiberSize?: number;
   crumples?: number;
   foldsNumber?: number;
   folds?: number;
-  blur?: number;
-  crumplesScale?: number;
+  fade?: number;
+  crumplesSize?: number;
   drops?: number;
   seed?: number;
 }

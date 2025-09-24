@@ -1,5 +1,6 @@
 import { waterPresets } from '@paper-design/shaders-react';
 import type { ShaderDef } from './shader-def-types';
+import { animatedCommonParams } from './common-param-def';
 
 const defaultParams = waterPresets[0].params;
 
@@ -8,6 +9,11 @@ export const waterDef: ShaderDef = {
   description:
     'Water-like surface distortion with natural caustic realism. Works as an image filter or animated texture without image.',
   params: [
+    {
+      name: 'image',
+      type: 'HTMLImageElement | string',
+      description: 'The image to use for the effect',
+    },
     {
       name: 'colorBack',
       type: 'string',
@@ -63,47 +69,13 @@ export const waterDef: ShaderDef = {
       description: 'Power of caustic distortion',
     },
     {
-      name: 'effectScale',
+      name: 'size',
       type: 'number',
       min: 0.01,
       max: 7,
-      defaultValue: defaultParams.effectScale,
+      defaultValue: defaultParams.size,
       description: 'Pattern scale relative to the image',
     },
-    {
-      name: 'width',
-      type: 'number | string',
-      defaultValue: undefined,
-      description: 'CSS width style of the shader element',
-    },
-    {
-      name: 'height',
-      type: 'number | string',
-      defaultValue: undefined,
-      description: 'CSS height style of the shader element',
-    },
-    {
-      name: 'scale',
-      type: 'number',
-      min: 0.1,
-      max: 10,
-      defaultValue: defaultParams.scale,
-      description: 'Overall zoom level of the graphics',
-    },
-    {
-      name: 'fit',
-      type: 'enum',
-      defaultValue: defaultParams.fit,
-      description: 'How the image fits the canvas',
-      options: ['contain', 'cover'],
-    },
-    {
-      name: 'speed',
-      type: 'number',
-      min: 0,
-      max: 3,
-      defaultValue: defaultParams.speed,
-      description: 'Animation speed',
-    },
+    ...animatedCommonParams,
   ],
 };

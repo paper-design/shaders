@@ -1,5 +1,6 @@
 import { dotGridPresets } from '@paper-design/shaders-react';
 import type { ShaderDef } from './shader-def-types';
+import { staticCommonParams } from './common-param-def';
 
 const defaultParams = dotGridPresets[0].params;
 
@@ -83,25 +84,6 @@ export const dotGridDef: ShaderDef = {
       defaultValue: defaultParams.opacityRange,
       description: 'Random variation in shape opacity (0 = all shapes opaque, higher = semi-transparent dots)',
     },
-    {
-      name: 'width',
-      type: 'number | string',
-      defaultValue: undefined,
-      description: 'CSS width style of the shader element',
-    },
-    {
-      name: 'height',
-      type: 'number | string',
-      defaultValue: undefined,
-      description: 'CSS height style of the shader element',
-    },
-    {
-      name: 'rotation',
-      type: 'number',
-      min: 0,
-      max: 360,
-      defaultValue: defaultParams.rotation,
-      description: 'Overall rotation angle of the graphics',
-    },
+    ...staticCommonParams,
   ],
 };
