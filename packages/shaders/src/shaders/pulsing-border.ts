@@ -120,31 +120,43 @@ void main() {
     borderUV.x *= canvasRatio;
     if (u_aspectRatio == 0.) {
       halfSize.x *= canvasRatio;
+    } else {
+      halfSize.x = halfSize.y;
     }
   } else {
     borderUV.y /= canvasRatio;
     if (u_aspectRatio == 0.) {
       halfSize.y /= canvasRatio;
-    }
-  }
-  
-  if (u_aspectRatio > 0.) {
-    if (canvasRatio > 1.) {
-      halfSize.x = halfSize.y;
     } else {
       halfSize.y = halfSize.x;
     }
   }
 
-  float sumX = u_marginLeft + u_marginRight;
-  float sumY = u_marginBottom + u_marginTop;
-  halfSize.x -= 0.5 * sumX;
-  halfSize.y -= 0.5 * sumY;
-  vec2 centerShift = vec2(
-    (u_marginLeft - u_marginRight) * 0.5,
-    (u_marginBottom - u_marginTop) * 0.5
-  );
-  borderUV -= centerShift;
+  {
+    float mX = u_marginLeft + u_marginRight;
+    float mY = u_marginBottom + u_marginTop;
+    float mL = u_marginLeft;
+    float mR = u_marginRight;
+    float mT = u_marginTop;
+    float mB = u_marginBottom;
+    
+    if (u_aspectRatio > 0.) {
+      mL = mix(mL, .5 * mY, step(mX, mY));
+      mR = mix(mR, .5 * mY, step(mX, mY));
+      mT = mix(mT, .5 * mX, step(mY, mX));
+      mB = mix(mB, .5 * mX, step(mY, mX));
+      mX = mL + mR;
+      mY = mT + mB;
+    }
+
+    halfSize.x -= 0.5 * mX;
+    halfSize.y -= 0.5 * mY;
+    vec2 centerShift = vec2(
+    (mL - mR) * 0.5,
+    (mB - mT) * 0.5
+    );
+    borderUV -= centerShift;
+  }
 
   float thickness = .5 * u_thickness * min(halfSize.x, halfSize.y);
   halfSize -= mix(thickness, 0., u_softness);
