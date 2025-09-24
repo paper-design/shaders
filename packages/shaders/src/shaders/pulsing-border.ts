@@ -141,21 +141,12 @@ void main() {
     float mY = mT + mB;
 
     if (u_aspectRatio > 0.) {
-      if (mX == 0.) {
-        mL += .001;
-        mX += .001;
-      }
-      if (mY == 0.) {
-        mT += .001;
-        mY += .001;
-      }
-      
       if (mY > mX) {
-        float scale = mY / mX;
+        float scale = mY / max(mX, .001);
         mL *= scale;
         mR *= scale;
       } else {
-        float scale = mX / mY;
+        float scale = mX / max(mY, .001);
         mT *= scale;
         mB *= scale;
       }
