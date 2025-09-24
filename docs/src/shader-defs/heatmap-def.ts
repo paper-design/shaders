@@ -28,7 +28,7 @@ export const heatmapDef: ShaderDef = {
       defaultValue: defaultParams.contour,
       min: 0,
       max: 1,
-      description: 'TODO',
+      description: 'The heat intensity near the edges of the input shape',
     },
     {
       name: 'angle',
@@ -36,7 +36,7 @@ export const heatmapDef: ShaderDef = {
       defaultValue: defaultParams.angle,
       min: 0,
       max: 360,
-      description: 'TODO',
+      description: 'The direction of the heatwaves (angle relative to the shape)',
     },
     {
       name: 'noise',
@@ -44,7 +44,7 @@ export const heatmapDef: ShaderDef = {
       defaultValue: defaultParams.noise,
       min: 0,
       max: 1,
-      description: 'TODO',
+      description: 'Grain applied across the entire graphic',
     },
     {
       name: 'innerGlow',
@@ -52,7 +52,7 @@ export const heatmapDef: ShaderDef = {
       defaultValue: defaultParams.innerGlow,
       min: 0,
       max: 1,
-      description: 'TODO',
+      description: 'The size of the heated area inside the input shape',
     },
     {
       name: 'outerGlow',
@@ -60,7 +60,7 @@ export const heatmapDef: ShaderDef = {
       defaultValue: defaultParams.outerGlow,
       min: 0,
       max: 1,
-      description: 'TODO',
+      description: 'The side of the heated area outside the input shape',
     },
     {
       name: 'suspendWhenProcessingImage',
