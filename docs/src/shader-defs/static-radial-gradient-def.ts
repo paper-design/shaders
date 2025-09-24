@@ -1,5 +1,6 @@
 import { staticRadialGradientPresets } from '@paper-design/shaders-react';
 import type { ShaderDef } from './shader-def-types';
+import { staticCommonParams } from './common-param-def';
 
 const defaultParams = staticRadialGradientPresets[0].params;
 
@@ -103,33 +104,6 @@ export const staticRadialGradientDef: ShaderDef = {
       defaultValue: defaultParams.grainOverlay,
       description: 'Post-processing RGB grain overlay',
     },
-    {
-      name: 'offsetX',
-      type: 'number',
-      min: -1,
-      max: 1,
-      defaultValue: defaultParams.offsetX,
-      description: 'Horizontal offset of the graphics center',
-    },
-    {
-      name: 'offsetY',
-      type: 'number',
-      min: -1,
-      max: 1,
-      defaultValue: defaultParams.offsetY,
-      description: 'Vertical offset of the graphics center',
-    },
-    {
-      name: 'width',
-      type: 'number | string',
-      defaultValue: undefined,
-      description: 'CSS width style of the shader element',
-    },
-    {
-      name: 'height',
-      type: 'number | string',
-      defaultValue: undefined,
-      description: 'CSS height style of the shader element',
-    },
+    ...staticCommonParams,
   ],
 };
