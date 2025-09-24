@@ -142,23 +142,17 @@ void main() {
 
     if (u_aspectRatio > 0.) {
       if (mY > mX) {
-        if (mX > 0.) {
-          float scale = mY / mX;
-          mL *= scale;
-          mR *= scale;
-        } else {
-          mL = 0.5 * mY;
-          mR = 0.5 * mY;
-        }
+        mL = 0.5 * mY;
+        mR = 0.5 * mY;
+        float diff = u_marginLeft - u_marginRight;
+        mL += diff;
+        mR -= diff;
       } else {
-        if (mY > 0.) {
-          float scale = mX / mY;
-          mT *= scale;
-          mB *= scale;
-        } else {
-          mT = 0.5 * mX;
-          mB = 0.5 * mX;
-        } 
+        mT = 0.5 * mX;
+        mB = 0.5 * mX;
+        float diff = u_marginTop - u_marginBottom;
+        mT += diff;
+        mB -= diff;
       }
       mX = mL + mR;
       mY = mT + mB;
