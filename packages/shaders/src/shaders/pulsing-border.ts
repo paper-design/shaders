@@ -133,22 +133,35 @@ void main() {
   }
 
   {
-    float mX = u_marginLeft + u_marginRight;
-    float mY = u_marginBottom + u_marginTop;
     float mL = u_marginLeft;
     float mR = u_marginRight;
     float mT = u_marginTop;
     float mB = u_marginBottom;
-    
+    float mX = mL + mR;
+    float mY = mT + mB;
+
     if (u_aspectRatio > 0.) {
-      mL = mix(mL, .5 * mY, step(mX + .001, mY));
-      mR = mix(mR, .5 * mY, step(mX + .001, mY));
-      mT = mix(mT, .5 * mX, step(mY, mX));
-      mB = mix(mB, .5 * mX, step(mY, mX));
+      if (mX == 0.) {
+        mL += .001;
+        mX += .001;
+      }
+      if (mY == 0.) {
+        mT += .001;
+        mY += .001;
+      }
+      
+      if (mY > mX) {
+        float scale = mY / mX;
+        mL *= scale;
+        mR *= scale;
+      } else {
+        float scale = mX / mY;
+        mT *= scale;
+        mB *= scale;
+      }
       mX = mL + mR;
       mY = mT + mB;
     }
-
     halfSize.x -= 0.5 * mX;
     halfSize.y -= 0.5 * mY;
     vec2 centerShift = vec2(
