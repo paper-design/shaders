@@ -91,6 +91,10 @@ export const Heatmap: React.FC<HeatmapProps> = memo(function HeatmapImpl({
   let processedImage: string;
 
   if (suspendWhenProcessingImage) {
+    // toProcessedHeatmap expects the document object to exist. This prevents SSR issues during builds.
+    if (typeof window === 'undefined') {
+      return;
+    }
     processedImage = suspend(
       (): Promise<string> => toProcessedHeatmap(imageUrl).then((result) => URL.createObjectURL(result.blob)),
       [imageUrl]
