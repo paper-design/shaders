@@ -53,11 +53,11 @@ export const paperTextureDef: ShaderDef = {
       description: 'Curly-shaped noise',
     },
     {
-      name: 'fiberScale',
+      name: 'fiberSize',
       type: 'number',
-      min: 0.1,
-      max: 2,
-      defaultValue: defaultParams.fiberScale,
+      min: 0,
+      max: 1,
+      defaultValue: defaultParams.fiberSize,
       description: 'Curly-shaped noise scale',
     },
     {
@@ -69,11 +69,11 @@ export const paperTextureDef: ShaderDef = {
       description: 'Cell-based crumples pattern',
     },
     {
-      name: 'crumplesScale',
+      name: 'crumplesSize',
       type: 'number',
-      min: 0.3,
-      max: 3,
-      defaultValue: defaultParams.crumplesScale,
+      min: 0,
+      max: 1,
+      defaultValue: defaultParams.crumplesSize,
       description: 'Cell-based crumples pattern scale',
     },
     {
@@ -94,12 +94,12 @@ export const paperTextureDef: ShaderDef = {
       description: 'Number of folds (15 max)',
     },
     {
-      name: 'blur',
+      name: 'fade',
       type: 'number',
       min: 0,
       max: 1,
-      defaultValue: defaultParams.blur,
-      description: 'Big-scale noise mask applied to everything but roughness',
+      defaultValue: defaultParams.fade,
+      description: 'Big-scale noise mask applied to the pattern',
     },
     {
       name: 'drops',
