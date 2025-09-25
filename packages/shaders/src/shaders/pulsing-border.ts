@@ -139,26 +139,25 @@ void main() {
     float mB = u_marginBottom;
     float mX = mL + mR;
     float mY = mT + mB;
-
     if (u_aspectRatio > 0.) {
-      if (mY > mX) {
-        mL = 0.5 * mY;
-        mR = 0.5 * mY;
-        float diff = u_marginLeft - u_marginRight;
-        mL += diff;
-        mR -= diff;
-      } else {
-        mT = 0.5 * mX;
-        mB = 0.5 * mX;
-        float diff = u_marginTop - u_marginBottom;
-        mT += diff;
-        mB -= diff;
-      }
+      float diffX = u_marginLeft - u_marginRight;
+      float diffY = u_marginTop - u_marginBottom;
+      float target = max(mX, mY);
+      mL = 0.5 * (target + diffX);
+      mR = 0.5 * (target - diffX);
+      mT = 0.5 * (target + diffY);
+      mB = 0.5 * (target - diffY);
+      mL = max(0.0, mL);
+      mR = max(0.0, mR);
+      mT = max(0.0, mT);
+      mB = max(0.0, mB);
       mX = mL + mR;
       mY = mT + mB;
     }
+
     halfSize.x -= 0.5 * mX;
     halfSize.y -= 0.5 * mY;
+
     vec2 centerShift = vec2(
     (mL - mR) * 0.5,
     (mB - mT) * 0.5
