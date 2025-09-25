@@ -10,7 +10,7 @@ export const SiteHeader = () => {
   const router = useRouter();
 
   return (
-    <div className="relative flex w-full items-center justify-between py-20">
+    <div className="relative flex w-full items-center justify-between py-20 lg:max-w-[calc(100%-332px)] 3xl:max-w-none">
       <Link
         href="/"
         className="-mx-6 mr-auto flex items-center gap-8 px-6 text-xl lowercase outline-0 outline-offset-2 outline-focus select-none focus-visible:rounded-sm focus-visible:outline-2"
