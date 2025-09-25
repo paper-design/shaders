@@ -2,6 +2,7 @@
 
 import { Heatmap, heatmapMeta, heatmapPresets } from '@paper-design/shaders-react';
 import { useControls, button, folder } from 'leva';
+import { Suspense } from 'react';
 import { setParamsSafe, useResetLevaParams } from '@/helpers/use-reset-leva-params';
 import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
@@ -21,17 +22,6 @@ const HeatmapWithControls = () => {
   });
 
   const [params, setParams] = useControls(() => {
-    const presets = Object.fromEntries(
-      heatmapPresets.map(({ name, params: { worldWidth, worldHeight, ...preset } }) => [
-        name,
-        button(() => {
-          const { colors, ...presetParams } = preset;
-          setColors(colors);
-          setParamsSafe(params, setParams, presetParams);
-        }),
-      ])
-    );
-
     return {
       colorBack: { value: toHsla(defaults.colorBack), order: 102 },
       contour: { value: defaults.contour, min: 0, max: 1, order: 103 },
@@ -44,6 +34,21 @@ const HeatmapWithControls = () => {
       rotation: { value: defaults.rotation, min: 0, max: 360, order: 302 },
       offsetX: { value: defaults.offsetX, min: -1, max: 1, order: 303 },
       offsetY: { value: defaults.offsetY, min: -1, max: 1, order: 304 },
+    };
+  }, [colors.length]);
+
+  useControls(() => {
+    const presets = Object.fromEntries(
+      heatmapPresets.map(({ name, params: { worldWidth, worldHeight, ...preset } }) => [
+        name,
+        button(() => {
+          const { colors, ...presetParams } = preset;
+          setColors(colors);
+          setParamsSafe(params, setParams, presetParams);
+        }),
+      ])
+    );
+    return {
       Presets: folder(presets, { order: -1 }),
     };
   });
@@ -58,7 +63,9 @@ const HeatmapWithControls = () => {
   return (
     <>
       <ShaderContainer shaderDef={heatmapDef} currentParams={{ colors, ...params }}>
-        <Heatmap {...params} colors={colors} />
+        <Suspense fallback={null}>
+          <Heatmap {...params} colors={colors} suspendWhenProcessingImage />
+        </Suspense>
       </ShaderContainer>
       <ShaderDetails shaderDef={heatmapDef} currentParams={{ colors, ...params }} />
     </>

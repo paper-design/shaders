@@ -37,7 +37,7 @@ const GodRaysWithControls = () => {
       offsetX: { value: defaults.offsetX, min: -1, max: 1, order: 303 },
       offsetY: { value: defaults.offsetY, min: -1, max: 1, order: 304 },
     };
-  });
+  }, [colors.length]);
 
   useControls(() => {
     const presets = Object.fromEntries(
