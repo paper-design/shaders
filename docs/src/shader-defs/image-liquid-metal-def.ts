@@ -1,0 +1,64 @@
+import { imageLiquidMetalPresets } from '@paper-design/shaders-react';
+import type { ShaderDef } from './shader-def-types';
+import { animatedCommonParams } from './common-param-def';
+
+const defaultParams = imageLiquidMetalPresets[0].params;
+
+export const imageLiquidMetalDef: ShaderDef = {
+  name: 'Image Liquid Metal',
+  description: 'TODO',
+  params: [
+    {
+      name: 'image',
+      type: 'HTMLImageElement | string',
+      description: 'The image to use for the effect',
+    },
+    {
+      name: 'edge',
+      type: 'number',
+      description: 'TODO',
+      min: 0,
+      max: 1,
+      defaultValue: defaultParams.edge,
+    },
+    {
+      name: 'liquid',
+      type: 'number',
+      description: 'TODO',
+      min: 0,
+      max: 1,
+      defaultValue: defaultParams.liquid,
+    },
+    {
+      name: 'patternBlur',
+      type: 'number',
+      description: 'TODO',
+      min: 0,
+      max: 1,
+      defaultValue: defaultParams.patternBlur,
+    },
+    {
+      name: 'patternScale',
+      type: 'number',
+      description: 'TODO',
+      min: 0,
+      max: 1,
+      defaultValue: defaultParams.patternScale,
+    },
+    {
+      name: 'refraction',
+      type: 'number',
+      description: 'TODO',
+      min: 0,
+      max: 1,
+      defaultValue: defaultParams.refraction,
+    },
+    {
+      name: 'suspendWhenProcessingImage',
+      type: 'boolean',
+      description: 'TODO',
+      options: ['true', 'false'],
+    },
+    ...animatedCommonParams,
+  ],
+};

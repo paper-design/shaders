@@ -111,10 +111,12 @@ export function ShaderDetails({
   shaderDef,
   currentParams,
   notes,
+  codeSampleImageName,
 }: {
   shaderDef: ShaderDef;
   currentParams: Record<string, unknown>;
   notes?: ReactNode;
+  codeSampleImageName?: string;
 }) {
   const componentName = shaderDef.name.replace(/ /g, '');
 
@@ -124,7 +126,7 @@ export function ShaderDetails({
 
 <${componentName}
   width={1280}
-  height={720}${shaderDef.params.find((p) => p.name === 'image') ? `\n  image="https://shaders.paper.design/flowers.webp"` : ''}
+  height={720}${shaderDef.params.find((p) => p.name === 'image') ? `\n  image="https://shaders.paper.design/${codeSampleImageName ?? 'flowers.webp'}"` : ''}
   ${Object.entries(currentParams)
     .filter(([key, value]) => {
       if (['offsetX', 'offsetY', 'rotation'].includes(key) && value === 0) {
