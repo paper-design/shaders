@@ -34,15 +34,15 @@ export const imageLiquidMetalDef: ShaderDef = {
       type: 'number',
       description: 'TODO',
       min: 0,
-      max: 1,
+      max: 0.05,
       defaultValue: defaultParams.patternBlur,
     },
     {
       name: 'patternScale',
       type: 'number',
       description: 'TODO',
-      min: 0,
-      max: 1,
+      min: 1,
+      max: 10,
       defaultValue: defaultParams.patternScale,
     },
     {
@@ -50,7 +50,7 @@ export const imageLiquidMetalDef: ShaderDef = {
       type: 'number',
       description: 'TODO',
       min: 0,
-      max: 1,
+      max: 0.06,
       defaultValue: defaultParams.refraction,
     },
     {

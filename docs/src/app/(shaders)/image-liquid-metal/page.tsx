@@ -40,9 +40,9 @@ const ImageLiquidMetalWithControls = () => {
     return {
       edge: { value: defaults.edge, min: 0, max: 1, order: 200 },
       liquid: { value: defaults.liquid, min: 0, max: 1, order: 201 },
-      patternBlur: { value: defaults.patternBlur, min: 0, max: 1, order: 202 },
-      patternScale: { value: defaults.patternScale, min: 0, max: 1, order: 203 },
-      refraction: { value: defaults.refraction, min: 0, max: 1, order: 204 },
+      patternBlur: { value: defaults.patternBlur, min: 0, max: 0.05, order: 202 },
+      patternScale: { value: defaults.patternScale, min: 1, max: 10, order: 203 },
+      refraction: { value: defaults.refraction, min: 0, max: 0.06, order: 204 },
       speed: { value: defaults.speed, min: 0, max: 4, order: 300 },
       scale: { value: defaults.scale, min: 0.5, max: 10, order: 301 },
       rotation: { value: defaults.rotation, min: 0, max: 360, order: 302 },
