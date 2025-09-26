@@ -26,11 +26,16 @@ const PulsingBorderWithControls = () => {
       roundness: { value: defaults.roundness, min: 0, max: 1, order: 200 },
       thickness: { value: defaults.thickness, min: 0, max: 1, order: 201 },
       softness: { value: defaults.softness, min: 0, max: 1, order: 202 },
+      // margin: { value: defaults.margin, min: 0, max: 1, order: 203 },
       marginLeft: { value: defaults.marginLeft, min: 0, max: 0.5, order: 203 },
       marginRight: { value: defaults.marginRight, min: 0, max: 0.5, order: 203 },
       marginTop: { value: defaults.marginTop, min: 0, max: 0.5, order: 203 },
       marginBottom: { value: defaults.marginBottom, min: 0, max: 0.5, order: 203 },
-      aspectRatio: {value: defaults.aspectRatio, options: Object.keys(PulsingBorderAspectRatios) as PulsingBorderAspectRatio[], order: 204},
+      aspectRatio: {
+        value: defaults.aspectRatio,
+        options: Object.keys(PulsingBorderAspectRatios) as PulsingBorderAspectRatio[],
+        order: 204,
+      },
       intensity: { value: defaults.intensity, min: 0, max: 1, order: 205 },
       bloom: { value: defaults.bloom, min: 0, max: 1, order: 206 },
       spots: {
