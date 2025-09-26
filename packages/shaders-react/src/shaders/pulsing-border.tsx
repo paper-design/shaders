@@ -36,7 +36,7 @@ export const defaultPreset: PulsingBorderPreset = {
     aspectRatio: 'auto',
     softness: 0.75,
     intensity: 0.2,
-    bloom: 0.45,
+    bloom: 0.25,
     spots: 5,
     spotSize: 0.5,
     pulse: 0.25,
