@@ -170,7 +170,7 @@ void main() {
   smokeThickness = min(.4, max(smokeThickness, .1));
   smoke *= roundedBox(borderUV, halfSize, distance, cornerDistance, smokeThickness, 1.);
   smoke = 30. * pow(smoke, 2.);
-  smoke *= u_smoke * .5;
+  smoke *= mix(0., .5, pow(u_smoke, 2.));
   smoke *= mix(1., pulse, u_pulse);
   smoke = clamp(smoke, 0., 1.);
   border += smoke;
