@@ -40,7 +40,7 @@ export const defaultPreset: PulsingBorderPreset = {
     spots: 5,
     spotSize: 0.5,
     pulse: 0.25,
-    smoke: 0.32,
+    smoke: 0.3,
     smokeSize: 0.6,
   },
 };
