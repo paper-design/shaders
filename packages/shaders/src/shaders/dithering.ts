@@ -237,7 +237,7 @@ export interface DitheringParams extends ShaderSizingParams, ShaderMotionParams 
   colorFront?: string;
   shape?: DitheringShape;
   type?: DitheringType;
-  pxSize?: number;
+  size?: number;
 }
 
 export const DitheringShapes = {
