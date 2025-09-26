@@ -140,7 +140,7 @@ void main() {
     mY = mT + mB;
   }
 
-  float thickness = .5 * u_thickness * min(halfSize.x, halfSize.y);
+  float thickness = .25 * u_thickness * min(halfSize.x, halfSize.y);
 
   halfSize.x *= (1. - mX);
   halfSize.y *= (1. - mY);
