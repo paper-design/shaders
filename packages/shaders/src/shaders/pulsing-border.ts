@@ -107,8 +107,7 @@ float valueNoise(vec2 st) {
 }
 
 void main() {
-
-  const float firstFrameOffset = 4.;
+  const float firstFrameOffset = 109.;
   float t = 1.2 * (u_time + firstFrameOffset);
 
   vec2 borderUV = v_responsiveUV;
@@ -171,7 +170,7 @@ void main() {
   smokeThickness = min(.4, max(smokeThickness, .1));
   smoke *= roundedBox(borderUV, halfSize, distance, cornerDistance, smokeThickness, 1.);
   smoke = 30. * pow(smoke, 2.);
-  smoke *= u_smoke;
+  smoke *= u_smoke * .5;
   smoke *= mix(1., pulse, u_pulse);
   smoke = clamp(smoke, 0., 1.);
   border += smoke;
