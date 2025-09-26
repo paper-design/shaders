@@ -272,6 +272,7 @@ export interface PulsingBorderParams extends ShaderSizingParams, ShaderMotionPar
   colors?: string[];
   roundness?: number;
   thickness?: number;
+  margin?: number;
   marginLeft?: number;
   marginRight?: number;
   marginTop?: number;

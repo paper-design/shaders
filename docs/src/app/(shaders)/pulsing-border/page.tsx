@@ -26,11 +26,6 @@ const PulsingBorderWithControls = () => {
       roundness: { value: defaults.roundness, min: 0, max: 1, order: 200 },
       thickness: { value: defaults.thickness, min: 0, max: 1, order: 201 },
       softness: { value: defaults.softness, min: 0, max: 1, order: 202 },
-      // margin: { value: defaults.margin, min: 0, max: 1, order: 203 },
-      marginLeft: { value: defaults.marginLeft, min: 0, max: 0.5, order: 203 },
-      marginRight: { value: defaults.marginRight, min: 0, max: 0.5, order: 203 },
-      marginTop: { value: defaults.marginTop, min: 0, max: 0.5, order: 203 },
-      marginBottom: { value: defaults.marginBottom, min: 0, max: 0.5, order: 203 },
       aspectRatio: {
         value: defaults.aspectRatio,
         options: Object.keys(PulsingBorderAspectRatios) as PulsingBorderAspectRatio[],
@@ -54,6 +49,11 @@ const PulsingBorderWithControls = () => {
       rotation: { value: defaults.rotation, min: 0, max: 360, order: 302 },
       offsetX: { value: defaults.offsetX, min: -1, max: 1, order: 303 },
       offsetY: { value: defaults.offsetY, min: -1, max: 1, order: 304 },
+      // margin: { value: defaults.margin, min: 0, max: 1, order: 403 },
+      marginLeft: { value: defaults.marginLeft, min: 0, max: 0.5, order: 403 },
+      marginRight: { value: defaults.marginRight, min: 0, max: 0.5, order: 403 },
+      marginTop: { value: defaults.marginTop, min: 0, max: 0.5, order: 403 },
+      marginBottom: { value: defaults.marginBottom, min: 0, max: 0.5, order: 403 },
     };
   }, [colors.length]);
 
