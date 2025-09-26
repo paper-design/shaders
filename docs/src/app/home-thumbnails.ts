@@ -243,18 +243,18 @@ export const homeThumbnails = [
     shaderConfig: { ...liquidMetalPresets[0].params },
   },
   {
-    name: 'heatmap',
-    url: '/heatmap',
-    ShaderComponent: Heatmap,
-    image: heatmapImg,
-    shaderConfig: { ...heatmapPresets[0].params, scale: 0.9, frame: 5800, suspendWhenProcessingImage: true },
-  },
-  {
     name: 'god rays',
     url: '/god-rays',
     ShaderComponent: GodRays,
     image: godRaysImg,
     shaderConfig: { ...godRaysPresets[0].params, offsetY: -0.7, speed: 1.25 },
+  },
+  {
+    name: 'heatmap',
+    url: '/heatmap',
+    ShaderComponent: Heatmap,
+    image: heatmapImg,
+    shaderConfig: { ...heatmapPresets[0].params, scale: 0.9, frame: 5800, suspendWhenProcessingImage: true },
   },
   {
     name: 'paper texture',

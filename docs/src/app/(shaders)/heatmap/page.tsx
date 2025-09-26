@@ -2,7 +2,7 @@
 
 import { Heatmap, heatmapMeta, heatmapPresets } from '@paper-design/shaders-react';
 import { useControls, button, folder } from 'leva';
-import { Suspense } from 'react';
+import { Suspense, useState } from 'react';
 import { setParamsSafe, useResetLevaParams } from '@/helpers/use-reset-leva-params';
 import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
@@ -12,10 +12,13 @@ import { ShaderContainer } from '@/components/shader-container';
 import { useUrlParams } from '@/helpers/use-url-params';
 import { heatmapDef } from '@/shader-defs/heatmap-def';
 import { useColors } from '@/helpers/use-colors';
+import { levaImageButton } from '@/helpers/leva-image-button';
 
 const { worldWidth, worldHeight, ...defaults } = heatmapPresets[0].params;
 
 const HeatmapWithControls = () => {
+  const [image, setImage] = useState<HTMLImageElement | undefined>(undefined);
+
   const { colors, setColors } = useColors({
     defaultColors: defaults.colors,
     maxColorCount: heatmapMeta.maxColorCount,
@@ -34,6 +37,12 @@ const HeatmapWithControls = () => {
       rotation: { value: defaults.rotation, min: 0, max: 360, order: 302 },
       offsetX: { value: defaults.offsetX, min: -1, max: 1, order: 303 },
       offsetY: { value: defaults.offsetY, min: -1, max: 1, order: 304 },
+      Image: folder(
+        {
+          'Upload image': levaImageButton((img?: HTMLImageElement) => setImage(img)),
+        },
+        { order: -1 }
+      ),
     };
   }, [colors.length]);
 
@@ -49,7 +58,7 @@ const HeatmapWithControls = () => {
       ])
     );
     return {
-      Presets: folder(presets, { order: -1 }),
+      Presets: folder(presets, { order: -2 }),
     };
   });
 
@@ -64,10 +73,10 @@ const HeatmapWithControls = () => {
     <>
       <ShaderContainer shaderDef={heatmapDef} currentParams={{ colors, ...params }}>
         <Suspense fallback={null}>
-          <Heatmap {...params} colors={colors} suspendWhenProcessingImage />
+          <Heatmap {...params} colors={colors} image={image ?? undefined} suspendWhenProcessingImage />
         </Suspense>
       </ShaderContainer>
-      <ShaderDetails shaderDef={heatmapDef} currentParams={{ colors, ...params }} />
+      <ShaderDetails shaderDef={heatmapDef} currentParams={{ colors, ...params }} codeSampleImageName="diamond.webp" />
     </>
   );
 };

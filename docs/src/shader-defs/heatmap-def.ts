@@ -6,8 +6,14 @@ const defaultParams = heatmapPresets[0].params;
 
 export const heatmapDef: ShaderDef = {
   name: 'Heatmap',
-  description: 'A glowing gradient of colors flowing through an input image. It can for example shift from cool blues to hot reds, like thermal energy radiating through the shape. The effect creates a smoothly animated wave of intensity across the image.',
+  description:
+    'A glowing gradient of colors flowing through an input image. It can for example shift from cool blues to hot reds, like thermal energy radiating through the shape. The effect creates a smoothly animated wave of intensity across the image.',
   params: [
+    {
+      name: 'image',
+      type: 'HTMLImageElement | string',
+      description: 'The image to use for the effect',
+    },
     {
       name: 'colors',
       type: 'string[]',
