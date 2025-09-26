@@ -10,8 +10,8 @@ import { rotation2, declarePI, fiberNoise, textureRandomizerR } from '../shader-
  * - u_contrast - mixing front and back colors
  * - u_roughness - pixel noise, related to canvas => not scalable
  * - u_fiber, u_fiberSize - curly shaped noise
- * - u_crumples, u_crumplesSize - cell-based pattern
- * - u_folds, u_foldsNumber - lines pattern, 15 max
+ * - u_crumples, u_crumpleSize - cell-based pattern
+ * - u_folds, u_foldCount - lines pattern, 15 max
  * - u_drops - metaballs-like pattern
  * - u_seed - applied to folds, crumples and dots
  * - u_fade - big-scale noise mask applied to everything but roughness
@@ -38,9 +38,9 @@ uniform float u_roughness;
 uniform float u_fiber;
 uniform float u_fiberSize;
 uniform float u_crumples;
-uniform float u_crumplesSize;
+uniform float u_crumpleSize;
 uniform float u_folds;
-uniform float u_foldsNumber;
+uniform float u_foldCount;
 uniform float u_drops;
 uniform float u_seed;
 uniform float u_fade;
@@ -141,7 +141,7 @@ vec2 folds(vec2 uv) {
     vec3 pp = vec3(0.);
     float l = 9.;
     for (float i = 0.; i < 15.; i++) {
-      if (i >= u_foldsNumber) break;
+      if (i >= u_foldCount) break;
       vec2 rand = randomGB(vec2(i, i * u_seed));
       float an = rand.x * TWO_PI;
       vec2 p = vec2(cos(an), sin(an)) * rand.y;
@@ -186,7 +186,7 @@ void main() {
   vec2 roughnessUv = 1.5 * (gl_FragCoord.xy - .5 * u_resolution) / u_pixelRatio;
   float roughness = roughness(roughnessUv + vec2(1., 0.)) - roughness(roughnessUv - vec2(1., 0.));
 
-  vec2 crumplesUV = fract(patternUV * .02 / u_crumplesSize - u_seed) * 32.;
+  vec2 crumplesUV = fract(patternUV * .02 / u_crumpleSize - u_seed) * 32.;
   float crumples = u_crumples * (crumplesShape(crumplesUV + vec2(.05, 0.)) - crumplesShape(crumplesUV));
 
   vec2 fiberUV = 2. / u_fiberSize * patternUV;
@@ -269,10 +269,10 @@ export interface PaperTextureUniforms extends ShaderSizingUniforms {
   u_fiber: number;
   u_fiberSize: number;
   u_crumples: number;
-  u_foldsNumber: number;
+  u_foldCount: number;
   u_folds: number;
   u_fade: number;
-  u_crumplesSize: number;
+  u_crumpleSize: number;
   u_drops: number;
   u_seed: number;
 }
@@ -286,10 +286,10 @@ export interface PaperTextureParams extends ShaderSizingParams, ShaderMotionPara
   fiber?: number;
   fiberSize?: number;
   crumples?: number;
-  foldsNumber?: number;
+  foldCount?: number;
   folds?: number;
   fade?: number;
-  crumplesSize?: number;
+  crumpleSize?: number;
   drops?: number;
   seed?: number;
 }

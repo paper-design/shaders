@@ -50,11 +50,11 @@ export const imageDitheringDef: ShaderDef = {
       options: ['random', '2x2', '4x4', '8x8'],
     },
     {
-      name: 'pxSize',
+      name: 'size',
       type: 'number',
       min: 0.5,
       max: 20,
-      defaultValue: defaultParams.pxSize,
+      defaultValue: defaultParams.size,
       description: 'Pixel size of dithering grid',
     },
     {

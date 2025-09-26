@@ -186,7 +186,7 @@ export interface ImageDitheringParams extends ShaderSizingParams, ShaderMotionPa
   colorBack?: string;
   colorHighlight?: string;
   type?: DitheringType;
-  pxSize?: number;
+  size?: number;
   colorSteps?: number;
   originalColors?: boolean;
 }
