@@ -16,6 +16,7 @@
   - Fixed an issue that may cause Heatmap initialization failure in Safari and Firefox
 - **Paper Texture**
   - Removing the `image` prop no longer loads the default placeholder
+  - The default placeholder image was removed
   - Renamed `blur` → `fade`, improved the effect design
   - Renamed `foldsNumber` → `foldCount`
   - Replaced `fiberScale` with a normalized `fiberSize` parameter
@@ -28,6 +29,7 @@
   - New margin parameters to control the exact distance from the shader edges
 - **Water**
   - Removing the `image` prop no longer loads the default placeholder
+  - The default placeholder image was removed
 - **Dithering**
   - Renamed `pxSize` → `size` for consistency with Dot Grid’s `size`, which is also pixel-based
 
