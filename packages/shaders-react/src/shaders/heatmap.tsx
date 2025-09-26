@@ -13,6 +13,7 @@ import {
 
 import { transparentPixel } from '../transparent-pixel.js';
 import { suspend } from '../suspend.js';
+import { colorPropsAreEqual } from '../color-props-are-equal.js';
 
 export interface HeatmapProps extends ShaderComponentProps, HeatmapParams {
   /**
@@ -63,7 +64,7 @@ export const Heatmap: React.FC<HeatmapProps> = memo(function HeatmapImpl({
   // Own props
   speed = defaultPreset.params.speed,
   frame = defaultPreset.params.frame,
-  image = 'https://shaders.paper.design/images/image-filters/0019.webp',
+  image = '',
   contour = defaultPreset.params.contour,
   angle = defaultPreset.params.angle,
   noise = defaultPreset.params.noise,
@@ -176,4 +177,4 @@ export const Heatmap: React.FC<HeatmapProps> = memo(function HeatmapImpl({
   return (
     <ShaderMount {...props} speed={speed} frame={frame} fragmentShader={heatmapFragmentShader} uniforms={uniforms} />
   );
-});
+}, colorPropsAreEqual);

@@ -117,7 +117,7 @@ export const FlutedGlass: React.FC<FlutedGlassProps> = memo(function FlutedGlass
   // Own props
   speed = defaultPreset.params.speed,
   frame = defaultPreset.params.frame,
-  image = 'https://shaders.paper.design/images/image-filters/0018.webp',
+  image = '',
   angle = defaultPreset.params.angle,
   distortion = defaultPreset.params.distortion,
   distortionShape = defaultPreset.params.distortionShape,

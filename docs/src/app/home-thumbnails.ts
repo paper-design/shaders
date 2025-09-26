@@ -268,7 +268,12 @@ export const homeThumbnails = [
     url: '/water',
     ShaderComponent: Water,
     image: waterImg,
-    shaderConfig: { ...waterPresets[0].params, scale: 1.05, colorBack: '#e0f2ff' },
+    shaderConfig: {
+      ...waterPresets[0].params,
+      scale: 1.05,
+      colorBack: '#e0f2ff',
+      image: '/images/image-filters/0018.webp',
+    },
   },
   {
     name: 'image dithering',
