@@ -75,7 +75,6 @@ import {
   waterPresets,
   ImageDithering,
   imageDitheringPresets,
-  ShaderComponentProps,
   Heatmap,
   heatmapPresets,
 } from '@paper-design/shaders-react';
@@ -254,7 +253,13 @@ export const homeThumbnails = [
     url: '/heatmap',
     ShaderComponent: Heatmap,
     image: heatmapImg,
-    shaderConfig: { ...heatmapPresets[0].params, scale: 0.9, frame: 5800, suspendWhenProcessingImage: true },
+    shaderConfig: {
+      ...heatmapPresets[0].params,
+      scale: 0.9,
+      frame: 5800,
+      suspendWhenProcessingImage: true,
+      image: '/images/image-filters/0019.webp',
+    },
   },
   {
     name: 'paper texture',

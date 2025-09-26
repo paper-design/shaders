@@ -17,7 +17,7 @@ import { levaImageButton } from '@/helpers/leva-image-button';
 const { worldWidth, worldHeight, ...defaults } = heatmapPresets[0].params;
 
 const HeatmapWithControls = () => {
-  const [image, setImage] = useState<HTMLImageElement | undefined>(undefined);
+  const [image, setImage] = useState<HTMLImageElement | string>('/images/image-filters/0019.webp');
 
   const { colors, setColors } = useColors({
     defaultColors: defaults.colors,
@@ -39,7 +39,7 @@ const HeatmapWithControls = () => {
       offsetY: { value: defaults.offsetY, min: -1, max: 1, order: 304 },
       Image: folder(
         {
-          'Upload image': levaImageButton((img?: HTMLImageElement) => setImage(img)),
+          'Upload image': levaImageButton((img?: HTMLImageElement) => setImage(img ?? '')),
         },
         { order: -1 }
       ),
@@ -73,7 +73,7 @@ const HeatmapWithControls = () => {
     <>
       <ShaderContainer shaderDef={heatmapDef} currentParams={{ colors, ...params }}>
         <Suspense fallback={null}>
-          <Heatmap {...params} colors={colors} image={image ?? undefined} suspendWhenProcessingImage />
+          <Heatmap {...params} colors={colors} image={image} suspendWhenProcessingImage />
         </Suspense>
       </ShaderContainer>
       <ShaderDetails shaderDef={heatmapDef} currentParams={{ colors, ...params }} codeSampleImageName="diamond.webp" />
