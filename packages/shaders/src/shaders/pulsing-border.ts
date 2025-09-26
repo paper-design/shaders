@@ -182,7 +182,7 @@ void main() {
   vec3 addColor = vec3(0.);
   float addAlpha = 0.;
 
-  float bloom = min(4. * u_bloom, 1.);
+  float bloom = 4. * u_bloom;
   float intensity = 1. + (1. + 4. * u_softness) * u_intensity;
 
   float angle = atan(borderUV.y, borderUV.x) / TWO_PI;
