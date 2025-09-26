@@ -4,11 +4,16 @@ import { FlutedGlass, Heatmap, ImageDithering, PaperTexture, Water } from '@pape
 
 export default function TestPage() {
   return (
-    <div className="grid grid-cols-3 *:aspect-video">
+    <div className="grid grid-cols-4 *:aspect-video">
+      <FlutedGlass image="https://shaders.paper.design/images/image-filters/0018.webp" />
       <FlutedGlass image="" />
+      <PaperTexture image="https://shaders.paper.design/images/image-filters/0018.webp" />
       <PaperTexture />
+      <Water image="https://shaders.paper.design/images/image-filters/0018.webp" />
       <Water />
+      <ImageDithering image="https://shaders.paper.design/images/image-filters/0018.webp" />
       <ImageDithering image="" />
+      <Heatmap image="https://shaders.paper.design/images/image-filters/0019.webp" />
       <Heatmap image="" />
     </div>
   );
