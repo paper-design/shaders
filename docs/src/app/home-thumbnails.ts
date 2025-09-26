@@ -250,6 +250,13 @@ export const homeThumbnails = [
     shaderConfig: { ...godRaysPresets[0].params, offsetY: -0.7, speed: 1.25 },
   },
   {
+    name: 'heatmap',
+    url: '/heatmap',
+    ShaderComponent: Heatmap,
+    image: heatmapImg,
+    shaderConfig: { ...heatmapPresets[0].params, scale: 0.9, frame: 5800, suspendWhenProcessingImage: true },
+  },
+  {
     name: 'paper texture',
     url: '/paper-texture',
     ShaderComponent: PaperTexture,
@@ -282,11 +289,4 @@ export const homeThumbnails = [
     image: imageDitheringImg,
     shaderConfig: { ...imageDitheringPresets[0].params, scale: 1.05 },
   },
-  // {
-  //   name: 'heatmap',
-  //   url: '/heatmap',
-  //   ShaderComponent: Heatmap,
-  //   image: heatmapImg,
-  //   shaderConfig: { ...heatmapPresets[0].params, scale: 0.9, frame: 5800 },
-  // },
 ] satisfies HomeShaderConfig[];

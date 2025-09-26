@@ -1,11 +1,10 @@
 'use client';
 
-import { Swirl, swirlPresets } from '@paper-design/shaders-react';
+import { Swirl, swirlPresets, swirlMeta } from '@paper-design/shaders-react';
 import { useControls, button, folder } from 'leva';
 import { setParamsSafe, useResetLevaParams } from '@/helpers/use-reset-leva-params';
 import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
-import { simplexNoiseMeta } from '@paper-design/shaders';
 import { useColors } from '@/helpers/use-colors';
 import { toHsla } from '@/helpers/color-utils';
 import { ShaderDetails } from '@/components/shader-details';
@@ -18,7 +17,7 @@ const { worldWidth, worldHeight, ...defaults } = swirlPresets[0].params;
 const SwirlWithControls = () => {
   const { colors, setColors } = useColors({
     defaultColors: defaults.colors,
-    maxColorCount: simplexNoiseMeta.maxColorCount,
+    maxColorCount: swirlMeta.maxColorCount,
   });
 
   const [params, setParams] = useControls(() => {

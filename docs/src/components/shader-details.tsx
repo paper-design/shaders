@@ -111,10 +111,12 @@ export function ShaderDetails({
   shaderDef,
   currentParams,
   notes,
+  codeSampleImageName,
 }: {
   shaderDef: ShaderDef;
   currentParams: Record<string, unknown>;
   notes?: ReactNode;
+  codeSampleImageName?: string;
 }) {
   const componentName = shaderDef.name.replace(/ /g, '');
 
@@ -124,7 +126,7 @@ export function ShaderDetails({
 
 <${componentName}
   width={1280}
-  height={720}${shaderDef.params.find((p) => p.name === 'image') ? `\n  image="https://shaders.paper.design/flowers.webp"` : ''}
+  height={720}${shaderDef.params.find((p) => p.name === 'image') ? `\n  image="https://shaders.paper.design/${codeSampleImageName ?? 'flowers.webp'}"` : ''}
   ${Object.entries(currentParams)
     .filter(([key, value]) => {
       if (['offsetX', 'offsetY', 'rotation'].includes(key) && value === 0) {
@@ -157,13 +159,6 @@ export function ShaderDetails({
 
   return (
     <div className="mt-24 flex w-full flex-col gap-32 md:mt-40 [&_a]:link [&>section]:flex [&>section]:flex-col [&>section]:gap-16">
-      {shaderDef.description && (
-        <section>
-          <h2 className="text-2xl font-medium lowercase">Description</h2>
-          <p className="text-pretty text-current/70">{shaderDef.description}</p>
-        </section>
-      )}
-
       <section>
         <div className="flex items-center gap-8">
           <h2 className="text-2xl font-medium lowercase">Installation</h2>
@@ -209,6 +204,13 @@ export function ShaderDetails({
           </div>
         </div>
       </section>
+
+      {shaderDef.description && (
+        <section>
+          <h2 className="text-2xl font-medium lowercase">Description</h2>
+          <p className="text-pretty text-current/70">{shaderDef.description}</p>
+        </section>
+      )}
 
       {notes && (
         <section>
