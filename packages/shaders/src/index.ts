@@ -150,8 +150,10 @@ export {
 export {
   pulsingBorderMeta,
   pulsingBorderFragmentShader,
+  PulsingBorderAspectRatios,
   type PulsingBorderParams,
   type PulsingBorderUniforms,
+  type PulsingBorderAspectRatio,
 } from './shaders/pulsing-border.js';
 
 // ----- Color Gradient Panels ----- //
@@ -219,3 +221,4 @@ export {
 // ----- Utils ----- //
 export { getShaderColorFromString } from './get-shader-color-from-string.js';
 export { getShaderNoiseTexture } from './get-shader-noise-texture.js';
+export { getEmptyPixel } from './get-empty-pixel.js';

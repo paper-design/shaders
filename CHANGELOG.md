@@ -1,5 +1,40 @@
 # Paper Shaders
 
+## Version 0.0.55
+
+- **Fluted Glass**
+  - The `image` param is now required
+  - The default placeholder image was removed
+  - Added a shorthand `margin` param to specify all 4 margin sides at once
+- **ImageDithering**
+  - The `image` param is now required
+  - The default placeholder image was removed
+  - Renamed `pxSize` → `size` for consistency with Dot Grid’s `size`, which is also pixel-based
+- **Heatmap**
+  - The `image` param is now required
+  - The default placeholder image was removed
+  - Fixed an issue that may cause Heatmap initialization failure in Safari and Firefox
+- **Paper Texture**
+  - Removing the `image` prop no longer loads the default placeholder
+  - The default placeholder image was removed
+  - Renamed `blur` → `fade`, improved the effect design
+  - Renamed `foldsNumber` → `foldCount`
+  - Replaced `fiberScale` with a normalized `fiberSize` parameter
+  - Replaced `crumplesScale` with a normalized `crumpleSize` parameter
+- **Pulsing Border**
+  - Reworked the effect parameter ranges for more creative range and control
+  - Improved antialiasing quality and the corner rounding shape
+  - The border is now drawn on the inside at low `softness` values
+  - New `aspectRatio` parameter to make it easier to create “thinking orb” designs
+  - New margin parameters to control the exact distance from the shader edges
+- **Water**
+  - Removing the `image` prop no longer loads the default placeholder
+  - The default placeholder image was removed
+- **Dithering**
+  - Renamed `pxSize` → `size` for consistency with Dot Grid’s `size`, which is also pixel-based
+
+Parameter renames are backwards-compatible.
+
 ## Version 0.0.54
 
 ### General

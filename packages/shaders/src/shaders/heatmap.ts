@@ -137,7 +137,7 @@ void main() {
   imgUV *= 0.5714285714285714;
   imgUV += .5;
   float imgSoftFrame = getImgFrame(imgUV, .03);
-  
+
   vec4 img = texture(u_image, imgUV);
   if (img.a == 0.) {
     fragColor = u_colorBack;
@@ -227,7 +227,7 @@ void main() {
   opacity = opacity + u_colorBack.a * (1.0 - opacity);
 
   color += .02 * (fract(sin(dot(uv + 1., vec2(12.9898, 78.233))) * 43758.5453123) - .5);
-  
+
   fragColor = vec4(color, opacity);
 }
 `;
@@ -313,7 +313,7 @@ export function toProcessedHeatmap(file: File | string): Promise<{ blob: Blob }>
 }
 
 export interface HeatmapUniforms extends ShaderSizingUniforms {
-  u_image: HTMLImageElement | string | undefined;
+  u_image: HTMLImageElement | string;
   u_contour: number;
   u_angle: number;
   u_noise: number;
@@ -325,7 +325,7 @@ export interface HeatmapUniforms extends ShaderSizingUniforms {
 }
 
 export interface HeatmapParams extends ShaderSizingParams, ShaderMotionParams {
-  image?: HTMLImageElement | string | undefined;
+  image: HTMLImageElement | string;
   contour?: number;
   angle?: number;
   noise?: number;

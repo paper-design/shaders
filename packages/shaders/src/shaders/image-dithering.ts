@@ -132,7 +132,7 @@ void main() {
 
   float steps = max(floor(u_colorSteps), 1.);
   float ditherAmount = 1.0 / (steps);
-  
+
   vec3 color = vec3(0.0);
   float opacity = 1.;
 
@@ -170,7 +170,7 @@ void main() {
 `;
 
 export interface ImageDitheringUniforms extends ShaderSizingUniforms {
-  u_image: HTMLImageElement | string | undefined;
+  u_image: HTMLImageElement | string;
   u_colorFront: [number, number, number, number];
   u_colorBack: [number, number, number, number];
   u_colorHighlight: [number, number, number, number];
@@ -181,12 +181,12 @@ export interface ImageDitheringUniforms extends ShaderSizingUniforms {
 }
 
 export interface ImageDitheringParams extends ShaderSizingParams, ShaderMotionParams {
-  image?: HTMLImageElement | string | undefined;
+  image: HTMLImageElement | string;
   colorFront?: string;
   colorBack?: string;
   colorHighlight?: string;
   type?: DitheringType;
-  pxSize?: number;
+  size?: number;
   colorSteps?: number;
   originalColors?: boolean;
 }

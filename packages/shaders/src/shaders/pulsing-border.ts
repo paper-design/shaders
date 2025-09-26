@@ -15,6 +15,7 @@ export const pulsingBorderMeta = {
  * - u_colorBack (RGBA)
  * - u_colors (vec4[]), u_colorsCount (float used as integer)
  * - u_roundness, u_thickness, u_softness: border parameters
+ * - u_aspectRatio
  * - u_intensity: thickness of individual spots
  * - u_bloom: normal / additive color blending
  * - u_spotSize: angular size of spots
@@ -37,6 +38,11 @@ uniform vec4 u_colors[${pulsingBorderMeta.maxColorCount}];
 uniform float u_colorsCount;
 uniform float u_roundness;
 uniform float u_thickness;
+uniform float u_marginLeft;
+uniform float u_marginRight;
+uniform float u_marginTop;
+uniform float u_marginBottom;
+uniform float u_aspectRatio;
 uniform float u_softness;
 uniform float u_intensity;
 uniform float u_bloom;
@@ -61,19 +67,23 @@ float beat(float time) {
   return clamp(first + 0.6 * second, 0.0, 1.0);
 }
 
-float roundedBox(vec2 uv, float distance) {
-  float thickness = .5 * u_thickness;
-  float borderDistance = abs(distance);
-  float border = 1. - smoothstep(-u_softness * thickness - 2. * fwidth(borderDistance), .5 * u_softness * thickness, borderDistance - .5 * thickness);
-  border = pow(border, 2.);
-
-  return border;
+float sst(float edge0, float edge1, float x) {
+  return smoothstep(edge0, edge1, x);
 }
 
-float roundedBoxSmoke(vec2 uv, float distance, float size) {
+float roundedBox(vec2 uv, vec2 halfSize, float distance, float cornerDistance, float thickness, float softness) {
   float borderDistance = abs(distance);
-  float border = 1. - smoothstep(-.75 * size, .75 * size, borderDistance);
-  border *= border;
+  float aa = 2. * fwidth(distance);
+  float border = 1. - sst(mix(thickness, -thickness, softness), thickness + aa, borderDistance);
+  float cornerFadeCircles = 0.;
+  cornerFadeCircles = mix(1., cornerFadeCircles, sst(0., 1., length((uv + halfSize) / thickness)));
+  cornerFadeCircles = mix(1., cornerFadeCircles, sst(0., 1., length((uv - vec2(-halfSize.x, halfSize.y)) / thickness)));
+  cornerFadeCircles = mix(1., cornerFadeCircles, sst(0., 1., length((uv - vec2(halfSize.x, -halfSize.y)) / thickness)));
+  cornerFadeCircles = mix(1., cornerFadeCircles, sst(0., 1., length((uv - halfSize) / thickness)));
+  aa = fwidth(cornerDistance);
+  float cornerFade = sst(0., mix(aa, thickness, softness), cornerDistance);
+  cornerFade *= cornerFadeCircles;
+  border += cornerFade;
   return border;
 }
 
@@ -96,101 +106,86 @@ float valueNoise(vec2 st) {
   return mix(x1, x2, u.y);
 }
 
-float linearstep(float edge0, float edge1, float x) {
-  return clamp((x - edge0) / (edge1 - edge0), 0.0, 1.0);
-}
-
 void main() {
-
-  const float firstFrameOffset = 4.;
+  const float firstFrameOffset = 109.;
   float t = 1.2 * (u_time + firstFrameOffset);
 
   vec2 borderUV = v_responsiveUV;
-
-  float angle = atan(borderUV.y, borderUV.x) / TWO_PI;
-
   float pulse = u_pulse * beat(.18 * u_time);
 
-  float borderRatio = v_responsiveBoxGivenSize.x / v_responsiveBoxGivenSize.y;
-  borderUV.x *= borderRatio;
+  float canvasRatio = v_responsiveBoxGivenSize.x / v_responsiveBoxGivenSize.y;
   vec2 halfSize = vec2(.5);
-  halfSize.x *= borderRatio;
-  float radius = min(.5 * u_roundness, halfSize.x);
+  borderUV.x *= max(canvasRatio, 1.);
+  borderUV.y /= min(canvasRatio, 1.);
+  halfSize.x *= max(canvasRatio, 1.);
+  halfSize.y /= min(canvasRatio, 1.);
+
+  float mL = u_marginLeft;
+  float mR = u_marginRight;
+  float mT = u_marginTop;
+  float mB = u_marginBottom;
+  float mX = mL + mR;
+  float mY = mT + mB;
+
+  if (u_aspectRatio > 0.) {
+    float shapeRatio = canvasRatio * (1. - mX) / (1. - mY);
+    float freeX = shapeRatio > 1. ? (1. - mX) * (1. - 1. / shapeRatio) : 0.;
+    float freeY = shapeRatio < 1. ? (1. - mY) * (1. - shapeRatio) : 0.;
+    mL += freeX * 0.5;
+    mR += freeX * 0.5;
+    mT += freeY * 0.5;
+    mB += freeY * 0.5;
+    mX = mL + mR;
+    mY = mT + mB;
+  }
+
+  float thickness = .5 * u_thickness * min(halfSize.x, halfSize.y);
+
+  halfSize.x *= (1. - mX);
+  halfSize.y *= (1. - mY);
+
+  vec2 centerShift = vec2(
+    (mL - mR) * max(canvasRatio, 1.) * 0.5,
+    (mB - mT) / min(canvasRatio, 1.) * 0.5
+  );
+
+  borderUV -= centerShift;
+  halfSize -= mix(thickness, 0., u_softness);
+
+  float radius = mix(0., min(halfSize.x, halfSize.y), u_roundness);
   vec2 d = abs(borderUV) - halfSize + radius;
-  float outsideDistance = length(max(d, 0.)) - radius;
-  float insideDistance = min(max(d.x, d.y), 0.0);
+  float outsideDistance = length(max(d, .0001)) - radius;
+  float insideDistance = min(max(d.x, d.y), .0001);
+  float cornerDistance = abs(min(max(d.x, d.y) - .45 * radius, .0));
   float distance = outsideDistance + insideDistance;
 
-  float border = roundedBox(borderUV, distance);
+  float borderThickness = mix(thickness, 3. * thickness, u_softness);
+  float border = roundedBox(borderUV, halfSize, distance, cornerDistance, borderThickness, u_softness);
+  border = pow(border, 1. + u_softness);
 
-  vec2 v0 = borderUV + halfSize;
-  vec2 v1 = borderUV - vec2(-halfSize.x, halfSize.y);
-  vec2 v2 = borderUV - vec2(halfSize.x, -halfSize.y);
-  vec2 v3 = borderUV - halfSize;
-
-  float cornerFade = 1. - abs(v0.x - v0.y);
-  cornerFade = max(cornerFade, 1. - abs(v1.x + v1.y));
-  cornerFade = max(cornerFade, 1. - abs(v2.x + v2.y));
-  cornerFade = max(cornerFade, 1. - abs(v3.x - v3.y));
-  cornerFade = .75 * pow(cornerFade, 20.);
-
-  float cornerFadeMask = 0.;
-  float maskR = (.35 * u_thickness - .25 * radius);
-  float maskHL = linearstep(halfSize.x - .25 * u_thickness, halfSize.x, borderUV.x);
-  float maskHR = linearstep(halfSize.x - .25 * u_thickness, halfSize.x, -borderUV.x);
-  float maskVT = linearstep(halfSize.y - .25 * u_thickness, halfSize.y, -borderUV.y);
-  float maskVB = linearstep(halfSize.y - .25 * u_thickness, halfSize.y, borderUV.y);
-  float maskOffset = .25 * (u_thickness + radius);
-  {
-    float m = maskHR;
-    m *= maskVT;
-    m *= (1. - clamp(length((v0 - maskOffset) / maskR), 0., 1.));
-    cornerFadeMask += m;
-  }
-  {
-    float m = maskHR;
-    m *= maskVB;
-    m *= (1. - clamp(length((v1 - vec2(1., -1.) * maskOffset) / maskR), 0., 1.));
-    cornerFadeMask += m;
-  }
-  {
-    float m = maskHL;
-    m *= maskVT;
-    m *= (1. - clamp(length((v2 - vec2(-1., 1.) * maskOffset) / maskR), 0., 1.));
-    cornerFadeMask += m;
-  }
-  {
-    float m = maskHL;
-    m *= maskVB;
-    m *= (1. - clamp(length((v3 + maskOffset) / maskR), 0., 1.));
-    cornerFadeMask += m;
-  }
-  cornerFade = clamp(cornerFade, 0., 1.);
-  cornerFade *= cornerFadeMask;
-  border += cornerFade;
-
-  vec2 smokeUV = .2 * u_smokeSize * v_patternUV;
+  vec2 smokeUV = .3 * u_smokeSize * v_patternUV;
   float smoke = clamp(3. * valueNoise(2.7 * smokeUV + .5 * t), 0., 1.);
   smoke -= valueNoise(3.4 * smokeUV - .5 * t);
-  smoke *= roundedBoxSmoke(borderUV, distance, u_smoke);
+  float smokeThickness = thickness + .2;
+  smokeThickness = min(.4, max(smokeThickness, .1));
+  smoke *= roundedBox(borderUV, halfSize, distance, cornerDistance, smokeThickness, 1.);
   smoke = 30. * pow(smoke, 2.);
-  smoke += cornerFadeMask;
-  smoke *= u_smoke;
+  smoke *= mix(0., .5, pow(u_smoke, 2.));
   smoke *= mix(1., pulse, u_pulse);
   smoke = clamp(smoke, 0., 1.);
-
   border += smoke;
-  float borderBounds = 1. - smoothstep(.9, 1., length(v_responsiveUV));
-  border *= borderBounds;
+
   border = clamp(border, 0., 1.);
 
   vec3 blendColor = vec3(0.);
-  float blendAlpha = 0.0;
+  float blendAlpha = 0.;
   vec3 addColor = vec3(0.);
-  float addAlpha = 0.0;
+  float addAlpha = 0.;
 
   float bloom = 4. * u_bloom;
-  float intensity = 1. + 4. * u_intensity;
+  float intensity = 1. + (1. + 4. * u_softness) * u_intensity;
+
+  float angle = atan(borderUV.y, borderUV.x) / TWO_PI;
 
   for (int colorIdx = 0; colorIdx < ${pulsingBorderMeta.maxColorCount}; colorIdx++) {
     if (colorIdx >= int(u_colorsCount)) break;
@@ -220,7 +215,7 @@ void main() {
       float atg1 = fract(angle + time);
       float spotSize = .05 + .6 * pow(u_spotSize, 2.) + .05 * randVal.x;
       spotSize = mix(spotSize, .1, p);
-      float sector = smoothstep(.5 - spotSize, .5, atg1) * smoothstep(.5 + spotSize, .5, atg1);
+      float sector = sst(.5 - spotSize, .5, atg1) * sst(.5 + spotSize, .5, atg1);
 
       sector *= mask;
       sector *= border;
@@ -256,6 +251,11 @@ export interface PulsingBorderUniforms extends ShaderSizingUniforms {
   u_colorsCount: number;
   u_roundness: number;
   u_thickness: number;
+  u_marginLeft: number;
+  u_marginRight: number;
+  u_marginTop: number;
+  u_marginBottom: number;
+  u_aspectRatio: (typeof PulsingBorderAspectRatios)[PulsingBorderAspectRatio];
   u_softness: number;
   u_intensity: number;
   u_bloom: number;
@@ -272,6 +272,12 @@ export interface PulsingBorderParams extends ShaderSizingParams, ShaderMotionPar
   colors?: string[];
   roundness?: number;
   thickness?: number;
+  margin?: number;
+  marginLeft?: number;
+  marginRight?: number;
+  marginTop?: number;
+  marginBottom?: number;
+  aspectRatio?: PulsingBorderAspectRatio;
   softness?: number;
   intensity?: number;
   bloom?: number;
@@ -281,3 +287,10 @@ export interface PulsingBorderParams extends ShaderSizingParams, ShaderMotionPar
   smoke?: number;
   smokeSize?: number;
 }
+
+export const PulsingBorderAspectRatios = {
+  auto: 0,
+  square: 1,
+} as const;
+
+export type PulsingBorderAspectRatio = keyof typeof PulsingBorderAspectRatios;

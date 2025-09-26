@@ -38,6 +38,7 @@ const DotOrbitWithControls = () => {
       scale: { value: defaults.scale, min: 0.01, max: 5, order: 301 },
     };
   }, [colors.length]);
+
   useControls(() => {
     const presets = Object.fromEntries(
       dotOrbitPresets.map(({ name, params: { worldWidth, worldHeight, ...preset } }) => [

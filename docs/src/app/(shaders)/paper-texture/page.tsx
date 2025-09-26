@@ -39,7 +39,7 @@ const imageFiles = [
 
 const PaperTextureWithControls = () => {
   const [imageIdx, setImageIdx] = useState(-1);
-  const [image, setImage] = useState<HTMLImageElement | undefined>(undefined);
+  const [image, setImage] = useState<HTMLImageElement | string>('/images/image-filters/0018.webp');
   const [status, setStatus] = useState('Click to load an image');
 
   const fileName = imageIdx >= 0 ? imageFiles[imageIdx] : null;
@@ -59,7 +59,7 @@ const PaperTextureWithControls = () => {
   }, []);
 
   const setImageWithoutStatus = useCallback((img?: HTMLImageElement) => {
-    setImage(img);
+    setImage(img ?? '');
     setImageIdx(-1);
     setStatus(``);
   }, []);
@@ -79,9 +79,9 @@ const PaperTextureWithControls = () => {
       fiber: { value: defaults.fiber, min: 0, max: 1, order: 202 },
       fiberSize: { value: defaults.fiberSize, min: 0.01, max: 1, order: 203 },
       crumples: { value: defaults.crumples, min: 0, max: 1, order: 204 },
-      crumplesSize: { value: defaults.crumplesSize, min: 0.01, max: 1, order: 205 },
+      crumpleSize: { value: defaults.crumpleSize, min: 0.01, max: 1, order: 205 },
       folds: { value: defaults.folds, min: 0, max: 1, order: 206 },
-      foldsNumber: { value: defaults.foldsNumber, min: 1, max: 15, step: 1, order: 207 },
+      foldCount: { value: defaults.foldCount, min: 1, max: 15, step: 1, order: 207 },
       drops: { value: defaults.drops, min: 0, max: 1, order: 209 },
       fade: { value: defaults.fade, min: 0, max: 1, order: 208 },
       seed: { value: defaults.seed, min: 0, step: 1, max: 1000, order: 250 },
@@ -108,7 +108,7 @@ const PaperTextureWithControls = () => {
   return (
     <>
       <ShaderContainer shaderDef={paperTextureDef} currentParams={params}>
-        <PaperTexture onClick={handleClick} {...params} image={image || undefined} />
+        <PaperTexture onClick={handleClick} {...params} image={image} />
       </ShaderContainer>
       <div onClick={handleClick} className="mx-auto mt-16 mb-48 w-fit text-base text-current/70 select-none">
         Click to change the sample image

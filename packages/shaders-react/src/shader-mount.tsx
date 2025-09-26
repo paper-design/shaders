@@ -3,6 +3,7 @@
 import { useEffect, useRef, forwardRef, useState } from 'react';
 import {
   ShaderMount as ShaderMountVanilla,
+  getEmptyPixel,
   type PaperShaderElement,
   type ShaderMotionParams,
   type ShaderMountUniforms,
@@ -74,6 +75,12 @@ async function processUniforms(uniformsProp: ShaderMountUniformsReact): Promise<
 
   Object.entries(uniformsProp).forEach(([key, value]) => {
     if (typeof value === 'string') {
+      // Use a transparent pixel for empty strings
+      if (!value) {
+        processedUniforms[key] = getEmptyPixel();
+        return;
+      }
+
       // Make sure the provided string is a valid URL or just skip trying to set this uniform entirely
       if (!isValidUrl(value)) {
         console.warn(`Uniform "${key}" has invalid URL "${value}". Skipping image loading.`);

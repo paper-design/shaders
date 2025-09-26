@@ -98,7 +98,7 @@ vec4 getBlur(sampler2D tex, vec2 uv, vec2 texelSize, vec2 dir, float sigma) {
 
 void main() {
   vec2 imageUV = v_imageUV;
-  
+
   vec2 uv = imageUV;
   float frame = getUvFrame(imageUV);
   if (frame < .05) discard;
@@ -121,7 +121,7 @@ void main() {
   float patternRotation = u_angle * PI / 180.;
   uv = rotate(uv - vec2(.5), patternRotation);
   uv *= effectSize;
-  
+
   float curve = 0.;
   if (u_shape > 4.5) {
     // pattern
@@ -173,12 +173,12 @@ void main() {
   uv.x += xDistortion / effectSize;
   uv += pow(stroke, 4.);
   uv.y = mix(uv.y, .0, .4 * u_edges * edges);
-  
+
   uv = rotate(uv, -patternRotation) + vec2(.5);
 
   uv = mix(imageUV, uv, mask);
   float blur = mix(0., u_blur, mask);
-  
+
   vec4 color = getBlur(u_image, uv, 1. / u_resolution / u_pixelRatio, vec2(0., 1.), blur);
 
   float opacity = color.a;
@@ -187,7 +187,7 @@ void main() {
 `;
 
 export interface FlutedGlassUniforms extends ShaderSizingUniforms {
-  u_image: HTMLImageElement | string | undefined;
+  u_image: HTMLImageElement | string;
   u_size: number;
   u_angle: number;
   u_distortion: number;
@@ -204,12 +204,13 @@ export interface FlutedGlassUniforms extends ShaderSizingUniforms {
 }
 
 export interface FlutedGlassParams extends ShaderSizingParams, ShaderMotionParams {
-  image?: HTMLImageElement | string | undefined;
+  image: HTMLImageElement | string;
   size?: number;
   angle?: number;
   distortion?: number;
   shift?: number;
   blur?: number;
+  margin?: number;
   marginLeft?: number;
   marginRight?: number;
   marginTop?: number;

@@ -80,26 +80,26 @@ void main() {
   vec2 patternUV = v_imageUV - .5;
   patternUV = (patternUV * vec2(u_imageAspectRatio, 1.));
   patternUV /= (.01 + .09 * u_size);
-  
+
   float t = u_time;
-  
+
   float wavesNoise = snoise((.3 + .1 * sin(t)) * .1 * patternUV + vec2(0., .4 * t));
 
   float causticNoise = getCausticNoise(patternUV + u_waves * vec2(1., -1.) * wavesNoise, 2. * t, 1.5);
 
   causticNoise += u_layering * getCausticNoise(patternUV + 2. * u_waves * vec2(1., -1.) * wavesNoise, 1.5 * t, 2.);
   causticNoise = pow(causticNoise, 2.);
-  
+
   float edgesDistortion = smoothstep(0., .1, imageUV.x);
   edgesDistortion *= smoothstep(0., .1, imageUV.y);
   edgesDistortion *= (smoothstep(1., 1.1, imageUV.x) + smoothstep(.95, .8, imageUV.x));
   edgesDistortion *= smoothstep(1., .9, imageUV.y);
   edgesDistortion = mix(edgesDistortion, 1., u_edges);
-  
+
   float causticNoiseDistortion = .02 * causticNoise * edgesDistortion;
-  
+
   float wavesDistortion = .1 * u_waves * wavesNoise;
-  
+
   imageUV += vec2(wavesDistortion, -wavesDistortion);
   imageUV += (u_caustic * causticNoiseDistortion);
 
@@ -108,20 +108,20 @@ void main() {
   vec4 image = texture(u_image, imageUV);
   vec4 backColor = u_colorBack;
   backColor.rgb *= backColor.a;
-  
+
   vec3 color = mix(backColor.rgb, image.rgb, image.a * frame);
   float opacity = backColor.a + image.a * frame;
 
   causticNoise = max(-.2, causticNoise);
-  
+
   float hightlight = .025 * u_highlights * causticNoise;
   hightlight *= u_colorHighlight.a;
   color = mix(color, u_colorHighlight.rgb, .05 * u_highlights * causticNoise);
   opacity += hightlight;
-  
+
   color += hightlight * (.5 + .5 * wavesNoise);
   opacity += hightlight * (.5 + .5 * wavesNoise);
-  
+
   opacity = clamp(opacity, 0., 1.);
 
   fragColor = vec4(color, opacity);
@@ -141,7 +141,7 @@ export interface WaterUniforms extends ShaderSizingUniforms {
 }
 
 export interface WaterParams extends ShaderSizingParams, ShaderMotionParams {
-  image?: HTMLImageElement | string | undefined;
+  image?: HTMLImageElement | string;
   colorBack?: string;
   colorHighlight?: string;
   highlights?: number;

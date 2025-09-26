@@ -39,7 +39,7 @@ const imageFiles = [
 
 const FlutedGlassWithControls = () => {
   const [imageIdx, setImageIdx] = useState(-1);
-  const [image, setImage] = useState<HTMLImageElement | undefined>(undefined);
+  const [image, setImage] = useState<HTMLImageElement | string>('/images/image-filters/0018.webp');
   const [status, setStatus] = useState('Click to load an image');
 
   const fileName = imageIdx >= 0 ? imageFiles[imageIdx] : null;
@@ -59,7 +59,7 @@ const FlutedGlassWithControls = () => {
   }, []);
 
   const setImageWithoutStatus = useCallback((img?: HTMLImageElement) => {
-    setImage(img);
+    setImage(img ?? '');
     setImageIdx(-1);
     setStatus(``);
   }, []);
@@ -88,10 +88,7 @@ const FlutedGlassWithControls = () => {
       shift: { value: defaults.shift, min: -1, max: 1, order: 205 },
       blur: { value: defaults.blur, min: 0, max: 50, order: 206 },
       edges: { value: defaults.edges, min: 0, max: 1, order: 207 },
-      marginLeft: { value: defaults.marginLeft, min: 0, max: 1, order: 500 },
-      marginRight: { value: defaults.marginRight, min: 0, max: 1, order: 501 },
-      marginTop: { value: defaults.marginTop, min: 0, max: 1, order: 502 },
-      marginBottom: { value: defaults.marginBottom, min: 0, max: 1, order: 503 },
+      margin: { value: defaults.margin, min: 0, max: 1, order: 500 },
       scale: { value: defaults.scale, min: 0.5, max: 10, order: 600 },
       fit: { value: defaults.fit, options: ['contain', 'cover'] as ShaderFit[], order: 601 },
 
@@ -115,7 +112,7 @@ const FlutedGlassWithControls = () => {
   return (
     <>
       <ShaderContainer shaderDef={flutedGlassDef} currentParams={params}>
-        <FlutedGlass onClick={handleClick} {...params} image={image || undefined} />
+        <FlutedGlass onClick={handleClick} {...params} image={image} />
       </ShaderContainer>
 
       <div onClick={handleClick} className="mx-auto mt-16 mb-48 w-fit text-base text-current/70 select-none">

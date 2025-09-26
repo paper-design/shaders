@@ -15,8 +15,10 @@ import {
 export interface PaperTextureProps extends ShaderComponentProps, PaperTextureParams {
   /** @deprecated use `fiberSize` instead */
   fiberScale?: number;
-  /** @deprecated use `crumplesSize` instead */
+  /** @deprecated use `crumpleSize` instead */
   crumplesScale?: number;
+  /** @deprecated use `foldCount` instead */
+  foldsNumber?: number;
   /** @deprecated use `fade` instead */
   blur?: number;
 }
@@ -36,11 +38,11 @@ export const defaultPreset: PaperTexturePreset = {
     contrast: 0.3,
     roughness: 0.4,
     fiber: 0.3,
-    fiberSize: 0.22,
+    fiberSize: 0.2,
     crumples: 0.3,
-    crumplesSize: 0.35,
+    crumpleSize: 0.35,
     folds: 0.65,
-    foldsNumber: 5,
+    foldCount: 5,
     fade: 0,
     drops: 0.2,
     seed: 5.8,
@@ -62,9 +64,9 @@ export const abstractPreset: PaperTexturePreset = {
     fiber: 0.1,
     fiberSize: 0.2,
     crumples: 0,
-    crumplesSize: 0.3,
+    crumpleSize: 0.3,
     folds: 1,
-    foldsNumber: 3,
+    foldCount: 3,
     fade: 0,
     drops: 0.2,
     seed: 2.2,
@@ -86,9 +88,9 @@ export const cardboardPreset: PaperTexturePreset = {
     fiber: 0.35,
     fiberSize: 0.14,
     crumples: 0.7,
-    crumplesSize: 0.1,
+    crumpleSize: 0.1,
     folds: 0,
-    foldsNumber: 1,
+    foldCount: 1,
     fade: 0,
     drops: 0.1,
     seed: 1.6,
@@ -110,9 +112,9 @@ export const detailsPreset: PaperTexturePreset = {
     fiber: 0.27,
     fiberSize: 0.22,
     crumples: 1,
-    crumplesSize: 0.5,
+    crumpleSize: 0.5,
     folds: 1,
-    foldsNumber: 15,
+    foldCount: 15,
     fade: 0,
     drops: 0,
     seed: 6,
@@ -132,12 +134,11 @@ export const PaperTexture: React.FC<PaperTextureProps> = memo(function PaperText
   frame = defaultPreset.params.frame,
   colorFront = defaultPreset.params.colorFront,
   colorBack = defaultPreset.params.colorBack,
-  image = 'https://shaders.paper.design/images/image-filters/0018.webp',
+  image = '',
   contrast = defaultPreset.params.contrast,
   roughness = defaultPreset.params.roughness,
   fiber = defaultPreset.params.fiber,
   crumples = defaultPreset.params.crumples,
-  foldsNumber = defaultPreset.params.foldsNumber,
   folds = defaultPreset.params.folds,
   drops = defaultPreset.params.drops,
   seed = defaultPreset.params.seed,
@@ -146,9 +147,11 @@ export const PaperTexture: React.FC<PaperTextureProps> = memo(function PaperText
   fiberScale,
   fiberSize = fiberScale === undefined ? defaultPreset.params.fiberSize : 0.2 / fiberScale,
   crumplesScale,
-  crumplesSize = crumplesScale === undefined ? defaultPreset.params.crumplesSize : 0.2 / crumplesScale,
+  crumpleSize = crumplesScale === undefined ? defaultPreset.params.crumpleSize : 0.2 / crumplesScale,
   blur,
   fade = blur === undefined ? defaultPreset.params.fade : blur,
+  foldsNumber,
+  foldCount = foldsNumber === undefined ? defaultPreset.params.foldCount : foldsNumber,
 
   // Sizing props
   fit = defaultPreset.params.fit,
@@ -174,8 +177,8 @@ export const PaperTexture: React.FC<PaperTextureProps> = memo(function PaperText
     u_fiber: fiber,
     u_fiberSize: fiberSize,
     u_crumples: crumples,
-    u_crumplesSize: crumplesSize,
-    u_foldsNumber: foldsNumber,
+    u_crumpleSize: crumpleSize,
+    u_foldCount: foldCount,
     u_folds: folds,
     u_fade: fade,
     u_drops: drops,
