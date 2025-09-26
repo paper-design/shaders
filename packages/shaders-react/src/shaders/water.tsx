@@ -7,13 +7,16 @@ import {
   ShaderFitOptions,
   type WaterUniforms,
   type WaterParams,
-  type ShaderPreset,
   defaultObjectSizing,
+  type ImageShaderPreset,
 } from '@paper-design/shaders';
 
-export interface WaterProps extends ShaderComponentProps, WaterParams {}
+export interface WaterProps extends ShaderComponentProps, WaterParams {
+  /** @deprecated use `size` instead */
+  effectScale?: number;
+}
 
-type WaterPreset = ShaderPreset<WaterParams>;
+type WaterPreset = ImageShaderPreset<WaterParams>;
 
 export const defaultPreset: WaterPreset = {
   name: 'Default',
@@ -24,13 +27,12 @@ export const defaultPreset: WaterPreset = {
     frame: 0,
     colorBack: '#909090',
     colorHighlight: '#ffffff',
-    image: 'https://shaders.paper.design/images/image-filters/0018.webp',
     highlights: 0.07,
     layering: 0.5,
     edges: 0.8,
     waves: 0.3,
     caustic: 0.1,
-    effectScale: 1,
+    size: 1,
   },
 };
 
@@ -44,13 +46,12 @@ export const abstractPreset: WaterPreset = {
     frame: 0,
     colorBack: '#909090',
     colorHighlight: '#ffffff',
-    image: 'https://shaders.paper.design/images/image-filters/0018.webp',
     highlights: 0,
     layering: 0,
     edges: 1,
     waves: 1,
     caustic: 0.4,
-    effectScale: 4,
+    size: 4,
   },
 };
 
@@ -64,13 +65,12 @@ export const streamingPreset: WaterPreset = {
     frame: 0,
     colorBack: '#909090',
     colorHighlight: '#ffffff',
-    image: 'https://shaders.paper.design/images/image-filters/0018.webp',
     highlights: 0,
     layering: 0,
     edges: 0,
     waves: 0.5,
     caustic: 0,
-    effectScale: 3,
+    size: 3,
   },
 };
 
@@ -84,13 +84,12 @@ export const slowMoPreset: WaterPreset = {
     frame: 0,
     colorBack: '#909090',
     colorHighlight: '#ffffff',
-    image: 'https://shaders.paper.design/images/image-filters/0018.webp',
     highlights: 0.4,
     layering: 0,
     edges: 0,
     waves: 0,
     caustic: 0.2,
-    effectScale: 2,
+    size: 2,
   },
 };
 
@@ -102,13 +101,17 @@ export const Water: React.FC<WaterProps> = memo(function WaterImpl({
   frame = defaultPreset.params.frame,
   colorBack = defaultPreset.params.colorBack,
   colorHighlight = defaultPreset.params.colorHighlight,
-  image = defaultPreset.params.image,
+  image = 'https://shaders.paper.design/images/image-filters/0018.webp',
   highlights = defaultPreset.params.highlights,
   layering = defaultPreset.params.layering,
   waves = defaultPreset.params.waves,
   edges = defaultPreset.params.edges,
   caustic = defaultPreset.params.caustic,
-  effectScale = defaultPreset.params.effectScale,
+
+  // `effectScale` was deprecated in favor of `size`
+  // (it was a reverse value by mistake, so we took the opportunity to rename the param too)
+  effectScale,
+  size = effectScale === undefined ? defaultPreset.params.size : 10 / 9 / effectScale - 1 / 9,
 
   // Sizing props
   fit = defaultPreset.params.fit,
@@ -132,7 +135,7 @@ export const Water: React.FC<WaterProps> = memo(function WaterImpl({
     u_waves: waves,
     u_edges: edges,
     u_caustic: caustic,
-    u_effectScale: effectScale,
+    u_size: size,
 
     // Sizing uniforms
     u_fit: ShaderFitOptions[fit],

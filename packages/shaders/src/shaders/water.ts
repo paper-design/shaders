@@ -8,7 +8,7 @@ import { declarePI, rotation2, simplexNoise } from '../shader-utils.js';
  *
  * Uniforms:
  * - u_colorBack, u_colorHighlight (RGBA)
- * - u_effectScale: pattern scale relative to the image
+ * - u_size: pattern scale relative to the image
  * - u_caustic: power of caustic distortion
  * - u_layering: the power of 2nd layer of caustic distortion
  * - u_edges: caustic distortion power on the image edges
@@ -29,7 +29,7 @@ uniform vec4 u_colorHighlight;
 uniform sampler2D u_image;
 uniform float u_imageAspectRatio;
 
-uniform float u_effectScale;
+uniform float u_size;
 uniform float u_highlights;
 uniform float u_layering;
 uniform float u_edges;
@@ -78,7 +78,8 @@ float getCausticNoise(vec2 uv, float t, float scale) {
 void main() {
   vec2 imageUV = v_imageUV;
   vec2 patternUV = v_imageUV - .5;
-  patternUV = 10. * u_effectScale * (patternUV * vec2(u_imageAspectRatio, 1.));
+  patternUV = (patternUV * vec2(u_imageAspectRatio, 1.));
+  patternUV /= (.01 + .09 * u_size);
   
   float t = u_time;
   
@@ -136,7 +137,7 @@ export interface WaterUniforms extends ShaderSizingUniforms {
   u_edges: number;
   u_caustic: number;
   u_waves: number;
-  u_effectScale: number;
+  u_size: number;
 }
 
 export interface WaterParams extends ShaderSizingParams, ShaderMotionParams {
@@ -148,5 +149,5 @@ export interface WaterParams extends ShaderSizingParams, ShaderMotionParams {
   edges?: number;
   caustic?: number;
   waves?: number;
-  effectScale?: number;
+  size?: number;
 }

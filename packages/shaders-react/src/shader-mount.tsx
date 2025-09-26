@@ -26,6 +26,11 @@ export interface ShaderMountProps extends Omit<React.ComponentProps<'div'>, 'col
   minPixelRatio?: number;
   maxPixelCount?: number;
   webGlContextAttributes?: WebGLContextAttributes;
+
+  /** Inline CSS width style */
+  width?: string | number;
+  /** Inline CSS height style */
+  height?: string | number;
 }
 
 export interface ShaderComponentProps extends Omit<React.ComponentProps<'div'>, 'color' | 'ref'> {
@@ -33,6 +38,11 @@ export interface ShaderComponentProps extends Omit<React.ComponentProps<'div'>, 
   minPixelRatio?: number;
   maxPixelCount?: number;
   webGlContextAttributes?: WebGLContextAttributes;
+
+  /** Inline CSS width style */
+  width?: string | number;
+  /** Inline CSS height style */
+  height?: string | number;
 }
 
 /** Parse the provided uniforms, turning URL strings into loaded images */
@@ -107,8 +117,11 @@ export const ShaderMount: React.FC<ShaderMountProps> = forwardRef<PaperShaderEle
       webGlContextAttributes,
       speed = 0,
       frame = 0,
+      width,
+      height,
       minPixelRatio,
       maxPixelCount,
+      style,
       ...divProps
     },
     forwardedRef
@@ -188,7 +201,13 @@ export const ShaderMount: React.FC<ShaderMountProps> = forwardRef<PaperShaderEle
     }, [frame, isInitialized]);
 
     const mergedRef = useMergeRefs([divRef, forwardedRef]) as unknown as React.RefObject<HTMLDivElement>;
-    return <div ref={mergedRef} {...divProps} />;
+    return (
+      <div
+        ref={mergedRef}
+        style={width !== undefined || height !== undefined ? { width, height, ...style } : style}
+        {...divProps}
+      />
+    );
   }
 );
 

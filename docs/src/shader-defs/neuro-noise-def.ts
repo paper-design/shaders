@@ -1,5 +1,6 @@
 import { neuroNoisePresets } from '@paper-design/shaders-react';
 import type { ShaderDef } from './shader-def-types';
+import { animatedCommonParams } from './common-param-def';
 
 const defaultParams = neuroNoisePresets[0].params;
 
@@ -45,29 +46,6 @@ export const neuroNoiseDef: ShaderDef = {
       defaultValue: defaultParams.contrast,
       description: 'Sharpness of the bright–dark transition',
     },
-    {
-      name: 'scale',
-      type: 'number',
-      min: 0.01,
-      max: 4,
-      defaultValue: defaultParams.scale,
-      description: 'Overall zoom level of the graphics',
-    },
-    {
-      name: 'rotation',
-      type: 'number',
-      min: 0,
-      max: 360,
-      defaultValue: defaultParams.rotation,
-      description: 'Overall rotation angle of the graphics',
-    },
-    {
-      name: 'speed',
-      type: 'number',
-      min: 0,
-      max: 2,
-      defaultValue: defaultParams.speed,
-      description: 'Animation speed',
-    },
+    ...animatedCommonParams,
   ],
 };

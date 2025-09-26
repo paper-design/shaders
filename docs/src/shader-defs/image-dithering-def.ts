@@ -1,12 +1,19 @@
 import { imageDitheringPresets } from '@paper-design/shaders-react';
 import type { ShaderDef } from './shader-def-types';
+import { staticCommonParams } from './common-param-def';
 
 const defaultParams = imageDitheringPresets[0].params;
 
 export const imageDitheringDef: ShaderDef = {
   name: 'Image Dithering',
-  description: 'A dithering image filter with support for 4 dithering modes and multiple color palettes (2-color, 3-color, and multicolor options, using either predefined colors or ones sampled directly from the original image).',
+  description:
+    'A dithering image filter with support for 4 dithering modes and multiple color palettes (2-color, 3-color, and multicolor options, using either predefined colors or ones sampled directly from the original image).',
   params: [
+    {
+      name: 'image',
+      type: 'HTMLImageElement | string',
+      description: 'The image to use for the effect',
+    },
     {
       name: 'colorBack',
       type: 'string',
@@ -59,20 +66,6 @@ export const imageDitheringDef: ShaderDef = {
       defaultValue: defaultParams.colorSteps,
       description: 'Number of colors to use (applies to both color modes)',
     },
-    {
-      name: 'scale',
-      type: 'number',
-      min: 0.5,
-      max: 10,
-      defaultValue: defaultParams.scale,
-      description: 'Overall zoom level of the graphics',
-    },
-    {
-      name: 'fit',
-      type: 'enum',
-      defaultValue: defaultParams.fit,
-      description: 'How the image fits the canvas',
-      options: ['contain', 'cover'],
-    },
+    ...staticCommonParams,
   ],
 };

@@ -16,7 +16,7 @@ out vec4 fragColor;
 
 uniform sampler2D u_image;
 uniform float u_time;
-uniform float u_imageAspectRatio;
+uniform mediump float u_imageAspectRatio;
 
 uniform vec4 u_colorBack;
 uniform vec4 u_colors[${heatmapMeta.maxColorCount}];

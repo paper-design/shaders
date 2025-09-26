@@ -84,33 +84,18 @@
     min-height: 100dvh;
     font-family: var(--default-font-family);
     color: var(--color-foreground);
-    background-color: var(--color-background);
     text-size-adjust: none;
     font-size: 18px;
     line-height: calc(4 / 3);
+
+    /* Note: don't put global background color here, iOS 26.0 uses it for the header overscroll (ignoring theme meta) */
+    /* Instead use a separate container element in the root layout for background */
   }
 
   pre {
     font-family: 'Paper Mono', monospace;
     font-size: 14px;
     line-height: 26px;
-  }
-
-  pre::-webkit-scrollbar {
-    height: 6px;
-  }
-
-  pre::-webkit-scrollbar-track {
-    background: transparent;
-  }
-
-  pre::-webkit-scrollbar-thumb {
-    background-color: #909090;
-    border-radius: 3px;
-  }
-
-  pre::-webkit-scrollbar-thumb:hover {
-    background-color: #777772;
   }
 
   code {
@@ -143,6 +128,26 @@
     &:hover {
       text-decoration-color: color-mix(in oklab, currentcolor 70%, transparent);
     }
+  }
+}
+
+@utility custom-scrollbar {
+  &::-webkit-scrollbar {
+    height: 6px;
+    width: 0px; /* Hide the vertical scrollbar, which may appear on Safari when resizing the page */
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: #909090;
+    border-radius: 3px;
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background-color: #777772;
   }
 }
 
@@ -217,4 +222,8 @@
       background-color: var(--color-selection) !important;
     }
   }
+}
+
+::-webkit-resizer {
+  display: none;
 }

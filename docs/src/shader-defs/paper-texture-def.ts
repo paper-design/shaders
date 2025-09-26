@@ -1,12 +1,19 @@
 import { paperTexturePresets } from '@paper-design/shaders-react';
 import type { ShaderDef } from './shader-def-types';
+import { staticCommonParams } from './common-param-def';
 
 const defaultParams = paperTexturePresets[0].params;
 
 export const paperTextureDef: ShaderDef = {
   name: 'Paper Texture',
-  description: 'A static texture built from multiple noise layers, usable for a realistic paper and cardboard surfaces or generating abstract patterns. Can be used as a image filter or as a texture.',
+  description:
+    'A static texture built from multiple noise layers, usable for a realistic paper and cardboard surfaces or generating abstract patterns. Can be used as a image filter or as a texture.',
   params: [
+    {
+      name: 'image',
+      type: 'HTMLImageElement | string',
+      description: 'The image to use for the effect',
+    },
     {
       name: 'colorBack',
       type: 'string',
@@ -46,11 +53,11 @@ export const paperTextureDef: ShaderDef = {
       description: 'Curly-shaped noise',
     },
     {
-      name: 'fiberScale',
+      name: 'fiberSize',
       type: 'number',
-      min: 0.1,
-      max: 2,
-      defaultValue: defaultParams.fiberScale,
+      min: 0,
+      max: 1,
+      defaultValue: defaultParams.fiberSize,
       description: 'Curly-shaped noise scale',
     },
     {
@@ -62,11 +69,11 @@ export const paperTextureDef: ShaderDef = {
       description: 'Cell-based crumples pattern',
     },
     {
-      name: 'crumplesScale',
+      name: 'crumplesSize',
       type: 'number',
-      min: 0.3,
-      max: 3,
-      defaultValue: defaultParams.crumplesScale,
+      min: 0,
+      max: 1,
+      defaultValue: defaultParams.crumplesSize,
       description: 'Cell-based crumples pattern scale',
     },
     {
@@ -87,12 +94,12 @@ export const paperTextureDef: ShaderDef = {
       description: 'Number of folds (15 max)',
     },
     {
-      name: 'blur',
+      name: 'fade',
       type: 'number',
       min: 0,
       max: 1,
-      defaultValue: defaultParams.blur,
-      description: 'Big-scale noise mask applied to everything but roughness',
+      defaultValue: defaultParams.fade,
+      description: 'Big-scale noise mask applied to the pattern',
     },
     {
       name: 'drops',
@@ -110,20 +117,6 @@ export const paperTextureDef: ShaderDef = {
       defaultValue: defaultParams.seed,
       description: 'Seed applied to folds, crumples and dots',
     },
-    {
-      name: 'scale',
-      type: 'number',
-      min: 0.5,
-      max: 10,
-      defaultValue: defaultParams.scale,
-      description: 'Overall zoom level of the graphics',
-    },
-    {
-      name: 'fit',
-      type: 'enum',
-      defaultValue: defaultParams.fit,
-      description: 'How the image fits the canvas',
-      options: ['contain', 'cover'],
-    },
+    ...staticCommonParams,
   ],
 };

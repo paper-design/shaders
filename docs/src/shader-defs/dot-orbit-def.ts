@@ -1,5 +1,6 @@
 import { dotOrbitPresets } from '@paper-design/shaders-react';
 import type { ShaderDef } from './shader-def-types';
+import { animatedCommonParams } from './common-param-def';
 
 const defaultParams = dotOrbitPresets[0].params;
 
@@ -56,21 +57,6 @@ export const dotOrbitDef: ShaderDef = {
       defaultValue: defaultParams.spreading,
       description: 'Maximum orbit distance',
     },
-    {
-      name: 'scale',
-      type: 'number',
-      min: 0.01,
-      max: 5,
-      defaultValue: defaultParams.scale,
-      description: 'Overall zoom level of the graphics',
-    },
-    {
-      name: 'speed',
-      type: 'number',
-      min: 0,
-      max: 20,
-      defaultValue: defaultParams.speed,
-      description: 'Animation speed',
-    },
+    ...animatedCommonParams,
   ],
 };
