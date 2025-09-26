@@ -40,7 +40,7 @@ export const defaultPreset: PulsingBorderPreset = {
     spots: 5,
     spotSize: 0.5,
     pulse: 0.25,
-    smoke: 0.1,
+    smoke: 0.32,
     smokeSize: 0.6,
   },
 };
@@ -91,11 +91,11 @@ export const northernLightsPreset: PulsingBorderPreset = {
     marginBottom: 0,
     aspectRatio: 'auto',
     intensity: 0.1,
-    bloom: 1,
+    bloom: 0.4,
     spots: 4,
     spotSize: 0.25,
     pulse: 0,
-    smoke: 0.1,
+    smoke: 0.32,
     smokeSize: 0.5,
   },
 };
