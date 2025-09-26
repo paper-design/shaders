@@ -113,59 +113,44 @@ void main() {
 
   vec2 borderUV = v_responsiveUV;
   float pulse = u_pulse * beat(.18 * u_time);
-  
+
   float canvasRatio = v_responsiveBoxGivenSize.x / v_responsiveBoxGivenSize.y;
   vec2 halfSize = vec2(.5);
-  if (canvasRatio > 1.) {
-    borderUV.x *= canvasRatio;
-    if (u_aspectRatio == 0.) {
-      halfSize.x *= canvasRatio;
-    } else {
-      halfSize.x = halfSize.y;
-    }
-  } else {
-    borderUV.y /= canvasRatio;
-    if (u_aspectRatio == 0.) {
-      halfSize.y /= canvasRatio;
-    } else {
-      halfSize.y = halfSize.x;
-    }
-  }
+  borderUV.x *= max(canvasRatio, 1.);
+  borderUV.y /= min(canvasRatio, 1.);
+  halfSize.x *= max(canvasRatio, 1.);
+  halfSize.y /= min(canvasRatio, 1.);
 
-  {
-    float mL = u_marginLeft;
-    float mR = u_marginRight;
-    float mT = u_marginTop;
-    float mB = u_marginBottom;
-    float mX = mL + mR;
-    float mY = mT + mB;
-    if (u_aspectRatio > 0.) {
-      float diffX = u_marginLeft - u_marginRight;
-      float diffY = u_marginTop - u_marginBottom;
-      float target = max(mX, mY);
-      mL = 0.5 * (target + diffX);
-      mR = 0.5 * (target - diffX);
-      mT = 0.5 * (target + diffY);
-      mB = 0.5 * (target - diffY);
-      mL = max(0.0, mL);
-      mR = max(0.0, mR);
-      mT = max(0.0, mT);
-      mB = max(0.0, mB);
-      mX = mL + mR;
-      mY = mT + mB;
-    }
+  float mL = u_marginLeft;
+  float mR = u_marginRight;
+  float mT = u_marginTop;
+  float mB = u_marginBottom;
+  float mX = mL + mR;
+  float mY = mT + mB;
 
-    halfSize.x -= 0.5 * mX;
-    halfSize.y -= 0.5 * mY;
-
-    vec2 centerShift = vec2(
-    (mL - mR) * 0.5,
-    (mB - mT) * 0.5
-    );
-    borderUV -= centerShift;
+  if (u_aspectRatio > 0.) {
+    float shapeRatio = canvasRatio * (1. - mX) / (1. - mY);
+    float freeX = shapeRatio > 1. ? (1. - mX) * (1. - 1. / shapeRatio) : 0.;
+    float freeY = shapeRatio < 1. ? (1. - mY) * (1. - shapeRatio) : 0.;
+    mL += freeX * 0.5;
+    mR += freeX * 0.5;
+    mT += freeY * 0.5;
+    mB += freeY * 0.5;
+    mX = mL + mR;
+    mY = mT + mB;
   }
 
   float thickness = .5 * u_thickness * min(halfSize.x, halfSize.y);
+
+  halfSize.x *= (1. - mX);
+  halfSize.y *= (1. - mY);
+
+  vec2 centerShift = vec2(
+    (mL - mR) * max(canvasRatio, 1.) * 0.5,
+    (mB - mT) / min(canvasRatio, 1.) * 0.5
+  );
+
+  borderUV -= centerShift;
   halfSize -= mix(thickness, 0., u_softness);
 
   float radius = mix(0., min(halfSize.x, halfSize.y), u_roundness);
@@ -200,7 +185,7 @@ void main() {
 
   float bloom = min(4. * u_bloom, 1.);
   float intensity = 1. + (1. + 4. * u_softness) * u_intensity;
-  
+
   float angle = atan(borderUV.y, borderUV.x) / TWO_PI;
 
   for (int colorIdx = 0; colorIdx < ${pulsingBorderMeta.maxColorCount}; colorIdx++) {
