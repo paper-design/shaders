@@ -16,7 +16,7 @@ export interface FlutedGlassProps extends ShaderComponentProps, FlutedGlassParam
   count?: number;
 }
 
-type FlutedGlassPreset = ImageShaderPreset<Omit<FlutedGlassParams, 'margin'>>;
+type FlutedGlassPreset = ImageShaderPreset<FlutedGlassParams>;
 
 export const defaultPreset: FlutedGlassPreset = {
   name: 'Default',
@@ -33,6 +33,7 @@ export const defaultPreset: FlutedGlassPreset = {
     shift: 0,
     blur: 3,
     edges: 0,
+    margin: 0,
     marginLeft: 0,
     marginRight: 0,
     marginTop: 0,
@@ -55,6 +56,7 @@ export const wavesPreset: FlutedGlassPreset = {
     shift: 0,
     blur: 0,
     edges: 0,
+    margin: 0,
     marginLeft: 0,
     marginRight: 0,
     marginTop: 0,
@@ -78,6 +80,7 @@ export const irregularPreset: FlutedGlassPreset = {
     shift: 0,
     blur: 25,
     edges: 1,
+    margin: 0,
     marginLeft: 0,
     marginRight: 0,
     marginTop: 0,
@@ -100,8 +103,9 @@ export const foldsPreset: FlutedGlassPreset = {
     shift: 0,
     blur: 0,
     edges: 0,
-    marginLeft: 0.05,
-    marginRight: 0.05,
+    margin: 0.2,
+    marginLeft: 0.2,
+    marginRight: 0.2,
     marginTop: 0.2,
     marginBottom: 0.2,
   },
