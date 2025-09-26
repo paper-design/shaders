@@ -39,7 +39,7 @@ const imageFiles = [
 
 const ImageDitheringWithControls = () => {
   const [imageIdx, setImageIdx] = useState(-1);
-  const [image, setImage] = useState<HTMLImageElement | undefined>(undefined);
+  const [image, setImage] = useState<HTMLImageElement | string>('/images/image-filters/0018.webp');
   const [status, setStatus] = useState('Click to load an image');
 
   const fileName = imageIdx >= 0 ? imageFiles[imageIdx] : null;
@@ -59,7 +59,7 @@ const ImageDitheringWithControls = () => {
   }, []);
 
   const setImageWithoutStatus = useCallback((img?: HTMLImageElement) => {
-    setImage(img);
+    setImage(img ?? '');
     setImageIdx(-1);
     setStatus(``);
   }, []);
@@ -101,7 +101,7 @@ const ImageDitheringWithControls = () => {
   return (
     <>
       <ShaderContainer shaderDef={imageDitheringDef} currentParams={params}>
-        <ImageDithering onClick={handleClick} {...params} image={image || undefined} />
+        <ImageDithering onClick={handleClick} {...params} image={image} />
       </ShaderContainer>
       <div onClick={handleClick} className="mx-auto mt-16 mb-48 w-fit text-base text-current/70 select-none">
         Click to change the sample image

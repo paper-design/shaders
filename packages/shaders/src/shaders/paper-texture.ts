@@ -147,7 +147,7 @@ vec2 folds(vec2 uv) {
       vec2 p = vec2(cos(an), sin(an)) * rand.y;
       float dist = distance(uv, p);
       l = min(l, dist);
-      
+
       if (l == dist) {
         pp.xy = (uv - p.xy);
         pp.z = dist;
@@ -206,7 +206,7 @@ void main() {
 
   float fade = u_fade * fbm(.17 * patternUV + 10. * u_seed);
   fade = clamp(8. * pow(fade, 3.), 0., 1.);
-  
+
   w = mix(w, vec2(0.), fade);
   w2 = mix(w2, vec2(0.), fade);
   crumples = mix(crumples, 0., fade);
@@ -225,7 +225,7 @@ void main() {
 
   normal.xy += u_roughness * 1.5 * roughness;
   normal.xy += fiber;
-  
+
   normalImage += u_roughness * .75 * roughness;
   normalImage += .2 * fiber;
 
@@ -241,7 +241,7 @@ void main() {
   float frame = getUvFrame(imageUV);
   vec4 image = texture(u_image, imageUV);
   image.rgb += .6 * pow(u_contrast, .4) * (res - .7);
-  
+
   frame *= image.a;
 
   vec3 color = fgColor * res;
@@ -250,7 +250,7 @@ void main() {
   color += bgColor * (1. - opacity);
   opacity += bgOpacity * (1. - opacity);
   opacity = mix(opacity, 1., frame);
-  
+
   color -= .007 * drops;
 
   color.rgb = mix(color, image.rgb, frame);
@@ -278,7 +278,7 @@ export interface PaperTextureUniforms extends ShaderSizingUniforms {
 }
 
 export interface PaperTextureParams extends ShaderSizingParams, ShaderMotionParams {
-  image?: HTMLImageElement | string | undefined;
+  image?: HTMLImageElement | string;
   colorFront?: string;
   colorBack?: string;
   contrast?: number;

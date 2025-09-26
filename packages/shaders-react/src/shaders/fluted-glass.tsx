@@ -117,7 +117,7 @@ export const FlutedGlass: React.FC<FlutedGlassProps> = memo(function FlutedGlass
   // Own props
   speed = defaultPreset.params.speed,
   frame = defaultPreset.params.frame,
-  image = 'https://shaders.paper.design/images/image-filters/0018.webp',
+  image = '',
   angle = defaultPreset.params.angle,
   distortion = defaultPreset.params.distortion,
   distortionShape = defaultPreset.params.distortionShape,
@@ -133,7 +133,7 @@ export const FlutedGlass: React.FC<FlutedGlassProps> = memo(function FlutedGlass
 
   // integer `count` was deprecated in favor of the normalized `size` param
   count,
-  size = count === undefined ? defaultPreset.params.edges : Math.pow(1 / (count * 1.6), 1 / 6) / 0.7 - 0.5,
+  size = count === undefined ? defaultPreset.params.size : Math.pow(1 / (count * 1.6), 1 / 6) / 0.7 - 0.5,
 
   // Sizing props
   fit = defaultPreset.params.fit,
