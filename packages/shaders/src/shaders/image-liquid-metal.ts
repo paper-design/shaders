@@ -36,7 +36,8 @@ uniform vec4 u_colorTint;
 
 uniform float u_softness;
 uniform float u_repetition;
-uniform float u_refraction;
+uniform float u_shiftRed;
+uniform float u_shiftBlue;
 uniform float u_distortion;
 
 uniform float u_edge;
@@ -51,24 +52,24 @@ ${simplexNoise}
 
 float getColorChanges(float c1, float c2, float stripe_p, vec3 w, float blur, float bump, float tint) {
   
-  float ch = mix(c2, c1, smoothstep(.0, blur, stripe_p));
+  float ch = mix(c2, c1, smoothstep(.0, 2. * blur, stripe_p));
 
   float border = w[0];
-  ch = mix(ch, c2, smoothstep(border - blur, border + blur, stripe_p));
+  ch = mix(ch, c2, smoothstep(border, border + 2. * blur, stripe_p));
 
   bump = smoothstep(.2, .8, bump);
   border = w[0] + .4 * (1. - bump) * w[1];
-  ch = mix(ch, c1, smoothstep(border - blur, border + blur, stripe_p));
+  ch = mix(ch, c1, smoothstep(border, border + 2. * blur, stripe_p));
 
   border = w[0] + .5 * (1. - bump) * w[1];
-  ch = mix(ch, c2, smoothstep(border - blur, border + blur, stripe_p));
+  ch = mix(ch, c2, smoothstep(border, border + 2. * blur, stripe_p));
 
   border = w[0] + w[1];
-  ch = mix(ch, c1, smoothstep(border - blur, border + blur, stripe_p));
+  ch = mix(ch, c1, smoothstep(border, border + 2. * blur, stripe_p));
 
   float gradient_t = (stripe_p - w[0] - w[1]) / w[2];
   float gradient = mix(c1, c2, smoothstep(0., 1., gradient_t));
-  ch = mix(ch, gradient, smoothstep(border - blur, border + blur, stripe_p));
+  ch = mix(ch, gradient, smoothstep(border, border + .5 * blur, stripe_p));
   
   // Tint color is applied with color burn blending
   ch = mix(ch, 1. - min(1., (1. - ch) / max(tint, 0.0001)), u_colorTint.a);
@@ -160,19 +161,19 @@ void main() {
   dispersionBlue += (smoothstep(0., .4, uv.y) * smoothstep(.8, .1, uv.y)) * (smoothstep(.4, .6, bump) * smoothstep(.8, .4, bump));
   dispersionBlue -= .2 * mask;
 
-  dispersionRed *= (0.06 * u_refraction);
-  dispersionBlue *= (0.06 * u_refraction);
+  dispersionRed *= (u_shiftRed / 20.);
+  dispersionBlue *= (u_shiftBlue / 20.);
 
   float blur = u_softness / 20.;
 
   vec3 w = vec3(thin_strip_1_width, thin_strip_2_width, wide_strip_ratio);
   w[1] -= .02 * smoothstep(.0, 1., mask + bump);
   float stripe_r = mod(direction + dispersionRed, 1.);
-  float r = getColorChanges(color1.r, color2.r, stripe_r, w, blur + .02 + .03 * 0.06 * u_refraction * bump, bump, u_colorTint.r);
+  float r = getColorChanges(color1.r, color2.r, stripe_r, w, blur + fwidth(stripe_r), bump, u_colorTint.r);
   float stripe_g = mod(direction, 1.);
-  float g = getColorChanges(color1.g, color2.g, stripe_g, w, blur + .01 / (1. - diagBLtoTR), bump, u_colorTint.g);
+  float g = getColorChanges(color1.g, color2.g, stripe_g, w, blur + fwidth(stripe_g), bump, u_colorTint.g);
   float stripe_b = mod(direction - dispersionBlue, 1.);
-  float b = getColorChanges(color1.b, color2.b, stripe_b, w, blur + .01, bump, u_colorTint.b);
+  float b = getColorChanges(color1.b, color2.b, stripe_b, w, blur + fwidth(stripe_b), bump, u_colorTint.b);
 
   color = vec3(r, g, b);
   color *= opacity;
@@ -368,9 +369,10 @@ export interface ImageLiquidMetalUniforms extends ShaderSizingUniforms {
   u_colorTint: [number, number, number, number];
   u_image: HTMLImageElement | string | undefined;
   u_repetition: number;
-  u_refraction: number;
   u_edge: number;
   u_softness: number;
+  u_shiftRed: number;
+  u_shiftBlue: number;
   u_distortion: number;
 }
 
@@ -379,7 +381,8 @@ export interface ImageLiquidMetalParams extends ShaderSizingParams, ShaderMotion
   colorTint?: string;
   image?: HTMLImageElement | string | undefined;
   repetition?: number;
-  refraction?: number;
+  shiftRed?: number;
+  shiftBlue?: number;
   edge?: number;
   softness?: number;
   distortion?: number;
