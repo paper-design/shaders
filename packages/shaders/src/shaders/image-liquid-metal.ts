@@ -87,7 +87,7 @@ float getImgFrame(vec2 uv, float th) {
 
 void main() {
 
-  float t = .1 * u_time;
+  float t = .3 * u_time;
 
   vec2 uv = v_imageUV;
   float imgSoftFrame = getImgFrame(uv, .03);
