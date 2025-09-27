@@ -24,6 +24,7 @@ import imageDitheringImg from '../../public/shaders/image-dithering.webp';
 import paperTextureImg from '../../public/shaders/paper-texture.webp';
 import waterImg from '../../public/shaders/water.webp';
 import heatmapImg from '../../public/shaders/heatmap.webp';
+import imageLiquidMetalImg from '../../public/shaders/image-liquid-metal.webp';
 import {
   DotGrid,
   dotGridPresets,
@@ -75,6 +76,8 @@ import {
   waterPresets,
   ImageDithering,
   imageDitheringPresets,
+  imageLiquidMetalPresets,
+  ImageLiquidMetal,
   Heatmap,
   heatmapPresets,
 } from '@paper-design/shaders-react';
@@ -87,6 +90,7 @@ export type HomeShaderConfig = {
   pixelated?: boolean;
   ShaderComponent: React.FC<any>;
   shaderConfig: Record<string, unknown>;
+  category?: 'image-filters' | 'logo-animations';
 
   /**
    * Whether to render the shader itself in place of the preview image
@@ -250,6 +254,7 @@ export const homeThumbnails = [
   },
   {
     name: 'heatmap',
+    category: 'logo-animations',
     url: '/heatmap',
     ShaderComponent: Heatmap,
     image: heatmapImg,
@@ -262,7 +267,21 @@ export const homeThumbnails = [
     },
   },
   {
+    name: 'image liquid metal',
+    category: 'logo-animations',
+    url: '/image-liquid-metal',
+    ShaderComponent: ImageLiquidMetal,
+    image: imageLiquidMetalImg,
+    shaderConfig: {
+      ...imageLiquidMetalPresets[0].params,
+      scale: 1.05,
+      suspendWhenProcessingImage: true,
+      image: '/images/image-filters/0019.webp',
+    },
+  },
+  {
     name: 'paper texture',
+    category: 'image-filters',
     url: '/paper-texture',
     ShaderComponent: PaperTexture,
     image: paperTextureImg,
@@ -270,6 +289,7 @@ export const homeThumbnails = [
   },
   {
     name: 'fluted glass',
+    category: 'image-filters',
     url: '/fluted-glass',
     ShaderComponent: FlutedGlass,
     image: flutedGlassImg,
@@ -277,6 +297,7 @@ export const homeThumbnails = [
   },
   {
     name: 'water',
+    category: 'image-filters',
     url: '/water',
     ShaderComponent: Water,
     image: waterImg,
@@ -289,6 +310,7 @@ export const homeThumbnails = [
   },
   {
     name: 'image dithering',
+    category: 'image-filters',
     url: '/image-dithering',
     ShaderComponent: ImageDithering,
     image: imageDitheringImg,
