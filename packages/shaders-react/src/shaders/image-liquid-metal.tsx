@@ -31,10 +31,11 @@ export const defaultPreset: ImageLiquidMetalPreset = {
     frame: 0,
     colorBack: '#00000000',
     colorTint: '#ffffff',
-    softness: 0,
+    softness: 0.2,
     repetition: 2,
+    shiftRed: 0.25,
+    shiftBlue: 0.3,
     distortion: 0.07,
-    refraction: 0.25,
     edge: 0.4,
   },
 };
@@ -52,7 +53,8 @@ export const ImageLiquidMetal: React.FC<ImageLiquidMetalProps> = memo(function I
   distortion = defaultPreset.params.distortion,
   softness = defaultPreset.params.softness,
   repetition = defaultPreset.params.repetition,
-  refraction = defaultPreset.params.refraction,
+  shiftRed = defaultPreset.params.shiftRed,
+  shiftBlue = defaultPreset.params.shiftBlue,
   suspendWhenProcessingImage = false,
 
   // Sizing props
@@ -118,7 +120,8 @@ export const ImageLiquidMetal: React.FC<ImageLiquidMetalProps> = memo(function I
     u_repetition: repetition,
     u_edge: edge,
     u_distortion: distortion,
-    u_refraction: refraction,
+    u_shiftRed: shiftRed,
+    u_shiftBlue: shiftBlue,
 
     // Sizing uniforms
     u_fit: ShaderFitOptions[fit],
