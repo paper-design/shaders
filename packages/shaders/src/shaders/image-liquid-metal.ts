@@ -324,7 +324,6 @@ export function toProcessedImageLiquidMetal(file: File | string): Promise<{ blob
       for (let i = 0; i < width * height; i++) {
         if (u[i]! > maxVal) maxVal = u[i]!;
       }
-      const alpha = 2.0; // Adjust for contrast.
       const outImg = ctx.createImageData(width, height);
 
       for (let y = 0; y < height; y++) {
@@ -333,18 +332,13 @@ export function toProcessedImageLiquidMetal(file: File | string): Promise<{ blob
           const px = idx * 4;
           if (!shapeMask[idx]) {
             outImg.data[px] = 255;
-            outImg.data[px + 1] = 255;
-            outImg.data[px + 2] = 255;
-            outImg.data[px + 3] = 255;
           } else {
             const raw = u[idx]! / maxVal;
-            const remapped = Math.pow(raw, alpha);
-            const gray = 255 * (1 - remapped);
-            outImg.data[px] = gray;
-            outImg.data[px + 1] = gray;
-            outImg.data[px + 2] = gray;
-            outImg.data[px + 3] = 255;
+            outImg.data[px] = 255 * (1 - Math.pow(raw, 2));
           }
+          outImg.data[px + 1] = 255;
+          outImg.data[px + 2] = 255;
+          outImg.data[px + 3] = 255;
         }
       }
       ctx.putImageData(outImg, 0, 0);
