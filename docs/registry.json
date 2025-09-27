@@ -17,6 +17,19 @@
       ]
     },
     {
+      "name": "line-grid",
+      "type": "registry:component",
+      "title": "Line Grid Example",
+      "description": "Line Grid shader example.",
+      "dependencies": ["@paper-design/shaders-react"],
+      "files": [
+        {
+          "path": "registry/line-grid-example.tsx",
+          "type": "registry:component"
+        }
+      ]
+    },
+    {
       "name": "dot-orbit",
       "type": "registry:component",
       "title": "Dot Orbit Example",
