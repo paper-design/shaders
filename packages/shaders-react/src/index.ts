@@ -107,6 +107,10 @@ export { Heatmap, heatmapPresets } from './shaders/heatmap.js';
 export type { HeatmapProps } from './shaders/heatmap.js';
 export type { HeatmapUniforms, HeatmapParams } from '@paper-design/shaders';
 
+export { ImageGooeyDots, imageGooeyDotsPresets } from './shaders/image-gooey-dots.js';
+export type { ImageGooeyDotsProps } from './shaders/image-gooey-dots.js';
+export type { ImageGooeyDotsUniforms, ImageGooeyDotsParams } from '@paper-design/shaders';
+
 export { isPaperShaderElement, getShaderColorFromString } from '@paper-design/shaders';
 export type { PaperShaderElement, ShaderFit, ShaderSizingParams, ShaderSizingUniforms } from '@paper-design/shaders';
 
