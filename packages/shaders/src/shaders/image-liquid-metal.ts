@@ -1,186 +1,189 @@
 import type { ShaderMotionParams } from '../shader-mount.js';
 import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
+import { declarePI, rotation2, simplexNoise, colorBandingFix } from '../shader-utils.js';
 
-export const imageLiquidMetalFragmentShader: string = /* glsl */ `#version 300 es
+/**
+ *
+ * Fluid motion imitation applied over user image
+ * (animated stripe pattern getting distorted with shape edges)
+ *
+ * Uniforms:
+ * - u_colorBack, u_colorTint (RGBA)
+ * - u_repetition: density of pattern stripes
+ * - u_softness: blur between stripes
+ * - u_shiftRed & u_shiftBlue: color dispersion between the stripes
+ * - u_distortion: pattern distortion on the whole canvas
+ * - u_contour: distortion power over the shape edges
+ * - u_shape (float used as integer):
+ * ---- 0: canvas-screen rectangle, needs u_worldWidth = u_worldHeight = 0 to be responsive (see vertex shader)
+ * ---- 1: static circle
+ * ---- 2: animated flower-like polar shape
+ * ---- 3: animated metaballs
+ *
+ */
+
+// language=GLSL
+export const imageLiquidMetalFragmentShader: string = `#version 300 es
 precision mediump float;
 
-out vec4 fragColor;
-
 uniform sampler2D u_image;
-uniform float u_time;
 uniform float u_imageAspectRatio;
 
-uniform float u_patternScale;
+uniform float u_time;
+
+uniform vec4 u_colorBack;
+uniform vec4 u_colorTint;
+
+uniform float u_softness;
+uniform float u_repetition;
 uniform float u_refraction;
+uniform float u_distortion;
+
 uniform float u_edge;
-uniform float u_patternBlur;
-uniform float u_liquid;
 
 ${sizingVariablesDeclaration}
 
-#define TWO_PI 6.28318530718
-#define PI 3.14159265358979323846
+out vec4 fragColor;
 
-vec3 mod289(vec3 x) { return x - floor(x * (1. / 289.)) * 289.; }
-vec2 mod289(vec2 x) { return x - floor(x * (1. / 289.)) * 289.; }
-vec3 permute(vec3 x) { return mod289(((x*34.)+1.)*x); }
+${declarePI}
+${rotation2}
+${simplexNoise}
 
-float snoise(vec2 v) {
-    const vec4 C = vec4(0.211324865405187, 0.366025403784439, -0.577350269189626, 0.024390243902439);
-    vec2 i = floor(v + dot(v, C.yy));
-    vec2 x0 = v - i + dot(i, C.xx);
-    vec2 i1;
-    i1 = (x0.x > x0.y) ? vec2(1., 0.) : vec2(0., 1.);
-    vec4 x12 = x0.xyxy + C.xxzz;
-    x12.xy -= i1;
-    i = mod289(i);
-    vec3 p = permute(permute(i.y + vec3(0., i1.y, 1.)) + i.x + vec3(0., i1.x, 1.));
-    vec3 m = max(0.5 - vec3(dot(x0, x0), dot(x12.xy, x12.xy), dot(x12.zw, x12.zw)), 0.);
-    m = m*m;
-    m = m*m;
-    vec3 x = 2. * fract(p * C.www) - 1.;
-    vec3 h = abs(x) - 0.5;
-    vec3 ox = floor(x + 0.5);
-    vec3 a0 = x - ox;
-    m *= 1.79284291400159 - 0.85373472095314 * (a0*a0 + h*h);
-    vec3 g;
-    g.x = a0.x * x0.x + h.x * x0.y;
-    g.yz = a0.yz * x12.xz + h.yz * x12.yw;
-    return 130. * dot(m, g);
+float getColorChanges(float c1, float c2, float stripe_p, vec3 w, float blur, float bump, float tint) {
+  
+  float ch = mix(c2, c1, smoothstep(.0, blur, stripe_p));
+
+  float border = w[0];
+  ch = mix(ch, c2, smoothstep(border - blur, border + blur, stripe_p));
+
+  bump = smoothstep(.2, .8, bump);
+  border = w[0] + .4 * (1. - bump) * w[1];
+  ch = mix(ch, c1, smoothstep(border - blur, border + blur, stripe_p));
+
+  border = w[0] + .5 * (1. - bump) * w[1];
+  ch = mix(ch, c2, smoothstep(border - blur, border + blur, stripe_p));
+
+  border = w[0] + w[1];
+  ch = mix(ch, c1, smoothstep(border - blur, border + blur, stripe_p));
+
+  float gradient_t = (stripe_p - w[0] - w[1]) / w[2];
+  float gradient = mix(c1, c2, smoothstep(0., 1., gradient_t));
+  ch = mix(ch, gradient, smoothstep(border - blur, border + blur, stripe_p));
+  
+  // Tint color is applied with color burn blending
+  ch = mix(ch, 1. - min(1., (1. - ch) / max(tint, 0.0001)), u_colorTint.a);
+  return ch;
 }
 
-vec2 rotate(vec2 uv, float th) {
-    return mat2(cos(th), sin(th), -sin(th), cos(th)) * uv;
-}
-
-float get_color_channel(float c1, float c2, float stripe_p, vec3 w, float extra_blur, float b) {
-    float ch = c2;
-    float border = 0.;
-    float blur = u_patternBlur + extra_blur;
-
-    ch = mix(ch, c1, smoothstep(.0, blur, stripe_p));
-
-    border = w[0];
-    ch = mix(ch, c2, smoothstep(border - blur, border + blur, stripe_p));
-
-    b = smoothstep(.2, .8, b);
-    border = w[0] + .4 * (1. - b) * w[1];
-    ch = mix(ch, c1, smoothstep(border - blur, border + blur, stripe_p));
-
-    border = w[0] + .5 * (1. - b) * w[1];
-    ch = mix(ch, c2, smoothstep(border - blur, border + blur, stripe_p));
-
-    border = w[0] + w[1];
-    ch = mix(ch, c1, smoothstep(border - blur, border + blur, stripe_p));
-
-    float gradient_t = (stripe_p - w[0] - w[1]) / w[2];
-    float gradient = mix(c1, c2, smoothstep(0., 1., gradient_t));
-    ch = mix(ch, gradient, smoothstep(border - blur, border + blur, stripe_p));
-
-    return ch;
-}
-
-float get_img_frame_alpha(vec2 uv, float img_frame_width) {
-    float img_frame_alpha = smoothstep(0., img_frame_width, uv.x) * smoothstep(1., 1. - img_frame_width, uv.x);
-    img_frame_alpha *= smoothstep(0., img_frame_width, uv.y) * smoothstep(1., 1. - img_frame_width, uv.y);
-    return img_frame_alpha;
+float getImgFrame(vec2 uv, float th) {
+  float frame = 1.;
+  frame *= smoothstep(0., th, uv.y);
+  frame *= smoothstep(1., 1. - th, uv.y);
+  frame *= smoothstep(0., th, uv.x);
+  frame *= smoothstep(1., 1. - th, uv.x);
+  return frame;
 }
 
 void main() {
-    vec2 uv = v_imageUV;
 
-    float diagonal = uv.x - uv.y;
+  float t = .1 * u_time;
 
-    float t = .1 * u_time;
+  vec2 uv = v_imageUV;
+  float imgSoftFrame = getImgFrame(uv, .03);
+  vec4 img = texture(u_image, uv);
 
-    vec4 img = texture(u_image, v_imageUV);
+  float cycleWidth = u_repetition;
 
-    vec3 color = vec3(0.);
-    float opacity = 1.;
+  float mask = img.r;
+  float contOffset = 1.;
 
-    vec3 color1 = vec3(.98, 0.98, 1.);
-    vec3 color2 = vec3(.1, .1, .1 + .1 * smoothstep(.7, 1.3, uv.x + uv.y));
+  float opacity = 1. - smoothstep(.9 - .5 * u_edge, 1. - .5 * u_edge, mask);
+  opacity *= imgSoftFrame;
 
-    float edge = img.r;
+  float ridge = .18 * (smoothstep(.0, .2, uv.y) * smoothstep(.4, .2, uv.y));
+  ridge += .03 * (smoothstep(.1, .2, 1. - uv.y) * smoothstep(.4, .2, 1. - uv.y));
 
-    vec2 grad_uv = uv;
-    grad_uv -= .5;
+  float diagBLtoTR = uv.x - uv.y;
+  float diagTLtoBR = uv.x + uv.y;
 
-    float dist = length(grad_uv + vec2(0., .2 * diagonal));
+  vec3 color = vec3(0.);
+  vec3 color1 = vec3(.98, 0.98, 1.);
+  vec3 color2 = vec3(.1, .1, .1 + .1 * smoothstep(.7, 1.3, diagTLtoBR));
 
-    grad_uv = rotate(grad_uv, (.25 - .2 * diagonal) * PI);
+  vec2 grad_uv = uv - .5;
 
-    float bulge = pow(1.8 * dist, 1.2);
-    bulge = 1. - bulge;
-    bulge *= pow(uv.y, .3);
+  float dist = length(grad_uv + vec2(0., .2 * diagBLtoTR));
+  grad_uv = rotate(grad_uv, (.25 - .2 * diagBLtoTR) * PI);
+  float direction = grad_uv.x;
 
-    float cycle_width = u_patternScale;
-    float thin_strip_1_ratio = .12 / cycle_width * (1. - .4 * bulge);
-    float thin_strip_2_ratio = .07 / cycle_width * (1. + .4 * bulge);
-    float wide_strip_ratio = (1. - thin_strip_1_ratio - thin_strip_2_ratio);
-
-    float thin_strip_1_width = cycle_width * thin_strip_1_ratio;
-    float thin_strip_2_width = cycle_width * thin_strip_2_ratio;
-
-    opacity = 1. - smoothstep(.9 - .5 * u_edge, 1. - .5 * u_edge, edge);
-    opacity *= get_img_frame_alpha(v_imageUV, 0.01);
+  float bump = pow(1.8 * dist, 1.2);
+  bump = 1. - bump;
+  bump *= pow(uv.y, .3);
 
 
-    float noise = snoise(uv - t);
+  float thin_strip_1_ratio = .12 / cycleWidth * (1. - .4 * bump);
+  float thin_strip_2_ratio = .07 / cycleWidth * (1. + .4 * bump);
+  float wide_strip_ratio = (1. - thin_strip_1_ratio - thin_strip_2_ratio);
 
-    edge += (1. - edge) * u_liquid * noise;
+  float thin_strip_1_width = cycleWidth * thin_strip_1_ratio;
+  float thin_strip_2_width = cycleWidth * thin_strip_2_ratio;
 
-    float refr = 0.;
-    refr += (1. - bulge);
-    refr = clamp(refr, 0., 1.);
+  float noise = snoise(uv - t);
 
-    float dir = grad_uv.x;
+  mask += (1. - mask) * u_distortion * noise;
 
-    dir += diagonal;
+  direction += diagBLtoTR;
 
-    dir -= 2. * noise * diagonal * (smoothstep(0., 1., edge) * smoothstep(1., 0., edge));
+  float contour = smoothstep(0., contOffset, mask) * smoothstep(contOffset, 0., mask);
+  direction -= 2. * noise * diagBLtoTR * contour;
 
-    bulge *= clamp(pow(uv.y, .1), .3, 1.);
-    dir *= (.1 + (1.1 - edge) * bulge);
+  bump *= clamp(pow(uv.y, .1), .3, 1.);
+  direction *= (.1 + (1.1 - mask) * bump);
+  direction *= smoothstep(1., .7, mask);
 
-    dir *= smoothstep(1., .7, edge);
+  direction += ridge;
 
-    dir += .18 * (smoothstep(.1, .2, uv.y) * smoothstep(.4, .2, uv.y));
-    dir += .03 * (smoothstep(.1, .2, 1. - uv.y) * smoothstep(.4, .2, 1. - uv.y));
+  direction *= (.5 + .5 * pow(uv.y, 2.));
+  direction *= cycleWidth;
+  direction -= t;
 
-    dir *= (.5 + .5 * pow(uv.y, 2.));
 
-    dir *= cycle_width;
+  float colorDispersion = (1. - bump);
+  colorDispersion = clamp(colorDispersion, 0., 1.);
+  float dispersionRed = colorDispersion;
+  dispersionRed += .03 * bump * noise;
+  float dispersionBlue = 1.3 * colorDispersion;
 
-    dir -= t;
+  dispersionRed += 5. * (smoothstep(-.1, .2, uv.y) * smoothstep(.5, .1, uv.y)) * (smoothstep(.4, .6, bump) * smoothstep(1., .4, bump));
+  dispersionRed -= diagBLtoTR;
 
-    float refr_r = refr;
-    refr_r += .03 * bulge * noise;
-    float refr_b = 1.3 * refr;
+  dispersionBlue += (smoothstep(0., .4, uv.y) * smoothstep(.8, .1, uv.y)) * (smoothstep(.4, .6, bump) * smoothstep(.8, .4, bump));
+  dispersionBlue -= .2 * mask;
 
-    refr_r += 5. * (smoothstep(-.1, .2, uv.y) * smoothstep(.5, .1, uv.y)) * (smoothstep(.4, .6, bulge) * smoothstep(1., .4, bulge));
-    refr_r -= diagonal;
+  dispersionRed *= (0.06 * u_refraction);
+  dispersionBlue *= (0.06 * u_refraction);
 
-    refr_b += (smoothstep(0., .4, uv.y) * smoothstep(.8, .1, uv.y)) * (smoothstep(.4, .6, bulge) * smoothstep(.8, .4, bulge));
-    refr_b -= .2 * edge;
+  float blur = u_softness / 20.;
 
-    refr_r *= u_refraction;
-    refr_b *= u_refraction;
+  vec3 w = vec3(thin_strip_1_width, thin_strip_2_width, wide_strip_ratio);
+  w[1] -= .02 * smoothstep(.0, 1., mask + bump);
+  float stripe_r = mod(direction + dispersionRed, 1.);
+  float r = getColorChanges(color1.r, color2.r, stripe_r, w, blur + .02 + .03 * 0.06 * u_refraction * bump, bump, u_colorTint.r);
+  float stripe_g = mod(direction, 1.);
+  float g = getColorChanges(color1.g, color2.g, stripe_g, w, blur + .01 / (1. - diagBLtoTR), bump, u_colorTint.g);
+  float stripe_b = mod(direction - dispersionBlue, 1.);
+  float b = getColorChanges(color1.b, color2.b, stripe_b, w, blur + .01, bump, u_colorTint.b);
 
-    vec3 w = vec3(thin_strip_1_width, thin_strip_2_width, wide_strip_ratio);
-    w[1] -= .02 * smoothstep(.0, 1., edge + bulge);
-    float stripe_r = mod(dir + refr_r, 1.);
-    float r = get_color_channel(color1.r, color2.r, stripe_r, w, 0.02 + .03 * u_refraction * bulge, bulge);
-    float stripe_g = mod(dir, 1.);
-    float g = get_color_channel(color1.g, color2.g, stripe_g, w, 0.01 / (1. - diagonal), bulge);
-    float stripe_b = mod(dir - refr_b, 1.);
-    float b = get_color_channel(color1.b, color2.b, stripe_b, w, .01, bulge);
+  color = vec3(r, g, b);
+  color *= opacity;
 
-    color = vec3(r, g, b);
+  vec3 bgColor = u_colorBack.rgb * u_colorBack.a;
+  color = color + bgColor * (1. - opacity);
+  opacity = opacity + u_colorBack.a * (1. - opacity);
 
-    color *= opacity;
+  ${colorBandingFix}
 
-    fragColor = vec4(color, opacity);
+  fragColor = vec4(color, opacity);
 }
 `;
 
@@ -245,13 +248,13 @@ export function toProcessedImageLiquidMetal(file: File | string): Promise<{ blob
       const shapeImageData = shapeCtx.getImageData(0, 0, width, height);
       const data = shapeImageData.data;
       const shapeMask = new Array(width * height).fill(false);
-      for (var y = 0; y < height; y++) {
-        for (var x = 0; x < width; x++) {
-          var idx4 = (y * width + x) * 4;
-          var r = data[idx4];
-          var g = data[idx4 + 1];
-          var b = data[idx4 + 2];
-          var a = data[idx4 + 3];
+      for (let y = 0; y < height; y++) {
+        for (let x = 0; x < width; x++) {
+          const idx4 = (y * width + x) * 4;
+          const r = data[idx4];
+          const g = data[idx4 + 1];
+          const b = data[idx4 + 2];
+          const a = data[idx4 + 3];
           if ((r === 255 && g === 255 && b === 255 && a === 255) || a === 0) {
             shapeMask[y * width + x] = false;
           } else {
@@ -266,14 +269,14 @@ export function toProcessedImageLiquidMetal(file: File | string): Promise<{ blob
       }
 
       // 2) Identify boundary (pixels that have at least one non-shape neighbor)
-      var boundaryMask = new Array(width * height).fill(false);
-      for (var y = 0; y < height; y++) {
-        for (var x = 0; x < width; x++) {
-          var idx = y * width + x;
+      let boundaryMask = new Array(width * height).fill(false);
+      for (let y = 0; y < height; y++) {
+        for (let x = 0; x < width; x++) {
+          const idx = y * width + x;
           if (!shapeMask[idx]) continue;
-          var isBoundary = false;
-          for (var ny = y - 1; ny <= y + 1 && !isBoundary; ny++) {
-            for (var nx = x - 1; nx <= x + 1 && !isBoundary; nx++) {
+          let isBoundary = false;
+          for (let ny = y - 1; ny <= y + 1 && !isBoundary; ny++) {
+            for (let nx = x - 1; nx <= x + 1 && !isBoundary; nx++) {
               if (!inside(nx, ny)) {
                 isBoundary = true;
               }
@@ -286,10 +289,10 @@ export function toProcessedImageLiquidMetal(file: File | string): Promise<{ blob
       }
 
       // 3) Poisson solve: Δu = -C (i.e. u_xx + u_yy = C), with u=0 at the boundary.
-      var u = new Float32Array(width * height).fill(0);
-      var newU = new Float32Array(width * height).fill(0);
-      var C = 0.01;
-      var ITERATIONS = 300;
+      const u = new Float32Array(width * height).fill(0);
+      const newU = new Float32Array(width * height).fill(0);
+      const C = 0.01;
+      const ITERATIONS = 300;
 
       function getU(x: number, y: number, arr: Float32Array) {
         if (x < 0 || x >= width || y < 0 || y >= height) return 0;
@@ -297,36 +300,36 @@ export function toProcessedImageLiquidMetal(file: File | string): Promise<{ blob
         return arr[y * width + x]!;
       }
 
-      for (var iter = 0; iter < ITERATIONS; iter++) {
-        for (var y = 0; y < height; y++) {
-          for (var x = 0; x < width; x++) {
-            var idx = y * width + x;
+      for (let iter = 0; iter < ITERATIONS; iter++) {
+        for (let y = 0; y < height; y++) {
+          for (let x = 0; x < width; x++) {
+            const idx = y * width + x;
             if (!shapeMask[idx] || boundaryMask[idx]) {
               newU[idx] = 0;
               continue;
             }
-            var sumN = getU(x + 1, y, u) + getU(x - 1, y, u) + getU(x, y + 1, u) + getU(x, y - 1, u);
+            const sumN = getU(x + 1, y, u) + getU(x - 1, y, u) + getU(x, y + 1, u) + getU(x, y - 1, u);
             newU[idx] = (C + sumN) / 4;
           }
         }
         // Swap u with newU
-        for (var i = 0; i < width * height; i++) {
+        for (let i = 0; i < width * height; i++) {
           u[i] = newU[i]!;
         }
       }
 
       // 4) Normalize the solution and apply a nonlinear remap.
-      var maxVal = 0;
-      for (var i = 0; i < width * height; i++) {
+      let maxVal = 0;
+      for (let i = 0; i < width * height; i++) {
         if (u[i]! > maxVal) maxVal = u[i]!;
       }
       const alpha = 2.0; // Adjust for contrast.
       const outImg = ctx.createImageData(width, height);
 
-      for (var y = 0; y < height; y++) {
-        for (var x = 0; x < width; x++) {
-          var idx = y * width + x;
-          var px = idx * 4;
+      for (let y = 0; y < height; y++) {
+        for (let x = 0; x < width; x++) {
+          const idx = y * width + x;
+          const px = idx * 4;
           if (!shapeMask[idx]) {
             outImg.data[px] = 255;
             outImg.data[px + 1] = 255;
@@ -361,19 +364,23 @@ export function toProcessedImageLiquidMetal(file: File | string): Promise<{ blob
 }
 
 export interface ImageLiquidMetalUniforms extends ShaderSizingUniforms {
+  u_colorBack: [number, number, number, number];
+  u_colorTint: [number, number, number, number];
   u_image: HTMLImageElement | string | undefined;
-  u_patternScale: number;
+  u_repetition: number;
   u_refraction: number;
   u_edge: number;
-  u_patternBlur: number;
-  u_liquid: number;
+  u_softness: number;
+  u_distortion: number;
 }
 
 export interface ImageLiquidMetalParams extends ShaderSizingParams, ShaderMotionParams {
+  colorBack?: string;
+  colorTint?: string;
   image?: HTMLImageElement | string | undefined;
-  patternScale?: number;
+  repetition?: number;
   refraction?: number;
   edge?: number;
-  patternBlur?: number;
-  liquid?: number;
+  softness?: number;
+  distortion?: number;
 }

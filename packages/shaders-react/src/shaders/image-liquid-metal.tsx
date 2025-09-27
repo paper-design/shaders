@@ -8,6 +8,7 @@ import {
   type ImageLiquidMetalParams,
   toProcessedImageLiquidMetal,
   type ImageShaderPreset,
+  getShaderColorFromString,
 } from '@paper-design/shaders';
 import { transparentPixel } from '../transparent-pixel.js';
 import { suspend } from '../suspend.js';
@@ -28,11 +29,13 @@ export const defaultPreset: ImageLiquidMetalPreset = {
     scale: 0.6,
     speed: 1,
     frame: 0,
-    liquid: 0.07,
-    patternScale: 2.0,
-    refraction: 0.015,
+    colorBack: '#00000000',
+    colorTint: '#ffffff',
+    softness: 0,
+    repetition: 2,
+    distortion: 0.07,
+    refraction: 0.25,
     edge: 0.4,
-    patternBlur: 0.005,
   },
 };
 
@@ -40,13 +43,15 @@ export const imageLiquidMetalPresets: ImageLiquidMetalPreset[] = [defaultPreset]
 
 export const ImageLiquidMetal: React.FC<ImageLiquidMetalProps> = memo(function ImageLiquidMetalImpl({
   // Own props
+  colorBack = defaultPreset.params.colorBack,
+  colorTint = defaultPreset.params.colorTint,
   speed = defaultPreset.params.speed,
   frame = defaultPreset.params.frame,
   image = 'https://shaders.paper.design/images/image-filters/0019.webp',
   edge = defaultPreset.params.edge,
-  liquid = defaultPreset.params.liquid,
-  patternBlur = defaultPreset.params.patternBlur,
-  patternScale = defaultPreset.params.patternScale,
+  distortion = defaultPreset.params.distortion,
+  softness = defaultPreset.params.softness,
+  repetition = defaultPreset.params.repetition,
   refraction = defaultPreset.params.refraction,
   suspendWhenProcessingImage = false,
 
@@ -105,11 +110,14 @@ export const ImageLiquidMetal: React.FC<ImageLiquidMetalProps> = memo(function I
 
   const uniforms = {
     // Own uniforms
+    u_colorBack: getShaderColorFromString(colorBack),
+    u_colorTint: getShaderColorFromString(colorTint),
+
     u_image: processedImage,
+    u_softness: softness,
+    u_repetition: repetition,
     u_edge: edge,
-    u_liquid: liquid,
-    u_patternBlur: patternBlur,
-    u_patternScale: patternScale,
+    u_distortion: distortion,
     u_refraction: refraction,
 
     // Sizing uniforms

@@ -12,11 +12,12 @@ import { ShaderDetails } from '@/components/shader-details';
 import { ShaderContainer } from '@/components/shader-container';
 import { useUrlParams } from '@/helpers/use-url-params';
 import { imageLiquidMetalDef } from '@/shader-defs/image-liquid-metal-def';
+import { toHsla } from '@/helpers/color-utils';
 
 const { worldWidth, worldHeight, ...defaults } = imageLiquidMetalPresets[0].params;
 
 const ImageLiquidMetalWithControls = () => {
-  const [image, setImage] = useState<HTMLImageElement | string>('/images/image-filters/0019.webp');
+  const [image, setImage] = useState<HTMLImageElement | string>('/images/image-filters/apple.svg');
 
   const [params, setParams] = useControls(() => {
     const presets = Object.fromEntries(
@@ -26,13 +27,15 @@ const ImageLiquidMetalWithControls = () => {
       ])
     );
     return {
+      colorBack: { value: toHsla(defaults.colorBack), order: 100 },
+      colorTint: { value: toHsla(defaults.colorTint), order: 101 },
+      repetition: { value: defaults.repetition, min: 1, max: 10, order: 203 },
+      softness: { value: defaults.softness, min: 0, max: 1, order: 202 },
       edge: { value: defaults.edge, min: 0, max: 1, order: 200 },
-      liquid: { value: defaults.liquid, min: 0, max: 1, order: 201 },
-      patternBlur: { value: defaults.patternBlur, min: 0, max: 0.05, order: 202 },
-      patternScale: { value: defaults.patternScale, min: 1, max: 10, order: 203 },
-      refraction: { value: defaults.refraction, min: 0, max: 0.06, order: 204 },
+      distortion: { value: defaults.distortion, min: 0, max: 1, order: 201 },
+      refraction: { value: defaults.refraction, min: 0, max: 1, order: 204 },
       speed: { value: defaults.speed, min: 0, max: 4, order: 300 },
-      scale: { value: defaults.scale, min: 0.5, max: 10, order: 301 },
+      scale: { value: defaults.scale, min: 0.01, max: 4, order: 301 },
       rotation: { value: defaults.rotation, min: 0, max: 360, order: 302 },
       offsetX: { value: defaults.offsetX, min: -1, max: 1, order: 303 },
       offsetY: { value: defaults.offsetY, min: -1, max: 1, order: 304 },
@@ -58,7 +61,7 @@ const ImageLiquidMetalWithControls = () => {
           <ImageLiquidMetal {...params} image={image} suspendWhenProcessingImage />
         </Suspense>
       </ShaderContainer>
-      <ShaderDetails shaderDef={imageLiquidMetalDef} currentParams={params} codeSampleImageName="diamond.webp" />
+      <ShaderDetails shaderDef={imageLiquidMetalDef} currentParams={params} codeSampleImageName="apple.svg" />
     </>
   );
 };
