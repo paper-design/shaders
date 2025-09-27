@@ -55,9 +55,25 @@ export default function Home() {
 
       <main className="pb-128 text-lg">
         <div className="grid grid-cols-1 gap-32 xs:grid-cols-2 md:gap-48 lg:grid-cols-3 2xl:grid-cols-4 3xl:gap-64">
-          {homeThumbnails.map((shader) => (
-            <ShaderItem key={shader.name} {...shader} />
-          ))}
+          {homeThumbnails
+            .filter((shader) => !shader.category)
+            .map((shader) => (
+              <ShaderItem key={shader.name} {...shader} />
+            ))}
+        </div>
+        <div className="mt-96 grid grid-cols-1 gap-32 xs:grid-cols-2 md:gap-48 lg:grid-cols-3 2xl:grid-cols-4 3xl:gap-64">
+          {homeThumbnails
+            .filter((shader) => shader.category === 'image-filters')
+            .map((shader) => (
+              <ShaderItem key={shader.name} {...shader} />
+            ))}
+        </div>
+        <div className="mt-96 grid grid-cols-1 gap-32 xs:grid-cols-2 md:gap-48 lg:grid-cols-3 2xl:grid-cols-4 3xl:gap-64">
+          {homeThumbnails
+            .filter((shader) => shader.category === 'logo-animations')
+            .map((shader) => (
+              <ShaderItem key={shader.name} {...shader} />
+            ))}
         </div>
       </main>
     </div>
