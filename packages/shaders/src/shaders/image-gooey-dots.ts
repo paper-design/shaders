@@ -136,7 +136,7 @@ void main() {
     vec2 uv = doublePxSizeUV;
     uv += 3. / 4. * basePxSize;
     uv /= doublePxSize;
-    doublePxSizeUV_f = fract(uv + .001);
+    doublePxSizeUV_f = fract(uv + .0001);
 
     float sx = step(.25, doublePxSizeUV_f.x) + step(.75, doublePxSizeUV_f.x);
     float sy = step(.25, doublePxSizeUV_f.y) + step(.75, doublePxSizeUV_f.y);
@@ -150,7 +150,7 @@ void main() {
     vec2 uv = doublePxSizeUV;
     uv -= 1. / 4. * basePxSize;
     uv /= doublePxSize;
-    doublePxSizeUVCopy_f = fract(uv + .001);
+    doublePxSizeUVCopy_f = fract(uv + .0001);
 
     float sx = step(.25, doublePxSizeUVCopy_f.x) + step(.75, doublePxSizeUVCopy_f.x);
     float sy = step(.25, doublePxSizeUVCopy_f.y) + step(.75, doublePxSizeUVCopy_f.y);
