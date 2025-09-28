@@ -26,7 +26,7 @@ export const defaultPreset: ImageGooeyDotsPreset = {
     frame: 0,
     colorBack: '#909090',
     colorFront: '#ffffff',
-    size: 50,
+    size: 40,
   },
 };
 

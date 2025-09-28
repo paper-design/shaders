@@ -39,7 +39,7 @@ const imageFiles = [
 
 const ImageGooeyDotsWithControls = () => {
   const [imageIdx, setImageIdx] = useState(-1);
-  const [image, setImage] = useState<HTMLImageElement | string>('/images/image-filters/0018.webp');
+  const [image, setImage] = useState<HTMLImageElement | string>('/images/image-filters/002.webp');
   const [status, setStatus] = useState('Click to load an image');
 
   const fileName = imageIdx >= 0 ? imageFiles[imageIdx] : null;
