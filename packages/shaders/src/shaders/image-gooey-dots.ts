@@ -31,6 +31,8 @@ uniform float u_time;
 
 uniform vec4 u_colorBack;
 uniform vec4 u_colorHighlight;
+uniform float u_test;
+uniform float u_testScd;
 
 uniform sampler2D u_image;
 uniform mediump float u_imageAspectRatio;
@@ -89,8 +91,10 @@ vec2 getImageUV(vec2 uv) {
   return imageUV;
 }
 
-float ball(vec2 uv, float r) {
-  return 1. - pow(sst(0., mix(0., .6, r), length(uv - .5)), .5);
+float getBall(vec2 uv, float r) {
+  float d = length(uv - .5);
+  d = 1. - sst(0., .5, d);
+  return d * r;
 }
 
 float getLum(vec2 uv_i, float pxSize) {
@@ -111,74 +115,61 @@ void main() {
   basePxSizeUV += .25 * basePxSize;
   basePxSizeUV /= basePxSize;
 
-  vec2 basePxSizeUV_i   = floor(basePxSizeUV);
-  vec2 basePxSizeUV_i_l = basePxSizeUV_i - vec2(-1.0, 0.0);
-  vec2 basePxSizeUV_i_r = basePxSizeUV_i - vec2(1.0, 0.0);
-  vec2 basePxSizeUV_i_t = basePxSizeUV_i - vec2(0.0, 1.0);
-  vec2 basePxSizeUV_i_b = basePxSizeUV_i - vec2(0.0, -1.0);
-  vec2 basePxSizeUV_i_lt = basePxSizeUV_i - vec2(-1.0, 1.0);
-  vec2 basePxSizeUV_i_rt = basePxSizeUV_i - vec2(1.0, 1.0);
-  vec2 basePxSizeUV_i_lb = basePxSizeUV_i - vec2(-1.0, -1.0);
-  vec2 basePxSizeUV_i_rb = basePxSizeUV_i - vec2(1.0, -1.0);
-  
-  float lum_c  = getLum(basePxSizeUV_i, basePxSize);
-  float lum_l  = getLum(basePxSizeUV_i_l, basePxSize);
-  float lum_r  = getLum(basePxSizeUV_i_r, basePxSize);
-  float lum_t  = getLum(basePxSizeUV_i_t, basePxSize);
-  float lum_b  = getLum(basePxSizeUV_i_b, basePxSize);
-  float lum_lt = getLum(basePxSizeUV_i_lt, basePxSize);
-  float lum_rt = getLum(basePxSizeUV_i_rt, basePxSize);
-  float lum_lb = getLum(basePxSizeUV_i_lb, basePxSize);
-  float lum_rb = getLum(basePxSizeUV_i_rb, basePxSize);
-  
-  
+  vec2 basePxSizeUV_i = floor(basePxSizeUV);
+  float lum[9];
+  int index = 0;
+  for (int y = -1; y <= 1; y++) {
+    for (int x = -1; x <= 1; x++) {
+      vec2 offset = basePxSizeUV_i + vec2(float(x), float(y));
+      lum[index] = getLum(offset, basePxSize);
+      index++;
+    }
+  }
+
 
   float doublePxSize = u_pxSize * u_pixelRatio * 2.;
   vec2 doublePxSizeUV = gl_FragCoord.xy;
   doublePxSizeUV -= .5 * u_resolution;
-  doublePxSizeUV += 1. / 4. * doublePxSize;
-  doublePxSizeUV += 1. / 8. * doublePxSize;
-  doublePxSizeUV /= doublePxSize;
   
-  vec2 doublePxSizeUV_f = fract(doublePxSizeUV);
+  float lumDoubleGrid = 0.;
+  vec2 doublePxSizeUV_f = vec2(0.);
+  {
+    vec2 uv = doublePxSizeUV;
+    uv += 3. / 4. * basePxSize;
+    uv /= doublePxSize;
+    doublePxSizeUV_f = fract(uv);
 
-
-  bool leftBand   = (doublePxSizeUV_f.x <  0.25);
-  bool rightBand  = (doublePxSizeUV_f.x >  0.75);
-  bool centerX    = !leftBand && !rightBand;
-  bool bottomBand = (doublePxSizeUV_f.y <  0.25);
-  bool topBand    = (doublePxSizeUV_f.y >  0.75);
-  bool centerY    = !bottomBand && !topBand;
-
-  float lumDoubleGrid = lum_c;
-  float test = 0.;
-  if (leftBand && bottomBand) {
-    lumDoubleGrid = lum_lb;
-  } else if (centerX && bottomBand) {
-    lumDoubleGrid = lum_b;
-  } else if (rightBand && bottomBand) {
-    lumDoubleGrid = lum_rb;
-  } else if (leftBand && centerY) {
-    lumDoubleGrid = lum_l;
-  } else if (centerX && centerY) {
-    lumDoubleGrid = lum_c;
-  } else if (rightBand && centerY) {
-    lumDoubleGrid = lum_r;
-  } else if (leftBand && topBand) {
-    lumDoubleGrid = lum_lt;
-  } else if (centerX && topBand) {
-    lumDoubleGrid = lum_t;
-  } else if (rightBand && topBand) {
-    lumDoubleGrid = lum_rt;
+    float sx = step(.25, doublePxSizeUV_f.x) + step(.75, doublePxSizeUV_f.x);
+    float sy = step(.25, doublePxSizeUV_f.y) + step(.75, doublePxSizeUV_f.y);
+    int idx = int(8.0 - sx - 3.0 * sy);
+    lumDoubleGrid = lum[idx];
   }
 
+  float lumDoubleGridCopy = 0.;
+  vec2 doublePxSizeUVCopy_f = vec2(0.);
+  {
+    vec2 uv = doublePxSizeUV;
+    uv -= 1. / 4. * basePxSize;
+    uv /= doublePxSize;
+    doublePxSizeUVCopy_f = fract(uv);
 
-  float res_c = ball(doublePxSizeUV_f, lumDoubleGrid);
-  res_c = sst(.0, .0, res_c);
+    float sx = step(.25, doublePxSizeUVCopy_f.x) + step(.75, doublePxSizeUVCopy_f.x);
+    float sy = step(.25, doublePxSizeUVCopy_f.y) + step(.75, doublePxSizeUVCopy_f.y);
+    int idx = int(8.0 - sx - 3.0 * sy);
+    lumDoubleGridCopy = lum[idx];
+  }
   
-  vec3 color = vec3(lum_c);
-  color.b = res_c;
-  color.r = mix(color.r, 1., test);
+  float ball = getBall(doublePxSizeUV_f, lumDoubleGrid);
+  float ballCopy = getBall(doublePxSizeUVCopy_f, lumDoubleGridCopy);
+
+  float res = ball;
+  res += ballCopy;
+  
+  float controur = sst(u_test - fwidth(res), u_test + fwidth(res), res);
+  res = controur;
+  
+  vec3 color = vec3(res);
+//  color.r += lum[4];
   float opacity = 1.;
 
   fragColor = vec4(color, opacity);
@@ -190,6 +181,8 @@ export interface ImageGooeyDotsUniforms extends ShaderSizingUniforms {
   u_colorFront: [number, number, number, number];
   u_colorBack: [number, number, number, number];
   u_pxSize: number;
+  u_test: number;
+  u_testScd: number;
 }
 
 export interface ImageGooeyDotsParams extends ShaderSizingParams, ShaderMotionParams {
@@ -197,4 +190,6 @@ export interface ImageGooeyDotsParams extends ShaderSizingParams, ShaderMotionPa
   colorFront?: string;
   colorBack?: string;
   size?: number;
+  test?: number;
+  testScd?: number;
 }
