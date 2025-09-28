@@ -27,11 +27,10 @@ export const defaultPreset: ImageGooeyDotsPreset = {
     colorBack: '#909090',
     colorFront: '#ffffff',
     size: 20,
-    test: .2,
-    testScd: .5,
+    threshold: 0.2,
+    testScd: 0.5,
   },
 };
-
 
 export const imageGooeyDotsPresets: ImageGooeyDotsPreset[] = [defaultPreset];
 
@@ -44,7 +43,7 @@ export const ImageGooeyDots: React.FC<ImageGooeyDotsProps> = memo(function Image
   image = '',
   pxSize,
   size = pxSize === undefined ? defaultPreset.params.size : pxSize,
-  test = defaultPreset.params.test,
+  threshold = defaultPreset.params.threshold,
   testScd = defaultPreset.params.testScd,
 
   // Sizing props
@@ -65,7 +64,7 @@ export const ImageGooeyDots: React.FC<ImageGooeyDotsProps> = memo(function Image
     u_colorFront: getShaderColorFromString(colorFront),
     u_colorBack: getShaderColorFromString(colorBack),
     u_pxSize: size,
-    u_test: test,
+    u_threshold: threshold,
     u_testScd: testScd,
 
     // Sizing uniforms
@@ -81,6 +80,12 @@ export const ImageGooeyDots: React.FC<ImageGooeyDotsProps> = memo(function Image
   } satisfies ImageGooeyDotsUniforms;
 
   return (
-    <ShaderMount {...props} speed={speed} frame={frame} fragmentShader={imageGooeyDotsFragmentShader} uniforms={uniforms} />
+    <ShaderMount
+      {...props}
+      speed={speed}
+      frame={frame}
+      fragmentShader={imageGooeyDotsFragmentShader}
+      uniforms={uniforms}
+    />
   );
 }, colorPropsAreEqual);

@@ -6,14 +6,14 @@ const defaultParams = imageGooeyDotsPresets[0].params;
 
 export const imageGooeyDotsDef: ShaderDef = {
   name: 'Gooey Dots',
-  description:
-    'TBD',
+  description: 'TBD',
   params: [
     {
       name: 'image',
       type: 'HTMLImageElement | string',
       description: 'The image to use for the effect',
-    }, {
+    },
+    {
       name: 'colorBack',
       type: 'string',
       defaultValue: defaultParams.colorBack,

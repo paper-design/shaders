@@ -31,7 +31,7 @@ uniform float u_time;
 
 uniform vec4 u_colorBack;
 uniform vec4 u_colorHighlight;
-uniform float u_test;
+uniform float u_threshold;
 uniform float u_testScd;
 
 uniform sampler2D u_image;
@@ -126,7 +126,6 @@ void main() {
     }
   }
 
-
   float doublePxSize = u_pxSize * u_pixelRatio * 2.;
   vec2 doublePxSizeUV = gl_FragCoord.xy;
   doublePxSizeUV -= .5 * u_resolution;
@@ -137,7 +136,7 @@ void main() {
     vec2 uv = doublePxSizeUV;
     uv += 3. / 4. * basePxSize;
     uv /= doublePxSize;
-    doublePxSizeUV_f = fract(uv);
+    doublePxSizeUV_f = fract(uv + .001);
 
     float sx = step(.25, doublePxSizeUV_f.x) + step(.75, doublePxSizeUV_f.x);
     float sy = step(.25, doublePxSizeUV_f.y) + step(.75, doublePxSizeUV_f.y);
@@ -151,7 +150,7 @@ void main() {
     vec2 uv = doublePxSizeUV;
     uv -= 1. / 4. * basePxSize;
     uv /= doublePxSize;
-    doublePxSizeUVCopy_f = fract(uv);
+    doublePxSizeUVCopy_f = fract(uv + .001);
 
     float sx = step(.25, doublePxSizeUVCopy_f.x) + step(.75, doublePxSizeUVCopy_f.x);
     float sy = step(.25, doublePxSizeUVCopy_f.y) + step(.75, doublePxSizeUVCopy_f.y);
@@ -164,8 +163,7 @@ void main() {
 
   float res = ball;
   res += ballCopy;
-  
-  float controur = sst(u_test - fwidth(res), u_test + fwidth(res), res);
+  float controur = sst(u_threshold - fwidth(res), u_threshold + fwidth(res), res);
   res = controur;
   
   vec3 color = vec3(res);
@@ -181,7 +179,7 @@ export interface ImageGooeyDotsUniforms extends ShaderSizingUniforms {
   u_colorFront: [number, number, number, number];
   u_colorBack: [number, number, number, number];
   u_pxSize: number;
-  u_test: number;
+  u_threshold: number;
   u_testScd: number;
 }
 
@@ -190,6 +188,6 @@ export interface ImageGooeyDotsParams extends ShaderSizingParams, ShaderMotionPa
   colorFront?: string;
   colorBack?: string;
   size?: number;
-  test?: number;
+  threshold?: number;
   testScd?: number;
 }

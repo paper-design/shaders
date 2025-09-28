@@ -211,7 +211,11 @@ export {
   type HeatmapUniforms,
 } from './shaders/heatmap.js';
 
-export { imageGooeyDotsFragmentShader, type ImageGooeyDotsParams, type ImageGooeyDotsUniforms } from './shaders/image-gooey-dots.js';
+export {
+  imageGooeyDotsFragmentShader,
+  type ImageGooeyDotsParams,
+  type ImageGooeyDotsUniforms,
+} from './shaders/image-gooey-dots.js';
 
 // ----- Utils ----- //
 export { getShaderColorFromString } from './get-shader-color-from-string.js';
