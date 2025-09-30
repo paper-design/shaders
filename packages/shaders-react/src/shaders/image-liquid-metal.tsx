@@ -77,7 +77,7 @@ export const ImageLiquidMetal: React.FC<ImageLiquidMetalProps> = memo(function I
   if (suspendWhenProcessingImage && typeof window !== 'undefined') {
     processedImage = suspend(
       (): Promise<string> => toProcessedImageLiquidMetal(imageUrl).then((result) => URL.createObjectURL(result.blob)),
-      [imageUrl]
+      [imageUrl, 'image-liquid-metal']
     );
   } else {
     processedImage = processedStateImage;
