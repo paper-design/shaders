@@ -75,12 +75,12 @@ export const imageLiquidMetalDef: ShaderDef = {
       max: 10,
       defaultValue: defaultParams.repetition,
     },
-    {
-      name: 'suspendWhenProcessingImage',
-      type: 'boolean',
-      description: 'TODO',
-      options: ['true', 'false'],
-    },
+    // {
+    //   name: 'suspendWhenProcessingImage',
+    //   type: 'boolean',
+    //   description: 'TODO',
+    //   options: ['true', 'false'],
+    // },
     ...animatedCommonParams,
   ],
 };
