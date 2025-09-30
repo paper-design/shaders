@@ -83,6 +83,7 @@ function ShaderItem({
         onTouchStart={() => setShaderVisibility('visible')}
         onTouchEnd={() => setShaderVisibility('fading-out')}
         onTouchCancel={() => setShaderVisibility('fading-out')}
+        onContextMenu={(event) => event.preventDefault()}
         onPointerEnter={(event) => {
           if (event.pointerType !== 'touch') {
             setShaderVisibility('visible');
