@@ -110,7 +110,7 @@ vec2 hash22(vec2 p) {
 float getLumAtPx(vec2 px) {
   vec2 uv = getImageUV(px / u_resolution.xy);
   vec4 tex = texture(u_image, uv);
-  return dot(vec3(.2126, .7152, .0722), tex.rgb);
+  return dot(vec3(0.2126, 0.7152, 0.0722), tex.rgb);
 }
 
 float getLumBall(vec2 uv, float pxSize, vec2 offsetPx) {
@@ -133,7 +133,8 @@ void main() {
   vec2 uv = gl_FragCoord.xy;
   uv -= .5 * u_resolution;
 
-  float img = getLumAtPx(uv);
+  vec2 uvOriginal = getImageUV(uv / u_resolution.xy);
+  vec4 texture = texture(u_image, uvOriginal);
 
   vec2 frameUV = getImageUV(uv / u_resolution.xy);
   float frame = getUvFrame(frameUV, pxSize / u_resolution.xy);
@@ -152,6 +153,7 @@ void main() {
   res += getLumBall(uv, pxSize, vec2(3. * step, step));
   res += getLumBall(uv, pxSize, vec2(3. * step));
   res *= frame;
+  res *= texture.a;
 
   float contour = sst(u_threshold - fwidth(res), u_threshold + fwidth(res), res);
 
