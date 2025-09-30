@@ -1,5 +1,6 @@
 import type { ShaderMotionParams } from '../shader-mount.js';
 import { sizingUV, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
+import { declarePI, rotation2 } from '../shader-utils.js';
 
 /**
 
@@ -29,8 +30,8 @@ uniform mediump float u_offsetY;
 
 uniform float u_time;
 
+uniform vec4 u_colorFront;
 uniform vec4 u_colorBack;
-uniform vec4 u_colorHighlight;
 uniform float u_threshold;
 uniform float u_testScd;
 
@@ -41,12 +42,14 @@ uniform float u_pxSize;
 
 out vec4 fragColor;
 
-float getUvFrame(vec2 uv, vec2 px) {
-  float left   = step(-px.x, uv.x);
-  float right  = step(uv.x, 1.);
-  float bottom = step(-px.y, uv.y);
-  float top    = step(uv.y, 1. + px.y);
+${ declarePI }
+${ rotation2 }
 
+float getUvFrame(vec2 uv, vec2 px) {
+  float left   = smoothstep(-.5 * px.x, .5 * px.x, uv.x);
+  float right  = smoothstep(1. + .5 * px.x, 1. - .5 * px.x, uv.x);
+  float bottom = smoothstep(-.5 * px.y, .5 * px.y, uv.y);
+  float top    = smoothstep(1. + .5 * px.y, 1. - .5 * px.y, uv.y);
   return left * right * bottom * top;
 }
 
@@ -60,8 +63,8 @@ float sst(float edge0, float edge1, float x) {
 
 vec2 getImageUV(vec2 uv) {
   vec2 boxOrigin = vec2(.5 - u_originX, u_originY - .5);
-  vec2 givenBoxSize = vec2(u_worldWidth, u_worldHeight);
-  givenBoxSize = max(givenBoxSize, vec2(1.)) * u_pixelRatio;
+//  vec2 givenBoxSize = vec2(u_worldWidth, u_worldHeight);
+//  givenBoxSize = max(givenBoxSize, vec2(1.)) * u_pixelRatio;
   float r = u_rotation * 3.14159265358979323846 / 180.;
   mat2 graphicRotation = mat2(cos(r), sin(r), -sin(r), cos(r));
   vec2 graphicOffset = vec2(-u_offsetX, u_offsetY);
@@ -94,81 +97,74 @@ vec2 getImageUV(vec2 uv) {
 float getBall(vec2 uv, float r) {
   float d = length(uv - .5);
   d = 1. - sst(0., .5, d);
-  return d * r;
+  d = mix(1., .5, r) * pow(d, mix(.2, 10., r));
+  return d;
 }
 
-float getLum(vec2 uv_i, float pxSize) {
-  uv_i *= pxSize;
-  uv_i += .5 * pxSize;
-  uv_i /= u_resolution.xy;
-  vec2 basePxSizeImageUV = getImageUV(uv_i);
-  vec4 imageBaseGrid = texture(u_image, basePxSizeImageUV);
-  return dot(vec3(.2126, .7152, .0722), imageBaseGrid.rgb);
+vec2 hash22(vec2 p) {
+  p = fract(p * vec2(0.3183099, 0.3678794)) + 0.1;
+  p += dot(p, p.yx + 19.19);
+  return fract(vec2(p.x * p.y, p.x + p.y));
 }
 
+float getLumAtPx(vec2 px) {
+  vec2 uv = getImageUV(px / u_resolution.xy);
+  vec4 tex = texture(u_image, uv);
+  return dot(vec3(.2126, .7152, .0722), tex.rgb);
+}
+
+float getLumBall(vec2 uv, float pxSize, vec2 offsetPx) {
+  vec2 p = uv + offsetPx;
+  p /= pxSize;
+  vec2 uv_i = floor(p);
+  vec2 uv_f = fract(p + .0001);
+  
+//  vec2 rand = hash22(uv_i);
+//  float t = .1 * u_time;
+//  vec2 cellCenter = .5 * pxSize * rand;
+//  cellCenter = rotate(cellCenter, (10. + 5. * rand.x) + t);
+  
+  float lum = getLumAtPx(uv_i * pxSize - offsetPx + cellCenter);
+  return getBall(uv_f, lum);
+}
 
 void main() {
+  float pxSize = u_pxSize * u_pixelRatio * 4.;
+  vec2 uv = gl_FragCoord.xy;
+  uv -= .5 * u_resolution;
+
+  float img = getLumAtPx(uv);
+
+  vec2 frameUV = getImageUV(uv / u_resolution.xy);
+  float frame = getUvFrame(frameUV, pxSize / u_resolution.xy);
+
+  float res = 0.;
+  float step = .25 * pxSize;
+
+  uv += 2. * step;
   
-  float basePxSize = u_pxSize * u_pixelRatio;
-  vec2 basePxSizeUV = gl_FragCoord.xy;
-  basePxSizeUV -= .5 * u_resolution;
-  basePxSizeUV += .25 * basePxSize;
-  basePxSizeUV /= basePxSize;
+  res += getLumBall(uv, pxSize, vec2(0.));
+  res += getLumBall(uv, pxSize, vec2(step));
+  res += getLumBall(uv, pxSize, vec2(2. * step, 0.));
+  res += getLumBall(uv, pxSize, vec2(0., 2. * step));
+  res += getLumBall(uv, pxSize, vec2(2. * step));
+  res += getLumBall(uv, pxSize, vec2(step, 3. * step));
+  res += getLumBall(uv, pxSize, vec2(3. * step, step));
+  res += getLumBall(uv, pxSize, vec2(3. * step));
+  res *= frame;
 
-  vec2 basePxSizeUV_i = floor(basePxSizeUV);
-  float lum[9];
-  int index = 0;
-  for (int y = -1; y <= 1; y++) {
-    for (int x = -1; x <= 1; x++) {
-      vec2 offset = basePxSizeUV_i + vec2(float(x), float(y));
-      lum[index] = getLum(offset, basePxSize);
-      index++;
-    }
-  }
+  float contour = sst(u_threshold - fwidth(res), u_threshold + fwidth(res), res);
 
-  float doublePxSize = u_pxSize * u_pixelRatio * 2.;
-  vec2 doublePxSizeUV = gl_FragCoord.xy;
-  doublePxSizeUV -= .5 * u_resolution;
-  
-  float lumDoubleGrid = 0.;
-  vec2 doublePxSizeUV_f = vec2(0.);
-  {
-    vec2 uv = doublePxSizeUV;
-    uv += 3. / 4. * basePxSize;
-    uv /= doublePxSize;
-    doublePxSizeUV_f = fract(uv + .0001);
+  vec3 fgColor = u_colorFront.rgb * u_colorFront.a;
+  float fgOpacity = u_colorFront.a;
+  vec3 bgColor = u_colorBack.rgb * u_colorBack.a;
+  float bgOpacity = u_colorBack.a;
 
-    float sx = step(.25, doublePxSizeUV_f.x) + step(.75, doublePxSizeUV_f.x);
-    float sy = step(.25, doublePxSizeUV_f.y) + step(.75, doublePxSizeUV_f.y);
-    int idx = int(8.0 - sx - 3.0 * sy);
-    lumDoubleGrid = lum[idx];
-  }
+  vec3 color = fgColor * contour;
+  float opacity = fgOpacity * contour;
 
-  float lumDoubleGridCopy = 0.;
-  vec2 doublePxSizeUVCopy_f = vec2(0.);
-  {
-    vec2 uv = doublePxSizeUV;
-    uv -= 1. / 4. * basePxSize;
-    uv /= doublePxSize;
-    doublePxSizeUVCopy_f = fract(uv + .0001);
-
-    float sx = step(.25, doublePxSizeUVCopy_f.x) + step(.75, doublePxSizeUVCopy_f.x);
-    float sy = step(.25, doublePxSizeUVCopy_f.y) + step(.75, doublePxSizeUVCopy_f.y);
-    int idx = int(8.0 - sx - 3.0 * sy);
-    lumDoubleGridCopy = lum[idx];
-  }
-  
-  float ball = getBall(doublePxSizeUV_f, lumDoubleGrid);
-  float ballCopy = getBall(doublePxSizeUVCopy_f, lumDoubleGridCopy);
-
-  float res = ball;
-  res += ballCopy;
-  float controur = sst(u_threshold - fwidth(res), u_threshold + fwidth(res), res);
-  res = controur;
-  
-  vec3 color = vec3(res);
-//  color.r += lum[4];
-  float opacity = 1.;
+  color += bgColor * (1. - opacity);
+  opacity += bgOpacity * (1. - opacity);
 
   fragColor = vec4(color, opacity);
 }
