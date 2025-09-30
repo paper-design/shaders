@@ -14,10 +14,10 @@ import { useUrlParams } from '@/helpers/use-url-params';
 import { imageLiquidMetalDef } from '@/shader-defs/image-liquid-metal-def';
 import { toHsla } from '@/helpers/color-utils';
 
-const { worldWidth, worldHeight, ...defaults } = imageLiquidMetalPresets[0].params;
-
 // Override just for the docs, we keep it transparent in the preset
-defaults.colorBack = '#000000';
+imageLiquidMetalPresets[0].params.colorBack = '#000000';
+
+const { worldWidth, worldHeight, ...defaults } = imageLiquidMetalPresets[0].params;
 
 const ImageLiquidMetalWithControls = () => {
   const [image, setImage] = useState<HTMLImageElement | string>('/images/image-filters/apple.svg');
