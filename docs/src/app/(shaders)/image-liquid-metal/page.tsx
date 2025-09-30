@@ -16,6 +16,9 @@ import { toHsla } from '@/helpers/color-utils';
 
 const { worldWidth, worldHeight, ...defaults } = imageLiquidMetalPresets[0].params;
 
+// Override just for the docs, we keep it transparent in the preset
+defaults.colorBack = '#000000';
+
 const ImageLiquidMetalWithControls = () => {
   const [image, setImage] = useState<HTMLImageElement | string>('/images/image-filters/apple.svg');
 

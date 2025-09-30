@@ -3,7 +3,7 @@ import { SerializableValue, serializeParams } from '@/helpers/url-serializer';
 import { ShaderDef } from '@/shader-defs/shader-def-types';
 import { Leva } from 'leva';
 import { CopyButton } from './copy-button';
-import { useCallback, useEffect, useState } from 'react';
+import { useState } from 'react';
 
 export function ShaderContainer({
   children,
