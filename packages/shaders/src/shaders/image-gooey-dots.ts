@@ -124,7 +124,7 @@ float getLumBall(vec2 uv, float pxSize, vec2 offsetPx) {
 //  vec2 cellCenter = .5 * pxSize * rand;
 //  cellCenter = rotate(cellCenter, (10. + 5. * rand.x) + t);
   
-  float lum = getLumAtPx(uv_i * pxSize - offsetPx + cellCenter);
+  float lum = getLumAtPx(uv_i * pxSize - offsetPx);
   return getBall(uv_f, lum);
 }
 
