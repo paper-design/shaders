@@ -76,7 +76,7 @@ function ShaderItem({
   const [shaderVisibility, setShaderVisibility] = useState<'hidden' | 'visible' | 'fading-out'>('hidden');
 
   return (
-    <Link href={url} className="group flex flex-col gap-8 outline-0">
+    <Link href={url} className="group flex flex-col gap-8 outline-0 select-none">
       <div
         data-pixelated={pixelated ? '' : undefined}
         className="relative flex aspect-[4/3] items-center justify-center overflow-hidden rounded-2xl bg-header/50 outline-offset-4 outline-focus will-change-transform group-focus-visible:outline-2 data-pixelated:pixelated squircle:rounded-4xl"
