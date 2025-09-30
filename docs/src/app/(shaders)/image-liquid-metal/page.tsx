@@ -62,7 +62,7 @@ const ImageLiquidMetalWithControls = () => {
           <ImageLiquidMetal {...params} image={image} suspendWhenProcessingImage />
         </Suspense>
       </ShaderContainer>
-      <ShaderDetails shaderDef={imageLiquidMetalDef} currentParams={params} codeSampleImageName="apple.svg" />
+      <ShaderDetails shaderDef={imageLiquidMetalDef} currentParams={params} codeSampleImageName="diamond.webp" />
     </>
   );
 };
