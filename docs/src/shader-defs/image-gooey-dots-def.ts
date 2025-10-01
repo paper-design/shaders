@@ -35,6 +35,22 @@ export const imageGooeyDotsDef: ShaderDef = {
       defaultValue: defaultParams.size,
       description: 'TBD',
     },
+    {
+      name: 'threshold',
+      type: 'number',
+      min: 0,
+      max: 1,
+      defaultValue: defaultParams.threshold,
+      description: 'TBD',
+    },
+    {
+      name: 'contrast',
+      type: 'number',
+      min: 0,
+      max: 1,
+      defaultValue: defaultParams.contrast,
+      description: 'TBD',
+    },
     ...animatedCommonParams,
   ],
 };

@@ -33,7 +33,7 @@ uniform float u_time;
 uniform vec4 u_colorFront;
 uniform vec4 u_colorBack;
 uniform float u_threshold;
-uniform float u_testScd;
+uniform float u_contrast;
 
 uniform sampler2D u_image;
 uniform mediump float u_imageAspectRatio;
@@ -107,13 +107,22 @@ vec2 hash22(vec2 p) {
   return fract(vec2(p.x * p.y, p.x + p.y));
 }
 
-float getLumAtPx(vec2 px) {
-  vec2 uv = getImageUV(px / u_resolution.xy);
-  vec4 tex = texture(u_image, uv);
-  return dot(vec3(0.2126, 0.7152, 0.0722), tex.rgb);
+float sigmoid(float x, float k) {
+  return 1.0 / (1.0 + exp(-k * (x - 0.5)));
 }
 
-float getLumBall(vec2 uv, float pxSize, vec2 offsetPx) {
+float getLumAtPx(vec2 px, float contrast) {
+  vec2 uv = getImageUV(px / u_resolution.xy);
+  vec4 tex = texture(u_image, uv);
+  vec3 color = vec3(
+  sigmoid(tex.r, contrast),
+  sigmoid(tex.g, contrast),
+  sigmoid(tex.b, contrast)
+  );
+  return dot(vec3(0.2126, 0.7152, 0.0722), color);
+}
+
+float getLumBall(vec2 uv, float pxSize, vec2 offsetPx, float contrast) {
   vec2 p = uv + offsetPx;
   p /= pxSize;
   vec2 uv_i = floor(p);
@@ -124,7 +133,7 @@ float getLumBall(vec2 uv, float pxSize, vec2 offsetPx) {
 //  vec2 cellCenter = .5 * pxSize * rand;
 //  cellCenter = rotate(cellCenter, (10. + 5. * rand.x) + t);
   
-  float lum = getLumAtPx(uv_i * pxSize - offsetPx);
+  float lum = getLumAtPx(uv_i * pxSize - offsetPx, contrast);
   return getBall(uv_f, lum);
 }
 
@@ -132,7 +141,9 @@ void main() {
   float pxSize = u_pxSize * u_pixelRatio * 4.;
   vec2 uv = gl_FragCoord.xy;
   uv -= .5 * u_resolution;
-
+  
+  float contrast = mix(0., 12., u_contrast);
+  
   vec2 uvOriginal = getImageUV(uv / u_resolution.xy);
   vec4 texture = texture(u_image, uvOriginal);
 
@@ -144,14 +155,14 @@ void main() {
 
   uv += 2. * step;
   
-  res += getLumBall(uv, pxSize, vec2(0.));
-  res += getLumBall(uv, pxSize, vec2(step));
-  res += getLumBall(uv, pxSize, vec2(2. * step, 0.));
-  res += getLumBall(uv, pxSize, vec2(0., 2. * step));
-  res += getLumBall(uv, pxSize, vec2(2. * step));
-  res += getLumBall(uv, pxSize, vec2(step, 3. * step));
-  res += getLumBall(uv, pxSize, vec2(3. * step, step));
-  res += getLumBall(uv, pxSize, vec2(3. * step));
+  res += getLumBall(uv, pxSize, vec2(0.), contrast);
+  res += getLumBall(uv, pxSize, vec2(step), contrast);
+  res += getLumBall(uv, pxSize, vec2(2. * step, 0.), contrast);
+  res += getLumBall(uv, pxSize, vec2(0., 2. * step), contrast);
+  res += getLumBall(uv, pxSize, vec2(2. * step), contrast);
+  res += getLumBall(uv, pxSize, vec2(step, 3. * step), contrast);
+  res += getLumBall(uv, pxSize, vec2(3. * step, step), contrast);
+  res += getLumBall(uv, pxSize, vec2(3. * step), contrast);
   res *= frame;
   res *= texture.a;
 
@@ -178,7 +189,7 @@ export interface ImageGooeyDotsUniforms extends ShaderSizingUniforms {
   u_colorBack: [number, number, number, number];
   u_pxSize: number;
   u_threshold: number;
-  u_testScd: number;
+  u_contrast: number;
 }
 
 export interface ImageGooeyDotsParams extends ShaderSizingParams, ShaderMotionParams {
@@ -187,5 +198,5 @@ export interface ImageGooeyDotsParams extends ShaderSizingParams, ShaderMotionPa
   colorBack?: string;
   size?: number;
   threshold?: number;
-  testScd?: number;
+  contrast?: number;
 }

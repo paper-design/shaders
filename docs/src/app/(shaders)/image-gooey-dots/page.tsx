@@ -76,7 +76,7 @@ const ImageGooeyDotsWithControls = () => {
       colorFront: { value: toHsla(defaults.colorFront), order: 102 },
       size: { value: defaults.size, min: 1, max: 100, order: 201 },
       threshold: { value: defaults.size, min: 0, max: 1, order: 202 },
-      testScd: { value: defaults.size, min: 0, max: 1, order: 202 },
+      contrast: { value: defaults.size, min: 0, max: 1, order: 202 },
       speed: { value: defaults.speed, min: 0, max: 3, order: 300 },
       scale: { value: defaults.scale, min: 0.1, max: 10, order: 301 },
       fit: { value: defaults.fit, options: ['contain', 'cover'] as ShaderFit[], order: 302 },

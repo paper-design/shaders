@@ -26,9 +26,9 @@ export const defaultPreset: ImageGooeyDotsPreset = {
     frame: 0,
     colorBack: '#d4d4d4',
     colorFront: '#2b2b2b',
-    size: 25,
+    size: 12,
     threshold: 0.3,
-    testScd: 0.5,
+    contrast: 0.3,
   },
 };
 
@@ -44,7 +44,7 @@ export const ImageGooeyDots: React.FC<ImageGooeyDotsProps> = memo(function Image
   pxSize,
   size = pxSize === undefined ? defaultPreset.params.size : pxSize,
   threshold = defaultPreset.params.threshold,
-  testScd = defaultPreset.params.testScd,
+  contrast = defaultPreset.params.contrast,
 
   // Sizing props
   fit = defaultPreset.params.fit,
@@ -65,7 +65,7 @@ export const ImageGooeyDots: React.FC<ImageGooeyDotsProps> = memo(function Image
     u_colorBack: getShaderColorFromString(colorBack),
     u_pxSize: size,
     u_threshold: threshold,
-    u_testScd: testScd,
+    u_contrast: contrast,
 
     // Sizing uniforms
     u_fit: ShaderFitOptions[fit],
