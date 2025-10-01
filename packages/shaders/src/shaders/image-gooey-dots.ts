@@ -166,7 +166,8 @@ void main() {
   res *= frame;
   res *= texture.a;
 
-  float contour = sst(u_threshold - fwidth(res), u_threshold + fwidth(res), res);
+  float th = 1. - u_threshold;
+  float contour = sst(th - fwidth(res), th + fwidth(res), res);
 
   vec3 fgColor = u_colorFront.rgb * u_colorFront.a;
   float fgOpacity = u_colorFront.a;
