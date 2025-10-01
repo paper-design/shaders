@@ -122,18 +122,22 @@ float getLumAtPx(vec2 px, float contrast) {
   return dot(vec3(0.2126, 0.7152, 0.0722), color);
 }
 
-float getLumBall(vec2 uv, float pxSize, vec2 offsetPx, float contrast) {
+vec4 getColorAtPx(vec2 px) {
+  vec2 uv = getImageUV(px / u_resolution.xy);
+  return texture(u_image, uv);
+}
+
+float getLumBall(vec2 uv, float pxSize, vec2 offsetPx, float contrast, out vec4 ballColor) {
   vec2 p = uv + offsetPx;
   p /= pxSize;
   vec2 uv_i = floor(p);
   vec2 uv_f = fract(p + .0001);
-  
-//  vec2 rand = hash22(uv_i);
-//  float t = .1 * u_time;
-//  vec2 cellCenter = .5 * pxSize * rand;
-//  cellCenter = rotate(cellCenter, (10. + 5. * rand.x) + t);
-  
-  float lum = getLumAtPx(uv_i * pxSize - offsetPx, contrast);
+
+  vec2 samplePx = uv_i * pxSize - offsetPx;
+  float lum = getLumAtPx(samplePx, contrast);
+  ballColor = getColorAtPx(samplePx);
+  ballColor.rgb *= ballColor.a;// Premultiply alpha
+
   return getBall(uv_f, lum);
 }
 
@@ -150,35 +154,74 @@ void main() {
   vec2 frameUV = getImageUV(uv / u_resolution.xy);
   float frame = getUvFrame(frameUV, pxSize / u_resolution.xy);
 
-  float res = 0.;
+  float totalShape = 0.;
+  vec3 totalColor = vec3(0.);
+  float totalOpacity = 0.;
+
   float step = .25 * pxSize;
-
   uv += 2. * step;
-  
-  res += getLumBall(uv, pxSize, vec2(0.), contrast);
-  res += getLumBall(uv, pxSize, vec2(step), contrast);
-  res += getLumBall(uv, pxSize, vec2(2. * step, 0.), contrast);
-  res += getLumBall(uv, pxSize, vec2(0., 2. * step), contrast);
-  res += getLumBall(uv, pxSize, vec2(2. * step), contrast);
-  res += getLumBall(uv, pxSize, vec2(step, 3. * step), contrast);
-  res += getLumBall(uv, pxSize, vec2(3. * step, step), contrast);
-  res += getLumBall(uv, pxSize, vec2(3. * step), contrast);
-  res *= frame;
-  res *= texture.a;
 
-  float th = 1. - u_threshold;
-  float contour = sst(th - fwidth(res), th + fwidth(res), res);
+  vec4 ballColor;
+  float shape;
 
-  vec3 fgColor = u_colorFront.rgb * u_colorFront.a;
-  float fgOpacity = u_colorFront.a;
+  shape = getLumBall(uv, pxSize, vec2(0.), contrast,  ballColor);
+  totalColor += ballColor.rgb * shape;
+  totalShape += shape;
+  totalOpacity += ballColor.a * shape;
+
+  shape = getLumBall(uv, pxSize, vec2(step), contrast,  ballColor);
+  totalColor += ballColor.rgb * shape;
+  totalShape += shape;
+  totalOpacity += ballColor.a * shape;
+
+  shape = getLumBall(uv, pxSize, vec2(2. * step, 0.), contrast,  ballColor);
+  totalColor += ballColor.rgb * shape;
+  totalShape += shape;
+  totalOpacity += ballColor.a * shape;
+
+  shape = getLumBall(uv, pxSize, vec2(0., 2. * step), contrast,  ballColor);
+  totalColor += ballColor.rgb * shape;
+  totalShape += shape;
+  totalOpacity += ballColor.a * shape;
+
+  shape = getLumBall(uv, pxSize, vec2(2. * step), contrast,  ballColor);
+  totalColor += ballColor.rgb * shape;
+  totalShape += shape;
+  totalOpacity += ballColor.a * shape;
+
+  shape = getLumBall(uv, pxSize, vec2(step, 3. * step), contrast,  ballColor);
+  totalColor += ballColor.rgb * shape;
+  totalShape += shape;
+  totalOpacity += ballColor.a * shape;
+
+  shape = getLumBall(uv, pxSize, vec2(3. * step, step), contrast,  ballColor);
+  totalColor += ballColor.rgb * shape;
+  totalShape += shape;
+  totalOpacity += ballColor.a * shape;
+
+  shape = getLumBall(uv, pxSize, vec2(3. * step), contrast,  ballColor);
+  totalColor += ballColor.rgb * shape;
+  totalShape += shape;
+  totalOpacity += ballColor.a * shape;
+
+  totalShape *= frame;
+  totalShape *= texture.a;
+
+  // Divide by accumulated shape for proper blending
+  totalColor /= max(totalShape, 1e-4);
+  totalOpacity /= max(totalShape, 1e-4);
+
+  // Apply smooth edge
+  float edge_width = fwidth(totalShape);
+  float finalShape = smoothstep(u_threshold - edge_width, u_threshold + edge_width, totalShape);
+
+  vec3 color = totalColor * finalShape;
+  float opacity = totalOpacity * finalShape;
+
+  // Blend with background
   vec3 bgColor = u_colorBack.rgb * u_colorBack.a;
-  float bgOpacity = u_colorBack.a;
-
-  vec3 color = fgColor * contour;
-  float opacity = fgOpacity * contour;
-
-  color += bgColor * (1. - opacity);
-  opacity += bgOpacity * (1. - opacity);
+  color = color + bgColor * (1. - opacity);
+  opacity = opacity + u_colorBack.a * (1. - opacity);
 
   fragColor = vec4(color, opacity);
 }
