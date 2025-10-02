@@ -37,6 +37,8 @@ const ImageLiquidMetalWithControls = () => {
       // shiftRed: { value: defaults.shiftRed, min: -1, max: 1, order: 202 },
       // shiftBlue: { value: defaults.shiftBlue, min: -1, max: 1, order: 203 },
       // distortion: { value: defaults.distortion, min: 0, max: 1, order: 204 },
+      useOriginalAlpha: { value: defaults.useOriginalAlpha, min: 0, max: 1, step: 1, order: 204 },
+      contourRoundness: { value: defaults.contourRoundness, min: 0, max: 1, order: 205 },
       contourSoftness: { value: defaults.contourSoftness, min: 0, max: 1, order: 206 },
       edgePower: { value: defaults.edgePower, min: 0, max: 4, order: 207 },
       speed: { value: defaults.speed, min: 0, max: 4, order: 300 },
