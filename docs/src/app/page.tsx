@@ -11,7 +11,7 @@ import { Logo } from '@/components/logo';
 export default function Home() {
   return (
     <div className="mx-auto box-content max-w-1104 px-16 xs:px-24 sm:px-32 md:px-48 2xl:max-w-1472">
-      <div className="pt-20 pb-96">
+      <div className="pt-20 pb-64">
         <div className="mb-64 flex w-full items-center justify-between sm:mb-48 md:mb-32">
           <Link
             className="-mx-6 flex px-6 outline-0 outline-offset-2 outline-focus focus-visible:rounded-sm focus-visible:outline-2"
@@ -52,12 +52,17 @@ export default function Home() {
         </div>
       </div>
 
-      <main className="pb-128 text-lg">
-        <div className="grid grid-cols-1 gap-32 xs:grid-cols-2 md:gap-48 lg:grid-cols-3 2xl:grid-cols-4 3xl:gap-64">
-          {homeThumbnails.map((shader) => (
-            <ShaderItem key={shader.name} {...shader} />
-          ))}
-        </div>
+      <main className="flex flex-col gap-48 pb-128">
+        {homeThumbnails.map((category) => (
+          <div key={category.name}>
+            <h2 className="mb-24 text-2xl font-light lowercase sm:mb-32 sm:text-3xl">{category.name}</h2>
+            <div className="grid grid-cols-1 gap-32 text-lg xs:grid-cols-2 md:gap-48 lg:grid-cols-3 2xl:grid-cols-4 3xl:gap-64">
+              {category.shaders.map((shader) => (
+                <ShaderItem key={shader.name} {...shader} />
+              ))}
+            </div>
+          </div>
+        ))}
       </main>
     </div>
   );
