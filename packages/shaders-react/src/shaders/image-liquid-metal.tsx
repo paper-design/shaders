@@ -26,9 +26,9 @@ export const defaultPreset: ImageLiquidMetalPreset = {
   name: 'Default',
   params: {
     ...defaultObjectSizing,
-    scale: 0.6,
-    speed: 1,
-    frame: 0,
+    scale: 4,
+    speed: 0,
+    frame: 3000,
     colorBack: '#00000000',
     colorTint: '#ffffff',
     softness: 0.2,

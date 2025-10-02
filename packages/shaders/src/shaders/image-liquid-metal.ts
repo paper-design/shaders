@@ -92,13 +92,11 @@ void main() {
   vec2 uv = v_imageUV;
   float imgSoftFrame = getImgFrame(uv, .0);
 
-  vec2 dudx = dFdx(v_imageUV);
-  vec2 dudy = dFdy(v_imageUV);
-  vec4 img = textureGrad(u_image, v_imageUV, dudx, dudy);
+  vec4 img = texture(u_image, v_imageUV);
 
   float cycleWidth = u_repetition;
 
-  float mask = img.r;
+  float mask = 1. - pow(img.r, 1.);
   float contOffset = 1.;
 
   float opacity = img.g;
@@ -186,9 +184,6 @@ void main() {
   opacity = opacity + u_colorBack.a * (1. - opacity);
 
   ${colorBandingFix}
-
-  //  vec4 texture = texture(u_image, uv);
-  //  fragColor = vec4(vec3(texture.r, 1. - texture.g, 1.), 1.);
 
   fragColor = vec4(color, opacity);
 }
@@ -337,7 +332,7 @@ export function toProcessedImageLiquidMetal(file: File | string): Promise<{ blob
           const idx = y * width + x;
           const px = idx * 4;
           const raw = u[idx]! / maxVal;
-          outImg.data[px] = 255 * (1 - Math.pow(raw, 2));
+          outImg.data[px] = 255 * raw;
           outImg.data[px + 1] = shapeImageData.data[px + 3] ?? 0;
           outImg.data[px + 2] = 255;
           outImg.data[px + 3] = 255;

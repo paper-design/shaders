@@ -20,7 +20,7 @@ imageLiquidMetalPresets[0].params.colorBack = '#000000';
 const { worldWidth, worldHeight, ...defaults } = imageLiquidMetalPresets[0].params;
 
 const ImageLiquidMetalWithControls = () => {
-  const [image, setImage] = useState<HTMLImageElement | string>('/images/image-filters/apple.svg');
+  const [image, setImage] = useState<HTMLImageElement | string>('/images/image-filters/paper.svg');
 
   const [params, setParams] = useControls(() => {
     const presets = Object.fromEntries(
