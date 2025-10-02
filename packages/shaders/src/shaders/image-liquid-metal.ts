@@ -179,9 +179,10 @@ void main() {
   color = vec3(r, g, b);
   color *= opacity;
 
-  vec3 bgColor = u_colorBack.rgb * u_colorBack.a;
+  float colorBackAlpha = 0.;
+  vec3 bgColor = u_colorBack.rgb * colorBackAlpha;
   color = color + bgColor * (1. - opacity);
-  opacity = opacity + u_colorBack.a * (1. - opacity);
+  opacity = opacity + colorBackAlpha* (1. - opacity);
 
   ${colorBandingFix}
 
