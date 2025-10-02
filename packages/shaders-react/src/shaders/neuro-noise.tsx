@@ -6,6 +6,7 @@ import {
   getShaderColorFromString,
   neuroNoiseFragmentShader,
   ShaderFitOptions,
+  neuroNoiseDef,
   type NeuroNoiseParams,
   type NeuroNoiseUniforms,
   type ShaderPreset,
@@ -24,8 +25,8 @@ export const defaultPreset: NeuroNoisePreset = {
     colorFront: '#ffffff',
     colorMid: '#47a6ff',
     colorBack: '#000000',
-    brightness: 0.05,
-    contrast: 0.3,
+    brightness: neuroNoiseDef.params.find((p) => p.name === 'brightness')?.defaultValue as number,
+    contrast: neuroNoiseDef.params.find((p) => p.name === 'contrast')?.defaultValue as number,
   },
 };
 
@@ -88,8 +89,8 @@ export const NeuroNoise: React.FC<NeuroNoiseProps> = memo(function NeuroNoiseImp
   colorFront = defaultPreset.params.colorFront,
   colorMid = defaultPreset.params.colorMid,
   colorBack = defaultPreset.params.colorBack,
-  brightness = defaultPreset.params.brightness,
-  contrast = defaultPreset.params.contrast,
+  brightness = neuroNoiseDef.params.find((p) => p.name === 'brightness')?.defaultValue as number,
+  contrast = neuroNoiseDef.params.find((p) => p.name === 'contrast')?.defaultValue as number,
 
   // Sizing props
   fit = defaultPreset.params.fit,

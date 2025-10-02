@@ -29,6 +29,7 @@ export const neuroNoiseDef: ShaderDef = {
       type: 'number',
       min: 0,
       max: 1,
+      defaultValue: 0.05,
       description: 'Luminosity of the crossing points',
     },
     {
@@ -36,6 +37,7 @@ export const neuroNoiseDef: ShaderDef = {
       type: 'number',
       min: 0,
       max: 1,
+      defaultValue: 0.3,
       description: 'Sharpness of the bright–dark transition',
     },
     ...animatedCommonParams,
