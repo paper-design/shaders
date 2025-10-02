@@ -39,6 +39,7 @@ export const defaultPreset: ImageLiquidMetalPreset = {
     useOriginalAlpha: 0,
     contourRoundness: 0,
     contourSoftness: 0,
+    contourPower: 1,
     edgePower: 1.3,
   },
 };
@@ -55,6 +56,7 @@ export const ImageLiquidMetal: React.FC<ImageLiquidMetalProps> = memo(function I
   useOriginalAlpha = defaultPreset.params.useOriginalAlpha,
   contourRoundness = defaultPreset.params.contourRoundness,
   contourSoftness = defaultPreset.params.contourSoftness,
+  contourPower = defaultPreset.params.contourPower,
   edgePower = defaultPreset.params.edgePower,
   distortion = defaultPreset.params.distortion,
   softness = defaultPreset.params.softness,
@@ -127,6 +129,7 @@ export const ImageLiquidMetal: React.FC<ImageLiquidMetalProps> = memo(function I
     u_useOriginalAlpha: useOriginalAlpha,
     u_contourRoundness: contourRoundness,
     u_contourSoftness: contourSoftness,
+    u_contourPower: contourPower,
     u_edgePower: edgePower,
     u_distortion: distortion,
     u_shiftRed: shiftRed,

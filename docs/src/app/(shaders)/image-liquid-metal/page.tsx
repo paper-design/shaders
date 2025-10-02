@@ -40,6 +40,7 @@ const ImageLiquidMetalWithControls = () => {
       useOriginalAlpha: { value: defaults.useOriginalAlpha, min: 0, max: 1, step: 1, order: 204 },
       contourRoundness: { value: defaults.contourRoundness, min: 0, max: 1, order: 205 },
       contourSoftness: { value: defaults.contourSoftness, min: 0, max: 1, order: 206 },
+      contourPower: { value: defaults.contourPower, min: 1, max: 3, order: 206 },
       edgePower: { value: defaults.edgePower, min: 0, max: 4, order: 207 },
       speed: { value: defaults.speed, min: 0, max: 4, order: 300 },
       scale: { value: defaults.scale, min: 0.01, max: 4, order: 301 },

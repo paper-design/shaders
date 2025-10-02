@@ -42,6 +42,7 @@ uniform float u_distortion;
 
 uniform float u_contourRoundness;
 uniform float u_contourSoftness;
+uniform float u_contourPower;
 uniform float u_useOriginalAlpha;
 uniform float u_edgePower;
 
@@ -106,7 +107,7 @@ void main() {
   if (u_useOriginalAlpha > .5) {
     opacity = img.g;
   } else {
-    opacity = smoothstep(0., .5 * u_contourSoftness, img.r - u_contourRoundness);
+    opacity = smoothstep(0., .5 * u_contourSoftness, pow(img.r, u_contourPower) - u_contourRoundness);
   }
   
   opacity *= imgSoftFrame;
@@ -373,6 +374,7 @@ export interface ImageLiquidMetalUniforms extends ShaderSizingUniforms {
   u_useOriginalAlpha: number;
   u_contourRoundness: number;
   u_contourSoftness: number;
+  u_contourPower: number;
   u_edgePower: number;
   u_softness: number;
   u_shiftRed: number;
@@ -390,6 +392,7 @@ export interface ImageLiquidMetalParams extends ShaderSizingParams, ShaderMotion
   useOriginalAlpha?: number;
   contourRoundness?: number;
   contourSoftness?: number;
+  contourPower?: number;
   edgePower?: number;
   softness?: number;
   distortion?: number;
