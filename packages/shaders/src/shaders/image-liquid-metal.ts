@@ -40,7 +40,8 @@ uniform float u_shiftRed;
 uniform float u_shiftBlue;
 uniform float u_distortion;
 
-uniform float u_edge;
+uniform float u_contourSoftness;
+uniform float u_edgePower;
 
 ${sizingVariablesDeclaration}
 
@@ -96,10 +97,16 @@ void main() {
 
   float cycleWidth = u_repetition;
 
-  float mask = 1. - pow(img.r, 1.);
+  float mask = 1. - pow(img.r, u_edgePower);
   float contOffset = 1.;
 
-  float opacity = img.g;
+  float opacity = 1.;
+  if (u_contourSoftness == 0.) {
+    opacity = img.g;
+  } else {
+    opacity = smoothstep(0., .5 * u_contourSoftness, img.r);
+  }
+  
   opacity *= imgSoftFrame;
 
   float ridge = .18 * (smoothstep(.0, .2, uv.y) * smoothstep(.4, .2, uv.y));
@@ -179,7 +186,7 @@ void main() {
   color = vec3(r, g, b);
   color *= opacity;
 
-  float colorBackAlpha = 0.;
+  float colorBackAlpha = u_colorBack.a;
   vec3 bgColor = u_colorBack.rgb * colorBackAlpha;
   color = color + bgColor * (1. - opacity);
   opacity = opacity + colorBackAlpha* (1. - opacity);
@@ -361,7 +368,8 @@ export interface ImageLiquidMetalUniforms extends ShaderSizingUniforms {
   u_colorTint: [number, number, number, number];
   u_image: HTMLImageElement | string | undefined;
   u_repetition: number;
-  u_edge: number;
+  u_contourSoftness: number;
+  u_edgePower: number;
   u_softness: number;
   u_shiftRed: number;
   u_shiftBlue: number;
@@ -375,7 +383,8 @@ export interface ImageLiquidMetalParams extends ShaderSizingParams, ShaderMotion
   repetition?: number;
   shiftRed?: number;
   shiftBlue?: number;
-  edge?: number;
+  contourSoftness?: number;
+  edgePower?: number;
   softness?: number;
   distortion?: number;
 }

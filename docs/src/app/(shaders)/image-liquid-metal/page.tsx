@@ -15,7 +15,7 @@ import { imageLiquidMetalDef } from '@/shader-defs/image-liquid-metal-def';
 import { toHsla } from '@/helpers/color-utils';
 
 // Override just for the docs, we keep it transparent in the preset
-imageLiquidMetalPresets[0].params.colorBack = '#000000';
+// imageLiquidMetalPresets[0].params.colorBack = '#000000';
 
 const { worldWidth, worldHeight, ...defaults } = imageLiquidMetalPresets[0].params;
 
@@ -31,19 +31,20 @@ const ImageLiquidMetalWithControls = () => {
     );
     return {
       colorBack: { value: toHsla(defaults.colorBack), order: 100 },
-      colorTint: { value: toHsla(defaults.colorTint), order: 101 },
-      repetition: { value: defaults.repetition, min: 1, max: 10, order: 200 },
-      softness: { value: defaults.softness, min: 0, max: 1, order: 201 },
-      shiftRed: { value: defaults.shiftRed, min: -1, max: 1, order: 202 },
-      shiftBlue: { value: defaults.shiftBlue, min: -1, max: 1, order: 203 },
-      distortion: { value: defaults.distortion, min: 0, max: 1, order: 204 },
-      // edge: { value: defaults.edge, min: 0, max: 1, order: 206 },
+      // colorTint: { value: toHsla(defaults.colorTint), order: 101 },
+      // repetition: { value: defaults.repetition, min: 1, max: 10, order: 200 },
+      // softness: { value: defaults.softness, min: 0, max: 1, order: 201 },
+      // shiftRed: { value: defaults.shiftRed, min: -1, max: 1, order: 202 },
+      // shiftBlue: { value: defaults.shiftBlue, min: -1, max: 1, order: 203 },
+      // distortion: { value: defaults.distortion, min: 0, max: 1, order: 204 },
+      contourSoftness: { value: defaults.contourSoftness, min: 0, max: 1, order: 206 },
+      edgePower: { value: defaults.edgePower, min: 0, max: 4, order: 207 },
       speed: { value: defaults.speed, min: 0, max: 4, order: 300 },
       scale: { value: defaults.scale, min: 0.01, max: 4, order: 301 },
       rotation: { value: defaults.rotation, min: 0, max: 360, order: 302 },
       offsetX: { value: defaults.offsetX, min: -1, max: 1, order: 303 },
       offsetY: { value: defaults.offsetY, min: -1, max: 1, order: 304 },
-      fit: { value: defaults.fit, options: ['contain', 'cover'] as ShaderFit[], order: 305 },
+      // fit: { value: defaults.fit, options: ['contain', 'cover'] as ShaderFit[], order: 305 },
       Image: folder({
         'Upload image': levaImageButton((img?: HTMLImageElement) => setImage(img ?? '')),
       }),
