@@ -1,4 +1,4 @@
-import type { ShaderDef } from './shader-def-types';
+import type { ShaderDef } from '@paper-design/shaders';
 
 import { colorPanelsDef } from './color-panels-def';
 import { ditheringDef } from './dithering-def';
@@ -11,7 +11,7 @@ import { imageDitheringDef } from './image-dithering-def';
 import { liquidMetalDef } from './liquid-metal-def';
 import { meshGradientDef } from './mesh-gradient-def';
 import { metaballsDef } from './metaballs-def';
-import { neuroNoiseDef } from './neuro-noise-def';
+import { neuroNoiseDef } from '@paper-design/shaders';
 import { paperTextureDef } from './paper-texture-def';
 import { perlinNoiseDef } from './perlin-noise-def';
 import { pulsingBorderDef } from './pulsing-border-def';

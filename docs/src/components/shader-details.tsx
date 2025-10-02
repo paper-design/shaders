@@ -1,10 +1,10 @@
 'use client';
 
 import type { ReactNode } from 'react';
-import { ShaderDef, ParamOption, ParamDef } from '../shader-defs/shader-def-types';
+import { ShaderDef, ParamOption, ParamDef } from '@paper-design/shaders';
 import { CopyButton } from './copy-button';
 import { hslToHex } from '@/helpers/color-utils';
-import { commonParams } from '@/shader-defs/common-param-def';
+import { commonParams } from '@paper-design/shaders';
 
 const formatJsxAttribute = (key: string, value: unknown): string => {
   if (value === true) {
