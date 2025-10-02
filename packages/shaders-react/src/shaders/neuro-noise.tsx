@@ -10,6 +10,7 @@ import {
   type NeuroNoiseParams,
   type NeuroNoiseUniforms,
   type ShaderPreset,
+  commonParams,
 } from '@paper-design/shaders';
 
 export interface NeuroNoiseProps extends ShaderComponentProps, NeuroNoiseParams {}
@@ -20,11 +21,11 @@ export const defaultPreset: NeuroNoisePreset = {
   name: 'Default',
   params: {
     ...defaultPatternSizing,
-    speed: 1,
-    frame: 0,
-    colorFront: '#ffffff',
-    colorMid: '#47a6ff',
-    colorBack: '#000000',
+    speed: commonParams.speed!.defaultValue as number,
+    frame: commonParams.frame!.defaultValue as number,
+    colorFront: neuroNoiseDef.params.find((p) => p.name === 'colorFront')?.defaultValue as string,
+    colorMid: '#47a6ff', // Can differ from the def default value
+    colorBack: neuroNoiseDef.params.find((p) => p.name === 'colorBack')?.defaultValue as string,
     brightness: neuroNoiseDef.params.find((p) => p.name === 'brightness')?.defaultValue as number,
     contrast: neuroNoiseDef.params.find((p) => p.name === 'contrast')?.defaultValue as number,
   },
@@ -84,24 +85,24 @@ export const neuroNoisePresets: NeuroNoisePreset[] = [
 
 export const NeuroNoise: React.FC<NeuroNoiseProps> = memo(function NeuroNoiseImpl({
   // Own props
-  speed = defaultPreset.params.speed,
-  frame = defaultPreset.params.frame,
-  colorFront = defaultPreset.params.colorFront,
-  colorMid = defaultPreset.params.colorMid,
-  colorBack = defaultPreset.params.colorBack,
+  speed = commonParams.speed!.defaultValue as number,
+  frame = commonParams.frame!.defaultValue as number,
+  colorFront = neuroNoiseDef.params.find((p) => p.name === 'colorFront')?.defaultValue as string,
+  colorMid = neuroNoiseDef.params.find((p) => p.name === 'colorMid')?.defaultValue as string,
+  colorBack = neuroNoiseDef.params.find((p) => p.name === 'colorBack')?.defaultValue as string,
   brightness = neuroNoiseDef.params.find((p) => p.name === 'brightness')?.defaultValue as number,
   contrast = neuroNoiseDef.params.find((p) => p.name === 'contrast')?.defaultValue as number,
 
   // Sizing props
-  fit = defaultPreset.params.fit,
-  scale = defaultPreset.params.scale,
-  rotation = defaultPreset.params.rotation,
-  originX = defaultPreset.params.originX,
-  originY = defaultPreset.params.originY,
-  offsetX = defaultPreset.params.offsetX,
-  offsetY = defaultPreset.params.offsetY,
-  worldWidth = defaultPreset.params.worldWidth,
-  worldHeight = defaultPreset.params.worldHeight,
+  fit = defaultPatternSizing.fit,
+  scale = defaultPatternSizing.scale,
+  rotation = defaultPatternSizing.rotation,
+  originX = defaultPatternSizing.originX,
+  originY = defaultPatternSizing.originY,
+  offsetX = defaultPatternSizing.offsetX,
+  offsetY = defaultPatternSizing.offsetY,
+  worldWidth = defaultPatternSizing.worldWidth,
+  worldHeight = defaultPatternSizing.worldHeight,
   ...props
 }: NeuroNoiseProps) {
   const uniforms = {

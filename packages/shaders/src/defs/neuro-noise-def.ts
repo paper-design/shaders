@@ -10,18 +10,21 @@ export const neuroNoiseDef: ShaderDef = {
       name: 'colorFront',
       type: 'string',
       isColor: true,
+      defaultValue: '#ffffff',
       description: 'Graphics highlight color',
     },
     {
       name: 'colorMid',
       type: 'string',
       isColor: true,
+      defaultValue: '#888888',
       description: 'Graphics main color',
     },
     {
       name: 'colorBack',
       type: 'string',
       isColor: true,
+      defaultValue: '#000000',
       description: 'Background color',
     },
     {
@@ -41,5 +44,6 @@ export const neuroNoiseDef: ShaderDef = {
       description: 'Sharpness of the bright–dark transition',
     },
     ...animatedCommonParams,
+    // Override common speed here
   ],
 };
