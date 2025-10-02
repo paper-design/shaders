@@ -1,4 +1,4 @@
-import type { ParamDef } from './shader-def-types';
+import type { ParamDef } from './shader-def-types.js';
 
 type CommonParamDef = Omit<ParamDef, 'defaultValue'>;
 
@@ -91,38 +91,38 @@ export const commonParams: Record<string, CommonParamDef> = {
     type: 'number',
     description: 'Maximum pixel count that the shader may process',
   },
-};
+} as const;
 
 export const animatedCommonParams: CommonParamDef[] = [
-  commonParams.speed,
-  commonParams.frame,
-  commonParams.scale,
-  commonParams.rotation,
-  commonParams.offsetX,
-  commonParams.offsetY,
-  commonParams.width,
-  commonParams.height,
-  commonParams.fit,
-  commonParams.worldWidth,
-  commonParams.worldHeight,
-  commonParams.originX,
-  commonParams.originY,
-  commonParams.minPixelRatio,
-  commonParams.maxPixelCount,
+  commonParams.speed!,
+  commonParams.frame!,
+  commonParams.scale!,
+  commonParams.rotation!,
+  commonParams.offsetX!,
+  commonParams.offsetY!,
+  commonParams.width!,
+  commonParams.height!,
+  commonParams.fit!,
+  commonParams.worldWidth!,
+  commonParams.worldHeight!,
+  commonParams.originX!,
+  commonParams.originY!,
+  commonParams.minPixelRatio!,
+  commonParams.maxPixelCount!,
 ];
 
 export const staticCommonParams: CommonParamDef[] = [
-  commonParams.scale,
-  commonParams.rotation,
-  commonParams.offsetX,
-  commonParams.offsetY,
-  commonParams.width,
-  commonParams.height,
-  commonParams.fit,
-  commonParams.worldWidth,
-  commonParams.worldHeight,
-  commonParams.originX,
-  commonParams.originY,
-  commonParams.minPixelRatio,
-  commonParams.maxPixelCount,
+  commonParams.scale!,
+  commonParams.rotation!,
+  commonParams.offsetX!,
+  commonParams.offsetY!,
+  commonParams.width!,
+  commonParams.height!,
+  commonParams.fit!,
+  commonParams.worldWidth!,
+  commonParams.worldHeight!,
+  commonParams.originX!,
+  commonParams.originY!,
+  commonParams.minPixelRatio!,
+  commonParams.maxPixelCount!,
 ];
