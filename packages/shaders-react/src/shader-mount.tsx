@@ -136,6 +136,7 @@ export const ShaderMount: React.FC<ShaderMountProps> = forwardRef<PaperShaderEle
     const [isInitialized, setIsInitialized] = useState(false);
     const divRef = useRef<PaperShaderElement>(null);
     const shaderMountRef: React.RefObject<ShaderMountVanilla | null> = useRef<ShaderMountVanilla>(null);
+    const webGlContextAttributesRef = useRef(webGlContextAttributes);
 
     // Initialize the ShaderMountVanilla
     useEffect(() => {
@@ -147,7 +148,7 @@ export const ShaderMount: React.FC<ShaderMountProps> = forwardRef<PaperShaderEle
             divRef.current,
             fragmentShader,
             uniforms,
-            webGlContextAttributes,
+            webGlContextAttributesRef.current,
             speed,
             frame,
             minPixelRatio,
@@ -164,7 +165,7 @@ export const ShaderMount: React.FC<ShaderMountProps> = forwardRef<PaperShaderEle
         shaderMountRef.current?.dispose();
         shaderMountRef.current = null;
       };
-    }, [fragmentShader, webGlContextAttributes]);
+    }, [fragmentShader]);
 
     // Uniforms
     useEffect(() => {
