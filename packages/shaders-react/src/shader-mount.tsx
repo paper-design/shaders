@@ -128,76 +128,83 @@ export const ShaderMount: React.FC<ShaderMountProps> = forwardRef<PaperShaderEle
     },
     forwardedRef
   ) {
-    const [isInitialized, setIsInitialized] = useState(false);
-    const divRef = useRef<PaperShaderElement>(null);
-    const shaderMountRef: React.RefObject<ShaderMountVanilla | null> = useRef<ShaderMountVanilla>(null);
+    const [shaderParent, setShaderParent] = useState<PaperShaderElement | null>(null);
+    const [shaderMount, setShaderMount] = useState<ShaderMountVanilla | null>(null);
+    const uniformsRegistered = useRef<ShaderMountUniformsReact>(null);
+    const startingFrame = useRef(frame);
 
-    // Initialize the ShaderMountVanilla
-    useEffect(() => {
-      const initShader = async () => {
-        const uniforms = await processUniforms(uniformsProp);
-
-        if (divRef.current && !shaderMountRef.current) {
-          shaderMountRef.current = new ShaderMountVanilla(
-            divRef.current,
-            fragmentShader,
-            uniforms,
-            webGlContextAttributes,
-            speed,
-            frame,
-            minPixelRatio,
-            maxPixelCount
-          );
-
-          setIsInitialized(true);
-        }
-      };
-
-      initShader();
-
-      return () => {
-        shaderMountRef.current?.dispose();
-        shaderMountRef.current = null;
-      };
-
-      // Only re-initialize the shader if the fragment shader changes
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [fragmentShader]);
-
-    // Uniforms
-    useEffect(() => {
-      let isStale = false;
-
-      const updateUniforms = async () => {
-        const uniforms = await processUniforms(uniformsProp);
-
-        if (!isStale) {
-          // We only use the freshest uniforms otherwise we can get into race conditions
-          // if some uniforms (images!) take longer to load in subsequent effect runs.
-          shaderMountRef.current?.setUniforms(uniforms);
-        }
-      };
-
-      updateUniforms();
-
-      return () => {
-        isStale = true;
-      };
-    }, [uniformsProp, isInitialized]);
-
-    const [visible, setVisible] = useState(() => {
-      if (typeof window === 'undefined') {
-        return true;
-      }
-
-      return document.hidden === false;
+    const [documentVisible, setDocumentVisible] = useState(() => {
+      return typeof window === 'undefined' || document.hidden === false;
     });
 
-    useEffect(() => {
-      setVisible(!document.hidden);
+    // Initialize when:
+    // - we have the parent element
+    // - there is no shader mount yet
+    // - uniforms being processed do not match the props
+    if (shaderParent && !shaderMount && uniformsRegistered.current !== uniformsProp) {
+      uniformsRegistered.current = uniformsProp;
 
+      processUniforms(uniformsProp).then((uniforms) => {
+        // Skip if uniforms have changed since we registered them
+        if (uniformsRegistered.current !== uniformsProp) {
+          return;
+        }
+
+        const element = new ShaderMountVanilla(
+          shaderParent,
+          fragmentShader,
+          uniforms,
+          webGlContextAttributes,
+          speed,
+          frame,
+          minPixelRatio,
+          maxPixelCount
+        );
+
+        setShaderMount(element);
+      });
+    }
+
+    if (shaderMount) {
+      if (uniformsRegistered.current !== uniformsProp) {
+        uniformsRegistered.current = uniformsProp;
+
+        processUniforms(uniformsProp).then((uniforms) => {
+          // Skip if uniforms have changed since we registered them
+          if (uniformsRegistered.current !== uniformsProp) {
+            return;
+          }
+
+          shaderMount.setUniforms(uniforms);
+        });
+      }
+
+      if (documentVisible === document.hidden) {
+        setDocumentVisible(!document.hidden);
+      }
+
+      // Pause if the document is hidden
+      if (shaderMount.speed !== speed * +documentVisible) {
+        shaderMount.setSpeed(speed * +documentVisible);
+      }
+
+      if (startingFrame.current !== frame) {
+        shaderMount.setFrame(frame);
+        startingFrame.current = frame;
+      }
+
+      if (shaderMount.minPixelRatio !== minPixelRatio) {
+        shaderMount.setMinPixelRatio(minPixelRatio);
+      }
+
+      if (shaderMount.maxPixelCount !== maxPixelCount) {
+        shaderMount.setMaxPixelCount(maxPixelCount);
+      }
+    }
+
+    useEffect(() => {
       function onVisibilityChange() {
-        setVisible(!document.hidden);
+        setDocumentVisible(!document.hidden);
       }
 
       document.addEventListener('visibilitychange', onVisibilityChange);
@@ -207,38 +214,15 @@ export const ShaderMount: React.FC<ShaderMountProps> = forwardRef<PaperShaderEle
       };
     }, []);
 
-    // Speed
     useEffect(() => {
-      if (isInitialized) {
-        shaderMountRef.current?.setSpeed(visible ? speed : 0);
-      }
-    }, [speed, visible, isInitialized]);
+      return () => {
+        shaderMount?.dispose();
+      };
+    }, [shaderMount]);
 
-    // Max Pixel Count
-    useEffect(() => {
-      if (isInitialized) {
-        shaderMountRef.current?.setMaxPixelCount(maxPixelCount);
-      }
-    }, [maxPixelCount, isInitialized]);
-
-    // Min Pixel Ratio
-    useEffect(() => {
-      if (isInitialized) {
-        shaderMountRef.current?.setMinPixelRatio(minPixelRatio);
-      }
-    }, [minPixelRatio, isInitialized]);
-
-    // Frame
-    useEffect(() => {
-      if (isInitialized) {
-        shaderMountRef.current?.setFrame(frame);
-      }
-    }, [frame, isInitialized]);
-
-    const mergedRef = useMergeRefs([divRef, forwardedRef]) as unknown as React.RefObject<HTMLDivElement>;
     return (
       <div
-        ref={mergedRef}
+        ref={useMergeRefs([setShaderParent, forwardedRef]) as unknown as React.RefObject<HTMLDivElement>}
         style={width !== undefined || height !== undefined ? { width, height, ...style } : style}
         {...divProps}
       />

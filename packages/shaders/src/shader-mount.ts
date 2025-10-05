@@ -17,7 +17,7 @@ export class ShaderMount {
   /** Total time that we have played any animation, passed as a uniform to the shader for time-based VFX */
   private currentFrame = 0;
   /** The current speed that we progress through animation time (multiplies by delta time every update). Allows negatives to play in reverse. If set to 0, rAF will stop entirely so static shaders have no recurring performance costs */
-  private speed = 0;
+  public speed = 0;
   /** Uniforms that are provided by the user for the specific shader being mounted (not including uniforms that this Mount adds, like time and resolution) */
   private providedUniforms: ShaderMountUniforms;
   /** Just a sanity check to make sure frames don't run after we're disposed */
@@ -26,11 +26,11 @@ export class ShaderMount {
   private resolutionChanged = true;
   /** Store textures that are provided by the user */
   private textures: Map<string, WebGLTexture> = new Map();
-  private minPixelRatio;
-  private maxPixelCount;
   private isSafari = isSafari();
   private uniformCache: Record<string, unknown> = {};
   private textureUnitMap: Map<string, number> = new Map();
+  public minPixelRatio: number;
+  public maxPixelCount: number;
 
   constructor(
     /** The div you'd like to mount the shader to. The shader will match its size. */
