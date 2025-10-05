@@ -179,6 +179,7 @@ export const ShaderMount: React.FC<ShaderMountProps> = forwardRef<PaperShaderEle
         });
       }
 
+      // Just a defensive check to make sure we don't render into mismatched visibility
       if (documentVisible === document.hidden) {
         setDocumentVisible(!document.hidden);
       }
