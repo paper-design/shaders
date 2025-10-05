@@ -136,7 +136,6 @@ export const ShaderMount: React.FC<ShaderMountProps> = forwardRef<PaperShaderEle
     const [isInitialized, setIsInitialized] = useState(false);
     const divRef = useRef<PaperShaderElement>(null);
     const shaderMountRef: React.RefObject<ShaderMountVanilla | null> = useRef<ShaderMountVanilla>(null);
-    const webGlContextAttributesRef = useRef(webGlContextAttributes);
 
     // Initialize the ShaderMountVanilla
     useEffect(() => {
@@ -148,7 +147,7 @@ export const ShaderMount: React.FC<ShaderMountProps> = forwardRef<PaperShaderEle
             divRef.current,
             fragmentShader,
             uniforms,
-            webGlContextAttributesRef.current,
+            webGlContextAttributes,
             speed,
             frame,
             minPixelRatio,
@@ -165,6 +164,9 @@ export const ShaderMount: React.FC<ShaderMountProps> = forwardRef<PaperShaderEle
         shaderMountRef.current?.dispose();
         shaderMountRef.current = null;
       };
+
+      // Only re-initialize the shader if the fragment shader changes
+      // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [fragmentShader]);
 
     // Uniforms
@@ -188,24 +190,54 @@ export const ShaderMount: React.FC<ShaderMountProps> = forwardRef<PaperShaderEle
       };
     }, [uniformsProp, isInitialized]);
 
+    const [visible, setVisible] = useState(() => {
+      if (typeof window === 'undefined') {
+        return true;
+      }
+
+      return document.hidden === false;
+    });
+
+    useEffect(() => {
+      setVisible(!document.hidden);
+
+      function onVisibilityChange() {
+        setVisible(!document.hidden);
+      }
+
+      document.addEventListener('visibilitychange', onVisibilityChange);
+
+      return () => {
+        document.removeEventListener('visibilitychange', onVisibilityChange);
+      };
+    }, []);
+
     // Speed
     useEffect(() => {
-      shaderMountRef.current?.setSpeed(speed);
-    }, [speed, isInitialized]);
+      if (isInitialized) {
+        shaderMountRef.current?.setSpeed(visible ? speed : 0);
+      }
+    }, [speed, visible, isInitialized]);
 
     // Max Pixel Count
     useEffect(() => {
-      shaderMountRef.current?.setMaxPixelCount(maxPixelCount);
+      if (isInitialized) {
+        shaderMountRef.current?.setMaxPixelCount(maxPixelCount);
+      }
     }, [maxPixelCount, isInitialized]);
 
     // Min Pixel Ratio
     useEffect(() => {
-      shaderMountRef.current?.setMinPixelRatio(minPixelRatio);
+      if (isInitialized) {
+        shaderMountRef.current?.setMinPixelRatio(minPixelRatio);
+      }
     }, [minPixelRatio, isInitialized]);
 
     // Frame
     useEffect(() => {
-      shaderMountRef.current?.setFrame(frame);
+      if (isInitialized) {
+        shaderMountRef.current?.setFrame(frame);
+      }
     }, [frame, isInitialized]);
 
     const mergedRef = useMergeRefs([divRef, forwardedRef]) as unknown as React.RefObject<HTMLDivElement>;

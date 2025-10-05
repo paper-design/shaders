@@ -549,6 +549,7 @@ export class ShaderMount {
     this.canvasElement.remove();
     // Free up the reference to self to enable garbage collection
     delete this.parentElement.paperShaderMount;
+    this.parentElement.removeAttribute('data-paper-shader');
   };
 }
 
