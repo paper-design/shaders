@@ -144,7 +144,7 @@ export const ShaderMount: React.FC<ShaderMountProps> = forwardRef<PaperShaderEle
       return typeof window === 'undefined' || document.hidden === false;
     });
 
-    // Initialize when we have the parent element but there is no shader mount yet
+    // Create a vanilla shader mount when we have the parent element
     useLayoutEffect(() => {
       if (!divRef.current || shaderMount) {
         // Dispose the shader mount if the component is unmounting
