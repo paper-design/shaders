@@ -36,11 +36,12 @@ export const defaultPreset: ImageLiquidMetalPreset = {
     shiftRed: 0.25,
     shiftBlue: 0.3,
     distortion: 0.07,
-    useOriginalAlpha: 0,
+    useOriginalAlpha: 1,
     contourRoundness: 0,
     contourSoftness: 0,
     contourPower: 1,
-    edgePower: 1.3,
+    edgePower: 1.5,
+    imageAlpha: '',
   },
 };
 
@@ -53,6 +54,7 @@ export const ImageLiquidMetal: React.FC<ImageLiquidMetalProps> = memo(function I
   speed = defaultPreset.params.speed,
   frame = defaultPreset.params.frame,
   image = 'https://shaders.paper.design/images/image-filters/0019.webp',
+  imageAlpha = defaultPreset.params.imageAlpha,
   useOriginalAlpha = defaultPreset.params.useOriginalAlpha,
   contourRoundness = defaultPreset.params.contourRoundness,
   contourSoftness = defaultPreset.params.contourSoftness,
@@ -124,6 +126,7 @@ export const ImageLiquidMetal: React.FC<ImageLiquidMetalProps> = memo(function I
     u_colorTint: getShaderColorFromString(colorTint),
 
     u_image: processedImage,
+    u_imageAlpha: imageAlpha,
     u_softness: softness,
     u_repetition: repetition,
     u_useOriginalAlpha: useOriginalAlpha,

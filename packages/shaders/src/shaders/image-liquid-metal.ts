@@ -46,6 +46,8 @@ uniform float u_contourPower;
 uniform float u_useOriginalAlpha;
 uniform float u_edgePower;
 
+uniform sampler2D u_imageAlpha;
+
 ${sizingVariablesDeclaration}
 
 out vec4 fragColor;
@@ -97,6 +99,7 @@ void main() {
   float imgSoftFrame = getImgFrame(uv, .0);
 
   vec4 img = texture(u_image, v_imageUV);
+  vec4 imgTest = texture(u_imageAlpha, v_imageUV);
 
   float cycleWidth = u_repetition;
 
@@ -105,7 +108,7 @@ void main() {
 
   float opacity = 1.;
   if (u_useOriginalAlpha > .5) {
-    opacity = img.g;
+    opacity = imgTest.a;
   } else {
     opacity = smoothstep(0., .5 * u_contourSoftness, pow(img.r, u_contourPower) - u_contourRoundness);
   }
@@ -187,6 +190,8 @@ void main() {
   float b = getColorChanges(color1.b, color2.b, stripe_b, w, blur + fwidth(stripe_b), bump, u_colorTint.b);
 
   color = vec3(r, g, b);
+  
+//  color = mix(vec3(0.), color, pow(smoothstep(0., .5, img.r), .3));
   color *= opacity;
 
   float colorBackAlpha = u_colorBack.a;
@@ -343,7 +348,11 @@ export function toProcessedImageLiquidMetal(file: File | string): Promise<{ blob
           const idx = y * width + x;
           const px = idx * 4;
           const raw = u[idx]! / maxVal;
-          outImg.data[px] = 255 * raw;
+          if (!shapeMask[idx]) {
+            outImg.data[px] = 0;
+          } else {
+            outImg.data[px] = 255 * raw;
+          }
           outImg.data[px + 1] = shapeImageData.data[px + 3] ?? 0;
           outImg.data[px + 2] = 255;
           outImg.data[px + 3] = 255;
@@ -370,6 +379,7 @@ export interface ImageLiquidMetalUniforms extends ShaderSizingUniforms {
   u_colorBack: [number, number, number, number];
   u_colorTint: [number, number, number, number];
   u_image: HTMLImageElement | string | undefined;
+  u_imageAlpha: HTMLImageElement | string | undefined;
   u_repetition: number;
   u_useOriginalAlpha: number;
   u_contourRoundness: number;
@@ -386,6 +396,7 @@ export interface ImageLiquidMetalParams extends ShaderSizingParams, ShaderMotion
   colorBack?: string;
   colorTint?: string;
   image?: HTMLImageElement | string | undefined;
+  imageAlpha: HTMLImageElement | string | undefined;
   repetition?: number;
   shiftRed?: number;
   shiftBlue?: number;
