@@ -3,12 +3,12 @@
 import { useEffect, useRef, forwardRef, useState } from 'react';
 import {
   ShaderMount as ShaderMountVanilla,
-  getEmptyPixel,
   type PaperShaderElement,
   type ShaderMotionParams,
   type ShaderMountUniforms,
 } from '@paper-design/shaders';
 import { useMergeRefs } from './use-merge-refs.js';
+import { transparentPixel } from './transparent-pixel.js';
 
 /**
  * React Shader Mount can also accept strings as uniform values, which will assumed to be URLs and loaded as images
@@ -75,12 +75,6 @@ async function processUniforms(uniformsProp: ShaderMountUniformsReact): Promise<
 
   Object.entries(uniformsProp).forEach(([key, value]) => {
     if (typeof value === 'string') {
-      // Use a transparent pixel for empty strings
-      if (!value) {
-        processedUniforms[key] = getEmptyPixel();
-        return;
-      }
-
       // Make sure the provided string is a valid URL or just skip trying to set this uniform entirely
       if (!isValidUrl(value)) {
         console.warn(`Uniform "${key}" has invalid URL "${value}". Skipping image loading.`);
@@ -100,7 +94,8 @@ async function processUniforms(uniformsProp: ShaderMountUniformsReact): Promise<
           console.error(`Could not set uniforms. Failed to load image at ${value}`);
           reject();
         };
-        img.src = value;
+        // Use a transparent pixel for empty strings
+        img.src = value || transparentPixel;
       });
       imageLoadPromises.push(imagePromise);
     } else {
