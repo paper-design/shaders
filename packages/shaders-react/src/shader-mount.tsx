@@ -1,14 +1,15 @@
 'use client';
 
-import { useEffect, useRef, forwardRef, useState } from 'react';
+import { useEffect, useRef, forwardRef, useState, useLayoutEffect } from 'react';
 import {
   ShaderMount as ShaderMountVanilla,
-  getEmptyPixel,
   type PaperShaderElement,
   type ShaderMotionParams,
   type ShaderMountUniforms,
 } from '@paper-design/shaders';
 import { useMergeRefs } from './use-merge-refs.js';
+import { transparentPixel } from './transparent-pixel.js';
+import { fastDeepEqual } from './fast-deep-equal.js';
 
 /**
  * React Shader Mount can also accept strings as uniform values, which will assumed to be URLs and loaded as images
@@ -75,12 +76,6 @@ async function processUniforms(uniformsProp: ShaderMountUniformsReact): Promise<
 
   Object.entries(uniformsProp).forEach(([key, value]) => {
     if (typeof value === 'string') {
-      // Use a transparent pixel for empty strings
-      if (!value) {
-        processedUniforms[key] = getEmptyPixel();
-        return;
-      }
-
       // Make sure the provided string is a valid URL or just skip trying to set this uniform entirely
       if (!isValidUrl(value)) {
         console.warn(`Uniform "${key}" has invalid URL "${value}". Skipping image loading.`);
@@ -100,7 +95,8 @@ async function processUniforms(uniformsProp: ShaderMountUniformsReact): Promise<
           console.error(`Could not set uniforms. Failed to load image at ${value}`);
           reject();
         };
-        img.src = value;
+        // Use a transparent pixel for empty strings
+        img.src = value || transparentPixel;
       });
       imageLoadPromises.push(imagePromise);
     } else {
@@ -119,7 +115,7 @@ async function processUniforms(uniformsProp: ShaderMountUniformsReact): Promise<
 export const ShaderMount: React.FC<ShaderMountProps> = forwardRef<PaperShaderElement, ShaderMountProps>(
   function ShaderMountImpl(
     {
-      fragmentShader,
+      fragmentShader: fragmentShaderProp,
       uniforms: uniformsProp,
       webGlContextAttributes,
       speed = 0,
@@ -133,85 +129,120 @@ export const ShaderMount: React.FC<ShaderMountProps> = forwardRef<PaperShaderEle
     },
     forwardedRef
   ) {
-    const [isInitialized, setIsInitialized] = useState(false);
-    const divRef = useRef<PaperShaderElement>(null);
-    const shaderMountRef: React.RefObject<ShaderMountVanilla | null> = useRef<ShaderMountVanilla>(null);
-    const webGlContextAttributesRef = useRef(webGlContextAttributes);
+    const containerRef = useRef<PaperShaderElement>(null);
+    const [shaderMount, setShaderMount] = useState<ShaderMountVanilla | null>(null);
 
-    // Initialize the ShaderMountVanilla
-    useEffect(() => {
-      const initShader = async () => {
-        const uniforms = await processUniforms(uniformsProp);
+    // Uniforms that have been registered for processing or already processed
+    const uniformsRegistered = useRef<ShaderMountUniformsReact>(null);
 
-        if (divRef.current && !shaderMountRef.current) {
-          shaderMountRef.current = new ShaderMountVanilla(
-            divRef.current,
-            fragmentShader,
+    // Save the initial shader fragment and context attributes, they are not allowed to change
+    const [initialShaderFragment] = useState(fragmentShaderProp);
+    const [initialContextAttrs] = useState(webGlContextAttributes);
+
+    // Initial frame that the animation starts at
+    const initialFrame = useRef(frame);
+
+    const [documentVisible, setDocumentVisible] = useState(() => {
+      return typeof window === 'undefined' || document.hidden === false;
+    });
+
+    useLayoutEffect(() => {
+      // Check if uniforms have changed, if yes we'll schedule processing
+      const uniformsDidChange = !fastDeepEqual(uniformsRegistered.current, uniformsProp);
+
+      if (uniformsDidChange) {
+        let cancelPromise = false;
+
+        processUniforms(uniformsProp).then((uniforms) => {
+          if (cancelPromise || !containerRef.current) {
+            return;
+          }
+
+          uniformsRegistered.current = uniformsProp;
+
+          // If shader mount already exists, we can update the uniforms
+          if (shaderMount) {
+            shaderMount.setUniforms(uniforms);
+            return;
+          }
+
+          // Otherwise, initialize a new shader mount
+          const canvas = new ShaderMountVanilla(
+            containerRef.current,
+            initialShaderFragment,
             uniforms,
-            webGlContextAttributesRef.current,
+            initialContextAttrs,
             speed,
             frame,
             minPixelRatio,
             maxPixelCount
           );
 
-          setIsInitialized(true);
-        }
-      };
+          setShaderMount(canvas);
+        });
 
-      initShader();
+        return () => {
+          cancelPromise = true;
+        };
+      }
+
+      // Can't do granular updates if shader mount doesn't exist yet
+      if (!shaderMount) {
+        return;
+      }
+
+      // Pause when document is hidden
+      const targetSpeed = documentVisible ? speed : 0;
+      if (shaderMount.speed !== targetSpeed) {
+        shaderMount.setSpeed(targetSpeed);
+      }
+
+      if (initialFrame.current !== frame) {
+        initialFrame.current = frame;
+        shaderMount.setFrame(frame);
+      }
+
+      if (shaderMount.minPixelRatio !== minPixelRatio) {
+        shaderMount.setMinPixelRatio(minPixelRatio);
+      }
+
+      if (shaderMount.maxPixelCount !== maxPixelCount) {
+        shaderMount.setMaxPixelCount(maxPixelCount);
+      }
+    }, [
+      documentVisible,
+      frame,
+      initialContextAttrs,
+      initialShaderFragment,
+      maxPixelCount,
+      minPixelRatio,
+      shaderMount,
+      speed,
+      uniformsProp,
+    ]);
+
+    // Free up shader mount resources when the component unmounts
+    useEffect(() => {
+      return () => {
+        shaderMount?.dispose();
+      };
+    }, [shaderMount]);
+
+    useEffect(() => {
+      function onVisibilityChange() {
+        setDocumentVisible(!document.hidden);
+      }
+
+      document.addEventListener('visibilitychange', onVisibilityChange);
 
       return () => {
-        shaderMountRef.current?.dispose();
-        shaderMountRef.current = null;
+        document.removeEventListener('visibilitychange', onVisibilityChange);
       };
-    }, [fragmentShader]);
+    }, []);
 
-    // Uniforms
-    useEffect(() => {
-      let isStale = false;
-
-      const updateUniforms = async () => {
-        const uniforms = await processUniforms(uniformsProp);
-
-        if (!isStale) {
-          // We only use the freshest uniforms otherwise we can get into race conditions
-          // if some uniforms (images!) take longer to load in subsequent effect runs.
-          shaderMountRef.current?.setUniforms(uniforms);
-        }
-      };
-
-      updateUniforms();
-
-      return () => {
-        isStale = true;
-      };
-    }, [uniformsProp, isInitialized]);
-
-    // Speed
-    useEffect(() => {
-      shaderMountRef.current?.setSpeed(speed);
-    }, [speed, isInitialized]);
-
-    // Max Pixel Count
-    useEffect(() => {
-      shaderMountRef.current?.setMaxPixelCount(maxPixelCount);
-    }, [maxPixelCount, isInitialized]);
-
-    // Min Pixel Ratio
-    useEffect(() => {
-      shaderMountRef.current?.setMinPixelRatio(minPixelRatio);
-    }, [minPixelRatio, isInitialized]);
-
-    // Frame
-    useEffect(() => {
-      shaderMountRef.current?.setFrame(frame);
-    }, [frame, isInitialized]);
-
-    const mergedRef = useMergeRefs([divRef, forwardedRef]) as unknown as React.RefObject<HTMLDivElement>;
     return (
       <div
-        ref={mergedRef}
+        ref={useMergeRefs([containerRef, forwardedRef]) as unknown as React.RefObject<HTMLDivElement>}
         style={width !== undefined || height !== undefined ? { width, height, ...style } : style}
         {...divProps}
       />
