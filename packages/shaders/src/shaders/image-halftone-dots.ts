@@ -383,7 +383,7 @@ export interface ImageHalftoneDotsParams extends ShaderSizingParams, ShaderMotio
 }
 
 export const ImageHalftoneDotsTypes = {
-  regular: 0,
+  classic: 0,
   overflow: 1,
   gooey: 2,
 } as const;

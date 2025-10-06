@@ -48,7 +48,7 @@ export const abstractPreset: ImageHalftoneDotsPreset = {
     originalColors: true,
     inverted: false,
     noise: 0,
-    type: 'regular',
+    type: 'classic',
   },
 };
 
@@ -66,7 +66,7 @@ export const netPreset: ImageHalftoneDotsPreset = {
     originalColors: true,
     inverted: false,
     noise: 0,
-    type: 'regular',
+    type: 'classic',
   },
 };
 
