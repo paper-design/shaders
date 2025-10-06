@@ -212,9 +212,12 @@ export {
 } from './shaders/heatmap.js';
 
 export {
+  imageHalftoneDotsMeta,
+  ImageHalftoneDotsTypes,
   imageHalftoneDotsFragmentShader,
   type ImageHalftoneDotsParams,
   type ImageHalftoneDotsUniforms,
+  type ImageHalftoneDotsType,
 } from './shaders/image-halftone-dots.js';
 
 // ----- Utils ----- //

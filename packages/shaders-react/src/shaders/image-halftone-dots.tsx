@@ -9,6 +9,7 @@ import {
   type ImageHalftoneDotsParams,
   defaultObjectSizing,
   type ImageShaderPreset,
+  ImageHalftoneDotsTypes,
 } from '@paper-design/shaders';
 
 export interface ImageHalftoneDotsProps extends ShaderComponentProps, ImageHalftoneDotsParams {}
@@ -27,9 +28,9 @@ export const defaultPreset: ImageHalftoneDotsPreset = {
     radius: 0.65,
     contrast: 0.45,
     originalColors: false,
-    gooey: true,
     inverted: false,
     noise: 1,
+    type: 'gooey',
   },
 };
 
@@ -41,13 +42,13 @@ export const abstractPreset: ImageHalftoneDotsPreset = {
     frame: 0,
     colorBack: '#00000000',
     colors: ['#2b2b2b'],
-    size: 50,
+    size: 40,
     radius: 0.65,
     contrast: 0.45,
     originalColors: true,
-    gooey: false,
     inverted: false,
     noise: 0,
+    type: 'regular',
   },
 };
 
@@ -59,17 +60,40 @@ export const netPreset: ImageHalftoneDotsPreset = {
     frame: 0,
     colorBack: '#000000',
     colors: ['#2b2b2b'],
-    size: 17,
-    radius: 0.65,
+    size: 12,
+    radius: 0.67,
     contrast: 0,
     originalColors: true,
-    gooey: false,
     inverted: false,
     noise: 0,
+    type: 'regular',
   },
 };
 
-export const imageHalftoneDotsPresets: ImageHalftoneDotsPreset[] = [defaultPreset, abstractPreset, netPreset];
+export const overflowPreset: ImageHalftoneDotsPreset = {
+  name: 'Overflow',
+  params: {
+    ...defaultObjectSizing,
+    speed: 1,
+    frame: 0,
+    colorBack: '#ffffff00',
+    colors: ['#0012b3'],
+    size: 12,
+    radius: 1,
+    contrast: 0.35,
+    originalColors: false,
+    inverted: false,
+    noise: 0,
+    type: 'overflow',
+  },
+};
+
+export const imageHalftoneDotsPresets: ImageHalftoneDotsPreset[] = [
+  defaultPreset,
+  abstractPreset,
+  netPreset,
+  overflowPreset,
+];
 
 export const ImageHalftoneDots: React.FC<ImageHalftoneDotsProps> = memo(function ImageHalftoneDotsImpl({
   // Own props
@@ -82,9 +106,9 @@ export const ImageHalftoneDots: React.FC<ImageHalftoneDotsProps> = memo(function
   radius = defaultPreset.params.radius,
   contrast = defaultPreset.params.contrast,
   originalColors = defaultPreset.params.originalColors,
-  gooey = defaultPreset.params.gooey,
   inverted = defaultPreset.params.inverted,
   noise = defaultPreset.params.noise,
+  type = defaultPreset.params.type,
 
   // Sizing props
   fit = defaultPreset.params.fit,
@@ -108,9 +132,9 @@ export const ImageHalftoneDots: React.FC<ImageHalftoneDotsProps> = memo(function
     u_radius: radius,
     u_contrast: contrast,
     u_originalColors: originalColors,
-    u_gooey: gooey,
     u_inverted: inverted,
     u_noise: noise,
+    u_type: ImageHalftoneDotsTypes[type],
 
     // Sizing uniforms
     u_fit: ShaderFitOptions[fit],

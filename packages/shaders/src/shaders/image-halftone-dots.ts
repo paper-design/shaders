@@ -47,8 +47,8 @@ uniform mediump float u_imageAspectRatio;
 uniform float u_size;
 uniform float u_noise;
 uniform bool u_originalColors;
-uniform bool u_gooey;
 uniform bool u_inverted;
+uniform float u_type;
 
 out vec4 fragColor;
 
@@ -119,11 +119,35 @@ vec2 getImageUV(vec2 uv) {
   return imageUV;
 }
 
-float getCircleAA(vec2 uv, float r) {
+float getCircle(vec2 uv, float r) {
   r = mix(.5 * u_radius, 0., r);
   float d = length(uv - .5);
   float aa = fwidth(d);
   return 1. - smoothstep(r - aa, r + aa, d);
+}
+
+float getCell(vec2 uv) {
+  uv *= 2.0;
+  uv -= 0.5;
+  float insideX = step(0.0, uv.x) * (1.0 - step(1.0, uv.x));
+  float insideY = step(0.0, uv.y) * (1.0 - step(1.0, uv.y));
+  return insideX * insideY;
+}
+
+float getCircleOverflow(vec2 uv, float r) {
+  float cell = getCell(uv);
+
+  r = mix(.5 * u_radius, 0., r);
+  float rMod = mod(r, .25);
+  
+  float d = length(uv - .5);
+  float aa = fwidth(d);
+  float circle = 1. - smoothstep(rMod - aa, rMod + aa, d);
+  if (r < .25) {
+    return circle;
+  } else {
+    return cell - circle;
+  }
 }
 
 float getGooeyBall(vec2 uv, float r) {
@@ -166,13 +190,20 @@ float getLumAtPx(vec2 px, float contrast) {
   );
   float lum = dot(vec3(0.2126, 0.7152, 0.0722), color);
   lum = u_inverted ? (1. - lum) : lum;
-  lum = mix(2., lum, frame);
+  lum = mix(u_type > 1.5 ? 2. : 1., lum, frame);
   return lum;
 }
 
 vec4 getColorAtPx(vec2 px) {
   vec2 uv = getImageUV(px / u_resolution.xy);
   return texture(u_image, uv);
+}
+
+vec2 getRotated(vec2 v, vec2 c, float a) {
+  v -= c;
+  v = rotate(v, a);
+  v -= c;
+  return v;
 }
 
 float getLumBall(vec2 uv, float gridSize, vec2 offsetPx, float contrast, out vec4 ballColor, out float outLum) {
@@ -187,10 +218,12 @@ float getLumBall(vec2 uv, float gridSize, vec2 offsetPx, float contrast, out vec
   ballColor.rgb *= ballColor.a;
 
   float ball = 0.;
-  if (u_gooey) {
+  if (u_type < .5) {
+    ball = getCircle(uv_f, lum);
+  } else if (u_type < 1.5) {
+    ball = getCircleOverflow(uv_f, lum);
+  } else if (u_type < 2.5) {
     ball = getGooeyBall(uv_f, lum);
-  } else {
-    ball = getCircleAA(uv_f, lum);
   }
 
   outLum = lum;
@@ -207,8 +240,6 @@ void main() {
   vec2 uvOriginal = getImageUV(uv / u_resolution.xy);
   vec4 texture = texture(u_image, uvOriginal);
 
-  vec2 frameUV = getImageUV(uv / u_resolution.xy);
-
   float totalShape = 0.;
   vec3 totalColor = vec3(0.);
   float totalOpacity = 0.;
@@ -222,12 +253,6 @@ void main() {
   float lumWeighted = 0.0;// NEW: accumulate lum * shape
 
   shape = getLumBall(uv, gridSize, vec2(0.), contrast, ballColor, sampleLum);
-  totalColor += ballColor.rgb * shape;
-  totalShape += shape;
-  totalOpacity += ballColor.a * shape;
-  lumWeighted += sampleLum * shape;
-
-  shape = getLumBall(uv, gridSize, vec2(step), contrast, ballColor, sampleLum);
   totalColor += ballColor.rgb * shape;
   totalShape += shape;
   totalOpacity += ballColor.a * shape;
@@ -251,24 +276,32 @@ void main() {
   totalOpacity += ballColor.a * shape;
   lumWeighted += sampleLum * shape;
 
-  shape = getLumBall(uv, gridSize, vec2(step, 3. * step), contrast, ballColor, sampleLum);
-  totalColor += ballColor.rgb * shape;
-  totalShape += shape;
-  totalOpacity += ballColor.a * shape;
-  lumWeighted += sampleLum * shape;
+  if (u_type != 1.) {
+      shape = getLumBall(uv, gridSize, vec2(step), contrast, ballColor, sampleLum);
+      totalColor += ballColor.rgb * shape;
+      totalShape += shape;
+      totalOpacity += ballColor.a * shape;
+      lumWeighted += sampleLum * shape;
 
-  shape = getLumBall(uv, gridSize, vec2(3. * step, step), contrast, ballColor, sampleLum);
-  totalColor += ballColor.rgb * shape;
-  totalShape += shape;
-  totalOpacity += ballColor.a * shape;
-  lumWeighted += sampleLum * shape;
+      shape = getLumBall(uv, gridSize, vec2(step, 3. * step), contrast, ballColor, sampleLum);
+      totalColor += ballColor.rgb * shape;
+      totalShape += shape;
+      totalOpacity += ballColor.a * shape;
+      lumWeighted += sampleLum * shape;
 
-  shape = getLumBall(uv, gridSize, vec2(3. * step), contrast, ballColor, sampleLum);
-  totalColor += ballColor.rgb * shape;
-  totalShape += shape;
-  totalOpacity += ballColor.a * shape;
-  lumWeighted += sampleLum * shape;
+      shape = getLumBall(uv, gridSize, vec2(3. * step, step), contrast, ballColor, sampleLum);
+      totalColor += ballColor.rgb * shape;
+      totalShape += shape;
+      totalOpacity += ballColor.a * shape;
+      lumWeighted += sampleLum * shape;
 
+      shape = getLumBall(uv, gridSize, vec2(3. * step), contrast, ballColor, sampleLum);
+      totalColor += ballColor.rgb * shape;
+      totalShape += shape;
+      totalOpacity += ballColor.a * shape;
+      lumWeighted += sampleLum * shape;
+  }
+  
   totalShape *= texture.a;
 
   totalColor /= max(totalShape, 1e-4);
@@ -276,8 +309,12 @@ void main() {
 
   float avgLum = lumWeighted / max(totalShape, 1e-4);
 
-  float finalShape = min(1., totalShape);
-  if (u_gooey == true) {
+  float finalShape = 0.;
+  if (u_type < .5) {
+    finalShape = min(1., totalShape);
+  } else if (u_type < 1.5) {
+    finalShape = min(1., totalShape);
+  } else if (u_type < 2.5) {
     float totalShapeAA = fwidth(totalShape);
     float r = 1. - u_radius;
     finalShape = smoothstep(r - totalShapeAA, r + totalShapeAA, totalShape);
@@ -327,9 +364,9 @@ export interface ImageHalftoneDotsUniforms extends ShaderSizingUniforms {
   u_radius: number;
   u_contrast: number;
   u_originalColors: boolean;
-  u_gooey: boolean;
   u_inverted: boolean;
   u_noise: number;
+  u_type: (typeof ImageHalftoneDotsTypes)[ImageHalftoneDotsType];
 }
 
 export interface ImageHalftoneDotsParams extends ShaderSizingParams, ShaderMotionParams {
@@ -338,9 +375,17 @@ export interface ImageHalftoneDotsParams extends ShaderSizingParams, ShaderMotio
   radius?: number;
   contrast?: number;
   originalColors?: boolean;
-  gooey?: boolean;
   inverted?: boolean;
   noise?: number;
   colorBack?: string;
   colors?: string[];
+  type?: ImageHalftoneDotsType;
 }
+
+export const ImageHalftoneDotsTypes = {
+  regular: 0,
+  overflow: 1,
+  gooey: 2,
+} as const;
+
+export type ImageHalftoneDotsType = keyof typeof ImageHalftoneDotsTypes;

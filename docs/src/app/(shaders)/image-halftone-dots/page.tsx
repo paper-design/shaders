@@ -5,7 +5,12 @@ import { useControls, button, folder } from 'leva';
 import { setParamsSafe, useResetLevaParams } from '@/helpers/use-reset-leva-params';
 import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
-import {heatmapMeta, ShaderFit} from '@paper-design/shaders';
+import {
+  imageHalftoneDotsMeta,
+  ImageHalftoneDotsType,
+  ImageHalftoneDotsTypes,
+  ShaderFit,
+} from '@paper-design/shaders';
 import { levaImageButton } from '@/helpers/leva-image-button';
 import { useState, useEffect, useCallback } from 'react';
 import { toHsla } from '@/helpers/color-utils';
@@ -41,7 +46,7 @@ const imageFiles = [
 const ImageHalftoneDotsWithControls = () => {
   const { colors, setColors } = useColors({
     defaultColors: defaults.colors,
-    maxColorCount: heatmapMeta.maxColorCount,
+    maxColorCount: imageHalftoneDotsMeta.maxColorCount,
   });
 
   const [imageIdx, setImageIdx] = useState(-1);
@@ -72,9 +77,13 @@ const ImageHalftoneDotsWithControls = () => {
     return {
       colorBack: { value: toHsla(defaults.colorBack), order: 100 },
       originalColors: { value: defaults.originalColors, order: 102 },
-      gooey: { value: defaults.gooey, order: 200 },
-      inverted: { value: defaults.gooey, order: 201 },
-      size: { value: defaults.size, min: 1, max: 100, order: 300 },
+      type: {
+        value: defaults.type,
+        options: Object.keys(ImageHalftoneDotsTypes) as ImageHalftoneDotsType[],
+        order: 201,
+      },
+      inverted: { value: defaults.inverted, order: 201 },
+      size: { value: defaults.size, min: 1, max: 60, order: 300 },
       radius: { value: defaults.radius, min: 0, max: 1, order: 301 },
       contrast: { value: defaults.contrast, min: 0, max: 1, order: 302 },
       noise: { value: defaults.noise, min: 0, max: 1, order: 350 },
@@ -115,7 +124,7 @@ const ImageHalftoneDotsWithControls = () => {
   return (
     <>
       <ShaderContainer shaderDef={imageHalftoneDotsDef} currentParams={params}>
-        <ImageHalftoneDots onClick={handleClick} {...params} colors={ colors } image={image} />
+        <ImageHalftoneDots onClick={handleClick} {...params} colors={colors} image={image} />
       </ShaderContainer>
       <div onClick={handleClick} className="mx-auto mt-16 mb-48 w-fit text-base text-current/70 select-none">
         Click to change the sample image
