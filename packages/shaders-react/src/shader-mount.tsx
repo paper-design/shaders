@@ -183,10 +183,8 @@ export const ShaderMount: React.FC<ShaderMountProps> = forwardRef<PaperShaderEle
       }
 
       if (shaderMount) {
-        // Pause when document is hidden
-        const targetSpeed = documentVisible ? speed : 0;
-        if (shaderMount.speed !== targetSpeed) {
-          shaderMount.setSpeed(targetSpeed);
+        if (shaderMount.speed !== speed) {
+          shaderMount.setSpeed(speed);
         }
 
         if (initialFrame.current !== frame) {
@@ -225,18 +223,6 @@ export const ShaderMount: React.FC<ShaderMountProps> = forwardRef<PaperShaderEle
         shaderMount?.dispose();
       };
     }, [shaderMount]);
-
-    useEffect(() => {
-      function onVisibilityChange() {
-        setDocumentVisible(!document.hidden);
-      }
-
-      document.addEventListener('visibilitychange', onVisibilityChange);
-
-      return () => {
-        document.removeEventListener('visibilitychange', onVisibilityChange);
-      };
-    }, []);
 
     return (
       <div
