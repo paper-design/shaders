@@ -1,6 +1,11 @@
+import type { vec4 } from '../types.js';
 import type { ShaderMotionParams } from '../shader-mount.js';
-import { sizingUV, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
+import { type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
 import { declarePI, rotation2, proceduralHash21 } from '../shader-utils.js';
+
+export const imageHalftoneDotsMeta = {
+  maxColorCount: 10,
+} as const;
 
 /**
 
@@ -30,8 +35,9 @@ uniform mediump float u_offsetY;
 
 uniform float u_time;
 
-uniform vec4 u_colorFront;
 uniform vec4 u_colorBack;
+uniform vec4 u_colors[${imageHalftoneDotsMeta.maxColorCount}];
+uniform float u_colorsCount;
 uniform float u_radius;
 uniform float u_contrast;
 
@@ -169,7 +175,7 @@ vec4 getColorAtPx(vec2 px) {
   return texture(u_image, uv);
 }
 
-float getLumBall(vec2 uv, float gridSize, vec2 offsetPx, float contrast, out vec4 ballColor) {
+float getLumBall(vec2 uv, float gridSize, vec2 offsetPx, float contrast, out vec4 ballColor, out float outLum) {
   vec2 p = uv + offsetPx;
   p /= gridSize;
   vec2 uv_i = floor(p);
@@ -186,6 +192,8 @@ float getLumBall(vec2 uv, float gridSize, vec2 offsetPx, float contrast, out vec
   } else {
     ball = getCircleAA(uv_f, lum);
   }
+
+  outLum = lum;
   return ball;
 }
 
@@ -210,51 +218,63 @@ void main() {
 
   vec4 ballColor;
   float shape;
+  float sampleLum;// NEW: per-sample luminance
+  float lumWeighted = 0.0;// NEW: accumulate lum * shape
 
-  shape = getLumBall(uv, gridSize, vec2(0.), contrast, ballColor);
+  shape = getLumBall(uv, gridSize, vec2(0.), contrast, ballColor, sampleLum);
   totalColor += ballColor.rgb * shape;
   totalShape += shape;
   totalOpacity += ballColor.a * shape;
+  lumWeighted += sampleLum * shape;
 
-  shape = getLumBall(uv, gridSize, vec2(step), contrast, ballColor);
+  shape = getLumBall(uv, gridSize, vec2(step), contrast, ballColor, sampleLum);
   totalColor += ballColor.rgb * shape;
   totalShape += shape;
   totalOpacity += ballColor.a * shape;
+  lumWeighted += sampleLum * shape;
 
-  shape = getLumBall(uv, gridSize, vec2(2. * step, 0.), contrast, ballColor);
+  shape = getLumBall(uv, gridSize, vec2(2. * step, 0.), contrast, ballColor, sampleLum);
   totalColor += ballColor.rgb * shape;
   totalShape += shape;
   totalOpacity += ballColor.a * shape;
+  lumWeighted += sampleLum * shape;
 
-  shape = getLumBall(uv, gridSize, vec2(0., 2. * step), contrast, ballColor);
+  shape = getLumBall(uv, gridSize, vec2(0., 2. * step), contrast, ballColor, sampleLum);
   totalColor += ballColor.rgb * shape;
   totalShape += shape;
   totalOpacity += ballColor.a * shape;
+  lumWeighted += sampleLum * shape;
 
-  shape = getLumBall(uv, gridSize, vec2(2. * step), contrast, ballColor);
+  shape = getLumBall(uv, gridSize, vec2(2. * step), contrast, ballColor, sampleLum);
   totalColor += ballColor.rgb * shape;
   totalShape += shape;
   totalOpacity += ballColor.a * shape;
+  lumWeighted += sampleLum * shape;
 
-  shape = getLumBall(uv, gridSize, vec2(step, 3. * step), contrast, ballColor);
+  shape = getLumBall(uv, gridSize, vec2(step, 3. * step), contrast, ballColor, sampleLum);
   totalColor += ballColor.rgb * shape;
   totalShape += shape;
   totalOpacity += ballColor.a * shape;
+  lumWeighted += sampleLum * shape;
 
-  shape = getLumBall(uv, gridSize, vec2(3. * step, step), contrast, ballColor);
+  shape = getLumBall(uv, gridSize, vec2(3. * step, step), contrast, ballColor, sampleLum);
   totalColor += ballColor.rgb * shape;
   totalShape += shape;
   totalOpacity += ballColor.a * shape;
+  lumWeighted += sampleLum * shape;
 
-  shape = getLumBall(uv, gridSize, vec2(3. * step), contrast, ballColor);
+  shape = getLumBall(uv, gridSize, vec2(3. * step), contrast, ballColor, sampleLum);
   totalColor += ballColor.rgb * shape;
   totalShape += shape;
   totalOpacity += ballColor.a * shape;
+  lumWeighted += sampleLum * shape;
 
   totalShape *= texture.a;
 
   totalColor /= max(totalShape, 1e-4);
   totalOpacity /= max(totalShape, 1e-4);
+
+  float avgLum = lumWeighted / max(totalShape, 1e-4);
 
   float finalShape = min(1., totalShape);
   if (u_gooey == true) {
@@ -278,8 +298,13 @@ void main() {
     color = color + bgColor * (1. - opacity);
     opacity = opacity + u_colorBack.a * (1. - opacity);
   } else {
-    vec3 fgColor = u_colorFront.rgb * u_colorFront.a;
-    float fgOpacity = u_colorFront.a;
+    float sizeMetric = 1. - avgLum;
+    int count = max(int(u_colorsCount), 1);
+    int idx = clamp(int(floor(sizeMetric * float(count))), 0, count - 1);
+    vec4 chosen = u_colors[idx];
+
+    vec3 fgColor = chosen.rgb * chosen.a;
+    float fgOpacity = chosen.a;
     vec3 bgColor = u_colorBack.rgb * u_colorBack.a;
     float bgOpacity = u_colorBack.a;
 
@@ -295,8 +320,9 @@ void main() {
 
 export interface ImageHalftoneDotsUniforms extends ShaderSizingUniforms {
   u_image: HTMLImageElement | string | undefined;
-  u_colorFront: [number, number, number, number];
   u_colorBack: [number, number, number, number];
+  u_colors: vec4[];
+  u_colorsCount: number;
   u_size: number;
   u_radius: number;
   u_contrast: number;
@@ -308,8 +334,6 @@ export interface ImageHalftoneDotsUniforms extends ShaderSizingUniforms {
 
 export interface ImageHalftoneDotsParams extends ShaderSizingParams, ShaderMotionParams {
   image?: HTMLImageElement | string;
-  colorFront?: string;
-  colorBack?: string;
   size?: number;
   radius?: number;
   contrast?: number;
@@ -317,4 +341,6 @@ export interface ImageHalftoneDotsParams extends ShaderSizingParams, ShaderMotio
   gooey?: boolean;
   inverted?: boolean;
   noise?: number;
+  colorBack?: string;
+  colors?: string[];
 }

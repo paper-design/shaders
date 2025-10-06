@@ -22,14 +22,14 @@ export const defaultPreset: ImageHalftoneDotsPreset = {
     speed: 1,
     frame: 0,
     colorBack: '#d4d4d4',
-    colorFront: '#2b2b2b',
+    colors: ['#2b2b2b'],
     size: 12,
     radius: 0.65,
     contrast: 0.45,
     originalColors: false,
-    gooey: false,
+    gooey: true,
     inverted: false,
-    noise: 0,
+    noise: 1,
   },
 };
 
@@ -39,8 +39,8 @@ export const ImageHalftoneDots: React.FC<ImageHalftoneDotsProps> = memo(function
   // Own props
   speed = defaultPreset.params.speed,
   frame = defaultPreset.params.frame,
-  colorFront = defaultPreset.params.colorFront,
   colorBack = defaultPreset.params.colorBack,
+  colors = defaultPreset.params.colors,
   image = '',
   size = defaultPreset.params.size,
   radius = defaultPreset.params.radius,
@@ -65,8 +65,9 @@ export const ImageHalftoneDots: React.FC<ImageHalftoneDotsProps> = memo(function
   const uniforms = {
     // Own uniforms
     u_image: image,
-    u_colorFront: getShaderColorFromString(colorFront),
     u_colorBack: getShaderColorFromString(colorBack),
+    u_colors: colors.map(getShaderColorFromString),
+    u_colorsCount: colors.length,
     u_size: size,
     u_radius: radius,
     u_contrast: contrast,

@@ -14,18 +14,18 @@ export const imageHalftoneDotsDef: ShaderDef = {
       description: 'The image to use for the effect',
     },
     {
+      name: 'colors',
+      type: 'string[]',
+      defaultValue: [],
+      isColor: true,
+      description: 'TBD',
+    },
+    {
       name: 'colorBack',
       type: 'string',
       defaultValue: defaultParams.colorBack,
       isColor: true,
       description: 'Background color',
-    },
-    {
-      name: 'colorFront',
-      type: 'string',
-      defaultValue: defaultParams.colorFront,
-      isColor: true,
-      description: 'The main foreground color',
     },
     {
       name: 'size',
