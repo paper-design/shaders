@@ -210,15 +210,15 @@ export const ShaderMount: React.FC<ShaderMountProps> = forwardRef<PaperShaderEle
         shaderMount.setMaxPixelCount(maxPixelCount);
       }
     }, [
-      shaderMount,
+      documentVisible,
       frame,
-      maxPixelCount,
-      minPixelRatio,
-      speed,
-      uniformsProp,
       initialContextAttrs,
       initialShaderFragment,
-      documentVisible,
+      maxPixelCount,
+      minPixelRatio,
+      shaderMount,
+      speed,
+      uniformsProp,
     ]);
 
     // Free up shader mount resources when the component unmounts
