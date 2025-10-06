@@ -1,6 +1,6 @@
 'use client';
 
-import { ImageGooeyDots, imageGooeyDotsPresets } from '@paper-design/shaders-react';
+import { ImageHalftoneDots, imageHalftoneDotsPresets } from '@paper-design/shaders-react';
 import { useControls, button, folder } from 'leva';
 import { setParamsSafe, useResetLevaParams } from '@/helpers/use-reset-leva-params';
 import { usePresetHighlight } from '@/helpers/use-preset-highlight';
@@ -10,11 +10,11 @@ import { levaImageButton } from '@/helpers/leva-image-button';
 import { useState, useEffect, useCallback } from 'react';
 import { toHsla } from '@/helpers/color-utils';
 import { ShaderDetails } from '@/components/shader-details';
-import { imageGooeyDotsDef } from '@/shader-defs/image-gooey-dots-def';
+import { imageHalftoneDotsDef } from '@/shader-defs/image-halftone-dots-def';
 import { ShaderContainer } from '@/components/shader-container';
 import { useUrlParams } from '@/helpers/use-url-params';
 
-const { worldWidth, worldHeight, ...defaults } = imageGooeyDotsPresets[0].params;
+const { worldWidth, worldHeight, ...defaults } = imageHalftoneDotsPresets[0].params;
 
 const imageFiles = [
   '001.webp',
@@ -37,7 +37,7 @@ const imageFiles = [
   '0018.webp',
 ] as const;
 
-const ImageGooeyDotsWithControls = () => {
+const ImageHalftoneDotsWithControls = () => {
   const [imageIdx, setImageIdx] = useState(-1);
   const [image, setImage] = useState<HTMLImageElement | string>('/images/image-filters/0018.webp');
   const [status, setStatus] = useState('Click to load an image');
@@ -66,7 +66,7 @@ const ImageGooeyDotsWithControls = () => {
 
   const [params, setParams] = useControls(() => {
     const presets = Object.fromEntries(
-      imageGooeyDotsPresets.map(({ name, params: { worldWidth, worldHeight, ...preset } }) => [
+      imageHalftoneDotsPresets.map(({ name, params: { worldWidth, worldHeight, ...preset } }) => [
         name,
         button(() => setParamsSafe(params, setParams, preset)),
       ])
@@ -93,21 +93,21 @@ const ImageGooeyDotsWithControls = () => {
   // Reset to defaults on mount, so that Leva doesn't show values from other
   // shaders when navigating (if two shaders have a color1 param for example)
   useResetLevaParams(params, setParams, defaults);
-  useUrlParams(params, setParams, imageGooeyDotsDef);
-  usePresetHighlight(imageGooeyDotsPresets, params);
+  useUrlParams(params, setParams, imageHalftoneDotsDef);
+  usePresetHighlight(imageHalftoneDotsPresets, params);
   cleanUpLevaParams(params);
 
   return (
     <>
-      <ShaderContainer shaderDef={imageGooeyDotsDef} currentParams={params}>
-        <ImageGooeyDots onClick={handleClick} {...params} image={image} />
+      <ShaderContainer shaderDef={imageHalftoneDotsDef} currentParams={params}>
+        <ImageHalftoneDots onClick={handleClick} {...params} image={image} />
       </ShaderContainer>
       <div onClick={handleClick} className="mx-auto mt-16 mb-48 w-fit text-base text-current/70 select-none">
         Click to change the sample image
       </div>
-      <ShaderDetails shaderDef={imageGooeyDotsDef} currentParams={params} />
+      <ShaderDetails shaderDef={imageHalftoneDotsDef} currentParams={params} />
     </>
   );
 };
 
-export default ImageGooeyDotsWithControls;
+export default ImageHalftoneDotsWithControls;

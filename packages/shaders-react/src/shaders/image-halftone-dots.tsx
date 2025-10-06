@@ -2,23 +2,23 @@ import { memo } from 'react';
 import { ShaderMount, type ShaderComponentProps } from '../shader-mount.js';
 import { colorPropsAreEqual } from '../color-props-are-equal.js';
 import {
-  imageGooeyDotsFragmentShader,
+  imageHalftoneDotsFragmentShader,
   getShaderColorFromString,
   ShaderFitOptions,
-  type ImageGooeyDotsUniforms,
-  type ImageGooeyDotsParams,
+  type ImageHalftoneDotsUniforms,
+  type ImageHalftoneDotsParams,
   defaultObjectSizing,
   type ImageShaderPreset,
 } from '@paper-design/shaders';
 
-export interface ImageGooeyDotsProps extends ShaderComponentProps, ImageGooeyDotsParams {
+export interface ImageHalftoneDotsProps extends ShaderComponentProps, ImageHalftoneDotsParams {
   /** @deprecated use `size` instead */
   pxSize?: number;
 }
 
-type ImageGooeyDotsPreset = ImageShaderPreset<ImageGooeyDotsParams>;
+type ImageHalftoneDotsPreset = ImageShaderPreset<ImageHalftoneDotsParams>;
 
-export const defaultPreset: ImageGooeyDotsPreset = {
+export const defaultPreset: ImageHalftoneDotsPreset = {
   name: 'Default',
   params: {
     ...defaultObjectSizing,
@@ -32,9 +32,9 @@ export const defaultPreset: ImageGooeyDotsPreset = {
   },
 };
 
-export const imageGooeyDotsPresets: ImageGooeyDotsPreset[] = [defaultPreset];
+export const imageHalftoneDotsPresets: ImageHalftoneDotsPreset[] = [defaultPreset];
 
-export const ImageGooeyDots: React.FC<ImageGooeyDotsProps> = memo(function ImageGooeyDotsImpl({
+export const ImageHalftoneDots: React.FC<ImageHalftoneDotsProps> = memo(function ImageHalftoneDotsImpl({
   // Own props
   speed = defaultPreset.params.speed,
   frame = defaultPreset.params.frame,
@@ -57,7 +57,7 @@ export const ImageGooeyDots: React.FC<ImageGooeyDotsProps> = memo(function Image
   worldWidth = defaultPreset.params.worldWidth,
   worldHeight = defaultPreset.params.worldHeight,
   ...props
-}: ImageGooeyDotsProps) {
+}: ImageHalftoneDotsProps) {
   const uniforms = {
     // Own uniforms
     u_image: image,
@@ -77,14 +77,14 @@ export const ImageGooeyDots: React.FC<ImageGooeyDotsProps> = memo(function Image
     u_originY: originY,
     u_worldWidth: worldWidth,
     u_worldHeight: worldHeight,
-  } satisfies ImageGooeyDotsUniforms;
+  } satisfies ImageHalftoneDotsUniforms;
 
   return (
     <ShaderMount
       {...props}
       speed={speed}
       frame={frame}
-      fragmentShader={imageGooeyDotsFragmentShader}
+      fragmentShader={imageHalftoneDotsFragmentShader}
       uniforms={uniforms}
     />
   );

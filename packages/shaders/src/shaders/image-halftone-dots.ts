@@ -12,7 +12,7 @@ import { declarePI, rotation2 } from '../shader-utils.js';
  */
 
 // language=GLSL
-export const imageGooeyDotsFragmentShader: string = `#version 300 es
+export const imageHalftoneDotsFragmentShader: string = `#version 300 es
 precision lowp float;
 
 uniform mediump vec2 u_resolution;
@@ -227,7 +227,7 @@ void main() {
 }
 `;
 
-export interface ImageGooeyDotsUniforms extends ShaderSizingUniforms {
+export interface ImageHalftoneDotsUniforms extends ShaderSizingUniforms {
   u_image: HTMLImageElement | string | undefined;
   u_colorFront: [number, number, number, number];
   u_colorBack: [number, number, number, number];
@@ -236,7 +236,7 @@ export interface ImageGooeyDotsUniforms extends ShaderSizingUniforms {
   u_contrast: number;
 }
 
-export interface ImageGooeyDotsParams extends ShaderSizingParams, ShaderMotionParams {
+export interface ImageHalftoneDotsParams extends ShaderSizingParams, ShaderMotionParams {
   image?: HTMLImageElement | string;
   colorFront?: string;
   colorBack?: string;

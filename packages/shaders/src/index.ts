@@ -212,10 +212,10 @@ export {
 } from './shaders/heatmap.js';
 
 export {
-  imageGooeyDotsFragmentShader,
-  type ImageGooeyDotsParams,
-  type ImageGooeyDotsUniforms,
-} from './shaders/image-gooey-dots.js';
+  imageHalftoneDotsFragmentShader,
+  type ImageHalftoneDotsParams,
+  type ImageHalftoneDotsUniforms,
+} from './shaders/image-halftone-dots.js';
 
 // ----- Utils ----- //
 export { getShaderColorFromString } from './get-shader-color-from-string.js';

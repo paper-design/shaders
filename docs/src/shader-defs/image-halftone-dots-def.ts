@@ -1,11 +1,11 @@
-import { imageGooeyDotsPresets } from '@paper-design/shaders-react';
+import { imageHalftoneDotsPresets } from '@paper-design/shaders-react';
 import type { ShaderDef } from './shader-def-types';
 import { animatedCommonParams } from './common-param-def';
 
-const defaultParams = imageGooeyDotsPresets[0].params;
+const defaultParams = imageHalftoneDotsPresets[0].params;
 
-export const imageGooeyDotsDef: ShaderDef = {
-  name: 'Gooey Dots',
+export const imageHalftoneDotsDef: ShaderDef = {
+  name: 'Halftone Dots',
   description: 'TBD',
   params: [
     {

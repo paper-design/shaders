@@ -25,7 +25,7 @@ import { voronoiDef } from './voronoi-def';
 import { warpDef } from './warp-def';
 import { waterDef } from './water-def';
 import { wavesDef } from './waves-def';
-import { imageGooeyDotsDef } from './image-gooey-dots-def';
+import { imageHalftoneDotsDef } from './image-halftone-dots-def';
 
 export const shaderDefs: ShaderDef[] = [
   grainGradientDef,
@@ -53,5 +53,5 @@ export const shaderDefs: ShaderDef[] = [
   flutedGlassDef,
   imageDitheringDef,
   waterDef,
-  imageGooeyDotsDef,
+  imageHalftoneDotsDef,
 ];
