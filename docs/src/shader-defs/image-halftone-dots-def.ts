@@ -36,11 +36,11 @@ export const imageHalftoneDotsDef: ShaderDef = {
       description: 'TBD',
     },
     {
-      name: 'threshold',
+      name: 'radius',
       type: 'number',
       min: 0,
       max: 1,
-      defaultValue: defaultParams.threshold,
+      defaultValue: defaultParams.radius,
       description: 'TBD',
     },
     {

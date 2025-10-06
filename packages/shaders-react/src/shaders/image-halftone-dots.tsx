@@ -11,10 +11,7 @@ import {
   type ImageShaderPreset,
 } from '@paper-design/shaders';
 
-export interface ImageHalftoneDotsProps extends ShaderComponentProps, ImageHalftoneDotsParams {
-  /** @deprecated use `size` instead */
-  pxSize?: number;
-}
+export interface ImageHalftoneDotsProps extends ShaderComponentProps, ImageHalftoneDotsParams {}
 
 type ImageHalftoneDotsPreset = ImageShaderPreset<ImageHalftoneDotsParams>;
 
@@ -27,8 +24,9 @@ export const defaultPreset: ImageHalftoneDotsPreset = {
     colorBack: '#d4d4d4',
     colorFront: '#2b2b2b',
     size: 12,
-    threshold: 0.65,
+    radius: 0.65,
     contrast: 0.45,
+    originalColors: false,
   },
 };
 
@@ -41,10 +39,10 @@ export const ImageHalftoneDots: React.FC<ImageHalftoneDotsProps> = memo(function
   colorFront = defaultPreset.params.colorFront,
   colorBack = defaultPreset.params.colorBack,
   image = '',
-  pxSize,
-  size = pxSize === undefined ? defaultPreset.params.size : pxSize,
-  threshold = defaultPreset.params.threshold,
+  size = defaultPreset.params.size,
+  radius = defaultPreset.params.radius,
   contrast = defaultPreset.params.contrast,
+  originalColors = defaultPreset.params.originalColors,
 
   // Sizing props
   fit = defaultPreset.params.fit,
@@ -63,9 +61,10 @@ export const ImageHalftoneDots: React.FC<ImageHalftoneDotsProps> = memo(function
     u_image: image,
     u_colorFront: getShaderColorFromString(colorFront),
     u_colorBack: getShaderColorFromString(colorBack),
-    u_pxSize: size,
-    u_threshold: threshold,
+    u_size: size,
+    u_radius: radius,
     u_contrast: contrast,
+    u_originalColors: originalColors,
 
     // Sizing uniforms
     u_fit: ShaderFitOptions[fit],
