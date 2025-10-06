@@ -191,8 +191,10 @@ export const ShaderMount: React.FC<ShaderMountProps> = forwardRef<PaperShaderEle
         return;
       }
 
-      if (shaderMount.speed !== speed * +documentVisible) {
-        shaderMount.setSpeed(speed * +documentVisible);
+      // Pause when document is hidden
+      const targetSpeed = documentVisible ? speed : 0;
+      if (shaderMount.speed !== targetSpeed) {
+        shaderMount.setSpeed(targetSpeed);
       }
 
       if (initialFrame.current !== frame) {
