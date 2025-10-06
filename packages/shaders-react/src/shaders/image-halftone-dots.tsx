@@ -33,7 +33,43 @@ export const defaultPreset: ImageHalftoneDotsPreset = {
   },
 };
 
-export const imageHalftoneDotsPresets: ImageHalftoneDotsPreset[] = [defaultPreset];
+export const abstractPreset: ImageHalftoneDotsPreset = {
+  name: 'Abstract',
+  params: {
+    ...defaultObjectSizing,
+    speed: 1,
+    frame: 0,
+    colorBack: '#00000000',
+    colors: ['#2b2b2b'],
+    size: 50,
+    radius: 0.65,
+    contrast: 0.45,
+    originalColors: true,
+    gooey: false,
+    inverted: false,
+    noise: 0,
+  },
+};
+
+export const netPreset: ImageHalftoneDotsPreset = {
+  name: 'Net',
+  params: {
+    ...defaultObjectSizing,
+    speed: 1,
+    frame: 0,
+    colorBack: '#000000',
+    colors: ['#2b2b2b'],
+    size: 17,
+    radius: 0.65,
+    contrast: 0,
+    originalColors: true,
+    gooey: false,
+    inverted: false,
+    noise: 0,
+  },
+};
+
+export const imageHalftoneDotsPresets: ImageHalftoneDotsPreset[] = [defaultPreset, abstractPreset, netPreset];
 
 export const ImageHalftoneDots: React.FC<ImageHalftoneDotsProps> = memo(function ImageHalftoneDotsImpl({
   // Own props
