@@ -9,6 +9,7 @@ import {
 } from '@paper-design/shaders';
 import { useMergeRefs } from './use-merge-refs.js';
 import { transparentPixel } from './transparent-pixel.js';
+import { fastDeepEqual } from './fast-deep-equal.js';
 
 /**
  * React Shader Mount can also accept strings as uniform values, which will assumed to be URLs and loaded as images
@@ -114,7 +115,7 @@ async function processUniforms(uniformsProp: ShaderMountUniformsReact): Promise<
 export const ShaderMount: React.FC<ShaderMountProps> = forwardRef<PaperShaderElement, ShaderMountProps>(
   function ShaderMountImpl(
     {
-      fragmentShader,
+      fragmentShader: fragmentShaderProp,
       uniforms: uniformsProp,
       webGlContextAttributes,
       speed = 0,
@@ -128,79 +129,102 @@ export const ShaderMount: React.FC<ShaderMountProps> = forwardRef<PaperShaderEle
     },
     forwardedRef
   ) {
-    const divRef = useRef<PaperShaderElement>(null);
+    const containerRef = useRef<PaperShaderElement>(null);
     const [shaderMount, setShaderMount] = useState<ShaderMountVanilla | null>(null);
-    const initialParams = useRef({
-      fragmentShader,
-      frame,
-      maxPixelCount,
-      minPixelRatio,
-      speed,
-      uniformsProp,
-      webGlContextAttributes,
-    });
+
+    // Uniforms that have been registered for processing or already processed
+    const uniformsRegistered = useRef<ShaderMountUniformsReact>(null);
+
+    // Save the initial shader fragment and context attributes, they are not allowed to change
+    const [initialShaderFragment] = useState(fragmentShaderProp);
+    const [initialContextAttrs] = useState(webGlContextAttributes);
+
+    // Initial frame that the animation starts at
+    const initialFrame = useRef(frame);
 
     const [documentVisible, setDocumentVisible] = useState(() => {
       return typeof window === 'undefined' || document.hidden === false;
     });
 
-    // Create a vanilla shader mount when we have the parent element
     useLayoutEffect(() => {
-      if (!divRef.current || shaderMount) {
-        // Dispose the shader mount if the component is unmounting
+      // Check if uniforms have changed, if yes we'll schedule processing
+      const uniformsDidChange = !fastDeepEqual(uniformsRegistered.current, uniformsProp);
+
+      if (uniformsDidChange) {
+        let cancelPromise = false;
+
+        processUniforms(uniformsProp).then((uniforms) => {
+          if (cancelPromise || !containerRef.current) {
+            return;
+          }
+
+          uniformsRegistered.current = uniformsProp;
+
+          // If shader mount already exists, we can update the uniforms
+          if (shaderMount) {
+            shaderMount.setUniforms(uniforms);
+            return;
+          }
+
+          // Otherwise, initialize a new shader mount
+          const canvas = new ShaderMountVanilla(
+            containerRef.current,
+            initialShaderFragment,
+            uniforms,
+            initialContextAttrs,
+            speed,
+            frame,
+            minPixelRatio,
+            maxPixelCount
+          );
+
+          setShaderMount(canvas);
+        });
+
         return () => {
-          shaderMount?.dispose();
+          cancelPromise = true;
         };
       }
 
-      let cancelPromise = false;
+      // Can't do granular updates if shader mount doesn't exist yet
+      if (!shaderMount) {
+        return;
+      }
 
-      // Use initial params from a ref to keep them out of the effect deps, running on mount only
-      const { fragmentShader, uniformsProp, frame, speed, minPixelRatio, maxPixelCount, webGlContextAttributes } =
-        initialParams.current;
+      if (shaderMount.speed !== speed * +documentVisible) {
+        shaderMount.setSpeed(speed * +documentVisible);
+      }
 
-      processUniforms(uniformsProp).then((uniforms) => {
-        if (cancelPromise || !divRef.current) {
-          return;
-        }
+      if (initialFrame.current !== frame) {
+        initialFrame.current = frame;
+        shaderMount.setFrame(frame);
+      }
 
-        const canvas = new ShaderMountVanilla(
-          divRef.current,
-          fragmentShader,
-          uniforms,
-          webGlContextAttributes,
-          speed,
-          frame,
-          minPixelRatio,
-          maxPixelCount
-        );
+      if (shaderMount.minPixelRatio !== minPixelRatio) {
+        shaderMount.setMinPixelRatio(minPixelRatio);
+      }
 
-        setShaderMount(canvas);
-      });
+      if (shaderMount.maxPixelCount !== maxPixelCount) {
+        shaderMount.setMaxPixelCount(maxPixelCount);
+      }
+    }, [
+      shaderMount,
+      frame,
+      maxPixelCount,
+      minPixelRatio,
+      speed,
+      uniformsProp,
+      initialContextAttrs,
+      initialShaderFragment,
+      documentVisible,
+    ]);
 
-      // Cancel the promise if the effect is re-run or the component is unmounting
+    // Free up shader mount resources when the component unmounts
+    useEffect(() => {
       return () => {
-        cancelPromise = true;
+        shaderMount?.dispose();
       };
     }, [shaderMount]);
-
-    // Update the uniforms when they change (as long as we already have the shader mount)
-    useLayoutEffect(() => {
-      let cancelPromise = false;
-
-      processUniforms(uniformsProp).then((uniforms) => {
-        if (cancelPromise) {
-          return;
-        }
-
-        shaderMount?.setUniforms(uniforms);
-      });
-
-      // Cancel the promise if the effect is re-run or the component is unmounting
-      return () => {
-        cancelPromise = true;
-      };
-    }, [shaderMount, uniformsProp]);
 
     useEffect(() => {
       function onVisibilityChange() {
@@ -214,26 +238,9 @@ export const ShaderMount: React.FC<ShaderMountProps> = forwardRef<PaperShaderEle
       };
     }, []);
 
-    useLayoutEffect(() => {
-      // Pause when the document is hidden
-      shaderMount?.setSpeed(speed * +documentVisible);
-    }, [shaderMount, speed, documentVisible]);
-
-    useLayoutEffect(() => {
-      shaderMount?.setFrame(frame);
-    }, [shaderMount, frame]);
-
-    useLayoutEffect(() => {
-      shaderMount?.setMinPixelRatio(minPixelRatio);
-    }, [shaderMount, minPixelRatio]);
-
-    useLayoutEffect(() => {
-      shaderMount?.setMaxPixelCount(maxPixelCount);
-    }, [shaderMount, maxPixelCount]);
-
     return (
       <div
-        ref={useMergeRefs([divRef, forwardedRef]) as unknown as React.RefObject<HTMLDivElement>}
+        ref={useMergeRefs([containerRef, forwardedRef]) as unknown as React.RefObject<HTMLDivElement>}
         style={width !== undefined || height !== undefined ? { width, height, ...style } : style}
         {...divProps}
       />

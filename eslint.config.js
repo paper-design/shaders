@@ -24,7 +24,6 @@ const eslintConfig = [
       'react-refresh': reactRefresh,
     },
     rules: {
-      '@/no-unused-vars': 'warn',
       'react/no-unknown-property': 'error', // fix properties like "fill-rule" => "fillRule"
       'react-hooks/rules-of-hooks': 'error',
       'react-hooks/exhaustive-deps': 'warn',
