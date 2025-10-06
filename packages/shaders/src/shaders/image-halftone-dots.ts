@@ -1,6 +1,6 @@
 import type { ShaderMotionParams } from '../shader-mount.js';
 import { sizingUV, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
-import { declarePI, rotation2 } from '../shader-utils.js';
+import { declarePI, rotation2, proceduralHash21 } from '../shader-utils.js';
 
 /**
 
@@ -39,6 +39,7 @@ uniform sampler2D u_image;
 uniform mediump float u_imageAspectRatio;
 
 uniform float u_size;
+uniform float u_noise;
 uniform bool u_originalColors;
 uniform bool u_gooey;
 uniform bool u_inverted;
@@ -47,6 +48,24 @@ out vec4 fragColor;
 
 ${declarePI}
 ${rotation2}
+${proceduralHash21}
+
+float valueNoise(vec2 st) {
+  vec2 i = floor(st);
+  vec2 f = fract(st);
+  float a = hash21(i);
+  float b = hash21(i + vec2(1.0, 0.0));
+  float c = hash21(i + vec2(0.0, 1.0));
+  float d = hash21(i + vec2(1.0, 1.0));
+  vec2 u = f * f * (3.0 - 2.0 * f);
+  float x1 = mix(a, b, u.x);
+  float x2 = mix(c, d, u.x);
+  return mix(x1, x2, u.y);
+}
+
+float getNoise(vec2 n, vec2 seedOffset) {
+  return valueNoise(n + seedOffset);
+}
 
 float getUvFrame(vec2 uv, vec2 px) {
   float left   = smoothstep(-.5 * px.x, .5 * px.x, uv.x);
@@ -244,6 +263,10 @@ void main() {
     finalShape = smoothstep(r - totalShapeAA, r + totalShapeAA, totalShape);
   }
 
+  float noise = getNoise(uvOriginal * 500., vec2(0.));
+  noise = u_noise * pow(noise, 5.);
+  finalShape = mix(finalShape, 0., noise);
+
   vec3 color = vec3(0.);
   float opacity = 0.;
   
@@ -280,6 +303,7 @@ export interface ImageHalftoneDotsUniforms extends ShaderSizingUniforms {
   u_originalColors: boolean;
   u_gooey: boolean;
   u_inverted: boolean;
+  u_noise: number;
 }
 
 export interface ImageHalftoneDotsParams extends ShaderSizingParams, ShaderMotionParams {
@@ -292,4 +316,5 @@ export interface ImageHalftoneDotsParams extends ShaderSizingParams, ShaderMotio
   originalColors?: boolean;
   gooey?: boolean;
   inverted?: boolean;
+  noise?: number;
 }

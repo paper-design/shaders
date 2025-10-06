@@ -78,9 +78,9 @@ const ImageHalftoneDotsWithControls = () => {
       gooey: { value: defaults.gooey, order: 105 },
       inverted: { value: defaults.gooey, order: 106 },
       size: { value: defaults.size, min: 1, max: 100, order: 201 },
-      radius: { value: defaults.size, min: 0, max: 1, order: 202 },
-      contrast: { value: defaults.size, min: 0, max: 1, order: 202 },
-      speed: { value: defaults.speed, min: 0, max: 3, order: 300 },
+      radius: { value: defaults.radius, min: 0, max: 1, order: 202 },
+      contrast: { value: defaults.contrast, min: 0, max: 1, order: 202 },
+      noise: { value: defaults.noise, min: 0, max: 1, order: 203 },
       scale: { value: defaults.scale, min: 0.1, max: 10, order: 301 },
       fit: { value: defaults.fit, options: ['contain', 'cover'] as ShaderFit[], order: 302 },
       Image: folder(

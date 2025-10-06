@@ -29,6 +29,7 @@ export const defaultPreset: ImageHalftoneDotsPreset = {
     originalColors: false,
     gooey: false,
     inverted: false,
+    noise: 0,
   },
 };
 
@@ -47,6 +48,7 @@ export const ImageHalftoneDots: React.FC<ImageHalftoneDotsProps> = memo(function
   originalColors = defaultPreset.params.originalColors,
   gooey = defaultPreset.params.gooey,
   inverted = defaultPreset.params.inverted,
+  noise = defaultPreset.params.noise,
 
   // Sizing props
   fit = defaultPreset.params.fit,
@@ -71,6 +73,7 @@ export const ImageHalftoneDots: React.FC<ImageHalftoneDotsProps> = memo(function
     u_originalColors: originalColors,
     u_gooey: gooey,
     u_inverted: inverted,
+    u_noise: noise,
 
     // Sizing uniforms
     u_fit: ShaderFitOptions[fit],
