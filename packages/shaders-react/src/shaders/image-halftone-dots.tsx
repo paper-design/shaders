@@ -27,6 +27,8 @@ export const defaultPreset: ImageHalftoneDotsPreset = {
     radius: 0.65,
     contrast: 0.45,
     originalColors: false,
+    gooey: false,
+    inverted: false,
   },
 };
 
@@ -43,6 +45,8 @@ export const ImageHalftoneDots: React.FC<ImageHalftoneDotsProps> = memo(function
   radius = defaultPreset.params.radius,
   contrast = defaultPreset.params.contrast,
   originalColors = defaultPreset.params.originalColors,
+  gooey = defaultPreset.params.gooey,
+  inverted = defaultPreset.params.inverted,
 
   // Sizing props
   fit = defaultPreset.params.fit,
@@ -65,6 +69,8 @@ export const ImageHalftoneDots: React.FC<ImageHalftoneDotsProps> = memo(function
     u_radius: radius,
     u_contrast: contrast,
     u_originalColors: originalColors,
+    u_gooey: gooey,
+    u_inverted: inverted,
 
     // Sizing uniforms
     u_fit: ShaderFitOptions[fit],

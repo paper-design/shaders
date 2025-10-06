@@ -75,6 +75,8 @@ const ImageHalftoneDotsWithControls = () => {
       colorBack: { value: toHsla(defaults.colorBack), order: 100 },
       colorFront: { value: toHsla(defaults.colorFront), order: 102 },
       originalColors: { value: defaults.originalColors, order: 104 },
+      gooey: { value: defaults.gooey, order: 105 },
+      inverted: { value: defaults.gooey, order: 106 },
       size: { value: defaults.size, min: 1, max: 100, order: 201 },
       radius: { value: defaults.size, min: 0, max: 1, order: 202 },
       contrast: { value: defaults.size, min: 0, max: 1, order: 202 },
