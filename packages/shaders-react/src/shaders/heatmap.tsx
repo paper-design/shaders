@@ -128,29 +128,52 @@ export const Heatmap: React.FC<HeatmapProps> = memo(function HeatmapImpl({
     };
   }, [imageUrl, suspendWhenProcessingImage]);
 
-  const uniforms = {
-    // Own uniforms
-    u_image: processedImage,
-    u_contour: contour,
-    u_angle: angle,
-    u_noise: noise,
-    u_innerGlow: innerGlow,
-    u_outerGlow: outerGlow,
-    u_colorBack: getShaderColorFromString(colorBack),
-    u_colors: colors.map(getShaderColorFromString),
-    u_colorsCount: colors.length,
+  const uniforms = useMemo(
+    () => ({
+      // Own uniforms
+      u_image: processedImage,
+      u_contour: contour,
+      u_angle: angle,
+      u_noise: noise,
+      u_innerGlow: innerGlow,
+      u_outerGlow: outerGlow,
+      u_colorBack: getShaderColorFromString(colorBack),
+      u_colors: colors.map(getShaderColorFromString),
+      u_colorsCount: colors.length,
 
-    // Sizing uniforms
-    u_fit: ShaderFitOptions[fit],
-    u_offsetX: offsetX,
-    u_offsetY: offsetY,
-    u_originX: originX,
-    u_originY: originY,
-    u_rotation: rotation,
-    u_scale: scale,
-    u_worldHeight: worldHeight,
-    u_worldWidth: worldWidth,
-  };
+      // Sizing uniforms
+      u_fit: ShaderFitOptions[fit],
+      u_offsetX: offsetX,
+      u_offsetY: offsetY,
+      u_originX: originX,
+      u_originY: originY,
+      u_rotation: rotation,
+      u_scale: scale,
+      u_worldHeight: worldHeight,
+      u_worldWidth: worldWidth,
+    }),
+    [
+      speed,
+      frame,
+      contour,
+      angle,
+      noise,
+      innerGlow,
+      outerGlow,
+      colors,
+      colorBack,
+      processedImage,
+      fit,
+      offsetX,
+      offsetY,
+      originX,
+      originY,
+      rotation,
+      scale,
+      worldHeight,
+      worldWidth,
+    ]
+  ) satisfies HeatmapUniforms;
 
   return (
     <ShaderMount {...props} speed={speed} frame={frame} fragmentShader={heatmapFragmentShader} uniforms={uniforms} />
