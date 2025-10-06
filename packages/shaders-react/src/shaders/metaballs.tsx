@@ -1,4 +1,4 @@
-import { memo } from 'react';
+import { memo, useMemo } from 'react';
 import { ShaderMount, type ShaderComponentProps } from '../shader-mount.js';
 import { colorPropsAreEqual } from '../color-props-are-equal.js';
 import {
@@ -97,6 +97,8 @@ export const Metaballs: React.FC<MetaballsProps> = memo(function MetaballsImpl({
   worldHeight = defaultPreset.params.worldHeight,
   ...props
 }: MetaballsProps) {
+  const noiseTexture = useMemo(() => getShaderNoiseTexture(), []);
+
   const uniforms = {
     // Own uniforms
     u_colorBack: getShaderColorFromString(colorBack),
@@ -104,7 +106,7 @@ export const Metaballs: React.FC<MetaballsProps> = memo(function MetaballsImpl({
     u_colorsCount: colors.length,
     u_size: size,
     u_count: count,
-    u_noiseTexture: getShaderNoiseTexture(),
+    u_noiseTexture: noiseTexture,
 
     // Sizing uniforms
     u_fit: ShaderFitOptions[fit],

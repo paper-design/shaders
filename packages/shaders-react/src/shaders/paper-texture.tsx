@@ -1,4 +1,4 @@
-import { memo } from 'react';
+import { memo, useMemo } from 'react';
 import { ShaderMount, type ShaderComponentProps } from '../shader-mount.js';
 import { colorPropsAreEqual } from '../color-props-are-equal.js';
 import {
@@ -165,7 +165,7 @@ export const PaperTexture: React.FC<PaperTextureProps> = memo(function PaperText
   worldHeight = defaultPreset.params.worldHeight,
   ...props
 }: PaperTextureProps) {
-  const noiseTexture = typeof window !== 'undefined' && { u_noiseTexture: getShaderNoiseTexture() };
+  const noiseTexture = useMemo(() => getShaderNoiseTexture(), []);
 
   const uniforms = {
     // Own uniforms
@@ -183,7 +183,7 @@ export const PaperTexture: React.FC<PaperTextureProps> = memo(function PaperText
     u_fade: fade,
     u_drops: drops,
     u_seed: seed,
-    ...noiseTexture,
+    u_noiseTexture: noiseTexture,
 
     // Sizing uniforms
     u_fit: ShaderFitOptions[fit],

@@ -1,4 +1,4 @@
-import { memo } from 'react';
+import { memo, useMemo } from 'react';
 import { ShaderMount, type ShaderComponentProps } from '../shader-mount.js';
 import { colorPropsAreEqual } from '../color-props-are-equal.js';
 import {
@@ -121,6 +121,8 @@ export const GodRays: React.FC<GodRaysProps> = memo(function GodRaysImpl({
   worldHeight = defaultPreset.params.worldHeight,
   ...props
 }: GodRaysProps) {
+  const noiseTexture = useMemo(() => getShaderNoiseTexture(), []);
+
   const uniforms = {
     // Own uniforms
     u_colorBloom: getShaderColorFromString(colorBloom),
@@ -133,7 +135,7 @@ export const GodRays: React.FC<GodRaysProps> = memo(function GodRaysImpl({
     u_midSize: midSize,
     u_intensity: intensity,
     u_bloom: bloom,
-    u_noiseTexture: getShaderNoiseTexture(),
+    u_noiseTexture: noiseTexture,
 
     // Sizing uniforms
     u_fit: ShaderFitOptions[fit],

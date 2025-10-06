@@ -1,4 +1,4 @@
-import { memo } from 'react';
+import { memo, useMemo } from 'react';
 import { ShaderMount, type ShaderComponentProps } from '../shader-mount.js';
 import { colorPropsAreEqual } from '../color-props-are-equal.js';
 import {
@@ -104,6 +104,8 @@ export const DotOrbit: React.FC<DotOrbitProps> = memo(function DotOrbitImpl({
   worldHeight = defaultPreset.params.worldHeight,
   ...props
 }: DotOrbitProps) {
+  const noiseTexture = useMemo(() => getShaderNoiseTexture(), []);
+
   const uniforms = {
     // Own uniforms
     u_colorBack: getShaderColorFromString(colorBack),
@@ -113,7 +115,7 @@ export const DotOrbit: React.FC<DotOrbitProps> = memo(function DotOrbitImpl({
     u_sizeRange: sizeRange,
     u_spreading: spreading,
     u_stepsPerColor: stepsPerColor,
-    u_noiseTexture: getShaderNoiseTexture(),
+    u_noiseTexture: noiseTexture,
 
     // Sizing uniforms
     u_fit: ShaderFitOptions[fit],

@@ -1,4 +1,4 @@
-import { memo } from 'react';
+import { memo, useMemo } from 'react';
 import { ShaderMount, type ShaderComponentProps } from '../shader-mount.js';
 import { colorPropsAreEqual } from '../color-props-are-equal.js';
 import {
@@ -110,6 +110,8 @@ export const SmokeRing: React.FC<SmokeRingProps> = memo(function SmokeRingImpl({
   worldHeight = defaultPreset.params.worldHeight,
   ...props
 }: SmokeRingProps) {
+  const noiseTexture = useMemo(() => getShaderNoiseTexture(), []);
+
   const uniforms = {
     // Own uniforms
     u_colorBack: getShaderColorFromString(colorBack),
@@ -120,7 +122,7 @@ export const SmokeRing: React.FC<SmokeRingProps> = memo(function SmokeRingImpl({
     u_radius: radius,
     u_innerShape: innerShape,
     u_noiseIterations: noiseIterations,
-    u_noiseTexture: getShaderNoiseTexture(),
+    u_noiseTexture: noiseTexture,
 
     // Sizing uniforms
     u_fit: ShaderFitOptions[fit],

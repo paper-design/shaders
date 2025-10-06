@@ -1,4 +1,4 @@
-import { memo } from 'react';
+import { memo, useMemo } from 'react';
 import { ShaderMount, type ShaderComponentProps } from '../shader-mount.js';
 import { colorPropsAreEqual } from '../color-props-are-equal.js';
 import {
@@ -166,6 +166,8 @@ export const Warp: React.FC<WarpProps> = memo(function WarpImpl({
   worldHeight = defaultPreset.params.worldHeight,
   ...props
 }: WarpProps) {
+  const noiseTexture = useMemo(() => getShaderNoiseTexture(), []);
+
   const uniforms = {
     // Own uniforms
     u_colors: colors.map(getShaderColorFromString),
@@ -177,7 +179,7 @@ export const Warp: React.FC<WarpProps> = memo(function WarpImpl({
     u_swirlIterations: swirlIterations,
     u_shapeScale: shapeScale,
     u_shape: WarpPatterns[shape],
-    u_noiseTexture: getShaderNoiseTexture(),
+    u_noiseTexture: noiseTexture,
 
     // Sizing uniforms
     u_scale: scale,

@@ -147,12 +147,12 @@ export const ShaderMount: React.FC<ShaderMountProps> = forwardRef<PaperShaderEle
     });
 
     useLayoutEffect(() => {
+      let cancelPromise = false;
+
       // Check if uniforms have changed, if yes we'll schedule processing
       const uniformsDidChange = !fastDeepEqual(uniformsRegistered.current, uniformsProp);
 
       if (uniformsDidChange) {
-        let cancelPromise = false;
-
         processUniforms(uniformsProp).then((uniforms) => {
           if (cancelPromise || !containerRef.current) {
             return;
@@ -180,35 +180,33 @@ export const ShaderMount: React.FC<ShaderMountProps> = forwardRef<PaperShaderEle
 
           setShaderMount(canvas);
         });
-
-        return () => {
-          cancelPromise = true;
-        };
       }
 
-      // Can't do granular updates if shader mount doesn't exist yet
-      if (!shaderMount) {
-        return;
+      if (shaderMount) {
+        // Pause when document is hidden
+        const targetSpeed = documentVisible ? speed : 0;
+        if (shaderMount.speed !== targetSpeed) {
+          shaderMount.setSpeed(targetSpeed);
+        }
+
+        if (initialFrame.current !== frame) {
+          initialFrame.current = frame;
+          shaderMount.setFrame(frame);
+        }
+
+        if (shaderMount.minPixelRatio !== minPixelRatio) {
+          shaderMount.setMinPixelRatio(minPixelRatio);
+        }
+
+        if (shaderMount.maxPixelCount !== maxPixelCount) {
+          shaderMount.setMaxPixelCount(maxPixelCount);
+        }
       }
 
-      // Pause when document is hidden
-      const targetSpeed = documentVisible ? speed : 0;
-      if (shaderMount.speed !== targetSpeed) {
-        shaderMount.setSpeed(targetSpeed);
-      }
-
-      if (initialFrame.current !== frame) {
-        initialFrame.current = frame;
-        shaderMount.setFrame(frame);
-      }
-
-      if (shaderMount.minPixelRatio !== minPixelRatio) {
-        shaderMount.setMinPixelRatio(minPixelRatio);
-      }
-
-      if (shaderMount.maxPixelCount !== maxPixelCount) {
-        shaderMount.setMaxPixelCount(maxPixelCount);
-      }
+      return () => {
+        // Cancel the promise if we scheduled uniform processing
+        cancelPromise = uniformsDidChange;
+      };
     }, [
       documentVisible,
       frame,

@@ -1,6 +1,5 @@
 export function getShaderNoiseTexture(): HTMLImageElement | undefined {
   if (typeof window === 'undefined') {
-    console.warn('Paper Shaders: can’t create a texture on the server');
     return undefined;
   }
 

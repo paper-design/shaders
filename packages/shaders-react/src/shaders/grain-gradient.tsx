@@ -1,4 +1,4 @@
-import { memo } from 'react';
+import { memo, useMemo } from 'react';
 import { ShaderMount, type ShaderComponentProps } from '../shader-mount.js';
 import {
   getShaderColorFromString,
@@ -142,6 +142,8 @@ export const GrainGradient: React.FC<GrainGradientProps> = memo(function GrainGr
   worldHeight = defaultPreset.params.worldHeight,
   ...props
 }: GrainGradientProps) {
+  const noiseTexture = useMemo(() => getShaderNoiseTexture(), []);
+
   const uniforms = {
     // Own uniforms
     u_colorBack: getShaderColorFromString(colorBack),
@@ -151,7 +153,7 @@ export const GrainGradient: React.FC<GrainGradientProps> = memo(function GrainGr
     u_intensity: intensity,
     u_noise: noise,
     u_shape: GrainGradientShapes[shape],
-    u_noiseTexture: getShaderNoiseTexture(),
+    u_noiseTexture: noiseTexture,
 
     // Sizing uniforms
     u_fit: ShaderFitOptions[fit],
