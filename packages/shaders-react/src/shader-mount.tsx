@@ -135,10 +135,6 @@ export const ShaderMount: React.FC<ShaderMountProps> = forwardRef<PaperShaderEle
     // Uniforms that have been registered for processing or already processed
     const uniformsRegistered = useRef<ShaderMountUniformsReact>(null);
 
-    // Save the initial shader fragment and context attributes, they are not allowed to change
-    const [initialShaderFragment] = useState(fragmentShaderProp);
-    const [initialContextAttrs] = useState(webGlContextAttributes);
-
     // Initial frame that the animation starts at
     const initialFrame = useRef(frame);
 
@@ -146,17 +142,41 @@ export const ShaderMount: React.FC<ShaderMountProps> = forwardRef<PaperShaderEle
       return typeof window === 'undefined' || document.hidden === false;
     });
 
+    const initialParamsRef = useRef({
+      speed,
+      frame,
+      minPixelRatio,
+      maxPixelCount,
+      fragmentShaderProp,
+      webGlContextAttributes,
+    });
+
     useLayoutEffect(() => {
-      let cancelPromise = false;
+      // Keep track of the new params that may come in while the shader mount is being created
+      if (!shaderMount) {
+        initialParamsRef.current.frame = frame;
+        initialParamsRef.current.speed = speed;
+        initialParamsRef.current.minPixelRatio = minPixelRatio;
+        initialParamsRef.current.maxPixelCount = maxPixelCount;
+
+        // Not tracking fragment shader and WebGL context attributes,
+        // we won't keep them updated throughout the component lifecycle anyway
+      }
 
       // Check if uniforms have changed, if yes we'll schedule processing
       const uniformsDidChange = !fastDeepEqual(uniformsRegistered.current, uniformsProp);
+      console.log('fx', uniformsProp, uniformsDidChange);
+
+      // If new uniforms come in while previous are processing, the processing will be cancelled
+      let cancelPromise = false;
 
       if (uniformsDidChange) {
         processUniforms(uniformsProp).then((uniforms) => {
           if (cancelPromise || !containerRef.current) {
             return;
           }
+
+          console.log('uniforms processed', uniforms);
 
           uniformsRegistered.current = uniformsProp;
 
@@ -169,13 +189,13 @@ export const ShaderMount: React.FC<ShaderMountProps> = forwardRef<PaperShaderEle
           // Otherwise, initialize a new shader mount
           const canvas = new ShaderMountVanilla(
             containerRef.current,
-            initialShaderFragment,
+            initialParamsRef.current.fragmentShaderProp,
             uniforms,
-            initialContextAttrs,
-            speed,
-            frame,
-            minPixelRatio,
-            maxPixelCount
+            initialParamsRef.current.webGlContextAttributes,
+            initialParamsRef.current.speed,
+            initialParamsRef.current.frame,
+            initialParamsRef.current.minPixelRatio,
+            initialParamsRef.current.maxPixelCount
           );
 
           setShaderMount(canvas);
@@ -205,17 +225,7 @@ export const ShaderMount: React.FC<ShaderMountProps> = forwardRef<PaperShaderEle
         // Cancel the promise if we scheduled uniform processing
         cancelPromise = uniformsDidChange;
       };
-    }, [
-      documentVisible,
-      frame,
-      initialContextAttrs,
-      initialShaderFragment,
-      maxPixelCount,
-      minPixelRatio,
-      shaderMount,
-      speed,
-      uniformsProp,
-    ]);
+    }, [documentVisible, frame, maxPixelCount, minPixelRatio, shaderMount, speed, uniformsProp]);
 
     // Free up shader mount resources when the component unmounts
     useEffect(() => {
