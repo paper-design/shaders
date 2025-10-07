@@ -1,6 +1,5 @@
 import { wavesPresets } from '@paper-design/shaders-react';
-import type { ShaderDef } from './shader-def-types';
-import { staticCommonParams } from './common-param-def';
+import { staticCommonParams, type ShaderDef } from '@paper-design/shaders';
 
 const defaultParams = wavesPresets[0].params;
 
