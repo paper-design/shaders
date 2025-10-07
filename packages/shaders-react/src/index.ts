@@ -23,6 +23,10 @@ export { DotGrid, dotGridPresets } from './shaders/dot-grid.js';
 export type { DotGridProps } from './shaders/dot-grid.js';
 export type { DotGridUniforms, DotGridParams } from '@paper-design/shaders';
 
+export { LineGrid, lineGridPresets } from './shaders/line-grid.js';
+export type { LineGridProps } from './shaders/line-grid.js';
+export type { LineGridUniforms, LineGridParams } from '@paper-design/shaders';
+
 export { SimplexNoise, simplexNoisePresets } from './shaders/simplex-noise.js';
 export type { SimplexNoiseProps } from './shaders/simplex-noise.js';
 export type { SimplexNoiseUniforms, SimplexNoiseParams } from '@paper-design/shaders';
