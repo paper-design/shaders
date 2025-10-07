@@ -1,9 +1,13 @@
 # Paper Shaders
 
+## Version 0.0.57
+
+- Reverts the initialization timing changes introduced in 0.0.56
+
 ## Version 0.0.56
 
 - Shaders are now paused in the background when the browser tab becomes hidden
-- Improved shader initialization timings and WebGL resources clean-up
+- Improved shader initialization timing and WebGL resources clean-up
 
 ## Version 0.0.55
 
