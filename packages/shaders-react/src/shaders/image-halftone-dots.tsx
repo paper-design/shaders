@@ -30,6 +30,7 @@ export const defaultPreset: ImageHalftoneDotsPreset = {
     originalColors: false,
     inverted: false,
     noise: 1,
+    noiseScale: 1,
     type: 'gooey',
   },
 };
@@ -48,6 +49,7 @@ export const abstractPreset: ImageHalftoneDotsPreset = {
     originalColors: true,
     inverted: false,
     noise: 0,
+    noiseScale: 1,
     type: 'classic',
   },
 };
@@ -66,6 +68,7 @@ export const netPreset: ImageHalftoneDotsPreset = {
     originalColors: true,
     inverted: false,
     noise: 0,
+    noiseScale: 1,
     type: 'classic',
   },
 };
@@ -84,6 +87,7 @@ export const overflowPreset: ImageHalftoneDotsPreset = {
     originalColors: false,
     inverted: false,
     noise: 0,
+    noiseScale: 1,
     type: 'overflow',
   },
 };
@@ -108,6 +112,7 @@ export const ImageHalftoneDots: React.FC<ImageHalftoneDotsProps> = memo(function
   originalColors = defaultPreset.params.originalColors,
   inverted = defaultPreset.params.inverted,
   noise = defaultPreset.params.noise,
+  noiseScale = defaultPreset.params.noiseScale,
   type = defaultPreset.params.type,
 
   // Sizing props
@@ -134,6 +139,7 @@ export const ImageHalftoneDots: React.FC<ImageHalftoneDotsProps> = memo(function
     u_originalColors: originalColors,
     u_inverted: inverted,
     u_noise: noise,
+    u_noiseScale: noiseScale,
     u_type: ImageHalftoneDotsTypes[type],
 
     // Sizing uniforms

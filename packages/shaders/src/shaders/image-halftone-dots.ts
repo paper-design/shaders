@@ -24,8 +24,6 @@ uniform mediump vec2 u_resolution;
 uniform mediump float u_pixelRatio;
 uniform mediump float u_originX;
 uniform mediump float u_originY;
-uniform mediump float u_worldWidth;
-uniform mediump float u_worldHeight;
 uniform mediump float u_fit;
 
 uniform mediump float u_scale;
@@ -46,6 +44,7 @@ uniform mediump float u_imageAspectRatio;
 
 uniform float u_size;
 uniform float u_noise;
+uniform float u_noiseScale;
 uniform bool u_originalColors;
 uniform bool u_inverted;
 uniform float u_type;
@@ -316,7 +315,7 @@ void main() {
   vec2 dudx = dFdx(uvOriginal);
   vec2 dudy = dFdy(uvOriginal);
   float noiseGridSize = max(length(dudx), length(dudy));
-  vec2 noiseUV = getImageUV(uvNormalised, .5 / noiseGridSize);
+  vec2 noiseUV = getImageUV(uvNormalised, u_noiseScale / noiseGridSize);
   float noise = valueNoise(noiseUV);
   noise = u_noise * pow(noise, 5.);
   finalShape = mix(finalShape, 0., noise);
@@ -363,6 +362,7 @@ export interface ImageHalftoneDotsUniforms extends ShaderSizingUniforms {
   u_originalColors: boolean;
   u_inverted: boolean;
   u_noise: number;
+  u_noiseScale: number;
   u_type: (typeof ImageHalftoneDotsTypes)[ImageHalftoneDotsType];
 }
 
@@ -374,6 +374,7 @@ export interface ImageHalftoneDotsParams extends ShaderSizingParams, ShaderMotio
   originalColors?: boolean;
   inverted?: boolean;
   noise?: number;
+  noiseScale?: number;
   colorBack?: string;
   colors?: string[];
   type?: ImageHalftoneDotsType;
