@@ -69,10 +69,6 @@ float valueNoise(vec2 st) {
   return mix(x1, x2, u.y);
 }
 
-float getNoise(vec2 n, vec2 seedOffset) {
-  return valueNoise(n + seedOffset);
-}
-
 float getUvFrame(vec2 uv, vec2 px) {
   float left   = smoothstep(-.5 * px.x, .5 * px.x, uv.x);
   float right  = smoothstep(1. + .5 * px.x, 1. - .5 * px.x, uv.x);
@@ -179,8 +175,7 @@ float getUvFrameNew(vec2 uv) {
   return left * right * bottom * top;
 }
 
-float getLumAtPx(vec2 px, float contrast) {
-  vec2 uv = getImageUV(px / u_resolution.xy);
+float getLumAtPx(vec2 uv, float contrast) {
   vec4 tex = texture(u_image, uv);
   float frame = getUvFrameNew(uv);
   vec3 color = vec3(
@@ -192,11 +187,6 @@ float getLumAtPx(vec2 px, float contrast) {
   lum = u_inverted ? (1. - lum) : lum;
   lum = mix(u_type > 1.5 ? 2. : 1., lum, frame);
   return lum;
-}
-
-vec4 getColorAtPx(vec2 px) {
-  vec2 uv = getImageUV(px / u_resolution.xy);
-  return texture(u_image, uv);
 }
 
 vec2 getRotated(vec2 v, vec2 c, float a) {
@@ -213,8 +203,9 @@ float getLumBall(vec2 uv, float gridSize, vec2 offsetPx, float contrast, out vec
   vec2 uv_f = fract(p + .0001);
 
   vec2 samplePx = uv_i * gridSize - offsetPx;
-  float lum = getLumAtPx(samplePx, contrast);
-  ballColor = getColorAtPx(samplePx);
+  vec2 sampleUV = getImageUV(samplePx / u_resolution.xy);
+  float lum = getLumAtPx(sampleUV, contrast);
+  ballColor = texture(u_image, sampleUV);
   ballColor.rgb *= ballColor.a;
 
   float ball = 0.;
@@ -320,7 +311,7 @@ void main() {
     finalShape = smoothstep(r - totalShapeAA, r + totalShapeAA, totalShape);
   }
 
-  float noise = getNoise(uvOriginal * 500., vec2(0.));
+  float noise = valueNoise(uvOriginal * 500.);
   noise = u_noise * pow(noise, 5.);
   finalShape = mix(finalShape, 0., noise);
 
