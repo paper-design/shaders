@@ -88,6 +88,8 @@ const ImageHalftoneDotsWithControls = () => {
       contrast: { value: defaults.contrast, min: 0, max: 1, order: 302 },
       noise: { value: defaults.noise, min: 0, max: 1, order: 350 },
       scale: { value: defaults.scale, min: 0.1, max: 10, order: 351 },
+      offsetX: { value: defaults.offsetX, min: -1, max: 1, order: 352 },
+      offsetY: { value: defaults.offsetY, min: -1, max: 1, order: 353 },
       fit: { value: defaults.fit, options: ['contain', 'cover'] as ShaderFit[], order: 302 },
       Image: folder(
         {
