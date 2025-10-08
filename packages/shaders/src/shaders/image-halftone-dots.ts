@@ -229,7 +229,8 @@ void main() {
   
   float contrast = mix(0., 12., u_contrast);
   
-  vec2 uvOriginal = getImageUV(uv / u_resolution.xy, 1.);
+  vec2 uvNormalised = uv / u_resolution.xy;
+  vec2 uvOriginal = getImageUV(uvNormalised, 1.);
   vec4 texture = texture(u_image, uvOriginal);
 
   float totalShape = 0.;
@@ -315,7 +316,7 @@ void main() {
   vec2 dudx = dFdx(uvOriginal);
   vec2 dudy = dFdy(uvOriginal);
   float noiseGridSize = max(length(dudx), length(dudy));
-  vec2 noiseUV = getImageUV(uv / u_resolution.xy, .5 / noiseGridSize);
+  vec2 noiseUV = getImageUV(uvNormalised, .5 / noiseGridSize);
   float noise = valueNoise(noiseUV);
   noise = u_noise * pow(noise, 5.);
   finalShape = mix(finalShape, 0., noise);
