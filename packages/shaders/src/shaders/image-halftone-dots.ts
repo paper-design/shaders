@@ -85,7 +85,7 @@ float sst(float edge0, float edge1, float x) {
   return smoothstep(edge0, edge1, x);
 }
 
-vec2 getImageUV(vec2 uv) {
+vec2 getImageUV(vec2 uv, float extraScale) {
   vec2 boxOrigin = vec2(.5 - u_originX, u_originY - .5);
   float r = u_rotation * PI / 180.;
   mat2 graphicRotation = mat2(cos(r), sin(r), -sin(r), cos(r));
@@ -105,6 +105,7 @@ vec2 getImageUV(vec2 uv) {
   imageUV += boxOrigin * (imageBoxScale - 1.);
   imageUV += graphicOffset;
   imageUV /= u_scale;
+  imageUV *= extraScale;
   imageUV.x *= u_imageAspectRatio;
   imageUV = graphicRotation * imageUV;
   imageUV.x /= u_imageAspectRatio;
@@ -203,7 +204,7 @@ float getLumBall(vec2 uv, float gridSize, vec2 offsetPx, float contrast, out vec
   vec2 uv_f = fract(p + .0001);
 
   vec2 samplePx = uv_i * gridSize - offsetPx;
-  vec2 sampleUV = getImageUV(samplePx / u_resolution.xy);
+  vec2 sampleUV = getImageUV(samplePx / u_resolution.xy, 1.);
   float lum = getLumAtPx(sampleUV, contrast);
   ballColor = texture(u_image, sampleUV);
   ballColor.rgb *= ballColor.a;
@@ -228,7 +229,7 @@ void main() {
   
   float contrast = mix(0., 12., u_contrast);
   
-  vec2 uvOriginal = getImageUV(uv / u_resolution.xy);
+  vec2 uvOriginal = getImageUV(uv / u_resolution.xy, 1.);
   vec4 texture = texture(u_image, uvOriginal);
 
   float totalShape = 0.;
@@ -311,7 +312,11 @@ void main() {
     finalShape = smoothstep(r - totalShapeAA, r + totalShapeAA, totalShape);
   }
 
-  float noise = valueNoise(uvOriginal * 500.);
+  vec2 dudx = dFdx(uvOriginal);
+  vec2 dudy = dFdy(uvOriginal);
+  float noiseGridSize = max(length(dudx), length(dudy));
+  vec2 noiseUV = getImageUV(uv / u_resolution.xy, .5 / noiseGridSize);
+  float noise = valueNoise(noiseUV);
   noise = u_noise * pow(noise, 5.);
   finalShape = mix(finalShape, 0., noise);
 
