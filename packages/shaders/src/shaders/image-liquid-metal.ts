@@ -167,23 +167,22 @@ void main() {
 
     refr_r *= u_refraction;
     refr_b *= u_refraction;
-
+  
+    float extraBlurAroundEdges = pow(edge, 8.);
     vec3 w = vec3(thin_strip_1_width, thin_strip_2_width, wide_strip_ratio);
     w[1] -= .02 * smoothstep(.0, 1., edge + bulge);
     float stripe_r = mod(dir + refr_r, 1.);
-    float r = get_color_channel(color1.r, color2.r, stripe_r, w, 0.02 + .03 * u_refraction * bulge, bulge);
+    float r = get_color_channel(color1.r, color2.r, stripe_r, w, extraBlurAroundEdges + 0.02 + .03 * u_refraction * bulge, bulge);
     float stripe_g = mod(dir, 1.);
-    float g = get_color_channel(color1.g, color2.g, stripe_g, w, 0.01 / (1. - diagonal), bulge);
+    float g = get_color_channel(color1.g, color2.g, stripe_g, w, extraBlurAroundEdges + 0.01 / (1. - diagonal), bulge);
     float stripe_b = mod(dir - refr_b, 1.);
-    float b = get_color_channel(color1.b, color2.b, stripe_b, w, .01, bulge);
+    float b = get_color_channel(color1.b, color2.b, stripe_b, w, extraBlurAroundEdges + .01, bulge);
 
     color = vec3(r, g, b);
 
     color *= opacity;
 
     fragColor = vec4(color, opacity);
-//    fragColor = vec4(img.r * img.a * get_img_frame_alpha(v_imageUV, 0.), 0., 0., 1.);
-//    fragColor = vec4(vec3(opacityAA), 1.);
 }
 `;
 
