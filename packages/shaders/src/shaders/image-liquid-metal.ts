@@ -93,7 +93,7 @@ void main() {
 
     float diagonal = uv.x - uv.y;
 
-    float t = .1 * u_time;
+    float t = .3 * u_time;
 
     vec4 img = texture(u_image, v_imageUV);
 
