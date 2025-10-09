@@ -124,9 +124,8 @@ void main() {
     float thin_strip_1_width = cycle_width * thin_strip_1_ratio;
     float thin_strip_2_width = cycle_width * thin_strip_2_ratio;
 
-//    opacity = 1. - smoothstep(.9 - .5 * u_edge, 1. - .5 * u_edge, edge);
     opacity *= get_img_frame_alpha(v_imageUV, 0.);
-
+    opacity = smoothstep(0., 1., opacity);
 
     float noise = snoise(uv - t);
 
@@ -145,7 +144,7 @@ void main() {
     bulge *= clamp(pow(uv.y, .1), .3, 1.);
     dir *= (.1 + (1.1 - edge) * bulge);
 
-    dir *= smoothstep(1., .7, edge);
+    dir *= (.5 + .5 * smoothstep(1., .5, edge));
 
     dir += .18 * (smoothstep(.1, .2, uv.y) * smoothstep(.4, .2, uv.y));
     dir += .03 * (smoothstep(.1, .2, 1. - uv.y) * smoothstep(.4, .2, 1. - uv.y));
@@ -183,6 +182,8 @@ void main() {
     color *= opacity;
 
     fragColor = vec4(color, opacity);
+//    fragColor = vec4(img.r * img.a * get_img_frame_alpha(v_imageUV, 0.), 0., 0., 1.);
+//    fragColor = vec4(vec3(opacityAA), 1.);
 }
 `;
 
