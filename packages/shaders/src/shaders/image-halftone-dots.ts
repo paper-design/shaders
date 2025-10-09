@@ -43,8 +43,9 @@ uniform sampler2D u_image;
 uniform mediump float u_imageAspectRatio;
 
 uniform float u_size;
-uniform float u_noise;
-uniform float u_noiseScale;
+uniform float u_grainMixer;
+uniform float u_grainOverlay;
+uniform float u_grainScale;
 uniform bool u_originalColors;
 uniform bool u_inverted;
 uniform float u_type;
@@ -84,7 +85,7 @@ float sst(float edge0, float edge1, float x) {
   return smoothstep(edge0, edge1, x);
 }
 
-vec2 getImageUV(vec2 uv, float extraScale) {
+vec2 getImageUV(vec2 uv, vec2 extraScale) {
   vec2 boxOrigin = vec2(.5 - u_originX, u_originY - .5);
   float r = u_rotation * PI / 180.;
   mat2 graphicRotation = mat2(cos(r), sin(r), -sin(r), cos(r));
@@ -203,7 +204,7 @@ float getLumBall(vec2 uv, float gridSize, vec2 offsetPx, float contrast, out vec
   vec2 uv_f = fract(p + .0001);
 
   vec2 samplePx = uv_i * gridSize - offsetPx;
-  vec2 sampleUV = getImageUV(samplePx / u_resolution.xy, 1.);
+  vec2 sampleUV = getImageUV(samplePx / u_resolution.xy, vec2(1.));
   float lum = getLumAtPx(sampleUV, contrast);
   ballColor = texture(u_image, sampleUV);
   ballColor.rgb *= ballColor.a;
@@ -229,7 +230,7 @@ void main() {
   float contrast = mix(0., 12., u_contrast);
   
   vec2 uvNormalised = uv / u_resolution.xy;
-  vec2 uvOriginal = getImageUV(uvNormalised, 1.);
+  vec2 uvOriginal = getImageUV(uvNormalised, vec2(1.));
   vec4 texture = texture(u_image, uvOriginal);
 
   float totalShape = 0.;
@@ -314,11 +315,10 @@ void main() {
 
   vec2 dudx = dFdx(uvOriginal);
   vec2 dudy = dFdy(uvOriginal);
-  float noiseGridSize = max(length(dudx), length(dudy));
-  vec2 noiseUV = getImageUV(uvNormalised, u_noiseScale / noiseGridSize);
-  float noise = valueNoise(noiseUV);
-  noise = u_noise * pow(noise, 5.);
-  finalShape = mix(finalShape, 0., noise);
+  vec2 grainUV = getImageUV(uvNormalised, u_grainScale / vec2(length(dudx), length(dudy)));
+  float grain = valueNoise(grainUV);
+  grain = 2. * u_grainMixer * pow(grain, 5.);
+  finalShape = mix(finalShape, 0., grain);
 
   vec3 color = vec3(0.);
   float opacity = 0.;
@@ -347,6 +347,12 @@ void main() {
     opacity += bgOpacity * (1. - opacity);
   }
 
+  float rr = valueNoise(rotate(grainUV, 1.) + vec2(3.));
+  float gg = valueNoise(rotate(grainUV, 2.) + vec2(-1.));
+  float bb = valueNoise(grainUV + vec2(5.));
+  vec3 grainColor = vec3(rr, gg, bb);
+  color = mix(color, grainColor, .01 + .5 * u_grainOverlay);
+
   fragColor = vec4(color, opacity);
 }
 `;
@@ -361,8 +367,9 @@ export interface ImageHalftoneDotsUniforms extends ShaderSizingUniforms {
   u_contrast: number;
   u_originalColors: boolean;
   u_inverted: boolean;
-  u_noise: number;
-  u_noiseScale: number;
+  u_grainMixer: number;
+  u_grainOverlay: number;
+  u_grainScale: number;
   u_type: (typeof ImageHalftoneDotsTypes)[ImageHalftoneDotsType];
 }
 
@@ -373,8 +380,9 @@ export interface ImageHalftoneDotsParams extends ShaderSizingParams, ShaderMotio
   contrast?: number;
   originalColors?: boolean;
   inverted?: boolean;
-  noise?: number;
-  noiseScale?: number;
+  grainMixer?: number;
+  grainOverlay?: number;
+  grainScale?: number;
   colorBack?: string;
   colors?: string[];
   type?: ImageHalftoneDotsType;
