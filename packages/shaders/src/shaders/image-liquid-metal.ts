@@ -218,14 +218,19 @@ export function toProcessedImageLiquidMetal(file: File | string): Promise<{ imag
 
     img.onload = () => {
       // Force SVG to load at a high fidelity size if it's an SVG
-      const isSVG = typeof file === 'string' ? file.endsWith('.svg') : file.type === 'image/svg+xml';
+      let isSVG;
+      if (typeof file === 'string') {
+        isSVG = file.endsWith('.svg') || file.startsWith('data:image/svg+xml');
+      } else {
+        isSVG = file.type === 'image/svg+xml';
+      }
 
       let originalWidth = img.width || img.naturalWidth;
       let originalHeight = img.height || img.naturalHeight;
 
       if (isSVG) {
-        // Scale SVG to 1000px max dimension while preserving aspect ratio
-        const svgMaxSize = 1000;
+        // Scale SVG to 4000px max dimension while preserving aspect ratio
+        const svgMaxSize = 4000;
         const aspectRatio = originalWidth / originalHeight;
 
         if (originalWidth > originalHeight) {
