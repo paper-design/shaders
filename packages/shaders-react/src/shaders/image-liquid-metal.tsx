@@ -69,7 +69,7 @@ export const ImageLiquidMetal: React.FC<ImageLiquidMetalProps> = memo(function I
 
   if (suspendWhenProcessingImage && typeof window !== 'undefined') {
     processedImage = suspend(
-      (): Promise<string> => toProcessedImageLiquidMetal(imageUrl).then((result) => URL.createObjectURL(result.blob)),
+      (): Promise<string> => toProcessedImageLiquidMetal(imageUrl).then((result) => URL.createObjectURL(result.pngBlob)),
       [imageUrl]
     );
   } else {
@@ -92,7 +92,7 @@ export const ImageLiquidMetal: React.FC<ImageLiquidMetalProps> = memo(function I
 
     toProcessedImageLiquidMetal(imageUrl).then((result) => {
       if (current) {
-        url = URL.createObjectURL(result.blob);
+        url = URL.createObjectURL(result.pngBlob);
         setProcessedStateImage(url);
       }
     });
