@@ -16,7 +16,7 @@ import { imageLiquidMetalDef } from '@/shader-defs/image-liquid-metal-def';
 const { worldWidth, worldHeight, ...defaults } = imageLiquidMetalPresets[0].params;
 
 const ImageLiquidMetalWithControls = () => {
-  const [image, setImage] = useState<HTMLImageElement | string>('/images/image-filters/0019.webp');
+  const [image, setImage] = useState<HTMLImageElement | string>('/images/logos-svg/apple.svg');
 
   const [params, setParams] = useControls(() => {
     const presets = Object.fromEntries(
@@ -26,7 +26,7 @@ const ImageLiquidMetalWithControls = () => {
       ])
     );
     return {
-      edge: { value: defaults.edge, min: 0, max: 1, order: 200 },
+      // edge: { value: defaults.edge, min: 0, max: 1, order: 200 },
       liquid: { value: defaults.liquid, min: 0, max: 1, order: 201 },
       patternBlur: { value: defaults.patternBlur, min: 0, max: 0.05, order: 202 },
       patternScale: { value: defaults.patternScale, min: 1, max: 10, order: 203 },
