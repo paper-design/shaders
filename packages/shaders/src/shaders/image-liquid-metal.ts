@@ -9,6 +9,7 @@ precision mediump float;
 out vec4 fragColor;
 
 uniform sampler2D u_image;
+uniform float u_scale;
 uniform float u_time;
 uniform float u_imageAspectRatio;
 
@@ -144,7 +145,7 @@ void main() {
     bulge *= clamp(pow(uv.y, .1), .3, 1.);
     dir *= (.1 + (1.1 - edge) * bulge);
 
-    dir *= (.5 + .5 * smoothstep(1., .5, edge));
+    dir *= (.4 + .6 * smoothstep(1., .5, edge));
 
     dir += .18 * (smoothstep(.1, .2, uv.y) * smoothstep(.4, .2, uv.y));
     dir += .03 * (smoothstep(.1, .2, 1. - uv.y) * smoothstep(.4, .2, 1. - uv.y));
@@ -168,7 +169,7 @@ void main() {
     refr_r *= u_refraction;
     refr_b *= u_refraction;
   
-    float extraBlurAroundEdges = pow(edge, 8.);
+    float extraBlurAroundEdges = pow(img.r * img.a, 6.) * mix(1., .2, smoothstep(0.5, 1., u_scale));
     vec3 w = vec3(thin_strip_1_width, thin_strip_2_width, wide_strip_ratio);
     w[1] -= .02 * smoothstep(.0, 1., edge + bulge);
     float stripe_r = mod(dir + refr_r, 1.);
