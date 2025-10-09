@@ -98,7 +98,7 @@ void main() {
     vec4 img = texture(u_image, v_imageUV);
 
     vec3 color = vec3(0.);
-    float opacity = 1.;
+    float opacity = img.a;
 
     vec3 color1 = vec3(.98, 0.98, 1.);
     vec3 color2 = vec3(.1, .1, .1 + .1 * smoothstep(.7, 1.3, uv.x + uv.y));
@@ -124,8 +124,8 @@ void main() {
     float thin_strip_1_width = cycle_width * thin_strip_1_ratio;
     float thin_strip_2_width = cycle_width * thin_strip_2_ratio;
 
-    opacity = 1. - smoothstep(.9 - .5 * u_edge, 1. - .5 * u_edge, edge);
-    opacity *= get_img_frame_alpha(v_imageUV, 0.01);
+//    opacity = 1. - smoothstep(.9 - .5 * u_edge, 1. - .5 * u_edge, edge);
+    opacity *= get_img_frame_alpha(v_imageUV, 0.);
 
 
     float noise = snoise(uv - t);
