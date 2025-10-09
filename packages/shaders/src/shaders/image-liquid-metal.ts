@@ -169,7 +169,7 @@ void main() {
     refr_r *= u_refraction;
     refr_b *= u_refraction;
   
-    float extraBlurAroundEdges = pow(img.r * img.a, 7.) * mix(.5, .15, smoothstep(0.5, 1., u_scale));
+    float extraBlurAroundEdges = pow(img.r * img.a, 10.) * mix(.5, .1, smoothstep(0.5, 1., u_scale));
     vec3 w = vec3(thin_strip_1_width, thin_strip_2_width, wide_strip_ratio);
     w[1] -= .02 * smoothstep(.0, 1., edge + bulge);
     float stripe_r = mod(dir + refr_r, 1.);
