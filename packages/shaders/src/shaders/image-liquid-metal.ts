@@ -96,15 +96,19 @@ void main() {
 
     float t = .3 * u_time;
 
-    vec4 img = texture(u_image, v_imageUV);
+//    vec4 img = texture(u_image, v_imageUV);
+    vec2 dudx = dFdx(v_imageUV);
+    vec2 dudy = dFdy(v_imageUV);
+    vec4 img = textureGrad(u_image, uv, dudx, dudy);
 
     vec3 color = vec3(0.);
-    float opacity = img.a;
+    float opacity = 1. - img.g;
 
     vec3 color1 = vec3(.98, 0.98, 1.);
     vec3 color2 = vec3(.1, .1, .1 + .1 * smoothstep(.7, 1.3, uv.x + uv.y));
 
     float edge = img.r;
+    edge = clamp(edge, 0.05, .95);
 
     vec2 grad_uv = uv;
     grad_uv -= .5;
@@ -116,6 +120,7 @@ void main() {
     float bulge = pow(1.8 * dist, 1.2);
     bulge = 1. - bulge;
     bulge *= pow(uv.y, .3);
+    bulge *= clamp(pow(uv.y, .1), .3, 1.);
 
     float cycle_width = u_patternScale;
     float thin_strip_1_ratio = .12 / cycle_width * (1. - .4 * bulge);
@@ -126,7 +131,6 @@ void main() {
     float thin_strip_2_width = cycle_width * thin_strip_2_ratio;
 
     opacity *= get_img_frame_alpha(v_imageUV, 0.);
-    opacity = smoothstep(0., 1., opacity);
 
     float noise = snoise(uv - t);
 
@@ -169,7 +173,7 @@ void main() {
     refr_r *= u_refraction;
     refr_b *= u_refraction;
   
-    float extraBlurAroundEdges = pow(img.r * img.a, 10.) * mix(.5, .1, smoothstep(0.5, 1., u_scale));
+    float extraBlurAroundEdges = .05 * smoothstep(.6, 1., edge);
     vec3 w = vec3(thin_strip_1_width, thin_strip_2_width, wide_strip_ratio);
     w[1] -= .02 * smoothstep(.0, 1., edge + bulge);
     float stripe_r = mod(dir + refr_r, 1.);
@@ -191,7 +195,7 @@ void main() {
 export const POISSON_CONFIG_OPTIMIZED = {
   measurePerformance: false, // Set to true to see performance metrics
   workingSize: 750, // Size to solve Poisson at (will upscale to original size)
-  iterations: 40, // SOR converges ~2-20x faster than standard Gauss-Seidel
+  iterations: 30, // SOR converges ~2-20x faster than standard Gauss-Seidel
 };
 
 // Precomputed pixel data for sparse processing
@@ -230,8 +234,8 @@ export function toProcessedImageLiquidMetal(file: File | string): Promise<{ imag
       let originalHeight = img.height || img.naturalHeight;
 
       if (isSVG) {
-        // Scale SVG to 4000px max dimension while preserving aspect ratio
-        const svgMaxSize = 4000;
+        // Scale SVG to max dimension while preserving aspect ratio
+        const svgMaxSize = 4064;
         const aspectRatio = originalWidth / originalHeight;
 
         if (originalWidth > originalHeight) {
@@ -247,11 +251,11 @@ export function toProcessedImageLiquidMetal(file: File | string): Promise<{ imag
       }
 
       // Always scale to working resolution for consistency
-      const maxDimension = Math.max(originalWidth, originalHeight);
+      const minDimension = Math.min(originalWidth, originalHeight);
       const targetSize = POISSON_CONFIG_OPTIMIZED.workingSize;
 
       // Calculate scale to fit within workingSize
-      const scaleFactor = targetSize / maxDimension;
+      const scaleFactor = targetSize / minDimension;
       const width = Math.round(originalWidth * scaleFactor);
       const height = Math.round(originalHeight * scaleFactor);
 
@@ -422,6 +426,8 @@ export function toProcessedImageLiquidMetal(file: File | string): Promise<{ imag
       originalCanvas.width = originalWidth;
       originalCanvas.height = originalHeight;
       const originalCtx = originalCanvas.getContext('2d')!;
+      originalCtx.fillStyle = "white";
+      originalCtx.fillRect(0, 0, originalWidth, originalHeight);
       originalCtx.drawImage(img, 0, 0, originalWidth, originalHeight);
       const originalData = originalCtx.getImageData(0, 0, originalWidth, originalHeight);
 
@@ -430,37 +436,12 @@ export function toProcessedImageLiquidMetal(file: File | string): Promise<{ imag
         const r = originalData.data[i]!;
         const g = originalData.data[i + 1]!;
         const b = originalData.data[i + 2]!;
-        const a = originalData.data[i + 3]!;
-
-        if (a === 0) {
-          // Fully transparent - white background
-          outImg.data[i] = 255; // R: white (no gradient)
-          outImg.data[i + 1] = 255; // G: white
-          outImg.data[i + 2] = 255; // B: white
-          outImg.data[i + 3] = 0; // A: transparent
-        } else if (r === 255 && g === 255 && b === 255 && a === 255) {
-          // Pure white with full opacity - background
-          outImg.data[i] = 255; // R: white (no gradient)
-          outImg.data[i + 1] = 255; // G: white
-          outImg.data[i + 2] = 255; // B: white
-          outImg.data[i + 3] = 0; // A: transparent (marks as background for shader)
-        } else {
-          // Part of the shape (including anti-aliased edges)
-          const upscaledAlpha = outImg.data[i + 3]!; // Alpha from upscaled image
-          const currentGray = outImg.data[i]!; // Current gradient value from upscale
-
-          // Check if upscale missed this pixel by looking at alpha channel
-          // If upscaled alpha is 0, the low-res version thought this was background
-          const gradientValue: number = upscaledAlpha === 0 ? 0 : currentGray;
-
-          // Red channel carries the gradient
-          outImg.data[i] = gradientValue;
-          // Green and Blue match for grayscale (shader might use these too)
-          outImg.data[i + 1] = gradientValue;
-          outImg.data[i + 2] = gradientValue;
-          // Alpha channel preserves original alpha for anti-aliasing
-          outImg.data[i + 3] = a;
-        }
+        const luminance = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+        const currentGray = outImg.data[i]!;
+        outImg.data[i] = currentGray;
+        outImg.data[i + 1] = luminance;
+        outImg.data[i + 2] = 255;
+        outImg.data[i + 3] = 255;
       }
 
       ctx.putImageData(outImg, 0, 0);

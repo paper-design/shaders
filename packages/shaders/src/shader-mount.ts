@@ -339,6 +339,9 @@ export class ShaderMount {
 
     // Upload image to texture
     this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.gl.RGBA, this.gl.UNSIGNED_BYTE, image);
+
+    this.gl.generateMipmap(this.gl.TEXTURE_2D);
+    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.LINEAR_MIPMAP_LINEAR);
     const error = this.gl.getError();
     if (error !== this.gl.NO_ERROR || texture === null) {
       console.error('Paper Shaders: WebGL error when uploading texture:', error);
