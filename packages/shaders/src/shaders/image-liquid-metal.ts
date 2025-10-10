@@ -102,7 +102,7 @@ void main() {
     vec4 img = textureGrad(u_image, uv, dudx, dudy);
 
     vec3 color = vec3(0.);
-    float opacity = 1. - img.g;
+    float opacity = img.g;
 
     vec3 color1 = vec3(.98, 0.98, 1.);
     vec3 color2 = vec3(.1, .1, .1 + .1 * smoothstep(.7, 1.3, uv.x + uv.y));
@@ -426,8 +426,8 @@ export function toProcessedImageLiquidMetal(file: File | string): Promise<{ imag
       originalCanvas.width = originalWidth;
       originalCanvas.height = originalHeight;
       const originalCtx = originalCanvas.getContext('2d')!;
-      originalCtx.fillStyle = "white";
-      originalCtx.fillRect(0, 0, originalWidth, originalHeight);
+      // originalCtx.fillStyle = "white";
+      // originalCtx.fillRect(0, 0, originalWidth, originalHeight);
       originalCtx.drawImage(img, 0, 0, originalWidth, originalHeight);
       const originalData = originalCtx.getImageData(0, 0, originalWidth, originalHeight);
 
@@ -436,12 +436,20 @@ export function toProcessedImageLiquidMetal(file: File | string): Promise<{ imag
         const r = originalData.data[i]!;
         const g = originalData.data[i + 1]!;
         const b = originalData.data[i + 2]!;
-        const luminance = 0.2126 * r + 0.7152 * g + 0.0722 * b;
-        const currentGray = outImg.data[i]!;
-        outImg.data[i] = currentGray;
-        outImg.data[i + 1] = luminance;
-        outImg.data[i + 2] = 255;
-        outImg.data[i + 3] = 255;
+        const a = originalData.data[i + 3]!;
+
+        if (a === 0 || (r === 255 && g === 255 && b === 255 && a === 255)) {
+          outImg.data[i] = 255; // R: white (no gradient)
+        } else {
+          // Part of the shape (including anti-aliased edges)
+          const upscaledAlpha = outImg.data[i + 3]!; // Alpha from upscaled image
+          const currentGray = outImg.data[i]!; // Current gradient value from upscale
+
+          // Check if upscale missed this pixel by looking at alpha channel
+          // If upscaled alpha is 0, the low-res version thought this was background
+          outImg.data[i] = upscaledAlpha === 0 ? 0 : currentGray;
+        }
+        outImg.data[i + 1] = a;
       }
 
       ctx.putImageData(outImg, 0, 0);
