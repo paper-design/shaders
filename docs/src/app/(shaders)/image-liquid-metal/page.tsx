@@ -31,7 +31,7 @@ const ImageLiquidMetalWithControls = () => {
       colorBack: {value: toHsla(defaults.colorBack), order: 100},
       colorTint: { value: toHsla(defaults.colorTint), order: 101 },
       repetition: { value: defaults.repetition, min: 1, max: 10, order: 200 },
-      softness: { value: defaults.softness, min: 0, max: 0.05, order: 201 },
+      softness: { value: defaults.softness, min: 0, max: 1, order: 201 },
       shiftRed: { value: defaults.shiftRed, min: -1, max: 1, order: 202 },
       shiftBlue: { value: defaults.shiftBlue, min: -1, max: 1, order: 203 },
       distortion: { value: defaults.distortion, min: 0, max: 1, order: 204 },

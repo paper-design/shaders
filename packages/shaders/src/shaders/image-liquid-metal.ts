@@ -156,14 +156,15 @@ void main() {
   dispersionRed *= (u_shiftRed / 20.);
   dispersionBlue *= (u_shiftBlue / 20.);
 
-  float blur = u_softness + smoothstep(1., 10., u_repetition) * smoothstep(.0, 1., edge);
+  float softness = 0.05 * u_softness;
+  float blur = softness + .5 * smoothstep(1., 10., u_repetition) * smoothstep(.0, 1., edge);
   vec3 w = vec3(thin_strip_1_width, thin_strip_2_width, wide_strip_ratio);
   w[1] -= .02 * smoothstep(.0, 1., edge + bump);
   float stripe_r = mod(direction + dispersionRed, 1.);
-  float rExtraBlur = u_softness * (0.05 + .1 * (u_shiftRed / 20.) * bump);
+  float rExtraBlur = softness * (0.05 + .1 * (u_shiftRed / 20.) * bump);
   float r = getColorChanges(color1.r, color2.r, stripe_r, w, blur + fwidth(stripe_r) + rExtraBlur, bump, u_colorTint.r);
   float stripe_g = mod(direction, 1.);
-  float gExtraBlur = u_softness * 0.05 / (1. - diagBLtoTR);
+  float gExtraBlur = softness * 0.05 / (1. - diagBLtoTR);
   float g = getColorChanges(color1.g, color2.g, stripe_g, w, blur + fwidth(stripe_g) + gExtraBlur, bump, u_colorTint.g);
   float stripe_b = mod(direction - dispersionBlue, 1.);
   float b = getColorChanges(color1.b, color2.b, stripe_b, w, blur + fwidth(stripe_b), bump, u_colorTint.b);

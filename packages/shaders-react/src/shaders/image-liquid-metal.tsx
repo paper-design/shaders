@@ -36,7 +36,7 @@ export const defaultPreset: ImageLiquidMetalPreset = {
     shiftRed: 0.3,
     shiftBlue: 0.3,
     contour: 0.4,
-    softness: 0.005,
+    softness: 0.1,
     showSource: 0,
   },
 };
