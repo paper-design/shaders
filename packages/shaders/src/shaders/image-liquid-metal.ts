@@ -17,9 +17,10 @@ uniform vec4 u_colorTint;
 
 uniform float u_softness;
 uniform float u_repetition;
-uniform float u_refraction;
-uniform float u_contour;
+uniform float u_shiftRed;
+uniform float u_shiftBlue;
 uniform float u_distortion;
+uniform float u_contour;
 
 uniform float u_showSource;
 
@@ -152,14 +153,14 @@ void main() {
   dispersionBlue += (smoothstep(0., .4, uv.y) * smoothstep(.8, .1, uv.y)) * (smoothstep(.4, .6, bump) * smoothstep(.8, .4, bump));
   dispersionBlue -= .2 * edge;
 
-  dispersionRed *= u_refraction;
-  dispersionBlue *= u_refraction;
+  dispersionRed *= (u_shiftRed / 20.);
+  dispersionBlue *= (u_shiftBlue / 20.);
 
   float blur = u_softness + smoothstep(1., 10., u_repetition) * smoothstep(.0, 1., edge);
   vec3 w = vec3(thin_strip_1_width, thin_strip_2_width, wide_strip_ratio);
   w[1] -= .02 * smoothstep(.0, 1., edge + bump);
   float stripe_r = mod(direction + dispersionRed, 1.);
-  float rExtraBlur = u_softness * (0.05 + .1 * u_refraction * bump);
+  float rExtraBlur = u_softness * (0.05 + .1 * (u_shiftRed / 20.) * bump);
   float r = getColorChanges(color1.r, color2.r, stripe_r, w, blur + fwidth(stripe_r) + rExtraBlur, bump, u_colorTint.r);
   float stripe_g = mod(direction, 1.);
   float gExtraBlur = u_softness * 0.05 / (1. - diagBLtoTR);
@@ -628,7 +629,8 @@ export interface ImageLiquidMetalUniforms extends ShaderSizingUniforms {
   u_colorTint: [number, number, number, number];
   u_image: HTMLImageElement | string | undefined;
   u_repetition: number;
-  u_refraction: number;
+  u_shiftRed: number;
+  u_shiftBlue: number;
   u_contour: number;
   u_softness: number;
   u_distortion: number;
@@ -640,7 +642,8 @@ export interface ImageLiquidMetalParams extends ShaderSizingParams, ShaderMotion
   colorTint?: string;
   image?: HTMLImageElement | string | undefined;
   repetition?: number;
-  refraction?: number;
+  shiftRed?: number;
+  shiftBlue?: number;
   contour?: number;
   softness?: number;
   distortion?: number;
