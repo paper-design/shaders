@@ -91,7 +91,9 @@ void main() {
 
   float edge = img.r;
   edge = clamp(edge, 0.05, .95);
-  
+  edge = pow(edge, 1.8);
+  edge *= mix(0., 1., smoothstep(0., .4, u_contour));
+
   float opacity = img.g;
   float frame = getImgFrame(v_imageUV, 0.);
   opacity *= frame;
@@ -126,6 +128,10 @@ void main() {
   direction += diagBLtoTR;
 
   direction -= 2. * noise * diagBLtoTR * (smoothstep(0., 1., edge) * smoothstep(1., 0., edge));
+  
+  direction *= mix(1., 1. - edge, smoothstep(.5, 1., u_contour));
+  direction -= 1.7 * edge * smoothstep(.5, 1., u_contour);
+  direction += .2 * pow(u_contour, 4.) * smoothstep(1., 0., edge);
 
   bump *= clamp(pow(uv.y, .1), .3, 1.);
   direction *= (.1 + (1.1 - edge) * bump);
@@ -183,7 +189,7 @@ void main() {
 // Configuration for Poisson solver
 export const POISSON_CONFIG_OPTIMIZED = {
   measurePerformance: false, // Set to true to see performance metrics
-  workingSize: 750, // Size to solve Poisson at (will upscale to original size)
+  workingSize: 500, // Size to solve Poisson at (will upscale to original size)
   iterations: 30, // SOR converges ~2-20x faster than standard Gauss-Seidel
 };
 
