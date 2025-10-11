@@ -88,7 +88,7 @@ void main() {
 
   float edge = img.r;
   edge = clamp(edge, 0.05, .95);
-  edge = pow(edge, 1.8);
+  edge = pow(edge, 1.6);
   edge *= mix(0., 1., smoothstep(0., .4, u_contour));
 
   float opacity = img.g;
@@ -155,7 +155,7 @@ void main() {
   dispersionRed *= u_refraction;
   dispersionBlue *= u_refraction;
 
-  float blur = u_softness + smoothstep(.96 - .5 * .96 * (.1 * u_repetition + u_contour), .96, edge);
+  float blur = u_softness + smoothstep(1., 10., u_repetition) * smoothstep(.0, 1., edge);
   vec3 w = vec3(thin_strip_1_width, thin_strip_2_width, wide_strip_ratio);
   w[1] -= .02 * smoothstep(.0, 1., edge + bump);
   float stripe_r = mod(direction + dispersionRed, 1.);
