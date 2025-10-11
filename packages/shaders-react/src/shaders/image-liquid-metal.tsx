@@ -33,6 +33,7 @@ export const defaultPreset: ImageLiquidMetalPreset = {
     refraction: 0.015,
     edge: 0.4,
     patternBlur: 0.005,
+    showSource: 0,
   },
 };
 
@@ -48,6 +49,7 @@ export const ImageLiquidMetal: React.FC<ImageLiquidMetalProps> = memo(function I
   patternBlur = defaultPreset.params.patternBlur,
   patternScale = defaultPreset.params.patternScale,
   refraction = defaultPreset.params.refraction,
+  showSource = defaultPreset.params.showSource,
   suspendWhenProcessingImage = false,
 
   // Sizing props
@@ -111,6 +113,7 @@ export const ImageLiquidMetal: React.FC<ImageLiquidMetalProps> = memo(function I
     u_patternBlur: patternBlur,
     u_patternScale: patternScale,
     u_refraction: refraction,
+    u_showSource: showSource,
 
     // Sizing uniforms
     u_fit: ShaderFitOptions[fit],

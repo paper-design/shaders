@@ -26,6 +26,7 @@ const ImageLiquidMetalWithControls = () => {
       ])
     );
     return {
+      showSource: { value: defaults.showSource, min: 0, max: 1, step: 1, order: 0 },
       // edge: { value: defaults.edge, min: 0, max: 1, order: 200 },
       liquid: { value: defaults.liquid, min: 0, max: 1, order: 201 },
       patternBlur: { value: defaults.patternBlur, min: 0, max: 0.05, order: 202 },

@@ -18,6 +18,8 @@ uniform float u_edge;
 uniform float u_patternBlur;
 uniform float u_liquid;
 
+uniform float u_showSource;
+
 ${sizingVariablesDeclaration}
 
 out vec4 fragColor;
@@ -103,7 +105,8 @@ void main() {
   float thin_strip_1_width = cycle_width * thin_strip_1_ratio;
   float thin_strip_2_width = cycle_width * thin_strip_2_ratio;
 
-  opacity *= getImgFrame(v_imageUV, 0.);
+  float frame = getImgFrame(v_imageUV, 0.);
+  opacity *= frame;
 
   float noise = snoise(uv - t);
 
@@ -159,7 +162,11 @@ void main() {
   color = vec3(r, g, b);
   color *= opacity;
 
-  fragColor = vec4(color, opacity);
+  if (u_showSource > .5) {
+    fragColor = vec4(vec3(img.g * img.r) * frame, 1.);
+  } else {
+    fragColor = vec4(color, opacity);
+  }
 }
 `;
 
@@ -600,6 +607,7 @@ export interface ImageLiquidMetalUniforms extends ShaderSizingUniforms {
   u_edge: number;
   u_patternBlur: number;
   u_liquid: number;
+  u_showSource: number;
 }
 
 export interface ImageLiquidMetalParams extends ShaderSizingParams, ShaderMotionParams {
@@ -609,4 +617,5 @@ export interface ImageLiquidMetalParams extends ShaderSizingParams, ShaderMotion
   edge?: number;
   patternBlur?: number;
   liquid?: number;
+  showSource?: number;
 }
