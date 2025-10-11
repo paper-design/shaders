@@ -15,11 +15,11 @@ uniform float u_time;
 uniform vec4 u_colorBack;
 uniform vec4 u_colorTint;
 
-uniform float u_patternScale;
+uniform float u_softness;
+uniform float u_repetition;
 uniform float u_refraction;
 uniform float u_edge;
-uniform float u_patternBlur;
-uniform float u_liquid;
+uniform float u_distortion;
 
 uniform float u_showSource;
 
@@ -34,7 +34,7 @@ ${simplexNoise}
 float getColorChanges(float c1, float c2, float stripe_p, vec3 w, float extra_blur, float b, float tint) {
   float ch = c2;
   float border = 0.;
-  float blur = u_patternBlur + extra_blur;
+  float blur = u_softness + extra_blur;
 
   ch = mix(ch, c1, smoothstep(.0, blur, stripe_p));
 
@@ -81,6 +81,8 @@ void main() {
   vec2 dudy = dFdy(v_imageUV);
   vec4 img = textureGrad(u_image, uv, dudx, dudy);
 
+  float cycleWidth = u_repetition;
+
   vec3 color = vec3(0.);
   float opacity = img.g;
 
@@ -97,28 +99,27 @@ void main() {
 
   grad_uv = rotate(grad_uv, (.25 - .2 * diagonal) * PI);
 
-  float bulge = pow(1.8 * dist, 1.2);
-  bulge = 1. - bulge;
-  bulge *= pow(uv.y, .3);
-  bulge *= clamp(pow(uv.y, .1), .3, 1.);
+  float bump = pow(1.8 * dist, 1.2);
+  bump = 1. - bump;
+  bump *= pow(uv.y, .3);
+  bump *= clamp(pow(uv.y, .1), .3, 1.);
 
-  float cycle_width = u_patternScale;
-  float thin_strip_1_ratio = .12 / cycle_width * (1. - .4 * bulge);
-  float thin_strip_2_ratio = .07 / cycle_width * (1. + .4 * bulge);
+  float thin_strip_1_ratio = .12 / cycleWidth * (1. - .4 * bump);
+  float thin_strip_2_ratio = .07 / cycleWidth * (1. + .4 * bump);
   float wide_strip_ratio = (1. - thin_strip_1_ratio - thin_strip_2_ratio);
 
-  float thin_strip_1_width = cycle_width * thin_strip_1_ratio;
-  float thin_strip_2_width = cycle_width * thin_strip_2_ratio;
+  float thin_strip_1_width = cycleWidth * thin_strip_1_ratio;
+  float thin_strip_2_width = cycleWidth * thin_strip_2_ratio;
 
   float frame = getImgFrame(v_imageUV, 0.);
   opacity *= frame;
 
   float noise = snoise(uv - t);
 
-  edge += (1. - edge) * u_liquid * noise;
+  edge += (1. - edge) * u_distortion * noise;
 
   float refr = 0.;
-  refr += (1. - bulge);
+  refr += (1. - bump);
   refr = clamp(refr, 0., 1.);
 
   float direction = grad_uv.x;
@@ -127,8 +128,8 @@ void main() {
 
   direction -= 2. * noise * diagonal * (smoothstep(0., 1., edge) * smoothstep(1., 0., edge));
 
-  bulge *= clamp(pow(uv.y, .1), .3, 1.);
-  direction *= (.1 + (1.1 - edge) * bulge);
+  bump *= clamp(pow(uv.y, .1), .3, 1.);
+  direction *= (.1 + (1.1 - edge) * bump);
 
   direction *= (.4 + .6 * smoothstep(1., .5, edge));
 
@@ -136,19 +137,17 @@ void main() {
   direction += .03 * (smoothstep(.1, .2, 1. - uv.y) * smoothstep(.4, .2, 1. - uv.y));
 
   direction *= (.5 + .5 * pow(uv.y, 2.));
-
-  direction *= cycle_width;
-
+  direction *= cycleWidth;
   direction -= t;
 
   float dispersionRed = refr;
-  dispersionRed += .03 * bulge * noise;
+  dispersionRed += .03 * bump * noise;
   float dispersionBlue = 1.3 * refr;
 
-  dispersionRed += 5. * (smoothstep(-.1, .2, uv.y) * smoothstep(.5, .1, uv.y)) * (smoothstep(.4, .6, bulge) * smoothstep(1., .4, bulge));
+  dispersionRed += 5. * (smoothstep(-.1, .2, uv.y) * smoothstep(.5, .1, uv.y)) * (smoothstep(.4, .6, bump) * smoothstep(1., .4, bump));
   dispersionRed -= diagonal;
 
-  dispersionBlue += (smoothstep(0., .4, uv.y) * smoothstep(.8, .1, uv.y)) * (smoothstep(.4, .6, bulge) * smoothstep(.8, .4, bulge));
+  dispersionBlue += (smoothstep(0., .4, uv.y) * smoothstep(.8, .1, uv.y)) * (smoothstep(.4, .6, bump) * smoothstep(.8, .4, bump));
   dispersionBlue -= .2 * edge;
 
   dispersionRed *= u_refraction;
@@ -156,13 +155,13 @@ void main() {
 
   float extraBlurAroundEdges = .05 * smoothstep(.6, 1., edge);
   vec3 w = vec3(thin_strip_1_width, thin_strip_2_width, wide_strip_ratio);
-  w[1] -= .02 * smoothstep(.0, 1., edge + bulge);
+  w[1] -= .02 * smoothstep(.0, 1., edge + bump);
   float stripe_r = mod(direction + dispersionRed, 1.);
-  float r = getColorChanges(color1.r, color2.r, stripe_r, w, extraBlurAroundEdges + 0.02 + .03 * u_refraction * bulge, bulge, u_colorTint.r);
+  float r = getColorChanges(color1.r, color2.r, stripe_r, w, extraBlurAroundEdges + 0.02 + .03 * u_refraction * bump, bump, u_colorTint.r);
   float stripe_g = mod(direction, 1.);
-  float g = getColorChanges(color1.g, color2.g, stripe_g, w, extraBlurAroundEdges + 0.01 / (1. - diagonal), bulge, u_colorTint.g);
+  float g = getColorChanges(color1.g, color2.g, stripe_g, w, extraBlurAroundEdges + 0.01 / (1. - diagonal), bump, u_colorTint.g);
   float stripe_b = mod(direction - dispersionBlue, 1.);
-  float b = getColorChanges(color1.b, color2.b, stripe_b, w, extraBlurAroundEdges + .01, bulge, u_colorTint.b);
+  float b = getColorChanges(color1.b, color2.b, stripe_b, w, extraBlurAroundEdges + .01, bump, u_colorTint.b);
 
   color = vec3(r, g, b);
   color *= opacity;
@@ -616,11 +615,11 @@ export interface ImageLiquidMetalUniforms extends ShaderSizingUniforms {
   u_colorBack: [number, number, number, number];
   u_colorTint: [number, number, number, number];
   u_image: HTMLImageElement | string | undefined;
-  u_patternScale: number;
+  u_repetition: number;
   u_refraction: number;
   u_edge: number;
-  u_patternBlur: number;
-  u_liquid: number;
+  u_softness: number;
+  u_distortion: number;
   u_showSource: number;
 }
 
@@ -628,10 +627,10 @@ export interface ImageLiquidMetalParams extends ShaderSizingParams, ShaderMotion
   colorBack?: string;
   colorTint?: string;
   image?: HTMLImageElement | string | undefined;
-  patternScale?: number;
+  repetition?: number;
   refraction?: number;
   edge?: number;
-  patternBlur?: number;
-  liquid?: number;
+  softness?: number;
+  distortion?: number;
   showSource?: number;
 }
