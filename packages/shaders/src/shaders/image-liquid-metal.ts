@@ -18,7 +18,7 @@ uniform vec4 u_colorTint;
 uniform float u_softness;
 uniform float u_repetition;
 uniform float u_refraction;
-uniform float u_edge;
+uniform float u_contour;
 uniform float u_distortion;
 
 uniform float u_showSource;
@@ -70,11 +70,10 @@ float getImgFrame(vec2 uv, float th) {
 }
 
 void main() {
-  vec2 uv = v_imageUV;
-
-  float diagonal = uv.x - uv.y;
 
   float t = .3 * u_time;
+
+  vec2 uv = v_imageUV;
 
 //  vec4 img = texture(u_image, v_imageUV);
   vec2 dudx = dFdx(v_imageUV);
@@ -83,21 +82,24 @@ void main() {
 
   float cycleWidth = u_repetition;
 
-  vec3 color = vec3(0.);
-  float opacity = img.g;
+  float diagBLtoTR = uv.x - uv.y;
+  float diagTLtoBR = uv.x + uv.y;
 
+  vec3 color = vec3(0.);
   vec3 color1 = vec3(.98, 0.98, 1.);
-  vec3 color2 = vec3(.1, .1, .1 + .1 * smoothstep(.7, 1.3, uv.x + uv.y));
+  vec3 color2 = vec3(.1, .1, .1 + .1 * smoothstep(.7, 1.3, diagTLtoBR));
 
   float edge = img.r;
   edge = clamp(edge, 0.05, .95);
+  
+  float opacity = img.g;
+  float frame = getImgFrame(v_imageUV, 0.);
+  opacity *= frame;
+  
+  vec2 grad_uv = uv - .5;
 
-  vec2 grad_uv = uv;
-  grad_uv -= .5;
-
-  float dist = length(grad_uv + vec2(0., .2 * diagonal));
-
-  grad_uv = rotate(grad_uv, (.25 - .2 * diagonal) * PI);
+  float dist = length(grad_uv + vec2(0., .2 * diagBLtoTR));
+  grad_uv = rotate(grad_uv, (.25 - .2 * diagBLtoTR) * PI);
 
   float bump = pow(1.8 * dist, 1.2);
   bump = 1. - bump;
@@ -111,22 +113,19 @@ void main() {
   float thin_strip_1_width = cycleWidth * thin_strip_1_ratio;
   float thin_strip_2_width = cycleWidth * thin_strip_2_ratio;
 
-  float frame = getImgFrame(v_imageUV, 0.);
-  opacity *= frame;
-
   float noise = snoise(uv - t);
 
   edge += (1. - edge) * u_distortion * noise;
 
-  float refr = 0.;
-  refr += (1. - bump);
-  refr = clamp(refr, 0., 1.);
+  float colorDispersion = 0.;
+  colorDispersion += (1. - bump);
+  colorDispersion = clamp(colorDispersion, 0., 1.);
 
   float direction = grad_uv.x;
 
-  direction += diagonal;
+  direction += diagBLtoTR;
 
-  direction -= 2. * noise * diagonal * (smoothstep(0., 1., edge) * smoothstep(1., 0., edge));
+  direction -= 2. * noise * diagBLtoTR * (smoothstep(0., 1., edge) * smoothstep(1., 0., edge));
 
   bump *= clamp(pow(uv.y, .1), .3, 1.);
   direction *= (.1 + (1.1 - edge) * bump);
@@ -140,12 +139,12 @@ void main() {
   direction *= cycleWidth;
   direction -= t;
 
-  float dispersionRed = refr;
+  float dispersionRed = colorDispersion;
   dispersionRed += .03 * bump * noise;
-  float dispersionBlue = 1.3 * refr;
+  float dispersionBlue = 1.3 * colorDispersion;
 
   dispersionRed += 5. * (smoothstep(-.1, .2, uv.y) * smoothstep(.5, .1, uv.y)) * (smoothstep(.4, .6, bump) * smoothstep(1., .4, bump));
-  dispersionRed -= diagonal;
+  dispersionRed -= diagBLtoTR;
 
   dispersionBlue += (smoothstep(0., .4, uv.y) * smoothstep(.8, .1, uv.y)) * (smoothstep(.4, .6, bump) * smoothstep(.8, .4, bump));
   dispersionBlue -= .2 * edge;
@@ -159,7 +158,7 @@ void main() {
   float stripe_r = mod(direction + dispersionRed, 1.);
   float r = getColorChanges(color1.r, color2.r, stripe_r, w, extraBlurAroundEdges + 0.02 + .03 * u_refraction * bump, bump, u_colorTint.r);
   float stripe_g = mod(direction, 1.);
-  float g = getColorChanges(color1.g, color2.g, stripe_g, w, extraBlurAroundEdges + 0.01 / (1. - diagonal), bump, u_colorTint.g);
+  float g = getColorChanges(color1.g, color2.g, stripe_g, w, extraBlurAroundEdges + 0.01 / (1. - diagBLtoTR), bump, u_colorTint.g);
   float stripe_b = mod(direction - dispersionBlue, 1.);
   float b = getColorChanges(color1.b, color2.b, stripe_b, w, extraBlurAroundEdges + .01, bump, u_colorTint.b);
 
@@ -625,7 +624,7 @@ export interface ImageLiquidMetalUniforms extends ShaderSizingUniforms {
   u_image: HTMLImageElement | string | undefined;
   u_repetition: number;
   u_refraction: number;
-  u_edge: number;
+  u_contour: number;
   u_softness: number;
   u_distortion: number;
   u_showSource: number;
@@ -637,7 +636,7 @@ export interface ImageLiquidMetalParams extends ShaderSizingParams, ShaderMotion
   image?: HTMLImageElement | string | undefined;
   repetition?: number;
   refraction?: number;
-  edge?: number;
+  contour?: number;
   softness?: number;
   distortion?: number;
   showSource?: number;

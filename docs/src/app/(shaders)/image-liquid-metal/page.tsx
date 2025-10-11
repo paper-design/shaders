@@ -28,13 +28,13 @@ const ImageLiquidMetalWithControls = () => {
     );
     return {
       showSource: { value: defaults.showSource, min: 0, max: 1, step: 1, order: 0 },
-      // edge: { value: defaults.edge, min: 0, max: 1, order: 200 },
       colorBack: {value: toHsla(defaults.colorBack), order: 100},
       colorTint: { value: toHsla(defaults.colorTint), order: 101 },
-      distortion: { value: defaults.distortion, min: 0, max: 1, order: 201 },
-      softness: { value: defaults.softness, min: 0, max: 0.05, order: 202 },
-      repetition: { value: defaults.repetition, min: 1, max: 10, order: 203 },
-      refraction: { value: defaults.refraction, min: 0, max: 0.06, order: 204 },
+      repetition: { value: defaults.repetition, min: 1, max: 10, order: 200 },
+      softness: { value: defaults.softness, min: 0, max: 0.05, order: 201 },
+      refraction: { value: defaults.refraction, min: 0, max: 0.06, order: 202 },
+      distortion: { value: defaults.distortion, min: 0, max: 1, order: 204 },
+      contour: { value: defaults.contour, min: 0, max: 1, order: 205 },
       speed: { value: defaults.speed, min: 0, max: 4, order: 300 },
       scale: { value: defaults.scale, min: 0.5, max: 10, order: 301 },
       rotation: { value: defaults.rotation, min: 0, max: 360, order: 302 },
