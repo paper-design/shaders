@@ -8,6 +8,7 @@ import {
   type ImageLiquidMetalParams,
   toProcessedImageLiquidMetal,
   type ImageShaderPreset,
+  getShaderColorFromString,
 } from '@paper-design/shaders';
 import { transparentPixel } from '../transparent-pixel.js';
 import { suspend } from '../suspend.js';
@@ -28,6 +29,8 @@ export const defaultPreset: ImageLiquidMetalPreset = {
     scale: 1,
     speed: 1,
     frame: 0,
+    colorBack: '#00000000',
+    colorTint: '#ffffff',
     liquid: 0.07,
     patternScale: 2.0,
     refraction: 0.015,
@@ -41,6 +44,8 @@ export const imageLiquidMetalPresets: ImageLiquidMetalPreset[] = [defaultPreset]
 
 export const ImageLiquidMetal: React.FC<ImageLiquidMetalProps> = memo(function ImageLiquidMetalImpl({
   // Own props
+  colorBack = defaultPreset.params.colorBack,
+  colorTint = defaultPreset.params.colorTint,
   speed = defaultPreset.params.speed,
   frame = defaultPreset.params.frame,
   image = 'https://shaders.paper.design/images/image-filters/0019.webp',
@@ -107,6 +112,9 @@ export const ImageLiquidMetal: React.FC<ImageLiquidMetalProps> = memo(function I
 
   const uniforms = {
     // Own uniforms
+    u_colorBack: getShaderColorFromString(colorBack),
+    u_colorTint: getShaderColorFromString(colorTint),
+
     u_image: processedImage,
     u_edge: edge,
     u_liquid: liquid,

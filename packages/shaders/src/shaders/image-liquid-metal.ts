@@ -8,9 +8,12 @@ export const imageLiquidMetalFragmentShader: string = `#version 300 es
 precision mediump float;
 
 uniform sampler2D u_image;
-uniform float u_scale;
-uniform float u_time;
 uniform float u_imageAspectRatio;
+
+uniform float u_time;
+
+uniform vec4 u_colorBack;
+uniform vec4 u_colorTint;
 
 uniform float u_patternScale;
 uniform float u_refraction;
@@ -28,7 +31,7 @@ ${declarePI}
 ${rotation2}
 ${simplexNoise}
 
-float getColorChanges(float c1, float c2, float stripe_p, vec3 w, float extra_blur, float b) {
+float getColorChanges(float c1, float c2, float stripe_p, vec3 w, float extra_blur, float b, float tint) {
   float ch = c2;
   float border = 0.;
   float blur = u_patternBlur + extra_blur;
@@ -51,7 +54,9 @@ float getColorChanges(float c1, float c2, float stripe_p, vec3 w, float extra_bl
   float gradient_t = (stripe_p - w[0] - w[1]) / w[2];
   float gradient = mix(c1, c2, smoothstep(0., 1., gradient_t));
   ch = mix(ch, gradient, smoothstep(border - blur, border + blur, stripe_p));
-
+  
+  // Tint color is applied with color burn blending
+  ch = mix(ch, 1. - min(1., (1. - ch) / max(tint, 0.0001)), u_colorTint.a);
   return ch;
 }
 
@@ -153,14 +158,21 @@ void main() {
   vec3 w = vec3(thin_strip_1_width, thin_strip_2_width, wide_strip_ratio);
   w[1] -= .02 * smoothstep(.0, 1., edge + bulge);
   float stripe_r = mod(direction + dispersionRed, 1.);
-  float r = getColorChanges(color1.r, color2.r, stripe_r, w, extraBlurAroundEdges + 0.02 + .03 * u_refraction * bulge, bulge);
+  float r = getColorChanges(color1.r, color2.r, stripe_r, w, extraBlurAroundEdges + 0.02 + .03 * u_refraction * bulge, bulge, u_colorTint.r);
   float stripe_g = mod(direction, 1.);
-  float g = getColorChanges(color1.g, color2.g, stripe_g, w, extraBlurAroundEdges + 0.01 / (1. - diagonal), bulge);
+  float g = getColorChanges(color1.g, color2.g, stripe_g, w, extraBlurAroundEdges + 0.01 / (1. - diagonal), bulge, u_colorTint.g);
   float stripe_b = mod(direction - dispersionBlue, 1.);
-  float b = getColorChanges(color1.b, color2.b, stripe_b, w, extraBlurAroundEdges + .01, bulge);
+  float b = getColorChanges(color1.b, color2.b, stripe_b, w, extraBlurAroundEdges + .01, bulge, u_colorTint.b);
 
   color = vec3(r, g, b);
   color *= opacity;
+
+  float colorBackAlpha = u_colorBack.a;
+  vec3 bgColor = u_colorBack.rgb * colorBackAlpha;
+  color = color + bgColor * (1. - opacity);
+  opacity = opacity + colorBackAlpha * (1. - opacity);
+
+  ${colorBandingFix}
 
   if (u_showSource > .5) {
     fragColor = vec4(vec3(img.g * img.r) * frame, 1.);
@@ -601,6 +613,8 @@ function solvePoissonSparse(
 }
 
 export interface ImageLiquidMetalUniforms extends ShaderSizingUniforms {
+  u_colorBack: [number, number, number, number];
+  u_colorTint: [number, number, number, number];
   u_image: HTMLImageElement | string | undefined;
   u_patternScale: number;
   u_refraction: number;
@@ -611,6 +625,8 @@ export interface ImageLiquidMetalUniforms extends ShaderSizingUniforms {
 }
 
 export interface ImageLiquidMetalParams extends ShaderSizingParams, ShaderMotionParams {
+  colorBack?: string;
+  colorTint?: string;
   image?: HTMLImageElement | string | undefined;
   patternScale?: number;
   refraction?: number;

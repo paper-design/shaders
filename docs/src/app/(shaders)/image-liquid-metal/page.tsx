@@ -12,6 +12,7 @@ import { ShaderDetails } from '@/components/shader-details';
 import { ShaderContainer } from '@/components/shader-container';
 import { useUrlParams } from '@/helpers/use-url-params';
 import { imageLiquidMetalDef } from '@/shader-defs/image-liquid-metal-def';
+import { toHsla } from '@/helpers/color-utils';
 
 const { worldWidth, worldHeight, ...defaults } = imageLiquidMetalPresets[0].params;
 
@@ -28,6 +29,8 @@ const ImageLiquidMetalWithControls = () => {
     return {
       showSource: { value: defaults.showSource, min: 0, max: 1, step: 1, order: 0 },
       // edge: { value: defaults.edge, min: 0, max: 1, order: 200 },
+      colorBack: {value: toHsla(defaults.colorBack), order: 100},
+      colorTint: { value: toHsla(defaults.colorTint), order: 101 },
       liquid: { value: defaults.liquid, min: 0, max: 1, order: 201 },
       patternBlur: { value: defaults.patternBlur, min: 0, max: 0.05, order: 202 },
       patternScale: { value: defaults.patternScale, min: 1, max: 10, order: 203 },
