@@ -429,17 +429,25 @@ export function toProcessedImageLiquidMetal(file: File | string): Promise<{ imag
         const a = originalData.data[i + 3]!;
 
         if (a === 0 || (r === 255 && g === 255 && b === 255 && a === 255)) {
+          // Treating as background
           outImg.data[i] = 255; // R: white (no gradient)
+          outImg.data[i + 1] = 0; // G: white
         } else {
           // Part of the shape (including anti-aliased edges)
           const upscaledAlpha = outImg.data[i + 3]!; // Alpha from upscaled image
           const currentGray = outImg.data[i]!; // Current gradient value from upscale
 
+          // Red channel carries the gradient
           // Check if upscale missed this pixel by looking at alpha channel
           // If upscaled alpha is 0, the low-res version thought this was background
           outImg.data[i] = upscaledAlpha === 0 ? 0 : currentGray;
+          // Green channel carries original alpha
+          outImg.data[i + 1] = a;
         }
-        outImg.data[i + 1] = a;
+
+        // not used
+        outImg.data[i + 2] = 255;
+        outImg.data[i + 3] = 255;
       }
 
       ctx.putImageData(outImg, 0, 0);
