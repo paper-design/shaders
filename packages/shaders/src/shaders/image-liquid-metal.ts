@@ -31,21 +31,18 @@ ${declarePI}
 ${rotation2}
 ${simplexNoise}
 
-float getColorChanges(float c1, float c2, float stripe_p, vec3 w, float extra_blur, float b, float tint) {
-  float ch = c2;
-  float border = 0.;
-  float blur = u_softness + extra_blur;
+float getColorChanges(float c1, float c2, float stripe_p, vec3 w, float blur, float bump, float tint) {
+  
+  float ch = mix(c2, c1, smoothstep(.0, blur, stripe_p));
 
-  ch = mix(ch, c1, smoothstep(.0, blur, stripe_p));
-
-  border = w[0];
+  float border = w[0];
   ch = mix(ch, c2, smoothstep(border - blur, border + blur, stripe_p));
 
-  b = smoothstep(.2, .8, b);
-  border = w[0] + .4 * (1. - b) * w[1];
+  bump = smoothstep(.2, .8, bump);
+  border = w[0] + .4 * (1. - bump) * w[1];
   ch = mix(ch, c1, smoothstep(border - blur, border + blur, stripe_p));
 
-  border = w[0] + .5 * (1. - b) * w[1];
+  border = w[0] + .5 * (1. - bump) * w[1];
   ch = mix(ch, c2, smoothstep(border - blur, border + blur, stripe_p));
 
   border = w[0] + w[1];
@@ -158,15 +155,15 @@ void main() {
   dispersionRed *= u_refraction;
   dispersionBlue *= u_refraction;
 
-  float extraBlurAroundEdges = .05 * smoothstep(.6, 1., edge);
+  float blur = u_softness + .05 * smoothstep(.6, 1., edge);
   vec3 w = vec3(thin_strip_1_width, thin_strip_2_width, wide_strip_ratio);
   w[1] -= .02 * smoothstep(.0, 1., edge + bump);
   float stripe_r = mod(direction + dispersionRed, 1.);
-  float r = getColorChanges(color1.r, color2.r, stripe_r, w, extraBlurAroundEdges + 0.02 + .03 * u_refraction * bump, bump, u_colorTint.r);
+  float r = getColorChanges(color1.r, color2.r, stripe_r, w, blur + 0.02 + .03 * u_refraction * bump, bump, u_colorTint.r);
   float stripe_g = mod(direction, 1.);
-  float g = getColorChanges(color1.g, color2.g, stripe_g, w, extraBlurAroundEdges + 0.01 / (1. - diagBLtoTR), bump, u_colorTint.g);
+  float g = getColorChanges(color1.g, color2.g, stripe_g, w, blur + 0.01 / (1. - diagBLtoTR), bump, u_colorTint.g);
   float stripe_b = mod(direction - dispersionBlue, 1.);
-  float b = getColorChanges(color1.b, color2.b, stripe_b, w, extraBlurAroundEdges + .01, bump, u_colorTint.b);
+  float b = getColorChanges(color1.b, color2.b, stripe_b, w, blur + .01, bump, u_colorTint.b);
 
   color = vec3(r, g, b);
   color *= opacity;
