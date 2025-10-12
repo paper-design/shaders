@@ -26,21 +26,18 @@ export const defaultPreset: ImageLiquidMetalPreset = {
   name: 'Default',
   params: {
     ...defaultObjectSizing,
-    scale: 4,
-    speed: 0,
-    frame: 3000,
+    scale: 1,
+    speed: 1,
+    frame: 0,
     colorBack: '#00000000',
     colorTint: '#ffffff',
-    softness: 0.2,
-    repetition: 2,
-    shiftRed: 0.25,
-    shiftBlue: 0.3,
     distortion: 0.07,
-    useOriginalAlpha: 0,
-    contourRoundness: 0,
-    contourSoftness: 0,
-    contourPower: 1,
-    edgePower: 1.3,
+    repetition: 2.0,
+    shiftRed: 0.3,
+    shiftBlue: 0.3,
+    contour: 0.4,
+    softness: 0.1,
+    showSource: 0,
   },
 };
 
@@ -53,16 +50,13 @@ export const ImageLiquidMetal: React.FC<ImageLiquidMetalProps> = memo(function I
   speed = defaultPreset.params.speed,
   frame = defaultPreset.params.frame,
   image = 'https://shaders.paper.design/images/image-filters/0019.webp',
-  useOriginalAlpha = defaultPreset.params.useOriginalAlpha,
-  contourRoundness = defaultPreset.params.contourRoundness,
-  contourSoftness = defaultPreset.params.contourSoftness,
-  contourPower = defaultPreset.params.contourPower,
-  edgePower = defaultPreset.params.edgePower,
+  contour = defaultPreset.params.contour,
   distortion = defaultPreset.params.distortion,
   softness = defaultPreset.params.softness,
   repetition = defaultPreset.params.repetition,
   shiftRed = defaultPreset.params.shiftRed,
   shiftBlue = defaultPreset.params.shiftBlue,
+  showSource = defaultPreset.params.showSource,
   suspendWhenProcessingImage = false,
 
   // Sizing props
@@ -84,7 +78,7 @@ export const ImageLiquidMetal: React.FC<ImageLiquidMetalProps> = memo(function I
 
   if (suspendWhenProcessingImage && typeof window !== 'undefined') {
     processedImage = suspend(
-      (): Promise<string> => toProcessedImageLiquidMetal(imageUrl).then((result) => URL.createObjectURL(result.blob)),
+      (): Promise<string> => toProcessedImageLiquidMetal(imageUrl).then((result) => URL.createObjectURL(result.pngBlob)),
       [imageUrl, 'image-liquid-metal']
     );
   } else {
@@ -107,7 +101,7 @@ export const ImageLiquidMetal: React.FC<ImageLiquidMetalProps> = memo(function I
 
     toProcessedImageLiquidMetal(imageUrl).then((result) => {
       if (current) {
-        url = URL.createObjectURL(result.blob);
+        url = URL.createObjectURL(result.pngBlob);
         setProcessedStateImage(url);
       }
     });
@@ -124,16 +118,13 @@ export const ImageLiquidMetal: React.FC<ImageLiquidMetalProps> = memo(function I
     u_colorTint: getShaderColorFromString(colorTint),
 
     u_image: processedImage,
+    u_contour: contour,
+    u_distortion: distortion,
     u_softness: softness,
     u_repetition: repetition,
-    u_useOriginalAlpha: useOriginalAlpha,
-    u_contourRoundness: contourRoundness,
-    u_contourSoftness: contourSoftness,
-    u_contourPower: contourPower,
-    u_edgePower: edgePower,
-    u_distortion: distortion,
     u_shiftRed: shiftRed,
     u_shiftBlue: shiftBlue,
+    u_showSource: showSource,
 
     // Sizing uniforms
     u_fit: ShaderFitOptions[fit],
