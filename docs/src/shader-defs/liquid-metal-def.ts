@@ -20,7 +20,7 @@ export const liquidMetalDef: ShaderDef = {
       type: 'string',
       defaultValue: defaultParams.colorTint,
       isColor: true,
-      description: 'Overlay color',
+      description: 'Overlay color (color burn blending used)',
     },
     {
       name: 'repetition',
