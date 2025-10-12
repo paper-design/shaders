@@ -16,8 +16,10 @@ export class ShaderMount {
   private lastRenderTime = 0;
   /** Total time that we have played any animation, passed as a uniform to the shader for time-based VFX */
   private currentFrame = 0;
-  /** The current speed that we progress through animation time (multiplies by delta time every update). Allows negatives to play in reverse. If set to 0, rAF will stop entirely so static shaders have no recurring performance costs */
+  /** The speed that we progress through animation time (multiplies by delta time every update). Allows negatives to play in reverse. If set to 0, rAF will stop entirely so static shaders have no recurring performance costs */
   private speed = 0;
+  /** Actual speed used that accounts for document visibility (we pause the shader if the tab is hidden) */
+  private currentSpeed = 0;
   /** Uniforms that are provided by the user for the specific shader being mounted (not including uniforms that this Mount adds, like time and resolution) */
   private providedUniforms: ShaderMountUniforms;
   /** Just a sanity check to make sure frames don't run after we're disposed */
@@ -105,6 +107,9 @@ export class ShaderMount {
 
     // Add the shaderMount instance to the div mount element to make it easily accessible
     this.parentElement.paperShaderMount = this;
+
+    // Listen for document visibility changes to pause the shader when the tab is hidden
+    document.addEventListener('visibilitychange', this.handleDocumentVisibilityChange);
   }
 
   private initProgram = () => {
@@ -270,8 +275,8 @@ export class ShaderMount {
     const dt = currentTime - this.lastRenderTime;
     this.lastRenderTime = currentTime;
     // Increase the total animation time by dt * animationSpeed
-    if (this.speed !== 0) {
-      this.currentFrame += dt * this.speed;
+    if (this.currentSpeed !== 0) {
+      this.currentFrame += dt * this.currentSpeed;
     }
 
     // Clear the canvas
@@ -293,7 +298,7 @@ export class ShaderMount {
     this.gl.drawArrays(this.gl.TRIANGLES, 0, 6);
 
     // Loop if we're animating
-    if (this.speed !== 0) {
+    if (this.currentSpeed !== 0) {
       this.requestRender();
     } else {
       this.rafId = null;
@@ -469,9 +474,14 @@ export class ShaderMount {
   };
 
   /** Set an animation speed (or 0 to stop animation) */
-  public setSpeed = (newSpeed: number = 1): void => {
+  public setSpeed = (newSpeed = 1): void => {
     // Set the new animation speed
     this.speed = newSpeed;
+    this.setCurrentSpeed(document.hidden ? 0 : newSpeed);
+  };
+
+  private setCurrentSpeed = (newSpeed: number): void => {
+    this.currentSpeed = newSpeed;
 
     if (this.rafId === null && newSpeed !== 0) {
       // Moving from 0 to animating, kick off a new rAF loop
@@ -506,6 +516,10 @@ export class ShaderMount {
     this.providedUniforms = { ...this.providedUniforms, ...newUniforms };
 
     this.render(performance.now());
+  };
+
+  private handleDocumentVisibilityChange = () => {
+    this.setCurrentSpeed(document.hidden ? 0 : this.speed);
   };
 
   /** Dispose of the shader mount, cleaning up all of the WebGL resources */
@@ -545,11 +559,14 @@ export class ShaderMount {
     }
 
     visualViewport?.removeEventListener('resize', this.handleVisualViewportChange);
+    document.removeEventListener('visibilitychange', this.handleDocumentVisibilityChange);
 
     this.uniformLocations = {};
 
-    // Remove the shader mount from the div wrapper element to avoid any GC issues
-    this.parentElement.paperShaderMount = undefined;
+    // Remove the shader from the div wrapper element
+    this.canvasElement.remove();
+    // Free up the reference to self to enable garbage collection
+    delete this.parentElement.paperShaderMount;
   };
 }
 

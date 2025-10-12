@@ -1,6 +1,5 @@
 'use client';
 
-import { StaticImageData } from 'next/image';
 import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -80,9 +79,6 @@ function ShaderItem({
       <div
         data-pixelated={pixelated ? '' : undefined}
         className="relative flex aspect-[4/3] items-center justify-center overflow-hidden rounded-2xl bg-header/50 outline-offset-4 outline-focus will-change-transform group-focus-visible:outline-2 data-pixelated:pixelated squircle:rounded-4xl"
-        onTouchStart={() => setShaderVisibility('visible')}
-        onTouchEnd={() => setShaderVisibility('fading-out')}
-        onTouchCancel={() => setShaderVisibility('fading-out')}
         onPointerEnter={(event) => {
           if (event.pointerType !== 'touch') {
             setShaderVisibility('visible');
