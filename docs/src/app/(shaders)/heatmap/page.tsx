@@ -76,7 +76,7 @@ const HeatmapWithControls = () => {
           <Heatmap {...params} colors={colors} image={image} suspendWhenProcessingImage />
         </Suspense>
       </ShaderContainer>
-      <ShaderDetails shaderDef={heatmapDef} currentParams={{ colors, ...params }} codeSampleImageName="diamond.webp" />
+      <ShaderDetails shaderDef={heatmapDef} currentParams={{ colors, ...params }} codeSampleImageName="/image-filters/diamond.svg" />
     </>
   );
 };
