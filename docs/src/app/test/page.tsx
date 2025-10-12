@@ -13,7 +13,7 @@ export default function TestPage() {
       <Water />
       <ImageDithering image="https://shaders.paper.design/images/image-filters/0018.webp" />
       <ImageDithering image="" />
-      <Heatmap image="https://shaders.paper.design/images/image-filters/0019.webp" />
+      <Heatmap image="https://shaders.paper.design/images/logos/diamond.svg" />
       <Heatmap image="" />
     </div>
   );

@@ -155,7 +155,7 @@ export const homeThumbnails = [
           scale: 0.9,
           frame: 5800,
           suspendWhenProcessingImage: true,
-          image: '/images/image-filters/0019.webp',
+          image: '/images/logos/diamond.svg',
         },
       },
       {
@@ -167,7 +167,7 @@ export const homeThumbnails = [
           ...imageLiquidMetalPresets[0].params,
           scale: 1.05,
           suspendWhenProcessingImage: true,
-          image: '/images/image-filters/0019.webp',
+          image: '/images/logos/diamond.svg',
         },
       },
     ],

@@ -20,7 +20,7 @@ import { toHsla } from '@/helpers/color-utils';
 const { worldWidth, worldHeight, ...defaults } = imageLiquidMetalPresets[0].params;
 
 const ImageLiquidMetalWithControls = () => {
-  const [image, setImage] = useState<HTMLImageElement | string>('/images/image-filters/paper.svg');
+  const [image, setImage] = useState<HTMLImageElement | string>('/images/logos/diamond.svg');
 
   const [params, setParams] = useControls(() => {
     const presets = Object.fromEntries(
@@ -66,7 +66,7 @@ const ImageLiquidMetalWithControls = () => {
           <ImageLiquidMetal {...params} image={image} suspendWhenProcessingImage />
         </Suspense>
       </ShaderContainer>
-      <ShaderDetails shaderDef={imageLiquidMetalDef} currentParams={params} codeSampleImageName="/image-filters/diamond.svg" />
+      <ShaderDetails shaderDef={imageLiquidMetalDef} currentParams={params} codeSampleImageName="/logos/diamond.svg" />
     </>
   );
 };

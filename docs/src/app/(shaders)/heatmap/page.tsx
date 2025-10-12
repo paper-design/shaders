@@ -17,7 +17,7 @@ import { levaImageButton } from '@/helpers/leva-image-button';
 const { worldWidth, worldHeight, ...defaults } = heatmapPresets[0].params;
 
 const HeatmapWithControls = () => {
-  const [image, setImage] = useState<HTMLImageElement | string>('/images/image-filters/0019.webp');
+  const [image, setImage] = useState<HTMLImageElement | string>('/images/logos/diamond.svg');
 
   const { colors, setColors } = useColors({
     defaultColors: defaults.colors,
@@ -76,7 +76,7 @@ const HeatmapWithControls = () => {
           <Heatmap {...params} colors={colors} image={image} suspendWhenProcessingImage />
         </Suspense>
       </ShaderContainer>
-      <ShaderDetails shaderDef={heatmapDef} currentParams={{ colors, ...params }} codeSampleImageName="/image-filters/diamond.svg" />
+      <ShaderDetails shaderDef={heatmapDef} currentParams={{ colors, ...params }} codeSampleImageName="/logos/diamond.svg" />
     </>
   );
 };
