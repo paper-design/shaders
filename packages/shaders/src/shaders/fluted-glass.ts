@@ -178,6 +178,9 @@ void main() {
     xDistortion += (.5 + u_shift);
     xDistortion *= .33;
   }
+  highlight *= mask;
+  highlight += .5 * stroke;
+  highlight = min(highlight, 1.);
 
   xDistortion *= 3. * u_distortion;
 
