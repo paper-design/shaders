@@ -7,7 +7,7 @@ import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
 import { LiquidMetalShapes, LiquidMetalShape } from '@paper-design/shaders';
 import { ShaderFit } from '@paper-design/shaders';
-import { levaImageButton } from '@/helpers/leva-image-button';
+import { levaDeleteImageButton, levaImageButton } from '@/helpers/leva-image-button';
 import { useState, Suspense } from 'react';
 import { ShaderDetails } from '@/components/shader-details';
 import { ShaderContainer } from '@/components/shader-container';
@@ -21,7 +21,7 @@ import { toHsla } from '@/helpers/color-utils';
 const { worldWidth, worldHeight, ...defaults } = liquidMetalPresets[0].params;
 
 const LiquidMetalWithControls = () => {
-  const [image, setImage] = useState<HTMLImageElement | string>('/images/logos/diamond.svg');
+  const [image, setImage] = useState<HTMLImageElement | string>('');
 
   const [params, setParams] = useControls(() => {
     const presets = Object.fromEntries(
@@ -31,28 +31,33 @@ const LiquidMetalWithControls = () => {
       ])
     );
     return {
-      isImage: { value: defaults.isImage, order: 0 },
-      colorBack: {value: toHsla(defaults.colorBack), order: 100},
+      colorBack: { value: toHsla(defaults.colorBack), order: 100 },
       colorTint: { value: toHsla(defaults.colorTint), order: 101 },
+      shape: {
+        value: defaults.shape,
+        options: Object.keys(LiquidMetalShapes) as LiquidMetalShape[],
+        order: 102,
+        disabled: Boolean(image),
+      },
       repetition: { value: defaults.repetition, min: 1, max: 10, order: 200 },
       softness: { value: defaults.softness, min: 0, max: 1, order: 201 },
       shiftRed: { value: defaults.shiftRed, min: -1, max: 1, order: 202 },
       shiftBlue: { value: defaults.shiftBlue, min: -1, max: 1, order: 203 },
       distortion: { value: defaults.distortion, min: 0, max: 1, order: 204 },
       contour: { value: defaults.contour, min: 0, max: 1, order: 205 },
-      shape: { value: defaults.shape, options: Object.keys(LiquidMetalShapes) as LiquidMetalShape[], order: 206 },
       speed: { value: defaults.speed, min: 0, max: 4, order: 300 },
-      scale: { value: defaults.scale, min: 0.5, max: 10, order: 301 },
+      scale: { value: defaults.scale, min: 0.2, max: 10, order: 301 },
       rotation: { value: defaults.rotation, min: 0, max: 360, order: 302 },
       offsetX: { value: defaults.offsetX, min: -1, max: 1, order: 303 },
       offsetY: { value: defaults.offsetY, min: -1, max: 1, order: 304 },
       fit: { value: defaults.fit, options: ['contain', 'cover'] as ShaderFit[], order: 305 },
       Image: folder({
         'Upload image': levaImageButton((img?: HTMLImageElement) => setImage(img ?? '')),
+        'Delete image': levaDeleteImageButton(() => setImage('')),
       }),
       Presets: folder(presets, { order: -1 }),
     };
-  });
+  }, [image]);
 
   // Reset to defaults on mount, so that Leva doesn't show values from other
   // shaders when navigating (if two shaders have a color1 param for example)

@@ -38,7 +38,6 @@ export const defaultPreset: LiquidMetalPreset = {
     shiftBlue: 0.3,
     contour: 0.4,
     softness: 0.1,
-    isImage: true,
     shape: 'metaballs',
   },
 };
@@ -58,7 +57,6 @@ export const oldDefaultPreset: LiquidMetalPreset = {
     shiftBlue: 0.3,
     distortion: 0.1,
     contour: 1,
-    isImage: false,
     shape: 'circle',
   },
 };
@@ -78,7 +76,6 @@ export const LiquidMetal: React.FC<LiquidMetalProps> = memo(function LiquidMetal
   repetition = defaultPreset.params.repetition,
   shiftRed = defaultPreset.params.shiftRed,
   shiftBlue = defaultPreset.params.shiftBlue,
-  isImage = defaultPreset.params.isImage,
   shape = defaultPreset.params.shape,
   suspendWhenProcessingImage = false,
 
@@ -99,7 +96,7 @@ export const LiquidMetal: React.FC<LiquidMetalProps> = memo(function LiquidMetal
 
   let processedImage: string;
 
-  if (suspendWhenProcessingImage && typeof window !== 'undefined') {
+  if (suspendWhenProcessingImage && typeof window !== 'undefined' && imageUrl) {
     processedImage = suspend(
       (): Promise<string> => toProcessedLiquidMetal(imageUrl).then((result) => URL.createObjectURL(result.pngBlob)),
       [imageUrl, 'liquid-metal']
@@ -147,7 +144,7 @@ export const LiquidMetal: React.FC<LiquidMetalProps> = memo(function LiquidMetal
     u_repetition: repetition,
     u_shiftRed: shiftRed,
     u_shiftBlue: shiftBlue,
-    u_isImage: isImage,
+    u_isImage: Boolean(image),
     u_shape: LiquidMetalShapes[shape],
 
     // Sizing uniforms

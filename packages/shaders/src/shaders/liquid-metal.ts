@@ -53,7 +53,7 @@ ${rotation2}
 ${simplexNoise}
 
 float getColorChanges(float c1, float c2, float stripe_p, vec3 w, float blur, float bump, float tint) {
-  
+
   float ch = mix(c2, c1, smoothstep(.0, 2. * blur, stripe_p));
 
   float border = w[0];
@@ -74,7 +74,7 @@ float getColorChanges(float c1, float c2, float stripe_p, vec3 w, float blur, fl
   float gradient_t = (stripe_p - w[0] - w[1]) / w[2];
   float gradient = mix(c1, c2, smoothstep(0., 1., gradient_t));
   ch = mix(ch, gradient, smoothstep(border, border + .5 * blur, stripe_p));
-  
+
   // Tint color is applied with color burn blending
   ch = mix(ch, 1. - min(1., (1. - ch) / max(tint, 0.0001)), u_colorTint.a);
   return ch;
@@ -207,7 +207,7 @@ void main() {
     float frame = getImgFrame(v_imageUV, 0.);
     opacity *= frame;
   } else {
-    opacity = 1. - smoothstep(.82 - 2. * fwidth(edge), .82, edge);  
+    opacity = 1. - smoothstep(.82 - 2. * fwidth(edge), .82, edge);
   }
 
   if (u_isImage == false) {
@@ -431,7 +431,7 @@ export function toProcessedLiquidMetal(file: File | string): Promise<{ imageData
       let shapePixelCount = 0;
       for (let i = 0, idx = 0; i < data.length; i += 4, idx++) {
         const a = data[i + 3];
-        const isShape = (a === 0) ? 0 : 1;
+        const isShape = a === 0 ? 0 : 1;
         shapeMask[idx] = isShape;
         shapePixelCount += isShape;
       }
@@ -774,7 +774,6 @@ export interface LiquidMetalParams extends ShaderSizingParams, ShaderMotionParam
   contour?: number;
   softness?: number;
   distortion?: number;
-  isImage?: boolean;
   shape?: LiquidMetalShape;
 }
 
