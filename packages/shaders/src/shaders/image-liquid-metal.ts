@@ -107,8 +107,7 @@ void main() {
   vec3 color2 = vec3(.1, .1, .1 + .1 * smoothstep(.7, 1.3, diagTLtoBR));
 
   float edge = img.r;
-  edge += .05;
-  edge = min(edge, 1.);
+  edge = clamp(edge, 0.05, 1.);
   edge = pow(edge, 1.6);
   edge *= mix(0., 1., smoothstep(0., .4, u_contour));
 
