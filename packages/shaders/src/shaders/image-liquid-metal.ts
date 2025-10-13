@@ -308,9 +308,9 @@ export function toProcessedImageLiquidMetal(file: File | string): Promise<{ imag
       let shapePixelCount = 0;
       for (let i = 0, idx = 0; i < data.length; i += 4, idx++) {
         const a = data[i + 3];
-        const isShape = a === 0;
-        shapeMask[idx] = isShape ? 0 : 1;
-        shapePixelCount += isShape ? 0 : 1;
+        const isShape = (a === 0) ? 0 : 1;
+        shapeMask[idx] = isShape;
+        shapePixelCount += isShape;
       }
 
       // 2) Optimized boundary detection using sparse approach
@@ -449,7 +449,7 @@ export function toProcessedImageLiquidMetal(file: File | string): Promise<{ imag
           // Red channel carries the gradient
           // Check if upscale missed this pixel by looking at alpha channel
           // If upscaled alpha is 0, the low-res version thought this was background
-          outImg.data[i] = upscaledAlpha === 0 ? 0 : outImg.data[i]; // gradient or 0
+          outImg.data[i] = upscaledAlpha === 0 ? 0 : outImg.data[i]!; // gradient or 0
           outImg.data[i + 1] = a; // original alpha
         }
 
