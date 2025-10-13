@@ -86,6 +86,28 @@ float getImgFrame(vec2 uv, float th) {
   return frame;
 }
 
+float blurEdge3x3(sampler2D tex, vec2 uv, vec2 dudx, vec2 dudy, float radius, float centerSample) {
+  vec2 texel = 1.0 / vec2(textureSize(tex, 0));
+  vec2 r = radius * texel;
+
+  float w1 = 1.0, w2 = 2.0, w4 = 4.0;
+  float norm = 16.0;
+  float sum = w4 * centerSample;
+
+  sum += w2 * textureGrad(tex, uv + vec2(0.0, -r.y), dudx, dudy).r;
+  sum += w2 * textureGrad(tex, uv + vec2(0.0, r.y), dudx, dudy).r;
+  sum += w2 * textureGrad(tex, uv + vec2(-r.x, 0.0), dudx, dudy).r;
+  sum += w2 * textureGrad(tex, uv + vec2(r.x, 0.0), dudx, dudy).r;
+
+  sum += w1 * textureGrad(tex, uv + vec2(-r.x, -r.y), dudx, dudy).r;
+  sum += w1 * textureGrad(tex, uv + vec2(r.x, -r.y), dudx, dudy).r;
+  sum += w1 * textureGrad(tex, uv + vec2(-r.x, r.y), dudx, dudy).r;
+  sum += w1 * textureGrad(tex, uv + vec2(r.x, r.y), dudx, dudy).r;
+
+  return sum / norm;
+}
+
+
 void main() {
 
   float t = .3 * u_time;
@@ -106,10 +128,10 @@ void main() {
   vec3 color1 = vec3(.98, 0.98, 1.);
   vec3 color2 = vec3(.1, .1, .1 + .1 * smoothstep(.7, 1.3, diagTLtoBR));
 
-  float edge = img.r;
-  edge = clamp(edge, 0.05, 1.);
+  float edgeRaw = img.r;
+  float edge = blurEdge3x3(u_image, uv, dudx, dudy, 6., edgeRaw);
   edge = pow(edge, 1.6);
-  edge *= mix(0., 1., smoothstep(0., .4, u_contour));
+  edge *= mix(0.0, 1.0, smoothstep(0.0, 0.4, u_contour));
 
   float opacity = img.g;
   float frame = getImgFrame(v_imageUV, 0.);
@@ -210,7 +232,7 @@ void main() {
 export const POISSON_CONFIG_OPTIMIZED = {
   measurePerformance: false, // Set to true to see performance metrics
   workingSize: 500, // Size to solve Poisson at (will upscale to original size)
-  iterations: 75, // SOR converges ~2-20x faster than standard Gauss-Seidel
+  iterations: 45, // SOR converges ~2-20x faster than standard Gauss-Seidel
 };
 
 // Precomputed pixel data for sparse processing
