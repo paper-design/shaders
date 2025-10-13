@@ -107,7 +107,8 @@ void main() {
   vec3 color2 = vec3(.1, .1, .1 + .1 * smoothstep(.7, 1.3, diagTLtoBR));
 
   float edge = img.r;
-  edge = clamp(edge, 0.05, .95);
+  edge += .05;
+  edge = min(edge, 1.);
   edge = pow(edge, 1.6);
   edge *= mix(0., 1., smoothstep(0., .4, u_contour));
 
@@ -210,7 +211,7 @@ void main() {
 export const POISSON_CONFIG_OPTIMIZED = {
   measurePerformance: false, // Set to true to see performance metrics
   workingSize: 500, // Size to solve Poisson at (will upscale to original size)
-  iterations: 30, // SOR converges ~2-20x faster than standard Gauss-Seidel
+  iterations: 75, // SOR converges ~2-20x faster than standard Gauss-Seidel
 };
 
 // Precomputed pixel data for sparse processing
