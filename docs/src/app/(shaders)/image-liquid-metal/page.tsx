@@ -5,6 +5,7 @@ import { useControls, button, folder } from 'leva';
 import { setParamsSafe, useResetLevaParams } from '@/helpers/use-reset-leva-params';
 import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
+import { ImageLiquidMetalShapes, ImageLiquidMetalShape } from '@paper-design/shaders';
 import { ShaderFit } from '@paper-design/shaders';
 import { levaImageButton } from '@/helpers/leva-image-button';
 import { useState, Suspense } from 'react';
@@ -30,7 +31,7 @@ const ImageLiquidMetalWithControls = () => {
       ])
     );
     return {
-      showSource: { value: defaults.showSource, min: 0, max: 1, step: 1, order: 0 },
+      isImage: { value: defaults.isImage, min: 0, max: 1, step: 1, order: 0 },
       colorBack: {value: toHsla(defaults.colorBack), order: 100},
       colorTint: { value: toHsla(defaults.colorTint), order: 101 },
       repetition: { value: defaults.repetition, min: 1, max: 10, order: 200 },
@@ -39,6 +40,7 @@ const ImageLiquidMetalWithControls = () => {
       shiftBlue: { value: defaults.shiftBlue, min: -1, max: 1, order: 203 },
       distortion: { value: defaults.distortion, min: 0, max: 1, order: 204 },
       contour: { value: defaults.contour, min: 0, max: 1, order: 205 },
+      shape: { value: defaults.shape, options: Object.keys(ImageLiquidMetalShapes) as ImageLiquidMetalShape[], order: 206 },
       speed: { value: defaults.speed, min: 0, max: 4, order: 300 },
       scale: { value: defaults.scale, min: 0.5, max: 10, order: 301 },
       rotation: { value: defaults.rotation, min: 0, max: 360, order: 302 },

@@ -9,6 +9,7 @@ import {
   toProcessedImageLiquidMetal,
   type ImageShaderPreset,
   getShaderColorFromString,
+  ImageLiquidMetalShapes,
 } from '@paper-design/shaders';
 import { transparentPixel } from '../transparent-pixel.js';
 import { suspend } from '../suspend.js';
@@ -37,7 +38,8 @@ export const defaultPreset: ImageLiquidMetalPreset = {
     shiftBlue: 0.3,
     contour: 0.4,
     softness: 0.1,
-    showSource: 0,
+    isImage: 0,
+    shape: 'circle',
   },
 };
 
@@ -56,7 +58,8 @@ export const ImageLiquidMetal: React.FC<ImageLiquidMetalProps> = memo(function I
   repetition = defaultPreset.params.repetition,
   shiftRed = defaultPreset.params.shiftRed,
   shiftBlue = defaultPreset.params.shiftBlue,
-  showSource = defaultPreset.params.showSource,
+  isImage = defaultPreset.params.isImage,
+  shape = defaultPreset.params.shape,
   suspendWhenProcessingImage = false,
 
   // Sizing props
@@ -124,7 +127,8 @@ export const ImageLiquidMetal: React.FC<ImageLiquidMetalProps> = memo(function I
     u_repetition: repetition,
     u_shiftRed: shiftRed,
     u_shiftBlue: shiftBlue,
-    u_showSource: showSource,
+    u_isImage: isImage,
+    u_shape: ImageLiquidMetalShapes[shape],
 
     // Sizing uniforms
     u_fit: ShaderFitOptions[fit],

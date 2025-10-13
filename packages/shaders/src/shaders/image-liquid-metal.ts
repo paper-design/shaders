@@ -41,7 +41,8 @@ uniform float u_shiftBlue;
 uniform float u_distortion;
 uniform float u_contour;
 
-uniform float u_showSource;
+uniform float u_shape;
+uniform float u_isImage;
 
 ${sizingVariablesDeclaration}
 
@@ -220,11 +221,7 @@ void main() {
 
   ${colorBandingFix}
 
-  if (u_showSource > .5) {
-    fragColor = vec4(vec3(img.g * img.r) * frame, 1.);
-  } else {
-    fragColor = vec4(color, opacity);
-  }
+  fragColor = vec4(color, opacity);
 }
 `;
 
@@ -659,7 +656,8 @@ export interface ImageLiquidMetalUniforms extends ShaderSizingUniforms {
   u_contour: number;
   u_softness: number;
   u_distortion: number;
-  u_showSource: number;
+  u_shape: (typeof ImageLiquidMetalShapes)[ImageLiquidMetalShape];
+  u_isImage: number;
 }
 
 export interface ImageLiquidMetalParams extends ShaderSizingParams, ShaderMotionParams {
@@ -672,5 +670,15 @@ export interface ImageLiquidMetalParams extends ShaderSizingParams, ShaderMotion
   contour?: number;
   softness?: number;
   distortion?: number;
-  showSource?: number;
+  isImage?: number;
+  shape?: ImageLiquidMetalShape;
 }
+
+export const ImageLiquidMetalShapes = {
+  none: 0,
+  circle: 1,
+  daisy: 2,
+  metaballs: 3,
+} as const;
+
+export type ImageLiquidMetalShape = keyof typeof ImageLiquidMetalShapes;

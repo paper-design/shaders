@@ -213,7 +213,9 @@ export {
 
 export {
   imageLiquidMetalFragmentShader,
+  ImageLiquidMetalShapes,
   toProcessedImageLiquidMetal,
+  type ImageLiquidMetalShape,
   type ImageLiquidMetalParams,
   type ImageLiquidMetalUniforms,
 } from './shaders/image-liquid-metal.js';
