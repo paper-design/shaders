@@ -8,6 +8,9 @@ export type {
   ImageShaderPreset,
 } from './shader-mount.js';
 
+export type { ShaderDef, ParamDef, ParamOption } from './defs/shader-def-types.js';
+export { staticCommonParams, animatedCommonParams, commonParams } from './defs/common-param-def.js';
+
 /** Shader sizing options and uniforms */
 export {
   defaultObjectSizing,
@@ -39,6 +42,7 @@ export {
 // ----- Neuro noise ----- //
 /** A shader rendering a fractal-like structure made of several layers of since-arches */
 export { neuroNoiseFragmentShader, type NeuroNoiseParams, type NeuroNoiseUniforms } from './shaders/neuro-noise.js';
+export { neuroNoiseDef } from './defs/neuro-noise-def.js';
 
 // ----- Animated dot pattern: orbit type of animation ----- //
 /** A shader rendering an animated dot pattern based on Voronoi diagram */

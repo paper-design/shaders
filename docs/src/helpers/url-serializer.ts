@@ -1,5 +1,5 @@
 import { hslToHex, hexToHsl } from './color-utils';
-import type { ParamDef } from '../shader-defs/shader-def-types';
+import type { ParamDef } from '@paper-design/shaders';
 
 export type SerializableValue = string | number | boolean | string[] | number[];
 

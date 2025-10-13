@@ -1,16 +1,16 @@
-import type { ParamDef } from './shader-def-types';
+import type { ParamDef } from './shader-def-types.js';
 
-type CommonParamDef = Omit<ParamDef, 'defaultValue'>;
-
-export const commonParams: Record<string, CommonParamDef> = {
+export const commonParams: Record<string, ParamDef> = {
   speed: {
     name: 'speed',
     type: 'number',
+    defaultValue: 1,
     description: 'Animation speed',
   },
   frame: {
     name: 'frame',
     type: 'number',
+    defaultValue: 0,
     description: 'Starting animation frame',
   },
   scale: {
@@ -18,6 +18,7 @@ export const commonParams: Record<string, CommonParamDef> = {
     type: 'number',
     min: 0.01,
     max: 4,
+    defaultValue: 1,
     description: 'Overall zoom level of the graphics',
   },
   rotation: {
@@ -25,6 +26,7 @@ export const commonParams: Record<string, CommonParamDef> = {
     type: 'number',
     min: 0,
     max: 360,
+    defaultValue: 0,
     description: 'Overall rotation angle of the graphics',
   },
   offsetX: {
@@ -32,6 +34,7 @@ export const commonParams: Record<string, CommonParamDef> = {
     type: 'number',
     min: -1,
     max: 1,
+    defaultValue: 0,
     description: 'Horizontal offset of the graphics center',
   },
   offsetY: {
@@ -39,6 +42,7 @@ export const commonParams: Record<string, CommonParamDef> = {
     type: 'number',
     min: -1,
     max: 1,
+    defaultValue: 0,
     description: 'Vertical offset of the graphics center',
   },
   width: {
@@ -91,38 +95,38 @@ export const commonParams: Record<string, CommonParamDef> = {
     type: 'number',
     description: 'Maximum pixel count that the shader may process',
   },
-};
+} as const;
 
-export const animatedCommonParams: CommonParamDef[] = [
-  commonParams.speed,
-  commonParams.frame,
-  commonParams.scale,
-  commonParams.rotation,
-  commonParams.offsetX,
-  commonParams.offsetY,
-  commonParams.width,
-  commonParams.height,
-  commonParams.fit,
-  commonParams.worldWidth,
-  commonParams.worldHeight,
-  commonParams.originX,
-  commonParams.originY,
-  commonParams.minPixelRatio,
-  commonParams.maxPixelCount,
+export const animatedCommonParams: ParamDef[] = [
+  commonParams.speed!,
+  commonParams.frame!,
+  commonParams.scale!,
+  commonParams.rotation!,
+  commonParams.offsetX!,
+  commonParams.offsetY!,
+  commonParams.width!,
+  commonParams.height!,
+  commonParams.fit!,
+  commonParams.worldWidth!,
+  commonParams.worldHeight!,
+  commonParams.originX!,
+  commonParams.originY!,
+  commonParams.minPixelRatio!,
+  commonParams.maxPixelCount!,
 ];
 
-export const staticCommonParams: CommonParamDef[] = [
-  commonParams.scale,
-  commonParams.rotation,
-  commonParams.offsetX,
-  commonParams.offsetY,
-  commonParams.width,
-  commonParams.height,
-  commonParams.fit,
-  commonParams.worldWidth,
-  commonParams.worldHeight,
-  commonParams.originX,
-  commonParams.originY,
-  commonParams.minPixelRatio,
-  commonParams.maxPixelCount,
+export const staticCommonParams: ParamDef[] = [
+  commonParams.scale!,
+  commonParams.rotation!,
+  commonParams.offsetX!,
+  commonParams.offsetY!,
+  commonParams.width!,
+  commonParams.height!,
+  commonParams.fit!,
+  commonParams.worldWidth!,
+  commonParams.worldHeight!,
+  commonParams.originX!,
+  commonParams.originY!,
+  commonParams.minPixelRatio!,
+  commonParams.maxPixelCount!,
 ];

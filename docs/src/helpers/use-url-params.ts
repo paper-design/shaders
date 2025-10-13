@@ -1,9 +1,9 @@
 'use client';
 
+import type { ShaderDef } from '@paper-design/shaders';
 import { useEffect } from 'react';
 import { deserializeParams } from './url-serializer';
 import { setParamsSafe } from './use-reset-leva-params';
-import type { ShaderDef } from '../shader-defs/shader-def-types';
 
 export const useUrlParams = (
   params: any,

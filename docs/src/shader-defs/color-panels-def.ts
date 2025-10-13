@@ -1,6 +1,5 @@
 import { colorPanelsPresets } from '@paper-design/shaders-react';
-import type { ShaderDef } from './shader-def-types';
-import { animatedCommonParams } from './common-param-def';
+import { animatedCommonParams, type ShaderDef } from '@paper-design/shaders';
 
 const defaultParams = colorPanelsPresets[0].params;
 
