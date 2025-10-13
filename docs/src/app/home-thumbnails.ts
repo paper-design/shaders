@@ -156,7 +156,7 @@ export const homeThumbnails = [
         },
       },
       {
-        name: 'image liquid metal',
+        name: 'liquid metal',
         url: '/liquid-metal',
         ShaderComponent: LiquidMetal,
         image: liquidMetalImg,
