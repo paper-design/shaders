@@ -202,13 +202,13 @@ export {
 } from './shaders/heatmap.js';
 
 export {
-  imageLiquidMetalFragmentShader,
-  ImageLiquidMetalShapes,
-  toProcessedImageLiquidMetal,
-  type ImageLiquidMetalShape,
-  type ImageLiquidMetalParams,
-  type ImageLiquidMetalUniforms,
-} from './shaders/image-liquid-metal.js';
+  liquidMetalFragmentShader,
+  LiquidMetalShapes,
+  toProcessedLiquidMetal,
+  type LiquidMetalShape,
+  type LiquidMetalParams,
+  type LiquidMetalUniforms,
+} from './shaders/liquid-metal.js';
 
 // ----- Utils ----- //
 export { getShaderColorFromString } from './get-shader-color-from-string.js';

@@ -23,7 +23,7 @@ import { declarePI, rotation2, simplexNoise, colorBandingFix } from '../shader-u
  */
 
 // language=GLSL
-export const imageLiquidMetalFragmentShader: string = `#version 300 es
+export const liquidMetalFragmentShader: string = `#version 300 es
 precision mediump float;
 
 uniform sampler2D u_image;
@@ -346,7 +346,7 @@ interface SparsePixelData {
   neighborIndices: Int32Array;
 }
 
-export function toProcessedImageLiquidMetal(file: File | string): Promise<{ imageData: ImageData; pngBlob: Blob }> {
+export function toProcessedLiquidMetal(file: File | string): Promise<{ imageData: ImageData; pngBlob: Blob }> {
   const canvas = document.createElement('canvas');
   const ctx = canvas.getContext('2d');
 
@@ -750,7 +750,7 @@ function solvePoissonSparse(
   return u;
 }
 
-export interface ImageLiquidMetalUniforms extends ShaderSizingUniforms {
+export interface LiquidMetalUniforms extends ShaderSizingUniforms {
   u_colorBack: [number, number, number, number];
   u_colorTint: [number, number, number, number];
   u_image: HTMLImageElement | string | undefined;
@@ -760,11 +760,11 @@ export interface ImageLiquidMetalUniforms extends ShaderSizingUniforms {
   u_contour: number;
   u_softness: number;
   u_distortion: number;
-  u_shape: (typeof ImageLiquidMetalShapes)[ImageLiquidMetalShape];
+  u_shape: (typeof LiquidMetalShapes)[LiquidMetalShape];
   u_isImage: boolean;
 }
 
-export interface ImageLiquidMetalParams extends ShaderSizingParams, ShaderMotionParams {
+export interface LiquidMetalParams extends ShaderSizingParams, ShaderMotionParams {
   colorBack?: string;
   colorTint?: string;
   image?: HTMLImageElement | string | undefined;
@@ -775,14 +775,14 @@ export interface ImageLiquidMetalParams extends ShaderSizingParams, ShaderMotion
   softness?: number;
   distortion?: number;
   isImage?: boolean;
-  shape?: ImageLiquidMetalShape;
+  shape?: LiquidMetalShape;
 }
 
-export const ImageLiquidMetalShapes = {
+export const LiquidMetalShapes = {
   none: 0,
   circle: 1,
   daisy: 2,
   metaballs: 3,
 } as const;
 
-export type ImageLiquidMetalShape = keyof typeof ImageLiquidMetalShapes;
+export type LiquidMetalShape = keyof typeof LiquidMetalShapes;

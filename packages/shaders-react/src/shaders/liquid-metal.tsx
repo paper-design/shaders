@@ -1,29 +1,29 @@
 import { memo, useLayoutEffect, useState } from 'react';
 import { ShaderMount, type ShaderComponentProps } from '../shader-mount.js';
 import {
-  imageLiquidMetalFragmentShader,
+  liquidMetalFragmentShader,
   ShaderFitOptions,
   defaultObjectSizing,
-  type ImageLiquidMetalUniforms,
-  type ImageLiquidMetalParams,
-  toProcessedImageLiquidMetal,
+  type LiquidMetalUniforms,
+  type LiquidMetalParams,
+  toProcessedLiquidMetal,
   type ImageShaderPreset,
   getShaderColorFromString,
-  ImageLiquidMetalShapes,
+  LiquidMetalShapes,
 } from '@paper-design/shaders';
 import { transparentPixel } from '../transparent-pixel.js';
 import { suspend } from '../suspend.js';
 
-export interface ImageLiquidMetalProps extends ShaderComponentProps, ImageLiquidMetalParams {
+export interface LiquidMetalProps extends ShaderComponentProps, LiquidMetalParams {
   /**
    * Suspends the component when the image is being processed.
    */
   suspendWhenProcessingImage?: boolean;
 }
 
-type ImageLiquidMetalPreset = ImageShaderPreset<ImageLiquidMetalParams>;
+type LiquidMetalPreset = ImageShaderPreset<LiquidMetalParams>;
 
-export const defaultPreset: ImageLiquidMetalPreset = {
+export const defaultPreset: LiquidMetalPreset = {
   name: 'Default',
   params: {
     ...defaultObjectSizing,
@@ -43,7 +43,7 @@ export const defaultPreset: ImageLiquidMetalPreset = {
   },
 };
 
-export const oldDefaultPreset: ImageLiquidMetalPreset = {
+export const oldDefaultPreset: LiquidMetalPreset = {
   name: 'Old default',
   params: {
     ...defaultObjectSizing,
@@ -63,9 +63,9 @@ export const oldDefaultPreset: ImageLiquidMetalPreset = {
   },
 };
 
-export const imageLiquidMetalPresets: ImageLiquidMetalPreset[] = [defaultPreset, oldDefaultPreset];
+export const liquidMetalPresets: LiquidMetalPreset[] = [defaultPreset, oldDefaultPreset];
 
-export const ImageLiquidMetal: React.FC<ImageLiquidMetalProps> = memo(function ImageLiquidMetalImpl({
+export const LiquidMetal: React.FC<LiquidMetalProps> = memo(function LiquidMetalImpl({
   // Own props
   colorBack = defaultPreset.params.colorBack,
   colorTint = defaultPreset.params.colorTint,
@@ -93,7 +93,7 @@ export const ImageLiquidMetal: React.FC<ImageLiquidMetalProps> = memo(function I
   worldWidth = defaultPreset.params.worldWidth,
   worldHeight = defaultPreset.params.worldHeight,
   ...props
-}: ImageLiquidMetalProps) {
+}: LiquidMetalProps) {
   const imageUrl = typeof image === 'string' ? image : image.src;
   const [processedStateImage, setProcessedStateImage] = useState<string>(transparentPixel);
 
@@ -101,8 +101,8 @@ export const ImageLiquidMetal: React.FC<ImageLiquidMetalProps> = memo(function I
 
   if (suspendWhenProcessingImage && typeof window !== 'undefined') {
     processedImage = suspend(
-      (): Promise<string> => toProcessedImageLiquidMetal(imageUrl).then((result) => URL.createObjectURL(result.pngBlob)),
-      [imageUrl, 'image-liquid-metal']
+      (): Promise<string> => toProcessedLiquidMetal(imageUrl).then((result) => URL.createObjectURL(result.pngBlob)),
+      [imageUrl, 'liquid-metal']
     );
   } else {
     processedImage = processedStateImage;
@@ -122,7 +122,7 @@ export const ImageLiquidMetal: React.FC<ImageLiquidMetalProps> = memo(function I
     let url: string;
     let current = true;
 
-    toProcessedImageLiquidMetal(imageUrl).then((result) => {
+    toProcessedLiquidMetal(imageUrl).then((result) => {
       if (current) {
         url = URL.createObjectURL(result.pngBlob);
         setProcessedStateImage(url);
@@ -148,7 +148,7 @@ export const ImageLiquidMetal: React.FC<ImageLiquidMetalProps> = memo(function I
     u_shiftRed: shiftRed,
     u_shiftBlue: shiftBlue,
     u_isImage: isImage,
-    u_shape: ImageLiquidMetalShapes[shape],
+    u_shape: LiquidMetalShapes[shape],
 
     // Sizing uniforms
     u_fit: ShaderFitOptions[fit],
@@ -160,14 +160,14 @@ export const ImageLiquidMetal: React.FC<ImageLiquidMetalProps> = memo(function I
     u_originY: originY,
     u_worldWidth: worldWidth,
     u_worldHeight: worldHeight,
-  } satisfies ImageLiquidMetalUniforms;
+  } satisfies LiquidMetalUniforms;
 
   return (
     <ShaderMount
       {...props}
       speed={speed}
       frame={frame}
-      fragmentShader={imageLiquidMetalFragmentShader}
+      fragmentShader={liquidMetalFragmentShader}
       uniforms={uniforms}
     />
   );

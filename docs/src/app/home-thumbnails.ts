@@ -23,7 +23,7 @@ import imageDitheringImg from '../../public/shaders/image-dithering.webp';
 import paperTextureImg from '../../public/shaders/paper-texture.webp';
 import waterImg from '../../public/shaders/water.webp';
 import heatmapImg from '../../public/shaders/heatmap.webp';
-import imageLiquidMetalImg from '../../public/shaders/image-liquid-metal.webp';
+import liquidMetalImg from '../../public/shaders/liquid-metal.webp';
 import {
   DotGrid,
   dotGridPresets,
@@ -73,8 +73,8 @@ import {
   waterPresets,
   ImageDithering,
   imageDitheringPresets,
-  imageLiquidMetalPresets,
-  ImageLiquidMetal,
+  liquidMetalPresets,
+  LiquidMetal,
   Heatmap,
   heatmapPresets,
 } from '@paper-design/shaders-react';
@@ -157,11 +157,11 @@ export const homeThumbnails = [
       },
       {
         name: 'image liquid metal',
-        url: '/image-liquid-metal',
-        ShaderComponent: ImageLiquidMetal,
-        image: imageLiquidMetalImg,
+        url: '/liquid-metal',
+        ShaderComponent: LiquidMetal,
+        image: liquidMetalImg,
         shaderConfig: {
-          ...imageLiquidMetalPresets[0].params,
+          ...liquidMetalPresets[0].params,
           scale: 0.9,
           suspendWhenProcessingImage: true,
           image: '/images/logos/diamond.svg',

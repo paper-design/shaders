@@ -1,12 +1,12 @@
-import { imageLiquidMetalPresets } from '@paper-design/shaders-react';
+import { liquidMetalPresets } from '@paper-design/shaders-react';
 import type { ShaderDef } from './shader-def-types';
 import { animatedCommonParams } from './common-param-def';
 
-const defaultParams = imageLiquidMetalPresets[0].params;
+const defaultParams = liquidMetalPresets[0].params;
 
-export const imageLiquidMetalDef: ShaderDef = {
-  name: 'Image Liquid Metal',
-  description: 'Futuristic liquid metal material applied to uploaded logo shape.',
+export const liquidMetalDef: ShaderDef = {
+  name: 'Liquid Metal',
+  description: 'Futuristic liquid metal material applied to uploaded logo or abstract shape.',
   params: [
     {
       name: 'colorBack',

@@ -1,31 +1,31 @@
 'use client';
 
-import { ImageLiquidMetal, imageLiquidMetalPresets } from '@paper-design/shaders-react';
+import { LiquidMetal, liquidMetalPresets } from '@paper-design/shaders-react';
 import { useControls, button, folder } from 'leva';
 import { setParamsSafe, useResetLevaParams } from '@/helpers/use-reset-leva-params';
 import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
-import { ImageLiquidMetalShapes, ImageLiquidMetalShape } from '@paper-design/shaders';
+import { LiquidMetalShapes, LiquidMetalShape } from '@paper-design/shaders';
 import { ShaderFit } from '@paper-design/shaders';
 import { levaImageButton } from '@/helpers/leva-image-button';
 import { useState, Suspense } from 'react';
 import { ShaderDetails } from '@/components/shader-details';
 import { ShaderContainer } from '@/components/shader-container';
 import { useUrlParams } from '@/helpers/use-url-params';
-import { imageLiquidMetalDef } from '@/shader-defs/image-liquid-metal-def';
+import { liquidMetalDef } from '@/shader-defs/liquid-metal-def';
 import { toHsla } from '@/helpers/color-utils';
 
 // Override just for the docs, we keep it transparent in the preset
-// imageLiquidMetalPresets[0].params.colorBack = '#000000';
+// liquidMetalPresets[0].params.colorBack = '#000000';
 
-const { worldWidth, worldHeight, ...defaults } = imageLiquidMetalPresets[0].params;
+const { worldWidth, worldHeight, ...defaults } = liquidMetalPresets[0].params;
 
-const ImageLiquidMetalWithControls = () => {
+const LiquidMetalWithControls = () => {
   const [image, setImage] = useState<HTMLImageElement | string>('/images/logos/diamond.svg');
 
   const [params, setParams] = useControls(() => {
     const presets = Object.fromEntries(
-      imageLiquidMetalPresets.map(({ name, params: { worldWidth, worldHeight, ...preset } }) => [
+      liquidMetalPresets.map(({ name, params: { worldWidth, worldHeight, ...preset } }) => [
         name,
         button(() => setParamsSafe(params, setParams, preset)),
       ])
@@ -40,7 +40,7 @@ const ImageLiquidMetalWithControls = () => {
       shiftBlue: { value: defaults.shiftBlue, min: -1, max: 1, order: 203 },
       distortion: { value: defaults.distortion, min: 0, max: 1, order: 204 },
       contour: { value: defaults.contour, min: 0, max: 1, order: 205 },
-      shape: { value: defaults.shape, options: Object.keys(ImageLiquidMetalShapes) as ImageLiquidMetalShape[], order: 206 },
+      shape: { value: defaults.shape, options: Object.keys(LiquidMetalShapes) as LiquidMetalShape[], order: 206 },
       speed: { value: defaults.speed, min: 0, max: 4, order: 300 },
       scale: { value: defaults.scale, min: 0.5, max: 10, order: 301 },
       rotation: { value: defaults.rotation, min: 0, max: 360, order: 302 },
@@ -57,20 +57,20 @@ const ImageLiquidMetalWithControls = () => {
   // Reset to defaults on mount, so that Leva doesn't show values from other
   // shaders when navigating (if two shaders have a color1 param for example)
   useResetLevaParams(params, setParams, defaults);
-  useUrlParams(params, setParams, imageLiquidMetalDef);
-  usePresetHighlight(imageLiquidMetalPresets, params);
+  useUrlParams(params, setParams, liquidMetalDef);
+  usePresetHighlight(liquidMetalPresets, params);
   cleanUpLevaParams(params);
 
   return (
     <>
-      <ShaderContainer shaderDef={imageLiquidMetalDef} currentParams={params}>
+      <ShaderContainer shaderDef={liquidMetalDef} currentParams={params}>
         <Suspense fallback={null}>
-          <ImageLiquidMetal {...params} image={image} suspendWhenProcessingImage />
+          <LiquidMetal {...params} image={image} suspendWhenProcessingImage />
         </Suspense>
       </ShaderContainer>
-      <ShaderDetails shaderDef={imageLiquidMetalDef} currentParams={params} codeSampleImageName="images/logos/diamond.svg" />
+      <ShaderDetails shaderDef={liquidMetalDef} currentParams={params} codeSampleImageName="images/logos/diamond.svg" />
     </>
   );
 };
 
-export default ImageLiquidMetalWithControls;
+export default LiquidMetalWithControls;
