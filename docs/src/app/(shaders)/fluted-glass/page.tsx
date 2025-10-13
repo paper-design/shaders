@@ -9,6 +9,7 @@ import { GlassGridShape, GlassGridShapes, GlassDistortionShape, GlassDistortionS
 import { ShaderFit } from '@paper-design/shaders';
 import { levaImageButton } from '@/helpers/leva-image-button';
 import { useState, useEffect, useCallback } from 'react';
+import { toHsla } from '@/helpers/color-utils';
 import { ShaderDetails } from '@/components/shader-details';
 import { flutedGlassDef } from '@/shader-defs/fluted-glass-def';
 import { ShaderContainer } from '@/components/shader-container';
@@ -72,6 +73,9 @@ const FlutedGlassWithControls = () => {
       ])
     );
     return {
+      colorBack: { value: toHsla(defaults.colorBack), order: 100 },
+      colorHighlight: { value: toHsla(defaults.colorHighlight), order: 101 },
+      highlights: { value: defaults.highlights, min: 0, max: 1, order: 200 },
       size: { value: defaults.size, min: 0.01, max: 1, step: 0.01, order: 200 },
       shape: {
         value: defaults.shape,

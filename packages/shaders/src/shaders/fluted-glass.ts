@@ -32,10 +32,14 @@ precision mediump float;
 uniform vec2 u_resolution;
 uniform float u_pixelRatio;
 
+uniform vec4 u_colorBack;
+uniform vec4 u_colorHighlight;
+
 uniform sampler2D u_image;
 uniform float u_imageAspectRatio;
 
 uniform float u_size;
+uniform float u_highlights;
 uniform float u_angle;
 uniform float u_edges;
 uniform float u_shape;
@@ -100,8 +104,6 @@ void main() {
   vec2 imageUV = v_imageUV;
 
   vec2 uv = imageUV;
-  float frame = getUvFrame(imageUV);
-  if (frame < .05) discard;
 
   float effectSize = 1. / pow(.7 * (u_size + .5), 6.);
 
@@ -152,18 +154,28 @@ void main() {
   edges *= mask;
 
   float xDistortion = 0.;
+  float highlight = 0.;
   if (u_distortionShape == 1.) {
-    xDistortion = -pow(1.5 * fractUV.x, 3.) + (.5 + u_shift);
+    xDistortion = -pow(1.5 * fractUV.x, 3.);
+    highlight = clamp(pow(fractUV.x, 3.), 0., 2.);
+    xDistortion += (.5 + u_shift);
   } else if (u_distortionShape == 2.) {
-    xDistortion = 2. * pow(fractUV.x, 2.) - (.5 + u_shift);
+    xDistortion = 2. * pow(fractUV.x, 2.);
+    highlight = pow(clamp(pow(fractUV.x, 2.), 0., 1.), 2.);
+    xDistortion -= (.5 + u_shift);
   } else if (u_distortionShape == 3.) {
-    xDistortion = pow(2. * (fractUV.x - .5), 6.) + .5 - .5 + u_shift;
+    xDistortion = pow(2. * (fractUV.x - .5), 6.);
+    highlight = clamp(xDistortion, 0., 1.);
+    xDistortion += .5;
+    xDistortion -= (.5 + u_shift);
   } else if (u_distortionShape == 4.) {
     xDistortion = sin((fractUV.x + .25 + u_shift) * TWO_PI);
+    highlight = pow(.5 + .5 * xDistortion, 2.);
     xDistortion *= .5;
   } else if (u_distortionShape == 5.) {
-    xDistortion += (.5 + u_shift);
     xDistortion -= pow(abs(fractUV.x), .2) * fractUV.x;
+    highlight = pow(clamp(pow(abs(fractUV.x), 3.), 0., 1.), 2.);
+    xDistortion += (.5 + u_shift);
     xDistortion *= .33;
   }
 
@@ -179,15 +191,33 @@ void main() {
   uv = mix(imageUV, uv, mask);
   float blur = mix(0., u_blur, mask);
 
-  vec4 color = getBlur(u_image, uv, 1. / u_resolution / u_pixelRatio, vec2(0., 1.), blur);
+  float frame = getUvFrame(imageUV);
 
-  float opacity = color.a;
-  fragColor = vec4(color.rgb, opacity);
+  vec4 image = getBlur(u_image, uv, 1. / u_resolution / u_pixelRatio, vec2(0., 1.), blur);
+  vec4 backColor = u_colorBack;
+  backColor.rgb *= backColor.a;
+
+  frame = step(.01, frame);
+  vec3 color = mix(backColor.rgb, image.rgb, image.a * frame);
+  float opacity = backColor.a + image.a * frame;
+  
+  highlight *= u_highlights;
+  highlight *= u_colorHighlight.a;
+  color = mix(color, u_colorHighlight.rgb, highlight);
+
+  opacity += highlight;
+
+  opacity = clamp(opacity, 0., 1.);
+
+  fragColor = vec4(color, opacity);
 }
 `;
 
 export interface FlutedGlassUniforms extends ShaderSizingUniforms {
   u_image: HTMLImageElement | string;
+  u_colorBack: [number, number, number, number];
+  u_colorHighlight: [number, number, number, number];
+  u_highlights: number;
   u_size: number;
   u_angle: number;
   u_distortion: number;
@@ -205,6 +235,9 @@ export interface FlutedGlassUniforms extends ShaderSizingUniforms {
 
 export interface FlutedGlassParams extends ShaderSizingParams, ShaderMotionParams {
   image: HTMLImageElement | string;
+  colorBack?: string;
+  colorHighlight?: string;
+  highlights?: number;
   size?: number;
   angle?: number;
   distortion?: number;

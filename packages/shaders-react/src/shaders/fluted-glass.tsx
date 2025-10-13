@@ -1,5 +1,6 @@
 import { memo } from 'react';
 import { ShaderMount, type ShaderComponentProps } from '../shader-mount.js';
+import { colorPropsAreEqual } from '../color-props-are-equal.js';
 import {
   flutedGlassFragmentShader,
   ShaderFitOptions,
@@ -9,6 +10,7 @@ import {
   GlassDistortionShapes,
   GlassGridShapes,
   type ImageShaderPreset,
+  getShaderColorFromString,
 } from '@paper-design/shaders';
 
 export interface FlutedGlassProps extends ShaderComponentProps, FlutedGlassParams {
@@ -25,6 +27,9 @@ export const defaultPreset: FlutedGlassPreset = {
     fit: 'cover',
     speed: 0,
     frame: 0,
+    colorBack: '#909090',
+    colorHighlight: '#ffffff',
+    highlights: 0,
     size: 0.15,
     angle: 0,
     distortionShape: 'lens',
@@ -48,6 +53,9 @@ export const wavesPreset: FlutedGlassPreset = {
     fit: 'cover',
     speed: 0,
     frame: 0,
+    colorBack: '#909090',
+    colorHighlight: '#ffffff',
+    highlights: 0,
     size: 0.3,
     angle: 0,
     distortionShape: 'contour',
@@ -72,6 +80,9 @@ export const irregularPreset: FlutedGlassPreset = {
     scale: 4,
     speed: 0,
     frame: 0,
+    colorBack: '#909090',
+    colorHighlight: '#ffffff',
+    highlights: 0,
     size: 0.3,
     angle: 150,
     distortionShape: 'facete',
@@ -95,6 +106,9 @@ export const foldsPreset: FlutedGlassPreset = {
     fit: 'cover',
     speed: 0,
     frame: 0,
+    colorBack: '#909090',
+    colorHighlight: '#ffffff',
+    highlights: 0,
     size: 0.25,
     angle: 0,
     distortionShape: 'cascade',
@@ -117,7 +131,10 @@ export const FlutedGlass: React.FC<FlutedGlassProps> = memo(function FlutedGlass
   // Own props
   speed = defaultPreset.params.speed,
   frame = defaultPreset.params.frame,
+  colorBack = defaultPreset.params.colorBack,
+  colorHighlight = defaultPreset.params.colorHighlight,
   image = '',
+  highlights = defaultPreset.params.highlights,
   angle = defaultPreset.params.angle,
   distortion = defaultPreset.params.distortion,
   distortionShape = defaultPreset.params.distortionShape,
@@ -150,6 +167,9 @@ export const FlutedGlass: React.FC<FlutedGlassProps> = memo(function FlutedGlass
   const uniforms = {
     // Own uniforms
     u_image: image,
+    u_colorBack: getShaderColorFromString(colorBack),
+    u_colorHighlight: getShaderColorFromString(colorHighlight),
+    u_highlights: highlights,
     u_size: size,
     u_angle: angle,
     u_distortion: distortion,
