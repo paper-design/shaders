@@ -38,12 +38,32 @@ export const defaultPreset: ImageLiquidMetalPreset = {
     shiftBlue: 0.3,
     contour: 0.4,
     softness: 0.1,
+    isImage: 1,
+    shape: 'circle',
+  },
+};
+
+export const oldDefaultPreset: ImageLiquidMetalPreset = {
+  name: 'Old default',
+  params: {
+    ...defaultObjectSizing,
+    scale: 0.6,
+    speed: 1,
+    frame: 8000,
+    colorBack: '#000000',
+    colorTint: '#ffffff',
+    softness: 0.3,
+    repetition: 4,
+    shiftRed: 0.3,
+    shiftBlue: 0.3,
+    distortion: 0.1,
+    contour: 1,
     isImage: 0,
     shape: 'circle',
   },
 };
 
-export const imageLiquidMetalPresets: ImageLiquidMetalPreset[] = [defaultPreset];
+export const imageLiquidMetalPresets: ImageLiquidMetalPreset[] = [defaultPreset, oldDefaultPreset];
 
 export const ImageLiquidMetal: React.FC<ImageLiquidMetalProps> = memo(function ImageLiquidMetalImpl({
   // Own props
