@@ -38,8 +38,8 @@ export const defaultPreset: ImageLiquidMetalPreset = {
     shiftBlue: 0.3,
     contour: 0.4,
     softness: 0.1,
-    isImage: 1,
-    shape: 'circle',
+    isImage: true,
+    shape: 'metaballs',
   },
 };
 
@@ -58,7 +58,7 @@ export const oldDefaultPreset: ImageLiquidMetalPreset = {
     shiftBlue: 0.3,
     distortion: 0.1,
     contour: 1,
-    isImage: 0,
+    isImage: false,
     shape: 'circle',
   },
 };

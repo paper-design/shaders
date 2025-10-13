@@ -42,7 +42,7 @@ uniform float u_distortion;
 uniform float u_contour;
 
 uniform float u_shape;
-uniform float u_isImage;
+uniform bool u_isImage;
 
 ${sizingVariablesDeclaration}
 
@@ -59,7 +59,7 @@ float getColorChanges(float c1, float c2, float stripe_p, vec3 w, float blur, fl
   float border = w[0];
   ch = mix(ch, c2, smoothstep(border, border + 2. * blur, stripe_p));
 
-  if (u_isImage > 0.5) {
+  if (u_isImage == true) {
     bump = smoothstep(.2, .8, bump);
   }
   border = w[0] + .4 * (1. - bump) * w[1];
@@ -113,27 +113,27 @@ float blurEdge3x3(sampler2D tex, vec2 uv, vec2 dudx, vec2 dudy, float radius, fl
 
 void main() {
 
-  float t = mix(.1, .3, step(.5, u_isImage)) * u_time;
+  float t = (u_isImage ? .3 : .1) * u_time;
 
   vec2 uv = v_imageUV;
   vec2 dudx = dFdx(v_imageUV);
   vec2 dudy = dFdy(v_imageUV);
   vec4 img = textureGrad(u_image, uv, dudx, dudy);
 
-  if (u_isImage < 0.5) {
+  if (u_isImage == false) {
     uv = v_objectUV + .5;
     uv.y = 1. - uv.y;
   }
 
   float cycleWidth = u_repetition;
-  if (u_isImage < 0.5) {
+  if (u_isImage == false) {
     cycleWidth *= .5;
   }
 
   float edge = 0.;
   float contOffset = 1.;
 
-  if (u_isImage > 0.5) {
+  if (u_isImage == true) {
     float edgeRaw = img.r;
     edge = blurEdge3x3(u_image, uv, dudx, dudy, 6., edgeRaw);
     edge = pow(edge, 1.6);
@@ -202,7 +202,7 @@ void main() {
   }
 
   float opacity = 0.;
-  if (u_isImage > .5) {
+  if (u_isImage == true) {
     opacity = img.g;
     float frame = getImgFrame(v_imageUV, 0.);
     opacity *= frame;
@@ -210,7 +210,7 @@ void main() {
     opacity = 1. - smoothstep(.82 - 2. * fwidth(edge), .82, edge);  
   }
 
-  if (u_isImage < 0.5) {
+  if (u_isImage == false) {
     float ridge = .15 * (smoothstep(.0, .15, uv.y) * smoothstep(.4, .15, uv.y));
     ridge += .05 * (smoothstep(.1, .2, 1. - uv.y) * smoothstep(.4, .2, 1. - uv.y));
     edge += ridge;
@@ -247,7 +247,7 @@ void main() {
 
   direction += diagBLtoTR;
   float contour = 0.;
-  if (u_isImage < .5) {
+  if (u_isImage == false) {
     contour = u_contour * smoothstep(0., contOffset + .01, edge) * smoothstep(contOffset + .01, 0., edge);
     direction -= 14. * noise * contour;
   } else {
@@ -261,7 +261,7 @@ void main() {
   bump *= clamp(pow(uv.y, .1), .3, 1.);
   direction *= (.1 + (1.1 - edge) * bump);
 
-  if (u_isImage < .5) {
+  if (u_isImage == false) {
     direction *= smoothstep(1., .2, edge);
   } else {
     direction *= (.4 + .6 * smoothstep(1., .5, edge));
@@ -277,7 +277,7 @@ void main() {
   float colorDispersion = (1. - bump);
   colorDispersion = clamp(colorDispersion, 0., 1.);
   float dispersionRed = colorDispersion;
-  if (u_isImage > 0.5) {
+  if (u_isImage == true) {
     dispersionRed += .03 * bump * noise;
     dispersionRed += 5. * (smoothstep(-.1, .2, uv.y) * smoothstep(.5, .1, uv.y)) * (smoothstep(.4, .6, bump) * smoothstep(1., .4, bump));
     dispersionRed -= diagBLtoTR;
@@ -286,7 +286,7 @@ void main() {
   }
 
   float dispersionBlue = colorDispersion;
-  if (u_isImage > 0.5) {
+  if (u_isImage == true) {
     dispersionBlue *= 1.3;
     dispersionBlue += (smoothstep(0., .4, uv.y) * smoothstep(.8, .1, uv.y)) * (smoothstep(.4, .6, bump) * smoothstep(.8, .4, bump));
     dispersionBlue -= .2 * edge;
@@ -298,7 +298,7 @@ void main() {
   float blur = 0.;
   float rExtraBlur = 0.;
   float gExtraBlur = 0.;
-  if (u_isImage > 0.5) {
+  if (u_isImage == true) {
     float softness = 0.05 * u_softness;
     blur = softness + .5 * smoothstep(1., 10., u_repetition) * smoothstep(.0, 1., edge);
     rExtraBlur = softness * (0.05 + .1 * (u_shiftRed / 20.) * bump);
@@ -761,7 +761,7 @@ export interface ImageLiquidMetalUniforms extends ShaderSizingUniforms {
   u_softness: number;
   u_distortion: number;
   u_shape: (typeof ImageLiquidMetalShapes)[ImageLiquidMetalShape];
-  u_isImage: number;
+  u_isImage: boolean;
 }
 
 export interface ImageLiquidMetalParams extends ShaderSizingParams, ShaderMotionParams {
@@ -774,7 +774,7 @@ export interface ImageLiquidMetalParams extends ShaderSizingParams, ShaderMotion
   contour?: number;
   softness?: number;
   distortion?: number;
-  isImage?: number;
+  isImage?: boolean;
   shape?: ImageLiquidMetalShape;
 }
 

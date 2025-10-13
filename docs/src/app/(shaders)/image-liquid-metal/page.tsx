@@ -31,7 +31,7 @@ const ImageLiquidMetalWithControls = () => {
       ])
     );
     return {
-      isImage: { value: defaults.isImage, min: 0, max: 1, step: 1, order: 0 },
+      isImage: { value: defaults.isImage, order: 0 },
       colorBack: {value: toHsla(defaults.colorBack), order: 100},
       colorTint: { value: toHsla(defaults.colorTint), order: 101 },
       repetition: { value: defaults.repetition, min: 1, max: 10, order: 200 },
