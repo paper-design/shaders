@@ -306,21 +306,11 @@ export function toProcessedImageLiquidMetal(file: File | string): Promise<{ imag
 
       // First pass: identify shape pixels
       let shapePixelCount = 0;
-      for (let y = 0; y < height; y++) {
-        for (let x = 0; x < width; x++) {
-          const idx = y * width + x;
-          const idx4 = idx * 4;
-          const r = data[idx4];
-          const g = data[idx4 + 1];
-          const b = data[idx4 + 2];
-          const a = data[idx4 + 3];
-
-          // Shape pixel: not pure white and not fully transparent
-          if (!((r === 255 && g === 255 && b === 255 && a === 255) || a === 0)) {
-            shapeMask[idx] = 1;
-            shapePixelCount++;
-          }
-        }
+      for (let i = 0, idx = 0; i < data.length; i += 4, idx++) {
+        const a = data[i + 3];
+        const isShape = a === 0;
+        shapeMask[idx] = isShape ? 0 : 1;
+        shapePixelCount += isShape ? 0 : 1;
       }
 
       // 2) Optimized boundary detection using sparse approach
@@ -448,29 +438,22 @@ export function toProcessedImageLiquidMetal(file: File | string): Promise<{ imag
 
       // Process each pixel: Red channel = gradient, Alpha channel = original alpha
       for (let i = 0; i < outImg.data.length; i += 4) {
-        const r = originalData.data[i]!;
-        const g = originalData.data[i + 1]!;
-        const b = originalData.data[i + 2]!;
         const a = originalData.data[i + 3]!;
-
-        if (a === 0 || (r === 255 && g === 255 && b === 255 && a === 255)) {
-          // Treating as background
-          outImg.data[i] = 255; // R: white (no gradient)
-          outImg.data[i + 1] = 0; // G: white
+        // Use only alpha to determine background vs shape
+        const upscaledAlpha = outImg.data[i + 3]!;
+        if (a === 0) {
+          // Background pixel
+          outImg.data[i] = 255;
+          outImg.data[i + 1] = 0;
         } else {
-          // Part of the shape (including anti-aliased edges)
-          const upscaledAlpha = outImg.data[i + 3]!; // Alpha from upscaled image
-          const currentGray = outImg.data[i]!; // Current gradient value from upscale
-
           // Red channel carries the gradient
           // Check if upscale missed this pixel by looking at alpha channel
           // If upscaled alpha is 0, the low-res version thought this was background
-          outImg.data[i] = upscaledAlpha === 0 ? 0 : currentGray;
-          // Green channel carries original alpha
-          outImg.data[i + 1] = a;
+          outImg.data[i] = upscaledAlpha === 0 ? 0 : outImg.data[i]; // gradient or 0
+          outImg.data[i + 1] = a; // original alpha
         }
 
-        // not used
+        // Unused channels fixed
         outImg.data[i + 2] = 255;
         outImg.data[i + 3] = 255;
       }
