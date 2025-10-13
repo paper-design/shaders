@@ -211,6 +211,15 @@ export {
   type HeatmapUniforms,
 } from './shaders/heatmap.js';
 
+export {
+  imageHalftoneDotsMeta,
+  ImageHalftoneDotsTypes,
+  imageHalftoneDotsFragmentShader,
+  type ImageHalftoneDotsParams,
+  type ImageHalftoneDotsUniforms,
+  type ImageHalftoneDotsType,
+} from './shaders/image-halftone-dots.js';
+
 // ----- Utils ----- //
 export { getShaderColorFromString } from './get-shader-color-from-string.js';
 export { getShaderNoiseTexture } from './get-shader-noise-texture.js';

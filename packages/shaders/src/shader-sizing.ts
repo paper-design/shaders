@@ -57,6 +57,8 @@ uniform float u_offsetY;`;
  The transforms are identical to those in the vertex shader,
  except for the `USE_PIXELIZATION` part we insert at start.
 */
+
+
 export const sizingUV = `
 
   vec2 uv = gl_FragCoord.xy / u_resolution.xy;
