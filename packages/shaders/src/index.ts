@@ -59,6 +59,17 @@ export {
   type DotGridUniforms,
 } from './shaders/dot-grid.js';
 
+
+// ----- LineGrid Effect ----- //
+/** A shader rendering a static line pattern */
+export {
+  lineGridFragmentShader,
+  LineGridShapes,
+  type LineGridShape,
+  type LineGridParams,
+  type LineGridUniforms,
+} from './shaders/line-grid.js';
+
 // ----- Simplex noise ----- //
 /** A shader that calculates a combination of 2 simplex noises with result rendered as a gradient */
 export {

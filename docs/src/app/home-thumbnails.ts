@@ -10,6 +10,7 @@ import voronoiImg from '../../public/shaders/voronoi.webp';
 import wavesImg from '../../public/shaders/waves.webp';
 import warpImg from '../../public/shaders/warp.webp';
 import godRaysImg from '../../public/shaders/god-rays.webp';
+import lineGridImg from '../../public/shaders/line-grid.webp';
 import spiralImg from '../../public/shaders/spiral.webp';
 import swirlImg from '../../public/shaders/swirl.webp';
 import ditheringImg from '../../public/shaders/dithering.webp';
@@ -77,6 +78,8 @@ import {
   imageDitheringPresets,
   Heatmap,
   heatmapPresets,
+  LineGrid,
+  lineGridPresets,
 } from '@paper-design/shaders-react';
 import { StaticImageData } from 'next/image';
 
@@ -146,6 +149,13 @@ export const homeThumbnails = [
     ShaderComponent: DotGrid,
     image: dotGridImg,
     shaderConfig: { ...dotGridPresets[0].params, gapX: 24, gapY: 24, size: 1.5, speed: 0 },
+  },
+  {
+    name: 'line grid',
+    url: '/line-grid',
+    ShaderComponent: LineGrid,
+    image: lineGridImg,
+    shaderConfig: { ...lineGridPresets[0].params },
   },
   {
     name: 'warp',
