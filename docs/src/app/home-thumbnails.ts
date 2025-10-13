@@ -13,7 +13,6 @@ import godRaysImg from '../../public/shaders/god-rays.webp';
 import spiralImg from '../../public/shaders/spiral.webp';
 import swirlImg from '../../public/shaders/swirl.webp';
 import ditheringImg from '../../public/shaders/dithering.webp';
-import liquidMetalImg from '../../public/shaders/liquid-metal.webp';
 import grainGradientImg from '../../public/shaders/grain-gradient.webp';
 import pulsingBorderImg from '../../public/shaders/pulsing-border.webp';
 import colorPanelsImg from '../../public/shaders/color-panels.webp';
@@ -56,8 +55,6 @@ import {
   swirlPresets,
   Dithering,
   ditheringPresets,
-  LiquidMetal,
-  liquidMetalPresets,
   GrainGradient,
   grainGradientPresets,
   PulsingBorder,
@@ -312,13 +309,6 @@ export const homeThumbnails = [
         url: '/smoke-ring',
         ShaderComponent: SmokeRing,
         shaderConfig: { ...smokeRingPresets[0].params, scale: 0.8, speed: 1 },
-      },
-      {
-        name: 'liquid metal',
-        url: '/liquid-metal',
-        ShaderComponent: LiquidMetal,
-        image: liquidMetalImg,
-        shaderConfig: { ...liquidMetalPresets[0].params },
       },
       {
         name: 'god rays',

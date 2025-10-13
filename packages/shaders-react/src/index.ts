@@ -67,10 +67,6 @@ export { GrainGradient, grainGradientPresets } from './shaders/grain-gradient.js
 export type { GrainGradientProps } from './shaders/grain-gradient.js';
 export type { GrainGradientUniforms, GrainGradientParams } from '@paper-design/shaders';
 
-export { LiquidMetal, liquidMetalPresets } from './shaders/liquid-metal.js';
-export type { LiquidMetalProps } from './shaders/liquid-metal.js';
-export type { LiquidMetalUniforms, LiquidMetalParams } from '@paper-design/shaders';
-
 export { PulsingBorder, pulsingBorderPresets } from './shaders/pulsing-border.js';
 export type { PulsingBorderProps } from './shaders/pulsing-border.js';
 export type { PulsingBorderUniforms, PulsingBorderParams } from '@paper-design/shaders';
