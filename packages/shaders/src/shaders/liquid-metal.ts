@@ -216,8 +216,10 @@ void main() {
       shapeUV = rotate(shapeUV, .25 * PI);
       vec2 u_rectSize = vec2(.5);
       vec2 halfSize = .5 * u_rectSize;
-      float r = .015;
-      edge = smoothstep(0., 2. * r, roundedBoxSDF(shapeUV, halfSize, r));
+      float r = .02;
+      float rect = smoothstep(-r, r, roundedBoxSDF(shapeUV, halfSize, r));
+      rect = max(rect, step(0., roundedBoxSDF(shapeUV, halfSize, 0.)));
+      edge = rect;
     }
 
   }
