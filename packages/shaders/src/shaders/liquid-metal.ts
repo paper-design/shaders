@@ -131,7 +131,7 @@ void main() {
   float contOffset = 1.;
 
   vec2 rotatedUV = uv - vec2(.5);
-  float angle = u_angle * PI / 180.;
+  float angle = (-u_angle + 70.) * PI / 180.;
   float cosA = cos(angle);
   float sinA = sin(angle);
   rotatedUV = vec2(

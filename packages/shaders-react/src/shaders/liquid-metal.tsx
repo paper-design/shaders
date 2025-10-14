@@ -28,18 +28,18 @@ export const defaultPreset: LiquidMetalPreset = {
   params: {
     ...defaultObjectSizing,
     scale: 1,
-    speed: 0,
+    speed: 1.5,
     frame: 0,
     colorBack: '#000000',
     colorTint: '#ffffff',
-    distortion: 0.3,
+    distortion: 0,
     repetition: 2.0,
     shiftRed: 0.3,
     shiftBlue: 0.3,
-    contour: 0.4,
+    contour: 0,
     softness: 0.1,
-    angle: 0,
-    shape: 'metaballs',
+    angle: 70,
+    shape: 'circle',
   },
 };
 
@@ -58,7 +58,7 @@ export const bluePreset: LiquidMetalPreset = {
     shiftBlue: -1,
     distortion: 0.1,
     contour: 0.4,
-    angle: 0,
+    angle: 70,
     shape: 'metaballs',
   },
 };
@@ -78,7 +78,7 @@ export const containedPreset: LiquidMetalPreset = {
     distortion: 0.1,
     contour: 0.4,
     shape: 'none',
-    angle: 0,
+    angle: 70,
     worldWidth: 0,
     worldHeight: 0,
   },
@@ -100,7 +100,7 @@ export const sepiaPreset: LiquidMetalPreset = {
     distortion: 0.4,
     contour: 0.4,
     shape: 'circle',
-    angle: 0,
+    angle: 70,
   },
 };
 
