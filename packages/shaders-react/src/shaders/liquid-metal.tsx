@@ -32,7 +32,7 @@ export const defaultPreset: LiquidMetalPreset = {
     frame: 0,
     colorBack: '#00000000',
     colorTint: '#ffffff',
-    distortion: 0.07,
+    distortion: 0.3,
     repetition: 2.0,
     shiftRed: 0.3,
     shiftBlue: 0.3,
@@ -42,26 +42,68 @@ export const defaultPreset: LiquidMetalPreset = {
   },
 };
 
-export const oldDefaultPreset: LiquidMetalPreset = {
-  name: 'Old default',
+export const bluePreset: LiquidMetalPreset = {
+  name: 'Blue',
   params: {
     ...defaultObjectSizing,
-    scale: 0.6,
+    scale: 1.8,
     speed: 1,
-    frame: 8000,
-    colorBack: '#000000',
-    colorTint: '#ffffff',
-    softness: 0.3,
+    frame: 0,
+    colorBack: '#00042e',
+    colorTint: '#5b4dc7',
+    softness: 0.45,
     repetition: 4,
-    shiftRed: 0.3,
-    shiftBlue: 0.3,
+    shiftRed: -0.5,
+    shiftBlue: -1,
     distortion: 0.1,
-    contour: 1,
-    shape: 'circle',
+    contour: 0,
+    shape: 'metaballs',
   },
 };
 
-export const liquidMetalPresets: LiquidMetalPreset[] = [defaultPreset, oldDefaultPreset];
+export const containedPreset: LiquidMetalPreset = {
+  name: 'Contained',
+  params: {
+    ...defaultObjectSizing,
+    speed: 1,
+    frame: 0,
+    colorBack: '#ffffff00',
+    colorTint: '#ffffff',
+    softness: 0.05,
+    repetition: 2,
+    shiftRed: 0.3,
+    shiftBlue: 0.3,
+    distortion: 0.1,
+    contour: 0,
+    shape: 'none',
+    worldWidth: 0,
+    worldHeight: 0,
+  },
+};
+
+export const sepiaPreset: LiquidMetalPreset = {
+  name: 'Sepia',
+  params: {
+    ...defaultObjectSizing,
+    speed: 1,
+    frame: 0,
+    scale: 0.8,
+    colorBack: '#222222',
+    colorTint: '#fffa66',
+    softness: 0.4,
+    repetition: 2,
+    shiftRed: 1,
+    shiftBlue: 0.3,
+    distortion: 0.4,
+    contour: 0,
+    shape: 'circle',
+    worldWidth: 0,
+    worldHeight: 0,
+  },
+};
+
+
+export const liquidMetalPresets: LiquidMetalPreset[] = [defaultPreset, bluePreset, containedPreset, sepiaPreset];
 
 export const LiquidMetal: React.FC<LiquidMetalProps> = memo(function LiquidMetalImpl({
   // Own props
