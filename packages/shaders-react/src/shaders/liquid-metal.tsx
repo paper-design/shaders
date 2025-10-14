@@ -78,25 +78,25 @@ export const containedPreset: LiquidMetalPreset = {
     distortion: 0.1,
     contour: 0.4,
     shape: 'none',
-    angle: 70,
+    angle: 0,
     worldWidth: 0,
     worldHeight: 0,
   },
 };
 
-export const sepiaPreset: LiquidMetalPreset = {
-  name: 'Sepia',
+export const stripesPreset: LiquidMetalPreset = {
+  name: 'Stripes',
   params: {
     ...defaultObjectSizing,
     speed: 1,
     frame: 0,
-    scale: 0.8,
-    colorBack: '#222222',
-    colorTint: '#fffa66',
-    softness: 0.4,
-    repetition: 2,
+    scale: 0.6,
+    colorBack: '#000000',
+    colorTint: '#052c3d',
+    softness: 0.8,
+    repetition: 6,
     shiftRed: 1,
-    shiftBlue: 0.3,
+    shiftBlue: -1,
     distortion: 0.4,
     contour: 0.4,
     shape: 'circle',
@@ -105,7 +105,7 @@ export const sepiaPreset: LiquidMetalPreset = {
 };
 
 
-export const liquidMetalPresets: LiquidMetalPreset[] = [defaultPreset, bluePreset, containedPreset, sepiaPreset];
+export const liquidMetalPresets: LiquidMetalPreset[] = [defaultPreset, bluePreset, containedPreset, stripesPreset];
 
 export const LiquidMetal: React.FC<LiquidMetalProps> = memo(function LiquidMetalImpl({
   // Own props
