@@ -357,6 +357,7 @@ export function toProcessedLiquidMetal(file: File | string): Promise<{ imageData
     }
 
     const img = new Image();
+    img.crossOrigin = 'anonymous';
     const totalStartTime = performance.now();
 
     img.onload = () => {
