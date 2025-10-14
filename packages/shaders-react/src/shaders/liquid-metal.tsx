@@ -28,9 +28,9 @@ export const defaultPreset: LiquidMetalPreset = {
   params: {
     ...defaultObjectSizing,
     scale: 1,
-    speed: 1,
+    speed: 0,
     frame: 0,
-    colorBack: '#00000000',
+    colorBack: '#000000',
     colorTint: '#ffffff',
     distortion: 0.3,
     repetition: 2.0,
