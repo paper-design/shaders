@@ -21,7 +21,7 @@ import { toHsla } from '@/helpers/color-utils';
 const { worldWidth, worldHeight, ...defaults } = liquidMetalPresets[0].params;
 
 const LiquidMetalWithControls = () => {
-  const [image, setImage] = useState<HTMLImageElement | string>('/images/logos/diamond.svg');
+  const [image, setImage] = useState<HTMLImageElement | string>('');
 
   const [params, setParams] = useControls(() => {
     const presets = Object.fromEntries(
