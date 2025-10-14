@@ -112,6 +112,10 @@ float blurEdge3x3(sampler2D tex, vec2 uv, vec2 dudx, vec2 dudy, float radius, fl
   return sum / norm;
 }
 
+float roundedBoxSDF(vec2 uv, vec2 size, float r) {
+  vec2 q = abs(uv) - size + r;
+  return min(max(q.x, q.y), 0.0) + length(max(q, 0.0)) - r;
+}
 
 void main() {
 
@@ -147,7 +151,7 @@ void main() {
     edge *= mix(0.0, 1.0, smoothstep(0.0, 0.4, u_contour));
   } else {
     if (u_shape < 1.) {
-
+      // full-fill on canvas
       vec2 borderUV = v_responsiveUV + .5;
       float ratio = v_responsiveBoxGivenSize.x / v_responsiveBoxGivenSize.y;
       vec2 mask = min(borderUV, 1. - borderUV);
@@ -171,10 +175,12 @@ void main() {
       contOffset = 1.5;
 
     } else if (u_shape < 2.) {
+      // ball
       vec2 shapeUV = uv - .5;
       shapeUV *= .67;
       edge = pow(clamp(3. * length(shapeUV), 0., 1.), 18.);
     } else if (u_shape < 3.) {
+      // flower
       vec2 shapeUV = uv - .5;
       shapeUV *= 1.68;
 
@@ -189,6 +195,7 @@ void main() {
       cycleWidth *= 1.6;
 
     } else if (u_shape < 4.) {
+      // metaballs
       vec2 shapeUV = uv - .5;
       shapeUV *= 1.3;
       edge = 0.;
@@ -204,6 +211,13 @@ void main() {
       }
       edge = 1. - smoothstep(.65, .9, edge);
       edge = pow(edge, 4.);
+    } else if (u_shape < 5.) {
+      vec2 shapeUV = uv - .5;
+      shapeUV = rotate(shapeUV, .25 * PI);
+      vec2 u_rectSize = vec2(.5);
+      vec2 halfSize = .5 * u_rectSize;
+      float r = .015;
+      edge = smoothstep(0., 2. * r, roundedBoxSDF(shapeUV, halfSize, r));
     }
 
   }
@@ -335,6 +349,7 @@ void main() {
   ${colorBandingFix}
 
   fragColor = vec4(color, opacity);
+//  fragColor = vec4(vec3(edge), 1.);
 }
 `;
 
@@ -794,6 +809,7 @@ export const LiquidMetalShapes = {
   circle: 1,
   daisy: 2,
   metaballs: 3,
+  diamond: 4,
 } as const;
 
 export type LiquidMetalShape = keyof typeof LiquidMetalShapes;

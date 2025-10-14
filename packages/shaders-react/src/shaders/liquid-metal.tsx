@@ -39,7 +39,7 @@ export const defaultPreset: LiquidMetalPreset = {
     contour: 0.4,
     softness: 0.1,
     angle: 70,
-    shape: 'metaballs',
+    shape: 'diamond',
   },
 };
 
