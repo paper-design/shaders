@@ -124,7 +124,6 @@ export const Heatmap: React.FC<HeatmapProps> = memo(function HeatmapImpl({
 
     return () => {
       current = false;
-      URL.revokeObjectURL(url);
     };
   }, [imageUrl, suspendWhenProcessingImage]);
 

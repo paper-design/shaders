@@ -128,7 +128,6 @@ export const LiquidMetal: React.FC<LiquidMetalProps> = memo(function LiquidMetal
 
     return () => {
       current = false;
-      URL.revokeObjectURL(url);
     };
   }, [imageUrl, suspendWhenProcessingImage]);
 
