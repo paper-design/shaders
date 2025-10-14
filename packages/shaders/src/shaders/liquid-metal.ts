@@ -112,9 +112,8 @@ float blurEdge3x3(sampler2D tex, vec2 uv, vec2 dudx, vec2 dudy, float radius, fl
   return sum / norm;
 }
 
-float roundedBoxSDF(vec2 uv, vec2 size, float r) {
-  vec2 q = abs(uv) - size + r;
-  return min(max(q.x, q.y), 0.0) + length(max(q, 0.0)) - r;
+float lst(float edge0, float edge1, float x) {
+  return clamp((x - edge0) / (edge1 - edge0), 0.0, 1.0);
 }
 
 void main() {
@@ -214,13 +213,18 @@ void main() {
     } else if (u_shape < 5.) {
       vec2 shapeUV = uv - .5;
       shapeUV = rotate(shapeUV, .25 * PI);
-      vec2 u_rectSize = vec2(.5);
-      vec2 halfSize = .5 * u_rectSize;
-      float r = .02;
-      float rect = smoothstep(-r, r, roundedBoxSDF(shapeUV, halfSize, r));
-      rect = max(rect, step(0., roundedBoxSDF(shapeUV, halfSize, 0.)));
-      edge = rect;
+      shapeUV *= 1.42;
+      shapeUV += .5;
+      vec2 mask = min(shapeUV, 1. - shapeUV);
+      vec2 pixel_thickness = vec2(.15);
+      float maskX = smoothstep(0.0, pixel_thickness.x, mask.x);
+      float maskY = smoothstep(0.0, pixel_thickness.y, mask.y);
+      maskX = pow(maskX, .25);
+      maskY = pow(maskY, .25);
+      edge = clamp(1. - maskX * maskY, 0., 1.);
     }
+
+    edge = mix(smoothstep(.79, .8, edge), edge, smoothstep(0.0, 0.4, u_contour));
 
   }
 
@@ -231,12 +235,6 @@ void main() {
     opacity *= frame;
   } else {
     opacity = 1. - smoothstep(.82 - 2. * fwidth(edge), .82, edge);
-  }
-
-  if (u_isImage == false) {
-    float ridge = .15 * (smoothstep(.0, .15, uv.y) * smoothstep(.4, .15, uv.y));
-    ridge += .05 * (smoothstep(.1, .2, 1. - uv.y) * smoothstep(.4, .2, 1. - uv.y));
-    edge += ridge;
   }
 
   float diagBLtoTR = rotatedUV.x - rotatedUV.y;
@@ -270,27 +268,17 @@ void main() {
 
   direction += diagBLtoTR;
   float contour = 0.;
-  if (u_isImage == false) {
-    contour = u_contour * smoothstep(0., contOffset + .01, edge) * smoothstep(contOffset + .01, 0., edge);
-    direction -= 14. * noise * contour;
-  } else {
-    direction -= 2. * noise * diagBLtoTR * (smoothstep(0., 1., edge) * smoothstep(1., 0., edge));
-    direction *= mix(1., 1. - edge, smoothstep(.5, 1., u_contour));
-    direction -= 1.7 * edge * smoothstep(.5, 1., u_contour);
-    direction += .2 * pow(u_contour, 4.) * smoothstep(1., 0., edge);
-  }
-
+  direction -= 2. * noise * diagBLtoTR * (smoothstep(0., 1., edge) * smoothstep(1., 0., edge));
+  direction *= mix(1., 1. - edge, smoothstep(.5, 1., u_contour));
+  direction -= 1.7 * edge * smoothstep(.5, 1., u_contour);
+  direction += .2 * pow(u_contour, 4.) * smoothstep(1., 0., edge);
 
   bump *= clamp(pow(uv.y, .1), .3, 1.);
   direction *= (.1 + (1.1 - edge) * bump);
-
-  if (u_isImage == false) {
-    direction *= smoothstep(1., .2, edge);
-  } else {
-    direction *= (.4 + .6 * smoothstep(1., .5, edge));
-    direction += .18 * (smoothstep(.1, .2, uv.y) * smoothstep(.4, .2, uv.y));
-    direction += .03 * (smoothstep(.1, .2, 1. - uv.y) * smoothstep(.4, .2, 1. - uv.y));
-  }
+  
+  direction *= (.4 + .6 * smoothstep(1., .5, edge));
+  direction += .18 * (smoothstep(.1, .2, uv.y) * smoothstep(.4, .2, uv.y));
+  direction += .03 * (smoothstep(.1, .2, 1. - uv.y) * smoothstep(.4, .2, 1. - uv.y));
 
   direction *= (.5 + .5 * pow(uv.y, 2.));
   direction *= cycleWidth;
@@ -300,20 +288,14 @@ void main() {
   float colorDispersion = (1. - bump);
   colorDispersion = clamp(colorDispersion, 0., 1.);
   float dispersionRed = colorDispersion;
-  if (u_isImage == true) {
-    dispersionRed += .03 * bump * noise;
-    dispersionRed += 5. * (smoothstep(-.1, .2, uv.y) * smoothstep(.5, .1, uv.y)) * (smoothstep(.4, .6, bump) * smoothstep(1., .4, bump));
-    dispersionRed -= diagBLtoTR;
-  } else {
-    dispersionRed += bump * noise;
-  }
+  dispersionRed += .03 * bump * noise;
+  dispersionRed += 5. * (smoothstep(-.1, .2, uv.y) * smoothstep(.5, .1, uv.y)) * (smoothstep(.4, .6, bump) * smoothstep(1., .4, bump));
+  dispersionRed -= diagBLtoTR;
 
   float dispersionBlue = colorDispersion;
-  if (u_isImage == true) {
-    dispersionBlue *= 1.3;
-    dispersionBlue += (smoothstep(0., .4, uv.y) * smoothstep(.8, .1, uv.y)) * (smoothstep(.4, .6, bump) * smoothstep(.8, .4, bump));
-    dispersionBlue -= .2 * edge;
-  }
+  dispersionBlue *= 1.3;
+  dispersionBlue += (smoothstep(0., .4, uv.y) * smoothstep(.8, .1, uv.y)) * (smoothstep(.4, .6, bump) * smoothstep(.8, .4, bump));
+  dispersionBlue -= .2 * edge;
 
   dispersionRed *= (u_shiftRed / 20.);
   dispersionBlue *= (u_shiftBlue / 20.);
@@ -351,7 +333,6 @@ void main() {
   ${colorBandingFix}
 
   fragColor = vec4(color, opacity);
-//  fragColor = vec4(vec3(edge), 1.);
 }
 `;
 
