@@ -224,7 +224,7 @@ void main() {
       edge = clamp(1. - maskX * maskY, 0., 1.);
     }
 
-    edge = mix(smoothstep(.79, .8, edge), edge, smoothstep(0.0, 0.4, u_contour));
+    edge = mix(smoothstep(.9 - 2. * fwidth(edge), .9, edge), edge, smoothstep(0.0, 0.4, u_contour));
 
   }
 
@@ -234,7 +234,12 @@ void main() {
     float frame = getImgFrame(v_imageUV, 0.);
     opacity *= frame;
   } else {
-    opacity = 1. - smoothstep(.82 - 2. * fwidth(edge), .82, edge);
+    opacity = 1. - smoothstep(.9 - 2. * fwidth(edge), .9, edge);
+    if (u_shape < 2.) {
+      edge = 1.2 * pow(edge, 1.);
+    } else if (u_shape < 5.) {
+      edge = 1.8 * pow(edge, 1.5);
+    }
   }
 
   float diagBLtoTR = rotatedUV.x - rotatedUV.y;
