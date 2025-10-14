@@ -113,7 +113,7 @@ float blurEdge3x3(sampler2D tex, vec2 uv, vec2 dudx, vec2 dudy, float radius, fl
 
 void main() {
 
-  float t = (u_isImage ? .3 : .1) * u_time;
+  float t = .3 * u_time;
 
   vec2 uv = v_imageUV;
   vec2 dudx = dFdx(v_imageUV);
@@ -126,10 +126,6 @@ void main() {
   }
 
   float cycleWidth = u_repetition;
-  if (u_isImage == false) {
-    cycleWidth *= .5;
-  }
-
   float edge = 0.;
   float contOffset = 1.;
 
@@ -187,7 +183,7 @@ void main() {
       edge = 0.;
       for (int i = 0; i < 5; i++) {
         float fi = float(i);
-        float speed = 4.5 + 2. * sin(fi * 12.345);
+        float speed = 1.5 + 2./3. * sin(fi * 12.345);
         float angle = -fi * 1.5;
         vec2 dir1 = vec2(cos(angle), sin(angle));
         vec2 dir2 = vec2(cos(angle + 1.57), sin(angle + 1.));
