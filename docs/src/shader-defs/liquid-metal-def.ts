@@ -25,7 +25,14 @@ export const liquidMetalDef: ShaderDef = {
     {
       name: 'image',
       type: 'HTMLImageElement | string',
-      description: 'The image to use for the effect. We accept png and svg images (non-white shape on white or transparent background)',
+      description: 'An optional image used as an effect mask. A transparent background is required. If no image is provided, the shader defaults to one of the predefined shapes.',
+    },
+    {
+      name: 'shape',
+      type: 'enum',
+      defaultValue: defaultParams.shape,
+      description: 'The predefined shape used as an effect mask when no image is provided.',
+      options: ['none', 'circle', 'daisy', 'metaballs'],
     },
     {
       name: 'repetition',
@@ -75,12 +82,18 @@ export const liquidMetalDef: ShaderDef = {
       defaultValue: defaultParams.contour,
       description: 'Strength of the distortion on the shape edges',
     },
-    {
-      name: 'suspendWhenProcessingImage',
-      type: 'boolean',
-      description: 'TODO',
-      options: ['true', 'false'],
-    },
+    // {
+    //   name: 'isImage',
+    //   type: 'boolean',
+    //   description: 'TODO',
+    //   options: ['true', 'false'],
+    // },
+    // {
+    //   name: 'suspendWhenProcessingImage',
+    //   type: 'boolean',
+    //   description: 'TODO',
+    //   options: ['true', 'false'],
+    // },
     ...animatedCommonParams,
   ],
 };
