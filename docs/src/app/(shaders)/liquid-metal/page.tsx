@@ -45,6 +45,7 @@ const LiquidMetalWithControls = () => {
       shiftBlue: { value: defaults.shiftBlue, min: -1, max: 1, order: 203 },
       distortion: { value: defaults.distortion, min: 0, max: 1, order: 204 },
       contour: { value: defaults.contour, min: 0, max: 1, order: 205 },
+      angle: { value: defaults.angle, min: 0, max: 360, order: 206 },
       speed: { value: defaults.speed, min: 0, max: 4, order: 300 },
       scale: { value: defaults.scale, min: 0.2, max: 10, order: 301 },
       rotation: { value: defaults.rotation, min: 0, max: 360, order: 302 },

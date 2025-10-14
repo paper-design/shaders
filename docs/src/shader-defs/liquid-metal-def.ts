@@ -82,6 +82,14 @@ export const liquidMetalDef: ShaderDef = {
       defaultValue: defaultParams.contour,
       description: 'Strength of the distortion on the shape edges',
     },
+    {
+      name: 'angle',
+      type: 'number',
+      defaultValue: defaultParams.angle,
+      min: 0,
+      max: 360,
+      description: 'The direction of pattern animation (angle relative to the shape)',
+    },
     // {
     //   name: 'isImage',
     //   type: 'boolean',

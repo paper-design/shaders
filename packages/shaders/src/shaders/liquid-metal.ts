@@ -40,6 +40,7 @@ uniform float u_shiftRed;
 uniform float u_shiftBlue;
 uniform float u_distortion;
 uniform float u_contour;
+uniform float u_angle;
 
 uniform float u_shape;
 uniform bool u_isImage;
@@ -129,6 +130,15 @@ void main() {
   float edge = 0.;
   float contOffset = 1.;
 
+  vec2 rotatedUV = uv - vec2(.5);
+  float angle = u_angle * PI / 180.;
+  float cosA = cos(angle);
+  float sinA = sin(angle);
+  rotatedUV = vec2(
+  rotatedUV.x * cosA - rotatedUV.y * sinA,
+  rotatedUV.x * sinA + rotatedUV.y * cosA
+  ) + vec2(.5);
+
   if (u_isImage == true) {
     float edgeRaw = img.r;
     edge = blurEdge3x3(u_image, uv, dudx, dudy, 6., edgeRaw);
@@ -212,8 +222,8 @@ void main() {
     edge += ridge;
   }
 
-  float diagBLtoTR = uv.x - uv.y;
-  float diagTLtoBR = uv.x + uv.y;
+  float diagBLtoTR = rotatedUV.x - rotatedUV.y;
+  float diagTLtoBR = rotatedUV.x + rotatedUV.y;
 
   vec3 color = vec3(0.);
   vec3 color1 = vec3(.98, 0.98, 1.);
@@ -757,6 +767,7 @@ export interface LiquidMetalUniforms extends ShaderSizingUniforms {
   u_contour: number;
   u_softness: number;
   u_distortion: number;
+  u_angle: number;
   u_shape: (typeof LiquidMetalShapes)[LiquidMetalShape];
   u_isImage: boolean;
 }
@@ -771,6 +782,7 @@ export interface LiquidMetalParams extends ShaderSizingParams, ShaderMotionParam
   contour?: number;
   softness?: number;
   distortion?: number;
+  angle?: number;
   shape?: LiquidMetalShape;
 }
 
