@@ -341,7 +341,7 @@ void main() {
 // Configuration for Poisson solver
 export const POISSON_CONFIG_OPTIMIZED = {
   measurePerformance: false, // Set to true to see performance metrics
-  workingSize: 500, // Size to solve Poisson at (will upscale to original size)
+  workingSize: 512, // Size to solve Poisson at (will upscale to original size)
   iterations: 30, // SOR converges ~2-20x faster than standard Gauss-Seidel
 };
 
@@ -383,7 +383,7 @@ export function toProcessedLiquidMetal(file: File | string): Promise<{ imageData
 
       if (isSVG) {
         // Scale SVG to max dimension while preserving aspect ratio
-        const svgMaxSize = 4064;
+        const svgMaxSize = 4096;
         const aspectRatio = originalWidth / originalHeight;
 
         if (originalWidth > originalHeight) {
