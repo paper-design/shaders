@@ -27,7 +27,7 @@ export const defaultPreset: LiquidMetalPreset = {
   name: 'Default',
   params: {
     ...defaultObjectSizing,
-    scale: 1,
+    scale: 0.6,
     speed: 1,
     frame: 0,
     colorBack: '#00000000',
@@ -43,33 +43,34 @@ export const defaultPreset: LiquidMetalPreset = {
   },
 };
 
-export const bluePreset: LiquidMetalPreset = {
-  name: 'Blue',
+export const noirPreset: LiquidMetalPreset = {
+  name: 'Noir',
   params: {
     ...defaultObjectSizing,
-    scale: 1.8,
+    scale: 0.6,
     speed: 1,
     frame: 0,
-    colorBack: '#00042e',
-    colorTint: '#5b4dc7',
+    colorBack: '#000000',
+    colorTint: '#606060',
     softness: 0.45,
     repetition: 1.5,
-    shiftRed: -0.5,
-    shiftBlue: -1,
-    distortion: 0.1,
-    contour: 0.4,
-    angle: 70,
-    shape: 'metaballs',
+    shiftRed: 0,
+    shiftBlue: 0,
+    distortion: 0,
+    contour: 0,
+    angle: 90,
+    shape: 'diamond',
   },
 };
 
-export const containedPreset: LiquidMetalPreset = {
-  name: 'Contained',
+export const fullScreenPreset: LiquidMetalPreset = {
+  name: 'Backdrop',
   params: {
     ...defaultObjectSizing,
     speed: 1,
     frame: 0,
-    colorBack: '#ffffff00',
+    scale: 1.5,
+    colorBack: '#00000000',
     colorTint: '#ffffff',
     softness: 0.05,
     repetition: 1.5,
@@ -78,7 +79,7 @@ export const containedPreset: LiquidMetalPreset = {
     distortion: 0.1,
     contour: 0.4,
     shape: 'none',
-    angle: 0,
+    angle: 90,
     worldWidth: 0,
     worldHeight: 0,
   },
@@ -92,7 +93,7 @@ export const stripesPreset: LiquidMetalPreset = {
     frame: 0,
     scale: 0.6,
     colorBack: '#000000',
-    colorTint: '#052c3d',
+    colorTint: '#2c5d72',
     softness: 0.8,
     repetition: 6,
     shiftRed: 1,
@@ -100,12 +101,11 @@ export const stripesPreset: LiquidMetalPreset = {
     distortion: 0.4,
     contour: 0.4,
     shape: 'circle',
-    angle: 70,
+    angle: 0,
   },
 };
 
-
-export const liquidMetalPresets: LiquidMetalPreset[] = [defaultPreset, bluePreset, containedPreset, stripesPreset];
+export const liquidMetalPresets: LiquidMetalPreset[] = [defaultPreset, noirPreset, fullScreenPreset, stripesPreset];
 
 export const LiquidMetal: React.FC<LiquidMetalProps> = memo(function LiquidMetalImpl({
   // Own props

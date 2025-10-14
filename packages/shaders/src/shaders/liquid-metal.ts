@@ -174,12 +174,12 @@ void main() {
       contOffset = 1.5;
 
     } else if (u_shape < 2.) {
-      // ball
+      // circle
       vec2 shapeUV = uv - .5;
       shapeUV *= .67;
       edge = pow(clamp(3. * length(shapeUV), 0., 1.), 18.);
     } else if (u_shape < 3.) {
-      // flower
+      // daisy
       vec2 shapeUV = uv - .5;
       shapeUV *= 1.68;
 
@@ -194,6 +194,19 @@ void main() {
       cycleWidth *= 1.6;
 
     } else if (u_shape < 4.) {
+      // diamond
+      vec2 shapeUV = uv - .5;
+      shapeUV = rotate(shapeUV, .25 * PI);
+      shapeUV *= 1.42;
+      shapeUV += .5;
+      vec2 mask = min(shapeUV, 1. - shapeUV);
+      vec2 pixel_thickness = vec2(.15);
+      float maskX = smoothstep(0.0, pixel_thickness.x, mask.x);
+      float maskY = smoothstep(0.0, pixel_thickness.y, mask.y);
+      maskX = pow(maskX, .25);
+      maskY = pow(maskY, .25);
+      edge = clamp(1. - maskX * maskY, 0., 1.);
+    } else if (u_shape < 5.) {
       // metaballs
       vec2 shapeUV = uv - .5;
       shapeUV *= 1.3;
@@ -210,18 +223,6 @@ void main() {
       }
       edge = 1. - smoothstep(.65, .9, edge);
       edge = pow(edge, 4.);
-    } else if (u_shape < 5.) {
-      vec2 shapeUV = uv - .5;
-      shapeUV = rotate(shapeUV, .25 * PI);
-      shapeUV *= 1.42;
-      shapeUV += .5;
-      vec2 mask = min(shapeUV, 1. - shapeUV);
-      vec2 pixel_thickness = vec2(.15);
-      float maskX = smoothstep(0.0, pixel_thickness.x, mask.x);
-      float maskY = smoothstep(0.0, pixel_thickness.y, mask.y);
-      maskX = pow(maskX, .25);
-      maskY = pow(maskY, .25);
-      edge = clamp(1. - maskX * maskY, 0., 1.);
     }
 
     edge = mix(smoothstep(.9 - 2. * fwidth(edge), .9, edge), edge, smoothstep(0.0, 0.4, u_contour));
@@ -280,7 +281,7 @@ void main() {
 
   bump *= clamp(pow(uv.y, .1), .3, 1.);
   direction *= (.1 + (1.1 - edge) * bump);
-  
+
   direction *= (.4 + .6 * smoothstep(1., .5, edge));
   direction += .18 * (smoothstep(.1, .2, uv.y) * smoothstep(.4, .2, uv.y));
   direction += .03 * (smoothstep(.1, .2, 1. - uv.y) * smoothstep(.4, .2, 1. - uv.y));
@@ -796,8 +797,8 @@ export const LiquidMetalShapes = {
   none: 0,
   circle: 1,
   daisy: 2,
-  metaballs: 3,
-  diamond: 4,
+  diamond: 3,
+  metaballs: 4,
 } as const;
 
 export type LiquidMetalShape = keyof typeof LiquidMetalShapes;
