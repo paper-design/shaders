@@ -29,6 +29,7 @@ precision mediump float;
 uniform sampler2D u_image;
 uniform float u_imageAspectRatio;
 
+uniform vec2 u_resolution;
 uniform float u_time;
 
 uniform vec4 u_colorBack;
@@ -307,6 +308,8 @@ void main() {
   if (u_isImage == true) {
     float softness = 0.05 * u_softness;
     blur = softness + .5 * smoothstep(1., 10., u_repetition) * smoothstep(.0, 1., edge);
+    float smallCanvasT = smoothstep(500., 100., min(u_resolution.x, u_resolution.y));
+    blur += smallCanvasT * smoothstep(.0, 1., edge);
     rExtraBlur = softness * (0.05 + .1 * (u_shiftRed / 20.) * bump);
     gExtraBlur = softness * 0.05 / (1. - diagBLtoTR);
   } else {

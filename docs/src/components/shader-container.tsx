@@ -116,7 +116,7 @@ function ResizableShader({ children }: React.PropsWithChildren) {
 
   return (
     <div
-      className="flex w-[125px] h-[125px] *:size-full *:max-h-full not-has-[[data-paper-shader]]:bg-header"
+      className="flex aspect-4/3 *:size-full *:max-h-full not-has-[[data-paper-shader]]:bg-header xs:aspect-3/2 md:aspect-16/9"
       onPointerMove={(event) => setCanStartResize(event.altKey)}
       onPointerLeave={() => setCanStartResize(false)}
     >

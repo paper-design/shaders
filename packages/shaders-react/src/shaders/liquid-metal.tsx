@@ -28,18 +28,18 @@ export const defaultPreset: LiquidMetalPreset = {
   params: {
     ...defaultObjectSizing,
     scale: 1,
-    speed: 1.5,
+    speed: 1,
     frame: 0,
-    colorBack: '#000000',
+    colorBack: '#00000000',
     colorTint: '#ffffff',
-    distortion: 0,
+    distortion: 0.07,
     repetition: 2.0,
     shiftRed: 0.3,
     shiftBlue: 0.3,
-    contour: 0,
+    contour: 0.4,
     softness: 0.1,
     angle: 70,
-    shape: 'circle',
+    shape: 'metaballs',
   },
 };
 
