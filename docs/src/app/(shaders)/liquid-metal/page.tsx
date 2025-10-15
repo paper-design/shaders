@@ -54,7 +54,7 @@ const LiquidMetalWithControls = () => {
       fit: { value: defaults.fit, options: ['contain', 'cover'] as ShaderFit[], order: 305 },
       Image: folder({
         'Upload image': levaImageButton((img?: HTMLImageElement) => setImage(img ?? '')),
-        'Delete image': levaDeleteImageButton(() => setImage('')),
+        ...(image && { 'Delete image': levaDeleteImageButton(() => setImage('')) }),
       }),
       Presets: folder(presets, { order: -1 }),
     };
