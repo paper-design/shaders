@@ -235,7 +235,6 @@ void main() {
   vec4 backColor = u_colorBack;
   backColor.rgb *= backColor.a;
 
-  frame = step(.01, frame);
   vec3 color = mix(backColor.rgb, image.rgb, image.a * frame);
   float opacity = backColor.a + image.a * frame;
   
