@@ -347,7 +347,7 @@ void main() {
 export const POISSON_CONFIG_OPTIMIZED = {
   measurePerformance: false, // Set to true to see performance metrics
   workingSize: 512, // Size to solve Poisson at (will upscale to original size)
-  iterations: 30, // SOR converges ~2-20x faster than standard Gauss-Seidel
+  iterations: 40, // SOR converges ~2-20x faster than standard Gauss-Seidel
 };
 
 // Precomputed pixel data for sparse processing
