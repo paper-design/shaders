@@ -229,7 +229,7 @@ void main() {
   uv = mix(imageUV, uv, mask);
   float blur = mix(0., u_blur, mask);
 
-  float frame = getUvFrame(imageUV);
+  float frame = getUvFrame(uv);
 
   vec4 image = getBlur(u_image, uv, 1. / u_resolution / u_pixelRatio, vec2(0., 1.), blur);
   vec4 backColor = u_colorBack;
