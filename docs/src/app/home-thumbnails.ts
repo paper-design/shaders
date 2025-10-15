@@ -200,6 +200,9 @@ export const homeThumbnails = [
         image: ditheringImg,
         pixelated: true,
         shaderConfig: { ...ditheringPresets[0].params },
+        // This shader doesn't render consistently when
+        // thumbnails are resized, so we live render it
+        alwaysLivePreview: true,
       },
       {
         name: 'grain gradient',
@@ -207,6 +210,8 @@ export const homeThumbnails = [
         url: '/grain-gradient',
         ShaderComponent: GrainGradient,
         shaderConfig: { ...grainGradientPresets[0].params, speed: 1.5 },
+        // This shader thumbnails look nowhere near as crisp
+        // when resized, so we live render it to maintain the quality
         alwaysLivePreview: true,
       },
       {
