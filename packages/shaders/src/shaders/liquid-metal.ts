@@ -362,6 +362,7 @@ interface SparsePixelData {
 export function toProcessedLiquidMetal(file: File | string): Promise<{ imageData: ImageData; pngBlob: Blob }> {
   const canvas = document.createElement('canvas');
   const ctx = canvas.getContext('2d');
+  const isBlob = typeof file === 'string' && file.startsWith('blob:');
 
   return new Promise((resolve, reject) => {
     if (!file || !ctx) {
@@ -369,14 +370,20 @@ export function toProcessedLiquidMetal(file: File | string): Promise<{ imageData
       return;
     }
 
+    const blobContentTypePromise = isBlob && fetch(file).then((res) => res.headers.get('Content-Type'));
     const img = new Image();
     img.crossOrigin = 'anonymous';
     const totalStartTime = performance.now();
 
-    img.onload = () => {
+    img.onload = async () => {
       // Force SVG to load at a high fidelity size if it's an SVG
       let isSVG;
-      if (typeof file === 'string') {
+
+      const blobContentType = await blobContentTypePromise;
+
+      if (blobContentType) {
+        isSVG = blobContentType === 'image/svg+xml';
+      } else if (typeof file === 'string') {
         isSVG = file.endsWith('.svg') || file.startsWith('data:image/svg+xml');
       } else {
         isSVG = file.type === 'image/svg+xml';
