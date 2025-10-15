@@ -241,7 +241,8 @@ void main() {
   
   highlight *= u_highlights;
   highlight *= u_colorHighlight.a;
-  color = mix(color, u_colorHighlight.rgb, highlight);
+  color = mix(color, u_colorHighlight.rgb, .5 * highlight);
+  color += .5 * pow(highlight, .5) * u_colorHighlight.rgb;
 
   opacity += highlight;
 
