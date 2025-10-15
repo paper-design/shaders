@@ -242,7 +242,8 @@ void main() {
 
   ${colorBandingFix}
 
-  fragColor = vec4(color, opacity);
+//  fragColor = vec4(color, opacity);
+  fragColor = vec4(vec3(pulse), 1.);
 }`;
 
 export interface PulsingBorderUniforms extends ShaderSizingUniforms {
