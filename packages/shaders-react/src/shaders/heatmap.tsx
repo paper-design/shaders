@@ -95,7 +95,7 @@ export const Heatmap: React.FC<HeatmapProps> = memo(function HeatmapImpl({
   if (suspendWhenProcessingImage && typeof window !== 'undefined') {
     processedImage = suspend(
       (): Promise<string> => toProcessedHeatmap(imageUrl).then((result) => URL.createObjectURL(result.blob)),
-      [imageUrl]
+      [imageUrl, 'heatmap']
     );
   } else {
     processedImage = processedStateImage;
@@ -124,7 +124,6 @@ export const Heatmap: React.FC<HeatmapProps> = memo(function HeatmapImpl({
 
     return () => {
       current = false;
-      URL.revokeObjectURL(url);
     };
   }, [imageUrl, suspendWhenProcessingImage]);
 

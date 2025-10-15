@@ -1,5 +1,16 @@
 # Paper Shaders
 
+## Version 0.0.58
+
+- **General**
+  - Improve antialiasing for all image shaders when the images are downscaled
+- **Liquid Metal**
+  - New reworked version that supports custom images
+  - New default look and presets
+  - Added an `angle` parameter
+  - Improved contour and edge distortion
+  - Speed increased 3x, repetition increased 2x
+
 ## Version 0.0.57
 
 - Reverts the initialization timing changes introduced in 0.0.56
