@@ -155,7 +155,7 @@ void main() {
     smoothstep(margins[3], margins[3] + sw.y, 1.0 - uvMask.y + sw.y);
   float stroke = (1. - mask) * maskOuter;
 
-  float patternRotation = u_angle * PI / 180.;
+  float patternRotation = -u_angle * PI / 180.;
   uv = rotate(uv - vec2(.5), patternRotation);
   uv *= effectSize;
 
