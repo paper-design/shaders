@@ -162,7 +162,6 @@ export const homeThumbnails = [
         image: liquidMetalImg,
         shaderConfig: {
           ...liquidMetalPresets[0].params,
-          frame: 2800,
           scale: 0.9,
           suspendWhenProcessingImage: true,
           image: '/images/logos/diamond.svg',

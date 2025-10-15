@@ -118,7 +118,8 @@ float lst(float edge0, float edge1, float x) {
 
 void main() {
 
-  float t = .3 * u_time;
+  const float firstFrameOffset = 2.8;
+  float t = .3 * (u_time + firstFrameOffset);
 
   vec2 uv = v_imageUV;
   vec2 dudx = dFdx(v_imageUV);
