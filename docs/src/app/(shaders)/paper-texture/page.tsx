@@ -40,14 +40,10 @@ const imageFiles = [
 const PaperTextureWithControls = () => {
   const [imageIdx, setImageIdx] = useState(-1);
   const [image, setImage] = useState<HTMLImageElement | string>('/images/image-filters/0018.webp');
-  const [status, setStatus] = useState('Click to load an image');
-
-  const fileName = imageIdx >= 0 ? imageFiles[imageIdx] : null;
 
   useEffect(() => {
     if (imageIdx >= 0) {
       const name = imageFiles[imageIdx];
-      setStatus(`Displaying image: ${name}`);
       const img = new Image();
       img.src = `/images/image-filters/${name}`;
       img.onload = () => setImage(img);
@@ -61,7 +57,6 @@ const PaperTextureWithControls = () => {
   const setImageWithoutStatus = useCallback((img?: HTMLImageElement) => {
     setImage(img ?? '');
     setImageIdx(-1);
-    setStatus(``);
   }, []);
 
   const [params, setParams] = useControls(() => {
@@ -90,13 +85,13 @@ const PaperTextureWithControls = () => {
       Image: folder(
         {
           'Upload image': levaImageButton(setImageWithoutStatus),
-          'Delete image': levaDeleteImageButton(setImageWithoutStatus),
+          ...(image && { 'Delete image': levaDeleteImageButton(() => setImage('')) }),
         },
         { order: 0 }
       ),
       Presets: folder(presets, { order: -1 }),
     };
-  });
+  }, [image]);
 
   // Reset to defaults on mount, so that Leva doesn't show values from other
   // shaders when navigating (if two shaders have a color1 param for example)
