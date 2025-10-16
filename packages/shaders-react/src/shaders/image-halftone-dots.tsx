@@ -24,15 +24,15 @@ export const defaultPreset: ImageHalftoneDotsPreset = {
     frame: 0,
     colorBack: '#d4d4d4',
     colors: ['#2b2b2b'],
-    size: 5,
+    size: 30,
     radius: 0.65,
     contrast: 0.45,
     originalColors: false,
     inverted: false,
-    grainMixer: 0.5,
+    grainMixer: 0,
     grainOverlay: 0,
     grainScale: 1,
-    type: 'gooey',
+    type: 'classic',
   },
 };
 
