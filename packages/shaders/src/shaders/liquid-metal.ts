@@ -44,7 +44,7 @@ uniform float u_contour;
 uniform float u_angle;
 
 uniform float u_shape;
-uniform bool u_isImage;
+uniform float u_isImage;  // 1.0 = image mode, 0.0 = shape mode
 
 ${sizingVariablesDeclaration}
 
@@ -61,7 +61,7 @@ float getColorChanges(float c1, float c2, float stripe_p, vec3 w, float blur, fl
   float border = w[0];
   ch = mix(ch, c2, smoothstep(border, border + 2. * blur, stripe_p));
 
-  if (u_isImage == true) {
+  if (u_isImage > 0.5) {
     bump = smoothstep(.2, .8, bump);
   }
   border = w[0] + .4 * (1. - bump) * w[1];
@@ -83,15 +83,18 @@ float getColorChanges(float c1, float c2, float stripe_p, vec3 w, float blur, fl
 }
 
 float getImgFrame(vec2 uv, float th) {
+  // Short-circuit when threshold is 0
+  if (th <= 0.0) return 1.0;
+
   float frame = 1.;
   frame *= smoothstep(0., th, uv.y);
-  frame *= smoothstep(1., 1. - th, uv.y);
+  frame *= 1.0 - smoothstep(1. - th, 1., uv.y);  // Fixed reversed smoothstep
   frame *= smoothstep(0., th, uv.x);
-  frame *= smoothstep(1., 1. - th, uv.x);
+  frame *= 1.0 - smoothstep(1. - th, 1., uv.x);  // Fixed reversed smoothstep
   return frame;
 }
 
-float blurEdge3x3(sampler2D tex, vec2 uv, float radius, float centerSample) {
+float blurEdge3x3(sampler2D tex, vec2 uv, vec2 dudx, vec2 dudy, float radius, float centerSample) {
   vec2 texel = 1.0 / vec2(textureSize(tex, 0));
   vec2 r = radius * texel;
 
@@ -99,15 +102,16 @@ float blurEdge3x3(sampler2D tex, vec2 uv, float radius, float centerSample) {
   float norm = 16.0;
   float sum = w4 * centerSample;
 
-  sum += w2 * texture(tex, uv + vec2(0.0, -r.y)).r;
-  sum += w2 * texture(tex, uv + vec2(0.0, r.y)).r;
-  sum += w2 * texture(tex, uv + vec2(-r.x, 0.0)).r;
-  sum += w2 * texture(tex, uv + vec2(r.x, 0.0)).r;
+  // Use textureGrad with provided derivatives for consistency
+  sum += w2 * textureGrad(tex, uv + vec2(0.0, -r.y), dudx, dudy).r;
+  sum += w2 * textureGrad(tex, uv + vec2(0.0, r.y), dudx, dudy).r;
+  sum += w2 * textureGrad(tex, uv + vec2(-r.x, 0.0), dudx, dudy).r;
+  sum += w2 * textureGrad(tex, uv + vec2(r.x, 0.0), dudx, dudy).r;
 
-  sum += w1 * texture(tex, uv + vec2(-r.x, -r.y)).r;
-  sum += w1 * texture(tex, uv + vec2(r.x, -r.y)).r;
-  sum += w1 * texture(tex, uv + vec2(-r.x, r.y)).r;
-  sum += w1 * texture(tex, uv + vec2(r.x, r.y)).r;
+  sum += w1 * textureGrad(tex, uv + vec2(-r.x, -r.y), dudx, dudy).r;
+  sum += w1 * textureGrad(tex, uv + vec2(r.x, -r.y), dudx, dudy).r;
+  sum += w1 * textureGrad(tex, uv + vec2(-r.x, r.y), dudx, dudy).r;
+  sum += w1 * textureGrad(tex, uv + vec2(r.x, r.y), dudx, dudy).r;
 
   return sum / norm;
 }
@@ -122,9 +126,18 @@ void main() {
   float t = .3 * (u_time + firstFrameOffset);
 
   vec2 uv = v_imageUV;
-  vec4 img = texture(u_image, uv);
+  // Compute derivatives only when needed for image sampling
+  vec2 dudx = vec2(0.0);
+  vec2 dudy = vec2(0.0);
+  vec4 img = vec4(0.0);
 
-  if (u_isImage == false) {
+  if (u_isImage > 0.5) {
+    dudx = dFdx(v_imageUV);
+    dudy = dFdy(v_imageUV);
+    img = textureGrad(u_image, uv, dudx, dudy);
+  }
+
+  if (u_isImage < 0.5) {
     uv = v_objectUV + .5;
     uv.y = 1. - uv.y;
   }
@@ -142,9 +155,9 @@ void main() {
   rotatedUV.x * sinA + rotatedUV.y * cosA
   ) + vec2(.5);
 
-  if (u_isImage == true) {
+  if (u_isImage > 0.5) {
     float edgeRaw = img.r;
-    edge = blurEdge3x3(u_image, uv, 6., edgeRaw);
+    edge = blurEdge3x3(u_image, uv, dudx, dudy, 6., edgeRaw);
     edge = pow(edge, 1.6);
     edge *= mix(0.0, 1.0, smoothstep(0.0, 0.4, u_contour));
   } else {
@@ -231,7 +244,7 @@ void main() {
   }
 
   float opacity = 0.;
-  if (u_isImage == true) {
+  if (u_isImage > 0.5) {
     opacity = img.g;
     float frame = getImgFrame(v_imageUV, 0.);
     opacity *= frame;
@@ -276,17 +289,17 @@ void main() {
 
   direction += diagBLtoTR;
   float contour = 0.;
-  direction -= 2. * noise * diagBLtoTR * (smoothstep(0., 1., edge) * smoothstep(1., 0., edge));
+  direction -= 2. * noise * diagBLtoTR * (smoothstep(0., 1., edge) * (1.0 - smoothstep(0., 1., edge)));  // Fixed reversed smoothstep
   direction *= mix(1., 1. - edge, smoothstep(.5, 1., u_contour));
   direction -= 1.7 * edge * smoothstep(.5, 1., u_contour);
-  direction += .2 * pow(u_contour, 4.) * smoothstep(1., 0., edge);
+  direction += .2 * pow(u_contour, 4.) * (1.0 - smoothstep(0., 1., edge));  // Fixed reversed smoothstep
 
   bump *= clamp(pow(uv.y, .1), .3, 1.);
   direction *= (.1 + (1.1 - edge) * bump);
 
-  direction *= (.4 + .6 * smoothstep(1., .5, edge));
-  direction += .18 * (smoothstep(.1, .2, uv.y) * smoothstep(.4, .2, uv.y));
-  direction += .03 * (smoothstep(.1, .2, 1. - uv.y) * smoothstep(.4, .2, 1. - uv.y));
+  direction *= (.4 + .6 * (1.0 - smoothstep(.5, 1., edge)));  // Fixed reversed smoothstep
+  direction += .18 * (smoothstep(.1, .2, uv.y) * (1.0 - smoothstep(.2, .4, uv.y)));  // Fixed reversed smoothstep
+  direction += .03 * (smoothstep(.1, .2, 1. - uv.y) * (1.0 - smoothstep(.2, .4, 1. - uv.y)));  // Fixed reversed smoothstep
 
   direction *= (.5 + .5 * pow(uv.y, 2.));
   direction *= cycleWidth;
@@ -297,12 +310,12 @@ void main() {
   colorDispersion = clamp(colorDispersion, 0., 1.);
   float dispersionRed = colorDispersion;
   dispersionRed += .03 * bump * noise;
-  dispersionRed += 5. * (smoothstep(-.1, .2, uv.y) * smoothstep(.5, .1, uv.y)) * (smoothstep(.4, .6, bump) * smoothstep(1., .4, bump));
+  dispersionRed += 5. * (smoothstep(-.1, .2, uv.y) * (1.0 - smoothstep(.1, .5, uv.y))) * (smoothstep(.4, .6, bump) * (1.0 - smoothstep(.4, 1., bump)));  // Fixed reversed smoothsteps
   dispersionRed -= diagBLtoTR;
 
   float dispersionBlue = colorDispersion;
   dispersionBlue *= 1.3;
-  dispersionBlue += (smoothstep(0., .4, uv.y) * smoothstep(.8, .1, uv.y)) * (smoothstep(.4, .6, bump) * smoothstep(.8, .4, bump));
+  dispersionBlue += (smoothstep(0., .4, uv.y) * (1.0 - smoothstep(.1, .8, uv.y))) * (smoothstep(.4, .6, bump) * (1.0 - smoothstep(.4, .8, bump)));  // Fixed reversed smoothsteps
   dispersionBlue -= .2 * edge;
 
   dispersionRed *= (u_shiftRed / 20.);
@@ -311,25 +324,30 @@ void main() {
   float blur = 0.;
   float rExtraBlur = 0.;
   float gExtraBlur = 0.;
-  if (u_isImage == true) {
+  if (u_isImage > 0.5) {
     float softness = 0.05 * u_softness;
     blur = softness + .5 * smoothstep(1., 10., u_repetition) * smoothstep(.0, 1., edge);
-    float smallCanvasT = smoothstep(500., 100., min(u_resolution.x, u_resolution.y));
+    float smallCanvasT = 1.0 - smoothstep(100., 500., min(u_resolution.x, u_resolution.y));  // Fixed reversed smoothstep
     blur += smallCanvasT * smoothstep(.0, 1., edge);
     rExtraBlur = softness * (0.05 + .1 * (u_shiftRed / 20.) * bump);
-    gExtraBlur = softness * 0.05 / (1. - diagBLtoTR);
+    gExtraBlur = softness * 0.05 / max(0.001, abs(1. - diagBLtoTR));  // Clamped division
   } else {
     blur = u_softness / 15. + .3 * contour;
   }
 
   vec3 w = vec3(thin_strip_1_width, thin_strip_2_width, wide_strip_ratio);
   w[1] -= .02 * smoothstep(.0, 1., edge + bump);
-  float stripeEpsilon = 0.005; // Fixed epsilon instead of fwidth
-  float stripe_r = mod(direction + dispersionRed, 1.);
+
+  // Use fract for proper wrapping to avoid precision issues
+  float stripe_r = fract(direction + dispersionRed);
+  float stripe_g = fract(direction);
+  float stripe_b = fract(direction - dispersionBlue);
+
+  // Use fwidth for adaptive anti-aliasing when available
+  float stripeEpsilon = max(0.005, fwidth(direction) * 2.0);
+
   float r = getColorChanges(color1.r, color2.r, stripe_r, w, blur + stripeEpsilon + rExtraBlur, bump, u_colorTint.r);
-  float stripe_g = mod(direction, 1.);
   float g = getColorChanges(color1.g, color2.g, stripe_g, w, blur + stripeEpsilon + gExtraBlur, bump, u_colorTint.g);
-  float stripe_b = mod(direction - dispersionBlue, 1.);
   float b = getColorChanges(color1.b, color2.b, stripe_b, w, blur + stripeEpsilon, bump, u_colorTint.b);
 
   color = vec3(r, g, b);
@@ -786,7 +804,7 @@ export interface LiquidMetalUniforms extends ShaderSizingUniforms {
   u_distortion: number;
   u_angle: number;
   u_shape: (typeof LiquidMetalShapes)[LiquidMetalShape];
-  u_isImage: boolean;
+  u_isImage: number; // 1.0 = image mode, 0.0 = shape mode
 }
 
 export interface LiquidMetalParams extends ShaderSizingParams, ShaderMotionParams {

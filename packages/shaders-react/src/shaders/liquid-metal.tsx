@@ -189,7 +189,7 @@ export const LiquidMetal: React.FC<LiquidMetalProps> = memo(function LiquidMetal
     u_shiftRed: shiftRed,
     u_shiftBlue: shiftBlue,
     u_angle: angle,
-    u_isImage: Boolean(image),
+    u_isImage: image ? 1 : 0, // Pass as number (1.0 or 0.0) for shader float uniform
     u_shape: LiquidMetalShapes[shape],
 
     // Sizing uniforms
