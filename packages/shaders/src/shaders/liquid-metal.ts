@@ -24,7 +24,7 @@ import { declarePI, rotation2, simplexNoise, colorBandingFix } from '../shader-u
 
 // language=GLSL
 export const liquidMetalFragmentShader: string = `#version 300 es
-precision mediump float;
+precision highp float;
 
 uniform sampler2D u_image;
 uniform float u_imageAspectRatio;
@@ -91,7 +91,7 @@ float getImgFrame(vec2 uv, float th) {
   return frame;
 }
 
-float blurEdge3x3(sampler2D tex, vec2 uv, vec2 dudx, vec2 dudy, float radius, float centerSample) {
+float blurEdge3x3(sampler2D tex, vec2 uv, float radius, float centerSample) {
   vec2 texel = 1.0 / vec2(textureSize(tex, 0));
   vec2 r = radius * texel;
 
@@ -99,15 +99,15 @@ float blurEdge3x3(sampler2D tex, vec2 uv, vec2 dudx, vec2 dudy, float radius, fl
   float norm = 16.0;
   float sum = w4 * centerSample;
 
-  sum += w2 * textureGrad(tex, uv + vec2(0.0, -r.y), dudx, dudy).r;
-  sum += w2 * textureGrad(tex, uv + vec2(0.0, r.y), dudx, dudy).r;
-  sum += w2 * textureGrad(tex, uv + vec2(-r.x, 0.0), dudx, dudy).r;
-  sum += w2 * textureGrad(tex, uv + vec2(r.x, 0.0), dudx, dudy).r;
+  sum += w2 * texture(tex, uv + vec2(0.0, -r.y)).r;
+  sum += w2 * texture(tex, uv + vec2(0.0, r.y)).r;
+  sum += w2 * texture(tex, uv + vec2(-r.x, 0.0)).r;
+  sum += w2 * texture(tex, uv + vec2(r.x, 0.0)).r;
 
-  sum += w1 * textureGrad(tex, uv + vec2(-r.x, -r.y), dudx, dudy).r;
-  sum += w1 * textureGrad(tex, uv + vec2(r.x, -r.y), dudx, dudy).r;
-  sum += w1 * textureGrad(tex, uv + vec2(-r.x, r.y), dudx, dudy).r;
-  sum += w1 * textureGrad(tex, uv + vec2(r.x, r.y), dudx, dudy).r;
+  sum += w1 * texture(tex, uv + vec2(-r.x, -r.y)).r;
+  sum += w1 * texture(tex, uv + vec2(r.x, -r.y)).r;
+  sum += w1 * texture(tex, uv + vec2(-r.x, r.y)).r;
+  sum += w1 * texture(tex, uv + vec2(r.x, r.y)).r;
 
   return sum / norm;
 }
@@ -122,9 +122,7 @@ void main() {
   float t = .3 * (u_time + firstFrameOffset);
 
   vec2 uv = v_imageUV;
-  vec2 dudx = dFdx(v_imageUV);
-  vec2 dudy = dFdy(v_imageUV);
-  vec4 img = textureGrad(u_image, uv, dudx, dudy);
+  vec4 img = texture(u_image, uv);
 
   if (u_isImage == false) {
     uv = v_objectUV + .5;
@@ -146,7 +144,7 @@ void main() {
 
   if (u_isImage == true) {
     float edgeRaw = img.r;
-    edge = blurEdge3x3(u_image, uv, dudx, dudy, 6., edgeRaw);
+    edge = blurEdge3x3(u_image, uv, 6., edgeRaw);
     edge = pow(edge, 1.6);
     edge *= mix(0.0, 1.0, smoothstep(0.0, 0.4, u_contour));
   } else {
@@ -226,7 +224,9 @@ void main() {
       edge = pow(edge, 4.);
     }
 
-    edge = mix(smoothstep(.9 - 2. * fwidth(edge), .9, edge), edge, smoothstep(0.0, 0.4, u_contour));
+    // Use explicit epsilon instead of fwidth for better cross-platform compatibility
+    float edgeEpsilon = 0.01;
+    edge = mix(smoothstep(.9 - 2. * edgeEpsilon, .9, edge), edge, smoothstep(0.0, 0.4, u_contour));
 
   }
 
@@ -236,7 +236,8 @@ void main() {
     float frame = getImgFrame(v_imageUV, 0.);
     opacity *= frame;
   } else {
-    opacity = 1. - smoothstep(.9 - 2. * fwidth(edge), .9, edge);
+    float edgeEpsilon = 0.01;
+    opacity = 1. - smoothstep(.9 - 2. * edgeEpsilon, .9, edge);
     if (u_shape < 2.) {
       edge = 1.2 * pow(edge, 1.);
     } else if (u_shape < 5.) {
@@ -323,12 +324,13 @@ void main() {
 
   vec3 w = vec3(thin_strip_1_width, thin_strip_2_width, wide_strip_ratio);
   w[1] -= .02 * smoothstep(.0, 1., edge + bump);
+  float stripeEpsilon = 0.005; // Fixed epsilon instead of fwidth
   float stripe_r = mod(direction + dispersionRed, 1.);
-  float r = getColorChanges(color1.r, color2.r, stripe_r, w, blur + fwidth(stripe_r) + rExtraBlur, bump, u_colorTint.r);
+  float r = getColorChanges(color1.r, color2.r, stripe_r, w, blur + stripeEpsilon + rExtraBlur, bump, u_colorTint.r);
   float stripe_g = mod(direction, 1.);
-  float g = getColorChanges(color1.g, color2.g, stripe_g, w, blur + fwidth(stripe_g) + gExtraBlur, bump, u_colorTint.g);
+  float g = getColorChanges(color1.g, color2.g, stripe_g, w, blur + stripeEpsilon + gExtraBlur, bump, u_colorTint.g);
   float stripe_b = mod(direction - dispersionBlue, 1.);
-  float b = getColorChanges(color1.b, color2.b, stripe_b, w, blur + fwidth(stripe_b), bump, u_colorTint.b);
+  float b = getColorChanges(color1.b, color2.b, stripe_b, w, blur + stripeEpsilon, bump, u_colorTint.b);
 
   color = vec3(r, g, b);
   color *= opacity;
