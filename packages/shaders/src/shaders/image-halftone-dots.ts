@@ -69,14 +69,6 @@ float valueNoise(vec2 st) {
   return mix(x1, x2, u.y);
 }
 
-float getUvFrame(vec2 uv, vec2 px) {
-  float left   = smoothstep(-.5 * px.x, .5 * px.x, uv.x);
-  float right  = smoothstep(1. + .5 * px.x, 1. - .5 * px.x, uv.x);
-  float bottom = smoothstep(-.5 * px.y, .5 * px.y, uv.y);
-  float top    = smoothstep(1. + .5 * px.y, 1. - .5 * px.y, uv.y);
-  return left * right * bottom * top;
-}
-
 float lst(float edge0, float edge1, float x) {
   return clamp((x - edge0) / (edge1 - edge0), 0.0, 1.0);
 }
@@ -164,7 +156,7 @@ float sigmoid(float x, float k) {
   return 1.0 / (1.0 + exp(-k * (x - 0.5)));
 }
 
-float getUvFrameNew(vec2 uv) {
+float getUvFrame(vec2 uv) {
   float aax = 2. * fwidth(uv.x);
   float aay = 2. * fwidth(uv.y);
 
@@ -178,7 +170,7 @@ float getUvFrameNew(vec2 uv) {
 
 float getLumAtPx(vec2 uv, float contrast) {
   vec4 tex = texture(u_image, uv);
-  float frame = getUvFrameNew(uv);
+  float frame = getUvFrame(uv);
   vec3 color = vec3(
   sigmoid(tex.r, contrast),
   sigmoid(tex.g, contrast),
