@@ -85,9 +85,9 @@ float getColorChanges(float c1, float c2, float stripe_p, vec3 w, float blur, fl
 float getImgFrame(vec2 uv, float th) {
   float frame = 1.;
   frame *= smoothstep(0., th, uv.y);
-  frame *= smoothstep(1., 1. - th, uv.y);
+  frame *= 1.0 - smoothstep(1. - th, 1., uv.y);
   frame *= smoothstep(0., th, uv.x);
-  frame *= smoothstep(1., 1. - th, uv.x);
+  frame *= 1.0 - smoothstep(1. - th, 1., uv.x);
   return frame;
 }
 
@@ -275,17 +275,17 @@ void main() {
 
   direction += diagBLtoTR;
   float contour = 0.;
-  direction -= 2. * noise * diagBLtoTR * (smoothstep(0., 1., edge) * smoothstep(1., 0., edge));
+  direction -= 2. * noise * diagBLtoTR * (smoothstep(0., 1., edge) * (1.0 - smoothstep(0., 1., edge)));
   direction *= mix(1., 1. - edge, smoothstep(.5, 1., u_contour));
   direction -= 1.7 * edge * smoothstep(.5, 1., u_contour);
-  direction += .2 * pow(u_contour, 4.) * smoothstep(1., 0., edge);
+  direction += .2 * pow(u_contour, 4.) * (1.0 - smoothstep(0., 1., edge));
 
   bump *= clamp(pow(uv.y, .1), .3, 1.);
   direction *= (.1 + (1.1 - edge) * bump);
 
-  direction *= (.4 + .6 * smoothstep(1., .5, edge));
-  direction += .18 * (smoothstep(.1, .2, uv.y) * smoothstep(.4, .2, uv.y));
-  direction += .03 * (smoothstep(.1, .2, 1. - uv.y) * smoothstep(.4, .2, 1. - uv.y));
+  direction *= (.4 + .6 * (1.0 - smoothstep(.5, 1., edge)));
+  direction += .18 * (smoothstep(.1, .2, uv.y) * (1.0 - smoothstep(.2, .4, uv.y)));
+  direction += .03 * (smoothstep(.1, .2, 1. - uv.y) * (1.0 - smoothstep(.2, .4, 1. - uv.y)));
 
   direction *= (.5 + .5 * pow(uv.y, 2.));
   direction *= cycleWidth;
@@ -296,12 +296,12 @@ void main() {
   colorDispersion = clamp(colorDispersion, 0., 1.);
   float dispersionRed = colorDispersion;
   dispersionRed += .03 * bump * noise;
-  dispersionRed += 5. * (smoothstep(-.1, .2, uv.y) * smoothstep(.5, .1, uv.y)) * (smoothstep(.4, .6, bump) * smoothstep(1., .4, bump));
+  dispersionRed += 5. * (smoothstep(-.1, .2, uv.y) * (1.0 - smoothstep(.1, .5, uv.y))) * (smoothstep(.4, .6, bump) * (1.0 - smoothstep(.4, 1., bump)));
   dispersionRed -= diagBLtoTR;
 
   float dispersionBlue = colorDispersion;
   dispersionBlue *= 1.3;
-  dispersionBlue += (smoothstep(0., .4, uv.y) * smoothstep(.8, .1, uv.y)) * (smoothstep(.4, .6, bump) * smoothstep(.8, .4, bump));
+  dispersionBlue += (smoothstep(0., .4, uv.y) * (1.0 - smoothstep(.1, .8, uv.y))) * (smoothstep(.4, .6, bump) * (1.0 - smoothstep(.4, .8, bump)));
   dispersionBlue -= .2 * edge;
 
   dispersionRed *= (u_shiftRed / 20.);
@@ -313,21 +313,21 @@ void main() {
   if (u_isImage == true) {
     float softness = 0.05 * u_softness;
     blur = softness + .5 * smoothstep(1., 10., u_repetition) * smoothstep(.0, 1., edge);
-    float smallCanvasT = smoothstep(500., 100., min(u_resolution.x, u_resolution.y));
+    float smallCanvasT = 1.0 - smoothstep(100., 500., min(u_resolution.x, u_resolution.y));
     blur += smallCanvasT * smoothstep(.0, 1., edge);
     rExtraBlur = softness * (0.05 + .1 * (u_shiftRed / 20.) * bump);
-    gExtraBlur = softness * 0.05 / (1. - diagBLtoTR);
+    gExtraBlur = softness * 0.05 / max(0.001, abs(1. - diagBLtoTR));
   } else {
     blur = u_softness / 15. + .3 * contour;
   }
 
   vec3 w = vec3(thin_strip_1_width, thin_strip_2_width, wide_strip_ratio);
   w[1] -= .02 * smoothstep(.0, 1., edge + bump);
-  float stripe_r = mod(direction + dispersionRed, 1.);
+  float stripe_r = fract(direction + dispersionRed);
   float r = getColorChanges(color1.r, color2.r, stripe_r, w, blur + fwidth(stripe_r) + rExtraBlur, bump, u_colorTint.r);
-  float stripe_g = mod(direction, 1.);
+  float stripe_g = fract(direction);
   float g = getColorChanges(color1.g, color2.g, stripe_g, w, blur + fwidth(stripe_g) + gExtraBlur, bump, u_colorTint.g);
-  float stripe_b = mod(direction - dispersionBlue, 1.);
+  float stripe_b = fract(direction - dispersionBlue);
   float b = getColorChanges(color1.b, color2.b, stripe_b, w, blur + fwidth(stripe_b), bump, u_colorTint.b);
 
   color = vec3(r, g, b);
