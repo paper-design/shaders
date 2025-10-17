@@ -49,7 +49,8 @@ void main() {
   vec2 shape_uv = v_objectUV;
 
   float l = length(shape_uv);
-
+  l = max(1e-4, l);
+  
   float t = u_time;
 
   float angle = ceil(u_bandCount) * atan(shape_uv.y, shape_uv.x) + t;

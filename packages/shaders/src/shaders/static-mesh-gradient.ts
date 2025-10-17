@@ -135,8 +135,8 @@ void main() {
     totalWeight += w;
   }
 
-  color /= totalWeight;
-  opacity /= totalWeight;
+  color /= max(0.001, totalWeight);
+  opacity /= max(0.001, totalWeight);
 
   float rr = noise(rotate(grainUV, 1.), vec2(3.));
   float gg = noise(rotate(grainUV, 2.) + 10., vec2(-1.));

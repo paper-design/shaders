@@ -68,8 +68,8 @@ float noise(vec2 n, vec2 seedOffset) {
 
 vec2 getPosition(int i, float t) {
   float a = float(i) * .37;
-  float b = .6 + mod(float(i), 3.) * .3;
-  float c = .8 + mod(float(i + 1), 4.) * 0.25;
+  float b = .6 + fract(float(i) / 3.) * .9;
+  float c = .8 + fract(float(i + 1) / 4.);
 
   float x = sin(t * b + a);
   float y = cos(t * c + a * 1.5);
@@ -131,8 +131,8 @@ void main() {
     totalWeight += weight;
   }
 
-  color /= totalWeight;
-  opacity /= totalWeight;
+  color /= max(1e-4, totalWeight);
+  opacity /= max(1e-4, totalWeight);
 
   float rr = noise(rotate(grainUV, 1.), vec2(3.));
   float gg = noise(rotate(grainUV, 2.) + 10., vec2(-1.));

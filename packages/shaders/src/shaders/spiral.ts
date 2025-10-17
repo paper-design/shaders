@@ -47,7 +47,7 @@ void main() {
   float t = u_time;
   float l = length(uv);
   float density = clamp(u_density, 0., 1.);
-  l = pow(l, density);
+  l = pow(max(l, 1e-6), density);
   float angle = atan(uv.y, uv.x) - t;
   float angleNormalised = angle / TWO_PI;
 

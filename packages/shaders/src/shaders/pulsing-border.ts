@@ -61,8 +61,8 @@ out vec4 fragColor;
 ${declarePI}
 
 float beat(float time) {
-  float first = pow(sin(time * TWO_PI), 10.);
-  float second = pow(sin((time - 0.15) * TWO_PI), 10.);
+  float first = pow(abs(sin(time * TWO_PI)), 10.);
+  float second = pow(abs(sin((time - .15) * TWO_PI)), 10.);
 
   return clamp(first + 0.6 * second, 0.0, 1.0);
 }
@@ -74,7 +74,7 @@ float sst(float edge0, float edge1, float x) {
 float roundedBox(vec2 uv, vec2 halfSize, float distance, float cornerDistance, float thickness, float softness) {
   float borderDistance = abs(distance);
   float aa = 2. * fwidth(distance);
-  float border = 1. - sst(mix(thickness, -thickness, softness), thickness + aa, borderDistance);
+  float border = 1. - sst(min(mix(thickness, -thickness, softness), thickness + aa), max(mix(thickness, -thickness, softness), thickness + aa), borderDistance);
   float cornerFadeCircles = 0.;
   cornerFadeCircles = mix(1., cornerFadeCircles, sst(0., 1., length((uv + halfSize) / thickness)));
   cornerFadeCircles = mix(1., cornerFadeCircles, sst(0., 1., length((uv - vec2(-halfSize.x, halfSize.y)) / thickness)));
@@ -128,8 +128,8 @@ void main() {
   float mY = mT + mB;
 
   if (u_aspectRatio > 0.) {
-    float shapeRatio = canvasRatio * (1. - mX) / (1. - mY);
-    float freeX = shapeRatio > 1. ? (1. - mX) * (1. - 1. / shapeRatio) : 0.;
+    float shapeRatio = canvasRatio * (1. - mX) / max(1. - mY, 1e-6);
+    float freeX = shapeRatio > 1. ? (1. - mX) * (1. - 1. / max(abs(shapeRatio), 1e-6)) : 0.;
     float freeY = shapeRatio < 1. ? (1. - mY) * (1. - shapeRatio) : 0.;
     mL += freeX * 0.5;
     mR += freeX * 0.5;
@@ -169,7 +169,7 @@ void main() {
   float smokeThickness = thickness + .2;
   smokeThickness = min(.4, max(smokeThickness, .1));
   smoke *= roundedBox(borderUV, halfSize, distance, cornerDistance, smokeThickness, 1.);
-  smoke = 30. * pow(smoke, 2.);
+  smoke = 30. * smoke * smoke;
   smoke *= mix(0., .5, pow(u_smoke, 2.));
   smoke *= mix(1., pulse, u_pulse);
   smoke = clamp(smoke, 0., 1.);
@@ -215,7 +215,7 @@ void main() {
       float atg1 = fract(angle + time);
       float spotSize = .05 + .6 * pow(u_spotSize, 2.) + .05 * randVal.x;
       spotSize = mix(spotSize, .1, p);
-      float sector = sst(.5 - spotSize, .5, atg1) * sst(.5 + spotSize, .5, atg1);
+      float sector = sst(.5 - spotSize, .5, atg1) * (1. - sst(.5, .5 + spotSize, atg1));
 
       sector *= mask;
       sector *= border;

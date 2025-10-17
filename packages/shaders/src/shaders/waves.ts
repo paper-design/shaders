@@ -55,7 +55,9 @@ void main() {
 
   float aa = .0001 + fwidth(shape);
   float dc = 1. - clamp(u_proportion, 0., 1.);
-  float res = smoothstep(dc - u_softness - aa, dc + u_softness + aa, shape);
+  float e0 = dc - u_softness - aa;
+  float e1 = dc + u_softness + aa;
+  float res = smoothstep(min(e0, e1), max(e0, e1), shape);
   
   vec3 fgColor = u_colorFront.rgb * u_colorFront.a;
   float fgOpacity = u_colorFront.a;

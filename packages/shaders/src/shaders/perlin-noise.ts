@@ -159,7 +159,7 @@ float get_max_amp(float persistence, float octaveCount) {
     return octaveCount;
   }
 
-  return (1.0 - pow(persistence, octaveCount)) / (1.0 - persistence);
+  return (1.0 - pow(persistence, octaveCount)) / max(1e-4, (1.0 - persistence));
 }
 
 void main() {
@@ -175,7 +175,7 @@ void main() {
   float noise = p_noise(p, int(octCount), persistence, u_lacunarity);
 
   float max_amp = get_max_amp(persistence, octCount);
-  float noise_normalized = clamp((noise + max_amp) / (2. * max_amp) + (u_proportion - .5), 0.0, 1.0);
+  float noise_normalized = clamp((noise + max_amp) / max(1e-4, (2. * max_amp)) + (u_proportion - .5), 0.0, 1.0);
   float sharpness = clamp(u_softness, 0., 1.);
   float smooth_w = 0.5 * max(fwidth(noise_normalized), 0.001);
   float res = smoothstep(

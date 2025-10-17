@@ -55,8 +55,9 @@ void main() {
   // we use it to avoid UV presision issues
   vec2 shape_uv = 100. * v_patternUV;
 
-  vec2 grid = fract(shape_uv / vec2(u_gapX, u_gapY)) + 1e-4;
-  vec2 grid_idx = floor(shape_uv / vec2(u_gapX, u_gapY));
+  vec2 gap = max(abs(vec2(u_gapX, u_gapY)), vec2(1e-6));
+  vec2 grid = fract(shape_uv / gap) + 1e-4;
+  vec2 grid_idx = floor(shape_uv / gap);
   float sizeRandomizer = .5 + .8 * snoise(2. * vec2(grid_idx.x * 100., grid_idx.y));
   float opacity_randomizer = .5 + .7 * snoise(2. * vec2(grid_idx.y, grid_idx.x));
 
@@ -88,8 +89,8 @@ void main() {
   }
 
   float edgeWidth = fwidth(dist);
-  float shapeOuter = smoothstep(baseSize + edgeWidth, baseSize - edgeWidth, dist - strokeWidth);
-  float shapeInner = smoothstep(baseSize + edgeWidth, baseSize - edgeWidth, dist);
+  float shapeOuter = 1. - smoothstep(baseSize - edgeWidth, baseSize + edgeWidth, dist - strokeWidth);
+  float shapeInner = 1. - smoothstep(baseSize - edgeWidth, baseSize + edgeWidth, dist);
   float stroke = shapeOuter - shapeInner;
 
   float dotOpacity = max(0., 1. - opacity_randomizer * u_opacityRange);
