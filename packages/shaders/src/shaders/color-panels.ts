@@ -78,7 +78,7 @@ vec2 getPanel(float angle, vec2 uv, float invLength, float aa) {
   float rightEdge2 = right + blurX;
 
   float panel = smoothstep(leftEdge1, leftEdge2, x) * (1.0 - smoothstep(rightEdge1, rightEdge2, x));
-  panel *= mix(0., panel, smoothstep(0., .01 / u_scale, panelMap));
+  panel *= mix(0., panel, smoothstep(0., .01 / max(u_scale, 1e-6), panelMap));
 
   float midScreen = abs(sinA);
   if (u_edges == true) {
@@ -91,7 +91,8 @@ vec2 getPanel(float angle, vec2 uv, float invLength, float aa) {
 }
 
 vec4 blendColor(vec4 colorA, float panelMask, float panelMap) {
-  float fade = smoothstep(1., .97 - .97 * u_fadeIn, panelMap);
+  float fade = 1. - smoothstep(.97 - .97 * u_fadeIn, 1., panelMap);
+  
   fade *= smoothstep(-.2 * (1. - u_fadeOut), u_fadeOut, panelMap);
 
   vec3 blendedRGB = mix(vec3(0.), colorA.rgb, fade);
@@ -122,7 +123,7 @@ void main() {
     premultipliedColors[i] = c;
   }
 
-  float invLength = 1.5 / (u_length + 0.001);
+  float invLength = 1.5 / max(u_length, .001);
 
   float totalColorWeight = 0.;
   int panelsNumber = 12;
