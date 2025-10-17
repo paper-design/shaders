@@ -170,7 +170,7 @@ void main() {
     float m = 0.;
     float mixing = u_mixing * 3.;
     if (mixing > 2.) {
-      float tt = pow(mLinear, 2.);
+      float tt = mLinear * mLinear;
       m = mix(mLinear, tt, .5 * clamp((mixing - 2.), 0., 1.));
     } else if (mixing > 1.) {
       m = mix(smoothstep(0., 1., mLinear), mLinear, clamp((mixing - 1.), 0., 1.));

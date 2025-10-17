@@ -205,7 +205,7 @@ void main() {
   float drops = u_drops * drops(patternUV * 2.);
 
   float fade = u_fade * fbm(.17 * patternUV + 10. * u_seed);
-  fade = clamp(8. * pow(fade, 3.), 0., 1.);
+  fade = clamp(8. * fade * fade * fade, 0., 1.);
 
   w = mix(w, vec2(0.), fade);
   w2 = mix(w2, vec2(0.), fade);

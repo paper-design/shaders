@@ -189,7 +189,7 @@ void main() {
       r *= (1. + .05 * sin(3. * a + 2. * t));
       float f = abs(cos(a * 3.));
       edge = smoothstep(f, f + .7, r);
-      edge = pow(edge, 2.);
+      edge *= edge;
 
       uv *= .8;
       cycleWidth *= 1.6;
@@ -238,7 +238,7 @@ void main() {
   } else {
     opacity = 1. - smoothstep(.9 - 2. * fwidth(edge), .9, edge);
     if (u_shape < 2.) {
-      edge = 1.2 * pow(edge, 1.);
+      edge = 1.2 * edge;
     } else if (u_shape < 5.) {
       edge = 1.8 * pow(edge, 1.5);
     }
