@@ -56,9 +56,9 @@ float getUvFrame(vec2 uv) {
   float aay = 2. * fwidth(uv.y);
 
   float left   = smoothstep(0., aax, uv.x);
-  float right  = smoothstep(1., 1. - aax, uv.x);
+  float right = 1. - smoothstep(1. - aax, 1., uv.x);
   float bottom = smoothstep(0., aay, uv.y);
-  float top    = smoothstep(1., 1. - aay, uv.y);
+  float top = 1. - smoothstep(1. - aay, 1., uv.y);
 
   return left * right * bottom * top;
 }
@@ -130,7 +130,7 @@ float crumpledNoise(vec2 t, float pw) {
       wsum += w;
     }
   }
-  return pow(cl / wsum, .5) * 2.;
+  return pow(cl / max(1e-4, wsum), .5) * 2.;
 }
 float crumplesShape(vec2 uv) {
   return crumpledNoise(uv * .25, 16.) * crumpledNoise(uv * .5, 2.);
