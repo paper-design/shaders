@@ -110,11 +110,13 @@ void main() {
   float r = length(c_to_uv);
   
   float fragAngle = atan(c_to_uv.y, c_to_uv.x);
-  float angleDiff = fragAngle - angleRad;
-  angleDiff = mod(angleDiff + PI, TWO_PI) - PI;
-  
-  float halfAngle = acos(clamp(radius / u_focalDistance, 0.0, 1.0));
-  float isInSector = 1.0 - smoothstep(.6 * PI, halfAngle, abs(angleDiff));
+  float angleDiff = fract((fragAngle - angleRad + PI) / TWO_PI) * TWO_PI - PI;
+
+  float halfAngle = acos(clamp(radius / max(u_focalDistance, 1e-4), 0.0, 1.0));
+  float e0 = 0.6 * PI, e1 = halfAngle;
+  float lo = min(e0, e1), hi = max(e0, e1);
+  float s  = smoothstep(lo, hi, abs(angleDiff));
+  float isInSector = (e1 >= e0) ? (1.0 - s) : s;
   
   float a = dot(f_to_uv, f_to_uv);
   float b = -2.0 * dot(f_to_uv, f_to_c);
@@ -125,17 +127,18 @@ void main() {
 
   if (discriminant >= 0.0) {
     float sqrtD = sqrt(discriminant);
-    float t0 = (-b - sqrtD) / (2.0 * a);
-    float t1 = (-b + sqrtD) / (2.0 * a);
+    float div = max(1e-4, 2.0 * a);
+    float t0 = (-b - sqrtD) / div;
+    float t1 = (-b + sqrtD) / div;
     t = max(t0, t1);
     if (t < 0.0) t = 0.0;
   }
 
   float dist = length(f_to_uv);
-  float normalized = dist / (length(f_to_uv * t));
+  float normalized = dist / max(1e-4, length(f_to_uv * t));
   float shape = clamp(normalized, 0.0, 1.0);
 
-  float falloffMapped = mix(.2 + .8 * max(0., u_falloff + 1.), mix(1., 15., pow(u_falloff, 2.)), step(.0, u_falloff));
+  float falloffMapped = mix(.2 + .8 * max(0., u_falloff + 1.), mix(1., 15., u_falloff * u_falloff), step(.0, u_falloff));
   
   float falloffExp = mix(falloffMapped, 1., shape);
   shape = pow(shape, falloffExp);
@@ -143,14 +146,14 @@ void main() {
 
 
   float outerMask = .002;
-  float outer = smoothstep(radius + outerMask, radius - outerMask, r);
+  float outer = 1.0 - smoothstep(radius - outerMask, radius + outerMask, r);
   outer = mix(outer, 1., isInSector);
   
   shape = mix(0., shape, outer);
-  shape *= smoothstep(radius, radius - .01, r);
+  shape *= 1. - smoothstep(radius - .01, radius, r);
 
   float angle = atan(f_to_uv.y, f_to_uv.x);
-  shape -= pow(u_distortion, 2.) * shape * pow(sin(PI * clamp(length(f_to_uv) - .2 + u_distortionShift, 0., 1.)), 4.) * (sin(u_distortionFreq * angle) + cos(floor(.65 * u_distortionFreq) * angle));
+  shape -= pow(u_distortion, 2.) * shape * pow(abs(sin(PI * clamp(length(f_to_uv) - 0.2 + u_distortionShift, 0.0, 1.0))), 4.0) * (sin(u_distortionFreq * angle) + cos(floor(0.65 * u_distortionFreq) * angle));
 
   float grain = noise(grainUV, vec2(0.));
   float mixerGrain = .4 * u_grainMixer * (grain - .5);
