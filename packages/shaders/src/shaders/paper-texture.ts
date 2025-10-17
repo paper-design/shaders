@@ -130,7 +130,7 @@ float crumpledNoise(vec2 t, float pw) {
       wsum += w;
     }
   }
-  return pow(cl / max(1e-4, wsum), .5) * 2.;
+  return pow(wsum != 0.0 ? cl / wsum : 0.0, .5) * 2.;
 }
 float crumplesShape(vec2 uv) {
   return crumpledNoise(uv * .25, 16.) * crumpledNoise(uv * .5, 2.);
