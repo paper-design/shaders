@@ -155,7 +155,7 @@ void main() {
   tCopy2 = mod(tCopy2, 1.);
 
   vec2 animationUV = imgUV - vec2(.5);
-  float angle = u_angle * PI / 180.;
+  float angle = -u_angle * PI / 180.;
   float cosA = cos(angle);
   float sinA = sin(angle);
   animationUV = vec2(

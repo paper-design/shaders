@@ -100,7 +100,7 @@ void main() {
   grainUV *= v_objectBoxSize;
 
   vec2 center = vec2(0.);
-  float angleRad = radians(u_focalAngle - 90.);
+  float angleRad = -radians(u_focalAngle + 90.);
   vec2 focalPoint = vec2(cos(angleRad), sin(angleRad)) * u_focalDistance;
   float radius = u_radius;
   
