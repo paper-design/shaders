@@ -49,9 +49,9 @@ float getUvFrame(vec2 uv) {
   float aay = 2. * fwidth(uv.y);
 
   float left   = smoothstep(0., aax, uv.x);
-  float right  = smoothstep(1., 1. - aax, uv.x);
+  float right = 1.0 - smoothstep(1. - aax, 1., uv.x);
   float bottom = smoothstep(0., aay, uv.y);
-  float top    = smoothstep(1., 1. - aay, uv.y);
+  float top = 1.0 - smoothstep(1. - aay, 1., uv.y);
 
   return left * right * bottom * top;
 }
@@ -88,12 +88,12 @@ void main() {
   float causticNoise = getCausticNoise(patternUV + u_waves * vec2(1., -1.) * wavesNoise, 2. * t, 1.5);
 
   causticNoise += u_layering * getCausticNoise(patternUV + 2. * u_waves * vec2(1., -1.) * wavesNoise, 1.5 * t, 2.);
-  causticNoise = pow(causticNoise, 2.);
+  causticNoise = causticNoise * causticNoise;
 
   float edgesDistortion = smoothstep(0., .1, imageUV.x);
   edgesDistortion *= smoothstep(0., .1, imageUV.y);
-  edgesDistortion *= (smoothstep(1., 1.1, imageUV.x) + smoothstep(.95, .8, imageUV.x));
-  edgesDistortion *= smoothstep(1., .9, imageUV.y);
+  edgesDistortion *= (smoothstep(1., 1.1, imageUV.x) + (1.0 - smoothstep(.8, .95, imageUV.x)));
+  edgesDistortion *= (1.0 - smoothstep(.9, 1., imageUV.y));
   edgesDistortion = mix(edgesDistortion, 1., u_edges);
 
   float causticNoiseDistortion = .02 * causticNoise * edgesDistortion;
