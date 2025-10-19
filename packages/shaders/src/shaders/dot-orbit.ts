@@ -90,7 +90,7 @@ void main() {
   float radius = .25 * clamp(u_size, 0., 1.) - .5 * clamp(u_sizeRange, 0., 1.) * voronoi[2];
   float dist = voronoi[0];
   float edgeWidth = fwidth(dist);
-  float dots = smoothstep(radius + edgeWidth, radius - edgeWidth, dist);
+  float dots = 1. - smoothstep(radius - edgeWidth, radius + edgeWidth, dist);
 
   float shape = voronoi[1];
 

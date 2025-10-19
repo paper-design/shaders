@@ -84,7 +84,7 @@ const int bayer8x8[64] = int[64](
 );
 
 float getBayerValue(vec2 uv, int size) {
-  ivec2 pos = ivec2(mod(uv, float(size)));
+  ivec2 pos = ivec2(fract(uv / float(size)) * float(size));
   int index = pos.y * size + pos.x;
 
   if (size == 2) {
