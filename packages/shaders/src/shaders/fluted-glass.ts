@@ -105,30 +105,40 @@ float getUvFrame(vec2 uv) {
 
 const int MAX_RADIUS = 50;
 
-vec4 getBlur(sampler2D tex, vec2 uv, vec2 texelSize, vec2 dir, float sigma) {
-  if (sigma <= .5) return texture(tex, uv);
-  int radius = int(min(float(MAX_RADIUS), ceil(3.0 * sigma)));
+vec4 sampleScene(vec2 uv) {
+  float frame = getUvFrame(uv);
+  vec4 img = texture(u_image, uv);
+  vec3 imgPM  = img.rgb * img.a;
+  vec3 backPM = u_colorBack.rgb * u_colorBack.a;
+  float aImgFr = img.a * frame;
+  vec3 compRGB = imgPM * frame + backPM * (1. - aImgFr);
+  float compA  = aImgFr + u_colorBack.a * (1. - aImgFr);
 
+  return vec4(compRGB, compA);
+}
+
+vec4 getBlurScene(vec2 uv, vec2 texelSize, vec2 dir, float sigma) {
+  if (sigma <= .5) return sampleScene(uv);
+
+  int radius = int(min(float(MAX_RADIUS), ceil(3.0 * sigma)));
   float twoSigma2 = 2.0 * sigma * sigma;
   float gaussianNorm = 1.0 / sqrt(TWO_PI * sigma * sigma);
 
-  vec4 sum = texture(tex, uv) * gaussianNorm;
+  vec4 sum = sampleScene(uv) * gaussianNorm;
   float weightSum = gaussianNorm;
 
   for (int i = 1; i <= MAX_RADIUS; i++) {
     if (i > radius) break;
-
     float x = float(i);
     float w = exp(-(x * x) / twoSigma2) * gaussianNorm;
 
     vec2 offset = dir * texelSize * x;
-    vec4 s1 = texture(tex, uv + offset);
-    vec4 s2 = texture(tex, uv - offset);
+    vec4 s1 = sampleScene(uv + offset);
+    vec4 s2 = sampleScene(uv - offset);
 
     sum += (s1 + s2) * w;
     weightSum += 2.0 * w;
   }
-
   return sum / weightSum;
 }
 
@@ -230,14 +240,10 @@ void main() {
   uv = mix(imageUV, uv, mask);
   float blur = mix(0., u_blur, mask);
 
-  float frame = getUvFrame(uv);
-
-  vec4 image = getBlur(u_image, uv, 1. / u_resolution / u_pixelRatio, vec2(0., 1.), blur);
-  vec4 backColor = u_colorBack;
-  backColor.rgb *= backColor.a;
-
-  vec3 color = mix(backColor.rgb, image.rgb, image.a * frame);
-  float opacity = backColor.a + image.a * frame;
+  vec2 texelSize = 1. / (u_resolution * u_pixelRatio);
+  vec4 scenePM = getBlurScene(uv, texelSize, vec2(0., 1.), blur);
+  vec3 color = scenePM.rgb;
+  float opacity = scenePM.a;
   
   highlight *= u_highlights;
   highlight *= u_colorHighlight.a;
