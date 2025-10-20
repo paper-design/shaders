@@ -1,5 +1,9 @@
 # Paper Shaders
 
+## Version 0.0.59
+
+Minor adjustments to the Liquid Metal edge contour
+
 ## Version 0.0.58
 
 - **General**
