@@ -178,15 +178,16 @@ void main() {
   uv *= effectSize;
 
   float curve = 0.;
+  float patternY = uv.y / u_imageAspectRatio;
   if (u_shape > 4.5) {
     // pattern
-    curve = .5 + .5 * sin(1.5 * uv.x) * cos(1.5 * uv.y);
+    curve = .5 + .5 * sin(1.5 * uv.x) * cos(1.5 * patternY);
   } else if (u_shape > 3.5) {
     // zigzag
-    curve = 10. * abs(fract(.1 * uv.y) - .5);
+    curve = 10. * abs(fract(.1 * patternY) - .5);
   } else if (u_shape > 2.5) {
     // wave
-    curve = 4. * sin(.23 * uv.y);
+    curve = 4. * sin(.23 * patternY);
   } else if (u_shape > 1.5) {
     // lines irregular
     curve = .5 + .5 * sin(.5 * uv.x) * sin(1.7 * uv.x);
