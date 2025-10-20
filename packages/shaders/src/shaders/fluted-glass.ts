@@ -142,6 +142,13 @@ vec4 getBlurScene(vec2 uv, vec2 texelSize, vec2 dir, float sigma) {
   return sum / weightSum;
 }
 
+vec2 rotateAspect(vec2 p, float a, float aspect) {
+  p.x *= aspect;
+  p = rotate(p, a);
+  p.x /= aspect;
+  return p;
+}
+
 void main() {
   
   vec2 uvNormalised = (gl_FragCoord.xy - .5 * u_resolution) / u_resolution.xy;
@@ -167,7 +174,7 @@ void main() {
   float stroke = (1. - mask) * maskOuter;
 
   float patternRotation = -u_angle * PI / 180.;
-  uv = rotate(uv - vec2(.5), patternRotation);
+  uv = rotateAspect(uv - vec2(.5), patternRotation, u_imageAspectRatio);
   uv *= effectSize;
 
   float curve = 0.;
@@ -235,7 +242,7 @@ void main() {
   uv += pow(stroke, 4.);
   uv.y = mix(uv.y, .0, .4 * u_edges * edges);
 
-  uv = rotate(uv, -patternRotation) + vec2(.5);
+  uv = rotateAspect(uv, -patternRotation, u_imageAspectRatio) + vec2(.5);
 
   uv = mix(imageUV, uv, mask);
   float blur = mix(0., u_blur, mask);
