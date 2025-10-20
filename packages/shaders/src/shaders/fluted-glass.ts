@@ -196,7 +196,7 @@ void main() {
   vec2 fractOrigUV = fract(uvOrig);
   vec2 floorOrigUV = floor(uvOrig);
 
-  float edges = smoothstep(.85, .95, fractUV.x);
+  float edges = smoothstep(.85, .97, fractUV.x);
   edges *= mask;
 
   float xDistortion = 0.;
