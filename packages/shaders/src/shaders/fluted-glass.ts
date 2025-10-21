@@ -104,27 +104,14 @@ float getUvFrame(vec2 uv, float test) {
 }
 
 const int MAX_RADIUS = 50;
-
-vec4 sampleScene(vec2 uv, float test) {
-  float frame = getUvFrame(uv, test);
-  vec4 img = texture(u_image, uv);
-  vec3 imgPM  = img.rgb * img.a;
-  vec3 backPM = u_colorBack.rgb * u_colorBack.a;
-  float aImgFr = img.a * frame;
-  vec3 compRGB = imgPM * frame + backPM * (1. - aImgFr);
-  float compA  = aImgFr + u_colorBack.a * (1. - aImgFr);
-
-  return vec4(compRGB, compA);
-}
-
-vec4 getBlurScene(vec2 uv, vec2 texelSize, vec2 dir, float sigma, float test) {
-  if (sigma <= .5) return sampleScene(uv, test);
-
+vec4 getBlur(sampler2D tex, vec2 uv, vec2 texelSize, vec2 dir, float sigma) {
+  if (sigma <= .5) return texture(tex, uv);
   int radius = int(min(float(MAX_RADIUS), ceil(3.0 * sigma)));
+
   float twoSigma2 = 2.0 * sigma * sigma;
   float gaussianNorm = 1.0 / sqrt(TWO_PI * sigma * sigma);
 
-  vec4 sum = sampleScene(uv, test) * gaussianNorm;
+  vec4 sum = texture(tex, uv) * gaussianNorm;
   float weightSum = gaussianNorm;
 
   for (int i = 1; i <= MAX_RADIUS; i++) {
@@ -134,8 +121,8 @@ vec4 getBlurScene(vec2 uv, vec2 texelSize, vec2 dir, float sigma, float test) {
     float w = exp(-(x * x) / twoSigma2) * gaussianNorm;
 
     vec2 offset = dir * texelSize * x;
-    vec4 s1 = sampleScene(uv + offset, test);
-    vec4 s2 = sampleScene(uv - offset, test);
+    vec4 s1 = texture(tex, uv + offset);
+    vec4 s2 = texture(tex, uv - offset);
 
     sum += (s1 + s2) * w;
     weightSum += 2.0 * w;
@@ -299,20 +286,22 @@ void main() {
 
   uv = mix(imageUV, uv, mask);
   float blur = mix(0., u_blur, mask);
+  
+  float frame = getUvFrame(uv, .05 * frameFade);
 
-  vec2 texelSize = 1. / (u_resolution * u_pixelRatio);
-  vec4 scenePM = getBlurScene(uv, texelSize, vec2(0., 1.), blur, .1 * frameFade);
-  
-  vec3 color = scenePM.rgb;
-  float opacity = scenePM.a;
-  
+  vec4 image = getBlur(u_image, uv, 1. / u_resolution / u_pixelRatio, vec2(0., 1.), blur);
+  vec4 backColor = u_colorBack;
+  backColor.rgb *= backColor.a;
+
+  vec3 color = mix(backColor.rgb, image.rgb, image.a * frame);
+  float opacity = backColor.a + image.a * frame;
+
   highlight *= u_highlights;
   highlight *= u_colorHighlight.a;
   color = mix(color, u_colorHighlight.rgb, .5 * highlight);
   color += .5 * pow(highlight, .5) * u_colorHighlight.rgb;
 
   opacity += highlight;
-
   opacity = clamp(opacity, 0., 1.);
 
   fragColor = vec4(color, opacity);
