@@ -88,7 +88,7 @@ const FlutedGlassWithControls = () => {
       blur: { value: defaults.blur, min: 0, max: 50, order: 206 },
       edges: { value: defaults.edges, min: 0, max: 1, order: 207 },
       margin: { value: defaults.margin, min: 0, max: 1, order: 500 },
-      scale: { value: defaults.scale, min: 0.5, max: 10, order: 600 },
+      scale: { value: defaults.scale, min: 0.5, max: 4, order: 600 },
       fit: { value: defaults.fit, options: ['contain', 'cover'] as ShaderFit[], order: 601 },
 
       Image: folder(

@@ -90,9 +90,9 @@ vec2 getImageUV(vec2 uv, vec2 extraScale) {
   return imageUV;
 }
 
-float getUvFrame(vec2 uv) {
-  float aax = 2. * fwidth(uv.x);
-  float aay = 2. * fwidth(uv.y);
+float getUvFrame(vec2 uv, float test) {
+  float aax = 2. * fwidth(uv.x) + test;
+  float aay = 2. * fwidth(uv.y) + test;
 
   float left   = smoothstep(0., aax, uv.x);
   float right  = 1. - smoothstep(1. - aax, 1., uv.x);
@@ -105,8 +105,8 @@ float getUvFrame(vec2 uv) {
 
 const int MAX_RADIUS = 50;
 
-vec4 sampleScene(vec2 uv) {
-  float frame = getUvFrame(uv);
+vec4 sampleScene(vec2 uv, float test) {
+  float frame = getUvFrame(uv, test);
   vec4 img = texture(u_image, uv);
   vec3 imgPM  = img.rgb * img.a;
   vec3 backPM = u_colorBack.rgb * u_colorBack.a;
@@ -117,14 +117,14 @@ vec4 sampleScene(vec2 uv) {
   return vec4(compRGB, compA);
 }
 
-vec4 getBlurScene(vec2 uv, vec2 texelSize, vec2 dir, float sigma) {
-  if (sigma <= .5) return sampleScene(uv);
+vec4 getBlurScene(vec2 uv, vec2 texelSize, vec2 dir, float sigma, float test) {
+  if (sigma <= .5) return sampleScene(uv, test);
 
   int radius = int(min(float(MAX_RADIUS), ceil(3.0 * sigma)));
   float twoSigma2 = 2.0 * sigma * sigma;
   float gaussianNorm = 1.0 / sqrt(TWO_PI * sigma * sigma);
 
-  vec4 sum = sampleScene(uv) * gaussianNorm;
+  vec4 sum = sampleScene(uv, test) * gaussianNorm;
   float weightSum = gaussianNorm;
 
   for (int i = 1; i <= MAX_RADIUS; i++) {
@@ -133,8 +133,8 @@ vec4 getBlurScene(vec2 uv, vec2 texelSize, vec2 dir, float sigma) {
     float w = exp(-(x * x) / twoSigma2) * gaussianNorm;
 
     vec2 offset = dir * texelSize * x;
-    vec4 s1 = sampleScene(uv + offset);
-    vec4 s2 = sampleScene(uv - offset);
+    vec4 s1 = sampleScene(uv + offset, test);
+    vec4 s2 = sampleScene(uv - offset, test);
 
     sum += (s1 + s2) * w;
     weightSum += 2.0 * w;
@@ -194,41 +194,50 @@ void main() {
   } else {
     // lines
   }
+  
+  vec2 UvToFract = uv + curve;
+  vec2 fractUV = fract(UvToFract);
+  vec2 floorUV = floor(UvToFract);
 
-  vec2 uvOrig = uv;
-  uv += curve;
+//  fractUV.x -= smoothstep(.9 - fwidth(fractUV.x), 1., fractUV.x);
 
-  vec2 fractUV = fract(uv);
-  vec2 floorUV = floor(uv);
+  vec2 fractOrigUV = fract(uv);
+  vec2 floorOrigUV = floor(uv);
 
-  vec2 fractOrigUV = fract(uvOrig);
-  vec2 floorOrigUV = floor(uvOrig);
-
-  float edges = smoothstep(.85, .97, fractUV.x);
-  edges *= mask;
 
   float xDistortion = 0.;
   float highlight = 0.;
+  float x = fractUV.x;
+  float aa = 10. * fwidth(fractUV.x);
+  float fadeX = smoothstep(0., aa, x) * smoothstep(1., 1. - aa, x);
+  
+  float edges = smoothstep(.5, 1., x);
+  edges *= fadeX;
+  edges *= mask;
+
   if (u_distortionShape == 1.) {
-    xDistortion = -pow(1.5 * fractUV.x, 3.);
-    highlight = clamp(pow(fractUV.x, 3.), 0., 2.);
+    x *= fadeX;
+    xDistortion = -pow(1.5 * x, 3.);
+    highlight = 2. * pow(x, 3.);
     xDistortion += (.5 + u_shift);
   } else if (u_distortionShape == 2.) {
-    xDistortion = 2. * pow(fractUV.x, 2.);
-    highlight = pow(clamp(pow(fractUV.x, 2.), 0., 1.), 2.);
+    x *= fadeX;
+    xDistortion = 2. * pow(x, 2.);
+    highlight = 2. * pow(pow(x, 2.), 2.);
     xDistortion -= (.5 + u_shift);
   } else if (u_distortionShape == 3.) {
-    xDistortion = pow(2. * (fractUV.x - .5), 6.);
+    xDistortion = pow(2. * (x - .5), 6.);
     highlight = clamp(xDistortion, 0., 1.);
     xDistortion += .5;
     xDistortion -= (.5 + u_shift);
   } else if (u_distortionShape == 4.) {
-    xDistortion = sin((fractUV.x + .25 + u_shift) * TWO_PI);
+    xDistortion = sin((x + .25 + u_shift) * TWO_PI);
     highlight = pow(.5 + .5 * xDistortion, 2.);
     xDistortion *= .5;
   } else if (u_distortionShape == 5.) {
-    xDistortion -= pow(abs(fractUV.x), .2) * fractUV.x;
-    highlight = pow(clamp(pow(abs(fractUV.x), 3.), 0., 1.), 2.);
+    x *= fadeX;
+    xDistortion -= pow(abs(x), .2) * x;
+    highlight = 1.5 * pow(pow(abs(x), 3.), 2.);
     xDistortion += (.5 + u_shift);
     xDistortion *= .33;
   }
@@ -249,7 +258,7 @@ void main() {
   float blur = mix(0., u_blur, mask);
 
   vec2 texelSize = 1. / (u_resolution * u_pixelRatio);
-  vec4 scenePM = getBlurScene(uv, texelSize, vec2(0., 1.), blur);
+  vec4 scenePM = getBlurScene(uv, texelSize, vec2(0., 1.), blur, mask * .0 * clamp(xDistortion, 0., 1.));
   vec3 color = scenePM.rgb;
   float opacity = scenePM.a;
   
