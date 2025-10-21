@@ -91,8 +91,8 @@ vec2 getImageUV(vec2 uv, vec2 extraScale) {
 }
 
 float getUvFrame(vec2 uv, float test) {
-  float aax = 2. * fwidth(uv.x) + test;
-  float aay = 2. * fwidth(uv.y) + test;
+  float aax = max(2. * fwidth(uv.x), test);
+  float aay = max(2. * fwidth(uv.y), test);
 
   float left   = smoothstep(0., aax, uv.x);
   float right  = 1. - smoothstep(1. - aax, 1., uv.x);
@@ -129,6 +129,7 @@ vec4 getBlurScene(vec2 uv, vec2 texelSize, vec2 dir, float sigma, float test) {
 
   for (int i = 1; i <= MAX_RADIUS; i++) {
     if (i > radius) break;
+
     float x = float(i);
     float w = exp(-(x * x) / twoSigma2) * gaussianNorm;
 
@@ -147,6 +148,16 @@ vec2 rotateAspect(vec2 p, float a, float aspect) {
   p = rotate(p, a);
   p.x /= aspect;
   return p;
+}
+
+float smoothFract(float x) {
+  float f = fract(x);
+  float w = fwidth(x);
+
+  float edge = abs(f - 0.5) - 0.5;
+  float band = smoothstep(-w, w, edge);
+
+  return mix(f, 1.0 - f, band);
 }
 
 void main() {
@@ -171,7 +182,7 @@ void main() {
     smoothstep(margins[2], margins[2] + sw.x, 1.0 - uvMask.x + sw.x) *
     smoothstep(margins[1], margins[1] + sw.y, uvMask.y + sw.y) *
     smoothstep(margins[3], margins[3] + sw.y, 1.0 - uvMask.y + sw.y);
-  float stroke = (1. - mask) * maskOuter;
+  float maskStroke = (1. - mask) * maskOuter;
 
   float patternRotation = -u_angle * PI / 180.;
   uv = rotateAspect(uv - vec2(.5), patternRotation, u_imageAspectRatio);
@@ -196,63 +207,90 @@ void main() {
   }
   
   vec2 UvToFract = uv + curve;
-  vec2 fractUV = fract(UvToFract);
-  vec2 floorUV = floor(UvToFract);
-
-//  fractUV.x -= smoothstep(.9 - fwidth(fractUV.x), 1., fractUV.x);
-
   vec2 fractOrigUV = fract(uv);
   vec2 floorOrigUV = floor(uv);
 
+  float x = smoothFract(UvToFract.x);
+  float xNonSmooth = fract(UvToFract.x);
 
+  float highlight = x;
   float xDistortion = 0.;
-  float highlight = 0.;
-  float x = fractUV.x;
-  float aa = 10. * fwidth(fractUV.x);
-  float fadeX = smoothstep(0., aa, x) * smoothstep(1., 1. - aa, x);
-  
-  float edges = smoothstep(.5, 1., x);
-  edges *= fadeX;
-  edges *= mask;
+  float fadeX = 1.;
+  float frameFade = 0.;
 
   if (u_distortionShape == 1.) {
-    x *= fadeX;
     xDistortion = -pow(1.5 * x, 3.);
-    highlight = 2. * pow(x, 3.);
     xDistortion += (.5 - u_shift);
+
+    frameFade = pow(1.5 * x, 3.);
+    highlight = 1. - pow(x, .5);
+
+    float aa = .2;
+    fadeX = smoothstep(0., aa, xNonSmooth) * smoothstep(1., 1. - aa, xNonSmooth);
+    xDistortion = mix(1., xDistortion, fadeX);
+
   } else if (u_distortionShape == 2.) {
-    x *= fadeX;
     xDistortion = 2. * pow(x, 2.);
-    highlight = 2. * pow(pow(x, 2.), 2.);
     xDistortion -= (.5 + u_shift);
+
+    frameFade = pow(abs(x - .5), 4.);
+    highlight = 2.4 * pow(abs(x - .4), 2.);
+
+    float aa = .15;
+    fadeX = smoothstep(0., aa, xNonSmooth) * smoothstep(1., 1. - aa, xNonSmooth);
+    xDistortion = mix(1., xDistortion, fadeX);
+    frameFade = mix(1., frameFade, fadeX);
   } else if (u_distortionShape == 3.) {
     xDistortion = pow(2. * (x - .5), 6.);
     highlight = clamp(xDistortion, 0., 1.);
     xDistortion -= .25;
     xDistortion -= u_shift;
+
+    frameFade = 1. - 2. * pow(abs(x - .4), 2.);
+    highlight = x * x * x;
+
+    float aa = .1;
+    fadeX = smoothstep(0., aa, xNonSmooth) * smoothstep(1., 1. - aa, xNonSmooth);
+    xDistortion = mix(1., xDistortion, fadeX);
+    frameFade = mix(1., frameFade, fadeX);
+
   } else if (u_distortionShape == 4.) {
-    xDistortion = sin((x + .25 + 0. * u_shift) * TWO_PI);
+    x = xNonSmooth;
+    xDistortion = sin((x + .25) * TWO_PI);
     highlight = pow(.5 + .5 * xDistortion, 2.);
     xDistortion *= .5;
     xDistortion -= u_shift;
+    frameFade = .5 + .5 * sin(x * TWO_PI);
   } else if (u_distortionShape == 5.) {
-    x *= fadeX;
     xDistortion -= pow(abs(x), .2) * x;
     highlight = 1.5 * pow(pow(abs(x), 3.), 2.);
     xDistortion += .33;
     xDistortion -= 3. * u_shift;
     xDistortion *= .33;
+
+    frameFade = .3 * (smoothstep(.0, 1., x));
+
+    float aa = .05;
+    fadeX = smoothstep(0., aa, xNonSmooth) * smoothstep(1., 1. - aa, xNonSmooth);
+    xDistortion *= fadeX;
   }
+
   highlight *= mask;
-  highlight += .5 * stroke;
+  highlight += .5 * maskStroke;
   highlight = min(highlight, 1.);
 
   xDistortion *= 3. * u_distortion;
+  frameFade *= u_distortion;
 
+  fractOrigUV.x += xDistortion;
   uv = (floorOrigUV + fractOrigUV) / effectSize;
-  uv.x += xDistortion / effectSize;
-  uv += pow(stroke, 4.);
-  uv.y = mix(uv.y, .0, .4 * u_edges * edges);
+  uv += pow(maskStroke, 4.);
+
+
+//  float edges = smoothstep(.8, .9, x) * smoothstep(1., .9, x);
+//  //  edges = fadeX;
+//  //  edges *= mask;
+//  uv.y = mix(uv.y, .0, u_edges * edges);
 
   uv = rotateAspect(uv, -patternRotation, u_imageAspectRatio) + vec2(.5);
 
@@ -260,7 +298,8 @@ void main() {
   float blur = mix(0., u_blur, mask);
 
   vec2 texelSize = 1. / (u_resolution * u_pixelRatio);
-  vec4 scenePM = getBlurScene(uv, texelSize, vec2(0., 1.), blur, mask * .0 * clamp(xDistortion, 0., 1.));
+  vec4 scenePM = getBlurScene(uv, texelSize, vec2(0., 1.), blur, .1 * frameFade);
+  
   vec3 color = scenePM.rgb;
   float opacity = scenePM.a;
   
