@@ -185,7 +185,8 @@ void main() {
   float maskStroke = (1. - mask) * maskOuter;
 
   float patternRotation = -u_angle * PI / 180.;
-  uv = rotateAspect(uv - vec2(.5), patternRotation, u_imageAspectRatio);
+  uv -= .5;
+  uv = rotateAspect(uv, patternRotation, u_imageAspectRatio);
   uv *= effectSize;
 
   float curve = 0.;
@@ -282,17 +283,19 @@ void main() {
   xDistortion *= 3. * u_distortion;
   frameFade *= u_distortion;
 
+  floorOrigUV = rotateAspect(floorOrigUV, -patternRotation, u_imageAspectRatio);
+  fractOrigUV = rotateAspect(fractOrigUV, -patternRotation, u_imageAspectRatio);
+
   fractOrigUV.x += xDistortion;
   uv = (floorOrigUV + fractOrigUV) / effectSize;
   uv += pow(maskStroke, 4.);
-
 
 //  float edges = smoothstep(.8, .9, x) * smoothstep(1., .9, x);
 //  //  edges = fadeX;
 //  //  edges *= mask;
 //  uv.y = mix(uv.y, .0, u_edges * edges);
 
-  uv = rotateAspect(uv, -patternRotation, u_imageAspectRatio) + vec2(.5);
+  uv += vec2(.5);
 
   uv = mix(imageUV, uv, mask);
   float blur = mix(0., u_blur, mask);
