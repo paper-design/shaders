@@ -219,7 +219,7 @@ void main() {
     x *= fadeX;
     xDistortion = -pow(1.5 * x, 3.);
     highlight = 2. * pow(x, 3.);
-    xDistortion += (.5 + u_shift);
+    xDistortion += (.5 - u_shift);
   } else if (u_distortionShape == 2.) {
     x *= fadeX;
     xDistortion = 2. * pow(x, 2.);
@@ -228,17 +228,19 @@ void main() {
   } else if (u_distortionShape == 3.) {
     xDistortion = pow(2. * (x - .5), 6.);
     highlight = clamp(xDistortion, 0., 1.);
-    xDistortion += .5;
-    xDistortion -= (.5 + u_shift);
+    xDistortion -= .25;
+    xDistortion -= u_shift;
   } else if (u_distortionShape == 4.) {
-    xDistortion = sin((x + .25 + u_shift) * TWO_PI);
+    xDistortion = sin((x + .25 + 0. * u_shift) * TWO_PI);
     highlight = pow(.5 + .5 * xDistortion, 2.);
     xDistortion *= .5;
+    xDistortion -= u_shift;
   } else if (u_distortionShape == 5.) {
     x *= fadeX;
     xDistortion -= pow(abs(x), .2) * x;
     highlight = 1.5 * pow(pow(abs(x), 3.), 2.);
-    xDistortion += (.5 + u_shift);
+    xDistortion += .33;
+    xDistortion -= 3. * u_shift;
     xDistortion *= .33;
   }
   highlight *= mask;
