@@ -271,12 +271,10 @@ void main() {
   distortion *= 3. * u_distortion;
   frameFade *= u_distortion;
 
+  fractOrigUV.x += distortion;
   floorOrigUV = rotateAspect(floorOrigUV, -patternRotation, u_imageAspectRatio);
   fractOrigUV = rotateAspect(fractOrigUV, -patternRotation, u_imageAspectRatio);
-
-  fractOrigUV.x += distortion * cos(patternRotation);
-  fractOrigUV.y += distortion * sin(patternRotation);
-
+  
   uv = (floorOrigUV + fractOrigUV) / patternSize;
   uv += pow(maskStroke, 4.);
 
