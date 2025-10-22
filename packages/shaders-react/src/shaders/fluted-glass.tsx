@@ -30,7 +30,7 @@ export const defaultPreset: FlutedGlassPreset = {
     frame: 0,
     colorBack: '#00000000',
     colorHighlight: '#000000',
-    highlights: 0.3,
+    highlights: 0.5,
     size: 0.45,
     angle: 0,
     distortionShape: 'prism',

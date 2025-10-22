@@ -212,7 +212,7 @@ void main() {
     distortion += (.5 - u_shift);
 
     frameFade = pow(1.5 * x, 3.);
-    highlight = 1. - pow(x, .5);
+    highlight = 1. - pow(x, .25);
 
     float aa = max(.2, fwidth(xNonSmooth));
     fadeX = smoothstep(0., aa, xNonSmooth) * smoothstep(1., 1. - aa, xNonSmooth);
@@ -223,7 +223,7 @@ void main() {
     distortion -= (.5 + u_shift);
 
     frameFade = pow(abs(x - .5), 4.);
-    highlight = 2.4 * pow(abs(x - .4), 2.);
+    highlight = 2.4 * pow(abs(x - .4), 2.5);
 
     float aa = max(.15, fwidth(xNonSmooth));
     fadeX = smoothstep(0., aa, xNonSmooth) * smoothstep(1., 1. - aa, xNonSmooth);
@@ -236,7 +236,7 @@ void main() {
     distortion -= u_shift;
 
     frameFade = 1. - 2. * pow(abs(x - .4), 2.);
-    highlight = x * x * x;
+    highlight = pow(x, 6.);
 
     float aa = max(.1, fwidth(xNonSmooth));
     fadeX = smoothstep(0., aa, xNonSmooth) * smoothstep(1., 1. - aa, xNonSmooth);
@@ -246,13 +246,13 @@ void main() {
   } else if (u_distortionShape == 4.) {
     x = xNonSmooth;
     distortion = sin((x + .25) * TWO_PI);
-    highlight = pow(.5 + .5 * distortion, 2.);
+    highlight = pow(.5 + .5 * distortion, 5.);
     distortion *= .5;
     distortion -= u_shift;
     frameFade = .5 + .5 * sin(x * TWO_PI);
   } else if (u_distortionShape == 5.) {
     distortion -= pow(abs(x), .2) * x;
-    highlight = 1.5 * pow(pow(abs(x), 3.), 2.);
+    highlight = 1.5 * pow(pow(abs(x), 3.), 4.);
     distortion += .33;
     distortion -= 3. * u_shift;
     distortion *= .33;
