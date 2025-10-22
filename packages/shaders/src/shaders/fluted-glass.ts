@@ -150,13 +150,15 @@ float smoothFract(float x) {
 void main() {
   
   vec2 uvNormalised = (gl_FragCoord.xy - .5 * u_resolution) / u_resolution.xy;
-  vec2 imageUV = getImageUV(uvNormalised, vec2(1.));
+  vec2 imageOrigUV = getImageUV(uvNormalised, vec2(1.));
+  float origFrameBox = getUvFrame(imageOrigUV, .01);
+
+  float patternRotation = -u_angle * PI / 180.;
+  float patternSize = 1. / pow(.7 * (u_size + .5), 6.);
+
+  vec2 uv = imageOrigUV;
+
   vec2 uvMask = gl_FragCoord.xy / u_resolution.xy;
-
-  vec2 uv = imageUV;
-
-  float effectSize = 1. / pow(.7 * (u_size + .5), 6.);
-
   vec2 sw = vec2(.005 * u_distortion);
   vec4 margins = .5 * vec4(u_marginLeft, u_marginTop, u_marginRight, u_marginBottom);
   float maskOuter =
@@ -171,10 +173,9 @@ void main() {
     smoothstep(margins[3], margins[3] + sw.y, 1.0 - uvMask.y + sw.y);
   float maskStroke = (1. - mask) * maskOuter;
 
-  float patternRotation = -u_angle * PI / 180.;
   uv -= .5;
+  uv *= patternSize;
   uv = rotateAspect(uv, patternRotation, u_imageAspectRatio);
-  uv *= effectSize;
 
   float curve = 0.;
   float patternY = uv.y / u_imageAspectRatio;
@@ -274,20 +275,20 @@ void main() {
   fractOrigUV = rotateAspect(fractOrigUV, -patternRotation, u_imageAspectRatio);
 
   fractOrigUV.x += xDistortion;
-  uv = (floorOrigUV + fractOrigUV) / effectSize;
+  uv = (floorOrigUV + fractOrigUV) / patternSize;
   uv += pow(maskStroke, 4.);
 
-//  float edges = smoothstep(.8, .9, x) * smoothstep(1., .9, x);
-//  //  edges = fadeX;
-//  //  edges *= mask;
-//  uv.y = mix(uv.y, .0, u_edges * edges);
+  float edges = 1. - smoothstep(0., .2, xNonSmooth) * smoothstep(1., 1. - .2, xNonSmooth);
+  edges *= mask;
+  edges *= origFrameBox;
+  uv.y = mix(uv.y, .0, u_edges * edges);
 
   uv += vec2(.5);
 
-  uv = mix(imageUV, uv, mask);
+  uv = mix(imageOrigUV, uv, mask);
   float blur = mix(0., u_blur, mask);
   
-  float frame = getUvFrame(uv, .05 * frameFade);
+  float frame = getUvFrame(uv, .05 * mask * frameFade);
 
   vec4 image = getBlur(u_image, uv, 1. / u_resolution / u_pixelRatio, vec2(0., 1.), blur);
   vec4 backColor = u_colorBack;
