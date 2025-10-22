@@ -81,7 +81,7 @@ const int bayer8x8[64] = int[64](
 );
 
 float getBayerValue(vec2 uv, int size) {
-  ivec2 pos = ivec2(mod(uv, float(size)));
+  ivec2 pos = ivec2(fract(uv / float(size)) * float(size));
   int index = pos.y * size + pos.x;
 
   if (size == 2) {
@@ -129,7 +129,7 @@ void main() {
       shape_uv.y += 0.6 / i * cos(i * 1.5 * shape_uv.x + t);
     }
 
-    shape = .15 / abs(sin(t - shape_uv.y - shape_uv.x));
+    shape = .15 / max(0.001, abs(sin(t - shape_uv.y - shape_uv.x)));
     shape = smoothstep(0.02, 1., shape);
 
   } else if (u_shape < 3.5) {
@@ -162,7 +162,7 @@ void main() {
     float l = length(shape_uv);
     float angle = 6. * atan(shape_uv.y, shape_uv.x) + 4. * t;
     float twist = 1.2;
-    float offset = pow(l, -twist) + angle / TWO_PI;
+    float offset = 1. / pow(max(l, 1e-6), twist) + angle / TWO_PI;
     float mid = smoothstep(0., 1., pow(l, twist));
     shape = mix(0., fract(offset), mid);
 
@@ -171,7 +171,7 @@ void main() {
     shape_uv *= 2.;
 
     float d = 1. - pow(length(shape_uv), 2.);
-    vec3 pos = vec3(shape_uv, sqrt(d));
+    vec3 pos = vec3(shape_uv, sqrt(max(0., d)));
     vec3 lightPos = normalize(vec3(cos(1.5 * t), .8, sin(1.25 * t)));
     shape = .5 + .5 * dot(lightPos, pos);
     shape *= step(0., d);
@@ -237,7 +237,7 @@ export interface DitheringParams extends ShaderSizingParams, ShaderMotionParams 
   colorFront?: string;
   shape?: DitheringShape;
   type?: DitheringType;
-  pxSize?: number;
+  size?: number;
 }
 
 export const DitheringShapes = {

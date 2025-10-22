@@ -123,7 +123,8 @@ vec2 truchet(vec2 uv, float idx){
 
 void main() {
 
-  float t = .1 * u_time;
+  const float firstFrameOffset = 7.;
+  float t = .1 * (u_time + firstFrameOffset);
 
   vec2 shape_uv = vec2(0.);
   vec2 grain_uv = vec2(0.);
@@ -184,7 +185,7 @@ void main() {
     float rand = hash11(stripeIdx * 100.);
     rand = sign(rand - .5) * pow(4. * abs(rand), .3);
     shape = sin(shape_uv.x) * cos(shape_uv.y - 5. * rand * t);
-    shape = pow(shape, 4.);
+    shape = pow(abs(shape), 4.);
 
   } else if (u_shape < 3.5) {
     // Truchet pattern
@@ -200,8 +201,8 @@ void main() {
 
     n2 -= .5;
     n2 *= .1;
-    shape = smoothstep(.2, .55, distance1 + n2) * smoothstep(.8, .45, distance1 - n2);
-    shape += smoothstep(.2, .55, distance2 + n2) * smoothstep(.8, .45, distance2 - n2);
+    shape = smoothstep(.2, .55, distance1 + n2) * (1. - smoothstep(.45, .8, distance1 - n2));
+    shape += smoothstep(.2, .55, distance2 + n2) * (1. - smoothstep(.45, .8, distance2 - n2));
 
     shape = pow(shape, 1.5);
 
@@ -254,7 +255,7 @@ void main() {
 
     shape_uv *= 2.;
     float d = 1. - pow(length(shape_uv), 2.);
-    vec3 pos = vec3(shape_uv, sqrt(d));
+    vec3 pos = vec3(shape_uv, sqrt(max(d, 0.)));
     vec3 lightPos = normalize(vec3(cos(1.5 * t), .8, sin(1.25 * t)));
     shape = .5 + .5 * dot(lightPos, pos);
     shape *= step(0., d);

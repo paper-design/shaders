@@ -39,15 +39,11 @@ const imageFiles = [
 
 const WaterWithControls = () => {
   const [imageIdx, setImageIdx] = useState(-1);
-  const [image, setImage] = useState<HTMLImageElement | undefined>(undefined);
-  const [status, setStatus] = useState('Click to load an image');
-
-  const fileName = imageIdx >= 0 ? imageFiles[imageIdx] : null;
+  const [image, setImage] = useState<HTMLImageElement | string>('/images/image-filters/0018.webp');
 
   useEffect(() => {
     if (imageIdx >= 0) {
       const name = imageFiles[imageIdx];
-      setStatus(`Displaying image: ${name}`);
       const img = new Image();
       img.src = `/images/image-filters/${name}`;
       img.onload = () => setImage(img);
@@ -59,9 +55,8 @@ const WaterWithControls = () => {
   }, []);
 
   const setImageWithoutStatus = useCallback((img?: HTMLImageElement) => {
-    setImage(img);
+    setImage(img ?? '');
     setImageIdx(-1);
-    setStatus(``);
   }, []);
 
   const [params, setParams] = useControls(() => {
@@ -79,20 +74,20 @@ const WaterWithControls = () => {
       edges: { value: defaults.edges, min: 0, max: 1, order: 202 },
       waves: { value: defaults.waves, min: 0, max: 1, order: 203 },
       caustic: { value: defaults.caustic, min: 0, max: 1, order: 204 },
-      effectScale: { value: defaults.effectScale, min: 0.01, max: 7, order: 205 },
-      scale: { value: defaults.scale, min: 0.1, max: 10, order: 300 },
-      fit: { value: defaults.fit, options: ['contain', 'cover'] as ShaderFit[], order: 301 },
-      speed: { value: defaults.speed, min: 0, max: 3, order: 400 },
+      size: { value: defaults.size, min: 0.01, max: 7, order: 205 },
+      speed: { value: defaults.speed, min: 0, max: 3, order: 300 },
+      scale: { value: defaults.scale, min: 0.1, max: 10, order: 301 },
+      fit: { value: defaults.fit, options: ['contain', 'cover'] as ShaderFit[], order: 302 },
       Image: folder(
         {
           'Upload image': levaImageButton(setImageWithoutStatus),
-          'Delete image': levaDeleteImageButton(setImageWithoutStatus),
+          ...(image && { 'Delete image': levaDeleteImageButton(() => setImage('')) }),
         },
         { order: 0 }
       ),
       Presets: folder(presets, { order: -1 }),
     };
-  });
+  }, [image]);
 
   // Reset to defaults on mount, so that Leva doesn't show values from other
   // shaders when navigating (if two shaders have a color1 param for example)
@@ -104,12 +99,28 @@ const WaterWithControls = () => {
   return (
     <>
       <ShaderContainer shaderDef={waterDef} currentParams={params}>
-        <Water onClick={handleClick} {...params} image={image || undefined} />
+        <Water onClick={handleClick} {...params} image={image} />
       </ShaderContainer>
       <div onClick={handleClick} className="mx-auto mt-16 mb-48 w-fit text-base text-current/70 select-none">
         Click to change the sample image
       </div>
-      <ShaderDetails shaderDef={waterDef} currentParams={params} />
+      <ShaderDetails
+        shaderDef={waterDef}
+        currentParams={params}
+        notes={
+          <>
+            Thanks to{' '}
+            <a href="https://x.com/zozuar" target="_blank" rel="noopener">
+              zozuar
+            </a>{' '}
+            for the amazing{' '}
+            <a href="https://twigl.app/?ol=true&ss=-NOAlYulOVLklxMdxBDx" target="_blank" rel="noopener">
+              recursive fractal noise algorithm
+            </a>
+            .
+          </>
+        }
+      />
     </>
   );
 };

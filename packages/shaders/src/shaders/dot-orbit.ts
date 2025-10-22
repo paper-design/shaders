@@ -82,14 +82,15 @@ void main() {
   vec2 shape_uv = v_patternUV;
   shape_uv *= 1.5;
 
-  float t = u_time - 10.;
+  const float firstFrameOffset = -10.;
+  float t = u_time + firstFrameOffset;
 
   vec3 voronoi = voronoiShape(shape_uv, t) + 1e-4;
 
   float radius = .25 * clamp(u_size, 0., 1.) - .5 * clamp(u_sizeRange, 0., 1.) * voronoi[2];
   float dist = voronoi[0];
   float edgeWidth = fwidth(dist);
-  float dots = smoothstep(radius + edgeWidth, radius - edgeWidth, dist);
+  float dots = 1. - smoothstep(radius - edgeWidth, radius + edgeWidth, dist);
 
   float shape = voronoi[1];
 

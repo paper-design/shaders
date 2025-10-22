@@ -4,7 +4,6 @@ import { colorPropsAreEqual } from '../color-props-are-equal.js';
 import {
   defaultObjectSizing,
   getShaderColorFromString,
-  getShaderNoiseTexture,
   staticMeshGradientFragmentShader,
   ShaderFitOptions,
   type StaticMeshGradientParams,
@@ -20,6 +19,7 @@ export const defaultPreset: StaticMeshGradientPreset = {
   name: 'Default',
   params: {
     ...defaultObjectSizing,
+    rotation: 270,
     speed: 0,
     frame: 0,
     colors: ['#ffad0a', '#6200ff', '#e2a3ff', '#ff99fd'],
@@ -133,7 +133,6 @@ export const StaticMeshGradient: React.FC<StaticMeshGradientProps> = memo(functi
     u_mixing: mixing,
     u_grainMixer: grainMixer,
     u_grainOverlay: grainOverlay,
-    u_noiseTexture: getShaderNoiseTexture(),
 
     // Sizing uniforms
     u_fit: ShaderFitOptions[fit],

@@ -34,10 +34,11 @@ const DotOrbitWithControls = () => {
       size: { value: defaults.size, min: 0, max: 1, order: 201 },
       sizeRange: { value: defaults.sizeRange, min: 0, max: 1, order: 202 },
       spreading: { value: defaults.spreading, min: 0, max: 1, order: 203 },
-      scale: { value: defaults.scale, min: 0.01, max: 5, order: 300 },
-      speed: { value: defaults.speed, min: 0, max: 20, order: 400 },
+      speed: { value: defaults.speed, min: 0, max: 20, order: 300 },
+      scale: { value: defaults.scale, min: 0.01, max: 5, order: 301 },
     };
   }, [colors.length]);
+
   useControls(() => {
     const presets = Object.fromEntries(
       dotOrbitPresets.map(({ name, params: { worldWidth, worldHeight, ...preset } }) => [
@@ -63,10 +64,10 @@ const DotOrbitWithControls = () => {
 
   return (
     <>
-      <ShaderContainer shaderDef={dotOrbitDef} currentParams={{ ...params, colors }}>
+      <ShaderContainer shaderDef={dotOrbitDef} currentParams={{ colors, ...params }}>
         <DotOrbit {...params} colors={colors} />
       </ShaderContainer>
-      <ShaderDetails shaderDef={dotOrbitDef} currentParams={{ ...params, colors }} />
+      <ShaderDetails shaderDef={dotOrbitDef} currentParams={{ colors, ...params }} />
     </>
   );
 };

@@ -26,7 +26,7 @@ export const defaultPreset: ColorPanelsPreset = {
     angle1: 0,
     angle2: 0,
     length: 1.1,
-    edges: true,
+    edges: false,
     blur: 0,
     fadeIn: 1,
     fadeOut: 0.3,

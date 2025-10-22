@@ -7,6 +7,7 @@ import { SavePreviousPathname } from '@/components/save-previous-pathname';
 export const metadata: Metadata = {
   title: 'Paper Shaders – Ultra-fast zero-dependency shaders',
   description: 'Shaders for you to use in your projects, as React components or GLSL.',
+  metadataBase: new URL('https://shaders.paper.design'),
   openGraph: {
     title: 'Paper Shaders – Ultra-fast zero-dependency shaders',
     description: 'Shaders for you to use in your projects, as React components or GLSL.',
@@ -25,7 +26,10 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   themeColor: [
-    { color: '#f0efe4', media: '(prefers-color-scheme: light)' },
+    {
+      color: '#f0efe4', // var(--color-cream)
+      media: '(prefers-color-scheme: light)',
+    },
     { color: '#000000', media: '(prefers-color-scheme: dark)' },
   ],
 };
@@ -34,11 +38,8 @@ export default function RootLayout({ children }: React.PropsWithChildren) {
   return (
     <html lang="en">
       <body className="min-w-[320px] overflow-y-scroll antialiased">
-        <div className="isolate">
-          <div
-            inert
-            className="absolute top-0 right-0 left-0 -z-1 h-800 bg-linear-to-b from-[light-dark(var(--color-cream),#141414)] dark:hidden"
-          />
+        <div className="isolate min-h-dvh bg-background">
+          <div inert className="absolute top-0 right-0 left-0 -z-1 h-800 bg-linear-to-b from-header" />
           {children}
         </div>
         <Analytics />

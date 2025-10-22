@@ -1,5 +1,96 @@
 # Paper Shaders
 
+## Version 0.0.59
+
+Minor adjustments to the Liquid Metal edge contour
+
+## Version 0.0.58
+
+- **General**
+  - Improve antialiasing for all image shaders when the images are downscaled
+- **Liquid Metal**
+  - New reworked version that supports custom images
+  - New default look and presets
+  - Added an `angle` parameter
+  - Improved contour and edge distortion
+  - Speed increased 3x, repetition increased 2x
+
+## Version 0.0.57
+
+- Reverts the initialization timing changes introduced in 0.0.56
+
+## Version 0.0.56
+
+- Shaders are now paused in the background when the browser tab becomes hidden
+- Improved shader initialization timing and WebGL resources clean-up
+
+## Version 0.0.55
+
+- **Fluted Glass**
+  - The `image` param is now required
+  - The default placeholder image was removed
+  - Added a shorthand `margin` param to specify all 4 margin sides at once
+- **ImageDithering**
+  - The `image` param is now required
+  - The default placeholder image was removed
+  - Renamed `pxSize` → `size` for consistency with Dot Grid’s `size`, which is also pixel-based
+- **Heatmap**
+  - The `image` param is now required
+  - The default placeholder image was removed
+  - Fixed an issue that may cause Heatmap initialization failure in Safari and Firefox
+- **Paper Texture**
+  - Removing the `image` prop no longer loads the default placeholder
+  - The default placeholder image was removed
+  - Renamed `blur` → `fade`, improved the effect design
+  - Renamed `foldsNumber` → `foldCount`
+  - Replaced `fiberScale` with a normalized `fiberSize` parameter
+  - Replaced `crumplesScale` with a normalized `crumpleSize` parameter
+- **Pulsing Border**
+  - Reworked the effect parameter ranges for more creative range and control
+  - Improved antialiasing quality and the corner rounding shape
+  - The border is now drawn on the inside at low `softness` values
+  - New `aspectRatio` parameter to make it easier to create “thinking orb” designs
+  - New margin parameters to control the exact distance from the shader edges
+- **Water**
+  - Removing the `image` prop no longer loads the default placeholder
+  - The default placeholder image was removed
+- **Dithering**
+  - Renamed `pxSize` → `size` for consistency with Dot Grid’s `size`, which is also pixel-based
+
+Parameter renames are backwards-compatible.
+
+## Version 0.0.54
+
+### General
+
+- Improve how the final render resolution is computed for all shaders. The new heuristc is now accurate down to physical device pixels and has more reliable behavior across browsers.
+
+### Changes
+
+- **Static Mesh Gradient**, **Static Radial Gradient**
+  - Change the grain style from the fiber effect to pixel-based grain
+- **Mesh Gradient**
+  - Add `grainMixer` and `grainOverlay` params
+- **Water**
+  - Replace `effectScale` with the `size` param
+- **Fluted Glass**
+  - Replace `count` with a normalized `size` param
+  - Rename `highlights` to `edges`
+
+## Version 0.0.53
+
+### New features
+
+- Add width/height props to shader components
+- Add center and proportion params to Swirl shader
+
+### Fixes
+
+- Update shader preset values
+- Remove image from image shader presets
+- Fix effectScale in Water shader
+- Fix first frame not matching for some shaders
+
 ## Version 0.0.52
 
 - Revert heatmap shader preset param change.
@@ -27,7 +118,7 @@
 
 - **PaperTexture**
   - Image blending bugfix for semi-transparent `colorBack` (ver46 fix wasn't working properly)
-  
+
 ### New Shaders
 
 - Added **Heatmap** component (not available in the docs yet)
@@ -43,28 +134,29 @@
 ### Existing Shader Improvements
 
 - **Water**, **FlutedGlass**, **PaperTexture**, **PaperTexture**
+
   - Fixed default image URL
 
 - **FlutedGlass**, **PaperTexture**, **PaperTexture**
+
   - Default image sizing changed (`fit`)
 
 - **Water**
   - `highlightColor` renamed to `colorHighlight`
   - Default preset changed (`scale`, `colorBack`)
-  
 - **PaperTexture**
   - Additional presets changed
   - Image blending bugfix for semi-transparent `colorBack`
-  
 - **FlutedGlass**
+
   - Additional presets changed
 
 - **ColorPanels**
   - Default preset changed (`colorBack`, `scale`)
   - Additional presets changed
   - Panels angle now independent from side `blur`
-  
 - **SmokeRing**
+
   - Default preset changed (scale, `colorBack`)
   - Additional presets changed
   - Reversed order of colors
@@ -73,32 +165,39 @@
   - Default preset changed (scale, colors, pulse)
   - Additional presets changed
   - Nvidia 3060 bugfix ([issue #146](https://github.com/paper-design/shaders/issues/146))
-  
 - **SimplexNoise**
+
   - Default preset changed (`stepsPerColor`)
   - Antialiasing bugfix
 
 - **GrainGradient**
+
   - Default preset changed (`noise`)
   - Better randomizing on `dots` shape
 
 - **Waves**
+
   - Default preset changed (`scale`, `spacing`)
 
 - **Voronoi**
+
   - Default preset changed (`gap`)
 
 - **LiquidMetal**
+
   - Default preset changed (`scale`)
 
 - **StaticRadialGradient**, **Metaballs**, **GodRays**
+
   - Default preset changed (`colorBack`)
 
 - **Dithering**
+
   - Default preset changed (`scale`)
   - Additional presets changed
 
 - **DotOrbit**
+
   - Default preset changed (`speed`, `colors`)
   - Additional presets changed
 
@@ -119,21 +218,24 @@
 ### Existing Shader Improvements
 
 - **StaticRadialGradient**, **StaticMeshGradient**
+
   - Fixed fiber-shape noise to make it independent of canvas resolution
 
 - **Dithering**
+
   - Fixed Sphere and Dots shapes on certain Android models
   - Improved stability of the `random` dithering type
 
 - **DotOrbit**, **GodRays**, **Metaballs**
+
   - Now use `u_noiseTexture` for better performance and stability across devices
 
 - **PerlinNoise**
+
   - Fixed randomizer-related issues on some Android models
 
 - **Spiral**
   - Inverted `strokeWidth` behavior
-  
 - **GrainGradient**
   - Switched to low precision
 
@@ -168,23 +270,28 @@ All four new effects work as photo filters. **PaperTexture** and **Water** can a
 ### Existing Shader Improvements
 
 - **Antialiasing** improved across multiple shaders:
+
   - _Waves, Warp, Swirl, Spiral, SimplexNoise, PulsingBorder, LiquidMetal, GrainGradient_
 
 - **Voronoi**
+
   - Fixed glow color behavior: glow is now fully hidden when `glow = 0`
 
 - **Swirl**
+
   - Improved color distribution
   - Renamed `noisePower` to `noise`
   - Normalized `noiseFrequency`
 
 - **Spiral**
+
   - Enhanced algorithm for `lineWidth`, `strokeTaper`, `strokeCap`, `noise`, and `distortion`
   - Swapped `colorBack` and `colorFront`
   - Renamed `noisePower` to `noise`
   - Normalized `noiseFrequency`
 
 - **PulsingBorder**
+
   - Normalized `thickness`, `intensity`, `spotSize`, and `smokeSize`
   - Renamed `spotsPerColor` to `spots`
   - `intensity` now affects only the shape, not color mixing
@@ -197,9 +304,11 @@ All four new effects work as photo filters. **PaperTexture** and **Water** can a
     data)
 
 - **MeshGradient**
+
   - Minor performance improvements
 
 - **ColorPanels**
+
   - Added new `edges` parameter
 
 - **Default Presets** updated for the following shaders:

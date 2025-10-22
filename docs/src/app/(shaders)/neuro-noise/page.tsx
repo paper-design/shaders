@@ -28,9 +28,9 @@ const NeuroNoiseWithControls = () => {
       colorBack: { value: toHsla(defaults.colorBack), order: 102 },
       brightness: { value: defaults.brightness, min: 0, max: 1, order: 200 },
       contrast: { value: defaults.contrast, min: 0, max: 1, order: 201 },
-      scale: { value: defaults.scale, min: 0.01, max: 4, order: 300 },
-      rotation: { value: defaults.rotation, min: 0, max: 360, order: 301 },
-      speed: { value: defaults.speed, min: 0, max: 2, order: 400 },
+      speed: { value: defaults.speed, min: 0, max: 2, order: 300 },
+      scale: { value: defaults.scale, min: 0.01, max: 4, order: 301 },
+      rotation: { value: defaults.rotation, min: 0, max: 360, order: 302 },
       Presets: folder(presets, { order: -1 }),
     };
   });
@@ -47,7 +47,23 @@ const NeuroNoiseWithControls = () => {
       <ShaderContainer shaderDef={neuroNoiseDef} currentParams={params}>
         <NeuroNoise {...params} />
       </ShaderContainer>
-      <ShaderDetails shaderDef={neuroNoiseDef} currentParams={params} />
+      <ShaderDetails
+        shaderDef={neuroNoiseDef}
+        currentParams={params}
+        notes={
+          <>
+            Thanks to{' '}
+            <a href="https://x.com/zozuar" target="_blank" rel="noopener">
+              zozuar
+            </a>{' '}
+            for the amazing{' '}
+            <a href="https://twigl.app/?ol=true&ss=-NOAlYulOVLklxMdxBDx" target="_blank" rel="noopener">
+              recursive fractal noise algorithm
+            </a>
+            .
+          </>
+        }
+      />
     </>
   );
 };

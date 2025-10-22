@@ -1,6 +1,12 @@
 /** The core Shader Mount class. Pass it a parent element and a fragment shader to get started. */
 export { ShaderMount, isPaperShaderElement } from './shader-mount.js';
-export type { PaperShaderElement, ShaderMotionParams, ShaderMountUniforms, ShaderPreset } from './shader-mount.js';
+export type {
+  PaperShaderElement,
+  ShaderMotionParams,
+  ShaderMountUniforms,
+  ShaderPreset,
+  ImageShaderPreset,
+} from './shader-mount.js';
 
 /** Shader sizing options and uniforms */
 export {
@@ -129,23 +135,15 @@ export {
   type GrainGradientShape,
 } from './shaders/grain-gradient.js';
 
-// ----- Liquid Metal ----- //
-/** Liquid metal effect applied to the abstract shapes */
-export {
-  liquidMetalFragmentShader,
-  LiquidMetalShapes,
-  type LiquidMetalParams,
-  type LiquidMetalUniforms,
-  type LiquidMetalShape,
-} from './shaders/liquid-metal.js';
-
 // ----- Pulsing Border ----- //
 /** Border with configurable size & radius ade of rotating pulsing light spots  */
 export {
   pulsingBorderMeta,
   pulsingBorderFragmentShader,
+  PulsingBorderAspectRatios,
   type PulsingBorderParams,
   type PulsingBorderUniforms,
+  type PulsingBorderAspectRatio,
 } from './shaders/pulsing-border.js';
 
 // ----- Color Gradient Panels ----- //
@@ -203,6 +201,16 @@ export {
   type HeatmapUniforms,
 } from './shaders/heatmap.js';
 
+export {
+  liquidMetalFragmentShader,
+  LiquidMetalShapes,
+  toProcessedLiquidMetal,
+  type LiquidMetalShape,
+  type LiquidMetalParams,
+  type LiquidMetalUniforms,
+} from './shaders/liquid-metal.js';
+
 // ----- Utils ----- //
 export { getShaderColorFromString } from './get-shader-color-from-string.js';
 export { getShaderNoiseTexture } from './get-shader-noise-texture.js';
+export { getEmptyPixel } from './get-empty-pixel.js';

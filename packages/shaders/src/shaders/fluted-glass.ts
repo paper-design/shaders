@@ -7,7 +7,7 @@ import { declarePI, rotation2 } from '../shader-utils.js';
  * coordinates within line patterns
  *
  * Uniforms:
- * - u_count, u_angle - number and direction of grid relative to the image
+ * - u_size, u_angle - size and direction of grid relative to the image
  * - u_shape (float used as integer):
  * ---- 1: uniformly spaced stripes
  * ---- 2: randomly spaced stripes
@@ -19,7 +19,7 @@ import { declarePI, rotation2 } from '../shader-utils.js';
  * ---- 5 shapes available
  * - u_shift - texture shift in direction opposite to the grid
  * - u_blur - one-directional blur applied over the main distortion
- * - u_highlights - thin color lines along the grid (independent from distortion)
+ * - u_edges - thin color lines along the grid (independent from distortion)
  * - u_marginLeft, u_marginRight, u_marginTop, u_marginBottom - paddings
  *   within picture to be shown without any distortion
  *
@@ -29,16 +29,15 @@ import { declarePI, rotation2 } from '../shader-utils.js';
 export const flutedGlassFragmentShader: string = `#version 300 es
 precision mediump float;
 
-uniform float u_time;
 uniform vec2 u_resolution;
 uniform float u_pixelRatio;
 
 uniform sampler2D u_image;
 uniform float u_imageAspectRatio;
 
-uniform float u_count;
+uniform float u_size;
 uniform float u_angle;
-uniform float u_highlights;
+uniform float u_edges;
 uniform float u_shape;
 uniform float u_distortion;
 uniform float u_distortionShape;
@@ -61,9 +60,10 @@ float getUvFrame(vec2 uv) {
   float aay = 2. * fwidth(uv.y);
 
   float left   = smoothstep(0., aax, uv.x);
-  float right  = smoothstep(1., 1. - aax, uv.x);
+  float right  = 1. - smoothstep(1. - aax, 1., uv.x);
   float bottom = smoothstep(0., aay, uv.y);
-  float top    = smoothstep(1., 1. - aay, uv.y);
+  float top    = 1. - smoothstep(1. - aay, 1., uv.y);
+
 
   return left * right * bottom * top;
 }
@@ -99,12 +99,12 @@ vec4 getBlur(sampler2D tex, vec2 uv, vec2 texelSize, vec2 dir, float sigma) {
 
 void main() {
   vec2 imageUV = v_imageUV;
-  
+
   vec2 uv = imageUV;
   float frame = getUvFrame(imageUV);
   if (frame < .05) discard;
 
-  float gridNumber = u_count * u_imageAspectRatio;
+  float effectSize = 1. / pow(.7 * (u_size + .5), 6.);
 
   vec2 sw = vec2(.005 * u_distortion) * vec2(1., u_imageAspectRatio);
   float maskOuter =
@@ -121,8 +121,8 @@ void main() {
 
   float patternRotation = u_angle * PI / 180.;
   uv = rotate(uv - vec2(.5), patternRotation);
-  uv *= gridNumber;
-  
+  uv *= effectSize;
+
   float curve = 0.;
   if (u_shape > 4.5) {
     // pattern
@@ -138,7 +138,6 @@ void main() {
     curve = .5 + .5 * sin(.5 * uv.x) * sin(1.7 * uv.x);
   } else {
     // lines
-    curve = .2 * gridNumber / u_imageAspectRatio;
   }
 
   vec2 uvOrig = uv;
@@ -150,8 +149,8 @@ void main() {
   vec2 fractOrigUV = fract(uvOrig);
   vec2 floorOrigUV = floor(uvOrig);
 
-  float highlights = smoothstep(.85, .95, fractUV.x);
-  highlights *= mask;
+  float edges = smoothstep(.85, .95, fractUV.x);
+  edges *= mask;
 
   float xDistortion = 0.;
   if (u_distortionShape == 1.) {
@@ -171,16 +170,16 @@ void main() {
 
   xDistortion *= 3. * u_distortion;
 
-  uv = (floorOrigUV + fractOrigUV) / gridNumber;
-  uv.x += xDistortion / gridNumber;
+  uv = (floorOrigUV + fractOrigUV) / effectSize;
+  uv.x += xDistortion / effectSize;
   uv += pow(stroke, 4.);
-  uv.y = mix(uv.y, .0, .4 * u_highlights * highlights);
-  
+  uv.y = mix(uv.y, .0, .4 * u_edges * edges);
+
   uv = rotate(uv, -patternRotation) + vec2(.5);
 
   uv = mix(imageUV, uv, mask);
   float blur = mix(0., u_blur, mask);
-  
+
   vec4 color = getBlur(u_image, uv, 1. / u_resolution / u_pixelRatio, vec2(0., 1.), blur);
 
   float opacity = color.a;
@@ -189,8 +188,8 @@ void main() {
 `;
 
 export interface FlutedGlassUniforms extends ShaderSizingUniforms {
-  u_image: HTMLImageElement | string | undefined;
-  u_count: number;
+  u_image: HTMLImageElement | string;
+  u_size: number;
   u_angle: number;
   u_distortion: number;
   u_shift: number;
@@ -199,24 +198,25 @@ export interface FlutedGlassUniforms extends ShaderSizingUniforms {
   u_marginRight: number;
   u_marginTop: number;
   u_marginBottom: number;
-  u_highlights: number;
+  u_edges: number;
   u_distortionShape: (typeof GlassDistortionShapes)[GlassDistortionShape];
   u_shape: (typeof GlassGridShapes)[GlassGridShape];
   u_noiseTexture?: HTMLImageElement;
 }
 
 export interface FlutedGlassParams extends ShaderSizingParams, ShaderMotionParams {
-  image?: HTMLImageElement | string | undefined;
-  count?: number;
+  image: HTMLImageElement | string;
+  size?: number;
   angle?: number;
   distortion?: number;
   shift?: number;
   blur?: number;
+  margin?: number;
   marginLeft?: number;
   marginRight?: number;
   marginTop?: number;
   marginBottom?: number;
-  highlights?: number;
+  edges?: number;
   distortionShape?: GlassDistortionShape;
   shape?: GlassGridShape;
 }

@@ -4,7 +4,6 @@ import { colorPropsAreEqual } from '../color-props-are-equal.js';
 import {
   defaultObjectSizing,
   getShaderColorFromString,
-  getShaderNoiseTexture,
   staticRadialGradientFragmentShader,
   ShaderFitOptions,
   type StaticRadialGradientParams,
@@ -25,7 +24,7 @@ export const defaultPreset: StaticRadialGradientPreset = {
     frame: 0,
     colorBack: '#000000',
     colors: ['#00bbff', '#00ffe1', '#ffffff'],
-    radius: 0.7,
+    radius: 0.8,
     focalDistance: 0.99,
     focalAngle: 0,
     falloff: 0.24,
@@ -154,7 +153,6 @@ export const StaticRadialGradient: React.FC<StaticRadialGradientProps> = memo(fu
     u_distortionFreq: distortionFreq,
     u_grainMixer: grainMixer,
     u_grainOverlay: grainOverlay,
-    u_noiseTexture: getShaderNoiseTexture(),
 
     // Sizing uniforms
     u_fit: ShaderFitOptions[fit],

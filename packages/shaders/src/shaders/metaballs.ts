@@ -64,7 +64,8 @@ void main() {
 
   shape_uv += .5;
 
-  float t = .2 * u_time + 500.;
+  const float firstFrameOffset = 2503.4;
+  float t = .2 * (u_time + firstFrameOffset);
 
   vec3 totalColor = vec3(0.);
   float totalShape = 0.;

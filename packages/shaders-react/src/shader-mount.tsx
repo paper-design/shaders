@@ -3,6 +3,7 @@
 import { useEffect, useRef, forwardRef, useState } from 'react';
 import {
   ShaderMount as ShaderMountVanilla,
+  getEmptyPixel,
   type PaperShaderElement,
   type ShaderMotionParams,
   type ShaderMountUniforms,
@@ -26,6 +27,11 @@ export interface ShaderMountProps extends Omit<React.ComponentProps<'div'>, 'col
   minPixelRatio?: number;
   maxPixelCount?: number;
   webGlContextAttributes?: WebGLContextAttributes;
+
+  /** Inline CSS width style */
+  width?: string | number;
+  /** Inline CSS height style */
+  height?: string | number;
 }
 
 export interface ShaderComponentProps extends Omit<React.ComponentProps<'div'>, 'color' | 'ref'> {
@@ -33,6 +39,11 @@ export interface ShaderComponentProps extends Omit<React.ComponentProps<'div'>, 
   minPixelRatio?: number;
   maxPixelCount?: number;
   webGlContextAttributes?: WebGLContextAttributes;
+
+  /** Inline CSS width style */
+  width?: string | number;
+  /** Inline CSS height style */
+  height?: string | number;
 }
 
 /** Parse the provided uniforms, turning URL strings into loaded images */
@@ -64,6 +75,12 @@ async function processUniforms(uniformsProp: ShaderMountUniformsReact): Promise<
 
   Object.entries(uniformsProp).forEach(([key, value]) => {
     if (typeof value === 'string') {
+      // Use a transparent pixel for empty strings
+      if (!value) {
+        processedUniforms[key] = getEmptyPixel();
+        return;
+      }
+
       // Make sure the provided string is a valid URL or just skip trying to set this uniform entirely
       if (!isValidUrl(value)) {
         console.warn(`Uniform "${key}" has invalid URL "${value}". Skipping image loading.`);
@@ -107,8 +124,11 @@ export const ShaderMount: React.FC<ShaderMountProps> = forwardRef<PaperShaderEle
       webGlContextAttributes,
       speed = 0,
       frame = 0,
+      width,
+      height,
       minPixelRatio,
       maxPixelCount,
+      style,
       ...divProps
     },
     forwardedRef
@@ -116,6 +136,7 @@ export const ShaderMount: React.FC<ShaderMountProps> = forwardRef<PaperShaderEle
     const [isInitialized, setIsInitialized] = useState(false);
     const divRef = useRef<PaperShaderElement>(null);
     const shaderMountRef: React.RefObject<ShaderMountVanilla | null> = useRef<ShaderMountVanilla>(null);
+    const webGlContextAttributesRef = useRef(webGlContextAttributes);
 
     // Initialize the ShaderMountVanilla
     useEffect(() => {
@@ -127,7 +148,7 @@ export const ShaderMount: React.FC<ShaderMountProps> = forwardRef<PaperShaderEle
             divRef.current,
             fragmentShader,
             uniforms,
-            webGlContextAttributes,
+            webGlContextAttributesRef.current,
             speed,
             frame,
             minPixelRatio,
@@ -144,7 +165,7 @@ export const ShaderMount: React.FC<ShaderMountProps> = forwardRef<PaperShaderEle
         shaderMountRef.current?.dispose();
         shaderMountRef.current = null;
       };
-    }, [fragmentShader, webGlContextAttributes]);
+    }, [fragmentShader]);
 
     // Uniforms
     useEffect(() => {
@@ -188,7 +209,13 @@ export const ShaderMount: React.FC<ShaderMountProps> = forwardRef<PaperShaderEle
     }, [frame, isInitialized]);
 
     const mergedRef = useMergeRefs([divRef, forwardedRef]) as unknown as React.RefObject<HTMLDivElement>;
-    return <div ref={mergedRef} {...divProps} />;
+    return (
+      <div
+        ref={mergedRef}
+        style={width !== undefined || height !== undefined ? { width, height, ...style } : style}
+        {...divProps}
+      />
+    );
   }
 );
 

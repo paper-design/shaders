@@ -67,7 +67,7 @@ ${proceduralHash11}
 float raysShape(vec2 uv, float r, float freq, float intensity, float radius) {
   float a = atan(uv.y, uv.x);
   vec2 left = vec2(a * freq, r);
-  vec2 right = vec2(mod(a, TWO_PI) * freq, r);
+  vec2 right = vec2(fract(a / TWO_PI) * TWO_PI * freq, r);
   float n_left = pow(valueNoise(left), intensity);
   float n_right = pow(valueNoise(right), intensity);
   float shape = mix(n_right, n_left, smoothstep(-.15, .15, uv.x));
@@ -87,7 +87,9 @@ void main() {
   float delta = 1. - smoothstep(0., 1., radius);
 
   float midSize = 10. * abs(u_midSize);
-  float middleShape = pow(u_midIntensity, .3) * smoothstep(midSize, 0.02 * midSize, 3.0 * radius);
+  float ms_lo = 0.02 * midSize;
+  float ms_hi = max(midSize, 1e-6);
+  float middleShape = pow(u_midIntensity, 0.3) * (1. - smoothstep(ms_lo, ms_hi, 3.0 * radius));
   middleShape = pow(middleShape, 5.0);
 
   vec3 accumColor = vec3(0.0);

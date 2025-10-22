@@ -19,7 +19,7 @@ export const defaultPreset: SpiralPreset = {
   name: 'Default',
   params: {
     ...defaultPatternSizing,
-    scale: 1.3,
+    scale: 1,
     colorBack: '#001429',
     colorFront: '#79D1FF',
     density: 1,

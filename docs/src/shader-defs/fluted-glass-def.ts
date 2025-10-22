@@ -1,21 +1,27 @@
 import { flutedGlassPresets } from '@paper-design/shaders-react';
 import type { ShaderDef } from './shader-def-types';
+import { staticCommonParams } from './common-param-def';
 
 const defaultParams = flutedGlassPresets[0].params;
 
 export const flutedGlassDef: ShaderDef = {
   name: 'Fluted Glass',
   description:
-    'Fluted glass image filter transforms an image into streaked, ribbed distortions, giving a mix of clarity and obscurity',
+    'Fluted glass image filter transforms an image into streaked, ribbed distortions, giving a mix of clarity and obscurity.',
   params: [
     {
-      name: 'count',
+      name: 'image',
+      type: 'HTMLImageElement | string',
+      description: 'The image to use for the effect',
+    },
+    {
+      name: 'size',
       type: 'number',
-      min: 4,
-      max: 200,
-      step: 1,
-      defaultValue: defaultParams.count,
-      description: 'Number of grid lines',
+      min: 0,
+      max: 1,
+      step: 0.001,
+      defaultValue: defaultParams.size,
+      description: 'The size of the grid',
     },
     {
       name: 'shape',
@@ -64,27 +70,20 @@ export const flutedGlassDef: ShaderDef = {
       description: 'One-directional blur',
     },
     {
-      name: 'highlights',
+      name: 'edges',
       type: 'number',
       min: 0,
       max: 1,
-      defaultValue: defaultParams.highlights,
-      description: 'Thin highlights along the grid lines',
+      defaultValue: defaultParams.edges,
+      description: 'Highlighted edges along the grid lines',
     },
     {
-      name: 'scale',
+      name: 'margin',
       type: 'number',
-      min: 0.5,
-      max: 10,
-      defaultValue: defaultParams.scale,
-      description: 'Overall zoom level of the graphics',
-    },
-    {
-      name: 'fit',
-      type: 'enum',
-      defaultValue: defaultParams.fit,
-      description: 'How the image fits the canvas',
-      options: ['contain', 'cover'],
+      min: 0,
+      max: 1,
+      defaultValue: undefined,
+      description: 'Distance from image edges to the effect',
     },
     {
       name: 'marginLeft',
@@ -92,7 +91,7 @@ export const flutedGlassDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.marginLeft,
-      description: 'Showing original image on the left',
+      description: 'Distance from the left edge to the effect',
     },
     {
       name: 'marginRight',
@@ -100,7 +99,7 @@ export const flutedGlassDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.marginRight,
-      description: 'Showing original image on the right',
+      description: 'Distance from the right edge to the effect',
     },
     {
       name: 'marginTop',
@@ -108,7 +107,7 @@ export const flutedGlassDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.marginTop,
-      description: 'Showing original image on the top',
+      description: 'Distance from the top edge to the effect',
     },
     {
       name: 'marginBottom',
@@ -116,7 +115,8 @@ export const flutedGlassDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.marginBottom,
-      description: 'Showing original image on the bottom',
+      description: 'Distance from the bottom edge to the effect',
     },
+    ...staticCommonParams,
   ],
 };

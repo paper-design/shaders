@@ -39,15 +39,11 @@ const imageFiles = [
 
 const PaperTextureWithControls = () => {
   const [imageIdx, setImageIdx] = useState(-1);
-  const [image, setImage] = useState<HTMLImageElement | undefined>(undefined);
-  const [status, setStatus] = useState('Click to load an image');
-
-  const fileName = imageIdx >= 0 ? imageFiles[imageIdx] : null;
+  const [image, setImage] = useState<HTMLImageElement | string>('/images/image-filters/0018.webp');
 
   useEffect(() => {
     if (imageIdx >= 0) {
       const name = imageFiles[imageIdx];
-      setStatus(`Displaying image: ${name}`);
       const img = new Image();
       img.src = `/images/image-filters/${name}`;
       img.onload = () => setImage(img);
@@ -59,9 +55,8 @@ const PaperTextureWithControls = () => {
   }, []);
 
   const setImageWithoutStatus = useCallback((img?: HTMLImageElement) => {
-    setImage(img);
+    setImage(img ?? '');
     setImageIdx(-1);
-    setStatus(``);
   }, []);
 
   const [params, setParams] = useControls(() => {
@@ -77,26 +72,26 @@ const PaperTextureWithControls = () => {
       contrast: { value: defaults.contrast, min: 0, max: 1, order: 200 },
       roughness: { value: defaults.roughness, min: 0, max: 1, order: 201 },
       fiber: { value: defaults.fiber, min: 0, max: 1, order: 202 },
-      fiberScale: { value: defaults.fiberScale, min: 0.1, max: 2, order: 203 },
+      fiberSize: { value: defaults.fiberSize, min: 0.01, max: 1, order: 203 },
       crumples: { value: defaults.crumples, min: 0, max: 1, order: 204 },
-      crumplesScale: { value: defaults.crumplesScale, min: 0.3, max: 3, order: 205 },
+      crumpleSize: { value: defaults.crumpleSize, min: 0.01, max: 1, order: 205 },
       folds: { value: defaults.folds, min: 0, max: 1, order: 206 },
-      foldsNumber: { value: defaults.foldsNumber, min: 1, max: 15, step: 1, order: 207 },
-      blur: { value: defaults.blur, min: 0, max: 1, order: 208 },
+      foldCount: { value: defaults.foldCount, min: 1, max: 15, step: 1, order: 207 },
       drops: { value: defaults.drops, min: 0, max: 1, order: 209 },
-      seed: { value: defaults.seed, min: 0, max: 10, order: 250 },
+      fade: { value: defaults.fade, min: 0, max: 1, order: 208 },
+      seed: { value: defaults.seed, min: 0, step: 1, max: 1000, order: 250 },
       scale: { value: defaults.scale, min: 0.5, max: 10, order: 300 },
       fit: { value: defaults.fit, options: ['contain', 'cover'] as ShaderFit[], order: 301 },
       Image: folder(
         {
           'Upload image': levaImageButton(setImageWithoutStatus),
-          'Delete image': levaDeleteImageButton(setImageWithoutStatus),
+          ...(image && { 'Delete image': levaDeleteImageButton(() => setImage('')) }),
         },
         { order: 0 }
       ),
       Presets: folder(presets, { order: -1 }),
     };
-  });
+  }, [image]);
 
   // Reset to defaults on mount, so that Leva doesn't show values from other
   // shaders when navigating (if two shaders have a color1 param for example)
@@ -108,7 +103,7 @@ const PaperTextureWithControls = () => {
   return (
     <>
       <ShaderContainer shaderDef={paperTextureDef} currentParams={params}>
-        <PaperTexture onClick={handleClick} {...params} image={image || undefined} />
+        <PaperTexture onClick={handleClick} {...params} image={image} />
       </ShaderContainer>
       <div onClick={handleClick} className="mx-auto mt-16 mb-48 w-fit text-base text-current/70 select-none">
         Click to change the sample image

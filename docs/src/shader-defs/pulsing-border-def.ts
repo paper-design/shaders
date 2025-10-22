@@ -1,25 +1,26 @@
 import { pulsingBorderPresets } from '@paper-design/shaders-react';
 import type { ShaderDef } from './shader-def-types';
+import { animatedCommonParams } from './common-param-def';
 
 const defaultParams = pulsingBorderPresets[0].params;
 
 export const pulsingBorderDef: ShaderDef = {
   name: 'Pulsing Border',
-  description: 'Luminous trails of color merging into a glowing gradient frame',
+  description: 'Luminous trails of color merging into a glowing gradient frame.',
   params: [
-    {
-      name: 'colorBack',
-      type: 'string',
-      defaultValue: defaultParams.colorBack,
-      isColor: true,
-      description: 'Background color',
-    },
     {
       name: 'colors',
       type: 'string[]',
       defaultValue: [],
       isColor: true,
       description: 'Up to 5 colors',
+    },
+    {
+      name: 'colorBack',
+      type: 'string',
+      defaultValue: defaultParams.colorBack,
+      isColor: true,
+      description: 'Background color',
     },
     {
       name: 'roundness',
@@ -44,6 +45,13 @@ export const pulsingBorderDef: ShaderDef = {
       max: 1,
       defaultValue: defaultParams.softness,
       description: 'Border edge sharpness (0 = hard edge, 1 = smooth gradient)',
+    },
+    {
+      name: 'aspectRatio',
+      type: 'enum',
+      defaultValue: defaultParams.aspectRatio,
+      description: 'Aspect ratio of the effect',
+      options: ['auto', 'square'],
     },
     {
       name: 'intensity',
@@ -92,7 +100,7 @@ export const pulsingBorderDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.smoke,
-      description: 'Optional noisy shape extending the border width',
+      description: 'Optional noisy shape extending the border shape',
     },
     {
       name: 'smokeSize',
@@ -100,47 +108,48 @@ export const pulsingBorderDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.smokeSize,
-      description: 'The size of the smoke effect',
+      description: 'The size of the smoke effect (effective with smoke > 0)',
     },
     {
-      name: 'scale',
-      type: 'number',
-      min: 0.01,
-      max: 1,
-      defaultValue: defaultParams.scale,
-      description: 'Overall zoom level of the graphics',
-    },
-    {
-      name: 'rotation',
+      name: 'margin',
       type: 'number',
       min: 0,
-      max: 360,
-      defaultValue: defaultParams.rotation,
-      description: 'Overall rotation angle of the graphics',
-    },
-    {
-      name: 'offsetX',
-      type: 'number',
-      min: -1,
       max: 1,
-      defaultValue: defaultParams.offsetX,
-      description: 'Horizontal offset of the graphics center',
+      defaultValue: undefined,
+      description: 'Distance from canvas edges to the effect',
     },
     {
-      name: 'offsetY',
-      type: 'number',
-      min: -1,
-      max: 1,
-      defaultValue: defaultParams.offsetY,
-      description: 'Vertical offset of the graphics center',
-    },
-    {
-      name: 'speed',
+      name: 'marginLeft',
       type: 'number',
       min: 0,
-      max: 2,
-      defaultValue: defaultParams.speed,
-      description: 'Animation speed',
+      max: 1,
+      defaultValue: defaultParams.marginLeft,
+      description: 'Distance from the left edge to the effect',
     },
+    {
+      name: 'marginRight',
+      type: 'number',
+      min: 0,
+      max: 1,
+      defaultValue: defaultParams.marginRight,
+      description: 'Distance from the right edge to the effect',
+    },
+    {
+      name: 'marginTop',
+      type: 'number',
+      min: 0,
+      max: 1,
+      defaultValue: defaultParams.marginTop,
+      description: 'Distance from the top edge to the effect',
+    },
+    {
+      name: 'marginBottom',
+      type: 'number',
+      min: 0,
+      max: 1,
+      defaultValue: defaultParams.marginBottom,
+      description: 'Distance from the bottom edge to the effect',
+    },
+    ...animatedCommonParams,
   ],
 };

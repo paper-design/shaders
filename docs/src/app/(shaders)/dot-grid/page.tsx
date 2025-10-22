@@ -29,9 +29,8 @@ const DotGridWithControls = () => {
       shape: {
         value: defaults.shape,
         options: Object.keys(DotGridShapes) as DotGridShape[],
-        order: 350,
+        order: 199,
       },
-      scale: { value: defaults.scale, min: 0.01, max: 4, order: 302 },
       rotation: { value: defaults.rotation, min: 0, max: 360, order: 303 },
     };
   });

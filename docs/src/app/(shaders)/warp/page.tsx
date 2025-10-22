@@ -29,9 +29,9 @@ const WarpWithControls = () => {
       swirlIterations: { value: defaults.swirlIterations, min: 0, max: 20, order: 104 },
       shape: { value: defaults.shape, options: Object.keys(WarpPatterns) as WarpPattern[], order: 105 },
       shapeScale: { value: defaults.shapeScale, min: 0, max: 1, order: 106 },
-      scale: { value: defaults.scale, min: 0.01, max: 5, order: 302 },
-      rotation: { value: defaults.rotation, min: 0, max: 360, order: 303 },
-      speed: { value: defaults.speed, min: 0, max: 20, order: 400 },
+      speed: { value: defaults.speed, min: 0, max: 20, order: 300 },
+      scale: { value: defaults.scale, min: 0.01, max: 5, order: 301 },
+      rotation: { value: defaults.rotation, min: 0, max: 360, order: 302 },
     };
   }, [colors.length]);
 
@@ -60,10 +60,10 @@ const WarpWithControls = () => {
 
   return (
     <>
-      <ShaderContainer shaderDef={warpDef} currentParams={{ ...params, colors }}>
+      <ShaderContainer shaderDef={warpDef} currentParams={{ colors, ...params }}>
         <Warp {...params} colors={colors} />
       </ShaderContainer>
-      <ShaderDetails shaderDef={warpDef} currentParams={{ ...params, colors }} />
+      <ShaderDetails shaderDef={warpDef} currentParams={{ colors, ...params }} />
     </>
   );
 };

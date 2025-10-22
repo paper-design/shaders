@@ -1,11 +1,12 @@
 import { wavesPresets } from '@paper-design/shaders-react';
 import type { ShaderDef } from './shader-def-types';
+import { staticCommonParams } from './common-param-def';
 
 const defaultParams = wavesPresets[0].params;
 
 export const wavesDef: ShaderDef = {
   name: 'Waves',
-  description: 'Static line pattern configurable into textures ranging from sharp zigzags to smooth flowing waves',
+  description: 'Static line pattern configurable into textures ranging from sharp zigzags to smooth flowing waves.',
   params: [
     {
       name: 'colorBack',
@@ -20,14 +21,6 @@ export const wavesDef: ShaderDef = {
       defaultValue: defaultParams.colorFront,
       isColor: true,
       description: 'The color of wavy lines',
-    },
-    {
-      name: 'shape',
-      type: 'number',
-      min: 0,
-      max: 3,
-      defaultValue: defaultParams.shape,
-      description: 'Line shape control: zigzag at 0, sine at 1, irregular waves at 2. Intermediate values morph gradually between these shapes',
     },
     {
       name: 'amplitude',
@@ -70,20 +63,14 @@ export const wavesDef: ShaderDef = {
       description: 'Color transition sharpness (0 = hard edge, 1 = smooth gradient)',
     },
     {
-      name: 'scale',
-      type: 'number',
-      min: 0.01,
-      max: 4,
-      defaultValue: defaultParams.scale,
-      description: 'Overall zoom level of the graphics',
-    },
-    {
-      name: 'rotation',
+      name: 'shape',
       type: 'number',
       min: 0,
-      max: 360,
-      defaultValue: defaultParams.rotation,
-      description: 'Overall rotation angle of the graphics',
+      max: 3,
+      defaultValue: defaultParams.shape,
+      description:
+        'Line shape control: zigzag at 0, sine at 1, irregular waves at 2. Intermediate values morph gradually between these shapes',
     },
+    ...staticCommonParams,
   ],
 };

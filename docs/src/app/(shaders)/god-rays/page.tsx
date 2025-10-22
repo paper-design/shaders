@@ -31,13 +31,13 @@ const GodRaysWithControls = () => {
       spotty: { value: defaults.spotty, min: 0, max: 1, order: 205 },
       midSize: { value: defaults.midSize, min: 0, max: 1, order: 206 },
       midIntensity: { value: defaults.midIntensity, min: 0, max: 1, order: 207 },
-      offsetX: { value: defaults.offsetX, min: -1, max: 1, order: 300 },
-      offsetY: { value: defaults.offsetY, min: -1, max: 1, order: 301 },
-      scale: { value: defaults.scale, min: 0.01, max: 4, order: 302 },
-      rotation: { value: defaults.rotation, min: 0, max: 360, order: 303 },
-      speed: { value: defaults.speed, min: 0, max: 2, order: 400 },
+      speed: { value: defaults.speed, min: 0, max: 2, order: 300 },
+      scale: { value: defaults.scale, min: 0.01, max: 4, order: 301 },
+      rotation: { value: defaults.rotation, min: 0, max: 360, order: 302 },
+      offsetX: { value: defaults.offsetX, min: -1, max: 1, order: 303 },
+      offsetY: { value: defaults.offsetY, min: -1, max: 1, order: 304 },
     };
-  });
+  }, [colors.length]);
 
   useControls(() => {
     const presets = Object.fromEntries(
@@ -64,10 +64,10 @@ const GodRaysWithControls = () => {
 
   return (
     <>
-      <ShaderContainer shaderDef={godRaysDef} currentParams={{ ...params, colors }}>
+      <ShaderContainer shaderDef={godRaysDef} currentParams={{ colors, ...params }}>
         <GodRays {...params} colors={colors} />
       </ShaderContainer>
-      <ShaderDetails shaderDef={godRaysDef} currentParams={{ ...params, colors }} />
+      <ShaderDetails shaderDef={godRaysDef} currentParams={{ colors, ...params }} />
     </>
   );
 };

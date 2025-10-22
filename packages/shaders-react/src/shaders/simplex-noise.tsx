@@ -19,6 +19,7 @@ export const defaultPreset: SimplexNoisePreset = {
   name: 'Default',
   params: {
     ...defaultPatternSizing,
+    scale: 0.6,
     speed: 0.5,
     frame: 0,
     colors: ['#4449CF', '#FFD1E0', '#F94446', '#FFD36B', '#FFFFFF'],

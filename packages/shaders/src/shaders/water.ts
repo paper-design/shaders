@@ -8,7 +8,7 @@ import { declarePI, rotation2, simplexNoise } from '../shader-utils.js';
  *
  * Uniforms:
  * - u_colorBack, u_colorHighlight (RGBA)
- * - u_effectScale: pattern scale relative to the image
+ * - u_size: pattern scale relative to the image
  * - u_caustic: power of caustic distortion
  * - u_layering: the power of 2nd layer of caustic distortion
  * - u_edges: caustic distortion power on the image edges
@@ -29,7 +29,7 @@ uniform vec4 u_colorHighlight;
 uniform sampler2D u_image;
 uniform float u_imageAspectRatio;
 
-uniform float u_effectScale;
+uniform float u_size;
 uniform float u_highlights;
 uniform float u_layering;
 uniform float u_edges;
@@ -49,9 +49,9 @@ float getUvFrame(vec2 uv) {
   float aay = 2. * fwidth(uv.y);
 
   float left   = smoothstep(0., aax, uv.x);
-  float right  = smoothstep(1., 1. - aax, uv.x);
+  float right = 1.0 - smoothstep(1. - aax, 1., uv.x);
   float bottom = smoothstep(0., aay, uv.y);
-  float top    = smoothstep(1., 1. - aay, uv.y);
+  float top = 1.0 - smoothstep(1. - aay, 1., uv.y);
 
   return left * right * bottom * top;
 }
@@ -78,27 +78,28 @@ float getCausticNoise(vec2 uv, float t, float scale) {
 void main() {
   vec2 imageUV = v_imageUV;
   vec2 patternUV = v_imageUV - .5;
-  patternUV = 10. * u_effectScale * (patternUV * vec2(u_imageAspectRatio, 1.));
-  
+  patternUV = (patternUV * vec2(u_imageAspectRatio, 1.));
+  patternUV /= (.01 + .09 * u_size);
+
   float t = u_time;
-  
+
   float wavesNoise = snoise((.3 + .1 * sin(t)) * .1 * patternUV + vec2(0., .4 * t));
 
   float causticNoise = getCausticNoise(patternUV + u_waves * vec2(1., -1.) * wavesNoise, 2. * t, 1.5);
 
   causticNoise += u_layering * getCausticNoise(patternUV + 2. * u_waves * vec2(1., -1.) * wavesNoise, 1.5 * t, 2.);
-  causticNoise = pow(causticNoise, 2.);
-  
+  causticNoise = causticNoise * causticNoise;
+
   float edgesDistortion = smoothstep(0., .1, imageUV.x);
   edgesDistortion *= smoothstep(0., .1, imageUV.y);
-  edgesDistortion *= (smoothstep(1., 1.1, imageUV.x) + smoothstep(.95, .8, imageUV.x));
-  edgesDistortion *= smoothstep(1., .9, imageUV.y);
+  edgesDistortion *= (smoothstep(1., 1.1, imageUV.x) + (1.0 - smoothstep(.8, .95, imageUV.x)));
+  edgesDistortion *= (1.0 - smoothstep(.9, 1., imageUV.y));
   edgesDistortion = mix(edgesDistortion, 1., u_edges);
-  
+
   float causticNoiseDistortion = .02 * causticNoise * edgesDistortion;
-  
+
   float wavesDistortion = .1 * u_waves * wavesNoise;
-  
+
   imageUV += vec2(wavesDistortion, -wavesDistortion);
   imageUV += (u_caustic * causticNoiseDistortion);
 
@@ -107,20 +108,20 @@ void main() {
   vec4 image = texture(u_image, imageUV);
   vec4 backColor = u_colorBack;
   backColor.rgb *= backColor.a;
-  
+
   vec3 color = mix(backColor.rgb, image.rgb, image.a * frame);
   float opacity = backColor.a + image.a * frame;
 
   causticNoise = max(-.2, causticNoise);
-  
+
   float hightlight = .025 * u_highlights * causticNoise;
   hightlight *= u_colorHighlight.a;
   color = mix(color, u_colorHighlight.rgb, .05 * u_highlights * causticNoise);
   opacity += hightlight;
-  
+
   color += hightlight * (.5 + .5 * wavesNoise);
   opacity += hightlight * (.5 + .5 * wavesNoise);
-  
+
   opacity = clamp(opacity, 0., 1.);
 
   fragColor = vec4(color, opacity);
@@ -136,11 +137,11 @@ export interface WaterUniforms extends ShaderSizingUniforms {
   u_edges: number;
   u_caustic: number;
   u_waves: number;
-  u_effectScale: number;
+  u_size: number;
 }
 
 export interface WaterParams extends ShaderSizingParams, ShaderMotionParams {
-  image?: HTMLImageElement | string | undefined;
+  image?: HTMLImageElement | string;
   colorBack?: string;
   colorHighlight?: string;
   highlights?: number;
@@ -148,5 +149,5 @@ export interface WaterParams extends ShaderSizingParams, ShaderMotionParams {
   edges?: number;
   caustic?: number;
   waves?: number;
-  effectScale?: number;
+  size?: number;
 }
