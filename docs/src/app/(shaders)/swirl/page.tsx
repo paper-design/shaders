@@ -1,11 +1,10 @@
 'use client';
 
-import { Swirl, swirlPresets } from '@paper-design/shaders-react';
+import { Swirl, swirlPresets, swirlMeta } from '@paper-design/shaders-react';
 import { useControls, button, folder } from 'leva';
 import { setParamsSafe, useResetLevaParams } from '@/helpers/use-reset-leva-params';
 import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
-import { simplexNoiseMeta } from '@paper-design/shaders';
 import { useColors } from '@/helpers/use-colors';
 import { toHsla } from '@/helpers/color-utils';
 import { ShaderDetails } from '@/components/shader-details';
@@ -18,7 +17,7 @@ const { worldWidth, worldHeight, ...defaults } = swirlPresets[0].params;
 const SwirlWithControls = () => {
   const { colors, setColors } = useColors({
     defaultColors: defaults.colors,
-    maxColorCount: simplexNoiseMeta.maxColorCount,
+    maxColorCount: swirlMeta.maxColorCount,
   });
 
   const [params, setParams] = useControls(() => {
@@ -26,14 +25,16 @@ const SwirlWithControls = () => {
       colorBack: { value: toHsla(defaults.colorBack), order: 100 },
       bandCount: { value: defaults.bandCount, min: 0, max: 15, step: 1, order: 200 },
       twist: { value: defaults.twist, min: 0, max: 1, order: 201 },
-      softness: { value: defaults.softness, min: 0, max: 1, order: 202 },
-      noiseFrequency: { value: defaults.speed, min: 0, max: 1, order: 203 },
-      noise: { value: defaults.speed, min: 0, max: 1, order: 204 },
-      offsetX: { value: defaults.offsetX, min: -1, max: 1, order: 300 },
-      offsetY: { value: defaults.offsetY, min: -1, max: 1, order: 301 },
-      scale: { value: defaults.scale, min: 0.01, max: 4, order: 302 },
-      rotation: { value: defaults.rotation, min: 0, max: 360, order: 303 },
-      speed: { value: defaults.speed, min: 0, max: 2, order: 400 },
+      center: { value: defaults.center, min: 0, max: 1, order: 202 },
+      proportion: { value: defaults.proportion, min: 0, max: 1, order: 203 },
+      softness: { value: defaults.softness, min: 0, max: 1, order: 204 },
+      noise: { value: defaults.noise, min: 0, max: 1, order: 205 },
+      noiseFrequency: { value: defaults.noiseFrequency, min: 0, max: 1, order: 206 },
+      speed: { value: defaults.speed, min: 0, max: 2, order: 300 },
+      scale: { value: defaults.scale, min: 0.01, max: 4, order: 301 },
+      rotation: { value: defaults.rotation, min: 0, max: 360, order: 302 },
+      offsetX: { value: defaults.offsetX, min: -1, max: 1, order: 303 },
+      offsetY: { value: defaults.offsetY, min: -1, max: 1, order: 304 },
     };
   }, [colors.length]);
 
@@ -62,10 +63,10 @@ const SwirlWithControls = () => {
 
   return (
     <>
-      <ShaderContainer shaderDef={swirlDef} currentParams={{ ...params, colors }}>
+      <ShaderContainer shaderDef={swirlDef} currentParams={{ colors, ...params }}>
         <Swirl {...params} colors={colors} />
       </ShaderContainer>
-      <ShaderDetails shaderDef={swirlDef} currentParams={{ ...params, colors }} />
+      <ShaderDetails shaderDef={swirlDef} currentParams={{ colors, ...params }} />
     </>
   );
 };

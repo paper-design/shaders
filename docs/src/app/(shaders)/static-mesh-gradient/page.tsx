@@ -30,10 +30,10 @@ const StaticMeshGradientWithControls = () => {
       mixing: { value: defaults.mixing, min: 0, max: 1, order: 205 },
       grainMixer: { value: defaults.grainMixer, min: 0, max: 1, order: 206 },
       grainOverlay: { value: defaults.grainOverlay, min: 0, max: 1, order: 207 },
-      offsetX: { value: defaults.offsetX, min: -1, max: 1, order: 300 },
-      offsetY: { value: defaults.offsetY, min: -1, max: 1, order: 301 },
-      scale: { value: defaults.scale, min: 0.01, max: 4, order: 302 },
-      rotation: { value: defaults.rotation, min: 0, max: 360, order: 303 },
+      scale: { value: defaults.scale, min: 0.01, max: 4, order: 300 },
+      rotation: { value: defaults.rotation, min: 0, max: 360, order: 301 },
+      offsetX: { value: defaults.offsetX, min: -1, max: 1, order: 302 },
+      offsetY: { value: defaults.offsetY, min: -1, max: 1, order: 303 },
     };
   }, [colors.length]);
 
@@ -62,10 +62,10 @@ const StaticMeshGradientWithControls = () => {
 
   return (
     <>
-      <ShaderContainer shaderDef={staticMeshGradientDef} currentParams={{ ...params, colors }}>
+      <ShaderContainer shaderDef={staticMeshGradientDef} currentParams={{ colors, ...params }}>
         <StaticMeshGradient {...params} colors={colors} />
       </ShaderContainer>
-      <ShaderDetails shaderDef={staticMeshGradientDef} currentParams={{ ...params, colors }} />
+      <ShaderDetails shaderDef={staticMeshGradientDef} currentParams={{ colors, ...params }} />
     </>
   );
 };

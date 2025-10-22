@@ -1,11 +1,12 @@
 import { dotGridPresets } from '@paper-design/shaders-react';
 import type { ShaderDef } from './shader-def-types';
+import { staticCommonParams } from './common-param-def';
 
 const defaultParams = dotGridPresets[0].params;
 
 export const dotGridDef: ShaderDef = {
   name: 'Dot Grid',
-  description: 'Static grid pattern made of circles, diamonds, squares or triangles',
+  description: 'Static grid pattern made of circles, diamonds, squares or triangles.',
   params: [
     {
       name: 'colorBack',
@@ -27,6 +28,13 @@ export const dotGridDef: ShaderDef = {
       defaultValue: defaultParams.colorStroke,
       isColor: true,
       description: 'Shape stroke color',
+    },
+    {
+      name: 'shape',
+      type: 'enum',
+      defaultValue: defaultParams.shape,
+      description: 'The shape type',
+      options: ['circle', 'diamond', 'square', 'triangle'],
     },
     {
       name: 'size',
@@ -76,28 +84,6 @@ export const dotGridDef: ShaderDef = {
       defaultValue: defaultParams.opacityRange,
       description: 'Random variation in shape opacity (0 = all shapes opaque, higher = semi-transparent dots)',
     },
-    {
-      name: 'shape',
-      type: 'enum',
-      defaultValue: defaultParams.shape,
-      description: 'The shape type',
-      options: ['circle', 'diamond', 'square', 'triangle'],
-    },
-    {
-      name: 'scale',
-      type: 'number',
-      min: 0.01,
-      max: 4,
-      defaultValue: defaultParams.scale,
-      description: 'Overall zoom level of the graphics',
-    },
-    {
-      name: 'rotation',
-      type: 'number',
-      min: 0,
-      max: 360,
-      defaultValue: defaultParams.rotation,
-      description: 'Overall rotation angle of the graphics',
-    },
+    ...staticCommonParams,
   ],
 };

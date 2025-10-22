@@ -1,20 +1,27 @@
-import { memo } from 'react';
+import { memo, useLayoutEffect, useState } from 'react';
 import { ShaderMount, type ShaderComponentProps } from '../shader-mount.js';
-import { colorPropsAreEqual } from '../color-props-are-equal.js';
 import {
   liquidMetalFragmentShader,
   ShaderFitOptions,
+  defaultObjectSizing,
   type LiquidMetalUniforms,
   type LiquidMetalParams,
-  type ShaderPreset,
-  defaultObjectSizing,
+  toProcessedLiquidMetal,
+  type ImageShaderPreset,
   getShaderColorFromString,
   LiquidMetalShapes,
 } from '@paper-design/shaders';
+import { transparentPixel } from '../transparent-pixel.js';
+import { suspend } from '../suspend.js';
 
-export interface LiquidMetalProps extends ShaderComponentProps, LiquidMetalParams {}
+export interface LiquidMetalProps extends ShaderComponentProps, LiquidMetalParams {
+  /**
+   * Suspends the component when the image is being processed.
+   */
+  suspendWhenProcessingImage?: boolean;
+}
 
-type LiquidMetalPreset = ShaderPreset<LiquidMetalParams>;
+type LiquidMetalPreset = ImageShaderPreset<LiquidMetalParams>;
 
 export const defaultPreset: LiquidMetalPreset = {
   name: 'Default',
@@ -22,77 +29,83 @@ export const defaultPreset: LiquidMetalPreset = {
     ...defaultObjectSizing,
     scale: 0.6,
     speed: 1,
-    frame: 8000,
-    colorBack: '#000000',
+    frame: 0,
+    colorBack: '#AAAAAC',
     colorTint: '#ffffff',
-    softness: 0.3,
-    repetition: 4,
+    distortion: 0.07,
+    repetition: 2.0,
+    shiftRed: 0.3,
+    shiftBlue: 0.3,
+    contour: 0.4,
+    softness: 0.1,
+    angle: 70,
+    shape: 'diamond',
+  },
+};
+
+export const noirPreset: LiquidMetalPreset = {
+  name: 'Noir',
+  params: {
+    ...defaultObjectSizing,
+    scale: 0.6,
+    speed: 1,
+    frame: 0,
+    colorBack: '#000000',
+    colorTint: '#606060',
+    softness: 0.45,
+    repetition: 1.5,
+    shiftRed: 0,
+    shiftBlue: 0,
+    distortion: 0,
+    contour: 0,
+    angle: 90,
+    shape: 'diamond',
+  },
+};
+
+export const fullScreenPreset: LiquidMetalPreset = {
+  name: 'Backdrop',
+  params: {
+    ...defaultObjectSizing,
+    speed: 1,
+    frame: 0,
+    scale: 1.5,
+    colorBack: '#AAAAAC',
+    colorTint: '#ffffff',
+    softness: 0.05,
+    repetition: 1.5,
     shiftRed: 0.3,
     shiftBlue: 0.3,
     distortion: 0.1,
-    contour: 1,
-    shape: 'circle',
-  },
-};
-
-export const dropsPreset: LiquidMetalPreset = {
-  name: 'Drops',
-  params: {
-    ...defaultObjectSizing,
-    speed: 1,
-    frame: 0,
-    colorBack: '#ffffff00',
-    colorTint: '#ffffff',
-    softness: 0.3,
-    repetition: 3,
-    shiftRed: 0.3,
-    shiftBlue: 0.3,
-    distortion: 0.3,
-    contour: 0.88,
-    shape: 'metaballs',
-  },
-};
-
-export const containedPreset: LiquidMetalPreset = {
-  name: 'Contained',
-  params: {
-    ...defaultObjectSizing,
-    speed: 1,
-    frame: 0,
-    colorBack: '#ffffff00',
-    colorTint: '#ffffff',
-    softness: 0.3,
-    repetition: 3,
-    shiftRed: 0.3,
-    shiftBlue: 0.3,
-    distortion: 0.07,
-    contour: 0,
+    contour: 0.4,
     shape: 'none',
+    angle: 90,
     worldWidth: 0,
     worldHeight: 0,
   },
 };
 
-export const fullScreenPreset: LiquidMetalPreset = {
-  name: 'Full Screen',
+export const stripesPreset: LiquidMetalPreset = {
+  name: 'Stripes',
   params: {
     ...defaultObjectSizing,
-    scale: 2.2,
     speed: 1,
     frame: 0,
-    colorBack: '#00042e',
-    colorTint: '#5b4dc7',
-    softness: 0.45,
-    repetition: 4,
-    shiftRed: -0.5,
+    scale: 0.6,
+    colorBack: '#000000',
+    colorTint: '#2c5d72',
+    softness: 0.8,
+    repetition: 6,
+    shiftRed: 1,
     shiftBlue: -1,
-    distortion: 0.1,
-    contour: 1,
-    shape: 'none',
+    distortion: 0.4,
+    contour: 0.4,
+    shape: 'circle',
+    angle: 0,
   },
 };
 
-export const liquidMetalPresets: LiquidMetalPreset[] = [defaultPreset, containedPreset, dropsPreset, fullScreenPreset];
+export const liquidMetalPresets: LiquidMetalPreset[] = [defaultPreset, noirPreset, fullScreenPreset, stripesPreset];
 
 export const LiquidMetal: React.FC<LiquidMetalProps> = memo(function LiquidMetalImpl({
   // Own props
@@ -100,13 +113,16 @@ export const LiquidMetal: React.FC<LiquidMetalProps> = memo(function LiquidMetal
   colorTint = defaultPreset.params.colorTint,
   speed = defaultPreset.params.speed,
   frame = defaultPreset.params.frame,
+  image = '',
+  contour = defaultPreset.params.contour,
+  distortion = defaultPreset.params.distortion,
   softness = defaultPreset.params.softness,
   repetition = defaultPreset.params.repetition,
   shiftRed = defaultPreset.params.shiftRed,
   shiftBlue = defaultPreset.params.shiftBlue,
-  distortion = defaultPreset.params.distortion,
-  contour = defaultPreset.params.contour,
+  angle = defaultPreset.params.angle,
   shape = defaultPreset.params.shape,
+  suspendWhenProcessingImage = false,
 
   // Sizing props
   fit = defaultPreset.params.fit,
@@ -120,17 +136,60 @@ export const LiquidMetal: React.FC<LiquidMetalProps> = memo(function LiquidMetal
   worldHeight = defaultPreset.params.worldHeight,
   ...props
 }: LiquidMetalProps) {
+  const imageUrl = typeof image === 'string' ? image : image.src;
+  const [processedStateImage, setProcessedStateImage] = useState<string>(transparentPixel);
+
+  let processedImage: string;
+
+  if (suspendWhenProcessingImage && typeof window !== 'undefined' && imageUrl) {
+    processedImage = suspend(
+      (): Promise<string> => toProcessedLiquidMetal(imageUrl).then((result) => URL.createObjectURL(result.pngBlob)),
+      [imageUrl, 'liquid-metal']
+    );
+  } else {
+    processedImage = processedStateImage;
+  }
+
+  useLayoutEffect(() => {
+    if (suspendWhenProcessingImage) {
+      // Skip doing work in the effect as it's been handled by suspense.
+      return;
+    }
+
+    if (!imageUrl) {
+      setProcessedStateImage(transparentPixel);
+      return;
+    }
+
+    let url: string;
+    let current = true;
+
+    toProcessedLiquidMetal(imageUrl).then((result) => {
+      if (current) {
+        url = URL.createObjectURL(result.pngBlob);
+        setProcessedStateImage(url);
+      }
+    });
+
+    return () => {
+      current = false;
+    };
+  }, [imageUrl, suspendWhenProcessingImage]);
+
   const uniforms = {
     // Own uniforms
     u_colorBack: getShaderColorFromString(colorBack),
     u_colorTint: getShaderColorFromString(colorTint),
 
+    u_image: processedImage,
+    u_contour: contour,
+    u_distortion: distortion,
     u_softness: softness,
     u_repetition: repetition,
     u_shiftRed: shiftRed,
     u_shiftBlue: shiftBlue,
-    u_distortion: distortion,
-    u_contour: contour,
+    u_angle: angle,
+    u_isImage: Boolean(image),
     u_shape: LiquidMetalShapes[shape],
 
     // Sizing uniforms
@@ -154,4 +213,4 @@ export const LiquidMetal: React.FC<LiquidMetalProps> = memo(function LiquidMetal
       uniforms={uniforms}
     />
   );
-}, colorPropsAreEqual);
+});

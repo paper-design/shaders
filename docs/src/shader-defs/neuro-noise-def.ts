@@ -1,18 +1,20 @@
 import { neuroNoisePresets } from '@paper-design/shaders-react';
 import type { ShaderDef } from './shader-def-types';
+import { animatedCommonParams } from './common-param-def';
 
 const defaultParams = neuroNoisePresets[0].params;
 
 export const neuroNoiseDef: ShaderDef = {
   name: 'Neuro Noise',
-  description: 'A glowing, web-like structure of fluid lines and soft intersections. Great for creating atmospheric, organic-yet-futuristic visuals',
+  description:
+    'A glowing, web-like structure of fluid lines and soft intersections. Great for creating atmospheric, organic-yet-futuristic visuals.',
   params: [
     {
-      name: 'colorBack',
+      name: 'colorFront',
       type: 'string',
-      defaultValue: defaultParams.colorBack,
+      defaultValue: defaultParams.colorFront,
       isColor: true,
-      description: 'Background color',
+      description: 'Graphics highlight color',
     },
     {
       name: 'colorMid',
@@ -22,11 +24,11 @@ export const neuroNoiseDef: ShaderDef = {
       description: 'Graphics main color',
     },
     {
-      name: 'colorFront',
+      name: 'colorBack',
       type: 'string',
-      defaultValue: defaultParams.colorFront,
+      defaultValue: defaultParams.colorBack,
       isColor: true,
-      description: 'Graphics highlight color',
+      description: 'Background color',
     },
     {
       name: 'brightness',
@@ -44,29 +46,6 @@ export const neuroNoiseDef: ShaderDef = {
       defaultValue: defaultParams.contrast,
       description: 'Sharpness of the bright–dark transition',
     },
-    {
-      name: 'scale',
-      type: 'number',
-      min: 0.01,
-      max: 4,
-      defaultValue: defaultParams.scale,
-      description: 'Overall zoom level of the graphics',
-    },
-    {
-      name: 'rotation',
-      type: 'number',
-      min: 0,
-      max: 360,
-      defaultValue: defaultParams.rotation,
-      description: 'Overall rotation angle of the graphics',
-    },
-    {
-      name: 'speed',
-      type: 'number',
-      min: 0,
-      max: 2,
-      defaultValue: defaultParams.speed,
-      description: 'Animation speed',
-    },
+    ...animatedCommonParams,
   ],
 };

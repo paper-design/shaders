@@ -1,12 +1,13 @@
 import { meshGradientPresets } from '@paper-design/shaders-react';
 import type { ShaderDef } from './shader-def-types';
+import { animatedCommonParams } from './common-param-def';
 
 const defaultParams = meshGradientPresets[0].params;
 
 export const meshGradientDef: ShaderDef = {
   name: 'Mesh Gradient',
   description:
-    'A flowing interplay of color spots, moving along distinct trajectories and transformed by organic distortion',
+    'A flowing interplay of color spots, moving along distinct trajectories and transformed by organic distortion.',
   params: [
     {
       name: 'colors',
@@ -32,44 +33,21 @@ export const meshGradientDef: ShaderDef = {
       description: 'The power of vortex distortion',
     },
     {
-      name: 'offsetX',
-      type: 'number',
-      min: -1,
-      max: 1,
-      defaultValue: defaultParams.offsetX,
-      description: 'Horizontal offset of the graphics center',
-    },
-    {
-      name: 'offsetY',
-      type: 'number',
-      min: -1,
-      max: 1,
-      defaultValue: defaultParams.offsetY,
-      description: 'Vertical offset of the graphics center',
-    },
-    {
-      name: 'scale',
-      type: 'number',
-      min: 0.01,
-      max: 4,
-      defaultValue: defaultParams.scale,
-      description: 'Overall zoom level of the graphics',
-    },
-    {
-      name: 'rotation',
+      name: 'grainMixer',
       type: 'number',
       min: 0,
-      max: 360,
-      defaultValue: defaultParams.rotation,
-      description: 'Overall rotation angle of the graphics',
+      max: 1,
+      defaultValue: defaultParams.grainMixer,
+      description: 'Strength of grain distortion applied to color edges',
     },
     {
-      name: 'speed',
+      name: 'grainOverlay',
       type: 'number',
       min: 0,
-      max: 2,
-      defaultValue: defaultParams.speed,
-      description: 'Animation speed',
+      max: 1,
+      defaultValue: defaultParams.grainOverlay,
+      description: 'Post-processing RGB grain overlay',
     },
+    ...animatedCommonParams,
   ],
 };

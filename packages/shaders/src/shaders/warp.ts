@@ -73,7 +73,8 @@ void main() {
   vec2 uv = v_patternUV;
   uv *= .5;
 
-  float t = 0.0625 * u_time;
+  const float firstFrameOffset = 118.;
+  float t = 0.0625 * (u_time + firstFrameOffset);
 
   float n1 = valueNoise(uv * 1. + t);
   float n2 = valueNoise(uv * 2. - t);
@@ -100,11 +101,13 @@ void main() {
   } else if (u_shape < 1.5) {
     vec2 stripesShape_uv = uv * (2. * u_shapeScale);
     float f = fract(stripesShape_uv.y);
-    shape = smoothstep(.0, .55, f) * smoothstep(1., .45, f);
+    shape = smoothstep(.0, .55, f) * (1.0 - smoothstep(.45, 1., f));
     shape += .48 * sign(proportion - .5) * pow(abs(proportion - .5), .5);
   } else {
     float shapeScaling = 5. * (1. - u_shapeScale);
-    shape = smoothstep(.45 - shapeScaling, .55 + shapeScaling, 1. - uv.y + .3 * (proportion - .5));
+    float e0 = 0.45 - shapeScaling;
+    float e1 = 0.55 + shapeScaling;
+    shape = smoothstep(min(e0, e1), max(e0, e1), 1.0 - uv.y + 0.3 * (proportion - 0.5));
   }
 
   float mixer = shape * (u_colorsCount - 1.);

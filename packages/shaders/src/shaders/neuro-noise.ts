@@ -58,7 +58,7 @@ void main() {
 
   float noise = neuroShape(shape_uv, t);
 
-  noise = (1. + u_brightness) * pow(noise, 2.);
+  noise = (1. + u_brightness) * noise * noise;
   noise = pow(noise, .7 + 6. * u_contrast);
   noise = min(1.4, noise);
 

@@ -14,6 +14,10 @@ npm i @paper-design/shaders
 // Please pin your dependency – we will ship breaking changes under 0.0.x versioning
 ```
 
+### Documentation
+
+[React documentation and interactive examples →](https://shaders.paper.design/)
+
 ### React example
 
 ```jsx
@@ -57,8 +61,8 @@ import {MeshGradient, DotOrbit} from '@paper-design/shaders-react';
 
 ### Framework support:
 
-- Vanilla JS (@paper-design/shaders)
-- React JS (@paper-design/shaders-react)
+- Vanilla JS ([@paper-design/shaders](https://www.npmjs.com/package/@paper-design/shaders))
+- React JS ([@paper-design/shaders-react](https://www.npmjs.com/package/@paper-design/shaders-react))
 - Vue and others: intent to accept community PRs in the future
 
 ## Release notes

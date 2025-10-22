@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - 'packages/**'
+      - bun.lock
 
 jobs:
   test:
@@ -13,9 +14,9 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: Use Bun
-        uses: oven-sh/setup-bun@v1
+        uses: oven-sh/setup-bun@v2
         with:
-          bun-version: latest
+          bun-version-file: .bun-version
 
       - name: Cache dependencies
         uses: actions/cache@v3

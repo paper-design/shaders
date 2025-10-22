@@ -39,15 +39,11 @@ const imageFiles = [
 
 const FlutedGlassWithControls = () => {
   const [imageIdx, setImageIdx] = useState(-1);
-  const [image, setImage] = useState<HTMLImageElement | undefined>(undefined);
-  const [status, setStatus] = useState('Click to load an image');
-
-  const fileName = imageIdx >= 0 ? imageFiles[imageIdx] : null;
+  const [image, setImage] = useState<HTMLImageElement | string>('/images/image-filters/0018.webp');
 
   useEffect(() => {
     if (imageIdx >= 0) {
       const name = imageFiles[imageIdx];
-      setStatus(`Displaying image: ${name}`);
       const img = new Image();
       img.src = `/images/image-filters/${name}`;
       img.onload = () => setImage(img);
@@ -59,9 +55,8 @@ const FlutedGlassWithControls = () => {
   }, []);
 
   const setImageWithoutStatus = useCallback((img?: HTMLImageElement) => {
-    setImage(img);
+    setImage(img ?? '');
     setImageIdx(-1);
-    setStatus(``);
   }, []);
 
   const [params, setParams] = useControls(() => {
@@ -72,7 +67,7 @@ const FlutedGlassWithControls = () => {
       ])
     );
     return {
-      count: { value: defaults.count, min: 4, max: 200, step: 1, order: 200 },
+      size: { value: defaults.size, min: 0.01, max: 1, step: 0.01, order: 200 },
       shape: {
         value: defaults.shape,
         options: Object.keys(GlassGridShapes) as GlassGridShape[],
@@ -87,13 +82,10 @@ const FlutedGlassWithControls = () => {
       distortion: { value: defaults.distortion, min: 0, max: 1, order: 204 },
       shift: { value: defaults.shift, min: -1, max: 1, order: 205 },
       blur: { value: defaults.blur, min: 0, max: 50, order: 206 },
-      highlights: { value: defaults.highlights, min: 0, max: 1, order: 207 },
-      scale: { value: defaults.scale, min: 0.5, max: 10, order: 300 },
-      fit: { value: defaults.fit, options: ['contain', 'cover'] as ShaderFit[], order: 301 },
-      marginLeft: { value: defaults.marginLeft, min: 0, max: 1, order: 500 },
-      marginRight: { value: defaults.marginRight, min: 0, max: 1, order: 501 },
-      marginTop: { value: defaults.marginTop, min: 0, max: 1, order: 502 },
-      marginBottom: { value: defaults.marginBottom, min: 0, max: 1, order: 503 },
+      edges: { value: defaults.edges, min: 0, max: 1, order: 207 },
+      margin: { value: defaults.margin, min: 0, max: 1, order: 500 },
+      scale: { value: defaults.scale, min: 0.5, max: 10, order: 600 },
+      fit: { value: defaults.fit, options: ['contain', 'cover'] as ShaderFit[], order: 601 },
 
       Image: folder(
         {
@@ -115,7 +107,7 @@ const FlutedGlassWithControls = () => {
   return (
     <>
       <ShaderContainer shaderDef={flutedGlassDef} currentParams={params}>
-        <FlutedGlass onClick={handleClick} {...params} image={image || undefined} />
+        <FlutedGlass onClick={handleClick} {...params} image={image} />
       </ShaderContainer>
 
       <div onClick={handleClick} className="mx-auto mt-16 mb-48 w-fit text-base text-current/70 select-none">

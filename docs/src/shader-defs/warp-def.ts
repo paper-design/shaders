@@ -1,12 +1,13 @@
 import { warpPresets } from '@paper-design/shaders-react';
 import type { ShaderDef } from './shader-def-types';
+import { animatedCommonParams } from './common-param-def';
 
 const defaultParams = warpPresets[0].params;
 
 export const warpDef: ShaderDef = {
   name: 'Warp',
   description:
-    'Animated color fields warped by noise and swirls, applied over base patterns (checks, stripes, or split edge). Blends up to 10 colors with adjustable distribution, softness, distortion, and swirl. Great for fluid, smoky, or marbled effects',
+    'Animated color fields warped by noise and swirls, applied over base patterns (checks, stripes, or split edge). Blends up to 10 colors with adjustable distribution, softness, distortion, and swirl. Great for fluid, smoky, or marbled effects.',
   params: [
     {
       name: 'colors',
@@ -70,29 +71,6 @@ export const warpDef: ShaderDef = {
       defaultValue: defaultParams.shapeScale,
       description: 'Zoom level of the base pattern',
     },
-    {
-      name: 'scale',
-      type: 'number',
-      min: 0.01,
-      max: 5,
-      defaultValue: defaultParams.scale,
-      description: 'Overall zoom level of the graphics',
-    },
-    {
-      name: 'rotation',
-      type: 'number',
-      min: 0,
-      max: 360,
-      defaultValue: defaultParams.rotation,
-      description: 'Overall rotation angle of the graphics',
-    },
-    {
-      name: 'speed',
-      type: 'number',
-      min: 0,
-      max: 20,
-      defaultValue: defaultParams.speed,
-      description: 'Animation speed',
-    },
+    ...animatedCommonParams,
   ],
 };

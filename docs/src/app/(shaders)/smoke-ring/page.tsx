@@ -35,13 +35,13 @@ const SmokeRingWithControls = () => {
       radius: { value: defaults.radius, min: 0, max: 1, order: 202 },
       thickness: { value: defaults.thickness, min: 0.01, max: 1, order: 203 },
       innerShape: { value: defaults.innerShape, min: 0, max: 4, order: 204 },
-      offsetX: { value: defaults.offsetX, min: -1, max: 1, order: 300 },
-      offsetY: { value: defaults.offsetY, min: -1, max: 1, order: 301 },
-      scale: { value: defaults.scale, min: 0.01, max: 4, order: 302 },
-      rotation: { value: defaults.rotation, min: 0, max: 360, order: 303 },
-      speed: { value: defaults.speed, min: 0, max: 4, order: 400 },
+      speed: { value: defaults.speed, min: 0, max: 4, order: 300 },
+      scale: { value: defaults.scale, min: 0.01, max: 4, order: 301 },
+      rotation: { value: defaults.rotation, min: 0, max: 360, order: 302 },
+      offsetX: { value: defaults.offsetX, min: -1, max: 1, order: 303 },
+      offsetY: { value: defaults.offsetY, min: -1, max: 1, order: 304 },
     };
-  });
+  }, [colors.length]);
 
   useControls(() => {
     const presets = Object.fromEntries(
@@ -70,10 +70,10 @@ const SmokeRingWithControls = () => {
 
   return (
     <>
-      <ShaderContainer shaderDef={smokeRingDef} currentParams={{ ...params, colors }}>
+      <ShaderContainer shaderDef={smokeRingDef} currentParams={{ colors, ...params }}>
         <SmokeRing {...params} colors={colors} />
       </ShaderContainer>
-      <ShaderDetails shaderDef={smokeRingDef} currentParams={{ ...params, colors }} />
+      <ShaderDetails shaderDef={smokeRingDef} currentParams={{ colors, ...params }} />
     </>
   );
 };

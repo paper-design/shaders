@@ -1,14 +1,20 @@
 'use client';
 
-import { Heatmap, heatmapPresets } from '@paper-design/shaders-react';
+import { FlutedGlass, Heatmap, ImageDithering, PaperTexture, Water } from '@paper-design/shaders-react';
 
 export default function TestPage() {
   return (
-    <div style={{ display: 'flex' }}>
-      <Heatmap
-        {...heatmapPresets.find((preset) => preset.name === 'Default')?.params}
-        style={{ width: 600, height: 600 }}
-      />
+    <div className="grid grid-cols-4 *:aspect-video">
+      <FlutedGlass image="https://shaders.paper.design/images/image-filters/0018.webp" />
+      <FlutedGlass image="" />
+      <PaperTexture image="https://shaders.paper.design/images/image-filters/0018.webp" />
+      <PaperTexture />
+      <Water image="https://shaders.paper.design/images/image-filters/0018.webp" />
+      <Water />
+      <ImageDithering image="https://shaders.paper.design/images/image-filters/0018.webp" />
+      <ImageDithering image="" />
+      <Heatmap image="https://shaders.paper.design/images/logos/diamond.svg" />
+      <Heatmap image="" />
     </div>
   );
 }

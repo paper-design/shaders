@@ -1,12 +1,13 @@
 import type { vec4 } from '../types.js';
 import type { ShaderMotionParams } from '../shader-mount.js';
 import {
+  sizingDebugVariablesDeclaration,
   sizingVariablesDeclaration,
   sizingUniformsDeclaration,
   type ShaderSizingParams,
   type ShaderSizingUniforms,
 } from '../shader-sizing.js';
-import { declarePI, rotation2, fiberNoise, colorBandingFix } from '../shader-utils.js';
+import { declarePI, rotation2, proceduralHash21 } from '../shader-utils.js';
 
 export const staticMeshGradientMeta = {
   maxColorCount: 10,
@@ -23,8 +24,6 @@ export const staticMeshGradientMeta = {
  * - u_mixing (0 .. 1, float) - 0 for stepped gradient, 0.5 for smooth transitions, 1 for pronounced color points
  * - u_grainMixer - shape distortion
  * - u_grainOverlay - post-processing blending
- *
- * - u_noiseTexture (sampler2D): pre-computed randomizer source
  */
 
 // language=GLSL
@@ -43,17 +42,32 @@ uniform float u_mixing;
 uniform float u_grainMixer;
 uniform float u_grainOverlay;
 
-uniform sampler2D u_noiseTexture;
-
 ${sizingVariablesDeclaration}
+${sizingDebugVariablesDeclaration}
 ${sizingUniformsDeclaration}
 
 out vec4 fragColor;
 
 ${declarePI}
 ${rotation2}
-${fiberNoise}
+${proceduralHash21}
 
+float valueNoise(vec2 st) {
+  vec2 i = floor(st);
+  vec2 f = fract(st);
+  float a = hash21(i);
+  float b = hash21(i + vec2(1.0, 0.0));
+  float c = hash21(i + vec2(0.0, 1.0));
+  float d = hash21(i + vec2(1.0, 1.0));
+  vec2 u = f * f * (3.0 - 2.0 * f);
+  float x1 = mix(a, b, u.x);
+  float x2 = mix(c, d, u.x);
+  return mix(x1, x2, u.y);
+}
+
+float noise(vec2 n, vec2 seedOffset) {
+  return valueNoise(n + seedOffset);
+}
 
 vec2 getPosition(int i, float t) {
   float a = float(i) * .37;
@@ -70,9 +84,19 @@ void main() {
   vec2 uv = v_objectUV;
   uv += .5;
 
-  vec2 grainUV = v_objectUV * 120.;
-  float grain = fiberNoise(grainUV, vec2(0.));
-  float mixerGrain = .2 * u_grainMixer * (grain - .5);
+  vec2 grainUV = v_objectUV;
+  // apply inverse transform to grain_uv so it respects the originXY
+  float grainUVRot = u_rotation * 3.14159265358979323846 / 180.;
+  mat2 graphicRotation = mat2(cos(grainUVRot), sin(grainUVRot), -sin(grainUVRot), cos(grainUVRot));
+  vec2 graphicOffset = vec2(-u_offsetX, u_offsetY);
+  grainUV = transpose(graphicRotation) * grainUV;
+  grainUV *= u_scale;
+  grainUV *= .7;
+  grainUV -= graphicOffset;
+  grainUV *= v_objectBoxSize;
+
+  float grain = noise(grainUV, vec2(0.));
+  float mixerGrain = .4 * u_grainMixer * (grain - .5);
 
   float radius = smoothstep(0., 1., length(uv - .5));
   float center = 1. - radius;
@@ -111,17 +135,15 @@ void main() {
     totalWeight += w;
   }
 
-  color /= totalWeight;
-  opacity /= totalWeight;
+  color /= max(0.001, totalWeight);
+  opacity /= max(0.001, totalWeight);
 
-  float rr = fiberNoise(rotate(grainUV, 1.), vec2(3.));
-  float gg = fiberNoise(rotate(grainUV, 2.) + 10., vec2(-1.));
-  float bb = fiberNoise(grainUV - 2., vec2(5.));
-  vec3 grainColor = vec3(rr, gg, bb) - 1.;
-  color = mix(color, grainColor, .2 * u_grainOverlay);
+  float rr = noise(rotate(grainUV, 1.), vec2(3.));
+  float gg = noise(rotate(grainUV, 2.) + 10., vec2(-1.));
+  float bb = noise(grainUV - 2., vec2(5.));
+  vec3 grainColor = vec3(rr, gg, bb);
+  color = mix(color, grainColor, .01 + .3 * u_grainOverlay);
   
-  ${colorBandingFix}
-
   fragColor = vec4(color, opacity);
 }
 `;
@@ -137,7 +159,6 @@ export interface StaticMeshGradientUniforms extends ShaderSizingUniforms {
   u_mixing: number;
   u_grainMixer: number;
   u_grainOverlay: number;
-  u_noiseTexture?: HTMLImageElement;
 }
 
 export interface StaticMeshGradientParams extends ShaderSizingParams, ShaderMotionParams {

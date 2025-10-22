@@ -26,7 +26,6 @@ import { proceduralHash21 } from '../shader-utils.js';
 export const imageDitheringFragmentShader: string = `#version 300 es
 precision lowp float;
 
-uniform float u_time;
 uniform mediump vec2 u_resolution;
 uniform mediump float u_pixelRatio;
 uniform mediump float u_originX;
@@ -85,7 +84,7 @@ const int bayer8x8[64] = int[64](
 );
 
 float getBayerValue(vec2 uv, int size) {
-  ivec2 pos = ivec2(mod(uv, float(size)));
+  ivec2 pos = ivec2(fract(uv / float(size)) * float(size));
   int index = pos.y * size + pos.x;
 
   if (size == 2) {
@@ -133,7 +132,7 @@ void main() {
 
   float steps = max(floor(u_colorSteps), 1.);
   float ditherAmount = 1.0 / (steps);
-  
+
   vec3 color = vec3(0.0);
   float opacity = 1.;
 
@@ -171,7 +170,7 @@ void main() {
 `;
 
 export interface ImageDitheringUniforms extends ShaderSizingUniforms {
-  u_image: HTMLImageElement | string | undefined;
+  u_image: HTMLImageElement | string;
   u_colorFront: [number, number, number, number];
   u_colorBack: [number, number, number, number];
   u_colorHighlight: [number, number, number, number];
@@ -182,12 +181,12 @@ export interface ImageDitheringUniforms extends ShaderSizingUniforms {
 }
 
 export interface ImageDitheringParams extends ShaderSizingParams, ShaderMotionParams {
-  image?: HTMLImageElement | string | undefined;
+  image: HTMLImageElement | string;
   colorFront?: string;
   colorBack?: string;
   colorHighlight?: string;
   type?: DitheringType;
-  pxSize?: number;
+  size?: number;
   colorSteps?: number;
   originalColors?: boolean;
 }

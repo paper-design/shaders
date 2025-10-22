@@ -1,11 +1,13 @@
 import { spiralPresets } from '@paper-design/shaders-react';
 import type { ShaderDef } from './shader-def-types';
+import { animatedCommonParams } from './common-param-def';
 
 const defaultParams = spiralPresets[0].params;
 
 export const spiralDef: ShaderDef = {
   name: 'Spiral',
-  description: 'A single-colored animated spiral that morphs across a wide range of shapes - from crisp, thin-lined geometry to flowing whirlpool forms and wavy, abstract rings.',
+  description:
+    'A single-colored animated spiral that morphs across a wide range of shapes - from crisp, thin-lined geometry to flowing whirlpool forms and wavy, abstract rings.',
   params: [
     {
       name: 'colorBack',
@@ -59,7 +61,7 @@ export const spiralDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.strokeCap,
-      description: 'Extra stroke width at the center (not effective with strokeWidth = 0.5)',
+      description: 'Extra stroke width at the center (no effect with strokeWidth = 0.5)',
     },
     {
       name: 'noise',
@@ -67,7 +69,7 @@ export const spiralDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.noise,
-      description: 'Noise distortion applied over the canvas (not effective with noiseFrequency = 0)',
+      description: 'Noise distortion applied over the canvas (no effect with noiseFrequency = 0)',
     },
     {
       name: 'noiseFrequency',
@@ -75,7 +77,7 @@ export const spiralDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.noiseFrequency,
-      description: 'Moise frequency (not effective with noise = 0)',
+      description: 'Moise frequency (no effect with noise = 0)',
     },
     {
       name: 'softness',
@@ -85,45 +87,6 @@ export const spiralDef: ShaderDef = {
       defaultValue: defaultParams.softness,
       description: 'Color transition sharpness (0 = hard edge, 1 = smooth gradient)',
     },
-    {
-      name: 'offsetX',
-      type: 'number',
-      min: -1,
-      max: 1,
-      defaultValue: defaultParams.offsetX,
-      description: 'Horizontal offset of the spiral center',
-    },
-    {
-      name: 'offsetY',
-      type: 'number',
-      min: -1,
-      max: 1,
-      defaultValue: defaultParams.offsetY,
-      description: 'Vertical offset of the spiral center',
-    },
-    {
-      name: 'scale',
-      type: 'number',
-      min: 0.01,
-      max: 4,
-      defaultValue: defaultParams.scale,
-      description: 'Overall zoom level of the graphics',
-    },
-    {
-      name: 'rotation',
-      type: 'number',
-      min: 0,
-      max: 360,
-      defaultValue: defaultParams.rotation,
-      description: 'Overall rotation angle of the graphics',
-    },
-    {
-      name: 'speed',
-      type: 'number',
-      min: 0,
-      max: 2,
-      defaultValue: defaultParams.speed,
-      description: 'Animation speed',
-    },
+    ...animatedCommonParams,
   ],
 };
