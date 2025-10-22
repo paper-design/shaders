@@ -87,7 +87,7 @@ export const irregularPreset: FlutedGlassPreset = {
     highlights: 0,
     size: 0.7,
     angle: 30,
-    distortionShape: 'stretch',
+    distortionShape: 'flat',
     shape: 'linesIrregular',
     distortion: 1,
     shift: 0,

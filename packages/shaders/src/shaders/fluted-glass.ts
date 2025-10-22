@@ -362,7 +362,7 @@ export const GlassDistortionShapes = {
   lens: 2,
   contour: 3,
   cascade: 4,
-  stretch: 5,
+  flat: 5,
 } as const;
 
 export type GlassDistortionShape = keyof typeof GlassDistortionShapes;
