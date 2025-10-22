@@ -214,7 +214,7 @@ void main() {
     frameFade = pow(1.5 * x, 3.);
     highlight = 1. - pow(x, .5);
 
-    float aa = max(.2, 2. * fwidth(xNonSmooth));
+    float aa = max(.2, fwidth(xNonSmooth));
     fadeX = smoothstep(0., aa, xNonSmooth) * smoothstep(1., 1. - aa, xNonSmooth);
     distortion = mix(1., distortion, fadeX);
 
@@ -225,7 +225,7 @@ void main() {
     frameFade = pow(abs(x - .5), 4.);
     highlight = 2.4 * pow(abs(x - .4), 2.);
 
-    float aa = max(.15, 2. * fwidth(xNonSmooth));
+    float aa = max(.15, fwidth(xNonSmooth));
     fadeX = smoothstep(0., aa, xNonSmooth) * smoothstep(1., 1. - aa, xNonSmooth);
     distortion = mix(1., distortion, fadeX);
     frameFade = mix(1., frameFade, fadeX);
@@ -238,7 +238,7 @@ void main() {
     frameFade = 1. - 2. * pow(abs(x - .4), 2.);
     highlight = x * x * x;
 
-    float aa = max(.1, 2. * fwidth(xNonSmooth));
+    float aa = max(.1, fwidth(xNonSmooth));
     fadeX = smoothstep(0., aa, xNonSmooth) * smoothstep(1., 1. - aa, xNonSmooth);
     distortion = mix(1., distortion, fadeX);
     frameFade = mix(1., frameFade, fadeX);
@@ -259,7 +259,7 @@ void main() {
 
     frameFade = .3 * (smoothstep(.0, 1., x));
 
-    float aa = max(.1, 2. * fwidth(xNonSmooth));
+    float aa = max(.1, fwidth(xNonSmooth));
     fadeX = smoothstep(0., aa, xNonSmooth) * smoothstep(1., 1. - aa, xNonSmooth);
     distortion *= fadeX;
   }
