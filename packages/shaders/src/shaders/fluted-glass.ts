@@ -203,78 +203,80 @@ void main() {
   float xNonSmooth = fract(UvToFract.x);
 
   float highlight = x;
-  float xDistortion = 0.;
+  float distortion = 0.;
   float fadeX = 1.;
   float frameFade = 0.;
 
   if (u_distortionShape == 1.) {
-    xDistortion = -pow(1.5 * x, 3.);
-    xDistortion += (.5 - u_shift);
+    distortion = -pow(1.5 * x, 3.);
+    distortion += (.5 - u_shift);
 
     frameFade = pow(1.5 * x, 3.);
     highlight = 1. - pow(x, .5);
 
-    float aa = .2;
+    float aa = max(.2, 2. * fwidth(xNonSmooth));
     fadeX = smoothstep(0., aa, xNonSmooth) * smoothstep(1., 1. - aa, xNonSmooth);
-    xDistortion = mix(1., xDistortion, fadeX);
+    distortion = mix(1., distortion, fadeX);
 
   } else if (u_distortionShape == 2.) {
-    xDistortion = 2. * pow(x, 2.);
-    xDistortion -= (.5 + u_shift);
+    distortion = 2. * pow(x, 2.);
+    distortion -= (.5 + u_shift);
 
     frameFade = pow(abs(x - .5), 4.);
     highlight = 2.4 * pow(abs(x - .4), 2.);
 
-    float aa = .15;
+    float aa = max(.15, 2. * fwidth(xNonSmooth));
     fadeX = smoothstep(0., aa, xNonSmooth) * smoothstep(1., 1. - aa, xNonSmooth);
-    xDistortion = mix(1., xDistortion, fadeX);
+    distortion = mix(1., distortion, fadeX);
     frameFade = mix(1., frameFade, fadeX);
   } else if (u_distortionShape == 3.) {
-    xDistortion = pow(2. * (x - .5), 6.);
-    highlight = clamp(xDistortion, 0., 1.);
-    xDistortion -= .25;
-    xDistortion -= u_shift;
+    distortion = pow(2. * (x - .5), 6.);
+    highlight = clamp(distortion, 0., 1.);
+    distortion -= .25;
+    distortion -= u_shift;
 
     frameFade = 1. - 2. * pow(abs(x - .4), 2.);
     highlight = x * x * x;
 
-    float aa = .1;
+    float aa = max(.1, 2. * fwidth(xNonSmooth));
     fadeX = smoothstep(0., aa, xNonSmooth) * smoothstep(1., 1. - aa, xNonSmooth);
-    xDistortion = mix(1., xDistortion, fadeX);
+    distortion = mix(1., distortion, fadeX);
     frameFade = mix(1., frameFade, fadeX);
 
   } else if (u_distortionShape == 4.) {
     x = xNonSmooth;
-    xDistortion = sin((x + .25) * TWO_PI);
-    highlight = pow(.5 + .5 * xDistortion, 2.);
-    xDistortion *= .5;
-    xDistortion -= u_shift;
+    distortion = sin((x + .25) * TWO_PI);
+    highlight = pow(.5 + .5 * distortion, 2.);
+    distortion *= .5;
+    distortion -= u_shift;
     frameFade = .5 + .5 * sin(x * TWO_PI);
   } else if (u_distortionShape == 5.) {
-    xDistortion -= pow(abs(x), .2) * x;
+    distortion -= pow(abs(x), .2) * x;
     highlight = 1.5 * pow(pow(abs(x), 3.), 2.);
-    xDistortion += .33;
-    xDistortion -= 3. * u_shift;
-    xDistortion *= .33;
+    distortion += .33;
+    distortion -= 3. * u_shift;
+    distortion *= .33;
 
     frameFade = .3 * (smoothstep(.0, 1., x));
 
-    float aa = .05;
+    float aa = max(.1, 2. * fwidth(xNonSmooth));
     fadeX = smoothstep(0., aa, xNonSmooth) * smoothstep(1., 1. - aa, xNonSmooth);
-    xDistortion *= fadeX;
+    distortion *= fadeX;
   }
 
   highlight *= mask;
   highlight += .5 * maskStroke;
   highlight = min(highlight, 1.);
 
-  xDistortion *= 3. * u_distortion;
+  distortion *= 3. * u_distortion;
   frameFade *= u_distortion;
 
   floorOrigUV = rotateAspect(floorOrigUV, -patternRotation, u_imageAspectRatio);
   fractOrigUV = rotateAspect(fractOrigUV, -patternRotation, u_imageAspectRatio);
 
-  fractOrigUV.x += xDistortion;
+  fractOrigUV.x += distortion * cos(patternRotation);
+  fractOrigUV.y += distortion * sin(patternRotation);
+
   uv = (floorOrigUV + fractOrigUV) / patternSize;
   uv += pow(maskStroke, 4.);
 
