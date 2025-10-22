@@ -297,7 +297,7 @@ void main() {
   vec3 color = mix(backColor.rgb, image.rgb, image.a * frame);
   float opacity = backColor.a + image.a * frame;
 
-  highlight *= u_highlights;
+  highlight *= pow(u_highlights, 2.);
   highlight *= u_colorHighlight.a;
   color = mix(color, u_colorHighlight.rgb, .5 * highlight);
   color += .5 * pow(highlight, .5) * u_colorHighlight.rgb;
