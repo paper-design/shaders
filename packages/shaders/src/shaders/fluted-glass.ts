@@ -154,7 +154,7 @@ void main() {
   float origFrameBox = getUvFrame(imageOrigUV, .01);
 
   float patternRotation = -u_angle * PI / 180.;
-  float patternSize = 1. / pow(.7 * (u_size + .5), 6.);
+  float patternSize = mix(200., 5., u_size);
 
   vec2 uv = imageOrigUV;
 
