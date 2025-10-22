@@ -89,7 +89,10 @@ const FlutedGlassWithControls = () => {
       edges: { value: defaults.edges, min: 0, max: 1, order: 207 },
       margin: { value: defaults.margin, min: 0, max: 1, order: 500 },
       scale: { value: defaults.scale, min: 0.5, max: 4, order: 600 },
-      fit: { value: defaults.fit, options: ['contain', 'cover'] as ShaderFit[], order: 601 },
+      rotation: { value: defaults.rotation, min: 0, max: 360, order: 601 },
+      offsetX: { value: defaults.offsetX, min: -1, max: 1, order: 602 },
+      offsetY: { value: defaults.offsetX, min: -1, max: 1, order: 603 },
+      fit: { value: defaults.fit, options: ['contain', 'cover'] as ShaderFit[], order: 604 },
 
       Image: folder(
         {
