@@ -22,6 +22,7 @@
     "esbuild": "^0.24.0",
     "nodemon": "^3.1.7",
     "npm-run-all": "^4.1.5",
+    "glob": "^11.0.1",
     "prettier": "^3.4.2",
     "prettier-plugin-tailwindcss": "^0.6.14",
     "rimraf": "^6.0.1",
