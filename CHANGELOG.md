@@ -1,5 +1,29 @@
 # Paper Shaders
 
+## Version 0.0.59
+
+Minor adjustments to the Liquid Metal edge contour
+
+## Version 0.0.58
+
+- **General**
+  - Improve antialiasing for all image shaders when the images are downscaled
+- **Liquid Metal**
+  - New reworked version that supports custom images
+  - New default look and presets
+  - Added an `angle` parameter
+  - Improved contour and edge distortion
+  - Speed increased 3x, repetition increased 2x
+
+## Version 0.0.57
+
+- Reverts the initialization timing changes introduced in 0.0.56
+
+## Version 0.0.56
+
+- Shaders are now paused in the background when the browser tab becomes hidden
+- Improved shader initialization timing and WebGL resources clean-up
+
 ## Version 0.0.55
 
 - **Fluted Glass**

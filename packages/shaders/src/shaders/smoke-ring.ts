@@ -69,7 +69,8 @@ float fbm(in vec2 n) {
 
 float getNoise(vec2 uv, vec2 pUv, float t) {
   float noiseLeft = fbm(pUv + .03 * t);
-  pUv.x = mod(pUv.x, u_noiseScale * TWO_PI);
+  float period = max(abs(u_noiseScale * TWO_PI), 1e-6);
+  pUv.x = fract(pUv.x / period) * period;
   float noiseRight = fbm(pUv + .03 * t);
   return mix(noiseRight, noiseLeft, smoothstep(-.25, .25, uv.x));
 }
@@ -91,17 +92,18 @@ void main() {
   float t = u_time;
 
   float cycleDuration = 3.;
-  float localTime1 = mod(.1 * t + cycleDuration, 2. * cycleDuration);
-  float localTime2 = mod(.1 * t, 2. * cycleDuration);
+  float period2 = 2.0 * cycleDuration;
+  float localTime1 = fract((0.1 * t + cycleDuration) / period2) * period2;
+  float localTime2 = fract((0.1 * t) / period2) * period2;
   float timeBlend = .5 + .5 * sin(.1 * t * PI / cycleDuration - .5 * PI);
 
   float atg = atan(shape_uv.y, shape_uv.x) + .001;
   float l = length(shape_uv);
-  vec2 polar_uv1 = vec2(atg, localTime1 - (.5 * l) + 1. / pow(l, .5));
+  vec2 polar_uv1 = vec2(atg, localTime1 - (.5 * l) + 1. / pow(max(1e-4, l), .5));
   polar_uv1 *= u_noiseScale;
   float noise1 = getNoise(shape_uv, polar_uv1, t);
 
-  vec2 polar_uv2 = vec2(atg, localTime2 - (.5 * l) + 1. / pow(l, .5));
+  vec2 polar_uv2 = vec2(atg, localTime2 - (.5 * l) + 1. / pow(max(1e-4, l), .5));
   polar_uv2 *= u_noiseScale;
   float noise2 = getNoise(shape_uv, polar_uv2, t);
 
@@ -111,7 +113,7 @@ void main() {
 
   float ringShape = getRingShape(shape_uv);
 
-  float mixer = pow(ringShape, 2.) * (u_colorsCount - 1.);
+  float mixer = ringShape * ringShape * (u_colorsCount - 1.);
   vec4 gradient = u_colors[int(u_colorsCount) - 1];
   gradient.rgb *= gradient.a;
   for (int i = ${smokeRingMeta.maxColorCount} - 2; i >= 0; i--) {

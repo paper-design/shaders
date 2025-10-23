@@ -121,12 +121,15 @@ export function ShaderDetails({
   const componentName = shaderDef.name.replace(/ /g, '');
 
   const installationCode = 'npm i @paper-design/shaders-react';
+  const image = codeSampleImageName
+    ? `https://shaders.paper.design/${codeSampleImageName}`
+    : 'https://paper.design/flowers.webp';
 
   const code = `import { ${componentName} } from '@paper-design/shaders-react';
 
 <${componentName}
   width={1280}
-  height={720}${shaderDef.params.find((p) => p.name === 'image') ? `\n  image="https://shaders.paper.design/${codeSampleImageName ?? 'flowers.webp'}"` : ''}
+  height={720}${shaderDef.params.find((p) => p.name === 'image') ? `\n  image="${image}"` : ''}
   ${Object.entries(currentParams)
     .filter(([key, value]) => {
       if (['offsetX', 'offsetY', 'rotation'].includes(key) && value === 0) {

@@ -135,16 +135,6 @@ export {
   type GrainGradientShape,
 } from './shaders/grain-gradient.js';
 
-// ----- Liquid Metal ----- //
-/** Liquid metal effect applied to the abstract shapes */
-export {
-  liquidMetalFragmentShader,
-  LiquidMetalShapes,
-  type LiquidMetalParams,
-  type LiquidMetalUniforms,
-  type LiquidMetalShape,
-} from './shaders/liquid-metal.js';
-
 // ----- Pulsing Border ----- //
 /** Border with configurable size & radius ade of rotating pulsing light spots  */
 export {
@@ -210,6 +200,15 @@ export {
   type HeatmapParams,
   type HeatmapUniforms,
 } from './shaders/heatmap.js';
+
+export {
+  liquidMetalFragmentShader,
+  LiquidMetalShapes,
+  toProcessedLiquidMetal,
+  type LiquidMetalShape,
+  type LiquidMetalParams,
+  type LiquidMetalUniforms,
+} from './shaders/liquid-metal.js';
 
 export {
   imageHalftoneDotsMeta,
