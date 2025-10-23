@@ -294,9 +294,10 @@ void main() {
 
   vec2 dudx = dFdx(uvOriginal);
   vec2 dudy = dFdy(uvOriginal);
-  vec2 grainUV = getImageUV(uvNormalised, u_grainScale / vec2(length(dudx), length(dudy)));
+  vec2 grainUV = getImageUV(uvNormalised, .6 / vec2(length(dudx), length(dudy)));
   float grain = valueNoise(grainUV);
-  grain = 2. * u_grainMixer * pow(grain, 5.);
+  grain = smoothstep(.55, .7 + .2 * u_grainMixer, grain);
+  grain *= u_grainMixer;
   finalShape = mix(finalShape, 0., grain);
 
   vec3 color = vec3(0.);
