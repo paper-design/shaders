@@ -211,7 +211,6 @@ export {
 } from './shaders/liquid-metal.js';
 
 export {
-  imageHalftoneDotsMeta,
   ImageHalftoneDotsTypes,
   imageHalftoneDotsFragmentShader,
   type ImageHalftoneDotsParams,

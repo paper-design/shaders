@@ -6,7 +6,6 @@ import { setParamsSafe, useResetLevaParams } from '@/helpers/use-reset-leva-para
 import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
 import {
-  imageHalftoneDotsMeta,
   ImageHalftoneDotsType,
   ImageHalftoneDotsTypes,
   ShaderFit,
@@ -18,7 +17,6 @@ import { ShaderDetails } from '@/components/shader-details';
 import { imageHalftoneDotsDef } from '@/shader-defs/image-halftone-dots-def';
 import { ShaderContainer } from '@/components/shader-container';
 import { useUrlParams } from '@/helpers/use-url-params';
-import { useColors } from '@/helpers/use-colors';
 
 const { worldWidth, worldHeight, ...defaults } = imageHalftoneDotsPresets[0].params;
 
@@ -44,11 +42,6 @@ const imageFiles = [
 ] as const;
 
 const ImageHalftoneDotsWithControls = () => {
-  const { colors, setColors } = useColors({
-    defaultColors: defaults.colors,
-    maxColorCount: imageHalftoneDotsMeta.maxColorCount,
-  });
-
   const [imageIdx, setImageIdx] = useState(-1);
   const [image, setImage] = useState<HTMLImageElement | string>('/images/image-filters/0018.webp');
   const [status, setStatus] = useState('Click to load an image');
@@ -74,8 +67,15 @@ const ImageHalftoneDotsWithControls = () => {
   }, []);
 
   const [params, setParams] = useControls(() => {
+    const presets = Object.fromEntries(
+      imageHalftoneDotsPresets.map(({ name, params: { worldWidth, worldHeight, ...preset } }) => [
+        name,
+        button(() => setParamsSafe(params, setParams, preset)),
+      ])
+    );
     return {
       colorBack: { value: toHsla(defaults.colorBack), order: 100 },
+      colorFront: { value: toHsla(defaults.colorFront), order: 101 },
       originalColors: { value: defaults.originalColors, order: 102 },
       type: {
         value: defaults.type,
@@ -99,22 +99,7 @@ const ImageHalftoneDotsWithControls = () => {
         },
         { order: 0 }
       ),
-    };
-  }, [colors.length]);
-
-  useControls(() => {
-    const presets = Object.fromEntries(
-      imageHalftoneDotsPresets.map(({ name, params: { worldWidth, worldHeight, ...preset } }) => [
-        name,
-        button(() => {
-          const { colors, ...presetParams } = preset;
-          setColors(colors);
-          setParamsSafe(params, setParams, presetParams);
-        }),
-      ])
-    );
-    return {
-      Presets: folder(presets, { order: -2 }),
+      Presets: folder(presets, { order: -1 }),
     };
   });
 
@@ -128,7 +113,7 @@ const ImageHalftoneDotsWithControls = () => {
   return (
     <>
       <ShaderContainer shaderDef={imageHalftoneDotsDef} currentParams={params}>
-        <ImageHalftoneDots onClick={handleClick} {...params} colors={colors} image={image} />
+        <ImageHalftoneDots onClick={handleClick} {...params} image={image} />
       </ShaderContainer>
       <div onClick={handleClick} className="mx-auto mt-16 mb-48 w-fit text-base text-current/70 select-none">
         Click to change the sample image

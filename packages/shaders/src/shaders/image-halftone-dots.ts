@@ -1,11 +1,6 @@
-import type { vec4 } from '../types.js';
 import type { ShaderMotionParams } from '../shader-mount.js';
 import { type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
 import { declarePI, rotation2, proceduralHash21 } from '../shader-utils.js';
-
-export const imageHalftoneDotsMeta = {
-  maxColorCount: 10,
-} as const;
 
 /**
 
@@ -33,9 +28,8 @@ uniform mediump float u_offsetY;
 
 uniform float u_time;
 
+uniform vec4 u_colorFront;
 uniform vec4 u_colorBack;
-uniform vec4 u_colors[${imageHalftoneDotsMeta.maxColorCount}];
-uniform float u_colorsCount;
 uniform float u_radius;
 uniform float u_contrast;
 
@@ -316,13 +310,8 @@ void main() {
     color = color + bgColor * (1. - opacity);
     opacity = opacity + u_colorBack.a * (1. - opacity);
   } else {
-    float sizeMetric = 1. - avgLum;
-    int count = max(int(u_colorsCount), 1);
-    int idx = clamp(int(floor(sizeMetric * float(count))), 0, count - 1);
-    vec4 chosen = u_colors[idx];
-
-    vec3 fgColor = chosen.rgb * chosen.a;
-    float fgOpacity = chosen.a;
+    vec3 fgColor = u_colorFront.rgb * u_colorFront.a;
+    float fgOpacity = u_colorFront.a;
     vec3 bgColor = u_colorBack.rgb * u_colorBack.a;
     float bgOpacity = u_colorBack.a;
 
@@ -344,9 +333,8 @@ void main() {
 
 export interface ImageHalftoneDotsUniforms extends ShaderSizingUniforms {
   u_image: HTMLImageElement | string | undefined;
+  u_colorFront: [number, number, number, number];
   u_colorBack: [number, number, number, number];
-  u_colors: vec4[];
-  u_colorsCount: number;
   u_size: number;
   u_radius: number;
   u_contrast: number;
@@ -360,6 +348,8 @@ export interface ImageHalftoneDotsUniforms extends ShaderSizingUniforms {
 
 export interface ImageHalftoneDotsParams extends ShaderSizingParams, ShaderMotionParams {
   image?: HTMLImageElement | string;
+  colorFront?: string;
+  colorBack?: string;
   size?: number;
   radius?: number;
   contrast?: number;
@@ -368,8 +358,6 @@ export interface ImageHalftoneDotsParams extends ShaderSizingParams, ShaderMotio
   grainMixer?: number;
   grainOverlay?: number;
   grainScale?: number;
-  colorBack?: string;
-  colors?: string[];
   type?: ImageHalftoneDotsType;
 }
 
