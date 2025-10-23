@@ -45,6 +45,7 @@ uniform float u_angle;
 uniform float u_edges;
 uniform float u_shape;
 uniform float u_distortion;
+uniform float u_strokes;
 uniform float u_distortionShape;
 uniform float u_shift;
 uniform float u_blur;
@@ -52,6 +53,7 @@ uniform float u_marginLeft;
 uniform float u_marginRight;
 uniform float u_marginTop;
 uniform float u_marginBottom;
+uniform float u_blurFrame;
 
 out vec4 fragColor;
 
@@ -90,16 +92,11 @@ vec2 getImageUV(vec2 uv, vec2 extraScale) {
   return imageUV;
 }
 
-float getUvFrame(vec2 uv, float test) {
-  float aax = max(2. * fwidth(uv.x), test);
-  float aay = max(2. * fwidth(uv.y), test);
-
-  float left   = smoothstep(0., aax, uv.x);
-  float right  = 1. - smoothstep(1. - aax, 1., uv.x);
-  float bottom = smoothstep(0., aay, uv.y);
-  float top    = 1. - smoothstep(1. - aay, 1., uv.y);
-
-
+float getUvFrame(vec2 uv, float aa) {
+  float left   = smoothstep(0., aa, uv.x);
+  float right  = 1. - smoothstep(1. - aa, 1., uv.x);
+  float bottom = smoothstep(0., aa, uv.y);
+  float top    = 1. - smoothstep(1. - aa, 1., uv.y);
   return left * right * bottom * top;
 }
 
@@ -202,6 +199,11 @@ void main() {
   float x = smoothFract(UvToFract.x);
   float xNonSmooth = fract(UvToFract.x);
 
+  float w = max(.01, 2. * fwidth(xNonSmooth));
+  float strokes = smoothstep(0., w, xNonSmooth);
+  strokes *= smoothstep(1., 1. - w, xNonSmooth);
+  strokes = mix(1., strokes, u_strokes);
+
   float highlight = x;
   float distortion = 0.;
   float fadeX = 1.;
@@ -216,8 +218,7 @@ void main() {
 
     float aa = max(.2, fwidth(xNonSmooth));
     fadeX = smoothstep(0., aa, xNonSmooth) * smoothstep(1., 1. - aa, xNonSmooth);
-    distortion = mix(1., distortion, fadeX);
-
+    distortion = mix(.5, distortion, fadeX);
   } else if (u_distortionShape == 2.) {
     distortion = 2. * pow(x, 2.);
     distortion -= (.5 + u_shift);
@@ -225,12 +226,12 @@ void main() {
     frameFade = pow(abs(x - .5), 4.);
     highlight = 2.4 * pow(abs(x - .4), 2.5);
 
-    float aa = max(.15, fwidth(xNonSmooth));
+    float aa = max(.2, fwidth(xNonSmooth));
     fadeX = smoothstep(0., aa, xNonSmooth) * smoothstep(1., 1. - aa, xNonSmooth);
-    distortion = mix(1., distortion, fadeX);
-    frameFade = mix(1., frameFade, fadeX);
+    distortion = mix(.5, distortion, fadeX);
+    frameFade = mix(1., frameFade, .5 * fadeX);
   } else if (u_distortionShape == 3.) {
-    distortion = pow(2. * (x - .5), 6.);
+    distortion = pow(2. * (xNonSmooth - .5), 6.);
     highlight = clamp(distortion, 0., 1.);
     distortion -= .25;
     distortion -= u_shift;
@@ -238,9 +239,8 @@ void main() {
     frameFade = 1. - 2. * pow(abs(x - .4), 2.);
     highlight = pow(x, 6.);
 
-    float aa = max(.1, fwidth(xNonSmooth));
+    float aa = .15;
     fadeX = smoothstep(0., aa, xNonSmooth) * smoothstep(1., 1. - aa, xNonSmooth);
-    distortion = mix(1., distortion, fadeX);
     frameFade = mix(1., frameFade, fadeX);
 
   } else if (u_distortionShape == 4.) {
@@ -259,7 +259,7 @@ void main() {
 
     frameFade = .3 * (smoothstep(.0, 1., x));
 
-    float aa = max(.1, fwidth(xNonSmooth));
+    float aa = max(.1, 2. * fwidth(xNonSmooth));
     fadeX = smoothstep(0., aa, xNonSmooth) * smoothstep(1., 1. - aa, xNonSmooth);
     distortion *= fadeX;
   }
@@ -278,17 +278,24 @@ void main() {
   uv = (floorOrigUV + fractOrigUV) / patternSize;
   uv += pow(maskStroke, 4.);
 
-  float edges = 1. - smoothstep(0., .2, xNonSmooth) * smoothstep(1., 1. - .2, xNonSmooth);
-  edges *= mask;
-  edges *= origFrameBox;
-  uv.y = mix(uv.y, .0, u_edges * edges);
-
   uv += vec2(.5);
 
   uv = mix(imageOrigUV, uv, mask);
-  float blur = mix(0., u_blur, mask);
+  float blur = mix(0., mix(0., 50., u_blur), mask);
   
-  float frame = getUvFrame(uv, .05 * mask * frameFade);
+  float frameBlur = .15 * u_blurFrame;
+  frameBlur += .02 * pow(u_distortion + abs(u_shift), .5);
+  frameBlur += .02 * frameFade;
+  frameBlur *= mask;
+  float frame = getUvFrame(uv, frameBlur);
+  frame = mix(0., frame, strokes);
+
+  float edges = 1. - smoothstep(0., .5, xNonSmooth) * smoothstep(1., 1. - .5, xNonSmooth);
+  edges = pow(edges, 2.);
+  edges *= mask;
+  edges *= getUvFrame(uv, .1 + .05 * mask * frameFade);
+  uv.y = mix(uv.y, .5, u_edges * edges);
+
 
   vec4 image = getBlur(u_image, uv, 1. / u_resolution / u_pixelRatio, vec2(0., 1.), blur);
   vec4 backColor = u_colorBack;
@@ -325,6 +332,8 @@ export interface FlutedGlassUniforms extends ShaderSizingUniforms {
   u_marginBottom: number;
   u_edges: number;
   u_distortionShape: (typeof GlassDistortionShapes)[GlassDistortionShape];
+  u_strokes: number;
+  u_blurFrame: number;
   u_shape: (typeof GlassGridShapes)[GlassGridShape];
   u_noiseTexture?: HTMLImageElement;
 }
@@ -346,6 +355,8 @@ export interface FlutedGlassParams extends ShaderSizingParams, ShaderMotionParam
   marginBottom?: number;
   edges?: number;
   distortionShape?: GlassDistortionShape;
+  strokes?: number;
+  blurFrame?: number;
   shape?: GlassGridShape;
 }
 
