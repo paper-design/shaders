@@ -166,7 +166,7 @@ float getLumAtPx(vec2 uv, float contrast) {
   return lum;
 }
 
-float getLumBall(vec2 p, float pxSize, vec2 inCellOffset, float contrast, out vec4 ballColor, out float outLum) {
+float getLumBall(vec2 p, float pxSize, vec2 inCellOffset, float contrast, out vec4 ballColor) {
   p += inCellOffset;
   vec2 uv_i = floor(p);
   vec2 uv_f = fract(p);
@@ -188,7 +188,6 @@ float getLumBall(vec2 p, float pxSize, vec2 inCellOffset, float contrast, out ve
     ball = getGooeyBall(uv_f, lum);
   }
 
-  outLum = lum * outOfFrame;
   return ball * outOfFrame;
 }
 
@@ -215,8 +214,6 @@ void main() {
 
   vec4 ballColor;
   float shape;
-  float sampleLum;
-  float lumWeighted = 0.0;
   
   if (u_type > 1.5) {
     float stepSize = 1. / stepMultiplier;
@@ -231,11 +228,10 @@ void main() {
           }
         }
 
-        float shape = getLumBall(p, pxSize, offset, contrast, ballColor, sampleLum);
+        float shape = getLumBall(p, pxSize, offset, contrast, ballColor);
         totalColor   += ballColor.rgb * shape;
         totalShape   += shape;
         totalOpacity += ballColor.a * shape;
-        lumWeighted  += sampleLum * shape;
       }
     }
   } else {
@@ -247,11 +243,10 @@ void main() {
       }
     }
 
-    shape = getLumBall(p, pxSize, offset, contrast, ballColor, sampleLum);
+    shape = getLumBall(p, pxSize, offset, contrast, ballColor);
     totalColor += ballColor.rgb * shape;
     totalShape += shape;
     totalOpacity += ballColor.a * shape;
-    lumWeighted += sampleLum * shape;
   }
 
   totalShape *= textureOriginal.a;
@@ -260,8 +255,6 @@ void main() {
   
   totalColor /= max(totalShape, eps);
   totalOpacity /= max(totalShape, eps);
-
-  float avgLum = lumWeighted / max(totalShape, eps);
 
   float finalShape = 0.;
   if (u_type < .5) {
