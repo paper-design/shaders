@@ -7,13 +7,13 @@ import { declarePI, rotation2, proceduralHash21 } from '../shader-utils.js';
 
  Uniforms:
  - u_colorBack, u_colorFront, u_colorHighlight (RGBA)
- (u_colorHighlight to be the lightest parts of u_colorFront pixels)
+ (u_colorHighlight to be the lighdiagonalGrid parts of u_colorFront pixels)
  - size: px size set relative to canvas resolution
  */
 
 // language=GLSL
 export const imageHalftoneDotsFragmentShader: string = `#version 300 es
-precision highp float;
+precision lowp float;
 
 uniform mediump vec2 u_resolution;
 uniform mediump float u_pixelRatio;
@@ -39,7 +39,7 @@ uniform mediump float u_imageAspectRatio;
 uniform float u_size;
 uniform float u_grainMixer;
 uniform float u_grainOverlay;
-uniform float u_test;
+uniform bool u_diagonalGrid;
 uniform bool u_originalColors;
 uniform bool u_inverted;
 uniform float u_type;
@@ -194,7 +194,7 @@ void main() {
 
   float stepMultiplier = 1.;
   if (u_type > 1.5) {
-    stepMultiplier = 5.;
+    stepMultiplier = 6.;
   }
   
   float pxSize = stepMultiplier * u_size * u_pixelRatio;
@@ -215,23 +215,37 @@ void main() {
   float shape;
   float sampleLum;
   float lumWeighted = 0.0;
-
-
-
+  
   if (u_type > 1.5) {
-    const float stepSize = .2;
-    for (float x = -.4; x < .5; x += stepSize) {
-      for (float y = -.4; y < .5; y += stepSize) {
+    float stepSize = 1. / stepMultiplier;
+    for (float x = -0.5; x < 0.5; x += stepSize) {
+      for (float y = -0.5; y < 0.5; y += stepSize) {
         vec2 offset = vec2(x, y);
+
+        if (u_diagonalGrid == true) {
+          float rowIndex = floor((y + .5) / stepSize);
+          if (mod(rowIndex, 2.) == 1.) {
+            offset.x += .5 * stepSize;
+          }
+        }
+
         float shape = getLumBall(p, pxSize, offset, contrast, ballColor, sampleLum);
-        totalColor += ballColor.rgb * shape;
-        totalShape += shape;
+        totalColor   += ballColor.rgb * shape;
+        totalShape   += shape;
         totalOpacity += ballColor.a * shape;
-        lumWeighted += sampleLum * shape;
+        lumWeighted  += sampleLum * shape;
       }
     }
   } else {
-    shape = getLumBall(p, pxSize, vec2(0.), contrast, ballColor, sampleLum);
+    vec2 offset = vec2(0.);
+    if (u_diagonalGrid == true) {
+      float rowIndex = floor(p.y);
+      if (mod(rowIndex, 2.) == 1.) {
+        offset.x += .5;
+      }
+    }
+
+    shape = getLumBall(p, pxSize, offset, contrast, ballColor, sampleLum);
     totalColor += ballColor.rgb * shape;
     totalShape += shape;
     totalOpacity += ballColor.a * shape;
@@ -255,7 +269,6 @@ void main() {
   } else if (u_type < 2.5) {
     float aa = fwidth(totalShape);
     finalShape = smoothstep(.05 - aa, .05 + aa, totalShape);
-//    finalShape = totalShape;
   }
 
   vec2 dudx = dFdx(uvOriginal);
@@ -303,13 +316,13 @@ export interface ImageHalftoneDotsUniforms extends ShaderSizingUniforms {
   u_colorFront: [number, number, number, number];
   u_colorBack: [number, number, number, number];
   u_size: number;
+  u_diagonalGrid: boolean;
   u_radius: number;
   u_contrast: number;
   u_originalColors: boolean;
   u_inverted: boolean;
   u_grainMixer: number;
   u_grainOverlay: number;
-  u_test: number;
   u_type: (typeof ImageHalftoneDotsTypes)[ImageHalftoneDotsType];
 }
 
@@ -318,13 +331,13 @@ export interface ImageHalftoneDotsParams extends ShaderSizingParams, ShaderMotio
   colorFront?: string;
   colorBack?: string;
   size?: number;
+  diagonalGrid?: boolean;
   radius?: number;
   contrast?: number;
   originalColors?: boolean;
   inverted?: boolean;
   grainMixer?: number;
   grainOverlay?: number;
-  test?: number;
   type?: ImageHalftoneDotsType;
 }
 
