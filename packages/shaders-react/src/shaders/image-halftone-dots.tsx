@@ -32,7 +32,7 @@ export const defaultPreset: ImageHalftoneDotsPreset = {
     grainMixer: 0,
     grainOverlay: 0,
     diagonalGrid: true,
-    type: 'gooey',
+    type: 'overflow',
   },
 };
 

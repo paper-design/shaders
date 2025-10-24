@@ -140,13 +140,12 @@ float getGooeyBall(vec2 uv, float r) {
 }
 
 float getUvFrame(vec2 uv) {
-  float aax = 2. * fwidth(uv.x);
-  float aay = 2. * fwidth(uv.y);
+  float aa = 0.0001;
 
-  float left   = smoothstep(0., aax, uv.x);
-  float right  = smoothstep(1., 1. - aax, uv.x);
-  float bottom = smoothstep(0., aay, uv.y);
-  float top    = smoothstep(1., 1. - aay, uv.y);
+  float left   = smoothstep(0., aa, uv.x);
+  float right  = smoothstep(1., 1. - aa, uv.x);
+  float bottom = smoothstep(0., aa, uv.y);
+  float top    = smoothstep(1., 1. - aa, uv.y);
 
   return left * right * bottom * top;
 }
@@ -173,9 +172,12 @@ float getLumBall(vec2 p, float pxSize, vec2 inCellOffset, float contrast, out ve
   vec2 uv_f = fract(p);
   vec2 samplePx = ((uv_i + .5 - inCellOffset) * pxSize) / u_resolution.xy;
   vec2 samplingUV = getImageUV(samplePx, vec2(1.));
+  float outOfFrame = getUvFrame(samplingUV);
+  
   float lum = getLumAtPx(samplingUV, contrast);
   ballColor = texture(u_image, samplingUV);
   ballColor.rgb *= ballColor.a;
+  ballColor *= outOfFrame;
 
   float ball = 0.;
   if (u_type < .5) {
@@ -186,8 +188,8 @@ float getLumBall(vec2 p, float pxSize, vec2 inCellOffset, float contrast, out ve
     ball = getGooeyBall(uv_f, lum);
   }
 
-  outLum = lum;
-  return ball;
+  outLum = lum * outOfFrame;
+  return ball * outOfFrame;
 }
 
 void main() {
