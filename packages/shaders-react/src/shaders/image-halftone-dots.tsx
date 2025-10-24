@@ -22,17 +22,17 @@ export const defaultPreset: ImageHalftoneDotsPreset = {
     ...defaultObjectSizing,
     speed: 1,
     frame: 0,
-    colorBack: '#d4d4d4',
-    colorFront: '#2b2b2b',
-    size: 6,
-    radius: 0.65,
+    colorBack: '#ffffff',
+    colorFront: '#000000',
+    size: 40,
+    radius: 1,
     contrast: 0.45,
     originalColors: false,
     inverted: false,
-    grainMixer: 1,
+    grainMixer: 0,
     grainOverlay: 0,
-    grainScale: 1,
-    type: 'classic',
+    test: 1,
+    type: 'gooey',
   },
 };
 
@@ -51,7 +51,7 @@ export const abstractPreset: ImageHalftoneDotsPreset = {
     inverted: false,
     grainMixer: 0,
     grainOverlay: 0,
-    grainScale: 1,
+    test: 1,
     type: 'classic',
   },
 };
@@ -71,7 +71,7 @@ export const netPreset: ImageHalftoneDotsPreset = {
     inverted: false,
     grainMixer: 0,
     grainOverlay: 0,
-    grainScale: 1,
+    test: 1,
     type: 'classic',
   },
 };
@@ -91,7 +91,7 @@ export const overflowPreset: ImageHalftoneDotsPreset = {
     inverted: false,
     grainMixer: 0,
     grainOverlay: 1,
-    grainScale: 1,
+    test: 1,
     type: 'overflow',
   },
 };
@@ -117,7 +117,7 @@ export const ImageHalftoneDots: React.FC<ImageHalftoneDotsProps> = memo(function
   inverted = defaultPreset.params.inverted,
   grainMixer = defaultPreset.params.grainMixer,
   grainOverlay = defaultPreset.params.grainOverlay,
-  grainScale = defaultPreset.params.grainScale,
+  test = defaultPreset.params.test,
   type = defaultPreset.params.type,
 
   // Sizing props
@@ -144,7 +144,7 @@ export const ImageHalftoneDots: React.FC<ImageHalftoneDotsProps> = memo(function
     u_inverted: inverted,
     u_grainMixer: grainMixer,
     u_grainOverlay: grainOverlay,
-    u_grainScale: grainScale,
+    u_test: test,
     u_type: ImageHalftoneDotsTypes[type],
 
     // Sizing uniforms

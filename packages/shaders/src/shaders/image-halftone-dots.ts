@@ -13,7 +13,7 @@ import { declarePI, rotation2, proceduralHash21 } from '../shader-utils.js';
 
 // language=GLSL
 export const imageHalftoneDotsFragmentShader: string = `#version 300 es
-precision lowp float;
+precision highp float;
 
 uniform mediump vec2 u_resolution;
 uniform mediump float u_pixelRatio;
@@ -39,7 +39,7 @@ uniform mediump float u_imageAspectRatio;
 uniform float u_size;
 uniform float u_grainMixer;
 uniform float u_grainOverlay;
-uniform float u_grainScale;
+uniform float u_test;
 uniform bool u_originalColors;
 uniform bool u_inverted;
 uniform float u_type;
@@ -71,18 +71,6 @@ float sst(float edge0, float edge1, float x) {
   return smoothstep(edge0, edge1, x);
 }
 
-vec2 getPixelizationOffset() {
-  vec2 imageBoxSize;
-  if (u_fit == 1.) {
-    imageBoxSize.x = min(u_resolution.x / u_imageAspectRatio, u_resolution.y) * u_imageAspectRatio;
-  } else {
-    imageBoxSize.x = max(u_resolution.x / u_imageAspectRatio, u_resolution.y) * u_imageAspectRatio;
-  }
-  imageBoxSize.y = imageBoxSize.x / u_imageAspectRatio;
-  vec2 imageCenter = (u_resolution - imageBoxSize) * .5;
-  return imageCenter;
-}
-
 vec2 getImageUV(vec2 uv, vec2 extraScale) {
   vec2 boxOrigin = vec2(.5 - u_originX, u_originY - .5);
   float r = u_rotation * PI / 180.;
@@ -108,6 +96,7 @@ vec2 getImageUV(vec2 uv, vec2 extraScale) {
   imageUV = graphicRotation * imageUV;
   imageUV.x /= u_imageAspectRatio;
 
+  imageUV += .5;
   imageUV.y = 1. - imageUV.y;
   
   return imageUV;
@@ -121,8 +110,6 @@ float getCircle(vec2 uv, float r) {
 }
 
 float getCell(vec2 uv) {
-  uv *= 2.0;
-  uv -= 0.5;
   float insideX = step(0.0, uv.x) * (1.0 - step(1.0, uv.x));
   float insideY = step(0.0, uv.y) * (1.0 - step(1.0, uv.y));
   return insideX * insideY;
@@ -145,9 +132,10 @@ float getCircleOverflow(vec2 uv, float r) {
 }
 
 float getGooeyBall(vec2 uv, float r) {
+  r = mix(.5 * u_radius, 0., r);
   float d = length(uv - .5);
-  d = 1. - sst(0., .5, d);
-  d = mix(1., .5, r) * pow(d, mix(.2, 10., r));
+  d = 1. - lst(0., r, d);
+  d = 1. * pow(d, 10.);
   return d;
 }
 
@@ -168,10 +156,7 @@ float sigmoid(float x, float k) {
 }
 
 float getLumAtPx(vec2 uv, float contrast) {
-  vec2 dudx = dFdx(uv);
-  vec2 dudy = dFdy(uv);
-  vec4 tex = textureGrad(u_image, uv, dudx, dudy);
-  
+  vec4 tex = texture(u_image, uv);
   vec3 color = vec3(
   sigmoid(tex.r, contrast),
   sigmoid(tex.g, contrast),
@@ -182,16 +167,14 @@ float getLumAtPx(vec2 uv, float contrast) {
   return lum;
 }
 
-float getLumBall(vec2 uv, float gridSize, vec2 inCellOffset, float contrast, out vec4 ballColor, out float outLum) {
-  vec2 p = uv + inCellOffset;
-  p /= gridSize;
+float getLumBall(vec2 p, float pxSize, vec2 inCellOffset, float contrast, out vec4 ballColor, out float outLum) {
+  p += inCellOffset;
   vec2 uv_i = floor(p);
-  vec2 uv_f = fract(p + .0001);
-
-  vec2 samplePx = uv_i * gridSize - inCellOffset;
-  vec2 sampleUV = getImageUV(samplePx / u_resolution.xy, vec2(1.));
-  float lum = getLumAtPx(sampleUV, contrast);
-  ballColor = texture(u_image, sampleUV);
+  vec2 uv_f = fract(p);
+  vec2 samplePx = ((uv_i + .5 - inCellOffset) * pxSize) / u_resolution.xy;
+  vec2 samplingUV = getImageUV(samplePx, vec2(1.));
+  float lum = getLumAtPx(samplingUV, contrast);
+  ballColor = texture(u_image, samplingUV);
   ballColor.rgb *= ballColor.a;
 
   float ball = 0.;
@@ -208,143 +191,110 @@ float getLumBall(vec2 uv, float gridSize, vec2 inCellOffset, float contrast, out
 }
 
 void main() {
-  float pxSize = u_size * u_pixelRatio;
+
+  float stepMultiplier = 1.;
+  if (u_type > 1.5) {
+    stepMultiplier = 5.;
+  }
+  
+  float pxSize = stepMultiplier * u_size * u_pixelRatio;
   float contrast = mix(0., 15., u_contrast);
+
+  vec2 uv = gl_FragCoord.xy - .5 * u_resolution;
+  vec2 p = uv / pxSize;
   
-//  vec2 uvNormalised = gl_FragCoord.xy / u_resolution.xy;
-//  vec2 uvOriginal = getImageUV(uvNormalised, vec2(1.));
-//  vec4 texture = texture(u_image, uvOriginal);
-//  float frameOriginal = getUvFrame(uvOriginal);
+  vec2 uvNormalised = uv / u_resolution.xy;
+  vec2 uvOriginal = getImageUV(uvNormalised, vec2(1.));
+  vec4 textureOriginal = texture(u_image, uvOriginal);
 
+  float totalShape = 0.;
+  vec3 totalColor = vec3(0.);
+  float totalOpacity = 0.;
+
+  vec4 ballColor;
+  float shape;
+  float sampleLum;
+  float lumWeighted = 0.0;
+
+
+
+  if (u_type > 1.5) {
+    const float stepSize = .2;
+    for (float x = -.4; x < .5; x += stepSize) {
+      for (float y = -.4; y < .5; y += stepSize) {
+        vec2 offset = vec2(x, y);
+        float shape = getLumBall(p, pxSize, offset, contrast, ballColor, sampleLum);
+        totalColor += ballColor.rgb * shape;
+        totalShape += shape;
+        totalOpacity += ballColor.a * shape;
+        lumWeighted += sampleLum * shape;
+      }
+    }
+  } else {
+    shape = getLumBall(p, pxSize, vec2(0.), contrast, ballColor, sampleLum);
+    totalColor += ballColor.rgb * shape;
+    totalShape += shape;
+    totalOpacity += ballColor.a * shape;
+    lumWeighted += sampleLum * shape;
+  }
+
+  totalShape *= textureOriginal.a;
+
+  const float eps = 1e-4;
   
-  //
-//  float totalShape = 0.;
-//  vec3 totalColor = vec3(0.);
-//  float totalOpacity = 0.;
-//
-//  uv += .5 * gridSize;
-//
-//  vec4 ballColor;
-//  float shape;
-//  float sampleLum;// NEW: per-sample luminance
-//  float lumWeighted = 0.0;// NEW: accumulate lum * shape
-//
-//  shape = getLumBall(uv, gridSize, vec2(0.), contrast, ballColor, sampleLum);
-//  totalColor += ballColor.rgb * shape;
-//  totalShape += shape;
-//  totalOpacity += ballColor.a * shape;
-//  lumWeighted += sampleLum * shape;
-//
-//  shape = getLumBall(uv, gridSize, vec2(2., 0.) * pxSize, contrast, ballColor, sampleLum);
-//  totalColor += ballColor.rgb * shape;
-//  totalShape += shape;
-//  totalOpacity += ballColor.a * shape;
-//  lumWeighted += sampleLum * shape;
-//
-//  shape = getLumBall(uv, gridSize, vec2(0., 2.) * pxSize, contrast, ballColor, sampleLum);
-//  totalColor += ballColor.rgb * shape;
-//  totalShape += shape;
-//  totalOpacity += ballColor.a * shape;
-//  lumWeighted += sampleLum * shape;
-//
-//  shape = getLumBall(uv, gridSize, vec2(2.) * pxSize, contrast, ballColor, sampleLum);
-//  totalColor += ballColor.rgb * shape;
-//  totalShape += shape;
-//  totalOpacity += ballColor.a * shape;
-//  lumWeighted += sampleLum * shape;
-//
-//  if (u_type != 1.) {
-//      shape = getLumBall(uv, gridSize, vec2(1.) * pxSize, contrast, ballColor, sampleLum);
-//      totalColor += ballColor.rgb * shape;
-//      totalShape += shape;
-//      totalOpacity += ballColor.a * shape;
-//      lumWeighted += sampleLum * shape;
-//
-//      shape = getLumBall(uv, gridSize, vec2(1., 3.) * pxSize, contrast, ballColor, sampleLum);
-//      totalColor += ballColor.rgb * shape;
-//      totalShape += shape;
-//      totalOpacity += ballColor.a * shape;
-//      lumWeighted += sampleLum * shape;
-//
-//      shape = getLumBall(uv, gridSize, vec2(3., 1.) * pxSize, contrast, ballColor, sampleLum);
-//      totalColor += ballColor.rgb * shape;
-//      totalShape += shape;
-//      totalOpacity += ballColor.a * shape;
-//      lumWeighted += sampleLum * shape;
-//
-//      shape = getLumBall(uv, gridSize, vec2(3.) * pxSize, contrast, ballColor, sampleLum);
-//      totalColor += ballColor.rgb * shape;
-//      totalShape += shape;
-//      totalOpacity += ballColor.a * shape;
-//      lumWeighted += sampleLum * shape;
-//  }
-//  
-//  totalShape *= texture.a;
-//
-//  const float eps = 1e-4;
-//  
-//  totalColor /= max(totalShape, eps);
-//  totalOpacity /= max(totalShape, eps);
-//
-//  float avgLum = lumWeighted / max(totalShape, eps);
-//
-//  float finalShape = 0.;
-//  if (u_type < .5) {
-//    finalShape = min(1., totalShape);
-//  } else if (u_type < 1.5) {
-//    finalShape = min(1., totalShape);
-//  } else if (u_type < 2.5) {
-//    float aa = fwidth(totalShape);
-//    float r = 1. - u_radius;
-//    finalShape = smoothstep(r - aa, r + aa, totalShape);
-////    finalShape = totalShape;
-//  }
-//
-//  vec2 dudx = dFdx(uvOriginal);
-//  vec2 dudy = dFdy(uvOriginal);
-//  vec2 grainUV = getImageUV(uvNormalised, .6 / vec2(length(dudx), length(dudy)));
-//  float grain = valueNoise(grainUV);
-//  grain = smoothstep(.55, .7 + .2 * u_grainMixer, grain);
-//  grain *= u_grainMixer;
-//  finalShape = mix(finalShape, 0., grain);
-//
-//  vec3 color = vec3(0.);
-//  float opacity = 0.;
-//  
-//  if (u_originalColors == true) {
-//    color = totalColor * finalShape;
-//    opacity = totalOpacity * finalShape;
-//
-//    vec3 bgColor = u_colorBack.rgb * u_colorBack.a;
-//    color = color + bgColor * (1. - opacity);
-//    opacity = opacity + u_colorBack.a * (1. - opacity);
-//  } else {
-//    vec3 fgColor = u_colorFront.rgb * u_colorFront.a;
-//    float fgOpacity = u_colorFront.a;
-//    vec3 bgColor = u_colorBack.rgb * u_colorBack.a;
-//    float bgOpacity = u_colorBack.a;
-//
-//    color = fgColor * finalShape;
-//    opacity = fgOpacity * finalShape;
-//    color += bgColor * (1. - opacity);
-//    opacity += bgOpacity * (1. - opacity);
-//  }
-//
-//  float rr = valueNoise(rotate(grainUV, 1.) + vec2(3.));
-//  float gg = valueNoise(rotate(grainUV, 2.) + vec2(-1.));
-//  float bb = valueNoise(grainUV + vec2(5.));
-//  vec3 grainColor = vec3(rr, gg, bb);
-//  color = mix(color, grainColor, .01 + .5 * u_grainOverlay);
+  totalColor /= max(totalShape, eps);
+  totalOpacity /= max(totalShape, eps);
 
-//  fragColor = vec4(color, opacity);
+  float avgLum = lumWeighted / max(totalShape, eps);
 
-  vec2 block = floor((gl_FragCoord.xy - getPixelizationOffset()) / pxSize);
-  vec2 pixelizedUv = (block + .5) * pxSize / u_resolution;
-  pixelizedUv = getImageUV(pixelizedUv, vec2(1.));
+  float finalShape = 0.;
+  if (u_type < .5) {
+    finalShape = min(1., totalShape);
+  } else if (u_type < 1.5) {
+    finalShape = min(1., totalShape);
+  } else if (u_type < 2.5) {
+    float aa = fwidth(totalShape);
+    finalShape = smoothstep(.05 - aa, .05 + aa, totalShape);
+//    finalShape = totalShape;
+  }
 
-  float lum = getLumAtPx(pixelizedUv, contrast);
+  vec2 dudx = dFdx(uvOriginal);
+  vec2 dudy = dFdy(uvOriginal);
+  vec2 grainUV = getImageUV(uvNormalised, .6 / vec2(length(dudx), length(dudy)));
+  float grain = valueNoise(grainUV);
+  grain = smoothstep(.55, .7 + .2 * u_grainMixer, grain);
+  grain *= u_grainMixer;
+  finalShape = mix(finalShape, 0., grain);
 
-  fragColor = vec4(vec3(lum), 1.);
+  vec3 color = vec3(0.);
+  float opacity = 0.;
+  
+  if (u_originalColors == true) {
+    color = totalColor * finalShape;
+    opacity = totalOpacity * finalShape;
+
+    vec3 bgColor = u_colorBack.rgb * u_colorBack.a;
+    color = color + bgColor * (1. - opacity);
+    opacity = opacity + u_colorBack.a * (1. - opacity);
+  } else {
+    vec3 fgColor = u_colorFront.rgb * u_colorFront.a;
+    float fgOpacity = u_colorFront.a;
+    vec3 bgColor = u_colorBack.rgb * u_colorBack.a;
+    float bgOpacity = u_colorBack.a;
+
+    color = fgColor * finalShape;
+    opacity = fgOpacity * finalShape;
+    color += bgColor * (1. - opacity);
+    opacity += bgOpacity * (1. - opacity);
+  }
+
+  float rr = valueNoise(rotate(grainUV, 1.) + vec2(3.));
+  float gg = valueNoise(rotate(grainUV, 2.) + vec2(-1.));
+  float bb = valueNoise(grainUV + vec2(5.));
+  vec3 grainColor = vec3(rr, gg, bb);
+  color = mix(color, grainColor, .01 + .5 * u_grainOverlay);
+
+  fragColor = vec4(color, opacity);
 }
 `;
 
@@ -359,7 +309,7 @@ export interface ImageHalftoneDotsUniforms extends ShaderSizingUniforms {
   u_inverted: boolean;
   u_grainMixer: number;
   u_grainOverlay: number;
-  u_grainScale: number;
+  u_test: number;
   u_type: (typeof ImageHalftoneDotsTypes)[ImageHalftoneDotsType];
 }
 
@@ -374,7 +324,7 @@ export interface ImageHalftoneDotsParams extends ShaderSizingParams, ShaderMotio
   inverted?: boolean;
   grainMixer?: number;
   grainOverlay?: number;
-  grainScale?: number;
+  test?: number;
   type?: ImageHalftoneDotsType;
 }
 
