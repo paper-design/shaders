@@ -86,7 +86,7 @@ const ImageHalftoneDotsWithControls = () => {
       diagonalGrid: { value: defaults.diagonalGrid, order: 202 },
       size: { value: defaults.size, min: 4, max: 60, step: 1, order: 300 },
       radius: { value: defaults.radius, min: 0, max: 1, order: 301 },
-      contrast: { value: defaults.contrast, min: 0, max: 1, order: 302 },
+      contrast: { value: defaults.contrast, min: 0.01, max: 1, order: 302 },
       grainMixer: { value: defaults.grainMixer, min: 0, max: 1, order: 350 },
       grainOverlay: { value: defaults.grainOverlay, min: 0, max: 1, order: 351 },
       scale: { value: defaults.scale, min: 0.1, max: 10, order: 400 },
