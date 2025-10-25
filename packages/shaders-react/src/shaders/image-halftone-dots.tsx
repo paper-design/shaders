@@ -22,16 +22,16 @@ export const defaultPreset: ImageHalftoneDotsPreset = {
     ...defaultObjectSizing,
     speed: 1,
     frame: 0,
-    colorBack: '#ffffff',
-    colorFront: '#000000',
-    size: 15,
+    colorBack: '#d4d4d4',
+    colorFront: '#2b2b2b',
+    size: 5,
     radius: 1,
-    contrast: 0.45,
+    contrast: 0.5,
     originalColors: false,
     inverted: false,
-    grainMixer: 0,
+    grainMixer: 0.3,
     grainOverlay: 0,
-    diagonalGrid: true,
+    diagonalGrid: false,
     type: 'gooey',
   },
 };
@@ -44,14 +44,14 @@ export const abstractPreset: ImageHalftoneDotsPreset = {
     frame: 0,
     colorBack: '#00000000',
     colorFront: '#2b2b2b',
-    size: 40,
-    radius: 0.65,
+    size: 25,
+    radius: 2,
     contrast: 0.45,
     originalColors: true,
     inverted: false,
     grainMixer: 0,
     grainOverlay: 0,
-    diagonalGrid: false,
+    diagonalGrid: true,
     type: 'classic',
   },
 };
@@ -65,7 +65,7 @@ export const netPreset: ImageHalftoneDotsPreset = {
     colorBack: '#000000',
     colorFront: '#2b2b2b',
     size: 12,
-    radius: 0.67,
+    radius: 2,
     contrast: 0,
     originalColors: true,
     inverted: false,
@@ -76,23 +76,23 @@ export const netPreset: ImageHalftoneDotsPreset = {
   },
 };
 
-export const overlapPreset: ImageHalftoneDotsPreset = {
-  name: 'Overlap',
+export const holesPreset: ImageHalftoneDotsPreset = {
+  name: 'Holes',
   params: {
     ...defaultObjectSizing,
     speed: 1,
     frame: 0,
     colorBack: '#ffffff00',
     colorFront: '#0012b3',
-    size: 12,
-    radius: 1,
+    size: 20,
+    radius: 1.4,
     contrast: 0.35,
     originalColors: false,
     inverted: false,
     grainMixer: 0,
     grainOverlay: 0,
     diagonalGrid: false,
-    type: 'classic',
+    type: 'hole',
   },
 };
 
@@ -100,7 +100,7 @@ export const imageHalftoneDotsPresets: ImageHalftoneDotsPreset[] = [
   defaultPreset,
   abstractPreset,
   netPreset,
-  overlapPreset,
+  holesPreset,
 ];
 
 export const ImageHalftoneDots: React.FC<ImageHalftoneDotsProps> = memo(function ImageHalftoneDotsImpl({
