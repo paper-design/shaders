@@ -103,7 +103,7 @@ vec2 getImageUV(vec2 uv, vec2 extraScale) {
 }
 
 float getCircle(vec2 uv, float r) {
-  r = mix(.5 * u_radius, 0., r);
+  r = mix(.25 * u_radius, 0., r);
   float d = length(uv - .5);
   float aa = fwidth(d);
   return 1. - smoothstep(r - aa, r + aa, d);
@@ -115,7 +115,7 @@ float getCell(vec2 uv) {
   return insideX * insideY;
 }
 
-float getCircleOverflow(vec2 uv, float r) {
+float getCircleWithHole(vec2 uv, float r) {
   float cell = getCell(uv);
 
   r = mix(.5 * u_radius, 0., r);
@@ -134,8 +134,8 @@ float getCircleOverflow(vec2 uv, float r) {
 float getGooeyBall(vec2 uv, float r) {
   r = mix(.5 * u_radius, 0., r);
   float d = length(uv - .5);
-  d = 1. - lst(0., r, d);
-  d = 1. * pow(d, 10.);
+  d = 1. - sst(0., r, d);
+  d = 1. * pow(d, 6.);
   return d;
 }
 
@@ -181,10 +181,13 @@ float getLumBall(vec2 p, float pxSize, vec2 inCellOffset, float contrast, out ve
 
   float ball = 0.;
   if (u_type < .5) {
+    // classic
     ball = getCircle(uv_f, lum);
   } else if (u_type < 1.5) {
-    ball = getCircleOverflow(uv_f, lum);
+    // hole
+    ball = getCircleWithHole(uv_f, lum);
   } else if (u_type < 2.5) {
+    // gooey
     ball = getGooeyBall(uv_f, lum);
   }
 
@@ -194,9 +197,13 @@ float getLumBall(vec2 p, float pxSize, vec2 inCellOffset, float contrast, out ve
 void main() {
 
   float stepMultiplier = 1.;
-  if (u_type > 1.5) {
+  if (u_type < 1.) {
+    // classic
+    stepMultiplier = 2.;
+  } else if (u_type > 1.5) {
+    // gooey
     stepMultiplier = 6.;
-  }
+  } 
   
   float pxSize = stepMultiplier * u_size * u_pixelRatio;
   float contrast = mix(0., 15., u_contrast);
@@ -214,41 +221,28 @@ void main() {
 
   vec4 ballColor;
   float shape;
-  
-  if (u_type > 1.5) {
-    float stepSize = 1. / stepMultiplier;
-    for (float x = -0.5; x < 0.5; x += stepSize) {
-      for (float y = -0.5; y < 0.5; y += stepSize) {
-        vec2 offset = vec2(x, y);
+  float stepSize = 1. / stepMultiplier;
+  for (float x = -0.5; x < 0.5; x += stepSize) {
+    for (float y = -0.5; y < 0.5; y += stepSize) {
+      vec2 offset = vec2(x, y);
 
-        if (u_diagonalGrid == true) {
-          float rowIndex = floor((y + .5) / stepSize);
-          if (mod(rowIndex, 2.) == 1.) {
-            offset.x += .5 * stepSize;
-          }
+      if (u_diagonalGrid == true) {
+        float rowIndex = floor((y + .5) / stepSize);
+        if (stepSize == 1.) {
+          rowIndex = floor(p.y + y + 1.);
         }
-
-        float shape = getLumBall(p, pxSize, offset, contrast, ballColor);
-        totalColor   += ballColor.rgb * shape;
-        totalShape   += shape;
-        totalOpacity += ballColor.a * shape;
+        if (mod(rowIndex, 2.) == 1.) {
+          offset.x += .5 * stepSize;
+        }
       }
-    }
-  } else {
-    vec2 offset = vec2(0.);
-    if (u_diagonalGrid == true) {
-      float rowIndex = floor(p.y);
-      if (mod(rowIndex, 2.) == 1.) {
-        offset.x += .5;
-      }
-    }
 
-    shape = getLumBall(p, pxSize, offset, contrast, ballColor);
-    totalColor += ballColor.rgb * shape;
-    totalShape += shape;
-    totalOpacity += ballColor.a * shape;
+      shape = getLumBall(p, pxSize, offset, contrast, ballColor);
+      totalColor   += ballColor.rgb * shape;
+      totalShape   += shape;
+      totalOpacity += ballColor.a * shape;
+    }
   }
-
+  
   totalShape *= textureOriginal.a;
 
   const float eps = 1e-4;
@@ -257,13 +251,13 @@ void main() {
   totalOpacity /= max(totalShape, eps);
 
   float finalShape = 0.;
-  if (u_type < .5) {
-    finalShape = min(1., totalShape);
-  } else if (u_type < 1.5) {
+  if (u_type < 1.5) {
     finalShape = min(1., totalShape);
   } else if (u_type < 2.5) {
     float aa = fwidth(totalShape);
-    finalShape = smoothstep(.05 - aa, .05 + aa, totalShape);
+    float th = .5;
+    finalShape = smoothstep(th - aa, th + aa, totalShape);
+//    finalShape = totalShape;
   }
 
   vec2 dudx = dFdx(uvOriginal);
@@ -338,7 +332,7 @@ export interface ImageHalftoneDotsParams extends ShaderSizingParams, ShaderMotio
 
 export const ImageHalftoneDotsTypes = {
   classic: 0,
-  overflow: 1,
+  hole: 1,
   gooey: 2,
 } as const;
 

@@ -24,7 +24,7 @@ export const defaultPreset: ImageHalftoneDotsPreset = {
     frame: 0,
     colorBack: '#ffffff',
     colorFront: '#000000',
-    size: 40,
+    size: 15,
     radius: 1,
     contrast: 0.45,
     originalColors: false,
@@ -32,7 +32,7 @@ export const defaultPreset: ImageHalftoneDotsPreset = {
     grainMixer: 0,
     grainOverlay: 0,
     diagonalGrid: true,
-    type: 'overflow',
+    type: 'gooey',
   },
 };
 
@@ -76,8 +76,8 @@ export const netPreset: ImageHalftoneDotsPreset = {
   },
 };
 
-export const overflowPreset: ImageHalftoneDotsPreset = {
-  name: 'Overflow',
+export const overlapPreset: ImageHalftoneDotsPreset = {
+  name: 'Overlap',
   params: {
     ...defaultObjectSizing,
     speed: 1,
@@ -92,7 +92,7 @@ export const overflowPreset: ImageHalftoneDotsPreset = {
     grainMixer: 0,
     grainOverlay: 0,
     diagonalGrid: false,
-    type: 'overflow',
+    type: 'classic',
   },
 };
 
@@ -100,7 +100,7 @@ export const imageHalftoneDotsPresets: ImageHalftoneDotsPreset[] = [
   defaultPreset,
   abstractPreset,
   netPreset,
-  overflowPreset,
+  overlapPreset,
 ];
 
 export const ImageHalftoneDots: React.FC<ImageHalftoneDotsProps> = memo(function ImageHalftoneDotsImpl({
