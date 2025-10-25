@@ -135,7 +135,15 @@ float getGooeyBall(vec2 uv, float r) {
   r = mix(.5 * u_radius, 0., r);
   float d = length(uv - .5);
   d = 1. - sst(0., r, d);
-  d = 1. * pow(d, 6.);
+  d = pow(d, 6.);
+  return d;
+}
+
+float getSoftBall(vec2 uv, float r) {
+  r = mix(.5 * u_radius, 0., r);
+  float d = length(uv - .5);
+  d = 1. - lst(0., r, d);
+  d = pow(d, 3.);
   return d;
 }
 
@@ -189,6 +197,9 @@ float getLumBall(vec2 p, float pxSize, vec2 inCellOffset, float contrast, out ve
   } else if (u_type < 2.5) {
     // gooey
     ball = getGooeyBall(uv_f, lum);
+  }else if (u_type < 3.5) {
+    // soft
+    ball = getSoftBall(uv_f, lum);
   }
 
   return ball * outOfFrame;
@@ -257,7 +268,8 @@ void main() {
     float aa = fwidth(totalShape);
     float th = .5;
     finalShape = smoothstep(th - aa, th + aa, totalShape);
-//    finalShape = totalShape;
+  } else if (u_type < 3.5) {
+    finalShape = totalShape;
   }
 
   vec2 dudx = dFdx(uvOriginal);
@@ -334,6 +346,7 @@ export const ImageHalftoneDotsTypes = {
   classic: 0,
   hole: 1,
   gooey: 2,
+  soft: 3,
 } as const;
 
 export type ImageHalftoneDotsType = keyof typeof ImageHalftoneDotsTypes;
