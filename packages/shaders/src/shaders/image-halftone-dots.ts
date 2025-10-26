@@ -282,7 +282,7 @@ void main() {
   float grain = valueNoise(grainUV);
   grain = smoothstep(.55, .7 + .2 * u_grainMixer, grain);
   grain *= u_grainMixer;
-//  finalShape = mix(finalShape, 0., grain);
+  finalShape = mix(finalShape, 0., grain);
 
   vec3 color = vec3(0.);
   float opacity = 0.;
