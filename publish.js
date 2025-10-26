@@ -18,7 +18,7 @@ let versionSuffix = '';
 if (isCanaryRelease) {
   tag = 'canary';
   const gitCommitHash = await $`git rev-parse --short HEAD`.text();
-  versionSuffix = `0.0.0-${tag}.${gitCommitHash.trim().slice(0, 7)}`;
+  versionSuffix = `0.0.0-${tag}.${gitCommitHash.trim()}`;
 } else {
   const tagArg = process.argv.find((arg) => arg.startsWith('--tag='));
   tag = tagArg ? tagArg.split('=')[1] : null;
