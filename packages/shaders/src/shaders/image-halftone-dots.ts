@@ -133,7 +133,7 @@ float getCircleWithHole(vec2 uv, float r) {
 
 float getGooeyBall(vec2 uv, float r) {
   float d = length(uv - .5);
-  float sizeRadius = mix(.25 * u_radius, 0., r);
+  float sizeRadius = mix(.4 * u_radius, 0., r);
   d = 1. - sst(0., sizeRadius, d);
   
   d = pow(d, 2. + u_radius);
@@ -177,7 +177,7 @@ float getLumAtPx(vec2 uv, float contrast) {
   return lum;
 }
 
-float getLumBall(vec2 p, float pxSize, vec2 inCellOffset, float contrast, out vec4 ballColor) {
+float getLumBall(vec2 p, vec2 pxSize, vec2 inCellOffset, float contrast, out vec4 ballColor) {
   p += inCellOffset;
   vec2 uv_i = floor(p);
   vec2 uv_f = fract(p);
@@ -219,7 +219,8 @@ void main() {
     stepMultiplier = 6.;
   } 
   
-  float pxSize = stepMultiplier * u_size * u_pixelRatio;
+  vec2 pxSize = vec2(stepMultiplier) * u_size * u_pixelRatio;
+//  pxSize.y *= 0.866025404;
   float contrast = mix(0., 15., u_contrast);
 
   vec2 uv = gl_FragCoord.xy - .5 * u_resolution;
@@ -242,11 +243,24 @@ void main() {
 
       if (u_diagonalGrid == true) {
         float rowIndex = floor((y + .5) / stepSize);
+        float colIndex = floor((x + .5) / stepSize);
         if (stepSize == 1.) {
           rowIndex = floor(p.y + y + 1.);
+          if (u_type == 2.) {
+            colIndex = floor(p.x + x + 1.);
+          } 
+          if (u_type == 1.) {
+            rowIndex = floor(p.y + y + 1.);
+          }
         }
-        if (mod(rowIndex, 2.) == 1.) {
-          offset.x += .5 * stepSize;
+        if (u_type == 2.) {
+          if (mod(rowIndex + colIndex, 2.) == 1.) {
+            continue;
+          }
+        } else {
+          if (mod(rowIndex, 2.) == 1.) {
+            offset.x += .5 * stepSize;
+          }
         }
       }
 
