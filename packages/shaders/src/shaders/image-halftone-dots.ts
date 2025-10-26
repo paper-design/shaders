@@ -133,7 +133,7 @@ float getCircleWithHole(vec2 uv, float r) {
 
 float getGooeyBall(vec2 uv, float r) {
   float d = length(uv - .5);
-  float sizeRadius = mix(.4 * u_radius, 0., r);
+  float sizeRadius = mix((u_diagonalGrid ? .4 : .25) * u_radius, 0., r);
   d = 1. - sst(0., sizeRadius, d);
   
   d = pow(d, 2. + u_radius);
@@ -220,7 +220,9 @@ void main() {
   } 
   
   vec2 pxSize = vec2(stepMultiplier) * u_size * u_pixelRatio;
-//  pxSize.y *= 0.866025404;
+  if (u_type == 2. && u_diagonalGrid == true) {
+    pxSize *= .6;
+  }
   float contrast = mix(0., 15., u_contrast);
 
   vec2 uv = gl_FragCoord.xy - .5 * u_resolution;
