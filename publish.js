@@ -1,6 +1,7 @@
 import { readdirSync } from 'fs';
 import { spawn } from 'child_process';
 import { readFileSync, writeFileSync } from 'fs';
+import { $ } from 'bun';
 
 // This publish process automatically replaces workspace:* with the actual version number of other packages currently in the repo
 
@@ -9,8 +10,19 @@ const packages = ['shaders', 'shaders-react'];
 
 const isDryRun = process.argv.includes('--dry-run');
 // Extract the tag value from the command line arguments
-const tagArg = process.argv.find((arg) => arg.startsWith('--tag='));
-const tag = tagArg ? tagArg.split('=')[1] : null;
+
+const isCanaryRelease = process.argv.includes('--canary');
+let tag;
+let versionSuffix = '';
+
+if (isCanaryRelease) {
+  tag = 'canary';
+  const gitCommitHash = await $`git rev-parse --short HEAD`.text();
+  versionSuffix = `0.0.0-${tag}.${gitCommitHash.trim()}`;
+} else {
+  const tagArg = process.argv.find((arg) => arg.startsWith('--tag='));
+  tag = tagArg ? tagArg.split('=')[1] : null;
+}
 
 if (tag) {
   console.log(`Publishing with tag: ${tag}`);
@@ -26,6 +38,15 @@ for (const pkg of packages) {
   // Get the name of the package
   const name = packageJson.name;
   const currentVersion = packageJson.version;
+
+  if (isCanaryRelease) {
+    // No need to assert anything as we'll set the version later.
+  } else if (currentVersion.includes('-') && !tag) {
+    throw new Error(
+      'Pre-release versions must be published with a tag. Use --tag=<tag-name> to specify a tag. Alternatively publish with --canary.'
+    );
+  }
+
   packageVersionMap[name] = currentVersion;
 }
 
@@ -42,6 +63,12 @@ async function publish(pkg) {
       packageJson.dependencies[key] = packageVersionMap[key];
     }
   }
+
+  if (isCanaryRelease) {
+    // Update the version to include the canary suffix
+    packageJson.version = versionSuffix;
+  }
+
   // Write the updated package.json
   writeFileSync(`${packagePath}/package.json`, JSON.stringify(packageJson, null, 2));
 
