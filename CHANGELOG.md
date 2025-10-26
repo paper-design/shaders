@@ -1,5 +1,21 @@
 # Paper Shaders
 
+## Version 0.0.61
+
+- **General**
+  - Fixes for cross-GPY safety
+- **StaticRadialGradient**
+  - Fixes for angle params
+- **Heatmap**
+  - Fixes for angle params
+- **ImageDithering**
+  - Fixes for Firefox usage
+
+## Version 0.0.60
+
+- **Liquid Metal**
+  - Fixed rendering for Nvidia GPUs
+
 ## Version 0.0.59
 
 Minor adjustments to the Liquid Metal edge contour
