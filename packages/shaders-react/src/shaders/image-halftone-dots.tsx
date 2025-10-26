@@ -31,7 +31,7 @@ export const defaultPreset: ImageHalftoneDotsPreset = {
     inverted: false,
     grainMixer: 0.3,
     grainOverlay: 0,
-    diagonalGrid: false,
+    diagonalGrid: true,
     type: 'gooey',
   },
 };
@@ -84,7 +84,7 @@ export const holesPreset: ImageHalftoneDotsPreset = {
     frame: 0,
     colorBack: '#ffffff00',
     colorFront: '#0012b3',
-    size: 20,
+    size: 10,
     radius: 1.4,
     contrast: 0.35,
     originalColors: false,
