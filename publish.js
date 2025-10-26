@@ -26,6 +26,11 @@ for (const pkg of packages) {
   // Get the name of the package
   const name = packageJson.name;
   const currentVersion = packageJson.version;
+
+  if (currentVersion.includes('-') && !tag) {
+    throw new Error('Pre-release versions must be published with a tag. Use --tag=<tag-name> to specify a tag.');
+  }
+
   packageVersionMap[name] = currentVersion;
 }
 
