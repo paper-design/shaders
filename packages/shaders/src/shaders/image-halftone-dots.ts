@@ -132,18 +132,21 @@ float getCircleWithHole(vec2 uv, float r) {
 }
 
 float getGooeyBall(vec2 uv, float r) {
-  r = mix(.5 * u_radius, 0., r);
   float d = length(uv - .5);
-  d = 1. - sst(0., r, d);
-  d = pow(d, 6.);
+  float sizeRadius = mix(.25 * u_radius, 0., r);
+  d = 1. - sst(0., sizeRadius, d);
+  
+  d = pow(d, 2. + u_radius);
   return d;
 }
 
 float getSoftBall(vec2 uv, float r) {
-  r = mix(.5 * u_radius, 0., r);
   float d = length(uv - .5);
-  d = 1. - lst(0., r, d);
-  d = pow(d, 3.);
+  float sizeRadius = clamp(u_radius, 0., 1.);
+  sizeRadius = mix(.5 * sizeRadius, 0., r);
+  d = 1. - lst(0., sizeRadius, d);
+  float powRadius = 1. - lst(0., 2., u_radius);
+  d = pow(d, 4. + 3. * powRadius);
   return d;
 }
 
@@ -268,6 +271,7 @@ void main() {
     float aa = fwidth(totalShape);
     float th = .5;
     finalShape = smoothstep(th - aa, th + aa, totalShape);
+//    finalShape = totalShape;
   } else if (u_type < 3.5) {
     finalShape = totalShape;
   }
@@ -278,7 +282,7 @@ void main() {
   float grain = valueNoise(grainUV);
   grain = smoothstep(.55, .7 + .2 * u_grainMixer, grain);
   grain *= u_grainMixer;
-  finalShape = mix(finalShape, 0., grain);
+//  finalShape = mix(finalShape, 0., grain);
 
   vec3 color = vec3(0.);
   float opacity = 0.;
