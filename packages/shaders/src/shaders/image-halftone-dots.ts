@@ -118,13 +118,13 @@ float getCell(vec2 uv) {
 float getCircleWithHole(vec2 uv, float r) {
   float cell = getCell(uv);
 
-  r = mix(.5 * u_radius, 0., r);
-  float rMod = mod(r, .25);
+  r = mix(.7 * u_radius, 0., r);
+  float rMod = mod(r, .5);
   
   float d = length(uv - .5);
   float aa = fwidth(d);
   float circle = 1. - smoothstep(rMod - aa, rMod + aa, d);
-  if (r < .25) {
+  if (r < .5) {
     return circle;
   } else {
     return cell - circle;
