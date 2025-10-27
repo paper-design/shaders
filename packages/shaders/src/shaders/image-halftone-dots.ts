@@ -211,17 +211,18 @@ float getLumBall(vec2 p, vec2 pxSize, vec2 inCellOffset, float contrast, out vec
 void main() {
 
   float stepMultiplier = 1.;
-  if (u_type < 1.) {
+  if (u_type < .5) {
     // classic
     stepMultiplier = 2.;
   } else if (u_type > 1.5) {
-    // gooey
+    // gooey & soft
     stepMultiplier = 6.;
   } 
   
   vec2 pxSize = vec2(stepMultiplier) * u_size * u_pixelRatio;
   if (u_type == 2. && u_diagonalGrid == true) {
-    pxSize *= .6;
+    // gooey diaginal grid works differently
+    pxSize *= .7;
   }
   float contrast = mix(0., 15., u_contrast);
 
@@ -246,16 +247,9 @@ void main() {
       if (u_diagonalGrid == true) {
         float rowIndex = floor((y + .5) / stepSize);
         float colIndex = floor((x + .5) / stepSize);
-        if (stepSize == 1.) {
+        if (u_type == 1.) {
           rowIndex = floor(p.y + y + 1.);
-          if (u_type == 2.) {
-            colIndex = floor(p.x + x + 1.);
-          } 
-          if (u_type == 1.) {
-            rowIndex = floor(p.y + y + 1.);
-          }
-        }
-        if (u_type == 2.) {
+        } else if (u_type == 2.) {
           if (mod(rowIndex + colIndex, 2.) == 1.) {
             continue;
           }
