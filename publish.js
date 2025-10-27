@@ -13,12 +13,12 @@ const isDryRun = process.argv.includes('--dry-run');
 
 const isCanaryRelease = process.argv.includes('--canary');
 let tag;
-let versionSuffix = '';
+let versionOverride = '';
 
 if (isCanaryRelease) {
   tag = 'canary';
   const gitCommitHash = await $`git rev-parse --short HEAD`.text();
-  versionSuffix = `0.0.0-${tag}.${gitCommitHash.trim()}`;
+  versionOverride = `0.0.0-${tag}.${gitCommitHash.trim()}`;
 } else {
   const tagArg = process.argv.find((arg) => arg.startsWith('--tag='));
   tag = tagArg ? tagArg.split('=')[1] : null;
@@ -37,7 +37,7 @@ for (const pkg of packages) {
   const packageJson = JSON.parse(readFileSync(`packages/${pkg}/package.json`, 'utf8'));
   // Get the name of the package
   const name = packageJson.name;
-  const currentVersion = packageJson.version;
+  const currentVersion = isCanaryRelease ? versionOverride : packageJson.version;
 
   if (isCanaryRelease) {
     // No need to assert anything as we'll set the version later.
@@ -66,7 +66,7 @@ async function publish(pkg) {
 
   if (isCanaryRelease) {
     // Update the version to include the canary suffix
-    packageJson.version = versionSuffix;
+    packageJson.version = versionOverride;
   }
 
   // Write the updated package.json
