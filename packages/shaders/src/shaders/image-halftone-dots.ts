@@ -247,9 +247,16 @@ void main() {
       if (u_diagonalGrid == true) {
         float rowIndex = floor((y + .5) / stepSize);
         float colIndex = floor((x + .5) / stepSize);
-        if (u_type == 1.) {
+        if (stepSize == 1.) {
           rowIndex = floor(p.y + y + 1.);
-        } else if (u_type == 2.) {
+          if (u_type == 2.) {
+            colIndex = floor(p.x + x + 1.);
+          }
+          if (u_type == 1.) {
+            rowIndex = floor(p.y + y + 1.);
+          }
+        }
+        if (u_type == 2.) {
           if (mod(rowIndex + colIndex, 2.) == 1.) {
             continue;
           }
