@@ -173,6 +173,7 @@ float getLumAtPx(vec2 uv, float contrast) {
   sigmoid(tex.b, contrast)
   );
   float lum = dot(vec3(0.2126, 0.7152, 0.0722), color);
+  lum = mix(1., lum, tex.a);
   lum = u_inverted ? (1. - lum) : lum;
   return lum;
 }
