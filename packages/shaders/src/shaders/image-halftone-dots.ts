@@ -209,6 +209,14 @@ float getLumBall(vec2 p, vec2 pxSize, vec2 inCellOffset, float contrast, out vec
   return ball * outOfFrame;
 }
 
+float blendOverlay(float base, float blend) { 
+  return base<0.5?(2.0*base*blend):(1.0-2.0*(1.0-base)*(1.0-blend));
+}
+
+vec3 blendOverlay(vec3 base, vec3 blend) { 
+  return vec3(blendOverlay(base.r, blend.r), blendOverlay(base.g, blend.g), blendOverlay(base.b, blend.b));
+}
+
 void main() {
 
   float stepMultiplier = 1.;
@@ -319,11 +327,9 @@ void main() {
     opacity += bgOpacity * (1. - opacity);
   }
 
-  float rr = valueNoise(rotate(grainUV, 1.) + vec2(3.));
-  float gg = valueNoise(rotate(grainUV, 2.) + vec2(-1.));
-  float bb = valueNoise(grainUV + vec2(5.));
-  vec3 grainColor = vec3(rr, gg, bb);
-  color = mix(color, grainColor, .01 + .5 * u_grainOverlay);
+  float grainOverlay = valueNoise(grainUV + vec2(3.));
+  vec3 grainOverlayColor = vec3(grainOverlay);
+  color = mix(color, blendOverlay(color, grainOverlayColor), u_grainOverlay);
 
   fragColor = vec4(color, opacity);
 }

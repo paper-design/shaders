@@ -29,7 +29,7 @@ export const defaultPreset: ImageHalftoneDotsPreset = {
     contrast: 0.5,
     originalColors: false,
     inverted: false,
-    grainMixer: 0.3,
+    grainMixer: 0,
     grainOverlay: 0,
     diagonalGrid: true,
     type: 'gooey',
