@@ -253,9 +253,6 @@ void main() {
           if (u_type == 2.) {
             colIndex = floor(p.x + x + 1.);
           }
-          if (u_type == 1.) {
-            rowIndex = floor(p.y + y + 1.);
-          }
         }
         if (u_type == 2.) {
           if (mod(rowIndex + colIndex, 2.) == 1.) {
