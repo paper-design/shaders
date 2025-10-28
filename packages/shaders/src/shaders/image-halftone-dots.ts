@@ -118,7 +118,7 @@ float getCell(vec2 uv) {
 float getCircleWithHole(vec2 uv, float r) {
   float cell = getCell(uv);
 
-  r = mix(.7 * u_radius, 0., r);
+  r = mix(.5 * u_radius, 0., r);
   float rMod = mod(r, .5);
   
   float d = length(uv - .5);
