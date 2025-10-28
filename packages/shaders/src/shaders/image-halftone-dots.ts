@@ -270,12 +270,10 @@ void main() {
       shape = getLumBall(p, pxSize, offset, contrast, ballColor);
       totalColor   += ballColor.rgb * shape;
       totalShape   += shape;
-      totalOpacity += ballColor.a * shape;
+      totalOpacity += shape;
     }
   }
   
-  totalShape *= textureOriginal.a;
-
   const float eps = 1e-4;
   
   totalColor /= max(totalShape, eps);
