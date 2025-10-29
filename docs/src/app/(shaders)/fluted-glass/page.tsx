@@ -88,7 +88,7 @@ const FlutedGlassWithControls = () => {
       shift: { value: defaults.shift, min: -1, max: 1, order: 215 },
       edges: { value: defaults.edges, min: 0, max: 1, order: 216 },
       blur: { value: defaults.blur, min: 0, max: 1, order: 220 },
-      blurFrame: { value: defaults.blurFrame, min: 0, max: 1, order: 221 },
+      // blurFrame: { value: defaults.blurFrame, min: 0, max: 1, order: 221 },
       margin: { value: defaults.margin, min: 0, max: 1, order: 500 },
       scale: { value: defaults.scale, min: 0.5, max: 4, order: 600 },
       rotation: { value: defaults.rotation, min: 0, max: 360, order: 601 },

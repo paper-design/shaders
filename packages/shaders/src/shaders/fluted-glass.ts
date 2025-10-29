@@ -289,9 +289,8 @@ void main() {
   uv = mix(imageOrigUV, uv, mask);
   float blur = mix(0., mix(0., 50., u_blur), mask);
   
-  float frameBlur = .15 * u_blurFrame;
-  frameBlur += .02 * pow(u_distortion + abs(u_shift), .5);
-  frameBlur += .02 * frameFade;
+  float frameBlur = mix(0., .05 + .06 * u_size, u_blur);
+  frameBlur += .03 * frameFade;
   frameBlur *= mask;
   float frame = getUvFrame(uv, frameBlur);
   frame = mix(0., frame, strokes);
