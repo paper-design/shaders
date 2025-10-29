@@ -102,8 +102,8 @@ vec2 getImageUV(vec2 uv, vec2 extraScale) {
   return imageUV;
 }
 
-float getCircle(vec2 uv, float r) {
-  r = mix(.25 * u_radius, 0., r);
+float getCircle(vec2 uv, float r, float baseR) {
+  r = mix(.25 * baseR, 0., r);
   float d = length(uv - .5);
   float aa = fwidth(d);
   return 1. - smoothstep(r - aa, r + aa, d);
@@ -115,10 +115,10 @@ float getCell(vec2 uv) {
   return insideX * insideY;
 }
 
-float getCircleWithHole(vec2 uv, float r) {
+float getCircleWithHole(vec2 uv, float r, float baseR) {
   float cell = getCell(uv);
 
-  r = mix(.75 * u_radius, 0., r);
+  r = mix(.75 * baseR, 0., r);
   float rMod = mod(r, .5);
   
   float d = length(uv - .5);
@@ -131,21 +131,21 @@ float getCircleWithHole(vec2 uv, float r) {
   }
 }
 
-float getGooeyBall(vec2 uv, float r) {
+float getGooeyBall(vec2 uv, float r, float baseR) {
   float d = length(uv - .5);
-  float sizeRadius = mix((u_straight ? .3 : .42) * u_radius, 0., r);
+  float sizeRadius = mix((u_straight ? .3 : .42) * baseR, 0., r);
   d = 1. - sst(0., sizeRadius, d);
   
-  d = pow(d, 2. + u_radius);
+  d = pow(d, 2. + baseR);
   return d;
 }
 
-float getSoftBall(vec2 uv, float r) {
+float getSoftBall(vec2 uv, float r, float baseR) {
   float d = length(uv - .5);
-  float sizeRadius = clamp(u_radius, 0., 1.);
+  float sizeRadius = clamp(baseR, 0., 1.);
   sizeRadius = mix(.5 * sizeRadius, 0., r);
   d = 1. - lst(0., sizeRadius, d);
-  float powRadius = 1. - lst(0., 2., u_radius);
+  float powRadius = 1. - lst(0., 2., baseR);
   d = pow(d, 4. + 3. * powRadius);
   return d;
 }
@@ -178,17 +178,13 @@ float getLumAtPx(vec2 uv, float contrast) {
   return lum;
 }
 
-float getLumBall(vec2 p, vec2 pxSize, vec2 inCellOffset, float contrast, out vec4 ballColor) {
+float getLumBall(vec2 p, vec2 pxSize, vec2 inCellOffset, float contrast, float baseR, out vec4 ballColor) {
   p += inCellOffset;
   vec2 uv_i = floor(p);
   vec2 uv_f = fract(p);
   vec2 samplePx = ((uv_i + .5 - inCellOffset) * pxSize) / u_resolution.xy;
   vec2 samplingUV = getImageUV(samplePx, vec2(1.));
   float outOfFrame = getUvFrame(samplingUV);
-
-  if (u_originalColors) {
-    contrast = .1 + .8 * pow(contrast, 2.);
-  }
   float lum = getLumAtPx(samplingUV, contrast);
   ballColor = texture(u_image, samplingUV);
   ballColor.rgb *= ballColor.a;
@@ -197,16 +193,16 @@ float getLumBall(vec2 p, vec2 pxSize, vec2 inCellOffset, float contrast, out vec
   float ball = 0.;
   if (u_type < .5) {
     // classic
-    ball = getCircle(uv_f, lum);
+    ball = getCircle(uv_f, lum, baseR);
   } else if (u_type < 1.5) {
     // hole
-    ball = getCircleWithHole(uv_f, lum);
+    ball = getCircleWithHole(uv_f, lum, baseR);
   } else if (u_type < 2.5) {
     // gooey
-    ball = getGooeyBall(uv_f, lum);
+    ball = getGooeyBall(uv_f, lum, baseR);
   }else if (u_type < 3.5) {
     // soft
-    ball = getSoftBall(uv_f, lum);
+    ball = getSoftBall(uv_f, lum, baseR);
   }
 
   return ball * outOfFrame;
@@ -245,6 +241,11 @@ void main() {
     pxSize *= .7;
   }
   float contrast = mix(0., 15., u_contrast);
+  float baseRadius = u_radius;
+  if (u_originalColors == true) {
+    contrast = mix(.1, 4., pow(u_contrast, 2.));
+    baseRadius = 2. * pow(.5 * u_radius, .3);
+  }
 
   vec2 uv = gl_FragCoord.xy - .5 * u_resolution;
   vec2 p = uv / pxSize;
@@ -284,7 +285,7 @@ void main() {
         }
       }
 
-      shape = getLumBall(p, pxSize, offset, contrast, ballColor);
+      shape = getLumBall(p, pxSize, offset, contrast, baseRadius, ballColor);
       totalColor   += ballColor.rgb * shape;
       totalShape   += shape;
       totalOpacity += shape;
