@@ -118,7 +118,7 @@ float getCell(vec2 uv) {
 float getCircleWithHole(vec2 uv, float r) {
   float cell = getCell(uv);
 
-  r = mix(.5 * u_radius, 0., r);
+  r = mix(.75 * u_radius, 0., r);
   float rMod = mod(r, .5);
   
   float d = length(uv - .5);
@@ -133,7 +133,7 @@ float getCircleWithHole(vec2 uv, float r) {
 
 float getGooeyBall(vec2 uv, float r) {
   float d = length(uv - .5);
-  float sizeRadius = mix((u_diagonalGrid ? .4 : .25) * u_radius, 0., r);
+  float sizeRadius = mix((u_diagonalGrid ? .42 : .3) * u_radius, 0., r);
   d = 1. - sst(0., sizeRadius, d);
   
   d = pow(d, 2. + u_radius);
