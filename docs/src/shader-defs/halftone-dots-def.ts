@@ -49,10 +49,10 @@ export const halftoneDotsDef: ShaderDef = {
       options: ['true', 'false'],
     },
     {
-      name: 'diagonalGrid',
+      name: 'straight',
       type: 'boolean',
       defaultValue: defaultParams.originalColors,
-      description: 'TBD',
+      description: 'Grid type',
       options: ['true', 'false'],
     },
     {

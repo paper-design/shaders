@@ -83,7 +83,7 @@ const HalftoneDotsWithControls = () => {
         order: 201,
       },
       inverted: { value: defaults.inverted, order: 201 },
-      diagonalGrid: { value: defaults.diagonalGrid, order: 202 },
+      straight: { value: defaults.straight, order: 202 },
       size: { value: defaults.size, min: 4, max: 60, step: 1, order: 300 },
       radius: { value: defaults.radius, min: 0, max: 2, order: 301 },
       contrast: { value: defaults.contrast, min: 0.01, max: 1, order: 302 },

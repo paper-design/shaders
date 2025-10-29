@@ -7,7 +7,7 @@ import { declarePI, rotation2, proceduralHash21 } from '../shader-utils.js';
 
  Uniforms:
  - u_colorBack, u_colorFront, u_colorHighlight (RGBA)
- (u_colorHighlight to be the lighdiagonalGrid parts of u_colorFront pixels)
+ (u_colorHighlight to be the lighstraight parts of u_colorFront pixels)
  - size: px size set relative to canvas resolution
  */
 
@@ -39,7 +39,7 @@ uniform mediump float u_imageAspectRatio;
 uniform float u_size;
 uniform float u_grainMixer;
 uniform float u_grainOverlay;
-uniform bool u_diagonalGrid;
+uniform bool u_straight;
 uniform bool u_originalColors;
 uniform bool u_inverted;
 uniform float u_type;
@@ -133,7 +133,7 @@ float getCircleWithHole(vec2 uv, float r) {
 
 float getGooeyBall(vec2 uv, float r) {
   float d = length(uv - .5);
-  float sizeRadius = mix((u_diagonalGrid ? .42 : .3) * u_radius, 0., r);
+  float sizeRadius = mix((u_straight ? .3 : .42) * u_radius, 0., r);
   d = 1. - sst(0., sizeRadius, d);
   
   d = pow(d, 2. + u_radius);
@@ -237,7 +237,7 @@ void main() {
   } 
   
   vec2 pxSize = vec2(stepMultiplier) * u_size * u_pixelRatio;
-  if (u_type == 2. && u_diagonalGrid == true) {
+  if (u_type == 2. && u_straight == false) {
     // gooey diaginal grid works differently
     pxSize *= .7;
   }
@@ -261,7 +261,7 @@ void main() {
     for (float y = -0.5; y < 0.5; y += stepSize) {
       vec2 offset = vec2(x, y);
 
-      if (u_diagonalGrid == true) {
+      if (u_straight == false) {
         float rowIndex = floor((y + .5) / stepSize);
         float colIndex = floor((x + .5) / stepSize);
         if (stepSize == 1.) {
@@ -350,7 +350,7 @@ export interface HalftoneDotsUniforms extends ShaderSizingUniforms {
   u_colorFront: [number, number, number, number];
   u_colorBack: [number, number, number, number];
   u_size: number;
-  u_diagonalGrid: boolean;
+  u_straight: boolean;
   u_radius: number;
   u_contrast: number;
   u_originalColors: boolean;
@@ -365,7 +365,7 @@ export interface HalftoneDotsParams extends ShaderSizingParams, ShaderMotionPara
   colorFront?: string;
   colorBack?: string;
   size?: number;
-  diagonalGrid?: boolean;
+  straight?: boolean;
   radius?: number;
   contrast?: number;
   originalColors?: boolean;

@@ -32,7 +32,7 @@ export const defaultPreset: HalftoneDotsPreset = {
     inverted: false,
     grainMixer: 0,
     grainOverlay: 0,
-    diagonalGrid: true,
+    straight: false,
     type: 'gooey',
   },
 };
@@ -53,7 +53,7 @@ export const abstractPreset: HalftoneDotsPreset = {
     inverted: false,
     grainMixer: 0,
     grainOverlay: 0,
-    diagonalGrid: true,
+    straight: false,
     type: 'classic',
   },
 };
@@ -74,7 +74,7 @@ export const netPreset: HalftoneDotsPreset = {
     inverted: false,
     grainMixer: 0,
     grainOverlay: 0,
-    diagonalGrid: true,
+    straight: false,
     type: 'classic',
   },
 };
@@ -95,7 +95,7 @@ export const holesPreset: HalftoneDotsPreset = {
     inverted: false,
     grainMixer: 0,
     grainOverlay: 0,
-    diagonalGrid: false,
+    straight: true,
     type: 'hole',
   },
 };
@@ -121,7 +121,7 @@ export const HalftoneDots: React.FC<HalftoneDotsProps> = memo(function HalftoneD
   inverted = defaultPreset.params.inverted,
   grainMixer = defaultPreset.params.grainMixer,
   grainOverlay = defaultPreset.params.grainOverlay,
-  diagonalGrid = defaultPreset.params.diagonalGrid,
+  straight = defaultPreset.params.straight,
   type = defaultPreset.params.type,
 
   // Sizing props
@@ -148,7 +148,7 @@ export const HalftoneDots: React.FC<HalftoneDotsProps> = memo(function HalftoneD
     u_inverted: inverted,
     u_grainMixer: grainMixer,
     u_grainOverlay: grainOverlay,
-    u_diagonalGrid: diagonalGrid,
+    u_straight: straight,
     u_type: HalftoneDotsTypes[type],
 
     // Sizing uniforms
