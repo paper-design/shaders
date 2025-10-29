@@ -20,6 +20,7 @@ export const defaultPreset: ImageHalftoneDotsPreset = {
   name: 'Default',
   params: {
     ...defaultObjectSizing,
+    fit: 'cover',
     speed: 1,
     frame: 0,
     colorBack: '#d4d4d4',
@@ -40,6 +41,7 @@ export const abstractPreset: ImageHalftoneDotsPreset = {
   name: 'Abstract',
   params: {
     ...defaultObjectSizing,
+    fit: 'cover',
     speed: 1,
     frame: 0,
     colorBack: '#00000000',
@@ -60,6 +62,7 @@ export const netPreset: ImageHalftoneDotsPreset = {
   name: 'Net',
   params: {
     ...defaultObjectSizing,
+    fit: 'cover',
     speed: 1,
     frame: 0,
     colorBack: '#000000',
@@ -80,6 +83,7 @@ export const holesPreset: ImageHalftoneDotsPreset = {
   name: 'Holes',
   params: {
     ...defaultObjectSizing,
+    fit: 'cover',
     speed: 1,
     frame: 0,
     colorBack: '#ffffff00',
