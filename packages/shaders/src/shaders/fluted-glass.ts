@@ -276,6 +276,7 @@ void main() {
   highlight = min(highlight, 1.);
   highlight *= mask;
   highlight += .5 * maskStroke;
+  highlight *= .4;
   highlight = min(highlight, 1.);
 
   distortion *= 3. * u_distortion;
