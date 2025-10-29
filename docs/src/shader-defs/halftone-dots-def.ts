@@ -6,7 +6,7 @@ const defaultParams = halftoneDotsPresets[0].params;
 
 export const halftoneDotsDef: ShaderDef = {
   name: 'Halftone Dots',
-  description: 'TBD',
+  description: 'A halftone-dots image filter for creating customizable graphic patterns with adjustable colors, grid types, and both classic and playful dot styles',
   params: [
     {
       name: 'image',
@@ -31,28 +31,28 @@ export const halftoneDotsDef: ShaderDef = {
       name: 'originalColors',
       type: 'boolean',
       defaultValue: defaultParams.originalColors,
-      description: 'Use the original colors of sampled image instead of colorBack and colorFront',
+      description: 'Use the sampled image’s original colors instead of colorBack and colorFront',
       options: ['true', 'false'],
     },
     {
       name: 'type',
       type: 'enum',
       defaultValue: defaultParams.type,
-      description: 'Type of the dot',
+      description: 'Dot style',
       options: ['classic', 'hole', 'gooey', 'soft'],
     },
     {
       name: 'inverted',
       type: 'boolean',
       defaultValue: defaultParams.originalColors,
-      description: 'Inverting the dots shape. Doesn\'t affect color scheme, not effective with zero contrast',
+      description: 'Inverts the dot shape. Doesn’t affect the color scheme; not effective at zero contrast',
       options: ['true', 'false'],
     },
     {
       name: 'straight',
       type: 'boolean',
       defaultValue: defaultParams.originalColors,
-      description: 'Grid type',
+      description: 'Use a straight grid (disable for diagonal)',
       options: ['true', 'false'],
     },
     {
@@ -61,7 +61,7 @@ export const halftoneDotsDef: ShaderDef = {
       min: 4,
       max: 60,
       defaultValue: defaultParams.size,
-      description: 'Grid cell size',
+      description: 'Grid-cell size',
     },
     {
       name: 'radius',
@@ -69,7 +69,7 @@ export const halftoneDotsDef: ShaderDef = {
       min: 0,
       max: 2,
       defaultValue: defaultParams.radius,
-      description: 'Max dot size (relative to the grid cell)',
+      description: 'Maximum dot size (relative to the grid cell)',
     },
     {
       name: 'contrast',
