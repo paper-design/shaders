@@ -1,10 +1,10 @@
-import { imageHalftoneDotsPresets } from '@paper-design/shaders-react';
+import { halftoneDotsPresets } from '@paper-design/shaders-react';
 import type { ShaderDef } from './shader-def-types';
 import { animatedCommonParams } from './common-param-def';
 
-const defaultParams = imageHalftoneDotsPresets[0].params;
+const defaultParams = halftoneDotsPresets[0].params;
 
-export const imageHalftoneDotsDef: ShaderDef = {
+export const halftoneDotsDef: ShaderDef = {
   name: 'Halftone Dots',
   description: 'TBD',
   params: [

@@ -2,21 +2,21 @@ import { memo } from 'react';
 import { ShaderMount, type ShaderComponentProps } from '../shader-mount.js';
 import { colorPropsAreEqual } from '../color-props-are-equal.js';
 import {
-  imageHalftoneDotsFragmentShader,
+  halftoneDotsFragmentShader,
   getShaderColorFromString,
   ShaderFitOptions,
-  type ImageHalftoneDotsUniforms,
-  type ImageHalftoneDotsParams,
+  type HalftoneDotsUniforms,
+  type HalftoneDotsParams,
   defaultObjectSizing,
   type ImageShaderPreset,
-  ImageHalftoneDotsTypes,
+  HalftoneDotsTypes,
 } from '@paper-design/shaders';
 
-export interface ImageHalftoneDotsProps extends ShaderComponentProps, ImageHalftoneDotsParams {}
+export interface HalftoneDotsProps extends ShaderComponentProps, HalftoneDotsParams {}
 
-type ImageHalftoneDotsPreset = ImageShaderPreset<ImageHalftoneDotsParams>;
+type HalftoneDotsPreset = ImageShaderPreset<HalftoneDotsParams>;
 
-export const defaultPreset: ImageHalftoneDotsPreset = {
+export const defaultPreset: HalftoneDotsPreset = {
   name: 'Default',
   params: {
     ...defaultObjectSizing,
@@ -37,7 +37,7 @@ export const defaultPreset: ImageHalftoneDotsPreset = {
   },
 };
 
-export const abstractPreset: ImageHalftoneDotsPreset = {
+export const abstractPreset: HalftoneDotsPreset = {
   name: 'Abstract',
   params: {
     ...defaultObjectSizing,
@@ -58,7 +58,7 @@ export const abstractPreset: ImageHalftoneDotsPreset = {
   },
 };
 
-export const netPreset: ImageHalftoneDotsPreset = {
+export const netPreset: HalftoneDotsPreset = {
   name: 'Net',
   params: {
     ...defaultObjectSizing,
@@ -79,7 +79,7 @@ export const netPreset: ImageHalftoneDotsPreset = {
   },
 };
 
-export const holesPreset: ImageHalftoneDotsPreset = {
+export const holesPreset: HalftoneDotsPreset = {
   name: 'Holes',
   params: {
     ...defaultObjectSizing,
@@ -100,14 +100,14 @@ export const holesPreset: ImageHalftoneDotsPreset = {
   },
 };
 
-export const imageHalftoneDotsPresets: ImageHalftoneDotsPreset[] = [
+export const halftoneDotsPresets: HalftoneDotsPreset[] = [
   defaultPreset,
   abstractPreset,
   netPreset,
   holesPreset,
 ];
 
-export const ImageHalftoneDots: React.FC<ImageHalftoneDotsProps> = memo(function ImageHalftoneDotsImpl({
+export const HalftoneDots: React.FC<HalftoneDotsProps> = memo(function HalftoneDotsImpl({
   // Own props
   speed = defaultPreset.params.speed,
   frame = defaultPreset.params.frame,
@@ -135,7 +135,7 @@ export const ImageHalftoneDots: React.FC<ImageHalftoneDotsProps> = memo(function
   worldWidth = defaultPreset.params.worldWidth,
   worldHeight = defaultPreset.params.worldHeight,
   ...props
-}: ImageHalftoneDotsProps) {
+}: HalftoneDotsProps) {
   const uniforms = {
     // Own uniforms
     u_image: image,
@@ -149,7 +149,7 @@ export const ImageHalftoneDots: React.FC<ImageHalftoneDotsProps> = memo(function
     u_grainMixer: grainMixer,
     u_grainOverlay: grainOverlay,
     u_diagonalGrid: diagonalGrid,
-    u_type: ImageHalftoneDotsTypes[type],
+    u_type: HalftoneDotsTypes[type],
 
     // Sizing uniforms
     u_fit: ShaderFitOptions[fit],
@@ -161,14 +161,14 @@ export const ImageHalftoneDots: React.FC<ImageHalftoneDotsProps> = memo(function
     u_originY: originY,
     u_worldWidth: worldWidth,
     u_worldHeight: worldHeight,
-  } satisfies ImageHalftoneDotsUniforms;
+  } satisfies HalftoneDotsUniforms;
 
   return (
     <ShaderMount
       {...props}
       speed={speed}
       frame={frame}
-      fragmentShader={imageHalftoneDotsFragmentShader}
+      fragmentShader={halftoneDotsFragmentShader}
       uniforms={uniforms}
     />
   );

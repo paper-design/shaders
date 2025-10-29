@@ -1,24 +1,24 @@
 'use client';
 
-import { ImageHalftoneDots, imageHalftoneDotsPresets } from '@paper-design/shaders-react';
+import { HalftoneDots, halftoneDotsPresets } from '@paper-design/shaders-react';
 import { useControls, button, folder } from 'leva';
 import { setParamsSafe, useResetLevaParams } from '@/helpers/use-reset-leva-params';
 import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
 import {
-  ImageHalftoneDotsType,
-  ImageHalftoneDotsTypes,
+  HalftoneDotsType,
+  HalftoneDotsTypes,
   ShaderFit,
 } from '@paper-design/shaders';
 import { levaImageButton } from '@/helpers/leva-image-button';
 import { useState, useEffect, useCallback } from 'react';
 import { toHsla } from '@/helpers/color-utils';
 import { ShaderDetails } from '@/components/shader-details';
-import { imageHalftoneDotsDef } from '@/shader-defs/image-halftone-dots-def';
+import { halftoneDotsDef } from '@/shader-defs/halftone-dots-def';
 import { ShaderContainer } from '@/components/shader-container';
 import { useUrlParams } from '@/helpers/use-url-params';
 
-const { worldWidth, worldHeight, ...defaults } = imageHalftoneDotsPresets[0].params;
+const { worldWidth, worldHeight, ...defaults } = halftoneDotsPresets[0].params;
 
 const imageFiles = [
   '001.webp',
@@ -41,7 +41,7 @@ const imageFiles = [
   '0018.webp',
 ] as const;
 
-const ImageHalftoneDotsWithControls = () => {
+const HalftoneDotsWithControls = () => {
   const [imageIdx, setImageIdx] = useState(-1);
   const [image, setImage] = useState<HTMLImageElement | string>('/images/image-filters/0018.webp');
   const [status, setStatus] = useState('Click to load an image');
@@ -68,7 +68,7 @@ const ImageHalftoneDotsWithControls = () => {
 
   const [params, setParams] = useControls(() => {
     const presets = Object.fromEntries(
-      imageHalftoneDotsPresets.map(({ name, params: { worldWidth, worldHeight, ...preset } }) => [
+      halftoneDotsPresets.map(({ name, params: { worldWidth, worldHeight, ...preset } }) => [
         name,
         button(() => setParamsSafe(params, setParams, preset)),
       ])
@@ -79,7 +79,7 @@ const ImageHalftoneDotsWithControls = () => {
       originalColors: { value: defaults.originalColors, order: 102 },
       type: {
         value: defaults.type,
-        options: Object.keys(ImageHalftoneDotsTypes) as ImageHalftoneDotsType[],
+        options: Object.keys(HalftoneDotsTypes) as HalftoneDotsType[],
         order: 201,
       },
       inverted: { value: defaults.inverted, order: 201 },
@@ -109,21 +109,21 @@ const ImageHalftoneDotsWithControls = () => {
   // Reset to defaults on mount, so that Leva doesn't show values from other
   // shaders when navigating (if two shaders have a color1 param for example)
   useResetLevaParams(params, setParams, defaults);
-  useUrlParams(params, setParams, imageHalftoneDotsDef);
-  usePresetHighlight(imageHalftoneDotsPresets, params);
+  useUrlParams(params, setParams, halftoneDotsDef);
+  usePresetHighlight(halftoneDotsPresets, params);
   cleanUpLevaParams(params);
 
   return (
     <>
-      <ShaderContainer shaderDef={imageHalftoneDotsDef} currentParams={params}>
-        <ImageHalftoneDots onClick={handleClick} {...params} image={image} />
+      <ShaderContainer shaderDef={halftoneDotsDef} currentParams={params}>
+        <HalftoneDots onClick={handleClick} {...params} image={image} />
       </ShaderContainer>
       <div onClick={handleClick} className="mx-auto mt-16 mb-48 w-fit text-base text-current/70 select-none">
         Click to change the sample image
       </div>
-      <ShaderDetails shaderDef={imageHalftoneDotsDef} currentParams={params} />
+      <ShaderDetails shaderDef={halftoneDotsDef} currentParams={params} />
     </>
   );
 };
 
-export default ImageHalftoneDotsWithControls;
+export default HalftoneDotsWithControls;

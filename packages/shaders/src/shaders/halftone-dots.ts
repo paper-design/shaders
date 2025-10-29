@@ -12,7 +12,7 @@ import { declarePI, rotation2, proceduralHash21 } from '../shader-utils.js';
  */
 
 // language=GLSL
-export const imageHalftoneDotsFragmentShader: string = `#version 300 es
+export const halftoneDotsFragmentShader: string = `#version 300 es
 precision lowp float;
 
 uniform mediump vec2 u_resolution;
@@ -345,7 +345,7 @@ void main() {
 }
 `;
 
-export interface ImageHalftoneDotsUniforms extends ShaderSizingUniforms {
+export interface HalftoneDotsUniforms extends ShaderSizingUniforms {
   u_image: HTMLImageElement | string | undefined;
   u_colorFront: [number, number, number, number];
   u_colorBack: [number, number, number, number];
@@ -357,10 +357,10 @@ export interface ImageHalftoneDotsUniforms extends ShaderSizingUniforms {
   u_inverted: boolean;
   u_grainMixer: number;
   u_grainOverlay: number;
-  u_type: (typeof ImageHalftoneDotsTypes)[ImageHalftoneDotsType];
+  u_type: (typeof HalftoneDotsTypes)[HalftoneDotsType];
 }
 
-export interface ImageHalftoneDotsParams extends ShaderSizingParams, ShaderMotionParams {
+export interface HalftoneDotsParams extends ShaderSizingParams, ShaderMotionParams {
   image?: HTMLImageElement | string;
   colorFront?: string;
   colorBack?: string;
@@ -372,14 +372,14 @@ export interface ImageHalftoneDotsParams extends ShaderSizingParams, ShaderMotio
   inverted?: boolean;
   grainMixer?: number;
   grainOverlay?: number;
-  type?: ImageHalftoneDotsType;
+  type?: HalftoneDotsType;
 }
 
-export const ImageHalftoneDotsTypes = {
+export const HalftoneDotsTypes = {
   classic: 0,
   hole: 1,
   gooey: 2,
   soft: 3,
 } as const;
 
-export type ImageHalftoneDotsType = keyof typeof ImageHalftoneDotsTypes;
+export type HalftoneDotsType = keyof typeof HalftoneDotsTypes;

@@ -107,9 +107,9 @@ export { LiquidMetal, liquidMetalPresets } from './shaders/liquid-metal.js';
 export type { LiquidMetalProps } from './shaders/liquid-metal.js';
 export type { LiquidMetalUniforms, LiquidMetalParams } from '@paper-design/shaders';
 
-export { ImageHalftoneDots, imageHalftoneDotsPresets } from './shaders/image-halftone-dots.js';
-export type { ImageHalftoneDotsProps } from './shaders/image-halftone-dots.js';
-export type { ImageHalftoneDotsUniforms, ImageHalftoneDotsParams } from '@paper-design/shaders';
+export { HalftoneDots, halftoneDotsPresets } from './shaders/halftone-dots.js';
+export type { HalftoneDotsProps } from './shaders/halftone-dots.js';
+export type { HalftoneDotsUniforms, HalftoneDotsParams } from '@paper-design/shaders';
 
 export { isPaperShaderElement, getShaderColorFromString } from '@paper-design/shaders';
 export type { PaperShaderElement, ShaderFit, ShaderSizingParams, ShaderSizingUniforms } from '@paper-design/shaders';
