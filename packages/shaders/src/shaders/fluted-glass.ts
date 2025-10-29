@@ -204,6 +204,7 @@ void main() {
   w += .7 * maskStroke;
   float strokes = smoothstep(0., w, xNonSmooth);
   strokes *= smoothstep(1., 1. - w, xNonSmooth);
+  float strokesForHighlights = strokes;
   strokes = mix(1., strokes, u_strokes);
 
   float highlight = x;
@@ -258,6 +259,7 @@ void main() {
   } else if (u_distortionShape == 5.) {
     distortion -= pow(abs(x), .2) * x;
     highlight = 1.5 * pow(pow(abs(x), 3.), 4.);
+    highlight = min(highlight, 1.);
     distortion += .33;
     distortion -= 3. * u_shift;
     distortion *= .33;
@@ -270,6 +272,8 @@ void main() {
     distortion *= fadeX;
   }
 
+  highlight += .5 * strokesForHighlights;
+  highlight = min(highlight, 1.);
   highlight *= mask;
   highlight += .5 * maskStroke;
   highlight = min(highlight, 1.);
@@ -294,7 +298,7 @@ void main() {
   frameBlur *= mask;
   float frame = getUvFrame(uv, frameBlur);
   frame = mix(0., frame, strokes);
-
+  
   float edges = 1. - smoothstep(0., .5, xNonSmooth) * smoothstep(1., 1. - .5, xNonSmooth);
   edges = pow(edges, 2.);
   edges *= mask;
