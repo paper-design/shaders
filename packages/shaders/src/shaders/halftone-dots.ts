@@ -185,7 +185,10 @@ float getLumBall(vec2 p, vec2 pxSize, vec2 inCellOffset, float contrast, out vec
   vec2 samplePx = ((uv_i + .5 - inCellOffset) * pxSize) / u_resolution.xy;
   vec2 samplingUV = getImageUV(samplePx, vec2(1.));
   float outOfFrame = getUvFrame(samplingUV);
-  
+
+  if (u_originalColors) {
+    contrast = .1 + .8 * pow(contrast, 2.);
+  }
   float lum = getLumAtPx(samplingUV, contrast);
   ballColor = texture(u_image, samplingUV);
   ballColor.rgb *= ballColor.a;
