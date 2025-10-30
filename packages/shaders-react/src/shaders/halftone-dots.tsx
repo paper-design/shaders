@@ -17,7 +17,7 @@ export interface HalftoneDotsProps extends ShaderComponentProps, HalftoneDotsPar
 type HalftoneDotsPreset = ImageShaderPreset<HalftoneDotsParams>;
 
 export const defaultPreset: HalftoneDotsPreset = {
-  name: 'Default',
+  name: 'Print Halftone',
   params: {
     ...defaultObjectSizing,
     fit: 'cover',
@@ -37,29 +37,29 @@ export const defaultPreset: HalftoneDotsPreset = {
   },
 };
 
-export const abstractPreset: HalftoneDotsPreset = {
-  name: 'Abstract',
+export const ledPreset: HalftoneDotsPreset = {
+  name: 'LED Lights',
   params: {
     ...defaultObjectSizing,
     fit: 'cover',
     speed: 1,
     frame: 0,
-    colorBack: '#00000000',
-    colorFront: '#2b2b2b',
-    size: 25,
-    radius: 2,
-    contrast: 0.45,
-    originalColors: true,
-    inverted: false,
+    colorBack: '#ffffff00',
+    colorFront: '#85ff33',
+    size: 6,
+    radius: 0.88,
+    contrast: 1,
+    originalColors: false,
+    inverted: true,
     grainMixer: 0,
     grainOverlay: 0,
-    straight: false,
-    type: 'classic',
+    straight: true,
+    type: 'soft',
   },
 };
 
 export const netPreset: HalftoneDotsPreset = {
-  name: 'Net',
+  name: 'Dots Net',
   params: {
     ...defaultObjectSizing,
     fit: 'cover',
@@ -67,11 +67,11 @@ export const netPreset: HalftoneDotsPreset = {
     frame: 0,
     colorBack: '#000000',
     colorFront: '#2b2b2b',
-    size: 12,
+    size: 8,
     radius: 2,
-    contrast: 0,
+    contrast: 0.01,
     originalColors: true,
-    inverted: false,
+    inverted: true,
     grainMixer: 0,
     grainOverlay: 0,
     straight: false,
@@ -80,19 +80,19 @@ export const netPreset: HalftoneDotsPreset = {
 };
 
 export const holesPreset: HalftoneDotsPreset = {
-  name: 'Holes',
+  name: 'Square Holes',
   params: {
     ...defaultObjectSizing,
     fit: 'cover',
     speed: 1,
     frame: 0,
     colorBack: '#ffffff00',
-    colorFront: '#0012b3',
-    size: 10,
-    radius: 1.4,
-    contrast: 0.35,
+    colorFront: '#ff002b',
+    size: 6,
+    radius: 0.78,
+    contrast: 1,
     originalColors: false,
-    inverted: false,
+    inverted: true,
     grainMixer: 0,
     grainOverlay: 0,
     straight: true,
@@ -102,7 +102,7 @@ export const holesPreset: HalftoneDotsPreset = {
 
 export const halftoneDotsPresets: HalftoneDotsPreset[] = [
   defaultPreset,
-  abstractPreset,
+  ledPreset,
   netPreset,
   holesPreset,
 ];
