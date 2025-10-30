@@ -296,7 +296,7 @@ void main() {
   frameBlur += .03 * frameFade;
   frameBlur *= mask;
   float frame = getUvFrame(uv, frameBlur);
-  frame = mix(0., frame, strokes);
+//  frame = mix(0., frame, strokes);
   
   float edges = 1. - smoothstep(0., .5, xNonSmooth) * smoothstep(1., 1. - .5, xNonSmooth);
   edges = pow(edges, 2.);
@@ -319,6 +319,9 @@ void main() {
 
   opacity += tint;
   opacity = clamp(opacity, 0., 1.);
+
+  color = mix(backColor.rgb, color, strokes);
+  opacity = mix(backColor.a, opacity, strokes);
 
   fragColor = vec4(color, opacity);
 }
