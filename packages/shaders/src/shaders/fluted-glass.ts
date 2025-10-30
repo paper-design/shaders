@@ -34,13 +34,13 @@ uniform float u_pixelRatio;
 ${sizingUniformsDeclaration}
 
 uniform vec4 u_colorBack;
-uniform vec4 u_colorHighlight;
+uniform vec4 u_colorShadow;
 
 uniform sampler2D u_image;
 uniform float u_imageAspectRatio;
 
 uniform float u_size;
-uniform float u_highlights;
+uniform float u_shadows;
 uniform float u_angle;
 uniform float u_edges;
 uniform float u_shape;
@@ -53,7 +53,6 @@ uniform float u_marginLeft;
 uniform float u_marginRight;
 uniform float u_marginTop;
 uniform float u_marginBottom;
-uniform float u_blurFrame;
 
 out vec4 fragColor;
 
@@ -204,10 +203,10 @@ void main() {
   w += .7 * maskStroke;
   float strokes = smoothstep(0., w, xNonSmooth);
   strokes *= smoothstep(1., 1. - w, xNonSmooth);
-  float strokesForHighlights = strokes;
+  float strokesForShadows = strokes;
   strokes = mix(1., strokes, u_strokes);
 
-  float highlight = x;
+  float shadow = x;
   float distortion = 0.;
   float fadeX = 1.;
   float frameFade = 0.;
@@ -217,7 +216,7 @@ void main() {
     distortion += (.5 - u_shift);
 
     frameFade = pow(1.5 * x, 3.);
-    highlight = 1. - pow(x, .25);
+    shadow = 1. - pow(x, .25);
 
     float aa = max(max(.2, fwidth(xNonSmooth)), fwidth(uv.x));
     aa += mix(.2, 0., u_size);
@@ -228,7 +227,7 @@ void main() {
     distortion -= (.5 + u_shift);
 
     frameFade = pow(abs(x - .5), 4.);
-    highlight = 2.4 * pow(abs(x - .4), 2.5);
+    shadow = 2.4 * pow(abs(x - .4), 2.5);
 
     float aa = max(max(.2, fwidth(xNonSmooth)), fwidth(uv.x));
     aa += mix(.2, 0., u_size);
@@ -237,12 +236,12 @@ void main() {
     frameFade = mix(1., frameFade, .5 * fadeX);
   } else if (u_distortionShape == 3.) {
     distortion = pow(2. * (xNonSmooth - .5), 6.);
-    highlight = clamp(distortion, 0., 1.);
+    shadow = clamp(distortion, 0., 1.);
     distortion -= .25;
     distortion -= u_shift;
 
     frameFade = 1. - 2. * pow(abs(x - .4), 2.);
-    highlight = pow(x, 6.);
+    shadow = pow(x, 6.);
 
     float aa = .15;
     aa += mix(.1, 0., u_size);
@@ -252,14 +251,14 @@ void main() {
   } else if (u_distortionShape == 4.) {
     x = xNonSmooth;
     distortion = sin((x + .25) * TWO_PI);
-    highlight = pow(.5 + .5 * distortion, 5.);
+    shadow = pow(.5 + .5 * distortion, 5.);
     distortion *= .5;
     distortion -= u_shift;
     frameFade = .5 + .5 * sin(x * TWO_PI);
   } else if (u_distortionShape == 5.) {
     distortion -= pow(abs(x), .2) * x;
-    highlight = 1.5 * pow(pow(abs(x), 3.), 4.);
-    highlight = min(highlight, 1.);
+    shadow = 1.5 * pow(pow(abs(x), 3.), 4.);
+    shadow = min(shadow, 1.);
     distortion += .33;
     distortion -= 3. * u_shift;
     distortion *= .33;
@@ -272,12 +271,11 @@ void main() {
     distortion *= fadeX;
   }
 
-  highlight += .5 * strokesForHighlights;
-  highlight = min(highlight, 1.);
-  highlight *= mask;
-  highlight += .5 * maskStroke;
-  highlight *= .4;
-  highlight = min(highlight, 1.);
+  shadow = mix(1., shadow, strokesForShadows);
+  shadow = min(shadow, 1.);
+  shadow *= mask;
+  shadow += .5 * maskStroke;
+  shadow = min(shadow, 1.);
 
   distortion *= 3. * u_distortion;
   frameFade *= u_distortion;
@@ -294,7 +292,7 @@ void main() {
   uv = mix(imageOrigUV, uv, mask);
   float blur = mix(0., mix(0., 50., u_blur), mask);
   
-  float frameBlur = mix(0., .05 + .06 * u_size, u_blur);
+  float frameBlur = mix(0., .04, u_blur);
   frameBlur += .03 * frameFade;
   frameBlur *= mask;
   float frame = getUvFrame(uv, frameBlur);
@@ -314,12 +312,12 @@ void main() {
   vec3 color = mix(backColor.rgb, image.rgb, image.a * frame);
   float opacity = backColor.a + image.a * frame;
 
-  highlight *= pow(u_highlights, 2.);
-  highlight *= u_colorHighlight.a;
-  color = mix(color, u_colorHighlight.rgb, .5 * highlight);
-  color += .5 * pow(highlight, .5) * u_colorHighlight.rgb;
+  shadow *= pow(u_shadows, 2.);
+  shadow *= u_colorShadow.a;
+  color = mix(color, u_colorShadow.rgb, .5 * shadow);
+  color += .5 * pow(shadow, .5) * u_colorShadow.rgb;
 
-  opacity += highlight;
+  opacity += shadow;
   opacity = clamp(opacity, 0., 1.);
 
   fragColor = vec4(color, opacity);
@@ -329,8 +327,8 @@ void main() {
 export interface FlutedGlassUniforms extends ShaderSizingUniforms {
   u_image: HTMLImageElement | string;
   u_colorBack: [number, number, number, number];
-  u_colorHighlight: [number, number, number, number];
-  u_highlights: number;
+  u_colorShadow: [number, number, number, number];
+  u_shadows: number;
   u_size: number;
   u_angle: number;
   u_distortion: number;
@@ -343,7 +341,6 @@ export interface FlutedGlassUniforms extends ShaderSizingUniforms {
   u_edges: number;
   u_distortionShape: (typeof GlassDistortionShapes)[GlassDistortionShape];
   u_strokes: number;
-  u_blurFrame: number;
   u_shape: (typeof GlassGridShapes)[GlassGridShape];
   u_noiseTexture?: HTMLImageElement;
 }
@@ -351,8 +348,8 @@ export interface FlutedGlassUniforms extends ShaderSizingUniforms {
 export interface FlutedGlassParams extends ShaderSizingParams, ShaderMotionParams {
   image: HTMLImageElement | string;
   colorBack?: string;
-  colorHighlight?: string;
-  highlights?: number;
+  colorShadow?: string;
+  shadows?: number;
   size?: number;
   angle?: number;
   distortion?: number;
@@ -366,7 +363,6 @@ export interface FlutedGlassParams extends ShaderSizingParams, ShaderMotionParam
   edges?: number;
   distortionShape?: GlassDistortionShape;
   strokes?: number;
-  blurFrame?: number;
   shape?: GlassGridShape;
 }
 
