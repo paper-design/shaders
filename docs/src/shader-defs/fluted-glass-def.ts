@@ -22,18 +22,18 @@ export const flutedGlassDef: ShaderDef = {
       description: 'Background color',
     },
     {
-      name: 'colorShadow',
+      name: 'colorTint',
       type: 'string',
-      defaultValue: defaultParams.colorShadow,
+      defaultValue: defaultParams.colorTint,
       isColor: true,
-      description: 'Shadow color',
+      description: 'Tint color',
     },
     {
-      name: 'shadows',
+      name: 'tint',
       type: 'number',
       min: 0,
       max: 1,
-      defaultValue: defaultParams.shadows,
+      defaultValue: defaultParams.tint,
       description: 'A power of color layer added over the image and background, following the distortion shape',
     },
     {

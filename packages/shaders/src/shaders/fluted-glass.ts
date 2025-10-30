@@ -34,13 +34,13 @@ uniform float u_pixelRatio;
 ${sizingUniformsDeclaration}
 
 uniform vec4 u_colorBack;
-uniform vec4 u_colorShadow;
+uniform vec4 u_colorTint;
 
 uniform sampler2D u_image;
 uniform float u_imageAspectRatio;
 
 uniform float u_size;
-uniform float u_shadows;
+uniform float u_tint;
 uniform float u_angle;
 uniform float u_edges;
 uniform float u_shape;
@@ -203,10 +203,10 @@ void main() {
   w += .7 * maskStroke;
   float strokes = smoothstep(0., w, xNonSmooth);
   strokes *= smoothstep(1., 1. - w, xNonSmooth);
-  float strokesForShadows = strokes;
+  float strokesForTints = strokes;
   strokes = mix(1., strokes, u_strokes);
 
-  float shadow = x;
+  float tint = x;
   float distortion = 0.;
   float fadeX = 1.;
   float frameFade = 0.;
@@ -216,7 +216,7 @@ void main() {
     distortion += (.5 - u_shift);
 
     frameFade = pow(1.5 * x, 3.);
-    shadow = 1. - pow(x, .25);
+    tint = 1. - pow(x, .25);
 
     float aa = max(max(.2, fwidth(xNonSmooth)), fwidth(uv.x));
     aa += mix(.2, 0., u_size);
@@ -227,7 +227,7 @@ void main() {
     distortion -= (.5 + u_shift);
 
     frameFade = pow(abs(x - .5), 4.);
-    shadow = 2.4 * pow(abs(x - .4), 2.5);
+    tint = 2.4 * pow(abs(x - .4), 2.5);
 
     float aa = max(max(.2, fwidth(xNonSmooth)), fwidth(uv.x));
     aa += mix(.2, 0., u_size);
@@ -236,12 +236,12 @@ void main() {
     frameFade = mix(1., frameFade, .5 * fadeX);
   } else if (u_distortionShape == 3.) {
     distortion = pow(2. * (xNonSmooth - .5), 6.);
-    shadow = clamp(distortion, 0., 1.);
+    tint = clamp(distortion, 0., 1.);
     distortion -= .25;
     distortion -= u_shift;
 
     frameFade = 1. - 2. * pow(abs(x - .4), 2.);
-    shadow = pow(x, 6.);
+    tint = pow(x, 6.);
 
     float aa = .15;
     aa += mix(.1, 0., u_size);
@@ -251,14 +251,14 @@ void main() {
   } else if (u_distortionShape == 4.) {
     x = xNonSmooth;
     distortion = sin((x + .25) * TWO_PI);
-    shadow = pow(.5 + .5 * distortion, 5.);
+    tint = pow(.5 + .5 * distortion, 5.);
     distortion *= .5;
     distortion -= u_shift;
     frameFade = .5 + .5 * sin(x * TWO_PI);
   } else if (u_distortionShape == 5.) {
     distortion -= pow(abs(x), .2) * x;
-    shadow = 1.5 * pow(pow(abs(x), 3.), 4.);
-    shadow = min(shadow, 1.);
+    tint = 1.5 * pow(pow(abs(x), 3.), 4.);
+    tint = min(tint, 1.);
     distortion += .33;
     distortion -= 3. * u_shift;
     distortion *= .33;
@@ -271,11 +271,11 @@ void main() {
     distortion *= fadeX;
   }
 
-  shadow = mix(1., shadow, strokesForShadows);
-  shadow = min(shadow, 1.);
-  shadow *= mask;
-  shadow += .5 * maskStroke;
-  shadow = min(shadow, 1.);
+  tint = mix(1., tint, strokesForTints);
+  tint = min(tint, 1.);
+  tint *= mask;
+  tint += .5 * maskStroke;
+  tint = min(tint, 1.);
 
   distortion *= 3. * u_distortion;
   frameFade *= u_distortion;
@@ -312,12 +312,12 @@ void main() {
   vec3 color = mix(backColor.rgb, image.rgb, image.a * frame);
   float opacity = backColor.a + image.a * frame;
 
-  shadow *= pow(u_shadows, 2.);
-  shadow *= u_colorShadow.a;
-  color = mix(color, u_colorShadow.rgb, .5 * shadow);
-  color += .5 * pow(shadow, .5) * u_colorShadow.rgb;
+  tint *= pow(u_tint, 2.);
+  tint *= u_colorTint.a;
+  color = mix(color, u_colorTint.rgb, .5 * tint);
+  color += .5 * pow(tint, .5) * u_colorTint.rgb;
 
-  opacity += shadow;
+  opacity += tint;
   opacity = clamp(opacity, 0., 1.);
 
   fragColor = vec4(color, opacity);
@@ -327,8 +327,8 @@ void main() {
 export interface FlutedGlassUniforms extends ShaderSizingUniforms {
   u_image: HTMLImageElement | string;
   u_colorBack: [number, number, number, number];
-  u_colorShadow: [number, number, number, number];
-  u_shadows: number;
+  u_colorTint: [number, number, number, number];
+  u_tint: number;
   u_size: number;
   u_angle: number;
   u_distortion: number;
@@ -348,8 +348,8 @@ export interface FlutedGlassUniforms extends ShaderSizingUniforms {
 export interface FlutedGlassParams extends ShaderSizingParams, ShaderMotionParams {
   image: HTMLImageElement | string;
   colorBack?: string;
-  colorShadow?: string;
-  shadows?: number;
+  colorTint?: string;
+  tint?: number;
   size?: number;
   angle?: number;
   distortion?: number;
