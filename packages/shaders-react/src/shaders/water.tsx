@@ -51,7 +51,7 @@ export const abstractPreset: WaterPreset = {
     edges: 1,
     waves: 1,
     caustic: 0.4,
-    size: 4,
+    size: 0.15,
   },
 };
 
@@ -70,7 +70,7 @@ export const streamingPreset: WaterPreset = {
     edges: 0,
     waves: 0.5,
     caustic: 0,
-    size: 3,
+    size: 0.5,
   },
 };
 
@@ -89,7 +89,7 @@ export const slowMoPreset: WaterPreset = {
     edges: 0,
     waves: 0,
     caustic: 0.2,
-    size: 2,
+    size: 0.7,
   },
 };
 
