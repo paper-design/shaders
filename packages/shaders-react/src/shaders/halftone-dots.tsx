@@ -79,8 +79,8 @@ export const netPreset: HalftoneDotsPreset = {
   },
 };
 
-export const robotPreset: HalftoneDotsPreset = {
-  name: 'Robot vision',
+export const roundAndSquarePreset: HalftoneDotsPreset = {
+  name: 'Round and square',
   params: {
     ...defaultObjectSizing,
     fit: 'cover',
@@ -100,7 +100,7 @@ export const robotPreset: HalftoneDotsPreset = {
   },
 };
 
-export const halftoneDotsPresets: HalftoneDotsPreset[] = [defaultPreset, ledPreset, netPreset, robotPreset];
+export const halftoneDotsPresets: HalftoneDotsPreset[] = [defaultPreset, ledPreset, netPreset, roundAndSquarePreset];
 
 export const HalftoneDots: React.FC<HalftoneDotsProps> = memo(function HalftoneDotsImpl({
   // Own props
