@@ -44,6 +44,7 @@ uniform float u_foldCount;
 uniform float u_drops;
 uniform float u_seed;
 uniform float u_fade;
+uniform float u_blending;
 
 uniform sampler2D u_noiseTexture;
 
@@ -177,6 +178,13 @@ float lst(float edge0, float edge1, float x) {
   return clamp((x - edge0) / (edge1 - edge0), 0.0, 1.0);
 }
 
+vec3 blendMultiply(vec3 base, vec3 blend) { 
+  return base*blend;
+}
+vec3 blendMultiply(vec3 base, vec3 blend, float opacity) { 
+  return (blendMultiply(base, blend) * opacity + base * (1.0 - opacity));
+}
+
 void main() {
 
   vec2 imageUV = v_imageUV;
@@ -240,7 +248,7 @@ void main() {
   imageUV += .02 * normalImage;
   float frame = getUvFrame(imageUV);
   vec4 image = texture(u_image, imageUV);
-  image.rgb += .6 * pow(u_contrast, .4) * (res - .7);
+  image.rgb += .6 * pow(u_contrast, .4) * (.3 - res);
 
   frame *= image.a;
 
@@ -253,7 +261,11 @@ void main() {
 
   color -= .007 * drops;
 
-  color.rgb = mix(color, image.rgb, frame);
+  float blending = 1. - u_blending;
+  float blendOpacity = (.5 + .5 * res);
+  vec3 pic = blendMultiply(color, image.rgb + .3 * blending * length(normalImage), .5 * res + .5 * u_blending);
+  pic = mix(pic, image.rgb, blending);
+  color = mix(color, pic, frame);
 
   fragColor = vec4(color, opacity);
 }
@@ -275,6 +287,7 @@ export interface PaperTextureUniforms extends ShaderSizingUniforms {
   u_crumpleSize: number;
   u_drops: number;
   u_seed: number;
+  u_blending: number;
 }
 
 export interface PaperTextureParams extends ShaderSizingParams, ShaderMotionParams {
@@ -292,4 +305,5 @@ export interface PaperTextureParams extends ShaderSizingParams, ShaderMotionPara
   crumpleSize?: number;
   drops?: number;
   seed?: number;
+  blending?: number;
 }

@@ -79,6 +79,7 @@ const PaperTextureWithControls = () => {
       foldCount: { value: defaults.foldCount, min: 1, max: 15, step: 1, order: 207 },
       drops: { value: defaults.drops, min: 0, max: 1, order: 209 },
       fade: { value: defaults.fade, min: 0, max: 1, order: 208 },
+      blending: { value: defaults.blending, min: 0, max: 1, order: 0 },
       seed: { value: defaults.seed, min: 0, step: 1, max: 1000, order: 250 },
       scale: { value: defaults.scale, min: 0.5, max: 10, order: 300 },
       fit: { value: defaults.fit, options: ['contain', 'cover'] as ShaderFit[], order: 301 },
