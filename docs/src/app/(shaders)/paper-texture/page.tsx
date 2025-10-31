@@ -69,7 +69,7 @@ const PaperTextureWithControls = () => {
     return {
       colorBack: { value: toHsla(defaults.colorBack), order: 100 },
       colorFront: { value: toHsla(defaults.colorFront), order: 101 },
-      contrast: { value: defaults.contrast, min: 0, max: 1, order: 200 },
+      contrast: { value: defaults.contrast, min: 0, max: 1, order: 199 },
       roughness: { value: defaults.roughness, min: 0, max: 1, order: 201 },
       fiber: { value: defaults.fiber, min: 0, max: 1, order: 202 },
       fiberSize: { value: defaults.fiberSize, min: 0.01, max: 1, order: 203 },
@@ -79,7 +79,7 @@ const PaperTextureWithControls = () => {
       foldCount: { value: defaults.foldCount, min: 1, max: 15, step: 1, order: 207 },
       drops: { value: defaults.drops, min: 0, max: 1, order: 209 },
       fade: { value: defaults.fade, min: 0, max: 1, order: 208 },
-      blending: { value: defaults.blending, min: 0, max: 1, order: 0 },
+      blending: { value: defaults.blending, min: 0, max: 1, order: 200 },
       seed: { value: defaults.seed, min: 0, step: 1, max: 1000, order: 250 },
       scale: { value: defaults.scale, min: 0.5, max: 10, order: 300 },
       fit: { value: defaults.fit, options: ['contain', 'cover'] as ShaderFit[], order: 301 },
