@@ -212,7 +212,15 @@ export const ShaderMount: React.FC<ShaderMountProps> = forwardRef<PaperShaderEle
     return (
       <div
         ref={mergedRef}
-        style={width !== undefined || height !== undefined ? { width, height, ...style } : style}
+        style={
+          width !== undefined || height !== undefined
+            ? {
+                width: typeof width === 'string' && isNaN(+width) === false ? +width : width,
+                height: typeof height === 'string' && isNaN(+height) === false ? +height : height,
+                ...style,
+              }
+            : style
+        }
         {...divProps}
       />
     );
