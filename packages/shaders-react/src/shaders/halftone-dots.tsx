@@ -45,9 +45,9 @@ export const ledPreset: HalftoneDotsPreset = {
     speed: 1,
     frame: 0,
     colorBack: '#000000',
-    colorFront: '#29ff3b',
+    colorFront: '#29ff7b',
     size: 10,
-    radius: 0.73,
+    radius: 0.75,
     contrast: 1,
     originalColors: false,
     inverted: true,
@@ -94,18 +94,13 @@ export const holesPreset: HalftoneDotsPreset = {
     originalColors: false,
     inverted: true,
     grainMixer: 0.05,
-    grainOverlay: 0.29,
+    grainOverlay: 0.3,
     straight: true,
     type: 'hole',
   },
 };
 
-export const halftoneDotsPresets: HalftoneDotsPreset[] = [
-  defaultPreset,
-  ledPreset,
-  netPreset,
-  holesPreset,
-];
+export const halftoneDotsPresets: HalftoneDotsPreset[] = [defaultPreset, ledPreset, netPreset, holesPreset];
 
 export const HalftoneDots: React.FC<HalftoneDotsProps> = memo(function HalftoneDotsImpl({
   // Own props
