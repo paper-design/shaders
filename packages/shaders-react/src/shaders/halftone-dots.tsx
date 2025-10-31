@@ -38,7 +38,7 @@ export const defaultPreset: HalftoneDotsPreset = {
 };
 
 export const ledPreset: HalftoneDotsPreset = {
-  name: 'Dot Lights',
+  name: 'LED screen',
   params: {
     ...defaultObjectSizing,
     fit: 'cover',
@@ -71,7 +71,7 @@ export const netPreset: HalftoneDotsPreset = {
     radius: 2,
     contrast: 0.01,
     originalColors: true,
-    inverted: true,
+    inverted: false,
     grainMixer: 0,
     grainOverlay: 0,
     straight: false,
@@ -79,8 +79,8 @@ export const netPreset: HalftoneDotsPreset = {
   },
 };
 
-export const holesPreset: HalftoneDotsPreset = {
-  name: 'Holes',
+export const robotPreset: HalftoneDotsPreset = {
+  name: 'Robot vision',
   params: {
     ...defaultObjectSizing,
     fit: 'cover',
@@ -100,7 +100,7 @@ export const holesPreset: HalftoneDotsPreset = {
   },
 };
 
-export const halftoneDotsPresets: HalftoneDotsPreset[] = [defaultPreset, ledPreset, netPreset, holesPreset];
+export const halftoneDotsPresets: HalftoneDotsPreset[] = [defaultPreset, ledPreset, netPreset, robotPreset];
 
 export const HalftoneDots: React.FC<HalftoneDotsProps> = memo(function HalftoneDotsImpl({
   // Own props
