@@ -41,6 +41,7 @@ export const retroPreset: ImageDitheringPreset = {
   name: 'Retro',
   params: {
     ...defaultObjectSizing,
+    fit: 'cover',
     speed: 0,
     frame: 0,
     colorFront: '#eeeeee',
@@ -57,6 +58,7 @@ export const noisePreset: ImageDitheringPreset = {
   name: 'Noise',
   params: {
     ...defaultObjectSizing,
+    fit: 'cover',
     speed: 0,
     frame: 0,
     colorFront: '#a2997c',
@@ -73,6 +75,7 @@ export const naturalPreset: ImageDitheringPreset = {
   name: 'Natural',
   params: {
     ...defaultObjectSizing,
+    fit: 'cover',
     speed: 0,
     frame: 0,
     colorFront: '#ffffff',

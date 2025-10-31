@@ -210,6 +210,14 @@ export {
   type LiquidMetalUniforms,
 } from './shaders/liquid-metal.js';
 
+export {
+  HalftoneDotsTypes,
+  halftoneDotsFragmentShader,
+  type HalftoneDotsParams,
+  type HalftoneDotsUniforms,
+  type HalftoneDotsType,
+} from './shaders/halftone-dots.js';
+
 // ----- Utils ----- //
 export { getShaderColorFromString } from './get-shader-color-from-string.js';
 export { getShaderNoiseTexture } from './get-shader-noise-texture.js';
