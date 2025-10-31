@@ -17,37 +17,37 @@ export interface HalftoneDotsProps extends ShaderComponentProps, HalftoneDotsPar
 type HalftoneDotsPreset = ImageShaderPreset<HalftoneDotsParams>;
 
 export const defaultPreset: HalftoneDotsPreset = {
-  name: 'Print Halftone',
+  name: 'Default',
   params: {
     ...defaultObjectSizing,
     fit: 'cover',
     speed: 1,
     frame: 0,
-    colorBack: '#d4d4d4',
+    colorBack: '#f2f1e8',
     colorFront: '#2b2b2b',
     size: 5,
-    radius: 1,
-    contrast: 0.5,
+    radius: 1.25,
+    contrast: 0.25,
     originalColors: false,
     inverted: false,
-    grainMixer: 0,
-    grainOverlay: 0,
+    grainMixer: 0.2,
+    grainOverlay: 0.2,
     straight: false,
     type: 'gooey',
   },
 };
 
 export const ledPreset: HalftoneDotsPreset = {
-  name: 'LED Lights',
+  name: 'Dot Lights',
   params: {
     ...defaultObjectSizing,
     fit: 'cover',
     speed: 1,
     frame: 0,
-    colorBack: '#ffffff00',
-    colorFront: '#85ff33',
-    size: 6,
-    radius: 0.88,
+    colorBack: '#000000',
+    colorFront: '#29ff3b',
+    size: 10,
+    radius: 0.73,
     contrast: 1,
     originalColors: false,
     inverted: true,
@@ -59,15 +59,15 @@ export const ledPreset: HalftoneDotsPreset = {
 };
 
 export const netPreset: HalftoneDotsPreset = {
-  name: 'Dots Net',
+  name: 'Mosaic',
   params: {
     ...defaultObjectSizing,
     fit: 'cover',
     speed: 1,
     frame: 0,
     colorBack: '#000000',
-    colorFront: '#2b2b2b',
-    size: 8,
+    colorFront: '#b2aeae',
+    size: 7,
     radius: 2,
     contrast: 0.01,
     originalColors: true,
@@ -80,21 +80,21 @@ export const netPreset: HalftoneDotsPreset = {
 };
 
 export const holesPreset: HalftoneDotsPreset = {
-  name: 'Square Holes',
+  name: 'Holes',
   params: {
     ...defaultObjectSizing,
     fit: 'cover',
     speed: 1,
     frame: 0,
-    colorBack: '#ffffff00',
-    colorFront: '#ff002b',
-    size: 6,
-    radius: 0.78,
+    colorBack: '#141414',
+    colorFront: '#ff8000',
+    size: 18,
+    radius: 1,
     contrast: 1,
     originalColors: false,
     inverted: true,
-    grainMixer: 0,
-    grainOverlay: 0,
+    grainMixer: 0.05,
+    grainOverlay: 0.29,
     straight: true,
     type: 'hole',
   },
