@@ -150,13 +150,13 @@ float getSoftBall(vec2 uv, float r, float baseR) {
   return d;
 }
 
-float getUvFrame(vec2 uv) {
+float getUvFrame(vec2 uv, vec2 pad) {
   float aa = 0.0001;
 
-  float left   = smoothstep(0., aa, uv.x);
-  float right  = smoothstep(1., 1. - aa, uv.x);
-  float bottom = smoothstep(0., aa, uv.y);
-  float top    = smoothstep(1., 1. - aa, uv.y);
+  float left   = smoothstep(-pad.x, -pad.x + aa, uv.x);
+  float right  = smoothstep(1.0 + pad.x, 1.0 + pad.x - aa, uv.x);
+  float bottom = smoothstep(-pad.y, -pad.y + aa, uv.y);
+  float top    = smoothstep(1.0 + pad.y, 1.0 + pad.y - aa, uv.y);
 
   return left * right * bottom * top;
 }
@@ -183,9 +183,11 @@ float getLumBall(vec2 p, vec2 pxSize, vec2 inCellOffset, float contrast, float b
   p += inCellOffset;
   vec2 uv_i = floor(p);
   vec2 uv_f = fract(p);
-  vec2 samplePx = ((uv_i + .5 - inCellOffset) * pxSize) / u_resolution.xy;
+  vec2 pad = pxSize / u_resolution.xy;
+  vec2 samplePx = (uv_i + .5 - inCellOffset) * pad;
   vec2 samplingUV = getImageUV(samplePx, vec2(1.));
-  float outOfFrame = getUvFrame(samplingUV);
+  float outOfFrame = getUvFrame(samplingUV, pad);
+  
   float lum = getLumAtPx(samplingUV, contrast);
   ballColor = texture(u_image, samplingUV);
   ballColor.rgb *= ballColor.a;
