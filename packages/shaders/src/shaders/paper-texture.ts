@@ -192,7 +192,7 @@ void main() {
   vec2 patternUV = v_imageUV - .5;
   patternUV = 5. * (patternUV * vec2(u_imageAspectRatio, 1.));
 
-  vec2 roughnessUv = 1.5 * (gl_FragCoord.xy - .5 * u_resolution) / u_pixelRatio;
+  vec2 roughnessUv = 120. * patternUV;
   float roughness = roughness(roughnessUv + vec2(1., 0.)) - roughness(roughnessUv - vec2(1., 0.));
 
   vec2 crumplesUV = fract(patternUV * .02 / u_crumpleSize - u_seed) * 32.;
