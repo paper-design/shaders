@@ -179,6 +179,7 @@ float getLumAtPx(vec2 uv, float contrast) {
 }
 
 float getLumBall(vec2 p, vec2 pxSize, vec2 inCellOffset, float contrast, float baseR, out vec4 ballColor) {
+  p += .001;
   p += inCellOffset;
   vec2 uv_i = floor(p);
   vec2 uv_f = fract(p);
