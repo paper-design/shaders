@@ -34,6 +34,7 @@ uniform sampler2D u_image;
 uniform float u_imageAspectRatio;
 
 uniform float u_contrast;
+uniform float u_opacity;
 uniform float u_roughness;
 uniform float u_fiber;
 uniform float u_fiberSize;
@@ -265,7 +266,7 @@ void main() {
   float blendOpacity = (.5 + .5 * res);
   vec3 pic = blendMultiply(color, image.rgb + .3 * blending * length(normalImage), .5 * res + .5 * u_blending);
   pic = mix(pic, image.rgb, blending);
-  color = mix(color, pic, frame);
+  color = mix(color, pic, frame * u_opacity);
 
   fragColor = vec4(color, opacity);
 }
@@ -277,6 +278,7 @@ export interface PaperTextureUniforms extends ShaderSizingUniforms {
   u_colorFront: [number, number, number, number];
   u_colorBack: [number, number, number, number];
   u_contrast: number;
+  u_opacity: number;
   u_roughness: number;
   u_fiber: number;
   u_fiberSize: number;
@@ -295,6 +297,7 @@ export interface PaperTextureParams extends ShaderSizingParams, ShaderMotionPara
   colorFront?: string;
   colorBack?: string;
   contrast?: number;
+  opacity?: number;
   roughness?: number;
   fiber?: number;
   fiberSize?: number;

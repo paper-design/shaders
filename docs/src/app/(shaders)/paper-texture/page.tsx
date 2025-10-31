@@ -70,6 +70,7 @@ const PaperTextureWithControls = () => {
       colorBack: { value: toHsla(defaults.colorBack), order: 100 },
       colorFront: { value: toHsla(defaults.colorFront), order: 101 },
       contrast: { value: defaults.contrast, min: 0, max: 1, order: 199 },
+      opacity: { value: defaults.opacity, min: 0, max: 1, order: 199 },
       roughness: { value: defaults.roughness, min: 0, max: 1, order: 201 },
       fiber: { value: defaults.fiber, min: 0, max: 1, order: 202 },
       fiberSize: { value: defaults.fiberSize, min: 0.01, max: 1, order: 203 },
