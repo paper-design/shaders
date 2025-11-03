@@ -30,6 +30,7 @@ export const defaultPreset: PaperTexturePreset = {
   params: {
     ...defaultObjectSizing,
     blending: 0,
+    distortion: 0.5,
     fit: 'contain',
     scale: 0.8,
     speed: 0,
@@ -56,6 +57,7 @@ export const abstractPreset: PaperTexturePreset = {
   params: {
     ...defaultObjectSizing,
     blending: 0,
+    distortion: 0.5,
     fit: 'contain',
     speed: 0,
     frame: 0,
@@ -82,6 +84,7 @@ export const cardboardPreset: PaperTexturePreset = {
   params: {
     ...defaultObjectSizing,
     blending: 0,
+    distortion: 0.5,
     fit: 'contain',
     speed: 0,
     frame: 0,
@@ -108,6 +111,7 @@ export const detailsPreset: PaperTexturePreset = {
   params: {
     ...defaultObjectSizing,
     blending: 0,
+    distortion: 0.5,
     speed: 0,
     frame: 0,
     fit: 'contain',
@@ -152,6 +156,7 @@ export const PaperTexture: React.FC<PaperTextureProps> = memo(function PaperText
   drops = defaultPreset.params.drops,
   seed = defaultPreset.params.seed,
   blending = defaultPreset.params.blending,
+  distortion = defaultPreset.params.distortion,
 
   // Reworked props
   fiberScale,
@@ -195,6 +200,7 @@ export const PaperTexture: React.FC<PaperTextureProps> = memo(function PaperText
     u_drops: drops,
     u_seed: seed,
     u_blending: blending,
+    u_distortion: distortion,
     ...noiseTexture,
 
     // Sizing uniforms

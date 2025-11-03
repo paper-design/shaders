@@ -46,6 +46,7 @@ uniform float u_drops;
 uniform float u_seed;
 uniform float u_fade;
 uniform float u_blending;
+uniform float u_distortion;
 
 uniform sampler2D u_noiseTexture;
 
@@ -235,7 +236,7 @@ void main() {
   normal.xy += u_roughness * 1.5 * roughness;
   normal.xy += fiber;
 
-  normalImage += u_roughness * .75 * roughness;
+  normalImage += u_roughness * .3 * roughness;
   normalImage += .2 * fiber;
 
   vec3 lightPos = vec3(1., 2., 1.);
@@ -246,7 +247,7 @@ void main() {
   vec3 bgColor = u_colorBack.rgb * u_colorBack.a;
   float bgOpacity = u_colorBack.a;
 
-  imageUV += .02 * normalImage;
+  imageUV += .1 * u_distortion * normalImage;
   float frame = getUvFrame(imageUV);
   vec4 image = texture(u_image, imageUV);
   image.rgb += .6 * pow(u_contrast, .4) * (.3 - res);
@@ -290,6 +291,7 @@ export interface PaperTextureUniforms extends ShaderSizingUniforms {
   u_drops: number;
   u_seed: number;
   u_blending: number;
+  u_distortion: number;
 }
 
 export interface PaperTextureParams extends ShaderSizingParams, ShaderMotionParams {
@@ -309,4 +311,5 @@ export interface PaperTextureParams extends ShaderSizingParams, ShaderMotionPara
   drops?: number;
   seed?: number;
   blending?: number;
+  distortion?: number;
 }
