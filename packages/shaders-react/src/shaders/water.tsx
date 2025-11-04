@@ -150,6 +150,13 @@ export const Water: React.FC<WaterProps> = memo(function WaterImpl({
   } satisfies WaterUniforms;
 
   return (
-    <ShaderMount {...props} speed={speed} frame={frame} fragmentShader={waterFragmentShader} uniforms={uniforms} />
+    <ShaderMount
+      {...props}
+      speed={speed}
+      frame={frame}
+      fragmentShader={waterFragmentShader}
+      mipmaps={['u_image']}
+      uniforms={uniforms}
+    />
   );
 }, colorPropsAreEqual);
