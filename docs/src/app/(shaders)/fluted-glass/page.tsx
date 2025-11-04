@@ -40,8 +40,7 @@ const imageFiles = [
 
 const FlutedGlassWithControls = () => {
   const [imageIdx, setImageIdx] = useState(-1);
-  // const [image, setImage] = useState<HTMLImageElement | string>('/images/image-filters/0018.webp');
-  const [image, setImage] = useState<HTMLImageElement | string>('/images/image-filters/red-test.png');
+  const [image, setImage] = useState<HTMLImageElement | string>('/images/image-filters/0018.webp');
 
   useEffect(() => {
     if (imageIdx >= 0) {
