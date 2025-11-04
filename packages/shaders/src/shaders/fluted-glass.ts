@@ -198,6 +198,7 @@ void main() {
     smoothstep(margins[1], margins[1] + sw.y, uvMask.y + sw.y) *
     smoothstep(margins[3], margins[3] + sw.y, 1.0 - uvMask.y + sw.y);
   float maskStroke = (1. - mask) * maskOuter;
+  float maskStrokeInner = (1. - mask) * smoothstep(.95, 1., maskOuter);
 
   uv -= .5;
   uv *= patternSize;
@@ -230,10 +231,9 @@ void main() {
 
   float w = 2. * fwidth(UvToFract.x);
   w *= mask;
-  w += .5 * maskStroke;
+  w += maskStrokeInner;
   float stroke = smoothstep(0., w, xNonSmooth);
   stroke *= smoothstep(1., 1. - w, xNonSmooth);
-  stroke -= .7 * maskStroke;
   stroke = mix(1., stroke, u_stroke);
 
   float tint = x;
@@ -365,6 +365,7 @@ void main() {
   color = blendHardLight(color, grainOverlayColor, .5 * u_grainOverlay);
 
   fragColor = vec4(color, opacity);
+//  fragColor = vec4(vec3((1. - mask) * step(1., maskOuter), 0., 0.), 1.);
 }
 `;
 
