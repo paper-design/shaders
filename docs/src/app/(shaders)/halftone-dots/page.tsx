@@ -90,7 +90,7 @@ const HalftoneDotsWithControls = () => {
       // offsetY: { value: defaults.offsetY, min: -1, max: 1, order: 402 },
       // originX: { value: defaults.originX, min: 0, max: 1, order: 411 },
       // originY: { value: defaults.originY, min: 0, max: 1, order: 412 },
-      rotation: { value: defaults.rotation, min: 0, max: 360, order: 420 },
+      // rotation: { value: defaults.rotation, min: 0, max: 360, order: 420 },
       fit: { value: defaults.fit, options: ['contain', 'cover'] as ShaderFit[], order: 450 },
       Image: folder(
         {

@@ -39,7 +39,7 @@ export const halftoneDotsDef: ShaderDef = {
       type: 'enum',
       defaultValue: defaultParams.type,
       description: 'Dot style',
-      options: ['classic', 'hole', 'gooey', 'soft'],
+      options: ['classic', 'gooey', 'holes', 'soft'],
     },
     {
       name: 'inverted',

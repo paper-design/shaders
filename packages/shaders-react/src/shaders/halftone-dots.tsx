@@ -96,7 +96,7 @@ export const roundAndSquarePreset: HalftoneDotsPreset = {
     grainMixer: 0.05,
     grainOverlay: 0.3,
     straight: true,
-    type: 'hole',
+    type: 'holes',
   },
 };
 

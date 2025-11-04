@@ -194,16 +194,16 @@ float getLumBall(vec2 p, vec2 pxSize, vec2 inCellOffset, float contrast, float b
   ballColor *= outOfFrame;
 
   float ball = 0.;
-  if (u_type < .5) {
+  if (u_type == 0.) {
     // classic
     ball = getCircle(uv_f, lum, baseR);
-  } else if (u_type < 1.5) {
-    // hole
-    ball = getCircleWithHole(uv_f, lum, baseR);
-  } else if (u_type < 2.5) {
+  } else if (u_type == 1.) {
     // gooey
     ball = getGooeyBall(uv_f, lum, baseR);
-  }else if (u_type < 3.5) {
+  } else if (u_type == 2.) {
+    // holes
+    ball = getCircleWithHole(uv_f, lum, baseR);
+  } else if (u_type == 3.) {
     // soft
     ball = getSoftBall(uv_f, lum, baseR);
   }
@@ -230,16 +230,16 @@ vec3 blendHardLight(vec3 base, vec3 blend, float opacity) {
 void main() {
 
   float stepMultiplier = 1.;
-  if (u_type < .5) {
+  if (u_type == 0.) {
     // classic
     stepMultiplier = 2.;
-  } else if (u_type > 1.5) {
+  } else if (u_type == 1. || u_type == 3.) {
     // gooey & soft
     stepMultiplier = 6.;
   } 
   
   vec2 pxSize = vec2(stepMultiplier) * u_size * u_pixelRatio;
-  if (u_type == 2. && u_straight == false) {
+  if (u_type == 1. && u_straight == false) {
     // gooey diaginal grid works differently
     pxSize *= .7;
   }
@@ -273,11 +273,11 @@ void main() {
         float colIndex = floor((x + .5) / stepSize);
         if (stepSize == 1.) {
           rowIndex = floor(p.y + y + 1.);
-          if (u_type == 2.) {
+          if (u_type == 1.) {
             colIndex = floor(p.x + x + 1.);
           }
         }
-        if (u_type == 2.) {
+        if (u_type == 1.) {
           if (mod(rowIndex + colIndex, 2.) == 1.) {
             continue;
           }
@@ -301,14 +301,15 @@ void main() {
   totalOpacity /= max(totalShape, eps);
 
   float finalShape = 0.;
-  if (u_type < 1.5) {
+  if (u_type == 0.) {
     finalShape = min(1., totalShape);
-  } else if (u_type < 2.5) {
+  } else if (u_type == 1.) {
     float aa = fwidth(totalShape);
     float th = .5;
     finalShape = smoothstep(th - aa, th + aa, totalShape);
-//    finalShape = totalShape;
-  } else if (u_type < 3.5) {
+  } else if (u_type == 2.) {
+    finalShape = min(1., totalShape);
+  } else if (u_type == 3.) {
     finalShape = totalShape;
   }
 
@@ -384,8 +385,8 @@ export interface HalftoneDotsParams extends ShaderSizingParams, ShaderMotionPara
 
 export const HalftoneDotsTypes = {
   classic: 0,
-  hole: 1,
-  gooey: 2,
+  gooey: 1,
+  holes: 2,
   soft: 3,
 } as const;
 
