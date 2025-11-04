@@ -210,6 +210,7 @@ export const LiquidMetal: React.FC<LiquidMetalProps> = memo(function LiquidMetal
       speed={speed}
       frame={frame}
       fragmentShader={liquidMetalFragmentShader}
+      mipmaps={['u_image']}
       uniforms={uniforms}
     />
   );

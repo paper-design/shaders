@@ -24,7 +24,7 @@ import { proceduralHash21 } from '../shader-utils.js';
 
 // language=GLSL
 export const imageDitheringFragmentShader: string = `#version 300 es
-precision lowp float;
+precision mediump float;
 
 uniform mediump vec2 u_resolution;
 uniform mediump float u_pixelRatio;
