@@ -45,7 +45,7 @@ uniform float u_angle;
 uniform float u_edges;
 uniform float u_shape;
 uniform float u_distortion;
-uniform float u_strokes;
+uniform float u_stroke;
 uniform float u_distortionShape;
 uniform float u_shift;
 uniform float u_blur;
@@ -231,9 +231,9 @@ void main() {
   float w = 2. * fwidth(UvToFract.x);
   w *= mask;
   w += .7 * maskStroke;
-  float strokes = smoothstep(0., w, xNonSmooth);
-  strokes *= smoothstep(1., 1. - w, xNonSmooth);
-  strokes = mix(1., strokes, u_strokes);
+  float stroke = smoothstep(0., w, xNonSmooth);
+  stroke *= smoothstep(1., 1. - w, xNonSmooth);
+  stroke = mix(1., stroke, u_stroke);
 
   float tint = x;
   float distortion = 0.;
@@ -330,7 +330,7 @@ void main() {
   frameBlur += .03 * frameFade;
   frameBlur *= mask;
   float frame = getUvFrame(uv, frameBlur);
-//  frame = mix(0., frame, strokes);
+//  frame = mix(0., frame, stroke);
   
   float edges = 1. - smoothstep(0., .5, xNonSmooth) * smoothstep(1., 1. - .5, xNonSmooth);
   edges = pow(edges, 2.);
@@ -354,8 +354,8 @@ void main() {
   opacity += tint;
   opacity = clamp(opacity, 0., 1.);
 
-  color = mix(backColor.rgb, color, strokes);
-  opacity = mix(backColor.a, opacity, strokes);
+  color = mix(backColor.rgb, color, stroke);
+  opacity = mix(backColor.a, opacity, stroke);
 
   float grainOverlay = valueNoise(rotate(grainUV, 1.) + vec2(3.));
   grainOverlay = mix(grainOverlay, valueNoise(rotate(grainUV, 2.) + vec2(-1.)), .5);
@@ -383,7 +383,7 @@ export interface FlutedGlassUniforms extends ShaderSizingUniforms {
   u_marginBottom: number;
   u_edges: number;
   u_distortionShape: (typeof GlassDistortionShapes)[GlassDistortionShape];
-  u_strokes: number;
+  u_stroke: number;
   u_shape: (typeof GlassGridShapes)[GlassGridShape];
   u_grainMixer: number;
   u_grainOverlay: number;
@@ -407,7 +407,7 @@ export interface FlutedGlassParams extends ShaderSizingParams, ShaderMotionParam
   marginBottom?: number;
   edges?: number;
   distortionShape?: GlassDistortionShape;
-  strokes?: number;
+  stroke?: number;
   shape?: GlassGridShape;
   grainMixer?: number;
   grainOverlay?: number;
