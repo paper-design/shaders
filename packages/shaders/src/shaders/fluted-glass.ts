@@ -300,9 +300,9 @@ void main() {
 
   vec2 dudx = dFdx(uvOriginal);
   vec2 dudy = dFdy(uvOriginal);
-  vec2 grainUV = getImageUV(uvNormalised, .6 / vec2(length(dudx), length(dudy)));
+  vec2 grainUV = getImageUV(uvNormalised, .8 / vec2(length(dudx), length(dudy)));
   float grain = valueNoise(grainUV);
-  grain = smoothstep(.55, .7 + .2 * u_grainMixer, grain);
+  grain = smoothstep(.4, .7, grain);
   grain *= u_grainMixer;
   distortion = mix(distortion, 0., grain);
 
