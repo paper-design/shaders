@@ -201,9 +201,9 @@ void main() {
   float w = 2. * fwidth(UvToFract.x);
   w *= mask;
   w += .7 * maskStroke;
+  w += .1;
   float strokes = smoothstep(0., w, xNonSmooth);
   strokes *= smoothstep(1., 1. - w, xNonSmooth);
-  float strokesForTints = strokes;
   strokes = mix(1., strokes, u_strokes);
 
   float tint = x;
@@ -250,6 +250,7 @@ void main() {
   } else if (u_distortionShape == 4.) {
     x = xNonSmooth;
     distortion = sin((x + .25) * TWO_PI);
+    tint = .5 + .5 * distortion;
     distortion *= .5;
     distortion -= u_shift;
     frameFade = .5 + .5 * sin(x * TWO_PI);
@@ -260,6 +261,7 @@ void main() {
     distortion *= .33;
 
     frameFade = .3 * (smoothstep(.0, 1., x));
+    tint = pow(x, 6.);
 
     aa = max(.1, aa);
     aa += mix(.1, 0., u_size);
@@ -267,7 +269,6 @@ void main() {
     distortion *= fadeX;
   }
 
-  tint = mix(1., tint, strokesForTints);
   tint = min(tint, 1.);
   tint *= mask;
   tint += .5 * maskStroke;
