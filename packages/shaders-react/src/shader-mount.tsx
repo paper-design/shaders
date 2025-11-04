@@ -24,6 +24,7 @@ export interface ShaderMountProps extends Omit<React.ComponentProps<'div'>, 'col
   ref?: React.Ref<PaperShaderElement>;
   fragmentShader: string;
   uniforms: ShaderMountUniformsReact;
+  mipmaps?: string[];
   minPixelRatio?: number;
   maxPixelCount?: number;
   webGlContextAttributes?: WebGLContextAttributes;
@@ -128,6 +129,7 @@ export const ShaderMount: React.FC<ShaderMountProps> = forwardRef<PaperShaderEle
       height,
       minPixelRatio,
       maxPixelCount,
+      mipmaps,
       style,
       ...divProps
     },
@@ -152,7 +154,8 @@ export const ShaderMount: React.FC<ShaderMountProps> = forwardRef<PaperShaderEle
             speed,
             frame,
             minPixelRatio,
-            maxPixelCount
+            maxPixelCount,
+            mipmaps
           );
 
           setIsInitialized(true);

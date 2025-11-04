@@ -175,6 +175,13 @@ export const Heatmap: React.FC<HeatmapProps> = memo(function HeatmapImpl({
   ) satisfies HeatmapUniforms;
 
   return (
-    <ShaderMount {...props} speed={speed} frame={frame} fragmentShader={heatmapFragmentShader} uniforms={uniforms} />
+    <ShaderMount
+      {...props}
+      speed={speed}
+      frame={frame}
+      fragmentShader={heatmapFragmentShader}
+      mipmaps={['u_image']}
+      uniforms={uniforms}
+    />
   );
 }, colorPropsAreEqual);

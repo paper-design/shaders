@@ -22,6 +22,8 @@ export class ShaderMount {
   private currentSpeed = 0;
   /** Uniforms that are provided by the user for the specific shader being mounted (not including uniforms that this Mount adds, like time and resolution) */
   private providedUniforms: ShaderMountUniforms;
+  /** Names of the uniforms that should have mipmaps generated for them */
+  private mipmaps: string[] = [];
   /** Just a sanity check to make sure frames don't run after we're disposed */
   private hasBeenDisposed = false;
   /** If the resolution of the canvas has changed since the last render */
@@ -56,7 +58,9 @@ export class ShaderMount {
      *
      * May be reduced to improve performance or increased to improve quality on high-resolution screens.
      */
-    maxPixelCount: number = DEFAULT_MAX_PIXEL_COUNT
+    maxPixelCount: number = DEFAULT_MAX_PIXEL_COUNT,
+    /** Names of the uniforms that should have mipmaps generated for them */
+    mipmaps: string[] = []
   ) {
     if (parentElement instanceof HTMLElement) {
       this.parentElement = parentElement as PaperShaderElement;
@@ -77,6 +81,7 @@ export class ShaderMount {
     this.parentElement.prepend(canvasElement);
     this.fragmentShader = fragmentShader;
     this.providedUniforms = uniforms;
+    this.mipmaps = mipmaps;
     // Base our starting animation time on the provided frame value
     this.currentFrame = frame;
     this.minPixelRatio = minPixelRatio;
@@ -345,10 +350,12 @@ export class ShaderMount {
     // Upload image to texture
     this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.gl.RGBA, this.gl.UNSIGNED_BYTE, image);
 
-    if (uniformName !== "u_noiseTexture") {
+    // Generate mipmaps if the uniform is in the mipmaps list
+    if (this.mipmaps.includes(uniformName)) {
       this.gl.generateMipmap(this.gl.TEXTURE_2D);
       this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.LINEAR_MIPMAP_LINEAR);
     }
+
     const error = this.gl.getError();
     if (error !== this.gl.NO_ERROR || texture === null) {
       console.error('Paper Shaders: WebGL error when uploading texture:', error);
