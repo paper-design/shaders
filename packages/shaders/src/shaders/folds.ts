@@ -171,17 +171,19 @@ void main() {
 
   vec2 p = uv * 14.;
   
-//  p.x += sin(p.y + u_time) * .7;
+  p.x += sin(p.y + u_time) * .7;
   p.y -= 3. * edge;
+  p.y -= 8. * pow(edge, 6.);
   p.y += .3 * cos(p.x + u_time) - .6 * sin(.5 * p.y + u_time);
 
-  float w = fwidth(p.x) + fwidth(p.y);
+  float w = fwidth(p.x);
+  w = max(w, fwidth(p.y));
   w = max(w, fwidth(3. * edge));
   w = max(w, .001);
 
   vec2 d = abs(fract(p) - .5);
-//  float line = min(d.x, d.y);
-  float line = d.y;
+  float line = min(d.x, d.y);
+//  float line = d.y;
 
   float grid = 1. - smoothstep(0., w, line);
 
