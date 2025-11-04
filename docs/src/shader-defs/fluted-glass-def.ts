@@ -37,11 +37,11 @@ export const flutedGlassDef: ShaderDef = {
       description: 'A power of color layer added over the image and background, following the distortion shape',
     },
     {
-      name: 'strokes',
+      name: 'stroke',
       type: 'number',
       min: 0,
       max: 1,
-      defaultValue: defaultParams.strokes,
+      defaultValue: defaultParams.stroke,
       description: 'Thin stokes along distortion shape filled with background color; useful for antialiasing on the small grid',
     },
     {
