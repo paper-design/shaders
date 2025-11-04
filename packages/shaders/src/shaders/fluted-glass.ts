@@ -230,9 +230,10 @@ void main() {
 
   float w = 2. * fwidth(UvToFract.x);
   w *= mask;
-  w += .7 * maskStroke;
+  w += .5 * maskStroke;
   float stroke = smoothstep(0., w, xNonSmooth);
   stroke *= smoothstep(1., 1. - w, xNonSmooth);
+  stroke -= .7 * maskStroke;
   stroke = mix(1., stroke, u_stroke);
 
   float tint = x;
