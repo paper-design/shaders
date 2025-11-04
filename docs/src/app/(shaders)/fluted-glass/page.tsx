@@ -40,7 +40,8 @@ const imageFiles = [
 
 const FlutedGlassWithControls = () => {
   const [imageIdx, setImageIdx] = useState(-1);
-  const [image, setImage] = useState<HTMLImageElement | string>('/images/image-filters/0018.webp');
+  // const [image, setImage] = useState<HTMLImageElement | string>('/images/image-filters/0018.webp');
+  const [image, setImage] = useState<HTMLImageElement | string>('/images/image-filters/red-test.png');
 
   useEffect(() => {
     if (imageIdx >= 0) {
@@ -90,9 +91,9 @@ const FlutedGlassWithControls = () => {
       blur: { value: defaults.blur, min: 0, max: 1, order: 220 },
       margin: { value: defaults.margin, min: 0, max: 1, order: 500 },
       scale: { value: defaults.scale, min: 0.5, max: 4, order: 600 },
-      rotation: { value: defaults.rotation, min: 0, max: 360, order: 601 },
-      offsetX: { value: defaults.offsetX, min: -1, max: 1, order: 602 },
-      offsetY: { value: defaults.offsetX, min: -1, max: 1, order: 603 },
+      // rotation: { value: defaults.rotation, min: 0, max: 360, order: 601 },
+      // offsetX: { value: defaults.offsetX, min: -1, max: 1, order: 602 },
+      // offsetY: { value: defaults.offsetX, min: -1, max: 1, order: 603 },
       fit: { value: defaults.fit, options: ['contain', 'cover'] as ShaderFit[], order: 604 },
 
       Image: folder(
