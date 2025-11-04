@@ -1,6 +1,6 @@
 import type { ShaderMotionParams } from '../shader-mount.js';
 import { sizingUniformsDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
-import { declarePI, rotation2 } from '../shader-utils.js';
+import { declarePI, rotation2, proceduralHash21 } from '../shader-utils.js';
 
 /**
  * Mimicking glass surface distortion over the image by distorting the texture
@@ -53,11 +53,27 @@ uniform float u_marginLeft;
 uniform float u_marginRight;
 uniform float u_marginTop;
 uniform float u_marginBottom;
+uniform float u_grainMixer;
+uniform float u_grainOverlay;
 
 out vec4 fragColor;
 
 ${declarePI}
 ${rotation2}
+${proceduralHash21}
+
+float valueNoise(vec2 st) {
+  vec2 i = floor(st);
+  vec2 f = fract(st);
+  float a = hash21(i);
+  float b = hash21(i + vec2(1.0, 0.0));
+  float c = hash21(i + vec2(0.0, 1.0));
+  float d = hash21(i + vec2(1.0, 1.0));
+  vec2 u = f * f * (3.0 - 2.0 * f);
+  float x1 = mix(a, b, u.x);
+  float x2 = mix(c, d, u.x);
+  return mix(x1, x2, u.y);
+}
 
 
 vec2 getImageUV(vec2 uv, vec2 extraScale) {
@@ -143,16 +159,30 @@ float smoothFract(float x) {
   return mix(f, 1.0 - f, band);
 }
 
+float blendOverlay(float base, float blend) {
+  return base<0.5?(2.0*base*blend):(1.0-2.0*(1.0-base)*(1.0-blend));
+}
+vec3 blendOverlay(vec3 base, vec3 blend) {
+  return vec3(blendOverlay(base.r, blend.r), blendOverlay(base.g, blend.g), blendOverlay(base.b, blend.b));
+}
+vec3 blendHardLight(vec3 base, vec3 blend) {
+  return blendOverlay(blend, base);
+}
+vec3 blendHardLight(vec3 base, vec3 blend, float opacity) {
+  return (blendHardLight(base, blend) * opacity + base * (1.0 - opacity));
+}
+
+
 void main() {
   
   vec2 uvNormalised = (gl_FragCoord.xy - .5 * u_resolution) / u_resolution.xy;
-  vec2 imageOrigUV = getImageUV(uvNormalised, vec2(1.));
-  float origFrameBox = getUvFrame(imageOrigUV, .01);
+  vec2 uvOriginal = getImageUV(uvNormalised, vec2(1.));
+  float origFrameBox = getUvFrame(uvOriginal, .01);
 
   float patternRotation = -u_angle * PI / 180.;
   float patternSize = mix(200., 5., u_size);
 
-  vec2 uv = imageOrigUV;
+  vec2 uv = uvOriginal;
 
   vec2 uvMask = gl_FragCoord.xy / u_resolution.xy;
   vec2 sw = vec2(.005 * u_distortion);
@@ -269,6 +299,14 @@ void main() {
     distortion *= fadeX;
   }
 
+  vec2 dudx = dFdx(uvOriginal);
+  vec2 dudy = dFdy(uvOriginal);
+  vec2 grainUV = getImageUV(uvNormalised, .6 / vec2(length(dudx), length(dudy)));
+  float grain = valueNoise(grainUV);
+  grain = smoothstep(.55, .7 + .2 * u_grainMixer, grain);
+  grain *= u_grainMixer;
+  distortion = mix(distortion, 0., grain);
+
   tint = min(tint, 1.);
   tint *= mask;
   tint += .5 * maskStroke;
@@ -286,7 +324,7 @@ void main() {
 
   uv += vec2(.5);
 
-  uv = mix(imageOrigUV, uv, mask);
+  uv = mix(uvOriginal, uv, mask);
   float blur = mix(0., mix(0., 50., u_blur), mask);
   
   float frameBlur = mix(0., .04, u_blur);
@@ -320,6 +358,12 @@ void main() {
   color = mix(backColor.rgb, color, strokes);
   opacity = mix(backColor.a, opacity, strokes);
 
+  float grainOverlay = valueNoise(rotate(grainUV, 1.) + vec2(3.));
+  grainOverlay = mix(grainOverlay, valueNoise(rotate(grainUV, 2.) + vec2(-1.)), .5);
+  grainOverlay = pow(grainOverlay, 2.);
+  vec3 grainOverlayColor = vec3(grainOverlay);
+  color = blendHardLight(color, grainOverlayColor, .5 * u_grainOverlay);
+
   fragColor = vec4(color, opacity);
 }
 `;
@@ -342,6 +386,8 @@ export interface FlutedGlassUniforms extends ShaderSizingUniforms {
   u_distortionShape: (typeof GlassDistortionShapes)[GlassDistortionShape];
   u_strokes: number;
   u_shape: (typeof GlassGridShapes)[GlassGridShape];
+  u_grainMixer: number;
+  u_grainOverlay: number;
   u_noiseTexture?: HTMLImageElement;
 }
 
@@ -364,6 +410,8 @@ export interface FlutedGlassParams extends ShaderSizingParams, ShaderMotionParam
   distortionShape?: GlassDistortionShape;
   strokes?: number;
   shape?: GlassGridShape;
+  grainMixer?: number;
+  grainOverlay?: number;
 }
 
 export const GlassGridShapes = {

@@ -44,6 +44,8 @@ export const defaultPreset: FlutedGlassPreset = {
     marginRight: 0,
     marginTop: 0,
     marginBottom: 0,
+    grainMixer: 0,
+    grainOverlay: 0,
   },
 };
 
@@ -72,6 +74,8 @@ export const wavesPreset: FlutedGlassPreset = {
     marginRight: 0,
     marginTop: 0,
     marginBottom: 0,
+    grainMixer: 0,
+    grainOverlay: 0,
   },
 };
 
@@ -100,6 +104,8 @@ export const irregularPreset: FlutedGlassPreset = {
     marginRight: 0,
     marginTop: 0,
     marginBottom: 0,
+    grainMixer: 0,
+    grainOverlay: 0,
   },
 };
 
@@ -127,6 +133,8 @@ export const foldsPreset: FlutedGlassPreset = {
     marginRight: 0.2,
     marginTop: 0.2,
     marginBottom: 0.2,
+    grainMixer: 0,
+    grainOverlay: 0,
   },
 };
 
@@ -153,6 +161,8 @@ export const FlutedGlass: React.FC<FlutedGlassProps> = memo(function FlutedGlass
   marginTop = margin ?? defaultPreset.params.marginTop,
   marginBottom = margin ?? defaultPreset.params.marginBottom,
   edges = defaultPreset.params.edges,
+  grainMixer = defaultPreset.params.grainMixer,
+  grainOverlay = defaultPreset.params.grainOverlay,
 
   // integer `count` was deprecated in favor of the normalized `size` param
   count,
@@ -189,6 +199,8 @@ export const FlutedGlass: React.FC<FlutedGlassProps> = memo(function FlutedGlass
     u_marginRight: marginRight,
     u_marginTop: marginTop,
     u_marginBottom: marginBottom,
+    u_grainMixer: grainMixer,
+    u_grainOverlay: grainOverlay,
 
     // Sizing uniforms
     u_fit: ShaderFitOptions[fit],
