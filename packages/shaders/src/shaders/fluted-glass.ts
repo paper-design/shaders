@@ -231,7 +231,6 @@ void main() {
   float w = 2. * fwidth(UvToFract.x);
   w *= mask;
   w += .7 * maskStroke;
-  w += .1;
   float strokes = smoothstep(0., w, xNonSmooth);
   strokes *= smoothstep(1., 1. - w, xNonSmooth);
   strokes = mix(1., strokes, u_strokes);
