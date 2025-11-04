@@ -208,6 +208,7 @@ export const FlutedGlass: React.FC<FlutedGlassProps> = memo(function FlutedGlass
       speed={speed}
       frame={frame}
       fragmentShader={flutedGlassFragmentShader}
+      mipmaps={['u_image']}
       uniforms={uniforms}
     />
   );
