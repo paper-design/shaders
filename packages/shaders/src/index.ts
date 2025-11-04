@@ -210,6 +210,15 @@ export {
   type LiquidMetalUniforms,
 } from './shaders/liquid-metal.js';
 
+export {
+  foldsFragmentShader,
+  FoldsShapes,
+  toProcessedFolds,
+  type FoldsShape,
+  type FoldsParams,
+  type FoldsUniforms,
+} from './shaders/folds.js';
+
 // ----- Utils ----- //
 export { getShaderColorFromString } from './get-shader-color-from-string.js';
 export { getShaderNoiseTexture } from './get-shader-noise-texture.js';
