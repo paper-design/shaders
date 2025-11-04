@@ -177,7 +177,7 @@ void main() {
   float patternY = uv.y / u_imageAspectRatio;
   if (u_shape > 4.5) {
     // pattern
-    curve = .5 + .5 * sin(1.5 * uv.x) * cos(1.5 * patternY);
+    curve = .5 + .5 * sin(.5 * PI * uv.x) * cos(.5 * PI * patternY);
   } else if (u_shape > 3.5) {
     // zigzag
     curve = 10. * abs(fract(.1 * patternY) - .5);
@@ -198,7 +198,7 @@ void main() {
   float x = smoothFract(UvToFract.x);
   float xNonSmooth = fract(UvToFract.x);
 
-  float w = 2. * fwidth(uv.x);
+  float w = 2. * fwidth(UvToFract.x);
   w *= mask;
   w += .7 * maskStroke;
   float strokes = smoothstep(0., w, xNonSmooth);
@@ -211,14 +211,18 @@ void main() {
   float fadeX = 1.;
   float frameFade = 0.;
 
+  float aa = fwidth(xNonSmooth);
+  aa = max(aa, fwidth(uv.x));
+  aa = max(aa, fwidth(UvToFract.x));
+
+  tint = pow(x, 2.);
+
   if (u_distortionShape == 1.) {
     distortion = -pow(1.5 * x, 3.);
     distortion += (.5 - u_shift);
 
     frameFade = pow(1.5 * x, 3.);
-    tint = 1. - pow(x, .25);
-
-    float aa = max(max(.2, fwidth(xNonSmooth)), fwidth(uv.x));
+    aa = max(.2, aa);
     aa += mix(.2, 0., u_size);
     fadeX = smoothstep(0., aa, xNonSmooth) * smoothstep(1., 1. - aa, xNonSmooth);
     distortion = mix(.5, distortion, fadeX);
@@ -227,23 +231,18 @@ void main() {
     distortion -= (.5 + u_shift);
 
     frameFade = pow(abs(x - .5), 4.);
-    tint = 2.4 * pow(abs(x - .4), 2.5);
-
-    float aa = max(max(.2, fwidth(xNonSmooth)), fwidth(uv.x));
+    aa = max(.2, aa);
     aa += mix(.2, 0., u_size);
     fadeX = smoothstep(0., aa, xNonSmooth) * smoothstep(1., 1. - aa, xNonSmooth);
     distortion = mix(.5, distortion, fadeX);
     frameFade = mix(1., frameFade, .5 * fadeX);
   } else if (u_distortionShape == 3.) {
     distortion = pow(2. * (xNonSmooth - .5), 6.);
-    tint = clamp(distortion, 0., 1.);
     distortion -= .25;
     distortion -= u_shift;
 
     frameFade = 1. - 2. * pow(abs(x - .4), 2.);
-    tint = pow(x, 6.);
-
-    float aa = .15;
+    aa = .15;
     aa += mix(.1, 0., u_size);
     fadeX = smoothstep(0., aa, xNonSmooth) * smoothstep(1., 1. - aa, xNonSmooth);
     frameFade = mix(1., frameFade, fadeX);
@@ -251,21 +250,18 @@ void main() {
   } else if (u_distortionShape == 4.) {
     x = xNonSmooth;
     distortion = sin((x + .25) * TWO_PI);
-    tint = pow(.5 + .5 * distortion, 5.);
     distortion *= .5;
     distortion -= u_shift;
     frameFade = .5 + .5 * sin(x * TWO_PI);
   } else if (u_distortionShape == 5.) {
     distortion -= pow(abs(x), .2) * x;
-    tint = 1.5 * pow(pow(abs(x), 3.), 4.);
-    tint = min(tint, 1.);
     distortion += .33;
     distortion -= 3. * u_shift;
     distortion *= .33;
 
     frameFade = .3 * (smoothstep(.0, 1., x));
 
-    float aa = max(max(.1, fwidth(xNonSmooth)), fwidth(uv.x));
+    aa = max(.1, aa);
     aa += mix(.1, 0., u_size);
     fadeX = smoothstep(0., aa, xNonSmooth) * smoothstep(1., 1. - aa, xNonSmooth);
     distortion *= fadeX;
