@@ -366,7 +366,7 @@ void main() {
   grainOverlay = mix(grainOverlay, valueNoise(rotate(grainUV, 2.) + vec2(-1.)), .5);
   grainOverlay = pow(grainOverlay, 2.);
   vec3 grainOverlayColor = vec3(grainOverlay);
-  color = blendHardLight(color, grainOverlayColor, .5 * u_grainOverlay);
+  color = mix(color, blendHardLight(color, grainOverlayColor, .5 * u_grainOverlay), mask);
 
   fragColor = vec4(color, opacity);
 }
