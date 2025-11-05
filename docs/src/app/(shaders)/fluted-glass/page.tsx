@@ -69,8 +69,8 @@ const FlutedGlassWithControls = () => {
     );
     return {
       colorBack: { value: toHsla(defaults.colorBack), order: 100 },
-      colorShadows: { value: toHsla(defaults.colorShadows), order: 101 },
-      colorHighlights: { value: toHsla(defaults.colorHighlights), order: 102 },
+      colorShadow: { value: toHsla(defaults.colorShadow), order: 101 },
+      colorHighlight: { value: toHsla(defaults.colorHighlight), order: 102 },
       shadows: { value: defaults.shadows, min: 0, max: 1, order: 200 },
       highlights: { value: defaults.highlights, min: 0, max: 1, order: 201 },
       size: { value: defaults.size, min: 0.01, max: 1, step: 0.01, order: 210 },

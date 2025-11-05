@@ -34,8 +34,8 @@ uniform float u_pixelRatio;
 ${sizingUniformsDeclaration}
 
 uniform vec4 u_colorBack;
-uniform vec4 u_colorShadows;
-uniform vec4 u_colorHighlights;
+uniform vec4 u_colorShadow;
+uniform vec4 u_colorHighlight;
 
 uniform sampler2D u_image;
 uniform float u_imageAspectRatio;
@@ -343,22 +343,24 @@ void main() {
   vec4 image = getBlur(u_image, uv, 1. / u_resolution / u_pixelRatio, vec2(0., 1.), blur);
   vec4 backColor = u_colorBack;
   backColor.rgb *= backColor.a;
-  vec4 highlightsColor = u_colorHighlights;
-  highlightsColor.rgb *= highlightsColor.a;
+  vec4 highlightColor = u_colorHighlight;
+  highlightColor.rgb *= highlightColor.a;
+  vec4 shadowColor = u_colorShadow;
+  shadowColor.rgb *= shadowColor.a;
 
   vec3 color = mix(backColor.rgb, image.rgb, image.a * frame);
   float opacity = backColor.a + image.a * frame;
 
   shadows *= pow(u_shadows, 2.);
-  shadows *= u_colorShadows.a;
-  color = mix(color, u_colorShadows.rgb, .5 * shadows);
-  color += .5 * pow(shadows, .5) * u_colorShadows.rgb;
+  shadows *= shadowColor.a;
+  color = mix(color, shadowColor.rgb, .5 * shadows);
+  color += .5 * pow(shadows, .5) * shadowColor.rgb;
 
   opacity += shadows;
   opacity = clamp(opacity, 0., 1.);
 
-  color = mix(highlightsColor.rgb, color, highlights);
-  opacity = mix(highlightsColor.a, opacity, highlights);
+  color = mix(highlightColor.rgb, color, highlights);
+  opacity = mix(highlightColor.a, opacity, highlights);
 
   float grainOverlay = valueNoise(rotate(grainUV, 1.) + vec2(3.));
   grainOverlay = mix(grainOverlay, valueNoise(rotate(grainUV, 2.) + vec2(-1.)), .5);
@@ -373,8 +375,8 @@ void main() {
 export interface FlutedGlassUniforms extends ShaderSizingUniforms {
   u_image: HTMLImageElement | string;
   u_colorBack: [number, number, number, number];
-  u_colorShadows: [number, number, number, number];
-  u_colorHighlights: [number, number, number, number];
+  u_colorShadow: [number, number, number, number];
+  u_colorHighlight: [number, number, number, number];
   u_shadows: number;
   u_size: number;
   u_angle: number;
@@ -397,8 +399,8 @@ export interface FlutedGlassUniforms extends ShaderSizingUniforms {
 export interface FlutedGlassParams extends ShaderSizingParams, ShaderMotionParams {
   image: HTMLImageElement | string;
   colorBack?: string;
-  colorShadows?: string;
-  colorHighlights?: string;
+  colorShadow?: string;
+  colorHighlight?: string;
   shadows?: number;
   size?: number;
   angle?: number;
