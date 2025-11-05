@@ -13,6 +13,8 @@ import {
 } from '@paper-design/shaders';
 
 export interface FlutedGlassProps extends ShaderComponentProps, FlutedGlassParams {
+  /** @deprecated use `stretch` instead */
+  edges?: number;
   /** @deprecated use `size` instead */
   count?: number;
 }
@@ -27,7 +29,7 @@ export const defaultPreset: FlutedGlassPreset = {
     scale: 1.1,
     speed: 0,
     frame: 0,
-    colorBack: '#ffffff',
+    colorBack: '#00000000',
     colorShadow: '#000000',
     colorHighlight: '#ffffff',
     shadows: 0.25,
@@ -58,7 +60,7 @@ export const wavesPreset: FlutedGlassPreset = {
     scale: 1.2,
     speed: 0,
     frame: 0,
-    colorBack: '#ffffff',
+    colorBack: '#00000000',
     colorShadow: '#000000',
     colorHighlight: '#ffffff',
     shadows: 0,
@@ -89,7 +91,7 @@ export const abstractPreset: FlutedGlassPreset = {
     scale: 4,
     speed: 0,
     frame: 0,
-    colorBack: '#ffffff',
+    colorBack: '#00000000',
     colorShadow: '#000000',
     colorHighlight: '#ffffff',
     shadows: 0,
@@ -119,7 +121,7 @@ export const foldsPreset: FlutedGlassPreset = {
     fit: 'cover',
     speed: 0,
     frame: 0,
-    colorBack: '#ffffff',
+    colorBack: '#00000000',
     colorShadow: '#000000',
     colorHighlight: '#ffffff',
     shadows: 0.4,
@@ -165,9 +167,12 @@ export const FlutedGlass: React.FC<FlutedGlassProps> = memo(function FlutedGlass
   marginRight = margin ?? defaultPreset.params.marginRight,
   marginTop = margin ?? defaultPreset.params.marginTop,
   marginBottom = margin ?? defaultPreset.params.marginBottom,
-  stretch = defaultPreset.params.stretch,
   grainMixer = defaultPreset.params.grainMixer,
   grainOverlay = defaultPreset.params.grainOverlay,
+
+  // `edges` were renamed to `stretch`
+  edges,
+  stretch = edges === undefined ? defaultPreset.params.stretch : edges,
 
   // integer `count` was deprecated in favor of the normalized `size` param
   count,

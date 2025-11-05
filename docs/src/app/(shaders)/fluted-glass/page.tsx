@@ -89,7 +89,11 @@ const FlutedGlassWithControls = () => {
       shift: { value: defaults.shift, min: -1, max: 1, order: 215 },
       stretch: { value: defaults.stretch, min: 0, max: 1, order: 216 },
       blur: { value: defaults.blur, min: 0, max: 1, order: 220 },
-      margin: { value: defaults.margin, min: 0, max: 1, order: 500 },
+      margin: { value: defaults.margin, min: 0, max: 0.5, order: 500 },
+      // marginLeft: { value: defaults.marginLeft, min: 0, max: 1, order: 501 },
+      // marginRight: { value: defaults.marginRight, min: 0, max: 1, order: 502 },
+      // marginTop: { value: defaults.marginTop, min: 0, max: 1, order: 503 },
+      // marginBottom: { value: defaults.marginBottom, min: 0, max: 1, order: 504 },
       grainMixer: { value: defaults.grainMixer, min: 0, max: 1, order: 550 },
       grainOverlay: { value: defaults.grainOverlay, min: 0, max: 1, order: 551 },
       scale: { value: defaults.scale, min: 0.5, max: 4, order: 600 },
@@ -121,7 +125,7 @@ const FlutedGlassWithControls = () => {
         <FlutedGlass onClick={handleClick} {...params} image={image} />
       </ShaderContainer>
 
-      <div onClick={handleClick} className="mx-auto mt-16 mb-48 w-fit text-base text-current/70 select-none">
+      <div onClick={handleClick} className="text-current/70 mx-auto mb-48 mt-16 w-fit select-none text-base">
         Click to change the sample image
       </div>
 

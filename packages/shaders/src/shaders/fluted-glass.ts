@@ -175,7 +175,7 @@ vec3 blendHardLight(vec3 base, vec3 blend, float opacity) {
 
 
 void main() {
-  
+
   vec2 uvNormalised = (gl_FragCoord.xy - .5 * u_resolution) / u_resolution.xy;
   vec2 uvOriginal = getImageUV(uvNormalised, vec2(1.));
   float origFrameBox = getUvFrame(uvOriginal, .01);
@@ -187,7 +187,7 @@ void main() {
 
   vec2 uvMask = gl_FragCoord.xy / u_resolution.xy;
   vec2 sw = vec2(.005 * u_distortion);
-  vec4 margins = .5 * vec4(u_marginLeft, u_marginTop, u_marginRight, u_marginBottom);
+  vec4 margins = vec4(u_marginLeft, u_marginTop, u_marginRight, u_marginBottom);
   float maskOuter =
     smoothstep(margins[0] - sw.x, margins[0], uvMask.x + sw.x) *
     smoothstep(margins[2] - sw.x, margins[2], 1.0 - uvMask.x + sw.x) *
@@ -222,7 +222,7 @@ void main() {
   } else {
     // lines
   }
-  
+
   vec2 UvToFract = uv + curve;
   vec2 fractOrigUV = fract(uv);
   vec2 floorOrigUV = floor(uv);
@@ -319,7 +319,7 @@ void main() {
   fractOrigUV.x += distortion;
   floorOrigUV = rotateAspect(floorOrigUV, -patternRotation, u_imageAspectRatio);
   fractOrigUV = rotateAspect(fractOrigUV, -patternRotation, u_imageAspectRatio);
-  
+
   uv = (floorOrigUV + fractOrigUV) / patternSize;
   uv += pow(maskStroke, 4.);
 
@@ -327,12 +327,12 @@ void main() {
 
   uv = mix(uvOriginal, uv, mask);
   float blur = mix(0., mix(0., 50., u_blur), mask);
-  
+
   float frameBlur = mix(0., .04, u_blur);
   frameBlur += .03 * frameFade;
   frameBlur *= mask;
   float frame = getUvFrame(uv, frameBlur);
-  
+
   float stretch = 1. - smoothstep(0., .5, xNonSmooth) * smoothstep(1., 1. - .5, xNonSmooth);
   stretch = pow(stretch, 2.);
   stretch *= mask;
@@ -373,7 +373,7 @@ void main() {
 `;
 
 export interface FlutedGlassUniforms extends ShaderSizingUniforms {
-  u_image: HTMLImageElement | string;
+  u_image: HTMLImageElement | string | undefined;
   u_colorBack: [number, number, number, number];
   u_colorShadow: [number, number, number, number];
   u_colorHighlight: [number, number, number, number];
@@ -397,7 +397,7 @@ export interface FlutedGlassUniforms extends ShaderSizingUniforms {
 }
 
 export interface FlutedGlassParams extends ShaderSizingParams, ShaderMotionParams {
-  image: HTMLImageElement | string;
+  image?: HTMLImageElement | string;
   colorBack?: string;
   colorShadow?: string;
   colorHighlight?: string;
