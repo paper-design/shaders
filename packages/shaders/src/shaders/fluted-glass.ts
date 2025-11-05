@@ -34,18 +34,18 @@ uniform float u_pixelRatio;
 ${sizingUniformsDeclaration}
 
 uniform vec4 u_colorBack;
-uniform vec4 u_colorTint;
+uniform vec4 u_colorShadows;
 
 uniform sampler2D u_image;
 uniform float u_imageAspectRatio;
 
 uniform float u_size;
-uniform float u_tint;
+uniform float u_shadows;
 uniform float u_angle;
 uniform float u_edges;
 uniform float u_shape;
 uniform float u_distortion;
-uniform float u_stroke;
+uniform float u_highlights;
 uniform float u_distortionShape;
 uniform float u_shift;
 uniform float u_blur;
@@ -232,11 +232,11 @@ void main() {
   float w = 2. * fwidth(UvToFract.x);
   w *= mask;
   w += maskStrokeInner;
-  float stroke = smoothstep(0., w, xNonSmooth);
-  stroke *= smoothstep(1., 1. - w, xNonSmooth);
-  stroke = mix(1., stroke, u_stroke);
+  float highlights = smoothstep(0., w, xNonSmooth);
+  highlights *= smoothstep(1., 1. - w, xNonSmooth);
+  highlights = mix(1., highlights, u_highlights);
 
-  float tint = x;
+  float shadows = x;
   float distortion = 0.;
   float fadeX = 1.;
   float frameFade = 0.;
@@ -245,7 +245,7 @@ void main() {
   aa = max(aa, fwidth(uv.x));
   aa = max(aa, fwidth(UvToFract.x));
 
-  tint = pow(x, 2.);
+  shadows = pow(x, 2.);
 
   if (u_distortionShape == 1.) {
     distortion = -pow(1.5 * x, 3.);
@@ -280,7 +280,7 @@ void main() {
   } else if (u_distortionShape == 4.) {
     x = xNonSmooth;
     distortion = sin((x + .25) * TWO_PI);
-    tint = .5 + .5 * distortion;
+    shadows = .5 + .5 * distortion;
     distortion *= .5;
     distortion -= u_shift;
     frameFade = .5 + .5 * sin(x * TWO_PI);
@@ -291,7 +291,7 @@ void main() {
     distortion *= .33;
 
     frameFade = .3 * (smoothstep(.0, 1., x));
-    tint = pow(x, 6.);
+    shadows = pow(x, 6.);
 
     aa = max(.1, aa);
     aa += mix(.1, 0., u_size);
@@ -307,10 +307,10 @@ void main() {
   grain *= u_grainMixer;
   distortion = mix(distortion, 0., grain);
 
-  tint = min(tint, 1.);
-  tint *= mask;
-  tint += .5 * maskStroke;
-  tint = min(tint, 1.);
+  shadows = min(shadows, 1.);
+  shadows *= mask;
+  shadows += .5 * maskStroke;
+  shadows = min(shadows, 1.);
 
   distortion *= 3. * u_distortion;
   frameFade *= u_distortion;
@@ -331,7 +331,6 @@ void main() {
   frameBlur += .03 * frameFade;
   frameBlur *= mask;
   float frame = getUvFrame(uv, frameBlur);
-//  frame = mix(0., frame, stroke);
   
   float edges = 1. - smoothstep(0., .5, xNonSmooth) * smoothstep(1., 1. - .5, xNonSmooth);
   edges = pow(edges, 2.);
@@ -347,16 +346,16 @@ void main() {
   vec3 color = mix(backColor.rgb, image.rgb, image.a * frame);
   float opacity = backColor.a + image.a * frame;
 
-  tint *= pow(u_tint, 2.);
-  tint *= u_colorTint.a;
-  color = mix(color, u_colorTint.rgb, .5 * tint);
-  color += .5 * pow(tint, .5) * u_colorTint.rgb;
+  shadows *= pow(u_shadows, 2.);
+  shadows *= u_colorShadows.a;
+  color = mix(color, u_colorShadows.rgb, .5 * shadows);
+  color += .5 * pow(shadows, .5) * u_colorShadows.rgb;
 
-  opacity += tint;
+  opacity += shadows;
   opacity = clamp(opacity, 0., 1.);
 
-  color = mix(backColor.rgb, color, stroke);
-  opacity = mix(backColor.a, opacity, stroke);
+  color = mix(backColor.rgb, color, highlights);
+  opacity = mix(backColor.a, opacity, highlights);
 
   float grainOverlay = valueNoise(rotate(grainUV, 1.) + vec2(3.));
   grainOverlay = mix(grainOverlay, valueNoise(rotate(grainUV, 2.) + vec2(-1.)), .5);
@@ -365,15 +364,14 @@ void main() {
   color = blendHardLight(color, grainOverlayColor, .5 * u_grainOverlay);
 
   fragColor = vec4(color, opacity);
-//  fragColor = vec4(vec3((1. - mask) * step(1., maskOuter), 0., 0.), 1.);
 }
 `;
 
 export interface FlutedGlassUniforms extends ShaderSizingUniforms {
   u_image: HTMLImageElement | string;
   u_colorBack: [number, number, number, number];
-  u_colorTint: [number, number, number, number];
-  u_tint: number;
+  u_colorShadows: [number, number, number, number];
+  u_shadows: number;
   u_size: number;
   u_angle: number;
   u_distortion: number;
@@ -385,7 +383,7 @@ export interface FlutedGlassUniforms extends ShaderSizingUniforms {
   u_marginBottom: number;
   u_edges: number;
   u_distortionShape: (typeof GlassDistortionShapes)[GlassDistortionShape];
-  u_stroke: number;
+  u_highlights: number;
   u_shape: (typeof GlassGridShapes)[GlassGridShape];
   u_grainMixer: number;
   u_grainOverlay: number;
@@ -395,8 +393,8 @@ export interface FlutedGlassUniforms extends ShaderSizingUniforms {
 export interface FlutedGlassParams extends ShaderSizingParams, ShaderMotionParams {
   image: HTMLImageElement | string;
   colorBack?: string;
-  colorTint?: string;
-  tint?: number;
+  colorShadows?: string;
+  shadows?: number;
   size?: number;
   angle?: number;
   distortion?: number;
@@ -409,7 +407,7 @@ export interface FlutedGlassParams extends ShaderSizingParams, ShaderMotionParam
   marginBottom?: number;
   edges?: number;
   distortionShape?: GlassDistortionShape;
-  stroke?: number;
+  highlights?: number;
   shape?: GlassGridShape;
   grainMixer?: number;
   grainOverlay?: number;
