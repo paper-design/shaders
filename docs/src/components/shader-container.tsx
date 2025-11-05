@@ -4,6 +4,7 @@ import { ShaderDef } from '@/shader-defs/shader-def-types';
 import { Leva } from 'leva';
 import { CopyButton } from './copy-button';
 import { useState } from 'react';
+import kebabCase from 'lodash-es/kebabCase';
 
 export function ShaderContainer({
   children,
@@ -16,20 +17,20 @@ export function ShaderContainer({
   return (
     <div className="md:mb-24">
       {shaderDef && currentParams && (
-        <div className="flex h-80 items-center justify-between border-t border-current/10 dark:border-current/20">
+        <div className="border-current/10 dark:border-current/20 flex h-80 items-center justify-between border-t">
           <h1 className="text-3xl font-[330] lowercase">{shaderDef.name}</h1>
 
           <div className="hidden items-center gap-24 lg:flex">
             <CopyLinkButton
               shaderDef={shaderDef}
               currentParams={currentParams}
-              className="-mx-8 flex h-32 items-center gap-8 rounded-md px-8 outline-0 outline-focus transition-colors hover:bg-backplate-2 focus-visible:outline-2 active:bg-backplate-3 squircle:rounded-lg"
+              className="outline-focus hover:bg-backplate-2 active:bg-backplate-3 squircle:rounded-lg -mx-8 flex h-32 items-center gap-8 rounded-md px-8 outline-0 transition-colors focus-visible:outline-2"
             />
 
             <a
-              href="https://app.paper.design"
+              href={`http://localhost:5173/playground/${kebabCase(shaderDef.name)}?props=${encodeURIComponent(JSON.stringify(currentParams))}`}
               target="_blank"
-              className="-mx-8 flex h-32 items-center gap-8 rounded-md px-8 outline-0 outline-focus transition-colors hover:bg-backplate-2 focus-visible:outline-2 active:bg-backplate-3 squircle:rounded-lg"
+              className="outline-focus hover:bg-backplate-2 active:bg-backplate-3 squircle:rounded-lg -mx-8 flex h-32 items-center gap-8 rounded-md px-8 outline-0 transition-colors focus-visible:outline-2"
             >
               <svg width="14" height="14" viewBox="0 0 14 14" fill="currentcolor">
                 <path d="M12.2041 0.0107422C13.2128 0.113003 14 0.964351 14 2V12L13.9893 12.2041C13.8938 13.1457 13.1457 13.8938 12.2041 13.9893L12 14H6V13H12C12.5523 13 13 12.5523 13 12V2C13 1.48233 12.6067 1.05623 12.1025 1.00488L12 1H2C1.48232 1 1.05621 1.39333 1.00488 1.89746L1 2V8H0V2C0 0.89543 0.89543 0 2 0H12L12.2041 0.0107422Z" />
@@ -48,7 +49,7 @@ export function ShaderContainer({
         <ResizableShader>{children}</ResizableShader>
 
         <div
-          className="absolute -top-4 -right-332 hidden w-300 overflow-auto rounded-xl bg-(--color-leva-background) pb-4 has-[[data-leva-container]>[style*='display:none']]:hidden lg:block squircle:rounded-2xl"
+          className="-right-332 w-300 bg-(--color-leva-background) squircle:rounded-2xl absolute -top-4 hidden overflow-auto rounded-xl pb-4 has-[[data-leva-container]>[style*='display:none']]:hidden lg:block"
           style={{
             boxShadow: `
             rgba(58, 34, 17, 0.1) 0px 4px 40px -8px,
@@ -116,13 +117,13 @@ function ResizableShader({ children }: React.PropsWithChildren) {
 
   return (
     <div
-      className="flex aspect-4/3 *:size-full *:max-h-full not-has-[[data-paper-shader]]:bg-header xs:aspect-3/2 md:aspect-16/9"
+      className="aspect-4/3 not-has-[[data-paper-shader]]:bg-header xs:aspect-3/2 md:aspect-16/9 flex *:size-full *:max-h-full"
       onPointerMove={(event) => setCanStartResize(event.altKey)}
       onPointerLeave={() => setCanStartResize(false)}
     >
       <div
         data-resizable={canStartResize || undefined}
-        className="flex overflow-hidden *:size-full data-resizable:resize [[style*='width']]:resize"
+        className="data-resizable:resize [[style*='width']]:resize flex overflow-hidden *:size-full"
       >
         {children}
       </div>
