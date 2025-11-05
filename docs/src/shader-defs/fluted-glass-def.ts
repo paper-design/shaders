@@ -99,11 +99,11 @@ export const flutedGlassDef: ShaderDef = {
       description: 'Texture shift in direction opposite to the grid',
     },
     {
-      name: 'edges',
+      name: 'stretch',
       type: 'number',
       min: 0,
       max: 1,
-      defaultValue: defaultParams.edges,
+      defaultValue: defaultParams.stretch,
       description: 'Extra distortion along the grid lines',
     },
     {

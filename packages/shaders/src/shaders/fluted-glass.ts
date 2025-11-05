@@ -43,7 +43,7 @@ uniform float u_imageAspectRatio;
 uniform float u_size;
 uniform float u_shadows;
 uniform float u_angle;
-uniform float u_edges;
+uniform float u_stretch;
 uniform float u_shape;
 uniform float u_distortion;
 uniform float u_highlights;
@@ -333,11 +333,11 @@ void main() {
   frameBlur *= mask;
   float frame = getUvFrame(uv, frameBlur);
   
-  float edges = 1. - smoothstep(0., .5, xNonSmooth) * smoothstep(1., 1. - .5, xNonSmooth);
-  edges = pow(edges, 2.);
-  edges *= mask;
-  edges *= getUvFrame(uv, .1 + .05 * mask * frameFade);
-  uv.y = mix(uv.y, .5, u_edges * edges);
+  float stretch = 1. - smoothstep(0., .5, xNonSmooth) * smoothstep(1., 1. - .5, xNonSmooth);
+  stretch = pow(stretch, 2.);
+  stretch *= mask;
+  stretch *= getUvFrame(uv, .1 + .05 * mask * frameFade);
+  uv.y = mix(uv.y, .5, u_stretch * stretch);
 
 
   vec4 image = getBlur(u_image, uv, 1. / u_resolution / u_pixelRatio, vec2(0., 1.), blur);
@@ -385,7 +385,7 @@ export interface FlutedGlassUniforms extends ShaderSizingUniforms {
   u_marginRight: number;
   u_marginTop: number;
   u_marginBottom: number;
-  u_edges: number;
+  u_stretch: number;
   u_distortionShape: (typeof GlassDistortionShapes)[GlassDistortionShape];
   u_highlights: number;
   u_shape: (typeof GlassGridShapes)[GlassGridShape];
@@ -410,7 +410,7 @@ export interface FlutedGlassParams extends ShaderSizingParams, ShaderMotionParam
   marginRight?: number;
   marginTop?: number;
   marginBottom?: number;
-  edges?: number;
+  stretch?: number;
   distortionShape?: GlassDistortionShape;
   highlights?: number;
   shape?: GlassGridShape;
