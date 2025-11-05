@@ -38,7 +38,7 @@ export function ShaderContainer({
               </svg>
 
               <span>
-                open <span style={{ fontFeatureSettings: '"ss01"' }}>Paper</span>
+                open in <span style={{ fontFeatureSettings: '"ss01"' }}>Paper</span>
               </span>
             </a>
           </div>
