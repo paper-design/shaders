@@ -30,7 +30,7 @@ export function ShaderContainer({
             />
 
             <a
-              href={`${appUrl}/playground/${kebabCase(shaderDef.name)}?props=${encodeURIComponent(JSON.stringify(currentParams))}`}
+              href={`${appUrl}/playground/${kebabCase(shaderDef.name)}#${serializeParams(currentParams as Record<string, SerializableValue>, shaderDef.params)}`}
               target="_blank"
               className="outline-focus hover:bg-backplate-2 active:bg-backplate-3 squircle:rounded-lg -mx-8 flex h-32 items-center gap-8 rounded-md px-8 outline-0 transition-colors focus-visible:outline-2"
             >
