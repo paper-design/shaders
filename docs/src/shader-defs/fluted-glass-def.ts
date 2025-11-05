@@ -29,6 +29,13 @@ export const flutedGlassDef: ShaderDef = {
       description: 'Shadows color',
     },
     {
+      name: 'colorHighlights',
+      type: 'string',
+      defaultValue: defaultParams.colorHighlights,
+      isColor: true,
+      description: 'Highlights color',
+    },
+    {
       name: 'shadows',
       type: 'number',
       min: 0,
