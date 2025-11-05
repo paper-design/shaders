@@ -6,6 +6,8 @@ import { CopyButton } from './copy-button';
 import { useState } from 'react';
 import kebabCase from 'lodash-es/kebabCase';
 
+const appUrl = process.env.NODE_ENV === 'development' ? 'http://localhost:5173' : 'https://paper.shaders.app';
+
 export function ShaderContainer({
   children,
   currentParams,
@@ -28,7 +30,7 @@ export function ShaderContainer({
             />
 
             <a
-              href={`http://localhost:5173/playground/${kebabCase(shaderDef.name)}?props=${encodeURIComponent(JSON.stringify(currentParams))}`}
+              href={`${appUrl}/playground/${kebabCase(shaderDef.name)}?props=${encodeURIComponent(JSON.stringify(currentParams))}`}
               target="_blank"
               className="outline-focus hover:bg-backplate-2 active:bg-backplate-3 squircle:rounded-lg -mx-8 flex h-32 items-center gap-8 rounded-md px-8 outline-0 transition-colors focus-visible:outline-2"
             >
