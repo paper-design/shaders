@@ -71,9 +71,9 @@ const FlutedGlassWithControls = () => {
       colorBack: { value: toHsla(defaults.colorBack), order: 100 },
       colorShadow: { value: toHsla(defaults.colorShadow), order: 101 },
       colorHighlight: { value: toHsla(defaults.colorHighlight), order: 102 },
+      size: { value: defaults.size, min: 0.01, max: 1, step: 0.01, order: 210 },
       shadows: { value: defaults.shadows, min: 0, max: 1, order: 200 },
       highlights: { value: defaults.highlights, min: 0, max: 1, order: 201 },
-      size: { value: defaults.size, min: 0.01, max: 1, step: 0.01, order: 210 },
       shape: {
         value: defaults.shape,
         options: Object.keys(GlassGridShapes) as GlassGridShape[],
