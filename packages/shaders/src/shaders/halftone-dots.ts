@@ -36,7 +36,7 @@ uniform float u_contrast;
 uniform sampler2D u_image;
 uniform mediump float u_imageAspectRatio;
 
-uniform float u_size;
+uniform float u_count;
 uniform float u_grainMixer;
 uniform float u_grainOverlay;
 uniform bool u_straight;
@@ -237,12 +237,7 @@ void main() {
 
   vec2 dudx = dFdx(uvOriginal);
   vec2 dudy = dFdy(uvOriginal);
-  float uvPerScreenPx = max(.0001, 0.5 * (length(dudx) + length(dudy)));
-  ivec2 imgSizeI = textureSize(u_image, 0);
-  vec2 invImg = 1.0 / vec2(imgSizeI);
-  float uvPerImagePx = 0.5 * (invImg.x + invImg.y);
-  float screenPxPerImagePx = uvPerImagePx / uvPerScreenPx;
-
+  
   float stepMultiplier = 1.;
   if (u_type == 0.) {
     // classic
@@ -252,8 +247,7 @@ void main() {
     stepMultiplier = 6.;
   }
   
-  vec2 pxSize = vec2(stepMultiplier) * u_size * screenPxPerImagePx;
-//  vec2 pxSize = vec2(stepMultiplier) * u_size * u_pixelRatio;
+  vec2 pxSize = vec2(stepMultiplier) / u_count * u_resolution.x;
   
   if (u_type == 1. && u_straight == false) {
     // gooey diaginal grid works differently
@@ -366,7 +360,7 @@ export interface HalftoneDotsUniforms extends ShaderSizingUniforms {
   u_image: HTMLImageElement | string | undefined;
   u_colorFront: [number, number, number, number];
   u_colorBack: [number, number, number, number];
-  u_size: number;
+  u_count: number;
   u_straight: boolean;
   u_radius: number;
   u_contrast: number;
@@ -381,7 +375,7 @@ export interface HalftoneDotsParams extends ShaderSizingParams, ShaderMotionPara
   image?: HTMLImageElement | string;
   colorFront?: string;
   colorBack?: string;
-  size?: number;
+  count?: number;
   straight?: boolean;
   radius?: number;
   contrast?: number;
