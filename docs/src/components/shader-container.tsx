@@ -6,7 +6,7 @@ import { CopyButton } from './copy-button';
 import { useState } from 'react';
 import kebabCase from 'lodash-es/kebabCase';
 
-const appUrl = process.env.NODE_ENV === 'development' ? 'http://localhost:5173' : 'https://paper.shaders.app';
+const appUrl = process.env.NODE_ENV === 'development' ? 'http://localhost:5173' : 'https://app.paper.design';
 
 export function ShaderContainer({
   children,
