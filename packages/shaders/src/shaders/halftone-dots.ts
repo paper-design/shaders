@@ -229,6 +229,20 @@ vec3 blendHardLight(vec3 base, vec3 blend, float opacity) {
 
 void main() {
 
+  vec2 uv = gl_FragCoord.xy - .5 * u_resolution;
+
+  vec2 uvNormalised = uv / u_resolution.xy;
+  vec2 uvOriginal = getImageUV(uvNormalised, vec2(1.));
+  vec4 textureOriginal = texture(u_image, uvOriginal);
+
+  vec2 dudx = dFdx(uvOriginal);
+  vec2 dudy = dFdy(uvOriginal);
+  float uvPerScreenPx = max(.0001, 0.5 * (length(dudx) + length(dudy)));
+  ivec2 imgSizeI = textureSize(u_image, 0);
+  vec2 invImg = 1.0 / vec2(imgSizeI);
+  float uvPerImagePx = 0.5 * (invImg.x + invImg.y);
+  float screenPxPerImagePx = uvPerImagePx / uvPerScreenPx;
+
   float stepMultiplier = 1.;
   if (u_type == 0.) {
     // classic
@@ -236,9 +250,11 @@ void main() {
   } else if (u_type == 1. || u_type == 3.) {
     // gooey & soft
     stepMultiplier = 6.;
-  } 
+  }
   
-  vec2 pxSize = vec2(stepMultiplier) * u_size * u_pixelRatio;
+  vec2 pxSize = vec2(stepMultiplier) * u_size * screenPxPerImagePx;
+//  vec2 pxSize = vec2(stepMultiplier) * u_size * u_pixelRatio;
+  
   if (u_type == 1. && u_straight == false) {
     // gooey diaginal grid works differently
     pxSize *= .7;
@@ -250,12 +266,7 @@ void main() {
     baseRadius = 2. * pow(.5 * u_radius, .3);
   }
 
-  vec2 uv = gl_FragCoord.xy - .5 * u_resolution;
   vec2 p = uv / pxSize;
-  
-  vec2 uvNormalised = uv / u_resolution.xy;
-  vec2 uvOriginal = getImageUV(uvNormalised, vec2(1.));
-  vec4 textureOriginal = texture(u_image, uvOriginal);
 
   float totalShape = 0.;
   vec3 totalColor = vec3(0.);
@@ -313,8 +324,6 @@ void main() {
     finalShape = totalShape;
   }
 
-  vec2 dudx = dFdx(uvOriginal);
-  vec2 dudy = dFdy(uvOriginal);
   vec2 grainUV = getImageUV(uvNormalised, .6 / vec2(length(dudx), length(dudy)));
   float grain = valueNoise(grainUV);
   grain = smoothstep(.55, .7 + .2 * u_grainMixer, grain);
