@@ -58,8 +58,8 @@ export const halftoneDotsDef: ShaderDef = {
     {
       name: 'count',
       type: 'number',
-      min: 4,
-      max: 60,
+      min: 10,
+      max: 300,
       defaultValue: defaultParams.count,
       description: 'A number of dots per image width',
     },

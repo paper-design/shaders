@@ -233,7 +233,7 @@ void main() {
 
   vec2 uvNormalised = uv / u_resolution.xy;
   vec2 uvOriginal = getImageUV(uvNormalised, vec2(1.));
-  vec4 textureOriginal = texture(u_image, uvOriginal);
+//  vec4 textureOriginal = texture(u_image, uvOriginal);
 
   vec2 dudx = dFdx(uvOriginal);
   vec2 dudy = dFdy(uvOriginal);
@@ -247,7 +247,7 @@ void main() {
     stepMultiplier = 6.;
   }
   
-  vec2 pxSize = vec2(stepMultiplier) / u_count * u_resolution.x;
+  vec2 pxSize = vec2(stepMultiplier) / u_count / length(dudx);
   
   if (u_type == 1. && u_straight == false) {
     // gooey diaginal grid works differently
