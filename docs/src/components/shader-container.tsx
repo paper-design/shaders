@@ -30,9 +30,17 @@ export function ShaderContainer({
             />
 
             <a
-              href={`${appUrl}/playground/${kebabCase(shaderDef.name)}#${serializeParams(currentParams as Record<string, SerializableValue>, shaderDef.params)}`}
+              href={`${appUrl}/playground/${kebabCase(shaderDef.name)}`}
               target="_blank"
               className="outline-focus hover:bg-backplate-2 active:bg-backplate-3 squircle:rounded-lg -mx-8 flex h-32 items-center gap-8 rounded-md px-8 outline-0 transition-colors focus-visible:outline-2"
+              onClick={(e) => {
+                e.preventDefault();
+
+                if (e.currentTarget instanceof HTMLAnchorElement) {
+                  const fullUrl = `${e.currentTarget.href}#${serializeParams(currentParams as Record<string, SerializableValue>, shaderDef.params)}`;
+                  window.open(fullUrl, e.currentTarget.target);
+                }
+              }}
             >
               <svg width="14" height="14" viewBox="0 0 14 14" fill="currentcolor">
                 <path d="M12.2041 0.0107422C13.2128 0.113003 14 0.964351 14 2V12L13.9893 12.2041C13.8938 13.1457 13.1457 13.8938 12.2041 13.9893L12 14H6V13H12C12.5523 13 13 12.5523 13 12V2C13 1.48233 12.6067 1.05623 12.1025 1.00488L12 1H2C1.48232 1 1.05621 1.39333 1.00488 1.89746L1 2V8H0V2C0 0.89543 0.89543 0 2 0H12L12.2041 0.0107422Z" />
