@@ -34,9 +34,9 @@ export function ShaderContainer({
               target="_blank"
               className="outline-focus hover:bg-backplate-2 active:bg-backplate-3 squircle:rounded-lg -mx-8 flex h-32 items-center gap-8 rounded-md px-8 outline-0 transition-colors focus-visible:outline-2"
               onClick={(e) => {
-                e.preventDefault();
-
                 if (e.currentTarget instanceof HTMLAnchorElement) {
+                  // We defer applying params until the click to avoid serializing too much into HTML.
+                  e.preventDefault();
                   const fullUrl = `${e.currentTarget.href}#${serializeParams(currentParams as Record<string, SerializableValue>, shaderDef.params)}`;
                   window.open(fullUrl, e.currentTarget.target);
                 }
