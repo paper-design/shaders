@@ -50,7 +50,7 @@ uniform float u_highlights;
 uniform float u_distortionShape;
 uniform float u_shift;
 uniform float u_blur;
-uniform float u_frameBlur;
+uniform float u_blurEdges;
 uniform float u_marginLeft;
 uniform float u_marginRight;
 uniform float u_marginTop;
@@ -109,11 +109,15 @@ vec2 getImageUV(vec2 uv, vec2 extraScale) {
   return imageUV;
 }
 
-float getUvFrame(vec2 uv, float aa) {
-  float left   = smoothstep(0., aa, uv.x);
-  float right  = 1. - smoothstep(1. - aa, 1., uv.x);
-  float bottom = smoothstep(0., aa, uv.y);
-  float top    = 1. - smoothstep(1. - aa, 1., uv.y);
+float getUvFrame(vec2 uv, float frameDistortion) {
+  float aax = fwidth(uv.x);
+  float aay = fwidth(uv.y);
+  float d1 = mix(frameDistortion, 0., u_blurEdges);
+  float d2 = frameDistortion;
+  float left   = smoothstep(d1, aax + d2, uv.x);
+  float right  = 1. - smoothstep(1. - d2 - aax, 1. - d1, uv.x);
+  float bottom = smoothstep(d1, aay + d2, uv.y);
+  float top    = 1. - smoothstep(1. - d2 - aay, 1. - d1, uv.y);
   return left * right * bottom * top;
 }
 
@@ -326,21 +330,21 @@ void main() {
   uv += vec2(.5);
 
   uv = mix(uvOriginal, uv, mask);
-  float blur = mix(0., mix(0., 50., u_blur), mask);
+  float textureBlur = mix(0., mix(0., 50., u_blur), mask);
 
-  float frameBlur = mix(0., .04, u_blur);
-  frameBlur += .03 * frameFade;
-  frameBlur *= mask;
-  float frame = getUvFrame(uv, frameBlur);
+  float edgeDistortion = mix(.03, .15, u_blurEdges) * frameFade;// * u_blurEdges;
+  edgeDistortion += .02 * u_blurEdges;
+  edgeDistortion *= mask;
+  float frame = getUvFrame(uv, edgeDistortion);
 
   float stretch = 1. - smoothstep(0., .5, xNonSmooth) * smoothstep(1., 1. - .5, xNonSmooth);
   stretch = pow(stretch, 2.);
   stretch *= mask;
-  stretch *= getUvFrame(uv, .1 + .05 * mask * frameFade);
+  stretch *= frame;
   uv.y = mix(uv.y, .5, u_stretch * stretch);
 
 
-  vec4 image = getBlur(u_image, uv, 1. / u_resolution / u_pixelRatio, vec2(0., 1.), blur);
+  vec4 image = getBlur(u_image, uv, 1. / u_resolution / u_pixelRatio, vec2(0., 1.), textureBlur);
   vec4 backColor = u_colorBack;
   backColor.rgb *= backColor.a;
   vec4 highlightColor = u_colorHighlight;
@@ -383,7 +387,7 @@ export interface FlutedGlassUniforms extends ShaderSizingUniforms {
   u_distortion: number;
   u_shift: number;
   u_blur: number;
-  u_frameBlur: number;
+  u_blurEdges: number;
   u_marginLeft: number;
   u_marginRight: number;
   u_marginTop: number;
@@ -408,7 +412,7 @@ export interface FlutedGlassParams extends ShaderSizingParams, ShaderMotionParam
   distortion?: number;
   shift?: number;
   blur?: number;
-  frameBlur?: number;
+  blurEdges?: number;
   margin?: number;
   marginLeft?: number;
   marginRight?: number;

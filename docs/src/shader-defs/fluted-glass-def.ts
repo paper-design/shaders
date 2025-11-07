@@ -115,11 +115,11 @@ export const flutedGlassDef: ShaderDef = {
       description: 'One-directional blur over the image and extra blur around the edges',
     },
     {
-      name: 'frameBlur',
+      name: 'blurEdges',
       type: 'number',
       min: 0,
       max: 1,
-      defaultValue: defaultParams.frameBlur,
+      defaultValue: defaultParams.blurEdges,
       description: 'TBD',
     },
     {
