@@ -147,6 +147,22 @@ export const flutedGlassDef: ShaderDef = {
       description: 'Distance from the top edge to the effect',
     },
     {
+      name: 'grainMixer',
+      type: 'number',
+      min: 0,
+      max: 1,
+      defaultValue: defaultParams.grainMixer,
+      description: 'Strength of grain distortion applied to color edges',
+    },
+    {
+      name: 'grainOverlay',
+      type: 'number',
+      min: 0,
+      max: 1,
+      defaultValue: defaultParams.grainOverlay,
+      description: 'Post-processing RGB grain overlay',
+    },
+    {
       name: 'marginBottom',
       type: 'number',
       min: 0,
