@@ -109,15 +109,11 @@ vec2 getImageUV(vec2 uv, vec2 extraScale) {
   return imageUV;
 }
 
-float getUvFrame(vec2 uv, float deform, float blur) {
-  float d1 = deform - blur;
-  float d2 = deform + blur;
-  float aax = fwidth(uv.x);
-  float aay = fwidth(uv.y);
-  float left   = smoothstep(d1 - aax, d2 + aax, uv.x);
-  float right  = 1. - smoothstep(1. - d2 - aax, 1. - d1 + aax, uv.x);
-  float bottom = smoothstep(d1 - aay, d2 + aay, uv.y);
-  float top    = 1. - smoothstep(1. - d2 - aay, 1. - d1 + aay, uv.y);
+float getUvFrame(vec2 uv, float aa) {
+  float left   = smoothstep(0., aa, uv.x);
+  float right  = 1. - smoothstep(1. - aa, 1., uv.x);
+  float bottom = smoothstep(0., aa, uv.y);
+  float top    = 1. - smoothstep(1. - aa, 1., uv.y);
   return left * right * bottom * top;
 }
 
@@ -330,20 +326,21 @@ void main() {
   uv += vec2(.5);
 
   uv = mix(uvOriginal, uv, mask);
-  float textureBlurSize = mix(0., mix(0., 50., u_blur), mask);
-  float frameBlurSize = mix(0., mix(0., .1, u_frameBlur), mask);
+  float blur = mix(0., mix(0., 50., u_blur), mask);
 
-  float frameBlur = .015 * frameFade;
+  float frameBlur = mix(0., .04, u_blur);
+  frameBlur += .03 * frameFade;
   frameBlur *= mask;
-  float frame = getUvFrame(uv, frameBlur, frameBlurSize);
+  float frame = getUvFrame(uv, frameBlur);
 
   float stretch = 1. - smoothstep(0., .5, xNonSmooth) * smoothstep(1., 1. - .5, xNonSmooth);
   stretch = pow(stretch, 2.);
   stretch *= mask;
-  stretch *= frame;
+  stretch *= getUvFrame(uv, .1 + .05 * mask * frameFade);
   uv.y = mix(uv.y, .5, u_stretch * stretch);
 
-  vec4 image = getBlur(u_image, uv, 1. / u_resolution / u_pixelRatio, vec2(0., 1.), textureBlurSize);
+
+  vec4 image = getBlur(u_image, uv, 1. / u_resolution / u_pixelRatio, vec2(0., 1.), blur);
   vec4 backColor = u_colorBack;
   backColor.rgb *= backColor.a;
   vec4 highlightColor = u_colorHighlight;
