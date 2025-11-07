@@ -234,11 +234,11 @@ void main() {
   float x = smoothFract(UvToFract.x);
   float xNonSmooth = fract(UvToFract.x);
 
-  float w = 2. * fwidth(UvToFract.x);
-  w *= mask;
-  w += maskStrokeInner;
-  float highlights = smoothstep(0., w, xNonSmooth);
-  highlights *= smoothstep(1., 1. - w, xNonSmooth);
+  float highlightsWidth = 2. * fwidth(UvToFract.x);
+  highlightsWidth *= mask;
+  highlightsWidth += maskStrokeInner;
+  float highlights = smoothstep(0., highlightsWidth, xNonSmooth);
+  highlights *= smoothstep(1., 1. - highlightsWidth, xNonSmooth);
   highlights = mix(1., highlights, u_highlights);
 
   float shadows = x;
@@ -352,19 +352,24 @@ void main() {
   vec4 shadowColor = u_colorShadow;
   shadowColor.rgb *= shadowColor.a;
 
-  vec3 color = mix(backColor.rgb, image.rgb, image.a * frame);
-  float opacity = backColor.a + image.a * frame;
-
   shadows *= pow(u_shadows, 2.);
-  shadows *= shadowColor.a;
-  color = mix(color, shadowColor.rgb, .5 * shadows);
-  color += .5 * pow(shadows, .5) * shadowColor.rgb;
+  shadows = clamp(shadows, 0., 1.);
 
-  opacity += shadows;
-  opacity = clamp(opacity, 0., 1.);
+  highlights = 1. - highlights;
+  highlights *= u_highlights;
+  highlights = clamp(highlights, 0., 1.);
+  
+  vec3 color = highlightColor.rgb * highlights;
+  float opacity = highlightColor.a * highlights;
+  
+  color += shadowColor.rgb * (1. - opacity) * shadows;
+  opacity += shadowColor.a * (1. - opacity) * shadows;
 
-  color = mix(highlightColor.rgb, color, highlights);
-  opacity = mix(highlightColor.a, opacity, highlights);
+  color += image.rgb * (1. - opacity) * frame;
+  opacity += image.a * (1. - opacity) * frame;
+  
+  color += backColor.rgb * (1. - opacity);
+  opacity += backColor.a * (1. - opacity);
 
   float grainOverlay = valueNoise(rotate(grainUV, 1.) + vec2(3.));
   grainOverlay = mix(grainOverlay, valueNoise(rotate(grainUV, 2.) + vec2(-1.)), .5);
