@@ -333,7 +333,7 @@ void main() {
   float textureBlurSize = mix(0., mix(0., 50., u_blur), mask);
   float frameBlurSize = mix(0., mix(0., .1, u_frameBlur), mask);
 
-  float frameBlur = .03 * frameFade;
+  float frameBlur = .015 * frameFade;
   frameBlur *= mask;
   float frame = getUvFrame(uv, frameBlur, frameBlurSize);
 
