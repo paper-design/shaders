@@ -109,10 +109,10 @@ vec2 getImageUV(vec2 uv, vec2 extraScale) {
   return imageUV;
 }
 
-float getUvFrame(vec2 uv, float frameDistortion) {
+float getUvFrame(vec2 uv, float frameDistortion, float softness) {
   float aax = fwidth(uv.x);
   float aay = fwidth(uv.y);
-  float d1 = mix(frameDistortion, 0., u_blurEdges);
+  float d1 = mix(frameDistortion, 0., softness);
   float d2 = frameDistortion;
   float left   = smoothstep(d1, aax + d2, uv.x);
   float right  = 1. - smoothstep(1. - d2 - aax, 1. - d1, uv.x);
@@ -335,12 +335,12 @@ void main() {
   float edgeDistortion = mix(.03, .15, u_blurEdges) * frameFade;// * u_blurEdges;
   edgeDistortion += .02 * u_blurEdges;
   edgeDistortion *= mask;
-  float frame = getUvFrame(uv, edgeDistortion);
+  float frame = getUvFrame(uv, edgeDistortion, u_blurEdges);
 
   float stretch = 1. - smoothstep(0., .5, xNonSmooth) * smoothstep(1., 1. - .5, xNonSmooth);
   stretch = pow(stretch, 2.);
   stretch *= mask;
-  stretch *= frame;
+  stretch *= getUvFrame(uv, .02, 1.);
   uv.y = mix(uv.y, .5, u_stretch * stretch);
 
 
