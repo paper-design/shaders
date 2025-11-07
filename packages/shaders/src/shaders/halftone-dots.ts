@@ -179,7 +179,7 @@ float getLumAtPx(vec2 uv, float contrast) {
 }
 
 float getLumBall(vec2 p, vec2 pxSize, vec2 inCellOffset, float contrast, float baseR, out vec4 ballColor) {
-  p += .001;
+//  p += .0001;
   p += inCellOffset;
   vec2 uv_i = floor(p);
   vec2 uv_f = fract(p);
@@ -235,8 +235,8 @@ void main() {
   vec2 uvOriginal = getImageUV(uvNormalised, vec2(1.));
 //  vec4 textureOriginal = texture(u_image, uvOriginal);
 
-  vec2 dudx = dFdx(uvOriginal);
-  vec2 dudy = dFdy(uvOriginal);
+//  vec2 dudx = dFdx(uvOriginal);
+//  vec2 dudy = dFdy(uvOriginal);
   
   float stepMultiplier = 1.;
   if (u_type == 0.) {
@@ -247,7 +247,8 @@ void main() {
     stepMultiplier = 6.;
   }
   
-  vec2 pxSize = vec2(stepMultiplier) / u_count / length(dudx);
+  vec2 uvOriginalShifted = getImageUV(uvNormalised + vec2(1. / u_resolution.x, 0.), vec2(1.));
+  vec2 pxSize = vec2(stepMultiplier) / u_count / length(uvOriginal - uvOriginalShifted);
   
   if (u_type == 1. && u_straight == false) {
     // gooey diaginal grid works differently
@@ -318,7 +319,8 @@ void main() {
     finalShape = totalShape;
   }
 
-  vec2 grainUV = getImageUV(uvNormalised, .6 / vec2(length(dudx), length(dudy)));
+//  vec2 grainUV = getImageUV(uvNormalised, .6 / vec2(length(dudx), length(dudy)));
+  vec2 grainUV = getImageUV(uvNormalised, vec2(600.));
   float grain = valueNoise(grainUV);
   grain = smoothstep(.55, .7 + .2 * u_grainMixer, grain);
   grain *= u_grainMixer;
@@ -353,6 +355,7 @@ void main() {
   color = blendHardLight(color, grainOverlayColor, .5 * u_grainOverlay);
 
   fragColor = vec4(color, opacity);
+//  fragColor = vec4(uvOriginal, 0., 1.);
 }
 `;
 
