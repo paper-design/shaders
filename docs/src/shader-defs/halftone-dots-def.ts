@@ -56,12 +56,12 @@ export const halftoneDotsDef: ShaderDef = {
       options: ['true', 'false'],
     },
     {
-      name: 'count',
+      name: 'size',
       type: 'number',
-      min: 10,
-      max: 300,
-      defaultValue: defaultParams.count,
-      description: 'A number of dots per image width',
+      min: 0,
+      max: 1,
+      defaultValue: defaultParams.size,
+      description: 'TBD',
     },
     {
       name: 'radius',
