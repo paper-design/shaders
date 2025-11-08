@@ -178,15 +178,13 @@ float getLumAtPx(vec2 uv, float contrast) {
   return lum;
 }
 
-float getLumBall(vec2 p, vec2 pxSize, vec2 inCellOffset, float contrast, float baseR, out vec4 ballColor) {
-//  p += .0001;
+float getLumBall(vec2 p, vec2 pad, vec2 inCellOffset, float contrast, float baseR, float stepSize, out vec4 ballColor) {
   p += inCellOffset;
   vec2 uv_i = floor(p);
   vec2 uv_f = fract(p);
-  vec2 pad = pxSize / u_resolution.xy;
   vec2 samplePx = (uv_i + .5 - inCellOffset) * pad;
   vec2 samplingUV = getImageUV(samplePx, vec2(1.));
-  float outOfFrame = getUvFrame(samplingUV, pad);
+  float outOfFrame = getUvFrame(samplingUV, pad * stepSize);
   
   float lum = getLumAtPx(samplingUV, contrast);
   ballColor = texture(u_image, samplingUV);
@@ -233,10 +231,6 @@ void main() {
 
   vec2 uvNormalised = uv / u_resolution.xy;
   vec2 uvOriginal = getImageUV(uvNormalised, vec2(1.));
-//  vec4 textureOriginal = texture(u_image, uvOriginal);
-
-//  vec2 dudx = dFdx(uvOriginal);
-//  vec2 dudy = dFdy(uvOriginal);
   
   float stepMultiplier = 1.;
   if (u_type == 0.) {
@@ -247,13 +241,20 @@ void main() {
     stepMultiplier = 6.;
   }
   
-  vec2 uvOriginalShifted = getImageUV(uvNormalised + vec2(1. / u_resolution.x, 0.), vec2(1.));
+  vec2 uvOffset = vec2(1. / u_resolution.x, 0.);
+  if (u_resolution.x > u_resolution.y) {
+    uvOffset = vec2(0., 1. / u_resolution.y);
+  }
+  vec2 uvOriginalShifted = getImageUV(uvNormalised + uvOffset, vec2(1.));
   vec2 pxSize = vec2(stepMultiplier) / u_count / length(uvOriginal - uvOriginalShifted);
-  
+
   if (u_type == 1. && u_straight == false) {
     // gooey diaginal grid works differently
-    pxSize *= .7;
+     pxSize *= .7;
   }
+
+//   pxSize = max(pxSize, vec2(4. * stepMultiplier));
+
   float contrast = mix(0., 15., u_contrast);
   float baseRadius = u_radius;
   if (u_originalColors == true) {
@@ -294,7 +295,7 @@ void main() {
         }
       }
 
-      shape = getLumBall(p, pxSize, offset, contrast, baseRadius, ballColor);
+      shape = getLumBall(p, pxSize / u_resolution.xy, offset, contrast, baseRadius, stepSize, ballColor);
       totalColor   += ballColor.rgb * shape;
       totalShape   += shape;
       totalOpacity += shape;
@@ -319,8 +320,8 @@ void main() {
     finalShape = totalShape;
   }
 
-//  vec2 grainUV = getImageUV(uvNormalised, .6 / vec2(length(dudx), length(dudy)));
-  vec2 grainUV = getImageUV(uvNormalised, vec2(600.));
+  vec2 grainSize = 750. * vec2(1., 1. / u_imageAspectRatio);
+  vec2 grainUV = getImageUV(uvNormalised, grainSize);
   float grain = valueNoise(grainUV);
   grain = smoothstep(.55, .7 + .2 * u_grainMixer, grain);
   grain *= u_grainMixer;
@@ -355,7 +356,6 @@ void main() {
   color = blendHardLight(color, grainOverlayColor, .5 * u_grainOverlay);
 
   fragColor = vec4(color, opacity);
-//  fragColor = vec4(uvOriginal, 0., 1.);
 }
 `;
 
