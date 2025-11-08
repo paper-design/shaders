@@ -21,11 +21,11 @@ export const defaultPreset: HalftoneDotsPreset = {
   params: {
     ...defaultObjectSizing,
     fit: 'cover',
-    speed: 1,
+    speed: 0,
     frame: 0,
     colorBack: '#f2f1e8',
     colorFront: '#2b2b2b',
-    count: 170,
+    count: 140,
     radius: 1.25,
     contrast: 0.25,
     originalColors: false,
@@ -42,7 +42,7 @@ export const ledPreset: HalftoneDotsPreset = {
   params: {
     ...defaultObjectSizing,
     fit: 'cover',
-    speed: 1,
+    speed: 0,
     frame: 0,
     colorBack: '#000000',
     colorFront: '#29ff7b',
@@ -63,7 +63,7 @@ export const netPreset: HalftoneDotsPreset = {
   params: {
     ...defaultObjectSizing,
     fit: 'cover',
-    speed: 1,
+    speed: 0,
     frame: 0,
     colorBack: '#000000',
     colorFront: '#b2aeae',
@@ -84,7 +84,7 @@ export const roundAndSquarePreset: HalftoneDotsPreset = {
   params: {
     ...defaultObjectSizing,
     fit: 'cover',
-    speed: 1,
+    speed: 0,
     frame: 0,
     colorBack: '#141414',
     colorFront: '#ff8000',
