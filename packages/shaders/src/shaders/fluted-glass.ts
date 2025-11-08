@@ -110,8 +110,8 @@ vec2 getImageUV(vec2 uv, vec2 extraScale) {
 }
 
 float getUvFrame(vec2 uv, float frameDistortion, float softness) {
-  float aax = fwidth(uv.x);
-  float aay = fwidth(uv.y);
+  float aax = max(.0001, fwidth(uv.x));
+  float aay = max(.0001, fwidth(uv.y));
   float d1 = mix(frameDistortion, 0., softness);
   float d2 = frameDistortion;
   float left   = smoothstep(d1, aax + d2, uv.x);
@@ -190,7 +190,7 @@ void main() {
   vec2 uv = uvOriginal;
 
   vec2 uvMask = gl_FragCoord.xy / u_resolution.xy;
-  vec2 sw = vec2(.005 * u_distortion);
+  vec2 sw = vec2(.005);
   vec4 margins = vec4(u_marginLeft, u_marginTop, u_marginRight, u_marginBottom);
   float maskOuter =
     smoothstep(margins[0] - sw.x, margins[0], uvMask.x + sw.x) *
@@ -203,7 +203,7 @@ void main() {
     smoothstep(margins[1], margins[1] + sw.y, uvMask.y + sw.y) *
     smoothstep(margins[3], margins[3] + sw.y, 1.0 - uvMask.y + sw.y);
   float maskStroke = (1. - mask) * maskOuter;
-  float maskStrokeInner = (1. - mask) * smoothstep(.95, 1., maskOuter);
+  float maskStrokeInner = (maskStroke - step(.5, maskStroke)) * mask;
 
   uv -= .5;
   uv *= patternSize;
@@ -232,16 +232,18 @@ void main() {
   vec2 floorOrigUV = floor(uv);
 
   float x = smoothFract(UvToFract.x);
-  float xNonSmooth = fract(UvToFract.x);
+  float xNonSmooth = fract(UvToFract.x) + .0001;
 
-  float highlightsWidth = 2. * fwidth(UvToFract.x);
-  highlightsWidth *= mask;
+  float highlightsWidth = 2. * max(.001, fwidth(UvToFract.x));
   highlightsWidth += maskStrokeInner;
+  highlightsWidth *= mask;
   float highlights = smoothstep(0., highlightsWidth, xNonSmooth);
   highlights *= smoothstep(1., 1. - highlightsWidth, xNonSmooth);
-  highlights = mix(1., highlights, u_highlights);
-
-  float shadows = x;
+  highlights = 1. - highlights;
+  highlights *= u_highlights;
+  highlights = clamp(highlights, 0., 1.);
+  
+  float shadows = pow(x, 2.);
   float distortion = 0.;
   float fadeX = 1.;
   float frameFade = 0.;
@@ -249,9 +251,8 @@ void main() {
   float aa = fwidth(xNonSmooth);
   aa = max(aa, fwidth(uv.x));
   aa = max(aa, fwidth(UvToFract.x));
-
-  shadows = pow(x, 2.);
-
+  aa = max(aa, .0001);
+  
   if (u_distortionShape == 1.) {
     distortion = -pow(1.5 * x, 3.);
     distortion += (.5 - u_shift);
@@ -313,9 +314,11 @@ void main() {
   distortion = mix(distortion, 0., grain);
 
   shadows = min(shadows, 1.);
+  shadows += maskStroke;
   shadows *= mask;
-  shadows += .5 * maskStroke;
   shadows = min(shadows, 1.);
+  shadows *= pow(u_shadows, 2.);
+  shadows = clamp(shadows, 0., 1.);
 
   distortion *= 3. * u_distortion;
   frameFade *= u_distortion;
@@ -351,13 +354,6 @@ void main() {
   highlightColor.rgb *= highlightColor.a;
   vec4 shadowColor = u_colorShadow;
   shadowColor.rgb *= shadowColor.a;
-
-  shadows *= pow(u_shadows, 2.);
-  shadows = clamp(shadows, 0., 1.);
-
-  highlights = 1. - highlights;
-  highlights *= u_highlights;
-  highlights = clamp(highlights, 0., 1.);
   
   vec3 color = highlightColor.rgb * highlights;
   float opacity = highlightColor.a * highlights;
@@ -377,6 +373,8 @@ void main() {
   vec3 grainOverlayColor = vec3(grainOverlay);
   color = mix(color, blendHardLight(color, grainOverlayColor, .5 * u_grainOverlay), mask);
 
+
+  
   fragColor = vec4(color, opacity);
 }
 `;
