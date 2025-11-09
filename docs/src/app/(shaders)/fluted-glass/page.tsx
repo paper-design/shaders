@@ -9,6 +9,7 @@ import { GlassGridShape, GlassGridShapes, GlassDistortionShape, GlassDistortionS
 import { ShaderFit } from '@paper-design/shaders';
 import { levaImageButton } from '@/helpers/leva-image-button';
 import { useState, useEffect, useCallback } from 'react';
+import { toHsla } from '@/helpers/color-utils';
 import { ShaderDetails } from '@/components/shader-details';
 import { flutedGlassDef } from '@/shader-defs/fluted-glass-def';
 import { ShaderContainer } from '@/components/shader-container';
@@ -67,25 +68,39 @@ const FlutedGlassWithControls = () => {
       ])
     );
     return {
-      size: { value: defaults.size, min: 0.01, max: 1, step: 0.01, order: 200 },
+      colorBack: { value: toHsla(defaults.colorBack), order: 100 },
+      colorShadow: { value: toHsla(defaults.colorShadow), order: 101 },
+      colorHighlight: { value: toHsla(defaults.colorHighlight), order: 102 },
+      size: { value: defaults.size, min: 0.01, max: 1, step: 0.01, order: 210 },
+      shadows: { value: defaults.shadows, min: 0, max: 1, order: 200 },
+      highlights: { value: defaults.highlights, min: 0, max: 1, order: 201 },
       shape: {
         value: defaults.shape,
         options: Object.keys(GlassGridShapes) as GlassGridShape[],
-        order: 201,
+        order: 211,
       },
-      angle: { value: defaults.angle, min: 0, max: 180, order: 202 },
+      angle: { value: defaults.angle, min: 0, max: 180, order: 212 },
       distortionShape: {
         value: defaults.distortionShape,
         options: Object.keys(GlassDistortionShapes) as GlassDistortionShape[],
-        order: 203,
+        order: 213,
       },
-      distortion: { value: defaults.distortion, min: 0, max: 1, order: 204 },
-      shift: { value: defaults.shift, min: -1, max: 1, order: 205 },
-      blur: { value: defaults.blur, min: 0, max: 50, order: 206 },
-      edges: { value: defaults.edges, min: 0, max: 1, order: 207 },
-      margin: { value: defaults.margin, min: 0, max: 1, order: 500 },
-      scale: { value: defaults.scale, min: 0.5, max: 10, order: 600 },
-      fit: { value: defaults.fit, options: ['contain', 'cover'] as ShaderFit[], order: 601 },
+      distortion: { value: defaults.distortion, min: 0, max: 1, order: 214 },
+      shift: { value: defaults.shift, min: -1, max: 1, order: 215 },
+      stretch: { value: defaults.stretch, min: 0, max: 1, order: 216 },
+      blur: { value: defaults.blur, min: 0, max: 1, order: 220 },
+      margin: { value: defaults.margin, min: 0, max: 0.5, order: 500 },
+      // marginLeft: { value: defaults.marginLeft, min: 0, max: 1, order: 501 },
+      // marginRight: { value: defaults.marginRight, min: 0, max: 1, order: 502 },
+      // marginTop: { value: defaults.marginTop, min: 0, max: 1, order: 503 },
+      // marginBottom: { value: defaults.marginBottom, min: 0, max: 1, order: 504 },
+      grainMixer: { value: defaults.grainMixer, min: 0, max: 1, order: 550 },
+      grainOverlay: { value: defaults.grainOverlay, min: 0, max: 1, order: 551 },
+      scale: { value: defaults.scale, min: 0.5, max: 4, order: 600 },
+      // rotation: { value: defaults.rotation, min: 0, max: 360, order: 601 },
+      // offsetX: { value: defaults.offsetX, min: -1, max: 1, order: 602 },
+      // offsetY: { value: defaults.offsetX, min: -1, max: 1, order: 603 },
+      fit: { value: defaults.fit, options: ['contain', 'cover'] as ShaderFit[], order: 604 },
 
       Image: folder(
         {
@@ -110,7 +125,7 @@ const FlutedGlassWithControls = () => {
         <FlutedGlass onClick={handleClick} {...params} image={image} />
       </ShaderContainer>
 
-      <div onClick={handleClick} className="mx-auto mt-16 mb-48 w-fit text-base text-current/70 select-none">
+      <div onClick={handleClick} className="text-current/70 mx-auto mb-48 mt-16 w-fit select-none text-base">
         Click to change the sample image
       </div>
 
