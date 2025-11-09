@@ -149,18 +149,24 @@ void main() {
 
   float test = .9;
   
-  float wave = 2. * (.7 * cos(.3 * p.x + .1 * p.y + u_time) - 0.6 * sin(.6 * p.y + u_time));
-  float addon = mix((1. - edge) * wave, 0., pow(edge, 8.));
+  float wave = (.3 * cos(.3 * p.x + .2 * p.y + u_time) - .6 * sin(.6 * p.y + u_time));
+  wave = .5 + .5 * wave;
+  float addon = (1. - edge) * wave;
+  addon = mix(addon, 0., pow(edge, 8.));
   p.y -= addon;
 
   vec2 d = abs(fract(p) - .5);
   vec2 aa = 2. * fwidth(p);
-  float w = .2 * (1. - edge);
+  float w = 0.;
+  w += (.5 - aa.y) * (1. - edge);
+//  aa *= alpha;
 
-  vec2 gx = 1.0 - smoothstep(vec2(w) +vec2(0.), vec2(w) + aa, d);
-  float grid = gx.y;
+  float line = d.y;
+  line = 1.0 - smoothstep(w, w + aa.y, line);
+//  line -= fract(p.y);
+//  line = clamp(line, 0., 1.);
 
-  color = mix(u_colorBack.rgb, u_colorFront.rgb, grid);
+  color = mix(u_colorBack.rgb, u_colorFront.rgb, line);
 
   fragColor = vec4(color, 1.);
 
