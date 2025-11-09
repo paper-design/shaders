@@ -1,6 +1,6 @@
-import type { ShaderMotionParams } from '../shader-mount.js';
-import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
-import { declarePI, rotation2, simplexNoise, colorBandingFix } from '../shader-utils.js';
+import type {ShaderMotionParams} from '../shader-mount.js';
+import {sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms} from '../shader-sizing.js';
+import {declarePI, rotation2, simplexNoise, colorBandingFix} from '../shader-utils.js';
 
 /**
  *
@@ -46,13 +46,13 @@ uniform float u_angle;
 uniform float u_shape;
 uniform bool u_isImage;
 
-${sizingVariablesDeclaration}
+${ sizingVariablesDeclaration }
 
 out vec4 fragColor;
 
-${declarePI}
-${rotation2}
-${simplexNoise}
+${ declarePI }
+${ rotation2 }
+${ simplexNoise }
 
 float getColorChanges(float c1, float c2, float stripe_p, vec3 w, float blur, float bump, float tint) {
 
@@ -132,530 +132,505 @@ void main() {
   }
 
   float edge = 0.;
-  
-  if (u_isImage == true) {
-    float edgeRaw = img.r;
-    edge = blurEdge3x3(u_image, uv, dudx, dudy, 6., edgeRaw);
-  } else {
-      // diamond
-      vec2 shapeUV = uv - .5;
-      shapeUV = rotate(shapeUV, .25 * PI);
-      shapeUV *= 1.42;
-      shapeUV += .5;
-      vec2 mask = min(shapeUV, 1. - shapeUV);
-      vec2 pixel_thickness = vec2(.15);
-      float maskX = smoothstep(0.0, pixel_thickness.x, mask.x);
-      float maskY = smoothstep(0.0, pixel_thickness.y, mask.y);
-      maskX = pow(maskX, .25);
-      maskY = pow(maskY, .25);
-      edge = clamp(1. - maskX * maskY, 0., 1.);
-  }
 
-  vec3 color = vec3(edge);
+  float edgeRaw = img.r;
+  edge = blurEdge3x3(u_image, uv, dudx, dudy, 6., edgeRaw);
+
+  vec3 color = vec3(0.);
 
   float opacity = 1.;
-  
+
   float alpha = 0.;
-  if (u_isImage == true) {
-    alpha = img.g;
-    float frame = getImgFrame(v_imageUV, 0.);
-    alpha *= frame;
-  } else {
-    alpha = 1. - smoothstep(.9 - 2. * fwidth(edge), .9, edge);
-//    if (u_shape < 2.) {
-//      edge = 1.2 * edge;
-//    } else if (u_shape < 5.) {
-//      edge = 1.8 * pow(edge, 1.5);
-//    }
-  }
-
-  vec2 p = uv * 14.;
+  alpha = img.g;
+  float frame = getImgFrame(v_imageUV, 0.);
+  alpha *= frame;
   
-  p.x += sin(p.y + u_time) * .7;
-  p.y -= 3. * edge;
-  p.y -= 8. * pow(edge, 6.);
-  p.y += .3 * cos(p.x + u_time) - .6 * sin(.5 * p.y + u_time);
+  vec2 p = uv * 30.;
 
-  float w = fwidth(p.x);
-  w = max(w, fwidth(p.y));
-  w = max(w, fwidth(3. * edge));
-  w = max(w, .001);
+  float test = .9;
+  
+  float wave = 2. * (.7 * cos(.3 * p.x + .1 * p.y + u_time) - 0.6 * sin(.6 * p.y + u_time));
+  float addon = mix((1. - edge) * wave, 0., pow(edge, 8.));
+  p.y -= addon;
 
   vec2 d = abs(fract(p) - .5);
-  float line = min(d.x, d.y);
-//  float line = d.y;
+  vec2 aa = 2. * fwidth(p);
+  float w = .2 * (1. - edge);
 
-  float grid = 1. - smoothstep(0., w, line);
+  vec2 gx = 1.0 - smoothstep(vec2(w) +vec2(0.), vec2(w) + aa, d);
+  float grid = gx.y;
 
   color = mix(u_colorBack.rgb, u_colorFront.rgb, grid);
-  fragColor = vec4(color, alpha);
+
+  fragColor = vec4(color, 1.);
+
 }
 `;
 
 // Configuration for Poisson solver
 export const POISSON_CONFIG_OPTIMIZED = {
-  measurePerformance: false, // Set to true to see performance metrics
-  workingSize: 512, // Size to solve Poisson at (will upscale to original size)
-  iterations: 40, // SOR converges ~2-20x faster than standard Gauss-Seidel
+    measurePerformance: false, // Set to true to see performance metrics
+    workingSize: 512, // Size to solve Poisson at (will upscale to original size)
+    iterations: 40, // SOR converges ~2-20x faster than standard Gauss-Seidel
 };
 
 // Precomputed pixel data for sparse processing
 interface SparsePixelData {
-  interiorPixels: Uint32Array; // Indices of interior pixels
-  boundaryPixels: Uint32Array; // Indices of boundary pixels
-  pixelCount: number;
-  // Neighbor indices for each interior pixel (4 neighbors per pixel)
-  // Layout: [east, west, north, south] for each pixel
-  neighborIndices: Int32Array;
+    interiorPixels: Uint32Array; // Indices of interior pixels
+    boundaryPixels: Uint32Array; // Indices of boundary pixels
+    pixelCount: number;
+    // Neighbor indices for each interior pixel (4 neighbors per pixel)
+    // Layout: [east, west, north, south] for each pixel
+    neighborIndices: Int32Array;
 }
 
 export function toProcessedFolds(file: File | string): Promise<{ imageData: ImageData; pngBlob: Blob }> {
-  const canvas = document.createElement('canvas');
-  const ctx = canvas.getContext('2d');
-  const isBlob = typeof file === 'string' && file.startsWith('blob:');
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    const isBlob = typeof file === 'string' && file.startsWith('blob:');
 
-  return new Promise((resolve, reject) => {
-    if (!file || !ctx) {
-      reject(new Error('Invalid file or canvas context'));
-      return;
-    }
-
-    const blobContentTypePromise = isBlob && fetch(file).then((res) => res.headers.get('Content-Type'));
-    const img = new Image();
-    img.crossOrigin = 'anonymous';
-    const totalStartTime = performance.now();
-
-    img.onload = async () => {
-      // Force SVG to load at a high fidelity size if it's an SVG
-      let isSVG;
-
-      const blobContentType = await blobContentTypePromise;
-
-      if (blobContentType) {
-        isSVG = blobContentType === 'image/svg+xml';
-      } else if (typeof file === 'string') {
-        isSVG = file.endsWith('.svg') || file.startsWith('data:image/svg+xml');
-      } else {
-        isSVG = file.type === 'image/svg+xml';
-      }
-
-      let originalWidth = img.width || img.naturalWidth;
-      let originalHeight = img.height || img.naturalHeight;
-
-      if (isSVG) {
-        // Scale SVG to max dimension while preserving aspect ratio
-        const svgMaxSize = 4096;
-        const aspectRatio = originalWidth / originalHeight;
-
-        if (originalWidth > originalHeight) {
-          originalWidth = svgMaxSize;
-          originalHeight = svgMaxSize / aspectRatio;
-        } else {
-          originalHeight = svgMaxSize;
-          originalWidth = svgMaxSize * aspectRatio;
+    return new Promise((resolve, reject) => {
+        if (!file || !ctx) {
+            reject(new Error('Invalid file or canvas context'));
+            return;
         }
 
-        img.width = originalWidth;
-        img.height = originalHeight;
-      }
+        const blobContentTypePromise = isBlob && fetch(file).then((res) => res.headers.get('Content-Type'));
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        const totalStartTime = performance.now();
 
-      // Always scale to working resolution for consistency
-      const minDimension = Math.min(originalWidth, originalHeight);
-      const targetSize = POISSON_CONFIG_OPTIMIZED.workingSize;
+        img.onload = async () => {
+            // Force SVG to load at a high fidelity size if it's an SVG
+            let isSVG;
 
-      // Calculate scale to fit within workingSize
-      const scaleFactor = targetSize / minDimension;
-      const width = Math.round(originalWidth * scaleFactor);
-      const height = Math.round(originalHeight * scaleFactor);
+            const blobContentType = await blobContentTypePromise;
 
-      if (POISSON_CONFIG_OPTIMIZED.measurePerformance) {
-        console.log(`[Processing Mode]`);
-        console.log(`  Original: ${originalWidth}×${originalHeight}`);
-        console.log(`  Working: ${width}×${height} (${(scaleFactor * 100).toFixed(1)}% scale)`);
-        if (scaleFactor < 1) {
-          console.log(`  Speedup: ~${Math.round(1 / (scaleFactor * scaleFactor))}×`);
-        }
-      }
+            if (blobContentType) {
+                isSVG = blobContentType === 'image/svg+xml';
+            } else if (typeof file === 'string') {
+                isSVG = file.endsWith('.svg') || file.startsWith('data:image/svg+xml');
+            } else {
+                isSVG = file.type === 'image/svg+xml';
+            }
 
-      canvas.width = originalWidth;
-      canvas.height = originalHeight;
+            let originalWidth = img.width || img.naturalWidth;
+            let originalHeight = img.height || img.naturalHeight;
 
-      // Use a smaller canvas for shape detection and Poisson solving
-      const shapeCanvas = document.createElement('canvas');
-      shapeCanvas.width = width;
-      shapeCanvas.height = height;
+            if (isSVG) {
+                // Scale SVG to max dimension while preserving aspect ratio
+                const svgMaxSize = 4096;
+                const aspectRatio = originalWidth / originalHeight;
 
-      const shapeCtx = shapeCanvas.getContext('2d')!;
-      shapeCtx.drawImage(img, 0, 0, width, height);
+                if (originalWidth > originalHeight) {
+                    originalWidth = svgMaxSize;
+                    originalHeight = svgMaxSize / aspectRatio;
+                } else {
+                    originalHeight = svgMaxSize;
+                    originalWidth = svgMaxSize * aspectRatio;
+                }
 
-      // 1) Build optimized masks using TypedArrays
-      const startMask = performance.now();
+                img.width = originalWidth;
+                img.height = originalHeight;
+            }
 
-      const shapeImageData = shapeCtx.getImageData(0, 0, width, height);
-      const data = shapeImageData.data;
+            // Always scale to working resolution for consistency
+            const minDimension = Math.min(originalWidth, originalHeight);
+            const targetSize = POISSON_CONFIG_OPTIMIZED.workingSize;
 
-      // Use Uint8Array for masks (1 byte per pixel vs 8+ bytes for boolean array)
-      const shapeMask = new Uint8Array(width * height);
-      const boundaryMask = new Uint8Array(width * height);
+            // Calculate scale to fit within workingSize
+            const scaleFactor = targetSize / minDimension;
+            const width = Math.round(originalWidth * scaleFactor);
+            const height = Math.round(originalHeight * scaleFactor);
 
-      // First pass: identify shape pixels
-      let shapePixelCount = 0;
-      for (let i = 0, idx = 0; i < data.length; i += 4, idx++) {
-        const a = data[i + 3];
-        const isShape = a === 0 ? 0 : 1;
-        shapeMask[idx] = isShape;
-        shapePixelCount += isShape;
-      }
+            if (POISSON_CONFIG_OPTIMIZED.measurePerformance) {
+                console.log(`[Processing Mode]`);
+                console.log(`  Original: ${ originalWidth }×${ originalHeight }`);
+                console.log(`  Working: ${ width }×${ height } (${ (scaleFactor * 100).toFixed(1) }% scale)`);
+                if (scaleFactor < 1) {
+                    console.log(`  Speedup: ~${ Math.round(1 / (scaleFactor * scaleFactor)) }×`);
+                }
+            }
 
-      // 2) Optimized boundary detection using sparse approach
-      // Only check shape pixels, not all pixels
-      const boundaryIndices: number[] = [];
-      const interiorIndices: number[] = [];
+            canvas.width = originalWidth;
+            canvas.height = originalHeight;
 
-      for (let y = 0; y < height; y++) {
-        for (let x = 0; x < width; x++) {
-          const idx = y * width + x;
-          if (!shapeMask[idx]) continue;
+            // Use a smaller canvas for shape detection and Poisson solving
+            const shapeCanvas = document.createElement('canvas');
+            shapeCanvas.width = width;
+            shapeCanvas.height = height;
 
-          // Check if pixel is on boundary (optimized: early exit)
-          let isBoundary = false;
+            const shapeCtx = shapeCanvas.getContext('2d')!;
+            shapeCtx.drawImage(img, 0, 0, width, height);
 
-          // Check 4-connected neighbors first (most common case)
-          if (x === 0 || x === width - 1 || y === 0 || y === height - 1) {
-            isBoundary = true;
-          } else {
-            // Check all 8 neighbors (including diagonals) for comprehensive boundary detection
-            isBoundary =
-              !shapeMask[idx - 1] || // left
-              !shapeMask[idx + 1] || // right
-              !shapeMask[idx - width] || // top
-              !shapeMask[idx + width] || // bottom
-              !shapeMask[idx - width - 1] || // top-left
-              !shapeMask[idx - width + 1] || // top-right
-              !shapeMask[idx + width - 1] || // bottom-left
-              !shapeMask[idx + width + 1]; // bottom-right
-          }
+            // 1) Build optimized masks using TypedArrays
+            const startMask = performance.now();
 
-          if (isBoundary) {
-            boundaryMask[idx] = 1;
-            boundaryIndices.push(idx);
-          } else {
-            interiorIndices.push(idx);
-          }
-        }
-      }
+            const shapeImageData = shapeCtx.getImageData(0, 0, width, height);
+            const data = shapeImageData.data;
 
-      if (POISSON_CONFIG_OPTIMIZED.measurePerformance) {
-        console.log(`[Mask Building] Time: ${(performance.now() - startMask).toFixed(2)}ms`);
-        console.log(
-          `  Shape pixels: ${shapePixelCount} / ${width * height} (${((shapePixelCount / (width * height)) * 100).toFixed(1)}%)`
-        );
-        console.log(`  Interior pixels: ${interiorIndices.length}`);
-        console.log(`  Boundary pixels: ${boundaryIndices.length}`);
-      }
+            // Use Uint8Array for masks (1 byte per pixel vs 8+ bytes for boolean array)
+            const shapeMask = new Uint8Array(width * height);
+            const boundaryMask = new Uint8Array(width * height);
 
-      // 3) Precompute sparse data structure for solver
-      const sparseData = buildSparseData(
-        shapeMask,
-        boundaryMask,
-        new Uint32Array(interiorIndices),
-        new Uint32Array(boundaryIndices),
-        width,
-        height
-      );
+            // First pass: identify shape pixels
+            let shapePixelCount = 0;
+            for (let i = 0, idx = 0; i < data.length; i += 4, idx++) {
+                const a = data[i + 3];
+                const isShape = a === 0 ? 0 : 1;
+                shapeMask[idx] = isShape;
+                shapePixelCount += isShape;
+            }
 
-      // 4) Solve Poisson equation with optimized sparse solver
-      const startSolve = performance.now();
-      const u = solvePoissonSparse(sparseData, shapeMask, boundaryMask, width, height);
+            // 2) Optimized boundary detection using sparse approach
+            // Only check shape pixels, not all pixels
+            const boundaryIndices: number[] = [];
+            const interiorIndices: number[] = [];
 
-      if (POISSON_CONFIG_OPTIMIZED.measurePerformance) {
-        console.log(`[Poisson Solve] Time: ${(performance.now() - startSolve).toFixed(2)}ms`);
-      }
+            for (let y = 0; y < height; y++) {
+                for (let x = 0; x < width; x++) {
+                    const idx = y * width + x;
+                    if (!shapeMask[idx]) continue;
 
-      // 5) Generate output image
-      let maxVal = 0;
-      let finalImageData: ImageData;
+                    // Check if pixel is on boundary (optimized: early exit)
+                    let isBoundary = false;
 
-      // Only check shape pixels for max value
-      for (let i = 0; i < interiorIndices.length; i++) {
-        const idx = interiorIndices[i]!;
-        if (u[idx]! > maxVal) maxVal = u[idx]!;
-      }
+                    // Check 4-connected neighbors first (most common case)
+                    if (x === 0 || x === width - 1 || y === 0 || y === height - 1) {
+                        isBoundary = true;
+                    } else {
+                        // Check all 8 neighbors (including diagonals) for comprehensive boundary detection
+                        isBoundary =
+                            !shapeMask[idx - 1] || // left
+                            !shapeMask[idx + 1] || // right
+                            !shapeMask[idx - width] || // top
+                            !shapeMask[idx + width] || // bottom
+                            !shapeMask[idx - width - 1] || // top-left
+                            !shapeMask[idx - width + 1] || // top-right
+                            !shapeMask[idx + width - 1] || // bottom-left
+                            !shapeMask[idx + width + 1]; // bottom-right
+                    }
 
-      // Create gradient image at working resolution
-      const tempCanvas = document.createElement('canvas');
-      tempCanvas.width = width;
-      tempCanvas.height = height;
-      const tempCtx = tempCanvas.getContext('2d')!;
+                    if (isBoundary) {
+                        boundaryMask[idx] = 1;
+                        boundaryIndices.push(idx);
+                    } else {
+                        interiorIndices.push(idx);
+                    }
+                }
+            }
 
-      const tempImg = tempCtx.createImageData(width, height);
-      for (let y = 0; y < height; y++) {
-        for (let x = 0; x < width; x++) {
-          const idx = y * width + x;
-          const px = idx * 4;
+            if (POISSON_CONFIG_OPTIMIZED.measurePerformance) {
+                console.log(`[Mask Building] Time: ${ (performance.now() - startMask).toFixed(2) }ms`);
+                console.log(
+                    `  Shape pixels: ${ shapePixelCount } / ${ width * height } (${ ((shapePixelCount / (width * height)) * 100).toFixed(1) }%)`
+                );
+                console.log(`  Interior pixels: ${ interiorIndices.length }`);
+                console.log(`  Boundary pixels: ${ boundaryIndices.length }`);
+            }
 
-          if (!shapeMask[idx]) {
-            tempImg.data[px] = 255;
-            tempImg.data[px + 1] = 255;
-            tempImg.data[px + 2] = 255;
-            tempImg.data[px + 3] = 0; // Alpha = 0 for background
-          } else {
-            const poissonRatio = u[idx]! / maxVal;
-            const gray = 255 * (1 - poissonRatio);
-            tempImg.data[px] = gray;
-            tempImg.data[px + 1] = gray;
-            tempImg.data[px + 2] = gray;
-            tempImg.data[px + 3] = 255; // Alpha = 255 for shape
-          }
-        }
-      }
-      tempCtx.putImageData(tempImg, 0, 0);
-
-      // Upscale to original resolution with smooth interpolation
-      ctx.imageSmoothingEnabled = true;
-      ctx.imageSmoothingQuality = 'high';
-      ctx.drawImage(tempCanvas, 0, 0, width, height, 0, 0, originalWidth, originalHeight);
-
-      // Now get the upscaled image data for final output
-      const outImg = ctx.getImageData(0, 0, originalWidth, originalHeight);
-
-      // Re-apply edges from original resolution with anti-aliasing
-      // This ensures edges are pixel-perfect while gradient is smooth
-      const originalCanvas = document.createElement('canvas');
-      originalCanvas.width = originalWidth;
-      originalCanvas.height = originalHeight;
-      const originalCtx = originalCanvas.getContext('2d')!;
-      // originalCtx.fillStyle = "white";
-      // originalCtx.fillRect(0, 0, originalWidth, originalHeight);
-      originalCtx.drawImage(img, 0, 0, originalWidth, originalHeight);
-      const originalData = originalCtx.getImageData(0, 0, originalWidth, originalHeight);
-
-      // Process each pixel: Red channel = gradient, Alpha channel = original alpha
-      for (let i = 0; i < outImg.data.length; i += 4) {
-        const a = originalData.data[i + 3]!;
-        // Use only alpha to determine background vs shape
-        const upscaledAlpha = outImg.data[i + 3]!;
-        if (a === 0) {
-          // Background pixel
-          outImg.data[i] = 255;
-          outImg.data[i + 1] = 0;
-        } else {
-          // Red channel carries the gradient
-          // Check if upscale missed this pixel by looking at alpha channel
-          // If upscaled alpha is 0, the low-res version thought this was background
-          outImg.data[i] = upscaledAlpha === 0 ? 0 : outImg.data[i]!; // gradient or 0
-          outImg.data[i + 1] = a; // original alpha
-        }
-
-        // Unused channels fixed
-        outImg.data[i + 2] = 255;
-        outImg.data[i + 3] = 255;
-      }
-
-      ctx.putImageData(outImg, 0, 0);
-      finalImageData = outImg;
-      canvas.toBlob((blob) => {
-        if (!blob) {
-          reject(new Error('Failed to create PNG blob'));
-          return;
-        }
-
-        if (POISSON_CONFIG_OPTIMIZED.measurePerformance) {
-          const totalTime = performance.now() - totalStartTime;
-          console.log(`[Total Processing Time] ${totalTime.toFixed(2)}ms`);
-          if (scaleFactor < 1) {
-            const estimatedFullResTime = totalTime * Math.pow((originalWidth * originalHeight) / (width * height), 1.5);
-            console.log(`[Estimated time at full resolution] ~${estimatedFullResTime.toFixed(0)}ms`);
-            console.log(
-              `[Time saved] ~${(estimatedFullResTime - totalTime).toFixed(0)}ms (${Math.round(estimatedFullResTime / totalTime)}× faster)`
+            // 3) Precompute sparse data structure for solver
+            const sparseData = buildSparseData(
+                shapeMask,
+                boundaryMask,
+                new Uint32Array(interiorIndices),
+                new Uint32Array(boundaryIndices),
+                width,
+                height
             );
-          }
-        }
 
-        resolve({
-          imageData: finalImageData,
-          pngBlob: blob,
-        });
-      }, 'image/png');
-    };
+            // 4) Solve Poisson equation with optimized sparse solver
+            const startSolve = performance.now();
+            const u = solvePoissonSparse(sparseData, shapeMask, boundaryMask, width, height);
 
-    img.onerror = () => reject(new Error('Failed to load image'));
-    img.src = typeof file === 'string' ? file : URL.createObjectURL(file);
-  });
+            if (POISSON_CONFIG_OPTIMIZED.measurePerformance) {
+                console.log(`[Poisson Solve] Time: ${ (performance.now() - startSolve).toFixed(2) }ms`);
+            }
+
+            // 5) Generate output image
+            let maxVal = 0;
+            let finalImageData: ImageData;
+
+            // Only check shape pixels for max value
+            for (let i = 0; i < interiorIndices.length; i++) {
+                const idx = interiorIndices[i]!;
+                if (u[idx]! > maxVal) maxVal = u[idx]!;
+            }
+
+            // Create gradient image at working resolution
+            const tempCanvas = document.createElement('canvas');
+            tempCanvas.width = width;
+            tempCanvas.height = height;
+            const tempCtx = tempCanvas.getContext('2d')!;
+
+            const tempImg = tempCtx.createImageData(width, height);
+            for (let y = 0; y < height; y++) {
+                for (let x = 0; x < width; x++) {
+                    const idx = y * width + x;
+                    const px = idx * 4;
+
+                    if (!shapeMask[idx]) {
+                        tempImg.data[px] = 255;
+                        tempImg.data[px + 1] = 255;
+                        tempImg.data[px + 2] = 255;
+                        tempImg.data[px + 3] = 0; // Alpha = 0 for background
+                    } else {
+                        const poissonRatio = u[idx]! / maxVal;
+                        const gray = 255 * (1 - poissonRatio);
+                        tempImg.data[px] = gray;
+                        tempImg.data[px + 1] = gray;
+                        tempImg.data[px + 2] = gray;
+                        tempImg.data[px + 3] = 255; // Alpha = 255 for shape
+                    }
+                }
+            }
+            tempCtx.putImageData(tempImg, 0, 0);
+
+            // Upscale to original resolution with smooth interpolation
+            ctx.imageSmoothingEnabled = true;
+            ctx.imageSmoothingQuality = 'high';
+            ctx.drawImage(tempCanvas, 0, 0, width, height, 0, 0, originalWidth, originalHeight);
+
+            // Now get the upscaled image data for final output
+            const outImg = ctx.getImageData(0, 0, originalWidth, originalHeight);
+
+            // Re-apply edges from original resolution with anti-aliasing
+            // This ensures edges are pixel-perfect while gradient is smooth
+            const originalCanvas = document.createElement('canvas');
+            originalCanvas.width = originalWidth;
+            originalCanvas.height = originalHeight;
+            const originalCtx = originalCanvas.getContext('2d')!;
+            // originalCtx.fillStyle = "white";
+            // originalCtx.fillRect(0, 0, originalWidth, originalHeight);
+            originalCtx.drawImage(img, 0, 0, originalWidth, originalHeight);
+            const originalData = originalCtx.getImageData(0, 0, originalWidth, originalHeight);
+
+            // Process each pixel: Red channel = gradient, Alpha channel = original alpha
+            for (let i = 0; i < outImg.data.length; i += 4) {
+                const a = originalData.data[i + 3]!;
+                // Use only alpha to determine background vs shape
+                const upscaledAlpha = outImg.data[i + 3]!;
+                if (a === 0) {
+                    // Background pixel
+                    outImg.data[i] = 255;
+                    outImg.data[i + 1] = 0;
+                } else {
+                    // Red channel carries the gradient
+                    // Check if upscale missed this pixel by looking at alpha channel
+                    // If upscaled alpha is 0, the low-res version thought this was background
+                    outImg.data[i] = upscaledAlpha === 0 ? 0 : outImg.data[i]!; // gradient or 0
+                    outImg.data[i + 1] = a; // original alpha
+                }
+
+                // Unused channels fixed
+                outImg.data[i + 2] = 255;
+                outImg.data[i + 3] = 255;
+            }
+
+            ctx.putImageData(outImg, 0, 0);
+            finalImageData = outImg;
+            canvas.toBlob((blob) => {
+                if (!blob) {
+                    reject(new Error('Failed to create PNG blob'));
+                    return;
+                }
+
+                if (POISSON_CONFIG_OPTIMIZED.measurePerformance) {
+                    const totalTime = performance.now() - totalStartTime;
+                    console.log(`[Total Processing Time] ${ totalTime.toFixed(2) }ms`);
+                    if (scaleFactor < 1) {
+                        const estimatedFullResTime = totalTime * Math.pow((originalWidth * originalHeight) / (width * height), 1.5);
+                        console.log(`[Estimated time at full resolution] ~${ estimatedFullResTime.toFixed(0) }ms`);
+                        console.log(
+                            `[Time saved] ~${ (estimatedFullResTime - totalTime).toFixed(0) }ms (${ Math.round(estimatedFullResTime / totalTime) }× faster)`
+                        );
+                    }
+                }
+
+                resolve({
+                    imageData: finalImageData,
+                    pngBlob: blob,
+                });
+            }, 'image/png');
+        };
+
+        img.onerror = () => reject(new Error('Failed to load image'));
+        img.src = typeof file === 'string' ? file : URL.createObjectURL(file);
+    });
 }
 
 function buildSparseData(
-  shapeMask: Uint8Array,
-  boundaryMask: Uint8Array,
-  interiorPixels: Uint32Array,
-  boundaryPixels: Uint32Array,
-  width: number,
-  height: number
+    shapeMask: Uint8Array,
+    boundaryMask: Uint8Array,
+    interiorPixels: Uint32Array,
+    boundaryPixels: Uint32Array,
+    width: number,
+    height: number
 ): SparsePixelData {
-  const pixelCount = interiorPixels.length;
+    const pixelCount = interiorPixels.length;
 
-  // Build neighbor indices for sparse processing
-  // For each interior pixel, store indices of its 4 neighbors
-  // Use -1 for out-of-bounds or non-shape neighbors
-  const neighborIndices = new Int32Array(pixelCount * 4);
+    // Build neighbor indices for sparse processing
+    // For each interior pixel, store indices of its 4 neighbors
+    // Use -1 for out-of-bounds or non-shape neighbors
+    const neighborIndices = new Int32Array(pixelCount * 4);
 
-  for (let i = 0; i < pixelCount; i++) {
-    const idx = interiorPixels[i]!;
-    const x = idx % width;
-    const y = Math.floor(idx / width);
+    for (let i = 0; i < pixelCount; i++) {
+        const idx = interiorPixels[i]!;
+        const x = idx % width;
+        const y = Math.floor(idx / width);
 
-    // East neighbor
-    neighborIndices[i * 4 + 0] = x < width - 1 && shapeMask[idx + 1] ? idx + 1 : -1;
-    // West neighbor
-    neighborIndices[i * 4 + 1] = x > 0 && shapeMask[idx - 1] ? idx - 1 : -1;
-    // North neighbor
-    neighborIndices[i * 4 + 2] = y > 0 && shapeMask[idx - width] ? idx - width : -1;
-    // South neighbor
-    neighborIndices[i * 4 + 3] = y < height - 1 && shapeMask[idx + width] ? idx + width : -1;
-  }
+        // East neighbor
+        neighborIndices[i * 4 + 0] = x < width - 1 && shapeMask[idx + 1] ? idx + 1 : -1;
+        // West neighbor
+        neighborIndices[i * 4 + 1] = x > 0 && shapeMask[idx - 1] ? idx - 1 : -1;
+        // North neighbor
+        neighborIndices[i * 4 + 2] = y > 0 && shapeMask[idx - width] ? idx - width : -1;
+        // South neighbor
+        neighborIndices[i * 4 + 3] = y < height - 1 && shapeMask[idx + width] ? idx + width : -1;
+    }
 
-  return {
-    interiorPixels,
-    boundaryPixels,
-    pixelCount,
-    neighborIndices,
-  };
+    return {
+        interiorPixels,
+        boundaryPixels,
+        pixelCount,
+        neighborIndices,
+    };
 }
 
 function solvePoissonSparse(
-  sparseData: SparsePixelData,
-  shapeMask: Uint8Array,
-  boundaryMask: Uint8Array,
-  width: number,
-  height: number
+    sparseData: SparsePixelData,
+    shapeMask: Uint8Array,
+    boundaryMask: Uint8Array,
+    width: number,
+    height: number
 ): Float32Array {
-  // This controls how smooth the falloff gradient will be and extend into the shape
-  const ITERATIONS = POISSON_CONFIG_OPTIMIZED.iterations;
+    // This controls how smooth the falloff gradient will be and extend into the shape
+    const ITERATIONS = POISSON_CONFIG_OPTIMIZED.iterations;
 
-  // Keep C constant - only iterations control gradient spread
-  const C = 0.01;
+    // Keep C constant - only iterations control gradient spread
+    const C = 0.01;
 
-  const u = new Float32Array(width * height);
-  const { interiorPixels, neighborIndices, pixelCount } = sparseData;
+    const u = new Float32Array(width * height);
+    const {interiorPixels, neighborIndices, pixelCount} = sparseData;
 
-  // Performance tracking
-  const startTime = performance.now();
+    // Performance tracking
+    const startTime = performance.now();
 
-  // Red-Black SOR for better symmetry with fewer iterations
-  // omega between 1.8-1.95 typically gives best convergence for Poisson
-  const omega = 1.9;
+    // Red-Black SOR for better symmetry with fewer iterations
+    // omega between 1.8-1.95 typically gives best convergence for Poisson
+    const omega = 1.9;
 
-  // Pre-classify pixels as red or black for efficient processing
-  const redPixels: number[] = [];
-  const blackPixels: number[] = [];
+    // Pre-classify pixels as red or black for efficient processing
+    const redPixels: number[] = [];
+    const blackPixels: number[] = [];
 
-  for (let i = 0; i < pixelCount; i++) {
-    const idx = interiorPixels[i]!;
-    const x = idx % width;
-    const y = Math.floor(idx / width);
+    for (let i = 0; i < pixelCount; i++) {
+        const idx = interiorPixels[i]!;
+        const x = idx % width;
+        const y = Math.floor(idx / width);
 
-    if ((x + y) % 2 === 0) {
-      redPixels.push(i);
-    } else {
-      blackPixels.push(i);
-    }
-  }
-
-  for (let iter = 0; iter < ITERATIONS; iter++) {
-    // Red pass: update red pixels
-    for (const i of redPixels) {
-      const idx = interiorPixels[i]!;
-
-      // Get precomputed neighbor indices
-      const eastIdx = neighborIndices[i * 4 + 0]!;
-      const westIdx = neighborIndices[i * 4 + 1]!;
-      const northIdx = neighborIndices[i * 4 + 2]!;
-      const southIdx = neighborIndices[i * 4 + 3]!;
-
-      // Sum neighbors (use 0 for out-of-bounds)
-      let sumN = 0;
-      if (eastIdx >= 0) sumN += u[eastIdx]!;
-      if (westIdx >= 0) sumN += u[westIdx]!;
-      if (northIdx >= 0) sumN += u[northIdx]!;
-      if (southIdx >= 0) sumN += u[southIdx]!;
-
-      // SOR update: blend new value with old value
-      const newValue = (C + sumN) / 4;
-      u[idx] = omega * newValue + (1 - omega) * u[idx]!;
+        if ((x + y) % 2 === 0) {
+            redPixels.push(i);
+        } else {
+            blackPixels.push(i);
+        }
     }
 
-    // Black pass: update black pixels
-    for (const i of blackPixels) {
-      const idx = interiorPixels[i]!;
+    for (let iter = 0; iter < ITERATIONS; iter++) {
+        // Red pass: update red pixels
+        for (const i of redPixels) {
+            const idx = interiorPixels[i]!;
 
-      // Get precomputed neighbor indices
-      const eastIdx = neighborIndices[i * 4 + 0]!;
-      const westIdx = neighborIndices[i * 4 + 1]!;
-      const northIdx = neighborIndices[i * 4 + 2]!;
-      const southIdx = neighborIndices[i * 4 + 3]!;
+            // Get precomputed neighbor indices
+            const eastIdx = neighborIndices[i * 4 + 0]!;
+            const westIdx = neighborIndices[i * 4 + 1]!;
+            const northIdx = neighborIndices[i * 4 + 2]!;
+            const southIdx = neighborIndices[i * 4 + 3]!;
 
-      // Sum neighbors (use 0 for out-of-bounds)
-      let sumN = 0;
-      if (eastIdx >= 0) sumN += u[eastIdx]!;
-      if (westIdx >= 0) sumN += u[westIdx]!;
-      if (northIdx >= 0) sumN += u[northIdx]!;
-      if (southIdx >= 0) sumN += u[southIdx]!;
+            // Sum neighbors (use 0 for out-of-bounds)
+            let sumN = 0;
+            if (eastIdx >= 0) sumN += u[eastIdx]!;
+            if (westIdx >= 0) sumN += u[westIdx]!;
+            if (northIdx >= 0) sumN += u[northIdx]!;
+            if (southIdx >= 0) sumN += u[southIdx]!;
 
-      // SOR update: blend new value with old value
-      const newValue = (C + sumN) / 4;
-      u[idx] = omega * newValue + (1 - omega) * u[idx]!;
+            // SOR update: blend new value with old value
+            const newValue = (C + sumN) / 4;
+            u[idx] = omega * newValue + (1 - omega) * u[idx]!;
+        }
+
+        // Black pass: update black pixels
+        for (const i of blackPixels) {
+            const idx = interiorPixels[i]!;
+
+            // Get precomputed neighbor indices
+            const eastIdx = neighborIndices[i * 4 + 0]!;
+            const westIdx = neighborIndices[i * 4 + 1]!;
+            const northIdx = neighborIndices[i * 4 + 2]!;
+            const southIdx = neighborIndices[i * 4 + 3]!;
+
+            // Sum neighbors (use 0 for out-of-bounds)
+            let sumN = 0;
+            if (eastIdx >= 0) sumN += u[eastIdx]!;
+            if (westIdx >= 0) sumN += u[westIdx]!;
+            if (northIdx >= 0) sumN += u[northIdx]!;
+            if (southIdx >= 0) sumN += u[southIdx]!;
+
+            // SOR update: blend new value with old value
+            const newValue = (C + sumN) / 4;
+            u[idx] = omega * newValue + (1 - omega) * u[idx]!;
+        }
     }
-  }
 
-  if (POISSON_CONFIG_OPTIMIZED.measurePerformance) {
-    const elapsed = performance.now() - startTime;
+    if (POISSON_CONFIG_OPTIMIZED.measurePerformance) {
+        const elapsed = performance.now() - startTime;
 
-    console.log(`[Optimized Poisson Solver (SOR ω=${omega})]`);
-    console.log(`  Working size: ${width}×${height}`);
-    console.log(`  Iterations: ${ITERATIONS}`);
-    console.log(`  Time: ${elapsed.toFixed(2)}ms`);
-    console.log(`  Interior pixels processed: ${pixelCount}`);
-    console.log(`  Speed: ${((ITERATIONS * pixelCount) / (elapsed * 1000)).toFixed(2)} Mpixels/sec`);
-  }
+        console.log(`[Optimized Poisson Solver (SOR ω=${ omega })]`);
+        console.log(`  Working size: ${ width }×${ height }`);
+        console.log(`  Iterations: ${ ITERATIONS }`);
+        console.log(`  Time: ${ elapsed.toFixed(2) }ms`);
+        console.log(`  Interior pixels processed: ${ pixelCount }`);
+        console.log(`  Speed: ${ ((ITERATIONS * pixelCount) / (elapsed * 1000)).toFixed(2) } Mpixels/sec`);
+    }
 
-  return u;
+    return u;
 }
 
 export interface FoldsUniforms extends ShaderSizingUniforms {
-  u_colorBack: [number, number, number, number];
-  u_colorFront: [number, number, number, number];
-  u_image: HTMLImageElement | string | undefined;
-  u_repetition: number;
-  u_shiftRed: number;
-  u_shiftBlue: number;
-  u_contour: number;
-  u_softness: number;
-  u_distortion: number;
-  u_angle: number;
-  u_shape: (typeof FoldsShapes)[FoldsShape];
-  u_isImage: boolean;
+    u_colorBack: [number, number, number, number];
+    u_colorFront: [number, number, number, number];
+    u_image: HTMLImageElement | string | undefined;
+    u_repetition: number;
+    u_shiftRed: number;
+    u_shiftBlue: number;
+    u_contour: number;
+    u_softness: number;
+    u_distortion: number;
+    u_angle: number;
+    u_shape: (typeof FoldsShapes)[FoldsShape];
+    u_isImage: boolean;
 }
 
 export interface FoldsParams extends ShaderSizingParams, ShaderMotionParams {
-  colorBack?: string;
-  colorFront?: string;
-  image?: HTMLImageElement | string | undefined;
-  repetition?: number;
-  shiftRed?: number;
-  shiftBlue?: number;
-  contour?: number;
-  softness?: number;
-  distortion?: number;
-  angle?: number;
-  shape?: FoldsShape;
+    colorBack?: string;
+    colorFront?: string;
+    image?: HTMLImageElement | string | undefined;
+    repetition?: number;
+    shiftRed?: number;
+    shiftBlue?: number;
+    contour?: number;
+    softness?: number;
+    distortion?: number;
+    angle?: number;
+    shape?: FoldsShape;
 }
 
 export const FoldsShapes = {
-  none: 0,
-  circle: 1,
-  daisy: 2,
-  diamond: 3,
-  metaballs: 4,
+    none: 0,
+    circle: 1,
+    daisy: 2,
+    diamond: 3,
+    metaballs: 4,
 } as const;
 
 export type FoldsShape = keyof typeof FoldsShapes;

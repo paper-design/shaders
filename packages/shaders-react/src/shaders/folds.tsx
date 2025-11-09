@@ -27,7 +27,7 @@ export const defaultPreset: FoldsPreset = {
   name: 'Default',
   params: {
     ...defaultObjectSizing,
-    scale: 0.6,
+    scale: 1,
     speed: 1,
     frame: 0,
     colorBack: '#ffffff',

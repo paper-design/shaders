@@ -21,7 +21,7 @@ import { toHsla } from '@/helpers/color-utils';
 const { worldWidth, worldHeight, ...defaults } = foldsPresets[0].params;
 
 const FoldsWithControls = () => {
-  const [image, setImage] = useState<HTMLImageElement | string>('');
+  const [image, setImage] = useState<HTMLImageElement | string>('/images/logos/apple.svg');
 
   const [params, setParams] = useControls(() => {
     const presets = Object.fromEntries(
