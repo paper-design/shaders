@@ -9,16 +9,6 @@ import {declarePI, rotation2, simplexNoise, colorBandingFix} from '../shader-uti
  *
  * Uniforms:
  * - u_colorBack, u_colorFront (RGBA)
- * - u_repetition: density of pattern stripes
- * - u_softness: blur between stripes
- * - u_shiftRed & u_shiftBlue: color dispersion between the stripes
- * - u_distortion: pattern distortion on the whole canvas
- * - u_contour: distortion power over the shape edges
- * - u_shape (float used as integer):
- * ---- 0: canvas-screen rectangle, needs u_worldWidth = u_worldHeight = 0 to be responsive (see vertex shader)
- * ---- 1: static circle
- * ---- 2: animated flower-like polar shape
- * ---- 3: animated metaballs
  *
  */
 
@@ -37,10 +27,11 @@ uniform vec4 u_colorFront;
 
 uniform float u_softness;
 uniform float u_repetition;
-uniform float u_shiftRed;
-uniform float u_shiftBlue;
-uniform float u_distortion;
-uniform float u_contour;
+uniform bool u_alphaMask;
+uniform float u_size;
+uniform float u_wave;
+uniform float u_noise;
+uniform float u_outerNoise;
 uniform float u_angle;
 
 uniform float u_shape;
@@ -54,32 +45,10 @@ ${ declarePI }
 ${ rotation2 }
 ${ simplexNoise }
 
-float getColorChanges(float c1, float c2, float stripe_p, vec3 w, float blur, float bump, float tint) {
-
-  float ch = mix(c2, c1, smoothstep(.0, 2. * blur, stripe_p));
-
-  float border = w[0];
-  ch = mix(ch, c2, smoothstep(border, border + 2. * blur, stripe_p));
-
-  if (u_isImage == true) {
-    bump = smoothstep(.2, .8, bump);
-  }
-  border = w[0] + .4 * (1. - bump) * w[1];
-  ch = mix(ch, c1, smoothstep(border, border + 2. * blur, stripe_p));
-
-  border = w[0] + .5 * (1. - bump) * w[1];
-  ch = mix(ch, c2, smoothstep(border, border + 2. * blur, stripe_p));
-
-  border = w[0] + w[1];
-  ch = mix(ch, c1, smoothstep(border, border + 2. * blur, stripe_p));
-
-  float gradient_t = (stripe_p - w[0] - w[1]) / w[2];
-  float gradient = mix(c1, c2, smoothstep(0., 1., gradient_t));
-  ch = mix(ch, gradient, smoothstep(border, border + .5 * blur, stripe_p));
-
-  // Tint color is applied with color burn blending
-  ch = mix(ch, 1. - min(1., (1. - ch) / max(tint, 0.0001)), u_colorFront.a);
-  return ch;
+float doubleSNoise(vec2 uv, float t) {
+  float noise = .5 * snoise(uv - vec2(0., .3 * t));
+  noise += .5 * snoise(2. * uv + vec2(0., .32 * t));
+  return noise;
 }
 
 float getImgFrame(vec2 uv, float th) {
@@ -112,8 +81,9 @@ float blurEdge3x3(sampler2D tex, vec2 uv, vec2 dudx, vec2 dudy, float radius, fl
   return sum / norm;
 }
 
-float lst(float edge0, float edge1, float x) {
-  return clamp((x - edge0) / (edge1 - edge0), 0.0, 1.0);
+vec3 hsv2rgb(vec3 c){
+  vec3 p = abs(fract(c.x + vec3(0., 2./3., 1./3.))*6.-3.);
+  return c.z * mix(vec3(1.), clamp(p-1., 0., 1.), c.y);
 }
 
 void main() {
@@ -144,32 +114,46 @@ void main() {
   alpha = img.g;
   float frame = getImgFrame(v_imageUV, 0.);
   alpha *= frame;
-  
-  vec2 p = uv * 30.;
 
-  float test = .9;
+  uv = v_objectUV;
+  vec2 p = uv - vec2(.5);
+  float angle = -u_angle * PI / 180.;
+  p = rotate(p, angle);
+  p *= u_size;
+
+
+  float n = doubleSNoise(uv, u_time);
+  float edgeAtten = (1. - (1. - u_outerNoise) * edge);
+  p += edgeAtten * (n - .5) * 5. * u_noise;
+  
+  p += vec2(.5);
   
   float wave = (.3 * cos(.3 * p.x + .2 * p.y + u_time) - .6 * sin(.6 * p.y + u_time));
-  wave = .5 + .5 * wave;
+  wave *= u_wave;
   float addon = (1. - edge) * wave;
-  addon = mix(addon, 0., pow(edge, 8.));
-  p.y -= addon;
+  if (u_alphaMask == false) {
+    addon = mix(addon, 0., pow(edge, 6.));
+  }
+  p.y -= wave;
 
   vec2 d = abs(fract(p) - .5);
   vec2 aa = 2. * fwidth(p);
   float w = 0.;
   w += (.5 - aa.y) * (1. - edge);
-//  aa *= alpha;
+  aa *= (u_alphaMask ? alpha : 1.);
 
   float line = d.y;
-  line = 1.0 - smoothstep(w, w + aa.y, line);
-//  line -= fract(p.y);
-//  line = clamp(line, 0., 1.);
+  line = 1. - smoothstep(w, w + aa.y, line);
 
-  color = mix(u_colorBack.rgb, u_colorFront.rgb, line);
+//  color = mix(u_colorBack.rgb, u_colorFront.rgb, line);
+//  fragColor = vec4(color, 1.);
 
-  fragColor = vec4(color, 1.);
+  float stripeId = floor(p.y);
+  float hue = fract(stripeId * 0.161803);
+  vec3 stripeColor = hsv2rgb(vec3(hue, 0.65, 0.85));
 
+  color = mix(u_colorBack.rgb, stripeColor, line);
+  fragColor = vec4(color, 1.0);
 }
 `;
 
@@ -607,11 +591,12 @@ export interface FoldsUniforms extends ShaderSizingUniforms {
     u_colorFront: [number, number, number, number];
     u_image: HTMLImageElement | string | undefined;
     u_repetition: number;
-    u_shiftRed: number;
-    u_shiftBlue: number;
-    u_contour: number;
+    u_alphaMask: boolean;
+    u_size: number;
+    u_wave: number;
+    u_noise: number;
+    u_outerNoise: number;
     u_softness: number;
-    u_distortion: number;
     u_angle: number;
     u_shape: (typeof FoldsShapes)[FoldsShape];
     u_isImage: boolean;
@@ -622,11 +607,12 @@ export interface FoldsParams extends ShaderSizingParams, ShaderMotionParams {
     colorFront?: string;
     image?: HTMLImageElement | string | undefined;
     repetition?: number;
-    shiftRed?: number;
-    shiftBlue?: number;
-    contour?: number;
+    alphaMask?: boolean;
+    size?: number;
     softness?: number;
-    distortion?: number;
+    wave?: number;
+    noise?: number;
+    outerNoise?: number;
     angle?: number;
     shape?: FoldsShape;
 }
