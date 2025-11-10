@@ -240,6 +240,7 @@ void main() {
   highlights = 1. - highlights;
   highlights *= u_highlights;
   highlights = clamp(highlights, 0., 1.);
+  highlights *= mask;
 
   float shadows = pow(x, 2.);
   float distortion = 0.;
