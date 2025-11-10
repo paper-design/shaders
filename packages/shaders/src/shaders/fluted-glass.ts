@@ -190,18 +190,23 @@ void main() {
   vec2 uvMask = gl_FragCoord.xy / u_resolution.xy;
   vec2 sw = vec2(.005);
   vec4 margins = vec4(u_marginLeft, u_marginTop, u_marginRight, u_marginBottom);
-  float maskOuter =
-    smoothstep(margins[0] - sw.x, margins[0], uvMask.x + sw.x) *
-    smoothstep(margins[2] - sw.x, margins[2], 1.0 - uvMask.x + sw.x) *
-    smoothstep(margins[1] - sw.y, margins[1], uvMask.y + sw.y) *
-    smoothstep(margins[3] - sw.y, margins[3], 1.0 - uvMask.y + sw.y);
   float mask =
     smoothstep(margins[0], margins[0] + sw.x, uvMask.x + sw.x) *
     smoothstep(margins[2], margins[2] + sw.x, 1.0 - uvMask.x + sw.x) *
     smoothstep(margins[1], margins[1] + sw.y, uvMask.y + sw.y) *
     smoothstep(margins[3], margins[3] + sw.y, 1.0 - uvMask.y + sw.y);
-  float maskStroke = (1. - mask) * maskOuter;
-  float maskStrokeInner = (maskStroke - step(.5, maskStroke)) * mask;
+  float maskOuter =
+  smoothstep(margins[0] - sw.x, margins[0], uvMask.x + sw.x) *
+  smoothstep(margins[2] - sw.x, margins[2], 1.0 - uvMask.x + sw.x) *
+  smoothstep(margins[1] - sw.y, margins[1], uvMask.y + sw.y) *
+  smoothstep(margins[3] - sw.y, margins[3], 1.0 - uvMask.y + sw.y);
+  float maskStroke = maskOuter - mask;
+  float maskInner =
+    smoothstep(margins[0] - 2. * sw.x, margins[0], uvMask.x) *
+    smoothstep(margins[2] - 2. * sw.x, margins[2], 1.0 - uvMask.x) *
+    smoothstep(margins[1] - 2. * sw.y, margins[1], uvMask.y) *
+    smoothstep(margins[3] - 2. * sw.y, margins[3], 1.0 - uvMask.y);
+  float maskStrokeInner = maskInner - mask;
 
   uv -= .5;
   uv *= patternSize;
@@ -233,8 +238,7 @@ void main() {
   float xNonSmooth = fract(UvToFract.x) + .0001;
 
   float highlightsWidth = 2. * max(.001, fwidth(UvToFract.x));
-  highlightsWidth += maskStrokeInner;
-  highlightsWidth *= mask;
+  highlightsWidth += 2. * maskStrokeInner;
   float highlights = smoothstep(0., highlightsWidth, xNonSmooth);
   highlights *= smoothstep(1., 1. - highlightsWidth, xNonSmooth);
   highlights = 1. - highlights;
@@ -313,7 +317,7 @@ void main() {
   distortion = mix(distortion, 0., grain);
 
   shadows = min(shadows, 1.);
-  shadows += maskStroke;
+  shadows += maskStrokeInner;
   shadows *= mask;
   shadows = min(shadows, 1.);
   shadows *= pow(u_shadows, 2.);
@@ -331,8 +335,9 @@ void main() {
 
   uv += vec2(.5);
 
-  uv = mix(uvOriginal, uv, mask);
-  float blur = mix(0., mix(0., 50., u_blur), mask);
+  uv = mix(uvOriginal, uv, smoothstep(0., .7, mask));
+  float blur = mix(0., 50., u_blur);
+  blur = mix(1., blur, maskStrokeInner);
 
   float edgeDistortion = mix(.0, .04, u_edges);
   edgeDistortion += .06 * frameFade * u_edges;
@@ -375,6 +380,9 @@ void main() {
   color = mix(color, blendHardLight(color, grainOverlayColor, .5 * u_grainOverlay), mask);
 
 
+//  color.g = 0.;
+//  color.b = maskStroke;
+//  color.r = maskStrokeInner - mask;
   
   fragColor = vec4(color, opacity);
 }
