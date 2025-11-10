@@ -19,7 +19,7 @@ import { declarePI, rotation2, proceduralHash21 } from '../shader-utils.js';
  * ---- 5 shapes available
  * - u_shift - texture shift in direction opposite to the grid
  * - u_blur - one-directional blur applied over the main distortion
- * - u_edges - thin color lines along the grid (independent from distortion)
+ * - u_edges -
  * - u_marginLeft, u_marginRight, u_marginTop, u_marginBottom - paddings
  *   within picture to be shown without any distortion
  *
@@ -50,7 +50,7 @@ uniform float u_highlights;
 uniform float u_distortionShape;
 uniform float u_shift;
 uniform float u_blur;
-uniform float u_edgesedges;
+uniform float u_edges;
 uniform float u_marginLeft;
 uniform float u_marginRight;
 uniform float u_marginTop;
@@ -333,8 +333,8 @@ void main() {
   uv = mix(uvOriginal, uv, mask);
   float blur = mix(0., mix(0., 50., u_blur), mask);
 
-  float edgeDistortion = mix(.0, .04, u_edgesedges);
-  edgeDistortion += .06 * frameFade * u_edgesedges;
+  float edgeDistortion = mix(.0, .04, u_edges);
+  edgeDistortion += .06 * frameFade * u_edges;
   edgeDistortion *= mask;
   float frame = getUvFrame(uv, edgeDistortion);
 
@@ -387,7 +387,7 @@ export interface FlutedGlassUniforms extends ShaderSizingUniforms {
   u_distortion: number;
   u_shift: number;
   u_blur: number;
-  u_edgesedges: number;
+  u_edges: number;
   u_marginLeft: number;
   u_marginRight: number;
   u_marginTop: number;
@@ -412,7 +412,7 @@ export interface FlutedGlassParams extends ShaderSizingParams, ShaderMotionParam
   distortion?: number;
   shift?: number;
   blur?: number;
-  edgesedges?: number;
+  edges?: number;
   margin?: number;
   marginLeft?: number;
   marginRight?: number;

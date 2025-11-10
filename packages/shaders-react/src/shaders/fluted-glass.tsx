@@ -13,8 +13,6 @@ import {
 } from '@paper-design/shaders';
 
 export interface FlutedGlassProps extends ShaderComponentProps, FlutedGlassParams {
-  /** @deprecated use `stretch` instead */
-  edges?: number;
   /** @deprecated use `size` instead */
   count?: number;
 }
@@ -41,7 +39,7 @@ export const defaultPreset: FlutedGlassPreset = {
     distortion: 0.5,
     shift: 0,
     blur: 0,
-    edgesedges: 0.5,
+    edges: 0.5,
     stretch: 0,
     margin: 0,
     marginLeft: 0,
@@ -73,7 +71,7 @@ export const wavesPreset: FlutedGlassPreset = {
     distortion: 0.5,
     shift: 0,
     blur: 0.1,
-    edgesedges: 0.5,
+    edges: 0.5,
     stretch: 1,
     margin: 0,
     marginLeft: 0,
@@ -105,7 +103,7 @@ export const abstractPreset: FlutedGlassPreset = {
     distortion: 1,
     shift: 0,
     blur: 1,
-    edgesedges: 0.5,
+    edges: 0.5,
     stretch: 1,
     margin: 0,
     marginLeft: 0,
@@ -136,7 +134,7 @@ export const foldsPreset: FlutedGlassPreset = {
     distortion: 0.75,
     shift: 0,
     blur: 0.25,
-    edgesedges: 0.5,
+    edges: 0.5,
     stretch: 0,
     margin: 0.2,
     marginLeft: 0.2,
@@ -166,7 +164,7 @@ export const FlutedGlass: React.FC<FlutedGlassProps> = memo(function FlutedGlass
   shape = defaultPreset.params.shape,
   shift = defaultPreset.params.shift,
   blur = defaultPreset.params.blur,
-  edgesedges = defaultPreset.params.edgesedges,
+  edges = defaultPreset.params.edges,
   margin,
   marginLeft = margin ?? defaultPreset.params.marginLeft,
   marginRight = margin ?? defaultPreset.params.marginRight,
@@ -174,10 +172,7 @@ export const FlutedGlass: React.FC<FlutedGlassProps> = memo(function FlutedGlass
   marginBottom = margin ?? defaultPreset.params.marginBottom,
   grainMixer = defaultPreset.params.grainMixer,
   grainOverlay = defaultPreset.params.grainOverlay,
-
-  // `edges` were renamed to `stretch`
-  edges,
-  stretch = edges === undefined ? defaultPreset.params.stretch : edges,
+  stretch = defaultPreset.params.stretch,
 
   // integer `count` was deprecated in favor of the normalized `size` param
   count,
@@ -207,7 +202,7 @@ export const FlutedGlass: React.FC<FlutedGlassProps> = memo(function FlutedGlass
     u_distortion: distortion,
     u_shift: shift,
     u_blur: blur,
-    u_edgesedges: edgesedges,
+    u_edges: edges,
     u_stretch: stretch,
     u_distortionShape: GlassDistortionShapes[distortionShape],
     u_highlights: highlights,
