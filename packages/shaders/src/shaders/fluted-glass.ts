@@ -337,7 +337,7 @@ void main() {
 
   uv = mix(uvOriginal, uv, smoothstep(0., .7, mask));
   float blur = mix(0., 50., u_blur);
-  blur = mix(1., blur, maskStrokeInner);
+  blur = mix(0., blur, smoothstep(.5, 1., mask));
 
   float edgeDistortion = mix(.0, .04, u_edges);
   edgeDistortion += .06 * frameFade * u_edges;
