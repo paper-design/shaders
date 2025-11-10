@@ -351,13 +351,16 @@ void main() {
   vec4 highlightColor = u_colorHighlight;
   highlightColor.rgb *= highlightColor.a;
   vec4 shadowColor = u_colorShadow;
-  shadowColor.rgb *= shadowColor.a;
 
   vec3 color = highlightColor.rgb * highlights;
   float opacity = highlightColor.a * highlights;
 
-  color += shadowColor.rgb * (1. - opacity) * shadows;
-  opacity += shadowColor.a * (1. - opacity) * shadows;
+  shadows = mix(shadows * shadowColor.a, 0., highlights);
+  color = mix(color, shadowColor.rgb * shadowColor.a, .5 * shadows);
+  color += .5 * pow(shadows, .5) * shadowColor.rgb;
+  opacity += shadows;
+  color = clamp(color, vec3(0.), vec3(1.));
+  opacity = clamp(opacity, 0., 1.);
 
   color += image.rgb * (1. - opacity) * frame;
   opacity += image.a * (1. - opacity) * frame;
