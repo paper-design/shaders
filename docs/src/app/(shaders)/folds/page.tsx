@@ -8,7 +8,7 @@ import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
 import { FoldsShapes, FoldsShape } from '@paper-design/shaders';
 import { ShaderFit } from '@paper-design/shaders';
 import { levaDeleteImageButton, levaImageButton } from '@/helpers/leva-image-button';
-import { useState, Suspense } from 'react';
+import {useState, Suspense, useEffect, useCallback} from 'react';
 import { ShaderDetails } from '@/components/shader-details';
 import { ShaderContainer } from '@/components/shader-container';
 import { useUrlParams } from '@/helpers/use-url-params';
@@ -20,8 +20,49 @@ import { toHsla } from '@/helpers/color-utils';
 
 const { worldWidth, worldHeight, ...defaults } = foldsPresets[0].params;
 
+const imageFiles = [
+  'audi.svg',
+  'biron.png',
+  'chanel.svg',
+  'cibc.svg',
+  'cloudflare.svg',
+  'diamond.svg',
+  'discord.svg',
+  'enterprise-rent.svg',
+  'kfc.svg',
+  'l-oreal.svg',
+  'microsoft.svg',
+  'nasa.svg',
+  'netflix.svg',
+  'nike.svg',
+  'paper.svg',
+  'perkins.svg',
+  'pizza-hut.svg',
+  'remix.svg',
+  'rogers.svg',
+  'vacasa.svg',
+  'vercel.svg',
+  'volkswagen.svg',
+  'apple.svg',
+] as const;
+
+
 const FoldsWithControls = () => {
+  const [imageIdx, setImageIdx] = useState(-1);
   const [image, setImage] = useState<HTMLImageElement | string>('/images/logos/apple.svg');
+
+  useEffect(() => {
+    if (imageIdx >= 0) {
+      const name = imageFiles[imageIdx];
+      const img = new Image();
+      img.src = `/images/logos/${ name }`;
+      img.onload = () => setImage(img);
+    }
+  }, [imageIdx]);
+
+  const handleClick = useCallback(() => {
+    setImageIdx(() => Math.floor(Math.random() * imageFiles.length));
+  }, []);
 
   const [params, setParams] = useControls(() => {
     const presets = Object.fromEntries(
@@ -71,7 +112,7 @@ const FoldsWithControls = () => {
     <>
       <ShaderContainer shaderDef={foldsDef} currentParams={params}>
         <Suspense fallback={null}>
-          <Folds {...params} image={image} suspendWhenProcessingImage />
+          <Folds onClick={ handleClick } {...params} image={image} suspendWhenProcessingImage />
         </Suspense>
       </ShaderContainer>
       <ShaderDetails shaderDef={foldsDef} currentParams={params} codeSampleImageName="images/logos/diamond.svg" />
