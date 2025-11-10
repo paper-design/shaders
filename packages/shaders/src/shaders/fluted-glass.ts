@@ -246,7 +246,7 @@ void main() {
   highlights = clamp(highlights, 0., 1.);
   highlights *= mask;
 
-  float shadows = pow(x, 2.);
+  float shadows = pow(x, 1.3);
   float distortion = 0.;
   float fadeX = 1.;
   float frameFade = 0.;
@@ -289,7 +289,7 @@ void main() {
   } else if (u_distortionShape == 4.) {
     x = xNonSmooth;
     distortion = sin((x + .25) * TWO_PI);
-    shadows = .5 + .5 * distortion;
+    shadows = .5 + .5 * asin(distortion) / (.5 * PI);
     distortion *= .5;
     distortion -= u_shift;
     frameFade = .5 + .5 * sin(x * TWO_PI);
@@ -300,7 +300,7 @@ void main() {
     distortion *= .33;
 
     frameFade = .3 * (smoothstep(.0, 1., x));
-    shadows = pow(x, 6.);
+    shadows = pow(x, 2.5);
 
     aa = max(.1, aa);
     aa += mix(.1, 0., u_size);
