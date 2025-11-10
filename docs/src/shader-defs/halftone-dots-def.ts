@@ -44,14 +44,14 @@ export const halftoneDotsDef: ShaderDef = {
     {
       name: 'inverted',
       type: 'boolean',
-      defaultValue: defaultParams.originalColors,
+      defaultValue: defaultParams.inverted,
       description: 'Inverts the dot shape. Doesn’t affect the color scheme; not effective at zero contrast',
       options: ['true', 'false'],
     },
     {
       name: 'straight',
       type: 'boolean',
-      defaultValue: defaultParams.originalColors,
+      defaultValue: defaultParams.straight,
       description: 'Use a straight grid (disable for diagonal)',
       options: ['true', 'false'],
     },
@@ -61,7 +61,7 @@ export const halftoneDotsDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.size,
-      description: 'TBD',
+      description: 'Grid size relative to the image box',
     },
     {
       name: 'radius',
