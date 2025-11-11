@@ -276,6 +276,9 @@ void main() {
   
   float line = d.y;
   line = 1. - sst(w, w + aa.y, line);
+  if (u_alphaMask == true) {
+    line *= alpha;
+  }
 
   float stripeId = floor(p.y);
   float hue = fract(stripeId * 0.161803);
