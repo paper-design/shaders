@@ -253,10 +253,6 @@ void main() {
 
   float wave = (.3 * cos(.3 * p.x + .2 * p.y + u_time) - .6 * sin(.6 * p.y + u_time));
   wave *= u_wave;
-//  float addon = (1. - edge) * wave;
-//  if (u_alphaMask == false) {
-//    addon = mix(addon, 0., pow(edge, 6.));
-//  }
 
   p.y += edgeAtten * n * 10. * u_noise;
   p.y -= edgeAtten * wave;
@@ -265,13 +261,12 @@ void main() {
   vec2 aa = 2. * fwidth(p);
   float w = 0.;
   float wMax = .5 - aa.y;
-//  w = mix(0., 3. * pow(u_stripeWidth, 2.), mix(edge, alpha, sst(.8, 1., u_stripeWidth)));
   w = mix(0., 3. * pow(u_stripeWidth, 2.), edge);
   
   w = min(w, wMax);
-//  if (u_alphaMask == true) {
-//    w = mix(.0, wMax, alpha);
-//  }
+  if (u_alphaMask == true) {
+    w = mix(.0, wMax, alpha);
+  }
 
 //  float lineDist = d.y;
 //  float sdf = w - lineDist;

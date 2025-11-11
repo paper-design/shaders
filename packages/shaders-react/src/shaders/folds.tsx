@@ -29,7 +29,7 @@ export const defaultPreset: FoldsPreset = {
   params: {
     ...defaultObjectSizing,
     scale: 0.8,
-    speed: 0.02,
+    speed: 0.1,
     frame: 0,
     colorBack: '#000000',
     colors: ['#ff9d00', '#fd4f30', '#809bff', '#6d2eff', '#333aff', '#f15cff', '#ffd557'],
@@ -38,7 +38,7 @@ export const defaultPreset: FoldsPreset = {
     size: 40,
     wave: 1,
     noise: 1,
-    outerNoise: 0,
+    outerNoise: 0.9,
     softness: 0.1,
     angle: 0,
     shape: 'diamond',
