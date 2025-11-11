@@ -3,6 +3,17 @@
 ## Version 0.0.62
 
 - **General**
+  - Removed an unnecessary SSR warning (“Can’t create a texture on the server”)
+- **Fluted Glass**
+  - Added a new `edges` parameter to control the distortion and blur around the image edges
+  - Improved the contour and blending of shadows to make them more versatile with different colors
+  - Improved color mixing with semi-transparent backgrounds
+  - Refined the appearance of the glass edges when using `margin`
+  - Changed `colorHighlight` transparency to multiply together with the `highlights` value
+
+## Version 0.0.62
+
+- **General**
   - Accept numeric strings for the `width` and `height` props, e.g. `width="600" height="400"`
 - **Fluted Glass**
   - New parameters: `colorBack`, `colorShadow`, `colorHighlights`, `shadows`, `highlights`, `grainMixer`, `grainOverlay`
