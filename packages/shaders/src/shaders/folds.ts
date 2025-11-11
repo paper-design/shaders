@@ -116,7 +116,7 @@ void main() {
   alpha *= frame;
 
   uv = v_objectUV;
-  vec2 p = uv - vec2(.5);
+  vec2 p = uv;
   float angle = -u_angle * PI / 180.;
   p = rotate(p, angle);
   p *= u_size;
