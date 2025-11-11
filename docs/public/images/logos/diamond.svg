@@ -1,3 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000" width="1000" height="1000">
-    <polygon points="500,126 874,500 500,874 126,500" fill="#000"/>
+<?xml version="1.0" encoding="utf-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="126 126 748 748" width="748px" height="748px">
+    <polygon points="500,126 874,500 500,874 126,500" fill="#000"
+             transform="matrix(1, 0, 0, 1, 0, 2.842170943040401e-14)"/>
 </svg>

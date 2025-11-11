@@ -8,7 +8,7 @@ import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
 import { FoldsShapes, FoldsShape } from '@paper-design/shaders';
 import { ShaderFit } from '@paper-design/shaders';
 import { levaDeleteImageButton, levaImageButton } from '@/helpers/leva-image-button';
-import {useState, Suspense, useEffect, useCallback} from 'react';
+import { useState, Suspense, useEffect, useCallback } from 'react';
 import { ShaderDetails } from '@/components/shader-details';
 import { ShaderContainer } from '@/components/shader-container';
 import { useUrlParams } from '@/helpers/use-url-params';
@@ -21,13 +21,12 @@ import { toHsla } from '@/helpers/color-utils';
 const { worldWidth, worldHeight, ...defaults } = foldsPresets[0].params;
 
 const imageFiles = [
-  'audi.svg',
-  'biron.png',
   'chanel.svg',
   'cibc.svg',
   'cloudflare.svg',
   'diamond.svg',
   'discord.svg',
+  'paper-logo-only',
   'enterprise-rent.svg',
   'kfc.svg',
   'l-oreal.svg',
@@ -40,12 +39,10 @@ const imageFiles = [
   'pizza-hut.svg',
   'remix.svg',
   'rogers.svg',
-  'vacasa.svg',
   'vercel.svg',
   'volkswagen.svg',
   'apple.svg',
 ] as const;
-
 
 const FoldsWithControls = () => {
   const [imageIdx, setImageIdx] = useState(-1);
@@ -55,13 +52,14 @@ const FoldsWithControls = () => {
     if (imageIdx >= 0) {
       const name = imageFiles[imageIdx];
       const img = new Image();
-      img.src = `/images/logos/${ name }`;
+      img.src = `/images/logos/${name}`;
       img.onload = () => setImage(img);
     }
   }, [imageIdx]);
 
   const handleClick = useCallback(() => {
-    setImageIdx(() => Math.floor(Math.random() * imageFiles.length));
+    setImageIdx((prev) => (prev + 1) % imageFiles.length);
+    // setImageIdx(() => Math.floor(Math.random() * imageFiles.length));
   }, []);
 
   const [params, setParams] = useControls(() => {
@@ -80,7 +78,7 @@ const FoldsWithControls = () => {
       //   order: 102,
       //   disabled: Boolean(image),
       // },
-      // repetition: { value: defaults.repetition, min: 1, max: 10, order: 200 },
+      stripeWidth: { value: defaults.stripeWidth, min: 0, max: 1, order: 200 },
       // softness: { value: defaults.softness, min: 0, max: 1, order: 201 },
       alphaMask: { value: defaults.alphaMask, order: 202 },
       size: { value: defaults.size, min: 1, max: 50, order: 203 },
@@ -89,7 +87,7 @@ const FoldsWithControls = () => {
       outerNoise: { value: defaults.outerNoise, min: 0, max: 1, order: 205 },
       angle: { value: defaults.angle, min: 0, max: 360, order: 206 },
       speed: { value: defaults.speed, min: 0, max: 4, order: 300 },
-      scale: { value: defaults.scale, min: 0.2, max: 4, order: 301 },
+      scale: { value: defaults.scale, min: 0.2, max: 10, order: 301 },
       rotation: { value: defaults.rotation, min: 0, max: 360, order: 302 },
       offsetX: { value: defaults.offsetX, min: -1, max: 1, order: 303 },
       offsetY: { value: defaults.offsetY, min: -1, max: 1, order: 304 },
@@ -113,7 +111,7 @@ const FoldsWithControls = () => {
     <>
       <ShaderContainer shaderDef={foldsDef} currentParams={params}>
         <Suspense fallback={null}>
-          <Folds onClick={ handleClick } {...params} image={image} suspendWhenProcessingImage />
+          <Folds onClick={handleClick} {...params} image={image} suspendWhenProcessingImage />
         </Suspense>
       </ShaderContainer>
       <ShaderDetails shaderDef={foldsDef} currentParams={params} codeSampleImageName="images/logos/diamond.svg" />
