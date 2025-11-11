@@ -292,7 +292,7 @@ void main() {
 // Configuration for Poisson solver
 export const POISSON_CONFIG_OPTIMIZED = {
   measurePerformance: false, // Set to true to see performance metrics
-  workingSize: 1024, // Size to solve Poisson at (will upscale to original size)
+  workingSize: 512, // Size to solve Poisson at (will upscale to original size)
   iterations: 32, // SOR converges ~2-20x faster than standard Gauss-Seidel
 };
 
