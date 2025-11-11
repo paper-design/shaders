@@ -115,6 +115,14 @@ export const flutedGlassDef: ShaderDef = {
       description: 'One-directional blur over the image and extra blur around the edges',
     },
     {
+      name: 'edges',
+      type: 'number',
+      min: 0,
+      max: 1,
+      defaultValue: defaultParams.edges,
+      description: 'Glass distortion and softness on the image edges',
+    },
+    {
       name: 'margin',
       type: 'number',
       min: 0,

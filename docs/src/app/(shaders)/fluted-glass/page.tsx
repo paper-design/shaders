@@ -89,6 +89,7 @@ const FlutedGlassWithControls = () => {
       shift: { value: defaults.shift, min: -1, max: 1, order: 215 },
       stretch: { value: defaults.stretch, min: 0, max: 1, order: 216 },
       blur: { value: defaults.blur, min: 0, max: 1, order: 220 },
+      edges: { value: defaults.edges, min: 0, max: 1, order: 221 },
       margin: { value: defaults.margin, min: 0, max: 0.5, order: 500 },
       // marginLeft: { value: defaults.marginLeft, min: 0, max: 1, order: 501 },
       // marginRight: { value: defaults.marginRight, min: 0, max: 1, order: 502 },
