@@ -219,6 +219,14 @@ export {
   type FoldsUniforms,
 } from './shaders/folds.js';
 
+export {
+  halftoneLinesFragmentShader,
+  HalftoneLinesTypes,
+  type HalftoneLinesType,
+  type HalftoneLinesParams,
+  type HalftoneLinesUniforms,
+} from './shaders/halftone-lines.js';
+
 // ----- Utils ----- //
 export { getShaderColorFromString } from './get-shader-color-from-string.js';
 export { getShaderNoiseTexture } from './get-shader-noise-texture.js';
