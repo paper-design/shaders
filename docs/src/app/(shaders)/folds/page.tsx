@@ -5,15 +5,16 @@ import { useControls, button, folder } from 'leva';
 import { setParamsSafe, useResetLevaParams } from '@/helpers/use-reset-leva-params';
 import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
-import { FoldsShapes, FoldsShape } from '@paper-design/shaders';
+import { FoldsShapes, FoldsShape, colorPanelsMeta, foldsMeta } from '@paper-design/shaders';
 import { ShaderFit } from '@paper-design/shaders';
-import { levaDeleteImageButton, levaImageButton } from '@/helpers/leva-image-button';
+import { levaImageButton } from '@/helpers/leva-image-button';
 import { useState, Suspense, useEffect, useCallback } from 'react';
 import { ShaderDetails } from '@/components/shader-details';
 import { ShaderContainer } from '@/components/shader-container';
 import { useUrlParams } from '@/helpers/use-url-params';
 import { foldsDef } from '@/shader-defs/folds-def';
 import { toHsla } from '@/helpers/color-utils';
+import { useColors } from "@/helpers/use-colors";
 
 // Override just for the docs, we keep it transparent in the preset
 // foldsPresets[0].params.colorBack = '#000000';
@@ -62,16 +63,14 @@ const FoldsWithControls = () => {
     // setImageIdx(() => Math.floor(Math.random() * imageFiles.length));
   }, []);
 
+  const { colors, setColors } = useColors({
+    defaultColors: defaults.colors,
+    maxColorCount: foldsMeta.maxColorCount,
+  });
+
   const [params, setParams] = useControls(() => {
-    const presets = Object.fromEntries(
-      foldsPresets.map(({ name, params: { worldWidth, worldHeight, ...preset } }) => [
-        name,
-        button(() => setParamsSafe(params, setParams, preset)),
-      ])
-    );
     return {
       colorBack: { value: toHsla(defaults.colorBack), order: 100 },
-      colorFront: { value: toHsla(defaults.colorFront), order: 101 },
       // shape: {
       //   value: defaults.shape,
       //   options: Object.keys(FoldsShapes) as FoldsShape[],
@@ -92,18 +91,35 @@ const FoldsWithControls = () => {
       offsetX: { value: defaults.offsetX, min: -1, max: 1, order: 303 },
       offsetY: { value: defaults.offsetY, min: -1, max: 1, order: 304 },
       fit: { value: defaults.fit, options: ['contain', 'cover'] as ShaderFit[], order: 305 },
-      Image: folder({
-        'Upload image': levaImageButton((img?: HTMLImageElement) => setImage(img ?? '')),
-        ...(image && { 'Delete image': levaDeleteImageButton(() => setImage('')) }),
-      }),
-      Presets: folder(presets, { order: -1 }),
+      Image: folder(
+        {
+          'Upload image': levaImageButton((img?: HTMLImageElement) => setImage(img ?? '')),
+        },
+        { order: -1 }
+      ),
     };
-  }, [image]);
+  }, [colors.length]);
+
+  useControls(() => {
+    const presets = Object.fromEntries(
+      foldsPresets.map(({ name, params: { worldWidth, worldHeight, ...preset } }) => [
+        name,
+        button(() => {
+          const { colors, ...presetParams } = preset;
+          setColors(colors);
+          setParamsSafe(params, setParams, presetParams);
+        }),
+      ])
+    );
+    return {
+      Presets: folder(presets, { order: -2 }),
+    };
+  });
 
   // Reset to defaults on mount, so that Leva doesn't show values from other
   // shaders when navigating (if two shaders have a color1 param for example)
   useResetLevaParams(params, setParams, defaults);
-  useUrlParams(params, setParams, foldsDef);
+  useUrlParams(params, setParams, foldsDef, setColors);
   usePresetHighlight(foldsPresets, params);
   cleanUpLevaParams(params);
 
@@ -111,10 +127,10 @@ const FoldsWithControls = () => {
     <>
       <ShaderContainer shaderDef={foldsDef} currentParams={params}>
         <Suspense fallback={null}>
-          <Folds onClick={handleClick} {...params} image={image} suspendWhenProcessingImage />
+          <Folds onClick={handleClick} {...params} colors={ colors } image={image} suspendWhenProcessingImage />
         </Suspense>
       </ShaderContainer>
-      <ShaderDetails shaderDef={foldsDef} currentParams={params} codeSampleImageName="images/logos/diamond.svg" />
+      <ShaderDetails shaderDef={foldsDef} currentParams={ {colors, ...params} } codeSampleImageName="images/logos/diamond.svg" />
     </>
   );
 };

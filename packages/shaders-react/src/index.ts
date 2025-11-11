@@ -134,4 +134,5 @@ export {
   heatmapMeta,
   staticMeshGradientMeta,
   staticRadialGradientMeta,
+  foldsMeta,
 } from '@paper-design/shaders';

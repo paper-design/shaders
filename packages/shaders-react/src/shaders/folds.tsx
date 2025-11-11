@@ -1,5 +1,6 @@
 import { memo, useLayoutEffect, useState } from 'react';
 import { ShaderMount, type ShaderComponentProps } from '../shader-mount.js';
+import { colorPropsAreEqual } from '../color-props-are-equal.js';
 import {
   foldsFragmentShader,
   ShaderFitOptions,
@@ -27,17 +28,17 @@ export const defaultPreset: FoldsPreset = {
   name: 'Default',
   params: {
     ...defaultObjectSizing,
-    scale: 1,
-    speed: 1,
+    scale: 0.8,
+    speed: 0.02,
     frame: 0,
-    colorBack: '#ffffff',
-    colorFront: '#000000',
-    repetition: 2.0,
+    colorBack: '#000000',
+    colors: ['#ff9d00', '#fd4f30', '#809bff', '#6d2eff', '#333aff', '#f15cff', '#ffd557'],
+    stripeWidth: 0.48,
     alphaMask: false,
-    size: 20,
-    wave: 0,
+    size: 40,
+    wave: 1,
     noise: 1,
-    outerNoise: 1,
+    outerNoise: 0,
     softness: 0.1,
     angle: 0,
     shape: 'diamond',
@@ -48,7 +49,7 @@ export const foldsPresets: FoldsPreset[] = [defaultPreset];
 export const Folds: React.FC<FoldsProps> = memo(function FoldsImpl({
   // Own props
   colorBack = defaultPreset.params.colorBack,
-  colorFront = defaultPreset.params.colorFront,
+  colors = defaultPreset.params.colors,
   speed = defaultPreset.params.speed,
   frame = defaultPreset.params.frame,
   image = '',
@@ -56,7 +57,7 @@ export const Folds: React.FC<FoldsProps> = memo(function FoldsImpl({
   noise = defaultPreset.params.noise,
   outerNoise = defaultPreset.params.outerNoise,
   softness = defaultPreset.params.softness,
-  repetition = defaultPreset.params.repetition,
+  stripeWidth = defaultPreset.params.stripeWidth,
   alphaMask = defaultPreset.params.alphaMask,
   size = defaultPreset.params.size,
   angle = defaultPreset.params.angle,
@@ -117,15 +118,15 @@ export const Folds: React.FC<FoldsProps> = memo(function FoldsImpl({
 
   const uniforms = {
     // Own uniforms
+    u_colors: colors.map(getShaderColorFromString),
+    u_colorsCount: colors.length,
     u_colorBack: getShaderColorFromString(colorBack),
-    u_colorFront: getShaderColorFromString(colorFront),
-
     u_image: processedImage,
     u_wave: wave,
     u_noise: noise,
     u_outerNoise: outerNoise,
     u_softness: softness,
-    u_repetition: repetition,
+    u_stripeWidth: stripeWidth,
     u_alphaMask: alphaMask,
     u_size: size,
     u_angle: angle,
@@ -150,7 +151,8 @@ export const Folds: React.FC<FoldsProps> = memo(function FoldsImpl({
       speed={speed}
       frame={frame}
       fragmentShader={foldsFragmentShader}
+      mipmaps={['u_image']}
       uniforms={uniforms}
     />
   );
-});
+}, colorPropsAreEqual);

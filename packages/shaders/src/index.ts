@@ -211,6 +211,7 @@ export {
 } from './shaders/liquid-metal.js';
 
 export {
+  foldsMeta,
   foldsFragmentShader,
   FoldsShapes,
   toProcessedFolds,
