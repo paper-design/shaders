@@ -34,6 +34,7 @@ uniform sampler2D u_image;
 uniform float u_imageAspectRatio;
 
 uniform float u_contrast;
+uniform float u_opacity;
 uniform float u_roughness;
 uniform float u_fiber;
 uniform float u_fiberSize;
@@ -44,6 +45,8 @@ uniform float u_foldCount;
 uniform float u_drops;
 uniform float u_seed;
 uniform float u_fade;
+uniform float u_blending;
+uniform float u_distortion;
 
 uniform sampler2D u_noiseTexture;
 
@@ -177,13 +180,20 @@ float lst(float edge0, float edge1, float x) {
   return clamp((x - edge0) / (edge1 - edge0), 0.0, 1.0);
 }
 
+vec3 blendMultiply(vec3 base, vec3 blend) { 
+  return base*blend;
+}
+vec3 blendMultiply(vec3 base, vec3 blend, float opacity) { 
+  return (blendMultiply(base, blend) * opacity + base * (1.0 - opacity));
+}
+
 void main() {
 
   vec2 imageUV = v_imageUV;
   vec2 patternUV = v_imageUV - .5;
   patternUV = 5. * (patternUV * vec2(u_imageAspectRatio, 1.));
 
-  vec2 roughnessUv = 1.5 * (gl_FragCoord.xy - .5 * u_resolution) / u_pixelRatio;
+  vec2 roughnessUv = 120. * patternUV;
   float roughness = roughness(roughnessUv + vec2(1., 0.)) - roughness(roughnessUv - vec2(1., 0.));
 
   vec2 crumplesUV = fract(patternUV * .02 / u_crumpleSize - u_seed) * 32.;
@@ -226,7 +236,7 @@ void main() {
   normal.xy += u_roughness * 1.5 * roughness;
   normal.xy += fiber;
 
-  normalImage += u_roughness * .75 * roughness;
+  normalImage += u_roughness * .3 * roughness;
   normalImage += .2 * fiber;
 
   vec3 lightPos = vec3(1., 2., 1.);
@@ -237,10 +247,10 @@ void main() {
   vec3 bgColor = u_colorBack.rgb * u_colorBack.a;
   float bgOpacity = u_colorBack.a;
 
-  imageUV += .02 * normalImage;
+  imageUV += .1 * u_distortion * normalImage;
   float frame = getUvFrame(imageUV);
   vec4 image = texture(u_image, imageUV);
-  image.rgb += .6 * pow(u_contrast, .4) * (res - .7);
+  image.rgb += .6 * pow(u_contrast, .4) * (.3 - res);
 
   frame *= image.a;
 
@@ -253,7 +263,11 @@ void main() {
 
   color -= .007 * drops;
 
-  color.rgb = mix(color, image.rgb, frame);
+  float blending = 1. - u_blending;
+  float blendOpacity = (.5 + .5 * res);
+  vec3 pic = blendMultiply(color, image.rgb + .3 * blending * length(normalImage), .5 * res + .5 * u_blending);
+  pic = mix(pic, image.rgb, blending);
+  color = mix(color, pic, frame * u_opacity);
 
   fragColor = vec4(color, opacity);
 }
@@ -265,6 +279,7 @@ export interface PaperTextureUniforms extends ShaderSizingUniforms {
   u_colorFront: [number, number, number, number];
   u_colorBack: [number, number, number, number];
   u_contrast: number;
+  u_opacity: number;
   u_roughness: number;
   u_fiber: number;
   u_fiberSize: number;
@@ -275,6 +290,8 @@ export interface PaperTextureUniforms extends ShaderSizingUniforms {
   u_crumpleSize: number;
   u_drops: number;
   u_seed: number;
+  u_blending: number;
+  u_distortion: number;
 }
 
 export interface PaperTextureParams extends ShaderSizingParams, ShaderMotionParams {
@@ -282,6 +299,7 @@ export interface PaperTextureParams extends ShaderSizingParams, ShaderMotionPara
   colorFront?: string;
   colorBack?: string;
   contrast?: number;
+  opacity?: number;
   roughness?: number;
   fiber?: number;
   fiberSize?: number;
@@ -292,4 +310,6 @@ export interface PaperTextureParams extends ShaderSizingParams, ShaderMotionPara
   crumpleSize?: number;
   drops?: number;
   seed?: number;
+  blending?: number;
+  distortion?: number;
 }
