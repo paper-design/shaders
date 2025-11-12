@@ -125,129 +125,6 @@ float getImgFrame(vec2 uv, float th) {
   return frame;
 }
 
-float blurEdge5x5(sampler2D tex, vec2 uv, vec2 dudx, vec2 dudy, float radius, float centerSample)
-{
-  vec2 texel = 1.0 / vec2(textureSize(tex, 0));
-  vec2 r = max(radius, 0.0) * texel;
-
-  // 1D Gaussian coefficients (Pascal row)
-  const float a = 1.0;// |offset| = 2
-  const float b = 4.0;// |offset| = 1
-  const float c = 6.0;// |offset| = 0
-
-  float norm = 256.0;// (a+b+c+b+a)^2 = 16^2
-  float sum  = 0.0;
-
-  // y = -2
-  {
-    float wy = a;
-    float row =
-    a * texture(tex, uv + vec2(-2.0*r.x, -2.0*r.y)).r +
-    b * texture(tex, uv + vec2(-1.0*r.x, -2.0*r.y)).r +
-    c * texture(tex, uv + vec2(0.0, -2.0*r.y)).r +
-    b * texture(tex, uv + vec2(1.0*r.x, -2.0*r.y)).r +
-    a * texture(tex, uv + vec2(2.0*r.x, -2.0*r.y)).r;
-    sum += wy * row;
-  }
-
-  // y = -1
-  {
-    float wy = b;
-    float row =
-    a * texture(tex, uv + vec2(-2.0*r.x, -1.0*r.y)).r +
-    b * texture(tex, uv + vec2(-1.0*r.x, -1.0*r.y)).r +
-    c * texture(tex, uv + vec2(0.0, -1.0*r.y)).r +
-    b * texture(tex, uv + vec2(1.0*r.x, -1.0*r.y)).r +
-    a * texture(tex, uv + vec2(2.0*r.x, -1.0*r.y)).r;
-    sum += wy * row;
-  }
-
-  // y = 0 (use provided centerSample to avoid an extra fetch)
-  {
-    float wy = c;
-    float row =
-    a * texture(tex, uv + vec2(-2.0*r.x, 0.0)).r +
-    b * texture(tex, uv + vec2(-1.0*r.x, 0.0)).r +
-    c * centerSample +
-    b * texture(tex, uv + vec2(1.0*r.x, 0.0)).r +
-    a * texture(tex, uv + vec2(2.0*r.x, 0.0)).r;
-    sum += wy * row;
-  }
-
-  // y = +1
-  {
-    float wy = b;
-    float row =
-    a * texture(tex, uv + vec2(-2.0*r.x, 1.0*r.y)).r +
-    b * texture(tex, uv + vec2(-1.0*r.x, 1.0*r.y)).r +
-    c * texture(tex, uv + vec2(0.0, 1.0*r.y)).r +
-    b * texture(tex, uv + vec2(1.0*r.x, 1.0*r.y)).r +
-    a * texture(tex, uv + vec2(2.0*r.x, 1.0*r.y)).r;
-    sum += wy * row;
-  }
-
-  // y = +2
-  {
-    float wy = a;
-    float row =
-    a * texture(tex, uv + vec2(-2.0*r.x, 2.0*r.y)).r +
-    b * texture(tex, uv + vec2(-1.0*r.x, 2.0*r.y)).r +
-    c * texture(tex, uv + vec2(0.0, 2.0*r.y)).r +
-    b * texture(tex, uv + vec2(1.0*r.x, 2.0*r.y)).r +
-    a * texture(tex, uv + vec2(2.0*r.x, 2.0*r.y)).r;
-    sum += wy * row;
-  }
-
-  return sum / norm;
-}
-
-float blurEdge3x3(sampler2D tex, vec2 uv, vec2 dudx, vec2 dudy, float radius, float centerSample) {
-  vec2 texel = 1.0 / vec2(textureSize(tex, 0));
-  vec2 r = radius * texel;
-
-  float w1 = 1.0, w2 = 2.0, w4 = 4.0;
-  float norm = 16.0;
-  float sum = w4 * centerSample;
-
-  sum += w2 * textureGrad(tex, uv + vec2(0.0, -r.y), dudx, dudy).r;
-  sum += w2 * textureGrad(tex, uv + vec2(0.0, r.y), dudx, dudy).r;
-  sum += w2 * textureGrad(tex, uv + vec2(-r.x, 0.0), dudx, dudy).r;
-  sum += w2 * textureGrad(tex, uv + vec2(r.x, 0.0), dudx, dudy).r;
-
-  sum += w1 * textureGrad(tex, uv + vec2(-r.x, -r.y), dudx, dudy).r;
-  sum += w1 * textureGrad(tex, uv + vec2(r.x, -r.y), dudx, dudy).r;
-  sum += w1 * textureGrad(tex, uv + vec2(-r.x, r.y), dudx, dudy).r;
-  sum += w1 * textureGrad(tex, uv + vec2(r.x, r.y), dudx, dudy).r;
-
-  return sum / norm;
-}
-
-float blurEdge3x3_G(sampler2D tex, vec2 uv, vec2 dudx, vec2 dudy, float radius, float centerSample) {
-  vec2 texel = 1.0 / vec2(textureSize(tex, 0));
-  vec2 r = radius * texel;
-
-  float w1 = 1.0, w2 = 2.0, w4 = 4.0;
-  float norm = 16.0;
-  float sum = w4 * centerSample;
-
-  sum += w2 * textureGrad(tex, uv + vec2(0.0, -r.y), dudx, dudy).g;
-  sum += w2 * textureGrad(tex, uv + vec2(0.0, r.y), dudx, dudy).g;
-  sum += w2 * textureGrad(tex, uv + vec2(-r.x, 0.0), dudx, dudy).g;
-  sum += w2 * textureGrad(tex, uv + vec2(r.x, 0.0), dudx, dudy).g;
-
-  sum += w1 * textureGrad(tex, uv + vec2(-r.x, -r.y), dudx, dudy).g;
-  sum += w1 * textureGrad(tex, uv + vec2(r.x, -r.y), dudx, dudy).g;
-  sum += w1 * textureGrad(tex, uv + vec2(-r.x, r.y), dudx, dudy).g;
-  sum += w1 * textureGrad(tex, uv + vec2(r.x, r.y), dudx, dudy).g;
-
-  return sum / norm;
-}
-
-vec3 hsv2rgb(vec3 c){
-  vec3 p = abs(fract(c.x + vec3(0., 2./3., 1./3.))*6.-3.);
-  return c.z * mix(vec3(1.), clamp(p-1., 0., 1.), c.y);
-}
-
 float sst(float edge0, float edge1, float x) {
   return smoothstep(edge0, edge1, x);
 }
@@ -285,6 +162,44 @@ vec3 blendHardLight(vec3 base, vec3 blend, float opacity) {
   return (blendHardLight(base, blend) * opacity + base * (1.0 - opacity));
 }
 
+const int SAMPLES = 4;
+
+float sampleLumOnLine(vec2 uvNorm, float contrast, vec2 p_current) {
+  float halfSpanPx = mix(0., 40., u_softness);
+  vec2 gradPy = vec2(dFdx(p_current.y), dFdy(p_current.y));
+  vec2 t = normalize(vec2(-gradPy.y, gradPy.x) + 1e-8);
+
+  vec2 stepNorm = (t / u_resolution) * halfSpanPx / float((SAMPLES - 1) / 2);
+
+  float sum = 0.0;
+  float wsum = 0.0;
+  int N = (SAMPLES - 1) / 2;
+  for (int i = -N; i <= N; ++i) {
+    float w = 1.0 - (abs(float(i)) / float(N + 1));
+    vec2 uvTapNorm = uvNorm + stepNorm * float(i);
+    vec2 uvTapImg  = getImageUV(uvTapNorm, vec2(1.0));
+    sum  += w * getLumAtPx(uvTapImg, contrast);
+    wsum += w;
+  }
+  return sum / max(wsum, 1e-6);
+}
+
+
+vec2 projectToCenterlineUV(vec2 uvNorm, vec2 p_val) {
+  vec2 gradPy = vec2(dFdx(p_val.y), dFdy(p_val.y));
+  float gradLen = max(length(gradPy), 1e-6);
+  float dy_p = (floor(p_val.y) + 0.5) - p_val.y;
+  vec2 deltaPx = (gradPy / gradLen) * (dy_p / gradLen);
+  return uvNorm + deltaPx / u_resolution;
+}
+
+float pixelDistToCenterline(vec2 p_val) {
+  vec2 gradPy = vec2(dFdx(p_val.y), dFdy(p_val.y));
+  float gradLen = max(length(gradPy), 1e-6);
+  float dy_p = (fract(p_val.y) - 0.5);// signed p-space distance to center
+  return dy_p / gradLen;// pixels
+}
+
 
 void main() {
 
@@ -298,19 +213,12 @@ void main() {
     contrast = mix(.1, 4., pow(u_contrast, 2.));
   }
 
-  float lum = getLumAtPx(uvOriginal, contrast);
+//  float lum = getLumAtPx(uvOriginal, contrast);
 
-
-  float t = .3 * (u_time);
-
-  float edge = lum;
-
-  vec3 color = vec3(0.);
-
-  float opacity = 1.;
-
+  float t = .3 * u_time;
+  
   float frame = getImgFrame(v_imageUV, 0.);
-  edge = mix(1., edge, frame);
+//  lum = mix(1., lum, frame);
 
   uv = v_objectUV;
   vec2 p = uv;
@@ -320,36 +228,38 @@ void main() {
 
   float n = doubleSNoise(uv, u_time);
 
-  float wave = (.3 * cos(.3 * p.x + .2 * p.y + u_time) - .6 * sin(.6 * p.y + u_time));
-  wave *= u_wave;
-  
   p.y += n * 10. * u_noise;
-  p.y -= wave;
+  
+  float dPx = pixelDistToCenterline(p);
+  float coverage = abs(dPx);
+  vec2 uvOnLineNorm = projectToCenterlineUV(uvNormalised, p);
+  vec2 uvOnLineImg = getImageUV(uvOnLineNorm, vec2(1.));
+//  float lum = getLumAtPx(uvOnLineImg, contrast);
+  float lum = sampleLumOnLine(uvOnLineNorm, coverage * contrast, p);
+
+  lum = mix(1., lum, frame);
 
   vec2 d = abs(fract(p) - .5);
   vec2 aa = 2. * fwidth(p);
-  float w = 0.;
-  float wMax = .5 - aa.y;
-  w = edge;
-  
-  w = min(w, wMax);
-//  float lineDist = d.y;
-//  float sdf = w - lineDist;
-//  float afwidth  = fwidth(sdf);
-//  afwidth = max(afwidth, 1e-4);
-//  float line = smoothstep(0., afwidth, sdf);
+  float wMax = (.5 - aa.y);
+  float w = mix(wMax * u_stripeWidth, 0., lum);
+
+//  w *= 6.;
+//  w = floor(w);
+//  w /= 6.;
   
   float line = d.y;
-  line = 1. - sst(w, w + aa.y, line);
+  line = sst(w, w + aa.y, line);
+  line = mix(1., line, frame);
+
+  vec3 color = vec3(0.);
+  float opacity = 1.;
 
   float stripeId = floor(p.y);
-  float hue = fract(stripeId * 0.161803);
-  vec3 stripeColor = hsv2rgb(vec3(hue, .5, .7));
 
-//  color = mix(u_colorBack.rgb, stripeColor, line);
   color = mix(u_colorBack.rgb, u_colorFront.rgb, line);
+  
   fragColor = vec4(color, 1.);
-//  fragColor = vec4(vec3(lum), 1.);
 }
 `;
 

@@ -71,9 +71,9 @@ const HalftoneLinesWithControls = () => {
     );
     return {
       stripeWidth: { value: defaults.stripeWidth, min: 0, max: 1, order: 200 },
-      // softness: { value: defaults.softness, min: 0, max: 1, order: 201 },
+      softness: { value: defaults.softness, min: 0, max: 1, order: 201 },
       alphaMask: { value: defaults.alphaMask, order: 202 },
-      wave: { value: defaults.wave, min: 0, max: 1, order: 204 },
+      // wave: { value: defaults.wave, min: 0, max: 1, order: 204 },
       noise: { value: defaults.noise, min: 0, max: 1, order: 205 },
       angle: { value: defaults.angle, min: 0, max: 360, order: 206 },
 
@@ -90,12 +90,13 @@ const HalftoneLinesWithControls = () => {
       contrast: { value: defaults.contrast, min: 0.01, max: 1, order: 302 },
       grainMixer: { value: defaults.grainMixer, min: 0, max: 1, order: 350 },
       grainOverlay: { value: defaults.grainOverlay, min: 0, max: 1, order: 351 },
+      speed: {value: defaults.speed, min: 0, max: 4, order: 300},
       scale: { value: defaults.scale, min: 0.1, max: 10, order: 400 },
-      // offsetX: { value: defaults.offsetX, min: -1, max: 1, order: 401 },
-      // offsetY: { value: defaults.offsetY, min: -1, max: 1, order: 402 },
-      // originX: { value: defaults.originX, min: 0, max: 1, order: 411 },
-      // originY: { value: defaults.originY, min: 0, max: 1, order: 412 },
-      // rotation: { value: defaults.rotation, min: 0, max: 360, order: 420 },
+      offsetX: { value: defaults.offsetX, min: -1, max: 1, order: 401 },
+      offsetY: { value: defaults.offsetY, min: -1, max: 1, order: 402 },
+      originX: { value: defaults.originX, min: 0, max: 1, order: 411 },
+      originY: { value: defaults.originY, min: 0, max: 1, order: 412 },
+      rotation: { value: defaults.rotation, min: 0, max: 360, order: 420 },
       fit: { value: defaults.fit, options: ['contain', 'cover'] as ShaderFit[], order: 450 },
       Image: folder(
         {
