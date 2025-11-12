@@ -183,28 +183,12 @@ float blurEdge3x3_G(sampler2D tex, vec2 uv, vec2 dudx, vec2 dudy, float radius, 
   return sum / norm;
 }
 
-vec3 hsv2rgb(vec3 c){
-  vec3 p = abs(fract(c.x + vec3(0., 2./3., 1./3.))*6.-3.);
-  return c.z * mix(vec3(1.), clamp(p-1., 0., 1.), c.y);
-}
-
 float sst(float edge0, float edge1, float x) {
   return smoothstep(edge0, edge1, x);
 }
 
 float posMod(float x, float m) {
   return x - m * floor(x / m);
-}
-vec3 pickPaletteColor(float stripeId) {
-  int target = int(posMod(stripeId, u_colorsCount));
-  vec3 result = u_colors[0].rgb;
-
-  for (int i = 0; i < ${foldsMeta.maxColorCount}; i++) {
-    if (i >= int(u_colorsCount)) break;
-    float isHit = 1.0 - step(0.5, abs(float(i - target)));
-    result = mix(result, u_colors[i].rgb, isHit);
-  }
-  return result;
 }
 
 void main() {
@@ -226,19 +210,15 @@ void main() {
 
   float edgeRaw = img.r;
 //  edge = 1. - blurEdge3x3(u_image, uv, dudx, dudy, 2., edgeRaw);
-  edge = 1. - blurEdge5x5(u_image, uv, dudx, dudy, 4., edgeRaw);
-//  edge = 1. - edgeRaw;
-  edge = sst(0., 1., edge);
+  edge = 1. - blurEdge5x5(u_image, uv, dudx, dudy, 5., edgeRaw);
+  float edgeCopy = edge;
 
-  vec3 color = vec3(0.);
 
-  float opacity = 1.;
-
-  float alpha = img.g;
-//  alpha = blurEdge3x3_G(u_image, uv, dudx, dudy, 2., img.g);
+  float imgAlpha = img.g;
+//  imgAlpha = blurEdge3x3_G(u_image, uv, dudx, dudy, 2., img.g);
 
   float frame = getImgFrame(v_imageUV, 0.);
-  alpha *= frame;
+  imgAlpha *= frame;
   edge *= frame;
 
   uv = v_objectUV;
@@ -247,45 +227,45 @@ void main() {
   p = rotate(p, angle);
   p *= u_size;
 
-  float n = doubleSNoise(uv, u_time);
-  float edgeAtten = edge;
-  edgeAtten += u_outerNoise * (1. - edge);
-
-  float wave = (.3 * cos(.3 * p.x + .2 * p.y + u_time) - .6 * sin(.6 * p.y + u_time));
-  wave *= u_wave;
-
+  float n = doubleSNoise(uv + 100., u_time);
+  float edgeAtten = edge + u_outerNoise * (1. - edge);
   p.y += edgeAtten * n * 10. * u_noise;
-  p.y -= edgeAtten * wave;
+  
+  float stripeId = floor(p.y);
 
   vec2 d = abs(fract(p) - .5);
   vec2 aa = 2. * fwidth(p);
   float w = 0.;
   float wMax = .5 - aa.y;
   w = mix(0., 3. * pow(u_stripeWidth, 2.), edge);
-  
   w = min(w, wMax);
-  if (u_alphaMask == true) {
-    w = mix(.0, wMax, alpha);
-  }
-
-//  float lineDist = d.y;
-//  float sdf = w - lineDist;
-//  float afwidth  = fwidth(sdf);
-//  afwidth = max(afwidth, 1e-4);
-//  float line = smoothstep(0., afwidth, sdf);
   
   float line = d.y;
   line = 1. - sst(w, w + aa.y, line);
   if (u_alphaMask == true) {
-    line *= alpha;
+    line *= sst(0., 1., imgAlpha);
   }
 
-  float stripeId = floor(p.y);
-  float hue = fract(stripeId * 0.161803);
-  vec3 stripeColor = hsv2rgb(vec3(hue, .5, .7));
-
-  color = mix(u_colorBack.rgb, pickPaletteColor(stripeId), line);
-  fragColor = vec4(color, 1.);
+  int colorIdx = int(posMod(stripeId, u_colorsCount));
+  vec4 stripeColor = u_colors[0];
+  for (int i = 0; i < ${foldsMeta.maxColorCount}; i++) {
+    if (i >= int(u_colorsCount)) break;
+    float isHit = 1.0 - step(.5, abs(float(i - colorIdx)));
+    stripeColor = mix(stripeColor, u_colors[i], isHit);
+  }
+  
+  vec3 stripePremulRGB = stripeColor.rgb * stripeColor.a;
+  stripePremulRGB *= line;
+  float stripeA = stripeColor.a * line;
+  
+  vec3 color = stripePremulRGB;
+  float opacity = stripeA;
+  
+  vec3 bgColor = u_colorBack.rgb * u_colorBack.a;
+  color = color + bgColor * (1. - opacity);
+  opacity = opacity + u_colorBack.a * (1. - opacity);
+  
+  fragColor = vec4(color, opacity);
 }
 `;
 
@@ -498,7 +478,7 @@ export function toProcessedFolds(file: File | string): Promise<{ imageData: Imag
             tempImg.data[px + 3] = 0; // Alpha = 0 for background
           } else {
             const poissonRatio = u[idx]! / maxVal;
-            const gray = 255 * (1 - poissonRatio);
+            let gray = 255 * (1 - poissonRatio);
             tempImg.data[px] = gray;
             tempImg.data[px + 1] = gray;
             tempImg.data[px + 2] = gray;

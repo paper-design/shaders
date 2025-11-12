@@ -25,6 +25,8 @@ const imageFiles = [
   'chanel.svg',
   'cibc.svg',
   'cloudflare.svg',
+  'apple.svg',
+  'paper-logo-only.svg',
   'diamond.svg',
   'discord.svg',
   'paper-logo-only',
@@ -42,12 +44,11 @@ const imageFiles = [
   'rogers.svg',
   'vercel.svg',
   'volkswagen.svg',
-  'apple.svg',
 ] as const;
 
 const FoldsWithControls = () => {
   const [imageIdx, setImageIdx] = useState(-1);
-  const [image, setImage] = useState<HTMLImageElement | string>('/images/logos/apple.svg');
+  const [image, setImage] = useState<HTMLImageElement | string>('/images/logos/nike.svg');
 
   useEffect(() => {
     if (imageIdx >= 0) {
@@ -71,17 +72,11 @@ const FoldsWithControls = () => {
   const [params, setParams] = useControls(() => {
     return {
       colorBack: { value: toHsla(defaults.colorBack), order: 100 },
-      // shape: {
-      //   value: defaults.shape,
-      //   options: Object.keys(FoldsShapes) as FoldsShape[],
-      //   order: 102,
-      //   disabled: Boolean(image),
-      // },
       stripeWidth: { value: defaults.stripeWidth, min: 0, max: 1, order: 200 },
       // softness: { value: defaults.softness, min: 0, max: 1, order: 201 },
       alphaMask: { value: defaults.alphaMask, order: 202 },
       size: { value: defaults.size, min: 1, max: 50, order: 203 },
-      wave: { value: defaults.wave, min: 0, max: 1, order: 204 },
+      // wave: { value: defaults.wave, min: 0, max: 1, order: 204 },
       noise: { value: defaults.noise, min: 0, max: 1, order: 205 },
       outerNoise: { value: defaults.outerNoise, min: 0, max: 1, order: 205 },
       angle: { value: defaults.angle, min: 0, max: 360, order: 206 },
