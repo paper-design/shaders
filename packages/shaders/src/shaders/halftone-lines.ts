@@ -1,6 +1,6 @@
-import type { ShaderMotionParams } from '../shader-mount.js';
-import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
-import { declarePI, rotation2, simplexNoise, proceduralHash21 } from '../shader-utils.js';
+import type {ShaderMotionParams} from '../shader-mount.js';
+import {sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms} from '../shader-sizing.js';
+import {declarePI, rotation2, simplexNoise, proceduralHash21} from '../shader-utils.js';
 
 /**
  *
@@ -47,20 +47,20 @@ uniform float u_type;
 
 uniform float u_softness;
 uniform float u_stripeWidth;
-uniform float u_blur;
+uniform float u_smoothness;
 uniform float u_wave;
 uniform float u_noise;
 uniform float u_angle;
 
 
-${sizingVariablesDeclaration}
+${ sizingVariablesDeclaration }
 
 out vec4 fragColor;
 
-${declarePI}
-${rotation2}
-${simplexNoise}
-${proceduralHash21}
+${ declarePI }
+${ rotation2 }
+${ simplexNoise }
+${ proceduralHash21 }
 
 float valueNoise(vec2 st) {
   vec2 i = floor(st);
@@ -134,39 +134,39 @@ float sigmoid(float x, float k) {
 }
 
 vec4 blurTexture(sampler2D tex, vec2 uv, vec2 texelSize, float radius) {
-    // clamp radius so loops have a known max
-    float r = clamp(radius, 0.0, 10.0);
-    int ir = int(r);
+  // clamp radius so loops have a known max
+  float r = clamp(radius, 0.0, 10.0);
+  int ir = int(r);
 
-    vec4 acc = vec4(0.0);
-    float weightSum = 0.0;
+  vec4 acc = vec4(0.0);
+  float weightSum = 0.0;
 
-    // simple Gaussian-ish weights based on distance
-    for (int y = -10; y <= 10; ++y) {
-        if (abs(y) > ir) continue;
-        for (int x = -10; x <= 10; ++x) {
-            if (abs(x) > ir) continue;
+  // simple Gaussian-ish weights based on distance
+  for (int y = -10; y <= 10; ++y) {
+    if (abs(y) > ir) continue;
+    for (int x = -10; x <= 10; ++x) {
+      if (abs(x) > ir) continue;
 
-            vec2 offset = vec2(float(x), float(y));
-            float dist2 = dot(offset, offset);
+      vec2 offset = vec2(float(x), float(y));
+      float dist2 = dot(offset, offset);
 
-            // tweak sigma to taste; lower sigma = sharper falloff
-            float sigma = radius * 0.5 + 0.001;
-            float w = exp(-dist2 / (2.0 * sigma * sigma));
+      // tweak sigma to taste; lower sigma = sharper falloff
+      float sigma = radius * 0.5 + 0.001;
+      float w = exp(-dist2 / (2.0 * sigma * sigma));
 
-            acc += texture(tex, uv + offset * texelSize) * w;
-            weightSum += w;
-        }
+      acc += texture(tex, uv + offset * texelSize) * w;
+      weightSum += w;
     }
+  }
 
-    return acc / max(weightSum, 0.00001);
+  return acc / max(weightSum, 0.00001);
 }
 
 
 float getLumAtPx(vec2 uv, float contrast) {
-//  vec4 tex = texture(u_image, uv);
-  vec4 tex = blurTexture(u_image, uv, vec2(1. / u_resolution), u_blur);
-  
+  //  vec4 tex = texture(u_image, uv);
+  vec4 tex = blurTexture(u_image, uv, vec2(1. / u_resolution), u_smoothness);
+
   vec3 color = vec3(
   sigmoid(tex.r, contrast),
   sigmoid(tex.g, contrast),
@@ -194,46 +194,6 @@ vec3 blendHardLight(vec3 base, vec3 blend, float opacity) {
   return (blendHardLight(base, blend) * opacity + base * (1.0 - opacity));
 }
 
-const int SAMPLES = 4;
-
-float sampleLumOnLine(vec2 uvNorm, float contrast, vec2 p_current) {
-//  float halfSpanPx = mix(0., 40., u_softness);
-  float halfSpanPx = 5.;
-  vec2 gradPy = vec2(dFdx(p_current.y), dFdy(p_current.y));
-  vec2 t = normalize(vec2(-gradPy.y, gradPy.x) + 1e-8);
-
-  vec2 stepNorm = (t / u_resolution) * halfSpanPx / float((SAMPLES - 1) / 2);
-
-  float sum = 0.0;
-  float wsum = 0.0;
-  int N = (SAMPLES - 1) / 2;
-  for (int i = -N; i <= N; ++i) {
-    float w = 1.0 - (abs(float(i)) / float(N + 1));
-    vec2 uvTapNorm = uvNorm + stepNorm * float(i);
-    vec2 uvTapImg  = getImageUV(uvTapNorm, vec2(1.0));
-    sum  += w * getLumAtPx(uvTapImg, contrast);
-    wsum += w;
-  }
-  return sum / max(wsum, 1e-6);
-}
-
-
-vec2 projectToCenterlineUV(vec2 uvNorm, vec2 p_val) {
-  vec2 gradPy = vec2(dFdx(p_val.y), dFdy(p_val.y));
-  float gradLen = max(length(gradPy), 1e-6);
-  float dy_p = (floor(p_val.y) + 0.5) - p_val.y;
-  vec2 deltaPx = (gradPy / gradLen) * (dy_p / gradLen);
-  return uvNorm + deltaPx / u_resolution;
-}
-
-float pixelDistToCenterline(vec2 p_val) {
-  vec2 gradPy = vec2(dFdx(p_val.y), dFdy(p_val.y));
-  float gradLen = max(length(gradPy), 1e-6);
-  float dy_p = (fract(p_val.y) - 0.5);// signed p-space distance to center
-  return dy_p / gradLen;// pixels
-}
-
-
 void main() {
 
   vec2 uv = gl_FragCoord.xy - .5 * u_resolution;
@@ -246,60 +206,53 @@ void main() {
     contrast = mix(.1, 4., pow(u_contrast, 2.));
   }
 
-  float lumOrig = getLumAtPx(uvOriginal, contrast);
+  float lum = getLumAtPx(uvOriginal, contrast);
 
-  float t = .3 * u_time;
-  
   float frame = getImgFrame(v_imageUV, 0.);
-  lumOrig = mix(1., lumOrig, frame);
+  lum = mix(1., lum, frame);
 
   uv = v_objectUV;
   vec2 p = uv;
   float angle = -u_angle * PI / 180.;
-//  p = rotate(p, angle + u_stripeWidth * lumOrig);
-  p = rotate(p, u_wave * (1. - lumOrig));
+  p = rotate(p, angle + u_wave * (1. - lum));
   p *= u_size;
 
+  vec2 pBase = v_objectUV * u_size;
+  float aaBase = fwidth(pBase.y);
+
   float n = doubleSNoise(uv + 100., u_time);
-  p.y += .4 * n * lumOrig * u_noise * u_size;
-  
-  float dPx = pixelDistToCenterline(p);
-  float coverage = abs(dPx);
-  vec2 uvOnLineNorm = projectToCenterlineUV(uvNormalised, p);
-  vec2 uvOnLineImg = getImageUV(uvOnLineNorm, vec2(1.));
-  float lum = getLumAtPx(uvOnLineImg, contrast);
-//  float lum = sampleLumOnLine(uvOnLineNorm, coverage * contrast, p);
-  lum = lumOrig;
-  lum = mix(1., lum, frame);
+  p.y += .4 * n * lum * u_noise * u_size;
 
-  float line = 0.;
+  vec2 stripeMap = abs(fract(p) - .5);
+  vec2 d = abs(stripeMap);
+  vec2 stripeSign = sign(stripeMap);
 
-  {
-    vec2 stripeMap = abs(fract(p) - .5);
-    vec2 d = abs(stripeMap);
-    vec2 stripeSign = sign(stripeMap);
-    vec2 fw = fwidth(p);
-    float aa = fw.y;
-    float w = aa;
-//    float w = 0.;
-    w = mix(u_stripeWidth, 0., lum);
-//    w = clamp(w, 0., .5 - aa);
-    w = clamp(w, aa, .5);
-    line += sst(mix(w, aa, u_softness) - aa, w + aa, d.y);
-  }
+  float aa = fwidth(p).y;
+  float distortAmount = max(aa - aaBase, 0.0);
+  float highDistort = clamp(distortAmount * 5.0, 0.0, 1.0);
+
+  float w = mix(.5 * u_stripeWidth, 0., lum);
+  w = clamp(w, aa, .5 - aa);
+
+  float loSharp = mix(w, aa, u_softness);
+  float loBlurry = 0.;
+  float hiSharp = w + aa;
+  float hiBlurry = w + aa;
+
+  float lo = mix(loSharp, loBlurry, highDistort);
+  float hi = mix(hiSharp, hiBlurry, highDistort);
+
+  float line = sst(lo, hi, d.y);
 
   line = mix(1., line, frame);
   line = clamp(line, 0., 1.);
-
 
   vec2 grainSize = 1000. * vec2(1., 1. / u_imageAspectRatio);
   vec2 grainUV = getImageUV(uvNormalised, grainSize);
   float grain = valueNoise(grainUV);
   grain = smoothstep(.55, .7 + .2 * u_grainMixer, grain);
   grain *= u_grainMixer;
-//  grain *= sst(.1, .0, w);
-//  line = mix(line, 0., grain);
-//  line += grain;
+  //  line += grain;
 
   vec3 color = vec3(0.);
   float opacity = 1.;
@@ -307,55 +260,54 @@ void main() {
   float stripeId = floor(p.y);
 
   color = mix(u_colorBack.rgb, u_colorFront.rgb, line);
-  
   fragColor = vec4(color, 1.);
 }
 `;
 
 export interface HalftoneLinesUniforms extends ShaderSizingUniforms {
-  u_colorBack: [number, number, number, number];
-  u_colorFront: [number, number, number, number];
-  u_image: HTMLImageElement | string | undefined;
-  u_stripeWidth: number;
-  u_blur: number;
-  u_size: number;
-  u_wave: number;
-  u_noise: number;
-  u_softness: number;
-  u_angle: number;
-  u_type: (typeof HalftoneLinesTypes)[HalftoneLinesType];
-  u_contrast: number;
-  u_originalColors: boolean;
-  u_inverted: boolean;
-  u_grainMixer: number;
-  u_grainOverlay: number;
+    u_colorBack: [number, number, number, number];
+    u_colorFront: [number, number, number, number];
+    u_image: HTMLImageElement | string | undefined;
+    u_stripeWidth: number;
+    u_smoothness: number;
+    u_size: number;
+    u_wave: number;
+    u_noise: number;
+    u_softness: number;
+    u_angle: number;
+    u_type: (typeof HalftoneLinesTypes)[HalftoneLinesType];
+    u_contrast: number;
+    u_originalColors: boolean;
+    u_inverted: boolean;
+    u_grainMixer: number;
+    u_grainOverlay: number;
 }
 
 export interface HalftoneLinesParams extends ShaderSizingParams, ShaderMotionParams {
-  colorBack?: string;
-  colorFront?: string;
-  image?: HTMLImageElement | string | undefined;
-  stripeWidth?: number;
-  blur?: number;
-  size?: number;
-  softness?: number;
-  wave?: number;
-  noise?: number;
-  angle?: number;
-  type?: HalftoneLinesType;
+    colorBack?: string;
+    colorFront?: string;
+    image?: HTMLImageElement | string | undefined;
+    stripeWidth?: number;
+    smoothness?: number;
+    size?: number;
+    softness?: number;
+    wave?: number;
+    noise?: number;
+    angle?: number;
+    type?: HalftoneLinesType;
 
-  contrast?: number;
-  originalColors?: boolean;
-  inverted?: boolean;
-  grainMixer?: number;
-  grainOverlay?: number;
+    contrast?: number;
+    originalColors?: boolean;
+    inverted?: boolean;
+    grainMixer?: number;
+    grainOverlay?: number;
 }
 
 export const HalftoneLinesTypes = {
-  classic: 0,
-  gooey: 1,
-  holes: 2,
-  soft: 3,
+    classic: 0,
+    gooey: 1,
+    holes: 2,
+    soft: 3,
 } as const;
 
 export type HalftoneLinesType = keyof typeof HalftoneLinesTypes;
