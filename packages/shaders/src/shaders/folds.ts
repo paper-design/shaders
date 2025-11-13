@@ -33,8 +33,9 @@ uniform vec4 u_colorBack;
 uniform float u_softness;
 uniform float u_stripeWidth;
 uniform bool u_alphaMask;
+uniform bool u_gap;
 uniform float u_size;
-uniform float u_wave;
+uniform float u_shift;
 uniform float u_noise;
 uniform float u_outerNoise;
 uniform float u_angle;
@@ -65,8 +66,7 @@ float getImgFrame(vec2 uv, float th) {
   return frame;
 }
 
-float blurEdge5x5(sampler2D tex, vec2 uv, vec2 dudx, vec2 dudy, float radius, float centerSample)
-{
+float blurEdge5x5(sampler2D tex, vec2 uv, vec2 dudx, vec2 dudy, float radius, float centerSample) {
   vec2 texel = 1.0 / vec2(textureSize(tex, 0));
   vec2 r = max(radius, 0.0) * texel;
 
@@ -233,18 +233,52 @@ void main() {
   
   float stripeId = floor(p.y);
 
-  vec2 d = abs(fract(p) - .5);
-  vec2 aa = 2. * fwidth(p);
-  float w = 0.;
-  float wMax = .5 - aa.y;
-  w = mix(0., 3. * pow(u_stripeWidth, 2.), edge);
-  w = min(w, wMax);
-  
-  float line = d.y;
-  line = 1. - sst(w, w + aa.y, line);
-  if (u_alphaMask == true) {
-    line *= sst(0., 1., imgAlpha);
+  vec2 fw = fwidth(p);
+  float aa = fw.y;
+
+//  vec2 fw = fwidth(p);
+//  float aa = fw.y;
+
+  // stripeMap in [-0.5, 0.5)
+  vec2 stripeMap = fract(p) - 0.5;
+  vec2 dSign     = sign(stripeMap);
+
+  float w = 0.0;
+  w = mix(0.0, 3.0 * pow(u_stripeWidth, 2.0), edge);
+  w = clamp(w, aa, 1.0);
+  if (u_gap == true) {
+    w = clamp(w, aa, 0.5 - aa);
   }
+
+  // ---- NEW: move the center depending on w ----
+
+  // how far from "maximum" half-width (0.5)
+  float availableShift = max(0.0, 0.5 - w);// 0 when w = 0.5
+
+  // map u_shift [0,1] -> [-1,1]
+  float signedPos = u_shift * 2.0 - 1.0;
+
+  // final offset: small when w is big, large when w is small
+  float centerOffset = signedPos * availableShift;
+
+  // shift only in Y, before abs()
+  stripeMap.y -= centerOffset;
+
+  // recompute distance after shifting
+  vec2 d = abs(stripeMap);
+
+  // ----------------------------------------------
+
+  float line = d.y;
+  float lMin = mix(w, aa, u_softness) - aa;
+  float lMax = w + aa;
+
+  line = 1.0 - sst(lMin, lMax, line);
+
+  if (u_alphaMask == true) {
+    line *= imgAlpha;
+  }
+
 
   int colorIdx = int(posMod(stripeId, u_colorsCount));
   vec4 stripeColor = u_colors[0];
@@ -705,8 +739,9 @@ export interface FoldsUniforms extends ShaderSizingUniforms {
   u_image: HTMLImageElement | string | undefined;
   u_stripeWidth: number;
   u_alphaMask: boolean;
+  u_gap: boolean;
   u_size: number;
-  u_wave: number;
+  u_shift: number;
   u_noise: number;
   u_outerNoise: number;
   u_softness: number;
@@ -721,9 +756,10 @@ export interface FoldsParams extends ShaderSizingParams, ShaderMotionParams {
   image?: HTMLImageElement | string | undefined;
   stripeWidth?: number;
   alphaMask?: boolean;
+  gap?: boolean;
   size?: number;
   softness?: number;
-  wave?: number;
+  shift?: number;
   noise?: number;
   outerNoise?: number;
   angle?: number;

@@ -72,11 +72,10 @@ const HalftoneLinesWithControls = () => {
     return {
       stripeWidth: { value: defaults.stripeWidth, min: 0, max: 1, order: 200 },
       softness: { value: defaults.softness, min: 0, max: 1, order: 201 },
-      alphaMask: { value: defaults.alphaMask, order: 202 },
-      // wave: { value: defaults.wave, min: 0, max: 1, order: 204 },
+      blur: { value: defaults.blur, min: 0, max: 20, order: 202 },
+      wave: { value: defaults.wave, min: 0, max: 1, order: 204 },
       noise: { value: defaults.noise, min: 0, max: 1, order: 205 },
       angle: { value: defaults.angle, min: 0, max: 360, order: 206 },
-
       colorBack: { value: toHsla(defaults.colorBack), order: 100 },
       colorFront: { value: toHsla(defaults.colorFront), order: 101 },
       originalColors: { value: defaults.originalColors, order: 102 },

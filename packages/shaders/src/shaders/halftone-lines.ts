@@ -47,7 +47,7 @@ uniform float u_type;
 
 uniform float u_softness;
 uniform float u_stripeWidth;
-uniform bool u_alphaMask;
+uniform float u_blur;
 uniform float u_wave;
 uniform float u_noise;
 uniform float u_angle;
@@ -133,8 +133,40 @@ float sigmoid(float x, float k) {
   return 1.0 / (1.0 + exp(-k * (x - 0.5)));
 }
 
+vec4 blurTexture(sampler2D tex, vec2 uv, vec2 texelSize, float radius) {
+    // clamp radius so loops have a known max
+    float r = clamp(radius, 0.0, 10.0);
+    int ir = int(r);
+
+    vec4 acc = vec4(0.0);
+    float weightSum = 0.0;
+
+    // simple Gaussian-ish weights based on distance
+    for (int y = -10; y <= 10; ++y) {
+        if (abs(y) > ir) continue;
+        for (int x = -10; x <= 10; ++x) {
+            if (abs(x) > ir) continue;
+
+            vec2 offset = vec2(float(x), float(y));
+            float dist2 = dot(offset, offset);
+
+            // tweak sigma to taste; lower sigma = sharper falloff
+            float sigma = radius * 0.5 + 0.001;
+            float w = exp(-dist2 / (2.0 * sigma * sigma));
+
+            acc += texture(tex, uv + offset * texelSize) * w;
+            weightSum += w;
+        }
+    }
+
+    return acc / max(weightSum, 0.00001);
+}
+
+
 float getLumAtPx(vec2 uv, float contrast) {
-  vec4 tex = texture(u_image, uv);
+//  vec4 tex = texture(u_image, uv);
+  vec4 tex = blurTexture(u_image, uv, vec2(1. / u_resolution), u_blur);
+  
   vec3 color = vec3(
   sigmoid(tex.r, contrast),
   sigmoid(tex.g, contrast),
@@ -165,7 +197,8 @@ vec3 blendHardLight(vec3 base, vec3 blend, float opacity) {
 const int SAMPLES = 4;
 
 float sampleLumOnLine(vec2 uvNorm, float contrast, vec2 p_current) {
-  float halfSpanPx = mix(0., 40., u_softness);
+//  float halfSpanPx = mix(0., 40., u_softness);
+  float halfSpanPx = 5.;
   vec2 gradPy = vec2(dFdx(p_current.y), dFdy(p_current.y));
   vec2 t = normalize(vec2(-gradPy.y, gradPy.x) + 1e-8);
 
@@ -213,44 +246,60 @@ void main() {
     contrast = mix(.1, 4., pow(u_contrast, 2.));
   }
 
-//  float lum = getLumAtPx(uvOriginal, contrast);
+  float lumOrig = getLumAtPx(uvOriginal, contrast);
 
   float t = .3 * u_time;
   
   float frame = getImgFrame(v_imageUV, 0.);
-//  lum = mix(1., lum, frame);
+  lumOrig = mix(1., lumOrig, frame);
 
   uv = v_objectUV;
   vec2 p = uv;
   float angle = -u_angle * PI / 180.;
-  p = rotate(p, angle);
+//  p = rotate(p, angle + u_stripeWidth * lumOrig);
+  p = rotate(p, u_wave * (1. - lumOrig));
   p *= u_size;
 
-  float n = doubleSNoise(uv, u_time);
-
-  p.y += n * 10. * u_noise;
+  float n = doubleSNoise(uv + 100., u_time);
+  p.y += .4 * n * lumOrig * u_noise * u_size;
   
   float dPx = pixelDistToCenterline(p);
   float coverage = abs(dPx);
   vec2 uvOnLineNorm = projectToCenterlineUV(uvNormalised, p);
   vec2 uvOnLineImg = getImageUV(uvOnLineNorm, vec2(1.));
-//  float lum = getLumAtPx(uvOnLineImg, contrast);
-  float lum = sampleLumOnLine(uvOnLineNorm, coverage * contrast, p);
-
+  float lum = getLumAtPx(uvOnLineImg, contrast);
+//  float lum = sampleLumOnLine(uvOnLineNorm, coverage * contrast, p);
+  lum = lumOrig;
   lum = mix(1., lum, frame);
 
-  vec2 d = abs(fract(p) - .5);
-  vec2 aa = 2. * fwidth(p);
-  float wMax = (.5 - aa.y);
-  float w = mix(wMax * u_stripeWidth, 0., lum);
+  float line = 0.;
 
-//  w *= 6.;
-//  w = floor(w);
-//  w /= 6.;
-  
-  float line = d.y;
-  line = sst(w, w + aa.y, line);
+  {
+    vec2 stripeMap = abs(fract(p) - .5);
+    vec2 d = abs(stripeMap);
+    vec2 stripeSign = sign(stripeMap);
+    vec2 fw = fwidth(p);
+    float aa = fw.y;
+    float w = aa;
+//    float w = 0.;
+    w = mix(u_stripeWidth, 0., lum);
+//    w = clamp(w, 0., .5 - aa);
+    w = clamp(w, aa, .5);
+    line += sst(mix(w, aa, u_softness) - aa, w + aa, d.y);
+  }
+
   line = mix(1., line, frame);
+  line = clamp(line, 0., 1.);
+
+
+  vec2 grainSize = 1000. * vec2(1., 1. / u_imageAspectRatio);
+  vec2 grainUV = getImageUV(uvNormalised, grainSize);
+  float grain = valueNoise(grainUV);
+  grain = smoothstep(.55, .7 + .2 * u_grainMixer, grain);
+  grain *= u_grainMixer;
+//  grain *= sst(.1, .0, w);
+//  line = mix(line, 0., grain);
+//  line += grain;
 
   vec3 color = vec3(0.);
   float opacity = 1.;
@@ -268,14 +317,13 @@ export interface HalftoneLinesUniforms extends ShaderSizingUniforms {
   u_colorFront: [number, number, number, number];
   u_image: HTMLImageElement | string | undefined;
   u_stripeWidth: number;
-  u_alphaMask: boolean;
+  u_blur: number;
   u_size: number;
   u_wave: number;
   u_noise: number;
   u_softness: number;
   u_angle: number;
   u_type: (typeof HalftoneLinesTypes)[HalftoneLinesType];
-
   u_contrast: number;
   u_originalColors: boolean;
   u_inverted: boolean;
@@ -288,7 +336,7 @@ export interface HalftoneLinesParams extends ShaderSizingParams, ShaderMotionPar
   colorFront?: string;
   image?: HTMLImageElement | string | undefined;
   stripeWidth?: number;
-  alphaMask?: boolean;
+  blur?: number;
   size?: number;
   softness?: number;
   wave?: number;
