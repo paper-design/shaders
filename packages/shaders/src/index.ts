@@ -221,6 +221,7 @@ export {
 } from './shaders/folds.js';
 
 export {
+  halftoneLinesMeta,
   halftoneLinesFragmentShader,
   HalftoneLinesTypes,
   type HalftoneLinesType,

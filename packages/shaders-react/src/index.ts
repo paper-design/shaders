@@ -135,4 +135,5 @@ export {
   staticMeshGradientMeta,
   staticRadialGradientMeta,
   foldsMeta,
+  halftoneLinesMeta,
 } from '@paper-design/shaders';

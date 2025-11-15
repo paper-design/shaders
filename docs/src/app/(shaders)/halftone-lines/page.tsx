@@ -5,7 +5,7 @@ import { useControls, button, folder } from 'leva';
 import { setParamsSafe, useResetLevaParams } from '@/helpers/use-reset-leva-params';
 import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
-import { HalftoneLinesType, HalftoneLinesTypes, ShaderFit } from '@paper-design/shaders';
+import { HalftoneLinesType, HalftoneLinesTypes, halftoneLinesMeta, ShaderFit } from '@paper-design/shaders';
 import { levaImageButton } from '@/helpers/leva-image-button';
 import { useState, useEffect, useCallback } from 'react';
 import { toHsla } from '@/helpers/color-utils';
@@ -71,8 +71,8 @@ const HalftoneLinesWithControls = () => {
     );
     return {
       stripeWidth: { value: defaults.stripeWidth, min: 0, max: 1, order: 200 },
-      // softness: { value: defaults.softness, min: 0, max: 1, order: 201 },
-      smoothness: { value: defaults.smoothness, min: 0, max: 20, order: 202 },
+      softness: { value: defaults.softness, min: 0, max: 1, order: 201 },
+      smoothness: { value: defaults.smoothness, min: 0, max: halftoneLinesMeta.maxBlurRadius, order: 202 },
       wave: { value: defaults.wave, min: 0, max: 1, order: 204 },
       noise: { value: defaults.noise, min: 0, max: 1, order: 205 },
       angle: { value: defaults.angle, min: 0, max: 360, order: 206 },

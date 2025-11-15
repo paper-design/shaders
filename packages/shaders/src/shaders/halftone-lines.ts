@@ -2,6 +2,10 @@ import type {ShaderMotionParams} from '../shader-mount.js';
 import {sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms} from '../shader-sizing.js';
 import {declarePI, rotation2, simplexNoise, proceduralHash21} from '../shader-utils.js';
 
+export const halftoneLinesMeta = {
+    maxBlurRadius: 8,
+} as const;
+
 /**
  *
  * Fluid motion imitation applied over user image
@@ -135,16 +139,16 @@ float sigmoid(float x, float k) {
 
 vec4 blurTexture(sampler2D tex, vec2 uv, vec2 texelSize, float radius) {
   // clamp radius so loops have a known max
-  float r = clamp(radius, 0.0, 10.0);
+  float r = clamp(radius, 0., float(${ halftoneLinesMeta.maxBlurRadius }));
   int ir = int(r);
 
   vec4 acc = vec4(0.0);
   float weightSum = 0.0;
 
   // simple Gaussian-ish weights based on distance
-  for (int y = -10; y <= 10; ++y) {
+  for (int y = -20; y <= ${ halftoneLinesMeta.maxBlurRadius }; ++y) {
     if (abs(y) > ir) continue;
-    for (int x = -10; x <= 10; ++x) {
+    for (int x = -20; x <= ${ halftoneLinesMeta.maxBlurRadius }; ++x) {
       if (abs(x) > ir) continue;
 
       vec2 offset = vec2(float(x), float(y));
@@ -202,9 +206,9 @@ void main() {
   vec2 uvOriginal = getImageUV(uvNormalised, vec2(1.));
 
   float contrast = mix(0., 15., u_contrast);
-  if (u_originalColors == true) {
-    contrast = mix(.1, 4., pow(u_contrast, 2.));
-  }
+//  if (u_originalColors == true) {
+//    contrast = mix(.1, 4., pow(u_contrast, 2.));
+//  }
 
   float lum = getLumAtPx(uvOriginal, contrast);
 
@@ -214,7 +218,7 @@ void main() {
   uv = v_objectUV;
   vec2 p = uv;
   float angle = -u_angle * PI / 180.;
-  p = rotate(p, angle + u_wave * (1. - lum));
+  p = rotate(p, angle + u_wave * lum);
   p *= u_size;
 
   vec2 pBase = v_objectUV * u_size;
@@ -224,7 +228,7 @@ void main() {
   p.y += .4 * n * lum * u_noise * u_size;
 
   vec2 stripeMap = abs(fract(p) - .5);
-  vec2 d = abs(stripeMap);
+  vec2 stripeDist = abs(stripeMap);
   vec2 stripeSign = sign(stripeMap);
 
   float aa = fwidth(p).y;
@@ -242,7 +246,7 @@ void main() {
   float lo = mix(loSharp, loBlurry, highDistort);
   float hi = mix(hiSharp, hiBlurry, highDistort);
 
-  float line = sst(lo, hi, d.y);
+  float line = sst(lo, hi, stripeDist.y);
 
   line = mix(1., line, frame);
   line = clamp(line, 0., 1.);
