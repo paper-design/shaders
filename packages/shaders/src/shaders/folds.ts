@@ -35,7 +35,7 @@ uniform float u_stripeWidth;
 uniform bool u_alphaMask;
 uniform bool u_gap;
 uniform float u_size;
-uniform float u_wave;
+uniform float u_gradient;
 uniform float u_shift;
 uniform float u_noise;
 uniform float u_outerNoise;
@@ -192,6 +192,17 @@ float posMod(float x, float m) {
   return x - m * floor(x / m);
 }
 
+vec2 getPosition(int i, float t) {
+  float a = float(i) * .37;
+  float b = .6 + fract(float(i) / 3.) * .9;
+  float c = .8 + fract(float(i + 1) / 4.);
+
+  float x = sin(t * b + a);
+  float y = cos(t * c + a * 1.5);
+
+  return .5 + .5 * vec2(x, y);
+}
+
 void main() {
 
   const float firstFrameOffset = 2.8;
@@ -208,8 +219,8 @@ void main() {
   }
 
   float edge = img.r;
-//  edge = 1. - blurEdge5x5(u_image, uv, dudx, dudy, 5., edge);
-  edge = 1. - edge;
+  edge = 1. - blurEdge5x5(u_image, uv, dudx, dudy, 10., edge);
+//  edge = 1. - edge;
 
   float imgAlpha = img.g;
 //  imgAlpha = blurEdge3x3_G(u_image, uv, dudx, dudy, 2., img.g);
@@ -226,7 +237,7 @@ void main() {
 
   float n = doubleSNoise(uv + 100., u_time);
   float edgeAtten = edge + u_outerNoise * (1. - edge);
-  float y = p.y + edgeAtten * n * 10. * u_noise;
+  float y = p.y + edgeAtten * .5 * n * u_size * u_noise;
 
   float w = u_stripeWidth * edge;
 
@@ -237,8 +248,7 @@ void main() {
 
   float fy = fract(y);
   
-  float m = clamp(.5, 0., 1.);
-//  float m = clamp(.5 + u_shift, 0., 1.);
+  float m = .5;
   float left = fy / m;
   float right = (1. - fy) / (1. - m);
   float stripeMap = 1. - min(left, right);
@@ -257,13 +267,54 @@ void main() {
     line *= imgAlpha;
   }
 
-  int colorIdx = int(posMod(stripeId, u_colorsCount));
-  vec4 stripeColor = u_colors[0];
-  for (int i = 0; i < ${foldsMeta.maxColorCount}; i++) {
-    if (i >= int(u_colorsCount)) break;
-    float isHit = 1.0 - step(.5, abs(float(i - colorIdx)));
-    stripeColor = mix(stripeColor, u_colors[i], isHit);
+  float tst = 0.;
+  {
+//    float m = clamp(u_wave, .02, .98);
+    float m = 0.;
+    float left = fy / m;
+    float right = (1. - fy) / (1. - m);
+    tst = 1. - min(left, right);
   }
+
+  line -= sst(u_softness, 0., 1. - fy);
+  line = clamp(line, 0., 1.);
+
+  int colorIdx = int(posMod(stripeId, u_colorsCount));
+
+   vec4 orderedStripeColor = u_colors[0];
+  for (int i = 0; i < ${ foldsMeta.maxColorCount }; i++) {
+     if (i >= int(u_colorsCount)) break;
+     float isHit = 1.0 - step(.5, abs(float(i - colorIdx)));
+    orderedStripeColor = mix(orderedStripeColor, u_colors[i], isHit);
+   }
+  
+
+  vec3 ccc = vec3(0.);
+  float ooo = 0.;
+  float totalWeight = 0.;
+
+  for (int i = 0; i < ${ foldsMeta.maxColorCount }; i++) {
+    if (i >= int(u_colorsCount)) break;
+
+    vec2 pos = getPosition(i, 1.5 * t);
+    vec3 colorFraction = u_colors[i].rgb * u_colors[i].a;
+    float oooFraction = u_colors[i].a;
+
+    float dist = .5 * length(uv + .5 - pos);
+
+    dist = pow(dist, 3.5);
+    float weight = 1. / (dist + 1e-3);
+    ccc += colorFraction * weight;
+    ooo += oooFraction * weight;
+    totalWeight += weight;
+  }
+
+  ccc /= max(1e-4, totalWeight);
+  ooo /= max(1e-4, totalWeight);
+  vec4 stripeColor = vec4(ccc, ooo);
+  
+  
+  stripeColor = mix(orderedStripeColor, mix(stripeColor, orderedStripeColor, tst), u_gradient);
   
   vec3 stripePremulRGB = stripeColor.rgb * stripeColor.a;
   stripePremulRGB *= line;
@@ -271,12 +322,17 @@ void main() {
   
   vec3 color = stripePremulRGB;
   float opacity = stripeA;
-  
+
+  if (u_gap == true) {
+    color += .6 * (1. - edge) * imgAlpha;
+  }
+
   vec3 bgColor = u_colorBack.rgb * u_colorBack.a;
   color = color + bgColor * (1. - opacity);
   opacity = opacity + u_colorBack.a * (1. - opacity);
   
   fragColor = vec4(color, opacity);
+//  fragColor = vec4(ccc, 1.);
 }
 `;
 
@@ -572,6 +628,92 @@ export function toProcessedFolds(file: File | string): Promise<{ imageData: Imag
   });
 }
 
+function blurRedChannel(
+    imageData: ImageData,
+    width: number,
+    height: number,
+    radius = 2
+) {
+  const src = imageData.data;
+  const pixelCount = width * height;
+
+  const tmp = new Uint8ClampedArray(pixelCount);
+  const dst = new Uint8ClampedArray(pixelCount);
+
+  // --- Horizontal blur ---
+  for (let y = 0; y < height; y++) {
+    let sum = 0;
+    let count = 0;
+
+    // initial window centered at x = 0
+    for (let dx = -radius; dx <= radius; dx++) {
+      const xClamped = Math.max(0, Math.min(width - 1, dx));
+      const idx = (y * width + xClamped) * 4;
+      sum += src[idx]!;
+      count++;
+    }
+
+    for (let x = 0; x < width; x++) {
+      const outIdx = y * width + x;
+      tmp[outIdx] = sum / count;
+
+      const xRemove = x - radius;
+      if (xRemove >= 0) {
+        const idxRemove = (y * width + xRemove) * 4;
+        sum -= src[idxRemove]!;
+        count--;
+      }
+
+      const xAdd = x + radius + 1;
+      if (xAdd < width) {
+        const idxAdd = (y * width + xAdd) * 4;
+        sum += src[idxAdd]!;
+        count++;
+      }
+    }
+  }
+
+  // --- Vertical blur ---
+  for (let x = 0; x < width; x++) {
+    let sum = 0;
+    let count = 0;
+
+    // initial window centered at y = 0
+    for (let dy = -radius; dy <= radius; dy++) {
+      const yClamped = Math.max(0, Math.min(height - 1, dy));
+      const idx = yClamped * width + x;
+      sum += tmp[idx]!;
+      count++;
+    }
+
+    for (let y = 0; y < height; y++) {
+      const outIdx = y * width + x;
+      dst[outIdx] = sum / count;
+
+      const yRemove = y - radius;
+      if (yRemove >= 0) {
+        const idxRemove = yRemove * width + x;
+        sum -= tmp[idxRemove]!;
+        count--;
+      }
+
+      const yAdd = y + radius + 1;
+      if (yAdd < height) {
+        const idxAdd = yAdd * width + x;
+        sum += tmp[idxAdd]!;
+        count++;
+      }
+    }
+  }
+
+  // --- Write blurred red back into ImageData ---
+  for (let i = 0; i < pixelCount; i++) {
+    const px = i * 4;
+    src[px] = dst[i]!;
+  }
+}
+
+
 function buildSparseData(
   shapeMask: Uint8Array,
   boundaryMask: Uint8Array,
@@ -722,7 +864,7 @@ export interface FoldsUniforms extends ShaderSizingUniforms {
   u_noise: number;
   u_outerNoise: number;
   u_softness: number;
-  u_wave: number;
+  u_gradient: number;
   u_angle: number;
   u_shape: (typeof FoldsShapes)[FoldsShape];
   u_isImage: boolean;
@@ -737,7 +879,7 @@ export interface FoldsParams extends ShaderSizingParams, ShaderMotionParams {
   gap?: boolean;
   size?: number;
   softness?: number;
-  wave?: number;
+  gradient?: number;
   shift?: number;
   noise?: number;
   outerNoise?: number;
