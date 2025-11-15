@@ -5,7 +5,7 @@ import { useControls, button, folder } from 'leva';
 import { setParamsSafe, useResetLevaParams } from '@/helpers/use-reset-leva-params';
 import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
-import { FoldsShapes, FoldsShape, colorPanelsMeta, foldsMeta } from '@paper-design/shaders';
+import { foldsMeta } from '@paper-design/shaders';
 import { ShaderFit } from '@paper-design/shaders';
 import { levaImageButton } from '@/helpers/leva-image-button';
 import { useState, Suspense, useEffect, useCallback } from 'react';
@@ -47,7 +47,7 @@ const imageFiles = [
 
 const FoldsWithControls = () => {
   const [imageIdx, setImageIdx] = useState(-1);
-  const [image, setImage] = useState<HTMLImageElement | string>('/images/logos/nike.svg');
+  const [image, setImage] = useState<HTMLImageElement | string>('/images/logos/apple.svg');
 
   useEffect(() => {
     if (imageIdx >= 0) {
@@ -73,10 +73,11 @@ const FoldsWithControls = () => {
       colorBack: { value: toHsla(defaults.colorBack), order: 100 },
       stripeWidth: { value: defaults.stripeWidth, min: 0, max: 1, order: 200 },
       softness: { value: defaults.softness, min: 0, max: 1, order: 201 },
+      wave: { value: defaults.wave, min: 0, max: 1, order: 201 },
       alphaMask: { value: defaults.alphaMask, order: 202 },
       gap: { value: defaults.gap, order: 202 },
       size: { value: defaults.size, min: 1, max: 50, order: 203 },
-      shift: { value: defaults.shift, min: 0, max: 1, order: 204 },
+      shift: { value: defaults.shift, min: -.5, max: .5, order: 204 },
       noise: { value: defaults.noise, min: 0, max: 1, order: 205 },
       outerNoise: { value: defaults.outerNoise, min: 0, max: 1, order: 205 },
       angle: { value: defaults.angle, min: 0, max: 360, order: 206 },

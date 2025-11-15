@@ -35,6 +35,7 @@ uniform float u_stripeWidth;
 uniform bool u_alphaMask;
 uniform bool u_gap;
 uniform float u_size;
+uniform float u_wave;
 uniform float u_shift;
 uniform float u_noise;
 uniform float u_outerNoise;
@@ -206,13 +207,9 @@ void main() {
     uv.y = 1. - uv.y;
   }
 
-  float edge = 0.;
-
-  float edgeRaw = img.r;
-//  edge = 1. - blurEdge3x3(u_image, uv, dudx, dudy, 2., edgeRaw);
-  edge = 1. - blurEdge5x5(u_image, uv, dudx, dudy, 5., edgeRaw);
-  float edgeCopy = edge;
-
+  float edge = img.r;
+//  edge = 1. - blurEdge5x5(u_image, uv, dudx, dudy, 5., edge);
+  edge = 1. - edge;
 
   float imgAlpha = img.g;
 //  imgAlpha = blurEdge3x3_G(u_image, uv, dudx, dudy, 2., img.g);
@@ -229,56 +226,36 @@ void main() {
 
   float n = doubleSNoise(uv + 100., u_time);
   float edgeAtten = edge + u_outerNoise * (1. - edge);
-  p.y += edgeAtten * n * 10. * u_noise;
+  float y = p.y + edgeAtten * n * 10. * u_noise;
+
+  float w = u_stripeWidth * edge;
+
+  y += 2. * sign(u_shift) * mix(0., w, abs(u_shift));
+
   
-  float stripeId = floor(p.y);
+  float stripeId = floor(y);
 
-  vec2 fw = fwidth(p);
-  float aa = fw.y;
+  float fy = fract(y);
+  
+  float m = clamp(.5, 0., 1.);
+//  float m = clamp(.5 + u_shift, 0., 1.);
+  float left = fy / m;
+  float right = (1. - fy) / (1. - m);
+  float stripeMap = 1. - min(left, right);
+  stripeMap *= .5;
 
-//  vec2 fw = fwidth(p);
-//  float aa = fw.y;
+  float aa = fwidth(fy);
+  
+  w = clamp(w, aa, .5 - aa);
 
-  // stripeMap in [-0.5, 0.5)
-  vec2 stripeMap = fract(p) - 0.5;
-  vec2 dSign     = sign(stripeMap);
-
-  float w = 0.0;
-  w = mix(0.0, 3.0 * pow(u_stripeWidth, 2.0), edge);
-  w = clamp(w, aa, 1.0);
-  if (u_gap == true) {
-    w = clamp(w, aa, 0.5 - aa);
-  }
-
-  // ---- NEW: move the center depending on w ----
-
-  // how far from "maximum" half-width (0.5)
-  float availableShift = max(0.0, 0.5 - w);// 0 when w = 0.5
-
-  // map u_shift [0,1] -> [-1,1]
-  float signedPos = u_shift * 2.0 - 1.0;
-
-  // final offset: small when w is big, large when w is small
-  float centerOffset = signedPos * availableShift;
-
-  // shift only in Y, before abs()
-  stripeMap.y -= centerOffset;
-
-  // recompute distance after shifting
-  vec2 d = abs(stripeMap);
-
-  // ----------------------------------------------
-
-  float line = d.y;
-  float lMin = mix(w, aa, u_softness) - aa;
+  float lMin = w - aa;
   float lMax = w + aa;
 
-  line = 1.0 - sst(lMin, lMax, line);
-
+  float line = 1.0 - sst(lMin, lMax, stripeMap);
+  
   if (u_alphaMask == true) {
     line *= imgAlpha;
   }
-
 
   int colorIdx = int(posMod(stripeId, u_colorsCount));
   vec4 stripeColor = u_colors[0];
@@ -745,6 +722,7 @@ export interface FoldsUniforms extends ShaderSizingUniforms {
   u_noise: number;
   u_outerNoise: number;
   u_softness: number;
+  u_wave: number;
   u_angle: number;
   u_shape: (typeof FoldsShapes)[FoldsShape];
   u_isImage: boolean;
@@ -759,6 +737,7 @@ export interface FoldsParams extends ShaderSizingParams, ShaderMotionParams {
   gap?: boolean;
   size?: number;
   softness?: number;
+  wave?: number;
   shift?: number;
   noise?: number;
   outerNoise?: number;
