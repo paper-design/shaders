@@ -47,13 +47,10 @@ uniform float u_grainOverlay;
 uniform bool u_straight;
 uniform bool u_originalColors;
 uniform bool u_inverted;
-uniform float u_type;
-
-uniform float u_softness;
 uniform float u_stripeWidth;
 uniform float u_smoothness;
-uniform float u_wave;
-uniform float u_noise;
+uniform float u_angleDistortion;
+uniform float u_noiseDistortion;
 uniform float u_angle;
 
 
@@ -167,14 +164,14 @@ vec4 blurTexture(sampler2D tex, vec2 uv, vec2 texelSize, float radius) {
 }
 
 
-float getLumAtPx(vec2 uv, float contrast) {
-  //  vec4 tex = texture(u_image, uv);
+float getLumAtPx(vec2 uv, float contrast, out vec3 origColor) {
   vec4 tex = blurTexture(u_image, uv, vec2(1. / u_resolution), u_smoothness);
 
+  origColor = tex.rgb;
   vec3 color = vec3(
-  sigmoid(tex.r, contrast),
-  sigmoid(tex.g, contrast),
-  sigmoid(tex.b, contrast)
+      sigmoid(tex.r, contrast),
+      sigmoid(tex.g, contrast),
+      sigmoid(tex.b, contrast)
   );
   float lum = dot(vec3(0.2126, 0.7152, 0.0722), color);
   lum = mix(1., lum, tex.a);
@@ -206,11 +203,9 @@ void main() {
   vec2 uvOriginal = getImageUV(uvNormalised, vec2(1.));
 
   float contrast = mix(0., 15., u_contrast);
-//  if (u_originalColors == true) {
-//    contrast = mix(.1, 4., pow(u_contrast, 2.));
-//  }
 
-  float lum = getLumAtPx(uvOriginal, contrast);
+  vec3 origColor = vec3(0.);
+  float lum = getLumAtPx(uvOriginal, contrast, origColor);
 
   float frame = getImgFrame(v_imageUV, 0.);
   lum = mix(1., lum, frame);
@@ -218,14 +213,14 @@ void main() {
   uv = v_objectUV;
   vec2 p = uv;
   float angle = -u_angle * PI / 180.;
-  p = rotate(p, angle + u_wave * lum);
+  p = rotate(p, angle + u_angleDistortion * lum);
   p *= u_size;
 
   vec2 pBase = v_objectUV * u_size;
   float aaBase = fwidth(pBase.y);
 
   float n = doubleSNoise(uv + 100., u_time);
-  p.y += .4 * n * lum * u_noise * u_size;
+  p.y += .4 * n * lum * u_noiseDistortion * u_size;
 
   vec2 stripeMap = abs(fract(p) - .5);
   vec2 stripeDist = abs(stripeMap);
@@ -238,7 +233,7 @@ void main() {
   float w = mix(.5 * u_stripeWidth, 0., lum);
   w = clamp(w, aa, .5 - aa);
 
-  float loSharp = mix(w, aa, u_softness);
+  float loSharp = w;
   float loBlurry = 0.;
   float hiSharp = w + aa;
   float hiBlurry = w + aa;
@@ -256,14 +251,19 @@ void main() {
   float grain = valueNoise(grainUV);
   grain = smoothstep(.55, .7 + .2 * u_grainMixer, grain);
   grain *= u_grainMixer;
-  //  line += grain;
+  line += grain;
 
   vec3 color = vec3(0.);
   float opacity = 1.;
 
   float stripeId = floor(p.y);
 
-  color = mix(u_colorBack.rgb, u_colorFront.rgb, line);
+  if (u_originalColors == true) {
+     color = mix(origColor, u_colorBack.rgb, line);
+  } else {
+    color = mix(u_colorFront.rgb, u_colorBack.rgb, line);
+  }
+  
   fragColor = vec4(color, 1.);
 }
 `;
@@ -275,11 +275,9 @@ export interface HalftoneLinesUniforms extends ShaderSizingUniforms {
     u_stripeWidth: number;
     u_smoothness: number;
     u_size: number;
-    u_wave: number;
-    u_noise: number;
-    u_softness: number;
+    u_angleDistortion: number;
+    u_noiseDistortion: number;
     u_angle: number;
-    u_type: (typeof HalftoneLinesTypes)[HalftoneLinesType];
     u_contrast: number;
     u_originalColors: boolean;
     u_inverted: boolean;
@@ -294,24 +292,12 @@ export interface HalftoneLinesParams extends ShaderSizingParams, ShaderMotionPar
     stripeWidth?: number;
     smoothness?: number;
     size?: number;
-    softness?: number;
-    wave?: number;
-    noise?: number;
+    angleDistortion?: number;
+    noiseDistortion?: number;
     angle?: number;
-    type?: HalftoneLinesType;
-
     contrast?: number;
     originalColors?: boolean;
     inverted?: boolean;
     grainMixer?: number;
     grainOverlay?: number;
 }
-
-export const HalftoneLinesTypes = {
-    classic: 0,
-    gooey: 1,
-    holes: 2,
-    soft: 3,
-} as const;
-
-export type HalftoneLinesType = keyof typeof HalftoneLinesTypes;

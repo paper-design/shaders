@@ -223,8 +223,6 @@ export {
 export {
   halftoneLinesMeta,
   halftoneLinesFragmentShader,
-  HalftoneLinesTypes,
-  type HalftoneLinesType,
   type HalftoneLinesParams,
   type HalftoneLinesUniforms,
 } from './shaders/halftone-lines.js';

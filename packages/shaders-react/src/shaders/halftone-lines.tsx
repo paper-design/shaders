@@ -8,7 +8,6 @@ import {
   type HalftoneLinesParams,
   defaultObjectSizing,
   type ImageShaderPreset,
-  HalftoneLinesTypes,
 } from '@paper-design/shaders';
 
 export interface HalftoneLinesProps extends ShaderComponentProps, HalftoneLinesParams {}
@@ -26,16 +25,14 @@ export const defaultPreset: HalftoneLinesPreset = {
     stripeWidth: 0,
     smoothness: 10,
     size: 40,
-    wave: 0.4,
-    noise: 0,
-    softness: 0,
+    angleDistortion: 0.4,
+    noiseDistortion: 0,
     angle: 0,
     contrast: 0.7,
     originalColors: false,
     inverted: false,
     grainMixer: 0.2,
     grainOverlay: 0.2,
-    type: 'gooey',
   },
 };
 export const halftoneLinesPresets: HalftoneLinesPreset[] = [defaultPreset];
@@ -47,15 +44,12 @@ export const HalftoneLines: React.FC<HalftoneLinesProps> = memo(function Halfton
   speed = defaultPreset.params.speed,
   frame = defaultPreset.params.frame,
   image = '',
-  wave = defaultPreset.params.wave,
-  noise = defaultPreset.params.noise,
-  softness = defaultPreset.params.softness,
+  angleDistortion = defaultPreset.params.angleDistortion,
+  noiseDistortion = defaultPreset.params.noiseDistortion,
   stripeWidth = defaultPreset.params.stripeWidth,
   smoothness = defaultPreset.params.smoothness,
   size = defaultPreset.params.size,
   angle = defaultPreset.params.angle,
-  type = defaultPreset.params.type,
-
   contrast = defaultPreset.params.contrast,
   originalColors = defaultPreset.params.originalColors,
   inverted = defaultPreset.params.inverted,
@@ -80,15 +74,12 @@ export const HalftoneLines: React.FC<HalftoneLinesProps> = memo(function Halfton
     u_colorFront: getShaderColorFromString(colorFront),
 
     u_image: image,
-    u_wave: wave,
-    u_noise: noise,
-    u_softness: softness,
+    u_angleDistortion: angleDistortion,
+    u_noiseDistortion: noiseDistortion,
     u_stripeWidth: stripeWidth,
     u_smoothness: smoothness,
     u_size: size,
     u_angle: angle,
-    u_type: HalftoneLinesTypes[type],
-
     u_contrast: contrast,
     u_originalColors: originalColors,
     u_inverted: inverted,
