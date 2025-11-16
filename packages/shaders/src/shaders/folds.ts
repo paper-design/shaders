@@ -30,6 +30,7 @@ uniform float u_time;
 uniform vec4 u_colors[${foldsMeta.maxColorCount}];
 uniform float u_colorsCount;
 uniform vec4 u_colorBack;
+uniform vec4 u_colorInner;
 uniform float u_softness;
 uniform float u_stripeWidth;
 uniform bool u_alphaMask;
@@ -41,7 +42,6 @@ uniform float u_noise;
 uniform float u_outerNoise;
 uniform float u_angle;
 
-uniform float u_shape;
 uniform bool u_isImage;
 
 ${sizingVariablesDeclaration}
@@ -142,48 +142,6 @@ float blurEdge5x5(sampler2D tex, vec2 uv, vec2 dudx, vec2 dudy, float radius, fl
   return sum / norm;
 }
 
-float blurEdge3x3(sampler2D tex, vec2 uv, vec2 dudx, vec2 dudy, float radius, float centerSample) {
-  vec2 texel = 1.0 / vec2(textureSize(tex, 0));
-  vec2 r = radius * texel;
-
-  float w1 = 1.0, w2 = 2.0, w4 = 4.0;
-  float norm = 16.0;
-  float sum = w4 * centerSample;
-
-  sum += w2 * textureGrad(tex, uv + vec2(0.0, -r.y), dudx, dudy).r;
-  sum += w2 * textureGrad(tex, uv + vec2(0.0, r.y), dudx, dudy).r;
-  sum += w2 * textureGrad(tex, uv + vec2(-r.x, 0.0), dudx, dudy).r;
-  sum += w2 * textureGrad(tex, uv + vec2(r.x, 0.0), dudx, dudy).r;
-
-  sum += w1 * textureGrad(tex, uv + vec2(-r.x, -r.y), dudx, dudy).r;
-  sum += w1 * textureGrad(tex, uv + vec2(r.x, -r.y), dudx, dudy).r;
-  sum += w1 * textureGrad(tex, uv + vec2(-r.x, r.y), dudx, dudy).r;
-  sum += w1 * textureGrad(tex, uv + vec2(r.x, r.y), dudx, dudy).r;
-
-  return sum / norm;
-}
-
-float blurEdge3x3_G(sampler2D tex, vec2 uv, vec2 dudx, vec2 dudy, float radius, float centerSample) {
-  vec2 texel = 1.0 / vec2(textureSize(tex, 0));
-  vec2 r = radius * texel;
-
-  float w1 = 1.0, w2 = 2.0, w4 = 4.0;
-  float norm = 16.0;
-  float sum = w4 * centerSample;
-
-  sum += w2 * textureGrad(tex, uv + vec2(0.0, -r.y), dudx, dudy).g;
-  sum += w2 * textureGrad(tex, uv + vec2(0.0, r.y), dudx, dudy).g;
-  sum += w2 * textureGrad(tex, uv + vec2(-r.x, 0.0), dudx, dudy).g;
-  sum += w2 * textureGrad(tex, uv + vec2(r.x, 0.0), dudx, dudy).g;
-
-  sum += w1 * textureGrad(tex, uv + vec2(-r.x, -r.y), dudx, dudy).g;
-  sum += w1 * textureGrad(tex, uv + vec2(r.x, -r.y), dudx, dudy).g;
-  sum += w1 * textureGrad(tex, uv + vec2(-r.x, r.y), dudx, dudy).g;
-  sum += w1 * textureGrad(tex, uv + vec2(r.x, r.y), dudx, dudy).g;
-
-  return sum / norm;
-}
-
 float sst(float edge0, float edge1, float x) {
   return smoothstep(edge0, edge1, x);
 }
@@ -213,108 +171,78 @@ void main() {
   vec2 dudy = dFdy(v_imageUV);
   vec4 img = textureGrad(u_image, uv, dudx, dudy);
 
-  if (u_isImage == false) {
-    uv = v_objectUV + .5;
-    uv.y = 1. - uv.y;
-  }
-
   float edge = img.r;
   edge = 1. - blurEdge5x5(u_image, uv, dudx, dudy, 10., edge);
-//  edge = 1. - edge;
 
   float imgAlpha = img.g;
-//  imgAlpha = blurEdge3x3_G(u_image, uv, dudx, dudy, 2., img.g);
 
   float frame = getImgFrame(v_imageUV, 0.);
   imgAlpha *= frame;
   edge *= frame;
 
-  uv = v_objectUV;
-  vec2 p = uv;
+  vec2 patternsUV = v_objectUV;
+  vec2 stripesUV = v_objectUV;
   float angle = -u_angle * PI / 180.;
-  p = rotate(p, angle);
-  p *= u_size;
+  stripesUV = rotate(stripesUV, angle);
+  stripesUV *= u_size;
 
-  float n = doubleSNoise(uv + 100., u_time);
+  float n = doubleSNoise(patternsUV + 100., u_time);
   float edgeAtten = edge + u_outerNoise * (1. - edge);
-  float y = p.y + edgeAtten * .5 * n * u_size * u_noise;
+  float y = stripesUV.y + edgeAtten * .5 * n * u_size * u_noise;
 
   float w = u_stripeWidth * edge;
-
   y += 2. * sign(u_shift) * mix(0., w, abs(u_shift));
-
   
   float stripeId = floor(y);
-
   float fy = fract(y);
   
-  float m = .5;
-  float left = fy / m;
-  float right = (1. - fy) / (1. - m);
-  float stripeMap = 1. - min(left, right);
-  stripeMap *= .5;
-
-  float aa = fwidth(fy);
+  float stripeMap = abs(fy - .5);
+  float aa = fwidth(y);
   
   w = clamp(w, aa, .5 - aa);
 
   float lMin = w - aa;
   float lMax = w + aa;
-
-  float line = 1.0 - sst(lMin, lMax, stripeMap);
+  float line = 1. - sst(lMin, lMax, stripeMap);
   
   if (u_alphaMask == true) {
     line *= imgAlpha;
   }
 
-  float tst = 0.;
-  {
-//    float m = clamp(u_wave, .02, .98);
-    float m = 0.;
-    float left = fy / m;
-    float right = (1. - fy) / (1. - m);
-    tst = 1. - min(left, right);
-  }
-
-  line -= sst(u_softness, 0., 1. - fy);
+  float softness = mix(0., u_softness, sst(aa, .5, w));
+  line -= u_softness * sst(softness, 0., 1. - fy);
   line = clamp(line, 0., 1.);
 
   int colorIdx = int(posMod(stripeId, u_colorsCount));
-
-   vec4 orderedStripeColor = u_colors[0];
-  for (int i = 0; i < ${ foldsMeta.maxColorCount }; i++) {
-     if (i >= int(u_colorsCount)) break;
-     float isHit = 1.0 - step(.5, abs(float(i - colorIdx)));
-    orderedStripeColor = mix(orderedStripeColor, u_colors[i], isHit);
-   }
-  
-
-  vec3 ccc = vec3(0.);
-  float ooo = 0.;
-  float totalWeight = 0.;
-
-  for (int i = 0; i < ${ foldsMeta.maxColorCount }; i++) {
+  vec4 orderedStripeColor = u_colors[0];
+  for (int i = 0; i < ${ foldsMeta.maxColorCount }; i++) { 
     if (i >= int(u_colorsCount)) break;
-
-    vec2 pos = getPosition(i, 1.5 * t);
-    vec3 colorFraction = u_colors[i].rgb * u_colors[i].a;
-    float oooFraction = u_colors[i].a;
-
-    float dist = .5 * length(uv + .5 - pos);
-
-    dist = pow(dist, 3.5);
-    float weight = 1. / (dist + 1e-3);
-    ccc += colorFraction * weight;
-    ooo += oooFraction * weight;
-    totalWeight += weight;
+    float isHit = 1.0 - step(.5, abs(float(i - colorIdx)));
+    orderedStripeColor = mix(orderedStripeColor, u_colors[i], isHit);
   }
-
-  ccc /= max(1e-4, totalWeight);
-  ooo /= max(1e-4, totalWeight);
-  vec4 stripeColor = vec4(ccc, ooo);
   
+  vec3 gradientStripeColor = vec3(0.);
+  float gradientOpacity = 0.;
+  {
+    float totalWeight = 0.;
+    for (int i = 0; i < ${ foldsMeta.maxColorCount }; i++) {
+      if (i >= int(u_colorsCount)) break;
+      vec2 pos = getPosition(i, 1.5 * t);
+      vec3 colorFraction = u_colors[i].rgb * u_colors[i].a;
+      float opacityFraction = u_colors[i].a;
+      float dist = .5 * length(patternsUV + .5 - pos);
+      dist = pow(dist, 3.5);
+      float weight = 1. / (dist + 1e-3);
+      gradientStripeColor += colorFraction * weight;
+      gradientOpacity += opacityFraction * weight;
+      totalWeight += weight;
+    }
+    gradientStripeColor /= max(1e-4, totalWeight);
+    gradientOpacity /= max(1e-4, totalWeight);
+  }
   
-  stripeColor = mix(orderedStripeColor, mix(stripeColor, orderedStripeColor, tst), u_gradient);
+  vec4 stripeColor = vec4(gradientStripeColor, gradientOpacity);
+  stripeColor = mix(orderedStripeColor, mix(stripeColor, orderedStripeColor, fy), u_gradient);
   
   vec3 stripePremulRGB = stripeColor.rgb * stripeColor.a;
   stripePremulRGB *= line;
@@ -323,16 +251,28 @@ void main() {
   vec3 color = stripePremulRGB;
   float opacity = stripeA;
 
-  if (u_gap == true) {
-    color += .6 * (1. - edge) * imgAlpha;
-  }
+//  if (u_gap == true) {
+//    color += .6 * (1. - edge) * imgAlpha;
+//  }
+  
+  vec3 backRgb = u_colorBack.rgb * u_colorBack.a;
+  float backA = u_colorBack.a;
+  vec3 innerRgb = u_colorInner.rgb * u_colorInner.a;
+  float innerA = u_colorInner.a;
 
-  vec3 bgColor = u_colorBack.rgb * u_colorBack.a;
-  color = color + bgColor * (1. - opacity);
-  opacity = opacity + u_colorBack.a * (1. - opacity);
+  innerRgb *= imgAlpha;
+  innerA *= imgAlpha;
+
+  vec3 underlayerRgb = innerRgb + backRgb * (1. - innerA);
+  float underlayerA = innerA + backA * (1. - innerA);
+  
+  color *= line;
+  opacity *= line;
+  
+  color = color + underlayerRgb * (1. - opacity);
+  opacity = opacity + underlayerA  * (1. - opacity);
   
   fragColor = vec4(color, opacity);
-//  fragColor = vec4(ccc, 1.);
 }
 `;
 
@@ -853,6 +793,7 @@ function solvePoissonSparse(
 
 export interface FoldsUniforms extends ShaderSizingUniforms {
   u_colorBack: [number, number, number, number];
+  u_colorInner: [number, number, number, number];
   u_colors: vec4[];
   u_colorsCount: number;
   u_image: HTMLImageElement | string | undefined;
@@ -866,13 +807,13 @@ export interface FoldsUniforms extends ShaderSizingUniforms {
   u_softness: number;
   u_gradient: number;
   u_angle: number;
-  u_shape: (typeof FoldsShapes)[FoldsShape];
   u_isImage: boolean;
 }
 
 export interface FoldsParams extends ShaderSizingParams, ShaderMotionParams {
   colors?: string[];
   colorBack?: string;
+  colorInner?: string;
   image?: HTMLImageElement | string | undefined;
   stripeWidth?: number;
   alphaMask?: boolean;
@@ -884,15 +825,4 @@ export interface FoldsParams extends ShaderSizingParams, ShaderMotionParams {
   noise?: number;
   outerNoise?: number;
   angle?: number;
-  shape?: FoldsShape;
 }
-
-export const FoldsShapes = {
-  none: 0,
-  circle: 1,
-  daisy: 2,
-  diamond: 3,
-  metaballs: 4,
-} as const;
-
-export type FoldsShape = keyof typeof FoldsShapes;

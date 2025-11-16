@@ -213,9 +213,7 @@ export {
 export {
   foldsMeta,
   foldsFragmentShader,
-  FoldsShapes,
   toProcessedFolds,
-  type FoldsShape,
   type FoldsParams,
   type FoldsUniforms,
 } from './shaders/folds.js';

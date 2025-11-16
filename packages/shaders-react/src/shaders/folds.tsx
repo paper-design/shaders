@@ -10,7 +10,6 @@ import {
   toProcessedFolds,
   type ImageShaderPreset,
   getShaderColorFromString,
-  FoldsShapes,
 } from '@paper-design/shaders';
 import { transparentPixel } from '../transparent-pixel.js';
 import { suspend } from '../suspend.js';
@@ -32,6 +31,7 @@ export const defaultPreset: FoldsPreset = {
     speed: 0.2,
     frame: 0,
     colorBack: '#000000',
+    colorInner: '#000000',
     colors: ['#ff9d00', '#fd4f30', '#809bff', '#ffffff'],
     stripeWidth: 1,
     alphaMask: false,
@@ -40,10 +40,9 @@ export const defaultPreset: FoldsPreset = {
     shift: 1,
     noise: 0.5,
     outerNoise: 0,
-    softness: 0.2,
-    gradient: 0.8,
+    softness: 0,
+    gradient: 0,
     angle: 0,
-    shape: 'diamond',
   },
 };
 export const foldsPresets: FoldsPreset[] = [defaultPreset];
@@ -51,6 +50,7 @@ export const foldsPresets: FoldsPreset[] = [defaultPreset];
 export const Folds: React.FC<FoldsProps> = memo(function FoldsImpl({
   // Own props
   colorBack = defaultPreset.params.colorBack,
+  colorInner = defaultPreset.params.colorInner,
   colors = defaultPreset.params.colors,
   speed = defaultPreset.params.speed,
   frame = defaultPreset.params.frame,
@@ -65,7 +65,6 @@ export const Folds: React.FC<FoldsProps> = memo(function FoldsImpl({
   gap = defaultPreset.params.gap,
   size = defaultPreset.params.size,
   angle = defaultPreset.params.angle,
-  shape = defaultPreset.params.shape,
   suspendWhenProcessingImage = false,
 
   // Sizing props
@@ -125,6 +124,7 @@ export const Folds: React.FC<FoldsProps> = memo(function FoldsImpl({
     u_colors: colors.map(getShaderColorFromString),
     u_colorsCount: colors.length,
     u_colorBack: getShaderColorFromString(colorBack),
+    u_colorInner: getShaderColorFromString(colorInner),
     u_image: processedImage,
     u_shift: shift,
     u_noise: noise,
@@ -137,7 +137,6 @@ export const Folds: React.FC<FoldsProps> = memo(function FoldsImpl({
     u_size: size,
     u_angle: angle,
     u_isImage: Boolean(image),
-    u_shape: FoldsShapes[shape],
 
     // Sizing uniforms
     u_fit: ShaderFitOptions[fit],

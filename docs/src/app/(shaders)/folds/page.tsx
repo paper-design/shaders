@@ -71,11 +71,12 @@ const FoldsWithControls = () => {
   const [params, setParams] = useControls(() => {
     return {
       colorBack: { value: toHsla(defaults.colorBack), order: 100 },
+      colorInner: { value: toHsla(defaults.colorInner), order: 101 },
       stripeWidth: { value: defaults.stripeWidth, min: 0, max: 0.5, order: 200 },
       softness: { value: defaults.softness, min: 0, max: 1, order: 201 },
       gradient: { value: defaults.gradient, min: 0, max: 1, order: 201 },
       alphaMask: { value: defaults.alphaMask, order: 202 },
-      gap: { value: defaults.gap, order: 202 },
+      // gap: { value: defaults.gap, order: 202 },
       size: { value: defaults.size, min: 6, max: 50, order: 203 },
       shift: { value: defaults.shift, min: -1, max: 1, order: 204 },
       noise: { value: defaults.noise, min: 0, max: 1, order: 205 },
