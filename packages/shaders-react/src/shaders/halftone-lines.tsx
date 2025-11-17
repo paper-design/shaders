@@ -20,7 +20,7 @@ export const defaultPreset: HalftoneLinesPreset = {
     scale: 1,
     speed: 0,
     frame: 0,
-    colorBack: '#000000',
+    colorBack: '#615681',
     colorFront: '#ffffff',
     stripeWidth: 0,
     smoothness: 10,
