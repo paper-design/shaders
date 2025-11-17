@@ -22,32 +22,45 @@ import { useColors } from "@/helpers/use-colors";
 const { worldWidth, worldHeight, ...defaults } = foldsPresets[0].params;
 
 const imageFiles = [
-  'chanel.svg',
-  'cibc.svg',
-  'cloudflare.svg',
-  'apple.svg',
+  'paradigm.svg',
   'paper-logo-only.svg',
+  'brave2.png',
+  'capy.svg',
+  'contra.svg',
+  'infinite.svg',
+  'linear.svg',
+  'mercury.svg',
+  'mymind.svg',
+  'inbound.svg',
+  'resend.svg',
+  'shopify.svg',
+  'wealth-simple.svg',
   'diamond.svg',
+
+  // 'chanel.svg',
+  // 'cibc.svg',
+  // 'cloudflare.svg',
+  // 'apple.svg',
+  // 'paper-logo-only.svg',
   'discord.svg',
-  'paper-logo-only',
-  'enterprise-rent.svg',
-  'kfc.svg',
-  'microsoft.svg',
-  'nasa.svg',
-  'netflix.svg',
+  // 'paper-logo-only',
+  // 'enterprise-rent.svg',
+  // 'kfc.svg',
+  // 'microsoft.svg',
+  // 'nasa.svg',
+  // 'netflix.svg',
   'nike.svg',
-  'paper.svg',
-  'perkins.svg',
-  'pizza-hut.svg',
-  'remix.svg',
-  'rogers.svg',
+  // 'perkins.svg',
+  // 'pizza-hut.svg',
+  // 'remix.svg',
+  // 'rogers.svg',
   'vercel.svg',
   'volkswagen.svg',
 ] as const;
 
 const FoldsWithControls = () => {
   const [imageIdx, setImageIdx] = useState(-1);
-  const [image, setImage] = useState<HTMLImageElement | string>('/images/logos/apple.svg');
+  const [image, setImage] = useState<HTMLImageElement | string>('/images/logos/diamond.svg');
 
   useEffect(() => {
     if (imageIdx >= 0) {
@@ -72,7 +85,7 @@ const FoldsWithControls = () => {
     return {
       colorBack: { value: toHsla(defaults.colorBack), order: 100 },
       colorInner: { value: toHsla(defaults.colorInner), order: 101 },
-      stripeWidth: { value: defaults.stripeWidth, min: 0, max: 0.5, order: 200 },
+      stripeWidth: { value: defaults.stripeWidth, min: 0, max: 1, order: 200 },
       softness: { value: defaults.softness, min: 0, max: 1, order: 201 },
       gradient: { value: defaults.gradient, min: 0, max: 1, order: 201 },
       alphaMask: { value: defaults.alphaMask, order: 202 },

@@ -22,32 +22,45 @@ import { useColors } from "@/helpers/use-colors";
 const { worldWidth, worldHeight, ...defaults } = meshGradientLogoPresets[0].params;
 
 const imageFiles = [
-  'chanel.svg',
-  'cibc.svg',
-  'cloudflare.svg',
-  'apple.svg',
+  'paradigm.svg',
   'paper-logo-only.svg',
+  'brave2.png',
+  'capy.svg',
+  'contra.svg',
+  'infinite.svg',
+  'linear.svg',
+  'mercury.svg',
+  'mymind.svg',
+  'inbound.svg',
+  'resend.svg',
+  'shopify.svg',
+  'wealth-simple.svg',
   'diamond.svg',
+
+  // 'chanel.svg',
+  // 'cibc.svg',
+  // 'cloudflare.svg',
+  // 'apple.svg',
+  // 'paper-logo-only.svg',
   'discord.svg',
-  'paper-logo-only',
-  'enterprise-rent.svg',
-  'kfc.svg',
-  'microsoft.svg',
-  'nasa.svg',
-  'netflix.svg',
+  // 'paper-logo-only',
+  // 'enterprise-rent.svg',
+  // 'kfc.svg',
+  // 'microsoft.svg',
+  // 'nasa.svg',
+  // 'netflix.svg',
   'nike.svg',
-  'paper.svg',
-  'perkins.svg',
-  'pizza-hut.svg',
-  'remix.svg',
-  'rogers.svg',
+  // 'perkins.svg',
+  // 'pizza-hut.svg',
+  // 'remix.svg',
+  // 'rogers.svg',
   'vercel.svg',
   'volkswagen.svg',
 ] as const;
 
 const MeshGradientLogoWithControls = () => {
   const [imageIdx, setImageIdx] = useState(-1);
-  const [image, setImage] = useState<HTMLImageElement | string>('/images/logos/apple.svg');
+  const [image, setImage] = useState<HTMLImageElement | string>('/images/logos/diamond.svg');
 
   useEffect(() => {
     if (imageIdx >= 0) {
