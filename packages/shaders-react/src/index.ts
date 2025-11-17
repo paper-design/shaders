@@ -115,9 +115,9 @@ export { HalftoneLines, halftoneLinesPresets } from './shaders/halftone-lines.js
 export type { HalftoneLinesProps } from './shaders/halftone-lines.js';
 export type { HalftoneLinesUniforms, HalftoneLinesParams } from '@paper-design/shaders';
 
-export { MeshGradientLogo, meshGradientLogoPresets } from './shaders/mesh-gradient-logo.js';
-export type { MeshGradientLogoProps } from './shaders/mesh-gradient-logo.js';
-export type { MeshGradientLogoUniforms, MeshGradientLogoParams } from '@paper-design/shaders';
+export { BlobsLogo, blobsLogoPresets } from './shaders/blobs-logo.js';
+export type { BlobsLogoProps } from './shaders/blobs-logo.js';
+export type { BlobsLogoUniforms, BlobsLogoParams } from '@paper-design/shaders';
 
 export { isPaperShaderElement, getShaderColorFromString } from '@paper-design/shaders';
 export type { PaperShaderElement, ShaderFit, ShaderSizingParams, ShaderSizingUniforms } from '@paper-design/shaders';
@@ -140,5 +140,5 @@ export {
   staticRadialGradientMeta,
   foldsMeta,
   halftoneLinesMeta,
-  meshGradientLogoMeta,
+  blobsLogoMeta,
 } from '@paper-design/shaders';

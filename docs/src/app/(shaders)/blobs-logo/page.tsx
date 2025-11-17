@@ -1,25 +1,25 @@
 'use client';
 
-import { MeshGradientLogo, meshGradientLogoPresets } from '@paper-design/shaders-react';
+import { BlobsLogo, blobsLogoPresets } from '@paper-design/shaders-react';
 import { useControls, button, folder } from 'leva';
 import { setParamsSafe, useResetLevaParams } from '@/helpers/use-reset-leva-params';
 import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
-import { meshGradientLogoMeta } from '@paper-design/shaders';
+import { blobsLogoMeta } from '@paper-design/shaders';
 import { ShaderFit } from '@paper-design/shaders';
 import { levaImageButton } from '@/helpers/leva-image-button';
 import { useState, Suspense, useEffect, useCallback } from 'react';
 import { ShaderDetails } from '@/components/shader-details';
 import { ShaderContainer } from '@/components/shader-container';
 import { useUrlParams } from '@/helpers/use-url-params';
-import { meshGradientLogoDef } from '@/shader-defs/mesh-gradient-logo-def';
+import { blobsLogoDef } from '@/shader-defs/blobs-logo-def';
 import { toHsla } from '@/helpers/color-utils';
 import { useColors } from "@/helpers/use-colors";
 
 // Override just for the docs, we keep it transparent in the preset
-// meshGradientLogoPresets[0].params.colorBack = '#000000';
+// blobsLogoPresets[0].params.colorBack = '#000000';
 
-const { worldWidth, worldHeight, ...defaults } = meshGradientLogoPresets[0].params;
+const { worldWidth, worldHeight, ...defaults } = blobsLogoPresets[0].params;
 
 const imageFiles = [
   'paradigm.svg',
@@ -58,7 +58,7 @@ const imageFiles = [
   'volkswagen.svg',
 ] as const;
 
-const MeshGradientLogoWithControls = () => {
+const BlobsLogoWithControls = () => {
   const [imageIdx, setImageIdx] = useState(-1);
   const [image, setImage] = useState<HTMLImageElement | string>('/images/logos/diamond.svg');
 
@@ -78,7 +78,7 @@ const MeshGradientLogoWithControls = () => {
 
   const { colors, setColors } = useColors({
     defaultColors: defaults.colors,
-    maxColorCount: meshGradientLogoMeta.maxColorCount,
+    maxColorCount: blobsLogoMeta.maxColorCount,
   });
 
   const [params, setParams] = useControls(() => {
@@ -104,7 +104,7 @@ const MeshGradientLogoWithControls = () => {
 
   useControls(() => {
     const presets = Object.fromEntries(
-      meshGradientLogoPresets.map(({ name, params: { worldWidth, worldHeight, ...preset } }) => [
+      blobsLogoPresets.map(({ name, params: { worldWidth, worldHeight, ...preset } }) => [
         name,
         button(() => {
           const { colors, ...presetParams } = preset;
@@ -121,20 +121,20 @@ const MeshGradientLogoWithControls = () => {
   // Reset to defaults on mount, so that Leva doesn't show values from other
   // shaders when navigating (if two shaders have a color1 param for example)
   useResetLevaParams(params, setParams, defaults);
-  useUrlParams(params, setParams, meshGradientLogoDef, setColors);
-  usePresetHighlight(meshGradientLogoPresets, params);
+  useUrlParams(params, setParams, blobsLogoDef, setColors);
+  usePresetHighlight(blobsLogoPresets, params);
   cleanUpLevaParams(params);
 
   return (
     <>
-      <ShaderContainer shaderDef={meshGradientLogoDef} currentParams={params}>
+      <ShaderContainer shaderDef={blobsLogoDef} currentParams={params}>
         <Suspense fallback={null}>
-          <MeshGradientLogo onClick={handleClick} {...params} colors={ colors } image={image} suspendWhenProcessingImage />
+          <BlobsLogo onClick={handleClick} {...params} colors={ colors } image={image} suspendWhenProcessingImage />
         </Suspense>
       </ShaderContainer>
-      <ShaderDetails shaderDef={meshGradientLogoDef} currentParams={ {colors, ...params} } codeSampleImageName="images/logos/diamond.svg" />
+      <ShaderDetails shaderDef={blobsLogoDef} currentParams={ {colors, ...params} } codeSampleImageName="images/logos/diamond.svg" />
     </>
   );
 };
 
-export default MeshGradientLogoWithControls;
+export default BlobsLogoWithControls;

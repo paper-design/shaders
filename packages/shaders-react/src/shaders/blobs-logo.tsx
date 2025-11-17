@@ -2,28 +2,28 @@ import { memo, useLayoutEffect, useState } from 'react';
 import { ShaderMount, type ShaderComponentProps } from '../shader-mount.js';
 import { colorPropsAreEqual } from '../color-props-are-equal.js';
 import {
-  meshGradientLogoFragmentShader,
+  blobsLogoFragmentShader,
   ShaderFitOptions,
   defaultObjectSizing,
-  type MeshGradientLogoUniforms,
-  type MeshGradientLogoParams,
-  toProcessedMeshGradientLogo,
+  type BlobsLogoUniforms,
+  type BlobsLogoParams,
+  toProcessedBlobsLogo,
   type ImageShaderPreset,
   getShaderColorFromString,
 } from '@paper-design/shaders';
 import { transparentPixel } from '../transparent-pixel.js';
 import { suspend } from '../suspend.js';
 
-export interface MeshGradientLogoProps extends ShaderComponentProps, MeshGradientLogoParams {
+export interface BlobsLogoProps extends ShaderComponentProps, BlobsLogoParams {
   /**
    * Suspends the component when the image is being processed.
    */
   suspendWhenProcessingImage?: boolean;
 }
 
-type MeshGradientLogoPreset = ImageShaderPreset<MeshGradientLogoParams>;
+type BlobsLogoPreset = ImageShaderPreset<BlobsLogoParams>;
 
-export const defaultPreset: MeshGradientLogoPreset = {
+export const defaultPreset: BlobsLogoPreset = {
   name: 'Default',
   params: {
     ...defaultObjectSizing,
@@ -37,9 +37,9 @@ export const defaultPreset: MeshGradientLogoPreset = {
     contour: 0.7,
   },
 };
-export const meshGradientLogoPresets: MeshGradientLogoPreset[] = [defaultPreset];
+export const blobsLogoPresets: BlobsLogoPreset[] = [defaultPreset];
 
-export const MeshGradientLogo: React.FC<MeshGradientLogoProps> = memo(function MeshGradientLogoImpl({
+export const BlobsLogo: React.FC<BlobsLogoProps> = memo(function BlobsLogoImpl({
   // Own props
   colorBack = defaultPreset.params.colorBack,
   colorInner = defaultPreset.params.colorInner,
@@ -62,7 +62,7 @@ export const MeshGradientLogo: React.FC<MeshGradientLogoProps> = memo(function M
   worldWidth = defaultPreset.params.worldWidth,
   worldHeight = defaultPreset.params.worldHeight,
   ...props
-}: MeshGradientLogoProps) {
+}: BlobsLogoProps) {
   const imageUrl = typeof image === 'string' ? image : image.src;
   const [processedStateImage, setProcessedStateImage] = useState<string>(transparentPixel);
 
@@ -70,8 +70,8 @@ export const MeshGradientLogo: React.FC<MeshGradientLogoProps> = memo(function M
 
   if (suspendWhenProcessingImage && typeof window !== 'undefined' && imageUrl) {
     processedImage = suspend(
-      (): Promise<string> => toProcessedMeshGradientLogo(imageUrl).then((result) => URL.createObjectURL(result.pngBlob)),
-      [imageUrl, 'meshGradientLogo']
+      (): Promise<string> => toProcessedBlobsLogo(imageUrl).then((result) => URL.createObjectURL(result.pngBlob)),
+      [imageUrl, 'blobsLogo']
     );
   } else {
     processedImage = processedStateImage;
@@ -91,7 +91,7 @@ export const MeshGradientLogo: React.FC<MeshGradientLogoProps> = memo(function M
     let url: string;
     let current = true;
 
-    toProcessedMeshGradientLogo(imageUrl).then((result) => {
+    toProcessedBlobsLogo(imageUrl).then((result) => {
       if (current) {
         url = URL.createObjectURL(result.pngBlob);
         setProcessedStateImage(url);
@@ -123,14 +123,14 @@ export const MeshGradientLogo: React.FC<MeshGradientLogoProps> = memo(function M
     u_originY: originY,
     u_worldWidth: worldWidth,
     u_worldHeight: worldHeight,
-  } satisfies MeshGradientLogoUniforms;
+  } satisfies BlobsLogoUniforms;
 
   return (
     <ShaderMount
       {...props}
       speed={speed}
       frame={frame}
-      fragmentShader={meshGradientLogoFragmentShader}
+      fragmentShader={blobsLogoFragmentShader}
       mipmaps={['u_image']}
       uniforms={uniforms}
     />

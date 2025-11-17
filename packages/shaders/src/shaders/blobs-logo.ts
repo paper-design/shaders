@@ -3,7 +3,7 @@ import type { ShaderMotionParams } from '../shader-mount.js';
 import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
 import { declarePI, rotation2, proceduralHash21, colorBandingFix } from '../shader-utils.js';
 
-export const meshGradientLogoMeta = {
+export const blobsLogoMeta = {
   maxColorCount: 6,
 } as const;
 
@@ -18,7 +18,7 @@ export const meshGradientLogoMeta = {
  */
 
 // language=GLSL
-export const meshGradientLogoFragmentShader: string = `#version 300 es
+export const blobsLogoFragmentShader: string = `#version 300 es
 precision mediump float;
 
 uniform sampler2D u_image;
@@ -27,7 +27,7 @@ uniform float u_imageAspectRatio;
 uniform vec2 u_resolution;
 uniform float u_time;
 
-uniform vec4 u_colors[${meshGradientLogoMeta.maxColorCount}];
+uniform vec4 u_colors[${blobsLogoMeta.maxColorCount}];
 uniform float u_colorsCount;
 uniform vec4 u_colorBack;
 uniform vec4 u_colorInner;
@@ -165,9 +165,9 @@ void main() {
   float shaping = 2.5 - shapeOffset;
 
   t = 2. * u_time;
-  float f[${ meshGradientLogoMeta.maxColorCount }];
+  float f[${ blobsLogoMeta.maxColorCount }];
 
-  vec2 trajs[${ meshGradientLogoMeta.maxColorCount }];
+  vec2 trajs[${ blobsLogoMeta.maxColorCount }];
   trajs[0] = vec2(0.8 * sin(-0.5 * t), 0.2 + 2.5 * cos(0.3 * t));
   trajs[1] = vec2(1.7 * cos(-0.5 * t + 1.), sin(0.8 * t));
   trajs[2] = vec2(0.5 * cos(0.3 * t), cos(-0.8 * t));
@@ -176,7 +176,7 @@ void main() {
   trajs[5] = vec2(0.9 * sin(0.85 * t + 1.), 0.7 * cos(0.6 * t));
 
   float dist = 0.3;
-  for (int i = 0; i < ${ meshGradientLogoMeta.maxColorCount }; i++) {
+  for (int i = 0; i < ${ blobsLogoMeta.maxColorCount }; i++) {
     dist += .03 * float(i);
     f[i] = getPoint(uv + dist * trajs[i], shaping);
   }
@@ -196,7 +196,7 @@ void main() {
   vec3 color = vec3(0.);
 
   float size = .95 - .9 * u_size;
-  for (int i = 0; i < ${ meshGradientLogoMeta.maxColorCount }; i++) {
+  for (int i = 0; i < ${ blobsLogoMeta.maxColorCount }; i++) {
     if (i >= int(u_colorsCount)) break;
     f[i] = sst(size, size + 2. * fwidth(f[i]), f[i]);
     opacity += f[i];
@@ -245,7 +245,7 @@ interface SparsePixelData {
   neighborIndices: Int32Array;
 }
 
-export function toProcessedMeshGradientLogo(file: File | string): Promise<{ imageData: ImageData; pngBlob: Blob }> {
+export function toProcessedBlobsLogo(file: File | string): Promise<{ imageData: ImageData; pngBlob: Blob }> {
   const canvas = document.createElement('canvas');
   const ctx = canvas.getContext('2d');
   const isBlob = typeof file === 'string' && file.startsWith('blob:');
@@ -743,7 +743,7 @@ function solvePoissonSparse(
   return u;
 }
 
-export interface MeshGradientLogoUniforms extends ShaderSizingUniforms {
+export interface BlobsLogoUniforms extends ShaderSizingUniforms {
   u_colorBack: [number, number, number, number];
   u_colorInner: [number, number, number, number];
   u_colors: vec4[];
@@ -753,7 +753,7 @@ export interface MeshGradientLogoUniforms extends ShaderSizingUniforms {
   u_size: number;
 }
 
-export interface MeshGradientLogoParams extends ShaderSizingParams, ShaderMotionParams {
+export interface BlobsLogoParams extends ShaderSizingParams, ShaderMotionParams {
   colors?: string[];
   colorBack?: string;
   colorInner?: string;

@@ -226,12 +226,12 @@ export {
 } from './shaders/halftone-lines.js';
 
 export {
-  meshGradientLogoMeta,
-  meshGradientLogoFragmentShader,
-  toProcessedMeshGradientLogo,
-  type MeshGradientLogoParams,
-  type MeshGradientLogoUniforms,
-} from './shaders/mesh-gradient-logo.js';
+  blobsLogoMeta,
+  blobsLogoFragmentShader,
+  toProcessedBlobsLogo,
+  type BlobsLogoParams,
+  type BlobsLogoUniforms,
+} from './shaders/blobs-logo.js';
 
 // ----- Utils ----- //
 export { getShaderColorFromString } from './get-shader-color-from-string.js';
