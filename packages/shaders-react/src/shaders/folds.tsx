@@ -30,22 +30,92 @@ export const defaultPreset: FoldsPreset = {
     scale: 0.8,
     speed: 0.2,
     frame: 0,
-    colorBack: '#000000',
+    colorBack: '#ffffff00',
     colorInner: '#000000',
-    colors: ['#ff9d00', '#fd4f30', '#809bff', '#ffffff'],
+    colors: ['#809399', '#9d31fc', '#ffffff', '#b3ff66'],
+    stripeWidth: 0.65,
+    alphaMask: true,
+    gap: false,
+    size: 13,
+    shift: 0.5,
+    noise: 0.5,
+    outerNoise: 0,
+    softness: 0,
+    gradient: 1,
+    angle: 0,
+  },
+};
+
+export const fstPreset: FoldsPreset = {
+  name: '1',
+  params: {
+    ...defaultObjectSizing,
+    scale: 0.8,
+    speed: 0.2,
+    frame: 0,
+    colorBack: '#000000',
+    colorInner: '#00000000',
+    colors: ['#ffffff'],
     stripeWidth: 1,
     alphaMask: false,
     gap: false,
-    size: 12,
-    shift: 1,
-    noise: 0.5,
+    size: 16,
+    shift: 0.5,
+    noise: 0.32,
     outerNoise: 0,
     softness: 0,
     gradient: 0,
     angle: 0,
   },
 };
-export const foldsPresets: FoldsPreset[] = [defaultPreset];
+
+export const scdPreset: FoldsPreset = {
+  name: '2',
+  params: {
+    ...defaultObjectSizing,
+    scale: 0.8,
+    speed: 0.2,
+    frame: 0,
+    colorBack: '#000000',
+    colorInner: '#00000000',
+    colors: ['#ffffff', '#000000', '#0022ff', '#ffe500'],
+    stripeWidth: 0.6,
+    alphaMask: false,
+    gap: false,
+    size: 24,
+    shift: 0,
+    noise: 0.65,
+    outerNoise: 1,
+    softness: 0,
+    gradient: 1,
+    angle: 90,
+  },
+};
+
+export const trdPreset: FoldsPreset = {
+  name: '3',
+  params: {
+    ...defaultObjectSizing,
+    scale: 0.8,
+    speed: 0.2,
+    frame: 0,
+    colorBack: '#000000',
+    colorInner: '#6e535354',
+    colors: ['#ff5ec4', '#5effc8', '#ffe45e', '#ff6b5e'],
+    stripeWidth: 0.3,
+    alphaMask: true,
+    gap: false,
+    size: 45,
+    shift: 0,
+    noise: 0.3,
+    outerNoise: 0,
+    softness: 0,
+    gradient: 0,
+    angle: 0,
+  },
+};
+
+export const foldsPresets: FoldsPreset[] = [defaultPreset, fstPreset, scdPreset, trdPreset];
 
 export const Folds: React.FC<FoldsProps> = memo(function FoldsImpl({
   // Own props

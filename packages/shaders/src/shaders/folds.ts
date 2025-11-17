@@ -209,8 +209,8 @@ void main() {
     line *= imgAlpha;
   }
 
-  float softness = mix(0., u_softness, sst(aa, .5, w));
-  line -= u_softness * sst(softness, 0., 1. - fy);
+  float softness = mix(0., u_softness, sst(aa, 2. * aa, w));
+  line -= sst(softness, 0., 1. - fy);
   line = clamp(line, 0., 1.);
 
   int colorIdx = int(posMod(stripeId, u_colorsCount));
@@ -273,6 +273,7 @@ void main() {
   opacity = opacity + underlayerA  * (1. - opacity);
   
   fragColor = vec4(color, opacity);
+//  fragColor = vec4(img.rgb, 1.);
 }
 `;
 
