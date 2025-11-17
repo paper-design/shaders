@@ -4,7 +4,7 @@ import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingU
 import { declarePI, rotation2, proceduralHash21, colorBandingFix } from '../shader-utils.js';
 
 export const meshGradientLogoMeta = {
-  maxColorCount: 10,
+  maxColorCount: 6,
 } as const;
 
 /**
@@ -32,18 +32,7 @@ uniform float u_colorsCount;
 uniform vec4 u_colorBack;
 uniform vec4 u_colorInner;
 uniform float u_contour;
-uniform float u_stripeWidth;
-uniform bool u_alphaMask;
-uniform bool u_gap;
 uniform float u_size;
-uniform float u_roundness;
-uniform float u_shift;
-uniform float u_noise;
-uniform float u_outerNoise;
-uniform float u_angle;
-
-uniform float u_shape;
-uniform bool u_isImage;
 
 ${sizingVariablesDeclaration}
 
@@ -175,64 +164,46 @@ void main() {
   float shapeOffset = 2.4 * u_contour * offset;
   float shaping = 2.5 - shapeOffset;
 
-  float f1, f2, f3, f4;
   t = 2. * u_time;
+  float f[${ meshGradientLogoMeta.maxColorCount }];
 
-  {
-    vec2 traj = .5 * vec2(.8 * sin(-.5 * t), .2 + 2.5 * cos(.3 * t));
-    float f = getPoint(uv + traj, shaping);
-    f1 = f;
+  vec2 trajs[${ meshGradientLogoMeta.maxColorCount }];
+  trajs[0] = vec2(0.8 * sin(-0.5 * t), 0.2 + 2.5 * cos(0.3 * t));
+  trajs[1] = vec2(1.7 * cos(-0.5 * t + 1.), sin(0.8 * t));
+  trajs[2] = vec2(0.5 * cos(0.3 * t), cos(-0.8 * t));
+  trajs[3] = vec2(0.5 * cos(-0.9 * t), 0.7 * sin(-0.2 * t));
+  trajs[4] = vec2(0.5 * sin(-0.34 * t), -.2 + 1.3 * sin(-0.8 * t));
+  trajs[5] = vec2(0.9 * sin(0.85 * t + 1.), 0.7 * cos(0.6 * t));
+
+  float dist = 0.3;
+  for (int i = 0; i < ${ meshGradientLogoMeta.maxColorCount }; i++) {
+    dist += .03 * float(i);
+    f[i] = getPoint(uv + dist * trajs[i], shaping);
   }
 
-  {
-    vec2 traj = .5 * vec2(1.7 * sin(-.5 * t), sin(.8 * t));
-    float f = getPoint(uv + traj, shaping);
-    f2 = f;
-  }
+  f[0] -= f[1];
+  f[2] -= 1.2 * f[1];
+  f[2] -= 1.6 * f[0];
+  f[4] -= f[1];
+  f[5] -= .4 * f[3];
+  f[1] -= .5 * f[2];
+  f[5] -= f[4];
+  f[3] -= f[1];
+  f[3] -= f[2];
+  f[5] *= .3;
 
-  {
-    vec2 traj = .5 * vec2(.5 * cos(-.3 * t), cos(-.8 * t));
-    float f = getPoint(uv + traj, shaping);
-    f3 = f;
-  }
-
-  {
-    vec2 traj = .5 * vec2(.5 * cos(-.9 * t), .7 * sin(-.2 * t));
-    float f = getPoint(uv + traj, shaping);
-    f4 = f;
-  }
-
-  f1 -= .5 * f2;
-  f3 -= f2;
-  f2 -= f1;
-  f2 -= f3;
-  f1 -= f3;
-  f2 -= f4;
-  f3 -= f1;
-  f3 -= f1;
-  f4 -= f2;
-  f4 -= f1;
-  f4 -= f3;
-  f3 -= f4;
-
-  f1 = sst(u_roundness, u_roundness + 2. * fwidth(f1), f1);
-  f2 = sst(u_roundness, u_roundness + 2. * fwidth(f2), f2);
-  f3 = sst(u_roundness, u_roundness + 2. * fwidth(f3), f3);
-  f4 = sst(u_roundness, u_roundness + 2. * fwidth(f4), f4);
-
-  vec3 color1 = u_colors[0].rgb;
-  vec3 color2 = u_colors[1].rgb;
-  vec3 color3 = u_colors[2].rgb;
-  vec3 color4 = u_colors[3].rgb;
-
-  float opacity = f1 + f2 + f3 + f4;
-  opacity = clamp(opacity, 0., 1.);
-
+  float opacity = 0.;
   vec3 color = vec3(0.);
-  color = mix(color, color4, f4);
-  color = mix(color, color2, f2);
-  color = mix(color, color3, f3);
-  color = mix(color, color1, f1);
+
+  float size = .95 - .9 * u_size;
+  for (int i = 0; i < ${ meshGradientLogoMeta.maxColorCount }; i++) {
+    if (i >= int(u_colorsCount)) break;
+    f[i] = sst(size, size + 2. * fwidth(f[i]), f[i]);
+    opacity += f[i];
+    color = mix(color, u_colors[i].rgb, f[i]);
+  }
+
+  opacity = clamp(opacity, 0., 1.);
 
   color *= imgAlpha;
   opacity *= imgAlpha;
@@ -778,17 +749,8 @@ export interface MeshGradientLogoUniforms extends ShaderSizingUniforms {
   u_colors: vec4[];
   u_colorsCount: number;
   u_image: HTMLImageElement | string | undefined;
-  u_stripeWidth: number;
-  u_alphaMask: boolean;
-  u_gap: boolean;
-  u_size: number;
-  u_shift: number;
-  u_noise: number;
-  u_outerNoise: number;
   u_contour: number;
-  u_roundness: number;
-  u_angle: number;
-  u_isImage: boolean;
+  u_size: number;
 }
 
 export interface MeshGradientLogoParams extends ShaderSizingParams, ShaderMotionParams {
@@ -796,14 +758,6 @@ export interface MeshGradientLogoParams extends ShaderSizingParams, ShaderMotion
   colorBack?: string;
   colorInner?: string;
   image?: HTMLImageElement | string | undefined;
-  stripeWidth?: number;
-  alphaMask?: boolean;
-  gap?: boolean;
-  size?: number;
   contour?: number;
-  roundness?: number;
-  shift?: number;
-  noise?: number;
-  outerNoise?: number;
-  angle?: number;
+  size?: number;
 }
