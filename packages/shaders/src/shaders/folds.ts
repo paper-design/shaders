@@ -34,7 +34,7 @@ uniform vec4 u_colorInner;
 uniform float u_softness;
 uniform float u_stripeWidth;
 uniform bool u_alphaMask;
-uniform bool u_gap;
+uniform float u_noiseScale;
 uniform float u_size;
 uniform float u_gradient;
 uniform float u_shift;
@@ -186,7 +186,7 @@ void main() {
   stripesUV = rotate(stripesUV, angle);
   stripesUV *= u_size;
 
-  float n = doubleSNoise(patternsUV + 100., u_time);
+  float n = doubleSNoise(u_noiseScale * patternsUV + 100., u_time);
   float edgeAtten = edge + u_outerNoise * (1. - edge);
   float y = stripesUV.y + edgeAtten * .5 * n * u_size * u_noise;
 
@@ -209,7 +209,7 @@ void main() {
     line *= imgAlpha;
   }
 
-  float softness = mix(0., u_softness, sst(aa, 2. * aa, w));
+  float softness = mix(0., u_softness, sst(0., aa, w));
   line -= sst(softness, 0., 1. - fy);
   line = clamp(line, 0., 1.);
 
@@ -250,10 +250,6 @@ void main() {
   
   vec3 color = stripePremulRGB;
   float opacity = stripeA;
-
-//  if (u_gap == true) {
-//    color += .6 * (1. - edge) * imgAlpha;
-//  }
   
   vec3 backRgb = u_colorBack.rgb * u_colorBack.a;
   float backA = u_colorBack.a;
@@ -800,7 +796,7 @@ export interface FoldsUniforms extends ShaderSizingUniforms {
   u_image: HTMLImageElement | string | undefined;
   u_stripeWidth: number;
   u_alphaMask: boolean;
-  u_gap: boolean;
+  u_noiseScale: number;
   u_size: number;
   u_shift: number;
   u_noise: number;
@@ -818,7 +814,7 @@ export interface FoldsParams extends ShaderSizingParams, ShaderMotionParams {
   image?: HTMLImageElement | string | undefined;
   stripeWidth?: number;
   alphaMask?: boolean;
-  gap?: boolean;
+  noiseScale?: number;
   size?: number;
   softness?: number;
   gradient?: number;

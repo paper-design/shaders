@@ -32,17 +32,17 @@ export const defaultPreset: FoldsPreset = {
     frame: 0,
     colorBack: '#ffffff00',
     colorInner: '#000000',
-    colors: ['#809399', '#9d31fc', '#ffffff', '#b3ff66'],
+    colors: ['#ffed47', '#ffed47', '#31fcb8', '#ffffff', '#ff006a'],
     stripeWidth: 0.65,
     alphaMask: true,
-    gap: false,
-    size: 13,
+    noiseScale: 1,
+    size: 10,
     shift: 0.5,
     noise: 0.5,
     outerNoise: 0,
     softness: 0,
     gradient: 1,
-    angle: 0,
+    angle: 220,
   },
 };
 
@@ -58,7 +58,7 @@ export const fstPreset: FoldsPreset = {
     colors: ['#ffffff'],
     stripeWidth: 1,
     alphaMask: false,
-    gap: false,
+    noiseScale: 0.5,
     size: 16,
     shift: 0.5,
     noise: 0.32,
@@ -81,7 +81,7 @@ export const scdPreset: FoldsPreset = {
     colors: ['#ffffff', '#000000', '#0022ff', '#ffe500'],
     stripeWidth: 0.6,
     alphaMask: false,
-    gap: false,
+    noiseScale: 1.5,
     size: 24,
     shift: 0,
     noise: 0.65,
@@ -104,7 +104,7 @@ export const trdPreset: FoldsPreset = {
     colors: ['#ff5ec4', '#5effc8', '#ffe45e', '#ff6b5e'],
     stripeWidth: 0.3,
     alphaMask: true,
-    gap: false,
+    noiseScale: 1,
     size: 45,
     shift: 0,
     noise: 0.3,
@@ -115,7 +115,30 @@ export const trdPreset: FoldsPreset = {
   },
 };
 
-export const foldsPresets: FoldsPreset[] = [defaultPreset, fstPreset, scdPreset, trdPreset];
+export const frtPreset: FoldsPreset = {
+  name: '4',
+  params: {
+    ...defaultObjectSizing,
+    scale: 0.8,
+    speed: 0.2,
+    frame: 0,
+    colorBack: '#ffffff',
+    colorInner: '#ffffff',
+    colors: ['#000000'],
+    stripeWidth: 0,
+    alphaMask: false,
+    noiseScale: 1,
+    size: 45,
+    shift: 0,
+    noise: 0.3,
+    outerNoise: 0,
+    softness: 0,
+    gradient: 0,
+    angle: 0,
+  },
+};
+
+export const foldsPresets: FoldsPreset[] = [defaultPreset, fstPreset, scdPreset, trdPreset, frtPreset];
 
 export const Folds: React.FC<FoldsProps> = memo(function FoldsImpl({
   // Own props
@@ -132,7 +155,7 @@ export const Folds: React.FC<FoldsProps> = memo(function FoldsImpl({
   gradient = defaultPreset.params.gradient,
   stripeWidth = defaultPreset.params.stripeWidth,
   alphaMask = defaultPreset.params.alphaMask,
-  gap = defaultPreset.params.gap,
+  noiseScale = defaultPreset.params.noiseScale,
   size = defaultPreset.params.size,
   angle = defaultPreset.params.angle,
   suspendWhenProcessingImage = false,
@@ -203,7 +226,7 @@ export const Folds: React.FC<FoldsProps> = memo(function FoldsImpl({
     u_gradient: gradient,
     u_stripeWidth: stripeWidth,
     u_alphaMask: alphaMask,
-    u_gap: gap,
+    u_noiseScale: noiseScale,
     u_size: size,
     u_angle: angle,
     u_isImage: Boolean(image),
