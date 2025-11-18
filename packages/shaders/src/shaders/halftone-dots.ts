@@ -183,8 +183,7 @@ float getLumBall(vec2 p, vec2 pad, vec2 inCellOffset, float contrast, float base
   p += inCellOffset;
   vec2 uv_i = floor(p);
   vec2 uv_f = fract(p);
-  vec2 samplePx = (uv_i + .5 - inCellOffset) * pad;
-  vec2 samplingUV = getImageUV(samplePx, vec2(1.));
+  vec2 samplingUV = (uv_i + .5 - inCellOffset) * pad + vec2(.5);
   float outOfFrame = getUvFrame(samplingUV, pad * stepSize);
   
   float lum = getLumAtPx(samplingUV, contrast);
@@ -227,11 +226,6 @@ vec3 blendHardLight(vec3 base, vec3 blend, float opacity) {
 }
 
 void main() {
-
-  vec2 uv = gl_FragCoord.xy - .5 * u_resolution;
-
-  vec2 uvNormalised = uv / u_resolution.xy;
-  vec2 uvOriginal = getImageUV(uvNormalised, vec2(1.));
   
   float stepMultiplier = 1.;
   if (u_type == 0.) {
@@ -242,19 +236,19 @@ void main() {
     stepMultiplier = 6.;
   }
   
-  vec2 uvOffset = vec2(1. / u_resolution.x, 0.);
-  if (u_resolution.x > u_resolution.y) {
-    uvOffset = vec2(0., 1. / u_resolution.y);
-  }
-  vec2 uvOriginalShifted = getImageUV(uvNormalised + uvOffset, vec2(1.));
-  vec2 pxSize = vec2(stepMultiplier) * u_size / 10. / length(uvOriginal - uvOriginalShifted);
-
+  float cellsPerSide = mix(200., 7., u_size);
+  cellsPerSide /= stepMultiplier;
+  float cellSizeY = 1. / cellsPerSide;
+  vec2 pad = cellSizeY * vec2(1. / u_imageAspectRatio, 1.);
   if (u_type == 1. && u_straight == false) {
-    // gooey diaginal grid works differently
-     pxSize *= .7;
+    // gooey diagonal grid works differently
+    pad *= .7;
   }
 
-//   pxSize = max(pxSize, vec2(4. * stepMultiplier));
+  vec2 uvNormalised = (gl_FragCoord.xy - .5 * u_resolution) / u_resolution.xy;
+  vec2 uv = getImageUV(uvNormalised, vec2(1.));
+  uv -= vec2(.5);
+  uv /= pad;
 
   float contrast = mix(0., 15., u_contrast);
   float baseRadius = u_radius;
@@ -262,8 +256,6 @@ void main() {
     contrast = mix(.1, 4., pow(u_contrast, 2.));
     baseRadius = 2. * pow(.5 * u_radius, .3);
   }
-
-  vec2 p = uv / pxSize;
 
   float totalShape = 0.;
   vec3 totalColor = vec3(0.);
@@ -280,9 +272,9 @@ void main() {
         float rowIndex = floor((y + .5) / stepSize);
         float colIndex = floor((x + .5) / stepSize);
         if (stepSize == 1.) {
-          rowIndex = floor(p.y + y + 1.);
+          rowIndex = floor(uv.y + y + 1.);
           if (u_type == 1.) {
-            colIndex = floor(p.x + x + 1.);
+            colIndex = floor(uv.x + x + 1.);
           }
         }
         if (u_type == 1.) {
@@ -296,7 +288,7 @@ void main() {
         }
       }
 
-      shape = getLumBall(p, pxSize / u_resolution.xy, offset, contrast, baseRadius, stepSize, ballColor);
+      shape = getLumBall(uv, pad, offset, contrast, baseRadius, stepSize, ballColor);
       totalColor   += ballColor.rgb * shape;
       totalShape   += shape;
       totalOpacity += shape;
