@@ -3,6 +3,7 @@ import {
   Dithering,
   DotGrid,
   GrainGradient,
+  HalftoneDots,
   Heatmap,
   LiquidMetal,
   PulsingBorder,
@@ -110,6 +111,18 @@ export const appThumbnails = flatHomeThumbnails.map((item) => {
       shaderConfig: {
         ...item.shaderConfig,
         scale: 0.97,
+      },
+    };
+  }
+
+  if (item.ShaderComponent === HalftoneDots) {
+    return {
+      ...item,
+      shaderConfig: {
+        ...item.shaderConfig,
+        size: 0.15,
+        grainMixer: 0,
+        grainOverlay: 0,
       },
     };
   }
