@@ -147,10 +147,9 @@ export const homeThumbnails = [
         image: halftoneDotsImg,
         shaderConfig: {
           ...halftoneDotsPresets[0].params,
-          size: 2.5,
           image: '/images/image-filters/0018.webp',
+          speed: 0,
         },
-        alwaysLivePreview: true,
       },
     ],
   },
