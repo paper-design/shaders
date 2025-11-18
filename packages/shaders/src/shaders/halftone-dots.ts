@@ -40,7 +40,7 @@ uniform float u_size;
 uniform float u_grainMixer;
 uniform float u_grainOverlay;
 uniform float u_grainSize;
-uniform bool u_straight;
+uniform float u_grid;
 uniform bool u_originalColors;
 uniform bool u_inverted;
 uniform float u_type;
@@ -134,7 +134,11 @@ float getCircleWithHole(vec2 uv, float r, float baseR) {
 
 float getGooeyBall(vec2 uv, float r, float baseR) {
   float d = length(uv - .5);
-  float sizeRadius = mix((u_straight ? .3 : .42) * baseR, 0., r);
+  float sizeRadius = .3;
+  if (u_grid == 1.) {
+    sizeRadius = .42;
+  }
+  sizeRadius = mix(sizeRadius * baseR, 0., r);
   d = 1. - sst(0., sizeRadius, d);
   
   d = pow(d, 2. + baseR);
@@ -240,7 +244,7 @@ void main() {
   cellsPerSide /= stepMultiplier;
   float cellSizeY = 1. / cellsPerSide;
   vec2 pad = cellSizeY * vec2(1. / u_imageAspectRatio, 1.);
-  if (u_type == 1. && u_straight == false) {
+  if (u_type == 1. && u_grid == 1.) {
     // gooey diagonal grid works differently
     pad *= .7;
   }
@@ -268,7 +272,7 @@ void main() {
     for (float y = -0.5; y < 0.5; y += stepSize) {
       vec2 offset = vec2(x, y);
 
-      if (u_straight == false) {
+      if (u_grid == 1.) {
         float rowIndex = floor((y + .5) / stepSize);
         float colIndex = floor((x + .5) / stepSize);
         if (stepSize == 1.) {
@@ -357,7 +361,7 @@ export interface HalftoneDotsUniforms extends ShaderSizingUniforms {
   u_colorFront: [number, number, number, number];
   u_colorBack: [number, number, number, number];
   u_size: number;
-  u_straight: boolean;
+  u_grid: (typeof HalftoneDotsGrids)[HalftoneDotsGrid];
   u_radius: number;
   u_contrast: number;
   u_originalColors: boolean;
@@ -373,7 +377,7 @@ export interface HalftoneDotsParams extends ShaderSizingParams, ShaderMotionPara
   colorFront?: string;
   colorBack?: string;
   size?: number;
-  straight?: boolean;
+  grid?: HalftoneDotsGrid;
   radius?: number;
   contrast?: number;
   originalColors?: boolean;
@@ -392,3 +396,10 @@ export const HalftoneDotsTypes = {
 } as const;
 
 export type HalftoneDotsType = keyof typeof HalftoneDotsTypes;
+
+export const HalftoneDotsGrids = {
+  square: 0,
+  hex: 1,
+} as const;
+
+export type HalftoneDotsGrid = keyof typeof HalftoneDotsGrids;

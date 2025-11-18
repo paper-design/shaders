@@ -212,10 +212,12 @@ export {
 
 export {
   HalftoneDotsTypes,
+  HalftoneDotsGrids,
   halftoneDotsFragmentShader,
   type HalftoneDotsParams,
   type HalftoneDotsUniforms,
   type HalftoneDotsType,
+  type HalftoneDotsGrid,
 } from './shaders/halftone-dots.js';
 
 // ----- Utils ----- //
