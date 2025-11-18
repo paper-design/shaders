@@ -6,7 +6,7 @@ const defaultParams = halftoneDotsPresets[0].params;
 
 export const halftoneDotsDef: ShaderDef = {
   name: 'Halftone Dots',
-  description: 'A halftone-dots image filter for creating customizable graphic patterns with adjustable colors, grid types, and both classic and playful dot styles',
+  description: 'A halftone-dot image filter featuring customizable grids, color palettes, and dot styles',
   params: [
     {
       name: 'image',
@@ -94,6 +94,14 @@ export const halftoneDotsDef: ShaderDef = {
       max: 1,
       defaultValue: defaultParams.grainOverlay,
       description: 'Post-processing grainy overlay (hard light blending)',
+    },
+    {
+      name: 'grainSize',
+      type: 'number',
+      min: 0,
+      max: 1,
+      defaultValue: defaultParams.grainSize,
+      description: 'The scale applied to both grain distortion and grain overlay',
     },
     ...staticCommonParams,
   ],
