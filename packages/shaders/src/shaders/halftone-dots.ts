@@ -39,6 +39,7 @@ uniform mediump float u_imageAspectRatio;
 uniform float u_size;
 uniform float u_grainMixer;
 uniform float u_grainOverlay;
+uniform float u_grainSize;
 uniform bool u_straight;
 uniform bool u_originalColors;
 uniform bool u_inverted;
@@ -320,7 +321,7 @@ void main() {
     finalShape = totalShape;
   }
 
-  vec2 grainSize = 750. * vec2(1., 1. / u_imageAspectRatio);
+  vec2 grainSize = mix(2000., 200., u_grainSize) * vec2(1., 1. / u_imageAspectRatio);
   vec2 grainUV = getImageUV(uvNormalised, grainSize);
   float grain = valueNoise(grainUV);
   grain = smoothstep(.55, .7 + .2 * u_grainMixer, grain);
@@ -371,6 +372,7 @@ export interface HalftoneDotsUniforms extends ShaderSizingUniforms {
   u_inverted: boolean;
   u_grainMixer: number;
   u_grainOverlay: number;
+  u_grainSize: number;
   u_type: (typeof HalftoneDotsTypes)[HalftoneDotsType];
 }
 
@@ -386,6 +388,7 @@ export interface HalftoneDotsParams extends ShaderSizingParams, ShaderMotionPara
   inverted?: boolean;
   grainMixer?: number;
   grainOverlay?: number;
+  grainSize?: number;
   type?: HalftoneDotsType;
 }
 
