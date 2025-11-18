@@ -138,7 +138,66 @@ export const frtPreset: FoldsPreset = {
   },
 };
 
-export const foldsPresets: FoldsPreset[] = [defaultPreset, fstPreset, scdPreset, trdPreset, frtPreset];
+export const ffsPreset: FoldsPreset = {
+  name: '5',
+  params: {
+    ...defaultObjectSizing,
+    frame: 0,
+    colors: [
+      '#ffed47',
+      '#ffed47',
+      '#31fcb8',
+      '#ffffff',
+      '#ff006a',
+      '#3399cc',
+      '#3333cc',
+    ],
+    colorBack: '#ffffff00',
+    colorInner: '#000000',
+    stripeWidth: 1.0,
+    softness: 0.37,
+    gradient: 1.0,
+    alphaMask: true,
+    size: 3.0,
+    shift: -0.37,
+    noise: 0.46,
+    noiseScale: 1.0,
+    outerNoise: 0.0,
+    angle: 220,
+    speed: 0.20,
+    scale: 0.8,
+  },
+};
+
+export const sixPreset: FoldsPreset = {
+  name: '6',
+  params: {
+    ...defaultObjectSizing,
+    frame: 0,
+    colors: [
+      '#000000'
+    ],
+    colorBack: '#000000',
+    colorInner: '#ffffff',
+
+    stripeWidth: 0.57,
+    softness: 0.0,
+    gradient: 0.0,
+    alphaMask: true,
+
+    size: 18.0,
+    shift: -0.50,
+    noise: 0.61,
+    noiseScale: 1.07,
+    outerNoise: 0.0,
+
+    angle: 0,
+    speed: 0.20,
+    scale: 0.8,
+  },
+};
+
+export const foldsPresets: FoldsPreset[] = [defaultPreset, fstPreset, scdPreset, trdPreset, frtPreset, ffsPreset, sixPreset];
 
 export const Folds: React.FC<FoldsProps> = memo(function FoldsImpl({
   // Own props
