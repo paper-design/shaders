@@ -49,11 +49,11 @@ export const halftoneDotsDef: ShaderDef = {
       options: ['true', 'false'],
     },
     {
-      name: 'straight',
-      type: 'boolean',
-      defaultValue: defaultParams.straight,
-      description: 'Use a straight grid (disable for diagonal)',
-      options: ['true', 'false'],
+      name: 'grid',
+      type: 'enum',
+      defaultValue: defaultParams.grid,
+      description: 'Dots grid type',
+      options: ['square', 'hex'],
     },
     {
       name: 'size',
