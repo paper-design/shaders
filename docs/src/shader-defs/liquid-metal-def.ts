@@ -1,6 +1,6 @@
 import { liquidMetalPresets } from '@paper-design/shaders-react';
 import type { ShaderDef } from './shader-def-types';
-import { animatedCommonParams } from './common-param-def';
+import {animatedCommonParams, animatedImageCommonParams} from './common-param-def';
 
 const defaultParams = liquidMetalPresets[0].params;
 
@@ -102,6 +102,6 @@ export const liquidMetalDef: ShaderDef = {
     //   description: 'TODO',
     //   options: ['true', 'false'],
     // },
-    ...animatedCommonParams,
+    ...animatedImageCommonParams,
   ],
 };

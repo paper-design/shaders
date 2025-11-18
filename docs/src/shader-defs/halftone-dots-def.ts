@@ -1,6 +1,6 @@
 import { halftoneDotsPresets } from '@paper-design/shaders-react';
 import type { ShaderDef } from './shader-def-types';
-import { staticCommonParams } from './common-param-def';
+import {staticCommonParams, staticImageCommonParams} from './common-param-def';
 
 const defaultParams = halftoneDotsPresets[0].params;
 
@@ -103,6 +103,6 @@ export const halftoneDotsDef: ShaderDef = {
       defaultValue: defaultParams.grainSize,
       description: 'The scale applied to both grain distortion and grain overlay',
     },
-    ...staticCommonParams,
+    ...staticImageCommonParams,
   ],
 };
