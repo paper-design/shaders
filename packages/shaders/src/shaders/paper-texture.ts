@@ -232,7 +232,7 @@ void main() {
   patternUV *= 5. * vec2(u_imageAspectRatio, 1.);
 
   vec2 roughnessUv = mix(330., 130., u_roughnessSize) * patternUV;
-  float roughness = roughness(roughnessUv + vec2(1., 0.)) - roughness(roughnessUv - vec2(1., 0.));
+  float roughness = u_roughness * (roughness(roughnessUv + vec2(1., 0.)) - roughness(roughnessUv - vec2(1., 0.)));
 
   vec2 crumplesUV = fract(mix(.45, .02, pow(u_crumpleSize, .3)) * patternUV - u_seed) * 32.;
   float crumples = u_crumples * (crumplesShape(crumplesUV + vec2(.05, 0.)) - crumplesShape(crumplesUV));
@@ -262,23 +262,23 @@ void main() {
   fiber *= mix(1., .5, fade);
   roughness *= mix(1., .5, fade);
 
-  normal.xy += u_folds * min(5. * u_contrast, 1.) * 4. * max(vec2(0.), w + w2);
-  normalImage.xy += u_folds * 2. * w;
+  normal += u_folds * min(5. * u_contrast, 1.) * 4. * max(vec2(0.), w + w2);
+  normalImage += u_folds * w;
 
-  normal.xy += crumples;
-  normalImage.xy += 1.5 * crumples;
+  normal += crumples;
+  normalImage += .4 * crumples;
 
-  normal.xy += 3. * drops;
-  normalImage.xy += .2 * drops;
+  normal += 2. * drops;
+  normalImage += .2 * drops;
 
-  normal.xy += u_roughness * 1.5 * roughness;
-  normal.xy += fiber;
-
-  normalImage += u_roughness * .3 * roughness;
+  normal += 1.5 * roughness;
+  normalImage += .1 * roughness;
+  
+  normal += fiber;
   normalImage += .2 * fiber;
 
   vec3 lightPos = vec3(1., 2., 1.);
-  float res = dot(normalize(vec3(normal, 9.5 - 9. * pow(u_contrast, .1))), normalize(lightPos));
+  float res = dot(normalize(vec3(normal, 7.5 - 7. * pow(u_contrast, .1))), normalize(lightPos));
 
   vec3 fgColor = u_colorFront.rgb * u_colorFront.a;
   float fgOpacity = u_colorFront.a;
@@ -288,7 +288,7 @@ void main() {
   imageUV += .1 * u_distortion * normalImage;
   float frame = getUvFrame(imageUV);
   vec4 image = texture(u_image, imageUV);
-  image.rgb += .6 * pow(u_contrast, .4) * (.3 - res);
+  image.rgb += .4 * pow(u_contrast, .4) * (.3 - res);
 
   frame *= image.a;
 
