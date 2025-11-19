@@ -275,7 +275,7 @@ void main() {
   normalImage += .1 * roughness;
   
   normal += fiber;
-  normalImage += .2 * fiber;
+  normalImage += .1 * fiber;
 
   vec3 lightPos = vec3(1., 2., 1.);
   float res = dot(normalize(vec3(normal, 7.5 - 7. * pow(u_contrast, .1))), normalize(lightPos));
