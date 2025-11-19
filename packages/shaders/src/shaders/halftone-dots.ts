@@ -254,7 +254,7 @@ void main() {
   uv -= vec2(.5);
   uv /= pad;
 
-  float contrast = mix(0., 15., u_contrast);
+  float contrast = mix(0., 15., pow(u_contrast, 1.5));
   float baseRadius = u_radius;
   if (u_originalColors == true) {
     contrast = mix(.1, 4., pow(u_contrast, 2.));
