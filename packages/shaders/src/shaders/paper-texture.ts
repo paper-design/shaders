@@ -34,7 +34,7 @@ uniform sampler2D u_image;
 uniform float u_imageAspectRatio;
 
 uniform float u_contrast;
-uniform float u_opacity;
+uniform float u_roughnessSize;
 uniform float u_roughness;
 uniform float u_fiber;
 uniform float u_fiberSize;
@@ -193,13 +193,13 @@ void main() {
   vec2 patternUV = v_imageUV - .5;
   patternUV = 5. * (patternUV * vec2(u_imageAspectRatio, 1.));
 
-  vec2 roughnessUv = 120. * patternUV;
+  vec2 roughnessUv = mix(330., 130., u_roughnessSize) * patternUV;
   float roughness = roughness(roughnessUv + vec2(1., 0.)) - roughness(roughnessUv - vec2(1., 0.));
 
-  vec2 crumplesUV = fract(patternUV * .02 / u_crumpleSize - u_seed) * 32.;
+  vec2 crumplesUV = fract(mix(.45, .02, pow(u_crumpleSize, .3)) * patternUV - u_seed) * 32.;
   float crumples = u_crumples * (crumplesShape(crumplesUV + vec2(.05, 0.)) - crumplesShape(crumplesUV));
 
-  vec2 fiberUV = 2. / u_fiberSize * patternUV;
+  vec2 fiberUV = mix(25., 8., u_fiberSize) * patternUV;
   float fiber = fiberNoise(fiberUV, vec2(0.));
   fiber = .5 * u_fiber * (fiber - 1.);
 
@@ -267,7 +267,7 @@ void main() {
   float blendOpacity = (.5 + .5 * res);
   vec3 pic = blendMultiply(color, image.rgb + .3 * blending * length(normalImage), .5 * res + .5 * u_blending);
   pic = mix(pic, image.rgb, blending);
-  color = mix(color, pic, frame * u_opacity);
+  color = mix(color, pic, frame);
 
   fragColor = vec4(color, opacity);
 }
@@ -279,8 +279,8 @@ export interface PaperTextureUniforms extends ShaderSizingUniforms {
   u_colorFront: [number, number, number, number];
   u_colorBack: [number, number, number, number];
   u_contrast: number;
-  u_opacity: number;
   u_roughness: number;
+  u_roughnessSize: number;
   u_fiber: number;
   u_fiberSize: number;
   u_crumples: number;
@@ -299,8 +299,8 @@ export interface PaperTextureParams extends ShaderSizingParams, ShaderMotionPara
   colorFront?: string;
   colorBack?: string;
   contrast?: number;
-  opacity?: number;
   roughness?: number;
+  roughnessSize?: number;
   fiber?: number;
   fiberSize?: number;
   crumples?: number;
