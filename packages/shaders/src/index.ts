@@ -233,6 +233,14 @@ export {
   type BlobsLogoUniforms,
 } from './shaders/blobs-logo.js';
 
+export {
+  warpLogoMeta,
+  warpLogoFragmentShader,
+  toProcessedWarpLogo,
+  type WarpLogoParams,
+  type WarpLogoUniforms,
+} from './shaders/warp-logo.js';
+
 // ----- Utils ----- //
 export { getShaderColorFromString } from './get-shader-color-from-string.js';
 export { getShaderNoiseTexture } from './get-shader-noise-texture.js';

@@ -119,6 +119,10 @@ export { BlobsLogo, blobsLogoPresets } from './shaders/blobs-logo.js';
 export type { BlobsLogoProps } from './shaders/blobs-logo.js';
 export type { BlobsLogoUniforms, BlobsLogoParams } from '@paper-design/shaders';
 
+export { WarpLogo, warpLogoPresets } from './shaders/warp-logo.js';
+export type { WarpLogoProps } from './shaders/warp-logo.js';
+export type { WarpLogoUniforms, WarpLogoParams } from '@paper-design/shaders';
+
 export { isPaperShaderElement, getShaderColorFromString } from '@paper-design/shaders';
 export type { PaperShaderElement, ShaderFit, ShaderSizingParams, ShaderSizingUniforms } from '@paper-design/shaders';
 
