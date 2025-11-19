@@ -301,10 +301,9 @@ void main() {
 
   color -= .007 * drops;
 
-  float blending = 1. - u_blending;
   float blendOpacity = (.5 + .5 * res);
-  vec3 pic = blendMultiply(color, image.rgb + .3 * blending * length(normalImage), .5 * res + .5 * u_blending);
-  pic = mix(pic, image.rgb, blending);
+  vec3 pic = blendMultiply(color, image.rgb + .2 * 1. - u_blending * length(normalImage), .5 * res + .2 * u_blending);
+  pic = mix(image.rgb, pic, .5 * u_blending);
   color = mix(color, pic, frame);
 
   fragColor = vec4(color, opacity);
