@@ -240,7 +240,7 @@ void main() {
     stepMultiplier = 6.;
   }
   
-  float cellsPerSide = mix(200., 7., u_size);
+  float cellsPerSide = mix(200., 7., pow(u_size, .7));
   cellsPerSide /= stepMultiplier;
   float cellSizeY = 1. / cellsPerSide;
   vec2 pad = cellSizeY * vec2(1. / u_imageAspectRatio, 1.);
