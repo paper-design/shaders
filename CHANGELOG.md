@@ -1,5 +1,13 @@
 # Paper Shaders
 
+## Version 0.0.65
+
+**Halftone Dots**
+
+- Renamed the boolean `straight` prop to `grid = 'hex' | 'square'`
+- Adjusted `size` and `contrast` parameter curves
+- Fixed an issue where the dot radius would unexpectedly change when resizing the shader canvas
+
 ## Version 0.0.64
 
 New shader: **Halftone Dots**
