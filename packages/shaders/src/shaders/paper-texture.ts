@@ -1,6 +1,6 @@
 import type { ShaderMotionParams } from '../shader-mount.js';
 import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
-import { rotation2, declarePI, fiberNoise, textureRandomizerR } from '../shader-utils.js';
+import { rotation2, declarePI, textureRandomizerR, textureRandomizerGB } from '../shader-utils.js';
 
 /**
  * Mimicking paper texture with a combination of noises
@@ -103,20 +103,57 @@ float roughness(vec2 p) {
     vec4 w = vec4(floor(p), ceil(p));
     vec2 f = fract(p);
     o += mix(
-      mix(randomG(w.xy), randomG(w.xw), f.y),
-      mix(randomG(w.zy), randomG(w.zw), f.y),
-      f.x);
+    mix(randomG(w.xy), randomG(w.xw), f.y),
+    mix(randomG(w.zy), randomG(w.zw), f.y),
+    f.x);
     o += .2 / exp(2. * abs(sin(.2 * p.x + .5 * p.y)));
-  }
+ }
   return o / 3.;
 }
 
-${fiberNoise}
+float fiberRandom(vec2 p) {
+  vec2 uv = floor(p) / 100.;
+  return texture(u_noiseTexture, fract(uv)).b;
+}
+
+float fiberValueNoise(vec2 st) {
+  vec2 i = floor(st);
+  vec2 f = fract(st);
+  float a = fiberRandom(i);
+  float b = fiberRandom(i + vec2(1.0, 0.0));
+  float c = fiberRandom(i + vec2(0.0, 1.0));
+  float d = fiberRandom(i + vec2(1.0, 1.0));
+  vec2 u = f * f * (3.0 - 2.0 * f);
+  float x1 = mix(a, b, u.x);
+  float x2 = mix(c, d, u.x);
+  return mix(x1, x2, u.y);
+}
+
+float fiberNoiseFbm(vec2 n, vec2 seedOffset) {
+  float total = 0.0, amplitude = 1.;
+  for (int i = 0; i < 4; i++) {
+    n = rotate(n, .7);
+    total += fiberValueNoise(n + seedOffset) * amplitude;
+    n *= 2.;
+    amplitude *= 0.6;
+  }
+  return total;
+}
+
+float fiberNoise(vec2 uv, vec2 seedOffset) {
+  float epsilon = 0.001;
+  float n1 = fiberNoiseFbm(uv + vec2(epsilon, 0.0), seedOffset);
+  float n2 = fiberNoiseFbm(uv - vec2(epsilon, 0.0), seedOffset);
+  float n3 = fiberNoiseFbm(uv + vec2(0.0, epsilon), seedOffset);
+  float n4 = fiberNoiseFbm(uv - vec2(0.0, epsilon), seedOffset);
+  return length(vec2(n1 - n2, n3 - n4)) / (2.0 * epsilon);
+}
 
 vec2 randomGB(vec2 p) {
   vec2 uv = floor(p) / 50. + .5;
   return texture(u_noiseTexture, fract(uv)).gb;
 }
+
 float crumpledNoise(vec2 t, float pw) {
   vec2 p = floor(t);
   float wsum = 0.;
@@ -135,28 +172,28 @@ float crumpledNoise(vec2 t, float pw) {
   }
   return pow(wsum != 0.0 ? cl / wsum : 0.0, .5) * 2.;
 }
+
 float crumplesShape(vec2 uv) {
   return crumpledNoise(uv * .25, 16.) * crumpledNoise(uv * .5, 2.);
 }
 
-
 vec2 folds(vec2 uv) {
-    vec3 pp = vec3(0.);
-    float l = 9.;
-    for (float i = 0.; i < 15.; i++) {
-      if (i >= u_foldCount) break;
-      vec2 rand = randomGB(vec2(i, i * u_seed));
-      float an = rand.x * TWO_PI;
-      vec2 p = vec2(cos(an), sin(an)) * rand.y;
-      float dist = distance(uv, p);
-      l = min(l, dist);
+  vec3 pp = vec3(0.);
+  float l = 9.;
+  for (float i = 0.; i < 15.; i++) {
+    if (i >= u_foldCount) break;
+    vec2 rand = randomGB(vec2(i, i * u_seed));
+    float an = rand.x * TWO_PI;
+    vec2 p = vec2(cos(an), sin(an)) * rand.y;
+    float dist = distance(uv, p);
+    l = min(l, dist);
 
-      if (l == dist) {
-        pp.xy = (uv - p.xy);
-        pp.z = dist;
-      }
+    if (l == dist) {
+      pp.xy = (uv - p.xy);
+      pp.z = dist;
     }
-    return mix(pp.xy, vec2(0.), pow(pp.z, .25));
+  }
+  return mix(pp.xy, vec2(0.), pow(pp.z, .25));
 }
 
 float drops(vec2 uv) {
@@ -180,10 +217,11 @@ float lst(float edge0, float edge1, float x) {
   return clamp((x - edge0) / (edge1 - edge0), 0.0, 1.0);
 }
 
-vec3 blendMultiply(vec3 base, vec3 blend) { 
+vec3 blendMultiply(vec3 base, vec3 blend) {
   return base*blend;
 }
-vec3 blendMultiply(vec3 base, vec3 blend, float opacity) { 
+
+vec3 blendMultiply(vec3 base, vec3 blend, float opacity) {
   return (blendMultiply(base, blend) * opacity + base * (1.0 - opacity));
 }
 
@@ -191,7 +229,7 @@ void main() {
 
   vec2 imageUV = v_imageUV;
   vec2 patternUV = v_imageUV - .5;
-  patternUV = 5. * (patternUV * vec2(u_imageAspectRatio, 1.));
+  patternUV *= 5. * vec2(u_imageAspectRatio, 1.);
 
   vec2 roughnessUv = mix(330., 130., u_roughnessSize) * patternUV;
   float roughness = roughness(roughnessUv + vec2(1., 0.)) - roughness(roughnessUv - vec2(1., 0.));
