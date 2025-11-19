@@ -1,5 +1,9 @@
 # Paper Shaders
 
+## Version 0.0.64
+
+New shader: **Halftone Dots**
+
 ## Version 0.0.63
 
 - **General**
