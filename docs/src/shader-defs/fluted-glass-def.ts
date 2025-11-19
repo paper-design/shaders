@@ -1,6 +1,6 @@
 import { flutedGlassPresets } from '@paper-design/shaders-react';
 import type { ShaderDef } from './shader-def-types';
-import { staticCommonParams } from './common-param-def';
+import {staticCommonParams, staticImageCommonParams} from './common-param-def';
 
 const defaultParams = flutedGlassPresets[0].params;
 
@@ -178,6 +178,6 @@ export const flutedGlassDef: ShaderDef = {
       defaultValue: defaultParams.marginBottom,
       description: 'Distance from the bottom edge to the effect',
     },
-    ...staticCommonParams,
+    ...staticImageCommonParams,
   ],
 };

@@ -1,6 +1,6 @@
 import { heatmapPresets } from '@paper-design/shaders-react';
 import type { ShaderDef } from './shader-def-types';
-import { animatedCommonParams } from './common-param-def';
+import {animatedCommonParams, animatedImageCommonParams} from './common-param-def';
 
 const defaultParams = heatmapPresets[0].params;
 
@@ -74,6 +74,6 @@ export const heatmapDef: ShaderDef = {
     //   description: 'Render the React Suspense boundary fallback while the image is being processed',
     //   options: ['true', 'false'],
     // },
-    ...animatedCommonParams,
+    ...animatedImageCommonParams,
   ],
 };

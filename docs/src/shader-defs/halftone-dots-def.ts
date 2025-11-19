@@ -1,6 +1,6 @@
 import { halftoneDotsPresets } from '@paper-design/shaders-react';
 import type { ShaderDef } from './shader-def-types';
-import { staticCommonParams } from './common-param-def';
+import {staticCommonParams, staticImageCommonParams} from './common-param-def';
 
 const defaultParams = halftoneDotsPresets[0].params;
 
@@ -49,11 +49,11 @@ export const halftoneDotsDef: ShaderDef = {
       options: ['true', 'false'],
     },
     {
-      name: 'straight',
-      type: 'boolean',
-      defaultValue: defaultParams.straight,
-      description: 'Use a straight grid (disable for diagonal)',
-      options: ['true', 'false'],
+      name: 'grid',
+      type: 'enum',
+      defaultValue: defaultParams.grid,
+      description: 'Dots grid type',
+      options: ['square', 'hex'],
     },
     {
       name: 'size',
@@ -103,6 +103,6 @@ export const halftoneDotsDef: ShaderDef = {
       defaultValue: defaultParams.grainSize,
       description: 'The scale applied to both grain distortion and grain overlay',
     },
-    ...staticCommonParams,
+    ...staticImageCommonParams,
   ],
 };
