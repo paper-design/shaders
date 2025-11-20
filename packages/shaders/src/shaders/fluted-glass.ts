@@ -120,6 +120,11 @@ float getUvFrame(vec2 uv, float softness) {
 }
 
 const int MAX_RADIUS = 50;
+vec4 samplePremultiplied(sampler2D tex, vec2 uv) {
+  vec4 c = texture(tex, uv);
+  c.rgb *= c.a;
+  return c;
+}
 vec4 getBlur(sampler2D tex, vec2 uv, vec2 texelSize, vec2 dir, float sigma) {
   if (sigma <= .5) return texture(tex, uv);
   int radius = int(min(float(MAX_RADIUS), ceil(3.0 * sigma)));
@@ -127,7 +132,7 @@ vec4 getBlur(sampler2D tex, vec2 uv, vec2 texelSize, vec2 dir, float sigma) {
   float twoSigma2 = 2.0 * sigma * sigma;
   float gaussianNorm = 1.0 / sqrt(TWO_PI * sigma * sigma);
 
-  vec4 sum = texture(tex, uv) * gaussianNorm;
+  vec4 sum = samplePremultiplied(tex, uv) * gaussianNorm;
   float weightSum = gaussianNorm;
 
   for (int i = 1; i <= MAX_RADIUS; i++) {
@@ -137,13 +142,19 @@ vec4 getBlur(sampler2D tex, vec2 uv, vec2 texelSize, vec2 dir, float sigma) {
     float w = exp(-(x * x) / twoSigma2) * gaussianNorm;
 
     vec2 offset = dir * texelSize * x;
-    vec4 s1 = texture(tex, uv + offset);
-    vec4 s2 = texture(tex, uv - offset);
+    vec4 s1 = samplePremultiplied(tex, uv + offset);
+    vec4 s2 = samplePremultiplied(tex, uv - offset);
 
     sum += (s1 + s2) * w;
     weightSum += 2.0 * w;
   }
-  return sum / weightSum;
+
+  vec4 result = sum / weightSum;
+  if (result.a > 0.) {
+    result.rgb /= result.a;
+  }
+  
+  return result;
 }
 
 vec2 rotateAspect(vec2 p, float a, float aspect) {
@@ -351,6 +362,7 @@ void main() {
   uv.y = mix(uv.y, .5, u_stretch * stretch);
 
   vec4 image = getBlur(u_image, uv, 1. / u_resolution / u_pixelRatio, vec2(0., 1.), blur);
+  image.rgb *= image.a;
   vec4 backColor = u_colorBack;
   backColor.rgb *= backColor.a;
   vec4 highlightColor = u_colorHighlight;
