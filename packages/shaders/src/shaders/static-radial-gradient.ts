@@ -195,13 +195,16 @@ void main() {
   color = color + bgColor * (1.0 - opacity);
   opacity = opacity + u_colorBack.a * (1.0 - opacity);
 
-  float rr = noise(rotate(grainUV, 1.), vec2(3.));
-  float gg = noise(rotate(grainUV, 2.) + 10., vec2(-1.));
-  float bb = noise(grainUV - 2., vec2(5.));
-  vec3 grainColor = vec3(rr, gg, bb);
-  color = mix(color, grainColor, .01 + .3 * u_grainOverlay);
-  opacity += u_grainOverlay * grain;
-  
+  vec3 grainColor = vec3(0.);
+  grainColor.r = noise(rotate(grainUV, 1.), vec2(3.));
+  grainColor.g = noise(rotate(grainUV, 2.) + 10., vec2(-1.));
+  grainColor.b = noise(grainUV - 2., vec2(5.));
+
+  float grainAmount = .3 * u_grainOverlay * max(grainColor.r, max(grainColor.g, grainColor.b));
+  color = mix(color, grainColor, grainAmount);
+
+  opacity += grainAmount;
+
   fragColor = vec4(color, opacity);
 }
 `;
