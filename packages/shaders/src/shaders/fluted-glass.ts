@@ -174,20 +174,6 @@ float smoothFract(float x) {
   return mix(f, 1.0 - f, band);
 }
 
-float blendOverlay(float base, float blend) {
-  return base<0.5?(2.0*base*blend):(1.0-2.0*(1.0-base)*(1.0-blend));
-}
-vec3 blendOverlay(vec3 base, vec3 blend) {
-  return vec3(blendOverlay(base.r, blend.r), blendOverlay(base.g, blend.g), blendOverlay(base.b, blend.b));
-}
-vec3 blendHardLight(vec3 base, vec3 blend) {
-  return blendOverlay(blend, base);
-}
-vec3 blendHardLight(vec3 base, vec3 blend, float opacity) {
-  return (blendHardLight(base, blend) * opacity + base * (1.0 - opacity));
-}
-
-
 void main() {
 
   vec2 uvNormalised = (gl_FragCoord.xy - .5 * u_resolution) / u_resolution.xy;
@@ -387,10 +373,17 @@ void main() {
 
   float grainOverlay = valueNoise(rotate(grainUV, 1.) + vec2(3.));
   grainOverlay = mix(grainOverlay, valueNoise(rotate(grainUV, 2.) + vec2(-1.)), .5);
-  grainOverlay = pow(grainOverlay, 2.);
-  vec3 grainOverlayColor = vec3(grainOverlay);
-  color = mix(color, blendHardLight(color, grainOverlayColor, .5 * u_grainOverlay), mask);
-  
+  grainOverlay = pow(grainOverlay, 1.3);
+
+  float grainOverlayV = grainOverlay * 2. - 1.;
+  vec3 grainOverlayColor = vec3(step(0., grainOverlayV));
+  float grainOverlayStrength = u_grainOverlay * abs(grainOverlayV);
+  grainOverlayStrength = pow(grainOverlayStrength, .6);
+  color = mix(color, grainOverlayColor, .35 * grainOverlayStrength);
+
+  opacity += .5 * grainOverlayStrength;
+  opacity = clamp(opacity, 0., 1.);
+
   fragColor = vec4(color, opacity);
 }
 `;
