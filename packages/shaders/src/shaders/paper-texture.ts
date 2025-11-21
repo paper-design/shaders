@@ -235,7 +235,7 @@ void main() {
   float roughness = u_roughness * (roughness(roughnessUv + vec2(1., 0.)) - roughness(roughnessUv - vec2(1., 0.)));
 
   vec2 crumplesUV = fract(mix(.45, .02, pow(u_crumpleSize, .3)) * patternUV - u_seed) * 32.;
-  float crumples = u_crumples * (crumplesShape(crumplesUV + vec2(.05, 0.)) - crumplesShape(crumplesUV));
+  float crumples = u_crumples * (crumplesShape(crumplesUV + vec2(.02, 0.)) - crumplesShape(crumplesUV));
 
   vec2 fiberUV = mix(25., 8., u_fiberSize) * patternUV;
   float fiber = fiberNoise(fiberUV, vec2(0.));
@@ -280,6 +280,41 @@ void main() {
   vec3 lightPos = vec3(1., 2., 1.);
   float res = dot(normalize(vec3(normal, 7.5 - 7. * pow(u_contrast, .1))), normalize(lightPos));
 
+  {
+    const vec3 LIGHT_DIR = normalize(vec3(-0.4, 0.7, 0.5));
+
+    vec2 gridUV = (patternUV * .12) + .5;
+    float foldX = .5;
+
+    float dx = gridUV.x - foldX;
+
+    float foldWidth = .3;
+
+    float foldAmount = 1.0 - smoothstep(0.0, foldWidth, abs(dx));
+    vec3 n = vec3(0.0, 0.0, 1.0);
+    float maxAngle = radians(65.);
+    float angle = sign(dx) * maxAngle * foldAmount;
+
+    mat3 rotY = mat3(
+    cos(angle), 0.0, sin(angle),
+    0.0, 1.0, 0.0,
+    -sin(angle), 0.0, cos(angle)
+    );
+    n = rotY * n;
+
+    float diffuse = max(dot(n, LIGHT_DIR), 0.0);
+    float lighting = .3 + 0.8 * diffuse;
+    
+    float crease = smoothstep(0., foldWidth * .5, abs(dx));
+    float creaseDark = mix(.7, 1., crease);
+    
+    lighting *= creaseDark;
+    lighting = (1. - lighting);
+
+    res += lighting;
+  }
+  
+  
   vec3 fgColor = u_colorFront.rgb * u_colorFront.a;
   float fgOpacity = u_colorFront.a;
   vec3 bgColor = u_colorBack.rgb * u_colorBack.a;

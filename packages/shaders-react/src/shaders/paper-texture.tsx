@@ -29,7 +29,7 @@ export const defaultPreset: PaperTexturePreset = {
   name: 'Default',
   params: {
     ...defaultObjectSizing,
-    blending: 0,
+    blending: 0.75,
     distortion: 0.5,
     fit: 'contain',
     scale: 0.8,
