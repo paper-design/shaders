@@ -196,7 +196,7 @@ vec2 folds(vec2 uv) {
       pp.z = dist;
     }
   }
-  return mix(pp.xy, vec2(0.), pow(pp.z, .25));
+  return mix(pp.xy, vec2(0.), pow(pp.z, .15));
 }
 
 float drops(vec2 uv) {
@@ -247,10 +247,10 @@ void main() {
   vec2 normal = vec2(0.);
   vec2 normalImage = vec2(0.);
 
-  vec2 foldsUV = patternUV * .12;
+  vec2 foldsUV = patternUV * .18;
   foldsUV = rotate(foldsUV, 4. * u_seed);
   vec2 w = folds(foldsUV);
-  foldsUV = rotate(foldsUV + .007 * cos(u_seed), .01 * sin(u_seed));
+  foldsUV = rotate(foldsUV + .005 * cos(u_seed), .01 * sin(u_seed));
   vec2 w2 = folds(foldsUV);
 
   float drops = u_drops * drops(patternUV * 2.);
@@ -295,7 +295,7 @@ void main() {
     grid = .5 * u_grid * smoothstep(0., 1., grid) * smoothstep(0., .3, u_contrast);
   }
   
-  normal += 4. * u_folds * min(5. * u_contrast, 1.) * max(vec2(0.), w + w2);
+  normal -= 3. * u_folds * (w + w2);
   normalImage += u_folds * w;
 
   normal += crumples;
@@ -313,7 +313,7 @@ void main() {
   normal += grid;
   normalImage += .2 * grid;
   
-  float res = dot(normalize(vec3(normal, 7.5 - 7. * pow(u_contrast, .1))), lightPos);
+  float res = dot(normalize(vec3(normal, mix(7.5, .5, pow(u_contrast, .1)))), lightPos);
 
   vec3 fgColor = u_colorFront.rgb * u_colorFront.a;
   float fgOpacity = u_colorFront.a;
