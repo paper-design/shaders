@@ -59,21 +59,21 @@ export const fiberPreset: PaperTexturePreset = {
   name: 'Fiber',
   params: {
     ...defaultObjectSizing,
-    colorBack: "#b6ff94",
-    colorFront: "#5f4563",
+    colorBack: "#eaffe0",
+    colorFront: "#c19ac6",
     contrast: 0.05,
-    blending: 0.19,
+    blending: 0.8,
     distortion: 1.00,
     seed: 365,
     roughness: 0.63,
     roughnessSize: 0.50,
     fiber: 0.76,
     fiberSize: 0.61,
-    crumples: 0.00,
+    crumples: 0,
     crumpleSize: 0.30,
-    folds: 0.00,
+    folds: 0,
     foldCount: 3,
-    grid: 0.00,
+    grid: 0,
     gridShape: 0.50,
     gridCount: 10,
     drops: 0.20,
@@ -106,7 +106,7 @@ export const cardboardPreset: PaperTexturePreset = {
     crumpleSize: 0.1,
     folds: 0,
     foldCount: 1,
-    grid: 0.50,
+    grid: 0.25,
     gridShape: 0.28,
     gridCount: 20,
     fade: 0,
@@ -114,6 +114,37 @@ export const cardboardPreset: PaperTexturePreset = {
     seed: 1.6,
   },
 };
+
+export const spreadPreset: PaperTexturePreset = {
+  name: 'Spread',
+  params: {
+    ...defaultObjectSizing,
+    colorBack: "#ffffff",
+    colorFront: "#c0c4c0",
+    contrast: 0.47,
+    blending: 0.36,
+    distortion: 0.50,
+    seed: 280,
+    roughness: 0.4,
+    roughnessSize: 0.4,
+    fiber: 0.24,
+    fiberSize: 0.5,
+    crumples: 0.2,
+    crumpleSize: 0.42,
+    folds: 0.3,
+    foldCount: 4,
+    grid: 0.7,
+    gridShape: 0.48,
+    gridCount: 1,
+    drops: 0,
+    fade: 0.68,
+    scale: 0.8,
+    fit: "contain",
+    speed: 0,
+    frame: 0
+  },
+};
+
 
 export const flatPreset: PaperTexturePreset = {
   name: 'Flat',
@@ -147,9 +178,10 @@ export const flatPreset: PaperTexturePreset = {
 
 export const paperTexturePresets: PaperTexturePreset[] = [
   defaultPreset,
-  flatPreset,
+  spreadPreset,
   cardboardPreset,
   fiberPreset,
+  flatPreset
 ] as const;
 
 export const PaperTexture: React.FC<PaperTextureProps> = memo(function PaperTextureImpl({

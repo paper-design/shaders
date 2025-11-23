@@ -292,13 +292,13 @@ void main() {
 
     grid = max(dot(n, lightPos), 0.);
     grid *= creaseDark;
-    grid = .5 * u_grid * smoothstep(0., 1., grid) * smoothstep(0., .3, u_contrast);
+    grid = u_grid * smoothstep(0., 1., grid) * smoothstep(0., .3, u_contrast);
   }
   
   normal -= 3. * u_folds * (w + w2);
   normalImage += u_folds * w;
 
-  normal += crumples;
+  normal += 1.5 * crumples;
   normalImage += .4 * crumples;
 
   normal += 2. * drops;
