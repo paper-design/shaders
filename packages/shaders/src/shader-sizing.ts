@@ -67,7 +67,7 @@ export const sizingUV = `
     vec2 pxSizeUv = gl_FragCoord.xy;
     pxSizeUv -= .5 * u_resolution;
     pxSizeUv /= pxSize;
-    uv = floor(pxSizeUv) * pxSize / u_resolution.xy;    
+    uv = (floor(pxSizeUv) + .5) * pxSize / u_resolution.xy; 
     uv += .5;
   #endif
   uv -= .5;
