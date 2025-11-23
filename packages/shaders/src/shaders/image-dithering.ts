@@ -142,7 +142,9 @@ void main() {
   dithering -= .5;
   float brightness = clamp(lum + dithering * ditherAmount, 0.0, 1.0);
   brightness = mix(0.0, brightness, frame);
+  brightness = mix(0.0, brightness, image.a);
   float quantLum = floor(brightness * steps + 0.5) / steps;
+  quantLum = mix(0.0, quantLum, frame);
 
   if (u_originalColors == true) {
     vec3 normColor = image.rgb / max(lum, 0.001);
