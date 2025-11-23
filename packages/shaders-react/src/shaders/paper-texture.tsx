@@ -45,13 +45,13 @@ export const defaultPreset: PaperTexturePreset = {
     crumples: 0.3,
     crumpleSize: 0.5,
     folds: 0.65,
-    foldCount: 7,
+    foldCount: 12,
     grid: 0,
     gridShape: 0.35,
     gridCount: 3,
     fade: 0,
     drops: 0.2,
-    seed: 5.8,
+    seed: 43,
   },
 };
 
