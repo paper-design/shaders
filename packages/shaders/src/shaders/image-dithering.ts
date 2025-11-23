@@ -26,25 +26,25 @@ import { proceduralHash21 } from '../shader-utils.js';
 export const imageDitheringFragmentShader: string = `#version 300 es
 precision mediump float;
 
-uniform mediump vec2 u_resolution;
-uniform mediump float u_pixelRatio;
-uniform mediump float u_originX;
-uniform mediump float u_originY;
-uniform mediump float u_worldWidth;
-uniform mediump float u_worldHeight;
-uniform mediump float u_fit;
+uniform vec2 u_resolution;
+uniform float u_pixelRatio;
+uniform float u_originX;
+uniform float u_originY;
+uniform float u_worldWidth;
+uniform float u_worldHeight;
+uniform float u_fit;
 
-uniform mediump float u_scale;
-uniform mediump float u_rotation;
-uniform mediump float u_offsetX;
-uniform mediump float u_offsetY;
+uniform float u_scale;
+uniform float u_rotation;
+uniform float u_offsetX;
+uniform float u_offsetY;
 
 uniform vec4 u_colorFront;
 uniform vec4 u_colorBack;
 uniform vec4 u_colorHighlight;
 
 uniform sampler2D u_image;
-uniform mediump float u_imageAspectRatio;
+uniform float u_imageAspectRatio;
 
 uniform float u_type;
 uniform float u_pxSize;
