@@ -301,7 +301,7 @@ void main() {
   normal += 1.5 * crumples;
   normalImage += .4 * crumples;
 
-  normal += 2. * drops;
+  normal += 2.5 * drops;
   normalImage += .2 * drops;
 
   normal += 1.5 * roughness;
