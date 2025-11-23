@@ -53,11 +53,14 @@ uniform float u_colorSteps;
 
 out vec4 fragColor;
 
-float getUvFrame(vec2 uv, vec2 px) {
-  float left   = step(-px.x, uv.x);
-  float right  = step(uv.x, 1.);
-  float bottom = step(-px.y, uv.y);
-  float top    = step(uv.y, 1. + px.y);
+
+float getUvFrame(vec2 uv, vec2 pad) {
+  float aa = 0.0001;
+
+  float left   = smoothstep(-pad.x, -pad.x + aa, uv.x);
+  float right  = smoothstep(1.0 + pad.x, 1.0 + pad.x - aa, uv.x);
+  float bottom = smoothstep(-pad.y, -pad.y + aa, uv.y);
+  float top    = smoothstep(1.0 + pad.y, 1.0 + pad.y - aa, uv.y);
 
   return left * right * bottom * top;
 }
