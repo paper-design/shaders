@@ -35,7 +35,7 @@ export const defaultPreset: PaperTexturePreset = {
     scale: 0.8,
     speed: 0,
     frame: 0,
-    colorFront: '#9fadbc',
+    colorFront: '#bbbfc4',
     colorBack: '#ffffff',
     contrast: 0.3,
     roughness: 0.4,
