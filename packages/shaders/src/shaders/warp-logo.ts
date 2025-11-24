@@ -176,6 +176,7 @@ void main() {
   float outerPower = pow(u_outerVisibility, 3.);
   shape *= (outerPower + (1. - outerPower) * imgAlpha);
 
+  shape = pow(shape, .75);
   float mixer = shape * u_colorsCount;
   vec4 gradient = u_colors[0];
   gradient.rgb *= gradient.a;

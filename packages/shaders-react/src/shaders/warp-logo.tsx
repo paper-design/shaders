@@ -31,7 +31,7 @@ export const defaultPreset: WarpLogoPreset = {
     speed: 1,
     frame: 0,
     colorBack: '#00000000',
-    colors: ['#000000', '#ffffff', '#ffffff'],
+    colors: ['#b3d5cc', '#ffda75', '#ff8a9b', '#4058a5'],
     outerVisibility: 0.5,
     distortion: 0.9,
     innerFill: 0,
