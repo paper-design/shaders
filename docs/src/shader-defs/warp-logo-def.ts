@@ -5,8 +5,8 @@ import { animatedCommonParams } from './common-param-def';
 const defaultParams = warpLogoPresets[0].params;
 
 export const warpLogoDef: ShaderDef = {
-  name: 'Liquid Metal',
-  description: 'Futuristic liquid metal material applied to uploaded logo or abstract shape.',
+  name: 'TBD',
+  description: 'TBD',
   params: [
     {
       name: 'image',
