@@ -1,5 +1,19 @@
 # Paper Shaders
 
+## Version 0.0.66
+
+- **Fluted Glass**
+  - Improved support for transparent images
+  - Adjusted blending of `grainOverlay` so that grain is now visible over transparent backgrounds
+- **Halftone Dots**
+  - Adjusted blending of `grainOverlay` so that grain is now visible over transparent backgrounds
+- **Image Dithering**
+  - Improved support for transparent images
+  - Made sure that the origin point for dithering looks consistent regardless of `size`
+- **Mesh Gradient**, **Static Mesh Gradient**, **Static Radial Gradient**
+  - Changed `grainOverlay` noise to monochrome
+  - Fixed edge case issues with `grainOverlay` positioning
+
 ## Version 0.0.65
 
 **Halftone Dots**
