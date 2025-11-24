@@ -30,14 +30,12 @@ export const defaultPreset: WarpLogoPreset = {
     scale: 0.65,
     speed: 1,
     frame: 0,
-    colorBack: '#c8dfd900',
-    colorInner: '#c8dfd9',
-    colors: ['#00000000', '#21abca', '#809bff', '#ff00bf', '#fbff00'],
+    colorBack: '#00000000',
+    colors: ['#000000', '#ffffff', '#ffffff'],
     outerVisibility: 0.5,
     distortion: 0.9,
     innerFill: 0,
     outerDistortion: 0.85,
-    layering: 0,
   },
 };
 export const warpLogoPresets: WarpLogoPreset[] = [defaultPreset];
@@ -45,7 +43,6 @@ export const warpLogoPresets: WarpLogoPreset[] = [defaultPreset];
 export const WarpLogo: React.FC<WarpLogoProps> = memo(function WarpLogoImpl({
   // Own props
   colorBack = defaultPreset.params.colorBack,
-  colorInner = defaultPreset.params.colorInner,
   colors = defaultPreset.params.colors,
   speed = defaultPreset.params.speed,
   frame = defaultPreset.params.frame,
@@ -54,7 +51,6 @@ export const WarpLogo: React.FC<WarpLogoProps> = memo(function WarpLogoImpl({
   outerVisibility = defaultPreset.params.outerVisibility,
   innerFill = defaultPreset.params.innerFill,
   outerDistortion = defaultPreset.params.outerDistortion,
-  layering = defaultPreset.params.layering,
   suspendWhenProcessingImage = false,
 
   // Sizing props
@@ -114,13 +110,11 @@ export const WarpLogo: React.FC<WarpLogoProps> = memo(function WarpLogoImpl({
     u_colors: colors.map(getShaderColorFromString),
     u_colorsCount: colors.length,
     u_colorBack: getShaderColorFromString(colorBack),
-    u_colorInner: getShaderColorFromString(colorInner),
     u_image: processedImage,
     u_distortion: distortion,
     u_outerVisibility: outerVisibility,
     u_innerFill: innerFill,
     u_outerDistortion: outerDistortion,
-    u_layering: layering,
 
     // Sizing uniforms
     u_fit: ShaderFitOptions[fit],

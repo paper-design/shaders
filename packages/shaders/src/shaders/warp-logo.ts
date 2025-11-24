@@ -30,12 +30,10 @@ uniform float u_time;
 uniform vec4 u_colors[${warpLogoMeta.maxColorCount}];
 uniform float u_colorsCount;
 uniform vec4 u_colorBack;
-uniform vec4 u_colorInner;
 uniform float u_distortion;
 uniform float u_outerVisibility;
 uniform float u_innerFill;
 uniform float u_outerDistortion;
-uniform float u_layering;
 
 ${sizingVariablesDeclaration}
 
@@ -163,8 +161,9 @@ void main() {
   float distortion = .7 * u_distortion;
   float swirl = mix(0., distortion, u_outerDistortion) * (1. - imgAlpha) + distortion * edge;
 
-  uv.y += u_layering * (1. - smoothstep(0., 1., length(.6 * uv)));
-  uv.y -= u_layering * .4;
+  float midShift = distortion;
+  uv.y += midShift * (1. - smoothstep(0., 1., length(.4 * uv)));
+  uv.y -= .4 * midShift;
   
   for (int i = 1; i < 5; i++) { 
     float iFloat = float(i);
@@ -177,27 +176,34 @@ void main() {
   float outerPower = pow(u_outerVisibility, 3.);
   shape *= (outerPower + (1. - outerPower) * imgAlpha);
 
-  float mixer = shape * (u_colorsCount - 1.);
+  float mixer = shape * u_colorsCount;
   vec4 gradient = u_colors[0];
   gradient.rgb *= gradient.a;
-  float aa = fwidth(shape);
-    for (int i = 1; i < ${ warpLogoMeta.maxColorCount }; i++) {
-    if (i >= int(u_colorsCount)) break;
+
+  float outerShape = 0.;
+  for (int i = 1; i < ${ warpLogoMeta.maxColorCount + 1 }; i++) {
+    if (i > int(u_colorsCount)) break;
+
     float m = clamp(mixer - float(i - 1), 0., 1.);
+    float aa = fwidth(m);
+    m = smoothstep(0., 1., m);
 
-    float localMixerStart = floor(m);
-    float smoothed = smoothstep(0., localMixerStart, m);
+    if (i == 1) {
+      outerShape = m;
+    }
 
-    vec4 c = u_colors[i];
+    vec4 c = u_colors[i - 1];
     c.rgb *= c.a;
     gradient = mix(gradient, c, m);
   }
 
-  vec3 color = gradient.rgb;
-  float opacity = gradient.a;
-  
-//  color.r = smoothstep(.7, 1., length((v_imageUV - .5)));
+  vec3 color = gradient.rgb * outerShape;
+  float opacity = gradient.a * outerShape;
 
+  vec3 bgColor = u_colorBack.rgb * u_colorBack.a;
+  color = color + bgColor * (1.0 - opacity);
+  opacity = opacity + u_colorBack.a * (1.0 - opacity);
+  
   fragColor = vec4(color, opacity);
 }
 `;
@@ -633,7 +639,6 @@ function solvePoissonSparse(
 
 export interface WarpLogoUniforms extends ShaderSizingUniforms {
   u_colorBack: [number, number, number, number];
-  u_colorInner: [number, number, number, number];
   u_colors: vec4[];
   u_colorsCount: number;
   u_image: HTMLImageElement | string | undefined;
@@ -641,17 +646,14 @@ export interface WarpLogoUniforms extends ShaderSizingUniforms {
   u_outerVisibility: number;
   u_innerFill: number;
   u_outerDistortion: number;
-  u_layering: number;
 }
 
 export interface WarpLogoParams extends ShaderSizingParams, ShaderMotionParams {
   colors?: string[];
   colorBack?: string;
-  colorInner?: string;
   image?: HTMLImageElement | string | undefined;
   distortion?: number;
   outerVisibility?: number;
   innerFill?: number;
   outerDistortion?: number;
-  layering?: number;
 }

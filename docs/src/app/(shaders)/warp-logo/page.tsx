@@ -83,15 +83,13 @@ const WarpLogoWithControls = () => {
 
   const [params, setParams] = useControls(() => {
     return {
-      // colorBack: { value: toHsla(defaults.colorBack), order: 100 },
-      // colorInner: { value: toHsla(defaults.colorInner), order: 101 },
+      colorBack: { value: toHsla(defaults.colorBack), order: 100 },
       distortion: { value: defaults.distortion, min: 0, max: 1, order: 201 },
       outerVisibility: { value: defaults.outerVisibility, min: 0, max: 1, order: 203 },
       outerDistortion: { value: defaults.outerDistortion, min: 0, max: 1, order: 203 },
       speed: { value: defaults.speed, min: 0, max: 4, order: 300 },
       scale: { value: defaults.scale, min: 0.2, max: 10, order: 301 },
       innerFill: { value: defaults.innerFill, min: 0, max: 1, order: 302 },
-      layering: { value: defaults.layering, min: 0, max: 1, order: 302 },
       // rotation: { value: defaults.rotation, min: 0, max: 360, order: 302 },
       // offsetX: { value: defaults.offsetX, min: -1, max: 1, order: 303 },
       // offsetY: { value: defaults.offsetY, min: -1, max: 1, order: 304 },
