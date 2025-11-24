@@ -33,9 +33,9 @@ export const defaultPreset: WarpLogoPreset = {
     colorBack: '#00000000',
     colors: ['#b3d5cc', '#ffe9ad', '#ff8a9b', '#4058a5'],
     outerVisibility: 0.5,
-    distortion: 0.9,
+    distortion: 0.8,
     innerFill: 0,
-    outerDistortion: 0.85,
+    outerDistortion: 0.7,
   },
 };
 
@@ -49,7 +49,7 @@ export const blackPreset: WarpLogoPreset = {
     colorBack: '#00000000',
     colors: ['#000000', '#ffffff'],
     outerVisibility: 0.6,
-    distortion: 1,
+    distortion: 0.9,
     innerFill: 0,
     outerDistortion: 0.8,
   },

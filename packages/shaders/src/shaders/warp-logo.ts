@@ -158,7 +158,7 @@ void main() {
 
   uv = 2.5 * v_objectUV;
   
-  float distortion = .7 * u_distortion;
+  float distortion = .9 * u_distortion;
   float swirl = mix(0., distortion, u_outerDistortion) * (1. - imgAlpha) + distortion * edge;
 
   float midShift = distortion;
