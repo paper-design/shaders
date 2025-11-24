@@ -163,6 +163,9 @@ void main() {
   float distortion = .7 * u_distortion;
   float swirl = mix(0., distortion, u_outerDistortion) * (1. - imgAlpha) + distortion * edge;
 
+  uv.y += u_layering * (1. - smoothstep(0., 1., length(.6 * uv)));
+  uv.y -= u_layering * .4;
+  
   for (int i = 1; i < 5; i++) { 
     float iFloat = float(i);
     uv.x += swirl / iFloat * cos(t + iFloat * 2.5 * uv.y);
@@ -170,14 +173,6 @@ void main() {
   }
   float shape = exp(-1.5 * (uv.x * uv.x + uv.y * uv.y));
   shape += mix(0., .15, u_innerFill) * imgAlpha * frame;
-
-  uv = 3. * v_objectUV;
-  for (int i = 1; i < 5; i++) { 
-    float iFloat = float(i);
-    uv.x -= swirl / iFloat * cos(-t + iFloat * 2.5 * uv.y);
-    uv.y -= swirl / iFloat * cos(t + iFloat * 1.5 * uv.x);
-  }
-  shape += .5 * u_layering * exp(-1.5 * (uv.x * uv.x + uv.y * uv.y));
   
   float outerPower = pow(u_outerVisibility, 3.);
   shape *= (outerPower + (1. - outerPower) * imgAlpha);
@@ -200,6 +195,8 @@ void main() {
 
   vec3 color = gradient.rgb;
   float opacity = gradient.a;
+  
+//  color.r = smoothstep(.7, 1., length((v_imageUV - .5)));
 
   fragColor = vec4(color, opacity);
 }
