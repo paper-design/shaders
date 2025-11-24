@@ -22,11 +22,11 @@ import { useColors } from "@/helpers/use-colors";
 const { worldWidth, worldHeight, ...defaults } = warpLogoPresets[0].params;
 
 const imageFiles = [
+  'contra.svg',
   'paradigm.svg',
   'paper-logo-only.svg',
-  'brave2.png',
+  'brave.svg',
   'capy.svg',
-  'contra.svg',
   'infinite.svg',
   'linear.svg',
   'mercury.svg',
@@ -35,27 +35,26 @@ const imageFiles = [
   'resend.svg',
   'shopify.svg',
   'wealth-simple.svg',
-  'diamond.svg',
+  'vercel.svg',
 
   // 'chanel.svg',
   // 'cibc.svg',
   // 'cloudflare.svg',
   // 'apple.svg',
-  // 'paper-logo-only.svg',
-  'discord.svg',
-  // 'paper-logo-only',
+  // 'discord.svg',
   // 'enterprise-rent.svg',
   // 'kfc.svg',
   // 'microsoft.svg',
   // 'nasa.svg',
   // 'netflix.svg',
-  'nike.svg',
+  // 'nike.svg',
   // 'perkins.svg',
   // 'pizza-hut.svg',
   // 'remix.svg',
   // 'rogers.svg',
-  'vercel.svg',
-  'volkswagen.svg',
+  // 'volkswagen.svg',
+
+  'diamond.svg',
 ] as const;
 
 const WarpLogoWithControls = () => {
