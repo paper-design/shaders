@@ -35,6 +35,7 @@ uniform float u_distortion;
 uniform float u_outerVisibility;
 uniform float u_innerFill;
 uniform float u_outerDistortion;
+uniform float u_layering;
 
 ${sizingVariablesDeclaration}
 
@@ -157,24 +158,26 @@ void main() {
 
   
 
-  uv = v_objectUV;
-//  uv = v_imageUV - .5;
-  uv *= 2.;
+  uv = 2.5 * v_objectUV;
   
-  float swirl = mix(0., u_distortion, u_outerDistortion) * (1. - imgAlpha) + u_distortion * edge;
-//  swirl *= (.2 + .8 * smoothstep(1., 0., length(.5 * uv)));
+  float distortion = .7 * u_distortion;
+  float swirl = mix(0., distortion, u_outerDistortion) * (1. - imgAlpha) + distortion * edge;
 
-//   uv = rotate(uv, 1.8);
-//  uv.x -= .9;
-
-  for (int i = 1; i <= 6; i++) { 
+  for (int i = 1; i < 5; i++) { 
     float iFloat = float(i);
-    uv.x += swirl / iFloat * cos(t + iFloat * 2.1 * uv.y);
+    uv.x += swirl / iFloat * cos(t + iFloat * 2.5 * uv.y);
     uv.y += swirl / iFloat * cos(t + iFloat * 1.5 * uv.x);
   }
   float shape = exp(-1.5 * (uv.x * uv.x + uv.y * uv.y));
-  shape += u_innerFill * imgAlpha * frame;
-  shape = clamp(0., 1., shape);
+  shape += mix(0., .15, u_innerFill) * imgAlpha * frame;
+
+  uv = 3. * v_objectUV;
+  for (int i = 1; i < 5; i++) { 
+    float iFloat = float(i);
+    uv.x -= swirl / iFloat * cos(-t + iFloat * 2.5 * uv.y);
+    uv.y -= swirl / iFloat * cos(t + iFloat * 1.5 * uv.x);
+  }
+  shape += .5 * u_layering * exp(-1.5 * (uv.x * uv.x + uv.y * uv.y));
   
   float outerPower = pow(u_outerVisibility, 3.);
   shape *= (outerPower + (1. - outerPower) * imgAlpha);
@@ -641,6 +644,7 @@ export interface WarpLogoUniforms extends ShaderSizingUniforms {
   u_outerVisibility: number;
   u_innerFill: number;
   u_outerDistortion: number;
+  u_layering: number;
 }
 
 export interface WarpLogoParams extends ShaderSizingParams, ShaderMotionParams {
@@ -652,4 +656,5 @@ export interface WarpLogoParams extends ShaderSizingParams, ShaderMotionParams {
   outerVisibility?: number;
   innerFill?: number;
   outerDistortion?: number;
+  layering?: number;
 }
