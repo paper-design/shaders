@@ -38,7 +38,24 @@ export const defaultPreset: WarpLogoPreset = {
     outerDistortion: 0.85,
   },
 };
-export const warpLogoPresets: WarpLogoPreset[] = [defaultPreset];
+
+export const blackPreset: WarpLogoPreset = {
+  name: 'Black',
+  params: {
+    ...defaultObjectSizing,
+    scale: 0.65,
+    speed: 1,
+    frame: 0,
+    colorBack: '#00000000',
+    colors: ['#000000', '#ffffff'],
+    outerVisibility: 0.6,
+    distortion: 1,
+    innerFill: 0,
+    outerDistortion: 0.8,
+  },
+};
+
+export const warpLogoPresets: WarpLogoPreset[] = [defaultPreset, blackPreset];
 
 export const WarpLogo: React.FC<WarpLogoProps> = memo(function WarpLogoImpl({
   // Own props
