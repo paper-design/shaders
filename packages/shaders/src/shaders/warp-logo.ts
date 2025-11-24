@@ -1,7 +1,7 @@
 import type { vec4 } from '../types.js';
 import type { ShaderMotionParams } from '../shader-mount.js';
 import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
-import { declarePI, rotation2, proceduralHash21, colorBandingFix } from '../shader-utils.js';
+import { declarePI, rotation2, proceduralHash21 } from '../shader-utils.js';
 
 export const warpLogoMeta = {
   maxColorCount: 6,
@@ -31,8 +31,10 @@ uniform vec4 u_colors[${warpLogoMeta.maxColorCount}];
 uniform float u_colorsCount;
 uniform vec4 u_colorBack;
 uniform vec4 u_colorInner;
-uniform float u_contour;
-uniform float u_size;
+uniform float u_distortion;
+uniform float u_outerVisibility;
+uniform float u_innerFill;
+uniform float u_outerDistortion;
 
 ${sizingVariablesDeclaration}
 
@@ -40,21 +42,6 @@ out vec4 fragColor;
 
 ${ declarePI }
 ${ rotation2 }
-
-${ proceduralHash21 }
-
-float valueNoise(vec2 st) {
-  vec2 i = floor(st);
-  vec2 f = fract(st);
-  float a = hash21(i);
-  float b = hash21(i + vec2(1.0, 0.0));
-  float c = hash21(i + vec2(0.0, 1.0));
-  float d = hash21(i + vec2(1.0, 1.0));
-  vec2 u = f * f * (3.0 - 2.0 * f);
-  float x1 = mix(a, b, u.x);
-  float x2 = mix(c, d, u.x);
-  return mix(x1, x2, u.y);
-}
 
 float getImgFrame(vec2 uv, float th) {
   float frame = 1.;
@@ -65,7 +52,7 @@ float getImgFrame(vec2 uv, float th) {
   return frame;
 }
 
-float blurEdge5x5(sampler2D tex, vec2 uv, vec2 dudx, vec2 dudy, float radius, float centerSample) {
+float blurEdge5x5(sampler2D tex, vec2 uv, vec2 dudx, vec2 dudy, float radius) {
   vec2 texel = 1.0 / vec2(textureSize(tex, 0));
   vec2 r = max(radius, 0.0) * texel;
 
@@ -107,7 +94,7 @@ float blurEdge5x5(sampler2D tex, vec2 uv, vec2 dudx, vec2 dudy, float radius, fl
     float row =
     a * texture(tex, uv + vec2(-2.0*r.x, 0.0)).r +
     b * texture(tex, uv + vec2(-1.0*r.x, 0.0)).r +
-    c * centerSample +
+    b * texture(tex, uv + vec2(0.)).r +
     b * texture(tex, uv + vec2(1.0*r.x, 0.0)).r +
     a * texture(tex, uv + vec2(2.0*r.x, 0.0)).r;
     sum += wy * row;
@@ -153,75 +140,44 @@ float getPoint(vec2 dist, float p) {
 
 
 void main() {
-
-   float t = 1. * u_time;
+  
+   float t = u_time;
 
    vec2 uv = v_imageUV;
    vec2 dudx = dFdx(v_imageUV);
    vec2 dudy = dFdy(v_imageUV);
    vec4 img = textureGrad(u_image, uv, dudx, dudy);
 
-   float edge = img.r;
-   edge = 1. - blurEdge5x5(u_image, uv, dudx, dudy, 10., edge);
-
+   float edge = 1. - blurEdge5x5(u_image, uv, dudx, dudy, 10.);
    float imgAlpha = img.g;
 
    float frame = getImgFrame(v_imageUV, 0.);
    imgAlpha *= frame;
-   edge *= frame;
+//   edge *= frame;
 
-  // float offset = 1. - edge;
-   float shadow = ((1. - edge) * imgAlpha);
-   shadow = pow(shadow, 5.);
   
-  //
-  // opacity = clamp(opacity, 0., 1.);
-  //
-  // color *= imgAlpha;
-  // opacity *= imgAlpha;
-  //
-  // vec3  backRgb = u_colorBack.rgb * u_colorBack.a;
-  // float backA   = u_colorBack.a;
-  // vec3  innerRgb_raw = u_colorInner.rgb * u_colorInner.a;
-  // float innerA_raw = u_colorInner.a;
-  //
-  // float innerA  = innerA_raw * imgAlpha;
-  // vec3  innerRgb = innerRgb_raw * imgAlpha;
-  //
-  // vec3  layerRgb = innerRgb + backRgb * (1.0 - innerA);
-  // float layerA   = innerA   + backA   * (1.0 - innerA);
-  //
-  // vec3 colorCopy = color;
-  // color   = color   + layerRgb * (1.0 - opacity);
-  // opacity = opacity + layerA   * (1.0 - opacity);
-  //
-  //
-  // fragColor = vec4(color, opacity);
 
-
-//  uv = v_objectUV;
-  uv = v_imageUV - .5;
+  uv = v_objectUV;
+//  uv = v_imageUV - .5;
   uv *= 2.;
   
-  float u_swirl = .5 + .4 * edge;
-  float u_swirlIterations = 5.;
-  float u_proportion = .5;
-  float u_softness = 1.;
-  
-   for (int i = 1; i <= 20; i++) {
-     if (i >= int(u_swirlIterations)) break;
-     float iFloat = float(i);
-     uv.x += u_swirl / iFloat * cos(t + iFloat * 2.5 * uv.y);
-     uv.y += u_swirl / iFloat * cos(t + iFloat * 1.5 * uv.x);
-   }
+  float swirl = mix(0., u_distortion, u_outerDistortion) * (1. - imgAlpha) + u_distortion * edge;
+//  swirl *= (.2 + .8 * smoothstep(1., 0., length(.5 * uv)));
 
-  float proportion = clamp(u_proportion, 0., 1.);
-  
-  // float shape = 1. * abs(cos(t - uv.y - uv.x));
+//   uv = rotate(uv, 1.8);
+//  uv.x -= .9;
+
+  for (int i = 1; i <= 6; i++) { 
+    float iFloat = float(i);
+    uv.x += swirl / iFloat * cos(t + iFloat * 2.1 * uv.y);
+    uv.y += swirl / iFloat * cos(t + iFloat * 1.5 * uv.x);
+  }
   float shape = exp(-1.5 * (uv.x * uv.x + uv.y * uv.y));
+  shape += u_innerFill * imgAlpha * frame;
   shape = clamp(0., 1., shape);
-  shape *= (.1 + .9 * imgAlpha);
-
+  
+  float outerPower = pow(u_outerVisibility, 3.);
+  shape *= (outerPower + (1. - outerPower) * imgAlpha);
 
   float mixer = shape * (u_colorsCount - 1.);
   vec4 gradient = u_colors[0];
@@ -229,14 +185,10 @@ void main() {
   float aa = fwidth(shape);
     for (int i = 1; i < ${ warpLogoMeta.maxColorCount }; i++) {
     if (i >= int(u_colorsCount)) break;
-    float m = clamp(mixer - float(i - 1), 0.0, 1.0);
+    float m = clamp(mixer - float(i - 1), 0., 1.);
 
     float localMixerStart = floor(m);
-    float softness = .5 * u_softness + fwidth(m);
-    float smoothed = smoothstep(max(0., .5 - softness - aa), min(1., .5 + softness + aa), m - localMixerStart);
-    float stepped = localMixerStart + smoothed;
-
-    m = mix(stepped, m, u_softness);
+    float smoothed = smoothstep(0., localMixerStart, m);
 
     vec4 c = u_colors[i];
     c.rgb *= c.a;
@@ -246,7 +198,7 @@ void main() {
   vec3 color = gradient.rgb;
   float opacity = gradient.a;
 
-   fragColor = vec4(color, opacity);
+  fragColor = vec4(color, opacity);
 }
 `;
 
@@ -542,92 +494,6 @@ export function toProcessedWarpLogo(file: File | string): Promise<{ imageData: I
   });
 }
 
-function blurRedChannel(
-    imageData: ImageData,
-    width: number,
-    height: number,
-    radius = 2
-) {
-  const src = imageData.data;
-  const pixelCount = width * height;
-
-  const tmp = new Uint8ClampedArray(pixelCount);
-  const dst = new Uint8ClampedArray(pixelCount);
-
-  // --- Horizontal blur ---
-  for (let y = 0; y < height; y++) {
-    let sum = 0;
-    let count = 0;
-
-    // initial window centered at x = 0
-    for (let dx = -radius; dx <= radius; dx++) {
-      const xClamped = Math.max(0, Math.min(width - 1, dx));
-      const idx = (y * width + xClamped) * 4;
-      sum += src[idx]!;
-      count++;
-    }
-
-    for (let x = 0; x < width; x++) {
-      const outIdx = y * width + x;
-      tmp[outIdx] = sum / count;
-
-      const xRemove = x - radius;
-      if (xRemove >= 0) {
-        const idxRemove = (y * width + xRemove) * 4;
-        sum -= src[idxRemove]!;
-        count--;
-      }
-
-      const xAdd = x + radius + 1;
-      if (xAdd < width) {
-        const idxAdd = (y * width + xAdd) * 4;
-        sum += src[idxAdd]!;
-        count++;
-      }
-    }
-  }
-
-  // --- Vertical blur ---
-  for (let x = 0; x < width; x++) {
-    let sum = 0;
-    let count = 0;
-
-    // initial window centered at y = 0
-    for (let dy = -radius; dy <= radius; dy++) {
-      const yClamped = Math.max(0, Math.min(height - 1, dy));
-      const idx = yClamped * width + x;
-      sum += tmp[idx]!;
-      count++;
-    }
-
-    for (let y = 0; y < height; y++) {
-      const outIdx = y * width + x;
-      dst[outIdx] = sum / count;
-
-      const yRemove = y - radius;
-      if (yRemove >= 0) {
-        const idxRemove = yRemove * width + x;
-        sum -= tmp[idxRemove]!;
-        count--;
-      }
-
-      const yAdd = y + radius + 1;
-      if (yAdd < height) {
-        const idxAdd = yAdd * width + x;
-        sum += tmp[idxAdd]!;
-        count++;
-      }
-    }
-  }
-
-  // --- Write blurred red back into ImageData ---
-  for (let i = 0; i < pixelCount; i++) {
-    const px = i * 4;
-    src[px] = dst[i]!;
-  }
-}
-
-
 function buildSparseData(
   shapeMask: Uint8Array,
   boundaryMask: Uint8Array,
@@ -771,8 +637,10 @@ export interface WarpLogoUniforms extends ShaderSizingUniforms {
   u_colors: vec4[];
   u_colorsCount: number;
   u_image: HTMLImageElement | string | undefined;
-  u_contour: number;
-  u_size: number;
+  u_distortion: number;
+  u_outerVisibility: number;
+  u_innerFill: number;
+  u_outerDistortion: number;
 }
 
 export interface WarpLogoParams extends ShaderSizingParams, ShaderMotionParams {
@@ -780,6 +648,8 @@ export interface WarpLogoParams extends ShaderSizingParams, ShaderMotionParams {
   colorBack?: string;
   colorInner?: string;
   image?: HTMLImageElement | string | undefined;
-  contour?: number;
-  size?: number;
+  distortion?: number;
+  outerVisibility?: number;
+  innerFill?: number;
+  outerDistortion?: number;
 }
