@@ -204,8 +204,7 @@ vec3 rotateAroundZ(vec3 v, float angle) {
 
 void main() {
 
-  const float firstFrameOffset = 2.8;
-  float t = .3 * (u_time + firstFrameOffset);
+  float t = .6 * u_time;
 
   vec2 uv = v_imageUV;
   vec2 dudx = dFdx(v_imageUV);
@@ -312,25 +311,47 @@ void main() {
   //
   // fragColor = vec4(color, opacity);
 
+  
+  
+  float f[${ foldsMeta.maxColorCount }];
+
+  float yTravel = mix(2., -.2, fract(.5 * t));
+
+//  float shaping = .2 * edge * step(0., yTravel) + .2 * step(yTravel, 0.);
+  float shaping = .05 * edge;
+
+
+  vec2 trajs[${ foldsMeta.maxColorCount }];
+  // trajs[0] = vec2(.0, 3. - fract(.1 * t));
+  trajs[0] = vec2(-.4, -.5 + yTravel);
+  float dist = 1.;
+  for (int i = 0; i < ${ foldsMeta.maxColorCount }; i++) {
+    f[i] = getPoint(uv + trajs[i], shaping);
+  }
+  f[0] = sst(.9, .9 + 2. * fwidth(f[0]), f[0]);
+
+
 
   vec3 uLightDir1 = normalize(vec3(.5, .5, .7));
   vec3 uLightDir2 = normalize(vec3(-.5, -.5, .9));
 
 
-  uLightDir1 = rotateAroundZ(uLightDir1, 5. * t);
-  uLightDir2 = rotateAroundZ(uLightDir2, -3. * t);
+//  uLightDir1 = rotateAroundZ(uLightDir1, 1. * t);
+//  uLightDir2 = rotateAroundZ(uLightDir2, -.2 * t);
 
   vec3 normal   = computeNormal(uv);
   vec3 viewDir  = vec3(0., 0., 1.);
 
   // --- material parameters ---
   vec3 baseColor = vec3(1.);
+  baseColor = mix(vec3(1.), vec3(.6), f[0]);
+
   vec3 specColor = vec3(.8);
 //  float shininess = 20.0;
 
   // light colors/intensities
-  vec3 lightColor1 = vec3(0.9, 0.2, 0.2);
-  vec3 lightColor2 = vec3(0.1, 0.4, 0.9);
+  vec3 lightColor1 = vec3(.2, .3, .3);
+  vec3 lightColor2 = vec3(.5, .5, .7);
 
   // --- lighting ---
   float NdotL1 = max(dot(normal, uLightDir1), 0.);
@@ -364,28 +385,10 @@ void main() {
 
   
 
-  t = 2. * u_time;
-  float f[${ foldsMeta.maxColorCount }];
 
-//  float yTravel = mix(2.5, -1.5, fract(.1 * t));
-  float yTravel = mix(2., -.2, fract(.1 * t));
-
-//  float shaping = .2 * edge * step(0., yTravel) + .2 * step(yTravel, 0.);
-  float shaping = .05 * edge;
-
-
-  vec2 trajs[${ foldsMeta.maxColorCount }];
-  // trajs[0] = vec2(.0, 3. - fract(.1 * t));
-  trajs[0] = vec2(-.5, -.5 + yTravel);
-  float dist = 1.;
-  for (int i = 0; i < ${ foldsMeta.maxColorCount }; i++) {
-    f[i] = getPoint(uv + trajs[i], shaping);
-  }
 //
 //  vec3 color = vec3(1.);
-//  f[0] = sst(.9, .9 + 2. * fwidth(f[0]), f[0]);
-////  color = mix(vec3(1.), vec3(.8, .7, 0.), f[0]);
-//
+
 ////  vec3 color = mix(u_colors[0].rgb, u_colors[1].rgb, NdotH);
 //  
 //  float shadow = 1. - NdotH;
@@ -394,8 +397,8 @@ void main() {
 //  color = mix(color, vec3(0.), imgAlpha - pow(edge, .05));
 //  color = mix(color, vec3(0.), line);
 
-//  fragColor = vec4(color, imgAlpha);
-  fragColor = vec4(vec3(NdotH1), imgAlpha);
+  fragColor = vec4(color, imgAlpha);
+//  fragColor = vec4(vec3(NdotH1), imgAlpha);
 }
 `;
 
