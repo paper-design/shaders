@@ -1,7 +1,7 @@
 import type { vec4 } from '../types.js';
 import type { ShaderMotionParams } from '../shader-mount.js';
 import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
-import { declarePI, rotation2, proceduralHash21, colorBandingFix } from '../shader-utils.js';
+import { declarePI, rotation2, textureRandomizerGB, proceduralHash22, colorBandingFix } from '../shader-utils.js';
 
 export const blobsLogoMeta = {
   maxColorCount: 6,
@@ -23,6 +23,8 @@ precision mediump float;
 
 uniform sampler2D u_image;
 uniform float u_imageAspectRatio;
+
+uniform sampler2D u_noiseTexture;
 
 uniform vec2 u_resolution;
 uniform float u_time;
@@ -137,94 +139,246 @@ float getPoint(vec2 dist, float p) {
 }
 
 
+${ declarePI }
+${ textureRandomizerGB }
+
+vec4 voronoi(vec2 x, float t, float shape, float imgAlpha) {
+  vec2 ip = floor(x);
+  vec2 fp = fract(x);
+
+  vec2 mg, mr;
+  float md = 8.;
+  float rand = 0.;
+  float u_distortion = .5 * shape;
+
+  for (int j = -1; j <= 1; j++) {
+    for (int i = -1; i <= 1; i++) {
+      vec2 g = vec2(float(i), float(j));
+      vec2 o = randomGB(ip + g);
+      float raw_hash = o.x;
+      o = .5 + u_distortion * sin(t + TWO_PI * o);
+      vec2 r = g + o - fp;
+      float d = dot(r, r);
+
+      if (d < md) {
+        md = d;
+        mr = r;
+        mg = g;
+        rand = raw_hash;
+      }
+    }
+  }
+
+  md = 8.;
+  for (int j = -2; j <= 2; j++) {
+    for (int i = -2; i <= 2; i++) {
+      vec2 g = mg + vec2(float(i), float(j));
+      vec2 o = randomGB(ip + g);
+      o = .5 + u_distortion * sin(t + TWO_PI * o);
+      vec2 r = g + o - fp;
+      if (dot(mr - r, mr - r) > .00001) {
+        md = min(md, dot(.5 * (mr + r), normalize(r - mr)));
+      }
+    }
+  }
+
+  return vec4(md, mr, rand);
+}
+
 void main() {
 
-  float t = .3 * u_time;
-
-  vec2 uv = v_imageUV;
-  vec2 dudx = dFdx(v_imageUV);
-  vec2 dudy = dFdy(v_imageUV);
-  vec4 img = textureGrad(u_image, uv, dudx, dudy);
-
-  float edge = img.r;
-  edge = 1. - blurEdge5x5(u_image, uv, dudx, dudy, 10., edge);
-
-  float imgAlpha = img.g;
-
-  float frame = getImgFrame(v_imageUV, 0.);
-  imgAlpha *= frame;
-  edge *= frame;
-
-  uv = v_objectUV;
   
-  float offset = 1. - edge;
-  float shadow = ((1. - edge) * imgAlpha);
-  shadow = pow(shadow, 5.);
+     vec2 uv = v_imageUV;
+     vec2 dudx = dFdx(v_imageUV);
+     vec2 dudy = dFdy(v_imageUV);
+     vec4 img = textureGrad(u_image, uv, dudx, dudy);
 
-  float shapeOffset = 2.4 * u_contour * offset;
-  float shaping = 2.5 - shapeOffset;
+     float edge = img.r;
+     edge = 1. - blurEdge5x5(u_image, uv, dudx, dudy, 10., edge);
 
-  t = 2. * u_time;
-  float f[${ blobsLogoMeta.maxColorCount }];
+     float imgAlpha = img.g;
+  
+  vec2 shape_uv = v_patternUV;
+  shape_uv *= 1.25;
 
-  vec2 trajs[${ blobsLogoMeta.maxColorCount }];
-  trajs[0] = vec2(0.8 * sin(-0.5 * t), 0.2 + 2.5 * cos(0.3 * t));
-  trajs[1] = vec2(1.7 * cos(-0.5 * t + 1.), sin(0.8 * t));
-  trajs[2] = vec2(0.5 * cos(0.3 * t), cos(-0.8 * t));
-  trajs[3] = vec2(0.5 * cos(-0.9 * t), 0.7 * sin(-0.2 * t));
-  trajs[4] = vec2(0.5 * sin(-0.34 * t), -.2 + 1.3 * sin(-0.8 * t));
-  trajs[5] = vec2(0.9 * sin(0.85 * t + 1.), 0.7 * cos(0.6 * t));
+  float t = u_time;
 
-  float dist = 0.3;
-  for (int i = 0; i < ${ blobsLogoMeta.maxColorCount }; i++) {
-    dist += .03 * float(i);
-    f[i] = getPoint(uv + dist * trajs[i], shaping);
-  }
+  vec4 voronoiRes = voronoi(shape_uv, t, edge, imgAlpha);
 
-  f[0] -= f[1];
-  f[2] -= 1.2 * f[1];
-  f[2] -= 1.6 * f[0];
-  f[4] -= f[1];
-  f[5] -= .4 * f[3];
-  f[1] -= .5 * f[2];
-  f[5] -= f[4];
-  f[3] -= f[1];
-  f[3] -= f[2];
-  f[5] *= .3;
+  float shape = clamp(voronoiRes.w, 0., 1.);
+  float mixer = shape * (u_colorsCount - 1.);
+  mixer = (shape - .5 / u_colorsCount) * u_colorsCount;
+  float steps = 1.;
 
-  float opacity = 0.;
-  vec3 color = vec3(0.);
-
-  float size = .95 - .9 * u_size;
-  for (int i = 0; i < ${ blobsLogoMeta.maxColorCount }; i++) {
+  vec4 gradient = u_colors[0];
+  gradient.rgb *= gradient.a;
+  for (int i = 1; i < ${ blobsLogoMeta.maxColorCount }; i++) {
     if (i >= int(u_colorsCount)) break;
-    f[i] = sst(size, size + 2. * fwidth(f[i]), f[i]);
-    opacity += f[i];
-    color = mix(color, u_colors[i].rgb, f[i]);
+    float localT = clamp(mixer - float(i - 1), 0.0, 1.0);
+    localT = round(localT * steps) / steps;
+    vec4 c = u_colors[i];
+    c.rgb *= c.a;
+    gradient = mix(gradient, c, localT);
   }
 
-  opacity = clamp(opacity, 0., 1.);
+  if ((mixer < 0.) || (mixer > (u_colorsCount - 1.))) {
+    float localT = mixer + 1.;
+    if (mixer > (u_colorsCount - 1.)) {
+      localT = mixer - (u_colorsCount - 1.);
+    }
+    localT = round(localT * steps) / steps;
+    vec4 cFst = u_colors[0];
+    cFst.rgb *= cFst.a;
+    vec4 cLast = u_colors[int(u_colorsCount - 1.)];
+    cLast.rgb *= cLast.a;
+    gradient = mix(cLast, cFst, localT);
+  }
 
-  color *= imgAlpha;
-  opacity *= imgAlpha;
-  
-  vec3  backRgb = u_colorBack.rgb * u_colorBack.a;
-  float backA   = u_colorBack.a;
-  vec3  innerRgb_raw = u_colorInner.rgb * u_colorInner.a;
-  float innerA_raw = u_colorInner.a;
+  vec3 cellColor = gradient.rgb;
+  float cellOpacity = gradient.a;
+  float u_glow = 0.;
+  float u_gap = .1;
+  vec4 u_colorGlow = vec4(1.);
+  vec4 u_colorGap = vec4(1.);
 
-  float innerA  = innerA_raw * imgAlpha;
-  vec3  innerRgb = innerRgb_raw * imgAlpha;
+  float glows = length(voronoiRes.yz * u_glow);
+  glows = pow(glows, 1.5);
 
-  vec3  layerRgb = innerRgb + backRgb * (1.0 - innerA);
-  float layerA   = innerA   + backA   * (1.0 - innerA);
+  vec3 color = mix(cellColor, u_colorGlow.rgb * u_colorGlow.a, u_colorGlow.a * glows);
+  float opacity = cellOpacity + u_colorGlow.a * glows;
 
-  vec3 colorCopy = color;
-  color   = color   + layerRgb * (1.0 - opacity);
-  opacity = opacity + layerA   * (1.0 - opacity);
+  float eee = 2. * voronoiRes.x;
+  float smoothEdge = fwidth(eee);
+  eee = smoothstep(u_gap - smoothEdge, u_gap + smoothEdge, eee);
+
+  color = mix(u_colorGap.rgb * u_colorGap.a, color, eee);
+  opacity = mix(u_colorGap.a, opacity, eee);
+
+  fragColor = vec4(color, imgAlpha);
 
 
-  fragColor = vec4(color, opacity);
+//
+//   float frame = getImgFrame(v_imageUV, 0.);
+//   imgAlpha *= frame;
+//   edge *= frame;
+//
+//   uv = v_objectUV;
+//  
+//   float offset = 1. - edge;
+//   float shadow = ((1. - edge) * imgAlpha);
+//   shadow = pow(shadow, 5.);
+//
+//   // float shapeOffset = 2.4 * u_contour * offset;
+//   // float shaping = 2.5 - shapeOffset;
+//   //
+//   // float f[${ blobsLogoMeta.maxColorCount }];
+//   //
+//   // vec2 trajs[${ blobsLogoMeta.maxColorCount }];
+//   // trajs[0] = vec2(0.8 * sin(-0.5 * t), 0.2 + 2.5 * cos(0.3 * t));
+//   // trajs[1] = vec2(1.7 * cos(-0.5 * t + 1.), sin(0.8 * t));
+//   // trajs[2] = vec2(0.5 * cos(0.3 * t), cos(-0.8 * t));
+//   // trajs[3] = vec2(0.5 * cos(-0.9 * t), 0.7 * sin(-0.2 * t));
+//   // trajs[4] = vec2(0.5 * sin(-0.34 * t), -.2 + 1.3 * sin(-0.8 * t));
+//   // trajs[5] = vec2(0.9 * sin(0.85 * t + 1.), 0.7 * cos(0.6 * t));
+//   //
+//   // float dist = 0.3;
+//   // for (int i = 0; i < ${ blobsLogoMeta.maxColorCount }; i++) {
+//   //   dist += .03 * float(i);
+//   //   f[i] = getPoint(uv + dist * trajs[i], shaping);
+//   // }
+//   //
+//   // f[0] -= f[1];
+//   // f[2] -= 1.2 * f[1];
+//   // f[2] -= 1.6 * f[0];
+//   // f[4] -= f[1];
+//   // f[5] -= .4 * f[3];
+//   // f[1] -= .5 * f[2];
+//   // f[5] -= f[4];
+//   // f[3] -= f[1];
+//   // f[3] -= f[2];
+//   // f[5] *= .3;
+//   //
+//   // float opacity = 0.;
+//   // vec3 color = vec3(0.);
+//   //
+//   // float size = .95 - .9 * u_size;
+//   // for (int i = 0; i < ${ blobsLogoMeta.maxColorCount }; i++) {
+//   //   if (i >= int(u_colorsCount)) break;
+//   //   f[i] = sst(size, size + 2. * fwidth(f[i]), f[i]);
+//   //   opacity += f[i];
+//   //   color = mix(color, u_colors[i].rgb, f[i]);
+//   // }
+//   //
+//   // opacity = clamp(opacity, 0., 1.);
+//   //
+//   // color *= imgAlpha;
+//   // opacity *= imgAlpha;
+//   //
+//   // vec3  backRgb = u_colorBack.rgb * u_colorBack.a;
+//   // float backA   = u_colorBack.a;
+//   // vec3  innerRgb_raw = u_colorInner.rgb * u_colorInner.a;
+//   // float innerA_raw = u_colorInner.a;
+//   //
+//   // float innerA  = innerA_raw * imgAlpha;
+//   // vec3  innerRgb = innerRgb_raw * imgAlpha;
+//   //
+//   // vec3  layerRgb = innerRgb + backRgb * (1.0 - innerA);
+//   // float layerA   = innerA   + backA   * (1.0 - innerA);
+//   //
+//   // vec3 colorCopy = color;
+//   // color   = color   + layerRgb * (1.0 - opacity);
+//   // opacity = opacity + layerA   * (1.0 - opacity);
+//
+//
+// //  fragColor = vec4(color, opacity);
+//
+//   vec2 shape_uv = v_patternUV;
+// //  shape_uv *= 1.25;
+//  
+//   vec4 voronoiRes = voronoi(shape_uv, t);
+//
+//    float shape = clamp(voronoiRes.w, 0., 1.);
+//    float mixer = shape * (u_colorsCount - 1.);
+//    mixer = (shape - .5 / u_colorsCount) * u_colorsCount;
+//
+//    vec4 gradient = u_colors[0];
+//    gradient.rgb *= gradient.a;
+//    for (int i = 1; i < ${ blobsLogoMeta.maxColorCount }; i++) {
+//      if (i >= int(u_colorsCount)) break;
+//      float localT = clamp(mixer - float(i - 1), 0.0, 1.0);
+//      vec4 c = u_colors[i];
+//      c.rgb *= c.a;
+//      gradient = mix(gradient, c, localT);
+//    }
+//
+// //   if ((mixer < 0.) || (mixer > (u_colorsCount - 1.))) {
+// //     float localT = mixer + 1.;
+// //     if (mixer > (u_colorsCount - 1.)) {
+// //       localT = mixer - (u_colorsCount - 1.);
+// //     }
+// //     vec4 cFst = u_colors[0];
+// //     cFst.rgb *= cFst.a;
+// //     vec4 cLast = u_colors[int(u_colorsCount - 1.)];
+// //     cLast.rgb *= cLast.a;
+// //     gradient = mix(cLast, cFst, localT);
+// //   }
+//
+//    vec3 cellColor = gradient.rgb;
+//    float cellOpacity = gradient.a;
+//
+//    vec3 color = cellColor;
+//    float opacity = cellOpacity;
+//
+// //   float u_gap = .1;
+// //   vec4 u_colorGap = vec4(0., 0., 0., 1.);
+// //   float eee = voronoiRes.x;
+// //   float smoothEdge = .001;
+// //   eee = smoothstep(u_gap - smoothEdge, u_gap + smoothEdge, eee);
+// //
+// //   color = mix(u_colorGap.rgb * u_colorGap.a, color, eee);
+// //   opacity = mix(u_colorGap.a, opacity, eee);
+//
+//   fragColor = vec4(color, opacity);
 }
 `;
 
@@ -751,6 +905,7 @@ export interface BlobsLogoUniforms extends ShaderSizingUniforms {
   u_image: HTMLImageElement | string | undefined;
   u_contour: number;
   u_size: number;
+  u_noiseTexture?: HTMLImageElement;
 }
 
 export interface BlobsLogoParams extends ShaderSizingParams, ShaderMotionParams {

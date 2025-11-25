@@ -10,6 +10,7 @@ import {
   toProcessedBlobsLogo,
   type ImageShaderPreset,
   getShaderColorFromString,
+  getShaderNoiseTexture,
 } from '@paper-design/shaders';
 import { transparentPixel } from '../transparent-pixel.js';
 import { suspend } from '../suspend.js';
@@ -112,6 +113,7 @@ export const BlobsLogo: React.FC<BlobsLogoProps> = memo(function BlobsLogoImpl({
     u_image: processedImage,
     u_contour: contour,
     u_size: size,
+    u_noiseTexture: getShaderNoiseTexture(),
 
     // Sizing uniforms
     u_fit: ShaderFitOptions[fit],
@@ -131,7 +133,7 @@ export const BlobsLogo: React.FC<BlobsLogoProps> = memo(function BlobsLogoImpl({
       speed={speed}
       frame={frame}
       fragmentShader={blobsLogoFragmentShader}
-      mipmaps={['u_image']}
+      // mipmaps={['u_image']}
       uniforms={uniforms}
     />
   );

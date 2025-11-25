@@ -165,6 +165,7 @@ vec2 getPosition(int i, float t) {
 
 float getHeight(vec2 uv) {
   float a = texture(u_image, uv).r;
+//  a = pow(a, 2.);
   return a;
 }
 
@@ -188,6 +189,16 @@ float getPoint(vec2 dist, float p) {
   v = smoothstep(0., 1., v);
   v = pow(v, p);
   return v;
+}
+
+mat2 rotZ(float a) {
+    float c = cos(a), s = sin(a);
+    return mat2(c, -s,
+                s,  c);
+}
+vec3 rotateAroundZ(vec3 v, float angle) {
+  mat2 r = rotZ(angle);
+  return vec3(r * v.xy, v.z);
 }
 
 
@@ -216,7 +227,7 @@ void main() {
    stripesUV = rotate(stripesUV, angle);
    stripesUV *= u_size;
 
-   float n = doubleSNoise(u_noiseScale * patternsUV + 100., u_time);
+   float n = doubleSNoise(u_noiseScale * patternsUV + 100., .2 * u_time);
    float edgeAtten = edge + u_outerNoise * (1. - edge);
    float y = stripesUV.y + edgeAtten * .5 * n * u_size * u_noise;
 
@@ -301,18 +312,54 @@ void main() {
   //
   // fragColor = vec4(color, opacity);
 
-  
-  vec3 uLightDir = vec3(.5 * sin(6. * t), .5 * cos(6. * t), 1.);
-  vec3 normal = computeNormal(uv);
-  vec3 viewDir = vec3(0., 0., 1.0);
 
-  vec3 halfDir = normalize(uLightDir + viewDir);
-  float NdotH = max(dot(normal, halfDir), 0.);
-  
-  
-  
-  
-//    float shaping = .2 * edge;// * step(0., yTravel) + (.4 - .2 * edge) * step(yTravel, 0.);
+  vec3 uLightDir1 = normalize(vec3(.5, .5, .7));
+  vec3 uLightDir2 = normalize(vec3(-.5, -.5, .9));
+
+
+  uLightDir1 = rotateAroundZ(uLightDir1, 5. * t);
+  uLightDir2 = rotateAroundZ(uLightDir2, -3. * t);
+
+  vec3 normal   = computeNormal(uv);
+  vec3 viewDir  = vec3(0., 0., 1.);
+
+  // --- material parameters ---
+  vec3 baseColor = vec3(1.);
+  vec3 specColor = vec3(.8);
+//  float shininess = 20.0;
+
+  // light colors/intensities
+  vec3 lightColor1 = vec3(0.9, 0.2, 0.2);
+  vec3 lightColor2 = vec3(0.1, 0.4, 0.9);
+
+  // --- lighting ---
+  float NdotL1 = max(dot(normal, uLightDir1), 0.);
+  float NdotL2 = max(dot(normal, uLightDir2), 0.);
+
+  // diffuse from both lights
+  vec3 diffuse =
+  baseColor * (NdotL1 * lightColor1 + NdotL2 * lightColor2);
+
+  // ambient (could also tint with a color if you like)
+  vec3 ambient = baseColor * 0.2;
+
+  // --- specular highlights (per light) ---
+  vec3 halfDir1 = normalize(uLightDir1 + viewDir);
+  vec3 halfDir2 = normalize(uLightDir2 + viewDir);
+
+  float NdotH1 = max(dot(normal, halfDir1), 0.);
+  float NdotH2 = max(dot(normal, halfDir2), 0.);
+
+  vec3 specular =
+  specColor * (pow(NdotH1, 400.) * lightColor1 +
+  pow(NdotH2, 400.) * lightColor2);
+
+  // --- final ---
+  vec3 color = ambient + diffuse + specular;
+  color = clamp(color, 0., 1.);
+
+
+  //    float shaping = .2 * edge;// * step(0., yTravel) + (.4 - .2 * edge) * step(yTravel, 0.);
 
 
   
@@ -334,20 +381,21 @@ void main() {
   for (int i = 0; i < ${ foldsMeta.maxColorCount }; i++) {
     f[i] = getPoint(uv + trajs[i], shaping);
   }
+//
+//  vec3 color = vec3(1.);
+//  f[0] = sst(.9, .9 + 2. * fwidth(f[0]), f[0]);
+////  color = mix(vec3(1.), vec3(.8, .7, 0.), f[0]);
+//
+////  vec3 color = mix(u_colors[0].rgb, u_colors[1].rgb, NdotH);
+//  
+//  float shadow = 1. - NdotH;
+//  shadow = -.4 + pow(shadow, .2);
+//  color = mix(color, vec3(0.), shadow);
+//  color = mix(color, vec3(0.), imgAlpha - pow(edge, .05));
+//  color = mix(color, vec3(0.), line);
 
-  vec3 color = vec3(1.);
-  f[0] = sst(.9, .9 + 2. * fwidth(f[0]), f[0]);
-//  color = mix(vec3(1.), vec3(.8, .7, 0.), f[0]);
-
-//  vec3 color = mix(u_colors[0].rgb, u_colors[1].rgb, NdotH);
-  
-  float shadow = 1. - NdotH;
-  shadow = -.4 + pow(shadow, .2);
-  color = mix(color, vec3(0.), shadow);
-  color = mix(color, vec3(0.), imgAlpha - pow(edge, .05));
-//  color = mix(color, vec3(0.), line * f[0]);
-
-  fragColor = vec4(color, imgAlpha);
+//  fragColor = vec4(color, imgAlpha);
+  fragColor = vec4(vec3(NdotH1), imgAlpha);
 }
 `;
 
