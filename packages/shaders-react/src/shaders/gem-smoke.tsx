@@ -2,28 +2,28 @@ import { memo, useLayoutEffect, useState } from 'react';
 import { ShaderMount, type ShaderComponentProps } from '../shader-mount.js';
 import { colorPropsAreEqual } from '../color-props-are-equal.js';
 import {
-  warpLogoFragmentShader,
+  gemSmokeFragmentShader,
   ShaderFitOptions,
   defaultObjectSizing,
-  type WarpLogoUniforms,
-  type WarpLogoParams,
-  toProcessedWarpLogo,
+  type GemSmokeUniforms,
+  type GemSmokeParams,
+  toProcessedGemSmoke,
   type ImageShaderPreset,
   getShaderColorFromString,
 } from '@paper-design/shaders';
 import { transparentPixel } from '../transparent-pixel.js';
 import { suspend } from '../suspend.js';
 
-export interface WarpLogoProps extends ShaderComponentProps, WarpLogoParams {
+export interface GemSmokeProps extends ShaderComponentProps, GemSmokeParams {
   /**
    * Suspends the component when the image is being processed.
    */
   suspendWhenProcessingImage?: boolean;
 }
 
-type WarpLogoPreset = ImageShaderPreset<WarpLogoParams>;
+type GemSmokePreset = ImageShaderPreset<GemSmokeParams>;
 
-export const defaultPreset: WarpLogoPreset = {
+export const defaultPreset: GemSmokePreset = {
   name: 'Default',
   params: {
     ...defaultObjectSizing,
@@ -39,7 +39,7 @@ export const defaultPreset: WarpLogoPreset = {
   },
 };
 
-export const blackPreset: WarpLogoPreset = {
+export const blackPreset: GemSmokePreset = {
   name: 'Black',
   params: {
     ...defaultObjectSizing,
@@ -55,9 +55,9 @@ export const blackPreset: WarpLogoPreset = {
   },
 };
 
-export const warpLogoPresets: WarpLogoPreset[] = [defaultPreset, blackPreset];
+export const gemSmokePresets: GemSmokePreset[] = [defaultPreset, blackPreset];
 
-export const WarpLogo: React.FC<WarpLogoProps> = memo(function WarpLogoImpl({
+export const GemSmoke: React.FC<GemSmokeProps> = memo(function GemSmokeImpl({
   // Own props
   colorBack = defaultPreset.params.colorBack,
   colors = defaultPreset.params.colors,
@@ -81,7 +81,7 @@ export const WarpLogo: React.FC<WarpLogoProps> = memo(function WarpLogoImpl({
   worldWidth = defaultPreset.params.worldWidth,
   worldHeight = defaultPreset.params.worldHeight,
   ...props
-}: WarpLogoProps) {
+}: GemSmokeProps) {
   const imageUrl = typeof image === 'string' ? image : image.src;
   const [processedStateImage, setProcessedStateImage] = useState<string>(transparentPixel);
 
@@ -89,8 +89,8 @@ export const WarpLogo: React.FC<WarpLogoProps> = memo(function WarpLogoImpl({
 
   if (suspendWhenProcessingImage && typeof window !== 'undefined' && imageUrl) {
     processedImage = suspend(
-      (): Promise<string> => toProcessedWarpLogo(imageUrl).then((result) => URL.createObjectURL(result.pngBlob)),
-      [imageUrl, 'warpLogo']
+      (): Promise<string> => toProcessedGemSmoke(imageUrl).then((result) => URL.createObjectURL(result.pngBlob)),
+      [imageUrl, 'gemSmoke']
     );
   } else {
     processedImage = processedStateImage;
@@ -110,7 +110,7 @@ export const WarpLogo: React.FC<WarpLogoProps> = memo(function WarpLogoImpl({
     let url: string;
     let current = true;
 
-    toProcessedWarpLogo(imageUrl).then((result) => {
+    toProcessedGemSmoke(imageUrl).then((result) => {
       if (current) {
         url = URL.createObjectURL(result.pngBlob);
         setProcessedStateImage(url);
@@ -143,14 +143,14 @@ export const WarpLogo: React.FC<WarpLogoProps> = memo(function WarpLogoImpl({
     u_originY: originY,
     u_worldWidth: worldWidth,
     u_worldHeight: worldHeight,
-  } satisfies WarpLogoUniforms;
+  } satisfies GemSmokeUniforms;
 
   return (
     <ShaderMount
       {...props}
       speed={speed}
       frame={frame}
-      fragmentShader={warpLogoFragmentShader}
+      fragmentShader={gemSmokeFragmentShader}
       mipmaps={['u_image']}
       uniforms={uniforms}
     />

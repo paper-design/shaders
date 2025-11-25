@@ -234,12 +234,12 @@ export {
 } from './shaders/blobs-logo.js';
 
 export {
-  warpLogoMeta,
-  warpLogoFragmentShader,
-  toProcessedWarpLogo,
-  type WarpLogoParams,
-  type WarpLogoUniforms,
-} from './shaders/warp-logo.js';
+  gemSmokeMeta,
+  gemSmokeFragmentShader,
+  toProcessedGemSmoke,
+  type GemSmokeParams,
+  type GemSmokeUniforms,
+} from './shaders/gem-smoke.js';
 
 // ----- Utils ----- //
 export { getShaderColorFromString } from './get-shader-color-from-string.js';

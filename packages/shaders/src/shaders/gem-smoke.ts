@@ -3,7 +3,7 @@ import type { ShaderMotionParams } from '../shader-mount.js';
 import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
 import { declarePI, rotation2, proceduralHash21 } from '../shader-utils.js';
 
-export const warpLogoMeta = {
+export const gemSmokeMeta = {
   maxColorCount: 6,
 } as const;
 
@@ -18,7 +18,7 @@ export const warpLogoMeta = {
  */
 
 // language=GLSL
-export const warpLogoFragmentShader: string = `#version 300 es
+export const gemSmokeFragmentShader: string = `#version 300 es
 precision mediump float;
 
 uniform sampler2D u_image;
@@ -27,7 +27,7 @@ uniform float u_imageAspectRatio;
 uniform vec2 u_resolution;
 uniform float u_time;
 
-uniform vec4 u_colors[${warpLogoMeta.maxColorCount}];
+uniform vec4 u_colors[${gemSmokeMeta.maxColorCount}];
 uniform float u_colorsCount;
 uniform vec4 u_colorBack;
 uniform float u_distortion;
@@ -182,7 +182,7 @@ void main() {
   gradient.rgb *= gradient.a;
 
   float outerShape = 0.;
-  for (int i = 1; i < ${ warpLogoMeta.maxColorCount + 1 }; i++) {
+  for (int i = 1; i < ${ gemSmokeMeta.maxColorCount + 1 }; i++) {
     if (i > int(u_colorsCount)) break;
 
     float m = clamp(mixer - float(i - 1), 0., 1.);
@@ -226,7 +226,7 @@ interface SparsePixelData {
   neighborIndices: Int32Array;
 }
 
-export function toProcessedWarpLogo(file: File | string): Promise<{ imageData: ImageData; pngBlob: Blob }> {
+export function toProcessedGemSmoke(file: File | string): Promise<{ imageData: ImageData; pngBlob: Blob }> {
   const canvas = document.createElement('canvas');
   const ctx = canvas.getContext('2d');
   const isBlob = typeof file === 'string' && file.startsWith('blob:');
@@ -638,7 +638,7 @@ function solvePoissonSparse(
   return u;
 }
 
-export interface WarpLogoUniforms extends ShaderSizingUniforms {
+export interface GemSmokeUniforms extends ShaderSizingUniforms {
   u_colorBack: [number, number, number, number];
   u_colors: vec4[];
   u_colorsCount: number;
@@ -649,7 +649,7 @@ export interface WarpLogoUniforms extends ShaderSizingUniforms {
   u_outerDistortion: number;
 }
 
-export interface WarpLogoParams extends ShaderSizingParams, ShaderMotionParams {
+export interface GemSmokeParams extends ShaderSizingParams, ShaderMotionParams {
   colors?: string[];
   colorBack?: string;
   image?: HTMLImageElement | string | undefined;

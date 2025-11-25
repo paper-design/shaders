@@ -1,25 +1,25 @@
 'use client';
 
-import { WarpLogo, warpLogoPresets } from '@paper-design/shaders-react';
+import { GemSmoke, gemSmokePresets } from '@paper-design/shaders-react';
 import { useControls, button, folder } from 'leva';
 import { setParamsSafe, useResetLevaParams } from '@/helpers/use-reset-leva-params';
 import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
-import { warpLogoMeta } from '@paper-design/shaders';
+import { gemSmokeMeta } from '@paper-design/shaders';
 import { ShaderFit } from '@paper-design/shaders';
 import { levaImageButton } from '@/helpers/leva-image-button';
 import { useState, Suspense, useEffect, useCallback } from 'react';
 import { ShaderDetails } from '@/components/shader-details';
 import { ShaderContainer } from '@/components/shader-container';
 import { useUrlParams } from '@/helpers/use-url-params';
-import { warpLogoDef } from '@/shader-defs/warp-logo-def';
+import { gemSmokeDef } from '@/shader-defs/gem-smoke-def';
 import { toHsla } from '@/helpers/color-utils';
 import { useColors } from "@/helpers/use-colors";
 
 // Override just for the docs, we keep it transparent in the preset
-// warpLogoPresets[0].params.colorBack = '#000000';
+// gemSmokePresets[0].params.colorBack = '#000000';
 
-const { worldWidth, worldHeight, ...defaults } = warpLogoPresets[0].params;
+const { worldWidth, worldHeight, ...defaults } = gemSmokePresets[0].params;
 
 const imageFiles = [
   'contra.svg',
@@ -57,7 +57,7 @@ const imageFiles = [
   'diamond.svg',
 ] as const;
 
-const WarpLogoWithControls = () => {
+const GemSmokeWithControls = () => {
   const [imageIdx, setImageIdx] = useState(-1);
   const [image, setImage] = useState<HTMLImageElement | string>('/images/logos/diamond.svg');
 
@@ -77,18 +77,18 @@ const WarpLogoWithControls = () => {
 
   const { colors, setColors } = useColors({
     defaultColors: defaults.colors,
-    maxColorCount: warpLogoMeta.maxColorCount,
+    maxColorCount: gemSmokeMeta.maxColorCount,
   });
 
   const [params, setParams] = useControls(() => {
     return {
       colorBack: { value: toHsla(defaults.colorBack), order: 100 },
       distortion: { value: defaults.distortion, min: 0, max: 1, order: 201 },
+      outerDistortion: { value: defaults.outerDistortion, min: 0, max: 1, order: 202 },
       outerVisibility: { value: defaults.outerVisibility, min: 0, max: 1, order: 203 },
-      outerDistortion: { value: defaults.outerDistortion, min: 0, max: 1, order: 203 },
+      innerFill: { value: defaults.innerFill, min: 0, max: 1, order: 304 },
       speed: { value: defaults.speed, min: 0, max: 4, order: 300 },
       scale: { value: defaults.scale, min: 0.2, max: 10, order: 301 },
-      innerFill: { value: defaults.innerFill, min: 0, max: 1, order: 302 },
       // rotation: { value: defaults.rotation, min: 0, max: 360, order: 302 },
       // offsetX: { value: defaults.offsetX, min: -1, max: 1, order: 303 },
       // offsetY: { value: defaults.offsetY, min: -1, max: 1, order: 304 },
@@ -104,7 +104,7 @@ const WarpLogoWithControls = () => {
 
   useControls(() => {
     const presets = Object.fromEntries(
-      warpLogoPresets.map(({ name, params: { worldWidth, worldHeight, ...preset } }) => [
+      gemSmokePresets.map(({ name, params: { worldWidth, worldHeight, ...preset } }) => [
         name,
         button(() => {
           const { colors, ...presetParams } = preset;
@@ -121,20 +121,20 @@ const WarpLogoWithControls = () => {
   // Reset to defaults on mount, so that Leva doesn't show values from other
   // shaders when navigating (if two shaders have a color1 param for example)
   useResetLevaParams(params, setParams, defaults);
-  useUrlParams(params, setParams, warpLogoDef, setColors);
-  usePresetHighlight(warpLogoPresets, params);
+  useUrlParams(params, setParams, gemSmokeDef, setColors);
+  usePresetHighlight(gemSmokePresets, params);
   cleanUpLevaParams(params);
 
   return (
     <>
-      <ShaderContainer shaderDef={warpLogoDef} currentParams={params}>
+      <ShaderContainer shaderDef={gemSmokeDef} currentParams={params}>
         <Suspense fallback={null}>
-          <WarpLogo onClick={handleClick} {...params} colors={ colors } image={image} suspendWhenProcessingImage />
+          <GemSmoke onClick={handleClick} {...params} colors={ colors } image={image} suspendWhenProcessingImage />
         </Suspense>
       </ShaderContainer>
-      <ShaderDetails shaderDef={warpLogoDef} currentParams={ {colors, ...params} } codeSampleImageName="images/logos/diamond.svg" />
+      <ShaderDetails shaderDef={gemSmokeDef} currentParams={ {colors, ...params} } codeSampleImageName="images/logos/diamond.svg" />
     </>
   );
 };
 
-export default WarpLogoWithControls;
+export default GemSmokeWithControls;
