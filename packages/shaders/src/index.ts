@@ -211,6 +211,16 @@ export {
 } from './shaders/liquid-metal.js';
 
 export {
+  HalftoneDotsTypes,
+  HalftoneDotsGrids,
+  halftoneDotsFragmentShader,
+  type HalftoneDotsParams,
+  type HalftoneDotsUniforms,
+  type HalftoneDotsType,
+  type HalftoneDotsGrid,
+} from './shaders/halftone-dots.js';
+
+export {
   foldsMeta,
   foldsFragmentShader,
   toProcessedFolds,

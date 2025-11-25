@@ -1,6 +1,6 @@
 import { flutedGlassPresets } from '@paper-design/shaders-react';
 import type { ShaderDef } from './shader-def-types';
-import { staticCommonParams } from './common-param-def';
+import {staticCommonParams, staticImageCommonParams} from './common-param-def';
 
 const defaultParams = flutedGlassPresets[0].params;
 
@@ -115,6 +115,14 @@ export const flutedGlassDef: ShaderDef = {
       description: 'One-directional blur over the image and extra blur around the edges',
     },
     {
+      name: 'edges',
+      type: 'number',
+      min: 0,
+      max: 1,
+      defaultValue: defaultParams.edges,
+      description: 'Glass distortion and softness on the image edges',
+    },
+    {
       name: 'margin',
       type: 'number',
       min: 0,
@@ -170,6 +178,6 @@ export const flutedGlassDef: ShaderDef = {
       defaultValue: defaultParams.marginBottom,
       description: 'Distance from the bottom edge to the effect',
     },
-    ...staticCommonParams,
+    ...staticImageCommonParams,
   ],
 };

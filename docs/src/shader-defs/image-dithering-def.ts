@@ -1,6 +1,6 @@
 import { imageDitheringPresets } from '@paper-design/shaders-react';
 import type { ShaderDef } from './shader-def-types';
-import { staticCommonParams } from './common-param-def';
+import {staticCommonParams, staticImageCommonParams} from './common-param-def';
 
 const defaultParams = imageDitheringPresets[0].params;
 
@@ -66,6 +66,6 @@ export const imageDitheringDef: ShaderDef = {
       defaultValue: defaultParams.colorSteps,
       description: 'Number of colors to use (applies to both color modes)',
     },
-    ...staticCommonParams,
+    ...staticImageCommonParams,
   ],
 };
