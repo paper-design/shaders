@@ -1,7 +1,7 @@
 import type { vec4 } from '../types.js';
 import type { ShaderMotionParams } from '../shader-mount.js';
 import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
-import { declarePI, rotation2, textureRandomizerGB, proceduralHash22, colorBandingFix } from '../shader-utils.js';
+import { declarePI, rotation2, textureRandomizerGB, textureRandomizerR, colorBandingFix } from '../shader-utils.js';
 
 export const blobsLogoMeta = {
   maxColorCount: 6,
@@ -40,7 +40,41 @@ ${sizingVariablesDeclaration}
 
 out vec4 fragColor;
 
+
 ${ declarePI }
+${ textureRandomizerR }
+float valueNoise(vec2 st) {
+  vec2 i = floor(st);
+  vec2 f = fract(st);
+  float a = randomR(i);
+  float b = randomR(i + vec2(1.0, 0.0));
+  float c = randomR(i + vec2(0.0, 1.0));
+  float d = randomR(i + vec2(1.0, 1.0));
+  vec2 u = f * f * (3.0 - 2.0 * f);
+  float x1 = mix(a, b, u.x);
+  float x2 = mix(c, d, u.x);
+  return mix(x1, x2, u.y);
+}
+float fbm(vec2 n) {
+  float total = 0.0, amplitude = .4;
+  for (int i = 0; i < 8; i++) {
+    total += valueNoise(n) * amplitude;
+    n *= 1.99;
+    amplitude *= 0.65;
+  }
+  return total;
+}
+
+float getNoise(vec2 uv, vec2 pUv, float t, float shape) {
+//  float noiseLeft = fbm(.9 * pUv, t);
+//  float noiseRight = fbm(mix(4., 2., shape) * pUv + t, t);
+
+  float noise = fbm(1.2 * pUv * mix(1., 1.4, shape) - vec2(0., .1 * t));
+//  noise *= fbm(.8 * pUv + vec2(0., .32 * t));
+  
+  return noise;
+}
+
 ${ rotation2 }
 
 float getImgFrame(vec2 uv, float th) {
@@ -197,188 +231,63 @@ void main() {
      edge = 1. - blurEdge5x5(u_image, uv, dudx, dudy, 10., edge);
 
      float imgAlpha = img.g;
-  
-  vec2 shape_uv = v_patternUV;
-  shape_uv *= 1.25;
+
+  float frame = getImgFrame(v_imageUV, 0.);
+  imgAlpha *= frame;
+
+
+  vec2 shape_uv = v_objectUV;
 
   float t = u_time;
 
-  vec4 voronoiRes = voronoi(shape_uv, t, edge, imgAlpha);
+  float cycleDuration = 3.;
+  float period2 = 2.0 * cycleDuration;
+  float localTime1 = fract((0.1 * t + cycleDuration) / period2) * period2;
+  float localTime2 = fract((0.1 * t) / period2) * period2;
+  float timeBlend = .5 + .5 * sin(.1 * t * PI / cycleDuration - .5 * PI);
 
-  float shape = clamp(voronoiRes.w, 0., 1.);
-  float mixer = shape * (u_colorsCount - 1.);
-  mixer = (shape - .5 / u_colorsCount) * u_colorsCount;
-  float steps = 1.;
+//  float atg = atan(shape_uv.y, shape_uv.x) + .001;
+//  float l = length(shape_uv);
+//  vec2 polar_uv1 = vec2(atg, localTime1 - (.5 * l) + 1. / pow(max(1e-4, l), .5));
+//  polar_uv1 *= u_noiseScale;
+  float noise1 = getNoise(shape_uv, shape_uv, t, edge);
+  noise1 = 4. * edge * pow(noise1, 4.);
+  noise1 = 1. - clamp(noise1, 0., 1.);
 
-  vec4 gradient = u_colors[0];
+  noise1 = mix(0., noise1, imgAlpha);
+
+//  vec2 polar_uv2 = vec2(atg, localTime2 - (.5 * l) + 1. / pow(max(1e-4, l), .5));
+//  polar_uv2 *= u_noiseScale;
+//  float noise2 = getNoise(shape_uv, shape_uv, t);
+
+//  float noise = mix(noise1, noise2, timeBlend);
+//
+//  shape_uv *= (.8 + 1.2 * noise);
+
+//  float ringShape = getRingShape(shape_uv);
+  float ringShape = 1.;
+
+  float mixer = ringShape * ringShape * (u_colorsCount - 1.);
+  vec4 gradient = u_colors[int(u_colorsCount) - 1];
   gradient.rgb *= gradient.a;
-  for (int i = 1; i < ${ blobsLogoMeta.maxColorCount }; i++) {
-    if (i >= int(u_colorsCount)) break;
-    float localT = clamp(mixer - float(i - 1), 0.0, 1.0);
-    localT = round(localT * steps) / steps;
+  for (int i = ${ blobsLogoMeta.maxColorCount } - 2; i >= 0; i--) {
+    float localT = clamp(mixer - float(int(u_colorsCount) - 1 - i - 1), 0., 1.);
     vec4 c = u_colors[i];
     c.rgb *= c.a;
     gradient = mix(gradient, c, localT);
   }
 
-  if ((mixer < 0.) || (mixer > (u_colorsCount - 1.))) {
-    float localT = mixer + 1.;
-    if (mixer > (u_colorsCount - 1.)) {
-      localT = mixer - (u_colorsCount - 1.);
-    }
-    localT = round(localT * steps) / steps;
-    vec4 cFst = u_colors[0];
-    cFst.rgb *= cFst.a;
-    vec4 cLast = u_colors[int(u_colorsCount - 1.)];
-    cLast.rgb *= cLast.a;
-    gradient = mix(cLast, cFst, localT);
-  }
+  vec3 color = gradient.rgb * ringShape;
+  float opacity = gradient.a * ringShape;
 
-  vec3 cellColor = gradient.rgb;
-  float cellOpacity = gradient.a;
-  float u_glow = 0.;
-  float u_gap = .1;
-  vec4 u_colorGlow = vec4(1.);
-  vec4 u_colorGap = vec4(1.);
+  vec3 bgColor = u_colorBack.rgb * u_colorBack.a;
+  color = color + bgColor * (1. - opacity);
+  opacity = opacity + u_colorBack.a * (1. - opacity);
 
-  float glows = length(voronoiRes.yz * u_glow);
-  glows = pow(glows, 1.5);
+  ${ colorBandingFix }
+  //  fragColor = vec4(color, opacity);
+  fragColor = vec4(vec3(noise1), 1.);
 
-  vec3 color = mix(cellColor, u_colorGlow.rgb * u_colorGlow.a, u_colorGlow.a * glows);
-  float opacity = cellOpacity + u_colorGlow.a * glows;
-
-  float eee = 2. * voronoiRes.x;
-  float smoothEdge = fwidth(eee);
-  eee = smoothstep(u_gap - smoothEdge, u_gap + smoothEdge, eee);
-
-  color = mix(u_colorGap.rgb * u_colorGap.a, color, eee);
-  opacity = mix(u_colorGap.a, opacity, eee);
-
-  fragColor = vec4(color, imgAlpha);
-
-
-//
-//   float frame = getImgFrame(v_imageUV, 0.);
-//   imgAlpha *= frame;
-//   edge *= frame;
-//
-//   uv = v_objectUV;
-//  
-//   float offset = 1. - edge;
-//   float shadow = ((1. - edge) * imgAlpha);
-//   shadow = pow(shadow, 5.);
-//
-//   // float shapeOffset = 2.4 * u_contour * offset;
-//   // float shaping = 2.5 - shapeOffset;
-//   //
-//   // float f[${ blobsLogoMeta.maxColorCount }];
-//   //
-//   // vec2 trajs[${ blobsLogoMeta.maxColorCount }];
-//   // trajs[0] = vec2(0.8 * sin(-0.5 * t), 0.2 + 2.5 * cos(0.3 * t));
-//   // trajs[1] = vec2(1.7 * cos(-0.5 * t + 1.), sin(0.8 * t));
-//   // trajs[2] = vec2(0.5 * cos(0.3 * t), cos(-0.8 * t));
-//   // trajs[3] = vec2(0.5 * cos(-0.9 * t), 0.7 * sin(-0.2 * t));
-//   // trajs[4] = vec2(0.5 * sin(-0.34 * t), -.2 + 1.3 * sin(-0.8 * t));
-//   // trajs[5] = vec2(0.9 * sin(0.85 * t + 1.), 0.7 * cos(0.6 * t));
-//   //
-//   // float dist = 0.3;
-//   // for (int i = 0; i < ${ blobsLogoMeta.maxColorCount }; i++) {
-//   //   dist += .03 * float(i);
-//   //   f[i] = getPoint(uv + dist * trajs[i], shaping);
-//   // }
-//   //
-//   // f[0] -= f[1];
-//   // f[2] -= 1.2 * f[1];
-//   // f[2] -= 1.6 * f[0];
-//   // f[4] -= f[1];
-//   // f[5] -= .4 * f[3];
-//   // f[1] -= .5 * f[2];
-//   // f[5] -= f[4];
-//   // f[3] -= f[1];
-//   // f[3] -= f[2];
-//   // f[5] *= .3;
-//   //
-//   // float opacity = 0.;
-//   // vec3 color = vec3(0.);
-//   //
-//   // float size = .95 - .9 * u_size;
-//   // for (int i = 0; i < ${ blobsLogoMeta.maxColorCount }; i++) {
-//   //   if (i >= int(u_colorsCount)) break;
-//   //   f[i] = sst(size, size + 2. * fwidth(f[i]), f[i]);
-//   //   opacity += f[i];
-//   //   color = mix(color, u_colors[i].rgb, f[i]);
-//   // }
-//   //
-//   // opacity = clamp(opacity, 0., 1.);
-//   //
-//   // color *= imgAlpha;
-//   // opacity *= imgAlpha;
-//   //
-//   // vec3  backRgb = u_colorBack.rgb * u_colorBack.a;
-//   // float backA   = u_colorBack.a;
-//   // vec3  innerRgb_raw = u_colorInner.rgb * u_colorInner.a;
-//   // float innerA_raw = u_colorInner.a;
-//   //
-//   // float innerA  = innerA_raw * imgAlpha;
-//   // vec3  innerRgb = innerRgb_raw * imgAlpha;
-//   //
-//   // vec3  layerRgb = innerRgb + backRgb * (1.0 - innerA);
-//   // float layerA   = innerA   + backA   * (1.0 - innerA);
-//   //
-//   // vec3 colorCopy = color;
-//   // color   = color   + layerRgb * (1.0 - opacity);
-//   // opacity = opacity + layerA   * (1.0 - opacity);
-//
-//
-// //  fragColor = vec4(color, opacity);
-//
-//   vec2 shape_uv = v_patternUV;
-// //  shape_uv *= 1.25;
-//  
-//   vec4 voronoiRes = voronoi(shape_uv, t);
-//
-//    float shape = clamp(voronoiRes.w, 0., 1.);
-//    float mixer = shape * (u_colorsCount - 1.);
-//    mixer = (shape - .5 / u_colorsCount) * u_colorsCount;
-//
-//    vec4 gradient = u_colors[0];
-//    gradient.rgb *= gradient.a;
-//    for (int i = 1; i < ${ blobsLogoMeta.maxColorCount }; i++) {
-//      if (i >= int(u_colorsCount)) break;
-//      float localT = clamp(mixer - float(i - 1), 0.0, 1.0);
-//      vec4 c = u_colors[i];
-//      c.rgb *= c.a;
-//      gradient = mix(gradient, c, localT);
-//    }
-//
-// //   if ((mixer < 0.) || (mixer > (u_colorsCount - 1.))) {
-// //     float localT = mixer + 1.;
-// //     if (mixer > (u_colorsCount - 1.)) {
-// //       localT = mixer - (u_colorsCount - 1.);
-// //     }
-// //     vec4 cFst = u_colors[0];
-// //     cFst.rgb *= cFst.a;
-// //     vec4 cLast = u_colors[int(u_colorsCount - 1.)];
-// //     cLast.rgb *= cLast.a;
-// //     gradient = mix(cLast, cFst, localT);
-// //   }
-//
-//    vec3 cellColor = gradient.rgb;
-//    float cellOpacity = gradient.a;
-//
-//    vec3 color = cellColor;
-//    float opacity = cellOpacity;
-//
-// //   float u_gap = .1;
-// //   vec4 u_colorGap = vec4(0., 0., 0., 1.);
-// //   float eee = voronoiRes.x;
-// //   float smoothEdge = .001;
-// //   eee = smoothstep(u_gap - smoothEdge, u_gap + smoothEdge, eee);
-// //
-// //   color = mix(u_colorGap.rgb * u_colorGap.a, color, eee);
-// //   opacity = mix(u_colorGap.a, opacity, eee);
-//
-//   fragColor = vec4(color, opacity);
 }
 `;
 
