@@ -1,6 +1,6 @@
 import { gemSmokePresets } from '@paper-design/shaders-react';
 import type { ShaderDef } from './shader-def-types';
-import { animatedCommonParams } from './common-param-def';
+import { animatedImageCommonParams } from './common-param-def';
 
 const defaultParams = gemSmokePresets[0].params;
 
@@ -60,6 +60,6 @@ export const gemSmokeDef: ShaderDef = {
       defaultValue: defaultParams.innerFill,
       description: 'Additional flat color within the input shape (shape defined by alpha channel)',
     },
-    ...animatedCommonParams,
+    ...animatedImageCommonParams,
   ],
 };
