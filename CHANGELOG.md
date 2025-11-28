@@ -1,5 +1,12 @@
 # Paper Shaders
 
+## Version 0.0.67
+
+- **Mesh Gradient**
+  - Fixed a GLSL error that caused shader rendering to fail
+- **Halftone Dots**
+  - Extended the cell-size range to allow smaller dots
+
 ## Version 0.0.66
 
 - **Fluted Glass**
