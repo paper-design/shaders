@@ -31,18 +31,16 @@ uniform vec4 u_colors[${foldsMeta.maxColorCount}];
 uniform float u_colorsCount;
 uniform vec4 u_colorBack;
 uniform vec4 u_colorInner;
-uniform float u_softness;
+uniform float u_bevel;
 uniform float u_stripeWidth;
 uniform bool u_alphaMask;
 uniform float u_noiseScale;
 uniform float u_size;
-uniform float u_gradient;
+uniform float u_overlayHeight;
 uniform float u_shift;
 uniform float u_noise;
 uniform float u_outerNoise;
-uniform float u_angle;
-
-uniform bool u_isImage;
+uniform float u_overlayBevel;
 
 ${sizingVariablesDeclaration}
 
@@ -155,20 +153,21 @@ vec2 getPosition(int i, float t) {
 }
 
 
-
-float getHeight(vec2 uv) {
+float getHeight(vec2 uv, vec2 addon) {
   float a = texture(u_image, uv).r;
-  a = pow(a, mix(1., 3., u_softness));
+  a += addon[0];
+  a = pow(a, mix(1., 3., u_bevel));
+  a = mix(a, 1., addon[1]);
   return a;
 }
 
-vec3 computeNormal(vec2 uv) {
+vec3 computeNormal(vec2 uv, vec2 addon) {
   vec2 uTexelSize = vec2(1. / 100.);
-  float hC = getHeight(uv);
-  float hR = getHeight(uv + vec2(uTexelSize.x, 0.0));
-  float hL = getHeight(uv - vec2(uTexelSize.x, 0.0));
-  float hU = getHeight(uv + vec2(0.0, uTexelSize.y));
-  float hD = getHeight(uv - vec2(0.0, uTexelSize.y));
+  float hC = getHeight(uv, addon);
+  float hR = getHeight(uv + vec2(uTexelSize.x, 0.0), addon);
+  float hL = getHeight(uv - vec2(uTexelSize.x, 0.0), addon);
+  float hU = getHeight(uv + vec2(0.0, uTexelSize.y), addon);
+  float hD = getHeight(uv - vec2(0.0, uTexelSize.y), addon);
 
   float dX = (hR - hL) * 1.;
   float dY = (hU - hD) * 1.;
@@ -189,15 +188,15 @@ mat2 rotZ(float a) {
     return mat2(c, -s,
                 s,  c);
 }
-vec3 rotateAroundZ(vec3 v, float angle) {
-  mat2 r = rotZ(angle);
+vec3 rotateAroundZ(vec3 v, float overlayBevel) {
+  mat2 r = rotZ(overlayBevel);
   return vec3(r * v.xy, v.z);
 }
 
 
 void main() {
 
-  float t = .6 * u_time;
+  float t = .1 * u_time;
 
   vec2 uv = v_imageUV;
   vec2 dudx = dFdx(v_imageUV);
@@ -215,20 +214,24 @@ void main() {
   
   float f[${ foldsMeta.maxColorCount }];
 
-  float yTravel = mix(2., -.2, fract(.5 * t));
-
-//  float shaping = .2 * edge * step(0., yTravel) + .2 * step(yTravel, 0.);
-  float shaping = .05 * edge;
-
+  float yTime = fract(t);
+//  yTime = pow(yTime, .8);
+  float yTravel = mix(1.5, -1.5, yTime);
+  float yShape = mix(.04 * edge, .1 * edge, yTime);
 
   vec2 trajs[${ foldsMeta.maxColorCount }];
-  // trajs[0] = vec2(.0, 3. - fract(.1 * t));
   trajs[0] = vec2(-.4, -.5 + yTravel);
   float dist = 1.;
   for (int i = 0; i < ${ foldsMeta.maxColorCount }; i++) {
-    f[i] = getPoint(uv + trajs[i], shaping);
+    f[i] = getPoint(uv + trajs[i], yShape);
   }
-  f[0] = sst(.9, .9 + 2. * fwidth(f[0]), f[0]);
+
+  float aa = fwidth(f[0]);
+  float overlayShadow = sst(.9, .93, f[0]);
+  f[0] = sst(.9, .9 + 2. * aa, f[0]);
+  overlayShadow = 1. - overlayShadow;
+  overlayShadow *= f[0];
+  overlayShadow = 10. * pow(overlayShadow, 2.);
 
 
 
@@ -239,32 +242,24 @@ void main() {
 //  uLightDir1 = rotateAroundZ(uLightDir1, 1. * t);
 //  uLightDir2 = rotateAroundZ(uLightDir2, -.2 * t);
 
-  vec3 normal   = computeNormal(uv);
-  vec3 viewDir  = vec3(0., 0., 1.);
+  vec3 normal = computeNormal(uv, vec2(u_overlayHeight * f[0], u_overlayBevel * overlayShadow));
+  vec3 viewDir = vec3(0., 0., 1.);
 
-  // --- material parameters ---
   vec3 baseColor = vec3(1.);
   baseColor = mix(vec3(1.), vec3(.6), f[0]);
 
   vec3 specColor = vec3(.8);
-//  float shininess = 20.0;
 
-  // light colors/intensities
-  vec3 lightColor1 = vec3(.2, .3, .3);
-  vec3 lightColor2 = vec3(.5, .5, .7);
+  vec3 lightColor1 = u_colors[0].rgb;
+  vec3 lightColor2 = u_colors[1].rgb;
 
-  // --- lighting ---
   float NdotL1 = max(dot(normal, uLightDir1), 0.);
   float NdotL2 = max(dot(normal, uLightDir2), 0.);
 
-  // diffuse from both lights
-  vec3 diffuse =
-  baseColor * (NdotL1 * lightColor1 + NdotL2 * lightColor2);
+  vec3 diffuse = baseColor * (NdotL1 * lightColor1 + NdotL2 * lightColor2);
 
-  // ambient (could also tint with a color if you like)
   vec3 ambient = baseColor * 0.2;
 
-  // --- specular highlights (per light) ---
   vec3 halfDir1 = normalize(uLightDir1 + viewDir);
   vec3 halfDir2 = normalize(uLightDir2 + viewDir);
 
@@ -272,15 +267,21 @@ void main() {
   float NdotH2 = max(dot(normal, halfDir2), 0.);
 
   vec3 specular =
-  specColor * (pow(NdotH1, 400.) * lightColor1 +
-  pow(NdotH2, 400.) * lightColor2);
+    specColor * (
+      pow(NdotH1, 400.) * lightColor1 +
+      pow(NdotH2, 400.) * lightColor2
+    );
 
-  // --- final ---
+  float opacity = imgAlpha;
   vec3 color = ambient + diffuse + specular;
-  color = clamp(color, 0., 1.);
-  color = mix(u_colorBack.rgb, color, imgAlpha);
+  color = clamp(color, vec3(0.), vec3(1.));
+  color *= imgAlpha;
 
-  fragColor = vec4(color, 1.);
+  vec3 bgColor = u_colorBack.rgb * u_colorBack.a;
+  color = color + bgColor * (1.0 - opacity);
+  opacity = opacity + u_colorBack.a * (1.0 - opacity);
+
+  fragColor = vec4(color, opacity);
 }
 `;
 
@@ -812,10 +813,9 @@ export interface FoldsUniforms extends ShaderSizingUniforms {
   u_shift: number;
   u_noise: number;
   u_outerNoise: number;
-  u_softness: number;
-  u_gradient: number;
-  u_angle: number;
-  u_isImage: boolean;
+  u_bevel: number;
+  u_overlayHeight: number;
+  u_overlayBevel: number;
 }
 
 export interface FoldsParams extends ShaderSizingParams, ShaderMotionParams {
@@ -827,10 +827,10 @@ export interface FoldsParams extends ShaderSizingParams, ShaderMotionParams {
   alphaMask?: boolean;
   noiseScale?: number;
   size?: number;
-  softness?: number;
-  gradient?: number;
+  bevel?: number;
+  overlayHeight?: number;
   shift?: number;
   noise?: number;
   outerNoise?: number;
-  angle?: number;
+  overlayBevel?: number;
 }

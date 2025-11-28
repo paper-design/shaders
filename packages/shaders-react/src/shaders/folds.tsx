@@ -30,9 +30,9 @@ export const defaultPreset: FoldsPreset = {
     scale: 0.8,
     speed: 1,
     frame: 0,
-    colorBack: '#ffffff00',
+    colorBack: '#00000000',
     colorInner: '#000000',
-    colors: ['#000000', '#ffffff'],
+    colors: ['#334D4D', '#8080B3'],
     stripeWidth: 1,
     alphaMask: true,
     noiseScale: 1,
@@ -40,164 +40,14 @@ export const defaultPreset: FoldsPreset = {
     shift: 0.5,
     noise: 0.5,
     outerNoise: 0.33,
-    softness: 0.5,
-    gradient: 1,
-    angle: 220,
+    bevel: 0.5,
+    overlayHeight: 0.2,
+    overlayBevel: 0.2,
   },
 };
 
-export const fstPreset: FoldsPreset = {
-  name: '1',
-  params: {
-    ...defaultObjectSizing,
-    scale: 0.8,
-    speed: 0.2,
-    frame: 0,
-    colorBack: '#000000',
-    colorInner: '#00000000',
-    colors: ['#ffffff'],
-    stripeWidth: 1,
-    alphaMask: false,
-    noiseScale: 0.5,
-    size: 16,
-    shift: 0.5,
-    noise: 0.32,
-    outerNoise: 0,
-    softness: 0,
-    gradient: 0,
-    angle: 0,
-  },
-};
 
-export const scdPreset: FoldsPreset = {
-  name: '2',
-  params: {
-    ...defaultObjectSizing,
-    scale: 0.8,
-    speed: 0.2,
-    frame: 0,
-    colorBack: '#000000',
-    colorInner: '#00000000',
-    colors: ['#ffffff', '#000000', '#0022ff', '#ffe500'],
-    stripeWidth: 0.6,
-    alphaMask: false,
-    noiseScale: 1.5,
-    size: 24,
-    shift: 0,
-    noise: 0.65,
-    outerNoise: 1,
-    softness: 0,
-    gradient: 1,
-    angle: 90,
-  },
-};
-
-export const trdPreset: FoldsPreset = {
-  name: '3',
-  params: {
-    ...defaultObjectSizing,
-    scale: 0.8,
-    speed: 0.2,
-    frame: 0,
-    colorBack: '#000000',
-    colorInner: '#6e535354',
-    colors: ['#ff5ec4', '#5effc8', '#ffe45e', '#ff6b5e'],
-    stripeWidth: 0.3,
-    alphaMask: true,
-    noiseScale: 1,
-    size: 45,
-    shift: 0,
-    noise: 0.3,
-    outerNoise: 0,
-    softness: 0,
-    gradient: 0,
-    angle: 0,
-  },
-};
-
-export const frtPreset: FoldsPreset = {
-  name: '4',
-  params: {
-    ...defaultObjectSizing,
-    scale: 0.8,
-    speed: 0.2,
-    frame: 0,
-    colorBack: '#ffffff',
-    colorInner: '#ffffff',
-    colors: ['#000000'],
-    stripeWidth: 0,
-    alphaMask: false,
-    noiseScale: 1,
-    size: 45,
-    shift: 0,
-    noise: 0.3,
-    outerNoise: 0,
-    softness: 0,
-    gradient: 0,
-    angle: 0,
-  },
-};
-
-export const ffsPreset: FoldsPreset = {
-  name: '5',
-  params: {
-    ...defaultObjectSizing,
-    frame: 0,
-    colors: [
-      '#ffed47',
-      '#ffed47',
-      '#31fcb8',
-      '#ffffff',
-      '#ff006a',
-      '#3399cc',
-      '#3333cc',
-    ],
-    colorBack: '#ffffff00',
-    colorInner: '#000000',
-    stripeWidth: 1.0,
-    softness: 0.37,
-    gradient: 1.0,
-    alphaMask: true,
-    size: 3.0,
-    shift: -0.37,
-    noise: 0.46,
-    noiseScale: 1.0,
-    outerNoise: 0.0,
-    angle: 220,
-    speed: 0.20,
-    scale: 0.8,
-  },
-};
-
-export const sixPreset: FoldsPreset = {
-  name: '6',
-  params: {
-    ...defaultObjectSizing,
-    frame: 0,
-    colors: [
-      '#000000'
-    ],
-    colorBack: '#000000',
-    colorInner: '#ffffff',
-
-    stripeWidth: 0.57,
-    softness: 0.0,
-    gradient: 0.0,
-    alphaMask: true,
-
-    size: 18.0,
-    shift: -0.50,
-    noise: 0.61,
-    noiseScale: 1.07,
-    outerNoise: 0.0,
-
-    angle: 0,
-    speed: 0.20,
-    scale: 0.8,
-  },
-};
-
-export const foldsPresets: FoldsPreset[] = [defaultPreset, fstPreset, scdPreset, trdPreset, frtPreset, ffsPreset, sixPreset];
+export const foldsPresets: FoldsPreset[] = [defaultPreset];
 
 export const Folds: React.FC<FoldsProps> = memo(function FoldsImpl({
   // Own props
@@ -210,13 +60,13 @@ export const Folds: React.FC<FoldsProps> = memo(function FoldsImpl({
   shift = defaultPreset.params.shift,
   noise = defaultPreset.params.noise,
   outerNoise = defaultPreset.params.outerNoise,
-  softness = defaultPreset.params.softness,
-  gradient = defaultPreset.params.gradient,
+  bevel = defaultPreset.params.bevel,
+  overlayHeight = defaultPreset.params.overlayHeight,
   stripeWidth = defaultPreset.params.stripeWidth,
   alphaMask = defaultPreset.params.alphaMask,
   noiseScale = defaultPreset.params.noiseScale,
   size = defaultPreset.params.size,
-  angle = defaultPreset.params.angle,
+  overlayBevel = defaultPreset.params.overlayBevel,
   suspendWhenProcessingImage = false,
 
   // Sizing props
@@ -281,14 +131,13 @@ export const Folds: React.FC<FoldsProps> = memo(function FoldsImpl({
     u_shift: shift,
     u_noise: noise,
     u_outerNoise: outerNoise,
-    u_softness: softness,
-    u_gradient: gradient,
+    u_bevel: bevel,
+    u_overlayHeight: overlayHeight,
     u_stripeWidth: stripeWidth,
     u_alphaMask: alphaMask,
     u_noiseScale: noiseScale,
     u_size: size,
-    u_angle: angle,
-    u_isImage: Boolean(image),
+    u_overlayBevel: overlayBevel,
 
     // Sizing uniforms
     u_fit: ShaderFitOptions[fit],
