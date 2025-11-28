@@ -32,7 +32,8 @@ export const defaultPreset: HalftoneLinesPreset = {
     originalColors: false,
     inverted: false,
     grainMixer: 0.2,
-    grainOverlay: 0.2,
+    grainOverlay: 0,
+    grainSize: 0.5,
   },
 };
 
@@ -56,6 +57,7 @@ export const classicPreset: HalftoneLinesPreset = {
     inverted: false,
     grainMixer: 0,
     grainOverlay: 0,
+    grainSize: 0.5,
   },
 };
 
@@ -79,6 +81,7 @@ export const HalftoneLines: React.FC<HalftoneLinesProps> = memo(function Halfton
   inverted = defaultPreset.params.inverted,
   grainMixer = defaultPreset.params.grainMixer,
   grainOverlay = defaultPreset.params.grainOverlay,
+  grainSize = defaultPreset.params.grainSize,
 
   // Sizing props
   fit = defaultPreset.params.fit,
@@ -109,6 +112,7 @@ export const HalftoneLines: React.FC<HalftoneLinesProps> = memo(function Halfton
     u_inverted: inverted,
     u_grainMixer: grainMixer,
     u_grainOverlay: grainOverlay,
+    u_grainSize: grainSize,
 
     // Sizing uniforms
     u_fit: ShaderFitOptions[fit],

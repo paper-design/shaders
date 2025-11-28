@@ -83,6 +83,7 @@ const HalftoneLinesWithControls = () => {
       contrast: { value: defaults.contrast, min: 0.01, max: 1, order: 302 },
       grainMixer: { value: defaults.grainMixer, min: 0, max: 1, order: 350 },
       grainOverlay: { value: defaults.grainOverlay, min: 0, max: 1, order: 351 },
+      grainSize: { value: defaults.grainSize, min: 0, max: 1, order: 352 },
       scale: { value: defaults.scale, min: 0.1, max: 10, order: 400 },
       offsetX: { value: defaults.offsetX, min: -1, max: 1, order: 401 },
       offsetY: { value: defaults.offsetY, min: -1, max: 1, order: 402 },

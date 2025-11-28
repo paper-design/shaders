@@ -44,6 +44,7 @@ uniform mediump float u_imageAspectRatio;
 uniform float u_size;
 uniform float u_grainMixer;
 uniform float u_grainOverlay;
+uniform float u_grainSize;
 uniform bool u_straight;
 uniform bool u_originalColors;
 uniform bool u_inverted;
@@ -240,18 +241,19 @@ void main() {
 
   float lo = mix(loSharp, loBlurry, highDistort);
   float hi = mix(hiSharp, hiBlurry, highDistort);
+  
+  vec2 grainSize = mix(2000., 200., u_grainSize) * vec2(1., 1. / u_imageAspectRatio);
+  vec2 grainUV = getImageUV(uvNormalised, grainSize);
+  float grain = valueNoise(grainUV) + .3 * u_grainMixer;
+  grain = smoothstep(.55, .9, grain);
+  grain *= u_grainMixer;
 
+  stripeDist.y += .5 * grain;
+  
   float line = sst(lo, hi, stripeDist.y);
 
   line = mix(1., line, frame);
   line = clamp(line, 0., 1.);
-
-  vec2 grainSize = 1000. * vec2(1., 1. / u_imageAspectRatio);
-  vec2 grainUV = getImageUV(uvNormalised, grainSize);
-  float grain = valueNoise(grainUV);
-  grain = smoothstep(.55, .7 + .2 * u_grainMixer, grain);
-  grain *= u_grainMixer;
-  line += grain;
 
   vec3 color = vec3(0.);
   float opacity = 1.;
@@ -259,10 +261,23 @@ void main() {
   float stripeId = floor(p.y);
 
   if (u_originalColors == true) {
-     color = mix(origColor, u_colorBack.rgb, line);
+    color = mix(origColor, u_colorBack.rgb, line);
   } else {
     color = mix(u_colorFront.rgb, u_colorBack.rgb, line);
   }
+
+  float grainOverlay = valueNoise(rotate(grainUV, 1.) + vec2(3.));
+  grainOverlay = mix(grainOverlay, valueNoise(rotate(grainUV, 2.) + vec2(-1.)), .5);
+  grainOverlay = pow(grainOverlay, 1.3);
+
+  float grainOverlayV = grainOverlay * 2. - 1.;
+  vec3 grainOverlayColor = vec3(step(0., grainOverlayV));
+  float grainOverlayStrength = u_grainOverlay * abs(grainOverlayV);
+  grainOverlayStrength = pow(grainOverlayStrength, .8);
+  color = mix(color, grainOverlayColor, .35 * grainOverlayStrength);
+
+  opacity += .5 * grainOverlayStrength;
+  opacity = clamp(opacity, 0., 1.);
   
   fragColor = vec4(color, 1.);
 }
@@ -283,6 +298,7 @@ export interface HalftoneLinesUniforms extends ShaderSizingUniforms {
     u_inverted: boolean;
     u_grainMixer: number;
     u_grainOverlay: number;
+    u_grainSize: number;
 }
 
 export interface HalftoneLinesParams extends ShaderSizingParams, ShaderMotionParams {
@@ -300,4 +316,5 @@ export interface HalftoneLinesParams extends ShaderSizingParams, ShaderMotionPar
     inverted?: boolean;
     grainMixer?: number;
     grainOverlay?: number;
+    grainSize?: number;
 }
