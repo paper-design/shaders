@@ -26,7 +26,7 @@ export const defaultPreset: HalftoneDotsPreset = {
     frame: 0,
     colorBack: '#f2f1e8',
     colorFront: '#2b2b2b',
-    size: 0.3,
+    size: 0.5,
     radius: 1.25,
     contrast: 0.4,
     originalColors: false,

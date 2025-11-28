@@ -78,8 +78,8 @@ vec2 getPosition(int i, float t) {
 }
 
 void main() {
-  vec2 shape_uv = v_objectUV;
-  shape_uv += .5;
+  vec2 uv = v_objectUV;
+  uv += .5;
   vec2 grainUV = uv * 1000.;
 
   float grain = noise(grainUV, vec2(0.));
@@ -88,14 +88,14 @@ void main() {
   const float firstFrameOffset = 41.5;
   float t = .5 * (u_time + firstFrameOffset);
 
-  float radius = smoothstep(0., 1., length(shape_uv - .5));
+  float radius = smoothstep(0., 1., length(uv - .5));
   float center = 1. - radius;
   for (float i = 1.; i <= 2.; i++) {
-    shape_uv.x += u_distortion * center / i * sin(t + i * .4 * smoothstep(.0, 1., shape_uv.y)) * cos(.2 * t + i * 2.4 * smoothstep(.0, 1., shape_uv.y));
-    shape_uv.y += u_distortion * center / i * cos(t + i * 2. * smoothstep(.0, 1., shape_uv.x));
+    uv.x += u_distortion * center / i * sin(t + i * .4 * smoothstep(.0, 1., uv.y)) * cos(.2 * t + i * 2.4 * smoothstep(.0, 1., uv.y));
+    uv.y += u_distortion * center / i * cos(t + i * 2. * smoothstep(.0, 1., uv.x));
   }
 
-  vec2 uvRotated = shape_uv;
+  vec2 uvRotated = uv;
   uvRotated -= vec2(.5);
   float angle = 3. * u_swirl * radius;
   uvRotated = rotate(uvRotated, -angle);
