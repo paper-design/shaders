@@ -128,6 +128,26 @@ float shadowShape(vec2 uv, float t, float contour) {
   return s;
 }
 
+float blurEdge3x3(sampler2D tex, vec2 uv, vec2 dudx, vec2 dudy, float radius, float centerSample) {
+  vec2 texel = 1.0 / vec2(textureSize(tex, 0));
+  vec2 r = radius * texel;
+
+  float w1 = 1.0, w2 = 2.0, w4 = 4.0;
+  float norm = 16.0;
+  float sum = w4 * centerSample;
+
+  sum += w2 * textureGrad(tex, uv + vec2(0.0, -r.y), dudx, dudy).g;
+  sum += w2 * textureGrad(tex, uv + vec2(0.0, r.y), dudx, dudy).g;
+  sum += w2 * textureGrad(tex, uv + vec2(-r.x, 0.0), dudx, dudy).g;
+  sum += w2 * textureGrad(tex, uv + vec2(r.x, 0.0), dudx, dudy).g;
+
+  sum += w1 * textureGrad(tex, uv + vec2(-r.x, -r.y), dudx, dudy).g;
+  sum += w1 * textureGrad(tex, uv + vec2(r.x, -r.y), dudx, dudy).g;
+  sum += w1 * textureGrad(tex, uv + vec2(-r.x, r.y), dudx, dudy).g;
+  sum += w1 * textureGrad(tex, uv + vec2(r.x, r.y), dudx, dudy).g;
+
+  return sum / norm;
+}
 
 void main() {
   vec2 uv = v_objectUV + .5;
@@ -140,6 +160,9 @@ void main() {
   float imgSoftFrame = getImgFrame(imgUV, .03);
 
   vec4 img = texture(u_image, imgUV);
+  vec2 dudx = dFdx(imgUV);
+  vec2 dudy = dFdy(imgUV);
+
   if (img.a == 0.) {
     fragColor = u_colorBack;
     return;
@@ -165,6 +188,9 @@ void main() {
   ) + vec2(.5);
 
   float shape = img[0];
+
+  img[1] = blurEdge3x3(u_image, imgUV, dudx, dudy, 8., img[1]);
+  
   float outerBlur = 1. - mix(1., img[1], shape);
   float innerBlur = mix(img[1], 0., shape);
   float contour = mix(img[2], 0., shape);
@@ -378,7 +404,7 @@ function blurGray(
 
       const sum = A - B - C + D;
       const area = (x2 - x1 + 1) * (y2 - y1 + 1);
-      out[y * width + x] = (sum / area) | 0;
+      out[y * width + x] = Math.round(sum / area);
     }
   }
 
