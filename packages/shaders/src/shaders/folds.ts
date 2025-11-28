@@ -50,13 +50,6 @@ out vec4 fragColor;
 
 ${declarePI}
 ${rotation2}
-${simplexNoise}
-
-float doubleSNoise(vec2 uv, float t) {
-  float noise = .5 * snoise(uv - vec2(0., .3 * t));
-  noise += .5 * snoise(2. * uv + vec2(0., .32 * t));
-  return noise;
-}
 
 float getImgFrame(vec2 uv, float th) {
   float frame = 1.;
@@ -165,7 +158,7 @@ vec2 getPosition(int i, float t) {
 
 float getHeight(vec2 uv) {
   float a = texture(u_image, uv).r;
-//  a = pow(a, 2.);
+  a = pow(a, mix(1., 3., u_softness));
   return a;
 }
 
@@ -219,99 +212,6 @@ void main() {
   float frame = getImgFrame(v_imageUV, 0.);
   imgAlpha *= frame;
   edge *= frame;
-
-   vec2 patternsUV = v_objectUV;
-   vec2 stripesUV = v_objectUV;
-   float angle = -u_angle * PI / 180.;
-   stripesUV = rotate(stripesUV, angle);
-   stripesUV *= u_size;
-
-   float n = doubleSNoise(u_noiseScale * patternsUV + 100., .2 * u_time);
-   float edgeAtten = edge + u_outerNoise * (1. - edge);
-   float y = stripesUV.y + edgeAtten * .5 * n * u_size * u_noise;
-
-//   float w = u_stripeWidth * edge;
-   float w = 0.;
-   y += 2. * sign(u_shift) * mix(0., w, abs(u_shift));
-
-   float stripeId = floor(y);
-   float fy = fract(y);
-
-   float stripeMap = abs(fy - .5);
-   float aa = fwidth(y);
-
-   w = clamp(w, aa, .5 - aa);
-
-   float lMin = w - aa;
-   float lMax = w + aa;
-   float line = 1. - sst(lMin, lMax, stripeMap);
-//
-//   if (u_alphaMask == true) {
-//     line *= imgAlpha;
-//   }
-
-   // float softness = mix(0., u_softness, sst(0., aa, w));
-   // line -= sst(softness, 0., 1. - fy);
-   // line = clamp(line, 0., 1.);
-   //
-   // int colorIdx = int(posMod(stripeId, u_colorsCount));
-   // vec4 orderedStripeColor = u_colors[0];
-   // for (int i = 0; i < ${ foldsMeta.maxColorCount }; i++) { 
-   //   if (i >= int(u_colorsCount)) break;
-   //   float isHit = 1.0 - step(.5, abs(float(i - colorIdx)));
-   //   orderedStripeColor = mix(orderedStripeColor, u_colors[i], isHit);
-   // }
-   //
-   // vec3 gradientStripeColor = vec3(0.);
-   // float gradientOpacity = 0.;
-   // {
-   //   float totalWeight = 0.;
-   //   for (int i = 0; i < ${ foldsMeta.maxColorCount }; i++) {
-   //     if (i >= int(u_colorsCount)) break;
-   //     vec2 pos = getPosition(i, 1.5 * t);
-   //     vec3 colorFraction = u_colors[i].rgb * u_colors[i].a;
-   //     float opacityFraction = u_colors[i].a;
-   //     float dist = .5 * length(patternsUV + .5 - pos);
-   //     dist = pow(dist, 3.5);
-   //     float weight = 1. / (dist + 1e-3);
-   //     gradientStripeColor += colorFraction * weight;
-   //     gradientOpacity += opacityFraction * weight;
-   //     totalWeight += weight;
-   //   }
-   //   gradientStripeColor /= max(1e-4, totalWeight);
-   //   gradientOpacity /= max(1e-4, totalWeight);
-   // }
-   //
-   // vec4 stripeColor = vec4(gradientStripeColor, gradientOpacity);
-   // stripeColor = mix(orderedStripeColor, mix(stripeColor, orderedStripeColor, fy), u_gradient);
-
-  // vec3 stripePremulRGB = stripeColor.rgb * stripeColor.a;
-  // stripePremulRGB *= line;
-  // float stripeA = stripeColor.a * line;
-  //
-  // vec3 color = stripePremulRGB;
-  // float opacity = stripeA;
-  //
-  // vec3 backRgb = u_colorBack.rgb * u_colorBack.a;
-  // float backA = u_colorBack.a;
-  // vec3 innerRgb = u_colorInner.rgb * u_colorInner.a;
-  // float innerA = u_colorInner.a;
-  //
-  // innerRgb *= imgAlpha;
-  // innerA *= imgAlpha;
-  //
-  // vec3 underlayerRgb = innerRgb + backRgb * (1. - innerA);
-  // float underlayerA = innerA + backA * (1. - innerA);
-  //
-  // color *= line;
-  // opacity *= line;
-  //
-  // color = color + underlayerRgb * (1. - opacity);
-  // opacity = opacity + underlayerA  * (1. - opacity);
-  //
-  // fragColor = vec4(color, opacity);
-
-  
   
   float f[${ foldsMeta.maxColorCount }];
 
@@ -332,8 +232,8 @@ void main() {
 
 
 
-  vec3 uLightDir1 = normalize(vec3(.5, .5, .7));
-  vec3 uLightDir2 = normalize(vec3(-.5, -.5, .9));
+  vec3 uLightDir1 = normalize(vec3(.5, .5, u_stripeWidth));
+  vec3 uLightDir2 = normalize(vec3(-.5, -.5, u_stripeWidth));
 
 
 //  uLightDir1 = rotateAroundZ(uLightDir1, 1. * t);
@@ -378,27 +278,9 @@ void main() {
   // --- final ---
   vec3 color = ambient + diffuse + specular;
   color = clamp(color, 0., 1.);
+  color = mix(u_colorBack.rgb, color, imgAlpha);
 
-
-  //    float shaping = .2 * edge;// * step(0., yTravel) + (.4 - .2 * edge) * step(yTravel, 0.);
-
-
-  
-
-
-//
-//  vec3 color = vec3(1.);
-
-////  vec3 color = mix(u_colors[0].rgb, u_colors[1].rgb, NdotH);
-//  
-//  float shadow = 1. - NdotH;
-//  shadow = -.4 + pow(shadow, .2);
-//  color = mix(color, vec3(0.), shadow);
-//  color = mix(color, vec3(0.), imgAlpha - pow(edge, .05));
-//  color = mix(color, vec3(0.), line);
-
-  fragColor = vec4(color, imgAlpha);
-//  fragColor = vec4(vec3(NdotH1), imgAlpha);
+  fragColor = vec4(color, 1.);
 }
 `;
 
