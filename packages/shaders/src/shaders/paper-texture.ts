@@ -1,6 +1,6 @@
 import type { ShaderMotionParams } from '../shader-mount.js';
 import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
-import { rotation2, declarePI, fiberNoise, textureRandomizerR } from '../shader-utils.js';
+import { rotation2, declarePI, textureRandomizerR, textureRandomizerGB } from '../shader-utils.js';
 
 /**
  * Mimicking paper texture with a combination of noises
@@ -34,6 +34,7 @@ uniform sampler2D u_image;
 uniform float u_imageAspectRatio;
 
 uniform float u_contrast;
+uniform float u_roughnessSize;
 uniform float u_roughness;
 uniform float u_fiber;
 uniform float u_fiberSize;
@@ -41,9 +42,14 @@ uniform float u_crumples;
 uniform float u_crumpleSize;
 uniform float u_folds;
 uniform float u_foldCount;
+uniform float u_grid;
+uniform float u_gridShape;
+uniform float u_gridCount;
 uniform float u_drops;
 uniform float u_seed;
 uniform float u_fade;
+uniform float u_blending;
+uniform float u_distortion;
 
 uniform sampler2D u_noiseTexture;
 
@@ -100,20 +106,57 @@ float roughness(vec2 p) {
     vec4 w = vec4(floor(p), ceil(p));
     vec2 f = fract(p);
     o += mix(
-      mix(randomG(w.xy), randomG(w.xw), f.y),
-      mix(randomG(w.zy), randomG(w.zw), f.y),
-      f.x);
+    mix(randomG(w.xy), randomG(w.xw), f.y),
+    mix(randomG(w.zy), randomG(w.zw), f.y),
+    f.x);
     o += .2 / exp(2. * abs(sin(.2 * p.x + .5 * p.y)));
-  }
+ }
   return o / 3.;
 }
 
-${fiberNoise}
+float fiberRandom(vec2 p) {
+  vec2 uv = floor(p) / 100.;
+  return texture(u_noiseTexture, fract(uv)).b;
+}
+
+float fiberValueNoise(vec2 st) {
+  vec2 i = floor(st);
+  vec2 f = fract(st);
+  float a = fiberRandom(i);
+  float b = fiberRandom(i + vec2(1.0, 0.0));
+  float c = fiberRandom(i + vec2(0.0, 1.0));
+  float d = fiberRandom(i + vec2(1.0, 1.0));
+  vec2 u = f * f * (3.0 - 2.0 * f);
+  float x1 = mix(a, b, u.x);
+  float x2 = mix(c, d, u.x);
+  return mix(x1, x2, u.y);
+}
+
+float fiberNoiseFbm(vec2 n, vec2 seedOffset) {
+  float total = 0.0, amplitude = 1.;
+  for (int i = 0; i < 4; i++) {
+    n = rotate(n, .7);
+    total += fiberValueNoise(n + seedOffset) * amplitude;
+    n *= 2.;
+    amplitude *= 0.6;
+  }
+  return total;
+}
+
+float fiberNoise(vec2 uv, vec2 seedOffset) {
+  float epsilon = 0.001;
+  float n1 = fiberNoiseFbm(uv + vec2(epsilon, 0.0), seedOffset);
+  float n2 = fiberNoiseFbm(uv - vec2(epsilon, 0.0), seedOffset);
+  float n3 = fiberNoiseFbm(uv + vec2(0.0, epsilon), seedOffset);
+  float n4 = fiberNoiseFbm(uv - vec2(0.0, epsilon), seedOffset);
+  return length(vec2(n1 - n2, n3 - n4)) / (2.0 * epsilon);
+}
 
 vec2 randomGB(vec2 p) {
   vec2 uv = floor(p) / 50. + .5;
   return texture(u_noiseTexture, fract(uv)).gb;
 }
+
 float crumpledNoise(vec2 t, float pw) {
   vec2 p = floor(t);
   float wsum = 0.;
@@ -132,28 +175,28 @@ float crumpledNoise(vec2 t, float pw) {
   }
   return pow(wsum != 0.0 ? cl / wsum : 0.0, .5) * 2.;
 }
+
 float crumplesShape(vec2 uv) {
   return crumpledNoise(uv * .25, 16.) * crumpledNoise(uv * .5, 2.);
 }
 
-
 vec2 folds(vec2 uv) {
-    vec3 pp = vec3(0.);
-    float l = 9.;
-    for (float i = 0.; i < 15.; i++) {
-      if (i >= u_foldCount) break;
-      vec2 rand = randomGB(vec2(i, i * u_seed));
-      float an = rand.x * TWO_PI;
-      vec2 p = vec2(cos(an), sin(an)) * rand.y;
-      float dist = distance(uv, p);
-      l = min(l, dist);
+  vec3 pp = vec3(0.);
+  float l = 9.;
+  for (float i = 0.; i < 15.; i++) {
+    if (i >= u_foldCount) break;
+    vec2 rand = randomGB(vec2(i, i * u_seed));
+    float an = rand.x * TWO_PI;
+    vec2 p = vec2(cos(an), sin(an)) * rand.y;
+    float dist = distance(uv, p);
+    l = min(l, dist);
 
-      if (l == dist) {
-        pp.xy = (uv - p.xy);
-        pp.z = dist;
-      }
+    if (l == dist) {
+      pp.xy = (uv - p.xy);
+      pp.z = dist;
     }
-    return mix(pp.xy, vec2(0.), pow(pp.z, .25));
+  }
+  return mix(pp.xy, vec2(0.), pow(pp.z, .15));
 }
 
 float drops(vec2 uv) {
@@ -177,29 +220,37 @@ float lst(float edge0, float edge1, float x) {
   return clamp((x - edge0) / (edge1 - edge0), 0.0, 1.0);
 }
 
+vec3 blendMultiply(vec3 base, vec3 blend) {
+  return base*blend;
+}
+
+vec3 blendMultiply(vec3 base, vec3 blend, float opacity) {
+  return (blendMultiply(base, blend) * opacity + base * (1.0 - opacity));
+}
+
 void main() {
 
   vec2 imageUV = v_imageUV;
   vec2 patternUV = v_imageUV - .5;
-  patternUV = 5. * (patternUV * vec2(u_imageAspectRatio, 1.));
+  patternUV *= 5. * vec2(u_imageAspectRatio, 1.);
 
-  vec2 roughnessUv = 1.5 * (gl_FragCoord.xy - .5 * u_resolution) / u_pixelRatio;
-  float roughness = roughness(roughnessUv + vec2(1., 0.)) - roughness(roughnessUv - vec2(1., 0.));
+  vec2 roughnessUv = mix(330., 130., u_roughnessSize) * patternUV;
+  float roughness = u_roughness * (roughness(roughnessUv + vec2(1., 0.)) - roughness(roughnessUv - vec2(1., 0.)));
 
-  vec2 crumplesUV = fract(patternUV * .02 / u_crumpleSize - u_seed) * 32.;
-  float crumples = u_crumples * (crumplesShape(crumplesUV + vec2(.05, 0.)) - crumplesShape(crumplesUV));
+  vec2 crumplesUV = fract(mix(.45, .02, pow(u_crumpleSize, .3)) * patternUV - u_seed) * 32.;
+  float crumples = u_crumples * (crumplesShape(crumplesUV + vec2(.02, 0.)) - crumplesShape(crumplesUV));
 
-  vec2 fiberUV = 2. / u_fiberSize * patternUV;
+  vec2 fiberUV = mix(25., 8., u_fiberSize) * patternUV;
   float fiber = fiberNoise(fiberUV, vec2(0.));
   fiber = .5 * u_fiber * (fiber - 1.);
 
   vec2 normal = vec2(0.);
   vec2 normalImage = vec2(0.);
 
-  vec2 foldsUV = patternUV * .12;
+  vec2 foldsUV = patternUV * .18;
   foldsUV = rotate(foldsUV, 4. * u_seed);
   vec2 w = folds(foldsUV);
-  foldsUV = rotate(foldsUV + .007 * cos(u_seed), .01 * sin(u_seed));
+  foldsUV = rotate(foldsUV + .005 * cos(u_seed), .01 * sin(u_seed));
   vec2 w2 = folds(foldsUV);
 
   float drops = u_drops * drops(patternUV * 2.);
@@ -214,33 +265,65 @@ void main() {
   fiber *= mix(1., .5, fade);
   roughness *= mix(1., .5, fade);
 
-  normal.xy += u_folds * min(5. * u_contrast, 1.) * 4. * max(vec2(0.), w + w2);
-  normalImage.xy += u_folds * 2. * w;
+  vec3 lightPos = vec3(.5, 1., .5);
+  float grid = 0.;
+  {
+    vec2 gridUV = patternUV;
+    gridUV.x = fract(gridUV.x * .1 * u_gridCount + .5);
+    float foldX = .5;
 
-  normal.xy += crumples;
-  normalImage.xy += 1.5 * crumples;
+    float dx = gridUV.x - foldX;
 
-  normal.xy += 3. * drops;
-  normalImage.xy += .2 * drops;
+    drops *= (.2 + .8 * step(0., dx));
 
-  normal.xy += u_roughness * 1.5 * roughness;
-  normal.xy += fiber;
+    float foldWidth = u_gridShape;
 
-  normalImage += u_roughness * .75 * roughness;
-  normalImage += .2 * fiber;
+    float foldAmount = 1. - smoothstep(0.0, foldWidth, abs(dx));
+    float angle = sign(dx) * 1.1345 * foldAmount;
+    float creaseDark = mix(.9, 1., smoothstep(0., foldWidth * .5, abs(dx)));
 
-  vec3 lightPos = vec3(1., 2., 1.);
-  float res = dot(normalize(vec3(normal, 9.5 - 9. * pow(u_contrast, .1))), normalize(lightPos));
+    vec3 n = vec3(0.0, 0.0, 1.0);
+    mat3 rotY = mat3(
+    cos(angle), 0.0, sin(angle),
+    0.0, 1.0, 0.0,
+    -sin(angle), 0.0, cos(angle)
+    );
+    n = rotY * n;
+
+    grid = max(dot(n, lightPos), 0.);
+    grid *= creaseDark;
+    grid = u_grid * smoothstep(0., 1., grid) * smoothstep(0., .3, u_contrast);
+  }
+  
+  normal -= 3. * u_folds * (w + w2);
+  normalImage += u_folds * w;
+
+  normal += 1.5 * crumples;
+  normalImage += .4 * crumples;
+
+  normal += 2.5 * drops;
+  normalImage += .2 * drops;
+
+  normal += 1.5 * roughness;
+  normalImage += .1 * roughness;
+  
+  normal += fiber;
+  normalImage += .1 * fiber;
+
+  normal += grid;
+  normalImage += .2 * grid;
+  
+  float res = dot(normalize(vec3(normal, mix(7.5, .5, pow(u_contrast, .1)))), lightPos);
 
   vec3 fgColor = u_colorFront.rgb * u_colorFront.a;
   float fgOpacity = u_colorFront.a;
   vec3 bgColor = u_colorBack.rgb * u_colorBack.a;
   float bgOpacity = u_colorBack.a;
 
-  imageUV += .02 * normalImage;
+  imageUV += .1 * u_distortion * normalImage;
   float frame = getUvFrame(imageUV);
   vec4 image = texture(u_image, imageUV);
-  image.rgb += .6 * pow(u_contrast, .4) * (res - .7);
+  image.rgb += .4 * pow(u_contrast, .4) * (.3 - res);
 
   frame *= image.a;
 
@@ -253,7 +336,10 @@ void main() {
 
   color -= .007 * drops;
 
-  color.rgb = mix(color, image.rgb, frame);
+  float blendOpacity = (.5 + .5 * res);
+  vec3 pic = blendMultiply(color, image.rgb + .2 * 1. - u_blending * length(normalImage), .5 * res + .2 * u_blending);
+  pic = mix(image.rgb, pic, .5 * u_blending);
+  color = mix(color, pic, frame);
 
   fragColor = vec4(color, opacity);
 }
@@ -266,15 +352,21 @@ export interface PaperTextureUniforms extends ShaderSizingUniforms {
   u_colorBack: [number, number, number, number];
   u_contrast: number;
   u_roughness: number;
+  u_roughnessSize: number;
   u_fiber: number;
   u_fiberSize: number;
   u_crumples: number;
   u_foldCount: number;
   u_folds: number;
+  u_grid: number;
+  u_gridShape: number;
+  u_gridCount: number;
   u_fade: number;
   u_crumpleSize: number;
   u_drops: number;
   u_seed: number;
+  u_blending: number;
+  u_distortion: number;
 }
 
 export interface PaperTextureParams extends ShaderSizingParams, ShaderMotionParams {
@@ -283,13 +375,19 @@ export interface PaperTextureParams extends ShaderSizingParams, ShaderMotionPara
   colorBack?: string;
   contrast?: number;
   roughness?: number;
+  roughnessSize?: number;
   fiber?: number;
   fiberSize?: number;
   crumples?: number;
   foldCount?: number;
   folds?: number;
+  grid?: number;
+  gridShape?: number;
+  gridCount?: number;
   fade?: number;
   crumpleSize?: number;
   drops?: number;
   seed?: number;
+  blending?: number;
+  distortion?: number;
 }
