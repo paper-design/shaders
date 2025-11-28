@@ -232,7 +232,7 @@ void main() {
   float highDistort = clamp(distortAmount * 5.0, 0.0, 1.0);
 
   float w = mix(.5 * u_stripeWidth, 0., lum);
-  w = clamp(w, aa, .5 - aa);
+  w = clamp(w, 0., .5 - aa);
 
   float loSharp = w;
   float loBlurry = 0.;
@@ -244,9 +244,9 @@ void main() {
   
   vec2 grainSize = mix(2000., 200., u_grainSize) * vec2(1., 1. / u_imageAspectRatio);
   vec2 grainUV = getImageUV(uvNormalised, grainSize);
-  float grain = valueNoise(grainUV) + .3 * u_grainMixer;
+  float grain = valueNoise(grainUV) + .3 * pow(u_grainMixer, 3.);
   grain = smoothstep(.55, .9, grain);
-  grain *= u_grainMixer;
+  grain *= pow(u_grainMixer, 3.);
 
   stripeDist.y += .5 * grain;
   
