@@ -322,7 +322,7 @@ export function toProcessedHeatmap(file: File | string): Promise<{ blob: Blob }>
 
       const bigBlurGray = multiPassBlurGray(gray, width, height, bigBlurRadius, 3);
       const innerBlurGray = multiPassBlurGray(gray, width, height, innerBlurRadius, 3);
-      const contourGray = multiPassBlurGray(gray, width, height, contourRadius, 3);
+      const contourGray = multiPassBlurGray(gray, width, height, contourRadius, 1);
 
       // 4) Combine into final ImageData
       const processedImageData = ctx.createImageData(width, height);
