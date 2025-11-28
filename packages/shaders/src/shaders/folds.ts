@@ -133,6 +133,10 @@ float blurEdge5x5(sampler2D tex, vec2 uv, vec2 dudx, vec2 dudy, float radius, fl
   return sum / norm;
 }
 
+float lst(float edge0, float edge1, float x) {
+  return clamp((x - edge0) / (edge1 - edge0), 0.0, 1.0);
+}
+
 float sst(float edge0, float edge1, float x) {
   return smoothstep(edge0, edge1, x);
 }
@@ -227,16 +231,16 @@ void main() {
   }
 
   float aa = fwidth(f[0]);
-  float overlayShadow = sst(.9, .93, f[0]);
+  float overlayShadow = lst(.9, .93, f[0]);
   f[0] = sst(.9, .9 + 2. * aa, f[0]);
   overlayShadow = 1. - overlayShadow;
   overlayShadow *= f[0];
-  overlayShadow = 10. * pow(overlayShadow, 2.);
+  overlayShadow = 10. * pow(overlayShadow, 1.);
 
 
 
-  vec3 uLightDir1 = normalize(vec3(.5, .5, u_stripeWidth));
-  vec3 uLightDir2 = normalize(vec3(-.5, -.5, u_stripeWidth));
+  vec3 uLightDir1 = normalize(vec3(.5, .5, .5));
+  vec3 uLightDir2 = normalize(vec3(-.5, -.5, .5));
 
 
 //  uLightDir1 = rotateAroundZ(uLightDir1, 1. * t);

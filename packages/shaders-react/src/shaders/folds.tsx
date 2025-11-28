@@ -32,7 +32,7 @@ export const defaultPreset: FoldsPreset = {
     frame: 0,
     colorBack: '#00000000',
     colorInner: '#000000',
-    colors: ['#334D4D', '#8080B3'],
+    colors: ['#14f7ff', '#ff0a0a'],
     stripeWidth: 1,
     alphaMask: true,
     noiseScale: 1,
@@ -41,7 +41,7 @@ export const defaultPreset: FoldsPreset = {
     noise: 0.5,
     outerNoise: 0.33,
     bevel: 0.5,
-    overlayHeight: 0.2,
+    overlayHeight: 0.35,
     overlayBevel: 0.2,
   },
 };
