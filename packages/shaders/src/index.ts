@@ -229,10 +229,12 @@ export {
 } from './shaders/folds.js';
 
 export {
+  HalftoneLinesGrids,
   halftoneLinesMeta,
   halftoneLinesFragmentShader,
   type HalftoneLinesParams,
   type HalftoneLinesUniforms,
+  type HalftoneLinesGrid,
 } from './shaders/halftone-lines.js';
 
 export {

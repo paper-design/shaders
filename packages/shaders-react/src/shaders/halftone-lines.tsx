@@ -8,9 +8,11 @@ import {
   type HalftoneLinesParams,
   defaultObjectSizing,
   type ImageShaderPreset,
+  HalftoneLinesGrids,
 } from '@paper-design/shaders';
 
 export interface HalftoneLinesProps extends ShaderComponentProps, HalftoneLinesParams {}
+
 type HalftoneLinesPreset = ImageShaderPreset<HalftoneLinesParams>;
 
 export const defaultPreset: HalftoneLinesPreset = {
@@ -22,11 +24,12 @@ export const defaultPreset: HalftoneLinesPreset = {
     frame: 0,
     colorBack: '#615681',
     colorFront: '#ffffff',
-    stripeWidth: 0,
+    grid: 'radial',
+    stripeWidth: 0.5,
     smoothness: 10,
     size: 40,
     angleDistortion: 0.4,
-    noiseDistortion: 0,
+    noiseDistortion: 0.1,
     angle: 0,
     contrast: 0.7,
     originalColors: false,
@@ -46,6 +49,7 @@ export const classicPreset: HalftoneLinesPreset = {
     frame: 0,
     colorBack: '#ffffff',
     colorFront: '#000000',
+    grid: 'lines',
     stripeWidth: 1,
     smoothness: 10,
     size: 60,
@@ -70,6 +74,7 @@ export const HalftoneLines: React.FC<HalftoneLinesProps> = memo(function Halfton
   speed = defaultPreset.params.speed,
   frame = defaultPreset.params.frame,
   image = '',
+  grid = defaultPreset.params.grid,
   angleDistortion = defaultPreset.params.angleDistortion,
   noiseDistortion = defaultPreset.params.noiseDistortion,
   stripeWidth = defaultPreset.params.stripeWidth,
@@ -101,6 +106,7 @@ export const HalftoneLines: React.FC<HalftoneLinesProps> = memo(function Halfton
     u_colorFront: getShaderColorFromString(colorFront),
 
     u_image: image,
+    u_grid: HalftoneLinesGrids[grid],
     u_angleDistortion: angleDistortion,
     u_noiseDistortion: noiseDistortion,
     u_stripeWidth: stripeWidth,
@@ -132,7 +138,6 @@ export const HalftoneLines: React.FC<HalftoneLinesProps> = memo(function Halfton
       speed={speed}
       frame={frame}
       fragmentShader={halftoneLinesFragmentShader}
-      // mipmaps={ ['u_image'] }
       uniforms={uniforms}
     />
   );

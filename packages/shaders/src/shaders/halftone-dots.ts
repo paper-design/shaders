@@ -340,7 +340,7 @@ void main() {
   float grainOverlayStrength = u_grainOverlay * abs(grainOverlayV);
   grainOverlayStrength = pow(grainOverlayStrength, .8);
   color = mix(color, grainOverlayColor, .5 * grainOverlayStrength);
-  
+
   opacity += .5 * grainOverlayStrength;
   opacity = clamp(opacity, 0., 1.);
 

@@ -42,6 +42,7 @@ uniform sampler2D u_image;
 uniform mediump float u_imageAspectRatio;
 
 uniform float u_size;
+uniform float u_grid;
 uniform float u_grainMixer;
 uniform float u_grainOverlay;
 uniform float u_grainSize;
@@ -212,22 +213,34 @@ void main() {
   lum = mix(1., lum, frame);
 
   uv = v_objectUV;
-  vec2 p = uv;
+  vec2 uvGrid = uv;
   float angle = -u_angle * PI / 180.;
-  p = rotate(p, angle + u_angleDistortion * lum);
-  p *= u_size;
+  uvGrid = rotate(uvGrid, angle + u_angleDistortion * lum);
+  uvGrid *= u_size;
 
-  vec2 pBase = v_objectUV * u_size;
-  float aaBase = fwidth(pBase.y);
+  vec2 pBase = uv * u_size;
+  float baseRadius = length(pBase);
+  float aaBase = fwidth(length(uv * u_size));
+  if (u_grid == 0.) {
+    aaBase = fwidth(pBase.y);
+  }
+  float radius = length(uvGrid);
 
   float n = doubleSNoise(uv + 100., u_time);
-  p.y += .4 * n * lum * u_noiseDistortion * u_size;
+  radius += .4 * n * lum * u_noiseDistortion * u_size;
+  uvGrid.y += .4 * n * lum * u_noiseDistortion * u_size;
 
-  vec2 stripeMap = abs(fract(p) - .5);
-  vec2 stripeDist = abs(stripeMap);
-  vec2 stripeSign = sign(stripeMap);
+  float stripeMap = abs(fract(radius) - .5);
+  float stripeDist = stripeMap;
+  if (u_grid == 0.) {
+    stripeMap = abs(fract(uvGrid.y) - .5);
+    stripeDist = abs(stripeMap);
+  }
 
-  float aa = fwidth(p).y;
+  float aa = fwidth(radius);
+  if (u_grid == 0.) {
+    aa = fwidth(uvGrid.y);
+  }
   float distortAmount = max(aa - aaBase, 0.0);
   float highDistort = clamp(distortAmount * 5.0, 0.0, 1.0);
 
@@ -248,9 +261,9 @@ void main() {
   grain = smoothstep(.55, .9, grain);
   grain *= pow(u_grainMixer, 3.);
 
-  stripeDist.y += .5 * grain;
-  
-  float line = sst(lo, hi, stripeDist.y);
+  stripeDist += .5 * grain;
+
+  float line = sst(lo, hi, stripeDist);
 
   line = mix(1., line, frame);
   line = clamp(line, 0., 1.);
@@ -258,7 +271,8 @@ void main() {
   vec3 color = vec3(0.);
   float opacity = 1.;
 
-  float stripeId = floor(p.y);
+  float stripeId = floor(radius);
+//  float stripeId = floor(uvGrid.y);
 
   if (u_originalColors == true) {
     color = mix(origColor, u_colorBack.rgb, line);
@@ -287,6 +301,7 @@ export interface HalftoneLinesUniforms extends ShaderSizingUniforms {
     u_colorBack: [number, number, number, number];
     u_colorFront: [number, number, number, number];
     u_image: HTMLImageElement | string | undefined;
+    u_grid: (typeof HalftoneLinesGrids)[HalftoneLinesGrid];
     u_stripeWidth: number;
     u_smoothness: number;
     u_size: number;
@@ -305,6 +320,7 @@ export interface HalftoneLinesParams extends ShaderSizingParams, ShaderMotionPar
     colorBack?: string;
     colorFront?: string;
     image?: HTMLImageElement | string | undefined;
+    grid?: HalftoneLinesGrid;
     stripeWidth?: number;
     smoothness?: number;
     size?: number;
@@ -318,3 +334,10 @@ export interface HalftoneLinesParams extends ShaderSizingParams, ShaderMotionPar
     grainOverlay?: number;
     grainSize?: number;
 }
+
+export const HalftoneLinesGrids = {
+  lines: 0,
+  radial: 1,
+} as const;
+
+export type HalftoneLinesGrid = keyof typeof HalftoneLinesGrids;
