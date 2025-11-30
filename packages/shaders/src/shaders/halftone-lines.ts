@@ -45,6 +45,8 @@ uniform float u_size;
 uniform bool u_thinLines;
 uniform bool u_allowOverflow;
 uniform float u_grid;
+uniform float u_gridOffsetX;
+uniform float u_gridOffsetY;
 uniform float u_grainMixer;
 uniform float u_grainOverlay;
 uniform float u_grainSize;
@@ -55,7 +57,7 @@ uniform float u_stripeWidth;
 uniform float u_smoothness;
 uniform float u_angleDistortion;
 uniform float u_noiseDistortion;
-uniform float u_angle;
+uniform float u_gridRotation;
 
 
 ${ sizingVariablesDeclaration }
@@ -115,11 +117,6 @@ vec2 getImageUV(vec2 uv, vec2 extraScale) {
   return imageUV;
 }
 
-float doubleSNoise(vec2 uv, float t) {
-  float noise = .5 * snoise(uv - vec2(0., .3 * t));
-  noise += .5 * snoise(2. * uv + vec2(0., .32 * t));
-  return noise;
-}
 
 float getImgFrame(vec2 uv, float th) {
   float frame = 1.;
@@ -216,7 +213,7 @@ void main() {
   lum = 1. - lum;
 
   uv = v_objectUV;
-  float n = doubleSNoise(uv + 100., u_time);
+  float n = snoise(3. * uv + 100.);
 
   vec2 uvGrid = v_objectUV;
   uvGrid += .15 * n * lum * u_noiseDistortion;
@@ -224,19 +221,21 @@ void main() {
 
   float gridLine;
 
-  float angleOffset = u_angle * PI / 180.;
+  float angleOffset = u_gridRotation * PI / 180.;
   float angleDistort = u_angleDistortion * lum;
 
+  vec2 gridOffset = -vec2(u_gridOffsetX, u_gridOffsetY);
   if (u_grid == 1.) {
-    float r = length(uvGrid);
-    float a = atan(uvGrid.y, uvGrid.x);
-    float freq = 4.;
-    float angularWarp = sin(a * freq + angleOffset) + .5 * cos(a * 1.5 * freq + angleOffset + 2.);
-    angleDistort *= smoothstep(0., .1, r / u_size);
-    gridLine = r + angleDistort * angularWarp;
-    
+    uvGrid -= u_size * gridOffset;
+    uvGrid = rotate(uvGrid, angleOffset);
+    uvGrid += u_size * gridOffset;
+
+    uvGrid = rotate(uvGrid, angleDistort);
+    uvGrid += u_size * gridOffset;
+    gridLine = length(uvGrid);
   } else {
     uvGrid = rotate(uvGrid, angleOffset + angleDistort);
+    uvGrid += gridOffset;
     gridLine = uvGrid.y;
   }
 
@@ -299,6 +298,8 @@ export interface HalftoneLinesUniforms extends ShaderSizingUniforms {
     u_colorFront: [number, number, number, number];
     u_image: HTMLImageElement | string | undefined;
     u_grid: (typeof HalftoneLinesGrids)[HalftoneLinesGrid];
+    u_gridOffsetX: number;
+    u_gridOffsetY: number;
     u_stripeWidth: number;
     u_smoothness: number;
     u_size: number;
@@ -306,7 +307,7 @@ export interface HalftoneLinesUniforms extends ShaderSizingUniforms {
     u_allowOverflow: boolean;
     u_angleDistortion: number;
     u_noiseDistortion: number;
-    u_angle: number;
+    u_gridRotation: number;
     u_contrast: number;
     u_originalColors: boolean;
     u_inverted: boolean;
@@ -320,6 +321,8 @@ export interface HalftoneLinesParams extends ShaderSizingParams, ShaderMotionPar
     colorFront?: string;
     image?: HTMLImageElement | string | undefined;
     grid?: HalftoneLinesGrid;
+    gridOffsetX?: number;
+    gridOffsetY?: number;
     stripeWidth?: number;
     smoothness?: number;
     size?: number;
@@ -327,7 +330,7 @@ export interface HalftoneLinesParams extends ShaderSizingParams, ShaderMotionPar
     allowOverflow?: boolean;
     angleDistortion?: number;
     noiseDistortion?: number;
-    angle?: number;
+    gridRotation?: number;
     contrast?: number;
     originalColors?: boolean;
     inverted?: boolean;
