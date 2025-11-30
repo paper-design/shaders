@@ -213,24 +213,37 @@ void main() {
 
   float frame = getImgFrame(v_imageUV, 0.);
   lum = mix(1., lum, frame);
+  lum = 1. - lum;
 
   uv = v_objectUV;
   float n = doubleSNoise(uv + 100., u_time);
 
   vec2 uvGrid = v_objectUV;
-  float angle = -u_angle * PI / 180.;
-  uvGrid = rotate(uvGrid, angle + u_angleDistortion * (1. - lum));
-  uvGrid += .4 * n * lum * u_noiseDistortion;
+  uvGrid += .15 * n * lum * u_noiseDistortion;
   uvGrid *= u_size;
 
-  float gridLine = uvGrid.y;
+  float gridLine;
+
+  float angleOffset = u_angle * PI / 180.;
+  float angleDistort = u_angleDistortion * lum;
+
   if (u_grid == 1.) {
-    gridLine = length(uvGrid);
+    float r = length(uvGrid);
+    float a = atan(uvGrid.y, uvGrid.x);
+    float freq = 4.;
+    float angularWarp = sin(a * freq + angleOffset) + .5 * cos(a * 1.5 * freq + angleOffset + 2.);
+    angleDistort *= smoothstep(0., .1, r / u_size);
+    gridLine = r + angleDistort * angularWarp;
+    
+  } else {
+    uvGrid = rotate(uvGrid, angleOffset + angleDistort);
+    gridLine = uvGrid.y;
   }
+
   float stripeMap = abs(fract(gridLine) - .5);
   float aa = fwidth(gridLine);
 
-  float w = mix(.5 * u_stripeWidth, 0., lum);
+  float w = mix(0., .5 * u_stripeWidth, lum);
   float wLo = .0;
   float wHi = .5 + aa;
   if (u_allowOverflow == false) {
@@ -242,9 +255,6 @@ void main() {
   }
   w = clamp(w, wLo, wHi);
   
-  float lo = w;
-  float hi = w + aa;
-  
   vec2 grainSize = mix(2000., 200., u_grainSize) * vec2(1., 1. / u_imageAspectRatio);
   vec2 grainUV = getImageUV(uvNormalised, grainSize);
   float grain = valueNoise(grainUV) + .3 * pow(u_grainMixer, 3.);
@@ -252,6 +262,8 @@ void main() {
   grain *= .5 * pow(u_grainMixer, 3.);
   stripeMap += .5 * grain;
 
+  float lo = w;
+  float hi = w + aa;
   float line = sst(lo, hi, stripeMap);
   line = mix(1., line, frame);
   line = clamp(line, 0., 1.);
