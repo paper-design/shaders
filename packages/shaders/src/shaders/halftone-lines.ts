@@ -42,6 +42,8 @@ uniform sampler2D u_image;
 uniform mediump float u_imageAspectRatio;
 
 uniform float u_size;
+uniform bool u_thinLines;
+uniform bool u_allowOverflow;
 uniform float u_grid;
 uniform float u_grainMixer;
 uniform float u_grainOverlay;
@@ -213,66 +215,49 @@ void main() {
   lum = mix(1., lum, frame);
 
   uv = v_objectUV;
-  vec2 uvGrid = uv;
+  float n = doubleSNoise(uv + 100., u_time);
+
+  vec2 uvGrid = v_objectUV;
   float angle = -u_angle * PI / 180.;
-  uvGrid = rotate(uvGrid, angle + u_angleDistortion * lum);
+  uvGrid = rotate(uvGrid, angle + u_angleDistortion * (1. - lum));
+  uvGrid += .4 * n * lum * u_noiseDistortion;
   uvGrid *= u_size;
 
-  vec2 pBase = uv * u_size;
-  float baseRadius = length(pBase);
-  float aaBase = fwidth(length(uv * u_size));
-  if (u_grid == 0.) {
-    aaBase = fwidth(pBase.y);
+  float gridLine = uvGrid.y;
+  if (u_grid == 1.) {
+    gridLine = length(uvGrid);
   }
-  float radius = length(uvGrid);
-
-  float n = doubleSNoise(uv + 100., u_time);
-  radius += .4 * n * lum * u_noiseDistortion * u_size;
-  uvGrid.y += .4 * n * lum * u_noiseDistortion * u_size;
-
-  float stripeMap = abs(fract(radius) - .5);
-  float stripeDist = stripeMap;
-  if (u_grid == 0.) {
-    stripeMap = abs(fract(uvGrid.y) - .5);
-    stripeDist = abs(stripeMap);
-  }
-
-  float aa = fwidth(radius);
-  if (u_grid == 0.) {
-    aa = fwidth(uvGrid.y);
-  }
-  float distortAmount = max(aa - aaBase, 0.0);
-  float highDistort = clamp(distortAmount * 5.0, 0.0, 1.0);
+  float stripeMap = abs(fract(gridLine) - .5);
+  float aa = fwidth(gridLine);
 
   float w = mix(.5 * u_stripeWidth, 0., lum);
-  w = clamp(w, 0., .5 - aa);
-
-  float loSharp = w;
-  float loBlurry = 0.;
-  float hiSharp = w + aa;
-  float hiBlurry = w + aa;
-
-  float lo = mix(loSharp, loBlurry, highDistort);
-  float hi = mix(hiSharp, hiBlurry, highDistort);
+  float wLo = .0;
+  float wHi = .5 + aa;
+  if (u_allowOverflow == false) {
+    wHi -= 2. * aa;
+  }
+  if (u_thinLines == false) {
+    wLo += .5 * aa;
+    wHi -= .5 * aa;
+  }
+  w = clamp(w, wLo, wHi);
+  
+  float lo = w;
+  float hi = w + aa;
   
   vec2 grainSize = mix(2000., 200., u_grainSize) * vec2(1., 1. / u_imageAspectRatio);
   vec2 grainUV = getImageUV(uvNormalised, grainSize);
   float grain = valueNoise(grainUV) + .3 * pow(u_grainMixer, 3.);
   grain = smoothstep(.55, .9, grain);
-  grain *= pow(u_grainMixer, 3.);
+  grain *= .5 * pow(u_grainMixer, 3.);
+  stripeMap += .5 * grain;
 
-  stripeDist += .5 * grain;
-
-  float line = sst(lo, hi, stripeDist);
-
+  float line = sst(lo, hi, stripeMap);
   line = mix(1., line, frame);
   line = clamp(line, 0., 1.);
 
   vec3 color = vec3(0.);
   float opacity = 1.;
-
-  float stripeId = floor(radius);
-//  float stripeId = floor(uvGrid.y);
 
   if (u_originalColors == true) {
     color = mix(origColor, u_colorBack.rgb, line);
@@ -293,7 +278,7 @@ void main() {
   opacity += .5 * grainOverlayStrength;
   opacity = clamp(opacity, 0., 1.);
   
-  fragColor = vec4(color, 1.);
+  fragColor = vec4(color, opacity);
 }
 `;
 
@@ -305,6 +290,8 @@ export interface HalftoneLinesUniforms extends ShaderSizingUniforms {
     u_stripeWidth: number;
     u_smoothness: number;
     u_size: number;
+    u_thinLines: boolean;
+    u_allowOverflow: boolean;
     u_angleDistortion: number;
     u_noiseDistortion: number;
     u_angle: number;
@@ -324,6 +311,8 @@ export interface HalftoneLinesParams extends ShaderSizingParams, ShaderMotionPar
     stripeWidth?: number;
     smoothness?: number;
     size?: number;
+    thinLines?: boolean;
+    allowOverflow?: boolean;
     angleDistortion?: number;
     noiseDistortion?: number;
     angle?: number;
