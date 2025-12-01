@@ -56,8 +56,8 @@ uniform bool u_originalColors;
 uniform bool u_inverted;
 uniform float u_stripeWidth;
 uniform float u_smoothness;
-uniform float u_angleDistortion;
-uniform float u_noiseDistortion;
+uniform float u_gridAngleDistortion;
+uniform float u_gridNoiseDistortion;
 uniform float u_gridRotation;
 
 
@@ -214,30 +214,40 @@ void main() {
   lum = 1. - lum;
 
   uv = v_objectUV;
-  float n = snoise(3. * uv + 100.);
+  float noise = snoise(2.5 * uv + 100.);
 
   vec2 uvGrid = v_objectUV;
-  uvGrid += .15 * n * lum * u_noiseDistortion;
-  uvGrid *= u_size;
+  uvGrid += .15 * noise * lum * u_gridNoiseDistortion;
+  float gridSize = mix(200., 5., u_size);
+  uvGrid *= gridSize;
 
   float gridLine;
 
   float angleOffset = u_gridRotation * PI / 180.;
-  float angleDistort = u_angleDistortion * lum;
+  float angleDistort = u_gridAngleDistortion * lum;
 
   vec2 gridOffset = -vec2(u_gridOffsetX, u_gridOffsetY);
-  if (u_grid == 1.) {
-    uvGrid -= u_size * gridOffset;
-    uvGrid = rotate(uvGrid, angleOffset);
-    uvGrid += u_size * gridOffset;
-
-    uvGrid = rotate(uvGrid, angleDistort);
-    uvGrid += u_size * gridOffset;
-    gridLine = length(uvGrid);
-  } else {
+  if (u_grid == 0.) {
     uvGrid += gridOffset;
     uvGrid = rotate(uvGrid, angleOffset + angleDistort);
     gridLine = uvGrid.y;
+  } else if (u_grid == 1.) {
+    uvGrid += gridSize * gridOffset;
+
+    uvGrid -= gridSize * gridOffset;
+    uvGrid = rotate(uvGrid, angleOffset);
+    uvGrid += gridSize * gridOffset;
+
+    gridLine = length(uvGrid);
+  } else if (u_grid == 2.) {
+    uvGrid += gridOffset;
+    uvGrid = rotate(uvGrid, angleOffset + angleDistort);
+    gridLine = uvGrid.y + sin(.5 * uvGrid.x);
+  } else if (u_grid == 3.) {
+    uvGrid += gridOffset;
+    uvGrid = rotate(uvGrid, angleOffset + angleDistort);
+    noise = snoise(.2 * uvGrid);
+    gridLine = noise;
   }
 
   float stripeMap = abs(fract(gridLine) - .5);
@@ -255,7 +265,7 @@ void main() {
   }
   w = clamp(w, wLo, wHi);
   
-  vec2 grainMixerSize = mix(1000., 25., u_grainMixerSize) * vec2(1., 1. / u_imageAspectRatio);
+  vec2 grainMixerSize = mix(1000., 50., u_grainMixerSize) * vec2(1., 1. / u_imageAspectRatio);
   vec2 grainOverlaySize = mix(2000., 200., u_grainOverlaySize) * vec2(1., 1. / u_imageAspectRatio);
   vec2 grainMixerUV = getImageUV(uvNormalised, grainMixerSize);
   vec2 grainOverlayUV = getImageUV(uvNormalised, grainOverlaySize);
@@ -307,8 +317,8 @@ export interface HalftoneLinesUniforms extends ShaderSizingUniforms {
   u_size: number;
   u_thinLines: boolean;
   u_allowOverflow: boolean;
-  u_angleDistortion: number;
-  u_noiseDistortion: number;
+  u_gridAngleDistortion: number;
+  u_gridNoiseDistortion: number;
   u_gridRotation: number;
   u_contrast: number;
   u_originalColors: boolean;
@@ -331,8 +341,8 @@ export interface HalftoneLinesParams extends ShaderSizingParams, ShaderMotionPar
   size?: number;
   thinLines?: boolean;
   allowOverflow?: boolean;
-  angleDistortion?: number;
-  noiseDistortion?: number;
+  gridAngleDistortion?: number;
+  gridNoiseDistortion?: number;
   gridRotation?: number;
   contrast?: number;
   originalColors?: boolean;
@@ -346,6 +356,8 @@ export interface HalftoneLinesParams extends ShaderSizingParams, ShaderMotionPar
 export const HalftoneLinesGrids = {
   lines: 0,
   radial: 1,
+  waves: 2,
+  noise: 3,
 } as const;
 
 export type HalftoneLinesGrid = keyof typeof HalftoneLinesGrids;

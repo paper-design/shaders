@@ -70,36 +70,35 @@ const HalftoneLinesWithControls = () => {
       ])
     );
     return {
-      stripeWidth: { value: defaults.stripeWidth, min: 0, max: 1, order: 200 },
-      smoothness: { value: defaults.smoothness, min: 0, max: halftoneLinesMeta.maxBlurRadius, order: 202 },
-      grid: {
-        value: defaults.grid,
-        options: Object.keys(HalftoneLinesGrids) as HalftoneLinesGrid[],
-        order: 201,
-      },
-      gridOffsetX: { value: defaults.gridOffsetX, min: -1, max: 1, order: 204 },
-      gridOffsetY: { value: defaults.gridOffsetY, min: -1, max: 1, order: 204 },
-      angleDistortion: { value: defaults.angleDistortion, min: 0, max: 1, order: 204 },
-      noiseDistortion: { value: defaults.noiseDistortion, min: 0, max: 1, order: 205 },
-      gridRotation: { value: defaults.gridRotation, min: 0, max: 360, order: 206 },
       colorBack: { value: toHsla(defaults.colorBack), order: 100 },
       colorFront: { value: toHsla(defaults.colorFront), order: 101 },
       originalColors: { value: defaults.originalColors, order: 102 },
+
+      contrast: { value: defaults.contrast, min: 0.01, max: 1, order: 200 },
       inverted: { value: defaults.inverted, order: 201 },
-      size: { value: defaults.size, min: 0.01, max: 150, step: 0.1, order: 300 },
-      thinLines: { value: defaults.thinLines, order: 301 },
-      allowOverflow: { value: defaults.allowOverflow, order: 302 },
-      contrast: { value: defaults.contrast, min: 0.01, max: 1, order: 303 },
+      smoothness: { value: defaults.smoothness, min: 0, max: halftoneLinesMeta.maxBlurRadius, order: 202 },
+      stripeWidth: { value: defaults.stripeWidth, min: 0, max: 1, order: 203 },
+      thinLines: { value: defaults.thinLines, order: 204 },
+      allowOverflow: { value: defaults.allowOverflow, order: 205 },
+
+      grid: {
+        value: defaults.grid,
+        options: Object.keys(HalftoneLinesGrids) as HalftoneLinesGrid[],
+        order: 250,
+      },
+      size: { value: defaults.size, min: 0, max: 1, order: 251 },
+      gridOffsetX: { value: defaults.gridOffsetX, min: -1, max: 1, order: 252 },
+      gridOffsetY: { value: defaults.gridOffsetY, min: -1, max: 1, order: 253 },
+      gridRotation: { value: defaults.gridRotation, min: 0, max: 360, order: 254 },
+      gridAngleDistortion: { value: defaults.gridAngleDistortion, min: 0, max: 1, order: 255 },
+      gridNoiseDistortion: { value: defaults.gridNoiseDistortion, min: 0, max: 1, order: 256 },
+
       grainMixer: { value: defaults.grainMixer, min: 0, max: 1, order: 350 },
-      grainMixerSize: { value: defaults.grainMixerSize, min: 0, max: 1, order: 352 },
-      grainOverlay: { value: defaults.grainOverlay, min: 0, max: 1, order: 351 },
-      grainOverlaySize: { value: defaults.grainOverlaySize, min: 0, max: 1, order: 352 },
+      grainMixerSize: { value: defaults.grainMixerSize, min: 0, max: 1, order: 351 },
+      grainOverlay: { value: defaults.grainOverlay, min: 0, max: 1, order: 352 },
+      grainOverlaySize: { value: defaults.grainOverlaySize, min: 0, max: 1, order: 353 },
+
       scale: { value: defaults.scale, min: 0.1, max: 10, order: 400 },
-      // offsetX: { value: defaults.offsetX, min: -1, max: 1, order: 401 },
-      // offsetY: { value: defaults.offsetY, min: -1, max: 1, order: 402 },
-      // originX: { value: defaults.originX, min: 0, max: 1, order: 411 },
-      // originY: { value: defaults.originY, min: 0, max: 1, order: 412 },
-      // rotation: { value: defaults.rotation, min: 0, max: 360, order: 420 },
       fit: { value: defaults.fit, options: ['contain', 'cover'] as ShaderFit[], order: 450 },
       Image: folder(
         {
