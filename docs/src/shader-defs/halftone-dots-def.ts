@@ -1,6 +1,6 @@
 import { halftoneDotsPresets } from '@paper-design/shaders-react';
 import type { ShaderDef } from './shader-def-types';
-import {staticCommonParams, staticImageCommonParams} from './common-param-def';
+import { staticCommonParams, staticImageCommonParams } from './common-param-def';
 
 const defaultParams = halftoneDotsPresets[0].params;
 

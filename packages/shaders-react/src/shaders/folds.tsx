@@ -46,7 +46,6 @@ export const defaultPreset: FoldsPreset = {
   },
 };
 
-
 export const foldsPresets: FoldsPreset[] = [defaultPreset];
 
 export const Folds: React.FC<FoldsProps> = memo(function FoldsImpl({

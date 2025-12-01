@@ -14,7 +14,7 @@ import { ShaderContainer } from '@/components/shader-container';
 import { useUrlParams } from '@/helpers/use-url-params';
 import { blobsLogoDef } from '@/shader-defs/blobs-logo-def';
 import { toHsla } from '@/helpers/color-utils';
-import { useColors } from "@/helpers/use-colors";
+import { useColors } from '@/helpers/use-colors';
 
 // Override just for the docs, we keep it transparent in the preset
 // blobsLogoPresets[0].params.colorBack = '#000000';
@@ -129,10 +129,14 @@ const BlobsLogoWithControls = () => {
     <>
       <ShaderContainer shaderDef={blobsLogoDef} currentParams={params}>
         <Suspense fallback={null}>
-          <BlobsLogo onClick={handleClick} {...params} colors={ colors } image={image} suspendWhenProcessingImage />
+          <BlobsLogo onClick={handleClick} {...params} colors={colors} image={image} suspendWhenProcessingImage />
         </Suspense>
       </ShaderContainer>
-      <ShaderDetails shaderDef={blobsLogoDef} currentParams={ {colors, ...params} } codeSampleImageName="images/logos/diamond.svg" />
+      <ShaderDetails
+        shaderDef={blobsLogoDef}
+        currentParams={{ colors, ...params }}
+        codeSampleImageName="images/logos/diamond.svg"
+      />
     </>
   );
 };

@@ -75,7 +75,7 @@ float getNoise(vec2 uv, vec2 pUv, float t, float shape) {
   return noise;
 }
 
-${ rotation2 }
+${rotation2}
 
 float getImgFrame(vec2 uv, float th) {
   float frame = 1.;
@@ -582,92 +582,6 @@ export function toProcessedBlobsLogo(file: File | string): Promise<{ imageData: 
     img.src = typeof file === 'string' ? file : URL.createObjectURL(file);
   });
 }
-
-function blurRedChannel(
-    imageData: ImageData,
-    width: number,
-    height: number,
-    radius = 2
-) {
-  const src = imageData.data;
-  const pixelCount = width * height;
-
-  const tmp = new Uint8ClampedArray(pixelCount);
-  const dst = new Uint8ClampedArray(pixelCount);
-
-  // --- Horizontal blur ---
-  for (let y = 0; y < height; y++) {
-    let sum = 0;
-    let count = 0;
-
-    // initial window centered at x = 0
-    for (let dx = -radius; dx <= radius; dx++) {
-      const xClamped = Math.max(0, Math.min(width - 1, dx));
-      const idx = (y * width + xClamped) * 4;
-      sum += src[idx]!;
-      count++;
-    }
-
-    for (let x = 0; x < width; x++) {
-      const outIdx = y * width + x;
-      tmp[outIdx] = sum / count;
-
-      const xRemove = x - radius;
-      if (xRemove >= 0) {
-        const idxRemove = (y * width + xRemove) * 4;
-        sum -= src[idxRemove]!;
-        count--;
-      }
-
-      const xAdd = x + radius + 1;
-      if (xAdd < width) {
-        const idxAdd = (y * width + xAdd) * 4;
-        sum += src[idxAdd]!;
-        count++;
-      }
-    }
-  }
-
-  // --- Vertical blur ---
-  for (let x = 0; x < width; x++) {
-    let sum = 0;
-    let count = 0;
-
-    // initial window centered at y = 0
-    for (let dy = -radius; dy <= radius; dy++) {
-      const yClamped = Math.max(0, Math.min(height - 1, dy));
-      const idx = yClamped * width + x;
-      sum += tmp[idx]!;
-      count++;
-    }
-
-    for (let y = 0; y < height; y++) {
-      const outIdx = y * width + x;
-      dst[outIdx] = sum / count;
-
-      const yRemove = y - radius;
-      if (yRemove >= 0) {
-        const idxRemove = yRemove * width + x;
-        sum -= tmp[idxRemove]!;
-        count--;
-      }
-
-      const yAdd = y + radius + 1;
-      if (yAdd < height) {
-        const idxAdd = yAdd * width + x;
-        sum += tmp[idxAdd]!;
-        count++;
-      }
-    }
-  }
-
-  // --- Write blurred red back into ImageData ---
-  for (let i = 0; i < pixelCount; i++) {
-    const px = i * 4;
-    src[px] = dst[i]!;
-  }
-}
-
 
 function buildSparseData(
   shapeMask: Uint8Array,

@@ -111,7 +111,6 @@ export { HalftoneDots, halftoneDotsPresets } from './shaders/halftone-dots.js';
 export type { HalftoneDotsProps } from './shaders/halftone-dots.js';
 export type { HalftoneDotsUniforms, HalftoneDotsParams } from '@paper-design/shaders';
 
-
 export { Folds, foldsPresets } from './shaders/folds.js';
 export type { FoldsProps } from './shaders/folds.js';
 export type { FoldsUniforms, FoldsParams } from '@paper-design/shaders';

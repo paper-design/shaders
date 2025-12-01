@@ -216,17 +216,17 @@ void main() {
   imgAlpha *= frame;
   edge *= frame;
   
-  float f[${ foldsMeta.maxColorCount }];
+  float f[${foldsMeta.maxColorCount}];
 
   float yTime = fract(t);
 //  yTime = pow(yTime, .8);
   float yTravel = mix(1.5, -1.5, yTime);
   float yShape = mix(.04 * edge, .1 * edge, yTime);
 
-  vec2 trajs[${ foldsMeta.maxColorCount }];
+  vec2 trajs[${foldsMeta.maxColorCount}];
   trajs[0] = vec2(-.4, -.5 + yTravel);
   float dist = 1.;
-  for (int i = 0; i < ${ foldsMeta.maxColorCount }; i++) {
+  for (int i = 0; i < ${foldsMeta.maxColorCount}; i++) {
     f[i] = getPoint(uv + trajs[i], yShape);
   }
 
@@ -581,12 +581,7 @@ export function toProcessedFolds(file: File | string): Promise<{ imageData: Imag
   });
 }
 
-function blurRedChannel(
-    imageData: ImageData,
-    width: number,
-    height: number,
-    radius = 2
-) {
+function blurRedChannel(imageData: ImageData, width: number, height: number, radius = 2) {
   const src = imageData.data;
   const pixelCount = width * height;
 
@@ -665,7 +660,6 @@ function blurRedChannel(
     src[px] = dst[i]!;
   }
 }
-
 
 function buildSparseData(
   shapeMask: Uint8Array,

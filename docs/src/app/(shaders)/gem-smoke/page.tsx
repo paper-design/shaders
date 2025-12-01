@@ -14,7 +14,7 @@ import { ShaderContainer } from '@/components/shader-container';
 import { useUrlParams } from '@/helpers/use-url-params';
 import { gemSmokeDef } from '@/shader-defs/gem-smoke-def';
 import { toHsla } from '@/helpers/color-utils';
-import { useColors } from "@/helpers/use-colors";
+import { useColors } from '@/helpers/use-colors';
 
 // Override just for the docs, we keep it transparent in the preset
 // gemSmokePresets[0].params.colorBack = '#000000';
@@ -129,10 +129,14 @@ const GemSmokeWithControls = () => {
     <>
       <ShaderContainer shaderDef={gemSmokeDef} currentParams={params}>
         <Suspense fallback={null}>
-          <GemSmoke onClick={handleClick} {...params} colors={ colors } image={image} suspendWhenProcessingImage />
+          <GemSmoke onClick={handleClick} {...params} colors={colors} image={image} suspendWhenProcessingImage />
         </Suspense>
       </ShaderContainer>
-      <ShaderDetails shaderDef={gemSmokeDef} currentParams={ {colors, ...params} } codeSampleImageName="images/logos/diamond.svg" />
+      <ShaderDetails
+        shaderDef={gemSmokeDef}
+        currentParams={{ colors, ...params }}
+        codeSampleImageName="images/logos/diamond.svg"
+      />
     </>
   );
 };

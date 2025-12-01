@@ -1,9 +1,9 @@
-import type {ShaderMotionParams} from '../shader-mount.js';
-import {sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms} from '../shader-sizing.js';
-import {declarePI, rotation2, simplexNoise, proceduralHash21} from '../shader-utils.js';
+import type { ShaderMotionParams } from '../shader-mount.js';
+import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
+import { declarePI, rotation2, simplexNoise, proceduralHash21 } from '../shader-utils.js';
 
 export const halftoneLinesMeta = {
-    maxBlurRadius: 8,
+  maxBlurRadius: 8,
 } as const;
 
 /**
@@ -61,14 +61,14 @@ uniform float u_noiseDistortion;
 uniform float u_gridRotation;
 
 
-${ sizingVariablesDeclaration }
+${sizingVariablesDeclaration}
 
 out vec4 fragColor;
 
-${ declarePI }
-${ rotation2 }
-${ simplexNoise }
-${ proceduralHash21 }
+${declarePI}
+${rotation2}
+${simplexNoise}
+${proceduralHash21}
 
 float valueNoise(vec2 st) {
   vec2 i = floor(st);
@@ -138,16 +138,16 @@ float sigmoid(float x, float k) {
 
 vec4 blurTexture(sampler2D tex, vec2 uv, vec2 texelSize, float radius) {
   // clamp radius so loops have a known max
-  float r = clamp(radius, 0., float(${ halftoneLinesMeta.maxBlurRadius }));
+  float r = clamp(radius, 0., float(${halftoneLinesMeta.maxBlurRadius}));
   int ir = int(r);
 
   vec4 acc = vec4(0.0);
   float weightSum = 0.0;
 
   // simple Gaussian-ish weights based on distance
-  for (int y = -20; y <= ${ halftoneLinesMeta.maxBlurRadius }; ++y) {
+  for (int y = -20; y <= ${halftoneLinesMeta.maxBlurRadius}; ++y) {
     if (abs(y) > ir) continue;
-    for (int x = -20; x <= ${ halftoneLinesMeta.maxBlurRadius }; ++x) {
+    for (int x = -20; x <= ${halftoneLinesMeta.maxBlurRadius}; ++x) {
       if (abs(x) > ir) continue;
 
       vec2 offset = vec2(float(x), float(y));
@@ -296,51 +296,51 @@ void main() {
 `;
 
 export interface HalftoneLinesUniforms extends ShaderSizingUniforms {
-    u_colorBack: [number, number, number, number];
-    u_colorFront: [number, number, number, number];
-    u_image: HTMLImageElement | string | undefined;
-    u_grid: (typeof HalftoneLinesGrids)[HalftoneLinesGrid];
-    u_gridOffsetX: number;
-    u_gridOffsetY: number;
-    u_stripeWidth: number;
-    u_smoothness: number;
-    u_size: number;
-    u_thinLines: boolean;
-    u_allowOverflow: boolean;
-    u_angleDistortion: number;
-    u_noiseDistortion: number;
-    u_gridRotation: number;
-    u_contrast: number;
-    u_originalColors: boolean;
-    u_inverted: boolean;
-    u_grainMixer: number;
-    u_grainMixerSize: number;
-    u_grainOverlay: number;
-    u_grainOverlaySize: number;
+  u_colorBack: [number, number, number, number];
+  u_colorFront: [number, number, number, number];
+  u_image: HTMLImageElement | string | undefined;
+  u_grid: (typeof HalftoneLinesGrids)[HalftoneLinesGrid];
+  u_gridOffsetX: number;
+  u_gridOffsetY: number;
+  u_stripeWidth: number;
+  u_smoothness: number;
+  u_size: number;
+  u_thinLines: boolean;
+  u_allowOverflow: boolean;
+  u_angleDistortion: number;
+  u_noiseDistortion: number;
+  u_gridRotation: number;
+  u_contrast: number;
+  u_originalColors: boolean;
+  u_inverted: boolean;
+  u_grainMixer: number;
+  u_grainMixerSize: number;
+  u_grainOverlay: number;
+  u_grainOverlaySize: number;
 }
 
 export interface HalftoneLinesParams extends ShaderSizingParams, ShaderMotionParams {
-    colorBack?: string;
-    colorFront?: string;
-    image?: HTMLImageElement | string | undefined;
-    grid?: HalftoneLinesGrid;
-    gridOffsetX?: number;
-    gridOffsetY?: number;
-    stripeWidth?: number;
-    smoothness?: number;
-    size?: number;
-    thinLines?: boolean;
-    allowOverflow?: boolean;
-    angleDistortion?: number;
-    noiseDistortion?: number;
-    gridRotation?: number;
-    contrast?: number;
-    originalColors?: boolean;
-    inverted?: boolean;
-    grainMixer?: number;
-    grainMixerSize?: number;
-    grainOverlay?: number;
-    grainOverlaySize?: number;
+  colorBack?: string;
+  colorFront?: string;
+  image?: HTMLImageElement | string | undefined;
+  grid?: HalftoneLinesGrid;
+  gridOffsetX?: number;
+  gridOffsetY?: number;
+  stripeWidth?: number;
+  smoothness?: number;
+  size?: number;
+  thinLines?: boolean;
+  allowOverflow?: boolean;
+  angleDistortion?: number;
+  noiseDistortion?: number;
+  gridRotation?: number;
+  contrast?: number;
+  originalColors?: boolean;
+  inverted?: boolean;
+  grainMixer?: number;
+  grainMixerSize?: number;
+  grainOverlay?: number;
+  grainOverlaySize?: number;
 }
 
 export const HalftoneLinesGrids = {
