@@ -48,8 +48,9 @@ uniform float u_grid;
 uniform float u_gridOffsetX;
 uniform float u_gridOffsetY;
 uniform float u_grainMixer;
+uniform float u_grainMixerSize;
 uniform float u_grainOverlay;
-uniform float u_grainSize;
+uniform float u_grainOverlaySize;
 uniform bool u_straight;
 uniform bool u_originalColors;
 uniform bool u_inverted;
@@ -234,8 +235,8 @@ void main() {
     uvGrid += u_size * gridOffset;
     gridLine = length(uvGrid);
   } else {
-    uvGrid = rotate(uvGrid, angleOffset + angleDistort);
     uvGrid += gridOffset;
+    uvGrid = rotate(uvGrid, angleOffset + angleDistort);
     gridLine = uvGrid.y;
   }
 
@@ -254,9 +255,11 @@ void main() {
   }
   w = clamp(w, wLo, wHi);
   
-  vec2 grainSize = mix(2000., 200., u_grainSize) * vec2(1., 1. / u_imageAspectRatio);
-  vec2 grainUV = getImageUV(uvNormalised, grainSize);
-  float grain = valueNoise(grainUV) + .3 * pow(u_grainMixer, 3.);
+  vec2 grainMixerSize = mix(1000., 25., u_grainMixerSize) * vec2(1., 1. / u_imageAspectRatio);
+  vec2 grainOverlaySize = mix(2000., 200., u_grainOverlaySize) * vec2(1., 1. / u_imageAspectRatio);
+  vec2 grainMixerUV = getImageUV(uvNormalised, grainMixerSize);
+  vec2 grainOverlayUV = getImageUV(uvNormalised, grainOverlaySize);
+  float grain = valueNoise(grainMixerUV) + .3 * pow(u_grainMixer, 3.);
   grain = smoothstep(.55, .9, grain);
   grain *= .5 * pow(u_grainMixer, 3.);
   stripeMap += .5 * grain;
@@ -276,10 +279,9 @@ void main() {
     color = mix(u_colorFront.rgb, u_colorBack.rgb, line);
   }
 
-  float grainOverlay = valueNoise(rotate(grainUV, 1.) + vec2(3.));
-  grainOverlay = mix(grainOverlay, valueNoise(rotate(grainUV, 2.) + vec2(-1.)), .5);
+  float grainOverlay = valueNoise(rotate(grainOverlayUV, 1.) + vec2(3.));
+  grainOverlay = mix(grainOverlay, valueNoise(rotate(grainOverlayUV, 2.) + vec2(-1.)), .5);
   grainOverlay = pow(grainOverlay, 1.3);
-
   float grainOverlayV = grainOverlay * 2. - 1.;
   vec3 grainOverlayColor = vec3(step(0., grainOverlayV));
   float grainOverlayStrength = u_grainOverlay * abs(grainOverlayV);
@@ -312,8 +314,9 @@ export interface HalftoneLinesUniforms extends ShaderSizingUniforms {
     u_originalColors: boolean;
     u_inverted: boolean;
     u_grainMixer: number;
+    u_grainMixerSize: number;
     u_grainOverlay: number;
-    u_grainSize: number;
+    u_grainOverlaySize: number;
 }
 
 export interface HalftoneLinesParams extends ShaderSizingParams, ShaderMotionParams {
@@ -335,8 +338,9 @@ export interface HalftoneLinesParams extends ShaderSizingParams, ShaderMotionPar
     originalColors?: boolean;
     inverted?: boolean;
     grainMixer?: number;
+    grainMixerSize?: number;
     grainOverlay?: number;
-    grainSize?: number;
+    grainOverlaySize?: number;
 }
 
 export const HalftoneLinesGrids = {
