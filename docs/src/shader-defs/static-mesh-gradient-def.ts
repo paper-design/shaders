@@ -70,7 +70,7 @@ export const staticMeshGradientDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.grainMixer,
-      description: 'Strength of grain distortion applied to color edges',
+      description: 'Strength of grain distortion applied to the shapes’ edges',
     },
     {
       name: 'grainOverlay',
@@ -78,7 +78,7 @@ export const staticMeshGradientDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.grainOverlay,
-      description: 'Post-processing RGB grain overlay',
+      description: 'Post-processing b/w grain overlay',
     },
     ...staticCommonParams,
   ],

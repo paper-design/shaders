@@ -26,7 +26,7 @@ export const paperTextureDef: ShaderDef = {
       type: 'string',
       defaultValue: defaultParams.colorFront,
       isColor: true,
-      description: 'The foreground color',
+      description: 'Foreground color',
     },
     {
       name: 'contrast',

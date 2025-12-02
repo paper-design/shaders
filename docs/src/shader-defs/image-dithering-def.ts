@@ -26,7 +26,7 @@ export const imageDitheringDef: ShaderDef = {
       type: 'string',
       defaultValue: defaultParams.colorFront,
       isColor: true,
-      description: 'The main foreground color',
+      description: 'Foreground color',
     },
     {
       name: 'colorHighlight',

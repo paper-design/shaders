@@ -21,7 +21,7 @@ export const spiralDef: ShaderDef = {
       type: 'string',
       defaultValue: defaultParams.colorFront,
       isColor: true,
-      description: 'The color of spiral shape',
+      description: 'Foreground color',
     },
     {
       name: 'density',

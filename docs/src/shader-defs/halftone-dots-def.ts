@@ -25,13 +25,13 @@ export const halftoneDotsDef: ShaderDef = {
       type: 'string',
       defaultValue: defaultParams.colorFront,
       isColor: true,
-      description: 'The main foreground color',
+      description: 'Foreground color',
     },
     {
       name: 'originalColors',
       type: 'boolean',
       defaultValue: defaultParams.originalColors,
-      description: 'Use the sampled image’s original colors instead of colorBack and colorFront',
+      description: 'Use the sampled image’s original colors instead of colorFront',
       options: ['true', 'false'],
     },
     {
@@ -93,7 +93,7 @@ export const halftoneDotsDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.grainOverlay,
-      description: 'Post-processing grainy overlay (hard light blending)',
+      description: 'Post-processing b/w grain overlay',
     },
     {
       name: 'grainSize',
