@@ -221,31 +221,6 @@ export {
 } from './shaders/halftone-dots.js';
 
 export {
-  foldsMeta,
-  foldsFragmentShader,
-  toProcessedFolds,
-  type FoldsParams,
-  type FoldsUniforms,
-} from './shaders/folds.js';
-
-export {
-  HalftoneLinesGrids,
-  halftoneLinesMeta,
-  halftoneLinesFragmentShader,
-  type HalftoneLinesParams,
-  type HalftoneLinesUniforms,
-  type HalftoneLinesGrid,
-} from './shaders/halftone-lines.js';
-
-export {
-  blobsLogoMeta,
-  blobsLogoFragmentShader,
-  toProcessedBlobsLogo,
-  type BlobsLogoParams,
-  type BlobsLogoUniforms,
-} from './shaders/blobs-logo.js';
-
-export {
   gemSmokeMeta,
   gemSmokeFragmentShader,
   toProcessedGemSmoke,

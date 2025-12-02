@@ -111,18 +111,6 @@ export { HalftoneDots, halftoneDotsPresets } from './shaders/halftone-dots.js';
 export type { HalftoneDotsProps } from './shaders/halftone-dots.js';
 export type { HalftoneDotsUniforms, HalftoneDotsParams } from '@paper-design/shaders';
 
-export { Folds, foldsPresets } from './shaders/folds.js';
-export type { FoldsProps } from './shaders/folds.js';
-export type { FoldsUniforms, FoldsParams } from '@paper-design/shaders';
-
-export { HalftoneLines, halftoneLinesPresets } from './shaders/halftone-lines.js';
-export type { HalftoneLinesProps } from './shaders/halftone-lines.js';
-export type { HalftoneLinesUniforms, HalftoneLinesParams } from '@paper-design/shaders';
-
-export { BlobsLogo, blobsLogoPresets } from './shaders/blobs-logo.js';
-export type { BlobsLogoProps } from './shaders/blobs-logo.js';
-export type { BlobsLogoUniforms, BlobsLogoParams } from '@paper-design/shaders';
-
 export { GemSmoke, gemSmokePresets } from './shaders/gem-smoke.js';
 export type { GemSmokeProps } from './shaders/gem-smoke.js';
 export type { GemSmokeUniforms, GemSmokeParams } from '@paper-design/shaders';
