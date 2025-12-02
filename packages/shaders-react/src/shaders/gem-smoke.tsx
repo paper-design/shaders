@@ -36,6 +36,8 @@ export const defaultPreset: GemSmokePreset = {
     distortion: 0.8,
     innerFill: 0,
     outerDistortion: 0.7,
+    angle: 0,
+    size: 0.5,
   },
 };
 
@@ -52,6 +54,8 @@ export const blackPreset: GemSmokePreset = {
     distortion: 0.9,
     innerFill: 0,
     outerDistortion: 0.8,
+    angle: 0,
+    size: 0.5,
   },
 };
 
@@ -68,6 +72,8 @@ export const GemSmoke: React.FC<GemSmokeProps> = memo(function GemSmokeImpl({
   outerVisibility = defaultPreset.params.outerVisibility,
   innerFill = defaultPreset.params.innerFill,
   outerDistortion = defaultPreset.params.outerDistortion,
+  angle = defaultPreset.params.angle,
+  size = defaultPreset.params.size,
   suspendWhenProcessingImage = false,
 
   // Sizing props
@@ -132,6 +138,8 @@ export const GemSmoke: React.FC<GemSmokeProps> = memo(function GemSmokeImpl({
     u_outerVisibility: outerVisibility,
     u_innerFill: innerFill,
     u_outerDistortion: outerDistortion,
+    u_angle: angle,
+    u_size: size,
 
     // Sizing uniforms
     u_fit: ShaderFitOptions[fit],

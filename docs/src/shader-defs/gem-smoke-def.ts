@@ -60,6 +60,22 @@ export const gemSmokeDef: ShaderDef = {
       defaultValue: defaultParams.innerFill,
       description: 'Additional flat color within the input shape (shape defined by alpha channel)',
     },
+    {
+      name: 'angle',
+      type: 'number',
+      min: 0,
+      max: 360,
+      defaultValue: defaultParams.angle,
+      description: 'Smoke direction',
+    },
+    {
+      name: 'size',
+      type: 'number',
+      min: 0,
+      max: 1,
+      defaultValue: defaultParams.size,
+      description: 'The size of smoke shape relative to the image box',
+    },
     ...animatedImageCommonParams,
   ],
 };
