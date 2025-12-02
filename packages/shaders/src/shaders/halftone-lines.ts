@@ -235,7 +235,7 @@ void main() {
     uvGrid += gridSize * gridOffset;
 
     uvGrid -= gridSize * gridOffset;
-    uvGrid = rotate(uvGrid, angleOffset);
+    uvGrid = rotate(uvGrid, angleOffset + angleDistort);
     uvGrid += gridSize * gridOffset;
 
     gridLine = length(uvGrid);
