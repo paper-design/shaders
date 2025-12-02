@@ -221,14 +221,6 @@ export {
 } from './shaders/halftone-dots.js';
 
 export {
-  foldsMeta,
-  foldsFragmentShader,
-  toProcessedFolds,
-  type FoldsParams,
-  type FoldsUniforms,
-} from './shaders/folds.js';
-
-export {
   HalftoneLinesGrids,
   halftoneLinesMeta,
   halftoneLinesFragmentShader,
@@ -236,22 +228,6 @@ export {
   type HalftoneLinesUniforms,
   type HalftoneLinesGrid,
 } from './shaders/halftone-lines.js';
-
-export {
-  blobsLogoMeta,
-  blobsLogoFragmentShader,
-  toProcessedBlobsLogo,
-  type BlobsLogoParams,
-  type BlobsLogoUniforms,
-} from './shaders/blobs-logo.js';
-
-export {
-  gemSmokeMeta,
-  gemSmokeFragmentShader,
-  toProcessedGemSmoke,
-  type GemSmokeParams,
-  type GemSmokeUniforms,
-} from './shaders/gem-smoke.js';
 
 // ----- Utils ----- //
 export { getShaderColorFromString } from './get-shader-color-from-string.js';
