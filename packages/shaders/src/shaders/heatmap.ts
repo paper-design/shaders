@@ -128,6 +128,26 @@ float shadowShape(vec2 uv, float t, float contour) {
   return s;
 }
 
+float blurEdge3x3(sampler2D tex, vec2 uv, vec2 dudx, vec2 dudy, float radius, float centerSample) {
+  vec2 texel = 1.0 / vec2(textureSize(tex, 0));
+  vec2 r = radius * texel;
+
+  float w1 = 1.0, w2 = 2.0, w4 = 4.0;
+  float norm = 16.0;
+  float sum = w4 * centerSample;
+
+  sum += w2 * textureGrad(tex, uv + vec2(0.0, -r.y), dudx, dudy).g;
+  sum += w2 * textureGrad(tex, uv + vec2(0.0, r.y), dudx, dudy).g;
+  sum += w2 * textureGrad(tex, uv + vec2(-r.x, 0.0), dudx, dudy).g;
+  sum += w2 * textureGrad(tex, uv + vec2(r.x, 0.0), dudx, dudy).g;
+
+  sum += w1 * textureGrad(tex, uv + vec2(-r.x, -r.y), dudx, dudy).g;
+  sum += w1 * textureGrad(tex, uv + vec2(r.x, -r.y), dudx, dudy).g;
+  sum += w1 * textureGrad(tex, uv + vec2(-r.x, r.y), dudx, dudy).g;
+  sum += w1 * textureGrad(tex, uv + vec2(r.x, r.y), dudx, dudy).g;
+
+  return sum / norm;
+}
 
 void main() {
   vec2 uv = v_objectUV + .5;
@@ -140,6 +160,9 @@ void main() {
   float imgSoftFrame = getImgFrame(imgUV, .03);
 
   vec4 img = texture(u_image, imgUV);
+  vec2 dudx = dFdx(imgUV);
+  vec2 dudy = dFdy(imgUV);
+
   if (img.a == 0.) {
     fragColor = u_colorBack;
     return;
@@ -165,6 +188,9 @@ void main() {
   ) + vec2(.5);
 
   float shape = img[0];
+
+  img[1] = blurEdge3x3(u_image, imgUV, dudx, dudy, 8., img[1]);
+  
   float outerBlur = 1. - mix(1., img[1], shape);
   float innerBlur = mix(img[1], 0., shape);
   float contour = mix(img[2], 0., shape);
@@ -268,31 +294,48 @@ export function toProcessedHeatmap(file: File | string): Promise<{ blob: Blob }>
         throw new Error('Failed to get canvas 2d context');
       }
 
+      // 1) Draw original image once, no filters
       ctx.fillStyle = 'white';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
-      ctx.filter = 'grayscale(100%) blur(' + maxBlur + 'px)';
       ctx.drawImage(image, padding, padding, imgWidth, imgHeight);
-      const bigBlurData = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
 
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-      ctx.filter = 'grayscale(100%) blur(' + Math.round(0.12 * maxBlur) + 'px)';
-      ctx.drawImage(image, padding, padding, imgWidth, imgHeight);
-      const innerBlurSmallData = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+      const { width, height } = canvas;
+      const srcImageData = ctx.getImageData(0, 0, width, height);
+      const src = srcImageData.data; // RGBA
 
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-      ctx.filter = 'grayscale(100%) blur(5px)';
-      ctx.drawImage(image, padding, padding, imgWidth, imgHeight);
-      const contourData = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
-
-      let processedImageData = ctx.createImageData(canvas.width, canvas.height);
-      const totalPixels = canvas.width * canvas.height;
+      // 2) Build grayscale array (luma)
+      const totalPixels = width * height;
+      const gray = new Uint8ClampedArray(totalPixels);
       for (let i = 0; i < totalPixels; i++) {
         const px = i * 4;
-        processedImageData.data[px] = contourData[px]!;
-        processedImageData.data[px + 1] = bigBlurData[px]!;
-        processedImageData.data[px + 2] = innerBlurSmallData[px]!;
-        processedImageData.data[px + 3] = 255;
+        const r = src[px] ?? 0;
+        const g = src[px + 1] ?? 0;
+        const b = src[px + 2] ?? 0;
+        // Standard luma conversion
+        gray[i] = (0.299 * r + 0.587 * g + 0.114 * b) | 0;
       }
+
+      // 3) Blur grayscale for each "filter" you previously used
+      const bigBlurRadius = maxBlur;
+      const innerBlurRadius = Math.max(1, Math.round(0.12 * maxBlur));
+      const contourRadius = 5;
+
+      const bigBlurGray = multiPassBlurGray(gray, width, height, bigBlurRadius, 3);
+      const innerBlurGray = multiPassBlurGray(gray, width, height, innerBlurRadius, 3);
+      const contourGray = multiPassBlurGray(gray, width, height, contourRadius, 1);
+
+      // 4) Combine into final ImageData
+      const processedImageData = ctx.createImageData(width, height);
+      const dst = processedImageData.data;
+
+      for (let i = 0; i < totalPixels; i++) {
+        const px = i * 4;
+        dst[px] = contourGray[i] ?? 0;
+        dst[px + 1] = bigBlurGray[i] ?? 0;
+        dst[px + 2] = innerBlurGray[i] ?? 0;
+        dst[px + 3] = 255;
+      }
+
       ctx.putImageData(processedImageData, 0, 0);
 
       canvas.toBlob((blob) => {
@@ -300,7 +343,6 @@ export function toProcessedHeatmap(file: File | string): Promise<{ blob: Blob }>
           reject(new Error('Failed to create PNG blob'));
           return;
         }
-
         resolve({ blob });
       }, 'image/png');
     });
@@ -311,6 +353,79 @@ export function toProcessedHeatmap(file: File | string): Promise<{ blob: Blob }>
 
     image.src = typeof file === 'string' ? file : URL.createObjectURL(file);
   });
+}
+
+/**
+ * Fast box blur for grayscale images using an integral image.
+ * gray: Uint8ClampedArray of length width * height
+ * radius: blur radius in pixels
+ */
+function blurGray(gray: Uint8ClampedArray, width: number, height: number, radius: number): Uint8ClampedArray {
+  if (radius <= 0) {
+    return gray.slice();
+  }
+
+  const out = new Uint8ClampedArray(width * height);
+  const integral = new Uint32Array(width * height);
+
+  // Build integral image
+  for (let y = 0; y < height; y++) {
+    let rowSum = 0;
+    for (let x = 0; x < width; x++) {
+      const idx = y * width + x;
+      const v = gray[idx] ?? 0;
+      rowSum += v;
+      integral[idx] = rowSum + (y > 0 ? (integral[idx - width] ?? 0) : 0);
+    }
+  }
+
+  // Blur using integral image
+  for (let y = 0; y < height; y++) {
+    const y1 = Math.max(0, y - radius);
+    const y2 = Math.min(height - 1, y + radius);
+    for (let x = 0; x < width; x++) {
+      const x1 = Math.max(0, x - radius);
+      const x2 = Math.min(width - 1, x + radius);
+
+      const idxA = y2 * width + x2;
+      const idxB = y2 * width + (x1 - 1);
+      const idxC = (y1 - 1) * width + x2;
+      const idxD = (y1 - 1) * width + (x1 - 1);
+
+      const A = integral[idxA] ?? 0;
+      const B = x1 > 0 ? (integral[idxB] ?? 0) : 0;
+      const C = y1 > 0 ? (integral[idxC] ?? 0) : 0;
+      const D = x1 > 0 && y1 > 0 ? (integral[idxD] ?? 0) : 0;
+
+      const sum = A - B - C + D;
+      const area = (x2 - x1 + 1) * (y2 - y1 + 1);
+      out[y * width + x] = Math.round(sum / area);
+    }
+  }
+
+  return out;
+}
+
+function multiPassBlurGray(
+  gray: Uint8ClampedArray,
+  width: number,
+  height: number,
+  radius: number,
+  passes: number
+): Uint8ClampedArray {
+  if (radius <= 0 || passes <= 1) {
+    return blurGray(gray, width, height, radius);
+  }
+
+  let input = gray;
+  let tmp: Uint8ClampedArray = gray;
+
+  for (let p = 0; p < passes; p++) {
+    tmp = blurGray(input, width, height, radius);
+    input = tmp;
+  }
+
+  return tmp;
 }
 
 export interface HeatmapUniforms extends ShaderSizingUniforms {

@@ -1,6 +1,6 @@
 import { heatmapPresets } from '@paper-design/shaders-react';
 import type { ShaderDef } from './shader-def-types';
-import {animatedCommonParams, animatedImageCommonParams} from './common-param-def';
+import { animatedCommonParams, animatedImageCommonParams } from './common-param-def';
 
 const defaultParams = heatmapPresets[0].params;
 
