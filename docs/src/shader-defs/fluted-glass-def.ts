@@ -1,6 +1,6 @@
 import { flutedGlassPresets } from '@paper-design/shaders-react';
 import type { ShaderDef } from './shader-def-types';
-import {staticCommonParams, staticImageCommonParams} from './common-param-def';
+import { staticImageCommonParams } from './common-param-def';
 
 const defaultParams = flutedGlassPresets[0].params;
 

@@ -1,6 +1,6 @@
 import { waterPresets } from '@paper-design/shaders-react';
 import type { ShaderDef } from './shader-def-types';
-import {animatedCommonParams, animatedImageCommonParams} from './common-param-def';
+import { animatedImageCommonParams } from './common-param-def';
 
 const defaultParams = waterPresets[0].params;
 
