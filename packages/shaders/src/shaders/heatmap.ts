@@ -299,7 +299,7 @@ export function toProcessedHeatmap(file: File | string): Promise<{ blob: Blob }>
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       ctx.drawImage(image, padding, padding, imgWidth, imgHeight);
 
-      const {width, height} = canvas;
+      const { width, height } = canvas;
       const srcImageData = ctx.getImageData(0, 0, width, height);
       const src = srcImageData.data; // RGBA
 
@@ -343,7 +343,7 @@ export function toProcessedHeatmap(file: File | string): Promise<{ blob: Blob }>
           reject(new Error('Failed to create PNG blob'));
           return;
         }
-        resolve({blob});
+        resolve({ blob });
       }, 'image/png');
     });
 
@@ -360,12 +360,7 @@ export function toProcessedHeatmap(file: File | string): Promise<{ blob: Blob }>
  * gray: Uint8ClampedArray of length width * height
  * radius: blur radius in pixels
  */
-function blurGray(
-    gray: Uint8ClampedArray,
-    width: number,
-    height: number,
-    radius: number
-): Uint8ClampedArray {
+function blurGray(gray: Uint8ClampedArray, width: number, height: number, radius: number): Uint8ClampedArray {
   if (radius <= 0) {
     return gray.slice();
   }
@@ -412,11 +407,11 @@ function blurGray(
 }
 
 function multiPassBlurGray(
-    gray: Uint8ClampedArray,
-    width: number,
-    height: number,
-    radius: number,
-    passes: number
+  gray: Uint8ClampedArray,
+  width: number,
+  height: number,
+  radius: number,
+  passes: number
 ): Uint8ClampedArray {
   if (radius <= 0 || passes <= 1) {
     return blurGray(gray, width, height, radius);
@@ -432,7 +427,6 @@ function multiPassBlurGray(
 
   return tmp;
 }
-
 
 export interface HeatmapUniforms extends ShaderSizingUniforms {
   u_image: HTMLImageElement | string;

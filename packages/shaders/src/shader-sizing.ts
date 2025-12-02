@@ -58,7 +58,6 @@ uniform float u_offsetY;`;
  except for the `USE_PIXELIZATION` part we insert at start.
 */
 
-
 export const sizingUV = `
 
   vec2 uv = gl_FragCoord.xy / u_resolution.xy;

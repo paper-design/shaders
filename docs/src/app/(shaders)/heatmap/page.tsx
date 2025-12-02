@@ -18,6 +18,7 @@ const { worldWidth, worldHeight, ...defaults } = heatmapPresets[0].params;
 
 const imageFiles = [
   'contra.svg',
+  'apple.svg',
   'paradigm.svg',
   'paper-logo-only.svg',
   'brave.svg',
@@ -26,39 +27,28 @@ const imageFiles = [
   'linear.svg',
   'mercury.svg',
   'mymind.svg',
-  // 'inbound.svg',
   'resend.svg',
   'shopify.svg',
   'wealth-simple.svg',
-  // 'vercel.svg',
   'chanel.svg',
   'cibc.svg',
   'cloudflare.svg',
-  'apple.svg',
   'discord.svg',
-  // 'enterprise-rent.svg',
-  'kfc.svg',
-  // 'microsoft.svg',
   'nasa.svg',
-  'netflix.svg',
   'nike.svg',
-  'perkins.svg',
-  'pizza-hut.svg',
-  'remix.svg',
-  'rogers.svg',
   'volkswagen.svg',
   'diamond.svg',
 ] as const;
 
 const HeatmapWithControls = () => {
-  const [ imageIdx, setImageIdx ] = useState(-1);
-  const [ image, setImage ] = useState<HTMLImageElement | string>('/images/logos/diamond.svg');
+  const [imageIdx, setImageIdx] = useState(-1);
+  const [image, setImage] = useState<HTMLImageElement | string>('/images/logos/diamond.svg');
 
   useEffect(() => {
     if (imageIdx >= 0) {
       const name = imageFiles[imageIdx];
       const img = new Image();
-      img.src = `/images/logos/${ name }`;
+      img.src = `/images/logos/${name}`;
       img.onload = () => setImage(img);
     }
   }, [imageIdx]);
@@ -67,7 +57,6 @@ const HeatmapWithControls = () => {
     setImageIdx((prev) => (prev + 1) % imageFiles.length);
     // setImageIdx(() => Math.floor(Math.random() * imageFiles.length));
   }, []);
-
 
   const { colors, setColors } = useColors({
     defaultColors: defaults.colors,
@@ -123,10 +112,14 @@ const HeatmapWithControls = () => {
     <>
       <ShaderContainer shaderDef={heatmapDef} currentParams={{ colors, ...params }}>
         <Suspense fallback={null}>
-          <Heatmap onClick={ handleClick } {...params} colors={colors} image={image} suspendWhenProcessingImage />
+          <Heatmap onClick={handleClick} {...params} colors={colors} image={image} suspendWhenProcessingImage />
         </Suspense>
       </ShaderContainer>
-      <ShaderDetails shaderDef={heatmapDef} currentParams={{ colors, ...params }} codeSampleImageName="images/logos/diamond.svg" />
+      <ShaderDetails
+        shaderDef={heatmapDef}
+        currentParams={{ colors, ...params }}
+        codeSampleImageName="images/logos/diamond.svg"
+      />
     </>
   );
 };
