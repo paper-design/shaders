@@ -1,12 +1,12 @@
-import { foldsPresets } from '@paper-design/shaders-react';
+import { logo3dPresets } from '@paper-design/shaders-react';
 import type { ShaderDef } from './shader-def-types';
 import { animatedCommonParams } from './common-param-def';
 
-const defaultParams = foldsPresets[0].params;
+const defaultParams = logo3dPresets[0].params;
 
-export const foldsDef: ShaderDef = {
-  name: 'Liquid Metal',
-  description: 'Futuristic liquid metal material applied to uploaded logo or abstract shape.',
+export const logo3dDef: ShaderDef = {
+  name: '3d Logo',
+  description: 'TBD',
   params: [
     {
       name: 'image',

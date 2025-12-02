@@ -1,7 +1,7 @@
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Folds Filter • Paper',
+  title: '3d Logo Filter • Paper',
 };
 
 export default function Layout({ children }: { children: React.ReactNode }) {

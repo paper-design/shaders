@@ -2,28 +2,28 @@ import { memo, useLayoutEffect, useState } from 'react';
 import { ShaderMount, type ShaderComponentProps } from '../shader-mount.js';
 import { colorPropsAreEqual } from '../color-props-are-equal.js';
 import {
-  foldsFragmentShader,
+  logo3dFragmentShader,
   ShaderFitOptions,
   defaultObjectSizing,
-  type FoldsUniforms,
-  type FoldsParams,
-  toProcessedFolds,
+  type Logo3dUniforms,
+  type Logo3dParams,
+  toProcessedLogo3d,
   type ImageShaderPreset,
   getShaderColorFromString,
 } from '@paper-design/shaders';
 import { transparentPixel } from '../transparent-pixel.js';
 import { suspend } from '../suspend.js';
 
-export interface FoldsProps extends ShaderComponentProps, FoldsParams {
+export interface Logo3dProps extends ShaderComponentProps, Logo3dParams {
   /**
    * Suspends the component when the image is being processed.
    */
   suspendWhenProcessingImage?: boolean;
 }
 
-type FoldsPreset = ImageShaderPreset<FoldsParams>;
+type Logo3dPreset = ImageShaderPreset<Logo3dParams>;
 
-export const defaultPreset: FoldsPreset = {
+export const defaultPreset: Logo3dPreset = {
   name: 'Default',
   params: {
     ...defaultObjectSizing,
@@ -46,9 +46,9 @@ export const defaultPreset: FoldsPreset = {
   },
 };
 
-export const foldsPresets: FoldsPreset[] = [defaultPreset];
+export const logo3dPresets: Logo3dPreset[] = [defaultPreset];
 
-export const Folds: React.FC<FoldsProps> = memo(function FoldsImpl({
+export const Logo3d: React.FC<Logo3dProps> = memo(function Logo3dImpl({
   // Own props
   colorBack = defaultPreset.params.colorBack,
   colorInner = defaultPreset.params.colorInner,
@@ -79,7 +79,7 @@ export const Folds: React.FC<FoldsProps> = memo(function FoldsImpl({
   worldWidth = defaultPreset.params.worldWidth,
   worldHeight = defaultPreset.params.worldHeight,
   ...props
-}: FoldsProps) {
+}: Logo3dProps) {
   const imageUrl = typeof image === 'string' ? image : image.src;
   const [processedStateImage, setProcessedStateImage] = useState<string>(transparentPixel);
 
@@ -87,8 +87,8 @@ export const Folds: React.FC<FoldsProps> = memo(function FoldsImpl({
 
   if (suspendWhenProcessingImage && typeof window !== 'undefined' && imageUrl) {
     processedImage = suspend(
-      (): Promise<string> => toProcessedFolds(imageUrl).then((result) => URL.createObjectURL(result.pngBlob)),
-      [imageUrl, 'folds']
+      (): Promise<string> => toProcessedLogo3d(imageUrl).then((result) => URL.createObjectURL(result.pngBlob)),
+      [imageUrl, 'logo3d']
     );
   } else {
     processedImage = processedStateImage;
@@ -108,7 +108,7 @@ export const Folds: React.FC<FoldsProps> = memo(function FoldsImpl({
     let url: string;
     let current = true;
 
-    toProcessedFolds(imageUrl).then((result) => {
+    toProcessedLogo3d(imageUrl).then((result) => {
       if (current) {
         url = URL.createObjectURL(result.pngBlob);
         setProcessedStateImage(url);
@@ -148,14 +148,14 @@ export const Folds: React.FC<FoldsProps> = memo(function FoldsImpl({
     u_originY: originY,
     u_worldWidth: worldWidth,
     u_worldHeight: worldHeight,
-  } satisfies FoldsUniforms;
+  } satisfies Logo3dUniforms;
 
   return (
     <ShaderMount
       {...props}
       speed={speed}
       frame={frame}
-      fragmentShader={foldsFragmentShader}
+      fragmentShader={logo3dFragmentShader}
       mipmaps={['u_image']}
       uniforms={uniforms}
     />

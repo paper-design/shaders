@@ -221,12 +221,12 @@ export {
 } from './shaders/halftone-dots.js';
 
 export {
-  foldsMeta,
-  foldsFragmentShader,
-  toProcessedFolds,
-  type FoldsParams,
-  type FoldsUniforms,
-} from './shaders/folds.js';
+  logo3dMeta,
+  logo3dFragmentShader,
+  toProcessedLogo3d,
+  type Logo3dParams,
+  type Logo3dUniforms,
+} from './shaders/logo-3d.js';
 
 
 // ----- Utils ----- //

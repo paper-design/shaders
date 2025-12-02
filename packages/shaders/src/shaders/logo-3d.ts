@@ -3,7 +3,7 @@ import type { ShaderMotionParams } from '../shader-mount.js';
 import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
 import { declarePI, rotation2, simplexNoise, colorBandingFix } from '../shader-utils.js';
 
-export const foldsMeta = {
+export const logo3dMeta = {
   maxColorCount: 10,
 } as const;
 
@@ -18,7 +18,7 @@ export const foldsMeta = {
  */
 
 // language=GLSL
-export const foldsFragmentShader: string = `#version 300 es
+export const logo3dFragmentShader: string = `#version 300 es
 precision mediump float;
 
 uniform sampler2D u_image;
@@ -27,7 +27,7 @@ uniform float u_imageAspectRatio;
 uniform vec2 u_resolution;
 uniform float u_time;
 
-uniform vec4 u_colors[${foldsMeta.maxColorCount}];
+uniform vec4 u_colors[${logo3dMeta.maxColorCount}];
 uniform float u_colorsCount;
 uniform vec4 u_colorBack;
 uniform vec4 u_colorInner;
@@ -216,17 +216,17 @@ void main() {
   imgAlpha *= frame;
   edge *= frame;
   
-  float f[${foldsMeta.maxColorCount}];
+  float f[${logo3dMeta.maxColorCount}];
 
   float yTime = fract(t);
 //  yTime = pow(yTime, .8);
   float yTravel = mix(1.5, -1.5, yTime);
   float yShape = mix(.04 * edge, .1 * edge, yTime);
 
-  vec2 trajs[${foldsMeta.maxColorCount}];
+  vec2 trajs[${logo3dMeta.maxColorCount}];
   trajs[0] = vec2(-.4, -.5 + yTravel);
   float dist = 1.;
-  for (int i = 0; i < ${foldsMeta.maxColorCount}; i++) {
+  for (int i = 0; i < ${logo3dMeta.maxColorCount}; i++) {
     f[i] = getPoint(uv + trajs[i], yShape);
   }
 
@@ -306,7 +306,7 @@ interface SparsePixelData {
   neighborIndices: Int32Array;
 }
 
-export function toProcessedFolds(file: File | string): Promise<{ imageData: ImageData; pngBlob: Blob }> {
+export function toProcessedLogo3d(file: File | string): Promise<{ imageData: ImageData; pngBlob: Blob }> {
   const canvas = document.createElement('canvas');
   const ctx = canvas.getContext('2d');
   const isBlob = typeof file === 'string' && file.startsWith('blob:');
@@ -798,7 +798,7 @@ function solvePoissonSparse(
   return u;
 }
 
-export interface FoldsUniforms extends ShaderSizingUniforms {
+export interface Logo3dUniforms extends ShaderSizingUniforms {
   u_colorBack: [number, number, number, number];
   u_colorInner: [number, number, number, number];
   u_colors: vec4[];
@@ -816,7 +816,7 @@ export interface FoldsUniforms extends ShaderSizingUniforms {
   u_overlayBevel: number;
 }
 
-export interface FoldsParams extends ShaderSizingParams, ShaderMotionParams {
+export interface Logo3dParams extends ShaderSizingParams, ShaderMotionParams {
   colors?: string[];
   colorBack?: string;
   colorInner?: string;
