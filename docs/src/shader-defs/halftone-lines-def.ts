@@ -6,7 +6,7 @@ const defaultParams = halftoneLinesPresets[0].params;
 
 export const halftoneLinesDef: ShaderDef = {
   name: 'Halftone lines',
-  description: 'TBD',
+  description: 'Image filter pattern made of a line grid with optional stroke thickness and grid distortion; offering multiple grid types, grid distortions, and color palettes',
   params: [
     {
       name: 'image',
