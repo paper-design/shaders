@@ -53,76 +53,36 @@ float getImgFrame(vec2 uv, float th) {
   return frame;
 }
 
-float blurEdge5x5(sampler2D tex, vec2 uv, vec2 dudx, vec2 dudy, float radius) {
+vec2 blurEdge5x5RG(
+sampler2D tex,
+vec2 uv,
+vec2 dudx,
+vec2 dudy,
+float radius
+) {
   vec2 texel = 1.0 / vec2(textureSize(tex, 0));
   vec2 r = max(radius, 0.0) * texel;
 
-  // 1D Gaussian coefficients (Pascal row)
-  const float a = 1.0;// |offset| = 2
-  const float b = 4.0;// |offset| = 1
-  const float c = 6.0;// |offset| = 0
+  // Gaussian 1D kernel: [1, 4, 6, 4, 1]
+  const float k[5] = float[5](1.0, 4.0, 6.0, 4.0, 1.0);
 
-  float norm = 256.0;// (a+b+c+b+a)^2 = 16^2
-  float sum  = 0.0;
+  float norm = 256.0;// (1+4+6+4+1)^2 = 16^2
+  vec2 sum = vec2(0.0);// accumulate (R,G)
 
-  // y = -2
-  {
-    float wy = a;
-    float row =
-    a * texture(tex, uv + vec2(-2.0*r.x, -2.0*r.y)).r +
-    b * texture(tex, uv + vec2(-1.0*r.x, -2.0*r.y)).r +
-    c * texture(tex, uv + vec2(0.0, -2.0*r.y)).r +
-    b * texture(tex, uv + vec2(1.0*r.x, -2.0*r.y)).r +
-    a * texture(tex, uv + vec2(2.0*r.x, -2.0*r.y)).r;
-    sum += wy * row;
-  }
+  // Loop over 5×5 grid: dy, dx ∈ [-2,2]
+  for (int j = -2; j <= 2; ++j) {
+    float wy = k[j + 2];
 
-  // y = -1
-  {
-    float wy = b;
-    float row =
-    a * texture(tex, uv + vec2(-2.0*r.x, -1.0*r.y)).r +
-    b * texture(tex, uv + vec2(-1.0*r.x, -1.0*r.y)).r +
-    c * texture(tex, uv + vec2(0.0, -1.0*r.y)).r +
-    b * texture(tex, uv + vec2(1.0*r.x, -1.0*r.y)).r +
-    a * texture(tex, uv + vec2(2.0*r.x, -1.0*r.y)).r;
-    sum += wy * row;
-  }
+    for (int i = -2; i <= 2; ++i) {
+      float wx = k[i + 2];
+      float w = wx * wy;
 
-  // y = 0 (use provided centerSample to avoid an extra fetch)
-  {
-    float wy = c;
-    float row =
-    a * texture(tex, uv + vec2(-2.0*r.x, 0.0)).r +
-    b * texture(tex, uv + vec2(-1.0*r.x, 0.0)).r +
-    b * texture(tex, uv + vec2(0.)).r +
-    b * texture(tex, uv + vec2(1.0*r.x, 0.0)).r +
-    a * texture(tex, uv + vec2(2.0*r.x, 0.0)).r;
-    sum += wy * row;
-  }
+      vec2 offset = vec2(float(i) * r.x, float(j) * r.y);
+      vec4 t = texture(tex, uv + offset);
 
-  // y = +1
-  {
-    float wy = b;
-    float row =
-    a * texture(tex, uv + vec2(-2.0*r.x, 1.0*r.y)).r +
-    b * texture(tex, uv + vec2(-1.0*r.x, 1.0*r.y)).r +
-    c * texture(tex, uv + vec2(0.0, 1.0*r.y)).r +
-    b * texture(tex, uv + vec2(1.0*r.x, 1.0*r.y)).r +
-    a * texture(tex, uv + vec2(2.0*r.x, 1.0*r.y)).r;
-    sum += wy * row;
-  }
-
-  // y = +2
-  {
-    float wy = a;
-    float row =
-    a * texture(tex, uv + vec2(-2.0*r.x, 2.0*r.y)).r +
-    b * texture(tex, uv + vec2(-1.0*r.x, 2.0*r.y)).r +
-    c * texture(tex, uv + vec2(0.0, 2.0*r.y)).r +
-    b * texture(tex, uv + vec2(1.0*r.x, 2.0*r.y)).r +
-    a * texture(tex, uv + vec2(2.0*r.x, 2.0*r.y)).r;
-    sum += wy * row;
+      // accumulate R and G separately
+      sum += w * t.rg;
+    }
   }
 
   return sum / norm;
@@ -143,9 +103,9 @@ void main() {
 
   float frame = getImgFrame(v_imageUV, 0.);
 
-  float blurredEdge = blurEdge5x5(u_image, imageUV, dudx, dudy, 10.);
-  float edge = 1. - blurredEdge;
-  float imgAlpha = img.g;
+  vec2 blurredData = blurEdge5x5RG(u_image, imageUV, dudx, dudy, 10.);
+  float edge = 1. - blurredData.x;
+  float imgAlpha = mix(img.g, blurredData.y, u_distortion);
   imgAlpha *= frame;
 
   vec2 smokeUV = v_objectUV;
@@ -153,10 +113,9 @@ void main() {
   smokeUV = rotate(smokeUV, angle);
   smokeUV *= mix(4., 1., u_size);
 
-  float distortion = u_distortion;
-  float swirl = mix(distortion * edge, mix(0., distortion, u_outerDistortion), (1. - imgAlpha));
+  float swirl = mix(mix(0., u_distortion, u_outerDistortion), u_distortion * edge, imgAlpha);
 
-  float midShift = distortion;
+  float midShift = u_distortion;
   smokeUV.y += midShift * (1. - sst(0., 1., length(.4 * smokeUV)));
   smokeUV.y -= .4 * midShift;
 
