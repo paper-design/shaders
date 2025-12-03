@@ -106,6 +106,23 @@ float fbmR(vec2 n) {
   }
   return total;
 }
+vec3 fbm3(vec2 n0, vec2 n1, vec2 n2) {
+  float amplitude = 0.2;
+  vec3 total = vec3(0.0);
+  for (int i = 0; i < 3; i++) {
+    n0 = rotate(n0, 0.3);
+    n1 = rotate(n1, 0.3);
+    n2 = rotate(n2, 0.3);
+    total.x += valueNoiseR(n0) * amplitude;
+    total.y += valueNoiseR(n1) * amplitude;
+    total.z += valueNoiseR(n2) * amplitude;
+    n0 *= 1.99;
+    n1 *= 1.99;
+    n2 *= 1.99;
+    amplitude *= 0.6;
+  }
+  return total;
+}
 
 ${proceduralHash11}
 
@@ -129,14 +146,17 @@ void main() {
   vec2 shape_uv = vec2(0.);
   vec2 grain_uv = vec2(0.);
 
+  float r = u_rotation * 3.14159265358979323846 / 180.;
+  float cr = cos(r);
+  float sr = sin(r);
+  mat2 graphicRotation = mat2(cr, sr, -sr, cr);
+  vec2 graphicOffset = vec2(-u_offsetX, u_offsetY);
+
   if (u_shape > 3.5) {
     shape_uv = v_objectUV;
     grain_uv = shape_uv;
 
     // apply inverse transform to grain_uv so it respects the originXY
-    float r = u_rotation * 3.14159265358979323846 / 180.;
-    mat2 graphicRotation = mat2(cos(r), sin(r), -sin(r), cos(r));
-    vec2 graphicOffset = vec2(-u_offsetX, u_offsetY);
     grain_uv = transpose(graphicRotation) * grain_uv;
     grain_uv *= u_scale;
     grain_uv -= graphicOffset;
@@ -147,9 +167,6 @@ void main() {
     grain_uv = 100. * v_patternUV;
 
     // apply inverse transform to grain_uv so it respects the originXY
-    float r = u_rotation * 3.14159265358979323846 / 180.;
-    mat2 graphicRotation = mat2(cos(r), sin(r), -sin(r), cos(r));
-    vec2 graphicOffset = vec2(-u_offsetX, u_offsetY);
     grain_uv = transpose(graphicRotation) * grain_uv;
     grain_uv *= u_scale;
     if (u_fit > 0.) {
@@ -262,8 +279,16 @@ void main() {
   }
 
   float baseNoise = pow(hash21(grain_uv * .7), 3.);
-  float grainDist = baseNoise * snoise(grain_uv * .2) - fbmR(.002 * grain_uv + 10.) - fbmR(.003 * grain_uv);
-  float rawNoise = .75 * baseNoise - fbmR(rotate(.4 * grain_uv, 2.)) - fbmR(.001 * grain_uv);
+  vec3 fbmVals = fbm3(
+    .002 * grain_uv + 10.,
+    .003 * grain_uv,
+    .001 * grain_uv
+  );
+  float fbmA = fbmVals.x;
+  float fbmB = fbmVals.y;
+  float fbmC = fbmVals.z;
+  float grainDist = baseNoise * snoise(grain_uv * .2) - fbmVals.x - fbmVals.y;
+  float rawNoise = .75 * baseNoise - fbmR(rotate(.4 * grain_uv, 2.)) - fbmVals.z;
   float noise = clamp(rawNoise, 0., 1.);
 
   shape += u_intensity * 2. / u_colorsCount * (grainDist + .5);
@@ -275,10 +300,11 @@ void main() {
   float totalShape = smoothstep(0., u_softness + 2. * aa, clamp(shape * u_colorsCount, 0., 1.));
   float mixer = shape * (u_colorsCount - 1.);
 
+  int cntStop = int(u_colorsCount) - 1;
   vec4 gradient = u_colors[0];
   gradient.rgb *= gradient.a;
   for (int i = 1; i < ${grainGradientMeta.maxColorCount}; i++) {
-    if (i > int(u_colorsCount) - 1) break;
+    if (i > cntStop) break;
 
     float localT = clamp(mixer - float(i - 1), 0., 1.);
     localT = smoothstep(.5 - .5 * u_softness - aa, .5 + .5 * u_softness + aa, localT);
