@@ -134,7 +134,7 @@ float sst(float edge0, float edge1, float x) {
 
 void main() {
 
-  float t = 2.5;
+  float t = u_time;
 
   vec2 imageUV = v_imageUV;
   vec2 dudx = dFdx(v_imageUV);
