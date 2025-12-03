@@ -145,10 +145,8 @@ void main() {
 
   float blurredEdge = blurEdge5x5(u_image, imageUV, dudx, dudy, 10.);
   float edge = 1. - blurredEdge;
-  float thinEdge = u_distortion * pow(blurredEdge, 4.);
   float imgAlpha = img.g;
   imgAlpha *= frame;
-  float smoothOuter = min(1., (1. - imgAlpha) + thinEdge);
 
   vec2 smokeUV = v_objectUV;
   float angle = u_angle * PI / 180.;
@@ -156,7 +154,7 @@ void main() {
   smokeUV *= mix(4., 1., u_size);
 
   float distortion = u_distortion;
-  float swirl = mix(distortion * edge, mix(0., distortion, u_outerDistortion), smoothOuter);
+  float swirl = mix(distortion * edge, mix(0., distortion, u_outerDistortion), (1. - imgAlpha));
 
   float midShift = distortion;
   smokeUV.y += midShift * (1. - sst(0., 1., length(.4 * smokeUV)));
@@ -175,7 +173,7 @@ void main() {
   shape += mix(0., .15, u_innerFill) * imgAlpha * frame;
 
   float outerPower = pow(u_outerVisibility, 3.);
-  shape *= (outerPower + (1. - outerPower) * (1. - smoothOuter));
+  shape *= (outerPower + (1. - outerPower) * imgAlpha);
 
   shape = pow(shape, .75);
   float mixer = shape * u_colorsCount;
@@ -200,9 +198,6 @@ void main() {
 
   vec3 color = gradient.rgb * outerShape;
   float opacity = gradient.a * outerShape;
-  
-  opacity -= thinEdge * imgAlpha;
-  opacity = clamp(opacity, 0., 1.);
 
   vec3 bgColor = u_colorBack.rgb * u_colorBack.a;
   color = color + bgColor * (1.0 - opacity);
