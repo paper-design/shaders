@@ -113,7 +113,7 @@ void main() {
   smokeUV = rotate(smokeUV, angle);
   smokeUV *= mix(4., 1., u_size);
 
-  float swirl = mix(mix(0., u_distortion, u_outerDistortion), u_distortion * edge, imgAlpha);
+  float swirl = mix(mix(0., u_distortion, .66 * u_outerDistortion), u_distortion * edge, imgAlpha);
 
   float midShift = u_distortion;
   smokeUV.y += midShift * (1. - sst(0., 1., length(.4 * smokeUV)));
