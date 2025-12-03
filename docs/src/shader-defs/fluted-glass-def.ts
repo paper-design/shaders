@@ -1,6 +1,6 @@
 import { flutedGlassPresets } from '@paper-design/shaders-react';
 import type { ShaderDef } from './shader-def-types';
-import { staticCommonParams } from './common-param-def';
+import {staticCommonParams, staticImageCommonParams} from './common-param-def';
 
 const defaultParams = flutedGlassPresets[0].params;
 
@@ -15,13 +15,50 @@ export const flutedGlassDef: ShaderDef = {
       description: 'The image to use for the effect',
     },
     {
+      name: 'colorBack',
+      type: 'string',
+      defaultValue: defaultParams.colorBack,
+      isColor: true,
+      description: 'Background color',
+    },
+    {
+      name: 'colorShadow',
+      type: 'string',
+      defaultValue: defaultParams.colorShadow,
+      isColor: true,
+      description: 'Shadows color',
+    },
+    {
+      name: 'colorHighlight',
+      type: 'string',
+      defaultValue: defaultParams.colorHighlight,
+      isColor: true,
+      description: 'Highlights color',
+    },
+    {
+      name: 'shadows',
+      type: 'number',
+      min: 0,
+      max: 1,
+      defaultValue: defaultParams.shadows,
+      description: 'A color gradient added over both image and background, following the distortion shape',
+    },
+    {
+      name: 'highlights',
+      type: 'number',
+      min: 0,
+      max: 1,
+      defaultValue: defaultParams.highlights,
+      description: 'Thin stokes along distortion shape; useful for antialiasing on the small grid',
+    },
+    {
       name: 'size',
       type: 'number',
       min: 0,
       max: 1,
       step: 0.001,
       defaultValue: defaultParams.size,
-      description: 'The size of the grid',
+      description: 'The size of the distortion shape grid',
     },
     {
       name: 'shape',
@@ -62,12 +99,20 @@ export const flutedGlassDef: ShaderDef = {
       description: 'Texture shift in direction opposite to the grid',
     },
     {
+      name: 'stretch',
+      type: 'number',
+      min: 0,
+      max: 1,
+      defaultValue: defaultParams.stretch,
+      description: 'Extra distortion along the grid lines',
+    },
+    {
       name: 'blur',
       type: 'number',
       min: 0,
-      max: 50,
+      max: 1,
       defaultValue: defaultParams.blur,
-      description: 'One-directional blur',
+      description: 'One-directional blur over the image and extra blur around the edges',
     },
     {
       name: 'edges',
@@ -75,7 +120,7 @@ export const flutedGlassDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.edges,
-      description: 'Highlighted edges along the grid lines',
+      description: 'Glass distortion and softness on the image edges',
     },
     {
       name: 'margin',
@@ -110,6 +155,22 @@ export const flutedGlassDef: ShaderDef = {
       description: 'Distance from the top edge to the effect',
     },
     {
+      name: 'grainMixer',
+      type: 'number',
+      min: 0,
+      max: 1,
+      defaultValue: defaultParams.grainMixer,
+      description: 'Strength of grain distortion applied to color edges',
+    },
+    {
+      name: 'grainOverlay',
+      type: 'number',
+      min: 0,
+      max: 1,
+      defaultValue: defaultParams.grainOverlay,
+      description: 'Post-processing RGB grain overlay',
+    },
+    {
       name: 'marginBottom',
       type: 'number',
       min: 0,
@@ -117,6 +178,6 @@ export const flutedGlassDef: ShaderDef = {
       defaultValue: defaultParams.marginBottom,
       description: 'Distance from the bottom edge to the effect',
     },
-    ...staticCommonParams,
+    ...staticImageCommonParams,
   ],
 };

@@ -126,3 +126,33 @@ export const staticCommonParams: CommonParamDef[] = [
   commonParams.minPixelRatio,
   commonParams.maxPixelCount,
 ];
+
+export const staticImageCommonParams: CommonParamDef[] = [
+  commonParams.scale,
+  commonParams.rotation,
+  commonParams.offsetX,
+  commonParams.offsetY,
+  commonParams.width,
+  commonParams.height,
+  commonParams.fit,
+  commonParams.originX,
+  commonParams.originY,
+  commonParams.minPixelRatio,
+  commonParams.maxPixelCount,
+];
+
+export const animatedImageCommonParams: CommonParamDef[] = [
+  commonParams.speed,
+  commonParams.frame,
+  commonParams.scale,
+  commonParams.rotation,
+  commonParams.offsetX,
+  commonParams.offsetY,
+  commonParams.width,
+  commonParams.height,
+  commonParams.fit,
+  commonParams.originX,
+  commonParams.originY,
+  commonParams.minPixelRatio,
+  commonParams.maxPixelCount,
+];

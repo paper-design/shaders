@@ -87,17 +87,7 @@ vec2 getPosition(int i, float t) {
 
 void main() {
   vec2 uv = 2. * v_objectUV;
-
-  vec2 grainUV = v_objectUV;
-  // apply inverse transform to grain_uv so it respects the originXY
-  float grainUVRot = u_rotation * 3.14159265358979323846 / 180.;
-  mat2 graphicRotation = mat2(cos(grainUVRot), sin(grainUVRot), -sin(grainUVRot), cos(grainUVRot));
-  vec2 graphicOffset = vec2(-u_offsetX, u_offsetY);
-  grainUV = transpose(graphicRotation) * grainUV;
-  grainUV *= u_scale;
-  grainUV *= .7;
-  grainUV -= graphicOffset;
-  grainUV *= v_objectBoxSize;
+  vec2 grainUV = uv * 1000.;
 
   vec2 center = vec2(0.);
   float angleRad = -radians(u_focalAngle + 90.);
@@ -195,13 +185,19 @@ void main() {
   color = color + bgColor * (1.0 - opacity);
   opacity = opacity + u_colorBack.a * (1.0 - opacity);
 
-  float rr = noise(rotate(grainUV, 1.), vec2(3.));
-  float gg = noise(rotate(grainUV, 2.) + 10., vec2(-1.));
-  float bb = noise(grainUV - 2., vec2(5.));
-  vec3 grainColor = vec3(rr, gg, bb);
-  color = mix(color, grainColor, .01 + .3 * u_grainOverlay);
-  opacity += u_grainOverlay * grain;
-  
+  float grainOverlay = valueNoise(rotate(grainUV, 1.) + vec2(3.));
+  grainOverlay = mix(grainOverlay, valueNoise(rotate(grainUV, 2.) + vec2(-1.)), .5);
+  grainOverlay = pow(grainOverlay, 1.3);
+
+  float grainOverlayV = grainOverlay * 2. - 1.;
+  vec3 grainOverlayColor = vec3(step(0., grainOverlayV));
+  float grainOverlayStrength = u_grainOverlay * abs(grainOverlayV);
+  grainOverlayStrength = pow(grainOverlayStrength, .8);
+  color = mix(color, grainOverlayColor, .35 * grainOverlayStrength);
+
+  opacity += .5 * grainOverlayStrength;
+  opacity = clamp(opacity, 0., 1.);
+
   fragColor = vec4(color, opacity);
 }
 `;

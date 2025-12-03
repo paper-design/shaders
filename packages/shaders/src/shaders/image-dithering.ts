@@ -24,27 +24,27 @@ import { proceduralHash21 } from '../shader-utils.js';
 
 // language=GLSL
 export const imageDitheringFragmentShader: string = `#version 300 es
-precision lowp float;
+precision mediump float;
 
-uniform mediump vec2 u_resolution;
-uniform mediump float u_pixelRatio;
-uniform mediump float u_originX;
-uniform mediump float u_originY;
-uniform mediump float u_worldWidth;
-uniform mediump float u_worldHeight;
-uniform mediump float u_fit;
+uniform vec2 u_resolution;
+uniform float u_pixelRatio;
+uniform float u_originX;
+uniform float u_originY;
+uniform float u_worldWidth;
+uniform float u_worldHeight;
+uniform float u_fit;
 
-uniform mediump float u_scale;
-uniform mediump float u_rotation;
-uniform mediump float u_offsetX;
-uniform mediump float u_offsetY;
+uniform float u_scale;
+uniform float u_rotation;
+uniform float u_offsetX;
+uniform float u_offsetY;
 
 uniform vec4 u_colorFront;
 uniform vec4 u_colorBack;
 uniform vec4 u_colorHighlight;
 
 uniform sampler2D u_image;
-uniform mediump float u_imageAspectRatio;
+uniform float u_imageAspectRatio;
 
 uniform float u_type;
 uniform float u_pxSize;
@@ -53,11 +53,14 @@ uniform float u_colorSteps;
 
 out vec4 fragColor;
 
-float getUvFrame(vec2 uv, vec2 px) {
-  float left   = step(-px.x, uv.x);
-  float right  = step(uv.x, 1.);
-  float bottom = step(-px.y, uv.y);
-  float top    = step(uv.y, 1. + px.y);
+
+float getUvFrame(vec2 uv, vec2 pad) {
+  float aa = 0.0001;
+
+  float left   = smoothstep(-pad.x, -pad.x + aa, uv.x);
+  float right  = smoothstep(1.0 + pad.x, 1.0 + pad.x - aa, uv.x);
+  float bottom = smoothstep(-pad.y, -pad.y + aa, uv.y);
+  float top    = smoothstep(1.0 + pad.y, 1.0 + pad.y - aa, uv.y);
 
   return left * right * bottom * top;
 }
@@ -139,7 +142,9 @@ void main() {
   dithering -= .5;
   float brightness = clamp(lum + dithering * ditherAmount, 0.0, 1.0);
   brightness = mix(0.0, brightness, frame);
+  brightness = mix(0.0, brightness, image.a);
   float quantLum = floor(brightness * steps + 0.5) / steps;
+  quantLum = mix(0.0, quantLum, frame);
 
   if (u_originalColors == true) {
     vec3 normColor = image.rgb / max(lum, 0.001);

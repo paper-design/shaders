@@ -1,5 +1,79 @@
 # Paper Shaders
 
+## Version 0.0.67
+
+- **Mesh Gradient**
+  - Fixed a GLSL error that caused shader rendering to fail
+- **Halftone Dots**
+  - Extended the cell-size range to allow smaller dots
+
+## Version 0.0.66
+
+- **Fluted Glass**
+  - Improved support for transparent images
+  - Adjusted blending of `grainOverlay` so that grain is now visible over transparent backgrounds
+- **Halftone Dots**
+  - Adjusted blending of `grainOverlay` so that grain is now visible over transparent backgrounds
+- **Image Dithering**
+  - Improved support for transparent images
+  - Made sure that the origin point for dithering looks consistent regardless of `size`
+- **Mesh Gradient**, **Static Mesh Gradient**, **Static Radial Gradient**
+  - Changed `grainOverlay` noise to monochrome
+  - Fixed edge case issues with `grainOverlay` positioning
+
+## Version 0.0.65
+
+**Halftone Dots**
+
+- Renamed the boolean `straight` prop to `grid = 'hex' | 'square'`
+- Adjusted `size` and `contrast` parameter curves
+- Fixed an issue where the dot radius would unexpectedly change when resizing the shader canvas
+
+## Version 0.0.64
+
+New shader: **Halftone Dots**
+
+## Version 0.0.63
+
+- **General**
+  - Removed an unnecessary SSR warning (“Can’t create a texture on the server”)
+- **Fluted Glass**
+  - Added a new `edges` parameter to control the distortion and blur around the image edges, while the `blur` parameter now affects only the "inside" of the image
+  - Improved the contour and blending of shadows to make them more versatile with different colors
+  - Improved color mixing with semi-transparent backgrounds
+  - Refined the appearance of the glass edges when using `margin`
+  - Changed `colorHighlight` transparency to multiply together with the `highlights` value
+
+## Version 0.0.62
+
+- **General**
+  - Accept numeric strings for the `width` and `height` props, e.g. `width="600" height="400"`
+- **Fluted Glass**
+  - New parameters: `colorBack`, `colorShadow`, `colorHighlights`, `shadows`, `highlights`, `grainMixer`, `grainOverlay`
+  - Changed `angle` to go clockwise instead of counterclockwise
+  - Adjusted `distortion` so it’s not restricted just to the image boundaries anymore
+  - Adjusted `blur` so it also naturally softens the edges of the image
+  - Renamed `edges` to `stretch`
+  - Improved anti-aliasing quality
+- **Image Dithering**
+  - Fixed rendering artifacts visible at large dither sizes
+
+## Version 0.0.61
+
+- **General**
+  - Cross-GPU safety improvements
+- **Static Radial Gradient**
+  - Changed `angle` to go clockwise instead of counterclockwise
+- **Heatmap**
+  - Changed `angle` to go clockwise instead of counterclockwise
+- **Image Dithering**
+  - Made sure that the shader works as expected in Firefox
+
+## Version 0.0.60
+
+- **Liquid Metal**
+  - Fixed rendering for Nvidia GPUs
+
 ## Version 0.0.59
 
 Minor adjustments to the Liquid Metal edge contour
@@ -7,7 +81,7 @@ Minor adjustments to the Liquid Metal edge contour
 ## Version 0.0.58
 
 - **General**
-  - Improve antialiasing for all image shaders when the images are downscaled
+  - Improve anti-aliasing for all image shaders when the images are downscaled
 - **Liquid Metal**
   - New reworked version that supports custom images
   - New default look and presets
@@ -30,7 +104,7 @@ Minor adjustments to the Liquid Metal edge contour
   - The `image` param is now required
   - The default placeholder image was removed
   - Added a shorthand `margin` param to specify all 4 margin sides at once
-- **ImageDithering**
+- **Image Dithering**
   - The `image` param is now required
   - The default placeholder image was removed
   - Renamed `pxSize` → `size` for consistency with Dot Grid’s `size`, which is also pixel-based
@@ -116,7 +190,7 @@ Parameter renames are backwards-compatible.
 
 ### Existing Shader Improvements
 
-- **PaperTexture**
+- **Paper Texture**
   - Image blending bugfix for semi-transparent `colorBack` (ver46 fix wasn't working properly)
 
 ### New Shaders
