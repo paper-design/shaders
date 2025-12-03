@@ -134,7 +134,7 @@ float sst(float edge0, float edge1, float x) {
 
 void main() {
 
-  float t = u_time;
+  float t = 2.5;
 
   vec2 imageUV = v_imageUV;
   vec2 dudx = dFdx(v_imageUV);
@@ -164,10 +164,14 @@ void main() {
 
   for (int i = 1; i < 5; i++) {
     float iFloat = float(i);
-    smokeUV.x += swirl / iFloat * cos(t + iFloat * 2.5 * smokeUV.y);
-    smokeUV.y += swirl / iFloat * cos(t + iFloat * 1.5 * smokeUV.x);
+    float stretch = max(length(dFdx(smokeUV)), length(dFdy(smokeUV)));
+    float dampen = 1. / (1. + stretch * 8.);
+
+    float s = swirl * dampen;
+    smokeUV.x += s / iFloat * cos(t + iFloat * 2.5 * smokeUV.y);
+    smokeUV.y += s / iFloat * cos(t + iFloat * 1.5 * smokeUV.x);
   }
-  float shape = exp(-1.5 * (smokeUV.x * smokeUV.x + smokeUV.y * smokeUV.y));
+  float shape = exp(-1.5 * dot(smokeUV, smokeUV));
   shape += mix(0., .15, u_innerFill) * imgAlpha * frame;
 
   float outerPower = pow(u_outerVisibility, 3.);
