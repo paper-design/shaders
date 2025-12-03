@@ -132,28 +132,23 @@ float sst(float edge0, float edge1, float x) {
   return smoothstep(edge0, edge1, x);
 }
 
-float getPoint(vec2 dist, float p) {
-  float v = pow(1. - clamp(0., 1., length(dist)), 1.);
-  v = smoothstep(0., 1., v);
-  v = pow(v, p);
-  return v;
-}
-
-
 void main() {
 
-  float t = u_time;
+  float t = 2.5;
 
   vec2 imageUV = v_imageUV;
   vec2 dudx = dFdx(v_imageUV);
   vec2 dudy = dFdy(v_imageUV);
   vec4 img = textureGrad(u_image, imageUV, dudx, dudy);
 
-  float edge = 1. - blurEdge5x5(u_image, imageUV, dudx, dudy, 10.);
-  float imgAlpha = img.g;
-
   float frame = getImgFrame(v_imageUV, 0.);
+
+  float blurredEdge = blurEdge5x5(u_image, imageUV, dudx, dudy, 10.);
+  float edge = 1. - blurredEdge;
+  float thinEdge = u_distortion * pow(blurredEdge, 4.);
+  float imgAlpha = img.g;
   imgAlpha *= frame;
+  float smoothOuter = min(1., (1. - imgAlpha) + thinEdge);
 
   vec2 smokeUV = v_objectUV;
   float angle = -u_angle * PI / 180.;
@@ -165,11 +160,11 @@ void main() {
   );
   smokeUV *= mix(4., 1., u_size);
 
-  float distortion = .9 * u_distortion;
-  float swirl = mix(0., distortion, u_outerDistortion) * (1. - imgAlpha) + distortion * edge;
+  float distortion = u_distortion;
+  float swirl = mix(distortion * edge, mix(0., distortion, u_outerDistortion), smoothOuter);
 
   float midShift = distortion;
-  smokeUV.y += midShift * (1. - smoothstep(0., 1., length(.4 * smokeUV)));
+  smokeUV.y += midShift * (1. - sst(0., 1., length(.4 * smokeUV)));
   smokeUV.y -= .4 * midShift;
 
   for (int i = 1; i < 5; i++) {
@@ -181,7 +176,7 @@ void main() {
   shape += mix(0., .15, u_innerFill) * imgAlpha * frame;
 
   float outerPower = pow(u_outerVisibility, 3.);
-  shape *= (outerPower + (1. - outerPower) * imgAlpha);
+  shape *= (outerPower + (1. - outerPower) * (1. - smoothOuter));
 
   shape = pow(shape, .75);
   float mixer = shape * u_colorsCount;
@@ -193,8 +188,7 @@ void main() {
     if (i > int(u_colorsCount)) break;
 
     float m = clamp(mixer - float(i - 1), 0., 1.);
-    float aa = fwidth(m);
-    m = smoothstep(0., 1., m);
+    m = sst(0., 1., m);
 
     if (i == 1) {
       outerShape = m;
@@ -207,6 +201,9 @@ void main() {
 
   vec3 color = gradient.rgb * outerShape;
   float opacity = gradient.a * outerShape;
+  
+  opacity -= thinEdge * imgAlpha;
+  opacity = clamp(opacity, 0., 1.);
 
   vec3 bgColor = u_colorBack.rgb * u_colorBack.a;
   color = color + bgColor * (1.0 - opacity);
