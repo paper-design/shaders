@@ -106,7 +106,7 @@ float fbmR(vec2 n) {
   }
   return total;
 }
-vec3 fbm3(vec2 n0, vec2 n1, vec2 n2) {
+vec3 fbmR3(vec2 n0, vec2 n1, vec2 n2) {
   float amplitude = 0.2;
   vec3 total = vec3(0.0);
   for (int i = 0; i < 3; i++) {
@@ -278,15 +278,12 @@ void main() {
     shape *= step(0., d);
   }
 
-  float baseNoise = pow(hash21(grain_uv * .7), 3.);
-  vec3 fbmVals = fbm3(
-    .002 * grain_uv + 10.,
-    .003 * grain_uv,
-    .001 * grain_uv
+  float baseNoise = snoise(grain_uv * .5);
+  vec3 fbmVals = fbmR3(
+  .002 * grain_uv + 10.,
+  .003 * grain_uv,
+  .001 * grain_uv
   );
-  float fbmA = fbmVals.x;
-  float fbmB = fbmVals.y;
-  float fbmC = fbmVals.z;
   float grainDist = baseNoise * snoise(grain_uv * .2) - fbmVals.x - fbmVals.y;
   float rawNoise = .75 * baseNoise - fbmR(rotate(.4 * grain_uv, 2.)) - fbmVals.z;
   float noise = clamp(rawNoise, 0., 1.);
