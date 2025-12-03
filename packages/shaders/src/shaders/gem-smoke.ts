@@ -134,7 +134,7 @@ float sst(float edge0, float edge1, float x) {
 
 void main() {
 
-  float t = 2.5;
+  float t = u_time;
 
   vec2 imageUV = v_imageUV;
   vec2 dudx = dFdx(v_imageUV);
@@ -151,13 +151,8 @@ void main() {
   float smoothOuter = min(1., (1. - imgAlpha) + thinEdge);
 
   vec2 smokeUV = v_objectUV;
-  float angle = -u_angle * PI / 180.;
-  float cosA = cos(angle);
-  float sinA = sin(angle);
-  smokeUV = vec2(
-  smokeUV.x * cosA - smokeUV.y * sinA,
-  smokeUV.x * sinA + smokeUV.y * cosA
-  );
+  float angle = u_angle * PI / 180.;
+  smokeUV = rotate(smokeUV, angle);
   smokeUV *= mix(4., 1., u_size);
 
   float distortion = u_distortion;
