@@ -1,5 +1,5 @@
 import type { ShaderMotionParams } from '../shader-mount.js';
-import { sizingUV, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
+import { type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
 import { proceduralHash21 } from '../shader-utils.js';
 
 /**
@@ -31,8 +31,6 @@ import { proceduralHash21 } from '../shader-utils.js';
  * - u_pxSize (float): Pixel size of dithering grid (0.5 to 20)
  * - u_colorSteps (float): Number of colors to use, applies to both color modes (1 to 7)
  *
- * Note: This shader calculates image UVs directly in the fragment shader using the sizingUV helper,
- * rather than relying on vertex shader outputs.
  */
 
 // language=GLSL
@@ -116,9 +114,40 @@ float getBayerValue(vec2 uv, int size) {
 
 void main() {
 
-  #define USE_IMAGE_SIZING
-  #define USE_PIXELIZATION
-  ${ sizingUV }
+  float pxSize = u_pxSize * u_pixelRatio;
+  vec2 pxSizeUv = gl_FragCoord.xy - .5 * u_resolution;
+  pxSizeUv /= pxSize;
+  vec2 uv = (floor(pxSizeUv) + .5) * pxSize / u_resolution;
+
+  vec2 boxOrigin = vec2(.5 - u_originX, u_originY - .5);
+  vec2 givenBoxSize = vec2(u_worldWidth, u_worldHeight);
+  givenBoxSize = max(givenBoxSize, vec2(1.)) * u_pixelRatio;
+  float r = u_rotation * 3.14159265358979323846 / 180.;
+  mat2 graphicRotation = mat2(cos(r), sin(r), -sin(r), cos(r));
+  vec2 graphicOffset = vec2(-u_offsetX, u_offsetY);
+
+  vec2 imageBoxSize;
+  if (u_fit == 1.) { // contain
+    imageBoxSize.x = min(u_resolution.x / u_imageAspectRatio, u_resolution.y) * u_imageAspectRatio;
+  } else if (u_fit == 2.) { // cover
+    imageBoxSize.x = max(u_resolution.x / u_imageAspectRatio, u_resolution.y) * u_imageAspectRatio;
+  } else {
+    imageBoxSize.x = min(10.0, 10.0 / u_imageAspectRatio * u_imageAspectRatio);
+  }
+  imageBoxSize.y = imageBoxSize.x / u_imageAspectRatio;
+  vec2 imageBoxScale = u_resolution.xy / imageBoxSize;
+
+  vec2 imageUV = uv;
+  imageUV *= imageBoxScale;
+  imageUV += boxOrigin * (imageBoxScale - 1.);
+  imageUV += graphicOffset;
+  imageUV /= u_scale;
+  imageUV.x *= u_imageAspectRatio;
+  imageUV = graphicRotation * imageUV;
+  imageUV.x /= u_imageAspectRatio;
+
+  imageUV += .5;
+  imageUV.y = 1. - imageUV.y;
 
   vec2 dithering_uv = pxSizeUv;
   vec2 ditheringNoise_uv = u_resolution * uv;

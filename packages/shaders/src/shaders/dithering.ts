@@ -3,8 +3,6 @@ import {
   sizingUniformsDeclaration,
   type ShaderSizingParams,
   type ShaderSizingUniforms,
-  sizingUV,
-  drawSizingHelpers,
 } from '../shader-sizing.js';
 import { simplexNoise, declarePI, proceduralHash11, proceduralHash21 } from '../shader-utils.js';
 
@@ -24,25 +22,7 @@ import { simplexNoise, declarePI, proceduralHash11, proceduralHash21 } from '../
  * - u_type (float): Dithering type (1 = random, 2 = 2x2 Bayer, 3 = 4x4 Bayer, 4 = 8x8 Bayer)
  * - u_pxSize (float; duplicate, not currently used)
  *
- * Vertex shader outputs (used in fragment shader):
- * - v_objectUV (vec2): Object box UV coordinates with global sizing (scale, rotation, offsets, etc) applied
- * - v_patternUV (vec2): UV coordinates in pixel units (scaled by 0.01 for precision), with scale, rotation and offset applied
- *
- * Vertex shader uniforms:
- * - u_resolution (vec2): Canvas resolution in pixels
- * - u_pixelRatio (float): Device pixel ratio
- * - u_originX (float): Reference point for positioning world width in the canvas (0 to 1)
- * - u_originY (float): Reference point for positioning world height in the canvas (0 to 1)
- * - u_worldWidth (float): Virtual width of the graphic before it's scaled to fit the canvas
- * - u_worldHeight (float): Virtual height of the graphic before it's scaled to fit the canvas
- * - u_fit (float): How to fit the rendered shader into the canvas dimensions (0 = none, 1 = contain, 2 = cover)
- * - u_scale (float): Overall zoom level of the graphics (0.01 to 4)
- * - u_rotation (float): Overall rotation angle of the graphics in degrees (0 to 360)
- * - u_offsetX (float): Horizontal offset of the graphics center (-1 to 1)
- * - u_offsetY (float): Vertical offset of the graphics center (-1 to 1)
- * - u_pxSize (float): Pixel size of dithering grid (1 to 20)
- *
- * * */
+ * */
 
 // language=GLSL
 export const ditheringFragmentShader: string = `#version 300 es
@@ -54,6 +34,7 @@ uniform float u_pixelRatio;
 
 ${ sizingUniformsDeclaration }
 
+uniform float u_pxSize;
 uniform vec4 u_colorBack;
 uniform vec4 u_colorFront;
 uniform float u_shape;
@@ -110,13 +91,73 @@ float getBayerValue(vec2 uv, int size) {
 void main() {
   float t = .5 * u_time;
 
-  #define USE_PATTERN_SIZING
-  #define USE_OBJECT_SIZING
-  #define USE_PIXELIZATION
-  // #define ADD_HELPERS
+  float pxSize = u_pxSize * u_pixelRatio;
+  vec2 pxSizeUv = gl_FragCoord.xy - .5 * u_resolution;
+  pxSizeUv /= pxSize;
+  vec2 uv = (floor(pxSizeUv) + .5) * pxSize / u_resolution;
 
-  ${ sizingUV }
+  vec2 boxOrigin = vec2(.5 - u_originX, u_originY - .5);
+  vec2 givenBoxSize = vec2(u_worldWidth, u_worldHeight);
+  givenBoxSize = max(givenBoxSize, vec2(1.)) * u_pixelRatio;
+  float r = u_rotation * 3.14159265358979323846 / 180.;
+  mat2 graphicRotation = mat2(cos(r), sin(r), -sin(r), cos(r));
+  vec2 graphicOffset = vec2(-u_offsetX, u_offsetY);
 
+  float fixedRatio = 1.;
+  vec2 fixedRatioBoxGivenSize = vec2(
+  (u_worldWidth == 0.) ? u_resolution.x : givenBoxSize.x,
+  (u_worldHeight == 0.) ? u_resolution.y : givenBoxSize.y
+  );
+  vec2 objectBoxSize = vec2(0.);
+  // fit = none
+  objectBoxSize.x = fixedRatio * min(fixedRatioBoxGivenSize.x / fixedRatio, fixedRatioBoxGivenSize.y);
+  if (u_fit == 1.) { // fit = contain
+    objectBoxSize.x = fixedRatio * min(u_resolution.x / fixedRatio, u_resolution.y);
+  } else if (u_fit == 2.) { // fit = cover
+    objectBoxSize.x = fixedRatio * max(u_resolution.x / fixedRatio, u_resolution.y);
+  }
+  objectBoxSize.y = objectBoxSize.x / fixedRatio;
+  vec2 objectWorldScale = u_resolution.xy / objectBoxSize;
+  
+  vec2 objectUV = uv;
+  objectUV *= objectWorldScale;
+  objectUV += boxOrigin * (objectWorldScale - 1.);
+  objectUV += vec2(-u_offsetX, u_offsetY);
+  objectUV /= u_scale;
+  objectUV = graphicRotation * objectUV;
+  
+  float patternBoxRatio = givenBoxSize.x / givenBoxSize.y;
+  vec2 patternBoxGivenSize = vec2(
+  (u_worldWidth == 0.) ? u_resolution.x : givenBoxSize.x,
+  (u_worldHeight == 0.) ? u_resolution.y : givenBoxSize.y
+  );
+  vec2 patternBoxSize = vec2(0.);
+  // fit = none
+  patternBoxSize.x = patternBoxRatio * min(patternBoxGivenSize.x / patternBoxRatio, patternBoxGivenSize.y);
+  float patternWorldNoFitBoxWidth = patternBoxSize.x;
+  if (u_fit == 1.) { // fit = contain
+    patternBoxSize.x = patternBoxRatio * min(u_resolution.x / patternBoxRatio, u_resolution.y);
+  } else if (u_fit == 2.) { // fit = cover
+    patternBoxSize.x = patternBoxRatio * max(u_resolution.x / patternBoxRatio, u_resolution.y);
+  }
+  patternBoxSize.y = patternBoxSize.x / patternBoxRatio;
+  vec2 patternWorldScale = u_resolution.xy / patternBoxSize;
+
+  vec2 patternUV = uv;
+  patternUV += vec2(-u_offsetX, u_offsetY) / patternWorldScale;
+  patternUV += boxOrigin;
+  patternUV -= boxOrigin / patternWorldScale;
+  patternUV *= u_resolution.xy;
+  patternUV /= u_pixelRatio;
+  if (u_fit > 0.) {
+    patternUV *= (patternWorldNoFitBoxWidth / patternBoxSize.x);
+  }
+  patternUV /= u_scale;
+  patternUV = graphicRotation * patternUV;
+  patternUV += boxOrigin / patternWorldScale;
+  patternUV -= boxOrigin;
+  patternUV += .5;
+  
   vec2 dithering_uv = pxSizeUv;
   vec2 ditheringNoise_uv = uv * u_resolution;
   vec2 shape_uv = objectUV;
@@ -221,16 +262,6 @@ void main() {
 
   color += bgColor * (1. - opacity);
   opacity += bgOpacity * (1. - opacity);
-
-  #ifdef ADD_HELPERS
-  vec2 helperBox = objectHelperBox;
-  vec2 boxSize = objectBoxSize;
-  if (u_shape < 3.5) {
-    helperBox = patternHelperBox;
-    boxSize = patternBoxSize;
-  }
-  ${ drawSizingHelpers }
-  #endif
 
   fragColor = vec4(color, opacity);
 }
