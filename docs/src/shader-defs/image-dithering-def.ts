@@ -7,7 +7,7 @@ const defaultParams = imageDitheringPresets[0].params;
 export const imageDitheringDef: ShaderDef = {
   name: 'Image Dithering',
   description:
-    'A dithering image filter with support for 4 dithering modes and multiple color palettes (2-color, 3-color, and multicolor options, using either predefined colors or ones sampled directly from the original image).',
+    'A dithering image filter with support for 4 dithering modes and multiple color palettes (2-color, 3-color, and multicolor options, using either predefined colors or colors sampled from the original image).',
   params: [
     {
       name: 'image',
@@ -55,7 +55,7 @@ export const imageDitheringDef: ShaderDef = {
       min: 0.5,
       max: 20,
       defaultValue: defaultParams.size,
-      description: 'Pixel size of dithering grid',
+      description: 'Pixel size of dithering grid; linked to the screen space, not to the image box',
     },
     {
       name: 'colorSteps',

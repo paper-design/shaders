@@ -45,7 +45,7 @@ export const halftoneDotsDef: ShaderDef = {
       name: 'inverted',
       type: 'boolean',
       defaultValue: defaultParams.inverted,
-      description: 'Inverts the dot shape. Doesn’t affect the color scheme; not effective at zero contrast',
+      description: 'Inverts the image luminance, doesn’t affect the color scheme; not effective at zero contrast',
       options: ['true', 'false'],
     },
     {

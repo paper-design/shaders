@@ -3,23 +3,46 @@ import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingU
 import { declarePI, rotation2, simplexNoise, colorBandingFix } from '../shader-utils.js';
 
 /**
+ * Futuristic liquid metal material applied to uploaded logo or abstract shape.
+ * Fluid motion imitation applied over user image with animated stripe pattern
+ * getting distorted along shape edges.
  *
- * Fluid motion imitation applied over user image
- * (animated stripe pattern getting distorted with shape edges)
+ * Vertex shader uniforms:
+ * - u_resolution (vec2): Canvas resolution in pixels
+ * - u_pixelRatio (float): Device pixel ratio
+ * - u_originX (float): Reference point for positioning world width in the canvas (0 to 1)
+ * - u_originY (float): Reference point for positioning world height in the canvas (0 to 1)
+ * - u_worldWidth (float): Virtual width of the graphic before it's scaled to fit the canvas
+ * - u_worldHeight (float): Virtual height of the graphic before it's scaled to fit the canvas
+ * - u_fit (float): How to fit the rendered shader into the canvas dimensions (0 = none, 1 = contain, 2 = cover)
+ * - u_scale (float): Overall zoom level of the graphics (0.01 to 4)
+ * - u_rotation (float): Overall rotation angle of the graphics in degrees (0 to 360)
+ * - u_offsetX (float): Horizontal offset of the graphics center (-1 to 1)
+ * - u_offsetY (float): Vertical offset of the graphics center (-1 to 1)
+ * - u_imageAspectRatio (float): Aspect ratio of the source image
  *
- * Uniforms:
- * - u_colorBack, u_colorTint (RGBA)
- * - u_repetition: density of pattern stripes
- * - u_softness: blur between stripes
- * - u_shiftRed & u_shiftBlue: color dispersion between the stripes
- * - u_distortion: pattern distortion on the whole canvas
- * - u_contour: distortion power over the shape edges
- * - u_shape (float used as integer):
- * ---- 0: canvas-screen rectangle, needs u_worldWidth = u_worldHeight = 0 to be responsive (see vertex shader)
- * ---- 1: static circle
- * ---- 2: animated flower-like polar shape
- * ---- 3: animated metaballs
+ * Fragment shader uniforms:
+ * - u_time (float): Animation time
+ * - u_resolution (vec2): Canvas resolution in pixels
+ * - u_image (sampler2D): Pre-processed source image texture (R = edge gradient, G = opacity)
+ * - u_imageAspectRatio (float): Aspect ratio of the source image
+ * - u_colorBack (vec4): Background color in RGBA
+ * - u_colorTint (vec4): Overlay color in RGBA (color burn blending used)
+ * - u_repetition (float): Density of pattern stripes (1 to 10)
+ * - u_softness (float): Color transition sharpness, 0 = hard edge, 1 = smooth gradient (0 to 1)
+ * - u_shiftRed (float): R-channel dispersion (-1 to 1)
+ * - u_shiftBlue (float): B-channel dispersion (-1 to 1)
+ * - u_distortion (float): Noise distortion over the stripes pattern (0 to 1)
+ * - u_contour (float): Strength of the distortion on the shape edges (0 to 1)
+ * - u_angle (float): Direction of pattern animation in degrees (0 to 360)
+ * - u_shape (float): Predefined shape when no image provided (0 = none, 1 = circle, 2 = daisy, 3 = diamond, 4 = metaballs)
+ * - u_isImage (bool): Whether an image is being used as the effect mask
  *
+ * Vertex shader outputs (used in fragment shader):
+ * - v_imageUV (vec2): UV coordinates for sampling the source image, with fit, scale, rotation, and offset applied
+ * - v_objectUV (vec2): Normalized UV coordinates with scale, rotation, and offset applied (used when no image)
+ * - v_responsiveUV (vec2): Responsive UV coordinates that adapt to canvas aspect ratio (used for canvas-fill mode)
+ * - v_responsiveBoxGivenSize (vec2): TBD
  */
 
 // language=GLSL
@@ -46,13 +69,13 @@ uniform float u_angle;
 uniform float u_shape;
 uniform bool u_isImage;
 
-${sizingVariablesDeclaration}
+${ sizingVariablesDeclaration }
 
 out vec4 fragColor;
 
-${declarePI}
-${rotation2}
-${simplexNoise}
+${ declarePI }
+${ rotation2 }
+${ simplexNoise }
 
 float getColorChanges(float c1, float c2, float stripe_p, vec3 w, float blur, float bump, float tint) {
 
@@ -337,7 +360,7 @@ void main() {
   color = color + bgColor * (1. - opacity);
   opacity = opacity + u_colorBack.a * (1. - opacity);
 
-  ${colorBandingFix}
+  ${ colorBandingFix }
 
   fragColor = vec4(color, opacity);
 }

@@ -7,7 +7,7 @@ const defaultParams = paperTexturePresets[0].params;
 export const paperTextureDef: ShaderDef = {
   name: 'Paper Texture',
   description:
-    'A static texture built from multiple noise layers, usable for a realistic paper and cardboard surfaces or generating abstract patterns. Can be used as a image filter or as a texture.',
+    'A static texture built from multiple noise layers, usable for a realistic paper and cardboard surfaces. Can be used as a image filter or as a texture.',
   params: [
     {
       name: 'image',

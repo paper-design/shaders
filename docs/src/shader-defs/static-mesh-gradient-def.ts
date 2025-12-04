@@ -7,7 +7,7 @@ const defaultParams = staticMeshGradientPresets[0].params;
 export const staticMeshGradientDef: ShaderDef = {
   name: 'Static Mesh Gradient',
   description:
-    'Multi-point mesh gradients with up to 10 color spots, enhanced by two-direction warping, adjustable blend sharpness, and grain controls. Perfect for elegant wallpapers and atmospheric backdrops.',
+    'Multi-point mesh gradient with up to 10 color spots, enhanced by two-direction warping, adjustable blend sharpness, and grain controls. Perfect for elegant wallpapers and atmospheric backdrops.',
   params: [
     {
       name: 'colors',

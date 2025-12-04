@@ -3,23 +3,36 @@ import { sizingUV, type ShaderSizingParams, type ShaderSizingUniforms } from '..
 import { proceduralHash21 } from '../shader-utils.js';
 
 /**
- * Dithering effect over user texture using 3-color palette
- * or colors sampled from original image
+ * A dithering image filter with support for 4 dithering modes and multiple color palettes
+ * (2-color, 3-color, and multicolor options, using either predefined colors or colors sampled
+ * from the original image).
  *
- * Uniforms:
- * - u_colorBack, u_colorFront, u_colorHighlight (RGBA)
- *   (u_colorHighlight to be the lightest parts of u_colorFront pixels)
- * - pxSize: px size set relative to canvas resolution
- * - u_type (float used as integer)
- * ---- 1: random dithering
- * ---- 2: 2x2 Bayer matrix
- * ---- 3: 4x4 Bayer matrix
- * ---- 4: 8x8 Bayer matrix
- * - u_originalColors - switching between 3 colors palette and original image colors
- * - u_colorSteps - number of colors to use (applies to both color modes)
+ * Note: pixelization is applied to the image BEFORE dithering, meaning pixels don't react to scaling and fit
  *
- * Note: pixelization is applied to the shapes BEFORE dithering,
- *       meaning pixels don't react to scaling and fit
+ * Fragment shader uniforms:
+ * - u_resolution (vec2): Canvas resolution in pixels
+ * - u_pixelRatio (float): Device pixel ratio
+ * - u_originX (float): Reference point for positioning world width in the canvas (0 to 1)
+ * - u_originY (float): Reference point for positioning world height in the canvas (0 to 1)
+ * - u_worldWidth (float): Virtual width of the graphic before it's scaled to fit the canvas
+ * - u_worldHeight (float): Virtual height of the graphic before it's scaled to fit the canvas
+ * - u_fit (float): How to fit the rendered shader into the canvas dimensions (0 = none, 1 = contain, 2 = cover)
+ * - u_scale (float): Overall zoom level of the graphics (0.01 to 4)
+ * - u_rotation (float): Overall rotation angle of the graphics in degrees (0 to 360)
+ * - u_offsetX (float): Horizontal offset of the graphics center (-1 to 1)
+ * - u_offsetY (float): Vertical offset of the graphics center (-1 to 1)
+ * - u_image (sampler2D): Source image texture
+ * - u_imageAspectRatio (float): Aspect ratio of the source image
+ * - u_colorFront (vec4): Foreground color in RGBA
+ * - u_colorBack (vec4): Background color in RGBA
+ * - u_colorHighlight (vec4): Secondary foreground color in RGBA (set same as colorFront for classic 2-color dithering)
+ * - u_originalColors (bool): Use the original colors of the image instead of the color palette
+ * - u_type (float): Dithering type (1 = random, 2 = 2x2 Bayer, 3 = 4x4 Bayer, 4 = 8x8 Bayer)
+ * - u_pxSize (float): Pixel size of dithering grid (0.5 to 20)
+ * - u_colorSteps (float): Number of colors to use, applies to both color modes (1 to 7)
+ *
+ * Note: This shader calculates image UVs directly in the fragment shader using the sizingUV helper,
+ * rather than relying on vertex shader outputs.
  */
 
 // language=GLSL
@@ -65,25 +78,25 @@ float getUvFrame(vec2 uv, vec2 pad) {
   return left * right * bottom * top;
 }
 
-${proceduralHash21}
+${ proceduralHash21 }
 
 const int bayer2x2[4] = int[4](0, 2, 3, 1);
 const int bayer4x4[16] = int[16](
-  0,  8,  2, 10,
- 12,  4, 14,  6,
-  3, 11,  1,  9,
- 15,  7, 13,  5
+0, 8, 2, 10,
+12, 4, 14, 6,
+3, 11, 1, 9,
+15, 7, 13, 5
 );
 
 const int bayer8x8[64] = int[64](
-   0, 32,  8, 40,  2, 34, 10, 42,
-  48, 16, 56, 24, 50, 18, 58, 26,
-  12, 44,  4, 36, 14, 46,  6, 38,
-  60, 28, 52, 20, 62, 30, 54, 22,
-   3, 35, 11, 43,  1, 33,  9, 41,
-  51, 19, 59, 27, 49, 17, 57, 25,
-  15, 47,  7, 39, 13, 45,  5, 37,
-  63, 31, 55, 23, 61, 29, 53, 21
+0, 32, 8, 40, 2, 34, 10, 42,
+48, 16, 56, 24, 50, 18, 58, 26,
+12, 44, 4, 36, 14, 46, 6, 38,
+60, 28, 52, 20, 62, 30, 54, 22,
+3, 35, 11, 43, 1, 33, 9, 41,
+51, 19, 59, 27, 49, 17, 57, 25,
+15, 47, 7, 39, 13, 45, 5, 37,
+63, 31, 55, 23, 61, 29, 53, 21
 );
 
 float getBayerValue(vec2 uv, int size) {
@@ -105,7 +118,7 @@ void main() {
 
   #define USE_IMAGE_SIZING
   #define USE_PIXELIZATION
-  ${sizingUV}
+  ${ sizingUV }
 
   vec2 dithering_uv = pxSizeUv;
   vec2 ditheringNoise_uv = u_resolution * uv;
@@ -122,14 +135,14 @@ void main() {
       dithering = step(hash21(ditheringNoise_uv), lum);
     } break;
     case 2:
-      dithering = getBayerValue(dithering_uv, 2);
-      break;
+    dithering = getBayerValue(dithering_uv, 2);
+    break;
     case 3:
-      dithering = getBayerValue(dithering_uv, 4);
-      break;
-    default:
-      dithering = getBayerValue(dithering_uv, 8);
-      break;
+    dithering = getBayerValue(dithering_uv, 4);
+    break;
+    default :
+    dithering = getBayerValue(dithering_uv, 8);
+    break;
   }
 
 

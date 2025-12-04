@@ -7,7 +7,7 @@ const defaultParams = staticRadialGradientPresets[0].params;
 export const staticRadialGradientDef: ShaderDef = {
   name: 'Static Radial Gradient',
   description:
-    'Radial gradient with up to 10 blended colors, featuring advanced focal point control, shape distortion, and grain effects.',
+    'Radial gradient with up to 10 blended colors, featuring advanced mixing modes, focal point controls, shape distortion, and grain effects',
   params: [
     {
       name: 'colors',

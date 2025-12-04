@@ -3,12 +3,36 @@ import { type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-si
 import { declarePI, rotation2, proceduralHash21 } from '../shader-utils.js';
 
 /**
-
-
- Uniforms:
- - u_colorBack, u_colorFront, u_colorHighlight (RGBA)
- (u_colorHighlight to be the lighstraight parts of u_colorFront pixels)
- - size: px size set relative to canvas resolution
+ * A halftone-dot image filter featuring customizable grids, color palettes, and dot styles.
+ *
+ * Fragment shader uniforms:
+ * - u_resolution (vec2): Canvas resolution in pixels
+ * - u_pixelRatio (float): Device pixel ratio
+ * - u_originX (float): Reference point for positioning world width in the canvas (0 to 1)
+ * - u_originY (float): Reference point for positioning world height in the canvas (0 to 1)
+ * - u_fit (float): How to fit the rendered shader into the canvas dimensions (1 = contain, 2 = cover)
+ * - u_scale (float): Overall zoom level of the graphics (0.01 to 4)
+ * - u_rotation (float): Overall rotation angle of the graphics in degrees (0 to 360)
+ * - u_offsetX (float): Horizontal offset of the graphics center (-1 to 1)
+ * - u_offsetY (float): Vertical offset of the graphics center (-1 to 1)
+ * - u_time (float): Animation time
+ * - u_image (sampler2D): Source image texture
+ * - u_imageAspectRatio (float): Aspect ratio of the source image
+ * - u_colorFront (vec4): Foreground color in RGBA
+ * - u_colorBack (vec4): Background color in RGBA
+ * - u_originalColors (bool): Use sampled image's original colors instead of colorFront
+ * - u_type (float): Dot style (0 = classic, 1 = gooey, 2 = holes, 3 = soft)
+ * - u_inverted (bool): Inverts the image luminance, doesn’t affect the color scheme; not effective at zero contrast
+ * - u_grid (float): Grid type (0 = square, 1 = hex)
+ * - u_size (float): Grid size relative to the image box (0 to 1)
+ * - u_radius (float): Maximum dot size relative to grid cell (0 to 2)
+ * - u_contrast (float): Contrast applied to the sampled image (0 to 1)
+ * - u_grainMixer (float): Strength of grain distortion applied to shape edges (0 to 1)
+ * - u_grainOverlay (float): Post-processing black/white grain overlay (0 to 1)
+ * - u_grainSize (float): Scale applied to both grain distortion and grain overlay (0 to 1)
+ *
+ * Note: This shader calculates image UVs directly in the fragment shader using gl_FragCoord,
+ * rather than relying on vertex shader outputs.
  */
 
 // language=GLSL
@@ -47,9 +71,9 @@ uniform float u_type;
 
 out vec4 fragColor;
 
-${declarePI}
-${rotation2}
-${proceduralHash21}
+${ declarePI }
+${ rotation2 }
+${ proceduralHash21 }
 
 float valueNoise(vec2 st) {
   vec2 i = floor(st);
@@ -99,7 +123,7 @@ vec2 getImageUV(vec2 uv, vec2 extraScale) {
 
   imageUV += .5;
   imageUV.y = 1. - imageUV.y;
-  
+
   return imageUV;
 }
 
@@ -121,7 +145,7 @@ float getCircleWithHole(vec2 uv, float r, float baseR) {
 
   r = mix(.75 * baseR, 0., r);
   float rMod = mod(r, .5);
-  
+
   float d = length(uv - .5);
   float aa = fwidth(d);
   float circle = 1. - smoothstep(rMod - aa, rMod + aa, d);
@@ -140,7 +164,7 @@ float getGooeyBall(vec2 uv, float r, float baseR) {
   }
   sizeRadius = mix(sizeRadius * baseR, 0., r);
   d = 1. - sst(0., sizeRadius, d);
-  
+
   d = pow(d, 2. + baseR);
   return d;
 }
@@ -189,7 +213,7 @@ float getLumBall(vec2 p, vec2 pad, vec2 inCellOffset, float contrast, float base
   vec2 uv_f = fract(p);
   vec2 samplingUV = (uv_i + .5 - inCellOffset) * pad + vec2(.5);
   float outOfFrame = getUvFrame(samplingUV, pad * stepSize);
-  
+
   float lum = getLumAtPx(samplingUV, contrast);
   ballColor = texture(u_image, samplingUV);
   ballColor.rgb *= ballColor.a;
@@ -215,7 +239,7 @@ float getLumBall(vec2 p, vec2 pad, vec2 inCellOffset, float contrast, float base
 
 
 void main() {
-  
+
   float stepMultiplier = 1.;
   if (u_type == 0.) {
     // classic
@@ -224,7 +248,7 @@ void main() {
     // gooey & soft
     stepMultiplier = 6.;
   }
-  
+
   float cellsPerSide = mix(300., 7., pow(u_size, .7));
   cellsPerSide /= stepMultiplier;
   float cellSizeY = 1. / cellsPerSide;
@@ -283,9 +307,9 @@ void main() {
       totalOpacity += shape;
     }
   }
-  
+
   const float eps = 1e-4;
-  
+
   totalColor /= max(totalShape, eps);
   totalOpacity /= max(totalShape, eps);
 
@@ -311,7 +335,7 @@ void main() {
 
   vec3 color = vec3(0.);
   float opacity = 0.;
-  
+
   if (u_originalColors == true) {
     color = totalColor * finalShape;
     opacity = totalOpacity * finalShape;
@@ -334,13 +358,13 @@ void main() {
   float grainOverlay = valueNoise(rotate(grainUV, 1.) + vec2(3.));
   grainOverlay = mix(grainOverlay, valueNoise(rotate(grainUV, 2.) + vec2(-1.)), .5);
   grainOverlay = pow(grainOverlay, 1.3);
-  
+
   float grainOverlayV = grainOverlay * 2. - 1.;
   vec3 grainOverlayColor = vec3(step(0., grainOverlayV));
   float grainOverlayStrength = u_grainOverlay * abs(grainOverlayV);
   grainOverlayStrength = pow(grainOverlayStrength, .8);
   color = mix(color, grainOverlayColor, .5 * grainOverlayStrength);
-  
+
   opacity += .5 * grainOverlayStrength;
   opacity = clamp(opacity, 0., 1.);
 

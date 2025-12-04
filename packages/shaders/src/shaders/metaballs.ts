@@ -9,17 +9,32 @@ export const metaballsMeta = {
 } as const;
 
 /**
- * N circular shapes moving around the center, blending and merging based on distance
+ * Up to 20 colored gooey balls moving around the center and merging into smooth organic shapes.
  *
- * Uniforms:
- * - u_colorBack (RGBA)
- * - u_colors (vec4[]), u_colorsCount (float used as integer)
- * - u_size: ball base size
- * - u_sizeRange (0..1): randomizes the size of balls between 0 and u_size
- * - u_count: number of balls on the canvas
+ * Vertex shader uniforms:
+ * - u_resolution (vec2): Canvas resolution in pixels
+ * - u_pixelRatio (float): Device pixel ratio
+ * - u_originX (float): Reference point for positioning world width in the canvas (0 to 1)
+ * - u_originY (float): Reference point for positioning world height in the canvas (0 to 1)
+ * - u_worldWidth (float): Virtual width of the graphic before it's scaled to fit the canvas
+ * - u_worldHeight (float): Virtual height of the graphic before it's scaled to fit the canvas
+ * - u_fit (float): How to fit the rendered shader into the canvas dimensions (0 = none, 1 = contain, 2 = cover)
+ * - u_scale (float): Overall zoom level of the graphics (0.01 to 4)
+ * - u_rotation (float): Overall rotation angle of the graphics in degrees (0 to 360)
+ * - u_offsetX (float): Horizontal offset of the graphics center (-1 to 1)
+ * - u_offsetY (float): Vertical offset of the graphics center (-1 to 1)
  *
- * - u_noiseTexture (sampler2D): pre-computed randomizer source
+ * Fragment shader uniforms:
+ * - u_time (float): Animation time
+ * - u_colorBack (vec4): Background color in RGBA
+ * - u_colors (vec4[]): Up to 8 base colors in RGBA
+ * - u_colorsCount (float): Number of active colors
+ * - u_count (float): Number of balls (1 to 20)
+ * - u_size (float): Size of the balls (0 to 1)
+ * - u_noiseTexture (sampler2D): Pre-computed randomizer source texture
  *
+ * Vertex shader outputs (used in fragment shader):
+ * - v_objectUV (vec2): Normalized UV coordinates with scale, rotation, and offset applied
  */
 
 // language=GLSL
@@ -31,18 +46,18 @@ uniform float u_time;
 uniform sampler2D u_noiseTexture;
 
 uniform vec4 u_colorBack;
-uniform vec4 u_colors[${metaballsMeta.maxColorCount}];
+uniform vec4 u_colors[${ metaballsMeta.maxColorCount }];
 uniform float u_colorsCount;
 uniform float u_size;
 uniform float u_sizeRange;
 uniform float u_count;
 
-${sizingVariablesDeclaration}
+${ sizingVariablesDeclaration }
 
 out vec4 fragColor;
 
-${declarePI}
-${textureRandomizerR}
+${ declarePI }
+${ textureRandomizerR }
 float noise(float x) {
   float i = floor(x);
   float f = fract(x);
@@ -71,10 +86,10 @@ void main() {
   float totalShape = 0.;
   float totalOpacity = 0.;
 
-  for (int i = 0; i < ${metaballsMeta.maxBallsCount}; i++) {
+  for (int i = 0; i < ${ metaballsMeta.maxBallsCount }; i++) {
     if (i >= int(ceil(u_count))) break;
 
-    float idxFract = float(i) / float(${metaballsMeta.maxBallsCount});
+    float idxFract = float(i) / float(${ metaballsMeta.maxBallsCount });
     float angle = TWO_PI * idxFract;
 
     float speed = 1. - .2 * idxFract;
@@ -114,7 +129,7 @@ void main() {
   color = color + bgColor * (1. - opacity);
   opacity = opacity + u_colorBack.a * (1. - opacity);
 
-  ${colorBandingFix}
+  ${ colorBandingFix }
 
   fragColor = vec4(color, opacity);
 }
