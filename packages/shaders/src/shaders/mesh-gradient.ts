@@ -17,6 +17,18 @@ export const meshGradientMeta = {
  * A flowing composition of color spots, moving along distinct trajectories
  * and transformed by organic distortion.
  *
+ * Fragment shader uniforms:
+ * - u_time (float): Animation time
+ * - u_colors (vec4[]): Up to 10 color spots in RGBA
+ * - u_colorsCount (float): Number of active colors
+ * - u_distortion (float): Power of organic noise distortion (0 to 1)
+ * - u_swirl (float): Power of vortex distortion (0 to 1)
+ * - u_grainMixer (float): Strength of grain distortion applied to shape edges (0 to 1)
+ * - u_grainOverlay (float): Post-processing black/white grain overlay (0 to 1)
+ *
+ * Vertex shader outputs (used in fragment shader):
+ * - v_objectUV (vec2): Object box UV coordinates with global sizing (scale, rotation, offsets, etc) applied
+ *
  * Vertex shader uniforms:
  * - u_resolution (vec2): Canvas resolution in pixels
  * - u_pixelRatio (float): Device pixel ratio
@@ -30,17 +42,6 @@ export const meshGradientMeta = {
  * - u_offsetX (float): Horizontal offset of the graphics center (-1 to 1)
  * - u_offsetY (float): Vertical offset of the graphics center (-1 to 1)
  *
- * Fragment shader uniforms:
- * - u_time (float): Animation time
- * - u_colors (vec4[]): Up to 10 color spots in RGBA
- * - u_colorsCount (float): Number of active colors
- * - u_distortion (float): Power of organic noise distortion (0 to 1)
- * - u_swirl (float): Power of vortex distortion (0 to 1)
- * - u_grainMixer (float): Strength of grain distortion applied to shape edges (0 to 1)
- * - u_grainOverlay (float): Post-processing black/white grain overlay (0 to 1)
- *
- * Vertex shader outputs (used in fragment shader):
- * - v_objectUV (vec2): Normalized UV coordinates with scale, rotation, and offset applied
  */
 
 // language=GLSL

@@ -4,6 +4,19 @@ import { declarePI } from '../shader-utils.js';
 /**
  * Static line pattern configurable into textures ranging from sharp zigzags to smooth flowing waves.
  *
+ * Fragment shader uniforms:
+ * - u_colorFront (vec4): Foreground color in RGBA
+ * - u_colorBack (vec4): Background color in RGBA
+ * - u_shape (float): Line shape, 0 = zigzag, 1 = sine, 2-3 = irregular waves, fractional values morph between shapes (0 to 3)
+ * - u_amplitude (float): Wave amplitude (0 to 1)
+ * - u_frequency (float): Wave frequency (0 to 2)
+ * - u_spacing (float): Space between every two wavy lines (0 to 2)
+ * - u_proportion (float): Blend point between front and back colors, 0.5 = equal distribution (0 to 1)
+ * - u_softness (float): Color transition sharpness, 0 = hard edge, 1 = smooth gradient (0 to 1)
+ *
+ * Vertex shader outputs (used in fragment shader):
+ * - v_patternUV (vec2): UV coordinates for pattern with global sizing (rotation, scale, offset, etc) applied
+ *
  * Vertex shader uniforms:
  * - u_resolution (vec2): Canvas resolution in pixels
  * - u_pixelRatio (float): Device pixel ratio
@@ -17,18 +30,6 @@ import { declarePI } from '../shader-utils.js';
  * - u_offsetX (float): Horizontal offset of the graphics center (-1 to 1)
  * - u_offsetY (float): Vertical offset of the graphics center (-1 to 1)
  *
- * Fragment shader uniforms:
- * - u_colorFront (vec4): Foreground color in RGBA
- * - u_colorBack (vec4): Background color in RGBA
- * - u_shape (float): Line shape, 0 = zigzag, 1 = sine, 2-3 = irregular waves, fractional values morph between shapes (0 to 3)
- * - u_amplitude (float): Wave amplitude (0 to 1)
- * - u_frequency (float): Wave frequency (0 to 2)
- * - u_spacing (float): Space between every two wavy lines (0 to 2)
- * - u_proportion (float): Blend point between front and back colors, 0.5 = equal distribution (0 to 1)
- * - u_softness (float): Color transition sharpness, 0 = hard edge, 1 = smooth gradient (0 to 1)
- *
- * Vertex shader outputs (used in fragment shader):
- * - v_patternUV (vec2): UV coordinates in CSS pixels (scaled by 0.01 for precision), with rotation and offset applied
  */
 
 // language=GLSL

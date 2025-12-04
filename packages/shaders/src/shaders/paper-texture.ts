@@ -6,20 +6,6 @@ import { rotation2, declarePI, fiberNoise, textureRandomizerR } from '../shader-
  * A static texture built from multiple noise layers, usable for realistic paper and cardboard surfaces.
  * Can be used as an image filter or as a standalone texture.
  *
- * Vertex shader uniforms:
- * - u_resolution (vec2): Canvas resolution in pixels
- * - u_pixelRatio (float): Device pixel ratio
- * - u_originX (float): Reference point for positioning world width in the canvas (0 to 1)
- * - u_originY (float): Reference point for positioning world height in the canvas (0 to 1)
- * - u_worldWidth (float): Virtual width of the graphic before it's scaled to fit the canvas
- * - u_worldHeight (float): Virtual height of the graphic before it's scaled to fit the canvas
- * - u_fit (float): How to fit the rendered shader into the canvas dimensions (0 = none, 1 = contain, 2 = cover)
- * - u_scale (float): Overall zoom level of the graphics (0.01 to 4)
- * - u_rotation (float): Overall rotation angle of the graphics in degrees (0 to 360)
- * - u_offsetX (float): Horizontal offset of the graphics center (-1 to 1)
- * - u_offsetY (float): Vertical offset of the graphics center (-1 to 1)
- * - u_imageAspectRatio (float): Aspect ratio of the source image
- *
  * Fragment shader uniforms:
  * - u_resolution (vec2): Canvas resolution in pixels
  * - u_pixelRatio (float): Device pixel ratio
@@ -42,6 +28,21 @@ import { rotation2, declarePI, fiberNoise, textureRandomizerR } from '../shader-
  *
  * Vertex shader outputs (used in fragment shader):
  * - v_imageUV (vec2): UV coordinates for sampling the source image, with fit, scale, rotation, and offset applied
+ *
+ * Vertex shader uniforms:
+ * - u_resolution (vec2): Canvas resolution in pixels
+ * - u_pixelRatio (float): Device pixel ratio
+ * - u_originX (float): Reference point for positioning world width in the canvas (0 to 1)
+ * - u_originY (float): Reference point for positioning world height in the canvas (0 to 1)
+ * - u_worldWidth (float): Virtual width of the graphic before it's scaled to fit the canvas
+ * - u_worldHeight (float): Virtual height of the graphic before it's scaled to fit the canvas
+ * - u_fit (float): How to fit the rendered shader into the canvas dimensions (0 = none, 1 = contain, 2 = cover)
+ * - u_scale (float): Overall zoom level of the graphics (0.01 to 4)
+ * - u_rotation (float): Overall rotation angle of the graphics in degrees (0 to 360)
+ * - u_offsetX (float): Horizontal offset of the graphics center (-1 to 1)
+ * - u_offsetY (float): Vertical offset of the graphics center (-1 to 1)
+ * - u_imageAspectRatio (float): Aspect ratio of the source image
+ *
  */
 
 // language=GLSL

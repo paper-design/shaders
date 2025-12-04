@@ -11,19 +11,6 @@ export const dotOrbitMeta = {
  * Animated multi-color dots pattern with each dot orbiting around its cell center.
  * Supports up to 10 colors and various shape and motion controls.
  *
- * Vertex shader uniforms:
- * - u_resolution (vec2): Canvas resolution in pixels
- * - u_pixelRatio (float): Device pixel ratio
- * - u_originX (float): Reference point for positioning world width in the canvas (0 to 1)
- * - u_originY (float): Reference point for positioning world height in the canvas (0 to 1)
- * - u_worldWidth (float): Virtual width of the graphic before it's scaled to fit the canvas
- * - u_worldHeight (float): Virtual height of the graphic before it's scaled to fit the canvas
- * - u_fit (float): How to fit the rendered shader into the canvas dimensions (0 = none, 1 = contain, 2 = cover)
- * - u_scale (float): Overall zoom level of the graphics (0.01 to 4)
- * - u_rotation (float): Overall rotation angle of the graphics in degrees (0 to 360)
- * - u_offsetX (float): Horizontal offset of the graphics center (-1 to 1)
- * - u_offsetY (float): Vertical offset of the graphics center (-1 to 1)
- *
  * Fragment shader uniforms:
  * - u_time (float): Animation time
  * - u_colorBack (vec4): Background color in RGBA
@@ -37,6 +24,20 @@ export const dotOrbitMeta = {
  *
  * Vertex shader outputs (used in fragment shader):
  * - v_patternUV (vec2): UV coordinates in pixels (scaled by 0.01 for precision), with rotation and offset applied
+ *
+ * Vertex shader uniforms:
+ * - u_resolution (vec2): Canvas resolution in pixels
+ * - u_pixelRatio (float): Device pixel ratio
+ * - u_originX (float): Reference point for positioning world width in the canvas (0 to 1)
+ * - u_originY (float): Reference point for positioning world height in the canvas (0 to 1)
+ * - u_worldWidth (float): Virtual width of the graphic before it's scaled to fit the canvas
+ * - u_worldHeight (float): Virtual height of the graphic before it's scaled to fit the canvas
+ * - u_fit (float): How to fit the rendered shader into the canvas dimensions (0 = none, 1 = contain, 2 = cover)
+ * - u_scale (float): Overall zoom level of the graphics (0.01 to 4)
+ * - u_rotation (float): Overall rotation angle of the graphics in degrees (0 to 360)
+ * - u_offsetX (float): Horizontal offset of the graphics center (-1 to 1)
+ * - u_offsetY (float): Vertical offset of the graphics center (-1 to 1)
+ *
  */
 
 // language=GLSL

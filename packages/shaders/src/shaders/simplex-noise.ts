@@ -10,6 +10,17 @@ export const simplexNoiseMeta = {
 /**
  * A multi-color gradient mapped into smooth, animated curves built as a combination of 2 Simplex noises.
  *
+ * Fragment shader uniforms:
+ * - u_time (float): Animation time
+ * - u_scale (float): Overall zoom level, used for anti-aliasing calculations
+ * - u_colors (vec4[]): Up to 10 base colors in RGBA
+ * - u_colorsCount (float): Number of active colors
+ * - u_stepsPerColor (float): Number of extra colors between base colors, 1 = N colors, 2 = 2×N, etc. (1 to 10)
+ * - u_softness (float): Color transition sharpness, 0 = hard edge, 1 = smooth gradient (0 to 1)
+ *
+ * Vertex shader outputs (used in fragment shader):
+ * - v_patternUV (vec2): UV coordinates for pattern with global sizing (rotation, scale, offset, etc) applied
+ *
  * Vertex shader uniforms:
  * - u_resolution (vec2): Canvas resolution in pixels
  * - u_pixelRatio (float): Device pixel ratio
@@ -23,16 +34,6 @@ export const simplexNoiseMeta = {
  * - u_offsetX (float): Horizontal offset of the graphics center (-1 to 1)
  * - u_offsetY (float): Vertical offset of the graphics center (-1 to 1)
  *
- * Fragment shader uniforms:
- * - u_time (float): Animation time
- * - u_scale (float): Overall zoom level, used for anti-aliasing calculations
- * - u_colors (vec4[]): Up to 10 base colors in RGBA
- * - u_colorsCount (float): Number of active colors
- * - u_stepsPerColor (float): Number of extra colors between base colors, 1 = N colors, 2 = 2×N, etc. (1 to 10)
- * - u_softness (float): Color transition sharpness, 0 = hard edge, 1 = smooth gradient (0 to 1)
- *
- * Vertex shader outputs (used in fragment shader):
- * - v_patternUV (vec2): UV coordinates in CSS pixels (scaled by 0.01 for precision), with rotation and offset applied
  */
 
 // language=GLSL

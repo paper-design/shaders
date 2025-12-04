@@ -14,6 +14,20 @@ import { simplexNoise, declarePI, proceduralHash11, proceduralHash21 } from '../
  *
  * Note: pixelization is applied to the shapes BEFORE dithering, meaning pixels don't react to scaling and fit
  *
+ * Fragment shader uniforms:
+ * - u_time (float): Animation time
+ * - u_resolution (vec2): Canvas resolution in pixels
+ * - u_pixelRatio (float): Device pixel ratio
+ * - u_colorBack (vec4): Background color in RGBA
+ * - u_colorFront (vec4): Foreground (ink) color in RGBA
+ * - u_shape (float): Shape pattern type (1 = simplex, 2 = warp, 3 = dots, 4 = wave, 5 = ripple, 6 = swirl, 7 = sphere)
+ * - u_type (float): Dithering type (1 = random, 2 = 2x2 Bayer, 3 = 4x4 Bayer, 4 = 8x8 Bayer)
+ * - u_pxSize (float; duplicate, not currently used)
+ *
+ * Vertex shader outputs (used in fragment shader):
+ * - v_objectUV (vec2): Object box UV coordinates with global sizing (scale, rotation, offsets, etc) applied
+ * - v_patternUV (vec2): UV coordinates in pixel units (scaled by 0.01 for precision), with scale, rotation and offset applied
+ *
  * Vertex shader uniforms:
  * - u_resolution (vec2): Canvas resolution in pixels
  * - u_pixelRatio (float): Device pixel ratio
@@ -28,19 +42,6 @@ import { simplexNoise, declarePI, proceduralHash11, proceduralHash21 } from '../
  * - u_offsetY (float): Vertical offset of the graphics center (-1 to 1)
  * - u_pxSize (float): Pixel size of dithering grid (1 to 20)
  *
- * Fragment shader uniforms:
- * - u_time (float): Animation time
- * - u_resolution (vec2): Canvas resolution in pixels
- * - u_pixelRatio (float): Device pixel ratio
- * - u_colorBack (vec4): Background color in RGBA
- * - u_colorFront (vec4): Foreground (ink) color in RGBA
- * - u_shape (float): Shape pattern type (1 = simplex, 2 = warp, 3 = dots, 4 = wave, 5 = ripple, 6 = swirl, 7 = sphere)
- * - u_type (float): Dithering type (1 = random, 2 = 2x2 Bayer, 3 = 4x4 Bayer, 4 = 8x8 Bayer)
- * - u_pxSize (float; duplicate, not currently used)
- *
- * Vertex shader outputs (used in fragment shader):
- * - v_objectUV (vec2): Normalized UV coordinates with scale, rotation, and offset applied
- * - v_patternUV (vec2): UV coordinates in pixel units (scaled by 0.01 for precision), with scale, rotation and offset applied
  * * */
 
 // language=GLSL

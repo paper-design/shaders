@@ -11,6 +11,18 @@ export const metaballsMeta = {
 /**
  * Up to 20 colored gooey balls moving around the center and merging into smooth organic shapes.
  *
+ * Fragment shader uniforms:
+ * - u_time (float): Animation time
+ * - u_colorBack (vec4): Background color in RGBA
+ * - u_colors (vec4[]): Up to 8 base colors in RGBA
+ * - u_colorsCount (float): Number of active colors
+ * - u_count (float): Number of balls (1 to 20)
+ * - u_size (float): Size of the balls (0 to 1)
+ * - u_noiseTexture (sampler2D): Pre-computed randomizer source texture
+ *
+ * Vertex shader outputs (used in fragment shader):
+ * - v_objectUV (vec2): Object box UV coordinates with global sizing (scale, rotation, offsets, etc) applied
+ *
  * Vertex shader uniforms:
  * - u_resolution (vec2): Canvas resolution in pixels
  * - u_pixelRatio (float): Device pixel ratio
@@ -24,17 +36,6 @@ export const metaballsMeta = {
  * - u_offsetX (float): Horizontal offset of the graphics center (-1 to 1)
  * - u_offsetY (float): Vertical offset of the graphics center (-1 to 1)
  *
- * Fragment shader uniforms:
- * - u_time (float): Animation time
- * - u_colorBack (vec4): Background color in RGBA
- * - u_colors (vec4[]): Up to 8 base colors in RGBA
- * - u_colorsCount (float): Number of active colors
- * - u_count (float): Number of balls (1 to 20)
- * - u_size (float): Size of the balls (0 to 1)
- * - u_noiseTexture (sampler2D): Pre-computed randomizer source texture
- *
- * Vertex shader outputs (used in fragment shader):
- * - v_objectUV (vec2): Normalized UV coordinates with scale, rotation, and offset applied
  */
 
 // language=GLSL

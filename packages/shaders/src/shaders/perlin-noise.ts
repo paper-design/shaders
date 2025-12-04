@@ -6,6 +6,19 @@ import { declarePI, colorBandingFix } from '../shader-utils.js';
  * Classic animated 3D Perlin noise with exposed controls.
  * Original algorithm: https://www.shadertoy.com/view/NlSGDz
  *
+ * Fragment shader uniforms:
+ * - u_time (float): Animation time
+ * - u_colorFront (vec4): Foreground color in RGBA
+ * - u_colorBack (vec4): Background color in RGBA
+ * - u_proportion (float): Blend point between 2 colors, 0.5 = equal distribution (0 to 1)
+ * - u_softness (float): Color transition sharpness, 0 = hard edge, 1 = smooth gradient (0 to 1)
+ * - u_octaveCount (float): Perlin noise octaves number, more octaves for more detailed patterns (1 to 8)
+ * - u_persistence (float): Roughness, falloff between octaves (0.3 to 1)
+ * - u_lacunarity (float): Frequency step, defines how compressed the pattern is (1.5 to 10)
+ *
+ * Vertex shader outputs (used in fragment shader):
+ * - v_patternUV (vec2): UV coordinates for pattern with global sizing (rotation, scale, offset, etc) applied
+ *
  * Vertex shader uniforms:
  * - u_resolution (vec2): Canvas resolution in pixels
  * - u_pixelRatio (float): Device pixel ratio
@@ -19,18 +32,6 @@ import { declarePI, colorBandingFix } from '../shader-utils.js';
  * - u_offsetX (float): Horizontal offset of the graphics center (-1 to 1)
  * - u_offsetY (float): Vertical offset of the graphics center (-1 to 1)
  *
- * Fragment shader uniforms:
- * - u_time (float): Animation time
- * - u_colorFront (vec4): Foreground color in RGBA
- * - u_colorBack (vec4): Background color in RGBA
- * - u_proportion (float): Blend point between 2 colors, 0.5 = equal distribution (0 to 1)
- * - u_softness (float): Color transition sharpness, 0 = hard edge, 1 = smooth gradient (0 to 1)
- * - u_octaveCount (float): Perlin noise octaves number, more octaves for more detailed patterns (1 to 8)
- * - u_persistence (float): Roughness, falloff between octaves (0.3 to 1)
- * - u_lacunarity (float): Frequency step, defines how compressed the pattern is (1.5 to 10)
- *
- * Vertex shader outputs (used in fragment shader):
- * - v_patternUV (vec2): UV coordinates in CSS pixels (scaled by 0.01 for precision), with rotation and offset applied
  */
 
 // language=GLSL

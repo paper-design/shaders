@@ -19,6 +19,9 @@ import { simplexNoise, declarePI, colorBandingFix } from '../shader-utils.js';
  * - u_offsetX (float): Horizontal offset of the graphics center (-1 to 1)
  * - u_offsetY (float): Vertical offset of the graphics center (-1 to 1)
  *
+ * Vertex shader outputs (used in fragment shader):
+ * - v_patternUV (vec2): UV coordinates in pixels (scaled by 0.01 for precision), with rotation and offset applied
+ *
  * Fragment shader uniforms:
  * - u_time (float): Animation time
  * - u_colorBack (vec4): Background color in RGBA
@@ -32,8 +35,6 @@ import { simplexNoise, declarePI, colorBandingFix } from '../shader-utils.js';
  * - u_noiseFrequency (float): Noise frequency, no effect with noise = 0 (0 to 1)
  * - u_softness (float): Color transition sharpness, 0 = hard edge, 1 = smooth gradient (0 to 1)
  *
- * Vertex shader outputs (used in fragment shader):
- * - v_patternUV (vec2): UV coordinates in pixels (scaled by 0.01 for precision), with rotation and offset applied
  */
 
 // language=GLSL

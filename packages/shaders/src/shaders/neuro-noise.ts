@@ -6,6 +6,19 @@ import { rotation2, colorBandingFix } from '../shader-utils.js';
  * A glowing, web-like structure of fluid lines and soft intersections.
  * Great for creating atmospheric, organic-yet-futuristic visuals.
  *
+ * Fragment shader uniforms:
+ * - u_time (float): Animation time
+ * - u_resolution (vec2): Canvas resolution in pixels
+ * - u_pixelRatio (float): Device pixel ratio
+ * - u_colorFront (vec4): Graphics highlight color in RGBA
+ * - u_colorMid (vec4): Graphics main color in RGBA
+ * - u_colorBack (vec4): Background color in RGBA
+ * - u_brightness (float): Luminosity of the crossing points (0 to 1)
+ * - u_contrast (float): Sharpness of the bright-dark transition (0 to 1)
+ *
+ * Vertex shader outputs (used in fragment shader):
+ * - v_patternUV (vec2): UV coordinates for pattern with global sizing (rotation, scale, offset, etc) applied
+ *
  * Vertex shader uniforms:
  * - u_resolution (vec2): Canvas resolution in pixels
  * - u_pixelRatio (float): Device pixel ratio
@@ -18,19 +31,6 @@ import { rotation2, colorBandingFix } from '../shader-utils.js';
  * - u_rotation (float): Overall rotation angle of the graphics in degrees (0 to 360)
  * - u_offsetX (float): Horizontal offset of the graphics center (-1 to 1)
  * - u_offsetY (float): Vertical offset of the graphics center (-1 to 1)
- *
- * Fragment shader uniforms:
- * - u_time (float): Animation time
- * - u_resolution (vec2): Canvas resolution in pixels
- * - u_pixelRatio (float): Device pixel ratio
- * - u_colorFront (vec4): Graphics highlight color in RGBA
- * - u_colorMid (vec4): Graphics main color in RGBA
- * - u_colorBack (vec4): Background color in RGBA
- * - u_brightness (float): Luminosity of the crossing points (0 to 1)
- * - u_contrast (float): Sharpness of the bright-dark transition (0 to 1)
- *
- * Vertex shader outputs (used in fragment shader):
- * - v_patternUV (vec2): UV coordinates in CSS pixels (scaled by 0.01 for precision), with rotation and offset applied
  *
  * Original algorithm: https://x.com/zozuar/status/1625182758745128981/
  */
