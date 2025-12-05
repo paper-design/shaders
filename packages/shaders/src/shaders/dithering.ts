@@ -92,128 +92,121 @@ void main() {
   float t = .5 * u_time;
 
   float pxSize = u_pxSize * u_pixelRatio;
-  vec2 pxSizeUv = gl_FragCoord.xy - .5 * u_resolution;
-  pxSizeUv /= pxSize;
-  vec2 uv = (floor(pxSizeUv) + .5) * pxSize / u_resolution;
+  vec2 pxSizeUV = gl_FragCoord.xy - .5 * u_resolution;
+  pxSizeUV /= pxSize;
+  vec2 canvasPixelizedUV = (floor(pxSizeUV) + .5) * pxSize;
+  vec2 normalizedUV = canvasPixelizedUV / u_resolution;
+
+  vec2 ditheringNoiseUV = canvasPixelizedUV;
+  vec2 shapeUV = normalizedUV;
 
   vec2 boxOrigin = vec2(.5 - u_originX, u_originY - .5);
   vec2 givenBoxSize = vec2(u_worldWidth, u_worldHeight);
   givenBoxSize = max(givenBoxSize, vec2(1.)) * u_pixelRatio;
-  float r = u_rotation * 3.14159265358979323846 / 180.;
+  float r = u_rotation * PI / 180.;
   mat2 graphicRotation = mat2(cos(r), sin(r), -sin(r), cos(r));
   vec2 graphicOffset = vec2(-u_offsetX, u_offsetY);
 
-  float fixedRatio = 1.;
-  vec2 fixedRatioBoxGivenSize = vec2(
-  (u_worldWidth == 0.) ? u_resolution.x : givenBoxSize.x,
-  (u_worldHeight == 0.) ? u_resolution.y : givenBoxSize.y
-  );
-  vec2 objectBoxSize = vec2(0.);
-  // fit = none
-  objectBoxSize.x = fixedRatio * min(fixedRatioBoxGivenSize.x / fixedRatio, fixedRatioBoxGivenSize.y);
-  if (u_fit == 1.) { // fit = contain
-    objectBoxSize.x = fixedRatio * min(u_resolution.x / fixedRatio, u_resolution.y);
-  } else if (u_fit == 2.) { // fit = cover
-    objectBoxSize.x = fixedRatio * max(u_resolution.x / fixedRatio, u_resolution.y);
-  }
-  objectBoxSize.y = objectBoxSize.x / fixedRatio;
-  vec2 objectWorldScale = u_resolution.xy / objectBoxSize;
-  
-  vec2 objectUV = uv;
-  objectUV *= objectWorldScale;
-  objectUV += boxOrigin * (objectWorldScale - 1.);
-  objectUV += vec2(-u_offsetX, u_offsetY);
-  objectUV /= u_scale;
-  objectUV = graphicRotation * objectUV;
-  
   float patternBoxRatio = givenBoxSize.x / givenBoxSize.y;
-  vec2 patternBoxGivenSize = vec2(
+  vec2 boxSize = vec2(
   (u_worldWidth == 0.) ? u_resolution.x : givenBoxSize.x,
   (u_worldHeight == 0.) ? u_resolution.y : givenBoxSize.y
   );
-  vec2 patternBoxSize = vec2(0.);
-  // fit = none
-  patternBoxSize.x = patternBoxRatio * min(patternBoxGivenSize.x / patternBoxRatio, patternBoxGivenSize.y);
-  float patternWorldNoFitBoxWidth = patternBoxSize.x;
-  if (u_fit == 1.) { // fit = contain
-    patternBoxSize.x = patternBoxRatio * min(u_resolution.x / patternBoxRatio, u_resolution.y);
-  } else if (u_fit == 2.) { // fit = cover
-    patternBoxSize.x = patternBoxRatio * max(u_resolution.x / patternBoxRatio, u_resolution.y);
-  }
-  patternBoxSize.y = patternBoxSize.x / patternBoxRatio;
-  vec2 patternWorldScale = u_resolution.xy / patternBoxSize;
-
-  vec2 patternUV = uv;
-  patternUV += vec2(-u_offsetX, u_offsetY) / patternWorldScale;
-  patternUV += boxOrigin;
-  patternUV -= boxOrigin / patternWorldScale;
-  patternUV *= u_resolution.xy;
-  patternUV /= u_pixelRatio;
-  if (u_fit > 0.) {
-    patternUV *= (patternWorldNoFitBoxWidth / patternBoxSize.x);
-  }
-  patternUV /= u_scale;
-  patternUV = graphicRotation * patternUV;
-  patternUV += boxOrigin / patternWorldScale;
-  patternUV -= boxOrigin;
-  patternUV += .5;
   
-  vec2 dithering_uv = pxSizeUv;
-  vec2 ditheringNoise_uv = uv * u_resolution;
-  vec2 shape_uv = objectUV;
-  if (u_shape < 3.5) {
-    shape_uv = patternUV;
+  if (u_shape > 3.5) {
+    vec2 objectBoxSize = vec2(0.);
+    // fit = none
+    objectBoxSize.x = min(boxSize.x, boxSize.y);
+    if (u_fit == 1.) { // fit = contain
+      objectBoxSize.x = min(u_resolution.x, u_resolution.y);
+    } else if (u_fit == 2.) { // fit = cover
+      objectBoxSize.x = max(u_resolution.x, u_resolution.y);
+    }
+    objectBoxSize.y = objectBoxSize.x;
+    vec2 objectWorldScale = u_resolution.xy / objectBoxSize;
+
+    shapeUV *= objectWorldScale;
+    shapeUV += boxOrigin * (objectWorldScale - 1.);
+    shapeUV += vec2(-u_offsetX, u_offsetY);
+    shapeUV /= u_scale;
+    shapeUV = graphicRotation * shapeUV;
+  } else {
+    vec2 patternBoxSize = vec2(0.);
+    // fit = none
+    patternBoxSize.x = patternBoxRatio * min(boxSize.x / patternBoxRatio, boxSize.y);
+    float patternWorldNoFitBoxWidth = patternBoxSize.x;
+    if (u_fit == 1.) { // fit = contain
+      patternBoxSize.x = patternBoxRatio * min(u_resolution.x / patternBoxRatio, u_resolution.y);
+    } else if (u_fit == 2.) { // fit = cover
+      patternBoxSize.x = patternBoxRatio * max(u_resolution.x / patternBoxRatio, u_resolution.y);
+    }
+    patternBoxSize.y = patternBoxSize.x / patternBoxRatio;
+    vec2 patternWorldScale = u_resolution.xy / patternBoxSize;
+
+    shapeUV += vec2(-u_offsetX, u_offsetY) / patternWorldScale;
+    shapeUV += boxOrigin;
+    shapeUV -= boxOrigin / patternWorldScale;
+    shapeUV *= u_resolution.xy;
+    shapeUV /= u_pixelRatio;
+    if (u_fit > 0.) {
+      shapeUV *= (patternWorldNoFitBoxWidth / patternBoxSize.x);
+    }
+    shapeUV /= u_scale;
+    shapeUV = graphicRotation * shapeUV;
+    shapeUV += boxOrigin / patternWorldScale;
+    shapeUV -= boxOrigin;
+    shapeUV += .5;
   }
 
   float shape = 0.;
   if (u_shape < 1.5) {
     // Simplex noise
-    shape_uv *= .001;
+    shapeUV *= .001;
 
-    shape = 0.5 + 0.5 * getSimplexNoise(shape_uv, t);
+    shape = 0.5 + 0.5 * getSimplexNoise(shapeUV, t);
     shape = smoothstep(0.3, 0.9, shape);
 
   } else if (u_shape < 2.5) {
     // Warp
-    shape_uv *= .003;
+    shapeUV *= .003;
 
     for (float i = 1.0; i < 6.0; i++) {
-      shape_uv.x += 0.6 / i * cos(i * 2.5 * shape_uv.y + t);
-      shape_uv.y += 0.6 / i * cos(i * 1.5 * shape_uv.x + t);
+      shapeUV.x += 0.6 / i * cos(i * 2.5 * shapeUV.y + t);
+      shapeUV.y += 0.6 / i * cos(i * 1.5 * shapeUV.x + t);
     }
 
-    shape = .15 / max(0.001, abs(sin(t - shape_uv.y - shape_uv.x)));
+    shape = .15 / max(0.001, abs(sin(t - shapeUV.y - shapeUV.x)));
     shape = smoothstep(0.02, 1., shape);
 
   } else if (u_shape < 3.5) {
     // Dots
-    shape_uv *= .05;
+    shapeUV *= .05;
 
-    float stripeIdx = floor(2. * shape_uv.x / TWO_PI);
+    float stripeIdx = floor(2. * shapeUV.x / TWO_PI);
     float rand = hash11(stripeIdx * 10.);
     rand = sign(rand - .5) * pow(.1 + abs(rand), .4);
-    shape = sin(shape_uv.x) * cos(shape_uv.y - 5. * rand * t);
+    shape = sin(shapeUV.x) * cos(shapeUV.y - 5. * rand * t);
     shape = pow(abs(shape), 6.);
 
   } else if (u_shape < 4.5) {
     // Sine wave
-    shape_uv *= 4.;
+    shapeUV *= 4.;
 
-    float wave = cos(.5 * shape_uv.x - 2. * t) * sin(1.5 * shape_uv.x + t) * (.75 + .25 * cos(3. * t));
-    shape = 1. - smoothstep(-1., 1., shape_uv.y + wave);
+    float wave = cos(.5 * shapeUV.x - 2. * t) * sin(1.5 * shapeUV.x + t) * (.75 + .25 * cos(3. * t));
+    shape = 1. - smoothstep(-1., 1., shapeUV.y + wave);
 
   } else if (u_shape < 5.5) {
     // Ripple
 
-    float dist = length(shape_uv);
+    float dist = length(shapeUV);
     float waves = sin(pow(dist, 1.7) * 7. - 3. * t) * .5 + .5;
     shape = waves;
 
   } else if (u_shape < 6.5) {
     // Swirl
 
-    float l = length(shape_uv);
-    float angle = 6. * atan(shape_uv.y, shape_uv.x) + 4. * t;
+    float l = length(shapeUV);
+    float angle = 6. * atan(shapeUV.y, shapeUV.x) + 4. * t;
     float twist = 1.2;
     float offset = 1. / pow(max(l, 1e-6), twist) + angle / TWO_PI;
     float mid = smoothstep(0., 1., pow(l, twist));
@@ -221,10 +214,10 @@ void main() {
 
   } else {
     // Sphere
-    shape_uv *= 2.;
+    shapeUV *= 2.;
 
-    float d = 1. - pow(length(shape_uv), 2.);
-    vec3 pos = vec3(shape_uv, sqrt(max(0., d)));
+    float d = 1. - pow(length(shapeUV), 2.);
+    vec3 pos = vec3(shapeUV, sqrt(max(0., d)));
     vec3 lightPos = normalize(vec3(cos(1.5 * t), .8, sin(1.25 * t)));
     shape = .5 + .5 * dot(lightPos, pos);
     shape *= step(0., d);
@@ -236,16 +229,16 @@ void main() {
 
   switch (type) {
     case 1: {
-      dithering = step(hash21(ditheringNoise_uv), shape);
+      dithering = step(hash21(ditheringNoiseUV), shape);
     } break;
     case 2:
-    dithering = getBayerValue(dithering_uv, 2);
+    dithering = getBayerValue(pxSizeUV, 2);
     break;
     case 3:
-    dithering = getBayerValue(dithering_uv, 4);
+    dithering = getBayerValue(pxSizeUV, 4);
     break;
     default :
-    dithering = getBayerValue(dithering_uv, 8);
+    dithering = getBayerValue(pxSizeUV, 8);
     break;
   }
 

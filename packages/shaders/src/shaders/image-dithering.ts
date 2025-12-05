@@ -1,6 +1,6 @@
 import type { ShaderMotionParams } from '../shader-mount.js';
 import { type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
-import { proceduralHash21 } from '../shader-utils.js';
+import { proceduralHash21, declarePI } from '../shader-utils.js';
 
 /**
  * A dithering image filter with support for 4 dithering modes and multiple color palettes
@@ -14,8 +14,6 @@ import { proceduralHash21 } from '../shader-utils.js';
  * - u_pixelRatio (float): Device pixel ratio
  * - u_originX (float): Reference point for positioning world width in the canvas (0 to 1)
  * - u_originY (float): Reference point for positioning world height in the canvas (0 to 1)
- * - u_worldWidth (float): Virtual width of the graphic before it's scaled to fit the canvas
- * - u_worldHeight (float): Virtual height of the graphic before it's scaled to fit the canvas
  * - u_fit (float): How to fit the rendered shader into the canvas dimensions (0 = none, 1 = contain, 2 = cover)
  * - u_scale (float): Overall zoom level of the graphics (0.01 to 4)
  * - u_rotation (float): Overall rotation angle of the graphics in degrees (0 to 360)
@@ -65,6 +63,9 @@ uniform float u_colorSteps;
 out vec4 fragColor;
 
 
+${ proceduralHash21 }
+${ declarePI }
+
 float getUvFrame(vec2 uv, vec2 pad) {
   float aa = 0.0001;
 
@@ -76,7 +77,37 @@ float getUvFrame(vec2 uv, vec2 pad) {
   return left * right * bottom * top;
 }
 
-${ proceduralHash21 }
+vec2 getImageUV(vec2 uv) {
+  vec2 boxOrigin = vec2(.5 - u_originX, u_originY - .5);
+  float r = u_rotation * PI / 180.;
+  mat2 graphicRotation = mat2(cos(r), sin(r), -sin(r), cos(r));
+  vec2 graphicOffset = vec2(-u_offsetX, u_offsetY);
+
+  vec2 imageBoxSize;
+  if (u_fit == 1.) { // contain
+    imageBoxSize.x = min(u_resolution.x / u_imageAspectRatio, u_resolution.y) * u_imageAspectRatio;
+  } else if (u_fit == 2.) { // cover
+    imageBoxSize.x = max(u_resolution.x / u_imageAspectRatio, u_resolution.y) * u_imageAspectRatio;
+  } else {
+    imageBoxSize.x = min(10.0, 10.0 / u_imageAspectRatio * u_imageAspectRatio);
+  }
+  imageBoxSize.y = imageBoxSize.x / u_imageAspectRatio;
+  vec2 imageBoxScale = u_resolution.xy / imageBoxSize;
+
+  vec2 imageUV = uv;
+  imageUV *= imageBoxScale;
+  imageUV += boxOrigin * (imageBoxScale - 1.);
+  imageUV += graphicOffset;
+  imageUV /= u_scale;
+  imageUV.x *= u_imageAspectRatio;
+  imageUV = graphicRotation * imageUV;
+  imageUV.x /= u_imageAspectRatio;
+
+  imageUV += .5;
+  imageUV.y = 1. - imageUV.y;
+
+  return imageUV;
+}
 
 const int bayer2x2[4] = int[4](0, 2, 3, 1);
 const int bayer4x4[16] = int[16](
@@ -115,44 +146,15 @@ float getBayerValue(vec2 uv, int size) {
 void main() {
 
   float pxSize = u_pxSize * u_pixelRatio;
-  vec2 pxSizeUv = gl_FragCoord.xy - .5 * u_resolution;
-  pxSizeUv /= pxSize;
-  vec2 uv = (floor(pxSizeUv) + .5) * pxSize / u_resolution;
+  vec2 pxSizeUV = gl_FragCoord.xy - .5 * u_resolution;
+  pxSizeUV /= pxSize;
+  vec2 canvasPixelizedUV = (floor(pxSizeUV) + .5) * pxSize;
+  vec2 normalizedUV = canvasPixelizedUV / u_resolution;
 
-  vec2 boxOrigin = vec2(.5 - u_originX, u_originY - .5);
-  vec2 givenBoxSize = vec2(u_worldWidth, u_worldHeight);
-  givenBoxSize = max(givenBoxSize, vec2(1.)) * u_pixelRatio;
-  float r = u_rotation * 3.14159265358979323846 / 180.;
-  mat2 graphicRotation = mat2(cos(r), sin(r), -sin(r), cos(r));
-  vec2 graphicOffset = vec2(-u_offsetX, u_offsetY);
-
-  vec2 imageBoxSize;
-  if (u_fit == 1.) { // contain
-    imageBoxSize.x = min(u_resolution.x / u_imageAspectRatio, u_resolution.y) * u_imageAspectRatio;
-  } else if (u_fit == 2.) { // cover
-    imageBoxSize.x = max(u_resolution.x / u_imageAspectRatio, u_resolution.y) * u_imageAspectRatio;
-  } else {
-    imageBoxSize.x = min(10.0, 10.0 / u_imageAspectRatio * u_imageAspectRatio);
-  }
-  imageBoxSize.y = imageBoxSize.x / u_imageAspectRatio;
-  vec2 imageBoxScale = u_resolution.xy / imageBoxSize;
-
-  vec2 imageUV = uv;
-  imageUV *= imageBoxScale;
-  imageUV += boxOrigin * (imageBoxScale - 1.);
-  imageUV += graphicOffset;
-  imageUV /= u_scale;
-  imageUV.x *= u_imageAspectRatio;
-  imageUV = graphicRotation * imageUV;
-  imageUV.x /= u_imageAspectRatio;
-
-  imageUV += .5;
-  imageUV.y = 1. - imageUV.y;
-
-  vec2 dithering_uv = pxSizeUv;
-  vec2 ditheringNoise_uv = u_resolution * uv;
+  vec2 imageUV = getImageUV(normalizedUV);
+  vec2 ditheringNoiseUV = canvasPixelizedUV;
   vec4 image = texture(u_image, imageUV);
-  float frame = getUvFrame(imageUV, pxSize / u_resolution.xy);
+  float frame = getUvFrame(imageUV, pxSize / u_resolution);
 
   int type = int(floor(u_type));
   float dithering = 0.0;
@@ -161,38 +163,35 @@ void main() {
 
   switch (type) {
     case 1: {
-      dithering = step(hash21(ditheringNoise_uv), lum);
+      dithering = step(hash21(ditheringNoiseUV), lum);
     } break;
     case 2:
-    dithering = getBayerValue(dithering_uv, 2);
+    dithering = getBayerValue(pxSizeUV, 2);
     break;
     case 3:
-    dithering = getBayerValue(dithering_uv, 4);
+    dithering = getBayerValue(pxSizeUV, 4);
     break;
     default :
-    dithering = getBayerValue(dithering_uv, 8);
+    dithering = getBayerValue(pxSizeUV, 8);
     break;
   }
 
-
-  float steps = max(floor(u_colorSteps), 1.);
-  float ditherAmount = 1.0 / (steps);
-
+  float colorSteps = max(floor(u_colorSteps), 1.);
   vec3 color = vec3(0.0);
   float opacity = 1.;
 
   dithering -= .5;
-  float brightness = clamp(lum + dithering * ditherAmount, 0.0, 1.0);
+  float brightness = clamp(lum + dithering / colorSteps, 0.0, 1.0);
   brightness = mix(0.0, brightness, frame);
   brightness = mix(0.0, brightness, image.a);
-  float quantLum = floor(brightness * steps + 0.5) / steps;
+  float quantLum = floor(brightness * colorSteps + 0.5) / colorSteps;
   quantLum = mix(0.0, quantLum, frame);
 
   if (u_originalColors == true) {
     vec3 normColor = image.rgb / max(lum, 0.001);
     color = normColor * quantLum;
 
-    float quantAlpha = floor(image.a * steps + 0.5) / steps;
+    float quantAlpha = floor(image.a * colorSteps + 0.5) / colorSteps;
     opacity = mix(quantLum, 1., quantAlpha);
   } else {
     vec3 fgColor = u_colorFront.rgb * u_colorFront.a;
@@ -210,7 +209,6 @@ void main() {
     color += bgColor * (1.0 - opacity);
     opacity += bgOpacity * (1.0 - opacity);
   }
-
 
   fragColor = vec4(color, opacity);
 }
