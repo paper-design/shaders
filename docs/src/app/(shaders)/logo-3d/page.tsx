@@ -59,7 +59,7 @@ const imageFiles = [
 
 const Logo3dWithControls = () => {
   const [imageIdx, setImageIdx] = useState(-1);
-  const [image, setImage] = useState<HTMLImageElement | string>('/images/logos/diamond.svg');
+  const [image, setImage] = useState<HTMLImageElement | string>('/images/logos/paper-logo-only.svg');
 
   useEffect(() => {
     if (imageIdx >= 0) {
@@ -86,13 +86,13 @@ const Logo3dWithControls = () => {
       // colorInner: { value: toHsla(defaults.colorInner), order: 101 },
       // stripeWidth: { value: defaults.stripeWidth, min: 0, max: 1, order: 200 },
       bevel: { value: defaults.bevel, min: 0, max: 1, order: 201 },
-      overlayHeight: { value: defaults.overlayHeight, min: 0, max: 1, order: 201 },
+      // overlayHeight: { value: defaults.overlayHeight, min: 0, max: 1, order: 201 },
       // alphaMask: { value: defaults.alphaMask, order: 202 },
       // size: { value: defaults.size, min: 3, max: 50, order: 203 },
       // shift: { value: defaults.shift, min: -0.5, max: 0.5, order: 204 },
       // noise: { value: defaults.noise, min: 0, max: 1, order: 205 },
       // noiseScale: { value: defaults.noiseScale, min: .1, max: 3, step: 0.01, order: 206 },
-      // outerNoise: { value: defaults.outerNoise, min: 0, max: 1, order: 207 },
+      test: { value: defaults.test, min: 0, max: 1, order: 207 },
       overlayBevel: { value: defaults.overlayBevel, min: 0, max: 1, order: 208 },
       speed: { value: defaults.speed, min: 0, max: 2, order: 300 },
       scale: { value: defaults.scale, min: 0.2, max: 10, order: 301 },

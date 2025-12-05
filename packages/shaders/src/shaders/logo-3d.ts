@@ -39,7 +39,7 @@ uniform float u_size;
 uniform float u_overlayHeight;
 uniform float u_shift;
 uniform float u_noise;
-uniform float u_outerNoise;
+uniform float u_test;
 uniform float u_overlayBevel;
 
 ${sizingVariablesDeclaration}
@@ -141,31 +141,14 @@ float sst(float edge0, float edge1, float x) {
   return smoothstep(edge0, edge1, x);
 }
 
-float posMod(float x, float m) {
-  return x - m * floor(x / m);
-}
-
-vec2 getPosition(int i, float t) {
-  float a = float(i) * .37;
-  float b = .6 + fract(float(i) / 3.) * .9;
-  float c = .8 + fract(float(i + 1) / 4.);
-
-  float x = sin(t * b + a);
-  float y = cos(t * c + a * 1.5);
-
-  return .5 + .5 * vec2(x, y);
-}
-
-
-float getHeight(vec2 uv, vec2 addon) {
+float getHeight(vec2 uv, float addon) {
   float a = texture(u_image, uv).r;
-  a += addon[0];
   a = pow(a, mix(1., 3., u_bevel));
-  a = mix(a, 1., addon[1]);
+  a = mix(a, 1., addon);
   return a;
 }
 
-vec3 computeNormal(vec2 uv, vec2 addon) {
+vec3 computeNormal(vec2 uv, float addon) {
   vec2 uTexelSize = vec2(1. / 100.);
   float hC = getHeight(uv, addon);
   float hR = getHeight(uv + vec2(uTexelSize.x, 0.0), addon);
@@ -200,7 +183,7 @@ vec3 rotateAroundZ(vec3 v, float overlayBevel) {
 
 void main() {
 
-  float t = .1 * u_time;
+  float t = .3 + .1 * u_time;
 
   vec2 uv = v_imageUV;
   vec2 dudx = dFdx(v_imageUV);
@@ -208,7 +191,8 @@ void main() {
   vec4 img = textureGrad(u_image, uv, dudx, dudy);
 
   float edge = img.r;
-  edge = 1. - blurEdge5x5(u_image, uv, dudx, dudy, 10., edge);
+  float edgeBorder = blurEdge5x5(u_image, uv, dudx, dudy, 10., edge);
+  edge = 1. - edgeBorder;
 
   float imgAlpha = img.g;
 
@@ -231,29 +215,26 @@ void main() {
   }
 
   float aa = fwidth(f[0]);
-  float overlayShadow = lst(.9, .93, f[0]);
+  float overlayShadow = sst(.9 - 2. * aa - .1 * edgeBorder, .91 + .08 * edgeBorder, f[0]);
   f[0] = sst(.9, .9 + 2. * aa, f[0]);
   overlayShadow = 1. - overlayShadow;
   overlayShadow *= f[0];
-  overlayShadow = 10. * pow(overlayShadow, 1.);
+  overlayShadow = 3. * overlayShadow;
 
 
 
   vec3 uLightDir1 = normalize(vec3(.5, .5, .5));
   vec3 uLightDir2 = normalize(vec3(-.5, -.5, .5));
 
+  uLightDir1 = rotateAroundZ(uLightDir1, 3. * t);
+  uLightDir2 = rotateAroundZ(uLightDir2, 3. * t);
 
-//  uLightDir1 = rotateAroundZ(uLightDir1, 1. * t);
-//  uLightDir2 = rotateAroundZ(uLightDir2, -.2 * t);
-
-  vec3 normal = computeNormal(uv, vec2(u_overlayHeight * f[0], u_overlayBevel * overlayShadow));
+  vec3 normal = computeNormal(uv, overlayShadow);
   vec3 viewDir = vec3(0., 0., 1.);
 
   vec3 baseColor = vec3(1.);
   baseColor = mix(vec3(1.), vec3(.6), f[0]);
-
-  vec3 specColor = vec3(.8);
-
+  
   vec3 lightColor1 = u_colors[0].rgb;
   vec3 lightColor2 = u_colors[1].rgb;
 
@@ -271,9 +252,9 @@ void main() {
   float NdotH2 = max(dot(normal, halfDir2), 0.);
 
   vec3 specular =
-    specColor * (
-      pow(NdotH1, 400.) * lightColor1 +
-      pow(NdotH2, 400.) * lightColor2
+    (
+      pow(NdotH1, 500.) * lightColor1 +
+      pow(NdotH2, 500.) * lightColor2
     );
 
   float opacity = imgAlpha;
@@ -282,8 +263,8 @@ void main() {
   color *= imgAlpha;
 
   vec3 bgColor = u_colorBack.rgb * u_colorBack.a;
-  color = color + bgColor * (1.0 - opacity);
-  opacity = opacity + u_colorBack.a * (1.0 - opacity);
+  color = color + bgColor * (1. - opacity);
+  opacity = opacity + u_colorBack.a * (1. - opacity);
 
   fragColor = vec4(color, opacity);
 }
@@ -581,86 +562,6 @@ export function toProcessedLogo3d(file: File | string): Promise<{ imageData: Ima
   });
 }
 
-function blurRedChannel(imageData: ImageData, width: number, height: number, radius = 2) {
-  const src = imageData.data;
-  const pixelCount = width * height;
-
-  const tmp = new Uint8ClampedArray(pixelCount);
-  const dst = new Uint8ClampedArray(pixelCount);
-
-  // --- Horizontal blur ---
-  for (let y = 0; y < height; y++) {
-    let sum = 0;
-    let count = 0;
-
-    // initial window centered at x = 0
-    for (let dx = -radius; dx <= radius; dx++) {
-      const xClamped = Math.max(0, Math.min(width - 1, dx));
-      const idx = (y * width + xClamped) * 4;
-      sum += src[idx]!;
-      count++;
-    }
-
-    for (let x = 0; x < width; x++) {
-      const outIdx = y * width + x;
-      tmp[outIdx] = sum / count;
-
-      const xRemove = x - radius;
-      if (xRemove >= 0) {
-        const idxRemove = (y * width + xRemove) * 4;
-        sum -= src[idxRemove]!;
-        count--;
-      }
-
-      const xAdd = x + radius + 1;
-      if (xAdd < width) {
-        const idxAdd = (y * width + xAdd) * 4;
-        sum += src[idxAdd]!;
-        count++;
-      }
-    }
-  }
-
-  // --- Vertical blur ---
-  for (let x = 0; x < width; x++) {
-    let sum = 0;
-    let count = 0;
-
-    // initial window centered at y = 0
-    for (let dy = -radius; dy <= radius; dy++) {
-      const yClamped = Math.max(0, Math.min(height - 1, dy));
-      const idx = yClamped * width + x;
-      sum += tmp[idx]!;
-      count++;
-    }
-
-    for (let y = 0; y < height; y++) {
-      const outIdx = y * width + x;
-      dst[outIdx] = sum / count;
-
-      const yRemove = y - radius;
-      if (yRemove >= 0) {
-        const idxRemove = yRemove * width + x;
-        sum -= tmp[idxRemove]!;
-        count--;
-      }
-
-      const yAdd = y + radius + 1;
-      if (yAdd < height) {
-        const idxAdd = yAdd * width + x;
-        sum += tmp[idxAdd]!;
-        count++;
-      }
-    }
-  }
-
-  // --- Write blurred red back into ImageData ---
-  for (let i = 0; i < pixelCount; i++) {
-    const px = i * 4;
-    src[px] = dst[i]!;
-  }
-}
-
 function buildSparseData(
   shapeMask: Uint8Array,
   boundaryMask: Uint8Array,
@@ -810,7 +711,7 @@ export interface Logo3dUniforms extends ShaderSizingUniforms {
   u_size: number;
   u_shift: number;
   u_noise: number;
-  u_outerNoise: number;
+  u_test: number;
   u_bevel: number;
   u_overlayHeight: number;
   u_overlayBevel: number;
@@ -829,6 +730,6 @@ export interface Logo3dParams extends ShaderSizingParams, ShaderMotionParams {
   overlayHeight?: number;
   shift?: number;
   noise?: number;
-  outerNoise?: number;
+  test?: number;
   overlayBevel?: number;
 }
