@@ -84,7 +84,7 @@ export const commonParams: Record<string, CommonParamDef> = {
   minPixelRatio: {
     name: 'minPixelRatio',
     type: 'number',
-    description: 'Minimum pixel ratio to use when rendering the shader',
+    description: 'Minimum pixel ratio to use when rendering the shader (default is 2 for double resolution)',
   },
   maxPixelCount: {
     name: 'maxPixelCount',
