@@ -27,21 +27,22 @@ uniform float u_imageAspectRatio;
 uniform vec2 u_resolution;
 uniform float u_time;
 
-uniform vec4 u_colors[${logo3dMeta.maxColorCount}];
+uniform vec4 u_colors[${ logo3dMeta.maxColorCount }];
 uniform float u_colorsCount;
 uniform vec4 u_colorBack;
 uniform vec4 u_colorInner;
 uniform vec4 u_colorUnderlay;
 uniform vec4 u_colorOverlay;
 uniform float u_bevel;
-uniform float u_test;
+uniform float u_lightsPower;
+uniform float u_lightsPos;
 
-${sizingVariablesDeclaration}
+${ sizingVariablesDeclaration }
 
 out vec4 fragColor;
 
-${declarePI}
-${rotation2}
+${ declarePI }
+${ rotation2 }
 
 float getImgFrame(vec2 uv, float th) {
   float frame = 1.;
@@ -165,9 +166,9 @@ float getPoint(vec2 dist, float p) {
 }
 
 mat2 rotZ(float a) {
-    float c = cos(a), s = sin(a);
-    return mat2(c, -s,
-                s,  c);
+  float c = cos(a), s = sin(a);
+  return mat2(c, -s,
+  s, c);
 }
 vec3 rotateAroundZ(vec3 v, float overlayBevel) {
   mat2 r = rotZ(overlayBevel);
@@ -176,7 +177,7 @@ vec3 rotateAroundZ(vec3 v, float overlayBevel) {
 
 
 void main() {
-  float t = .3 + .1 * u_time;
+  float t = .1 * u_time;
 
   vec2 uv = v_imageUV;
   vec2 dudx = dFdx(v_imageUV);
@@ -192,9 +193,8 @@ void main() {
   float frame = getImgFrame(v_imageUV, 0.);
   imgAlpha *= frame;
   edge *= frame;
-  
+
   float yTime = fract(t);
-//  yTime = pow(yTime, .8);
   float yTravel = mix(1.5, -1.5, yTime);
   float yShape = mix(.04 * edge, .1 * edge, yTime);
 
@@ -222,16 +222,16 @@ void main() {
 
   vec3 diffuse = vec3(0.);
   vec3 specular = vec3(0.);
-  vec3 ambient = materialColor * (1. - u_test);
+  vec3 ambient = materialColor * (1. - u_lightsPower);
 
   float lightCount = max(u_colorsCount, 1.);
-  float invLightCount = 2. * u_test / (lightCount * .3);
+  float invLightCount = 2. * u_lightsPower / (lightCount * .3);
 
   for (int i = 0; i < ${ logo3dMeta.maxColorCount }; i++) {
     if (i >= int(u_colorsCount)) break;
 
     float fi = (float(i) + .5) / float(u_colorsCount);
-    float angle = fi * TWO_PI + 3. * t;
+    float angle = fi * TWO_PI + radians(u_lightsPos);
 
     vec3 L = normalize(vec3(
     cos(angle),
@@ -698,7 +698,8 @@ export interface Logo3dUniforms extends ShaderSizingUniforms {
   u_colors: vec4[];
   u_colorsCount: number;
   u_image: HTMLImageElement | string | undefined;
-  u_test: number;
+  u_lightsPower: number;
+  u_lightsPos: number;
   u_bevel: number;
 }
 
@@ -708,6 +709,7 @@ export interface Logo3dParams extends ShaderSizingParams, ShaderMotionParams {
   colorUnderlay?: string;
   colorOverlay?: string;
   image?: HTMLImageElement | string | undefined;
-  test?: number;
+  lightsPower?: number;
+  lightsPos?: number;
   bevel?: number;
 }

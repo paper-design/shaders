@@ -28,18 +28,70 @@ export const defaultPreset: Logo3dPreset = {
   params: {
     ...defaultObjectSizing,
     scale: 0.8,
-    speed: 4,
+    speed: 1,
     frame: 0,
-    colorBack: '#000000',
-    colorUnderlay: '#0d0d0d',
-    colorOverlay: '#c2c4ff',
-    colors: ['#75faff', '#ff6666'],
-    test: 0.33,
-    bevel: 0.1,
+    colorBack: '#00000000',
+    colorUnderlay: '#83c2c9',
+    colorOverlay: '#c36fa1',
+    colors: ['#e0992e', '#35bbbb', '#56006b'],
+    lightsPower: 0.38,
+    bevel: 0.05,
+    lightsPos: 242,
   },
 };
 
-export const logo3dPresets: Logo3dPreset[] = [defaultPreset];
+export const monoPreset: Logo3dPreset = {
+  name: 'Mono',
+  params: {
+    ...defaultObjectSizing,
+    scale: 0.8,
+    speed: 1,
+    frame: 0,
+    colorBack: '#00000000',
+    colorUnderlay: '#e3e3e3',
+    colorOverlay: '#c2c1c1',
+    colors: ['#c2c2c2', '#000000', '#000000'],
+    lightsPower: 0.15,
+    bevel: 0,
+    lightsPos: 82,
+  },
+};
+
+export const metalPreset: Logo3dPreset = {
+  name: 'Metal',
+  params: {
+    ...defaultObjectSizing,
+    scale: 0.8,
+    speed: 1,
+    frame: 0,
+    colorBack: '#000000',
+    colorUnderlay: '#0a0a0a',
+    colorOverlay: '#0f0e16',
+    colors: ['#c7c7ff', '#ffbfa3', '#8ffff2'],
+    lightsPower: 1.0,
+    bevel: 0.7,
+    lightsPos: 66,
+  },
+};
+export const flatPreset: Logo3dPreset = {
+  name: 'Flat',
+  params: {
+    ...defaultObjectSizing,
+    scale: 0.8,
+    speed: 1,
+    frame: 0,
+    colorBack: '#00000000',
+    colorUnderlay: '#ffbf00',
+    colorOverlay: '#35a75e',
+    colors: ['#ffffff'],
+    lightsPower: 0,
+    bevel: 0,
+    lightsPos: 62,
+  },
+};
+
+
+export const logo3dPresets: Logo3dPreset[] = [defaultPreset, monoPreset, metalPreset, flatPreset];
 
 export const Logo3d: React.FC<Logo3dProps> = memo(function Logo3dImpl({
   // Own props
@@ -50,8 +102,9 @@ export const Logo3d: React.FC<Logo3dProps> = memo(function Logo3dImpl({
   speed = defaultPreset.params.speed,
   frame = defaultPreset.params.frame,
   image = '',
-  test = defaultPreset.params.test,
+  lightsPower = defaultPreset.params.lightsPower,
   bevel = defaultPreset.params.bevel,
+  lightsPos = defaultPreset.params.lightsPos,
   suspendWhenProcessingImage = false,
 
   // Sizing props
@@ -114,7 +167,8 @@ export const Logo3d: React.FC<Logo3dProps> = memo(function Logo3dImpl({
     u_colorUnderlay: getShaderColorFromString(colorUnderlay),
     u_colorOverlay: getShaderColorFromString(colorOverlay),
     u_image: processedImage,
-    u_test: test,
+    u_lightsPower: lightsPower,
+    u_lightsPos: lightsPos,
     u_bevel: bevel,
 
     // Sizing uniforms
