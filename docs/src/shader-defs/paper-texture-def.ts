@@ -1,13 +1,13 @@
 import { paperTexturePresets } from '@paper-design/shaders-react';
 import type { ShaderDef } from './shader-def-types';
-import {staticCommonParams, staticImageCommonParams} from './common-param-def';
+import { staticImageCommonParams } from './common-param-def';
 
 const defaultParams = paperTexturePresets[0].params;
 
 export const paperTextureDef: ShaderDef = {
   name: 'Paper Texture',
   description:
-    'A static texture built from multiple noise layers, usable for a realistic paper and cardboard surfaces or generating abstract patterns. Can be used as a image filter or as a texture.',
+    'A static texture built from multiple noise layers, usable for a realistic paper and cardboard surfaces. Can be used as a image filter or as a texture.',
   params: [
     {
       name: 'image',
@@ -26,7 +26,7 @@ export const paperTextureDef: ShaderDef = {
       type: 'string',
       defaultValue: defaultParams.colorFront,
       isColor: true,
-      description: 'The foreground color',
+      description: 'Foreground color',
     },
     {
       name: 'contrast',

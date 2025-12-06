@@ -6,7 +6,7 @@ const defaultParams = pulsingBorderPresets[0].params;
 
 export const pulsingBorderDef: ShaderDef = {
   name: 'Pulsing Border',
-  description: 'Luminous trails of color merging into a glowing gradient frame.',
+  description: 'Luminous trails of color merging into a glowing gradient contour.',
   params: [
     {
       name: 'colors',

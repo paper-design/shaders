@@ -2,21 +2,35 @@ import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingU
 import { declarePI, simplexNoise } from '../shader-utils.js';
 
 /**
- * Static grid pattern
+ * Static grid pattern made of circles, diamonds, squares or triangles.
  *
- * Uniforms:
- * - u_colorBack, u_colorFill, u_colorStroke (vec4 RGBA)
- * - u_dotSize (px): base shape size
- * - u_sizeRange (0..1): randomizes the size of shape between 0 and u_dotSize
- * - u_strokeWidth (px): the stroke (to be added to u_dotSize)
- * - u_gapX, u_gapY (px): pattern spacing
- * - u_opacityRange (0..1): variety of shape opacity
- * - u_shape (float used as integer):
- *   ---- 1: circle
- *   ---- 2: square
- *   ---- 3: triangle
- *   ---- 4: diamond
- *   ---- 5: cross
+ * Fragment shader uniforms:
+ * - u_colorBack (vec4): Background color in RGBA
+ * - u_colorFill (vec4): Shape fill color in RGBA
+ * - u_colorStroke (vec4): Shape stroke color in RGBA
+ * - u_dotSize (float): Base size of each shape in pixels (1 to 100)
+ * - u_gapX (float): Pattern horizontal spacing in pixels (2 to 500)
+ * - u_gapY (float): Pattern vertical spacing in pixels (2 to 500)
+ * - u_strokeWidth (float): Outline stroke width in pixels (0 to 50)
+ * - u_sizeRange (float): Random variation in shape size, 0 = uniform, higher = random up to base size (0 to 1)
+ * - u_opacityRange (float): Random variation in shape opacity, 0 = opaque, higher = semi-transparent (0 to 1)
+ * - u_shape (float): Shape type (0 = circle, 1 = diamond, 2 = square, 3 = triangle)
+ *
+ * Vertex shader outputs (used in fragment shader):
+ * - v_patternUV (vec2): UV coordinates in pixels (scaled by 0.01 for precision), with scale, rotation and offset applied
+ *
+ * Vertex shader uniforms:
+ * - u_resolution (vec2): Canvas resolution in pixels
+ * - u_pixelRatio (float): Device pixel ratio
+ * - u_originX (float): Reference point for positioning world width in the canvas (0 to 1)
+ * - u_originY (float): Reference point for positioning world height in the canvas (0 to 1)
+ * - u_worldWidth (float): Virtual width of the graphic before it's scaled to fit the canvas
+ * - u_worldHeight (float): Virtual height of the graphic before it's scaled to fit the canvas
+ * - u_fit (float): How to fit the rendered shader into the canvas dimensions (0 = none, 1 = contain, 2 = cover)
+ * - u_scale (float): Overall zoom level of the graphics (0.01 to 4)
+ * - u_rotation (float): Overall rotation angle of the graphics in degrees (0 to 360)
+ * - u_offsetX (float): Horizontal offset of the graphics center (-1 to 1)
+ * - u_offsetY (float): Vertical offset of the graphics center (-1 to 1)
  *
  */
 
@@ -35,12 +49,12 @@ uniform float u_sizeRange;
 uniform float u_opacityRange;
 uniform float u_shape;
 
-${sizingVariablesDeclaration}
+${ sizingVariablesDeclaration }
 
 out vec4 fragColor;
 
-${declarePI}
-${simplexNoise}
+${ declarePI }
+${ simplexNoise }
 
 float polygon(vec2 p, float N, float rot) {
   float a = atan(p.x, p.y) + rot;

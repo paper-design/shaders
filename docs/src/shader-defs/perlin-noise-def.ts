@@ -6,7 +6,7 @@ const defaultParams = perlinNoisePresets[0].params;
 
 export const perlinNoiseDef: ShaderDef = {
   name: 'Perlin Noise',
-  description: 'Animated 3D Perlin noise with exposed controls.',
+  description: 'Classic animated 3D Perlin noise with exposed controls.',
   params: [
     {
       name: 'colorBack',

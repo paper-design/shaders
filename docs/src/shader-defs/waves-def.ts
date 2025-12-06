@@ -20,7 +20,7 @@ export const wavesDef: ShaderDef = {
       type: 'string',
       defaultValue: defaultParams.colorFront,
       isColor: true,
-      description: 'The color of wavy lines',
+      description: 'Foreground color',
     },
     {
       name: 'amplitude',

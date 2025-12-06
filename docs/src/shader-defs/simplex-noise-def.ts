@@ -6,7 +6,7 @@ const defaultParams = simplexNoisePresets[0].params;
 
 export const simplexNoiseDef: ShaderDef = {
   name: 'Simplex Noise',
-  description: 'A multi-color gradient mapped into smooth, animated curves, delivering a sleek, futuristic visual.',
+  description: 'A multi-color gradient mapped into smooth, animated curves built as a combination of 2 Simplex noises.',
   params: [
     {
       name: 'colors',
