@@ -1,7 +1,7 @@
 import type { vec4 } from '../types.js';
 import type { ShaderMotionParams } from '../shader-mount.js';
 import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
-import { declarePI, rotation2, simplexNoise, colorBandingFix } from '../shader-utils.js';
+import { declarePI, rotation2 } from '../shader-utils.js';
 
 export const logo3dMeta = {
   maxColorCount: 10,
@@ -31,16 +31,10 @@ uniform vec4 u_colors[${logo3dMeta.maxColorCount}];
 uniform float u_colorsCount;
 uniform vec4 u_colorBack;
 uniform vec4 u_colorInner;
+uniform vec4 u_colorUnderlay;
+uniform vec4 u_colorOverlay;
 uniform float u_bevel;
-uniform float u_stripeWidth;
-uniform bool u_alphaMask;
-uniform float u_noiseScale;
-uniform float u_size;
-uniform float u_overlayHeight;
-uniform float u_shift;
-uniform float u_noise;
 uniform float u_test;
-uniform float u_overlayBevel;
 
 ${sizingVariablesDeclaration}
 
@@ -182,7 +176,6 @@ vec3 rotateAroundZ(vec3 v, float overlayBevel) {
 
 
 void main() {
-
   float t = .3 + .1 * u_time;
 
   vec2 uv = v_imageUV;
@@ -221,8 +214,6 @@ void main() {
   overlayShadow *= f[0];
   overlayShadow = 3. * overlayShadow;
 
-
-
   vec3 uLightDir1 = normalize(vec3(.5, .5, .5));
   vec3 uLightDir2 = normalize(vec3(-.5, -.5, .5));
 
@@ -232,30 +223,38 @@ void main() {
   vec3 normal = computeNormal(uv, overlayShadow);
   vec3 viewDir = vec3(0., 0., 1.);
 
-  vec3 baseColor = vec3(1.);
-  baseColor = mix(vec3(1.), vec3(.6), f[0]);
-  
-  vec3 lightColor1 = u_colors[0].rgb;
-  vec3 lightColor2 = u_colors[1].rgb;
+  vec3 baseColor = u_colorUnderlay.rgb;
+  vec3 overlayColor = u_colorOverlay.rgb;
+  vec3 materialColor = mix(baseColor, overlayColor, f[0]);
 
-  float NdotL1 = max(dot(normal, uLightDir1), 0.);
-  float NdotL2 = max(dot(normal, uLightDir2), 0.);
+  vec3 diffuse  = vec3(0.);
+  vec3 specular = vec3(0.);
+  vec3 ambient  = materialColor * (1. - u_test);
 
-  vec3 diffuse = baseColor * (NdotL1 * lightColor1 + NdotL2 * lightColor2);
+  float lightCount = max(u_colorsCount, 1.);
+  float invLightCount = u_test / (lightCount * .3);
 
-  vec3 ambient = baseColor * 0.2;
+  for (int i = 0; i < ${ logo3dMeta.maxColorCount }; i++) {
+    if (i >= int(u_colorsCount)) break;
 
-  vec3 halfDir1 = normalize(uLightDir1 + viewDir);
-  vec3 halfDir2 = normalize(uLightDir2 + viewDir);
+    float fi = (float(i) + .5) / float(u_colorsCount);
+    float angle = fi * TWO_PI + 3. * t;
 
-  float NdotH1 = max(dot(normal, halfDir1), 0.);
-  float NdotH2 = max(dot(normal, halfDir2), 0.);
+    vec3 L = normalize(vec3(
+    cos(angle),
+    sin(angle),
+    .5
+    ));
 
-  vec3 specular =
-    (
-      pow(NdotH1, 500.) * lightColor1 +
-      pow(NdotH2, 500.) * lightColor2
-    );
+    vec3 lightColor = u_colors[i].rgb;
+
+    float NdotL = max(dot(normal, L), 0.);
+    diffuse += materialColor * NdotL * lightColor * invLightCount;
+
+    vec3 halfDir = normalize(L + viewDir);
+    float NdotH = max(dot(normal, halfDir), 0.0);
+    specular += pow(NdotH, 500.) * lightColor * invLightCount;
+  }
 
   float opacity = imgAlpha;
   vec3 color = ambient + diffuse + specular;
@@ -701,35 +700,21 @@ function solvePoissonSparse(
 
 export interface Logo3dUniforms extends ShaderSizingUniforms {
   u_colorBack: [number, number, number, number];
-  u_colorInner: [number, number, number, number];
+  u_colorUnderlay: [number, number, number, number];
+  u_colorOverlay: [number, number, number, number];
   u_colors: vec4[];
   u_colorsCount: number;
   u_image: HTMLImageElement | string | undefined;
-  u_stripeWidth: number;
-  u_alphaMask: boolean;
-  u_noiseScale: number;
-  u_size: number;
-  u_shift: number;
-  u_noise: number;
   u_test: number;
   u_bevel: number;
-  u_overlayHeight: number;
-  u_overlayBevel: number;
 }
 
 export interface Logo3dParams extends ShaderSizingParams, ShaderMotionParams {
   colors?: string[];
   colorBack?: string;
-  colorInner?: string;
+  colorUnderlay?: string;
+  colorOverlay?: string;
   image?: HTMLImageElement | string | undefined;
-  stripeWidth?: number;
-  alphaMask?: boolean;
-  noiseScale?: number;
-  size?: number;
-  bevel?: number;
-  overlayHeight?: number;
-  shift?: number;
-  noise?: number;
   test?: number;
-  overlayBevel?: number;
+  bevel?: number;
 }
