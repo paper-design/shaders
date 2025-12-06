@@ -193,25 +193,18 @@ void main() {
   imgAlpha *= frame;
   edge *= frame;
   
-  float f[${logo3dMeta.maxColorCount}];
-
   float yTime = fract(t);
 //  yTime = pow(yTime, .8);
   float yTravel = mix(1.5, -1.5, yTime);
   float yShape = mix(.04 * edge, .1 * edge, yTime);
 
-  vec2 trajs[${logo3dMeta.maxColorCount}];
-  trajs[0] = vec2(-.4, -.5 + yTravel);
-  float dist = 1.;
-  for (int i = 0; i < ${logo3dMeta.maxColorCount}; i++) {
-    f[i] = getPoint(uv + trajs[i], yShape);
-  }
+  float overlayShape = getPoint(uv + vec2(-.4, -.5 + yTravel), yShape);
 
-  float aa = fwidth(f[0]);
-  float overlayShadow = sst(.9 - 2. * aa - .1 * edgeBorder, .91 + .08 * edgeBorder, f[0]);
-  f[0] = sst(.9, .9 + 2. * aa, f[0]);
+  float aa = fwidth(overlayShape);
+  float overlayShadow = sst(.9 - 2. * aa - .1 * edgeBorder, .91 + .08 * edgeBorder, overlayShape);
+  overlayShape = sst(.9, .9 + 2. * aa, overlayShape);
   overlayShadow = 1. - overlayShadow;
-  overlayShadow *= f[0];
+  overlayShadow *= overlayShape;
   overlayShadow = 3. * overlayShadow;
 
   vec3 uLightDir1 = normalize(vec3(.5, .5, .5));
@@ -225,14 +218,14 @@ void main() {
 
   vec3 baseColor = u_colorUnderlay.rgb;
   vec3 overlayColor = u_colorOverlay.rgb;
-  vec3 materialColor = mix(baseColor, overlayColor, f[0]);
+  vec3 materialColor = mix(baseColor, overlayColor, overlayShape);
 
-  vec3 diffuse  = vec3(0.);
+  vec3 diffuse = vec3(0.);
   vec3 specular = vec3(0.);
-  vec3 ambient  = materialColor * (1. - u_test);
+  vec3 ambient = materialColor * (1. - u_test);
 
   float lightCount = max(u_colorsCount, 1.);
-  float invLightCount = u_test / (lightCount * .3);
+  float invLightCount = 2. * u_test / (lightCount * .3);
 
   for (int i = 0; i < ${ logo3dMeta.maxColorCount }; i++) {
     if (i >= int(u_colorsCount)) break;
@@ -243,7 +236,7 @@ void main() {
     vec3 L = normalize(vec3(
     cos(angle),
     sin(angle),
-    .5
+    .4
     ));
 
     vec3 lightColor = u_colors[i].rgb;
@@ -253,7 +246,7 @@ void main() {
 
     vec3 halfDir = normalize(L + viewDir);
     float NdotH = max(dot(normal, halfDir), 0.0);
-    specular += pow(NdotH, 500.) * lightColor * invLightCount;
+    specular += pow(NdotH, 50.) * lightColor * invLightCount;
   }
 
   float opacity = imgAlpha;

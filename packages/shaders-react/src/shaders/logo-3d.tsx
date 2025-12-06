@@ -28,10 +28,10 @@ export const defaultPreset: Logo3dPreset = {
   params: {
     ...defaultObjectSizing,
     scale: 0.8,
-    speed: 0,
+    speed: 4,
     frame: 0,
-    colorBack: '#00000000',
-    colorUnderlay: '#d6ffda',
+    colorBack: '#000000',
+    colorUnderlay: '#0d0d0d',
     colorOverlay: '#c2c4ff',
     colors: ['#75faff', '#ff6666'],
     test: 0.33,
