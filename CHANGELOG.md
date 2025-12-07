@@ -1,11 +1,30 @@
 # Paper Shaders
 
+## Version 0.0.68
+
+- **General**
+  - GLSL formatting update, GLSL clean-up, fragment shader sizing code moved from global utils to individual shaders
+  - JSDocs update
+  - props definitions
+  - Missing registry examples added
+  - JSDoc comments updated
+  - Docs updated with refined props definitions
+  - GLSL formatting updated and cleaned up; fragment shader sizing code moved from global utilities into individual shaders
+  - Examples added to registry where missing
+
+- **Heatmap**
+  - JS pre-pass updated for Safari support (manual blur used instead of `ctx.filter`)
+- **GrainGradient**
+  - Several performance improvements
+- **Halftone Dots**
+  - Restored default cell `size` after extension of allowed range
+  
 ## Version 0.0.67
 
 - **Mesh Gradient**
   - Fixed a GLSL error that caused shader rendering to fail
 - **Halftone Dots**
-  - Extended the cell-size range to allow smaller dots
+  - Extended cell `size` range to allow smaller dots
 
 ## Version 0.0.66
 
