@@ -36,6 +36,7 @@ uniform vec4 u_colorOverlay;
 uniform float u_bevel;
 uniform float u_lightsPower;
 uniform float u_lightsPos;
+uniform float u_overlayHeight;
 
 ${ sizingVariablesDeclaration }
 
@@ -205,7 +206,7 @@ void main() {
   overlayShape = sst(.9, .9 + 2. * aa, overlayShape);
   overlayShadow = 1. - overlayShadow;
   overlayShadow *= overlayShape;
-  overlayShadow = 3. * overlayShadow;
+  overlayShadow = 8. * u_overlayHeight * overlayShadow;
 
   vec3 uLightDir1 = normalize(vec3(.5, .5, .5));
   vec3 uLightDir2 = normalize(vec3(-.5, -.5, .5));
@@ -231,7 +232,8 @@ void main() {
     if (i >= int(u_colorsCount)) break;
 
     float fi = (float(i) + .5) / float(u_colorsCount);
-    float angle = fi * TWO_PI + radians(u_lightsPos);
+//    float angleDir = 2. * (mod(fi, 2.) - .5);
+    float angle = fi * TWO_PI + radians(u_lightsPos);// + angleDir * TWO_PI * t * .25;
 
     vec3 L = normalize(vec3(
     cos(angle),
@@ -701,6 +703,7 @@ export interface Logo3dUniforms extends ShaderSizingUniforms {
   u_lightsPower: number;
   u_lightsPos: number;
   u_bevel: number;
+  u_overlayHeight: number;
 }
 
 export interface Logo3dParams extends ShaderSizingParams, ShaderMotionParams {
@@ -712,4 +715,5 @@ export interface Logo3dParams extends ShaderSizingParams, ShaderMotionParams {
   lightsPower?: number;
   lightsPos?: number;
   bevel?: number;
+  overlayHeight?: number;
 }
