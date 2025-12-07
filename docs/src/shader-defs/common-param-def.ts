@@ -6,12 +6,12 @@ export const commonParams: Record<string, CommonParamDef> = {
   speed: {
     name: 'speed',
     type: 'number',
-    description: 'Animation speed',
+    description: 'Controls how fast the animation runs. speed=0 stops the animation loop, and speed=1 defines frame prop as timestamp in milliseconds',
   },
   frame: {
     name: 'frame',
     type: 'number',
-    description: 'Starting animation frame',
+    description: 'Starting point of the animation. When speed=1, this value is treated as start time in milliseconds (try large frame values to see the difference). When speed=0 frame fully defines the state of static shader',
   },
   scale: {
     name: 'scale',
@@ -84,7 +84,7 @@ export const commonParams: Record<string, CommonParamDef> = {
   minPixelRatio: {
     name: 'minPixelRatio',
     type: 'number',
-    description: 'Minimum pixel ratio to use when rendering the shader',
+    description: 'Minimum pixel ratio to use when rendering the shader (default is 2 for double resolution)',
   },
   maxPixelCount: {
     name: 'maxPixelCount',
