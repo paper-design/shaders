@@ -3,15 +3,9 @@
 ## Version 0.0.68
 
 - **General**
-  - GLSL formatting update, GLSL clean-up, fragment shader sizing code moved from global utils to individual shaders
-  - JSDocs update
-  - props definitions
-  - Missing registry examples added
   - JSDoc comments updated
-  - Docs updated with refined props definitions
+  - Docs updated with refined props definitions, examples added to registry where missing
   - GLSL formatting updated and cleaned up; fragment shader sizing code moved from global utilities into individual shaders
-  - Examples added to registry where missing
-
 - **Heatmap**
   - JS pre-pass updated for Safari support (manual blur used instead of `ctx.filter`)
 - **GrainGradient**
