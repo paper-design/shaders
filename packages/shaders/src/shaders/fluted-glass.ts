@@ -3,26 +3,44 @@ import { sizingUniformsDeclaration, type ShaderSizingParams, type ShaderSizingUn
 import { declarePI, rotation2, proceduralHash21 } from '../shader-utils.js';
 
 /**
- * Mimicking glass surface distortion over the image by distorting the texture
- * coordinates within line patterns
+ * Fluted glass image filter that transforms an image into streaked, ribbed distortions,
+ * giving a mix of clarity and obscurity.
  *
- * Uniforms:
- * - u_size, u_angle - size and direction of grid relative to the image
- * - u_shape (float used as integer):
- * ---- 1: uniformly spaced stripes
- * ---- 2: randomly spaced stripes
- * ---- 3: sine wave stripes
- * ---- 4: zigzag stripes
- * ---- 5: wave-based pattern
- * - u_distortion - the power of distortion applied along within each stripe
- * - u_distortionShape (float used as integer):
- * ---- 5 shapes available
- * - u_shift - texture shift in direction opposite to the grid
- * - u_blur - one-directional blur applied over the main distortion
- * - u_edges -
- * - u_marginLeft, u_marginRight, u_marginTop, u_marginBottom - paddings
- *   within picture to be shown without any distortion
+ * Fragment shader uniforms:
+ * - u_resolution (vec2): Canvas resolution in pixels
+ * - u_pixelRatio (float): Device pixel ratio
+ * - u_originX (float): Reference point for positioning world width in the canvas (0 to 1)
+ * - u_originY (float): Reference point for positioning world height in the canvas (0 to 1)
+ * - u_fit (float): How to fit the rendered shader into the canvas dimensions (1 = contain, 2 = cover)
+ * - u_scale (float): Overall zoom level of the graphics (0.01 to 4)
+ * - u_rotation (float): Overall rotation angle of the graphics in degrees (0 to 360)
+ * - u_offsetX (float): Horizontal offset of the graphics center (-1 to 1)
+ * - u_offsetY (float): Vertical offset of the graphics center (-1 to 1)
+ * - u_image (sampler2D): Source image texture
+ * - u_imageAspectRatio (float): Aspect ratio of the source image
+ * - u_colorBack (vec4): Background color in RGBA
+ * - u_colorShadow (vec4): Shadows color in RGBA
+ * - u_colorHighlight (vec4): Highlights color in RGBA
+ * - u_shadows (float): Color gradient added over image and background, following distortion shape (0 to 1)
+ * - u_highlights (float): Thin strokes along distortion shape, useful for antialiasing on small grid (0 to 1)
+ * - u_size (float): Size of the distortion shape grid (0 to 1)
+ * - u_shape (float): Grid shape (1 = lines, 2 = linesIrregular, 3 = wave, 4 = zigzag, 5 = pattern)
+ * - u_angle (float): Direction of the grid relative to the image in degrees (0 to 180)
+ * - u_distortionShape (float): Shape of distortion (1 = prism, 2 = lens, 3 = contour, 4 = cascade, 5 = flat)
+ * - u_distortion (float): Power of distortion applied within each stripe (0 to 1)
+ * - u_shift (float): Texture shift in direction opposite to the grid (-1 to 1)
+ * - u_stretch (float): Extra distortion along the grid lines (0 to 1)
+ * - u_blur (float): One-directional blur over the image and extra blur around edges (0 to 1)
+ * - u_edges (float): Glass distortion and softness on the image edges (0 to 1)
+ * - u_marginLeft (float): Distance from the left edge to the effect (0 to 1)
+ * - u_marginRight (float): Distance from the right edge to the effect (0 to 1)
+ * - u_marginTop (float): Distance from the top edge to the effect (0 to 1)
+ * - u_marginBottom (float): Distance from the bottom edge to the effect (0 to 1)
+ * - u_grainMixer (float): Strength of grain distortion applied to shape edges (0 to 1)
+ * - u_grainOverlay (float): Post-processing black/white grain overlay (0 to 1)
  *
+ * Note: This shader calculates image UVs directly in the fragment shader using gl_FragCoord,
+ * rather than relying on vertex shader outputs.
  */
 
 // language=GLSL
@@ -31,7 +49,7 @@ precision mediump float;
 
 uniform vec2 u_resolution;
 uniform float u_pixelRatio;
-${sizingUniformsDeclaration}
+${ sizingUniformsDeclaration }
 
 uniform vec4 u_colorBack;
 uniform vec4 u_colorShadow;
@@ -60,9 +78,9 @@ uniform float u_grainOverlay;
 
 out vec4 fragColor;
 
-${declarePI}
-${rotation2}
-${proceduralHash21}
+${ declarePI }
+${ rotation2 }
+${ proceduralHash21 }
 
 float valueNoise(vec2 st) {
   vec2 i = floor(st);
@@ -153,7 +171,7 @@ vec4 getBlur(sampler2D tex, vec2 uv, vec2 texelSize, vec2 dir, float sigma) {
   if (result.a > 0.) {
     result.rgb /= result.a;
   }
-  
+
   return result;
 }
 
@@ -188,10 +206,10 @@ void main() {
   vec2 sw = vec2(.005);
   vec4 margins = vec4(u_marginLeft, u_marginTop, u_marginRight, u_marginBottom);
   float mask =
-    smoothstep(margins[0], margins[0] + sw.x, uvMask.x + sw.x) *
-    smoothstep(margins[2], margins[2] + sw.x, 1.0 - uvMask.x + sw.x) *
-    smoothstep(margins[1], margins[1] + sw.y, uvMask.y + sw.y) *
-    smoothstep(margins[3], margins[3] + sw.y, 1.0 - uvMask.y + sw.y);
+  smoothstep(margins[0], margins[0] + sw.x, uvMask.x + sw.x) *
+  smoothstep(margins[2], margins[2] + sw.x, 1.0 - uvMask.x + sw.x) *
+  smoothstep(margins[1], margins[1] + sw.y, uvMask.y + sw.y) *
+  smoothstep(margins[3], margins[3] + sw.y, 1.0 - uvMask.y + sw.y);
   float maskOuter =
   smoothstep(margins[0] - sw.x, margins[0], uvMask.x + sw.x) *
   smoothstep(margins[2] - sw.x, margins[2], 1.0 - uvMask.x + sw.x) *
@@ -199,10 +217,10 @@ void main() {
   smoothstep(margins[3] - sw.y, margins[3], 1.0 - uvMask.y + sw.y);
   float maskStroke = maskOuter - mask;
   float maskInner =
-    smoothstep(margins[0] - 2. * sw.x, margins[0], uvMask.x) *
-    smoothstep(margins[2] - 2. * sw.x, margins[2], 1.0 - uvMask.x) *
-    smoothstep(margins[1] - 2. * sw.y, margins[1], uvMask.y) *
-    smoothstep(margins[3] - 2. * sw.y, margins[3], 1.0 - uvMask.y);
+  smoothstep(margins[0] - 2. * sw.x, margins[0], uvMask.x) *
+  smoothstep(margins[2] - 2. * sw.x, margins[2], 1.0 - uvMask.x) *
+  smoothstep(margins[1] - 2. * sw.y, margins[1], uvMask.y) *
+  smoothstep(margins[3] - 2. * sw.y, margins[3], 1.0 - uvMask.y);
   float maskStrokeInner = maskInner - mask;
 
   uv -= .5;

@@ -7,7 +7,7 @@ const defaultParams = staticRadialGradientPresets[0].params;
 export const staticRadialGradientDef: ShaderDef = {
   name: 'Static Radial Gradient',
   description:
-    'Radial gradient with up to 10 blended colors, featuring advanced focal point control, shape distortion, and grain effects.',
+    'Radial gradient with up to 10 blended colors, featuring advanced mixing modes, focal point controls, shape distortion, and grain effects',
   params: [
     {
       name: 'colors',
@@ -94,7 +94,7 @@ export const staticRadialGradientDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.grainMixer,
-      description: 'Strength of grain distortion applied to color edges',
+      description: 'Strength of grain distortion applied to the shapes’ edges',
     },
     {
       name: 'grainOverlay',
@@ -102,7 +102,7 @@ export const staticRadialGradientDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.grainOverlay,
-      description: 'Post-processing RGB grain overlay',
+      description: 'Post-processing b/w grain overlay',
     },
     ...staticCommonParams,
   ],

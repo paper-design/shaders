@@ -8,19 +8,39 @@ export const colorPanelsMeta = {
 } as const;
 
 /**
- * Pseudo-3D panels rotating around a central axis
+ * Pseudo-3D semi-transparent panels rotating around a central axis
  *
- * Uniforms include:
- * - u_colorBack (RGBA)
- * - u_colors (vec4[]), u_colorsCount (float used as integer)
- * - u_density: angle between every 2 panels
- * - u_angle1, u_angle2: skew angle applied to all panes
- * - u_length: panel length (relative to total height)
- * - u_edges: faking edges effect
- * - u_blur: side blur (0 for sharp edges)
- * - u_fadeIn: transparency near central axis
- * - u_fadeOut: transparency near viewer
- * - u_gradient: color mixing within panes (0 = single color, 1 = two colors)
+ * Fragment shader uniforms:
+ * - u_time (float): Animation time
+ * - u_scale (float): Overall zoom level, used for anti-aliasing calculations
+ * - u_colors (vec4[]): Up to 7 RGBA colors used to color the panels
+ * - u_colorsCount (float): Number of active colors
+ * - u_colorBack (vec4): Background color in RGBA
+ * - u_density (float): Angle between every 2 panels (0.25 to 7)
+ * - u_angle1 (float): Skew angle applied to all panes (-1 to 1)
+ * - u_angle2 (float): Skew angle applied to all panes (-1 to 1)
+ * - u_length (float): Panel length relative to total height (0 to 3)
+ * - u_edges (bool): Color highlight on the panels edges
+ * - u_blur (float): Side blur, 0 for sharp edges (0 to 0.5)
+ * - u_fadeIn (float): Transparency near central axis (0 to 1)
+ * - u_fadeOut (float): Transparency near viewer (0 to 1)
+ * - u_gradient (float): Color mixing within a panel, 0 = solid, 1 = gradient (0 to 1)
+ *
+ * Vertex shader outputs (used in fragment shader):
+ * - v_objectUV (vec2): Object box UV coordinates with global sizing (scale, rotation, offsets, etc) applied
+ *
+ * Vertex shader uniforms:
+ * - u_resolution (vec2): Canvas resolution in pixels
+ * - u_pixelRatio (float): Device pixel ratio
+ * - u_originX (float): Reference point for positioning world width in the canvas (0 to 1)
+ * - u_originY (float): Reference point for positioning world height in the canvas (0 to 1)
+ * - u_worldWidth (float): Virtual width of the graphic before it's scaled to fit the canvas
+ * - u_worldHeight (float): Virtual height of the graphic before it's scaled to fit the canvas
+ * - u_fit (float): How to fit the rendered shader into the canvas dimensions (0 = none, 1 = contain, 2 = cover)
+ * - u_scale (float): Overall zoom level of the graphics (0.01 to 4)
+ * - u_rotation (float): Overall rotation angle of the graphics in degrees (0 to 360)
+ * - u_offsetX (float): Horizontal offset of the graphics center (-1 to 1)
+ * - u_offsetY (float): Vertical offset of the graphics center (-1 to 1)
  *
  */
 
@@ -31,7 +51,7 @@ precision lowp float;
 uniform float u_time;
 uniform mediump float u_scale;
 
-uniform vec4 u_colors[${colorPanelsMeta.maxColorCount}];
+uniform vec4 u_colors[${ colorPanelsMeta.maxColorCount }];
 uniform float u_colorsCount;
 uniform vec4 u_colorBack;
 uniform float u_density;
@@ -44,11 +64,11 @@ uniform float u_fadeIn;
 uniform float u_fadeOut;
 uniform float u_gradient;
 
-${sizingVariablesDeclaration}
+${ sizingVariablesDeclaration }
 
 out vec4 fragColor;
 
-${declarePI}
+${ declarePI }
 
 const float zLimit = .5;
 
@@ -58,7 +78,7 @@ vec2 getPanel(float angle, vec2 uv, float invLength, float aa) {
 
   float denom = sinA - uv.y * cosA;
   if (abs(denom) < .01) return vec2(0.);
-  
+
   float z = uv.y / denom;
 
   if (z <= 0. || z > zLimit) return vec2(0.);
@@ -86,13 +106,13 @@ vec2 getPanel(float angle, vec2 uv, float invLength, float aa) {
   } else if (midScreen < .07) {
     panel *= (midScreen * 15.);
   }
-  
+
   return vec2(panel, panelMap);
 }
 
 vec4 blendColor(vec4 colorA, float panelMask, float panelMap) {
   float fade = 1. - smoothstep(.97 - .97 * u_fadeIn, 1., panelMap);
-  
+
   fade *= smoothstep(-.2 * (1. - u_fadeOut), u_fadeOut, panelMap);
 
   vec3 blendedRGB = mix(vec3(0.), colorA.rgb, fade);
@@ -115,8 +135,8 @@ void main() {
   float aa = .005 / u_scale;
   int colorsCount = int(u_colorsCount);
 
-  vec4 premultipliedColors[${colorPanelsMeta.maxColorCount}];
-  for (int i = 0; i < ${colorPanelsMeta.maxColorCount}; i++) {
+  vec4 premultipliedColors[${ colorPanelsMeta.maxColorCount }];
+  for (int i = 0; i < ${ colorPanelsMeta.maxColorCount }; i++) {
     if (i >= colorsCount) break;
     vec4 c = u_colors[i];
     c.rgb *= c.a;
@@ -229,7 +249,7 @@ void main() {
   color = color + bgColor * (1.0 - opacity);
   opacity = opacity + u_colorBack.a * (1.0 - opacity);
 
-  ${colorBandingFix}
+  ${ colorBandingFix }
 
   fragColor = vec4(color, opacity);
 }
