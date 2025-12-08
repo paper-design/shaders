@@ -36,56 +36,6 @@ out vec4 fragColor;
 ${ declarePI }
 ${ rotation2 }
 
-// simple smooth circle; radius in cell-space (expects local to be in "square" cell space)
-float smoothCircle(float r, vec2 p, float softness) {
-  float d = length(p);
-  return 1.0 - smoothstep(r - softness, r + softness, d);
-}
-
-float halftoneDot(float value, vec2 uv, float angle, float freq, float radiusMult) {
-  // To make dot cells respect image aspect ratio we work in a scaled UV space
-  // where X is multiplied by u_imageAspectRatio so a cell is square in image pixels.
-  vec2 scaledUV = uv;
-  scaledUV.x *= u_imageAspectRatio;
-
-  vec2 p = scaledUV * freq;
-  p = rotate(p, radians(angle));
-
-  // local coordinates in scaled cell space (center at 0)
-  vec2 local = fract(p) - .5;
-
-  // move back to unscaled space for radius/distance computations so the radius
-  // parameter behaves consistently regardless of image aspect.
-  // (local.x is currently in scaled coordinates, divide it back)
-  local.x /= u_imageAspectRatio;
-
-  // distance from center (now using correct, circular distance)
-  float d = length(local);
-  // invert value: in CMYK higher channel = more ink (darker), so larger dot
-  float tRadius = radiusMult * (0.5 * value);
-
-  float aa = fwidth(d);
-  return 1. - smoothstep(tRadius - aa, tRadius + aa, d);
-}
-
-vec4 RGBtoCMYK(vec3 rgb) {
-  float k = 1.0 - max(max(rgb.r, rgb.g), rgb.b);
-  float denom = 1.0 - k;
-  vec3 cmy = vec3(0.0);
-  if (denom > 1e-5) {
-    cmy = (1.0 - rgb - vec3(k)) / denom;
-  }
-  return vec4(cmy, k);
-}
-
-vec3 CMYKtoRGB(vec4 cmyk) {
-  vec3 rgb = vec3(0.);
-  rgb.r = 1.0 - min(1.0, cmyk.x + cmyk.w);
-  rgb.g = 1.0 - min(1.0, cmyk.y + cmyk.w);
-  rgb.b = 1.0 - min(1.0, cmyk.z + cmyk.w);
-  return rgb;
-}
-
 vec2 getImageUV(vec2 uv, vec2 extraScale) {
   vec2 boxOrigin = vec2(.5 - u_originX, u_originY - .5);
   float r = u_rotation * PI / 180.;
@@ -128,34 +78,113 @@ float getUvFrame(vec2 uv, vec2 pad) {
   return left * right * bottom * top;
 }
 
+float halftoneDot(vec2 p, float radius) {
+  vec2 cellCenter = floor(p) + 0.5;
+  vec2 d = p - cellCenter;
+  float dist = length(d);
+  float aa = fwidth(dist);
+  return 1. - smoothstep(radius - aa, radius + aa, dist);
+}
+
+// Convert RGB (0..1) to CMYK (0..1)
+vec4 RGBtoCMYK(vec3 rgb) {
+  float k = 1.0 - max(max(rgb.r, rgb.g), rgb.b);
+  vec3 cmy = vec3(0.0);
+  if (k < 0.999) {
+    cmy = (1.0 - rgb - vec3(k)) / (1.0 - k);
+  }
+  return vec4(cmy, k);// (C,M,Y,K)
+}
+
 void main() {
-  vec2 uvNormalised = (gl_FragCoord.xy - .5 * u_resolution) / u_resolution.xy;
+  vec2 uvNormalised = (gl_FragCoord.xy - 0.5 * u_resolution) / u_resolution.xy;
   vec2 imageUV = getImageUV(uvNormalised, vec2(1.));
 
-  vec4 src = texture(u_image, imageUV);
-  vec3 rgb = src.rgb;
+  vec4 tex = texture(u_image, imageUV);
+  vec3 rgb = tex.rgb;
 
-  vec4 cmyk = RGBtoCMYK(rgb);
+  // ONE luminance for all channels
+  float lum = dot(rgb, vec3(0.2126, 0.7152, 0.0722));
 
-  float freqBase = max(8.0, u_size * 100.);
-  float radiusMult = u_radius;
-  radiusMult *= getUvFrame(imageUV, vec2(0.));
+  // darker pixel => more ink
+  float ink = 1.0 - lum;
 
-  float Cmask = halftoneDot(cmyk.x, imageUV, u_angleC, freqBase, radiusMult);
-  float Mmask = halftoneDot(cmyk.y, imageUV, u_angleM, freqBase, radiusMult);
-  float Ymask = halftoneDot(cmyk.z, imageUV, u_angleY, freqBase, radiusMult);
-  float Kmask = halftoneDot(cmyk.w, imageUV, u_angleK, freqBase, radiusMult);
+  // add contrast / shaping so background still has visible dots
+  float gamma = 1.;
+  ink = pow(ink, gamma);
 
-  float C = clamp(Cmask * cmyk.x, 0.0, 1.0);
-  float M = clamp(Mmask * cmyk.y, 0.0, 1.0);
-  float Y = clamp(Ymask * cmyk.z, 0.0, 1.0);
-  float K = clamp(Kmask * cmyk.w, 0.0, 1.0);
+  // clamp so even very light areas still get some dot
+  float minInk = 0.1;// try 0.05–0.2
+  float maxInk = 1.0;
+  ink = clamp(mix(minInk, maxInk, ink), 0.0, 1.0);
 
-  vec4 outCmyk = vec4(C, M, Y, K);
+  // Use same ink amount for all channels
+  float C = ink;
+  float M = ink;
+  float Y = ink;
+  float K = ink;
 
-  vec3 outRgb = CMYKtoRGB(outCmyk);
 
-  fragColor = vec4(outRgb, 1.);
+  float cellsPerSide = mix(300.0, 7.0, pow(u_size, 0.7));
+  float cellSizeY = 1.0 / cellsPerSide;
+  vec2 pad = cellSizeY * vec2(1.0 / u_imageAspectRatio, 1.0);
+
+  vec2 pGrid = (imageUV - 0.5) / pad;
+
+  float baseR = 0.5 * u_radius;
+  baseR *= getUvFrame(imageUV, vec2(0.));
+
+  // Screen angles in radians
+  float aC = radians(u_angleC);
+  float aM = radians(u_angleM);
+  float aY = radians(u_angleY);
+  float aK = radians(u_angleK);
+
+  // Rotate grid coordinates for each channel
+  // This is the key: rotate the *grid* (pattern space),
+  // not the image around its center.
+  vec2 pC = rotate(pGrid, aC);
+  vec2 pM = rotate(pGrid, aM);
+  vec2 pY = rotate(pGrid, aY);
+  vec2 pK = rotate(pGrid, aK);
+
+  // Modulate radius by channel "ink" amount
+  float rC = baseR * C;
+  float rM = baseR * M;
+  float rY = baseR * Y;
+  float rK = baseR * K;
+
+  float dotC = halftoneDot(pC, rC);
+  float dotM = halftoneDot(pM, rM);
+  float dotY = halftoneDot(pY, rY);
+  float dotK = halftoneDot(pK, rK);
+
+  // --- Composite CMYK dots on paper ---------------------------
+  // Start from paper color (usually white)
+  vec3 col = u_colorBack.rgb;
+
+  // "Ink" colors as seen on screen
+  vec3 inkC = vec3(0.0, 1.0, 1.0);// cyan
+  vec3 inkM = vec3(1.0, 0.0, 1.0);// magenta
+  vec3 inkY = vec3(1.0, 1.0, 0.0);// yellow
+  vec3 inkK = vec3(0.0, 0.0, 0.0);// black
+
+  // Mix each ink over the paper. You can play with exponents
+  // or scaling to match your taste.
+  float wC = dotC * C;
+  float wM = dotM * M;
+  float wY = dotY * Y;
+  float wK = dotK * K;
+  
+  // Here we can just use dotC, dotM... directly as coverage
+  col = mix(col, inkC, dotC);
+  col = mix(col, inkM, dotM);
+  col = mix(col, inkY, dotY);
+  col = mix(col, inkK, dotK);
+
+  fragColor = vec4(col, 1.0);
+
+  fragColor = vec4(col, 1.0);
 }
 `;
 
@@ -168,7 +197,6 @@ export interface HalftoneCmykUniforms extends ShaderSizingUniforms {
   u_angleM: number;
   u_angleY: number;
   u_angleK: number;
-  u_contrast: number;
   u_grainSize: number;
   u_grainMixer: number;
 }
@@ -182,7 +210,6 @@ export interface HalftoneCmykParams extends ShaderSizingParams, ShaderMotionPara
   angleM?: number;
   angleY?: number;
   angleK?: number;
-  contrast?: number;
   grainSize?: number;
   grainMixer?: number;
 }

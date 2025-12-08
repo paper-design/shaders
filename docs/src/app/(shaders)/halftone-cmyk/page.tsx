@@ -71,12 +71,12 @@ const HalftoneCmykWithControls = () => {
     );
     return {
       colorBack: { value: toHsla(defaults.colorBack), order: 100 },
-      size: { value: defaults.size, min: 0.01, max: 2, step: 0.01, order: 101 },
+      size: { value: defaults.size, min: 0.01, max: 1, step: 0.01, order: 101 },
       radius: { value: defaults.radius, min: 0.1, max: 3, step: 0.01, order: 102 },
-      angleC: {value: defaults.angleC, min: 0, max: 360, step: 1, order: 110},
-      angleM: {value: defaults.angleM, min: 0, max: 360, step: 1, order: 111},
-      angleY: {value: defaults.angleY, min: 0, max: 360, step: 1, order: 112},
-      angleK: {value: defaults.angleK, min: 0, max: 360, step: 1, order: 113},
+      angleC: {value: defaults.angleC, min: 0, max: 360, step: 0.1, order: 110},
+      angleM: {value: defaults.angleM, min: 0, max: 360, step: 0.1, order: 111},
+      angleY: {value: defaults.angleY, min: 0, max: 360, step: 0.1, order: 112},
+      angleK: {value: defaults.angleK, min: 0, max: 360, step: 0.1, order: 113},
       // grainSize: { value: (defaults.grainSize ?? 800.0) as number, min: 10, max: 2000, step: 1, order: 120 },
       // grainMixer: { value: (defaults.grainMixer ?? 0.12) as number, min: 0, max: 1, step: 0.01, order: 121 },
       // offsetX: { value: defaults.offsetX, min: -1, max: 1, order: 401 },

@@ -27,7 +27,7 @@ export const defaultPreset: HalftoneCmykPreset = {
     radius: 1.0,
     contrast: 0.8,
     angleC: 15,
-    angleM: 135,
+    angleM: 75,
     angleY: 0,
     angleK: 45,
     grainSize: 800.0,
