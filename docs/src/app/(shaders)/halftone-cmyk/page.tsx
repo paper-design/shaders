@@ -8,9 +8,8 @@ import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
 import { ShaderFit } from '@paper-design/shaders';
 import { levaImageButton } from '@/helpers/leva-image-button';
 import { useState, useEffect, useCallback } from 'react';
-import { toHsla } from '@/helpers/color-utils';
 import { ShaderDetails } from '@/components/shader-details';
-import { halftoneCmykDef } from '@/shader-defs/halftone-Cmyk-def';
+import { halftoneCmykDef } from '@/shader-defs/halftone-cmyk-def';
 import { ShaderContainer } from '@/components/shader-container';
 import { useUrlParams } from '@/helpers/use-url-params';
 
