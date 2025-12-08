@@ -124,7 +124,7 @@ void main() {
   vec2 pY = rotate(pGrid, radians(u_angleY));
   vec2 pK = rotate(pGrid, radians(u_angleK));
 
-  float baseR = .5 * u_radius;
+  float baseR = u_radius;
   float rC = baseR * clamp(cmyk[0], .1, 1.);
   float rM = baseR * clamp(cmyk[1], .1, 1.);
   float rY = baseR * clamp(cmyk[2], .1, 1.);
