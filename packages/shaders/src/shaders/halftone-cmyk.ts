@@ -2,6 +2,10 @@ import type { ShaderMotionParams } from '../shader-mount.js';
 import { type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
 import { declarePI, rotation2 } from '../shader-utils.js';
 
+export const halftoneCmykMeta = {
+  maxBlurRadius: 5,
+} as const;
+
 // language=GLSL
 export const halftoneCmykFragmentShader: string = `#version 300 es
 precision mediump float;
@@ -30,6 +34,7 @@ uniform float u_angleK;
 uniform float u_contrast;
 uniform float u_grainSize;
 uniform float u_grainMixer;
+uniform float u_smoothness;
 
 out vec4 fragColor;
 
@@ -82,7 +87,8 @@ float halftoneDot(vec2 p, float radius) {
   vec2 cellCenter = floor(p) + 0.5;
   vec2 d = p - cellCenter;
   float dist = length(d);
-  float aa = fwidth(dist);
+//  float aa = fwidth(dist);
+  float aa = 0.;
   return 1. - smoothstep(radius - aa, radius + aa, dist);
 }
 
@@ -103,12 +109,41 @@ vec3 CMYKtoRGB(vec4 cmyk) {
   rgb.b = 1.0 - min(1.0, cmyk.z + cmyk.w);
   return rgb;
 }
+vec4 blurTexture(sampler2D tex, vec2 uv, vec2 texelSize, float radius) {
+  // clamp radius so loops have a known max
+  float r = clamp(radius, 0., float(${ halftoneCmykMeta.maxBlurRadius }));
+  int ir = int(r);
+
+  vec4 acc = vec4(0.0);
+  float weightSum = 0.0;
+
+  // simple Gaussian-ish weights based on distance
+  for (int y = -${ halftoneCmykMeta.maxBlurRadius }; y <= ${ halftoneCmykMeta.maxBlurRadius }; ++y) {
+    if (abs(y) > ir) continue;
+    for (int x = -${ halftoneCmykMeta.maxBlurRadius }; x <= ${ halftoneCmykMeta.maxBlurRadius }; ++x) {
+      if (abs(x) > ir) continue;
+
+      vec2 offset = vec2(float(x), float(y));
+      float dist2 = dot(offset, offset);
+
+      // tweak sigma to taste; lower sigma = sharper falloff
+      float sigma = radius * 0.5 + 0.001;
+      float w = exp(-dist2 / (2.0 * sigma * sigma));
+
+      acc += texture(tex, uv + offset * texelSize) * w;
+      weightSum += w;
+    }
+  }
+
+  return acc / max(weightSum, 0.00001);
+}
 
 void main() {
   vec2 uvNormalised = (gl_FragCoord.xy - 0.5 * u_resolution) / u_resolution.xy;
-  vec2 imageUV = getImageUV(uvNormalised, vec2(1.));
+  vec2 uv = getImageUV(uvNormalised, vec2(1.));
 
-  vec4 tex = texture(u_image, imageUV);
+//  vec4 tex = texture(u_image, uv);
+  vec4 tex = blurTexture(u_image, uv, vec2(1. / u_resolution), u_smoothness);
   vec3 rgb = tex.rgb;
 
   float lum = dot(rgb, vec3(0.2126, 0.7152, 0.0722));
@@ -117,13 +152,13 @@ void main() {
   float cellsPerSide = mix(300.0, 7.0, pow(u_size, 0.7));
   float cellSizeY = 1.0 / cellsPerSide;
   vec2 pad = cellSizeY * vec2(1.0 / u_imageAspectRatio, 1.0);
-  vec2 pGrid = (imageUV - .5) / pad;
-  float outOfFrame = getUvFrame(imageUV, pad);
+  vec2 uvGrid = (uv - .5) / pad;
+  float outOfFrame = getUvFrame(uv, pad);
 
-  vec2 pC = rotate(pGrid, radians(u_angleC));
-  vec2 pM = rotate(pGrid, radians(u_angleM));
-  vec2 pY = rotate(pGrid, radians(u_angleY));
-  vec2 pK = rotate(pGrid, radians(u_angleK));
+  vec2 pC = rotate(uvGrid, radians(u_angleC));
+  vec2 pM = rotate(uvGrid, radians(u_angleM));
+  vec2 pY = rotate(uvGrid, radians(u_angleY));
+  vec2 pK = rotate(uvGrid, radians(u_angleK));
 
   float baseR = u_radius * outOfFrame;
   float rC = baseR * clamp(cmyk[0], .1, 1.);
@@ -136,12 +171,18 @@ void main() {
   float Y = halftoneDot(pY, rY);
   float K = halftoneDot(pK, rK);
 
-  vec3 col = u_colorBack.rgb;
-
   vec4 outCmyk = vec4(C, M, Y, K);
-  vec3 outRgb = CMYKtoRGB(outCmyk);
 
-  fragColor = vec4(outRgb, 1.0);
+  vec3 color = u_colorBack.rgb * u_colorBack.a;
+  float opacity = u_colorBack.a;
+  float shape = max(max(max(C, M), Y), K);
+  vec3 inkRgb = CMYKtoRGB(outCmyk);
+  inkRgb *= shape;
+  color = mix(color, inkRgb, shape);
+  opacity += shape;
+  opacity = clamp(opacity, 0., 1.);
+  
+  fragColor = vec4(color, opacity);
 }
 `;
 
@@ -155,6 +196,7 @@ export interface HalftoneCmykUniforms extends ShaderSizingUniforms {
   u_angleY: number;
   u_angleK: number;
   u_contrast: number;
+  u_smoothness: number;
   u_grainSize: number;
   u_grainMixer: number;
 }
@@ -169,6 +211,7 @@ export interface HalftoneCmykParams extends ShaderSizingParams, ShaderMotionPara
   angleY?: number;
   angleK?: number;
   contrast?: number;
+  smoothness?: number;
   grainSize?: number;
   grainMixer?: number;
 }

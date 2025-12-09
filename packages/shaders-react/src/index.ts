@@ -134,4 +134,5 @@ export {
   heatmapMeta,
   staticMeshGradientMeta,
   staticRadialGradientMeta,
+  halftoneCmykMeta,
 } from '@paper-design/shaders';

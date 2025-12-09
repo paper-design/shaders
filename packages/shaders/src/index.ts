@@ -214,6 +214,7 @@ export {
 /** A halftone CMYK classic algo */
 export {
   halftoneCmykFragmentShader,
+  halftoneCmykMeta,
   type HalftoneCmykParams,
   type HalftoneCmykUniforms,
 } from './shaders/halftone-cmyk.js';
