@@ -61,14 +61,14 @@ uniform float u_gridNoiseDistortion;
 uniform float u_gridRotation;
 
 
-${sizingVariablesDeclaration}
+${ sizingVariablesDeclaration }
 
 out vec4 fragColor;
 
-${declarePI}
-${rotation2}
-${simplexNoise}
-${proceduralHash21}
+${ declarePI }
+${ rotation2 }
+${ simplexNoise }
+${ proceduralHash21 }
 
 float valueNoise(vec2 st) {
   vec2 i = floor(st);
@@ -138,16 +138,16 @@ float sigmoid(float x, float k) {
 
 vec4 blurTexture(sampler2D tex, vec2 uv, vec2 texelSize, float radius) {
   // clamp radius so loops have a known max
-  float r = clamp(radius, 0., float(${halftoneLinesMeta.maxBlurRadius}));
+  float r = clamp(radius, 0., float(${ halftoneLinesMeta.maxBlurRadius }));
   int ir = int(r);
 
   vec4 acc = vec4(0.0);
   float weightSum = 0.0;
 
   // simple Gaussian-ish weights based on distance
-  for (int y = -20; y <= ${halftoneLinesMeta.maxBlurRadius}; ++y) {
+  for (int y = -${ halftoneLinesMeta.maxBlurRadius }; y <= ${ halftoneLinesMeta.maxBlurRadius }; ++y) {
     if (abs(y) > ir) continue;
-    for (int x = -20; x <= ${halftoneLinesMeta.maxBlurRadius}; ++x) {
+    for (int x = -${ halftoneLinesMeta.maxBlurRadius }; x <= ${ halftoneLinesMeta.maxBlurRadius }; ++x) {
       if (abs(x) > ir) continue;
 
       vec2 offset = vec2(float(x), float(y));
@@ -171,9 +171,9 @@ float getLumAtPx(vec2 uv, float contrast, out vec3 origColor) {
 
   origColor = tex.rgb;
   vec3 color = vec3(
-      sigmoid(tex.r, contrast),
-      sigmoid(tex.g, contrast),
-      sigmoid(tex.b, contrast)
+  sigmoid(tex.r, contrast),
+  sigmoid(tex.g, contrast),
+  sigmoid(tex.b, contrast)
   );
   float lum = dot(vec3(0.2126, 0.7152, 0.0722), color);
   lum = mix(1., lum, tex.a);
@@ -264,7 +264,7 @@ void main() {
     wHi -= .5 * aa;
   }
   w = clamp(w, wLo, wHi);
-  
+
   vec2 grainMixerSize = mix(1000., 50., u_grainMixerSize) * vec2(1., 1. / u_imageAspectRatio);
   vec2 grainOverlaySize = mix(2000., 200., u_grainOverlaySize) * vec2(1., 1. / u_imageAspectRatio);
   vec2 grainMixerUV = getImageUV(uvNormalised, grainMixerSize);
@@ -300,7 +300,7 @@ void main() {
 
   opacity += .5 * grainOverlayStrength;
   opacity = clamp(opacity, 0., 1.);
-  
+
   fragColor = vec4(color, opacity);
 }
 `;
