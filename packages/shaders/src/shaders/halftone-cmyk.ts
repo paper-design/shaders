@@ -36,6 +36,7 @@ uniform float u_contrast;
 uniform float u_grainSize;
 uniform float u_grainMixer;
 uniform float u_smoothness;
+uniform float u_softness;
 
 out vec4 fragColor;
 
@@ -88,9 +89,15 @@ float halftoneDot(vec2 p, float radius) {
   vec2 cellCenter = floor(p) + 0.5;
   vec2 d = p - cellCenter;
   float dist = length(d);
-//  float aa = fwidth(dist);
-  float aa = 0.;
-  return 1. - smoothstep(radius - aa, radius + aa, dist);
+  return 1. - step(radius, dist);
+}
+
+float halftoneDotMask(vec2 p, float radius) {
+  vec2 cellCenter = floor(p) + 0.5;
+  vec2 d = p - cellCenter;
+  float dist = length(d);
+  float aa = fwidth(dist);
+  return 1. - smoothstep(mix(radius - aa, 0., u_softness), radius + aa, dist);
 }
 
 vec4 RGBtoCMYK(vec3 rgb) {
@@ -165,14 +172,17 @@ void main() {
   float M = halftoneDot(pM, radius[1]);
   float Y = halftoneDot(pY, radius[2]);
   float K = halftoneDot(pK, radius[3]);
+  float maskC = halftoneDotMask(pC, radius[0]);
+  float maskM = halftoneDotMask(pM, radius[1]);
+  float maskY = halftoneDotMask(pY, radius[2]);
+  float maskK = halftoneDotMask(pK, radius[3]);
 
   vec4 outCmyk = vec4(C, M, Y, K);
 
   vec3 color = u_colorBack.rgb * u_colorBack.a;
   float opacity = u_colorBack.a;
-  float shape = max(max(max(C, M), Y), K);
+  float shape = max(max(max(maskC, maskM), maskY), maskK);
   vec3 inkRgb = CMYKtoRGB(outCmyk);
-  inkRgb *= shape;
   color = mix(color, inkRgb, shape);
   opacity += shape;
   opacity = clamp(opacity, 0., 1.);
@@ -193,6 +203,7 @@ export interface HalftoneCmykUniforms extends ShaderSizingUniforms {
   u_angleK: number;
   u_contrast: number;
   u_smoothness: number;
+  u_softness: number;
   u_grainSize: number;
   u_grainMixer: number;
 }
@@ -209,6 +220,7 @@ export interface HalftoneCmykParams extends ShaderSizingParams, ShaderMotionPara
   angleK?: number;
   contrast?: number;
   smoothness?: number;
+  softness?: number;
   grainSize?: number;
   grainMixer?: number;
 }
