@@ -68,12 +68,12 @@ vec2 getImageUV(vec2 uv, vec2 extraScale) {
 }
 
 float getUvFrame(vec2 uv, vec2 pad) {
-  float aa = 0.0001;
+  float aa = 0.01;
 
-  float left   = smoothstep(-pad.x, -pad.x + aa, uv.x);
-  float right  = smoothstep(1.0 + pad.x, 1.0 + pad.x - aa, uv.x);
-  float bottom = smoothstep(-pad.y, -pad.y + aa, uv.y);
-  float top    = smoothstep(1.0 + pad.y, 1.0 + pad.y - aa, uv.y);
+  float left   = smoothstep(-pad.x, 0., uv.x);
+  float right  = smoothstep(1.0 + pad.x, 1., uv.x);
+  float bottom = smoothstep(-pad.y, 0., uv.y);
+  float top    = smoothstep(1.0 + pad.y, 1., uv.y);
 
   return left * right * bottom * top;
 }
@@ -118,13 +118,14 @@ void main() {
   float cellSizeY = 1.0 / cellsPerSide;
   vec2 pad = cellSizeY * vec2(1.0 / u_imageAspectRatio, 1.0);
   vec2 pGrid = (imageUV - .5) / pad;
+  float outOfFrame = getUvFrame(imageUV, pad);
 
   vec2 pC = rotate(pGrid, radians(u_angleC));
   vec2 pM = rotate(pGrid, radians(u_angleM));
   vec2 pY = rotate(pGrid, radians(u_angleY));
   vec2 pK = rotate(pGrid, radians(u_angleK));
 
-  float baseR = u_radius;
+  float baseR = u_radius * outOfFrame;
   float rC = baseR * clamp(cmyk[0], .1, 1.);
   float rM = baseR * clamp(cmyk[1], .1, 1.);
   float rY = baseR * clamp(cmyk[2], .1, 1.);

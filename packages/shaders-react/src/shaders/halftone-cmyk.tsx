@@ -19,7 +19,8 @@ export const defaultPreset: HalftoneCmykPreset = {
   name: 'Default',
   params: {
     ...defaultObjectSizing,
-    fit: 'cover',
+    scale: .8,
+    fit: 'contain',
     speed: 0,
     frame: 0,
     colorBack: '#ffffff',
