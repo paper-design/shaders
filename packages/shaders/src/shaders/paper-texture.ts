@@ -1,6 +1,6 @@
 import type { ShaderMotionParams } from '../shader-mount.js';
 import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
-import { rotation2, declarePI, textureRandomizerR, textureRandomizerGB } from '../shader-utils.js';
+import { rotation2, declarePI, textureRandomizerR } from '../shader-utils.js';
 
 /**
  * A static texture built from multiple noise layers, usable for realistic paper and cardboard surfaces.
@@ -14,16 +14,22 @@ import { rotation2, declarePI, textureRandomizerR, textureRandomizerGB } from '.
  * - u_colorFront (vec4): Foreground color in RGBA
  * - u_colorBack (vec4): Background color in RGBA
  * - u_contrast (float): Blending behavior, sharper vs smoother color transitions (0 to 1)
- * - u_roughness (float): Pixel noise, related to canvas and not scalable (0 to 1)
+ * - u_roughness (float): Hi-freq grain-like distortion intensity (0 to 1)
+ * - u_roughnessSize (float): Scale of the roughness pattern (0 to 1)
  * - u_fiber (float): Curly-shaped noise intensity (0 to 1)
  * - u_fiberSize (float): Curly-shaped noise scale (0 to 1)
  * - u_crumples (float): Cell-based crumple pattern intensity (0 to 1)
  * - u_crumpleSize (float): Cell-based crumple pattern scale (0 to 1)
  * - u_folds (float): Depth of the folds (0 to 1)
  * - u_foldCount (float): Number of folds (1 to 15)
- * - u_fade (float): Big-scale noise mask applied to the pattern (0 to 1)
- * - u_drops (float): Visibility of speckle pattern (0 to 1)
+ * - u_grid (float): Intensity of the grid / crease pattern (0 to 1)
+ * - u_gridShape (float): Shape/width of the grid creases (0 to 1)
+ * - u_gridCount (float): Number/density of grid creases (0 to N)
+ * - u_drops (float): Visibility of speckle / drop pattern (0 to 1)
  * - u_seed (float): Seed applied to folds, crumples and dots (0 to 1000)
+ * - u_fade (float): Large-scale noise mask applied to the pattern (0 to 1)
+ * - u_blending (float): Amount of image-to-paper blending, 0 for original color, 1 for mix with colorBack (0 to 1)
+ * - u_distortion (float): Amount of distortion of the image by the paper normals (0 to 1)
  * - u_noiseTexture (sampler2D): Pre-computed randomizer source texture
  *
  * Vertex shader outputs (used in fragment shader):
