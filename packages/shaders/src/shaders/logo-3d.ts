@@ -4,7 +4,7 @@ import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingU
 import { declarePI, rotation2 } from '../shader-utils.js';
 
 export const logo3dMeta = {
-  maxColorCount: 10,
+  maxColorCount: 6,
 } as const;
 
 /**
