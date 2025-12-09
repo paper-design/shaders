@@ -73,6 +73,7 @@ const HalftoneCmykWithControls = () => {
       colorBack: { value: toHsla(defaults.colorBack), order: 100 },
       size: { value: defaults.size, min: 0.01, max: 1, step: 0.01, order: 101 },
       radius: { value: defaults.radius, min: 0.01, max: 1, step: 0.01, order: 102 },
+      minRadius: { value: defaults.minRadius, min: 0, max: 0.2, step: 0.01, order: 102 },
       angleC: {value: defaults.angleC, min: 0, max: 90, step: 0.1, order: 110},
       angleM: {value: defaults.angleM, min: 0, max: 90, step: 0.1, order: 111},
       angleY: {value: defaults.angleY, min: 0, max: 90, step: 0.1, order: 112},

@@ -27,6 +27,7 @@ uniform float u_imageAspectRatio;
 uniform vec4 u_colorBack;
 uniform float u_size;
 uniform float u_radius;
+uniform float u_minRadius;
 uniform float u_angleC;
 uniform float u_angleM;
 uniform float u_angleY;
@@ -144,10 +145,7 @@ void main() {
 
 //  vec4 tex = texture(u_image, uv);
   vec4 tex = blurTexture(u_image, uv, vec2(1. / u_resolution), u_smoothness);
-  vec3 rgb = tex.rgb;
-
-  float lum = dot(rgb, vec3(0.2126, 0.7152, 0.0722));
-  vec4 cmyk = RGBtoCMYK(rgb);
+  vec4 cmyk = RGBtoCMYK(tex.rgb);
   
   float cellsPerSide = mix(300.0, 7.0, pow(u_size, 0.7));
   float cellSizeY = 1.0 / cellsPerSide;
@@ -161,15 +159,12 @@ void main() {
   vec2 pK = rotate(uvGrid, radians(u_angleK));
 
   float baseR = u_radius * outOfFrame;
-  float rC = baseR * clamp(cmyk[0], .1, 1.);
-  float rM = baseR * clamp(cmyk[1], .1, 1.);
-  float rY = baseR * clamp(cmyk[2], .1, 1.);
-  float rK = baseR * clamp(cmyk[3], .1, 1.);
+  vec4 radius = baseR * mix(cmyk, vec4(1.), u_minRadius);
 
-  float C = halftoneDot(pC, rC);
-  float M = halftoneDot(pM, rM);
-  float Y = halftoneDot(pY, rY);
-  float K = halftoneDot(pK, rK);
+  float C = halftoneDot(pC, radius[0]);
+  float M = halftoneDot(pM, radius[1]);
+  float Y = halftoneDot(pY, radius[2]);
+  float K = halftoneDot(pK, radius[3]);
 
   vec4 outCmyk = vec4(C, M, Y, K);
 
@@ -191,6 +186,7 @@ export interface HalftoneCmykUniforms extends ShaderSizingUniforms {
   u_colorBack: [number, number, number, number];
   u_size: number;
   u_radius: number;
+  u_minRadius: number;
   u_angleC: number;
   u_angleM: number;
   u_angleY: number;
@@ -206,6 +202,7 @@ export interface HalftoneCmykParams extends ShaderSizingParams, ShaderMotionPara
   colorBack?: string;
   size?: number;
   radius?: number;
+  minRadius?: number;
   angleC?: number;
   angleM?: number;
   angleY?: number;
