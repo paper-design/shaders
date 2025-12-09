@@ -383,15 +383,21 @@ export interface PaperTextureUniforms extends ShaderSizingUniforms {
   u_colorBack: [number, number, number, number];
   u_contrast: number;
   u_roughness: number;
+  u_roughnessSize: number;
   u_fiber: number;
   u_fiberSize: number;
   u_crumples: number;
   u_foldCount: number;
   u_folds: number;
+  u_grid: number;
+  u_gridShape: number;
+  u_gridCount: number;
   u_fade: number;
   u_crumpleSize: number;
   u_drops: number;
   u_seed: number;
+  u_blending: number;
+  u_distortion: number;
 }
 
 export interface PaperTextureParams extends ShaderSizingParams, ShaderMotionParams {
@@ -400,13 +406,19 @@ export interface PaperTextureParams extends ShaderSizingParams, ShaderMotionPara
   colorBack?: string;
   contrast?: number;
   roughness?: number;
+  roughnessSize?: number;
   fiber?: number;
   fiberSize?: number;
   crumples?: number;
   foldCount?: number;
   folds?: number;
+  grid?: number;
+  gridShape?: number;
+  gridCount?: number;
   fade?: number;
   crumpleSize?: number;
   drops?: number;
   seed?: number;
+  blending?: number;
+  distortion?: number;
 }
