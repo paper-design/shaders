@@ -166,35 +166,17 @@ vec4 blurTexture(sampler2D tex, vec2 uv, vec2 texelSize, float radius) {
 }
 
 
-float getLumAtPx(vec2 uv, float contrast, out vec3 origColor) {
-  vec4 tex = blurTexture(u_image, uv, vec2(1. / u_resolution), u_smoothness);
-
-  origColor = tex.rgb;
+float getLumAtPx(vec2 uv, float contrast, out vec4 originalTexture) {
+  originalTexture = blurTexture(u_image, uv, vec2(1. / u_resolution), u_smoothness);
   vec3 color = vec3(
-  sigmoid(tex.r, contrast),
-  sigmoid(tex.g, contrast),
-  sigmoid(tex.b, contrast)
+  sigmoid(originalTexture.r, contrast),
+  sigmoid(originalTexture.g, contrast),
+  sigmoid(originalTexture.b, contrast)
   );
   float lum = dot(vec3(0.2126, 0.7152, 0.0722), color);
-  lum = mix(1., lum, tex.a);
+  lum = mix(1., lum, originalTexture.a);
   lum = u_inverted ? (1. - lum) : lum;
   return lum;
-}
-
-float blendOverlay(float base, float blend) {
-  return base<0.5?(2.0*base*blend):(1.0-2.0*(1.0-base)*(1.0-blend));
-}
-
-vec3 blendOverlay(vec3 base, vec3 blend) {
-  return vec3(blendOverlay(base.r, blend.r), blendOverlay(base.g, blend.g), blendOverlay(base.b, blend.b));
-}
-
-vec3 blendHardLight(vec3 base, vec3 blend) {
-  return blendOverlay(blend, base);
-}
-
-vec3 blendHardLight(vec3 base, vec3 blend, float opacity) {
-  return (blendHardLight(base, blend) * opacity + base * (1.0 - opacity));
 }
 
 void main() {
@@ -206,8 +188,8 @@ void main() {
 
   float contrast = mix(0., 15., u_contrast);
 
-  vec3 origColor = vec3(0.);
-  float lum = getLumAtPx(uvOriginal, contrast, origColor);
+  vec4 originalTexture = vec4(0.);
+  float lum = getLumAtPx(uvOriginal, contrast, originalTexture);
 
   float frame = getImgFrame(v_imageUV, 0.);
   lum = mix(1., lum, frame);
@@ -278,15 +260,28 @@ void main() {
   float hi = w + aa;
   float line = sst(lo, hi, stripeMap);
   line = mix(1., line, frame);
-  line = clamp(line, 0., 1.);
+  line = 1. - clamp(line, 0., 1.);
 
   vec3 color = vec3(0.);
-  float opacity = 1.;
-
+  float opacity = 0.;
+  
   if (u_originalColors == true) {
-    color = mix(origColor, u_colorBack.rgb, line);
+    color = originalTexture.rgb * line;
+    opacity = originalTexture.a * line;
+
+    vec3 bgColor = u_colorBack.rgb * u_colorBack.a;
+    color = color + bgColor * (1. - opacity);
+    opacity = opacity + u_colorBack.a * (1. - opacity);
   } else {
-    color = mix(u_colorFront.rgb, u_colorBack.rgb, line);
+    vec3 fgColor = u_colorFront.rgb * u_colorFront.a;
+    float fgOpacity = u_colorFront.a;
+    vec3 bgColor = u_colorBack.rgb * u_colorBack.a;
+    float bgOpacity = u_colorBack.a;
+
+    color = fgColor * line;
+    opacity = fgOpacity * line;
+    color += bgColor * (1. - opacity);
+    opacity += bgOpacity * (1. - opacity);
   }
 
   float grainOverlay = valueNoise(rotate(grainOverlayUV, 1.) + vec2(3.));
