@@ -3,12 +3,36 @@ import { type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-si
 import { declarePI, rotation2, proceduralHash21 } from '../shader-utils.js';
 
 /**
-
-
- Uniforms:
- - u_colorBack, u_colorFront, u_colorHighlight (RGBA)
- (u_colorHighlight to be the lighstraight parts of u_colorFront pixels)
- - size: px size set relative to canvas resolution
+ * A halftone-dot image filter featuring customizable grids, color palettes, and dot styles.
+ *
+ * Fragment shader uniforms:
+ * - u_resolution (vec2): Canvas resolution in pixels
+ * - u_pixelRatio (float): Device pixel ratio
+ * - u_originX (float): Reference point for positioning world width in the canvas (0 to 1)
+ * - u_originY (float): Reference point for positioning world height in the canvas (0 to 1)
+ * - u_fit (float): How to fit the rendered shader into the canvas dimensions (1 = contain, 2 = cover)
+ * - u_scale (float): Overall zoom level of the graphics (0.01 to 4)
+ * - u_rotation (float): Overall rotation angle of the graphics in degrees (0 to 360)
+ * - u_offsetX (float): Horizontal offset of the graphics center (-1 to 1)
+ * - u_offsetY (float): Vertical offset of the graphics center (-1 to 1)
+ * - u_time (float): Animation time
+ * - u_image (sampler2D): Source image texture
+ * - u_imageAspectRatio (float): Aspect ratio of the source image
+ * - u_colorFront (vec4): Foreground color in RGBA
+ * - u_colorBack (vec4): Background color in RGBA
+ * - u_originalColors (bool): Use sampled image's original colors instead of colorFront
+ * - u_type (float): Dot style (0 = classic, 1 = gooey, 2 = holes, 3 = soft)
+ * - u_inverted (bool): Inverts the image luminance, doesn’t affect the color scheme; not effective at zero contrast
+ * - u_grid (float): Grid type (0 = square, 1 = hex)
+ * - u_size (float): Grid size relative to the image box (0 to 1)
+ * - u_radius (float): Maximum dot size relative to grid cell (0 to 2)
+ * - u_contrast (float): Contrast applied to the sampled image (0 to 1)
+ * - u_grainMixer (float): Strength of grain distortion applied to shape edges (0 to 1)
+ * - u_grainOverlay (float): Post-processing black/white grain overlay (0 to 1)
+ * - u_grainSize (float): Scale applied to both grain distortion and grain overlay (0 to 1)
+ *
+ * Note: This shader calculates image UVs directly in the fragment shader using gl_FragCoord,
+ * rather than relying on vertex shader outputs.
  */
 
 // language=GLSL
@@ -40,16 +64,16 @@ uniform float u_size;
 uniform float u_grainMixer;
 uniform float u_grainOverlay;
 uniform float u_grainSize;
-uniform bool u_straight;
+uniform float u_grid;
 uniform bool u_originalColors;
 uniform bool u_inverted;
 uniform float u_type;
 
 out vec4 fragColor;
 
-${declarePI}
-${rotation2}
-${proceduralHash21}
+${ declarePI }
+${ rotation2 }
+${ proceduralHash21 }
 
 float valueNoise(vec2 st) {
   vec2 i = floor(st);
@@ -99,7 +123,7 @@ vec2 getImageUV(vec2 uv, vec2 extraScale) {
 
   imageUV += .5;
   imageUV.y = 1. - imageUV.y;
-  
+
   return imageUV;
 }
 
@@ -121,7 +145,7 @@ float getCircleWithHole(vec2 uv, float r, float baseR) {
 
   r = mix(.75 * baseR, 0., r);
   float rMod = mod(r, .5);
-  
+
   float d = length(uv - .5);
   float aa = fwidth(d);
   float circle = 1. - smoothstep(rMod - aa, rMod + aa, d);
@@ -134,9 +158,13 @@ float getCircleWithHole(vec2 uv, float r, float baseR) {
 
 float getGooeyBall(vec2 uv, float r, float baseR) {
   float d = length(uv - .5);
-  float sizeRadius = mix((u_straight ? .3 : .42) * baseR, 0., r);
+  float sizeRadius = .3;
+  if (u_grid == 1.) {
+    sizeRadius = .42;
+  }
+  sizeRadius = mix(sizeRadius * baseR, 0., r);
   d = 1. - sst(0., sizeRadius, d);
-  
+
   d = pow(d, 2. + baseR);
   return d;
 }
@@ -183,10 +211,9 @@ float getLumBall(vec2 p, vec2 pad, vec2 inCellOffset, float contrast, float base
   p += inCellOffset;
   vec2 uv_i = floor(p);
   vec2 uv_f = fract(p);
-  vec2 samplePx = (uv_i + .5 - inCellOffset) * pad;
-  vec2 samplingUV = getImageUV(samplePx, vec2(1.));
+  vec2 samplingUV = (uv_i + .5 - inCellOffset) * pad + vec2(.5);
   float outOfFrame = getUvFrame(samplingUV, pad * stepSize);
-  
+
   float lum = getLumAtPx(samplingUV, contrast);
   ballColor = texture(u_image, samplingUV);
   ballColor.rgb *= ballColor.a;
@@ -210,29 +237,9 @@ float getLumBall(vec2 p, vec2 pad, vec2 inCellOffset, float contrast, float base
   return ball * outOfFrame;
 }
 
-float blendOverlay(float base, float blend) { 
-  return base<0.5?(2.0*base*blend):(1.0-2.0*(1.0-base)*(1.0-blend));
-}
-
-vec3 blendOverlay(vec3 base, vec3 blend) { 
-  return vec3(blendOverlay(base.r, blend.r), blendOverlay(base.g, blend.g), blendOverlay(base.b, blend.b));
-}
-
-vec3 blendHardLight(vec3 base, vec3 blend) { 
-  return blendOverlay(blend, base);
-}
-
-vec3 blendHardLight(vec3 base, vec3 blend, float opacity) { 
-  return (blendHardLight(base, blend) * opacity + base * (1.0 - opacity));
-}
 
 void main() {
 
-  vec2 uv = gl_FragCoord.xy - .5 * u_resolution;
-
-  vec2 uvNormalised = uv / u_resolution.xy;
-  vec2 uvOriginal = getImageUV(uvNormalised, vec2(1.));
-  
   float stepMultiplier = 1.;
   if (u_type == 0.) {
     // classic
@@ -241,29 +248,27 @@ void main() {
     // gooey & soft
     stepMultiplier = 6.;
   }
-  
-  vec2 uvOffset = vec2(1. / u_resolution.x, 0.);
-  if (u_resolution.x > u_resolution.y) {
-    uvOffset = vec2(0., 1. / u_resolution.y);
-  }
-  vec2 uvOriginalShifted = getImageUV(uvNormalised + uvOffset, vec2(1.));
-  vec2 pxSize = vec2(stepMultiplier) * u_size / 10. / length(uvOriginal - uvOriginalShifted);
 
-  if (u_type == 1. && u_straight == false) {
-    // gooey diaginal grid works differently
-     pxSize *= .7;
+  float cellsPerSide = mix(300., 7., pow(u_size, .7));
+  cellsPerSide /= stepMultiplier;
+  float cellSizeY = 1. / cellsPerSide;
+  vec2 pad = cellSizeY * vec2(1. / u_imageAspectRatio, 1.);
+  if (u_type == 1. && u_grid == 1.) {
+    // gooey diagonal grid works differently
+    pad *= .7;
   }
 
-//   pxSize = max(pxSize, vec2(4. * stepMultiplier));
+  vec2 uvNormalised = (gl_FragCoord.xy - .5 * u_resolution) / u_resolution.xy;
+  vec2 uv = getImageUV(uvNormalised, vec2(1.));
+  uv -= vec2(.5);
+  uv /= pad;
 
-  float contrast = mix(0., 15., u_contrast);
+  float contrast = mix(0., 15., pow(u_contrast, 1.5));
   float baseRadius = u_radius;
   if (u_originalColors == true) {
     contrast = mix(.1, 4., pow(u_contrast, 2.));
     baseRadius = 2. * pow(.5 * u_radius, .3);
   }
-
-  vec2 p = uv / pxSize;
 
   float totalShape = 0.;
   vec3 totalColor = vec3(0.);
@@ -276,13 +281,13 @@ void main() {
     for (float y = -0.5; y < 0.5; y += stepSize) {
       vec2 offset = vec2(x, y);
 
-      if (u_straight == false) {
+      if (u_grid == 1.) {
         float rowIndex = floor((y + .5) / stepSize);
         float colIndex = floor((x + .5) / stepSize);
         if (stepSize == 1.) {
-          rowIndex = floor(p.y + y + 1.);
+          rowIndex = floor(uv.y + y + 1.);
           if (u_type == 1.) {
-            colIndex = floor(p.x + x + 1.);
+            colIndex = floor(uv.x + x + 1.);
           }
         }
         if (u_type == 1.) {
@@ -296,15 +301,15 @@ void main() {
         }
       }
 
-      shape = getLumBall(p, pxSize / u_resolution.xy, offset, contrast, baseRadius, stepSize, ballColor);
+      shape = getLumBall(uv, pad, offset, contrast, baseRadius, stepSize, ballColor);
       totalColor   += ballColor.rgb * shape;
       totalShape   += shape;
       totalOpacity += shape;
     }
   }
-  
+
   const float eps = 1e-4;
-  
+
   totalColor /= max(totalShape, eps);
   totalOpacity /= max(totalShape, eps);
 
@@ -330,7 +335,7 @@ void main() {
 
   vec3 color = vec3(0.);
   float opacity = 0.;
-  
+
   if (u_originalColors == true) {
     color = totalColor * finalShape;
     opacity = totalOpacity * finalShape;
@@ -352,9 +357,16 @@ void main() {
 
   float grainOverlay = valueNoise(rotate(grainUV, 1.) + vec2(3.));
   grainOverlay = mix(grainOverlay, valueNoise(rotate(grainUV, 2.) + vec2(-1.)), .5);
-  grainOverlay = pow(grainOverlay, 2.);
-  vec3 grainOverlayColor = vec3(grainOverlay);
-  color = blendHardLight(color, grainOverlayColor, .5 * u_grainOverlay);
+  grainOverlay = pow(grainOverlay, 1.3);
+
+  float grainOverlayV = grainOverlay * 2. - 1.;
+  vec3 grainOverlayColor = vec3(step(0., grainOverlayV));
+  float grainOverlayStrength = u_grainOverlay * abs(grainOverlayV);
+  grainOverlayStrength = pow(grainOverlayStrength, .8);
+  color = mix(color, grainOverlayColor, .5 * grainOverlayStrength);
+
+  opacity += .5 * grainOverlayStrength;
+  opacity = clamp(opacity, 0., 1.);
 
   fragColor = vec4(color, opacity);
 }
@@ -365,7 +377,7 @@ export interface HalftoneDotsUniforms extends ShaderSizingUniforms {
   u_colorFront: [number, number, number, number];
   u_colorBack: [number, number, number, number];
   u_size: number;
-  u_straight: boolean;
+  u_grid: (typeof HalftoneDotsGrids)[HalftoneDotsGrid];
   u_radius: number;
   u_contrast: number;
   u_originalColors: boolean;
@@ -381,7 +393,7 @@ export interface HalftoneDotsParams extends ShaderSizingParams, ShaderMotionPara
   colorFront?: string;
   colorBack?: string;
   size?: number;
-  straight?: boolean;
+  grid?: HalftoneDotsGrid;
   radius?: number;
   contrast?: number;
   originalColors?: boolean;
@@ -400,3 +412,10 @@ export const HalftoneDotsTypes = {
 } as const;
 
 export type HalftoneDotsType = keyof typeof HalftoneDotsTypes;
+
+export const HalftoneDotsGrids = {
+  square: 0,
+  hex: 1,
+} as const;
+
+export type HalftoneDotsGrid = keyof typeof HalftoneDotsGrids;

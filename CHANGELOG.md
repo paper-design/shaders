@@ -1,5 +1,47 @@
 # Paper Shaders
 
+## Version 0.0.68
+
+- **General**
+  - JSDoc comments updated
+  - Docs updated with refined props definitions, examples added to registry where missing
+  - GLSL formatting updated and cleaned up; fragment shader sizing code moved from global utilities into individual shaders
+- **Heatmap**
+  - JS pre-pass updated for Safari support (manual blur used instead of `ctx.filter`)
+- **GrainGradient**
+  - Several performance improvements
+- **Halftone Dots**
+  - Restored default cell `size` after extension of allowed range
+  
+## Version 0.0.67
+
+- **Mesh Gradient**
+  - Fixed a GLSL error that caused shader rendering to fail
+- **Halftone Dots**
+  - Extended cell `size` range to allow smaller dots
+
+## Version 0.0.66
+
+- **Fluted Glass**
+  - Improved support for transparent images
+  - Adjusted blending of `grainOverlay` so that grain is now visible over transparent backgrounds
+- **Halftone Dots**
+  - Adjusted blending of `grainOverlay` so that grain is now visible over transparent backgrounds
+- **Image Dithering**
+  - Improved support for transparent images
+  - Made sure that the origin point for dithering looks consistent regardless of `size`
+- **Mesh Gradient**, **Static Mesh Gradient**, **Static Radial Gradient**
+  - Changed `grainOverlay` noise to monochrome
+  - Fixed edge case issues with `grainOverlay` positioning
+
+## Version 0.0.65
+
+**Halftone Dots**
+
+- Renamed the boolean `straight` prop to `grid = 'hex' | 'square'`
+- Adjusted `size` and `contrast` parameter curves
+- Fixed an issue where the dot radius would unexpectedly change when resizing the shader canvas
+
 ## Version 0.0.64
 
 New shader: **Halftone Dots**

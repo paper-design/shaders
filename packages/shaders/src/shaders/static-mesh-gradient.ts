@@ -14,23 +14,44 @@ export const staticMeshGradientMeta = {
 } as const;
 
 /**
- * A composition of N color spots (one per color)
+ * Multi-point mesh gradient with up to 10 color spots, enhanced by two-direction warping,
+ * adjustable blend sharpness, and grain controls.
  *
- * Uniforms:
- * - u_colorBack (RGBA)
- * - u_colors (vec4[]), u_colorsCount (float used as integer)
- * - u_waveX, u_waveY - power of sine wave distortion along X and Y axes
- * - u_waveXShift, u_waveYShift - each wave phase offset
- * - u_mixing (0 .. 1, float) - 0 for stepped gradient, 0.5 for smooth transitions, 1 for pronounced color points
- * - u_grainMixer - shape distortion
- * - u_grainOverlay - post-processing blending
+ * Fragment shader uniforms:
+ * - u_colors (vec4[]): Up to 10 gradient colors in RGBA
+ * - u_colorsCount (float): Number of active colors
+ * - u_positions (float): Color spots placement seed (0 to 100)
+ * - u_waveX (float): Strength of sine wave distortion along X axis (0 to 1)
+ * - u_waveXShift (float): Phase offset applied to the X-axis wave (0 to 1)
+ * - u_waveY (float): Strength of sine wave distortion along Y axis (0 to 1)
+ * - u_waveYShift (float): Phase offset applied to the Y-axis wave (0 to 1)
+ * - u_mixing (float): Blending behavior, 0 = stepped, 0.5 = smooth, 1 = pronounced color points (0 to 1)
+ * - u_grainMixer (float): Strength of grain distortion applied to shape edges (0 to 1)
+ * - u_grainOverlay (float): Post-processing black/white grain overlay (0 to 1)
+ *
+ * Vertex shader outputs (used in fragment shader):
+ * - v_objectUV (vec2): Object box UV coordinates with global sizing (scale, rotation, offsets, etc) applied
+ *
+ * Vertex shader uniforms:
+ * - u_resolution (vec2): Canvas resolution in pixels
+ * - u_pixelRatio (float): Device pixel ratio
+ * - u_originX (float): Reference point for positioning world width in the canvas (0 to 1)
+ * - u_originY (float): Reference point for positioning world height in the canvas (0 to 1)
+ * - u_worldWidth (float): Virtual width of the graphic before it's scaled to fit the canvas
+ * - u_worldHeight (float): Virtual height of the graphic before it's scaled to fit the canvas
+ * - u_fit (float): How to fit the rendered shader into the canvas dimensions (0 = none, 1 = contain, 2 = cover)
+ * - u_scale (float): Overall zoom level of the graphics (0.01 to 4)
+ * - u_rotation (float): Overall rotation angle of the graphics in degrees (0 to 360)
+ * - u_offsetX (float): Horizontal offset of the graphics center (-1 to 1)
+ * - u_offsetY (float): Vertical offset of the graphics center (-1 to 1)
+ *
  */
 
 // language=GLSL
 export const staticMeshGradientFragmentShader: string = `#version 300 es
 precision mediump float;
 
-uniform vec4 u_colors[${staticMeshGradientMeta.maxColorCount}];
+uniform vec4 u_colors[${ staticMeshGradientMeta.maxColorCount }];
 uniform float u_colorsCount;
 
 uniform float u_positions;
@@ -42,15 +63,15 @@ uniform float u_mixing;
 uniform float u_grainMixer;
 uniform float u_grainOverlay;
 
-${sizingVariablesDeclaration}
-${sizingDebugVariablesDeclaration}
-${sizingUniformsDeclaration}
+${ sizingVariablesDeclaration }
+${ sizingDebugVariablesDeclaration }
+${ sizingUniformsDeclaration }
 
 out vec4 fragColor;
 
-${declarePI}
-${rotation2}
-${proceduralHash21}
+${ declarePI }
+${ rotation2 }
+${ proceduralHash21 }
 
 float valueNoise(vec2 st) {
   vec2 i = floor(st);
@@ -83,17 +104,7 @@ vec2 getPosition(int i, float t) {
 void main() {
   vec2 uv = v_objectUV;
   uv += .5;
-
-  vec2 grainUV = v_objectUV;
-  // apply inverse transform to grain_uv so it respects the originXY
-  float grainUVRot = u_rotation * 3.14159265358979323846 / 180.;
-  mat2 graphicRotation = mat2(cos(grainUVRot), sin(grainUVRot), -sin(grainUVRot), cos(grainUVRot));
-  vec2 graphicOffset = vec2(-u_offsetX, u_offsetY);
-  grainUV = transpose(graphicRotation) * grainUV;
-  grainUV *= u_scale;
-  grainUV *= .7;
-  grainUV -= graphicOffset;
-  grainUV *= v_objectBoxSize;
+  vec2 grainUV = uv * 1000.;
 
   float grain = noise(grainUV, vec2(0.));
   float mixerGrain = .4 * u_grainMixer * (grain - .5);
@@ -104,13 +115,13 @@ void main() {
     uv.x += u_waveX * center / i * cos(TWO_PI * u_waveXShift + i * 2. * smoothstep(.0, 1., uv.y));
     uv.y += u_waveY * center / i * cos(TWO_PI * u_waveYShift + i * 2. * smoothstep(.0, 1., uv.x));
   }
-  
+
   vec3 color = vec3(0.);
   float opacity = 0.;
   float totalWeight = 0.;
   float positionSeed = 25. + .33 * u_positions;
 
-  for (int i = 0; i < ${staticMeshGradientMeta.maxColorCount}; i++) {
+  for (int i = 0; i < ${ staticMeshGradientMeta.maxColorCount }; i++) {
     if (i >= int(u_colorsCount)) break;
 
     vec2 pos = getPosition(i, positionSeed) + mixerGrain;
@@ -135,15 +146,22 @@ void main() {
     totalWeight += w;
   }
 
-  color /= max(0.001, totalWeight);
-  opacity /= max(0.001, totalWeight);
+  color /= max(1e-4, totalWeight);
+  opacity /= max(1e-4, totalWeight);
 
-  float rr = noise(rotate(grainUV, 1.), vec2(3.));
-  float gg = noise(rotate(grainUV, 2.) + 10., vec2(-1.));
-  float bb = noise(grainUV - 2., vec2(5.));
-  vec3 grainColor = vec3(rr, gg, bb);
-  color = mix(color, grainColor, .01 + .3 * u_grainOverlay);
-  
+  float grainOverlay = valueNoise(rotate(grainUV, 1.) + vec2(3.));
+  grainOverlay = mix(grainOverlay, valueNoise(rotate(grainUV, 2.) + vec2(-1.)), .5);
+  grainOverlay = pow(grainOverlay, 1.3);
+
+  float grainOverlayV = grainOverlay * 2. - 1.;
+  vec3 grainOverlayColor = vec3(step(0., grainOverlayV));
+  float grainOverlayStrength = u_grainOverlay * abs(grainOverlayV);
+  grainOverlayStrength = pow(grainOverlayStrength, .8);
+  color = mix(color, grainOverlayColor, .35 * grainOverlayStrength);
+
+  opacity += .5 * grainOverlayStrength;
+  opacity = clamp(opacity, 0., 1.);
+
   fragColor = vec4(color, opacity);
 }
 `;

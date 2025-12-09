@@ -14,18 +14,40 @@ export const staticRadialGradientMeta = {
 } as const;
 
 /**
- * N-colors radial gradient
+ * Radial gradient with up to 10 blended colors, featuring advanced mixing modes, focal point controls,
+ * shape distortion, and grain effects.
  *
- * Uniforms:
- * - u_colorBack (RGBA)
- * - u_colors (vec4[]), u_colorsCount (float used as integer)
- * - u_radius - circle radius
- * - u_focalDistance, u_focalAngle (float) - gradient center offset to the circle center
- * - u_falloff (-1 .. 1, float) - color points distribution (0 for linear gradient)
- * - u_mixing (0 .. 1, float) - 0 for stepped gradient, 0.5 for smooth transitions, 1 for pronounced color points
- * - u_distortion, u_distortionShift, u_distortionFreq - radial distortion (effective with u_distortion > 0)
- * - u_grainMixer - shape distortion
- * - u_grainOverlay - post-processing blending
+ * Fragment shader uniforms:
+ * - u_colorBack (vec4): Background color in RGBA
+ * - u_colors (vec4[]): Up to 10 gradient colors in RGBA
+ * - u_colorsCount (float): Number of active colors
+ * - u_radius (float): Size of the shape (0 to 3)
+ * - u_focalDistance (float): Distance of the focal point from center (0 to 3)
+ * - u_focalAngle (float): Angle of the focal point in degrees, effective with focalDistance > 0 (0 to 360)
+ * - u_falloff (float): Gradient decay, 0 = linear gradient (-1 to 1)
+ * - u_mixing (float): Blending behavior, 0 = stepped, 0.5 = smooth, 1 = pronounced color points (0 to 1)
+ * - u_distortion (float): Strength of radial distortion (0 to 1)
+ * - u_distortionShift (float): Radial distortion offset, effective with distortion > 0 (-1 to 1)
+ * - u_distortionFreq (float): Radial distortion frequency, effective with distortion > 0 (0 to 20)
+ * - u_grainMixer (float): Strength of grain distortion applied to shape edges (0 to 1)
+ * - u_grainOverlay (float): Post-processing black/white grain overlay (0 to 1)
+ *
+ * Vertex shader outputs (used in fragment shader):
+ * - v_objectUV (vec2): Object box UV coordinates with global sizing (scale, rotation, offsets, etc) applied
+ *
+ * Vertex shader uniforms:
+ * - u_resolution (vec2): Canvas resolution in pixels
+ * - u_pixelRatio (float): Device pixel ratio
+ * - u_originX (float): Reference point for positioning world width in the canvas (0 to 1)
+ * - u_originY (float): Reference point for positioning world height in the canvas (0 to 1)
+ * - u_worldWidth (float): Virtual width of the graphic before it's scaled to fit the canvas
+ * - u_worldHeight (float): Virtual height of the graphic before it's scaled to fit the canvas
+ * - u_fit (float): How to fit the rendered shader into the canvas dimensions (0 = none, 1 = contain, 2 = cover)
+ * - u_scale (float): Overall zoom level of the graphics (0.01 to 4)
+ * - u_rotation (float): Overall rotation angle of the graphics in degrees (0 to 360)
+ * - u_offsetX (float): Horizontal offset of the graphics center (-1 to 1)
+ * - u_offsetY (float): Vertical offset of the graphics center (-1 to 1)
+ *
  */
 
 // language=GLSL
@@ -33,7 +55,7 @@ export const staticRadialGradientFragmentShader: string = `#version 300 es
 precision mediump float;
 
 uniform vec4 u_colorBack;
-uniform vec4 u_colors[${staticRadialGradientMeta.maxColorCount}];
+uniform vec4 u_colors[${ staticRadialGradientMeta.maxColorCount }];
 uniform float u_colorsCount;
 
 uniform float u_radius;
@@ -47,15 +69,15 @@ uniform float u_distortionFreq;
 uniform float u_grainMixer;
 uniform float u_grainOverlay;
 
-${sizingVariablesDeclaration}
-${sizingDebugVariablesDeclaration}
-${sizingUniformsDeclaration}
+${ sizingVariablesDeclaration }
+${ sizingDebugVariablesDeclaration }
+${ sizingUniformsDeclaration }
 
 out vec4 fragColor;
 
-${declarePI}
-${rotation2}
-${proceduralHash21}
+${ declarePI }
+${ rotation2 }
+${ proceduralHash21 }
 
 float valueNoise(vec2 st) {
   vec2 i = floor(st);
@@ -87,28 +109,18 @@ vec2 getPosition(int i, float t) {
 
 void main() {
   vec2 uv = 2. * v_objectUV;
-
-  vec2 grainUV = v_objectUV;
-  // apply inverse transform to grain_uv so it respects the originXY
-  float grainUVRot = u_rotation * 3.14159265358979323846 / 180.;
-  mat2 graphicRotation = mat2(cos(grainUVRot), sin(grainUVRot), -sin(grainUVRot), cos(grainUVRot));
-  vec2 graphicOffset = vec2(-u_offsetX, u_offsetY);
-  grainUV = transpose(graphicRotation) * grainUV;
-  grainUV *= u_scale;
-  grainUV *= .7;
-  grainUV -= graphicOffset;
-  grainUV *= v_objectBoxSize;
+  vec2 grainUV = uv * 1000.;
 
   vec2 center = vec2(0.);
   float angleRad = -radians(u_focalAngle + 90.);
   vec2 focalPoint = vec2(cos(angleRad), sin(angleRad)) * u_focalDistance;
   float radius = u_radius;
-  
+
   vec2 c_to_uv = uv - center;
   vec2 f_to_uv = uv - focalPoint;
   vec2 f_to_c = center - focalPoint;
   float r = length(c_to_uv);
-  
+
   float fragAngle = atan(c_to_uv.y, c_to_uv.x);
   float angleDiff = fract((fragAngle - angleRad + PI) / TWO_PI) * TWO_PI - PI;
 
@@ -117,7 +129,7 @@ void main() {
   float lo = min(e0, e1), hi = max(e0, e1);
   float s  = smoothstep(lo, hi, abs(angleDiff));
   float isInSector = (e1 >= e0) ? (1.0 - s) : s;
-  
+
   float a = dot(f_to_uv, f_to_uv);
   float b = -2.0 * dot(f_to_uv, f_to_c);
   float c = dot(f_to_c, f_to_c) - radius * radius;
@@ -139,7 +151,7 @@ void main() {
   float shape = clamp(normalized, 0.0, 1.0);
 
   float falloffMapped = mix(.2 + .8 * max(0., u_falloff + 1.), mix(1., 15., u_falloff * u_falloff), step(.0, u_falloff));
-  
+
   float falloffExp = mix(falloffMapped, 1., shape);
   shape = pow(shape, falloffExp);
   shape = 1. - clamp(shape, 0., 1.);
@@ -148,7 +160,7 @@ void main() {
   float outerMask = .002;
   float outer = 1.0 - smoothstep(radius - outerMask, radius + outerMask, r);
   outer = mix(outer, 1., isInSector);
-  
+
   shape = mix(0., shape, outer);
   shape *= 1. - smoothstep(radius - .01, radius, r);
 
@@ -161,12 +173,12 @@ void main() {
   float mixer = shape * u_colorsCount + mixerGrain;
   vec4 gradient = u_colors[0];
   gradient.rgb *= gradient.a;
-  
+
   float outerShape = 0.;
-  for (int i = 1; i < ${staticRadialGradientMeta.maxColorCount + 1}; i++) {
+  for (int i = 1; i < ${ staticRadialGradientMeta.maxColorCount + 1 }; i++) {
     if (i > int(u_colorsCount)) break;
     float mLinear = clamp(mixer - float(i - 1), 0.0, 1.0);
-    
+
     float m = 0.;
     float mixing = u_mixing * 3.;
     if (mixing > 2.) {
@@ -178,7 +190,7 @@ void main() {
       float aa = fwidth(mLinear);
       m = smoothstep(.5 - .5 * mixing - aa, .5 + .5 * mixing + aa, mLinear);
     }
-    
+
     if (i == 1) {
       outerShape = m;
     }
@@ -195,13 +207,19 @@ void main() {
   color = color + bgColor * (1.0 - opacity);
   opacity = opacity + u_colorBack.a * (1.0 - opacity);
 
-  float rr = noise(rotate(grainUV, 1.), vec2(3.));
-  float gg = noise(rotate(grainUV, 2.) + 10., vec2(-1.));
-  float bb = noise(grainUV - 2., vec2(5.));
-  vec3 grainColor = vec3(rr, gg, bb);
-  color = mix(color, grainColor, .01 + .3 * u_grainOverlay);
-  opacity += u_grainOverlay * grain;
-  
+  float grainOverlay = valueNoise(rotate(grainUV, 1.) + vec2(3.));
+  grainOverlay = mix(grainOverlay, valueNoise(rotate(grainUV, 2.) + vec2(-1.)), .5);
+  grainOverlay = pow(grainOverlay, 1.3);
+
+  float grainOverlayV = grainOverlay * 2. - 1.;
+  vec3 grainOverlayColor = vec3(step(0., grainOverlayV));
+  float grainOverlayStrength = u_grainOverlay * abs(grainOverlayV);
+  grainOverlayStrength = pow(grainOverlayStrength, .8);
+  color = mix(color, grainOverlayColor, .35 * grainOverlayStrength);
+
+  opacity += .5 * grainOverlayStrength;
+  opacity = clamp(opacity, 0., 1.);
+
   fragColor = vec4(color, opacity);
 }
 `;

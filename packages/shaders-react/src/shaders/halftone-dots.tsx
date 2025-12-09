@@ -10,6 +10,7 @@ import {
   defaultObjectSizing,
   type ImageShaderPreset,
   HalftoneDotsTypes,
+  HalftoneDotsGrids,
 } from '@paper-design/shaders';
 
 export interface HalftoneDotsProps extends ShaderComponentProps, HalftoneDotsParams {}
@@ -25,15 +26,15 @@ export const defaultPreset: HalftoneDotsPreset = {
     frame: 0,
     colorBack: '#f2f1e8',
     colorFront: '#2b2b2b',
-    size: 0.11,
+    size: 0.5,
     radius: 1.25,
-    contrast: 0.25,
+    contrast: 0.4,
     originalColors: false,
     inverted: false,
     grainMixer: 0.2,
     grainOverlay: 0.2,
     grainSize: 0.5,
-    straight: false,
+    grid: 'hex',
     type: 'gooey',
   },
 };
@@ -47,15 +48,15 @@ export const ledPreset: HalftoneDotsPreset = {
     frame: 0,
     colorBack: '#000000',
     colorFront: '#29ff7b',
-    size: 0.13,
-    radius: 1,
-    contrast: 0.25,
+    size: 0.5,
+    radius: 1.5,
+    contrast: 0.3,
     originalColors: false,
     inverted: false,
     grainMixer: 0,
     grainOverlay: 0,
     grainSize: 0.5,
-    straight: true,
+    grid: 'square',
     type: 'soft',
   },
 };
@@ -69,7 +70,7 @@ export const netPreset: HalftoneDotsPreset = {
     frame: 0,
     colorBack: '#000000',
     colorFront: '#b2aeae',
-    size: 0.17,
+    size: 0.6,
     radius: 2,
     contrast: 0.01,
     originalColors: true,
@@ -77,7 +78,7 @@ export const netPreset: HalftoneDotsPreset = {
     grainMixer: 0,
     grainOverlay: 0,
     grainSize: 0.5,
-    straight: false,
+    grid: 'hex',
     type: 'classic',
   },
 };
@@ -91,7 +92,7 @@ export const roundAndSquarePreset: HalftoneDotsPreset = {
     frame: 0,
     colorBack: '#141414',
     colorFront: '#ff8000',
-    size: 0.3,
+    size: 0.8,
     radius: 1,
     contrast: 1,
     originalColors: false,
@@ -99,7 +100,7 @@ export const roundAndSquarePreset: HalftoneDotsPreset = {
     grainMixer: 0.05,
     grainOverlay: 0.3,
     grainSize: 0.5,
-    straight: true,
+    grid: 'square',
     type: 'holes',
   },
 };
@@ -121,7 +122,7 @@ export const HalftoneDots: React.FC<HalftoneDotsProps> = memo(function HalftoneD
   grainMixer = defaultPreset.params.grainMixer,
   grainOverlay = defaultPreset.params.grainOverlay,
   grainSize = defaultPreset.params.grainSize,
-  straight = defaultPreset.params.straight,
+  grid = defaultPreset.params.grid,
   type = defaultPreset.params.type,
 
   // Sizing props
@@ -149,7 +150,7 @@ export const HalftoneDots: React.FC<HalftoneDotsProps> = memo(function HalftoneD
     u_grainMixer: grainMixer,
     u_grainOverlay: grainOverlay,
     u_grainSize: grainSize,
-    u_straight: straight,
+    u_grid: HalftoneDotsGrids[grid],
     u_type: HalftoneDotsTypes[type],
 
     // Sizing uniforms

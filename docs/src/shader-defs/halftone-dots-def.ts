@@ -1,6 +1,6 @@
 import { halftoneDotsPresets } from '@paper-design/shaders-react';
 import type { ShaderDef } from './shader-def-types';
-import { staticCommonParams } from './common-param-def';
+import { staticImageCommonParams } from './common-param-def';
 
 const defaultParams = halftoneDotsPresets[0].params;
 
@@ -25,13 +25,13 @@ export const halftoneDotsDef: ShaderDef = {
       type: 'string',
       defaultValue: defaultParams.colorFront,
       isColor: true,
-      description: 'The main foreground color',
+      description: 'Foreground color',
     },
     {
       name: 'originalColors',
       type: 'boolean',
       defaultValue: defaultParams.originalColors,
-      description: 'Use the sampled image’s original colors instead of colorBack and colorFront',
+      description: 'Use the sampled image’s original colors instead of colorFront',
       options: ['true', 'false'],
     },
     {
@@ -45,15 +45,15 @@ export const halftoneDotsDef: ShaderDef = {
       name: 'inverted',
       type: 'boolean',
       defaultValue: defaultParams.inverted,
-      description: 'Inverts the dot shape. Doesn’t affect the color scheme; not effective at zero contrast',
+      description: 'Inverts the image luminance, doesn’t affect the color scheme; not effective at zero contrast',
       options: ['true', 'false'],
     },
     {
-      name: 'straight',
-      type: 'boolean',
-      defaultValue: defaultParams.straight,
-      description: 'Use a straight grid (disable for diagonal)',
-      options: ['true', 'false'],
+      name: 'grid',
+      type: 'enum',
+      defaultValue: defaultParams.grid,
+      description: 'Dots grid type',
+      options: ['square', 'hex'],
     },
     {
       name: 'size',
@@ -93,7 +93,7 @@ export const halftoneDotsDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.grainOverlay,
-      description: 'Post-processing grainy overlay (hard light blending)',
+      description: 'Post-processing b/w grain overlay',
     },
     {
       name: 'grainSize',
@@ -103,6 +103,6 @@ export const halftoneDotsDef: ShaderDef = {
       defaultValue: defaultParams.grainSize,
       description: 'The scale applied to both grain distortion and grain overlay',
     },
-    ...staticCommonParams,
+    ...staticImageCommonParams,
   ],
 };

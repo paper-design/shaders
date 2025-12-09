@@ -5,7 +5,13 @@ import { useControls, button, folder } from 'leva';
 import { setParamsSafe, useResetLevaParams } from '@/helpers/use-reset-leva-params';
 import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
-import { HalftoneDotsType, HalftoneDotsTypes, ShaderFit } from '@paper-design/shaders';
+import {
+  HalftoneDotsType,
+  HalftoneDotsTypes,
+  HalftoneDotsGrid,
+  HalftoneDotsGrids,
+  ShaderFit,
+} from '@paper-design/shaders';
 import { levaImageButton } from '@/helpers/leva-image-button';
 import { useState, useEffect, useCallback } from 'react';
 import { toHsla } from '@/helpers/color-utils';
@@ -78,8 +84,12 @@ const HalftoneDotsWithControls = () => {
         options: Object.keys(HalftoneDotsTypes) as HalftoneDotsType[],
         order: 201,
       },
-      inverted: { value: defaults.inverted, order: 201 },
-      straight: { value: defaults.straight, order: 202 },
+      grid: {
+        value: defaults.grid,
+        options: Object.keys(HalftoneDotsGrids) as HalftoneDotsGrid[],
+        order: 202,
+      },
+      inverted: { value: defaults.inverted, order: 203 },
       size: { value: defaults.size, min: 0.01, max: 1, step: 0.001, order: 300 },
       radius: { value: defaults.radius, min: 0, max: 2, order: 301 },
       contrast: { value: defaults.contrast, min: 0.01, max: 1, order: 302 },
