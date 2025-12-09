@@ -32,7 +32,7 @@ export const defaultPreset: Logo3dPreset = {
     frame: 0,
     colorBack: '#00000000',
     colorUnderlay: '#d7b7ca',
-    colorOverlay: '#a3d2ad',
+    colorOverlay: '#6c8eb7',
     colors: ['#e0992e', '#35bbbb', '#05006b'],
     lightsPower: 0.38,
     bevel: 0.05,
