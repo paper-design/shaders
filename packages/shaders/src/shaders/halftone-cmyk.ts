@@ -41,6 +41,7 @@ uniform float u_grainMixer;
 uniform float u_grainOverlay;
 uniform float u_smoothness;
 uniform float u_softness;
+uniform float u_showDots;
 
 out vec4 fragColor;
 
@@ -166,14 +167,18 @@ vec4 blurTexture(sampler2D tex, vec2 uv, vec2 texelSize, float radius) {
   return acc / max(weightSum, 0.00001);
 }
 
+vec2 gridToImageUV(vec2 gridPos, float angle, float shift, vec2 pad) {
+  vec2 cellCenter = floor(gridPos) + 0.5;
+  cellCenter -= shift;
+  vec2 uvGrid = rotate(cellCenter, -radians(angle));
+  vec2 uv = uvGrid * pad + 0.5;
+  return uv;
+}
+
 void main() {
   vec2 uvNormalised = (gl_FragCoord.xy - 0.5 * u_resolution) / u_resolution.xy;
   vec2 uv = getImageUV(uvNormalised, vec2(1.));
 
-//  vec4 tex = texture(u_image, uv);
-  vec4 tex = blurTexture(u_image, uv, vec2(1. / u_resolution), u_smoothness);
-  vec4 cmyk = RGBtoCMYK(tex.rgb);
-  
   float cellsPerSide = mix(300.0, 7.0, pow(u_size, 0.7));
   float cellSizeY = 1.0 / cellsPerSide;
   vec2 pad = cellSizeY * vec2(1.0 / u_imageAspectRatio, 1.0);
@@ -188,6 +193,29 @@ void main() {
   pY += u_shiftY;
   vec2 pK = rotate(uvGrid, radians(u_angleK));
   pK += u_shiftK;
+  
+  vec4 cmyk;
+  if (u_showDots > .5) {
+    vec2 uvC = gridToImageUV(pC, u_angleC, u_shiftC, pad);
+    vec2 uvM = gridToImageUV(pM, u_angleM, u_shiftM, pad);
+    vec2 uvY = gridToImageUV(pY, u_angleY, u_shiftY, pad);
+    vec2 uvK = gridToImageUV(pK, u_angleK, u_shiftK, pad);
+
+    vec4 texC = texture(u_image, uvC);
+    vec4 texM = texture(u_image, uvM);
+    vec4 texY = texture(u_image, uvY);
+    vec4 texK = texture(u_image, uvK);
+
+    vec4 cmykC = RGBtoCMYK(texC.rgb);
+    vec4 cmykM = RGBtoCMYK(texM.rgb);
+    vec4 cmykY = RGBtoCMYK(texY.rgb);
+    vec4 cmykK = RGBtoCMYK(texK.rgb);
+
+    cmyk = vec4(cmykC.x, cmykM.y, cmykY.z, cmykK.w);
+  } else {
+    vec4 tex = blurTexture(u_image, uv, vec2(1. / u_resolution), u_smoothness);
+    cmyk = RGBtoCMYK(tex.rgb);
+  }
 
   vec2 grainUV = 700. * uv;
   float grain = valueNoise(grainUV);
@@ -252,6 +280,7 @@ export interface HalftoneCmykUniforms extends ShaderSizingUniforms {
   u_contrast: number;
   u_smoothness: number;
   u_softness: number;
+  u_showDots: number;
   u_grainMixer: number;
   u_grainOverlay: number;
 }
@@ -273,6 +302,7 @@ export interface HalftoneCmykParams extends ShaderSizingParams, ShaderMotionPara
   contrast?: number;
   smoothness?: number;
   softness?: number;
+  showDots?: number;
   grainMixer?: number;
   grainOverlay?: number;
 }
