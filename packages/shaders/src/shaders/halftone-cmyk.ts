@@ -1,6 +1,6 @@
 import type { ShaderMotionParams } from '../shader-mount.js';
 import { type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
-import { declarePI, rotation2 } from '../shader-utils.js';
+import { declarePI, rotation2, proceduralHash21 } from '../shader-utils.js';
 
 export const halftoneCmykMeta = {
   maxBlurRadius: 5,
@@ -32,9 +32,13 @@ uniform float u_angleC;
 uniform float u_angleM;
 uniform float u_angleY;
 uniform float u_angleK;
+uniform float u_shiftC;
+uniform float u_shiftM;
+uniform float u_shiftY;
+uniform float u_shiftK;
 uniform float u_contrast;
-uniform float u_grainSize;
 uniform float u_grainMixer;
+uniform float u_grainOverlay;
 uniform float u_smoothness;
 uniform float u_softness;
 
@@ -42,6 +46,20 @@ out vec4 fragColor;
 
 ${ declarePI }
 ${ rotation2 }
+${ proceduralHash21 }
+
+float valueNoise(vec2 st) {
+  vec2 i = floor(st);
+  vec2 f = fract(st);
+  float a = hash21(i);
+  float b = hash21(i + vec2(1.0, 0.0));
+  float c = hash21(i + vec2(0.0, 1.0));
+  float d = hash21(i + vec2(1.0, 1.0));
+  vec2 u = f * f * (3.0 - 2.0 * f);
+  float x1 = mix(a, b, u.x);
+  float x2 = mix(c, d, u.x);
+  return mix(x1, x2, u.y);
+}
 
 vec2 getImageUV(vec2 uv, vec2 extraScale) {
   vec2 boxOrigin = vec2(.5 - u_originX, u_originY - .5);
@@ -92,6 +110,10 @@ float halftoneDot(vec2 p, float radius) {
   return 1. - step(radius, dist);
 }
 
+float sigmoid(float x, float k) {
+  return 1.0 / (1.0 + exp(-k * (x - 0.5)));
+}
+
 float halftoneDotMask(vec2 p, float radius) {
   vec2 cellCenter = floor(p) + 0.5;
   vec2 d = p - cellCenter;
@@ -117,15 +139,13 @@ vec3 CMYKtoRGB(vec4 cmyk) {
   rgb.b = 1.0 - min(1.0, cmyk.z + cmyk.w);
   return rgb;
 }
+
 vec4 blurTexture(sampler2D tex, vec2 uv, vec2 texelSize, float radius) {
-  // clamp radius so loops have a known max
   float r = clamp(radius, 0., float(${ halftoneCmykMeta.maxBlurRadius }));
   int ir = int(r);
 
   vec4 acc = vec4(0.0);
   float weightSum = 0.0;
-
-  // simple Gaussian-ish weights based on distance
   for (int y = -${ halftoneCmykMeta.maxBlurRadius }; y <= ${ halftoneCmykMeta.maxBlurRadius }; ++y) {
     if (abs(y) > ir) continue;
     for (int x = -${ halftoneCmykMeta.maxBlurRadius }; x <= ${ halftoneCmykMeta.maxBlurRadius }; ++x) {
@@ -161,13 +181,24 @@ void main() {
   float outOfFrame = getUvFrame(uv, pad);
 
   vec2 pC = rotate(uvGrid, radians(u_angleC));
+  pC += u_shiftC;
   vec2 pM = rotate(uvGrid, radians(u_angleM));
+  pM += u_shiftM;
   vec2 pY = rotate(uvGrid, radians(u_angleY));
+  pY += u_shiftY;
   vec2 pK = rotate(uvGrid, radians(u_angleK));
+  pK += u_shiftK;
+
+  vec2 grainUV = 700. * uv;
+  float grain = valueNoise(grainUV);
+  grain = smoothstep(.55, 1., grain);
+  grain *= u_grainMixer;
 
   float baseR = u_radius * outOfFrame;
   vec4 radius = baseR * mix(cmyk, vec4(1.), u_minRadius);
 
+  radius -= grain;
+  
   float C = halftoneDot(pC, radius[0]);
   float M = halftoneDot(pM, radius[1]);
   float Y = halftoneDot(pY, radius[2]);
@@ -186,7 +217,20 @@ void main() {
   color = mix(color, inkRgb, shape);
   opacity += shape;
   opacity = clamp(opacity, 0., 1.);
-  
+
+  float grainOverlay = valueNoise(rotate(grainUV, 1.) + vec2(3.));
+  grainOverlay = mix(grainOverlay, valueNoise(rotate(grainUV, 2.) + vec2(-1.)), .5);
+  grainOverlay = pow(grainOverlay, 1.3);
+
+  float grainOverlayV = grainOverlay * 2. - 1.;
+  vec3 grainOverlayColor = vec3(step(0., grainOverlayV));
+  float grainOverlayStrength = u_grainOverlay * abs(grainOverlayV);
+  grainOverlayStrength = pow(grainOverlayStrength, .8);
+  color = mix(color, grainOverlayColor, .5 * grainOverlayStrength);
+
+  opacity += .5 * grainOverlayStrength;
+  opacity = clamp(opacity, 0., 1.);
+
   fragColor = vec4(color, opacity);
 }
 `;
@@ -201,11 +245,15 @@ export interface HalftoneCmykUniforms extends ShaderSizingUniforms {
   u_angleM: number;
   u_angleY: number;
   u_angleK: number;
+  u_shiftC: number;
+  u_shiftM: number;
+  u_shiftY: number;
+  u_shiftK: number;
   u_contrast: number;
   u_smoothness: number;
   u_softness: number;
-  u_grainSize: number;
   u_grainMixer: number;
+  u_grainOverlay: number;
 }
 
 export interface HalftoneCmykParams extends ShaderSizingParams, ShaderMotionParams {
@@ -218,9 +266,13 @@ export interface HalftoneCmykParams extends ShaderSizingParams, ShaderMotionPara
   angleM?: number;
   angleY?: number;
   angleK?: number;
+  shiftC?: number;
+  shiftM?: number;
+  shiftY?: number;
+  shiftK?: number;
   contrast?: number;
   smoothness?: number;
   softness?: number;
-  grainSize?: number;
   grainMixer?: number;
+  grainOverlay?: number;
 }
