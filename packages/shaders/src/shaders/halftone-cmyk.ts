@@ -46,7 +46,7 @@ uniform float u_grainMixer;
 uniform float u_grainOverlay;
 uniform float u_smoothness;
 uniform float u_softness;
-uniform float u_showDots;
+uniform bool u_rounded;
 
 out vec4 fragColor;
 
@@ -203,7 +203,7 @@ void main() {
   vec4 outCmyk = vec4(0.);
   vec4 outMask = vec4(0.);
 
-  if (u_showDots > 0.5) {
+  if (u_rounded == true) {
     for (int dy = -1; dy <= 1; dy++) {
       for (int dx = -1; dx <= 1; dx++) {
         vec2 cellOffset = vec2(float(dx), float(dy));
@@ -303,7 +303,7 @@ export interface HalftoneCmykUniforms extends ShaderSizingUniforms {
   u_contrast: number;
   u_smoothness: number;
   u_softness: number;
-  u_showDots: number;
+  u_rounded: boolean;
   u_grainSize: number;
   u_grainMixer: number;
   u_grainOverlay: number;
@@ -330,7 +330,7 @@ export interface HalftoneCmykParams extends ShaderSizingParams, ShaderMotionPara
   contrast?: number;
   smoothness?: number;
   softness?: number;
-  showDots?: number;
+  rounded?: boolean;
   grainSize?: number;
   grainMixer?: number;
   grainOverlay?: number;
