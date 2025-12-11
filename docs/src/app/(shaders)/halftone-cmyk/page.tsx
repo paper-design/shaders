@@ -86,6 +86,7 @@ const HalftoneCmykWithControls = () => {
       angleK: { value: defaults.angleK, min: 0, max: 90, step: 0.1, order: 140 },
       shiftK: { value: defaults.shiftK, min: -0.5, max: 0.5, step: 0.01, order: 141 },
       // contrast: { value: defaults.contrast, min: 0, max: 2, step: 0.01, order: 120 },
+      grainSize: { value: defaults.grainSize, min: 0, max: 1, order: 350 },
       grainMixer: { value: defaults.grainMixer, min: 0, max: 1, order: 350 },
       grainOverlay: { value: defaults.grainOverlay, min: 0, max: 1, order: 351 },
       // offsetX: { value: defaults.offsetX, min: -1, max: 1, order: 401 },

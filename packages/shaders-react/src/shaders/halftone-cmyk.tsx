@@ -39,6 +39,7 @@ export const defaultPreset: HalftoneCmykPreset = {
     softness: 0.3,
     smoothness: 0,
     showDots: 1,
+    grainSize: 0.5,
     grainMixer: 0,
     grainOverlay: 0,
   },
@@ -67,6 +68,7 @@ export const HalftoneCmyk: React.FC<HalftoneCmykProps> = memo(function HalftoneC
   smoothness = defaultPreset.params.smoothness,
   softness = defaultPreset.params.softness,
   showDots = defaultPreset.params.showDots,
+  grainSize = defaultPreset.params.grainSize,
   grainMixer = defaultPreset.params.grainMixer,
   grainOverlay = defaultPreset.params.grainOverlay,
 
@@ -101,6 +103,7 @@ export const HalftoneCmyk: React.FC<HalftoneCmykProps> = memo(function HalftoneC
     u_smoothness: smoothness,
     u_softness: softness,
     u_showDots: showDots,
+    u_grainSize: grainSize,
     u_grainMixer: grainMixer,
     u_grainOverlay: grainOverlay,
 

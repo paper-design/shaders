@@ -37,6 +37,7 @@ uniform float u_shiftM;
 uniform float u_shiftY;
 uniform float u_shiftK;
 uniform float u_contrast;
+uniform float u_grainSize;
 uniform float u_grainMixer;
 uniform float u_grainOverlay;
 uniform float u_smoothness;
@@ -188,7 +189,8 @@ void main() {
   vec2 pK = rotate(uvGrid, radians(u_angleK));
   pK += u_shiftK;
 
-  vec2 grainUV = 700. * uv;
+  vec2 grainSize = mix(2000., 200., u_grainSize) * vec2(1., 1. / u_imageAspectRatio);
+  vec2 grainUV = getImageUV(uvNormalised, grainSize);
   float grain = valueNoise(grainUV);
   grain = smoothstep(.55, 1., grain);
   grain *= u_grainMixer;
@@ -293,6 +295,7 @@ export interface HalftoneCmykUniforms extends ShaderSizingUniforms {
   u_smoothness: number;
   u_softness: number;
   u_showDots: number;
+  u_grainSize: number;
   u_grainMixer: number;
   u_grainOverlay: number;
 }
@@ -315,6 +318,7 @@ export interface HalftoneCmykParams extends ShaderSizingParams, ShaderMotionPara
   smoothness?: number;
   softness?: number;
   showDots?: number;
+  grainSize?: number;
   grainMixer?: number;
   grainOverlay?: number;
 }
