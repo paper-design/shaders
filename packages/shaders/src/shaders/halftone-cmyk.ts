@@ -3,7 +3,7 @@ import { type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-si
 import { declarePI, rotation2, proceduralHash21 } from '../shader-utils.js';
 
 export const halftoneCmykMeta = {
-  maxBlurRadius: 5,
+  maxBlurRadius: 8,
 } as const;
 
 // language=GLSL
@@ -222,8 +222,9 @@ void main() {
       }
     }
   } else {
-    vec2 texelSize = 1.0 / u_resolution;
-    vec4 texBlur = blurTexture(u_image, uv, texelSize, u_smoothness);
+//    vec2 texelSize = 1.0 / u_resolution;
+//    vec4 texBlur = blurTexture(u_image, uv, texelSize, u_smoothness);
+    vec4 texBlur = texture(u_image, uv);
     vec4 cmykOriginal = RGBtoCMYK(texBlur.rgb);
     for (int dy = -1; dy <= 1; dy++) {
       for (int dx = -1; dx <= 1; dx++) {
