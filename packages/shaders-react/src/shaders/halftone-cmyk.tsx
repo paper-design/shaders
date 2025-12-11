@@ -9,6 +9,7 @@ import {
   type HalftoneCmykParams,
   defaultObjectSizing,
   type ImageShaderPreset,
+  HalftoneCmykTypes,
 } from '@paper-design/shaders';
 
 export interface HalftoneCmykProps extends ShaderComponentProps, HalftoneCmykParams {}
@@ -46,6 +47,7 @@ export const defaultPreset: HalftoneCmykPreset = {
     grainSize: 0.5,
     grainMixer: 0,
     grainOverlay: 0,
+    type: 'dot',
   },
 };
 
@@ -79,6 +81,7 @@ export const HalftoneCmyk: React.FC<HalftoneCmykProps> = memo(function HalftoneC
   grainSize = defaultPreset.params.grainSize,
   grainMixer = defaultPreset.params.grainMixer,
   grainOverlay = defaultPreset.params.grainOverlay,
+  type = defaultPreset.params.type,
 
   // Sizing props
   fit = defaultPreset.params.fit,
@@ -118,6 +121,7 @@ export const HalftoneCmyk: React.FC<HalftoneCmykProps> = memo(function HalftoneC
     u_grainSize: grainSize,
     u_grainMixer: grainMixer,
     u_grainOverlay: grainOverlay,
+    u_type: HalftoneCmykTypes[type],
 
     // Sizing uniforms
     u_fit: ShaderFitOptions[fit],
