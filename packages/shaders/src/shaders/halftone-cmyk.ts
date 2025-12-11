@@ -96,31 +96,16 @@ vec2 getImageUV(vec2 uv, vec2 extraScale) {
 float getUvFrame(vec2 uv, vec2 pad) {
   float aa = 0.01;
 
-  float left   = smoothstep(-pad.x, 0., uv.x);
-  float right  = smoothstep(1.0 + pad.x, 1., uv.x);
-  float bottom = smoothstep(-pad.y, 0., uv.y);
-  float top    = smoothstep(1.0 + pad.y, 1., uv.y);
+  float left   = smoothstep(0., pad.x, uv.x);
+  float right  = smoothstep(1., 1. - pad.x, uv.x);
+  float bottom = smoothstep(0., pad.y, uv.y);
+  float top    = smoothstep(1., 1. - pad.y, uv.y);
 
   return left * right * bottom * top;
 }
 
-float halftoneDot(vec2 p, float radius) {
-  vec2 cellCenter = floor(p) + 0.5;
-  vec2 d = p - cellCenter;
-  float dist = length(d);
-  return 1. - step(radius, dist);
-}
-
 float sigmoid(float x, float k) {
   return 1.0 / (1.0 + exp(-k * (x - 0.5)));
-}
-
-float halftoneDotMask(vec2 p, float radius) {
-  vec2 cellCenter = floor(p) + 0.5;
-  vec2 d = p - cellCenter;
-  float dist = length(d);
-  float aa = fwidth(dist);
-  return 1. - smoothstep(mix(radius - aa, 0., u_softness), radius + aa, dist);
 }
 
 vec4 RGBtoCMYK(vec3 rgb) {
@@ -131,14 +116,6 @@ vec4 RGBtoCMYK(vec3 rgb) {
     cmy = (1.0 - rgb - vec3(k)) / denom;
   }
   return vec4(cmy, k);
-}
-
-vec3 CMYKtoRGB(vec4 cmyk) {
-  vec3 rgb;
-  rgb.r = 1.0 - min(1.0, cmyk.x + cmyk.w);
-  rgb.g = 1.0 - min(1.0, cmyk.y + cmyk.w);
-  rgb.b = 1.0 - min(1.0, cmyk.z + cmyk.w);
-  return rgb;
 }
 
 vec4 blurTexture(sampler2D tex, vec2 uv, vec2 texelSize, float radius) {
@@ -175,6 +152,23 @@ vec2 gridToImageUV(vec2 gridPos, float angle, float shift, vec2 pad) {
   return uv;
 }
 
+void computeDotContribution(vec2 p, vec2 cellOffset, float radius, inout float outMask) {
+  vec2 cell = floor(p) + .5 + cellOffset;
+  float dist = length(p - cell);
+  dist *= mix(1., .5, u_softness);
+  float mask = 1. - smoothstep(radius * (1. - u_softness), radius + .02, dist);
+  outMask = max(outMask, mask);
+}
+
+float dotRadius(float channelValue, float baseR, float grain) {
+  return baseR * mix(channelValue, 1.0, u_minRadius) * (1. - grain);
+}
+
+vec3 applyInk(vec3 paper, vec3 inkColor, float cov) {
+  vec3 inkEffect = mix(vec3(1.0), inkColor, clamp(cov, 0.0, 1.0));
+  return paper * inkEffect;
+}
+
 void main() {
   vec2 uvNormalised = (gl_FragCoord.xy - 0.5 * u_resolution) / u_resolution.xy;
   vec2 uv = getImageUV(uvNormalised, vec2(1.));
@@ -193,29 +187,6 @@ void main() {
   pY += u_shiftY;
   vec2 pK = rotate(uvGrid, radians(u_angleK));
   pK += u_shiftK;
-  
-  vec4 cmyk;
-  if (u_showDots > .5) {
-    vec2 uvC = gridToImageUV(pC, u_angleC, u_shiftC, pad);
-    vec2 uvM = gridToImageUV(pM, u_angleM, u_shiftM, pad);
-    vec2 uvY = gridToImageUV(pY, u_angleY, u_shiftY, pad);
-    vec2 uvK = gridToImageUV(pK, u_angleK, u_shiftK, pad);
-
-    vec4 texC = texture(u_image, uvC);
-    vec4 texM = texture(u_image, uvM);
-    vec4 texY = texture(u_image, uvY);
-    vec4 texK = texture(u_image, uvK);
-
-    vec4 cmykC = RGBtoCMYK(texC.rgb);
-    vec4 cmykM = RGBtoCMYK(texM.rgb);
-    vec4 cmykY = RGBtoCMYK(texY.rgb);
-    vec4 cmykK = RGBtoCMYK(texK.rgb);
-
-    cmyk = vec4(cmykC.x, cmykM.y, cmykY.z, cmykK.w);
-  } else {
-    vec4 tex = blurTexture(u_image, uv, vec2(1. / u_resolution), u_smoothness);
-    cmyk = RGBtoCMYK(tex.rgb);
-  }
 
   vec2 grainUV = 700. * uv;
   float grain = valueNoise(grainUV);
@@ -223,26 +194,67 @@ void main() {
   grain *= u_grainMixer;
 
   float baseR = u_radius * outOfFrame;
-  vec4 radius = baseR * mix(cmyk, vec4(1.), u_minRadius);
+  vec4 outCmyk = vec4(0.);
+  vec4 outMask = vec4(0.);
 
-  radius -= grain;
-  
-  float C = halftoneDot(pC, radius[0]);
-  float M = halftoneDot(pM, radius[1]);
-  float Y = halftoneDot(pY, radius[2]);
-  float K = halftoneDot(pK, radius[3]);
-  float maskC = halftoneDotMask(pC, radius[0]);
-  float maskM = halftoneDotMask(pM, radius[1]);
-  float maskY = halftoneDotMask(pY, radius[2]);
-  float maskK = halftoneDotMask(pK, radius[3]);
+  if (u_showDots > 0.5) {
+    for (int dy = -1; dy <= 1; dy++) {
+      for (int dx = -1; dx <= 1; dx++) {
+        vec2 cellOffset = vec2(float(dx), float(dy));
 
-  vec4 outCmyk = vec4(C, M, Y, K);
+        vec4 cmykC = RGBtoCMYK(texture(u_image, gridToImageUV(pC + cellOffset, u_angleC, u_shiftC, pad)).rgb);
+        computeDotContribution(pC, cellOffset, dotRadius(cmykC.x, baseR, grain), outMask[0]);
+
+        vec4 cmykM = RGBtoCMYK(texture(u_image, gridToImageUV(pM + cellOffset, u_angleM, u_shiftM, pad)).rgb);
+        computeDotContribution(pM, cellOffset, dotRadius(cmykM.y, baseR, grain), outMask[1]);
+
+        vec4 cmykY = RGBtoCMYK(texture(u_image, gridToImageUV(pY + cellOffset, u_angleY, u_shiftY, pad)).rgb);
+        computeDotContribution(pY, cellOffset, dotRadius(cmykY.z, baseR, grain), outMask[2]);
+
+        vec4 cmykK = RGBtoCMYK(texture(u_image, gridToImageUV(pK + cellOffset, u_angleK, u_shiftK, pad)).rgb);
+        computeDotContribution(pK, cellOffset, dotRadius(cmykK.w, baseR, grain), outMask[3]);
+      }
+    }
+  } else {
+    vec2 texelSize = 1.0 / u_resolution;
+    vec4 texBlur = blurTexture(u_image, uv, texelSize, u_smoothness);
+    vec4 cmykOriginal = RGBtoCMYK(texBlur.rgb);
+    for (int dy = -1; dy <= 1; dy++) {
+      for (int dx = -1; dx <= 1; dx++) {
+        vec2 cellOffset = vec2(float(dx), float(dy));
+
+        computeDotContribution(pC, cellOffset, dotRadius(cmykOriginal.x, baseR, grain), outMask[0]);
+        computeDotContribution(pM, cellOffset, dotRadius(cmykOriginal.y, baseR, grain), outMask[1]);
+        computeDotContribution(pY, cellOffset, dotRadius(cmykOriginal.z, baseR, grain), outMask[2]);
+        computeDotContribution(pK, cellOffset, dotRadius(cmykOriginal.w, baseR, grain), outMask[3]);
+      }
+    }
+  }
+
+  float shape;
+
+  float covC = outMask[0];
+  float covM = outMask[1];
+  float covY = outMask[2];
+  float covK = outMask[3];
+
+  vec3 ink = vec3(1.0);
+
+  const vec3 INK_C = vec3(0.0, 1.0, 1.0);
+  const vec3 INK_M = vec3(1.0, 0.0, 1.0);
+  const vec3 INK_Y = vec3(1.0, 1.0, 0.0);
+  const vec3 INK_K = vec3(0.0, 0.0, 0.0);
+
+  ink = applyInk(ink, INK_K, covK);
+  ink = applyInk(ink, INK_C, covC);
+  ink = applyInk(ink, INK_M, covM);
+  ink = applyInk(ink, INK_Y, covY);
+
+  shape = clamp(max(max(covC, covM), max(covY, covK)), 0.0, 1.0);
 
   vec3 color = u_colorBack.rgb * u_colorBack.a;
   float opacity = u_colorBack.a;
-  float shape = max(max(max(maskC, maskM), maskY), maskK);
-  vec3 inkRgb = CMYKtoRGB(outCmyk);
-  color = mix(color, inkRgb, shape);
+  color = mix(color, ink, shape);
   opacity += shape;
   opacity = clamp(opacity, 0., 1.);
 
