@@ -135,7 +135,37 @@ export const classicPreset: HalftoneLinesPreset = {
   },
 };
 
-export const halftoneLinesPresets: HalftoneLinesPreset[] = [defaultPreset, strokesPreset, noisePreset, classicPreset];
+export const artyPreset: HalftoneLinesPreset = {
+  name: 'Arty',
+  params: {
+    ...defaultObjectSizing,
+    scale: 1,
+    speed: 0,
+    frame: 0,
+    colorBack: '#ff8d5c',
+    colorFront: '#ffffff',
+    grid: 'waves',
+    gridOffsetX: -0.5,
+    gridOffsetY: -0.5,
+    stripeWidth: 1,
+    smoothness: 0,
+    size: 1,
+    thinLines: true,
+    allowOverflow: true,
+    gridAngleDistortion: 0,
+    gridNoiseDistortion: 0,
+    gridRotation: 0,
+    contrast: 0.15,
+    originalColors: true,
+    inverted: false,
+    grainMixer: 0,
+    grainMixerSize: 1,
+    grainOverlay: 0,
+    grainOverlaySize: 0.5,
+  },
+};
+
+export const halftoneLinesPresets: HalftoneLinesPreset[] = [defaultPreset, strokesPreset, noisePreset, artyPreset, classicPreset];
 
 export const HalftoneLines: React.FC<HalftoneLinesProps> = memo(function HalftoneLinesImpl({
   // Own props
