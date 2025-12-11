@@ -36,6 +36,10 @@ uniform float u_shiftC;
 uniform float u_shiftM;
 uniform float u_shiftY;
 uniform float u_shiftK;
+uniform float u_visibilityC;
+uniform float u_visibilityM;
+uniform float u_visibilityY;
+uniform float u_visibilityK;
 uniform float u_contrast;
 uniform float u_grainSize;
 uniform float u_grainMixer;
@@ -205,16 +209,16 @@ void main() {
         vec2 cellOffset = vec2(float(dx), float(dy));
 
         vec4 cmykC = RGBtoCMYK(texture(u_image, gridToImageUV(pC + cellOffset, u_angleC, u_shiftC, pad)).rgb);
-        computeDotContribution(pC, cellOffset, dotRadius(cmykC.x, baseR, grain), outMask[0]);
+        computeDotContribution(pC, cellOffset, dotRadius(cmykC.x, baseR * u_visibilityC, grain), outMask[0]);
 
         vec4 cmykM = RGBtoCMYK(texture(u_image, gridToImageUV(pM + cellOffset, u_angleM, u_shiftM, pad)).rgb);
-        computeDotContribution(pM, cellOffset, dotRadius(cmykM.y, baseR, grain), outMask[1]);
+        computeDotContribution(pM, cellOffset, dotRadius(cmykM.y, baseR * u_visibilityM, grain), outMask[1]);
 
         vec4 cmykY = RGBtoCMYK(texture(u_image, gridToImageUV(pY + cellOffset, u_angleY, u_shiftY, pad)).rgb);
-        computeDotContribution(pY, cellOffset, dotRadius(cmykY.z, baseR, grain), outMask[2]);
+        computeDotContribution(pY, cellOffset, dotRadius(cmykY.z, baseR * u_visibilityY, grain), outMask[2]);
 
         vec4 cmykK = RGBtoCMYK(texture(u_image, gridToImageUV(pK + cellOffset, u_angleK, u_shiftK, pad)).rgb);
-        computeDotContribution(pK, cellOffset, dotRadius(cmykK.w, baseR, grain), outMask[3]);
+        computeDotContribution(pK, cellOffset, dotRadius(cmykK.w, baseR * u_visibilityK, grain), outMask[3]);
       }
     }
   } else {
@@ -225,10 +229,10 @@ void main() {
       for (int dx = -1; dx <= 1; dx++) {
         vec2 cellOffset = vec2(float(dx), float(dy));
 
-        computeDotContribution(pC, cellOffset, dotRadius(cmykOriginal.x, baseR, grain), outMask[0]);
-        computeDotContribution(pM, cellOffset, dotRadius(cmykOriginal.y, baseR, grain), outMask[1]);
-        computeDotContribution(pY, cellOffset, dotRadius(cmykOriginal.z, baseR, grain), outMask[2]);
-        computeDotContribution(pK, cellOffset, dotRadius(cmykOriginal.w, baseR, grain), outMask[3]);
+        computeDotContribution(pC, cellOffset, dotRadius(cmykOriginal.x, baseR * u_visibilityC, grain), outMask[0]);
+        computeDotContribution(pM, cellOffset, dotRadius(cmykOriginal.y, baseR * u_visibilityM, grain), outMask[1]);
+        computeDotContribution(pY, cellOffset, dotRadius(cmykOriginal.z, baseR * u_visibilityY, grain), outMask[2]);
+        computeDotContribution(pK, cellOffset, dotRadius(cmykOriginal.w, baseR * u_visibilityK, grain), outMask[3]);
       }
     }
   }
@@ -291,6 +295,10 @@ export interface HalftoneCmykUniforms extends ShaderSizingUniforms {
   u_shiftM: number;
   u_shiftY: number;
   u_shiftK: number;
+  u_visibilityC: number;
+  u_visibilityM: number;
+  u_visibilityY: number;
+  u_visibilityK: number;
   u_contrast: number;
   u_smoothness: number;
   u_softness: number;
@@ -314,6 +322,10 @@ export interface HalftoneCmykParams extends ShaderSizingParams, ShaderMotionPara
   shiftM?: number;
   shiftY?: number;
   shiftK?: number;
+  visibilityC?: number;
+  visibilityM?: number;
+  visibilityY?: number;
+  visibilityK?: number;
   contrast?: number;
   smoothness?: number;
   softness?: number;
