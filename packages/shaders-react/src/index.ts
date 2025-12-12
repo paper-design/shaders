@@ -111,6 +111,10 @@ export { HalftoneDots, halftoneDotsPresets } from './shaders/halftone-dots.js';
 export type { HalftoneDotsProps } from './shaders/halftone-dots.js';
 export type { HalftoneDotsUniforms, HalftoneDotsParams } from '@paper-design/shaders';
 
+export { HalftoneLines, halftoneLinesPresets } from './shaders/halftone-lines.js';
+export type { HalftoneLinesProps } from './shaders/halftone-lines.js';
+export type { HalftoneLinesUniforms, HalftoneLinesParams } from '@paper-design/shaders';
+
 export { isPaperShaderElement, getShaderColorFromString } from '@paper-design/shaders';
 export type { PaperShaderElement, ShaderFit, ShaderSizingParams, ShaderSizingUniforms } from '@paper-design/shaders';
 
