@@ -224,7 +224,7 @@ void main() {
       for (int dy = -1; dy <= 1; dy++) {
         float yOffset = float(dy);
 
-        baseR *= .75;
+        baseR *= .8;
         vec4 cmykC = RGBtoCMYK(texture(u_image, lineToImageUV(pC, yOffset, u_angleC, u_shiftC, pad)).rgb);
         computeLineContribution(pC, vec2(0.0, yOffset), dotRadius(cmykC.x, baseR * u_visibilityC, grain), outMask[0]);
 
@@ -238,6 +238,7 @@ void main() {
         computeLineContribution(pK, vec2(0.0, yOffset), dotRadius(cmykK.w, baseR * u_visibilityK, grain), outMask[3]);
       }
     } else {
+      baseR *= .9;
       // Uniform line width based on pixel color
       vec4 texBlur = texture(u_image, uv);
       vec4 cmykOriginal = RGBtoCMYK(texBlur.rgb);
