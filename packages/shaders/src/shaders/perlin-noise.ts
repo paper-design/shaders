@@ -1,6 +1,6 @@
 import type { ShaderMotionParams } from '../shader-mount.js';
 import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
-import { declarePI, colorBandingFix } from '../shader-utils.js';
+import { declarePI, colorBandingFix, proceduralHash11, proceduralHash21 } from '../shader-utils.js';
 
 /**
  * Classic animated 3D Perlin noise with exposed controls.
@@ -53,34 +53,13 @@ ${ sizingVariablesDeclaration }
 out vec4 fragColor;
 
 ${ declarePI }
-
-float hash11(float p) {
-  p = fract(p * 0.3183099) + 0.1;
-  p *= p + 19.19;
-  return fract(p * p);
-}
-
-float hash21(vec2 p) {
-  p = fract(p * vec2(0.3183099, 0.3678794)) + 0.1;
-  p += dot(p, p + 19.19);
-  return fract(p.x * p.y);
-}
+${ proceduralHash11 }
+${ proceduralHash21 }
 
 float hash31(vec3 p) {
   p = fract(p * 0.3183099) + 0.1;
   p += dot(p, p.yzx + 19.19);
   return fract(p.x * (p.y + p.z));
-}
-
-vec3 hash33(vec3 p) {
-  p = fract(p * 0.3183099) + 0.1;
-  p += dot(p, p.yzx + 19.19);
-  return fract(vec3(p.x * p.y, p.y * p.z, p.z * p.x));
-}
-
-vec3 gradientSafe(vec3 p) {
-  vec3 h = hash33(p) * 2.0 - 1.;
-  return normalize(h + 0.001);
 }
 
 vec3 gradientPredefined(float hash) {
@@ -189,11 +168,10 @@ void main() {
 
   vec3 p = vec3(uv, t);
 
-  float octCount = clamp(floor(u_octaveCount), 1.0, 8.0);
-  float persistence = clamp(u_persistence, 0., 1.);
-  float noise = p_noise(p, int(octCount), persistence, u_lacunarity);
+  float octCount = floor(u_octaveCount);
+  float noise = p_noise(p, int(octCount), u_persistence, u_lacunarity);
 
-  float max_amp = get_max_amp(persistence, octCount);
+  float max_amp = get_max_amp(u_persistence, octCount);
   float noise_normalized = clamp((noise + max_amp) / max(1e-4, (2. * max_amp)) + (u_proportion - .5), 0.0, 1.0);
   float sharpness = clamp(u_softness, 0., 1.);
   float smooth_w = 0.5 * max(fwidth(noise_normalized), 0.001);
