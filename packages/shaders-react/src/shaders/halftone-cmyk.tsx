@@ -41,7 +41,7 @@ export const defaultPreset: HalftoneCmykPreset = {
     angleK: 45,
     shiftK: 0.5,
     visibilityK: 1,
-    softness: 0.3,
+    softness: 0,
     smoothness: 0,
     rounded: true,
     grainSize: 0.5,
