@@ -87,6 +87,7 @@ const HalftoneCmykWithControls = () => {
         options: Object.keys(HalftoneCmykTypes) as HalftoneCmykType[],
         order: 106,
       },
+      contrast: { value: defaults.contrast, min: 0, max: 2, step: 0.01, order: 107 },
       angleC: { value: defaults.angleC, min: 0, max: 90, step: 0.1, order: 110 },
       shiftC: { value: defaults.shiftC, min: -0.5, max: 0.5, step: 0.01, order: 111 },
       visibilityC: { value: defaults.visibilityC, min: 0, max: 1, step: 0.01, order: 112 },
