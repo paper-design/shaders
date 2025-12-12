@@ -16,9 +16,6 @@ import { gemSmokeDef } from '@/shader-defs/gem-smoke-def';
 import { toHsla } from '@/helpers/color-utils';
 import { useColors } from '@/helpers/use-colors';
 
-// Override just for the docs, we keep it transparent in the preset
-// gemSmokePresets[0].params.colorBack = '#000000';
-
 const { worldWidth, worldHeight, ...defaults } = gemSmokePresets[0].params;
 
 const imageFiles = [
