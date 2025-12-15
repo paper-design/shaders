@@ -154,16 +154,16 @@ void main() {
     float dampen = 1. / (1. + stretch * 8.);
 
     float s = swirl * dampen;
-    smokeUV.x += s / iFloat * cos(t + iFloat * 2.5 * smokeUV.y);
+    smokeUV.x += s / iFloat * cos(t + iFloat * 2.9 * smokeUV.y);
     smokeUV.y += s / iFloat * cos(t + iFloat * 1.5 * smokeUV.x);
   }
   float shape = exp(-1.5 * dot(smokeUV, smokeUV));
   shape += mix(0., .15, u_innerFill) * imgAlpha * frame;
 
-  float outerPower = pow(u_outerVisibility, 3.);
+  float outerPower = pow(u_outerVisibility, 2.);
   shape *= (outerPower + (1. - outerPower) * imgAlpha);
 
-  shape = pow(shape, .75);
+  shape = mix(shape, smoothstep(0., 1., shape), shape);
   float mixer = shape * u_colorsCount;
   vec4 gradient = u_colors[0];
   gradient.rgb *= gradient.a;
