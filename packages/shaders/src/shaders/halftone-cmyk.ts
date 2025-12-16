@@ -25,6 +25,10 @@ uniform sampler2D u_image;
 uniform float u_imageAspectRatio;
 
 uniform vec4 u_colorBack;
+uniform vec4 u_colorC;
+uniform vec4 u_colorM;
+uniform vec4 u_colorY;
+uniform vec4 u_colorK;
 uniform float u_size;
 uniform float u_radius;
 uniform float u_minRadius;
@@ -36,10 +40,6 @@ uniform float u_shiftC;
 uniform float u_shiftM;
 uniform float u_shiftY;
 uniform float u_shiftK;
-uniform float u_visibilityC;
-uniform float u_visibilityM;
-uniform float u_visibilityY;
-uniform float u_visibilityK;
 uniform float u_contrast;
 uniform float u_grainSize;
 uniform float u_grainMixer;
@@ -256,22 +256,22 @@ void main() {
         rgb = texture(u_image, lineToImageUV(pC, yOffset, u_angleC, u_shiftC, pad)).rgb;
         rgb = applyContrast(rgb);
         vec4 cmykC = RGBtoCMYK(rgb);
-        computeLineContribution(pC, vec2(0.0, yOffset), dotRadius(cmykC.x, baseR * u_visibilityC, grain), outMask[0]);
+        computeLineContribution(pC, vec2(0.0, yOffset), dotRadius(cmykC.x, baseR * u_colorC.a, grain), outMask[0]);
 
         rgb = texture(u_image, lineToImageUV(pM, yOffset, u_angleM, u_shiftM, pad)).rgb;
         rgb = applyContrast(rgb);
         vec4 cmykM = RGBtoCMYK(rgb);
-        computeLineContribution(pM, vec2(0.0, yOffset), dotRadius(cmykM.y, baseR * u_visibilityM, grain), outMask[1]);
+        computeLineContribution(pM, vec2(0.0, yOffset), dotRadius(cmykM.y, baseR * u_colorM.a, grain), outMask[1]);
 
         rgb = texture(u_image, lineToImageUV(pY, yOffset, u_angleY, u_shiftY, pad)).rgb;
         rgb = applyContrast(rgb);
         vec4 cmykY = RGBtoCMYK(rgb);
-        computeLineContribution(pY, vec2(0.0, yOffset), dotRadius(cmykY.z, baseR * u_visibilityY, grain), outMask[2]);
+        computeLineContribution(pY, vec2(0.0, yOffset), dotRadius(cmykY.z, baseR * u_colorY.a, grain), outMask[2]);
 
         rgb = texture(u_image, lineToImageUV(pK, yOffset, u_angleK, u_shiftK, pad)).rgb;
         rgb = applyContrast(rgb);
         vec4 cmykK = RGBtoCMYK(rgb);
-        computeLineContribution(pK, vec2(0.0, yOffset), dotRadius(cmykK.w, baseR * u_visibilityK, grain), outMask[3]);
+        computeLineContribution(pK, vec2(0.0, yOffset), dotRadius(cmykK.w, baseR * u_colorK.a, grain), outMask[3]);
       }
     } else {
       baseR *= .9;
@@ -282,10 +282,10 @@ void main() {
       for (int dy = -1; dy <= 1; dy++) {
         vec2 cellOffset = vec2(0.0, float(dy));
 
-        computeLineContribution(pC, cellOffset, dotRadius(cmykOriginal.x, baseR * u_visibilityC, grain), outMask[0]);
-        computeLineContribution(pM, cellOffset, dotRadius(cmykOriginal.y, baseR * u_visibilityM, grain), outMask[1]);
-        computeLineContribution(pY, cellOffset, dotRadius(cmykOriginal.z, baseR * u_visibilityY, grain), outMask[2]);
-        computeLineContribution(pK, cellOffset, dotRadius(cmykOriginal.w, baseR * u_visibilityK, grain), outMask[3]);
+        computeLineContribution(pC, cellOffset, dotRadius(cmykOriginal.x, baseR * u_colorC.a, grain), outMask[0]);
+        computeLineContribution(pM, cellOffset, dotRadius(cmykOriginal.y, baseR * u_colorM.a, grain), outMask[1]);
+        computeLineContribution(pY, cellOffset, dotRadius(cmykOriginal.z, baseR * u_colorY.a, grain), outMask[2]);
+        computeLineContribution(pK, cellOffset, dotRadius(cmykOriginal.w, baseR * u_colorK.a, grain), outMask[3]);
       }
     }
   } else {
@@ -298,22 +298,22 @@ void main() {
           rgb = texture(u_image, gridToImageUV(pC + cellOffset, u_angleC, u_shiftC, pad)).rgb;
           rgb = applyContrast(rgb);
           vec4 cmykC = RGBtoCMYK(rgb);
-          computeDotContribution(pC, cellOffset, dotRadius(cmykC.x, baseR * u_visibilityC, grain), outMask[0]);
+          computeDotContribution(pC, cellOffset, dotRadius(cmykC.x, baseR * u_colorC.a, grain), outMask[0]);
 
           rgb = texture(u_image, gridToImageUV(pM + cellOffset, u_angleM, u_shiftM, pad)).rgb;
           rgb = applyContrast(rgb);
           vec4 cmykM = RGBtoCMYK(rgb);
-          computeDotContribution(pM, cellOffset, dotRadius(cmykM.y, baseR * u_visibilityM, grain), outMask[1]);
+          computeDotContribution(pM, cellOffset, dotRadius(cmykM.y, baseR * u_colorM.a, grain), outMask[1]);
 
           rgb = texture(u_image, gridToImageUV(pY + cellOffset, u_angleY, u_shiftY, pad)).rgb;
           rgb = applyContrast(rgb);
           vec4 cmykY = RGBtoCMYK(rgb);
-          computeDotContribution(pY, cellOffset, dotRadius(cmykY.z, baseR * u_visibilityY, grain), outMask[2]);
+          computeDotContribution(pY, cellOffset, dotRadius(cmykY.z, baseR * u_colorY.a, grain), outMask[2]);
 
           rgb = texture(u_image, gridToImageUV(pK + cellOffset, u_angleK, u_shiftK, pad)).rgb;
           rgb = applyContrast(rgb);
           vec4 cmykK = RGBtoCMYK(rgb);
-          computeDotContribution(pK, cellOffset, dotRadius(cmykK.w, baseR * u_visibilityK, grain), outMask[3]);
+          computeDotContribution(pK, cellOffset, dotRadius(cmykK.w, baseR * u_colorK.a, grain), outMask[3]);
         }
       }
     } else {
@@ -325,10 +325,10 @@ void main() {
         for (int dx = -1; dx <= 1; dx++) {
           vec2 cellOffset = vec2(float(dx), float(dy));
 
-          computeDotContribution(pC, cellOffset, dotRadius(cmykOriginal.x, baseR * u_visibilityC, grain), outMask[0]);
-          computeDotContribution(pM, cellOffset, dotRadius(cmykOriginal.y, baseR * u_visibilityM, grain), outMask[1]);
-          computeDotContribution(pY, cellOffset, dotRadius(cmykOriginal.z, baseR * u_visibilityY, grain), outMask[2]);
-          computeDotContribution(pK, cellOffset, dotRadius(cmykOriginal.w, baseR * u_visibilityK, grain), outMask[3]);
+          computeDotContribution(pC, cellOffset, dotRadius(cmykOriginal.x, baseR * u_colorC.a, grain), outMask[0]);
+          computeDotContribution(pM, cellOffset, dotRadius(cmykOriginal.y, baseR * u_colorM.a, grain), outMask[1]);
+          computeDotContribution(pY, cellOffset, dotRadius(cmykOriginal.z, baseR * u_colorY.a, grain), outMask[2]);
+          computeDotContribution(pK, cellOffset, dotRadius(cmykOriginal.w, baseR * u_colorK.a, grain), outMask[3]);
         }
       }
     }
@@ -341,17 +341,12 @@ void main() {
   float covY = outMask[2];
   float covK = outMask[3];
 
-  vec3 ink = vec3(1.0);
+  vec3 ink = vec3(1.);
 
-  const vec3 INK_C = vec3(0.0, 1.0, 1.0);
-  const vec3 INK_M = vec3(1.0, 0.0, 1.0);
-  const vec3 INK_Y = vec3(1.0, 1.0, 0.0);
-  const vec3 INK_K = vec3(0.0, 0.0, 0.0);
-
-  ink = applyInk(ink, INK_K, covK);
-  ink = applyInk(ink, INK_C, covC);
-  ink = applyInk(ink, INK_M, covM);
-  ink = applyInk(ink, INK_Y, covY);
+  ink = applyInk(ink, u_colorK.rgb, covK);
+  ink = applyInk(ink, u_colorC.rgb, covC);
+  ink = applyInk(ink, u_colorM.rgb, covM);
+  ink = applyInk(ink, u_colorY.rgb, covY);
 
   shape = clamp(max(max(covC, covM), max(covY, covK)), 0.0, 1.0);
 
@@ -381,6 +376,10 @@ void main() {
 export interface HalftoneCmykUniforms extends ShaderSizingUniforms {
   u_image: HTMLImageElement | string | undefined;
   u_colorBack: [number, number, number, number];
+  u_colorC: [number, number, number, number];
+  u_colorM: [number, number, number, number];
+  u_colorY: [number, number, number, number];
+  u_colorK: [number, number, number, number];
   u_size: number;
   u_radius: number;
   u_minRadius: number;
@@ -392,10 +391,6 @@ export interface HalftoneCmykUniforms extends ShaderSizingUniforms {
   u_shiftM: number;
   u_shiftY: number;
   u_shiftK: number;
-  u_visibilityC: number;
-  u_visibilityM: number;
-  u_visibilityY: number;
-  u_visibilityK: number;
   u_contrast: number;
   u_smoothness: number;
   u_softness: number;
@@ -409,6 +404,10 @@ export interface HalftoneCmykUniforms extends ShaderSizingUniforms {
 export interface HalftoneCmykParams extends ShaderSizingParams, ShaderMotionParams {
   image?: HTMLImageElement | string;
   colorBack?: string;
+  colorC?: string;
+  colorM?: string;
+  colorY?: string;
+  colorK?: string;
   size?: number;
   radius?: number;
   minRadius?: number;
@@ -420,10 +419,6 @@ export interface HalftoneCmykParams extends ShaderSizingParams, ShaderMotionPara
   shiftM?: number;
   shiftY?: number;
   shiftK?: number;
-  visibilityC?: number;
-  visibilityM?: number;
-  visibilityY?: number;
-  visibilityK?: number;
   contrast?: number;
   smoothness?: number;
   softness?: number;
