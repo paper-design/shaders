@@ -11,7 +11,6 @@ import {
   declarePI,
   rotation2,
   textureRandomizerR,
-  proceduralHash21,
   proceduralHash11,
 } from '../shader-utils.js';
 
@@ -104,7 +103,6 @@ out vec4 fragColor;
 ${ declarePI }
 ${ simplexNoise }
 ${ rotation2 }
-${ proceduralHash21 }
 ${ textureRandomizerR }
 
 float valueNoiseR(vec2 st) {
@@ -119,30 +117,22 @@ float valueNoiseR(vec2 st) {
   float x2 = mix(c, d, u.x);
   return mix(x1, x2, u.y);
 }
-float fbmR(vec2 n) {
-  float total = 0.;
-  float amplitude = .2;
-  for (int i = 0; i < 3; i++) {
-    n = rotate(n, .3);
-    total += valueNoiseR(n) * amplitude;
-    n *= 1.99;
-    amplitude *= 0.6;
-  }
-  return total;
-}
-vec3 fbmR3(vec2 n0, vec2 n1, vec2 n2) {
+vec4 fbmR(vec2 n0, vec2 n1, vec2 n2, vec2 n3) {
   float amplitude = 0.2;
-  vec3 total = vec3(0.0);
+  vec4 total = vec4(0.);
   for (int i = 0; i < 3; i++) {
     n0 = rotate(n0, 0.3);
     n1 = rotate(n1, 0.3);
     n2 = rotate(n2, 0.3);
+    n3 = rotate(n3, 0.3);
     total.x += valueNoiseR(n0) * amplitude;
     total.y += valueNoiseR(n1) * amplitude;
     total.z += valueNoiseR(n2) * amplitude;
+    total.z += valueNoiseR(n3) * amplitude;
     n0 *= 1.99;
     n1 *= 1.99;
     n2 *= 1.99;
+    n3 *= 1.99;
     amplitude *= 0.6;
   }
   return total;
@@ -170,7 +160,7 @@ void main() {
   vec2 shape_uv = vec2(0.);
   vec2 grain_uv = vec2(0.);
 
-  float r = u_rotation * 3.14159265358979323846 / 180.;
+  float r = u_rotation * PI / 180.;
   float cr = cos(r);
   float sr = sin(r);
   mat2 graphicRotation = mat2(cr, sr, -sr, cr);
@@ -303,13 +293,14 @@ void main() {
   }
 
   float baseNoise = snoise(grain_uv * .5);
-  vec3 fbmVals = fbmR3(
+  vec4 fbmVals = fbmR(
   .002 * grain_uv + 10.,
   .003 * grain_uv,
-  .001 * grain_uv
+  .001 * grain_uv,
+  rotate(.4 * grain_uv, 2.)
   );
   float grainDist = baseNoise * snoise(grain_uv * .2) - fbmVals.x - fbmVals.y;
-  float rawNoise = .75 * baseNoise - fbmR(rotate(.4 * grain_uv, 2.)) - fbmVals.z;
+  float rawNoise = .75 * baseNoise - fbmVals.w - fbmVals.z;
   float noise = clamp(rawNoise, 0., 1.);
 
   shape += u_intensity * 2. / u_colorsCount * (grainDist + .5);

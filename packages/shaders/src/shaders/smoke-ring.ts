@@ -78,23 +78,26 @@ float valueNoise(vec2 st) {
   float x2 = mix(c, d, u.x);
   return mix(x1, x2, u.y);
 }
-float fbm(in vec2 n) {
-  float total = 0.0, amplitude = .4;
+vec2 fbm(vec2 n0, vec2 n1) {
+  vec2 total = vec2(0.0);
+  float amplitude = .4;
   for (int i = 0; i < ${ smokeRingMeta.maxNoiseIterations }; i++) {
     if (i >= int(u_noiseIterations)) break;
-    total += valueNoise(n) * amplitude;
-    n *= 1.99;
+    total.x += valueNoise(n0) * amplitude;
+    total.y += valueNoise(n1) * amplitude;
+    n0 *= 1.99;
+    n1 *= 1.99;
     amplitude *= 0.65;
   }
   return total;
 }
 
 float getNoise(vec2 uv, vec2 pUv, float t) {
-  float noiseLeft = fbm(pUv + .03 * t);
+  vec2 pUvLeft = pUv + .03 * t;
   float period = max(abs(u_noiseScale * TWO_PI), 1e-6);
-  pUv.x = fract(pUv.x / period) * period;
-  float noiseRight = fbm(pUv + .03 * t);
-  return mix(noiseRight, noiseLeft, smoothstep(-.25, .25, uv.x));
+  vec2 pUvRight = vec2(fract(pUv.x / period) * period, pUv.y) + .03 * t;
+  vec2 noise = fbm(pUvLeft, pUvRight);
+  return mix(noise.y, noise.x, smoothstep(-.25, .25, uv.x));
 }
 
 float getRingShape(vec2 uv) {
@@ -121,12 +124,11 @@ void main() {
 
   float atg = atan(shape_uv.y, shape_uv.x) + .001;
   float l = length(shape_uv);
-  vec2 polar_uv1 = vec2(atg, localTime1 - (.5 * l) + 1. / pow(max(1e-4, l), .5));
-  polar_uv1 *= u_noiseScale;
+  float radialOffset = .5 * l - inversesqrt(max(1e-4, l));
+  vec2 polar_uv1 = vec2(atg, localTime1 - radialOffset) * u_noiseScale;
+  vec2 polar_uv2 = vec2(atg, localTime2 - radialOffset) * u_noiseScale;
+  
   float noise1 = getNoise(shape_uv, polar_uv1, t);
-
-  vec2 polar_uv2 = vec2(atg, localTime2 - (.5 * l) + 1. / pow(max(1e-4, l), .5));
-  polar_uv2 *= u_noiseScale;
   float noise2 = getNoise(shape_uv, polar_uv2, t);
 
   float noise = mix(noise1, noise2, timeBlend);
@@ -136,10 +138,11 @@ void main() {
   float ringShape = getRingShape(shape_uv);
 
   float mixer = ringShape * ringShape * (u_colorsCount - 1.);
-  vec4 gradient = u_colors[int(u_colorsCount) - 1];
+  int idxLast = int(u_colorsCount) - 1;
+  vec4 gradient = u_colors[idxLast];
   gradient.rgb *= gradient.a;
   for (int i = ${ smokeRingMeta.maxColorCount } - 2; i >= 0; i--) {
-    float localT = clamp(mixer - float(int(u_colorsCount) - 1 - i - 1), 0., 1.);
+    float localT = clamp(mixer - float(idxLast - i - 1), 0., 1.);
     vec4 c = u_colors[i];
     c.rgb *= c.a;
     gradient = mix(gradient, c, localT);

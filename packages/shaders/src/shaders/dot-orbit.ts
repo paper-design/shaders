@@ -88,7 +88,6 @@ vec3 voronoiShape(vec2 uv, float time) {
         minDist = dist;
         randomizer = rand;
       }
-      minDist = min(minDist, dist);
     }
   }
 
