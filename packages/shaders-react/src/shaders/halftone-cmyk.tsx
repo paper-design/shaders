@@ -156,7 +156,42 @@ export const strokesPreset: HalftoneCmykPreset = {
   },
 };
 
-export const halftoneCmykPresets: HalftoneCmykPreset[] = [defaultPreset, naturalPreset, largePreset, strokesPreset];
+export const abstractionPreset: HalftoneCmykPreset = {
+  name: 'Abstraction',
+  params: {
+    ...defaultObjectSizing,
+    scale: 1,
+    fit: 'contain',
+    speed: 0,
+    frame: 0,
+    colorBack: '#ffffff',
+    colorC: '#00ffff00',
+    colorM: '#ff00ff00',
+    colorY: '#ff0000',
+    colorK: '#000000',
+    size: 0.98,
+    radius: 0.8,
+    minRadius: 0.05,
+    contrast: 1,
+    angleC: 15,
+    shiftC: -0.5,
+    angleM: 75,
+    shiftM: -0,
+    angleY: 15,
+    shiftY: 0,
+    angleK: 45,
+    shiftK: 0.5,
+    softness: 0,
+    smoothness: 0,
+    rounded: true,
+    grainSize: 0.5,
+    grainMixer: 0,
+    grainOverlay: 0,
+    type: 'line',
+  },
+};
+
+export const halftoneCmykPresets: HalftoneCmykPreset[] = [defaultPreset, naturalPreset, largePreset, strokesPreset, abstractionPreset];
 
 export const HalftoneCmyk: React.FC<HalftoneCmykProps> = memo(function HalftoneCmykImpl({
   // Own props
