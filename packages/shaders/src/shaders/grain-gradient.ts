@@ -160,7 +160,7 @@ void main() {
   vec2 shape_uv = vec2(0.);
   vec2 grain_uv = vec2(0.);
 
-  float r = u_rotation * 3.14159265358979323846 / 180.;
+  float r = u_rotation * PI / 180.;
   float cr = cos(r);
   float sr = sin(r);
   mat2 graphicRotation = mat2(cr, sr, -sr, cr);
