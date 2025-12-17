@@ -40,8 +40,6 @@ import { rotation2, declarePI, textureRandomizerR } from '../shader-utils.js';
  * - u_pixelRatio (float): Device pixel ratio
  * - u_originX (float): Reference point for positioning world width in the canvas (0 to 1)
  * - u_originY (float): Reference point for positioning world height in the canvas (0 to 1)
- * - u_worldWidth (float): Virtual width of the graphic before it's scaled to fit the canvas
- * - u_worldHeight (float): Virtual height of the graphic before it's scaled to fit the canvas
  * - u_fit (float): How to fit the rendered shader into the canvas dimensions (0 = none, 1 = contain, 2 = cover)
  * - u_scale (float): Overall zoom level of the graphics (0.01 to 4)
  * - u_rotation (float): Overall rotation angle of the graphics in degrees (0 to 360)
@@ -85,7 +83,6 @@ uniform float u_distortion;
 uniform sampler2D u_noiseTexture;
 
 in vec2 v_imageUV;
-
 out vec4 fragColor;
 
 float getUvFrame(vec2 uv) {
