@@ -222,7 +222,7 @@ vec3 applyInk(vec3 paper, vec3 inkColor, float cov) {
 void main() {
   vec2 uv = v_imageUV;
 
-  float cellsPerSide = mix(300.0, 7.0, pow(u_size, 0.7));
+  float cellsPerSide = mix(500.0, 7.0, pow(u_size, 0.7));
   float cellSizeY = 1.0 / cellsPerSide;
   vec2 pad = cellSizeY * vec2(1.0 / u_imageAspectRatio, 1.0);
   vec2 uvGrid = (uv - .5) / pad;
