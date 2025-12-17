@@ -104,28 +104,6 @@ float valueNoise(vec2 st) {
   return mix(x1, x2, u.y);
 }
 
-vec2 deriveScaledUV(vec2 baseImageUV, vec2 scale) {
-  float r = u_rotation * PI / 180.;
-  float c = cos(r);
-  float s = sin(r);
-
-  vec2 uv = baseImageUV;
-  uv.y = 1. - uv.y;
-  uv -= .5;
-  uv.x *= u_imageAspectRatio;
-  uv = mat2(c, -s, s, c) * uv;
-  uv.x /= u_imageAspectRatio;
-
-  uv *= scale;
-
-  uv.x *= u_imageAspectRatio;
-  uv = mat2(c, s, -s, c) * uv;
-  uv.x /= u_imageAspectRatio;
-  uv += .5;
-  uv.y = 1. - uv.y;
-  return uv;
-}
-
 float getUvFrame(vec2 uv, float softness) {
   float aax = 2. * fwidth(uv.x);
   float aay = 2. * fwidth(uv.y);
@@ -321,7 +299,9 @@ void main() {
 
   vec2 dudx = dFdx(v_imageUV);
   vec2 dudy = dFdy(v_imageUV);
-  vec2 grainUV = deriveScaledUV(v_imageUV, .8 / vec2(length(dudx), length(dudy)));
+  vec2 grainUV = v_imageUV - .5;
+  grainUV *= (.8 / vec2(length(dudx), length(dudy)));
+  grainUV += .5;
   float grain = valueNoise(grainUV);
   grain = smoothstep(.4, .7, grain);
   grain *= u_grainMixer;

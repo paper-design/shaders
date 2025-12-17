@@ -94,28 +94,6 @@ float sst(float edge0, float edge1, float x) {
   return smoothstep(edge0, edge1, x);
 }
 
-vec2 deriveScaledUV(vec2 baseImageUV, vec2 scale) {
-  float r = u_rotation * PI / 180.;
-  float c = cos(r);
-  float s = sin(r);
-
-  vec2 uv = baseImageUV;
-  uv.y = 1. - uv.y;
-  uv -= .5;
-  uv.x *= u_imageAspectRatio;
-  uv = mat2(c, -s, s, c) * uv;
-  uv.x /= u_imageAspectRatio;
-
-  uv *= scale;
-
-  uv.x *= u_imageAspectRatio;
-  uv = mat2(c, s, -s, c) * uv;
-  uv.x /= u_imageAspectRatio;
-  uv += .5;
-  uv.y = 1. - uv.y;
-  return uv;
-}
-
 float getCircle(vec2 uv, float r, float baseR) {
   r = mix(.25 * baseR, 0., r);
   float d = length(uv - .5);
@@ -315,7 +293,9 @@ void main() {
   }
 
   vec2 grainSize = mix(2000., 200., u_grainSize) * vec2(1., 1. / u_imageAspectRatio);
-  vec2 grainUV = deriveScaledUV(v_imageUV, grainSize);
+  vec2 grainUV = v_imageUV - .5;
+  grainUV *= grainSize;
+  grainUV += .5;
   float grain = valueNoise(grainUV);
   grain = smoothstep(.55, .7 + .2 * u_grainMixer, grain);
   grain *= u_grainMixer;
