@@ -1,6 +1,6 @@
 import type { vec4 } from '../types.js';
 import type { ShaderMotionParams } from '../shader-mount.js';
-import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
+import { type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
 import { declarePI, rotation2, textureRandomizerR, colorBandingFix, proceduralHash11 } from '../shader-utils.js';
 
 export const godRaysMeta = {
@@ -64,7 +64,7 @@ uniform float u_midIntensity;
 uniform float u_intensity;
 uniform float u_bloom;
 
-${ sizingVariablesDeclaration }
+in vec2 v_objectUV;
 
 out vec4 fragColor;
 

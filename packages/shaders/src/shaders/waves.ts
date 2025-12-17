@@ -1,4 +1,4 @@
-import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
+import { type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
 import { declarePI } from '../shader-utils.js';
 
 /**
@@ -45,7 +45,7 @@ uniform float u_spacing;
 uniform float u_proportion;
 uniform float u_softness;
 
-${ sizingVariablesDeclaration }
+in vec2 v_patternUV;
 
 out vec4 fragColor;
 

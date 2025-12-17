@@ -1,5 +1,5 @@
 import type { ShaderMotionParams } from '../shader-mount.js';
-import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
+import { type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
 import { simplexNoise, declarePI, colorBandingFix } from '../shader-utils.js';
 
 /**
@@ -54,7 +54,7 @@ uniform float u_noise;
 uniform float u_noiseFrequency;
 uniform float u_softness;
 
-${ sizingVariablesDeclaration }
+in vec2 v_patternUV;
 
 out vec4 fragColor;
 
