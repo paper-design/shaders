@@ -1,30 +1,3 @@
-export const sizingVariablesDeclaration = `
-in vec2 v_objectUV;
-in vec2 v_responsiveUV;
-in vec2 v_responsiveBoxGivenSize;
-in vec2 v_patternUV;
-in vec2 v_imageUV;`;
-
-export const sizingDebugVariablesDeclaration = `
-in vec2 v_objectBoxSize;
-in vec2 v_objectHelperBox;
-in vec2 v_responsiveBoxSize;
-in vec2 v_responsiveHelperBox;
-in vec2 v_patternBoxSize;
-in vec2 v_patternHelperBox;`;
-
-export const sizingUniformsDeclaration = `
-uniform float u_originX;
-uniform float u_originY;
-uniform float u_worldWidth;
-uniform float u_worldHeight;
-uniform float u_fit;
-
-uniform float u_scale;
-uniform float u_rotation;
-uniform float u_offsetX;
-uniform float u_offsetY;`;
-
 export interface ShaderSizingUniforms {
   u_fit: (typeof ShaderFitOptions)[ShaderFit];
   u_scale: number;

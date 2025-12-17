@@ -1,9 +1,6 @@
 import type { vec4 } from '../types.js';
 import type { ShaderMotionParams } from '../shader-mount.js';
 import {
-  sizingDebugVariablesDeclaration,
-  sizingVariablesDeclaration,
-  sizingUniformsDeclaration,
   type ShaderSizingParams,
   type ShaderSizingUniforms,
 } from '../shader-sizing.js';
@@ -69,10 +66,7 @@ uniform float u_distortionFreq;
 uniform float u_grainMixer;
 uniform float u_grainOverlay;
 
-${ sizingVariablesDeclaration }
-${ sizingDebugVariablesDeclaration }
-${ sizingUniformsDeclaration }
-
+in vec2 v_objectUV;
 out vec4 fragColor;
 
 ${ declarePI }

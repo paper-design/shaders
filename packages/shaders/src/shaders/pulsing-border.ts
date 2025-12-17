@@ -1,6 +1,6 @@
 import type { vec4 } from '../types.js';
 import type { ShaderMotionParams } from '../shader-mount.js';
-import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
+import { type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
 import { declarePI, textureRandomizerGB, colorBandingFix } from '../shader-utils.js';
 
 export const pulsingBorderMeta = {
@@ -80,7 +80,9 @@ uniform float u_smokeSize;
 
 uniform sampler2D u_noiseTexture;
 
-${ sizingVariablesDeclaration }
+in vec2 v_responsiveUV;
+in vec2 v_responsiveBoxGivenSize;
+in vec2 v_patternUV;
 
 out vec4 fragColor;
 
