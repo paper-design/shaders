@@ -1,10 +1,3 @@
-export const sizingVariablesDeclaration = `
-in vec2 v_objectUV;
-in vec2 v_responsiveUV;
-in vec2 v_responsiveBoxGivenSize;
-in vec2 v_patternUV;
-in vec2 v_imageUV;`;
-
 export interface ShaderSizingUniforms {
   u_fit: (typeof ShaderFitOptions)[ShaderFit];
   u_scale: number;

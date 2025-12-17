@@ -1,7 +1,6 @@
 import type { vec4 } from '../types.js';
 import type { ShaderMotionParams } from '../shader-mount.js';
 import {
-  sizingVariablesDeclaration,
   type ShaderSizingParams,
   type ShaderSizingUniforms,
 } from '../shader-sizing.js';
@@ -94,7 +93,8 @@ uniform mediump float u_rotation;
 uniform mediump float u_offsetX;
 uniform mediump float u_offsetY;
 
-${ sizingVariablesDeclaration }
+in vec2 v_objectUV;
+in vec2 v_patternUV;
 in vec2 v_objectBoxSize;
 in vec2 v_patternBoxSize;
 
