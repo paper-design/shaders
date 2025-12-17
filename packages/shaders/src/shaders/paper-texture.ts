@@ -1,5 +1,5 @@
 import type { ShaderMotionParams } from '../shader-mount.js';
-import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
+import { type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
 import { rotation2, declarePI, textureRandomizerR } from '../shader-utils.js';
 
 /**
@@ -84,7 +84,7 @@ uniform float u_distortion;
 
 uniform sampler2D u_noiseTexture;
 
-${ sizingVariablesDeclaration }
+in vec2 v_imageUV;
 
 out vec4 fragColor;
 

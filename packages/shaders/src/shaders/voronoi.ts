@@ -1,6 +1,6 @@
 import type { vec4 } from '../types.js';
 import type { ShaderMotionParams } from '../shader-mount.js';
-import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
+import { type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
 import { declarePI, textureRandomizerGB } from '../shader-utils.js';
 
 export const voronoiMeta = {
@@ -66,7 +66,7 @@ uniform float u_distortion;
 uniform float u_gap;
 uniform float u_glow;
 
-${ sizingVariablesDeclaration }
+in vec2 v_patternUV;
 
 out vec4 fragColor;
 

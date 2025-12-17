@@ -1,6 +1,6 @@
 import type { vec4 } from '../types.js';
 import type { ShaderMotionParams } from '../shader-mount.js';
-import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
+import { type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
 import { simplexNoise, declarePI, rotation2, colorBandingFix } from '../shader-utils.js';
 
 export const swirlMeta = {
@@ -58,7 +58,7 @@ uniform float u_softness;
 uniform float u_noise;
 uniform float u_noiseFrequency;
 
-${ sizingVariablesDeclaration }
+in vec2 v_objectUV;
 
 out vec4 fragColor;
 

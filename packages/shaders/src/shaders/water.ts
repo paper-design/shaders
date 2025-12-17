@@ -1,5 +1,5 @@
 import type { ShaderMotionParams } from '../shader-mount.js';
-import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
+import { type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
 import { declarePI, rotation2, simplexNoise } from '../shader-utils.js';
 
 /**
@@ -56,7 +56,7 @@ uniform float u_edges;
 uniform float u_caustic;
 uniform float u_waves;
 
-${ sizingVariablesDeclaration }
+in vec2 v_imageUV;
 
 out vec4 fragColor;
 
