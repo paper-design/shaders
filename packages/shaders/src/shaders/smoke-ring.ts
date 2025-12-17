@@ -1,6 +1,6 @@
 import type { vec4 } from '../types.js';
 import type { ShaderMotionParams } from '../shader-mount.js';
-import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
+import { type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
 import { declarePI, textureRandomizerR, colorBandingFix } from '../shader-utils.js';
 
 export const smokeRingMeta = {
@@ -60,7 +60,7 @@ uniform float u_innerShape;
 uniform float u_noiseScale;
 uniform float u_noiseIterations;
 
-${ sizingVariablesDeclaration }
+in vec2 v_objectUV;
 
 out vec4 fragColor;
 

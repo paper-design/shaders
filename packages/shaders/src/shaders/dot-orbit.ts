@@ -1,6 +1,6 @@
 import type { vec4 } from '../types.js';
 import type { ShaderMotionParams } from '../shader-mount.js';
-import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
+import { type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
 import { declarePI, rotation2, textureRandomizerR, textureRandomizerGB } from '../shader-utils.js';
 
 export const dotOrbitMeta = {
@@ -56,7 +56,7 @@ uniform float u_size;
 uniform float u_sizeRange;
 uniform float u_spreading;
 
-${ sizingVariablesDeclaration }
+in vec2 v_patternUV;
 
 out vec4 fragColor;
 

@@ -1,10 +1,8 @@
 import type { vec4 } from '../types.js';
 import type { ShaderMotionParams } from '../shader-mount.js';
 import {
-  sizingVariablesDeclaration,
   type ShaderSizingParams,
   type ShaderSizingUniforms,
-  sizingDebugVariablesDeclaration,
 } from '../shader-sizing.js';
 import {
   simplexNoise,
@@ -95,8 +93,10 @@ uniform mediump float u_rotation;
 uniform mediump float u_offsetX;
 uniform mediump float u_offsetY;
 
-${ sizingVariablesDeclaration }
-${ sizingDebugVariablesDeclaration }
+in vec2 v_objectUV;
+in vec2 v_patternUV;
+in vec2 v_objectBoxSize;
+in vec2 v_patternBoxSize;
 
 out vec4 fragColor;
 
