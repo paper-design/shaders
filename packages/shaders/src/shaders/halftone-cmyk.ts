@@ -6,20 +6,58 @@ export const halftoneCmykMeta = {
   maxBlurRadius: 8,
 } as const;
 
+/**
+ * CMYK halftone printing effect applied to images with customizable dot/line patterns,
+ * angles, and ink colors for each channel (Cyan, Magenta, Yellow, Black).
+ *
+ * Fragment shader uniforms:
+ * - u_image (sampler2D): Source image texture
+ * - u_imageAspectRatio (float): Aspect ratio of the source image
+ * - u_colorBack (vec4): Background (paper) color in RGBA
+ * - u_colorC (vec4): Cyan ink color in RGBA
+ * - u_colorM (vec4): Magenta ink color in RGBA
+ * - u_colorY (vec4): Yellow ink color in RGBA
+ * - u_colorK (vec4): Black ink color in RGBA
+ * - u_size (float): Halftone cell size (0 to 1)
+ * - u_radius (float): Dot/line thickness (0 to 1)
+ * - u_minRadius (float): Minimum dot size even for darkest areas (0 to 1)
+ * - u_angleC (float): Cyan channel rotation angle in degrees
+ * - u_angleM (float): Magenta channel rotation angle in degrees
+ * - u_angleY (float): Yellow channel rotation angle in degrees
+ * - u_angleK (float): Black channel rotation angle in degrees
+ * - u_shiftC (float): Cyan channel position offset
+ * - u_shiftM (float): Magenta channel position offset
+ * - u_shiftY (float): Yellow channel position offset
+ * - u_shiftK (float): Black channel position offset
+ * - u_contrast (float): Image contrast adjustment (0 to 2)
+ * - u_smoothness (float): Smoothness of halftone pattern (0 to 1)
+ * - u_softness (float): Edge softness of dots/lines (0 to 1)
+ * - u_rounded (bool): Use per-cell color sampling (true) or blurred sampling (false)
+ * - u_grainSize (float): Size of grain overlay texture (0 to 1)
+ * - u_grainMixer (float): Strength of grain affecting dot size (0 to 1)
+ * - u_grainOverlay (float): Strength of grain overlay on final output (0 to 1)
+ * - u_type (float): Halftone type (0 = dots, 1 = lines)
+ *
+ * Vertex shader outputs (used in fragment shader):
+ * - v_imageUV (vec2): UV coordinates for sampling the source image, with fit, scale, rotation, and offset applied
+ *
+ * Vertex shader uniforms:
+ * - u_resolution (vec2): Canvas resolution in pixels
+ * - u_pixelRatio (float): Device pixel ratio
+ * - u_originX (float): Reference point for positioning world width in the canvas (0 to 1)
+ * - u_originY (float): Reference point for positioning world height in the canvas (0 to 1)
+ * - u_fit (float): How to fit the rendered shader into the canvas dimensions (0 = none, 1 = contain, 2 = cover)
+ * - u_scale (float): Overall zoom level of the graphics (0.01 to 4)
+ * - u_rotation (float): Overall rotation angle of the graphics in degrees (0 to 360)
+ * - u_offsetX (float): Horizontal offset of the graphics center (-1 to 1)
+ * - u_offsetY (float): Vertical offset of the graphics center (-1 to 1)
+ * - u_imageAspectRatio (float): Aspect ratio of the source image
+ *
+ */
+
 // language=GLSL
 export const halftoneCmykFragmentShader: string = `#version 300 es
 precision mediump float;
-
-uniform vec2 u_resolution;
-uniform float u_pixelRatio;
-uniform float u_originX;
-uniform float u_originY;
-uniform float u_fit;
-
-uniform float u_scale;
-uniform float u_rotation;
-uniform float u_offsetX;
-uniform float u_offsetY;
 
 uniform sampler2D u_image;
 uniform float u_imageAspectRatio;
@@ -49,6 +87,7 @@ uniform float u_softness;
 uniform bool u_rounded;
 uniform float u_type;
 
+in vec2 v_imageUV;
 out vec4 fragColor;
 
 ${ declarePI }
@@ -66,37 +105,6 @@ float valueNoise(vec2 st) {
   float x1 = mix(a, b, u.x);
   float x2 = mix(c, d, u.x);
   return mix(x1, x2, u.y);
-}
-
-vec2 getImageUV(vec2 uv, vec2 extraScale) {
-  vec2 boxOrigin = vec2(.5 - u_originX, u_originY - .5);
-  float r = u_rotation * PI / 180.;
-  mat2 graphicRotation = mat2(cos(r), sin(r), -sin(r), cos(r));
-  vec2 graphicOffset = vec2(-u_offsetX, u_offsetY);
-
-  vec2 imageBoxSize;
-  if (u_fit == 1.) {
-    imageBoxSize.x = min(u_resolution.x / u_imageAspectRatio, u_resolution.y) * u_imageAspectRatio;
-  } else {
-    imageBoxSize.x = max(u_resolution.x / u_imageAspectRatio, u_resolution.y) * u_imageAspectRatio;
-  }
-  imageBoxSize.y = imageBoxSize.x / u_imageAspectRatio;
-  vec2 imageBoxScale = u_resolution.xy / imageBoxSize;
-
-  vec2 imageUV = uv;
-  imageUV *= imageBoxScale;
-  imageUV += boxOrigin * (imageBoxScale - 1.);
-  imageUV += graphicOffset;
-  imageUV /= u_scale;
-  imageUV *= extraScale;
-  imageUV.x *= u_imageAspectRatio;
-  imageUV = graphicRotation * imageUV;
-  imageUV.x /= u_imageAspectRatio;
-
-  imageUV += .5;
-  imageUV.y = 1. - imageUV.y;
-
-  return imageUV;
 }
 
 float getUvFrame(vec2 uv, vec2 pad) {
@@ -212,8 +220,7 @@ vec3 applyInk(vec3 paper, vec3 inkColor, float cov) {
 }
 
 void main() {
-  vec2 uvNormalised = (gl_FragCoord.xy - 0.5 * u_resolution) / u_resolution.xy;
-  vec2 uv = getImageUV(uvNormalised, vec2(1.));
+  vec2 uv = v_imageUV;
 
   float cellsPerSide = mix(300.0, 7.0, pow(u_size, 0.7));
   float cellSizeY = 1.0 / cellsPerSide;
@@ -230,8 +237,10 @@ void main() {
   vec2 pK = rotate(uvGrid, radians(u_angleK));
   pK += u_shiftK;
 
-  vec2 grainSize = mix(2000., 200., u_grainSize) * vec2(1., 1. / u_imageAspectRatio);
-  vec2 grainUV = getImageUV(uvNormalised, grainSize);
+  vec2 grainScale = mix(2000., 200., u_grainSize) * vec2(1., 1. / u_imageAspectRatio);
+  vec2 grainUV = v_imageUV - .5;
+  grainUV *= grainSize;
+  grainUV += .5;
   float grain = valueNoise(grainUV);
   grain = smoothstep(.55, 1., grain);
   grain *= u_grainMixer;
