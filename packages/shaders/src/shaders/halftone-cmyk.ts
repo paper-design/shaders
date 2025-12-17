@@ -237,7 +237,7 @@ void main() {
   vec2 pK = rotate(uvGrid, radians(u_angleK));
   pK += u_shiftK;
 
-  vec2 grainScale = mix(2000., 200., u_grainSize) * vec2(1., 1. / u_imageAspectRatio);
+  vec2 grainSize = mix(2000., 200., u_grainSize) * vec2(1., 1. / u_imageAspectRatio);
   vec2 grainUV = v_imageUV - .5;
   grainUV *= grainSize;
   grainUV += .5;
