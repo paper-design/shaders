@@ -6,15 +6,7 @@ import { declarePI, rotation2, proceduralHash21 } from '../shader-utils.js';
  * A halftone-dot image filter featuring customizable grids, color palettes, and dot styles.
  *
  * Fragment shader uniforms:
- * - u_resolution (vec2): Canvas resolution in pixels
- * - u_pixelRatio (float): Device pixel ratio
- * - u_originX (float): Reference point for positioning world width in the canvas (0 to 1)
- * - u_originY (float): Reference point for positioning world height in the canvas (0 to 1)
- * - u_fit (float): How to fit the rendered shader into the canvas dimensions (1 = contain, 2 = cover)
- * - u_scale (float): Overall zoom level of the graphics (0.01 to 4)
  * - u_rotation (float): Overall rotation angle of the graphics in degrees (0 to 360)
- * - u_offsetX (float): Horizontal offset of the graphics center (-1 to 1)
- * - u_offsetY (float): Vertical offset of the graphics center (-1 to 1)
  * - u_time (float): Animation time
  * - u_image (sampler2D): Source image texture
  * - u_imageAspectRatio (float): Aspect ratio of the source image
@@ -22,7 +14,7 @@ import { declarePI, rotation2, proceduralHash21 } from '../shader-utils.js';
  * - u_colorBack (vec4): Background color in RGBA
  * - u_originalColors (bool): Use sampled image's original colors instead of colorFront
  * - u_type (float): Dot style (0 = classic, 1 = gooey, 2 = holes, 3 = soft)
- * - u_inverted (bool): Inverts the image luminance, doesn’t affect the color scheme; not effective at zero contrast
+ * - u_inverted (bool): Inverts the image luminance, doesn't affect the color scheme; not effective at zero contrast
  * - u_grid (float): Grid type (0 = square, 1 = hex)
  * - u_size (float): Grid size relative to the image box (0 to 1)
  * - u_radius (float): Maximum dot size relative to grid cell (0 to 2)
@@ -31,24 +23,28 @@ import { declarePI, rotation2, proceduralHash21 } from '../shader-utils.js';
  * - u_grainOverlay (float): Post-processing black/white grain overlay (0 to 1)
  * - u_grainSize (float): Scale applied to both grain distortion and grain overlay (0 to 1)
  *
- * Note: This shader calculates image UVs directly in the fragment shader using gl_FragCoord,
- * rather than relying on vertex shader outputs.
+ * Vertex shader outputs (used in fragment shader):
+ * - v_imageUV (vec2): Image UV coordinates with global sizing (rotation, scale, offset, etc) applied
+ *
+ * Vertex shader uniforms:
+ * - u_resolution (vec2): Canvas resolution in pixels
+ * - u_pixelRatio (float): Device pixel ratio
+ * - u_originX (float): Reference point for positioning world width in the canvas (0 to 1)
+ * - u_originY (float): Reference point for positioning world height in the canvas (0 to 1)
+ * - u_fit (float): How to fit the rendered shader into the canvas dimensions (0 = none, 1 = contain, 2 = cover)
+ * - u_scale (float): Overall zoom level of the graphics (0.01 to 4)
+ * - u_rotation (float): Overall rotation angle of the graphics in degrees (0 to 360)
+ * - u_offsetX (float): Horizontal offset of the graphics center (-1 to 1)
+ * - u_offsetY (float): Vertical offset of the graphics center (-1 to 1)
+ * - u_imageAspectRatio (float): Aspect ratio of the source image
+ *
  */
 
 // language=GLSL
 export const halftoneDotsFragmentShader: string = `#version 300 es
 precision mediump float;
 
-uniform mediump vec2 u_resolution;
-uniform mediump float u_pixelRatio;
-uniform mediump float u_originX;
-uniform mediump float u_originY;
-uniform mediump float u_fit;
-
-uniform mediump float u_scale;
-uniform mediump float u_rotation;
-uniform mediump float u_offsetX;
-uniform mediump float u_offsetY;
+uniform float u_rotation;
 
 uniform float u_time;
 
@@ -58,7 +54,7 @@ uniform float u_radius;
 uniform float u_contrast;
 
 uniform sampler2D u_image;
-uniform mediump float u_imageAspectRatio;
+uniform float u_imageAspectRatio;
 
 uniform float u_size;
 uniform float u_grainMixer;
@@ -68,6 +64,8 @@ uniform float u_grid;
 uniform bool u_originalColors;
 uniform bool u_inverted;
 uniform float u_type;
+
+in vec2 v_imageUV;
 
 out vec4 fragColor;
 
@@ -96,35 +94,26 @@ float sst(float edge0, float edge1, float x) {
   return smoothstep(edge0, edge1, x);
 }
 
-vec2 getImageUV(vec2 uv, vec2 extraScale) {
-  vec2 boxOrigin = vec2(.5 - u_originX, u_originY - .5);
+vec2 deriveScaledUV(vec2 baseImageUV, vec2 scale) {
   float r = u_rotation * PI / 180.;
-  mat2 graphicRotation = mat2(cos(r), sin(r), -sin(r), cos(r));
-  vec2 graphicOffset = vec2(-u_offsetX, u_offsetY);
+  float c = cos(r);
+  float s = sin(r);
 
-  vec2 imageBoxSize;
-  if (u_fit == 1.) {
-    imageBoxSize.x = min(u_resolution.x / u_imageAspectRatio, u_resolution.y) * u_imageAspectRatio;
-  } else {
-    imageBoxSize.x = max(u_resolution.x / u_imageAspectRatio, u_resolution.y) * u_imageAspectRatio;
-  }
-  imageBoxSize.y = imageBoxSize.x / u_imageAspectRatio;
-  vec2 imageBoxScale = u_resolution.xy / imageBoxSize;
+  vec2 uv = baseImageUV;
+  uv.y = 1. - uv.y;
+  uv -= .5;
+  uv.x *= u_imageAspectRatio;
+  uv = mat2(c, -s, s, c) * uv;
+  uv.x /= u_imageAspectRatio;
 
-  vec2 imageUV = uv;
-  imageUV *= imageBoxScale;
-  imageUV += boxOrigin * (imageBoxScale - 1.);
-  imageUV += graphicOffset;
-  imageUV /= u_scale;
-  imageUV *= extraScale;
-  imageUV.x *= u_imageAspectRatio;
-  imageUV = graphicRotation * imageUV;
-  imageUV.x /= u_imageAspectRatio;
+  uv *= scale;
 
-  imageUV += .5;
-  imageUV.y = 1. - imageUV.y;
-
-  return imageUV;
+  uv.x *= u_imageAspectRatio;
+  uv = mat2(c, s, -s, c) * uv;
+  uv.x /= u_imageAspectRatio;
+  uv += .5;
+  uv.y = 1. - uv.y;
+  return uv;
 }
 
 float getCircle(vec2 uv, float r, float baseR) {
@@ -258,8 +247,7 @@ void main() {
     pad *= .7;
   }
 
-  vec2 uvNormalised = (gl_FragCoord.xy - .5 * u_resolution) / u_resolution.xy;
-  vec2 uv = getImageUV(uvNormalised, vec2(1.));
+  vec2 uv = v_imageUV;
   uv -= vec2(.5);
   uv /= pad;
 
@@ -327,7 +315,7 @@ void main() {
   }
 
   vec2 grainSize = mix(2000., 200., u_grainSize) * vec2(1., 1. / u_imageAspectRatio);
-  vec2 grainUV = getImageUV(uvNormalised, grainSize);
+  vec2 grainUV = deriveScaledUV(v_imageUV, grainSize);
   float grain = valueNoise(grainUV);
   grain = smoothstep(.55, .7 + .2 * u_grainMixer, grain);
   grain *= u_grainMixer;

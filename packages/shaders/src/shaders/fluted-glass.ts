@@ -9,13 +9,7 @@ import { declarePI, rotation2, proceduralHash21 } from '../shader-utils.js';
  * Fragment shader uniforms:
  * - u_resolution (vec2): Canvas resolution in pixels
  * - u_pixelRatio (float): Device pixel ratio
- * - u_originX (float): Reference point for positioning world width in the canvas (0 to 1)
- * - u_originY (float): Reference point for positioning world height in the canvas (0 to 1)
- * - u_fit (float): How to fit the rendered shader into the canvas dimensions (1 = contain, 2 = cover)
- * - u_scale (float): Overall zoom level of the graphics (0.01 to 4)
  * - u_rotation (float): Overall rotation angle of the graphics in degrees (0 to 360)
- * - u_offsetX (float): Horizontal offset of the graphics center (-1 to 1)
- * - u_offsetY (float): Vertical offset of the graphics center (-1 to 1)
  * - u_image (sampler2D): Source image texture
  * - u_imageAspectRatio (float): Aspect ratio of the source image
  * - u_colorBack (vec4): Background color in RGBA
@@ -39,8 +33,21 @@ import { declarePI, rotation2, proceduralHash21 } from '../shader-utils.js';
  * - u_grainMixer (float): Strength of grain distortion applied to shape edges (0 to 1)
  * - u_grainOverlay (float): Post-processing black/white grain overlay (0 to 1)
  *
- * Note: This shader calculates image UVs directly in the fragment shader using gl_FragCoord,
- * rather than relying on vertex shader outputs.
+ * Vertex shader outputs (used in fragment shader):
+ * - v_imageUV (vec2): Image UV coordinates with global sizing (rotation, scale, offset, etc) applied
+ *
+ * Vertex shader uniforms:
+ * - u_resolution (vec2): Canvas resolution in pixels
+ * - u_pixelRatio (float): Device pixel ratio
+ * - u_originX (float): Reference point for positioning world width in the canvas (0 to 1)
+ * - u_originY (float): Reference point for positioning world height in the canvas (0 to 1)
+ * - u_fit (float): How to fit the rendered shader into the canvas dimensions (0 = none, 1 = contain, 2 = cover)
+ * - u_scale (float): Overall zoom level of the graphics (0.01 to 4)
+ * - u_rotation (float): Overall rotation angle of the graphics in degrees (0 to 360)
+ * - u_offsetX (float): Horizontal offset of the graphics center (-1 to 1)
+ * - u_offsetY (float): Vertical offset of the graphics center (-1 to 1)
+ * - u_imageAspectRatio (float): Aspect ratio of the source image
+ *
  */
 
 // language=GLSL
@@ -49,7 +56,7 @@ precision mediump float;
 
 uniform vec2 u_resolution;
 uniform float u_pixelRatio;
-${ sizingUniformsDeclaration }
+uniform float u_rotation;
 
 uniform vec4 u_colorBack;
 uniform vec4 u_colorShadow;
@@ -76,6 +83,8 @@ uniform float u_marginBottom;
 uniform float u_grainMixer;
 uniform float u_grainOverlay;
 
+in vec2 v_imageUV;
+
 out vec4 fragColor;
 
 ${ declarePI }
@@ -95,36 +104,26 @@ float valueNoise(vec2 st) {
   return mix(x1, x2, u.y);
 }
 
-
-vec2 getImageUV(vec2 uv, vec2 extraScale) {
-  vec2 boxOrigin = vec2(.5 - u_originX, u_originY - .5);
+vec2 deriveScaledUV(vec2 baseImageUV, vec2 scale) {
   float r = u_rotation * PI / 180.;
-  mat2 graphicRotation = mat2(cos(r), sin(r), -sin(r), cos(r));
-  vec2 graphicOffset = vec2(-u_offsetX, u_offsetY);
+  float c = cos(r);
+  float s = sin(r);
 
-  vec2 imageBoxSize;
-  if (u_fit == 1.) {
-    imageBoxSize.x = min(u_resolution.x / u_imageAspectRatio, u_resolution.y) * u_imageAspectRatio;
-  } else {
-    imageBoxSize.x = max(u_resolution.x / u_imageAspectRatio, u_resolution.y) * u_imageAspectRatio;
-  }
-  imageBoxSize.y = imageBoxSize.x / u_imageAspectRatio;
-  vec2 imageBoxScale = u_resolution.xy / imageBoxSize;
+  vec2 uv = baseImageUV;
+  uv.y = 1. - uv.y;
+  uv -= .5;
+  uv.x *= u_imageAspectRatio;
+  uv = mat2(c, -s, s, c) * uv;
+  uv.x /= u_imageAspectRatio;
 
-  vec2 imageUV = uv;
-  imageUV *= imageBoxScale;
-  imageUV += boxOrigin * (imageBoxScale - 1.);
-  imageUV += graphicOffset;
-  imageUV /= u_scale;
-  imageUV *= extraScale;
-  imageUV.x *= u_imageAspectRatio;
-  imageUV = graphicRotation * imageUV;
-  imageUV.x /= u_imageAspectRatio;
+  uv *= scale;
 
-  imageUV += .5;
-  imageUV.y = 1. - imageUV.y;
-
-  return imageUV;
+  uv.x *= u_imageAspectRatio;
+  uv = mat2(c, s, -s, c) * uv;
+  uv.x /= u_imageAspectRatio;
+  uv += .5;
+  uv.y = 1. - uv.y;
+  return uv;
 }
 
 float getUvFrame(vec2 uv, float softness) {
@@ -194,13 +193,10 @@ float smoothFract(float x) {
 
 void main() {
 
-  vec2 uvNormalised = (gl_FragCoord.xy - .5 * u_resolution) / u_resolution.xy;
-  vec2 uvOriginal = getImageUV(uvNormalised, vec2(1.));
-
   float patternRotation = -u_angle * PI / 180.;
   float patternSize = mix(200., 5., u_size);
 
-  vec2 uv = uvOriginal;
+  vec2 uv = v_imageUV;
 
   vec2 uvMask = gl_FragCoord.xy / u_resolution.xy;
   vec2 sw = vec2(.005);
@@ -323,9 +319,9 @@ void main() {
     distortion *= fadeX;
   }
 
-  vec2 dudx = dFdx(uvOriginal);
-  vec2 dudy = dFdy(uvOriginal);
-  vec2 grainUV = getImageUV(uvNormalised, .8 / vec2(length(dudx), length(dudy)));
+  vec2 dudx = dFdx(v_imageUV);
+  vec2 dudy = dFdy(v_imageUV);
+  vec2 grainUV = deriveScaledUV(v_imageUV, .8 / vec2(length(dudx), length(dudy)));
   float grain = valueNoise(grainUV);
   grain = smoothstep(.4, .7, grain);
   grain *= u_grainMixer;
@@ -350,7 +346,7 @@ void main() {
 
   uv += vec2(.5);
 
-  uv = mix(uvOriginal, uv, smoothstep(0., .7, mask));
+  uv = mix(v_imageUV, uv, smoothstep(0., .7, mask));
   float blur = mix(0., 50., u_blur);
   blur = mix(0., blur, smoothstep(.5, 1., mask));
 
