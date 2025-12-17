@@ -1,5 +1,5 @@
 import type { ShaderMotionParams } from '../shader-mount.js';
-import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
+import { type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
 import { declarePI, rotation2, simplexNoise, proceduralHash21 } from '../shader-utils.js';
 
 export const halftoneLinesMeta = {
@@ -7,12 +7,53 @@ export const halftoneLinesMeta = {
 } as const;
 
 /**
+ * Animated halftone lines effect with customizable grid patterns (lines, radial, waves, noise)
+ * and distortion based on image luminosity. Supports original colors or custom color overlay.
  *
- * Fluid motion imitation applied over user image
- * (animated stripe pattern getting distorted with shape edges)
+ * Fragment shader uniforms:
+ * - u_resolution (vec2): Canvas resolution in pixels (used for blur calculations)
+ * - u_time (float): Animation time
+ * - u_image (sampler2D): Source image texture
+ * - u_imageAspectRatio (float): Aspect ratio of the source image
+ * - u_colorFront (vec4): Foreground (line) color in RGBA (used when originalColors = false)
+ * - u_colorBack (vec4): Background color in RGBA
+ * - u_size (float): Halftone cell/grid size (0 to 1)
+ * - u_grid (float): Grid pattern type (0 = lines, 1 = radial, 2 = waves, 3 = noise)
+ * - u_gridOffsetX (float): Horizontal grid offset
+ * - u_gridOffsetY (float): Vertical grid offset
+ * - u_gridRotation (float): Grid rotation angle in degrees
+ * - u_gridAngleDistortion (float): Luminosity-based angle distortion strength (0 to 1)
+ * - u_gridNoiseDistortion (float): Noise-based position distortion strength (0 to 1)
+ * - u_stripeWidth (float): Width of lines/stripes (0 to 1)
+ * - u_thinLines (bool): Use thinner lines with anti-aliasing
+ * - u_allowOverflow (bool): Allow lines to overflow cell boundaries
+ * - u_straight (bool): Disable wave distortion for straight lines
+ * - u_contrast (float): Image contrast adjustment (0 to 1)
+ * - u_smoothness (float): Blur amount applied to source image (0 to 8)
+ * - u_originalColors (bool): Use original image colors (true) or custom colors (false)
+ * - u_inverted (bool): Invert luminosity calculation
+ * - u_grainMixer (float): Strength of grain affecting line width (0 to 1)
+ * - u_grainMixerSize (float): Size of grain mixer texture (0 to 1)
+ * - u_grainOverlay (float): Strength of grain overlay on final output (0 to 1)
+ * - u_grainOverlaySize (float): Size of grain overlay texture (0 to 1)
  *
- * Uniforms:
- * - u_colorBack, u_colorFront (RGBA)
+ * Vertex shader outputs (used in fragment shader):
+ * - v_imageUV (vec2): UV coordinates for sampling the source image, with fit, scale, rotation, and offset applied
+ * - v_objectUV (vec2): Object box UV coordinates with global sizing (scale, rotation, offsets, etc) applied
+ *
+ * Vertex shader uniforms:
+ * - u_resolution (vec2): Canvas resolution in pixels
+ * - u_pixelRatio (float): Device pixel ratio
+ * - u_originX (float): Reference point for positioning world width in the canvas (0 to 1)
+ * - u_originY (float): Reference point for positioning world height in the canvas (0 to 1)
+ * - u_worldWidth (float): Virtual width of the graphic before it's scaled to fit the canvas
+ * - u_worldHeight (float): Virtual height of the graphic before it's scaled to fit the canvas
+ * - u_fit (float): How to fit the rendered shader into the canvas dimensions (0 = none, 1 = contain, 2 = cover)
+ * - u_scale (float): Overall zoom level of the graphics (0.01 to 4)
+ * - u_rotation (float): Overall rotation angle of the graphics in degrees (0 to 360)
+ * - u_offsetX (float): Horizontal offset of the graphics center (-1 to 1)
+ * - u_offsetY (float): Vertical offset of the graphics center (-1 to 1)
+ * - u_imageAspectRatio (float): Aspect ratio of the source image
  *
  */
 
@@ -21,25 +62,15 @@ export const halftoneLinesFragmentShader: string = `#version 300 es
 precision mediump float;
 
 uniform mediump vec2 u_resolution;
-uniform mediump float u_pixelRatio;
-uniform mediump float u_originX;
-uniform mediump float u_originY;
-uniform mediump float u_fit;
-
-uniform mediump float u_scale;
-uniform mediump float u_rotation;
-uniform mediump float u_offsetX;
-uniform mediump float u_offsetY;
 
 uniform float u_time;
 
-uniform vec4 u_colorFront;
-uniform vec4 u_colorBack;
-uniform float u_radius;
-uniform float u_contrast;
-
 uniform sampler2D u_image;
 uniform mediump float u_imageAspectRatio;
+
+uniform vec4 u_colorFront;
+uniform vec4 u_colorBack;
+uniform float u_contrast;
 
 uniform float u_size;
 uniform bool u_thinLines;
@@ -60,8 +91,8 @@ uniform float u_gridAngleDistortion;
 uniform float u_gridNoiseDistortion;
 uniform float u_gridRotation;
 
-
-${ sizingVariablesDeclaration }
+in vec2 v_imageUV;
+in vec2 v_objectUV;
 
 out vec4 fragColor;
 
@@ -86,38 +117,6 @@ float valueNoise(vec2 st) {
 float lst(float edge0, float edge1, float x) {
   return clamp((x - edge0) / (edge1 - edge0), 0.0, 1.0);
 }
-
-vec2 getImageUV(vec2 uv, vec2 extraScale) {
-  vec2 boxOrigin = vec2(.5 - u_originX, u_originY - .5);
-  float r = u_rotation * PI / 180.;
-  mat2 graphicRotation = mat2(cos(r), sin(r), -sin(r), cos(r));
-  vec2 graphicOffset = vec2(-u_offsetX, u_offsetY);
-
-  vec2 imageBoxSize;
-  if (u_fit == 1.) {
-    imageBoxSize.x = min(u_resolution.x / u_imageAspectRatio, u_resolution.y) * u_imageAspectRatio;
-  } else {
-    imageBoxSize.x = max(u_resolution.x / u_imageAspectRatio, u_resolution.y) * u_imageAspectRatio;
-  }
-  imageBoxSize.y = imageBoxSize.x / u_imageAspectRatio;
-  vec2 imageBoxScale = u_resolution.xy / imageBoxSize;
-
-  vec2 imageUV = uv;
-  imageUV *= imageBoxScale;
-  imageUV += boxOrigin * (imageBoxScale - 1.);
-  imageUV += graphicOffset;
-  imageUV /= u_scale;
-  imageUV *= extraScale;
-  imageUV.x *= u_imageAspectRatio;
-  imageUV = graphicRotation * imageUV;
-  imageUV.x /= u_imageAspectRatio;
-
-  imageUV += .5;
-  imageUV.y = 1. - imageUV.y;
-
-  return imageUV;
-}
-
 
 float getImgFrame(vec2 uv, float th) {
   float frame = 1.;
@@ -181,10 +180,7 @@ float getLumAtPx(vec2 uv, float contrast, out vec4 originalTexture) {
 
 void main() {
 
-  vec2 uv = gl_FragCoord.xy - .5 * u_resolution;
-
-  vec2 uvNormalised = uv / u_resolution.xy;
-  vec2 uvOriginal = getImageUV(uvNormalised, vec2(1.));
+  vec2 uvOriginal = v_imageUV;
 
   float contrast = mix(0., 15., u_contrast);
 
@@ -195,7 +191,7 @@ void main() {
   lum = mix(1., lum, frame);
   lum = 1. - lum;
 
-  uv = v_objectUV;
+  vec2 uv = v_objectUV;
   float noise = snoise(2.5 * uv + 100.);
 
   vec2 uvGrid = v_objectUV;
@@ -247,10 +243,10 @@ void main() {
   }
   w = clamp(w, wLo, wHi);
 
-  vec2 grainMixerSize = mix(1000., 50., u_grainMixerSize) * vec2(1., 1. / u_imageAspectRatio);
-  vec2 grainOverlaySize = mix(2000., 200., u_grainOverlaySize) * vec2(1., 1. / u_imageAspectRatio);
-  vec2 grainMixerUV = getImageUV(uvNormalised, grainMixerSize);
-  vec2 grainOverlayUV = getImageUV(uvNormalised, grainOverlaySize);
+  vec2 grainMixerScale = mix(1000., 50., u_grainMixerSize) * vec2(1., 1. / u_imageAspectRatio);
+  vec2 grainOverlayScale = mix(2000., 200., u_grainOverlaySize) * vec2(1., 1. / u_imageAspectRatio);
+  vec2 grainMixerUV = (v_imageUV - .5) * grainMixerScale;
+  vec2 grainOverlayUV = (v_imageUV - .5) * grainOverlayScale;
   float grain = valueNoise(grainMixerUV) + .3 * pow(u_grainMixer, 3.);
   grain = smoothstep(.55, .9, grain);
   grain *= .5 * pow(u_grainMixer, 3.);
