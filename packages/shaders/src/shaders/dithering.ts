@@ -1,6 +1,5 @@
 import type { ShaderMotionParams } from '../shader-mount.js';
 import {
-  sizingUniformsDeclaration,
   type ShaderSizingParams,
   type ShaderSizingUniforms,
 } from '../shader-sizing.js';
@@ -29,10 +28,18 @@ export const ditheringFragmentShader: string = `#version 300 es
 precision mediump float;
 
 uniform float u_time;
+
 uniform vec2 u_resolution;
 uniform float u_pixelRatio;
-
-${ sizingUniformsDeclaration }
+uniform float u_originX;
+uniform float u_originY;
+uniform float u_worldWidth;
+uniform float u_worldHeight;
+uniform float u_fit;
+uniform float u_scale;
+uniform float u_rotation;
+uniform float u_offsetX;
+uniform float u_offsetY;
 
 uniform float u_pxSize;
 uniform vec4 u_colorBack;
