@@ -19,7 +19,7 @@ import { simplexNoise, declarePI, proceduralHash11, proceduralHash21 } from '../
  * - u_colorFront (vec4): Foreground (ink) color in RGBA
  * - u_shape (float): Shape pattern type (1 = simplex, 2 = warp, 3 = dots, 4 = wave, 5 = ripple, 6 = swirl, 7 = sphere)
  * - u_type (float): Dithering type (1 = random, 2 = 2x2 Bayer, 3 = 4x4 Bayer, 4 = 8x8 Bayer)
- * - u_pxSize (float; duplicate, not currently used)
+ * - u_pxSize (float)
  *
  * */
 
