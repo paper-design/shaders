@@ -6,10 +6,9 @@ import { setParamsSafe, useResetLevaParams } from '@/helpers/use-reset-leva-para
 import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
 import {
-  HalftoneCmykType,
-  HalftoneCmykTypes,
+  HalftoneCmykShape,
+  HalftoneCmykShapes,
   ShaderFit,
-  halftoneCmykMeta,
 } from '@paper-design/shaders';
 import { levaImageButton } from '@/helpers/leva-image-button';
 import { useState, useEffect, useCallback } from 'react';
@@ -85,11 +84,6 @@ const HalftoneCmykWithControls = () => {
       // smoothness: { value: defaults.smoothness, min: 0, max: halftoneCmykMeta.maxBlurRadius, step: 1, order: 113 },
       softness: { value: defaults.softness, min: 0, max: 1, step: 0.01, order: 114 },
       rounded: { value: defaults.rounded, order: 115 },
-      type: {
-        value: defaults.type,
-        options: Object.keys(HalftoneCmykTypes) as HalftoneCmykType[],
-        order: 116,
-      },
       contrast: { value: defaults.contrast, min: 0, max: 2, step: 0.01, order: 117 },
       // angleC: { value: defaults.angleC, min: 0, max: 90, step: 0.1, order: 210 },
       // shiftC: { value: defaults.shiftC, min: -0.5, max: 0.5, step: 0.01, order: 211 },
@@ -106,6 +100,11 @@ const HalftoneCmykWithControls = () => {
       compensationM: { value: defaults.compensationM, min: 0.5, max: 1.5, step: 0.01, order: 106 },
       compensationY: { value: defaults.compensationY, min: 0.5, max: 1.5, step: 0.01, order: 107 },
       compensationK: { value: defaults.compensationK, min: 0.5, max: 1.5, step: 0.01, order: 108 },
+      shape: {
+        value: defaults.shape,
+        options: Object.keys(HalftoneCmykShapes) as HalftoneCmykShape[],
+        order: 109,
+      },
       // offsetX: { value: defaults.offsetX, min: -1, max: 1, order: 401 },
       // offsetY: { value: defaults.offsetY, min: -1, max: 1, order: 402 },
       // originX: { value: defaults.originX, min: 0, max: 1, order: 411 },

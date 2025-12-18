@@ -222,6 +222,13 @@ export const halftoneCmykDef: ShaderDef = {
       defaultValue: defaultParams.compensationK,
       description: 'Black dot size compensation factor (adjust to match desired output with custom ink colors)',
     },
+    {
+      name: 'shape',
+      type: 'enum',
+      defaultValue: defaultParams.shape,
+      description: 'Dot shape style (sharp = hard edges, gooey = soft blended)',
+      options: ['sharp', 'gooey'],
+    },
     ...staticImageCommonParams,
   ],
 };

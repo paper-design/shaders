@@ -7,7 +7,7 @@ export const halftoneCmykMeta = {
 } as const;
 
 /**
- * CMYK halftone printing effect applied to images with customizable dot/line patterns,
+ * CMYK halftone printing effect applied to images with customizable dot patterns,
  * angles, and ink colors for each channel (Cyan, Magenta, Yellow, Black).
  *
  * Fragment shader uniforms:
@@ -19,7 +19,7 @@ export const halftoneCmykMeta = {
  * - u_colorY (vec4): Yellow ink color in RGBA
  * - u_colorK (vec4): Black ink color in RGBA
  * - u_size (float): Halftone cell size (0 to 1)
- * - u_radius (float): Dot/line thickness (0 to 1)
+ * - u_radius (float): Dot thickness (0 to 1)
  * - u_angleC (float): Cyan channel rotation angle in degrees
  * - u_angleM (float): Magenta channel rotation angle in degrees
  * - u_angleY (float): Yellow channel rotation angle in degrees
@@ -30,16 +30,16 @@ export const halftoneCmykMeta = {
  * - u_shiftK (float): Black channel position offset
  * - u_contrast (float): Image contrast adjustment (0 to 2)
  * - u_smoothness (float): Smoothness of halftone pattern (0 to 1)
- * - u_softness (float): Edge softness of dots/lines (0 to 1)
+ * - u_softness (float): Edge softness of dots (0 to 1)
  * - u_rounded (bool): Use per-cell color sampling (true) or blurred sampling (false)
  * - u_grainSize (float): Size of grain overlay texture (0 to 1)
  * - u_grainMixer (float): Strength of grain affecting dot size (0 to 1)
  * - u_grainOverlay (float): Strength of grain overlay on final output (0 to 1)
- * - u_type (float): Halftone type (0 = dots, 1 = lines)
  * - u_compensationC (float): Manual cyan dot size compensation factor (0.5 to 1.5, default 1.0)
  * - u_compensationM (float): Manual magenta dot size compensation factor (0.5 to 1.5, default 1.0)
  * - u_compensationY (float): Manual yellow dot size compensation factor (0.5 to 1.5, default 1.0)
  * - u_compensationK (float): Manual black dot size compensation factor (0.5 to 1.5, default 1.0)
+ * - u_shape (float): Dot shape style (0 = sharp, 1 = gooey)
  *
  * Vertex shader outputs (used in fragment shader):
  * - v_imageUV (vec2): UV coordinates for sampling the source image, with fit, scale, rotation, and offset applied
@@ -87,11 +87,11 @@ uniform float u_grainOverlay;
 uniform float u_smoothness;
 uniform float u_softness;
 uniform bool u_rounded;
-uniform float u_type;
 uniform float u_compensationC;
 uniform float u_compensationM;
 uniform float u_compensationY;
 uniform float u_compensationK;
+uniform float u_shape;
 
 in vec2 v_imageUV;
 out vec4 fragColor;
@@ -203,26 +203,19 @@ vec2 gridToImageUV(vec2 gridPos, float angle, float shift, vec2 pad) {
 void computeDotContribution(vec2 p, vec2 cellOffset, float radius, inout float outMask) {
   vec2 cell = floor(p) + .5 + cellOffset;
   float dist = length(p - cell);
-  dist *= mix(1., .5, u_softness);
-  float mask = 1. - smoothstep(radius * (1. - u_softness), radius + .02, dist);
-  outMask = max(outMask, mask);
-}
 
-void computeLineContribution(vec2 p, vec2 cellOffset, float halfWidth, inout float outMask) {
-  float cellY = floor(p.y) + 0.5 + cellOffset.y;
-  float dist = abs(p.y - cellY);
-  dist *= mix(1., .5, u_softness);
-  float mask = 1. - smoothstep(halfWidth * (1. - u_softness), halfWidth, dist);
-  outMask = max(outMask, mask);
-}
-
-vec2 lineToImageUV(vec2 gridPos, float yOffset, float angle, float shift, vec2 pad) {
-  float lineY = floor(gridPos.y) + 0.5 + yOffset;
-  vec2 pointOnLine = vec2(gridPos.x, lineY);
-  pointOnLine -= shift;
-  vec2 uvGrid = rotate(pointOnLine, -radians(angle));
-  vec2 uv = uvGrid * pad + 0.5;
-  return uv;
+  if (u_shape > 0.5) {
+    // Gooey mode: soft falloff for blending
+    dist *= .333;
+    float sizeRadius = mix(radius, 0., 0.);
+    dist = 1. - smoothstep(0., sizeRadius, dist);
+    dist = pow(dist, 2. + radius);
+    outMask += dist;
+  } else {
+    // Sharp mode: hard edges
+    float mask = 1. - smoothstep(radius, radius + .02, dist);
+    outMask = max(outMask, mask);
+  }
 }
 
 float dotRadius(float channelValue, float baseR, float grain) {
@@ -269,91 +262,46 @@ void main() {
   step(1.0, u_contrast)
   );
 
-  if (u_type > .5) {
-    // LINE MODE
-    if (u_rounded == true) {
-      // Sample color at fragment's position on each line
-      for (int dy = -1; dy <= 1; dy++) {
-        float yOffset = float(dy);
 
-        baseR *= .8;
-        rgb = texture(u_image, lineToImageUV(pC, yOffset, u_angleC, u_shiftC, pad)).rgb;
+  if (u_rounded == true) {
+    for (int dy = -1; dy <= 1; dy++) {
+      for (int dx = -1; dx <= 1; dx++) {
+        vec2 cellOffset = vec2(float(dx), float(dy));
+
+        rgb = texture(u_image, gridToImageUV(pC + cellOffset, u_angleC, u_shiftC, pad)).rgb;
         rgb = applyContrast(rgb);
         vec4 cmykC = RGBtoCMYK(rgb);
-        computeLineContribution(pC, vec2(0.0, yOffset), dotRadius(cmykC.x, baseR, grain), outMask[0]);
+        computeDotContribution(pC, cellOffset, dotRadius(cmykC.x, baseR, grain), outMask[0]);
 
-        rgb = texture(u_image, lineToImageUV(pM, yOffset, u_angleM, u_shiftM, pad)).rgb;
+        rgb = texture(u_image, gridToImageUV(pM + cellOffset, u_angleM, u_shiftM, pad)).rgb;
         rgb = applyContrast(rgb);
         vec4 cmykM = RGBtoCMYK(rgb);
-        computeLineContribution(pM, vec2(0.0, yOffset), dotRadius(cmykM.y, baseR, grain), outMask[1]);
+        computeDotContribution(pM, cellOffset, dotRadius(cmykM.y, baseR, grain), outMask[1]);
 
-        rgb = texture(u_image, lineToImageUV(pY, yOffset, u_angleY, u_shiftY, pad)).rgb;
+        rgb = texture(u_image, gridToImageUV(pY + cellOffset, u_angleY, u_shiftY, pad)).rgb;
         rgb = applyContrast(rgb);
         vec4 cmykY = RGBtoCMYK(rgb);
-        computeLineContribution(pY, vec2(0.0, yOffset), dotRadius(cmykY.z, baseR, grain), outMask[2]);
+        computeDotContribution(pY, cellOffset, dotRadius(cmykY.z, baseR, grain), outMask[2]);
 
-        rgb = texture(u_image, lineToImageUV(pK, yOffset, u_angleK, u_shiftK, pad)).rgb;
+        rgb = texture(u_image, gridToImageUV(pK + cellOffset, u_angleK, u_shiftK, pad)).rgb;
         rgb = applyContrast(rgb);
         vec4 cmykK = RGBtoCMYK(rgb);
-        computeLineContribution(pK, vec2(0.0, yOffset), dotRadius(cmykK.w, baseR, grain), outMask[3]);
-      }
-    } else {
-      baseR *= .9;
-      vec4 texBlur = texture(u_image, uv);
-//      rgb = texBlur.rgb;
-      rgb = applyContrast(texBlur.rgb);
-      vec4 cmykOriginal = RGBtoCMYK(rgb);
-      for (int dy = -1; dy <= 1; dy++) {
-        vec2 cellOffset = vec2(0.0, float(dy));
-
-        computeLineContribution(pC, cellOffset, dotRadius(cmykOriginal.x, baseR, grain), outMask[0]);
-        computeLineContribution(pM, cellOffset, dotRadius(cmykOriginal.y, baseR, grain), outMask[1]);
-        computeLineContribution(pY, cellOffset, dotRadius(cmykOriginal.z, baseR, grain), outMask[2]);
-        computeLineContribution(pK, cellOffset, dotRadius(cmykOriginal.w, baseR, grain), outMask[3]);
+        computeDotContribution(pK, cellOffset, dotRadius(cmykK.w, baseR, grain), outMask[3]);
       }
     }
   } else {
-    // DOT MODE (original)
-    if (u_rounded == true) {
-      for (int dy = -1; dy <= 1; dy++) {
-        for (int dx = -1; dx <= 1; dx++) {
-          vec2 cellOffset = vec2(float(dx), float(dy));
+    vec4 texBlur = texture(u_image, uv);
+    //      rgb = texBlur.rgb;
+    rgb = applyContrast(texBlur.rgb);
+    vec4 cmykOriginal = RGBtoCMYK(rgb);
+    for (int dy = -1; dy <= 1; dy++) {
+      for (int dx = -1; dx <= 1; dx++) {
+        vec2 cellOffset = vec2(float(dx), float(dy));
 
-          rgb = texture(u_image, gridToImageUV(pC + cellOffset, u_angleC, u_shiftC, pad)).rgb;
-          rgb = applyContrast(rgb);
-          vec4 cmykC = RGBtoCMYK(rgb);
-          computeDotContribution(pC, cellOffset, dotRadius(cmykC.x, baseR, grain), outMask[0]);
-
-          rgb = texture(u_image, gridToImageUV(pM + cellOffset, u_angleM, u_shiftM, pad)).rgb;
-          rgb = applyContrast(rgb);
-          vec4 cmykM = RGBtoCMYK(rgb);
-          computeDotContribution(pM, cellOffset, dotRadius(cmykM.y, baseR, grain), outMask[1]);
-
-          rgb = texture(u_image, gridToImageUV(pY + cellOffset, u_angleY, u_shiftY, pad)).rgb;
-          rgb = applyContrast(rgb);
-          vec4 cmykY = RGBtoCMYK(rgb);
-          computeDotContribution(pY, cellOffset, dotRadius(cmykY.z, baseR, grain), outMask[2]);
-
-          rgb = texture(u_image, gridToImageUV(pK + cellOffset, u_angleK, u_shiftK, pad)).rgb;
-          rgb = applyContrast(rgb);
-          vec4 cmykK = RGBtoCMYK(rgb);
-          computeDotContribution(pK, cellOffset, dotRadius(cmykK.w, baseR, grain), outMask[3]);
-        }
-      }
-    } else {
-      vec4 texBlur = texture(u_image, uv);
-//      rgb = texBlur.rgb;
-      rgb = applyContrast(texBlur.rgb);
-      vec4 cmykOriginal = RGBtoCMYK(rgb);
-      for (int dy = -1; dy <= 1; dy++) {
-        for (int dx = -1; dx <= 1; dx++) {
-          vec2 cellOffset = vec2(float(dx), float(dy));
-
-          computeDotContribution(pC, cellOffset, dotRadius(cmykOriginal.x, baseR, grain), outMask[0]);
-          computeDotContribution(pM, cellOffset, dotRadius(cmykOriginal.y, baseR, grain), outMask[1]);
-          computeDotContribution(pY, cellOffset, dotRadius(cmykOriginal.z, baseR, grain), outMask[2]);
-          computeDotContribution(pK, cellOffset, dotRadius(cmykOriginal.w, baseR, grain), outMask[3]);
-        }
+        computeDotContribution(pC, cellOffset, dotRadius(cmykOriginal.x, baseR, grain), outMask[0]);
+        computeDotContribution(pM, cellOffset, dotRadius(cmykOriginal.y, baseR, grain), outMask[1]);
+        computeDotContribution(pY, cellOffset, dotRadius(cmykOriginal.z, baseR, grain), outMask[2]);
+        computeDotContribution(pK, cellOffset, dotRadius(cmykOriginal.w, baseR, grain), outMask[3]);
       }
     }
   }
@@ -364,6 +312,22 @@ void main() {
   float covM = outMask[1];
   float covY = outMask[2];
   float covK = outMask[3];
+
+  // Apply gooey threshold if needed
+  if (u_shape > 0.5) {
+    float aa = fwidth(covC);
+    float th = 0.5;
+    covC = smoothstep(th - aa, th + aa, covC);
+
+    aa = fwidth(covM);
+    covM = smoothstep(th - aa, th + aa, covM);
+
+    aa = fwidth(covY);
+    covY = smoothstep(th - aa, th + aa, covY);
+
+    aa = fwidth(covK);
+    covK = smoothstep(th - aa, th + aa, covK);
+  }
 
   // Apply alpha as layer transparency (not dot size)
   covC *= u_colorC.a;
@@ -427,11 +391,11 @@ export interface HalftoneCmykUniforms extends ShaderSizingUniforms {
   u_grainSize: number;
   u_grainMixer: number;
   u_grainOverlay: number;
-  u_type: (typeof HalftoneCmykTypes)[HalftoneCmykType];
   u_compensationC: number;
   u_compensationM: number;
   u_compensationY: number;
   u_compensationK: number;
+  u_shape: (typeof HalftoneCmykShapes)[HalftoneCmykShape];
 }
 
 export interface HalftoneCmykParams extends ShaderSizingParams, ShaderMotionParams {
@@ -458,17 +422,17 @@ export interface HalftoneCmykParams extends ShaderSizingParams, ShaderMotionPara
   grainSize?: number;
   grainMixer?: number;
   grainOverlay?: number;
-  type?: HalftoneCmykType;
   compensationC?: number;
   compensationM?: number;
   compensationY?: number;
   compensationK?: number;
+  shape?: HalftoneCmykShape;
 }
 
-export const HalftoneCmykTypes = {
-  dot: 0,
-  line: 1,
+export const HalftoneCmykShapes = {
+  sharp: 0,
+  gooey: 1,
 } as const;
 
-export type HalftoneCmykType = keyof typeof HalftoneCmykTypes;
+export type HalftoneCmykShape = keyof typeof HalftoneCmykShapes;
 
