@@ -206,15 +206,18 @@ void computeDotContribution(vec2 p, vec2 cellOffset, float radius, inout float o
 
   if (u_shape > 0.5) {
     // Gooey mode: soft falloff for blending
-    dist *= .333;
+    dist *= .4;
     float sizeRadius = mix(radius, 0., 0.);
     dist = 1. - smoothstep(0., sizeRadius, dist);
     dist = pow(dist, 2. + radius);
     outMask += dist;
   } else {
     // Sharp mode: hard edges
-    float mask = 1. - smoothstep(radius, radius + .02, dist);
-    outMask = max(outMask, mask);
+    if (radius > 0.01) {
+      float soft = mix(0.01, 0.5, u_softness);
+      float mask = 1. - clamp(smoothstep(radius, radius + soft, dist + .5 * soft), 0., 1.);
+      outMask = max(outMask, mask);
+    }
   }
 }
 
@@ -313,20 +316,16 @@ void main() {
   float covY = outMask[2];
   float covK = outMask[3];
 
-  // Apply gooey threshold if needed
+  // Apply gooey threshold with soft edges
   if (u_shape > 0.5) {
-    float aa = fwidth(covC);
+    // Soft threshold based on softness parameter
     float th = 0.5;
-    covC = smoothstep(th - aa, th + aa, covC);
+    float edgeWidth = mix(0.01, 0.5, u_softness);
 
-    aa = fwidth(covM);
-    covM = smoothstep(th - aa, th + aa, covM);
-
-    aa = fwidth(covY);
-    covY = smoothstep(th - aa, th + aa, covY);
-
-    aa = fwidth(covK);
-    covK = smoothstep(th - aa, th + aa, covK);
+    covC = smoothstep(th - edgeWidth, th + edgeWidth, covC);
+    covM = smoothstep(th - edgeWidth, th + edgeWidth, covM);
+    covY = smoothstep(th - edgeWidth, th + edgeWidth, covY);
+    covK = smoothstep(th - edgeWidth, th + edgeWidth, covK);
   }
 
   // Apply alpha as layer transparency (not dot size)
@@ -430,8 +429,8 @@ export interface HalftoneCmykParams extends ShaderSizingParams, ShaderMotionPara
 }
 
 export const HalftoneCmykShapes = {
-  sharp: 0,
-  gooey: 1,
+  separate: 0,
+  joined: 1,
 } as const;
 
 export type HalftoneCmykShape = keyof typeof HalftoneCmykShapes;

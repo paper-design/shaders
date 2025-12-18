@@ -49,13 +49,6 @@ export const halftoneCmykDef: ShaderDef = {
       description: 'Black ink color (alpha controls layer transparency, not dot size)',
     },
     {
-      name: 'type',
-      type: 'enum',
-      defaultValue: defaultParams.type,
-      description: 'Halftone pattern type',
-      options: ['dot', 'line'],
-    },
-    {
       name: 'size',
       type: 'number',
       min: 0,
@@ -69,7 +62,7 @@ export const halftoneCmykDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.radius,
-      description: 'Maximum dot/line thickness',
+      description: 'Maximum dot size',
     },
     {
       name: 'angleC',
@@ -226,8 +219,8 @@ export const halftoneCmykDef: ShaderDef = {
       name: 'shape',
       type: 'enum',
       defaultValue: defaultParams.shape,
-      description: 'Dot shape style (sharp = hard edges, gooey = soft blended)',
-      options: ['sharp', 'gooey'],
+      description: 'Dot shape style',
+      options: ['separate', 'joined'],
     },
     ...staticImageCommonParams,
   ],

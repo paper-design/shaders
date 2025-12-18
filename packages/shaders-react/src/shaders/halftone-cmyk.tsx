@@ -29,7 +29,7 @@ export const defaultPreset: HalftoneCmykPreset = {
     colorM: '#fc519f',
     colorY: '#ffd800',
     colorK: '#231f20',
-    size: 0.3,
+    size: 0.5,
     radius: 1,
     contrast: 1,
     angleC: 15,
@@ -50,7 +50,7 @@ export const defaultPreset: HalftoneCmykPreset = {
     compensationM: 0.80,
     compensationY: 1.02,
     compensationK: 0.87,
-    shape: 'gooey',
+    shape: 'joined',
   },
 };
 
