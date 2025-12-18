@@ -233,8 +233,9 @@ vec2 getGridSampleNoise(vec2 cellPos) {
   return offset;
 }
 
-vec2 gridToImageUV(vec2 gridPos, float angle, float shift, vec2 pad) {
-  vec2 cellCenter = floor(gridPos) + 0.5 + getGridSampleNoise(cellPos);
+vec2 gridToImageUV(vec2 gridPos, float angle, float shift, vec2 pad, float channelIdx) {
+  vec2 cellPos = floor(gridPos) + .5;
+  vec2 cellCenter = cellPos + getGridSampleNoise(cellPos + 4. * channelIdx);
   cellCenter -= shift;
   vec2 uvGrid = rotate(cellCenter, -radians(angle));
   vec2 uv = uvGrid * pad + 0.5;
@@ -314,22 +315,22 @@ void main() {
       for (int dx = -1; dx <= 1; dx++) {
         vec2 cellOffset = vec2(float(dx), float(dy));
 
-        rgb = texture(u_image, gridToImageUV(pC + cellOffset, u_angleC, u_shiftC, pad)).rgb;
+        rgb = texture(u_image, gridToImageUV(pC + cellOffset, u_angleC, u_shiftC, pad, 0.)).rgb;
         rgb = applyContrast(rgb);
         vec4 cmykC = RGBtoCMYK(rgb);
         computeDotContribution(pC, cellOffset, dotRadius(cmykC.x, baseR, minR, grain), 0., outMask[0]);
 
-        rgb = texture(u_image, gridToImageUV(pM + cellOffset, u_angleM, u_shiftM, pad)).rgb;
+        rgb = texture(u_image, gridToImageUV(pM + cellOffset, u_angleM, u_shiftM, pad, 1.)).rgb;
         rgb = applyContrast(rgb);
         vec4 cmykM = RGBtoCMYK(rgb);
         computeDotContribution(pM, cellOffset, dotRadius(cmykM.y, baseR, minR, grain), 1., outMask[1]);
 
-        rgb = texture(u_image, gridToImageUV(pY + cellOffset, u_angleY, u_shiftY, pad)).rgb;
+        rgb = texture(u_image, gridToImageUV(pY + cellOffset, u_angleY, u_shiftY, pad, 2.)).rgb;
         rgb = applyContrast(rgb);
         vec4 cmykY = RGBtoCMYK(rgb);
         computeDotContribution(pY, cellOffset, dotRadius(cmykY.z, baseR, minR, grain), 2., outMask[2]);
 
-        rgb = texture(u_image, gridToImageUV(pK + cellOffset, u_angleK, u_shiftK, pad)).rgb;
+        rgb = texture(u_image, gridToImageUV(pK + cellOffset, u_angleK, u_shiftK, pad, 3.)).rgb;
         rgb = applyContrast(rgb);
         vec4 cmykK = RGBtoCMYK(rgb);
         computeDotContribution(pK, cellOffset, dotRadius(cmykK.w, baseR, minR, grain), 3., outMask[3]);
