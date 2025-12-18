@@ -65,6 +65,14 @@ export const halftoneCmykDef: ShaderDef = {
       description: 'Maximum dot size',
     },
     {
+      name: 'minRadius',
+      type: 'number',
+      min: 0,
+      max: 1,
+      defaultValue: defaultParams.minRadius,
+      description: 'Minimum dot size',
+    },
+    {
       name: 'angleC',
       type: 'number',
       min: -180,

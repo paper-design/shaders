@@ -81,6 +81,7 @@ const HalftoneCmykWithControls = () => {
       colorK: { value: toHsla(defaults.colorK), order: 104 },
       size: { value: defaults.size, min: 0.01, max: 1, step: 0.01, order: 111 },
       radius: { value: defaults.radius, min: 0.01, max: 1, step: 0.01, order: 112 },
+      minRadius: { value: defaults.minRadius, min: 0, max: 1, step: 0.01, order: 113 },
       // smoothness: { value: defaults.smoothness, min: 0, max: halftoneCmykMeta.maxBlurRadius, step: 1, order: 113 },
       softness: { value: defaults.softness, min: 0, max: 1, step: 0.01, order: 114 },
       rounded: { value: defaults.rounded, order: 115 },

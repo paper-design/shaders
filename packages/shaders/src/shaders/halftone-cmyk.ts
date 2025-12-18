@@ -19,7 +19,8 @@ export const halftoneCmykMeta = {
  * - u_colorY (vec4): Yellow ink color in RGBA
  * - u_colorK (vec4): Black ink color in RGBA
  * - u_size (float): Halftone cell size (0 to 1)
- * - u_radius (float): Dot thickness (0 to 1)
+ * - u_radius (float): Maximum dot thickness (0 to 1)
+ * - u_minRadius (float): Minimum dot thickness (0 to 1)
  * - u_angleC (float): Cyan channel rotation angle in degrees
  * - u_angleM (float): Magenta channel rotation angle in degrees
  * - u_angleY (float): Yellow channel rotation angle in degrees
@@ -39,7 +40,7 @@ export const halftoneCmykMeta = {
  * - u_compensationM (float): Manual magenta dot size compensation factor (0.5 to 1.5, default 1.0)
  * - u_compensationY (float): Manual yellow dot size compensation factor (0.5 to 1.5, default 1.0)
  * - u_compensationK (float): Manual black dot size compensation factor (0.5 to 1.5, default 1.0)
- * - u_shape (float): Dot shape style (0 = sharp, 1 = gooey)
+ * - u_shape (float): Dot shape style (0 = separate, 1 = joined)
  *
  * Vertex shader outputs (used in fragment shader):
  * - v_imageUV (vec2): UV coordinates for sampling the source image, with fit, scale, rotation, and offset applied
@@ -72,6 +73,7 @@ uniform vec4 u_colorY;
 uniform vec4 u_colorK;
 uniform float u_size;
 uniform float u_radius;
+uniform float u_minRadius;
 uniform float u_angleC;
 uniform float u_angleM;
 uniform float u_angleY;
@@ -207,8 +209,7 @@ void computeDotContribution(vec2 p, vec2 cellOffset, float radius, inout float o
   if (u_shape > 0.5) {
     // Gooey mode: soft falloff for blending
     dist *= .4;
-    float sizeRadius = mix(radius, 0., 0.);
-    dist = 1. - smoothstep(0., sizeRadius, dist);
+    dist = 1. - smoothstep(0., radius, dist);
     dist = pow(dist, 2. + radius);
     outMask += dist;
   } else {
@@ -221,8 +222,8 @@ void computeDotContribution(vec2 p, vec2 cellOffset, float radius, inout float o
   }
 }
 
-float dotRadius(float channelValue, float baseR, float grain) {
-  return baseR * channelValue * (1. - grain);
+float dotRadius(float channelValue, float baseR, float minR, float grain) {
+  return max(baseR * channelValue * (1. - grain), minR);
 }
 
 vec3 applyInk(vec3 paper, vec3 inkColor, float cov) {
@@ -257,6 +258,7 @@ void main() {
   grain *= u_grainMixer;
 
   float baseR = u_radius * outOfFrame;
+  float minR = u_minRadius * outOfFrame;
   vec3 rgb = vec3(0.);
   vec4 outMask = vec4(0.);
   float contrast = mix(
@@ -274,22 +276,22 @@ void main() {
         rgb = texture(u_image, gridToImageUV(pC + cellOffset, u_angleC, u_shiftC, pad)).rgb;
         rgb = applyContrast(rgb);
         vec4 cmykC = RGBtoCMYK(rgb);
-        computeDotContribution(pC, cellOffset, dotRadius(cmykC.x, baseR, grain), outMask[0]);
+        computeDotContribution(pC, cellOffset, dotRadius(cmykC.x, baseR, minR, grain), outMask[0]);
 
         rgb = texture(u_image, gridToImageUV(pM + cellOffset, u_angleM, u_shiftM, pad)).rgb;
         rgb = applyContrast(rgb);
         vec4 cmykM = RGBtoCMYK(rgb);
-        computeDotContribution(pM, cellOffset, dotRadius(cmykM.y, baseR, grain), outMask[1]);
+        computeDotContribution(pM, cellOffset, dotRadius(cmykM.y, baseR, minR, grain), outMask[1]);
 
         rgb = texture(u_image, gridToImageUV(pY + cellOffset, u_angleY, u_shiftY, pad)).rgb;
         rgb = applyContrast(rgb);
         vec4 cmykY = RGBtoCMYK(rgb);
-        computeDotContribution(pY, cellOffset, dotRadius(cmykY.z, baseR, grain), outMask[2]);
+        computeDotContribution(pY, cellOffset, dotRadius(cmykY.z, baseR, minR, grain), outMask[2]);
 
         rgb = texture(u_image, gridToImageUV(pK + cellOffset, u_angleK, u_shiftK, pad)).rgb;
         rgb = applyContrast(rgb);
         vec4 cmykK = RGBtoCMYK(rgb);
-        computeDotContribution(pK, cellOffset, dotRadius(cmykK.w, baseR, grain), outMask[3]);
+        computeDotContribution(pK, cellOffset, dotRadius(cmykK.w, baseR, minR, grain), outMask[3]);
       }
     }
   } else {
@@ -301,10 +303,10 @@ void main() {
       for (int dx = -1; dx <= 1; dx++) {
         vec2 cellOffset = vec2(float(dx), float(dy));
 
-        computeDotContribution(pC, cellOffset, dotRadius(cmykOriginal.x, baseR, grain), outMask[0]);
-        computeDotContribution(pM, cellOffset, dotRadius(cmykOriginal.y, baseR, grain), outMask[1]);
-        computeDotContribution(pY, cellOffset, dotRadius(cmykOriginal.z, baseR, grain), outMask[2]);
-        computeDotContribution(pK, cellOffset, dotRadius(cmykOriginal.w, baseR, grain), outMask[3]);
+        computeDotContribution(pC, cellOffset, dotRadius(cmykOriginal.x, baseR, minR, grain), outMask[0]);
+        computeDotContribution(pM, cellOffset, dotRadius(cmykOriginal.y, baseR, minR, grain), outMask[1]);
+        computeDotContribution(pY, cellOffset, dotRadius(cmykOriginal.z, baseR, minR, grain), outMask[2]);
+        computeDotContribution(pK, cellOffset, dotRadius(cmykOriginal.w, baseR, minR, grain), outMask[3]);
       }
     }
   }
@@ -375,6 +377,7 @@ export interface HalftoneCmykUniforms extends ShaderSizingUniforms {
   u_colorK: [number, number, number, number];
   u_size: number;
   u_radius: number;
+  u_minRadius: number;
   u_angleC: number;
   u_angleM: number;
   u_angleY: number;
@@ -406,6 +409,7 @@ export interface HalftoneCmykParams extends ShaderSizingParams, ShaderMotionPara
   colorK?: string;
   size?: number;
   radius?: number;
+  minRadius?: number;
   angleC?: number;
   angleM?: number;
   angleY?: number;
