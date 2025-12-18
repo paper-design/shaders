@@ -20,7 +20,6 @@ export const halftoneCmykMeta = {
  * - u_colorK (vec4): Black ink color in RGBA
  * - u_size (float): Halftone cell size (0 to 1)
  * - u_radius (float): Dot/line thickness (0 to 1)
- * - u_minRadius (float): Minimum dot size even for darkest areas (0 to 1)
  * - u_angleC (float): Cyan channel rotation angle in degrees
  * - u_angleM (float): Magenta channel rotation angle in degrees
  * - u_angleY (float): Yellow channel rotation angle in degrees
@@ -69,7 +68,6 @@ uniform vec4 u_colorY;
 uniform vec4 u_colorK;
 uniform float u_size;
 uniform float u_radius;
-uniform float u_minRadius;
 uniform float u_angleC;
 uniform float u_angleM;
 uniform float u_angleY;
@@ -211,7 +209,7 @@ vec2 lineToImageUV(vec2 gridPos, float yOffset, float angle, float shift, vec2 p
 }
 
 float dotRadius(float channelValue, float baseR, float grain) {
-  return baseR * mix(channelValue, 1.0, u_minRadius) * (1. - grain);
+  return baseR * channelValue * (1. - grain);
 }
 
 vec3 applyInk(vec3 paper, vec3 inkColor, float cov) {
@@ -222,7 +220,7 @@ vec3 applyInk(vec3 paper, vec3 inkColor, float cov) {
 void main() {
   vec2 uv = v_imageUV;
 
-  float cellsPerSide = mix(500.0, 7.0, pow(u_size, 0.7));
+  float cellsPerSide = mix(400.0, 7.0, pow(u_size, 0.7));
   float cellSizeY = 1.0 / cellsPerSide;
   vec2 pad = cellSizeY * vec2(1.0 / u_imageAspectRatio, 1.0);
   vec2 uvGrid = (uv - .5) / pad;
@@ -391,7 +389,6 @@ export interface HalftoneCmykUniforms extends ShaderSizingUniforms {
   u_colorK: [number, number, number, number];
   u_size: number;
   u_radius: number;
-  u_minRadius: number;
   u_angleC: number;
   u_angleM: number;
   u_angleY: number;
@@ -419,7 +416,6 @@ export interface HalftoneCmykParams extends ShaderSizingParams, ShaderMotionPara
   colorK?: string;
   size?: number;
   radius?: number;
-  minRadius?: number;
   angleC?: number;
   angleM?: number;
   angleY?: number;
