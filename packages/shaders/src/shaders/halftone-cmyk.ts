@@ -36,6 +36,8 @@ export const halftoneCmykMeta = {
  * - u_grainSize (float): Size of grain overlay texture (0 to 1)
  * - u_grainMixer (float): Strength of grain affecting dot size (0 to 1)
  * - u_grainOverlay (float): Strength of grain overlay on final output (0 to 1)
+ * - u_gridNoise (float): Strength of smooth noise applied to dot positions only (0 to 1)
+ * - u_gridSampleNoise (float): Strength of smooth noise applied to both dot positions and color sampling (0 to 1)
  * - u_compensationC (float): Manual cyan dot size compensation factor (0.5 to 1.5, default 1.0)
  * - u_compensationM (float): Manual magenta dot size compensation factor (0.5 to 1.5, default 1.0)
  * - u_compensationY (float): Manual yellow dot size compensation factor (0.5 to 1.5, default 1.0)
@@ -86,6 +88,8 @@ uniform float u_contrast;
 uniform float u_grainSize;
 uniform float u_grainMixer;
 uniform float u_grainOverlay;
+uniform float u_gridNoise;
+uniform float u_gridSampleNoise;
 uniform float u_smoothness;
 uniform float u_softness;
 uniform bool u_rounded;
@@ -194,16 +198,53 @@ vec4 blurTexture(sampler2D tex, vec2 uv, vec2 texelSize, float radius) {
   return acc / max(weightSum, 0.00001);
 }
 
+vec2 getGridPositionNoise(vec2 cellPos) {
+  if (u_gridNoise < 0.001) return vec2(0.);
+
+  // Simple wave-based noise for X
+  float noiseX = sin(cellPos.x * 3.14 + cellPos.y * 1.57) * 0.5
+//               + sin(cellPos.x * 1.23 - cellPos.y * 2.34) * 0.3
+               + cos(cellPos.x * 2.67 + cellPos.y * 0.89) * 0.2;
+
+  // Simple wave-based noise for Y with different frequencies
+  float noiseY = sin(cellPos.y * 2.71 + cellPos.x * 1.89) * 0.5
+//               + sin(cellPos.y * 1.67 - cellPos.x * 2.12) * 0.3
+               + cos(cellPos.y * 3.14 + cellPos.x * 1.23) * 0.2;
+
+  // Normalize to [-1,1] range and scale by gridNoise strength
+  vec2 offset = vec2(noiseX, noiseY) * u_gridNoise * 0.5;
+  return offset;
+}
+
+vec2 getGridSampleNoise(vec2 cellPos) {
+  if (u_gridSampleNoise < 0.001) return vec2(0.);
+
+  // Different wave combinations for sampling noise
+  float noiseX = sin(cellPos.x * 2.34 + cellPos.y * 2.89) * 0.5
+               + sin(cellPos.x * 1.89 - cellPos.y * 1.23) * 0.3
+               + cos(cellPos.x * 3.45 + cellPos.y * 1.67) * 0.2;
+
+  float noiseY = sin(cellPos.y * 3.45 + cellPos.x * 1.34) * 0.5
+               + sin(cellPos.y * 2.12 - cellPos.x * 2.89) * 0.3
+               + cos(cellPos.y * 1.89 + cellPos.x * 2.45) * 0.2;
+
+  // Normalize to [-1,1] range and scale by gridSampleNoise strength
+  vec2 offset = vec2(noiseX, noiseY) * u_gridSampleNoise * 0.5;
+  return offset;
+}
+
 vec2 gridToImageUV(vec2 gridPos, float angle, float shift, vec2 pad) {
-  vec2 cellCenter = floor(gridPos) + 0.5;
+  vec2 cellCenter = floor(gridPos) + 0.5 + getGridSampleNoise(cellPos);
   cellCenter -= shift;
   vec2 uvGrid = rotate(cellCenter, -radians(angle));
   vec2 uv = uvGrid * pad + 0.5;
   return uv;
 }
 
-void computeDotContribution(vec2 p, vec2 cellOffset, float radius, inout float outMask) {
-  vec2 cell = floor(p) + .5 + cellOffset;
+void computeDotContribution(vec2 p, vec2 cellOffset, float radius, float channelIdx, inout float outMask) {
+  vec2 cellPos = floor(p) + .5 + cellOffset;
+  vec2 cellPosOffset = getGridPositionNoise(cellPos + 4. * channelIdx) + getGridSampleNoise(cellPos);
+  vec2 cell = cellPos + cellPosOffset;
   float dist = length(p - cell);
 
   if (u_shape > 0.5) {
@@ -276,22 +317,22 @@ void main() {
         rgb = texture(u_image, gridToImageUV(pC + cellOffset, u_angleC, u_shiftC, pad)).rgb;
         rgb = applyContrast(rgb);
         vec4 cmykC = RGBtoCMYK(rgb);
-        computeDotContribution(pC, cellOffset, dotRadius(cmykC.x, baseR, minR, grain), outMask[0]);
+        computeDotContribution(pC, cellOffset, dotRadius(cmykC.x, baseR, minR, grain), 0., outMask[0]);
 
         rgb = texture(u_image, gridToImageUV(pM + cellOffset, u_angleM, u_shiftM, pad)).rgb;
         rgb = applyContrast(rgb);
         vec4 cmykM = RGBtoCMYK(rgb);
-        computeDotContribution(pM, cellOffset, dotRadius(cmykM.y, baseR, minR, grain), outMask[1]);
+        computeDotContribution(pM, cellOffset, dotRadius(cmykM.y, baseR, minR, grain), 1., outMask[1]);
 
         rgb = texture(u_image, gridToImageUV(pY + cellOffset, u_angleY, u_shiftY, pad)).rgb;
         rgb = applyContrast(rgb);
         vec4 cmykY = RGBtoCMYK(rgb);
-        computeDotContribution(pY, cellOffset, dotRadius(cmykY.z, baseR, minR, grain), outMask[2]);
+        computeDotContribution(pY, cellOffset, dotRadius(cmykY.z, baseR, minR, grain), 2., outMask[2]);
 
         rgb = texture(u_image, gridToImageUV(pK + cellOffset, u_angleK, u_shiftK, pad)).rgb;
         rgb = applyContrast(rgb);
         vec4 cmykK = RGBtoCMYK(rgb);
-        computeDotContribution(pK, cellOffset, dotRadius(cmykK.w, baseR, minR, grain), outMask[3]);
+        computeDotContribution(pK, cellOffset, dotRadius(cmykK.w, baseR, minR, grain), 3., outMask[3]);
       }
     }
   } else {
@@ -303,10 +344,10 @@ void main() {
       for (int dx = -1; dx <= 1; dx++) {
         vec2 cellOffset = vec2(float(dx), float(dy));
 
-        computeDotContribution(pC, cellOffset, dotRadius(cmykOriginal.x, baseR, minR, grain), outMask[0]);
-        computeDotContribution(pM, cellOffset, dotRadius(cmykOriginal.y, baseR, minR, grain), outMask[1]);
-        computeDotContribution(pY, cellOffset, dotRadius(cmykOriginal.z, baseR, minR, grain), outMask[2]);
-        computeDotContribution(pK, cellOffset, dotRadius(cmykOriginal.w, baseR, minR, grain), outMask[3]);
+        computeDotContribution(pC, cellOffset, dotRadius(cmykOriginal.x, baseR, minR, grain), 0., outMask[0]);
+        computeDotContribution(pM, cellOffset, dotRadius(cmykOriginal.y, baseR, minR, grain), 1., outMask[1]);
+        computeDotContribution(pY, cellOffset, dotRadius(cmykOriginal.z, baseR, minR, grain), 2., outMask[2]);
+        computeDotContribution(pK, cellOffset, dotRadius(cmykOriginal.w, baseR, minR, grain), 3., outMask[3]);
       }
     }
   }
@@ -393,6 +434,8 @@ export interface HalftoneCmykUniforms extends ShaderSizingUniforms {
   u_grainSize: number;
   u_grainMixer: number;
   u_grainOverlay: number;
+  u_gridNoise: number;
+  u_gridSampleNoise: number;
   u_compensationC: number;
   u_compensationM: number;
   u_compensationY: number;
@@ -425,6 +468,8 @@ export interface HalftoneCmykParams extends ShaderSizingParams, ShaderMotionPara
   grainSize?: number;
   grainMixer?: number;
   grainOverlay?: number;
+  gridNoise?: number;
+  gridSampleNoise?: number;
   compensationC?: number;
   compensationM?: number;
   compensationY?: number;

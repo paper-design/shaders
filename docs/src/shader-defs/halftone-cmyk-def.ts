@@ -192,6 +192,22 @@ export const halftoneCmykDef: ShaderDef = {
       description: 'Strength of grain overlay on final output',
     },
     {
+      name: 'gridNoise',
+      type: 'number',
+      min: 0,
+      max: 1,
+      defaultValue: defaultParams.gridNoise,
+      description: 'Displaces dot positions only (color sampling stays aligned with grid)',
+    },
+    {
+      name: 'gridSampleNoise',
+      type: 'number',
+      min: 0,
+      max: 1,
+      defaultValue: defaultParams.gridSampleNoise,
+      description: 'Displaces both dot positions and color sampling together (maintains color accuracy)',
+    },
+    {
       name: 'compensationC',
       type: 'number',
       min: 0.5,
