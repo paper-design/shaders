@@ -30,7 +30,7 @@ export const defaultPreset: HalftoneCmykPreset = {
     colorY: '#ffd800',
     colorK: '#231f20',
     size: 0.3,
-    radius: .7,
+    radius: 1,
     contrast: 1,
     angleC: 15,
     shiftC: -0.5,
@@ -47,6 +47,10 @@ export const defaultPreset: HalftoneCmykPreset = {
     grainMixer: 0,
     grainOverlay: 0,
     type: 'dot',
+    compensationC: 1.11,
+    compensationM: 0.80,
+    compensationY: 1.02,
+    compensationK: 0.87,
   },
 };
 
@@ -81,6 +85,10 @@ export const naturalPreset: HalftoneCmykPreset = {
     grainMixer: 0,
     grainOverlay: 0.5,
     type: 'dot',
+    compensationC: 1.11,
+    compensationM: 0.80,
+    compensationY: 1.02,
+    compensationK: 0.87,
   },
 };
 
@@ -115,40 +123,10 @@ export const largePreset: HalftoneCmykPreset = {
     grainMixer: 0,
     grainOverlay: 0,
     type: 'dot',
-  },
-};
-
-export const strokesPreset: HalftoneCmykPreset = {
-  name: 'Strokes',
-  params: {
-    ...defaultObjectSizing,
-    scale: 1,
-    fit: 'contain',
-    speed: 0,
-    frame: 0,
-    colorBack: '#ffffff',
-    colorC: '#00b4ff',
-    colorM: '#fc519f',
-    colorY: '#ffd800',
-    colorK: '#231f20',
-    size: 0.84,
-    radius: 1,
-    contrast: 1,
-    angleC: 15,
-    shiftC: -0.5,
-    angleM: 75,
-    shiftM: -0,
-    angleY: 0,
-    shiftY: 0,
-    angleK: 45,
-    shiftK: 0.5,
-    softness: 0,
-    smoothness: 0,
-    rounded: false,
-    grainSize: 0.5,
-    grainMixer: 0,
-    grainOverlay: 0,
-    type: 'line',
+    compensationC: 1.11,
+    compensationM: 0.80,
+    compensationY: 1.02,
+    compensationK: 0.87,
   },
 };
 
@@ -183,6 +161,10 @@ export const abstractionPreset: HalftoneCmykPreset = {
     grainMixer: 0,
     grainOverlay: 0,
     type: 'line',
+    compensationC: 1.11,
+    compensationM: 0.80,
+    compensationY: 1.02,
+    compensationK: 0.87,
   },
 };
 
@@ -216,6 +198,10 @@ export const HalftoneCmyk: React.FC<HalftoneCmykProps> = memo(function HalftoneC
   grainMixer = defaultPreset.params.grainMixer,
   grainOverlay = defaultPreset.params.grainOverlay,
   type = defaultPreset.params.type,
+  compensationC = defaultPreset.params.compensationC,
+  compensationM = defaultPreset.params.compensationM,
+  compensationY = defaultPreset.params.compensationY,
+  compensationK = defaultPreset.params.compensationK,
 
   // Sizing props
   fit = defaultPreset.params.fit,
@@ -255,6 +241,10 @@ export const HalftoneCmyk: React.FC<HalftoneCmykProps> = memo(function HalftoneC
     u_grainMixer: grainMixer,
     u_grainOverlay: grainOverlay,
     u_type: HalftoneCmykTypes[type],
+    u_compensationC: compensationC,
+    u_compensationM: compensationM,
+    u_compensationY: compensationY,
+    u_compensationK: compensationK,
 
     // Sizing uniforms
     u_fit: ShaderFitOptions[fit],

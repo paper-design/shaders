@@ -36,6 +36,10 @@ export const halftoneCmykMeta = {
  * - u_grainMixer (float): Strength of grain affecting dot size (0 to 1)
  * - u_grainOverlay (float): Strength of grain overlay on final output (0 to 1)
  * - u_type (float): Halftone type (0 = dots, 1 = lines)
+ * - u_compensationC (float): Manual cyan dot size compensation factor (0.5 to 1.5, default 1.0)
+ * - u_compensationM (float): Manual magenta dot size compensation factor (0.5 to 1.5, default 1.0)
+ * - u_compensationY (float): Manual yellow dot size compensation factor (0.5 to 1.5, default 1.0)
+ * - u_compensationK (float): Manual black dot size compensation factor (0.5 to 1.5, default 1.0)
  *
  * Vertex shader outputs (used in fragment shader):
  * - v_imageUV (vec2): UV coordinates for sampling the source image, with fit, scale, rotation, and offset applied
@@ -84,6 +88,10 @@ uniform float u_smoothness;
 uniform float u_softness;
 uniform bool u_rounded;
 uniform float u_type;
+uniform float u_compensationC;
+uniform float u_compensationM;
+uniform float u_compensationY;
+uniform float u_compensationK;
 
 in vec2 v_imageUV;
 out vec4 fragColor;
@@ -117,12 +125,21 @@ float getUvFrame(vec2 uv, vec2 pad) {
 }
 
 vec4 RGBtoCMYK(vec3 rgb) {
+  // Standard CMYK conversion
   float k = 1.0 - max(max(rgb.r, rgb.g), rgb.b);
   float denom = 1.0 - k;
   vec3 cmy = vec3(0.0);
   if (denom > 1e-5) {
     cmy = (1.0 - rgb - vec3(k)) / denom;
   }
+
+  // Apply manual compensation factors to adjust dot sizes for non-standard ink colors
+  // Values > 1.0 = larger dots, values < 1.0 = smaller dots
+  cmy.x *= u_compensationC;
+  cmy.y *= u_compensationM;
+  cmy.z *= u_compensationY;
+  k *= u_compensationK;
+
   return vec4(cmy, k);
 }
 
@@ -405,6 +422,10 @@ export interface HalftoneCmykUniforms extends ShaderSizingUniforms {
   u_grainMixer: number;
   u_grainOverlay: number;
   u_type: (typeof HalftoneCmykTypes)[HalftoneCmykType];
+  u_compensationC: number;
+  u_compensationM: number;
+  u_compensationY: number;
+  u_compensationK: number;
 }
 
 export interface HalftoneCmykParams extends ShaderSizingParams, ShaderMotionParams {
@@ -432,6 +453,10 @@ export interface HalftoneCmykParams extends ShaderSizingParams, ShaderMotionPara
   grainMixer?: number;
   grainOverlay?: number;
   type?: HalftoneCmykType;
+  compensationC?: number;
+  compensationM?: number;
+  compensationY?: number;
+  compensationK?: number;
 }
 
 export const HalftoneCmykTypes = {
