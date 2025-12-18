@@ -280,22 +280,22 @@ void main() {
         rgb = texture(u_image, lineToImageUV(pC, yOffset, u_angleC, u_shiftC, pad)).rgb;
         rgb = applyContrast(rgb);
         vec4 cmykC = RGBtoCMYK(rgb);
-        computeLineContribution(pC, vec2(0.0, yOffset), dotRadius(cmykC.x, baseR * u_colorC.a, grain), outMask[0]);
+        computeLineContribution(pC, vec2(0.0, yOffset), dotRadius(cmykC.x, baseR, grain), outMask[0]);
 
         rgb = texture(u_image, lineToImageUV(pM, yOffset, u_angleM, u_shiftM, pad)).rgb;
         rgb = applyContrast(rgb);
         vec4 cmykM = RGBtoCMYK(rgb);
-        computeLineContribution(pM, vec2(0.0, yOffset), dotRadius(cmykM.y, baseR * u_colorM.a, grain), outMask[1]);
+        computeLineContribution(pM, vec2(0.0, yOffset), dotRadius(cmykM.y, baseR, grain), outMask[1]);
 
         rgb = texture(u_image, lineToImageUV(pY, yOffset, u_angleY, u_shiftY, pad)).rgb;
         rgb = applyContrast(rgb);
         vec4 cmykY = RGBtoCMYK(rgb);
-        computeLineContribution(pY, vec2(0.0, yOffset), dotRadius(cmykY.z, baseR * u_colorY.a, grain), outMask[2]);
+        computeLineContribution(pY, vec2(0.0, yOffset), dotRadius(cmykY.z, baseR, grain), outMask[2]);
 
         rgb = texture(u_image, lineToImageUV(pK, yOffset, u_angleK, u_shiftK, pad)).rgb;
         rgb = applyContrast(rgb);
         vec4 cmykK = RGBtoCMYK(rgb);
-        computeLineContribution(pK, vec2(0.0, yOffset), dotRadius(cmykK.w, baseR * u_colorK.a, grain), outMask[3]);
+        computeLineContribution(pK, vec2(0.0, yOffset), dotRadius(cmykK.w, baseR, grain), outMask[3]);
       }
     } else {
       baseR *= .9;
@@ -306,10 +306,10 @@ void main() {
       for (int dy = -1; dy <= 1; dy++) {
         vec2 cellOffset = vec2(0.0, float(dy));
 
-        computeLineContribution(pC, cellOffset, dotRadius(cmykOriginal.x, baseR * u_colorC.a, grain), outMask[0]);
-        computeLineContribution(pM, cellOffset, dotRadius(cmykOriginal.y, baseR * u_colorM.a, grain), outMask[1]);
-        computeLineContribution(pY, cellOffset, dotRadius(cmykOriginal.z, baseR * u_colorY.a, grain), outMask[2]);
-        computeLineContribution(pK, cellOffset, dotRadius(cmykOriginal.w, baseR * u_colorK.a, grain), outMask[3]);
+        computeLineContribution(pC, cellOffset, dotRadius(cmykOriginal.x, baseR, grain), outMask[0]);
+        computeLineContribution(pM, cellOffset, dotRadius(cmykOriginal.y, baseR, grain), outMask[1]);
+        computeLineContribution(pY, cellOffset, dotRadius(cmykOriginal.z, baseR, grain), outMask[2]);
+        computeLineContribution(pK, cellOffset, dotRadius(cmykOriginal.w, baseR, grain), outMask[3]);
       }
     }
   } else {
@@ -322,22 +322,22 @@ void main() {
           rgb = texture(u_image, gridToImageUV(pC + cellOffset, u_angleC, u_shiftC, pad)).rgb;
           rgb = applyContrast(rgb);
           vec4 cmykC = RGBtoCMYK(rgb);
-          computeDotContribution(pC, cellOffset, dotRadius(cmykC.x, baseR * u_colorC.a, grain), outMask[0]);
+          computeDotContribution(pC, cellOffset, dotRadius(cmykC.x, baseR, grain), outMask[0]);
 
           rgb = texture(u_image, gridToImageUV(pM + cellOffset, u_angleM, u_shiftM, pad)).rgb;
           rgb = applyContrast(rgb);
           vec4 cmykM = RGBtoCMYK(rgb);
-          computeDotContribution(pM, cellOffset, dotRadius(cmykM.y, baseR * u_colorM.a, grain), outMask[1]);
+          computeDotContribution(pM, cellOffset, dotRadius(cmykM.y, baseR, grain), outMask[1]);
 
           rgb = texture(u_image, gridToImageUV(pY + cellOffset, u_angleY, u_shiftY, pad)).rgb;
           rgb = applyContrast(rgb);
           vec4 cmykY = RGBtoCMYK(rgb);
-          computeDotContribution(pY, cellOffset, dotRadius(cmykY.z, baseR * u_colorY.a, grain), outMask[2]);
+          computeDotContribution(pY, cellOffset, dotRadius(cmykY.z, baseR, grain), outMask[2]);
 
           rgb = texture(u_image, gridToImageUV(pK + cellOffset, u_angleK, u_shiftK, pad)).rgb;
           rgb = applyContrast(rgb);
           vec4 cmykK = RGBtoCMYK(rgb);
-          computeDotContribution(pK, cellOffset, dotRadius(cmykK.w, baseR * u_colorK.a, grain), outMask[3]);
+          computeDotContribution(pK, cellOffset, dotRadius(cmykK.w, baseR, grain), outMask[3]);
         }
       }
     } else {
@@ -349,10 +349,10 @@ void main() {
         for (int dx = -1; dx <= 1; dx++) {
           vec2 cellOffset = vec2(float(dx), float(dy));
 
-          computeDotContribution(pC, cellOffset, dotRadius(cmykOriginal.x, baseR * u_colorC.a, grain), outMask[0]);
-          computeDotContribution(pM, cellOffset, dotRadius(cmykOriginal.y, baseR * u_colorM.a, grain), outMask[1]);
-          computeDotContribution(pY, cellOffset, dotRadius(cmykOriginal.z, baseR * u_colorY.a, grain), outMask[2]);
-          computeDotContribution(pK, cellOffset, dotRadius(cmykOriginal.w, baseR * u_colorK.a, grain), outMask[3]);
+          computeDotContribution(pC, cellOffset, dotRadius(cmykOriginal.x, baseR, grain), outMask[0]);
+          computeDotContribution(pM, cellOffset, dotRadius(cmykOriginal.y, baseR, grain), outMask[1]);
+          computeDotContribution(pY, cellOffset, dotRadius(cmykOriginal.z, baseR, grain), outMask[2]);
+          computeDotContribution(pK, cellOffset, dotRadius(cmykOriginal.w, baseR, grain), outMask[3]);
         }
       }
     }
@@ -364,6 +364,12 @@ void main() {
   float covM = outMask[1];
   float covY = outMask[2];
   float covK = outMask[3];
+
+  // Apply alpha as layer transparency (not dot size)
+  covC *= u_colorC.a;
+  covM *= u_colorM.a;
+  covY *= u_colorY.a;
+  covK *= u_colorK.a;
 
   vec3 ink = vec3(1.);
 
