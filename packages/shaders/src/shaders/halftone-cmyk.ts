@@ -38,10 +38,10 @@ export const halftoneCmykMeta = {
  * - u_grainOverlay (float): Strength of grain overlay on final output (0 to 1)
  * - u_gridNoise (float): Strength of smooth noise applied to dot positions only (0 to 1)
  * - u_gridSampleNoise (float): Strength of smooth noise applied to both dot positions and color sampling (0 to 1)
- * - u_compensationC (float): Manual cyan dot size compensation factor (0.5 to 1.5, default 1.0)
- * - u_compensationM (float): Manual magenta dot size compensation factor (0.5 to 1.5, default 1.0)
- * - u_compensationY (float): Manual yellow dot size compensation factor (0.5 to 1.5, default 1.0)
- * - u_compensationK (float): Manual black dot size compensation factor (0.5 to 1.5, default 1.0)
+ * - u_compensationC (float): Manual cyan dot size compensation factor (-1 to 1, 0 = no change)
+ * - u_compensationM (float): Manual magenta dot size compensation factor (-1 to 1, 0 = no change)
+ * - u_compensationY (float): Manual yellow dot size compensation factor (-1 to 1, 0 = no change)
+ * - u_compensationK (float): Manual black dot size compensation factor (-1 to 1, 0 = no change)
  * - u_shape (float): Dot shape style (0 = separate, 1 = joined)
  *
  * Vertex shader outputs (used in fragment shader):
@@ -140,11 +140,11 @@ vec4 RGBtoCMYK(vec3 rgb) {
   }
 
   // Apply manual compensation factors to adjust dot sizes for non-standard ink colors
-  // Values > 1.0 = larger dots, values < 1.0 = smaller dots
-  cmy.x *= u_compensationC;
-  cmy.y *= u_compensationM;
-  cmy.z *= u_compensationY;
-  k *= u_compensationK;
+  // Range: -1 to 1, where 0 = no change, positive = larger dots, negative = smaller dots
+  cmy.x *= (1.0 + u_compensationC);
+  cmy.y *= (1.0 + u_compensationM);
+  cmy.z *= (1.0 + u_compensationY);
+  k *= (1.0 + u_compensationK);
 
   return vec4(cmy, k);
 }
