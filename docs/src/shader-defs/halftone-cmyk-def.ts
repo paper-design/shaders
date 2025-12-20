@@ -152,14 +152,6 @@ export const halftoneCmykDef: ShaderDef = {
       description: 'Edge softness of dots/lines',
     },
     {
-      name: 'smoothness',
-      type: 'number',
-      min: 0,
-      max: 1,
-      defaultValue: defaultParams.smoothness,
-      description: 'Smoothness of halftone pattern',
-    },
-    {
       name: 'grainSize',
       type: 'number',
       min: 0,

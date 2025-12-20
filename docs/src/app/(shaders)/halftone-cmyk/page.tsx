@@ -83,7 +83,6 @@ const HalftoneCmykWithControls = () => {
       minDot: { value: defaults.minDot, min: 0, max: 0.2, step: 0.01, order: 112 },
       gridNoise: { value: defaults.gridNoise, min: 0, max: 1, step: 0.01, order: 113 },
       gridSampleNoise: { value: defaults.gridSampleNoise, min: 0, max: 1, step: 0.01, order: 114 },
-      // smoothness: { value: defaults.smoothness, min: 0, max: halftoneCmykMeta.maxBlurRadius, step: 1, order: 123 },
       softness: { value: defaults.softness, min: 0, max: 1, step: 0.01, order: 124 },
       rounded: { value: defaults.rounded, order: 125 },
       contrast: { value: defaults.contrast, min: 0, max: 2, step: 0.01, order: 127 },

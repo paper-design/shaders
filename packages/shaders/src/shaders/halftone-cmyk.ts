@@ -29,7 +29,6 @@ export const halftoneCmykMeta = {
  * - u_shiftY (float): Yellow channel position offset
  * - u_shiftK (float): Black channel position offset
  * - u_contrast (float): Image contrast adjustment (0 to 2)
- * - u_smoothness (float): Smoothness of halftone pattern (0 to 1)
  * - u_softness (float): Edge softness of dots (0 to 1)
  * - u_rounded (bool): Use per-cell color sampling (true) or blurred sampling (false)
  * - u_grainSize (float): Size of grain overlay texture (0 to 1)
@@ -88,7 +87,6 @@ uniform float u_grainMixer;
 uniform float u_grainOverlay;
 uniform float u_gridNoise;
 uniform float u_gridSampleNoise;
-uniform float u_smoothness;
 uniform float u_softness;
 uniform bool u_rounded;
 uniform float u_compensationC;
@@ -171,32 +169,6 @@ vec3 applyContrast(vec3 rgb) {
   return mix(low, high, step(1.0, c));
 }
 
-vec4 blurTexture(sampler2D tex, vec2 uv, vec2 texelSize, float radius) {
-  float r = clamp(radius, 0., float(${ halftoneCmykMeta.maxBlurRadius }));
-  int ir = int(r);
-
-  vec4 acc = vec4(0.0);
-  float weightSum = 0.0;
-  for (int y = -${ halftoneCmykMeta.maxBlurRadius }; y <= ${ halftoneCmykMeta.maxBlurRadius }; ++y) {
-    if (abs(y) > ir) continue;
-    for (int x = -${ halftoneCmykMeta.maxBlurRadius }; x <= ${ halftoneCmykMeta.maxBlurRadius }; ++x) {
-      if (abs(x) > ir) continue;
-
-      vec2 offset = vec2(float(x), float(y));
-      float dist2 = dot(offset, offset);
-
-      // tweak sigma to taste; lower sigma = sharper falloff
-      float sigma = radius * 0.5 + 0.001;
-      float w = exp(-dist2 / (2.0 * sigma * sigma));
-
-      acc += texture(tex, uv + offset * texelSize) * w;
-      weightSum += w;
-    }
-  }
-
-  return acc / max(weightSum, 0.00001);
-}
-
 vec2 getGridPositionNoise(vec2 cellPos) {
   if (u_gridNoise < 0.001) return vec2(0.);
 
@@ -220,11 +192,11 @@ vec2 getGridSampleNoise(vec2 cellPos) {
 
   // Different wave combinations for sampling noise
   float noiseX = sin(cellPos.x * 2.34 + cellPos.y * 2.89) * 0.5
-               + sin(cellPos.x * 1.89 - cellPos.y * 1.23) * 0.3
+//               + sin(cellPos.x * 1.89 - cellPos.y * 1.23) * 0.3
                + cos(cellPos.x * 3.45 + cellPos.y * 1.67) * 0.2;
 
   float noiseY = sin(cellPos.y * 3.45 + cellPos.x * 1.34) * 0.5
-               + sin(cellPos.y * 2.12 - cellPos.x * 2.89) * 0.3
+//               + sin(cellPos.y * 2.12 - cellPos.x * 2.89) * 0.3
                + cos(cellPos.y * 1.89 + cellPos.x * 2.45) * 0.2;
 
   // Normalize to [-1,1] range and scale by gridSampleNoise strength
@@ -336,9 +308,8 @@ void main() {
       }
     }
   } else {
-    vec4 texBlur = texture(u_image, uv);
-    //      rgb = texBlur.rgb;
-    rgb = applyContrast(texBlur.rgb);
+    vec3 rgb = texture(u_image, uv).rgb;
+    rgb = applyContrast(rgb);
     vec4 cmykOriginal = RGBtoCMYK(rgb);
     for (int dy = -1; dy <= 1; dy++) {
       for (int dx = -1; dx <= 1; dx++) {
@@ -354,10 +325,10 @@ void main() {
 
   float shape;
 
-  float covC = outMask[0];
-  float covM = outMask[1];
-  float covY = outMask[2];
-  float covK = outMask[3];
+  float C = outMask[0];
+  float M = outMask[1];
+  float Y = outMask[2];
+  float K = outMask[3];
 
   // Apply gooey threshold with soft edges
   if (u_shape > 0.5) {
@@ -365,26 +336,24 @@ void main() {
     float th = 0.5;
     float edgeWidth = mix(0.01, 0.5, u_softness);
 
-    covC = smoothstep(th - edgeWidth, th + edgeWidth, covC);
-    covM = smoothstep(th - edgeWidth, th + edgeWidth, covM);
-    covY = smoothstep(th - edgeWidth, th + edgeWidth, covY);
-    covK = smoothstep(th - edgeWidth, th + edgeWidth, covK);
+    C = smoothstep(th - edgeWidth, th + edgeWidth, C);
+    M = smoothstep(th - edgeWidth, th + edgeWidth, M);
+    Y = smoothstep(th - edgeWidth, th + edgeWidth, Y);
+    K = smoothstep(th - edgeWidth, th + edgeWidth, K);
   }
 
-  // Apply alpha as layer transparency (not dot size)
-  covC *= u_colorC.a;
-  covM *= u_colorM.a;
-  covY *= u_colorY.a;
-  covK *= u_colorK.a;
+  C *= u_colorC.a;
+  M *= u_colorM.a;
+  Y *= u_colorY.a;
+  K *= u_colorK.a;
 
   vec3 ink = vec3(1.);
+  ink = applyInk(ink, u_colorK.rgb, K);
+  ink = applyInk(ink, u_colorC.rgb, C);
+  ink = applyInk(ink, u_colorM.rgb, M);
+  ink = applyInk(ink, u_colorY.rgb, Y);
 
-  ink = applyInk(ink, u_colorK.rgb, covK);
-  ink = applyInk(ink, u_colorC.rgb, covC);
-  ink = applyInk(ink, u_colorM.rgb, covM);
-  ink = applyInk(ink, u_colorY.rgb, covY);
-
-  shape = clamp(max(max(covC, covM), max(covY, covK)), 0.0, 1.0);
+  shape = clamp(max(max(C, M), max(Y, K)), 0., 1.);
 
   vec3 color = u_colorBack.rgb * u_colorBack.a;
   float opacity = u_colorBack.a;
@@ -427,7 +396,6 @@ export interface HalftoneCmykUniforms extends ShaderSizingUniforms {
   u_shiftY: number;
   u_shiftK: number;
   u_contrast: number;
-  u_smoothness: number;
   u_softness: number;
   u_rounded: boolean;
   u_grainSize: number;
@@ -460,7 +428,6 @@ export interface HalftoneCmykParams extends ShaderSizingParams, ShaderMotionPara
   shiftY?: number;
   shiftK?: number;
   contrast?: number;
-  smoothness?: number;
   softness?: number;
   rounded?: boolean;
   grainSize?: number;
