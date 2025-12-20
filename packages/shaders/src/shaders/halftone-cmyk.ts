@@ -235,8 +235,8 @@ void computeDotContribution(vec2 p, vec2 cellOffset, float radius, float channel
   }
 }
 
-float dotRadius(float channelValue, float baseR, float minR, float grain) {
-  return max(baseR * channelValue * (1. - grain), minR);
+float dotRadius(float channelValue, float outOfFrame, float grain) {
+  return max(channelValue * (1. - grain), u_minDot) * outOfFrame;
 }
 
 vec3 applyInk(vec3 paper, vec3 inkColor, float cov) {
@@ -252,6 +252,11 @@ void main() {
   vec2 pad = cellSizeY * vec2(1.0 / u_imageAspectRatio, 1.0);
   vec2 uvGrid = (uv - .5) / pad;
   float outOfFrame = getUvFrame(uv, pad);
+
+  if (outOfFrame < 0.001) {
+    fragColor = vec4(u_colorBack.rgb * u_colorBack.a, u_colorBack.a);
+    return;
+  }
 
   vec2 pC = rotate(uvGrid, radians(u_angleC));
   pC += u_shiftC;
@@ -270,8 +275,6 @@ void main() {
   grain = smoothstep(.55, 1., grain);
   grain *= u_grainMixer;
 
-  float baseR = outOfFrame;
-  float minR = u_minDot * outOfFrame;
   vec3 rgb = vec3(0.);
   vec4 outMask = vec4(0.);
   float contrast = mix(
@@ -289,22 +292,22 @@ void main() {
         rgb = texture(u_image, gridToImageUV(pC + cellOffset, u_angleC, u_shiftC, pad, 0.)).rgb;
         rgb = applyContrast(rgb);
         vec4 cmykC = RGBtoCMYK(rgb);
-        computeDotContribution(pC, cellOffset, dotRadius(cmykC.x, baseR, minR, grain), 0., outMask[0]);
+        computeDotContribution(pC, cellOffset, dotRadius(cmykC.x, outOfFrame, grain), 0., outMask[0]);
 
         rgb = texture(u_image, gridToImageUV(pM + cellOffset, u_angleM, u_shiftM, pad, 1.)).rgb;
         rgb = applyContrast(rgb);
         vec4 cmykM = RGBtoCMYK(rgb);
-        computeDotContribution(pM, cellOffset, dotRadius(cmykM.y, baseR, minR, grain), 1., outMask[1]);
+        computeDotContribution(pM, cellOffset, dotRadius(cmykM.y, outOfFrame, grain), 1., outMask[1]);
 
         rgb = texture(u_image, gridToImageUV(pY + cellOffset, u_angleY, u_shiftY, pad, 2.)).rgb;
         rgb = applyContrast(rgb);
         vec4 cmykY = RGBtoCMYK(rgb);
-        computeDotContribution(pY, cellOffset, dotRadius(cmykY.z, baseR, minR, grain), 2., outMask[2]);
+        computeDotContribution(pY, cellOffset, dotRadius(cmykY.z, outOfFrame, grain), 2., outMask[2]);
 
         rgb = texture(u_image, gridToImageUV(pK + cellOffset, u_angleK, u_shiftK, pad, 3.)).rgb;
         rgb = applyContrast(rgb);
         vec4 cmykK = RGBtoCMYK(rgb);
-        computeDotContribution(pK, cellOffset, dotRadius(cmykK.w, baseR, minR, grain), 3., outMask[3]);
+        computeDotContribution(pK, cellOffset, dotRadius(cmykK.w, outOfFrame, grain), 3., outMask[3]);
       }
     }
   } else {
@@ -315,10 +318,10 @@ void main() {
       for (int dx = -1; dx <= 1; dx++) {
         vec2 cellOffset = vec2(float(dx), float(dy));
 
-        computeDotContribution(pC, cellOffset, dotRadius(cmykOriginal.x, baseR, minR, grain), 0., outMask[0]);
-        computeDotContribution(pM, cellOffset, dotRadius(cmykOriginal.y, baseR, minR, grain), 1., outMask[1]);
-        computeDotContribution(pY, cellOffset, dotRadius(cmykOriginal.z, baseR, minR, grain), 2., outMask[2]);
-        computeDotContribution(pK, cellOffset, dotRadius(cmykOriginal.w, baseR, minR, grain), 3., outMask[3]);
+        computeDotContribution(pC, cellOffset, dotRadius(cmykOriginal.x, outOfFrame, grain), 0., outMask[0]);
+        computeDotContribution(pM, cellOffset, dotRadius(cmykOriginal.y, outOfFrame, grain), 1., outMask[1]);
+        computeDotContribution(pY, cellOffset, dotRadius(cmykOriginal.z, outOfFrame, grain), 2., outMask[2]);
+        computeDotContribution(pK, cellOffset, dotRadius(cmykOriginal.w, outOfFrame, grain), 3., outMask[3]);
       }
     }
   }
