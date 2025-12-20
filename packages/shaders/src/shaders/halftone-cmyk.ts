@@ -19,8 +19,7 @@ export const halftoneCmykMeta = {
  * - u_colorY (vec4): Yellow ink color in RGBA
  * - u_colorK (vec4): Black ink color in RGBA
  * - u_size (float): Halftone cell size (0 to 1)
- * - u_radius (float): Maximum dot thickness (0 to 1)
- * - u_minRadius (float): Minimum dot thickness (0 to 1)
+ * - u_minDot (float): Minimum dot thickness (0 to 1)
  * - u_angleC (float): Cyan channel rotation angle in degrees
  * - u_angleM (float): Magenta channel rotation angle in degrees
  * - u_angleY (float): Yellow channel rotation angle in degrees
@@ -74,8 +73,7 @@ uniform vec4 u_colorM;
 uniform vec4 u_colorY;
 uniform vec4 u_colorK;
 uniform float u_size;
-uniform float u_radius;
-uniform float u_minRadius;
+uniform float u_minDot;
 uniform float u_angleC;
 uniform float u_angleM;
 uniform float u_angleY;
@@ -300,8 +298,8 @@ void main() {
   grain = smoothstep(.55, 1., grain);
   grain *= u_grainMixer;
 
-  float baseR = u_radius * outOfFrame;
-  float minR = u_minRadius * outOfFrame;
+  float baseR = outOfFrame;
+  float minR = u_minDot * outOfFrame;
   vec3 rgb = vec3(0.);
   vec4 outMask = vec4(0.);
   float contrast = mix(
@@ -419,8 +417,7 @@ export interface HalftoneCmykUniforms extends ShaderSizingUniforms {
   u_colorY: [number, number, number, number];
   u_colorK: [number, number, number, number];
   u_size: number;
-  u_radius: number;
-  u_minRadius: number;
+  u_minDot: number;
   u_angleC: number;
   u_angleM: number;
   u_angleY: number;
@@ -453,8 +450,7 @@ export interface HalftoneCmykParams extends ShaderSizingParams, ShaderMotionPara
   colorY?: string;
   colorK?: string;
   size?: number;
-  radius?: number;
-  minRadius?: number;
+  minDot?: number;
   angleC?: number;
   angleM?: number;
   angleY?: number;

@@ -57,19 +57,11 @@ export const halftoneCmykDef: ShaderDef = {
       description: 'Halftone cell size (0 = fine, 1 = coarse)',
     },
     {
-      name: 'radius',
+      name: 'minDot',
       type: 'number',
       min: 0,
       max: 1,
-      defaultValue: defaultParams.radius,
-      description: 'Maximum dot size',
-    },
-    {
-      name: 'minRadius',
-      type: 'number',
-      min: 0,
-      max: 1,
-      defaultValue: defaultParams.minRadius,
+      defaultValue: defaultParams.minDot,
       description: 'Minimum dot size',
     },
     {
