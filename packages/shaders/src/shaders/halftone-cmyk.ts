@@ -130,8 +130,11 @@ float getUvFrame(vec2 uv, vec2 pad) {
   return left * right * bottom * top;
 }
 
+float conpensationCurve(float v) {
+  return sign(v) * pow(abs(v), 2.);
+}
+
 vec4 RGBtoCMYK(vec3 rgb) {
-  // Standard CMYK conversion
   float k = 1.0 - max(max(rgb.r, rgb.g), rgb.b);
   float denom = 1.0 - k;
   vec3 cmy = vec3(0.0);
@@ -139,12 +142,10 @@ vec4 RGBtoCMYK(vec3 rgb) {
     cmy = (1.0 - rgb - vec3(k)) / denom;
   }
 
-  // Apply manual compensation factors to adjust dot sizes for non-standard ink colors
-  // Range: -1 to 1, where 0 = no change, positive = larger dots, negative = smaller dots
-  cmy.x *= (1.0 + u_compensationC);
-  cmy.y *= (1.0 + u_compensationM);
-  cmy.z *= (1.0 + u_compensationY);
-  k *= (1.0 + u_compensationK);
+  cmy.x *= (1. + conpensationCurve(u_compensationC));
+  cmy.y *= (1. + conpensationCurve(u_compensationM));
+  cmy.z *= (1. + conpensationCurve(u_compensationY));
+  k *= (1. + conpensationCurve(u_compensationK));
 
   return vec4(cmy, k);
 }
