@@ -189,7 +189,12 @@ vec2 gridToImageUV(vec2 gridPos, float angle, float shift, vec2 pad, float chann
 
 void colorMask(vec2 p, vec2 cellOffset, float radius, float channelIdx, inout float outMask) {
   vec2 cellPos = floor(p) + .5 + cellOffset;
-  vec2 cell = cellPos;
+
+  float randAngle = hash21(cellPos + channelIdx * 50.) * 2. * PI;
+  float randDist = hash21(cellPos + channelIdx * 50. + 100.) * u_gridNoise * 0.5;
+  vec2 jitter = vec2(cos(randAngle), sin(randAngle)) * randDist;
+
+  vec2 cell = cellPos + jitter;
   float dist = length(p - cell);
   float smallDots = mix(0.2, 0., smoothstep(0., .45, radius));
   float mask = 1. - sst(0., radius + smallDots, dist);
