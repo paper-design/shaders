@@ -34,7 +34,6 @@ export const halftoneCmykMeta = {
  * - u_grainSize (float): Size of grain overlay texture (0 to 1)
  * - u_grainMixer (float): Strength of grain affecting dot size (0 to 1)
  * - u_grainOverlay (float): Strength of grain overlay on final output (0 to 1)
- * - u_gridNoise (float): Strength of smooth noise applied to dot positions only (0 to 1)
  * - u_gridSampleNoise (float): Strength of smooth noise applied to both dot positions and color sampling (0 to 1)
  * - u_compensationC (float): Manual cyan dot size compensation factor (-1 to 1, 0 = no change)
  * - u_compensationM (float): Manual magenta dot size compensation factor (-1 to 1, 0 = no change)
@@ -85,7 +84,6 @@ uniform float u_contrast;
 uniform float u_grainSize;
 uniform float u_grainMixer;
 uniform float u_grainOverlay;
-uniform float u_gridNoise;
 uniform float u_gridSampleNoise;
 uniform float u_softness;
 uniform bool u_rounded;
@@ -180,7 +178,12 @@ vec3 applyContrast(vec3 rgb) {
 
 vec2 gridToImageUV(vec2 gridPos, float angle, float shift, vec2 pad, float channelIdx) {
   vec2 cellPos = floor(gridPos) + .5;
-  vec2 cellCenter = cellPos;
+
+  float randAngle = hash21(cellPos + channelIdx * 50.) * 2. * PI;
+  float randDist = hash21(cellPos + channelIdx * 50. + 100.) * u_gridSampleNoise * 0.5;
+  vec2 sampleJitter = vec2(cos(randAngle), sin(randAngle)) * randDist;
+
+  vec2 cellCenter = cellPos + sampleJitter;
   cellCenter -= shift;
   vec2 uvGrid = rotate(cellCenter, -radians(angle));
   vec2 uv = uvGrid * pad + 0.5;
@@ -191,7 +194,7 @@ void colorMask(vec2 p, vec2 cellOffset, float radius, float channelIdx, inout fl
   vec2 cellPos = floor(p) + .5 + cellOffset;
 
   float randAngle = hash21(cellPos + channelIdx * 50.) * 2. * PI;
-  float randDist = hash21(cellPos + channelIdx * 50. + 100.) * u_gridNoise * 0.5;
+  float randDist = hash21(cellPos + channelIdx * 50. + 100.) * u_gridSampleNoise * 0.5;
   vec2 jitter = vec2(cos(randAngle), sin(randAngle)) * randDist;
 
   vec2 cell = cellPos + jitter;
@@ -210,7 +213,7 @@ void colorMask(vec2 p, vec2 cellOffset, float radius, float channelIdx, inout fl
 }
 
 float channelValue(float v, float outOfFrame, float grain) {
-  return max(v * (1. - grain), u_minDot) * outOfFrame;
+  return (v * (1. - grain)) * outOfFrame;
 }
 
 vec3 applyInk(vec3 paper, vec3 inkColor, float cov) {
@@ -361,7 +364,6 @@ export interface HalftoneCmykUniforms extends ShaderSizingUniforms {
   u_colorY: [number, number, number, number];
   u_colorK: [number, number, number, number];
   u_size: number;
-  u_minDot: number;
   u_angleC: number;
   u_angleM: number;
   u_angleY: number;
@@ -376,7 +378,6 @@ export interface HalftoneCmykUniforms extends ShaderSizingUniforms {
   u_grainSize: number;
   u_grainMixer: number;
   u_grainOverlay: number;
-  u_gridNoise: number;
   u_gridSampleNoise: number;
   u_compensationC: number;
   u_compensationM: number;
@@ -393,7 +394,6 @@ export interface HalftoneCmykParams extends ShaderSizingParams, ShaderMotionPara
   colorY?: string;
   colorK?: string;
   size?: number;
-  minDot?: number;
   angleC?: number;
   angleM?: number;
   angleY?: number;
@@ -408,7 +408,6 @@ export interface HalftoneCmykParams extends ShaderSizingParams, ShaderMotionPara
   grainSize?: number;
   grainMixer?: number;
   grainOverlay?: number;
-  gridNoise?: number;
   gridSampleNoise?: number;
   compensationC?: number;
   compensationM?: number;

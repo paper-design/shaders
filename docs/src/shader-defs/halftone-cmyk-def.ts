@@ -57,14 +57,6 @@ export const halftoneCmykDef: ShaderDef = {
       description: 'Halftone cell size (0 = fine, 1 = coarse)',
     },
     {
-      name: 'minDot',
-      type: 'number',
-      min: 0,
-      max: 1,
-      defaultValue: defaultParams.minDot,
-      description: 'Minimum dot size',
-    },
-    {
       name: 'angleC',
       type: 'number',
       min: -180,
@@ -174,14 +166,6 @@ export const halftoneCmykDef: ShaderDef = {
       max: 1,
       defaultValue: defaultParams.grainOverlay,
       description: 'Strength of grain overlay on final output',
-    },
-    {
-      name: 'gridNoise',
-      type: 'number',
-      min: 0,
-      max: 1,
-      defaultValue: defaultParams.gridNoise,
-      description: 'Displaces dot positions only (color sampling stays aligned with grid)',
     },
     {
       name: 'gridSampleNoise',
