@@ -102,6 +102,14 @@ ${ declarePI }
 ${ rotation2 }
 ${ proceduralHash21 }
 
+float lst(float edge0, float edge1, float x) {
+  return clamp((x - edge0) / (edge1 - edge0), 0.0, 1.0);
+}
+
+float sst(float edge0, float edge1, float x) {
+  return smoothstep(edge0, edge1, x);
+}
+
 float valueNoise(vec2 st) {
   vec2 i = floor(st);
   vec2 f = fract(st);
@@ -127,7 +135,8 @@ float getUvFrame(vec2 uv, vec2 pad) {
 }
 
 float conpensationCurve(float v) {
-  return sign(v) * pow(abs(v), 2.);
+  float comp = sign(v) * .5 * pow(abs(v), 2.);
+  return comp;
 }
 
 vec4 RGBtoCMYK(vec3 rgb) {
@@ -143,7 +152,7 @@ vec4 RGBtoCMYK(vec3 rgb) {
   cmy.z *= (1. + conpensationCurve(u_compensationY));
   k *= (1. + conpensationCurve(u_compensationK));
 
-  return vec4(cmy, k);
+  return vec4(cmy, k) + .1 + .15 * u_softness;
 }
 
 float sigmoid01(float x, float k) {
@@ -169,74 +178,34 @@ vec3 applyContrast(vec3 rgb) {
   return mix(low, high, step(1.0, c));
 }
 
-vec2 getGridPositionNoise(vec2 cellPos) {
-  if (u_gridNoise < 0.001) return vec2(0.);
-
-  // Simple wave-based noise for X
-  float noiseX = sin(cellPos.x * 3.14 + cellPos.y * 1.57) * 0.5
-//               + sin(cellPos.x * 1.23 - cellPos.y * 2.34) * 0.3
-               + cos(cellPos.x * 2.67 + cellPos.y * 0.89) * 0.2;
-
-  // Simple wave-based noise for Y with different frequencies
-  float noiseY = sin(cellPos.y * 2.71 + cellPos.x * 1.89) * 0.5
-//               + sin(cellPos.y * 1.67 - cellPos.x * 2.12) * 0.3
-               + cos(cellPos.y * 3.14 + cellPos.x * 1.23) * 0.2;
-
-  // Normalize to [-1,1] range and scale by gridNoise strength
-  vec2 offset = vec2(noiseX, noiseY) * u_gridNoise * 0.5;
-  return offset;
-}
-
-vec2 getGridSampleNoise(vec2 cellPos) {
-  if (u_gridSampleNoise < 0.001) return vec2(0.);
-
-  // Different wave combinations for sampling noise
-  float noiseX = sin(cellPos.x * 2.34 + cellPos.y * 2.89) * 0.5
-//               + sin(cellPos.x * 1.89 - cellPos.y * 1.23) * 0.3
-               + cos(cellPos.x * 3.45 + cellPos.y * 1.67) * 0.2;
-
-  float noiseY = sin(cellPos.y * 3.45 + cellPos.x * 1.34) * 0.5
-//               + sin(cellPos.y * 2.12 - cellPos.x * 2.89) * 0.3
-               + cos(cellPos.y * 1.89 + cellPos.x * 2.45) * 0.2;
-
-  // Normalize to [-1,1] range and scale by gridSampleNoise strength
-  vec2 offset = vec2(noiseX, noiseY) * u_gridSampleNoise * 0.5;
-  return offset;
-}
-
 vec2 gridToImageUV(vec2 gridPos, float angle, float shift, vec2 pad, float channelIdx) {
   vec2 cellPos = floor(gridPos) + .5;
-  vec2 cellCenter = cellPos + getGridSampleNoise(cellPos + 4. * channelIdx);
+  vec2 cellCenter = cellPos;
   cellCenter -= shift;
   vec2 uvGrid = rotate(cellCenter, -radians(angle));
   vec2 uv = uvGrid * pad + 0.5;
   return uv;
 }
 
-void computeDotContribution(vec2 p, vec2 cellOffset, float radius, float channelIdx, inout float outMask) {
+void colorMask(vec2 p, vec2 cellOffset, float radius, float channelIdx, inout float outMask) {
   vec2 cellPos = floor(p) + .5 + cellOffset;
-  vec2 cellPosOffset = getGridPositionNoise(cellPos + 4. * channelIdx) + getGridSampleNoise(cellPos);
-  vec2 cell = cellPos + cellPosOffset;
+  vec2 cell = cellPos;
   float dist = length(p - cell);
-
+  float smallDots = mix(0.2, 0., smoothstep(0., .45, radius));
+  float mask = 1. - sst(0., radius + smallDots, dist);
+  mask *= (1. - 2. * smallDots);
+  
   if (u_shape > 0.5) {
-    // Gooey mode: soft falloff for blending
-    dist *= .4;
-    dist = 1. - smoothstep(0., radius, dist);
-    dist = pow(dist, 2. + radius);
-    outMask += dist;
   } else {
-    // Sharp mode: hard edges
-    if (radius > 0.01) {
-      float soft = mix(0.01, 0.5, u_softness);
-      float mask = 1. - clamp(smoothstep(radius, radius + soft, dist + .5 * soft), 0., 1.);
-      outMask = max(outMask, mask);
-    }
+    float aa = fwidth(mask);
+    mask = sst(.5 - .5 * u_softness, .51 + .49 * u_softness, mask);
   }
+  
+  outMask += mask;
 }
 
-float dotRadius(float channelValue, float outOfFrame, float grain) {
-  return max(channelValue * (1. - grain), u_minDot) * outOfFrame;
+float channelValue(float v, float outOfFrame, float grain) {
+  return max(v * (1. - grain), u_minDot) * outOfFrame;
 }
 
 vec3 applyInk(vec3 paper, vec3 inkColor, float cov) {
@@ -292,22 +261,22 @@ void main() {
         rgb = texture(u_image, gridToImageUV(pC + cellOffset, u_angleC, u_shiftC, pad, 0.)).rgb;
         rgb = applyContrast(rgb);
         vec4 cmykC = RGBtoCMYK(rgb);
-        computeDotContribution(pC, cellOffset, dotRadius(cmykC.x, outOfFrame, grain), 0., outMask[0]);
+        colorMask(pC, cellOffset, channelValue(cmykC.x, outOfFrame, grain), 0., outMask[0]);
 
         rgb = texture(u_image, gridToImageUV(pM + cellOffset, u_angleM, u_shiftM, pad, 1.)).rgb;
         rgb = applyContrast(rgb);
         vec4 cmykM = RGBtoCMYK(rgb);
-        computeDotContribution(pM, cellOffset, dotRadius(cmykM.y, outOfFrame, grain), 1., outMask[1]);
+        colorMask(pM, cellOffset, channelValue(cmykM.y, outOfFrame, grain), 1., outMask[1]);
 
         rgb = texture(u_image, gridToImageUV(pY + cellOffset, u_angleY, u_shiftY, pad, 2.)).rgb;
         rgb = applyContrast(rgb);
         vec4 cmykY = RGBtoCMYK(rgb);
-        computeDotContribution(pY, cellOffset, dotRadius(cmykY.z, outOfFrame, grain), 2., outMask[2]);
+        colorMask(pY, cellOffset, channelValue(cmykY.z, outOfFrame, grain), 2., outMask[2]);
 
         rgb = texture(u_image, gridToImageUV(pK + cellOffset, u_angleK, u_shiftK, pad, 3.)).rgb;
         rgb = applyContrast(rgb);
         vec4 cmykK = RGBtoCMYK(rgb);
-        computeDotContribution(pK, cellOffset, dotRadius(cmykK.w, outOfFrame, grain), 3., outMask[3]);
+        colorMask(pK, cellOffset, channelValue(cmykK.w, outOfFrame, grain), 3., outMask[3]);
       }
     }
   } else {
@@ -318,10 +287,10 @@ void main() {
       for (int dx = -1; dx <= 1; dx++) {
         vec2 cellOffset = vec2(float(dx), float(dy));
 
-        computeDotContribution(pC, cellOffset, dotRadius(cmykOriginal.x, outOfFrame, grain), 0., outMask[0]);
-        computeDotContribution(pM, cellOffset, dotRadius(cmykOriginal.y, outOfFrame, grain), 1., outMask[1]);
-        computeDotContribution(pY, cellOffset, dotRadius(cmykOriginal.z, outOfFrame, grain), 2., outMask[2]);
-        computeDotContribution(pK, cellOffset, dotRadius(cmykOriginal.w, outOfFrame, grain), 3., outMask[3]);
+        colorMask(pC, cellOffset, channelValue(cmykOriginal.x, outOfFrame, grain), 0., outMask[0]);
+        colorMask(pM, cellOffset, channelValue(cmykOriginal.y, outOfFrame, grain), 1., outMask[1]);
+        colorMask(pY, cellOffset, channelValue(cmykOriginal.z, outOfFrame, grain), 2., outMask[2]);
+        colorMask(pK, cellOffset, channelValue(cmykOriginal.w, outOfFrame, grain), 3., outMask[3]);
       }
     }
   }
@@ -333,16 +302,14 @@ void main() {
   float Y = outMask[2];
   float K = outMask[3];
 
-  // Apply gooey threshold with soft edges
   if (u_shape > 0.5) {
-    // Soft threshold based on softness parameter
-    float th = 0.5;
-    float edgeWidth = mix(0.01, 0.5, u_softness);
-
-    C = smoothstep(th - edgeWidth, th + edgeWidth, C);
-    M = smoothstep(th - edgeWidth, th + edgeWidth, M);
-    Y = smoothstep(th - edgeWidth, th + edgeWidth, Y);
-    K = smoothstep(th - edgeWidth, th + edgeWidth, K);
+    float th = .5;
+    float sLeft = th * u_softness;
+    float sRight = (1. - th) * u_softness;
+    C = smoothstep(th - sLeft, th + sRight, C);
+    M = smoothstep(th - sLeft, th + sRight, M);
+    Y = smoothstep(th - sLeft, th + sRight, Y);
+    K = smoothstep(th - sLeft, th + sRight, K);
   }
 
   C *= u_colorC.a;
