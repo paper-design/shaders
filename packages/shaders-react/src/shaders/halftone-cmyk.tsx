@@ -24,7 +24,7 @@ export const defaultPreset: HalftoneCmykPreset = {
     fit: 'contain',
     speed: 0,
     frame: 0,
-    colorBack: '#ffffff',
+    colorBack: '#fbfaf5',
     colorC: '#00b4ff',
     colorM: '#fc519f',
     colorY: '#ffd800',
