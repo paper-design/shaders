@@ -211,6 +211,15 @@ export {
   type HalftoneDotsGrid,
 } from './shaders/halftone-dots.js';
 
+/** Animated color fields placed over uploaded logo shape; gives the illusion of smoky noise behind the glassy shape */
+export {
+  gemSmokeMeta,
+  gemSmokeFragmentShader,
+  toProcessedGemSmoke,
+  type GemSmokeParams,
+  type GemSmokeUniforms,
+} from './shaders/gem-smoke.js';
+
 // ----- Utils ----- //
 export { getShaderColorFromString } from './get-shader-color-from-string.js';
 export { getShaderNoiseTexture } from './get-shader-noise-texture.js';
