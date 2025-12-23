@@ -133,8 +133,12 @@ float getUvFrame(vec2 uv, vec2 pad) {
 }
 
 float conpensationCurve(float v) {
-  float comp = sign(v) * .5 * pow(abs(v), 2.);
-  return comp;
+  float comp = pow(abs(v), 2.);
+  if (v < 0.) {
+    return -comp;
+  } else {
+    return .5 * comp;
+  }
 }
 
 vec4 RGBtoCMYK(vec3 rgb) {
