@@ -150,7 +150,7 @@ vec4 RGBtoCMYK(vec3 rgb) {
   cmy.z *= (1. + conpensationCurve(u_compensationY));
   k *= (1. + conpensationCurve(u_compensationK));
 
-  return vec4(cmy, k) + .15 + .1 * u_softness + .1 * u_gridSampleNoise;
+  return 1.3 * vec4(cmy, k) + .1 * u_softness + .1 * u_gridSampleNoise;
 }
 
 float sigmoid01(float x, float k) {
@@ -172,7 +172,7 @@ vec3 applyContrast(vec3 rgb) {
   sigmoid01(rgb.b, k)
   );
 
-  vec3 high = mix(rgb, sig, smoothstep(0.0, 0.01, k));
+  vec3 high = mix(rgb, sig, sst(0.0, 0.01, k));
   return mix(low, high, step(1.0, c));
 }
 
@@ -199,7 +199,7 @@ void colorMask(vec2 p, vec2 cellOffset, float radius, float channelIdx, inout fl
 
   vec2 cell = cellPos + jitter;
   float dist = length(p - cell);
-  float smallDots = mix(0.2, 0., smoothstep(0., .45, radius));
+  float smallDots = mix(0.2, 0., sst(0., .45, radius));
   float mask = 1. - sst(0., radius + smallDots, dist);
   mask *= (1. - 2. * smallDots);
   
@@ -249,7 +249,7 @@ void main() {
   grainUV *= grainSize;
   grainUV += .5;
   float grain = valueNoise(grainUV);
-  grain = smoothstep(.55, 1., grain);
+  grain = sst(.55, 1., grain);
   grain *= u_grainMixer;
 
   vec3 rgb = vec3(0.);
@@ -313,7 +313,7 @@ void main() {
   if (u_shape > 0.5) {
     float th = .5;
     float sLeft = th * u_softness;
-    float sRight = (1. - th) * u_softness;
+    float sRight = (1. - th) * u_softness + .01;
     C = smoothstep(th - sLeft, th + sRight, C);
     M = smoothstep(th - sLeft, th + sRight, M);
     Y = smoothstep(th - sLeft, th + sRight, Y);
