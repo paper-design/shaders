@@ -7,8 +7,8 @@ export const halftoneCmykMeta = {
 } as const;
 
 /**
- * CMYK halftone printing effect applied to images with customizable dot patterns,
- * angles, and ink colors for each channel (Cyan, Magenta, Yellow, Black).
+ * CMYK halftone printing effect applied to images with customizable dot patterns
+ * and ink colors for each channel (Cyan, Magenta, Yellow, Black).
  *
  * Fragment shader uniforms:
  * - u_image (sampler2D): Source image texture
@@ -20,10 +20,6 @@ export const halftoneCmykMeta = {
  * - u_colorK (vec4): Black ink color in RGBA
  * - u_size (float): Halftone cell size (0 to 1)
  * - u_minDot (float): Minimum dot thickness (0 to 1)
- * - u_shiftC (float): Cyan channel position offset
- * - u_shiftM (float): Magenta channel position offset
- * - u_shiftY (float): Yellow channel position offset
- * - u_shiftK (float): Black channel position offset
  * - u_contrast (float): Image contrast adjustment (0 to 2)
  * - u_softness (float): Edge softness of dots (0 to 1)
  * - u_rounded (bool): Use per-cell color sampling (true) or blurred sampling (false)
@@ -68,10 +64,6 @@ uniform vec4 u_colorY;
 uniform vec4 u_colorK;
 uniform float u_size;
 uniform float u_minDot;
-uniform float u_shiftC;
-uniform float u_shiftM;
-uniform float u_shiftY;
-uniform float u_shiftK;
 uniform float u_contrast;
 uniform float u_grainSize;
 uniform float u_grainMixer;
@@ -92,6 +84,10 @@ const float angleC = 15.;
 const float angleM = 75.;
 const float angleY = 0.;
 const float angleK = 45.;
+const float shiftC = -.5;
+const float shiftM = -.25;
+const float shiftY = .2;
+const float shiftK = 0.;
 
 ${ declarePI }
 ${ rotation2 }
@@ -237,13 +233,13 @@ void main() {
   }
 
   vec2 pC = rotate(uvGrid, radians(angleC));
-  pC += u_shiftC;
+  pC += shiftC;
   vec2 pM = rotate(uvGrid, radians(angleM));
-  pM += u_shiftM;
+  pM += shiftM;
   vec2 pY = rotate(uvGrid, radians(angleY));
-  pY += u_shiftY;
+  pY += shiftY;
   vec2 pK = rotate(uvGrid, radians(angleK));
-  pK += u_shiftK;
+  pK += shiftK;
 
   vec2 grainSize = mix(2000., 200., u_grainSize) * vec2(1., 1. / u_imageAspectRatio);
   vec2 grainUV = v_imageUV - .5;
@@ -267,22 +263,22 @@ void main() {
       for (int dx = -1; dx <= 1; dx++) {
         vec2 cellOffset = vec2(float(dx), float(dy));
 
-        rgb = texture(u_image, gridToImageUV(pC + cellOffset, angleC, u_shiftC, pad, 0.)).rgb;
+        rgb = texture(u_image, gridToImageUV(pC + cellOffset, angleC, shiftC, pad, 0.)).rgb;
         rgb = applyContrast(rgb);
         vec4 cmykC = RGBtoCMYK(rgb);
         colorMask(pC, cellOffset, channelValue(cmykC.x, outOfFrame, grain), 0., outMask[0]);
 
-        rgb = texture(u_image, gridToImageUV(pM + cellOffset, angleM, u_shiftM, pad, 1.)).rgb;
+        rgb = texture(u_image, gridToImageUV(pM + cellOffset, angleM, shiftM, pad, 1.)).rgb;
         rgb = applyContrast(rgb);
         vec4 cmykM = RGBtoCMYK(rgb);
         colorMask(pM, cellOffset, channelValue(cmykM.y, outOfFrame, grain), 1., outMask[1]);
 
-        rgb = texture(u_image, gridToImageUV(pY + cellOffset, angleY, u_shiftY, pad, 2.)).rgb;
+        rgb = texture(u_image, gridToImageUV(pY + cellOffset, angleY, shiftY, pad, 2.)).rgb;
         rgb = applyContrast(rgb);
         vec4 cmykY = RGBtoCMYK(rgb);
         colorMask(pY, cellOffset, channelValue(cmykY.z, outOfFrame, grain), 2., outMask[2]);
 
-        rgb = texture(u_image, gridToImageUV(pK + cellOffset, angleK, u_shiftK, pad, 3.)).rgb;
+        rgb = texture(u_image, gridToImageUV(pK + cellOffset, angleK, shiftK, pad, 3.)).rgb;
         rgb = applyContrast(rgb);
         vec4 cmykK = RGBtoCMYK(rgb);
         colorMask(pK, cellOffset, channelValue(cmykK.w, outOfFrame, grain), 3., outMask[3]);
@@ -365,10 +361,6 @@ export interface HalftoneCmykUniforms extends ShaderSizingUniforms {
   u_colorY: [number, number, number, number];
   u_colorK: [number, number, number, number];
   u_size: number;
-  u_shiftC: number;
-  u_shiftM: number;
-  u_shiftY: number;
-  u_shiftK: number;
   u_contrast: number;
   u_softness: number;
   u_rounded: boolean;
@@ -391,10 +383,6 @@ export interface HalftoneCmykParams extends ShaderSizingParams, ShaderMotionPara
   colorY?: string;
   colorK?: string;
   size?: number;
-  shiftC?: number;
-  shiftM?: number;
-  shiftY?: number;
-  shiftK?: number;
   contrast?: number;
   softness?: number;
   rounded?: boolean;

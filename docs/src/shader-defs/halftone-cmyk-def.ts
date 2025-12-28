@@ -6,7 +6,7 @@ const defaultParams = halftoneCmykPresets[0].params;
 
 export const halftoneCmykDef: ShaderDef = {
   name: 'Halftone CMYK',
-  description: 'CMYK halftone printing effect with customizable dot/line patterns, angles, and ink colors for each channel',
+  description: 'CMYK halftone printing effect with customizable dot patterns and ink colors for each channel',
   params: [
     {
       name: 'image',
@@ -55,38 +55,6 @@ export const halftoneCmykDef: ShaderDef = {
       max: 1,
       defaultValue: defaultParams.size,
       description: 'Halftone cell size (0 = fine, 1 = coarse)',
-    },
-    {
-      name: 'shiftC',
-      type: 'number',
-      min: -2,
-      max: 2,
-      defaultValue: defaultParams.shiftC,
-      description: 'Cyan channel position offset',
-    },
-    {
-      name: 'shiftM',
-      type: 'number',
-      min: -2,
-      max: 2,
-      defaultValue: defaultParams.shiftM,
-      description: 'Magenta channel position offset',
-    },
-    {
-      name: 'shiftY',
-      type: 'number',
-      min: -2,
-      max: 2,
-      defaultValue: defaultParams.shiftY,
-      description: 'Yellow channel position offset',
-    },
-    {
-      name: 'shiftK',
-      type: 'number',
-      min: -2,
-      max: 2,
-      defaultValue: defaultParams.shiftK,
-      description: 'Black channel position offset',
     },
     {
       name: 'contrast',
