@@ -26,7 +26,7 @@ export const halftoneCmykMeta = {
  * - u_grainSize (float): Size of grain overlay texture (0 to 1)
  * - u_grainMixer (float): Strength of grain affecting dot size (0 to 1)
  * - u_grainOverlay (float): Strength of grain overlay on final output (0 to 1)
- * - u_gridSampleNoise (float): Strength of smooth noise applied to both dot positions and color sampling (0 to 1)
+ * - u_gridNoise (float): Strength of smooth noise applied to both dot positions and color sampling (0 to 1)
  * - u_compensationC (float): Manual cyan dot size compensation factor (-1 to 1, 0 = no change)
  * - u_compensationM (float): Manual magenta dot size compensation factor (-1 to 1, 0 = no change)
  * - u_compensationY (float): Manual yellow dot size compensation factor (-1 to 1, 0 = no change)
@@ -68,7 +68,7 @@ uniform float u_contrast;
 uniform float u_grainSize;
 uniform float u_grainMixer;
 uniform float u_grainOverlay;
-uniform float u_gridSampleNoise;
+uniform float u_gridNoise;
 uniform float u_softness;
 uniform bool u_rounded;
 uniform float u_compensationC;
@@ -147,7 +147,7 @@ vec4 RGBtoCMYK(vec3 rgb) {
   cmy.z *= (1. + conpensationCurve(u_compensationY));
   k *= (1. + conpensationCurve(u_compensationK));
 
-  return 1.3 * vec4(cmy, k) + .1 * u_softness + .1 * u_gridSampleNoise;
+  return 1.3 * vec4(cmy, k) + .1 * u_softness + .1 * u_gridNoise;
 }
 
 float sigmoid01(float x, float k) {
@@ -177,7 +177,7 @@ vec2 gridToImageUV(vec2 gridPos, float angle, float shift, vec2 pad, float chann
   vec2 cellPos = floor(gridPos) + .5;
 
   float randAngle = hash21(cellPos + channelIdx * 50.) * 2. * PI;
-  float randDist = u_gridSampleNoise * 0.5;
+  float randDist = u_gridNoise * 0.5;
   vec2 sampleJitter = vec2(cos(randAngle), sin(randAngle)) * randDist;
 
   vec2 cellCenter = cellPos + sampleJitter;
@@ -191,7 +191,7 @@ void colorMask(vec2 p, vec2 cellOffset, float radius, float channelIdx, inout fl
   vec2 cellPos = floor(p) + .5 + cellOffset;
 
   float randAngle = hash21(cellPos + channelIdx * 50.) * 2. * PI;
-  float randDist = u_gridSampleNoise * 0.5;
+  float randDist = u_gridNoise * 0.5;
   vec2 jitter = vec2(cos(randAngle), sin(randAngle)) * randDist;
 
   vec2 cell = cellPos + jitter;
@@ -367,7 +367,7 @@ export interface HalftoneCmykUniforms extends ShaderSizingUniforms {
   u_grainSize: number;
   u_grainMixer: number;
   u_grainOverlay: number;
-  u_gridSampleNoise: number;
+  u_gridNoise: number;
   u_compensationC: number;
   u_compensationM: number;
   u_compensationY: number;
@@ -389,7 +389,7 @@ export interface HalftoneCmykParams extends ShaderSizingParams, ShaderMotionPara
   grainSize?: number;
   grainMixer?: number;
   grainOverlay?: number;
-  gridSampleNoise?: number;
+  gridNoise?: number;
   compensationC?: number;
   compensationM?: number;
   compensationY?: number;
