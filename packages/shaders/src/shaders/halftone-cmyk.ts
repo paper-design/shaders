@@ -20,10 +20,6 @@ export const halftoneCmykMeta = {
  * - u_colorK (vec4): Black ink color in RGBA
  * - u_size (float): Halftone cell size (0 to 1)
  * - u_minDot (float): Minimum dot thickness (0 to 1)
- * - u_angleC (float): Cyan channel rotation angle in degrees
- * - u_angleM (float): Magenta channel rotation angle in degrees
- * - u_angleY (float): Yellow channel rotation angle in degrees
- * - u_angleK (float): Black channel rotation angle in degrees
  * - u_shiftC (float): Cyan channel position offset
  * - u_shiftM (float): Magenta channel position offset
  * - u_shiftY (float): Yellow channel position offset
@@ -72,10 +68,6 @@ uniform vec4 u_colorY;
 uniform vec4 u_colorK;
 uniform float u_size;
 uniform float u_minDot;
-uniform float u_angleC;
-uniform float u_angleM;
-uniform float u_angleY;
-uniform float u_angleK;
 uniform float u_shiftC;
 uniform float u_shiftM;
 uniform float u_shiftY;
@@ -95,6 +87,11 @@ uniform float u_shape;
 
 in vec2 v_imageUV;
 out vec4 fragColor;
+
+const float angleC = 15.;
+const float angleM = 75.;
+const float angleY = 0.;
+const float angleK = 45.;
 
 ${ declarePI }
 ${ rotation2 }
@@ -239,13 +236,13 @@ void main() {
     return;
   }
 
-  vec2 pC = rotate(uvGrid, radians(u_angleC));
+  vec2 pC = rotate(uvGrid, radians(angleC));
   pC += u_shiftC;
-  vec2 pM = rotate(uvGrid, radians(u_angleM));
+  vec2 pM = rotate(uvGrid, radians(angleM));
   pM += u_shiftM;
-  vec2 pY = rotate(uvGrid, radians(u_angleY));
+  vec2 pY = rotate(uvGrid, radians(angleY));
   pY += u_shiftY;
-  vec2 pK = rotate(uvGrid, radians(u_angleK));
+  vec2 pK = rotate(uvGrid, radians(angleK));
   pK += u_shiftK;
 
   vec2 grainSize = mix(2000., 200., u_grainSize) * vec2(1., 1. / u_imageAspectRatio);
@@ -270,22 +267,22 @@ void main() {
       for (int dx = -1; dx <= 1; dx++) {
         vec2 cellOffset = vec2(float(dx), float(dy));
 
-        rgb = texture(u_image, gridToImageUV(pC + cellOffset, u_angleC, u_shiftC, pad, 0.)).rgb;
+        rgb = texture(u_image, gridToImageUV(pC + cellOffset, angleC, u_shiftC, pad, 0.)).rgb;
         rgb = applyContrast(rgb);
         vec4 cmykC = RGBtoCMYK(rgb);
         colorMask(pC, cellOffset, channelValue(cmykC.x, outOfFrame, grain), 0., outMask[0]);
 
-        rgb = texture(u_image, gridToImageUV(pM + cellOffset, u_angleM, u_shiftM, pad, 1.)).rgb;
+        rgb = texture(u_image, gridToImageUV(pM + cellOffset, angleM, u_shiftM, pad, 1.)).rgb;
         rgb = applyContrast(rgb);
         vec4 cmykM = RGBtoCMYK(rgb);
         colorMask(pM, cellOffset, channelValue(cmykM.y, outOfFrame, grain), 1., outMask[1]);
 
-        rgb = texture(u_image, gridToImageUV(pY + cellOffset, u_angleY, u_shiftY, pad, 2.)).rgb;
+        rgb = texture(u_image, gridToImageUV(pY + cellOffset, angleY, u_shiftY, pad, 2.)).rgb;
         rgb = applyContrast(rgb);
         vec4 cmykY = RGBtoCMYK(rgb);
         colorMask(pY, cellOffset, channelValue(cmykY.z, outOfFrame, grain), 2., outMask[2]);
 
-        rgb = texture(u_image, gridToImageUV(pK + cellOffset, u_angleK, u_shiftK, pad, 3.)).rgb;
+        rgb = texture(u_image, gridToImageUV(pK + cellOffset, angleK, u_shiftK, pad, 3.)).rgb;
         rgb = applyContrast(rgb);
         vec4 cmykK = RGBtoCMYK(rgb);
         colorMask(pK, cellOffset, channelValue(cmykK.w, outOfFrame, grain), 3., outMask[3]);
@@ -368,10 +365,6 @@ export interface HalftoneCmykUniforms extends ShaderSizingUniforms {
   u_colorY: [number, number, number, number];
   u_colorK: [number, number, number, number];
   u_size: number;
-  u_angleC: number;
-  u_angleM: number;
-  u_angleY: number;
-  u_angleK: number;
   u_shiftC: number;
   u_shiftM: number;
   u_shiftY: number;
@@ -398,10 +391,6 @@ export interface HalftoneCmykParams extends ShaderSizingParams, ShaderMotionPara
   colorY?: string;
   colorK?: string;
   size?: number;
-  angleC?: number;
-  angleM?: number;
-  angleY?: number;
-  angleK?: number;
   shiftC?: number;
   shiftM?: number;
   shiftY?: number;
