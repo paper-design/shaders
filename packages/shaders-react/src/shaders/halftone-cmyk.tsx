@@ -39,7 +39,7 @@ export const defaultPreset: HalftoneCmykPreset = {
     gridNoise: 0.2,
     compensationC: 0.13,
     compensationM: 0,
-    compensationY: 0,
+    compensationY: 0.07,
     compensationK: 0.1,
     shape: 'joined',
   },

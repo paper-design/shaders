@@ -115,8 +115,6 @@ float valueNoise(vec2 st) {
 }
 
 float getUvFrame(vec2 uv, vec2 pad) {
-  float aa = 0.01;
-
   float left   = smoothstep(0., pad.x, uv.x);
   float right  = smoothstep(1., 1. - pad.x, uv.x);
   float bottom = smoothstep(0., pad.y, uv.y);
@@ -172,39 +170,36 @@ vec2 gridToImageUV(vec2 gridPos, float angle, float shift, vec2 pad, float chann
   return uv;
 }
 
-void colorMask(vec2 p, vec2 cellOffset, float radius, float channelIdx, float channelComp, inout float outMask) {
-  vec2 cellPos = floor(p) + .5 + cellOffset;
+void colorMask(vec2 pos, vec2 cellOffset, float rad, float outOfFrame, float grain, float channelIdx, float channelComp, inout float outMask) {
+  vec2 cellPos = floor(pos) + .5 + cellOffset;
 
   float randAngle = hash21(cellPos + channelIdx * 50.) * 2. * PI;
   float randDist = u_gridNoise * 0.5;
   vec2 jitter = vec2(cos(randAngle), sin(randAngle)) * randDist;
 
   vec2 cell = cellPos + jitter;
-  float dist = length(p - cell);
+  float dist = length(pos - cell);
 
+  float radius = rad;
   radius += .15;
   float generalComp = .1 * u_softness + .1 * u_gridNoise;
   radius *= (1. + generalComp);
-  radius += channelComp * mix(1., radius, .75);
+  radius += channelComp * mix(1., radius, .9);
+  radius = max(0., radius);
+  radius = mix(0., radius, outOfFrame);
+  radius *= (1. - grain);
 
-  float mask = 1.;
+  float mask = 1. - sst(0., radius, dist);
   if (u_shape > 0.5) {
     // joined
-    radius *= .9;
-    mask = 1. - sst(0., radius, dist);
+    mask = pow(mask, 1.2);
   } else {
     // separate
-    mask = 1. - sst(0., radius, dist);
     mask = sst(.5 - .5 * u_softness, .51 + .49 * u_softness, mask);
   }
 
   mask *= mix(1., mix(.5, 1., 1.5 * radius), u_softness);
-  
   outMask += mask;
-}
-
-float channelValue(float v, float outOfFrame, float grain) {
-  return (v * (1. - grain)) * outOfFrame;
 }
 
 vec3 applyInk(vec3 paper, vec3 inkColor, float cov) {
@@ -221,10 +216,10 @@ void main() {
   vec2 uvGrid = (uv - .5) / pad;
   float outOfFrame = getUvFrame(uv, pad);
 
-  if (outOfFrame < 0.001) {
-    fragColor = vec4(u_colorBack.rgb * u_colorBack.a, u_colorBack.a);
-    return;
-  }
+//  if (outOfFrame < 0.001) {
+//    fragColor = vec4(u_colorBack.rgb * u_colorBack.a, u_colorBack.a);
+//    return;
+//  }
 
   vec2 pC = rotate(uvGrid, radians(angleC));
   pC += shiftC;
@@ -260,22 +255,22 @@ void main() {
         rgb = texture(u_image, gridToImageUV(pC + cellOffset, angleC, shiftC, pad, 0.)).rgb;
         rgb = applyContrast(rgb);
         vec4 cmykC = RGBtoCMYK(rgb);
-        colorMask(pC, cellOffset, channelValue(cmykC.x, outOfFrame, grain), 0., u_compensationC, outMask[0]);
+        colorMask(pC, cellOffset, cmykC.x, outOfFrame, grain, 0., u_compensationC, outMask[0]);
 
         rgb = texture(u_image, gridToImageUV(pM + cellOffset, angleM, shiftM, pad, 1.)).rgb;
         rgb = applyContrast(rgb);
         vec4 cmykM = RGBtoCMYK(rgb);
-        colorMask(pM, cellOffset, channelValue(cmykM.y, outOfFrame, grain), 1., u_compensationM, outMask[1]);
+        colorMask(pM, cellOffset, cmykM.y, outOfFrame, grain, 1., u_compensationM, outMask[1]);
 
         rgb = texture(u_image, gridToImageUV(pY + cellOffset, angleY, shiftY, pad, 2.)).rgb;
         rgb = applyContrast(rgb);
         vec4 cmykY = RGBtoCMYK(rgb);
-        colorMask(pY, cellOffset, channelValue(cmykY.z, outOfFrame, grain), 2., u_compensationY, outMask[2]);
+        colorMask(pY, cellOffset, cmykY.z, outOfFrame, grain, 2., u_compensationY, outMask[2]);
 
         rgb = texture(u_image, gridToImageUV(pK + cellOffset, angleK, shiftK, pad, 3.)).rgb;
         rgb = applyContrast(rgb);
         vec4 cmykK = RGBtoCMYK(rgb);
-        colorMask(pK, cellOffset, channelValue(cmykK.w, outOfFrame, grain), 3., u_compensationK, outMask[3]);
+        colorMask(pK, cellOffset, cmykK.w, outOfFrame, grain, 3., u_compensationK, outMask[3]);
       }
     }
   } else {
@@ -286,10 +281,10 @@ void main() {
       for (int dx = -1; dx <= 1; dx++) {
         vec2 cellOffset = vec2(float(dx), float(dy));
 
-        colorMask(pC, cellOffset, channelValue(cmykOriginal.x, outOfFrame, grain), 0., u_compensationC, outMask[0]);
-        colorMask(pM, cellOffset, channelValue(cmykOriginal.y, outOfFrame, grain), 1., u_compensationM, outMask[1]);
-        colorMask(pY, cellOffset, channelValue(cmykOriginal.z, outOfFrame, grain), 2., u_compensationY, outMask[2]);
-        colorMask(pK, cellOffset, channelValue(cmykOriginal.w, outOfFrame, grain), 3., u_compensationK, outMask[3]);
+        colorMask(pC, cellOffset, cmykOriginal.x, outOfFrame, grain, 0., u_compensationC, outMask[0]);
+        colorMask(pM, cellOffset, cmykOriginal.y, outOfFrame, grain, 1., u_compensationM, outMask[1]);
+        colorMask(pY, cellOffset, cmykOriginal.z, outOfFrame, grain, 2., u_compensationY, outMask[2]);
+        colorMask(pK, cellOffset, cmykOriginal.w, outOfFrame, grain, 3., u_compensationK, outMask[3]);
       }
     }
   }
