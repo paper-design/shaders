@@ -125,29 +125,22 @@ float getUvFrame(vec2 uv, vec2 pad) {
   return left * right * bottom * top;
 }
 
-float conpensationCurve(float v) {
-  float comp = pow(abs(v), 2.);
-  if (v < 0.) {
-    return -comp;
-  } else {
-    return .5 * comp;
-  }
-}
-
 vec4 RGBtoCMYK(vec3 rgb) {
-  float k = 1.0 - max(max(rgb.r, rgb.g), rgb.b);
-  float denom = 1.0 - k;
-  vec3 cmy = vec3(0.0);
+  float k = 1. - max(max(rgb.r, rgb.g), rgb.b);
+  float denom = 1. - k;
+  vec3 cmy = vec3(0.);
   if (denom > 1e-5) {
-    cmy = (1.0 - rgb - vec3(k)) / denom;
+    cmy = (1. - rgb - vec3(k)) / denom;
   }
+  vec4 res = vec4(cmy, k);
+  vec4 compensation = vec4(u_compensationC, u_compensationM, u_compensationY, u_compensationK);
 
-  cmy.x *= (1. + conpensationCurve(u_compensationC));
-  cmy.y *= (1. + conpensationCurve(u_compensationM));
-  cmy.z *= (1. + conpensationCurve(u_compensationY));
-  k *= (1. + conpensationCurve(u_compensationK));
-
-  return 1.3 * vec4(cmy, k) + .1 * u_softness + .1 * u_gridNoise;
+  res *= (1. + compensation);
+  res *= 1.3;
+  res += .1 * u_softness;
+  res += .1 * u_gridNoise;
+  
+  return res;
 }
 
 float sigmoid01(float x, float k) {
