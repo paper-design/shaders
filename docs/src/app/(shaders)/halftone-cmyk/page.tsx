@@ -96,6 +96,7 @@ const HalftoneCmykWithControls = () => {
         options: Object.keys(HalftoneCmykShapes) as HalftoneCmykShape[],
         order: 109,
       },
+      test: { value: defaults.test, min: 0, max: 1, step: 0.01, order: 10 },
       // offsetX: { value: defaults.offsetX, min: -1, max: 1, order: 401 },
       // offsetY: { value: defaults.offsetY, min: -1, max: 1, order: 402 },
       // originX: { value: defaults.originX, min: 0, max: 1, order: 411 },

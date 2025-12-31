@@ -76,6 +76,7 @@ uniform float u_compensationM;
 uniform float u_compensationY;
 uniform float u_compensationK;
 uniform float u_shape;
+uniform float u_test;
 
 in vec2 v_imageUV;
 out vec4 fragColor;
@@ -183,7 +184,7 @@ void colorMask(vec2 pos, vec2 cellOffset, float rad, float outOfFrame, float gra
   float radius = rad;
   float generalComp = .1 * u_softness + .1 * u_gridNoise;
   radius *= (1. + generalComp);
-  radius += channelComp * mix(1., radius, 1.);
+  radius += channelComp * mix(1., radius, u_test);
   radius += .15;
   radius = max(0., radius);
   radius = mix(0., radius, outOfFrame);
@@ -362,6 +363,7 @@ export interface HalftoneCmykUniforms extends ShaderSizingUniforms {
   u_compensationY: number;
   u_compensationK: number;
   u_shape: (typeof HalftoneCmykShapes)[HalftoneCmykShape];
+  u_test: number;
 }
 
 export interface HalftoneCmykParams extends ShaderSizingParams, ShaderMotionParams {
@@ -384,6 +386,7 @@ export interface HalftoneCmykParams extends ShaderSizingParams, ShaderMotionPara
   compensationY?: number;
   compensationK?: number;
   shape?: HalftoneCmykShape;
+  test?: number;
 }
 
 export const HalftoneCmykShapes = {

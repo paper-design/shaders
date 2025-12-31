@@ -150,6 +150,14 @@ export const halftoneCmykDef: ShaderDef = {
       description: 'Dot shape style',
       options: ['separate', 'joined'],
     },
+    {
+      name: 'test',
+      type: 'number',
+      min: 0,
+      max: 1,
+      defaultValue: defaultParams.test,
+      description: 'Test parameter',
+    },
     ...staticImageCommonParams,
   ],
 };

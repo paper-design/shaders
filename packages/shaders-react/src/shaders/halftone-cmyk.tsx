@@ -42,6 +42,7 @@ export const defaultPreset: HalftoneCmykPreset = {
     compensationY: 0,
     compensationK: 0,
     shape: 'joined',
+    test: 0.95,
   },
 };
 
@@ -70,6 +71,7 @@ export const HalftoneCmyk: React.FC<HalftoneCmykProps> = memo(function HalftoneC
   compensationY = defaultPreset.params.compensationY,
   compensationK = defaultPreset.params.compensationK,
   shape = defaultPreset.params.shape,
+  test = defaultPreset.params.test,
 
   // Sizing props
   fit = defaultPreset.params.fit,
@@ -104,6 +106,7 @@ export const HalftoneCmyk: React.FC<HalftoneCmykProps> = memo(function HalftoneC
     u_compensationY: compensationY,
     u_compensationK: compensationK,
     u_shape: HalftoneCmykShapes[shape],
+    u_test: test,
 
     // Sizing uniforms
     u_fit: ShaderFitOptions[fit],
