@@ -181,10 +181,10 @@ void colorMask(vec2 pos, vec2 cellOffset, float rad, float outOfFrame, float gra
   float dist = length(pos - cell);
 
   float radius = rad;
-  radius += .15;
   float generalComp = .1 * u_softness + .1 * u_gridNoise;
   radius *= (1. + generalComp);
-  radius += channelComp * mix(1., radius, .95);
+  radius += channelComp * mix(1., radius, 1.);
+  radius += .15;
   radius = max(0., radius);
   radius = mix(0., radius, outOfFrame);
   radius *= (1. - grain);
