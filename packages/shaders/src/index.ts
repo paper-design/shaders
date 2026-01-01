@@ -119,6 +119,16 @@ export {
   type GrainGradientShape,
 } from './shaders/grain-gradient.js';
 
+/** Multi-color gradients with grainy, noise-textured distortion applied over an input image, available in 7 animated abstract forms */
+export {
+  grainGradientImageFragmentShader,
+  grainGradientImageMeta,
+  GrainGradientImageShapes,
+  type GrainGradientImageParams,
+  type GrainGradientImageUniforms,
+  type GrainGradientImageShape,
+} from './shaders/grain-gradient-image.js';
+
 /** Luminous trails of color merging into a glowing gradient frame */
 export {
   pulsingBorderMeta,

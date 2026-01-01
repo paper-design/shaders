@@ -67,6 +67,10 @@ export { GrainGradient, grainGradientPresets } from './shaders/grain-gradient.js
 export type { GrainGradientProps } from './shaders/grain-gradient.js';
 export type { GrainGradientUniforms, GrainGradientParams } from '@paper-design/shaders';
 
+export { GrainGradientImage, grainGradientImagePresets } from './shaders/grain-gradient-image.js';
+export type { GrainGradientImageProps } from './shaders/grain-gradient-image.js';
+export type { GrainGradientImageUniforms, GrainGradientImageParams } from '@paper-design/shaders';
+
 export { PulsingBorder, pulsingBorderPresets } from './shaders/pulsing-border.js';
 export type { PulsingBorderProps } from './shaders/pulsing-border.js';
 export type { PulsingBorderUniforms, PulsingBorderParams } from '@paper-design/shaders';
@@ -119,6 +123,7 @@ export {
   dotOrbitMeta,
   godRaysMeta,
   grainGradientMeta,
+  grainGradientImageMeta,
   meshGradientMeta,
   metaballsMeta,
   pulsingBorderMeta,

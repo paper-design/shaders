@@ -7,6 +7,7 @@ import { dotOrbitDef } from './dot-orbit-def';
 import { flutedGlassDef } from './fluted-glass-def';
 import { godRaysDef } from './god-rays-def';
 import { grainGradientDef } from './grain-gradient-def';
+import { grainGradientImageDef } from './grain-gradient-image-def';
 import { imageDitheringDef } from './image-dithering-def';
 import { liquidMetalDef } from './liquid-metal-def';
 import { meshGradientDef } from './mesh-gradient-def';
@@ -29,6 +30,7 @@ import { halftoneDotsDef } from './halftone-dots-def';
 
 export const shaderDefs: ShaderDef[] = [
   grainGradientDef,
+  grainGradientImageDef,
   meshGradientDef,
   staticMeshGradientDef,
   staticRadialGradientDef,
