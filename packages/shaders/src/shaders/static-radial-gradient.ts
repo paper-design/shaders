@@ -22,7 +22,7 @@ export const staticRadialGradientMeta = {
  * - u_focalDistance (float): Distance of the focal point from center (0 to 3)
  * - u_focalAngle (float): Angle of the focal point in degrees, effective with focalDistance > 0 (0 to 360)
  * - u_falloff (float): Gradient decay, 0 = linear gradient (-1 to 1)
- * - u_mixing (float): Blending behavior, 0 = stepped, 0.5 = smooth, 1 = pronounced color points (0 to 1)
+ * - u_mixing (float): Blending behavior, 0 = hard stripes, 1 = smooth gradient (0 to 1)
  * - u_distortion (float): Strength of radial distortion (0 to 1)
  * - u_distortionShift (float): Radial distortion offset, effective with distortion > 0 (-1 to 1)
  * - u_distortionFreq (float): Radial distortion frequency, effective with distortion > 0 (0 to 20)
@@ -173,18 +173,17 @@ void main() {
     if (i > int(u_colorsCount)) break;
     float mLinear = clamp(mixer - float(i - 1), 0.0, 1.0);
 
-    float m = 0.;
-    float mixing = u_mixing * 3.;
-    if (mixing > 2.) {
-      float tt = mLinear * mLinear;
-      m = mix(mLinear, tt, .5 * clamp((mixing - 2.), 0., 1.));
-    } else if (mixing > 1.) {
-      m = mix(smoothstep(0., 1., mLinear), mLinear, clamp((mixing - 1.), 0., 1.));
-    } else {
-      float aa = fwidth(mLinear);
-      m = smoothstep(.5 - .5 * mixing - aa, .5 + .5 * mixing + aa, mLinear);
-    }
+    float aa = fwidth(mLinear);
+    float width = min(u_mixing, 0.5);
+    float t = clamp((mLinear - (0.5 - width - aa)) / (2. * width + 2. * aa), 0., 1.);
+    float p = mix(2., 1., clamp((u_mixing - 0.5) * 2., 0., 1.));
+    float m = t < 0.5
+      ? 0.5 * pow(2. * t, p)
+      : 1. - 0.5 * pow(2. * (1. - t), p);
 
+    float quadBlend = clamp((u_mixing - 0.5) * 2., 0., 1.);
+    m = mix(m, m * m, 0.5 * quadBlend);
+    
     if (i == 1) {
       outerShape = m;
     }

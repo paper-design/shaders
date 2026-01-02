@@ -22,7 +22,7 @@ export const staticMeshGradientMeta = {
  * - u_waveXShift (float): Phase offset applied to the X-axis wave (0 to 1)
  * - u_waveY (float): Strength of sine wave distortion along Y axis (0 to 1)
  * - u_waveYShift (float): Phase offset applied to the Y-axis wave (0 to 1)
- * - u_mixing (float): Blending behavior, 0 = stepped, 0.5 = smooth, 1 = pronounced color points (0 to 1)
+ * - u_mixing (float): Blending behavior, 0 = hard stripes, 0.5 = smooth, 1 = gradual blend (0 to 1)
  * - u_grainMixer (float): Strength of grain distortion applied to shape edges (0 to 1)
  * - u_grainOverlay (float): Post-processing black/white grain overlay (0 to 1)
  *
@@ -125,16 +125,13 @@ void main() {
     vec3 colorFraction = u_colors[i].rgb * u_colors[i].a;
     float opacityFraction = u_colors[i].a;
 
-    float power = 4.;
-    if (u_mixing > .5) {
-      power = mix(power, .75, 2. * (u_mixing - .5));
-    }
+    float power = mix(2., 1., u_mixing);
     dist = pow(dist, power);
 
     float w = 1. / (dist + 1e-3);
-    if (u_mixing < .5) {
-      w = pow(w, mix(mix(.01, 5., clamp(w, 0., 1.)), 1., 2. * u_mixing));
-    }
+    float baseSharpness = mix(.0, 8., clamp(w, 0., 1.));
+    float sharpness = mix(baseSharpness, 1., u_mixing);
+    w = pow(w, sharpness);
     color += colorFraction * w;
     opacity += opacityFraction * w;
     totalWeight += w;
