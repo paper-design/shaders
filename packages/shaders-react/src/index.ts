@@ -123,7 +123,6 @@ export {
   dotOrbitMeta,
   godRaysMeta,
   grainGradientMeta,
-  grainGradientImageMeta,
   meshGradientMeta,
   metaballsMeta,
   pulsingBorderMeta,
