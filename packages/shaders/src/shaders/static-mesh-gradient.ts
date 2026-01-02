@@ -125,12 +125,13 @@ void main() {
     vec3 colorFraction = u_colors[i].rgb * u_colors[i].a;
     float opacityFraction = u_colors[i].a;
 
-    float power = mix(2., 1., u_mixing);
+    float mixing = pow(u_mixing, .7);
+    float power = mix(2., 1., mixing);
     dist = pow(dist, power);
 
     float w = 1. / (dist + 1e-3);
     float baseSharpness = mix(.0, 8., clamp(w, 0., 1.));
-    float sharpness = mix(baseSharpness, 1., u_mixing);
+    float sharpness = mix(baseSharpness, 1., mixing);
     w = pow(w, sharpness);
     color += colorFraction * w;
     opacity += opacityFraction * w;
