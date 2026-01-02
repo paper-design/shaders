@@ -96,12 +96,12 @@ void main() {
   grainUV *= grainSize;
   grainUV += .5;
 
-  float baseNoise = snoise(grainUV * .5 - .1 * u_time);
+  float baseNoise = snoise(grainUV * .5 - .02 * u_time);
   vec2 fbmVals = fbmR(
     .002 * grainUV + 10.,
     .003 * grainUV
   );
-  float grainDist = baseNoise * snoise(grainUV * .2 + .1 * u_time) - fbmVals.x - fbmVals.y;
+  float grainDist = baseNoise * snoise(grainUV * .2 + .03 * u_time) - fbmVals.x - fbmVals.y;
 
   float angle = baseNoise * TWO_PI;
   vec2 dir = vec2(cos(angle), sin(angle));
