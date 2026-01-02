@@ -43,6 +43,10 @@ export { Voronoi, voronoiPresets } from './shaders/voronoi.js';
 export type { VoronoiProps } from './shaders/voronoi.js';
 export type { VoronoiUniforms, VoronoiParams } from '@paper-design/shaders';
 
+export { VoronoiImage, voronoiImagePresets } from './shaders/voronoi-image.js';
+export type { VoronoiImageProps } from './shaders/voronoi-image.js';
+export type { VoronoiImageUniforms, VoronoiImageParams } from '@paper-design/shaders';
+
 export { Warp, warpPresets } from './shaders/warp.js';
 export type { WarpProps } from './shaders/warp.js';
 export type { WarpUniforms, WarpParams, WarpPattern } from '@paper-design/shaders';

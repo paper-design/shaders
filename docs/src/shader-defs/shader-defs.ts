@@ -22,6 +22,7 @@ import { staticMeshGradientDef } from './static-mesh-gradient-def';
 import { staticRadialGradientDef } from './static-radial-gradient-def';
 import { swirlDef } from './swirl-def';
 import { voronoiDef } from './voronoi-def';
+import { voronoiImageDef } from './voronoi-image-def';
 import { warpDef } from './warp-def';
 import { waterDef } from './water-def';
 import { wavesDef } from './waves-def';
@@ -43,6 +44,7 @@ export const shaderDefs: ShaderDef[] = [
   perlinNoiseDef,
   simplexNoiseDef,
   voronoiDef,
+  voronoiImageDef,
   pulsingBorderDef,
   metaballsDef,
   colorPanelsDef,

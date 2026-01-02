@@ -76,6 +76,13 @@ export { perlinNoiseFragmentShader, type PerlinNoiseParams, type PerlinNoiseUnif
 /** Anti-aliased animated Voronoi pattern with smooth and customizable edges */
 export { voronoiMeta, voronoiFragmentShader, type VoronoiParams, type VoronoiUniforms } from './shaders/voronoi.js';
 
+/** Voronoi pattern where each cell samples its color from the image at the cell center */
+export {
+  voronoiImageFragmentShader,
+  type VoronoiImageParams,
+  type VoronoiImageUniforms,
+} from './shaders/voronoi-image.js';
+
 /** Static line pattern configurable into textures ranging from sharp zigzags to smooth flowing waves */
 export { wavesFragmentShader, type WavesParams, type WavesUniforms } from './shaders/waves.js';
 
