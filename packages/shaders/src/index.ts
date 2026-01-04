@@ -211,6 +211,15 @@ export {
   type HalftoneDotsGrid,
 } from './shaders/halftone-dots.js';
 
+export {
+  HalftoneLinesGrids,
+  halftoneLinesMeta,
+  halftoneLinesFragmentShader,
+  type HalftoneLinesParams,
+  type HalftoneLinesUniforms,
+  type HalftoneLinesGrid,
+} from './shaders/halftone-lines.js';
+
 // ----- Utils ----- //
 export { getShaderColorFromString } from './get-shader-color-from-string.js';
 export { getShaderNoiseTexture } from './get-shader-noise-texture.js';
