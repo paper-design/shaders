@@ -84,6 +84,14 @@ export const dotGridDef: ShaderDef = {
       defaultValue: defaultParams.opacityRange,
       description: 'Random variation in shape opacity (0 = all shapes opaque, higher = semi-transparent dots)',
     },
+    {
+      name: 'cellAngle',
+      type: 'number',
+      min: 0,
+      max: 360,
+      defaultValue: defaultParams.cellAngle,
+      description: 'Rotation of shape within each cell, degrees',
+    },
     ...staticCommonParams,
   ],
 };

@@ -15,6 +15,7 @@ import { declarePI, simplexNoise } from '../shader-utils.js';
  * - u_sizeRange (float): Random variation in shape size, 0 = uniform, higher = random up to base size (0 to 1)
  * - u_opacityRange (float): Random variation in shape opacity, 0 = opaque, higher = semi-transparent (0 to 1)
  * - u_shape (float): Shape type (0 = circle, 1 = diamond, 2 = square, 3 = triangle)
+ * - u_cellAngle (float): Rotation of shape within each cell in degrees (0 to 360)
  *
  * Vertex shader outputs (used in fragment shader):
  * - v_patternUV (vec2): UV coordinates in pixels (scaled by 0.01 for precision), with scale, rotation and offset applied
@@ -48,6 +49,7 @@ uniform float u_strokeWidth;
 uniform float u_sizeRange;
 uniform float u_opacityRange;
 uniform float u_shape;
+uniform float u_cellAngle;
 
 in vec2 v_patternUV;
 
@@ -81,6 +83,8 @@ void main() {
   float baseSize = u_dotSize * (1. - sizeRandomizer * u_sizeRange);
   float strokeWidth = u_strokeWidth * (1. - sizeRandomizer * u_sizeRange);
 
+  float cellAngleRad = -u_cellAngle * PI / 180.;
+
   float dist;
   if (u_shape < 0.5) {
     // Circle
@@ -88,10 +92,10 @@ void main() {
   } else if (u_shape < 1.5) {
     // Diamond
     strokeWidth *= 1.5;
-    dist = polygon(1.5 * p, 4., .25 * PI);
+    dist = polygon(1.5 * p, 4., .25 * PI + cellAngleRad);
   } else if (u_shape < 2.5) {
     // Square
-    dist = polygon(1.03 * p, 4., 1e-3);
+    dist = polygon(1.03 * p, 4., cellAngleRad);
   } else {
     // Triangle
     strokeWidth *= 1.5;
@@ -99,7 +103,7 @@ void main() {
     p *= .9;
     p.y = 1. - p.y;
     p.y -= .75 * baseSize;
-    dist = polygon(p, 3., 1e-3);
+    dist = polygon(p, 3., cellAngleRad);
   }
 
   float edgeWidth = fwidth(dist);
@@ -139,6 +143,7 @@ export interface DotGridUniforms extends ShaderSizingUniforms {
   u_sizeRange: number;
   u_opacityRange: number;
   u_shape: (typeof DotGridShapes)[DotGridShape];
+  u_cellAngle: number;
 }
 
 export interface DotGridParams extends ShaderSizingParams {
@@ -152,6 +157,7 @@ export interface DotGridParams extends ShaderSizingParams {
   sizeRange?: number;
   opacityRange?: number;
   shape?: DotGridShape;
+  cellAngle?: number;
 }
 
 export const DotGridShapes = {

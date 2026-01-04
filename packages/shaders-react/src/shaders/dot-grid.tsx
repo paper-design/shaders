@@ -23,13 +23,14 @@ export const defaultPreset: DotGridPreset = {
     colorBack: '#000000',
     colorFill: '#ffffff',
     colorStroke: '#ffaa00',
-    size: 2,
+    size: 15,
     gapX: 32,
     gapY: 32,
     strokeWidth: 0,
     sizeRange: 0,
     opacityRange: 0,
-    shape: 'circle',
+    shape: 'square',
+    cellAngle: 0,
   },
 };
 
@@ -47,6 +48,7 @@ const trianglesPreset: DotGridPreset = {
     sizeRange: 0,
     opacityRange: 0,
     shape: 'triangle',
+    cellAngle: 0,
   },
 };
 
@@ -64,6 +66,7 @@ const treeLinePreset: DotGridPreset = {
     sizeRange: 1,
     opacityRange: 0.6,
     shape: 'circle',
+    cellAngle: 0,
   },
 };
 
@@ -81,6 +84,7 @@ const wallpaperPreset: DotGridPreset = {
     sizeRange: 0,
     opacityRange: 0,
     shape: 'diamond',
+    cellAngle: 0,
   },
 };
 
@@ -98,6 +102,7 @@ export const DotGrid: React.FC<DotGridProps> = memo(function DotGridImpl({
   sizeRange = defaultPreset.params.sizeRange,
   opacityRange = defaultPreset.params.opacityRange,
   shape = defaultPreset.params.shape,
+  cellAngle = defaultPreset.params.cellAngle,
 
   // Sizing props
   fit = defaultPreset.params.fit,
@@ -126,6 +131,7 @@ export const DotGrid: React.FC<DotGridProps> = memo(function DotGridImpl({
     u_sizeRange: sizeRange,
     u_opacityRange: opacityRange,
     u_shape: DotGridShapes[shape],
+    u_cellAngle: cellAngle,
 
     // Sizing uniforms
     u_fit: ShaderFitOptions[fit],
