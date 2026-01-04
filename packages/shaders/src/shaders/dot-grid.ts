@@ -87,7 +87,7 @@ void main() {
   float baseSize = u_dotSize * (1. - sizeRandomizer * u_sizeRange);
   float strokeWidth = u_strokeWidth * (1. - sizeRandomizer * u_sizeRange);
 
-  float cellAngleRad = -u_cellAngle * PI / 180.;
+  float cellAngleRad = u_cellAngle * PI / 180.;
 
   float dist;
   p = rotate(p, cellAngleRad);
@@ -113,10 +113,7 @@ void main() {
     baseSize *= .5;
   }
 
-  float edgeWidth = fwidth(dist);
-  if (u_shape > 3.) {
-    edgeWidth = fwidth(shape_uv.y);
-  }
+  float edgeWidth = fwidth(shape_uv.y);
   float shapeOuter = 1. - smoothstep(baseSize - edgeWidth, baseSize + edgeWidth, dist - strokeWidth);
   float shapeInner = 1. - smoothstep(baseSize - edgeWidth, baseSize + edgeWidth, dist);
   float stroke = shapeOuter - shapeInner;
