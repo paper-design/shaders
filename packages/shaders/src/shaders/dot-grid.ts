@@ -16,6 +16,8 @@ import { declarePI, rotation2, simplexNoise } from '../shader-utils.js';
  * - u_opacityRange (float): Random variation in shape opacity, 0 = opaque, higher = semi-transparent (0 to 1)
  * - u_shape (float): Shape type (0 = circle, 1 = diamond, 2 = square, 3 = triangle, 4 = line, 5 = cross)
  * - u_cellAngle (float): Rotation of shape within each cell in degrees (0 to 360)
+ * - u_cellOffsetX (float): Horizontal offset of the pattern in pixels
+ * - u_cellOffsetY (float): Vertical offset of the pattern in pixels
  *
  * Vertex shader outputs (used in fragment shader):
  * - v_patternUV (vec2): UV coordinates in pixels (scaled by 0.01 for precision), with scale, rotation and offset applied
@@ -50,6 +52,8 @@ uniform float u_sizeRange;
 uniform float u_opacityRange;
 uniform float u_shape;
 uniform float u_cellAngle;
+uniform float u_cellOffsetX;
+uniform float u_cellOffsetY;
 
 in vec2 v_patternUV;
 
@@ -70,7 +74,7 @@ void main() {
 
   // x100 is a default multiplier between vertex and fragmant shaders
   // we use it to avoid UV presision issues
-  vec2 shape_uv = 100. * v_patternUV;
+  vec2 shape_uv = 100. * v_patternUV + vec2(u_cellOffsetX, u_cellOffsetY);
   if (u_shape > 3.) {
     shape_uv -= 1e-4;
   }
@@ -151,6 +155,8 @@ export interface DotGridUniforms extends ShaderSizingUniforms {
   u_opacityRange: number;
   u_shape: (typeof DotGridShapes)[DotGridShape];
   u_cellAngle: number;
+  u_cellOffsetX: number;
+  u_cellOffsetY: number;
 }
 
 export interface DotGridParams extends ShaderSizingParams {
@@ -165,6 +171,8 @@ export interface DotGridParams extends ShaderSizingParams {
   opacityRange?: number;
   shape?: DotGridShape;
   cellAngle?: number;
+  cellOffsetX?: number;
+  cellOffsetY?: number;
 }
 
 export const DotGridShapes = {

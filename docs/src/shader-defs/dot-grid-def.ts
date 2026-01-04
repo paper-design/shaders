@@ -92,6 +92,22 @@ export const dotGridDef: ShaderDef = {
       defaultValue: defaultParams.cellAngle,
       description: 'Rotation of shape within each cell, degrees',
     },
+    {
+      name: 'cellOffsetX',
+      type: 'number',
+      min: -500,
+      max: 500,
+      defaultValue: defaultParams.cellOffsetX,
+      description: 'Horizontal offset of the pattern, pixels',
+    },
+    {
+      name: 'cellOffsetY',
+      type: 'number',
+      min: -500,
+      max: 500,
+      defaultValue: defaultParams.cellOffsetY,
+      description: 'Vertical offset of the pattern, pixels',
+    },
     ...staticCommonParams,
   ],
 };

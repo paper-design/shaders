@@ -31,6 +31,8 @@ export const defaultPreset: DotGridPreset = {
     opacityRange: 0,
     shape: 'line',
     cellAngle: 34,
+    cellOffsetX: 0,
+    cellOffsetY: 0,
   },
 };
 
@@ -49,6 +51,8 @@ const trianglesPreset: DotGridPreset = {
     opacityRange: 0,
     shape: 'triangle',
     cellAngle: 0,
+    cellOffsetX: 0,
+    cellOffsetY: 0,
   },
 };
 
@@ -67,6 +71,8 @@ const treeLinePreset: DotGridPreset = {
     opacityRange: 0.6,
     shape: 'circle',
     cellAngle: 0,
+    cellOffsetX: 0,
+    cellOffsetY: 0,
   },
 };
 
@@ -85,6 +91,8 @@ const wallpaperPreset: DotGridPreset = {
     opacityRange: 0,
     shape: 'diamond',
     cellAngle: 0,
+    cellOffsetX: 0,
+    cellOffsetY: 0,
   },
 };
 
@@ -103,6 +111,8 @@ export const DotGrid: React.FC<DotGridProps> = memo(function DotGridImpl({
   opacityRange = defaultPreset.params.opacityRange,
   shape = defaultPreset.params.shape,
   cellAngle = defaultPreset.params.cellAngle,
+  cellOffsetX = defaultPreset.params.cellOffsetX,
+  cellOffsetY = defaultPreset.params.cellOffsetY,
 
   // Sizing props
   fit = defaultPreset.params.fit,
@@ -132,6 +142,8 @@ export const DotGrid: React.FC<DotGridProps> = memo(function DotGridImpl({
     u_opacityRange: opacityRange,
     u_shape: DotGridShapes[shape],
     u_cellAngle: cellAngle,
+    u_cellOffsetX: cellOffsetX,
+    u_cellOffsetY: cellOffsetY,
 
     // Sizing uniforms
     u_fit: ShaderFitOptions[fit],
