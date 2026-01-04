@@ -91,19 +91,13 @@ void main() {
     dist = length(p);
   } else if (u_shape < 1.5) {
     // Diamond
-    strokeWidth *= 1.5;
-    dist = polygon(1.5 * p, 4., .25 * PI + cellAngleRad);
+    dist = polygon(p, 4., cellAngleRad + .25 * PI);
   } else if (u_shape < 2.5) {
     // Square
-    dist = polygon(1.03 * p, 4., cellAngleRad);
+    dist = polygon(p, 4., cellAngleRad);
   } else {
     // Triangle
-    strokeWidth *= 1.5;
-    p = p * 2. - 1.;
-    p *= .9;
-    p.y = 1. - p.y;
-    p.y -= .75 * baseSize;
-    dist = polygon(p, 3., cellAngleRad);
+    dist = polygon(p, 3., cellAngleRad - .333333333333 * PI);
   }
 
   float edgeWidth = fwidth(dist);
