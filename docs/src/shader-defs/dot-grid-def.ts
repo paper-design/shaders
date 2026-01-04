@@ -34,7 +34,7 @@ export const dotGridDef: ShaderDef = {
       type: 'enum',
       defaultValue: defaultParams.shape,
       description: 'The shape type',
-      options: ['circle', 'diamond', 'square', 'triangle'],
+      options: ['circle', 'diamond', 'square', 'triangle', 'line', 'cross'],
     },
     {
       name: 'size',

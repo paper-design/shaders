@@ -1,8 +1,8 @@
 import { type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
-import { declarePI, simplexNoise } from '../shader-utils.js';
+import { declarePI, rotation2, simplexNoise } from '../shader-utils.js';
 
 /**
- * Static grid pattern made of circles, diamonds, squares or triangles.
+ * Static grid pattern made of circles, diamonds, squares, triangles, lines or crosses.
  *
  * Fragment shader uniforms:
  * - u_colorBack (vec4): Background color in RGBA
@@ -14,7 +14,7 @@ import { declarePI, simplexNoise } from '../shader-utils.js';
  * - u_strokeWidth (float): Outline stroke width in pixels (0 to 50)
  * - u_sizeRange (float): Random variation in shape size, 0 = uniform, higher = random up to base size (0 to 1)
  * - u_opacityRange (float): Random variation in shape opacity, 0 = opaque, higher = semi-transparent (0 to 1)
- * - u_shape (float): Shape type (0 = circle, 1 = diamond, 2 = square, 3 = triangle)
+ * - u_shape (float): Shape type (0 = circle, 1 = diamond, 2 = square, 3 = triangle, 4 = line, 5 = cross)
  * - u_cellAngle (float): Rotation of shape within each cell in degrees (0 to 360)
  *
  * Vertex shader outputs (used in fragment shader):
@@ -56,6 +56,7 @@ in vec2 v_patternUV;
 out vec4 fragColor;
 
 ${ declarePI }
+${ rotation2 }
 ${ simplexNoise }
 
 float polygon(vec2 p, float N, float rot) {
@@ -70,6 +71,9 @@ void main() {
   // x100 is a default multiplier between vertex and fragmant shaders
   // we use it to avoid UV presision issues
   vec2 shape_uv = 100. * v_patternUV;
+  if (u_shape > 3.) {
+    shape_uv -= 1e-4;
+  }
 
   vec2 gap = max(abs(vec2(u_gapX, u_gapY)), vec2(1e-6));
   vec2 grid = fract(shape_uv / gap) + 1e-4;
@@ -86,21 +90,33 @@ void main() {
   float cellAngleRad = -u_cellAngle * PI / 180.;
 
   float dist;
+  p = rotate(p, cellAngleRad);
   if (u_shape < 0.5) {
     // Circle
     dist = length(p);
   } else if (u_shape < 1.5) {
     // Diamond
-    dist = polygon(p, 4., cellAngleRad + .25 * PI);
+    dist = polygon(p, 4., .25 * PI);
   } else if (u_shape < 2.5) {
     // Square
-    dist = polygon(p, 4., cellAngleRad);
-  } else {
+    dist = polygon(p, 4., 0.);
+  } else if (u_shape < 3.5) {
     // Triangle
-    dist = polygon(p, 3., cellAngleRad - .333333333333 * PI);
+    dist = polygon(p, 3., - .333333333333 * PI);
+  } else if (u_shape < 4.5) {
+    // Line
+    dist = abs(p.y);
+    baseSize *= .5;
+  } else {
+    // Cross
+    dist = min(abs(p.x), abs(p.y));
+    baseSize *= .5;
   }
 
   float edgeWidth = fwidth(dist);
+  if (u_shape > 3.) {
+    edgeWidth = fwidth(shape_uv.y);
+  }
   float shapeOuter = 1. - smoothstep(baseSize - edgeWidth, baseSize + edgeWidth, dist - strokeWidth);
   float shapeInner = 1. - smoothstep(baseSize - edgeWidth, baseSize + edgeWidth, dist);
   float stroke = shapeOuter - shapeInner;
@@ -159,6 +175,8 @@ export const DotGridShapes = {
   diamond: 1,
   square: 2,
   triangle: 3,
+  line: 4,
+  cross: 5,
 } as const;
 
 export type DotGridShape = keyof typeof DotGridShapes;
