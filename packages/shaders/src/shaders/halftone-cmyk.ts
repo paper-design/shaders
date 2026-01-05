@@ -27,10 +27,14 @@ export const halftoneCmykMeta = {
  * - u_grainMixer (float): Strength of grain affecting dot size (0 to 1)
  * - u_grainOverlay (float): Strength of grain overlay on final output (0 to 1)
  * - u_gridNoise (float): Strength of smooth noise applied to both dot positions and color sampling (0 to 1)
- * - u_compensationC (float): Manual cyan dot size compensation factor (-1 to 1, 0 = no change)
- * - u_compensationM (float): Manual magenta dot size compensation factor (-1 to 1, 0 = no change)
- * - u_compensationY (float): Manual yellow dot size compensation factor (-1 to 1, 0 = no change)
- * - u_compensationK (float): Manual black dot size compensation factor (-1 to 1, 0 = no change)
+ * - u_addonC (float): Flat cyan dot size adjustment applied uniformly (-1 to 1)
+ * - u_addonM (float): Flat magenta dot size adjustment applied uniformly (-1 to 1)
+ * - u_addonY (float): Flat yellow dot size adjustment applied uniformly (-1 to 1)
+ * - u_addonK (float): Flat black dot size adjustment applied uniformly (-1 to 1)
+ * - u_boostC (float): Proportional cyan dot size boost (enhances existing dots, -1 to 1)
+ * - u_boostM (float): Proportional magenta dot size boost (enhances existing dots, -1 to 1)
+ * - u_boostY (float): Proportional yellow dot size boost (enhances existing dots, -1 to 1)
+ * - u_boostK (float): Proportional black dot size boost (enhances existing dots, -1 to 1)
  * - u_shape (float): Dot shape style (0 = separate, 1 = joined)
  *
  * Vertex shader outputs (used in fragment shader):
@@ -71,12 +75,15 @@ uniform float u_grainOverlay;
 uniform float u_gridNoise;
 uniform float u_softness;
 uniform bool u_rounded;
-uniform float u_compensationC;
-uniform float u_compensationM;
-uniform float u_compensationY;
-uniform float u_compensationK;
+uniform float u_addonC;
+uniform float u_addonM;
+uniform float u_addonY;
+uniform float u_addonK;
+uniform float u_boostC;
+uniform float u_boostM;
+uniform float u_boostY;
+uniform float u_boostK;
 uniform float u_shape;
-uniform float u_test;
 
 in vec2 v_imageUV;
 out vec4 fragColor;
@@ -171,7 +178,7 @@ vec2 gridToImageUV(vec2 gridPos, float angle, float shift, vec2 pad, float chann
   return uv;
 }
 
-void colorMask(vec2 pos, vec2 cellOffset, float rad, float outOfFrame, float grain, float channelIdx, float channelComp, inout float outMask) {
+void colorMask(vec2 pos, vec2 cellOffset, float rad, float outOfFrame, float grain, float channelIdx, float channelAddon, float channelBoost, inout float outMask) {
   vec2 cellPos = floor(pos) + .5 + cellOffset;
 
   float randAngle = hash21(cellPos + channelIdx * 50.) * 2. * PI;
@@ -184,7 +191,7 @@ void colorMask(vec2 pos, vec2 cellOffset, float rad, float outOfFrame, float gra
   float radius = rad;
   float generalComp = .1 * u_softness + .1 * u_gridNoise;
   radius *= (1. + generalComp);
-  radius += channelComp * mix(1., radius, u_test);
+  radius += channelAddon + channelBoost * radius;
   radius += .15;
   radius = max(0., radius);
   radius = mix(0., radius, outOfFrame);
@@ -216,11 +223,6 @@ void main() {
   vec2 pad = cellSizeY * vec2(1.0 / u_imageAspectRatio, 1.0);
   vec2 uvGrid = (uv - .5) / pad;
   float outOfFrame = getUvFrame(uv, pad);
-
-//  if (outOfFrame < 0.001) {
-//    fragColor = vec4(u_colorBack.rgb * u_colorBack.a, u_colorBack.a);
-//    return;
-//  }
 
   vec2 pC = rotate(uvGrid, radians(angleC));
   pC += shiftC;
@@ -256,22 +258,22 @@ void main() {
         rgb = texture(u_image, gridToImageUV(pC + cellOffset, angleC, shiftC, pad, 0.)).rgb;
         rgb = applyContrast(rgb);
         vec4 cmykC = RGBtoCMYK(rgb);
-        colorMask(pC, cellOffset, cmykC.x, outOfFrame, grain, 0., u_compensationC, outMask[0]);
+        colorMask(pC, cellOffset, cmykC.x, outOfFrame, grain, 0., u_addonC, u_boostC, outMask[0]);
 
         rgb = texture(u_image, gridToImageUV(pM + cellOffset, angleM, shiftM, pad, 1.)).rgb;
         rgb = applyContrast(rgb);
         vec4 cmykM = RGBtoCMYK(rgb);
-        colorMask(pM, cellOffset, cmykM.y, outOfFrame, grain, 1., u_compensationM, outMask[1]);
+        colorMask(pM, cellOffset, cmykM.y, outOfFrame, grain, 1., u_addonM, u_boostM, outMask[1]);
 
         rgb = texture(u_image, gridToImageUV(pY + cellOffset, angleY, shiftY, pad, 2.)).rgb;
         rgb = applyContrast(rgb);
         vec4 cmykY = RGBtoCMYK(rgb);
-        colorMask(pY, cellOffset, cmykY.z, outOfFrame, grain, 2., u_compensationY, outMask[2]);
+        colorMask(pY, cellOffset, cmykY.z, outOfFrame, grain, 2., u_addonY, u_boostY, outMask[2]);
 
         rgb = texture(u_image, gridToImageUV(pK + cellOffset, angleK, shiftK, pad, 3.)).rgb;
         rgb = applyContrast(rgb);
         vec4 cmykK = RGBtoCMYK(rgb);
-        colorMask(pK, cellOffset, cmykK.w, outOfFrame, grain, 3., u_compensationK, outMask[3]);
+        colorMask(pK, cellOffset, cmykK.w, outOfFrame, grain, 3., u_addonK, u_boostK, outMask[3]);
       }
     }
   } else {
@@ -282,10 +284,10 @@ void main() {
       for (int dx = -1; dx <= 1; dx++) {
         vec2 cellOffset = vec2(float(dx), float(dy));
 
-        colorMask(pC, cellOffset, cmykOriginal.x, outOfFrame, grain, 0., u_compensationC, outMask[0]);
-        colorMask(pM, cellOffset, cmykOriginal.y, outOfFrame, grain, 1., u_compensationM, outMask[1]);
-        colorMask(pY, cellOffset, cmykOriginal.z, outOfFrame, grain, 2., u_compensationY, outMask[2]);
-        colorMask(pK, cellOffset, cmykOriginal.w, outOfFrame, grain, 3., u_compensationK, outMask[3]);
+        colorMask(pC, cellOffset, cmykOriginal.x, outOfFrame, grain, 0., u_addonC, u_boostC, outMask[0]);
+        colorMask(pM, cellOffset, cmykOriginal.y, outOfFrame, grain, 1., u_addonM, u_boostM, outMask[1]);
+        colorMask(pY, cellOffset, cmykOriginal.z, outOfFrame, grain, 2., u_addonY, u_boostY, outMask[2]);
+        colorMask(pK, cellOffset, cmykOriginal.w, outOfFrame, grain, 3., u_addonK, u_boostK, outMask[3]);
       }
     }
   }
@@ -358,12 +360,15 @@ export interface HalftoneCmykUniforms extends ShaderSizingUniforms {
   u_grainMixer: number;
   u_grainOverlay: number;
   u_gridNoise: number;
-  u_compensationC: number;
-  u_compensationM: number;
-  u_compensationY: number;
-  u_compensationK: number;
+  u_addonC: number;
+  u_addonM: number;
+  u_addonY: number;
+  u_addonK: number;
+  u_boostC: number;
+  u_boostM: number;
+  u_boostY: number;
+  u_boostK: number;
   u_shape: (typeof HalftoneCmykShapes)[HalftoneCmykShape];
-  u_test: number;
 }
 
 export interface HalftoneCmykParams extends ShaderSizingParams, ShaderMotionParams {
@@ -381,12 +386,15 @@ export interface HalftoneCmykParams extends ShaderSizingParams, ShaderMotionPara
   grainMixer?: number;
   grainOverlay?: number;
   gridNoise?: number;
-  compensationC?: number;
-  compensationM?: number;
-  compensationY?: number;
-  compensationK?: number;
+  addonC?: number;
+  addonM?: number;
+  addonY?: number;
+  addonK?: number;
+  boostC?: number;
+  boostM?: number;
+  boostY?: number;
+  boostK?: number;
   shape?: HalftoneCmykShape;
-  test?: number;
 }
 
 export const HalftoneCmykShapes = {
