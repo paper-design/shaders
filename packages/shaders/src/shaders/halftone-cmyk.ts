@@ -1,6 +1,6 @@
 import type { ShaderMotionParams } from '../shader-mount.js';
 import { type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
-import { declarePI, rotation2 } from '../shader-utils.js';
+import { declarePI } from '../shader-utils.js';
 
 export const halftoneCmykMeta = {
   maxBlurRadius: 8,
@@ -90,17 +90,18 @@ uniform sampler2D u_noiseTexture;
 in vec2 v_imageUV;
 out vec4 fragColor;
 
-const float radC = radians(15.);
-const float radM = radians(75.);
-const float radY = radians(0.);
-const float radK = radians(45.);
 const float shiftC = -.5;
 const float shiftM = -.25;
 const float shiftY = .2;
 const float shiftK = 0.;
 
+// Precomputed sin/cos for rotation angles (15°, 75°, 0°, 45°)
+const float cosC = 0.9659258;  const float sinC = 0.2588190;   // 15°
+const float cosM = 0.2588190;  const float sinM = 0.9659258;   // 75°
+const float cosY = 1.0;        const float sinY = 0.0;         // 0°
+const float cosK = 0.7071068;  const float sinK = 0.7071068;   // 45°
+
 ${ declarePI }
-${ rotation2 }
 
 vec2 randomRG(vec2 p) {
   vec2 uv = floor(p) / 100. + .5;
@@ -156,9 +157,9 @@ vec2 getJitter(vec2 cellPos, float channelIdx) {
   return (randomRG(cellPos + channelIdx * 50.) - .5) * u_gridNoise;
 }
 
-vec2 gridToImageUV(vec2 cellPos, vec2 jitter, float angle, float shift, vec2 pad) {
+vec2 gridToImageUV(vec2 cellPos, vec2 jitter, float cosA, float sinA, float shift, vec2 pad) {
   vec2 cellCenter = cellPos + jitter - shift;
-  vec2 uvGrid = rotate(cellCenter, -angle);
+  vec2 uvGrid = mat2(cosA, -sinA, sinA, cosA) * cellCenter;
   return uvGrid * pad + 0.5;
 }
 
@@ -203,10 +204,10 @@ void main() {
 
   float generalComp = .1 * u_softness + .1 * u_gridNoise;
 
-  vec2 uvC = rotate(uvGrid, radC) + shiftC;
-  vec2 uvM = rotate(uvGrid, radM) + shiftM;
-  vec2 uvY = rotate(uvGrid, radY) + shiftY;
-  vec2 uvK = rotate(uvGrid, radK) + shiftK;
+  vec2 uvC = mat2(cosC, sinC, -sinC, cosC) * uvGrid + shiftC;
+  vec2 uvM = mat2(cosM, sinM, -sinM, cosM) * uvGrid + shiftM;
+  vec2 uvY = mat2(cosY, sinY, -sinY, cosY) * uvGrid + shiftY;
+  vec2 uvK = mat2(cosK, sinK, -sinK, cosK) * uvGrid + shiftK;
 
   vec2 grainSize = mix(2000., 200., u_grainSize) * vec2(1., 1. / u_imageAspectRatio);
   vec2 grainUV = (v_imageUV - .5) * grainSize + .5;
@@ -223,28 +224,28 @@ void main() {
 
         vec2 cellPosC = floor(uvC) + .5 + cellOffset;
         vec2 jitterC = getJitter(cellPosC, 0.);
-        vec3 rgb = texture(u_image, gridToImageUV(cellPosC, jitterC, radC, shiftC, pad)).rgb;
+        vec3 rgb = texture(u_image, gridToImageUV(cellPosC, jitterC, cosC, sinC, shiftC, pad)).rgb;
         rgb = applyContrast(rgb);
         vec4 cmykC = RGBtoCMYK(rgb);
         colorMask(uvC, cellPosC, jitterC, cmykC.x, outOfFrame, grain, u_addonC, u_boostC, generalComp, outMask[0]);
 
         vec2 cellPosM = floor(uvM) + .5 + cellOffset;
         vec2 jitterM = getJitter(cellPosM, 1.);
-        rgb = texture(u_image, gridToImageUV(cellPosM, jitterM, radM, shiftM, pad)).rgb;
+        rgb = texture(u_image, gridToImageUV(cellPosM, jitterM, cosM, sinM, shiftM, pad)).rgb;
         rgb = applyContrast(rgb);
         vec4 cmykM = RGBtoCMYK(rgb);
         colorMask(uvM, cellPosM, jitterM, cmykM.y, outOfFrame, grain, u_addonM, u_boostM, generalComp, outMask[1]);
 
         vec2 cellPosY = floor(uvY) + .5 + cellOffset;
         vec2 jitterY = getJitter(cellPosY, 2.);
-        rgb = texture(u_image, gridToImageUV(cellPosY, jitterY, radY, shiftY, pad)).rgb;
+        rgb = texture(u_image, gridToImageUV(cellPosY, jitterY, cosY, sinY, shiftY, pad)).rgb;
         rgb = applyContrast(rgb);
         vec4 cmykY = RGBtoCMYK(rgb);
         colorMask(uvY, cellPosY, jitterY, cmykY.z, outOfFrame, grain, u_addonY, u_boostY, generalComp, outMask[2]);
 
         vec2 cellPosK = floor(uvK) + .5 + cellOffset;
         vec2 jitterK = getJitter(cellPosK, 3.);
-        rgb = texture(u_image, gridToImageUV(cellPosK, jitterK, radK, shiftK, pad)).rgb;
+        rgb = texture(u_image, gridToImageUV(cellPosK, jitterK, cosK, sinK, shiftK, pad)).rgb;
         rgb = applyContrast(rgb);
         vec4 cmykK = RGBtoCMYK(rgb);
         colorMask(uvK, cellPosK, jitterK, cmykK.w, outOfFrame, grain, u_addonK, u_boostK, generalComp, outMask[3]);
