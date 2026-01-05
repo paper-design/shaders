@@ -153,19 +153,39 @@ vec3 applyContrast(vec3 rgb) {
   return clamp((rgb - 0.5) * u_contrast + 0.5, 0.0, 1.0);
 }
 
-vec2 getJitter(vec2 cellPos, float channelIdx) {
-  return (randomRG(cellPos + channelIdx * 50.) - .5) * u_gridNoise;
+// Single-component CMYK extractors with contrast built-in
+float getCyan(vec3 rgb) {
+  vec3 c = clamp((rgb - 0.5) * u_contrast + 0.5, 0.0, 1.0);
+  float maxRGB = max(max(c.r, c.g), c.b);
+  return maxRGB > 1e-5 ? (maxRGB - c.r) / maxRGB : 0.;
+}
+float getMagenta(vec3 rgb) {
+  vec3 c = clamp((rgb - 0.5) * u_contrast + 0.5, 0.0, 1.0);
+  float maxRGB = max(max(c.r, c.g), c.b);
+  return maxRGB > 1e-5 ? (maxRGB - c.g) / maxRGB : 0.;
+}
+float getYellow(vec3 rgb) {
+  vec3 c = clamp((rgb - 0.5) * u_contrast + 0.5, 0.0, 1.0);
+  float maxRGB = max(max(c.r, c.g), c.b);
+  return maxRGB > 1e-5 ? (maxRGB - c.b) / maxRGB : 0.;
+}
+float getBlack(vec3 rgb) {
+  vec3 c = clamp((rgb - 0.5) * u_contrast + 0.5, 0.0, 1.0);
+  return 1. - max(max(c.r, c.g), c.b);
 }
 
-vec2 gridToImageUV(vec2 cellPos, vec2 jitter, float cosA, float sinA, float shift, vec2 pad) {
-  vec2 cellCenter = cellPos + jitter - shift;
-  vec2 uvGrid = mat2(cosA, -sinA, sinA, cosA) * cellCenter;
+vec2 cellCenterPos(vec2 uv, vec2 cellOffset, float channelIdx) {
+  vec2 cellCenter = floor(uv) + .5 + cellOffset;
+  return cellCenter + (randomRG(cellCenter + channelIdx * 50.) - .5) * u_gridNoise;
+}
+
+vec2 gridToImageUV(vec2 cellCenter, float cosA, float sinA, float shift, vec2 pad) {
+  vec2 uvGrid = mat2(cosA, -sinA, sinA, cosA) * (cellCenter - shift);
   return uvGrid * pad + 0.5;
 }
 
-void colorMask(vec2 pos, vec2 cellPos, vec2 jitter, float rad, float outOfFrame, float grain, float channelAddon, float channelBoost, float generalComp, inout float outMask) {
-  vec2 cell = cellPos + jitter;
-  float dist = length(pos - cell);
+void colorMask(vec2 pos, vec2 cellCenter, float rad, float outOfFrame, float grain, float channelAddon, float channelBoost, float generalComp, inout float outMask) {
+  float dist = length(pos - cellCenter);
 
   float radius = rad;
   radius *= (1. + generalComp);
@@ -222,33 +242,21 @@ void main() {
       for (int dx = -1; dx <= 1; dx++) {
         vec2 cellOffset = vec2(float(dx), float(dy));
 
-        vec2 cellPosC = floor(uvC) + .5 + cellOffset;
-        vec2 jitterC = getJitter(cellPosC, 0.);
-        vec3 rgb = texture(u_image, gridToImageUV(cellPosC, jitterC, cosC, sinC, shiftC, pad)).rgb;
-        rgb = applyContrast(rgb);
-        vec4 cmykC = RGBtoCMYK(rgb);
-        colorMask(uvC, cellPosC, jitterC, cmykC.x, outOfFrame, grain, u_addonC, u_boostC, generalComp, outMask[0]);
+        vec2 cellCenterC = cellCenterPos(uvC, cellOffset, 0.);
+        vec3 rgbC = texture(u_image, gridToImageUV(cellCenterC, cosC, sinC, shiftC, pad)).rgb;
+        colorMask(uvC, cellCenterC, getCyan(rgbC), outOfFrame, grain, u_addonC, u_boostC, generalComp, outMask[0]);
 
-        vec2 cellPosM = floor(uvM) + .5 + cellOffset;
-        vec2 jitterM = getJitter(cellPosM, 1.);
-        rgb = texture(u_image, gridToImageUV(cellPosM, jitterM, cosM, sinM, shiftM, pad)).rgb;
-        rgb = applyContrast(rgb);
-        vec4 cmykM = RGBtoCMYK(rgb);
-        colorMask(uvM, cellPosM, jitterM, cmykM.y, outOfFrame, grain, u_addonM, u_boostM, generalComp, outMask[1]);
+        vec2 cellCenterM = cellCenterPos(uvM, cellOffset, 1.);
+        vec3 rgbM = texture(u_image, gridToImageUV(cellCenterM, cosM, sinM, shiftM, pad)).rgb;
+        colorMask(uvM, cellCenterM, getMagenta(rgbM), outOfFrame, grain, u_addonM, u_boostM, generalComp, outMask[1]);
 
-        vec2 cellPosY = floor(uvY) + .5 + cellOffset;
-        vec2 jitterY = getJitter(cellPosY, 2.);
-        rgb = texture(u_image, gridToImageUV(cellPosY, jitterY, cosY, sinY, shiftY, pad)).rgb;
-        rgb = applyContrast(rgb);
-        vec4 cmykY = RGBtoCMYK(rgb);
-        colorMask(uvY, cellPosY, jitterY, cmykY.z, outOfFrame, grain, u_addonY, u_boostY, generalComp, outMask[2]);
+        vec2 cellCenterY = cellCenterPos(uvY, cellOffset, 2.);
+        vec3 rgbY = texture(u_image, gridToImageUV(cellCenterY, cosY, sinY, shiftY, pad)).rgb;
+        colorMask(uvY, cellCenterY, getYellow(rgbY), outOfFrame, grain, u_addonY, u_boostY, generalComp, outMask[2]);
 
-        vec2 cellPosK = floor(uvK) + .5 + cellOffset;
-        vec2 jitterK = getJitter(cellPosK, 3.);
-        rgb = texture(u_image, gridToImageUV(cellPosK, jitterK, cosK, sinK, shiftK, pad)).rgb;
-        rgb = applyContrast(rgb);
-        vec4 cmykK = RGBtoCMYK(rgb);
-        colorMask(uvK, cellPosK, jitterK, cmykK.w, outOfFrame, grain, u_addonK, u_boostK, generalComp, outMask[3]);
+        vec2 cellCenterK = cellCenterPos(uvK, cellOffset, 3.);
+        vec3 rgbK = texture(u_image, gridToImageUV(cellCenterK, cosK, sinK, shiftK, pad)).rgb;
+        colorMask(uvK, cellCenterK, getBlack(rgbK), outOfFrame, grain, u_addonK, u_boostK, generalComp, outMask[3]);
       }
     }
   } else {
@@ -259,21 +267,10 @@ void main() {
       for (int dx = -1; dx <= 1; dx++) {
         vec2 cellOffset = vec2(float(dx), float(dy));
 
-        vec2 cellPosC = floor(uvC) + .5 + cellOffset;
-        vec2 jitterC = getJitter(cellPosC, 0.);
-        colorMask(uvC, cellPosC, jitterC, cmykOriginal.x, outOfFrame, grain, u_addonC, u_boostC, generalComp, outMask[0]);
-
-        vec2 cellPosM = floor(uvM) + .5 + cellOffset;
-        vec2 jitterM = getJitter(cellPosM, 1.);
-        colorMask(uvM, cellPosM, jitterM, cmykOriginal.y, outOfFrame, grain, u_addonM, u_boostM, generalComp, outMask[1]);
-
-        vec2 cellPosY = floor(uvY) + .5 + cellOffset;
-        vec2 jitterY = getJitter(cellPosY, 2.);
-        colorMask(uvY, cellPosY, jitterY, cmykOriginal.z, outOfFrame, grain, u_addonY, u_boostY, generalComp, outMask[2]);
-
-        vec2 cellPosK = floor(uvK) + .5 + cellOffset;
-        vec2 jitterK = getJitter(cellPosK, 3.);
-        colorMask(uvK, cellPosK, jitterK, cmykOriginal.w, outOfFrame, grain, u_addonK, u_boostK, generalComp, outMask[3]);
+        colorMask(uvC, cellCenterPos(uvC, cellOffset, 0.), cmykOriginal.x, outOfFrame, grain, u_addonC, u_boostC, generalComp, outMask[0]);
+        colorMask(uvM, cellCenterPos(uvM, cellOffset, 1.), cmykOriginal.y, outOfFrame, grain, u_addonM, u_boostM, generalComp, outMask[1]);
+        colorMask(uvY, cellCenterPos(uvY, cellOffset, 2.), cmykOriginal.z, outOfFrame, grain, u_addonY, u_boostY, generalComp, outMask[2]);
+        colorMask(uvK, cellCenterPos(uvK, cellOffset, 3.), cmykOriginal.w, outOfFrame, grain, u_addonK, u_boostK, generalComp, outMask[3]);
       }
     }
   }
