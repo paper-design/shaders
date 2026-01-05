@@ -88,10 +88,10 @@ uniform float u_shape;
 in vec2 v_imageUV;
 out vec4 fragColor;
 
-const float angleC = 15.;
-const float angleM = 75.;
-const float angleY = 0.;
-const float angleK = 45.;
+const float radC = radians(15.);
+const float radM = radians(75.);
+const float radY = radians(0.);
+const float radK = radians(45.);
 const float shiftC = -.5;
 const float shiftM = -.25;
 const float shiftY = .2;
@@ -164,32 +164,29 @@ vec3 applyContrast(vec3 rgb) {
   return mix(low, high, step(1.0, c));
 }
 
-vec2 gridToImageUV(vec2 gridPos, float angle, float shift, vec2 pad, float channelIdx) {
+vec2 gridToImageUV(vec2 gridPos, float angle, float shift, vec2 pad, float channelIdx, float gridNoiseHalf) {
   vec2 cellPos = floor(gridPos) + .5;
 
   float randAngle = hash21(cellPos + channelIdx * 50.) * 2. * PI;
-  float randDist = u_gridNoise * 0.5;
-  vec2 sampleJitter = vec2(cos(randAngle), sin(randAngle)) * randDist;
+  vec2 sampleJitter = vec2(cos(randAngle), sin(randAngle)) * gridNoiseHalf;
 
   vec2 cellCenter = cellPos + sampleJitter;
   cellCenter -= shift;
-  vec2 uvGrid = rotate(cellCenter, -radians(angle));
+  vec2 uvGrid = rotate(cellCenter, -angle);
   vec2 uv = uvGrid * pad + 0.5;
   return uv;
 }
 
-void colorMask(vec2 pos, vec2 cellOffset, float rad, float outOfFrame, float grain, float channelIdx, float channelAddon, float channelBoost, inout float outMask) {
+void colorMask(vec2 pos, vec2 cellOffset, float rad, float outOfFrame, float grain, float channelIdx, float channelAddon, float channelBoost, float generalComp, float gridNoiseHalf, inout float outMask) {
   vec2 cellPos = floor(pos) + .5 + cellOffset;
 
-  float randAngle = hash21(cellPos + channelIdx * 50.) * 2. * PI;
-  float randDist = u_gridNoise * 0.5;
-  vec2 jitter = vec2(cos(randAngle), sin(randAngle)) * randDist;
+  float angle = hash21(cellPos + channelIdx * 50.) * 2. * PI;
+  vec2 jitter = vec2(cos(angle), sin(angle)) * gridNoiseHalf;
 
   vec2 cell = cellPos + jitter;
   float dist = length(pos - cell);
 
   float radius = rad;
-  float generalComp = .1 * u_softness + .1 * u_gridNoise;
   radius *= (1. + generalComp);
   radius += channelAddon + channelBoost * radius;
   radius += .15;
@@ -224,56 +221,46 @@ void main() {
   vec2 uvGrid = (uv - .5) / pad;
   float outOfFrame = getUvFrame(uv, .5 * pad);
 
-  vec2 pC = rotate(uvGrid, radians(angleC));
-  pC += shiftC;
-  vec2 pM = rotate(uvGrid, radians(angleM));
-  pM += shiftM;
-  vec2 pY = rotate(uvGrid, radians(angleY));
-  pY += shiftY;
-  vec2 pK = rotate(uvGrid, radians(angleK));
-  pK += shiftK;
+  float gridNoiseHalf = u_gridNoise * 0.5;
+  float generalComp = .1 * u_softness + .1 * u_gridNoise;
+
+  vec2 uvC = rotate(uvGrid, radC) + shiftC;
+  vec2 uvM = rotate(uvGrid, radM) + shiftM;
+  vec2 uvY = rotate(uvGrid, radY) + shiftY;
+  vec2 uvK = rotate(uvGrid, radK) + shiftK;
 
   vec2 grainSize = mix(2000., 200., u_grainSize) * vec2(1., 1. / u_imageAspectRatio);
-  vec2 grainUV = v_imageUV - .5;
-  grainUV *= grainSize;
-  grainUV += .5;
+  vec2 grainUV = (v_imageUV - .5) * grainSize + .5;
   float grain = valueNoise(grainUV);
   grain = sst(.55, 1., grain);
   grain *= u_grainMixer;
 
-  vec3 rgb = vec3(0.);
   vec4 outMask = vec4(0.);
-  float contrast = mix(
-  u_contrast,
-  1.0 + (u_contrast - 1.0) * 14.0,
-  step(1.0, u_contrast)
-  );
-
 
   if (u_rounded == true) {
     for (int dy = -1; dy <= 1; dy++) {
       for (int dx = -1; dx <= 1; dx++) {
         vec2 cellOffset = vec2(float(dx), float(dy));
 
-        rgb = texture(u_image, gridToImageUV(pC + cellOffset, angleC, shiftC, pad, 0.)).rgb;
+        vec3 rgb = texture(u_image, gridToImageUV(uvC + cellOffset, radC, shiftC, pad, 0., gridNoiseHalf)).rgb;
         rgb = applyContrast(rgb);
         vec4 cmykC = RGBtoCMYK(rgb);
-        colorMask(pC, cellOffset, cmykC.x, outOfFrame, grain, 0., u_addonC, u_boostC, outMask[0]);
+        colorMask(uvC, cellOffset, cmykC.x, outOfFrame, grain, 0., u_addonC, u_boostC, generalComp, gridNoiseHalf, outMask[0]);
 
-        rgb = texture(u_image, gridToImageUV(pM + cellOffset, angleM, shiftM, pad, 1.)).rgb;
+        rgb = texture(u_image, gridToImageUV(uvM + cellOffset, radM, shiftM, pad, 1., gridNoiseHalf)).rgb;
         rgb = applyContrast(rgb);
         vec4 cmykM = RGBtoCMYK(rgb);
-        colorMask(pM, cellOffset, cmykM.y, outOfFrame, grain, 1., u_addonM, u_boostM, outMask[1]);
+        colorMask(uvM, cellOffset, cmykM.y, outOfFrame, grain, 1., u_addonM, u_boostM, generalComp, gridNoiseHalf, outMask[1]);
 
-        rgb = texture(u_image, gridToImageUV(pY + cellOffset, angleY, shiftY, pad, 2.)).rgb;
+        rgb = texture(u_image, gridToImageUV(uvY + cellOffset, radY, shiftY, pad, 2., gridNoiseHalf)).rgb;
         rgb = applyContrast(rgb);
         vec4 cmykY = RGBtoCMYK(rgb);
-        colorMask(pY, cellOffset, cmykY.z, outOfFrame, grain, 2., u_addonY, u_boostY, outMask[2]);
+        colorMask(uvY, cellOffset, cmykY.z, outOfFrame, grain, 2., u_addonY, u_boostY, generalComp, gridNoiseHalf, outMask[2]);
 
-        rgb = texture(u_image, gridToImageUV(pK + cellOffset, angleK, shiftK, pad, 3.)).rgb;
+        rgb = texture(u_image, gridToImageUV(uvK + cellOffset, radK, shiftK, pad, 3., gridNoiseHalf)).rgb;
         rgb = applyContrast(rgb);
         vec4 cmykK = RGBtoCMYK(rgb);
-        colorMask(pK, cellOffset, cmykK.w, outOfFrame, grain, 3., u_addonK, u_boostK, outMask[3]);
+        colorMask(uvK, cellOffset, cmykK.w, outOfFrame, grain, 3., u_addonK, u_boostK, generalComp, gridNoiseHalf, outMask[3]);
       }
     }
   } else {
@@ -284,10 +271,10 @@ void main() {
       for (int dx = -1; dx <= 1; dx++) {
         vec2 cellOffset = vec2(float(dx), float(dy));
 
-        colorMask(pC, cellOffset, cmykOriginal.x, outOfFrame, grain, 0., u_addonC, u_boostC, outMask[0]);
-        colorMask(pM, cellOffset, cmykOriginal.y, outOfFrame, grain, 1., u_addonM, u_boostM, outMask[1]);
-        colorMask(pY, cellOffset, cmykOriginal.z, outOfFrame, grain, 2., u_addonY, u_boostY, outMask[2]);
-        colorMask(pK, cellOffset, cmykOriginal.w, outOfFrame, grain, 3., u_addonK, u_boostK, outMask[3]);
+        colorMask(uvC, cellOffset, cmykOriginal.x, outOfFrame, grain, 0., u_addonC, u_boostC, generalComp, gridNoiseHalf, outMask[0]);
+        colorMask(uvM, cellOffset, cmykOriginal.y, outOfFrame, grain, 1., u_addonM, u_boostM, generalComp, gridNoiseHalf, outMask[1]);
+        colorMask(uvY, cellOffset, cmykOriginal.z, outOfFrame, grain, 2., u_addonY, u_boostY, generalComp, gridNoiseHalf, outMask[2]);
+        colorMask(uvK, cellOffset, cmykOriginal.w, outOfFrame, grain, 3., u_addonK, u_boostK, generalComp, gridNoiseHalf, outMask[3]);
       }
     }
   }
