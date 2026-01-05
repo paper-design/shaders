@@ -1,6 +1,6 @@
 import type { ShaderMotionParams } from '../shader-mount.js';
 import { type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
-import { declarePI, rotation2, proceduralHash21 } from '../shader-utils.js';
+import { declarePI, rotation2 } from '../shader-utils.js';
 
 export const halftoneCmykMeta = {
   maxBlurRadius: 8,
@@ -101,31 +101,31 @@ const float shiftK = 0.;
 
 ${ declarePI }
 ${ rotation2 }
-${ proceduralHash21 }
 
 vec2 randomRG(vec2 p) {
   vec2 uv = floor(p) / 100. + .5;
   return texture(u_noiseTexture, fract(uv)).rg;
 }
-
-float lst(float edge0, float edge1, float x) {
-  return clamp((x - edge0) / (edge1 - edge0), 0.0, 1.0);
+vec3 hash23(vec2 p) {
+  vec3 p3 = fract(vec3(p.xyx) * vec3(0.3183099, 0.3678794, 0.3141592)) + 0.1;
+  p3 += dot(p3, p3.yzx + 19.19);
+  return fract(vec3(p3.x * p3.y, p3.y * p3.z, p3.z * p3.x));
 }
 
 float sst(float edge0, float edge1, float x) {
   return smoothstep(edge0, edge1, x);
 }
 
-float valueNoise(vec2 st) {
+vec3 valueNoise3(vec2 st) {
   vec2 i = floor(st);
   vec2 f = fract(st);
-  float a = hash21(i);
-  float b = hash21(i + vec2(1.0, 0.0));
-  float c = hash21(i + vec2(0.0, 1.0));
-  float d = hash21(i + vec2(1.0, 1.0));
+  vec3 a = hash23(i);
+  vec3 b = hash23(i + vec2(1.0, 0.0));
+  vec3 c = hash23(i + vec2(0.0, 1.0));
+  vec3 d = hash23(i + vec2(1.0, 1.0));
   vec2 u = f * f * (3.0 - 2.0 * f);
-  float x1 = mix(a, b, u.x);
-  float x2 = mix(c, d, u.x);
+  vec3 x1 = mix(a, b, u.x);
+  vec3 x2 = mix(c, d, u.x);
   return mix(x1, x2, u.y);
 }
 
@@ -229,8 +229,8 @@ void main() {
 
   vec2 grainSize = mix(2000., 200., u_grainSize) * vec2(1., 1. / u_imageAspectRatio);
   vec2 grainUV = (v_imageUV - .5) * grainSize + .5;
-  float grain = valueNoise(grainUV);
-  grain = sst(.55, 1., grain);
+  vec3 noiseValues = valueNoise3(grainUV);
+  float grain = sst(.55, 1., noiseValues.r);
   grain *= u_grainMixer;
 
   vec4 outMask = vec4(0.);
@@ -332,8 +332,7 @@ void main() {
   opacity += shape;
   opacity = clamp(opacity, 0., 1.);
 
-  float grainOverlay = valueNoise(rotate(grainUV, 1.) + vec2(3.));
-  grainOverlay = mix(grainOverlay, valueNoise(rotate(grainUV, 2.) + vec2(-1.)), .5);
+  float grainOverlay = mix(noiseValues.g, noiseValues.b, .5);
   grainOverlay = pow(grainOverlay, 1.3);
 
   float grainOverlayV = grainOverlay * 2. - 1.;
