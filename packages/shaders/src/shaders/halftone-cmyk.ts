@@ -36,6 +36,7 @@ export const halftoneCmykMeta = {
  * - u_boostY (float): Proportional yellow dot size boost (enhances existing dots, -1 to 1)
  * - u_boostK (float): Proportional black dot size boost (enhances existing dots, -1 to 1)
  * - u_shape (float): Dot shape style (0 = separate, 1 = joined)
+ * - u_noiseTexture (sampler2D): Pre-computed randomizer source texture
  *
  * Vertex shader outputs (used in fragment shader):
  * - v_imageUV (vec2): UV coordinates for sampling the source image, with fit, scale, rotation, and offset applied
@@ -84,6 +85,7 @@ uniform float u_boostM;
 uniform float u_boostY;
 uniform float u_boostK;
 uniform float u_shape;
+uniform sampler2D u_noiseTexture;
 
 in vec2 v_imageUV;
 out vec4 fragColor;
@@ -100,6 +102,11 @@ const float shiftK = 0.;
 ${ declarePI }
 ${ rotation2 }
 ${ proceduralHash21 }
+
+vec2 randomRG(vec2 p) {
+  vec2 uv = floor(p) / 100. + .5;
+  return texture(u_noiseTexture, fract(uv)).rg;
+}
 
 float lst(float edge0, float edge1, float x) {
   return clamp((x - edge0) / (edge1 - edge0), 0.0, 1.0);
@@ -164,9 +171,8 @@ vec3 applyContrast(vec3 rgb) {
   return mix(low, high, step(1.0, c));
 }
 
-vec2 getJitter(vec2 cellPos, float channelIdx, float gridNoiseHalf) {
-  float angle = hash21(cellPos + channelIdx * 50.) * 2. * PI;
-  return vec2(cos(angle), sin(angle)) * gridNoiseHalf;
+vec2 getJitter(vec2 cellPos, float channelIdx) {
+  return (randomRG(cellPos + channelIdx * 50.) - .5) * u_gridNoise;
 }
 
 vec2 gridToImageUV(vec2 cellPos, vec2 jitter, float angle, float shift, vec2 pad) {
@@ -214,7 +220,6 @@ void main() {
   vec2 uvGrid = (uv - .5) / pad;
   float outOfFrame = getUvFrame(uv, .5 * pad);
 
-  float gridNoiseHalf = u_gridNoise * 0.5;
   float generalComp = .1 * u_softness + .1 * u_gridNoise;
 
   vec2 uvC = rotate(uvGrid, radC) + shiftC;
@@ -236,28 +241,28 @@ void main() {
         vec2 cellOffset = vec2(float(dx), float(dy));
 
         vec2 cellPosC = floor(uvC) + .5 + cellOffset;
-        vec2 jitterC = getJitter(cellPosC, 0., gridNoiseHalf);
+        vec2 jitterC = getJitter(cellPosC, 0.);
         vec3 rgb = texture(u_image, gridToImageUV(cellPosC, jitterC, radC, shiftC, pad)).rgb;
         rgb = applyContrast(rgb);
         vec4 cmykC = RGBtoCMYK(rgb);
         colorMask(uvC, cellPosC, jitterC, cmykC.x, outOfFrame, grain, u_addonC, u_boostC, generalComp, outMask[0]);
 
         vec2 cellPosM = floor(uvM) + .5 + cellOffset;
-        vec2 jitterM = getJitter(cellPosM, 1., gridNoiseHalf);
+        vec2 jitterM = getJitter(cellPosM, 1.);
         rgb = texture(u_image, gridToImageUV(cellPosM, jitterM, radM, shiftM, pad)).rgb;
         rgb = applyContrast(rgb);
         vec4 cmykM = RGBtoCMYK(rgb);
         colorMask(uvM, cellPosM, jitterM, cmykM.y, outOfFrame, grain, u_addonM, u_boostM, generalComp, outMask[1]);
 
         vec2 cellPosY = floor(uvY) + .5 + cellOffset;
-        vec2 jitterY = getJitter(cellPosY, 2., gridNoiseHalf);
+        vec2 jitterY = getJitter(cellPosY, 2.);
         rgb = texture(u_image, gridToImageUV(cellPosY, jitterY, radY, shiftY, pad)).rgb;
         rgb = applyContrast(rgb);
         vec4 cmykY = RGBtoCMYK(rgb);
         colorMask(uvY, cellPosY, jitterY, cmykY.z, outOfFrame, grain, u_addonY, u_boostY, generalComp, outMask[2]);
 
         vec2 cellPosK = floor(uvK) + .5 + cellOffset;
-        vec2 jitterK = getJitter(cellPosK, 3., gridNoiseHalf);
+        vec2 jitterK = getJitter(cellPosK, 3.);
         rgb = texture(u_image, gridToImageUV(cellPosK, jitterK, radK, shiftK, pad)).rgb;
         rgb = applyContrast(rgb);
         vec4 cmykK = RGBtoCMYK(rgb);
@@ -273,19 +278,19 @@ void main() {
         vec2 cellOffset = vec2(float(dx), float(dy));
 
         vec2 cellPosC = floor(uvC) + .5 + cellOffset;
-        vec2 jitterC = getJitter(cellPosC, 0., gridNoiseHalf);
+        vec2 jitterC = getJitter(cellPosC, 0.);
         colorMask(uvC, cellPosC, jitterC, cmykOriginal.x, outOfFrame, grain, u_addonC, u_boostC, generalComp, outMask[0]);
 
         vec2 cellPosM = floor(uvM) + .5 + cellOffset;
-        vec2 jitterM = getJitter(cellPosM, 1., gridNoiseHalf);
+        vec2 jitterM = getJitter(cellPosM, 1.);
         colorMask(uvM, cellPosM, jitterM, cmykOriginal.y, outOfFrame, grain, u_addonM, u_boostM, generalComp, outMask[1]);
 
         vec2 cellPosY = floor(uvY) + .5 + cellOffset;
-        vec2 jitterY = getJitter(cellPosY, 2., gridNoiseHalf);
+        vec2 jitterY = getJitter(cellPosY, 2.);
         colorMask(uvY, cellPosY, jitterY, cmykOriginal.z, outOfFrame, grain, u_addonY, u_boostY, generalComp, outMask[2]);
 
         vec2 cellPosK = floor(uvK) + .5 + cellOffset;
-        vec2 jitterK = getJitter(cellPosK, 3., gridNoiseHalf);
+        vec2 jitterK = getJitter(cellPosK, 3.);
         colorMask(uvK, cellPosK, jitterK, cmykOriginal.w, outOfFrame, grain, u_addonK, u_boostK, generalComp, outMask[3]);
       }
     }
@@ -346,6 +351,7 @@ void main() {
 
 export interface HalftoneCmykUniforms extends ShaderSizingUniforms {
   u_image: HTMLImageElement | string | undefined;
+  u_noiseTexture?: HTMLImageElement;
   u_colorBack: [number, number, number, number];
   u_colorC: [number, number, number, number];
   u_colorM: [number, number, number, number];

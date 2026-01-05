@@ -4,6 +4,7 @@ import { colorPropsAreEqual } from '../color-props-are-equal.js';
 import {
   halftoneCmykFragmentShader,
   getShaderColorFromString,
+  getShaderNoiseTexture,
   ShaderFitOptions,
   type HalftoneCmykUniforms,
   type HalftoneCmykParams,
@@ -94,6 +95,7 @@ export const HalftoneCmyk: React.FC<HalftoneCmykProps> = memo(function HalftoneC
   const uniforms = {
     // Own uniforms
     u_image: image,
+    u_noiseTexture: getShaderNoiseTexture(),
     u_colorBack: getShaderColorFromString(colorBack),
     u_colorC: getShaderColorFromString(colorC),
     u_colorM: getShaderColorFromString(colorM),
