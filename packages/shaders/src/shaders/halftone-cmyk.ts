@@ -139,39 +139,39 @@ float getUvFrame(vec2 uv, vec2 pad) {
   return left * right * bottom * top;
 }
 
-vec4 RGBtoCMYK(vec3 rgb) {
-  float k = 1. - max(max(rgb.r, rgb.g), rgb.b);
+vec4 RGBAtoCMYK(vec4 rgba) {
+  float k = 1. - max(max(rgba.r, rgba.g), rgba.b);
   float denom = 1. - k;
   vec3 cmy = vec3(0.);
   if (denom > 1e-5) {
-    cmy = (1. - rgb - vec3(k)) / denom;
+    cmy = (1. - rgba.rgb - vec3(k)) / denom;
   }
-  return vec4(cmy, k);
+  return vec4(cmy, k) * rgba.a;
 }
 
 vec3 applyContrast(vec3 rgb) {
   return clamp((rgb - 0.5) * u_contrast + 0.5, 0.0, 1.0);
 }
 
-// Single-component CMYK extractors with contrast built-in
-float getCyan(vec3 rgb) {
-  vec3 c = clamp((rgb - 0.5) * u_contrast + 0.5, 0.0, 1.0);
+// Single-component CMYK extractors with contrast built-in, alpha-aware
+float getCyan(vec4 rgba) {
+  vec3 c = clamp((rgba.rgb - 0.5) * u_contrast + 0.5, 0.0, 1.0);
   float maxRGB = max(max(c.r, c.g), c.b);
-  return maxRGB > 1e-5 ? (maxRGB - c.r) / maxRGB : 0.;
+  return (maxRGB > 1e-5 ? (maxRGB - c.r) / maxRGB : 0.) * rgba.a;
 }
-float getMagenta(vec3 rgb) {
-  vec3 c = clamp((rgb - 0.5) * u_contrast + 0.5, 0.0, 1.0);
+float getMagenta(vec4 rgba) {
+  vec3 c = clamp((rgba.rgb - 0.5) * u_contrast + 0.5, 0.0, 1.0);
   float maxRGB = max(max(c.r, c.g), c.b);
-  return maxRGB > 1e-5 ? (maxRGB - c.g) / maxRGB : 0.;
+  return (maxRGB > 1e-5 ? (maxRGB - c.g) / maxRGB : 0.) * rgba.a;
 }
-float getYellow(vec3 rgb) {
-  vec3 c = clamp((rgb - 0.5) * u_contrast + 0.5, 0.0, 1.0);
+float getYellow(vec4 rgba) {
+  vec3 c = clamp((rgba.rgb - 0.5) * u_contrast + 0.5, 0.0, 1.0);
   float maxRGB = max(max(c.r, c.g), c.b);
-  return maxRGB > 1e-5 ? (maxRGB - c.b) / maxRGB : 0.;
+  return (maxRGB > 1e-5 ? (maxRGB - c.b) / maxRGB : 0.) * rgba.a;
 }
-float getBlack(vec3 rgb) {
-  vec3 c = clamp((rgb - 0.5) * u_contrast + 0.5, 0.0, 1.0);
-  return 1. - max(max(c.r, c.g), c.b);
+float getBlack(vec4 rgba) {
+  vec3 c = clamp((rgba.rgb - 0.5) * u_contrast + 0.5, 0.0, 1.0);
+  return (1. - max(max(c.r, c.g), c.b)) * rgba.a;
 }
 
 vec2 cellCenterPos(vec2 uv, vec2 cellOffset, float channelIdx) {
@@ -243,26 +243,26 @@ void main() {
         vec2 cellOffset = vec2(float(dx), float(dy));
 
         vec2 cellCenterC = cellCenterPos(uvC, cellOffset, 0.);
-        vec3 rgbC = texture(u_image, gridToImageUV(cellCenterC, cosC, sinC, shiftC, pad)).rgb;
-        colorMask(uvC, cellCenterC, getCyan(rgbC), outOfFrame, grain, u_addonC, u_boostC, generalComp, outMask[0]);
+        vec4 texC = texture(u_image, gridToImageUV(cellCenterC, cosC, sinC, shiftC, pad));
+        colorMask(uvC, cellCenterC, getCyan(texC), outOfFrame, grain, u_addonC, u_boostC, generalComp, outMask[0]);
 
         vec2 cellCenterM = cellCenterPos(uvM, cellOffset, 1.);
-        vec3 rgbM = texture(u_image, gridToImageUV(cellCenterM, cosM, sinM, shiftM, pad)).rgb;
-        colorMask(uvM, cellCenterM, getMagenta(rgbM), outOfFrame, grain, u_addonM, u_boostM, generalComp, outMask[1]);
+        vec4 texM = texture(u_image, gridToImageUV(cellCenterM, cosM, sinM, shiftM, pad));
+        colorMask(uvM, cellCenterM, getMagenta(texM), outOfFrame, grain, u_addonM, u_boostM, generalComp, outMask[1]);
 
         vec2 cellCenterY = cellCenterPos(uvY, cellOffset, 2.);
-        vec3 rgbY = texture(u_image, gridToImageUV(cellCenterY, cosY, sinY, shiftY, pad)).rgb;
-        colorMask(uvY, cellCenterY, getYellow(rgbY), outOfFrame, grain, u_addonY, u_boostY, generalComp, outMask[2]);
+        vec4 texY = texture(u_image, gridToImageUV(cellCenterY, cosY, sinY, shiftY, pad));
+        colorMask(uvY, cellCenterY, getYellow(texY), outOfFrame, grain, u_addonY, u_boostY, generalComp, outMask[2]);
 
         vec2 cellCenterK = cellCenterPos(uvK, cellOffset, 3.);
-        vec3 rgbK = texture(u_image, gridToImageUV(cellCenterK, cosK, sinK, shiftK, pad)).rgb;
-        colorMask(uvK, cellCenterK, getBlack(rgbK), outOfFrame, grain, u_addonK, u_boostK, generalComp, outMask[3]);
+        vec4 texK = texture(u_image, gridToImageUV(cellCenterK, cosK, sinK, shiftK, pad));
+        colorMask(uvK, cellCenterK, getBlack(texK), outOfFrame, grain, u_addonK, u_boostK, generalComp, outMask[3]);
       }
     }
   } else {
-    vec3 rgb = texture(u_image, uv).rgb;
-    rgb = applyContrast(rgb);
-    vec4 cmykOriginal = RGBtoCMYK(rgb);
+    vec4 tex = texture(u_image, uv);
+    tex.rgb = applyContrast(tex.rgb);
+    vec4 cmykOriginal = RGBAtoCMYK(tex);
     for (int dy = -1; dy <= 1; dy++) {
       for (int dx = -1; dx <= 1; dx++) {
         vec2 cellOffset = vec2(float(dx), float(dy));
