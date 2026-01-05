@@ -149,22 +149,8 @@ vec4 RGBtoCMYK(vec3 rgb) {
 }
 
 vec3 applyContrast(vec3 rgb) {
-  float c = clamp(u_contrast, 0.0, 2.0);
-  vec3 low = mix(vec3(0.5), rgb, c);
-  float t = max(c - 1.0, 0.0);
-  float k = 15.0 * t;
-
-  // Precompute s0, s1 once (only depend on k)
-  float expHalfK = exp(0.5 * k);
-  float s0 = 1.0 / (1.0 + expHalfK);
-  float s1 = expHalfK / (1.0 + expHalfK); // = 1/(1 + 1/expHalfK)
-  float scale = 1.0 / max(s1 - s0, 1e-5);
-
-  // Vectorized sigmoid: 1 exp(vec3) instead of 3 exp(float)
-  vec3 sig = (1.0 / (1.0 + exp(-k * (rgb - 0.5))) - s0) * scale;
-
-  vec3 high = mix(rgb, sig, sst(0.0, 0.01, k));
-  return mix(low, high, step(1.0, c));
+  vec3 t = clamp((rgb - 0.5) * u_contrast + 0.5, 0.0, 1.0);
+  return t * t * (3.0 - 2.0 * t);
 }
 
 vec2 getJitter(vec2 cellPos, float channelIdx) {
