@@ -149,8 +149,7 @@ vec4 RGBtoCMYK(vec3 rgb) {
 }
 
 vec3 applyContrast(vec3 rgb) {
-  vec3 t = clamp((rgb - 0.5) * u_contrast + 0.5, 0.0, 1.0);
-  return t * t * (3.0 - 2.0 * t);
+  return clamp((rgb - 0.5) * u_contrast + 0.5, 0.0, 1.0);
 }
 
 vec2 getJitter(vec2 cellPos, float channelIdx) {
