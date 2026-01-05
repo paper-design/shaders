@@ -30,16 +30,14 @@ uniform float u_time;
 uniform vec4 u_colors[${foldsMeta.maxColorCount}];
 uniform float u_colorsCount;
 uniform vec4 u_colorBack;
-uniform vec4 u_colorInner;
 uniform float u_softness;
-uniform float u_stripeWidth;
-uniform bool u_alphaMask;
+uniform float u_strokeWidth;
+uniform float u_outline;
 uniform float u_noiseScale;
 uniform float u_size;
-uniform float u_gradient;
 uniform float u_shift;
 uniform float u_noise;
-uniform float u_outerNoise;
+uniform float u_contourNoise;
 uniform float u_angle;
 
 uniform bool u_isImage;
@@ -150,21 +148,7 @@ float posMod(float x, float m) {
   return x - m * floor(x / m);
 }
 
-vec2 getPosition(int i, float t) {
-  float a = float(i) * .37;
-  float b = .6 + fract(float(i) / 3.) * .9;
-  float c = .8 + fract(float(i + 1) / 4.);
-
-  float x = sin(t * b + a);
-  float y = cos(t * c + a * 1.5);
-
-  return .5 + .5 * vec2(x, y);
-}
-
 void main() {
-
-  const float firstFrameOffset = 2.8;
-  float t = .3 * (u_time + firstFrameOffset);
 
   vec2 uv = v_imageUV;
   vec2 dudx = dFdx(v_imageUV);
@@ -180,38 +164,39 @@ void main() {
   imgAlpha *= frame;
   edge *= frame;
 
+  float density = mix(3., 140., u_size);
   vec2 patternsUV = v_objectUV;
   vec2 stripesUV = v_objectUV;
-  float angle = -u_angle * PI / 180.;
+  float angle = u_angle * PI / 180.;
   stripesUV = rotate(stripesUV, angle);
-  stripesUV *= u_size;
+  stripesUV *= density;
 
-  float n = doubleSNoise(u_noiseScale * patternsUV + 100., u_time);
-  float edgeAtten = edge + u_outerNoise * (1. - edge);
-  float y = stripesUV.y + edgeAtten * .5 * n * u_size * u_noise;
+  float noise = doubleSNoise(.03 * u_noiseScale * density * patternsUV + 100., u_time);
 
-  float w = u_stripeWidth * edge;
-  y += 2. * sign(u_shift) * mix(0., w, abs(u_shift));
-  
-  float stripeId = floor(y);
-  float fy = fract(y);
-  
-  float stripeMap = abs(fy - .5);
-  float aa = fwidth(y);
-  
-  w = clamp(w, aa, .5 - aa);
+  float stripeId = floor(stripesUV.y);
 
-  float lMin = w - aa;
-  float lMax = w + aa;
-  float line = 1. - sst(lMin, lMax, stripeMap);
-  
-  if (u_alphaMask == true) {
-    line *= imgAlpha;
-  }
+  float gridLine = stripesUV.y;
+  gridLine += 10. * edge * noise * u_noise;
+  gridLine -= 5. * pow(1. - edge, 4.) * u_contourNoise;
 
-  float softness = mix(0., u_softness, sst(0., aa, w));
-  line -= sst(softness, 0., 1. - fy);
-  line = clamp(line, 0., 1.);
+  stripeId = floor(gridLine);
+  float stripeMap = abs(fract(gridLine) - .5);
+  float aa = fwidth(gridLine);
+
+  float w = mix(0., .5, pow(u_strokeWidth, 1. - (.5 + .5 * noise)));
+  float wLo = .5 * aa;
+  float wHi = .5 - aa;
+  w = clamp(w, wLo, wHi);
+
+  float lo = w;
+  float hi = w + aa + u_softness * (.5 - w);
+  float edgeLine = (1. - smoothstep(0., u_outline, edge)) * imgAlpha;
+  stripeMap -= edgeLine;
+
+  float line = sst(lo, hi, stripeMap);
+  line = mix(1., line, frame);
+  line = 1. - clamp(line, 0., 1.);
+  line *= imgAlpha;
 
   int colorIdx = int(posMod(stripeId, u_colorsCount));
   vec4 orderedStripeColor = u_colors[0];
@@ -221,55 +206,23 @@ void main() {
     orderedStripeColor = mix(orderedStripeColor, u_colors[i], isHit);
   }
   
-  vec3 gradientStripeColor = vec3(0.);
-  float gradientOpacity = 0.;
-  {
-    float totalWeight = 0.;
-    for (int i = 0; i < ${ foldsMeta.maxColorCount }; i++) {
-      if (i >= int(u_colorsCount)) break;
-      vec2 pos = getPosition(i, 1.5 * t);
-      vec3 colorFraction = u_colors[i].rgb * u_colors[i].a;
-      float opacityFraction = u_colors[i].a;
-      float dist = .5 * length(patternsUV + .5 - pos);
-      dist = pow(dist, 3.5);
-      float weight = 1. / (dist + 1e-3);
-      gradientStripeColor += colorFraction * weight;
-      gradientOpacity += opacityFraction * weight;
-      totalWeight += weight;
-    }
-    gradientStripeColor /= max(1e-4, totalWeight);
-    gradientOpacity /= max(1e-4, totalWeight);
-  }
-  
-  vec4 stripeColor = vec4(gradientStripeColor, gradientOpacity);
-  stripeColor = mix(orderedStripeColor, mix(stripeColor, orderedStripeColor, fy), u_gradient);
-  
-  vec3 stripePremulRGB = stripeColor.rgb * stripeColor.a;
+  vec3 stripePremulRGB = orderedStripeColor.rgb * orderedStripeColor.a;
   stripePremulRGB *= line;
-  float stripeA = stripeColor.a * line;
+  float stripeA = orderedStripeColor.a * line;
   
   vec3 color = stripePremulRGB;
   float opacity = stripeA;
   
-  vec3 backRgb = u_colorBack.rgb * u_colorBack.a;
-  float backA = u_colorBack.a;
-  vec3 innerRgb = u_colorInner.rgb * u_colorInner.a;
-  float innerA = u_colorInner.a;
-
-  innerRgb *= imgAlpha;
-  innerA *= imgAlpha;
-
-  vec3 underlayerRgb = innerRgb + backRgb * (1. - innerA);
-  float underlayerA = innerA + backA * (1. - innerA);
+  vec3 underlayerRgb = u_colorBack.rgb * u_colorBack.a;
+  float underlayerA = u_colorBack.a;
   
   color *= line;
   opacity *= line;
   
   color = color + underlayerRgb * (1. - opacity);
   opacity = opacity + underlayerA  * (1. - opacity);
-  
+
   fragColor = vec4(color, opacity);
-//  fragColor = vec4(img.rgb, 1.);
 }
 `;
 
@@ -790,19 +743,17 @@ function solvePoissonSparse(
 
 export interface FoldsUniforms extends ShaderSizingUniforms {
   u_colorBack: [number, number, number, number];
-  u_colorInner: [number, number, number, number];
   u_colors: vec4[];
   u_colorsCount: number;
   u_image: HTMLImageElement | string | undefined;
-  u_stripeWidth: number;
-  u_alphaMask: boolean;
+  u_strokeWidth: number;
+  u_outline: number;
   u_noiseScale: number;
   u_size: number;
   u_shift: number;
   u_noise: number;
-  u_outerNoise: number;
+  u_contourNoise: number;
   u_softness: number;
-  u_gradient: number;
   u_angle: number;
   u_isImage: boolean;
 }
@@ -810,16 +761,14 @@ export interface FoldsUniforms extends ShaderSizingUniforms {
 export interface FoldsParams extends ShaderSizingParams, ShaderMotionParams {
   colors?: string[];
   colorBack?: string;
-  colorInner?: string;
   image?: HTMLImageElement | string | undefined;
-  stripeWidth?: number;
-  alphaMask?: boolean;
+  strokeWidth?: number;
+  outline?: number;
   noiseScale?: number;
   size?: number;
   softness?: number;
-  gradient?: number;
   shift?: number;
   noise?: number;
-  outerNoise?: number;
+  contourNoise?: number;
   angle?: number;
 }
