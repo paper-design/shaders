@@ -1,9 +1,6 @@
 import type { vec4 } from '../types.js';
 import type { ShaderMotionParams } from '../shader-mount.js';
 import {
-  sizingDebugVariablesDeclaration,
-  sizingVariablesDeclaration,
-  sizingUniformsDeclaration,
   type ShaderSizingParams,
   type ShaderSizingUniforms,
 } from '../shader-sizing.js';
@@ -14,15 +11,34 @@ export const meshGradientMeta = {
 } as const;
 
 /**
- * A composition of N color spots (one per color) with 2 types of
- * distortions applied to the coordinate space
+ * A flowing composition of color spots, moving along distinct trajectories
+ * and transformed by organic distortion.
  *
- * Uniforms:
- * - u_colors (vec4[]), u_colorsCount (float used as integer)
- * - u_distortion: warp distortion
- * - u_swirl: vortex distortion
- * - u_grainMixer: shape distortion
- * - u_grainOverlay: post-processing blending
+ * Fragment shader uniforms:
+ * - u_time (float): Animation time
+ * - u_colors (vec4[]): Up to 10 color spots in RGBA
+ * - u_colorsCount (float): Number of active colors
+ * - u_distortion (float): Power of organic noise distortion (0 to 1)
+ * - u_swirl (float): Power of vortex distortion (0 to 1)
+ * - u_grainMixer (float): Strength of grain distortion applied to shape edges (0 to 1)
+ * - u_grainOverlay (float): Post-processing black/white grain overlay (0 to 1)
+ *
+ * Vertex shader outputs (used in fragment shader):
+ * - v_objectUV (vec2): Object box UV coordinates with global sizing (scale, rotation, offsets, etc) applied
+ *
+ * Vertex shader uniforms:
+ * - u_resolution (vec2): Canvas resolution in pixels
+ * - u_pixelRatio (float): Device pixel ratio
+ * - u_originX (float): Reference point for positioning world width in the canvas (0 to 1)
+ * - u_originY (float): Reference point for positioning world height in the canvas (0 to 1)
+ * - u_worldWidth (float): Virtual width of the graphic before it's scaled to fit the canvas
+ * - u_worldHeight (float): Virtual height of the graphic before it's scaled to fit the canvas
+ * - u_fit (float): How to fit the rendered shader into the canvas dimensions (0 = none, 1 = contain, 2 = cover)
+ * - u_scale (float): Overall zoom level of the graphics (0.01 to 4)
+ * - u_rotation (float): Overall rotation angle of the graphics in degrees (0 to 360)
+ * - u_offsetX (float): Horizontal offset of the graphics center (-1 to 1)
+ * - u_offsetY (float): Vertical offset of the graphics center (-1 to 1)
+ *
  */
 
 // language=GLSL
@@ -39,10 +55,7 @@ uniform float u_swirl;
 uniform float u_grainMixer;
 uniform float u_grainOverlay;
 
-${sizingVariablesDeclaration}
-${sizingDebugVariablesDeclaration}
-${sizingUniformsDeclaration}
-
+in vec2 v_objectUV;
 out vec4 fragColor;
 
 ${declarePI}
@@ -78,34 +91,24 @@ vec2 getPosition(int i, float t) {
 }
 
 void main() {
-  vec2 shape_uv = v_objectUV;
-  shape_uv += .5;
+  vec2 uv = v_objectUV;
+  uv += .5;
+  vec2 grainUV = uv * 1000.;
 
-  vec2 grainUV = v_objectUV;
-  // apply inverse transform to grain_uv so it respects the originXY
-  float grainUVRot = u_rotation * 3.14159265358979323846 / 180.;
-  mat2 graphicRotation = mat2(cos(grainUVRot), sin(grainUVRot), -sin(grainUVRot), cos(grainUVRot));
-  vec2 graphicOffset = vec2(-u_offsetX, u_offsetY);
-  grainUV = transpose(graphicRotation) * grainUV;
-  grainUV *= u_scale;
-  grainUV *= .7;
-  grainUV -= graphicOffset;
-  grainUV *= v_objectBoxSize;
-  
   float grain = noise(grainUV, vec2(0.));
   float mixerGrain = .4 * u_grainMixer * (grain - .5);
 
   const float firstFrameOffset = 41.5;
   float t = .5 * (u_time + firstFrameOffset);
 
-  float radius = smoothstep(0., 1., length(shape_uv - .5));
+  float radius = smoothstep(0., 1., length(uv - .5));
   float center = 1. - radius;
   for (float i = 1.; i <= 2.; i++) {
-    shape_uv.x += u_distortion * center / i * sin(t + i * .4 * smoothstep(.0, 1., shape_uv.y)) * cos(.2 * t + i * 2.4 * smoothstep(.0, 1., shape_uv.y));
-    shape_uv.y += u_distortion * center / i * cos(t + i * 2. * smoothstep(.0, 1., shape_uv.x));
+    uv.x += u_distortion * center / i * sin(t + i * .4 * smoothstep(.0, 1., uv.y)) * cos(.2 * t + i * 2.4 * smoothstep(.0, 1., uv.y));
+    uv.y += u_distortion * center / i * cos(t + i * 2. * smoothstep(.0, 1., uv.x));
   }
 
-  vec2 uvRotated = shape_uv;
+  vec2 uvRotated = uv;
   uvRotated -= vec2(.5);
   float angle = 3. * u_swirl * radius;
   uvRotated = rotate(uvRotated, -angle);
@@ -134,12 +137,19 @@ void main() {
   color /= max(1e-4, totalWeight);
   opacity /= max(1e-4, totalWeight);
 
-  float rr = noise(rotate(grainUV, 1.), vec2(3.));
-  float gg = noise(rotate(grainUV, 2.) + 10., vec2(-1.));
-  float bb = noise(grainUV - 2., vec2(5.));
-  vec3 grainColor = vec3(rr, gg, bb);
-  color = mix(color, grainColor, .01 + .3 * u_grainOverlay);
-  
+  float grainOverlay = valueNoise(rotate(grainUV, 1.) + vec2(3.));
+  grainOverlay = mix(grainOverlay, valueNoise(rotate(grainUV, 2.) + vec2(-1.)), .5);
+  grainOverlay = pow(grainOverlay, 1.3);
+
+  float grainOverlayV = grainOverlay * 2. - 1.;
+  vec3 grainOverlayColor = vec3(step(0., grainOverlayV));
+  float grainOverlayStrength = u_grainOverlay * abs(grainOverlayV);
+  grainOverlayStrength = pow(grainOverlayStrength, .8);
+  color = mix(color, grainOverlayColor, .35 * grainOverlayStrength);
+
+  opacity += .5 * grainOverlayStrength;
+  opacity = clamp(opacity, 0., 1.);
+
   fragColor = vec4(color, opacity);
 }
 `;

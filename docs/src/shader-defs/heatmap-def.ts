@@ -1,13 +1,13 @@
 import { heatmapPresets } from '@paper-design/shaders-react';
 import type { ShaderDef } from './shader-def-types';
-import { animatedCommonParams } from './common-param-def';
+import { animatedImageCommonParams } from './common-param-def';
 
 const defaultParams = heatmapPresets[0].params;
 
 export const heatmapDef: ShaderDef = {
   name: 'Heatmap',
   description:
-    'A glowing gradient of colors flowing through an input image. It can for example shift from cool blues to hot reds, like thermal energy radiating through the shape. The effect creates a smoothly animated wave of intensity across the image.',
+    'A glowing gradient of colors flowing through an input shape. The effect creates a smoothly animated wave of intensity across the image. With default colors, it shift from cool blues to hot reds, like thermal energy radiating through the shape.',
   params: [
     {
       name: 'image',
@@ -74,6 +74,6 @@ export const heatmapDef: ShaderDef = {
     //   description: 'Render the React Suspense boundary fallback while the image is being processed',
     //   options: ['true', 'false'],
     // },
-    ...animatedCommonParams,
+    ...animatedImageCommonParams,
   ],
 };

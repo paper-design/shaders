@@ -1,5 +1,62 @@
 # Paper Shaders
 
+## Version 0.0.68
+
+- **General**
+  - JSDoc comments updated
+  - Docs updated with refined props definitions, examples added to registry where missing
+  - GLSL formatting updated and cleaned up; fragment shader sizing code moved from global utilities into individual shaders
+- **Heatmap**
+  - JS pre-pass updated for Safari support (manual blur used instead of `ctx.filter`)
+- **GrainGradient**
+  - Several performance improvements
+- **Halftone Dots**
+  - Restored default cell `size` after extension of allowed range
+  
+## Version 0.0.67
+
+- **Mesh Gradient**
+  - Fixed a GLSL error that caused shader rendering to fail
+- **Halftone Dots**
+  - Extended cell `size` range to allow smaller dots
+
+## Version 0.0.66
+
+- **Fluted Glass**
+  - Improved support for transparent images
+  - Adjusted blending of `grainOverlay` so that grain is now visible over transparent backgrounds
+- **Halftone Dots**
+  - Adjusted blending of `grainOverlay` so that grain is now visible over transparent backgrounds
+- **Image Dithering**
+  - Improved support for transparent images
+  - Made sure that the origin point for dithering looks consistent regardless of `size`
+- **Mesh Gradient**, **Static Mesh Gradient**, **Static Radial Gradient**
+  - Changed `grainOverlay` noise to monochrome
+  - Fixed edge case issues with `grainOverlay` positioning
+
+## Version 0.0.65
+
+**Halftone Dots**
+
+- Renamed the boolean `straight` prop to `grid = 'hex' | 'square'`
+- Adjusted `size` and `contrast` parameter curves
+- Fixed an issue where the dot radius would unexpectedly change when resizing the shader canvas
+
+## Version 0.0.64
+
+New shader: **Halftone Dots**
+
+## Version 0.0.63
+
+- **General**
+  - Removed an unnecessary SSR warning (“Can’t create a texture on the server”)
+- **Fluted Glass**
+  - Added a new `edges` parameter to control the distortion and blur around the image edges, while the `blur` parameter now affects only the "inside" of the image
+  - Improved the contour and blending of shadows to make them more versatile with different colors
+  - Improved color mixing with semi-transparent backgrounds
+  - Refined the appearance of the glass edges when using `margin`
+  - Changed `colorHighlight` transparency to multiply together with the `highlights` value
+
 ## Version 0.0.62
 
 - **General**

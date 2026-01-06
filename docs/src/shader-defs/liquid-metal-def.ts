@@ -1,6 +1,6 @@
 import { liquidMetalPresets } from '@paper-design/shaders-react';
 import type { ShaderDef } from './shader-def-types';
-import { animatedCommonParams } from './common-param-def';
+import { animatedImageCommonParams } from './common-param-def';
 
 const defaultParams = liquidMetalPresets[0].params;
 
@@ -25,7 +25,8 @@ export const liquidMetalDef: ShaderDef = {
     {
       name: 'image',
       type: 'HTMLImageElement | string',
-      description: 'An optional image used as an effect mask. A transparent background is required. If no image is provided, the shader defaults to one of the predefined shapes.',
+      description:
+        'An optional image used as an effect mask. A transparent background is required. If no image is provided, the shader defaults to one of the predefined shapes.',
     },
     {
       name: 'shape',
@@ -102,6 +103,6 @@ export const liquidMetalDef: ShaderDef = {
     //   description: 'TODO',
     //   options: ['true', 'false'],
     // },
-    ...animatedCommonParams,
+    ...animatedImageCommonParams,
   ],
 };

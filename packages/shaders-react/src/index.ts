@@ -107,6 +107,10 @@ export { LiquidMetal, liquidMetalPresets } from './shaders/liquid-metal.js';
 export type { LiquidMetalProps } from './shaders/liquid-metal.js';
 export type { LiquidMetalUniforms, LiquidMetalParams } from '@paper-design/shaders';
 
+export { HalftoneDots, halftoneDotsPresets } from './shaders/halftone-dots.js';
+export type { HalftoneDotsProps } from './shaders/halftone-dots.js';
+export type { HalftoneDotsUniforms, HalftoneDotsParams } from '@paper-design/shaders';
+
 export { Folds, foldsPresets } from './shaders/folds.js';
 export type { FoldsProps } from './shaders/folds.js';
 export type { FoldsUniforms, FoldsParams } from '@paper-design/shaders';
@@ -138,7 +142,4 @@ export {
   heatmapMeta,
   staticMeshGradientMeta,
   staticRadialGradientMeta,
-  foldsMeta,
-  halftoneLinesMeta,
-  meshGradientLogoMeta,
 } from '@paper-design/shaders';

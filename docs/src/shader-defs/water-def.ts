@@ -1,13 +1,13 @@
 import { waterPresets } from '@paper-design/shaders-react';
 import type { ShaderDef } from './shader-def-types';
-import { animatedCommonParams } from './common-param-def';
+import { animatedImageCommonParams } from './common-param-def';
 
 const defaultParams = waterPresets[0].params;
 
 export const waterDef: ShaderDef = {
   name: 'Water',
   description:
-    'Water-like surface distortion with natural caustic realism. Works as an image filter or animated texture without image.',
+    'Water-like surface distortion with natural caustic realism. Works as an image filter or standalone animated texture.',
   params: [
     {
       name: 'image',
@@ -76,6 +76,6 @@ export const waterDef: ShaderDef = {
       defaultValue: defaultParams.size,
       description: 'Pattern scale relative to the image',
     },
-    ...animatedCommonParams,
+    ...animatedImageCommonParams,
   ],
 };

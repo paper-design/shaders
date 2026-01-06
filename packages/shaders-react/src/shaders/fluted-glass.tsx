@@ -13,8 +13,6 @@ import {
 } from '@paper-design/shaders';
 
 export interface FlutedGlassProps extends ShaderComponentProps, FlutedGlassParams {
-  /** @deprecated use `stretch` instead */
-  edges?: number;
   /** @deprecated use `size` instead */
   count?: number;
 }
@@ -41,6 +39,7 @@ export const defaultPreset: FlutedGlassPreset = {
     distortion: 0.5,
     shift: 0,
     blur: 0,
+    edges: 0.25,
     stretch: 0,
     margin: 0,
     marginLeft: 0,
@@ -72,6 +71,7 @@ export const wavesPreset: FlutedGlassPreset = {
     distortion: 0.5,
     shift: 0,
     blur: 0.1,
+    edges: 0.5,
     stretch: 1,
     margin: 0,
     marginLeft: 0,
@@ -103,6 +103,7 @@ export const abstractPreset: FlutedGlassPreset = {
     distortion: 1,
     shift: 0,
     blur: 1,
+    edges: 0.5,
     stretch: 1,
     margin: 0,
     marginLeft: 0,
@@ -133,12 +134,13 @@ export const foldsPreset: FlutedGlassPreset = {
     distortion: 0.75,
     shift: 0,
     blur: 0.25,
+    edges: 0.5,
     stretch: 0,
-    margin: 0.2,
-    marginLeft: 0.2,
-    marginRight: 0.2,
-    marginTop: 0.2,
-    marginBottom: 0.2,
+    margin: 0.1,
+    marginLeft: 0.1,
+    marginRight: 0.1,
+    marginTop: 0.1,
+    marginBottom: 0.1,
     grainMixer: 0,
     grainOverlay: 0,
   },
@@ -162,6 +164,7 @@ export const FlutedGlass: React.FC<FlutedGlassProps> = memo(function FlutedGlass
   shape = defaultPreset.params.shape,
   shift = defaultPreset.params.shift,
   blur = defaultPreset.params.blur,
+  edges = defaultPreset.params.edges,
   margin,
   marginLeft = margin ?? defaultPreset.params.marginLeft,
   marginRight = margin ?? defaultPreset.params.marginRight,
@@ -169,10 +172,7 @@ export const FlutedGlass: React.FC<FlutedGlassProps> = memo(function FlutedGlass
   marginBottom = margin ?? defaultPreset.params.marginBottom,
   grainMixer = defaultPreset.params.grainMixer,
   grainOverlay = defaultPreset.params.grainOverlay,
-
-  // `edges` were renamed to `stretch`
-  edges,
-  stretch = edges === undefined ? defaultPreset.params.stretch : edges,
+  stretch = defaultPreset.params.stretch,
 
   // integer `count` was deprecated in favor of the normalized `size` param
   count,
@@ -202,6 +202,7 @@ export const FlutedGlass: React.FC<FlutedGlassProps> = memo(function FlutedGlass
     u_distortion: distortion,
     u_shift: shift,
     u_blur: blur,
+    u_edges: edges,
     u_stretch: stretch,
     u_distortionShape: GlassDistortionShapes[distortionShape],
     u_highlights: highlights,
