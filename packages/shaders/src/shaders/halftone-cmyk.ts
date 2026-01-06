@@ -129,10 +129,10 @@ vec3 valueNoise3(vec2 st) {
 }
 
 float getUvFrame(vec2 uv, vec2 pad) {
-  float left   = smoothstep(-pad.x, pad.x, uv.x);
-  float right  = smoothstep(1. + pad.x, 1. - pad.x, uv.x);
-  float bottom = smoothstep(-pad.y, pad.y, uv.y);
-  float top    = smoothstep(1. + pad.y, 1. - pad.y, uv.y);
+  float left   = smoothstep(-pad.x, 0., uv.x);
+  float right  = smoothstep(1. + pad.x, 1., uv.x);
+  float bottom = smoothstep(-pad.y, 0., uv.y);
+  float top    = smoothstep(1. + pad.y, 1., uv.y);
 
   return left * right * bottom * top;
 }
@@ -218,7 +218,7 @@ void main() {
   float cellSizeY = 1.0 / cellsPerSide;
   vec2 pad = cellSizeY * vec2(1.0 / u_imageAspectRatio, 1.0);
   vec2 uvGrid = (uv - .5) / pad;
-  float outOfFrame = getUvFrame(uv, .5 * pad);
+  float outOfFrame = getUvFrame(uv, pad);
 
   float generalComp = .1 * u_softness + .1 * u_gridNoise;
 
