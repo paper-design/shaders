@@ -131,7 +131,6 @@ export const Folds: React.FC<FoldsProps> = memo(function FoldsImpl({
     u_noiseScale: noiseScale,
     u_size: size,
     u_angle: angle,
-    u_isImage: Boolean(image),
 
     // Sizing uniforms
     u_fit: ShaderFitOptions[fit],

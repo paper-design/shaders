@@ -220,21 +220,6 @@ export {
   type FoldsUniforms,
 } from './shaders/folds.js';
 
-export {
-  halftoneLinesMeta,
-  halftoneLinesFragmentShader,
-  type HalftoneLinesParams,
-  type HalftoneLinesUniforms,
-} from './shaders/halftone-lines.js';
-
-export {
-  meshGradientLogoMeta,
-  meshGradientLogoFragmentShader,
-  toProcessedMeshGradientLogo,
-  type MeshGradientLogoParams,
-  type MeshGradientLogoUniforms,
-} from './shaders/mesh-gradient-logo.js';
-
 // ----- Utils ----- //
 export { getShaderColorFromString } from './get-shader-color-from-string.js';
 export { getShaderNoiseTexture } from './get-shader-noise-texture.js';
