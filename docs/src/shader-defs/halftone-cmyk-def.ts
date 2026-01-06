@@ -65,13 +65,6 @@ export const halftoneCmykDef: ShaderDef = {
       description: 'Image contrast adjustment',
     },
     {
-      name: 'rounded',
-      type: 'boolean',
-      defaultValue: defaultParams.rounded,
-      description: 'Use per-cell color sampling (true) or blurred sampling (false)',
-      options: ['true', 'false'],
-    },
-    {
       name: 'softness',
       type: 'number',
       min: 0,
@@ -180,7 +173,7 @@ export const halftoneCmykDef: ShaderDef = {
       type: 'enum',
       defaultValue: defaultParams.shape,
       description: 'Dot shape style',
-      options: ['separate', 'joined'],
+      options: ['dots', 'ink', 'sharpDots', 'sharpInk'],
     },
     ...staticImageCommonParams,
   ],
