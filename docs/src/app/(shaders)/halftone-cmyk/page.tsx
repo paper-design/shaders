@@ -81,7 +81,6 @@ const HalftoneCmykWithControls = () => {
       colorK: { value: toHsla(defaults.colorK), order: 104 },
       size: { value: defaults.size, min: 0.01, max: 1, step: 0.01, order: 120 },
       gridNoise: { value: defaults.gridNoise, min: 0, max: 1, step: 0.01, order: 121 },
-      rounded: { value: defaults.rounded, order: 122 },
       shape: {
         value: defaults.shape,
         options: Object.keys(HalftoneCmykShapes) as HalftoneCmykShape[],
