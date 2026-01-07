@@ -6,8 +6,8 @@ import { setParamsSafe, useResetLevaParams } from '@/helpers/use-reset-leva-para
 import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
 import {
-  HalftoneCmykShape,
-  HalftoneCmykShapes,
+  HalftoneCmykType,
+  HalftoneCmykTypes,
   ShaderFit,
 } from '@paper-design/shaders';
 import { levaImageButton } from '@/helpers/leva-image-button';
@@ -81,17 +81,17 @@ const HalftoneCmykWithControls = () => {
       colorK: { value: toHsla(defaults.colorK), order: 104 },
       size: { value: defaults.size, min: 0.01, max: 1, step: 0.01, order: 120 },
       gridNoise: { value: defaults.gridNoise, min: 0, max: 1, step: 0.01, order: 121 },
-      shape: {
-        value: defaults.shape,
-        options: Object.keys(HalftoneCmykShapes) as HalftoneCmykShape[],
+      type: {
+        value: defaults.type,
+        options: Object.keys(HalftoneCmykTypes) as HalftoneCmykType[],
         order: 123,
       },
       softness: { value: defaults.softness, min: 0, max: 1, step: 0.01, order: 124 },
       contrast: { value: defaults.contrast, min: 0, max: 2, step: 0.01, order: 130 },
-      fillC: { value: defaults.fillC, min: 0, max: 1, step: 0.01, order: 210 },
-      fillM: { value: defaults.fillM, min: 0, max: 1, step: 0.01, order: 211 },
-      fillY: { value: defaults.fillY, min: 0, max: 1, step: 0.01, order: 212 },
-      fillK: { value: defaults.fillK, min: 0, max: 1, step: 0.01, order: 213 },
+      floodC: { value: defaults.floodC, min: 0, max: 1, step: 0.01, order: 210 },
+      floodM: { value: defaults.floodM, min: 0, max: 1, step: 0.01, order: 211 },
+      floodY: { value: defaults.floodY, min: 0, max: 1, step: 0.01, order: 212 },
+      floodK: { value: defaults.floodK, min: 0, max: 1, step: 0.01, order: 213 },
       boostC: { value: defaults.boostC, min: -1, max: 1, step: 0.01, order: 200 },
       boostM: { value: defaults.boostM, min: -1, max: 1, step: 0.01, order: 201 },
       boostY: { value: defaults.boostY, min: -1, max: 1, step: 0.01, order: 202 },

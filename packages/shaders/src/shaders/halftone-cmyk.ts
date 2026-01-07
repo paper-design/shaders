@@ -26,15 +26,15 @@ export const halftoneCmykMeta = {
  * - u_grainMixer (float): Strength of grain affecting dot size (0 to 1)
  * - u_grainOverlay (float): Strength of grain overlay on final output (0 to 1)
  * - u_gridNoise (float): Strength of smooth noise applied to both dot positions and color sampling (0 to 1)
- * - u_fillC (float): Flat cyan dot size adjustment applied uniformly (-1 to 1)
- * - u_fillM (float): Flat magenta dot size adjustment applied uniformly (-1 to 1)
- * - u_fillY (float): Flat yellow dot size adjustment applied uniformly (-1 to 1)
- * - u_fillK (float): Flat black dot size adjustment applied uniformly (-1 to 1)
+ * - u_floodC (float): Flat cyan dot size adjustment applied uniformly (-1 to 1)
+ * - u_floodM (float): Flat magenta dot size adjustment applied uniformly (-1 to 1)
+ * - u_floodY (float): Flat yellow dot size adjustment applied uniformly (-1 to 1)
+ * - u_floodK (float): Flat black dot size adjustment applied uniformly (-1 to 1)
  * - u_boostC (float): Proportional cyan dot size boost (enhances existing dots, -1 to 1)
  * - u_boostM (float): Proportional magenta dot size boost (enhances existing dots, -1 to 1)
  * - u_boostY (float): Proportional yellow dot size boost (enhances existing dots, -1 to 1)
  * - u_boostK (float): Proportional black dot size boost (enhances existing dots, -1 to 1)
- * - u_shape (float): Dot shape style (0 = dots, 1 = ink, 2 = sharp)
+ * - u_type (float): Dot shape style (0 = dots, 1 = ink, 2 = sharp)
  * - u_noiseTexture (sampler2D): Pre-computed randomizer source texture
  *
  * Vertex shader outputs (used in fragment shader):
@@ -74,15 +74,15 @@ uniform float u_grainMixer;
 uniform float u_grainOverlay;
 uniform float u_gridNoise;
 uniform float u_softness;
-uniform float u_fillC;
-uniform float u_fillM;
-uniform float u_fillY;
-uniform float u_fillK;
+uniform float u_floodC;
+uniform float u_floodM;
+uniform float u_floodY;
+uniform float u_floodK;
 uniform float u_boostC;
 uniform float u_boostM;
 uniform float u_boostY;
 uniform float u_boostK;
-uniform float u_shape;
+uniform float u_type;
 uniform sampler2D u_noiseTexture;
 
 in vec2 v_imageUV;
@@ -220,7 +220,7 @@ void main() {
   vec2 uvGrid = (uv - .5) / pad;
   float outOfFrame = getUvFrame(uv, pad);
 
-  float generalComp = .1 * u_softness + .1 * u_gridNoise + .1 * (1. - step(0.5, u_shape)) * (1.5 - u_softness);
+  float generalComp = .1 * u_softness + .1 * u_gridNoise + .1 * (1. - step(0.5, u_type)) * (1.5 - u_softness);
 
   vec2 uvC = mat2(cosC, sinC, -sinC, cosC) * uvGrid + shiftC;
   vec2 uvM = mat2(cosM, sinM, -sinM, cosM) * uvGrid + shiftM;
@@ -234,9 +234,9 @@ void main() {
   grain *= u_grainMixer;
 
   vec4 outMask = vec4(0.);
-  bool isJoined = u_shape > 0.5;
+  bool isJoined = u_type > 0.5;
 
-  if (u_shape < 1.5) {
+  if (u_type < 1.5) {
     // dots or ink: per-cell color sampling
     for (int dy = -1; dy <= 1; dy++) {
       for (int dx = -1; dx <= 1; dx++) {
@@ -244,19 +244,19 @@ void main() {
 
         vec2 cellCenterC = cellCenterPos(uvC, cellOffset, 0.);
         vec4 texC = texture(u_image, gridToImageUV(cellCenterC, cosC, sinC, shiftC, pad));
-        colorMask(uvC, cellCenterC, getCyan(texC), outOfFrame, grain, u_fillC, u_boostC, generalComp, isJoined, outMask[0]);
+        colorMask(uvC, cellCenterC, getCyan(texC), outOfFrame, grain, u_floodC, u_boostC, generalComp, isJoined, outMask[0]);
 
         vec2 cellCenterM = cellCenterPos(uvM, cellOffset, 1.);
         vec4 texM = texture(u_image, gridToImageUV(cellCenterM, cosM, sinM, shiftM, pad));
-        colorMask(uvM, cellCenterM, getMagenta(texM), outOfFrame, grain, u_fillM, u_boostM, generalComp, isJoined, outMask[1]);
+        colorMask(uvM, cellCenterM, getMagenta(texM), outOfFrame, grain, u_floodM, u_boostM, generalComp, isJoined, outMask[1]);
 
         vec2 cellCenterY = cellCenterPos(uvY, cellOffset, 2.);
         vec4 texY = texture(u_image, gridToImageUV(cellCenterY, cosY, sinY, shiftY, pad));
-        colorMask(uvY, cellCenterY, getYellow(texY), outOfFrame, grain, u_fillY, u_boostY, generalComp, isJoined, outMask[2]);
+        colorMask(uvY, cellCenterY, getYellow(texY), outOfFrame, grain, u_floodY, u_boostY, generalComp, isJoined, outMask[2]);
 
         vec2 cellCenterK = cellCenterPos(uvK, cellOffset, 3.);
         vec4 texK = texture(u_image, gridToImageUV(cellCenterK, cosK, sinK, shiftK, pad));
-        colorMask(uvK, cellCenterK, getBlack(texK), outOfFrame, grain, u_fillK, u_boostK, generalComp, isJoined, outMask[3]);
+        colorMask(uvK, cellCenterK, getBlack(texK), outOfFrame, grain, u_floodK, u_boostK, generalComp, isJoined, outMask[3]);
       }
     }
   } else {
@@ -268,10 +268,10 @@ void main() {
       for (int dx = -1; dx <= 1; dx++) {
         vec2 cellOffset = vec2(float(dx), float(dy));
 
-        colorMask(uvC, cellCenterPos(uvC, cellOffset, 0.), cmykOriginal.x, outOfFrame, grain, u_fillC, u_boostC, generalComp, isJoined, outMask[0]);
-        colorMask(uvM, cellCenterPos(uvM, cellOffset, 1.), cmykOriginal.y, outOfFrame, grain, u_fillM, u_boostM, generalComp, isJoined, outMask[1]);
-        colorMask(uvY, cellCenterPos(uvY, cellOffset, 2.), cmykOriginal.z, outOfFrame, grain, u_fillY, u_boostY, generalComp, isJoined, outMask[2]);
-        colorMask(uvK, cellCenterPos(uvK, cellOffset, 3.), cmykOriginal.w, outOfFrame, grain, u_fillK, u_boostK, generalComp, isJoined, outMask[3]);
+        colorMask(uvC, cellCenterPos(uvC, cellOffset, 0.), cmykOriginal.x, outOfFrame, grain, u_floodC, u_boostC, generalComp, isJoined, outMask[0]);
+        colorMask(uvM, cellCenterPos(uvM, cellOffset, 1.), cmykOriginal.y, outOfFrame, grain, u_floodM, u_boostM, generalComp, isJoined, outMask[1]);
+        colorMask(uvY, cellCenterPos(uvY, cellOffset, 2.), cmykOriginal.z, outOfFrame, grain, u_floodY, u_boostY, generalComp, isJoined, outMask[2]);
+        colorMask(uvK, cellCenterPos(uvK, cellOffset, 3.), cmykOriginal.w, outOfFrame, grain, u_floodK, u_boostK, generalComp, isJoined, outMask[3]);
       }
     }
   }
@@ -344,15 +344,15 @@ export interface HalftoneCmykUniforms extends ShaderSizingUniforms {
   u_grainMixer: number;
   u_grainOverlay: number;
   u_gridNoise: number;
-  u_fillC: number;
-  u_fillM: number;
-  u_fillY: number;
-  u_fillK: number;
+  u_floodC: number;
+  u_floodM: number;
+  u_floodY: number;
+  u_floodK: number;
   u_boostC: number;
   u_boostM: number;
   u_boostY: number;
   u_boostK: number;
-  u_shape: (typeof HalftoneCmykShapes)[HalftoneCmykShape];
+  u_type: (typeof HalftoneCmykTypes)[HalftoneCmykType];
 }
 
 export interface HalftoneCmykParams extends ShaderSizingParams, ShaderMotionParams {
@@ -369,22 +369,22 @@ export interface HalftoneCmykParams extends ShaderSizingParams, ShaderMotionPara
   grainMixer?: number;
   grainOverlay?: number;
   gridNoise?: number;
-  fillC?: number;
-  fillM?: number;
-  fillY?: number;
-  fillK?: number;
+  floodC?: number;
+  floodM?: number;
+  floodY?: number;
+  floodK?: number;
   boostC?: number;
   boostM?: number;
   boostY?: number;
   boostK?: number;
-  shape?: HalftoneCmykShape;
+  type?: HalftoneCmykType;
 }
 
-export const HalftoneCmykShapes = {
+export const HalftoneCmykTypes = {
   dots: 0,
   ink: 1,
   sharp: 2,
 } as const;
 
-export type HalftoneCmykShape = keyof typeof HalftoneCmykShapes;
+export type HalftoneCmykType = keyof typeof HalftoneCmykTypes;
 
