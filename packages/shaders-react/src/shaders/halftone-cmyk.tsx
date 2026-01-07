@@ -22,7 +22,7 @@ export const defaultPreset: HalftoneCmykPreset = {
   params: {
     ...defaultObjectSizing,
     scale: 1,
-    fit: 'contain',
+    fit: 'cover',
     speed: 0,
     frame: 0,
     colorBack: '#fbfaf5',
@@ -41,10 +41,10 @@ export const defaultPreset: HalftoneCmykPreset = {
     floodM: 0,
     floodY: 0,
     floodK: 0,
-    boostC: 0.2,
-    boostM: -0.1,
-    boostY: 0,
-    boostK: 0,
+    gainC: 0.2,
+    gainM: -0.1,
+    gainY: 0,
+    gainK: 0,
     type: 'ink',
   },
 };
@@ -72,10 +72,10 @@ export const HalftoneCmyk: React.FC<HalftoneCmykProps> = memo(function HalftoneC
   floodM = defaultPreset.params.floodM,
   floodY = defaultPreset.params.floodY,
   floodK = defaultPreset.params.floodK,
-  boostC = defaultPreset.params.boostC,
-  boostM = defaultPreset.params.boostM,
-  boostY = defaultPreset.params.boostY,
-  boostK = defaultPreset.params.boostK,
+  gainC = defaultPreset.params.gainC,
+  gainM = defaultPreset.params.gainM,
+  gainY = defaultPreset.params.gainY,
+  gainK = defaultPreset.params.gainK,
   type = defaultPreset.params.type,
 
   // Sizing props
@@ -110,10 +110,10 @@ export const HalftoneCmyk: React.FC<HalftoneCmykProps> = memo(function HalftoneC
     u_floodM: floodM,
     u_floodY: floodY,
     u_floodK: floodK,
-    u_boostC: boostC,
-    u_boostM: boostM,
-    u_boostY: boostY,
-    u_boostK: boostK,
+    u_gainC: gainC,
+    u_gainM: gainM,
+    u_gainY: gainY,
+    u_gainK: gainK,
     u_type: HalftoneCmykTypes[type],
 
     // Sizing uniforms
