@@ -220,7 +220,7 @@ void main() {
   vec2 uvGrid = (uv - .5) / pad;
   float outOfFrame = getUvFrame(uv, pad);
 
-  float generalComp = .1 * u_softness + .1 * u_gridNoise;
+  float generalComp = .1 * u_softness + .1 * u_gridNoise + .1 * (1. - step(0.5, u_shape)) * (1.5 - u_softness);
 
   vec2 uvC = mat2(cosC, sinC, -sinC, cosC) * uvGrid + shiftC;
   vec2 uvM = mat2(cosM, sinM, -sinM, cosM) * uvGrid + shiftM;
