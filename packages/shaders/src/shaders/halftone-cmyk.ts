@@ -26,15 +26,15 @@ export const halftoneCmykMeta = {
  * - u_grainMixer (float): Strength of grain affecting dot size (0 to 1)
  * - u_grainOverlay (float): Strength of grain overlay on final output (0 to 1)
  * - u_gridNoise (float): Strength of smooth noise applied to both dot positions and color sampling (0 to 1)
- * - u_addonC (float): Flat cyan dot size adjustment applied uniformly (-1 to 1)
- * - u_addonM (float): Flat magenta dot size adjustment applied uniformly (-1 to 1)
- * - u_addonY (float): Flat yellow dot size adjustment applied uniformly (-1 to 1)
- * - u_addonK (float): Flat black dot size adjustment applied uniformly (-1 to 1)
+ * - u_fillC (float): Flat cyan dot size adjustment applied uniformly (-1 to 1)
+ * - u_fillM (float): Flat magenta dot size adjustment applied uniformly (-1 to 1)
+ * - u_fillY (float): Flat yellow dot size adjustment applied uniformly (-1 to 1)
+ * - u_fillK (float): Flat black dot size adjustment applied uniformly (-1 to 1)
  * - u_boostC (float): Proportional cyan dot size boost (enhances existing dots, -1 to 1)
  * - u_boostM (float): Proportional magenta dot size boost (enhances existing dots, -1 to 1)
  * - u_boostY (float): Proportional yellow dot size boost (enhances existing dots, -1 to 1)
  * - u_boostK (float): Proportional black dot size boost (enhances existing dots, -1 to 1)
- * - u_shape (float): Dot shape style (0 = dots, 1 = ink, 2 = sharpDots, 3 = sharpInk)
+ * - u_shape (float): Dot shape style (0 = dots, 1 = ink, 2 = sharp)
  * - u_noiseTexture (sampler2D): Pre-computed randomizer source texture
  *
  * Vertex shader outputs (used in fragment shader):
@@ -74,10 +74,10 @@ uniform float u_grainMixer;
 uniform float u_grainOverlay;
 uniform float u_gridNoise;
 uniform float u_softness;
-uniform float u_addonC;
-uniform float u_addonM;
-uniform float u_addonY;
-uniform float u_addonK;
+uniform float u_fillC;
+uniform float u_fillM;
+uniform float u_fillY;
+uniform float u_fillK;
 uniform float u_boostC;
 uniform float u_boostM;
 uniform float u_boostY;
@@ -195,10 +195,10 @@ void colorMask(vec2 pos, vec2 cellCenter, float rad, float outOfFrame, float gra
 
   float mask = 1. - sst(0., radius, dist);
   if (isJoined) {
-    // ink or sharpInk (joined)
+    // ink or sharp (joined)
     mask = pow(mask, 1.2);
   } else {
-    // dots or sharpDots (separate)
+    // dots (separate)
     mask = sst(.5 - .5 * u_softness, .51 + .49 * u_softness, mask);
   }
 
@@ -234,7 +234,7 @@ void main() {
   grain *= u_grainMixer;
 
   vec4 outMask = vec4(0.);
-  bool isJoined = (u_shape > 0.5 && u_shape < 1.5) || u_shape > 2.5;
+  bool isJoined = u_shape > 0.5;
 
   if (u_shape < 1.5) {
     // dots or ink: per-cell color sampling
@@ -244,23 +244,23 @@ void main() {
 
         vec2 cellCenterC = cellCenterPos(uvC, cellOffset, 0.);
         vec4 texC = texture(u_image, gridToImageUV(cellCenterC, cosC, sinC, shiftC, pad));
-        colorMask(uvC, cellCenterC, getCyan(texC), outOfFrame, grain, u_addonC, u_boostC, generalComp, isJoined, outMask[0]);
+        colorMask(uvC, cellCenterC, getCyan(texC), outOfFrame, grain, u_fillC, u_boostC, generalComp, isJoined, outMask[0]);
 
         vec2 cellCenterM = cellCenterPos(uvM, cellOffset, 1.);
         vec4 texM = texture(u_image, gridToImageUV(cellCenterM, cosM, sinM, shiftM, pad));
-        colorMask(uvM, cellCenterM, getMagenta(texM), outOfFrame, grain, u_addonM, u_boostM, generalComp, isJoined, outMask[1]);
+        colorMask(uvM, cellCenterM, getMagenta(texM), outOfFrame, grain, u_fillM, u_boostM, generalComp, isJoined, outMask[1]);
 
         vec2 cellCenterY = cellCenterPos(uvY, cellOffset, 2.);
         vec4 texY = texture(u_image, gridToImageUV(cellCenterY, cosY, sinY, shiftY, pad));
-        colorMask(uvY, cellCenterY, getYellow(texY), outOfFrame, grain, u_addonY, u_boostY, generalComp, isJoined, outMask[2]);
+        colorMask(uvY, cellCenterY, getYellow(texY), outOfFrame, grain, u_fillY, u_boostY, generalComp, isJoined, outMask[2]);
 
         vec2 cellCenterK = cellCenterPos(uvK, cellOffset, 3.);
         vec4 texK = texture(u_image, gridToImageUV(cellCenterK, cosK, sinK, shiftK, pad));
-        colorMask(uvK, cellCenterK, getBlack(texK), outOfFrame, grain, u_addonK, u_boostK, generalComp, isJoined, outMask[3]);
+        colorMask(uvK, cellCenterK, getBlack(texK), outOfFrame, grain, u_fillK, u_boostK, generalComp, isJoined, outMask[3]);
       }
     }
   } else {
-    // sharpDots or sharpInk: direct px color sampling
+    // sharp: direct px color sampling
     vec4 tex = texture(u_image, uv);
     tex.rgb = applyContrast(tex.rgb);
     vec4 cmykOriginal = RGBAtoCMYK(tex);
@@ -268,10 +268,10 @@ void main() {
       for (int dx = -1; dx <= 1; dx++) {
         vec2 cellOffset = vec2(float(dx), float(dy));
 
-        colorMask(uvC, cellCenterPos(uvC, cellOffset, 0.), cmykOriginal.x, outOfFrame, grain, u_addonC, u_boostC, generalComp, isJoined, outMask[0]);
-        colorMask(uvM, cellCenterPos(uvM, cellOffset, 1.), cmykOriginal.y, outOfFrame, grain, u_addonM, u_boostM, generalComp, isJoined, outMask[1]);
-        colorMask(uvY, cellCenterPos(uvY, cellOffset, 2.), cmykOriginal.z, outOfFrame, grain, u_addonY, u_boostY, generalComp, isJoined, outMask[2]);
-        colorMask(uvK, cellCenterPos(uvK, cellOffset, 3.), cmykOriginal.w, outOfFrame, grain, u_addonK, u_boostK, generalComp, isJoined, outMask[3]);
+        colorMask(uvC, cellCenterPos(uvC, cellOffset, 0.), cmykOriginal.x, outOfFrame, grain, u_fillC, u_boostC, generalComp, isJoined, outMask[0]);
+        colorMask(uvM, cellCenterPos(uvM, cellOffset, 1.), cmykOriginal.y, outOfFrame, grain, u_fillM, u_boostM, generalComp, isJoined, outMask[1]);
+        colorMask(uvY, cellCenterPos(uvY, cellOffset, 2.), cmykOriginal.z, outOfFrame, grain, u_fillY, u_boostY, generalComp, isJoined, outMask[2]);
+        colorMask(uvK, cellCenterPos(uvK, cellOffset, 3.), cmykOriginal.w, outOfFrame, grain, u_fillK, u_boostK, generalComp, isJoined, outMask[3]);
       }
     }
   }
@@ -284,7 +284,7 @@ void main() {
   float K = outMask[3];
 
   if (isJoined) {
-    // ink or sharpInk: apply threshold for joined dots
+    // ink or sharp: apply threshold for joined dots
     float th = .5;
     float sLeft = th * u_softness;
     float sRight = (1. - th) * u_softness + .01;
@@ -344,10 +344,10 @@ export interface HalftoneCmykUniforms extends ShaderSizingUniforms {
   u_grainMixer: number;
   u_grainOverlay: number;
   u_gridNoise: number;
-  u_addonC: number;
-  u_addonM: number;
-  u_addonY: number;
-  u_addonK: number;
+  u_fillC: number;
+  u_fillM: number;
+  u_fillY: number;
+  u_fillK: number;
   u_boostC: number;
   u_boostM: number;
   u_boostY: number;
@@ -369,10 +369,10 @@ export interface HalftoneCmykParams extends ShaderSizingParams, ShaderMotionPara
   grainMixer?: number;
   grainOverlay?: number;
   gridNoise?: number;
-  addonC?: number;
-  addonM?: number;
-  addonY?: number;
-  addonK?: number;
+  fillC?: number;
+  fillM?: number;
+  fillY?: number;
+  fillK?: number;
   boostC?: number;
   boostM?: number;
   boostY?: number;
@@ -383,8 +383,7 @@ export interface HalftoneCmykParams extends ShaderSizingParams, ShaderMotionPara
 export const HalftoneCmykShapes = {
   dots: 0,
   ink: 1,
-  sharpDots: 2,
-  sharpInk: 3,
+  sharp: 2,
 } as const;
 
 export type HalftoneCmykShape = keyof typeof HalftoneCmykShapes;
