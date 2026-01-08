@@ -2,10 +2,6 @@ import type { ShaderMotionParams } from '../shader-mount.js';
 import { type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
 import { declarePI } from '../shader-utils.js';
 
-export const halftoneCmykMeta = {
-  maxBlurRadius: 8,
-} as const;
-
 /**
  * CMYK halftone printing effect applied to images with customizable dot patterns
  * and ink colors for each channel (Cyan, Magenta, Yellow, Black).
