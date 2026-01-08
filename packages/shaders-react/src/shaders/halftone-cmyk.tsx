@@ -113,7 +113,6 @@ export const blackAndWhite: HalftoneCmykPreset = {
   },
 };
 
-
 export const vintagePreset: HalftoneCmykPreset = {
   name: 'Vintage',
   params: {
@@ -122,11 +121,11 @@ export const vintagePreset: HalftoneCmykPreset = {
     fit: 'cover',
     speed: 0,
     frame: 0,
-    colorBack: '#f0e6d2',
-    colorC: '#3d8a9e',
-    colorM: '#b8475a',
-    colorY: '#c9a832',
-    colorK: '#2e2925',
+    colorBack: '#fffaf0',
+    colorC: '#59afc5',
+    colorM: '#d8697c',
+    colorY: '#fad85c',
+    colorK: '#2d2824',
     size: 0.4,
     contrast: 1,
     softness: 0.6,
