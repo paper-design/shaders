@@ -86,7 +86,7 @@ const HalftoneCmykWithControls = () => {
         options: Object.keys(HalftoneCmykTypes) as HalftoneCmykType[],
         order: 123,
       },
-      // softness: { value: defaults.softness, min: 0, max: 1, step: 0.01, order: 124 },
+      softness: { value: defaults.softness, min: 0, max: 1, step: 0.01, order: 124 },
       // contrast: { value: defaults.contrast, min: 0, max: 2, step: 0.01, order: 130 },
       // floodC: { value: defaults.floodC, min: 0, max: 1, step: 0.01, order: 210 },
       // floodM: { value: defaults.floodM, min: 0, max: 1, step: 0.01, order: 211 },
