@@ -81,11 +81,11 @@ const HalftoneCmykWithControls = () => {
       // colorK: { value: toHsla(defaults.colorK), order: 104 },
       size: { value: defaults.size, min: 0.01, max: 1, step: 0.01, order: 120 },
       // gridNoise: { value: defaults.gridNoise, min: 0, max: 1, step: 0.01, order: 121 },
-      // type: {
-      //   value: defaults.type,
-      //   options: Object.keys(HalftoneCmykTypes) as HalftoneCmykType[],
-      //   order: 123,
-      // },
+      type: {
+        value: defaults.type,
+        options: Object.keys(HalftoneCmykTypes) as HalftoneCmykType[],
+        order: 123,
+      },
       // softness: { value: defaults.softness, min: 0, max: 1, step: 0.01, order: 124 },
       // contrast: { value: defaults.contrast, min: 0, max: 2, step: 0.01, order: 130 },
       // floodC: { value: defaults.floodC, min: 0, max: 1, step: 0.01, order: 210 },
