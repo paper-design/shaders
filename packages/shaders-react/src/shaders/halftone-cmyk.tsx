@@ -30,7 +30,7 @@ export const defaultPreset: HalftoneCmykPreset = {
     colorM: '#ff00ff',
     colorY: '#ffff00',
     colorK: '#000000',
-    size: 0.98,
+    size: 0.97,
     contrast: 1,
     softness: 0,
     grainSize: 0.5,
