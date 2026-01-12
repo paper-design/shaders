@@ -74,11 +74,11 @@ const HalftoneCmykWithControls = () => {
       ])
     );
     return {
-      // colorBack: { value: toHsla(defaults.colorBack), order: 100 },
-      // colorC: { value: toHsla(defaults.colorC), order: 101 },
-      // colorM: { value: toHsla(defaults.colorM), order: 102 },
-      // colorY: { value: toHsla(defaults.colorY), order: 103 },
-      // colorK: { value: toHsla(defaults.colorK), order: 104 },
+      colorBack: { value: toHsla(defaults.colorBack), order: 100 },
+      colorC: { value: toHsla(defaults.colorC), order: 101 },
+      colorM: { value: toHsla(defaults.colorM), order: 102 },
+      colorY: { value: toHsla(defaults.colorY), order: 103 },
+      colorK: { value: toHsla(defaults.colorK), order: 104 },
       size: { value: defaults.size, min: 0.01, max: 1, step: 0.01, order: 120 },
       gridNoise: { value: defaults.gridNoise, min: 0, max: 1, step: 0.01, order: 121 },
       type: {
