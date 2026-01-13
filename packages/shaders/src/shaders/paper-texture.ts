@@ -265,6 +265,20 @@ vec2 getFolds(vec2 uv1, vec2 uv2) {
   );
 }
 
+vec2 getGrid(vec2 uv, vec3 lightPos) {
+  float gridX = fract(uv.x * .1 * u_gridCount + .5);
+  float dx = gridX - .5;
+  float foldWidth = u_gridShape;
+  float foldAmount = 1. - smoothstep(0., foldWidth, abs(dx));
+  float angle = sign(dx) * 1.1345 * foldAmount;
+  float creaseDark = mix(.9, 1., smoothstep(0., foldWidth * .5, abs(dx)));
+  vec3 n = vec3(-sin(angle), 0., cos(angle));
+  float grid = max(dot(n, lightPos), 0.) * creaseDark;
+  grid = u_grid * smoothstep(0., 1., grid) * smoothstep(0., .3, u_contrast);
+  float dropsMask = .2 + .8 * step(0., dx);
+  return vec2(grid, dropsMask);
+}
+
 vec3 blendMultiply(vec3 base, vec3 blend) {
   return base*blend;
 }
@@ -295,51 +309,24 @@ void main() {
 
   vec2 foldsUV1 = rotate(patternUV * .18, 4. * u_seed);
   vec2 foldsUV2 = rotate(foldsUV1 + .01 * cos(u_seed), .02 * sin(u_seed));
-  vec2 folds12 = getFolds(foldsUV1, foldsUV2);
-  float folds1 = folds12.x, folds2 = folds12.y;
+  vec2 folds = getFolds(foldsUV1, foldsUV2);
 
   float fade = u_fade * getFadeMask(.17 * patternUV + 10. * u_seed);
   fade = clamp(8. * fade * fade * fade, 0., 1.);
 
-  folds1 = mix(folds1, 0., fade);
-  folds2 = mix(folds2, 0., fade);
+  folds = mix(folds, vec2(0.), fade);
   crumples = mix(crumples, 0., fade);
   drops = mix(drops, 0., fade);
   fiber *= mix(1., .5, fade);
   roughness *= mix(1., .5, fade);
 
   vec3 lightPos = vec3(.5, 1., .5);
-  float grid = 0.;
-  {
-    vec2 gridUV = patternUV;
-    gridUV.x = fract(gridUV.x * .1 * u_gridCount + .5);
-    float foldX = .5;
-
-    float dx = gridUV.x - foldX;
-
-    drops *= (.2 + .8 * step(0., dx));
-
-    float foldWidth = u_gridShape;
-
-    float foldAmount = 1. - smoothstep(0.0, foldWidth, abs(dx));
-    float angle = sign(dx) * 1.1345 * foldAmount;
-    float creaseDark = mix(.9, 1., smoothstep(0., foldWidth * .5, abs(dx)));
-
-    vec3 n = vec3(0.0, 0.0, 1.0);
-    mat3 rotY = mat3(
-    cos(angle), 0.0, sin(angle),
-    0.0, 1.0, 0.0,
-    -sin(angle), 0.0, cos(angle)
-    );
-    n = rotY * n;
-
-    grid = max(dot(n, lightPos), 0.);
-    grid *= creaseDark;
-    grid = u_grid * smoothstep(0., 1., grid) * smoothstep(0., .3, u_contrast);
-  }
+  vec2 gridResult = getGrid(patternUV, lightPos);
+  float grid = gridResult.x;
+  drops *= gridResult.y;
   
-  normal -= 3. * u_folds * (folds1 + folds2);
-  normalImage += u_folds * folds1;
+  normal -= 3. * u_folds * (folds.x + folds.x);
+  normalImage += u_folds * folds.x;
 
   normal += 1.5 * crumples;
   normalImage += .4 * crumples;
@@ -385,7 +372,7 @@ void main() {
   color = mix(color, pic, frame);
 
 //  fragColor = vec4(color, opacity);
-  fragColor = vec4(folds1 + folds2 + .5, 0., 0., 1.);
+  fragColor = vec4(grid, 0., 0., 1.);
 }
 `;
 
