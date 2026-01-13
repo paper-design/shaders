@@ -132,10 +132,10 @@ vec2 getRoughnessFiber(vec2 pR, vec2 pF) {
   float scaleR = .1;
   float scaleF = 1.;
   float amplitude = 1.;
-  float rotAngle = 0.;
-  float angle = 0.7;
-  for (int i = 0; i < 4; i++) {
-    // Roughness: R channel at pR (only 3 iterations)
+  float c = 0.7648;  // cos(0.7)
+  float s = 0.6442;  // sin(0.7)
+  float rc = 1., rs = 0.;  // accumulated rotation
+  for (int i = 0; i < 5; i++) {
     if (i < 3) {
       vec2 ipR = floor(pR);
       vec2 fpR = fract(pR);
@@ -146,14 +146,15 @@ vec2 getRoughnessFiber(vec2 pR, vec2 pF) {
       float dR = texture(u_noiseTexture, uvR.zw).r;
       roughDx += scaleR * mix(cR - aR, dR - bR, fpR.y);
       float arg = .2 * pR.x + .5 * pR.y;
-      float s = sin(arg);
-      roughDx += scaleR * -.08 * exp(-2. * abs(s)) * sign(s) * cos(arg);
+      float sn = sin(arg);
+      roughDx += scaleR * -.08 * exp(-2. * abs(sn)) * sign(sn) * cos(arg);
       pR *= 2.1;
       scaleR *= 2.1;
     }
-    // Fiber: B channel at pF with rotation
-    pF = rotate(pF, angle);
-    rotAngle += angle;
+    pF = vec2(c * pF.x - s * pF.y, s * pF.x + c * pF.y);
+    float rc2 = rc * c - rs * s;
+    rs = rs * c + rc * s;
+    rc = rc2;
     vec2 ipF = floor(pF);
     vec2 fpF = fract(pF);
     vec4 uvF = fract(vec4(ipF, ipF + 1.) / 50. + .5);
@@ -165,7 +166,6 @@ vec2 getRoughnessFiber(vec2 pR, vec2 pF) {
     vec2 du = 6. * fpF * (1. - fpF);
     float dxF = du.x * mix(bF - aF, dF - cF, u.y);
     float dyF = du.y * mix(cF - aF, dF - bF, u.x);
-    float rc = cos(rotAngle), rs = sin(rotAngle);
     fiberGrad += amplitude * scaleF * vec2(rc * dxF + rs * dyF, -rs * dxF + rc * dyF);
     pF *= 2.;
     scaleF *= 2.;
@@ -264,8 +264,6 @@ void main() {
   
   vec2 crumplesUV = fract(mix(.45, .02, pow(u_crumpleSize, .3)) * patternUV - u_seed) * 32.;
   float crumples = u_crumples * (getCrumples(crumplesUV + vec2(.02, 0.)) - getCrumples(crumplesUV));
-
-
 
   vec2 normal = vec2(0.);
   vec2 normalImage = vec2(0.);
