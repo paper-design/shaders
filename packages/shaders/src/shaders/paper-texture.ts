@@ -153,9 +153,6 @@ vec2 getRoughnessFiber(vec2 pR, vec2 pF) {
       float cR = texture(u_noiseTexture, uvR.zy).r;
       float dR = texture(u_noiseTexture, uvR.zw).r;
       roughDx += scaleR * mix(cR - aR, dR - bR, fpR.y);
-      float arg = .2 * pR.x + .5 * pR.y;
-      float sn = sin(arg);
-      roughDx += scaleR * -.08 * exp(-2. * abs(sn)) * sign(sn) * cos(arg);
       pR *= 2.1;
       scaleR *= 2.1;
     }
@@ -179,7 +176,7 @@ vec2 getRoughnessFiber(vec2 pR, vec2 pF) {
     scaleF *= 2.;
     amplitude *= 0.6;
   }
-  return vec2(roughDx / 1.5, length(fiberGrad));
+  return vec2(roughDx, length(fiberGrad));
 }
 
 vec2 randomGB(vec2 p) {
