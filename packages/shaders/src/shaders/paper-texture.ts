@@ -270,7 +270,7 @@ vec2 getGrid(vec2 uv) {
   float angle = sign(dx) * 1.1345 * foldAmount;
   float creaseDark = mix(.9, 1., smoothstep(0., foldWidth * .5, abs(dx)));
   float grid = max(-.5 * sin(angle) + .5 * cos(angle), 0.) * creaseDark;
-  float dropsMask = .2 + .8 * step(0., dx);
+  float dropsMask = 1. - .8 * step(0., dx);
   return vec2(grid, dropsMask);
 }
 
@@ -291,24 +291,24 @@ void main() {
   vec2 roughnessUV = mix(330., 100., u_roughnessSize) * patternUV;
   vec2 fiberUV = mix(25., 8., u_fiberSize) * patternUV;
   vec2 rf = getRoughnessFiber(roughnessUV, fiberUV);
-  float roughness = u_roughness * (rf.x + .5);
-  float fiber = u_fiber * (rf.y - 1.);
+  float roughness = u_roughness * pow(1.3 * clamp(rf.x + .5, 0., 1.), 3.);
+  float fiber = u_fiber * clamp(rf.y - 1., 0., 1.);
   
   vec2 crumplesUV = mix(14.4, .64, pow(u_crumpleSize, .3)) * patternUV - 32. * u_seed;
-  float crumples = u_crumples * (.5 + getCrumples(crumplesUV));
+  float crumples = u_crumples * clamp(.2 + getCrumples(crumplesUV), 0., 1.);
 
   float drops = u_drops * getDrops(patternUV * 2.);
 
   vec2 foldsUV1 = rotate(patternUV * .18, 4. * u_seed);
   vec2 foldsUV2 = rotate(foldsUV1 + .01 * cos(u_seed), .02 * sin(u_seed));
-  vec2 folds = u_folds * getFolds(foldsUV1, foldsUV2);
+  vec2 folds = u_folds * clamp(5. * getFolds(foldsUV1, foldsUV2), 0., 1.);
 
   float fade = u_fade * getFadeMask(.17 * patternUV + 10. * u_seed);
   fade = clamp(8. * fade * fade * fade, 0., 1.);
 
-  vec2 gridResult = u_grid * getGrid(patternUV);
+  vec2 gridResult = u_grid * clamp(getGrid(patternUV), 0., 1.);
   float grid = gridResult.x;
-  drops *= gridResult.y;
+  drops *= mix(1., gridResult.y, u_grid);
 
   folds = mix(folds, vec2(0.), fade);
   crumples = mix(crumples, 0., fade);
@@ -342,8 +342,6 @@ void main() {
   opacity += bgOpacity * (1. - opacity);
   opacity = mix(opacity, 1., frame);
 
-//  color -= .007 * drops;
-//
 //  float blendOpacity = (.5 + .5 * pattern);
 //  vec3 pic = blendMultiply(color, image.rgb + .2 * 1. - u_blending * pattern, .5 * pattern + .2 * u_blending);
 //  pic = mix(image.rgb, pic, .5 * u_blending);
