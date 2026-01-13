@@ -1,6 +1,6 @@
 import type { ShaderMotionParams } from '../shader-mount.js';
 import { type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
-import { rotation2, declarePI, textureRandomizerR } from '../shader-utils.js';
+import { rotation2, declarePI } from '../shader-utils.js';
 
 /**
  * A static texture built from multiple noise layers, usable for realistic paper and cardboard surfaces.
@@ -99,7 +99,10 @@ float getUvFrame(vec2 uv) {
 
 ${ declarePI }
 ${ rotation2 }
-${ textureRandomizerR }
+float randomR(vec2 p) {
+  vec2 uv = floor(p) / 100. + .5;
+  return texture(u_noiseTexture, fract(uv)).r;
+}
 float valueNoise(vec2 st) {
   vec2 i = floor(st);
   vec2 f = fract(st);
@@ -162,8 +165,7 @@ vec3 fiberValueNoiseD(vec2 st) {
   return vec3(value, dx, dy);
 }
 
-// Returns vec3(value, dValue/dx, dValue/dy) with gradients in original coordinate space
-vec3 fiberNoiseFbmD(vec2 n, vec2 seedOffset) {
+vec3 fiberNoiseFbmD(vec2 n) {
   float total = 0.0;
   vec2 totalGrad = vec2(0.0);
   float amplitude = 1.0;
@@ -173,7 +175,7 @@ vec3 fiberNoiseFbmD(vec2 n, vec2 seedOffset) {
   for (int i = 0; i < 4; i++) {
     n = rotate(n, angle);
     rotAngle += angle;
-    vec3 nd = fiberValueNoiseD(n + seedOffset);
+    vec3 nd = fiberValueNoiseD(n);
     total += nd.x * amplitude;
     float rc = cos(rotAngle);
     float rs = sin(rotAngle);
@@ -186,8 +188,8 @@ vec3 fiberNoiseFbmD(vec2 n, vec2 seedOffset) {
   return vec3(total, totalGrad);
 }
 
-float fiberNoise(vec2 uv, vec2 seedOffset) {
-  return length(fiberNoiseFbmD(uv, seedOffset).yz);
+float fiberNoise(vec2 uv) {
+  return length(fiberNoiseFbmD(uv).yz);
 }
 
 vec2 randomGB(vec2 p) {
@@ -279,7 +281,7 @@ void main() {
   float crumples = u_crumples * (crumplesShape(crumplesUV + vec2(.02, 0.)) - crumplesShape(crumplesUV));
 
   vec2 fiberUV = mix(25., 8., u_fiberSize) * patternUV;
-  float fiber = fiberNoise(fiberUV, vec2(0.));
+  float fiber = fiberNoise(fiberUV);
   fiber = .5 * u_fiber * (fiber - 1.);
 
   vec2 normal = vec2(0.);
