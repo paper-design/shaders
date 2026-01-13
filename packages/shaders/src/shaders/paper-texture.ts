@@ -240,21 +240,29 @@ float getDrops(vec2 uv) {
   return 1. - lst(.05, .09, pow(dropsMinDist, .5));
 }
 
-float getFolds(vec2 uv) {
-  vec2 pp = vec2(0.);
-  float l = 9.;
+vec2 getFolds(vec2 uv1, vec2 uv2) {
+  vec2 pp1 = vec2(0.), pp2 = vec2(0.);
+  float l1 = 9., l2 = 9.;
   for (int i = 0; i < 15; i++) {
     if (float(i) >= u_foldCount) break;
     vec2 rand = randomGB(vec2(float(i), float(i) * u_seed));
     float an = rand.x * TWO_PI;
     vec2 p = vec2(cos(an), sin(an)) * rand.y;
-    float dist = distance(uv, p);
-    if (dist < l) {
-      l = dist;
-      pp = vec2(uv.x - p.x, dist);
+    float dist1 = distance(uv1, p);
+    if (dist1 < l1) {
+      l1 = dist1;
+      pp1 = vec2(uv1.x - p.x, dist1);
+    }
+    float dist2 = distance(uv2, p);
+    if (dist2 < l2) {
+      l2 = dist2;
+      pp2 = vec2(uv2.x - p.x, dist2);
     }
   }
-  return mix(pp.x, 0., pow(pp.y, .15));
+  return vec2(
+    mix(pp1.x, 0., pow(pp1.y, .15)),
+    mix(pp2.x, 0., pow(pp2.y, .15))
+  );
 }
 
 vec3 blendMultiply(vec3 base, vec3 blend) {
@@ -285,11 +293,10 @@ void main() {
   vec2 normal = vec2(0.);
   vec2 normalImage = vec2(0.);
 
-  vec2 foldsUV = patternUV * .18;
-  foldsUV = rotate(foldsUV, 4. * u_seed);
-  float folds1 = getFolds(foldsUV);
-  foldsUV = rotate(foldsUV + .01 * cos(u_seed), .02 * sin(u_seed));
-  float folds2 = getFolds(foldsUV);
+  vec2 foldsUV1 = rotate(patternUV * .18, 4. * u_seed);
+  vec2 foldsUV2 = rotate(foldsUV1 + .01 * cos(u_seed), .02 * sin(u_seed));
+  vec2 folds12 = getFolds(foldsUV1, foldsUV2);
+  float folds1 = folds12.x, folds2 = folds12.y;
 
   float fade = u_fade * getFadeMask(.17 * patternUV + 10. * u_seed);
   fade = clamp(8. * fade * fade * fade, 0., 1.);
