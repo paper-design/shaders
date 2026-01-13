@@ -33,7 +33,7 @@ export const defaultPreset: PaperTexturePreset = {
     distortion: 0.5,
     fit: 'contain',
     scale: 0.8,
-    speed: 0,
+    speed: 1,
     frame: 0,
     colorFront: '#bbbfc4',
     colorBack: '#ffffff',
@@ -80,7 +80,7 @@ export const fiberPreset: PaperTexturePreset = {
     fade: 1,
     scale: 0.80,
     fit: "contain",
-    speed: 0,
+    speed: 1,
     frame: 0
   },
 };
@@ -92,7 +92,7 @@ export const cardboardPreset: PaperTexturePreset = {
     blending: 0.5,
     distortion: 0.5,
     fit: 'contain',
-    speed: 0,
+    speed: 1,
     frame: 0,
     scale: 0.8,
     colorBack: "#dcc593",
@@ -140,7 +140,7 @@ export const spreadPreset: PaperTexturePreset = {
     fade: 0.68,
     scale: 0.8,
     fit: "contain",
-    speed: 0,
+    speed: 1,
     frame: 0
   },
 };
@@ -171,7 +171,7 @@ export const flatPreset: PaperTexturePreset = {
     fade: 0.75,
     scale: 0.8,
     fit: 'contain',
-    speed: 0,
+    speed: 1,
     frame: 0
   },
 };
