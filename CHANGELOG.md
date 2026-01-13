@@ -1,5 +1,15 @@
 # Paper Shaders
 
+## Version 0.0.69
+
+- **New shader**: **HalftoneCMYK**
+- **General**
+  - Minor performance improvements (DotOrbit, GrainGradient, PerlinNoise, SmokeRing, FlutedGlass, HalftoneDots)
+- **Fluted Glass**
+  - Default `scale` parameter to 1
+- **StaticMeshGradient and StaticRadialGradient**
+  - `mixing` parameter working via smoother curve 
+
 ## Version 0.0.68
 
 - **General**
