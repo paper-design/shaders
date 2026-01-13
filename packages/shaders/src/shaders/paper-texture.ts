@@ -147,7 +147,7 @@ float fiberRandom(vec2 p) {
   return texture(u_noiseTexture, fract(uv)).b;
 }
 
-float fiberValueNoise(vec2 st) {
+vec3 fiberValueNoiseD(vec2 st) {
   vec2 i = floor(st);
   vec2 f = fract(st);
   float a = fiberRandom(i);
@@ -155,29 +155,39 @@ float fiberValueNoise(vec2 st) {
   float c = fiberRandom(i + vec2(0.0, 1.0));
   float d = fiberRandom(i + vec2(1.0, 1.0));
   vec2 u = f * f * (3.0 - 2.0 * f);
-  float x1 = mix(a, b, u.x);
-  float x2 = mix(c, d, u.x);
-  return mix(x1, x2, u.y);
+  vec2 du = 6.0 * f * (1.0 - f);
+  float value = mix(mix(a, b, u.x), mix(c, d, u.x), u.y);
+  float dx = du.x * mix(b - a, d - c, u.y);
+  float dy = du.y * mix(c - a, d - b, u.x);
+  return vec3(value, dx, dy);
 }
 
-float fiberNoiseFbm(vec2 n, vec2 seedOffset) {
-  float total = 0.0, amplitude = 1.;
+// Returns vec3(value, dValue/dx, dValue/dy) with gradients in original coordinate space
+vec3 fiberNoiseFbmD(vec2 n, vec2 seedOffset) {
+  float total = 0.0;
+  vec2 totalGrad = vec2(0.0);
+  float amplitude = 1.0;
+  float angle = 0.7;
+  float scale = 1.0;
+  float rotAngle = 0.0;
   for (int i = 0; i < 4; i++) {
-    n = rotate(n, .7);
-    total += fiberValueNoise(n + seedOffset) * amplitude;
-    n *= 2.;
+    n = rotate(n, angle);
+    rotAngle += angle;
+    vec3 nd = fiberValueNoiseD(n + seedOffset);
+    total += nd.x * amplitude;
+    float rc = cos(rotAngle);
+    float rs = sin(rotAngle);
+    vec2 g = nd.yz;
+    totalGrad += amplitude * scale * vec2(rc * g.x + rs * g.y, -rs * g.x + rc * g.y);
+    n *= 2.0;
+    scale *= 2.0;
     amplitude *= 0.6;
   }
-  return total;
+  return vec3(total, totalGrad);
 }
 
 float fiberNoise(vec2 uv, vec2 seedOffset) {
-  float epsilon = 0.001;
-  float n1 = fiberNoiseFbm(uv + vec2(epsilon, 0.0), seedOffset);
-  float n2 = fiberNoiseFbm(uv - vec2(epsilon, 0.0), seedOffset);
-  float n3 = fiberNoiseFbm(uv + vec2(0.0, epsilon), seedOffset);
-  float n4 = fiberNoiseFbm(uv - vec2(0.0, epsilon), seedOffset);
-  return length(vec2(n1 - n2, n3 - n4)) / (2.0 * epsilon);
+  return length(fiberNoiseFbmD(uv, seedOffset).yz);
 }
 
 vec2 randomGB(vec2 p) {
