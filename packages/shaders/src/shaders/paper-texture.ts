@@ -265,18 +265,16 @@ vec2 getFolds(vec2 uv1, vec2 uv2) {
   );
 }
 
-vec2 getGrid(vec2 uv, vec3 lightPos) {
+vec2 getGrid(vec2 uv) {
   float gridX = fract(uv.x * .1 * u_gridCount + .5);
   float dx = gridX - .5;
   float foldWidth = u_gridShape;
   float foldAmount = 1. - smoothstep(0., foldWidth, abs(dx));
   float angle = sign(dx) * 1.1345 * foldAmount;
   float creaseDark = mix(.9, 1., smoothstep(0., foldWidth * .5, abs(dx)));
-  vec3 n = vec3(-sin(angle), 0., cos(angle));
-  float grid = max(dot(n, lightPos), 0.) * creaseDark;
-  grid = u_grid * smoothstep(0., 1., grid) * smoothstep(0., .3, u_contrast);
+  float grid = max(-.5 * sin(angle) + .5 * cos(angle), 0.) * creaseDark;
   float dropsMask = .2 + .8 * step(0., dx);
-  return vec2(.5 * grid, dropsMask);
+  return vec2(grid, dropsMask);
 }
 
 vec3 blendMultiply(vec3 base, vec3 blend) {
@@ -311,8 +309,7 @@ void main() {
   float fade = u_fade * getFadeMask(.17 * patternUV + 10. * u_seed);
   fade = clamp(8. * fade * fade * fade, 0., 1.);
 
-  vec3 lightPos = vec3(.5, 1., .5);
-  vec2 gridResult = getGrid(patternUV, lightPos);
+  vec2 gridResult = u_grid * getGrid(patternUV);
   float grid = gridResult.x;
   drops *= gridResult.y;
 
