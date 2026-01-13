@@ -97,6 +97,14 @@ float getUvFrame(vec2 uv) {
   return left * right * bottom * top;
 }
 
+
+float lst(float edge0, float edge1, float x) {
+  return clamp((x - edge0) / (edge1 - edge0), 0.0, 1.0);
+}
+float sst(float edge0, float edge1, float x) {
+  return smoothstep(edge0, edge1, x);
+}
+
 ${ declarePI }
 ${ rotation2 }
 float randomR(vec2 p) {
@@ -179,27 +187,39 @@ vec2 randomGB(vec2 p) {
   return texture(u_noiseTexture, fract(uv)).gb;
 }
 
-float crumpledNoise(vec2 t, float pw) {
-  vec2 p = floor(t);
-  float wsum = 0.;
-  float cl = 0.;
+float getCrumples(vec2 uv) {
+  vec2 t1 = uv * .25;
+  vec2 t2 = uv * .5;
+  vec2 p1 = floor(t1), p2 = floor(t2);
+  vec2 wsum1 = vec2(0.), cl1 = vec2(0.);
+  vec2 wsum2 = vec2(0.), cl2 = vec2(0.);
   for (int y = -1; y < 2; y += 1) {
     for (int x = -1; x < 2; x += 1) {
       vec2 b = vec2(float(x), float(y));
-      vec2 q = b + p;
-      vec2 q2 = q - floor(q / 8.) * 8.;
-      vec2 c = q + randomGB(q2);
-      vec2 r = c - t;
-      float w = pow(smoothstep(0., 1., 1. - abs(r.x)), pw) * pow(smoothstep(0., 1., 1. - abs(r.y)), pw);
-      cl += (.5 + .5 * sin((q2.x + q2.y * 5.) * 8.)) * w;
-      wsum += w;
+      // Scale 1
+      vec2 q1 = b + p1;
+      vec2 q1m = mod(q1, 8.);
+      vec2 c1 = q1 + randomGB(q1m);
+      float val1 = .5 + .5 * sin((q1m.x + q1m.y * 5.) * 8.);
+      vec2 r1 = c1 - t1;
+      float wy1 = pow(sst(0., 1., 1. - abs(r1.y)), 16.);
+      vec2 w1 = pow(smoothstep(0., 1., 1. - abs(vec2(r1.x, r1.x - .0125))), vec2(16.)) * wy1;
+      cl1 += val1 * w1; wsum1 += w1;
+      // Scale 2
+      vec2 q2 = b + p2;
+      vec2 q2m = mod(q2, 8.);
+      vec2 c2 = q2 + randomGB(q2m);
+      float val2 = .5 + .5 * sin((q2m.x + q2m.y * 5.) * 8.);
+      vec2 r2 = c2 - t2;
+      float sy2 = sst(0., 1., 1. - abs(r2.y));
+      float wy2 = sy2 * sy2;
+      vec2 sx2 = smoothstep(0., 1., 1. - abs(vec2(r2.x, r2.x - .025)));
+      vec2 w2 = sx2 * sx2 * wy2;
+      cl2 += val2 * w2; wsum2 += w2;
     }
   }
-  return pow(wsum != 0.0 ? cl / wsum : 0.0, .5) * 2.;
-}
-
-float getCrumples(vec2 uv) {
-  return crumpledNoise(uv * .25, 16.) * crumpledNoise(uv * .5, 2.);
+  vec2 n = (cl1 / wsum1) * (cl2 / wsum2);
+  return 4. * (n.y - n.x);
 }
 
 vec2 folds(vec2 uv) {
@@ -238,10 +258,6 @@ float getDrops(vec2 uv) {
   return 1. - smoothstep(.05, .09, pow(dropsMinDist, .5));
 }
 
-float lst(float edge0, float edge1, float x) {
-  return clamp((x - edge0) / (edge1 - edge0), 0.0, 1.0);
-}
-
 vec3 blendMultiply(vec3 base, vec3 blend) {
   return base*blend;
 }
@@ -262,8 +278,8 @@ void main() {
   float roughness = u_roughness * (rf.x + .5);
   float fiber = u_fiber * (rf.y - 1.);
   
-  vec2 crumplesUV = fract(mix(.45, .02, pow(u_crumpleSize, .3)) * patternUV - u_seed) * 32.;
-  float crumples = u_crumples * (getCrumples(crumplesUV + vec2(.02, 0.)) - getCrumples(crumplesUV));
+  vec2 crumplesUV = mix(14.4, .64, pow(u_crumpleSize, .3)) * patternUV - 32. * u_seed;
+  float crumples = .5 + getCrumples(crumplesUV);
 
   vec2 normal = vec2(0.);
   vec2 normalImage = vec2(0.);
@@ -363,7 +379,7 @@ void main() {
   color = mix(color, pic, frame);
 
 //  fragColor = vec4(color, opacity);
-  fragColor = vec4(roughness, fiber, 0., 1.);
+  fragColor = vec4(crumples, 0., 0., 1.);
 }
 `;
 
