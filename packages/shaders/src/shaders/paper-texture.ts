@@ -276,7 +276,7 @@ vec2 getGrid(vec2 uv, vec3 lightPos) {
   float grid = max(dot(n, lightPos), 0.) * creaseDark;
   grid = u_grid * smoothstep(0., 1., grid) * smoothstep(0., .3, u_contrast);
   float dropsMask = .2 + .8 * step(0., dx);
-  return vec2(grid, dropsMask);
+  return vec2(.5 * grid, dropsMask);
 }
 
 vec3 blendMultiply(vec3 base, vec3 blend) {
@@ -300,79 +300,62 @@ void main() {
   float fiber = u_fiber * (rf.y - 1.);
   
   vec2 crumplesUV = mix(14.4, .64, pow(u_crumpleSize, .3)) * patternUV - 32. * u_seed;
-  float crumples = .5 + getCrumples(crumplesUV);
+  float crumples = u_crumples * (.5 + getCrumples(crumplesUV));
 
-  float drops = getDrops(patternUV * 2.);
-
-  vec2 normal = vec2(0.);
-  vec2 normalImage = vec2(0.);
+  float drops = u_drops * getDrops(patternUV * 2.);
 
   vec2 foldsUV1 = rotate(patternUV * .18, 4. * u_seed);
   vec2 foldsUV2 = rotate(foldsUV1 + .01 * cos(u_seed), .02 * sin(u_seed));
-  vec2 folds = getFolds(foldsUV1, foldsUV2);
+  vec2 folds = u_folds * getFolds(foldsUV1, foldsUV2);
 
   float fade = u_fade * getFadeMask(.17 * patternUV + 10. * u_seed);
   fade = clamp(8. * fade * fade * fade, 0., 1.);
+
+  vec3 lightPos = vec3(.5, 1., .5);
+  vec2 gridResult = getGrid(patternUV, lightPos);
+  float grid = gridResult.x;
+  drops *= gridResult.y;
 
   folds = mix(folds, vec2(0.), fade);
   crumples = mix(crumples, 0., fade);
   drops = mix(drops, 0., fade);
   fiber *= mix(1., .5, fade);
   roughness *= mix(1., .5, fade);
-
-  vec3 lightPos = vec3(.5, 1., .5);
-  vec2 gridResult = getGrid(patternUV, lightPos);
-  float grid = gridResult.x;
-  drops *= gridResult.y;
+  grid *= mix(1., .0, fade);
   
-  normal -= 3. * u_folds * (folds.x + folds.x);
-  normalImage += u_folds * folds.x;
-
-  normal += 1.5 * crumples;
-  normalImage += .4 * crumples;
-
-  normal += 2.5 * drops;
-  normalImage += .2 * drops;
-
-  normal += 1.5 * roughness;
-  normalImage += .1 * roughness;
-  
-  normal += fiber;
-  normalImage += .1 * fiber;
-
-  normal += grid;
-  normalImage += .2 * grid;
-  
-  float res = dot(normalize(vec3(normal, mix(7.5, .5, pow(u_contrast, .1)))), lightPos);
+  float pattern = roughness;
+  pattern += fiber;
+  pattern += crumples;
+  pattern += (folds.x + folds.y);
+  pattern += grid;
+  pattern += drops;
 
   vec3 fgColor = u_colorFront.rgb * u_colorFront.a;
   float fgOpacity = u_colorFront.a;
   vec3 bgColor = u_colorBack.rgb * u_colorBack.a;
   float bgOpacity = u_colorBack.a;
 
-  imageUV += .1 * u_distortion * normalImage;
+  imageUV += .1 * u_distortion * pattern;
   float frame = getUvFrame(imageUV);
   vec4 image = texture(u_image, imageUV);
-  image.rgb += .4 * pow(u_contrast, .4) * (.3 - res);
-
+  image.rgb += .4 * pow(u_contrast, .4) * (.3 - pattern);
   frame *= image.a;
 
-  vec3 color = fgColor * res;
-  float opacity = fgOpacity * res;
+  vec3 color = fgColor * pattern;
+  float opacity = fgOpacity * pattern;
 
   color += bgColor * (1. - opacity);
   opacity += bgOpacity * (1. - opacity);
   opacity = mix(opacity, 1., frame);
 
-  color -= .007 * drops;
+//  color -= .007 * drops;
+//
+//  float blendOpacity = (.5 + .5 * pattern);
+//  vec3 pic = blendMultiply(color, image.rgb + .2 * 1. - u_blending * pattern, .5 * pattern + .2 * u_blending);
+//  pic = mix(image.rgb, pic, .5 * u_blending);
+//  color = mix(color, pic, frame);
 
-  float blendOpacity = (.5 + .5 * res);
-  vec3 pic = blendMultiply(color, image.rgb + .2 * 1. - u_blending * length(normalImage), .5 * res + .2 * u_blending);
-  pic = mix(image.rgb, pic, .5 * u_blending);
-  color = mix(color, pic, frame);
-
-//  fragColor = vec4(color, opacity);
-  fragColor = vec4(grid, 0., 0., 1.);
+  fragColor = vec4(color, opacity);
 }
 `;
 
