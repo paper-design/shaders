@@ -240,23 +240,21 @@ float getDrops(vec2 uv) {
   return 1. - lst(.05, .09, pow(dropsMinDist, .5));
 }
 
-vec2 getFolds(vec2 uv) {
-  vec3 pp = vec3(0.);
+float getFolds(vec2 uv) {
+  vec2 pp = vec2(0.);
   float l = 9.;
-  for (float i = 0.; i < 15.; i++) {
-    if (i >= u_foldCount) break;
-    vec2 rand = randomGB(vec2(i, i * u_seed));
+  for (int i = 0; i < 15; i++) {
+    if (float(i) >= u_foldCount) break;
+    vec2 rand = randomGB(vec2(float(i), float(i) * u_seed));
     float an = rand.x * TWO_PI;
     vec2 p = vec2(cos(an), sin(an)) * rand.y;
     float dist = distance(uv, p);
-    l = min(l, dist);
-
-    if (l == dist) {
-      pp.xy = (uv - p.xy);
-      pp.z = dist;
+    if (dist < l) {
+      l = dist;
+      pp = vec2(uv.x - p.x, dist);
     }
   }
-  return mix(pp.xy, vec2(0.), pow(pp.z, .15));
+  return mix(pp.x, 0., pow(pp.y, .15));
 }
 
 vec3 blendMultiply(vec3 base, vec3 blend) {
@@ -289,15 +287,15 @@ void main() {
 
   vec2 foldsUV = patternUV * .18;
   foldsUV = rotate(foldsUV, 4. * u_seed);
-  vec2 folds1 = getFolds(foldsUV);
-  foldsUV = rotate(foldsUV + .005 * cos(u_seed), .01 * sin(u_seed));
-  vec2 folds2 = getFolds(foldsUV);
+  float folds1 = getFolds(foldsUV);
+  foldsUV = rotate(foldsUV + .01 * cos(u_seed), .02 * sin(u_seed));
+  float folds2 = getFolds(foldsUV);
 
   float fade = u_fade * getFadeMask(.17 * patternUV + 10. * u_seed);
   fade = clamp(8. * fade * fade * fade, 0., 1.);
 
-  folds1 = mix(folds1, vec2(0.), fade);
-  folds2 = mix(folds2, vec2(0.), fade);
+  folds1 = mix(folds1, 0., fade);
+  folds2 = mix(folds2, 0., fade);
   crumples = mix(crumples, 0., fade);
   drops = mix(drops, 0., fade);
   fiber *= mix(1., .5, fade);
@@ -380,7 +378,7 @@ void main() {
   color = mix(color, pic, frame);
 
 //  fragColor = vec4(color, opacity);
-  fragColor = vec4(crumples, drops, 0., 1.);
+  fragColor = vec4(folds1 + folds2 + .5, 0., 0., 1.);
 }
 `;
 
