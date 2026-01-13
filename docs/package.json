@@ -19,9 +19,9 @@
     "culori": "4.0.2",
     "lodash-es": "4.17.21",
     "leva": "0.9.34",
-    "next": "15.2.3",
-    "react": "^19.2.0",
-    "react-dom": "^19.2.0"
+    "next": "15.3.6",
+    "react": "19.2.2",
+    "react-dom": "19.2.2"
   },
   "devDependencies": {
     "@eslint/eslintrc": "3.2.0",

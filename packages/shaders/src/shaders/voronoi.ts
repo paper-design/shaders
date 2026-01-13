@@ -1,6 +1,6 @@
 import type { vec4 } from '../types.js';
 import type { ShaderMotionParams } from '../shader-mount.js';
-import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
+import { type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
 import { declarePI, textureRandomizerGB } from '../shader-utils.js';
 
 export const voronoiMeta = {
@@ -8,20 +8,41 @@ export const voronoiMeta = {
 } as const;
 
 /**
- * Double-pass Voronoi pattern cell edges
+ * Anti-aliased animated Voronoi pattern with smooth and customizable edges.
+ *
+ * Double-pass Voronoi pattern cell edges.
  * Original algorithm: https://www.shadertoy.com/view/ldl3W8
  *
- * Uniforms:
- * - u_colorBack, u_colorGlow (RGBA)
- * - u_colors (vec4[]), u_colorsCount (float used as integer)
- * - u_stepsPerColor: discrete color steps between u_colors
- * - u_distortion (0..0.5): max distance the cell center moves away from regular grid
- * - u_gap: width of the stroke between the cells
- * - u_glow: radial glow around each cell center
+ * Note: gaps can't be removed completely due to natural artifacts of Voronoi cells borders
  *
- * - u_noiseTexture (sampler2D): pre-computed randomizer source
+ * Fragment shader uniforms:
+ * - u_time (float): Animation time
+ * - u_scale (float): Overall zoom level, used for anti-aliasing calculations
+ * - u_colors (vec4[]): Up to 5 base cell colors in RGBA
+ * - u_colorsCount (float): Number of active colors
+ * - u_stepsPerColor (float): Number of extra colors between base colors, 1 = N colors, 2 = 2×N, etc. (1 to 3)
+ * - u_colorGlow (vec4): Color tint for radial inner shadow inside cells in RGBA, effective with glow > 0
+ * - u_colorGap (vec4): Color used for cell borders/gaps in RGBA
+ * - u_distortion (float): Strength of noise-driven displacement of cell centers (0 to 0.5)
+ * - u_gap (float): Width of the border/gap between cells (0 to 0.1)
+ * - u_glow (float): Strength of the radial inner shadow inside cells (0 to 1)
+ * - u_noiseTexture (sampler2D): Pre-computed randomizer source texture
  *
- * Note: gaps can't be removed completely due to artifacts of Voronoi cells
+ * Vertex shader outputs (used in fragment shader):
+ * - v_patternUV (vec2): UV coordinates for pattern with global sizing (rotation, scale, offset, etc) applied
+ *
+ * Vertex shader uniforms:
+ * - u_resolution (vec2): Canvas resolution in pixels
+ * - u_pixelRatio (float): Device pixel ratio
+ * - u_originX (float): Reference point for positioning world width in the canvas (0 to 1)
+ * - u_originY (float): Reference point for positioning world height in the canvas (0 to 1)
+ * - u_worldWidth (float): Virtual width of the graphic before it's scaled to fit the canvas
+ * - u_worldHeight (float): Virtual height of the graphic before it's scaled to fit the canvas
+ * - u_fit (float): How to fit the rendered shader into the canvas dimensions (0 = none, 1 = contain, 2 = cover)
+ * - u_scale (float): Overall zoom level of the graphics (0.01 to 4)
+ * - u_rotation (float): Overall rotation angle of the graphics in degrees (0 to 360)
+ * - u_offsetX (float): Horizontal offset of the graphics center (-1 to 1)
+ * - u_offsetY (float): Vertical offset of the graphics center (-1 to 1)
  *
  */
 
@@ -35,7 +56,7 @@ uniform float u_scale;
 
 uniform sampler2D u_noiseTexture;
 
-uniform vec4 u_colors[${voronoiMeta.maxColorCount}];
+uniform vec4 u_colors[${ voronoiMeta.maxColorCount }];
 uniform float u_colorsCount;
 
 uniform float u_stepsPerColor;
@@ -45,12 +66,12 @@ uniform float u_distortion;
 uniform float u_gap;
 uniform float u_glow;
 
-${sizingVariablesDeclaration}
+in vec2 v_patternUV;
 
 out vec4 fragColor;
 
-${declarePI}
-${textureRandomizerGB}
+${ declarePI }
+${ textureRandomizerGB }
 
 vec4 voronoi(vec2 x, float t) {
   vec2 ip = floor(x);
@@ -109,13 +130,13 @@ void main() {
 
   vec4 gradient = u_colors[0];
   gradient.rgb *= gradient.a;
-  for (int i = 1; i < ${voronoiMeta.maxColorCount}; i++) {
-      if (i >= int(u_colorsCount)) break;
-      float localT = clamp(mixer - float(i - 1), 0.0, 1.0);
-      localT = round(localT * steps) / steps;
-      vec4 c = u_colors[i];
-      c.rgb *= c.a;
-      gradient = mix(gradient, c, localT);
+  for (int i = 1; i < ${ voronoiMeta.maxColorCount }; i++) {
+    if (i >= int(u_colorsCount)) break;
+    float localT = clamp(mixer - float(i - 1), 0.0, 1.0);
+    localT = round(localT * steps) / steps;
+    vec4 c = u_colors[i];
+    c.rgb *= c.a;
+    gradient = mix(gradient, c, localT);
   }
 
   if ((mixer < 0.) || (mixer > (u_colorsCount - 1.))) {

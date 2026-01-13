@@ -1,17 +1,36 @@
 import type { ShaderMotionParams } from '../shader-mount.js';
-import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
-import { declarePI, colorBandingFix } from '../shader-utils.js';
+import { type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
+import { declarePI, colorBandingFix, proceduralHash11, proceduralHash21 } from '../shader-utils.js';
 
 /**
- * 3d Perlin noise; original algorithm: https://www.shadertoy.com/view/NlSGDz
+ * Classic animated 3D Perlin noise with exposed controls.
+ * Original algorithm: https://www.shadertoy.com/view/NlSGDz
  *
- * Uniforms:
- * - u_colorBack, u_colorFront (RGBA)
- * - u_proportion: (0..1) blend point between 2 colors (0.5 = equal distribution)
- * - u_softness: color transition sharpness (0 = hard edge, 1 = smooth fade)
- * - u_octaveCount: more octaves => more detailed pattern
- * - u_persistence: roughness, falloff between octaves
- * - u_lacunarity: frequency step, typically around 2, defines how compressed is the pattern
+ * Fragment shader uniforms:
+ * - u_time (float): Animation time
+ * - u_colorFront (vec4): Foreground color in RGBA
+ * - u_colorBack (vec4): Background color in RGBA
+ * - u_proportion (float): Blend point between 2 colors, 0.5 = equal distribution (0 to 1)
+ * - u_softness (float): Color transition sharpness, 0 = hard edge, 1 = smooth gradient (0 to 1)
+ * - u_octaveCount (float): Perlin noise octaves number, more octaves for more detailed patterns (1 to 8)
+ * - u_persistence (float): Roughness, falloff between octaves (0.3 to 1)
+ * - u_lacunarity (float): Frequency step, defines how compressed the pattern is (1.5 to 10)
+ *
+ * Vertex shader outputs (used in fragment shader):
+ * - v_patternUV (vec2): UV coordinates for pattern with global sizing (rotation, scale, offset, etc) applied
+ *
+ * Vertex shader uniforms:
+ * - u_resolution (vec2): Canvas resolution in pixels
+ * - u_pixelRatio (float): Device pixel ratio
+ * - u_originX (float): Reference point for positioning world width in the canvas (0 to 1)
+ * - u_originY (float): Reference point for positioning world height in the canvas (0 to 1)
+ * - u_worldWidth (float): Virtual width of the graphic before it's scaled to fit the canvas
+ * - u_worldHeight (float): Virtual height of the graphic before it's scaled to fit the canvas
+ * - u_fit (float): How to fit the rendered shader into the canvas dimensions (0 = none, 1 = contain, 2 = cover)
+ * - u_scale (float): Overall zoom level of the graphics (0.01 to 4)
+ * - u_rotation (float): Overall rotation angle of the graphics in degrees (0 to 360)
+ * - u_offsetX (float): Horizontal offset of the graphics center (-1 to 1)
+ * - u_offsetY (float): Vertical offset of the graphics center (-1 to 1)
  *
  */
 
@@ -29,39 +48,18 @@ uniform float u_octaveCount;
 uniform float u_persistence;
 uniform float u_lacunarity;
 
-${sizingVariablesDeclaration}
+in vec2 v_patternUV;
 
 out vec4 fragColor;
 
-${declarePI}
-
-float hash11(float p) {
-  p = fract(p * 0.3183099) + 0.1;
-  p *= p + 19.19;
-  return fract(p * p);
-}
-
-float hash21(vec2 p) {
-  p = fract(p * vec2(0.3183099, 0.3678794)) + 0.1;
-  p += dot(p, p + 19.19);
-  return fract(p.x * p.y);
-}
+${ declarePI }
+${ proceduralHash11 }
+${ proceduralHash21 }
 
 float hash31(vec3 p) {
   p = fract(p * 0.3183099) + 0.1;
   p += dot(p, p.yzx + 19.19);
   return fract(p.x * (p.y + p.z));
-}
-
-vec3 hash33(vec3 p) {
-  p = fract(p * 0.3183099) + 0.1;
-  p += dot(p, p.yzx + 19.19);
-  return fract(vec3(p.x * p.y, p.y * p.z, p.z * p.x));
-}
-
-vec3 gradientSafe(vec3 p) {
-  vec3 h = hash33(p) * 2.0 - 1.;
-  return normalize(h + 0.001);
 }
 
 vec3 gradientPredefined(float hash) {
@@ -97,7 +95,7 @@ float v100, float v101, float v110, float v111, vec3 t) {
 }
 
 vec3 fade(vec3 t) {
-    return t * t * t * (t * (t * 6.0 - 15.0) + 10.0);
+  return t * t * t * (t * (t * 6.0 - 15.0) + 10.0);
 }
 
 float perlinNoise(vec3 position, float seed) {
@@ -165,23 +163,22 @@ float get_max_amp(float persistence, float octaveCount) {
 void main() {
   vec2 uv = v_patternUV;
   uv *= .5;
-  
+
   float t = .2 * u_time;
 
   vec3 p = vec3(uv, t);
 
-  float octCount = clamp(floor(u_octaveCount), 1.0, 8.0);
-  float persistence = clamp(u_persistence, 0., 1.);
-  float noise = p_noise(p, int(octCount), persistence, u_lacunarity);
+  float octCount = floor(u_octaveCount);
+  float noise = p_noise(p, int(octCount), u_persistence, u_lacunarity);
 
-  float max_amp = get_max_amp(persistence, octCount);
+  float max_amp = get_max_amp(u_persistence, octCount);
   float noise_normalized = clamp((noise + max_amp) / max(1e-4, (2. * max_amp)) + (u_proportion - .5), 0.0, 1.0);
   float sharpness = clamp(u_softness, 0., 1.);
   float smooth_w = 0.5 * max(fwidth(noise_normalized), 0.001);
   float res = smoothstep(
-    .5 - .5 * sharpness - smooth_w,
-    .5 + .5 * sharpness + smooth_w,
-    noise_normalized
+  .5 - .5 * sharpness - smooth_w,
+  .5 + .5 * sharpness + smooth_w,
+  noise_normalized
   );
 
   vec3 fgColor = u_colorFront.rgb * u_colorFront.a;
@@ -195,7 +192,7 @@ void main() {
   color += bgColor * (1. - opacity);
   opacity += bgOpacity * (1. - opacity);
 
-  ${colorBandingFix}
+  ${ colorBandingFix }
 
   fragColor = vec4(color, opacity);
 }

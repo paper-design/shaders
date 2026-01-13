@@ -1,6 +1,6 @@
 import { flutedGlassPresets } from '@paper-design/shaders-react';
 import type { ShaderDef } from './shader-def-types';
-import { staticCommonParams } from './common-param-def';
+import { staticImageCommonParams } from './common-param-def';
 
 const defaultParams = flutedGlassPresets[0].params;
 
@@ -160,7 +160,7 @@ export const flutedGlassDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.grainMixer,
-      description: 'Strength of grain distortion applied to color edges',
+      description: 'Strength of grain distortion applied to the shapes’ edges',
     },
     {
       name: 'grainOverlay',
@@ -168,7 +168,7 @@ export const flutedGlassDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.grainOverlay,
-      description: 'Post-processing RGB grain overlay',
+      description: 'Post-processing b/w grain overlay',
     },
     {
       name: 'marginBottom',
@@ -178,6 +178,6 @@ export const flutedGlassDef: ShaderDef = {
       defaultValue: defaultParams.marginBottom,
       description: 'Distance from the bottom edge to the effect',
     },
-    ...staticCommonParams,
+    ...staticImageCommonParams,
   ],
 };

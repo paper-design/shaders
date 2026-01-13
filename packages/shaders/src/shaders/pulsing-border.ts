@@ -1,6 +1,6 @@
 import type { vec4 } from '../types.js';
 import type { ShaderMotionParams } from '../shader-mount.js';
-import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
+import { type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
 import { declarePI, textureRandomizerGB, colorBandingFix } from '../shader-utils.js';
 
 export const pulsingBorderMeta = {
@@ -9,21 +9,47 @@ export const pulsingBorderMeta = {
 } as const;
 
 /**
- * Color spots traveling around rectangular stroke (border)
+ * Luminous trails of color merging into a glowing gradient contour.
  *
- * Uniforms:
- * - u_colorBack (RGBA)
- * - u_colors (vec4[]), u_colorsCount (float used as integer)
- * - u_roundness, u_thickness, u_softness: border parameters
- * - u_aspectRatio
- * - u_intensity: thickness of individual spots
- * - u_bloom: normal / additive color blending
- * - u_spotSize: angular size of spots
- * - u_spots (float used as int): number of spots rendered per color
- * - u_pulse: optional pulsing animation
- * - u_smoke, u_smokeSize: optional noisy shapes around the border
+ * Fragment shader uniforms:
+ * - u_time (float): Animation time
+ * - u_colorBack (vec4): Background color in RGBA
+ * - u_colors (vec4[]): Up to 5 spot colors in RGBA
+ * - u_colorsCount (float): Number of active colors
+ * - u_roundness (float): Border radius (0 to 1)
+ * - u_thickness (float): Border base width (0 to 1)
+ * - u_softness (float): Border edge sharpness, 0 = hard edge, 1 = smooth gradient (0 to 1)
+ * - u_marginLeft (float): Distance from the left edge to the effect (0 to 1)
+ * - u_marginRight (float): Distance from the right edge to the effect (0 to 1)
+ * - u_marginTop (float): Distance from the top edge to the effect (0 to 1)
+ * - u_marginBottom (float): Distance from the bottom edge to the effect (0 to 1)
+ * - u_aspectRatio (float): Aspect ratio mode (0 = auto, 1 = square)
+ * - u_intensity (float): Thickness of individual color spots (0 to 1)
+ * - u_bloom (float): Power of glow, 0 = normal blending, 1 = additive blending (0 to 1)
+ * - u_spots (float): Number of spots added for each color (1 to 20)
+ * - u_spotSize (float): Angular size of spots (0 to 1)
+ * - u_pulse (float): Optional pulsing animation intensity (0 to 1)
+ * - u_smoke (float): Optional noisy shape extending the border (0 to 1)
+ * - u_smokeSize (float): Size of the smoke effect (0 to 1)
+ * - u_noiseTexture (sampler2D): Pre-computed randomizer source texture
  *
- * - u_noiseTexture (sampler2D): pre-computed randomizer source
+ * Vertex shader outputs (used in fragment shader):
+ * - v_responsiveUV (vec2): Responsive UV coordinates that adapt to canvas aspect ratio
+ * - v_responsiveBoxGivenSize (vec2): Given size of the responsive bounding box
+ * - v_patternUV (vec2): UV coordinates for pattern with global sizing (rotation, scale, offset, etc) applied (used for smoke calculation)
+ *
+ * Vertex shader uniforms:
+ * - u_resolution (vec2): Canvas resolution in pixels
+ * - u_pixelRatio (float): Device pixel ratio
+ * - u_originX (float): Reference point for positioning world width in the canvas (0 to 1)
+ * - u_originY (float): Reference point for positioning world height in the canvas (0 to 1)
+ * - u_worldWidth (float): Virtual width of the graphic before it's scaled to fit the canvas
+ * - u_worldHeight (float): Virtual height of the graphic before it's scaled to fit the canvas
+ * - u_fit (float): How to fit the rendered shader into the canvas dimensions (0 = none, 1 = contain, 2 = cover)
+ * - u_scale (float): Overall zoom level of the graphics (0.01 to 4)
+ * - u_rotation (float): Overall rotation angle of the graphics in degrees (0 to 360)
+ * - u_offsetX (float): Horizontal offset of the graphics center (-1 to 1)
+ * - u_offsetY (float): Vertical offset of the graphics center (-1 to 1)
  *
  */
 
@@ -34,7 +60,7 @@ precision lowp float;
 uniform float u_time;
 
 uniform vec4 u_colorBack;
-uniform vec4 u_colors[${pulsingBorderMeta.maxColorCount}];
+uniform vec4 u_colors[${ pulsingBorderMeta.maxColorCount }];
 uniform float u_colorsCount;
 uniform float u_roundness;
 uniform float u_thickness;
@@ -54,11 +80,13 @@ uniform float u_smokeSize;
 
 uniform sampler2D u_noiseTexture;
 
-${sizingVariablesDeclaration}
+in vec2 v_responsiveUV;
+in vec2 v_responsiveBoxGivenSize;
+in vec2 v_patternUV;
 
 out vec4 fragColor;
 
-${declarePI}
+${ declarePI }
 
 float beat(float time) {
   float first = pow(abs(sin(time * TWO_PI)), 10.);
@@ -87,7 +115,7 @@ float roundedBox(vec2 uv, vec2 halfSize, float distance, float cornerDistance, f
   return border;
 }
 
-${textureRandomizerGB}
+${ textureRandomizerGB }
 
 float randomG(vec2 p) {
   vec2 uv = floor(p) / 100. + .5;
@@ -145,8 +173,8 @@ void main() {
   halfSize.y *= (1. - mY);
 
   vec2 centerShift = vec2(
-    (mL - mR) * max(canvasRatio, 1.) * 0.5,
-    (mB - mT) / min(canvasRatio, 1.) * 0.5
+  (mL - mR) * max(canvasRatio, 1.) * 0.5,
+  (mB - mT) / min(canvasRatio, 1.) * 0.5
   );
 
   borderUV -= centerShift;
@@ -187,14 +215,14 @@ void main() {
 
   float angle = atan(borderUV.y, borderUV.x) / TWO_PI;
 
-  for (int colorIdx = 0; colorIdx < ${pulsingBorderMeta.maxColorCount}; colorIdx++) {
+  for (int colorIdx = 0; colorIdx < ${ pulsingBorderMeta.maxColorCount }; colorIdx++) {
     if (colorIdx >= int(u_colorsCount)) break;
     float colorIdxF = float(colorIdx);
 
     vec3 c = u_colors[colorIdx].rgb * u_colors[colorIdx].a;
     float a = u_colors[colorIdx].a;
 
-    for (int spotIdx = 0; spotIdx < ${pulsingBorderMeta.maxSpots}; spotIdx++) {
+    for (int spotIdx = 0; spotIdx < ${ pulsingBorderMeta.maxSpots }; spotIdx++) {
       if (spotIdx >= int(u_spots)) break;
       float spotIdxF = float(spotIdx);
 
@@ -204,9 +232,9 @@ void main() {
       time *= mix(1., -1., step(.5, randVal.y));
 
       float mask = .5 + .5 * mix(
-        sin(t + spotIdxF * (5. - 1.5 * colorIdxF)),
-        cos(t + spotIdxF * (3. + 1.3 * colorIdxF)),
-        step(mod(colorIdxF, 2.), .5)
+      sin(t + spotIdxF * (5. - 1.5 * colorIdxF)),
+      cos(t + spotIdxF * (3. + 1.3 * colorIdxF)),
+      step(mod(colorIdxF, 2.), .5)
       );
 
       float p = clamp(2. * u_pulse - randVal.x, 0., 1.);
@@ -240,7 +268,7 @@ void main() {
   vec3 color = accumColor + (1. - accumAlpha) * bgColor;
   float opacity = accumAlpha + (1. - accumAlpha) * u_colorBack.a;
 
-  ${colorBandingFix}
+  ${ colorBandingFix }
 
   fragColor = vec4(color, opacity);
 }`;

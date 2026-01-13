@@ -24,6 +24,7 @@ import paperTextureImg from '../../public/shaders/paper-texture.webp';
 import waterImg from '../../public/shaders/water.webp';
 import heatmapImg from '../../public/shaders/heatmap.webp';
 import liquidMetalImg from '../../public/shaders/liquid-metal.webp';
+import halftoneDotsImg from '../../public/shaders/halftone-dots.webp';
 import {
   DotGrid,
   dotGridPresets,
@@ -77,6 +78,8 @@ import {
   LiquidMetal,
   Heatmap,
   heatmapPresets,
+  HalftoneDots,
+  halftoneDotsPresets,
 } from '@paper-design/shaders-react';
 import { StaticImageData } from 'next/image';
 
@@ -136,6 +139,17 @@ export const homeThumbnails = [
         ShaderComponent: ImageDithering,
         image: imageDitheringImg,
         shaderConfig: { ...imageDitheringPresets[0].params, scale: 1.05 },
+      },
+      {
+        name: 'halftone dots',
+        url: '/halftone-dots',
+        ShaderComponent: HalftoneDots,
+        image: halftoneDotsImg,
+        shaderConfig: {
+          ...halftoneDotsPresets[0].params,
+          image: '/images/image-filters/0018.webp',
+          speed: 0,
+        },
       },
     ],
   },

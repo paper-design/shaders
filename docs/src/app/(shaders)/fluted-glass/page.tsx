@@ -126,7 +126,7 @@ const FlutedGlassWithControls = () => {
         <FlutedGlass onClick={handleClick} {...params} image={image} />
       </ShaderContainer>
 
-      <div onClick={handleClick} className="text-current/70 mx-auto mb-48 mt-16 w-fit select-none text-base">
+      <div onClick={handleClick} className="mx-auto mt-16 mb-48 w-fit text-base text-current/70 select-none">
         Click to change the sample image
       </div>
 

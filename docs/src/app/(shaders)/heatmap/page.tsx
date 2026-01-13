@@ -2,7 +2,7 @@
 
 import { Heatmap, heatmapMeta, heatmapPresets } from '@paper-design/shaders-react';
 import { useControls, button, folder } from 'leva';
-import { Suspense, useState } from 'react';
+import { Suspense, useState, useEffect, useCallback } from 'react';
 import { setParamsSafe, useResetLevaParams } from '@/helpers/use-reset-leva-params';
 import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
@@ -16,8 +16,47 @@ import { levaImageButton } from '@/helpers/leva-image-button';
 
 const { worldWidth, worldHeight, ...defaults } = heatmapPresets[0].params;
 
+const imageFiles = [
+  'contra.svg',
+  'apple.svg',
+  'paradigm.svg',
+  'paper-logo-only.svg',
+  'brave.svg',
+  'capy.svg',
+  'infinite.svg',
+  'linear.svg',
+  'mercury.svg',
+  'mymind.svg',
+  'resend.svg',
+  'shopify.svg',
+  'wealth-simple.svg',
+  'chanel.svg',
+  'cibc.svg',
+  'cloudflare.svg',
+  'discord.svg',
+  'nasa.svg',
+  'nike.svg',
+  'volkswagen.svg',
+  'diamond.svg',
+] as const;
+
 const HeatmapWithControls = () => {
+  const [imageIdx, setImageIdx] = useState(-1);
   const [image, setImage] = useState<HTMLImageElement | string>('/images/logos/diamond.svg');
+
+  useEffect(() => {
+    if (imageIdx >= 0) {
+      const name = imageFiles[imageIdx];
+      const img = new Image();
+      img.src = `/images/logos/${name}`;
+      img.onload = () => setImage(img);
+    }
+  }, [imageIdx]);
+
+  const handleClick = useCallback(() => {
+    setImageIdx((prev) => (prev + 1) % imageFiles.length);
+    // setImageIdx(() => Math.floor(Math.random() * imageFiles.length));
+  }, []);
 
   const { colors, setColors } = useColors({
     defaultColors: defaults.colors,
@@ -73,10 +112,14 @@ const HeatmapWithControls = () => {
     <>
       <ShaderContainer shaderDef={heatmapDef} currentParams={{ colors, ...params }}>
         <Suspense fallback={null}>
-          <Heatmap {...params} colors={colors} image={image} suspendWhenProcessingImage />
+          <Heatmap onClick={handleClick} {...params} colors={colors} image={image} suspendWhenProcessingImage />
         </Suspense>
       </ShaderContainer>
-      <ShaderDetails shaderDef={heatmapDef} currentParams={{ colors, ...params }} codeSampleImageName="images/logos/diamond.svg" />
+      <ShaderDetails
+        shaderDef={heatmapDef}
+        currentParams={{ colors, ...params }}
+        codeSampleImageName="images/logos/diamond.svg"
+      />
     </>
   );
 };
