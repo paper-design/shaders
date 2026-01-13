@@ -222,7 +222,25 @@ float getCrumples(vec2 uv) {
   return 4. * (n.y - n.x);
 }
 
-vec2 folds(vec2 uv) {
+
+float getDrops(vec2 uv) {
+  vec2 iDropsUV = floor(uv);
+  vec2 fDropsUV = fract(uv);
+  float dropsMinDist = 1.;
+  for (int y = -1; y < 2; y += 1) {
+    for (int x = -1; x < 2; x += 1) {
+      vec2 neighbor = vec2(float(y), float(x));
+      vec2 offset = randomGB(iDropsUV + neighbor);
+      offset = .5 + .5 * sin(10. * u_seed + TWO_PI * offset);
+      vec2 pos = neighbor + offset - fDropsUV;
+      float dist = length(pos);
+      dropsMinDist = min(dropsMinDist, dropsMinDist*dist);
+    }
+  }
+  return 1. - lst(.05, .09, pow(dropsMinDist, .5));
+}
+
+vec2 getFolds(vec2 uv) {
   vec3 pp = vec3(0.);
   float l = 9.;
   for (float i = 0.; i < 15.; i++) {
@@ -239,23 +257,6 @@ vec2 folds(vec2 uv) {
     }
   }
   return mix(pp.xy, vec2(0.), pow(pp.z, .15));
-}
-
-float getDrops(vec2 uv) {
-  vec2 iDropsUV = floor(uv);
-  vec2 fDropsUV = fract(uv);
-  float dropsMinDist = 1.;
-  for (int j = -1; j <= 1; j++) {
-    for (int i = -1; i <= 1; i++) {
-      vec2 neighbor = vec2(float(i), float(j));
-      vec2 offset = randomGB(iDropsUV + neighbor);
-      offset = .5 + .5 * sin(10. * u_seed + TWO_PI * offset);
-      vec2 pos = neighbor + offset - fDropsUV;
-      float dist = length(pos);
-      dropsMinDist = min(dropsMinDist, dropsMinDist*dist);
-    }
-  }
-  return 1. - smoothstep(.05, .09, pow(dropsMinDist, .5));
 }
 
 vec3 blendMultiply(vec3 base, vec3 blend) {
@@ -281,16 +282,16 @@ void main() {
   vec2 crumplesUV = mix(14.4, .64, pow(u_crumpleSize, .3)) * patternUV - 32. * u_seed;
   float crumples = .5 + getCrumples(crumplesUV);
 
+  float drops = getDrops(patternUV * 2.);
+
   vec2 normal = vec2(0.);
   vec2 normalImage = vec2(0.);
 
   vec2 foldsUV = patternUV * .18;
   foldsUV = rotate(foldsUV, 4. * u_seed);
-  vec2 folds1 = folds(foldsUV);
+  vec2 folds1 = getFolds(foldsUV);
   foldsUV = rotate(foldsUV + .005 * cos(u_seed), .01 * sin(u_seed));
-  vec2 folds2 = folds(foldsUV);
-
-  float drops = u_drops * getDrops(patternUV * 2.);
+  vec2 folds2 = getFolds(foldsUV);
 
   float fade = u_fade * getFadeMask(.17 * patternUV + 10. * u_seed);
   fade = clamp(8. * fade * fade * fade, 0., 1.);
@@ -379,7 +380,7 @@ void main() {
   color = mix(color, pic, frame);
 
 //  fragColor = vec4(color, opacity);
-  fragColor = vec4(crumples, 0., 0., 1.);
+  fragColor = vec4(crumples, drops, 0., 1.);
 }
 `;
 
