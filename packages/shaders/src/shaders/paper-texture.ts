@@ -115,7 +115,7 @@ float valueNoise(vec2 st) {
   float x2 = mix(c, d, u.x);
   return mix(x1, x2, u.y);
 }
-float fbm(vec2 n) {
+float getFadeMask(vec2 n) {
   float total = 0.0, amplitude = .4;
   for (int i = 0; i < 3; i++) {
     total += valueNoise(n) * amplitude;
@@ -125,71 +125,53 @@ float fbm(vec2 n) {
   return total;
 }
 
-
-float randomG(vec2 p) {
-  vec2 uv = floor(p) / 50. + .5;
-  return texture(u_noiseTexture, fract(uv)).g;
-}
-float roughness(vec2 p) {
-  p *= .1;
-  float o = 0.;
-  for (float i = 0.; ++i < 4.; p *= 2.1) {
-    vec4 w = vec4(floor(p), ceil(p));
-    vec2 f = fract(p);
-    o += mix(
-    mix(randomG(w.xy), randomG(w.xw), f.y),
-    mix(randomG(w.zy), randomG(w.zw), f.y),
-    f.x);
-    o += .2 / exp(2. * abs(sin(.2 * p.x + .5 * p.y)));
- }
-  return o / 3.;
-}
-
-float fiberRandom(vec2 p) {
-  vec2 uv = floor(p) / 100.;
-  return texture(u_noiseTexture, fract(uv)).b;
-}
-
-vec3 fiberValueNoiseD(vec2 st) {
-  vec2 i = floor(st);
-  vec2 f = fract(st);
-  float a = fiberRandom(i);
-  float b = fiberRandom(i + vec2(1.0, 0.0));
-  float c = fiberRandom(i + vec2(0.0, 1.0));
-  float d = fiberRandom(i + vec2(1.0, 1.0));
-  vec2 u = f * f * (3.0 - 2.0 * f);
-  vec2 du = 6.0 * f * (1.0 - f);
-  float value = mix(mix(a, b, u.x), mix(c, d, u.x), u.y);
-  float dx = du.x * mix(b - a, d - c, u.y);
-  float dy = du.y * mix(c - a, d - b, u.x);
-  return vec3(value, dx, dy);
-}
-
-vec3 fiberNoiseFbmD(vec2 n) {
-  float total = 0.0;
-  vec2 totalGrad = vec2(0.0);
-  float amplitude = 1.0;
+vec2 getRoughnessFiber(vec2 pR, vec2 pF) {
+  float roughDx = 0.;
+  vec2 fiberGrad = vec2(0.);
+  pR *= .1;
+  float scaleR = .1;
+  float scaleF = 1.;
+  float amplitude = 1.;
+  float rotAngle = 0.;
   float angle = 0.7;
-  float scale = 1.0;
-  float rotAngle = 0.0;
   for (int i = 0; i < 4; i++) {
-    n = rotate(n, angle);
+    // Roughness: R channel at pR (only 3 iterations)
+    if (i < 3) {
+      vec2 ipR = floor(pR);
+      vec2 fpR = fract(pR);
+      vec4 uvR = fract(vec4(ipR, ipR + 1.) / 50. + .5);
+      float aR = texture(u_noiseTexture, uvR.xy).r;
+      float bR = texture(u_noiseTexture, uvR.xw).r;
+      float cR = texture(u_noiseTexture, uvR.zy).r;
+      float dR = texture(u_noiseTexture, uvR.zw).r;
+      roughDx += scaleR * mix(cR - aR, dR - bR, fpR.y);
+      float arg = .2 * pR.x + .5 * pR.y;
+      float s = sin(arg);
+      roughDx += scaleR * -.08 * exp(-2. * abs(s)) * sign(s) * cos(arg);
+      pR *= 2.1;
+      scaleR *= 2.1;
+    }
+    // Fiber: B channel at pF with rotation
+    pF = rotate(pF, angle);
     rotAngle += angle;
-    vec3 nd = fiberValueNoiseD(n);
-    total += nd.x * amplitude;
-    float rc = cos(rotAngle);
-    float rs = sin(rotAngle);
-    vec2 g = nd.yz;
-    totalGrad += amplitude * scale * vec2(rc * g.x + rs * g.y, -rs * g.x + rc * g.y);
-    n *= 2.0;
-    scale *= 2.0;
+    vec2 ipF = floor(pF);
+    vec2 fpF = fract(pF);
+    vec4 uvF = fract(vec4(ipF, ipF + 1.) / 50. + .5);
+    float aF = texture(u_noiseTexture, uvF.xy).b;
+    float bF = texture(u_noiseTexture, uvF.zy).b;
+    float cF = texture(u_noiseTexture, uvF.xw).b;
+    float dF = texture(u_noiseTexture, uvF.zw).b;
+    vec2 u = fpF * fpF * (3. - 2. * fpF);
+    vec2 du = 6. * fpF * (1. - fpF);
+    float dxF = du.x * mix(bF - aF, dF - cF, u.y);
+    float dyF = du.y * mix(cF - aF, dF - bF, u.x);
+    float rc = cos(rotAngle), rs = sin(rotAngle);
+    fiberGrad += amplitude * scaleF * vec2(rc * dxF + rs * dyF, -rs * dxF + rc * dyF);
+    pF *= 2.;
+    scaleF *= 2.;
     amplitude *= 0.6;
   }
-  return vec3(total, totalGrad);
-}
-
-float fiberNoise(vec2 uv) {
-  return length(fiberNoiseFbmD(uv).yz);
+  return vec2(roughDx / 1.5, length(fiberGrad));
 }
 
 vec2 randomGB(vec2 p) {
@@ -216,7 +198,7 @@ float crumpledNoise(vec2 t, float pw) {
   return pow(wsum != 0.0 ? cl / wsum : 0.0, .5) * 2.;
 }
 
-float crumplesShape(vec2 uv) {
+float getCrumples(vec2 uv) {
   return crumpledNoise(uv * .25, 16.) * crumpledNoise(uv * .5, 2.);
 }
 
@@ -239,7 +221,7 @@ vec2 folds(vec2 uv) {
   return mix(pp.xy, vec2(0.), pow(pp.z, .15));
 }
 
-float drops(vec2 uv) {
+float getDrops(vec2 uv) {
   vec2 iDropsUV = floor(uv);
   vec2 fDropsUV = fract(uv);
   float dropsMinDist = 1.;
@@ -274,32 +256,33 @@ void main() {
   vec2 patternUV = v_imageUV - .5;
   patternUV *= 5. * vec2(u_imageAspectRatio, 1.);
 
-  vec2 roughnessUv = mix(330., 130., u_roughnessSize) * patternUV;
-  float roughness = u_roughness * (roughness(roughnessUv + vec2(1., 0.)) - roughness(roughnessUv - vec2(1., 0.)));
-
-  vec2 crumplesUV = fract(mix(.45, .02, pow(u_crumpleSize, .3)) * patternUV - u_seed) * 32.;
-  float crumples = u_crumples * (crumplesShape(crumplesUV + vec2(.02, 0.)) - crumplesShape(crumplesUV));
-
+  vec2 roughnessUV = mix(330., 100., u_roughnessSize) * patternUV;
   vec2 fiberUV = mix(25., 8., u_fiberSize) * patternUV;
-  float fiber = fiberNoise(fiberUV);
-  fiber = .5 * u_fiber * (fiber - 1.);
+  vec2 rf = getRoughnessFiber(roughnessUV, fiberUV);
+  float roughness = u_roughness * (rf.x + .5);
+  float fiber = u_fiber * (rf.y - 1.);
+  
+  vec2 crumplesUV = fract(mix(.45, .02, pow(u_crumpleSize, .3)) * patternUV - u_seed) * 32.;
+  float crumples = u_crumples * (getCrumples(crumplesUV + vec2(.02, 0.)) - getCrumples(crumplesUV));
+
+
 
   vec2 normal = vec2(0.);
   vec2 normalImage = vec2(0.);
 
   vec2 foldsUV = patternUV * .18;
   foldsUV = rotate(foldsUV, 4. * u_seed);
-  vec2 w = folds(foldsUV);
+  vec2 folds1 = folds(foldsUV);
   foldsUV = rotate(foldsUV + .005 * cos(u_seed), .01 * sin(u_seed));
-  vec2 w2 = folds(foldsUV);
+  vec2 folds2 = folds(foldsUV);
 
-  float drops = u_drops * drops(patternUV * 2.);
+  float drops = u_drops * getDrops(patternUV * 2.);
 
-  float fade = u_fade * fbm(.17 * patternUV + 10. * u_seed);
+  float fade = u_fade * getFadeMask(.17 * patternUV + 10. * u_seed);
   fade = clamp(8. * fade * fade * fade, 0., 1.);
 
-  w = mix(w, vec2(0.), fade);
-  w2 = mix(w2, vec2(0.), fade);
+  folds1 = mix(folds1, vec2(0.), fade);
+  folds2 = mix(folds2, vec2(0.), fade);
   crumples = mix(crumples, 0., fade);
   drops = mix(drops, 0., fade);
   fiber *= mix(1., .5, fade);
@@ -335,8 +318,8 @@ void main() {
     grid = u_grid * smoothstep(0., 1., grid) * smoothstep(0., .3, u_contrast);
   }
   
-  normal -= 3. * u_folds * (w + w2);
-  normalImage += u_folds * w;
+  normal -= 3. * u_folds * (folds1 + folds2);
+  normalImage += u_folds * folds1;
 
   normal += 1.5 * crumples;
   normalImage += .4 * crumples;
@@ -381,7 +364,8 @@ void main() {
   pic = mix(image.rgb, pic, .5 * u_blending);
   color = mix(color, pic, frame);
 
-  fragColor = vec4(color, opacity);
+//  fragColor = vec4(color, opacity);
+  fragColor = vec4(roughness, fiber, 0., 1.);
 }
 `;
 
