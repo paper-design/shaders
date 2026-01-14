@@ -238,7 +238,7 @@ float getDrops(vec2 uv) {
 }
 
 vec2 getFolds(vec2 uv1, vec2 uv2) {
-  vec2 pp1 = vec2(0.), pp2 = vec2(0.);
+  vec3 pp1 = vec3(0.), pp2 = vec3(0.);
   float l1 = 9., l2 = 9.;
   for (int i = 0; i < 15; i++) {
     if (float(i) >= u_foldCount) break;
@@ -248,17 +248,17 @@ vec2 getFolds(vec2 uv1, vec2 uv2) {
     float dist1 = distance(uv1, p);
     if (dist1 < l1) {
       l1 = dist1;
-      pp1 = vec2(uv1.x - p.x, dist1);
+      pp1 = vec3(uv1.x - p.x, dist1, rand.y);
     }
     float dist2 = distance(uv2, p);
     if (dist2 < l2) {
       l2 = dist2;
-      pp2 = vec2(uv2.x - p.x, dist2);
+      pp2 = vec3(uv2.x - p.x, dist2, rand.y);
     }
   }
   return vec2(
-    mix(pp1.x, 0., pow(pp1.y, .15)),
-    mix(pp2.x, 0., pow(pp2.y, .15))
+    mix(pp1.x, .2 * pp1.z, pow(pp1.y, .15)),
+    mix(pp2.x, .2 * pp2.z, pow(pp2.y, .15))
   );
 }
 
@@ -300,7 +300,7 @@ void main() {
   float drops = u_drops * getDrops(patternUV * 2.);
 
   vec2 foldsUV1 = rotate(patternUV * .18, 4. * u_seed);
-  vec2 foldsUV2 = rotate(foldsUV1 + .01 * cos(u_seed), .02 * sin(u_seed));
+  vec2 foldsUV2 = rotate(foldsUV1 + .01 * cos(u_seed), .015 * sin(u_seed));
   vec2 folds = u_folds * clamp(5. * getFolds(foldsUV1, foldsUV2), 0., 1.);
 
   float fade = u_fade * getFadeMask(.17 * patternUV + 10. * u_seed);
