@@ -68,7 +68,7 @@ export const halftoneCmykDef: ShaderDef = {
       name: 'type',
       type: 'enum',
       defaultValue: defaultParams.type,
-      description: 'Dot type style',
+      description: 'Dot type style (the difference between dots and ink is visible only with low softness)',
       options: ['dots', 'ink', 'sharp'],
     },
     {
