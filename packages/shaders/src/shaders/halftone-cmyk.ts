@@ -304,8 +304,6 @@ void main() {
   shape = clamp(max(max(C, M), max(Y, K)), 0., 1.);
 
   vec3 color = u_colorBack.rgb * u_colorBack.a;
-  color = mix(color, vec3(1., 0., 0.), .5 * outOfFrame);
-  color = mix(color, vec3(0., 0., 1.), .5 * getUvFrame(uv, vec2(0.)));
 
   float opacity = u_colorBack.a;
   color = mix(color, ink, shape);
