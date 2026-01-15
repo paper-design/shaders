@@ -183,8 +183,7 @@ void colorMask(vec2 pos, vec2 cellCenter, float rad, float outOfFrame, float gra
 
   float radius = rad;
   radius *= (1. + generalComp);
-  radius += channelAddon + channelgain * radius;
-  radius += .15;
+  radius += (.15 + channelAddon + channelgain * radius);
   radius = max(0., radius);
   radius = mix(0., radius, outOfFrame);
   radius *= (1. - grain);
@@ -240,25 +239,26 @@ void main() {
 
         vec2 cellCenterC = cellCenterPos(uvC, cellOffset, 0.);
         vec4 texC = texture(u_image, gridToImageUV(cellCenterC, cosC, sinC, shiftC, pad));
-        colorMask(uvC, cellCenterC, getCyan(texC), outOfFrame, grain, u_floodC, u_gainC, generalComp, isJoined, outMask[0]);
+        colorMask(uvC, cellCenterC, getCyan(texC), outOfFrame * texC.a, grain, u_floodC, u_gainC, generalComp, isJoined, outMask[0]);
 
         vec2 cellCenterM = cellCenterPos(uvM, cellOffset, 1.);
         vec4 texM = texture(u_image, gridToImageUV(cellCenterM, cosM, sinM, shiftM, pad));
-        colorMask(uvM, cellCenterM, getMagenta(texM), outOfFrame, grain, u_floodM, u_gainM, generalComp, isJoined, outMask[1]);
+        colorMask(uvM, cellCenterM, getMagenta(texM), outOfFrame * texM.a, grain, u_floodM, u_gainM, generalComp, isJoined, outMask[1]);
 
         vec2 cellCenterY = cellCenterPos(uvY, cellOffset, 2.);
         vec4 texY = texture(u_image, gridToImageUV(cellCenterY, cosY, sinY, shiftY, pad));
-        colorMask(uvY, cellCenterY, getYellow(texY), outOfFrame, grain, u_floodY, u_gainY, generalComp, isJoined, outMask[2]);
+        colorMask(uvY, cellCenterY, getYellow(texY), outOfFrame * texY.a, grain, u_floodY, u_gainY, generalComp, isJoined, outMask[2]);
 
         vec2 cellCenterK = cellCenterPos(uvK, cellOffset, 3.);
         vec4 texK = texture(u_image, gridToImageUV(cellCenterK, cosK, sinK, shiftK, pad));
-        colorMask(uvK, cellCenterK, getBlack(texK), outOfFrame, grain, u_floodK, u_gainK, generalComp, isJoined, outMask[3]);
+        colorMask(uvK, cellCenterK, getBlack(texK), outOfFrame * texK.a, grain, u_floodK, u_gainK, generalComp, isJoined, outMask[3]);
       }
     }
   } else {
     // sharp: direct px color sampling
     vec4 tex = texture(u_image, uv);
     tex.rgb = applyContrast(tex.rgb);
+    outOfFrame *= tex.a;
     vec4 cmykOriginal = RGBAtoCMYK(tex);
     for (int dy = -1; dy <= 1; dy++) {
       for (int dx = -1; dx <= 1; dx++) {
@@ -304,6 +304,8 @@ void main() {
   shape = clamp(max(max(C, M), max(Y, K)), 0., 1.);
 
   vec3 color = u_colorBack.rgb * u_colorBack.a;
+  color = mix(color, vec3(1., 0., 0.), outOfFrame);
+
   float opacity = u_colorBack.a;
   color = mix(color, ink, shape);
   opacity += shape;
