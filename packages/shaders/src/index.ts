@@ -215,6 +215,7 @@ export {
 export {
   HalftoneCmykTypes,
   halftoneCmykFragmentShader,
+  toProcessedHalftoneCmyk,
   type HalftoneCmykParams,
   type HalftoneCmykUniforms,
   type HalftoneCmykType,

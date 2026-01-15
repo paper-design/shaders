@@ -1,4 +1,4 @@
-import { memo } from 'react';
+import React, { memo, useLayoutEffect, useMemo, useState } from 'react';
 import { ShaderMount, type ShaderComponentProps } from '../shader-mount.js';
 import { colorPropsAreEqual } from '../color-props-are-equal.js';
 import {
@@ -11,9 +11,18 @@ import {
   defaultObjectSizing,
   type ImageShaderPreset,
   HalftoneCmykTypes,
+  toProcessedHalftoneCmyk,
 } from '@paper-design/shaders';
 
-export interface HalftoneCmykProps extends ShaderComponentProps, HalftoneCmykParams {}
+import { transparentPixel } from '../transparent-pixel.js';
+import { suspend } from '../suspend.js';
+
+export interface HalftoneCmykProps extends ShaderComponentProps, HalftoneCmykParams {
+  /**
+   * Suspends the component when the image is being processed.
+   */
+  suspendWhenProcessingImage ? : boolean;
+}
 
 type HalftoneCmykPreset = ImageShaderPreset<HalftoneCmykParams>;
 
@@ -21,7 +30,7 @@ export const defaultPreset: HalftoneCmykPreset = {
   name: 'Default',
   params: {
     ...defaultObjectSizing,
-    scale: 1,
+    scale: 0.8,
     fit: 'cover',
     speed: 0,
     frame: 0,
@@ -173,6 +182,7 @@ export const HalftoneCmyk: React.FC<HalftoneCmykProps> = memo(function HalftoneC
   gainY = defaultPreset.params.gainY,
   gainK = defaultPreset.params.gainK,
   type = defaultPreset.params.type,
+  suspendWhenProcessingImage = false,
 
   // Sizing props
   fit = defaultPreset.params.fit,
@@ -186,9 +196,50 @@ export const HalftoneCmyk: React.FC<HalftoneCmykProps> = memo(function HalftoneC
   worldHeight = defaultPreset.params.worldHeight,
   ...props
 }: HalftoneCmykProps) {
+  const imageUrl = typeof image === 'string' ? image : image.src;
+  const [processedStateImage, setProcessedStateImage] = useState<string>(transparentPixel);
+
+  let processedImage: string;
+
+  // toProcessedHeatmap expects the document object to exist. This prevents SSR issues during builds.
+  if (suspendWhenProcessingImage && typeof window !== 'undefined') {
+    processedImage = suspend(
+      (): Promise<string> => toProcessedHalftoneCmyk(imageUrl).then((result) => URL.createObjectURL(result.blob)),
+      [imageUrl, 'heatmap']
+    );
+  } else {
+    processedImage = processedStateImage;
+  }
+
+  useLayoutEffect(() => {
+    if (suspendWhenProcessingImage) {
+      // Skip doing work in the effect as it's been handled by suspense.
+      return;
+    }
+
+    if (!imageUrl) {
+      setProcessedStateImage(transparentPixel);
+      return;
+    }
+
+    let url: string;
+    let current = true;
+
+    toProcessedHalftoneCmyk(imageUrl).then((result) => {
+      if (current) {
+        url = URL.createObjectURL(result.blob);
+        setProcessedStateImage(url);
+      }
+    });
+
+    return () => {
+      current = false;
+    };
+  }, [imageUrl, suspendWhenProcessingImage]);
+
   const uniforms = {
     // Own uniforms
-    u_image: image,
+    u_image: processedImage,
     u_noiseTexture: getShaderNoiseTexture(),
     u_colorBack: getShaderColorFromString(colorBack),
     u_colorC: getShaderColorFromString(colorC),
