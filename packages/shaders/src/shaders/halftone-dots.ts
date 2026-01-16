@@ -340,7 +340,7 @@ void main() {
 }
 `;
 
-export { ensureHiResSvg as toProcessedHalftoneDots } from '../ensure-hires-svg.js';
+export { ensureHiResSvg as toProcessedHalftoneDots } from '../ensure-hi-res-svg.js';
 
 export interface HalftoneDotsUniforms extends ShaderSizingUniforms {
   u_image: HTMLImageElement | string | undefined;

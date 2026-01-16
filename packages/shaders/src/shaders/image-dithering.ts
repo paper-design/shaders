@@ -222,7 +222,7 @@ void main() {
 }
 `;
 
-export { ensureHiResSvg as toProcessedImageDithering } from '../ensure-hires-svg.js';
+export { ensureHiResSvg as toProcessedImageDithering } from '../ensure-hi-res-svg.js';
 
 export interface ImageDitheringUniforms extends ShaderSizingUniforms {
   u_image: HTMLImageElement | string;

@@ -284,7 +284,7 @@ void main() {
 }
 `;
 
-export { ensureHiResSvg as toProcessedPaperTexture } from '../ensure-hires-svg.js';
+export { ensureHiResSvg as toProcessedPaperTexture } from '../ensure-hi-res-svg.js';
 
 export interface PaperTextureUniforms extends ShaderSizingUniforms {
   u_image: HTMLImageElement | string | undefined;

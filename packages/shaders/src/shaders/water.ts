@@ -148,7 +148,7 @@ void main() {
 }
 `;
 
-export { ensureHiResSvg as toProcessedWater } from '../ensure-hires-svg.js';
+export { ensureHiResSvg as toProcessedWater } from '../ensure-hi-res-svg.js';
 
 export interface WaterUniforms extends ShaderSizingUniforms {
   u_image: HTMLImageElement | string | undefined;

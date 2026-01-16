@@ -383,7 +383,7 @@ void main() {
 }
 `;
 
-export { ensureHiResSvg as toProcessedFlutedGlass } from '../ensure-hires-svg.js';
+export { ensureHiResSvg as toProcessedFlutedGlass } from '../ensure-hi-res-svg.js';
 
 export interface FlutedGlassUniforms extends ShaderSizingUniforms {
   u_image: HTMLImageElement | string | undefined;
