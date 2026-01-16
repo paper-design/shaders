@@ -225,3 +225,4 @@ export {
 export { getShaderColorFromString } from './get-shader-color-from-string.js';
 export { getShaderNoiseTexture } from './get-shader-noise-texture.js';
 export { getEmptyPixel } from './get-empty-pixel.js';
+export { ensureHiResSvg } from './ensure-hires-svg.js';
