@@ -71,6 +71,7 @@ const ImageDitheringWithControls = () => {
       colorFront: { value: toHsla(defaults.colorFront), order: 102 },
       colorHighlight: { value: toHsla(defaults.colorHighlight), order: 103 },
       originalColors: { value: defaults.originalColors, order: 104 },
+      inverted: { value: defaults.inverted, order: 105 },
       type: { value: defaults.type, options: Object.keys(DitheringTypes) as DitheringType[], order: 200 },
       size: { value: defaults.size, min: 1, max: 20, order: 201 },
       colorSteps: { value: defaults.colorSteps, min: 1, max: 7, step: 1, order: 202 },

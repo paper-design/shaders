@@ -30,6 +30,7 @@ import { proceduralHash21, declarePI } from '../shader-utils.js';
  * - u_colorBack (vec4): Background color in RGBA
  * - u_colorHighlight (vec4): Secondary foreground color in RGBA (set same as colorFront for classic 2-color dithering)
  * - u_originalColors (bool): Use the original colors of the image instead of the color palette
+ * - u_inverted (bool): Inverts the image luminance, doesn't affect the color scheme; not effective at zero contrast
  * - u_type (float): Dithering type (1 = random, 2 = 2x2 Bayer, 3 = 4x4 Bayer, 4 = 8x8 Bayer)
  * - u_pxSize (float): Pixel size of dithering grid (0.5 to 20)
  * - u_colorSteps (float): Number of colors to use, applies to both color modes (1 to 7)
@@ -63,6 +64,7 @@ uniform float u_imageAspectRatio;
 uniform float u_type;
 uniform float u_pxSize;
 uniform bool u_originalColors;
+uniform bool u_inverted;
 uniform float u_colorSteps;
 
 out vec4 fragColor;
@@ -165,6 +167,7 @@ void main() {
   float dithering = 0.0;
 
   float lum = dot(vec3(.2126, .7152, .0722), image.rgb);
+  lum = u_inverted ? (1. - lum) : lum;
 
   switch (type) {
     case 1: {
@@ -230,6 +233,7 @@ export interface ImageDitheringUniforms extends ShaderSizingUniforms {
   u_pxSize: number;
   u_colorSteps: number;
   u_originalColors: boolean;
+  u_inverted: boolean;
 }
 
 export interface ImageDitheringParams extends ShaderSizingParams, ShaderMotionParams {
@@ -241,6 +245,7 @@ export interface ImageDitheringParams extends ShaderSizingParams, ShaderMotionPa
   size?: number;
   colorSteps?: number;
   originalColors?: boolean;
+  inverted?: boolean;
 }
 
 export const DitheringTypes = {
