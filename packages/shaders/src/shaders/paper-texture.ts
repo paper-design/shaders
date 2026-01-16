@@ -88,9 +88,9 @@ float getUvFrame(vec2 uv) {
   return left * right * bottom * top;
 }
 
-${ declarePI }
-${ rotation2 }
-${ textureRandomizerR }
+${declarePI}
+${rotation2}
+${textureRandomizerR}
 float valueNoise(vec2 st) {
   vec2 i = floor(st);
   vec2 f = fract(st);
@@ -133,7 +133,7 @@ float roughness(vec2 p) {
   return o / 3.;
 }
 
-${ fiberNoise }
+${fiberNoise}
 
 vec2 randomGB(vec2 p) {
   vec2 uv = floor(p) / 50. + .5;
@@ -283,6 +283,8 @@ void main() {
   fragColor = vec4(color, opacity);
 }
 `;
+
+export { ensureHiResSvg as toProcessedPaperTexture } from '../ensure-hires-svg.js';
 
 export interface PaperTextureUniforms extends ShaderSizingUniforms {
   u_image: HTMLImageElement | string | undefined;

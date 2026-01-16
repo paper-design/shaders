@@ -34,7 +34,10 @@ export async function ensureHiResSvg(file: File | string): Promise<{ blob: Blob 
   const viewBoxMatch = svgString.match(/viewBox\s*=\s*["']([^"']+)["']/i);
   let aspectRatio = 1;
   if (viewBoxMatch) {
-    const values = viewBoxMatch[1]!.trim().split(/[\s,]+/).map(Number);
+    const values = viewBoxMatch[1]!
+      .trim()
+      .split(/[\s,]+/)
+      .map(Number);
     if (values.length === 4 && !values.some(isNaN)) {
       const [, , vbWidth, vbHeight] = values as [number, number, number, number];
       aspectRatio = vbWidth / vbHeight;

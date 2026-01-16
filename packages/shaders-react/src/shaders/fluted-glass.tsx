@@ -1,4 +1,4 @@
-import { memo } from 'react';
+import { memo, useState, useLayoutEffect } from 'react';
 import { ShaderMount, type ShaderComponentProps } from '../shader-mount.js';
 import {
   flutedGlassFragmentShader,
@@ -10,11 +10,19 @@ import {
   GlassGridShapes,
   type ImageShaderPreset,
   getShaderColorFromString,
+  toProcessedFlutedGlass,
 } from '@paper-design/shaders';
+
+import { transparentPixel } from '../transparent-pixel.js';
+import { suspend } from '../suspend.js';
 
 export interface FlutedGlassProps extends ShaderComponentProps, FlutedGlassParams {
   /** @deprecated use `size` instead */
   count?: number;
+  /**
+   * Suspends the component when the image is being processed.
+   */
+  suspendWhenProcessingImage?: boolean;
 }
 
 type FlutedGlassPreset = ImageShaderPreset<FlutedGlassParams>;
@@ -176,6 +184,7 @@ export const FlutedGlass: React.FC<FlutedGlassProps> = memo(function FlutedGlass
   // integer `count` was deprecated in favor of the normalized `size` param
   count,
   size = count === undefined ? defaultPreset.params.size : Math.pow(1 / (count * 1.6), 1 / 6) / 0.7 - 0.5,
+  suspendWhenProcessingImage = false,
 
   // Sizing props
   fit = defaultPreset.params.fit,
@@ -189,9 +198,50 @@ export const FlutedGlass: React.FC<FlutedGlassProps> = memo(function FlutedGlass
   worldHeight = defaultPreset.params.worldHeight,
   ...props
 }: FlutedGlassProps) {
+  const imageUrl = typeof image === 'string' ? image : image.src;
+  const [processedStateImage, setProcessedStateImage] = useState<string>(transparentPixel);
+
+  let processedImage: string;
+
+  // toProcessedFlutedGlass expects the document object to exist. This prevents SSR issues during builds.
+  if (suspendWhenProcessingImage && typeof window !== 'undefined') {
+    processedImage = suspend(
+      (): Promise<string> => toProcessedFlutedGlass(imageUrl).then((result) => URL.createObjectURL(result.blob)),
+      [imageUrl, 'fluted-glass']
+    );
+  } else {
+    processedImage = processedStateImage;
+  }
+
+  useLayoutEffect(() => {
+    if (suspendWhenProcessingImage) {
+      // Skip doing work in the effect as it's been handled by suspense.
+      return;
+    }
+
+    if (!imageUrl) {
+      setProcessedStateImage(transparentPixel);
+      return;
+    }
+
+    let url: string;
+    let current = true;
+
+    toProcessedFlutedGlass(imageUrl).then((result) => {
+      if (current) {
+        url = URL.createObjectURL(result.blob);
+        setProcessedStateImage(url);
+      }
+    });
+
+    return () => {
+      current = false;
+    };
+  }, [imageUrl, suspendWhenProcessingImage]);
+
   const uniforms = {
     // Own uniforms
-    u_image: image,
+    u_image: processedImage,
     u_colorBack: getShaderColorFromString(colorBack),
     u_colorShadow: getShaderColorFromString(colorShadow),
     u_colorHighlight: getShaderColorFromString(colorHighlight),

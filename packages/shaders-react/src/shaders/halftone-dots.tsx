@@ -1,4 +1,4 @@
-import { memo } from 'react';
+import { memo, useState, useLayoutEffect } from 'react';
 import { ShaderMount, type ShaderComponentProps } from '../shader-mount.js';
 import { colorPropsAreEqual } from '../color-props-are-equal.js';
 import {
@@ -11,9 +11,18 @@ import {
   type ImageShaderPreset,
   HalftoneDotsTypes,
   HalftoneDotsGrids,
+  toProcessedHalftoneDots,
 } from '@paper-design/shaders';
 
-export interface HalftoneDotsProps extends ShaderComponentProps, HalftoneDotsParams {}
+import { transparentPixel } from '../transparent-pixel.js';
+import { suspend } from '../suspend.js';
+
+export interface HalftoneDotsProps extends ShaderComponentProps, HalftoneDotsParams {
+  /**
+   * Suspends the component when the image is being processed.
+   */
+  suspendWhenProcessingImage?: boolean;
+}
 
 type HalftoneDotsPreset = ImageShaderPreset<HalftoneDotsParams>;
 
@@ -124,6 +133,7 @@ export const HalftoneDots: React.FC<HalftoneDotsProps> = memo(function HalftoneD
   grainSize = defaultPreset.params.grainSize,
   grid = defaultPreset.params.grid,
   type = defaultPreset.params.type,
+  suspendWhenProcessingImage = false,
 
   // Sizing props
   fit = defaultPreset.params.fit,
@@ -137,9 +147,50 @@ export const HalftoneDots: React.FC<HalftoneDotsProps> = memo(function HalftoneD
   worldHeight = defaultPreset.params.worldHeight,
   ...props
 }: HalftoneDotsProps) {
+  const imageUrl = typeof image === 'string' ? image : image.src;
+  const [processedStateImage, setProcessedStateImage] = useState<string>(transparentPixel);
+
+  let processedImage: string;
+
+  // toProcessedHalftoneDots expects the document object to exist. This prevents SSR issues during builds.
+  if (suspendWhenProcessingImage && typeof window !== 'undefined') {
+    processedImage = suspend(
+      (): Promise<string> => toProcessedHalftoneDots(imageUrl).then((result) => URL.createObjectURL(result.blob)),
+      [imageUrl, 'halftone-dots']
+    );
+  } else {
+    processedImage = processedStateImage;
+  }
+
+  useLayoutEffect(() => {
+    if (suspendWhenProcessingImage) {
+      // Skip doing work in the effect as it's been handled by suspense.
+      return;
+    }
+
+    if (!imageUrl) {
+      setProcessedStateImage(transparentPixel);
+      return;
+    }
+
+    let url: string;
+    let current = true;
+
+    toProcessedHalftoneDots(imageUrl).then((result) => {
+      if (current) {
+        url = URL.createObjectURL(result.blob);
+        setProcessedStateImage(url);
+      }
+    });
+
+    return () => {
+      current = false;
+    };
+  }, [imageUrl, suspendWhenProcessingImage]);
+
   const uniforms = {
     // Own uniforms
-    u_image: image,
+    u_image: processedImage,
     u_colorFront: getShaderColorFromString(colorFront),
     u_colorBack: getShaderColorFromString(colorBack),
     u_size: size,

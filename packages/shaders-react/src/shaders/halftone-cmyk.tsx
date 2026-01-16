@@ -21,7 +21,7 @@ export interface HalftoneCmykProps extends ShaderComponentProps, HalftoneCmykPar
   /**
    * Suspends the component when the image is being processed.
    */
-  suspendWhenProcessingImage ? : boolean;
+  suspendWhenProcessingImage?: boolean;
 }
 
 type HalftoneCmykPreset = ImageShaderPreset<HalftoneCmykParams>;
@@ -201,11 +201,11 @@ export const HalftoneCmyk: React.FC<HalftoneCmykProps> = memo(function HalftoneC
 
   let processedImage: string;
 
-  // toProcessedHeatmap expects the document object to exist. This prevents SSR issues during builds.
+  // toProcessedHalftoneCmyk expects the document object to exist. This prevents SSR issues during builds.
   if (suspendWhenProcessingImage && typeof window !== 'undefined') {
     processedImage = suspend(
       (): Promise<string> => toProcessedHalftoneCmyk(imageUrl).then((result) => URL.createObjectURL(result.blob)),
-      [imageUrl, 'heatmap']
+      [imageUrl, 'halftone-cmyk']
     );
   } else {
     processedImage = processedStateImage;
