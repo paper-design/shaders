@@ -40,12 +40,10 @@ const imageFiles = [
 const HalftoneCmykWithControls = () => {
   const [imageIdx, setImageIdx] = useState(-1);
   const [image, setImage] = useState<HTMLImageElement | string>('/images/image-filters/0018.webp');
-  const [status, setStatus] = useState('Click to load an image');
 
   useEffect(() => {
     if (imageIdx >= 0) {
       const name = imageFiles[imageIdx];
-      setStatus(`Displaying image: ${name}`);
       const img = new Image();
       img.src = `/images/image-filters/${name}`;
       img.onload = () => setImage(img);
@@ -59,7 +57,6 @@ const HalftoneCmykWithControls = () => {
   const setImageWithoutStatus = useCallback((img?: HTMLImageElement) => {
     setImage(img ?? '');
     setImageIdx(-1);
-    setStatus(``);
   }, []);
 
   const [params, setParams] = useControls(() => {
