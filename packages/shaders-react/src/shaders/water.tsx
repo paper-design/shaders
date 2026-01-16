@@ -1,4 +1,4 @@
-import { memo, useState, useLayoutEffect } from 'react';
+import { memo } from 'react';
 import { ShaderMount, type ShaderComponentProps } from '../shader-mount.js';
 import { colorPropsAreEqual } from '../color-props-are-equal.js';
 import {
@@ -12,8 +12,9 @@ import {
   toProcessedWater,
 } from '@paper-design/shaders';
 
-import { transparentPixel } from '../transparent-pixel.js';
-import { suspend } from '../suspend.js';
+import { useProcessedImage } from '../use-processed-image.js';
+
+const processImage = (url: string) => toProcessedWater(url).then((r) => r.blob);
 
 export interface WaterProps extends ShaderComponentProps, WaterParams {
   /** @deprecated use `size` instead */
@@ -134,46 +135,10 @@ export const Water: React.FC<WaterProps> = memo(function WaterImpl({
   worldHeight = defaultPreset.params.worldHeight,
   ...props
 }: WaterProps) {
-  const imageUrl = typeof image === 'string' ? image : image.src;
-  const [processedStateImage, setProcessedStateImage] = useState<string>(transparentPixel);
-
-  let processedImage: string;
-
-  // toProcessedWater expects the document object to exist. This prevents SSR issues during builds.
-  if (suspendWhenProcessingImage && typeof window !== 'undefined') {
-    processedImage = suspend(
-      (): Promise<string> => toProcessedWater(imageUrl).then((result) => URL.createObjectURL(result.blob)),
-      [imageUrl, 'water']
-    );
-  } else {
-    processedImage = processedStateImage;
-  }
-
-  useLayoutEffect(() => {
-    if (suspendWhenProcessingImage) {
-      // Skip doing work in the effect as it's been handled by suspense.
-      return;
-    }
-
-    if (!imageUrl) {
-      setProcessedStateImage(transparentPixel);
-      return;
-    }
-
-    let url: string;
-    let current = true;
-
-    toProcessedWater(imageUrl).then((result) => {
-      if (current) {
-        url = URL.createObjectURL(result.blob);
-        setProcessedStateImage(url);
-      }
-    });
-
-    return () => {
-      current = false;
-    };
-  }, [imageUrl, suspendWhenProcessingImage]);
+  const processedImage = useProcessedImage(image, processImage, {
+    suspense: suspendWhenProcessingImage,
+    cacheKey: 'water',
+  });
 
   const uniforms = {
     // Own uniforms

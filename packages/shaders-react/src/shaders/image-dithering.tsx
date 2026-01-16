@@ -1,4 +1,4 @@
-import { memo, useState, useLayoutEffect } from 'react';
+import { memo } from 'react';
 import { ShaderMount, type ShaderComponentProps } from '../shader-mount.js';
 import { colorPropsAreEqual } from '../color-props-are-equal.js';
 import {
@@ -13,8 +13,9 @@ import {
   toProcessedImageDithering,
 } from '@paper-design/shaders';
 
-import { transparentPixel } from '../transparent-pixel.js';
-import { suspend } from '../suspend.js';
+import { useProcessedImage } from '../use-processed-image.js';
+
+const processImage = (url: string) => toProcessedImageDithering(url).then((r) => r.blob);
 
 export interface ImageDitheringProps extends ShaderComponentProps, ImageDitheringParams {
   /** @deprecated use `size` instead */
@@ -130,46 +131,10 @@ export const ImageDithering: React.FC<ImageDitheringProps> = memo(function Image
   worldHeight = defaultPreset.params.worldHeight,
   ...props
 }: ImageDitheringProps) {
-  const imageUrl = typeof image === 'string' ? image : image.src;
-  const [processedStateImage, setProcessedStateImage] = useState<string>(transparentPixel);
-
-  let processedImage: string;
-
-  // toProcessedImageDithering expects the document object to exist. This prevents SSR issues during builds.
-  if (suspendWhenProcessingImage && typeof window !== 'undefined') {
-    processedImage = suspend(
-      (): Promise<string> => toProcessedImageDithering(imageUrl).then((result) => URL.createObjectURL(result.blob)),
-      [imageUrl, 'image-dithering']
-    );
-  } else {
-    processedImage = processedStateImage;
-  }
-
-  useLayoutEffect(() => {
-    if (suspendWhenProcessingImage) {
-      // Skip doing work in the effect as it's been handled by suspense.
-      return;
-    }
-
-    if (!imageUrl) {
-      setProcessedStateImage(transparentPixel);
-      return;
-    }
-
-    let url: string;
-    let current = true;
-
-    toProcessedImageDithering(imageUrl).then((result) => {
-      if (current) {
-        url = URL.createObjectURL(result.blob);
-        setProcessedStateImage(url);
-      }
-    });
-
-    return () => {
-      current = false;
-    };
-  }, [imageUrl, suspendWhenProcessingImage]);
+  const processedImage = useProcessedImage(image, processImage, {
+    suspense: suspendWhenProcessingImage,
+    cacheKey: 'image-dithering',
+  });
 
   const uniforms = {
     // Own uniforms
