@@ -165,6 +165,8 @@ void main() {
   float dithering = 0.0;
 
   float lum = dot(vec3(.2126, .7152, .0722), image.rgb);
+  // Boost very dark opaque pixels (e.g., black silhouettes on transparent bg)
+  lum = max(lum, image.a * smoothstep(.05, 0., lum));
 
   switch (type) {
     case 1: {
