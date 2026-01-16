@@ -326,6 +326,43 @@ void main() {
 }
 `;
 
+export async function toProcessedHalftoneCmyk(file: File | string): Promise<{ blob: Blob }> {
+  let isSvg: boolean;
+  if (typeof file === 'string') {
+    isSvg = file.endsWith('.svg') || file.startsWith('data:image/svg+xml');
+  } else {
+    isSvg = file.type === 'image/svg+xml';
+  }
+
+  if (!isSvg) {
+    if (typeof file !== 'string') {
+      return { blob: file };
+    }
+    const response = await fetch(file);
+    return { blob: await response.blob() };
+  }
+
+  const svgString = typeof file === 'string' ? await (await fetch(file)).text() : await file.text();
+
+  const viewBoxMatch = svgString.match(/viewBox\s*=\s*["']([^"']+)["']/i);
+  if (!viewBoxMatch) {
+    return { blob: new Blob([svgString], { type: 'image/svg+xml' }) };
+  }
+
+  const values = viewBoxMatch[1]!.trim().split(/[\s,]+/).map(Number);
+  if (values.length !== 4 || values.some(isNaN)) {
+    return { blob: new Blob([svgString], { type: 'image/svg+xml' }) };
+  }
+
+  const [minX, minY, width, height] = values as [number, number, number, number];
+  const paddingAmount = Math.min(width, height) * 0.05;
+
+  const newViewBoxString = `${minX - paddingAmount} ${minY - paddingAmount} ${width + paddingAmount * 2} ${height + paddingAmount * 2}`;
+  const modifiedSvg = svgString.replace(/viewBox\s*=\s*["'][^"']+["']/i, `viewBox="${newViewBoxString}"`);
+
+  return { blob: new Blob([modifiedSvg], { type: 'image/svg+xml' }) };
+}
+
 export interface HalftoneCmykUniforms extends ShaderSizingUniforms {
   u_image: HTMLImageElement | string | undefined;
   u_noiseTexture?: HTMLImageElement;
