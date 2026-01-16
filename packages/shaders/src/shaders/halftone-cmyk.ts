@@ -178,14 +178,15 @@ vec2 gridToImageUV(vec2 cellCenter, float cosA, float sinA, float shift, vec2 pa
   return uvGrid * pad + 0.5;
 }
 
-void colorMask(vec2 pos, vec2 cellCenter, float rad, float outOfFrame, float grain, float channelAddon, float channelgain, float generalComp, bool isJoined, inout float outMask) {
+void colorMask(vec2 pos, vec2 cellCenter, float rad, float transparency, float grain, float channelAddon, float channelgain, float generalComp, bool isJoined, inout float outMask) {
   float dist = length(pos - cellCenter);
 
   float radius = rad;
   radius *= (1. + generalComp);
-  radius += (.15 + channelAddon + channelgain * radius);
+  radius += (.15 + channelgain * radius);
   radius = max(0., radius);
-  radius = mix(0., radius, outOfFrame);
+  radius = mix(0., radius, transparency);
+  radius += channelAddon;
   radius *= (1. - grain);
 
   float mask = 1. - sst(0., radius, dist);
@@ -213,7 +214,7 @@ void main() {
   float cellSizeY = 1.0 / cellsPerSide;
   vec2 pad = cellSizeY * vec2(1.0 / u_imageAspectRatio, 1.0);
   vec2 uvGrid = (uv - .5) / pad;
-  float outOfFrame = getUvFrame(uv, pad);
+  float insideImageBox = getUvFrame(uv, pad);
 
   float generalComp = .1 * u_softness + .1 * u_gridNoise + .1 * (1. - step(0.5, u_type)) * (1.5 - u_softness);
 
@@ -239,35 +240,35 @@ void main() {
 
         vec2 cellCenterC = cellCenterPos(uvC, cellOffset, 0.);
         vec4 texC = texture(u_image, gridToImageUV(cellCenterC, cosC, sinC, shiftC, pad));
-        colorMask(uvC, cellCenterC, getCyan(texC), outOfFrame * texC.a, grain, u_floodC, u_gainC, generalComp, isJoined, outMask[0]);
+        colorMask(uvC, cellCenterC, getCyan(texC), insideImageBox * texC.a, grain, u_floodC, u_gainC, generalComp, isJoined, outMask[0]);
 
         vec2 cellCenterM = cellCenterPos(uvM, cellOffset, 1.);
         vec4 texM = texture(u_image, gridToImageUV(cellCenterM, cosM, sinM, shiftM, pad));
-        colorMask(uvM, cellCenterM, getMagenta(texM), outOfFrame * texM.a, grain, u_floodM, u_gainM, generalComp, isJoined, outMask[1]);
+        colorMask(uvM, cellCenterM, getMagenta(texM), insideImageBox * texM.a, grain, u_floodM, u_gainM, generalComp, isJoined, outMask[1]);
 
         vec2 cellCenterY = cellCenterPos(uvY, cellOffset, 2.);
         vec4 texY = texture(u_image, gridToImageUV(cellCenterY, cosY, sinY, shiftY, pad));
-        colorMask(uvY, cellCenterY, getYellow(texY), outOfFrame * texY.a, grain, u_floodY, u_gainY, generalComp, isJoined, outMask[2]);
+        colorMask(uvY, cellCenterY, getYellow(texY), insideImageBox * texY.a, grain, u_floodY, u_gainY, generalComp, isJoined, outMask[2]);
 
         vec2 cellCenterK = cellCenterPos(uvK, cellOffset, 3.);
         vec4 texK = texture(u_image, gridToImageUV(cellCenterK, cosK, sinK, shiftK, pad));
-        colorMask(uvK, cellCenterK, getBlack(texK), outOfFrame * texK.a, grain, u_floodK, u_gainK, generalComp, isJoined, outMask[3]);
+        colorMask(uvK, cellCenterK, getBlack(texK), insideImageBox * texK.a, grain, u_floodK, u_gainK, generalComp, isJoined, outMask[3]);
       }
     }
   } else {
     // sharp: direct px color sampling
     vec4 tex = texture(u_image, uv);
     tex.rgb = applyContrast(tex.rgb);
-    outOfFrame *= tex.a;
+    insideImageBox *= tex.a;
     vec4 cmykOriginal = RGBAtoCMYK(tex);
     for (int dy = -1; dy <= 1; dy++) {
       for (int dx = -1; dx <= 1; dx++) {
         vec2 cellOffset = vec2(float(dx), float(dy));
 
-        colorMask(uvC, cellCenterPos(uvC, cellOffset, 0.), cmykOriginal.x, outOfFrame, grain, u_floodC, u_gainC, generalComp, isJoined, outMask[0]);
-        colorMask(uvM, cellCenterPos(uvM, cellOffset, 1.), cmykOriginal.y, outOfFrame, grain, u_floodM, u_gainM, generalComp, isJoined, outMask[1]);
-        colorMask(uvY, cellCenterPos(uvY, cellOffset, 2.), cmykOriginal.z, outOfFrame, grain, u_floodY, u_gainY, generalComp, isJoined, outMask[2]);
-        colorMask(uvK, cellCenterPos(uvK, cellOffset, 3.), cmykOriginal.w, outOfFrame, grain, u_floodK, u_gainK, generalComp, isJoined, outMask[3]);
+        colorMask(uvC, cellCenterPos(uvC, cellOffset, 0.), cmykOriginal.x, insideImageBox, grain, u_floodC, u_gainC, generalComp, isJoined, outMask[0]);
+        colorMask(uvM, cellCenterPos(uvM, cellOffset, 1.), cmykOriginal.y, insideImageBox, grain, u_floodM, u_gainM, generalComp, isJoined, outMask[1]);
+        colorMask(uvY, cellCenterPos(uvY, cellOffset, 2.), cmykOriginal.z, insideImageBox, grain, u_floodY, u_gainY, generalComp, isJoined, outMask[2]);
+        colorMask(uvK, cellCenterPos(uvK, cellOffset, 3.), cmykOriginal.w, insideImageBox, grain, u_floodK, u_gainK, generalComp, isJoined, outMask[3]);
       }
     }
   }
