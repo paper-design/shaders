@@ -10,11 +10,20 @@ import {
   defaultObjectSizing,
   DitheringTypes,
   type ImageShaderPreset,
+  toProcessedImageDithering,
 } from '@paper-design/shaders';
+
+import { useProcessedImage } from '../use-processed-image.js';
+
+const processImage = (url: string) => toProcessedImageDithering(url).then((r) => r.blob);
 
 export interface ImageDitheringProps extends ShaderComponentProps, ImageDitheringParams {
   /** @deprecated use `size` instead */
   pxSize?: number;
+  /**
+   * Suspends the component when the image is being processed.
+   */
+  suspendWhenProcessingImage?: boolean;
 }
 
 type ImageDitheringPreset = ImageShaderPreset<ImageDitheringParams>;
@@ -34,6 +43,7 @@ export const defaultPreset: ImageDitheringPreset = {
     size: 2,
     colorSteps: 2,
     originalColors: false,
+    inverted: false,
   },
 } as const;
 
@@ -51,6 +61,7 @@ export const retroPreset: ImageDitheringPreset = {
     size: 3,
     colorSteps: 1,
     originalColors: true,
+    inverted: false,
   },
 } as const;
 
@@ -68,6 +79,7 @@ export const noisePreset: ImageDitheringPreset = {
     size: 1,
     colorSteps: 1,
     originalColors: false,
+    inverted: false,
   },
 } as const;
 
@@ -85,6 +97,7 @@ export const naturalPreset: ImageDitheringPreset = {
     size: 2,
     colorSteps: 5,
     originalColors: true,
+    inverted: false,
   },
 } as const;
 
@@ -101,8 +114,10 @@ export const ImageDithering: React.FC<ImageDitheringProps> = memo(function Image
   type = defaultPreset.params.type,
   colorSteps = defaultPreset.params.colorSteps,
   originalColors = defaultPreset.params.originalColors,
+  inverted = defaultPreset.params.inverted,
   pxSize,
   size = pxSize === undefined ? defaultPreset.params.size : pxSize,
+  suspendWhenProcessingImage = false,
 
   // Sizing props
   fit = defaultPreset.params.fit,
@@ -116,9 +131,14 @@ export const ImageDithering: React.FC<ImageDitheringProps> = memo(function Image
   worldHeight = defaultPreset.params.worldHeight,
   ...props
 }: ImageDitheringProps) {
+  const processedImage = useProcessedImage(image, processImage, {
+    suspense: suspendWhenProcessingImage,
+    cacheKey: 'image-dithering',
+  });
+
   const uniforms = {
     // Own uniforms
-    u_image: image,
+    u_image: processedImage,
     u_colorFront: getShaderColorFromString(colorFront),
     u_colorBack: getShaderColorFromString(colorBack),
     u_colorHighlight: getShaderColorFromString(colorHighlight),
@@ -126,6 +146,7 @@ export const ImageDithering: React.FC<ImageDitheringProps> = memo(function Image
     u_pxSize: size,
     u_colorSteps: colorSteps,
     u_originalColors: originalColors,
+    u_inverted: inverted,
 
     // Sizing uniforms
     u_fit: ShaderFitOptions[fit],

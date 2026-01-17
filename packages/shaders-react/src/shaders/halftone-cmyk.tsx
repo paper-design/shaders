@@ -1,4 +1,4 @@
-import { memo } from 'react';
+import React, { memo } from 'react';
 import { ShaderMount, type ShaderComponentProps } from '../shader-mount.js';
 import { colorPropsAreEqual } from '../color-props-are-equal.js';
 import {
@@ -11,9 +11,19 @@ import {
   defaultObjectSizing,
   type ImageShaderPreset,
   HalftoneCmykTypes,
+  toProcessedHalftoneCmyk,
 } from '@paper-design/shaders';
 
-export interface HalftoneCmykProps extends ShaderComponentProps, HalftoneCmykParams {}
+import { useProcessedImage } from '../use-processed-image.js';
+
+const processImage = (url: string) => toProcessedHalftoneCmyk(url).then((r) => r.blob);
+
+export interface HalftoneCmykProps extends ShaderComponentProps, HalftoneCmykParams {
+  /**
+   * Suspends the component when the image is being processed.
+   */
+  suspendWhenProcessingImage?: boolean;
+}
 
 type HalftoneCmykPreset = ImageShaderPreset<HalftoneCmykParams>;
 
@@ -173,6 +183,7 @@ export const HalftoneCmyk: React.FC<HalftoneCmykProps> = memo(function HalftoneC
   gainY = defaultPreset.params.gainY,
   gainK = defaultPreset.params.gainK,
   type = defaultPreset.params.type,
+  suspendWhenProcessingImage = false,
 
   // Sizing props
   fit = defaultPreset.params.fit,
@@ -186,9 +197,14 @@ export const HalftoneCmyk: React.FC<HalftoneCmykProps> = memo(function HalftoneC
   worldHeight = defaultPreset.params.worldHeight,
   ...props
 }: HalftoneCmykProps) {
+  const processedImage = useProcessedImage(image, processImage, {
+    suspense: suspendWhenProcessingImage,
+    cacheKey: 'halftone-cmyk',
+  });
+
   const uniforms = {
     // Own uniforms
-    u_image: image,
+    u_image: processedImage,
     u_noiseTexture: getShaderNoiseTexture(),
     u_colorBack: getShaderColorFromString(colorBack),
     u_colorC: getShaderColorFromString(colorC),

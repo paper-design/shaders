@@ -156,16 +156,18 @@ export {
 /** A static texture built from multiple noise layers, usable for a realistic paper and cardboard surfaces or generating abstract patterns. Can be used as a image filter or as a texture */
 export {
   paperTextureFragmentShader,
+  toProcessedPaperTexture,
   type PaperTextureParams,
   type PaperTextureUniforms,
 } from './shaders/paper-texture.js';
 
 /** Water-like surface distortion with natural caustic realism. Works as an image filter or animated texture without image */
-export { waterFragmentShader, type WaterParams, type WaterUniforms } from './shaders/water.js';
+export { waterFragmentShader, toProcessedWater, type WaterParams, type WaterUniforms } from './shaders/water.js';
 
 /** Fluted glass image filter transforms an image into streaked, ribbed distortions, giving a mix of clarity and obscurity */
 export {
   flutedGlassFragmentShader,
+  toProcessedFlutedGlass,
   GlassDistortionShapes,
   GlassGridShapes,
   type GlassDistortionShape,
@@ -177,6 +179,7 @@ export {
 /** A dithering image filter with support for 4 dithering modes and multiple color palettes (2-color, 3-color, and multicolor options, using either predefined colors or ones sampled directly from the original image) */
 export {
   imageDitheringFragmentShader,
+  toProcessedImageDithering,
   type ImageDitheringParams,
   type ImageDitheringUniforms,
 } from './shaders/image-dithering.js';
@@ -205,6 +208,7 @@ export {
   HalftoneDotsTypes,
   HalftoneDotsGrids,
   halftoneDotsFragmentShader,
+  toProcessedHalftoneDots,
   type HalftoneDotsParams,
   type HalftoneDotsUniforms,
   type HalftoneDotsType,
@@ -215,6 +219,7 @@ export {
 export {
   HalftoneCmykTypes,
   halftoneCmykFragmentShader,
+  toProcessedHalftoneCmyk,
   type HalftoneCmykParams,
   type HalftoneCmykUniforms,
   type HalftoneCmykType,
@@ -224,3 +229,4 @@ export {
 export { getShaderColorFromString } from './get-shader-color-from-string.js';
 export { getShaderNoiseTexture } from './get-shader-noise-texture.js';
 export { getEmptyPixel } from './get-empty-pixel.js';
+export { ensureHiResSvg } from './ensure-hi-res-svg.js';

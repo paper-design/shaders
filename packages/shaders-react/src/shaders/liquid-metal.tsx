@@ -1,4 +1,4 @@
-import { memo, useLayoutEffect, useState } from 'react';
+import { memo } from 'react';
 import { ShaderMount, type ShaderComponentProps } from '../shader-mount.js';
 import {
   liquidMetalFragmentShader,
@@ -11,8 +11,10 @@ import {
   getShaderColorFromString,
   LiquidMetalShapes,
 } from '@paper-design/shaders';
-import { transparentPixel } from '../transparent-pixel.js';
-import { suspend } from '../suspend.js';
+
+import { useProcessedImage } from '../use-processed-image.js';
+
+const processImage = (url: string) => toProcessedLiquidMetal(url).then((r) => r.pngBlob);
 
 export interface LiquidMetalProps extends ShaderComponentProps, LiquidMetalParams {
   /**
@@ -136,45 +138,10 @@ export const LiquidMetal: React.FC<LiquidMetalProps> = memo(function LiquidMetal
   worldHeight = defaultPreset.params.worldHeight,
   ...props
 }: LiquidMetalProps) {
-  const imageUrl = typeof image === 'string' ? image : image.src;
-  const [processedStateImage, setProcessedStateImage] = useState<string>(transparentPixel);
-
-  let processedImage: string;
-
-  if (suspendWhenProcessingImage && typeof window !== 'undefined' && imageUrl) {
-    processedImage = suspend(
-      (): Promise<string> => toProcessedLiquidMetal(imageUrl).then((result) => URL.createObjectURL(result.pngBlob)),
-      [imageUrl, 'liquid-metal']
-    );
-  } else {
-    processedImage = processedStateImage;
-  }
-
-  useLayoutEffect(() => {
-    if (suspendWhenProcessingImage) {
-      // Skip doing work in the effect as it's been handled by suspense.
-      return;
-    }
-
-    if (!imageUrl) {
-      setProcessedStateImage(transparentPixel);
-      return;
-    }
-
-    let url: string;
-    let current = true;
-
-    toProcessedLiquidMetal(imageUrl).then((result) => {
-      if (current) {
-        url = URL.createObjectURL(result.pngBlob);
-        setProcessedStateImage(url);
-      }
-    });
-
-    return () => {
-      current = false;
-    };
-  }, [imageUrl, suspendWhenProcessingImage]);
+  const processedImage = useProcessedImage(image, processImage, {
+    suspense: suspendWhenProcessingImage,
+    cacheKey: 'liquid-metal',
+  });
 
   const uniforms = {
     // Own uniforms

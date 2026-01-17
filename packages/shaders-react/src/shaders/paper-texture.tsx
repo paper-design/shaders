@@ -10,7 +10,12 @@ import {
   type ImageShaderPreset,
   type PaperTextureParams,
   type PaperTextureUniforms,
+  toProcessedPaperTexture,
 } from '@paper-design/shaders';
+
+import { useProcessedImage } from '../use-processed-image.js';
+
+const processImage = (url: string) => toProcessedPaperTexture(url).then((r) => r.blob);
 
 export interface PaperTextureProps extends ShaderComponentProps, PaperTextureParams {
   /** @deprecated use `fiberSize` instead */
@@ -21,6 +26,10 @@ export interface PaperTextureProps extends ShaderComponentProps, PaperTexturePar
   foldsNumber?: number;
   /** @deprecated use `fade` instead */
   blur?: number;
+  /**
+   * Suspends the component when the image is being processed.
+   */
+  suspendWhenProcessingImage?: boolean;
 }
 
 type PaperTexturePreset = ImageShaderPreset<PaperTextureParams>;
@@ -152,6 +161,7 @@ export const PaperTexture: React.FC<PaperTextureProps> = memo(function PaperText
   fade = blur === undefined ? defaultPreset.params.fade : blur,
   foldsNumber,
   foldCount = foldsNumber === undefined ? defaultPreset.params.foldCount : foldsNumber,
+  suspendWhenProcessingImage = false,
 
   // Sizing props
   fit = defaultPreset.params.fit,
@@ -165,11 +175,16 @@ export const PaperTexture: React.FC<PaperTextureProps> = memo(function PaperText
   worldHeight = defaultPreset.params.worldHeight,
   ...props
 }: PaperTextureProps) {
+  const processedImage = useProcessedImage(image, processImage, {
+    suspense: suspendWhenProcessingImage,
+    cacheKey: 'paper-texture',
+  });
+
   const noiseTexture = typeof window !== 'undefined' && { u_noiseTexture: getShaderNoiseTexture() };
 
   const uniforms = {
     // Own uniforms
-    u_image: image,
+    u_image: processedImage,
     u_colorFront: getShaderColorFromString(colorFront),
     u_colorBack: getShaderColorFromString(colorBack),
     u_contrast: contrast,

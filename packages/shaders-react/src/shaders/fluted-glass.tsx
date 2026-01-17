@@ -10,11 +10,20 @@ import {
   GlassGridShapes,
   type ImageShaderPreset,
   getShaderColorFromString,
+  toProcessedFlutedGlass,
 } from '@paper-design/shaders';
+
+import { useProcessedImage } from '../use-processed-image.js';
+
+const processImage = (url: string) => toProcessedFlutedGlass(url).then((r) => r.blob);
 
 export interface FlutedGlassProps extends ShaderComponentProps, FlutedGlassParams {
   /** @deprecated use `size` instead */
   count?: number;
+  /**
+   * Suspends the component when the image is being processed.
+   */
+  suspendWhenProcessingImage?: boolean;
 }
 
 type FlutedGlassPreset = ImageShaderPreset<FlutedGlassParams>;
@@ -176,6 +185,7 @@ export const FlutedGlass: React.FC<FlutedGlassProps> = memo(function FlutedGlass
   // integer `count` was deprecated in favor of the normalized `size` param
   count,
   size = count === undefined ? defaultPreset.params.size : Math.pow(1 / (count * 1.6), 1 / 6) / 0.7 - 0.5,
+  suspendWhenProcessingImage = false,
 
   // Sizing props
   fit = defaultPreset.params.fit,
@@ -189,9 +199,14 @@ export const FlutedGlass: React.FC<FlutedGlassProps> = memo(function FlutedGlass
   worldHeight = defaultPreset.params.worldHeight,
   ...props
 }: FlutedGlassProps) {
+  const processedImage = useProcessedImage(image, processImage, {
+    suspense: suspendWhenProcessingImage,
+    cacheKey: 'fluted-glass',
+  });
+
   const uniforms = {
     // Own uniforms
-    u_image: image,
+    u_image: processedImage,
     u_colorBack: getShaderColorFromString(colorBack),
     u_colorShadow: getShaderColorFromString(colorShadow),
     u_colorHighlight: getShaderColorFromString(colorHighlight),

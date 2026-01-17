@@ -87,9 +87,9 @@ in vec2 v_imageUV;
 
 out vec4 fragColor;
 
-${ declarePI }
-${ rotation2 }
-${ proceduralHash21 }
+${declarePI}
+${rotation2}
+${proceduralHash21}
 
 float valueNoise(vec2 st) {
   vec2 i = floor(st);
@@ -382,6 +382,8 @@ void main() {
   fragColor = vec4(color, opacity);
 }
 `;
+
+export { ensureHiResSvg as toProcessedFlutedGlass } from '../ensure-hi-res-svg.js';
 
 export interface FlutedGlassUniforms extends ShaderSizingUniforms {
   u_image: HTMLImageElement | string | undefined;

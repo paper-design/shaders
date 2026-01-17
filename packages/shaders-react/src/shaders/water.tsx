@@ -9,11 +9,20 @@ import {
   type WaterParams,
   defaultObjectSizing,
   type ImageShaderPreset,
+  toProcessedWater,
 } from '@paper-design/shaders';
+
+import { useProcessedImage } from '../use-processed-image.js';
+
+const processImage = (url: string) => toProcessedWater(url).then((r) => r.blob);
 
 export interface WaterProps extends ShaderComponentProps, WaterParams {
   /** @deprecated use `size` instead */
   effectScale?: number;
+  /**
+   * Suspends the component when the image is being processed.
+   */
+  suspendWhenProcessingImage?: boolean;
 }
 
 type WaterPreset = ImageShaderPreset<WaterParams>;
@@ -112,6 +121,7 @@ export const Water: React.FC<WaterProps> = memo(function WaterImpl({
   // (it was a reverse value by mistake, so we took the opportunity to rename the param too)
   effectScale,
   size = effectScale === undefined ? defaultPreset.params.size : 10 / 9 / effectScale - 1 / 9,
+  suspendWhenProcessingImage = false,
 
   // Sizing props
   fit = defaultPreset.params.fit,
@@ -125,9 +135,14 @@ export const Water: React.FC<WaterProps> = memo(function WaterImpl({
   worldHeight = defaultPreset.params.worldHeight,
   ...props
 }: WaterProps) {
+  const processedImage = useProcessedImage(image, processImage, {
+    suspense: suspendWhenProcessingImage,
+    cacheKey: 'water',
+  });
+
   const uniforms = {
     // Own uniforms
-    u_image: image,
+    u_image: processedImage,
     u_colorBack: getShaderColorFromString(colorBack),
     u_colorHighlight: getShaderColorFromString(colorHighlight),
     u_highlights: highlights,

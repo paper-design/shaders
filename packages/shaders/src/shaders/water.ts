@@ -60,9 +60,9 @@ in vec2 v_imageUV;
 
 out vec4 fragColor;
 
-${ declarePI }
-${ rotation2 }
-${ simplexNoise }
+${declarePI}
+${rotation2}
+${simplexNoise}
 
 float getUvFrame(vec2 uv) {
   float aax = 2. * fwidth(uv.x);
@@ -147,6 +147,8 @@ void main() {
   fragColor = vec4(color, opacity);
 }
 `;
+
+export { ensureHiResSvg as toProcessedWater } from '../ensure-hi-res-svg.js';
 
 export interface WaterUniforms extends ShaderSizingUniforms {
   u_image: HTMLImageElement | string | undefined;

@@ -133,6 +133,7 @@ export const homeThumbnails = [
           ...waterPresets[0].params,
           scale: 1.05,
           colorBack: '#e0f2ff',
+          suspendWhenProcessingImage: true,
           image: '/images/image-filters/0018.webp',
         },
       },
