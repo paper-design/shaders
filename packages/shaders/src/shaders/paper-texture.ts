@@ -256,9 +256,10 @@ vec2 getFolds(vec2 uv1, vec2 uv2) {
       pp2 = vec3(uv2.x - p.x, dist2, rand.y);
     }
   }
+  float mult2 = mix(.22, .02, u_gridShape);
   return vec2(
-    mix(pp1.x, .2 * pp1.z, pow(pp1.y, .15)),
-    mix(pp2.x, .2 * pp2.z, pow(pp2.y, .15))
+    mix(pp1.x, .17 * pp1.z, pow(pp1.y, mult2)),
+    mix(pp2.x, .18 * pp2.z, pow(pp2.y, mult2))
   );
 }
 
@@ -302,6 +303,7 @@ void main() {
   vec2 foldsUV1 = rotate(patternUV * .18, 4. * u_seed);
   vec2 foldsUV2 = rotate(foldsUV1 + .009 * cos(u_seed), .012 * sin(u_seed));
   vec2 folds = u_folds * clamp(5. * getFolds(foldsUV1, foldsUV2), 0., 1.);
+//  folds = mix(folds, smoothstep(vec2(0.), vec2(1.), folds), u_gridShape);
 
   float fade = u_fade * getFadeMask(.17 * patternUV + 10. * u_seed);
   fade = clamp(8. * fade * fade * fade, 0., 1.);
