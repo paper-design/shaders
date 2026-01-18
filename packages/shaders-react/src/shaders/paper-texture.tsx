@@ -35,7 +35,7 @@ export const defaultPreset: PaperTexturePreset = {
     scale: 0.8,
     speed: 0,
     frame: 0,
-    colorFront: '#d1d6dc',
+    colorFront: '#c4cbd4',
     colorBack: '#ffffff',
     contrast: 0.3,
     roughness: 0.4,
@@ -50,7 +50,7 @@ export const defaultPreset: PaperTexturePreset = {
     gridShape: 0.35,
     gridCount: 3,
     fade: 0,
-    drops: 0.2,
+    drops: 0.4,
     seed: 285,
   },
 };

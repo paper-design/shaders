@@ -196,7 +196,7 @@ float getCrumples(vec2 uv) {
       // Scale 1
       vec2 q1 = b + p1;
       vec2 q1m = mod(q1, 8.);
-      vec2 c1 = q1 + randomGB(q1m);
+      vec2 c1 = q1 + randomGB(q1m + u_seed);
       float val1 = .5 + .5 * sin((q1m.x + q1m.y * 5.) * 8.);
       vec2 r1 = c1 - t1;
       float wy1 = pow(sst(0., 1., 1. - abs(r1.y)), 16.);
@@ -300,7 +300,7 @@ void main() {
   float drops = u_drops * getDrops(patternUV * 2.);
 
   vec2 foldsUV1 = rotate(patternUV * .18, 4. * u_seed);
-  vec2 foldsUV2 = rotate(foldsUV1 + .01 * cos(u_seed), .015 * sin(u_seed));
+  vec2 foldsUV2 = rotate(foldsUV1 + .009 * cos(u_seed), .012 * sin(u_seed));
   vec2 folds = u_folds * clamp(5. * getFolds(foldsUV1, foldsUV2), 0., 1.);
 
   float fade = u_fade * getFadeMask(.17 * patternUV + 10. * u_seed);
