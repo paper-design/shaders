@@ -301,15 +301,19 @@ void main() {
   float fade = u_fade * getFadeMask(.17 * patternUV + 10. * u_seed);
   fade = clamp(8. * fade * fade * fade, 0., 1.);
 
-  vec2 foldsUV1 = rotate(patternUV * .18, 4. * u_seed);
-  vec2 foldsUV2 = rotate(foldsUV1 + .009 * cos(u_seed), .012 * sin(u_seed));
-  vec2 radialFolds = u_folds * clamp(4. * getFolds(foldsUV1, foldsUV2), 0., 1.);
-  vec2 creasesResult = u_folds * clamp(getGrid(patternUV), 0., 1.);
-  float creases = creasesResult.x;
-  drops *= mix(1., creasesResult.y, u_folds * u_foldType);
+  float foldsPattern = 0.;
+  if (u_foldType < .5) {
+    vec2 foldsUV1 = rotate(patternUV * .18, 4. * u_seed);
+    vec2 foldsUV2 = rotate(foldsUV1 + .009 * cos(u_seed), .012 * sin(u_seed));
+    vec2 radialFolds = u_folds * clamp(4. * getFolds(foldsUV1, foldsUV2), 0., 1.);
+    radialFolds = mix(radialFolds, vec2(0.), fade);
+    foldsPattern = radialFolds.x + radialFolds.y;
+  } else {
+    vec2 creasesResult = u_folds * clamp(getGrid(patternUV), 0., 1.);
+    foldsPattern = creasesResult.x * mix(1., .0, fade);
+    drops *= mix(1., creasesResult.y, u_folds);
+  }
 
-  radialFolds = mix(radialFolds, vec2(0.), fade);
-  creases *= mix(1., .0, fade);
   crumples = mix(crumples, 0., fade);
   drops = mix(drops, 0., fade);
   fiber *= mix(1., .5, fade);
@@ -318,7 +322,7 @@ void main() {
   float pattern = roughness;
   pattern += fiber;
   pattern += crumples;
-  pattern += mix(radialFolds.x + radialFolds.y, creases, u_foldType);
+  pattern += foldsPattern;
   pattern += drops;
 
   vec3 fgColor = u_colorFront.rgb * u_colorFront.a;
