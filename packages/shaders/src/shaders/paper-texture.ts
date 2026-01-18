@@ -23,7 +23,7 @@ import { rotation2, declarePI } from '../shader-utils.js';
  * - u_folds (float): Depth of the folds (0 to 1)
  * - u_foldCount (float): Number of folds (1 to 15)
  * - u_grid (float): Intensity of the grid / crease pattern (0 to 1)
- * - u_gridShape (float): Shape/width of the grid creases (0 to 1)
+ * - u_foldsShape (float): Shape/width of the grid creases (0 to 1)
  * - u_gridCount (float): Number/density of grid creases (0 to N)
  * - u_drops (float): Visibility of speckle / drop pattern (0 to 1)
  * - u_seed (float): Seed applied to folds, crumples and dots (0 to 1000)
@@ -72,7 +72,7 @@ uniform float u_crumpleSize;
 uniform float u_folds;
 uniform float u_foldCount;
 uniform float u_grid;
-uniform float u_gridShape;
+uniform float u_foldsShape;
 uniform float u_gridCount;
 uniform float u_drops;
 uniform float u_seed;
@@ -256,7 +256,7 @@ vec2 getFolds(vec2 uv1, vec2 uv2) {
       pp2 = vec3(uv2.x - p.x, dist2, rand.y);
     }
   }
-  float mult2 = mix(.22, .02, u_gridShape);
+  float mult2 = mix(.22, .02, u_foldsShape);
   return vec2(
     mix(pp1.x, .17 * pp1.z, pow(pp1.y, mult2)),
     mix(pp2.x, .18 * pp2.z, pow(pp2.y, mult2))
@@ -266,7 +266,7 @@ vec2 getFolds(vec2 uv1, vec2 uv2) {
 vec2 getGrid(vec2 uv) {
   float gridX = fract(uv.x * .1 * u_gridCount + .5);
   float dx = gridX - .5;
-  float foldWidth = u_gridShape;
+  float foldWidth = u_foldsShape;
   float foldAmount = 1. - smoothstep(0., foldWidth, abs(dx));
   float angle = sign(dx) * 1.1345 * foldAmount;
   float creaseDark = mix(.9, 1., smoothstep(0., foldWidth * .5, abs(dx)));
@@ -303,7 +303,7 @@ void main() {
   vec2 foldsUV1 = rotate(patternUV * .18, 4. * u_seed);
   vec2 foldsUV2 = rotate(foldsUV1 + .009 * cos(u_seed), .012 * sin(u_seed));
   vec2 folds = u_folds * clamp(5. * getFolds(foldsUV1, foldsUV2), 0., 1.);
-//  folds = mix(folds, smoothstep(vec2(0.), vec2(1.), folds), u_gridShape);
+//  folds = mix(folds, smoothstep(vec2(0.), vec2(1.), folds), u_foldsShape);
 
   float fade = u_fade * getFadeMask(.17 * patternUV + 10. * u_seed);
   fade = clamp(8. * fade * fade * fade, 0., 1.);
@@ -367,7 +367,7 @@ export interface PaperTextureUniforms extends ShaderSizingUniforms {
   u_foldCount: number;
   u_folds: number;
   u_grid: number;
-  u_gridShape: number;
+  u_foldsShape: number;
   u_gridCount: number;
   u_fade: number;
   u_crumpleSize: number;
@@ -390,7 +390,7 @@ export interface PaperTextureParams extends ShaderSizingParams, ShaderMotionPara
   foldCount?: number;
   folds?: number;
   grid?: number;
-  gridShape?: number;
+  foldsShape?: number;
   gridCount?: number;
   fade?: number;
   crumpleSize?: number;

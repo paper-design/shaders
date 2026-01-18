@@ -83,7 +83,7 @@ const PaperTextureWithControls = () => {
       folds: { value: defaults.folds, min: 0, max: 1, order: 230 },
       foldCount: { value: defaults.foldCount, min: 1, max: 15, step: 1, order: 231 },
       grid: { value: defaults.grid, min: 0, max: 1, order: 240 },
-      gridShape: { value: defaults.gridShape, min: 0, max: 1, order: 241 },
+      foldsShape: { value: defaults.foldsShape, min: 0, max: 1, order: 241 },
       gridCount: { value: defaults.gridCount, min: 1, max: 20, order: 242 },
       drops: { value: defaults.drops, min: 0, max: 1, order: 250 },
       fade: { value: defaults.fade, min: 0, max: 1, order: 260 },
