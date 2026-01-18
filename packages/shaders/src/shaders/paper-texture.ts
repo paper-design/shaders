@@ -286,10 +286,10 @@ void main() {
   patternUV *= 5. * vec2(u_imageAspectRatio, 1.);
 
   vec2 roughnessUV = mix(330., 100., u_roughnessSize) * patternUV;
-  vec2 fiberUV = mix(25., 8., u_fiberSize) * patternUV;
+  vec2 fiberUV = mix(22., 4., u_fiberSize) * patternUV;
   vec2 rf = getRoughnessFiber(roughnessUV, fiberUV);
   float roughness = u_roughness * pow(1.3 * clamp(rf.x + .5, 0., 1.), 3.);
-  float fiber = u_fiber * clamp(rf.y - 1., 0., 1.);
+  float fiber = u_fiber * clamp(2. * pow(rf.y - 1., 4.), 0., 1.);
   
   vec2 crumplesUV = mix(14.4, .64, pow(u_crumpleSize, .3)) * patternUV - 32. * u_seed;
   float crumples = u_crumples * clamp(.2 + getCrumples(crumplesUV), 0., 1.);
