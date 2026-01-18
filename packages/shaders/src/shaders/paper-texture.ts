@@ -13,7 +13,6 @@ import { rotation2, declarePI } from '../shader-utils.js';
  * - u_imageAspectRatio (float): Aspect ratio of the source image
  * - u_colorFront (vec4): Foreground color in RGBA
  * - u_colorBack (vec4): Background color in RGBA
- * - u_contrast (float): Blending behavior, sharper vs smoother color transitions (0 to 1)
  * - u_roughness (float): Hi-freq grain-like distortion intensity (0 to 1)
  * - u_roughnessSize (float): Scale of the roughness pattern (0 to 1)
  * - u_fiber (float): Curly-shaped noise intensity (0 to 1)
@@ -61,7 +60,6 @@ uniform vec4 u_colorBack;
 uniform sampler2D u_image;
 uniform float u_imageAspectRatio;
 
-uniform float u_contrast;
 uniform float u_roughnessSize;
 uniform float u_roughness;
 uniform float u_fiber;
@@ -305,7 +303,7 @@ void main() {
   if (u_foldType < .5) {
     vec2 foldsUV1 = rotate(patternUV * .18, 4. * u_seed);
     vec2 foldsUV2 = rotate(foldsUV1 + .009 * cos(u_seed), .012 * sin(u_seed));
-    vec2 radialFolds = u_folds * clamp(4. * getFolds(foldsUV1, foldsUV2), 0., 1.);
+    vec2 radialFolds = u_folds * clamp(3. * getFolds(foldsUV1, foldsUV2), 0., 1.);
     radialFolds = mix(radialFolds, vec2(0.), fade);
     foldsPattern = radialFolds.x + radialFolds.y;
   } else {
@@ -333,7 +331,7 @@ void main() {
   imageUV += .1 * u_distortion * pattern;
   float frame = getUvFrame(imageUV);
   vec4 image = texture(u_image, imageUV);
-  image.rgb += .4 * pow(u_contrast, .4) * (.3 - pattern);
+  image.rgb += .4 * (.3 - pattern);
   frame *= image.a;
 
   vec3 color = fgColor * pattern;
@@ -357,7 +355,6 @@ export interface PaperTextureUniforms extends ShaderSizingUniforms {
   u_noiseTexture?: HTMLImageElement;
   u_colorFront: [number, number, number, number];
   u_colorBack: [number, number, number, number];
-  u_contrast: number;
   u_roughness: number;
   u_roughnessSize: number;
   u_fiber: number;
@@ -379,7 +376,6 @@ export interface PaperTextureParams extends ShaderSizingParams, ShaderMotionPara
   image?: HTMLImageElement | string;
   colorFront?: string;
   colorBack?: string;
-  contrast?: number;
   roughness?: number;
   roughnessSize?: number;
   fiber?: number;
