@@ -156,6 +156,8 @@ export {
 /** A static texture built from multiple noise layers, usable for a realistic paper and cardboard surfaces or generating abstract patterns. Can be used as a image filter or as a texture */
 export {
   paperTextureFragmentShader,
+  PaperTextureFoldTypes,
+  type PaperTextureFoldType,
   type PaperTextureParams,
   type PaperTextureUniforms,
 } from './shaders/paper-texture.js';

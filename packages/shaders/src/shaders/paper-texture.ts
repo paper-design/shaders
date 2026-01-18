@@ -21,10 +21,9 @@ import { rotation2, declarePI } from '../shader-utils.js';
  * - u_crumples (float): Cell-based crumple pattern intensity (0 to 1)
  * - u_crumpleSize (float): Cell-based crumple pattern scale (0 to 1)
  * - u_folds (float): Depth of the folds (0 to 1)
- * - u_foldCount (float): Number of folds (1 to 15)
- * - u_grid (float): Intensity of the grid / crease pattern (0 to 1)
- * - u_foldsShape (float): Shape/width of the grid creases (0 to 1)
- * - u_gridCount (float): Number/density of grid creases (0 to N)
+ * - u_foldType (float): Type of folds pattern (0 = radial folds, 1 = creases)
+ * - u_foldCount (float): Number of folds or creases (1 to 20)
+ * - u_foldsShape (float): Shape/width of the folds (0 to 1)
  * - u_drops (float): Visibility of speckle / drop pattern (0 to 1)
  * - u_seed (float): Seed applied to folds, crumples and dots (0 to 1000)
  * - u_fade (float): Large-scale noise mask applied to the pattern (0 to 1)
@@ -70,10 +69,9 @@ uniform float u_fiberSize;
 uniform float u_crumples;
 uniform float u_crumpleSize;
 uniform float u_folds;
+uniform float u_foldType;
 uniform float u_foldCount;
-uniform float u_grid;
 uniform float u_foldsShape;
-uniform float u_gridCount;
 uniform float u_drops;
 uniform float u_seed;
 uniform float u_fade;
@@ -264,7 +262,7 @@ vec2 getFolds(vec2 uv1, vec2 uv2) {
 }
 
 vec2 getGrid(vec2 uv) {
-  float gridX = fract(uv.x * .1 * u_gridCount + .5);
+  float gridX = fract(uv.x * .1 * u_foldCount + .5);
   float dx = gridX - .5;
   float foldWidth = u_foldsShape;
   float foldAmount = 1. - smoothstep(0., foldWidth, abs(dx));
@@ -300,30 +298,27 @@ void main() {
 
   float drops = u_drops * getDrops(patternUV * 2.);
 
-  vec2 foldsUV1 = rotate(patternUV * .18, 4. * u_seed);
-  vec2 foldsUV2 = rotate(foldsUV1 + .009 * cos(u_seed), .012 * sin(u_seed));
-  vec2 folds = u_folds * clamp(5. * getFolds(foldsUV1, foldsUV2), 0., 1.);
-//  folds = mix(folds, smoothstep(vec2(0.), vec2(1.), folds), u_foldsShape);
-
   float fade = u_fade * getFadeMask(.17 * patternUV + 10. * u_seed);
   fade = clamp(8. * fade * fade * fade, 0., 1.);
 
-  vec2 gridResult = u_grid * clamp(getGrid(patternUV), 0., 1.);
-  float grid = gridResult.x;
-  drops *= mix(1., gridResult.y, u_grid);
+  vec2 foldsUV1 = rotate(patternUV * .18, 4. * u_seed);
+  vec2 foldsUV2 = rotate(foldsUV1 + .009 * cos(u_seed), .012 * sin(u_seed));
+  vec2 radialFolds = u_folds * clamp(4. * getFolds(foldsUV1, foldsUV2), 0., 1.);
+  vec2 creasesResult = u_folds * clamp(getGrid(patternUV), 0., 1.);
+  float creases = creasesResult.x;
+  drops *= mix(1., creasesResult.y, u_folds * u_foldType);
 
-  folds = mix(folds, vec2(0.), fade);
+  radialFolds = mix(radialFolds, vec2(0.), fade);
+  creases *= mix(1., .0, fade);
   crumples = mix(crumples, 0., fade);
   drops = mix(drops, 0., fade);
   fiber *= mix(1., .5, fade);
   roughness *= mix(1., .5, fade);
-  grid *= mix(1., .0, fade);
-  
+
   float pattern = roughness;
   pattern += fiber;
   pattern += crumples;
-  pattern += (folds.x + folds.y);
-  pattern += grid;
+  pattern += mix(radialFolds.x + radialFolds.y, creases, u_foldType);
   pattern += drops;
 
   vec3 fgColor = u_colorFront.rgb * u_colorFront.a;
@@ -364,11 +359,10 @@ export interface PaperTextureUniforms extends ShaderSizingUniforms {
   u_fiber: number;
   u_fiberSize: number;
   u_crumples: number;
-  u_foldCount: number;
   u_folds: number;
-  u_grid: number;
+  u_foldType: number;
+  u_foldCount: number;
   u_foldsShape: number;
-  u_gridCount: number;
   u_fade: number;
   u_crumpleSize: number;
   u_drops: number;
@@ -387,11 +381,10 @@ export interface PaperTextureParams extends ShaderSizingParams, ShaderMotionPara
   fiber?: number;
   fiberSize?: number;
   crumples?: number;
-  foldCount?: number;
   folds?: number;
-  grid?: number;
+  foldType?: PaperTextureFoldType;
+  foldCount?: number;
   foldsShape?: number;
-  gridCount?: number;
   fade?: number;
   crumpleSize?: number;
   drops?: number;
@@ -399,3 +392,10 @@ export interface PaperTextureParams extends ShaderSizingParams, ShaderMotionPara
   blending?: number;
   distortion?: number;
 }
+
+export type PaperTextureFoldType = 'folds' | 'creases';
+
+export const PaperTextureFoldTypes: Record<PaperTextureFoldType, number> = {
+  folds: 0,
+  creases: 1,
+};

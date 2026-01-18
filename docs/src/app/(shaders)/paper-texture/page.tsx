@@ -5,7 +5,11 @@ import { useControls, button, folder } from 'leva';
 import { setParamsSafe, useResetLevaParams } from '@/helpers/use-reset-leva-params';
 import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
-import { ShaderFit } from '@paper-design/shaders';
+import {
+  ShaderFit,
+  PaperTextureFoldTypes,
+  type PaperTextureFoldType
+} from '@paper-design/shaders';
 import { levaImageButton, levaDeleteImageButton } from '@/helpers/leva-image-button';
 import { useState, useEffect, useCallback } from 'react';
 import { toHsla } from '@/helpers/color-utils';
@@ -81,10 +85,9 @@ const PaperTextureWithControls = () => {
       crumples: { value: defaults.crumples, min: 0, max: 1, order: 220 },
       crumpleSize: { value: defaults.crumpleSize, min: 0, max: 1, order: 221 },
       folds: { value: defaults.folds, min: 0, max: 1, order: 230 },
-      foldCount: { value: defaults.foldCount, min: 1, max: 15, step: 1, order: 231 },
-      grid: { value: defaults.grid, min: 0, max: 1, order: 240 },
-      foldsShape: { value: defaults.foldsShape, min: 0, max: 1, order: 241 },
-      gridCount: { value: defaults.gridCount, min: 1, max: 20, order: 242 },
+      foldType: { value: defaults.foldType, options: Object.keys(PaperTextureFoldTypes) as PaperTextureFoldType[], order: 231 },
+      foldCount: { value: defaults.foldCount, min: 1, max: 20, step: 1, order: 232 },
+      foldsShape: { value: defaults.foldsShape, min: 0, max: 1, order: 233 },
       drops: { value: defaults.drops, min: 0, max: 1, order: 250 },
       fade: { value: defaults.fade, min: 0, max: 1, order: 260 },
       scale: { value: defaults.scale, min: 0.5, max: 10, order: 300 },
