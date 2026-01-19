@@ -327,8 +327,6 @@ void main() {
 }
 `;
 
-export { ensureHiResSvg as toProcessedHalftoneCmyk } from '../ensure-hi-res-svg.js';
-
 export interface HalftoneCmykUniforms extends ShaderSizingUniforms {
   u_image: HTMLImageElement | string | undefined;
   u_noiseTexture?: HTMLImageElement;

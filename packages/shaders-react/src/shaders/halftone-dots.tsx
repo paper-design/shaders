@@ -11,19 +11,9 @@ import {
   type ImageShaderPreset,
   HalftoneDotsTypes,
   HalftoneDotsGrids,
-  toProcessedHalftoneDots,
 } from '@paper-design/shaders';
 
-import { useProcessedImage } from '../use-processed-image.js';
-
-const processImage = (url: string) => toProcessedHalftoneDots(url).then((r) => r.blob);
-
-export interface HalftoneDotsProps extends ShaderComponentProps, HalftoneDotsParams {
-  /**
-   * Suspends the component when the image is being processed.
-   */
-  suspendWhenProcessingImage?: boolean;
-}
+export interface HalftoneDotsProps extends ShaderComponentProps, HalftoneDotsParams {}
 
 type HalftoneDotsPreset = ImageShaderPreset<HalftoneDotsParams>;
 
@@ -134,7 +124,6 @@ export const HalftoneDots: React.FC<HalftoneDotsProps> = memo(function HalftoneD
   grainSize = defaultPreset.params.grainSize,
   grid = defaultPreset.params.grid,
   type = defaultPreset.params.type,
-  suspendWhenProcessingImage = false,
 
   // Sizing props
   fit = defaultPreset.params.fit,
@@ -148,14 +137,9 @@ export const HalftoneDots: React.FC<HalftoneDotsProps> = memo(function HalftoneD
   worldHeight = defaultPreset.params.worldHeight,
   ...props
 }: HalftoneDotsProps) {
-  const processedImage = useProcessedImage(image, processImage, {
-    suspense: suspendWhenProcessingImage,
-    cacheKey: 'halftone-dots',
-  });
-
   const uniforms = {
     // Own uniforms
-    u_image: processedImage,
+    u_image: image,
     u_colorFront: getShaderColorFromString(colorFront),
     u_colorBack: getShaderColorFromString(colorBack),
     u_size: size,

@@ -70,8 +70,8 @@ uniform float u_colorSteps;
 out vec4 fragColor;
 
 
-${proceduralHash21}
-${declarePI}
+${ proceduralHash21 }
+${ declarePI }
 
 float getUvFrame(vec2 uv, vec2 pad) {
   float aa = 0.0001;
@@ -221,8 +221,6 @@ void main() {
   fragColor = vec4(color, opacity);
 }
 `;
-
-export { ensureHiResSvg as toProcessedImageDithering } from '../ensure-hi-res-svg.js';
 
 export interface ImageDitheringUniforms extends ShaderSizingUniforms {
   u_image: HTMLImageElement | string;
