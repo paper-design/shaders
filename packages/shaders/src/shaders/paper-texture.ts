@@ -272,11 +272,10 @@ vec2 getGrid(vec2 uv) {
 }
 
 vec3 blendMultiply(vec3 base, vec3 blend) {
-  return base*blend;
+  return base * blend;
 }
-
 vec3 blendMultiply(vec3 base, vec3 blend, float opacity) {
-  return (blendMultiply(base, blend) * opacity + base * (1.0 - opacity));
+  return blendMultiply(base, blend) * opacity + base * (1. - opacity);
 }
 
 void main() {
@@ -323,10 +322,10 @@ void main() {
   pattern += foldsPattern;
   pattern += drops;
   
-  float distortionPattern = .2 * roughness;
-  distortionPattern += .3 * fiber;
+  float distortionPattern = .3 * roughness;
+  distortionPattern += .4 * fiber;
   distortionPattern += crumples;
-  distortionPattern += (foldsPattern - .5);
+  distortionPattern -= foldsPattern;
   distortionPattern += drops;
 
   vec3 fgColor = u_colorFront.rgb * u_colorFront.a;
@@ -344,9 +343,9 @@ void main() {
 //   imageUV.x += u_distortion * .03 * sin(distortionPattern * 10.);
 //   imageUV.y += u_distortion * .03 * cos(distortionPattern * 10.);
 
-   vec2 dc = imageUV - .5;
-   float r2 = dot(dc, dc);
-   imageUV = .5 + dc * (1. - u_distortion * .3 * (distortionPattern - .5) * r2);
+  vec2 dc = imageUV - .5;
+  float r2 = dot(dc, dc);
+  imageUV = .5 + dc * (1. - u_distortion * .3 * (distortionPattern - .5) * r2);
 
   float frame = getUvFrame(imageUV);
   vec4 image = texture(u_image, imageUV);
@@ -357,9 +356,10 @@ void main() {
 
   color += bgColor * (1. - opacity);
   opacity += bgOpacity * (1. - opacity);
+
+  float lum = dot(vec3(.2126, .7152, .0722), image.rgb);
+  vec3 pic = (1. + .3 * u_blending * (1. - lum)) * blendMultiply(image.rgb, pow(color, vec3(4. - 3. * lum)), u_blending);
   
-  vec3 pic = color;
-  pic = mix(image.rgb, pic, u_blending);
   color = mix(color, pic, frame);
 
   fragColor = vec4(color, opacity);
