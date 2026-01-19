@@ -322,16 +322,34 @@ void main() {
   pattern += crumples;
   pattern += foldsPattern;
   pattern += drops;
+  
+  float distortionPattern = .2 * roughness;
+  distortionPattern += .3 * fiber;
+  distortionPattern += crumples;
+  distortionPattern += (foldsPattern - .5);
+  distortionPattern += drops;
 
   vec3 fgColor = u_colorFront.rgb * u_colorFront.a;
   float fgOpacity = u_colorFront.a;
   vec3 bgColor = u_colorBack.rgb * u_colorBack.a;
   float bgOpacity = u_colorBack.a;
 
-  imageUV += .1 * u_distortion * pattern;
+//   float eps = .002;
+//   vec2 grad = vec2(
+//     distortionPattern - (roughness + fiber + crumples + foldsPattern + drops),
+//     distortionPattern + .5 * (roughness + fiber + crumples + foldsPattern + drops)
+//   );
+//   imageUV += u_distortion * .08 * normalize(grad + .001) * distortionPattern;
+
+//   imageUV.x += u_distortion * .03 * sin(distortionPattern * 10.);
+//   imageUV.y += u_distortion * .03 * cos(distortionPattern * 10.);
+
+   vec2 dc = imageUV - .5;
+   float r2 = dot(dc, dc);
+   imageUV = .5 + dc * (1. - u_distortion * .3 * (distortionPattern - .5) * r2);
+
   float frame = getUvFrame(imageUV);
   vec4 image = texture(u_image, imageUV);
-  image.rgb += .4 * (.3 - pattern);
   frame *= image.a;
 
   vec3 color = fgColor * pattern;
@@ -339,12 +357,10 @@ void main() {
 
   color += bgColor * (1. - opacity);
   opacity += bgOpacity * (1. - opacity);
-  opacity = mix(opacity, 1., frame);
-
-//  float blendOpacity = (.5 + .5 * pattern);
-//  vec3 pic = blendMultiply(color, image.rgb + .2 * 1. - u_blending * pattern, .5 * pattern + .2 * u_blending);
-//  pic = mix(image.rgb, pic, .5 * u_blending);
-//  color = mix(color, pic, frame);
+  
+  vec3 pic = color;
+  pic = mix(image.rgb, pic, u_blending);
+  color = mix(color, pic, frame);
 
   fragColor = vec4(color, opacity);
 }
