@@ -71,10 +71,11 @@ const ImageDitheringWithControls = () => {
       colorFront: { value: toHsla(defaults.colorFront), order: 102 },
       colorHighlight: { value: toHsla(defaults.colorHighlight), order: 103 },
       originalColors: { value: defaults.originalColors, order: 104 },
+      inverted: { value: defaults.inverted, order: 105 },
       type: { value: defaults.type, options: Object.keys(DitheringTypes) as DitheringType[], order: 200 },
       size: { value: defaults.size, min: 1, max: 20, order: 201 },
       colorSteps: { value: defaults.colorSteps, min: 1, max: 7, step: 1, order: 202 },
-      scale: { value: defaults.scale, min: 0.5, max: 10, order: 300 },
+      scale: { value: defaults.scale, min: 0.5, max: 4, order: 300 },
       fit: { value: defaults.fit, options: ['contain', 'cover'] as ShaderFit[], order: 301 },
       Image: folder(
         {

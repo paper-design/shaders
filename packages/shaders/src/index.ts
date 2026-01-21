@@ -211,6 +211,15 @@ export {
   type HalftoneDotsGrid,
 } from './shaders/halftone-dots.js';
 
+/** A halftone CMYK classic algo */
+export {
+  HalftoneCmykTypes,
+  halftoneCmykFragmentShader,
+  type HalftoneCmykParams,
+  type HalftoneCmykUniforms,
+  type HalftoneCmykType,
+} from './shaders/halftone-cmyk.js';
+
 // ----- Utils ----- //
 export { getShaderColorFromString } from './get-shader-color-from-string.js';
 export { getShaderNoiseTexture } from './get-shader-noise-texture.js';

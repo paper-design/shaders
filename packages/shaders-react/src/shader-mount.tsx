@@ -9,6 +9,7 @@ import {
   type ShaderMountUniforms,
 } from '@paper-design/shaders';
 import { useMergeRefs } from './use-merge-refs.js';
+import { setMinImageSize } from './set-min-image-size.js';
 
 /**
  * React Shader Mount can also accept strings as uniform values, which will assumed to be URLs and loaded as images
@@ -94,6 +95,7 @@ async function processUniforms(uniformsProp: ShaderMountUniformsReact): Promise<
           img.crossOrigin = 'anonymous';
         }
         img.onload = () => {
+          setMinImageSize(img);
           processedUniforms[key] = img;
           resolve();
         };
@@ -103,7 +105,11 @@ async function processUniforms(uniformsProp: ShaderMountUniformsReact): Promise<
         };
         img.src = value;
       });
+
       imageLoadPromises.push(imagePromise);
+    } else if (value instanceof HTMLImageElement) {
+      setMinImageSize(value);
+      processedUniforms[key] = value;
     } else {
       processedUniforms[key] = value;
     }
