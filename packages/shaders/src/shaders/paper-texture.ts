@@ -7,8 +7,6 @@ import { rotation2, declarePI } from '../shader-utils.js';
  * Can be used as an image filter or as a standalone texture.
  *
  * Fragment shader uniforms:
- * - u_resolution (vec2): Canvas resolution in pixels
- * - u_pixelRatio (float): Device pixel ratio
  * - u_image (sampler2D): Optional source image texture
  * - u_imageAspectRatio (float): Aspect ratio of the source image
  * - u_colorFront (vec4): Foreground color in RGBA
@@ -50,9 +48,6 @@ import { rotation2, declarePI } from '../shader-utils.js';
 // language=GLSL
 export const paperTextureFragmentShader: string = `#version 300 es
 precision mediump float;
-
-uniform vec2 u_resolution;
-uniform float u_pixelRatio;
 
 uniform vec4 u_colorFront;
 uniform vec4 u_colorBack;
@@ -139,7 +134,7 @@ vec2 getRoughnessFiber(vec2 pR, vec2 pF) {
   float c = 0.7648;  // cos(0.7)
   float s = 0.6442;  // sin(0.7)
   float rc = 1., rs = 0.;  // accumulated rotation
-  for (int i = 0; i < 5; i++) {
+  for (int i = 0; i < 4; i++) {
     if (i < 3) {
       vec2 ipR = floor(pR);
       vec2 fpR = fract(pR);
@@ -294,7 +289,7 @@ void main() {
   vec2 fiberUV = mix(22., 4., u_fiberSize) * patternUV;
   vec2 rf = getRoughnessFiber(roughnessUV, fiberUV);
   float roughness = clamp(5. * rf.x, 0., 1.);
-  float fiber = clamp(2. * pow(rf.y - 1., 4.), 0., 1.);
+  float fiber = (rf.y - 1.);
   fiber *= mix(1., .5, fade);
   roughness *= mix(1., .5, fade);
 
