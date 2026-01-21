@@ -265,10 +265,9 @@ vec2 getGrid(vec2 uv) {
   float foldWidth = u_foldsShape;
   float foldAmount = 1. - smoothstep(0., foldWidth, abs(dx));
   float angle = sign(dx) * 1.1345 * foldAmount;
-  float creaseDark = mix(.9, 1., smoothstep(0., foldWidth * .5, abs(dx)));
-  float grid = max(-.5 * sin(angle) + .5 * cos(angle), 0.) * creaseDark;
-  float dropsMask = 1. - .8 * step(0., dx);
-  return vec2(grid, dropsMask);
+  float creaseDark = smoothstep(0., foldWidth * .5, abs(dx));
+  float grid = max(-.5 * sin(angle) + .5 * cos(angle), 0.) * mix(.9, 1., creaseDark);
+  return vec2(grid, creaseDark);
 }
 
 vec3 blendMultiply(vec3 base, vec3 blend) {
@@ -284,68 +283,72 @@ void main() {
   vec2 patternUV = v_imageUV - .5;
   patternUV *= 5. * vec2(u_imageAspectRatio, 1.);
 
-  vec2 roughnessUV = mix(330., 100., u_roughnessSize) * patternUV;
-  vec2 fiberUV = mix(22., 4., u_fiberSize) * patternUV;
-  vec2 rf = getRoughnessFiber(roughnessUV, fiberUV);
-  float roughness = u_roughness * pow(1.3 * clamp(rf.x + .5, 0., 1.), 3.);
-  float fiber = u_fiber * clamp(2. * pow(rf.y - 1., 4.), 0., 1.);
-  
-  vec2 crumplesUV = mix(14.4, .64, pow(u_crumpleSize, .3)) * patternUV - 32. * u_seed;
-  float crumples = u_crumples * clamp(.2 + getCrumples(crumplesUV), 0., 1.);
-
-  float drops = u_drops * getDrops(patternUV * 2.);
+  float pattern = 0.;
+  float distortionPatternRadial = 0.;
+  float distortionPatternLinear = 0.;
 
   float fade = u_fade * getFadeMask(.17 * patternUV + 10. * u_seed);
   fade = clamp(8. * fade * fade * fade, 0., 1.);
+
+  vec2 roughnessUV = mix(330., 100., u_roughnessSize) * patternUV;
+  vec2 fiberUV = mix(22., 4., u_fiberSize) * patternUV;
+  vec2 rf = getRoughnessFiber(roughnessUV, fiberUV);
+  float roughness = clamp(5. * rf.x, 0., 1.);
+  float fiber = clamp(2. * pow(rf.y - 1., 4.), 0., 1.);
+  fiber *= mix(1., .5, fade);
+  roughness *= mix(1., .5, fade);
+
+  fiber *= u_fiber;
+  pattern += fiber;
+  distortionPatternRadial += .06 * fiber;
+
+  roughness *= u_roughness;
+  pattern += roughness;
+  distortionPatternRadial += .05 * roughness;
+
+  vec2 crumplesUV = mix(14.4, .64, pow(u_crumpleSize, .3)) * patternUV - 32. * u_seed;
+  float crumples = clamp(.2 + getCrumples(crumplesUV), 0., 1.);
+  crumples = mix(crumples, 0., fade);
+  
+  pattern += u_crumples * crumples;
+  distortionPatternLinear -= .08 * u_crumples * (crumples - .25);
+
+  float drops = getDrops(patternUV * 2.);
+  drops = mix(drops, 0., fade);
 
   float foldsPattern = 0.;
   if (u_foldType < .5) {
     vec2 foldsUV1 = rotate(patternUV * .18, 4. * u_seed);
     vec2 foldsUV2 = rotate(foldsUV1 + .009 * cos(u_seed), .012 * sin(u_seed));
-    vec2 radialFolds = u_folds * clamp(3. * getFolds(foldsUV1, foldsUV2), 0., 1.);
+    vec2 radialFolds = clamp(3. * getFolds(foldsUV1, foldsUV2), 0., 1.);
     radialFolds = mix(radialFolds, vec2(0.), fade);
     foldsPattern = radialFolds.x + radialFolds.y;
+
+    pattern += u_folds * foldsPattern;
+    distortionPatternRadial += .25 * u_folds * (foldsPattern - 1.);
   } else {
-    vec2 creasesResult = u_folds * clamp(getGrid(patternUV), 0., 1.);
+    vec2 creasesResult = clamp(getGrid(patternUV), 0., 1.);
     foldsPattern = creasesResult.x * mix(1., .0, fade);
     drops *= mix(1., creasesResult.y, u_folds);
+
+    pattern += u_folds * foldsPattern;
+    distortionPatternLinear += .03 * u_folds * (pow(creasesResult.y, .2) - .5);
   }
 
-  crumples = mix(crumples, 0., fade);
-  drops = mix(drops, 0., fade);
-  fiber *= mix(1., .5, fade);
-  roughness *= mix(1., .5, fade);
-
-  float pattern = roughness;
-  pattern += fiber;
-  pattern += crumples;
-  pattern += foldsPattern;
+  drops *= u_drops;
   pattern += drops;
-  
-  float distortionPattern = .3 * roughness;
-  distortionPattern += .4 * fiber;
-  distortionPattern += crumples;
-  distortionPattern -= foldsPattern;
-  distortionPattern += drops;
+  distortionPatternLinear += .03 * drops;
 
   vec3 fgColor = u_colorFront.rgb * u_colorFront.a;
   float fgOpacity = u_colorFront.a;
   vec3 bgColor = u_colorBack.rgb * u_colorBack.a;
   float bgOpacity = u_colorBack.a;
 
-//   float eps = .002;
-//   vec2 grad = vec2(
-//     distortionPattern - (roughness + fiber + crumples + foldsPattern + drops),
-//     distortionPattern + .5 * (roughness + fiber + crumples + foldsPattern + drops)
-//   );
-//   imageUV += u_distortion * .08 * normalize(grad + .001) * distortionPattern;
-
-//   imageUV.x += u_distortion * .03 * sin(distortionPattern * 10.);
-//   imageUV.y += u_distortion * .03 * cos(distortionPattern * 10.);
+  imageUV.y += u_distortion * distortionPatternLinear;
 
   vec2 dc = imageUV - .5;
   float r2 = dot(dc, dc);
-  imageUV = .5 + dc * (1. - u_distortion * .3 * (distortionPattern - .5) * r2);
+  imageUV = .5 + dc * (1. - u_distortion * distortionPatternRadial * r2);
 
   float frame = getUvFrame(imageUV);
   vec4 image = texture(u_image, imageUV);
@@ -358,7 +361,7 @@ void main() {
   opacity += bgOpacity * (1. - opacity);
 
   float lum = dot(vec3(.2126, .7152, .0722), image.rgb);
-  vec3 pic = (1. + .3 * u_blending * (1. - lum)) * blendMultiply(image.rgb, pow(color, vec3(4. - 3. * lum)), u_blending);
+  vec3 pic = (1. + .6 * u_blending * (1. - lum)) * blendMultiply(image.rgb, pow(color, vec3(4. - 3. * lum)), u_blending);
   
   color = mix(color, pic, frame);
 
