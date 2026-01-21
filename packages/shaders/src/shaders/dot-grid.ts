@@ -16,6 +16,7 @@ import { declarePI, rotation2, simplexNoise } from '../shader-utils.js';
  * - u_opacityRange (float): Random variation in shape opacity, 0 = opaque, higher = semi-transparent (0 to 1)
  * - u_shape (float): Shape type (0 = circle, 1 = diamond, 2 = square, 3 = triangle, 4 = line, 5 = cross)
  * - u_cellAngle (float): Rotation of shape within each cell in degrees (0 to 360)
+ * - u_cellAngleRange (float): Random variation in cell angle, 0 = uniform, higher = more random rotation (0 to 1)
  * - u_cellOffsetX (float): Horizontal offset of the pattern in pixels
  * - u_cellOffsetY (float): Vertical offset of the pattern in pixels
  *
@@ -52,6 +53,7 @@ uniform float u_sizeRange;
 uniform float u_opacityRange;
 uniform float u_shape;
 uniform float u_cellAngle;
+uniform float u_cellAngleRange;
 uniform float u_cellOffsetX;
 uniform float u_cellOffsetY;
 
@@ -84,6 +86,7 @@ void main() {
   vec2 grid_idx = floor(shape_uv / gap);
   float sizeRandomizer = .5 + .8 * snoise(2. * vec2(grid_idx.x * 100., grid_idx.y));
   float opacity_randomizer = .5 + .7 * snoise(2. * vec2(grid_idx.y, grid_idx.x));
+  float angleRandomizer = snoise(3. * vec2(grid_idx.x, grid_idx.y * 100.));
 
   vec2 center = vec2(0.5) - 1e-3;
   vec2 p = (grid - center) * vec2(u_gapX, u_gapY);
@@ -91,7 +94,7 @@ void main() {
   float baseSize = u_dotSize * (1. - sizeRandomizer * u_sizeRange);
   float strokeWidth = u_strokeWidth * (1. - sizeRandomizer * u_sizeRange);
 
-  float cellAngleRad = u_cellAngle * PI / 180.;
+  float cellAngleRad = u_cellAngle * PI / 180. + angleRandomizer * u_cellAngleRange * PI;
 
   float dist;
   if (u_shape != 3.) {
@@ -159,6 +162,7 @@ export interface DotGridUniforms extends ShaderSizingUniforms {
   u_opacityRange: number;
   u_shape: (typeof DotGridShapes)[DotGridShape];
   u_cellAngle: number;
+  u_cellAngleRange: number;
   u_cellOffsetX: number;
   u_cellOffsetY: number;
 }
@@ -175,6 +179,7 @@ export interface DotGridParams extends ShaderSizingParams {
   opacityRange?: number;
   shape?: DotGridShape;
   cellAngle?: number;
+  cellAngleRange?: number;
   cellOffsetX?: number;
   cellOffsetY?: number;
 }

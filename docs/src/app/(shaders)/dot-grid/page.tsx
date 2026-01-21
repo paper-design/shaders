@@ -27,14 +27,15 @@ const DotGridWithControls = () => {
       sizeRange: { value: defaults.sizeRange, min: 0, max: 1, order: 204 },
       opacityRange: { value: defaults.opacityRange, min: 0, max: 1, order: 205 },
       cellAngle: { value: defaults.cellAngle, min: 0, max: 180, order: 300 },
-      cellOffsetX: { value: defaults.cellOffsetX, min: -200, max: 200, order: 301 },
-      cellOffsetY: { value: defaults.cellOffsetY, min: -200, max: 200, order: 302 },
+      cellAngleRange: { value: defaults.cellAngleRange, min: 0, max: 1, order: 301 },
+      cellOffsetX: { value: defaults.cellOffsetX, min: -200, max: 200, order: 302 },
+      cellOffsetY: { value: defaults.cellOffsetY, min: -200, max: 200, order: 303 },
       shape: {
         value: defaults.shape,
         options: Object.keys(DotGridShapes) as DotGridShape[],
         order: 199,
       },
-      rotation: { value: defaults.rotation, min: 0, max: 360, order: 303 },
+      rotation: { value: defaults.rotation, min: 0, max: 360, order: 304 },
     };
   });
 
