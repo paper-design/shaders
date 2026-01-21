@@ -71,7 +71,6 @@ const PaperTextureWithControls = () => {
       ])
     );
     return {
-      speed: { value: defaults.speed, min: 0, max: 3, order: 0 },
       colorBack: { value: toHsla(defaults.colorBack), order: 100 },
       colorFront: { value: toHsla(defaults.colorFront), order: 101 },
       blending: { value: defaults.blending, min: 0, max: 1, order: 198 },

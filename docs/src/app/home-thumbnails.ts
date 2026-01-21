@@ -25,6 +25,7 @@ import waterImg from '../../public/shaders/water.webp';
 import heatmapImg from '../../public/shaders/heatmap.webp';
 import liquidMetalImg from '../../public/shaders/liquid-metal.webp';
 import halftoneDotsImg from '../../public/shaders/halftone-dots.webp';
+import halftoneCmykImg from '../../public/shaders/halftone-cmyk.webp';
 import {
   DotGrid,
   dotGridPresets,
@@ -80,6 +81,8 @@ import {
   heatmapPresets,
   HalftoneDots,
   halftoneDotsPresets,
+  HalftoneCmyk,
+  halftoneCmykPresets,
 } from '@paper-design/shaders-react';
 import { StaticImageData } from 'next/image';
 
@@ -148,6 +151,19 @@ export const homeThumbnails = [
         shaderConfig: {
           ...halftoneDotsPresets[0].params,
           image: '/images/image-filters/0018.webp',
+          speed: 0,
+        },
+      },
+      {
+        name: 'halftone cmyk',
+        url: '/halftone-cmyk',
+        ShaderComponent: HalftoneCmyk,
+        image: halftoneCmykImg,
+        shaderConfig: {
+          ...halftoneCmykPresets[0].params,
+          image: '/images/image-filters/0018.webp',
+          size: 0.7,
+          softness: 0.5,
           speed: 0,
         },
       },

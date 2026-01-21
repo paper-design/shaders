@@ -1,14 +1,29 @@
 # Paper Shaders
 
+## Version 0.0.71
+
+- **General**
+  - Images smaller than 1024x1024 are now upscaled before final rasterization, improving the quality of small SVG image inputs
+- **Halftone CMYK**
+  - Flood parameters now affect the transparent areas
+  - Full support of image transparency 
+- **Image Dithering**
+  - Add an `inverted` option
+
+## Version 0.0.70
+
+- **Halftone CMYK**
+  - Tweaked presets
+
 ## Version 0.0.69
 
-- **New shader**: **HalftoneCMYK**
+- **New shader**: **Halftone CMYK**
 - **General**
   - Minor performance improvements (DotOrbit, GrainGradient, PerlinNoise, SmokeRing, FlutedGlass, HalftoneDots)
 - **Fluted Glass**
   - Default `scale` parameter to 1
-- **StaticMeshGradient and StaticRadialGradient**
-  - `mixing` parameter working via smoother curve 
+- **Static Mesh Gradient, Static Radial Gradient**
+  - `mixing` parameter working via smoother curve
 
 ## Version 0.0.68
 
@@ -22,7 +37,7 @@
   - Several performance improvements
 - **Halftone Dots**
   - Restored default cell `size` after extension of allowed range
-  
+
 ## Version 0.0.67
 
 - **Mesh Gradient**

@@ -46,12 +46,10 @@ const imageFiles = [
 const HalftoneDotsWithControls = () => {
   const [imageIdx, setImageIdx] = useState(-1);
   const [image, setImage] = useState<HTMLImageElement | string>('/images/image-filters/0018.webp');
-  const [status, setStatus] = useState('Click to load an image');
 
   useEffect(() => {
     if (imageIdx >= 0) {
       const name = imageFiles[imageIdx];
-      setStatus(`Displaying image: ${name}`);
       const img = new Image();
       img.src = `/images/image-filters/${name}`;
       img.onload = () => setImage(img);
@@ -65,7 +63,6 @@ const HalftoneDotsWithControls = () => {
   const setImageWithoutStatus = useCallback((img?: HTMLImageElement) => {
     setImage(img ?? '');
     setImageIdx(-1);
-    setStatus(``);
   }, []);
 
   const [params, setParams] = useControls(() => {
@@ -96,7 +93,7 @@ const HalftoneDotsWithControls = () => {
       grainMixer: { value: defaults.grainMixer, min: 0, max: 1, order: 350 },
       grainOverlay: { value: defaults.grainOverlay, min: 0, max: 1, order: 351 },
       grainSize: { value: defaults.grainSize, min: 0, max: 1, order: 352 },
-      scale: { value: defaults.scale, min: 0.1, max: 10, order: 400 },
+      scale: { value: defaults.scale, min: 0.1, max: 4, order: 400 },
       // offsetX: { value: defaults.offsetX, min: -1, max: 1, order: 401 },
       // offsetY: { value: defaults.offsetY, min: -1, max: 1, order: 402 },
       // originX: { value: defaults.originX, min: 0, max: 1, order: 411 },

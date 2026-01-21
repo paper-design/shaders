@@ -5,11 +5,7 @@ import { useControls, button, folder } from 'leva';
 import { setParamsSafe, useResetLevaParams } from '@/helpers/use-reset-leva-params';
 import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
-import {
-  HalftoneCmykType,
-  HalftoneCmykTypes,
-  ShaderFit,
-} from '@paper-design/shaders';
+import { HalftoneCmykType, HalftoneCmykTypes, ShaderFit } from '@paper-design/shaders';
 import { levaImageButton } from '@/helpers/leva-image-button';
 import { useState, useEffect, useCallback } from 'react';
 import { toHsla } from '@/helpers/color-utils';
@@ -44,12 +40,10 @@ const imageFiles = [
 const HalftoneCmykWithControls = () => {
   const [imageIdx, setImageIdx] = useState(-1);
   const [image, setImage] = useState<HTMLImageElement | string>('/images/image-filters/0018.webp');
-  const [status, setStatus] = useState('Click to load an image');
 
   useEffect(() => {
     if (imageIdx >= 0) {
       const name = imageFiles[imageIdx];
-      setStatus(`Displaying image: ${name}`);
       const img = new Image();
       img.src = `/images/image-filters/${name}`;
       img.onload = () => setImage(img);
@@ -63,7 +57,6 @@ const HalftoneCmykWithControls = () => {
   const setImageWithoutStatus = useCallback((img?: HTMLImageElement) => {
     setImage(img ?? '');
     setImageIdx(-1);
-    setStatus(``);
   }, []);
 
   const [params, setParams] = useControls(() => {
@@ -96,15 +89,15 @@ const HalftoneCmykWithControls = () => {
       gainM: { value: defaults.gainM, min: -1, max: 1, step: 0.01, order: 201 },
       gainY: { value: defaults.gainY, min: -1, max: 1, step: 0.01, order: 202 },
       gainK: { value: defaults.gainK, min: -1, max: 1, step: 0.01, order: 203 },
-      grainSize: { value: defaults.grainSize, min: 0, max: 1, order: 350 },
       grainMixer: { value: defaults.grainMixer, min: 0, max: 1, order: 350 },
       grainOverlay: { value: defaults.grainOverlay, min: 0, max: 1, order: 351 },
+      grainSize: { value: defaults.grainSize, min: 0, max: 1, order: 350 },
       // offsetX: { value: defaults.offsetX, min: -1, max: 1, order: 401 },
       // offsetY: { value: defaults.offsetY, min: -1, max: 1, order: 402 },
       // originX: { value: defaults.originX, min: 0, max: 1, order: 411 },
       // originY: { value: defaults.originY, min: 0, max: 1, order: 412 },
       // rotation: { value: defaults.rotation, min: 0, max: 360, order: 420 },
-      scale: { value: defaults.scale, min: 0, max: 10, order: 420 },
+      scale: { value: defaults.scale, min: 0, max: 4, order: 420 },
       fit: { value: defaults.fit, options: ['contain', 'cover'] as ShaderFit[], order: 450 },
       Image: folder(
         {
@@ -128,7 +121,7 @@ const HalftoneCmykWithControls = () => {
       <ShaderContainer shaderDef={halftoneCmykDef} currentParams={params}>
         <HalftoneCmyk onClick={handleClick} {...params} image={image} />
       </ShaderContainer>
-      <div onClick={handleClick} className="mx-auto mt-16 mb-48 w-fit text-base text-current/70 select-none">
+      <div onClick={handleClick} className="text-current/70 mx-auto mb-48 mt-16 w-fit select-none text-base">
         Click to change the sample image
       </div>
       <ShaderDetails shaderDef={halftoneCmykDef} currentParams={params} />
