@@ -77,17 +77,12 @@ in vec2 v_imageUV;
 out vec4 fragColor;
 
 float getUvFrame(vec2 uv) {
-  float aax = 2. * fwidth(uv.x);
-  float aay = 2. * fwidth(uv.y);
-
-  float left   = smoothstep(0., aax, uv.x);
-  float right = 1. - smoothstep(1. - aax, 1., uv.x);
-  float bottom = smoothstep(0., aay, uv.y);
-  float top = 1. - smoothstep(1. - aay, 1., uv.y);
-
+  float left = step(0., uv.x);
+  float right = 1. - step(1., uv.x);
+  float bottom = step(0., uv.y);
+  float top = 1. - step(1., uv.y);
   return left * right * bottom * top;
 }
-
 
 float lst(float edge0, float edge1, float x) {
   return clamp((x - edge0) / (edge1 - edge0), 0.0, 1.0);
@@ -279,11 +274,11 @@ void main() {
   fiber *= mix(1., .5, fade);
   roughness *= mix(1., .5, fade);
 
-  fiber *= u_fiber;
+  fiber *= (.05 + u_fiber);
   pattern += fiber;
   distortionPatternRadial += .06 * fiber;
 
-  roughness *= u_roughness;
+  roughness *= (.05 + u_roughness);
   pattern += roughness;
   distortionPatternRadial += .05 * roughness;
 
