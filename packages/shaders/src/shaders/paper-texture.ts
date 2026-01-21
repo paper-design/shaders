@@ -273,7 +273,7 @@ void main() {
   vec2 fiberUV = mix(22., 4., u_fiberSize) * patternUV;
   vec2 rf = getRoughnessFiber(roughnessUV, fiberUV);
   float roughness = clamp(5. * rf.x, 0., 1.);
-  float fiber = (rf.y - 1.);
+  float fiber = clamp(rf.y - 1., -1., 1.);
   fiber *= mix(1., .5, fade);
   roughness *= mix(1., .5, fade);
 
