@@ -54,34 +54,6 @@ export const defaultPreset: PaperTexturePreset = {
   },
 };
 
-export const fiberPreset: PaperTexturePreset = {
-  name: 'Fiber',
-  params: {
-    ...defaultObjectSizing,
-    colorBack: "#eaffe0",
-    colorFront: "#c19ac6",
-    blending: 0.4,
-    distortion: 0.4,
-    seed: 180,
-    roughness: 0.63,
-    roughnessSize: 0.50,
-    fiber: 0.76,
-    fiberSize: 0.61,
-    crumples: 0,
-    crumpleSize: 0.30,
-    folds: 0,
-    foldType: 'folds',
-    foldCount: 3,
-    foldsShape: 0.50,
-    drops: 1,
-    fade: 1,
-    scale: 0.80,
-    fit: "contain",
-    speed: 1,
-    frame: 0
-  },
-};
-
 export const cardboardPreset: PaperTexturePreset = {
   name: 'Cardboard',
   params: {
@@ -121,7 +93,7 @@ export const spreadPreset: PaperTexturePreset = {
     seed: 448,
     roughness: 0.4,
     roughnessSize: 0.4,
-    fiber: 0.24,
+    fiber: 0.1,
     fiberSize: 0.5,
     crumples: 0.2,
     crumpleSize: 0.42,
@@ -149,7 +121,7 @@ export const flatPreset: PaperTexturePreset = {
     distortion: 0.33,
     seed: 415,
     roughness: 0.31,
-    roughnessSize: 1.0,
+    roughnessSize: .3,
     fiber: 0,
     fiberSize: 0.61,
     crumples: 0.7,
@@ -171,7 +143,6 @@ export const paperTexturePresets: PaperTexturePreset[] = [
   defaultPreset,
   spreadPreset,
   cardboardPreset,
-  fiberPreset,
   flatPreset
 ] as const;
 
