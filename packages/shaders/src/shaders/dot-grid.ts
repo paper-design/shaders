@@ -94,7 +94,9 @@ void main() {
   float cellAngleRad = u_cellAngle * PI / 180.;
 
   float dist;
-  p = rotate(p, cellAngleRad);
+  if (u_shape != 3.) {
+    p = rotate(p, cellAngleRad);
+  }
   baseSize *= .5;
   if (u_shape < 0.5) {
     // Circle
@@ -108,9 +110,9 @@ void main() {
     dist = polygon(p, 4., 0.);
   } else if (u_shape < 3.5) {
     // Triangle
-    baseSize *= 1.1547;
+    baseSize *= .57735;
     p.y += baseSize * .75;
-    dist = polygon(p, 3., - .333333333333 * PI);
+    dist = polygon(p, 3., - .333333333333 * PI - cellAngleRad);
   } else if (u_shape < 4.5) {
     // Line
     dist = abs(p.y);

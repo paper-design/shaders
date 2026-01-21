@@ -26,7 +26,7 @@ const DotGridWithControls = () => {
       strokeWidth: { value: defaults.strokeWidth, min: 0, max: 50, order: 203 },
       sizeRange: { value: defaults.sizeRange, min: 0, max: 1, order: 204 },
       opacityRange: { value: defaults.opacityRange, min: 0, max: 1, order: 205 },
-      cellAngle: { value: defaults.cellAngle, min: 0, max: 90, order: 300 },
+      cellAngle: { value: defaults.cellAngle, min: 0, max: 180, order: 300 },
       cellOffsetX: { value: defaults.cellOffsetX, min: -200, max: 200, order: 301 },
       cellOffsetY: { value: defaults.cellOffsetY, min: -200, max: 200, order: 302 },
       shape: {
