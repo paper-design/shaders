@@ -74,7 +74,7 @@ void main() {
 
   // x100 is a default multiplier between vertex and fragmant shaders
   // we use it to avoid UV presision issues
-  vec2 shape_uv = 100. * v_patternUV + vec2(u_cellOffsetX, u_cellOffsetY);
+  vec2 shape_uv = 100. * v_patternUV + vec2(-u_cellOffsetX, u_cellOffsetY);
   if (u_shape > 3.) {
     shape_uv -= 1e-4;
   }
