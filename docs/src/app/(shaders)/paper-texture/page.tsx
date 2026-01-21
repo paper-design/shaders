@@ -74,7 +74,7 @@ const PaperTextureWithControls = () => {
       colorBack: { value: toHsla(defaults.colorBack), order: 100 },
       colorFront: { value: toHsla(defaults.colorFront), order: 101 },
       blending: { value: defaults.blending, min: 0, max: 1, order: 198 },
-      distortion: { value: defaults.distortion, min: 0, max: 1, order: 199 },
+      distortion: { value: defaults.distortion, min: -1, max: 1, order: 199 },
       seed: { value: defaults.seed, min: 0, step: 1, max: 1000, order: 200 },
       roughness: { value: defaults.roughness, min: 0, max: 1, order: 201 },
       roughnessSize: { value: defaults.roughnessSize, min: 0, max: 1, order: 202 },
