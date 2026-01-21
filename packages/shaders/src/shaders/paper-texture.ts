@@ -344,7 +344,7 @@ void main() {
   
   color = mix(color, pic, frame);
 
-  fragColor = vec4(vec3(fade), opacity);
+  fragColor = vec4(color, opacity);
 }
 `;
 
