@@ -304,7 +304,7 @@ void main() {
     foldsPattern = radialFolds.x + radialFolds.y;
 
     pattern += u_folds * foldsPattern;
-    distortionPatternRadial += .25 * u_folds * (foldsPattern - 1.);
+    distortionPatternRadial += .2 * u_folds * (foldsPattern - 1.);
   } else {
     vec2 creasesResult = clamp(getGrid(patternUV), 0., 1.);
     foldsPattern = creasesResult.x * mix(1., .0, fade);
