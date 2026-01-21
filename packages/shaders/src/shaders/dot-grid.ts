@@ -95,26 +95,28 @@ void main() {
 
   float dist;
   p = rotate(p, cellAngleRad);
+  baseSize *= .5;
   if (u_shape < 0.5) {
     // Circle
     dist = length(p);
   } else if (u_shape < 1.5) {
     // Diamond
+    baseSize *= .7071;
     dist = polygon(p, 4., .25 * PI);
   } else if (u_shape < 2.5) {
     // Square
     dist = polygon(p, 4., 0.);
   } else if (u_shape < 3.5) {
     // Triangle
+    baseSize *= 1.1547;
+    p.y += baseSize * .75;
     dist = polygon(p, 3., - .333333333333 * PI);
   } else if (u_shape < 4.5) {
     // Line
     dist = abs(p.y);
-    baseSize *= .5;
   } else {
     // Cross
     dist = min(abs(p.x), abs(p.y));
-    baseSize *= .5;
   }
 
   float edgeWidth = fwidth(shape_uv.y);
