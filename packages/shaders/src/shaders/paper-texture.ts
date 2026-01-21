@@ -176,40 +176,26 @@ vec2 randomGB(vec2 p) {
 }
 
 float getCrumples(vec2 uv) {
-  vec2 t1 = uv * .25;
-  vec2 t2 = uv * .5;
-  vec2 p1 = floor(t1), p2 = floor(t2);
-  vec2 wsum1 = vec2(0.), cl1 = vec2(0.);
-  vec2 wsum2 = vec2(0.), cl2 = vec2(0.);
+  vec2 t = uv * .5;
+  vec2 p = floor(t);
+  vec2 wsum = vec2(0.), cl = vec2(0.);
   for (int y = -1; y < 2; y += 1) {
     for (int x = -1; x < 2; x += 1) {
       vec2 b = vec2(float(x), float(y));
-      // Scale 1
-      vec2 q1 = b + p1;
-      vec2 q1m = mod(q1, 8.);
-      vec2 c1 = q1 + randomGB(q1m + u_seed);
-      float val1 = .5 + .5 * sin((q1m.x + q1m.y * 5.) * 8.);
-      vec2 r1 = c1 - t1;
-      float wy1 = pow(sst(0., 1., 1. - abs(r1.y)), 16.);
-      vec2 w1 = pow(smoothstep(0., 1., 1. - abs(vec2(r1.x, r1.x - .0125))), vec2(16.)) * wy1;
-      cl1 += val1 * w1; wsum1 += w1;
-      // Scale 2
-      vec2 q2 = b + p2;
-      vec2 q2m = mod(q2, 8.);
-      vec2 c2 = q2 + randomGB(q2m);
-      float val2 = .5 + .5 * sin((q2m.x + q2m.y * 5.) * 8.);
-      vec2 r2 = c2 - t2;
-      float sy2 = sst(0., 1., 1. - abs(r2.y));
-      float wy2 = sy2 * sy2;
-      vec2 sx2 = smoothstep(0., 1., 1. - abs(vec2(r2.x, r2.x - .025)));
-      vec2 w2 = sx2 * sx2 * wy2;
-      cl2 += val2 * w2; wsum2 += w2;
+      vec2 q = b + p;
+      vec2 qm = mod(q, 8.);
+      vec2 c = q + randomGB(qm + u_seed);
+      float val = .5 + .5 * sin((qm.x + qm.y * 5.) * 8.);
+      vec2 r = c - t;
+      float wy = pow(sst(0., 1., 1. - abs(r.y)), 16.);
+      vec2 w = pow(smoothstep(0., 1., 1. - abs(vec2(r.x, r.x - .0125))), vec2(16.)) * wy;
+      cl += val * w; 
+      wsum += w;
     }
   }
-  vec2 n = (cl1 / wsum1) * (cl2 / wsum2);
+  vec2 n = cl / wsum;
   return 4. * (n.y - n.x);
 }
-
 
 float getDrops(vec2 uv) {
   vec2 iDropsUV = floor(uv);
