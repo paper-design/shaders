@@ -299,7 +299,7 @@ void main() {
   if (u_foldType < .5) {
     vec2 foldsUV1 = rotate(patternUV * .18, 4. * u_seed);
     vec2 foldsUV2 = rotate(foldsUV1 + .009 * cos(u_seed), .012 * sin(u_seed));
-    vec2 radialFolds = clamp(3. * getFolds(foldsUV1, foldsUV2), 0., 1.);
+    vec2 radialFolds = clamp(5. * getFolds(foldsUV1, foldsUV2), 0., 1.);
     radialFolds = mix(radialFolds, vec2(0.), fade);
     foldsPattern = radialFolds.x + radialFolds.y;
 
