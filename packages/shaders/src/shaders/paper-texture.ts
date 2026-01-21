@@ -111,7 +111,7 @@ float valueNoise(vec2 st) {
 }
 float getFadeMask(vec2 n) {
   float total = 0.0, amplitude = .4;
-  for (int i = 0; i < 3; i++) {
+  for (int i = 0; i < 2; i++) {
     total += valueNoise(n) * amplitude;
     n *= 1.99;
     amplitude *= 0.65;
@@ -182,8 +182,11 @@ float getCrumples(vec2 uv) {
       vec2 c = q + randomGB(qm + u_seed);
       float val = .5 + .5 * sin((qm.x + qm.y * 5.) * 8.);
       vec2 r = c - t;
-      float wy = pow(sst(0., 1., 1. - abs(r.y)), 16.);
-      vec2 w = pow(smoothstep(0., 1., 1. - abs(vec2(r.x, r.x - .0125))), vec2(16.)) * wy;
+      float wy = sst(0., 1., 1. - abs(r.y));
+      wy *= wy; wy *= wy; wy *= wy; wy *= wy;  // pow16
+      vec2 w = smoothstep(0., 1., 1. - abs(vec2(r.x, r.x - .0125)));
+      w *= w; w *= w; w *= w; w *= w;  // pow16
+      w *= wy;
       cl += val * w; 
       wsum += w;
     }
@@ -206,7 +209,7 @@ float getDrops(vec2 uv) {
       dropsMinDist = min(dropsMinDist, dropsMinDist*dist);
     }
   }
-  return 1. - lst(.05, .09, pow(dropsMinDist, .5));
+  return 1. - lst(.05, .09, sqrt(dropsMinDist));
 }
 
 vec2 getFolds(vec2 uv1, vec2 uv2) {
@@ -263,7 +266,7 @@ void main() {
   float distortionPatternRadial = 0.;
   float distortionPatternLinear = 0.;
 
-  float fade = u_fade * getFadeMask(.17 * patternUV + 10. * u_seed);
+  float fade = u_fade * getFadeMask(.3 * patternUV + 10. * u_seed);
   fade = clamp(8. * fade * fade * fade, 0., 1.);
 
   vec2 roughnessUV = mix(330., 100., u_roughnessSize) * patternUV;
@@ -341,7 +344,7 @@ void main() {
   
   color = mix(color, pic, frame);
 
-  fragColor = vec4(color, opacity);
+  fragColor = vec4(vec3(fade), opacity);
 }
 `;
 
