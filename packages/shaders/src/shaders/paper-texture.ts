@@ -330,7 +330,7 @@ void main() {
   float r2 = dot(dc, dc);
   imageUV = .5 + dc * (1. - u_distortion * distortionPatternRadial * r2);
 
-  float frame = getUvFrame(imageUV, u_distortion);
+  float frame = getUvFrame(imageUV, abs(u_distortion));
   vec4 image = texture(u_image, imageUV);
   frame *= image.a;
 
