@@ -19,7 +19,7 @@ import { rotation2, declarePI } from '../shader-utils.js';
  * - u_crumpleSize (float): Cell-based crumple pattern scale (0 to 1)
  * - u_folds (float): Depth of the folds (0 to 1)
  * - u_foldType (float): Type of folds pattern (0 = radial folds, 1 = creases)
- * - u_foldCount (float): Number of folds or creases (1 to 20)
+ * - u_foldCount (float): Size/frequency of folds or creases (0 to 1)
  * - u_foldsShape (float): Shape/width of the folds (0 to 1)
  * - u_drops (float): Visibility of speckle / drop pattern (0 to 1)
  * - u_seed (float): Seed applied to folds, crumples and dots (0 to 1000)
@@ -216,8 +216,8 @@ float getDrops(vec2 uv) {
 vec2 getFolds(vec2 uv1, vec2 uv2) {
   vec3 pp1 = vec3(0.), pp2 = vec3(0.);
   float l1 = 9., l2 = 9.;
-  for (int i = 0; i < 15; i++) {
-    if (float(i) >= u_foldCount) break;
+  for (int i = 0; i < 16; i++) {
+    if (float(i) >= max(1., u_foldCount * 16.)) break;
     vec2 rand = randomGB(vec2(float(i), float(i) * u_seed));
     float an = rand.x * TWO_PI;
     vec2 p = vec2(cos(an), sin(an)) * rand.y;
@@ -240,7 +240,7 @@ vec2 getFolds(vec2 uv1, vec2 uv2) {
 }
 
 vec2 getGrid(vec2 uv) {
-  float gridX = fract(uv.x * .1 * u_foldCount + .5);
+  float gridX = fract(uv.x * mix(4., .01, u_foldCount) + .5);
   float dx = gridX - .5;
   float foldWidth = u_foldsShape;
   float foldAmount = 1. - smoothstep(0., foldWidth, abs(dx));

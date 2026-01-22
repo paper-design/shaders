@@ -84,7 +84,7 @@ const PaperTextureWithControls = () => {
       crumpleSize: { value: defaults.crumpleSize, min: 0, max: 1, order: 221 },
       folds: { value: defaults.folds, min: 0, max: 1, order: 230 },
       foldType: { value: defaults.foldType, options: Object.keys(PaperTextureFoldTypes) as PaperTextureFoldType[], order: 231 },
-      foldCount: { value: defaults.foldCount, min: 1, max: 20, step: 1, order: 232 },
+      foldCount: { value: defaults.foldCount, min: 0, max: 1, order: 232 },
       foldsShape: { value: defaults.foldsShape, min: 0, max: 1, order: 233 },
       drops: { value: defaults.drops, min: 0, max: 1, order: 250 },
       fade: { value: defaults.fade, min: 0, max: 1, order: 260 },
