@@ -77,7 +77,7 @@ in vec2 v_imageUV;
 out vec4 fragColor;
 
 float getUvFrame(vec2 uv, float blur) {
-  float aa = .01 * blur;
+  float aa = .003 * blur;
   float left = smoothstep(0., aa, uv.x);
   float right = 1. - smoothstep(1. - aa, 1., uv.x);
   float bottom = smoothstep(0., aa, uv.y);
@@ -330,7 +330,7 @@ void main() {
   float r2 = dot(dc, dc);
   imageUV = .5 + dc * (1. - u_distortion * distortionPatternRadial * r2);
 
-  float frame = getUvFrame(imageUV, abs(u_distortion));
+  float frame = getUvFrame(imageUV, .02 + .03 * abs(u_distortion) + .1 * u_fiber + .1 * u_roughness + .3 * u_crumples);
   vec4 image = texture(u_image, imageUV);
   frame *= image.a;
 
