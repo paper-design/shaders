@@ -76,8 +76,8 @@ uniform sampler2D u_noiseTexture;
 in vec2 v_imageUV;
 out vec4 fragColor;
 
-float getUvFrame(vec2 uv) {
-  float aa = .01 * u_distortion;
+float getUvFrame(vec2 uv, float blur) {
+  float aa = .01 * blur;
   float left = smoothstep(0., aa, uv.x);
   float right = 1. - smoothstep(1. - aa, 1., uv.x);
   float bottom = smoothstep(0., aa, uv.y);
