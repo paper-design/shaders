@@ -15,10 +15,10 @@ import { declarePI, rotation2, simplexNoise } from '../shader-utils.js';
  * - u_sizeRange (float): Random variation in shape size, 0 = uniform, higher = random up to base size (0 to 1)
  * - u_opacityRange (float): Random variation in shape opacity, 0 = opaque, higher = semi-transparent (0 to 1)
  * - u_shape (float): Shape type (0 = circle, 1 = diamond, 2 = square, 3 = triangle, 4 = line, 5 = cross)
- * - u_cellAngle (float): Rotation of shape within each cell in degrees (0 to 360)
- * - u_cellAngleRange (float): Random variation in cell angle, 0 = uniform, higher = more random rotation (0 to 1)
- * - u_cellOffsetX (float): Horizontal offset of the pattern in pixels
- * - u_cellOffsetY (float): Vertical offset of the pattern in pixels
+ * - u_angle (float): Rotation of shape within each cell in degrees (0 to 360)
+ * - u_angleRange (float): Random variation in cell angle, 0 = uniform, higher = more random rotation (0 to 1)
+ * - u_shiftX (float): Horizontal offset of the pattern in pixels
+ * - u_shiftY (float): Vertical offset of the pattern in pixels
  *
  * Vertex shader outputs (used in fragment shader):
  * - v_patternUV (vec2): UV coordinates in pixels (scaled by 0.01 for precision), with scale, rotation and offset applied
@@ -52,10 +52,10 @@ uniform float u_strokeWidth;
 uniform float u_sizeRange;
 uniform float u_opacityRange;
 uniform float u_shape;
-uniform float u_cellAngle;
-uniform float u_cellAngleRange;
-uniform float u_cellOffsetX;
-uniform float u_cellOffsetY;
+uniform float u_angle;
+uniform float u_angleRange;
+uniform float u_shiftX;
+uniform float u_shiftY;
 
 in vec2 v_patternUV;
 
@@ -76,7 +76,7 @@ void main() {
 
   // x100 is a default multiplier between vertex and fragmant shaders
   // we use it to avoid UV presision issues
-  vec2 shape_uv = 100. * v_patternUV + vec2(-u_cellOffsetX, u_cellOffsetY);
+  vec2 shape_uv = 100. * v_patternUV + vec2(-u_shiftX, u_shiftY);
   if (u_shape > 3.) {
     shape_uv -= 1e-4;
   }
@@ -94,7 +94,7 @@ void main() {
   float baseSize = u_dotSize * (1. - sizeRandomizer * u_sizeRange);
   float strokeWidth = u_strokeWidth * (1. - sizeRandomizer * u_sizeRange);
 
-  float cellAngleRad = u_cellAngle * PI / 180. + angleRandomizer * u_cellAngleRange * PI;
+  float cellAngleRad = u_angle * PI / 180. + angleRandomizer * u_angleRange * PI;
 
   float dist;
   if (u_shape != 3.) {
@@ -161,10 +161,10 @@ export interface DotGridUniforms extends ShaderSizingUniforms {
   u_sizeRange: number;
   u_opacityRange: number;
   u_shape: (typeof DotGridShapes)[DotGridShape];
-  u_cellAngle: number;
-  u_cellAngleRange: number;
-  u_cellOffsetX: number;
-  u_cellOffsetY: number;
+  u_angle: number;
+  u_angleRange: number;
+  u_shiftX: number;
+  u_shiftY: number;
 }
 
 export interface DotGridParams extends ShaderSizingParams {
@@ -178,10 +178,10 @@ export interface DotGridParams extends ShaderSizingParams {
   sizeRange?: number;
   opacityRange?: number;
   shape?: DotGridShape;
-  cellAngle?: number;
-  cellAngleRange?: number;
-  cellOffsetX?: number;
-  cellOffsetY?: number;
+  angle?: number;
+  angleRange?: number;
+  shiftX?: number;
+  shiftY?: number;
 }
 
 export const DotGridShapes = {

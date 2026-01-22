@@ -30,10 +30,10 @@ export const defaultPreset: DotGridPreset = {
     sizeRange: 0,
     opacityRange: 0,
     shape: 'circle',
-    cellAngle: 0,
-    cellAngleRange: 0,
-    cellOffsetX: 0,
-    cellOffsetY: 0,
+    angle: 0,
+    angleRange: 0,
+    shiftX: 0,
+    shiftY: 0,
   },
 };
 
@@ -51,10 +51,10 @@ const trianglesPreset: DotGridPreset = {
     sizeRange: 0,
     opacityRange: 0,
     shape: 'triangle',
-    cellAngle: 0,
-    cellAngleRange: 0,
-    cellOffsetX: 0,
-    cellOffsetY: 0,
+    angle: 0,
+    angleRange: 0,
+    shiftX: 0,
+    shiftY: 0,
   },
 };
 
@@ -72,10 +72,10 @@ const treeLinePreset: DotGridPreset = {
     sizeRange: 1,
     opacityRange: 0.6,
     shape: 'circle',
-    cellAngle: 0,
-    cellAngleRange: 0,
-    cellOffsetX: 0,
-    cellOffsetY: 0,
+    angle: 0,
+    angleRange: 0,
+    shiftX: 0,
+    shiftY: 0,
   },
 };
 
@@ -93,10 +93,10 @@ const wallpaperPreset: DotGridPreset = {
     sizeRange: 0,
     opacityRange: 0,
     shape: 'diamond',
-    cellAngle: 0,
-    cellAngleRange: 0,
-    cellOffsetX: 0,
-    cellOffsetY: 0,
+    angle: 0,
+    angleRange: 0,
+    shiftX: 0,
+    shiftY: 0,
   },
 };
 
@@ -114,10 +114,10 @@ export const DotGrid: React.FC<DotGridProps> = memo(function DotGridImpl({
   sizeRange = defaultPreset.params.sizeRange,
   opacityRange = defaultPreset.params.opacityRange,
   shape = defaultPreset.params.shape,
-  cellAngle = defaultPreset.params.cellAngle,
-  cellAngleRange = defaultPreset.params.cellAngleRange,
-  cellOffsetX = defaultPreset.params.cellOffsetX,
-  cellOffsetY = defaultPreset.params.cellOffsetY,
+  angle = defaultPreset.params.angle,
+  angleRange = defaultPreset.params.angleRange,
+  shiftX = defaultPreset.params.shiftX,
+  shiftY = defaultPreset.params.shiftY,
 
   // Sizing props
   fit = defaultPreset.params.fit,
@@ -146,10 +146,10 @@ export const DotGrid: React.FC<DotGridProps> = memo(function DotGridImpl({
     u_sizeRange: sizeRange,
     u_opacityRange: opacityRange,
     u_shape: DotGridShapes[shape],
-    u_cellAngle: cellAngle,
-    u_cellAngleRange: cellAngleRange,
-    u_cellOffsetX: cellOffsetX,
-    u_cellOffsetY: cellOffsetY,
+    u_angle: angle,
+    u_angleRange: angleRange,
+    u_shiftX: shiftX,
+    u_shiftY: shiftY,
 
     // Sizing uniforms
     u_fit: ShaderFitOptions[fit],
