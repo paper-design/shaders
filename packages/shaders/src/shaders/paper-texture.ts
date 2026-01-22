@@ -77,10 +77,11 @@ in vec2 v_imageUV;
 out vec4 fragColor;
 
 float getUvFrame(vec2 uv) {
-  float left = step(0., uv.x);
-  float right = 1. - step(1., uv.x);
-  float bottom = step(0., uv.y);
-  float top = 1. - step(1., uv.y);
+  float aa = .01 * u_distortion;
+  float left = smoothstep(0., aa, uv.x);
+  float right = 1. - smoothstep(1. - aa, 1., uv.x);
+  float bottom = smoothstep(0., aa, uv.y);
+  float top = 1. - smoothstep(1. - aa, 1., uv.y);
   return left * right * bottom * top;
 }
 
@@ -329,7 +330,7 @@ void main() {
   float r2 = dot(dc, dc);
   imageUV = .5 + dc * (1. - u_distortion * distortionPatternRadial * r2);
 
-  float frame = getUvFrame(imageUV);
+  float frame = getUvFrame(imageUV, u_distortion);
   vec4 image = texture(u_image, imageUV);
   frame *= image.a;
 
