@@ -240,7 +240,7 @@ vec2 getFolds(vec2 uv1, vec2 uv2) {
 }
 
 vec2 getGrid(vec2 uv) {
-  float gridX = fract(uv.x * mix(4., .01, u_foldCount) + .5);
+  float gridX = fract(uv.x * mix(.01, 4., u_foldCount) + .5);
   float dx = gridX - .5;
   float foldWidth = u_foldsShape;
   float foldAmount = 1. - smoothstep(0., foldWidth, abs(dx));
