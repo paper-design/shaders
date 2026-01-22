@@ -291,7 +291,7 @@ void main() {
   crumples = mix(crumples, 0., fade);
   
   pattern += u_crumples * crumples;
-  distortionPatternLinear -= .08 * u_crumples * (crumples - .25);
+  distortionPatternLinear -= .01 * u_crumples * (crumples - .25);
 
   float drops = getDrops(patternUV * 2.);
   drops = mix(drops, 0., fade);
