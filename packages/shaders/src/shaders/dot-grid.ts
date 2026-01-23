@@ -2,7 +2,7 @@ import { type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-si
 import { declarePI, rotation2, simplexNoise } from '../shader-utils.js';
 
 /**
- * Static grid pattern made of circles, diamonds, squares, triangles, lines or crosses.
+ * Static gridF pattern made of circles, diamonds, squares, triangles, lines or crosses.
  *
  * Fragment shader uniforms:
  * - u_colorBack (vec4): Background color in RGBA
@@ -76,20 +76,20 @@ void main() {
 
   // x100 is a default multiplier between vertex and fragmant shaders
   // we use it to avoid UV presision issues
-  vec2 shape_uv = 100. * v_patternUV + vec2(-u_shiftX, u_shiftY);
+  vec2 shapeUV = 100. * v_patternUV + vec2(-u_shiftX, u_shiftY);
   if (u_shape > 3.) {
-    shape_uv -= 1e-4;
+    shapeUV -= 1e-4;
   }
 
   vec2 gap = max(abs(vec2(u_gapX, u_gapY)), vec2(1e-6));
-  vec2 grid = fract(shape_uv / gap) + 1e-4;
-  vec2 grid_idx = floor(shape_uv / gap);
-  float sizeRandomizer = .5 + .8 * snoise(2. * vec2(grid_idx.x * 100., grid_idx.y));
-  float opacity_randomizer = .5 + .7 * snoise(2. * vec2(grid_idx.y, grid_idx.x));
-  float angleRandomizer = snoise(3. * vec2(grid_idx.x, grid_idx.y * 100.));
+  vec2 gridF = fract(shapeUV / gap) + 1e-4;
+  vec2 gridI = floor(shapeUV / gap);
+  float sizeRandomizer = .5 + .8 * snoise(2. * vec2(gridI.x * 100., gridI.y));
+  float opacityRandomizer = .5 + .7 * snoise(2. * vec2(gridI.y, gridI.x));
+  float angleRandomizer = snoise(3. * vec2(gridI.x, gridI.y * 100.));
 
   vec2 center = vec2(0.5) - 1e-3;
-  vec2 p = (grid - center) * vec2(u_gapX, u_gapY);
+  vec2 p = (gridF - center) * vec2(u_gapX, u_gapY);
 
   float baseSize = u_dotSize * (1. - sizeRandomizer * u_sizeRange);
   float strokeWidth = u_strokeWidth * (1. - sizeRandomizer * u_sizeRange);
@@ -124,12 +124,12 @@ void main() {
     dist = min(abs(p.x), abs(p.y));
   }
 
-  float edgeWidth = fwidth(shape_uv.y);
+  float edgeWidth = fwidth(shapeUV.y);
   float shapeOuter = 1. - smoothstep(baseSize - edgeWidth, baseSize + edgeWidth, dist - strokeWidth);
   float shapeInner = 1. - smoothstep(baseSize - edgeWidth, baseSize + edgeWidth, dist);
   float stroke = shapeOuter - shapeInner;
 
-  float dotOpacity = max(0., 1. - opacity_randomizer * u_opacityRange);
+  float dotOpacity = max(0., 1. - opacityRandomizer * u_opacityRange);
   stroke *= dotOpacity;
   shapeInner *= dotOpacity;
 
