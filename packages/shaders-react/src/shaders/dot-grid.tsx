@@ -103,7 +103,7 @@ const wallpaperPreset: DotGridPreset = {
     angleRange: 0,
     shiftX: 0,
     shiftY: 0,
-    rowShift: 0,
+    rowShift: 0.5,
     rowShiftRange: 0,
   },
 };
@@ -149,8 +149,8 @@ const bricksPreset: DotGridPreset = {
     angleRange: 1,
     shiftX: 0,
     shiftY: 0,
-    rowShift: 0,
-    rowShiftRange: 0,
+    rowShift: 0.5,
+    rowShiftRange: 0.25,
   },
 };
 
@@ -159,12 +159,12 @@ const starsPreset: DotGridPreset = {
   params: {
     ...defaultPatternSizing,
     colorBack: '#000000',
-    colorFill: '#3a37cd',
+    colorFill: '#ff0a78',
     colorStroke: '#ffee00',
-    size: 0.65,
+    size: 0.5,
     gapX: 70,
     gapY: 70,
-    strokeWidth: 5,
+    strokeWidth: 1,
     sizeRange: 0,
     opacityRange: .05,
     shape: 'star',
@@ -177,7 +177,31 @@ const starsPreset: DotGridPreset = {
   },
 };
 
-export const dotGridPresets: DotGridPreset[] = [defaultPreset, trianglesPreset, treeLinePreset, wallpaperPreset, snowPreset, bricksPreset, starsPreset];
+const cellsPreset: DotGridPreset = {
+  name: 'Cells',
+  params: {
+    ...defaultPatternSizing,
+    colorBack: '#ffffff00',
+    colorFill: '#94d2ff',
+    colorStroke: '#203979',
+    size: 0.15,
+    gapX: 80,
+    gapY: 55,
+    strokeWidth: 4,
+    sizeRange: 0,
+    opacityRange: .05,
+    shape: 'cross',
+    angle: 0,
+    angleRange: 0,
+    shiftX: 0,
+    shiftY: 0,
+    rowShift: 0,
+    rowShiftRange: 0,
+    rotation: 148
+  },
+};
+
+export const dotGridPresets: DotGridPreset[] = [defaultPreset, trianglesPreset, treeLinePreset, wallpaperPreset, snowPreset, bricksPreset, starsPreset, cellsPreset];
 
 export const DotGrid: React.FC<DotGridProps> = memo(function DotGridImpl({
   // Own props

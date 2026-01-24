@@ -99,6 +99,10 @@ float asterisk6(vec2 p, float size, float armCoeff) {
   return max(armDist / armCoeff, length(p) / size) * size;
 }
 
+float hash(float n) {
+  return fract(sin(n) * 43758.5453123);
+}
+
 void main() {
 
   // x100 is a default multiplier between vertex and fragmant shaders
@@ -114,15 +118,15 @@ void main() {
   // Row shift: every 2nd row shifts by rowShift, randomized by rowShiftRange
   // rowShift is relative to gapX (0-1 range)
   float rowIndex = floor(shapeUV.y / gap.y);
-  float rowShiftRandomizer = .5 + .5 * snoise(6. * vec2(rowIndex * 73., rowIndex));
-  float rowShiftAmount = u_rowShift * gap.x * mix(mod(rowIndex, 2.), 2. * rowShiftRandomizer, u_rowShiftRange);
+  float rowShiftRandomizer = hash(rowIndex * 73.129);
+  float rowShiftAmount = u_rowShift * gap.x * mix(mod(rowIndex, 2.), 3. * rowShiftRandomizer, u_rowShiftRange);
   shapeUV.x += rowShiftAmount;
 
   vec2 gridF = fract(shapeUV / gap) + 1e-4;
   vec2 gridI = floor(shapeUV / gap);
   float sizeRandomizer = .5 + .8 * snoise(2. * vec2(gridI.x * 100., gridI.y));
   float opacityRandomizer = .5 + .7 * snoise(2. * vec2(gridI.y, gridI.x));
-  float angleRandomizer = snoise(3. * vec2(gridI.x, gridI.y * 100.));
+  float angleRandomizer = hash(gridI.x * 37.197 + gridI.y * 91.853) * 2. - 1.;
 
   vec2 center = vec2(0.5) - 1e-3;
   vec2 p = (gridF - center) * vec2(u_gapX, u_gapY);
