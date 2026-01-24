@@ -23,7 +23,7 @@ export const defaultPreset: DotGridPreset = {
     colorBack: '#000000',
     colorFill: '#ffffff',
     colorStroke: '#ffaa00',
-    size: 2,
+    size: 6,
     gapX: 32,
     gapY: 32,
     strokeWidth: 0,
@@ -100,7 +100,70 @@ const wallpaperPreset: DotGridPreset = {
   },
 };
 
-export const dotGridPresets: DotGridPreset[] = [defaultPreset, trianglesPreset, treeLinePreset, wallpaperPreset];
+const snowPreset: DotGridPreset = {
+  name: 'Snow',
+  params: {
+    ...defaultPatternSizing,
+    colorBack: '#1b1e31',
+    colorFill: '#ffffff',
+    colorStroke: '#000000',
+    size: 18,
+    gapX: 30,
+    gapY: 55,
+    strokeWidth: 0,
+    sizeRange: 0,
+    opacityRange: 1,
+    shape: 'asterisk',
+    angle: 0,
+    angleRange: 1,
+    shiftX: 0,
+    shiftY: 0,
+  },
+};
+
+const bricksPreset: DotGridPreset = {
+  name: 'Bricks',
+  params: {
+    ...defaultPatternSizing,
+    colorBack: '#ff9e9e',
+    colorFill: '#00ffb3',
+    colorStroke: '#000000',
+    size: 15,
+    gapX: 70,
+    gapY: 70,
+    strokeWidth: 0,
+    sizeRange: 0,
+    opacityRange: .05,
+    shape: 'rect',
+    angle: 0,
+    angleRange: 1,
+    shiftX: 0,
+    shiftY: 0,
+  },
+};
+
+const starsPreset: DotGridPreset = {
+  name: 'Stars',
+  params: {
+    ...defaultPatternSizing,
+    colorBack: '#000000',
+    colorFill: '#3a37cd',
+    colorStroke: '#ffee00',
+    size: 45,
+    gapX: 70,
+    gapY: 70,
+    strokeWidth: 5,
+    sizeRange: 0,
+    opacityRange: .05,
+    shape: 'star',
+    angle: 0,
+    angleRange: 1,
+    shiftX: 0,
+    shiftY: 0,
+  },
+};
+
+export const dotGridPresets: DotGridPreset[] = [defaultPreset, trianglesPreset, treeLinePreset, wallpaperPreset, snowPreset, bricksPreset, starsPreset];
 
 export const DotGrid: React.FC<DotGridProps> = memo(function DotGridImpl({
   // Own props
