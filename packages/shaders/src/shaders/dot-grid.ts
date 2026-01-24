@@ -120,7 +120,8 @@ void main() {
   float cellAngleRad = u_angle * PI / 180. + angleRandomizer * u_angleRange * PI;
 
   float dist;
-  vec2 pUnrotated = p;
+  float edgeW = fwidth(shapeUV.y);
+
   if (u_shape != 3.) {
     p = rotate(p, cellAngleRad);
   }
@@ -145,49 +146,46 @@ void main() {
     float innerSDF = sdStar5(p, baseSize, .5);
     float scale = (baseSize + strokeWidth * 2.) / baseSize;
     float outerSDF = sdStar5(p / scale, baseSize, .5) * scale;
-    float edgeW = fwidth(shapeUV.y);
-    float starInner = 1. - smoothstep(-edgeW, edgeW, innerSDF);
+    float strokeInner = 1. - smoothstep(-edgeW, edgeW, innerSDF);
     float starOuter = 1. - smoothstep(-edgeW, edgeW, outerSDF);
-    float starStroke = starOuter - starInner;
+    float stroke = starOuter - strokeInner;
 
-    float starOpacity = max(0., 1. - opacityRandomizer * u_opacityRange);
-    starStroke *= starOpacity;
-    starInner *= starOpacity;
-    starStroke *= u_colorStroke.a;
-    starInner *= u_colorFill.a;
+    float shapeOpacity = max(0., 1. - opacityRandomizer * u_opacityRange);
+    stroke *= shapeOpacity;
+    strokeInner *= shapeOpacity;
+    stroke *= u_colorStroke.a;
+    strokeInner *= u_colorFill.a;
 
-    vec3 starColor = vec3(0.);
-    starColor += starStroke * u_colorStroke.rgb;
-    starColor += starInner * u_colorFill.rgb;
-    starColor += (1. - starInner - starStroke) * u_colorBack.rgb * u_colorBack.a;
+    vec3 color = vec3(0.);
+    color += stroke * u_colorStroke.rgb;
+    color += strokeInner * u_colorFill.rgb;
+    color += (1. - strokeInner - stroke) * u_colorBack.rgb * u_colorBack.a;
 
-    float starOpacityFinal = starStroke + starInner + (1. - starStroke - starInner) * u_colorBack.a;
-    fragColor = vec4(starColor, starOpacityFinal);
+    float opacity = stroke + strokeInner + (1. - stroke - strokeInner) * u_colorBack.a;
+    fragColor = vec4(color, opacity);
     return;
   } else if (u_shape < 5.5) {
     // Asterisk (5) - expand both size and arm width for consistent stroke
     float armCoeff = baseSize * .15;
     float innerSDF = asterisk6(p, baseSize, armCoeff) - baseSize;
     float outerSDF = asterisk6(p, baseSize + strokeWidth, armCoeff + strokeWidth) - (baseSize + strokeWidth);
-
-    float edgeW = fwidth(shapeUV.y);
-    float astInner = 1. - smoothstep(-edgeW, edgeW, innerSDF);
+    float strokeInner = 1. - smoothstep(-edgeW, edgeW, innerSDF);
     float astOuter = 1. - smoothstep(-edgeW, edgeW, outerSDF);
-    float astStroke = astOuter - astInner;
+    float stroke = astOuter - strokeInner;
 
-    float astOpacity = max(0., 1. - opacityRandomizer * u_opacityRange);
-    astStroke *= astOpacity;
-    astInner *= astOpacity;
-    astStroke *= u_colorStroke.a;
-    astInner *= u_colorFill.a;
+    float shapeOpacity = max(0., 1. - opacityRandomizer * u_opacityRange);
+    stroke *= shapeOpacity;
+    strokeInner *= shapeOpacity;
+    stroke *= u_colorStroke.a;
+    strokeInner *= u_colorFill.a;
 
-    vec3 astColor = vec3(0.);
-    astColor += astStroke * u_colorStroke.rgb;
-    astColor += astInner * u_colorFill.rgb;
-    astColor += (1. - astInner - astStroke) * u_colorBack.rgb * u_colorBack.a;
+    vec3 color = vec3(0.);
+    color += stroke * u_colorStroke.rgb;
+    color += strokeInner * u_colorFill.rgb;
+    color += (1. - strokeInner - stroke) * u_colorBack.rgb * u_colorBack.a;
 
-    float astOpacityFinal = astStroke + astInner + (1. - astStroke - astInner) * u_colorBack.a;
-    fragColor = vec4(astColor, astOpacityFinal);
+    float opacity = stroke + strokeInner + (1. - stroke - strokeInner) * u_colorBack.a;
+    fragColor = vec4(color, opacity);
     return;
   } else if (u_shape < 6.5) {
     // Line (6)
@@ -217,15 +215,13 @@ void main() {
     dist = max(crossDist, armCrop);
   }
 
-  float edgeWidth = fwidth(shapeUV.y);
-  float shapeOuter = 1. - smoothstep(baseSize - edgeWidth, baseSize + edgeWidth, dist - strokeWidth);
-  float shapeInner = 1. - smoothstep(baseSize - edgeWidth, baseSize + edgeWidth, dist);
+  float shapeOuter = 1. - smoothstep(baseSize - edgeW, baseSize + edgeW, dist - strokeWidth);
+  float shapeInner = 1. - smoothstep(baseSize - edgeW, baseSize + edgeW, dist);
   float stroke = shapeOuter - shapeInner;
 
-  float dotOpacity = max(0., 1. - opacityRandomizer * u_opacityRange);
-  stroke *= dotOpacity;
-  shapeInner *= dotOpacity;
-
+  float shapeOpacity = max(0., 1. - opacityRandomizer * u_opacityRange);
+  stroke *= shapeOpacity;
+  shapeInner *= shapeOpacity;
   stroke *= u_colorStroke.a;
   shapeInner *= u_colorFill.a;
 
@@ -234,9 +230,7 @@ void main() {
   color += shapeInner * u_colorFill.rgb;
   color += (1. - shapeInner - stroke) * u_colorBack.rgb * u_colorBack.a;
 
-  float opacity = 0.;
-  opacity += stroke;
-  opacity += shapeInner;
+  float opacity = stroke + shapeInner;
   opacity += (1. - opacity) * u_colorBack.a;
 
   fragColor = vec4(color, opacity);
