@@ -23,7 +23,7 @@ export const defaultPreset: DotGridPreset = {
     colorBack: '#000000',
     colorFill: '#ffffff',
     colorStroke: '#ffaa00',
-    size: 6,
+    size: 0.2,
     gapX: 32,
     gapY: 32,
     strokeWidth: 0,
@@ -34,6 +34,8 @@ export const defaultPreset: DotGridPreset = {
     angleRange: 0,
     shiftX: 0,
     shiftY: 0,
+    rowShift: 0,
+    rowShiftRange: 0,
   },
 };
 
@@ -44,7 +46,7 @@ const trianglesPreset: DotGridPreset = {
     colorBack: '#ffffff',
     colorFill: '#ffffff',
     colorStroke: '#808080',
-    size: 10,
+    size: 0.3,
     gapX: 32,
     gapY: 32,
     strokeWidth: 1,
@@ -55,6 +57,8 @@ const trianglesPreset: DotGridPreset = {
     angleRange: 0,
     shiftX: 0,
     shiftY: 0,
+    rowShift: 0,
+    rowShiftRange: 0,
   },
 };
 
@@ -65,7 +69,7 @@ const treeLinePreset: DotGridPreset = {
     colorBack: '#f4fce7',
     colorFill: '#052e19',
     colorStroke: '#000000',
-    size: 16,
+    size: 0.8,
     gapX: 20,
     gapY: 90,
     strokeWidth: 0,
@@ -76,6 +80,8 @@ const treeLinePreset: DotGridPreset = {
     angleRange: 0,
     shiftX: 0,
     shiftY: 0,
+    rowShift: 0,
+    rowShiftRange: 0,
   },
 };
 
@@ -86,7 +92,7 @@ const wallpaperPreset: DotGridPreset = {
     colorBack: '#204030',
     colorFill: '#000000',
     colorStroke: '#bd955b',
-    size: 18,
+    size: 0.55,
     gapX: 32,
     gapY: 32,
     strokeWidth: 1,
@@ -97,6 +103,8 @@ const wallpaperPreset: DotGridPreset = {
     angleRange: 0,
     shiftX: 0,
     shiftY: 0,
+    rowShift: 0,
+    rowShiftRange: 0,
   },
 };
 
@@ -107,7 +115,7 @@ const snowPreset: DotGridPreset = {
     colorBack: '#1b1e31',
     colorFill: '#ffffff',
     colorStroke: '#000000',
-    size: 18,
+    size: 0.6,
     gapX: 30,
     gapY: 55,
     strokeWidth: 0,
@@ -118,6 +126,8 @@ const snowPreset: DotGridPreset = {
     angleRange: 1,
     shiftX: 0,
     shiftY: 0,
+    rowShift: 0,
+    rowShiftRange: 0,
   },
 };
 
@@ -128,7 +138,7 @@ const bricksPreset: DotGridPreset = {
     colorBack: '#ff9e9e',
     colorFill: '#00ffb3',
     colorStroke: '#000000',
-    size: 15,
+    size: 0.2,
     gapX: 70,
     gapY: 70,
     strokeWidth: 0,
@@ -139,6 +149,8 @@ const bricksPreset: DotGridPreset = {
     angleRange: 1,
     shiftX: 0,
     shiftY: 0,
+    rowShift: 0,
+    rowShiftRange: 0,
   },
 };
 
@@ -149,7 +161,7 @@ const starsPreset: DotGridPreset = {
     colorBack: '#000000',
     colorFill: '#3a37cd',
     colorStroke: '#ffee00',
-    size: 45,
+    size: 0.65,
     gapX: 70,
     gapY: 70,
     strokeWidth: 5,
@@ -160,6 +172,8 @@ const starsPreset: DotGridPreset = {
     angleRange: 1,
     shiftX: 0,
     shiftY: 0,
+    rowShift: 0,
+    rowShiftRange: 0,
   },
 };
 
@@ -181,6 +195,8 @@ export const DotGrid: React.FC<DotGridProps> = memo(function DotGridImpl({
   angleRange = defaultPreset.params.angleRange,
   shiftX = defaultPreset.params.shiftX,
   shiftY = defaultPreset.params.shiftY,
+  rowShift = defaultPreset.params.rowShift,
+  rowShiftRange = defaultPreset.params.rowShiftRange,
 
   // Sizing props
   fit = defaultPreset.params.fit,
@@ -213,6 +229,8 @@ export const DotGrid: React.FC<DotGridProps> = memo(function DotGridImpl({
     u_angleRange: angleRange,
     u_shiftX: shiftX,
     u_shiftY: shiftY,
+    u_rowShift: rowShift,
+    u_rowShiftRange: rowShiftRange,
 
     // Sizing uniforms
     u_fit: ShaderFitOptions[fit],

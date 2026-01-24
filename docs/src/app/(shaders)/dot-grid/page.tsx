@@ -20,7 +20,12 @@ const DotGridWithControls = () => {
       colorBack: { value: toHsla(defaults.colorBack), order: 100 },
       colorFill: { value: toHsla(defaults.colorFill), order: 101 },
       colorStroke: { value: toHsla(defaults.colorStroke), order: 102 },
-      size: { value: defaults.size, min: 1, max: 100, order: 200 },
+      shape: {
+        value: defaults.shape,
+        options: Object.keys(DotGridShapes) as DotGridShape[],
+        order: 103,
+      },
+      size: { value: defaults.size, min: 0, max: 1, order: 200 },
       gapX: { value: defaults.gapX, min: 2, max: 500, order: 201 },
       gapY: { value: defaults.gapY, min: 2, max: 500, order: 202 },
       strokeWidth: { value: defaults.strokeWidth, min: 0, max: 50, order: 203 },
@@ -28,14 +33,11 @@ const DotGridWithControls = () => {
       opacityRange: { value: defaults.opacityRange, min: 0, max: 1, order: 205 },
       angle: { value: defaults.angle, min: 0, max: 180, order: 300 },
       angleRange: { value: defaults.angleRange, min: 0, max: 1, order: 301 },
-      shiftX: { value: defaults.shiftX, min: -100, max: 100, order: 302 },
-      shiftY: { value: defaults.shiftY, min: -100, max: 100, order: 303 },
-      shape: {
-        value: defaults.shape,
-        options: Object.keys(DotGridShapes) as DotGridShape[],
-        order: 199,
-      },
-      rotation: { value: defaults.rotation, min: 0, max: 360, order: 304 },
+      rowShift: { value: defaults.shiftX, min: 0, max: 1, order: 302 },
+      rowShiftRange: { value: defaults.rowShiftRange, min: 0, max: 1, order: 303 },
+      shiftX: { value: defaults.shiftX, min: -100, max: 100, order: 320 },
+      shiftY: { value: defaults.shiftY, min: -100, max: 100, order: 321 },
+      rotation: { value: defaults.rotation, min: 0, max: 360, order: 330 },
     };
   });
 

@@ -2,23 +2,25 @@ import { type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-si
 import { declarePI, rotation2, simplexNoise } from '../shader-utils.js';
 
 /**
- * Static gridF pattern made of circles, diamonds, squares, triangles, lines, crosses, stars, asterisks, rects or plus signs.
+ * Static grid pattern made of circles, diamonds, squares, triangles, stars, asterisks, lines, rects, crosses or plus signs.
  *
  * Fragment shader uniforms:
  * - u_colorBack (vec4): Background color in RGBA
  * - u_colorFill (vec4): Shape fill color in RGBA
  * - u_colorStroke (vec4): Shape stroke color in RGBA
- * - u_dotSize (float): Base size of each shape in pixels (1 to 100)
+ * - u_dotSize (float): Base size of each shape (0 to 1, relative to smaller cell side)
  * - u_gapX (float): Pattern horizontal spacing in pixels (2 to 500)
  * - u_gapY (float): Pattern vertical spacing in pixels (2 to 500)
  * - u_strokeWidth (float): Outline stroke width in pixels (0 to 50)
  * - u_sizeRange (float): Random variation in shape size, 0 = uniform, higher = random up to base size (0 to 1)
  * - u_opacityRange (float): Random variation in shape opacity, 0 = opaque, higher = semi-transparent (0 to 1)
- * - u_shape (float): Shape type (0 = circle, 1 = diamond, 2 = square, 3 = triangle, 4 = line, 5 = cross, 6 = star, 7 = asterisk, 8 = rect, 9 = plus)
+ * - u_shape (float): Shape type (0 = circle, 1 = diamond, 2 = square, 3 = triangle, 4 = star, 5 = asterisk, 6 = line, 7 = rect, 8 = cross, 9 = plus)
  * - u_angle (float): Rotation of shape within each cell in degrees (0 to 360)
  * - u_angleRange (float): Random variation in cell angle, 0 = uniform, higher = more random rotation (0 to 1)
- * - u_shiftX (float): Horizontal offset of the pattern in pixels
- * - u_shiftY (float): Vertical offset of the pattern in pixels
+ * - u_shiftX (float): Horizontal offset of the pattern (-1 to 1, relative to gapX)
+ * - u_shiftY (float): Vertical offset of the pattern (-1 to 1, relative to gapY)
+ * - u_rowShift (float): Horizontal shift for every 2nd row, brick pattern (0 to 1, relative to gapX)
+ * - u_rowShiftRange (float): Randomize row shift, 0 = only 2nd row shifts, 1 = all rows shift randomly (0 to 1)
  *
  * Vertex shader outputs (used in fragment shader):
  * - v_patternUV (vec2): UV coordinates in pixels (scaled by 0.01 for precision), with scale, rotation and offset applied
@@ -56,6 +58,8 @@ uniform float u_angle;
 uniform float u_angleRange;
 uniform float u_shiftX;
 uniform float u_shiftY;
+uniform float u_rowShift;
+uniform float u_rowShiftRange;
 
 in vec2 v_patternUV;
 
@@ -99,12 +103,21 @@ void main() {
 
   // x100 is a default multiplier between vertex and fragmant shaders
   // we use it to avoid UV presision issues
-  vec2 shapeUV = 100. * v_patternUV + vec2(-u_shiftX, u_shiftY);
+  vec2 gap = max(abs(vec2(u_gapX, u_gapY)), vec2(1e-6));
+
+  // Shifts are relative to gaps (0-1 range means 0-100% of gap)
+  vec2 shapeUV = 100. * v_patternUV + vec2(-u_shiftX * gap.x, u_shiftY * gap.y);
   if (u_shape > 3.) {
     shapeUV -= 1e-4;
   }
 
-  vec2 gap = max(abs(vec2(u_gapX, u_gapY)), vec2(1e-6));
+  // Row shift: every 2nd row shifts by rowShift, randomized by rowShiftRange
+  // rowShift is relative to gapX (0-1 range)
+  float rowIndex = floor(shapeUV.y / gap.y);
+  float rowShiftRandomizer = .5 + .5 * snoise(6. * vec2(rowIndex * 73., rowIndex));
+  float rowShiftAmount = u_rowShift * gap.x * mix(mod(rowIndex, 2.), 2. * rowShiftRandomizer, u_rowShiftRange);
+  shapeUV.x += rowShiftAmount;
+
   vec2 gridF = fract(shapeUV / gap) + 1e-4;
   vec2 gridI = floor(shapeUV / gap);
   float sizeRandomizer = .5 + .8 * snoise(2. * vec2(gridI.x * 100., gridI.y));
@@ -114,7 +127,9 @@ void main() {
   vec2 center = vec2(0.5) - 1e-3;
   vec2 p = (gridF - center) * vec2(u_gapX, u_gapY);
 
-  float baseSize = u_dotSize * (1. - sizeRandomizer * u_sizeRange);
+  // Size is relative to smaller cell side (0-1 range means 0-100% of min gap)
+  float minGap = min(gap.x, gap.y);
+  float baseSize = u_dotSize * minGap * (1. - sizeRandomizer * u_sizeRange);
   float strokeWidth = u_strokeWidth * (1. - sizeRandomizer * u_sizeRange);
 
   float cellAngleRad = u_angle * PI / 180. + angleRandomizer * u_angleRange * PI;
@@ -252,6 +267,8 @@ export interface DotGridUniforms extends ShaderSizingUniforms {
   u_angleRange: number;
   u_shiftX: number;
   u_shiftY: number;
+  u_rowShift: number;
+  u_rowShiftRange: number;
 }
 
 export interface DotGridParams extends ShaderSizingParams {
@@ -269,6 +286,8 @@ export interface DotGridParams extends ShaderSizingParams {
   angleRange?: number;
   shiftX?: number;
   shiftY?: number;
+  rowShift?: number;
+  rowShiftRange?: number;
 }
 
 export const DotGridShapes = {
