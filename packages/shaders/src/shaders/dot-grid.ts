@@ -126,29 +126,22 @@ void main() {
   }
   baseSize *= .5;
   if (u_shape < 0.5) {
-    // Circle
+    // Circle (0)
     dist = length(p);
   } else if (u_shape < 1.5) {
-    // Diamond
+    // Diamond (1)
     baseSize *= .7071;
     dist = polygon(p, 4., .25 * PI);
   } else if (u_shape < 2.5) {
-    // Square
+    // Square (2)
     dist = polygon(p, 4., 0.);
   } else if (u_shape < 3.5) {
-    // Triangle
+    // Triangle (3)
     baseSize *= .57735;
     p.y += baseSize * .75;
     dist = polygon(p, 3., - .333333333333 * PI - cellAngleRad);
   } else if (u_shape < 4.5) {
-    // Line
-    dist = abs(p.y);
-  } else if (u_shape < 5.5) {
-    // Cross
-    dist = min(abs(p.x), abs(p.y));
-  } else if (u_shape < 6.5) {
-    // Star (5-pointed filled) - compute outer star for non-rounded stroke
-    // strokeWidth * 2 compensates for thinner stroke at valleys due to uniform scaling
+    // Star (4) - compute outer star for non-rounded stroke
     float innerSDF = sdStar5(p, baseSize, .5);
     float scale = (baseSize + strokeWidth * 2.) / baseSize;
     float outerSDF = sdStar5(p / scale, baseSize, .5) * scale;
@@ -171,8 +164,8 @@ void main() {
     float starOpacityFinal = starStroke + starInner + (1. - starStroke - starInner) * u_colorBack.a;
     fragColor = vec4(starColor, starOpacityFinal);
     return;
-  } else if (u_shape < 7.5) {
-    // Asterisk (6 rectangular arms) - expand both size and arm width for consistent stroke
+  } else if (u_shape < 5.5) {
+    // Asterisk (5) - expand both size and arm width for consistent stroke
     float armCoeff = baseSize * .15;
     float innerSDF = asterisk6(p, baseSize, armCoeff) - baseSize;
     float outerSDF = asterisk6(p, baseSize + strokeWidth, armCoeff + strokeWidth) - (baseSize + strokeWidth);
@@ -196,7 +189,11 @@ void main() {
     float astOpacityFinal = astStroke + astInner + (1. - astStroke - astInner) * u_colorBack.a;
     fragColor = vec4(astColor, astOpacityFinal);
     return;
-  } else if (u_shape < 8.5) {
+  } else if (u_shape < 6.5) {
+    // Line (6)
+    dist = abs(p.y);
+  } else if (u_shape < 7.5) {
+    // Rect (7)
     float maxH = min(u_gapX / 6., u_gapY / 6.);
     baseSize = min(baseSize, maxH);
     float margin = baseSize;
@@ -204,7 +201,11 @@ void main() {
     float maxWfromY = (u_gapY * .5 - margin - baseSize);
     float halfWidth = max(baseSize, min(maxWfromX, maxWfromY));
     dist = max(abs(p.y), max(0., abs(p.x) - halfWidth));
+  } else if (u_shape < 8.5) {
+    // Cross (8)
+    dist = min(abs(p.x), abs(p.y));
   } else {
+    // Plus (9)
     float maxH = min(u_gapX / 6., u_gapY / 6.);
     baseSize = min(baseSize, maxH);
     float margin = baseSize;
@@ -281,11 +282,11 @@ export const DotGridShapes = {
   diamond: 1,
   square: 2,
   triangle: 3,
-  line: 4,
-  cross: 5,
-  star: 6,
-  asterisk: 7,
-  rect: 8,
+  star: 4,
+  asterisk: 5,
+  line: 6,
+  rect: 7,
+  cross: 8,
   plus: 9,
 } as const;
 
