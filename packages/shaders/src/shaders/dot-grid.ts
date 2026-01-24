@@ -197,21 +197,19 @@ void main() {
     fragColor = vec4(astColor, astOpacityFinal);
     return;
   } else if (u_shape < 8.5) {
-    float eps = 1.;
-    float c = abs(cos(cellAngleRad));
-    float s = abs(sin(cellAngleRad));
+    float maxH = min(u_gapX / 6., u_gapY / 6.);
+    baseSize = min(baseSize, maxH);
     float margin = baseSize;
-    float maxWfromX = (u_gapX * .5 - margin - baseSize * s) / max(c, eps);
-    float maxWfromY = (u_gapY * .5 - margin - baseSize * c) / max(s, eps);
+    float maxWfromX = (u_gapX * .5 - margin - baseSize);
+    float maxWfromY = (u_gapY * .5 - margin - baseSize);
     float halfWidth = max(baseSize, min(maxWfromX, maxWfromY));
     dist = max(abs(p.y), max(0., abs(p.x) - halfWidth));
   } else {
-    float eps = 1.;
-    float c = abs(cos(cellAngleRad));
-    float s = abs(sin(cellAngleRad));
+    float maxH = min(u_gapX / 6., u_gapY / 6.);
+    baseSize = min(baseSize, maxH);
     float margin = baseSize;
-    float maxLfromX = (u_gapX * .5 - margin - baseSize * s) / max(c, eps);
-    float maxLfromY = (u_gapY * .5 - margin - baseSize * c) / max(s, eps);
+    float maxLfromX = (u_gapX * .5 - margin - baseSize);
+    float maxLfromY = (u_gapY * .5 - margin - baseSize);
     float armLength = max(baseSize, min(maxLfromX, maxLfromY));
     float crossDist = min(abs(p.x), abs(p.y));
     float armCrop = max(0., max(abs(p.x), abs(p.y)) - armLength);
