@@ -213,7 +213,7 @@ float getDrops(vec2 uv) {
   return 1. - lst(.05, .09, sqrt(dropsMinDist));
 }
 
-vec2 getFolds(vec2 uv1, vec2 uv2) {
+vec3 getFolds(vec2 uv1, vec2 uv2) {
   vec3 pp1 = vec3(0.), pp2 = vec3(0.);
   float l1 = 9., l2 = 9.;
   for (int i = 0; i < 16; i++) {
@@ -233,9 +233,10 @@ vec2 getFolds(vec2 uv1, vec2 uv2) {
     }
   }
   float mult2 = mix(.22, .02, u_foldsShape);
-  return vec2(
+  return vec3(
     mix(pp1.x, .17 * pp1.z, pow(pp1.y, mult2)),
-    mix(pp2.x, .18 * pp2.z, pow(pp2.y, mult2))
+    mix(pp2.x, .18 * pp2.z, pow(pp2.y, mult2)),
+    .2 * pp2.y
   );
 }
 
@@ -280,11 +281,11 @@ void main() {
 
   fiber *= (.05 + u_fiber);
   pattern += fiber;
-  distortionPatternRadial += .06 * fiber;
+  distortionPatternRadial += .04 * fiber;
 
   roughness *= (.05 + u_roughness);
   pattern += roughness;
-  distortionPatternRadial += .05 * roughness;
+  distortionPatternRadial += .04 * roughness;
 
   vec2 crumplesUV = mix(14.4, .64, pow(u_crumpleSize, .3)) * patternUV - 32. * u_seed;
   float crumples = clamp(.2 + getCrumples(crumplesUV), 0., 1.);
@@ -300,12 +301,13 @@ void main() {
   if (u_foldType < .5) {
     vec2 foldsUV1 = rotate(patternUV * .18, 4. * u_seed);
     vec2 foldsUV2 = foldsUV1 + .015 * sin(2. * u_seed) * (texture(u_noiseTexture, fract(patternUV * .02 + u_seed)).rg - .5);
-    vec2 radialFolds = clamp(5. * getFolds(foldsUV1, foldsUV2), 0., 1.);
-    radialFolds = mix(radialFolds, vec2(0.), fade);
+    vec3 radialFolds = clamp(5. * getFolds(foldsUV1, foldsUV2), 0., 1.);
+    radialFolds = mix(radialFolds, vec3(0.), fade);
     foldsPattern = radialFolds.x + radialFolds.y;
 
     pattern += u_folds * foldsPattern;
-    distortionPatternRadial += .2 * u_folds * (foldsPattern - 1.);
+    distortionPatternRadial += .04 * u_folds * radialFolds.z;
+    distortionPatternLinear += .2 * u_folds * (radialFolds.z - .5);
   } else {
     vec2 creasesResult = clamp(getGrid(patternUV), 0., 1.);
     foldsPattern = creasesResult.x * mix(1., .0, fade);
@@ -330,7 +332,7 @@ void main() {
   float r2 = dot(dc, dc);
   imageUV = .5 + dc * (1. - u_distortion * distortionPatternRadial * r2);
 
-  float frame = getUvFrame(imageUV, .01 + .03 * abs(u_distortion) + .05 * u_fiber + .05 * u_roughness + .05 * u_crumples);
+  float frame = getUvFrame(imageUV, .01 + .04 * abs(u_distortion) + .05 * u_fiber + .05 * u_roughness + .05 * u_crumples);
   vec4 image = texture(u_image, imageUV);
   frame *= image.a;
 
