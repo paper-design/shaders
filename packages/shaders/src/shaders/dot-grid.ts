@@ -154,11 +154,11 @@ void main() {
     dist = polygon(p, 4., .25 * PI);
   } else if (u_shape < 2.5) {
     // Square (2)
+    baseSize *= .7071;
     dist = polygon(p, 4., 0.);
   } else if (u_shape < 3.5) {
     // Triangle (3)
-    baseSize *= .57735;
-    p.y += baseSize * .75;
+    baseSize *= .5;
     dist = polygon(p, 3., - .333333333333 * PI - cellAngleRad);
   } else if (u_shape < 4.5) {
     // Star (4) - compute outer star for non-rounded stroke
