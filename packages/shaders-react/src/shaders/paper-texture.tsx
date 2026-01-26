@@ -52,7 +52,7 @@ export const defaultPreset: PaperTexturePreset = {
     drops: 0.4,
     seed: 74,
     test: 1,
-    test2: 0.2,
+    test2: 0.05,
   },
 };
 

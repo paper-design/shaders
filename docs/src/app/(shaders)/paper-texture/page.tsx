@@ -89,7 +89,7 @@ const PaperTextureWithControls = () => {
       drops: { value: defaults.drops, min: 0, max: 1, order: 250 },
       fade: { value: defaults.fade, min: 0, max: 1, order: 260 },
       test: { value: defaults.test, min: 0, max: 2, order: 0 },
-      test2: { value: defaults.test2, min: 0, max: 0.1, order: 0 },
+      test2: { value: defaults.test2, min: 0, max: 0.2, order: 0 },
       scale: { value: defaults.scale, min: 0.5, max: 10, order: 300 },
       fit: { value: defaults.fit, options: ['contain', 'cover'] as ShaderFit[], order: 301 },
       Image: folder(
