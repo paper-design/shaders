@@ -296,6 +296,7 @@ void main() {
   drops = mix(drops, 0., fade);
 
   float foldsPattern = 0.;
+  fade *= .6;
   if (u_foldType < .5) {
     vec2 foldsUV1 = rotate(patternUV * .18, 4. * u_seed);
     vec2 foldsUV2 = foldsUV1 + .015 * sin(2. * u_seed) * (texture(u_noiseTexture, fract(patternUV * .02 + u_seed)).rg - .5);
