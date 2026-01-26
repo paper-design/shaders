@@ -70,6 +70,7 @@ uniform float u_seed;
 uniform float u_fade;
 uniform float u_blending;
 uniform float u_distortion;
+uniform float u_test;
 
 uniform sampler2D u_noiseTexture;
 
@@ -306,7 +307,7 @@ void main() {
     foldsPattern = radialFolds.x + radialFolds.y;
 
     pattern += u_folds * foldsPattern;
-    distortionPatternRadial += .04 * u_folds * radialFolds.z;
+    distortionPatternRadial += .2 * u_test * u_folds * radialFolds.z;
     distortionPatternLinear += .2 * u_folds * (radialFolds.z - .5);
   } else {
     vec2 creasesResult = clamp(getGrid(patternUV), 0., 1.);
@@ -371,6 +372,7 @@ export interface PaperTextureUniforms extends ShaderSizingUniforms {
   u_seed: number;
   u_blending: number;
   u_distortion: number;
+  u_test: number;
 }
 
 export interface PaperTextureParams extends ShaderSizingParams, ShaderMotionParams {
@@ -392,6 +394,7 @@ export interface PaperTextureParams extends ShaderSizingParams, ShaderMotionPara
   seed?: number;
   blending?: number;
   distortion?: number;
+  test?: number;
 }
 
 export type PaperTextureFoldType = 'folds' | 'creases';
