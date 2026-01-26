@@ -345,7 +345,7 @@ void main() {
   opacity += bgOpacity * (1. - opacity);
 
   float lum = dot(vec3(.2126, .7152, .0722), image.rgb);
-  vec3 pic = (1. + .6 * u_blending * (1. - lum)) * blendMultiply(image.rgb, pow(color, vec3(4. - 3. * lum)), u_blending);
+  vec3 pic = blendMultiply(image.rgb, color, u_blending);
   
   color = mix(color, pic, frame);
 
