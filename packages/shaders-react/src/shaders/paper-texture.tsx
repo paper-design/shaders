@@ -99,7 +99,7 @@ export const spreadPreset: PaperTexturePreset = {
     crumpleSize: 0.42,
     folds: 1,
     foldType: 'creases',
-    foldCount: 1,
+    foldCount: 0,
     foldsShape: 0.2,
     drops: 0,
     fade: 0.68,
