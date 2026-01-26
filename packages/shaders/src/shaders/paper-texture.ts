@@ -281,11 +281,11 @@ void main() {
 
   fiber *= (.05 + u_fiber);
   pattern += fiber;
-  distortionPatternRadial += .04 * fiber;
+  distortionPatternRadial += .02 * fiber;
 
   roughness *= (.03 + u_roughness);
   pattern += roughness;
-  distortionPatternRadial += .04 * roughness;
+  distortionPatternRadial += .02 * roughness;
 
   vec2 crumplesUV = mix(14.4, .64, pow(u_crumpleSize, .3)) * patternUV - 32. * u_seed;
   float crumples = clamp(.2 + getCrumples(crumplesUV), 0., 1.);
@@ -332,7 +332,7 @@ void main() {
   float r2 = dot(dc, dc);
   imageUV = .5 + dc * (1. - abs(u_distortion) * distortionPatternRadial * r2);
 
-  float frameSoftness = .005 + .03 * (u_distortion * u_distortion) * (.7 * u_fiber + u_roughness + .2 * u_crumples);
+  float frameSoftness = .005 + .02 * (u_distortion * u_distortion) * (.7 * u_fiber + u_roughness + .2 * u_crumples);
   float frame = getUvFrame(imageUV, frameSoftness);
   vec4 image = texture(u_image, imageUV);
   frame *= image.a;
