@@ -52,6 +52,7 @@ export const defaultPreset: PaperTexturePreset = {
     drops: 0.4,
     seed: 74,
     test: 1,
+    test2: 0.2,
   },
 };
 
@@ -81,6 +82,7 @@ export const cardboardPreset: PaperTexturePreset = {
     drops: 0.1,
     seed: 1.6,
     test: 1,
+    test2: 0.03,
   },
 };
 
@@ -110,6 +112,7 @@ export const spreadPreset: PaperTexturePreset = {
     speed: 1,
     frame: 0,
     test: 1,
+    test2: 0.03,
   },
 };
 
@@ -140,6 +143,7 @@ export const flatPreset: PaperTexturePreset = {
     speed: 1,
     frame: 0,
     test: 1,
+    test2: 0.03,
   },
 };
 
@@ -169,6 +173,7 @@ export const PaperTexture: React.FC<PaperTextureProps> = memo(function PaperText
   blending = defaultPreset.params.blending,
   distortion = defaultPreset.params.distortion,
   test = defaultPreset.params.test,
+  test2 = defaultPreset.params.test2,
 
   // Reworked props
   fiberScale,
@@ -215,6 +220,7 @@ export const PaperTexture: React.FC<PaperTextureProps> = memo(function PaperText
     u_blending: blending,
     u_distortion: distortion,
     u_test: test,
+    u_test2: test2,
     ...noiseTexture,
 
     // Sizing uniforms
