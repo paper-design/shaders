@@ -283,7 +283,7 @@ void main() {
   pattern += fiber;
   distortionPatternRadial += .04 * fiber;
 
-  roughness *= (.05 + u_roughness);
+  roughness *= (.03 + u_roughness);
   pattern += roughness;
   distortionPatternRadial += .04 * roughness;
 
@@ -330,9 +330,9 @@ void main() {
 
   vec2 dc = imageUV - .5;
   float r2 = dot(dc, dc);
-  imageUV = .5 + dc * (1. - u_distortion * distortionPatternRadial * r2);
+  imageUV = .5 + dc * (1. - abs(u_distortion) * distortionPatternRadial * r2);
 
-  float frameSoftness = .005 + .04 * abs(u_distortion) * (.7 * u_fiber + u_roughness + .2 * u_crumples);
+  float frameSoftness = .005 + .02 * abs(u_distortion) * (.7 * u_fiber + u_roughness + .2 * u_crumples);
   float frame = getUvFrame(imageUV, frameSoftness);
   vec4 image = texture(u_image, imageUV);
   frame *= image.a;
