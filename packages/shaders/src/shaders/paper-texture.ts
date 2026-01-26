@@ -300,14 +300,13 @@ void main() {
     vec2 foldsUV1 = rotate(patternUV * .18, 4. * u_seed);
     vec2 foldsUV2 = foldsUV1 + .015 * sin(2. * u_seed) * (texture(u_noiseTexture, fract(patternUV * .02 + u_seed)).rg - .5);
     vec3 radialFolds = clamp(5. * getFolds(foldsUV1, foldsUV2), 0., 1.);
-    radialFolds = mix(radialFolds, vec3(.5), fade);
+    radialFolds = mix(radialFolds, vec3(.5), .4 * fade);
     foldsPattern = radialFolds.x + radialFolds.y;
 
     pattern += u_folds * foldsPattern;
     distortionPatternLinear += .2 * u_folds * (radialFolds.z - .5);
   } else {
     vec2 creasesResult = clamp(getGrid(patternUV), 0., 1.);
-    foldsPattern = mix(creasesResult.x, .5, fade);
     drops *= mix(1., creasesResult.y, u_folds);
 
     pattern += u_folds * foldsPattern;
@@ -333,6 +332,7 @@ void main() {
   float frame = getUvFrame(imageUV, frameSoftness);
   vec4 image = texture(u_image, imageUV);
   frame *= image.a;
+  frame = mix(frame, 0., .2 * fade);
 
   vec3 color = fgColor * pattern;
   float opacity = fgOpacity * pattern;
