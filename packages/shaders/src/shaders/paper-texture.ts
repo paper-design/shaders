@@ -70,9 +70,6 @@ uniform float u_seed;
 uniform float u_fade;
 uniform float u_blending;
 uniform float u_distortion;
-uniform float u_test;
-uniform float u_test2;
-
 uniform sampler2D u_noiseTexture;
 
 in vec2 v_imageUV;
@@ -307,7 +304,6 @@ void main() {
     foldsPattern = radialFolds.x + radialFolds.y;
 
     pattern += u_folds * foldsPattern;
-    distortionPatternRadial += .2 * u_test * u_folds * radialFolds.z;
     distortionPatternLinear += .2 * u_folds * (radialFolds.z - .5);
   } else {
     vec2 creasesResult = clamp(getGrid(patternUV), 0., 1.);
@@ -333,7 +329,7 @@ void main() {
   float r2 = dot(dc, dc);
   imageUV = .5 + dc * (1. - abs(u_distortion) * distortionPatternRadial * r2);
 
-  float frameSoftness = .005 + .4 * u_test2 * pow(abs(u_distortion), 1.4) * (.7 * u_fiber + u_roughness + .2 * u_crumples);
+  float frameSoftness = .002 + .005 * abs(u_distortion) * (.7 * u_fiber + u_roughness + .2 * u_crumples);
   float frame = getUvFrame(imageUV, frameSoftness);
   vec4 image = texture(u_image, imageUV);
   frame *= image.a;
@@ -382,8 +378,6 @@ export interface PaperTextureUniforms extends ShaderSizingUniforms {
   u_seed: number;
   u_blending: number;
   u_distortion: number;
-  u_test: number;
-  u_test2: number;
 }
 
 export interface PaperTextureParams extends ShaderSizingParams, ShaderMotionParams {
@@ -405,8 +399,6 @@ export interface PaperTextureParams extends ShaderSizingParams, ShaderMotionPara
   seed?: number;
   blending?: number;
   distortion?: number;
-  test?: number;
-  test2?: number;
 }
 
 export type PaperTextureFoldType = 'folds' | 'creases';

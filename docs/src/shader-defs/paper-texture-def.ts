@@ -28,22 +28,6 @@ export const paperTextureDef: ShaderDef = {
       isColor: true,
       description: 'Foreground color',
     },
-    {
-      name: 'test',
-      type: 'number',
-      defaultValue: defaultParams.test,
-      min: 0,
-      max: 2,
-      description: 'Test value for adjustments',
-    },
-    {
-      name: 'test2',
-      type: 'number',
-      defaultValue: defaultParams.test2,
-      min: 0,
-      max: 0.1,
-      description: 'Test2 value for adjustments',
-    },
     ...staticImageCommonParams,
   ],
 };
