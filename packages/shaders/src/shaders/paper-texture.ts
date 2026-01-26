@@ -344,8 +344,17 @@ void main() {
   color += bgColor * (1. - opacity);
   opacity += bgOpacity * (1. - opacity);
 
-  float lum = dot(vec3(.2126, .7152, .0722), image.rgb);
+  float maxC = max(max(image.r, image.g), image.b);
+  float minC = min(min(image.r, image.g), image.b);
+  float sat = maxC > 0. ? (maxC - minC) / maxC : 0.;
+  float midC = image.r + image.g + image.b - maxC - minC;
+  float secondaryness = maxC > minC ? (midC - minC) / (maxC - minC) : 0.;
+  float satDampen = sat * (1. - .5 * secondaryness);
+  float darkDampen = 1. - dot(vec3(.2126, .7152, .0722), image.rgb);
+  float dampen = mix(0., .7, u_blending) * max(satDampen, darkDampen);
+
   vec3 pic = blendMultiply(image.rgb, color, u_blending);
+  pic = mix(pic, vec3(1.), .4 * pow(dampen, 2. + 3. * pattern));
   
   color = mix(color, pic, frame);
 
