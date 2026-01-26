@@ -332,7 +332,7 @@ void main() {
   float r2 = dot(dc, dc);
   imageUV = .5 + dc * (1. - abs(u_distortion) * distortionPatternRadial * r2);
 
-  float frameSoftness = .005 + .02 * abs(u_distortion) * (.7 * u_fiber + u_roughness + .2 * u_crumples);
+  float frameSoftness = .005 + .03 * (u_distortion * u_distortion) * (.7 * u_fiber + u_roughness + .2 * u_crumples);
   float frame = getUvFrame(imageUV, frameSoftness);
   vec4 image = texture(u_image, imageUV);
   frame *= image.a;
