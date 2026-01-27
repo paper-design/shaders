@@ -88,7 +88,7 @@ export const spreadPreset: PaperTexturePreset = {
     ...defaultObjectSizing,
     colorBack: "#ffffff",
     colorFront: "#c0c4c0",
-    blending: 0.36,
+    blending: 1,
     distortion: 0.7,
     seed: 448,
     roughness: 0.4,
