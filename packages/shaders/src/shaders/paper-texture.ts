@@ -273,6 +273,7 @@ void main() {
   patternUV *= 5. * vec2(u_imageAspectRatio, 1.);
 
   float ySide = (imageUV.y - .5);
+  float ySidePower = sign(ySide) * mix(1., .7, step(0., ySide)) * abs(ySide);
 
   float pattern = 0.;
   float radialDistortion = 0.;
@@ -314,7 +315,7 @@ void main() {
   }
   
   patternUV.x += u_distortion * xDistortion;
-  patternUV.y -= u_distortion * yDistortion * sign(ySide) * mix(1., .5, step(0., ySide)) * abs(ySide);
+  patternUV.y -= u_distortion * yDistortion * ySidePower;
 
   vec2 roughnessUV = mix(330., 100., u_roughnessSize) * patternUV;
   vec2 fiberUV = mix(22., 4., u_fiberSize) * patternUV;
@@ -350,7 +351,7 @@ void main() {
 
   imageUV = .5 + fromCenter * (1. + scaleDistortion);
   imageUV.x += u_distortion * xDistortion;
-  imageUV.y -= u_distortion * yDistortion * sign(ySide) * mix(1., .5, step(0., ySide)) * abs(ySide);
+  imageUV.y -= u_distortion * yDistortion * ySidePower;
   vec2 dc = imageUV - .5;
   float r2 = dot(dc, dc);
   imageUV = .5 + dc * (1. - abs(u_distortion) * radialDistortion * r2);
