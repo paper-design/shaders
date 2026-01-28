@@ -217,9 +217,10 @@ float getDrops(vec2 uv) {
   return 1. - lst(.05, .09, sqrt(dropsMinDist));
 }
 
-vec3 getFolds(vec2 uv1, vec2 uv2) {
+vec4 getFolds(vec2 uv1, vec2 uv2) {
   vec3 pp1 = vec3(0.), pp2 = vec3(0.);
   float l1 = 9., l2 = 9.;
+  float cellRand = 0.;
   for (int i = 0; i < ${ paperTextureMeta.maxFoldCount }; i++) {
     if (float(i) >= u_foldCount) break;
     vec2 rand = randomGB(vec2(float(i), float(i) * u_seed));
@@ -234,13 +235,15 @@ vec3 getFolds(vec2 uv1, vec2 uv2) {
     if (dist2 < l2) {
       l2 = dist2;
       pp2 = vec3(uv2.x - p.x, dist2, rand.y);
+      cellRand = .5 * (rand.x + rand.y);
     }
   }
   float mult2 = mix(.22, .02, u_foldsShape);
-  return vec3(
+  return vec4(
     mix(pp1.x, .17 * pp1.z, pow(pp1.y, mult2)),
     mix(pp2.x, .18 * pp2.z, pow(pp2.y, mult2)),
-    .2 * pp2.y
+    .2 * pp2.y,
+    cellRand
   );
 }
 
@@ -280,18 +283,27 @@ void main() {
 
   float drops = getDrops(patternUV * 2.);
   drops = mix(drops, 0., fade);
-  
+
+  vec4 foldsRaw = vec4(0.);
+  vec4 radialFolds = vec4(0.);
   float foldsPattern = 0.;
   if (u_foldType < .5) {
     vec2 foldsUV1 = rotate(patternUV * .18, 4. * u_seed);
-    vec2 foldsUV2 = foldsUV1 + .015 * sin(2. * u_seed) * (texture(u_noiseTexture, fract(patternUV * .02 + u_seed)).rg - .5);
-    vec3 radialFolds = clamp(5. * getFolds(foldsUV1, foldsUV2), 0., 1.);
-    radialFolds = mix(radialFolds, vec3(.5), .4 * fade);
+    vec2 foldsUV2 = foldsUV1 + .02 * sin(2. * u_seed) * (texture(u_noiseTexture, fract(patternUV * .02 + u_seed)).rg - .5);
+    foldsRaw = getFolds(foldsUV1, foldsUV2);
+    radialFolds = vec4(clamp(5. * foldsRaw.xyz, 0., 1.), foldsRaw.w);
+    radialFolds.xyz = mix(radialFolds.xyz, vec3(.5), .4 * fade);
     foldsPattern = radialFolds.x + radialFolds.y;
 
     pattern += u_folds * foldsPattern;
-    distortionPatternLinearDirectional += .2 * u_folds * radialFolds.z;
-    distortionPatternRadial -= .2 * u_folds * (radialFolds.x - .5);
+    
+    vec2 fromCenter = imageUV - .5;
+    float scaleFactor = u_folds * mix(-.1, .2, radialFolds.w);
+    scaleFactor -= .12 * radialFolds.x;
+    scaleFactor += .1 * radialFolds.y;
+    scaleFactor *= u_distortion;
+    scaleFactor *= mix(.5, .0, 2. * radialFolds.z);
+    imageUV = .5 + fromCenter * (1. + scaleFactor);
   } else {
     vec3 creasesResult = getGrid(imageUV + .5);
     foldsPattern = creasesResult.x;
@@ -299,7 +311,7 @@ void main() {
 
     pattern += u_folds * foldsPattern;
     float distortBase = mix(pow(creasesResult.y, .2), creasesResult.z, pow(u_foldsShape, 3.));
-    distortionPatternLinearDirectional -= mix(.13, .05, u_foldCount / float(${ paperTextureMeta.maxFoldCount })) * (1. - distortBase);
+    distortionPatternLinearDirectional -= mix(.1, .02, u_foldCount / float(${ paperTextureMeta.maxFoldCount })) * (1. - distortBase);
   }
   
   patternUV.x += u_distortion * distortionPatternLinear;
@@ -373,7 +385,8 @@ void main() {
   
   color = mix(color, pic, frame);
   
-  fragColor = vec4(color, opacity);
+//  fragColor = vec4(vec3(smoothstep(.0, .7, 2. * radialFolds.z)), opacity);
+   fragColor = vec4(color, opacity);
 }
 `;
 
