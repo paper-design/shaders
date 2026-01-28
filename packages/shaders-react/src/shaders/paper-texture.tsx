@@ -50,7 +50,7 @@ export const defaultPreset: PaperTexturePreset = {
     foldsShape: 0.5,
     fade: 0,
     drops: 0.4,
-    seed: 464,
+    seed: 354,
     backgroundFade: 0,
   },
 };
