@@ -2,6 +2,10 @@ import type { ShaderMotionParams } from '../shader-mount.js';
 import { type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
 import { rotation2, declarePI } from '../shader-utils.js';
 
+export const paperTextureMeta = {
+  maxFoldCount: 20,
+} as const;
+
 /**
  * A static texture built from multiple noise layers, usable for realistic paper and cardboard surfaces.
  * Can be used as an image filter or as a standalone texture.
@@ -214,7 +218,7 @@ float getDrops(vec2 uv) {
 vec3 getFolds(vec2 uv1, vec2 uv2) {
   vec3 pp1 = vec3(0.), pp2 = vec3(0.);
   float l1 = 9., l2 = 9.;
-  for (int i = 0; i < 18; i++) {
+  for (int i = 0; i < ${ paperTextureMeta.maxFoldCount }; i++) {
     if (float(i) >= u_foldCount) break;
     vec2 rand = randomGB(vec2(float(i), float(i) * u_seed));
     float an = rand.x * TWO_PI;
@@ -293,7 +297,7 @@ void main() {
 
     pattern += u_folds * foldsPattern;
     float distortBase = mix(pow(creasesResult.y, .2), creasesResult.z, pow(u_foldsShape, 3.));
-    distortionPatternLinearDirectional -= mix(.13, .05, u_foldCount / 18.) * (1. - distortBase);
+    distortionPatternLinearDirectional -= mix(.13, .05, u_foldCount / float(${ paperTextureMeta.maxFoldCount })) * (1. - distortBase);
   }
   
   patternUV.x += u_distortion * distortionPatternLinear;
