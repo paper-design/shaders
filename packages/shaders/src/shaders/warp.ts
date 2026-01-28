@@ -62,8 +62,11 @@ uniform float u_shapeScale;
 uniform float u_distortion;
 uniform float u_swirl;
 uniform float u_swirlIterations;
+uniform float u_edgeTrap;
 
 in vec2 v_patternUV;
+in vec2 v_responsiveUV;
+in vec2 v_responsiveBoxGivenSize;
 
 out vec4 fragColor;
 
@@ -91,20 +94,38 @@ void main() {
   vec2 uv = v_patternUV;
   uv *= .5;
 
+  // Canvas edge - fade out effects near edges
+  vec2 borderUV = v_responsiveUV + .5;
+  vec2 mask = min(borderUV, 1. - borderUV);
+  vec2 pixel_thickness = 450. / v_responsiveBoxGivenSize;
+  float maskX = smoothstep(0.0, pixel_thickness.x, mask.x);
+  float maskY = smoothstep(0.0, pixel_thickness.y, mask.y);
+  maskX = pow(maskX, .25);
+  maskY = pow(maskY, .25);
+  float edge = clamp(1. - maskX * maskY, 0., 1.);
+
   const float firstFrameOffset = 118.;
   float t = 0.0625 * (u_time + firstFrameOffset);
 
   float n1 = valueNoise(uv * 1. + t);
   float n2 = valueNoise(uv * 2. - t);
   float angle = n1 * TWO_PI;
-  uv.x += 4. * u_distortion * n2 * cos(angle);
-  uv.y += 4. * u_distortion * n2 * sin(angle);
+  
+  float radius = smoothstep(0., 1., length(uv - .5));
+  float edgeFadeW = u_edgeTrap * edge;
+  float edgeFade = u_edgeTrap * pow(edge, 3.);
+  uv -= vec2(.5);
+  float angleTest = 3. * edgeFade * angle;
+  uv = rotate(uv, -angleTest);
+  uv += vec2(.5);
+  
+  uv.x += 4. * u_distortion * n2 * cos(angle) * (1. - edgeFadeW);
+  uv.y += 4. * u_distortion * n2 * sin(angle) * (1. - edgeFadeW);
 
-  float swirl = u_swirl;
+  float swirl = u_swirl * (1. - edgeFadeW);
   for (int i = 1; i <= 20; i++) {
     if (i >= int(u_swirlIterations)) break;
     float iFloat = float(i);
-    //    swirl *= (1. - smoothstep(.0, .25, length(fwidth(uv))));
     uv.x += swirl / iFloat * cos(t + iFloat * 1.5 * uv.y);
     uv.y += swirl / iFloat * cos(t + iFloat * 1. * uv.x);
   }
@@ -167,6 +188,7 @@ export interface WarpUniforms extends ShaderSizingUniforms {
   u_distortion: number;
   u_swirl: number;
   u_swirlIterations: number;
+  u_edgeTrap: number;
   u_noiseTexture?: HTMLImageElement;
 }
 
@@ -180,6 +202,7 @@ export interface WarpParams extends ShaderSizingParams, ShaderMotionParams {
   distortion?: number;
   swirl?: number;
   swirlIterations?: number;
+  edgeTrap?: number;
 }
 
 export const WarpPatterns = {
