@@ -30,6 +30,7 @@ export const paperTextureMeta = {
  * - u_fade (float): Large-scale noise mask applied to the pattern (0 to 1)
  * - u_blending (float): Amount of image-to-paper blending, 0 for original color, 1 for mix with colorBack (0 to 1)
  * - u_distortion (float): Amount of distortion of the image by the paper normals (0 to 1)
+ * - u_backgroundFade (float): Fades the pattern outside the image frame (0 to 1)
  * - u_noiseTexture (sampler2D): Pre-computed randomizer source texture
  *
  * Vertex shader outputs (used in fragment shader):
@@ -74,6 +75,7 @@ uniform float u_seed;
 uniform float u_fade;
 uniform float u_blending;
 uniform float u_distortion;
+uniform float u_backgroundFade;
 uniform sampler2D u_noiseTexture;
 
 in vec2 v_imageUV;
@@ -349,7 +351,7 @@ void main() {
   frame *= image.a;
   frame = mix(frame, 0., .2 * fade);
 
-//  pattern = mix(.5, pattern, frame);
+  pattern = mix(.5, pattern, mix(1., frame, u_backgroundFade));
 
   vec3 color = fgColor * pattern;
   float opacity = fgOpacity * pattern;
@@ -370,11 +372,8 @@ void main() {
   pic = mix(pic, vec3(1.), .4 * pow(dampen, 2. + 3. * pattern));
   
   color = mix(color, pic, frame);
-
-//  color.r = creasesResult.x;
   
   fragColor = vec4(color, opacity);
-//  fragColor = vec4(vec3(smoothstep(.0, .1, .3 * radialFolds.z)), opacity);
 }
 `;
 
@@ -398,6 +397,7 @@ export interface PaperTextureUniforms extends ShaderSizingUniforms {
   u_seed: number;
   u_blending: number;
   u_distortion: number;
+  u_backgroundFade: number;
 }
 
 export interface PaperTextureParams extends ShaderSizingParams, ShaderMotionParams {
@@ -419,6 +419,7 @@ export interface PaperTextureParams extends ShaderSizingParams, ShaderMotionPara
   seed?: number;
   blending?: number;
   distortion?: number;
+  backgroundFade?: number;
 }
 
 export type PaperTextureFoldType = 'folds' | 'creases';
