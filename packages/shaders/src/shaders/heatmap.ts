@@ -49,6 +49,8 @@ precision highp float;
 
 in mediump vec2 v_imageUV;
 in mediump vec2 v_objectUV;
+in mediump vec2 v_responsiveUV;
+in mediump vec2 v_responsiveBoxGivenSize;
 out vec4 fragColor;
 
 uniform sampler2D u_image;
@@ -87,6 +89,11 @@ float lst(float edge0, float edge1, float x) {
 
 float sst(float edge0, float edge1, float x) {
   return smoothstep(edge0, edge1, x);
+}
+
+float sdRoundedBox(vec2 p, vec2 halfSize, float radius) {
+  vec2 d = abs(p) - halfSize + radius;
+  return length(max(d, 0.0)) + min(max(d.x, d.y), 0.0) - radius;
 }
 
 float shadowShape(vec2 uv, float t, float contour) {
@@ -187,23 +194,65 @@ float blurEdge3x3(sampler2D tex, vec2 uv, vec2 dudx, vec2 dudy, float radius, fl
 }
 
 void main() {
-  vec2 uv = v_objectUV + .5;
-  uv.y = 1. - uv.y;
+  vec2 uv = v_responsiveUV;
+//  vec2 uv = v_objectUV + .5;
+//  uv.y = 1. - uv.y;
+//  vec2 imgUV = v_imageUV;
+//  imgUV -= .5;
+//  imgUV *= 0.5714285714285714;
+//  imgUV += .5;
+//  float imgSoftFrame = getImgFrame(imgUV, .03);
+//
+//  vec4 img = texture(u_image, imgUV);
+//  vec2 dudx = dFdx(imgUV);
+//  vec2 dudy = dFdy(imgUV);
+//
+//  if (img.a == 0.) {
+//    fragColor = u_colorBack;
+//    return;
+//  }
 
-  vec2 imgUV = v_imageUV;
-  imgUV -= .5;
-  imgUV *= 0.5714285714285714;
-  imgUV += .5;
-  float imgSoftFrame = getImgFrame(imgUV, .03);
+  float canvasRatio = v_responsiveBoxGivenSize.x / v_responsiveBoxGivenSize.y;
+  vec2 shapeUV = uv;
+  shapeUV.x *= max(canvasRatio, 1.);
+  shapeUV.y /= min(canvasRatio, 1.);
 
-  vec4 img = texture(u_image, imgUV);
-  vec2 dudx = dFdx(imgUV);
-  vec2 dudy = dFdy(imgUV);
+  vec2 halfSize = vec2(
+    1. * max(canvasRatio, 1.),
+    1. / min(canvasRatio, 1.)
+  ) * 0.5;
 
-  if (img.a == 0.) {
-    fragColor = u_colorBack;
-    return;
-  }
+  float roundness = 0.05;
+  float radius = roundness * min(halfSize.x, halfSize.y);
+
+  float dist = sdRoundedBox(shapeUV, halfSize, radius);
+
+  float blurSize = .4;
+  float contourSize = .01;
+
+  // Shape: 0 inside, 1 outside
+  float shape = smoothstep(-0.001, 0.001, dist);
+
+  // Outer blur: falloff outside the shape
+  float outerBlurRaw = smoothstep(0.0, blurSize, dist);
+  float outerBlur = 1. - mix(1., 1. - outerBlurRaw, shape);
+  outerBlur = shape * (1. - pow(outerBlur, .2));
+
+  // Inner blur: falloff inside the shape
+  float innerBlurRaw = smoothstep(0.0, -blurSize, dist);
+  float innerBlur = innerBlurRaw;
+
+  // Contour: edge detection
+  float contourRaw = 1.0 - smoothstep(0.0, contourSize, abs(dist));
+  float contour = mix(contourRaw, 0., shape);
+
+//  float edgeFade = 1.0;
+//  float edgeThreshold = 0.05;
+//  edgeFade *= smoothstep(0., edgeThreshold, uv.y + 0.5);
+//  edgeFade *= 1. - smoothstep(1. - edgeThreshold, 1., uv.y + 0.5);
+//  edgeFade *= smoothstep(0., edgeThreshold, uv.x + 0.5);
+//  edgeFade *= 1. - smoothstep(1. - edgeThreshold, 1., uv.x + 0.5);
+//  outerBlur *= edgeFade;
 
   float t = .1 * u_time;
   t -= .3;
@@ -215,30 +264,34 @@ void main() {
   tCopy = mod(tCopy, 1.);
   tCopy2 = mod(tCopy2, 1.);
 
-  vec2 animationUV = imgUV - vec2(.5);
+//  vec2 animationUV = imgUV - vec2(.5);
+  vec2 animationUV = uv + 0.5;
   float angle = -u_angle * PI / 180.;
   float cosA = cos(angle);
   float sinA = sin(angle);
+  animationUV -= 0.5;
   animationUV = vec2(
   animationUV.x * cosA - animationUV.y * sinA,
   animationUV.x * sinA + animationUV.y * cosA
   ) + vec2(.5);
 
-  float shape = img[0];
+//  float shape = img[0];
+//
+//  img[1] = blurEdge3x3(u_image, imgUV, dudx, dudy, 8., img[1]);
+//
+//  float outerBlur = 1. - mix(1., img[1], shape);
+//  float innerBlur = mix(img[1], 0., shape);
+//  float contour = mix(img[2], 0., shape);
+//
+//  outerBlur *= imgSoftFrame;
 
-  img[1] = blurEdge3x3(u_image, imgUV, dudx, dudy, 8., img[1]);
-
-  float outerBlur = 1. - mix(1., img[1], shape);
-  float innerBlur = mix(img[1], 0., shape);
-  float contour = mix(img[2], 0., shape);
-
-  outerBlur *= imgSoftFrame;
-
+  innerBlur = 1. - innerBlur;
   float shadow = shadowShape(animationUV, t, innerBlur);
   float shadowCopy = shadowShape(animationUV, tCopy, innerBlur);
   float shadowCopy2 = shadowShape(animationUV, tCopy2, innerBlur);
 
-  float inner = .8 + .8 * innerBlur;
+//  float inner = .8 + .8 * innerBlur;
+  float inner = innerBlur;
   inner = mix(inner, 0., shadow);
   inner = mix(inner, 0., shadowCopy);
   inner = mix(inner, 0., shadowCopy2);
@@ -254,13 +307,14 @@ void main() {
     t *= 3.;
     t = mod(t - .1, 1.);
 
-    outer = .9 * pow(outerBlur, .8);
+    outer = outerBlur;
     float y = mod(animationUV.y - t, 1.);
     float animatedMask = sst(.3, .65, y) * (1. - sst(.65, 1., y));
     animatedMask = .5 + animatedMask;
     outer *= animatedMask;
     outer *= mix(0., 5., pow(u_outerGlow, 2.));
-    outer *= imgSoftFrame;
+//    outer *= imgSoftFrame;
+//    outer *= edgeFade;
   }
 
   inner = pow(inner, 1.2);
@@ -293,6 +347,7 @@ void main() {
   color += .02 * (fract(sin(dot(uv + 1., vec2(12.9898, 78.233))) * 43758.5453123) - .5);
 
   fragColor = vec4(color, opacity);
+//  fragColor = vec4(vec3(shape * (1. - outerBlurRaw)), 1.);
 }
 `;
 
