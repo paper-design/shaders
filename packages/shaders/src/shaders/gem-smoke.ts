@@ -121,16 +121,18 @@ void main() {
   float t = u_time;
 
   vec2 imageUV = v_imageUV;
+  imageUV -= .5;
+  imageUV *= .95;
+  imageUV += .5;
   vec2 dudx = dFdx(v_imageUV);
   vec2 dudy = dFdy(v_imageUV);
   vec4 img = textureGrad(u_image, imageUV, dudx, dudy);
   
-  float outer = pow(1. - img.b, 3.);
+  float outer = 1. - img.b;
+  outer = smoothstep(.5, .7, outer);
   vec2 blurredData = blurEdge5x5RG(u_image, imageUV, dudx, dudy, 5.);
-//  float edge = 1. - blurredData.x;
-//  float imgAlpha = blurredData.y;
-  float edge = img.r;
-  float imgAlpha = img.b;
+  float edge = 1. - blurredData.x;
+  float imgAlpha = blurredData.y;
 
   vec2 smokeUV = v_objectUV;
   float angle = u_angle * PI / 180.;
@@ -138,7 +140,7 @@ void main() {
   smokeUV *= mix(4., 1., u_size);
 
   float swirl = u_distortion * edge;
-  swirl += mix(0., u_distortion, .66 * u_outerDistortion) * outer;
+  swirl += mix(0., u_distortion, .66 * u_outerDistortion) * outer * (1. - imgAlpha);
 
   float midShift = u_distortion;
   smokeUV.y += midShift * (1. - sst(0., 1., length(.4 * smokeUV)));
@@ -193,8 +195,7 @@ void main() {
   color = color + bgColor * (1.0 - opacity);
   opacity = opacity + u_colorBack.a * (1.0 - opacity);
 
-//  fragColor = vec4(color, opacity);
-  fragColor = vec4(vec3(img.b), 1.);
+   fragColor = vec4(color, opacity);
 }
 `;
 
@@ -286,21 +287,21 @@ export function toProcessedGemSmoke(file: File | string): Promise<{ imageData: I
       canvas.width = originalWidth;
       canvas.height = originalHeight;
 
-      // Padding: proportional per axis to preserve aspect ratio
-      const paddingSize = 0.1;
+      const paddingSize = 0.025;
       const padX = Math.ceil(width * paddingSize);
       const padY = Math.ceil(height * paddingSize);
-      const outerBlurRadius = Math.floor(0.5 * Math.max(width, height) * paddingSize);
-      const imgWidth = width - 2 * padX;
-      const imgHeight = height - 2 * padY;
+      const outerBlurRadius = Math.min(padX, padY);
+      const imgW = width - 2 * padX;
+      const imgH = height - 2 * padY;
 
-      // ── 1. Shape canvas: image centered with padding ──
+      // ── 1. Shape canvas (working res): image centered with padding ──
       const shapeCanvas = document.createElement('canvas');
       shapeCanvas.width = width;
       shapeCanvas.height = height;
       const shapeCtx = shapeCanvas.getContext('2d')!;
-      shapeCtx.drawImage(img, padX, padY, imgWidth, imgHeight);
+      shapeCtx.drawImage(img, padX, padY, imgW, imgH);
 
+      // ── 2. Build masks ──
       const startMask = performance.now();
       const shapeImageData = shapeCtx.getImageData(0, 0, width, height);
       const data = shapeImageData.data;
@@ -316,7 +317,7 @@ export function toProcessedGemSmoke(file: File | string): Promise<{ imageData: I
         shapePixelCount += isShape;
       }
 
-      // ── 2. Boundary detection ──
+      // ── 3. Boundary detection ──
       const boundaryIndices: number[] = [];
       const interiorIndices: number[] = [];
 
@@ -358,7 +359,7 @@ export function toProcessedGemSmoke(file: File | string): Promise<{ imageData: I
         console.log(`  Boundary pixels: ${boundaryIndices.length}`);
       }
 
-      // ── 3. Poisson solve ──
+      // ── 4. Poisson solve ──
       const sparseData = buildSparseData(
         shapeMask,
         boundaryMask,
@@ -382,22 +383,14 @@ export function toProcessedGemSmoke(file: File | string): Promise<{ imageData: I
         if (u[idx]! > maxVal) maxVal = u[idx]!;
       }
 
-      // ── 4. Blur: image scaled up to fill entire canvas ──
-      const blurSrcCanvas = document.createElement('canvas');
-      blurSrcCanvas.width = width;
-      blurSrcCanvas.height = height;
-      const blurSrcCtx = blurSrcCanvas.getContext('2d')!;
-      blurSrcCtx.drawImage(img, padX, padY, imgWidth, imgHeight);
-      const blurSrcData = blurSrcCtx.getImageData(0, 0, width, height);
-
+      // ── 5. Blur alpha (padding gives room so blur is never cropped) ──
       const alphaGray = new Uint8ClampedArray(width * height);
-      for (let i = 0; i < alphaGray.length; i++) {
-        alphaGray[i] = blurSrcData.data[i * 4 + 3]!;
+      for (let i = 0; i < shapeMask.length; i++) {
+        alphaGray[i] = shapeMask[i]! * 255;
       }
       const blurredAlpha = multiPassBlurGray(alphaGray, width, height, outerBlurRadius, 3);
 
-      // ── 5. Pack channels at working resolution ──
-      // R = roundness, G = shape alpha, B = blurred alpha, A = 255
+      // ── 6. Pack channels: R = roundness, G = alpha, B = blurred alpha, A = 255 ──
       const tempImg = shapeCtx.createImageData(width, height);
       for (let i = 0; i < width * height; i++) {
         const px = i * 4;
@@ -416,14 +409,14 @@ export function toProcessedGemSmoke(file: File | string): Promise<{ imageData: I
       }
       shapeCtx.putImageData(tempImg, 0, 0);
 
-      // ── 6. Upscale to original resolution ──
+      // ── 7. Upscale full padded canvas to original resolution ──
       ctx.imageSmoothingEnabled = true;
       ctx.imageSmoothingQuality = 'high';
       ctx.drawImage(shapeCanvas, 0, 0, width, height, 0, 0, originalWidth, originalHeight);
 
       const outImg = ctx.getImageData(0, 0, originalWidth, originalHeight);
 
-      // ── 7. Original-resolution alpha with matching padding ──
+      // ── 8. Original-resolution alpha with matching padding ──
       const origPadX = Math.ceil(originalWidth * paddingSize);
       const origPadY = Math.ceil(originalHeight * paddingSize);
       const originalCanvas = document.createElement('canvas');
@@ -433,7 +426,7 @@ export function toProcessedGemSmoke(file: File | string): Promise<{ imageData: I
       originalCtx.drawImage(img, origPadX, origPadY, originalWidth - 2 * origPadX, originalHeight - 2 * origPadY);
       const originalData = originalCtx.getImageData(0, 0, originalWidth, originalHeight);
 
-      // ── 8. Final assembly: override G with sharp original alpha ──
+      // ── 9. Final assembly: override G with sharp original alpha ──
       for (let i = 0; i < outImg.data.length; i += 4) {
         const a = originalData.data[i + 3]!;
         const upscaledAlpha = outImg.data[i + 1]!;
