@@ -21,7 +21,8 @@ export const gemSmokeMeta = {
  * - u_colorBack (vec4): Background color in RGBA
  * - u_distortion (float): Power of smoke distortion (0 to 1)
  * - u_outerDistortion (float): Power of distortion outside the input shape (0 to 1)
- * - u_outerVisibility (float): Visibility of smoke shape outside the input shape (0 to 1)
+ * - u_outerGlow (float): Visibility of smoke shape outside the input shape (0 to 1)
+ * - u_innerGlow (float): Visibility of smoke shape inside the input shape (0 to 1)
  * - u_innerFill (float): Additional flat color within the input shape (0 to 1)
  * - u_angle (float): Smoke direction in degrees (0 to 360)
  * - u_size (float): Size of smoke shape relative to the image box (0 to 1)
@@ -64,7 +65,8 @@ uniform vec4 u_colors[${gemSmokeMeta.maxColorCount}];
 uniform float u_colorsCount;
 uniform vec4 u_colorBack;
 uniform float u_distortion;
-uniform float u_outerVisibility;
+uniform float u_outerGlow;
+uniform float u_innerGlow;
 uniform float u_innerFill;
 uniform float u_outerDistortion;
 uniform float u_angle;
@@ -160,8 +162,9 @@ void main() {
   float shape = exp(-1.5 * dot(smokeUV, smokeUV));
   shape += mix(0., .15, u_innerFill) * imgAlpha * frame;
 
-  float outerPower = pow(u_outerVisibility, 2.);
-  shape *= (outerPower + (1. - outerPower) * imgAlpha);
+  float outerPower = pow(u_outerGlow, 2.);
+  float innerPower = .01 + .99 * u_innerGlow;
+  shape *= mix(outerPower, innerPower, imgAlpha);
 
   shape = mix(shape, smoothstep(0., 1., shape), shape);
   float mixer = shape * u_colorsCount;
@@ -630,7 +633,8 @@ export interface GemSmokeUniforms extends ShaderSizingUniforms {
   u_colorsCount: number;
   u_image: HTMLImageElement | string | undefined;
   u_distortion: number;
-  u_outerVisibility: number;
+  u_outerGlow: number;
+  u_innerGlow: number;
   u_innerFill: number;
   u_outerDistortion: number;
   u_angle: number;
@@ -642,7 +646,8 @@ export interface GemSmokeParams extends ShaderSizingParams, ShaderMotionParams {
   colorBack?: string;
   image?: HTMLImageElement | string | undefined;
   distortion?: number;
-  outerVisibility?: number;
+  outerGlow?: number;
+  innerGlow?: number;
   innerFill?: number;
   outerDistortion?: number;
   angle?: number;

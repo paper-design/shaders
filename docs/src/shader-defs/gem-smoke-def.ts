@@ -45,12 +45,20 @@ export const gemSmokeDef: ShaderDef = {
       description: 'The power of distortion out of the input shape (shape defined by alpha channel)',
     },
     {
-      name: 'outerVisibility',
+      name: 'outerGlow',
       type: 'number',
       min: 0,
       max: 1,
-      defaultValue: defaultParams.outerDistortion,
+      defaultValue: defaultParams.outerGlow,
       description: 'The visibility of smoke shape out of the input shape (shape defined by alpha channel)',
+    },
+    {
+      name: 'innerGlow',
+      type: 'number',
+      min: 0,
+      max: 1,
+      defaultValue: defaultParams.innerGlow,
+      description: 'The visibility of smoke shape inside the input shape (shape defined by alpha channel)',
     },
     {
       name: 'innerFill',
