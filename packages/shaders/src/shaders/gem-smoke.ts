@@ -121,15 +121,14 @@ void main() {
   float t = u_time;
 
   vec2 imageUV = v_imageUV;
-  imageUV -= .5;
-  imageUV *= .95;
-  imageUV += .5;
+//  imageUV -= .5;
+//  imageUV *= .95;
+//  imageUV += .5;
   vec2 dudx = dFdx(v_imageUV);
   vec2 dudy = dFdy(v_imageUV);
   vec4 img = textureGrad(u_image, imageUV, dudx, dudy);
   
-  float outer = 1. - img.b;
-  outer = smoothstep(.5, .7, outer);
+  float outer = 1. - img.g;
   vec2 blurredData = blurEdge5x5RG(u_image, imageUV, dudx, dudy, 5.);
   float edge = 1. - blurredData.x;
   float imgAlpha = blurredData.y;
