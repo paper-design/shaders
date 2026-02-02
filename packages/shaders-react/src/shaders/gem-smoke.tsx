@@ -31,7 +31,7 @@ export const defaultPreset: GemSmokePreset = {
     speed: 1,
     frame: 0,
     colorBack: '#f0f0f0',
-    colorInner: '#ffffff',
+    colorInner: '#ffffff00',
     colors: ['#1d1e4e', '#23a94d', '#bf5fff', '#fffb00', '#fff8e0'],
     outerGlow: 0.4,
     innerGlow: 1,
