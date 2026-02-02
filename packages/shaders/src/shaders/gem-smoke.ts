@@ -77,15 +77,6 @@ uniform float u_size;
 ${ declarePI }
 ${ rotation2 }
 
-float getImgFrame(vec2 uv, float th) {
-  float frame = 1.;
-  frame *= smoothstep(0., th, uv.y);
-  frame *= 1.0 - smoothstep(1. - th, 1., uv.y);
-  frame *= smoothstep(0., th, uv.x);
-  frame *= 1.0 - smoothstep(1. - th, 1., uv.x);
-  return frame;
-}
-
 vec2 blurEdge5x5RG(
 sampler2D tex,
 vec2 uv,
@@ -136,11 +127,10 @@ void main() {
   vec2 dudx = dFdx(v_imageUV);
   vec2 dudy = dFdy(v_imageUV);
   vec4 img = textureGrad(u_image, imageUV, dudx, dudy);
-  float frame = getImgFrame(v_imageUV, 0.);
 
   vec2 blurredData = blurEdge5x5RG(u_image, imageUV, dudx, dudy, 10.);
   float edge = 1. - blurredData.x;
-  float imgAlpha = blurredData.y;// * frame;
+  float imgAlpha = blurredData.y;
 
   vec2 smokeUV = v_objectUV;
   float angle = u_angle * PI / 180.;
@@ -156,7 +146,7 @@ void main() {
   vec2 smokeUV2 = smokeUV;
 
   float swirl1 = u_distortion * edge;
-  float swirl2 = u_distortion;
+  float swirl2 = mix(0., u_distortion, .8 * u_outerDistortion);
 
   for (int i = 1; i < 5; i++) {
     float iFloat = float(i);
@@ -311,7 +301,6 @@ export function toProcessedGemSmoke(file: File | string): Promise<{ imageData: I
       const paddingSize = 0.025;
       const padX = Math.ceil(width * paddingSize);
       const padY = Math.ceil(height * paddingSize);
-      const outerBlurRadius = Math.min(padX, padY);
       const imgW = width - 2 * padX;
       const imgH = height - 2 * padY;
 
