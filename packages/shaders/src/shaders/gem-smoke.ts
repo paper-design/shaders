@@ -23,7 +23,7 @@ export const gemSmokeMeta = {
  * - u_outerDistortion (float): Power of distortion outside the input shape (0 to 1)
  * - u_outerGlow (float): Visibility of smoke shape outside the input shape (0 to 1)
  * - u_innerGlow (float): Visibility of smoke shape inside the input shape (0 to 1)
- * - u_innerFill (float): Additional flat color within the input shape (0 to 1)
+ * - u_colorInner (vec4): Additional color inside the input shape, mixing with smoke (RGBA)
  * - u_angle (float): Smoke direction in degrees (0 to 360)
  * - u_size (float): Size of smoke shape relative to the image box (0 to 1)
  *
@@ -67,7 +67,7 @@ uniform vec4 u_colorBack;
 uniform float u_distortion;
 uniform float u_outerGlow;
 uniform float u_innerGlow;
-uniform float u_innerFill;
+uniform vec4 u_colorInner;
 uniform float u_outerDistortion;
 uniform float u_angle;
 uniform float u_size;
@@ -160,7 +160,6 @@ void main() {
     smokeUV.y += s / iFloat * cos(t + iFloat * 1.5 * smokeUV.x);
   }
   float shape = exp(-1.5 * dot(smokeUV, smokeUV));
-  shape += mix(0., .15, u_innerFill) * imgAlpha * frame;
 
   float outerPower = pow(u_outerGlow, 2.);
   float innerPower = .01 + .99 * u_innerGlow;
@@ -189,6 +188,11 @@ void main() {
 
   vec3 color = gradient.rgb * outerShape;
   float opacity = gradient.a * outerShape;
+
+  vec3 frontColor = u_colorInner.rgb * u_colorInner.a;
+  float frontOpacity = u_colorInner.a * imgAlpha;
+  color = color + frontColor * frontOpacity * (1.0 - opacity);
+  opacity = opacity + frontOpacity * (1.0 - opacity);
 
   vec3 bgColor = u_colorBack.rgb * u_colorBack.a;
   color = color + bgColor * (1.0 - opacity);
@@ -635,7 +639,7 @@ export interface GemSmokeUniforms extends ShaderSizingUniforms {
   u_distortion: number;
   u_outerGlow: number;
   u_innerGlow: number;
-  u_innerFill: number;
+  u_colorInner: [number, number, number, number];
   u_outerDistortion: number;
   u_angle: number;
   u_size: number;
@@ -648,7 +652,7 @@ export interface GemSmokeParams extends ShaderSizingParams, ShaderMotionParams {
   distortion?: number;
   outerGlow?: number;
   innerGlow?: number;
-  innerFill?: number;
+  colorInner?: string;
   outerDistortion?: number;
   angle?: number;
   size?: number;

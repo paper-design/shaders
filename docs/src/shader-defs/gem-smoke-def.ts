@@ -61,12 +61,11 @@ export const gemSmokeDef: ShaderDef = {
       description: 'The visibility of smoke shape inside the input shape (shape defined by alpha channel)',
     },
     {
-      name: 'innerFill',
-      type: 'number',
-      min: 0,
-      max: 1,
-      defaultValue: defaultParams.innerFill,
-      description: 'Additional flat color within the input shape (shape defined by alpha channel)',
+      name: 'colorInner',
+      type: 'string',
+      defaultValue: defaultParams.colorInner,
+      isColor: true,
+      description: 'Additional color inside the input shape, mixing with smoke',
     },
     {
       name: 'angle',
