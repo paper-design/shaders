@@ -77,6 +77,15 @@ uniform float u_size;
 ${ declarePI }
 ${ rotation2 }
 
+float getImgFrame(vec2 uv, float th) {
+  float frame = 1.;
+  frame *= smoothstep(0., th, uv.y);
+  frame *= 1.0 - smoothstep(1. - th, 1., uv.y);
+  frame *= smoothstep(0., th, uv.x);
+  frame *= 1.0 - smoothstep(1. - th, 1., uv.x);
+  return frame;
+}
+
 vec2 blurEdge5x5RG(
 sampler2D tex,
 vec2 uv,
@@ -121,48 +130,60 @@ void main() {
   float t = u_time;
 
   vec2 imageUV = v_imageUV;
-//  imageUV -= .5;
-//  imageUV *= .95;
-//  imageUV += .5;
+  imageUV -= .5;
+  imageUV *= .95;
+  imageUV += .5;
   vec2 dudx = dFdx(v_imageUV);
   vec2 dudy = dFdy(v_imageUV);
   vec4 img = textureGrad(u_image, imageUV, dudx, dudy);
-  
-  float outer = 1. - img.g;
-  vec2 blurredData = blurEdge5x5RG(u_image, imageUV, dudx, dudy, 5.);
+  float frame = getImgFrame(v_imageUV, 0.);
+
+  vec2 blurredData = blurEdge5x5RG(u_image, imageUV, dudx, dudy, 10.);
   float edge = 1. - blurredData.x;
-  float imgAlpha = blurredData.y;
+  float imgAlpha = blurredData.y;// * frame;
 
   vec2 smokeUV = v_objectUV;
   float angle = u_angle * PI / 180.;
   smokeUV = rotate(smokeUV, angle);
   smokeUV *= mix(4., 1., u_size);
 
-  float swirl = u_distortion * edge;
-  swirl += mix(0., u_distortion, .66 * u_outerDistortion) * outer * (1. - imgAlpha);
-
   float midShift = u_distortion;
   smokeUV.y += midShift * (1. - sst(0., 1., length(.4 * smokeUV)));
   smokeUV.y -= .4 * midShift;
-  smokeUV.y += .4 * u_offset * imgAlpha;
+  smokeUV.y += .4 * u_offset * edge;
+  
+  vec2 smokeUV1 = smokeUV;
+  vec2 smokeUV2 = smokeUV;
+
+  float swirl1 = u_distortion * edge;
+  float swirl2 = u_distortion;
 
   for (int i = 1; i < 5; i++) {
     float iFloat = float(i);
-    float stretch = max(length(dFdx(smokeUV)), length(dFdy(smokeUV)));
-    float dampen = 1. / (1. + stretch * 8.);
+    float stretch1 = max(length(dFdx(smokeUV1)), length(dFdy(smokeUV2)));
+    float stretch2 = max(length(dFdx(smokeUV1)), length(dFdy(smokeUV2)));
+    float dampen1 = 1. / (1. + stretch1 * 8.);
+    float dampen2 = 1. / (1. + stretch2 * 8.);
 
-    float s = swirl * dampen;
-    smokeUV.x += s / iFloat * cos(t + iFloat * 2.9 * smokeUV.y);
-    smokeUV.y += s / iFloat * cos(t + iFloat * 1.5 * smokeUV.x);
+    float s1 = swirl1 * dampen1;
+    smokeUV1.x += s1 / iFloat * cos(t + iFloat * 2.9 * smokeUV1.y);
+    smokeUV1.y += s1 / iFloat * cos(t + iFloat * 1.5 * smokeUV1.x);
+    float s2 = swirl2 * dampen2;
+    smokeUV2.x += s2 / iFloat * cos(t + iFloat * 2.9 * smokeUV2.y);
+    smokeUV2.y += s2 / iFloat * cos(t + iFloat * 1.5 * smokeUV2.x);
   }
-  float shape = exp(-1.5 * dot(smokeUV, smokeUV));
+  float shapeI = exp(-1.5 * dot(smokeUV1, smokeUV1));
+  float shapeO = exp(-1.5 * dot(smokeUV2, smokeUV2));
 
   float outerPower = pow(u_outerGlow, 2.);
   float innerPower = .01 + .99 * u_innerGlow;
-  shape *= mix(outerPower, innerPower, imgAlpha);
+  float shapeVisibilityOuter = outerPower * (1. - smoothstep(.0, .9, imgAlpha));
+  float shapeVisibilityInner = innerPower * smoothstep(.6, 1., imgAlpha);
 
-  shape = mix(shape, smoothstep(0., 1., shape), shape);
-  float mixer = shape * u_colorsCount;
+  shapeI *= shapeVisibilityInner;
+  shapeO *= shapeVisibilityOuter;
+
+  float mixer = (shapeI + shapeO) * u_colorsCount;
   vec4 gradient = u_colors[0];
   gradient.rgb *= gradient.a;
 
@@ -194,7 +215,8 @@ void main() {
   color = color + bgColor * (1.0 - opacity);
   opacity = opacity + u_colorBack.a * (1.0 - opacity);
 
-   fragColor = vec4(color, opacity);
+  fragColor = vec4(color, opacity);
+//  fragColor = vec4(smoothstep(.0, .1, imgAlpha), 1. - smoothstep(.9, 1., imgAlpha), img.g, 1.);
 }
 `;
 
@@ -297,17 +319,21 @@ export function toProcessedGemSmoke(file: File | string): Promise<{ imageData: I
       const shapeCanvas = document.createElement('canvas');
       shapeCanvas.width = width;
       shapeCanvas.height = height;
+
       const shapeCtx = shapeCanvas.getContext('2d')!;
       shapeCtx.drawImage(img, padX, padY, imgW, imgH);
 
-      // ── 2. Build masks ──
+      // 1) Build optimized masks using TypedArrays
       const startMask = performance.now();
+
       const shapeImageData = shapeCtx.getImageData(0, 0, width, height);
       const data = shapeImageData.data;
 
+      // Use Uint8Array for masks (1 byte per pixel vs 8+ bytes for boolean array)
       const shapeMask = new Uint8Array(width * height);
       const boundaryMask = new Uint8Array(width * height);
 
+      // First pass: identify shape pixels
       let shapePixelCount = 0;
       for (let i = 0, idx = 0; i < data.length; i += 4, idx++) {
         const a = data[i + 3];
@@ -316,7 +342,8 @@ export function toProcessedGemSmoke(file: File | string): Promise<{ imageData: I
         shapePixelCount += isShape;
       }
 
-      // ── 3. Boundary detection ──
+      // 2) Optimized boundary detection using sparse approach
+      // Only check shape pixels, not all pixels
       const boundaryIndices: number[] = [];
       const interiorIndices: number[] = [];
 
@@ -325,19 +352,23 @@ export function toProcessedGemSmoke(file: File | string): Promise<{ imageData: I
           const idx = y * width + x;
           if (!shapeMask[idx]) continue;
 
+          // Check if pixel is on boundary (optimized: early exit)
           let isBoundary = false;
+
+          // Check 4-connected neighbors first (most common case)
           if (x === 0 || x === width - 1 || y === 0 || y === height - 1) {
             isBoundary = true;
           } else {
+            // Check all 8 neighbors (including diagonals) for comprehensive boundary detection
             isBoundary =
-              !shapeMask[idx - 1] ||
-              !shapeMask[idx + 1] ||
-              !shapeMask[idx - width] ||
-              !shapeMask[idx + width] ||
-              !shapeMask[idx - width - 1] ||
-              !shapeMask[idx - width + 1] ||
-              !shapeMask[idx + width - 1] ||
-              !shapeMask[idx + width + 1];
+              !shapeMask[idx - 1] || // left
+              !shapeMask[idx + 1] || // right
+              !shapeMask[idx - width] || // top
+              !shapeMask[idx + width] || // bottom
+              !shapeMask[idx - width - 1] || // top-left
+              !shapeMask[idx - width + 1] || // top-right
+              !shapeMask[idx + width - 1] || // bottom-left
+              !shapeMask[idx + width + 1]; // bottom-right
           }
 
           if (isBoundary) {
@@ -358,7 +389,7 @@ export function toProcessedGemSmoke(file: File | string): Promise<{ imageData: I
         console.log(`  Boundary pixels: ${boundaryIndices.length}`);
       }
 
-      // ── 4. Poisson solve ──
+      // 3) Precompute sparse data structure for solver
       const sparseData = buildSparseData(
         shapeMask,
         boundaryMask,
@@ -368,6 +399,7 @@ export function toProcessedGemSmoke(file: File | string): Promise<{ imageData: I
         height
       );
 
+      // 4) Solve Poisson equation with optimized sparse solver
       const startSolve = performance.now();
       const u = solvePoissonSparse(sparseData, shapeMask, boundaryMask, width, height);
 
@@ -375,47 +407,55 @@ export function toProcessedGemSmoke(file: File | string): Promise<{ imageData: I
         console.log(`[Poisson Solve] Time: ${(performance.now() - startSolve).toFixed(2)}ms`);
       }
 
+      // 5) Generate output image
       let maxVal = 0;
       let finalImageData: ImageData;
+
+      // Only check shape pixels for max value
       for (let i = 0; i < interiorIndices.length; i++) {
         const idx = interiorIndices[i]!;
         if (u[idx]! > maxVal) maxVal = u[idx]!;
       }
 
-      // ── 5. Blur alpha (padding gives room so blur is never cropped) ──
-      const alphaGray = new Uint8ClampedArray(width * height);
-      for (let i = 0; i < shapeMask.length; i++) {
-        alphaGray[i] = shapeMask[i]! * 255;
-      }
-      const blurredAlpha = multiPassBlurGray(alphaGray, width, height, outerBlurRadius, 3);
+      // Create roundness image at working resolution
+      const tempCanvas = document.createElement('canvas');
+      tempCanvas.width = width;
+      tempCanvas.height = height;
+      const tempCtx = tempCanvas.getContext('2d')!;
 
-      // ── 6. Pack channels: R = roundness, G = alpha, B = blurred alpha, A = 255 ──
-      const tempImg = shapeCtx.createImageData(width, height);
-      for (let i = 0; i < width * height; i++) {
-        const px = i * 4;
+      const tempImg = tempCtx.createImageData(width, height);
+      for (let y = 0; y < height; y++) {
+        for (let x = 0; x < width; x++) {
+          const idx = y * width + x;
+          const px = idx * 4;
 
-        if (!shapeMask[i]) {
-          tempImg.data[px] = 255;
-          tempImg.data[px + 1] = 0;
-        } else {
-          const poissonRatio = u[i]! / maxVal;
-          tempImg.data[px] = 255 * (1 - poissonRatio);
-          tempImg.data[px + 1] = 255;
+          if (!shapeMask[idx]) {
+            tempImg.data[px] = 255;
+            tempImg.data[px + 1] = 255;
+            tempImg.data[px + 2] = 255;
+            tempImg.data[px + 3] = 0; // Alpha = 0 for background
+          } else {
+            const poissonRatio = u[idx]! / maxVal;
+            let gray = 255 * (1 - poissonRatio);
+            tempImg.data[px] = gray;
+            tempImg.data[px + 1] = gray;
+            tempImg.data[px + 2] = gray;
+            tempImg.data[px + 3] = 255; // Alpha = 255 for shape
+          }
         }
-
-        tempImg.data[px + 2] = blurredAlpha[i]!;
-        tempImg.data[px + 3] = 255;
       }
-      shapeCtx.putImageData(tempImg, 0, 0);
+      tempCtx.putImageData(tempImg, 0, 0);
 
-      // ── 7. Upscale full padded canvas to original resolution ──
+      // Upscale to original resolution with smooth interpolation
       ctx.imageSmoothingEnabled = true;
       ctx.imageSmoothingQuality = 'high';
-      ctx.drawImage(shapeCanvas, 0, 0, width, height, 0, 0, originalWidth, originalHeight);
+      ctx.drawImage(tempCanvas, 0, 0, width, height, 0, 0, originalWidth, originalHeight);
 
+      // Now get the upscaled image data for final output
       const outImg = ctx.getImageData(0, 0, originalWidth, originalHeight);
 
-      // ── 8. Original-resolution alpha with matching padding ──
+      // Re-apply edges from original resolution with anti-aliasing
+      // This ensures edges are pixel-perfect while roundness is smooth
       const origPadX = Math.ceil(originalWidth * paddingSize);
       const origPadY = Math.ceil(originalHeight * paddingSize);
       const originalCanvas = document.createElement('canvas');
@@ -425,17 +465,25 @@ export function toProcessedGemSmoke(file: File | string): Promise<{ imageData: I
       originalCtx.drawImage(img, origPadX, origPadY, originalWidth - 2 * origPadX, originalHeight - 2 * origPadY);
       const originalData = originalCtx.getImageData(0, 0, originalWidth, originalHeight);
 
-      // ── 9. Final assembly: override G with sharp original alpha ──
+      // Process each pixel: Red channel = roundness, Alpha channel = original alpha
       for (let i = 0; i < outImg.data.length; i += 4) {
         const a = originalData.data[i + 3]!;
-        const upscaledAlpha = outImg.data[i + 1]!;
+        // Use only alpha to determine background vs shape
+        const upscaledAlpha = outImg.data[i + 3]!;
         if (a === 0) {
+          // Background pixel
           outImg.data[i] = 255;
           outImg.data[i + 1] = 0;
         } else {
-          outImg.data[i] = upscaledAlpha === 0 ? 0 : outImg.data[i]!;
-          outImg.data[i + 1] = a;
+          // Red channel carries the roundness
+          // Check if upscale missed this pixel by looking at alpha channel
+          // If upscaled alpha is 0, the low-res version thought this was background
+          outImg.data[i] = upscaledAlpha === 0 ? 0 : outImg.data[i]!; // roundness or 0
+          outImg.data[i + 1] = a; // original alpha
         }
+
+        // Unused channels fixed
+        outImg.data[i + 2] = 255;
         outImg.data[i + 3] = 255;
       }
 
@@ -606,72 +654,6 @@ function solvePoissonSparse(
   }
 
   return u;
-}
-
-function blurGray(gray: Uint8ClampedArray, width: number, height: number, radius: number): Uint8ClampedArray {
-  if (radius <= 0) {
-    return gray.slice();
-  }
-
-  const out = new Uint8ClampedArray(width * height);
-  const integral = new Uint32Array(width * height);
-
-  for (let y = 0; y < height; y++) {
-    let rowSum = 0;
-    for (let x = 0; x < width; x++) {
-      const idx = y * width + x;
-      const v = gray[idx] ?? 0;
-      rowSum += v;
-      integral[idx] = rowSum + (y > 0 ? (integral[idx - width] ?? 0) : 0);
-    }
-  }
-
-  for (let y = 0; y < height; y++) {
-    const y1 = Math.max(0, y - radius);
-    const y2 = Math.min(height - 1, y + radius);
-    for (let x = 0; x < width; x++) {
-      const x1 = Math.max(0, x - radius);
-      const x2 = Math.min(width - 1, x + radius);
-
-      const idxA = y2 * width + x2;
-      const idxB = y2 * width + (x1 - 1);
-      const idxC = (y1 - 1) * width + x2;
-      const idxD = (y1 - 1) * width + (x1 - 1);
-
-      const A = integral[idxA] ?? 0;
-      const B = x1 > 0 ? (integral[idxB] ?? 0) : 0;
-      const C = y1 > 0 ? (integral[idxC] ?? 0) : 0;
-      const D = x1 > 0 && y1 > 0 ? (integral[idxD] ?? 0) : 0;
-
-      const sum = A - B - C + D;
-      const area = (x2 - x1 + 1) * (y2 - y1 + 1);
-      out[y * width + x] = Math.round(sum / area);
-    }
-  }
-
-  return out;
-}
-
-function multiPassBlurGray(
-  gray: Uint8ClampedArray,
-  width: number,
-  height: number,
-  radius: number,
-  passes: number
-): Uint8ClampedArray {
-  if (radius <= 0 || passes <= 1) {
-    return blurGray(gray, width, height, radius);
-  }
-
-  let input = gray;
-  let tmp: Uint8ClampedArray = gray;
-
-  for (let p = 0; p < passes; p++) {
-    tmp = blurGray(input, width, height, radius);
-    input = tmp;
-  }
-
-  return tmp;
 }
 
 export interface GemSmokeUniforms extends ShaderSizingUniforms {
