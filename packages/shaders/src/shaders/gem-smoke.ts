@@ -1,7 +1,7 @@
 import type { vec4 } from '../types.js';
 import type { ShaderMotionParams } from '../shader-mount.js';
-import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
-import { declarePI, rotation2 } from '../shader-utils.js';
+import type { ShaderSizingParams, ShaderSizingUniforms } from '../shader-sizing.js';
+import { rotation2, declarePI } from '../shader-utils.js';
 
 export const gemSmokeMeta = {
   maxColorCount: 6,
@@ -50,6 +50,10 @@ export const gemSmokeMeta = {
 export const gemSmokeFragmentShader: string = `#version 300 es
 precision mediump float;
 
+in mediump vec2 v_imageUV;
+in mediump vec2 v_objectUV;
+out vec4 fragColor;
+
 uniform sampler2D u_image;
 uniform float u_imageAspectRatio;
 
@@ -66,12 +70,8 @@ uniform float u_outerDistortion;
 uniform float u_angle;
 uniform float u_size;
 
-${sizingVariablesDeclaration}
-
-out vec4 fragColor;
-
-${declarePI}
-${rotation2}
+${ declarePI }
+${ rotation2 }
 
 float getImgFrame(vec2 uv, float th) {
   float frame = 1.;
