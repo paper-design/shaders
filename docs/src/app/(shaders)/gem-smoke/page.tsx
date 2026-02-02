@@ -44,7 +44,7 @@ const imageFiles = [
 
 const GemSmokeWithControls = () => {
   const [imageIdx, setImageIdx] = useState(-1);
-  const [image, setImage] = useState<HTMLImageElement | string>('/images/logos/apple.svg');
+  const [image, setImage] = useState<HTMLImageElement | string>('/images/logos/diamond.svg');
 
   useEffect(() => {
     if (imageIdx >= 0) {
