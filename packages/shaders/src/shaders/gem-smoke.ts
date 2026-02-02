@@ -136,7 +136,8 @@ void main() {
 
   float frame = getImgFrame(v_imageUV, 0.);
 
-  vec2 blurredData = blurEdge5x5RG(u_image, imageUV, dudx, dudy, 10.);
+//  vec2 blurredData = blurEdge5x5RG(u_image, imageUV, dudx, dudy, 10.);
+  vec2 blurredData = texture(u_image, imageUV).rg;
   float edge = 1. - blurredData.x;
   float imgAlpha = mix(img.g, blurredData.y, u_distortion);
   imgAlpha *= frame;
