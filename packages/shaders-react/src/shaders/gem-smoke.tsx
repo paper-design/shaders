@@ -207,7 +207,6 @@ export const GemSmoke: React.FC<GemSmokeProps> = memo(function GemSmokeImpl({
       speed={speed}
       frame={frame}
       fragmentShader={gemSmokeFragmentShader}
-      mipmaps={['u_image']}
       uniforms={uniforms}
     />
   );

@@ -136,18 +136,18 @@ void main() {
 
   float frame = getImgFrame(v_imageUV, 0.);
 
-//  vec2 blurredData = blurEdge5x5RG(u_image, imageUV, dudx, dudy, 10.);
-  vec2 blurredData = texture(u_image, imageUV).rg;
+  float outer = pow(1. - img.b, 3.);
+  vec2 blurredData = blurEdge5x5RG(u_image, imageUV, dudx, dudy, 5.);
   float edge = 1. - blurredData.x;
-  float imgAlpha = mix(img.g, blurredData.y, u_distortion);
-  imgAlpha *= frame;
+  float imgAlpha = blurredData.y * frame;
 
   vec2 smokeUV = v_objectUV;
   float angle = u_angle * PI / 180.;
   smokeUV = rotate(smokeUV, angle);
   smokeUV *= mix(4., 1., u_size);
 
-  float swirl = mix(mix(0., u_distortion, .66 * u_outerDistortion), u_distortion * edge, imgAlpha);
+  float swirl = u_distortion * edge;
+  swirl += mix(0., u_distortion, .66 * u_outerDistortion) * outer;
 
   float midShift = u_distortion;
   smokeUV.y += midShift * (1. - sst(0., 1., length(.4 * smokeUV)));
@@ -444,25 +444,29 @@ export function toProcessedGemSmoke(file: File | string): Promise<{ imageData: I
       originalCtx.drawImage(img, 0, 0, originalWidth, originalHeight);
       const originalData = originalCtx.getImageData(0, 0, originalWidth, originalHeight);
 
-      // Process each pixel: Red channel = roundness, Alpha channel = original alpha
+      // Outer-blurred alpha: blur the original image to extend alpha beyond shape boundary
+      const outerBlurCanvas = document.createElement('canvas');
+      outerBlurCanvas.width = originalWidth;
+      outerBlurCanvas.height = originalHeight;
+      const outerBlurCtx = outerBlurCanvas.getContext('2d')!;
+      const outerBlurRadius = 10;
+      outerBlurCtx.filter = `blur(${outerBlurRadius}px)`;
+      outerBlurCtx.drawImage(img, 0, 0, originalWidth, originalHeight);
+      const outerBlurredData = outerBlurCtx.getImageData(0, 0, originalWidth, originalHeight);
+
+      // R = roundness, G = original alpha, B = outer-blurred alpha
       for (let i = 0; i < outImg.data.length; i += 4) {
         const a = originalData.data[i + 3]!;
-        // Use only alpha to determine background vs shape
         const upscaledAlpha = outImg.data[i + 3]!;
         if (a === 0) {
-          // Background pixel
           outImg.data[i] = 255;
           outImg.data[i + 1] = 0;
         } else {
-          // Red channel carries the roundness
-          // Check if upscale missed this pixel by looking at alpha channel
-          // If upscaled alpha is 0, the low-res version thought this was background
           outImg.data[i] = upscaledAlpha === 0 ? 0 : outImg.data[i]!; // roundness or 0
-          outImg.data[i + 1] = a; // original alpha
+          outImg.data[i + 1] = a;
         }
 
-        // Unused channels fixed
-        outImg.data[i + 2] = 255;
+        outImg.data[i + 2] = outerBlurredData.data[i + 3]!;
         outImg.data[i + 3] = 255;
       }
 
