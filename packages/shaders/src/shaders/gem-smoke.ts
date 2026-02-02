@@ -56,20 +56,25 @@ in mediump vec2 v_imageUV;
 in mediump vec2 v_objectUV;
 out vec4 fragColor;
 
+// Image
 uniform sampler2D u_image;
 uniform float u_imageAspectRatio;
 
+// Canvas
 uniform vec2 u_resolution;
 uniform float u_time;
 
+// Colors
 uniform vec4 u_colors[${gemSmokeMeta.maxColorCount}];
 uniform float u_colorsCount;
 uniform vec4 u_colorBack;
+uniform vec4 u_colorInner;
+
+// Effect controls
 uniform float u_distortion;
+uniform float u_outerDistortion;
 uniform float u_outerGlow;
 uniform float u_innerGlow;
-uniform vec4 u_colorInner;
-uniform float u_outerDistortion;
 uniform float u_offset;
 uniform float u_angle;
 uniform float u_size;
@@ -77,136 +82,122 @@ uniform float u_size;
 ${ declarePI }
 ${ rotation2 }
 
-vec2 blurEdge5x5RG(
-sampler2D tex,
-vec2 uv,
-vec2 dudx,
-vec2 dudy,
-float radius
-) {
+// 5x5 Gaussian blur on R and G channels
+vec2 gaussBlur5x5RG(sampler2D tex, vec2 uv, vec2 dudx, vec2 dudy, float radius) {
   vec2 texel = 1.0 / vec2(textureSize(tex, 0));
   vec2 r = max(radius, 0.0) * texel;
-
-  // Gaussian 1D kernel: [1, 4, 6, 4, 1]
   const float k[5] = float[5](1.0, 4.0, 6.0, 4.0, 1.0);
+  vec2 sum = vec2(0.0);
 
-  float norm = 256.0;// (1+4+6+4+1)^2 = 16^2
-  vec2 sum = vec2(0.0);// accumulate (R,G)
-
-  // Loop over 5×5 grid: dy, dx ∈ [-2,2]
   for (int j = -2; j <= 2; ++j) {
     float wy = k[j + 2];
-
     for (int i = -2; i <= 2; ++i) {
-      float wx = k[i + 2];
-      float w = wx * wy;
-
-      vec2 offset = vec2(float(i) * r.x, float(j) * r.y);
-      vec4 t = texture(tex, uv + offset);
-
-      // accumulate R and G separately
-      sum += w * t.rg;
+      float w = k[i + 2] * wy;
+      vec2 off = vec2(float(i) * r.x, float(j) * r.y);
+      sum += w * texture(tex, uv + off).rg;
     }
   }
 
-  return sum / norm;
+  return sum / 256.0;
 }
 
-float sst(float edge0, float edge1, float x) {
-  return smoothstep(edge0, edge1, x);
+float sst(float a, float b, float x) {
+  return smoothstep(a, b, x);
 }
 
 void main() {
+  float time = u_time;
 
-  float t = u_time;
-
+  // Image sampling (UV scaled inward to account for padding)
   vec2 imageUV = v_imageUV;
   imageUV -= .5;
   imageUV *= .95;
   imageUV += .5;
+
   vec2 dudx = dFdx(v_imageUV);
   vec2 dudy = dFdy(v_imageUV);
   vec4 img = textureGrad(u_image, imageUV, dudx, dudy);
 
-  vec2 blurredData = blurEdge5x5RG(u_image, imageUV, dudx, dudy, 10.);
-  float edge = 1. - blurredData.x;
-  float imgAlpha = blurredData.y;
+  // Blurred image: x = roundness, y = alpha
+  vec2 blurred = gaussBlur5x5RG(u_image, imageUV, dudx, dudy, 8.);
+  float roundness = 1. - blurred.x;
+  float imgAlpha = blurred.y;
 
+  // Smoke UV setup
   vec2 smokeUV = v_objectUV;
-  float angle = u_angle * PI / 180.;
-  smokeUV = rotate(smokeUV, angle);
+  smokeUV = rotate(smokeUV, u_angle * PI / 180.);
   smokeUV *= mix(4., 1., u_size);
 
-  float midShift = u_distortion;
-  smokeUV.y += midShift * (1. - sst(0., 1., length(.4 * smokeUV)));
-  smokeUV.y -= .4 * midShift;
-  smokeUV.y += .4 * u_offset * edge;
-  
-  vec2 smokeUV1 = smokeUV;
-  vec2 smokeUV2 = smokeUV;
+  // Vertical displacement
+  smokeUV.y += u_distortion * (1. - sst(0., 1., length(.4 * smokeUV)));
+  smokeUV.y -= .4 * u_distortion;
+  smokeUV.y += .4 * u_offset * roundness;
 
-  float swirl1 = u_distortion * edge;
-  float swirl2 = mix(0., u_distortion, .8 * u_outerDistortion);
+  // Two swirl paths: inner (shape-masked) and outer (free)
+  vec2 innerUV = smokeUV;
+  vec2 outerUV = smokeUV;
+
+  float innerSwirl = u_distortion * roundness;
+  float outerSwirl = mix(0., u_distortion, .8 * u_outerDistortion);
 
   for (int i = 1; i < 5; i++) {
-    float iFloat = float(i);
-    float stretch1 = max(length(dFdx(smokeUV1)), length(dFdy(smokeUV2)));
-    float stretch2 = max(length(dFdx(smokeUV1)), length(dFdy(smokeUV2)));
-    float dampen1 = 1. / (1. + stretch1 * 8.);
-    float dampen2 = 1. / (1. + stretch2 * 8.);
+    float fi = float(i);
 
-    float s1 = swirl1 * dampen1;
-    smokeUV1.x += s1 / iFloat * cos(t + iFloat * 2.9 * smokeUV1.y);
-    smokeUV1.y += s1 / iFloat * cos(t + iFloat * 1.5 * smokeUV1.x);
-    float s2 = swirl2 * dampen2;
-    smokeUV2.x += s2 / iFloat * cos(t + iFloat * 2.9 * smokeUV2.y);
-    smokeUV2.y += s2 / iFloat * cos(t + iFloat * 1.5 * smokeUV2.x);
+    float stretchIn = max(length(dFdx(innerUV)), length(dFdy(outerUV)));
+    float dampenIn = 1. / (1. + stretchIn * 8.);
+    float sIn = innerSwirl * dampenIn;
+    innerUV.x += sIn / fi * cos(time + fi * 2.9 * innerUV.y);
+    innerUV.y += sIn / fi * cos(time + fi * 1.5 * innerUV.x);
+
+    float stretchOut = max(length(dFdx(innerUV)), length(dFdy(outerUV)));
+    float dampenOut = 1. / (1. + stretchOut * 8.);
+    float sOut = outerSwirl * dampenOut;
+    outerUV.x += sOut / fi * cos(time + fi * 2.9 * outerUV.y);
+    outerUV.y += sOut / fi * cos(time + fi * 1.5 * outerUV.x);
   }
-  float shapeI = exp(-1.5 * dot(smokeUV1, smokeUV1));
-  float shapeO = exp(-1.5 * dot(smokeUV2, smokeUV2));
 
-  float outerPower = pow(u_outerGlow, 2.);
-  float innerPower = .01 + .99 * u_innerGlow;
-  float shapeVisibilityOuter = outerPower * (1. - smoothstep(.0, .9, imgAlpha));
-  float shapeVisibilityInner = innerPower * smoothstep(.6, 1., imgAlpha);
+  // Smoke shapes from swirl fields
+  float innerShape = exp(-1.5 * dot(innerUV, innerUV));
+  float outerShape = exp(-1.5 * dot(outerUV, outerUV));
 
-  shapeI *= shapeVisibilityInner;
-  shapeO *= shapeVisibilityOuter;
+  // Visibility masks
+  float outerMask = pow(u_outerGlow, 2.) * (1. - smoothstep(.0, .9, imgAlpha));
+  float innerMask = (.01 + .99 * u_innerGlow) * smoothstep(.6, 1., imgAlpha);
 
-  float mixer = (shapeI + shapeO) * u_colorsCount;
+  innerShape *= innerMask;
+  outerShape *= outerMask;
+
+  // Color gradient
+  float mixer = (innerShape + outerShape) * u_colorsCount;
   vec4 gradient = u_colors[0];
   gradient.rgb *= gradient.a;
 
-  float outerShape = 0.;
+  float smokeMask = 0.;
   for (int i = 1; i < ${gemSmokeMeta.maxColorCount + 1}; i++) {
     if (i > int(u_colorsCount)) break;
 
-    float m = clamp(mixer - float(i - 1), 0., 1.);
-    m = sst(0., 1., m);
-
-    if (i == 1) {
-      outerShape = m;
-    }
+    float m = sst(0., 1., clamp(mixer - float(i - 1), 0., 1.));
+    if (i == 1) smokeMask = m;
 
     vec4 c = u_colors[i - 1];
     c.rgb *= c.a;
     gradient = mix(gradient, c, m);
   }
 
-  vec3 color = gradient.rgb * outerShape;
-  float opacity = gradient.a * outerShape;
+  // Compositing (premultiplied alpha, front-to-back)
+  vec3 color = gradient.rgb * smokeMask;
+  float opacity = gradient.a * smokeMask;
 
-  vec3 frontColor = u_colorInner.rgb * u_colorInner.a;
-  float frontOpacity = u_colorInner.a * imgAlpha;
-  color = color + frontColor * frontOpacity * (1.0 - opacity);
-  opacity = opacity + frontOpacity * (1.0 - opacity);
+  vec3 innerColor = u_colorInner.rgb * u_colorInner.a;
+  float innerOpacity = u_colorInner.a * imgAlpha;
+  color += innerColor * innerOpacity * (1.0 - opacity);
+  opacity += innerOpacity * (1.0 - opacity);
 
-  vec3 bgColor = u_colorBack.rgb * u_colorBack.a;
-  color = color + bgColor * (1.0 - opacity);
-  opacity = opacity + u_colorBack.a * (1.0 - opacity);
+  vec3 backColor = u_colorBack.rgb * u_colorBack.a;
+  color += backColor * (1.0 - opacity);
+  opacity += u_colorBack.a * (1.0 - opacity);
 
   fragColor = vec4(color, opacity);
-//  fragColor = vec4(smoothstep(.0, .1, imgAlpha), 1. - smoothstep(.9, 1., imgAlpha), img.g, 1.);
 }
 `;
 
