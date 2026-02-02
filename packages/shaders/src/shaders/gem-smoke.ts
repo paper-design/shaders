@@ -82,23 +82,24 @@ uniform float u_size;
 ${ declarePI }
 ${ rotation2 }
 
-// 5x5 Gaussian blur on R and G channels
-vec2 gaussBlur5x5RG(sampler2D tex, vec2 uv, vec2 dudx, vec2 dudy, float radius) {
+// 9x9 Gaussian blur on R and G channels
+vec2 gaussBlur9x9RG(sampler2D tex, vec2 uv, vec2 dudx, vec2 dudy, float radius) {
   vec2 texel = 1.0 / vec2(textureSize(tex, 0));
   vec2 r = max(radius, 0.0) * texel;
-  const float k[5] = float[5](1.0, 4.0, 6.0, 4.0, 1.0);
+  // Pascal's row 8: sum = 256, 2D norm = 65536
+  const float k[9] = float[9](1.0, 8.0, 28.0, 56.0, 70.0, 56.0, 28.0, 8.0, 1.0);
   vec2 sum = vec2(0.0);
 
-  for (int j = -2; j <= 2; ++j) {
-    float wy = k[j + 2];
-    for (int i = -2; i <= 2; ++i) {
-      float w = k[i + 2] * wy;
+  for (int j = -4; j <= 4; ++j) {
+    float wy = k[j + 4];
+    for (int i = -4; i <= 4; ++i) {
+      float w = k[i + 4] * wy;
       vec2 off = vec2(float(i) * r.x, float(j) * r.y);
       sum += w * texture(tex, uv + off).rg;
     }
   }
 
-  return sum / 256.0;
+  return sum / 65536.0;
 }
 
 float sst(float a, float b, float x) {
@@ -116,10 +117,9 @@ void main() {
 
   vec2 dudx = dFdx(v_imageUV);
   vec2 dudy = dFdy(v_imageUV);
-  vec4 img = textureGrad(u_image, imageUV, dudx, dudy);
 
   // Blurred image: x = roundness, y = alpha
-  vec2 blurred = gaussBlur5x5RG(u_image, imageUV, dudx, dudy, 8.);
+  vec2 blurred = gaussBlur9x9RG(u_image, imageUV, dudx, dudy, 10.);
   float roundness = 1. - blurred.x;
   float imgAlpha = blurred.y;
 
