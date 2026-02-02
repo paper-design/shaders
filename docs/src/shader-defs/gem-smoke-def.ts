@@ -68,6 +68,14 @@ export const gemSmokeDef: ShaderDef = {
       description: 'Additional color inside the input shape, mixing with smoke',
     },
     {
+      name: 'shift',
+      type: 'number',
+      min: -1,
+      max: 1,
+      defaultValue: defaultParams.shift,
+      description: 'Vertical shift of smoke inside the shape',
+    },
+    {
       name: 'angle',
       type: 'number',
       min: 0,

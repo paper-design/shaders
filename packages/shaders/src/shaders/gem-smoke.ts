@@ -24,6 +24,7 @@ export const gemSmokeMeta = {
  * - u_outerGlow (float): Visibility of smoke shape outside the input shape (0 to 1)
  * - u_innerGlow (float): Visibility of smoke shape inside the input shape (0 to 1)
  * - u_colorInner (vec4): Additional color inside the input shape, mixing with smoke (RGBA)
+ * - u_shift (float): Vertical shift of smoke inside the shape (-1 to 1)
  * - u_angle (float): Smoke direction in degrees (0 to 360)
  * - u_size (float): Size of smoke shape relative to the image box (0 to 1)
  *
@@ -69,6 +70,7 @@ uniform float u_outerGlow;
 uniform float u_innerGlow;
 uniform vec4 u_colorInner;
 uniform float u_outerDistortion;
+uniform float u_shift;
 uniform float u_angle;
 uniform float u_size;
 
@@ -149,6 +151,7 @@ void main() {
   float midShift = u_distortion;
   smokeUV.y += midShift * (1. - sst(0., 1., length(.4 * smokeUV)));
   smokeUV.y -= .4 * midShift;
+  smokeUV.y -= .2 * u_shift * imgAlpha;
 
   for (int i = 1; i < 5; i++) {
     float iFloat = float(i);
@@ -641,6 +644,7 @@ export interface GemSmokeUniforms extends ShaderSizingUniforms {
   u_innerGlow: number;
   u_colorInner: [number, number, number, number];
   u_outerDistortion: number;
+  u_shift: number;
   u_angle: number;
   u_size: number;
 }
@@ -654,6 +658,7 @@ export interface GemSmokeParams extends ShaderSizingParams, ShaderMotionParams {
   innerGlow?: number;
   colorInner?: string;
   outerDistortion?: number;
+  shift?: number;
   angle?: number;
   size?: number;
 }
