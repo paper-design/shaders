@@ -8,36 +8,23 @@ layout(location = 0) in vec4 a_position;
 uniform vec2 u_resolution;
 uniform float u_pixelRatio;
 uniform float u_imageAspectRatio;
-
 uniform float u_originX;
 uniform float u_originY;
 uniform float u_worldWidth;
 uniform float u_worldHeight;
 uniform float u_fit;
-
 uniform float u_scale;
 uniform float u_rotation;
 uniform float u_offsetX;
 uniform float u_offsetY;
 
-uniform float u_pxSize;
-
 out vec2 v_objectUV;
 out vec2 v_objectBoxSize;
-out vec2 v_objectHelperBox;
-
 out vec2 v_responsiveUV;
-out vec2 v_responsiveBoxSize;
-out vec2 v_responsiveHelperBox;
 out vec2 v_responsiveBoxGivenSize;
-
 out vec2 v_patternUV;
 out vec2 v_patternBoxSize;
-out vec2 v_patternHelperBox;
-
 out vec2 v_imageUV;
-
-// #define ADD_HELPERS
 
 vec3 getBoxSize(float boxRatio, vec2 givenBoxSize) {
   vec2 box = vec2(0.);
@@ -66,8 +53,6 @@ void main() {
 
 
   // ===================================================
-  // Sizing api for graphic objects with fixed ratio
-  // (currently supports only ratio = 1)
 
   float fixedRatio = 1.;
   vec2 fixedRatioBoxGivenSize = vec2(
@@ -78,12 +63,6 @@ void main() {
   v_objectBoxSize = getBoxSize(fixedRatio, fixedRatioBoxGivenSize).xy;
   vec2 objectWorldScale = u_resolution.xy / v_objectBoxSize;
 
-  #ifdef ADD_HELPERS
-  v_objectHelperBox = uv;
-  v_objectHelperBox *= objectWorldScale;
-  v_objectHelperBox += boxOrigin * (objectWorldScale - 1.);
-  #endif
-
   v_objectUV = uv;
   v_objectUV *= objectWorldScale;
   v_objectUV += boxOrigin * (objectWorldScale - 1.);
@@ -91,21 +70,15 @@ void main() {
   v_objectUV /= u_scale;
   v_objectUV = graphicRotation * v_objectUV;
 
-
   // ===================================================
-
-
-  // ===================================================
-  // Sizing api for graphic objects with either givenBoxSize ratio or canvas ratio.
-  // Full-screen mode available with u_worldWidth = u_worldHeight = 0
 
   v_responsiveBoxGivenSize = vec2(
   (u_worldWidth == 0.) ? u_resolution.x : givenBoxSize.x,
   (u_worldHeight == 0.) ? u_resolution.y : givenBoxSize.y
   );
   float responsiveRatio = v_responsiveBoxGivenSize.x / v_responsiveBoxGivenSize.y;
-  v_responsiveBoxSize = getBoxSize(responsiveRatio, v_responsiveBoxGivenSize).xy;
-  vec2 responsiveBoxScale = u_resolution.xy / v_responsiveBoxSize;
+  vec2 responsiveBoxSize = getBoxSize(responsiveRatio, v_responsiveBoxGivenSize).xy;
+  vec2 responsiveBoxScale = u_resolution.xy / responsiveBoxSize;
 
   #ifdef ADD_HELPERS
   v_responsiveHelperBox = uv;
@@ -124,11 +97,6 @@ void main() {
 
   // ===================================================
 
-
-  // ===================================================
-  // Sizing api for patterns
-  // (treating graphics as a image u_worldWidth x u_worldHeight size)
-
   float patternBoxRatio = givenBoxSize.x / givenBoxSize.y;
   vec2 patternBoxGivenSize = vec2(
   (u_worldWidth == 0.) ? u_resolution.x : givenBoxSize.x,
@@ -140,12 +108,6 @@ void main() {
   v_patternBoxSize = boxSizeData.xy;
   float patternBoxNoFitBoxWidth = boxSizeData.z;
   vec2 patternBoxScale = u_resolution.xy / v_patternBoxSize;
-
-  #ifdef ADD_HELPERS
-  v_patternHelperBox = uv;
-  v_patternHelperBox *= patternBoxScale;
-  v_patternHelperBox += boxOrigin * (patternBoxScale - 1.);
-  #endif
 
   v_patternUV = uv;
   v_patternUV += graphicOffset / patternBoxScale;
@@ -166,10 +128,6 @@ void main() {
 
   // ===================================================
 
-
-  // ===================================================
-  // Sizing api for images
-
   vec2 imageBoxSize;
   if (u_fit == 1.) { // contain
     imageBoxSize.x = min(u_resolution.x / u_imageAspectRatio, u_resolution.y) * u_imageAspectRatio;
@@ -180,12 +138,6 @@ void main() {
   }
   imageBoxSize.y = imageBoxSize.x / u_imageAspectRatio;
   vec2 imageBoxScale = u_resolution.xy / imageBoxSize;
-
-  #ifdef ADD_HELPERS
-  vec2 imageHelperBox = uv;
-  imageHelperBox *= imageBoxScale;
-  imageHelperBox += boxOrigin * (imageBoxScale - 1.);
-  #endif
 
   v_imageUV = uv;
   v_imageUV *= imageBoxScale;
@@ -198,7 +150,4 @@ void main() {
 
   v_imageUV += .5;
   v_imageUV.y = 1. - v_imageUV.y;
-
-  // ===================================================
-
 }`;

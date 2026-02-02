@@ -1,6 +1,6 @@
 import type { vec4 } from '../types.js';
 import type { ShaderMotionParams } from '../shader-mount.js';
-import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
+import { type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
 import { declarePI, colorBandingFix } from '../shader-utils.js';
 
 export const colorPanelsMeta = {
@@ -64,7 +64,7 @@ uniform float u_fadeIn;
 uniform float u_fadeOut;
 uniform float u_gradient;
 
-${ sizingVariablesDeclaration }
+in vec2 v_objectUV;
 
 out vec4 fragColor;
 

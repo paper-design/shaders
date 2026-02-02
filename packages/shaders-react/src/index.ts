@@ -111,6 +111,10 @@ export { HalftoneDots, halftoneDotsPresets } from './shaders/halftone-dots.js';
 export type { HalftoneDotsProps } from './shaders/halftone-dots.js';
 export type { HalftoneDotsUniforms, HalftoneDotsParams } from '@paper-design/shaders';
 
+export { HalftoneCmyk, halftoneCmykPresets } from './shaders/halftone-cmyk.js';
+export type { HalftoneCmykProps } from './shaders/halftone-cmyk.js';
+export type { HalftoneCmykUniforms, HalftoneCmykParams } from '@paper-design/shaders';
+
 export { GemSmoke, gemSmokePresets } from './shaders/gem-smoke.js';
 export type { GemSmokeProps } from './shaders/gem-smoke.js';
 export type { GemSmokeUniforms, GemSmokeParams } from '@paper-design/shaders';

@@ -1,6 +1,6 @@
 import type { vec4 } from '../types.js';
 import type { ShaderMotionParams } from '../shader-mount.js';
-import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
+import { type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
 import { simplexNoise, colorBandingFix } from '../shader-utils.js';
 
 export const simplexNoiseMeta = {
@@ -48,7 +48,7 @@ uniform float u_colorsCount;
 uniform float u_stepsPerColor;
 uniform float u_softness;
 
-${ sizingVariablesDeclaration }
+in vec2 v_patternUV;
 
 out vec4 fragColor;
 

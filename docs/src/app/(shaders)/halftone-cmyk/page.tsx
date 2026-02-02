@@ -1,26 +1,20 @@
 'use client';
 
-import { HalftoneDots, halftoneDotsPresets } from '@paper-design/shaders-react';
+import { HalftoneCmyk, halftoneCmykPresets } from '@paper-design/shaders-react';
 import { useControls, button, folder } from 'leva';
 import { setParamsSafe, useResetLevaParams } from '@/helpers/use-reset-leva-params';
 import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
-import {
-  HalftoneDotsType,
-  HalftoneDotsTypes,
-  HalftoneDotsGrid,
-  HalftoneDotsGrids,
-  ShaderFit,
-} from '@paper-design/shaders';
+import { HalftoneCmykType, HalftoneCmykTypes, ShaderFit } from '@paper-design/shaders';
 import { levaImageButton } from '@/helpers/leva-image-button';
 import { useState, useEffect, useCallback } from 'react';
 import { toHsla } from '@/helpers/color-utils';
 import { ShaderDetails } from '@/components/shader-details';
-import { halftoneDotsDef } from '@/shader-defs/halftone-dots-def';
+import { halftoneCmykDef } from '@/shader-defs/halftone-cmyk-def';
 import { ShaderContainer } from '@/components/shader-container';
 import { useUrlParams } from '@/helpers/use-url-params';
 
-const { worldWidth, worldHeight, ...defaults } = halftoneDotsPresets[0].params;
+const { worldWidth, worldHeight, ...defaults } = halftoneCmykPresets[0].params;
 
 const imageFiles = [
   '001.webp',
@@ -43,7 +37,7 @@ const imageFiles = [
   '0018.webp',
 ] as const;
 
-const HalftoneDotsWithControls = () => {
+const HalftoneCmykWithControls = () => {
   const [imageIdx, setImageIdx] = useState(-1);
   const [image, setImage] = useState<HTMLImageElement | string>('/images/image-filters/0018.webp');
 
@@ -67,38 +61,43 @@ const HalftoneDotsWithControls = () => {
 
   const [params, setParams] = useControls(() => {
     const presets = Object.fromEntries(
-      halftoneDotsPresets.map(({ name, params: { worldWidth, worldHeight, ...preset } }) => [
+      halftoneCmykPresets.map(({ name, params: { worldWidth, worldHeight, ...preset } }) => [
         name,
         button(() => setParamsSafe(params, setParams, preset)),
       ])
     );
     return {
       colorBack: { value: toHsla(defaults.colorBack), order: 100 },
-      colorFront: { value: toHsla(defaults.colorFront), order: 101 },
-      originalColors: { value: defaults.originalColors, order: 102 },
+      colorC: { value: toHsla(defaults.colorC), order: 101 },
+      colorM: { value: toHsla(defaults.colorM), order: 102 },
+      colorY: { value: toHsla(defaults.colorY), order: 103 },
+      colorK: { value: toHsla(defaults.colorK), order: 104 },
+      size: { value: defaults.size, min: 0.01, max: 1, step: 0.01, order: 120 },
+      gridNoise: { value: defaults.gridNoise, min: 0, max: 1, step: 0.01, order: 121 },
       type: {
         value: defaults.type,
-        options: Object.keys(HalftoneDotsTypes) as HalftoneDotsType[],
-        order: 201,
+        options: Object.keys(HalftoneCmykTypes) as HalftoneCmykType[],
+        order: 123,
       },
-      grid: {
-        value: defaults.grid,
-        options: Object.keys(HalftoneDotsGrids) as HalftoneDotsGrid[],
-        order: 202,
-      },
-      inverted: { value: defaults.inverted, order: 203 },
-      size: { value: defaults.size, min: 0.01, max: 1, step: 0.001, order: 300 },
-      radius: { value: defaults.radius, min: 0, max: 2, order: 301 },
-      contrast: { value: defaults.contrast, min: 0.01, max: 1, order: 302 },
+      softness: { value: defaults.softness, min: 0, max: 1, step: 0.01, order: 124 },
+      contrast: { value: defaults.contrast, min: 0, max: 2, step: 0.01, order: 130 },
+      floodC: { value: defaults.floodC, min: 0, max: 1, step: 0.01, order: 210 },
+      floodM: { value: defaults.floodM, min: 0, max: 1, step: 0.01, order: 211 },
+      floodY: { value: defaults.floodY, min: 0, max: 1, step: 0.01, order: 212 },
+      floodK: { value: defaults.floodK, min: 0, max: 1, step: 0.01, order: 213 },
+      gainC: { value: defaults.gainC, min: -1, max: 1, step: 0.01, order: 200 },
+      gainM: { value: defaults.gainM, min: -1, max: 1, step: 0.01, order: 201 },
+      gainY: { value: defaults.gainY, min: -1, max: 1, step: 0.01, order: 202 },
+      gainK: { value: defaults.gainK, min: -1, max: 1, step: 0.01, order: 203 },
       grainMixer: { value: defaults.grainMixer, min: 0, max: 1, order: 350 },
       grainOverlay: { value: defaults.grainOverlay, min: 0, max: 1, order: 351 },
-      grainSize: { value: defaults.grainSize, min: 0, max: 1, order: 352 },
-      scale: { value: defaults.scale, min: 0.1, max: 4, order: 400 },
+      grainSize: { value: defaults.grainSize, min: 0, max: 1, order: 350 },
       // offsetX: { value: defaults.offsetX, min: -1, max: 1, order: 401 },
       // offsetY: { value: defaults.offsetY, min: -1, max: 1, order: 402 },
       // originX: { value: defaults.originX, min: 0, max: 1, order: 411 },
       // originY: { value: defaults.originY, min: 0, max: 1, order: 412 },
       // rotation: { value: defaults.rotation, min: 0, max: 360, order: 420 },
+      scale: { value: defaults.scale, min: 0, max: 4, order: 420 },
       fit: { value: defaults.fit, options: ['contain', 'cover'] as ShaderFit[], order: 450 },
       Image: folder(
         {
@@ -113,21 +112,21 @@ const HalftoneDotsWithControls = () => {
   // Reset to defaults on mount, so that Leva doesn't show values from other
   // shaders when navigating (if two shaders have a color1 param for example)
   useResetLevaParams(params, setParams, defaults);
-  useUrlParams(params, setParams, halftoneDotsDef);
-  usePresetHighlight(halftoneDotsPresets, params);
+  useUrlParams(params, setParams, halftoneCmykDef);
+  usePresetHighlight(halftoneCmykPresets, params);
   cleanUpLevaParams(params);
 
   return (
     <>
-      <ShaderContainer shaderDef={halftoneDotsDef} currentParams={params}>
-        <HalftoneDots onClick={handleClick} {...params} image={image} />
+      <ShaderContainer shaderDef={halftoneCmykDef} currentParams={params}>
+        <HalftoneCmyk onClick={handleClick} {...params} image={image} />
       </ShaderContainer>
-      <div onClick={handleClick} className="mx-auto mt-16 mb-48 w-fit text-base text-current/70 select-none">
+      <div onClick={handleClick} className="text-current/70 mx-auto mb-48 mt-16 w-fit select-none text-base">
         Click to change the sample image
       </div>
-      <ShaderDetails shaderDef={halftoneDotsDef} currentParams={params} />
+      <ShaderDetails shaderDef={halftoneCmykDef} currentParams={params} />
     </>
   );
 };
 
-export default HalftoneDotsWithControls;
+export default HalftoneCmykWithControls;

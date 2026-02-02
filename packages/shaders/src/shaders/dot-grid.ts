@@ -1,4 +1,4 @@
-import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
+import { type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
 import { declarePI, simplexNoise } from '../shader-utils.js';
 
 /**
@@ -49,7 +49,7 @@ uniform float u_sizeRange;
 uniform float u_opacityRange;
 uniform float u_shape;
 
-${ sizingVariablesDeclaration }
+in vec2 v_patternUV;
 
 out vec4 fragColor;
 

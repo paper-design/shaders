@@ -211,7 +211,16 @@ export {
   type HalftoneDotsGrid,
 } from './shaders/halftone-dots.js';
 
-/** Animated color fields placed over uploaded logo shape; gives the illusion of smoky noise behind the glassy shape */
+/** A halftone CMYK classic algo */
+export {
+  HalftoneCmykTypes,
+  halftoneCmykFragmentShader,
+  type HalftoneCmykParams,
+  type HalftoneCmykUniforms,
+  type HalftoneCmykType,
+} from './shaders/halftone-cmyk.js';
+
+/** Animated color fields running around a glassy logo shape */
 export {
   gemSmokeMeta,
   gemSmokeFragmentShader,
