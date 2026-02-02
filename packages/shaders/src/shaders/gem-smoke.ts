@@ -622,6 +622,28 @@ function solvePoissonSparse(
     }
   }
 
+  // Jacobi smoothing passes to remove Red-Black checkerboard artifacts
+  const tmp = new Float32Array(width * height);
+  for (let smooth = 0; smooth < 3; smooth++) {
+    tmp.set(u);
+    for (let i = 0; i < pixelCount; i++) {
+      const idx = interiorPixels[i]!;
+      const eastIdx = neighborIndices[i * 4 + 0]!;
+      const westIdx = neighborIndices[i * 4 + 1]!;
+      const northIdx = neighborIndices[i * 4 + 2]!;
+      const southIdx = neighborIndices[i * 4 + 3]!;
+
+      let sum = 0;
+      let count = 0;
+      if (eastIdx >= 0) { sum += tmp[eastIdx]!; count++; }
+      if (westIdx >= 0) { sum += tmp[westIdx]!; count++; }
+      if (northIdx >= 0) { sum += tmp[northIdx]!; count++; }
+      if (southIdx >= 0) { sum += tmp[southIdx]!; count++; }
+
+      u[idx] = count > 0 ? (tmp[idx]! + sum / count) * 0.5 : tmp[idx]!;
+    }
+  }
+
   if (POISSON_CONFIG_OPTIMIZED.measurePerformance) {
     const elapsed = performance.now() - startTime;
 
