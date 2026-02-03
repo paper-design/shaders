@@ -161,10 +161,10 @@ const starsPreset: DotGridPreset = {
     colorBack: '#000000',
     colorFill: '#4294d7',
     colorStroke: '#ffee00',
-    size: 0.65,
+    size: 0.75,
     gapX: 45,
     gapY: 45,
-    strokeWidth: 6,
+    strokeWidth: 3,
     sizeRange: 0.65,
     opacityRange: 1,
     shape: 'star',
@@ -172,7 +172,7 @@ const starsPreset: DotGridPreset = {
     angleRange: 1,
     shiftX: 0,
     shiftY: 0,
-    rowShift: 0,
+    rowShift: 0.5,
     rowShiftRange: 0,
   },
 };
@@ -201,7 +201,31 @@ const cellsPreset: DotGridPreset = {
   },
 };
 
-export const dotGridPresets: DotGridPreset[] = [defaultPreset, trianglesPreset, treeLinePreset, wallpaperPreset, snowPreset, bricksPreset, starsPreset, cellsPreset];
+const crossPreset: DotGridPreset = {
+  name: 'Cross',
+  params: {
+    ...defaultPatternSizing,
+    colorBack: '#ffffff00',
+    colorFill: '#000000',
+    colorStroke: '#000000',
+    size: 0.01,
+    gapX: 100,
+    gapY: 45,
+    strokeWidth: 0,
+    sizeRange: 0,
+    opacityRange: 0,
+    shape: 'cross',
+    angle: 90,
+    angleRange: 1,
+    shiftX: 0,
+    shiftY: 0,
+    rowShift: 0.65,
+    rowShiftRange: 0,
+    rotation: 260
+  },
+};
+
+export const dotGridPresets: DotGridPreset[] = [defaultPreset, trianglesPreset, treeLinePreset, wallpaperPreset, snowPreset, bricksPreset, starsPreset, cellsPreset, crossPreset];
 
 export const DotGrid: React.FC<DotGridProps> = memo(function DotGridImpl({
   // Own props
