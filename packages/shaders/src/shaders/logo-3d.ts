@@ -1,6 +1,6 @@
 import type { vec4 } from '../types.js';
 import type { ShaderMotionParams } from '../shader-mount.js';
-import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
+import type { ShaderSizingParams, ShaderSizingUniforms } from '../shader-sizing.js';
 import { declarePI, rotation2 } from '../shader-utils.js';
 
 export const logo3dMeta = {
@@ -9,17 +9,14 @@ export const logo3dMeta = {
 
 /**
  *
- * Fluid motion imitation applied over user image
- * (animated stripe pattern getting distorted with shape edges)
- *
- * Uniforms:
- * - u_colorBack, u_colorFront (RGBA)
- *
  */
 
 // language=GLSL
 export const logo3dFragmentShader: string = `#version 300 es
 precision mediump float;
+
+in mediump vec2 v_imageUV;
+out vec4 fragColor;
 
 uniform sampler2D u_image;
 uniform float u_imageAspectRatio;
@@ -37,10 +34,6 @@ uniform float u_bevel;
 uniform float u_lightsPower;
 uniform float u_lightsPos;
 uniform float u_overlayHeight;
-
-${ sizingVariablesDeclaration }
-
-out vec4 fragColor;
 
 ${ declarePI }
 ${ rotation2 }
