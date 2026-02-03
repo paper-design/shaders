@@ -65,9 +65,9 @@ in vec2 v_patternUV;
 
 out vec4 fragColor;
 
-${ declarePI }
-${ rotation2 }
-${ simplexNoise }
+${declarePI}
+${rotation2}
+${simplexNoise}
 
 float polygon(vec2 p, float N, float rot) {
   float a = atan(p.x, p.y) + rot;

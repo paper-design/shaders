@@ -143,7 +143,7 @@ const bricksPreset: DotGridPreset = {
     gapY: 70,
     strokeWidth: 0,
     sizeRange: 0,
-    opacityRange: .05,
+    opacityRange: 0.05,
     shape: 'rect',
     angle: 0,
     angleRange: 1,
@@ -189,7 +189,7 @@ const cellsPreset: DotGridPreset = {
     gapY: 55,
     strokeWidth: 4,
     sizeRange: 0,
-    opacityRange: .05,
+    opacityRange: 0.05,
     shape: 'cross',
     angle: 0,
     angleRange: 0,
@@ -197,7 +197,7 @@ const cellsPreset: DotGridPreset = {
     shiftY: 0,
     rowShift: 0,
     rowShiftRange: 0,
-    rotation: 148
+    rotation: 148,
   },
 };
 
@@ -221,11 +221,21 @@ const crossPreset: DotGridPreset = {
     shiftY: 0,
     rowShift: 0.65,
     rowShiftRange: 0,
-    rotation: 260
+    rotation: 260,
   },
 };
 
-export const dotGridPresets: DotGridPreset[] = [defaultPreset, trianglesPreset, treeLinePreset, wallpaperPreset, snowPreset, bricksPreset, starsPreset, cellsPreset, crossPreset];
+export const dotGridPresets: DotGridPreset[] = [
+  defaultPreset,
+  trianglesPreset,
+  treeLinePreset,
+  wallpaperPreset,
+  snowPreset,
+  bricksPreset,
+  starsPreset,
+  cellsPreset,
+  crossPreset,
+];
 
 export const DotGrid: React.FC<DotGridProps> = memo(function DotGridImpl({
   // Own props
