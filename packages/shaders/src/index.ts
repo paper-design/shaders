@@ -211,6 +211,15 @@ export {
   type HalftoneDotsGrid,
 } from './shaders/halftone-dots.js';
 
+/** A halftone CMYK classic algo */
+export {
+  HalftoneCmykTypes,
+  halftoneCmykFragmentShader,
+  type HalftoneCmykParams,
+  type HalftoneCmykUniforms,
+  type HalftoneCmykType,
+} from './shaders/halftone-cmyk.js';
+
 export {
   logo3dMeta,
   logo3dFragmentShader,
@@ -218,7 +227,6 @@ export {
   type Logo3dParams,
   type Logo3dUniforms,
 } from './shaders/logo-3d.js';
-
 
 // ----- Utils ----- //
 export { getShaderColorFromString } from './get-shader-color-from-string.js';

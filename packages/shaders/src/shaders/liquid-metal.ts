@@ -1,5 +1,5 @@
 import type { ShaderMotionParams } from '../shader-mount.js';
-import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
+import { type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
 import { declarePI, rotation2, simplexNoise, colorBandingFix } from '../shader-utils.js';
 
 /**
@@ -70,7 +70,10 @@ uniform float u_angle;
 uniform float u_shape;
 uniform bool u_isImage;
 
-${ sizingVariablesDeclaration }
+in vec2 v_objectUV;
+in vec2 v_responsiveUV;
+in vec2 v_responsiveBoxGivenSize;
+in vec2 v_imageUV;
 
 out vec4 fragColor;
 

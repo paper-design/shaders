@@ -1,5 +1,5 @@
 import type { ShaderMotionParams } from '../shader-mount.js';
-import { sizingVariablesDeclaration, type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
+import { type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
 import { rotation2, colorBandingFix } from '../shader-utils.js';
 
 /**
@@ -49,8 +49,7 @@ uniform vec4 u_colorBack;
 uniform float u_brightness;
 uniform float u_contrast;
 
-
-${ sizingVariablesDeclaration }
+in vec2 v_patternUV;
 
 out vec4 fragColor;
 

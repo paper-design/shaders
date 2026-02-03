@@ -111,6 +111,10 @@ export { HalftoneDots, halftoneDotsPresets } from './shaders/halftone-dots.js';
 export type { HalftoneDotsProps } from './shaders/halftone-dots.js';
 export type { HalftoneDotsUniforms, HalftoneDotsParams } from '@paper-design/shaders';
 
+export { HalftoneCmyk, halftoneCmykPresets } from './shaders/halftone-cmyk.js';
+export type { HalftoneCmykProps } from './shaders/halftone-cmyk.js';
+export type { HalftoneCmykUniforms, HalftoneCmykParams } from '@paper-design/shaders';
+
 export { Logo3d, logo3dPresets } from './shaders/logo-3d.js';
 export type { Logo3dProps } from './shaders/logo-3d.js';
 export type { Logo3dUniforms, Logo3dParams } from '@paper-design/shaders';
