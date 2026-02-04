@@ -27,7 +27,7 @@ export const defaultPreset: Logo3dPreset = {
   name: 'Default',
   params: {
     ...defaultObjectSizing,
-    scale: 2.1,
+    scale: 0.7,
     speed: 1,
     frame: 0,
     colorBack: '#000000',

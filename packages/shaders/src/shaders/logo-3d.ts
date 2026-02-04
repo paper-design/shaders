@@ -128,8 +128,9 @@ vec3 computeNormal(vec2 uv, float addon) {
 }
 
 
-float getPoint(vec2 dist, float p) {
-  float v = pow(1. - clamp(0., 1., length(dist)), 1.);
+float getOverlayBase(float y, float center, float p) {
+  float d = abs(y - center);
+  float v = 1. - clamp(d, 0., 1.);
   v = smoothstep(0., 1., v);
   v = pow(v, p);
   return v;
@@ -164,12 +165,11 @@ void main() {
   imgAlpha *= frame;
   edge *= frame;
 
-//  float yTime = fract(t);
-  float yTime = .3;
+  float yTime = fract(t);
   float yTravel = mix(1.5, -1.5, yTime);
   float yShape = mix(.04 * edge, .1 * edge, yTime);
 
-  float overlayShape = getPoint(uv + vec2(-.4, -.5 + yTravel), yShape);
+  float overlayShape = getOverlayBase(uv.y, .5 - yTravel, yShape);
 
   float aa = fwidth(overlayShape);
   float overlayShadow = sst(.9 - 2. * aa - .1 * edgeBorder, .91 + .08 * edgeBorder, overlayShape);
