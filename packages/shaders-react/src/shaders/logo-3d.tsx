@@ -33,8 +33,9 @@ export const defaultPreset: Logo3dPreset = {
     colorBack: '#000000',
     colorBase: '#b46bb8',
     colors: ['#e0992e', '#35bbbb', '#05006b'],
-    lightsPower: 0.38,
+    lightsPower: 1,
     lightsPos: 242,
+    testTime: .15,
   },
 };
 
@@ -50,6 +51,7 @@ export const Logo3d: React.FC<Logo3dProps> = memo(function Logo3dImpl({
   image = '',
   lightsPower = defaultPreset.params.lightsPower,
   lightsPos = defaultPreset.params.lightsPos,
+  testTime = defaultPreset.params.testTime,
   suspendWhenProcessingImage = false,
 
   // Sizing props
@@ -113,6 +115,7 @@ export const Logo3d: React.FC<Logo3dProps> = memo(function Logo3dImpl({
     u_image: processedImage,
     u_lightsPower: lightsPower,
     u_lightsPos: lightsPos,
+    u_testTime: testTime,
 
     // Sizing uniforms
     u_fit: ShaderFitOptions[fit],

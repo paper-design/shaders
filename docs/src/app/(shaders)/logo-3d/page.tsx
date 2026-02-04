@@ -74,6 +74,7 @@ const Logo3dWithControls = () => {
       colorBase: { value: toHsla(defaults.colorBase), order: 102 },
       lightsPower: { value: defaults.lightsPower, min: 0, max: 1, order: 207 },
       lightsPos: { value: defaults.lightsPos, min: 0, max: 360, order: 208 },
+      testTime: { value: defaults.testTime, min: 0, max: 1, order: 209 },
       speed: { value: defaults.speed, min: 0, max: 2, order: 300 },
       scale: { value: defaults.scale, min: 0.2, max: 10, order: 301 },
       // rotation: { value: defaults.rotation, min: 0, max: 360, order: 302 },

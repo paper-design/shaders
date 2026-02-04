@@ -31,6 +31,7 @@ uniform vec4 u_colorInner;
 uniform vec4 u_colorBase;
 uniform float u_lightsPower;
 uniform float u_lightsPos;
+uniform float u_testTime;
 
 ${ declarePI }
 ${ rotation2 }
@@ -108,8 +109,6 @@ float sst(float edge0, float edge1, float x) {
 
 float getHeight(vec2 uv, float addon) {
   float a = texture(u_image, uv).r;
-  a = pow(a, mix(1., 3., .1));
-  a = mix(a, 1., addon);
   return a;
 }
 
@@ -121,25 +120,15 @@ vec3 computeNormal(vec2 uv, float addon) {
   float hU = getHeight(uv + vec2(0.0, uTexelSize.y), addon);
   float hD = getHeight(uv - vec2(0.0, uTexelSize.y), addon);
 
-  float dX = (hR - hL) * 1.;
-  float dY = (hU - hD) * 1.;
+  float dX = (hR - hL);
+  float dY = (hU - hD);
 
   return normalize(vec3(-dX, -dY, 1.0));
 }
 
-
-float getOverlayBase(float y, float center, float p) {
-  float d = abs(y - center);
-  float v = 1. - clamp(d, 0., 1.);
-  v = smoothstep(0., 1., v);
-  v = pow(v, p);
-  return v;
-}
-
 mat2 rotZ(float a) {
   float c = cos(a), s = sin(a);
-  return mat2(c, -s,
-  s, c);
+  return mat2(c, -s, s, c);
 }
 vec3 rotateAroundZ(vec3 v, float overlayBevel) {
   mat2 r = rotZ(overlayBevel);
@@ -165,27 +154,13 @@ void main() {
   imgAlpha *= frame;
   edge *= frame;
 
-  float yTime = fract(t);
-  float yTravel = mix(1.5, -1.5, yTime);
-  float yShape = mix(.04 * edge, .1 * edge, yTime);
-
-  float overlayShape = getOverlayBase(uv.y, .5 - yTravel, yShape);
-
-  const float shadowStart = .8;
-  float aa = fwidth(overlayShape);
-  float overlayShadow = sst(shadowStart - 2. * aa - .1 * edgeBorder, shadowStart + .11 + .08 * edgeBorder, overlayShape);
-  overlayShape = sst(shadowStart, shadowStart + 2. * aa, overlayShape);
-  overlayShadow = 1. - overlayShadow;
-  overlayShadow *= overlayShape;
-  overlayShadow = 8. * 1. * overlayShadow;
-
   vec3 uLightDir1 = normalize(vec3(.5, .5, .5));
   vec3 uLightDir2 = normalize(vec3(-.5, -.5, .5));
 
   uLightDir1 = rotateAroundZ(uLightDir1, 3. * t);
   uLightDir2 = rotateAroundZ(uLightDir2, 3. * t);
 
-  vec3 normal = computeNormal(uv, overlayShadow);
+  vec3 normal = computeNormal(uv, 0.);
   vec3 viewDir = vec3(0., 0., 1.);
 
   vec3 materialColor = u_colorBase.rgb;
@@ -204,11 +179,7 @@ void main() {
 //    float angleDir = 2. * (mod(fi, 2.) - .5);
     float angle = fi * TWO_PI + radians(u_lightsPos);// + angleDir * TWO_PI * t * .25;
 
-    vec3 L = normalize(vec3(
-    cos(angle),
-    sin(angle),
-    .4
-    ));
+    vec3 L = normalize(vec3(cos(angle), sin(angle), .4));
 
     vec3 lightColor = u_colors[i].rgb;
 
@@ -220,7 +191,7 @@ void main() {
     specular += pow(NdotH, 50.) * lightColor * invLightCount;
   }
 
-  float opacity = imgAlpha * overlayShape;
+  float opacity = imgAlpha;
   vec3 color = ambient + diffuse + specular;
   color = clamp(color, vec3(0.), vec3(1.));
   color *= opacity;
@@ -230,8 +201,8 @@ void main() {
   opacity = opacity + u_colorBack.a * (1. - opacity);
 
   fragColor = vec4(color, opacity);
-
-//  fragColor = vec4(vec3(overlayShape, overlayShadow, 0.), 1.);
+//  fragColor = vec4(normal, 1.);
+//  fragColor = vec4(vec3(texture(u_image, uv).r * imgAlpha * overlayShape + overlayShape * overlayShadow), 1.);
 }
 `;
 
@@ -696,6 +667,7 @@ export interface Logo3dUniforms extends ShaderSizingUniforms {
   u_image: HTMLImageElement | string | undefined;
   u_lightsPower: number;
   u_lightsPos: number;
+  u_testTime: number;
 }
 
 export interface Logo3dParams extends ShaderSizingParams, ShaderMotionParams {
@@ -705,4 +677,5 @@ export interface Logo3dParams extends ShaderSizingParams, ShaderMotionParams {
   image?: HTMLImageElement | string | undefined;
   lightsPower?: number;
   lightsPos?: number;
+  testTime?: number;
 }
