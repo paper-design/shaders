@@ -35,9 +35,7 @@ export const defaultPreset: Logo3dPreset = {
     colorOverlay: '#6c8eb7',
     colors: ['#e0992e', '#35bbbb', '#05006b'],
     lightsPower: 0.38,
-    bevel: 0.05,
     lightsPos: 242,
-    overlayHeight: 0.5,
   },
 };
 
@@ -53,9 +51,7 @@ export const monoPreset: Logo3dPreset = {
     colorOverlay: '#c2c1c1',
     colors: ['#c2c2c2', '#000000', '#000000'],
     lightsPower: 0.15,
-    bevel: 0,
     lightsPos: 82,
-    overlayHeight: 0.5,
   },
 };
 
@@ -71,9 +67,7 @@ export const metalPreset: Logo3dPreset = {
     colorOverlay: '#07060a',
     colors: ['#c7c7ff', '#ffbfa3', '#8ffff2'],
     lightsPower: 1.0,
-    bevel: 0.7,
     lightsPos: 66,
-    overlayHeight: 1,
   },
 };
 export const flatPreset: Logo3dPreset = {
@@ -88,9 +82,7 @@ export const flatPreset: Logo3dPreset = {
     colorOverlay: '#35a75e',
     colors: ['#ffffff'],
     lightsPower: 0,
-    bevel: 0,
     lightsPos: 62,
-    overlayHeight: 0.5,
   },
 };
 
@@ -107,9 +99,7 @@ export const Logo3d: React.FC<Logo3dProps> = memo(function Logo3dImpl({
   frame = defaultPreset.params.frame,
   image = '',
   lightsPower = defaultPreset.params.lightsPower,
-  bevel = defaultPreset.params.bevel,
   lightsPos = defaultPreset.params.lightsPos,
-  overlayHeight = defaultPreset.params.overlayHeight,
   suspendWhenProcessingImage = false,
 
   // Sizing props
@@ -174,8 +164,6 @@ export const Logo3d: React.FC<Logo3dProps> = memo(function Logo3dImpl({
     u_image: processedImage,
     u_lightsPower: lightsPower,
     u_lightsPos: lightsPos,
-    u_bevel: bevel,
-    u_overlayHeight: overlayHeight,
 
     // Sizing uniforms
     u_fit: ShaderFitOptions[fit],

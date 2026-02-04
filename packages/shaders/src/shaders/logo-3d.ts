@@ -30,10 +30,8 @@ uniform vec4 u_colorBack;
 uniform vec4 u_colorInner;
 uniform vec4 u_colorUnderlay;
 uniform vec4 u_colorOverlay;
-uniform float u_bevel;
 uniform float u_lightsPower;
 uniform float u_lightsPos;
-uniform float u_overlayHeight;
 
 ${ declarePI }
 ${ rotation2 }
@@ -132,7 +130,7 @@ float sst(float edge0, float edge1, float x) {
 
 float getHeight(vec2 uv, float addon) {
   float a = texture(u_image, uv).r;
-  a = pow(a, mix(1., 3., u_bevel));
+  a = pow(a, mix(1., 3., .1));
   a = mix(a, 1., addon);
   return a;
 }
@@ -199,7 +197,7 @@ void main() {
   overlayShape = sst(.9, .9 + 2. * aa, overlayShape);
   overlayShadow = 1. - overlayShadow;
   overlayShadow *= overlayShape;
-  overlayShadow = 8. * u_overlayHeight * overlayShadow;
+  overlayShadow = 8. * 1. * overlayShadow;
 
   vec3 uLightDir1 = normalize(vec3(.5, .5, .5));
   vec3 uLightDir2 = normalize(vec3(-.5, -.5, .5));
@@ -210,9 +208,7 @@ void main() {
   vec3 normal = computeNormal(uv, overlayShadow);
   vec3 viewDir = vec3(0., 0., 1.);
 
-  vec3 baseColor = u_colorUnderlay.rgb;
-  vec3 overlayColor = u_colorOverlay.rgb;
-  vec3 materialColor = mix(baseColor, overlayColor, overlayShape);
+  vec3 materialColor = u_colorOverlay.rgb;
 
   vec3 diffuse = vec3(0.);
   vec3 specular = vec3(0.);
@@ -244,10 +240,10 @@ void main() {
     specular += pow(NdotH, 50.) * lightColor * invLightCount;
   }
 
-  float opacity = imgAlpha;
+  float opacity = imgAlpha * overlayShape;
   vec3 color = ambient + diffuse + specular;
   color = clamp(color, vec3(0.), vec3(1.));
-  color *= imgAlpha;
+  color *= opacity;
 
   vec3 bgColor = u_colorBack.rgb * u_colorBack.a;
   color = color + bgColor * (1. - opacity);
@@ -695,8 +691,6 @@ export interface Logo3dUniforms extends ShaderSizingUniforms {
   u_image: HTMLImageElement | string | undefined;
   u_lightsPower: number;
   u_lightsPos: number;
-  u_bevel: number;
-  u_overlayHeight: number;
 }
 
 export interface Logo3dParams extends ShaderSizingParams, ShaderMotionParams {
@@ -707,6 +701,4 @@ export interface Logo3dParams extends ShaderSizingParams, ShaderMotionParams {
   image?: HTMLImageElement | string | undefined;
   lightsPower?: number;
   lightsPos?: number;
-  bevel?: number;
-  overlayHeight?: number;
 }
