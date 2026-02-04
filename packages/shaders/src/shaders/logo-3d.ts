@@ -45,81 +45,6 @@ float getImgFrame(vec2 uv, float th) {
   return frame;
 }
 
-float blurEdge5x5(sampler2D tex, vec2 uv, vec2 dudx, vec2 dudy, float radius, float centerSample) {
-  vec2 texel = 1.0 / vec2(textureSize(tex, 0));
-  vec2 r = max(radius, 0.0) * texel;
-
-  // 1D Gaussian coefficients (Pascal row)
-  const float a = 1.0;// |offset| = 2
-  const float b = 4.0;// |offset| = 1
-  const float c = 6.0;// |offset| = 0
-
-  float norm = 256.0;// (a+b+c+b+a)^2 = 16^2
-  float sum  = 0.0;
-
-  // y = -2
-  {
-    float wy = a;
-    float row =
-    a * texture(tex, uv + vec2(-2.0*r.x, -2.0*r.y)).r +
-    b * texture(tex, uv + vec2(-1.0*r.x, -2.0*r.y)).r +
-    c * texture(tex, uv + vec2(0.0, -2.0*r.y)).r +
-    b * texture(tex, uv + vec2(1.0*r.x, -2.0*r.y)).r +
-    a * texture(tex, uv + vec2(2.0*r.x, -2.0*r.y)).r;
-    sum += wy * row;
-  }
-
-  // y = -1
-  {
-    float wy = b;
-    float row =
-    a * texture(tex, uv + vec2(-2.0*r.x, -1.0*r.y)).r +
-    b * texture(tex, uv + vec2(-1.0*r.x, -1.0*r.y)).r +
-    c * texture(tex, uv + vec2(0.0, -1.0*r.y)).r +
-    b * texture(tex, uv + vec2(1.0*r.x, -1.0*r.y)).r +
-    a * texture(tex, uv + vec2(2.0*r.x, -1.0*r.y)).r;
-    sum += wy * row;
-  }
-
-  // y = 0 (use provided centerSample to avoid an extra fetch)
-  {
-    float wy = c;
-    float row =
-    a * texture(tex, uv + vec2(-2.0*r.x, 0.0)).r +
-    b * texture(tex, uv + vec2(-1.0*r.x, 0.0)).r +
-    c * centerSample +
-    b * texture(tex, uv + vec2(1.0*r.x, 0.0)).r +
-    a * texture(tex, uv + vec2(2.0*r.x, 0.0)).r;
-    sum += wy * row;
-  }
-
-  // y = +1
-  {
-    float wy = b;
-    float row =
-    a * texture(tex, uv + vec2(-2.0*r.x, 1.0*r.y)).r +
-    b * texture(tex, uv + vec2(-1.0*r.x, 1.0*r.y)).r +
-    c * texture(tex, uv + vec2(0.0, 1.0*r.y)).r +
-    b * texture(tex, uv + vec2(1.0*r.x, 1.0*r.y)).r +
-    a * texture(tex, uv + vec2(2.0*r.x, 1.0*r.y)).r;
-    sum += wy * row;
-  }
-
-  // y = +2
-  {
-    float wy = a;
-    float row =
-    a * texture(tex, uv + vec2(-2.0*r.x, 2.0*r.y)).r +
-    b * texture(tex, uv + vec2(-1.0*r.x, 2.0*r.y)).r +
-    c * texture(tex, uv + vec2(0.0, 2.0*r.y)).r +
-    b * texture(tex, uv + vec2(1.0*r.x, 2.0*r.y)).r +
-    a * texture(tex, uv + vec2(2.0*r.x, 2.0*r.y)).r;
-    sum += wy * row;
-  }
-
-  return sum / norm;
-}
-
 float lst(float edge0, float edge1, float x) {
   return clamp((x - edge0) / (edge1 - edge0), 0.0, 1.0);
 }
@@ -176,9 +101,8 @@ void main() {
   vec2 dudy = dFdy(v_imageUV);
   vec4 img = textureGrad(u_image, uv, dudx, dudy);
 
-  float edge = img.r;
-  float edgeBorder = blurEdge5x5(u_image, uv, dudx, dudy, 10., edge);
-  edge = 1. - edgeBorder;
+  float edgeBorder = img.r;
+  float edge = 1. - edgeBorder;
 
   float imgAlpha = img.g;
 
@@ -665,6 +589,30 @@ function solvePoissonSparse(
       // SOR update: blend new value with old value
       const newValue = (C + sumN) / 4;
       u[idx] = omega * newValue + (1 - omega) * u[idx]!;
+    }
+  }
+
+  // Jacobi smoothing passes to eliminate Red-Black SOR checkerboard artifacts
+  const temp = new Float32Array(width * height);
+  for (let pass = 0; pass < 2; pass++) {
+    for (let i = 0; i < pixelCount; i++) {
+      const idx = interiorPixels[i]!;
+      const eastIdx = neighborIndices[i * 4 + 0]!;
+      const westIdx = neighborIndices[i * 4 + 1]!;
+      const northIdx = neighborIndices[i * 4 + 2]!;
+      const southIdx = neighborIndices[i * 4 + 3]!;
+
+      let sumN = 0;
+      if (eastIdx >= 0) sumN += u[eastIdx]!;
+      if (westIdx >= 0) sumN += u[westIdx]!;
+      if (northIdx >= 0) sumN += u[northIdx]!;
+      if (southIdx >= 0) sumN += u[southIdx]!;
+
+      temp[idx] = (C + sumN) / 4;
+    }
+    for (let i = 0; i < pixelCount; i++) {
+      const idx = interiorPixels[i]!;
+      u[idx] = temp[idx]!;
     }
   }
 
