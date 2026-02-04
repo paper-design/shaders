@@ -71,7 +71,6 @@ const Logo3dWithControls = () => {
   const [params, setParams] = useControls(() => {
     return {
       colorBack: { value: toHsla(defaults.colorBack), order: 100 },
-      colorUnderlay: { value: toHsla(defaults.colorUnderlay), order: 101 },
       colorOverlay: { value: toHsla(defaults.colorOverlay), order: 102 },
       lightsPower: { value: defaults.lightsPower, min: 0, max: 1, order: 207 },
       lightsPos: { value: defaults.lightsPos, min: 0, max: 360, order: 208 },
