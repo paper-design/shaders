@@ -171,9 +171,10 @@ void main() {
 
   float overlayShape = getOverlayBase(uv.y, .5 - yTravel, yShape);
 
+  const float shadowStart = .8;
   float aa = fwidth(overlayShape);
-  float overlayShadow = sst(.9 - 2. * aa - .1 * edgeBorder, .91 + .08 * edgeBorder, overlayShape);
-  overlayShape = sst(.9, .9 + 2. * aa, overlayShape);
+  float overlayShadow = sst(shadowStart - 2. * aa - .1 * edgeBorder, shadowStart + .11 + .08 * edgeBorder, overlayShape);
+  overlayShape = sst(shadowStart, shadowStart + 2. * aa, overlayShape);
   overlayShadow = 1. - overlayShadow;
   overlayShadow *= overlayShape;
   overlayShadow = 8. * 1. * overlayShadow;
@@ -229,6 +230,8 @@ void main() {
   opacity = opacity + u_colorBack.a * (1. - opacity);
 
   fragColor = vec4(color, opacity);
+
+//  fragColor = vec4(vec3(overlayShape, overlayShadow, 0.), 1.);
 }
 `;
 
