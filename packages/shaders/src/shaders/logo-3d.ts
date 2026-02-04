@@ -44,6 +44,60 @@ float getImgFrame(vec2 uv, float th) {
   return frame;
 }
 
+float blurEdge5x5(sampler2D tex, vec2 uv, float radius, float centerSample) {
+  vec2 texel = 1.0 / vec2(textureSize(tex, 0));
+  vec2 r = max(radius, 0.0) * texel;
+
+  const float a = 1.0;
+  const float b = 4.0;
+  const float c = 6.0;
+
+  float norm = 256.0;
+  float sum  = 0.0;
+
+  // y = -2
+  sum += a * (
+    a * texture(tex, uv + vec2(-2.0*r.x, -2.0*r.y)).r +
+    b * texture(tex, uv + vec2(-1.0*r.x, -2.0*r.y)).r +
+    c * texture(tex, uv + vec2(0.0, -2.0*r.y)).r +
+    b * texture(tex, uv + vec2(1.0*r.x, -2.0*r.y)).r +
+    a * texture(tex, uv + vec2(2.0*r.x, -2.0*r.y)).r);
+
+  // y = -1
+  sum += b * (
+    a * texture(tex, uv + vec2(-2.0*r.x, -1.0*r.y)).r +
+    b * texture(tex, uv + vec2(-1.0*r.x, -1.0*r.y)).r +
+    c * texture(tex, uv + vec2(0.0, -1.0*r.y)).r +
+    b * texture(tex, uv + vec2(1.0*r.x, -1.0*r.y)).r +
+    a * texture(tex, uv + vec2(2.0*r.x, -1.0*r.y)).r);
+
+  // y = 0
+  sum += c * (
+    a * texture(tex, uv + vec2(-2.0*r.x, 0.0)).r +
+    b * texture(tex, uv + vec2(-1.0*r.x, 0.0)).r +
+    c * centerSample +
+    b * texture(tex, uv + vec2(1.0*r.x, 0.0)).r +
+    a * texture(tex, uv + vec2(2.0*r.x, 0.0)).r);
+
+  // y = +1
+  sum += b * (
+    a * texture(tex, uv + vec2(-2.0*r.x, 1.0*r.y)).r +
+    b * texture(tex, uv + vec2(-1.0*r.x, 1.0*r.y)).r +
+    c * texture(tex, uv + vec2(0.0, 1.0*r.y)).r +
+    b * texture(tex, uv + vec2(1.0*r.x, 1.0*r.y)).r +
+    a * texture(tex, uv + vec2(2.0*r.x, 1.0*r.y)).r);
+
+  // y = +2
+  sum += a * (
+    a * texture(tex, uv + vec2(-2.0*r.x, 2.0*r.y)).r +
+    b * texture(tex, uv + vec2(-1.0*r.x, 2.0*r.y)).r +
+    c * texture(tex, uv + vec2(0.0, 2.0*r.y)).r +
+    b * texture(tex, uv + vec2(1.0*r.x, 2.0*r.y)).r +
+    a * texture(tex, uv + vec2(2.0*r.x, 2.0*r.y)).r);
+
+  return sum / norm;
+}
+
 float lst(float edge0, float edge1, float x) {
   return clamp((x - edge0) / (edge1 - edge0), 0.0, 1.0);
 }
@@ -100,8 +154,9 @@ void main() {
   vec2 dudy = dFdy(v_imageUV);
   vec4 img = textureGrad(u_image, uv, dudx, dudy);
 
-  float edgeBorder = img.r;
-  float edge = 1. - edgeBorder;
+  float edge = img.r;
+  float edgeBorder = blurEdge5x5(u_image, uv, 10., edge);
+  edge = 1. - edgeBorder;
 
   float imgAlpha = img.g;
 
@@ -109,7 +164,8 @@ void main() {
   imgAlpha *= frame;
   edge *= frame;
 
-  float yTime = fract(t);
+//  float yTime = fract(t);
+  float yTime = .3;
   float yTravel = mix(1.5, -1.5, yTime);
   float yShape = mix(.04 * edge, .1 * edge, yTime);
 
