@@ -30,65 +30,20 @@ export const defaultPreset: Logo3dPreset = {
     scale: 0.8,
     speed: 1,
     frame: 0,
-    colorBack: '#00000000',
-    colorOverlay: '#6c8eb7',
+    colorBack: '#000000',
+    colorBase: '#b46bb8',
     colors: ['#e0992e', '#35bbbb', '#05006b'],
     lightsPower: 0.38,
     lightsPos: 242,
   },
 };
 
-export const monoPreset: Logo3dPreset = {
-  name: 'Mono',
-  params: {
-    ...defaultObjectSizing,
-    scale: 0.8,
-    speed: 1,
-    frame: 0,
-    colorBack: '#e8e8e8',
-    colorOverlay: '#c2c1c1',
-    colors: ['#c2c2c2', '#000000', '#000000'],
-    lightsPower: 0.15,
-    lightsPos: 82,
-  },
-};
-
-export const metalPreset: Logo3dPreset = {
-  name: 'Metal',
-  params: {
-    ...defaultObjectSizing,
-    scale: 0.8,
-    speed: 1,
-    frame: 0,
-    colorBack: '#000000',
-    colorOverlay: '#07060a',
-    colors: ['#c7c7ff', '#ffbfa3', '#8ffff2'],
-    lightsPower: 1.0,
-    lightsPos: 66,
-  },
-};
-export const flatPreset: Logo3dPreset = {
-  name: 'Flat',
-  params: {
-    ...defaultObjectSizing,
-    scale: 0.8,
-    speed: 1,
-    frame: 0,
-    colorBack: '#00000000',
-    colorOverlay: '#35a75e',
-    colors: ['#ffffff'],
-    lightsPower: 0,
-    lightsPos: 62,
-  },
-};
-
-
-export const logo3dPresets: Logo3dPreset[] = [defaultPreset, monoPreset, metalPreset, flatPreset];
+export const logo3dPresets: Logo3dPreset[] = [defaultPreset];
 
 export const Logo3d: React.FC<Logo3dProps> = memo(function Logo3dImpl({
   // Own props
   colorBack = defaultPreset.params.colorBack,
-  colorOverlay = defaultPreset.params.colorOverlay,
+  colorBase = defaultPreset.params.colorBase,
   colors = defaultPreset.params.colors,
   speed = defaultPreset.params.speed,
   frame = defaultPreset.params.frame,
@@ -154,7 +109,7 @@ export const Logo3d: React.FC<Logo3dProps> = memo(function Logo3dImpl({
     u_colors: colors.map(getShaderColorFromString),
     u_colorsCount: colors.length,
     u_colorBack: getShaderColorFromString(colorBack),
-    u_colorOverlay: getShaderColorFromString(colorOverlay),
+    u_colorBase: getShaderColorFromString(colorBase),
     u_image: processedImage,
     u_lightsPower: lightsPower,
     u_lightsPos: lightsPos,

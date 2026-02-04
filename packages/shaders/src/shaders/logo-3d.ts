@@ -28,7 +28,7 @@ uniform vec4 u_colors[${ logo3dMeta.maxColorCount }];
 uniform float u_colorsCount;
 uniform vec4 u_colorBack;
 uniform vec4 u_colorInner;
-uniform vec4 u_colorOverlay;
+uniform vec4 u_colorBase;
 uniform float u_lightsPower;
 uniform float u_lightsPos;
 
@@ -131,7 +131,7 @@ void main() {
   vec3 normal = computeNormal(uv, overlayShadow);
   vec3 viewDir = vec3(0., 0., 1.);
 
-  vec3 materialColor = u_colorOverlay.rgb;
+  vec3 materialColor = u_colorBase.rgb;
 
   vec3 diffuse = vec3(0.);
   vec3 specular = vec3(0.);
@@ -631,7 +631,7 @@ function solvePoissonSparse(
 
 export interface Logo3dUniforms extends ShaderSizingUniforms {
   u_colorBack: [number, number, number, number];
-  u_colorOverlay: [number, number, number, number];
+  u_colorBase: [number, number, number, number];
   u_colors: vec4[];
   u_colorsCount: number;
   u_image: HTMLImageElement | string | undefined;
@@ -642,7 +642,7 @@ export interface Logo3dUniforms extends ShaderSizingUniforms {
 export interface Logo3dParams extends ShaderSizingParams, ShaderMotionParams {
   colors?: string[];
   colorBack?: string;
-  colorOverlay?: string;
+  colorBase?: string;
   image?: HTMLImageElement | string | undefined;
   lightsPower?: number;
   lightsPos?: number;
