@@ -27,13 +27,13 @@ uniform float u_time;
 uniform vec4 u_colors[${ logo3dMeta.maxColorCount }];
 uniform float u_colorsCount;
 uniform vec4 u_colorBack;
-uniform vec4 u_colorInner;
 uniform vec4 u_colorBase;
-uniform float u_lightsPower;
-uniform float u_lightsPos;
+uniform float u_lightsSpread;
+uniform float u_lightsShininess;
 
 ${ declarePI }
 ${ rotation2 }
+#define HALF_PI 1.5707963267949
 
 float getImgFrame(vec2 uv, float th) {
   float frame = 1.;
@@ -168,31 +168,46 @@ void main() {
 
   vec3 diffuse = vec3(0.);
   vec3 specular = vec3(0.);
-  vec3 ambient = materialColor * (1. - u_lightsPower);
 
   float lightCount = max(u_colorsCount, 1.);
-  float invLightCount = 2. * u_lightsPower / (lightCount * .3);
+  float intensity = 1. + 1. / lightCount;
+  float shininess = mix(75., 900., u_lightsShininess);
 
   for (int i = 0; i < ${ logo3dMeta.maxColorCount }; i++) {
     if (i >= int(u_colorsCount)) break;
 
     float fi = (float(i) + .5) / float(u_colorsCount);
-    float angle = fi * TWO_PI + radians(u_lightsPos);
+    float idx = float(i);
 
-    vec3 L = normalize(vec3(cos(angle), sin(angle), .4));
+    // Chaotic angle: continuous rotation + layered sine waves
+    float angleNoise = sin(u_time * 1.1 + idx * 2.3) * 0.8
+      + sin(u_time * 0.7 + idx * 3.7) * 0.5
+      + sin(u_time * 1.9 + idx * 1.3) * 0.3;
+    float angle = fi * TWO_PI + u_time * (0.5 + idx * 0.1) + angleNoise * u_lightsSpread;
+
+    // Chaotic height: continuous + layered oscillation
+    float baseElev = 0.33 * HALF_PI;
+    float elevNoise = sin(u_time * 0.8 + idx * 4.1 + u_time * 0.3) * 0.4
+      + sin(u_time * 1.3 + idx * 2.7) * 0.3
+      + cos(u_time * 0.6 + idx * 5.3) * 0.2;
+    float elevation = baseElev + elevNoise * u_lightsSpread;
+    elevation = clamp(elevation, 0., HALF_PI);
+
+    float cosElev = cos(elevation);
+    vec3 L = normalize(vec3(cos(angle) * cosElev, sin(angle) * cosElev, sin(elevation)));
 
     vec3 lightColor = u_colors[i].rgb;
 
     float NdotL = max(dot(normal, L), 0.);
-    diffuse += materialColor * NdotL * lightColor * invLightCount;
+    diffuse += materialColor * NdotL * lightColor * intensity;
 
     vec3 halfDir = normalize(L + viewDir);
     float NdotH = max(dot(normal, halfDir), 0.0);
-    specular += pow(NdotH, 50.) * lightColor * invLightCount;
+    specular += pow(NdotH, shininess) * lightColor * intensity;
   }
 
   float opacity = imgAlpha;
-  vec3 color = ambient + diffuse + specular;
+  vec3 color = diffuse + specular;
   color = clamp(color, vec3(0.), vec3(1.));
   color *= opacity;
 
@@ -200,11 +215,7 @@ void main() {
   color = color + bgColor * (1. - opacity);
   opacity = opacity + u_colorBack.a * (1. - opacity);
   
-//  color.r = overlay;
-
   fragColor = vec4(color, opacity);
-//  fragColor = vec4(normal, 1.);
-//  fragColor = vec4(vec3(getHeight(uv)), 1.);
 }
 `;
 
@@ -667,8 +678,8 @@ export interface Logo3dUniforms extends ShaderSizingUniforms {
   u_colors: vec4[];
   u_colorsCount: number;
   u_image: HTMLImageElement | string | undefined;
-  u_lightsPower: number;
-  u_lightsPos: number;
+  u_lightsSpread: number;
+  u_lightsShininess: number;
 }
 
 export interface Logo3dParams extends ShaderSizingParams, ShaderMotionParams {
@@ -676,6 +687,6 @@ export interface Logo3dParams extends ShaderSizingParams, ShaderMotionParams {
   colorBack?: string;
   colorBase?: string;
   image?: HTMLImageElement | string | undefined;
-  lightsPower?: number;
-  lightsPos?: number;
+  lightsSpread?: number;
+  lightsShininess?: number;
 }
