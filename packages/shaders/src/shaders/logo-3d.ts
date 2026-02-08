@@ -170,7 +170,7 @@ void main() {
   vec3 specular = vec3(0.);
 
   float lightCount = max(u_colorsCount, 1.);
-  float intensity = 1. + 1. / lightCount;
+  float intensity = 2. / (.5 + .5 * lightCount);
   float shininess = mix(75., 900., u_lightsShininess);
 
   for (int i = 0; i < ${ logo3dMeta.maxColorCount }; i++) {
@@ -178,19 +178,22 @@ void main() {
 
     float fi = (float(i) + .5) / float(u_colorsCount);
     float idx = float(i);
+    float sectorSize = TWO_PI / lightCount;
 
-    // Chaotic angle: continuous rotation + layered sine waves
-    float angleNoise = sin(u_time * 1.1 + idx * 2.3) * 0.8
-      + sin(u_time * 0.7 + idx * 3.7) * 0.5
-      + sin(u_time * 1.9 + idx * 1.3) * 0.3;
-    float angle = fi * TWO_PI + u_time * (0.5 + idx * 0.1) + angleNoise * u_lightsSpread;
+    // Each light orbits within its sector, never overlapping
+    float sectorCenter = fi * TWO_PI + u_time * 0.5;
+    float angleNoise = sin(u_time * 1.1 + idx * 2.3) * 0.3
+      + sin(u_time * 0.7 + idx * 3.7) * 0.2
+      + sin(u_time * 1.9 + idx * 1.3) * 0.15;
+    float angle = sectorCenter + angleNoise * sectorSize * u_lightsSpread;
 
-    // Chaotic height: continuous + layered oscillation
+    // Staggered heights so lights are distributed in 3D
     float baseElev = 0.33 * HALF_PI;
-    float elevNoise = sin(u_time * 0.8 + idx * 4.1 + u_time * 0.3) * 0.4
-      + sin(u_time * 1.3 + idx * 2.7) * 0.3
-      + cos(u_time * 0.6 + idx * 5.3) * 0.2;
-    float elevation = baseElev + elevNoise * u_lightsSpread;
+    float heightOffset = sin(fi * PI) * 0.3;
+    float elevNoise = sin(u_time * 0.8 + idx * 4.1) * 0.25
+      + sin(u_time * 1.3 + idx * 2.7) * 0.2
+      + cos(u_time * 0.6 + idx * 5.3) * 0.15;
+    float elevation = baseElev + heightOffset + elevNoise * u_lightsSpread;
     elevation = clamp(elevation, 0., HALF_PI);
 
     float cosElev = cos(elevation);

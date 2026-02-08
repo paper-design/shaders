@@ -31,10 +31,10 @@ export const defaultPreset: Logo3dPreset = {
     speed: 1,
     frame: 0,
     colorBack: '#000000',
-    colorBase: '#b46bb8',
-    colors: ['#e0992e', '#35bbbb', '#05006b'],
+    colorBase: '#871cca',
+    colors: ['#f2ff00', '#00ff96'],
     lightsSpread: 0.5,
-    lightsShininess: 0.5,
+    lightsShininess: 1,
   },
 };
 
