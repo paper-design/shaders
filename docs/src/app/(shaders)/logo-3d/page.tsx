@@ -24,11 +24,11 @@ const { worldWidth, worldHeight, ...defaults } = logo3dPresets[0].params;
 const imageFiles = [
   'contra.svg',
   'apple.svg',
-  'paradigm.svg',
+  // 'paradigm.svg',
   'paper-logo-only.svg',
-  'brave.svg',
-  'capy.svg',
-  'infinite.svg',
+  // 'brave.svg',
+  // 'capy.svg',
+  // 'infinite.svg',
   'linear.svg',
   'mercury.svg',
   'mymind.svg',
@@ -47,7 +47,7 @@ const imageFiles = [
 
 const Logo3dWithControls = () => {
   const [imageIdx, setImageIdx] = useState(-1);
-  const [image, setImage] = useState<HTMLImageElement | string>('/images/logos/paper-logo-only.svg');
+  const [image, setImage] = useState<HTMLImageElement | string>('/images/logos/diamond.svg');
 
   useEffect(() => {
     if (imageIdx >= 0) {
@@ -73,7 +73,9 @@ const Logo3dWithControls = () => {
       colorBack: { value: toHsla(defaults.colorBack), order: 100 },
       colorBase: { value: toHsla(defaults.colorBase), order: 102 },
       lightsSpread: { value: defaults.lightsSpread, min: 0, max: 1, order: 207 },
-      lightsShininess: { value: defaults.lightsShininess, min: 0, max: 1, order: 208 },
+      lightsDiffuse: { value: defaults.lightsDiffuse, min: 0, max: 1, order: 209 },
+      lightsSpecular: { value: defaults.lightsSpecular, min: 0, max: 1, order: 210 },
+      lightsShadow: { value: defaults.lightsShadow, min: 0, max: 1, order: 211 },
       speed: { value: defaults.speed, min: 0, max: 2, order: 300 },
       scale: { value: defaults.scale, min: 0.2, max: 10, order: 301 },
       // rotation: { value: defaults.rotation, min: 0, max: 360, order: 302 },

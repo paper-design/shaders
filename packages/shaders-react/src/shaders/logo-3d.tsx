@@ -31,10 +31,12 @@ export const defaultPreset: Logo3dPreset = {
     speed: 1,
     frame: 0,
     colorBack: '#000000',
-    colorBase: '#871cca',
-    colors: ['#f2ff00', '#00ff96'],
-    lightsSpread: 0.5,
-    lightsShininess: 1,
+    colorBase: '#ea05ff',
+    colors: ['#ffea61', '#00ffee'],
+    lightsSpread: 0.4,
+    lightsDiffuse: 1,
+    lightsSpecular: 1,
+    lightsShadow: 0.2,
   },
 };
 
@@ -49,7 +51,9 @@ export const Logo3d: React.FC<Logo3dProps> = memo(function Logo3dImpl({
   frame = defaultPreset.params.frame,
   image = '',
   lightsSpread = defaultPreset.params.lightsSpread,
-  lightsShininess = defaultPreset.params.lightsShininess,
+  lightsDiffuse = defaultPreset.params.lightsDiffuse,
+  lightsSpecular = defaultPreset.params.lightsSpecular,
+  lightsShadow = defaultPreset.params.lightsShadow,
   suspendWhenProcessingImage = false,
 
   // Sizing props
@@ -112,7 +116,9 @@ export const Logo3d: React.FC<Logo3dProps> = memo(function Logo3dImpl({
     u_colorBase: getShaderColorFromString(colorBase),
     u_image: processedImage,
     u_lightsSpread: lightsSpread,
-    u_lightsShininess: lightsShininess,
+    u_lightsDiffuse: lightsDiffuse,
+    u_lightsSpecular: lightsSpecular,
+    u_lightsShadow: lightsShadow,
 
     // Sizing uniforms
     u_fit: ShaderFitOptions[fit],

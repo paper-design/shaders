@@ -4,7 +4,7 @@ import type { ShaderSizingParams, ShaderSizingUniforms } from '../shader-sizing.
 import { declarePI, rotation2 } from '../shader-utils.js';
 
 export const logo3dMeta = {
-  maxColorCount: 6,
+  maxColorCount: 4,
 } as const;
 
 /**
@@ -29,7 +29,9 @@ uniform float u_colorsCount;
 uniform vec4 u_colorBack;
 uniform vec4 u_colorBase;
 uniform float u_lightsSpread;
-uniform float u_lightsShininess;
+uniform float u_lightsDiffuse;
+uniform float u_lightsSpecular;
+uniform float u_lightsShadow;
 
 ${ declarePI }
 ${ rotation2 }
@@ -170,8 +172,11 @@ void main() {
   vec3 specular = vec3(0.);
 
   float lightCount = max(u_colorsCount, 1.);
-  float intensity = 2. / (.5 + .5 * lightCount);
-  float shininess = mix(75., 900., u_lightsShininess);
+  float diffuseIntensity = u_lightsDiffuse;
+  float specularIntensity = 7. * u_lightsSpecular;
+
+  diffuse = materialColor;
+  float totalNdotL = 0.;
 
   for (int i = 0; i < ${ logo3dMeta.maxColorCount }; i++) {
     if (i >= int(u_colorsCount)) break;
@@ -200,17 +205,23 @@ void main() {
     vec3 L = normalize(vec3(cos(angle) * cosElev, sin(angle) * cosElev, sin(elevation)));
 
     vec3 lightColor = u_colors[i].rgb;
+    vec3 halfDir = normalize(L + viewDir);
+
+    float NdotShadow = max(dot(normal, L), 0.);
+    totalNdotL += pow(NdotShadow, 20.);
 
     float NdotL = max(dot(normal, L), 0.);
-    diffuse += materialColor * NdotL * lightColor * intensity;
+    NdotL = pow(NdotL, 5.) * diffuseIntensity;
+    diffuse = mix(diffuse, lightColor, NdotL);
 
-    vec3 halfDir = normalize(L + viewDir);
-    float NdotH = max(dot(normal, halfDir), 0.0);
-    specular += pow(NdotH, shininess) * lightColor * intensity;
+    float NdotH = dot(normal, halfDir);
+    specular += pow(NdotH, 800.) * lightColor * specularIntensity;
   }
 
   float opacity = imgAlpha;
   vec3 color = diffuse + specular;
+  color -= clamp(1. - totalNdotL, 0., 1.) * u_lightsShadow;
+
   color = clamp(color, vec3(0.), vec3(1.));
   color *= opacity;
 
@@ -682,7 +693,9 @@ export interface Logo3dUniforms extends ShaderSizingUniforms {
   u_colorsCount: number;
   u_image: HTMLImageElement | string | undefined;
   u_lightsSpread: number;
-  u_lightsShininess: number;
+  u_lightsDiffuse: number;
+  u_lightsSpecular: number;
+  u_lightsShadow: number;
 }
 
 export interface Logo3dParams extends ShaderSizingParams, ShaderMotionParams {
@@ -691,5 +704,7 @@ export interface Logo3dParams extends ShaderSizingParams, ShaderMotionParams {
   colorBase?: string;
   image?: HTMLImageElement | string | undefined;
   lightsSpread?: number;
-  lightsShininess?: number;
+  lightsDiffuse?: number;
+  lightsSpecular?: number;
+  lightsShadow?: number;
 }
