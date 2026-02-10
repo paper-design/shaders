@@ -5,12 +5,13 @@ export const asciiArtMeta = {
   charCount: 48,
   atlasCols: 8,
   atlasRows: 6,
-  cellWidth: 32,
-  cellHeight: 48,
-  textureWidth: 256, // 8 * 32
-  textureHeight: 290, // 6 * 48 + 2 data rows
-  dataY: 288, // 6 * 48
+  cellWidth: 512,
+  cellHeight: 768,
 } as const;
+
+const textureWidth = asciiArtMeta.atlasCols * asciiArtMeta.cellWidth;
+const textureHeight = asciiArtMeta.atlasRows * asciiArtMeta.cellHeight + 2;
+const dataY = asciiArtMeta.atlasRows * asciiArtMeta.cellHeight;
 
 /**
  * An ASCII art image filter that converts an image into text characters.
@@ -70,22 +71,13 @@ out vec4 fragColor;
 #define ATLAS_COLS ${ asciiArtMeta.atlasCols }
 #define CELL_W ${ asciiArtMeta.cellWidth }.0
 #define CELL_H ${ asciiArtMeta.cellHeight }.0
-#define TEXTURE_W ${ asciiArtMeta.textureWidth }.0
-#define TEXTURE_H ${ asciiArtMeta.textureHeight }.0
-#define DATA_Y ${ asciiArtMeta.dataY }
+#define TEXTURE_W ${ textureWidth }.0
+#define TEXTURE_H ${ textureHeight }.0
+#define DATA_Y ${ dataY }
 #define CHAR_ASPECT (CELL_W / CELL_H)
 
 float sigmoid(float x, float k) {
   return 1.0 / (1.0 + exp(-k * (x - 0.5)));
-}
-
-float getUvFrame(vec2 uv, vec2 pad) {
-  float aa = 0.0001;
-  float left   = smoothstep(-pad.x, -pad.x + aa, uv.x);
-  float right  = smoothstep(1.0 + pad.x, 1.0 + pad.x - aa, uv.x);
-  float bottom = smoothstep(-pad.y, -pad.y + aa, uv.y);
-  float top    = smoothstep(1.0 + pad.y, 1.0 + pad.y - aa, uv.y);
-  return left * right * bottom * top;
 }
 
 void main() {
@@ -107,11 +99,9 @@ void main() {
   vec2 cellIdx = floor(p);
   vec2 cellUV = fract(p);
 
-  // Frame check: is this cell within image bounds?
+  // Skip cells whose center falls outside the image [0, 1] bounds
   vec2 centerUV = (cellIdx + 0.5) * cellSize + 0.5;
-  float frame = getUvFrame(centerUV, cellSize);
-
-  if (frame < .01) {
+  if (centerUV.x < 0.0 || centerUV.x > 1.0 || centerUV.y < 0.0 || centerUV.y > 1.0) {
     vec3 bgColor = u_colorBack.rgb * u_colorBack.a;
     fragColor = vec4(bgColor, u_colorBack.a);
     return;
@@ -175,18 +165,12 @@ void main() {
   int charCol = bestChar - (bestChar / ATLAS_COLS) * ATLAS_COLS;
   int charRow = bestChar / ATLAS_COLS;
 
-  // Clamp cell UV by half a texel to prevent bleeding between adjacent atlas cells
-  vec2 margin = 0.5 / vec2(CELL_W, CELL_H);
-  vec2 clampedUV = clamp(cellUV, margin, 1.0 - margin);
-
-  vec2 atlasUV = vec2(
-    (float(charCol) + clampedUV.x) * CELL_W / TEXTURE_W,
-    (float(charRow) + clampedUV.y) * CELL_H / TEXTURE_H
+  // Character bitmap lookup via texelFetch (no filtering = no cross-cell bleeding)
+  ivec2 texel = ivec2(
+    float(charCol) * CELL_W + cellUV.x * (CELL_W - 1.0),
+    float(charRow) * CELL_H + cellUV.y * (CELL_H - 1.0)
   );
-
-  // Character mask: atlas has white background (1) with dark ink (0), so invert
-  float charMask = 1.0 - texture(u_fontAtlas, atlasUV).r;
-  charMask *= frame;
+  float charMask = 1.0 - texelFetch(u_fontAtlas, texel, 0).r;
 
   // Color output
   vec3 color;
@@ -222,15 +206,15 @@ void main() {
 const CHARS = " .'`^\",:;~-_=+!|/\\<>*()[]{}?oOC0LTIVAXYNQWM#%@&";
 
 /**
- * Generates a font atlas texture with character bitmaps and pre-computed shape vector data.
+ * Generates a high-resolution font atlas texture with character bitmaps and pre-computed shape vector data.
  * Call this once, load the returned blob as an image, and pass it as the `fontAtlas` parameter.
  *
  * The atlas contains:
- * - Top area: character bitmaps arranged in an 8x6 grid
+ * - Top area: character bitmaps arranged in an 8x6 grid (256x384 px per cell)
  * - Bottom 2 rows: encoded 6D shape vectors for each character (3 rows x 2 cols sub-region brightness)
  */
 export function getAsciiArtFontAtlas(): Promise<{ blob: Blob }> {
-  const { atlasCols, cellWidth, cellHeight, charCount, textureWidth, textureHeight, dataY } = asciiArtMeta;
+  const { atlasCols, cellWidth, cellHeight, charCount } = asciiArtMeta;
 
   const canvas = document.createElement('canvas');
   canvas.width = textureWidth;
@@ -240,7 +224,7 @@ export function getAsciiArtFontAtlas(): Promise<{ blob: Blob }> {
     throw new Error('Failed to get canvas 2d context');
   }
 
-  // White background
+  // White background (white = empty, black = character ink)
   ctx.fillStyle = 'white';
   ctx.fillRect(0, 0, textureWidth, textureHeight);
 
@@ -259,9 +243,11 @@ export function getAsciiArtFontAtlas(): Promise<{ blob: Blob }> {
     ctx.fillText(CHARS[i] ?? ' ', x, y);
   }
 
-  // Compute 6D shape vectors from the rendered atlas
+  // Read bitmap data for shape vectors
   const atlasImageData = ctx.getImageData(0, 0, textureWidth, dataY);
   const pixels = atlasImageData.data;
+
+  // Compute 6D shape vectors from the rendered bitmap
   const shapeVectors: number[][] = [];
   const subW = cellWidth / 2;
   const subH = cellHeight / 3;
@@ -274,16 +260,15 @@ export function getAsciiArtFontAtlas(): Promise<{ blob: Blob }> {
 
     const vector: number[] = [];
 
-    // Sample 6 sub-regions: 3 rows x 2 cols
     for (let sr = 0; sr < 3; sr++) {
       for (let sc = 0; sc < 2; sc++) {
-        const subX = cellX + sc * subW;
-        const subY = cellY + sr * subH;
+        const sx = cellX + sc * subW;
+        const sy = cellY + sr * subH;
 
         let sum = 0;
         let count = 0;
-        for (let py = Math.floor(subY); py < Math.floor(subY + subH); py++) {
-          for (let px = Math.floor(subX); px < Math.floor(subX + subW); px++) {
+        for (let py = Math.floor(sy); py < Math.floor(sy + subH); py++) {
+          for (let px = Math.floor(sx); px < Math.floor(sx + subW); px++) {
             const idx = (py * textureWidth + px) * 4;
             sum += (pixels[idx] ?? 0) / 255;
             count++;
