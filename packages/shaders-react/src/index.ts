@@ -115,10 +115,15 @@ export { HalftoneCmyk, halftoneCmykPresets } from './shaders/halftone-cmyk.js';
 export type { HalftoneCmykProps } from './shaders/halftone-cmyk.js';
 export type { HalftoneCmykUniforms, HalftoneCmykParams } from '@paper-design/shaders';
 
+export { AsciiArt, asciiArtPresets } from './shaders/ascii-art.js';
+export type { AsciiArtProps } from './shaders/ascii-art.js';
+export type { AsciiArtUniforms, AsciiArtParams } from '@paper-design/shaders';
+
 export { isPaperShaderElement, getShaderColorFromString } from '@paper-design/shaders';
 export type { PaperShaderElement, ShaderFit, ShaderSizingParams, ShaderSizingUniforms } from '@paper-design/shaders';
 
 export {
+  asciiArtMeta,
   colorPanelsMeta,
   dotOrbitMeta,
   godRaysMeta,

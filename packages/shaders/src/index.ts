@@ -220,6 +220,15 @@ export {
   type HalftoneCmykType,
 } from './shaders/halftone-cmyk.js';
 
+/** An ASCII art image filter that converts images into text characters using 6D shape vector matching */
+export {
+  asciiArtMeta,
+  asciiArtFragmentShader,
+  getAsciiArtFontAtlas,
+  type AsciiArtParams,
+  type AsciiArtUniforms,
+} from './shaders/ascii-art.js';
+
 // ----- Utils ----- //
 export { getShaderColorFromString } from './get-shader-color-from-string.js';
 export { getShaderNoiseTexture } from './get-shader-noise-texture.js';
