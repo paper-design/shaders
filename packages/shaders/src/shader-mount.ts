@@ -118,6 +118,7 @@ export class ShaderMount {
 
     // Handle WebGL context loss (browsers silently evict contexts when too many are active)
     this.canvasElement.addEventListener('webglcontextlost', this.handleContextLost);
+    this.canvasElement.addEventListener('webglcontextrestored', this.handleContextRestored);
   }
 
   private initProgram = () => {
@@ -330,6 +331,27 @@ export class ShaderMount {
 
     this.canvasElement.style.visibility = 'hidden';
     this.parentElement.setAttribute('data-paper-shader-placeholder', '');
+  };
+
+  private handleContextRestored = (): void => {
+    this.canvasElement.style.visibility = '';
+    this.parentElement.removeAttribute('data-paper-shader-placeholder');
+
+    this.initProgram();
+    this.setupPositionAttribute();
+    this.setupUniforms();
+    this.uniformCache = {};
+    this.textureUnitMap.clear();
+    this.textures.clear();
+    this.setUniformValues(this.providedUniforms);
+    this.resolutionChanged = true;
+    this.gl.viewport(0, 0, this.gl.canvas.width, this.gl.canvas.height);
+
+    this.lastRenderTime = performance.now();
+    this.render(performance.now());
+    if (this.currentSpeed !== 0) {
+      this.requestRender();
+    }
   };
 
   /** Creates a texture from an image and sets it into a uniform value */
@@ -585,6 +607,7 @@ export class ShaderMount {
     visualViewport?.removeEventListener('resize', this.handleVisualViewportChange);
     document.removeEventListener('visibilitychange', this.handleDocumentVisibilityChange);
     this.canvasElement.removeEventListener('webglcontextlost', this.handleContextLost);
+    this.canvasElement.removeEventListener('webglcontextrestored', this.handleContextRestored);
 
     this.uniformLocations = {};
     this.parentElement.removeAttribute('data-paper-shader-placeholder');
