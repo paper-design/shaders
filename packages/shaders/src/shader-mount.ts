@@ -36,6 +36,10 @@ export class ShaderMount {
   private uniformCache: Record<string, unknown> = {};
   private textureUnitMap: Map<string, number> = new Map();
   private contextIsLost = false;
+  private webGlContextAttributes: WebGLContextAttributes | undefined;
+
+  /** Mounts waiting to be restored when a context slot frees up */
+  private static waitingForRestore: Set<ShaderMount> = new Set();
 
   constructor(
     /** The div you'd like to mount the shader to. The shader will match its size. */
@@ -87,6 +91,7 @@ export class ShaderMount {
     this.currentFrame = frame;
     this.minPixelRatio = minPixelRatio;
     this.maxPixelCount = maxPixelCount;
+    this.webGlContextAttributes = webGlContextAttributes;
 
     const gl = canvasElement.getContext('webgl2', webGlContextAttributes);
     if (!gl) {
@@ -119,7 +124,6 @@ export class ShaderMount {
 
     // Handle WebGL context loss (browsers silently evict contexts when too many are active)
     this.canvasElement.addEventListener('webglcontextlost', this.handleContextLost);
-    this.canvasElement.addEventListener('webglcontextrestored', this.handleContextRestored);
 
   }
 
@@ -341,28 +345,7 @@ export class ShaderMount {
     }
 
     this.showPlaceholder();
-  };
-
-  private handleContextRestored = (): void => {
-    this.contextIsLost = false;
-    this.hidePlaceholder();
-
-    // Re-init all GL state on the restored context
-    this.initProgram();
-    this.setupPositionAttribute();
-    this.setupUniforms();
-    this.uniformCache = {};
-    this.textureUnitMap.clear();
-    this.textures.clear();
-    this.setUniformValues(this.providedUniforms);
-    this.resolutionChanged = true;
-    this.gl.viewport(0, 0, this.gl.canvas.width, this.gl.canvas.height);
-
-    this.lastRenderTime = performance.now();
-    this.render(performance.now());
-    if (this.currentSpeed !== 0) {
-      this.requestRender();
-    }
+    ShaderMount.waitingForRestore.add(this);
   };
 
   private showPlaceholder = (): void => {
@@ -374,6 +357,56 @@ export class ShaderMount {
     this.canvasElement.style.visibility = '';
     this.parentElement.removeAttribute('data-paper-shader-placeholder');
   };
+
+  /** Try to restore this mount by creating a fresh canvas + context */
+  private tryRestore = (): boolean => {
+    const newCanvas = document.createElement('canvas');
+    const gl = newCanvas.getContext('webgl2', this.webGlContextAttributes);
+    if (!gl) return false;
+
+    // Remove listeners from old canvas
+    this.canvasElement.removeEventListener('webglcontextlost', this.handleContextLost);
+
+    // Swap canvases in DOM
+    this.canvasElement.replaceWith(newCanvas);
+    this.canvasElement = newCanvas;
+    this.gl = gl;
+
+    // Add listeners to new canvas
+    this.canvasElement.addEventListener('webglcontextlost', this.handleContextLost);
+
+    // Re-init all GL state
+    this.contextIsLost = false;
+    this.hidePlaceholder();
+    this.initProgram();
+    this.setupPositionAttribute();
+    this.setupUniforms();
+    this.uniformCache = {};
+    this.textureUnitMap.clear();
+    this.textures.clear();
+    this.setUniformValues(this.providedUniforms);
+    this.resolutionChanged = true;
+
+    // Re-setup resize observer for the new canvas
+    this.resizeObserver?.disconnect();
+    this.setupResizeObserver();
+
+    this.lastRenderTime = performance.now();
+    this.render(performance.now());
+    if (this.currentSpeed !== 0) {
+      this.requestRender();
+    }
+
+    ShaderMount.waitingForRestore.delete(this);
+    return true;
+  };
+
+  /** Try to restore waiting mounts after a context slot was freed */
+  private static tryRestoreWaiting(): void {
+    for (const mount of [...ShaderMount.waitingForRestore]) {
+      if (!mount.tryRestore()) break;
+    }
+  }
 
   /** Creates a texture from an image and sets it into a uniform value */
   private setTextureUniform = (uniformName: string, image: HTMLImageElement): void => {
@@ -600,6 +633,9 @@ export class ShaderMount {
       this.rafId = null;
     }
 
+    // Remove from waiting set if queued for restore
+    ShaderMount.waitingForRestore.delete(this);
+
     if (this.gl && this.program) {
       // Clean up all textures
       this.textures.forEach((texture) => {
@@ -618,6 +654,10 @@ export class ShaderMount {
 
       // Clear any errors
       this.gl.getError();
+
+      // Explicitly release the WebGL context so the browser frees the slot immediately
+      const loseExt = this.gl.getExtension('WEBGL_lose_context');
+      if (loseExt) loseExt.loseContext();
     }
 
     if (this.resizeObserver) {
@@ -628,7 +668,6 @@ export class ShaderMount {
     visualViewport?.removeEventListener('resize', this.handleVisualViewportChange);
     document.removeEventListener('visibilitychange', this.handleDocumentVisibilityChange);
     this.canvasElement.removeEventListener('webglcontextlost', this.handleContextLost);
-    this.canvasElement.removeEventListener('webglcontextrestored', this.handleContextRestored);
 
     this.uniformLocations = {};
 
@@ -639,6 +678,9 @@ export class ShaderMount {
     this.canvasElement.remove();
     // Free up the reference to self to enable garbage collection
     delete this.parentElement.paperShaderMount;
+
+    // Try to restore mounts that lost their context now that a slot freed up
+    ShaderMount.tryRestoreWaiting();
   };
 }
 
