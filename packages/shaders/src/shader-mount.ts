@@ -36,7 +36,6 @@ export class ShaderMount {
   private uniformCache: Record<string, unknown> = {};
   private textureUnitMap: Map<string, number> = new Map();
   private contextIsLost = false;
-  private placeholderElement: HTMLDivElement | null = null;
 
   constructor(
     /** The div you'd like to mount the shader to. The shader will match its size. */
@@ -367,24 +366,13 @@ export class ShaderMount {
   };
 
   private showPlaceholder = (): void => {
-    if (this.placeholderElement) return;
-
-    this.placeholderElement = document.createElement('div');
-    this.placeholderElement.setAttribute('data-paper-shader-placeholder', '');
-    this.placeholderElement.textContent = 'WebGL context limit reached';
-    this.placeholderElement.style.opacity = '0';
-    this.canvasElement.style.display = 'none';
-    this.parentElement.prepend(this.placeholderElement);
-    // Trigger transition on next frame
-    requestAnimationFrame(() => {
-      if (this.placeholderElement) this.placeholderElement.style.opacity = '1';
-    });
+    this.canvasElement.style.visibility = 'hidden';
+    this.parentElement.setAttribute('data-paper-shader-placeholder', '');
   };
 
   private hidePlaceholder = (): void => {
-    this.canvasElement.style.display = '';
-    this.placeholderElement?.remove();
-    this.placeholderElement = null;
+    this.canvasElement.style.visibility = '';
+    this.parentElement.removeAttribute('data-paper-shader-placeholder');
   };
 
   /** Creates a texture from an image and sets it into a uniform value */
@@ -645,8 +633,7 @@ export class ShaderMount {
     this.uniformLocations = {};
 
     // Clean up placeholder if present
-    this.placeholderElement?.remove();
-    this.placeholderElement = null;
+    this.parentElement.removeAttribute('data-paper-shader-placeholder');
 
     // Remove the shader from the div wrapper element
     this.canvasElement.remove();
@@ -733,7 +720,8 @@ const defaultStyle = `@layer paper-shaders {
       corner-shape: inherit;
     }
 
-    & [data-paper-shader-placeholder] {
+    &[data-paper-shader-placeholder]::after {
+      content: 'WebGL context limit reached';
       display: flex;
       align-items: center;
       justify-content: center;
@@ -750,6 +738,10 @@ const defaultStyle = `@layer paper-shaders {
       outline: 1px solid rgba(255, 255, 255, 0.1);
       outline-offset: -1px;
       transition: opacity 150ms ease;
+
+      @starting-style {
+        opacity: 0;
+      }
     }
   }
 }`;
