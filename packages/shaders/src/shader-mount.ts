@@ -115,6 +115,9 @@ export class ShaderMount {
 
     // Listen for document visibility changes to pause the shader when the tab is hidden
     document.addEventListener('visibilitychange', this.handleDocumentVisibilityChange);
+
+    // Handle WebGL context loss (browsers silently evict contexts when too many are active)
+    this.canvasElement.addEventListener('webglcontextlost', this.handleContextLost);
   }
 
   private initProgram = () => {
@@ -315,6 +318,18 @@ export class ShaderMount {
       cancelAnimationFrame(this.rafId);
     }
     this.rafId = requestAnimationFrame(this.render);
+  };
+
+  private handleContextLost = (e: Event): void => {
+    e.preventDefault();
+
+    if (this.rafId !== null) {
+      cancelAnimationFrame(this.rafId);
+      this.rafId = null;
+    }
+
+    this.canvasElement.style.visibility = 'hidden';
+    this.parentElement.setAttribute('data-paper-shader-placeholder', '');
   };
 
   /** Creates a texture from an image and sets it into a uniform value */
@@ -569,8 +584,10 @@ export class ShaderMount {
 
     visualViewport?.removeEventListener('resize', this.handleVisualViewportChange);
     document.removeEventListener('visibilitychange', this.handleDocumentVisibilityChange);
+    this.canvasElement.removeEventListener('webglcontextlost', this.handleContextLost);
 
     this.uniformLocations = {};
+    this.parentElement.removeAttribute('data-paper-shader-placeholder');
 
     // Remove the shader from the div wrapper element
     this.canvasElement.remove();
@@ -655,6 +672,20 @@ const defaultStyle = `@layer paper-shaders {
       height: 100%;
       border-radius: inherit;
       corner-shape: inherit;
+    }
+
+    &[data-paper-shader-placeholder]::after {
+      content: 'WebGL context limit reached';
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      border-radius: inherit;
+      corner-shape: inherit;
+      background: rgba(0, 0, 0, 0.3);
+      color: rgba(255, 255, 255, 0.8);
     }
   }
 }`;
