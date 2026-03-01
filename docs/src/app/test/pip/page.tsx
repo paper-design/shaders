@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
-import { ShaderMount } from '@paper-design/shaders';
+import { ShaderMount, type PaperShaderElement } from '@paper-design/shaders';
 import { MeshGradient } from '@paper-design/shaders-react';
 
 const fragmentShader = `#version 300 es
@@ -70,7 +70,7 @@ const btnStyle = { padding: '0.5rem 1.2rem', borderRadius: 6, border: '1px solid
 
 export default function PipTestPage() {
   const vanillaMainRef = useRef<HTMLDivElement>(null);
-  const reactMainRef = useRef<HTMLDivElement>(null);
+  const reactMainRef = useRef<PaperShaderElement>(null);
   const vanillaIframeRef = useRef<HTMLIFrameElement>(null);
   const reactIframeRef = useRef<HTMLIFrameElement>(null);
 
