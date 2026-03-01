@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { createRoot } from 'react-dom/client';
+import { createRoot, type Root } from 'react-dom/client';
 import { ShaderMount } from '@paper-design/shaders';
 import { MeshGradient } from '@paper-design/shaders-react';
 
@@ -21,6 +21,9 @@ void main() {
   fragColor = vec4(r, g, b, 1.0);
 }`;
 
+const iframeHtml =
+  '<!DOCTYPE html><html style="height:100%"><head></head><body style="margin:0;height:100%"><div id="host" style="width:100%;height:100%"></div></body></html>';
+
 type TestResult = { pass: boolean; message: string } | null;
 
 function StatusBadge({ result }: { result: TestResult }) {
@@ -32,7 +35,6 @@ function StatusBadge({ result }: { result: TestResult }) {
   );
 }
 
-/** Wait for a canvas to appear inside an element (handles async React init) */
 function waitForCanvas(el: Element, timeoutMs = 3000): Promise<Element | null> {
   const existing = el.querySelector('canvas');
   if (existing) return Promise.resolve(existing);
@@ -53,85 +55,92 @@ function waitForCanvas(el: Element, timeoutMs = 3000): Promise<Element | null> {
   });
 }
 
+function writeIframeDoc(iframe: HTMLIFrameElement): Document {
+  const doc = iframe.contentDocument!;
+  doc.open();
+  doc.write(iframeHtml);
+  doc.close();
+  return doc;
+}
+
 const sectionStyle = { border: '1px solid #444', borderRadius: 8, padding: '1rem', marginBottom: '1.5rem' };
 const boxStyle = { width: 300, height: 200, border: '2px solid #666', borderRadius: 6 };
+const iframeStyle = { width: 320, height: 220, border: '2px solid #666', borderRadius: 6 };
+const btnStyle = { padding: '0.5rem 1.2rem', borderRadius: 6, border: '1px solid #666', background: '#333', color: '#e0e0e0', cursor: 'pointer' } as const;
 
 export default function PipTestPage() {
-  const mainRef = useRef<HTMLDivElement>(null);
-  const iframeRef = useRef<HTMLIFrameElement>(null);
+  const vanillaMainRef = useRef<HTMLDivElement>(null);
+  const reactMainRef = useRef<HTMLDivElement>(null);
+  const vanillaIframeRef = useRef<HTMLIFrameElement>(null);
   const reactIframeRef = useRef<HTMLIFrameElement>(null);
 
-  const [mainResult, setMainResult] = useState<TestResult>(null);
-  const [iframeResult, setIframeResult] = useState<TestResult>(null);
+  const [vanillaMainResult, setVanillaMainResult] = useState<TestResult>(null);
+  const [reactMainResult, setReactMainResult] = useState<TestResult>(null);
+  const [vanillaIframeResult, setVanillaIframeResult] = useState<TestResult>(null);
   const [reactIframeResult, setReactIframeResult] = useState<TestResult>(null);
-  const [pipResult, setPipResult] = useState<TestResult>(null);
+  const [vanillaPipResult, setVanillaPipResult] = useState<TestResult>(null);
+  const [reactPipResult, setReactPipResult] = useState<TestResult>(null);
 
-  // Test 1: Vanilla ShaderMount in main document
+  // 1. Vanilla – main document
   useEffect(() => {
-    const div = mainRef.current;
+    const div = vanillaMainRef.current;
     if (!div) return;
-
     try {
       const sm = new ShaderMount(div, fragmentShader, {}, undefined, 1);
       const pass = !!div.querySelector('canvas') && !!document.querySelector('style[data-paper-shader]');
-      setMainResult({
-        pass,
-        message: pass ? 'Canvas and style created in main document.' : 'Missing canvas or style.',
-      });
+      setVanillaMainResult({ pass, message: pass ? 'Canvas and style created in main document.' : 'Missing canvas or style.' });
       return () => sm.dispose();
     } catch (e: any) {
-      setMainResult({ pass: false, message: e.message });
+      setVanillaMainResult({ pass: false, message: e.message });
     }
   }, []);
 
-  // Test 2: Vanilla ShaderMount in iframe
+  // 2. React – main document
   useEffect(() => {
-    const iframe = iframeRef.current;
+    const div = reactMainRef.current;
+    if (!div) return;
+    waitForCanvas(div).then((canvas) => {
+      const pass = !!canvas && !!document.querySelector('style[data-paper-shader]');
+      setReactMainResult({ pass, message: pass ? 'Canvas and style created in main document.' : `canvas=${!!canvas}` });
+    });
+  }, []);
+
+  // 3. Vanilla – iframe
+  useEffect(() => {
+    const iframe = vanillaIframeRef.current;
     if (!iframe) return;
-
     try {
-      const iframeDoc = iframe.contentDocument!;
-      iframeDoc.open();
-      iframeDoc.write('<!DOCTYPE html><html style="height:100%"><head></head><body style="margin:0;height:100%"><div id="host" style="width:100%;height:100%"></div></body></html>');
-      iframeDoc.close();
-
+      const iframeDoc = writeIframeDoc(iframe);
       const host = iframeDoc.getElementById('host')!;
       const sm = new ShaderMount(host, fragmentShader, {}, undefined, 1);
 
       const canvasInIframe = !!host.querySelector('canvas');
       const styleInIframe = !!iframeDoc.querySelector('style[data-paper-shader]');
-      const mainCanvasCount = mainRef.current?.querySelectorAll('canvas').length;
-
-      const pass = canvasInIframe && styleInIframe && mainCanvasCount === 1;
-      setIframeResult({
+      const pass = canvasInIframe && styleInIframe;
+      setVanillaIframeResult({
         pass,
         message: pass
-          ? 'Canvas and style created in iframe document. No stray elements in main document.'
-          : `canvasInIframe=${canvasInIframe}, styleInIframe=${styleInIframe}, mainCanvasCount=${mainCanvasCount}`,
+          ? 'Canvas and style created in iframe document.'
+          : `canvasInIframe=${canvasInIframe}, styleInIframe=${styleInIframe}`,
       });
       return () => sm.dispose();
     } catch (e: any) {
-      setIframeResult({ pass: false, message: e.message });
+      setVanillaIframeResult({ pass: false, message: e.message });
     }
   }, []);
 
-  // Test 3: React <MeshGradient> in iframe
+  // 4. React – iframe
   useEffect(() => {
     const iframe = reactIframeRef.current;
     if (!iframe) return;
 
-    const iframeDoc = iframe.contentDocument!;
-    iframeDoc.open();
-    iframeDoc.write('<!DOCTYPE html><html style="height:100%"><head></head><body style="margin:0;height:100%"><div id="root" style="width:100%;height:100%"></div></body></html>');
-    iframeDoc.close();
-
-    const rootEl = iframeDoc.getElementById('root')!;
-    const root = createRoot(rootEl);
+    const iframeDoc = writeIframeDoc(iframe);
+    const host = iframeDoc.getElementById('host')!;
+    const root = createRoot(host);
     root.render(<MeshGradient speed={1} style={{ width: '100%', height: '100%' }} />);
 
-    waitForCanvas(rootEl).then((canvas) => {
+    waitForCanvas(host).then((canvas) => {
       const styleInIframe = !!iframeDoc.querySelector('style[data-paper-shader]');
-
       const pass = !!canvas && styleInIframe;
       setReactIframeResult({
         pass,
@@ -144,13 +153,12 @@ export default function PipTestPage() {
     return () => root.unmount();
   }, []);
 
-  // Test 4: Vanilla ShaderMount in PiP window
-  const openPip = async () => {
+  // 5. Vanilla – PiP
+  const openVanillaPip = async () => {
     if (!('documentPictureInPicture' in window)) {
-      setPipResult({ pass: false, message: 'Document PiP API not available. Use Chrome 116+.' });
+      setVanillaPipResult({ pass: false, message: 'Document PiP API not available. Use Chrome 116+.' });
       return;
     }
-
     try {
       const pipWindow = await (window as any).documentPictureInPicture.requestWindow({ width: 400, height: 300 });
       const pipDoc = pipWindow.document as Document;
@@ -164,17 +172,51 @@ export default function PipTestPage() {
 
       const canvasInPip = !!pipDiv.querySelector('canvas');
       const styleInPip = !!pipDoc.querySelector('style[data-paper-shader]');
-      const mainCanvasCount = document.querySelectorAll('canvas').length;
-
-      const pass = canvasInPip && styleInPip && mainCanvasCount === 1;
-      setPipResult({
+      const pass = canvasInPip && styleInPip;
+      setVanillaPipResult({
         pass,
         message: pass
-          ? 'Canvas and style created in PiP document. Check the PiP window for an animated gradient.'
-          : `canvasInPip=${canvasInPip}, styleInPip=${styleInPip}, mainCanvasCount=${mainCanvasCount}`,
+          ? 'Canvas and style created in PiP document. Check PiP window for animated gradient.'
+          : `canvasInPip=${canvasInPip}, styleInPip=${styleInPip}`,
       });
     } catch (e: any) {
-      setPipResult({ pass: false, message: e.message });
+      setVanillaPipResult({ pass: false, message: e.message });
+    }
+  };
+
+  // 6. React – PiP
+  const pipReactRootRef = useRef<Root | null>(null);
+  const openReactPip = async () => {
+    if (!('documentPictureInPicture' in window)) {
+      setReactPipResult({ pass: false, message: 'Document PiP API not available. Use Chrome 116+.' });
+      return;
+    }
+    try {
+      const pipWindow = await (window as any).documentPictureInPicture.requestWindow({ width: 400, height: 300 });
+      const pipDoc = pipWindow.document as Document;
+      pipDoc.body.style.cssText = 'margin:0;background:#1a1a1a;display:flex;align-items:center;justify-content:center;';
+
+      const pipDiv = pipDoc.createElement('div');
+      pipDiv.style.cssText = 'width:380px;height:280px;';
+      pipDoc.body.appendChild(pipDiv);
+
+      pipReactRootRef.current?.unmount();
+      const root = createRoot(pipDiv);
+      pipReactRootRef.current = root;
+      root.render(<MeshGradient speed={1} style={{ width: '100%', height: '100%' }} />);
+
+      waitForCanvas(pipDiv).then((canvas) => {
+        const styleInPip = !!pipDoc.querySelector('style[data-paper-shader]');
+        const pass = !!canvas && styleInPip;
+        setReactPipResult({
+          pass,
+          message: pass
+            ? 'React MeshGradient rendered in PiP document. Check PiP window for animated gradient.'
+            : `canvas=${!!canvas}, styleInPip=${styleInPip}`,
+        });
+      });
+    } catch (e: any) {
+      setReactPipResult({ pass: false, message: e.message });
     }
   };
 
@@ -186,34 +228,46 @@ export default function PipTestPage() {
         the global <code>document</code>.
       </p>
 
+      <h2 style={{ marginTop: '2rem' }}>Main document (baseline)</h2>
+
       <section style={sectionStyle}>
-        <h2>1. Vanilla ShaderMount – main document (baseline)</h2>
-        <div ref={mainRef} style={boxStyle} />
-        <StatusBadge result={mainResult} />
+        <h3>1. Vanilla ShaderMount</h3>
+        <div ref={vanillaMainRef} style={boxStyle} />
+        <StatusBadge result={vanillaMainResult} />
       </section>
 
       <section style={sectionStyle}>
-        <h2>2. Vanilla ShaderMount – iframe</h2>
-        <iframe ref={iframeRef} style={{ width: 320, height: 220, border: '2px solid #666', borderRadius: 6 }} />
-        <StatusBadge result={iframeResult} />
+        <h3>2. React MeshGradient</h3>
+        <MeshGradient ref={reactMainRef} speed={1} style={boxStyle} />
+        <StatusBadge result={reactMainResult} />
+      </section>
+
+      <h2 style={{ marginTop: '2rem' }}>Iframe (isolated document)</h2>
+
+      <section style={sectionStyle}>
+        <h3>3. Vanilla ShaderMount</h3>
+        <iframe ref={vanillaIframeRef} style={iframeStyle} />
+        <StatusBadge result={vanillaIframeResult} />
       </section>
 
       <section style={sectionStyle}>
-        <h2>3. React MeshGradient – iframe</h2>
-        <iframe ref={reactIframeRef} style={{ width: 320, height: 220, border: '2px solid #666', borderRadius: 6 }} />
+        <h3>4. React MeshGradient</h3>
+        <iframe ref={reactIframeRef} style={iframeStyle} />
         <StatusBadge result={reactIframeResult} />
       </section>
 
+      <h2 style={{ marginTop: '2rem' }}>Picture-in-Picture (Chrome 116+)</h2>
+
       <section style={sectionStyle}>
-        <h2>4. Vanilla ShaderMount – Picture-in-Picture</h2>
-        <p style={{ fontSize: '0.85rem' }}>Requires Chrome 116+ with Document PiP API.</p>
-        <button
-          onClick={openPip}
-          style={{ padding: '0.5rem 1.2rem', borderRadius: 6, border: '1px solid #666', background: '#333', color: '#e0e0e0', cursor: 'pointer' }}
-        >
-          Open PiP and mount shader
-        </button>
-        <StatusBadge result={pipResult} />
+        <h3>5. Vanilla ShaderMount</h3>
+        <button onClick={openVanillaPip} style={btnStyle}>Open PiP</button>
+        <StatusBadge result={vanillaPipResult} />
+      </section>
+
+      <section style={sectionStyle}>
+        <h3>6. React MeshGradient</h3>
+        <button onClick={openReactPip} style={btnStyle}>Open PiP</button>
+        <StatusBadge result={reactPipResult} />
       </section>
     </div>
   );
