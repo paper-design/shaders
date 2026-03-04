@@ -387,35 +387,40 @@ interface SparsePixelData {
   neighborIndices: Int32Array;
 }
 
-export function toProcessedLiquidMetal(file: File | string): Promise<{ imageData: ImageData; pngBlob: Blob }> {
+export async function toProcessedLiquidMetal(file: File | string): Promise<{ imageData: ImageData; pngBlob: Blob }> {
   const canvas = document.createElement('canvas');
   const ctx = canvas.getContext('2d');
-  const isBlob = typeof file === 'string' && file.startsWith('blob:');
 
-  return new Promise((resolve, reject) => {
-    if (!file || !ctx) {
-      reject(new Error('Invalid file or canvas context'));
-      return;
+  if (!file || !ctx) {
+    throw new Error('Invalid file or canvas context');
+  }
+
+  // For cross-origin URLs, fetch as blob first to avoid canvas tainting from CDN cache issues
+  let imageSource: string;
+  let createdObjectUrl = false;
+  if (typeof file === 'string') {
+    if (file.startsWith('http://') || file.startsWith('https://')) {
+      const response = await fetch(file);
+      const fetchedBlob = await response.blob();
+      imageSource = URL.createObjectURL(fetchedBlob);
+      createdObjectUrl = true;
+    } else {
+      imageSource = file;
     }
+  } else {
+    imageSource = URL.createObjectURL(file);
+    createdObjectUrl = true;
+  }
 
-    const blobContentTypePromise = isBlob && fetch(file).then((res) => res.headers.get('Content-Type'));
+  return new Promise<{ imageData: ImageData; pngBlob: Blob }>((resolve, reject) => {
     const img = new Image();
-    img.crossOrigin = 'anonymous';
     const totalStartTime = performance.now();
 
-    img.onload = async () => {
+    img.addEventListener('load', () => {
       // Force SVG to load at a high fidelity size if it's an SVG
-      let isSVG;
-
-      const blobContentType = await blobContentTypePromise;
-
-      if (blobContentType) {
-        isSVG = blobContentType === 'image/svg+xml';
-      } else if (typeof file === 'string') {
-        isSVG = file.endsWith('.svg') || file.startsWith('data:image/svg+xml');
-      } else {
-        isSVG = file.type === 'image/svg+xml';
-      }
+      const isSVG = typeof file === 'string'
+        ? file.endsWith('.svg') || file.startsWith('data:image/svg+xml')
+        : file.type === 'image/svg+xml';
 
       let originalWidth = img.width || img.naturalWidth;
       let originalHeight = img.height || img.naturalHeight;
@@ -633,6 +638,7 @@ export function toProcessedLiquidMetal(file: File | string): Promise<{ imageData
       ctx.putImageData(outImg, 0, 0);
       finalImageData = outImg;
       canvas.toBlob((blob) => {
+        if (createdObjectUrl) URL.revokeObjectURL(imageSource);
         if (!blob) {
           reject(new Error('Failed to create PNG blob'));
           return;
@@ -655,10 +661,13 @@ export function toProcessedLiquidMetal(file: File | string): Promise<{ imageData
           pngBlob: blob,
         });
       }, 'image/png');
-    };
+    });
 
-    img.onerror = () => reject(new Error('Failed to load image'));
-    img.src = typeof file === 'string' ? file : URL.createObjectURL(file);
+    img.addEventListener('error', () => {
+      if (createdObjectUrl) URL.revokeObjectURL(imageSource);
+      reject(new Error('Failed to load image'));
+    });
+    img.src = imageSource;
   });
 }
 

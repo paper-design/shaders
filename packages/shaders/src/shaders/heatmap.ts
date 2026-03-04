@@ -296,13 +296,30 @@ void main() {
 }
 `;
 
-export function toProcessedHeatmap(file: File | string): Promise<{ blob: Blob }> {
+export async function toProcessedHeatmap(file: File | string): Promise<{ blob: Blob }> {
   const canvas = document.createElement('canvas');
   const canvasSize = 1000;
 
-  return new Promise((resolve, reject) => {
+  // For cross-origin URLs, fetch as blob first to avoid canvas tainting from CDN cache issues
+  let imageSource: string;
+  let createdObjectUrl = false;
+
+  if (typeof file === 'string') {
+    if (file.startsWith('http://') || file.startsWith('https://')) {
+      const response = await fetch(file);
+      const fetchedBlob = await response.blob();
+      imageSource = URL.createObjectURL(fetchedBlob);
+      createdObjectUrl = true;
+    } else {
+      imageSource = file;
+    }
+  } else {
+    imageSource = URL.createObjectURL(file);
+    createdObjectUrl = true;
+  }
+
+  return new Promise<{ blob: Blob }>((resolve, reject) => {
     const image = new Image();
-    image.crossOrigin = 'anonymous';
 
     image.addEventListener('load', () => {
       if (typeof file === 'string' ? file.endsWith('.svg') : file.type === 'image/svg+xml') {
@@ -376,6 +393,7 @@ export function toProcessedHeatmap(file: File | string): Promise<{ blob: Blob }>
       ctx.putImageData(processedImageData, 0, 0);
 
       canvas.toBlob((blob) => {
+        if (createdObjectUrl) URL.revokeObjectURL(imageSource);
         if (!blob) {
           reject(new Error('Failed to create PNG blob'));
           return;
@@ -385,10 +403,11 @@ export function toProcessedHeatmap(file: File | string): Promise<{ blob: Blob }>
     });
 
     image.addEventListener('error', () => {
+      if (createdObjectUrl) URL.revokeObjectURL(imageSource);
       reject(new Error('Failed to load image'));
     });
 
-    image.src = typeof file === 'string' ? file : URL.createObjectURL(file);
+    image.src = imageSource;
   });
 }
 
