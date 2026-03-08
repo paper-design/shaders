@@ -2,7 +2,7 @@ import { type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-si
 import { declarePI, simplexNoise } from '../shader-utils.js';
 
 /**
- * Static grid pattern made of circles, diamonds, squares or triangles.
+ * Static grid pattern made of circles, diamonds, squares, triangles, stripes or crosses.
  *
  * Fragment shader uniforms:
  * - u_colorBack (vec4): Background color in RGBA
@@ -14,7 +14,7 @@ import { declarePI, simplexNoise } from '../shader-utils.js';
  * - u_strokeWidth (float): Outline stroke width in pixels (0 to 50)
  * - u_sizeRange (float): Random variation in shape size, 0 = uniform, higher = random up to base size (0 to 1)
  * - u_opacityRange (float): Random variation in shape opacity, 0 = opaque, higher = semi-transparent (0 to 1)
- * - u_shape (float): Shape type (0 = circle, 1 = diamond, 2 = square, 3 = triangle)
+ * - u_shape (float): Shape type (0 = circle, 1 = diamond, 2 = square, 3 = triangle, 4 = stripe, 5 = cross)
  *
  * Vertex shader outputs (used in fragment shader):
  * - v_patternUV (vec2): UV coordinates in pixels (scaled by 0.01 for precision), with scale, rotation and offset applied
@@ -92,7 +92,7 @@ void main() {
   } else if (u_shape < 2.5) {
     // Square
     dist = polygon(1.03 * p, 4., 1e-3);
-  } else {
+  } else if (u_shape < 3.5) {
     // Triangle
     strokeWidth *= 1.5;
     p = p * 2. - 1.;
@@ -100,6 +100,15 @@ void main() {
     p.y = 1. - p.y;
     p.y -= .75 * baseSize;
     dist = polygon(p, 3., 1e-3);
+  } else if (u_shape < 4.5) {
+    // Stripe — horizontal bar: thin rectangle spanning full cell width,
+    // centred vertically. dist = SDF of a box with half-extents (inf, baseSize).
+    // We only care about the Y axis to get a horizontal stripe.
+    dist = abs(p.y);
+  } else {
+    // Cross — union of a horizontal and a vertical stripe.
+    // dist = SDF of a plus sign: min of the two axis-aligned SDFs.
+    dist = min(abs(p.x), abs(p.y));
   }
 
   float edgeWidth = fwidth(dist);
@@ -159,6 +168,8 @@ export const DotGridShapes = {
   diamond: 1,
   square: 2,
   triangle: 3,
+  stripe: 4,
+  cross: 5,
 } as const;
 
 export type DotGridShape = keyof typeof DotGridShapes;
