@@ -1,5 +1,11 @@
 # Paper Shaders
 
+## Version 0.0.72
+
+- **General**
+  - Added support for isolated documents (iframes, PiP windows) for both packages
+  - Resolved a Firefox-specific issue where an empty image prop triggered an error during the initial page load
+
 ## Version 0.0.71
 
 - **General**
@@ -8,7 +14,7 @@
   - Flood parameters now affect the transparent areas
   - Full support of image transparency 
 - **Image Dithering**
-  - Add an `inverted` option
+  - Added `inverted` option
 
 ## Version 0.0.70
 
