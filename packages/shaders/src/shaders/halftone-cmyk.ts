@@ -212,6 +212,15 @@ void main() {
 
   float cellsPerSide = mix(400.0, 7.0, pow(u_size, 0.7));
   float cellSizeY = 1.0 / cellsPerSide;
+
+  // Merge cells: when visual cell is too small, step up to coarser grid
+  float minCellPx = 5.;
+  float pxPerUVy = 1. / fwidth(v_imageUV.y);
+  float visualCellPx = cellSizeY * pxPerUVy;
+  float mergeBase = 1.2;
+  float mergeFactor = pow(mergeBase, max(0., ceil(log(minCellPx / visualCellPx) / log(mergeBase))));
+  cellSizeY *= mergeFactor;
+
   vec2 pad = cellSizeY * vec2(1.0 / u_imageAspectRatio, 1.0);
   vec2 uvGrid = (uv - .5) / pad;
   float insideImageBox = getUvFrame(uv, pad);

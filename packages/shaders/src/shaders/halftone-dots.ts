@@ -219,6 +219,15 @@ void main() {
   float cellsPerSide = mix(300., 7., pow(u_size, .7));
   cellsPerSide /= stepMultiplier;
   float cellSizeY = 1. / cellsPerSide;
+
+  // Merge cells: when visual cell is too small, merge 2x2, 4x4, etc.
+  float minCellPx = 5.;
+  float pxPerUVy = 1. / fwidth(v_imageUV.y);
+  float visualCellPx = cellSizeY / stepMultiplier * pxPerUVy;
+  float mergeBase = 1.2;
+  float mergeFactor = pow(mergeBase, max(0., ceil(log(minCellPx / visualCellPx) / log(mergeBase))));
+  cellSizeY *= mergeFactor;
+
   vec2 pad = cellSizeY * vec2(1. / u_imageAspectRatio, 1.);
   if (u_type == 1. && u_grid == 1.) {
     // gooey diagonal grid works differently
