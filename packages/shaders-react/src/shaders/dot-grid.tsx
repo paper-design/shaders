@@ -84,7 +84,52 @@ const wallpaperPreset: DotGridPreset = {
   },
 };
 
-export const dotGridPresets: DotGridPreset[] = [defaultPreset, trianglesPreset, treeLinePreset, wallpaperPreset];
+// ── New: Stripe preset ────────────────────────────────────────────────────────
+// Thin horizontal bars evenly spaced across the canvas.
+const stripesPreset: DotGridPreset = {
+  name: 'Stripes',
+  params: {
+    ...defaultPatternSizing,
+    colorBack: '#1a1a2e',
+    colorFill: '#e94560',
+    colorStroke: '#e94560',
+    size: 3,         // half-thickness of each stripe bar
+    gapX: 40,        // gapX has no visual effect for pure stripes but kept for uniformity
+    gapY: 24,        // vertical spacing between stripe centres
+    strokeWidth: 0,
+    sizeRange: 0,
+    opacityRange: 0,
+    shape: 'stripe',
+  },
+};
+
+// ── New: Cross preset ─────────────────────────────────────────────────────────
+// Plus-sign grid — looks like graph-paper crosshairs.
+const crossesPreset: DotGridPreset = {
+  name: 'Crosses',
+  params: {
+    ...defaultPatternSizing,
+    colorBack: '#f5f0e8',
+    colorFill: '#2d2d2d',
+    colorStroke: '#2d2d2d',
+    size: 2,         // arm half-thickness
+    gapX: 28,
+    gapY: 28,
+    strokeWidth: 0,
+    sizeRange: 0.3,
+    opacityRange: 0.2,
+    shape: 'cross',
+  },
+};
+
+export const dotGridPresets: DotGridPreset[] = [
+  defaultPreset,
+  trianglesPreset,
+  treeLinePreset,
+  wallpaperPreset,
+  stripesPreset,
+  crossesPreset,
+];
 
 export const DotGrid: React.FC<DotGridProps> = memo(function DotGridImpl({
   // Own props
