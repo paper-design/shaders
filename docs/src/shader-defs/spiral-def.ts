@@ -50,10 +50,10 @@ export const spiralDef: ShaderDef = {
     {
       name: 'strokeTaper',
       type: 'number',
-      min: 0,
+      min: -1,
       max: 1,
       defaultValue: defaultParams.strokeTaper,
-      description: 'how much the stroke is loosing width away from center (0 = full visibility)',
+      description: 'Stroke width taper along the spiral; positive = stroke fades out away from center, negative = stroke grows away from center (0 = uniform width)',
     },
     {
       name: 'strokeCap',
