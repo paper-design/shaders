@@ -29,7 +29,7 @@ import { simplexNoise, declarePI, colorBandingFix } from '../shader-utils.js';
  * - u_density (float): Spacing falloff simulating perspective, 0 = flat spiral (0 to 1)
  * - u_distortion (float): Power of shape distortion applied along the spiral (0 to 1)
  * - u_strokeWidth (float): Thickness of spiral curve (0 to 1)
- * - u_strokeTaper (float): How much stroke loses width away from center, 0 = full visibility (0 to 1)
+ * - u_strokeTaper (float): Stroke width taper along the spiral; positive = stroke fades out away from center, negative = stroke grows away from center, 0 = uniform width (-1 to 1)
  * - u_strokeCap (float): Extra stroke width at the center, no effect with strokeWidth = 0.5 (0 to 1)
  * - u_noise (float): Noise distortion applied over the canvas, no effect with noiseFrequency = 0 (0 to 1)
  * - u_noiseFrequency (float): Noise frequency, no effect with noise = 0 (0 to 1)
@@ -78,12 +78,13 @@ void main() {
   float stripe = fract(offset);
 
   float shape = 2. * abs(stripe - .5);
-  float width = 1. - clamp(u_strokeWidth, .005 * u_strokeTaper, 1.);
+  // float width = 1. - clamp(u_strokeWidth, .005 * u_strokeTaper, 1.);
+  float width = 1. - clamp(u_strokeWidth, 0., 1.);
 
 
   float wCap = mix(width, (1. - stripe) * (1. - step(.5, stripe)), (1. - clamp(l, 0., 1.)));
   width = mix(width, wCap, u_strokeCap);
-  width *= (1. - clamp(u_strokeTaper, 0., 1.) * l);
+  width *= (1. + clamp(u_strokeTaper, -1., 1.) * l);
 
   float fw = fwidth(offset);
   float fwMult = 4. - 3. * (smoothstep(.05, .4, 2. * u_strokeWidth) * smoothstep(.05, .4, 2. * (1. - u_strokeWidth)));
