@@ -299,11 +299,10 @@ void main() {
     pattern += u_folds * foldsPattern;
     
     vec2 fromCenter = imageUV - .5;
-    scaleDistortion = u_folds * mix(-.1, .2, radialFolds.w);
-    scaleDistortion -= .12 * radialFolds.x;
-    scaleDistortion += .1 * radialFolds.y;
+    scaleDistortion = .2 * radialFolds.z;
+    xDistortion += .04 * radialFolds.w;
+    scaleDistortion *= u_folds;
     scaleDistortion *= u_distortion;
-    scaleDistortion *= mix(.5, .0, 2. * radialFolds.z);
   } else {
     vec3 creasesResult = getGrid(imageUV + .5);
     foldsPattern = creasesResult.x;
@@ -312,11 +311,9 @@ void main() {
     pattern += u_folds * foldsPattern;
     float distortBase = mix(pow(creasesResult.y, .2), creasesResult.z, pow(u_foldsShape, 3.));
     yDistortion -= mix(.1, .02, u_foldCount / float(${ paperTextureMeta.maxFoldCount })) * (1. - distortBase);
+    patternUV.y -= u_distortion * yDistortion * ySidePower;
   }
   
-  patternUV.x += u_distortion * xDistortion;
-  patternUV.y -= u_distortion * yDistortion * ySidePower;
-
   vec2 roughnessUV = mix(330., 100., u_roughnessSize) * patternUV;
   vec2 fiberUV = mix(22., 4., u_fiberSize) * patternUV;
   vec2 rf = getRoughnessFiber(roughnessUV, fiberUV);
