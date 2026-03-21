@@ -30,7 +30,7 @@ export const paperTextureMeta = {
  * - u_fade (float): Large-scale noise mask applied to the pattern (0 to 1)
  * - u_blending (float): Amount of image-to-paper blending, 0 for original color, 1 for mix with colorBack (0 to 1)
  * - u_distortion (float): Amount of distortion of the image by the paper normals (0 to 1)
- * - u_backgroundFade (float): Fades the pattern outside the image frame (0 to 1)
+ * - u_background (bool): Shows or hides the paper texture outside the image frame
  * - u_noiseTexture (sampler2D): Pre-computed randomizer source texture
  *
  * Vertex shader outputs (used in fragment shader):
@@ -75,7 +75,7 @@ uniform float u_seed;
 uniform float u_fade;
 uniform float u_blending;
 uniform float u_distortion;
-uniform float u_backgroundFade;
+uniform bool u_background;
 uniform sampler2D u_noiseTexture;
 
 in vec2 v_imageUV;
@@ -301,8 +301,9 @@ void main() {
     vec2 fromCenter = imageUV - .5;
     scaleDistortion = .2 * radialFolds.z;
     xDistortion += .04 * radialFolds.w;
+    
+    xDistortion *= u_folds;
     scaleDistortion *= u_folds;
-    scaleDistortion *= u_distortion;
   } else {
     vec3 creasesResult = getGrid(imageUV + .5);
     foldsPattern = creasesResult.x;
@@ -311,7 +312,7 @@ void main() {
     pattern += u_folds * foldsPattern;
     float distortBase = mix(pow(creasesResult.y, .2), creasesResult.z, pow(u_foldsShape, 3.));
     yDistortion -= mix(.1, .02, u_foldCount / float(${ paperTextureMeta.maxFoldCount })) * (1. - distortBase);
-    patternUV.y -= u_distortion * yDistortion * ySidePower;
+    patternUV.y -= yDistortion * ySidePower;
   }
   
   vec2 roughnessUV = mix(330., 100., u_roughnessSize) * patternUV;
@@ -346,7 +347,7 @@ void main() {
   vec3 bgColor = u_colorBack.rgb * u_colorBack.a;
   float bgOpacity = u_colorBack.a;
 
-  imageUV = .5 + fromCenter * (1. + scaleDistortion);
+  imageUV = .5 + fromCenter * (1. + u_distortion * scaleDistortion);
   imageUV.x += u_distortion * xDistortion;
   imageUV.y -= u_distortion * yDistortion * ySidePower;
   vec2 dc = imageUV - .5;
@@ -358,8 +359,6 @@ void main() {
   vec4 image = texture(u_image, imageUV);
   frame *= image.a;
   frame = mix(frame, 0., .2 * fade);
-
-  pattern = mix(.5, pattern, mix(1., frame, u_backgroundFade));
 
   vec3 color = fgColor * pattern;
   float opacity = fgOpacity * pattern;
@@ -378,9 +377,14 @@ void main() {
 
   vec3 pic = blendMultiply(image.rgb, color, u_blending);
   pic = mix(pic, vec3(1.), .4 * pow(dampen, 2. + 3. * pattern));
-  
+
   color = mix(color, pic, frame);
-  
+
+  if (!u_background) {
+    opacity *= frame;
+    color *= frame;
+  }
+
    fragColor = vec4(color, opacity);
 }
 `;
@@ -405,7 +409,7 @@ export interface PaperTextureUniforms extends ShaderSizingUniforms {
   u_seed: number;
   u_blending: number;
   u_distortion: number;
-  u_backgroundFade: number;
+  u_background: boolean;
 }
 
 export interface PaperTextureParams extends ShaderSizingParams, ShaderMotionParams {
@@ -427,7 +431,7 @@ export interface PaperTextureParams extends ShaderSizingParams, ShaderMotionPara
   seed?: number;
   blending?: number;
   distortion?: number;
-  backgroundFade?: number;
+  background?: boolean;
 }
 
 export type PaperTextureFoldType = 'folds' | 'creases';
