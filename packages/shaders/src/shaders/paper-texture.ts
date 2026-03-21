@@ -299,10 +299,7 @@ void main() {
     pattern += u_folds * foldsPattern;
     
     vec2 fromCenter = imageUV - .5;
-    scaleDistortion = .2 * radialFolds.z;
-    xDistortion += .04 * radialFolds.w;
-    
-    xDistortion *= u_folds;
+    scaleDistortion = .22 * radialFolds.z;
     scaleDistortion *= u_folds;
   } else {
     vec3 creasesResult = getGrid(imageUV + .5);
