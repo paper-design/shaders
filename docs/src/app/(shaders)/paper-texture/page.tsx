@@ -23,7 +23,6 @@ import { useUrlParams } from '@/helpers/use-url-params';
 const { worldWidth, worldHeight, ...defaults } = paperTexturePresets[0].params;
 
 const controlRules: ControlRules = {
-  roughnessSize: { showWhen: { roughness: { gt: 0 } } },
   fiberSize: { showWhen: { fiber: { gt: 0 } } },
   crumpleSize: { showWhen: { crumples: { gt: 0 } } },
   // foldsShape: { showWhen: { foldType: { eq: 'creases' } } },
@@ -87,7 +86,6 @@ const PaperTextureWithControls = () => {
         distortion: { value: defaults.distortion, min: -1, max: 1, order: 199 },
         seed: { value: defaults.seed, min: 0, step: 1, max: 1000, order: 200 },
         roughness: { value: defaults.roughness, min: 0, max: 1, order: 201 },
-        roughnessSize: { value: defaults.roughnessSize, min: 0, max: 1, order: 202 },
         fiber: { value: defaults.fiber, min: 0, max: 1, order: 210 },
         fiberSize: { value: defaults.fiberSize, min: 0, max: 1, order: 211 },
         crumples: { value: defaults.crumples, min: 0, max: 1, order: 220 },

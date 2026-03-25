@@ -16,7 +16,6 @@ export const paperTextureMeta = {
  * - u_colorFront (vec4): Foreground color in RGBA
  * - u_colorBack (vec4): Background color in RGBA
  * - u_roughness (float): Hi-freq grain-like distortion intensity (0 to 1)
- * - u_roughnessSize (float): Scale of the roughness pattern (0 to 1)
  * - u_fiber (float): Curly-shaped noise intensity (0 to 1)
  * - u_fiberSize (float): Curly-shaped noise scale (0 to 1)
  * - u_crumples (float): Cell-based crumple pattern intensity (0 to 1)
@@ -60,7 +59,6 @@ uniform vec4 u_colorBack;
 uniform sampler2D u_image;
 uniform float u_imageAspectRatio;
 
-uniform float u_roughnessSize;
 uniform float u_roughness;
 uniform float u_fiber;
 uniform float u_fiberSize;
@@ -129,24 +127,33 @@ vec2 getRoughnessFiber(vec2 pR, vec2 pF) {
   vec2 fiberGrad = vec2(0.);
   pR *= .1;
   float scaleR = .1;
+
+  // Roughness: adaptive octaves at 1.4x steps, from base down to ~2px cells
+  float pxFootprint = length(fwidth(pR));
+  for (int i = 0; i < 12; i++) {
+    float pxPerCell = 1. / max(pxFootprint, .0001);
+    if (pxPerCell < 2.) break;
+    vec2 ipR = floor(pR);
+    vec2 fpR = fract(pR);
+    float octaveShift = float(i) * .1;
+    vec4 uvR = fract(vec4(ipR, ipR + 1.) / 50. + .5 + octaveShift);
+    float aR = texture(u_noiseTexture, uvR.xy).r;
+    float bR = texture(u_noiseTexture, uvR.xw).r;
+    float cR = texture(u_noiseTexture, uvR.zy).r;
+    float dR = texture(u_noiseTexture, uvR.zw).r;
+    roughDx += scaleR * mix(cR - aR, dR - bR, fpR.y);
+    pR *= 1.4;
+    scaleR *= 1.4;
+    pxFootprint *= 1.4;
+  }
+
+  // Fiber: original 4 octaves
   float scaleF = 1.;
   float amplitude = 1.;
   float c = 0.7648;  // cos(0.7)
   float s = 0.6442;  // sin(0.7)
   float rc = 1., rs = 0.;  // accumulated rotation
   for (int i = 0; i < 4; i++) {
-    if (i < 3) {
-      vec2 ipR = floor(pR);
-      vec2 fpR = fract(pR);
-      vec4 uvR = fract(vec4(ipR, ipR + 1.) / 50. + .5);
-      float aR = texture(u_noiseTexture, uvR.xy).r;
-      float bR = texture(u_noiseTexture, uvR.xw).r;
-      float cR = texture(u_noiseTexture, uvR.zy).r;
-      float dR = texture(u_noiseTexture, uvR.zw).r;
-      roughDx += scaleR * mix(cR - aR, dR - bR, fpR.y);
-      pR *= 2.1;
-      scaleR *= 2.1;
-    }
     pF = vec2(c * pF.x - s * pF.y, s * pF.x + c * pF.y);
     float rc2 = rc * c - rs * s;
     rs = rs * c + rc * s;
@@ -167,6 +174,7 @@ vec2 getRoughnessFiber(vec2 pR, vec2 pF) {
     scaleF *= 2.;
     amplitude *= 0.6;
   }
+
   return vec2(roughDx, length(fiberGrad));
 }
 
@@ -312,7 +320,7 @@ void main() {
     patternUV.y -= yDistortion * ySidePower;
   }
   
-  vec2 roughnessUV = mix(330., 100., u_roughnessSize) * patternUV;
+  vec2 roughnessUV = 200. * patternUV;
   vec2 fiberUV = mix(22., 4., u_fiberSize) * patternUV;
   vec2 rf = getRoughnessFiber(roughnessUV, fiberUV);
   float roughness = clamp(5. * rf.x, 0., 1.);
@@ -392,7 +400,6 @@ export interface PaperTextureUniforms extends ShaderSizingUniforms {
   u_colorFront: [number, number, number, number];
   u_colorBack: [number, number, number, number];
   u_roughness: number;
-  u_roughnessSize: number;
   u_fiber: number;
   u_fiberSize: number;
   u_crumples: number;
@@ -414,7 +421,6 @@ export interface PaperTextureParams extends ShaderSizingParams, ShaderMotionPara
   colorFront?: string;
   colorBack?: string;
   roughness?: number;
-  roughnessSize?: number;
   fiber?: number;
   fiberSize?: number;
   crumples?: number;
