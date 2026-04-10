@@ -220,6 +220,14 @@ export {
   type HalftoneCmykType,
 } from './shaders/halftone-cmyk.js';
 
+export {
+  logo3dMeta,
+  logo3dFragmentShader,
+  toProcessedLogo3d,
+  type Logo3dParams,
+  type Logo3dUniforms,
+} from './shaders/logo-3d.js';
+
 // ----- Utils ----- //
 export { getShaderColorFromString } from './get-shader-color-from-string.js';
 export { getShaderNoiseTexture } from './get-shader-noise-texture.js';
