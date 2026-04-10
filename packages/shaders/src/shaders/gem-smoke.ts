@@ -19,8 +19,8 @@ export const gemSmokeMeta = {
  * - u_colors (vec4[]): Up to 6 smoke colors in RGBA
  * - u_colorsCount (float): Number of active colors
  * - u_colorBack (vec4): Background color in RGBA
- * - u_distortion (float): Power of smoke distortion (0 to 1)
- * - u_outerDistortion (float): Power of distortion outside the input shape (0 to 1)
+ * - u_innerDistortion (float): Power of smoke distortion inside the input shape (0 to 1)
+ * - u_outerDistortion (float): Power of smoke distortion outside the input shape (0 to 1)
  * - u_outerGlow (float): Visibility of smoke shape outside the input shape (0 to 1)
  * - u_innerGlow (float): Visibility of smoke shape inside the input shape (0 to 1)
  * - u_colorInner (vec4): Additional color inside the input shape, mixing with smoke (RGBA)
@@ -71,7 +71,7 @@ uniform vec4 u_colorBack;
 uniform vec4 u_colorInner;
 
 // Effect controls
-uniform float u_distortion;
+uniform float u_innerDistortion;
 uniform float u_outerDistortion;
 uniform float u_outerGlow;
 uniform float u_innerGlow;
@@ -128,28 +128,31 @@ void main() {
   smokeUV = rotate(smokeUV, u_angle * PI / 180.);
   smokeUV *= mix(4., 1., u_size);
 
-  // Vertical displacement
-  smokeUV.y += u_distortion * (1. - sst(0., 1., length(.4 * smokeUV)));
-  smokeUV.y -= .4 * u_distortion;
-  smokeUV.y += .4 * u_offset * roundness;
-
-  // Two swirl paths: inner (shape-masked) and outer (free)
+  // Two swirl paths: inner (shape-masked) and outer (free), each with independent distortion
   vec2 innerUV = smokeUV;
   vec2 outerUV = smokeUV;
 
-  float innerSwirl = u_distortion * roundness;
-  float outerSwirl = mix(0., u_distortion, .8 * u_outerDistortion);
+  // Vertical displacement — applied independently to inner and outer
+  innerUV.y += u_innerDistortion * (1. - sst(0., 1., length(.4 * innerUV)));
+  innerUV.y -= .4 * u_innerDistortion;
+  innerUV.y += .7 * u_offset * roundness;
+
+  outerUV.y += u_outerDistortion * (1. - sst(0., 1., length(.4 * outerUV)));
+  outerUV.y -= .4 * u_outerDistortion;
+
+  float innerSwirl = u_innerDistortion * roundness;
+  float outerSwirl = u_outerDistortion;
 
   for (int i = 1; i < 5; i++) {
     float fi = float(i);
 
-    float stretchIn = max(length(dFdx(innerUV)), length(dFdy(outerUV)));
+    float stretchIn = max(length(dFdx(innerUV)), length(dFdy(innerUV)));
     float dampenIn = 1. / (1. + stretchIn * 8.);
     float sIn = innerSwirl * dampenIn;
     innerUV.x += sIn / fi * cos(time + fi * 2.9 * innerUV.y);
     innerUV.y += sIn / fi * cos(time + fi * 1.5 * innerUV.x);
 
-    float stretchOut = max(length(dFdx(innerUV)), length(dFdy(outerUV)));
+    float stretchOut = max(length(dFdx(outerUV)), length(dFdy(outerUV)));
     float dampenOut = 1. / (1. + stretchOut * 8.);
     float sOut = outerSwirl * dampenOut;
     outerUV.x += sOut / fi * cos(time + fi * 2.9 * outerUV.y);
@@ -663,11 +666,11 @@ export interface GemSmokeUniforms extends ShaderSizingUniforms {
   u_colors: vec4[];
   u_colorsCount: number;
   u_image: HTMLImageElement | string | undefined;
-  u_distortion: number;
+  u_innerDistortion: number;
+  u_outerDistortion: number;
   u_outerGlow: number;
   u_innerGlow: number;
   u_colorInner: [number, number, number, number];
-  u_outerDistortion: number;
   u_offset: number;
   u_angle: number;
   u_size: number;
@@ -677,11 +680,11 @@ export interface GemSmokeParams extends ShaderSizingParams, ShaderMotionParams {
   colors?: string[];
   colorBack?: string;
   image?: HTMLImageElement | string | undefined;
-  distortion?: number;
+  innerDistortion?: number;
+  outerDistortion?: number;
   outerGlow?: number;
   innerGlow?: number;
   colorInner?: string;
-  outerDistortion?: number;
   offset?: number;
   angle?: number;
   size?: number;

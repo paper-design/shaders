@@ -69,11 +69,11 @@ const GemSmokeWithControls = () => {
     return {
       colorBack: { value: toHsla(defaults.colorBack), order: 100 },
       colorInner: { value: toHsla(defaults.colorInner), order: 101 },
-      distortion: { value: defaults.distortion, min: 0, max: 1, order: 201 },
+      innerDistortion: { value: defaults.innerDistortion, min: 0, max: 1, order: 201 },
       outerDistortion: { value: defaults.outerDistortion, min: 0, max: 1, order: 202 },
       outerGlow: { value: defaults.outerGlow, min: 0, max: 1, order: 203 },
       innerGlow: { value: defaults.innerGlow, min: 0, max: 1, order: 204 },
-      offset: { value: defaults.offset, min: 0, max: 1, order: 205 },
+      offset: { value: defaults.offset, min: -1, max: 1, order: 205 },
       angle: { value: defaults.angle, min: 0, max: 360, order: 250 },
       size: { value: defaults.angle, min: 0.1, max: 1, order: 251 },
       speed: { value: defaults.speed, min: 0, max: 4, order: 300 },
