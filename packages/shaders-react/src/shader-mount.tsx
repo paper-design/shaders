@@ -3,7 +3,7 @@
 import { useEffect, useRef, forwardRef, useState } from 'react';
 import {
   ShaderMount as ShaderMountVanilla,
-  getEmptyPixel,
+  emptyPixel,
   type PaperShaderElement,
   type ShaderMotionParams,
   type ShaderMountUniforms,
@@ -78,20 +78,17 @@ async function processUniforms(uniformsProp: ShaderMountUniformsReact): Promise<
   Object.entries(uniformsProp).forEach(([key, value]) => {
     if (typeof value === 'string') {
       // Use a transparent pixel for empty strings
-      if (!value) {
-        processedUniforms[key] = getEmptyPixel();
-        return;
-      }
+      const url = value || emptyPixel;
 
       // Make sure the provided string is a valid URL or just skip trying to set this uniform entirely
-      if (!isValidUrl(value)) {
-        console.warn(`Uniform "${key}" has invalid URL "${value}". Skipping image loading.`);
+      if (!isValidUrl(url)) {
+        console.warn(`Uniform "${key}" has invalid URL "${url}". Skipping image loading.`);
         return;
       }
 
       const imagePromise = new Promise<void>((resolve, reject) => {
         const img = new Image();
-        if (isExternalUrl(value)) {
+        if (isExternalUrl(url)) {
           img.crossOrigin = 'anonymous';
         }
         img.onload = () => {
@@ -100,10 +97,10 @@ async function processUniforms(uniformsProp: ShaderMountUniformsReact): Promise<
           resolve();
         };
         img.onerror = () => {
-          console.error(`Could not set uniforms. Failed to load image at ${value}`);
+          console.error(`Could not set uniforms. Failed to load image at ${url}`);
           reject();
         };
-        img.src = value;
+        img.src = url;
       });
 
       imageLoadPromises.push(imagePromise);
