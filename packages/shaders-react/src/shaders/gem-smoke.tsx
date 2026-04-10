@@ -31,7 +31,7 @@ export const defaultPreset: GemSmokePreset = {
     speed: 1,
     frame: 0,
     colorBack: '#000000',
-    colorInner: '#000000',
+    colorInner: '#00000000',
     colors: ['#1d1e4e', '#23a94d', '#bf5fff', '#fffb00', '#fff8e0'],
     outerGlow: 0.6,
     innerGlow: 1,
@@ -83,6 +83,26 @@ export const innerPreset: GemSmokePreset = {
   },
 };
 
+export const firePreset: GemSmokePreset = {
+  name: 'Fire',
+  params: {
+    ...defaultObjectSizing,
+    scale: 0.65,
+    speed: 1,
+    frame: 0,
+    colorBack: '#000000',
+    colorInner: '#00000000',
+    colors: ['#fe5b16', '#f7ff61', '#ffffff'],
+    outerGlow: 1,
+    innerGlow: 0.65,
+    innerDistortion: 1,
+    outerDistortion: 0.8,
+    offset: 0,
+    angle: 0,
+    size: 0.5,
+  },
+};
+
 export const brightPreset: GemSmokePreset = {
   name: 'Bright',
   params: {
@@ -103,7 +123,7 @@ export const brightPreset: GemSmokePreset = {
   },
 };
 
-export const gemSmokePresets: GemSmokePreset[] = [defaultPreset, blackPreset, innerPreset, brightPreset];
+export const gemSmokePresets: GemSmokePreset[] = [defaultPreset, blackPreset, firePreset, innerPreset, brightPreset];
 
 export const GemSmoke: React.FC<GemSmokeProps> = memo(function GemSmokeImpl({
   // Own props
