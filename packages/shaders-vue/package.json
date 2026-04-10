@@ -1,0 +1,35 @@
+{
+  "name": "@paper-design/shaders-vue",
+  "version": "0.0.72",
+  "license": "SEE LICENSE IN https://github.com/paper-design/shaders/blob/main/LICENSE",
+  "type": "module",
+  "sideEffects": false,
+  "publishConfig": {
+    "access": "public"
+  },
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "type-check": "tsc --project tsconfig.json"
+  },
+  "dependencies": {
+    "@paper-design/shaders": "0.0.72"
+  },
+  "devDependencies": {
+    "vue": "^3.4.0"
+  },
+  "peerDependencies": {
+    "vue": "^3.4.0"
+  }
+}

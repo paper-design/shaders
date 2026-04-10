@@ -49,3 +49,4 @@ async function build(packageDir) {
 
 build('packages/shaders');
 build('packages/shaders-react');
+build('packages/shaders-vue');

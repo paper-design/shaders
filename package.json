@@ -6,7 +6,8 @@
   "workspaces": [
     "docs",
     "packages/shaders",
-    "packages/shaders-react"
+    "packages/shaders-react",
+    "packages/shaders-vue"
   ],
   "scripts": {
     "build": "bun run build.js",
