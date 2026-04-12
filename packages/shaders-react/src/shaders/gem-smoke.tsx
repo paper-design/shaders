@@ -10,6 +10,7 @@ import {
   toProcessedGemSmoke,
   type ImageShaderPreset,
   getShaderColorFromString,
+  GemSmokeShapes,
 } from '@paper-design/shaders';
 import { transparentPixel } from '../transparent-pixel.js';
 import { suspend } from '../suspend.js';
@@ -27,7 +28,7 @@ export const defaultPreset: GemSmokePreset = {
   name: 'Default',
   params: {
     ...defaultObjectSizing,
-    scale: 0.75,
+    scale: 0.6,
     speed: 1,
     frame: 0,
     colorBack: '#f0efea',
@@ -40,6 +41,7 @@ export const defaultPreset: GemSmokePreset = {
     offset: 0,
     angle: 0,
     size: 0.5,
+    shape: 'diamond',
   },
 };
 
@@ -60,6 +62,7 @@ export const fluorescentPreset: GemSmokePreset = {
     offset: 0,
     angle: 0,
     size: 0.5,
+    shape: 'diamond',
   },
 };
 
@@ -80,6 +83,7 @@ export const firePreset: GemSmokePreset = {
     offset: 0,
     angle: 0,
     size: 0.5,
+    shape: 'diamond',
   },
 };
 
@@ -87,19 +91,20 @@ export const infraredPreset: GemSmokePreset = {
   name: 'Infrared',
   params: {
     ...defaultObjectSizing,
-    scale: 0.75,
+    scale: 1,
     speed: 0.5,
     frame: 0,
     colorBack: '#cd28dc',
     colorInner: '#00000000',
     colors: ['#ff9900', '#fff67a', '#dcff52', '#00ffbb', '#0077ff'],
-    outerGlow: 0.9,
+    outerGlow: 0,
     innerGlow: 1,
     innerDistortion: 1,
     outerDistortion: 1,
     offset: 0.2,
     angle: 0,
     size: 1,
+    shape: 'none',
   },
 };
 
@@ -120,6 +125,7 @@ export const GemSmoke: React.FC<GemSmokeProps> = memo(function GemSmokeImpl({
   offset = defaultPreset.params.offset,
   angle = defaultPreset.params.angle,
   size = defaultPreset.params.size,
+  shape = defaultPreset.params.shape,
   suspendWhenProcessingImage = false,
 
   // Sizing props
@@ -188,6 +194,8 @@ export const GemSmoke: React.FC<GemSmokeProps> = memo(function GemSmokeImpl({
     u_offset: offset,
     u_angle: angle,
     u_size: size,
+    u_isImage: Boolean(image),
+    u_shape: GemSmokeShapes[shape],
 
     // Sizing uniforms
     u_fit: ShaderFitOptions[fit],

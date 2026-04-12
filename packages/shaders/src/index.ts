@@ -225,6 +225,8 @@ export {
   gemSmokeMeta,
   gemSmokeFragmentShader,
   toProcessedGemSmoke,
+  GemSmokeShapes,
+  type GemSmokeShape,
   type GemSmokeParams,
   type GemSmokeUniforms,
 } from './shaders/gem-smoke.js';

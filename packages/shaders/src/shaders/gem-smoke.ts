@@ -54,6 +54,8 @@ precision mediump float;
 
 in mediump vec2 v_imageUV;
 in mediump vec2 v_objectUV;
+in mediump vec2 v_responsiveUV;
+in mediump vec2 v_responsiveBoxGivenSize;
 out vec4 fragColor;
 
 // Image
@@ -78,6 +80,10 @@ uniform float u_innerGlow;
 uniform float u_offset;
 uniform float u_angle;
 uniform float u_size;
+
+// Shape controls
+uniform float u_shape;
+uniform bool u_isImage;
 
 ${ declarePI }
 ${ rotation2 }
@@ -109,27 +115,96 @@ float sst(float a, float b, float x) {
 void main() {
   float time = u_time;
 
-  // Image sampling (UV scaled inward to account for padding)
-  vec2 imageUV = v_imageUV;
-  imageUV -= .5;
-  imageUV *= .95;
-  imageUV += .5;
+  float roundness = 0.;
+  float imgAlpha = 0.;
 
-  vec2 dudx = dFdx(v_imageUV);
-  vec2 dudy = dFdy(v_imageUV);
+  if (u_isImage == true) {
+    // Image sampling (UV scaled inward to account for padding)
+    vec2 imageUV = v_imageUV;
+    imageUV -= .5;
+    imageUV *= .95;
+    imageUV += .5;
 
-  // Blurred image: x = roundness, y = alpha
-  vec2 blurred = gaussBlur9x9RG(u_image, imageUV, dudx, dudy, 10.);
-  float roundness = 1. - blurred.x;
-  vec2 texelA = 1.0 / vec2(textureSize(u_image, 0));
-  float imgAlpha = 0.0;
-  const float k3[3] = float[3](1.0, 2.0, 1.0);
-  for (int j = -1; j <= 1; ++j) {
-    for (int i = -1; i <= 1; ++i) {
-      imgAlpha += k3[i + 1] * k3[j + 1] * texture(u_image, imageUV + vec2(float(i) * texelA.x, float(j) * texelA.y)).g;
+    vec2 dudx = dFdx(v_imageUV);
+    vec2 dudy = dFdy(v_imageUV);
+
+    // Blurred image: x = roundness, y = alpha
+    vec2 blurred = gaussBlur9x9RG(u_image, imageUV, dudx, dudy, 10.);
+    roundness = 1. - blurred.x;
+    vec2 texelA = 1.0 / vec2(textureSize(u_image, 0));
+    const float k3[3] = float[3](1.0, 2.0, 1.0);
+    for (int j = -1; j <= 1; ++j) {
+      for (int i = -1; i <= 1; ++i) {
+        imgAlpha += k3[i + 1] * k3[j + 1] * texture(u_image, imageUV + vec2(float(i) * texelA.x, float(j) * texelA.y)).g;
+      }
     }
+    imgAlpha /= 16.0;
+  } else {
+    vec2 uv = v_objectUV + .5;
+    uv.y = 1. - uv.y;
+    float edge = 0.;
+
+    if (u_shape < 1.) {
+      // full-fill on canvas
+      vec2 borderUV = v_responsiveUV + .5;
+      vec2 mask = min(borderUV, 1. - borderUV);
+      vec2 pixel_thickness = min(250. / v_responsiveBoxGivenSize, vec2(.5));
+      float maskX = smoothstep(0.0, pixel_thickness.x, mask.x);
+      float maskY = smoothstep(0.0, pixel_thickness.y, mask.y);
+      maskX = pow(maskX, .25);
+      maskY = pow(maskY, .25);
+      edge = clamp(1. - maskX * maskY, 0., 1.);
+    } else if (u_shape < 2.) {
+      // circle
+      vec2 shapeUV = uv - .5;
+      shapeUV *= .67;
+      edge = pow(clamp(3. * length(shapeUV), 0., 1.), 18.);
+    } else if (u_shape < 3.) {
+      // daisy
+      vec2 shapeUV = uv - .5;
+      shapeUV *= 1.68;
+
+      float r = length(shapeUV) * 2.;
+      float a = atan(shapeUV.y, shapeUV.x) + .2;
+      r *= (1. + .05 * sin(3. * a + 2. * time));
+      float f = abs(cos(a * 3.));
+      edge = smoothstep(f, f + .7, r);
+      edge *= edge;
+    } else if (u_shape < 4.) {
+      // diamond
+      vec2 shapeUV = uv - .5;
+      shapeUV = rotate(shapeUV, .25 * PI);
+      shapeUV *= 1.42;
+      shapeUV += .5;
+      vec2 mask = min(shapeUV, 1. - shapeUV);
+      vec2 pixel_thickness = vec2(.15);
+      float maskX = smoothstep(0.0, pixel_thickness.x, mask.x);
+      float maskY = smoothstep(0.0, pixel_thickness.y, mask.y);
+      maskX = pow(maskX, .25);
+      maskY = pow(maskY, .25);
+      edge = clamp(1. - maskX * maskY, 0., 1.);
+    } else if (u_shape < 5.) {
+      // metaballs
+      vec2 shapeUV = uv - .5;
+      shapeUV *= 1.3;
+      edge = 0.;
+      for (int i = 0; i < 5; i++) {
+        float fi = float(i);
+        float speed = 1.5 + 2./3. * sin(fi * 12.345);
+        float angle = -fi * 1.5;
+        vec2 dir1 = vec2(cos(angle), sin(angle));
+        vec2 dir2 = vec2(cos(angle + 1.57), sin(angle + 1.));
+        vec2 traj = .4 * (dir1 * sin(time * speed + fi * 1.23) + dir2 * cos(time * (speed * 0.7) + fi * 2.17));
+        float d = length(shapeUV + traj);
+        edge += pow(1.0 - clamp(d, 0.0, 1.0), 4.0);
+      }
+      edge = 1. - smoothstep(.65, .9, edge);
+      edge = pow(edge, 4.);
+    }
+
+    imgAlpha = 1. - smoothstep(.9 - 2. * fwidth(edge), .9, edge);
+    roundness = 1. - edge;
   }
-  imgAlpha /= 16.0;
 
 // Smoke UV setup
   vec2 smokeUV = v_objectUV;
@@ -682,6 +757,8 @@ export interface GemSmokeUniforms extends ShaderSizingUniforms {
   u_offset: number;
   u_angle: number;
   u_size: number;
+  u_shape: (typeof GemSmokeShapes)[GemSmokeShape];
+  u_isImage: boolean;
 }
 
 export interface GemSmokeParams extends ShaderSizingParams, ShaderMotionParams {
@@ -696,4 +773,15 @@ export interface GemSmokeParams extends ShaderSizingParams, ShaderMotionParams {
   offset?: number;
   angle?: number;
   size?: number;
+  shape?: GemSmokeShape;
 }
+
+export const GemSmokeShapes = {
+  none: 0,
+  circle: 1,
+  daisy: 2,
+  diamond: 3,
+  metaballs: 4,
+} as const;
+
+export type GemSmokeShape = keyof typeof GemSmokeShapes;

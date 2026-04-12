@@ -5,9 +5,9 @@ import { useControls, button, folder } from 'leva';
 import { setParamsSafe, useResetLevaParams } from '@/helpers/use-reset-leva-params';
 import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
-import { gemSmokeMeta } from '@paper-design/shaders';
+import { gemSmokeMeta, GemSmokeShapes, GemSmokeShape } from '@paper-design/shaders';
 import { ShaderFit } from '@paper-design/shaders';
-import { levaImageButton } from '@/helpers/leva-image-button';
+import { levaDeleteImageButton, levaImageButton } from '@/helpers/leva-image-button';
 import { useState, Suspense, useEffect, useCallback } from 'react';
 import { ShaderDetails } from '@/components/shader-details';
 import { ShaderContainer } from '@/components/shader-container';
@@ -44,7 +44,7 @@ const imageFiles = [
 
 const GemSmokeWithControls = () => {
   const [imageIdx, setImageIdx] = useState(-1);
-  const [image, setImage] = useState<HTMLImageElement | string>('/images/logos/diamond.svg');
+  const [image, setImage] = useState<HTMLImageElement | string>('');
 
   useEffect(() => {
     if (imageIdx >= 0) {
@@ -69,6 +69,12 @@ const GemSmokeWithControls = () => {
     return {
       colorBack: { value: toHsla(defaults.colorBack), order: 100 },
       colorInner: { value: toHsla(defaults.colorInner), order: 101 },
+      shape: {
+        value: defaults.shape,
+        options: Object.keys(GemSmokeShapes) as GemSmokeShape[],
+        order: 102,
+        disabled: Boolean(image),
+      },
       innerDistortion: { value: defaults.innerDistortion, min: 0, max: 1, order: 201 },
       outerDistortion: { value: defaults.outerDistortion, min: 0, max: 1, order: 202 },
       outerGlow: { value: defaults.outerGlow, min: 0, max: 1, order: 203 },
@@ -82,14 +88,12 @@ const GemSmokeWithControls = () => {
       // offsetX: { value: defaults.offsetX, min: -1, max: 1, order: 303 },
       // offsetY: { value: defaults.offsetY, min: -1, max: 1, order: 304 },
       // fit: { value: defaults.fit, options: ['contain', 'cover'] as ShaderFit[], order: 305 },
-      Image: folder(
-        {
-          'Upload image': levaImageButton((img?: HTMLImageElement) => setImage(img ?? '')),
-        },
-        { order: -1 }
-      ),
+      Image: folder({
+        'Upload image': levaImageButton((img?: HTMLImageElement) => setImage(img ?? '')),
+        ...(image && { 'Delete image': levaDeleteImageButton(() => setImage('')) }),
+      }, { order: -1 }),
     };
-  }, [colors.length]);
+  }, [colors.length, image]);
 
   useControls(() => {
     const presets = Object.fromEntries(

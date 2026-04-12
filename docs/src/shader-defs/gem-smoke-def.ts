@@ -15,6 +15,13 @@ export const gemSmokeDef: ShaderDef = {
         'An optional image used as an effect mask. A transparent background is required. If no image is provided, the shader defaults to one of the predefined shapes.',
     },
     {
+      name: 'shape',
+      type: 'enum',
+      defaultValue: defaultParams.shape,
+      description: 'The predefined shape used as an effect mask when no image is provided.',
+      options: ['none', 'circle', 'daisy', 'diamond', 'metaballs'],
+    },
+    {
       name: 'colors',
       type: 'string[]',
       defaultValue: [],
