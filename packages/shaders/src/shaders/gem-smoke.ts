@@ -121,9 +121,17 @@ void main() {
   // Blurred image: x = roundness, y = alpha
   vec2 blurred = gaussBlur9x9RG(u_image, imageUV, dudx, dudy, 10.);
   float roundness = 1. - blurred.x;
-  float imgAlpha = blurred.y;
+  vec2 texelA = 1.0 / vec2(textureSize(u_image, 0));
+  float imgAlpha = 0.0;
+  const float k3[3] = float[3](1.0, 2.0, 1.0);
+  for (int j = -1; j <= 1; ++j) {
+    for (int i = -1; i <= 1; ++i) {
+      imgAlpha += k3[i + 1] * k3[j + 1] * texture(u_image, imageUV + vec2(float(i) * texelA.x, float(j) * texelA.y)).g;
+    }
+  }
+  imgAlpha /= 16.0;
 
-  // Smoke UV setup
+// Smoke UV setup
   vec2 smokeUV = v_objectUV;
   smokeUV = rotate(smokeUV, u_angle * PI / 180.);
   smokeUV *= mix(4., 1., u_size);
@@ -164,8 +172,8 @@ void main() {
   float outerShape = exp(-1.5 * dot(outerUV, outerUV));
 
   // Visibility masks
-  float outerMask = pow(u_outerGlow, 2.) * (1. - smoothstep(.0, .9, imgAlpha));
-  float innerMask = (.01 + .99 * u_innerGlow) * smoothstep(.6, 1., imgAlpha);
+  float outerMask = pow(u_outerGlow, 2.) * (1. - imgAlpha);
+  float innerMask = (.01 + .99 * u_innerGlow) * imgAlpha;
 
   innerShape *= innerMask;
   outerShape *= outerMask;
