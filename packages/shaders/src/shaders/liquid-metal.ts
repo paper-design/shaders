@@ -182,7 +182,7 @@ void main() {
       vec2 borderUV = v_responsiveUV + .5;
       float ratio = v_responsiveBoxGivenSize.x / v_responsiveBoxGivenSize.y;
       vec2 mask = min(borderUV, 1. - borderUV);
-      vec2 pixel_thickness = 250. / v_responsiveBoxGivenSize;
+      vec2 pixel_thickness = min(250. / v_responsiveBoxGivenSize, vec2(.5));
       float maskX = smoothstep(0.0, pixel_thickness.x, mask.x);
       float maskY = smoothstep(0.0, pixel_thickness.y, mask.y);
       maskX = pow(maskX, .25);
