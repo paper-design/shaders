@@ -1,5 +1,12 @@
 # Paper Shaders
 
+## Version 0.0.74
+
+- **Gem Smoke**
+  - Added a set of generic shapes
+- **Liquid Metal**
+  - Fixed the "none" shape for narrow containers
+
 ## Version 0.0.73
 
 New shader: **Gem Smoke**
