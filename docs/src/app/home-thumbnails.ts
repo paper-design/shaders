@@ -26,6 +26,7 @@ import heatmapImg from '../../public/shaders/heatmap.webp';
 import liquidMetalImg from '../../public/shaders/liquid-metal.webp';
 import halftoneDotsImg from '../../public/shaders/halftone-dots.webp';
 import halftoneCmykImg from '../../public/shaders/halftone-cmyk.webp';
+import gemSmokeImg from '../../public/shaders/gem-smoke.webp';
 import {
   DotGrid,
   dotGridPresets,
@@ -83,6 +84,8 @@ import {
   halftoneDotsPresets,
   HalftoneCmyk,
   halftoneCmykPresets,
+  GemSmoke,
+  gemSmokePresets,
 } from '@paper-design/shaders-react';
 import { StaticImageData } from 'next/image';
 
@@ -192,6 +195,19 @@ export const homeThumbnails = [
         image: liquidMetalImg,
         shaderConfig: {
           ...liquidMetalPresets[0].params,
+          scale: 0.9,
+          suspendWhenProcessingImage: true,
+          image: '/images/logos/diamond.svg',
+        },
+      },
+      {
+        name: 'gem smoke',
+        url: '/gem-smoke',
+        ShaderComponent: GemSmoke,
+        image: gemSmokeImg,
+        shaderConfig: {
+          ...gemSmokePresets[0].params,
+          frame: 1000,
           scale: 0.9,
           suspendWhenProcessingImage: true,
           image: '/images/logos/diamond.svg',

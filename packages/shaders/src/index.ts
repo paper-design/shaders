@@ -220,6 +220,15 @@ export {
   type HalftoneCmykType,
 } from './shaders/halftone-cmyk.js';
 
+/** Animated color fields running around a glassy logo shape */
+export {
+  gemSmokeMeta,
+  gemSmokeFragmentShader,
+  toProcessedGemSmoke,
+  type GemSmokeParams,
+  type GemSmokeUniforms,
+} from './shaders/gem-smoke.js';
+
 // ----- Utils ----- //
 export { getShaderColorFromString } from './get-shader-color-from-string.js';
 export { getShaderNoiseTexture } from './get-shader-noise-texture.js';

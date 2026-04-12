@@ -2,6 +2,7 @@ import { flatHomeThumbnails } from '@/app/home-thumbnails';
 import {
   Dithering,
   DotGrid,
+  GemSmoke,
   GrainGradient,
   HalftoneDots,
   Heatmap,
@@ -49,7 +50,7 @@ export const appThumbnails = flatHomeThumbnails.map((item) => {
       ...item,
       shaderConfig: {
         ...item.shaderConfig,
-        scale: 0.67,
+        scale: 0.97,
       },
     };
   }
@@ -106,6 +107,16 @@ export const appThumbnails = flatHomeThumbnails.map((item) => {
   }
 
   if (item.ShaderComponent === Heatmap) {
+    return {
+      ...item,
+      shaderConfig: {
+        ...item.shaderConfig,
+        scale: 0.97,
+      },
+    };
+  }
+
+  if (item.ShaderComponent === GemSmoke) {
     return {
       ...item,
       shaderConfig: {
