@@ -34,13 +34,13 @@ export const defaultPreset: GemSmokePreset = {
     colorBack: '#f0efea',
     colorInner: '#fafaf5',
     colors: ['#333333', '#e7e6df'],
-    outerGlow: 0.4,
+    outerGlow: 0.55,
     innerGlow: 1,
     innerDistortion: 0.8,
     outerDistortion: 0.6,
     offset: 0,
     angle: 0,
-    size: 0.5,
+    size: 0.75,
     shape: 'diamond',
   },
 };
@@ -49,7 +49,7 @@ export const fluorescentPreset: GemSmokePreset = {
   name: 'Fluorescent',
   params: {
     ...defaultObjectSizing,
-    scale: 0.75,
+    scale: 0.8,
     speed: 1,
     frame: 0,
     colorBack: '#000000',
@@ -61,7 +61,7 @@ export const fluorescentPreset: GemSmokePreset = {
     outerDistortion: 0.8,
     offset: 0,
     angle: 0,
-    size: 0.5,
+    size: 0.75,
     shape: 'diamond',
   },
 };
@@ -82,7 +82,7 @@ export const firePreset: GemSmokePreset = {
     outerDistortion: 0.8,
     offset: 0,
     angle: 0,
-    size: 0.5,
+    size: 0.75,
     shape: 'diamond',
   },
 };
@@ -91,7 +91,7 @@ export const infraredPreset: GemSmokePreset = {
   name: 'Infrared',
   params: {
     ...defaultObjectSizing,
-    scale: 1,
+    scale: 0.85,
     speed: 0.5,
     frame: 0,
     colorBack: '#cd28dc',
