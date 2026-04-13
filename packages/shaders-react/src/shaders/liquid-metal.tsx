@@ -69,7 +69,7 @@ export const fullScreenPreset: LiquidMetalPreset = {
     ...defaultObjectSizing,
     speed: 1,
     frame: 0,
-    scale: 1.5,
+    scale: 1,
     colorBack: '#AAAAAC',
     colorTint: '#ffffff',
     softness: 0.05,
