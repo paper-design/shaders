@@ -209,6 +209,8 @@ export const homeThumbnails = [
           ...gemSmokePresets[0].params,
           frame: 1000,
           scale: 0.9,
+          outerGlow: 0.4,
+          size: 0.5,
           suspendWhenProcessingImage: true,
           image: '/images/logos/diamond.svg',
         },

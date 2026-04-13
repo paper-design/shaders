@@ -40,7 +40,7 @@ export const defaultPreset: GemSmokePreset = {
     outerDistortion: 0.6,
     offset: 0,
     angle: 0,
-    size: 0.75,
+    size: 0.8,
     shape: 'diamond',
   },
 };
