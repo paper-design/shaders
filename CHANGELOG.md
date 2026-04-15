@@ -1,5 +1,10 @@
 # Paper Shaders
 
+## Version 0.0.76
+
+- **Gem Smoke**
+  - Presets adjusted
+
 ## Version 0.0.75
 
 - **Gem Smoke**, **Liquid Metal**
