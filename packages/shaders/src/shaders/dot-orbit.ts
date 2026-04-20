@@ -1,7 +1,7 @@
 import type { vec4 } from '../types.js';
 import type { ShaderMotionParams } from '../shader-mount.js';
 import { type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
-import { declarePI, rotation2, textureRandomizerR, textureRandomizerGB } from '../shader-utils.js';
+import { systemUniformFields, vertexOutputStruct, declarePI, rotation2, textureRandomizerR, textureRandomizerGB } from '../shader-utils.js';
 
 export const dotOrbitMeta = {
   maxColorCount: 10,
@@ -40,50 +40,46 @@ export const dotOrbitMeta = {
  *
  */
 
-// language=GLSL
-export const dotOrbitFragmentShader: string = `#version 300 es
-precision mediump float;
+export const dotOrbitFragmentShader: string = `
+struct Uniforms {
+  ${systemUniformFields}
+  u_colorsCount: f32,
+  u_stepsPerColor: f32,
+  u_size: f32,
+  u_sizeRange: f32,
+  u_spreading: f32,
+  u_colorBack: vec4f,
+  u_colors: array<vec4f, ${ dotOrbitMeta.maxColorCount }>,
+}
+@group(0) @binding(0) var<uniform> u: Uniforms;
+@group(1) @binding(0) var u_noiseTexture_tex: texture_2d<f32>;
+@group(1) @binding(1) var u_noiseTexture_samp: sampler;
 
-uniform float u_time;
-
-uniform sampler2D u_noiseTexture;
-
-uniform vec4 u_colorBack;
-uniform vec4 u_colors[${ dotOrbitMeta.maxColorCount }];
-uniform float u_colorsCount;
-uniform float u_stepsPerColor;
-uniform float u_size;
-uniform float u_sizeRange;
-uniform float u_spreading;
-
-in vec2 v_patternUV;
-
-out vec4 fragColor;
+${vertexOutputStruct}
 
 ${ declarePI }
 ${ rotation2 }
 ${ textureRandomizerR }
 ${ textureRandomizerGB }
 
+fn voronoiShape(uv: vec2f, time: f32) -> vec3f {
+  let i_uv = floor(uv);
+  let f_uv = fract(uv);
 
-vec3 voronoiShape(vec2 uv, float time) {
-  vec2 i_uv = floor(uv);
-  vec2 f_uv = fract(uv);
+  let spreading = 0.25 * clamp(u.u_spreading, 0.0, 1.0);
 
-  float spreading = .25 * clamp(u_spreading, 0., 1.);
-
-  float minDist = 1.;
-  vec2 randomizer = vec2(0.);
-  for (int y = -1; y <= 1; y++) {
-    for (int x = -1; x <= 1; x++) {
-      vec2 tileOffset = vec2(float(x), float(y));
-      vec2 rand = randomGB(i_uv + tileOffset);
-      vec2 cellCenter = vec2(.5 + 1e-4);
-      cellCenter += spreading * cos(time + TWO_PI * rand);
-      cellCenter -= .5;
-      cellCenter = rotate(cellCenter, randomR(vec2(rand.x, rand.y)) + .1 * time);
-      cellCenter += .5;
-      float dist = length(tileOffset + cellCenter - f_uv);
+  var minDist: f32 = 1.0;
+  var randomizer = vec2f(0.0);
+  for (var y: i32 = -1; y <= 1; y++) {
+    for (var x: i32 = -1; x <= 1; x++) {
+      let tileOffset = vec2f(f32(x), f32(y));
+      let rand = randomGB(i_uv + tileOffset);
+      var cellCenter = vec2f(0.5 + 1e-4);
+      cellCenter += spreading * cos(vec2f(time) + TWO_PI * rand);
+      cellCenter -= vec2f(0.5);
+      cellCenter = rotate(cellCenter, randomR(vec2f(rand.x, rand.y)) + 0.1 * time);
+      cellCenter += vec2f(0.5);
+      let dist = length(tileOffset + cellCenter - f_uv);
       if (dist < minDist) {
         minDist = dist;
         randomizer = rand;
@@ -91,62 +87,62 @@ vec3 voronoiShape(vec2 uv, float time) {
     }
   }
 
-  return vec3(minDist, randomizer);
+  return vec3f(minDist, randomizer);
 }
 
-void main() {
+@fragment fn fs_main(input: VertexOutput) -> @location(0) vec4f {
 
-  vec2 shape_uv = v_patternUV;
+  var shape_uv = input.v_patternUV;
   shape_uv *= 1.5;
 
-  const float firstFrameOffset = -10.;
-  float t = u_time + firstFrameOffset;
+  let firstFrameOffset: f32 = -10.0;
+  let t = u.u_time + firstFrameOffset;
 
-  vec3 voronoi = voronoiShape(shape_uv, t) + 1e-4;
+  let voronoi = voronoiShape(shape_uv, t) + vec3f(1e-4);
 
-  float radius = .25 * clamp(u_size, 0., 1.) - .5 * clamp(u_sizeRange, 0., 1.) * voronoi[2];
-  float dist = voronoi[0];
-  float edgeWidth = fwidth(dist);
-  float dots = 1. - smoothstep(radius - edgeWidth, radius + edgeWidth, dist);
+  let radius = 0.25 * clamp(u.u_size, 0.0, 1.0) - 0.5 * clamp(u.u_sizeRange, 0.0, 1.0) * voronoi[2];
+  let dist = voronoi[0];
+  let edgeWidth = fwidth(dist);
+  let dots = 1.0 - smoothstep(radius - edgeWidth, radius + edgeWidth, dist);
 
-  float shape = voronoi[1];
+  let shape = voronoi[1];
 
-  float mixer = shape * (u_colorsCount - 1.);
-  mixer = (shape - .5 / u_colorsCount) * u_colorsCount;
-  float steps = max(1., u_stepsPerColor);
+  var mixer = shape * (u.u_colorsCount - 1.0);
+  mixer = (shape - 0.5 / u.u_colorsCount) * u.u_colorsCount;
+  let steps = max(1.0, u.u_stepsPerColor);
 
-  vec4 gradient = u_colors[0];
-  gradient.rgb *= gradient.a;
-  for (int i = 1; i < ${ dotOrbitMeta.maxColorCount }; i++) {
-    if (i >= int(u_colorsCount)) break;
-    float localT = clamp(mixer - float(i - 1), 0.0, 1.0);
+  var gradient = u.u_colors[0];
+  gradient = vec4f(gradient.rgb * gradient.a, gradient.a);
+  for (var i: i32 = 1; i < ${ dotOrbitMeta.maxColorCount }; i++) {
+    if (i >= i32(u.u_colorsCount)) { break; }
+    var localT = clamp(mixer - f32(i - 1), 0.0, 1.0);
     localT = round(localT * steps) / steps;
-    vec4 c = u_colors[i];
-    c.rgb *= c.a;
+    var c = u.u_colors[i];
+    c = vec4f(c.rgb * c.a, c.a);
     gradient = mix(gradient, c, localT);
   }
 
-  if ((mixer < 0.) || (mixer > (u_colorsCount - 1.))) {
-    float localT = mixer + 1.;
-    if (mixer > (u_colorsCount - 1.)) {
-      localT = mixer - (u_colorsCount - 1.);
+  if ((mixer < 0.0) || (mixer > (u.u_colorsCount - 1.0))) {
+    var localT2 = mixer + 1.0;
+    if (mixer > (u.u_colorsCount - 1.0)) {
+      localT2 = mixer - (u.u_colorsCount - 1.0);
     }
-    localT = round(localT * steps) / steps;
-    vec4 cFst = u_colors[0];
-    cFst.rgb *= cFst.a;
-    vec4 cLast = u_colors[int(u_colorsCount - 1.)];
-    cLast.rgb *= cLast.a;
-    gradient = mix(cLast, cFst, localT);
+    localT2 = round(localT2 * steps) / steps;
+    var cFst = u.u_colors[0];
+    cFst = vec4f(cFst.rgb * cFst.a, cFst.a);
+    var cLast = u.u_colors[i32(u.u_colorsCount - 1.0)];
+    cLast = vec4f(cLast.rgb * cLast.a, cLast.a);
+    gradient = mix(cLast, cFst, localT2);
   }
 
-  vec3 color = gradient.rgb * dots;
-  float opacity = gradient.a * dots;
+  let color_dot = gradient.rgb * dots;
+  var opacity = gradient.a * dots;
 
-  vec3 bgColor = u_colorBack.rgb * u_colorBack.a;
-  color = color + bgColor * (1. - opacity);
-  opacity = opacity + u_colorBack.a * (1. - opacity);
+  let bgColor = u.u_colorBack.rgb * u.u_colorBack.a;
+  var color = color_dot + bgColor * (1.0 - opacity);
+  opacity = opacity + u.u_colorBack.a * (1.0 - opacity);
 
-  fragColor = vec4(color, opacity);
+  return vec4f(color, opacity);
 }
 `;
 

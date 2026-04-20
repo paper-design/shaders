@@ -1,6 +1,6 @@
 import type { ShaderMotionParams } from '../shader-mount.js';
 import { type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
-import { declarePI, rotation2, proceduralHash21 } from '../shader-utils.js';
+import { systemUniformFields, vertexOutputStruct, declarePI, rotation2, proceduralHash21, glslMod } from '../shader-utils.js';
 
 /**
  * A halftone-dot image filter featuring customizable grids, color palettes, and dot styles.
@@ -40,303 +40,313 @@ import { declarePI, rotation2, proceduralHash21 } from '../shader-utils.js';
  *
  */
 
-// language=GLSL
-export const halftoneDotsFragmentShader: string = `#version 300 es
-precision mediump float;
+export const halftoneDotsFragmentShader: string = `
+struct Uniforms {
+  ${systemUniformFields}
+  u_colorFront: vec4f,
+  u_colorBack: vec4f,
+  u_radius: f32,
+  u_contrast: f32,
+  u_size: f32,
+  u_grainMixer: f32,
+  u_grainOverlay: f32,
+  u_grainSize: f32,
+  u_grid: f32,
+  u_originalColors: f32,
+  u_inverted: f32,
+  u_type: f32,
+}
+@group(0) @binding(0) var<uniform> u: Uniforms;
 
-uniform float u_rotation;
+@group(1) @binding(0) var u_image_tex: texture_2d<f32>;
+@group(1) @binding(1) var u_image_samp: sampler;
 
-uniform float u_time;
+${vertexOutputStruct}
 
-uniform vec4 u_colorFront;
-uniform vec4 u_colorBack;
-uniform float u_radius;
-uniform float u_contrast;
+${declarePI}
+${rotation2}
+${proceduralHash21}
+${glslMod}
 
-uniform sampler2D u_image;
-uniform float u_imageAspectRatio;
-
-uniform float u_size;
-uniform float u_grainMixer;
-uniform float u_grainOverlay;
-uniform float u_grainSize;
-uniform float u_grid;
-uniform bool u_originalColors;
-uniform bool u_inverted;
-uniform float u_type;
-
-in vec2 v_imageUV;
-
-out vec4 fragColor;
-
-${ declarePI }
-${ rotation2 }
-${ proceduralHash21 }
-
-float valueNoise(vec2 st) {
-  vec2 i = floor(st);
-  vec2 f = fract(st);
-  float a = hash21(i);
-  float b = hash21(i + vec2(1.0, 0.0));
-  float c = hash21(i + vec2(0.0, 1.0));
-  float d = hash21(i + vec2(1.0, 1.0));
-  vec2 u = f * f * (3.0 - 2.0 * f);
-  float x1 = mix(a, b, u.x);
-  float x2 = mix(c, d, u.x);
-  return mix(x1, x2, u.y);
+struct LumBallResult {
+  ball: f32,
+  ballColor: vec4f,
 }
 
-float lst(float edge0, float edge1, float x) {
+fn valueNoise(st: vec2f) -> f32 {
+  let i = floor(st);
+  let f = fract(st);
+  let a = hash21(i);
+  let b = hash21(i + vec2f(1.0, 0.0));
+  let c = hash21(i + vec2f(0.0, 1.0));
+  let d = hash21(i + vec2f(1.0, 1.0));
+  let u_val = f * f * (vec2f(3.0) - 2.0 * f);
+  let x1 = mix(a, b, u_val.x);
+  let x2 = mix(c, d, u_val.x);
+  return mix(x1, x2, u_val.y);
+}
+
+fn lst(edge0: f32, edge1: f32, x: f32) -> f32 {
   return clamp((x - edge0) / (edge1 - edge0), 0.0, 1.0);
 }
 
-float sst(float edge0, float edge1, float x) {
+fn sst(edge0: f32, edge1: f32, x: f32) -> f32 {
   return smoothstep(edge0, edge1, x);
 }
 
-float getCircle(vec2 uv, float r, float baseR) {
-  r = mix(.25 * baseR, 0., r);
-  float d = length(uv - .5);
-  float aa = fwidth(d);
-  return 1. - smoothstep(r - aa, r + aa, d);
+fn fwidth_f32(v: f32) -> f32 {
+  return abs(dpdx(v)) + abs(dpdy(v));
 }
 
-float getCell(vec2 uv) {
-  float insideX = step(0.0, uv.x) * (1.0 - step(1.0, uv.x));
-  float insideY = step(0.0, uv.y) * (1.0 - step(1.0, uv.y));
+fn getCircle(uv: vec2f, r_in: f32, baseR: f32) -> f32 {
+  let r = mix(0.25 * baseR, 0.0, r_in);
+  let d = length(uv - vec2f(0.5));
+  let aa = fwidth_f32(d);
+  return 1.0 - smoothstep(r - aa, r + aa, d);
+}
+
+fn getCell(uv: vec2f) -> f32 {
+  let insideX = step(0.0, uv.x) * (1.0 - step(1.0, uv.x));
+  let insideY = step(0.0, uv.y) * (1.0 - step(1.0, uv.y));
   return insideX * insideY;
 }
 
-float getCircleWithHole(vec2 uv, float r, float baseR) {
-  float cell = getCell(uv);
+fn getCircleWithHole(uv: vec2f, r_in: f32, baseR: f32) -> f32 {
+  let cell = getCell(uv);
 
-  r = mix(.75 * baseR, 0., r);
-  float rMod = mod(r, .5);
+  let r = mix(0.75 * baseR, 0.0, r_in);
+  let rMod = glsl_mod_f32(r, 0.5);
 
-  float d = length(uv - .5);
-  float aa = fwidth(d);
-  float circle = 1. - smoothstep(rMod - aa, rMod + aa, d);
-  if (r < .5) {
+  let d = length(uv - vec2f(0.5));
+  let aa = fwidth_f32(d);
+  let circle = 1.0 - smoothstep(rMod - aa, rMod + aa, d);
+  if (r < 0.5) {
     return circle;
   } else {
     return cell - circle;
   }
 }
 
-float getGooeyBall(vec2 uv, float r, float baseR) {
-  float d = length(uv - .5);
-  float sizeRadius = .3;
-  if (u_grid == 1.) {
-    sizeRadius = .42;
+fn getGooeyBall(uv: vec2f, r: f32, baseR: f32) -> f32 {
+  var d = length(uv - vec2f(0.5));
+  var sizeRadius = 0.3;
+  if (u.u_grid == 1.0) {
+    sizeRadius = 0.42;
   }
-  sizeRadius = mix(sizeRadius * baseR, 0., r);
-  d = 1. - sst(0., sizeRadius, d);
+  sizeRadius = mix(sizeRadius * baseR, 0.0, r);
+  d = 1.0 - sst(0.0, sizeRadius, d);
 
-  d = pow(d, 2. + baseR);
+  d = pow(d, 2.0 + baseR);
   return d;
 }
 
-float getSoftBall(vec2 uv, float r, float baseR) {
-  float d = length(uv - .5);
-  float sizeRadius = clamp(baseR, 0., 1.);
-  sizeRadius = mix(.5 * sizeRadius, 0., r);
-  d = 1. - lst(0., sizeRadius, d);
-  float powRadius = 1. - lst(0., 2., baseR);
-  d = pow(d, 4. + 3. * powRadius);
+fn getSoftBall(uv: vec2f, r: f32, baseR: f32) -> f32 {
+  var d = length(uv - vec2f(0.5));
+  let sizeRadius_raw = clamp(baseR, 0.0, 1.0);
+  let sizeRadius = mix(0.5 * sizeRadius_raw, 0.0, r);
+  d = 1.0 - lst(0.0, sizeRadius, d);
+  let powRadius = 1.0 - lst(0.0, 2.0, baseR);
+  d = pow(d, 4.0 + 3.0 * powRadius);
   return d;
 }
 
-float getUvFrame(vec2 uv, vec2 pad) {
-  float aa = 0.0001;
+fn getUvFrame(uv: vec2f, pad: vec2f) -> f32 {
+  let aa: f32 = 0.0001;
 
-  float left   = smoothstep(-pad.x, -pad.x + aa, uv.x);
-  float right  = smoothstep(1.0 + pad.x, 1.0 + pad.x - aa, uv.x);
-  float bottom = smoothstep(-pad.y, -pad.y + aa, uv.y);
-  float top    = smoothstep(1.0 + pad.y, 1.0 + pad.y - aa, uv.y);
+  let left   = smoothstep(-pad.x, -pad.x + aa, uv.x);
+  let right  = smoothstep(1.0 + pad.x, 1.0 + pad.x - aa, uv.x);
+  let bottom = smoothstep(-pad.y, -pad.y + aa, uv.y);
+  let top    = smoothstep(1.0 + pad.y, 1.0 + pad.y - aa, uv.y);
 
   return left * right * bottom * top;
 }
 
-float sigmoid(float x, float k) {
+fn sigmoid(x: f32, k: f32) -> f32 {
   return 1.0 / (1.0 + exp(-k * (x - 0.5)));
 }
 
-float getLumAtPx(vec2 uv, float contrast) {
-  vec4 tex = texture(u_image, uv);
-  vec3 color = vec3(
-  sigmoid(tex.r, contrast),
-  sigmoid(tex.g, contrast),
-  sigmoid(tex.b, contrast)
+fn getLumAtPx(uv: vec2f, contrast: f32) -> f32 {
+  let tex = textureSampleLevel(u_image_tex, u_image_samp, uv, 0.0);
+  let color = vec3f(
+    sigmoid(tex.r, contrast),
+    sigmoid(tex.g, contrast),
+    sigmoid(tex.b, contrast)
   );
-  float lum = dot(vec3(0.2126, 0.7152, 0.0722), color);
-  lum = mix(1., lum, tex.a);
-  lum = u_inverted ? (1. - lum) : lum;
+  var lum = dot(vec3f(0.2126, 0.7152, 0.0722), color);
+  lum = mix(1.0, lum, tex.a);
+  lum = select(lum, 1.0 - lum, u.u_inverted > 0.5);
   return lum;
 }
 
-float getLumBall(vec2 p, vec2 pad, vec2 inCellOffset, float contrast, float baseR, float stepSize, out vec4 ballColor) {
-  p += inCellOffset;
-  vec2 uv_i = floor(p);
-  vec2 uv_f = fract(p);
-  vec2 samplingUV = (uv_i + .5 - inCellOffset) * pad + vec2(.5);
-  float outOfFrame = getUvFrame(samplingUV, pad * stepSize);
+fn getLumBall(p_in: vec2f, pad: vec2f, inCellOffset: vec2f, contrast: f32, baseR: f32, stepSize: f32) -> LumBallResult {
+  let p = p_in + inCellOffset;
+  let uv_i = floor(p);
+  let uv_f = fract(p);
+  let samplingUV = (uv_i + vec2f(0.5) - inCellOffset) * pad + vec2f(0.5);
+  let outOfFrame = getUvFrame(samplingUV, pad * stepSize);
 
-  float lum = getLumAtPx(samplingUV, contrast);
-  ballColor = texture(u_image, samplingUV);
-  ballColor.rgb *= ballColor.a;
+  let lum = getLumAtPx(samplingUV, contrast);
+  var ballColor = textureSampleLevel(u_image_tex, u_image_samp, samplingUV, 0.0);
+  ballColor = vec4f(ballColor.rgb * ballColor.a, ballColor.a);
   ballColor *= outOfFrame;
 
-  float ball = 0.;
-  if (u_type == 0.) {
+  var ball: f32 = 0.0;
+  if (u.u_type == 0.0) {
     // classic
     ball = getCircle(uv_f, lum, baseR);
-  } else if (u_type == 1.) {
+  } else if (u.u_type == 1.0) {
     // gooey
     ball = getGooeyBall(uv_f, lum, baseR);
-  } else if (u_type == 2.) {
+  } else if (u.u_type == 2.0) {
     // holes
     ball = getCircleWithHole(uv_f, lum, baseR);
-  } else if (u_type == 3.) {
+  } else if (u.u_type == 3.0) {
     // soft
     ball = getSoftBall(uv_f, lum, baseR);
   }
 
-  return ball * outOfFrame;
+  return LumBallResult(ball * outOfFrame, ballColor);
 }
 
 
-void main() {
+@fragment fn fs_main(input: VertexOutput) -> @location(0) vec4f {
 
-  float stepMultiplier = 1.;
-  if (u_type == 0.) {
+  var stepMultiplier: f32 = 1.0;
+  if (u.u_type == 0.0) {
     // classic
-    stepMultiplier = 2.;
-  } else if (u_type == 1. || u_type == 3.) {
+    stepMultiplier = 2.0;
+  } else if (u.u_type == 1.0 || u.u_type == 3.0) {
     // gooey & soft
-    stepMultiplier = 6.;
+    stepMultiplier = 6.0;
   }
 
-  float cellsPerSide = mix(300., 7., pow(u_size, .7));
+  var cellsPerSide = mix(300.0, 7.0, pow(u.u_size, 0.7));
   cellsPerSide /= stepMultiplier;
-  float cellSizeY = 1. / cellsPerSide;
-  vec2 pad = cellSizeY * vec2(1. / u_imageAspectRatio, 1.);
-  if (u_type == 1. && u_grid == 1.) {
+  let cellSizeY = 1.0 / cellsPerSide;
+  var pad = cellSizeY * vec2f(1.0 / u.u_imageAspectRatio, 1.0);
+  if (u.u_type == 1.0 && u.u_grid == 1.0) {
     // gooey diagonal grid works differently
-    pad *= .7;
+    pad *= 0.7;
   }
 
-  vec2 uv = v_imageUV;
-  uv -= vec2(.5);
+  var uv = input.v_imageUV;
+  uv -= vec2f(0.5);
   uv /= pad;
 
-  float contrast = mix(0., 15., pow(u_contrast, 1.5));
-  float baseRadius = u_radius;
-  if (u_originalColors == true) {
-    contrast = mix(.1, 4., pow(u_contrast, 2.));
-    baseRadius = 2. * pow(.5 * u_radius, .3);
+  var contrast = mix(0.0, 15.0, pow(u.u_contrast, 1.5));
+  var baseRadius = u.u_radius;
+  if (u.u_originalColors > 0.5) {
+    contrast = mix(0.1, 4.0, pow(u.u_contrast, 2.0));
+    baseRadius = 2.0 * pow(0.5 * u.u_radius, 0.3);
   }
 
-  float totalShape = 0.;
-  vec3 totalColor = vec3(0.);
-  float totalOpacity = 0.;
+  var totalShape: f32 = 0.0;
+  var totalColor = vec3f(0.0);
+  var totalOpacity: f32 = 0.0;
 
-  vec4 ballColor;
-  float shape;
-  float stepSize = 1. / stepMultiplier;
-  for (float x = -0.5; x < 0.5; x += stepSize) {
-    for (float y = -0.5; y < 0.5; y += stepSize) {
-      vec2 offset = vec2(x, y);
+  let stepSize = 1.0 / stepMultiplier;
+  let numSteps = i32(stepMultiplier);
+  for (var xi: i32 = 0; xi < numSteps; xi++) {
+    let x = f32(xi) * stepSize - 0.5;
+    for (var yi: i32 = 0; yi < numSteps; yi++) {
+      let y = f32(yi) * stepSize - 0.5;
+      var offset = vec2f(x, y);
 
-      if (u_grid == 1.) {
-        float rowIndex = floor((y + .5) / stepSize);
-        float colIndex = floor((x + .5) / stepSize);
-        if (stepSize == 1.) {
-          rowIndex = floor(uv.y + y + 1.);
-          if (u_type == 1.) {
-            colIndex = floor(uv.x + x + 1.);
+      var skipCell = false;
+      if (u.u_grid == 1.0) {
+        var rowIndex = floor((y + 0.5) / stepSize);
+        var colIndex = floor((x + 0.5) / stepSize);
+        if (stepSize == 1.0) {
+          rowIndex = floor(uv.y + y + 1.0);
+          if (u.u_type == 1.0) {
+            colIndex = floor(uv.x + x + 1.0);
           }
         }
-        if (u_type == 1.) {
-          if (mod(rowIndex + colIndex, 2.) == 1.) {
-            continue;
+        if (u.u_type == 1.0) {
+          if (glsl_mod_f32(rowIndex + colIndex, 2.0) == 1.0) {
+            skipCell = true;
           }
         } else {
-          if (mod(rowIndex, 2.) == 1.) {
-            offset.x += .5 * stepSize;
+          if (glsl_mod_f32(rowIndex, 2.0) == 1.0) {
+            offset = vec2f(offset.x + 0.5 * stepSize, offset.y);
           }
         }
       }
 
-      shape = getLumBall(uv, pad, offset, contrast, baseRadius, stepSize, ballColor);
-      totalColor   += ballColor.rgb * shape;
-      totalShape   += shape;
-      totalOpacity += shape;
+      let result = getLumBall(uv, pad, offset, contrast, baseRadius, stepSize);
+      if (!skipCell) {
+        let shape = result.ball;
+        let ballColor = result.ballColor;
+        totalColor   += ballColor.rgb * shape;
+        totalShape   += shape;
+        totalOpacity += shape;
+      }
     }
   }
 
-  const float eps = 1e-4;
+  let eps: f32 = 1e-4;
 
   totalColor /= max(totalShape, eps);
   totalOpacity /= max(totalShape, eps);
 
-  float finalShape = 0.;
-  if (u_type == 0.) {
-    finalShape = min(1., totalShape);
-  } else if (u_type == 1.) {
-    float aa = fwidth(totalShape);
-    float th = .5;
+  var finalShape: f32 = 0.0;
+  if (u.u_type == 0.0) {
+    finalShape = min(1.0, totalShape);
+  } else if (u.u_type == 1.0) {
+    let aa = fwidth_f32(totalShape);
+    let th = 0.5;
     finalShape = smoothstep(th - aa, th + aa, totalShape);
-  } else if (u_type == 2.) {
-    finalShape = min(1., totalShape);
-  } else if (u_type == 3.) {
+  } else if (u.u_type == 2.0) {
+    finalShape = min(1.0, totalShape);
+  } else if (u.u_type == 3.0) {
     finalShape = totalShape;
   }
 
-  vec2 grainSize = mix(2000., 200., u_grainSize) * vec2(1., 1. / u_imageAspectRatio);
-  vec2 grainUV = v_imageUV - .5;
-  grainUV *= grainSize;
-  grainUV += .5;
-  float grain = valueNoise(grainUV);
-  grain = smoothstep(.55, .7 + .2 * u_grainMixer, grain);
-  grain *= u_grainMixer;
-  finalShape = mix(finalShape, 0., grain);
+  let grainSizeVal = mix(2000.0, 200.0, u.u_grainSize) * vec2f(1.0, 1.0 / u.u_imageAspectRatio);
+  var grainUV = input.v_imageUV - vec2f(0.5);
+  grainUV *= grainSizeVal;
+  grainUV += vec2f(0.5);
+  var grain = valueNoise(grainUV);
+  grain = smoothstep(0.55, 0.7 + 0.2 * u.u_grainMixer, grain);
+  grain *= u.u_grainMixer;
+  finalShape = mix(finalShape, 0.0, grain);
 
-  vec3 color = vec3(0.);
-  float opacity = 0.;
+  var color = vec3f(0.0);
+  var opacity: f32 = 0.0;
 
-  if (u_originalColors == true) {
+  if (u.u_originalColors > 0.5) {
     color = totalColor * finalShape;
     opacity = totalOpacity * finalShape;
 
-    vec3 bgColor = u_colorBack.rgb * u_colorBack.a;
-    color = color + bgColor * (1. - opacity);
-    opacity = opacity + u_colorBack.a * (1. - opacity);
+    let bgColor = u.u_colorBack.rgb * u.u_colorBack.a;
+    color = color + bgColor * (1.0 - opacity);
+    opacity = opacity + u.u_colorBack.a * (1.0 - opacity);
   } else {
-    vec3 fgColor = u_colorFront.rgb * u_colorFront.a;
-    float fgOpacity = u_colorFront.a;
-    vec3 bgColor = u_colorBack.rgb * u_colorBack.a;
-    float bgOpacity = u_colorBack.a;
+    let fgColor = u.u_colorFront.rgb * u.u_colorFront.a;
+    let fgOpacity = u.u_colorFront.a;
+    let bgColor = u.u_colorBack.rgb * u.u_colorBack.a;
+    let bgOpacity = u.u_colorBack.a;
 
     color = fgColor * finalShape;
     opacity = fgOpacity * finalShape;
-    color += bgColor * (1. - opacity);
-    opacity += bgOpacity * (1. - opacity);
+    color += bgColor * (1.0 - opacity);
+    opacity += bgOpacity * (1.0 - opacity);
   }
 
-  float grainOverlay = valueNoise(rotate(grainUV, 1.) + vec2(3.));
-  grainOverlay = mix(grainOverlay, valueNoise(rotate(grainUV, 2.) + vec2(-1.)), .5);
+  var grainOverlay = valueNoise(rotate(grainUV, 1.0) + vec2f(3.0));
+  grainOverlay = mix(grainOverlay, valueNoise(rotate(grainUV, 2.0) + vec2f(-1.0)), 0.5);
   grainOverlay = pow(grainOverlay, 1.3);
 
-  float grainOverlayV = grainOverlay * 2. - 1.;
-  vec3 grainOverlayColor = vec3(step(0., grainOverlayV));
-  float grainOverlayStrength = u_grainOverlay * abs(grainOverlayV);
-  grainOverlayStrength = pow(grainOverlayStrength, .8);
-  color = mix(color, grainOverlayColor, .5 * grainOverlayStrength);
+  let grainOverlayV = grainOverlay * 2.0 - 1.0;
+  let grainOverlayColor = vec3f(step(0.0, grainOverlayV));
+  var grainOverlayStrength = u.u_grainOverlay * abs(grainOverlayV);
+  grainOverlayStrength = pow(grainOverlayStrength, 0.8);
+  color = mix(color, grainOverlayColor, 0.5 * grainOverlayStrength);
 
-  opacity += .5 * grainOverlayStrength;
-  opacity = clamp(opacity, 0., 1.);
+  opacity += 0.5 * grainOverlayStrength;
+  opacity = clamp(opacity, 0.0, 1.0);
 
-  fragColor = vec4(color, opacity);
+  return vec4f(color, opacity);
 }
 `;
 

@@ -1,5 +1,5 @@
 import { type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
-import { declarePI } from '../shader-utils.js';
+import { systemUniformFields, vertexOutputStruct, declarePI } from '../shader-utils.js';
 
 /**
  * Static line pattern configurable into textures ranging from sharp zigzags to smooth flowing waves.
@@ -32,60 +32,59 @@ import { declarePI } from '../shader-utils.js';
  *
  */
 
-// language=GLSL
-export const wavesFragmentShader: string = `#version 300 es
-precision mediump float;
+export const wavesFragmentShader: string = `
+struct Uniforms {
+  ${systemUniformFields}
+  u_colorFront: vec4f,
+  u_colorBack: vec4f,
+  u_shape: f32,
+  u_frequency: f32,
+  u_amplitude: f32,
+  u_spacing: f32,
+  u_proportion: f32,
+  u_softness: f32,
+}
+@group(0) @binding(0) var<uniform> u: Uniforms;
 
-uniform vec4 u_colorFront;
-uniform vec4 u_colorBack;
-uniform float u_shape;
-uniform float u_frequency;
-uniform float u_amplitude;
-uniform float u_spacing;
-uniform float u_proportion;
-uniform float u_softness;
+${vertexOutputStruct}
 
-in vec2 v_patternUV;
+${declarePI}
 
-out vec4 fragColor;
+@fragment fn fs_main(input: VertexOutput) -> @location(0) vec4f {
+  var shape_uv = input.v_patternUV;
+  shape_uv *= 4.0;
 
-${ declarePI }
+  let wave = 0.5 * cos(shape_uv.x * u.u_frequency * TWO_PI);
+  let zigzag = 2.0 * abs(fract(shape_uv.x * u.u_frequency) - 0.5);
+  let irregular = sin(shape_uv.x * 0.25 * u.u_frequency * TWO_PI) * cos(shape_uv.x * u.u_frequency * TWO_PI);
+  let irregular2 = 0.75 * (sin(shape_uv.x * u.u_frequency * TWO_PI) + 0.5 * cos(shape_uv.x * 0.5 * u.u_frequency * TWO_PI));
 
-void main() {
-  vec2 shape_uv = v_patternUV;
-  shape_uv *= 4.;
+  var offset = mix(zigzag, wave, smoothstep(0.0, 1.0, u.u_shape));
+  offset = mix(offset, irregular, smoothstep(1.0, 2.0, u.u_shape));
+  offset = mix(offset, irregular2, smoothstep(2.0, 3.0, u.u_shape));
+  offset *= 2.0 * u.u_amplitude;
 
-  float wave = .5 * cos(shape_uv.x * u_frequency * TWO_PI);
-  float zigzag = 2. * abs(fract(shape_uv.x * u_frequency) - .5);
-  float irregular = sin(shape_uv.x * .25 * u_frequency * TWO_PI) * cos(shape_uv.x * u_frequency * TWO_PI);
-  float irregular2 = .75 * (sin(shape_uv.x * u_frequency * TWO_PI) + .5 * cos(shape_uv.x * .5 * u_frequency * TWO_PI));
+  let spacing = (0.001 + u.u_spacing);
+  let shape = 0.5 + 0.5 * sin((shape_uv.y + offset) * PI / spacing);
 
-  float offset = mix(zigzag, wave, smoothstep(0., 1., u_shape));
-  offset = mix(offset, irregular, smoothstep(1., 2., u_shape));
-  offset = mix(offset, irregular2, smoothstep(2., 3., u_shape));
-  offset *= 2. * u_amplitude;
+  let aa = 0.0001 + fwidth(shape);
+  let dc = 1.0 - clamp(u.u_proportion, 0.0, 1.0);
+  let e0 = dc - u.u_softness - aa;
+  let e1 = dc + u.u_softness + aa;
+  let res = smoothstep(min(e0, e1), max(e0, e1), shape);
 
-  float spacing = (.001 + u_spacing);
-  float shape = .5 + .5 * sin((shape_uv.y + offset) * PI / spacing);
+  let fgColor = u.u_colorFront.rgb * u.u_colorFront.a;
+  let fgOpacity = u.u_colorFront.a;
+  let bgColor = u.u_colorBack.rgb * u.u_colorBack.a;
+  let bgOpacity = u.u_colorBack.a;
 
-  float aa = .0001 + fwidth(shape);
-  float dc = 1. - clamp(u_proportion, 0., 1.);
-  float e0 = dc - u_softness - aa;
-  float e1 = dc + u_softness + aa;
-  float res = smoothstep(min(e0, e1), max(e0, e1), shape);
+  var color = fgColor * res;
+  var opacity = fgOpacity * res;
 
-  vec3 fgColor = u_colorFront.rgb * u_colorFront.a;
-  float fgOpacity = u_colorFront.a;
-  vec3 bgColor = u_colorBack.rgb * u_colorBack.a;
-  float bgOpacity = u_colorBack.a;
+  color += bgColor * (1.0 - opacity);
+  opacity += bgOpacity * (1.0 - opacity);
 
-  vec3 color = fgColor * res;
-  float opacity = fgOpacity * res;
-
-  color += bgColor * (1. - opacity);
-  opacity += bgOpacity * (1. - opacity);
-
-  fragColor = vec4(color, opacity);
+  return vec4f(color, opacity);
 }
 `;
 

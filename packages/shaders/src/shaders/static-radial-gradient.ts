@@ -4,7 +4,7 @@ import {
   type ShaderSizingParams,
   type ShaderSizingUniforms,
 } from '../shader-sizing.js';
-import { declarePI, rotation2, proceduralHash21 } from '../shader-utils.js';
+import { systemUniformFields, vertexOutputStruct, declarePI, rotation2, proceduralHash21, glslMod } from '../shader-utils.js';
 
 export const staticRadialGradientMeta = {
   maxColorCount: 10,
@@ -47,173 +47,178 @@ export const staticRadialGradientMeta = {
  *
  */
 
-// language=GLSL
-export const staticRadialGradientFragmentShader: string = `#version 300 es
-precision mediump float;
+export const staticRadialGradientFragmentShader: string = `
+struct Uniforms {
+  ${systemUniformFields}
+  u_colorBack: vec4f,
+  u_colorsCount: f32,
+  u_radius: f32,
+  u_focalDistance: f32,
+  u_focalAngle: f32,
+  u_falloff: f32,
+  u_mixing: f32,
+  u_distortion: f32,
+  u_distortionShift: f32,
+  u_distortionFreq: f32,
+  u_grainMixer: f32,
+  u_grainOverlay: f32,
+  u_colors: array<vec4f, ${staticRadialGradientMeta.maxColorCount}>,
+}
+@group(0) @binding(0) var<uniform> u: Uniforms;
 
-uniform vec4 u_colorBack;
-uniform vec4 u_colors[${ staticRadialGradientMeta.maxColorCount }];
-uniform float u_colorsCount;
+${vertexOutputStruct}
 
-uniform float u_radius;
-uniform float u_focalDistance;
-uniform float u_focalAngle;
-uniform float u_falloff;
-uniform float u_mixing;
-uniform float u_distortion;
-uniform float u_distortionShift;
-uniform float u_distortionFreq;
-uniform float u_grainMixer;
-uniform float u_grainOverlay;
+${declarePI}
+${rotation2}
+${proceduralHash21}
+${glslMod}
 
-in vec2 v_objectUV;
-out vec4 fragColor;
-
-${ declarePI }
-${ rotation2 }
-${ proceduralHash21 }
-
-float valueNoise(vec2 st) {
-  vec2 i = floor(st);
-  vec2 f = fract(st);
-  float a = hash21(i);
-  float b = hash21(i + vec2(1.0, 0.0));
-  float c = hash21(i + vec2(0.0, 1.0));
-  float d = hash21(i + vec2(1.0, 1.0));
-  vec2 u = f * f * (3.0 - 2.0 * f);
-  float x1 = mix(a, b, u.x);
-  float x2 = mix(c, d, u.x);
-  return mix(x1, x2, u.y);
+fn valueNoise(st: vec2f) -> f32 {
+  let i = floor(st);
+  let f = fract(st);
+  let a = hash21(i);
+  let b = hash21(i + vec2f(1.0, 0.0));
+  let c = hash21(i + vec2f(0.0, 1.0));
+  let d = hash21(i + vec2f(1.0, 1.0));
+  let u_val = f * f * (vec2f(3.0) - 2.0 * f);
+  let x1 = mix(a, b, u_val.x);
+  let x2 = mix(c, d, u_val.x);
+  return mix(x1, x2, u_val.y);
 }
 
-float noise(vec2 n, vec2 seedOffset) {
+fn noise(n: vec2f, seedOffset: vec2f) -> f32 {
   return valueNoise(n + seedOffset);
 }
 
-vec2 getPosition(int i, float t) {
-  float a = float(i) * .37;
-  float b = .6 + mod(float(i), 3.) * .3;
-  float c = .8 + mod(float(i + 1), 4.) * 0.25;
+fn getPosition(idx: i32, t: f32) -> vec2f {
+  let fi = f32(idx);
+  let a = fi * 0.37;
+  let b = 0.6 + glsl_mod_f32(fi, 3.0) * 0.3;
+  let c_val = 0.8 + glsl_mod_f32(f32(idx + 1), 4.0) * 0.25;
 
-  float x = sin(t * b + a);
-  float y = cos(t * c + a * 1.5);
+  let x = sin(t * b + a);
+  let y = cos(t * c_val + a * 1.5);
 
-  return .5 + .5 * vec2(x, y);
+  return vec2f(0.5) + 0.5 * vec2f(x, y);
 }
 
-void main() {
-  vec2 uv = 2. * v_objectUV;
-  vec2 grainUV = uv * 1000.;
+@fragment fn fs_main(input: VertexOutput) -> @location(0) vec4f {
+  let uv = 2.0 * input.v_objectUV;
+  let grainUV = uv * 1000.0;
 
-  vec2 center = vec2(0.);
-  float angleRad = -radians(u_focalAngle + 90.);
-  vec2 focalPoint = vec2(cos(angleRad), sin(angleRad)) * u_focalDistance;
-  float radius = u_radius;
+  let center = vec2f(0.0);
+  let angleRad = -radians(u.u_focalAngle + 90.0);
+  let focalPoint = vec2f(cos(angleRad), sin(angleRad)) * u.u_focalDistance;
+  let radius = u.u_radius;
 
-  vec2 c_to_uv = uv - center;
-  vec2 f_to_uv = uv - focalPoint;
-  vec2 f_to_c = center - focalPoint;
-  float r = length(c_to_uv);
+  let c_to_uv = uv - center;
+  let f_to_uv = uv - focalPoint;
+  let f_to_c = center - focalPoint;
+  let r = length(c_to_uv);
 
-  float fragAngle = atan(c_to_uv.y, c_to_uv.x);
-  float angleDiff = fract((fragAngle - angleRad + PI) / TWO_PI) * TWO_PI - PI;
+  let fragAngle = atan2(c_to_uv.y, c_to_uv.x);
+  let angleDiff = fract((fragAngle - angleRad + PI) / TWO_PI) * TWO_PI - PI;
 
-  float halfAngle = acos(clamp(radius / max(u_focalDistance, 1e-4), 0.0, 1.0));
-  float e0 = 0.6 * PI, e1 = halfAngle;
-  float lo = min(e0, e1), hi = max(e0, e1);
-  float s  = smoothstep(lo, hi, abs(angleDiff));
-  float isInSector = (e1 >= e0) ? (1.0 - s) : s;
+  let halfAngle = acos(clamp(radius / max(u.u_focalDistance, 1e-4), 0.0, 1.0));
+  let e0 = 0.6 * PI;
+  let e1 = halfAngle;
+  let lo = min(e0, e1);
+  let hi = max(e0, e1);
+  let s = smoothstep(lo, hi, abs(angleDiff));
+  let isInSector = select(s, 1.0 - s, e1 >= e0);
 
-  float a = dot(f_to_uv, f_to_uv);
-  float b = -2.0 * dot(f_to_uv, f_to_c);
-  float c = dot(f_to_c, f_to_c) - radius * radius;
+  let qa = dot(f_to_uv, f_to_uv);
+  let qb = -2.0 * dot(f_to_uv, f_to_c);
+  let qc = dot(f_to_c, f_to_c) - radius * radius;
 
-  float discriminant = b * b - 4.0 * a * c;
-  float t = 1.0;
+  let discriminant = qb * qb - 4.0 * qa * qc;
+  var t: f32 = 1.0;
 
   if (discriminant >= 0.0) {
-    float sqrtD = sqrt(discriminant);
-    float div = max(1e-4, 2.0 * a);
-    float t0 = (-b - sqrtD) / div;
-    float t1 = (-b + sqrtD) / div;
+    let sqrtD = sqrt(discriminant);
+    let div = max(1e-4, 2.0 * qa);
+    let t0 = (-qb - sqrtD) / div;
+    let t1 = (-qb + sqrtD) / div;
     t = max(t0, t1);
-    if (t < 0.0) t = 0.0;
+    if (t < 0.0) { t = 0.0; }
   }
 
-  float dist = length(f_to_uv);
-  float normalized = dist / max(1e-4, length(f_to_uv * t));
-  float shape = clamp(normalized, 0.0, 1.0);
+  let dist = length(f_to_uv);
+  let normalized = dist / max(1e-4, length(f_to_uv * t));
+  var shape = clamp(normalized, 0.0, 1.0);
 
-  float falloffMapped = mix(.2 + .8 * max(0., u_falloff + 1.), mix(1., 15., u_falloff * u_falloff), step(.0, u_falloff));
+  let falloffMapped = mix(0.2 + 0.8 * max(0.0, u.u_falloff + 1.0), mix(1.0, 15.0, u.u_falloff * u.u_falloff), step(0.0, u.u_falloff));
 
-  float falloffExp = mix(falloffMapped, 1., shape);
+  let falloffExp = mix(falloffMapped, 1.0, shape);
   shape = pow(shape, falloffExp);
-  shape = 1. - clamp(shape, 0., 1.);
+  shape = 1.0 - clamp(shape, 0.0, 1.0);
 
+  let outerMask: f32 = 0.002;
+  var outer = 1.0 - smoothstep(radius - outerMask, radius + outerMask, r);
+  outer = mix(outer, 1.0, isInSector);
 
-  float outerMask = .002;
-  float outer = 1.0 - smoothstep(radius - outerMask, radius + outerMask, r);
-  outer = mix(outer, 1., isInSector);
+  shape = mix(0.0, shape, outer);
+  shape *= 1.0 - smoothstep(radius - 0.01, radius, r);
 
-  shape = mix(0., shape, outer);
-  shape *= 1. - smoothstep(radius - .01, radius, r);
+  let angle = atan2(f_to_uv.y, f_to_uv.x);
+  shape -= pow(u.u_distortion, 2.0) * shape * pow(abs(sin(PI * clamp(length(f_to_uv) - 0.2 + u.u_distortionShift, 0.0, 1.0))), 4.0) * (sin(u.u_distortionFreq * angle) + cos(floor(0.65 * u.u_distortionFreq) * angle));
 
-  float angle = atan(f_to_uv.y, f_to_uv.x);
-  shape -= pow(u_distortion, 2.) * shape * pow(abs(sin(PI * clamp(length(f_to_uv) - 0.2 + u_distortionShift, 0.0, 1.0))), 4.0) * (sin(u_distortionFreq * angle) + cos(floor(0.65 * u_distortionFreq) * angle));
+  let grain = noise(grainUV, vec2f(0.0));
+  let mixerGrain = 0.4 * u.u_grainMixer * (grain - 0.5);
 
-  float grain = noise(grainUV, vec2(0.));
-  float mixerGrain = .4 * u_grainMixer * (grain - .5);
+  let mixer = shape * u.u_colorsCount + mixerGrain;
+  var gradient = u.u_colors[0];
+  gradient = vec4f(gradient.rgb * gradient.a, gradient.a);
 
-  float mixer = shape * u_colorsCount + mixerGrain;
-  vec4 gradient = u_colors[0];
-  gradient.rgb *= gradient.a;
+  var outerShape: f32 = 0.0;
+  for (var i: i32 = 1; i < ${staticRadialGradientMeta.maxColorCount + 1}; i++) {
+    if (i <= i32(u.u_colorsCount)) {
+      let mLinear = clamp(mixer - f32(i - 1), 0.0, 1.0);
 
-  float outerShape = 0.;
-  for (int i = 1; i < ${ staticRadialGradientMeta.maxColorCount + 1 }; i++) {
-    if (i > int(u_colorsCount)) break;
-    float mLinear = clamp(mixer - float(i - 1), 0.0, 1.0);
+      let aa = fwidth(mLinear);
+      let width = min(u.u_mixing, 0.5);
+      let tVal = clamp((mLinear - (0.5 - width - aa)) / (2.0 * width + 2.0 * aa), 0.0, 1.0);
+      let p = mix(2.0, 1.0, clamp((u.u_mixing - 0.5) * 2.0, 0.0, 1.0));
+      var m = select(
+        1.0 - 0.5 * pow(2.0 * (1.0 - tVal), p),
+        0.5 * pow(2.0 * tVal, p),
+        tVal < 0.5
+      );
 
-    float aa = fwidth(mLinear);
-    float width = min(u_mixing, 0.5);
-    float t = clamp((mLinear - (0.5 - width - aa)) / (2. * width + 2. * aa), 0., 1.);
-    float p = mix(2., 1., clamp((u_mixing - 0.5) * 2., 0., 1.));
-    float m = t < 0.5
-      ? 0.5 * pow(2. * t, p)
-      : 1. - 0.5 * pow(2. * (1. - t), p);
+      let quadBlend = clamp((u.u_mixing - 0.5) * 2.0, 0.0, 1.0);
+      m = mix(m, m * m, 0.5 * quadBlend);
 
-    float quadBlend = clamp((u_mixing - 0.5) * 2., 0., 1.);
-    m = mix(m, m * m, 0.5 * quadBlend);
-    
-    if (i == 1) {
-      outerShape = m;
+      if (i == 1) {
+        outerShape = m;
+      }
+
+      var c = u.u_colors[i - 1];
+      c = vec4f(c.rgb * c.a, c.a);
+      gradient = mix(gradient, c, m);
     }
-
-    vec4 c = u_colors[i - 1];
-    c.rgb *= c.a;
-    gradient = mix(gradient, c, m);
   }
 
-  vec3 color = gradient.rgb * outerShape;
-  float opacity = gradient.a * outerShape;
+  var color = gradient.rgb * outerShape;
+  var opacity = gradient.a * outerShape;
 
-  vec3 bgColor = u_colorBack.rgb * u_colorBack.a;
+  let bgColor = u.u_colorBack.rgb * u.u_colorBack.a;
   color = color + bgColor * (1.0 - opacity);
-  opacity = opacity + u_colorBack.a * (1.0 - opacity);
+  opacity = opacity + u.u_colorBack.a * (1.0 - opacity);
 
-  float grainOverlay = valueNoise(rotate(grainUV, 1.) + vec2(3.));
-  grainOverlay = mix(grainOverlay, valueNoise(rotate(grainUV, 2.) + vec2(-1.)), .5);
+  var grainOverlay = valueNoise(rotate(grainUV, 1.0) + vec2f(3.0));
+  grainOverlay = mix(grainOverlay, valueNoise(rotate(grainUV, 2.0) + vec2f(-1.0)), 0.5);
   grainOverlay = pow(grainOverlay, 1.3);
 
-  float grainOverlayV = grainOverlay * 2. - 1.;
-  vec3 grainOverlayColor = vec3(step(0., grainOverlayV));
-  float grainOverlayStrength = u_grainOverlay * abs(grainOverlayV);
-  grainOverlayStrength = pow(grainOverlayStrength, .8);
-  color = mix(color, grainOverlayColor, .35 * grainOverlayStrength);
+  let grainOverlayV = grainOverlay * 2.0 - 1.0;
+  let grainOverlayColor = vec3f(step(0.0, grainOverlayV));
+  var grainOverlayStrength = u.u_grainOverlay * abs(grainOverlayV);
+  grainOverlayStrength = pow(grainOverlayStrength, 0.8);
+  color = mix(color, grainOverlayColor, 0.35 * grainOverlayStrength);
 
-  opacity += .5 * grainOverlayStrength;
-  opacity = clamp(opacity, 0., 1.);
+  opacity += 0.5 * grainOverlayStrength;
+  opacity = clamp(opacity, 0.0, 1.0);
 
-  fragColor = vec4(color, opacity);
+  return vec4f(color, opacity);
 }
 `;
 

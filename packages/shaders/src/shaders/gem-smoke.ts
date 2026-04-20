@@ -1,7 +1,7 @@
 import type { vec4 } from '../types.js';
 import type { ShaderMotionParams } from '../shader-mount.js';
 import type { ShaderSizingParams, ShaderSizingUniforms } from '../shader-sizing.js';
-import { rotation2, declarePI } from '../shader-utils.js';
+import { systemUniformFields, vertexOutputStruct, rotation2, declarePI } from '../shader-utils.js';
 
 export const gemSmokeMeta = {
   maxColorCount: 6,
@@ -48,242 +48,228 @@ export const gemSmokeMeta = {
  *
  */
 
-// language=GLSL
-export const gemSmokeFragmentShader: string = `#version 300 es
-precision mediump float;
+export const gemSmokeFragmentShader: string = `
+struct Uniforms {
+  ${systemUniformFields}
+  u_colorsCount: f32,
+  u_colorBack: vec4f,
+  u_colorInner: vec4f,
+  u_innerDistortion: f32,
+  u_outerDistortion: f32,
+  u_outerGlow: f32,
+  u_innerGlow: f32,
+  u_offset: f32,
+  u_angle: f32,
+  u_size: f32,
+  u_shape: f32,
+  u_isImage: f32,
+  u_colors: array<vec4f, ${gemSmokeMeta.maxColorCount}>,
+}
+@group(0) @binding(0) var<uniform> u: Uniforms;
 
-in mediump vec2 v_imageUV;
-in mediump vec2 v_objectUV;
-in mediump vec2 v_responsiveUV;
-in mediump vec2 v_responsiveBoxGivenSize;
-out vec4 fragColor;
+${vertexOutputStruct}
 
-// Image
-uniform sampler2D u_image;
-uniform float u_imageAspectRatio;
-
-// Canvas
-uniform vec2 u_resolution;
-uniform float u_time;
-
-// Colors
-uniform vec4 u_colors[${gemSmokeMeta.maxColorCount}];
-uniform float u_colorsCount;
-uniform vec4 u_colorBack;
-uniform vec4 u_colorInner;
-
-// Effect controls
-uniform float u_innerDistortion;
-uniform float u_outerDistortion;
-uniform float u_outerGlow;
-uniform float u_innerGlow;
-uniform float u_offset;
-uniform float u_angle;
-uniform float u_size;
-
-// Shape controls
-uniform float u_shape;
-uniform bool u_isImage;
+@group(1) @binding(0) var u_image_tex: texture_2d<f32>;
+@group(1) @binding(1) var u_image_samp: sampler;
 
 ${ declarePI }
 ${ rotation2 }
 
 // 9x9 Gaussian blur on R and G channels
-vec2 gaussBlur9x9RG(sampler2D tex, vec2 uv, vec2 dudx, vec2 dudy, float radius) {
-  vec2 texel = 1.0 / vec2(textureSize(tex, 0));
-  vec2 r = max(radius, 0.0) * texel;
+fn gaussBlur9x9RG(uv: vec2f, radius_in: f32) -> vec2f {
+  let texel = 1.0 / vec2f(textureDimensions(u_image_tex, 0));
+  let r = max(radius_in, 0.0) * texel;
   // Pascal's row 8: sum = 256, 2D norm = 65536
-  const float k[9] = float[9](1.0, 8.0, 28.0, 56.0, 70.0, 56.0, 28.0, 8.0, 1.0);
-  vec2 sum = vec2(0.0);
+  let k = array<f32, 9>(1.0, 8.0, 28.0, 56.0, 70.0, 56.0, 28.0, 8.0, 1.0);
+  var blur_sum = vec2f(0.0);
 
-  for (int j = -4; j <= 4; ++j) {
-    float wy = k[j + 4];
-    for (int i = -4; i <= 4; ++i) {
-      float w = k[i + 4] * wy;
-      vec2 off = vec2(float(i) * r.x, float(j) * r.y);
-      sum += w * texture(tex, uv + off).rg;
+  for (var j: i32 = -4; j <= 4; j++) {
+    let wy = k[j + 4];
+    for (var i: i32 = -4; i <= 4; i++) {
+      let w = k[i + 4] * wy;
+      let off = vec2f(f32(i) * r.x, f32(j) * r.y);
+      let s = textureSampleLevel(u_image_tex, u_image_samp, uv + off, 0.0);
+      blur_sum += w * s.rg;
     }
   }
 
-  return sum / 65536.0;
+  return blur_sum / 65536.0;
 }
 
-float sst(float a, float b, float x) {
+fn sst(a: f32, b: f32, x: f32) -> f32 {
   return smoothstep(a, b, x);
 }
 
-void main() {
-  float time = u_time;
+@fragment fn fs_main(input: VertexOutput) -> @location(0) vec4f {
+  let time = u.u_time;
 
-  float roundness = 0.;
-  float imgAlpha = 0.;
+  var roundness: f32 = 0.0;
+  var imgAlpha: f32 = 0.0;
 
-  if (u_isImage == true) {
+  if (u.u_isImage > 0.5) {
     // Image sampling (UV scaled inward to account for padding)
-    vec2 imageUV = v_imageUV;
-    imageUV -= .5;
-    imageUV *= .95;
-    imageUV += .5;
-
-    vec2 dudx = dFdx(v_imageUV);
-    vec2 dudy = dFdy(v_imageUV);
+    var imageUV = input.v_imageUV;
+    imageUV -= vec2f(0.5);
+    imageUV *= 0.95;
+    imageUV += vec2f(0.5);
 
     // Blurred image: x = roundness, y = alpha
-    vec2 blurred = gaussBlur9x9RG(u_image, imageUV, dudx, dudy, 10.);
-    roundness = 1. - blurred.x;
-    vec2 texelA = 1.0 / vec2(textureSize(u_image, 0));
-    const float k3[3] = float[3](1.0, 2.0, 1.0);
-    for (int j = -1; j <= 1; ++j) {
-      for (int i = -1; i <= 1; ++i) {
-        imgAlpha += k3[i + 1] * k3[j + 1] * texture(u_image, imageUV + vec2(float(i) * texelA.x, float(j) * texelA.y)).g;
+    let blurred = gaussBlur9x9RG(imageUV, 10.0);
+    roundness = 1.0 - blurred.x;
+    let texelA = 1.0 / vec2f(textureDimensions(u_image_tex, 0));
+    let k3 = array<f32, 3>(1.0, 2.0, 1.0);
+    for (var j: i32 = -1; j <= 1; j++) {
+      for (var i: i32 = -1; i <= 1; i++) {
+        imgAlpha += k3[i + 1] * k3[j + 1] * textureSampleLevel(u_image_tex, u_image_samp, imageUV + vec2f(f32(i) * texelA.x, f32(j) * texelA.y), 0.0).g;
       }
     }
     imgAlpha /= 16.0;
   } else {
-    vec2 uv = v_objectUV + .5;
-    uv.y = 1. - uv.y;
-    float edge = 0.;
+    var uv = input.v_objectUV + vec2f(0.5);
+    uv = vec2f(uv.x, 1.0 - uv.y);
+    var edge: f32 = 0.0;
 
-    if (u_shape < 1.) {
+    if (u.u_shape < 1.0) {
       // full-fill on canvas
-      vec2 borderUV = v_responsiveUV + .5;
-      vec2 mask = min(borderUV, 1. - borderUV);
-      vec2 pixel_thickness = min(250. / v_responsiveBoxGivenSize, vec2(.5));
-      float maskX = smoothstep(0.0, pixel_thickness.x, mask.x);
-      float maskY = smoothstep(0.0, pixel_thickness.y, mask.y);
-      maskX = pow(maskX, .25);
-      maskY = pow(maskY, .25);
-      edge = clamp(1. - maskX * maskY, 0., 1.);
-    } else if (u_shape < 2.) {
+      let borderUV = input.v_responsiveUV + vec2f(0.5);
+      let mask_val = min(borderUV, vec2f(1.0) - borderUV);
+      let pixel_thickness = min(250.0 / input.v_responsiveBoxGivenSize, vec2f(0.5));
+      var maskX = smoothstep(0.0, pixel_thickness.x, mask_val.x);
+      var maskY = smoothstep(0.0, pixel_thickness.y, mask_val.y);
+      maskX = pow(maskX, 0.25);
+      maskY = pow(maskY, 0.25);
+      edge = clamp(1.0 - maskX * maskY, 0.0, 1.0);
+    } else if (u.u_shape < 2.0) {
       // circle
-      vec2 shapeUV = uv - .5;
-      shapeUV *= .67;
-      edge = pow(clamp(3. * length(shapeUV), 0., 1.), 18.);
-    } else if (u_shape < 3.) {
+      var shapeUV = uv - vec2f(0.5);
+      shapeUV *= 0.67;
+      edge = pow(clamp(3.0 * length(shapeUV), 0.0, 1.0), 18.0);
+    } else if (u.u_shape < 3.0) {
       // daisy
-      vec2 shapeUV = uv - .5;
+      var shapeUV = uv - vec2f(0.5);
       shapeUV *= 1.68;
 
-      float r = length(shapeUV) * 2.;
-      float a = atan(shapeUV.y, shapeUV.x) + .2;
-      r *= (1. + .05 * sin(3. * a + 2. * time));
-      float f = abs(cos(a * 3.));
-      edge = smoothstep(f, f + .7, r);
+      var r = length(shapeUV) * 2.0;
+      let a = atan2(shapeUV.y, shapeUV.x) + 0.2;
+      r *= (1.0 + 0.05 * sin(3.0 * a + 2.0 * time));
+      let f = abs(cos(a * 3.0));
+      edge = smoothstep(f, f + 0.7, r);
       edge *= edge;
-    } else if (u_shape < 4.) {
+    } else if (u.u_shape < 4.0) {
       // diamond
-      vec2 shapeUV = uv - .5;
-      shapeUV = rotate(shapeUV, .25 * PI);
+      var shapeUV = uv - vec2f(0.5);
+      shapeUV = rotate(shapeUV, 0.25 * PI);
       shapeUV *= 1.42;
-      shapeUV += .5;
-      vec2 mask = min(shapeUV, 1. - shapeUV);
-      vec2 pixel_thickness = vec2(.15);
-      float maskX = smoothstep(0.0, pixel_thickness.x, mask.x);
-      float maskY = smoothstep(0.0, pixel_thickness.y, mask.y);
-      maskX = pow(maskX, .25);
-      maskY = pow(maskY, .25);
-      edge = clamp(1. - maskX * maskY, 0., 1.);
-    } else if (u_shape < 5.) {
+      shapeUV += vec2f(0.5);
+      let mask_val = min(shapeUV, vec2f(1.0) - shapeUV);
+      let pixel_thickness = vec2f(0.15);
+      var maskX = smoothstep(0.0, pixel_thickness.x, mask_val.x);
+      var maskY = smoothstep(0.0, pixel_thickness.y, mask_val.y);
+      maskX = pow(maskX, 0.25);
+      maskY = pow(maskY, 0.25);
+      edge = clamp(1.0 - maskX * maskY, 0.0, 1.0);
+    } else if (u.u_shape < 5.0) {
       // metaballs
-      vec2 shapeUV = uv - .5;
+      var shapeUV = uv - vec2f(0.5);
       shapeUV *= 1.3;
-      edge = 0.;
-      for (int i = 0; i < 5; i++) {
-        float fi = float(i);
-        float speed = 1.5 + 2./3. * sin(fi * 12.345);
-        float angle = -fi * 1.5;
-        vec2 dir1 = vec2(cos(angle), sin(angle));
-        vec2 dir2 = vec2(cos(angle + 1.57), sin(angle + 1.));
-        vec2 traj = .4 * (dir1 * sin(time * speed + fi * 1.23) + dir2 * cos(time * (speed * 0.7) + fi * 2.17));
-        float d = length(shapeUV + traj);
+      edge = 0.0;
+      for (var i: i32 = 0; i < 5; i++) {
+        let fi = f32(i);
+        let speed = 1.5 + 2.0 / 3.0 * sin(fi * 12.345);
+        let mb_angle = -fi * 1.5;
+        let dir1 = vec2f(cos(mb_angle), sin(mb_angle));
+        let dir2 = vec2f(cos(mb_angle + 1.57), sin(mb_angle + 1.0));
+        let traj = 0.4 * (dir1 * sin(time * speed + fi * 1.23) + dir2 * cos(time * (speed * 0.7) + fi * 2.17));
+        let d = length(shapeUV + traj);
         edge += pow(1.0 - clamp(d, 0.0, 1.0), 4.0);
       }
-      edge = 1. - smoothstep(.65, .9, edge);
-      edge = pow(edge, 4.);
+      edge = 1.0 - smoothstep(0.65, 0.9, edge);
+      edge = pow(edge, 4.0);
     }
 
-    imgAlpha = 1. - smoothstep(.9 - 2. * fwidth(edge), .9, edge);
-    roundness = 1. - edge;
+    let fw_edge = abs(dpdx(edge)) + abs(dpdy(edge));
+    imgAlpha = 1.0 - smoothstep(0.9 - 2.0 * fw_edge, 0.9, edge);
+    roundness = 1.0 - edge;
   }
 
-// Smoke UV setup
-  vec2 smokeUV = v_objectUV;
-  smokeUV = rotate(smokeUV, u_angle * PI / 180.);
-  smokeUV *= mix(4., 1., u_size);
+  // Smoke UV setup
+  var smokeUV = input.v_objectUV;
+  smokeUV = rotate(smokeUV, u.u_angle * PI / 180.0);
+  smokeUV *= mix(4.0, 1.0, u.u_size);
 
   // Two swirl paths: inner (shape-masked) and outer (free), each with independent distortion
-  vec2 innerUV = smokeUV;
-  vec2 outerUV = smokeUV;
+  var innerUV = smokeUV;
+  var outerUV = smokeUV;
 
   // Vertical displacement — applied independently to inner and outer
-  innerUV.y += u_innerDistortion * (1. - sst(0., 1., length(.4 * innerUV)));
-  innerUV.y -= .4 * u_innerDistortion;
-  innerUV.y += .7 * u_offset * roundness;
+  innerUV = vec2f(innerUV.x, innerUV.y + u.u_innerDistortion * (1.0 - sst(0.0, 1.0, length(0.4 * innerUV))));
+  innerUV = vec2f(innerUV.x, innerUV.y - 0.4 * u.u_innerDistortion);
+  innerUV = vec2f(innerUV.x, innerUV.y + 0.7 * u.u_offset * roundness);
 
-  outerUV.y += u_outerDistortion * (1. - sst(0., 1., length(.4 * outerUV)));
-  outerUV.y -= .4 * u_outerDistortion;
+  outerUV = vec2f(outerUV.x, outerUV.y + u.u_outerDistortion * (1.0 - sst(0.0, 1.0, length(0.4 * outerUV))));
+  outerUV = vec2f(outerUV.x, outerUV.y - 0.4 * u.u_outerDistortion);
 
-  float innerSwirl = u_innerDistortion * roundness;
-  float outerSwirl = u_outerDistortion;
+  let innerSwirl = u.u_innerDistortion * roundness;
+  let outerSwirl = u.u_outerDistortion;
 
-  for (int i = 1; i < 5; i++) {
-    float fi = float(i);
+  for (var i: i32 = 1; i < 5; i++) {
+    let fi = f32(i);
 
-    float stretchIn = max(length(dFdx(innerUV)), length(dFdy(innerUV)));
-    float dampenIn = 1. / (1. + stretchIn * 8.);
-    float sIn = innerSwirl * dampenIn;
-    innerUV.x += sIn / fi * cos(time + fi * 2.9 * innerUV.y);
-    innerUV.y += sIn / fi * cos(time + fi * 1.5 * innerUV.x);
+    let stretchIn = max(length(dpdx(innerUV)), length(dpdy(innerUV)));
+    let dampenIn = 1.0 / (1.0 + stretchIn * 8.0);
+    let sIn = innerSwirl * dampenIn;
+    innerUV = vec2f(innerUV.x + sIn / fi * cos(time + fi * 2.9 * innerUV.y), innerUV.y);
+    innerUV = vec2f(innerUV.x, innerUV.y + sIn / fi * cos(time + fi * 1.5 * innerUV.x));
 
-    float stretchOut = max(length(dFdx(outerUV)), length(dFdy(outerUV)));
-    float dampenOut = 1. / (1. + stretchOut * 8.);
-    float sOut = outerSwirl * dampenOut;
-    outerUV.x += sOut / fi * cos(time + fi * 2.9 * outerUV.y);
-    outerUV.y += sOut / fi * cos(time + fi * 1.5 * outerUV.x);
+    let stretchOut = max(length(dpdx(outerUV)), length(dpdy(outerUV)));
+    let dampenOut = 1.0 / (1.0 + stretchOut * 8.0);
+    let sOut = outerSwirl * dampenOut;
+    outerUV = vec2f(outerUV.x + sOut / fi * cos(time + fi * 2.9 * outerUV.y), outerUV.y);
+    outerUV = vec2f(outerUV.x, outerUV.y + sOut / fi * cos(time + fi * 1.5 * outerUV.x));
   }
 
   // Smoke shapes from swirl fields
-  float innerShape = exp(-1.5 * dot(innerUV, innerUV));
-  float outerShape = exp(-1.5 * dot(outerUV, outerUV));
+  let innerShape_val = exp(-1.5 * dot(innerUV, innerUV));
+  let outerShape_val = exp(-1.5 * dot(outerUV, outerUV));
 
   // Visibility masks
-  float outerMask = pow(u_outerGlow, 2.) * (1. - imgAlpha);
-  float innerMask = (.01 + .99 * u_innerGlow) * imgAlpha;
+  let outerMask = pow(u.u_outerGlow, 2.0) * (1.0 - imgAlpha);
+  let innerMask = (0.01 + 0.99 * u.u_innerGlow) * imgAlpha;
 
-  innerShape *= innerMask;
-  outerShape *= outerMask;
+  var innerShape = innerShape_val * innerMask;
+  var outerShape = outerShape_val * outerMask;
 
   // Color gradient
-  float mixer = (innerShape + outerShape) * u_colorsCount;
-  vec4 gradient = u_colors[0];
-  gradient.rgb *= gradient.a;
+  let mixer = (innerShape + outerShape) * u.u_colorsCount;
+  var gradient = u.u_colors[0];
+  gradient = vec4f(gradient.rgb * gradient.a, gradient.a);
 
-  float smokeMask = 0.;
-  for (int i = 1; i < ${gemSmokeMeta.maxColorCount + 1}; i++) {
-    if (i > int(u_colorsCount)) break;
+  var smokeMask: f32 = 0.0;
+  for (var i: i32 = 1; i < ${gemSmokeMeta.maxColorCount + 1}; i++) {
+    if (i > i32(u.u_colorsCount)) { break; }
 
-    float m = sst(0., 1., clamp(mixer - float(i - 1), 0., 1.));
-    if (i == 1) smokeMask = m;
+    let m = sst(0.0, 1.0, clamp(mixer - f32(i - 1), 0.0, 1.0));
+    if (i == 1) { smokeMask = m; }
 
-    vec4 c = u_colors[i - 1];
-    c.rgb *= c.a;
+    var c = u.u_colors[i - 1];
+    c = vec4f(c.rgb * c.a, c.a);
     gradient = mix(gradient, c, m);
   }
 
   // Compositing (premultiplied alpha, front-to-back)
-  vec3 color = gradient.rgb * smokeMask;
-  float opacity = gradient.a * smokeMask;
+  var color = gradient.rgb * smokeMask;
+  var opacity = gradient.a * smokeMask;
 
-  float innerOpacity = u_colorInner.a * imgAlpha;
-  vec3 innerColor = u_colorInner.rgb * innerOpacity;
+  let innerOpacity = u.u_colorInner.a * imgAlpha;
+  let innerColor = u.u_colorInner.rgb * innerOpacity;
   color += innerColor * (1.0 - opacity);
   opacity += innerOpacity * (1.0 - opacity);
 
-  vec3 backColor = u_colorBack.rgb * u_colorBack.a;
+  let backColor = u.u_colorBack.rgb * u.u_colorBack.a;
   color += backColor * (1.0 - opacity);
-  opacity += u_colorBack.a * (1.0 - opacity);
+  opacity += u.u_colorBack.a * (1.0 - opacity);
 
-  fragColor = vec4(color, opacity);
+  return vec4f(color, opacity);
 }
 `;
 

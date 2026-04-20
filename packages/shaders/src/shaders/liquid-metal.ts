@@ -1,6 +1,6 @@
 import type { ShaderMotionParams } from '../shader-mount.js';
 import { type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
-import { declarePI, rotation2, simplexNoise, colorBandingFix } from '../shader-utils.js';
+import { systemUniformFields, vertexOutputStruct, declarePI, rotation2, glslMod, simplexNoise, colorBandingFix } from '../shader-utils.js';
 
 /**
  * Futuristic liquid metal material applied to uploaded logo or abstract shape.
@@ -46,327 +46,327 @@ import { declarePI, rotation2, simplexNoise, colorBandingFix } from '../shader-u
  *
  */
 
-// language=GLSL
-export const liquidMetalFragmentShader: string = `#version 300 es
-precision mediump float;
+export const liquidMetalFragmentShader: string = `
+struct Uniforms {
+  ${systemUniformFields}
+  u_colorBack: vec4f,
+  u_colorTint: vec4f,
+  u_softness: f32,
+  u_repetition: f32,
+  u_shiftRed: f32,
+  u_shiftBlue: f32,
+  u_distortion: f32,
+  u_contour: f32,
+  u_angle: f32,
+  u_shape: f32,
+  u_isImage: f32,
+}
+@group(0) @binding(0) var<uniform> u: Uniforms;
 
-uniform sampler2D u_image;
-uniform float u_imageAspectRatio;
+${vertexOutputStruct}
 
-uniform vec2 u_resolution;
-uniform float u_time;
-
-uniform vec4 u_colorBack;
-uniform vec4 u_colorTint;
-
-uniform float u_softness;
-uniform float u_repetition;
-uniform float u_shiftRed;
-uniform float u_shiftBlue;
-uniform float u_distortion;
-uniform float u_contour;
-uniform float u_angle;
-
-uniform float u_shape;
-uniform bool u_isImage;
-
-in vec2 v_objectUV;
-in vec2 v_responsiveUV;
-in vec2 v_responsiveBoxGivenSize;
-in vec2 v_imageUV;
-
-out vec4 fragColor;
+@group(1) @binding(0) var u_image_tex: texture_2d<f32>;
+@group(1) @binding(1) var u_image_samp: sampler;
 
 ${ declarePI }
 ${ rotation2 }
+${ glslMod }
 ${ simplexNoise }
 
-float getColorChanges(float c1, float c2, float stripe_p, vec3 w, float blur, float bump, float tint) {
+fn getColorChanges(c1: f32, c2: f32, stripe_p: f32, w: vec3f, blur: f32, bump_in: f32, tint: f32) -> f32 {
 
-  float ch = mix(c2, c1, smoothstep(.0, 2. * blur, stripe_p));
+  var ch = mix(c2, c1, smoothstep(0.0, 2.0 * blur, stripe_p));
 
-  float border = w[0];
-  ch = mix(ch, c2, smoothstep(border, border + 2. * blur, stripe_p));
+  var border = w[0];
+  ch = mix(ch, c2, smoothstep(border, border + 2.0 * blur, stripe_p));
 
-  if (u_isImage == true) {
-    bump = smoothstep(.2, .8, bump);
+  var bump = bump_in;
+  if (u.u_isImage > 0.5) {
+    bump = smoothstep(0.2, 0.8, bump);
   }
-  border = w[0] + .4 * (1. - bump) * w[1];
-  ch = mix(ch, c1, smoothstep(border, border + 2. * blur, stripe_p));
+  border = w[0] + 0.4 * (1.0 - bump) * w[1];
+  ch = mix(ch, c1, smoothstep(border, border + 2.0 * blur, stripe_p));
 
-  border = w[0] + .5 * (1. - bump) * w[1];
-  ch = mix(ch, c2, smoothstep(border, border + 2. * blur, stripe_p));
+  border = w[0] + 0.5 * (1.0 - bump) * w[1];
+  ch = mix(ch, c2, smoothstep(border, border + 2.0 * blur, stripe_p));
 
   border = w[0] + w[1];
-  ch = mix(ch, c1, smoothstep(border, border + 2. * blur, stripe_p));
+  ch = mix(ch, c1, smoothstep(border, border + 2.0 * blur, stripe_p));
 
-  float gradient_t = (stripe_p - w[0] - w[1]) / w[2];
-  float gradient = mix(c1, c2, smoothstep(0., 1., gradient_t));
-  ch = mix(ch, gradient, smoothstep(border, border + .5 * blur, stripe_p));
+  let gradient_t = (stripe_p - w[0] - w[1]) / w[2];
+  let gradient_val = mix(c1, c2, smoothstep(0.0, 1.0, gradient_t));
+  ch = mix(ch, gradient_val, smoothstep(border, border + 0.5 * blur, stripe_p));
 
   // Tint color is applied with color burn blending
-  ch = mix(ch, 1. - min(1., (1. - ch) / max(tint, 0.0001)), u_colorTint.a);
+  ch = mix(ch, 1.0 - min(1.0, (1.0 - ch) / max(tint, 0.0001)), u.u_colorTint.a);
   return ch;
 }
 
-float getImgFrame(vec2 uv, float th) {
-  float frame = 1.;
-  frame *= smoothstep(0., th, uv.y);
-  frame *= 1.0 - smoothstep(1. - th, 1., uv.y);
-  frame *= smoothstep(0., th, uv.x);
-  frame *= 1.0 - smoothstep(1. - th, 1., uv.x);
+fn getImgFrame(uv: vec2f, th: f32) -> f32 {
+  var frame: f32 = 1.0;
+  frame *= smoothstep(0.0, th, uv.y);
+  frame *= 1.0 - smoothstep(1.0 - th, 1.0, uv.y);
+  frame *= smoothstep(0.0, th, uv.x);
+  frame *= 1.0 - smoothstep(1.0 - th, 1.0, uv.x);
   return frame;
 }
 
-float blurEdge3x3(sampler2D tex, vec2 uv, vec2 dudx, vec2 dudy, float radius, float centerSample) {
-  vec2 texel = 1.0 / vec2(textureSize(tex, 0));
-  vec2 r = radius * texel;
+fn blurEdge3x3(uv: vec2f, dudx_v: vec2f, dudy_v: vec2f, radius: f32, centerSample: f32) -> f32 {
+  let texel = 1.0 / vec2f(textureDimensions(u_image_tex, 0));
+  let r = radius * texel;
 
-  float w1 = 1.0, w2 = 2.0, w4 = 4.0;
-  float norm = 16.0;
-  float sum = w4 * centerSample;
+  let w1: f32 = 1.0;
+  let w2: f32 = 2.0;
+  let w4: f32 = 4.0;
+  let norm: f32 = 16.0;
+  var blur_sum = w4 * centerSample;
 
-  sum += w2 * textureGrad(tex, uv + vec2(0.0, -r.y), dudx, dudy).r;
-  sum += w2 * textureGrad(tex, uv + vec2(0.0, r.y), dudx, dudy).r;
-  sum += w2 * textureGrad(tex, uv + vec2(-r.x, 0.0), dudx, dudy).r;
-  sum += w2 * textureGrad(tex, uv + vec2(r.x, 0.0), dudx, dudy).r;
+  blur_sum += w2 * textureSampleGrad(u_image_tex, u_image_samp, uv + vec2f(0.0, -r.y), dudx_v, dudy_v).r;
+  blur_sum += w2 * textureSampleGrad(u_image_tex, u_image_samp, uv + vec2f(0.0, r.y), dudx_v, dudy_v).r;
+  blur_sum += w2 * textureSampleGrad(u_image_tex, u_image_samp, uv + vec2f(-r.x, 0.0), dudx_v, dudy_v).r;
+  blur_sum += w2 * textureSampleGrad(u_image_tex, u_image_samp, uv + vec2f(r.x, 0.0), dudx_v, dudy_v).r;
 
-  sum += w1 * textureGrad(tex, uv + vec2(-r.x, -r.y), dudx, dudy).r;
-  sum += w1 * textureGrad(tex, uv + vec2(r.x, -r.y), dudx, dudy).r;
-  sum += w1 * textureGrad(tex, uv + vec2(-r.x, r.y), dudx, dudy).r;
-  sum += w1 * textureGrad(tex, uv + vec2(r.x, r.y), dudx, dudy).r;
+  blur_sum += w1 * textureSampleGrad(u_image_tex, u_image_samp, uv + vec2f(-r.x, -r.y), dudx_v, dudy_v).r;
+  blur_sum += w1 * textureSampleGrad(u_image_tex, u_image_samp, uv + vec2f(r.x, -r.y), dudx_v, dudy_v).r;
+  blur_sum += w1 * textureSampleGrad(u_image_tex, u_image_samp, uv + vec2f(-r.x, r.y), dudx_v, dudy_v).r;
+  blur_sum += w1 * textureSampleGrad(u_image_tex, u_image_samp, uv + vec2f(r.x, r.y), dudx_v, dudy_v).r;
 
-  return sum / norm;
+  return blur_sum / norm;
 }
 
-float lst(float edge0, float edge1, float x) {
+fn lst(edge0: f32, edge1: f32, x: f32) -> f32 {
   return clamp((x - edge0) / (edge1 - edge0), 0.0, 1.0);
 }
 
-void main() {
+@fragment fn fs_main(input: VertexOutput) -> @location(0) vec4f {
 
-  const float firstFrameOffset = 2.8;
-  float t = .3 * (u_time + firstFrameOffset);
+  let firstFrameOffset: f32 = 2.8;
+  var t = 0.3 * (u.u_time + firstFrameOffset);
 
-  vec2 uv = v_imageUV;
-  vec2 dudx = dFdx(v_imageUV);
-  vec2 dudy = dFdy(v_imageUV);
-  vec4 img = textureGrad(u_image, uv, dudx, dudy);
+  var uv = input.v_imageUV;
+  let dudx_v = dpdx(input.v_imageUV);
+  let dudy_v = dpdy(input.v_imageUV);
+  let img = textureSampleGrad(u_image_tex, u_image_samp, uv, dudx_v, dudy_v);
 
-  if (u_isImage == false) {
-    uv = v_objectUV + .5;
-    uv.y = 1. - uv.y;
+  if (u.u_isImage < 0.5) {
+    uv = input.v_objectUV + vec2f(0.5);
+    uv = vec2f(uv.x, 1.0 - uv.y);
   }
 
-  float cycleWidth = u_repetition;
-  float edge = 0.;
-  float contOffset = 1.;
+  var cycleWidth = u.u_repetition;
+  var edge: f32 = 0.0;
+  var contOffset: f32 = 1.0;
 
-  vec2 rotatedUV = uv - vec2(.5);
-  float angle = (-u_angle + 70.) * PI / 180.;
-  float cosA = cos(angle);
-  float sinA = sin(angle);
-  rotatedUV = vec2(
-  rotatedUV.x * cosA - rotatedUV.y * sinA,
-  rotatedUV.x * sinA + rotatedUV.y * cosA
-  ) + vec2(.5);
+  var rotatedUV = uv - vec2f(0.5);
+  let rot_angle = (-u.u_angle + 70.0) * PI / 180.0;
+  let cosA = cos(rot_angle);
+  let sinA = sin(rot_angle);
+  rotatedUV = vec2f(
+    rotatedUV.x * cosA - rotatedUV.y * sinA,
+    rotatedUV.x * sinA + rotatedUV.y * cosA
+  ) + vec2f(0.5);
 
-  if (u_isImage == true) {
-    float edgeRaw = img.r;
-    edge = blurEdge3x3(u_image, uv, dudx, dudy, 6., edgeRaw);
+  if (u.u_isImage > 0.5) {
+    let edgeRaw = img.r;
+    edge = blurEdge3x3(uv, dudx_v, dudy_v, 6.0, edgeRaw);
     edge = pow(edge, 1.6);
-    edge *= mix(0.0, 1.0, smoothstep(0.0, 0.4, u_contour));
+    edge *= mix(0.0, 1.0, smoothstep(0.0, 0.4, u.u_contour));
   } else {
-    if (u_shape < 1.) {
+    if (u.u_shape < 1.0) {
       // full-fill on canvas
-      vec2 borderUV = v_responsiveUV + .5;
-      float ratio = v_responsiveBoxGivenSize.x / v_responsiveBoxGivenSize.y;
-      vec2 mask = min(borderUV, 1. - borderUV);
-      vec2 pixel_thickness = min(250. / v_responsiveBoxGivenSize, vec2(.5));
-      float maskX = smoothstep(0.0, pixel_thickness.x, mask.x);
-      float maskY = smoothstep(0.0, pixel_thickness.y, mask.y);
-      maskX = pow(maskX, .25);
-      maskY = pow(maskY, .25);
-      edge = clamp(1. - maskX * maskY, 0., 1.);
+      let borderUV = input.v_responsiveUV + vec2f(0.5);
+      let ratio = input.v_responsiveBoxGivenSize.x / input.v_responsiveBoxGivenSize.y;
+      let mask_val = min(borderUV, vec2f(1.0) - borderUV);
+      let pixel_thickness = min(250.0 / input.v_responsiveBoxGivenSize, vec2f(0.5));
+      var maskX = smoothstep(0.0, pixel_thickness.x, mask_val.x);
+      var maskY = smoothstep(0.0, pixel_thickness.y, mask_val.y);
+      maskX = pow(maskX, 0.25);
+      maskY = pow(maskY, 0.25);
+      edge = clamp(1.0 - maskX * maskY, 0.0, 1.0);
 
-      uv = v_responsiveUV;
-      if (ratio > 1.) {
-        uv.y /= ratio;
+      uv = input.v_responsiveUV;
+      if (ratio > 1.0) {
+        uv = vec2f(uv.x, uv.y / ratio);
       } else {
-        uv.x *= ratio;
+        uv = vec2f(uv.x * ratio, uv.y);
       }
-      uv += .5;
-      uv.y = 1. - uv.y;
+      uv += vec2f(0.5);
+      uv = vec2f(uv.x, 1.0 - uv.y);
 
-      cycleWidth *= 2.;
+      cycleWidth *= 2.0;
       contOffset = 1.5;
 
-    } else if (u_shape < 2.) {
+    } else if (u.u_shape < 2.0) {
       // circle
-      vec2 shapeUV = uv - .5;
-      shapeUV *= .67;
-      edge = pow(clamp(3. * length(shapeUV), 0., 1.), 18.);
-    } else if (u_shape < 3.) {
+      var shapeUV = uv - vec2f(0.5);
+      shapeUV *= 0.67;
+      edge = pow(clamp(3.0 * length(shapeUV), 0.0, 1.0), 18.0);
+    } else if (u.u_shape < 3.0) {
       // daisy
-      vec2 shapeUV = uv - .5;
+      var shapeUV = uv - vec2f(0.5);
       shapeUV *= 1.68;
 
-      float r = length(shapeUV) * 2.;
-      float a = atan(shapeUV.y, shapeUV.x) + .2;
-      r *= (1. + .05 * sin(3. * a + 2. * t));
-      float f = abs(cos(a * 3.));
-      edge = smoothstep(f, f + .7, r);
+      var r = length(shapeUV) * 2.0;
+      let a = atan2(shapeUV.y, shapeUV.x) + 0.2;
+      r *= (1.0 + 0.05 * sin(3.0 * a + 2.0 * t));
+      let f = abs(cos(a * 3.0));
+      edge = smoothstep(f, f + 0.7, r);
       edge *= edge;
 
-      uv *= .8;
+      uv *= 0.8;
       cycleWidth *= 1.6;
 
-    } else if (u_shape < 4.) {
+    } else if (u.u_shape < 4.0) {
       // diamond
-      vec2 shapeUV = uv - .5;
-      shapeUV = rotate(shapeUV, .25 * PI);
+      var shapeUV = uv - vec2f(0.5);
+      shapeUV = rotate(shapeUV, 0.25 * PI);
       shapeUV *= 1.42;
-      shapeUV += .5;
-      vec2 mask = min(shapeUV, 1. - shapeUV);
-      vec2 pixel_thickness = vec2(.15);
-      float maskX = smoothstep(0.0, pixel_thickness.x, mask.x);
-      float maskY = smoothstep(0.0, pixel_thickness.y, mask.y);
-      maskX = pow(maskX, .25);
-      maskY = pow(maskY, .25);
-      edge = clamp(1. - maskX * maskY, 0., 1.);
-    } else if (u_shape < 5.) {
+      shapeUV += vec2f(0.5);
+      let mask_val = min(shapeUV, vec2f(1.0) - shapeUV);
+      let pixel_thickness = vec2f(0.15);
+      var maskX = smoothstep(0.0, pixel_thickness.x, mask_val.x);
+      var maskY = smoothstep(0.0, pixel_thickness.y, mask_val.y);
+      maskX = pow(maskX, 0.25);
+      maskY = pow(maskY, 0.25);
+      edge = clamp(1.0 - maskX * maskY, 0.0, 1.0);
+    } else if (u.u_shape < 5.0) {
       // metaballs
-      vec2 shapeUV = uv - .5;
+      var shapeUV = uv - vec2f(0.5);
       shapeUV *= 1.3;
-      edge = 0.;
-      for (int i = 0; i < 5; i++) {
-        float fi = float(i);
-        float speed = 1.5 + 2./3. * sin(fi * 12.345);
-        float angle = -fi * 1.5;
-        vec2 dir1 = vec2(cos(angle), sin(angle));
-        vec2 dir2 = vec2(cos(angle + 1.57), sin(angle + 1.));
-        vec2 traj = .4 * (dir1 * sin(t * speed + fi * 1.23) + dir2 * cos(t * (speed * 0.7) + fi * 2.17));
-        float d = length(shapeUV + traj);
+      edge = 0.0;
+      for (var i: i32 = 0; i < 5; i++) {
+        let fi = f32(i);
+        let speed = 1.5 + 2.0 / 3.0 * sin(fi * 12.345);
+        let mb_angle = -fi * 1.5;
+        let dir1 = vec2f(cos(mb_angle), sin(mb_angle));
+        let dir2 = vec2f(cos(mb_angle + 1.57), sin(mb_angle + 1.0));
+        let traj = 0.4 * (dir1 * sin(t * speed + fi * 1.23) + dir2 * cos(t * (speed * 0.7) + fi * 2.17));
+        let d = length(shapeUV + traj);
         edge += pow(1.0 - clamp(d, 0.0, 1.0), 4.0);
       }
-      edge = 1. - smoothstep(.65, .9, edge);
-      edge = pow(edge, 4.);
+      edge = 1.0 - smoothstep(0.65, 0.9, edge);
+      edge = pow(edge, 4.0);
     }
 
-    edge = mix(smoothstep(.9 - 2. * fwidth(edge), .9, edge), edge, smoothstep(0.0, 0.4, u_contour));
+    let fw_edge = abs(dpdx(edge)) + abs(dpdy(edge));
+    edge = mix(smoothstep(0.9 - 2.0 * fw_edge, 0.9, edge), edge, smoothstep(0.0, 0.4, u.u_contour));
 
   }
 
-  float opacity = 0.;
-  if (u_isImage == true) {
+  var opacity: f32 = 0.0;
+  if (u.u_isImage > 0.5) {
     opacity = img.g;
-    float frame = getImgFrame(v_imageUV, 0.);
+    let frame = getImgFrame(input.v_imageUV, 0.0);
     opacity *= frame;
   } else {
-    opacity = 1. - smoothstep(.9 - 2. * fwidth(edge), .9, edge);
-    if (u_shape < 2.) {
+    let fw_edge2 = abs(dpdx(edge)) + abs(dpdy(edge));
+    opacity = 1.0 - smoothstep(0.9 - 2.0 * fw_edge2, 0.9, edge);
+    if (u.u_shape < 2.0) {
       edge = 1.2 * edge;
-    } else if (u_shape < 5.) {
+    } else if (u.u_shape < 5.0) {
       edge = 1.8 * pow(edge, 1.5);
     }
   }
 
-  float diagBLtoTR = rotatedUV.x - rotatedUV.y;
-  float diagTLtoBR = rotatedUV.x + rotatedUV.y;
+  let diagBLtoTR = rotatedUV.x - rotatedUV.y;
+  let diagTLtoBR = rotatedUV.x + rotatedUV.y;
 
-  vec3 color = vec3(0.);
-  vec3 color1 = vec3(.98, 0.98, 1.);
-  vec3 color2 = vec3(.1, .1, .1 + .1 * smoothstep(.7, 1.3, diagTLtoBR));
+  var color = vec3f(0.0);
+  let color1 = vec3f(0.98, 0.98, 1.0);
+  let color2 = vec3f(0.1, 0.1, 0.1 + 0.1 * smoothstep(0.7, 1.3, diagTLtoBR));
 
-  vec2 grad_uv = uv - .5;
+  var grad_uv = uv - vec2f(0.5);
 
-  float dist = length(grad_uv + vec2(0., .2 * diagBLtoTR));
-  grad_uv = rotate(grad_uv, (.25 - .2 * diagBLtoTR) * PI);
-  float direction = grad_uv.x;
+  let dist = length(grad_uv + vec2f(0.0, 0.2 * diagBLtoTR));
+  grad_uv = rotate(grad_uv, (0.25 - 0.2 * diagBLtoTR) * PI);
+  var direction = grad_uv.x;
 
-  float bump = pow(1.8 * dist, 1.2);
-  bump = 1. - bump;
-  bump *= pow(uv.y, .3);
+  var bump = pow(1.8 * dist, 1.2);
+  bump = 1.0 - bump;
+  bump *= pow(uv.y, 0.3);
 
 
-  float thin_strip_1_ratio = .12 / cycleWidth * (1. - .4 * bump);
-  float thin_strip_2_ratio = .07 / cycleWidth * (1. + .4 * bump);
-  float wide_strip_ratio = (1. - thin_strip_1_ratio - thin_strip_2_ratio);
+  let thin_strip_1_ratio = 0.12 / cycleWidth * (1.0 - 0.4 * bump);
+  let thin_strip_2_ratio = 0.07 / cycleWidth * (1.0 + 0.4 * bump);
+  let wide_strip_ratio = (1.0 - thin_strip_1_ratio - thin_strip_2_ratio);
 
-  float thin_strip_1_width = cycleWidth * thin_strip_1_ratio;
-  float thin_strip_2_width = cycleWidth * thin_strip_2_ratio;
+  let thin_strip_1_width = cycleWidth * thin_strip_1_ratio;
+  let thin_strip_2_width = cycleWidth * thin_strip_2_ratio;
 
-  float noise = snoise(uv - t);
+  let noise = snoise(uv - vec2f(t));
 
-  edge += (1. - edge) * u_distortion * noise;
+  edge += (1.0 - edge) * u.u_distortion * noise;
 
   direction += diagBLtoTR;
-  float contour = 0.;
-  direction -= 2. * noise * diagBLtoTR * (smoothstep(0., 1., edge) * (1.0 - smoothstep(0., 1., edge)));
-  direction *= mix(1., 1. - edge, smoothstep(.5, 1., u_contour));
-  direction -= 1.7 * edge * smoothstep(.5, 1., u_contour);
-  direction += .2 * pow(u_contour, 4.) * (1.0 - smoothstep(0., 1., edge));
+  var contour: f32 = 0.0;
+  direction -= 2.0 * noise * diagBLtoTR * (smoothstep(0.0, 1.0, edge) * (1.0 - smoothstep(0.0, 1.0, edge)));
+  direction *= mix(1.0, 1.0 - edge, smoothstep(0.5, 1.0, u.u_contour));
+  direction -= 1.7 * edge * smoothstep(0.5, 1.0, u.u_contour);
+  direction += 0.2 * pow(u.u_contour, 4.0) * (1.0 - smoothstep(0.0, 1.0, edge));
 
-  bump *= clamp(pow(uv.y, .1), .3, 1.);
-  direction *= (.1 + (1.1 - edge) * bump);
+  bump *= clamp(pow(uv.y, 0.1), 0.3, 1.0);
+  direction *= (0.1 + (1.1 - edge) * bump);
 
-  direction *= (.4 + .6 * (1.0 - smoothstep(.5, 1., edge)));
-  direction += .18 * (smoothstep(.1, .2, uv.y) * (1.0 - smoothstep(.2, .4, uv.y)));
-  direction += .03 * (smoothstep(.1, .2, 1. - uv.y) * (1.0 - smoothstep(.2, .4, 1. - uv.y)));
+  direction *= (0.4 + 0.6 * (1.0 - smoothstep(0.5, 1.0, edge)));
+  direction += 0.18 * (smoothstep(0.1, 0.2, uv.y) * (1.0 - smoothstep(0.2, 0.4, uv.y)));
+  direction += 0.03 * (smoothstep(0.1, 0.2, 1.0 - uv.y) * (1.0 - smoothstep(0.2, 0.4, 1.0 - uv.y)));
 
-  direction *= (.5 + .5 * pow(uv.y, 2.));
+  direction *= (0.5 + 0.5 * pow(uv.y, 2.0));
   direction *= cycleWidth;
   direction -= t;
 
 
-  float colorDispersion = (1. - bump);
-  colorDispersion = clamp(colorDispersion, 0., 1.);
-  float dispersionRed = colorDispersion;
-  dispersionRed += .03 * bump * noise;
-  dispersionRed += 5. * (smoothstep(-.1, .2, uv.y) * (1.0 - smoothstep(.1, .5, uv.y))) * (smoothstep(.4, .6, bump) * (1.0 - smoothstep(.4, 1., bump)));
+  var colorDispersion = (1.0 - bump);
+  colorDispersion = clamp(colorDispersion, 0.0, 1.0);
+  var dispersionRed = colorDispersion;
+  dispersionRed += 0.03 * bump * noise;
+  dispersionRed += 5.0 * (smoothstep(-0.1, 0.2, uv.y) * (1.0 - smoothstep(0.1, 0.5, uv.y))) * (smoothstep(0.4, 0.6, bump) * (1.0 - smoothstep(0.4, 1.0, bump)));
   dispersionRed -= diagBLtoTR;
 
-  float dispersionBlue = colorDispersion;
+  var dispersionBlue = colorDispersion;
   dispersionBlue *= 1.3;
-  dispersionBlue += (smoothstep(0., .4, uv.y) * (1.0 - smoothstep(.1, .8, uv.y))) * (smoothstep(.4, .6, bump) * (1.0 - smoothstep(.4, .8, bump)));
-  dispersionBlue -= .2 * edge;
+  dispersionBlue += (smoothstep(0.0, 0.4, uv.y) * (1.0 - smoothstep(0.1, 0.8, uv.y))) * (smoothstep(0.4, 0.6, bump) * (1.0 - smoothstep(0.4, 0.8, bump)));
+  dispersionBlue -= 0.2 * edge;
 
-  dispersionRed *= (u_shiftRed / 20.);
-  dispersionBlue *= (u_shiftBlue / 20.);
+  dispersionRed *= (u.u_shiftRed / 20.0);
+  dispersionBlue *= (u.u_shiftBlue / 20.0);
 
-  float blur = 0.;
-  float rExtraBlur = 0.;
-  float gExtraBlur = 0.;
-  if (u_isImage == true) {
-    float softness = 0.05 * u_softness;
-    blur = softness + .5 * smoothstep(1., 10., u_repetition) * smoothstep(.0, 1., edge);
-    float smallCanvasT = 1.0 - smoothstep(100., 500., min(u_resolution.x, u_resolution.y));
-    blur += smallCanvasT * smoothstep(.0, 1., edge);
-    rExtraBlur = softness * (0.05 + .1 * (u_shiftRed / 20.) * bump);
-    gExtraBlur = softness * 0.05 / max(0.001, abs(1. - diagBLtoTR));
+  var blur: f32 = 0.0;
+  var rExtraBlur: f32 = 0.0;
+  var gExtraBlur: f32 = 0.0;
+  if (u.u_isImage > 0.5) {
+    let softness = 0.05 * u.u_softness;
+    blur = softness + 0.5 * smoothstep(1.0, 10.0, u.u_repetition) * smoothstep(0.0, 1.0, edge);
+    let smallCanvasT = 1.0 - smoothstep(100.0, 500.0, min(u.u_resolution.x, u.u_resolution.y));
+    blur += smallCanvasT * smoothstep(0.0, 1.0, edge);
+    rExtraBlur = softness * (0.05 + 0.1 * (u.u_shiftRed / 20.0) * bump);
+    gExtraBlur = softness * 0.05 / max(0.001, abs(1.0 - diagBLtoTR));
   } else {
-    blur = u_softness / 15. + .3 * contour;
+    blur = u.u_softness / 15.0 + 0.3 * contour;
   }
 
-  vec3 w = vec3(thin_strip_1_width, thin_strip_2_width, wide_strip_ratio);
-  w[1] -= .02 * smoothstep(.0, 1., edge + bump);
-  float stripe_r = fract(direction + dispersionRed);
-  float r = getColorChanges(color1.r, color2.r, stripe_r, w, blur + fwidth(stripe_r) + rExtraBlur, bump, u_colorTint.r);
-  float stripe_g = fract(direction);
-  float g = getColorChanges(color1.g, color2.g, stripe_g, w, blur + fwidth(stripe_g) + gExtraBlur, bump, u_colorTint.g);
-  float stripe_b = fract(direction - dispersionBlue);
-  float b = getColorChanges(color1.b, color2.b, stripe_b, w, blur + fwidth(stripe_b), bump, u_colorTint.b);
+  var w = vec3f(thin_strip_1_width, thin_strip_2_width, wide_strip_ratio);
+  w = vec3f(w.x, w.y - 0.02 * smoothstep(0.0, 1.0, edge + bump), w.z);
+  let stripe_r = fract(direction + dispersionRed);
+  let fw_stripe_r = abs(dpdx(stripe_r)) + abs(dpdy(stripe_r));
+  let r = getColorChanges(color1.r, color2.r, stripe_r, w, blur + fw_stripe_r + rExtraBlur, bump, u.u_colorTint.r);
+  let stripe_g = fract(direction);
+  let fw_stripe_g = abs(dpdx(stripe_g)) + abs(dpdy(stripe_g));
+  let g = getColorChanges(color1.g, color2.g, stripe_g, w, blur + fw_stripe_g + gExtraBlur, bump, u.u_colorTint.g);
+  let stripe_b = fract(direction - dispersionBlue);
+  let fw_stripe_b = abs(dpdx(stripe_b)) + abs(dpdy(stripe_b));
+  let b = getColorChanges(color1.b, color2.b, stripe_b, w, blur + fw_stripe_b, bump, u.u_colorTint.b);
 
-  color = vec3(r, g, b);
+  color = vec3f(r, g, b);
   color *= opacity;
 
-  vec3 bgColor = u_colorBack.rgb * u_colorBack.a;
-  color = color + bgColor * (1. - opacity);
-  opacity = opacity + u_colorBack.a * (1. - opacity);
+  let bgColor = u.u_colorBack.rgb * u.u_colorBack.a;
+  color = color + bgColor * (1.0 - opacity);
+  opacity = opacity + u.u_colorBack.a * (1.0 - opacity);
 
   ${ colorBandingFix }
 
-  fragColor = vec4(color, opacity);
+  return vec4f(color, opacity);
 }
 `;
 

@@ -1,6 +1,6 @@
 import type { ShaderMotionParams } from '../shader-mount.js';
 import { type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
-import { simplexNoise, declarePI, colorBandingFix } from '../shader-utils.js';
+import { systemUniformFields, vertexOutputStruct, simplexNoise, glslMod, declarePI, colorBandingFix } from '../shader-utils.js';
 
 /**
  * A single-colored animated spiral that morphs across a wide range of shapes -
@@ -37,75 +37,72 @@ import { simplexNoise, declarePI, colorBandingFix } from '../shader-utils.js';
  *
  */
 
-// language=GLSL
-export const spiralFragmentShader: string = `#version 300 es
-precision mediump float;
+export const spiralFragmentShader: string = `
+struct Uniforms {
+  ${systemUniformFields}
+  u_colorBack: vec4f,
+  u_colorFront: vec4f,
+  u_density: f32,
+  u_distortion: f32,
+  u_strokeWidth: f32,
+  u_strokeCap: f32,
+  u_strokeTaper: f32,
+  u_noise: f32,
+  u_noiseFrequency: f32,
+  u_softness: f32,
+}
+@group(0) @binding(0) var<uniform> u: Uniforms;
 
-uniform float u_time;
+${vertexOutputStruct}
 
-uniform vec4 u_colorBack;
-uniform vec4 u_colorFront;
-uniform float u_density;
-uniform float u_distortion;
-uniform float u_strokeWidth;
-uniform float u_strokeCap;
-uniform float u_strokeTaper;
-uniform float u_noise;
-uniform float u_noiseFrequency;
-uniform float u_softness;
+${declarePI}
+${glslMod}
+${simplexNoise}
 
-in vec2 v_patternUV;
+@fragment fn fs_main(input: VertexOutput) -> @location(0) vec4f {
+  let uv = 2.0 * input.v_patternUV;
 
-out vec4 fragColor;
-
-${ declarePI }
-${ simplexNoise }
-
-void main() {
-  vec2 uv = 2. * v_patternUV;
-
-  float t = u_time;
-  float l = length(uv);
-  float density = clamp(u_density, 0., 1.);
+  let t = u.u_time;
+  var l = length(uv);
+  let density = clamp(u.u_density, 0.0, 1.0);
   l = pow(max(l, 1e-6), density);
-  float angle = atan(uv.y, uv.x) - t;
-  float angleNormalised = angle / TWO_PI;
+  let angle = atan2(uv.y, uv.x) - t;
+  var angleNormalised = angle / TWO_PI;
 
-  angleNormalised += .125 * u_noise * snoise(16. * pow(u_noiseFrequency, 3.) * uv);
+  angleNormalised += 0.125 * u.u_noise * snoise(16.0 * pow(u.u_noiseFrequency, 3.0) * uv);
 
-  float offset = l + angleNormalised;
-  offset -= u_distortion * (sin(4. * l - .5 * t) * cos(PI + l + .5 * t));
-  float stripe = fract(offset);
+  var offset = l + angleNormalised;
+  offset -= u.u_distortion * (sin(4.0 * l - 0.5 * t) * cos(PI + l + 0.5 * t));
+  let stripe = fract(offset);
 
-  float shape = 2. * abs(stripe - .5);
-  float width = 1. - clamp(u_strokeWidth, .005 * u_strokeTaper, 1.);
+  let shape = 2.0 * abs(stripe - 0.5);
+  var width = 1.0 - clamp(u.u_strokeWidth, 0.005 * u.u_strokeTaper, 1.0);
 
+  let wCap = mix(width, (1.0 - stripe) * (1.0 - step(0.5, stripe)), (1.0 - clamp(l, 0.0, 1.0)));
+  width = mix(width, wCap, u.u_strokeCap);
+  width *= (1.0 - clamp(u.u_strokeTaper, 0.0, 1.0) * l);
 
-  float wCap = mix(width, (1. - stripe) * (1. - step(.5, stripe)), (1. - clamp(l, 0., 1.)));
-  width = mix(width, wCap, u_strokeCap);
-  width *= (1. - clamp(u_strokeTaper, 0., 1.) * l);
+  let fw = fwidth(offset);
+  let fwMult = 4.0 - 3.0 * (smoothstep(0.05, 0.4, 2.0 * u.u_strokeWidth) * smoothstep(0.05, 0.4, 2.0 * (1.0 - u.u_strokeWidth)));
+  var pixelSize = mix(fwMult * fw, fwidth(shape), clamp(fw, 0.0, 1.0));
+  pixelSize = mix(pixelSize, 0.002, u.u_strokeCap * (1.0 - clamp(l, 0.0, 1.0)));
 
-  float fw = fwidth(offset);
-  float fwMult = 4. - 3. * (smoothstep(.05, .4, 2. * u_strokeWidth) * smoothstep(.05, .4, 2. * (1. - u_strokeWidth)));
-  float pixelSize = mix(fwMult * fw, fwidth(shape), clamp(fw, 0., 1.));
-  pixelSize = mix(pixelSize, .002, u_strokeCap * (1. - clamp(l, 0., 1.)));
+  let res = smoothstep(width - pixelSize - u.u_softness, width + pixelSize + u.u_softness, shape);
 
-  float res = smoothstep(width - pixelSize - u_softness, width + pixelSize + u_softness, shape);
+  let fgColor = u.u_colorFront.rgb * u.u_colorFront.a;
+  let fgOpacity = u.u_colorFront.a;
+  let bgColor = u.u_colorBack.rgb * u.u_colorBack.a;
+  let bgOpacity = u.u_colorBack.a;
 
-  vec3 fgColor = u_colorFront.rgb * u_colorFront.a;
-  float fgOpacity = u_colorFront.a;
-  vec3 bgColor = u_colorBack.rgb * u_colorBack.a;
-  float bgOpacity = u_colorBack.a;
+  var color = fgColor * res;
+  var opacity = fgOpacity * res;
 
-  vec3 color = fgColor * res;
-  float opacity = fgOpacity * res;
+  color += bgColor * (1.0 - opacity);
+  opacity += bgOpacity * (1.0 - opacity);
 
-  color += bgColor * (1. - opacity);
-  opacity += bgOpacity * (1. - opacity);
+  ${colorBandingFix}
 
-  ${ colorBandingFix }
-
-  fragColor = vec4(color, opacity);
+  return vec4f(color, opacity);
 }
 `;
 

@@ -117,7 +117,7 @@ function ShaderItem({
           />
         )}
 
-        {shaderVisibility !== 'hidden' && shaderConfig.speed !== 0 && (
+        {shaderVisibility !== 'hidden' && (
           <ShaderComponent
             className="absolute aspect-[4/3] h-full w-full"
             style={{

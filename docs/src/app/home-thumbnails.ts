@@ -119,6 +119,7 @@ export const homeThumbnails = [
         ShaderComponent: PaperTexture,
         image: paperTextureImg,
         shaderConfig: { ...paperTexturePresets[0].params, scale: 1.05 },
+        alwaysLivePreview: false,
       },
       {
         name: 'fluted glass',
@@ -126,6 +127,7 @@ export const homeThumbnails = [
         ShaderComponent: FlutedGlass,
         image: flutedGlassImg,
         shaderConfig: { ...flutedGlassPresets[0].params, scale: 1.05, distortion: 0.2 },
+        alwaysLivePreview: false,
       },
       {
         name: 'water',
@@ -138,6 +140,7 @@ export const homeThumbnails = [
           colorBack: '#e0f2ff',
           image: '/images/image-filters/0018.webp',
         },
+        alwaysLivePreview: false,
       },
       {
         name: 'image dithering',
@@ -145,6 +148,7 @@ export const homeThumbnails = [
         ShaderComponent: ImageDithering,
         image: imageDitheringImg,
         shaderConfig: { ...imageDitheringPresets[0].params, scale: 1.05 },
+        alwaysLivePreview: false,
       },
       {
         name: 'halftone dots',
@@ -156,6 +160,7 @@ export const homeThumbnails = [
           image: '/images/image-filters/0018.webp',
           speed: 0,
         },
+        alwaysLivePreview: false,
       },
       {
         name: 'halftone cmyk',
@@ -169,6 +174,7 @@ export const homeThumbnails = [
           softness: 0.5,
           speed: 0,
         },
+        alwaysLivePreview: false,
       },
     ],
   },
@@ -187,6 +193,7 @@ export const homeThumbnails = [
           suspendWhenProcessingImage: true,
           image: '/images/logos/diamond.svg',
         },
+        alwaysLivePreview: false,
       },
       {
         name: 'liquid metal',
@@ -199,6 +206,7 @@ export const homeThumbnails = [
           suspendWhenProcessingImage: true,
           image: '/images/logos/diamond.svg',
         },
+        alwaysLivePreview: false,
       },
       {
         name: 'gem smoke',
@@ -214,6 +222,7 @@ export const homeThumbnails = [
           suspendWhenProcessingImage: true,
           image: '/images/logos/diamond.svg',
         },
+        alwaysLivePreview: false,
       },
     ],
   },
@@ -226,6 +235,7 @@ export const homeThumbnails = [
         url: '/mesh-gradient',
         ShaderComponent: MeshGradient,
         shaderConfig: { ...meshGradientPresets[0].params },
+        alwaysLivePreview: false,
       },
       {
         name: 'static mesh gradient',
@@ -233,6 +243,7 @@ export const homeThumbnails = [
         ShaderComponent: StaticMeshGradient,
         image: staticMeshGradientImg,
         shaderConfig: { ...staticMeshGradientPresets[0].params },
+        alwaysLivePreview: false,
       },
       {
         name: 'static radial gradient',
@@ -240,6 +251,7 @@ export const homeThumbnails = [
         ShaderComponent: StaticRadialGradient,
         image: staticRadialGradientImg,
         shaderConfig: { ...staticRadialGradientPresets[0].params, radius: 0.65, offsetY: -0.03 },
+        alwaysLivePreview: false,
       },
       {
         name: 'dithering',
@@ -250,7 +262,7 @@ export const homeThumbnails = [
         shaderConfig: { ...ditheringPresets[0].params },
         // This shader doesn't render consistently when
         // thumbnails are resized, so we live render it
-        alwaysLivePreview: true,
+        alwaysLivePreview: false,
       },
       {
         name: 'grain gradient',
@@ -260,7 +272,7 @@ export const homeThumbnails = [
         shaderConfig: { ...grainGradientPresets[0].params, speed: 1.5 },
         // This shader thumbnails look nowhere near as crisp
         // when resized, so we live render it to maintain the quality
-        alwaysLivePreview: true,
+        alwaysLivePreview: false,
       },
       {
         name: 'dot orbit',
@@ -268,6 +280,7 @@ export const homeThumbnails = [
         url: '/dot-orbit',
         ShaderComponent: DotOrbit,
         shaderConfig: { ...dotOrbitPresets[0].params, scale: 0.45 },
+        alwaysLivePreview: false,
       },
       {
         name: 'dot grid',
@@ -275,6 +288,7 @@ export const homeThumbnails = [
         ShaderComponent: DotGrid,
         image: dotGridImg,
         shaderConfig: { ...dotGridPresets[0].params, gapX: 24, gapY: 24, size: 1.5, speed: 0 },
+        alwaysLivePreview: false,
       },
       {
         name: 'warp',
@@ -282,6 +296,7 @@ export const homeThumbnails = [
         ShaderComponent: Warp,
         image: warpImg,
         shaderConfig: { ...warpPresets[0].params, scale: 0.6 },
+        alwaysLivePreview: false,
       },
       {
         name: 'spiral',
@@ -289,6 +304,7 @@ export const homeThumbnails = [
         ShaderComponent: Spiral,
         image: spiralImg,
         shaderConfig: { ...spiralPresets[0].params, scale: 0.5, speed: 2 },
+        alwaysLivePreview: false,
       },
       {
         name: 'swirl',
@@ -296,6 +312,7 @@ export const homeThumbnails = [
         ShaderComponent: Swirl,
         image: swirlImg,
         shaderConfig: { ...swirlPresets[0].params },
+        alwaysLivePreview: false,
       },
       {
         name: 'waves',
@@ -303,6 +320,7 @@ export const homeThumbnails = [
         ShaderComponent: Waves,
         image: wavesImg,
         shaderConfig: { ...wavesPresets[0].params, speed: 0, scale: 0.55, spacing: 1.2 },
+        alwaysLivePreview: false,
       },
       {
         name: 'neuro noise',
@@ -310,6 +328,7 @@ export const homeThumbnails = [
         url: '/neuro-noise',
         ShaderComponent: NeuroNoise,
         shaderConfig: { ...neuroNoisePresets[0].params, scale: 0.8 },
+        alwaysLivePreview: false,
       },
       {
         name: 'perlin',
@@ -317,6 +336,7 @@ export const homeThumbnails = [
         ShaderComponent: PerlinNoise,
         image: perlinNoiseImg,
         shaderConfig: { ...perlinNoisePresets[0].params, scale: 0.8, speed: 0.2 },
+        alwaysLivePreview: false,
       },
       {
         name: 'simplex noise',
@@ -327,6 +347,7 @@ export const homeThumbnails = [
           ...simplexNoisePresets[0].params,
           scale: 0.4,
         },
+        alwaysLivePreview: false,
       },
       {
         name: 'voronoi',
@@ -334,6 +355,7 @@ export const homeThumbnails = [
         ShaderComponent: Voronoi,
         image: voronoiImg,
         shaderConfig: { ...voronoiPresets[0].params, scale: 0.35 },
+        alwaysLivePreview: false,
       },
       {
         name: 'pulsing border',
@@ -341,6 +363,7 @@ export const homeThumbnails = [
         ShaderComponent: PulsingBorder,
         image: pulsingBorderImg,
         shaderConfig: { ...pulsingBorderPresets[0].params },
+        alwaysLivePreview: false,
       },
       {
         name: 'metaballs',
@@ -348,6 +371,7 @@ export const homeThumbnails = [
         url: '/metaballs',
         ShaderComponent: Metaballs,
         shaderConfig: { ...metaballsPresets[0].params, scale: 1, count: 8, speed: 1.5 },
+        alwaysLivePreview: false,
       },
       {
         name: 'color panels',
@@ -355,6 +379,7 @@ export const homeThumbnails = [
         ShaderComponent: ColorPanels,
         image: colorPanelsImg,
         shaderConfig: { ...colorPanelsPresets[0].params, scale: 0.75, speed: 2 },
+        alwaysLivePreview: false,
       },
       {
         name: 'smoke ring',
@@ -362,6 +387,7 @@ export const homeThumbnails = [
         url: '/smoke-ring',
         ShaderComponent: SmokeRing,
         shaderConfig: { ...smokeRingPresets[0].params, scale: 0.8, speed: 1 },
+        alwaysLivePreview: false,
       },
       {
         name: 'god rays',
@@ -369,6 +395,7 @@ export const homeThumbnails = [
         ShaderComponent: GodRays,
         image: godRaysImg,
         shaderConfig: { ...godRaysPresets[0].params, offsetY: -0.7, speed: 1.25 },
+        alwaysLivePreview: false,
       },
     ],
   },

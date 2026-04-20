@@ -1,7 +1,7 @@
 import type { vec4 } from '../types.js';
 import type { ShaderMotionParams } from '../shader-mount.js';
 import { type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
-import { declarePI, textureRandomizerR, colorBandingFix } from '../shader-utils.js';
+import { systemUniformFields, vertexOutputStruct, declarePI, textureRandomizerR, colorBandingFix } from '../shader-utils.js';
 
 export const metaballsMeta = {
   maxColorCount: 8,
@@ -38,79 +38,77 @@ export const metaballsMeta = {
  *
  */
 
-// language=GLSL
-export const metaballsFragmentShader: string = `#version 300 es
-precision mediump float;
+export const metaballsFragmentShader: string = `
+struct Uniforms {
+  ${systemUniformFields}
+  u_colorsCount: f32,
+  u_size: f32,
+  u_sizeRange: f32,
+  u_count: f32,
+  u_colorBack: vec4f,
+  u_colors: array<vec4f, ${ metaballsMeta.maxColorCount }>,
+}
+@group(0) @binding(0) var<uniform> u: Uniforms;
+@group(1) @binding(0) var u_noiseTexture_tex: texture_2d<f32>;
+@group(1) @binding(1) var u_noiseTexture_samp: sampler;
 
-uniform float u_time;
-
-uniform sampler2D u_noiseTexture;
-
-uniform vec4 u_colorBack;
-uniform vec4 u_colors[${ metaballsMeta.maxColorCount }];
-uniform float u_colorsCount;
-uniform float u_size;
-uniform float u_sizeRange;
-uniform float u_count;
-
-in vec2 v_objectUV;
-
-out vec4 fragColor;
+${vertexOutputStruct}
 
 ${ declarePI }
 ${ textureRandomizerR }
-float noise(float x) {
-  float i = floor(x);
-  float f = fract(x);
-  float u = f * f * (3.0 - 2.0 * f);
-  vec2 p0 = vec2(i, 0.0);
-  vec2 p1 = vec2(i + 1.0, 0.0);
-  return mix(randomR(p0), randomR(p1), u);
+
+fn noise(x: f32) -> f32 {
+  let i = floor(x);
+  let f = fract(x);
+  let u_val = f * f * (3.0 - 2.0 * f);
+  let p0 = vec2f(i, 0.0);
+  let p1 = vec2f(i + 1.0, 0.0);
+  return mix(randomR(p0), randomR(p1), u_val);
 }
 
-float getBallShape(vec2 uv, vec2 c, float p) {
-  float s = .5 * length(uv - c);
-  s = 1. - clamp(s, 0., 1.);
+fn getBallShape(uv: vec2f, c: vec2f, p: f32) -> f32 {
+  var s = 0.5 * length(uv - c);
+  s = 1.0 - clamp(s, 0.0, 1.0);
   s = pow(s, p);
   return s;
 }
 
-void main() {
-  vec2 shape_uv = v_objectUV;
+@fragment fn fs_main(input: VertexOutput) -> @location(0) vec4f {
+  var shape_uv = input.v_objectUV;
 
-  shape_uv += .5;
+  shape_uv += vec2f(0.5);
 
-  const float firstFrameOffset = 2503.4;
-  float t = .2 * (u_time + firstFrameOffset);
+  let firstFrameOffset: f32 = 2503.4;
+  let t = 0.2 * (u.u_time + firstFrameOffset);
 
-  vec3 totalColor = vec3(0.);
-  float totalShape = 0.;
-  float totalOpacity = 0.;
+  var totalColor = vec3f(0.0);
+  var totalShape: f32 = 0.0;
+  var totalOpacity: f32 = 0.0;
 
-  for (int i = 0; i < ${ metaballsMeta.maxBallsCount }; i++) {
-    if (i >= int(ceil(u_count))) break;
+  for (var i: i32 = 0; i < ${ metaballsMeta.maxBallsCount }; i++) {
+    if (i >= i32(ceil(u.u_count))) { break; }
 
-    float idxFract = float(i) / float(${ metaballsMeta.maxBallsCount });
-    float angle = TWO_PI * idxFract;
+    let idxFract = f32(i) / f32(${ metaballsMeta.maxBallsCount });
+    let angle = TWO_PI * idxFract;
 
-    float speed = 1. - .2 * idxFract;
-    float noiseX = noise(angle * 10. + float(i) + t * speed);
-    float noiseY = noise(angle * 20. + float(i) - t * speed);
+    let speed = 1.0 - 0.2 * idxFract;
+    let noiseX = noise(angle * 10.0 + f32(i) + t * speed);
+    let noiseY = noise(angle * 20.0 + f32(i) - t * speed);
 
-    vec2 pos = vec2(.5) + 1e-4 + .9 * (vec2(noiseX, noiseY) - .5);
+    let pos = vec2f(0.5) + vec2f(1e-4) + 0.9 * (vec2f(noiseX, noiseY) - vec2f(0.5));
 
-    int safeIndex = i % int(u_colorsCount + 0.5);
-    vec4 ballColor = u_colors[safeIndex];
-    ballColor.rgb *= ballColor.a;
+    let safeIndex = i % i32(u.u_colorsCount + 0.5);
+    var ballColor = u.u_colors[safeIndex];
+    ballColor = vec4f(ballColor.rgb * ballColor.a, ballColor.a);
 
-    float sizeFrac = 1.;
-    if (float(i) > floor(u_count - 1.)) {
-      sizeFrac *= fract(u_count);
+    var sizeFrac: f32 = 1.0;
+    if (f32(i) > floor(u.u_count - 1.0)) {
+      sizeFrac *= fract(u.u_count);
     }
 
-    float shape = getBallShape(shape_uv, pos, 45. - 30. * u_size * sizeFrac);
-    shape *= pow(u_size, .2);
-    shape = smoothstep(0., 1., shape);
+    var shape = getBallShape(shape_uv, pos, 45.0 - 30.0 * u.u_size * sizeFrac);
+    shape *= pow(u.u_size, 0.2);
+    shape = smoothstep(0.0, 1.0, shape);
 
     totalColor += ballColor.rgb * shape;
     totalShape += shape;
@@ -120,19 +118,19 @@ void main() {
   totalColor /= max(totalShape, 1e-4);
   totalOpacity /= max(totalShape, 1e-4);
 
-  float edge_width = fwidth(totalShape);
-  float finalShape = smoothstep(.4, .4 + edge_width, totalShape);
+  let edge_width = fwidth(totalShape);
+  let finalShape = smoothstep(0.4, 0.4 + edge_width, totalShape);
 
-  vec3 color = totalColor * finalShape;
-  float opacity = totalOpacity * finalShape;
+  var color = totalColor * finalShape;
+  var opacity = totalOpacity * finalShape;
 
-  vec3 bgColor = u_colorBack.rgb * u_colorBack.a;
-  color = color + bgColor * (1. - opacity);
-  opacity = opacity + u_colorBack.a * (1. - opacity);
+  let bgColor = u.u_colorBack.rgb * u.u_colorBack.a;
+  color = color + bgColor * (1.0 - opacity);
+  opacity = opacity + u.u_colorBack.a * (1.0 - opacity);
 
   ${ colorBandingFix }
 
-  fragColor = vec4(color, opacity);
+  return vec4f(color, opacity);
 }
 `;
 

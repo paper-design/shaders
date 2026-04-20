@@ -1,6 +1,6 @@
 import type { ShaderMotionParams } from '../shader-mount.js';
 import { type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
-import { declarePI, colorBandingFix, proceduralHash11, proceduralHash21 } from '../shader-utils.js';
+import { systemUniformFields, vertexOutputStruct, declarePI, colorBandingFix, proceduralHash11, proceduralHash21 } from '../shader-utils.js';
 
 /**
  * Classic animated 3D Perlin noise with exposed controls.
@@ -34,113 +34,110 @@ import { declarePI, colorBandingFix, proceduralHash11, proceduralHash21 } from '
  *
  */
 
-// language=GLSL
-export const perlinNoiseFragmentShader: string = `#version 300 es
-precision mediump float;
+export const perlinNoiseFragmentShader: string = `
+struct Uniforms {
+  ${systemUniformFields}
+  u_colorFront: vec4f,
+  u_colorBack: vec4f,
+  u_proportion: f32,
+  u_softness: f32,
+  u_octaveCount: f32,
+  u_persistence: f32,
+  u_lacunarity: f32,
+}
+@group(0) @binding(0) var<uniform> u: Uniforms;
 
-uniform float u_time;
+${vertexOutputStruct}
 
-uniform vec4 u_colorFront;
-uniform vec4 u_colorBack;
-uniform float u_proportion;
-uniform float u_softness;
-uniform float u_octaveCount;
-uniform float u_persistence;
-uniform float u_lacunarity;
+${declarePI}
+${proceduralHash11}
+${proceduralHash21}
 
-in vec2 v_patternUV;
-
-out vec4 fragColor;
-
-${ declarePI }
-${ proceduralHash11 }
-${ proceduralHash21 }
-
-float hash31(vec3 p) {
-  p = fract(p * 0.3183099) + 0.1;
-  p += dot(p, p.yzx + 19.19);
+fn hash31(p_in: vec3f) -> f32 {
+  var p = fract(p_in * 0.3183099) + vec3f(0.1);
+  p += vec3f(dot(p, p.yzx + vec3f(19.19)));
   return fract(p.x * (p.y + p.z));
 }
 
-vec3 gradientPredefined(float hash) {
-  int idx = int(hash * 12.0) % 12;
+fn gradientPredefined(hash: f32) -> vec3f {
+  let idx = i32(hash * 12.0) % 12;
 
-  if (idx == 0) return vec3(1, 1, 0);
-  if (idx == 1) return vec3(-1, 1, 0);
-  if (idx == 2) return vec3(1, -1, 0);
-  if (idx == 3) return vec3(-1, -1, 0);
-  if (idx == 4) return vec3(1, 0, 1);
-  if (idx == 5) return vec3(-1, 0, 1);
-  if (idx == 6) return vec3(1, 0, -1);
-  if (idx == 7) return vec3(-1, 0, -1);
-  if (idx == 8) return vec3(0, 1, 1);
-  if (idx == 9) return vec3(0, -1, 1);
-  if (idx == 10) return vec3(0, 1, -1);
-  return vec3(0, -1, -1);// idx == 11
+  if (idx == 0) { return vec3f(1.0, 1.0, 0.0); }
+  if (idx == 1) { return vec3f(-1.0, 1.0, 0.0); }
+  if (idx == 2) { return vec3f(1.0, -1.0, 0.0); }
+  if (idx == 3) { return vec3f(-1.0, -1.0, 0.0); }
+  if (idx == 4) { return vec3f(1.0, 0.0, 1.0); }
+  if (idx == 5) { return vec3f(-1.0, 0.0, 1.0); }
+  if (idx == 6) { return vec3f(1.0, 0.0, -1.0); }
+  if (idx == 7) { return vec3f(-1.0, 0.0, -1.0); }
+  if (idx == 8) { return vec3f(0.0, 1.0, 1.0); }
+  if (idx == 9) { return vec3f(0.0, -1.0, 1.0); }
+  if (idx == 10) { return vec3f(0.0, 1.0, -1.0); }
+  return vec3f(0.0, -1.0, -1.0);// idx == 11
 }
 
-float interpolateSafe(float v000, float v001, float v010, float v011,
-float v100, float v101, float v110, float v111, vec3 t) {
-  t = clamp(t, 0.0, 1.0);
+fn interpolateSafe(v000: f32, v001: f32, v010: f32, v011: f32,
+  v100: f32, v101: f32, v110: f32, v111: f32, t_in: vec3f) -> f32 {
+  let t = clamp(t_in, vec3f(0.0), vec3f(1.0));
 
-  float v00 = mix(v000, v100, t.x);
-  float v01 = mix(v001, v101, t.x);
-  float v10 = mix(v010, v110, t.x);
-  float v11 = mix(v011, v111, t.x);
+  let v00 = mix(v000, v100, t.x);
+  let v01 = mix(v001, v101, t.x);
+  let v10 = mix(v010, v110, t.x);
+  let v11 = mix(v011, v111, t.x);
 
-  float v0 = mix(v00, v10, t.y);
-  float v1 = mix(v01, v11, t.y);
+  let v0 = mix(v00, v10, t.y);
+  let v1 = mix(v01, v11, t.y);
 
   return mix(v0, v1, t.z);
 }
 
-vec3 fade(vec3 t) {
-  return t * t * t * (t * (t * 6.0 - 15.0) + 10.0);
+fn fade(t: vec3f) -> vec3f {
+  return t * t * t * (t * (t * 6.0 - vec3f(15.0)) + vec3f(10.0));
 }
 
-float perlinNoise(vec3 position, float seed) {
-  position += vec3(seed * 127.1, seed * 311.7, seed * 74.7);
+fn perlinNoise(position_in: vec3f, seed: f32) -> f32 {
+  let position = position_in + vec3f(seed * 127.1, seed * 311.7, seed * 74.7);
 
-  vec3 i = floor(position);
-  vec3 f = fract(position);
-  float h000 = hash31(i);
-  float h001 = hash31(i + vec3(0, 0, 1));
-  float h010 = hash31(i + vec3(0, 1, 0));
-  float h011 = hash31(i + vec3(0, 1, 1));
-  float h100 = hash31(i + vec3(1, 0, 0));
-  float h101 = hash31(i + vec3(1, 0, 1));
-  float h110 = hash31(i + vec3(1, 1, 0));
-  float h111 = hash31(i + vec3(1, 1, 1));
-  vec3 g000 = gradientPredefined(h000);
-  vec3 g001 = gradientPredefined(h001);
-  vec3 g010 = gradientPredefined(h010);
-  vec3 g011 = gradientPredefined(h011);
-  vec3 g100 = gradientPredefined(h100);
-  vec3 g101 = gradientPredefined(h101);
-  vec3 g110 = gradientPredefined(h110);
-  vec3 g111 = gradientPredefined(h111);
-  float v000 = dot(g000, f - vec3(0, 0, 0));
-  float v001 = dot(g001, f - vec3(0, 0, 1));
-  float v010 = dot(g010, f - vec3(0, 1, 0));
-  float v011 = dot(g011, f - vec3(0, 1, 1));
-  float v100 = dot(g100, f - vec3(1, 0, 0));
-  float v101 = dot(g101, f - vec3(1, 0, 1));
-  float v110 = dot(g110, f - vec3(1, 1, 0));
-  float v111 = dot(g111, f - vec3(1, 1, 1));
+  let i = floor(position);
+  let f = fract(position);
+  let h000 = hash31(i);
+  let h001 = hash31(i + vec3f(0.0, 0.0, 1.0));
+  let h010 = hash31(i + vec3f(0.0, 1.0, 0.0));
+  let h011 = hash31(i + vec3f(0.0, 1.0, 1.0));
+  let h100 = hash31(i + vec3f(1.0, 0.0, 0.0));
+  let h101 = hash31(i + vec3f(1.0, 0.0, 1.0));
+  let h110 = hash31(i + vec3f(1.0, 1.0, 0.0));
+  let h111 = hash31(i + vec3f(1.0, 1.0, 1.0));
+  let g000 = gradientPredefined(h000);
+  let g001 = gradientPredefined(h001);
+  let g010 = gradientPredefined(h010);
+  let g011 = gradientPredefined(h011);
+  let g100 = gradientPredefined(h100);
+  let g101 = gradientPredefined(h101);
+  let g110 = gradientPredefined(h110);
+  let g111 = gradientPredefined(h111);
+  let val000 = dot(g000, f - vec3f(0.0, 0.0, 0.0));
+  let val001 = dot(g001, f - vec3f(0.0, 0.0, 1.0));
+  let val010 = dot(g010, f - vec3f(0.0, 1.0, 0.0));
+  let val011 = dot(g011, f - vec3f(0.0, 1.0, 1.0));
+  let val100 = dot(g100, f - vec3f(1.0, 0.0, 0.0));
+  let val101 = dot(g101, f - vec3f(1.0, 0.0, 1.0));
+  let val110 = dot(g110, f - vec3f(1.0, 1.0, 0.0));
+  let val111 = dot(g111, f - vec3f(1.0, 1.0, 1.0));
 
-  vec3 u = fade(f);
-  return interpolateSafe(v000, v001, v010, v011, v100, v101, v110, v111, u);
+  let u_fade = fade(f);
+  return interpolateSafe(val000, val001, val010, val011, val100, val101, val110, val111, u_fade);
 }
 
-float p_noise(vec3 position, int octaveCount, float persistence, float lacunarity) {
-  float value = 0.0;
-  float amplitude = 1.0;
-  float frequency = 10.0;
-  float maxValue = 0.0;
-  octaveCount = clamp(octaveCount, 1, 8);
+fn p_noise(position: vec3f, octaveCount_in: i32, persistence: f32, lacunarity: f32) -> f32 {
+  var value: f32 = 0.0;
+  var amplitude: f32 = 1.0;
+  var frequency: f32 = 10.0;
+  var maxValue: f32 = 0.0;
+  let octaveCount = clamp(octaveCount_in, 1, 8);
 
-  for (int i = 0; i < octaveCount; i++) {
-    float seed = float(i) * 0.7319;
+  for (var i: i32 = 0; i < octaveCount; i++) {
+    let seed = f32(i) * 0.7319;
     value += perlinNoise(position * frequency, seed) * amplitude;
     maxValue += amplitude;
     amplitude *= persistence;
@@ -149,9 +146,9 @@ float p_noise(vec3 position, int octaveCount, float persistence, float lacunarit
   return value;
 }
 
-float get_max_amp(float persistence, float octaveCount) {
-  persistence = clamp(persistence * 0.999, 0.0, 0.999);
-  octaveCount = clamp(octaveCount, 1.0, 8.0);
+fn get_max_amp(persistence_in: f32, octaveCount_in: f32) -> f32 {
+  let persistence = clamp(persistence_in * 0.999, 0.0, 0.999);
+  let octaveCount = clamp(octaveCount_in, 1.0, 8.0);
 
   if (abs(persistence - 1.0) < 0.001) {
     return octaveCount;
@@ -160,41 +157,41 @@ float get_max_amp(float persistence, float octaveCount) {
   return (1.0 - pow(persistence, octaveCount)) / max(1e-4, (1.0 - persistence));
 }
 
-void main() {
-  vec2 uv = v_patternUV;
-  uv *= .5;
+@fragment fn fs_main(input: VertexOutput) -> @location(0) vec4f {
+  var uv = input.v_patternUV;
+  uv *= 0.5;
 
-  float t = .2 * u_time;
+  let t = 0.2 * u.u_time;
 
-  vec3 p = vec3(uv, t);
+  let p = vec3f(uv, t);
 
-  float octCount = floor(u_octaveCount);
-  float noise = p_noise(p, int(octCount), u_persistence, u_lacunarity);
+  let octCount = floor(u.u_octaveCount);
+  let noise = p_noise(p, i32(octCount), u.u_persistence, u.u_lacunarity);
 
-  float max_amp = get_max_amp(u_persistence, octCount);
-  float noise_normalized = clamp((noise + max_amp) / max(1e-4, (2. * max_amp)) + (u_proportion - .5), 0.0, 1.0);
-  float sharpness = clamp(u_softness, 0., 1.);
-  float smooth_w = 0.5 * max(fwidth(noise_normalized), 0.001);
-  float res = smoothstep(
-  .5 - .5 * sharpness - smooth_w,
-  .5 + .5 * sharpness + smooth_w,
-  noise_normalized
+  let max_amp = get_max_amp(u.u_persistence, octCount);
+  let noise_normalized = clamp((noise + max_amp) / max(1e-4, (2.0 * max_amp)) + (u.u_proportion - 0.5), 0.0, 1.0);
+  let sharpness = clamp(u.u_softness, 0.0, 1.0);
+  let smooth_w = 0.5 * max(fwidth(noise_normalized), 0.001);
+  let res = smoothstep(
+    0.5 - 0.5 * sharpness - smooth_w,
+    0.5 + 0.5 * sharpness + smooth_w,
+    noise_normalized
   );
 
-  vec3 fgColor = u_colorFront.rgb * u_colorFront.a;
-  float fgOpacity = u_colorFront.a;
-  vec3 bgColor = u_colorBack.rgb * u_colorBack.a;
-  float bgOpacity = u_colorBack.a;
+  let fgColor = u.u_colorFront.rgb * u.u_colorFront.a;
+  let fgOpacity = u.u_colorFront.a;
+  let bgColor = u.u_colorBack.rgb * u.u_colorBack.a;
+  let bgOpacity = u.u_colorBack.a;
 
-  vec3 color = fgColor * res;
-  float opacity = fgOpacity * res;
+  var color = fgColor * res;
+  var opacity = fgOpacity * res;
 
-  color += bgColor * (1. - opacity);
-  opacity += bgOpacity * (1. - opacity);
+  color += bgColor * (1.0 - opacity);
+  opacity += bgOpacity * (1.0 - opacity);
 
-  ${ colorBandingFix }
+  ${colorBandingFix}
 
-  fragColor = vec4(color, opacity);
+  return vec4f(color, opacity);
 }
 `;
 

@@ -1,7 +1,7 @@
 import type { vec4 } from '../types.js';
 import type { ShaderMotionParams } from '../shader-mount.js';
 import { type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
-import { declarePI, textureRandomizerGB } from '../shader-utils.js';
+import { systemUniformFields, vertexOutputStruct, declarePI, textureRandomizerGB } from '../shader-utils.js';
 
 export const voronoiMeta = {
   maxColorCount: 5,
@@ -46,49 +46,45 @@ export const voronoiMeta = {
  *
  */
 
-// language=GLSL
-export const voronoiFragmentShader: string = `#version 300 es
-precision mediump float;
+export const voronoiFragmentShader: string = `
+struct Uniforms {
+  ${systemUniformFields}
+  u_colorsCount: f32,
+  u_stepsPerColor: f32,
+  u_colorGlow: vec4f,
+  u_colorGap: vec4f,
+  u_distortion: f32,
+  u_gap: f32,
+  u_glow: f32,
+  u_colors: array<vec4f, ${voronoiMeta.maxColorCount}>,
+}
+@group(0) @binding(0) var<uniform> u: Uniforms;
 
-uniform float u_time;
+@group(1) @binding(0) var u_noiseTexture_tex: texture_2d<f32>;
+@group(1) @binding(1) var u_noiseTexture_samp: sampler;
 
-uniform float u_scale;
+${vertexOutputStruct}
 
-uniform sampler2D u_noiseTexture;
+${declarePI}
+${textureRandomizerGB}
 
-uniform vec4 u_colors[${ voronoiMeta.maxColorCount }];
-uniform float u_colorsCount;
+fn voronoi(x: vec2f, t: f32) -> vec4f {
+  let ip = floor(x);
+  let fp = fract(x);
 
-uniform float u_stepsPerColor;
-uniform vec4 u_colorGlow;
-uniform vec4 u_colorGap;
-uniform float u_distortion;
-uniform float u_gap;
-uniform float u_glow;
+  var mg: vec2f;
+  var mr: vec2f;
+  var md: f32 = 8.0;
+  var rand: f32 = 0.0;
 
-in vec2 v_patternUV;
-
-out vec4 fragColor;
-
-${ declarePI }
-${ textureRandomizerGB }
-
-vec4 voronoi(vec2 x, float t) {
-  vec2 ip = floor(x);
-  vec2 fp = fract(x);
-
-  vec2 mg, mr;
-  float md = 8.;
-  float rand = 0.;
-
-  for (int j = -1; j <= 1; j++) {
-    for (int i = -1; i <= 1; i++) {
-      vec2 g = vec2(float(i), float(j));
-      vec2 o = randomGB(ip + g);
-      float raw_hash = o.x;
-      o = .5 + u_distortion * sin(t + TWO_PI * o);
-      vec2 r = g + o - fp;
-      float d = dot(r, r);
+  for (var j: i32 = -1; j <= 1; j++) {
+    for (var i: i32 = -1; i <= 1; i++) {
+      let g = vec2f(f32(i), f32(j));
+      let o_raw = randomGB(ip + g);
+      let raw_hash = o_raw.x;
+      let o = vec2f(0.5) + u.u_distortion * sin(vec2f(t) + TWO_PI * o_raw);
+      let r = g + o - fp;
+      let d = dot(r, r);
 
       if (d < md) {
         md = d;
@@ -99,76 +95,76 @@ vec4 voronoi(vec2 x, float t) {
     }
   }
 
-  md = 8.;
-  for (int j = -2; j <= 2; j++) {
-    for (int i = -2; i <= 2; i++) {
-      vec2 g = mg + vec2(float(i), float(j));
-      vec2 o = randomGB(ip + g);
-      o = .5 + u_distortion * sin(t + TWO_PI * o);
-      vec2 r = g + o - fp;
-      if (dot(mr - r, mr - r) > .00001) {
-        md = min(md, dot(.5 * (mr + r), normalize(r - mr)));
+  md = 8.0;
+  for (var j2: i32 = -2; j2 <= 2; j2++) {
+    for (var i2: i32 = -2; i2 <= 2; i2++) {
+      let g = mg + vec2f(f32(i2), f32(j2));
+      let o_raw2 = randomGB(ip + g);
+      let o = vec2f(0.5) + u.u_distortion * sin(vec2f(t) + TWO_PI * o_raw2);
+      let r = g + o - fp;
+      if (dot(mr - r, mr - r) > 0.00001) {
+        md = min(md, dot(0.5 * (mr + r), normalize(r - mr)));
       }
     }
   }
 
-  return vec4(md, mr, rand);
+  return vec4f(md, mr, rand);
 }
 
-void main() {
-  vec2 shape_uv = v_patternUV;
+@fragment fn fs_main(input: VertexOutput) -> @location(0) vec4f {
+  var shape_uv = input.v_patternUV;
   shape_uv *= 1.25;
 
-  float t = u_time;
+  let t = u.u_time;
 
-  vec4 voronoiRes = voronoi(shape_uv, t);
+  let voronoiRes = voronoi(shape_uv, t);
 
-  float shape = clamp(voronoiRes.w, 0., 1.);
-  float mixer = shape * (u_colorsCount - 1.);
-  mixer = (shape - .5 / u_colorsCount) * u_colorsCount;
-  float steps = max(1., u_stepsPerColor);
+  let shape = clamp(voronoiRes.w, 0.0, 1.0);
+  var mixer = shape * (u.u_colorsCount - 1.0);
+  mixer = (shape - 0.5 / u.u_colorsCount) * u.u_colorsCount;
+  let steps = max(1.0, u.u_stepsPerColor);
 
-  vec4 gradient = u_colors[0];
-  gradient.rgb *= gradient.a;
-  for (int i = 1; i < ${ voronoiMeta.maxColorCount }; i++) {
-    if (i >= int(u_colorsCount)) break;
-    float localT = clamp(mixer - float(i - 1), 0.0, 1.0);
+  var gradient = u.u_colors[0];
+  gradient = vec4f(gradient.rgb * gradient.a, gradient.a);
+  for (var i: i32 = 1; i < ${voronoiMeta.maxColorCount}; i++) {
+    if (i >= i32(u.u_colorsCount)) { break; }
+    var localT = clamp(mixer - f32(i - 1), 0.0, 1.0);
     localT = round(localT * steps) / steps;
-    vec4 c = u_colors[i];
-    c.rgb *= c.a;
+    var c = u.u_colors[i];
+    c = vec4f(c.rgb * c.a, c.a);
     gradient = mix(gradient, c, localT);
   }
 
-  if ((mixer < 0.) || (mixer > (u_colorsCount - 1.))) {
-    float localT = mixer + 1.;
-    if (mixer > (u_colorsCount - 1.)) {
-      localT = mixer - (u_colorsCount - 1.);
+  if ((mixer < 0.0) || (mixer > (u.u_colorsCount - 1.0))) {
+    var localT2 = mixer + 1.0;
+    if (mixer > (u.u_colorsCount - 1.0)) {
+      localT2 = mixer - (u.u_colorsCount - 1.0);
     }
-    localT = round(localT * steps) / steps;
-    vec4 cFst = u_colors[0];
-    cFst.rgb *= cFst.a;
-    vec4 cLast = u_colors[int(u_colorsCount - 1.)];
-    cLast.rgb *= cLast.a;
-    gradient = mix(cLast, cFst, localT);
+    localT2 = round(localT2 * steps) / steps;
+    var cFst = u.u_colors[0];
+    cFst = vec4f(cFst.rgb * cFst.a, cFst.a);
+    var cLast = u.u_colors[i32(u.u_colorsCount - 1.0)];
+    cLast = vec4f(cLast.rgb * cLast.a, cLast.a);
+    gradient = mix(cLast, cFst, localT2);
   }
 
-  vec3 cellColor = gradient.rgb;
-  float cellOpacity = gradient.a;
+  let cellColor = gradient.rgb;
+  let cellOpacity = gradient.a;
 
-  float glows = length(voronoiRes.yz * u_glow);
+  var glows = length(voronoiRes.yz * u.u_glow);
   glows = pow(glows, 1.5);
 
-  vec3 color = mix(cellColor, u_colorGlow.rgb * u_colorGlow.a, u_colorGlow.a * glows);
-  float opacity = cellOpacity + u_colorGlow.a * glows;
+  var color = mix(cellColor, u.u_colorGlow.rgb * u.u_colorGlow.a, u.u_colorGlow.a * glows);
+  var opacity = cellOpacity + u.u_colorGlow.a * glows;
 
-  float edge = voronoiRes.x;
-  float smoothEdge = .02 / (2. * u_scale) * (1. + .5 * u_gap);
-  edge = smoothstep(u_gap - smoothEdge, u_gap + smoothEdge, edge);
+  let edge_raw = voronoiRes.x;
+  let smoothEdge = 0.02 / (2.0 * u.u_scale) * (1.0 + 0.5 * u.u_gap);
+  let edge = smoothstep(u.u_gap - smoothEdge, u.u_gap + smoothEdge, edge_raw);
 
-  color = mix(u_colorGap.rgb * u_colorGap.a, color, edge);
-  opacity = mix(u_colorGap.a, opacity, edge);
+  color = mix(u.u_colorGap.rgb * u.u_colorGap.a, color, edge);
+  opacity = mix(u.u_colorGap.a, opacity, edge);
 
-  fragColor = vec4(color, opacity);
+  return vec4f(color, opacity);
 }
 `;
 

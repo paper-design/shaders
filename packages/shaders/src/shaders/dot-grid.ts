@@ -1,5 +1,5 @@
 import { type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
-import { declarePI, simplexNoise } from '../shader-utils.js';
+import { systemUniformFields, vertexOutputStruct, declarePI, glslMod, simplexNoise } from '../shader-utils.js';
 
 /**
  * Static grid pattern made of circles, diamonds, squares or triangles.
@@ -34,97 +34,97 @@ import { declarePI, simplexNoise } from '../shader-utils.js';
  *
  */
 
-// language=GLSL
-export const dotGridFragmentShader: string = `#version 300 es
-precision mediump float;
+export const dotGridFragmentShader: string = `
+struct Uniforms {
+  ${systemUniformFields}
+  u_dotSize: f32,
+  u_gapX: f32,
+  u_gapY: f32,
+  u_strokeWidth: f32,
+  u_sizeRange: f32,
+  u_opacityRange: f32,
+  u_shape: f32,
+  u_colorBack: vec4f,
+  u_colorFill: vec4f,
+  u_colorStroke: vec4f,
+}
+@group(0) @binding(0) var<uniform> u: Uniforms;
 
-uniform vec4 u_colorBack;
-uniform vec4 u_colorFill;
-uniform vec4 u_colorStroke;
-uniform float u_dotSize;
-uniform float u_gapX;
-uniform float u_gapY;
-uniform float u_strokeWidth;
-uniform float u_sizeRange;
-uniform float u_opacityRange;
-uniform float u_shape;
-
-in vec2 v_patternUV;
-
-out vec4 fragColor;
+${vertexOutputStruct}
 
 ${ declarePI }
+${ glslMod }
 ${ simplexNoise }
 
-float polygon(vec2 p, float N, float rot) {
-  float a = atan(p.x, p.y) + rot;
-  float r = TWO_PI / float(N);
+fn polygon(p: vec2f, N: f32, rot: f32) -> f32 {
+  let a = atan2(p.x, p.y) + rot;
+  let r = TWO_PI / N;
 
-  return cos(floor(.5 + a / r) * r - a) * length(p);
+  return cos(floor(0.5 + a / r) * r - a) * length(p);
 }
 
-void main() {
+@fragment fn fs_main(input: VertexOutput) -> @location(0) vec4f {
 
-  // x100 is a default multiplier between vertex and fragmant shaders
-  // we use it to avoid UV presision issues
-  vec2 shape_uv = 100. * v_patternUV;
+  // x100 is a default multiplier between vertex and fragment shaders
+  // we use it to avoid UV precision issues
+  let shape_uv = 100.0 * input.v_patternUV;
 
-  vec2 gap = max(abs(vec2(u_gapX, u_gapY)), vec2(1e-6));
-  vec2 grid = fract(shape_uv / gap) + 1e-4;
-  vec2 grid_idx = floor(shape_uv / gap);
-  float sizeRandomizer = .5 + .8 * snoise(2. * vec2(grid_idx.x * 100., grid_idx.y));
-  float opacity_randomizer = .5 + .7 * snoise(2. * vec2(grid_idx.y, grid_idx.x));
+  let gap = max(abs(vec2f(u.u_gapX, u.u_gapY)), vec2f(1e-6));
+  let grid = fract(shape_uv / gap) + vec2f(1e-4);
+  let grid_idx = floor(shape_uv / gap);
+  let sizeRandomizer = 0.5 + 0.8 * snoise(2.0 * vec2f(grid_idx.x * 100.0, grid_idx.y));
+  let opacity_randomizer = 0.5 + 0.7 * snoise(2.0 * vec2f(grid_idx.y, grid_idx.x));
 
-  vec2 center = vec2(0.5) - 1e-3;
-  vec2 p = (grid - center) * vec2(u_gapX, u_gapY);
+  let center = vec2f(0.5) - vec2f(1e-3);
+  var p = (grid - center) * vec2f(u.u_gapX, u.u_gapY);
 
-  float baseSize = u_dotSize * (1. - sizeRandomizer * u_sizeRange);
-  float strokeWidth = u_strokeWidth * (1. - sizeRandomizer * u_sizeRange);
+  let baseSize = u.u_dotSize * (1.0 - sizeRandomizer * u.u_sizeRange);
+  var strokeWidth = u.u_strokeWidth * (1.0 - sizeRandomizer * u.u_sizeRange);
 
-  float dist;
-  if (u_shape < 0.5) {
+  var dist: f32;
+  if (u.u_shape < 0.5) {
     // Circle
     dist = length(p);
-  } else if (u_shape < 1.5) {
+  } else if (u.u_shape < 1.5) {
     // Diamond
     strokeWidth *= 1.5;
-    dist = polygon(1.5 * p, 4., .25 * PI);
-  } else if (u_shape < 2.5) {
+    dist = polygon(1.5 * p, 4.0, 0.25 * PI);
+  } else if (u.u_shape < 2.5) {
     // Square
-    dist = polygon(1.03 * p, 4., 1e-3);
+    dist = polygon(1.03 * p, 4.0, 1e-3);
   } else {
     // Triangle
     strokeWidth *= 1.5;
-    p = p * 2. - 1.;
-    p *= .9;
-    p.y = 1. - p.y;
-    p.y -= .75 * baseSize;
-    dist = polygon(p, 3., 1e-3);
+    p = p * 2.0 - vec2f(1.0);
+    p *= 0.9;
+    p.y = 1.0 - p.y;
+    p.y -= 0.75 * baseSize;
+    dist = polygon(p, 3.0, 1e-3);
   }
 
-  float edgeWidth = fwidth(dist);
-  float shapeOuter = 1. - smoothstep(baseSize - edgeWidth, baseSize + edgeWidth, dist - strokeWidth);
-  float shapeInner = 1. - smoothstep(baseSize - edgeWidth, baseSize + edgeWidth, dist);
-  float stroke = shapeOuter - shapeInner;
+  let edgeWidth = fwidth(dist);
+  let shapeOuter = 1.0 - smoothstep(baseSize - edgeWidth, baseSize + edgeWidth, dist - strokeWidth);
+  var shapeInner = 1.0 - smoothstep(baseSize - edgeWidth, baseSize + edgeWidth, dist);
+  var stroke = shapeOuter - shapeInner;
 
-  float dotOpacity = max(0., 1. - opacity_randomizer * u_opacityRange);
+  let dotOpacity = max(0.0, 1.0 - opacity_randomizer * u.u_opacityRange);
   stroke *= dotOpacity;
   shapeInner *= dotOpacity;
 
-  stroke *= u_colorStroke.a;
-  shapeInner *= u_colorFill.a;
+  stroke *= u.u_colorStroke.a;
+  shapeInner *= u.u_colorFill.a;
 
-  vec3 color = vec3(0.);
-  color += stroke * u_colorStroke.rgb;
-  color += shapeInner * u_colorFill.rgb;
-  color += (1. - shapeInner - stroke) * u_colorBack.rgb * u_colorBack.a;
+  var color = vec3f(0.0);
+  color += stroke * u.u_colorStroke.rgb;
+  color += shapeInner * u.u_colorFill.rgb;
+  color += (1.0 - shapeInner - stroke) * u.u_colorBack.rgb * u.u_colorBack.a;
 
-  float opacity = 0.;
+  var opacity: f32 = 0.0;
   opacity += stroke;
   opacity += shapeInner;
-  opacity += (1. - opacity) * u_colorBack.a;
+  opacity += (1.0 - opacity) * u.u_colorBack.a;
 
-  fragColor = vec4(color, opacity);
+  return vec4f(color, opacity);
 }
 `;
 

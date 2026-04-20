@@ -1,7 +1,7 @@
 import type { vec4 } from '../types.js';
 import type { ShaderMotionParams } from '../shader-mount.js';
 import { type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
-import { declarePI, colorBandingFix } from '../shader-utils.js';
+import { systemUniformFields, vertexOutputStruct, declarePI, colorBandingFix } from '../shader-utils.js';
 
 export const colorPanelsMeta = {
   maxColorCount: 7,
@@ -44,111 +44,107 @@ export const colorPanelsMeta = {
  *
  */
 
-// language=GLSL
-export const colorPanelsFragmentShader: string = `#version 300 es
-precision lowp float;
+export const colorPanelsFragmentShader: string = `
+struct Uniforms {
+  ${ systemUniformFields }
+  u_colorsCount: f32,
+  u_density: f32,
+  u_angle1: f32,
+  u_angle2: f32,
+  u_length: f32,
+  u_edges: f32,
+  u_blur: f32,
+  u_fadeIn: f32,
+  u_fadeOut: f32,
+  u_gradient: f32,
+  u_colorBack: vec4f,
+  u_colors: array<vec4f, ${ colorPanelsMeta.maxColorCount }>,
+}
+@group(0) @binding(0) var<uniform> u: Uniforms;
 
-uniform float u_time;
-uniform mediump float u_scale;
-
-uniform vec4 u_colors[${ colorPanelsMeta.maxColorCount }];
-uniform float u_colorsCount;
-uniform vec4 u_colorBack;
-uniform float u_density;
-uniform float u_angle1;
-uniform float u_angle2;
-uniform float u_length;
-uniform bool u_edges;
-uniform float u_blur;
-uniform float u_fadeIn;
-uniform float u_fadeOut;
-uniform float u_gradient;
-
-in vec2 v_objectUV;
-
-out vec4 fragColor;
+${ vertexOutputStruct }
 
 ${ declarePI }
 
-const float zLimit = .5;
+const zLimit: f32 = 0.5;
 
-vec2 getPanel(float angle, vec2 uv, float invLength, float aa) {
-  float sinA = sin(angle);
-  float cosA = cos(angle);
+fn getPanel(angle: f32, uv: vec2f, invLength: f32, aa: f32) -> vec2f {
+  let sinA = sin(angle);
+  let cosA = cos(angle);
 
-  float denom = sinA - uv.y * cosA;
-  if (abs(denom) < .01) return vec2(0.);
+  let denom = sinA - uv.y * cosA;
+  if (abs(denom) < 0.01) { return vec2f(0.0); }
 
-  float z = uv.y / denom;
+  let z = uv.y / denom;
 
-  if (z <= 0. || z > zLimit) return vec2(0.);
+  if (z <= 0.0 || z > zLimit) { return vec2f(0.0); }
 
-  float zRatio = z / zLimit;
-  float panelMap = 1. - zRatio;
-  float x = uv.x * (cosA * z + 1.) * invLength;
+  let zRatio = z / zLimit;
+  var panelMap = 1.0 - zRatio;
+  let x = uv.x * (cosA * z + 1.0) * invLength;
 
-  float zOffset = zRatio - .5;
-  float left = -.5 + zOffset * u_angle1;
-  float right = .5 - zOffset * u_angle2;
-  float blurX = aa + 2. * panelMap * u_blur;
+  let zOffset = zRatio - 0.5;
+  let left = -0.5 + zOffset * u.u_angle1;
+  let right = 0.5 - zOffset * u.u_angle2;
+  let blurX = aa + 2.0 * panelMap * u.u_blur;
 
-  float leftEdge1 = left - blurX;
-  float leftEdge2 = left + .25 * blurX;
-  float rightEdge1 = right - .25 * blurX;
-  float rightEdge2 = right + blurX;
+  let leftEdge1 = left - blurX;
+  let leftEdge2 = left + 0.25 * blurX;
+  let rightEdge1 = right - 0.25 * blurX;
+  let rightEdge2 = right + blurX;
 
-  float panel = smoothstep(leftEdge1, leftEdge2, x) * (1.0 - smoothstep(rightEdge1, rightEdge2, x));
-  panel *= mix(0., panel, smoothstep(0., .01 / max(u_scale, 1e-6), panelMap));
+  var panel = smoothstep(leftEdge1, leftEdge2, x) * (1.0 - smoothstep(rightEdge1, rightEdge2, x));
+  panel *= mix(0.0, panel, smoothstep(0.0, 0.01 / max(u.u_scale, 1e-6), panelMap));
 
-  float midScreen = abs(sinA);
-  if (u_edges == true) {
-    panelMap = mix(.99, panelMap, panel * clamp(panelMap / (.15 * (1. - pow(midScreen, .1))), 0.0, 1.0));
-  } else if (midScreen < .07) {
-    panel *= (midScreen * 15.);
+  let midScreen = abs(sinA);
+  if (u.u_edges > 0.5) {
+    panelMap = mix(0.99, panelMap, panel * clamp(panelMap / (0.15 * (1.0 - pow(midScreen, 0.1))), 0.0, 1.0));
+  } else if (midScreen < 0.07) {
+    panel *= (midScreen * 15.0);
   }
 
-  return vec2(panel, panelMap);
+  return vec2f(panel, panelMap);
 }
 
-vec4 blendColor(vec4 colorA, float panelMask, float panelMap) {
-  float fade = 1. - smoothstep(.97 - .97 * u_fadeIn, 1., panelMap);
+fn blendColor(colorA: vec4f, panelMask: f32, panelMap: f32) -> vec4f {
+  var fade = 1.0 - smoothstep(0.97 - 0.97 * u.u_fadeIn, 1.0, panelMap);
 
-  fade *= smoothstep(-.2 * (1. - u_fadeOut), u_fadeOut, panelMap);
+  fade *= smoothstep(-0.2 * (1.0 - u.u_fadeOut), u.u_fadeOut, panelMap);
 
-  vec3 blendedRGB = mix(vec3(0.), colorA.rgb, fade);
-  float blendedAlpha = mix(0., colorA.a, fade);
+  let blendedRGB = mix(vec3f(0.0), colorA.rgb, fade);
+  let blendedAlpha = mix(0.0, colorA.a, fade);
 
-  return vec4(blendedRGB, blendedAlpha) * panelMask;
+  return vec4f(blendedRGB, blendedAlpha) * panelMask;
 }
 
-void main() {
-  vec2 uv = v_objectUV;
+@fragment fn fs_main(input: VertexOutput) -> @location(0) vec4f {
+  var uv = input.v_objectUV;
   uv *= 1.25;
 
-  float t = .02 * u_time;
+  var t = 0.02 * u.u_time;
   t = fract(t);
-  bool reverseTime = (t < 0.5);
+  let reverseTime = (t < 0.5);
 
-  vec3 color = vec3(0.);
-  float opacity = 0.;
+  var color = vec3f(0.0);
+  var opacity: f32 = 0.0;
 
-  float aa = .005 / u_scale;
-  int colorsCount = int(u_colorsCount);
+  let aa = 0.005 / u.u_scale;
+  let colorsCount = i32(u.u_colorsCount);
 
-  vec4 premultipliedColors[${ colorPanelsMeta.maxColorCount }];
-  for (int i = 0; i < ${ colorPanelsMeta.maxColorCount }; i++) {
-    if (i >= colorsCount) break;
-    vec4 c = u_colors[i];
-    c.rgb *= c.a;
+  var premultipliedColors: array<vec4f, ${ colorPanelsMeta.maxColorCount }>;
+  for (var i: i32 = 0; i < ${ colorPanelsMeta.maxColorCount }; i++) {
+    if (i >= colorsCount) { break; }
+    var c = u.u_colors[i];
+    c = vec4f(c.rgb * c.a, c.a);
     premultipliedColors[i] = c;
   }
 
-  float invLength = 1.5 / max(u_length, .001);
+  let invLength = 1.5 / max(u.u_length, 0.001);
 
-  float totalColorWeight = 0.;
-  int panelsNumber = 12;
+  var totalColorWeight: f32 = 0.0;
+  var panelsNumber: i32 = 12;
 
-  float densityNormalizer = 1.;
+  var densityNormalizer: f32 = 1.0;
   if (colorsCount == 4) {
     panelsNumber = 16;
     densityNormalizer = 1.34;
@@ -160,98 +156,98 @@ void main() {
     densityNormalizer = 1.17;
   }
 
-  float fPanelsNumber = float(panelsNumber);
+  let fPanelsNumber = f32(panelsNumber);
 
-  float totalPanelsShape = 0.;
-  float panelGrad = 1. - clamp(u_gradient, 0., 1.);
+  var totalPanelsShape: f32 = 0.0;
+  let panelGrad = 1.0 - clamp(u.u_gradient, 0.0, 1.0);
 
-  for (int set = 0; set < 2; set++) {
-    bool isForward = (set == 0 && !reverseTime) || (set == 1 && reverseTime);
-    if (!isForward) continue;
+  for (var setIdx: i32 = 0; setIdx < 2; setIdx++) {
+    let isForward = (setIdx == 0 && !reverseTime) || (setIdx == 1 && reverseTime);
+    if (!isForward) { continue; }
 
-    for (int i = 0; i <= 20; i++) {
-      if (i >= panelsNumber) break;
+    for (var i: i32 = 0; i <= 20; i++) {
+      if (i >= panelsNumber) { break; }
 
-      int idx = panelsNumber - 1 - i;
+      let idx = panelsNumber - 1 - i;
 
-      float offset = float(idx) / fPanelsNumber;
-      if (set == 1) {
-        offset += .5;
+      var offset = f32(idx) / fPanelsNumber;
+      if (setIdx == 1) {
+        offset += 0.5;
       }
 
-      float densityFract = densityNormalizer * fract(t + offset);
-      float angleNorm = densityFract / u_density;
-      if (densityFract >= .5 || angleNorm >= .3) continue;
+      let densityFract = densityNormalizer * fract(t + offset);
+      var angleNorm = densityFract / u.u_density;
+      if (densityFract >= 0.5 || angleNorm >= 0.3) { continue; }
 
-      float smoothDensity = clamp((.5 - densityFract) / .1, 0., 1.) * clamp(densityFract / .01, 0., 1.);
-      float smoothAngle = clamp((.3 - angleNorm) / .05, 0., 1.);
-      if (smoothDensity * smoothAngle < .001) continue;
+      let smoothDensity = clamp((0.5 - densityFract) / 0.1, 0.0, 1.0) * clamp(densityFract / 0.01, 0.0, 1.0);
+      let smoothAngle = clamp((0.3 - angleNorm) / 0.05, 0.0, 1.0);
+      if (smoothDensity * smoothAngle < 0.001) { continue; }
 
-      if (angleNorm > .5) {
+      if (angleNorm > 0.5) {
         angleNorm = 0.5;
       }
-      vec2 panel = getPanel(angleNorm * TWO_PI + PI, uv, invLength, aa);
-      if (panel[0] <= .001) continue;
-      float panelMask = panel[0] * smoothDensity * smoothAngle;
-      float panelMap = panel[1];
+      let panel = getPanel(angleNorm * TWO_PI + PI, uv, invLength, aa);
+      if (panel[0] <= 0.001) { continue; }
+      let panelMask = panel[0] * smoothDensity * smoothAngle;
+      let panelMap = panel[1];
 
-      int colorIdx = idx % colorsCount;
-      int nextColorIdx = (idx + 1) % colorsCount;
+      let colorIdx = idx % colorsCount;
+      let nextColorIdx = (idx + 1) % colorsCount;
 
-      vec4 colorA = premultipliedColors[colorIdx];
-      vec4 colorB = premultipliedColors[nextColorIdx];
+      var colorA = premultipliedColors[colorIdx];
+      let colorB = premultipliedColors[nextColorIdx];
 
-      colorA = mix(colorA, colorB, max(0., smoothstep(.0, .45, panelMap) - panelGrad));
-      vec4 blended = blendColor(colorA, panelMask, panelMap);
-      color = blended.rgb + color * (1. - blended.a);
-      opacity = blended.a + opacity * (1. - blended.a);
+      colorA = mix(colorA, colorB, max(0.0, smoothstep(0.0, 0.45, panelMap) - panelGrad));
+      let blended = blendColor(colorA, panelMask, panelMap);
+      color = blended.rgb + color * (1.0 - blended.a);
+      opacity = blended.a + opacity * (1.0 - blended.a);
     }
 
 
-    for (int i = 0; i <= 20; i++) {
-      if (i >= panelsNumber) break;
+    for (var i: i32 = 0; i <= 20; i++) {
+      if (i >= panelsNumber) { break; }
 
-      int idx = panelsNumber - 1 - i;
+      let idx = panelsNumber - 1 - i;
 
-      float offset = float(idx) / fPanelsNumber;
-      if (set == 0) {
-        offset += .5;
+      var offset = f32(idx) / fPanelsNumber;
+      if (setIdx == 0) {
+        offset += 0.5;
       }
 
-      float densityFract = densityNormalizer * fract(-t + offset);
-      float angleNorm = -densityFract / u_density;
-      if (densityFract >= .5 || angleNorm < -.3) continue;
+      let densityFract = densityNormalizer * fract(-t + offset);
+      let angleNorm = -densityFract / u.u_density;
+      if (densityFract >= 0.5 || angleNorm < -0.3) { continue; }
 
-      float smoothDensity = clamp((.5 - densityFract) / .1, 0., 1.) * clamp(densityFract / .01, 0., 1.);
-      float smoothAngle = clamp((angleNorm + .3) / .05, 0., 1.);
-      if (smoothDensity * smoothAngle < .001) continue;
+      let smoothDensity = clamp((0.5 - densityFract) / 0.1, 0.0, 1.0) * clamp(densityFract / 0.01, 0.0, 1.0);
+      let smoothAngle = clamp((angleNorm + 0.3) / 0.05, 0.0, 1.0);
+      if (smoothDensity * smoothAngle < 0.001) { continue; }
 
-      vec2 panel = getPanel(angleNorm * TWO_PI + PI, uv, invLength, aa);
-      float panelMask = panel[0] * smoothDensity * smoothAngle;
-      if (panelMask <= .001) continue;
-      float panelMap = panel[1];
+      let panel = getPanel(angleNorm * TWO_PI + PI, uv, invLength, aa);
+      let panelMask = panel[0] * smoothDensity * smoothAngle;
+      if (panelMask <= 0.001) { continue; }
+      let panelMap = panel[1];
 
-      int colorIdx = (colorsCount - (idx % colorsCount)) % colorsCount;
-      if (colorIdx < 0) colorIdx += colorsCount;
-      int nextColorIdx = (colorIdx + 1) % colorsCount;
+      var colorIdx = (colorsCount - (idx % colorsCount)) % colorsCount;
+      if (colorIdx < 0) { colorIdx += colorsCount; }
+      let nextColorIdx = (colorIdx + 1) % colorsCount;
 
-      vec4 colorA = premultipliedColors[colorIdx];
-      vec4 colorB = premultipliedColors[nextColorIdx];
+      var colorA = premultipliedColors[colorIdx];
+      let colorB = premultipliedColors[nextColorIdx];
 
-      colorA = mix(colorA, colorB, max(0., smoothstep(.0, .45, panelMap) - panelGrad));
-      vec4 blended = blendColor(colorA, panelMask, panelMap);
-      color = blended.rgb + color * (1. - blended.a);
-      opacity = blended.a + opacity * (1. - blended.a);
+      colorA = mix(colorA, colorB, max(0.0, smoothstep(0.0, 0.45, panelMap) - panelGrad));
+      let blended = blendColor(colorA, panelMask, panelMap);
+      color = blended.rgb + color * (1.0 - blended.a);
+      opacity = blended.a + opacity * (1.0 - blended.a);
     }
   }
 
-  vec3 bgColor = u_colorBack.rgb * u_colorBack.a;
+  let bgColor = u.u_colorBack.rgb * u.u_colorBack.a;
   color = color + bgColor * (1.0 - opacity);
-  opacity = opacity + u_colorBack.a * (1.0 - opacity);
+  opacity = opacity + u.u_colorBack.a * (1.0 - opacity);
 
   ${ colorBandingFix }
 
-  fragColor = vec4(color, opacity);
+  return vec4f(color, opacity);
 }
 `;
 
