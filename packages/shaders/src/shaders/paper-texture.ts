@@ -213,7 +213,8 @@ fn lst(edge0: f32, edge1: f32, x: f32) -> f32 {
   var patternUV = input.v_imageUV - vec2f(0.5);
   patternUV = 5.0 * (patternUV * vec2f(u.u_imageAspectRatio, 1.0));
 
-  let roughnessUv = 1.5 * (input.position.xy - 0.5 * u.u_resolution) / u.u_pixelRatio;
+  let fragCoord = vec2f(input.position.x, u.u_resolution.y - input.position.y);
+  let roughnessUv = 1.5 * (fragCoord - 0.5 * u.u_resolution) / u.u_pixelRatio;
   let roughness = roughnessFn(roughnessUv + vec2f(1.0, 0.0)) - roughnessFn(roughnessUv - vec2f(1.0, 0.0));
 
   let crumplesUV = fract(patternUV * 0.02 / u.u_crumpleSize - vec2f(u.u_seed)) * 32.0;

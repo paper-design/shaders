@@ -97,6 +97,7 @@ fn getImageUV(uv_in: vec2f) -> vec2f {
   imageUV = vec2f(imageUV.x / u.u_imageAspectRatio, imageUV.y);
 
   imageUV += vec2f(0.5);
+  imageUV = vec2f(imageUV.x, 1.0 - imageUV.y);
 
   return imageUV;
 }
@@ -138,7 +139,8 @@ fn getBayerValue(uv: vec2f, size: i32) -> f32 {
 @fragment fn fs_main(input: VertexOutput) -> @location(0) vec4f {
 
   let pxSize = u.u_pxSize * u.u_pixelRatio;
-  var pxSizeUV = input.position.xy - 0.5 * u.u_resolution;
+  let fragCoord = vec2f(input.position.x, u.u_resolution.y - input.position.y);
+  var pxSizeUV = fragCoord - 0.5 * u.u_resolution;
   pxSizeUV /= pxSize;
   let canvasPixelizedUV = (floor(pxSizeUV) + vec2f(0.5)) * pxSize;
   let normalizedUV = canvasPixelizedUV / u.u_resolution;

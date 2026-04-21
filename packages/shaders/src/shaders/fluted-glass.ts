@@ -177,7 +177,8 @@ fn smoothFract(x: f32) -> f32 {
 
   var uv = input.v_imageUV;
 
-  let uvMask = input.position.xy / u.u_resolution.xy;
+  let fragCoord = vec2f(input.position.x, u.u_resolution.y - input.position.y);
+  let uvMask = fragCoord / u.u_resolution.xy;
   let sw = vec2f(0.005);
   let margins = vec4f(u.u_marginLeft, u.u_marginTop, u.u_marginRight, u.u_marginBottom);
   let mask =

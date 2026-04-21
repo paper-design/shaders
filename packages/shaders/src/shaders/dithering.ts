@@ -96,7 +96,8 @@ fn getBayerValue(uv: vec2f, size: i32) -> f32 {
   let t = 0.5 * u.u_time;
 
   let pxSize = u.u_pxSize * u.u_pixelRatio;
-  var pxSizeUV = input.position.xy - 0.5 * u.u_resolution;
+  let fragCoord = vec2f(input.position.x, u.u_resolution.y - input.position.y);
+  var pxSizeUV = fragCoord - 0.5 * u.u_resolution;
   pxSizeUV /= pxSize;
   let canvasPixelizedUV = (floor(pxSizeUV) + vec2f(0.5)) * pxSize;
   let normalizedUV = canvasPixelizedUV / u.u_resolution;
