@@ -44,6 +44,7 @@ export const godRaysMeta = {
  *
  */
 
+// language=WGSL
 export const godRaysFragmentShader: string = `
 struct Uniforms {
   ${systemUniformFields}

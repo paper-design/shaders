@@ -32,6 +32,7 @@ import { systemUniformFields, vertexOutputStruct, declarePI } from '../shader-ut
  *
  */
 
+// language=WGSL
 export const wavesFragmentShader: string = `
 struct Uniforms {
   ${systemUniformFields}

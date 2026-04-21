@@ -46,6 +46,7 @@ import { systemUniformFields, vertexOutputStruct, declarePI, rotation2, glslMod,
  *
  */
 
+// language=WGSL
 export const liquidMetalFragmentShader: string = `
 struct Uniforms {
   ${systemUniformFields}

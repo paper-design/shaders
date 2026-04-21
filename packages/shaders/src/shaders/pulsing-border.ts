@@ -53,6 +53,7 @@ export const pulsingBorderMeta = {
  *
  */
 
+// language=WGSL
 export const pulsingBorderFragmentShader: string = `
 struct Uniforms {
   ${systemUniformFields}

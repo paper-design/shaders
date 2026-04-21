@@ -34,6 +34,7 @@ import { systemUniformFields, vertexOutputStruct, declarePI, glslMod, simplexNoi
  *
  */
 
+// language=WGSL
 export const dotGridFragmentShader: string = `
 struct Uniforms {
   ${systemUniformFields}

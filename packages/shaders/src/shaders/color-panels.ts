@@ -44,6 +44,7 @@ export const colorPanelsMeta = {
  *
  */
 
+// language=WGSL
 export const colorPanelsFragmentShader: string = `
 struct Uniforms {
   ${ systemUniformFields }

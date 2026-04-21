@@ -42,6 +42,7 @@ export const smokeRingMeta = {
  *
  */
 
+// language=WGSL
 export const smokeRingFragmentShader: string = `
 struct Uniforms {
   ${systemUniformFields}

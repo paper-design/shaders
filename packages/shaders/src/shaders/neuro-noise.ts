@@ -35,6 +35,7 @@ import { systemUniformFields, vertexOutputStruct, rotation2, colorBandingFix } f
  * Original algorithm: https://x.com/zozuar/status/1625182758745128981/
  */
 
+// language=WGSL
 export const neuroNoiseFragmentShader: string = `
 struct Uniforms {
   ${systemUniformFields}

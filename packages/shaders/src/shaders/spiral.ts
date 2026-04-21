@@ -37,6 +37,7 @@ import { systemUniformFields, vertexOutputStruct, simplexNoise, glslMod, declare
  *
  */
 
+// language=WGSL
 export const spiralFragmentShader: string = `
 struct Uniforms {
   ${systemUniformFields}

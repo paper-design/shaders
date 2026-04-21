@@ -45,6 +45,7 @@ import { systemUniformFields, vertexOutputStruct, rotation2, declarePI, fiberNoi
  *
  */
 
+// language=WGSL
 export const paperTextureFragmentShader: string = `
 struct Uniforms {
   ${systemUniformFields}

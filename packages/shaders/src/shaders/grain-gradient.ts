@@ -67,6 +67,7 @@ export const grainGradientMeta = {
  *
  */
 
+// language=WGSL
 export const grainGradientFragmentShader: string = `
 struct Uniforms {
   ${ systemUniformFields }

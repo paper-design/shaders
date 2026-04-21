@@ -40,6 +40,7 @@ import { systemUniformFields, vertexOutputStruct, declarePI, rotation2, procedur
  *
  */
 
+// language=WGSL
 export const halftoneDotsFragmentShader: string = `
 struct Uniforms {
   ${systemUniformFields}

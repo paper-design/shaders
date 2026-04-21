@@ -34,6 +34,7 @@ import { systemUniformFields, vertexOutputStruct, declarePI, colorBandingFix, pr
  *
  */
 
+// language=WGSL
 export const perlinNoiseFragmentShader: string = `
 struct Uniforms {
   ${systemUniformFields}

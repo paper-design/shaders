@@ -36,6 +36,7 @@ export const simplexNoiseMeta = {
  *
  */
 
+// language=WGSL
 export const simplexNoiseFragmentShader: string = `
 struct Uniforms {
   ${systemUniformFields}

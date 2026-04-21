@@ -40,6 +40,7 @@ export const dotOrbitMeta = {
  *
  */
 
+// language=WGSL
 export const dotOrbitFragmentShader: string = `
 struct Uniforms {
   ${systemUniformFields}

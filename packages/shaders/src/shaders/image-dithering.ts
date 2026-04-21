@@ -37,6 +37,7 @@ import { systemUniformFields, vertexOutputStruct, proceduralHash21, declarePI } 
  *
  */
 
+// language=WGSL
 export const imageDitheringFragmentShader: string = `
 struct Uniforms {
   ${systemUniformFields}

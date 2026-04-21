@@ -1,5 +1,6 @@
 // Shared WGSL definitions used by all shaders
 
+// language=WGSL
 export const systemUniformFields = `
   u_resolution: vec2f,
   u_pixelRatio: f32,
@@ -16,6 +17,7 @@ export const systemUniformFields = `
   u_offsetY: f32,
 `;
 
+// language=WGSL
 export const vertexOutputStruct = `
 struct VertexOutput {
   @builtin(position) position: vec4f,
@@ -31,17 +33,20 @@ struct VertexOutput {
 
 // WGSL utility functions
 
+// language=WGSL
 export const declarePI = `
 const TWO_PI: f32 = 6.28318530718;
 const PI: f32 = 3.14159265358979323846;
 `;
 
+// language=WGSL
 export const rotation2 = `
 fn rotate(uv: vec2f, th: f32) -> vec2f {
   return mat2x2f(cos(th), sin(th), -sin(th), cos(th)) * uv;
 }
 `;
 
+// language=WGSL
 export const proceduralHash11 = `
 fn hash11(p_in: f32) -> f32 {
   var p = fract(p_in * 0.3183099) + 0.1;
@@ -50,6 +55,7 @@ fn hash11(p_in: f32) -> f32 {
 }
 `;
 
+// language=WGSL
 export const proceduralHash21 = `
 fn hash21(p_in: vec2f) -> f32 {
   var p = fract(p_in * vec2f(0.3183099, 0.3678794)) + vec2f(0.1);
@@ -58,6 +64,7 @@ fn hash21(p_in: vec2f) -> f32 {
 }
 `;
 
+// language=WGSL
 export const proceduralHash22 = `
 fn hash22(p_in: vec2f) -> vec2f {
   var p = fract(p_in * vec2f(0.3183099, 0.3678794)) + vec2f(0.1);
@@ -66,6 +73,7 @@ fn hash22(p_in: vec2f) -> vec2f {
 }
 `;
 
+// language=WGSL
 export const textureRandomizerR = `
 fn randomR(p: vec2f) -> f32 {
   let uv = floor(p) / 100.0 + vec2f(0.5);
@@ -73,6 +81,7 @@ fn randomR(p: vec2f) -> f32 {
 }
 `;
 
+// language=WGSL
 export const textureRandomizerGB = `
 fn randomGB(p: vec2f) -> vec2f {
   let uv = floor(p) / 100.0 + vec2f(0.5);
@@ -80,10 +89,12 @@ fn randomGB(p: vec2f) -> vec2f {
 }
 `;
 
+// language=WGSL
 export const colorBandingFix = `
   color += vec3f(1.0 / 256.0 * (fract(sin(dot(0.014 * input.position.xy, vec2f(12.9898, 78.233))) * 43758.5453123) - 0.5));
 `;
 
+// language=WGSL
 export const glslMod = `
 fn glsl_mod_f32(x: f32, y: f32) -> f32 {
   return x - y * floor(x / y);
@@ -96,6 +107,7 @@ fn glsl_mod_vec3(x: vec3f, y: f32) -> vec3f {
 }
 `;
 
+// language=WGSL
 export const simplexNoise = `
 fn permute3(x: vec3f) -> vec3f { return glsl_mod_vec3(((x * 34.0) + vec3f(1.0)) * x, 289.0); }
 fn snoise(v: vec2f) -> f32 {
@@ -128,6 +140,7 @@ fn snoise(v: vec2f) -> f32 {
 }
 `;
 
+// language=WGSL
 export const fiberNoise = `
 fn fiberRandom(p: vec2f) -> f32 {
   let uv = floor(p) / 100.0;

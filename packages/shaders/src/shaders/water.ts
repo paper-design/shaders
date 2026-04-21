@@ -37,6 +37,7 @@ import { systemUniformFields, vertexOutputStruct, declarePI, rotation2, glslMod,
  *
  */
 
+// language=WGSL
 export const waterFragmentShader: string = `
 struct Uniforms {
   ${systemUniformFields}

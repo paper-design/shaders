@@ -50,6 +50,7 @@ import { systemUniformFields, vertexOutputStruct, declarePI } from '../shader-ut
  *
  */
 
+// language=WGSL
 export const halftoneCmykFragmentShader: string = `
 struct Uniforms {
   ${systemUniformFields}

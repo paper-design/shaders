@@ -44,6 +44,7 @@ export const heatmapMeta = {
  *
  */
 
+// language=WGSL
 export const heatmapFragmentShader: string = `
 struct Uniforms {
   ${systemUniformFields}

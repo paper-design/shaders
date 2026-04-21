@@ -41,6 +41,7 @@ export const swirlMeta = {
  *
  */
 
+// language=WGSL
 export const swirlFragmentShader: string = `
 struct Uniforms {
   ${systemUniformFields}

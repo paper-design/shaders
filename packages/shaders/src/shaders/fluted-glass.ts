@@ -50,6 +50,7 @@ import { systemUniformFields, vertexOutputStruct, declarePI, rotation2, procedur
  *
  */
 
+// language=WGSL
 export const flutedGlassFragmentShader: string = `
 struct Uniforms {
   ${systemUniformFields}

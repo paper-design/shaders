@@ -41,6 +41,7 @@ export const meshGradientMeta = {
  *
  */
 
+// language=WGSL
 export const meshGradientFragmentShader: string = `
 struct Uniforms {
   ${systemUniformFields}

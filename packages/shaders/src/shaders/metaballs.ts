@@ -38,6 +38,7 @@ export const metaballsMeta = {
  *
  */
 
+// language=WGSL
 export const metaballsFragmentShader: string = `
 struct Uniforms {
   ${systemUniformFields}

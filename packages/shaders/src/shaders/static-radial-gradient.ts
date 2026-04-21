@@ -47,6 +47,7 @@ export const staticRadialGradientMeta = {
  *
  */
 
+// language=WGSL
 export const staticRadialGradientFragmentShader: string = `
 struct Uniforms {
   ${systemUniformFields}

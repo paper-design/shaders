@@ -46,6 +46,7 @@ export const voronoiMeta = {
  *
  */
 
+// language=WGSL
 export const voronoiFragmentShader: string = `
 struct Uniforms {
   ${systemUniformFields}

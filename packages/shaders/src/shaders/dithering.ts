@@ -34,6 +34,7 @@ import { systemUniformFields, vertexOutputStruct, simplexNoise, declarePI, proce
  *
  * */
 
+// language=WGSL
 export const ditheringFragmentShader: string = `
 struct Uniforms {
   ${systemUniformFields}

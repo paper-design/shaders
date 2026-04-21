@@ -1,4 +1,5 @@
 /** Vertex shader for the shader mount (WGSL) — appended after the fragment shader into one module */
+// language=WGSL
 export const vertexShaderSource = `
 fn vs_getBoxSize(boxRatio: f32, givenBoxSize: vec2f) -> vec3f {
   var box = vec2f(0.0);

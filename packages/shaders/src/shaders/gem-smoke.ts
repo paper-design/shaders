@@ -48,6 +48,7 @@ export const gemSmokeMeta = {
  *
  */
 
+// language=WGSL
 export const gemSmokeFragmentShader: string = `
 struct Uniforms {
   ${systemUniformFields}

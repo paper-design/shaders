@@ -44,6 +44,7 @@ export const warpMeta = {
  *
  */
 
+// language=WGSL
 export const warpFragmentShader: string = `
 struct Uniforms {
   ${systemUniformFields}
