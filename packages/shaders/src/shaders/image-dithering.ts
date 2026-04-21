@@ -97,7 +97,6 @@ fn getImageUV(uv_in: vec2f) -> vec2f {
   imageUV = vec2f(imageUV.x / u.u_imageAspectRatio, imageUV.y);
 
   imageUV += vec2f(0.5);
-  imageUV = vec2f(imageUV.x, 1.0 - imageUV.y);
 
   return imageUV;
 }
