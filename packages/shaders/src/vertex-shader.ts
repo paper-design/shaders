@@ -1,153 +1,122 @@
-/** Vertex shader for the shader mount */
-// language=GLSL
-export const vertexShaderSource = `#version 300 es
-precision mediump float;
-
-layout(location = 0) in vec4 a_position;
-
-uniform vec2 u_resolution;
-uniform float u_pixelRatio;
-uniform float u_imageAspectRatio;
-uniform float u_originX;
-uniform float u_originY;
-uniform float u_worldWidth;
-uniform float u_worldHeight;
-uniform float u_fit;
-uniform float u_scale;
-uniform float u_rotation;
-uniform float u_offsetX;
-uniform float u_offsetY;
-
-out vec2 v_objectUV;
-out vec2 v_objectBoxSize;
-out vec2 v_responsiveUV;
-out vec2 v_responsiveBoxGivenSize;
-out vec2 v_patternUV;
-out vec2 v_patternBoxSize;
-out vec2 v_imageUV;
-
-vec3 getBoxSize(float boxRatio, vec2 givenBoxSize) {
-  vec2 box = vec2(0.);
-  // fit = none
+/** Vertex shader for the shader mount (WGSL) — appended after the fragment shader into one module */
+// language=WGSL
+export const vertexShaderSource = `
+fn vs_getBoxSize(boxRatio: f32, givenBoxSize: vec2f) -> vec3f {
+  var box = vec2f(0.0);
   box.x = boxRatio * min(givenBoxSize.x / boxRatio, givenBoxSize.y);
-  float noFitBoxWidth = box.x;
-  if (u_fit == 1.) { // fit = contain
-    box.x = boxRatio * min(u_resolution.x / boxRatio, u_resolution.y);
-  } else if (u_fit == 2.) { // fit = cover
-    box.x = boxRatio * max(u_resolution.x / boxRatio, u_resolution.y);
+  let noFitBoxWidth = box.x;
+  if (u.u_fit == 1.0) {
+    box.x = boxRatio * min(u.u_resolution.x / boxRatio, u.u_resolution.y);
+  } else if (u.u_fit == 2.0) {
+    box.x = boxRatio * max(u.u_resolution.x / boxRatio, u.u_resolution.y);
   }
   box.y = box.x / boxRatio;
-  return vec3(box, noFitBoxWidth);
+  return vec3f(box, noFitBoxWidth);
 }
 
-void main() {
-  gl_Position = a_position;
+@vertex fn vs_main(@location(0) a_position: vec2f) -> VertexOutput {
+  var output: VertexOutput;
+  output.position = vec4f(a_position, 0.0, 1.0);
 
-  vec2 uv = gl_Position.xy * .5;
-  vec2 boxOrigin = vec2(.5 - u_originX, u_originY - .5);
-  vec2 givenBoxSize = vec2(u_worldWidth, u_worldHeight);
-  givenBoxSize = max(givenBoxSize, vec2(1.)) * u_pixelRatio;
-  float r = u_rotation * 3.14159265358979323846 / 180.;
-  mat2 graphicRotation = mat2(cos(r), sin(r), -sin(r), cos(r));
-  vec2 graphicOffset = vec2(-u_offsetX, u_offsetY);
+  let uv = a_position * 0.5;
+  let boxOrigin = vec2f(0.5 - u.u_originX, u.u_originY - 0.5);
+  var givenBoxSize = vec2f(u.u_worldWidth, u.u_worldHeight);
+  givenBoxSize = max(givenBoxSize, vec2f(1.0)) * u.u_pixelRatio;
+  let r = u.u_rotation * 3.14159265358979323846 / 180.0;
+  let graphicRotation = mat2x2f(cos(r), sin(r), -sin(r), cos(r));
+  let graphicOffset = vec2f(-u.u_offsetX, u.u_offsetY);
 
-
-  // ===================================================
-
-  float fixedRatio = 1.;
-  vec2 fixedRatioBoxGivenSize = vec2(
-  (u_worldWidth == 0.) ? u_resolution.x : givenBoxSize.x,
-  (u_worldHeight == 0.) ? u_resolution.y : givenBoxSize.y
+  // Object UV
+  let fixedRatio: f32 = 1.0;
+  let fixedRatioBoxGivenSize = vec2f(
+    select(givenBoxSize.x, u.u_resolution.x, u.u_worldWidth == 0.0),
+    select(givenBoxSize.y, u.u_resolution.y, u.u_worldHeight == 0.0)
   );
 
-  v_objectBoxSize = getBoxSize(fixedRatio, fixedRatioBoxGivenSize).xy;
-  vec2 objectWorldScale = u_resolution.xy / v_objectBoxSize;
+  output.v_objectBoxSize = vs_getBoxSize(fixedRatio, fixedRatioBoxGivenSize).xy;
+  let objectWorldScale = u.u_resolution.xy / output.v_objectBoxSize;
 
-  v_objectUV = uv;
-  v_objectUV *= objectWorldScale;
-  v_objectUV += boxOrigin * (objectWorldScale - 1.);
-  v_objectUV += graphicOffset;
-  v_objectUV /= u_scale;
-  v_objectUV = graphicRotation * v_objectUV;
+  var objectUV = uv;
+  objectUV *= objectWorldScale;
+  objectUV += boxOrigin * (objectWorldScale - vec2f(1.0));
+  objectUV += graphicOffset;
+  objectUV /= u.u_scale;
+  objectUV = graphicRotation * objectUV;
+  output.v_objectUV = objectUV;
 
-  // ===================================================
-
-  v_responsiveBoxGivenSize = vec2(
-  (u_worldWidth == 0.) ? u_resolution.x : givenBoxSize.x,
-  (u_worldHeight == 0.) ? u_resolution.y : givenBoxSize.y
+  // Responsive UV
+  let responsiveBoxGivenSize = vec2f(
+    select(givenBoxSize.x, u.u_resolution.x, u.u_worldWidth == 0.0),
+    select(givenBoxSize.y, u.u_resolution.y, u.u_worldHeight == 0.0)
   );
-  float responsiveRatio = v_responsiveBoxGivenSize.x / v_responsiveBoxGivenSize.y;
-  vec2 responsiveBoxSize = getBoxSize(responsiveRatio, v_responsiveBoxGivenSize).xy;
-  vec2 responsiveBoxScale = u_resolution.xy / responsiveBoxSize;
+  output.v_responsiveBoxGivenSize = responsiveBoxGivenSize;
+  let responsiveRatio = responsiveBoxGivenSize.x / responsiveBoxGivenSize.y;
+  let responsiveBoxSize = vs_getBoxSize(responsiveRatio, responsiveBoxGivenSize).xy;
+  let responsiveBoxScale = u.u_resolution.xy / responsiveBoxSize;
 
-  #ifdef ADD_HELPERS
-  v_responsiveHelperBox = uv;
-  v_responsiveHelperBox *= responsiveBoxScale;
-  v_responsiveHelperBox += boxOrigin * (responsiveBoxScale - 1.);
-  #endif
+  var responsiveUV = uv;
+  responsiveUV *= responsiveBoxScale;
+  responsiveUV += boxOrigin * (responsiveBoxScale - vec2f(1.0));
+  responsiveUV += graphicOffset;
+  responsiveUV /= u.u_scale;
+  responsiveUV.x *= responsiveRatio;
+  responsiveUV = graphicRotation * responsiveUV;
+  responsiveUV.x /= responsiveRatio;
+  output.v_responsiveUV = responsiveUV;
 
-  v_responsiveUV = uv;
-  v_responsiveUV *= responsiveBoxScale;
-  v_responsiveUV += boxOrigin * (responsiveBoxScale - 1.);
-  v_responsiveUV += graphicOffset;
-  v_responsiveUV /= u_scale;
-  v_responsiveUV.x *= responsiveRatio;
-  v_responsiveUV = graphicRotation * v_responsiveUV;
-  v_responsiveUV.x /= responsiveRatio;
-
-  // ===================================================
-
-  float patternBoxRatio = givenBoxSize.x / givenBoxSize.y;
-  vec2 patternBoxGivenSize = vec2(
-  (u_worldWidth == 0.) ? u_resolution.x : givenBoxSize.x,
-  (u_worldHeight == 0.) ? u_resolution.y : givenBoxSize.y
+  // Pattern UV
+  let patternBoxGivenSize = vec2f(
+    select(givenBoxSize.x, u.u_resolution.x, u.u_worldWidth == 0.0),
+    select(givenBoxSize.y, u.u_resolution.y, u.u_worldHeight == 0.0)
   );
-  patternBoxRatio = patternBoxGivenSize.x / patternBoxGivenSize.y;
+  let patternBoxRatio = patternBoxGivenSize.x / patternBoxGivenSize.y;
 
-  vec3 boxSizeData = getBoxSize(patternBoxRatio, patternBoxGivenSize);
-  v_patternBoxSize = boxSizeData.xy;
-  float patternBoxNoFitBoxWidth = boxSizeData.z;
-  vec2 patternBoxScale = u_resolution.xy / v_patternBoxSize;
+  let boxSizeData = vs_getBoxSize(patternBoxRatio, patternBoxGivenSize);
+  output.v_patternBoxSize = boxSizeData.xy;
+  let patternBoxNoFitBoxWidth = boxSizeData.z;
+  let patternBoxScale = u.u_resolution.xy / output.v_patternBoxSize;
 
-  v_patternUV = uv;
-  v_patternUV += graphicOffset / patternBoxScale;
-  v_patternUV += boxOrigin;
-  v_patternUV -= boxOrigin / patternBoxScale;
-  v_patternUV *= u_resolution.xy;
-  v_patternUV /= u_pixelRatio;
-  if (u_fit > 0.) {
-    v_patternUV *= (patternBoxNoFitBoxWidth / v_patternBoxSize.x);
+  var patternUV = uv;
+  patternUV += graphicOffset / patternBoxScale;
+  patternUV += boxOrigin;
+  patternUV -= boxOrigin / patternBoxScale;
+  patternUV *= u.u_resolution.xy;
+  patternUV /= u.u_pixelRatio;
+  if (u.u_fit > 0.0) {
+    patternUV *= (patternBoxNoFitBoxWidth / output.v_patternBoxSize.x);
   }
-  v_patternUV /= u_scale;
-  v_patternUV = graphicRotation * v_patternUV;
-  v_patternUV += boxOrigin / patternBoxScale;
-  v_patternUV -= boxOrigin;
-  // x100 is a default multiplier between vertex and fragmant shaders
-  // we use it to avoid UV presision issues
-  v_patternUV *= .01;
+  patternUV /= u.u_scale;
+  patternUV = graphicRotation * patternUV;
+  patternUV += boxOrigin / patternBoxScale;
+  patternUV -= boxOrigin;
+  patternUV *= 0.01;
+  output.v_patternUV = patternUV;
 
-  // ===================================================
-
-  vec2 imageBoxSize;
-  if (u_fit == 1.) { // contain
-    imageBoxSize.x = min(u_resolution.x / u_imageAspectRatio, u_resolution.y) * u_imageAspectRatio;
-  } else if (u_fit == 2.) { // cover
-    imageBoxSize.x = max(u_resolution.x / u_imageAspectRatio, u_resolution.y) * u_imageAspectRatio;
+  // Image UV
+  var imageBoxSize: vec2f;
+  if (u.u_fit == 1.0) {
+    imageBoxSize.x = min(u.u_resolution.x / u.u_imageAspectRatio, u.u_resolution.y) * u.u_imageAspectRatio;
+  } else if (u.u_fit == 2.0) {
+    imageBoxSize.x = max(u.u_resolution.x / u.u_imageAspectRatio, u.u_resolution.y) * u.u_imageAspectRatio;
   } else {
-    imageBoxSize.x = min(10.0, 10.0 / u_imageAspectRatio * u_imageAspectRatio);
+    imageBoxSize.x = min(10.0, 10.0 / u.u_imageAspectRatio * u.u_imageAspectRatio);
   }
-  imageBoxSize.y = imageBoxSize.x / u_imageAspectRatio;
-  vec2 imageBoxScale = u_resolution.xy / imageBoxSize;
+  imageBoxSize.y = imageBoxSize.x / u.u_imageAspectRatio;
+  let imageBoxScale = u.u_resolution.xy / imageBoxSize;
 
-  v_imageUV = uv;
-  v_imageUV *= imageBoxScale;
-  v_imageUV += boxOrigin * (imageBoxScale - 1.);
-  v_imageUV += graphicOffset;
-  v_imageUV /= u_scale;
-  v_imageUV.x *= u_imageAspectRatio;
-  v_imageUV = graphicRotation * v_imageUV;
-  v_imageUV.x /= u_imageAspectRatio;
+  var imageUV = uv;
+  imageUV *= imageBoxScale;
+  imageUV += boxOrigin * (imageBoxScale - vec2f(1.0));
+  imageUV += graphicOffset;
+  imageUV /= u.u_scale;
+  imageUV.x *= u.u_imageAspectRatio;
+  imageUV = graphicRotation * imageUV;
+  imageUV.x /= u.u_imageAspectRatio;
 
-  v_imageUV += .5;
-  v_imageUV.y = 1. - v_imageUV.y;
-}`;
+  imageUV += vec2f(0.5);
+  imageUV.y = 1.0 - imageUV.y;
+  output.v_imageUV = imageUV;
+
+  return output;
+}
+`;

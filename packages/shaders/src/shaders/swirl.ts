@@ -1,7 +1,7 @@
 import type { vec4 } from '../types.js';
 import type { ShaderMotionParams } from '../shader-mount.js';
 import { type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
-import { simplexNoise, declarePI, rotation2, colorBandingFix } from '../shader-utils.js';
+import { systemUniformFields, vertexOutputStruct, simplexNoise, glslMod, declarePI, rotation2, colorBandingFix } from '../shader-utils.js';
 
 export const swirlMeta = {
   maxColorCount: 10,
@@ -41,92 +41,91 @@ export const swirlMeta = {
  *
  */
 
-// language=GLSL
-export const swirlFragmentShader: string = `#version 300 es
-precision mediump float;
+// language=WGSL
+export const swirlFragmentShader: string = `
+struct Uniforms {
+  ${systemUniformFields}
+  u_colorBack: vec4f,
+  u_colorsCount: f32,
+  u_bandCount: f32,
+  u_twist: f32,
+  u_center: f32,
+  u_proportion: f32,
+  u_softness: f32,
+  u_noise: f32,
+  u_noiseFrequency: f32,
+  u_colors: array<vec4f, ${swirlMeta.maxColorCount}>,
+}
+@group(0) @binding(0) var<uniform> u: Uniforms;
 
-uniform float u_time;
+${vertexOutputStruct}
 
-uniform vec4 u_colorBack;
-uniform vec4 u_colors[${ swirlMeta.maxColorCount }];
-uniform float u_colorsCount;
-uniform float u_bandCount;
-uniform float u_twist;
-uniform float u_center;
-uniform float u_proportion;
-uniform float u_softness;
-uniform float u_noise;
-uniform float u_noiseFrequency;
+${declarePI}
+${glslMod}
+${simplexNoise}
+${rotation2}
 
-in vec2 v_objectUV;
+@fragment fn fs_main(input: VertexOutput) -> @location(0) vec4f {
+  let shape_uv = input.v_objectUV;
 
-out vec4 fragColor;
-
-${ declarePI }
-${ simplexNoise }
-${ rotation2 }
-
-void main() {
-  vec2 shape_uv = v_objectUV;
-
-  float l = length(shape_uv);
+  var l = length(shape_uv);
   l = max(1e-4, l);
 
-  float t = u_time;
+  let t = u.u_time;
 
-  float angle = ceil(u_bandCount) * atan(shape_uv.y, shape_uv.x) + t;
-  float angle_norm = angle / TWO_PI;
+  let angle = ceil(u.u_bandCount) * atan2(shape_uv.y, shape_uv.x) + t;
+  let angle_norm = angle / TWO_PI;
 
-  float twist = 3. * clamp(u_twist, 0., 1.);
-  float offset = pow(l, -twist) + angle_norm;
+  let twist = 3.0 * clamp(u.u_twist, 0.0, 1.0);
+  let offset = pow(l, -twist) + angle_norm;
 
-  float shape = fract(offset);
-  shape = 1. - abs(2. * shape - 1.);
-  shape += u_noise * snoise(15. * pow(u_noiseFrequency, 2.) * shape_uv);
+  var shape = fract(offset);
+  shape = 1.0 - abs(2.0 * shape - 1.0);
+  shape += u.u_noise * snoise(15.0 * pow(u.u_noiseFrequency, 2.0) * shape_uv);
 
-  float mid = smoothstep(.2, .2 + .8 * u_center, pow(l, twist));
-  shape = mix(0., shape, mid);
+  let mid = smoothstep(0.2, 0.2 + 0.8 * u.u_center, pow(l, twist));
+  shape = mix(0.0, shape, mid);
 
-  float proportion = clamp(u_proportion, 0., 1.);
-  float exponent = mix(.25, 1., proportion * 2.);
-  exponent = mix(exponent, 10., max(0., proportion * 2. - 1.));
+  let proportion = clamp(u.u_proportion, 0.0, 1.0);
+  var exponent = mix(0.25, 1.0, proportion * 2.0);
+  exponent = mix(exponent, 10.0, max(0.0, proportion * 2.0 - 1.0));
   shape = pow(shape, exponent);
 
-  float mixer = shape * u_colorsCount;
-  vec4 gradient = u_colors[0];
-  gradient.rgb *= gradient.a;
+  let mixer = shape * u.u_colorsCount;
+  var gradient = u.u_colors[0];
+  gradient = vec4f(gradient.rgb * gradient.a, gradient.a);
 
-  float outerShape = 0.;
-  for (int i = 1; i < ${ swirlMeta.maxColorCount + 1 }; i++) {
-    if (i > int(u_colorsCount)) break;
+  var outerShape: f32 = 0.0;
+  for (var i: i32 = 1; i < ${swirlMeta.maxColorCount + 1}; i++) {
+    if (i <= i32(u.u_colorsCount)) {
+      var m = clamp(mixer - f32(i - 1), 0.0, 1.0);
+      let aa = fwidth(m);
+      m = smoothstep(0.5 - 0.5 * u.u_softness - aa, 0.5 + 0.5 * u.u_softness + aa, m);
 
-    float m = clamp(mixer - float(i - 1), 0., 1.);
-    float aa = fwidth(m);
-    m = smoothstep(.5 - .5 * u_softness - aa, .5 + .5 * u_softness + aa, m);
+      if (i == 1) {
+        outerShape = m;
+      }
 
-    if (i == 1) {
-      outerShape = m;
+      var c = u.u_colors[i - 1];
+      c = vec4f(c.rgb * c.a, c.a);
+      gradient = mix(gradient, c, m);
     }
-
-    vec4 c = u_colors[i - 1];
-    c.rgb *= c.a;
-    gradient = mix(gradient, c, m);
   }
 
-  float midAA = .1 * fwidth(pow(l, -twist));
-  float outerMid = smoothstep(.2, .2 + midAA, pow(l, twist));
-  outerShape = mix(0., outerShape, outerMid);
+  let midAA = 0.1 * fwidth(pow(l, -twist));
+  let outerMid = smoothstep(0.2, 0.2 + midAA, pow(l, twist));
+  outerShape = mix(0.0, outerShape, outerMid);
 
-  vec3 color = gradient.rgb * outerShape;
-  float opacity = gradient.a * outerShape;
+  var color = gradient.rgb * outerShape;
+  var opacity = gradient.a * outerShape;
 
-  vec3 bgColor = u_colorBack.rgb * u_colorBack.a;
+  let bgColor = u.u_colorBack.rgb * u.u_colorBack.a;
   color = color + bgColor * (1.0 - opacity);
-  opacity = opacity + u_colorBack.a * (1.0 - opacity);
+  opacity = opacity + u.u_colorBack.a * (1.0 - opacity);
 
-  ${ colorBandingFix }
+  ${colorBandingFix}
 
-  fragColor = vec4(color, opacity);
+  return vec4f(color, opacity);
 }
 `;
 

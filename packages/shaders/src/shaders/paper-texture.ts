@@ -1,6 +1,6 @@
 import type { ShaderMotionParams } from '../shader-mount.js';
 import { type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
-import { rotation2, declarePI, fiberNoise, textureRandomizerR } from '../shader-utils.js';
+import { systemUniformFields, vertexOutputStruct, rotation2, declarePI, fiberNoise, textureRandomizerR } from '../shader-utils.js';
 
 /**
  * A static texture built from multiple noise layers, usable for realistic paper and cardboard surfaces.
@@ -45,45 +45,45 @@ import { rotation2, declarePI, fiberNoise, textureRandomizerR } from '../shader-
  *
  */
 
-// language=GLSL
-export const paperTextureFragmentShader: string = `#version 300 es
-precision mediump float;
+// language=WGSL
+export const paperTextureFragmentShader: string = `
+struct Uniforms {
+  ${systemUniformFields}
+  u_colorFront: vec4f,
+  u_colorBack: vec4f,
+  u_contrast: f32,
+  u_roughness: f32,
+  u_fiber: f32,
+  u_fiberSize: f32,
+  u_crumples: f32,
+  u_crumpleSize: f32,
+  u_folds: f32,
+  u_foldCount: f32,
+  u_drops: f32,
+  u_seed: f32,
+  u_fade: f32,
+}
+@group(0) @binding(0) var<uniform> u: Uniforms;
 
-uniform vec2 u_resolution;
-uniform float u_pixelRatio;
+@group(1) @binding(0) var u_image_tex: texture_2d<f32>;
+@group(1) @binding(1) var u_image_samp: sampler;
+@group(1) @binding(2) var u_noiseTexture_tex: texture_2d<f32>;
+@group(1) @binding(3) var u_noiseTexture_samp: sampler;
 
-uniform vec4 u_colorFront;
-uniform vec4 u_colorBack;
+${vertexOutputStruct}
 
-uniform sampler2D u_image;
-uniform float u_imageAspectRatio;
+fn fwidth_f32(v: f32) -> f32 {
+  return abs(dpdx(v)) + abs(dpdy(v));
+}
 
-uniform float u_contrast;
-uniform float u_roughness;
-uniform float u_fiber;
-uniform float u_fiberSize;
-uniform float u_crumples;
-uniform float u_crumpleSize;
-uniform float u_folds;
-uniform float u_foldCount;
-uniform float u_drops;
-uniform float u_seed;
-uniform float u_fade;
+fn getUvFrame(uv: vec2f) -> f32 {
+  let aax = 2.0 * fwidth_f32(uv.x);
+  let aay = 2.0 * fwidth_f32(uv.y);
 
-uniform sampler2D u_noiseTexture;
-
-in vec2 v_imageUV;
-
-out vec4 fragColor;
-
-float getUvFrame(vec2 uv) {
-  float aax = 2. * fwidth(uv.x);
-  float aay = 2. * fwidth(uv.y);
-
-  float left   = smoothstep(0., aax, uv.x);
-  float right = 1. - smoothstep(1. - aax, 1., uv.x);
-  float bottom = smoothstep(0., aay, uv.y);
-  float top = 1. - smoothstep(1. - aay, 1., uv.y);
+  let left   = smoothstep(0.0, aax, uv.x);
+  let right  = 1.0 - smoothstep(1.0 - aax, 1.0, uv.x);
+  let bottom = smoothstep(0.0, aay, uv.y);
+  let top    = 1.0 - smoothstep(1.0 - aay, 1.0, uv.y);
 
   return left * right * bottom * top;
 }
@@ -91,21 +91,25 @@ float getUvFrame(vec2 uv) {
 ${ declarePI }
 ${ rotation2 }
 ${ textureRandomizerR }
-float valueNoise(vec2 st) {
-  vec2 i = floor(st);
-  vec2 f = fract(st);
-  float a = randomR(i);
-  float b = randomR(i + vec2(1.0, 0.0));
-  float c = randomR(i + vec2(0.0, 1.0));
-  float d = randomR(i + vec2(1.0, 1.0));
-  vec2 u = f * f * (3.0 - 2.0 * f);
-  float x1 = mix(a, b, u.x);
-  float x2 = mix(c, d, u.x);
-  return mix(x1, x2, u.y);
+
+fn valueNoise(st: vec2f) -> f32 {
+  let i = floor(st);
+  let f = fract(st);
+  let a = randomR(i);
+  let b = randomR(i + vec2f(1.0, 0.0));
+  let c = randomR(i + vec2f(0.0, 1.0));
+  let d = randomR(i + vec2f(1.0, 1.0));
+  let u_val = f * f * (vec2f(3.0) - 2.0 * f);
+  let x1 = mix(a, b, u_val.x);
+  let x2 = mix(c, d, u_val.x);
+  return mix(x1, x2, u_val.y);
 }
-float fbm(vec2 n) {
-  float total = 0.0, amplitude = .4;
-  for (int i = 0; i < 3; i++) {
+
+fn fbm(n_in: vec2f) -> f32 {
+  var n = n_in;
+  var total: f32 = 0.0;
+  var amplitude: f32 = 0.4;
+  for (var i: i32 = 0; i < 3; i++) {
     total += valueNoise(n) * amplitude;
     n *= 1.99;
     amplitude *= 0.65;
@@ -113,174 +117,177 @@ float fbm(vec2 n) {
   return total;
 }
 
-
-float randomG(vec2 p) {
-  vec2 uv = floor(p) / 50. + .5;
-  return texture(u_noiseTexture, fract(uv)).g;
+fn randomG(p: vec2f) -> f32 {
+  let uv = floor(p) / 50.0 + vec2f(0.5);
+  return textureSampleLevel(u_noiseTexture_tex, u_noiseTexture_samp, fract(uv), 0.0).g;
 }
-float roughness(vec2 p) {
-  p *= .1;
-  float o = 0.;
-  for (float i = 0.; ++i < 4.; p *= 2.1) {
-    vec4 w = vec4(floor(p), ceil(p));
-    vec2 f = fract(p);
+
+fn roughnessFn(p_in: vec2f) -> f32 {
+  var p = p_in * 0.1;
+  var o: f32 = 0.0;
+  for (var i: f32 = 1.0; i < 4.0; i += 1.0) {
+    let w = vec4f(floor(p), ceil(p));
+    let f = fract(p);
     o += mix(
-    mix(randomG(w.xy), randomG(w.xw), f.y),
-    mix(randomG(w.zy), randomG(w.zw), f.y),
-    f.x);
-    o += .2 / exp(2. * abs(sin(.2 * p.x + .5 * p.y)));
+      mix(randomG(w.xy), randomG(vec2f(w.x, w.w)), f.y),
+      mix(randomG(vec2f(w.z, w.y)), randomG(w.zw), f.y),
+      f.x);
+    o += 0.2 / exp(2.0 * abs(sin(0.2 * p.x + 0.5 * p.y)));
+    p *= 2.1;
   }
-  return o / 3.;
+  return o / 3.0;
 }
 
 ${ fiberNoise }
 
-vec2 randomGB(vec2 p) {
-  vec2 uv = floor(p) / 50. + .5;
-  return texture(u_noiseTexture, fract(uv)).gb;
+fn randomGB(p: vec2f) -> vec2f {
+  let uv = floor(p) / 50.0 + vec2f(0.5);
+  return textureSampleLevel(u_noiseTexture_tex, u_noiseTexture_samp, fract(uv), 0.0).gb;
 }
-float crumpledNoise(vec2 t, float pw) {
-  vec2 p = floor(t);
-  float wsum = 0.;
-  float cl = 0.;
-  for (int y = -1; y < 2; y += 1) {
-    for (int x = -1; x < 2; x += 1) {
-      vec2 b = vec2(float(x), float(y));
-      vec2 q = b + p;
-      vec2 q2 = q - floor(q / 8.) * 8.;
-      vec2 c = q + randomGB(q2);
-      vec2 r = c - t;
-      float w = pow(smoothstep(0., 1., 1. - abs(r.x)), pw) * pow(smoothstep(0., 1., 1. - abs(r.y)), pw);
-      cl += (.5 + .5 * sin((q2.x + q2.y * 5.) * 8.)) * w;
+
+fn crumpledNoise(t: vec2f, pw: f32) -> f32 {
+  let p = floor(t);
+  var wsum: f32 = 0.0;
+  var cl: f32 = 0.0;
+  for (var y: i32 = -1; y < 2; y += 1) {
+    for (var x: i32 = -1; x < 2; x += 1) {
+      let b = vec2f(f32(x), f32(y));
+      let q = b + p;
+      let q2 = q - floor(q / 8.0) * 8.0;
+      let c = q + randomGB(q2);
+      let r = c - t;
+      let w = pow(smoothstep(0.0, 1.0, 1.0 - abs(r.x)), pw) * pow(smoothstep(0.0, 1.0, 1.0 - abs(r.y)), pw);
+      cl += (0.5 + 0.5 * sin((q2.x + q2.y * 5.0) * 8.0)) * w;
       wsum += w;
     }
   }
-  return pow(wsum != 0.0 ? cl / wsum : 0.0, .5) * 2.;
-}
-float crumplesShape(vec2 uv) {
-  return crumpledNoise(uv * .25, 16.) * crumpledNoise(uv * .5, 2.);
+  return pow(select(0.0, cl / wsum, wsum != 0.0), 0.5) * 2.0;
 }
 
+fn crumplesShape(uv: vec2f) -> f32 {
+  return crumpledNoise(uv * 0.25, 16.0) * crumpledNoise(uv * 0.5, 2.0);
+}
 
-vec2 folds(vec2 uv) {
-  vec3 pp = vec3(0.);
-  float l = 9.;
-  for (float i = 0.; i < 15.; i++) {
-    if (i >= u_foldCount) break;
-    vec2 rand = randomGB(vec2(i, i * u_seed));
-    float an = rand.x * TWO_PI;
-    vec2 p = vec2(cos(an), sin(an)) * rand.y;
-    float dist = distance(uv, p);
-    l = min(l, dist);
+fn foldsFn(uv: vec2f) -> vec2f {
+  var pp = vec3f(0.0);
+  var l: f32 = 9.0;
+  for (var i: f32 = 0.0; i < 15.0; i += 1.0) {
+    if (i < u.u_foldCount) {
+      let rand = randomGB(vec2f(i, i * u.u_seed));
+      let an = rand.x * TWO_PI;
+      let p = vec2f(cos(an), sin(an)) * rand.y;
+      let dist = distance(uv, p);
+      l = min(l, dist);
 
-    if (l == dist) {
-      pp.xy = (uv - p.xy);
-      pp.z = dist;
+      if (l == dist) {
+        pp = vec3f((uv - p.xy), dist);
+      }
     }
   }
-  return mix(pp.xy, vec2(0.), pow(pp.z, .25));
+  return mix(pp.xy, vec2f(0.0), pow(pp.z, 0.25));
 }
 
-float drops(vec2 uv) {
-  vec2 iDropsUV = floor(uv);
-  vec2 fDropsUV = fract(uv);
-  float dropsMinDist = 1.;
-  for (int j = -1; j <= 1; j++) {
-    for (int i = -1; i <= 1; i++) {
-      vec2 neighbor = vec2(float(i), float(j));
-      vec2 offset = randomGB(iDropsUV + neighbor);
-      offset = .5 + .5 * sin(10. * u_seed + TWO_PI * offset);
-      vec2 pos = neighbor + offset - fDropsUV;
-      float dist = length(pos);
-      dropsMinDist = min(dropsMinDist, dropsMinDist*dist);
+fn dropsFn(uv: vec2f) -> f32 {
+  let iDropsUV = floor(uv);
+  let fDropsUV = fract(uv);
+  var dropsMinDist: f32 = 1.0;
+  for (var j: i32 = -1; j <= 1; j++) {
+    for (var i: i32 = -1; i <= 1; i++) {
+      let neighbor = vec2f(f32(i), f32(j));
+      var offset = randomGB(iDropsUV + neighbor);
+      offset = vec2f(0.5) + 0.5 * sin(10.0 * u.u_seed + TWO_PI * offset);
+      let pos = neighbor + offset - fDropsUV;
+      let dist = length(pos);
+      dropsMinDist = min(dropsMinDist, dropsMinDist * dist);
     }
   }
-  return 1. - smoothstep(.05, .09, pow(dropsMinDist, .5));
+  return 1.0 - smoothstep(0.05, 0.09, pow(dropsMinDist, 0.5));
 }
 
-float lst(float edge0, float edge1, float x) {
+fn lst(edge0: f32, edge1: f32, x: f32) -> f32 {
   return clamp((x - edge0) / (edge1 - edge0), 0.0, 1.0);
 }
 
-void main() {
+@fragment fn fs_main(input: VertexOutput) -> @location(0) vec4f {
 
-  vec2 imageUV = v_imageUV;
-  vec2 patternUV = v_imageUV - .5;
-  patternUV = 5. * (patternUV * vec2(u_imageAspectRatio, 1.));
+  var imageUV = input.v_imageUV;
+  var patternUV = input.v_imageUV - vec2f(0.5);
+  patternUV = 5.0 * (patternUV * vec2f(u.u_imageAspectRatio, 1.0));
 
-  vec2 roughnessUv = 1.5 * (gl_FragCoord.xy - .5 * u_resolution) / u_pixelRatio;
-  float roughness = roughness(roughnessUv + vec2(1., 0.)) - roughness(roughnessUv - vec2(1., 0.));
+  let fragCoord = vec2f(input.position.x, u.u_resolution.y - input.position.y);
+  let roughnessUv = 1.5 * (fragCoord - 0.5 * u.u_resolution) / u.u_pixelRatio;
+  let roughness = roughnessFn(roughnessUv + vec2f(1.0, 0.0)) - roughnessFn(roughnessUv - vec2f(1.0, 0.0));
 
-  vec2 crumplesUV = fract(patternUV * .02 / u_crumpleSize - u_seed) * 32.;
-  float crumples = u_crumples * (crumplesShape(crumplesUV + vec2(.05, 0.)) - crumplesShape(crumplesUV));
+  let crumplesUV = fract(patternUV * 0.02 / u.u_crumpleSize - vec2f(u.u_seed)) * 32.0;
+  var crumples = u.u_crumples * (crumplesShape(crumplesUV + vec2f(0.05, 0.0)) - crumplesShape(crumplesUV));
 
-  vec2 fiberUV = 2. / u_fiberSize * patternUV;
-  float fiber = fiberNoise(fiberUV, vec2(0.));
-  fiber = .5 * u_fiber * (fiber - 1.);
+  let fiberUV = 2.0 / u.u_fiberSize * patternUV;
+  var fiber = fiberNoise(fiberUV, vec2f(0.0));
+  fiber = 0.5 * u.u_fiber * (fiber - 1.0);
 
-  vec2 normal = vec2(0.);
-  vec2 normalImage = vec2(0.);
+  var normal = vec2f(0.0);
+  var normalImage = vec2f(0.0);
 
-  vec2 foldsUV = patternUV * .12;
-  foldsUV = rotate(foldsUV, 4. * u_seed);
-  vec2 w = folds(foldsUV);
-  foldsUV = rotate(foldsUV + .007 * cos(u_seed), .01 * sin(u_seed));
-  vec2 w2 = folds(foldsUV);
+  var foldsUV = patternUV * 0.12;
+  foldsUV = rotate(foldsUV, 4.0 * u.u_seed);
+  var w = foldsFn(foldsUV);
+  foldsUV = rotate(foldsUV + vec2f(0.007 * cos(u.u_seed)), 0.01 * sin(u.u_seed));
+  var w2 = foldsFn(foldsUV);
 
-  float drops = u_drops * drops(patternUV * 2.);
+  var drops = u.u_drops * dropsFn(patternUV * 2.0);
 
-  float fade = u_fade * fbm(.17 * patternUV + 10. * u_seed);
-  fade = clamp(8. * fade * fade * fade, 0., 1.);
+  var fade = u.u_fade * fbm(0.17 * patternUV + vec2f(10.0 * u.u_seed));
+  fade = clamp(8.0 * fade * fade * fade, 0.0, 1.0);
 
-  w = mix(w, vec2(0.), fade);
-  w2 = mix(w2, vec2(0.), fade);
-  crumples = mix(crumples, 0., fade);
-  drops = mix(drops, 0., fade);
-  fiber *= mix(1., .5, fade);
-  roughness *= mix(1., .5, fade);
+  w = mix(w, vec2f(0.0), fade);
+  w2 = mix(w2, vec2f(0.0), fade);
+  crumples = mix(crumples, 0.0, fade);
+  drops = mix(drops, 0.0, fade);
+  fiber *= mix(1.0, 0.5, fade);
+  var roughnessMut = roughness * mix(1.0, 0.5, fade);
 
-  normal.xy += u_folds * min(5. * u_contrast, 1.) * 4. * max(vec2(0.), w + w2);
-  normalImage.xy += u_folds * 2. * w;
+  normal += u.u_folds * min(5.0 * u.u_contrast, 1.0) * 4.0 * max(vec2f(0.0), w + w2);
+  normalImage += u.u_folds * 2.0 * w;
 
-  normal.xy += crumples;
-  normalImage.xy += 1.5 * crumples;
+  normal += vec2f(crumples);
+  normalImage += 1.5 * vec2f(crumples);
 
-  normal.xy += 3. * drops;
-  normalImage.xy += .2 * drops;
+  normal += 3.0 * vec2f(drops);
+  normalImage += 0.2 * vec2f(drops);
 
-  normal.xy += u_roughness * 1.5 * roughness;
-  normal.xy += fiber;
+  normal += u.u_roughness * 1.5 * vec2f(roughnessMut);
+  normal += vec2f(fiber);
 
-  normalImage += u_roughness * .75 * roughness;
-  normalImage += .2 * fiber;
+  normalImage += u.u_roughness * 0.75 * vec2f(roughnessMut);
+  normalImage += 0.2 * vec2f(fiber);
 
-  vec3 lightPos = vec3(1., 2., 1.);
-  float res = dot(normalize(vec3(normal, 9.5 - 9. * pow(u_contrast, .1))), normalize(lightPos));
+  let lightPos = vec3f(1.0, 2.0, 1.0);
+  let res = dot(normalize(vec3f(normal, 9.5 - 9.0 * pow(u.u_contrast, 0.1))), normalize(lightPos));
 
-  vec3 fgColor = u_colorFront.rgb * u_colorFront.a;
-  float fgOpacity = u_colorFront.a;
-  vec3 bgColor = u_colorBack.rgb * u_colorBack.a;
-  float bgOpacity = u_colorBack.a;
+  let fgColor = u.u_colorFront.rgb * u.u_colorFront.a;
+  let fgOpacity = u.u_colorFront.a;
+  let bgColor = u.u_colorBack.rgb * u.u_colorBack.a;
+  let bgOpacity = u.u_colorBack.a;
 
-  imageUV += .02 * normalImage;
-  float frame = getUvFrame(imageUV);
-  vec4 image = texture(u_image, imageUV);
-  image.rgb += .6 * pow(u_contrast, .4) * (res - .7);
+  imageUV += 0.02 * normalImage;
+  let frame = getUvFrame(imageUV);
+  var image = textureSampleLevel(u_image_tex, u_image_samp, imageUV, 0.0);
+  image = vec4f(image.rgb + 0.6 * pow(u.u_contrast, 0.4) * (res - 0.7), image.a);
 
-  frame *= image.a;
+  let frameMasked = frame * image.a;
 
-  vec3 color = fgColor * res;
-  float opacity = fgOpacity * res;
+  var color = fgColor * res;
+  var opacity = fgOpacity * res;
 
-  color += bgColor * (1. - opacity);
-  opacity += bgOpacity * (1. - opacity);
-  opacity = mix(opacity, 1., frame);
+  color += bgColor * (1.0 - opacity);
+  opacity += bgOpacity * (1.0 - opacity);
+  opacity = mix(opacity, 1.0, frameMasked);
 
-  color -= .007 * drops;
+  color -= 0.007 * vec3f(drops);
 
-  color.rgb = mix(color, image.rgb, frame);
+  color = mix(color, image.rgb, frameMasked);
 
-  fragColor = vec4(color, opacity);
+  return vec4f(color, opacity);
 }
 `;
 

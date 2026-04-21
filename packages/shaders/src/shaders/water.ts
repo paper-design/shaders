@@ -1,6 +1,6 @@
 import type { ShaderMotionParams } from '../shader-mount.js';
 import { type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
-import { declarePI, rotation2, simplexNoise } from '../shader-utils.js';
+import { systemUniformFields, vertexOutputStruct, declarePI, rotation2, glslMod, simplexNoise } from '../shader-utils.js';
 
 /**
  * Water-like surface distortion with natural caustic realism. Works as an image filter or standalone animated texture.
@@ -37,114 +37,118 @@ import { declarePI, rotation2, simplexNoise } from '../shader-utils.js';
  *
  */
 
-// language=GLSL
-export const waterFragmentShader: string = `#version 300 es
-precision mediump float;
+// language=WGSL
+export const waterFragmentShader: string = `
+struct Uniforms {
+  ${systemUniformFields}
+  u_colorBack: vec4f,
+  u_colorHighlight: vec4f,
+  u_size: f32,
+  u_highlights: f32,
+  u_layering: f32,
+  u_edges: f32,
+  u_caustic: f32,
+  u_waves: f32,
+}
+@group(0) @binding(0) var<uniform> u: Uniforms;
 
-uniform float u_time;
+${vertexOutputStruct}
 
-uniform vec4 u_colorBack;
-uniform vec4 u_colorHighlight;
+@group(1) @binding(0) var u_image_tex: texture_2d<f32>;
+@group(1) @binding(1) var u_image_samp: sampler;
 
-uniform sampler2D u_image;
-uniform float u_imageAspectRatio;
+${declarePI}
+${rotation2}
+${glslMod}
+${simplexNoise}
 
-uniform float u_size;
-uniform float u_highlights;
-uniform float u_layering;
-uniform float u_edges;
-uniform float u_caustic;
-uniform float u_waves;
+fn fwidth_f32(x: f32) -> f32 {
+  return abs(dpdx(x)) + abs(dpdy(x));
+}
 
-in vec2 v_imageUV;
+fn getUvFrame(uv: vec2f) -> f32 {
+  let aax = 2.0 * fwidth_f32(uv.x);
+  let aay = 2.0 * fwidth_f32(uv.y);
 
-out vec4 fragColor;
-
-${ declarePI }
-${ rotation2 }
-${ simplexNoise }
-
-float getUvFrame(vec2 uv) {
-  float aax = 2. * fwidth(uv.x);
-  float aay = 2. * fwidth(uv.y);
-
-  float left   = smoothstep(0., aax, uv.x);
-  float right = 1.0 - smoothstep(1. - aax, 1., uv.x);
-  float bottom = smoothstep(0., aay, uv.y);
-  float top = 1.0 - smoothstep(1. - aay, 1., uv.y);
+  let left   = smoothstep(0.0, aax, uv.x);
+  let right = 1.0 - smoothstep(1.0 - aax, 1.0, uv.x);
+  let bottom = smoothstep(0.0, aay, uv.y);
+  let top = 1.0 - smoothstep(1.0 - aay, 1.0, uv.y);
 
   return left * right * bottom * top;
 }
 
-mat2 rotate2D(float r) {
-  return mat2(cos(r), sin(r), -sin(r), cos(r));
+fn rotate2D(r: f32) -> mat2x2f {
+  return mat2x2f(cos(r), sin(r), -sin(r), cos(r));
 }
 
-float getCausticNoise(vec2 uv, float t, float scale) {
-  vec2 n = vec2(.1);
-  vec2 N = vec2(.1);
-  mat2 m = rotate2D(.5);
-  for (int j = 0; j < 6; j++) {
-    uv *= m;
-    n *= m;
-    vec2 q = uv * scale + float(j) + n + (.5 + .5 * float(j)) * (mod(float(j), 2.) - 1.) * t;
+fn getCausticNoise(uv_in: vec2f, t: f32, scale_in: f32) -> f32 {
+  var uv = uv_in;
+  var scale = scale_in;
+  var n = vec2f(0.1);
+  var N_val = vec2f(0.1);
+  let m = rotate2D(0.5);
+  for (var j: i32 = 0; j < 6; j++) {
+    uv = m * uv;
+    n = m * n;
+    let q = uv * scale + vec2f(f32(j)) + n + (0.5 + 0.5 * f32(j)) * (glsl_mod_f32(f32(j), 2.0) - 1.0) * t;
     n += sin(q);
-    N += cos(q) / scale;
+    N_val += cos(q) / scale;
     scale *= 1.1;
   }
-  return (N.x + N.y + 1.);
+  return (N_val.x + N_val.y + 1.0);
 }
 
-void main() {
-  vec2 imageUV = v_imageUV;
-  vec2 patternUV = v_imageUV - .5;
-  patternUV = (patternUV * vec2(u_imageAspectRatio, 1.));
-  patternUV /= (.01 + .09 * u_size);
+@fragment fn fs_main(input: VertexOutput) -> @location(0) vec4f {
+  var imageUV = input.v_imageUV;
+  var patternUV = input.v_imageUV - vec2f(0.5);
+  patternUV = (patternUV * vec2f(u.u_imageAspectRatio, 1.0));
+  patternUV /= (0.01 + 0.09 * u.u_size);
 
-  float t = u_time;
+  let t = u.u_time;
 
-  float wavesNoise = snoise((.3 + .1 * sin(t)) * .1 * patternUV + vec2(0., .4 * t));
+  let wavesNoise = snoise((0.3 + 0.1 * sin(t)) * 0.1 * patternUV + vec2f(0.0, 0.4 * t));
 
-  float causticNoise = getCausticNoise(patternUV + u_waves * vec2(1., -1.) * wavesNoise, 2. * t, 1.5);
+  var causticNoise = getCausticNoise(patternUV + u.u_waves * vec2f(1.0, -1.0) * wavesNoise, 2.0 * t, 1.5);
 
-  causticNoise += u_layering * getCausticNoise(patternUV + 2. * u_waves * vec2(1., -1.) * wavesNoise, 1.5 * t, 2.);
+  causticNoise += u.u_layering * getCausticNoise(patternUV + 2.0 * u.u_waves * vec2f(1.0, -1.0) * wavesNoise, 1.5 * t, 2.0);
   causticNoise = causticNoise * causticNoise;
 
-  float edgesDistortion = smoothstep(0., .1, imageUV.x);
-  edgesDistortion *= smoothstep(0., .1, imageUV.y);
-  edgesDistortion *= (smoothstep(1., 1.1, imageUV.x) + (1.0 - smoothstep(.8, .95, imageUV.x)));
-  edgesDistortion *= (1.0 - smoothstep(.9, 1., imageUV.y));
-  edgesDistortion = mix(edgesDistortion, 1., u_edges);
+  var edgesDistortion = smoothstep(0.0, 0.1, imageUV.x);
+  edgesDistortion *= smoothstep(0.0, 0.1, imageUV.y);
+  edgesDistortion *= (smoothstep(1.0, 1.1, imageUV.x) + (1.0 - smoothstep(0.8, 0.95, imageUV.x)));
+  edgesDistortion *= (1.0 - smoothstep(0.9, 1.0, imageUV.y));
+  edgesDistortion = mix(edgesDistortion, 1.0, u.u_edges);
 
-  float causticNoiseDistortion = .02 * causticNoise * edgesDistortion;
+  let causticNoiseDistortion = 0.02 * causticNoise * edgesDistortion;
 
-  float wavesDistortion = .1 * u_waves * wavesNoise;
+  let wavesDistortion = 0.1 * u.u_waves * wavesNoise;
 
-  imageUV += vec2(wavesDistortion, -wavesDistortion);
-  imageUV += (u_caustic * causticNoiseDistortion);
+  imageUV += vec2f(wavesDistortion, -wavesDistortion);
+  imageUV += (u.u_caustic * causticNoiseDistortion);
 
-  float frame = getUvFrame(imageUV);
+  let frame = getUvFrame(imageUV);
 
-  vec4 image = texture(u_image, imageUV);
-  vec4 backColor = u_colorBack;
-  backColor.rgb *= backColor.a;
+  let image = textureSampleLevel(u_image_tex, u_image_samp, imageUV, 0.0);
+  var backColor = u.u_colorBack;
+  backColor = vec4f(backColor.rgb * backColor.a, backColor.a);
 
-  vec3 color = mix(backColor.rgb, image.rgb, image.a * frame);
-  float opacity = backColor.a + image.a * frame;
+  var color = mix(backColor.rgb, image.rgb, image.a * frame);
+  var opacity = backColor.a + image.a * frame;
 
-  causticNoise = max(-.2, causticNoise);
+  causticNoise = max(-0.2, causticNoise);
 
-  float hightlight = .025 * u_highlights * causticNoise;
-  hightlight *= u_colorHighlight.a;
-  color = mix(color, u_colorHighlight.rgb, .05 * u_highlights * causticNoise);
+  var hightlight = 0.025 * u.u_highlights * causticNoise;
+  hightlight *= u.u_colorHighlight.a;
+  color = mix(color, u.u_colorHighlight.rgb, 0.05 * u.u_highlights * causticNoise);
   opacity += hightlight;
 
-  color += hightlight * (.5 + .5 * wavesNoise);
-  opacity += hightlight * (.5 + .5 * wavesNoise);
+  color += vec3f(hightlight * (0.5 + 0.5 * wavesNoise));
+  opacity += hightlight * (0.5 + 0.5 * wavesNoise);
 
-  opacity = clamp(opacity, 0., 1.);
+  opacity = clamp(opacity, 0.0, 1.0);
 
-  fragColor = vec4(color, opacity);
+  return vec4f(color, opacity);
 }
 `;
 

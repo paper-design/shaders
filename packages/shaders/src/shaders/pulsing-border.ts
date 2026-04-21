@@ -1,7 +1,7 @@
 import type { vec4 } from '../types.js';
 import type { ShaderMotionParams } from '../shader-mount.js';
 import { type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
-import { declarePI, textureRandomizerGB, colorBandingFix } from '../shader-utils.js';
+import { systemUniformFields, vertexOutputStruct, declarePI, glslMod, textureRandomizerGB, colorBandingFix } from '../shader-utils.js';
 
 export const pulsingBorderMeta = {
   maxColorCount: 5,
@@ -53,63 +53,60 @@ export const pulsingBorderMeta = {
  *
  */
 
-// language=GLSL
-export const pulsingBorderFragmentShader: string = `#version 300 es
-precision lowp float;
+// language=WGSL
+export const pulsingBorderFragmentShader: string = `
+struct Uniforms {
+  ${systemUniformFields}
+  u_colorsCount: f32,
+  u_roundness: f32,
+  u_thickness: f32,
+  u_marginLeft: f32,
+  u_marginRight: f32,
+  u_marginTop: f32,
+  u_marginBottom: f32,
+  u_aspectRatio: f32,
+  u_softness: f32,
+  u_intensity: f32,
+  u_bloom: f32,
+  u_spotSize: f32,
+  u_spots: f32,
+  u_pulse: f32,
+  u_smoke: f32,
+  u_smokeSize: f32,
+  u_colorBack: vec4f,
+  u_colors: array<vec4f, ${ pulsingBorderMeta.maxColorCount }>,
+}
+@group(0) @binding(0) var<uniform> u: Uniforms;
+@group(1) @binding(0) var u_noiseTexture_tex: texture_2d<f32>;
+@group(1) @binding(1) var u_noiseTexture_samp: sampler;
 
-uniform float u_time;
-
-uniform vec4 u_colorBack;
-uniform vec4 u_colors[${ pulsingBorderMeta.maxColorCount }];
-uniform float u_colorsCount;
-uniform float u_roundness;
-uniform float u_thickness;
-uniform float u_marginLeft;
-uniform float u_marginRight;
-uniform float u_marginTop;
-uniform float u_marginBottom;
-uniform float u_aspectRatio;
-uniform float u_softness;
-uniform float u_intensity;
-uniform float u_bloom;
-uniform float u_spotSize;
-uniform float u_spots;
-uniform float u_pulse;
-uniform float u_smoke;
-uniform float u_smokeSize;
-
-uniform sampler2D u_noiseTexture;
-
-in vec2 v_responsiveUV;
-in vec2 v_responsiveBoxGivenSize;
-in vec2 v_patternUV;
-
-out vec4 fragColor;
+${vertexOutputStruct}
 
 ${ declarePI }
+${ glslMod }
 
-float beat(float time) {
-  float first = pow(abs(sin(time * TWO_PI)), 10.);
-  float second = pow(abs(sin((time - .15) * TWO_PI)), 10.);
+fn beat(time: f32) -> f32 {
+  let first = pow(abs(sin(time * TWO_PI)), 10.0);
+  let second = pow(abs(sin((time - 0.15) * TWO_PI)), 10.0);
 
   return clamp(first + 0.6 * second, 0.0, 1.0);
 }
 
-float sst(float edge0, float edge1, float x) {
+fn sst(edge0: f32, edge1: f32, x: f32) -> f32 {
   return smoothstep(edge0, edge1, x);
 }
 
-float roundedBox(vec2 uv, vec2 halfSize, float distance, float cornerDistance, float thickness, float softness) {
-  float borderDistance = abs(distance);
-  float aa = 2. * fwidth(distance);
-  float border = 1. - sst(min(mix(thickness, -thickness, softness), thickness + aa), max(mix(thickness, -thickness, softness), thickness + aa), borderDistance);
-  float cornerFadeCircles = 0.;
-  cornerFadeCircles = mix(1., cornerFadeCircles, sst(0., 1., length((uv + halfSize) / thickness)));
-  cornerFadeCircles = mix(1., cornerFadeCircles, sst(0., 1., length((uv - vec2(-halfSize.x, halfSize.y)) / thickness)));
-  cornerFadeCircles = mix(1., cornerFadeCircles, sst(0., 1., length((uv - vec2(halfSize.x, -halfSize.y)) / thickness)));
-  cornerFadeCircles = mix(1., cornerFadeCircles, sst(0., 1., length((uv - halfSize) / thickness)));
+fn roundedBox(uv: vec2f, halfSize: vec2f, distance_val: f32, cornerDistance: f32, thickness: f32, softness: f32) -> f32 {
+  let borderDistance = abs(distance_val);
+  var aa = 2.0 * fwidth(distance_val);
+  var border = 1.0 - sst(min(mix(thickness, -thickness, softness), thickness + aa), max(mix(thickness, -thickness, softness), thickness + aa), borderDistance);
+  var cornerFadeCircles: f32 = 0.0;
+  cornerFadeCircles = mix(1.0, cornerFadeCircles, sst(0.0, 1.0, length((uv + halfSize) / thickness)));
+  cornerFadeCircles = mix(1.0, cornerFadeCircles, sst(0.0, 1.0, length((uv - vec2f(-halfSize.x, halfSize.y)) / thickness)));
+  cornerFadeCircles = mix(1.0, cornerFadeCircles, sst(0.0, 1.0, length((uv - vec2f(halfSize.x, -halfSize.y)) / thickness)));
+  cornerFadeCircles = mix(1.0, cornerFadeCircles, sst(0.0, 1.0, length((uv - halfSize) / thickness)));
   aa = fwidth(cornerDistance);
-  float cornerFade = sst(0., mix(aa, thickness, softness), cornerDistance);
+  var cornerFade = sst(0.0, mix(aa, thickness, softness), cornerDistance);
   cornerFade *= cornerFadeCircles;
   border += cornerFade;
   return border;
@@ -117,48 +114,49 @@ float roundedBox(vec2 uv, vec2 halfSize, float distance, float cornerDistance, f
 
 ${ textureRandomizerGB }
 
-float randomG(vec2 p) {
-  vec2 uv = floor(p) / 100. + .5;
-  return texture(u_noiseTexture, fract(uv)).g;
-}
-float valueNoise(vec2 st) {
-  vec2 i = floor(st);
-  vec2 f = fract(st);
-  float a = randomG(i);
-  float b = randomG(i + vec2(1.0, 0.0));
-  float c = randomG(i + vec2(0.0, 1.0));
-  float d = randomG(i + vec2(1.0, 1.0));
-  vec2 u = f * f * (3.0 - 2.0 * f);
-  float x1 = mix(a, b, u.x);
-  float x2 = mix(c, d, u.x);
-  return mix(x1, x2, u.y);
+fn randomG(p: vec2f) -> f32 {
+  let uv = floor(p) / 100.0 + vec2f(0.5);
+  return textureSampleLevel(u_noiseTexture_tex, u_noiseTexture_samp, fract(uv), 0.0).g;
 }
 
-void main() {
-  const float firstFrameOffset = 109.;
-  float t = 1.2 * (u_time + firstFrameOffset);
+fn valueNoise(st: vec2f) -> f32 {
+  let i = floor(st);
+  let f = fract(st);
+  let a = randomG(i);
+  let b = randomG(i + vec2f(1.0, 0.0));
+  let c = randomG(i + vec2f(0.0, 1.0));
+  let d = randomG(i + vec2f(1.0, 1.0));
+  let u_val = f * f * (vec2f(3.0) - 2.0 * f);
+  let x1 = mix(a, b, u_val.x);
+  let x2 = mix(c, d, u_val.x);
+  return mix(x1, x2, u_val.y);
+}
 
-  vec2 borderUV = v_responsiveUV;
-  float pulse = u_pulse * beat(.18 * u_time);
+@fragment fn fs_main(input: VertexOutput) -> @location(0) vec4f {
+  let firstFrameOffset: f32 = 109.0;
+  let t = 1.2 * (u.u_time + firstFrameOffset);
 
-  float canvasRatio = v_responsiveBoxGivenSize.x / v_responsiveBoxGivenSize.y;
-  vec2 halfSize = vec2(.5);
-  borderUV.x *= max(canvasRatio, 1.);
-  borderUV.y /= min(canvasRatio, 1.);
-  halfSize.x *= max(canvasRatio, 1.);
-  halfSize.y /= min(canvasRatio, 1.);
+  var borderUV = input.v_responsiveUV;
+  let pulse = u.u_pulse * beat(0.18 * u.u_time);
 
-  float mL = u_marginLeft;
-  float mR = u_marginRight;
-  float mT = u_marginTop;
-  float mB = u_marginBottom;
-  float mX = mL + mR;
-  float mY = mT + mB;
+  let canvasRatio = input.v_responsiveBoxGivenSize.x / input.v_responsiveBoxGivenSize.y;
+  var halfSize = vec2f(0.5);
+  borderUV.x *= max(canvasRatio, 1.0);
+  borderUV.y /= min(canvasRatio, 1.0);
+  halfSize.x *= max(canvasRatio, 1.0);
+  halfSize.y /= min(canvasRatio, 1.0);
 
-  if (u_aspectRatio > 0.) {
-    float shapeRatio = canvasRatio * (1. - mX) / max(1. - mY, 1e-6);
-    float freeX = shapeRatio > 1. ? (1. - mX) * (1. - 1. / max(abs(shapeRatio), 1e-6)) : 0.;
-    float freeY = shapeRatio < 1. ? (1. - mY) * (1. - shapeRatio) : 0.;
+  var mL = u.u_marginLeft;
+  var mR = u.u_marginRight;
+  var mT = u.u_marginTop;
+  var mB = u.u_marginBottom;
+  var mX = mL + mR;
+  var mY = mT + mB;
+
+  if (u.u_aspectRatio > 0.0) {
+    let shapeRatio = canvasRatio * (1.0 - mX) / max(1.0 - mY, 1e-6);
+    let freeX = select(0.0, (1.0 - mX) * (1.0 - 1.0 / max(abs(shapeRatio), 1e-6)), shapeRatio > 1.0);
+    let freeY = select(0.0, (1.0 - mY) * (1.0 - shapeRatio), shapeRatio < 1.0);
     mL += freeX * 0.5;
     mR += freeX * 0.5;
     mT += freeY * 0.5;
@@ -167,110 +165,112 @@ void main() {
     mY = mT + mB;
   }
 
-  float thickness = .5 * u_thickness * min(halfSize.x, halfSize.y);
+  let thickness = 0.5 * u.u_thickness * min(halfSize.x, halfSize.y);
 
-  halfSize.x *= (1. - mX);
-  halfSize.y *= (1. - mY);
+  halfSize.x *= (1.0 - mX);
+  halfSize.y *= (1.0 - mY);
 
-  vec2 centerShift = vec2(
-  (mL - mR) * max(canvasRatio, 1.) * 0.5,
-  (mB - mT) / min(canvasRatio, 1.) * 0.5
+  let centerShift = vec2f(
+    (mL - mR) * max(canvasRatio, 1.0) * 0.5,
+    (mB - mT) / min(canvasRatio, 1.0) * 0.5
   );
 
   borderUV -= centerShift;
-  halfSize -= mix(thickness, 0., u_softness);
+  halfSize -= vec2f(mix(thickness, 0.0, u.u_softness));
 
-  float radius = mix(0., min(halfSize.x, halfSize.y), u_roundness);
-  vec2 d = abs(borderUV) - halfSize + radius;
-  float outsideDistance = length(max(d, .0001)) - radius;
-  float insideDistance = min(max(d.x, d.y), .0001);
-  float cornerDistance = abs(min(max(d.x, d.y) - .45 * radius, .0));
-  float distance = outsideDistance + insideDistance;
+  let radius = mix(0.0, min(halfSize.x, halfSize.y), u.u_roundness);
+  let d = abs(borderUV) - halfSize + vec2f(radius);
+  let outsideDistance = length(max(d, vec2f(0.0001))) - radius;
+  let insideDistance = min(max(d.x, d.y), 0.0001);
+  let cornerDistance = abs(min(max(d.x, d.y) - 0.45 * radius, 0.0));
+  let distance_val = outsideDistance + insideDistance;
 
-  float borderThickness = mix(thickness, 3. * thickness, u_softness);
-  float border = roundedBox(borderUV, halfSize, distance, cornerDistance, borderThickness, u_softness);
-  border = pow(border, 1. + u_softness);
+  let borderThickness = mix(thickness, 3.0 * thickness, u.u_softness);
+  var border = roundedBox(borderUV, halfSize, distance_val, cornerDistance, borderThickness, u.u_softness);
+  border = pow(border, 1.0 + u.u_softness);
 
-  vec2 smokeUV = .3 * u_smokeSize * v_patternUV;
-  float smoke = clamp(3. * valueNoise(2.7 * smokeUV + .5 * t), 0., 1.);
-  smoke -= valueNoise(3.4 * smokeUV - .5 * t);
-  float smokeThickness = thickness + .2;
-  smokeThickness = min(.4, max(smokeThickness, .1));
-  smoke *= roundedBox(borderUV, halfSize, distance, cornerDistance, smokeThickness, 1.);
-  smoke = 30. * smoke * smoke;
-  smoke *= mix(0., .5, pow(u_smoke, 2.));
-  smoke *= mix(1., pulse, u_pulse);
-  smoke = clamp(smoke, 0., 1.);
+  let smokeUV = 0.3 * u.u_smokeSize * input.v_patternUV;
+  var smoke = clamp(3.0 * valueNoise(2.7 * smokeUV + vec2f(0.5 * t)), 0.0, 1.0);
+  smoke -= valueNoise(3.4 * smokeUV - vec2f(0.5 * t));
+  var smokeThickness = thickness + 0.2;
+  smokeThickness = min(0.4, max(smokeThickness, 0.1));
+  smoke *= roundedBox(borderUV, halfSize, distance_val, cornerDistance, smokeThickness, 1.0);
+  smoke = 30.0 * smoke * smoke;
+  smoke *= mix(0.0, 0.5, pow(u.u_smoke, 2.0));
+  smoke *= mix(1.0, pulse, u.u_pulse);
+  smoke = clamp(smoke, 0.0, 1.0);
   border += smoke;
 
-  border = clamp(border, 0., 1.);
+  border = clamp(border, 0.0, 1.0);
 
-  vec3 blendColor = vec3(0.);
-  float blendAlpha = 0.;
-  vec3 addColor = vec3(0.);
-  float addAlpha = 0.;
+  var blendColor = vec3f(0.0);
+  var blendAlpha: f32 = 0.0;
+  var addColor = vec3f(0.0);
+  var addAlpha: f32 = 0.0;
 
-  float bloom = 4. * u_bloom;
-  float intensity = 1. + (1. + 4. * u_softness) * u_intensity;
+  let bloom = 4.0 * u.u_bloom;
+  let intensity = 1.0 + (1.0 + 4.0 * u.u_softness) * u.u_intensity;
 
-  float angle = atan(borderUV.y, borderUV.x) / TWO_PI;
+  let angle = atan2(borderUV.y, borderUV.x) / TWO_PI;
 
-  for (int colorIdx = 0; colorIdx < ${ pulsingBorderMeta.maxColorCount }; colorIdx++) {
-    if (colorIdx >= int(u_colorsCount)) break;
-    float colorIdxF = float(colorIdx);
+  for (var colorIdx: i32 = 0; colorIdx < ${ pulsingBorderMeta.maxColorCount }; colorIdx++) {
+    if (colorIdx < i32(u.u_colorsCount)) {
+    let colorIdxF = f32(colorIdx);
 
-    vec3 c = u_colors[colorIdx].rgb * u_colors[colorIdx].a;
-    float a = u_colors[colorIdx].a;
+    let c = u.u_colors[colorIdx].rgb * u.u_colors[colorIdx].a;
+    let a = u.u_colors[colorIdx].a;
 
-    for (int spotIdx = 0; spotIdx < ${ pulsingBorderMeta.maxSpots }; spotIdx++) {
-      if (spotIdx >= int(u_spots)) break;
-      float spotIdxF = float(spotIdx);
+    for (var spotIdx: i32 = 0; spotIdx < ${ pulsingBorderMeta.maxSpots }; spotIdx++) {
+      if (spotIdx < i32(u.u_spots)) {
+      let spotIdxF = f32(spotIdx);
 
-      vec2 randVal = randomGB(vec2(spotIdxF * 10. + 2., 40. + colorIdxF));
+      let randVal = randomGB(vec2f(spotIdxF * 10.0 + 2.0, 40.0 + colorIdxF));
 
-      float time = (.1 + .15 * abs(sin(spotIdxF * (2. + colorIdxF)) * cos(spotIdxF * (2. + 2.5 * colorIdxF)))) * t + randVal.x * 3.;
-      time *= mix(1., -1., step(.5, randVal.y));
+      var time = (0.1 + 0.15 * abs(sin(spotIdxF * (2.0 + colorIdxF)) * cos(spotIdxF * (2.0 + 2.5 * colorIdxF)))) * t + randVal.x * 3.0;
+      time *= mix(1.0, -1.0, step(0.5, randVal.y));
 
-      float mask = .5 + .5 * mix(
-      sin(t + spotIdxF * (5. - 1.5 * colorIdxF)),
-      cos(t + spotIdxF * (3. + 1.3 * colorIdxF)),
-      step(mod(colorIdxF, 2.), .5)
+      var mask = 0.5 + 0.5 * mix(
+        sin(t + spotIdxF * (5.0 - 1.5 * colorIdxF)),
+        cos(t + spotIdxF * (3.0 + 1.3 * colorIdxF)),
+        step(glsl_mod_f32(colorIdxF, 2.0), 0.5)
       );
 
-      float p = clamp(2. * u_pulse - randVal.x, 0., 1.);
+      let p = clamp(2.0 * u.u_pulse - randVal.x, 0.0, 1.0);
       mask = mix(mask, pulse, p);
 
-      float atg1 = fract(angle + time);
-      float spotSize = .05 + .6 * pow(u_spotSize, 2.) + .05 * randVal.x;
-      spotSize = mix(spotSize, .1, p);
-      float sector = sst(.5 - spotSize, .5, atg1) * (1. - sst(.5, .5 + spotSize, atg1));
+      let atg1 = fract(angle + time);
+      var spotSize = 0.05 + 0.6 * pow(u.u_spotSize, 2.0) + 0.05 * randVal.x;
+      spotSize = mix(spotSize, 0.1, p);
+      var sector = sst(0.5 - spotSize, 0.5, atg1) * (1.0 - sst(0.5, 0.5 + spotSize, atg1));
 
       sector *= mask;
       sector *= border;
       sector *= intensity;
-      sector = clamp(sector, 0., 1.);
+      sector = clamp(sector, 0.0, 1.0);
 
-      vec3 srcColor = c * sector;
-      float srcAlpha = a * sector;
+      let srcColor = c * sector;
+      let srcAlpha = a * sector;
 
-      blendColor += ((1. - blendAlpha) * srcColor);
-      blendAlpha = blendAlpha + (1. - blendAlpha) * srcAlpha;
+      blendColor += ((1.0 - blendAlpha) * srcColor);
+      blendAlpha = blendAlpha + (1.0 - blendAlpha) * srcAlpha;
       addColor += srcColor;
       addAlpha += srcAlpha;
+      }
+    }
     }
   }
 
-  vec3 accumColor = mix(blendColor, addColor, bloom);
-  float accumAlpha = mix(blendAlpha, addAlpha, bloom);
-  accumAlpha = clamp(accumAlpha, 0., 1.);
+  let accumColor = mix(blendColor, addColor, bloom);
+  var accumAlpha = mix(blendAlpha, addAlpha, bloom);
+  accumAlpha = clamp(accumAlpha, 0.0, 1.0);
 
-  vec3 bgColor = u_colorBack.rgb * u_colorBack.a;
-  vec3 color = accumColor + (1. - accumAlpha) * bgColor;
-  float opacity = accumAlpha + (1. - accumAlpha) * u_colorBack.a;
+  let bgColor = u.u_colorBack.rgb * u.u_colorBack.a;
+  var color = accumColor + (1.0 - accumAlpha) * bgColor;
+  var opacity = accumAlpha + (1.0 - accumAlpha) * u.u_colorBack.a;
 
   ${ colorBandingFix }
 
-  fragColor = vec4(color, opacity);
+  return vec4f(color, opacity);
 }`;
 
 export interface PulsingBorderUniforms extends ShaderSizingUniforms {

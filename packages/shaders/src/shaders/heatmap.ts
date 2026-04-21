@@ -1,6 +1,7 @@
 import type { vec4 } from '../types.js';
 import type { ShaderMotionParams } from '../shader-mount.js';
 import type { ShaderSizingParams, ShaderSizingUniforms } from '../shader-sizing.js';
+import { systemUniformFields, vertexOutputStruct, declarePI, glslMod } from '../shader-utils.js';
 
 export const heatmapMeta = {
   maxColorCount: 10,
@@ -43,256 +44,254 @@ export const heatmapMeta = {
  *
  */
 
-// language=GLSL
-export const heatmapFragmentShader: string = `#version 300 es
-precision highp float;
+// language=WGSL
+export const heatmapFragmentShader: string = `
+struct Uniforms {
+  ${systemUniformFields}
+  u_colorBack: vec4f,
+  u_colorsCount: f32,
+  u_angle: f32,
+  u_noise: f32,
+  u_innerGlow: f32,
+  u_outerGlow: f32,
+  u_contour: f32,
+  u_colors: array<vec4f, ${heatmapMeta.maxColorCount}>,
+}
+@group(0) @binding(0) var<uniform> u: Uniforms;
 
-in mediump vec2 v_imageUV;
-in mediump vec2 v_objectUV;
-out vec4 fragColor;
+${vertexOutputStruct}
 
-uniform sampler2D u_image;
-uniform float u_time;
-uniform mediump float u_imageAspectRatio;
+@group(1) @binding(0) var u_image_tex: texture_2d<f32>;
+@group(1) @binding(1) var u_image_samp: sampler;
 
-uniform vec4 u_colorBack;
-uniform vec4 u_colors[${ heatmapMeta.maxColorCount }];
-uniform float u_colorsCount;
+${declarePI}
+${glslMod}
 
-uniform float u_angle;
-uniform float u_noise;
-uniform float u_innerGlow;
-uniform float u_outerGlow;
-uniform float u_contour;
-
-#define TWO_PI 6.28318530718
-#define PI 3.14159265358979323846
-
-float getImgFrame(vec2 uv, float th) {
-  float frame = 1.;
-  frame *= smoothstep(0., th, uv.y);
-  frame *= 1. - smoothstep(1. - th, 1., uv.y);
-  frame *= smoothstep(0., th, uv.x);
-  frame *= 1. - smoothstep(1. - th, 1., uv.x);
+fn getImgFrame(uv: vec2f, th: f32) -> f32 {
+  var frame: f32 = 1.0;
+  frame *= smoothstep(0.0, th, uv.y);
+  frame *= 1.0 - smoothstep(1.0 - th, 1.0, uv.y);
+  frame *= smoothstep(0.0, th, uv.x);
+  frame *= 1.0 - smoothstep(1.0 - th, 1.0, uv.x);
   return frame;
 }
 
-float circle(vec2 uv, vec2 c, vec2 r) {
-  return 1. - smoothstep(r[0], r[1], length(uv - c));
+fn circle(uv: vec2f, c: vec2f, r: vec2f) -> f32 {
+  return 1.0 - smoothstep(r[0], r[1], length(uv - c));
 }
 
-float lst(float edge0, float edge1, float x) {
+fn lst(edge0: f32, edge1: f32, x: f32) -> f32 {
   return clamp((x - edge0) / (edge1 - edge0), 0.0, 1.0);
 }
 
-float sst(float edge0, float edge1, float x) {
+fn sst(edge0: f32, edge1: f32, x: f32) -> f32 {
   return smoothstep(edge0, edge1, x);
 }
 
-float shadowShape(vec2 uv, float t, float contour) {
-  vec2 scaledUV = uv;
+fn shadowShape(uv: vec2f, t: f32, contour: f32) -> f32 {
+  var scaledUV = uv;
 
   // base shape tranjectory
-  float posY = mix(-1., 2., t);
+  let posY = mix(-1.0, 2.0, t);
 
   // scaleX when it's moving down
-  scaledUV.y -= .5;
-  float mainCircleScale = sst(0., .8, posY) * lst(1.4, .9, posY);
-  scaledUV *= vec2(1., 1. + 1.5 * mainCircleScale);
-  scaledUV.y += .5;
+  scaledUV = vec2f(scaledUV.x, scaledUV.y - 0.5);
+  let mainCircleScale = sst(0.0, 0.8, posY) * lst(1.4, 0.9, posY);
+  scaledUV *= vec2f(1.0, 1.0 + 1.5 * mainCircleScale);
+  scaledUV = vec2f(scaledUV.x, scaledUV.y + 0.5);
 
   // base shape
-  float innerR = .4;
-  float outerR = 1. - .3 * (sst(.1, .2, t) * (1. - sst(.2, .5, t)));
-  float s = circle(scaledUV, vec2(.5, posY - .2), vec2(innerR, outerR));
-  float shapeSizing = sst(.2, .3, t) * sst(.6, .3, t);
+  let innerR: f32 = 0.4;
+  let outerR = 1.0 - 0.3 * (sst(0.1, 0.2, t) * (1.0 - sst(0.2, 0.5, t)));
+  var s = circle(scaledUV, vec2f(0.5, posY - 0.2), vec2f(innerR, outerR));
+  let shapeSizing = sst(0.2, 0.3, t) * sst(0.6, 0.3, t);
   s = pow(s, 1.4);
   s *= 1.2;
 
   // flat gradient to take over the shadow shape
-  float topFlattener = 0.;
   {
-    float pos = posY - uv.y;
-    float edge = 1.2;
-    topFlattener = lst(-.4, 0., pos) * (1. - sst(.0, edge, pos));
-    topFlattener = pow(topFlattener, 3.);
-    float topFlattenerMixer = (1. - sst(.0, .3, pos));
+    let pos = posY - uv.y;
+    let edge: f32 = 1.2;
+    var topFlattener = lst(-0.4, 0.0, pos) * (1.0 - sst(0.0, edge, pos));
+    topFlattener = pow(topFlattener, 3.0);
+    let topFlattenerMixer = (1.0 - sst(0.0, 0.3, pos));
     s = mix(topFlattener, s, topFlattenerMixer);
   }
 
   // apple right circle
   {
-    float visibility = sst(.6, .7, t) * (1. - sst(.8, .9, t));
-    float angle = -2. -t * TWO_PI;
-    float rightCircle = circle(uv, vec2(.95 - .2 * cos(angle), .4 - .1 * sin(angle)), vec2(.15, .3));
+    let visibility = sst(0.6, 0.7, t) * (1.0 - sst(0.8, 0.9, t));
+    let angle = -2.0 - t * TWO_PI;
+    var rightCircle = circle(uv, vec2f(0.95 - 0.2 * cos(angle), 0.4 - 0.1 * sin(angle)), vec2f(0.15, 0.3));
     rightCircle *= visibility;
-    s = mix(s, 0., rightCircle);
+    s = mix(s, 0.0, rightCircle);
   }
 
   // apple top circle
   {
-    float topCircle = circle(uv, vec2(.5, .19), vec2(.05, .25));
-    topCircle += 2. * contour * circle(uv, vec2(.5, .19), vec2(.2, .5));
-    float visibility = .55 * sst(.2, .3, t) * (1. - sst(.3, .45, t));
+    var topCircle = circle(uv, vec2f(0.5, 0.19), vec2f(0.05, 0.25));
+    topCircle += 2.0 * contour * circle(uv, vec2f(0.5, 0.19), vec2f(0.2, 0.5));
+    let visibility = 0.55 * sst(0.2, 0.3, t) * (1.0 - sst(0.3, 0.45, t));
     topCircle *= visibility;
-    s = mix(s, 0., topCircle);
+    s = mix(s, 0.0, topCircle);
   }
 
-  float leafMask = circle(uv, vec2(.53, .13), vec2(.08, .19));
-  leafMask = mix(leafMask, 0., 1. - sst(.4, .54, uv.x));
-  leafMask = mix(0., leafMask, sst(.0, .2, uv.y));
-  leafMask *= (sst(.5, 1.1, posY) * sst(1.5, 1.3, posY));
+  var leafMask = circle(uv, vec2f(0.53, 0.13), vec2f(0.08, 0.19));
+  leafMask = mix(leafMask, 0.0, 1.0 - sst(0.4, 0.54, uv.x));
+  leafMask = mix(0.0, leafMask, sst(0.0, 0.2, uv.y));
+  leafMask *= (sst(0.5, 1.1, posY) * sst(1.5, 1.3, posY));
   s += leafMask;
 
   // apple bottom circle
   {
-    float visibility = sst(.0, .4, t) * (1. - sst(.6, .8, t));
-    s = mix(s, 0., visibility * circle(uv, vec2(.52, .92), vec2(.09, .25)));
+    let visibility = sst(0.0, 0.4, t) * (1.0 - sst(0.6, 0.8, t));
+    s = mix(s, 0.0, visibility * circle(uv, vec2f(0.52, 0.92), vec2f(0.09, 0.25)));
   }
 
   // random balls that are invisible if apple logo is selected
   {
-    float pos = sst(.0, .6, t) * (1. - sst(.6, 1., t));
-    s = mix(s, .5, circle(uv, vec2(.0, 1.2 - .5 * pos), vec2(.1, .3)));
-    s = mix(s, .0, circle(uv, vec2(1., .5 + .5 * pos), vec2(.1, .3)));
+    let pos = sst(0.0, 0.6, t) * (1.0 - sst(0.6, 1.0, t));
+    s = mix(s, 0.5, circle(uv, vec2f(0.0, 1.2 - 0.5 * pos), vec2f(0.1, 0.3)));
+    s = mix(s, 0.0, circle(uv, vec2f(1.0, 0.5 + 0.5 * pos), vec2f(0.1, 0.3)));
 
-    s = mix(s, 1., circle(uv, vec2(.95, .2 + .2 * sst(.3, .4, t) * sst(.7, .5, t)), vec2(.07, .22)));
-    s = mix(s, 1., circle(uv, vec2(.95, .2 + .2 * sst(.3, .4, t) * (1. - sst(.5, .7, t))), vec2(.07, .22)));
-    s /= max(1e-4, sst(1., .85, uv.y));
+    s = mix(s, 1.0, circle(uv, vec2f(0.95, 0.2 + 0.2 * sst(0.3, 0.4, t) * sst(0.7, 0.5, t)), vec2f(0.07, 0.22)));
+    s = mix(s, 1.0, circle(uv, vec2f(0.95, 0.2 + 0.2 * sst(0.3, 0.4, t) * (1.0 - sst(0.5, 0.7, t))), vec2f(0.07, 0.22)));
+    s /= max(1e-4, sst(1.0, 0.85, uv.y));
   }
 
-  s = clamp(0., 1., s);
+  s = clamp(s, 0.0, 1.0);
   return s;
 }
 
-float blurEdge3x3(sampler2D tex, vec2 uv, vec2 dudx, vec2 dudy, float radius, float centerSample) {
-  vec2 texel = 1.0 / vec2(textureSize(tex, 0));
-  vec2 r = radius * texel;
+fn blurEdge3x3(uv: vec2f, radius: f32, centerSample: f32) -> f32 {
+  let texDim = vec2f(textureDimensions(u_image_tex, 0));
+  let texel = 1.0 / texDim;
+  let r = radius * texel;
 
-  float w1 = 1.0, w2 = 2.0, w4 = 4.0;
-  float norm = 16.0;
-  float sum = w4 * centerSample;
+  let w1: f32 = 1.0;
+  let w2: f32 = 2.0;
+  let w4: f32 = 4.0;
+  let norm: f32 = 16.0;
+  var sum = w4 * centerSample;
 
-  sum += w2 * textureGrad(tex, uv + vec2(0.0, -r.y), dudx, dudy).g;
-  sum += w2 * textureGrad(tex, uv + vec2(0.0, r.y), dudx, dudy).g;
-  sum += w2 * textureGrad(tex, uv + vec2(-r.x, 0.0), dudx, dudy).g;
-  sum += w2 * textureGrad(tex, uv + vec2(r.x, 0.0), dudx, dudy).g;
+  sum += w2 * textureSampleLevel(u_image_tex, u_image_samp, uv + vec2f(0.0, -r.y), 0.0).g;
+  sum += w2 * textureSampleLevel(u_image_tex, u_image_samp, uv + vec2f(0.0, r.y), 0.0).g;
+  sum += w2 * textureSampleLevel(u_image_tex, u_image_samp, uv + vec2f(-r.x, 0.0), 0.0).g;
+  sum += w2 * textureSampleLevel(u_image_tex, u_image_samp, uv + vec2f(r.x, 0.0), 0.0).g;
 
-  sum += w1 * textureGrad(tex, uv + vec2(-r.x, -r.y), dudx, dudy).g;
-  sum += w1 * textureGrad(tex, uv + vec2(r.x, -r.y), dudx, dudy).g;
-  sum += w1 * textureGrad(tex, uv + vec2(-r.x, r.y), dudx, dudy).g;
-  sum += w1 * textureGrad(tex, uv + vec2(r.x, r.y), dudx, dudy).g;
+  sum += w1 * textureSampleLevel(u_image_tex, u_image_samp, uv + vec2f(-r.x, -r.y), 0.0).g;
+  sum += w1 * textureSampleLevel(u_image_tex, u_image_samp, uv + vec2f(r.x, -r.y), 0.0).g;
+  sum += w1 * textureSampleLevel(u_image_tex, u_image_samp, uv + vec2f(-r.x, r.y), 0.0).g;
+  sum += w1 * textureSampleLevel(u_image_tex, u_image_samp, uv + vec2f(r.x, r.y), 0.0).g;
 
   return sum / norm;
 }
 
-void main() {
-  vec2 uv = v_objectUV + .5;
-  uv.y = 1. - uv.y;
+@fragment fn fs_main(input: VertexOutput) -> @location(0) vec4f {
+  var uv = input.v_objectUV + vec2f(0.5);
+  uv = vec2f(uv.x, 1.0 - uv.y);
 
-  vec2 imgUV = v_imageUV;
-  imgUV -= .5;
+  var imgUV = input.v_imageUV;
+  imgUV -= vec2f(0.5);
   imgUV *= 0.5714285714285714;
-  imgUV += .5;
-  float imgSoftFrame = getImgFrame(imgUV, .03);
+  imgUV += vec2f(0.5);
+  let imgSoftFrame = getImgFrame(imgUV, 0.03);
 
-  vec4 img = texture(u_image, imgUV);
-  vec2 dudx = dFdx(imgUV);
-  vec2 dudy = dFdy(imgUV);
+  var img = textureSampleLevel(u_image_tex, u_image_samp, imgUV, 0.0);
 
-  if (img.a == 0.) {
-    fragColor = u_colorBack;
-    return;
+  if (img.a == 0.0) {
+    return u.u_colorBack;
   }
 
-  float t = .1 * u_time;
-  t -= .3;
+  var t = 0.1 * u.u_time;
+  t -= 0.3;
 
-  float tCopy = t + 1. / 3.;
-  float tCopy2 = t + 2. / 3.;
+  var tCopy = t + 1.0 / 3.0;
+  var tCopy2 = t + 2.0 / 3.0;
 
-  t = mod(t, 1.);
-  tCopy = mod(tCopy, 1.);
-  tCopy2 = mod(tCopy2, 1.);
+  t = glsl_mod_f32(t, 1.0);
+  tCopy = glsl_mod_f32(tCopy, 1.0);
+  tCopy2 = glsl_mod_f32(tCopy2, 1.0);
 
-  vec2 animationUV = imgUV - vec2(.5);
-  float angle = -u_angle * PI / 180.;
-  float cosA = cos(angle);
-  float sinA = sin(angle);
-  animationUV = vec2(
+  var animationUV = imgUV - vec2f(0.5);
+  let angle = -u.u_angle * PI / 180.0;
+  let cosA = cos(angle);
+  let sinA = sin(angle);
+  animationUV = vec2f(
   animationUV.x * cosA - animationUV.y * sinA,
   animationUV.x * sinA + animationUV.y * cosA
-  ) + vec2(.5);
+  ) + vec2f(0.5);
 
-  float shape = img[0];
+  let shape = img[0];
 
-  img[1] = blurEdge3x3(u_image, imgUV, dudx, dudy, 8., img[1]);
+  let img1_blurred = blurEdge3x3(imgUV, 8.0, img[1]);
+  img = vec4f(img[0], img1_blurred, img[2], img[3]);
 
-  float outerBlur = 1. - mix(1., img[1], shape);
-  float innerBlur = mix(img[1], 0., shape);
-  float contour = mix(img[2], 0., shape);
+  var outerBlur = 1.0 - mix(1.0, img[1], shape);
+  let innerBlur = mix(img[1], 0.0, shape);
+  let contour_val = mix(img[2], 0.0, shape);
 
   outerBlur *= imgSoftFrame;
 
-  float shadow = shadowShape(animationUV, t, innerBlur);
-  float shadowCopy = shadowShape(animationUV, tCopy, innerBlur);
-  float shadowCopy2 = shadowShape(animationUV, tCopy2, innerBlur);
+  let shadow = shadowShape(animationUV, t, innerBlur);
+  let shadowCopy = shadowShape(animationUV, tCopy, innerBlur);
+  let shadowCopy2 = shadowShape(animationUV, tCopy2, innerBlur);
 
-  float inner = .8 + .8 * innerBlur;
-  inner = mix(inner, 0., shadow);
-  inner = mix(inner, 0., shadowCopy);
-  inner = mix(inner, 0., shadowCopy2);
+  var inner = 0.8 + 0.8 * innerBlur;
+  inner = mix(inner, 0.0, shadow);
+  inner = mix(inner, 0.0, shadowCopy);
+  inner = mix(inner, 0.0, shadowCopy2);
 
-  inner *= mix(0., 2., u_innerGlow);
+  inner *= mix(0.0, 2.0, u.u_innerGlow);
 
-  inner += (u_contour * 2.) * contour;
-  inner = min(1., inner);
-  inner *= (1. - shape);
+  inner += (u.u_contour * 2.0) * contour_val;
+  inner = min(1.0, inner);
+  inner *= (1.0 - shape);
 
-  float outer = 0.;
+  var outer: f32 = 0.0;
   {
-    t *= 3.;
-    t = mod(t - .1, 1.);
+    t *= 3.0;
+    t = glsl_mod_f32(t - 0.1, 1.0);
 
-    outer = .9 * pow(outerBlur, .8);
-    float y = mod(animationUV.y - t, 1.);
-    float animatedMask = sst(.3, .65, y) * (1. - sst(.65, 1., y));
-    animatedMask = .5 + animatedMask;
+    outer = 0.9 * pow(outerBlur, 0.8);
+    let y = glsl_mod_f32(animationUV.y - t, 1.0);
+    var animatedMask = sst(0.3, 0.65, y) * (1.0 - sst(0.65, 1.0, y));
+    animatedMask = 0.5 + animatedMask;
     outer *= animatedMask;
-    outer *= mix(0., 5., pow(u_outerGlow, 2.));
+    outer *= mix(0.0, 5.0, pow(u.u_outerGlow, 2.0));
     outer *= imgSoftFrame;
   }
 
   inner = pow(inner, 1.2);
-  float heat = clamp(inner + outer, 0., 1.);
+  var heat = clamp(inner + outer, 0.0, 1.0);
 
-  heat += (.005 + .35 * u_noise) * (fract(sin(dot(uv, vec2(12.9898, 78.233))) * 43758.5453123) - .5);
+  heat += (0.005 + 0.35 * u.u_noise) * (fract(sin(dot(uv, vec2f(12.9898, 78.233))) * 43758.5453123) - 0.5);
 
-  float mixer = heat * u_colorsCount;
-  vec4 gradient = u_colors[0];
-  gradient.rgb *= gradient.a;
-  float outerShape = 0.;
-  for (int i = 1; i < ${ heatmapMeta.maxColorCount + 1 }; i++) {
-    if (i > int(u_colorsCount)) break;
-    float m = clamp(mixer - float(i - 1), 0., 1.);
+  let mixer = heat * u.u_colorsCount;
+  var gradient = u.u_colors[0];
+  gradient = vec4f(gradient.rgb * gradient.a, gradient.a);
+  var outerShape: f32 = 0.0;
+  for (var i: i32 = 1; i < ${heatmapMeta.maxColorCount + 1}; i++) {
+    if (i > i32(u.u_colorsCount)) { break; }
+    let m = clamp(mixer - f32(i - 1), 0.0, 1.0);
     if (i == 1) {
       outerShape = m;
     }
-    vec4 c = u_colors[i - 1];
-    c.rgb *= c.a;
+    var c = u.u_colors[i - 1];
+    c = vec4f(c.rgb * c.a, c.a);
     gradient = mix(gradient, c, m);
   }
 
-  vec3 color = gradient.rgb * outerShape;
-  float opacity = gradient.a * outerShape;
+  var color = gradient.rgb * outerShape;
+  var opacity = gradient.a * outerShape;
 
-  vec3 bgColor = u_colorBack.rgb * u_colorBack.a;
+  let bgColor = u.u_colorBack.rgb * u.u_colorBack.a;
   color = color + bgColor * (1.0 - opacity);
-  opacity = opacity + u_colorBack.a * (1.0 - opacity);
+  opacity = opacity + u.u_colorBack.a * (1.0 - opacity);
 
-  color += .02 * (fract(sin(dot(uv + 1., vec2(12.9898, 78.233))) * 43758.5453123) - .5);
+  color += vec3f(0.02 * (fract(sin(dot(uv + vec2f(1.0), vec2f(12.9898, 78.233))) * 43758.5453123) - 0.5));
 
-  fragColor = vec4(color, opacity);
+  return vec4f(color, opacity);
 }
 `;
 
