@@ -164,15 +164,13 @@ vec2 getRoughnessFiber(vec2 pR, vec2 pF) {
   float roughDx = (.5 + (N(u + vec2(eps, 0.), w) - N(u - vec2(eps, 0.), w)));
   roughDx = roughDx * roughDx;
   
-
-  // Fiber: original 4 octaves
   vec2 fiberGrad = vec2(0.);
   float scaleF = 1.;
   float amplitude = 1.;
   float c = 0.7648;  // cos(0.7)
   float s = 0.6442;  // sin(0.7)
   float rc = 1., rs = 0.;  // accumulated rotation
-  for (int i = 0; i < 4; i++) {
+  for (int i = 0; i < 5; i++) {
     pF = vec2(c * pF.x - s * pF.y, s * pF.x + c * pF.y);
     float rc2 = rc * c - rs * s;
     rs = rs * c + rc * s;
@@ -342,8 +340,8 @@ void main() {
   vec2 roughnessUV = 200. * patternUV;
   vec2 fiberUV = mix(22., 4., u_fiberSize) * patternUV;
   vec2 rf = getRoughnessFiber(roughnessUV, fiberUV);
-  float roughness = rf.x;
-  float fiber = rf.y;
+  float roughness = 2. * rf.x;
+  float fiber = .3 * rf.y;
   fiber *= mix(1., .5, fade);
   roughness *= mix(1., .5, fade);
 
