@@ -53,6 +53,7 @@ export const paperTextureMeta = {
 export const paperTextureFragmentShader: string = `#version 300 es
 precision mediump float;
 
+uniform vec2 u_resulution;
 uniform vec4 u_colorFront;
 uniform vec4 u_colorBack;
 
@@ -123,37 +124,56 @@ float getFadeMask(vec2 n) {
 }
 
 vec2 getRoughnessFiber(vec2 pR, vec2 pF) {
-  float roughDx = 0.;
-  vec2 fiberGrad = vec2(0.);
-  pR *= .1;
-  float scaleR = .1;
+  float w = max(length(dFdx(pR * .1)), length(dFdy(pR * .1)));
+  float eps = 100. * w;
+  vec2 u = pR / vec2(2, 4);
+  float roughnessScale = 4.;
+  float level = -log2(w + 1e-8);
+  float baseLevel = floor(level) - 4. + roughnessScale;
 
-  // Roughness: adaptive octaves at 1.4x steps, from base down to ~2px cells
-  float pxFootprint = length(fwidth(pR));
-  for (int i = 0; i < 12; i++) {
-    float pxPerCell = 1. / max(pxFootprint, .0001);
-    if (pxPerCell < 2.) break;
-    vec2 ipR = floor(pR);
-    vec2 fpR = fract(pR);
-    float octaveShift = float(i) * .1;
-    vec4 uvR = fract(vec4(ipR, ipR + 1.) / 50. + .5 + octaveShift);
-    float aR = texture(u_noiseTexture, uvR.xy).r;
-    float bR = texture(u_noiseTexture, uvR.xw).r;
-    float cR = texture(u_noiseTexture, uvR.zy).r;
-    float dR = texture(u_noiseTexture, uvR.zw).r;
-    roughDx += scaleR * mix(cR - aR, dR - bR, fpR.y);
-    pR *= 1.4;
-    scaleR *= 1.4;
-    pxFootprint *= 1.4;
+  vec2 pPlus = (u + vec2(eps, 0.)) * .1;
+  vec2 pMinus = (u - vec2(eps, 0.)) * .1;
+  float sumP = 0., sumM = 0., norm = 0., amp = .5;
+  for (int i = 0; i < 5; i++) {
+    float absIdx = baseLevel + float(i);
+    float freq = exp2(absIdx);
+    float shift = .5 + absIdx * .1;
+
+    vec2 qP = pPlus * freq;
+    vec2 fP = fract(qP);
+    vec4 uvP = fract(vec4(floor(qP), ceil(qP)) / 50. + shift);
+    float aP = texture(u_noiseTexture, uvP.xy).r;
+    float bP = texture(u_noiseTexture, uvP.xw).r;
+    float cP = texture(u_noiseTexture, uvP.zy).r;
+    float dP = texture(u_noiseTexture, uvP.zw).r;
+    sumP += amp * (mix(mix(aP, bP, fP.y), mix(cP, dP, fP.y), fP.x)
+          + .2 / exp(2. * abs(sin(.2 * qP.x + .1 * qP.y))));
+
+    vec2 qM = pMinus * freq;
+    vec2 fM = fract(qM);
+    vec4 uvM = fract(vec4(floor(qM), ceil(qM)) / 50. + shift);
+    float aM = texture(u_noiseTexture, uvM.xy).r;
+    float bM = texture(u_noiseTexture, uvM.xw).r;
+    float cM = texture(u_noiseTexture, uvM.zy).r;
+    float dM = texture(u_noiseTexture, uvM.zw).r;
+    sumM += amp * (mix(mix(aM, bM, fM.y), mix(cM, dM, fM.y), fM.x)
+          + .2 / exp(2. * abs(sin(.2 * qM.x + .1 * qM.y))));
+
+    norm += amp;
+    amp *= .5;
   }
+  float roughDx = .8 + .3 * (sumP / norm - sumM / norm);
+  roughDx = sqrt((roughDx - .8) * 3. + .6);
+  
+  vec2 fiberGrad = vec2(0.);
 
-  // Fiber: original 4 octaves
+  // Fiber
   float scaleF = 1.;
   float amplitude = 1.;
   float c = 0.7648;  // cos(0.7)
   float s = 0.6442;  // sin(0.7)
   float rc = 1., rs = 0.;  // accumulated rotation
-  for (int i = 0; i < 4; i++) {
+  for (int i = 0; i < 7; i++) {
     pF = vec2(c * pF.x - s * pF.y, s * pF.x + c * pF.y);
     float rc2 = rc * c - rs * s;
     rs = rs * c + rc * s;
@@ -323,16 +343,16 @@ void main() {
   vec2 roughnessUV = 200. * patternUV;
   vec2 fiberUV = mix(22., 4., u_fiberSize) * patternUV;
   vec2 rf = getRoughnessFiber(roughnessUV, fiberUV);
-  float roughness = clamp(5. * rf.x, 0., 1.);
-  float fiber = clamp(rf.y - 1., -1., 1.);
+  float roughness = rf.x;
+  float fiber = rf.y;
   fiber *= mix(1., .5, fade);
   roughness *= mix(1., .5, fade);
 
-  fiber *= (.05 + u_fiber);
+  fiber *= u_fiber;
   pattern += fiber;
   radialDistortion += .02 * fiber;
 
-  roughness *= (.03 + u_roughness);
+  roughness *= u_roughness;
   pattern += roughness;
   radialDistortion += .02 * roughness;
 
@@ -390,7 +410,8 @@ void main() {
     color *= frame;
   }
 
-   fragColor = vec4(color, opacity);
+//   fragColor = vec4(color, opacity);
+   fragColor = vec4(vec3(1. - roughness), opacity);
 }
 `;
 
