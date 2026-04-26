@@ -132,7 +132,7 @@ float N(vec2 p, float w) {
   float fade = fract(level);
 
   float sum = 0., norm = 0., amp = .5;
-  for (int i = 0; i < 5; i++) {
+  for (int i = 0; i < 4; i++) {
     float absIdx = baseLevel + float(i);
     float freq = pow(2.1, absIdx);
     vec2 q = p * freq;
@@ -142,17 +142,16 @@ float N(vec2 p, float w) {
     if (i == 4) wi = fade;
 
     vec2 f = fract(q);
-    float shift = .5 + absIdx * .1;
+    float shift = .5 + absIdx * .3;
     float uvY = floor(q.y) / 50. + shift;
     vec2 s0 = texture(u_noiseTexture, fract(vec2(floor(q.x) / 50. + shift, uvY))).rg;
     vec2 s1 = texture(u_noiseTexture, fract(vec2( ceil(q.x) / 50. + shift, uvY))).rg;
     float an = absIdx * 1.7;
-    float n = mix(mix(s0.r, s0.g, f.y), mix(s1.r, s1.g, f.y), f.x)
-            + .2 / exp(2. * abs(sin(.22 * (q.x * cos(an) + q.y * sin(an)))));
+    float n = mix(mix(s0.r, s0.g, f.y), mix(s1.r, s1.g, f.y), f.x);
 
     sum += amp * wi * n;
     norm += amp * wi;
-    amp *= .5;
+    amp *= .8;
   }
   return sum / norm;
 }
@@ -162,12 +161,12 @@ vec2 getRoughnessFiber(vec2 pR, vec2 pF) {
   vec2 u = pR / vec2(2, 4);
   float w = max(length(dFdx(pR * .1)), length(dFdy(pR * .1)));
   float eps = 4. * w;
-  float roughDx = (.8 + .3 * (N(u + vec2(eps, 0.), w) - N(u - vec2(eps, 0.), w)));
-  roughDx = sqrt((roughDx - .8) * 3. + .6);
+  float roughDx = (.5 + (N(u + vec2(eps, 0.), w) - N(u - vec2(eps, 0.), w)));
+  roughDx = roughDx * roughDx;
   
-  vec2 fiberGrad = vec2(0.);
 
   // Fiber: original 4 octaves
+  vec2 fiberGrad = vec2(0.);
   float scaleF = 1.;
   float amplitude = 1.;
   float c = 0.7648;  // cos(0.7)
@@ -410,8 +409,7 @@ void main() {
     color *= frame;
   }
 
-//   fragColor = vec4(color, opacity);
-   fragColor = vec4(vec3(1. - roughness), opacity);
+  fragColor = vec4(color, opacity);
 }
 `;
 
