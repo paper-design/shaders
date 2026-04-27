@@ -16,6 +16,7 @@ export const paperTextureMeta = {
  * - u_colorFront (vec4): Foreground color in RGBA
  * - u_colorBack (vec4): Background color in RGBA
  * - u_roughness (float): Hi-freq grain-like distortion intensity (0 to 1)
+ * - u_roughnessSize (float): Scale of the roughness noise (0 to 1)
  * - u_fiber (float): Curly-shaped noise intensity (0 to 1)
  * - u_fiberSize (float): Curly-shaped noise scale (0 to 1)
  * - u_crumples (float): Cell-based crumple pattern intensity (0 to 1)
@@ -74,6 +75,7 @@ uniform float u_seed;
 uniform float u_fade;
 uniform float u_blending;
 uniform float u_distortion;
+uniform float u_roughnessSize;
 uniform bool u_background;
 uniform sampler2D u_noiseTexture;
 
@@ -125,10 +127,10 @@ float getFadeMask(vec2 n) {
 
 float N(vec2 p, float w) {
   p *= .1;
-  float roughnessScale = 3.;
+  float roughnessSize = mix(3., 2., u_roughnessSize);
   float logLac = log2(2.1);
   float level = -log2(w + 1e-8) / logLac;
-  float baseLevel = floor(level) - 4. + roughnessScale;
+  float baseLevel = floor(level) - 4. + roughnessSize;
   float fade = fract(level);
 
   float sum = 0., norm = 0., amp = .5;
@@ -417,6 +419,7 @@ export interface PaperTextureUniforms extends ShaderSizingUniforms {
   u_colorFront: [number, number, number, number];
   u_colorBack: [number, number, number, number];
   u_roughness: number;
+  u_roughnessSize: number;
   u_fiber: number;
   u_fiberSize: number;
   u_crumples: number;
@@ -438,6 +441,7 @@ export interface PaperTextureParams extends ShaderSizingParams, ShaderMotionPara
   colorFront?: string;
   colorBack?: string;
   roughness?: number;
+  roughnessSize?: number;
   fiber?: number;
   fiberSize?: number;
   crumples?: number;

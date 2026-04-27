@@ -39,6 +39,7 @@ export const defaultPreset: PaperTexturePreset = {
     colorFront: '#586c6f',
     colorBack: '#ffffff',
     roughness: 0.5,
+    roughnessSize: 0.25,
     fiber: 0,
     fiberSize: 0.5,
     crumples: 0,
@@ -67,6 +68,7 @@ export const cardboardPreset: PaperTexturePreset = {
     colorBack: "#dcc593",
     colorFront: "#685327",
     roughness: 0.1,
+    roughnessSize: 0.25,
 
     fiber: 0.35,
     fiberSize: 0.14,
@@ -93,6 +95,7 @@ export const spreadPreset: PaperTexturePreset = {
     distortion: 0.7,
     seed: 448,
     roughness: 0.4,
+    roughnessSize: 0.25,
 
     fiber: 0.1,
     fiberSize: 0.5,
@@ -123,6 +126,7 @@ export const flatPreset: PaperTexturePreset = {
     distortion: 0.33,
     seed: 415,
     roughness: 0.31,
+    roughnessSize: 0.25,
 
     fiber: 0,
     fiberSize: 0.61,
@@ -157,6 +161,7 @@ export const PaperTexture: React.FC<PaperTextureProps> = memo(function PaperText
   colorBack = defaultPreset.params.colorBack,
   image = '',
   roughness = defaultPreset.params.roughness,
+  roughnessSize = defaultPreset.params.roughnessSize,
   fiber = defaultPreset.params.fiber,
   crumples = defaultPreset.params.crumples,
   folds = defaultPreset.params.folds,
@@ -198,6 +203,7 @@ export const PaperTexture: React.FC<PaperTextureProps> = memo(function PaperText
     u_colorFront: getShaderColorFromString(colorFront),
     u_colorBack: getShaderColorFromString(colorBack),
     u_roughness: roughness,
+    u_roughnessSize: roughnessSize,
     u_fiber: fiber,
     u_fiberSize: fiberSize,
     u_crumples: crumples,
