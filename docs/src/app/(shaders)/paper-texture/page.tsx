@@ -27,8 +27,8 @@ const controlRules: ControlRules = {
   fiberSize: { showWhen: { fiber: { gt: 0 } } },
   crumpleSize: { showWhen: { crumples: { gt: 0 } } },
   foldType: { showWhen: { folds: { gt: 0 } } },
-  foldCount: { showWhen: { folds: { gt: 0 } } },
-  foldsShape: { showWhen: { folds: { gt: 0 }, foldType: { eq: 'creases' } } },
+  foldCount: { showWhen: { folds: { gt: 0 } }, label: '↳ count' },
+  foldsShape: { showWhen: { folds: { gt: 0 }, foldType: { eq: 'creases' } }, label: '↳ shape' },
 };
 
 const imageFiles = [
