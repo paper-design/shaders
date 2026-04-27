@@ -8,7 +8,8 @@
 
 export type ControlCondition =
   | { gt: number }
-  | { eq: string | number };
+  | { eq: string | number }
+  | { neq: string | number };
 
 export type ControlRule = {
   /** All conditions must be met for the control to be shown. */
@@ -22,6 +23,7 @@ export type ControlRules = Record<string, ControlRule>;
 function evaluateCondition(value: unknown, condition: ControlCondition): boolean {
   if ('gt' in condition) return typeof value === 'number' && value > condition.gt;
   if ('eq' in condition) return value === condition.eq;
+  if ('neq' in condition) return value !== condition.neq;
   return true;
 }
 

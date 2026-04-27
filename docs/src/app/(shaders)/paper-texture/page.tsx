@@ -27,8 +27,10 @@ const controlRules: ControlRules = {
   fiberSize: { showWhen: { fiber: { gt: 0 } } },
   crumpleSize: { showWhen: { crumples: { gt: 0 } } },
   foldType: { showWhen: { folds: { gt: 0 } } },
-  foldCount: { showWhen: { folds: { gt: 0 } }, label: '↳ count' },
-  foldsShape: { showWhen: { folds: { gt: 0 }, foldType: { eq: 'creases' } }, label: '↳ shape' },
+  foldCount: { showWhen: { folds: { gt: 0 }, foldType: { eq: 'folds' } }, label: '↳ count' },
+  foldSize: { showWhen: { folds: { gt: 0 }, foldType: { neq: 'folds' } }, label: '↳ size' },
+  foldOffset: { showWhen: { folds: { gt: 0 }, foldType: { neq: 'folds' } }, label: '↳ offset' },
+  foldsShape: { showWhen: { folds: { gt: 0 }, foldType: { neq: 'folds' } }, label: '↳ shape' },
 };
 
 const imageFiles = [
@@ -87,7 +89,6 @@ const PaperTextureWithControls = () => {
         colorFront: { value: toHsla(defaults.colorFront), order: 101 },
         blending: { value: defaults.blending, min: 0, max: 1, order: 198 },
         distortion: { value: defaults.distortion, min: -1, max: 1, order: 199 },
-        seed: { value: defaults.seed, min: 0, step: 1, max: 1000, order: 200 },
         roughness: { value: defaults.roughness, min: 0, max: 1, order: 201 },
         roughnessSize: { value: defaults.roughnessSize, min: 0, max: 1, order: 202 },
         fiber: { value: defaults.fiber, min: 0, max: 1, order: 210 },
@@ -97,8 +98,11 @@ const PaperTextureWithControls = () => {
         folds: { value: defaults.folds, min: 0, max: 1, order: 230 },
         foldType: { value: defaults.foldType, options: Object.keys(PaperTextureFoldTypes) as PaperTextureFoldType[], order: 231 },
         foldCount: { value: defaults.foldCount, min: 1, max: paperTextureMeta.maxFoldCount, step: 1, order: 232 },
-        foldsShape: { value: defaults.foldsShape, min: 0, max: 1, order: 233 },
+        foldSize: { value: defaults.foldSize, min: 0, max: 1, order: 232.5 },
+        foldOffset: { value: defaults.foldOffset, min: 0, max: 1, order: 233 },
+        foldsShape: { value: defaults.foldsShape, min: 0, max: 1, order: 234 },
         drops: { value: defaults.drops, min: 0, max: 1, order: 250 },
+        seed: { value: defaults.seed, min: 0, step: 1, max: 1000, order: 250 },
         fade: { value: defaults.fade, min: 0, max: 1, order: 260 },
         background: { value: defaults.background, order: 270 },
         scale: { value: defaults.scale, min: 0.5, max: 10, order: 300 },

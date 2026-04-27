@@ -69,7 +69,9 @@ uniform float u_crumpleSize;
 uniform float u_folds;
 uniform float u_foldType;
 uniform float u_foldCount;
+uniform float u_foldSize;
 uniform float u_foldsShape;
+uniform float u_foldOffset;
 uniform float u_drops;
 uniform float u_seed;
 uniform float u_fade;
@@ -268,7 +270,7 @@ vec4 getFolds(vec2 uv1, vec2 uv2) {
   float l1 = 9., l2 = 9.;
   float cellRand = 0.;
   for (int i = 0; i < ${ paperTextureMeta.maxFoldCount }; i++) {
-    if (float(i) >= u_foldCount) break;
+    if (float(i) >= floor(u_foldCount + .5)) break;
     vec2 rand = randomGB(vec2(float(i), float(i) * u_seed));
     float an = rand.x * TWO_PI;
     vec2 p = vec2(cos(an), sin(an)) * rand.y;
@@ -293,15 +295,18 @@ vec4 getFolds(vec2 uv1, vec2 uv2) {
   );
 }
 
-vec3 getGrid(vec2 uv) {
-  float gridX = fract(uv.x * u_foldCount + .5 * mod(u_foldCount, 2.));
-  float dx = gridX - .5;
-  float foldWidth = mix(.1, .45, u_foldsShape);
-  float foldAmount = 1. - smoothstep(0., foldWidth, abs(dx));
-  float angle = sign(dx) * 1.1345 * foldAmount;
+vec4 getCrease(float coord, float offset) {
+  float count = mix(20., 1., u_foldSize);
+  float g = (coord - 1.) * count + .5 * offset;
+  float crX = fract(g);
+  float creaseIdx = floor(g);
+  float depthMod = .7 + .3 * fract(sin(creaseIdx * 127.1 + u_seed * 3.7) * 43758.5453);
+  float dx = crX - .5;
+  float foldWidth = mix(.1, .5, u_foldsShape);
+  float foldAmount = (1. - smoothstep(0., foldWidth, abs(dx))) * depthMod;
+  float slope = sign(dx) * foldAmount;
   float creaseDark = smoothstep(0., foldWidth * .5, abs(dx));
-  float grid = max(-.5 * sin(angle) + .5 * cos(angle), 0.) * mix(.9, 1., creaseDark);
-  return vec3(grid, creaseDark, abs(dx));
+  return vec4(slope, creaseDark, abs(dx), foldAmount);
 }
 
 vec3 blendMultiply(vec3 base, vec3 blend) {
@@ -319,12 +324,13 @@ void main() {
   patternUV *= 5. * vec2(u_imageAspectRatio, 1.);
 
   float ySide = (imageUV.y - .5);
-  float ySidePower = sign(ySide) * mix(1., .7, step(0., ySide)) * abs(ySide);
+  float ySidePower = sign(ySide) * mix(1., 1.25, step(0., ySide)) * abs(ySide);
 
   float pattern = 0.;
   float radialDistortion = 0.;
   float xDistortion = 0.;
   float yDistortion = 0.;
+  float yShift = 0.;
   float scaleDistortion = 0.;
 
   float fade = u_fade * getFadeMask(.3 * patternUV + 10. * u_seed);
@@ -349,14 +355,33 @@ void main() {
 
       vec2 fromCenter = imageUV - .5;
       scaleDistortion = .22 * radialFolds.z * u_folds;
-    } else {
-      vec3 creasesResult = getGrid(imageUV + .5);
-      drops *= mix(1., creasesResult.y, u_folds);
+    } else if (u_foldType < 1.5) {
+      vec4 cr = getCrease((imageUV + .5).x, u_foldOffset);
+      float angle = cr.x * 1.1345;
+      float crLight = max(-.5 * sin(angle) + .5 * cos(angle), 0.) * mix(.9, 1., cr.y);
+      drops *= mix(1., cr.y, u_folds);
 
-      pattern += u_folds * creasesResult.x;
-      float distortBase = mix(pow(creasesResult.y, .2), creasesResult.z, pow(u_foldsShape, 3.));
-      yDistortion -= mix(.1, .02, u_foldCount / float(${ paperTextureMeta.maxFoldCount })) * (1. - distortBase);
-      patternUV.y -= yDistortion * ySidePower;
+      pattern += u_folds * crLight;
+      float distortBase = mix(pow(cr.y, .2), cr.z, .5 * u_foldsShape);
+      yShift += .022 * (1. - distortBase);
+      patternUV.y += yShift;
+    } else {
+      vec2 uv = imageUV + .5;
+      vec4 h = getCrease(uv.x, u_foldOffset);
+      vec4 v = getCrease(uv.y, u_foldOffset);
+      float ax = h.x * 1.1345;
+      float ay = v.x * 1.1345;
+      float gridDark = h.y * v.y;
+      float gridLight = max(-.5 * sin(ax) - .5 * sin(ay) + .5 * cos(ax) * cos(ay), 0.) * mix(.9, 1., gridDark);
+      float gridDist = min(h.z, v.z);
+      drops *= mix(1., gridDark, u_folds);
+
+      pattern += u_folds * gridLight;
+      float distortBaseH = mix(pow(h.y, .2), h.z, .5 * u_foldsShape);
+      float distortBaseV = mix(pow(v.y, .2), v.z, .5 * u_foldsShape);
+      patternUV.x += .022 * (1. - distortBaseV);
+      yShift += .022 * (1. - distortBaseH);
+      patternUV.y += yShift;
     }
   }
 
@@ -397,7 +422,7 @@ void main() {
 
   imageUV = .5 + fromCenter * (1. + u_distortion * scaleDistortion);
   imageUV.x += u_distortion * xDistortion;
-  imageUV.y -= u_distortion * yDistortion * ySidePower;
+  imageUV.y -= u_distortion * (yDistortion * ySidePower + yShift);
   vec2 dc = imageUV - .5;
   float r2 = dot(dc, dc);
   imageUV = .5 + dc * (1. - abs(u_distortion) * radialDistortion * r2);
@@ -406,7 +431,6 @@ void main() {
   float frame = getUvFrame(imageUV, frameSoftness);
   vec4 image = texture(u_image, imageUV);
   frame *= image.a;
-  frame = mix(frame, 0., .2 * fade);
 
   vec3 color = fgColor * pattern;
   float opacity = fgOpacity * pattern;
@@ -429,9 +453,14 @@ void main() {
   color = mix(color, pic, frame);
 
   if (!u_background) {
-    opacity *= frame;
+    vec2 shadowUV = imageUV + vec2(-.01, -.015);
+    float shadowFrame = getUvFrame(shadowUV, .05);
+    float shadow = 1.2 * shadowFrame * (1. - frame);
+    opacity = opacity * frame + shadow;
     color *= frame;
   }
+  frame = mix(frame, 0., .2 * fade);
+
 
   fragColor = vec4(color, opacity);
 }
@@ -450,6 +479,8 @@ export interface PaperTextureUniforms extends ShaderSizingUniforms {
   u_folds: number;
   u_foldType: number;
   u_foldCount: number;
+  u_foldSize: number;
+  u_foldOffset: number;
   u_foldsShape: number;
   u_fade: number;
   u_crumpleSize: number;
@@ -472,6 +503,8 @@ export interface PaperTextureParams extends ShaderSizingParams, ShaderMotionPara
   folds?: number;
   foldType?: PaperTextureFoldType;
   foldCount?: number;
+  foldSize?: number;
+  foldOffset?: number;
   foldsShape?: number;
   fade?: number;
   crumpleSize?: number;
@@ -482,9 +515,10 @@ export interface PaperTextureParams extends ShaderSizingParams, ShaderMotionPara
   background?: boolean;
 }
 
-export type PaperTextureFoldType = 'folds' | 'creases';
+export type PaperTextureFoldType = 'folds' | 'creases' | 'grid';
 
 export const PaperTextureFoldTypes: Record<PaperTextureFoldType, number> = {
   folds: 0,
   creases: 1,
+  grid: 2,
 };
