@@ -330,59 +330,65 @@ void main() {
   float fade = u_fade * getFadeMask(.3 * patternUV + 10. * u_seed);
   fade = clamp(8. * fade * fade * fade, 0., 1.);
 
-  float drops = getDrops(patternUV * 2.);
-  drops = mix(drops, 0., fade);
-
-  float foldsPattern = 0.;
-  if (u_foldType < .5) {
-    vec2 foldsUV1 = rotate(patternUV * .18, 4. * u_seed);
-    vec2 foldsUV2 = foldsUV1 + .02 * sin(2. * u_seed) * (texture(u_noiseTexture, fract(patternUV * .02 + u_seed)).rg - .5);
-    vec4 foldsRaw = getFolds(foldsUV1, foldsUV2);
-    vec4 radialFolds = vec4(clamp(5. * foldsRaw.xyz, 0., 1.), foldsRaw.w);
-    radialFolds.xyz = mix(radialFolds.xyz, vec3(.5), .4 * fade);
-    foldsPattern = radialFolds.x + radialFolds.y;
-
-    pattern += u_folds * foldsPattern;
-    
-    vec2 fromCenter = imageUV - .5;
-    scaleDistortion = .22 * radialFolds.z;
-    scaleDistortion *= u_folds;
-  } else {
-    vec3 creasesResult = getGrid(imageUV + .5);
-    foldsPattern = creasesResult.x;
-    drops *= mix(1., creasesResult.y, u_folds);
-
-    pattern += u_folds * foldsPattern;
-    float distortBase = mix(pow(creasesResult.y, .2), creasesResult.z, pow(u_foldsShape, 3.));
-    yDistortion -= mix(.1, .02, u_foldCount / float(${ paperTextureMeta.maxFoldCount })) * (1. - distortBase);
-    patternUV.y -= yDistortion * ySidePower;
+  float drops = 0.;
+  if (u_drops > 0.) {
+    drops = getDrops(patternUV * 2.);
+    drops = mix(drops, 0., fade);
   }
-  
-  vec2 roughnessUV = 200. * patternUV;
-  vec2 fiberUV = 10. * patternUV;
-  float roughness = getRoughness(roughnessUV);
-  float fiber = getFiber(fiberUV);
-  fiber *= mix(1., .5, fade);
-  roughness *= mix(1., .5, fade);
 
-  fiber *= u_fiber;
-  pattern += fiber;
-  radialDistortion += .02 * fiber;
+  if (u_folds > 0.) {
+    if (u_foldType < .5) {
+      vec2 foldsUV1 = rotate(patternUV * .18, 4. * u_seed);
+      vec2 foldsUV2 = foldsUV1 + .02 * sin(2. * u_seed) * (texture(u_noiseTexture, fract(patternUV * .02 + u_seed)).rg - .5);
+      vec4 foldsRaw = getFolds(foldsUV1, foldsUV2);
+      vec4 radialFolds = vec4(clamp(5. * foldsRaw.xyz, 0., 1.), foldsRaw.w);
+      radialFolds.xyz = mix(radialFolds.xyz, vec3(.5), .4 * fade);
+      float foldsPattern = radialFolds.x + radialFolds.y;
 
-  roughness *= u_roughness;
-  pattern += roughness;
-  radialDistortion += .02 * roughness;
+      pattern += u_folds * foldsPattern;
 
-  vec2 crumplesUV = mix(14.4, .64, pow(u_crumpleSize, .3)) * patternUV - 32. * u_seed;
-  float crumples = clamp(.2 + getCrumples(crumplesUV), 0., 1.);
-  crumples = mix(crumples, 0., fade);
+      vec2 fromCenter = imageUV - .5;
+      scaleDistortion = .22 * radialFolds.z * u_folds;
+    } else {
+      vec3 creasesResult = getGrid(imageUV + .5);
+      drops *= mix(1., creasesResult.y, u_folds);
 
-  pattern += u_crumples * crumples;
-  yDistortion -= .01 * u_crumples * (crumples - .25);
+      pattern += u_folds * creasesResult.x;
+      float distortBase = mix(pow(creasesResult.y, .2), creasesResult.z, pow(u_foldsShape, 3.));
+      yDistortion -= mix(.1, .02, u_foldCount / float(${ paperTextureMeta.maxFoldCount })) * (1. - distortBase);
+      patternUV.y -= yDistortion * ySidePower;
+    }
+  }
 
-  drops *= u_drops;
-  pattern += drops;
-  xDistortion += .03 * drops;
+  if (u_roughness > 0.) {
+    float roughness = getRoughness(200. * patternUV);
+    roughness *= mix(1., .5, fade);
+    roughness *= u_roughness;
+    pattern += roughness;
+    radialDistortion += .02 * roughness;
+  }
+
+  if (u_fiber > 0.) {
+    float fiber = getFiber(10. * patternUV);
+    fiber *= mix(1., .5, fade);
+    fiber *= u_fiber;
+    pattern += fiber;
+    radialDistortion += .02 * fiber;
+  }
+
+  if (u_crumples > 0.) {
+    vec2 crumplesUV = mix(14.4, .64, pow(u_crumpleSize, .3)) * patternUV - 32. * u_seed;
+    float crumples = clamp(.2 + getCrumples(crumplesUV), 0., 1.);
+    crumples = mix(crumples, 0., fade);
+    pattern += u_crumples * crumples;
+    yDistortion -= .01 * u_crumples * (crumples - .25);
+  }
+
+  if (u_drops > 0.) {
+    drops *= u_drops;
+    pattern += drops;
+    xDistortion += .03 * drops;
+  }
 
   vec3 fgColor = u_colorFront.rgb * u_colorFront.a;
   float fgOpacity = u_colorFront.a;
