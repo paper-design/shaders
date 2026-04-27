@@ -125,19 +125,19 @@ float getFadeMask(vec2 n) {
   return total;
 }
 
-float N(vec2 p, float w) {
+float getRoughness(vec2 p, float w) {
   p *= .1;
-  float roughnessSize = mix(3., 2., u_roughnessSize);
+  float roughnessSize = mix(3.2, .6, u_roughnessSize);
   float logLac = log2(2.1);
   float level = -log2(w + 1e-8) / logLac;
-  float baseLevel = floor(level) - 4. + roughnessSize;
+  float baseLevel = floor(level) - 2.;
   float fade = fract(level);
 
   float sum = 0., norm = 0., amp = .5;
   for (int i = 0; i < 4; i++) {
     float absIdx = baseLevel + float(i);
     float freq = pow(2.1, absIdx);
-    vec2 q = p * freq;
+    vec2 q = roughnessSize * p * freq;
 
     float wi = 1.;
     if (i == 0) wi = 1. - fade;
@@ -160,38 +160,50 @@ float N(vec2 p, float w) {
 
 
 vec2 getRoughnessFiber(vec2 pR, vec2 pF) {
-  vec2 u = pR / vec2(2, 4);
-  float w = max(length(dFdx(pR * .1)), length(dFdy(pR * .1)));
-  float eps = 4. * w;
-  float roughDx = (.5 + (N(u + vec2(eps, 0.), w) - N(u - vec2(eps, 0.), w)));
+  vec2 uR = pR / vec2(2, 4);
+  float wR = max(length(dFdx(pR * .1)), length(dFdy(pR * .1)));
+  float epsR = 4. * wR;
+  float roughDx = (.5 + (getRoughness(uR + vec2(epsR, 0.), wR) - getRoughness(uR - vec2(epsR, 0.), wR)));
   roughDx = roughDx * roughDx;
-  
+
+
+  float fiberSize = mix(2., .4, u_fiberSize);
+  float wF = max(length(dFdx(pF)), length(dFdy(pF)));
+  float levelF = -log2(wF + 1e-8);
+  float baseLevelF = floor(levelF) - 3.;
+  float fadeF = fract(levelF);
+
   vec2 fiberGrad = vec2(0.);
   float scaleF = 1.;
   float amplitude = 1.;
-  float c = 0.7648;  // cos(0.7)
-  float s = 0.6442;  // sin(0.7)
-  float rc = 1., rs = 0.;  // accumulated rotation
   for (int i = 0; i < 5; i++) {
-    pF = vec2(c * pF.x - s * pF.y, s * pF.x + c * pF.y);
-    float rc2 = rc * c - rs * s;
-    rs = rs * c + rc * s;
-    rc = rc2;
-    vec2 ipF = floor(pF);
-    vec2 fpF = fract(pF);
-    vec4 uvF = fract(vec4(ipF, ipF + 1.) / 50. + .5);
+    float absIdx = baseLevelF + float(i);
+    float freq = pow(1.8, absIdx);
+    vec2 q = fiberSize * pF * freq;
+
+    float an = absIdx;
+    float rc = cos(an), rs = sin(an);
+    q = vec2(rc * q.x - rs * q.y, rs * q.x + rc * q.y);
+
+    float wi = 1.;
+    if (i == 0) wi = 1. - fadeF;
+    if (i == 4) wi = fadeF;
+
+    vec2 ipQ = floor(q);
+    vec2 fpQ = fract(q);
+    float shift = absIdx * .3;
+    vec4 uvF = fract(vec4(ipQ, ipQ + 1.) / 50. + .5 + shift);
     float aF = texture(u_noiseTexture, uvF.xy).b;
     float bF = texture(u_noiseTexture, uvF.zy).b;
     float cF = texture(u_noiseTexture, uvF.xw).b;
     float dF = texture(u_noiseTexture, uvF.zw).b;
-    vec2 u = fpF * fpF * (3. - 2. * fpF);
-    vec2 du = 6. * fpF * (1. - fpF);
+    vec2 u = fpQ * fpQ * (3. - 2. * fpQ);
+    vec2 du = 8. * fpQ * (1. - fpQ);
     float dxF = du.x * mix(bF - aF, dF - cF, u.y);
     float dyF = du.y * mix(cF - aF, dF - bF, u.x);
-    fiberGrad += amplitude * scaleF * vec2(rc * dxF + rs * dyF, -rs * dxF + rc * dyF);
-    pF *= 2.;
-    scaleF *= 2.;
-    amplitude *= 0.6;
+    fiberGrad += wi * amplitude * scaleF * vec2(rc * dxF + rs * dyF, -rs * dxF + rc * dyF);
+    scaleF *= 1.7;
+    amplitude *= .5;
   }
 
   return vec2(roughDx, length(fiberGrad));
@@ -265,7 +277,7 @@ vec4 getFolds(vec2 uv1, vec2 uv2) {
       cellRand = .5 * (rand.x + rand.y);
     }
   }
-  float mult2 = mix(.22, .02, u_foldsShape);
+  float mult2 = mix(.22, .02, 1.);
   return vec4(
     mix(pp1.x, .17 * pp1.z, pow(pp1.y, mult2)),
     mix(pp2.x, .18 * pp2.z, pow(pp2.y, mult2)),
@@ -277,7 +289,7 @@ vec4 getFolds(vec2 uv1, vec2 uv2) {
 vec3 getGrid(vec2 uv) {
   float gridX = fract(uv.x * u_foldCount + .5 * mod(u_foldCount, 2.));
   float dx = gridX - .5;
-  float foldWidth = mix(.15, 1., u_foldsShape);
+  float foldWidth = mix(.1, .45, u_foldsShape);
   float foldAmount = 1. - smoothstep(0., foldWidth, abs(dx));
   float angle = sign(dx) * 1.1345 * foldAmount;
   float creaseDark = smoothstep(0., foldWidth * .5, abs(dx));
@@ -340,7 +352,7 @@ void main() {
   }
   
   vec2 roughnessUV = 200. * patternUV;
-  vec2 fiberUV = mix(22., 4., u_fiberSize) * patternUV;
+  vec2 fiberUV = 10. * patternUV;
   vec2 rf = getRoughnessFiber(roughnessUV, fiberUV);
   float roughness = 2. * rf.x;
   float fiber = .3 * rf.y;

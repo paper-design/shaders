@@ -26,7 +26,9 @@ const controlRules: ControlRules = {
   roughnessSize: { showWhen: { roughness: { gt: 0 } } },
   fiberSize: { showWhen: { fiber: { gt: 0 } } },
   crumpleSize: { showWhen: { crumples: { gt: 0 } } },
-  // foldsShape: { showWhen: { foldType: { eq: 'creases' } } },
+  foldType: { showWhen: { folds: { gt: 0 } } },
+  foldCount: { showWhen: { folds: { gt: 0 } } },
+  foldsShape: { showWhen: { folds: { gt: 0 }, foldType: { eq: 'creases' } } },
 };
 
 const imageFiles = [
