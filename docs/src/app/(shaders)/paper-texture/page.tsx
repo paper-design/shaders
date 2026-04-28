@@ -28,7 +28,8 @@ const controlRules: ControlRules = {
   crumpleSize: { showWhen: { crumples: { gt: 0 } } },
   foldType: { showWhen: { folds: { gt: 0 } } },
   foldCount: { showWhen: { folds: { gt: 0 }, foldType: { eq: 'folds' } }, label: '↳ count' },
-  foldSize: { showWhen: { folds: { gt: 0 }, foldType: { neq: 'folds' } }, label: '↳ size' },
+  foldSize: { showWhen: { folds: { gt: 0 }, foldType: { neq: 'folds' } }, label: '↳ size x' },
+  foldY: { showWhen: { folds: { gt: 0 }, foldType: { neq: 'folds' } }, label: '↳ horizontal' },
   foldOffset: { showWhen: { folds: { gt: 0 }, foldType: { neq: 'folds' } }, label: '↳ offset' },
   foldsShape: { showWhen: { folds: { gt: 0 }, foldType: { neq: 'folds' } }, label: '↳ shape' },
 };
@@ -99,6 +100,7 @@ const PaperTextureWithControls = () => {
         foldType: { value: defaults.foldType, options: Object.keys(PaperTextureFoldTypes) as PaperTextureFoldType[], order: 231 },
         foldCount: { value: defaults.foldCount, min: 1, max: paperTextureMeta.maxFoldCount, step: 1, order: 232 },
         foldSize: { value: defaults.foldSize, min: 0, max: 1, order: 232.5 },
+        foldY: { value: defaults.foldY, order: 232.6 },
         foldOffset: { value: defaults.foldOffset, min: 0, max: 1, order: 233 },
         foldsShape: { value: defaults.foldsShape, min: 0, max: 1, order: 234 },
         drops: { value: defaults.drops, min: 0, max: 1, order: 250 },

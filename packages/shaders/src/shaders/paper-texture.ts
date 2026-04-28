@@ -70,6 +70,7 @@ uniform float u_folds;
 uniform float u_foldType;
 uniform float u_foldCount;
 uniform float u_foldSize;
+uniform bool u_foldY;
 uniform float u_foldsShape;
 uniform float u_foldOffset;
 uniform float u_drops;
@@ -295,8 +296,7 @@ vec4 getFolds(vec2 uv1, vec2 uv2) {
   );
 }
 
-vec4 getCrease(float coord, float offset) {
-  float count = mix(20., 1., u_foldSize);
+vec4 getCrease(float coord, float offset, float count) {
   float g = (coord - 1.) * count + .5 * offset;
   float crX = fract(g);
   float creaseIdx = floor(g);
@@ -355,39 +355,41 @@ void main() {
 
       vec2 fromCenter = imageUV - .5;
       scaleDistortion = .22 * radialFolds.z * u_folds;
-    } else if (u_foldType < 1.5) {
-      vec4 cr = getCrease((imageUV + .5).x, u_foldOffset);
-      float angle = cr.x * 1.1345;
-      float crLight = max(-.5 * sin(angle) + .5 * cos(angle), 0.) * mix(.9, 1., cr.y);
-      drops *= mix(1., cr.y, u_folds);
-
-      pattern += u_folds * crLight;
-      float distortBase = mix(pow(cr.y, .2), cr.z, .5 * u_foldsShape);
-      yShift += .022 * (1. - distortBase);
-      patternUV.y += yShift;
     } else {
       vec2 uv = imageUV + .5;
-      vec4 h = getCrease(uv.x, u_foldOffset);
-      vec4 v = getCrease(uv.y, u_foldOffset);
-      float ax = h.x * 1.1345;
-      float ay = v.x * 1.1345;
-      float gridDark = h.y * v.y;
-      float gridLight = max(-.5 * sin(ax) - .5 * sin(ay) + .5 * cos(ax) * cos(ay), 0.) * mix(.9, 1., gridDark);
-      float gridDist = min(h.z, v.z);
-      drops *= mix(1., gridDark, u_folds);
+      float countX = mix(25., 1., pow(u_foldSize, .4));
+      vec4 h = getCrease(uv.x, 1. - u_foldOffset, countX);
 
-      pattern += u_folds * gridLight;
-      float distortBaseH = mix(pow(h.y, .2), h.z, .5 * u_foldsShape);
-      float distortBaseV = mix(pow(v.y, .2), v.z, .5 * u_foldsShape);
-      patternUV.x += .022 * (1. - distortBaseV);
-      yShift += .022 * (1. - distortBaseH);
+      if (u_foldY) {
+        vec4 v = getCrease(uv.y, 1., 1.);
+        float ax = h.x * 1.1345;
+        float ay = v.x * 1.1345;
+        float gridDark = h.y * v.y;
+        float crLight = max(-.7 * sin(ax) - .2 * sin(ay) + .5 * cos(ax) * cos(ay), 0.) * mix(.9, 1., gridDark);
+        drops *= mix(1., gridDark, u_folds);
+
+        pattern += u_folds * crLight;
+        float distortBaseH = mix(pow(h.y, .2), h.z, .5 * u_foldsShape);
+        float distortBaseV = mix(pow(v.y, .2), v.z, .5 * u_foldsShape);
+        xDistortion += .022 * u_folds * (1. - distortBaseV) * 2. * (imageUV.x - .5);
+        patternUV.x += .022 * u_folds * (1. - distortBaseV);
+        yShift += .022 * u_folds * (1. - distortBaseH);
+      } else {
+        float angle = h.x * 1.1345;
+        float crLight = max(-.5 * sin(angle) + .5 * cos(angle), 0.) * mix(.9, 1., h.y);
+        drops *= mix(1., h.y, u_folds);
+
+        pattern += u_folds * crLight;
+        float distortBase = mix(pow(h.y, .2), h.z, .5 * u_foldsShape);
+        yShift += .022 * u_folds * (1. - distortBase);
+      }
       patternUV.y += yShift;
     }
   }
 
   if (u_roughness > 0.) {
     float roughness = getRoughness(200. * patternUV);
-    roughness *= mix(1., .5, fade);
+    roughness *= mix(1., .3, fade);
     roughness *= u_roughness;
     pattern += roughness;
     radialDistortion += .02 * roughness;
@@ -395,7 +397,7 @@ void main() {
 
   if (u_fiber > 0.) {
     float fiber = getFiber(10. * patternUV);
-    fiber *= mix(1., .5, fade);
+    fiber *= mix(1., .3, fade);
     fiber *= u_fiber;
     pattern += fiber;
     radialDistortion += .02 * fiber;
@@ -454,7 +456,7 @@ void main() {
 
   if (!u_background) {
     vec2 shadowUV = imageUV + vec2(-.01, -.015);
-    float shadowFrame = getUvFrame(shadowUV, .05);
+    float shadowFrame = getUvFrame(shadowUV, .05) * texture(u_image, shadowUV).a;
     float shadow = 1.2 * shadowFrame * (1. - frame);
     opacity = opacity * frame + shadow;
     color *= frame;
@@ -480,6 +482,7 @@ export interface PaperTextureUniforms extends ShaderSizingUniforms {
   u_foldType: number;
   u_foldCount: number;
   u_foldSize: number;
+  u_foldY: boolean;
   u_foldOffset: number;
   u_foldsShape: number;
   u_fade: number;
@@ -504,6 +507,7 @@ export interface PaperTextureParams extends ShaderSizingParams, ShaderMotionPara
   foldType?: PaperTextureFoldType;
   foldCount?: number;
   foldSize?: number;
+  foldY?: boolean;
   foldOffset?: number;
   foldsShape?: number;
   fade?: number;
@@ -515,10 +519,9 @@ export interface PaperTextureParams extends ShaderSizingParams, ShaderMotionPara
   background?: boolean;
 }
 
-export type PaperTextureFoldType = 'folds' | 'creases' | 'grid';
+export type PaperTextureFoldType = 'folds' | 'creases';
 
 export const PaperTextureFoldTypes: Record<PaperTextureFoldType, number> = {
   folds: 0,
   creases: 1,
-  grid: 2,
 };
