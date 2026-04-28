@@ -105,7 +105,7 @@ export const spreadPreset: PaperTexturePreset = {
     fiberSize: 0.5,
     crumples: 0,
     crumpleSize: 0.42,
-    folds: 1,
+    folds: 0.7,
     foldType: 'creases',
     foldCount: 1,
     foldSize: 1,
