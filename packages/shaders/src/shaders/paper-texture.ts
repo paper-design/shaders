@@ -173,7 +173,7 @@ float getRoughness(vec2 p) {
 }
 
 float getFiber(vec2 p) {
-  float size = mix(2., .4, u_fiberSize);
+  float size = mix(4.5, 1.2, u_fiberSize);
   float w = max(length(dFdx(p)), length(dFdy(p)));
   float level = -log2(w + 1e-8);
   float baseLevel = floor(level) - 3.;
@@ -414,10 +414,7 @@ void main() {
   color = mix(color, pic, frame);
 
   if (!u_background) {
-    vec2 shadowUV = imageUV + vec2(-.01, -.015);
-    float shadowFrame = getUvFrame(shadowUV, .05) * texture(u_image, shadowUV).a;
-    float shadow = 1.2 * shadowFrame * (1. - frame);
-    opacity = opacity * frame + shadow;
+    opacity *= frame;
     color *= frame;
   }
   frame = mix(frame, 0., .2 * fade);
