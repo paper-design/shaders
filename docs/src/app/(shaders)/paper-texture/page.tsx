@@ -25,7 +25,6 @@ const { worldWidth, worldHeight, ...defaults } = paperTexturePresets[0].params;
 const controlRules: ControlRules = {
   roughnessSize: { showWhen: { roughness: { gt: 0 } } },
   fiberSize: { showWhen: { fiber: { gt: 0 } } },
-  crumpleSize: { showWhen: { crumples: { gt: 0 } } },
   foldType: { showWhen: { folds: { gt: 0 } } },
   foldCount: { showWhen: { folds: { gt: 0 }, foldType: { eq: 'folds' } }, label: '↳ count' },
   foldSize: { showWhen: { folds: { gt: 0 }, foldType: { neq: 'folds' } }, label: '↳ size x' },
@@ -94,8 +93,6 @@ const PaperTextureWithControls = () => {
         roughnessSize: { value: defaults.roughnessSize, min: 0, max: 1, order: 202 },
         fiber: { value: defaults.fiber, min: 0, max: 1, order: 210 },
         fiberSize: { value: defaults.fiberSize, min: 0, max: 1, order: 211 },
-        crumples: { value: defaults.crumples, min: 0, max: 1, order: 220 },
-        crumpleSize: { value: defaults.crumpleSize, min: 0, max: 1, order: 221 },
         folds: { value: defaults.folds, min: 0, max: 1, order: 230 },
         foldType: { value: defaults.foldType, options: Object.keys(PaperTextureFoldTypes) as PaperTextureFoldType[], order: 231 },
         foldCount: { value: defaults.foldCount, min: 1, max: paperTextureMeta.maxFoldCount, step: 1, order: 232 },

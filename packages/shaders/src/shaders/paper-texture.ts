@@ -19,14 +19,12 @@ export const paperTextureMeta = {
  * - u_roughnessSize (float): Scale of the roughness noise (0 to 1)
  * - u_fiber (float): Curly-shaped noise intensity (0 to 1)
  * - u_fiberSize (float): Curly-shaped noise scale (0 to 1)
- * - u_crumples (float): Cell-based crumple pattern intensity (0 to 1)
- * - u_crumpleSize (float): Cell-based crumple pattern scale (0 to 1)
  * - u_folds (float): Depth of the folds (0 to 1)
  * - u_foldType (float): Type of folds pattern (0 = radial folds, 1 = creases)
  * - u_foldCount (float): Size/frequency of folds or creases (0 to 1)
  * - u_foldsShape (float): Shape/width of the folds (0 to 1)
  * - u_drops (float): Visibility of speckle / drop pattern (0 to 1)
- * - u_seed (float): Seed applied to folds, crumples and dots (0 to 1000)
+ * - u_seed (float): Seed applied to folds and dots (0 to 1000)
  * - u_fade (float): Large-scale noise mask applied to the pattern (0 to 1)
  * - u_blending (float): Amount of image-to-paper blending, 0 for original color, 1 for mix with colorBack (0 to 1)
  * - u_distortion (float): Amount of distortion of the image by the paper normals (0 to 1)
@@ -64,8 +62,6 @@ uniform float u_imageAspectRatio;
 uniform float u_roughness;
 uniform float u_fiber;
 uniform float u_fiberSize;
-uniform float u_crumples;
-uniform float u_crumpleSize;
 uniform float u_folds;
 uniform float u_foldType;
 uniform float u_foldCount;
@@ -224,31 +220,6 @@ vec2 randomGB(vec2 p) {
   return texture(u_noiseTexture, fract(uv)).gb;
 }
 
-float getCrumples(vec2 uv) {
-  vec2 t = uv * .5;
-  vec2 p = floor(t);
-  vec2 wsum = vec2(0.), cl = vec2(0.);
-  for (int y = -1; y < 2; y += 1) {
-    for (int x = -1; x < 2; x += 1) {
-      vec2 b = vec2(float(x), float(y));
-      vec2 q = b + p;
-      vec2 qm = mod(q, 8.);
-      vec2 c = q + randomGB(qm + u_seed);
-      float val = .5 + .5 * sin((qm.x + qm.y * 5.) * 8.);
-      vec2 r = c - t;
-      float wy = sst(0., 1., 1. - abs(r.y));
-      wy *= wy; wy *= wy; wy *= wy; wy *= wy;  // pow16
-      vec2 w = smoothstep(0., 1., 1. - abs(vec2(r.x, r.x - .0125)));
-      w *= w; w *= w; w *= w; w *= w;  // pow16
-      w *= wy;
-      cl += val * w; 
-      wsum += w;
-    }
-  }
-  vec2 n = cl / wsum;
-  return 4. * (n.y - n.x);
-}
-
 float getDrops(vec2 uv) {
   vec2 iDropsUV = floor(uv);
   vec2 fDropsUV = fract(uv);
@@ -323,13 +294,9 @@ void main() {
   vec2 patternUV = v_imageUV - .5;
   patternUV *= 5. * vec2(u_imageAspectRatio, 1.);
 
-  float ySide = (imageUV.y - .5);
-  float ySidePower = sign(ySide) * mix(1., 1.25, step(0., ySide)) * abs(ySide);
-
   float pattern = 0.;
   float radialDistortion = 0.;
   float xDistortion = 0.;
-  float yDistortion = 0.;
   float yShift = 0.;
   float scaleDistortion = 0.;
 
@@ -403,14 +370,6 @@ void main() {
     radialDistortion += .02 * fiber;
   }
 
-  if (u_crumples > 0.) {
-    vec2 crumplesUV = mix(14.4, .64, pow(u_crumpleSize, .3)) * patternUV - 32. * u_seed;
-    float crumples = clamp(.2 + getCrumples(crumplesUV), 0., 1.);
-    crumples = mix(crumples, 0., fade);
-    pattern += u_crumples * crumples;
-    yDistortion -= .01 * u_crumples * (crumples - .25);
-  }
-
   if (u_drops > 0.) {
     drops *= u_drops;
     pattern += drops;
@@ -424,12 +383,12 @@ void main() {
 
   imageUV = .5 + fromCenter * (1. + u_distortion * scaleDistortion);
   imageUV.x += u_distortion * xDistortion;
-  imageUV.y -= u_distortion * (yDistortion * ySidePower + yShift);
+  imageUV.y -= u_distortion * yShift;
   vec2 dc = imageUV - .5;
   float r2 = dot(dc, dc);
   imageUV = .5 + dc * (1. - abs(u_distortion) * radialDistortion * r2);
 
-  float frameSoftness = .002 + .005 * abs(u_distortion) * (.7 * u_fiber + u_roughness + .2 * u_crumples);
+  float frameSoftness = .002 + .005 * abs(u_distortion) * (.7 * u_fiber + u_roughness);
   float frame = getUvFrame(imageUV, frameSoftness);
   vec4 image = texture(u_image, imageUV);
   frame *= image.a;
@@ -477,7 +436,6 @@ export interface PaperTextureUniforms extends ShaderSizingUniforms {
   u_roughnessSize: number;
   u_fiber: number;
   u_fiberSize: number;
-  u_crumples: number;
   u_folds: number;
   u_foldType: number;
   u_foldCount: number;
@@ -486,7 +444,6 @@ export interface PaperTextureUniforms extends ShaderSizingUniforms {
   u_foldOffset: number;
   u_foldsShape: number;
   u_fade: number;
-  u_crumpleSize: number;
   u_drops: number;
   u_seed: number;
   u_blending: number;
@@ -502,7 +459,6 @@ export interface PaperTextureParams extends ShaderSizingParams, ShaderMotionPara
   roughnessSize?: number;
   fiber?: number;
   fiberSize?: number;
-  crumples?: number;
   folds?: number;
   foldType?: PaperTextureFoldType;
   foldCount?: number;
@@ -511,7 +467,6 @@ export interface PaperTextureParams extends ShaderSizingParams, ShaderMotionPara
   foldOffset?: number;
   foldsShape?: number;
   fade?: number;
-  crumpleSize?: number;
   drops?: number;
   seed?: number;
   blending?: number;

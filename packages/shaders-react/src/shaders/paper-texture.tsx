@@ -16,8 +16,6 @@ import {
 export interface PaperTextureProps extends ShaderComponentProps, PaperTextureParams {
   /** @deprecated use `fiberSize` instead */
   fiberScale?: number;
-  /** @deprecated use `crumpleSize` instead */
-  crumplesScale?: number;
   /** @deprecated use `foldCount` instead */
   foldsNumber?: number;
   /** @deprecated use `fade` instead */
@@ -42,8 +40,6 @@ export const defaultPreset: PaperTexturePreset = {
     roughnessSize: 0.25,
     fiber: 0.5,
     fiberSize: 0.5,
-    crumples: 0,
-    crumpleSize: 0.5,
     folds: 0.7,
     foldType: 'folds',
     foldCount: 15,
@@ -74,8 +70,6 @@ export const cardboardPreset: PaperTexturePreset = {
     roughnessSize: 0.25,
     fiber: 0.35,
     fiberSize: 0.14,
-    crumples: 0.,
-    crumpleSize: 0.1,
     folds: 0.25,
     foldType: 'creases',
     foldCount: 18,
@@ -103,8 +97,6 @@ export const spreadPreset: PaperTexturePreset = {
     roughnessSize: 0.25,
     fiber: 0,
     fiberSize: 0.5,
-    crumples: 0,
-    crumpleSize: 0.42,
     folds: 0.7,
     foldType: 'creases',
     foldCount: 1,
@@ -139,8 +131,6 @@ export const sheetPreset: PaperTexturePreset = {
     roughnessSize: 0.25,
     fiber: 0.5,
     fiberSize: 0.5,
-    crumples: 0,
-    crumpleSize: 0.5,
     folds: 1,
     foldType: 'folds',
     foldCount: 10,
@@ -172,7 +162,6 @@ export const PaperTexture: React.FC<PaperTextureProps> = memo(function PaperText
   roughness = defaultPreset.params.roughness,
   roughnessSize = defaultPreset.params.roughnessSize,
   fiber = defaultPreset.params.fiber,
-  crumples = defaultPreset.params.crumples,
   folds = defaultPreset.params.folds,
   foldType = defaultPreset.params.foldType,
   foldSize = defaultPreset.params.foldSize,
@@ -188,8 +177,6 @@ export const PaperTexture: React.FC<PaperTextureProps> = memo(function PaperText
   // Reworked props
   fiberScale,
   fiberSize = fiberScale === undefined ? defaultPreset.params.fiberSize : 0.2 / fiberScale,
-  crumplesScale,
-  crumpleSize = crumplesScale === undefined ? defaultPreset.params.crumpleSize : 0.2 / crumplesScale,
   blur,
   fade = blur === undefined ? defaultPreset.params.fade : blur,
   foldsNumber,
@@ -218,8 +205,6 @@ export const PaperTexture: React.FC<PaperTextureProps> = memo(function PaperText
     u_roughnessSize: roughnessSize,
     u_fiber: fiber,
     u_fiberSize: fiberSize,
-    u_crumples: crumples,
-    u_crumpleSize: crumpleSize,
     u_foldCount: foldCount,
     u_foldSize: foldSize,
     u_foldY: foldY,
