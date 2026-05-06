@@ -431,8 +431,8 @@ export class ShaderMount {
         // Images use their src for the cache value to save memory
         cacheValue = `${value.src.slice(0, 200)}|${value.naturalWidth}x${value.naturalHeight}`;
       } else if (value instanceof HTMLCanvasElement) {
-        // Canvas textures are live — always set up, re-upload happens in render loop
-        cacheValue = `canvas-${performance.now()}`;
+        // Canvas textures are live — re-upload happens in render loop, only re-setup on new instance
+        cacheValue = value;
       }
 
       // Check if the uniform value has changed and, if not, bail early to avoid extra work
