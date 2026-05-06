@@ -63,7 +63,14 @@ function useStagingCanvas() {
       }
     });
 
-    const repaint = () => (el as any).requestPaint?.();
+    let rafId: number | null = null;
+    const repaint = () => {
+      if (rafId !== null) return;
+      rafId = requestAnimationFrame(() => {
+        rafId = null;
+        (el as any).requestPaint?.();
+      });
+    };
 
     const ro = new ResizeObserver(repaint);
     ro.observe(el);
@@ -72,6 +79,7 @@ function useStagingCanvas() {
     mo.observe(el, { subtree: true, childList: true, attributes: true, characterData: true });
 
     cleanupRef.current = () => {
+      if (rafId !== null) cancelAnimationFrame(rafId);
       ro.disconnect();
       mo.disconnect();
     };
