@@ -42,8 +42,12 @@ const imageFiles = [
 function useStagingCanvas() {
   const contentRef = useRef<HTMLDivElement | null>(null);
   const [canvas, setCanvas] = useState<HTMLCanvasElement | null>(null);
+  const cleanupRef = useRef<(() => void) | null>(null);
 
   const canvasRef = useCallback((el: HTMLCanvasElement | null) => {
+    cleanupRef.current?.();
+    cleanupRef.current = null;
+
     if (!el) {
       setCanvas(null);
       return;
@@ -53,16 +57,24 @@ function useStagingCanvas() {
       const content = contentRef.current;
       if (!ctx || !content) return;
       ctx.clearRect(0, 0, el.width, el.height);
-      (ctx as any).drawElementImage(content, 0, 0);
+      const transform = (ctx as any).drawElementImage(content, 0, 0, el.width, el.height);
+      if (transform) {
+        content.style.transform = transform.toString();
+      }
     });
 
-    const ro = new ResizeObserver(([entry]) => {
-      const { width, height } = entry.contentRect;
-      const dpr = window.devicePixelRatio || 1;
-      el.width = Math.round(width * dpr);
-      el.height = Math.round(height * dpr);
-    });
+    const repaint = () => (el as any).requestPaint?.();
+
+    const ro = new ResizeObserver(repaint);
     ro.observe(el);
+
+    const mo = new MutationObserver(repaint);
+    mo.observe(el, { subtree: true, childList: true, attributes: true, characterData: true });
+
+    cleanupRef.current = () => {
+      ro.disconnect();
+      mo.disconnect();
+    };
 
     setCanvas(el);
   }, []);
@@ -76,8 +88,8 @@ const WaterWithControls = () => {
   const [imageIdx, setImageIdx] = useState(-1);
   const [image, setImage] = useState<HTMLImageElement | string>('/images/image-filters/0018.webp');
 
-  const [toggled, setToggled] = useState(false);
-  const [range, setRange] = useState(50);
+  const [toggledA, setToggledA] = useState(false);
+  const [toggledB, setToggledB] = useState(false);
   const staging = useStagingCanvas();
 
   useEffect(() => {
@@ -149,16 +161,18 @@ const WaterWithControls = () => {
               ref={staging.canvasRef}
               // @ts-expect-error layoutsubtree is an unstable HTML-in-Canvas attribute
               layoutsubtree=""
+              width={1600}
+              height={900}
               className="absolute inset-0 size-full"
             />
             {staging.canvas &&
               createPortal(
                 <HtmlInCanvasContent
                   ref={staging.contentRef}
-                  toggled={toggled}
-                  onToggle={() => setToggled((t) => !t)}
-                  range={range}
-                  onRangeChange={setRange}
+                  toggledA={toggledA}
+                  onToggleA={() => setToggledA((t) => !t)}
+                  toggledB={toggledB}
+                  onToggleB={() => setToggledB((t) => !t)}
                 />,
                 staging.canvas
               )}
