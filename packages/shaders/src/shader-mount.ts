@@ -315,6 +315,9 @@ export class ShaderMount {
       if (texture) {
         this.gl.bindTexture(this.gl.TEXTURE_2D, texture);
         this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.gl.RGBA, this.gl.UNSIGNED_BYTE, canvas);
+        if (this.mipmaps.includes(uniformName)) {
+          this.gl.generateMipmap(this.gl.TEXTURE_2D);
+        }
       }
     });
 
