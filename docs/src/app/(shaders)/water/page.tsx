@@ -7,12 +7,14 @@ import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
 import { ShaderFit } from '@paper-design/shaders';
 import { levaImageButton, levaDeleteImageButton } from '@/helpers/leva-image-button';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { toHsla } from '@/helpers/color-utils';
 import { ShaderDetails } from '@/components/shader-details';
 import { waterDef } from '@/shader-defs/water-def';
 import { ShaderContainer } from '@/components/shader-container';
 import { useUrlParams } from '@/helpers/use-url-params';
+import { HtmlInCanvasContent } from '@/components/html-in-canvas-content';
 
 const { worldWidth, worldHeight, ...defaults } = waterPresets[0].params;
 
@@ -37,9 +39,46 @@ const imageFiles = [
   '0018.webp',
 ] as const;
 
+function useStagingCanvas() {
+  const contentRef = useRef<HTMLDivElement | null>(null);
+  const [canvas, setCanvas] = useState<HTMLCanvasElement | null>(null);
+
+  const canvasRef = useCallback((el: HTMLCanvasElement | null) => {
+    if (!el) {
+      setCanvas(null);
+      return;
+    }
+    const ctx = el.getContext('2d');
+    el.addEventListener('paint', () => {
+      const content = contentRef.current;
+      if (!ctx || !content) return;
+      ctx.clearRect(0, 0, el.width, el.height);
+      (ctx as any).drawElementImage(content, 0, 0);
+    });
+
+    const ro = new ResizeObserver(([entry]) => {
+      const { width, height } = entry.contentRect;
+      const dpr = window.devicePixelRatio || 1;
+      el.width = Math.round(width * dpr);
+      el.height = Math.round(height * dpr);
+    });
+    ro.observe(el);
+
+    setCanvas(el);
+  }, []);
+
+  return { canvas, canvasRef, contentRef };
+}
+
 const WaterWithControls = () => {
+  const [source, setSource] = useState<'image' | 'html'>('image');
+
   const [imageIdx, setImageIdx] = useState(-1);
   const [image, setImage] = useState<HTMLImageElement | string>('/images/image-filters/0018.webp');
+
+  const [toggled, setToggled] = useState(false);
+  const [range, setRange] = useState(50);
+  const staging = useStagingCanvas();
 
   useEffect(() => {
     if (imageIdx >= 0) {
@@ -50,7 +89,7 @@ const WaterWithControls = () => {
     }
   }, [imageIdx]);
 
-  const handleClick = useCallback(() => {
+  const handleImageClick = useCallback(() => {
     setImageIdx((prev) => (prev + 1) % imageFiles.length);
   }, []);
 
@@ -58,6 +97,9 @@ const WaterWithControls = () => {
     setImage(img ?? '');
     setImageIdx(-1);
   }, []);
+
+  const currentImage: HTMLImageElement | HTMLCanvasElement | string =
+    source === 'html' && staging.canvas ? staging.canvas : image;
 
   const [params, setParams] = useControls(() => {
     const presets = Object.fromEntries(
@@ -99,10 +141,61 @@ const WaterWithControls = () => {
   return (
     <>
       <ShaderContainer shaderDef={waterDef} currentParams={params}>
-        <Water onClick={handleClick} {...params} image={image} />
+        {source === 'image' ? (
+          <Water onClick={handleImageClick} {...params} image={currentImage} style={{ cursor: 'pointer' }} />
+        ) : (
+          <div className="relative size-full">
+            <canvas
+              ref={staging.canvasRef}
+              // @ts-expect-error layoutsubtree is an unstable HTML-in-Canvas attribute
+              layoutsubtree=""
+              className="absolute inset-0 size-full"
+            />
+            {staging.canvas &&
+              createPortal(
+                <HtmlInCanvasContent
+                  ref={staging.contentRef}
+                  toggled={toggled}
+                  onToggle={() => setToggled((t) => !t)}
+                  range={range}
+                  onRangeChange={setRange}
+                />,
+                staging.canvas
+              )}
+            <Water {...params} image={currentImage} className="absolute inset-0 pointer-events-none" />
+          </div>
+        )}
       </ShaderContainer>
-      <div onClick={handleClick} className="mx-auto mt-16 mb-48 w-fit text-base text-current/70 select-none">
-        Click to change the sample image
+      <div className="mx-auto mt-16 mb-48 flex flex-col items-center gap-12">
+        <div className="flex rounded-lg border border-current/10 p-1">
+          <button
+            onClick={() => setSource('image')}
+            className={`cursor-pointer rounded-md px-12 py-4 text-sm transition-colors ${
+              source === 'image' ? 'bg-current/10' : 'text-current/50 hover:text-current/80'
+            }`}
+          >
+            Image source
+          </button>
+          <button
+            onClick={() => setSource('html')}
+            className={`cursor-pointer rounded-md px-12 py-4 text-sm transition-colors ${
+              source === 'html' ? 'bg-current/10' : 'text-current/50 hover:text-current/80'
+            }`}
+          >
+            HTML source
+          </button>
+        </div>
+        {source === 'image' && (
+          <div onClick={handleImageClick} className="w-fit cursor-pointer text-base text-current/70 select-none">
+            Click to change the sample image
+          </div>
+        )}
+        {source === 'html' && (
+          <div className="w-fit text-center text-base text-current/70 select-none">
+            Requires Chrome Canary with{' '}
+            <span className="font-mono text-[.9em]">chrome://flags/#canvas-draw-element</span>
+          </div>
+        )}
       </div>
       <ShaderDetails
         shaderDef={waterDef}

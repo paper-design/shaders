@@ -18,7 +18,7 @@ import { setMinImageSize } from './set-min-image-size.js';
  * We just skip setting the uniform if it's undefined. This allows the shader mount to still take up space during server rendering
  */
 interface ShaderMountUniformsReact {
-  [key: string]: string | boolean | number | number[] | number[][] | HTMLImageElement | undefined;
+  [key: string]: string | boolean | number | number[] | number[][] | HTMLImageElement | HTMLCanvasElement | undefined;
 }
 
 export interface ShaderMountProps extends Omit<React.ComponentProps<'div'>, 'color' | 'ref'>, ShaderMotionParams {

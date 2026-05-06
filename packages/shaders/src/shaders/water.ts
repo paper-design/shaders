@@ -149,7 +149,7 @@ void main() {
 `;
 
 export interface WaterUniforms extends ShaderSizingUniforms {
-  u_image: HTMLImageElement | string | undefined;
+  u_image: HTMLImageElement | HTMLCanvasElement | string | undefined;
   u_colorBack: [number, number, number, number];
   u_colorHighlight: [number, number, number, number];
   u_highlights: number;
@@ -161,7 +161,7 @@ export interface WaterUniforms extends ShaderSizingUniforms {
 }
 
 export interface WaterParams extends ShaderSizingParams, ShaderMotionParams {
-  image?: HTMLImageElement | string;
+  image?: HTMLImageElement | HTMLCanvasElement | string;
   colorBack?: string;
   colorHighlight?: string;
   highlights?: number;

@@ -36,6 +36,8 @@ export class ShaderMount {
   private uniformCache: Record<string, unknown> = {};
   private textureUnitMap: Map<string, number> = new Map();
   private ownerDocument: Document;
+  /** Canvas sources that need re-uploading every frame (e.g. HTML-in-Canvas staging canvases) */
+  private liveCanvasTextures: Map<string, HTMLCanvasElement> = new Map();
 
   constructor(
     /** The div you'd like to mount the shader to. The shader will match its size. */
@@ -304,10 +306,22 @@ export class ShaderMount {
       this.resolutionChanged = false;
     }
 
+    // Re-upload any live canvas textures (e.g. HTML-in-Canvas staging canvases)
+    this.liveCanvasTextures.forEach((canvas, uniformName) => {
+      const textureUnit = this.textureUnitMap.get(uniformName);
+      if (textureUnit === undefined) return;
+      this.gl.activeTexture(this.gl.TEXTURE0 + textureUnit);
+      const texture = this.textures.get(uniformName);
+      if (texture) {
+        this.gl.bindTexture(this.gl.TEXTURE_2D, texture);
+        this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.gl.RGBA, this.gl.UNSIGNED_BYTE, canvas);
+      }
+    });
+
     this.gl.drawArrays(this.gl.TRIANGLES, 0, 6);
 
-    // Loop if we're animating
-    if (this.currentSpeed !== 0) {
+    // Loop if we're animating or have live canvas textures that need continuous re-upload
+    if (this.currentSpeed !== 0 || this.liveCanvasTextures.size > 0) {
       this.requestRender();
     } else {
       this.rafId = null;
@@ -321,10 +335,16 @@ export class ShaderMount {
     this.rafId = requestAnimationFrame(this.render);
   };
 
-  /** Creates a texture from an image and sets it into a uniform value */
-  private setTextureUniform = (uniformName: string, image: HTMLImageElement): void => {
-    if (!image.complete || image.naturalWidth === 0) {
-      throw new Error(`Paper Shaders: image for uniform ${uniformName} must be fully loaded`);
+  /** Creates a texture from an image or canvas and sets it into a uniform value */
+  private setTextureUniform = (uniformName: string, source: HTMLImageElement | HTMLCanvasElement): void => {
+    if (source instanceof HTMLImageElement) {
+      if (!source.complete || source.naturalWidth === 0) {
+        throw new Error(`Paper Shaders: image for uniform ${uniformName} must be fully loaded`);
+      }
+    }
+
+    if (source instanceof HTMLCanvasElement) {
+      this.liveCanvasTextures.set(uniformName, source);
     }
 
     // Clean up existing texture if present
@@ -351,8 +371,8 @@ export class ShaderMount {
     this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.LINEAR);
     this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MAG_FILTER, this.gl.LINEAR);
 
-    // Upload image to texture
-    this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.gl.RGBA, this.gl.UNSIGNED_BYTE, image);
+    // Upload to texture
+    this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.gl.RGBA, this.gl.UNSIGNED_BYTE, source);
 
     // Generate mipmaps if the uniform is in the mipmaps list
     if (this.mipmaps.includes(uniformName)) {
@@ -378,9 +398,14 @@ export class ShaderMount {
       const aspectRatioUniformName = `${uniformName}AspectRatio`;
       const aspectRatioLocation = this.uniformLocations[aspectRatioUniformName];
       if (aspectRatioLocation) {
-        const aspectRatio = image.naturalWidth / image.naturalHeight;
-        this.gl.uniform1f(aspectRatioLocation, aspectRatio);
+        const w = source instanceof HTMLCanvasElement ? source.width : source.naturalWidth;
+        const h = source instanceof HTMLCanvasElement ? source.height : source.naturalHeight;
+        this.gl.uniform1f(aspectRatioLocation, w / h);
       }
+    }
+
+    if (source instanceof HTMLCanvasElement) {
+      this.requestRender();
     }
   };
 
@@ -402,6 +427,9 @@ export class ShaderMount {
       if (value instanceof HTMLImageElement) {
         // Images use their src for the cache value to save memory
         cacheValue = `${value.src.slice(0, 200)}|${value.naturalWidth}x${value.naturalHeight}`;
+      } else if (value instanceof HTMLCanvasElement) {
+        // Canvas textures are live — always set up, re-upload happens in render loop
+        cacheValue = `canvas-${performance.now()}`;
       }
 
       // Check if the uniform value has changed and, if not, bail early to avoid extra work
@@ -415,8 +443,10 @@ export class ShaderMount {
         return;
       }
 
-      if (value instanceof HTMLImageElement) {
-        // Texture case, requires a good amount of code so it gets its own function:
+      if (value instanceof HTMLCanvasElement) {
+        this.setTextureUniform(key, value);
+      } else if (value instanceof HTMLImageElement) {
+        this.liveCanvasTextures.delete(key);
         this.setTextureUniform(key, value);
       } else if (Array.isArray(value)) {
         // Array case
@@ -545,6 +575,8 @@ export class ShaderMount {
       cancelAnimationFrame(this.rafId);
       this.rafId = null;
     }
+
+    this.liveCanvasTextures.clear();
 
     if (this.gl && this.program) {
       // Clean up all textures
@@ -680,7 +712,7 @@ export function isPaperShaderElement(element: HTMLElement): element is PaperShad
  * We just skip setting the uniform if it's undefined. This allows the shader mount to still take up space during server rendering
  */
 export interface ShaderMountUniforms {
-  [key: string]: boolean | number | number[] | number[][] | HTMLImageElement | undefined;
+  [key: string]: boolean | number | number[] | number[][] | HTMLImageElement | HTMLCanvasElement | undefined;
 }
 
 export interface ShaderMotionParams {
