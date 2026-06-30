@@ -4,7 +4,7 @@ import {
   type ShaderSizingParams,
   type ShaderSizingUniforms,
 } from '../shader-sizing.js';
-import { declarePI, rotation2, proceduralHash21 } from '../shader-utils.js';
+import { systemUniformFields, vertexOutputStruct, declarePI, rotation2, proceduralHash21, glslMod } from '../shader-utils.js';
 
 export const staticMeshGradientMeta = {
   maxColorCount: 10,
@@ -44,94 +44,96 @@ export const staticMeshGradientMeta = {
  *
  */
 
-// language=GLSL
-export const staticMeshGradientFragmentShader: string = `#version 300 es
-precision mediump float;
+// language=WGSL
+export const staticMeshGradientFragmentShader: string = `
+struct Uniforms {
+  ${systemUniformFields}
+  u_colorsCount: f32,
+  u_positions: f32,
+  u_waveX: f32,
+  u_waveXShift: f32,
+  u_waveY: f32,
+  u_waveYShift: f32,
+  u_mixing: f32,
+  u_grainMixer: f32,
+  u_grainOverlay: f32,
+  u_colors: array<vec4f, ${staticMeshGradientMeta.maxColorCount}>,
+}
+@group(0) @binding(0) var<uniform> u: Uniforms;
 
-uniform vec4 u_colors[${ staticMeshGradientMeta.maxColorCount }];
-uniform float u_colorsCount;
+${vertexOutputStruct}
 
-uniform float u_positions;
-uniform float u_waveX;
-uniform float u_waveXShift;
-uniform float u_waveY;
-uniform float u_waveYShift;
-uniform float u_mixing;
-uniform float u_grainMixer;
-uniform float u_grainOverlay;
+${declarePI}
+${rotation2}
+${proceduralHash21}
+${glslMod}
 
-in vec2 v_objectUV;
-out vec4 fragColor;
-
-${ declarePI }
-${ rotation2 }
-${ proceduralHash21 }
-
-float valueNoise(vec2 st) {
-  vec2 i = floor(st);
-  vec2 f = fract(st);
-  float a = hash21(i);
-  float b = hash21(i + vec2(1.0, 0.0));
-  float c = hash21(i + vec2(0.0, 1.0));
-  float d = hash21(i + vec2(1.0, 1.0));
-  vec2 u = f * f * (3.0 - 2.0 * f);
-  float x1 = mix(a, b, u.x);
-  float x2 = mix(c, d, u.x);
-  return mix(x1, x2, u.y);
+fn valueNoise(st: vec2f) -> f32 {
+  let i = floor(st);
+  let f = fract(st);
+  let a = hash21(i);
+  let b = hash21(i + vec2f(1.0, 0.0));
+  let c = hash21(i + vec2f(0.0, 1.0));
+  let d = hash21(i + vec2f(1.0, 1.0));
+  let u_val = f * f * (vec2f(3.0) - 2.0 * f);
+  let x1 = mix(a, b, u_val.x);
+  let x2 = mix(c, d, u_val.x);
+  return mix(x1, x2, u_val.y);
 }
 
-float noise(vec2 n, vec2 seedOffset) {
+fn noise(n: vec2f, seedOffset: vec2f) -> f32 {
   return valueNoise(n + seedOffset);
 }
 
-vec2 getPosition(int i, float t) {
-  float a = float(i) * .37;
-  float b = .6 + mod(float(i), 3.) * .3;
-  float c = .8 + mod(float(i + 1), 4.) * 0.25;
+fn getPosition(idx: i32, t: f32) -> vec2f {
+  let fi = f32(idx);
+  let a = fi * 0.37;
+  let b = 0.6 + glsl_mod_f32(fi, 3.0) * 0.3;
+  let c_val = 0.8 + glsl_mod_f32(f32(idx + 1), 4.0) * 0.25;
 
-  float x = sin(t * b + a);
-  float y = cos(t * c + a * 1.5);
+  let x = sin(t * b + a);
+  let y = cos(t * c_val + a * 1.5);
 
-  return .5 + .5 * vec2(x, y);
+  return vec2f(0.5) + 0.5 * vec2f(x, y);
 }
 
-void main() {
-  vec2 uv = v_objectUV;
-  uv += .5;
-  vec2 grainUV = uv * 1000.;
+@fragment fn fs_main(input: VertexOutput) -> @location(0) vec4f {
+  var uv = input.v_objectUV;
+  uv += vec2f(0.5);
+  let grainUV = uv * 1000.0;
 
-  float grain = noise(grainUV, vec2(0.));
-  float mixerGrain = .4 * u_grainMixer * (grain - .5);
+  let grain = noise(grainUV, vec2f(0.0));
+  let mixerGrain = 0.4 * u.u_grainMixer * (grain - 0.5);
 
-  float radius = smoothstep(0., 1., length(uv - .5));
-  float center = 1. - radius;
-  for (float i = 1.; i <= 2.; i++) {
-    uv.x += u_waveX * center / i * cos(TWO_PI * u_waveXShift + i * 2. * smoothstep(.0, 1., uv.y));
-    uv.y += u_waveY * center / i * cos(TWO_PI * u_waveYShift + i * 2. * smoothstep(.0, 1., uv.x));
+  let radius = smoothstep(0.0, 1.0, length(uv - vec2f(0.5)));
+  let center = 1.0 - radius;
+  for (var i: f32 = 1.0; i <= 2.0; i += 1.0) {
+    uv.x += u.u_waveX * center / i * cos(TWO_PI * u.u_waveXShift + i * 2.0 * smoothstep(0.0, 1.0, uv.y));
+    uv.y += u.u_waveY * center / i * cos(TWO_PI * u.u_waveYShift + i * 2.0 * smoothstep(0.0, 1.0, uv.x));
   }
 
-  vec3 color = vec3(0.);
-  float opacity = 0.;
-  float totalWeight = 0.;
-  float positionSeed = 25. + .33 * u_positions;
+  var color = vec3f(0.0);
+  var opacity: f32 = 0.0;
+  var totalWeight: f32 = 0.0;
+  let positionSeed = 25.0 + 0.33 * u.u_positions;
 
-  for (int i = 0; i < ${ staticMeshGradientMeta.maxColorCount }; i++) {
-    if (i >= int(u_colorsCount)) break;
+  for (var i: i32 = 0; i < ${staticMeshGradientMeta.maxColorCount}; i++) {
+    if (i >= i32(u.u_colorsCount)) { break; }
 
-    vec2 pos = getPosition(i, positionSeed) + mixerGrain;
-    float dist = length(uv - pos);
+    let pos = getPosition(i, positionSeed) + vec2f(mixerGrain);
+    var dist = length(uv - pos);
     dist = length(uv - pos);
 
-    vec3 colorFraction = u_colors[i].rgb * u_colors[i].a;
-    float opacityFraction = u_colors[i].a;
+    let colorFraction = u.u_colors[i].rgb * u.u_colors[i].a;
+    let opacityFraction = u.u_colors[i].a;
 
-    float mixing = pow(u_mixing, .7);
-    float power = mix(2., 1., mixing);
+    let mixing = pow(u.u_mixing, 0.7);
+    let power = mix(2.0, 1.0, mixing);
     dist = pow(dist, power);
 
-    float w = 1. / (dist + 1e-3);
-    float baseSharpness = mix(.0, 8., clamp(w, 0., 1.));
-    float sharpness = mix(baseSharpness, 1., mixing);
+    var w = 1.0 / (dist + 1e-3);
+    let baseSharpness = mix(0.0, 8.0, clamp(w, 0.0, 1.0));
+    let sharpness = mix(baseSharpness, 1.0, mixing);
     w = pow(w, sharpness);
     color += colorFraction * w;
     opacity += opacityFraction * w;
@@ -141,20 +143,20 @@ void main() {
   color /= max(1e-4, totalWeight);
   opacity /= max(1e-4, totalWeight);
 
-  float grainOverlay = valueNoise(rotate(grainUV, 1.) + vec2(3.));
-  grainOverlay = mix(grainOverlay, valueNoise(rotate(grainUV, 2.) + vec2(-1.)), .5);
+  var grainOverlay = valueNoise(rotate(grainUV, 1.0) + vec2f(3.0));
+  grainOverlay = mix(grainOverlay, valueNoise(rotate(grainUV, 2.0) + vec2f(-1.0)), 0.5);
   grainOverlay = pow(grainOverlay, 1.3);
 
-  float grainOverlayV = grainOverlay * 2. - 1.;
-  vec3 grainOverlayColor = vec3(step(0., grainOverlayV));
-  float grainOverlayStrength = u_grainOverlay * abs(grainOverlayV);
-  grainOverlayStrength = pow(grainOverlayStrength, .8);
-  color = mix(color, grainOverlayColor, .35 * grainOverlayStrength);
+  let grainOverlayV = grainOverlay * 2.0 - 1.0;
+  let grainOverlayColor = vec3f(step(0.0, grainOverlayV));
+  var grainOverlayStrength = u.u_grainOverlay * abs(grainOverlayV);
+  grainOverlayStrength = pow(grainOverlayStrength, 0.8);
+  color = mix(color, grainOverlayColor, 0.35 * grainOverlayStrength);
 
-  opacity += .5 * grainOverlayStrength;
-  opacity = clamp(opacity, 0., 1.);
+  opacity += 0.5 * grainOverlayStrength;
+  opacity = clamp(opacity, 0.0, 1.0);
 
-  fragColor = vec4(color, opacity);
+  return vec4f(color, opacity);
 }
 `;
 

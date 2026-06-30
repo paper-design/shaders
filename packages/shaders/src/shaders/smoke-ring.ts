@@ -1,7 +1,7 @@
 import type { vec4 } from '../types.js';
 import type { ShaderMotionParams } from '../shader-mount.js';
 import { type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
-import { declarePI, textureRandomizerR, colorBandingFix } from '../shader-utils.js';
+import { systemUniformFields, vertexOutputStruct, declarePI, textureRandomizerR, colorBandingFix } from '../shader-utils.js';
 
 export const smokeRingMeta = {
   maxColorCount: 10,
@@ -42,47 +42,49 @@ export const smokeRingMeta = {
  *
  */
 
-// language=GLSL
-export const smokeRingFragmentShader: string = `#version 300 es
-precision mediump float;
-
-uniform float u_time;
-
-uniform sampler2D u_noiseTexture;
-
-uniform vec4 u_colorBack;
-uniform vec4 u_colors[${ smokeRingMeta.maxColorCount }];
-uniform float u_colorsCount;
-
-uniform float u_thickness;
-uniform float u_radius;
-uniform float u_innerShape;
-uniform float u_noiseScale;
-uniform float u_noiseIterations;
-
-in vec2 v_objectUV;
-
-out vec4 fragColor;
-
-${ declarePI }
-${ textureRandomizerR }
-float valueNoise(vec2 st) {
-  vec2 i = floor(st);
-  vec2 f = fract(st);
-  float a = randomR(i);
-  float b = randomR(i + vec2(1.0, 0.0));
-  float c = randomR(i + vec2(0.0, 1.0));
-  float d = randomR(i + vec2(1.0, 1.0));
-  vec2 u = f * f * (3.0 - 2.0 * f);
-  float x1 = mix(a, b, u.x);
-  float x2 = mix(c, d, u.x);
-  return mix(x1, x2, u.y);
+// language=WGSL
+export const smokeRingFragmentShader: string = `
+struct Uniforms {
+  ${systemUniformFields}
+  u_colorBack: vec4f,
+  u_colorsCount: f32,
+  u_thickness: f32,
+  u_radius: f32,
+  u_innerShape: f32,
+  u_noiseScale: f32,
+  u_noiseIterations: f32,
+  u_colors: array<vec4f, ${smokeRingMeta.maxColorCount}>,
 }
-vec2 fbm(vec2 n0, vec2 n1) {
-  vec2 total = vec2(0.0);
-  float amplitude = .4;
-  for (int i = 0; i < ${ smokeRingMeta.maxNoiseIterations }; i++) {
-    if (i >= int(u_noiseIterations)) break;
+@group(0) @binding(0) var<uniform> u: Uniforms;
+
+@group(1) @binding(0) var u_noiseTexture_tex: texture_2d<f32>;
+@group(1) @binding(1) var u_noiseTexture_samp: sampler;
+
+${vertexOutputStruct}
+
+${declarePI}
+${textureRandomizerR}
+
+fn valueNoise(st: vec2f) -> f32 {
+  let i = floor(st);
+  let f = fract(st);
+  let a = randomR(i);
+  let b = randomR(i + vec2f(1.0, 0.0));
+  let c = randomR(i + vec2f(0.0, 1.0));
+  let d = randomR(i + vec2f(1.0, 1.0));
+  let u_val = f * f * (vec2f(3.0) - 2.0 * f);
+  let x1 = mix(a, b, u_val.x);
+  let x2 = mix(c, d, u_val.x);
+  return mix(x1, x2, u_val.y);
+}
+
+fn fbm(n0_in: vec2f, n1_in: vec2f) -> vec2f {
+  var n0 = n0_in;
+  var n1 = n1_in;
+  var total = vec2f(0.0);
+  var amplitude: f32 = 0.4;
+  for (var i: i32 = 0; i < ${smokeRingMeta.maxNoiseIterations}; i++) {
+    if (i >= i32(u.u_noiseIterations)) { break; }
     total.x += valueNoise(n0) * amplitude;
     total.y += valueNoise(n1) * amplitude;
     n0 *= 1.99;
@@ -92,72 +94,72 @@ vec2 fbm(vec2 n0, vec2 n1) {
   return total;
 }
 
-float getNoise(vec2 uv, vec2 pUv, float t) {
-  vec2 pUvLeft = pUv + .03 * t;
-  float period = max(abs(u_noiseScale * TWO_PI), 1e-6);
-  vec2 pUvRight = vec2(fract(pUv.x / period) * period, pUv.y) + .03 * t;
-  vec2 noise = fbm(pUvLeft, pUvRight);
-  return mix(noise.y, noise.x, smoothstep(-.25, .25, uv.x));
+fn getNoise(uv: vec2f, pUv: vec2f, t: f32) -> f32 {
+  let pUvLeft = pUv + 0.03 * t;
+  let period = max(abs(u.u_noiseScale * TWO_PI), 1e-6);
+  let pUvRight = vec2f(fract(pUv.x / period) * period, pUv.y) + 0.03 * t;
+  let noiseVal = fbm(pUvLeft, pUvRight);
+  return mix(noiseVal.y, noiseVal.x, smoothstep(-0.25, 0.25, uv.x));
 }
 
-float getRingShape(vec2 uv) {
-  float radius = u_radius;
-  float thickness = u_thickness;
+fn getRingShape(uv: vec2f) -> f32 {
+  let radius = u.u_radius;
+  let thickness = u.u_thickness;
 
-  float distance = length(uv);
-  float ringValue = 1. - smoothstep(radius, radius + thickness, distance);
-  ringValue *= smoothstep(radius - pow(u_innerShape, 3.) * thickness, radius, distance);
+  let distance_val = length(uv);
+  var ringValue = 1.0 - smoothstep(radius, radius + thickness, distance_val);
+  ringValue *= smoothstep(radius - pow(u.u_innerShape, 3.0) * thickness, radius, distance_val);
 
   return ringValue;
 }
 
-void main() {
-  vec2 shape_uv = v_objectUV;
+@fragment fn fs_main(input: VertexOutput) -> @location(0) vec4f {
+  var shape_uv = input.v_objectUV;
 
-  float t = u_time;
+  let t = u.u_time;
 
-  float cycleDuration = 3.;
-  float period2 = 2.0 * cycleDuration;
-  float localTime1 = fract((0.1 * t + cycleDuration) / period2) * period2;
-  float localTime2 = fract((0.1 * t) / period2) * period2;
-  float timeBlend = .5 + .5 * sin(.1 * t * PI / cycleDuration - .5 * PI);
+  let cycleDuration: f32 = 3.0;
+  let period2 = 2.0 * cycleDuration;
+  let localTime1 = fract((0.1 * t + cycleDuration) / period2) * period2;
+  let localTime2 = fract((0.1 * t) / period2) * period2;
+  let timeBlend = 0.5 + 0.5 * sin(0.1 * t * PI / cycleDuration - 0.5 * PI);
 
-  float atg = atan(shape_uv.y, shape_uv.x) + .001;
-  float l = length(shape_uv);
-  float radialOffset = .5 * l - inversesqrt(max(1e-4, l));
-  vec2 polar_uv1 = vec2(atg, localTime1 - radialOffset) * u_noiseScale;
-  vec2 polar_uv2 = vec2(atg, localTime2 - radialOffset) * u_noiseScale;
-  
-  float noise1 = getNoise(shape_uv, polar_uv1, t);
-  float noise2 = getNoise(shape_uv, polar_uv2, t);
+  let atg = atan2(shape_uv.y, shape_uv.x) + 0.001;
+  let l = length(shape_uv);
+  let radialOffset = 0.5 * l - inverseSqrt(max(1e-4, l));
+  let polar_uv1 = vec2f(atg, localTime1 - radialOffset) * u.u_noiseScale;
+  let polar_uv2 = vec2f(atg, localTime2 - radialOffset) * u.u_noiseScale;
 
-  float noise = mix(noise1, noise2, timeBlend);
+  let noise1 = getNoise(shape_uv, polar_uv1, t);
+  let noise2 = getNoise(shape_uv, polar_uv2, t);
 
-  shape_uv *= (.8 + 1.2 * noise);
+  let noiseVal = mix(noise1, noise2, timeBlend);
 
-  float ringShape = getRingShape(shape_uv);
+  shape_uv *= (0.8 + 1.2 * noiseVal);
 
-  float mixer = ringShape * ringShape * (u_colorsCount - 1.);
-  int idxLast = int(u_colorsCount) - 1;
-  vec4 gradient = u_colors[idxLast];
-  gradient.rgb *= gradient.a;
-  for (int i = ${ smokeRingMeta.maxColorCount } - 2; i >= 0; i--) {
-    float localT = clamp(mixer - float(idxLast - i - 1), 0., 1.);
-    vec4 c = u_colors[i];
-    c.rgb *= c.a;
+  let ringShape = getRingShape(shape_uv);
+
+  let mixer = ringShape * ringShape * (u.u_colorsCount - 1.0);
+  let idxLast = i32(u.u_colorsCount) - 1;
+  var gradient = u.u_colors[idxLast];
+  gradient = vec4f(gradient.rgb * gradient.a, gradient.a);
+  for (var i: i32 = ${smokeRingMeta.maxColorCount} - 2; i >= 0; i--) {
+    let localT = clamp(mixer - f32(idxLast - i - 1), 0.0, 1.0);
+    var c = u.u_colors[i];
+    c = vec4f(c.rgb * c.a, c.a);
     gradient = mix(gradient, c, localT);
   }
 
-  vec3 color = gradient.rgb * ringShape;
-  float opacity = gradient.a * ringShape;
+  var color = gradient.rgb * ringShape;
+  var opacity = gradient.a * ringShape;
 
-  vec3 bgColor = u_colorBack.rgb * u_colorBack.a;
-  color = color + bgColor * (1. - opacity);
-  opacity = opacity + u_colorBack.a * (1. - opacity);
+  let bgColor = u.u_colorBack.rgb * u.u_colorBack.a;
+  color = color + bgColor * (1.0 - opacity);
+  opacity = opacity + u.u_colorBack.a * (1.0 - opacity);
 
-  ${ colorBandingFix }
+  ${colorBandingFix}
 
-  fragColor = vec4(color, opacity);
+  return vec4f(color, opacity);
 }
 `;
 
