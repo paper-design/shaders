@@ -1,7 +1,7 @@
 {
   "name": "@paper-design/shaders",
-  "version": "0.0.76",
-  "license": "SEE LICENSE IN https://github.com/paper-design/shaders/blob/main/LICENSE",
+  "version": "0.0.77",
+  "license": "Apache-2.0",
   "type": "module",
   "sideEffects": false,
   "publishConfig": {
@@ -18,7 +18,9 @@
     }
   },
   "files": [
-    "dist"
+    "dist",
+    "LICENSE",
+    "NOTICE"
   ],
   "scripts": {
     "type-check": "tsc --project tsconfig.json"
