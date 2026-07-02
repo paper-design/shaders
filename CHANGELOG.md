@@ -1,5 +1,10 @@
 # Paper Shaders
 
+## Version 0.0.77
+
+- **General**
+  - License changed to [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0). Every package now ships the `LICENSE` and `NOTICE` files.
+
 ## Version 0.0.76
 
 - **Gem Smoke**
