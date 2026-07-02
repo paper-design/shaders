@@ -107,6 +107,8 @@ export class ShaderMount {
     this.setupResizeObserver();
     // Set up the visual viewport change listener to handle zoom changes (pinch zoom and classic browser zoom)
     visualViewport?.addEventListener('resize', this.handleVisualViewportChange);
+    // Set up the intersection observer to pause animation when the element is scrolled out of view
+    this.setupIntersectionObserver();
 
     // Set the animation speed after everything is ready to go
     this.setSpeed(speed);
@@ -172,6 +174,10 @@ export class ShaderMount {
   private parentDevicePixelHeight = 0;
   private devicePixelsSupported = false;
 
+  private intersectionObserver: IntersectionObserver | null = null;
+  /** Whether the parent element is currently intersecting the viewport */
+  private isInViewport = true;
+
   private resizeObserver: ResizeObserver | null = null;
   private setupResizeObserver = () => {
     this.resizeObserver = new ResizeObserver(([entry]) => {
@@ -192,6 +198,17 @@ export class ShaderMount {
     });
 
     this.resizeObserver.observe(this.parentElement);
+  };
+
+  private setupIntersectionObserver = () => {
+    if (typeof IntersectionObserver === 'undefined') return;
+
+    this.intersectionObserver = new IntersectionObserver(([entry]) => {
+      this.isInViewport = entry?.isIntersecting ?? true;
+      this.setCurrentSpeed(this.ownerDocument.hidden || !this.isInViewport ? 0 : this.speed);
+    });
+
+    this.intersectionObserver.observe(this.parentElement);
   };
 
   // Visual viewport resize handler, mainly used to react to browser zoom changes.
@@ -490,7 +507,7 @@ export class ShaderMount {
   public setSpeed = (newSpeed = 1): void => {
     // Set the new animation speed
     this.speed = newSpeed;
-    this.setCurrentSpeed(this.ownerDocument.hidden ? 0 : newSpeed);
+    this.setCurrentSpeed(this.ownerDocument.hidden || !this.isInViewport ? 0 : newSpeed);
   };
 
   private setCurrentSpeed = (newSpeed: number): void => {
@@ -532,7 +549,7 @@ export class ShaderMount {
   };
 
   private handleDocumentVisibilityChange = () => {
-    this.setCurrentSpeed(this.ownerDocument.hidden ? 0 : this.speed);
+    this.setCurrentSpeed(this.ownerDocument.hidden || !this.isInViewport ? 0 : this.speed);
   };
 
   /** Dispose of the shader mount, cleaning up all of the WebGL resources */
@@ -569,6 +586,11 @@ export class ShaderMount {
     if (this.resizeObserver) {
       this.resizeObserver.disconnect();
       this.resizeObserver = null;
+    }
+
+    if (this.intersectionObserver) {
+      this.intersectionObserver.disconnect();
+      this.intersectionObserver = null;
     }
 
     visualViewport?.removeEventListener('resize', this.handleVisualViewportChange);
