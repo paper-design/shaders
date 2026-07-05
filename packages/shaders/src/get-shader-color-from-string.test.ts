@@ -55,6 +55,19 @@ describe('getShaderColorFromString', () => {
     expect(getShaderColorFromString('not-a-color')).toEqual([0, 0, 0, 1]);
   });
 
+  test('handles 4-digit hex with alpha', () => {
+    expect(getShaderColorFromString('#ff0c')).toEqual([1, 1, 0, 0.8]);
+  });
+
+  test('returns fallback for hex with invalid characters', () => {
+    expect(getShaderColorFromString('#gggggg')).toEqual([0, 0, 0, 1]);
+  });
+
+  test('returns fallback for hex with invalid length', () => {
+    expect(getShaderColorFromString('#12345')).toEqual([0, 0, 0, 1]);
+    expect(getShaderColorFromString('#ff')).toEqual([0, 0, 0, 1]);
+  });
+
   // Test color value ranges
   test('normalizes RGB values to 0-1 range', () => {
     expect(getShaderColorFromString('rgb(127, 127, 127)')).toEqual([

@@ -37,8 +37,8 @@ function hexToRgba(hex: string): [number, number, number, number] {
   // Remove # if present
   hex = hex.replace(/^#/, '');
 
-  // Expand three-letter hex to six-letter
-  if (hex.length === 3) {
+  // Expand shorthand hex (3-letter #rgb or 4-letter #rgba) by doubling each digit
+  if (hex.length === 3 || hex.length === 4) {
     hex = hex
       .split('')
       .map((char) => char + char)
@@ -47,6 +47,12 @@ function hexToRgba(hex: string): [number, number, number, number] {
   // Expand six-letter hex to eight-letter (add full opacity if no alpha)
   if (hex.length === 6) {
     hex = hex + 'ff';
+  }
+
+  // Bail out on malformed hex (wrong length or non-hex characters) so callers
+  // get the fallback color instead of NaN channels leaking into the shader.
+  if (!/^[0-9a-f]{8}$/i.test(hex)) {
+    return fallbackColor;
   }
 
   // Parse the components
