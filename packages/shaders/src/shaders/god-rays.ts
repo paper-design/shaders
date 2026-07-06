@@ -1,7 +1,7 @@
 import type { vec4 } from '../types.js';
 import type { ShaderMotionParams } from '../shader-mount.js';
 import { type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
-import { declarePI, rotation2, textureRandomizerR, colorBandingFix, proceduralHash11 } from '../shader-utils.js';
+import { systemUniformFields, vertexOutputStruct, declarePI, rotation2, textureRandomizerR, colorBandingFix, proceduralHash11 } from '../shader-utils.js';
 
 export const godRaysMeta = {
   maxColorCount: 5,
@@ -44,123 +44,121 @@ export const godRaysMeta = {
  *
  */
 
-// language=GLSL
-export const godRaysFragmentShader: string = `#version 300 es
-precision mediump float;
+// language=WGSL
+export const godRaysFragmentShader: string = `
+struct Uniforms {
+  ${systemUniformFields}
+  u_colorsCount: f32,
+  u_density: f32,
+  u_spotty: f32,
+  u_midSize: f32,
+  u_midIntensity: f32,
+  u_intensity: f32,
+  u_bloom: f32,
+  u_colorBack: vec4f,
+  u_colorBloom: vec4f,
+  u_colors: array<vec4f, ${ godRaysMeta.maxColorCount }>,
+}
+@group(0) @binding(0) var<uniform> u: Uniforms;
+@group(1) @binding(0) var u_noiseTexture_tex: texture_2d<f32>;
+@group(1) @binding(1) var u_noiseTexture_samp: sampler;
 
-uniform float u_time;
-
-uniform sampler2D u_noiseTexture;
-
-uniform vec4 u_colorBack;
-uniform vec4 u_colorBloom;
-uniform vec4 u_colors[${ godRaysMeta.maxColorCount }];
-uniform float u_colorsCount;
-
-uniform float u_density;
-uniform float u_spotty;
-uniform float u_midSize;
-uniform float u_midIntensity;
-uniform float u_intensity;
-uniform float u_bloom;
-
-in vec2 v_objectUV;
-
-out vec4 fragColor;
+${vertexOutputStruct}
 
 ${ declarePI }
 ${ rotation2 }
 ${ textureRandomizerR }
-float valueNoise(vec2 st) {
-  vec2 i = floor(st);
-  vec2 f = fract(st);
-  float a = randomR(i);
-  float b = randomR(i + vec2(1.0, 0.0));
-  float c = randomR(i + vec2(0.0, 1.0));
-  float d = randomR(i + vec2(1.0, 1.0));
-  vec2 u = f * f * (3.0 - 2.0 * f);
-  float x1 = mix(a, b, u.x);
-  float x2 = mix(c, d, u.x);
-  return mix(x1, x2, u.y);
+
+fn valueNoise(st: vec2f) -> f32 {
+  let i = floor(st);
+  let f = fract(st);
+  let a = randomR(i);
+  let b = randomR(i + vec2f(1.0, 0.0));
+  let c = randomR(i + vec2f(0.0, 1.0));
+  let d = randomR(i + vec2f(1.0, 1.0));
+  let u_val = f * f * (vec2f(3.0) - 2.0 * f);
+  let x1 = mix(a, b, u_val.x);
+  let x2 = mix(c, d, u_val.x);
+  return mix(x1, x2, u_val.y);
 }
 
 ${ proceduralHash11 }
 
-float raysShape(vec2 uv, float r, float freq, float intensity, float radius) {
-  float a = atan(uv.y, uv.x);
-  vec2 left = vec2(a * freq, r);
-  vec2 right = vec2(fract(a / TWO_PI) * TWO_PI * freq, r);
-  float n_left = pow(valueNoise(left), intensity);
-  float n_right = pow(valueNoise(right), intensity);
-  float shape = mix(n_right, n_left, smoothstep(-.15, .15, uv.x));
+fn raysShape(uv: vec2f, r: f32, freq: f32, intensity_val: f32, radius: f32) -> f32 {
+  let a = atan2(uv.y, uv.x);
+  let left = vec2f(a * freq, r);
+  let right = vec2f(fract(a / TWO_PI) * TWO_PI * freq, r);
+  let n_left = pow(valueNoise(left), intensity_val);
+  let n_right = pow(valueNoise(right), intensity_val);
+  let shape = mix(n_right, n_left, smoothstep(-0.15, 0.15, uv.x));
   return shape;
 }
 
-void main() {
-  vec2 shape_uv = v_objectUV;
+@fragment fn fs_main(input: VertexOutput) -> @location(0) vec4f {
+  let shape_uv = input.v_objectUV;
 
-  float t = .2 * u_time;
+  let t = 0.2 * u.u_time;
 
-  float radius = length(shape_uv);
-  float spots = 6.5 * abs(u_spotty);
+  let radius = length(shape_uv);
+  let spots = 6.5 * abs(u.u_spotty);
 
-  float intensity = 4. - 3. * clamp(u_intensity, 0., 1.);
+  let intensity = 4.0 - 3.0 * clamp(u.u_intensity, 0.0, 1.0);
 
-  float delta = 1. - smoothstep(0., 1., radius);
+  let delta = 1.0 - smoothstep(0.0, 1.0, radius);
 
-  float midSize = 10. * abs(u_midSize);
-  float ms_lo = 0.02 * midSize;
-  float ms_hi = max(midSize, 1e-6);
-  float middleShape = pow(u_midIntensity, 0.3) * (1. - smoothstep(ms_lo, ms_hi, 3.0 * radius));
+  let midSize = 10.0 * abs(u.u_midSize);
+  let ms_lo = 0.02 * midSize;
+  let ms_hi = max(midSize, 1e-6);
+  var middleShape = pow(u.u_midIntensity, 0.3) * (1.0 - smoothstep(ms_lo, ms_hi, 3.0 * radius));
   middleShape = pow(middleShape, 5.0);
 
-  vec3 accumColor = vec3(0.0);
-  float accumAlpha = 0.0;
+  var accumColor = vec3f(0.0);
+  var accumAlpha: f32 = 0.0;
 
-  for (int i = 0; i < ${ godRaysMeta.maxColorCount }; i++) {
-    if (i >= int(u_colorsCount)) break;
+  for (var i: i32 = 0; i < ${ godRaysMeta.maxColorCount }; i++) {
+    if (i >= i32(u.u_colorsCount)) { break; }
 
-    vec2 rotatedUV = rotate(shape_uv, float(i) + 1.0);
+    let rotatedUV = rotate(shape_uv, f32(i) + 1.0);
 
-    float r1 = radius * (1.0 + 0.4 * float(i)) - 3.0 * t;
-    float r2 = 0.5 * radius * (1.0 + spots) - 2.0 * t;
-    float density = 6. * u_density + step(.5, u_density) * pow(4.5 * (u_density - .5), 4.);
-    float f = mix(1.0, 3.0 + 0.5 * float(i), hash11(float(i) * 15.)) * density;
+    let r1 = radius * (1.0 + 0.4 * f32(i)) - 3.0 * t;
+    let r2 = 0.5 * radius * (1.0 + spots) - 2.0 * t;
+    let density_val = 6.0 * u.u_density + step(0.5, u.u_density) * pow(4.5 * (u.u_density - 0.5), 4.0);
+    let f = mix(1.0, 3.0 + 0.5 * f32(i), hash11(f32(i) * 15.0)) * density_val;
 
-    float ray = raysShape(rotatedUV, r1, 5.0 * f, intensity, radius);
+    var ray = raysShape(rotatedUV, r1, 5.0 * f, intensity, radius);
     ray *= raysShape(rotatedUV, r2, 4.0 * f, intensity, radius);
-    ray += (1. + 4. * ray) * middleShape;
+    ray += (1.0 + 4.0 * ray) * middleShape;
     ray = clamp(ray, 0.0, 1.0);
 
-    float srcAlpha = u_colors[i].a * ray;
-    vec3 srcColor = u_colors[i].rgb * srcAlpha;
+    let srcAlpha = u.u_colors[i].a * ray;
+    let srcColor = u.u_colors[i].rgb * srcAlpha;
 
-    vec3 alphaBlendColor = accumColor + (1.0 - accumAlpha) * srcColor;
-    float alphaBlendAlpha = accumAlpha + (1.0 - accumAlpha) * srcAlpha;
+    let alphaBlendColor = accumColor + (1.0 - accumAlpha) * srcColor;
+    let alphaBlendAlpha = accumAlpha + (1.0 - accumAlpha) * srcAlpha;
 
-    vec3 addBlendColor = accumColor + srcColor;
-    float addBlendAlpha = accumAlpha + srcAlpha;
+    let addBlendColor = accumColor + srcColor;
+    let addBlendAlpha = accumAlpha + srcAlpha;
 
-    accumColor = mix(alphaBlendColor, addBlendColor, u_bloom);
-    accumAlpha = mix(alphaBlendAlpha, addBlendAlpha, u_bloom);
+    accumColor = mix(alphaBlendColor, addBlendColor, u.u_bloom);
+    accumAlpha = mix(alphaBlendAlpha, addBlendAlpha, u.u_bloom);
   }
 
-  float overlayAlpha = u_colorBloom.a;
-  vec3 overlayColor = u_colorBloom.rgb * overlayAlpha;
+  let overlayAlpha = u.u_colorBloom.a;
+  let overlayColor = u.u_colorBloom.rgb * overlayAlpha;
 
-  vec3 colorWithOverlay = accumColor + accumAlpha * overlayColor;
-  accumColor = mix(accumColor, colorWithOverlay, u_bloom);
+  let colorWithOverlay = accumColor + accumAlpha * overlayColor;
+  accumColor = mix(accumColor, colorWithOverlay, u.u_bloom);
 
-  vec3 bgColor = u_colorBack.rgb * u_colorBack.a;
+  let bgColor = u.u_colorBack.rgb * u.u_colorBack.a;
 
-  vec3 color = accumColor + (1. - accumAlpha) * bgColor;
-  float opacity = accumAlpha + (1. - accumAlpha) * u_colorBack.a;
-  color = clamp(color, 0., 1.);
-  opacity = clamp(opacity, 0., 1.);
+  var color = accumColor + (1.0 - accumAlpha) * bgColor;
+  var opacity = accumAlpha + (1.0 - accumAlpha) * u.u_colorBack.a;
+  color = clamp(color, vec3f(0.0), vec3f(1.0));
+  opacity = clamp(opacity, 0.0, 1.0);
 
   ${ colorBandingFix }
 
-  fragColor = vec4(color, opacity);
+  return vec4f(color, opacity);
 }
 `;
 

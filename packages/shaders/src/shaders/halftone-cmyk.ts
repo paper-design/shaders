@@ -1,6 +1,6 @@
 import type { ShaderMotionParams } from '../shader-mount.js';
 import { type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
-import { declarePI } from '../shader-utils.js';
+import { systemUniformFields, vertexOutputStruct, declarePI } from '../shader-utils.js';
 
 /**
  * CMYK halftone printing effect applied to images with customizable dot patterns
@@ -50,280 +50,293 @@ import { declarePI } from '../shader-utils.js';
  *
  */
 
-// language=GLSL
-export const halftoneCmykFragmentShader: string = `#version 300 es
-precision mediump float;
-
-uniform sampler2D u_image;
-uniform float u_imageAspectRatio;
-
-uniform vec4 u_colorBack;
-uniform vec4 u_colorC;
-uniform vec4 u_colorM;
-uniform vec4 u_colorY;
-uniform vec4 u_colorK;
-uniform float u_size;
-uniform float u_minDot;
-uniform float u_contrast;
-uniform float u_grainSize;
-uniform float u_grainMixer;
-uniform float u_grainOverlay;
-uniform float u_gridNoise;
-uniform float u_softness;
-uniform float u_floodC;
-uniform float u_floodM;
-uniform float u_floodY;
-uniform float u_floodK;
-uniform float u_gainC;
-uniform float u_gainM;
-uniform float u_gainY;
-uniform float u_gainK;
-uniform float u_type;
-uniform sampler2D u_noiseTexture;
-
-in vec2 v_imageUV;
-out vec4 fragColor;
-
-const float shiftC = -.5;
-const float shiftM = -.25;
-const float shiftY = .2;
-const float shiftK = 0.;
-
-// Precomputed sin/cos for rotation angles (15°, 75°, 0°, 45°)
-const float cosC = 0.9659258;  const float sinC = 0.2588190;   // 15°
-const float cosM = 0.2588190;  const float sinM = 0.9659258;   // 75°
-const float cosY = 1.0;        const float sinY = 0.0;         // 0°
-const float cosK = 0.7071068;  const float sinK = 0.7071068;   // 45°
-
-${ declarePI }
-
-vec2 randomRG(vec2 p) {
-  vec2 uv = floor(p) / 100. + .5;
-  return texture(u_noiseTexture, fract(uv)).rg;
+// language=WGSL
+export const halftoneCmykFragmentShader: string = `
+struct Uniforms {
+  ${systemUniformFields}
+  u_colorBack: vec4f,
+  u_colorC: vec4f,
+  u_colorM: vec4f,
+  u_colorY: vec4f,
+  u_colorK: vec4f,
+  u_size: f32,
+  u_minDot: f32,
+  u_contrast: f32,
+  u_grainSize: f32,
+  u_grainMixer: f32,
+  u_grainOverlay: f32,
+  u_gridNoise: f32,
+  u_softness: f32,
+  u_floodC: f32,
+  u_floodM: f32,
+  u_floodY: f32,
+  u_floodK: f32,
+  u_gainC: f32,
+  u_gainM: f32,
+  u_gainY: f32,
+  u_gainK: f32,
+  u_type: f32,
 }
-vec3 hash23(vec2 p) {
-  vec3 p3 = fract(vec3(p.xyx) * vec3(0.3183099, 0.3678794, 0.3141592)) + 0.1;
-  p3 += dot(p3, p3.yzx + 19.19);
-  return fract(vec3(p3.x * p3.y, p3.y * p3.z, p3.z * p3.x));
+@group(0) @binding(0) var<uniform> u: Uniforms;
+
+@group(1) @binding(0) var u_image_tex: texture_2d<f32>;
+@group(1) @binding(1) var u_image_samp: sampler;
+@group(1) @binding(2) var u_noiseTexture_tex: texture_2d<f32>;
+@group(1) @binding(3) var u_noiseTexture_samp: sampler;
+
+${vertexOutputStruct}
+
+${declarePI}
+
+const shiftC: f32 = -0.5;
+const shiftM: f32 = -0.25;
+const shiftY: f32 = 0.2;
+const shiftK: f32 = 0.0;
+
+// Precomputed sin/cos for rotation angles (15deg, 75deg, 0deg, 45deg)
+const cosC: f32 = 0.9659258;  const sinC: f32 = 0.2588190;   // 15deg
+const cosM: f32 = 0.2588190;  const sinM: f32 = 0.9659258;   // 75deg
+const cosY_c: f32 = 1.0;      const sinY_c: f32 = 0.0;       // 0deg
+const cosK: f32 = 0.7071068;  const sinK: f32 = 0.7071068;   // 45deg
+
+fn fwidth_f32(v: f32) -> f32 {
+  return abs(dpdx(v)) + abs(dpdy(v));
 }
 
-float sst(float edge0, float edge1, float x) {
+fn randomRG(p: vec2f) -> vec2f {
+  let uv = floor(p) / 100.0 + vec2f(0.5);
+  return textureSampleLevel(u_noiseTexture_tex, u_noiseTexture_samp, fract(uv), 0.0).rg;
+}
+
+fn hash23(p: vec2f) -> vec3f {
+  var p3 = fract(vec3f(p.x, p.y, p.x) * vec3f(0.3183099, 0.3678794, 0.3141592)) + vec3f(0.1);
+  p3 += vec3f(dot(p3, vec3f(p3.y, p3.z, p3.x) + vec3f(19.19)));
+  return fract(vec3f(p3.x * p3.y, p3.y * p3.z, p3.z * p3.x));
+}
+
+fn sst(edge0: f32, edge1: f32, x: f32) -> f32 {
   return smoothstep(edge0, edge1, x);
 }
 
-vec3 valueNoise3(vec2 st) {
-  vec2 i = floor(st);
-  vec2 f = fract(st);
-  vec3 a = hash23(i);
-  vec3 b = hash23(i + vec2(1.0, 0.0));
-  vec3 c = hash23(i + vec2(0.0, 1.0));
-  vec3 d = hash23(i + vec2(1.0, 1.0));
-  vec2 u = f * f * (3.0 - 2.0 * f);
-  vec3 x1 = mix(a, b, u.x);
-  vec3 x2 = mix(c, d, u.x);
-  return mix(x1, x2, u.y);
+fn valueNoise3(st: vec2f) -> vec3f {
+  let i = floor(st);
+  let f = fract(st);
+  let a = hash23(i);
+  let b = hash23(i + vec2f(1.0, 0.0));
+  let c = hash23(i + vec2f(0.0, 1.0));
+  let d = hash23(i + vec2f(1.0, 1.0));
+  let u_val = f * f * (vec2f(3.0) - 2.0 * f);
+  let x1 = mix(a, b, u_val.x);
+  let x2 = mix(c, d, u_val.x);
+  return mix(x1, x2, u_val.y);
 }
 
-float getUvFrame(vec2 uv, vec2 pad) {
-  float left   = smoothstep(-pad.x, 0., uv.x);
-  float right  = smoothstep(1. + pad.x, 1., uv.x);
-  float bottom = smoothstep(-pad.y, 0., uv.y);
-  float top    = smoothstep(1. + pad.y, 1., uv.y);
+fn getUvFrame(uv: vec2f, pad: vec2f) -> f32 {
+  let left   = smoothstep(-pad.x, 0.0, uv.x);
+  let right  = smoothstep(1.0 + pad.x, 1.0, uv.x);
+  let bottom = smoothstep(-pad.y, 0.0, uv.y);
+  let top    = smoothstep(1.0 + pad.y, 1.0, uv.y);
 
   return left * right * bottom * top;
 }
 
-vec4 RGBAtoCMYK(vec4 rgba) {
-  float k = 1. - max(max(rgba.r, rgba.g), rgba.b);
-  float denom = 1. - k;
-  vec3 cmy = vec3(0.);
+fn RGBAtoCMYK(rgba: vec4f) -> vec4f {
+  let k = 1.0 - max(max(rgba.r, rgba.g), rgba.b);
+  let denom = 1.0 - k;
+  var cmy = vec3f(0.0);
   if (denom > 1e-5) {
-    cmy = (1. - rgba.rgb - vec3(k)) / denom;
+    cmy = (vec3f(1.0) - rgba.rgb - vec3f(k)) / denom;
   }
-  return vec4(cmy, k) * rgba.a;
+  return vec4f(cmy, k) * rgba.a;
 }
 
-vec3 applyContrast(vec3 rgb) {
-  return clamp((rgb - 0.5) * u_contrast + 0.5, 0.0, 1.0);
+fn applyContrast(rgb: vec3f) -> vec3f {
+  return clamp((rgb - vec3f(0.5)) * u.u_contrast + vec3f(0.5), vec3f(0.0), vec3f(1.0));
 }
 
 // Single-component CMYK extractors with contrast built-in, alpha-aware
-float getCyan(vec4 rgba) {
-  vec3 c = clamp((rgba.rgb - 0.5) * u_contrast + 0.5, 0.0, 1.0);
-  float maxRGB = max(max(c.r, c.g), c.b);
-  return (maxRGB > 1e-5 ? (maxRGB - c.r) / maxRGB : 0.) * rgba.a;
+fn getCyan(rgba: vec4f) -> f32 {
+  let c = clamp((rgba.rgb - vec3f(0.5)) * u.u_contrast + vec3f(0.5), vec3f(0.0), vec3f(1.0));
+  let maxRGB = max(max(c.r, c.g), c.b);
+  return select(0.0, (maxRGB - c.r) / maxRGB, maxRGB > 1e-5) * rgba.a;
 }
-float getMagenta(vec4 rgba) {
-  vec3 c = clamp((rgba.rgb - 0.5) * u_contrast + 0.5, 0.0, 1.0);
-  float maxRGB = max(max(c.r, c.g), c.b);
-  return (maxRGB > 1e-5 ? (maxRGB - c.g) / maxRGB : 0.) * rgba.a;
+fn getMagenta(rgba: vec4f) -> f32 {
+  let c = clamp((rgba.rgb - vec3f(0.5)) * u.u_contrast + vec3f(0.5), vec3f(0.0), vec3f(1.0));
+  let maxRGB = max(max(c.r, c.g), c.b);
+  return select(0.0, (maxRGB - c.g) / maxRGB, maxRGB > 1e-5) * rgba.a;
 }
-float getYellow(vec4 rgba) {
-  vec3 c = clamp((rgba.rgb - 0.5) * u_contrast + 0.5, 0.0, 1.0);
-  float maxRGB = max(max(c.r, c.g), c.b);
-  return (maxRGB > 1e-5 ? (maxRGB - c.b) / maxRGB : 0.) * rgba.a;
+fn getYellow(rgba: vec4f) -> f32 {
+  let c = clamp((rgba.rgb - vec3f(0.5)) * u.u_contrast + vec3f(0.5), vec3f(0.0), vec3f(1.0));
+  let maxRGB = max(max(c.r, c.g), c.b);
+  return select(0.0, (maxRGB - c.b) / maxRGB, maxRGB > 1e-5) * rgba.a;
 }
-float getBlack(vec4 rgba) {
-  vec3 c = clamp((rgba.rgb - 0.5) * u_contrast + 0.5, 0.0, 1.0);
-  return (1. - max(max(c.r, c.g), c.b)) * rgba.a;
-}
-
-vec2 cellCenterPos(vec2 uv, vec2 cellOffset, float channelIdx) {
-  vec2 cellCenter = floor(uv) + .5 + cellOffset;
-  return cellCenter + (randomRG(cellCenter + channelIdx * 50.) - .5) * u_gridNoise;
+fn getBlack(rgba: vec4f) -> f32 {
+  let c = clamp((rgba.rgb - vec3f(0.5)) * u.u_contrast + vec3f(0.5), vec3f(0.0), vec3f(1.0));
+  return (1.0 - max(max(c.r, c.g), c.b)) * rgba.a;
 }
 
-vec2 gridToImageUV(vec2 cellCenter, float cosA, float sinA, float shift, vec2 pad) {
-  vec2 uvGrid = mat2(cosA, -sinA, sinA, cosA) * (cellCenter - shift);
-  return uvGrid * pad + 0.5;
+fn cellCenterPos(uv: vec2f, cellOffset: vec2f, channelIdx: f32) -> vec2f {
+  let cellCenter = floor(uv) + vec2f(0.5) + cellOffset;
+  return cellCenter + (randomRG(cellCenter + vec2f(channelIdx * 50.0)) - vec2f(0.5)) * u.u_gridNoise;
 }
 
-void colorMask(vec2 pos, vec2 cellCenter, float rad, float transparency, float grain, float channelAddon, float channelgain, float generalComp, bool isJoined, inout float outMask) {
-  float dist = length(pos - cellCenter);
+fn gridToImageUV(cellCenter: vec2f, cosA: f32, sinA: f32, shift: f32, pad: vec2f) -> vec2f {
+  let uvGrid = mat2x2f(cosA, -sinA, sinA, cosA) * (cellCenter - vec2f(shift));
+  return uvGrid * pad + vec2f(0.5);
+}
 
-  float radius = rad;
-  radius *= (1. + generalComp);
-  radius += (.15 + channelgain * radius);
-  radius = max(0., radius);
-  radius = mix(0., radius, transparency);
+fn colorMask(pos: vec2f, cellCenter: vec2f, rad: f32, transparency: f32, grain: f32, channelAddon: f32, channelgain: f32, generalComp: f32, isJoined: bool) -> f32 {
+  let dist = length(pos - cellCenter);
+
+  var radius = rad;
+  radius *= (1.0 + generalComp);
+  radius += (0.15 + channelgain * radius);
+  radius = max(0.0, radius);
+  radius = mix(0.0, radius, transparency);
   radius += channelAddon;
-  radius *= (1. - grain);
+  radius *= (1.0 - grain);
 
-  float mask = 1. - sst(0., radius, dist);
+  var mask = 1.0 - sst(0.0, radius, dist);
   if (isJoined) {
     // ink or sharp (joined)
     mask = pow(mask, 1.2);
   } else {
     // dots (separate)
-    mask = sst(.5 - .5 * u_softness, .51 + .49 * u_softness, mask);
+    mask = sst(0.5 - 0.5 * u.u_softness, 0.51 + 0.49 * u.u_softness, mask);
   }
 
-  mask *= mix(1., mix(.5, 1., 1.5 * radius), u_softness);
-  outMask += mask;
+  mask *= mix(1.0, mix(0.5, 1.0, 1.5 * radius), u.u_softness);
+  return mask;
 }
 
-vec3 applyInk(vec3 paper, vec3 inkColor, float cov) {
-  vec3 inkEffect = mix(vec3(1.0), inkColor, clamp(cov, 0.0, 1.0));
+fn applyInk(paper: vec3f, inkColor: vec3f, cov: f32) -> vec3f {
+  let inkEffect = mix(vec3f(1.0), inkColor, clamp(cov, 0.0, 1.0));
   return paper * inkEffect;
 }
 
-void main() {
-  vec2 uv = v_imageUV;
+@fragment fn fs_main(input: VertexOutput) -> @location(0) vec4f {
+  let uv = input.v_imageUV;
 
-  float cellsPerSide = mix(400.0, 7.0, pow(u_size, 0.7));
-  float cellSizeY = 1.0 / cellsPerSide;
-  vec2 pad = cellSizeY * vec2(1.0 / u_imageAspectRatio, 1.0);
-  vec2 uvGrid = (uv - .5) / pad;
-  float insideImageBox = getUvFrame(uv, pad);
+  let cellsPerSide = mix(400.0, 7.0, pow(u.u_size, 0.7));
+  let cellSizeY = 1.0 / cellsPerSide;
+  let pad = cellSizeY * vec2f(1.0 / u.u_imageAspectRatio, 1.0);
+  let uvGrid = (uv - vec2f(0.5)) / pad;
+  var insideImageBox = getUvFrame(uv, pad);
 
-  float generalComp = .1 * u_softness + .1 * u_gridNoise + .1 * (1. - step(0.5, u_type)) * (1.5 - u_softness);
+  let generalComp = 0.1 * u.u_softness + 0.1 * u.u_gridNoise + 0.1 * (1.0 - step(0.5, u.u_type)) * (1.5 - u.u_softness);
 
-  vec2 uvC = mat2(cosC, sinC, -sinC, cosC) * uvGrid + shiftC;
-  vec2 uvM = mat2(cosM, sinM, -sinM, cosM) * uvGrid + shiftM;
-  vec2 uvY = mat2(cosY, sinY, -sinY, cosY) * uvGrid + shiftY;
-  vec2 uvK = mat2(cosK, sinK, -sinK, cosK) * uvGrid + shiftK;
+  let uvC = mat2x2f(cosC, sinC, -sinC, cosC) * uvGrid + vec2f(shiftC);
+  let uvM = mat2x2f(cosM, sinM, -sinM, cosM) * uvGrid + vec2f(shiftM);
+  let uvY_val = mat2x2f(cosY_c, sinY_c, -sinY_c, cosY_c) * uvGrid + vec2f(shiftY);
+  let uvK = mat2x2f(cosK, sinK, -sinK, cosK) * uvGrid + vec2f(shiftK);
 
-  vec2 grainSize = mix(2000., 200., u_grainSize) * vec2(1., 1. / u_imageAspectRatio);
-  vec2 grainUV = (v_imageUV - .5) * grainSize + .5;
-  vec3 noiseValues = valueNoise3(grainUV);
-  float grain = sst(.55, 1., noiseValues.r);
-  grain *= u_grainMixer;
+  let grainSizeVal = mix(2000.0, 200.0, u.u_grainSize) * vec2f(1.0, 1.0 / u.u_imageAspectRatio);
+  let grainUV = (input.v_imageUV - vec2f(0.5)) * grainSizeVal + vec2f(0.5);
+  let noiseValues = valueNoise3(grainUV);
+  var grain = sst(0.55, 1.0, noiseValues.r);
+  grain *= u.u_grainMixer;
 
-  vec4 outMask = vec4(0.);
-  bool isJoined = u_type > 0.5;
+  var outMask = vec4f(0.0);
+  let isJoined = u.u_type > 0.5;
 
-  if (u_type < 1.5) {
+  if (u.u_type < 1.5) {
     // dots or ink: per-cell color sampling
-    for (int dy = -1; dy <= 1; dy++) {
-      for (int dx = -1; dx <= 1; dx++) {
-        vec2 cellOffset = vec2(float(dx), float(dy));
+    for (var dy: i32 = -1; dy <= 1; dy++) {
+      for (var dx: i32 = -1; dx <= 1; dx++) {
+        let cellOffset = vec2f(f32(dx), f32(dy));
 
-        vec2 cellCenterC = cellCenterPos(uvC, cellOffset, 0.);
-        vec4 texC = texture(u_image, gridToImageUV(cellCenterC, cosC, sinC, shiftC, pad));
-        colorMask(uvC, cellCenterC, getCyan(texC), insideImageBox * texC.a, grain, u_floodC, u_gainC, generalComp, isJoined, outMask[0]);
+        let cellCenterC_val = cellCenterPos(uvC, cellOffset, 0.0);
+        let texC = textureSampleLevel(u_image_tex, u_image_samp, gridToImageUV(cellCenterC_val, cosC, sinC, shiftC, pad), 0.0);
+        let maskC = colorMask(uvC, cellCenterC_val, getCyan(texC), insideImageBox * texC.a, grain, u.u_floodC, u.u_gainC, generalComp, isJoined);
+        outMask = vec4f(outMask.x + maskC, outMask.y, outMask.z, outMask.w);
 
-        vec2 cellCenterM = cellCenterPos(uvM, cellOffset, 1.);
-        vec4 texM = texture(u_image, gridToImageUV(cellCenterM, cosM, sinM, shiftM, pad));
-        colorMask(uvM, cellCenterM, getMagenta(texM), insideImageBox * texM.a, grain, u_floodM, u_gainM, generalComp, isJoined, outMask[1]);
+        let cellCenterM_val = cellCenterPos(uvM, cellOffset, 1.0);
+        let texM = textureSampleLevel(u_image_tex, u_image_samp, gridToImageUV(cellCenterM_val, cosM, sinM, shiftM, pad), 0.0);
+        let maskM = colorMask(uvM, cellCenterM_val, getMagenta(texM), insideImageBox * texM.a, grain, u.u_floodM, u.u_gainM, generalComp, isJoined);
+        outMask = vec4f(outMask.x, outMask.y + maskM, outMask.z, outMask.w);
 
-        vec2 cellCenterY = cellCenterPos(uvY, cellOffset, 2.);
-        vec4 texY = texture(u_image, gridToImageUV(cellCenterY, cosY, sinY, shiftY, pad));
-        colorMask(uvY, cellCenterY, getYellow(texY), insideImageBox * texY.a, grain, u_floodY, u_gainY, generalComp, isJoined, outMask[2]);
+        let cellCenterY_val = cellCenterPos(uvY_val, cellOffset, 2.0);
+        let texY = textureSampleLevel(u_image_tex, u_image_samp, gridToImageUV(cellCenterY_val, cosY_c, sinY_c, shiftY, pad), 0.0);
+        let maskY = colorMask(uvY_val, cellCenterY_val, getYellow(texY), insideImageBox * texY.a, grain, u.u_floodY, u.u_gainY, generalComp, isJoined);
+        outMask = vec4f(outMask.x, outMask.y, outMask.z + maskY, outMask.w);
 
-        vec2 cellCenterK = cellCenterPos(uvK, cellOffset, 3.);
-        vec4 texK = texture(u_image, gridToImageUV(cellCenterK, cosK, sinK, shiftK, pad));
-        colorMask(uvK, cellCenterK, getBlack(texK), insideImageBox * texK.a, grain, u_floodK, u_gainK, generalComp, isJoined, outMask[3]);
+        let cellCenterK_val = cellCenterPos(uvK, cellOffset, 3.0);
+        let texK = textureSampleLevel(u_image_tex, u_image_samp, gridToImageUV(cellCenterK_val, cosK, sinK, shiftK, pad), 0.0);
+        let maskK = colorMask(uvK, cellCenterK_val, getBlack(texK), insideImageBox * texK.a, grain, u.u_floodK, u.u_gainK, generalComp, isJoined);
+        outMask = vec4f(outMask.x, outMask.y, outMask.z, outMask.w + maskK);
       }
     }
   } else {
     // sharp: direct px color sampling
-    vec4 tex = texture(u_image, uv);
-    tex.rgb = applyContrast(tex.rgb);
-    insideImageBox *= tex.a;
-    vec4 cmykOriginal = RGBAtoCMYK(tex);
-    for (int dy = -1; dy <= 1; dy++) {
-      for (int dx = -1; dx <= 1; dx++) {
-        vec2 cellOffset = vec2(float(dx), float(dy));
+    let tex = textureSampleLevel(u_image_tex, u_image_samp, uv, 0.0);
+    let texContrasted = vec4f(applyContrast(tex.rgb), tex.a);
+    insideImageBox *= texContrasted.a;
+    let cmykOriginal = RGBAtoCMYK(texContrasted);
+    for (var dy: i32 = -1; dy <= 1; dy++) {
+      for (var dx: i32 = -1; dx <= 1; dx++) {
+        let cellOffset = vec2f(f32(dx), f32(dy));
 
-        colorMask(uvC, cellCenterPos(uvC, cellOffset, 0.), cmykOriginal.x, insideImageBox, grain, u_floodC, u_gainC, generalComp, isJoined, outMask[0]);
-        colorMask(uvM, cellCenterPos(uvM, cellOffset, 1.), cmykOriginal.y, insideImageBox, grain, u_floodM, u_gainM, generalComp, isJoined, outMask[1]);
-        colorMask(uvY, cellCenterPos(uvY, cellOffset, 2.), cmykOriginal.z, insideImageBox, grain, u_floodY, u_gainY, generalComp, isJoined, outMask[2]);
-        colorMask(uvK, cellCenterPos(uvK, cellOffset, 3.), cmykOriginal.w, insideImageBox, grain, u_floodK, u_gainK, generalComp, isJoined, outMask[3]);
+        let maskC = colorMask(uvC, cellCenterPos(uvC, cellOffset, 0.0), cmykOriginal.x, insideImageBox, grain, u.u_floodC, u.u_gainC, generalComp, isJoined);
+        outMask = vec4f(outMask.x + maskC, outMask.y, outMask.z, outMask.w);
+        let maskM = colorMask(uvM, cellCenterPos(uvM, cellOffset, 1.0), cmykOriginal.y, insideImageBox, grain, u.u_floodM, u.u_gainM, generalComp, isJoined);
+        outMask = vec4f(outMask.x, outMask.y + maskM, outMask.z, outMask.w);
+        let maskY = colorMask(uvY_val, cellCenterPos(uvY_val, cellOffset, 2.0), cmykOriginal.z, insideImageBox, grain, u.u_floodY, u.u_gainY, generalComp, isJoined);
+        outMask = vec4f(outMask.x, outMask.y, outMask.z + maskY, outMask.w);
+        let maskK = colorMask(uvK, cellCenterPos(uvK, cellOffset, 3.0), cmykOriginal.w, insideImageBox, grain, u.u_floodK, u.u_gainK, generalComp, isJoined);
+        outMask = vec4f(outMask.x, outMask.y, outMask.z, outMask.w + maskK);
       }
     }
   }
 
-  float shape;
-
-  float C = outMask[0];
-  float M = outMask[1];
-  float Y = outMask[2];
-  float K = outMask[3];
+  var C_val = outMask.x;
+  var M_val = outMask.y;
+  var Y_val = outMask.z;
+  var K_val = outMask.w;
 
   if (isJoined) {
     // ink or sharp: apply threshold for joined dots
-    float th = .5;
-    float sLeft = th * u_softness;
-    float sRight = (1. - th) * u_softness + .01;
-    C = smoothstep(th - sLeft - fwidth(C), th + sRight, C);
-    M = smoothstep(th - sLeft - fwidth(M), th + sRight, M);
-    Y = smoothstep(th - sLeft - fwidth(Y), th + sRight, Y);
-    K = smoothstep(th - sLeft - fwidth(K), th + sRight, K);
+    let th: f32 = 0.5;
+    let sLeft = th * u.u_softness;
+    let sRight = (1.0 - th) * u.u_softness + 0.01;
+    C_val = smoothstep(th - sLeft - fwidth_f32(C_val), th + sRight, C_val);
+    M_val = smoothstep(th - sLeft - fwidth_f32(M_val), th + sRight, M_val);
+    Y_val = smoothstep(th - sLeft - fwidth_f32(Y_val), th + sRight, Y_val);
+    K_val = smoothstep(th - sLeft - fwidth_f32(K_val), th + sRight, K_val);
   }
 
-  C *= u_colorC.a;
-  M *= u_colorM.a;
-  Y *= u_colorY.a;
-  K *= u_colorK.a;
+  C_val *= u.u_colorC.a;
+  M_val *= u.u_colorM.a;
+  Y_val *= u.u_colorY.a;
+  K_val *= u.u_colorK.a;
 
-  vec3 ink = vec3(1.);
-  ink = applyInk(ink, u_colorK.rgb, K);
-  ink = applyInk(ink, u_colorC.rgb, C);
-  ink = applyInk(ink, u_colorM.rgb, M);
-  ink = applyInk(ink, u_colorY.rgb, Y);
+  var ink = vec3f(1.0);
+  ink = applyInk(ink, u.u_colorK.rgb, K_val);
+  ink = applyInk(ink, u.u_colorC.rgb, C_val);
+  ink = applyInk(ink, u.u_colorM.rgb, M_val);
+  ink = applyInk(ink, u.u_colorY.rgb, Y_val);
 
-  shape = clamp(max(max(C, M), max(Y, K)), 0., 1.);
+  let shape = clamp(max(max(C_val, M_val), max(Y_val, K_val)), 0.0, 1.0);
 
-  vec3 color = u_colorBack.rgb * u_colorBack.a;
+  var color = u.u_colorBack.rgb * u.u_colorBack.a;
 
-  float opacity = u_colorBack.a;
+  var opacity = u.u_colorBack.a;
   color = mix(color, ink, shape);
   opacity += shape;
-  opacity = clamp(opacity, 0., 1.);
+  opacity = clamp(opacity, 0.0, 1.0);
 
-  float grainOverlay = mix(noiseValues.g, noiseValues.b, .5);
+  var grainOverlay = mix(noiseValues.g, noiseValues.b, 0.5);
   grainOverlay = pow(grainOverlay, 1.3);
 
-  float grainOverlayV = grainOverlay * 2. - 1.;
-  vec3 grainOverlayColor = vec3(step(0., grainOverlayV));
-  float grainOverlayStrength = u_grainOverlay * abs(grainOverlayV);
-  grainOverlayStrength = pow(grainOverlayStrength, .8);
-  color = mix(color, grainOverlayColor, .5 * grainOverlayStrength);
+  let grainOverlayV = grainOverlay * 2.0 - 1.0;
+  let grainOverlayColor = vec3f(step(0.0, grainOverlayV));
+  var grainOverlayStrength = u.u_grainOverlay * abs(grainOverlayV);
+  grainOverlayStrength = pow(grainOverlayStrength, 0.8);
+  color = mix(color, grainOverlayColor, 0.5 * grainOverlayStrength);
 
-  opacity += .5 * grainOverlayStrength;
-  opacity = clamp(opacity, 0., 1.);
+  opacity += 0.5 * grainOverlayStrength;
+  opacity = clamp(opacity, 0.0, 1.0);
 
-  fragColor = vec4(color, opacity);
+  return vec4f(color, opacity);
 }
 `;
 

@@ -1,6 +1,6 @@
 import type { ShaderMotionParams } from '../shader-mount.js';
 import { type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
-import { rotation2, colorBandingFix } from '../shader-utils.js';
+import { systemUniformFields, vertexOutputStruct, rotation2, colorBandingFix } from '../shader-utils.js';
 
 /**
  * A glowing, web-like structure of fluid lines and soft intersections.
@@ -35,73 +35,70 @@ import { rotation2, colorBandingFix } from '../shader-utils.js';
  * Original algorithm: https://x.com/zozuar/status/1625182758745128981/
  */
 
-// language=GLSL
-export const neuroNoiseFragmentShader: string = `#version 300 es
-precision mediump float;
+// language=WGSL
+export const neuroNoiseFragmentShader: string = `
+struct Uniforms {
+  ${systemUniformFields}
+  u_brightness: f32,
+  u_contrast: f32,
+  u_colorFront: vec4f,
+  u_colorMid: vec4f,
+  u_colorBack: vec4f,
+}
+@group(0) @binding(0) var<uniform> u: Uniforms;
 
-uniform float u_time;
-uniform vec2 u_resolution;
-uniform float u_pixelRatio;
-
-uniform vec4 u_colorFront;
-uniform vec4 u_colorMid;
-uniform vec4 u_colorBack;
-uniform float u_brightness;
-uniform float u_contrast;
-
-in vec2 v_patternUV;
-
-out vec4 fragColor;
+${vertexOutputStruct}
 
 ${ rotation2 }
 
-float neuroShape(vec2 uv, float t) {
-  vec2 sine_acc = vec2(0.);
-  vec2 res = vec2(0.);
-  float scale = 8.;
+fn neuroShape(uv_in: vec2f, t: f32) -> f32 {
+  var uv = uv_in;
+  var sine_acc = vec2f(0.0);
+  var res = vec2f(0.0);
+  var scale: f32 = 8.0;
 
-  for (int j = 0; j < 15; j++) {
-    uv = rotate(uv, 1.);
-    sine_acc = rotate(sine_acc, 1.);
-    vec2 layer = uv * scale + float(j) + sine_acc - t;
+  for (var j: i32 = 0; j < 15; j++) {
+    uv = rotate(uv, 1.0);
+    sine_acc = rotate(sine_acc, 1.0);
+    let layer = uv * scale + vec2f(f32(j)) + sine_acc - vec2f(t);
     sine_acc += sin(layer);
-    res += (.5 + .5 * cos(layer)) / scale;
-    scale *= (1.2);
+    res += (vec2f(0.5) + 0.5 * cos(layer)) / scale;
+    scale *= 1.2;
   }
   return res.x + res.y;
 }
 
-void main() {
-  vec2 shape_uv = v_patternUV;
-  shape_uv *= .13;
+@fragment fn fs_main(input: VertexOutput) -> @location(0) vec4f {
+  var shape_uv = input.v_patternUV;
+  shape_uv *= 0.13;
 
-  float t = .5 * u_time;
+  let t = 0.5 * u.u_time;
 
-  float noise = neuroShape(shape_uv, t);
+  var noise_val = neuroShape(shape_uv, t);
 
-  noise = (1. + u_brightness) * noise * noise;
-  noise = pow(noise, .7 + 6. * u_contrast);
-  noise = min(1.4, noise);
+  noise_val = (1.0 + u.u_brightness) * noise_val * noise_val;
+  noise_val = pow(noise_val, 0.7 + 6.0 * u.u_contrast);
+  noise_val = min(1.4, noise_val);
 
-  float blend = smoothstep(0.7, 1.4, noise);
+  let blend = smoothstep(0.7, 1.4, noise_val);
 
-  vec4 frontC = u_colorFront;
-  frontC.rgb *= frontC.a;
-  vec4 midC = u_colorMid;
-  midC.rgb *= midC.a;
-  vec4 blendFront = mix(midC, frontC, blend);
+  var frontC = u.u_colorFront;
+  frontC = vec4f(frontC.rgb * frontC.a, frontC.a);
+  var midC = u.u_colorMid;
+  midC = vec4f(midC.rgb * midC.a, midC.a);
+  let blendFront = mix(midC, frontC, blend);
 
-  float safeNoise = max(noise, 0.0);
-  vec3 color = blendFront.rgb * safeNoise;
-  float opacity = clamp(blendFront.a * safeNoise, 0., 1.);
+  let safeNoise = max(noise_val, 0.0);
+  var color = blendFront.rgb * safeNoise;
+  var opacity = clamp(blendFront.a * safeNoise, 0.0, 1.0);
 
-  vec3 bgColor = u_colorBack.rgb * u_colorBack.a;
-  color = color + bgColor * (1. - opacity);
-  opacity = opacity + u_colorBack.a * (1. - opacity);
+  let bgColor = u.u_colorBack.rgb * u.u_colorBack.a;
+  color = color + bgColor * (1.0 - opacity);
+  opacity = opacity + u.u_colorBack.a * (1.0 - opacity);
 
   ${ colorBandingFix }
 
-  fragColor = vec4(color, opacity);
+  return vec4f(color, opacity);
 }
 `;
 

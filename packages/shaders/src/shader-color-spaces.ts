@@ -5,6 +5,7 @@ export const ShaderColorSpaces = {
 
 export type ShaderColorSpace = keyof typeof ShaderColorSpaces;
 
+// language=WGSL
 export const declareOklchTransforms = `
 
 // magic numbers (and magic could be better tbh)
