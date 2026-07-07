@@ -1,0 +1,431 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Shader Sizing API — visual reference</title>
+    <style>
+      @font-face {
+        font-family: Matter;
+        font-display: swap;
+        src: url('https://paper.design/matter.woff2') format('woff2');
+      }
+      @font-face {
+        font-family: 'Paper Mono';
+        font-display: swap;
+        src: url('https://paper.design/paper-mono-0.100.woff2') format('woff2');
+      }
+
+      :root {
+        --cream: #f0efe4;
+        --fg: #222;
+        --line: #dddbd2;
+        --panel: #f6f5ef;
+        --blue: oklch(74% 0.104 258);
+        --fit: #1256e0;
+        --world: #e0561f;
+        --u: #c0453a;
+        --v: #2f8f5b;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        background: var(--cream);
+        color: var(--fg);
+        font-family: Matter, system-ui, sans-serif;
+        font-size: 15px;
+        line-height: 1.5;
+        -webkit-font-smoothing: antialiased;
+      }
+      code, .mono { font-family: 'Paper Mono', ui-monospace, monospace; }
+
+      header { padding: 24px 24px 4px; }
+      header h1 { margin: 0 0 4px; font-size: 20px; font-weight: 500; }
+      header p { margin: 0; color: var(--fg); }
+      header b { color: var(--fg); font-weight: 500; }
+
+      .wrap { display: flex; flex-wrap: wrap; gap: 32px; padding: 24px; }
+      .stage-col { flex: 1 1 480px; min-width: 300px; }
+      .controls { flex: 0 0 250px; }
+
+      .tabs { display: flex; gap: 4px; margin-bottom: 12px; }
+      .tab {
+        border: 1px solid var(--line); background: transparent; color: var(--fg);
+        padding: 6px 14px; border-radius: 999px; cursor: pointer; font: inherit; font-size: 14px;
+      }
+      .tab[aria-selected='true'] { background: var(--fg); color: var(--cream); border-color: var(--fg); }
+
+      .desc { min-height: 44px; margin-bottom: 14px; color: var(--fg); font-size: 14px; }
+      .desc b { color: var(--fg); font-weight: 500; }
+      .desc code { padding: 0 4px; border: 1px solid var(--line); border-radius: 4px; background: var(--panel); font-size: 13px; }
+
+      .stage {
+        position: relative; width: 560px; max-width: 100%; height: 380px;
+        resize: both; overflow: hidden; border: 1px solid var(--line); border-radius: 8px;
+      }
+      .stage canvas { display: block; width: 100%; height: 100%; }
+      .stage svg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+
+      .legend { display: flex; flex-wrap: wrap; gap: 16px; margin-top: 12px; color: var(--fg); font-size: 13px; }
+      .legend span { display: inline-flex; align-items: center; gap: 6px; }
+      .legend i { display: inline-block; width: 16px; border-top: 2px solid currentColor; }
+
+      .controls h2 { margin: 22px 0 10px; font-size: 12px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; color: var(--fg); }
+      .controls h2:first-child { margin-top: 0; }
+      .controls h2 .note { text-transform: none; letter-spacing: 0; }
+
+      .seg { display: flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+      .seg button { flex: 1; border: 0; border-right: 1px solid var(--line); background: transparent; color: var(--fg); padding: 7px 0; cursor: pointer; font: inherit; font-size: 14px; }
+      .seg button:last-child { border-right: 0; }
+      .seg button[aria-pressed='true'] { background: var(--blue); color: #fff; }
+
+      .ctl { margin: 10px 0; }
+      .ctl .row { display: flex; justify-content: space-between; font-size: 14px; }
+      .ctl .row .u { color: var(--fg); font-size: 12px; }
+      .ctl .val { color: var(--fg); }
+      .ctl input { width: 100%; accent-color: var(--blue); }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Shader Sizing API</h1>
+      <p>
+        A visual reference for the sizing uniforms and the four UV varyings —
+        <b>v_objectUV</b>, <b>v_patternUV</b>, <b>v_imageUV</b>, <b>v_responsiveUV</b>.
+      </p>
+    </header>
+
+    <div class="wrap">
+      <div class="stage-col">
+        <div class="tabs" id="tabs"></div>
+        <div class="desc" id="desc"></div>
+
+        <div class="stage" id="stage">
+          <svg id="overlay" preserveAspectRatio="none"></svg>
+        </div>
+
+        <div class="legend">
+          <span><i style="color: var(--fit); border-top-width: 3px"></i> fit box (after <code class="mono">u_fit</code>)</span>
+          <span><i style="color: var(--world); border-top-width: 3px; border-top-style: dashed"></i> world box (before fit)</span>
+          <span><i style="color: var(--u)"></i> u axis</span>
+          <span><i style="color: var(--v)"></i> v axis</span>
+          <span><i style="width: 9px; height: 9px; border: 2px solid currentColor; border-radius: 50%"></i> origin point</span>
+          <span><i style="width: 9px; height: 9px; border: 0; border-radius: 50%; background: currentColor"></i> offset vector</span>
+        </div>
+      </div>
+
+      <div class="controls">
+        <h2>u_fit</h2>
+        <div class="seg" id="fitSeg">
+          <button data-fit="none">none</button>
+          <button data-fit="contain">contain</button>
+          <button data-fit="cover">cover</button>
+        </div>
+
+        <h2>transform</h2>
+        <div id="transformCtls"></div>
+
+        <h2>world box <span class="note">(0 = canvas)</span></h2>
+        <div id="worldCtls"></div>
+      </div>
+    </div>
+
+    <script type="module">
+      import { ShaderMount } from '../packages/shaders/dist/index.js';
+
+      // Dummy fragment shader: visualises whichever UV varying is active. The REAL
+      // shared vertex shader (linked by ShaderMount) computes the varyings, so what
+      // you see is the genuine sizing pipeline.
+      // language=GLSL
+      const frag = `#version 300 es
+        precision highp float;
+
+        uniform vec2      u_resolution;
+        uniform float     u_pixelRatio;
+        uniform float     u_time;
+        uniform float     u_mode;             // 0 object · 1 pattern · 2 image · 3 responsive
+        uniform float     u_imageAspectRatio;
+        uniform sampler2D u_image;
+
+        in vec2 v_objectUV;
+        in vec2 v_patternUV;
+        in vec2 v_imageUV;
+        in vec2 v_responsiveUV;
+
+        out vec4 fragColor;
+
+        #define BG      vec3(0.941,0.937,0.894)
+        #define GRIDMIN vec3(0.86,0.85,0.80)
+        #define GRIDMAJ vec3(0.72,0.71,0.65)
+        #define CU      vec3(0.82,0.20,0.16)
+        #define CV      vec3(0.10,0.55,0.30)
+        #define INK     vec3(0.30,0.44,0.72)
+
+        float sdBox(vec2 p, vec2 b){ vec2 d=abs(p)-b; return length(max(d,0.0))+min(max(d.x,d.y),0.0); }
+        float sdTri(vec2 p, vec2 a, vec2 b, vec2 c){
+          vec2 e0=b-a,e1=c-b,e2=a-c, v0=p-a,v1=p-b,v2=p-c;
+          vec2 pq0=v0-e0*clamp(dot(v0,e0)/dot(e0,e0),0.,1.);
+          vec2 pq1=v1-e1*clamp(dot(v1,e1)/dot(e1,e1),0.,1.);
+          vec2 pq2=v2-e2*clamp(dot(v2,e2)/dot(e2,e2),0.,1.);
+          float s=sign(e0.x*e2.y-e0.y*e2.x);
+          vec2 d=min(min(vec2(dot(pq0,pq0),s*(v0.x*e0.y-v0.y*e0.x)),
+                         vec2(dot(pq1,pq1),s*(v1.x*e1.y-v1.y*e1.x))),
+                         vec2(dot(pq2,pq2),s*(v2.x*e2.y-v2.y*e2.x)));
+          return -sqrt(d.x)*sign(d.y);
+        }
+        float arrowSDF(vec2 p){                                       // points +Y, lives in ~[-0.5,0.5]
+          float stem = sdBox(p - vec2(0.0,-0.09), vec2(0.062,0.26));
+          float head = sdTri(p, vec2(-0.23,0.09), vec2(0.23,0.09), vec2(0.0,0.46));
+          float d = length(p - vec2(0.31,0.31)) - 0.058;             // asymmetry marker
+          return min(min(stem, head), d);
+        }
+        float aa(float d){ return clamp(0.5 - d/fwidth(d), 0.0, 1.0); }
+        float grid(vec2 uv, float cell){
+          vec2 uvc = uv/cell;
+          vec2 g = abs(fract(uvc-0.5)-0.5) / max(fwidth(uvc), 1e-5);
+          return 1.0 - clamp(min(g.x,g.y), 0.0, 1.0);
+        }
+        float axis(float c){ return 1.0 - clamp(abs(c)/max(fwidth(c),1e-5) - 0.5, 0.0, 1.0); }
+
+        vec3 field(vec2 uv){
+          vec3 col = BG;
+          col = mix(col, GRIDMIN, 0.7*grid(uv,0.1));
+          col = mix(col, GRIDMAJ, 0.95*grid(uv,0.5));
+          col = mix(col, CU, 0.9*axis(uv.y));   // horizontal line (v=0) = the u axis
+          col = mix(col, CV, 0.9*axis(uv.x));   // vertical line   (u=0) = the v axis
+          return col;
+        }
+        vec3 stamp(vec3 col, vec2 local, float discR, float shimmer){
+          col = mix(col, INK, 0.10*aa(length(local)-discR));                 // faint disc = the object
+          col = mix(col, INK*shimmer, aa(arrowSDF(local/max(discR/0.5,0.001))));
+          return col;
+        }
+
+        void main(){
+          float m = u_mode;
+          float shimmer = 0.85 + 0.15*sin(u_time*2.0);
+          vec3 col;
+
+          if (m < 0.5) {                         // OBJECT — fixed square
+            vec2 uv = v_objectUV;
+            col = stamp(field(uv), uv, 0.5, shimmer);
+          } else if (m < 1.5) {                  // PATTERN — tiles forever
+            vec2 uv = v_patternUV * 2.0;
+            col = stamp(field(uv), fract(uv) - 0.5, 0.42, shimmer);
+          } else if (m < 2.5) {                  // IMAGE — samples the texture at [0,1], y-flipped
+            vec2 uv = v_imageUV;
+            float inside = step(0.,uv.x)*step(uv.x,1.)*step(0.,uv.y)*step(uv.y,1.);
+            vec3 tex = texture(u_image, clamp(uv, 0.0, 1.0)).rgb;
+            col = mix(mix(BG, tex, 0.35), tex, inside);   // fade the clamped area outside [0,1]
+            col = mix(col, GRIDMAJ, 0.18*grid(uv,0.5));
+            col = mix(col, CU, 0.6*axis(uv.y));
+            col = mix(col, CV, 0.6*axis(uv.x));
+          } else {                               // RESPONSIVE — adapts to canvas aspect
+            vec2 uv = v_responsiveUV;
+            col = stamp(field(uv), uv, 0.5, shimmer);
+          }
+          fragColor = vec4(col, 1.0);
+        }`;
+
+      const MODES = [
+        { mode: 0, varying: 'v_objectUV', fitDefault: 'contain',
+          desc: 'A fixed <b>square</b> graphic (aspect 1:1). Used by most standalone shaders. Default <code>fit: contain</code> — resize the canvas and the square stays fully visible, centered.' },
+        { mode: 1, varying: 'v_patternUV', fitDefault: 'none',
+          desc: 'A <b>tileable</b> field in pixel-ish units — repeats forever. Default <code>fit: none</code>, so density is fixed regardless of canvas size. <code>scale</code> &amp; <code>worldWidth</code> change tile size.' },
+        { mode: 2, varying: 'v_imageUV', fitDefault: 'contain',
+          desc: 'UV for <b>sampling a real texture</b> (0018.webp): mapped to <code>[0,1]</code>, y-flipped, respecting <code>u_imageAspectRatio</code> (set automatically from the image). Note: <code>fit: none</code> renders a tiny fixed box — <code>contain</code>/<code>cover</code> are the useful modes here.' },
+        { mode: 3, varying: 'v_responsiveUV', fitDefault: 'contain',
+          desc: 'A box that <b>stretches to the canvas aspect ratio</b> while keeping rotation circular. Used by border / edge-aware shaders that must fill any element.' },
+      ];
+      const ids = ['object', 'pattern', 'image', 'responsive'];
+
+      const DEFAULTS = { fit: 'contain', scale: 1, rotation: 0, offsetX: 0, offsetY: 0, originX: 0.5, originY: 0.5, worldWidth: 0, worldHeight: 0 };
+      const FIT_ENUM = { none: 0, contain: 1, cover: 2 };
+      const state = { ...DEFAULTS, modeIndex: 0 };
+
+      const TRANSFORM_CTLS = [
+        { key: 'scale', unit: '', min: 0.1, max: 4, step: 0.01 },
+        { key: 'rotation', unit: 'deg', min: 0, max: 360, step: 1 },
+        { key: 'offsetX', unit: '', min: -1, max: 1, step: 0.01 },
+        { key: 'offsetY', unit: '', min: -1, max: 1, step: 0.01 },
+        { key: 'originX', unit: '', min: 0, max: 1, step: 0.01 },
+        { key: 'originY', unit: '', min: 0, max: 1, step: 0.01 },
+      ];
+      const WORLD_CTLS = [
+        { key: 'worldWidth', unit: 'px', min: 0, max: 1600, step: 10 },
+        { key: 'worldHeight', unit: 'px', min: 0, max: 1600, step: 10 },
+      ];
+
+      const stage = document.getElementById('stage');
+      const overlay = document.getElementById('overlay');
+
+      const IMAGE_SRC = '../docs/public/images/image-filters/0018.webp';
+      let IMG = null;
+      let imageAspect = 1500 / 1124;
+      let mount;
+
+      function loadImage(src) {
+        return new Promise((resolve) => {
+          const im = new Image();
+          im.onload = () => resolve(im);
+          im.onerror = () => { console.warn('Sizing demo: image failed to load —', src); resolve(null); };
+          im.src = src;
+        });
+      }
+
+      function uniforms() {
+        const u = {
+          u_mode: MODES[state.modeIndex].mode,
+          u_fit: FIT_ENUM[state.fit],
+          u_scale: state.scale,
+          u_rotation: state.rotation,
+          u_offsetX: state.offsetX,
+          u_offsetY: state.offsetY,
+          u_originX: state.originX,
+          u_originY: state.originY,
+          u_worldWidth: state.worldWidth,
+          u_worldHeight: state.worldHeight,
+        };
+        // Passing an HTMLImageElement makes ShaderMount build the sampler2D and set
+        // u_imageAspectRatio for us; fall back to the number if it never loaded.
+        if (IMG) u.u_image = IMG;
+        else u.u_imageAspectRatio = imageAspect;
+        return u;
+      }
+
+      function pushUniforms() {
+        mount.setUniforms(uniforms());
+        drawOverlay();
+      }
+
+      // --- Sizing math: faithful port of vertex-shader.ts getBoxSize() ---------
+      // (pixelRatio cancels in every ratio, so we work in CSS px.)
+      function getBoxSize(ratio, given, fit, res) {
+        let x = ratio * Math.min(given.x / ratio, given.y); // none
+        if (fit === 1) x = ratio * Math.min(res.x / ratio, res.y);       // contain
+        else if (fit === 2) x = ratio * Math.max(res.x / ratio, res.y);  // cover
+        return { w: x, h: x / ratio };
+      }
+
+      function boxesFor(mode, res) {
+        const fit = FIT_ENUM[state.fit];
+        const world = {
+          x: state.worldWidth === 0 ? res.x : state.worldWidth,
+          y: state.worldHeight === 0 ? res.y : state.worldHeight,
+        };
+        const worldBox = { w: world.x, h: world.y };
+        if (mode === 0) return { fit: getBoxSize(1, world, fit, res), world: worldBox };
+        if (mode === 2) {
+          const a = imageAspect;
+          let x = fit === 1 ? Math.min(res.x / a, res.y) * a : fit === 2 ? Math.max(res.x / a, res.y) * a : 10;
+          return { fit: { w: x, h: x / a }, world: worldBox };
+        }
+        return { fit: getBoxSize(world.x / world.y, world, fit, res), world: worldBox };
+      }
+
+      // Map the graphic's unit box [-0.5,0.5]^2 to screen px via the inverse of the
+      // object UV transform (exact for object/image at rotation 0; indicative for
+      // pattern/responsive whose UV warps internally).
+      function boxCorners(box, res, w, h) {
+        const scaleXY = { x: res.x / box.w, y: res.y / box.h };
+        const boxOrigin = { x: 0.5 - state.originX, y: state.originY - 0.5 };
+        const off = { x: -state.offsetX, y: state.offsetY };
+        const r = (state.rotation * Math.PI) / 180;
+        const cos = Math.cos(r), sin = Math.sin(r);
+        return [ [-0.5, -0.5], [0.5, -0.5], [0.5, 0.5], [-0.5, 0.5] ].map(([cx, cy]) => {
+          let tx = cos * cx + sin * cy, ty = -sin * cx + cos * cy; // inverse rotation
+          tx = tx * state.scale - off.x - boxOrigin.x * (scaleXY.x - 1);
+          ty = ty * state.scale - off.y - boxOrigin.y * (scaleXY.y - 1);
+          const ux = tx / scaleXY.x, uy = ty / scaleXY.y;
+          return `${((ux + 0.5) * w).toFixed(1)},${((0.5 - uy) * h).toFixed(1)}`;
+        }).join(' ');
+      }
+
+      function drawOverlay() {
+        const w = stage.clientWidth, h = stage.clientHeight;
+        overlay.setAttribute('viewBox', `0 0 ${w} ${h}`);
+        const res = { x: w, y: h };
+        const { fit, world } = boxesFor(MODES[state.modeIndex].mode, res);
+        const ox = state.originX * w, oy = (1 - state.originY) * h;
+        const cx = w / 2, cy = h / 2;
+        const ex = cx + state.offsetX * w * 0.5, ey = cy - state.offsetY * h * 0.5;
+        const parts = [
+          `<polygon points="${boxCorners(world, res, w, h)}" fill="none" stroke="var(--world)" stroke-width="2.5" stroke-dasharray="8 5"/>`,
+          `<polygon points="${boxCorners(fit, res, w, h)}" fill="var(--fit)" fill-opacity="0.10" stroke="var(--fit)" stroke-width="2.8"/>`,
+          `<circle cx="${ox}" cy="${oy}" r="6" fill="none" stroke="var(--fg)" stroke-width="2"/><circle cx="${ox}" cy="${oy}" r="2" fill="var(--fg)"/>`,
+        ];
+        if (state.offsetX !== 0 || state.offsetY !== 0)
+          parts.push(`<line x1="${cx}" y1="${cy}" x2="${ex}" y2="${ey}" stroke="var(--fg)" stroke-width="2"/><circle cx="${ex}" cy="${ey}" r="3.2" fill="var(--fg)"/>`);
+        overlay.innerHTML = parts.join('');
+      }
+
+      // --- Controls ------------------------------------------------------------
+      const fmt = (v) => (Number.isInteger(v) ? v : v.toFixed(2));
+
+      function buildTabs() {
+        const el = document.getElementById('tabs');
+        el.innerHTML = ids.map((id, i) => `<button class="tab" data-i="${i}">${id}</button>`).join('');
+        el.querySelectorAll('.tab').forEach((b) =>
+          b.addEventListener('click', () => {
+            state.modeIndex = +b.dataset.i;
+            state.fit = MODES[state.modeIndex].fitDefault;
+            syncTabs();
+            syncFit();
+            pushUniforms();
+          }));
+      }
+      function syncTabs() {
+        document.querySelectorAll('.tab').forEach((b) => b.setAttribute('aria-selected', +b.dataset.i === state.modeIndex));
+        document.getElementById('desc').innerHTML = MODES[state.modeIndex].desc;
+      }
+
+      function syncFit() {
+        document.querySelectorAll('#fitSeg button').forEach((b) => b.setAttribute('aria-pressed', b.dataset.fit === state.fit));
+      }
+      function buildFit() {
+        document.querySelectorAll('#fitSeg button').forEach((b) =>
+          b.addEventListener('click', () => { state.fit = b.dataset.fit; syncFit(); pushUniforms(); }));
+        syncFit();
+      }
+
+      function buildSliders(hostId, cfgs) {
+        const host = document.getElementById(hostId);
+        host.innerHTML = cfgs.map((c) =>
+          `<div class="ctl" data-key="${c.key}">
+             <div class="row"><span>${c.key}<span class="u"> ${c.unit}</span></span><span class="val"></span></div>
+             <input type="range" min="${c.min}" max="${c.max}" step="${c.step}" />
+           </div>`).join('');
+        cfgs.forEach((c) => {
+          const wrap = host.querySelector(`[data-key="${c.key}"]`);
+          const input = wrap.querySelector('input');
+          const val = wrap.querySelector('.val');
+          input.value = state[c.key];
+          val.textContent = fmt(state[c.key]);
+          input.addEventListener('input', () => {
+            state[c.key] = +input.value;
+            val.textContent = fmt(state[c.key]);
+            pushUniforms();
+          });
+        });
+      }
+
+      // --- Init: load the texture first so ShaderMount can upload it at mount ---
+      (async () => {
+        IMG = await loadImage(IMAGE_SRC);
+        if (IMG) imageAspect = IMG.naturalWidth / IMG.naturalHeight;
+
+        mount = new ShaderMount(stage, frag, uniforms(), undefined, 1);
+        stage.appendChild(overlay); // keep the SVG overlay above the canvas ShaderMount prepends
+
+        buildTabs();
+        buildFit();
+        buildSliders('transformCtls', TRANSFORM_CTLS);
+        buildSliders('worldCtls', WORLD_CTLS);
+        syncTabs();
+        pushUniforms();
+        new ResizeObserver(drawOverlay).observe(stage);
+        window.__mount = mount;
+      })();
+    </script>
+  </body>
+</html>
