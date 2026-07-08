@@ -50,7 +50,7 @@ export const warpMeta = {
 
 // language=GLSL
 export const warpFragmentShader: string = `#version 300 es
-precision mediump float;
+precision lowp float;
 
 uniform float u_time;
 uniform float u_scale;
@@ -68,8 +68,8 @@ uniform float u_swirl;
 uniform float u_swirlIterations;
 uniform float u_contour;
 uniform bool u_antialiasing;
-uniform vec2 u_resolution;
-uniform float u_pixelRatio;
+uniform mediump vec2 u_resolution;
+uniform mediump float u_pixelRatio;
 
 in vec2 v_patternUV;
 
@@ -190,11 +190,6 @@ void main() {
 
   vec4 acc;
   if (u_antialiasing) {
-    // Non-adaptive supersampling: fixed AA_ROOT x AA_ROOT grid, every pixel. The base
-    // UV is a linear varying so its screen gradients are exact; we reconstruct each
-    // sub-sample's pre-warp UV from them and run the whole warp per tap, so the taps
-    // follow the true folded footprint the swirl produces. Hard-banded samples (aaW=0)
-    // are averaged -> coverage-based AA that holds up under strong distortion/swirl.
     vec2 duvdx = dFdx(uv);
     vec2 duvdy = dFdy(uv);
     const int AA_ROOT = 4;
