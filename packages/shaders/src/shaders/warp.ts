@@ -24,6 +24,10 @@ export const warpMeta = {
  * - u_distortion (float): Strength of noise-based distortion (0 to 1)
  * - u_swirl (float): Strength of the swirl distortion (0 to 1)
  * - u_swirlIterations (float): Number of layered swirl passes, effective with swirl > 0 (0 to 20)
+ * - u_contour (float): Strength of the contour band traced around the canvas element borders (0 to 1)
+ * - u_antialiasing (bool): Enables fixed 4x4 supersampling; needed for crisp low-softness bands under strong distortion/swirl
+ * - u_resolution (vec2): Canvas resolution in pixels, used to keep the contour locked to the canvas borders
+ * - u_pixelRatio (float): Device pixel ratio, used to keep the contour thickness consistent across displays
  * - u_noiseTexture (sampler2D): Pre-computed randomizer source texture
  *
  * Vertex shader outputs (used in fragment shader):
@@ -53,7 +57,7 @@ uniform float u_scale;
 
 uniform sampler2D u_noiseTexture;
 
-uniform vec4 u_colors[${ warpMeta.maxColorCount }];
+uniform vec4 u_colors[${warpMeta.maxColorCount}];
 uniform float u_colorsCount;
 uniform float u_proportion;
 uniform float u_softness;
@@ -62,16 +66,17 @@ uniform float u_shapeScale;
 uniform float u_distortion;
 uniform float u_swirl;
 uniform float u_swirlIterations;
-uniform float u_edgeTrap;
+uniform float u_contour;
+uniform bool u_antialiasing;
+uniform vec2 u_resolution;
+uniform float u_pixelRatio;
 
 in vec2 v_patternUV;
-in vec2 v_responsiveUV;
-in vec2 v_responsiveBoxGivenSize;
 
 out vec4 fragColor;
 
-${ declarePI }
-${ rotation2 }
+${declarePI}
+${rotation2}
 float randomG(vec2 p) {
   vec2 uv = floor(p) / 100. + .5;
   return texture(u_noiseTexture, fract(uv)).g;
@@ -89,36 +94,80 @@ float valueNoise(vec2 st) {
   return mix(x1, x2, u.y);
 }
 
+// The scalar base pattern (checks / stripes / edge) evaluated at a warped UV.
+float patternShape(vec2 uv) {
+  float proportion = clamp(u_proportion, 0., 1.);
+  float proportionOffset = .48 * sign(proportion - .5) * pow(abs(proportion - .5), .5);
+  float shape;
+  if (u_shape < .5) {
+    vec2 p = uv * (.5 + 3.5 * u_shapeScale);
+    shape = .5 + .5 * sin(p.x) * cos(p.y);
+    shape += proportionOffset;
+  } else if (u_shape < 1.5) {
+    float f = fract(uv.y * (2. * u_shapeScale));
+    shape = smoothstep(.0, .55, f) * (1.0 - smoothstep(.45, 1., f));
+    shape += proportionOffset;
+  } else {
+    float shapeScaling = 5. * (1. - u_shapeScale);
+    float e0 = 0.45 - shapeScaling;
+    float e1 = 0.55 + shapeScaling;
+    shape = smoothstep(min(e0, e1), max(e0, e1), 1.0 - uv.y + 0.3 * (proportion - 0.5));
+  }
+  return shape;
+}
 
-void main() {
-  vec2 uv = v_patternUV;
-  uv *= .5;
+// Map the scalar pattern onto the color bands. u_softness sets band sharpness; aaW is
+// a screen-space floor that antialiases individual band edges (needed when a pixel
+// takes only 1 sample). Multi-crossing AA is handled by supersampling in main.
+vec4 shadeBands(float shape, float aaW) {
+  float mixer = shape * (u_colorsCount - 1.);
+  vec4 gradient = u_colors[0];
+  gradient.rgb *= gradient.a;
+  for (int i = 1; i < ${warpMeta.maxColorCount}; i++) {
+    if (i >= int(u_colorsCount)) break;
+    float m = clamp(mixer - float(i - 1), 0.0, 1.0);
 
-  // Canvas edge - fade out effects near edges
-  vec2 borderUV = v_responsiveUV + .5;
+    float localMixerStart = floor(m);
+    float w = .5 * u_softness + aaW;
+    float e = m - localMixerStart;
+    float smoothed = w > 0. ? smoothstep(max(0., .5 - w), min(1., .5 + w), e) : step(.5, e);
+    float stepped = localMixerStart + smoothed;
+
+    m = mix(stepped, m, u_softness);
+
+    vec4 c = u_colors[i];
+    c.rgb *= c.a;
+    gradient = mix(gradient, c, m);
+  }
+  return gradient;
+}
+
+
+// Contour band mask, locked to the <canvas> borders. Smooth in screen space, so it is
+// a reliable per-pixel signal (unlike derivatives of the folded warp).
+float contourEdge(vec2 fragCoord) {
+  const float MAX_THICKNESS = .5;
+  vec2 borderUV = fragCoord / u_resolution;
   vec2 mask = min(borderUV, 1. - borderUV);
-  vec2 pixel_thickness = 450. / v_responsiveBoxGivenSize;
-  float maskX = smoothstep(0.0, pixel_thickness.x, mask.x);
-  float maskY = smoothstep(0.0, pixel_thickness.y, mask.y);
-  maskX = pow(maskX, .25);
-  maskY = pow(maskY, .25);
-  float edge = clamp(1. - maskX * maskY, 0., 1.);
+  vec2 pixel_thickness = min(400. * u_pixelRatio / u_resolution, vec2(MAX_THICKNESS));
+  float maskX = pow(smoothstep(0.0, pixel_thickness.x, mask.x), .2);
+  float maskY = pow(smoothstep(0.0, pixel_thickness.y, mask.y), .2);
+  return clamp(1. - maskX * maskY, 0., 1.);
+}
 
-  const float firstFrameOffset = 118.;
-  float t = 0.0625 * (u_time + firstFrameOffset);
+vec2 warpUV(vec2 uv, vec2 fragCoord, float t) {
+  float edge = contourEdge(fragCoord);
 
   float n1 = valueNoise(uv * 1. + t);
   float n2 = valueNoise(uv * 2. - t);
   float angle = n1 * TWO_PI;
-  
-  float radius = smoothstep(0., 1., length(uv - .5));
-  float edgeFadeW = u_edgeTrap * edge;
-  float edgeFade = u_edgeTrap * pow(edge, 3.);
+
+  float edgeFadeW = u_contour * edge;
+  float edgeFade = u_contour * pow(edge, 5.);
   uv -= vec2(.5);
-  float angleTest = 3. * edgeFade * angle;
-  uv = rotate(uv, -angleTest);
+  uv = rotate(uv, -edgeFade * angle);
   uv += vec2(.5);
-  
+
   uv.x += 4. * u_distortion * n2 * cos(angle) * (1. - edgeFadeW);
   uv.y += 4. * u_distortion * n2 * sin(angle) * (1. - edgeFadeW);
 
@@ -129,50 +178,49 @@ void main() {
     uv.x += swirl / iFloat * cos(t + iFloat * 1.5 * uv.y);
     uv.y += swirl / iFloat * cos(t + iFloat * 1. * uv.x);
   }
+  return uv;
+}
 
-  float proportion = clamp(u_proportion, 0., 1.);
 
-  float shape = 0.;
-  if (u_shape < .5) {
-    vec2 checksShape_uv = uv * (.5 + 3.5 * u_shapeScale);
-    shape = .5 + .5 * sin(checksShape_uv.x) * cos(checksShape_uv.y);
-    shape += .48 * sign(proportion - .5) * pow(abs(proportion - .5), .5);
-  } else if (u_shape < 1.5) {
-    vec2 stripesShape_uv = uv * (2. * u_shapeScale);
-    float f = fract(stripesShape_uv.y);
-    shape = smoothstep(.0, .55, f) * (1.0 - smoothstep(.45, 1., f));
-    shape += .48 * sign(proportion - .5) * pow(abs(proportion - .5), .5);
+void main() {
+  vec2 uv = v_patternUV * .5;
+
+  const float firstFrameOffset = 118.;
+  float t = 0.0625 * (u_time + firstFrameOffset);
+
+  vec4 acc;
+  if (u_antialiasing) {
+    // Non-adaptive supersampling: fixed AA_ROOT x AA_ROOT grid, every pixel. The base
+    // UV is a linear varying so its screen gradients are exact; we reconstruct each
+    // sub-sample's pre-warp UV from them and run the whole warp per tap, so the taps
+    // follow the true folded footprint the swirl produces. Hard-banded samples (aaW=0)
+    // are averaged -> coverage-based AA that holds up under strong distortion/swirl.
+    vec2 duvdx = dFdx(uv);
+    vec2 duvdy = dFdy(uv);
+    const int AA_ROOT = 4;
+    acc = vec4(0.);
+    for (int i = 0; i < AA_ROOT * AA_ROOT; i++) {
+      int iy = i / AA_ROOT;
+      int ix = i - iy * AA_ROOT;
+      vec2 cell = (vec2(float(ix), float(iy)) + .5) / float(AA_ROOT) - .5;
+      // rotate ~26.57deg so the grid never resonates with the checks/stripes axes
+      vec2 o = vec2(cell.x * .8944 - cell.y * .4472, cell.x * .4472 + cell.y * .8944);
+      vec2 sBase = uv + o.x * duvdx + o.y * duvdy;
+      acc += shadeBands(patternShape(warpUV(sBase, gl_FragCoord.xy + o, t)), 0.);
+    }
+    acc /= float(AA_ROOT * AA_ROOT);
   } else {
-    float shapeScaling = 5. * (1. - u_shapeScale);
-    float e0 = 0.45 - shapeScaling;
-    float e1 = 0.55 + shapeScaling;
-    shape = smoothstep(min(e0, e1), max(e0, e1), 1.0 - uv.y + 0.3 * (proportion - 0.5));
+    // Single sample + a cheap analytic floor that antialiases lone band edges.
+    vec2 wc = warpUV(uv, gl_FragCoord.xy, t);
+    float shapeC = patternShape(wc);
+    float aaW = min(fwidth(shapeC * (u_colorsCount - 1.)), .5);
+    acc = shadeBands(shapeC, aaW);
   }
 
-  float mixer = shape * (u_colorsCount - 1.);
-  vec4 gradient = u_colors[0];
-  gradient.rgb *= gradient.a;
-  float aa = fwidth(shape);
-  for (int i = 1; i < ${ warpMeta.maxColorCount }; i++) {
-    if (i >= int(u_colorsCount)) break;
-    float m = clamp(mixer - float(i - 1), 0.0, 1.0);
+  vec3 color = acc.rgb;
+  float opacity = acc.a;
 
-    float localMixerStart = floor(m);
-    float softness = .5 * u_softness + fwidth(m);
-    float smoothed = smoothstep(max(0., .5 - softness - aa), min(1., .5 + softness + aa), m - localMixerStart);
-    float stepped = localMixerStart + smoothed;
-
-    m = mix(stepped, m, u_softness);
-
-    vec4 c = u_colors[i];
-    c.rgb *= c.a;
-    gradient = mix(gradient, c, m);
-  }
-
-  vec3 color = gradient.rgb;
-  float opacity = gradient.a;
-
-  ${ colorBandingFix }
+  ${colorBandingFix}
 
   fragColor = vec4(color, opacity);
 }
@@ -188,7 +236,8 @@ export interface WarpUniforms extends ShaderSizingUniforms {
   u_distortion: number;
   u_swirl: number;
   u_swirlIterations: number;
-  u_edgeTrap: number;
+  u_contour: number;
+  u_antialiasing: boolean;
   u_noiseTexture?: HTMLImageElement;
 }
 
@@ -202,7 +251,8 @@ export interface WarpParams extends ShaderSizingParams, ShaderMotionParams {
   distortion?: number;
   swirl?: number;
   swirlIterations?: number;
-  edgeTrap?: number;
+  contour?: number;
+  antialiasing?: boolean;
 }
 
 export const WarpPatterns = {

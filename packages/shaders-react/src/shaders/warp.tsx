@@ -32,7 +32,8 @@ export const defaultPreset: WarpPreset = {
     swirlIterations: 10,
     shapeScale: 0.1,
     shape: 'checks',
-    edgeTrap: 0.5
+    contour: 0,
+    antialiasing: false
   },
 };
 
@@ -52,7 +53,8 @@ export const presetCauldron: WarpPreset = {
     swirlIterations: 7,
     shapeScale: 0.6,
     shape: 'edge',
-    edgeTrap: 0.5
+    contour: 0,
+    antialiasing: false
   },
 };
 
@@ -73,7 +75,8 @@ export const presetInk: WarpPreset = {
     swirlIterations: 10,
     shapeScale: 0.28,
     shape: 'checks',
-    edgeTrap: 0.5
+    contour: 0,
+    antialiasing: true
   },
 };
 
@@ -93,7 +96,8 @@ export const presetKelp: WarpPreset = {
     swirlIterations: 3,
     shapeScale: 1,
     shape: 'stripes',
-    edgeTrap: 0.5
+    contour: 0,
+    antialiasing: false
   },
 };
 
@@ -114,7 +118,8 @@ export const presetNectar: WarpPreset = {
     swirlIterations: 10,
     shapeScale: 0.75,
     shape: 'edge',
-    edgeTrap: 0.5
+    contour: 0,
+    antialiasing: false
   },
 };
 
@@ -134,7 +139,8 @@ export const presetPassion: WarpPreset = {
     swirlIterations: 6,
     shapeScale: 0.25,
     shape: 'checks',
-    edgeTrap: 0.5
+    contour: 0,
+    antialiasing: false
   },
 };
 
@@ -159,7 +165,8 @@ export const Warp: React.FC<WarpProps> = memo(function WarpImpl({
   swirlIterations = defaultPreset.params.swirlIterations,
   shapeScale = defaultPreset.params.shapeScale,
   shape = defaultPreset.params.shape,
-  edgeTrap = defaultPreset.params.edgeTrap,
+  contour = defaultPreset.params.contour,
+  antialiasing = defaultPreset.params.antialiasing,
 
   // Sizing props
   fit = defaultPreset.params.fit,
@@ -184,7 +191,8 @@ export const Warp: React.FC<WarpProps> = memo(function WarpImpl({
     u_swirlIterations: swirlIterations,
     u_shapeScale: shapeScale,
     u_shape: WarpPatterns[shape],
-    u_edgeTrap: edgeTrap,
+    u_contour: contour,
+    u_antialiasing: antialiasing,
     u_noiseTexture: getShaderNoiseTexture(),
 
     // Sizing uniforms

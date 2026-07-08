@@ -71,6 +71,13 @@ export const warpDef: ShaderDef = {
       defaultValue: defaultParams.shapeScale,
       description: 'Zoom level of the base pattern',
     },
+    {
+      name: 'antialiasing',
+      type: 'boolean',
+      defaultValue: defaultParams.antialiasing,
+      description: 'Fixed 4x4 supersampling; needed for crisp low-softness bands under strong distortion/swirl',
+      options: ['true', 'false'],
+    },
     ...animatedCommonParams,
   ],
 };
