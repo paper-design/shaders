@@ -77,12 +77,14 @@ import {MeshGradient, DotOrbit} from '@paper-design/shaders-react';
 
 ## License and use
 
-Paper Shaders uses the PolyForm Shield license. This means the code is free to use in any commercial or non-commercial apps, products, and libraries, as long as they do not compete with Paper or Paper Shaders.
+## License
 
-You may NOT use this code in library or in a design tool that competes with Paper or Paper Shaders.
+Paper Shaders is licensed under Apache 2.0.
 
-We ask that you link to Paper Shaders if you use this code (it helps us continue investing in this project). Thank you!
+You can use Paper Shaders in commercial websites, apps, games, videos, prototypes, internal tools, and other end products without visible attribution.
 
-[Read the full license →](./LICENSE)
+If you redistribute Paper Shaders code as part of another shader library, plugin, or tool, please preserve the included LICENSE and NOTICE files. Visible credit such as “Powered by Paper Shaders” is also appreciated and helps us continue investing in this library.
 
-Required Notice: Copyright Lost Coast Labs, Inc. (http://paper.design)
+---
+
+Copyright Lost Coast Labs, Inc. (http://paper.design)

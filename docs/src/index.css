@@ -195,6 +195,20 @@
       outline-offset: 2px;
     }
 
+    /* Leva renders an opacity:0 native <select> over a fake div. The native
+       dropdown popup it opens has no colors set, so in dark mode it paints
+       dark text on a dark background. Give the select + options explicit,
+       theme-aware colors so the popup stays readable. */
+    & select {
+      color: var(--color-foreground);
+      background-color: var(--color-leva-background);
+    }
+
+    & select option {
+      color: var(--color-foreground);
+      background-color: var(--color-leva-background);
+    }
+
     & div:has(> input):hover {
       box-shadow: none !important;
     }

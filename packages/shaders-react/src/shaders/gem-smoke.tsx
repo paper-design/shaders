@@ -1,126 +1,130 @@
 import { memo, useLayoutEffect, useState } from 'react';
 import { ShaderMount, type ShaderComponentProps } from '../shader-mount.js';
+import { colorPropsAreEqual } from '../color-props-are-equal.js';
 import {
-  liquidMetalFragmentShader,
+  gemSmokeFragmentShader,
   ShaderFitOptions,
   defaultObjectSizing,
-  type LiquidMetalUniforms,
-  type LiquidMetalParams,
-  toProcessedLiquidMetal,
+  type GemSmokeUniforms,
+  type GemSmokeParams,
+  toProcessedGemSmoke,
   type ImageShaderPreset,
   getShaderColorFromString,
-  LiquidMetalShapes,
+  GemSmokeShapes,
 } from '@paper-design/shaders';
 import { transparentPixel } from '../transparent-pixel.js';
 import { suspend } from '../suspend.js';
 
-export interface LiquidMetalProps extends ShaderComponentProps, LiquidMetalParams {
+export interface GemSmokeProps extends ShaderComponentProps, GemSmokeParams {
   /**
    * Suspends the component when the image is being processed.
    */
   suspendWhenProcessingImage?: boolean;
 }
 
-type LiquidMetalPreset = ImageShaderPreset<LiquidMetalParams>;
+type GemSmokePreset = ImageShaderPreset<GemSmokeParams>;
 
-export const defaultPreset: LiquidMetalPreset = {
+export const defaultPreset: GemSmokePreset = {
   name: 'Default',
   params: {
     ...defaultObjectSizing,
     scale: 0.6,
     speed: 1,
     frame: 0,
-    colorBack: '#AAAAAC',
-    colorTint: '#ffffff',
-    distortion: 0.07,
-    repetition: 2.0,
-    shiftRed: 0.3,
-    shiftBlue: 0.3,
-    contour: 0.4,
-    softness: 0.1,
-    angle: 70,
-    shape: 'diamond',
-  },
-};
-
-export const noirPreset: LiquidMetalPreset = {
-  name: 'Noir',
-  params: {
-    ...defaultObjectSizing,
-    scale: 0.6,
-    speed: 1,
-    frame: 0,
-    colorBack: '#000000',
-    colorTint: '#606060',
-    softness: 0.45,
-    repetition: 1.5,
-    shiftRed: 0,
-    shiftBlue: 0,
-    distortion: 0,
-    contour: 0,
-    angle: 90,
-    shape: 'diamond',
-  },
-};
-
-export const fullScreenPreset: LiquidMetalPreset = {
-  name: 'Backdrop',
-  params: {
-    ...defaultObjectSizing,
-    speed: 1,
-    frame: 0,
-    scale: 1,
-    colorBack: '#AAAAAC',
-    colorTint: '#ffffff',
-    softness: 0.05,
-    repetition: 1.5,
-    shiftRed: 0.3,
-    shiftBlue: 0.3,
-    distortion: 0.1,
-    contour: 0.4,
-    shape: 'none',
-    angle: 90,
-    worldWidth: 0,
-    worldHeight: 0,
-  },
-};
-
-export const stripesPreset: LiquidMetalPreset = {
-  name: 'Stripes',
-  params: {
-    ...defaultObjectSizing,
-    speed: 1,
-    frame: 0,
-    scale: 0.6,
-    colorBack: '#000000',
-    colorTint: '#2c5d72',
-    softness: 0.8,
-    repetition: 6,
-    shiftRed: 1,
-    shiftBlue: -1,
-    distortion: 0.4,
-    contour: 0.4,
-    shape: 'circle',
+    colorBack: '#f0efea',
+    colorInner: '#fafaf5',
+    colors: ['#333333', '#e7e6df'],
+    outerGlow: 0.55,
+    innerGlow: 1,
+    innerDistortion: 0.8,
+    outerDistortion: 0.6,
+    offset: 0,
     angle: 0,
+    size: 0.8,
+    shape: 'diamond',
   },
 };
 
-export const liquidMetalPresets: LiquidMetalPreset[] = [defaultPreset, noirPreset, fullScreenPreset, stripesPreset];
+export const fluorescentPreset: GemSmokePreset = {
+  name: 'Fluorescent',
+  params: {
+    ...defaultObjectSizing,
+    scale: 0.6,
+    speed: 1,
+    frame: 0,
+    colorBack: '#000000',
+    colorInner: '#000000',
+    colors: ['#2fb64c', '#cdff61', '#ffffff'],
+    outerGlow: 0,
+    innerGlow: 1,
+    innerDistortion: 1,
+    outerDistortion: 0.8,
+    offset: 0,
+    angle: 0,
+    size: 0.8,
+    shape: 'diamond',
+  },
+};
 
-export const LiquidMetal: React.FC<LiquidMetalProps> = memo(function LiquidMetalImpl({
+export const firePreset: GemSmokePreset = {
+  name: 'Fire',
+  params: {
+    ...defaultObjectSizing,
+    scale: 0.6,
+    speed: 1,
+    frame: 0,
+    colorBack: '#000000',
+    colorInner: '#000000',
+    colors: ['#fe5b16', '#f7ff61', '#ffffff'],
+    outerGlow: 1,
+    innerGlow: 0.65,
+    innerDistortion: 0.6,
+    outerDistortion: 0.8,
+    offset: 0,
+    angle: 0,
+    size: 0.8,
+    shape: 'diamond',
+  },
+};
+
+export const infraredPreset: GemSmokePreset = {
+  name: 'Infrared',
+  params: {
+    ...defaultObjectSizing,
+    scale: 0.6,
+    speed: 0.5,
+    frame: 0,
+    colorBack: '#cd28dc',
+    colorInner: '#00000000',
+    colors: ['#ff9900', '#fff67a', '#dcff52', '#00ffbb', '#0077ff'],
+    outerGlow: 1,
+    innerGlow: 1,
+    innerDistortion: 1,
+    outerDistortion: 1,
+    offset: 0.2,
+    angle: 0,
+    size: 1,
+    shape: 'diamond',
+  },
+};
+
+export const gemSmokePresets: GemSmokePreset[] = [defaultPreset, firePreset, fluorescentPreset, infraredPreset];
+
+export const GemSmoke: React.FC<GemSmokeProps> = memo(function GemSmokeImpl({
   // Own props
   colorBack = defaultPreset.params.colorBack,
-  colorTint = defaultPreset.params.colorTint,
+  colors = defaultPreset.params.colors,
   speed = defaultPreset.params.speed,
   frame = defaultPreset.params.frame,
   image = '',
-  contour = defaultPreset.params.contour,
-  distortion = defaultPreset.params.distortion,
-  softness = defaultPreset.params.softness,
-  repetition = defaultPreset.params.repetition,
-  shiftRed = defaultPreset.params.shiftRed,
-  shiftBlue = defaultPreset.params.shiftBlue,
+  innerDistortion = defaultPreset.params.innerDistortion,
+  outerDistortion = defaultPreset.params.outerDistortion,
+  outerGlow = defaultPreset.params.outerGlow,
+  innerGlow = defaultPreset.params.innerGlow,
+  colorInner = defaultPreset.params.colorInner,
+  offset = defaultPreset.params.offset,
   angle = defaultPreset.params.angle,
+  size = defaultPreset.params.size,
   shape = defaultPreset.params.shape,
   suspendWhenProcessingImage = false,
 
@@ -135,7 +139,7 @@ export const LiquidMetal: React.FC<LiquidMetalProps> = memo(function LiquidMetal
   worldWidth = defaultPreset.params.worldWidth,
   worldHeight = defaultPreset.params.worldHeight,
   ...props
-}: LiquidMetalProps) {
+}: GemSmokeProps) {
   const imageUrl = typeof image === 'string' ? image : image.src;
   const [processedStateImage, setProcessedStateImage] = useState<string>(transparentPixel);
 
@@ -143,8 +147,8 @@ export const LiquidMetal: React.FC<LiquidMetalProps> = memo(function LiquidMetal
 
   if (suspendWhenProcessingImage && typeof window !== 'undefined' && imageUrl) {
     processedImage = suspend(
-      (): Promise<string> => toProcessedLiquidMetal(imageUrl).then((result) => URL.createObjectURL(result.pngBlob)),
-      [imageUrl, 'liquid-metal']
+      (): Promise<string> => toProcessedGemSmoke(imageUrl).then((result) => URL.createObjectURL(result.pngBlob)),
+      [imageUrl, 'gemSmoke']
     );
   } else {
     processedImage = processedStateImage;
@@ -164,7 +168,7 @@ export const LiquidMetal: React.FC<LiquidMetalProps> = memo(function LiquidMetal
     let url: string;
     let current = true;
 
-    toProcessedLiquidMetal(imageUrl).then((result) => {
+    toProcessedGemSmoke(imageUrl).then((result) => {
       if (current) {
         url = URL.createObjectURL(result.pngBlob);
         setProcessedStateImage(url);
@@ -178,19 +182,20 @@ export const LiquidMetal: React.FC<LiquidMetalProps> = memo(function LiquidMetal
 
   const uniforms = {
     // Own uniforms
+    u_colors: colors.map(getShaderColorFromString),
+    u_colorsCount: colors.length,
     u_colorBack: getShaderColorFromString(colorBack),
-    u_colorTint: getShaderColorFromString(colorTint),
-
     u_image: processedImage,
-    u_contour: contour,
-    u_distortion: distortion,
-    u_softness: softness,
-    u_repetition: repetition,
-    u_shiftRed: shiftRed,
-    u_shiftBlue: shiftBlue,
+    u_innerDistortion: innerDistortion,
+    u_outerDistortion: outerDistortion,
+    u_outerGlow: outerGlow,
+    u_innerGlow: innerGlow,
+    u_colorInner: getShaderColorFromString(colorInner),
+    u_offset: offset,
     u_angle: angle,
+    u_size: size,
     u_isImage: Boolean(image),
-    u_shape: LiquidMetalShapes[shape],
+    u_shape: GemSmokeShapes[shape],
 
     // Sizing uniforms
     u_fit: ShaderFitOptions[fit],
@@ -202,16 +207,16 @@ export const LiquidMetal: React.FC<LiquidMetalProps> = memo(function LiquidMetal
     u_originY: originY,
     u_worldWidth: worldWidth,
     u_worldHeight: worldHeight,
-  } satisfies LiquidMetalUniforms;
+  } satisfies GemSmokeUniforms;
 
   return (
     <ShaderMount
       {...props}
       speed={speed}
       frame={frame}
-      fragmentShader={liquidMetalFragmentShader}
+      fragmentShader={gemSmokeFragmentShader}
       mipmaps={['u_image']}
       uniforms={uniforms}
     />
   );
-});
+}, colorPropsAreEqual);
