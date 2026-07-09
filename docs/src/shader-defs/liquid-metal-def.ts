@@ -33,7 +33,7 @@ export const liquidMetalDef: ShaderDef = {
       type: 'enum',
       defaultValue: defaultParams.shape,
       description: 'The predefined shape used as an effect mask when no image is provided.',
-      options: ['none', 'circle', 'daisy', 'metaballs'],
+      options: ['none', 'circle', 'daisy', 'diamond', 'metaballs'],
     },
     {
       name: 'repetition',

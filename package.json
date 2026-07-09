@@ -2,7 +2,7 @@
   "name": "paper-shaders",
   "private": true,
   "version": "0.0.0",
-  "license": "MIT",
+  "license": "Apache-2.0",
   "workspaces": [
     "docs",
     "packages/shaders",

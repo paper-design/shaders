@@ -1,14 +1,46 @@
 # Paper Shaders
 
+## Version 0.0.77
+
+- **General**
+  - License changed to [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0). Every package now ships the `LICENSE` and `NOTICE` files.
+
+## Version 0.0.76
+
+- **Gem Smoke**
+  - Presets adjusted
+
+## Version 0.0.75
+
+- **Gem Smoke**, **Liquid Metal**
+  - Presets adjusted
+
+## Version 0.0.74
+
+- **Gem Smoke**
+  - Added a set of generic shapes
+- **Liquid Metal**
+  - Fixed the "none" shape for narrow containers
+
+## Version 0.0.73
+
+New shader: **Gem Smoke**
+
+## Version 0.0.72
+
+- **General**
+  - Added support for isolated documents (iframes, PiP windows) for both packages
+  - Resolved a Firefox-specific issue where an empty image prop triggered an error during the initial page load
+
 ## Version 0.0.71
 
 - **General**
   - Images smaller than 1024x1024 are now upscaled before final rasterization, improving the quality of small SVG image inputs
 - **Halftone CMYK**
   - Flood parameters now affect the transparent areas
-  - Full support of image transparency 
+  - Full support of image transparency
 - **Image Dithering**
-  - Add an `inverted` option
+  - Added `inverted` option
 
 ## Version 0.0.70
 
