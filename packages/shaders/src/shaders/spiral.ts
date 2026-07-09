@@ -78,12 +78,12 @@ void main() {
   float stripe = fract(offset);
 
   float shape = 2. * abs(stripe - .5);
-  float width = 1. - clamp(u_strokeWidth, .005 * u_strokeTaper, 1.);
+  float width = 1. - clamp(u_strokeWidth, 0., 1.);
 
 
   float wCap = mix(width, (1. - stripe) * (1. - step(.5, stripe)), (1. - clamp(l, 0., 1.)));
   width = mix(width, wCap, u_strokeCap);
-  width *= (1. - u_strokeTaper * l);
+  width *= (1. + u_strokeTaper * l);
 
   float fw = fwidth(offset);
   float fwMult = 4. - 3. * (smoothstep(.05, .4, 2. * u_strokeWidth) * smoothstep(.05, .4, 2. * (1. - u_strokeWidth)));
