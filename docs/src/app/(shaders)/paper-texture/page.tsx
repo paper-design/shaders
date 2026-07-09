@@ -23,14 +23,14 @@ import { useUrlParams } from '@/helpers/use-url-params';
 const { worldWidth, worldHeight, ...defaults } = paperTexturePresets[0].params;
 
 const controlRules: ControlRules = {
-  roughnessSize: { showWhen: { roughness: { gt: 0 } } },
-  fiberSize: { showWhen: { fiber: { gt: 0 } } },
-  foldType: { showWhen: { folds: { gt: 0 } } },
-  foldCount: { showWhen: { folds: { gt: 0 }, foldType: { eq: 'folds' } }, label: '↳ count' },
-  foldSize: { showWhen: { folds: { gt: 0 }, foldType: { neq: 'folds' } }, label: '↳ size x' },
-  foldY: { showWhen: { folds: { gt: 0 }, foldType: { neq: 'folds' } }, label: '↳ horizontal' },
-  foldOffset: { showWhen: { folds: { gt: 0 }, foldType: { neq: 'folds' } }, label: '↳ offset' },
-  foldsShape: { showWhen: { folds: { gt: 0 }, foldType: { neq: 'folds' } }, label: '↳ shape' },
+  roughnessSize: { showWhen: { roughness: { moreThan: 0 } } },
+  fiberSize: { showWhen: { fiber: { moreThan: 0 } } },
+  foldType: { showWhen: { folds: { moreThan: 0 } } },
+  foldCount: { showWhen: { folds: { moreThan: 0 }, foldType: { is: 'folds' } }, label: '↳ count' },
+  foldSize: { showWhen: { folds: { moreThan: 0 }, foldType: { isNot: 'folds' } }, label: '↳ size x' },
+  foldY: { showWhen: { folds: { moreThan: 0 }, foldType: { isNot: 'folds' } }, label: '↳ horizontal' },
+  foldOffset: { showWhen: { folds: { moreThan: 0 }, foldType: { isNot: 'folds' } }, label: '↳ offset' },
+  foldsShape: { showWhen: { folds: { moreThan: 0 }, foldType: { isNot: 'folds' } }, label: '↳ shape' },
 };
 
 const imageFiles = [
@@ -83,18 +83,26 @@ const PaperTextureWithControls = () => {
         button(() => setParamsSafe(params, setParams, preset)),
       ])
     );
+    const hasImage = image !== '';
     return applyControlRules(
       {
         colorBack: { value: toHsla(defaults.colorBack), order: 100 },
         colorFront: { value: toHsla(defaults.colorFront), order: 101 },
-        blending: { value: defaults.blending, min: 0, max: 1, order: 198 },
-        distortion: { value: defaults.distortion, min: -1, max: 1, order: 199 },
+        ...(hasImage && {
+          blending: { value: defaults.blending, min: 0, max: 1, order: 150 },
+          distortion: { value: defaults.distortion, min: -1, max: 1, order: 151 },
+          background: { value: defaults.background, order: 152 },
+        }),
         roughness: { value: defaults.roughness, min: 0, max: 1, order: 201 },
         roughnessSize: { value: defaults.roughnessSize, min: 0, max: 1, order: 202 },
         fiber: { value: defaults.fiber, min: 0, max: 1, order: 210 },
         fiberSize: { value: defaults.fiberSize, min: 0, max: 1, order: 211 },
         folds: { value: defaults.folds, min: 0, max: 1, order: 230 },
-        foldType: { value: defaults.foldType, options: Object.keys(PaperTextureFoldTypes) as PaperTextureFoldType[], order: 231 },
+        foldType: {
+          value: defaults.foldType,
+          options: Object.keys(PaperTextureFoldTypes) as PaperTextureFoldType[],
+          order: 231,
+        },
         foldCount: { value: defaults.foldCount, min: 1, max: paperTextureMeta.maxFoldCount, step: 1, order: 232 },
         foldSize: { value: defaults.foldSize, min: 0, max: 1, order: 232.5 },
         foldY: { value: defaults.foldY, order: 232.6 },
@@ -103,7 +111,6 @@ const PaperTextureWithControls = () => {
         drops: { value: defaults.drops, min: 0, max: 1, order: 250 },
         seed: { value: defaults.seed, min: 0, step: 1, max: 1000, order: 250 },
         fade: { value: defaults.fade, min: 0, max: 1, order: 260 },
-        background: { value: defaults.background, order: 270 },
         scale: { value: defaults.scale, min: 0.5, max: 10, order: 300 },
         fit: { value: defaults.fit, options: ['contain', 'cover'] as ShaderFit[], order: 301 },
         Image: folder(

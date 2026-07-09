@@ -1,53 +1,46 @@
-/**
- * Conditional visibility rules for Leva controls.
- *
- * Each rule maps a control name to the conditions under which it should be
- * visible. Conditions reference other controls by name and support simple
- * comparison operators.
- */
+/** Declarative conditional-visibility rules for Leva controls. */
 
 export type ControlCondition =
-  | { gt: number }
-  | { eq: string | number }
-  | { neq: string | number };
+  | { moreThan: number }
+  | { is: string | number }
+  | { isNot: string | number };
 
 export type ControlRule = {
-  /** All conditions must be met for the control to be shown. */
+  /** Control is shown only when every dep control satisfies its condition. */
   showWhen: Record<string, ControlCondition>;
-  /** Custom label override. Defaults to "↳ {controlName}". */
+  /** Label override. Defaults to the control's own label, else "↳ {name}". */
   label?: string;
 };
 
 export type ControlRules = Record<string, ControlRule>;
 
 function evaluateCondition(value: unknown, condition: ControlCondition): boolean {
-  if ('gt' in condition) return typeof value === 'number' && value > condition.gt;
-  if ('eq' in condition) return value === condition.eq;
-  if ('neq' in condition) return value !== condition.neq;
-  return true;
+  if ('moreThan' in condition) return typeof value === 'number' && value > condition.moreThan;
+  if ('is' in condition) return value === condition.is;
+  return value !== condition.isNot;
 }
 
-/**
- * Adds Leva `render` callbacks to controls based on declarative rules.
- * Controls not mentioned in `rules` are returned unchanged.
- */
+/** Adds Leva `render` callbacks from `rules`; controls not in `rules` pass through. */
 export function applyControlRules(
   schema: Record<string, any>,
   rules: ControlRules
 ): Record<string, any> {
   const result: Record<string, any> = { ...schema };
 
-  for (const [controlName, rule] of Object.entries(rules)) {
-    if (result[controlName] != null && typeof result[controlName] === 'object') {
-      result[controlName] = {
-        ...result[controlName],
-        label: rule.label ?? `↳ ${controlName}`,
-        render: (get: (key: string) => unknown) =>
-          Object.entries(rule.showWhen).every(([dep, condition]) =>
-            evaluateCondition(get(dep), condition)
-          ),
-      };
-    }
+  for (const [name, rule] of Object.entries(rules)) {
+    const control = result[name];
+    if (control == null || typeof control !== 'object') continue;
+
+    const passesRule = (get: (key: string) => unknown) =>
+      Object.entries(rule.showWhen).every(([dep, condition]) => evaluateCondition(get(dep), condition));
+
+    result[name] = {
+      ...control,
+      label: rule.label ?? control.label ?? `↳ ${name}`,
+      render: control.render
+        ? (get: (key: string) => unknown) => control.render(get) && passesRule(get)
+        : passesRule,
+    };
   }
 
   return result;
