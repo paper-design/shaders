@@ -376,8 +376,8 @@ void main() {
   }
 
   vec3 fgColor = u_colorFront.rgb * u_colorFront.a;
-  float fgOpacity = u_colorFront.a;
   vec3 bgColor = u_colorBack.rgb * u_colorBack.a;
+  float fgOpacity = u_colorFront.a;
   float bgOpacity = u_colorBack.a;
 
   imageUV = .5 + fromCenter * (1. + u_distortion * scaleDistortion);
@@ -394,8 +394,11 @@ void main() {
 
   pattern = clamp(.5 * pattern, 0., 1.);
 
-  vec3 color = mix(fgColor, bgColor, pattern);
-  float opacity = mix(fgOpacity, bgOpacity, pattern);
+  // old premultiplied paper — shown outside the image frame
+  vec3 paperColor = mix(fgColor, bgColor, pattern);
+  float paperOpacity = mix(fgOpacity, bgOpacity, pattern);
+  // straight hue — used for the image multiply inside the frame
+  vec3 tint = mix(u_colorFront.rgb, u_colorBack.rgb, pattern);
 
   float maxC = max(max(image.r, image.g), image.b);
   float minC = min(min(image.r, image.g), image.b);
@@ -406,10 +409,12 @@ void main() {
   float darkDampen = 1. - dot(vec3(.2126, .7152, .0722), image.rgb);
   float dampen = mix(0., .7, u_blending) * max(satDampen, darkDampen);
 
-  vec3 pic = blendMultiply(image.rgb, color, u_blending);
+  vec3 pic = blendMultiply(image.rgb, tint, u_blending);
   pic = mix(pic, vec3(1.), .4 * pow(dampen, 2. + 3. * pattern));
 
-  color = mix(color, pic, frame);
+  // inside the frame: new tinted image (opaque); outside: old premultiplied paper
+  vec3 color = mix(paperColor, pic, frame);
+  float opacity = mix(paperOpacity, 1., frame);
 
   if (!u_background) {
     opacity *= frame;
