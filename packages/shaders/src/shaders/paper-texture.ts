@@ -96,8 +96,8 @@ float sst(float edge0, float edge1, float x) {
   return smoothstep(edge0, edge1, x);
 }
 
-${ declarePI }
-${ rotation2 }
+${declarePI}
+${rotation2}
 float randomR(vec2 p) {
   vec2 uv = floor(p) / 100. + .5;
   return texture(u_noiseTexture, fract(uv)).r;
@@ -392,7 +392,7 @@ void main() {
   vec4 image = texture(u_image, imageUV);
   frame *= image.a;
 
-  pattern = clamp(.5 * pattern, 0., 1.);
+  pattern = clamp(.8 * pattern, 0., 1.);
 
   // old premultiplied paper — shown outside the image frame
   vec3 paperColor = mix(fgColor, bgColor, pattern);
@@ -412,7 +412,6 @@ void main() {
   vec3 pic = blendMultiply(image.rgb, tint, u_blending);
   pic = mix(pic, vec3(1.), .4 * pow(dampen, 2. + 3. * pattern));
 
-  // inside the frame: new tinted image (opaque); outside: old premultiplied paper
   vec3 color = mix(paperColor, pic, frame);
   float opacity = mix(paperOpacity, 1., frame);
 

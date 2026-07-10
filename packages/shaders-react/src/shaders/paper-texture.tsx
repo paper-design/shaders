@@ -28,14 +28,14 @@ export const defaultPreset: PaperTexturePreset = {
   name: 'Default',
   params: {
     ...defaultObjectSizing,
-    blending: 0.8,
+    blending: 1,
     distortion: 0.5,
     fit: 'contain',
     scale: 0.8,
     speed: 0,
     frame: 0,
-    colorFront: '#c4c4c4',
-    colorBack: '#ffffff',
+    colorFront: '#ffffff',
+    colorBack: '#b3b3b3',
     roughness: 0,
     roughnessSize: 0.25,
     fiber: 0.5,
@@ -58,7 +58,7 @@ export const cardboardPreset: PaperTexturePreset = {
   name: 'Cardboard',
   params: {
     ...defaultObjectSizing,
-    blending: 0.9,
+    blending: 0.7,
     distortion: 0.5,
     fit: 'contain',
     speed: 1,
@@ -93,7 +93,7 @@ export const spreadPreset: PaperTexturePreset = {
     blending: 1,
     distortion: 0.7,
     seed: 448,
-    roughness: 0.2,
+    roughness: 0.6,
     roughnessSize: 0.25,
     fiber: 0,
     fiberSize: 0.5,
@@ -115,8 +115,8 @@ export const spreadPreset: PaperTexturePreset = {
 };
 
 
-export const sheetPreset: PaperTexturePreset = {
-  name: 'Sheet',
+export const coloredPreset: PaperTexturePreset = {
+  name: 'Colored',
   params: {
     ...defaultObjectSizing,
     blending: 0.8,
@@ -125,8 +125,8 @@ export const sheetPreset: PaperTexturePreset = {
     scale: 0.8,
     speed: 0,
     frame: 0,
-    colorFront: '#c4c4c4',
-    colorBack: '#ffffff',
+    colorFront: '#ffe0e0',
+    colorBack: '#7e91b9',
     roughness: 0,
     roughnessSize: 0.25,
     fiber: 0.5,
@@ -141,7 +141,7 @@ export const sheetPreset: PaperTexturePreset = {
     fade: 1,
     drops: 1,
     seed: 784,
-    background: false,
+    background: true,
   },
 };
 
@@ -149,7 +149,7 @@ export const paperTexturePresets: PaperTexturePreset[] = [
   defaultPreset,
   spreadPreset,
   cardboardPreset,
-  sheetPreset
+  coloredPreset,
 ] as const;
 
 export const PaperTexture: React.FC<PaperTextureProps> = memo(function PaperTextureImpl({
