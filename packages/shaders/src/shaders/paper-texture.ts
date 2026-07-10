@@ -26,7 +26,7 @@ export const paperTextureMeta = {
  * - u_drops (float): Visibility of speckle / drop pattern (0 to 1)
  * - u_seed (float): Seed applied to folds and dots (0 to 1000)
  * - u_fade (float): Large-scale noise mask applied to the pattern (0 to 1)
- * - u_blending (float): Amount of image-to-paper blending, 0 for original color, 1 for mix with colorBack (0 to 1)
+ * - u_blending (float): How much the image gives way to the paper pattern behind it; 0 = exact image, 1 = pattern reads through the image's bright/saturated areas (0 to 1)
  * - u_distortion (float): Amount of distortion of the image by the paper normals (0 to 1)
  * - u_background (bool): Shows or hides the paper texture outside the image frame
  * - u_noiseTexture (sampler2D): Pre-computed randomizer source texture
@@ -279,13 +279,6 @@ vec4 getCrease(float coord, float offset, float count) {
   return vec4(slope, creaseDark, abs(dx), foldAmount);
 }
 
-vec3 blendMultiply(vec3 base, vec3 blend) {
-  return base * blend;
-}
-vec3 blendMultiply(vec3 base, vec3 blend, float opacity) {
-  return blendMultiply(base, blend) * opacity + base * (1. - opacity);
-}
-
 void main() {
 
   vec2 imageUV = v_imageUV;
@@ -375,10 +368,11 @@ void main() {
     xDistortion += .03 * drops;
   }
 
-  vec3 fgColor = u_colorFront.rgb * u_colorFront.a;
-  vec3 bgColor = u_colorBack.rgb * u_colorBack.a;
-  float fgOpacity = u_colorFront.a;
+  vec3 bgColor = u_colorBack.rgb;
   float bgOpacity = u_colorBack.a;
+
+  vec3 fgColor = u_colorFront.rgb;
+  float fgOpacity = u_colorFront.a;
 
   imageUV = .5 + fromCenter * (1. + u_distortion * scaleDistortion);
   imageUV.x += u_distortion * xDistortion;
@@ -390,15 +384,10 @@ void main() {
   float frameSoftness = .002 + .005 * abs(u_distortion) * (.7 * u_fiber + u_roughness);
   float frame = getUvFrame(imageUV, frameSoftness);
   vec4 image = texture(u_image, imageUV);
-  frame *= image.a;
 
-  pattern = clamp(.8 * pattern, 0., 1.);
+  pattern = clamp(.75 * pattern, 0., 1.);
 
-  // old premultiplied paper — shown outside the image frame
-  vec3 paperColor = mix(fgColor, bgColor, pattern);
-  float paperOpacity = mix(fgOpacity, bgOpacity, pattern);
-  // straight hue — used for the image multiply inside the frame
-  vec3 tint = mix(u_colorFront.rgb, u_colorBack.rgb, pattern);
+  float patternAlpha = fgOpacity * pattern;
 
   float maxC = max(max(image.r, image.g), image.b);
   float minC = min(min(image.r, image.g), image.b);
@@ -406,18 +395,24 @@ void main() {
   float midC = image.r + image.g + image.b - maxC - minC;
   float secondaryness = maxC > minC ? (midC - minC) / (maxC - minC) : 0.;
   float satDampen = sat * (1. - .5 * secondaryness);
-  float darkDampen = 1. - dot(vec3(.2126, .7152, .0722), image.rgb);
-  float dampen = mix(0., .7, u_blending) * max(satDampen, darkDampen);
+  float lum = dot(vec3(.2126, .7152, .0722), image.rgb);
+  float lumFactor = mix(.45, .8, lum);
+  float reveal = u_blending * max(satDampen, lumFactor);
 
-  vec3 pic = blendMultiply(image.rgb, tint, u_blending);
-  pic = mix(pic, vec3(1.), .4 * pow(dampen, 2. + 3. * pattern));
+  vec3 blendedImage = mix(image.rgb, fgColor, reveal * patternAlpha);
+    
+  float imageFootprint = frame * image.a;
+  float imageAlpha = imageFootprint * (1. - reveal);
 
-  vec3 color = mix(paperColor, pic, frame);
-  float opacity = mix(paperOpacity, 1., frame);
+  vec3 overlay = blendedImage * imageAlpha + fgColor * patternAlpha * (1. - imageAlpha);
+  float overlayAlpha = imageAlpha + patternAlpha * (1. - imageAlpha);
+
+  vec3 color = overlay + bgColor * bgOpacity * (1. - overlayAlpha);
+  float opacity = overlayAlpha + bgOpacity * (1. - overlayAlpha);
 
   if (!u_background) {
-    opacity *= frame;
-    color *= frame;
+    color *= imageFootprint;
+    opacity *= imageFootprint;
   }
 
   fragColor = vec4(color, opacity);
