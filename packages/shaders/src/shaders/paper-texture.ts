@@ -241,7 +241,7 @@ vec4 getFolds(vec2 uv1, vec2 uv2) {
   vec3 pp1 = vec3(0.), pp2 = vec3(0.);
   float l1 = 9., l2 = 9.;
   float cellRand = 0.;
-  for (int i = 0; i < ${ paperTextureMeta.maxFoldCount }; i++) {
+  for (int i = 0; i < ${paperTextureMeta.maxFoldCount}; i++) {
     if (float(i) >= floor(u_foldCount + .5)) break;
     vec2 rand = randomGB(vec2(float(i), float(i) * u_seed));
     float an = rand.x * TWO_PI;
@@ -258,10 +258,9 @@ vec4 getFolds(vec2 uv1, vec2 uv2) {
       cellRand = .5 * (rand.x + rand.y);
     }
   }
-  float mult2 = mix(.22, .02, 1.);
   return vec4(
-    mix(pp1.x, .17 * pp1.z, pow(pp1.y, mult2)),
-    mix(pp2.x, .18 * pp2.z, pow(pp2.y, mult2)),
+    mix(pp1.x, .17 * pp1.z, pow(pp1.y, .02)),
+    mix(pp2.x, .18 * pp2.z, pow(pp2.y, .02)),
     .2 * pp2.y,
     cellRand
   );
@@ -393,11 +392,10 @@ void main() {
   vec4 image = texture(u_image, imageUV);
   frame *= image.a;
 
-  vec3 color = fgColor * pattern;
-  float opacity = fgOpacity * pattern;
+  pattern = clamp(.5 * pattern, 0., 1.);
 
-  color += bgColor * (1. - opacity);
-  opacity += bgOpacity * (1. - opacity);
+  vec3 color = mix(fgColor, bgColor, pattern);
+  float opacity = mix(fgOpacity, bgOpacity, pattern);
 
   float maxC = max(max(image.r, image.g), image.b);
   float minC = min(min(image.r, image.g), image.b);
@@ -417,8 +415,6 @@ void main() {
     opacity *= frame;
     color *= frame;
   }
-  frame = mix(frame, 0., .2 * fade);
-
 
   fragColor = vec4(color, opacity);
 }
