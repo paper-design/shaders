@@ -26,11 +26,11 @@ const controlRules: ControlRules = {
   roughnessSize: { showWhen: { roughness: { moreThan: 0 } } },
   fiberSize: { showWhen: { fiber: { moreThan: 0 } } },
   foldType: { showWhen: { folds: { moreThan: 0 } } },
-  foldCount: { showWhen: { folds: { moreThan: 0 }, foldType: { is: 'folds' } }, label: '↳ count' },
-  foldSize: { showWhen: { folds: { moreThan: 0 }, foldType: { isNot: 'folds' } }, label: '↳ size x' },
-  foldY: { showWhen: { folds: { moreThan: 0 }, foldType: { isNot: 'folds' } }, label: '↳ horizontal' },
-  foldOffset: { showWhen: { folds: { moreThan: 0 }, foldType: { isNot: 'folds' } }, label: '↳ offset' },
-  foldsShape: { showWhen: { folds: { moreThan: 0 }, foldType: { isNot: 'folds' } }, label: '↳ shape' },
+  foldCount: { showWhen: { folds: { moreThan: 0 }, foldType: { is: 'folds' } } },
+  foldSize: { showWhen: { folds: { moreThan: 0 }, foldType: { isNot: 'folds' } } },
+  foldY: { showWhen: { folds: { moreThan: 0 }, foldType: { isNot: 'folds' } } },
+  foldOffset: { showWhen: { folds: { moreThan: 0 }, foldType: { isNot: 'folds' } } },
+  foldsShape: { showWhen: { folds: { moreThan: 0 }, foldType: { isNot: 'folds' } } },
 };
 
 const imageFiles = [
