@@ -13,8 +13,15 @@ import { ShaderDetails } from '@/components/shader-details';
 import { imageDitheringDef } from '@/shader-defs/image-dithering-def';
 import { ShaderContainer } from '@/components/shader-container';
 import { useUrlParams } from '@/helpers/use-url-params';
+import { applyControlRules, type ControlRules } from '@/helpers/leva-control-rules';
 
 const { worldWidth, worldHeight, ...defaults } = imageDitheringPresets[0].params;
+
+const controlRules: ControlRules = {
+  colorBack: { showWhen: { originalColors: { is: false } } },
+  colorFront: { showWhen: { originalColors: { is: false } } },
+  colorHighlight: { showWhen: { originalColors: { is: false } } },
+};
 
 const imageFiles = [
   '001.webp',
@@ -66,11 +73,11 @@ const ImageDitheringWithControls = () => {
         button(() => setParamsSafe(params, setParams, preset)),
       ])
     );
-    return {
-      colorBack: { value: toHsla(defaults.colorBack), order: 100 },
-      colorFront: { value: toHsla(defaults.colorFront), order: 102 },
-      colorHighlight: { value: toHsla(defaults.colorHighlight), order: 103 },
-      originalColors: { value: defaults.originalColors, order: 104 },
+    return applyControlRules({
+      originalColors: { value: defaults.originalColors, order: 100 },
+      colorBack: { value: toHsla(defaults.colorBack), order: 100.1 },
+      colorFront: { value: toHsla(defaults.colorFront), order: 100.2 },
+      colorHighlight: { value: toHsla(defaults.colorHighlight), order: 100.3 },
       inverted: { value: defaults.inverted, order: 105 },
       type: { value: defaults.type, options: Object.keys(DitheringTypes) as DitheringType[], order: 200 },
       size: { value: defaults.size, min: 1, max: 20, order: 201 },
@@ -84,7 +91,7 @@ const ImageDitheringWithControls = () => {
         { order: 0 }
       ),
       Presets: folder(presets, { order: -1 }),
-    };
+    }, controlRules);
   });
 
   // Reset to defaults on mount, so that Leva doesn't show values from other

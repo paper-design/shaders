@@ -13,8 +13,13 @@ import { ShaderDetails } from '@/components/shader-details';
 import { waterDef } from '@/shader-defs/water-def';
 import { ShaderContainer } from '@/components/shader-container';
 import { useUrlParams } from '@/helpers/use-url-params';
+import { applyControlRules, type ControlRules } from '@/helpers/leva-control-rules';
 
 const { worldWidth, worldHeight, ...defaults } = waterPresets[0].params;
+
+const controlRules: ControlRules = {
+  colorHighlight: { showWhen: { highlights: { moreThan: 0 } } },
+};
 
 const imageFiles = [
   '001.webp',
@@ -66,10 +71,10 @@ const WaterWithControls = () => {
         button(() => setParamsSafe(params, setParams, preset)),
       ])
     );
-    return {
+    return applyControlRules({
       colorBack: { value: toHsla(defaults.colorBack), order: 100 },
-      colorHighlight: { value: toHsla(defaults.colorHighlight), order: 101 },
       highlights: { value: defaults.highlights, min: 0, max: 1, order: 200 },
+      colorHighlight: { value: toHsla(defaults.colorHighlight), order: 200.5 },
       layering: { value: defaults.layering, min: 0, max: 1, order: 201 },
       edges: { value: defaults.edges, min: 0, max: 1, order: 202 },
       waves: { value: defaults.waves, min: 0, max: 1, order: 203 },
@@ -86,7 +91,7 @@ const WaterWithControls = () => {
         { order: 0 }
       ),
       Presets: folder(presets, { order: -1 }),
-    };
+    }, controlRules);
   }, [image]);
 
   // Reset to defaults on mount, so that Leva doesn't show values from other

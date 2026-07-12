@@ -12,8 +12,14 @@ import { ShaderDetails } from '@/components/shader-details';
 import { voronoiDef } from '@/shader-defs/voronoi-def';
 import { ShaderContainer } from '@/components/shader-container';
 import { useUrlParams } from '@/helpers/use-url-params';
+import { applyControlRules, type ControlRules } from '@/helpers/leva-control-rules';
 
 const { worldWidth, worldHeight, ...defaults } = voronoiPresets[0].params;
+
+const controlRules: ControlRules = {
+  colorGap: { showWhen: { gap: { moreThan: 0 } } },
+  colorGlow: { showWhen: { glow: { moreThan: 0 } } },
+};
 
 const VoronoiWithControls = () => {
   const { colors, setColors } = useColors({
@@ -22,17 +28,20 @@ const VoronoiWithControls = () => {
   });
 
   const [params, setParams] = useControls(() => {
-    return {
-      colorGlow: { value: toHsla(defaults.colorGlow), order: 100 },
-      colorGap: { value: toHsla(defaults.colorGap), order: 101 },
-      stepsPerColor: { value: defaults.stepsPerColor, min: 1, max: 3, step: 1, order: 200 },
-      distortion: { value: defaults.distortion, min: 0, max: 0.5, order: 201 },
-      gap: { value: defaults.gap, min: 0, max: 0.1, order: 202 },
-      glow: { value: defaults.glow, min: 0, max: 1, order: 203 },
-      speed: { value: defaults.speed, min: 0, max: 1, order: 300 },
-      scale: { value: defaults.scale, min: 0.01, max: 4, order: 301 },
-      rotation: { value: defaults.rotation, min: 0, max: 360, order: 302 },
-    };
+    return applyControlRules(
+      {
+        stepsPerColor: { value: defaults.stepsPerColor, min: 1, max: 3, step: 1, order: 200 },
+        distortion: { value: defaults.distortion, min: 0, max: 0.5, order: 201 },
+        gap: { value: defaults.gap, min: 0, max: 0.1, order: 202 },
+        colorGap: { value: toHsla(defaults.colorGap), order: 202.5 },
+        glow: { value: defaults.glow, min: 0, max: 1, order: 203 },
+        colorGlow: { value: toHsla(defaults.colorGlow), order: 203.5 },
+        speed: { value: defaults.speed, min: 0, max: 1, order: 300 },
+        scale: { value: defaults.scale, min: 0.01, max: 4, order: 301 },
+        rotation: { value: defaults.rotation, min: 0, max: 360, order: 302 },
+      },
+      controlRules
+    );
   }, [colors.length]);
 
   useControls(() => {

@@ -14,8 +14,15 @@ import { ShaderDetails } from '@/components/shader-details';
 import { flutedGlassDef } from '@/shader-defs/fluted-glass-def';
 import { ShaderContainer } from '@/components/shader-container';
 import { useUrlParams } from '@/helpers/use-url-params';
+import { applyControlRules, type ControlRules } from '@/helpers/leva-control-rules';
 
 const { worldWidth, worldHeight, ...defaults } = flutedGlassPresets[0].params;
+
+const controlRules: ControlRules = {
+  colorShadow: { showWhen: { shadows: { moreThan: 0 } } },
+  colorHighlight: { showWhen: { highlights: { moreThan: 0 } } },
+  shift: { showWhen: { distortion: { moreThan: 0 } } },
+};
 
 const imageFiles = [
   '001.webp',
@@ -67,13 +74,13 @@ const FlutedGlassWithControls = () => {
         button(() => setParamsSafe(params, setParams, preset)),
       ])
     );
-    return {
+    return applyControlRules({
       colorBack: { value: toHsla(defaults.colorBack), order: 100 },
-      colorShadow: { value: toHsla(defaults.colorShadow), order: 101 },
-      colorHighlight: { value: toHsla(defaults.colorHighlight), order: 102 },
-      size: { value: defaults.size, min: 0.01, max: 1, step: 0.01, order: 210 },
       shadows: { value: defaults.shadows, min: 0, max: 1, order: 200 },
+      colorShadow: { value: toHsla(defaults.colorShadow), order: 200.5 },
       highlights: { value: defaults.highlights, min: 0, max: 1, order: 201 },
+      colorHighlight: { value: toHsla(defaults.colorHighlight), order: 201.5 },
+      size: { value: defaults.size, min: 0.01, max: 1, step: 0.01, order: 210 },
       shape: {
         value: defaults.shape,
         options: Object.keys(GlassGridShapes) as GlassGridShape[],
@@ -110,7 +117,7 @@ const FlutedGlassWithControls = () => {
         { order: 0 }
       ),
       Presets: folder(presets, { order: -1 }),
-    };
+    }, controlRules);
   });
 
   // Reset to defaults on mount, so that Leva doesn't show values from other

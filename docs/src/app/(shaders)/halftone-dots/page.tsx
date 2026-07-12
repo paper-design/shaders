@@ -19,8 +19,13 @@ import { ShaderDetails } from '@/components/shader-details';
 import { halftoneDotsDef } from '@/shader-defs/halftone-dots-def';
 import { ShaderContainer } from '@/components/shader-container';
 import { useUrlParams } from '@/helpers/use-url-params';
+import { applyControlRules, type ControlRules } from '@/helpers/leva-control-rules';
 
 const { worldWidth, worldHeight, ...defaults } = halftoneDotsPresets[0].params;
+
+const controlRules: ControlRules = {
+  colorFront: { showWhen: { originalColors: { is: false } } },
+};
 
 const imageFiles = [
   '001.webp',
@@ -72,10 +77,10 @@ const HalftoneDotsWithControls = () => {
         button(() => setParamsSafe(params, setParams, preset)),
       ])
     );
-    return {
+    return applyControlRules({
       colorBack: { value: toHsla(defaults.colorBack), order: 100 },
-      colorFront: { value: toHsla(defaults.colorFront), order: 101 },
-      originalColors: { value: defaults.originalColors, order: 102 },
+      originalColors: { value: defaults.originalColors, order: 101 },
+      colorFront: { value: toHsla(defaults.colorFront), order: 101.5 },
       type: {
         value: defaults.type,
         options: Object.keys(HalftoneDotsTypes) as HalftoneDotsType[],
@@ -107,7 +112,7 @@ const HalftoneDotsWithControls = () => {
         { order: 0 }
       ),
       Presets: folder(presets, { order: -1 }),
-    };
+    }, controlRules);
   });
 
   // Reset to defaults on mount, so that Leva doesn't show values from other

@@ -77,7 +77,7 @@ export const swirlDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.noiseFrequency,
-      description: 'Noise frequency (no effect with noise = 0)',
+      description: 'Noise frequency (effective with noise > 0)',
     },
     ...animatedCommonParams,
   ],

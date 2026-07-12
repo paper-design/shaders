@@ -10,6 +10,11 @@ import { ShaderDetails } from '@/components/shader-details';
 import { spiralDef } from '@/shader-defs/spiral-def';
 import { ShaderContainer } from '@/components/shader-container';
 import { useUrlParams } from '@/helpers/use-url-params';
+import { applyControlRules, type ControlRules } from '@/helpers/leva-control-rules';
+
+const controlRules: ControlRules = {
+  noiseFrequency: { showWhen: { noise: { moreThan: 0 } } },
+};
 
 const firstPresetParams = spiralPresets[0].params;
 const { worldWidth, worldHeight, ...defaults } = {
@@ -21,7 +26,7 @@ const { worldWidth, worldHeight, ...defaults } = {
 
 const SpiralWithControls = () => {
   const [params, setParams] = useControls(() => {
-    return {
+    return applyControlRules({
       colorBack: { value: toHsla(defaults.colorBack), order: 100 },
       colorFront: { value: toHsla(defaults.colorFront), order: 101 },
       density: { value: defaults.density, min: 0, max: 1, order: 200 },
@@ -37,7 +42,7 @@ const SpiralWithControls = () => {
       rotation: { value: defaults.rotation, min: 0, max: 360, order: 302 },
       offsetX: { value: defaults.offsetX, min: -1, max: 1, order: 303 },
       offsetY: { value: defaults.offsetY, min: -1, max: 1, order: 304 },
-    };
+    }, controlRules);
   });
 
   useControls(() => {
