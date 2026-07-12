@@ -1,15 +1,10 @@
-/** Declarative conditional-visibility rules for Leva controls. */
-
 export type ControlCondition =
   | { moreThan: number }
-  | { is: string | number }
-  | { isNot: string | number };
+  | { is: string | number | boolean }
+  | { isNot: string | number | boolean };
 
 export type ControlRule = {
-  /** Control is shown only when every dep control satisfies its condition. */
   showWhen: Record<string, ControlCondition>;
-  /** Label override. Defaults to the control's own label, else "↳ {name}". */
-  label?: string;
 };
 
 export type ControlRules = Record<string, ControlRule>;
@@ -36,7 +31,7 @@ export function applyControlRules(
 
     result[name] = {
       ...control,
-      label: rule.label ?? control.label ?? `↳ ${name}`,
+      label: `↳ ${name}`,
       render: control.render
         ? (get: (key: string) => unknown) => control.render(get) && passesRule(get)
         : passesRule,

@@ -12,8 +12,13 @@ import { ShaderDetails } from '@/components/shader-details';
 import { godRaysDef } from '@/shader-defs/god-rays-def';
 import { ShaderContainer } from '@/components/shader-container';
 import { useUrlParams } from '@/helpers/use-url-params';
+import { applyControlRules, type ControlRules } from '@/helpers/leva-control-rules';
 
 const { worldWidth, worldHeight, ...defaults } = godRaysPresets[0].params;
+
+const controlRules: ControlRules = {
+  colorBloom: { showWhen: { bloom: { moreThan: 0 } } },
+};
 
 const GodRaysWithControls = () => {
   const { colors, setColors } = useColors({
@@ -22,10 +27,10 @@ const GodRaysWithControls = () => {
   });
 
   const [params, setParams] = useControls(() => {
-    return {
+    return applyControlRules({
       colorBack: { value: toHsla(defaults.colorBack), order: 100 },
-      colorBloom: { value: toHsla(defaults.colorBloom), order: 101 },
       bloom: { value: defaults.bloom, min: 0, max: 1, order: 200 },
+      colorBloom: { value: toHsla(defaults.colorBloom), order: 200.5 },
       intensity: { value: defaults.intensity, min: 0, max: 1, order: 201 },
       density: { value: defaults.density, min: 0, max: 1, order: 204 },
       spotty: { value: defaults.spotty, min: 0, max: 1, order: 205 },
@@ -36,7 +41,7 @@ const GodRaysWithControls = () => {
       rotation: { value: defaults.rotation, min: 0, max: 360, order: 302 },
       offsetX: { value: defaults.offsetX, min: -1, max: 1, order: 303 },
       offsetY: { value: defaults.offsetY, min: -1, max: 1, order: 304 },
-    };
+    }, controlRules);
   }, [colors.length]);
 
   useControls(() => {
