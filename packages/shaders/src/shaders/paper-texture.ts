@@ -26,7 +26,7 @@ export const paperTextureMeta = {
  * - u_drops (float): Visibility of speckle / drop pattern (0 to 1)
  * - u_seed (float): Seed applied to folds and dots (0 to 1000)
  * - u_fade (float): Large-scale noise mask applied to the pattern (0 to 1)
- * - u_blending (float): How much the image gives way to the paper pattern behind it; 0 = exact image, 1 = pattern reads through the image's bright/saturated areas (0 to 1)
+ * - u_blending (float): How much the image is printed into the paper; 0 = exact image, 1 = image multiplied with a grayscale paper-texture ink (toned by colorFront) and thinned so the background reads through (0 to 1)
  * - u_distortion (float): Amount of distortion of the image by the paper normals (0 to 1)
  * - u_background (bool): Shows or hides the paper texture outside the image frame
  * - u_noiseTexture (sampler2D): Pre-computed randomizer source texture
@@ -169,7 +169,7 @@ float getRoughness(vec2 p) {
 
   vec2 r = sum / norm;
   float dx = .5 + r.x - r.y;
-  return 3. * dx * dx;
+  return 3. * dx * dx - .7;
 }
 
 float getFiber(vec2 p) {
@@ -212,7 +212,7 @@ float getFiber(vec2 p) {
     amp *= .5;
   }
 
-  return min(1., .5 * length(grad));
+  return .5 * length(grad) - .5;
 }
 
 vec2 randomGB(vec2 p) {
@@ -276,7 +276,15 @@ vec4 getCrease(float coord, float offset, float count) {
   float foldAmount = (1. - smoothstep(0., foldWidth, abs(dx))) * depthMod;
   float slope = sign(dx) * foldAmount;
   float creaseDark = smoothstep(0., foldWidth * .5, abs(dx));
-  return vec4(slope, creaseDark, abs(dx), foldAmount);
+  // .z is the signed in-cell position: 0 at the crease, negative on one side and positive on the other.
+  return vec4(slope, creaseDark, dx, foldAmount);
+}
+
+vec3 blendMultiply(vec3 base, vec3 blend) {
+  return base * blend;
+}
+vec3 blendMultiply(vec3 base, vec3 blend, float opacity) {
+  return blendMultiply(base, blend) * opacity + base * (1. - opacity);
 }
 
 void main() {
@@ -304,7 +312,7 @@ void main() {
   if (u_folds > 0.) {
     if (u_foldType < .5) {
       vec2 foldsUV1 = rotate(patternUV * .18, 4. * u_seed);
-      vec2 foldsUV2 = foldsUV1 + .02 * sin(2. * u_seed) * (texture(u_noiseTexture, fract(patternUV * .02 + u_seed)).rg - .5);
+      vec2 foldsUV2 = foldsUV1 + .03 * sin(2. * u_seed) * (texture(u_noiseTexture, fract(patternUV * .015 + u_seed)).rg - .5);
       vec4 foldsRaw = getFolds(foldsUV1, foldsUV2);
       vec4 radialFolds = vec4(clamp(5. * foldsRaw.xyz, 0., 1.), foldsRaw.w);
       radialFolds.xyz = mix(radialFolds.xyz, vec3(.5), .4 * fade);
@@ -316,33 +324,30 @@ void main() {
       scaleDistortion = .22 * radialFolds.z * u_folds;
     } else {
       vec2 uv = imageUV + .5;
-      float countX = mix(25., 1., pow(u_foldSize, .4));
-      vec4 h = getCrease(uv.x, 1. - u_foldOffset, countX);
+      float count = mix(25., 1., pow(u_foldSize, .4));
+      float offset = 1. - u_foldOffset;
+
+      // Normal creases: run vertically (vary along x), displacing the image in y.
+      vec4 h = getCrease(uv.x, offset, count);
+      float angleX = h.x * 1.1345;
+      float crLightX = max(-.5 * sin(angleX) + .5 * cos(angleX), 0.) * mix(.9, 1., h.y);
+      drops *= mix(1., h.y, u_folds);
+      pattern += u_folds * crLightX;
+      float distortBaseX = mix(pow(h.y, .2), abs(h.z), .5 * u_foldsShape);
+      yShift += .022 * u_folds * (1. - distortBaseX);
+      patternUV.y += yShift;
 
       if (u_foldY) {
         vec4 v = getCrease(uv.y, 1., 1.);
-        float ax = h.x * 1.1345;
-        float ay = v.x * 1.1345;
-        float gridDark = h.y * v.y;
-        float crLight = max(-.7 * sin(ax) - .2 * sin(ay) + .5 * cos(ax) * cos(ay), 0.) * mix(.9, 1., gridDark);
-        drops *= mix(1., gridDark, u_folds);
-
-        pattern += u_folds * crLight;
-        float distortBaseH = mix(pow(h.y, .2), h.z, .5 * u_foldsShape);
-        float distortBaseV = mix(pow(v.y, .2), v.z, .5 * u_foldsShape);
-        xDistortion += .022 * u_folds * (1. - distortBaseV) * 2. * (imageUV.x - .5);
-        patternUV.x += .022 * u_folds * (1. - distortBaseV);
-        yShift += .022 * u_folds * (1. - distortBaseH);
-      } else {
-        float angle = h.x * 1.1345;
-        float crLight = max(-.5 * sin(angle) + .5 * cos(angle), 0.) * mix(.9, 1., h.y);
-        drops *= mix(1., h.y, u_folds);
-
-        pattern += u_folds * crLight;
-        float distortBase = mix(pow(h.y, .2), h.z, .5 * u_foldsShape);
-        yShift += .022 * u_folds * (1. - distortBase);
+        float angleY = v.x * 1.1345;
+        float crLightY = max(-.5 * sin(angleY) + .5 * cos(angleY), 0.) * mix(.9, 1., v.y);
+        drops *= mix(1., v.y, u_folds);
+        pattern += u_folds * crLightY;
+        float distortBaseY = mix(pow(v.y, .2), abs(v.z), .5 * u_foldsShape);
+        float xFan = 2. * (imageUV.x - .5);
+        xDistortion -= .02 * u_folds * (1. - distortBaseY) * xFan;
+        patternUV.x -= .022 * u_folds * (1. - distortBaseY) * xFan;
       }
-      patternUV.y += yShift;
     }
   }
 
@@ -395,16 +400,21 @@ void main() {
   float midC = image.r + image.g + image.b - maxC - minC;
   float secondaryness = maxC > minC ? (midC - minC) / (maxC - minC) : 0.;
   float satDampen = sat * (1. - .5 * secondaryness);
+
   float lum = dot(vec3(.2126, .7152, .0722), image.rgb);
-  float lumFactor = mix(.45, .8, lum);
-  float reveal = u_blending * max(satDampen, lumFactor);
 
-  vec3 blendedImage = mix(image.rgb, fgColor, reveal * patternAlpha);
-    
+  vec3 ink = mix(vec3(1.), fgColor, patternAlpha);
+  vec3 pic = blendMultiply(image.rgb, ink, u_blending);
+
+  float darkDampen = 1. - lum;
+  float dampen = mix(0., .7, u_blending) * max(satDampen, darkDampen);
+  pic = mix(pic, vec3(1.), .4 * pow(dampen, 2. + 3. * pattern));
+  pic = clamp(pic, 0., 1.);
+
   float imageFootprint = frame * image.a;
-  float imageAlpha = imageFootprint * (1. - reveal);
+  float imageAlpha = imageFootprint;
 
-  vec3 overlay = blendedImage * imageAlpha + fgColor * patternAlpha * (1. - imageAlpha);
+  vec3 overlay = pic * imageAlpha + fgColor * patternAlpha * (1. - imageAlpha);
   float overlayAlpha = imageAlpha + patternAlpha * (1. - imageAlpha);
 
   vec3 color = overlay + bgColor * bgOpacity * (1. - overlayAlpha);

@@ -106,7 +106,7 @@ const PaperTextureWithControls = () => {
         foldCount: { value: defaults.foldCount, min: 1, max: paperTextureMeta.maxFoldCount, step: 1, order: 232 },
         foldSize: { value: defaults.foldSize, min: 0, max: 1, order: 232.5 },
         foldY: { value: defaults.foldY, order: 232.6 },
-        foldOffset: { value: defaults.foldOffset, min: 0, max: 1, order: 233 },
+        foldOffset: { value: defaults.foldOffset, min: -0.5, max: 0.5, order: 233 },
         foldsShape: { value: defaults.foldsShape, min: 0, max: 1, order: 234 },
         drops: { value: defaults.drops, min: 0, max: 1, order: 250 },
         seed: { value: defaults.seed, min: 0, step: 1, max: 1000, order: 250 },
