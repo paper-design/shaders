@@ -10,6 +10,7 @@ import {
 } from '@paper-design/shaders';
 import { useMergeRefs } from './use-merge-refs.js';
 import { setMinImageSize } from './set-min-image-size.js';
+import { uniformsAreEqual } from './uniforms-are-equal.js';
 
 /**
  * React Shader Mount can also accept strings as uniform values, which will assumed to be URLs and loaded as images
@@ -46,6 +47,35 @@ export interface ShaderComponentProps extends Omit<React.ComponentProps<'div'>, 
   width?: string | number;
   /** Inline CSS height style */
   height?: string | number;
+}
+
+const imageLoadCache = new Map<string, Promise<HTMLImageElement>>();
+
+async function loadImageFromUrl(url: string, external: boolean): Promise<HTMLImageElement> {
+  const cached = imageLoadCache.get(url);
+  if (cached) {
+    return cached;
+  }
+
+  const promise = new Promise<HTMLImageElement>((resolve, reject) => {
+    const img = new Image();
+    if (external) {
+      img.crossOrigin = 'anonymous';
+    }
+    img.onload = () => {
+      setMinImageSize(img);
+      resolve(img);
+    };
+    img.onerror = () => {
+      imageLoadCache.delete(url);
+      console.error(`Could not set uniforms. Failed to load image at ${url}`);
+      reject(new Error(`Failed to load image at ${url}`));
+    };
+    img.src = url;
+  });
+
+  imageLoadCache.set(url, promise);
+  return promise;
 }
 
 /** Parse the provided uniforms, turning URL strings into loaded images */
@@ -86,21 +116,8 @@ async function processUniforms(uniformsProp: ShaderMountUniformsReact): Promise<
         return;
       }
 
-      const imagePromise = new Promise<void>((resolve, reject) => {
-        const img = new Image();
-        if (isExternalUrl(url)) {
-          img.crossOrigin = 'anonymous';
-        }
-        img.onload = () => {
-          setMinImageSize(img);
-          processedUniforms[key] = img;
-          resolve();
-        };
-        img.onerror = () => {
-          console.error(`Could not set uniforms. Failed to load image at ${url}`);
-          reject();
-        };
-        img.src = url;
+      const imagePromise = loadImageFromUrl(url, isExternalUrl(url)).then((img) => {
+        processedUniforms[key] = img;
       });
 
       imageLoadPromises.push(imagePromise);
@@ -142,6 +159,7 @@ export const ShaderMount: React.FC<ShaderMountProps> = forwardRef<PaperShaderEle
     const divRef = useRef<PaperShaderElement>(null);
     const shaderMountRef: React.RefObject<ShaderMountVanilla | null> = useRef<ShaderMountVanilla>(null);
     const webGlContextAttributesRef = useRef(webGlContextAttributes);
+    const lastUniformsRef = useRef<ShaderMountUniformsReact | null>(null);
 
     // Initialize the ShaderMountVanilla
     useEffect(() => {
@@ -168,6 +186,7 @@ export const ShaderMount: React.FC<ShaderMountProps> = forwardRef<PaperShaderEle
       initShader();
 
       return () => {
+        lastUniformsRef.current = null;
         shaderMountRef.current?.dispose();
         shaderMountRef.current = null;
       };
@@ -175,6 +194,16 @@ export const ShaderMount: React.FC<ShaderMountProps> = forwardRef<PaperShaderEle
 
     // Uniforms
     useEffect(() => {
+      if (!isInitialized) {
+        return;
+      }
+
+      if (lastUniformsRef.current !== null && uniformsAreEqual(lastUniformsRef.current, uniformsProp)) {
+        return;
+      }
+
+      lastUniformsRef.current = uniformsProp;
+
       let isStale = false;
 
       const updateUniforms = async () => {
