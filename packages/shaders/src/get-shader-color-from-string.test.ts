@@ -68,6 +68,11 @@ describe('getShaderColorFromString', () => {
     expect(getShaderColorFromString('#ff')).toEqual([0.5, 0.5, 0.5, 1]);
   });
 
+  test('returns fallback for malformed rgb/hsl', () => {
+    expect(getShaderColorFromString('rgb(nope)')).toEqual([0.5, 0.5, 0.5, 1]);
+    expect(getShaderColorFromString('hsl(nope)')).toEqual([0.5, 0.5, 0.5, 1]);
+  });
+
   // Test color value ranges
   test('normalizes RGB values to 0-1 range', () => {
     expect(getShaderColorFromString('rgb(127, 127, 127)')).toEqual([

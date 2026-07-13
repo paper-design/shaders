@@ -21,9 +21,13 @@ export function getShaderColorFromString(
   if (colorString.startsWith('#')) {
     [r, g, b, a] = hexToRgba(colorString);
   } else if (colorString.startsWith('rgb')) {
-    [r, g, b, a] = parseRgba(colorString);
+    const rgba = parseRgba(colorString);
+    if (rgba === null) return fallbackColor;
+    [r, g, b, a] = rgba;
   } else if (colorString.startsWith('hsl')) {
-    [r, g, b, a] = hslaToRgba(parseHsla(colorString));
+    const hsla = parseHsla(colorString);
+    if (hsla === null) return fallbackColor;
+    [r, g, b, a] = hslaToRgba(hsla);
   } else {
     console.error('Unsupported color format', colorString);
     return fallbackColor;
@@ -65,11 +69,11 @@ function hexToRgba(hex: string): [number, number, number, number] {
   return [r, g, b, a];
 }
 
-/** Parse RGBA string to RGBA (0 to 1 range) */
-function parseRgba(rgba: string): [number, number, number, number] {
+/** Parse RGBA string to RGBA (0 to 1 range), or null if unparseable */
+function parseRgba(rgba: string): [number, number, number, number] | null {
   // Match both rgb and rgba patterns
   const match = rgba.match(/^rgba?\s*\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*(?:,\s*([0-9.]+))?\s*\)$/i);
-  if (!match) return [0, 0, 0, 1];
+  if (!match) return null;
 
   return [
     parseInt(match[1] ?? '0') / 255,
@@ -79,10 +83,10 @@ function parseRgba(rgba: string): [number, number, number, number] {
   ];
 }
 
-/** Parse HSLA string */
-function parseHsla(hsla: string): [number, number, number, number] {
+/** Parse HSLA string, or null if unparseable */
+function parseHsla(hsla: string): [number, number, number, number] | null {
   const match = hsla.match(/^hsla?\s*\(\s*(\d+)\s*,\s*(\d+)%\s*,\s*(\d+)%\s*(?:,\s*([0-9.]+))?\s*\)$/i);
-  if (!match) return [0, 0, 0, 1];
+  if (!match) return null;
 
   return [
     parseInt(match[1] ?? '0'),
