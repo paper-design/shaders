@@ -123,4 +123,4 @@ function hslaToRgba(hsla: [number, number, number, number]): [number, number, nu
 
 export const clamp = (n: number, min: number, max: number): number => Math.min(Math.max(n, min), max);
 
-const fallbackColor = [0, 0, 0, 1] as [0, 0, 0, 1];
+const fallbackColor = [0.5, 0.5, 0.5, 1] as [number, number, number, number];
