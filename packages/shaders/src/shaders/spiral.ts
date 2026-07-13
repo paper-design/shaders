@@ -87,16 +87,26 @@ void main() {
   float cap = clamp(.5 * u_strokeCap * wCap, 0., 1.);
 
   float taperArea = clamp(length(uvObj), 0., 1.);
+  float tapper = pow(u_strokeTaper, 1. + 4. * (1. - u_strokeWidth)) * taperArea;
+
   float width = 1. - clamp(u_strokeWidth, 0., 1.);
-  width = mix(width, 0., u_strokeTaper * taperArea);
+  width = mix(width, 1., tapper);
 
   width -= cap;
 
   float shapeSlope = 2. * sign(stripe - .5);
-  vec2 dField = shapeSlope * vec2(dFdx(offset), dFdy(offset)) - vec2(dFdx(width), dFdy(width));
-  float fw = length(dField);
+  vec2 dOffset = vec2(dFdx(offset), dFdy(offset));
+  vec2 dWidth = vec2(dFdx(width), dFdy(width));
+  float fw = length(shapeSlope * dOffset - dWidth);
 
+  float endProx = clamp(2. * abs(width - .5), 0., 1.);
+  fw *= 1. + pow(endProx, 6.);
+
+  shape = mix(shape, 0., tapper);
   float res = smoothstep(width - fw - u_softness, width + fw + u_softness, shape);
+
+  float dw = clamp(length(dWidth), .1, .9);
+  res *= 1. - smoothstep(1. - dw, 1. + dw, width);
 
    vec3 fgColor = u_colorFront.rgb * u_colorFront.a;
    float fgOpacity = u_colorFront.a;
