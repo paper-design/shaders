@@ -86,7 +86,7 @@ void main() {
   float wCap = 1. - r * r * (3. - 2. * r);
   float cap = clamp(.5 * u_strokeCap * wCap, 0., 1.);
 
-  float taperArea = clamp(length(uvObj), 0., 1.);
+  float taperArea = length(uvObj);;
   float tapper = pow(u_strokeTaper, 1. + 2. * (1. - u_strokeWidth)) * taperArea;
 
   float width = 1. - clamp(u_strokeWidth, 0., 1.);
