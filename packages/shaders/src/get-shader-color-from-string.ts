@@ -52,6 +52,7 @@ function hexToRgba(hex: string): [number, number, number, number] {
   // Bail out on malformed hex (wrong length or non-hex characters) so callers
   // get the fallback color instead of NaN channels leaking into the shader.
   if (!/^[0-9a-f]{8}$/i.test(hex)) {
+    console.warn('Invalid hex color');
     return fallbackColor;
   }
 
