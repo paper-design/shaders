@@ -201,9 +201,11 @@ export class ShaderMount {
   };
 
   private setupIntersectionObserver = () => {
-    if (typeof IntersectionObserver === 'undefined') return;
+    // checking ownerDocument for iframe and Picture-in-Picture cases
+    const view = this.ownerDocument.defaultView;
+    if (!view?.IntersectionObserver) return;
 
-    this.intersectionObserver = new IntersectionObserver(([entry]) => {
+    this.intersectionObserver = new view.IntersectionObserver(([entry]) => {
       this.isInViewport = entry?.isIntersecting ?? true;
       this.setCurrentSpeed(this.ownerDocument.hidden || !this.isInViewport ? 0 : this.speed);
     });
