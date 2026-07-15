@@ -99,6 +99,10 @@ export { ImageDithering, imageDitheringPresets } from './shaders/image-dithering
 export type { ImageDitheringProps } from './shaders/image-dithering.js';
 export type { ImageDitheringUniforms, ImageDitheringParams } from '@paper-design/shaders';
 
+export { Prism, prismPresets } from './shaders/prism.js';
+export type { PrismProps } from './shaders/prism.js';
+export type { PrismUniforms, PrismParams } from '@paper-design/shaders';
+
 export { Heatmap, heatmapPresets } from './shaders/heatmap.js';
 export type { HeatmapProps } from './shaders/heatmap.js';
 export type { HeatmapUniforms, HeatmapParams } from '@paper-design/shaders';
@@ -136,6 +140,7 @@ export {
   voronoiMeta,
   warpMeta,
   heatmapMeta,
+  prismMeta,
   staticMeshGradientMeta,
   staticRadialGradientMeta,
 } from '@paper-design/shaders';
