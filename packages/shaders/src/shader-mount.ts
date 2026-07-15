@@ -200,7 +200,7 @@ export class ShaderMount {
   };
 
   private setupIntersectionObserver = () => {
-    // checking ownerDocument for iframe and Picture-in-Picture cases
+    // we check element's own window to support shaders used within iframe/PiP elements
     const view = this.ownerDocument.defaultView;
     if (!view?.IntersectionObserver) return;
 
