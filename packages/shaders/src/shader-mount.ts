@@ -175,7 +175,6 @@ export class ShaderMount {
   private devicePixelsSupported = false;
 
   private intersectionObserver: IntersectionObserver | null = null;
-  /** Whether the parent element is currently intersecting the viewport */
   private isInViewport = true;
 
   private resizeObserver: ResizeObserver | null = null;
