@@ -56,7 +56,7 @@ export const prismDef: ShaderDef = {
       max: 1,
       defaultValue: defaultParams.shiftBias,
       description:
-        'How the colors space out along the shift. 0 spaces them evenly; positive values bunch the middle colors toward the first color, which is how real glass disperses (short wavelengths bend hardest), and negative values bunch them toward the last. The first and last colors sit at the ends of the shift whatever the value, so this has no effect at two colorSteps',
+        'Warps how the colors distribute along the shift. 0 spaces them evenly; toward +/-1 they bunch toward one end of the fan and spread out at the other, with the first and last colors pinned at the ends',
     },
     {
       name: 'angle',

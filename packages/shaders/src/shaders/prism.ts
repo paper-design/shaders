@@ -42,8 +42,8 @@ export const prismMeta = {
  * - u_hue (float): Turns the whole palette around the hue wheel in degrees (0 to 360)
  * - u_shift (float): Distance the outermost samples travel apart,
  *   as a fraction of the image width (0 to 1, mapped to 0 to 10%)
- * - u_shiftBias (float): Warps the dispersion curve, bunching the middle colors toward the last
- *   color (-1) or the first (1); 0 spaces them evenly (-1 to 1)
+ * - u_shiftBias (float): Warps the dispersion curve, bunching the colors toward one end of the fan
+ *   and spreading them at the other with the ends pinned; 0 spaces them evenly (-1 to 1)
  * - u_angle (float): Direction of the shift in degrees when it is not radial (0 to 360)
  * - u_radiality (float): Blends the shift from the fixed angle (0) to an outward-from-centre shift
  *   that grows with radius (1); raising it adds the off-axis shift a straight angle never had (0 to 1)
@@ -144,7 +144,10 @@ float boxInradius() {
 }
 
 float dispersionCurve(float t) {
-  return pow(t, exp2(2. * u_shiftBias));
+  float e = 1. + 2. * abs(u_shiftBias);
+  float tt = u_shiftBias < 0. ? 1. - t : t;
+  float c = pow(tt, e);// - (pow(.5, e) - .5);
+  return u_shiftBias < 0. ? 1. - c : c;
 }
 
 vec2 shapeAxis(vec2 uv) {
