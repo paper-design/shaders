@@ -16,7 +16,9 @@ export const prismMeta = {
  * is missing, so a sample landing on a dark feature takes its own color out of the result and
  * leaves it showing on the neighbours. That is what puts the palette colors on screen for a dark
  * subject on a light ground, which is most photographs. It reverses for a light subject on a dark
- * ground, where the fringes come out complemented.
+ * ground, where the fringes come out complemented. This is why a black-on-transparent logo wants an
+ * opaque u_colorBack: on transparent it disperses into faint tinted edges, on white it reads as a
+ * dark subject and splits into the full palette.
  *
  * The palette is always evenly spaced hues at full saturation, which is what keeps the maths simple
  * downstream: however many colors there are and wherever u_hue puts them, they cover the wheel, so
@@ -26,6 +28,8 @@ export const prismMeta = {
  *
  * Fragment shader uniforms:
  * - u_image (sampler2D): Source image texture
+ * - u_colorBack (vec4): Color filling the picture's transparent areas and everything past its edge,
+ *   in RGBA; a transparent value leaves those areas transparent with a colored rim
  * - u_colorSteps (float): Number of colors the image splits into (2 to 10)
  * - u_hue (float): Turns the whole palette around the hue wheel in degrees (0 to 360)
  * - u_shift (float): Distance the outermost samples travel apart,
@@ -55,6 +59,7 @@ export const prismFragmentShader: string = `#version 300 es
 precision mediump float;
 
 uniform sampler2D u_image;
+uniform vec4 u_colorBack;
 uniform float u_colorSteps;
 uniform float u_hue;
 uniform float u_shift;
@@ -74,12 +79,16 @@ float getUvFrame(vec2 uv) {
   return left * right * bottom * top;
 }
 
-// Each sample is taken at its own spot, so each one needs its own frame test:
-// a shared mask would drag the border pixels sideways instead of fading them out.
-vec4 sampleImage(vec2 uv) {
-  vec4 color = texture(u_image, uv);
-  color.rgb *= color.a;
-  return color * getUvFrame(uv);
+// The image sampled at uv and composited over the background, returned premultiplied. Both the
+// picture's own transparency and everything past its edge (frame = 0) read as the same absence and
+// get filled by the background, so a black-on-transparent logo behaves like a photo once the
+// background is opaque. Each sample tests the frame itself: a shared mask would drag border pixels
+// sideways instead of letting them meet the background where they fall.
+vec4 sampleOverBack(vec2 uv) {
+  vec4 img = texture(u_image, uv);
+  float cover = img.a * getUvFrame(uv);
+  vec3 backPremult = u_colorBack.rgb * u_colorBack.a;
+  return vec4(img.rgb * cover + backPremult * (1. - cover), cover + u_colorBack.a * (1. - cover));
 }
 
 // Full saturation hue wheel, t running 0 to 1 from red back around to red.
@@ -96,9 +105,9 @@ void main() {
   vec2 axis = vec2(.1 * u_shift, 0.);
 
   int count = int(u_colorSteps);
-  vec3 sum = vec3(0.);
+  vec3 colorSum = vec3(0.);
+  vec3 coverSum = vec3(0.);
   vec3 weightSum = vec3(0.);
-  float opacity = 0.;
 
   for (int i = 0; i < ${prismMeta.maxColorSteps}; i++) {
     if (i >= count) break;
@@ -108,20 +117,26 @@ void main() {
     float hue = u_hue / 360. + float(i) / float(count);
     float t = float(i) / float(count - 1);
 
-    vec4 tap = sampleImage(uv + mix(axis, -axis, dispersionCurve(t)));
+    vec4 tap = sampleOverBack(uv + mix(axis, -axis, dispersionCurve(t)));
     vec3 weight = 1. - hueColor(hue);
 
-    sum += tap.rgb * weight;
+    colorSum += tap.rgb * weight;
+    coverSum += tap.a * weight;
     weightSum += weight;
-    opacity += tap.a;
   }
 
-  fragColor = vec4(sum / max(weightSum, 1e-4), opacity / float(count));
+  // Coverage is accumulated per channel with the same weights as the color, so on a cutout the
+  // silhouette splits into a colored rim exactly the way the picture does. The single output alpha
+  // takes the widest-reaching channel, so that rim stays visible instead of averaging itself away.
+  vec3 color = colorSum / max(weightSum, 1e-4);
+  vec3 cover = coverSum / max(weightSum, 1e-4);
+  fragColor = vec4(color, max(max(cover.r, cover.g), cover.b));
 }
 `;
 
 export interface PrismUniforms extends ShaderSizingUniforms {
   u_image: HTMLImageElement | string | undefined;
+  u_colorBack: [number, number, number, number];
   u_colorSteps: number;
   u_hue: number;
   u_shift: number;
@@ -130,6 +145,7 @@ export interface PrismUniforms extends ShaderSizingUniforms {
 
 export interface PrismParams extends ShaderSizingParams, ShaderMotionParams {
   image?: HTMLImageElement | string;
+  colorBack?: string;
   colorSteps?: number;
   hue?: number;
   shift?: number;

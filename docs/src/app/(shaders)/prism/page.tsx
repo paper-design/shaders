@@ -7,6 +7,7 @@ import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
 import { ShaderFit, prismMeta } from '@paper-design/shaders';
 import { levaImageButton } from '@/helpers/leva-image-button';
+import { toHsla } from '@/helpers/color-utils';
 import { useState, useEffect, useCallback } from 'react';
 import { ShaderDetails } from '@/components/shader-details';
 import { prismDef } from '@/shader-defs/prism-def';
@@ -66,6 +67,7 @@ const PrismWithControls = () => {
       ])
     );
     return {
+      colorBack: { value: toHsla(defaults.colorBack), order: 99 },
       colorSteps: { value: defaults.colorSteps, min: 2, max: prismMeta.maxColorSteps, step: 1, order: 100 },
       hue: { value: defaults.hue, min: 0, max: 360, order: 101 },
       shift: { value: defaults.shift, min: 0, max: 1, order: 200 },

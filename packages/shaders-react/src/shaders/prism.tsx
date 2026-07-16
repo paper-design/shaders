@@ -1,7 +1,9 @@
 import { memo } from 'react';
 import { ShaderMount, type ShaderComponentProps } from '../shader-mount.js';
+import { colorPropsAreEqual } from '../color-props-are-equal.js';
 import {
   prismFragmentShader,
+  getShaderColorFromString,
   ShaderFitOptions,
   type PrismUniforms,
   type PrismParams,
@@ -17,12 +19,13 @@ export const defaultPreset: PrismPreset = {
   name: 'Default',
   params: {
     ...defaultObjectSizing,
-    fit: 'cover',
+    fit: 'contain',
     speed: 0,
     frame: 0,
+    colorBack: '#f3f3ec',
     colorSteps: 3,
     hue: 180,
-    shift: 0.15,
+    shift: 0.1,
     shiftBias: 0,
   },
 } as const;
@@ -31,12 +34,13 @@ export const fadedPreset: PrismPreset = {
   name: 'Faded',
   params: {
     ...defaultObjectSizing,
-    fit: 'cover',
+    fit: 'contain',
     speed: 0,
     frame: 0,
+    colorBack: '#f3f3ec',
     colorSteps: 3,
-    hue: 0,
-    shift: 0.15,
+    hue: 40,
+    shift: 0.1,
     shiftBias: 0,
   },
 } as const;
@@ -45,9 +49,10 @@ export const duotonePreset: PrismPreset = {
   name: 'Duotone',
   params: {
     ...defaultObjectSizing,
-    fit: 'cover',
+    fit: 'contain',
     speed: 0,
     frame: 0,
+    colorBack: '#000000',
     colorSteps: 2,
     hue: 192,
     shift: 0.2,
@@ -59,9 +64,10 @@ export const spectrumPreset: PrismPreset = {
   name: 'Spectrum',
   params: {
     ...defaultObjectSizing,
-    fit: 'cover',
+    fit: 'contain',
     speed: 0,
     frame: 0,
+    colorBack: '#f3f3ec',
     colorSteps: 8,
     hue: 0,
     shift: 0.25,
@@ -76,6 +82,7 @@ export const Prism: React.FC<PrismProps> = memo(function PrismImpl({
   speed = defaultPreset.params.speed,
   frame = defaultPreset.params.frame,
   image = '',
+  colorBack = defaultPreset.params.colorBack,
   colorSteps = defaultPreset.params.colorSteps,
   hue = defaultPreset.params.hue,
   shift = defaultPreset.params.shift,
@@ -96,6 +103,7 @@ export const Prism: React.FC<PrismProps> = memo(function PrismImpl({
   const uniforms = {
     // Own uniforms
     u_image: image,
+    u_colorBack: getShaderColorFromString(colorBack),
     u_colorSteps: colorSteps,
     u_hue: hue,
     u_shift: shift,
@@ -114,4 +122,4 @@ export const Prism: React.FC<PrismProps> = memo(function PrismImpl({
   } satisfies PrismUniforms;
 
   return <ShaderMount {...props} speed={speed} frame={frame} fragmentShader={prismFragmentShader} uniforms={uniforms} />;
-});
+}, colorPropsAreEqual);

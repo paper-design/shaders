@@ -15,6 +15,14 @@ export const prismDef: ShaderDef = {
       description: 'The image to use for the effect',
     },
     {
+      name: 'colorBack',
+      type: 'string',
+      defaultValue: defaultParams.colorBack,
+      isColor: true,
+      description:
+        "Color filling the picture's transparent areas and everything past its edge. A transparent value leaves those areas transparent with a colored rim; an opaque one lets a black-on-transparent logo read as a dark subject and split into the full palette",
+    },
+    {
       name: 'colorSteps',
       type: 'number',
       min: 2,
