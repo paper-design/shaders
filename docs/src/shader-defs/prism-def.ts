@@ -59,21 +59,65 @@ export const prismDef: ShaderDef = {
         'How the colors space out along the shift. 0 spaces them evenly; positive values bunch the middle colors toward the first color, which is how real glass disperses (short wavelengths bend hardest), and negative values bunch them toward the last. The first and last colors sit at the ends of the shift whatever the value, so this has no effect at two colorSteps',
     },
     {
-      name: 'shape',
-      type: 'enum',
-      defaultValue: defaultParams.shape,
-      description:
-        'The rule for which direction the colors travel. Linear shifts every pixel the same way; radial pushes them out from the centre so the split grows toward the edges; cylinder does that along one axis only; zoom is radial but one-sided, like a zoom blur; bubble windows radial into a round disc that fades before the corners; barrel grows with the square of the radius so the edges bulge like a lens; flare is constant-length radial streaks with the same reach everywhere',
-      options: ['linear', 'radial', 'cylinder', 'zoom', 'bubble', 'barrel', 'flare'],
-    },
-    {
       name: 'angle',
       type: 'number',
       min: 0,
       max: 360,
       defaultValue: defaultParams.angle,
+      description: 'Direction of the shift in degrees when it is not radial',
+    },
+    {
+      name: 'radiality',
+      type: 'number',
+      min: 0,
+      max: 1,
+      defaultValue: defaultParams.radiality,
       description:
-        'Direction of the shift in degrees. Turns the line for linear and cylinder, and does nothing for the symmetric radial',
+        'Blends the shift from the fixed angle (0) to an outward-from-centre shift that grows with radius (1). At 0 every pixel shifts the same way; raising it adds the off-axis shift a straight angle never had, until at 1 the shift radiates from the centre and rounds off at the edges',
+    },
+    {
+      name: 'centerFalloff',
+      type: 'number',
+      min: 0,
+      max: 1,
+      defaultValue: defaultParams.centerFalloff,
+      description:
+        'How much the shift strength drops toward the centre. 0 leaves it full everywhere; 1 fades it to nothing at the centre, which is what makes a radial split grow from the middle outward',
+    },
+    {
+      name: 'edgeFalloff',
+      type: 'number',
+      min: 0,
+      max: 1,
+      defaultValue: defaultParams.edgeFalloff,
+      description:
+        'How much the shift strength drops toward the edge. 0 leaves it full; 1 fades it to nothing at the edge, rounding the effect into a centred disc',
+    },
+    {
+      name: 'profileCurve',
+      type: 'number',
+      min: -1,
+      max: 1,
+      defaultValue: defaultParams.profileCurve,
+      description:
+        'Bends the strength ramp between centre and edge. 0 is a straight ramp; positive values push the growth toward the edge for a barrel-like bulge; negative values pull it toward the centre',
+    },
+    {
+      name: 'oneSided',
+      type: 'boolean',
+      defaultValue: defaultParams.oneSided,
+      description:
+        'Samples trail to one side of each pixel instead of bracketing it, turning a radial split into a one-sided zoom blur',
+      options: ['true', 'false'],
+    },
+    {
+      name: 'distortion',
+      type: 'number',
+      min: 0,
+      max: 1,
+      defaultValue: defaultParams.distortion,
+      description:
+        'Fisheye warp of the image geometry, separate from the color shift. 0 leaves it flat; 1 is a full fisheye bulge that magnifies the centre, bows straight lines outward, and lets the corners run off into the background',
     },
     {
       name: 'noise',

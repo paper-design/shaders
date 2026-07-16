@@ -6,18 +6,6 @@ export const prismMeta = {
   maxColorSteps: 40,
 } as const;
 
-export const PrismShapes = {
-  linear: 1,
-  radial: 2,
-  cylinder: 3,
-  zoom: 4,
-  bubble: 5,
-  barrel: 6,
-  flare: 7,
-} as const;
-
-export type PrismShape = keyof typeof PrismShapes;
-
 /**
  * Prism image filter that samples an image several times along a dispersion axis and gives each
  * sample its own color, the way glass refracts each wavelength by a different amount. The palette
@@ -39,6 +27,13 @@ export type PrismShape = keyof typeof PrismShapes;
  * then be divided by its own weight, leaving the image untouched where the samples line up
  * (shift = 0) without any risk of a channel dividing a vanishing weight back out of itself.
  *
+ * The direction the samples travel is a vector field, described rather than picked from a list:
+ * u_radiality blends a fixed angle into an outward-from-centre shift that grows with radius, and
+ * u_centerFalloff / u_edgeFalloff / u_profileCurve reshape how the strength rises and falls between
+ * the centre and the edge. Together they cover the familiar named looks and everything between them:
+ * a fixed angle is a straight shift; full radiality is a rounded radial split on its own; add edge
+ * falloff and it tightens into a disc; curve the ramp toward the edge and it bulges like a barrel.
+ *
  * Fragment shader uniforms:
  * - u_image (sampler2D): Source image texture
  * - u_colorBack (vec4): Color filling the picture's transparent areas and everything past its edge,
@@ -49,16 +44,22 @@ export type PrismShape = keyof typeof PrismShapes;
  *   as a fraction of the image width (0 to 1, mapped to 0 to 10%)
  * - u_shiftBias (float): Warps the dispersion curve, bunching the middle colors toward the last
  *   color (-1) or the first (1); 0 spaces them evenly (-1 to 1)
- * - u_shape (float): Direction rule the samples travel along (1 = linear, 2 = radial, 3 = cylinder,
- *   4 = zoom, 5 = bubble, 6 = barrel, 7 = flare). Radial scales the whole frame about the centre;
- *   zoom is the same but one-sided like a zoom blur; bubble windows radial into a round disc that
- *   fades before the corners; barrel grows with the square of the radius so the edges bulge like a
- *   lens; flare is constant-length radial streaks the same reach everywhere
- * - u_angle (float): Direction of the shift in degrees; turns the line for linear and cylinder,
- *   does nothing for the radially symmetric shapes (0 to 360)
- * - u_noise (float): Turbulence added to the shift direction, on top of any shape (0 to 1)
+ * - u_angle (float): Direction of the shift in degrees when it is not radial (0 to 360)
+ * - u_radiality (float): Blends the shift from the fixed angle (0) to an outward-from-centre shift
+ *   that grows with radius (1); raising it adds the off-axis shift a straight angle never had (0 to 1)
+ * - u_centerFalloff (float): How much the shift strength drops toward the centre; 0 leaves it full,
+ *   1 fades it to nothing at the centre (0 to 1)
+ * - u_edgeFalloff (float): How much the shift strength drops toward the edge; 0 leaves it full,
+ *   1 fades it to nothing at the edge (0 to 1)
+ * - u_profileCurve (float): Bends the strength ramp between centre and edge, toward the edge for a
+ *   barrel-like bulge (1) or toward the centre (-1); 0 is a straight ramp (-1 to 1)
+ * - u_oneSided (bool): Samples trail to one side of each pixel instead of bracketing it, turning a
+ *   radial split into a one-sided zoom blur
+ * - u_noise (float): Turbulence added to the shift direction (0 to 1)
  * - u_noiseFrequency (float): Spatial frequency of the turbulence field; higher is finer-grained
  * - u_noiseOffset (float): Slides the turbulence field to a different patch
+ * - u_distortion (float): Fisheye warp of the image geometry, separate from the color shift; 0 leaves
+ *   it flat, 1 is a full fisheye bulge with the corners running off into the background (0 to 1)
  *
  * Vertex shader outputs (used in fragment shader):
  * - v_imageUV (vec2): Image UV coordinates with global sizing (rotation, scale, offset, etc) applied
@@ -88,11 +89,16 @@ uniform float u_colorSteps;
 uniform float u_hue;
 uniform float u_shift;
 uniform float u_shiftBias;
-uniform float u_shape;
 uniform float u_angle;
+uniform float u_radiality;
+uniform float u_centerFalloff;
+uniform float u_edgeFalloff;
+uniform float u_profileCurve;
+uniform bool u_oneSided;
 uniform float u_noise;
 uniform float u_noiseFrequency;
 uniform float u_noiseOffset;
+uniform float u_distortion;
 
 in vec2 v_imageUV;
 
@@ -122,11 +128,6 @@ float getUvFrame(vec2 uv) {
   return left * right * bottom * top;
 }
 
-// The image sampled at uv and composited over the background, returned premultiplied. Both the
-// picture's own transparency and everything past its edge (frame = 0) read as the same absence and
-// get filled by the background, so a black-on-transparent logo behaves like a photo once the
-// background is opaque. Each sample tests the frame itself: a shared mask would drag border pixels
-// sideways instead of letting them meet the background where they fall.
 vec4 sampleOverBack(vec2 uv) {
   vec4 img = texture(u_image, uv);
   float cover = img.a * getUvFrame(uv);
@@ -134,7 +135,6 @@ vec4 sampleOverBack(vec2 uv) {
   return vec4(img.rgb * cover + backPremult * (1. - cover), cover + u_colorBack.a * (1. - cover));
 }
 
-// Full saturation hue wheel, t running 0 to 1 from red back around to red.
 vec3 hueColor(float t) {
   return clamp(abs(mod(t * 6. + vec3(0., 4., 2.), 6.) - 3.) - 1., 0., 1.);
 }
@@ -143,48 +143,28 @@ float dispersionCurve(float t) {
   return pow(t, exp2(2. * u_shiftBias));
 }
 
-// Half the span the samples fan across, before the per-sample curve spreads them from +axis to
-// -axis. Every shape is a different rule for this one vector, so the accumulation loop below never
-// has to know which shape is running. Worked out around the image centre in aspect-corrected space
-// so radial stays circular and the angle reads true on a non-square image, then undone on the way
-// out.
 vec2 shapeAxis(vec2 uv) {
   float amount = .1 * u_shift;
   float a = radians(u_angle);
-  vec2 dir = vec2(cos(a), sin(a));
+  vec2 uniformDir = vec2(cos(a), sin(a));
 
   vec2 p = uv - .5;
   p.x *= u_imageAspectRatio;
-
-  int shape = int(u_shape);
   float r = length(p);
-  vec2 axis;
-  if (shape == 2 || shape == 4) {
-    // radial and zoom both scale about the centre, growing from nothing there to the edges; they
-    // part ways only in main, where radial brackets the pixel and zoom trails to one side of it
-    axis = p * 2. * amount;
-  } else if (shape == 3) {
-    // cylinder: the radial scaling of one axis only, zero along the centre line, growing sideways
-    axis = dir * dot(p, dir) * 2. * amount;
-  } else if (shape == 5) {
-    // bubble: radial, but windowed into a centred disc so it fades out before the rectangular
-    // corners instead of tracing them; the effect reads as a round hotspot rather than a scaled frame
-    axis = p * 2. * amount * (1. - smoothstep(.35, .5, r));
-  } else if (shape == 6) {
-    // barrel: magnitude grows with the square of the radius, so the centre stays put while the edges
-    // bulge and straight lines bow outward, the way a spherical lens distorts
-    axis = p * 4. * amount * r;
-  } else if (shape == 7) {
-    // flare: direction only from the centre, every streak the same length whatever the radius; the
-    // tiny smoothstep keeps the undefined direction at the exact centre from flickering
-    axis = (r > 1e-4 ? p / r : vec2(0.)) * 2. * amount * smoothstep(0., .08, r);
-  } else {
-    // linear: one fixed direction everywhere
-    axis = dir * amount;
-  }
 
-  // Noise turns the direction, leaving the shape's magnitude field intact, so any shape can be
-  // roughened without becoming a shape of its own. The offset slides the field to a different patch.
+  vec2 radial = p / .5;
+  float rl = length(radial);
+  if (rl > 1.) radial /= rl;
+  vec2 base = mix(uniformDir, radial, u_radiality);
+
+  float coord = mix(abs(dot(p, uniformDir)), r, u_radiality);
+  float qn = clamp(coord / .5, 0., 1.);
+
+  float ramp = pow(qn, exp2(2. * u_profileCurve));
+  float strength = mix(1., ramp, u_centerFalloff) * mix(1., 1. - qn, u_edgeFalloff);
+
+  vec2 axis = base * amount * strength;
+
   if (u_noise > 0.) {
     float turn = (valueNoise(p * u_noiseFrequency + u_noiseOffset) - .5) * TWO_PI * u_noise;
     float cs = cos(turn), sn = sin(turn);
@@ -195,10 +175,27 @@ vec2 shapeAxis(vec2 uv) {
   return axis;
 }
 
+vec2 fisheye(vec2 uv) {
+  if (u_distortion <= 0.) return uv;
+
+  vec2 p = uv - .5;
+  p.x *= u_imageAspectRatio;
+  float r = length(p);
+  if (r < 1e-5) return uv;
+
+  float rn = r / .5;
+  float a = u_distortion * 1.4;
+  float srcR = tan(min(rn * a, 1.53)) / tan(a);
+  p *= srcR / rn;
+
+  p.x /= u_imageAspectRatio;
+  return p + .5;
+}
+
 void main() {
   vec2 uv = v_imageUV;
+  vec2 baseUV = fisheye(uv);
   vec2 axis = shapeAxis(uv);
-  bool oneSided = int(u_shape) == 4;
 
   int count = int(u_colorSteps);
   vec3 colorSum = vec3(0.);
@@ -208,16 +205,12 @@ void main() {
   for (int i = 0; i < ${prismMeta.maxColorSteps}; i++) {
     if (i >= count) break;
 
-    // Two different spacings: the colors step around the hue wheel without repeating the one they
-    // started on, while their positions run the dispersion axis end to end.
     float hue = u_hue / 360. + float(i) / float(count);
     float t = float(i) / float(count - 1);
 
-    // Radial and the rest bracket the pixel, sampling from +axis through it to -axis. Zoom instead
-    // trails from the pixel out to +axis only, so the same tap count reads as a one-sided streak.
     float c = dispersionCurve(t);
-    vec2 offset = oneSided ? axis * c : mix(axis, -axis, c);
-    vec4 tap = sampleOverBack(uv + offset);
+    vec2 offset = u_oneSided ? axis * c : mix(axis, -axis, c);
+    vec4 tap = sampleOverBack(baseUV + offset);
     vec3 weight = 1. - hueColor(hue);
 
     colorSum += tap.rgb * weight;
@@ -225,9 +218,6 @@ void main() {
     weightSum += weight;
   }
 
-  // Coverage is accumulated per channel with the same weights as the color, so on a cutout the
-  // silhouette splits into a colored rim exactly the way the picture does. The single output alpha
-  // takes the widest-reaching channel, so that rim stays visible instead of averaging itself away.
   vec3 color = colorSum / max(weightSum, 1e-4);
   vec3 cover = coverSum / max(weightSum, 1e-4);
   fragColor = vec4(color, max(max(cover.r, cover.g), cover.b));
@@ -241,11 +231,16 @@ export interface PrismUniforms extends ShaderSizingUniforms {
   u_hue: number;
   u_shift: number;
   u_shiftBias: number;
-  u_shape: (typeof PrismShapes)[PrismShape];
   u_angle: number;
+  u_radiality: number;
+  u_centerFalloff: number;
+  u_edgeFalloff: number;
+  u_profileCurve: number;
+  u_oneSided: boolean;
   u_noise: number;
   u_noiseFrequency: number;
   u_noiseOffset: number;
+  u_distortion: number;
 }
 
 export interface PrismParams extends ShaderSizingParams, ShaderMotionParams {
@@ -255,9 +250,14 @@ export interface PrismParams extends ShaderSizingParams, ShaderMotionParams {
   hue?: number;
   shift?: number;
   shiftBias?: number;
-  shape?: PrismShape;
   angle?: number;
+  radiality?: number;
+  centerFalloff?: number;
+  edgeFalloff?: number;
+  profileCurve?: number;
+  oneSided?: boolean;
   noise?: number;
   noiseFrequency?: number;
   noiseOffset?: number;
+  distortion?: number;
 }
