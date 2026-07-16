@@ -94,23 +94,6 @@ export const prismDef: ShaderDef = {
         'How much the shift strength drops toward the edge. 0 leaves it full; 1 fades it to nothing at the edge, rounding the effect into a centred disc',
     },
     {
-      name: 'profileCurve',
-      type: 'number',
-      min: -1,
-      max: 1,
-      defaultValue: defaultParams.profileCurve,
-      description:
-        'Bends the strength ramp between centre and edge. 0 is a straight ramp; positive values push the growth toward the edge for a barrel-like bulge; negative values pull it toward the centre',
-    },
-    {
-      name: 'oneSided',
-      type: 'boolean',
-      defaultValue: defaultParams.oneSided,
-      description:
-        'Samples trail to one side of each pixel instead of bracketing it, turning a radial split into a one-sided zoom blur',
-      options: ['true', 'false'],
-    },
-    {
       name: 'distortion',
       type: 'number',
       min: 0,

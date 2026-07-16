@@ -29,10 +29,10 @@ export const prismMeta = {
  *
  * The direction the samples travel is a vector field, described rather than picked from a list:
  * u_radiality blends a fixed angle into an outward-from-centre shift that grows with radius, and
- * u_centerFalloff / u_edgeFalloff / u_profileCurve reshape how the strength rises and falls between
- * the centre and the edge. Together they cover the familiar named looks and everything between them:
- * a fixed angle is a straight shift; full radiality is a rounded radial split on its own; add edge
- * falloff and it tightens into a disc; curve the ramp toward the edge and it bulges like a barrel.
+ * u_centerFalloff / u_edgeFalloff reshape how the strength rises and falls between the centre and the
+ * edge. Together they cover the familiar named looks and everything between them: a fixed angle is a
+ * straight shift; full radiality is a rounded radial split on its own; add edge falloff and it
+ * tightens into a disc.
  *
  * Fragment shader uniforms:
  * - u_image (sampler2D): Source image texture
@@ -51,15 +51,13 @@ export const prismMeta = {
  *   1 fades it to nothing at the centre (0 to 1)
  * - u_edgeFalloff (float): How much the shift strength drops toward the edge; 0 leaves it full,
  *   1 fades it to nothing at the edge (0 to 1)
- * - u_profileCurve (float): Bends the strength ramp between centre and edge, toward the edge for a
- *   barrel-like bulge (1) or toward the centre (-1); 0 is a straight ramp (-1 to 1)
- * - u_oneSided (bool): Samples trail to one side of each pixel instead of bracketing it, turning a
- *   radial split into a one-sided zoom blur
  * - u_noise (float): Turbulence added to the shift direction (0 to 1)
  * - u_noiseFrequency (float): Spatial frequency of the turbulence field; higher is finer-grained
  * - u_noiseOffset (float): Slides the turbulence field to a different patch
- * - u_distortion (float): Fisheye warp of the image geometry, separate from the color shift; 0 leaves
- *   it flat, 1 is a full fisheye bulge with the corners running off into the background (0 to 1)
+ * - u_distortion (float): Lens warp of the image geometry, separate from the color shift; 0 leaves
+ *   it flat, 1 is a full bulge with the corners running off into the background (0 to 1)
+ * - u_distortionRadiality (float): Symmetry of the lens warp; 1 is a radial fisheye bulging from the
+ *   centre point, 0 is a cylindrical barrel bulging from the centre line along the shift axis (0 to 1)
  * - u_debugCircle (bool): Testing overlay drawing the largest circle that fits the image box, the
  *   radius the shift falloffs, radiality and fisheye all pivot around
  *
@@ -95,12 +93,11 @@ uniform float u_angle;
 uniform float u_radiality;
 uniform float u_centerFalloff;
 uniform float u_edgeFalloff;
-uniform float u_profileCurve;
-uniform bool u_oneSided;
 uniform float u_noise;
 uniform float u_noiseFrequency;
 uniform float u_noiseOffset;
 uniform float u_distortion;
+uniform float u_distortionRadiality;
 uniform bool u_debugCircle;
 
 in vec2 v_imageUV;
@@ -141,11 +138,7 @@ vec4 sampleOverBack(vec2 uv) {
 vec3 hueColor(float t) {
   return clamp(abs(mod(t * 6. + vec3(0., 4., 2.), 6.) - 3.) - 1., 0., 1.);
 }
-
-// Radius of the largest circle that fits the image box, in the aspect-corrected centred space. The
-// box spans the aspect ratio horizontally and 1 vertically, so the circle touches whichever pair of
-// edges is nearer: half-height on a landscape image, half-width on a portrait one. The radial shift,
-// the fisheye and the testing overlay all measure against this so they round to the same circle.
+                                            
 float boxInradius() {
   return .5 * min(u_imageAspectRatio, 1.);
 }
@@ -155,7 +148,7 @@ float dispersionCurve(float t) {
 }
 
 vec2 shapeAxis(vec2 uv) {
-  float amount = .1 * u_shift;
+  float amount = .2 * u_shift;
   float a = radians(u_angle);
   vec2 uniformDir = vec2(cos(a), sin(a));
 
@@ -172,8 +165,7 @@ vec2 shapeAxis(vec2 uv) {
   float coord = mix(abs(dot(p, uniformDir)), r, u_radiality);
   float qn = clamp(coord / R, 0., 1.);
 
-  float ramp = pow(qn, exp2(2. * u_profileCurve));
-  float strength = mix(1., ramp, u_centerFalloff) * mix(1., 1. - qn, u_edgeFalloff);
+  float strength = mix(1., qn, u_centerFalloff) * mix(1., 1. - qn, u_edgeFalloff);
 
   vec2 axis = base * amount * strength;
 
@@ -187,18 +179,36 @@ vec2 shapeAxis(vec2 uv) {
   return axis;
 }
 
+// Lens warp of the sampling coordinate. The tan remap magnifies the middle and holds the inscribed
+// circle, pushing the far corners off into the background. distortionRadiality picks the symmetry:
+// at 1 the whole radius is remapped, a fisheye that bulges from the centre point; at 0 only the
+// component along the shift axis is remapped, a cylindrical barrel that bulges from the centre line
+// and leaves the other axis flat - the linear counterpart of the fisheye.
 vec2 fisheye(vec2 uv) {
   if (u_distortion <= 0.) return uv;
 
   vec2 p = uv - .5;
   p.x *= u_imageAspectRatio;
-  float r = length(p);
-  if (r < 1e-5) return uv;
-
-  float rn = r / boxInradius();
+  float R = boxInradius();
   float a = u_distortion * 1.4;
-  float srcR = tan(min(rn * a, 1.53)) / tan(a);
-  p *= srcR / rn;
+  float ta = tan(a);
+
+  // Fisheye: scale the whole vector by the remapped radius.
+  vec2 pRadial = p;
+  float r = length(p);
+  if (r > 1e-5) {
+    float srcRn = tan(min(r / R * a, 1.53)) / ta;
+    pRadial = p * (srcRn * R / r);
+  }
+
+  // Cylinder: remap only the distance along the shift axis, leaving the perpendicular untouched.
+  float ang = radians(u_angle);
+  vec2 dir = vec2(cos(ang), sin(ang));
+  float along = dot(p, dir);
+  float srcAlong = sign(along) * tan(min(abs(along) / R * a, 1.53)) / ta * R;
+  vec2 pCyl = p - along * dir + srcAlong * dir;
+
+  p = mix(pCyl, pRadial, u_distortionRadiality);
 
   p.x /= u_imageAspectRatio;
   return p + .5;
@@ -221,7 +231,7 @@ void main() {
     float t = float(i) / float(count - 1);
 
     float c = dispersionCurve(t);
-    vec2 offset = u_oneSided ? axis * c : mix(axis, -axis, c);
+    vec2 offset = mix(axis, -axis, c);
     vec4 tap = sampleOverBack(baseUV + offset);
     vec3 weight = 1. - hueColor(hue);
 
@@ -259,12 +269,11 @@ export interface PrismUniforms extends ShaderSizingUniforms {
   u_radiality: number;
   u_centerFalloff: number;
   u_edgeFalloff: number;
-  u_profileCurve: number;
-  u_oneSided: boolean;
   u_noise: number;
   u_noiseFrequency: number;
   u_noiseOffset: number;
   u_distortion: number;
+  u_distortionRadiality: number;
   u_debugCircle: boolean;
 }
 
@@ -279,11 +288,10 @@ export interface PrismParams extends ShaderSizingParams, ShaderMotionParams {
   radiality?: number;
   centerFalloff?: number;
   edgeFalloff?: number;
-  profileCurve?: number;
-  oneSided?: boolean;
   noise?: number;
   noiseFrequency?: number;
   noiseOffset?: number;
   distortion?: number;
+  distortionRadiality?: number;
   debugCircle?: boolean;
 }
