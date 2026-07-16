@@ -5,6 +5,7 @@ import {
   prismFragmentShader,
   getShaderColorFromString,
   ShaderFitOptions,
+  PrismShapes,
   type PrismUniforms,
   type PrismParams,
   defaultObjectSizing,
@@ -26,7 +27,12 @@ export const defaultPreset: PrismPreset = {
     colorSteps: 3,
     hue: 180,
     shift: 0.1,
+    shape: 'linear',
+    angle: 0,
     shiftBias: 0,
+    noise: 0,
+    noiseFrequency: 4,
+    noiseOffset: 0,
   },
 } as const;
 
@@ -41,7 +47,12 @@ export const fadedPreset: PrismPreset = {
     colorSteps: 3,
     hue: 40,
     shift: 0.1,
+    shape: 'linear',
+    angle: 0,
     shiftBias: 0,
+    noise: 0,
+    noiseFrequency: 4,
+    noiseOffset: 0,
   },
 } as const;
 
@@ -56,7 +67,12 @@ export const duotonePreset: PrismPreset = {
     colorSteps: 2,
     hue: 192,
     shift: 0.2,
+    shape: 'linear',
+    angle: 0,
     shiftBias: 0,
+    noise: 0,
+    noiseFrequency: 4,
+    noiseOffset: 0,
   },
 } as const;
 
@@ -71,7 +87,12 @@ export const spectrumPreset: PrismPreset = {
     colorSteps: 8,
     hue: 0,
     shift: 0.25,
+    shape: 'linear',
+    angle: 0,
     shiftBias: -0.6,
+    noise: 0,
+    noiseFrequency: 4,
+    noiseOffset: 0,
   },
 } as const;
 
@@ -87,6 +108,11 @@ export const Prism: React.FC<PrismProps> = memo(function PrismImpl({
   hue = defaultPreset.params.hue,
   shift = defaultPreset.params.shift,
   shiftBias = defaultPreset.params.shiftBias,
+  shape = defaultPreset.params.shape,
+  angle = defaultPreset.params.angle,
+  noise = defaultPreset.params.noise,
+  noiseFrequency = defaultPreset.params.noiseFrequency,
+  noiseOffset = defaultPreset.params.noiseOffset,
 
   // Sizing props
   fit = defaultPreset.params.fit,
@@ -108,6 +134,11 @@ export const Prism: React.FC<PrismProps> = memo(function PrismImpl({
     u_hue: hue,
     u_shift: shift,
     u_shiftBias: shiftBias,
+    u_shape: PrismShapes[shape],
+    u_angle: angle,
+    u_noise: noise,
+    u_noiseFrequency: noiseFrequency,
+    u_noiseOffset: noiseOffset,
 
     // Sizing uniforms
     u_fit: ShaderFitOptions[fit],

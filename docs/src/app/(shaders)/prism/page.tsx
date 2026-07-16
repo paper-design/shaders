@@ -5,7 +5,7 @@ import { useControls, button, folder } from 'leva';
 import { setParamsSafe, useResetLevaParams } from '@/helpers/use-reset-leva-params';
 import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
-import { ShaderFit, prismMeta } from '@paper-design/shaders';
+import { ShaderFit, prismMeta, PrismShapes, type PrismShape } from '@paper-design/shaders';
 import { levaImageButton } from '@/helpers/leva-image-button';
 import { toHsla } from '@/helpers/color-utils';
 import { useState, useEffect, useCallback } from 'react';
@@ -70,8 +70,13 @@ const PrismWithControls = () => {
       colorBack: { value: toHsla(defaults.colorBack), order: 99 },
       colorSteps: { value: defaults.colorSteps, min: 2, max: prismMeta.maxColorSteps, step: 1, order: 100 },
       hue: { value: defaults.hue, min: 0, max: 360, order: 101 },
+      shape: { value: defaults.shape, options: Object.keys(PrismShapes) as PrismShape[], order: 199 },
       shift: { value: defaults.shift, min: 0, max: 1, order: 200 },
       shiftBias: { value: defaults.shiftBias, min: -1, max: 1, order: 201 },
+      angle: { value: defaults.angle, min: 0, max: 360, order: 202 },
+      noise: { value: defaults.noise, min: 0, max: 1, order: 203 },
+      noiseFrequency: { value: defaults.noiseFrequency, min: 0, max: 20, order: 204 },
+      noiseOffset: { value: defaults.noiseOffset, min: 0, max: 10, order: 205 },
       scale: { value: defaults.scale, min: 0.5, max: 4, order: 300 },
       fit: { value: defaults.fit, options: ['contain', 'cover'] as ShaderFit[], order: 301 },
       Image: folder(
