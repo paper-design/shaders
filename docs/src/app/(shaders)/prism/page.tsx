@@ -79,6 +79,7 @@ const PrismWithControls = () => {
       profileCurve: { value: defaults.profileCurve, min: -1, max: 1, order: 206 },
       oneSided: { value: defaults.oneSided, order: 207 },
       distortion: { value: defaults.distortion, min: 0, max: 1, order: 208 },
+      debugCircle: { value: defaults.debugCircle, order: 400 },
       noise: { value: defaults.noise, min: 0, max: 1, order: 203 },
       noiseFrequency: { value: defaults.noiseFrequency, min: 0, max: 20, order: 204 },
       noiseOffset: { value: defaults.noiseOffset, min: 0, max: 10, order: 205 },

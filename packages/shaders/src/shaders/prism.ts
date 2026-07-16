@@ -60,6 +60,8 @@ export const prismMeta = {
  * - u_noiseOffset (float): Slides the turbulence field to a different patch
  * - u_distortion (float): Fisheye warp of the image geometry, separate from the color shift; 0 leaves
  *   it flat, 1 is a full fisheye bulge with the corners running off into the background (0 to 1)
+ * - u_debugCircle (bool): Testing overlay drawing the largest circle that fits the image box, the
+ *   radius the shift falloffs, radiality and fisheye all pivot around
  *
  * Vertex shader outputs (used in fragment shader):
  * - v_imageUV (vec2): Image UV coordinates with global sizing (rotation, scale, offset, etc) applied
@@ -99,6 +101,7 @@ uniform float u_noise;
 uniform float u_noiseFrequency;
 uniform float u_noiseOffset;
 uniform float u_distortion;
+uniform bool u_debugCircle;
 
 in vec2 v_imageUV;
 
@@ -139,6 +142,14 @@ vec3 hueColor(float t) {
   return clamp(abs(mod(t * 6. + vec3(0., 4., 2.), 6.) - 3.) - 1., 0., 1.);
 }
 
+// Radius of the largest circle that fits the image box, in the aspect-corrected centred space. The
+// box spans the aspect ratio horizontally and 1 vertically, so the circle touches whichever pair of
+// edges is nearer: half-height on a landscape image, half-width on a portrait one. The radial shift,
+// the fisheye and the testing overlay all measure against this so they round to the same circle.
+float boxInradius() {
+  return .5 * min(u_imageAspectRatio, 1.);
+}
+
 float dispersionCurve(float t) {
   return pow(t, exp2(2. * u_shiftBias));
 }
@@ -151,14 +162,15 @@ vec2 shapeAxis(vec2 uv) {
   vec2 p = uv - .5;
   p.x *= u_imageAspectRatio;
   float r = length(p);
+  float R = boxInradius();
 
-  vec2 radial = p / .5;
+  vec2 radial = p / R;
   float rl = length(radial);
   if (rl > 1.) radial /= rl;
   vec2 base = mix(uniformDir, radial, u_radiality);
 
   float coord = mix(abs(dot(p, uniformDir)), r, u_radiality);
-  float qn = clamp(coord / .5, 0., 1.);
+  float qn = clamp(coord / R, 0., 1.);
 
   float ramp = pow(qn, exp2(2. * u_profileCurve));
   float strength = mix(1., ramp, u_centerFalloff) * mix(1., 1. - qn, u_edgeFalloff);
@@ -183,7 +195,7 @@ vec2 fisheye(vec2 uv) {
   float r = length(p);
   if (r < 1e-5) return uv;
 
-  float rn = r / .5;
+  float rn = r / boxInradius();
   float a = u_distortion * 1.4;
   float srcR = tan(min(rn * a, 1.53)) / tan(a);
   p *= srcR / rn;
@@ -221,6 +233,18 @@ void main() {
   vec3 color = colorSum / max(weightSum, 1e-4);
   vec3 cover = coverSum / max(weightSum, 1e-4);
   fragColor = vec4(color, max(max(cover.r, cover.g), cover.b));
+
+  // Testing overlay: the largest circle that fits the image box, touching the nearer pair of edges.
+  // This is the radius 0.5 the shift falloffs, the radiality clamp and the fisheye all pivot around.
+  if (u_debugCircle) {
+    vec2 pc = v_imageUV - .5;
+    pc.x *= u_imageAspectRatio;
+    float d = abs(length(pc) - boxInradius());
+    float aa = fwidth(length(pc));
+    float ring = 1. - smoothstep(1.5 * aa, 2.5 * aa, d);
+    fragColor.rgb = mix(fragColor.rgb, vec3(1., 0., 0.), ring);
+    fragColor.a = max(fragColor.a, ring);
+  }
 }
 `;
 
@@ -241,6 +265,7 @@ export interface PrismUniforms extends ShaderSizingUniforms {
   u_noiseFrequency: number;
   u_noiseOffset: number;
   u_distortion: number;
+  u_debugCircle: boolean;
 }
 
 export interface PrismParams extends ShaderSizingParams, ShaderMotionParams {
@@ -260,4 +285,5 @@ export interface PrismParams extends ShaderSizingParams, ShaderMotionParams {
   noiseFrequency?: number;
   noiseOffset?: number;
   distortion?: number;
+  debugCircle?: boolean;
 }
