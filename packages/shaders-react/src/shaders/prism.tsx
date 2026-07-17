@@ -36,7 +36,6 @@ export const defaultPreset: PrismPreset = {
     noiseFrequency: 4,
     noiseOffset: 0,
     distortion: 0,
-    distortionRadiality: 1,
     debugCircle: false,
   },
 } as const;
@@ -61,7 +60,6 @@ export const fadedPreset: PrismPreset = {
     noiseFrequency: 4,
     noiseOffset: 0,
     distortion: 0,
-    distortionRadiality: 1,
     debugCircle: false,
   },
 } as const;
@@ -86,7 +84,6 @@ export const duotonePreset: PrismPreset = {
     noiseFrequency: 4,
     noiseOffset: 0,
     distortion: 0,
-    distortionRadiality: 1,
     debugCircle: false,
   },
 } as const;
@@ -111,7 +108,6 @@ export const spectrumPreset: PrismPreset = {
     noiseFrequency: 4,
     noiseOffset: 0,
     distortion: 0,
-    distortionRadiality: 1,
     debugCircle: false,
   },
 } as const;
@@ -136,7 +132,6 @@ export const Prism: React.FC<PrismProps> = memo(function PrismImpl({
   noiseFrequency = defaultPreset.params.noiseFrequency,
   noiseOffset = defaultPreset.params.noiseOffset,
   distortion = defaultPreset.params.distortion,
-  distortionRadiality = defaultPreset.params.distortionRadiality,
   debugCircle = defaultPreset.params.debugCircle,
 
   // Sizing props
@@ -167,7 +162,6 @@ export const Prism: React.FC<PrismProps> = memo(function PrismImpl({
     u_noiseFrequency: noiseFrequency,
     u_noiseOffset: noiseOffset,
     u_distortion: distortion,
-    u_distortionRadiality: distortionRadiality,
     u_debugCircle: debugCircle,
 
     // Sizing uniforms

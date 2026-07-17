@@ -80,7 +80,6 @@ const PrismWithControls = () => {
       noiseFrequency: { value: defaults.noiseFrequency, min: 0, max: 20, order: 301 },
       noiseOffset: { value: defaults.noiseOffset, min: 0, max: 10, order: 302 },
       distortion: { value: defaults.distortion, min: 0, max: 1, order: 400 },
-      distortionRadiality: { value: defaults.distortionRadiality, min: 0, max: 1, order: 401 },
       debugCircle: { value: defaults.debugCircle, order: 500 },
       scale: { value: defaults.scale, min: 0.5, max: 4, order: 450 },
       fit: { value: defaults.fit, options: ['contain', 'cover'] as ShaderFit[], order: 451 },

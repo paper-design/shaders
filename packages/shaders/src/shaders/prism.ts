@@ -54,10 +54,8 @@ export const prismMeta = {
  * - u_noise (float): Turbulence added to the shift direction (0 to 1)
  * - u_noiseFrequency (float): Spatial frequency of the turbulence field; higher is finer-grained
  * - u_noiseOffset (float): Slides the turbulence field to a different patch
- * - u_distortion (float): Lens warp of the image geometry, separate from the color shift; 0 leaves
- *   it flat, 1 is a full bulge with the corners running off into the background (0 to 1)
- * - u_distortionRadiality (float): Symmetry of the lens warp; 1 is a radial fisheye bulging from the
- *   centre point, 0 is a cylindrical barrel bulging from the centre line along the shift axis (0 to 1)
+ * - u_distortion (float): Radial fisheye warp of the image geometry, separate from the color shift;
+ *   0 leaves it flat, 1 is a full bulge with the corners running off into the background (0 to 1)
  * - u_debugCircle (bool): Testing overlay drawing the largest circle that fits the image box, the
  *   radius the shift falloffs, radiality and fisheye all pivot around
  *
@@ -97,7 +95,6 @@ uniform float u_noise;
 uniform float u_noiseFrequency;
 uniform float u_noiseOffset;
 uniform float u_distortion;
-uniform float u_distortionRadiality;
 uniform bool u_debugCircle;
 
 in vec2 v_imageUV;
@@ -203,21 +200,11 @@ vec2 imageDistortion(vec2 uv) {
   float bulge = u_distortion * 1.4;
   float tanBulge = tan(bulge);
 
-  vec2 radialWarp = fromCenter;
   float radius = length(fromCenter);
   if (radius > 1e-5) {
     float srcRadius = tan(min(radius / inradius * bulge, 1.53)) / tanBulge;
-    radialWarp = fromCenter * (srcRadius * inradius / radius);
+    fromCenter *= srcRadius * inradius / radius;
   }
-
-  // Cylinder: remap only the distance along the shift axis, leaving the perpendicular untouched.
-  float angleRad = radians(u_shiftAngle);
-  vec2 axisDir = vec2(cos(angleRad), sin(angleRad));
-  float alongAxis = dot(fromCenter, axisDir);
-  float srcAlong = sign(alongAxis) * tan(min(abs(alongAxis) / inradius * bulge, 1.53)) / tanBulge * inradius;
-  vec2 cylinderWarp = fromCenter - alongAxis * axisDir + srcAlong * axisDir;
-
-  fromCenter = mix(cylinderWarp, radialWarp, u_distortionRadiality);
 
   fromCenter.x /= u_imageAspectRatio;
   return fromCenter + .5;
@@ -282,7 +269,6 @@ export interface PrismUniforms extends ShaderSizingUniforms {
   u_noiseFrequency: number;
   u_noiseOffset: number;
   u_distortion: number;
-  u_distortionRadiality: number;
   u_debugCircle: boolean;
 }
 
@@ -301,6 +287,5 @@ export interface PrismParams extends ShaderSizingParams, ShaderMotionParams {
   noiseFrequency?: number;
   noiseOffset?: number;
   distortion?: number;
-  distortionRadiality?: number;
   debugCircle?: boolean;
 }
