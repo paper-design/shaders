@@ -28,7 +28,7 @@ export const prismMeta = {
  * (shift = 0) without any risk of a channel dividing a vanishing weight back out of itself.
  *
  * The direction the samples travel is a vector field, described rather than picked from a list:
- * u_radiality blends a fixed angle into an outward-from-centre shift that grows with radius, and
+ * u_perspective blends a fixed angle into an outward-from-centre shift that grows with radius, and
  * u_centerFalloff / u_edgeFalloff reshape how the strength rises and falls between the centre and the
  * edge. Together they cover the familiar named looks and everything between them: a fixed angle is a
  * straight shift; full radiality is a rounded radial split on its own; add edge falloff and it
@@ -44,8 +44,8 @@ export const prismMeta = {
  *   as a fraction of the image width (0 to 1, mapped to 0 to 10%)
  * - u_shiftBias (float): Warps the dispersion curve, bunching the colors toward one end of the fan
  *   and spreading them at the other with the ends pinned; 0 spaces them evenly (-1 to 1)
- * - u_angle (float): Direction of the shift in degrees when it is not radial (0 to 360)
- * - u_radiality (float): Blends the shift from the fixed angle (0) to an outward-from-centre shift
+ * - u_shiftAngle (float): Direction of the shift in degrees when it is not radial (0 to 360)
+ * - u_perspective (float): Blends the shift from the fixed angle (0) to an outward-from-centre shift
  *   that grows with radius (1); raising it adds the off-axis shift a straight angle never had (0 to 1)
  * - u_centerFalloff (float): How much the shift strength drops toward the centre; 0 leaves it full,
  *   1 fades it to nothing at the centre (0 to 1)
@@ -89,8 +89,8 @@ uniform float u_colorSteps;
 uniform float u_hue;
 uniform float u_shift;
 uniform float u_shiftBias;
-uniform float u_angle;
-uniform float u_radiality;
+uniform float u_shiftAngle;
+uniform float u_perspective;
 uniform float u_centerFalloff;
 uniform float u_edgeFalloff;
 uniform float u_noise;
@@ -143,37 +143,49 @@ float boxInradius() {
   return .5 * min(u_imageAspectRatio, 1.);
 }
 
-float dispersionCurve(float t) {
-  float e = 1. + 2. * abs(u_shiftBias);
-  float tt = u_shiftBias < 0. ? 1. - t : t;
-  float c = pow(tt, e);// - (pow(.5, e) - .5);
-  return u_shiftBias < 0. ? 1. - c : c;
+float boxOutradius() {
+  return .5 * length(vec2(u_imageAspectRatio, 1.));
 }
 
-vec2 shapeAxis(vec2 uv) {
-  float amount = .2 * u_shift;
-  float a = radians(u_angle);
-  vec2 uniformDir = vec2(cos(a), sin(a));
+float shiftReach() {
+  return .2 * u_shift;
+}
 
-  vec2 p = uv - .5;
-  p.x *= u_imageAspectRatio;
-  float r = length(p);
-  float R = boxInradius();
+float shiftNormRadius() {
+  return boxOutradius() + shiftReach();
+}
 
-  vec2 radial = p / R;
-  float rl = length(radial);
-  if (rl > 1.) radial /= rl;
-  vec2 base = mix(uniformDir, radial, u_radiality);
+float dispersionCurve(float t) {
+  float exponent = 1. + 2. * abs(u_shiftBias);
+  float mirroredT = u_shiftBias < 0. ? 1. - t : t;
+  float curved = pow(mirroredT, exponent);// - (pow(.5, exponent) - .5);
+  return u_shiftBias < 0. ? 1. - curved : curved;
+}
 
-  float coord = mix(abs(dot(p, uniformDir)), r, u_radiality);
-  float qn = clamp(coord / R, 0., 1.);
+vec2 getShift(vec2 uv) {
+  float reach = shiftReach();
+  float angleRad = radians(u_shiftAngle);
+  vec2 uniformDir = vec2(cos(angleRad), sin(angleRad));
 
-  float strength = mix(1., qn, u_centerFalloff) * mix(1., 1. - qn, u_edgeFalloff);
+  vec2 fromCenter = uv - .5;
+  fromCenter.x *= u_imageAspectRatio;
+  float radius = length(fromCenter);
+  float inradius = boxInradius();
 
-  vec2 axis = base * amount * strength;
+  vec2 radialDir = fromCenter / shiftNormRadius();
+  float radialLen = length(radialDir);
+  if (radialLen > 1.) radialDir /= radialLen;
+  vec2 shiftDir = mix(uniformDir, radialDir, u_perspective);
+
+  float falloffDist = mix(abs(dot(fromCenter, uniformDir)), radius, u_perspective);
+  float falloffT = clamp(falloffDist / inradius, 0., 1.);
+
+  float strength = mix(1., falloffT, u_centerFalloff) * mix(1., 1. - falloffT, u_edgeFalloff);
+
+  vec2 axis = shiftDir * reach * strength;
 
   if (u_noise > 0.) {
-    float turn = (valueNoise(p * u_noiseFrequency + u_noiseOffset) - .5) * TWO_PI * u_noise;
+    float turn = (valueNoise(fromCenter * u_noiseFrequency + u_noiseOffset) - .5) * TWO_PI * u_noise;
     float cs = cos(turn), sn = sin(turn);
     axis = mat2(cs, -sn, sn, cs) * axis;
   }
@@ -182,45 +194,39 @@ vec2 shapeAxis(vec2 uv) {
   return axis;
 }
 
-// Lens warp of the sampling coordinate. The tan remap magnifies the middle and holds the inscribed
-// circle, pushing the far corners off into the background. distortionRadiality picks the symmetry:
-// at 1 the whole radius is remapped, a fisheye that bulges from the centre point; at 0 only the
-// component along the shift axis is remapped, a cylindrical barrel that bulges from the centre line
-// and leaves the other axis flat - the linear counterpart of the fisheye.
-vec2 fisheye(vec2 uv) {
+vec2 imageDistortion(vec2 uv) {
   if (u_distortion <= 0.) return uv;
 
-  vec2 p = uv - .5;
-  p.x *= u_imageAspectRatio;
-  float R = boxInradius();
-  float a = u_distortion * 1.4;
-  float ta = tan(a);
+  vec2 fromCenter = uv - .5;
+  fromCenter.x *= u_imageAspectRatio;
+  float inradius = boxInradius();
+  float bulge = u_distortion * 1.4;
+  float tanBulge = tan(bulge);
 
-  // Fisheye: scale the whole vector by the remapped radius.
-  vec2 pRadial = p;
-  float r = length(p);
-  if (r > 1e-5) {
-    float srcRn = tan(min(r / R * a, 1.53)) / ta;
-    pRadial = p * (srcRn * R / r);
+  vec2 radialWarp = fromCenter;
+  float radius = length(fromCenter);
+  if (radius > 1e-5) {
+    float srcRadius = tan(min(radius / inradius * bulge, 1.53)) / tanBulge;
+    radialWarp = fromCenter * (srcRadius * inradius / radius);
   }
 
   // Cylinder: remap only the distance along the shift axis, leaving the perpendicular untouched.
-  float ang = radians(u_angle);
-  vec2 dir = vec2(cos(ang), sin(ang));
-  float along = dot(p, dir);
-  float srcAlong = sign(along) * tan(min(abs(along) / R * a, 1.53)) / ta * R;
-  vec2 pCyl = p - along * dir + srcAlong * dir;
+  float angleRad = radians(u_shiftAngle);
+  vec2 axisDir = vec2(cos(angleRad), sin(angleRad));
+  float alongAxis = dot(fromCenter, axisDir);
+  float srcAlong = sign(alongAxis) * tan(min(abs(alongAxis) / inradius * bulge, 1.53)) / tanBulge * inradius;
+  vec2 cylinderWarp = fromCenter - alongAxis * axisDir + srcAlong * axisDir;
 
-  p = mix(pCyl, pRadial, u_distortionRadiality);
+  fromCenter = mix(cylinderWarp, radialWarp, u_distortionRadiality);
 
-  p.x /= u_imageAspectRatio;
-  return p + .5;
+  fromCenter.x /= u_imageAspectRatio;
+  return fromCenter + .5;
 }
 
 void main() {
   vec2 uv = v_imageUV;
-  vec2 baseUV = fisheye(uv);
-  vec2 axis = shapeAxis(uv);
+  vec2 baseUV = imageDistortion(uv);
+  vec2 shift = getShift(uv);
 
   int count = int(u_colorSteps);
   vec3 colorSum = vec3(0.);
@@ -233,8 +239,8 @@ void main() {
     float hue = u_hue / 360. + float(i) / float(count);
     float t = float(i) / float(count - 1);
 
-    float c = dispersionCurve(t);
-    vec2 offset = mix(axis, -axis, c);
+    float spread = dispersionCurve(t);
+    vec2 offset = mix(shift, -shift, spread);
     vec4 tap = sampleOverBack(baseUV + offset);
     vec3 weight = 1. - hueColor(hue);
 
@@ -247,16 +253,16 @@ void main() {
   vec3 cover = coverSum / max(weightSum, 1e-4);
   fragColor = vec4(color, max(max(cover.r, cover.g), cover.b));
 
-  // Testing overlay: the largest circle that fits the image box, touching the nearer pair of edges.
-  // This is the radius 0.5 the shift falloffs, the radiality clamp and the fisheye all pivot around.
   if (u_debugCircle) {
-    vec2 pc = v_imageUV - .5;
-    pc.x *= u_imageAspectRatio;
-    float d = abs(length(pc) - boxInradius());
-    float aa = fwidth(length(pc));
-    float ring = 1. - smoothstep(1.5 * aa, 2.5 * aa, d);
-    fragColor.rgb = mix(fragColor.rgb, vec3(1., 0., 0.), ring);
-    fragColor.a = max(fragColor.a, ring);
+    vec2 fromCenter = v_imageUV - .5;
+    fromCenter.x *= u_imageAspectRatio;
+    float len = length(fromCenter);
+    float aaWidth = fwidth(len);
+    float ringIn = 1. - smoothstep(1.5 * aaWidth, 2.5 * aaWidth, abs(len - boxInradius()));
+    float ringOut = 1. - smoothstep(1.5 * aaWidth, 2.5 * aaWidth, abs(len - shiftNormRadius()));
+    fragColor.rgb = mix(fragColor.rgb, vec3(1., 0., 0.), ringIn);
+    fragColor.rgb = mix(fragColor.rgb, vec3(0., .4, 1.), ringOut);
+    fragColor.a = max(fragColor.a, max(ringIn, ringOut));
   }
 }
 `;
@@ -268,8 +274,8 @@ export interface PrismUniforms extends ShaderSizingUniforms {
   u_hue: number;
   u_shift: number;
   u_shiftBias: number;
-  u_angle: number;
-  u_radiality: number;
+  u_shiftAngle: number;
+  u_perspective: number;
   u_centerFalloff: number;
   u_edgeFalloff: number;
   u_noise: number;
@@ -287,8 +293,8 @@ export interface PrismParams extends ShaderSizingParams, ShaderMotionParams {
   hue?: number;
   shift?: number;
   shiftBias?: number;
-  angle?: number;
-  radiality?: number;
+  shiftAngle?: number;
+  perspective?: number;
   centerFalloff?: number;
   edgeFalloff?: number;
   noise?: number;

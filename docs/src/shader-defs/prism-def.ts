@@ -59,19 +59,19 @@ export const prismDef: ShaderDef = {
         'Warps how the colors distribute along the shift. 0 spaces them evenly; toward +/-1 they bunch toward one end of the fan and spread out at the other, with the first and last colors pinned at the ends',
     },
     {
-      name: 'angle',
+      name: 'shiftAngle',
       type: 'number',
       min: 0,
       max: 360,
-      defaultValue: defaultParams.angle,
+      defaultValue: defaultParams.shiftAngle,
       description: 'Direction of the shift in degrees when it is not radial',
     },
     {
-      name: 'radiality',
+      name: 'perspective',
       type: 'number',
       min: 0,
       max: 1,
-      defaultValue: defaultParams.radiality,
+      defaultValue: defaultParams.perspective,
       description:
         'Blends the shift from the fixed angle (0) to an outward-from-centre shift that grows with radius (1). At 0 every pixel shifts the same way; raising it adds the off-axis shift a straight angle never had, until at 1 the shift radiates from the centre and rounds off at the edges',
     },
