@@ -145,7 +145,7 @@ float boxOutradius() {
 }
 
 float shiftReach() {
-  return .2 * u_shift;
+  return .65 * pow(u_shift, 2.5);
 }
 
 float shiftNormRadius() {
