@@ -23,14 +23,23 @@ export const prismDef: ShaderDef = {
         "Color filling the picture's transparent areas and everything past its edge. A transparent value leaves those areas transparent with a colored rim; an opaque one lets a black-on-transparent logo read as a dark subject and split into the full palette",
     },
     {
-      name: 'colorSteps',
+      name: 'samples',
       type: 'number',
       min: 2,
       max: 40,
       step: 1,
-      defaultValue: defaultParams.colorSteps,
+      defaultValue: defaultParams.samples,
       description:
-        'Number of colors the image splits into, which also sets how many samples are taken, so higher counts smooth a distortion from discrete ghosts into a continuous blur. Three gives a classic lens fringe, two an opposed pair, eight a full spectrum. The colors are always evenly spaced hues, so they cover the wheel at any count',
+        'Number of taps taken along the shift. Higher counts smooth the layers from discrete ghosts into a continuous blur, at a cost that grows linearly. This is the quality/smoothness dial',
+    },
+    {
+      name: 'spectrum',
+      type: 'number',
+      min: 0,
+      max: 1,
+      defaultValue: defaultParams.spectrum,
+      description:
+        'How many colors the samples are grouped into, as a geometric fraction of the sample budget so small palettes are easy to dial. 0 is two colors (an opposed pair), 1 is one color per sample (a full spectrum). Low values with a high sample count give a clean small palette that reads smooth rather than combed',
     },
     {
       name: 'hue',

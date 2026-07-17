@@ -68,7 +68,8 @@ const PrismWithControls = () => {
     );
     return {
       colorBack: { value: toHsla(defaults.colorBack), order: 99 },
-      colorSteps: { value: defaults.colorSteps, min: 2, max: prismMeta.maxColorSteps, step: 1, order: 100 },
+      samples: { value: defaults.samples, min: 2, max: prismMeta.maxSamples, step: 1, order: 99 },
+      spectrum: { value: defaults.spectrum, min: 0, max: 1, order: 100 },
       hue: { value: defaults.hue, min: 0, max: 360, order: 101 },
       shift: { value: defaults.shift, min: 0, max: 1, order: 200 },
       shiftBias: { value: defaults.shiftBias, min: -1, max: 1, order: 201 },
@@ -77,7 +78,7 @@ const PrismWithControls = () => {
       focusCenter: { value: defaults.focusCenter, min: 0, max: 1, order: 204 },
       focusEdges: { value: defaults.focusEdges, min: 0, max: 1, order: 205 },
       noise: { value: defaults.noise, min: 0, max: 1, order: 300 },
-      noiseFrequency: { value: defaults.noiseFrequency, min: 0, max: 20, order: 301 },
+      noiseFrequency: { value: defaults.noiseFrequency, min: 0, max: 15, order: 301 },
       noiseOffset: { value: defaults.noiseOffset, min: 0, max: 10, order: 302 },
       distortion: { value: defaults.distortion, min: 0, max: 1, order: 400 },
       debugCircle: { value: defaults.debugCircle, order: 500 },

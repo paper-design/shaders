@@ -3,7 +3,7 @@ import { type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-si
 import { declarePI, proceduralHash21 } from '../shader-utils.js';
 
 export const prismMeta = {
-  maxColorSteps: 40,
+  maxSamples: 50,
 } as const;
 
 /**
@@ -38,7 +38,10 @@ export const prismMeta = {
  * - u_image (sampler2D): Source image texture
  * - u_colorBack (vec4): Color filling the picture's transparent areas and everything past its edge,
  *   in RGBA; a transparent value leaves those areas transparent with a colored rim
- * - u_colorSteps (float): Number of colors the image splits into, doubling as the sample count (2 to 40)
+ * - u_samples (float): Number of taps along the shift; higher smooths the layers from discrete
+ *   ghosts into a continuous blur, at a linear cost (2 to 40)
+ * - u_spectrum (float): How many colors the samples group into, as a geometric fraction of the
+ *   sample budget; 0 is two colors, 1 is one color per sample (a full spectrum) (0 to 1)
  * - u_hue (float): Turns the whole palette around the hue wheel in degrees (0 to 360)
  * - u_shift (float): Distance the outermost samples travel apart,
  *   as a fraction of the image width (0 to 1, mapped to 0 to 10%)
@@ -83,7 +86,8 @@ precision mediump float;
 uniform sampler2D u_image;
 uniform float u_imageAspectRatio;
 uniform vec4 u_colorBack;
-uniform float u_colorSteps;
+uniform float u_samples;
+uniform float u_spectrum;
 uniform float u_hue;
 uniform float u_shift;
 uniform float u_shiftBias;
@@ -145,7 +149,7 @@ float boxOutradius() {
 }
 
 float shiftReach() {
-  return .65 * pow(u_shift, 2.5);
+  return .7 * pow(u_shift, 3.);
 }
 
 float shiftNormRadius() {
@@ -183,7 +187,7 @@ vec2 getShift(vec2 uv) {
   vec2 axis = shiftDir * reach * strength;
 
   if (u_noise > 0.) {
-    float turn = (valueNoise(fromCenter * u_noiseFrequency + u_noiseOffset) - .5) * TWO_PI * u_noise;
+    float turn = (valueNoise(fromCenter * u_noiseFrequency + u_noiseOffset) - .5) * 2. * u_noise;
     float cs = cos(turn), sn = sin(turn);
     axis = mat2(cs, -sn, sn, cs) * axis;
   }
@@ -216,16 +220,18 @@ void main() {
   vec2 baseUV = imageDistortion(uv);
   vec2 shift = getShift(uv);
 
-  int count = int(u_colorSteps);
+  int sampleCount = int(u_samples);
+  int colorCount = clamp(int(floor(2. * pow(float(sampleCount) * .5, .5 * u_spectrum) + .5)), 2, sampleCount);
   vec3 colorSum = vec3(0.);
   vec3 coverSum = vec3(0.);
   vec3 weightSum = vec3(0.);
 
-  for (int i = 0; i < ${prismMeta.maxColorSteps}; i++) {
-    if (i >= count) break;
+  for (int i = 0; i < ${prismMeta.maxSamples}; i++) {
+    if (i >= sampleCount) break;
 
-    float hue = u_hue / 360. + float(i) / float(count);
-    float t = float(i) / float(count - 1);
+    float t = float(i) / float(sampleCount - 1);
+    float band = min(floor(t * float(colorCount)), float(colorCount - 1));
+    float hue = u_hue / 360. + band / float(colorCount);
 
     float spread = dispersionCurve(t);
     vec2 offset = mix(shift, -shift, spread);
@@ -258,7 +264,8 @@ void main() {
 export interface PrismUniforms extends ShaderSizingUniforms {
   u_image: HTMLImageElement | string | undefined;
   u_colorBack: [number, number, number, number];
-  u_colorSteps: number;
+  u_samples: number;
+  u_spectrum: number;
   u_hue: number;
   u_shift: number;
   u_shiftBias: number;
@@ -276,7 +283,8 @@ export interface PrismUniforms extends ShaderSizingUniforms {
 export interface PrismParams extends ShaderSizingParams, ShaderMotionParams {
   image?: HTMLImageElement | string;
   colorBack?: string;
-  colorSteps?: number;
+  samples?: number;
+  spectrum?: number;
   hue?: number;
   shift?: number;
   shiftBias?: number;
