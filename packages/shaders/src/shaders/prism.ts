@@ -29,7 +29,7 @@ export const prismMeta = {
  *
  * The direction the samples travel is a vector field, described rather than picked from a list:
  * u_perspective blends a fixed angle into an outward-from-centre shift that grows with radius, and
- * u_centerFalloff / u_edgeFalloff reshape how the strength rises and falls between the centre and the
+ * u_focusCenter / u_focusEdges reshape how the strength rises and falls between the centre and the
  * edge. Together they cover the familiar named looks and everything between them: a fixed angle is a
  * straight shift; full radiality is a rounded radial split on its own; add edge falloff and it
  * tightens into a disc.
@@ -47,10 +47,10 @@ export const prismMeta = {
  * - u_shiftAngle (float): Direction of the shift in degrees when it is not radial (0 to 360)
  * - u_perspective (float): Blends the shift from the fixed angle (0) to an outward-from-centre shift
  *   that grows with radius (1); raising it adds the off-axis shift a straight angle never had (0 to 1)
- * - u_centerFalloff (float): How much the shift strength drops toward the centre; 0 leaves it full,
- *   1 fades it to nothing at the centre (0 to 1)
- * - u_edgeFalloff (float): How much the shift strength drops toward the edge; 0 leaves it full,
- *   1 fades it to nothing at the edge (0 to 1)
+ * - u_focusCenter (float): Radius (as a fraction of the inscribed circle) over which the shift
+ *   fades in from nothing at the centre; 0 leaves it full to the centre (0 to 1)
+ * - u_focusEdges (float): Radius (as a fraction of the inscribed circle) over which the shift fades
+ *   out to nothing at the edge; 0 leaves it full to the edge (0 to 1)
  * - u_noise (float): Turbulence added to the shift direction (0 to 1)
  * - u_noiseFrequency (float): Spatial frequency of the turbulence field; higher is finer-grained
  * - u_noiseOffset (float): Slides the turbulence field to a different patch
@@ -89,8 +89,8 @@ uniform float u_shift;
 uniform float u_shiftBias;
 uniform float u_shiftAngle;
 uniform float u_perspective;
-uniform float u_centerFalloff;
-uniform float u_edgeFalloff;
+uniform float u_focusCenter;
+uniform float u_focusEdges;
 uniform float u_noise;
 uniform float u_noiseFrequency;
 uniform float u_noiseOffset;
@@ -168,16 +168,17 @@ vec2 getShift(vec2 uv) {
   fromCenter.x *= u_imageAspectRatio;
   float radius = length(fromCenter);
   float inradius = boxInradius();
+  float outradius = boxOutradius();
 
   vec2 radialDir = fromCenter / shiftNormRadius();
   float radialLen = length(radialDir);
   if (radialLen > 1.) radialDir /= radialLen;
   vec2 shiftDir = mix(uniformDir, radialDir, u_perspective);
 
-  float falloffDist = mix(abs(dot(fromCenter, uniformDir)), radius, u_perspective);
-  float falloffT = clamp(falloffDist / inradius, 0., 1.);
-
-  float strength = mix(1., falloffT, u_centerFalloff) * mix(1., 1. - falloffT, u_edgeFalloff);
+  float inner = mix(1., smoothstep(0., mix(inradius, outradius, u_focusCenter), radius), u_focusCenter);
+  float boxDist = max(abs(uv.x - .5), abs(uv.y - .5)) * 2.;
+  float outer = mix(1., 1. - smoothstep(1. - u_focusEdges, 1., boxDist), u_focusEdges);
+  float strength = inner * outer;
 
   vec2 axis = shiftDir * reach * strength;
 
@@ -263,8 +264,8 @@ export interface PrismUniforms extends ShaderSizingUniforms {
   u_shiftBias: number;
   u_shiftAngle: number;
   u_perspective: number;
-  u_centerFalloff: number;
-  u_edgeFalloff: number;
+  u_focusCenter: number;
+  u_focusEdges: number;
   u_noise: number;
   u_noiseFrequency: number;
   u_noiseOffset: number;
@@ -281,8 +282,8 @@ export interface PrismParams extends ShaderSizingParams, ShaderMotionParams {
   shiftBias?: number;
   shiftAngle?: number;
   perspective?: number;
-  centerFalloff?: number;
-  edgeFalloff?: number;
+  focusCenter?: number;
+  focusEdges?: number;
   noise?: number;
   noiseFrequency?: number;
   noiseOffset?: number;

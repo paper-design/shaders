@@ -76,22 +76,22 @@ export const prismDef: ShaderDef = {
         'Blends the shift from the fixed angle (0) to an outward-from-centre shift that grows with radius (1). At 0 every pixel shifts the same way; raising it adds the off-axis shift a straight angle never had, until at 1 the shift radiates from the centre and rounds off at the edges',
     },
     {
-      name: 'centerFalloff',
+      name: 'focusCenter',
       type: 'number',
       min: 0,
       max: 1,
-      defaultValue: defaultParams.centerFalloff,
+      defaultValue: defaultParams.focusCenter,
       description:
-        'How much the shift strength drops toward the centre. 0 leaves it full everywhere; 1 fades it to nothing at the centre, which is what makes a radial split grow from the middle outward',
+        'Radius, as a fraction of the inscribed circle, over which the shift fades in from nothing at the centre. 0 leaves it full to the centre; larger values push a dead zone outward from the middle, the way lateral chromatic aberration is zero at the optical centre',
     },
     {
-      name: 'edgeFalloff',
+      name: 'focusEdges',
       type: 'number',
       min: 0,
       max: 1,
-      defaultValue: defaultParams.edgeFalloff,
+      defaultValue: defaultParams.focusEdges,
       description:
-        'How much the shift strength drops toward the edge. 0 leaves it full; 1 fades it to nothing at the edge, rounding the effect into a centred disc',
+        'Radius, as a fraction of the inscribed circle, over which the shift fades out to nothing at the edge, like a lens vignette. 0 leaves it full to the edge; larger values pull the fade inward, rounding the effect into a centred disc',
     },
     {
       name: 'distortion',
