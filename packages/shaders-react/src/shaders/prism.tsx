@@ -27,7 +27,7 @@ export const defaultPreset: PrismPreset = {
     samples: 25,
     spectrum: 1,
     hue: 0,
-    shift: 0.5,
+    shift: 0,
     shiftAngle: 0,
     perspective: 1,
     focusCenter: 0,

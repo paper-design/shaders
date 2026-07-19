@@ -174,14 +174,15 @@ vec2 getShift(vec2 uv) {
   float inradius = boxInradius();
   float outradius = boxOutradius();
 
-  vec2 radialDir = fromCenter / shiftNormRadius();
+  vec2 radialDir = fromCenter / inradius;
+  float maxLen = shiftNormRadius() / inradius;
   float radialLen = length(radialDir);
-  if (radialLen > 1.) radialDir /= radialLen;
+  if (radialLen > maxLen) radialDir *= maxLen / radialLen;
   vec2 shiftDir = mix(uniformDir, radialDir, u_perspective);
 
   float inner = mix(1., smoothstep(0., mix(inradius, outradius, u_focusCenter), radius), u_focusCenter);
   float boxDist = max(abs(uv.x - .5), abs(uv.y - .5)) * 2.;
-  float outer = mix(1., 1. - smoothstep(1. - u_focusEdges, 1., boxDist), u_focusEdges);
+  float outer = mix(1., 1. - min(boxDist, 1.), u_focusEdges);
   float strength = inner * outer;
 
   vec2 axis = shiftDir * reach * strength;
@@ -202,15 +203,16 @@ vec2 imageDistortion(vec2 uv) {
   vec2 fromCenter = uv - .5;
   fromCenter.x *= u_imageAspectRatio;
   float inradius = boxInradius();
-  float bulge = u_distortion * 1.4;
-  float tanBulge = tan(bulge);
-
   float radius = length(fromCenter);
-  if (radius > 1e-5) {
-    float srcRadius = tan(min(radius / inradius * bulge, 1.53)) / tanBulge;
-    fromCenter *= srcRadius * inradius / radius;
-  }
+  if (radius < 1e-5) return uv;
 
+  float rn = radius / inradius;
+  float srcRn;
+    
+  float bulge = u_distortion * 1.4;
+  srcRn = tan(min(rn * bulge, 1.53)) / tan(bulge);
+
+  fromCenter *= srcRn / rn;
   fromCenter.x /= u_imageAspectRatio;
   return fromCenter + .5;
 }
