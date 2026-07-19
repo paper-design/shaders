@@ -226,12 +226,13 @@ void main() {
   vec3 coverSum = vec3(0.);
   vec3 weightSum = vec3(0.);
 
+  float hueNorm = fract((u_hue + 180.) / 360.);
   for (int i = 0; i < ${prismMeta.maxSamples}; i++) {
     if (i >= sampleCount) break;
 
     float t = float(i) / float(sampleCount - 1);
     float band = min(floor(t * float(colorCount)), float(colorCount - 1));
-    float hue = u_hue / 360. + band / float(colorCount);
+    float hue = hueNorm + band / float(colorCount);
 
     float spread = dispersionCurve(t);
     vec2 offset = mix(shift, -shift, spread);

@@ -26,7 +26,7 @@ export const defaultPreset: PrismPreset = {
     colorBack: '#f3f3ec',
     samples: 25,
     spectrum: 1,
-    hue: 180,
+    hue: 0,
     shift: 0.5,
     shiftAngle: 0,
     perspective: 1,
