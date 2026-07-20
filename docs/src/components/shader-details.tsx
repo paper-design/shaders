@@ -66,13 +66,16 @@ function formatNotesContent(node: ReactNode): ReactNode {
   }
 
   if (isValidElement(node)) {
-    if (node.props.children) {
-      return cloneElement(node, {
-        ...node.props,
-        children: React.Children.map(node.props.children, formatNotesContent),
+    // Cast to an element configuration TypeScript understands to access props safely
+    const element = node as React.ReactElement<{ children?: React.ReactNode; [key: string]: unknown }>;
+    
+    if (element.props.children) {
+      return cloneElement(element, {
+        ...element.props,
+        children: React.Children.map(element.props.children, formatNotesContent),
       });
     }
-    return node;
+    return element;
   }
 
   if (Array.isArray(node)) {
