@@ -27,6 +27,7 @@ import liquidMetalImg from '../../public/shaders/liquid-metal.webp';
 import halftoneDotsImg from '../../public/shaders/halftone-dots.webp';
 import halftoneCmykImg from '../../public/shaders/halftone-cmyk.webp';
 import gemSmokeImg from '../../public/shaders/gem-smoke.webp';
+import spiralTunnelImg from '../../public/shaders/spiral-tunnel.webp';
 import {
   DotGrid,
   dotGridPresets,
@@ -86,6 +87,8 @@ import {
   halftoneCmykPresets,
   GemSmoke,
   gemSmokePresets,
+  SpiralTunnel,
+  spiralTunnelPresets,
 } from '@paper-design/shaders-react';
 import { StaticImageData } from 'next/image';
 
@@ -369,6 +372,13 @@ export const homeThumbnails = [
         ShaderComponent: GodRays,
         image: godRaysImg,
         shaderConfig: { ...godRaysPresets[0].params, offsetY: -0.7, speed: 1.25 },
+      },
+      {
+        name: 'spiral tunnel',
+        url: '/spiral-tunnel',
+        ShaderComponent: SpiralTunnel,
+        image: spiralTunnelImg,
+        shaderConfig: { ...spiralTunnelPresets[0].params },
       },
     ],
   },

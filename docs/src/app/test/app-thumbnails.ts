@@ -12,6 +12,7 @@ import {
   Spiral,
   StaticRadialGradient,
   Waves,
+  SpiralTunnel
 } from '@paper-design/shaders-react';
 
 export const appThumbnails = flatHomeThumbnails.map((item) => {
@@ -134,6 +135,15 @@ export const appThumbnails = flatHomeThumbnails.map((item) => {
         size: 0.15,
         grainMixer: 0,
         grainOverlay: 0,
+      },
+    };
+  }
+
+  if (item.ShaderComponent === SpiralTunnel) {
+    return {
+      ...item,
+      shaderConfig: {
+        ...item.shaderConfig,
       },
     };
   }

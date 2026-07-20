@@ -43,6 +43,19 @@
       ]
     },
     {
+      "name": "spiral-tunnel",
+      "type": "registry:component",
+      "title": "Spiral Tunnel Example",
+      "description": "Spiral Tunnel shader example.",
+      "dependencies": ["@paper-design/shaders-react"],
+      "files": [
+        {
+          "path": "registry/spiral-tunnel-example.tsx",
+          "type": "registry:component"
+        }
+      ]
+    },
+    {
       "name": "mesh-gradient",
       "type": "registry:component",
       "title": "Mesh Gradient Example",

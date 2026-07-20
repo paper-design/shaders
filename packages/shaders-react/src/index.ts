@@ -119,6 +119,10 @@ export { GemSmoke, gemSmokePresets } from './shaders/gem-smoke.js';
 export type { GemSmokeProps } from './shaders/gem-smoke.js';
 export type { GemSmokeUniforms, GemSmokeParams } from '@paper-design/shaders';
 
+export { SpiralTunnel, spiralTunnelPresets } from './shaders/spiral-tunnel.js';
+export type { SpiralTunnelProps } from './shaders/spiral-tunnel.js';
+export type { SpiralTunnelUniforms, SpiralTunnelParams } from '@paper-design/shaders';
+
 export { isPaperShaderElement, getShaderColorFromString } from '@paper-design/shaders';
 export type { PaperShaderElement, ShaderFit, ShaderSizingParams, ShaderSizingUniforms } from '@paper-design/shaders';
 

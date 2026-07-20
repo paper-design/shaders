@@ -1,33 +1,96 @@
 'use client';
-
-import type { ReactNode } from 'react';
+import React, { type ReactNode, isValidElement, cloneElement } from 'react';
 import { ShaderDef, ParamOption, ParamDef } from '../shader-defs/shader-def-types';
 import { CopyButton } from './copy-button';
 import { hslToHex } from '@/helpers/color-utils';
 import { commonParams } from '@/shader-defs/common-param-def';
 
+// Helper to parse markdown links within a text string
+function parseMarkdownLinks(text: string): React.ReactNode[] {
+  const regex = /\[([^\]]+)\]\(([^)]+)\)/g;
+  const parts: React.ReactNode[] = [];
+  let lastIndex = 0;
+  let match: RegExpExecArray | null;
+  let key = 0;
+
+  while ((match = regex.exec(text)) !== null) {
+    if (match.index > lastIndex) {
+      parts.push(<span key={key++}>{text.slice(lastIndex, match.index)}</span>);
+    }
+    const label = match[1];
+    parts.push(
+      <a
+        key={key++}
+        href={match[2]}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="text-primary hover:underline"
+      >
+        {label}
+      </a>
+    );
+    lastIndex = regex.lastIndex;
+  }
+
+  if (lastIndex < text.length) {
+    parts.push(<span key={key++}>{text.slice(lastIndex)}</span>);
+  }
+
+  return parts;
+}
+
+// Recursively processes React nodes to handle text with linebreaks and markdown links
+function formatNotesContent(node: ReactNode): ReactNode {
+  if (typeof node === 'string') {
+    // Split text by double newlines or single newlines to preserve structure
+    const blocks = node.split(/\n\s*\n/);
+    if (blocks.length > 1 || node.includes('\n')) {
+      return (
+        // space-y-12 (3rem / 48px) adds a uniform gap between paragraph breaks
+        <div className="flex flex-col space-y-12 w-full">
+          {blocks.map((block, index) => {
+            const trimmed = block.trim();
+            if (!trimmed) return null;
+            
+            return (
+              // leading-relaxed sets an excellent readable line-height for body copy text
+              <p key={index} className="text-pretty text-current/70 leading-relaxed">
+                {parseMarkdownLinks(trimmed)}
+              </p>
+            );
+          })}
+        </div>
+      );
+    }
+    return <span className="leading-relaxed">{parseMarkdownLinks(node)}</span>;
+  }
+
+  if (isValidElement(node)) {
+    if (node.props.children) {
+      return cloneElement(node, {
+        ...node.props,
+        children: React.Children.map(node.props.children, formatNotesContent),
+      });
+    }
+    return node;
+  }
+
+  if (Array.isArray(node)) {
+    return node.map((child) => formatNotesContent(child));
+  }
+
+  return node;
+}
+
 const formatJsxAttribute = (key: string, value: unknown): string => {
-  if (value === true) {
-    return key;
-  }
-  if (value === false) {
-    return `${key}={false}`;
-  }
-  if (typeof value === 'string') {
-    return `${key}="${value}"`;
-  }
+  if (value === true) return key;
+  if (value === false) return `${key}={false}`;
+  if (typeof value === 'string') return `${key}="${value}"`;
   if (typeof value === 'number') {
-    // Format numbers with at most 2 decimal places if they have decimals
     const formattedNumber = Number.isInteger(value) ? value : parseFloat(value.toFixed(2));
     return `${key}={${formattedNumber}}`;
   }
-  if (Array.isArray(value)) {
-    return `${key}={[${value.map((v) => JSON.stringify(v)).join(', ')}]}`;
-  }
-  if (typeof value === 'object') {
-    return `${key}={${JSON.stringify(value)}}`;
-  }
-
+  if (Array.isArray(value)) return `${key}={[${value.map((v) => JSON.stringify(v)).join(', ')}]}`;
   return `${key}={${JSON.stringify(value)}}`;
 };
 
@@ -44,30 +107,18 @@ function PropsTable({ params }: { params: ParamDef[] }) {
       </thead>
       <tbody>
         {params.map((param) => (
-          // The approach for column sizing and alignment is that description is w-full,
-          // and everything else has a min width to not be crushed by the description
           <tr key={param.name} className="border-table-border not-last:border-b">
-            {/* "noiseFrequency" is the longest name (116px + 32px padding = 148px)
-             We go a little smaller on mobile to have less whitespace ("maxPixelCount" = 140px) */}
             <td className="min-w-140 px-16 py-12 align-top font-medium sm:min-w-148">{param.name}</td>
-
             <td className="w-full min-w-240 px-16 py-12 align-top text-pretty text-current/70">{param.description}</td>
-
-            {/* "number | string" is the longest most common type (118px + 32px padding = 150px)
-            There are a few "HTMLImageElement | string ", which are purposely not aligned because too wide */}
             <td className="min-w-150 px-16 py-12 align-top text-sm whitespace-nowrap text-current/70">
               <code>{param.type}</code>
             </td>
-
             <td className="min-w-240 px-16 py-12 align-top text-sm text-current/70">
               {param.options && param.options.length > 0 ? (
                 typeof param.options[0] === 'string' ? (
                   <div className="flex flex-wrap text-pretty">
                     {(param.options as string[]).map((option) => (
-                      <span
-                        key={option}
-                        className={param.type === 'boolean' || param.type === 'enum' ? 'whitespace-nowrap' : ''}
-                      >
+                      <span key={option} className={param.type === 'boolean' || param.type === 'enum' ? 'whitespace-nowrap' : ''}>
                         {<span className="text-stone-400 mx-4"> | </span>}
                         <code className="font-mono">{param.type === 'enum' ? `"${option}"` : option}</code>
                       </span>
@@ -86,8 +137,7 @@ function PropsTable({ params }: { params: ParamDef[] }) {
               ) : param.min !== undefined && param.max !== undefined ? (
                 <>
                   <span className="whitespace-nowrap">
-                    <span className="font-mono">{param.min}</span>
-                    {' to '}
+                    <span className="font-mono">{param.min}</span> {' to '}
                     <span className="font-mono">{param.max}</span>
                   </span>
                   {param.step === 1 && ' (integer)'}
@@ -119,12 +169,9 @@ export function ShaderDetails({
   codeSampleImageName?: string;
 }) {
   const componentName = shaderDef.name.replace(/ /g, '');
-
   const installationCode = 'npm i @paper-design/shaders-react';
-  const image = codeSampleImageName
-    ? `https://shaders.paper.design/${codeSampleImageName}`
-    : 'https://paper.design/flowers.webp';
-
+  const image = codeSampleImageName ? `https://shaders.paper.design/${codeSampleImageName}` : 'https://paper.design/flowers.webp';
+  
   const code = `import { ${componentName} } from '@paper-design/shaders-react';
 
 <${componentName}
@@ -132,30 +179,19 @@ export function ShaderDetails({
   height={720}${shaderDef.params.find((p) => p.name === 'image') ? `\n  image="${image}"` : ''}
   ${Object.entries(currentParams)
     .filter(([key, value]) => {
-      if (['offsetX', 'offsetY', 'rotation'].includes(key) && value === 0) {
-        return false;
-      }
-      if (key === 'scale' && value === 1) {
-        return false;
-      }
+      if (['offsetX', 'offsetY', 'rotation'].includes(key) && value === 0) return false;
+      if (key === 'scale' && value === 1) return false;
       return true;
     })
     .map(([key, value]) => {
       const isColor = shaderDef.params.find((p) => p.name === key && p.isColor);
-      if (!isColor) {
-        return formatJsxAttribute(key, value);
-      } else if (typeof value === 'string') {
-        return formatJsxAttribute(key, hslToHex(value));
-      } else if (Array.isArray(value)) {
-        return formatJsxAttribute(
-          key,
-          value.map((v) => hslToHex(v))
-        );
-      }
+      if (!isColor) return formatJsxAttribute(key, value);
+      if (typeof value === 'string') return formatJsxAttribute(key, hslToHex(value));
+      if (Array.isArray(value)) return formatJsxAttribute(key, value.map((v) => hslToHex(v)));
     })
     .join('\n  ')}
-/>
-`;
+/>`;
+
   const commonPropNames = Object.keys(commonParams);
   const shaderProps = shaderDef.params.filter((p) => !commonPropNames.includes(p.name));
   const commonProps = shaderDef.params.filter((p) => commonPropNames.includes(p.name));
@@ -165,10 +201,7 @@ export function ShaderDetails({
       <section>
         <div className="flex items-center gap-8">
           <h2 className="text-2xl font-medium lowercase">Installation</h2>
-          <CopyButton
-            className="-mt-14 -mb-16 size-32 rounded-md outline-0 outline-focus transition-colors hover:bg-backplate-1 focus-visible:outline-2 active:bg-backplate-2 squircle:rounded-lg"
-            getText={() => installationCode}
-          />
+          <CopyButton className="-mt-14 -mb-16 size-32 rounded-md outline-0 outline-focus transition-colors hover:bg-backplate-1 focus-visible:outline-2 active:bg-backplate-2 squircle:rounded-lg" getText={() => installationCode} />
         </div>
         <pre className="no-scrollbar w-full overflow-x-auto rounded-xl bg-backplate-1 p-24 text-code squircle:rounded-2xl">
           {installationCode}
@@ -178,10 +211,7 @@ export function ShaderDetails({
       <section>
         <div className="flex items-center gap-8">
           <h2 className="text-2xl font-medium lowercase">Code</h2>
-          <CopyButton
-            className="-mt-14 -mb-16 size-32 rounded-md outline-0 outline-focus transition-colors hover:bg-backplate-1 focus-visible:outline-2 active:bg-backplate-2 squircle:rounded-lg"
-            getText={() => code}
-          />
+          <CopyButton className="-mt-14 -mb-16 size-32 rounded-md outline-0 outline-focus transition-colors hover:bg-backplate-1 focus-visible:outline-2 active:bg-backplate-2 squircle:rounded-lg" getText={() => code} />
         </div>
         <div className="flex flex-col gap-8">
           <pre className="custom-scrollbar overflow-x-auto rounded-xl bg-backplate-1 p-24 text-code squircle:rounded-2xl">
@@ -218,7 +248,9 @@ export function ShaderDetails({
       {notes && (
         <section>
           <h2 className="text-2xl font-medium lowercase">Notes</h2>
-          <p className="text-pretty text-current/70">{notes}</p>
+          <div className="text-pretty text-current/70">
+            {formatNotesContent(notes)}
+          </div>
         </section>
       )}
     </div>

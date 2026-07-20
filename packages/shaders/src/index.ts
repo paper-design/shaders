@@ -231,6 +231,14 @@ export {
   type GemSmokeUniforms,
 } from './shaders/gem-smoke.js';
 
+/** An immersive, hyperspeed hypnotic passage constructed from interlocking multi-colored ribbons winding into an infinite depth with glowing bloom and distortion effects */
+export {
+  spiralTunnelMeta,
+  spiralTunnelFragmentShader,
+  type SpiralTunnelParams,
+  type SpiralTunnelUniforms,
+} from './shaders/spiral-tunnel.js';
+
 // ----- Utils ----- //
 export { getShaderColorFromString } from './get-shader-color-from-string.js';
 export { getShaderNoiseTexture } from './get-shader-noise-texture.js';

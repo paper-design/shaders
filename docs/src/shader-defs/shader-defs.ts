@@ -26,6 +26,7 @@ import { warpDef } from './warp-def';
 import { waterDef } from './water-def';
 import { wavesDef } from './waves-def';
 import { halftoneDotsDef } from './halftone-dots-def';
+import { spiralTunnelDef } from './spiral-tunnel-def';
 
 export const shaderDefs: ShaderDef[] = [
   grainGradientDef,
@@ -54,4 +55,5 @@ export const shaderDefs: ShaderDef[] = [
   imageDitheringDef,
   waterDef,
   halftoneDotsDef,
+  spiralTunnelDef,
 ];
