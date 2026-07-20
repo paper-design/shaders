@@ -103,22 +103,22 @@ export const prismDef: ShaderDef = {
         'Radius, as a fraction of the inscribed circle, over which the shift fades out to nothing at the edge, like a lens vignette. 0 leaves it full to the edge; larger values pull the fade inward, rounding the effect into a centred disc',
     },
     {
-      name: 'distortion',
+      name: 'lensBulge',
       type: 'number',
       min: 0,
       max: 1,
-      defaultValue: defaultParams.distortion,
+      defaultValue: defaultParams.lensBulge,
       description:
         'Fisheye warp of the image geometry, separate from the color shift. 0 leaves it flat; 1 is a full fisheye bulge that magnifies the centre, bows straight lines outward, and lets the corners run off into the background',
     },
     {
-      name: 'distortionCenterPower',
+      name: 'lensRound',
       type: 'number',
       min: 0,
       max: 1,
-      defaultValue: defaultParams.distortionCenterPower,
+      defaultValue: defaultParams.lensRound,
       description:
-        'How far the distortion reaches into the centre. 0 keeps the centre flat with the bulge pushed to the edges; 1 is a full fisheye that magnifies the centre. The edge is distorted either way',
+        'Squeezes everything past the inscribed circle into a dense ring just inside it, so the image outline becomes a perfect circle without masking. Pairs with a high lensBulge for a circular fisheye. 0 is off, 1 is full',
     },
     {
       name: 'noise',

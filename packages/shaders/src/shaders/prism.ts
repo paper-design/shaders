@@ -57,10 +57,10 @@ export const prismMeta = {
  * - u_noise (float): Turbulence added to the shift direction (0 to 1)
  * - u_noiseFrequency (float): Spatial frequency of the turbulence field; higher is finer-grained
  * - u_noiseOffset (float): Slides the turbulence field to a different patch
- * - u_distortion (float): Radial fisheye warp of the image geometry, separate from the color shift;
+ * - u_lensBulge (float): Radial fisheye warp of the image geometry, separate from the color shift;
  *   0 leaves it flat, 1 is a full bulge with the corners running off into the background (0 to 1)
- * - u_distortionCenterPower (float): How far the distortion reaches into the centre; 0 keeps the
- *   centre flat with the bulge only at the edges, 1 is a full fisheye that magnifies the centre (0 to 1)
+ * - u_lensRound (float): Squeezes everything past the inscribed circle into a dense ring just inside it
+ *   so the image outline becomes a perfect circle, without masking; 0 is off, 1 is full (0 to 1)
  * - u_debugCircle (bool): Testing overlay drawing the largest circle that fits the image box, the
  *   radius the shift falloffs, radiality and fisheye all pivot around
  *
@@ -100,8 +100,8 @@ uniform float u_focusEdges;
 uniform float u_noise;
 uniform float u_noiseFrequency;
 uniform float u_noiseOffset;
-uniform float u_distortion;
-uniform float u_distortionCenterPower;
+uniform float u_lensBulge;
+uniform float u_lensRound;
 uniform bool u_debugCircle;
 
 in vec2 v_imageUV;
@@ -200,8 +200,8 @@ vec2 getShift(vec2 uv) {
   return axis;
 }
 
-vec2 imageDistortion(vec2 uv) {
-  if (u_distortion <= 0.) return uv;
+vec2 lensWarp(vec2 uv) {
+  if (u_lensBulge <= 0. && u_lensRound <= 0.) return uv;
 
   vec2 fromCenter = uv - .5;
   fromCenter.x *= u_imageAspectRatio;
@@ -209,12 +209,30 @@ vec2 imageDistortion(vec2 uv) {
   float radius = length(fromCenter);
   if (radius < 1e-5) return uv;
 
-  float rn = radius / inradius;
+  if (u_lensBulge > 0.) {
+    float rn = radius / inradius;
+    float bulge = u_lensBulge * 1.4;
+    float tanMap = tan(min(rn * bulge, 1.53)) / tan(bulge);
+    fromCenter *= tanMap / rn;
+  }
 
-  float bulge = u_distortion * 1.4;
-  float tanMap = tan(min(rn * bulge, 1.53)) / tan(bulge);
-  float srcRn = mix(rn, tanMap, .5 + .5 * u_distortionCenterPower);
-  fromCenter *= srcRn / rn;
+  // lensRound: everything past the inscribed circle is squeezed into a thin dense ring just inside it,
+  // and beyond the circle reads past the image box (background), so the outline becomes a circle.
+  if (u_lensRound > 0.) {
+    float r = length(fromCenter);
+    vec2 dir = fromCenter / max(r, 1e-5);
+    vec2 halfBox = vec2(u_imageAspectRatio, 1.) * .5;
+    float rBox = min(halfBox.x / max(abs(dir.x), 1e-4), halfBox.y / max(abs(dir.y), 1e-4));
+    float band = inradius * .2;
+    float innerEdge = inradius - band;
+    float over = (r - innerEdge) / band;   // 0 at the inner border, 1 at the circle
+    // Quadratic ramp: starts with slope 1 so it eases out of the flat centre with no crease, and
+    // steepens to reach the box edge (rBox) at the circle, compressing the overflow into the ring.
+    float g = r < innerEdge ? r
+            : r < inradius ? r + (rBox - inradius) * over * over
+            : rBox + (r - inradius);
+    fromCenter = dir * mix(r, g, u_lensRound);
+  }
 
   fromCenter.x /= u_imageAspectRatio;
   return fromCenter + .5;
@@ -222,7 +240,7 @@ vec2 imageDistortion(vec2 uv) {
 
 void main() {
   vec2 uv = v_imageUV;
-  vec2 baseUV = imageDistortion(uv);
+  vec2 baseUV = lensWarp(uv);
   vec2 shift = getShift(uv);
 
   int sampleCount = int(u_samples);
@@ -260,6 +278,9 @@ void main() {
     float aaWidth = fwidth(len);
     float ringIn = 1. - smoothstep(1.5 * aaWidth, 2.5 * aaWidth, abs(len - boxInradius()));
     float ringOut = 1. - smoothstep(1.5 * aaWidth, 2.5 * aaWidth, abs(len - shiftNormRadius()));
+    // Highlight image pixels sitting outside the inscribed circle - the area the lensRound hides.
+    float overflow = smoothstep(-aaWidth, aaWidth, len - boxInradius()) * step(.01, fragColor.a);
+    fragColor.rgb = mix(fragColor.rgb, vec3(0., 1., 0.), overflow * .45);
     fragColor.rgb = mix(fragColor.rgb, vec3(1., 0., 0.), ringIn);
     fragColor.rgb = mix(fragColor.rgb, vec3(0., .4, 1.), ringOut);
     fragColor.a = max(fragColor.a, max(ringIn, ringOut));
@@ -282,8 +303,8 @@ export interface PrismUniforms extends ShaderSizingUniforms {
   u_noise: number;
   u_noiseFrequency: number;
   u_noiseOffset: number;
-  u_distortion: number;
-  u_distortionCenterPower: number;
+  u_lensBulge: number;
+  u_lensRound: number;
   u_debugCircle: boolean;
 }
 
@@ -302,7 +323,7 @@ export interface PrismParams extends ShaderSizingParams, ShaderMotionParams {
   noise?: number;
   noiseFrequency?: number;
   noiseOffset?: number;
-  distortion?: number;
-  distortionCenterPower?: number;
+  lensBulge?: number;
+  lensRound?: number;
   debugCircle?: boolean;
 }

@@ -36,8 +36,8 @@ export const defaultPreset: PrismPreset = {
     noise: 0,
     noiseFrequency: 4,
     noiseOffset: 0,
-    distortion: 1,
-    distortionCenterPower: 1,
+    lensBulge: 1,
+    lensRound: 0,
     debugCircle: false,
   },
 } as const;
@@ -62,8 +62,8 @@ export const fadedPreset: PrismPreset = {
     noise: 0,
     noiseFrequency: 4,
     noiseOffset: 0,
-    distortion: 0,
-    distortionCenterPower: 1,
+    lensBulge: 0,
+    lensRound: 0,
     debugCircle: false,
   },
 } as const;
@@ -88,8 +88,8 @@ export const duotonePreset: PrismPreset = {
     noise: 0,
     noiseFrequency: 4,
     noiseOffset: 0,
-    distortion: 0,
-    distortionCenterPower: 1,
+    lensBulge: 0,
+    lensRound: 0,
     debugCircle: false,
   },
 } as const;
@@ -114,8 +114,8 @@ export const spectrumPreset: PrismPreset = {
     noise: 0,
     noiseFrequency: 4,
     noiseOffset: 0,
-    distortion: 0,
-    distortionCenterPower: 1,
+    lensBulge: 0,
+    lensRound: 0,
     debugCircle: false,
   },
 } as const;
@@ -140,8 +140,8 @@ export const Prism: React.FC<PrismProps> = memo(function PrismImpl({
   noise = defaultPreset.params.noise,
   noiseFrequency = defaultPreset.params.noiseFrequency,
   noiseOffset = defaultPreset.params.noiseOffset,
-  distortion = defaultPreset.params.distortion,
-  distortionCenterPower = defaultPreset.params.distortionCenterPower,
+  lensBulge = defaultPreset.params.lensBulge,
+  lensRound = defaultPreset.params.lensRound,
   debugCircle = defaultPreset.params.debugCircle,
 
   // Sizing props
@@ -172,8 +172,8 @@ export const Prism: React.FC<PrismProps> = memo(function PrismImpl({
     u_noise: noise,
     u_noiseFrequency: noiseFrequency,
     u_noiseOffset: noiseOffset,
-    u_distortion: distortion,
-    u_distortionCenterPower: distortionCenterPower,
+    u_lensBulge: lensBulge,
+    u_lensRound: lensRound,
     u_debugCircle: debugCircle,
 
     // Sizing uniforms
