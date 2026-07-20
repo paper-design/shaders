@@ -166,7 +166,7 @@ float dispersionCurve(float t) {
   return u_shiftBias < 0. ? 1. - curved : curved;
 }
 
-vec2 getShift(vec2 uv) {
+vec2 getShift(vec2 uv, vec2 warpedUV) {
   float reach = shiftReach();
   float angleRad = radians(u_shiftAngle);
   vec2 uniformDir = vec2(cos(angleRad), sin(angleRad));
@@ -183,10 +183,20 @@ vec2 getShift(vec2 uv) {
   if (radialLen > maxLen) radialDir *= maxLen / radialLen;
   vec2 shiftDir = mix(uniformDir, radialDir, u_perspective);
 
+  float bandProximity = smoothstep(inradius * .8, inradius, radius);
+  float lensRoundMaxing = bandProximity * pow(u_lensRound, 3.);
+  shiftDir = mix(shiftDir, radialDir, lensRoundMaxing);
+
   float inner = mix(1., smoothstep(0., mix(inradius, outradius, u_focusCenter), radius), u_focusCenter);
-  float boxDist = max(abs(uv.x - .5), abs(uv.y - .5)) * 2.;
+  float boxDist = max(abs(warpedUV.x - .5), abs(warpedUV.y - .5)) * 2.;
   float outer = mix(1., 1. - min(boxDist, 1.), u_focusEdges);
   float strength = inner * outer;
+
+  strength *= mix(1., .15, lensRoundMaxing);
+
+  vec2 outside = max(abs(warpedUV - .5) - .5, 0.);
+  float aa = clamp(2. * max(fwidth(warpedUV.x), fwidth(warpedUV.y)), .001, .02);
+  strength *= 1. - smoothstep(0., aa, length(outside));
 
   vec2 axis = shiftDir * reach * strength;
 
@@ -241,7 +251,7 @@ vec2 lensWarp(vec2 uv) {
 void main() {
   vec2 uv = v_imageUV;
   vec2 baseUV = lensWarp(uv);
-  vec2 shift = getShift(uv);
+  vec2 shift = getShift(uv, baseUV);
 
   int sampleCount = int(u_samples);
   int colorCount = clamp(int(floor(2. * pow(float(sampleCount) * .5, .5 * u_spectrum) + .5)), 2, sampleCount);
