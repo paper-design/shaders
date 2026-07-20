@@ -259,8 +259,7 @@ void main() {
     if (i >= sampleCount) break;
 
     float t = float(i) / float(sampleCount - 1);
-    float band = min(floor(t * float(colorCount)), float(colorCount - 1));
-    float hue = hueNorm + band / float(colorCount);
+    float hue = hueNorm + t * float(colorCount - 1) / float(colorCount);
 
     float spread = dispersionCurve(t);
     vec2 offset = mix(shift, -shift, spread);
