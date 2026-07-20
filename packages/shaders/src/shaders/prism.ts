@@ -59,6 +59,8 @@ export const prismMeta = {
  * - u_noiseOffset (float): Slides the turbulence field to a different patch
  * - u_distortion (float): Radial fisheye warp of the image geometry, separate from the color shift;
  *   0 leaves it flat, 1 is a full bulge with the corners running off into the background (0 to 1)
+ * - u_distortionCenterPower (float): How far the distortion reaches into the centre; 0 keeps the
+ *   centre flat with the bulge only at the edges, 1 is a full fisheye that magnifies the centre (0 to 1)
  * - u_debugCircle (bool): Testing overlay drawing the largest circle that fits the image box, the
  *   radius the shift falloffs, radiality and fisheye all pivot around
  *
@@ -99,6 +101,7 @@ uniform float u_noise;
 uniform float u_noiseFrequency;
 uniform float u_noiseOffset;
 uniform float u_distortion;
+uniform float u_distortionCenterPower;
 uniform bool u_debugCircle;
 
 in vec2 v_imageUV;
@@ -207,12 +210,12 @@ vec2 imageDistortion(vec2 uv) {
   if (radius < 1e-5) return uv;
 
   float rn = radius / inradius;
-  float srcRn;
-    
-  float bulge = u_distortion * 1.4;
-  srcRn = tan(min(rn * bulge, 1.53)) / tan(bulge);
 
+  float bulge = u_distortion * 1.4;
+  float tanMap = tan(min(rn * bulge, 1.53)) / tan(bulge);
+  float srcRn = mix(rn, tanMap, .5 + .5 * u_distortionCenterPower);
   fromCenter *= srcRn / rn;
+
   fromCenter.x /= u_imageAspectRatio;
   return fromCenter + .5;
 }
@@ -280,6 +283,7 @@ export interface PrismUniforms extends ShaderSizingUniforms {
   u_noiseFrequency: number;
   u_noiseOffset: number;
   u_distortion: number;
+  u_distortionCenterPower: number;
   u_debugCircle: boolean;
 }
 
@@ -299,5 +303,6 @@ export interface PrismParams extends ShaderSizingParams, ShaderMotionParams {
   noiseFrequency?: number;
   noiseOffset?: number;
   distortion?: number;
+  distortionCenterPower?: number;
   debugCircle?: boolean;
 }

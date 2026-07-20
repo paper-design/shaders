@@ -112,6 +112,15 @@ export const prismDef: ShaderDef = {
         'Fisheye warp of the image geometry, separate from the color shift. 0 leaves it flat; 1 is a full fisheye bulge that magnifies the centre, bows straight lines outward, and lets the corners run off into the background',
     },
     {
+      name: 'distortionCenterPower',
+      type: 'number',
+      min: 0,
+      max: 1,
+      defaultValue: defaultParams.distortionCenterPower,
+      description:
+        'How far the distortion reaches into the centre. 0 keeps the centre flat with the bulge pushed to the edges; 1 is a full fisheye that magnifies the centre. The edge is distorted either way',
+    },
+    {
       name: 'noise',
       type: 'number',
       min: 0,
