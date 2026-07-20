@@ -17,9 +17,11 @@ export const prismMeta = {
  * is missing, so a sample landing on a dark feature takes its own color out of the result and
  * leaves it showing on the neighbours. That is what puts the palette colors on screen for a dark
  * subject on a light ground, which is most photographs. It reverses for a light subject on a dark
- * ground, where the fringes come out complemented. This is why a black-on-transparent logo wants an
- * opaque u_colorBack: on transparent it disperses into faint tinted edges, on white it reads as a
- * dark subject and splits into the full palette.
+ * ground, where the fringes come out complemented. The dispersion always computes its colour against
+ * a hardcoded white ground so a subject splits into the palette even over nothing: a black-on-
+ * transparent logo still fans into the full rainbow. The white is only ever used to make the colour -
+ * the output stays transparent wherever the subject is not, so it composites cleanly over whatever
+ * background the page puts behind it.
  *
  * The palette is always evenly spaced hues at full saturation, which is what keeps the maths simple
  * downstream: however many colors there are and wherever u_hue puts them, they cover the wheel, so
@@ -36,8 +38,6 @@ export const prismMeta = {
  *
  * Fragment shader uniforms:
  * - u_image (sampler2D): Source image texture
- * - u_colorBack (vec4): Color filling the picture's transparent areas and everything past its edge,
- *   in RGBA; a transparent value leaves those areas transparent with a colored rim
  * - u_samples (float): Number of taps along the shift; higher smooths the layers from discrete
  *   ghosts into a continuous blur, at a linear cost (2 to 40)
  * - u_spectrum (float): How many colors the samples group into, as a geometric fraction of the
@@ -87,7 +87,6 @@ precision mediump float;
 
 uniform sampler2D u_image;
 uniform float u_imageAspectRatio;
-uniform vec4 u_colorBack;
 uniform float u_samples;
 uniform float u_spectrum;
 uniform float u_hue;
@@ -132,11 +131,11 @@ float getUvFrame(vec2 uv) {
   return left * right * bottom * top;
 }
 
-vec4 sampleOverBack(vec2 uv) {
+vec4 sampleOverWhite(vec2 uv) {
   vec4 img = texture(u_image, uv);
   float cover = img.a * getUvFrame(uv);
-  vec3 backPremult = u_colorBack.rgb * u_colorBack.a;
-  return vec4(img.rgb * cover + backPremult * (1. - cover), cover + u_colorBack.a * (1. - cover));
+  vec3 colorOverWhite = mix(vec3(1.), img.rgb, cover);
+  return vec4(colorOverWhite, cover);
 }
 
 vec3 hueColor(float t) {
@@ -226,8 +225,6 @@ vec2 lensWarp(vec2 uv) {
     fromCenter *= tanMap / rn;
   }
 
-  // lensRound: everything past the inscribed circle is squeezed into a thin dense ring just inside it,
-  // and beyond the circle reads past the image box (background), so the outline becomes a circle.
   if (u_lensRound > 0.) {
     float r = length(fromCenter);
     vec2 dir = fromCenter / max(r, 1e-5);
@@ -236,8 +233,6 @@ vec2 lensWarp(vec2 uv) {
     float band = inradius * .2;
     float innerEdge = inradius - band;
     float over = (r - innerEdge) / band;   // 0 at the inner border, 1 at the circle
-    // Quadratic ramp: starts with slope 1 so it eases out of the flat centre with no crease, and
-    // steepens to reach the box edge (rBox) at the circle, compressing the overflow into the ring.
     float g = r < innerEdge ? r
             : r < inradius ? r + (rBox - inradius) * over * over
             : rBox + (r - inradius);
@@ -256,8 +251,8 @@ void main() {
   int sampleCount = int(u_samples);
   int colorCount = clamp(int(floor(2. * pow(float(sampleCount) * .5, .5 * u_spectrum) + .5)), 2, sampleCount);
   vec3 colorSum = vec3(0.);
-  vec3 coverSum = vec3(0.);
   vec3 weightSum = vec3(0.);
+  float coverSum = 0.;
 
   float hueNorm = fract((u_hue + 180.) / 360.);
   for (int i = 0; i < ${prismMeta.maxSamples}; i++) {
@@ -269,17 +264,20 @@ void main() {
 
     float spread = dispersionCurve(t);
     vec2 offset = mix(shift, -shift, spread);
-    vec4 tap = sampleOverBack(baseUV + offset);
+    vec4 tap = sampleOverWhite(baseUV + offset);
     vec3 weight = 1. - hueColor(hue);
 
     colorSum += tap.rgb * weight;
-    coverSum += tap.a * weight;
     weightSum += weight;
+    coverSum += tap.a;
   }
 
-  vec3 color = colorSum / max(weightSum, 1e-4);
-  vec3 cover = coverSum / max(weightSum, 1e-4);
-  fragColor = vec4(color, max(max(cover.r, cover.g), cover.b));
+  vec3 color = colorSum / max(weightSum, 1e-4);   // straight colour, computed over the white ground
+  float coverAvg = coverSum / float(sampleCount); // real subject coverage, palette-independent
+  float ground = min(color.r, min(color.g, color.b));
+  float alpha = max(coverAvg, 1. - ground);
+  vec3 premult = max(color - (1. - alpha), 0.);
+  fragColor = vec4(premult, alpha);
 
   if (u_debugCircle) {
     vec2 fromCenter = v_imageUV - .5;
@@ -288,7 +286,6 @@ void main() {
     float aaWidth = fwidth(len);
     float ringIn = 1. - smoothstep(1.5 * aaWidth, 2.5 * aaWidth, abs(len - boxInradius()));
     float ringOut = 1. - smoothstep(1.5 * aaWidth, 2.5 * aaWidth, abs(len - shiftNormRadius()));
-    // Highlight image pixels sitting outside the inscribed circle - the area the lensRound hides.
     float overflow = smoothstep(-aaWidth, aaWidth, len - boxInradius()) * step(.01, fragColor.a);
     fragColor.rgb = mix(fragColor.rgb, vec3(0., 1., 0.), overflow * .45);
     fragColor.rgb = mix(fragColor.rgb, vec3(1., 0., 0.), ringIn);
@@ -300,7 +297,6 @@ void main() {
 
 export interface PrismUniforms extends ShaderSizingUniforms {
   u_image: HTMLImageElement | string | undefined;
-  u_colorBack: [number, number, number, number];
   u_samples: number;
   u_spectrum: number;
   u_hue: number;
@@ -320,7 +316,6 @@ export interface PrismUniforms extends ShaderSizingUniforms {
 
 export interface PrismParams extends ShaderSizingParams, ShaderMotionParams {
   image?: HTMLImageElement | string;
-  colorBack?: string;
   samples?: number;
   spectrum?: number;
   hue?: number;
