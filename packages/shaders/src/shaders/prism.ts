@@ -203,7 +203,8 @@ vec2 getSpread(vec2 uv, vec2 warpedUV) {
 
   vec2 outside = max(abs(warpedUV - .5) - .5, 0.);
   float aa = clamp(2. * max(fwidth(warpedUV.x), fwidth(warpedUV.y)), .001, .02);
-  strength *= 1. - smoothstep(0., aa, length(outside));
+  float margin = max(reach * length(spreadDir), aa);
+  strength *= 1. - smoothstep(0., margin, length(outside));
 
   vec2 axis = spreadDir * reach * strength;
 
