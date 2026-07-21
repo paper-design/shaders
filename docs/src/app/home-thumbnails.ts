@@ -27,7 +27,7 @@ import liquidMetalImg from '../../public/shaders/liquid-metal.webp';
 import halftoneDotsImg from '../../public/shaders/halftone-dots.webp';
 import halftoneCmykImg from '../../public/shaders/halftone-cmyk.webp';
 import gemSmokeImg from '../../public/shaders/gem-smoke.webp';
-import prismImg from '../../public/images/image-filters/0018.webp';
+import prismImg from '../../public/shaders/prism.webp';
 import {
   DotGrid,
   dotGridPresets,
@@ -178,7 +178,7 @@ export const homeThumbnails = [
         url: '/prism',
         ShaderComponent: Prism,
         image: prismImg,
-        alwaysLivePreview: true,
+        alwaysLivePreview: false,
         shaderConfig: {
           ...prismPresets[0].params,
           image: '/images/image-filters/0018.webp',

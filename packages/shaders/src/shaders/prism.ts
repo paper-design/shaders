@@ -1,6 +1,6 @@
 import type { ShaderMotionParams } from '../shader-mount.js';
 import { type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
-import { declarePI, proceduralHash21 } from '../shader-utils.js';
+import { declarePI, proceduralHash21, rotation2 } from '../shader-utils.js';
 
 export const prismMeta = {
   maxSamples: 50,
@@ -61,6 +61,11 @@ export const prismMeta = {
  *   0 leaves it flat, 1 is a full bulge with the corners running off into the background (0 to 1)
  * - u_lensRound (float): Squeezes everything past the inscribed circle into a dense ring just inside it
  *   so the image outline becomes a perfect circle, without masking; 0 is off, 1 is full (0 to 1)
+ * - u_grainMixer (float): Grain woven into the spread; jitters the whole fan per pixel by a percent of
+ *   its length, so the dispersion breaks into grain that vanishes at the fan centre and grows to the
+ *   edges; 0 is off (0 to 1)
+ * - u_grainOverlay (float): Post-processing black/white film grain over the subject, screen-stable and
+ *   masked to the opaque area so the transparent background stays clean; 0 is off (0 to 1)
  * - u_debugCircle (bool): Testing overlay drawing the largest circle that fits the image box, the
  *   radius the spread falloffs, radiality and fisheye all pivot around
  *
@@ -101,6 +106,8 @@ uniform float u_noiseFrequency;
 uniform float u_noiseOffset;
 uniform float u_lensBulge;
 uniform float u_lensRound;
+uniform float u_grainMixer;
+uniform float u_grainOverlay;
 uniform bool u_debugCircle;
 
 in vec2 v_imageUV;
@@ -109,6 +116,7 @@ out vec4 fragColor;
 
 ${declarePI}
 ${proceduralHash21}
+${rotation2}
 
 float valueNoise(vec2 st) {
   vec2 i = floor(st);
@@ -248,6 +256,17 @@ void main() {
   vec2 baseUV = lensWarp(uv);
   vec2 spreadAxis = getSpread(uv, baseUV);
 
+  vec2 dudx = dFdx(v_imageUV);
+  vec2 dudy = dFdy(v_imageUV);
+  vec2 grainUV = (v_imageUV - .5) * (.8 / vec2(length(dudx), length(dudy))) + .5;
+
+  float grainSeed = u_grainMixer > 0. ? valueNoise(grainUV) : 0.;
+
+  if (u_grainMixer > 0.) {
+    vec2 jit = fract(grainSeed * vec2(157.31, 113.57)) * 2. - 1.;
+    spreadAxis += jit * .3 * u_grainMixer * length(spreadAxis);
+  }
+
   int sampleCount = int(u_samples);
   int colorCount = clamp(int(floor(2. * pow(float(sampleCount) * .5, .5 * u_colorSteps) + .5)), 2, sampleCount);
   vec3 colorSum = vec3(0.);
@@ -277,6 +296,15 @@ void main() {
   float alpha = max(coverAvg, 1. - ground);
   vec3 premult = max(color - (1. - alpha), 0.);
   fragColor = vec4(premult, alpha);
+
+  if (u_grainOverlay > 0.) {
+    float grain = valueNoise(rotate(grainUV, 1.) + vec2(3.));
+    grain = mix(grain, valueNoise(rotate(grainUV, 2.) + vec2(-1.)), .5);
+    grain = pow(grain, 1.3);
+    float grainV = grain * 2. - 1.;
+    float grainStrength = pow(u_grainOverlay * abs(grainV), .8) * fragColor.a;
+    fragColor.rgb = mix(fragColor.rgb, vec3(step(0., grainV)) * fragColor.a, .35 * grainStrength);
+  }
 
   if (u_debugCircle) {
     vec2 fromCenter = v_imageUV - .5;
@@ -310,6 +338,8 @@ export interface PrismUniforms extends ShaderSizingUniforms {
   u_noiseOffset: number;
   u_lensBulge: number;
   u_lensRound: number;
+  u_grainMixer: number;
+  u_grainOverlay: number;
   u_debugCircle: boolean;
 }
 
@@ -329,5 +359,7 @@ export interface PrismParams extends ShaderSizingParams, ShaderMotionParams {
   noiseOffset?: number;
   lensBulge?: number;
   lensRound?: number;
+  grainMixer?: number;
+  grainOverlay?: number;
   debugCircle?: boolean;
 }

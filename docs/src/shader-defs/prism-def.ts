@@ -113,6 +113,24 @@ export const prismDef: ShaderDef = {
         'Squeezes everything past the inscribed circle into a dense ring just inside it, so the image outline becomes a perfect circle without masking. Pairs with a high lensBulge for a circular fisheye. 0 is off, 1 is full',
     },
     {
+      name: 'grainMixer',
+      type: 'number',
+      min: 0,
+      max: 1,
+      defaultValue: defaultParams.grainMixer,
+      description:
+        'Grain woven into the spread: jitters the whole fan per pixel by a percent of its length, so the dispersion breaks into grain that vanishes at the fan centre and grows to the edges. 0 is off',
+    },
+    {
+      name: 'grainOverlay',
+      type: 'number',
+      min: 0,
+      max: 1,
+      defaultValue: defaultParams.grainOverlay,
+      description:
+        'Post-processing black/white film grain over the subject. Screen-stable and masked to the opaque area so the transparent background stays clean. 0 is off',
+    },
+    {
       name: 'noise',
       type: 'number',
       min: 0,

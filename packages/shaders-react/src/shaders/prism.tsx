@@ -36,6 +36,8 @@ export const defaultPreset: PrismPreset = {
     noiseOffset: 0,
     lensBulge: 0,
     lensRound: 0,
+    grainMixer: 0,
+    grainOverlay: 0,
     debugCircle: false,
   },
 } as const;
@@ -62,6 +64,8 @@ export const fisheyePreset: PrismPreset = {
     noiseOffset: 0,
     lensBulge: 0.95,
     lensRound: 1,
+    grainMixer: 0,
+    grainOverlay: 0,
     debugCircle: false,
   },
 } as const;
@@ -73,20 +77,22 @@ export const duotonePreset: PrismPreset = {
     fit: 'contain',
     speed: 0,
     frame: 0,
-    spread: 0.35,
+    spread: 0.3,
     spreadBias: -1,
     spreadAngle: 190,
     spreadPerspective: 0,
     samples: 2,
     colorSteps: 1,
-    colorShift: 188,
-    focusCenter: 0.8,
+    colorShift: 176,
+    focusCenter: 0,
     focusEdges: 0,
     noise: 0,
     noiseFrequency: 4,
     noiseOffset: 0,
     lensBulge: 0,
     lensRound: 0,
+    grainMixer: 0,
+    grainOverlay: 0,
     debugCircle: false,
   },
 } as const;
@@ -113,6 +119,8 @@ export const smokePreset: PrismPreset = {
     noiseOffset: 9,
     lensBulge: 0,
     lensRound: 0,
+    grainMixer: 0,
+    grainOverlay: 0,
     debugCircle: false,
   },
 } as const;
@@ -138,6 +146,8 @@ export const Prism: React.FC<PrismProps> = memo(function PrismImpl({
   noiseOffset = defaultPreset.params.noiseOffset,
   lensBulge = defaultPreset.params.lensBulge,
   lensRound = defaultPreset.params.lensRound,
+  grainMixer = defaultPreset.params.grainMixer,
+  grainOverlay = defaultPreset.params.grainOverlay,
   debugCircle = defaultPreset.params.debugCircle,
 
   // Sizing props
@@ -169,6 +179,8 @@ export const Prism: React.FC<PrismProps> = memo(function PrismImpl({
     u_noiseOffset: noiseOffset,
     u_lensBulge: lensBulge,
     u_lensRound: lensRound,
+    u_grainMixer: grainMixer,
+    u_grainOverlay: grainOverlay,
     u_debugCircle: debugCircle,
 
     // Sizing uniforms
