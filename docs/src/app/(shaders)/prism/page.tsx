@@ -79,7 +79,7 @@ const PrismWithControls = () => {
       noise: { value: defaults.noise, min: 0, max: 1, order: 300 },
       noiseFrequency: { value: defaults.noiseFrequency, min: 0, max: 15, order: 301 },
       noiseOffset: { value: defaults.noiseOffset, min: 0, max: 10, order: 302 },
-      lensBulge: { value: defaults.lensBulge, min: 0, max: 1, order: 400 },
+      lensBulge: { value: defaults.lensBulge, min: -1, max: 1, order: 400 },
       lensRound: { value: defaults.lensRound, min: 0, max: 1, order: 402 },
       grainMixer: { value: defaults.grainMixer, min: 0, max: 1, order: 409 },
       grainOverlay: { value: defaults.grainOverlay, min: 0, max: 1, order: 410 },

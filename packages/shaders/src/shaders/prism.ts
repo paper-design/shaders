@@ -57,8 +57,9 @@ export const prismMeta = {
  * - u_noise (float): Turbulence added to the spread direction (0 to 1)
  * - u_noiseFrequency (float): Spatial frequency of the turbulence field; higher is finer-grained
  * - u_noiseOffset (float): Slides the turbulence field to a different patch
- * - u_lensBulge (float): Radial fisheye warp of the image geometry, separate from the color spread;
- *   0 leaves it flat, 1 is a full bulge with the corners running off into the background (0 to 1)
+ * - u_lensBulge (float): Radial lens warp of the image geometry, separate from the color spread; 0 is
+ *   flat, positive is a barrel/fisheye bulge with the corners running off into the background, negative
+ *   is a pincushion pinch that compresses the centre and stretches the edges (-1 to 1)
  * - u_lensRound (float): Squeezes everything past the inscribed circle into a dense ring just inside it
  *   so the image outline becomes a perfect circle, without masking; 0 is off, 1 is full (0 to 1)
  * - u_grainMixer (float): Grain woven into the spread; jitters the whole fan per pixel by a percent of
@@ -219,7 +220,7 @@ vec2 getSpread(vec2 uv, vec2 warpedUV) {
 }
 
 vec2 lensWarp(vec2 uv) {
-  if (u_lensBulge <= 0. && u_lensRound <= 0.) return uv;
+  if (u_lensBulge == 0. && u_lensRound <= 0.) return uv;
 
   vec2 fromCenter = uv - .5;
   fromCenter.x *= u_imageAspectRatio;
@@ -227,11 +228,13 @@ vec2 lensWarp(vec2 uv) {
   float radius = length(fromCenter);
   if (radius < 1e-5) return uv;
 
-  if (u_lensBulge > 0.) {
+  if (u_lensBulge != 0.) {
     float rn = radius / inradius;
-    float bulge = u_lensBulge * 1.4;
-    float tanMap = tan(min(rn * bulge, 1.53)) / tan(bulge);
-    fromCenter *= tanMap / rn;
+    float bulge = abs(u_lensBulge) * (u_lensBulge > 0. ? 1.4 : 0.9);
+    float map = u_lensBulge > 0.
+      ? tan(min(rn * bulge, 1.53)) / tan(bulge)
+      : atan(rn * tan(bulge)) / bulge;
+    fromCenter *= map / rn;
   }
 
   if (u_lensRound > 0.) {

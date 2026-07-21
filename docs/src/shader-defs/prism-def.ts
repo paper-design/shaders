@@ -97,11 +97,11 @@ export const prismDef: ShaderDef = {
     {
       name: 'lensBulge',
       type: 'number',
-      min: 0,
+      min: -1,
       max: 1,
       defaultValue: defaultParams.lensBulge,
       description:
-        'Fisheye warp of the image geometry, separate from the color spread. 0 leaves it flat; 1 is a full fisheye bulge that magnifies the centre, bows straight lines outward, and lets the corners run off into the background',
+        'Radial lens warp of the image geometry, separate from the color spread. 0 leaves it flat; positive is a barrel/fisheye bulge that magnifies the centre, bows straight lines outward, and lets the corners run off into the background; negative is a pincushion that compresses the centre and stretches the edges inward',
     },
     {
       name: 'lensRound',
