@@ -10,7 +10,7 @@ export const prismMeta = {
  * Prism image filter that samples an image several times along a dispersion axis and gives each
  * sample its own color, the way glass refracts each wavelength by a different amount. The palette
  * is what the image splits into: three colors give a classic lens fringe, two an opposed pair,
- * eight a full spectrum. u_hue turns the palette as a whole, so red/green/blue at 0 becomes
+ * eight a full spectrum. u_colorShift turns the palette as a whole, so red/green/blue at 0 becomes
  * cyan/magenta/yellow at 180.
  *
  * The colors work subtractively, like ink rather than light: a sample carries everything its color
@@ -24,45 +24,45 @@ export const prismMeta = {
  * background the page puts behind it.
  *
  * The palette is always evenly spaced hues at full saturation, which is what keeps the maths simple
- * downstream: however many colors there are and wherever u_hue puts them, they cover the wheel, so
+ * downstream: however many colors there are and wherever u_colorShift puts them, they cover the wheel, so
  * every channel is carried by some of them and none is carried by all of them. Each channel can
  * then be divided by its own weight, leaving the image untouched where the samples line up
- * (shift = 0) without any risk of a channel dividing a vanishing weight back out of itself.
+ * (spread = 0) without any risk of a channel dividing a vanishing weight back out of itself.
  *
  * The direction the samples travel is a vector field, described rather than picked from a list:
- * u_perspective blends a fixed angle into an outward-from-centre shift that grows with radius, and
+ * u_spreadPerspective blends a fixed angle into an outward-from-centre spread that grows with radius, and
  * u_focusCenter / u_focusEdges reshape how the strength rises and falls between the centre and the
  * edge. Together they cover the familiar named looks and everything between them: a fixed angle is a
- * straight shift; full radiality is a rounded radial split on its own; add edge falloff and it
+ * straight spread; full radiality is a rounded radial split on its own; add edge falloff and it
  * tightens into a disc.
  *
  * Fragment shader uniforms:
  * - u_image (sampler2D): Source image texture
- * - u_samples (float): Number of taps along the shift; higher smooths the layers from discrete
- *   ghosts into a continuous blur, at a linear cost (2 to 40)
- * - u_spectrum (float): How many colors the samples group into, as a geometric fraction of the
- *   sample budget; 0 is two colors, 1 is one color per sample (a full spectrum) (0 to 1)
- * - u_hue (float): Turns the whole palette around the hue wheel in degrees (0 to 360)
- * - u_shift (float): Distance the outermost samples travel apart,
+ * - u_spread (float): Distance the outermost samples travel apart,
  *   as a fraction of the image width (0 to 1, mapped to 0 to 10%)
- * - u_shiftBias (float): Warps the dispersion curve, bunching the colors toward one end of the fan
+ * - u_spreadBias (float): Warps the dispersion curve, bunching the colors toward one end of the fan
  *   and spreading them at the other with the ends pinned; 0 spaces them evenly (-1 to 1)
- * - u_shiftAngle (float): Direction of the shift in degrees when it is not radial (0 to 360)
- * - u_perspective (float): Blends the shift from the fixed angle (0) to an outward-from-centre shift
- *   that grows with radius (1); raising it adds the off-axis shift a straight angle never had (0 to 1)
- * - u_focusCenter (float): Radius (as a fraction of the inscribed circle) over which the shift
+ * - u_spreadAngle (float): Direction of the spread in degrees when it is not radial (0 to 360)
+ * - u_spreadPerspective (float): Blends the spread from the fixed angle (0) to an outward-from-centre spread
+ *   that grows with radius (1); raising it adds the off-axis spread a straight angle never had (0 to 1)
+ * - u_samples (float): Number of taps along the spread; higher smooths the layers from discrete
+ *   ghosts into a continuous blur, at a linear cost (2 to 40)
+ * - u_colorSteps (float): How many colors the samples group into, as a geometric fraction of the
+ *   sample budget; 0 is two colors, 1 is one color per sample (a full spectrum) (0 to 1)
+ * - u_colorShift (float): Turns the whole palette around the hue wheel in degrees (0 to 360)
+ * - u_focusCenter (float): Radius (as a fraction of the inscribed circle) over which the spread
  *   fades in from nothing at the centre; 0 leaves it full to the centre (0 to 1)
- * - u_focusEdges (float): Radius (as a fraction of the inscribed circle) over which the shift fades
+ * - u_focusEdges (float): Radius (as a fraction of the inscribed circle) over which the spread fades
  *   out to nothing at the edge; 0 leaves it full to the edge (0 to 1)
- * - u_noise (float): Turbulence added to the shift direction (0 to 1)
+ * - u_noise (float): Turbulence added to the spread direction (0 to 1)
  * - u_noiseFrequency (float): Spatial frequency of the turbulence field; higher is finer-grained
  * - u_noiseOffset (float): Slides the turbulence field to a different patch
- * - u_lensBulge (float): Radial fisheye warp of the image geometry, separate from the color shift;
+ * - u_lensBulge (float): Radial fisheye warp of the image geometry, separate from the color spread;
  *   0 leaves it flat, 1 is a full bulge with the corners running off into the background (0 to 1)
  * - u_lensRound (float): Squeezes everything past the inscribed circle into a dense ring just inside it
  *   so the image outline becomes a perfect circle, without masking; 0 is off, 1 is full (0 to 1)
  * - u_debugCircle (bool): Testing overlay drawing the largest circle that fits the image box, the
- *   radius the shift falloffs, radiality and fisheye all pivot around
+ *   radius the spread falloffs, radiality and fisheye all pivot around
  *
  * Vertex shader outputs (used in fragment shader):
  * - v_imageUV (vec2): Image UV coordinates with global sizing (rotation, scale, offset, etc) applied
@@ -87,13 +87,13 @@ precision mediump float;
 
 uniform sampler2D u_image;
 uniform float u_imageAspectRatio;
+uniform float u_spread;
+uniform float u_spreadBias;
+uniform float u_spreadAngle;
+uniform float u_spreadPerspective;
 uniform float u_samples;
-uniform float u_spectrum;
-uniform float u_hue;
-uniform float u_shift;
-uniform float u_shiftBias;
-uniform float u_shiftAngle;
-uniform float u_perspective;
+uniform float u_colorSteps;
+uniform float u_colorShift;
 uniform float u_focusCenter;
 uniform float u_focusEdges;
 uniform float u_noise;
@@ -150,24 +150,24 @@ float boxOutradius() {
   return .5 * length(vec2(u_imageAspectRatio, 1.));
 }
 
-float shiftReach() {
-  return .7 * pow(u_shift, 3.);
+float spreadReach() {
+  return .7 * pow(u_spread, 3.);
 }
 
-float shiftNormRadius() {
-  return boxOutradius() + shiftReach();
+float spreadNormRadius() {
+  return boxOutradius() + spreadReach();
 }
 
 float dispersionCurve(float t) {
-  float exponent = 1. + 2. * abs(u_shiftBias);
-  float mirroredT = u_shiftBias < 0. ? 1. - t : t;
+  float exponent = 1. + 2. * abs(u_spreadBias);
+  float mirroredT = u_spreadBias < 0. ? 1. - t : t;
   float curved = pow(mirroredT, exponent);// - (pow(.5, exponent) - .5);
-  return u_shiftBias < 0. ? 1. - curved : curved;
+  return u_spreadBias < 0. ? 1. - curved : curved;
 }
 
-vec2 getShift(vec2 uv, vec2 warpedUV) {
-  float reach = shiftReach();
-  float angleRad = radians(u_shiftAngle);
+vec2 getSpread(vec2 uv, vec2 warpedUV) {
+  float reach = spreadReach();
+  float angleRad = radians(u_spreadAngle);
   vec2 uniformDir = vec2(cos(angleRad), sin(angleRad));
 
   vec2 fromCenter = uv - .5;
@@ -177,14 +177,14 @@ vec2 getShift(vec2 uv, vec2 warpedUV) {
   float outradius = boxOutradius();
 
   vec2 radialDir = fromCenter / inradius;
-  float maxLen = shiftNormRadius() / inradius;
+  float maxLen = spreadNormRadius() / inradius;
   float radialLen = length(radialDir);
   if (radialLen > maxLen) radialDir *= maxLen / radialLen;
-  vec2 shiftDir = mix(uniformDir, radialDir, u_perspective);
+  vec2 spreadDir = mix(uniformDir, radialDir, u_spreadPerspective);
 
   float bandProximity = smoothstep(inradius * .8, inradius, radius);
   float lensRoundMaxing = bandProximity * pow(u_lensRound, 3.);
-  shiftDir = mix(shiftDir, radialDir, lensRoundMaxing);
+  spreadDir = mix(spreadDir, radialDir, lensRoundMaxing);
 
   float inner = mix(1., smoothstep(0., mix(inradius, outradius, u_focusCenter), radius), u_focusCenter);
   float boxDist = max(abs(warpedUV.x - .5), abs(warpedUV.y - .5)) * 2.;
@@ -197,7 +197,7 @@ vec2 getShift(vec2 uv, vec2 warpedUV) {
   float aa = clamp(2. * max(fwidth(warpedUV.x), fwidth(warpedUV.y)), .001, .02);
   strength *= 1. - smoothstep(0., aa, length(outside));
 
-  vec2 axis = shiftDir * reach * strength;
+  vec2 axis = spreadDir * reach * strength;
 
   if (u_noise > 0.) {
     float turn = (valueNoise(fromCenter * u_noiseFrequency + u_noiseOffset) - .5) * 2. * u_noise;
@@ -246,15 +246,15 @@ vec2 lensWarp(vec2 uv) {
 void main() {
   vec2 uv = v_imageUV;
   vec2 baseUV = lensWarp(uv);
-  vec2 shift = getShift(uv, baseUV);
+  vec2 spreadAxis = getSpread(uv, baseUV);
 
   int sampleCount = int(u_samples);
-  int colorCount = clamp(int(floor(2. * pow(float(sampleCount) * .5, .5 * u_spectrum) + .5)), 2, sampleCount);
+  int colorCount = clamp(int(floor(2. * pow(float(sampleCount) * .5, .5 * u_colorSteps) + .5)), 2, sampleCount);
   vec3 colorSum = vec3(0.);
   vec3 weightSum = vec3(0.);
   float coverSum = 0.;
 
-  float hueNorm = fract((u_hue + 180.) / 360.);
+  float hueNorm = fract((u_colorShift + 180.) / 360.);
   for (int i = 0; i < ${prismMeta.maxSamples}; i++) {
     if (i >= sampleCount) break;
 
@@ -262,7 +262,7 @@ void main() {
     float hue = hueNorm + t * float(colorCount - 1) / float(colorCount);
 
     float spread = dispersionCurve(t);
-    vec2 offset = mix(shift, -shift, spread);
+    vec2 offset = mix(spreadAxis, -spreadAxis, spread);
     vec4 tap = sampleOverWhite(baseUV + offset);
     vec3 weight = 1. - hueColor(hue);
 
@@ -284,7 +284,7 @@ void main() {
     float len = length(fromCenter);
     float aaWidth = fwidth(len);
     float ringIn = 1. - smoothstep(1.5 * aaWidth, 2.5 * aaWidth, abs(len - boxInradius()));
-    float ringOut = 1. - smoothstep(1.5 * aaWidth, 2.5 * aaWidth, abs(len - shiftNormRadius()));
+    float ringOut = 1. - smoothstep(1.5 * aaWidth, 2.5 * aaWidth, abs(len - spreadNormRadius()));
     float overflow = smoothstep(-aaWidth, aaWidth, len - boxInradius()) * step(.01, fragColor.a);
     fragColor.rgb = mix(fragColor.rgb, vec3(0., 1., 0.), overflow * .45);
     fragColor.rgb = mix(fragColor.rgb, vec3(1., 0., 0.), ringIn);
@@ -296,13 +296,13 @@ void main() {
 
 export interface PrismUniforms extends ShaderSizingUniforms {
   u_image: HTMLImageElement | string | undefined;
+  u_spread: number;
+  u_spreadBias: number;
+  u_spreadAngle: number;
+  u_spreadPerspective: number;
   u_samples: number;
-  u_spectrum: number;
-  u_hue: number;
-  u_shift: number;
-  u_shiftBias: number;
-  u_shiftAngle: number;
-  u_perspective: number;
+  u_colorSteps: number;
+  u_colorShift: number;
   u_focusCenter: number;
   u_focusEdges: number;
   u_noise: number;
@@ -315,13 +315,13 @@ export interface PrismUniforms extends ShaderSizingUniforms {
 
 export interface PrismParams extends ShaderSizingParams, ShaderMotionParams {
   image?: HTMLImageElement | string;
+  spread?: number;
+  spreadBias?: number;
+  spreadAngle?: number;
+  spreadPerspective?: number;
   samples?: number;
-  spectrum?: number;
-  hue?: number;
-  shift?: number;
-  shiftBias?: number;
-  shiftAngle?: number;
-  perspective?: number;
+  colorSteps?: number;
+  colorShift?: number;
   focusCenter?: number;
   focusEdges?: number;
   noise?: number;

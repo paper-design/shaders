@@ -67,13 +67,13 @@ const PrismWithControls = () => {
       ])
     );
     return {
-      samples: { value: defaults.samples, min: 2, max: prismMeta.maxSamples, step: 1, order: 99 },
-      spectrum: { value: defaults.spectrum, min: 0, max: 1, order: 100 },
-      hue: { value: defaults.hue, min: 0, max: 360, order: 101 },
-      shift: { value: defaults.shift, min: 0, max: 1, order: 200 },
-      shiftBias: { value: defaults.shiftBias, min: -1, max: 1, order: 201 },
-      shiftAngle: { value: defaults.shiftAngle, min: 0, max: 360, order: 202 },
-      perspective: { value: defaults.perspective, min: 0, max: 1, order: 203 },
+      spread: { value: defaults.spread, min: 0, max: 1, order: 100 },
+      spreadBias: { value: defaults.spreadBias, min: -1, max: 1, order: 101 },
+      spreadAngle: { value: defaults.spreadAngle, min: 0, max: 360, order: 102 },
+      spreadPerspective: { value: defaults.spreadPerspective, min: 0, max: 1, order: 103 },
+      samples: { value: defaults.samples, min: 2, max: prismMeta.maxSamples, step: 1, order: 104 },
+      colorSteps: { value: defaults.colorSteps, min: 0, max: 1, order: 105 },
+      colorShift: { value: defaults.colorShift, min: 0, max: 360, order: 106 },
       focusCenter: { value: defaults.focusCenter, min: 0, max: 1, order: 204 },
       focusEdges: { value: defaults.focusEdges, min: 0, max: 1, order: 205 },
       noise: { value: defaults.noise, min: 0, max: 1, order: 300 },

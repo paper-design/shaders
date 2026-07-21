@@ -15,6 +15,40 @@ export const prismDef: ShaderDef = {
       description: 'The image to use for the effect',
     },
     {
+      name: 'spread',
+      type: 'number',
+      min: 0,
+      max: 1,
+      defaultValue: defaultParams.spread,
+      description: 'How far the outermost samples travel apart, up to 10% of the image width',
+    },
+    {
+      name: 'spreadBias',
+      type: 'number',
+      min: -1,
+      max: 1,
+      defaultValue: defaultParams.spreadBias,
+      description:
+        'Warps how the colors distribute along the spread. 0 spaces them evenly; toward +/-1 they bunch toward one end of the fan and spread out at the other, with the first and last colors pinned at the ends',
+    },
+    {
+      name: 'spreadAngle',
+      type: 'number',
+      min: 0,
+      max: 360,
+      defaultValue: defaultParams.spreadAngle,
+      description: 'Direction of the spread in degrees when it is not radial',
+    },
+    {
+      name: 'spreadPerspective',
+      type: 'number',
+      min: 0,
+      max: 1,
+      defaultValue: defaultParams.spreadPerspective,
+      description:
+        'Blends the spread from the fixed angle (0) to an outward-from-centre spread that grows with radius (1). At 0 every pixel shifts the same way; raising it adds the off-axis spread a straight angle never had, until at 1 the spread radiates from the centre and rounds off at the edges',
+    },
+    {
       name: 'samples',
       type: 'number',
       min: 2,
@@ -22,59 +56,25 @@ export const prismDef: ShaderDef = {
       step: 1,
       defaultValue: defaultParams.samples,
       description:
-        'Number of taps taken along the shift. Higher counts smooth the layers from discrete ghosts into a continuous blur, at a cost that grows linearly. This is the quality/smoothness dial',
+        'Number of taps taken along the spread. Higher counts smooth the layers from discrete ghosts into a continuous blur, at a cost that grows linearly. This is the quality/smoothness dial',
     },
     {
-      name: 'spectrum',
+      name: 'colorSteps',
       type: 'number',
       min: 0,
       max: 1,
-      defaultValue: defaultParams.spectrum,
+      defaultValue: defaultParams.colorSteps,
       description:
         'How many colors the samples are grouped into, as a geometric fraction of the sample budget so small palettes are easy to dial. 0 is two colors (an opposed pair), 1 is one color per sample (a full spectrum). Low values with a high sample count give a clean small palette that reads smooth rather than combed',
     },
     {
-      name: 'hue',
+      name: 'colorShift',
       type: 'number',
       min: 0,
       max: 360,
-      defaultValue: defaultParams.hue,
+      defaultValue: defaultParams.colorShift,
       description:
         'Turns the whole palette around the hue wheel. At three colors, 0 gives red/green/blue and 180 gives cyan/magenta/yellow. The colors work subtractively like ink, so these are the fringes you get on a dark subject over a light ground, and their complements on a light subject over a dark one',
-    },
-    {
-      name: 'shift',
-      type: 'number',
-      min: 0,
-      max: 1,
-      defaultValue: defaultParams.shift,
-      description: 'How far the outermost samples travel apart, up to 10% of the image width',
-    },
-    {
-      name: 'shiftBias',
-      type: 'number',
-      min: -1,
-      max: 1,
-      defaultValue: defaultParams.shiftBias,
-      description:
-        'Warps how the colors distribute along the shift. 0 spaces them evenly; toward +/-1 they bunch toward one end of the fan and spread out at the other, with the first and last colors pinned at the ends',
-    },
-    {
-      name: 'shiftAngle',
-      type: 'number',
-      min: 0,
-      max: 360,
-      defaultValue: defaultParams.shiftAngle,
-      description: 'Direction of the shift in degrees when it is not radial',
-    },
-    {
-      name: 'perspective',
-      type: 'number',
-      min: 0,
-      max: 1,
-      defaultValue: defaultParams.perspective,
-      description:
-        'Blends the shift from the fixed angle (0) to an outward-from-centre shift that grows with radius (1). At 0 every pixel shifts the same way; raising it adds the off-axis shift a straight angle never had, until at 1 the shift radiates from the centre and rounds off at the edges',
     },
     {
       name: 'focusCenter',
@@ -83,7 +83,7 @@ export const prismDef: ShaderDef = {
       max: 1,
       defaultValue: defaultParams.focusCenter,
       description:
-        'Radius, as a fraction of the inscribed circle, over which the shift fades in from nothing at the centre. 0 leaves it full to the centre; larger values push a dead zone outward from the middle, the way lateral chromatic aberration is zero at the optical centre',
+        'Radius, as a fraction of the inscribed circle, over which the spread fades in from nothing at the centre. 0 leaves it full to the centre; larger values push a dead zone outward from the middle, the way lateral chromatic aberration is zero at the optical centre',
     },
     {
       name: 'focusEdges',
@@ -92,7 +92,7 @@ export const prismDef: ShaderDef = {
       max: 1,
       defaultValue: defaultParams.focusEdges,
       description:
-        'Radius, as a fraction of the inscribed circle, over which the shift fades out to nothing at the edge, like a lens vignette. 0 leaves it full to the edge; larger values pull the fade inward, rounding the effect into a centred disc',
+        'Radius, as a fraction of the inscribed circle, over which the spread fades out to nothing at the edge, like a lens vignette. 0 leaves it full to the edge; larger values pull the fade inward, rounding the effect into a centred disc',
     },
     {
       name: 'lensBulge',
@@ -101,7 +101,7 @@ export const prismDef: ShaderDef = {
       max: 1,
       defaultValue: defaultParams.lensBulge,
       description:
-        'Fisheye warp of the image geometry, separate from the color shift. 0 leaves it flat; 1 is a full fisheye bulge that magnifies the centre, bows straight lines outward, and lets the corners run off into the background',
+        'Fisheye warp of the image geometry, separate from the color spread. 0 leaves it flat; 1 is a full fisheye bulge that magnifies the centre, bows straight lines outward, and lets the corners run off into the background',
     },
     {
       name: 'lensRound',
@@ -119,7 +119,7 @@ export const prismDef: ShaderDef = {
       max: 1,
       defaultValue: defaultParams.noise,
       description:
-        'Turbulence added to the shift direction on top of the chosen shape, turning a clean split into a scattered one without changing how far the colors travel',
+        'Turbulence added to the spread direction on top of the chosen shape, turning a clean split into a scattered one without changing how far the colors travel',
     },
     {
       name: 'noiseFrequency',
