@@ -47,7 +47,7 @@ export const prismMeta = {
  *   that grows with radius (1); raising it adds the off-axis spread a straight angle never had (0 to 1)
  * - u_samples (float): Number of taps along the spread; higher smooths the layers from discrete
  *   ghosts into a continuous blur, at a linear cost (2 to 40)
- * - u_colorSteps (float): How many colors the samples group into, as a geometric fraction of the
+ * - u_colorRange (float): How many colors the samples group into, as a geometric fraction of the
  *   sample budget; 0 is two colors, 1 is one color per sample (a full spectrum) (0 to 1)
  * - u_colorShift (float): Turns the whole palette around the hue wheel in degrees (0 to 360)
  * - u_focusCenter (float): Radius (as a fraction of the inscribed circle) over which the spread
@@ -97,7 +97,7 @@ uniform float u_spreadBias;
 uniform float u_spreadAngle;
 uniform float u_spreadPerspective;
 uniform float u_samples;
-uniform float u_colorSteps;
+uniform float u_colorRange;
 uniform float u_colorShift;
 uniform float u_focusCenter;
 uniform float u_focusEdges;
@@ -268,7 +268,7 @@ void main() {
   }
 
   int sampleCount = int(u_samples);
-  int colorCount = clamp(int(floor(2. * pow(float(sampleCount) * .5, .5 * u_colorSteps) + .5)), 2, sampleCount);
+  int colorCount = clamp(int(floor(2. * pow(float(sampleCount) * .5, .5 * u_colorRange) + .5)), 2, sampleCount);
   vec3 colorSum = vec3(0.);
   vec3 weightSum = vec3(0.);
   float coverSum = 0.;
@@ -329,7 +329,7 @@ export interface PrismUniforms extends ShaderSizingUniforms {
   u_spreadAngle: number;
   u_spreadPerspective: number;
   u_samples: number;
-  u_colorSteps: number;
+  u_colorRange: number;
   u_colorShift: number;
   u_focusCenter: number;
   u_focusEdges: number;
@@ -350,7 +350,7 @@ export interface PrismParams extends ShaderSizingParams, ShaderMotionParams {
   spreadAngle?: number;
   spreadPerspective?: number;
   samples?: number;
-  colorSteps?: number;
+  colorRange?: number;
   colorShift?: number;
   focusCenter?: number;
   focusEdges?: number;

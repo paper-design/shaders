@@ -59,11 +59,11 @@ export const prismDef: ShaderDef = {
         'Number of taps taken along the spread. Higher counts smooth the layers from discrete ghosts into a continuous blur, at a cost that grows linearly. This is the quality/smoothness dial',
     },
     {
-      name: 'colorSteps',
+      name: 'colorRange',
       type: 'number',
       min: 0,
       max: 1,
-      defaultValue: defaultParams.colorSteps,
+      defaultValue: defaultParams.colorRange,
       description:
         'How many colors the samples are grouped into, as a geometric fraction of the sample budget so small palettes are easy to dial. 0 is two colors (an opposed pair), 1 is one color per sample (a full spectrum). Low values with a high sample count give a clean small palette that reads smooth rather than combed',
     },

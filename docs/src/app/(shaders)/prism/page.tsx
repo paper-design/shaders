@@ -72,7 +72,7 @@ const PrismWithControls = () => {
       spreadAngle: { value: defaults.spreadAngle, min: 0, max: 360, order: 102 },
       spreadPerspective: { value: defaults.spreadPerspective, min: 0, max: 1, order: 103 },
       samples: { value: defaults.samples, min: 2, max: prismMeta.maxSamples, step: 1, order: 104 },
-      colorSteps: { value: defaults.colorSteps, min: 0, max: 1, order: 105 },
+      colorRange: { value: defaults.colorRange, min: 0, max: 1, order: 105 },
       colorShift: { value: defaults.colorShift, min: 0, max: 360, order: 106 },
       focusCenter: { value: defaults.focusCenter, min: 0, max: 1, order: 204 },
       focusEdges: { value: defaults.focusEdges, min: 0, max: 1, order: 205 },
