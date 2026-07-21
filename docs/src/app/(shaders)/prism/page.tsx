@@ -16,7 +16,7 @@ import { useUrlParams } from '@/helpers/use-url-params';
 const { worldWidth, worldHeight, ...defaults } = prismPresets[0].params;
 
 const imageFiles = [
-  'test.png',
+  // 'test.png',
   '001.webp',
   '002.webp',
   '003.webp',
