@@ -200,7 +200,7 @@ vec2 getSpread(vec2 uv, vec2 warpedUV) {
   float outer = mix(1., 1. - min(boxDist, 1.), u_focusEdges);
   float strength = inner * outer;
 
-  strength *= mix(1., .15, lensRoundMaxing);
+  strength *= mix(1., mix(.15, .03, max(-u_lensBulge, 0.)), lensRoundMaxing);
 
   vec2 outside = max(abs(warpedUV - .5) - .5, 0.);
   float aa = clamp(2. * max(fwidth(warpedUV.x), fwidth(warpedUV.y)), .001, .02);
