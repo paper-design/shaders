@@ -192,7 +192,7 @@ vec2 getSpread(vec2 uv, vec2 warpedUV) {
   vec2 spreadDir = mix(uniformDir, radialDir, u_spreadPerspective);
 
   float bandProximity = smoothstep(inradius * .8, inradius, radius);
-  float lensRoundMaxing = bandProximity * pow(u_lensRound, 3.);
+  float lensRoundMaxing = bandProximity * pow(u_lensEdge, 3.);
   spreadDir = mix(spreadDir, radialDir, lensRoundMaxing);
 
   float inner = mix(1., smoothstep(0., mix(inradius, outradius, u_focusCenter), radius), u_focusCenter);

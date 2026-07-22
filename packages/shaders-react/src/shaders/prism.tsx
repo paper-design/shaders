@@ -22,7 +22,7 @@ export const defaultPreset: PrismPreset = {
     fit: 'contain',
     speed: 0,
     frame: 0,
-    spread: 0,
+    spread: 0.55,
     spreadBias: 0.75,
     spreadAngle: 0,
     spreadPerspective: 0.45,
