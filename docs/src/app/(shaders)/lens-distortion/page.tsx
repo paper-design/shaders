@@ -1,19 +1,19 @@
 'use client';
 
-import { Prism, prismPresets } from '@paper-design/shaders-react';
+import { LensDistortion, lensDistortionPresets } from '@paper-design/shaders-react';
 import { useControls, button, folder } from 'leva';
 import { setParamsSafe, useResetLevaParams } from '@/helpers/use-reset-leva-params';
 import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
-import { ShaderFit, prismMeta } from '@paper-design/shaders';
+import { ShaderFit, lensDistortionMeta } from '@paper-design/shaders';
 import { levaImageButton } from '@/helpers/leva-image-button';
 import { useState, useEffect, useCallback } from 'react';
 import { ShaderDetails } from '@/components/shader-details';
-import { prismDef } from '@/shader-defs/prism-def';
+import { lensDistortionDef } from '@/shader-defs/lens-distortion-def';
 import { ShaderContainer } from '@/components/shader-container';
 import { useUrlParams } from '@/helpers/use-url-params';
 
-const { worldWidth, worldHeight, ...defaults } = prismPresets[0].params;
+const { worldWidth, worldHeight, ...defaults } = lensDistortionPresets[0].params;
 
 const imageFiles = [
   // 'test.png',
@@ -37,7 +37,7 @@ const imageFiles = [
   '0018.webp',
 ] as const;
 
-const PrismWithControls = () => {
+const LensDistortionWithControls = () => {
   const [imageIdx, setImageIdx] = useState(-1);
   const [image, setImage] = useState<HTMLImageElement | string>('/images/image-filters/0018.webp');
 
@@ -61,7 +61,7 @@ const PrismWithControls = () => {
 
   const [params, setParams] = useControls(() => {
     const presets = Object.fromEntries(
-      prismPresets.map(({ name, params: { worldWidth, worldHeight, ...preset } }) => [
+      lensDistortionPresets.map(({ name, params: { worldWidth, worldHeight, ...preset } }) => [
         name,
         button(() => setParamsSafe(params, setParams, preset)),
       ])
@@ -71,7 +71,7 @@ const PrismWithControls = () => {
       spreadBias: { value: defaults.spreadBias, min: -1, max: 1, order: 101 },
       spreadAngle: { value: defaults.spreadAngle, min: 0, max: 360, order: 102 },
       spreadPerspective: { value: defaults.spreadPerspective, min: 0, max: 1, order: 103 },
-      samples: { value: defaults.samples, min: 2, max: prismMeta.maxSamples, step: 1, order: 104 },
+      samples: { value: defaults.samples, min: 2, max: lensDistortionMeta.maxSamples, step: 1, order: 104 },
       colorRange: { value: defaults.colorRange, min: 0, max: 1, order: 105 },
       colorShift: { value: defaults.colorShift, min: 0, max: 360, order: 106 },
       focusCenter: { value: defaults.focusCenter, min: 0, max: 1, order: 204 },
@@ -99,21 +99,21 @@ const PrismWithControls = () => {
   // Reset to defaults on mount, so that Leva doesn't show values from other
   // shaders when navigating (if two shaders have a color1 param for example)
   useResetLevaParams(params, setParams, defaults);
-  useUrlParams(params, setParams, prismDef);
-  usePresetHighlight(prismPresets, params);
+  useUrlParams(params, setParams, lensDistortionDef);
+  usePresetHighlight(lensDistortionPresets, params);
   cleanUpLevaParams(params);
 
   return (
     <>
-      <ShaderContainer shaderDef={prismDef} currentParams={params}>
-        <Prism onClick={handleClick} {...params} image={image} />
+      <ShaderContainer shaderDef={lensDistortionDef} currentParams={params}>
+        <LensDistortion onClick={handleClick} {...params} image={image} />
       </ShaderContainer>
       <div onClick={handleClick} className="mx-auto mt-16 mb-48 w-fit text-base text-current/70 select-none">
         Click to change the sample image
       </div>
-      <ShaderDetails shaderDef={prismDef} currentParams={params} />
+      <ShaderDetails shaderDef={lensDistortionDef} currentParams={params} />
     </>
   );
 };
 
-export default PrismWithControls;
+export default LensDistortionWithControls;

@@ -27,7 +27,7 @@ import liquidMetalImg from '../../public/shaders/liquid-metal.webp';
 import halftoneDotsImg from '../../public/shaders/halftone-dots.webp';
 import halftoneCmykImg from '../../public/shaders/halftone-cmyk.webp';
 import gemSmokeImg from '../../public/shaders/gem-smoke.webp';
-import prismImg from '../../public/shaders/prism.webp';
+import lensDistortionImg from '../../public/shaders/lens-distortion.webp';
 import {
   DotGrid,
   dotGridPresets,
@@ -87,8 +87,8 @@ import {
   halftoneCmykPresets,
   GemSmoke,
   gemSmokePresets,
-  Prism,
-  prismPresets,
+  LensDistortion,
+  lensDistortionPresets,
 } from '@paper-design/shaders-react';
 import { StaticImageData } from 'next/image';
 
@@ -174,13 +174,13 @@ export const homeThumbnails = [
         },
       },
       {
-        name: 'prism',
-        url: '/prism',
-        ShaderComponent: Prism,
-        image: prismImg,
+        name: 'lens distortion',
+        url: '/lens-distortion',
+        ShaderComponent: LensDistortion,
+        image: lensDistortionImg,
         alwaysLivePreview: false,
         shaderConfig: {
-          ...prismPresets[0].params,
+          ...lensDistortionPresets[0].params,
           image: '/images/image-filters/0018.webp',
         },
       },

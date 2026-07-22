@@ -2,12 +2,12 @@ import type { ShaderMotionParams } from '../shader-mount.js';
 import { type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
 import { declarePI, proceduralHash21, rotation2 } from '../shader-utils.js';
 
-export const prismMeta = {
+export const lensDistortionMeta = {
   maxSamples: 50,
 } as const;
 
 /**
- * Prism image filter that samples an image several times along a dispersion axis and gives each
+ * Lens Distortion image filter that samples an image several times along a dispersion axis and gives each
  * sample its own color, the way glass refracts each wavelength by a different amount. The palette
  * is what the image splits into: three colors give a classic lens fringe, two an opposed pair,
  * eight a full spectrum. u_colorShift turns the palette as a whole, so red/green/blue at 0 becomes
@@ -88,7 +88,7 @@ export const prismMeta = {
  */
 
 // language=GLSL
-export const prismFragmentShader: string = `#version 300 es
+export const lensDistortionFragmentShader: string = `#version 300 es
 precision mediump float;
 
 uniform sampler2D u_image;
@@ -276,7 +276,7 @@ void main() {
   float coverSum = 0.;
 
   float hueNorm = fract((u_colorShift + 180.) / 360.);
-  for (int i = 0; i < ${prismMeta.maxSamples}; i++) {
+  for (int i = 0; i < ${lensDistortionMeta.maxSamples}; i++) {
     if (i >= sampleCount) break;
 
     float t = float(i) / float(sampleCount - 1);
@@ -324,7 +324,7 @@ void main() {
 }
 `;
 
-export interface PrismUniforms extends ShaderSizingUniforms {
+export interface LensDistortionUniforms extends ShaderSizingUniforms {
   u_image: HTMLImageElement | string | undefined;
   u_spread: number;
   u_spreadBias: number;
@@ -345,7 +345,7 @@ export interface PrismUniforms extends ShaderSizingUniforms {
   u_debugCircle: boolean;
 }
 
-export interface PrismParams extends ShaderSizingParams, ShaderMotionParams {
+export interface LensDistortionParams extends ShaderSizingParams, ShaderMotionParams {
   image?: HTMLImageElement | string;
   spread?: number;
   spreadBias?: number;

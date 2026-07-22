@@ -181,8 +181,8 @@ export {
   type ImageDitheringUniforms,
 } from './shaders/image-dithering.js';
 
-/** Prism image filter that splits an image into red, green and blue channels and displaces them sideways, the way glass refracts each wavelength by a different amount */
-export { prismFragmentShader, prismMeta, type PrismParams, type PrismUniforms } from './shaders/prism.js';
+/** Lens Distortion image filter that splits an image into red, green and blue channels and displaces them sideways, the way glass refracts each wavelength by a different amount */
+export { lensDistortionFragmentShader, lensDistortionMeta, type LensDistortionParams, type LensDistortionUniforms } from './shaders/lens-distortion.js';
 
 /** A glowing gradient of colors flowing through an input image. The effect creates a smoothly animated wave of intensity across the image */
 export {

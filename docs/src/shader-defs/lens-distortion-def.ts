@@ -1,13 +1,13 @@
-import { prismPresets } from '@paper-design/shaders-react';
+import { lensDistortionPresets } from '@paper-design/shaders-react';
 import type { ShaderDef } from './shader-def-types';
 import { staticImageCommonParams } from './common-param-def';
 
-const defaultParams = prismPresets[0].params;
+const defaultParams = lensDistortionPresets[0].params;
 
-export const prismDef: ShaderDef = {
-  name: 'Prism',
+export const lensDistortionDef: ShaderDef = {
+  name: 'Lens Distortion',
   description:
-    'Prism image filter that samples an image several times along a dispersion axis and gives each sample its own color, the way glass refracts each wavelength by a different amount. The palette is what the image splits into.',
+    'Lens Distortion image filter that samples an image several times along a dispersion axis and gives each sample its own color, the way glass refracts each wavelength by a different amount. The palette is what the image splits into.',
   params: [
     {
       name: 'image',

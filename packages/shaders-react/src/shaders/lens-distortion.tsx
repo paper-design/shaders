@@ -2,19 +2,19 @@ import { memo } from 'react';
 import { ShaderMount, type ShaderComponentProps } from '../shader-mount.js';
 import { colorPropsAreEqual } from '../color-props-are-equal.js';
 import {
-  prismFragmentShader,
+  lensDistortionFragmentShader,
   ShaderFitOptions,
-  type PrismUniforms,
-  type PrismParams,
+  type LensDistortionUniforms,
+  type LensDistortionParams,
   defaultObjectSizing,
   type ImageShaderPreset,
 } from '@paper-design/shaders';
 
-export interface PrismProps extends ShaderComponentProps, PrismParams {}
+export interface LensDistortionProps extends ShaderComponentProps, LensDistortionParams {}
 
-type PrismPreset = ImageShaderPreset<PrismParams>;
+type LensDistortionPreset = ImageShaderPreset<LensDistortionParams>;
 
-export const defaultPreset: PrismPreset = {
+export const defaultPreset: LensDistortionPreset = {
   name: 'Default',
   params: {
     ...defaultObjectSizing,
@@ -42,7 +42,7 @@ export const defaultPreset: PrismPreset = {
   },
 } as const;
 
-export const fisheyePreset: PrismPreset = {
+export const fisheyePreset: LensDistortionPreset = {
   name: 'Fisheye',
   params: {
     ...defaultObjectSizing,
@@ -70,7 +70,7 @@ export const fisheyePreset: PrismPreset = {
   },
 } as const;
 
-export const duotonePreset: PrismPreset = {
+export const duotonePreset: LensDistortionPreset = {
   name: 'Duotone',
   params: {
     ...defaultObjectSizing,
@@ -97,7 +97,7 @@ export const duotonePreset: PrismPreset = {
   },
 } as const;
 
-export const smokePreset: PrismPreset = {
+export const smokePreset: LensDistortionPreset = {
   name: 'Smoke',
   params: {
     ...defaultObjectSizing,
@@ -125,9 +125,9 @@ export const smokePreset: PrismPreset = {
   },
 } as const;
 
-export const prismPresets: PrismPreset[] = [defaultPreset, fisheyePreset, duotonePreset, smokePreset];
+export const lensDistortionPresets: LensDistortionPreset[] = [defaultPreset, fisheyePreset, duotonePreset, smokePreset];
 
-export const Prism: React.FC<PrismProps> = memo(function PrismImpl({
+export const LensDistortion: React.FC<LensDistortionProps> = memo(function LensDistortionImpl({
   // Own props
   speed = defaultPreset.params.speed,
   frame = defaultPreset.params.frame,
@@ -161,7 +161,7 @@ export const Prism: React.FC<PrismProps> = memo(function PrismImpl({
   worldWidth = defaultPreset.params.worldWidth,
   worldHeight = defaultPreset.params.worldHeight,
   ...props
-}: PrismProps) {
+}: LensDistortionProps) {
   const uniforms = {
     // Own uniforms
     u_image: image,
@@ -193,14 +193,14 @@ export const Prism: React.FC<PrismProps> = memo(function PrismImpl({
     u_originY: originY,
     u_worldWidth: worldWidth,
     u_worldHeight: worldHeight,
-  } satisfies PrismUniforms;
+  } satisfies LensDistortionUniforms;
 
   return (
     <ShaderMount
       {...props}
       speed={speed}
       frame={frame}
-      fragmentShader={prismFragmentShader}
+      fragmentShader={lensDistortionFragmentShader}
       mipmaps={['u_image']}
       uniforms={uniforms}
     />

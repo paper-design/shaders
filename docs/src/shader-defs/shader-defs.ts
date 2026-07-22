@@ -14,7 +14,7 @@ import { metaballsDef } from './metaballs-def';
 import { neuroNoiseDef } from './neuro-noise-def';
 import { paperTextureDef } from './paper-texture-def';
 import { perlinNoiseDef } from './perlin-noise-def';
-import { prismDef } from './prism-def';
+import { lensDistortionDef } from './lens-distortion-def';
 import { pulsingBorderDef } from './pulsing-border-def';
 import { simplexNoiseDef } from './simplex-noise-def';
 import { smokeRingDef } from './smoke-ring-def';
@@ -53,7 +53,7 @@ export const shaderDefs: ShaderDef[] = [
   paperTextureDef,
   flutedGlassDef,
   imageDitheringDef,
-  prismDef,
+  lensDistortionDef,
   waterDef,
   halftoneDotsDef,
 ];
