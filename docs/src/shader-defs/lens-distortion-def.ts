@@ -104,11 +104,11 @@ export const lensDistortionDef: ShaderDef = {
         'Radial lens warp of the image geometry, separate from the color spread. 0 leaves it flat; positive is a barrel/fisheye bulge that magnifies the centre, bows straight lines outward, and lets the corners run off into the background; negative is a pincushion that compresses the centre and stretches the edges inward',
     },
     {
-      name: 'lensEdge',
+      name: 'lensCircle',
       type: 'number',
       min: 0,
       max: 1,
-      defaultValue: defaultParams.lensEdge,
+      defaultValue: defaultParams.lensCircle,
       description:
         'Squeezes everything past the inscribed circle into a dense ring just inside it, so the image outline becomes a perfect circle without masking. Pairs with a high lensBulge for a circular fisheye. 0 is off, 1 is full',
     },

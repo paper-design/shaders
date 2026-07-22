@@ -80,7 +80,7 @@ const LensDistortionWithControls = () => {
       noiseFrequency: { value: defaults.noiseFrequency, min: 0, max: 15, order: 301 },
       noiseOffset: { value: defaults.noiseOffset, min: 0, max: 10, order: 302 },
       lensBulge: { value: defaults.lensBulge, min: -1, max: 1, order: 400 },
-      lensEdge: { value: defaults.lensEdge, min: 0, max: 1, order: 402 },
+      lensCircle: { value: defaults.lensCircle, min: 0, max: 1, order: 402 },
       grainMixer: { value: defaults.grainMixer, min: 0, max: 1, order: 409 },
       grainOverlay: { value: defaults.grainOverlay, min: 0, max: 1, order: 410 },
       debugCircle: { value: defaults.debugCircle, order: 500 },

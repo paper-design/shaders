@@ -60,7 +60,7 @@ export const lensDistortionMeta = {
  * - u_lensBulge (float): Radial lens warp of the image geometry, separate from the color spread; 0 is
  *   flat, positive is a barrel/fisheye bulge with the corners running off into the background, negative
  *   is a pincushion pinch that compresses the centre and stretches the edges (-1 to 1)
- * - u_lensEdge (float): Squeezes everything past the inscribed circle into a dense ring just inside it
+ * - u_lensCircle (float): Squeezes everything past the inscribed circle into a dense ring just inside it
  *   so the image outline becomes a perfect circle, without masking; 0 is off, 1 is full (0 to 1)
  * - u_grainMixer (float): Grain woven into the spread; jitters the whole fan per pixel by a percent of
  *   its length, so the dispersion breaks into grain that vanishes at the fan centre and grows to the
@@ -106,7 +106,7 @@ uniform float u_noise;
 uniform float u_noiseFrequency;
 uniform float u_noiseOffset;
 uniform float u_lensBulge;
-uniform float u_lensEdge;
+uniform float u_lensCircle;
 uniform float u_grainMixer;
 uniform float u_grainOverlay;
 uniform bool u_debugCircle;
@@ -192,15 +192,15 @@ vec2 getSpread(vec2 uv, vec2 warpedUV) {
   vec2 spreadDir = mix(uniformDir, radialDir, u_spreadPerspective);
 
   float bandProximity = smoothstep(inradius * .8, inradius, radius);
-  float lensRoundMaxing = bandProximity * pow(u_lensEdge, 3.);
-  spreadDir = mix(spreadDir, radialDir, lensRoundMaxing);
+  float lensCircleMaxing = bandProximity * pow(u_lensCircle, 3.);
+  spreadDir = mix(spreadDir, radialDir, lensCircleMaxing);
 
   float inner = mix(1., smoothstep(0., mix(inradius, outradius, u_focusCenter), radius), u_focusCenter);
   float boxDist = max(abs(warpedUV.x - .5), abs(warpedUV.y - .5)) * 2.;
   float outer = mix(1., 1. - min(boxDist, 1.), u_focusEdges);
   float strength = inner * outer;
 
-  strength *= mix(1., mix(.15, .03, max(-u_lensBulge, 0.)), lensRoundMaxing);
+  strength *= mix(1., mix(.15, .03, max(-u_lensBulge, 0.)), lensCircleMaxing);
 
   vec2 outside = max(abs(warpedUV - .5) - .5, 0.);
   float aa = clamp(2. * max(fwidth(warpedUV.x), fwidth(warpedUV.y)), .001, .02);
@@ -220,7 +220,7 @@ vec2 getSpread(vec2 uv, vec2 warpedUV) {
 }
 
 vec2 lensWarp(vec2 uv) {
-  if (u_lensBulge == 0. && u_lensEdge <= 0.) return uv;
+  if (u_lensBulge == 0. && u_lensCircle <= 0.) return uv;
 
   vec2 fromCenter = uv - .5;
   fromCenter.x *= u_imageAspectRatio;
@@ -237,7 +237,7 @@ vec2 lensWarp(vec2 uv) {
     fromCenter *= map / rn;
   }
 
-  if (u_lensEdge > 0.) {
+  if (u_lensCircle > 0.) {
     float r = length(fromCenter);
     vec2 dir = fromCenter / max(r, 1e-5);
     vec2 halfBox = vec2(u_imageAspectRatio, 1.) * .5;
@@ -246,7 +246,7 @@ vec2 lensWarp(vec2 uv) {
     float innerEdge = inradius - band;
     float over = smoothstep(0., 1., (r - innerEdge) / band);
     float g = r + (rBox - inradius) * pow(over, 14.);
-    fromCenter = dir * mix(r, g, u_lensEdge);
+    fromCenter = dir * mix(r, g, u_lensCircle);
   }
 
   fromCenter.x /= u_imageAspectRatio;
@@ -339,7 +339,7 @@ export interface LensDistortionUniforms extends ShaderSizingUniforms {
   u_noiseFrequency: number;
   u_noiseOffset: number;
   u_lensBulge: number;
-  u_lensEdge: number;
+  u_lensCircle: number;
   u_grainMixer: number;
   u_grainOverlay: number;
   u_debugCircle: boolean;
@@ -360,7 +360,7 @@ export interface LensDistortionParams extends ShaderSizingParams, ShaderMotionPa
   noiseFrequency?: number;
   noiseOffset?: number;
   lensBulge?: number;
-  lensEdge?: number;
+  lensCircle?: number;
   grainMixer?: number;
   grainOverlay?: number;
   debugCircle?: boolean;
