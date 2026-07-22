@@ -22,7 +22,7 @@ export const defaultPreset: PrismPreset = {
     fit: 'contain',
     speed: 0,
     frame: 0,
-    spread: 0.55,
+    spread: 0,
     spreadBias: 0.75,
     spreadAngle: 0,
     spreadPerspective: 0.45,
@@ -35,7 +35,7 @@ export const defaultPreset: PrismPreset = {
     noiseFrequency: 4,
     noiseOffset: 0,
     lensBulge: 0,
-    lensRound: 0,
+    lensEdge: 0,
     grainMixer: 0,
     grainOverlay: 0,
     debugCircle: false,
@@ -63,7 +63,7 @@ export const fisheyePreset: PrismPreset = {
     noiseFrequency: 4,
     noiseOffset: 0,
     lensBulge: 0.95,
-    lensRound: 1,
+    lensEdge: 1,
     grainMixer: 0,
     grainOverlay: 0,
     debugCircle: false,
@@ -90,7 +90,7 @@ export const duotonePreset: PrismPreset = {
     noiseFrequency: 4,
     noiseOffset: 0,
     lensBulge: 0,
-    lensRound: 0,
+    lensEdge: 0,
     grainMixer: 0,
     grainOverlay: 0,
     debugCircle: false,
@@ -118,7 +118,7 @@ export const smokePreset: PrismPreset = {
     noiseFrequency: 6,
     noiseOffset: 9,
     lensBulge: 0,
-    lensRound: 0,
+    lensEdge: 0,
     grainMixer: 0,
     grainOverlay: 0,
     debugCircle: false,
@@ -145,7 +145,7 @@ export const Prism: React.FC<PrismProps> = memo(function PrismImpl({
   noiseFrequency = defaultPreset.params.noiseFrequency,
   noiseOffset = defaultPreset.params.noiseOffset,
   lensBulge = defaultPreset.params.lensBulge,
-  lensRound = defaultPreset.params.lensRound,
+  lensEdge = defaultPreset.params.lensEdge,
   grainMixer = defaultPreset.params.grainMixer,
   grainOverlay = defaultPreset.params.grainOverlay,
   debugCircle = defaultPreset.params.debugCircle,
@@ -178,7 +178,7 @@ export const Prism: React.FC<PrismProps> = memo(function PrismImpl({
     u_noiseFrequency: noiseFrequency,
     u_noiseOffset: noiseOffset,
     u_lensBulge: lensBulge,
-    u_lensRound: lensRound,
+    u_lensEdge: lensEdge,
     u_grainMixer: grainMixer,
     u_grainOverlay: grainOverlay,
     u_debugCircle: debugCircle,
@@ -195,5 +195,14 @@ export const Prism: React.FC<PrismProps> = memo(function PrismImpl({
     u_worldHeight: worldHeight,
   } satisfies PrismUniforms;
 
-  return <ShaderMount {...props} speed={speed} frame={frame} fragmentShader={prismFragmentShader} uniforms={uniforms} />;
+  return (
+    <ShaderMount
+      {...props}
+      speed={speed}
+      frame={frame}
+      fragmentShader={prismFragmentShader}
+      mipmaps={['u_image']}
+      uniforms={uniforms}
+    />
+  );
 }, colorPropsAreEqual);

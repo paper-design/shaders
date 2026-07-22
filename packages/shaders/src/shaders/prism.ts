@@ -60,7 +60,7 @@ export const prismMeta = {
  * - u_lensBulge (float): Radial lens warp of the image geometry, separate from the color spread; 0 is
  *   flat, positive is a barrel/fisheye bulge with the corners running off into the background, negative
  *   is a pincushion pinch that compresses the centre and stretches the edges (-1 to 1)
- * - u_lensRound (float): Squeezes everything past the inscribed circle into a dense ring just inside it
+ * - u_lensEdge (float): Squeezes everything past the inscribed circle into a dense ring just inside it
  *   so the image outline becomes a perfect circle, without masking; 0 is off, 1 is full (0 to 1)
  * - u_grainMixer (float): Grain woven into the spread; jitters the whole fan per pixel by a percent of
  *   its length, so the dispersion breaks into grain that vanishes at the fan centre and grows to the
@@ -106,7 +106,7 @@ uniform float u_noise;
 uniform float u_noiseFrequency;
 uniform float u_noiseOffset;
 uniform float u_lensBulge;
-uniform float u_lensRound;
+uniform float u_lensEdge;
 uniform float u_grainMixer;
 uniform float u_grainOverlay;
 uniform bool u_debugCircle;
@@ -170,7 +170,7 @@ float spreadNormRadius() {
 float dispersionCurve(float t) {
   float exponent = 1. + 2. * abs(u_spreadBias);
   float mirroredT = u_spreadBias < 0. ? 1. - t : t;
-  float curved = pow(mirroredT, exponent);// - (pow(.5, exponent) - .5);
+  float curved = pow(mirroredT, exponent);
   return u_spreadBias < 0. ? 1. - curved : curved;
 }
 
@@ -220,7 +220,7 @@ vec2 getSpread(vec2 uv, vec2 warpedUV) {
 }
 
 vec2 lensWarp(vec2 uv) {
-  if (u_lensBulge == 0. && u_lensRound <= 0.) return uv;
+  if (u_lensBulge == 0. && u_lensEdge <= 0.) return uv;
 
   vec2 fromCenter = uv - .5;
   fromCenter.x *= u_imageAspectRatio;
@@ -230,25 +230,25 @@ vec2 lensWarp(vec2 uv) {
 
   if (u_lensBulge != 0.) {
     float rn = radius / inradius;
-    float bulge = abs(u_lensBulge) * (u_lensBulge > 0. ? 1.4 : 0.9);
+    float bulge = abs(u_lensBulge) * (u_lensBulge > 0. ? 1.4 : 1.2);
     float map = u_lensBulge > 0.
       ? tan(min(rn * bulge, 1.53)) / tan(bulge)
       : atan(rn * tan(bulge)) / bulge;
     fromCenter *= map / rn;
   }
 
-  if (u_lensRound > 0.) {
+  if (u_lensEdge > 0.) {
     float r = length(fromCenter);
     vec2 dir = fromCenter / max(r, 1e-5);
     vec2 halfBox = vec2(u_imageAspectRatio, 1.) * .5;
     float rBox = min(halfBox.x / max(abs(dir.x), 1e-4), halfBox.y / max(abs(dir.y), 1e-4));
-    float band = inradius * .2;
+    float band = inradius * mix(.03, .2, smoothstep(-1., 1., u_lensBulge));
     float innerEdge = inradius - band;
-    float over = (r - innerEdge) / band;   // 0 at the inner border, 1 at the circle
+    float over = (r - innerEdge) / band;
     float g = r < innerEdge ? r
-            : r < inradius ? r + (rBox - inradius) * over * over
+            : r < inradius ? r + (rBox - inradius) * smoothstep(0., 1., over)
             : rBox + (r - inradius);
-    fromCenter = dir * mix(r, g, u_lensRound);
+    fromCenter = dir * mix(r, g, u_lensEdge);
   }
 
   fromCenter.x /= u_imageAspectRatio;
@@ -341,7 +341,7 @@ export interface PrismUniforms extends ShaderSizingUniforms {
   u_noiseFrequency: number;
   u_noiseOffset: number;
   u_lensBulge: number;
-  u_lensRound: number;
+  u_lensEdge: number;
   u_grainMixer: number;
   u_grainOverlay: number;
   u_debugCircle: boolean;
@@ -362,7 +362,7 @@ export interface PrismParams extends ShaderSizingParams, ShaderMotionParams {
   noiseFrequency?: number;
   noiseOffset?: number;
   lensBulge?: number;
-  lensRound?: number;
+  lensEdge?: number;
   grainMixer?: number;
   grainOverlay?: number;
   debugCircle?: boolean;
