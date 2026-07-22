@@ -38,7 +38,6 @@ export const defaultPreset: LensDistortionPreset = {
     lensCircle: 0,
     grainMixer: 0,
     grainOverlay: 0,
-    debugCircle: false,
   },
 } as const;
 
@@ -66,7 +65,6 @@ export const fisheyePreset: LensDistortionPreset = {
     lensCircle: 1,
     grainMixer: 0,
     grainOverlay: 0,
-    debugCircle: false,
   },
 } as const;
 
@@ -93,7 +91,6 @@ export const duotonePreset: LensDistortionPreset = {
     lensCircle: 0,
     grainMixer: 0,
     grainOverlay: 0,
-    debugCircle: false,
   },
 } as const;
 
@@ -121,7 +118,6 @@ export const smokePreset: LensDistortionPreset = {
     lensCircle: 0,
     grainMixer: 0,
     grainOverlay: 0,
-    debugCircle: false,
   },
 } as const;
 
@@ -148,7 +144,6 @@ export const LensDistortion: React.FC<LensDistortionProps> = memo(function LensD
   lensCircle = defaultPreset.params.lensCircle,
   grainMixer = defaultPreset.params.grainMixer,
   grainOverlay = defaultPreset.params.grainOverlay,
-  debugCircle = defaultPreset.params.debugCircle,
 
   // Sizing props
   fit = defaultPreset.params.fit,
@@ -181,7 +176,6 @@ export const LensDistortion: React.FC<LensDistortionProps> = memo(function LensD
     u_lensCircle: lensCircle,
     u_grainMixer: grainMixer,
     u_grainOverlay: grainOverlay,
-    u_debugCircle: debugCircle,
 
     // Sizing uniforms
     u_fit: ShaderFitOptions[fit],

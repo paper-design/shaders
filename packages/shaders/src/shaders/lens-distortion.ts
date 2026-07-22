@@ -67,8 +67,6 @@ export const lensDistortionMeta = {
  *   edges; 0 is off (0 to 1)
  * - u_grainOverlay (float): Post-processing black/white film grain over the subject, screen-stable and
  *   masked to the opaque area so the transparent background stays clean; 0 is off (0 to 1)
- * - u_debugCircle (bool): Testing overlay drawing the largest circle that fits the image box, the
- *   radius the spread falloffs, radiality and fisheye all pivot around
  *
  * Vertex shader outputs (used in fragment shader):
  * - v_imageUV (vec2): Image UV coordinates with global sizing (rotation, scale, offset, etc) applied
@@ -109,7 +107,6 @@ uniform float u_lensBulge;
 uniform float u_lensCircle;
 uniform float u_grainMixer;
 uniform float u_grainOverlay;
-uniform bool u_debugCircle;
 
 in vec2 v_imageUV;
 
@@ -307,20 +304,6 @@ void main() {
     float grainStrength = pow(u_grainOverlay * abs(grainV), .8) * fragColor.a;
     fragColor.rgb = mix(fragColor.rgb, vec3(step(0., grainV)) * fragColor.a, .35 * grainStrength);
   }
-
-  if (u_debugCircle) {
-    vec2 fromCenter = v_imageUV - .5;
-    fromCenter.x *= u_imageAspectRatio;
-    float len = length(fromCenter);
-    float aaWidth = fwidth(len);
-    float ringIn = 1. - smoothstep(1.5 * aaWidth, 2.5 * aaWidth, abs(len - boxInradius()));
-    float ringOut = 1. - smoothstep(1.5 * aaWidth, 2.5 * aaWidth, abs(len - spreadNormRadius()));
-    float overflow = smoothstep(-aaWidth, aaWidth, len - boxInradius()) * step(.01, fragColor.a);
-    fragColor.rgb = mix(fragColor.rgb, vec3(0., 1., 0.), overflow * .45);
-    fragColor.rgb = mix(fragColor.rgb, vec3(1., 0., 0.), ringIn);
-    fragColor.rgb = mix(fragColor.rgb, vec3(0., .4, 1.), ringOut);
-    fragColor.a = max(fragColor.a, max(ringIn, ringOut));
-  }
 }
 `;
 
@@ -342,7 +325,6 @@ export interface LensDistortionUniforms extends ShaderSizingUniforms {
   u_lensCircle: number;
   u_grainMixer: number;
   u_grainOverlay: number;
-  u_debugCircle: boolean;
 }
 
 export interface LensDistortionParams extends ShaderSizingParams, ShaderMotionParams {
@@ -363,5 +345,4 @@ export interface LensDistortionParams extends ShaderSizingParams, ShaderMotionPa
   lensCircle?: number;
   grainMixer?: number;
   grainOverlay?: number;
-  debugCircle?: boolean;
 }

@@ -83,7 +83,6 @@ const LensDistortionWithControls = () => {
       lensCircle: { value: defaults.lensCircle, min: 0, max: 1, order: 402 },
       grainMixer: { value: defaults.grainMixer, min: 0, max: 1, order: 409 },
       grainOverlay: { value: defaults.grainOverlay, min: 0, max: 1, order: 410 },
-      debugCircle: { value: defaults.debugCircle, order: 500 },
       scale: { value: defaults.scale, min: 0.5, max: 4, order: 450 },
       fit: { value: defaults.fit, options: ['contain', 'cover'] as ShaderFit[], order: 451 },
       Image: folder(
