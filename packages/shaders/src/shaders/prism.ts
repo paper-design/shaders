@@ -246,7 +246,7 @@ vec2 lensWarp(vec2 uv) {
     float innerEdge = inradius - band;
     float over = (r - innerEdge) / band;
     float g = r < innerEdge ? r
-            : r < inradius ? r + (rBox - inradius) * smoothstep(0., 1., over)
+            : r < inradius ? r + (rBox - inradius) * pow(over, 11.)
             : rBox + (r - inradius);
     fromCenter = dir * mix(r, g, u_lensEdge);
   }
