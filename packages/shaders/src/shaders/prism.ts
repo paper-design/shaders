@@ -131,8 +131,8 @@ float valueNoise(vec2 st) {
 }
 
 float getUvFrame(vec2 uv) {
-  float aax = 2. * fwidth(uv.x);
-  float aay = 2. * fwidth(uv.y);
+  float aax = min(2. * fwidth(uv.x), .002);
+  float aay = min(2. * fwidth(uv.y), .002);
   float left   = smoothstep(0., aax, uv.x);
   float right  = 1. - smoothstep(1. - aax, 1., uv.x);
   float bottom = smoothstep(0., aay, uv.y);
@@ -242,12 +242,10 @@ vec2 lensWarp(vec2 uv) {
     vec2 dir = fromCenter / max(r, 1e-5);
     vec2 halfBox = vec2(u_imageAspectRatio, 1.) * .5;
     float rBox = min(halfBox.x / max(abs(dir.x), 1e-4), halfBox.y / max(abs(dir.y), 1e-4));
-    float band = inradius * mix(.03, .2, smoothstep(-1., 1., u_lensBulge));
+    float band = inradius * mix(.03, .2, .5 * (u_lensBulge + 1.));
     float innerEdge = inradius - band;
-    float over = (r - innerEdge) / band;
-    float g = r < innerEdge ? r
-            : r < inradius ? r + (rBox - inradius) * pow(over, 11.)
-            : rBox + (r - inradius);
+    float over = smoothstep(0., 1., (r - innerEdge) / band);
+    float g = r + (rBox - inradius) * pow(over, 14.);
     fromCenter = dir * mix(r, g, u_lensEdge);
   }
 
