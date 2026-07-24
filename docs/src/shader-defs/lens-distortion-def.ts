@@ -7,7 +7,7 @@ const defaultParams = lensDistortionPresets[0].params;
 export const lensDistortionDef: ShaderDef = {
   name: 'Lens Distortion',
   description:
-    'Lens Distortion image filter that samples an image several times along a dispersion axis and gives each sample its own color, the way glass refracts each wavelength by a different amount. The palette is what the image splits into.',
+    'Lens Distortion image filter separates an image into shifting color layers (recreating the chromatic aberration of a lens) and warps the image geometry itself, curving it outward or inward the circle (like barrel and pincushion distortion).',
   params: [
     {
       name: 'image',
@@ -20,7 +20,8 @@ export const lensDistortionDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.spread,
-      description: 'How far the outermost samples travel apart, up to 10% of the image width',
+      description:
+        'Strength of the color split - how far the color layers are pushed apart. This is the master dial for the chromatic aberration; at 0 there is no split and all the other color controls do nothing',
     },
     {
       name: 'spreadBias',
@@ -29,7 +30,7 @@ export const lensDistortionDef: ShaderDef = {
       max: 1,
       defaultValue: defaultParams.spreadBias,
       description:
-        'Warps how the colors distribute along the spread. 0 spaces them evenly; toward +/-1 they bunch toward one end of the fan and spread out at the other, with the first and last colors pinned at the ends',
+        'Warps how the colors distribute along the spread distance. 0 spaces them evenly; toward +/-1 they bunch toward one end of the fan and spread out at the other',
     },
     {
       name: 'spreadAngle',
@@ -37,7 +38,7 @@ export const lensDistortionDef: ShaderDef = {
       min: 0,
       max: 360,
       defaultValue: defaultParams.spreadAngle,
-      description: 'Direction of the spread in degrees when it is not radial',
+      description: 'Direction of the spread in degrees (no effect with spreadPerspective = 1)',
     },
     {
       name: 'spreadPerspective',
@@ -46,17 +47,17 @@ export const lensDistortionDef: ShaderDef = {
       max: 1,
       defaultValue: defaultParams.spreadPerspective,
       description:
-        'Blends the spread from the fixed angle (0) to an outward-from-centre spread that grows with radius (1). At 0 every pixel shifts the same way; raising it adds the off-axis spread a straight angle never had, until at 1 the spread radiates from the centre and rounds off at the edges',
+        'Shapes the spread direction from a straight line to a radial burst. At 0 every layers spread along the straight line set by spreadAngle; at 1 they radiate outward from the centre',
     },
     {
       name: 'samples',
       type: 'number',
       min: 2,
-      max: 40,
+      max: 50,
       step: 1,
       defaultValue: defaultParams.samples,
       description:
-        'Number of taps taken along the spread. Higher counts smooth the layers from discrete ghosts into a continuous blur, at a cost that grows linearly. This is the quality/smoothness dial',
+        'Number of colored layers making the spread - more layers blend into a blur, fewer stay as separate ghosted copies',
     },
     {
       name: 'colorRange',
@@ -65,7 +66,7 @@ export const lensDistortionDef: ShaderDef = {
       max: 1,
       defaultValue: defaultParams.colorRange,
       description:
-        'How many colors the samples are grouped into, as a geometric fraction of the sample budget so small palettes are easy to dial. 0 is two colors (an opposed pair), 1 is one color per sample (a full spectrum). Low values with a high sample count give a clean small palette that reads smooth rather than combed',
+        'Number of color groups in the gradient formed by the layers. 0 is two colors (an opposed pair), 1 is a full spectrum with one color per layer (colorRange has no effect with samples = 2)',
     },
     {
       name: 'colorShift',
@@ -73,8 +74,7 @@ export const lensDistortionDef: ShaderDef = {
       min: 0,
       max: 360,
       defaultValue: defaultParams.colorShift,
-      description:
-        'Turns the whole palette around the hue wheel. At three colors, 0 gives red/green/blue and 180 gives cyan/magenta/yellow. The colors work subtractively like ink, so these are the fringes you get on a dark subject over a light ground, and their complements on a light subject over a dark one',
+      description: 'Rotates the colorRange colors around the hue wheel',
     },
     {
       name: 'focusCenter',
@@ -83,7 +83,7 @@ export const lensDistortionDef: ShaderDef = {
       max: 1,
       defaultValue: defaultParams.focusCenter,
       description:
-        'Radius, as a fraction of the inscribed circle, over which the spread fades in from nothing at the centre. 0 leaves it full to the centre; larger values push a dead zone outward from the middle, the way lateral chromatic aberration is zero at the optical centre',
+        'Reduces the spread distance in a circular zone at the centre of the image. 0 keeps the full layers spread in the middle, higher values move the layers closer building an illusion of focus',
     },
     {
       name: 'focusEdges',
@@ -92,7 +92,32 @@ export const lensDistortionDef: ShaderDef = {
       max: 1,
       defaultValue: defaultParams.focusEdges,
       description:
-        'Radius, as a fraction of the inscribed circle, over which the spread fades out to nothing at the edge, like a lens vignette. 0 leaves it full to the edge; larger values pull the fade inward, rounding the effect into a centred disc',
+        'Reduces the spread distance along the image edges. 0 keeps the full layers spread at the edges, 1 restores the original image at the edges regardless of the chosen spread distance',
+    },
+    {
+      name: 'noise',
+      type: 'number',
+      min: 0,
+      max: 1,
+      defaultValue: defaultParams.noise,
+      description: 'Noise distortion over the spread direction within the spread distance',
+    },
+    {
+      name: 'noiseFrequency',
+      type: 'number',
+      min: 0,
+      max: 20,
+      defaultValue: defaultParams.noiseFrequency,
+      description: 'Noise frequency (no effect with noise = 0)',
+    },
+    {
+      name: 'noiseOffset',
+      type: 'number',
+      min: 0,
+      max: 30,
+      defaultValue: defaultParams.noiseOffset,
+      description:
+        'Shifts the noise texture - can be used as a seed or as an offset relative to the canvas (no effect with noise = 0)',
     },
     {
       name: 'lensBulge',
@@ -101,7 +126,7 @@ export const lensDistortionDef: ShaderDef = {
       max: 1,
       defaultValue: defaultParams.lensBulge,
       description:
-        'Radial lens warp of the image geometry, separate from the color spread. 0 leaves it flat; positive is a barrel/fisheye bulge that magnifies the centre, bows straight lines outward, and lets the corners run off into the background; negative is a pincushion that compresses the centre and stretches the edges inward',
+        'One of 2 props independent of the color spread: lens warp of the image geometry. 0 is flat, positive bulges out like a fisheye, negative pinches in like a pincushion',
     },
     {
       name: 'lensCircle',
@@ -110,7 +135,7 @@ export const lensDistortionDef: ShaderDef = {
       max: 1,
       defaultValue: defaultParams.lensCircle,
       description:
-        'Squeezes everything past the inscribed circle into a dense ring just inside it, so the image outline becomes a perfect circle without masking. Pairs with a high lensBulge for a circular fisheye. 0 is off, 1 is full',
+        'One of 2 props independent of the color spread: squeezes pixels outside the circle inward. 0 is off, 1 gives the image exact circular shape with any lensBulge value',
     },
     {
       name: 'grainMixer',
@@ -118,8 +143,7 @@ export const lensDistortionDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.grainMixer,
-      description:
-        'Grain woven into the spread: jitters the whole fan per pixel by a percent of its length, so the dispersion breaks into grain that vanishes at the fan centre and grows to the edges. 0 is off',
+      description: 'Strength of grain distortion applied to the edges of the colored layers',
     },
     {
       name: 'grainOverlay',
@@ -127,33 +151,7 @@ export const lensDistortionDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.grainOverlay,
-      description:
-        'Post-processing black/white film grain over the subject. Screen-stable and masked to the opaque area so the transparent background stays clean. 0 is off',
-    },
-    {
-      name: 'noise',
-      type: 'number',
-      min: 0,
-      max: 1,
-      defaultValue: defaultParams.noise,
-      description:
-        'Turbulence added to the spread direction on top of the chosen shape, turning a clean split into a scattered one without changing how far the colors travel',
-    },
-    {
-      name: 'noiseFrequency',
-      type: 'number',
-      min: 0,
-      max: 20,
-      defaultValue: defaultParams.noiseFrequency,
-      description: 'Spatial frequency of the turbulence field; higher values give a finer, busier scatter',
-    },
-    {
-      name: 'noiseOffset',
-      type: 'number',
-      min: 0,
-      max: 10,
-      defaultValue: defaultParams.noiseOffset,
-      description: 'Slides the turbulence field to a different patch, for a different random-looking pattern at the same settings',
+      description: 'Post-processing b/w grain overlay',
     },
     ...staticImageCommonParams,
   ],

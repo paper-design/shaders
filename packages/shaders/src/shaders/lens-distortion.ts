@@ -7,66 +7,29 @@ export const lensDistortionMeta = {
 } as const;
 
 /**
- * Lens Distortion image filter that samples an image several times along a dispersion axis and gives each
- * sample its own color, the way glass refracts each wavelength by a different amount. The palette
- * is what the image splits into: three colors give a classic lens fringe, two an opposed pair,
- * eight a full spectrum. u_colorShift turns the palette as a whole, so red/green/blue at 0 becomes
- * cyan/magenta/yellow at 180.
  *
- * The colors work subtractively, like ink rather than light: a sample carries everything its color
- * is missing, so a sample landing on a dark feature takes its own color out of the result and
- * leaves it showing on the neighbours. That is what puts the palette colors on screen for a dark
- * subject on a light ground, which is most photographs. It reverses for a light subject on a dark
- * ground, where the fringes come out complemented. The dispersion always computes its colour against
- * a hardcoded white ground so a subject splits into the palette even over nothing: a black-on-
- * transparent logo still fans into the full rainbow. The white is only ever used to make the colour -
- * the output stays transparent wherever the subject is not, so it composites cleanly over whatever
- * background the page puts behind it.
- *
- * The palette is always evenly spaced hues at full saturation, which is what keeps the maths simple
- * downstream: however many colors there are and wherever u_colorShift puts them, they cover the wheel, so
- * every channel is carried by some of them and none is carried by all of them. Each channel can
- * then be divided by its own weight, leaving the image untouched where the samples line up
- * (spread = 0) without any risk of a channel dividing a vanishing weight back out of itself.
- *
- * The direction the samples travel is a vector field, described rather than picked from a list:
- * u_spreadPerspective blends a fixed angle into an outward-from-centre spread that grows with radius, and
- * u_focusCenter / u_focusEdges reshape how the strength rises and falls between the centre and the
- * edge. Together they cover the familiar named looks and everything between them: a fixed angle is a
- * straight spread; full radiality is a rounded radial split on its own; add edge falloff and it
- * tightens into a disc.
+ * Lens Distortion image filter separates an image into shifting color layers
+ * (recreating the chromatic aberration of a lens) and warps the image geometry,
+ * curving it outward or inward the circle (like barrel and pincushion distortion).
  *
  * Fragment shader uniforms:
  * - u_image (sampler2D): Source image texture
- * - u_spread (float): Distance the outermost samples travel apart,
- *   as a fraction of the image width (0 to 1, mapped to 0 to 10%)
- * - u_spreadBias (float): Warps the dispersion curve, bunching the colors toward one end of the fan
- *   and spreading them at the other with the ends pinned; 0 spaces them evenly (-1 to 1)
- * - u_spreadAngle (float): Direction of the spread in degrees when it is not radial (0 to 360)
- * - u_spreadPerspective (float): Blends the spread from the fixed angle (0) to an outward-from-centre spread
- *   that grows with radius (1); raising it adds the off-axis spread a straight angle never had (0 to 1)
- * - u_samples (float): Number of taps along the spread; higher smooths the layers from discrete
- *   ghosts into a continuous blur, at a linear cost (2 to 40)
- * - u_colorRange (float): How many colors the samples group into, as a geometric fraction of the
- *   sample budget; 0 is two colors, 1 is one color per sample (a full spectrum) (0 to 1)
- * - u_colorShift (float): Turns the whole palette around the hue wheel in degrees (0 to 360)
- * - u_focusCenter (float): Radius (as a fraction of the inscribed circle) over which the spread
- *   fades in from nothing at the centre; 0 leaves it full to the centre (0 to 1)
- * - u_focusEdges (float): Radius (as a fraction of the inscribed circle) over which the spread fades
- *   out to nothing at the edge; 0 leaves it full to the edge (0 to 1)
- * - u_noise (float): Turbulence added to the spread direction (0 to 1)
- * - u_noiseFrequency (float): Spatial frequency of the turbulence field; higher is finer-grained
- * - u_noiseOffset (float): Slides the turbulence field to a different patch
- * - u_lensBulge (float): Radial lens warp of the image geometry, separate from the color spread; 0 is
- *   flat, positive is a barrel/fisheye bulge with the corners running off into the background, negative
- *   is a pincushion pinch that compresses the centre and stretches the edges (-1 to 1)
- * - u_lensCircle (float): Squeezes everything past the inscribed circle into a dense ring just inside it
- *   so the image outline becomes a perfect circle, without masking; 0 is off, 1 is full (0 to 1)
- * - u_grainMixer (float): Grain woven into the spread; jitters the whole fan per pixel by a percent of
- *   its length, so the dispersion breaks into grain that vanishes at the fan centre and grows to the
- *   edges; 0 is off (0 to 1)
- * - u_grainOverlay (float): Post-processing black/white film grain over the subject, screen-stable and
- *   masked to the opaque area so the transparent background stays clean; 0 is off (0 to 1)
+ * - u_spread (float): Strength of the color split; how far the color layers are pushed apart; 0 is off (0 to 1)
+ * - u_spreadBias (float): Shifts the colors toward one end of the spread; 0 spaces them evenly (-1 to 1)
+ * - u_spreadAngle (float): Direction of the spread in degrees (0 to 360)
+ * - u_spreadPerspective (float): Shapes the spread direction from a straight line (0) to a radial burst out from the centre (1) (0 to 1)
+ * - u_samples (float): Number of layers along the spread; higher is smoother and costlier (2 to 50)
+ * - u_colorRange (float): Number of color groups the layers form, from two (0) to a full spectrum (1) (0 to 1)
+ * - u_colorShift (float): Rotates the colorRange colors around the hue wheel in degrees (0 to 360)
+ * - u_focusCenter (float): Reduces the spread in a circular zone at the centre; 0 keeps it full to the centre (0 to 1)
+ * - u_focusEdges (float): Reduces the spread toward the edges; 0 keeps it full to the edges, 1 restores the original image there (0 to 1)
+ * - u_noise (float): Scatters the spread direction with noise; 0 is off (0 to 1)
+ * - u_noiseFrequency (float): Frequency of the noise; higher is finer (no effect with noise = 0)
+ * - u_noiseOffset (float): Offsets the noise pattern for a different seed (no effect with noise = 0)
+ * - u_lensBulge (float): Radial lens warp of the image geometry; positive bulges out like a fisheye/barrel, negative pinches in like a pincushion (-1 to 1)
+ * - u_lensCircle (float): Squeezes pixels outside the inscribed circle inward so the outline becomes a circle; 0 is off, 1 is full (0 to 1)
+ * - u_grainMixer (float): Strength of grain distortion applied to the edges of the colored layers (0 to 1)
+ * - u_grainOverlay (float): Post-processing black/white grain overlay (0 to 1)
  *
  * Vertex shader outputs (used in fragment shader):
  * - v_imageUV (vec2): Image UV coordinates with global sizing (rotation, scale, offset, etc) applied
