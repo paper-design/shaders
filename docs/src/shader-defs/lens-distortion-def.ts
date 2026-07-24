@@ -60,21 +60,12 @@ export const lensDistortionDef: ShaderDef = {
         'Number of colored layers making the spread - more layers blend into a blur, fewer stay as separate ghosted copies (no effect with spread = 0)',
     },
     {
-      name: 'colorRange',
-      type: 'number',
-      min: 0,
-      max: 1,
-      defaultValue: defaultParams.colorRange,
-      description:
-        'Number of color groups in the gradient formed by the layers. 0 is two colors (an opposed pair), 1 is a full spectrum with one color per layer (no effect with spread = 0 or count = 2)',
-    },
-    {
       name: 'colorShift',
       type: 'number',
       min: 0,
       max: 1,
       defaultValue: defaultParams.colorShift,
-      description: 'Rotates the colorRange colors around the hue wheel, 0 to 1 for a full turn (no effect with spread = 0)',
+      description: 'Rotates the colors around the hue wheel, 0 to 1 for a full turn (no effect with spread = 0)',
     },
     {
       name: 'focusCenter',

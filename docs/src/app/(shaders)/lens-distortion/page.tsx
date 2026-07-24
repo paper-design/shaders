@@ -72,7 +72,6 @@ const LensDistortionWithControls = () => {
       angle: { value: defaults.angle, min: 0, max: 360, order: 102 },
       perspective: { value: defaults.perspective, min: 0, max: 1, order: 103 },
       count: { value: defaults.count, min: 2, max: lensDistortionMeta.maxSamples, step: 1, order: 104 },
-      colorRange: { value: defaults.colorRange, min: 0, max: 1, order: 105 },
       colorShift: { value: defaults.colorShift, min: 0, max: 1, order: 106 },
       focusCenter: { value: defaults.focusCenter, min: 0, max: 1, order: 204 },
       focusEdges: { value: defaults.focusEdges, min: 0, max: 1, order: 205 },
