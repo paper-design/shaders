@@ -24,30 +24,30 @@ export const lensDistortionDef: ShaderDef = {
         'Strength of the color split - how far the color layers are pushed apart. This is the master dial for the chromatic aberration; at 0 there is no split and all the other color controls do nothing',
     },
     {
-      name: 'spreadBias',
+      name: 'bias',
       type: 'number',
       min: -1,
       max: 1,
-      defaultValue: defaultParams.spreadBias,
+      defaultValue: defaultParams.bias,
       description:
-        'Warps how the colors distribute along the spread distance. 0 spaces them evenly; toward +/-1 they bunch toward one end of the fan and spread out at the other',
+        'Bias of the color spread: warps how the colors distribute along it. 0 spaces them evenly; toward +/-1 they bunch toward one end of the fan and spread out at the other (no effect with spread = 0)',
     },
     {
-      name: 'spreadAngle',
+      name: 'angle',
       type: 'number',
       min: 0,
       max: 360,
-      defaultValue: defaultParams.spreadAngle,
-      description: 'Direction of the spread in degrees (no effect with spreadPerspective = 1)',
+      defaultValue: defaultParams.angle,
+      description: 'Angle of the color spread in degrees (no effect with spread = 0 or perspective = 1)',
     },
     {
-      name: 'spreadPerspective',
+      name: 'perspective',
       type: 'number',
       min: 0,
       max: 1,
-      defaultValue: defaultParams.spreadPerspective,
+      defaultValue: defaultParams.perspective,
       description:
-        'Shapes the spread direction from a straight line to a radial burst. At 0 every layers spread along the straight line set by spreadAngle; at 1 they radiate outward from the centre',
+        'Perspective of the spread: shapes its direction from a straight line to a radial burst. At 0 all layers spread along the straight line set by angle; at 1 they radiate outward from the centre (no effect with spread = 0)',
     },
     {
       name: 'count',
@@ -57,7 +57,7 @@ export const lensDistortionDef: ShaderDef = {
       step: 1,
       defaultValue: defaultParams.count,
       description:
-        'Number of colored layers making the spread - more layers blend into a blur, fewer stay as separate ghosted copies',
+        'Number of colored layers making the spread - more layers blend into a blur, fewer stay as separate ghosted copies (no effect with spread = 0)',
     },
     {
       name: 'colorRange',
@@ -66,7 +66,7 @@ export const lensDistortionDef: ShaderDef = {
       max: 1,
       defaultValue: defaultParams.colorRange,
       description:
-        'Number of color groups in the gradient formed by the layers. 0 is two colors (an opposed pair), 1 is a full spectrum with one color per layer (colorRange has no effect with count = 2)',
+        'Number of color groups in the gradient formed by the layers. 0 is two colors (an opposed pair), 1 is a full spectrum with one color per layer (no effect with spread = 0 or count = 2)',
     },
     {
       name: 'colorShift',
@@ -74,7 +74,7 @@ export const lensDistortionDef: ShaderDef = {
       min: 0,
       max: 360,
       defaultValue: defaultParams.colorShift,
-      description: 'Rotates the colorRange colors around the hue wheel',
+      description: 'Rotates the colorRange colors around the hue wheel (no effect with spread = 0)',
     },
     {
       name: 'focusCenter',
@@ -83,7 +83,7 @@ export const lensDistortionDef: ShaderDef = {
       max: 1,
       defaultValue: defaultParams.focusCenter,
       description:
-        'Reduces the spread distance in a circular zone at the centre of the image. 0 keeps the full layers spread in the middle, higher values move the layers closer building an illusion of focus',
+        'Reduces the spread distance in a circular zone at the centre of the image. 0 keeps the full layers spread in the middle, higher values move the layers closer building an illusion of focus (no effect with spread = 0)',
     },
     {
       name: 'focusEdges',
@@ -92,7 +92,7 @@ export const lensDistortionDef: ShaderDef = {
       max: 1,
       defaultValue: defaultParams.focusEdges,
       description:
-        'Reduces the spread distance along the image edges. 0 keeps the full layers spread at the edges, 1 restores the original image at the edges regardless of the chosen spread distance',
+        'Reduces the spread distance along the image edges. 0 keeps the full layers spread at the edges, 1 restores the original image at the edges regardless of the chosen spread distance (no effect with spread = 0)',
     },
     {
       name: 'noise',
@@ -100,7 +100,7 @@ export const lensDistortionDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.noise,
-      description: 'Noise distortion over the spread direction within the spread distance',
+      description: 'Noise distortion over the spread direction within the spread distance (no effect with spread = 0)',
     },
     {
       name: 'noiseFrequency',
@@ -108,7 +108,7 @@ export const lensDistortionDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.noiseFrequency,
-      description: 'Noise frequency (scale), higher value gives more detailed distortion (no effect with noise = 0)',
+      description: 'Noise frequency (scale), higher value gives more detailed distortion (no effect with spread = 0 or noise = 0)',
     },
     {
       name: 'noiseOffset',
@@ -117,7 +117,7 @@ export const lensDistortionDef: ShaderDef = {
       max: 30,
       defaultValue: defaultParams.noiseOffset,
       description:
-        'Shifts the noise texture, can be used as a seed or as an offset relative to the canvas (no effect with noise = 0)',
+        'Shifts the noise texture, can be used as a seed or as an offset relative to the canvas (no effect with spread = 0 or noise = 0)',
     },
     {
       name: 'lensBulge',
@@ -143,7 +143,7 @@ export const lensDistortionDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.grainMixer,
-      description: 'Strength of grain distortion applied to the edges of the colored layers',
+      description: 'Strength of grain distortion applied to the edges of the colored layers (no effect with spread = 0)',
     },
     {
       name: 'grainOverlay',

@@ -15,9 +15,9 @@ export const lensDistortionMeta = {
  * Fragment shader uniforms:
  * - u_image (sampler2D): Source image texture
  * - u_spread (float): Strength of the color split; how far the color layers are pushed apart; 0 is off (0 to 1)
- * - u_spreadBias (float): Shifts the colors toward one end of the spread; 0 spaces them evenly (-1 to 1)
- * - u_spreadAngle (float): Direction of the spread in degrees (0 to 360)
- * - u_spreadPerspective (float): Shapes the spread direction from a straight line (0) to a radial burst out from the centre (1) (0 to 1)
+ * - u_bias (float): Shifts the colors toward one end of the spread; 0 spaces them evenly (-1 to 1)
+ * - u_angle (float): Direction of the spread in degrees (0 to 360)
+ * - u_perspective (float): Shapes the spread direction from a straight line (0) to a radial burst out from the centre (1) (0 to 1)
  * - u_count (float): Number of sampled color layers along the spread; higher is smoother and costlier (2 to 50)
  * - u_colorRange (float): Number of color groups the layers form, from two (0) to a full spectrum (1) (0 to 1)
  * - u_colorShift (float): Rotates the colorRange colors around the hue wheel in degrees (0 to 360)
@@ -55,9 +55,9 @@ precision mediump float;
 uniform sampler2D u_image;
 uniform float u_imageAspectRatio;
 uniform float u_spread;
-uniform float u_spreadBias;
-uniform float u_spreadAngle;
-uniform float u_spreadPerspective;
+uniform float u_bias;
+uniform float u_angle;
+uniform float u_perspective;
 uniform float u_count;
 uniform float u_colorRange;
 uniform float u_colorShift;
@@ -128,15 +128,15 @@ float spreadNormRadius() {
 }
 
 float dispersionCurve(float t) {
-  float exponent = 1. + 2. * abs(u_spreadBias);
-  float mirroredT = u_spreadBias < 0. ? 1. - t : t;
+  float exponent = 1. + 2. * abs(u_bias);
+  float mirroredT = u_bias < 0. ? 1. - t : t;
   float curved = pow(mirroredT, exponent);
-  return u_spreadBias < 0. ? 1. - curved : curved;
+  return u_bias < 0. ? 1. - curved : curved;
 }
 
 vec2 getSpread(vec2 uv, vec2 warpedUV) {
   float reach = spreadReach();
-  float angleRad = radians(u_spreadAngle);
+  float angleRad = radians(u_angle);
   vec2 uniformDir = vec2(cos(angleRad), sin(angleRad));
 
   vec2 fromCenter = uv - .5;
@@ -149,7 +149,7 @@ vec2 getSpread(vec2 uv, vec2 warpedUV) {
   float maxLen = spreadNormRadius() / inradius;
   float radialLen = length(radialDir);
   if (radialLen > maxLen) radialDir *= maxLen / radialLen;
-  vec2 spreadDir = mix(uniformDir, radialDir, u_spreadPerspective);
+  vec2 spreadDir = mix(uniformDir, radialDir, u_perspective);
 
   float bandProximity = smoothstep(inradius * .8, inradius, radius);
   float lensCircleMaxing = bandProximity * pow(u_lensCircle, 3.);
@@ -273,9 +273,9 @@ void main() {
 export interface LensDistortionUniforms extends ShaderSizingUniforms {
   u_image: HTMLImageElement | string | undefined;
   u_spread: number;
-  u_spreadBias: number;
-  u_spreadAngle: number;
-  u_spreadPerspective: number;
+  u_bias: number;
+  u_angle: number;
+  u_perspective: number;
   u_count: number;
   u_colorRange: number;
   u_colorShift: number;
@@ -293,9 +293,9 @@ export interface LensDistortionUniforms extends ShaderSizingUniforms {
 export interface LensDistortionParams extends ShaderSizingParams, ShaderMotionParams {
   image?: HTMLImageElement | string;
   spread?: number;
-  spreadBias?: number;
-  spreadAngle?: number;
-  spreadPerspective?: number;
+  bias?: number;
+  angle?: number;
+  perspective?: number;
   count?: number;
   colorRange?: number;
   colorShift?: number;

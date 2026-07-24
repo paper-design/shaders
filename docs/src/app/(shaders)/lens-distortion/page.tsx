@@ -68,9 +68,9 @@ const LensDistortionWithControls = () => {
     );
     return {
       spread: { value: defaults.spread, min: 0, max: 1, order: 100 },
-      spreadBias: { value: defaults.spreadBias, min: -1, max: 1, order: 101 },
-      spreadAngle: { value: defaults.spreadAngle, min: 0, max: 360, order: 102 },
-      spreadPerspective: { value: defaults.spreadPerspective, min: 0, max: 1, order: 103 },
+      bias: { value: defaults.bias, min: -1, max: 1, order: 101 },
+      angle: { value: defaults.angle, min: 0, max: 360, order: 102 },
+      perspective: { value: defaults.perspective, min: 0, max: 1, order: 103 },
       count: { value: defaults.count, min: 2, max: lensDistortionMeta.maxSamples, step: 1, order: 104 },
       colorRange: { value: defaults.colorRange, min: 0, max: 1, order: 105 },
       colorShift: { value: defaults.colorShift, min: 0, max: 360, order: 106 },
