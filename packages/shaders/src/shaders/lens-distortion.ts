@@ -93,13 +93,10 @@ float valueNoise(vec2 st) {
 }
 
 float getUvFrame(vec2 uv) {
-  float aax = min(2. * fwidth(uv.x), .002);
-  float aay = min(2. * fwidth(uv.y), .002);
-  float left   = smoothstep(0., aax, uv.x);
-  float right  = 1. - smoothstep(1. - aax, 1., uv.x);
-  float bottom = smoothstep(0., aay, uv.y);
-  float top    = 1. - smoothstep(1. - aay, 1., uv.y);
-  return left * right * bottom * top;
+  vec2 aa = clamp(fwidth(uv), 1e-5, .02);
+  vec2 lo = clamp(uv / aa + .5, 0., 1.);
+  vec2 hi = clamp((1. - uv) / aa + .5, 0., 1.);
+  return lo.x * hi.x * lo.y * hi.y;
 }
 
 vec4 sampleOverWhite(vec2 uv) {
@@ -178,7 +175,8 @@ vec2 getSpread(vec2 uv, vec2 warpedUV) {
   return axis;
 }
 
-vec2 lensWarp(vec2 uv) {
+vec2 lensWarp(vec2 uv, out float bulgeFade) {
+  bulgeFade = 1.;
   if (u_lensBulge == 0. && u_lensCircle <= 0.) return uv;
 
   vec2 fromCenter = uv - .5;
@@ -190,6 +188,7 @@ vec2 lensWarp(vec2 uv) {
   if (u_lensBulge != 0.) {
     float rn = radius / inradius;
     float bulge = abs(u_lensBulge) * (u_lensBulge > 0. ? 1.4 : 1.2);
+    if (u_lensBulge > 0.) bulgeFade = 1. - smoothstep(1.45, 1.53, rn * bulge);
     float map = u_lensBulge > 0.
       ? tan(min(rn * bulge, 1.53)) / tan(bulge)
       : atan(rn * tan(bulge)) / bulge;
@@ -214,7 +213,8 @@ vec2 lensWarp(vec2 uv) {
 
 void main() {
   vec2 uv = v_imageUV;
-  vec2 baseUV = lensWarp(uv);
+  float bulgeFade;
+  vec2 baseUV = lensWarp(uv, bulgeFade);
   vec2 spreadAxis = getSpread(uv, baseUV);
 
   vec2 grainUV = vec2(0.);
@@ -261,7 +261,7 @@ void main() {
   float ground = min(color.r, min(color.g, color.b));
   float alpha = max(coverAvg, 1. - ground);
   vec3 premult = max(color - (1. - alpha), 0.);
-  fragColor = vec4(premult, alpha);
+  fragColor = vec4(premult, alpha) * bulgeFade;
 
   if (u_grainOverlay > 0.) {
     float grain = valueNoise(rotate(grainUV, 1.) + vec2(3.));
