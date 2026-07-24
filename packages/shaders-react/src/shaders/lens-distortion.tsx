@@ -37,6 +37,8 @@ export const defaultPreset: LensDistortionPreset = {
     lensCircle: 0,
     grainMixer: 0,
     grainOverlay: 0,
+    imageX: 0,
+    imageY: 0,
   },
 } as const;
 
@@ -49,11 +51,11 @@ export const fisheyePreset: LensDistortionPreset = {
     speed: 0,
     frame: 0,
     spread: 0.7,
-    bias: 0.35,
+    bias: 1,
     angle: 0,
     perspective: 0.75,
     count: 10,
-    colorShift: 1,
+    colorShift: 0,
     focusCenter: 0.9,
     focusEdges: 1,
     noise: 0,
@@ -63,6 +65,8 @@ export const fisheyePreset: LensDistortionPreset = {
     lensCircle: 1,
     grainMixer: 0,
     grainOverlay: 0,
+    imageX: 0,
+    imageY: 0,
   },
 } as const;
 
@@ -73,7 +77,7 @@ export const duotonePreset: LensDistortionPreset = {
     fit: 'contain',
     speed: 0,
     frame: 0,
-    spread: 0.3,
+    spread: 0.04,
     bias: -1,
     angle: 190,
     perspective: 0,
@@ -88,6 +92,8 @@ export const duotonePreset: LensDistortionPreset = {
     lensCircle: 0,
     grainMixer: 0,
     grainOverlay: 0,
+    imageX: 0,
+    imageY: 0,
   },
 } as const;
 
@@ -114,10 +120,46 @@ export const smokePreset: LensDistortionPreset = {
     lensCircle: 0,
     grainMixer: 0,
     grainOverlay: 0,
+    imageX: 0,
+    imageY: 0,
   },
 } as const;
 
-export const lensDistortionPresets: LensDistortionPreset[] = [defaultPreset, fisheyePreset, duotonePreset, smokePreset];
+export const orbPreset: LensDistortionPreset = {
+  name: 'Orb',
+  params: {
+    ...defaultObjectSizing,
+    scale: 0.68,
+    fit: 'contain',
+    speed: 0,
+    frame: 0,
+    spread: 1,
+    bias: 0.75,
+    angle: 40,
+    perspective: 0.43,
+    count: 24,
+    colorShift: 0,
+    focusCenter: 0.35,
+    focusEdges: 0.9,
+    noise: 0.4,
+    noiseFrequency: 0.08,
+    noiseOffset: 0,
+    lensBulge: 0.84,
+    lensCircle: 1,
+    grainMixer: 0.53,
+    grainOverlay: 0.05,
+    imageX: 0,
+    imageY: 0,
+  },
+} as const;
+
+export const lensDistortionPresets: LensDistortionPreset[] = [
+  defaultPreset,
+  fisheyePreset,
+  duotonePreset,
+  smokePreset,
+  orbPreset,
+];
 
 export const LensDistortion: React.FC<LensDistortionProps> = memo(function LensDistortionImpl({
   // Own props
@@ -139,6 +181,8 @@ export const LensDistortion: React.FC<LensDistortionProps> = memo(function LensD
   lensCircle = defaultPreset.params.lensCircle,
   grainMixer = defaultPreset.params.grainMixer,
   grainOverlay = defaultPreset.params.grainOverlay,
+  imageX = defaultPreset.params.imageX,
+  imageY = defaultPreset.params.imageY,
 
   // Sizing props
   fit = defaultPreset.params.fit,
@@ -170,6 +214,8 @@ export const LensDistortion: React.FC<LensDistortionProps> = memo(function LensD
     u_lensCircle: lensCircle,
     u_grainMixer: grainMixer,
     u_grainOverlay: grainOverlay,
+    u_imageX: imageX,
+    u_imageY: imageY,
 
     // Sizing uniforms
     u_fit: ShaderFitOptions[fit],

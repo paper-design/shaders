@@ -29,6 +29,8 @@ export const lensDistortionMeta = {
  * - u_lensCircle (float): Squeezes pixels outside the inscribed circle inward so the outline becomes a circle; 0 is off, 1 is full (0 to 1)
  * - u_grainMixer (float): Strength of grain distortion applied to the edges of the colored layers (0 to 1)
  * - u_grainOverlay (float): Post-processing black/white grain overlay (0 to 1)
+ * - u_imageX (float): Pans the image horizontally behind the effect; 0 is centred (-1 to 1)
+ * - u_imageY (float): Pans the image vertically behind the effect; 0 is centred (-1 to 1)
  *
  * Vertex shader outputs (used in fragment shader):
  * - v_imageUV (vec2): Image UV coordinates with global sizing (rotation, scale, offset, etc) applied
@@ -68,6 +70,8 @@ uniform float u_lensBulge;
 uniform float u_lensCircle;
 uniform float u_grainMixer;
 uniform float u_grainOverlay;
+uniform float u_imageX;
+uniform float u_imageY;
 
 in vec2 v_imageUV;
 
@@ -120,7 +124,7 @@ float boxOutradius() {
 }
 
 float spreadReach() {
-  return .7 * pow(u_spread, 1. + 3. * u_spread);
+  return .7 * pow(u_spread, 1.3 + 2.7 * u_spread);
 }
 
 float dispersionCurve(float t, float biasPow) {
@@ -233,17 +237,18 @@ void main() {
   float coverSum = 0.;
 
   float biasPower = 1. + 2. * abs(u_bias);
+  vec2 imageOffset = vec2(u_imageX, u_imageY);
 
   for (int i = 0; i < ${lensDistortionMeta.maxSamples}; i++) {
     if (i >= countInteger) break;
 
     float huePos = float(i) / count;
     float spreadPos = float(i) / (count - 1.);
-    float hue = u_colorShift + huePos;
+    float hue = u_colorShift + .5 + huePos;
 
     float spread = dispersionCurve(spreadPos, biasPower);
     vec2 offset = mix(spreadAxis, -spreadAxis, spread);
-    vec4 tap = sampleOverWhite(baseUV + offset);
+    vec4 tap = sampleOverWhite(baseUV + offset - imageOffset);
     vec3 weight = 1. - hueColor(hue);
 
     colorSum += tap.rgb * weight;
@@ -286,6 +291,8 @@ export interface LensDistortionUniforms extends ShaderSizingUniforms {
   u_lensCircle: number;
   u_grainMixer: number;
   u_grainOverlay: number;
+  u_imageX: number;
+  u_imageY: number;
 }
 
 export interface LensDistortionParams extends ShaderSizingParams, ShaderMotionParams {
@@ -305,4 +312,6 @@ export interface LensDistortionParams extends ShaderSizingParams, ShaderMotionPa
   lensCircle?: number;
   grainMixer?: number;
   grainOverlay?: number;
+  imageX?: number;
+  imageY?: number;
 }

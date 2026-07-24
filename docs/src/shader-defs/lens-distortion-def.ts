@@ -144,6 +144,22 @@ export const lensDistortionDef: ShaderDef = {
       defaultValue: defaultParams.grainOverlay,
       description: 'Post-processing b/w grain overlay',
     },
+    {
+      name: 'imageX',
+      type: 'number',
+      min: -1,
+      max: 1,
+      defaultValue: defaultParams.imageX,
+      description: 'Pans the image horizontally behind the effect, without moving the effect itself. 0 is centred',
+    },
+    {
+      name: 'imageY',
+      type: 'number',
+      min: -1,
+      max: 1,
+      defaultValue: defaultParams.imageY,
+      description: 'Pans the image vertically behind the effect, without moving the effect itself. 0 is centred',
+    },
     ...staticImageCommonParams,
   ],
 };
