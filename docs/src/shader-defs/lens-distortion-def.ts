@@ -106,9 +106,9 @@ export const lensDistortionDef: ShaderDef = {
       name: 'noiseFrequency',
       type: 'number',
       min: 0,
-      max: 20,
+      max: 1,
       defaultValue: defaultParams.noiseFrequency,
-      description: 'Noise frequency (no effect with noise = 0)',
+      description: 'Noise frequency (scale), higher value gives more detailed distortion (no effect with noise = 0)',
     },
     {
       name: 'noiseOffset',
@@ -117,7 +117,7 @@ export const lensDistortionDef: ShaderDef = {
       max: 30,
       defaultValue: defaultParams.noiseOffset,
       description:
-        'Shifts the noise texture - can be used as a seed or as an offset relative to the canvas (no effect with noise = 0)',
+        'Shifts the noise texture, can be used as a seed or as an offset relative to the canvas (no effect with noise = 0)',
     },
     {
       name: 'lensBulge',

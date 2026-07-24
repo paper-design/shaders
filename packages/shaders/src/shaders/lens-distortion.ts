@@ -24,7 +24,7 @@ export const lensDistortionMeta = {
  * - u_focusCenter (float): Reduces the spread in a circular zone at the centre; 0 keeps it full to the centre (0 to 1)
  * - u_focusEdges (float): Reduces the spread toward the edges; 0 keeps it full to the edges, 1 restores the original image there (0 to 1)
  * - u_noise (float): Scatters the spread direction with noise; 0 is off (0 to 1)
- * - u_noiseFrequency (float): Frequency of the noise; higher is finer (no effect with noise = 0)
+ * - u_noiseFrequency (float): Frequency of the noise, 0 to 1 mapped internally to 0 to 18; higher is finer (no effect with noise = 0)
  * - u_noiseOffset (float): Offsets the noise pattern for a different seed (no effect with noise = 0)
  * - u_lensBulge (float): Radial lens warp of the image geometry; positive bulges out like a fisheye/barrel, negative pinches in like a pincushion (-1 to 1)
  * - u_lensCircle (float): Squeezes pixels outside the inscribed circle inward so the outline becomes a circle; 0 is off, 1 is full (0 to 1)
@@ -170,7 +170,7 @@ vec2 getSpread(vec2 uv, vec2 warpedUV) {
   vec2 axis = spreadDir * reach * strength;
 
   if (u_noise > 0.) {
-    float turn = (valueNoise(fromCenter * u_noiseFrequency + u_noiseOffset) - .5) * 2. * u_noise;
+    float turn = (valueNoise(fromCenter * u_noiseFrequency * 18. + u_noiseOffset) - .5) * 2. * u_noise;
     float cs = cos(turn), sn = sin(turn);
     axis = mat2(cs, -sn, sn, cs) * axis;
   }

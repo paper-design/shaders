@@ -77,7 +77,7 @@ const LensDistortionWithControls = () => {
       focusCenter: { value: defaults.focusCenter, min: 0, max: 1, order: 204 },
       focusEdges: { value: defaults.focusEdges, min: 0, max: 1, order: 205 },
       noise: { value: defaults.noise, min: 0, max: 1, order: 300 },
-      noiseFrequency: { value: defaults.noiseFrequency, min: 0, max: 15, order: 301 },
+      noiseFrequency: { value: defaults.noiseFrequency, min: 0, max: 1, order: 301 },
       noiseOffset: { value: defaults.noiseOffset, min: 0, max: 30, order: 302 },
       lensBulge: { value: defaults.lensBulge, min: -1, max: 1, order: 400 },
       lensCircle: { value: defaults.lensCircle, min: 0, max: 1, order: 402 },
