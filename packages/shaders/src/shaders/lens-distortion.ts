@@ -20,7 +20,7 @@ export const lensDistortionMeta = {
  * - u_perspective (float): Shapes the spread direction from a straight line (0) to a radial burst out from the centre (1) (0 to 1)
  * - u_count (float): Number of sampled color layers along the spread; higher is smoother and costlier (2 to 50)
  * - u_colorRange (float): Number of color groups the layers form, from two (0) to a full spectrum (1) (0 to 1)
- * - u_colorShift (float): Rotates the colorRange colors around the hue wheel in degrees (0 to 360)
+ * - u_colorShift (float): Rotates the colorRange colors around the hue wheel, 0 to 1 for a full turn
  * - u_focusCenter (float): Reduces the spread in a circular zone at the centre; 0 keeps it full to the centre (0 to 1)
  * - u_focusEdges (float): Reduces the spread toward the edges; 0 keeps it full to the edges, 1 restores the original image there (0 to 1)
  * - u_noise (float): Scatters the spread direction with noise; 0 is off (0 to 1)
@@ -107,8 +107,10 @@ vec4 sampleOverWhite(vec2 uv) {
   return vec4(colorOverWhite, cover);
 }
 
-vec3 hueColor(float t) {
-  return clamp(abs(mod(t * 6. + vec3(0., 4., 2.), 6.) - 3.) - 1., 0., 1.);
+vec3 hueColor(float hue) {
+  vec3 rgb = clamp(abs(mod(hue * 6. + vec3(0., 4., 2.), 6.) - 3.) - 1., 0., 1.);
+  rgb = rgb * rgb * (3. - 2. * rgb); // ?
+  return rgb;
 }
                                             
 float boxInradius() {
@@ -123,14 +125,9 @@ float spreadReach() {
   return .7 * pow(u_spread, 1. + 3. * u_spread);
 }
 
-float spreadNormRadius() {
-  return boxOutradius() + spreadReach();
-}
-
-float dispersionCurve(float t) {
-  float exponent = 1. + 2. * abs(u_bias);
+float dispersionCurve(float t, float biasPow) {
   float mirroredT = u_bias < 0. ? 1. - t : t;
-  float curved = pow(mirroredT, exponent);
+  float curved = pow(mirroredT, biasPow);
   return u_bias < 0. ? 1. - curved : curved;
 }
 
@@ -146,7 +143,7 @@ vec2 getSpread(vec2 uv, vec2 warpedUV) {
   float outradius = boxOutradius();
 
   vec2 radialDir = fromCenter / inradius;
-  float maxLen = spreadNormRadius() / inradius;
+  float maxLen = (outradius + reach) / inradius;
   float radialLen = length(radialDir);
   if (radialLen > maxLen) radialDir *= maxLen / radialLen;
   vec2 spreadDir = mix(uniformDir, radialDir, u_perspective);
@@ -218,31 +215,35 @@ void main() {
   vec2 baseUV = lensWarp(uv);
   vec2 spreadAxis = getSpread(uv, baseUV);
 
-  vec2 dudx = dFdx(v_imageUV);
-  vec2 dudy = dFdy(v_imageUV);
-  vec2 grainUV = (v_imageUV - .5) * (.8 / vec2(length(dudx), length(dudy))) + .5;
-
-  float grainSeed = u_grainMixer > 0. ? valueNoise(grainUV) : 0.;
+  vec2 grainUV = vec2(0.);
+  if (u_grainMixer > 0. || u_grainOverlay > 0.) {
+    vec2 dudx = dFdx(v_imageUV);
+    vec2 dudy = dFdy(v_imageUV);
+    grainUV = (v_imageUV - .5) * (.8 / vec2(length(dudx), length(dudy))) + .5;
+  }
 
   if (u_grainMixer > 0.) {
+    float grainSeed = valueNoise(grainUV);
     vec2 jit = fract(grainSeed * vec2(157.31, 113.57)) * 2. - 1.;
     spreadAxis += jit * .3 * u_grainMixer * length(spreadAxis);
   }
 
-  int sampleCount = int(u_count);
-  int colorCount = clamp(int(floor(2. * pow(float(sampleCount) * .5, .5 * u_colorRange) + .5)), 2, sampleCount);
+  float count = floor(u_count);
+  int countInteger = int(count);
   vec3 colorSum = vec3(0.);
   vec3 weightSum = vec3(0.);
   float coverSum = 0.;
 
-  float hueNorm = fract((u_colorShift + 180.) / 360.);
+  float biasPower = 1. + 2. * abs(u_bias);
+
   for (int i = 0; i < ${lensDistortionMeta.maxSamples}; i++) {
-    if (i >= sampleCount) break;
+    if (i >= countInteger) break;
 
-    float t = float(i) / float(sampleCount - 1);
-    float hue = hueNorm + t * float(colorCount - 1) / float(colorCount);
+    float huePos = float(i) / count;
+    float spreadPos = float(i) / (count - 1.);
+    float hue = u_colorShift + huePos;
 
-    float spread = dispersionCurve(t);
+    float spread = dispersionCurve(spreadPos, biasPower);
     vec2 offset = mix(spreadAxis, -spreadAxis, spread);
     vec4 tap = sampleOverWhite(baseUV + offset);
     vec3 weight = 1. - hueColor(hue);
@@ -252,8 +253,8 @@ void main() {
     coverSum += tap.a;
   }
 
-  vec3 color = colorSum / max(weightSum, 1e-4);   // straight colour, computed over the white ground
-  float coverAvg = coverSum / float(sampleCount); // real subject coverage, palette-independent
+  vec3 color = colorSum / max(weightSum, 1e-4);
+  float coverAvg = coverSum / count;
   float ground = min(color.r, min(color.g, color.b));
   float alpha = max(coverAvg, 1. - ground);
   vec3 premult = max(color - (1. - alpha), 0.);
