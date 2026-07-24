@@ -50,12 +50,12 @@ export const lensDistortionDef: ShaderDef = {
         'Shapes the spread direction from a straight line to a radial burst. At 0 every layers spread along the straight line set by spreadAngle; at 1 they radiate outward from the centre',
     },
     {
-      name: 'samples',
+      name: 'count',
       type: 'number',
       min: 2,
       max: 50,
       step: 1,
-      defaultValue: defaultParams.samples,
+      defaultValue: defaultParams.count,
       description:
         'Number of colored layers making the spread - more layers blend into a blur, fewer stay as separate ghosted copies',
     },
@@ -66,7 +66,7 @@ export const lensDistortionDef: ShaderDef = {
       max: 1,
       defaultValue: defaultParams.colorRange,
       description:
-        'Number of color groups in the gradient formed by the layers. 0 is two colors (an opposed pair), 1 is a full spectrum with one color per layer (colorRange has no effect with samples = 2)',
+        'Number of color groups in the gradient formed by the layers. 0 is two colors (an opposed pair), 1 is a full spectrum with one color per layer (colorRange has no effect with count = 2)',
     },
     {
       name: 'colorShift',

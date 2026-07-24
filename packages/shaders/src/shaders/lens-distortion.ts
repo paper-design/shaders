@@ -18,7 +18,7 @@ export const lensDistortionMeta = {
  * - u_spreadBias (float): Shifts the colors toward one end of the spread; 0 spaces them evenly (-1 to 1)
  * - u_spreadAngle (float): Direction of the spread in degrees (0 to 360)
  * - u_spreadPerspective (float): Shapes the spread direction from a straight line (0) to a radial burst out from the centre (1) (0 to 1)
- * - u_samples (float): Number of layers along the spread; higher is smoother and costlier (2 to 50)
+ * - u_count (float): Number of sampled color layers along the spread; higher is smoother and costlier (2 to 50)
  * - u_colorRange (float): Number of color groups the layers form, from two (0) to a full spectrum (1) (0 to 1)
  * - u_colorShift (float): Rotates the colorRange colors around the hue wheel in degrees (0 to 360)
  * - u_focusCenter (float): Reduces the spread in a circular zone at the centre; 0 keeps it full to the centre (0 to 1)
@@ -58,7 +58,7 @@ uniform float u_spread;
 uniform float u_spreadBias;
 uniform float u_spreadAngle;
 uniform float u_spreadPerspective;
-uniform float u_samples;
+uniform float u_count;
 uniform float u_colorRange;
 uniform float u_colorShift;
 uniform float u_focusCenter;
@@ -229,7 +229,7 @@ void main() {
     spreadAxis += jit * .3 * u_grainMixer * length(spreadAxis);
   }
 
-  int sampleCount = int(u_samples);
+  int sampleCount = int(u_count);
   int colorCount = clamp(int(floor(2. * pow(float(sampleCount) * .5, .5 * u_colorRange) + .5)), 2, sampleCount);
   vec3 colorSum = vec3(0.);
   vec3 weightSum = vec3(0.);
@@ -276,7 +276,7 @@ export interface LensDistortionUniforms extends ShaderSizingUniforms {
   u_spreadBias: number;
   u_spreadAngle: number;
   u_spreadPerspective: number;
-  u_samples: number;
+  u_count: number;
   u_colorRange: number;
   u_colorShift: number;
   u_focusCenter: number;
@@ -296,7 +296,7 @@ export interface LensDistortionParams extends ShaderSizingParams, ShaderMotionPa
   spreadBias?: number;
   spreadAngle?: number;
   spreadPerspective?: number;
-  samples?: number;
+  count?: number;
   colorRange?: number;
   colorShift?: number;
   focusCenter?: number;
