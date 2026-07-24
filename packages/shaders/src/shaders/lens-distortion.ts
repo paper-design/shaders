@@ -120,7 +120,7 @@ float boxOutradius() {
 }
 
 float spreadReach() {
-  return .7 * pow(u_spread, 3.);
+  return .7 * pow(u_spread, 1. + 3. * u_spread);
 }
 
 float spreadNormRadius() {
