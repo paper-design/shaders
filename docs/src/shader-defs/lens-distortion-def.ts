@@ -60,6 +60,15 @@ export const lensDistortionDef: ShaderDef = {
         'Number of colored layers making the spread - more layers blend into a blur, fewer stay as separate ghosted copies (no effect with spread = 0)',
     },
     {
+      name: 'colorFade',
+      type: 'number',
+      min: 0,
+      max: 1,
+      defaultValue: defaultParams.colorFade,
+      description:
+        'Fades the layer coloring. 0 gives each layer its own rainbow hue, giving chromatic aberration feel. 1 keeps the original image color, giving simple blur effect (no effect with spread = 0)',
+    },
+    {
       name: 'colorShift',
       type: 'number',
       min: 0,
