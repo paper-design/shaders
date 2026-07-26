@@ -74,7 +74,7 @@ export const lensDistortionDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.colorShift,
-      description: 'Rotates the colors around the hue wheel, 0 to 1 for a full turn (no effect with spread = 0)',
+      description: 'Rotates the colors around the hue wheel, 0 to 1 for a full turn (no effect with spread = 0 or colorFade = 1)',
     },
     {
       name: 'focusCenter',
