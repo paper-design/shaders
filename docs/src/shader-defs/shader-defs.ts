@@ -14,7 +14,6 @@ import { metaballsDef } from './metaballs-def';
 import { neuroNoiseDef } from './neuro-noise-def';
 import { paperTextureDef } from './paper-texture-def';
 import { perlinNoiseDef } from './perlin-noise-def';
-import { lensDistortionDef } from './lens-distortion-def';
 import { pulsingBorderDef } from './pulsing-border-def';
 import { simplexNoiseDef } from './simplex-noise-def';
 import { smokeRingDef } from './smoke-ring-def';
@@ -27,6 +26,7 @@ import { warpDef } from './warp-def';
 import { waterDef } from './water-def';
 import { wavesDef } from './waves-def';
 import { halftoneDotsDef } from './halftone-dots-def';
+import { lensDistortionDef } from './lens-distortion-def';
 
 export const shaderDefs: ShaderDef[] = [
   grainGradientDef,
@@ -53,7 +53,7 @@ export const shaderDefs: ShaderDef[] = [
   paperTextureDef,
   flutedGlassDef,
   imageDitheringDef,
-  lensDistortionDef,
   waterDef,
   halftoneDotsDef,
+  lensDistortionDef,
 ];

@@ -327,6 +327,19 @@
           "type": "registry:component"
         }
       ]
+    },
+    {
+      "name": "lens-distortion",
+      "type": "registry:component",
+      "title": "Lens Distortion Example",
+      "description": "Lens Distortion shader example.",
+      "dependencies": ["@paper-design/shaders-react"],
+      "files": [
+        {
+          "path": "registry/lens-distortion-example.tsx",
+          "type": "registry:component"
+        }
+      ]
     }
   ]
 }
