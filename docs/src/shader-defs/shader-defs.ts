@@ -26,6 +26,9 @@ import { warpDef } from './warp-def';
 import { waterDef } from './water-def';
 import { wavesDef } from './waves-def';
 import { halftoneDotsDef } from './halftone-dots-def';
+import { halftoneCmykDef } from './halftone-cmyk-def';
+import { heatmapDef } from './heatmap-def';
+import { gemSmokeDef } from './gem-smoke-def';
 import { lensDistortionDef } from './lens-distortion-def';
 
 export const shaderDefs: ShaderDef[] = [
@@ -55,5 +58,8 @@ export const shaderDefs: ShaderDef[] = [
   imageDitheringDef,
   waterDef,
   halftoneDotsDef,
+  halftoneCmykDef,
+  heatmapDef,
+  gemSmokeDef,
   lensDistortionDef,
 ];

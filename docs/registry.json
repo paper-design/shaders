@@ -329,6 +329,58 @@
       ]
     },
     {
+      "name": "halftone-dots",
+      "type": "registry:component",
+      "title": "Halftone Dots Example",
+      "description": "Halftone Dots shader example.",
+      "dependencies": ["@paper-design/shaders-react"],
+      "files": [
+        {
+          "path": "registry/halftone-dots-example.tsx",
+          "type": "registry:component"
+        }
+      ]
+    },
+    {
+      "name": "heatmap",
+      "type": "registry:component",
+      "title": "Heatmap Example",
+      "description": "Heatmap shader example.",
+      "dependencies": ["@paper-design/shaders-react"],
+      "files": [
+        {
+          "path": "registry/heatmap-example.tsx",
+          "type": "registry:component"
+        }
+      ]
+    },
+    {
+      "name": "halftone-cmyk",
+      "type": "registry:component",
+      "title": "Halftone CMYK Example",
+      "description": "Halftone CMYK shader example.",
+      "dependencies": ["@paper-design/shaders-react"],
+      "files": [
+        {
+          "path": "registry/halftone-cmyk-example.tsx",
+          "type": "registry:component"
+        }
+      ]
+    },
+    {
+      "name": "gem-smoke",
+      "type": "registry:component",
+      "title": "Gem Smoke Example",
+      "description": "Gem Smoke shader example.",
+      "dependencies": ["@paper-design/shaders-react"],
+      "files": [
+        {
+          "path": "registry/gem-smoke-example.tsx",
+          "type": "registry:component"
+        }
+      ]
+    },
+    {
       "name": "lens-distortion",
       "type": "registry:component",
       "title": "Lens Distortion Example",
