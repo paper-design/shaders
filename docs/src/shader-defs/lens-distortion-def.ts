@@ -60,13 +60,13 @@ export const lensDistortionDef: ShaderDef = {
         'Number of colored layers making the spread - more layers blend into a blur, fewer stay as separate ghosted copies (no effect with spread = 0)',
     },
     {
-      name: 'colorFade',
+      name: 'colorDispersion',
       type: 'number',
       min: 0,
       max: 1,
-      defaultValue: defaultParams.colorFade,
+      defaultValue: defaultParams.colorDispersion,
       description:
-        'Fades the layer coloring. 0 gives each layer its own rainbow hue, giving chromatic aberration feel. 1 keeps the original image color, giving simple blur effect (no effect with spread = 0)',
+        'Amount of color dispersion across the layers: at 1 each layer takes its own hue from the rainbow, giving the chromatic aberration look; at 0 every layer keeps the original image color, so the spread reads as a plain blur (no effect with spread = 0)',
     },
     {
       name: 'colorShift',
@@ -74,7 +74,8 @@ export const lensDistortionDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.colorShift,
-      description: 'Rotates the colors around the hue wheel, 0 to 1 for a full turn (no effect with spread = 0 or colorFade = 1)',
+      description:
+        'Rotates the colors around the hue wheel, 0 to 1 for a full turn (no effect with spread = 0 or colorDispersion = 0)',
     },
     {
       name: 'focusCenter',
@@ -108,7 +109,8 @@ export const lensDistortionDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.noiseFrequency,
-      description: 'Noise frequency (scale), higher value gives more detailed distortion (no effect with spread = 0 or noise = 0)',
+      description:
+        'Noise frequency (scale), higher value gives more detailed distortion (no effect with spread = 0 or noise = 0)',
     },
     {
       name: 'noiseOffset',
@@ -143,7 +145,8 @@ export const lensDistortionDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.grainMixer,
-      description: 'Strength of grain distortion applied to the edges of the colored layers (no effect with spread = 0)',
+      description:
+        'Strength of grain distortion applied to the edges of the colored layers (no effect with spread = 0)',
     },
     {
       name: 'grainOverlay',

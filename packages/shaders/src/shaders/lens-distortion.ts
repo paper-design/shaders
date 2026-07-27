@@ -19,7 +19,7 @@ export const lensDistortionMeta = {
  * - u_angle (float): Direction of the spread in degrees (0 to 360)
  * - u_perspective (float): Shapes the spread direction from a straight line (0) to a radial burst out from the centre (1) (0 to 1)
  * - u_count (float): Number of sampled color layers along the spread; higher is smoother and costlier (2 to 50)
- * - u_colorFade (float): Fades the coloring of the layers; 0 is a rainbow, 1 is original image color (0 to 1)
+ * - u_colorDispersion (float): Amount of color dispersion across the layers; 1 tints each layer with its own rainbow hue, 0 keeps the original image color (0 to 1)
  * - u_colorShift (float): Rotates the colors around the hue wheel, 0 to 1 for a full turn
  * - u_focusCenter (float): Reduces the spread in a circular zone at the centre; 0 keeps it full to the centre (0 to 1)
  * - u_focusEdges (float): Reduces the spread toward the edges; 0 keeps it full to the edges, 1 restores the original image there (0 to 1)
@@ -61,7 +61,7 @@ uniform float u_bias;
 uniform float u_angle;
 uniform float u_perspective;
 uniform float u_count;
-uniform float u_colorFade;
+uniform float u_colorDispersion;
 uniform float u_colorShift;
 uniform float u_focusCenter;
 uniform float u_focusEdges;
@@ -251,7 +251,7 @@ void main() {
     float spread = dispersionCurve(spreadPos, biasPower);
     vec2 offset = mix(spreadAxis, -spreadAxis, spread);
     vec4 tap = sampleOverWhite(baseUV + offset - imageOffset);
-    vec3 weight = mix(1. - hueColor(hue), vec3(1.), u_colorFade);
+    vec3 weight = mix(vec3(1.), 1. - hueColor(hue), pow(u_colorDispersion, .5));
 
     colorSum += tap.rgb * weight;
     weightSum += weight;
@@ -283,7 +283,7 @@ export interface LensDistortionUniforms extends ShaderSizingUniforms {
   u_angle: number;
   u_perspective: number;
   u_count: number;
-  u_colorFade: number;
+  u_colorDispersion: number;
   u_colorShift: number;
   u_focusCenter: number;
   u_focusEdges: number;
@@ -305,7 +305,7 @@ export interface LensDistortionParams extends ShaderSizingParams, ShaderMotionPa
   angle?: number;
   perspective?: number;
   count?: number;
-  colorFade?: number;
+  colorDispersion?: number;
   colorShift?: number;
   focusCenter?: number;
   focusEdges?: number;
