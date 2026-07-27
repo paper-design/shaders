@@ -15,8 +15,7 @@ import { useUrlParams } from '@/helpers/use-url-params';
 
 const { worldWidth, worldHeight, ...defaults } = lensDistortionPresets[0].params;
 
-const imageFiles = [
-  // 'test.png',
+const builtInImages = [
   '001.webp',
   '002.webp',
   '003.webp',
@@ -35,24 +34,35 @@ const imageFiles = [
   '0016.webp',
   '0017.webp',
   '0018.webp',
-] as const;
+].map((name) => `/images/image-filters/${name}`);
 
 const LensDistortionWithControls = () => {
   const [imageIdx, setImageIdx] = useState(-1);
   const [image, setImage] = useState<HTMLImageElement | string>('/images/image-filters/0018.webp');
+  // Cycle list: the built-in samples plus any extra images from the external lens-distortion folder
+  // (served via the gitignored public/images/lens-distortion symlink, listed by the API route).
+  const [images, setImages] = useState<string[]>(builtInImages);
+
+  useEffect(() => {
+    fetch('/api/lens-distortion-images')
+      .then((r) => r.json())
+      .then((extra: string[]) => {
+        if (Array.isArray(extra) && extra.length) setImages([...extra, ...builtInImages]);
+      })
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     if (imageIdx >= 0) {
-      const name = imageFiles[imageIdx];
       const img = new Image();
-      img.src = `/images/image-filters/${name}`;
+      img.src = images[imageIdx];
       img.onload = () => setImage(img);
     }
-  }, [imageIdx]);
+  }, [imageIdx, images]);
 
   const handleClick = useCallback(() => {
-    setImageIdx((prev) => (prev + 1) % imageFiles.length);
-  }, []);
+    setImageIdx((prev) => (prev + 1) % images.length);
+  }, [images.length]);
 
   const setImageWithoutStatus = useCallback((img?: HTMLImageElement) => {
     setImage(img ?? '');
