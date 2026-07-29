@@ -19,8 +19,9 @@ export const lensDistortionMeta = {
  * - u_angle (float): Direction of the spread in degrees (0 to 360)
  * - u_perspective (float): Shapes the spread direction from a straight line (0) to a radial burst out from the centre (1) (0 to 1)
  * - u_count (float): Number of sampled color layers along the spread; higher is smoother and costlier (2 to 50)
- * - u_dispersion (float): Amount of color dispersion, growing from the centre outwards (negative) or from the edges inwards (positive); 0 keeps the original image color, -.5 tints a circular zone at the centre only, .5 tints everything outside it, -1 and 1 tint the whole image (-1 to 1)
- * - u_colorShift (float): Rotates the colors around the hue wheel, 0 to 1 for a full turn
+ * - u_dispersion (float): Overall amount of color dispersion; 1 tints each layer with its own rainbow hue, 0 keeps the original image color (0 to 1)
+ * - u_dispersionShift (float): Balance of the dispersion between a soft circular zone at the centre and the rest of the image; 0 applies it evenly, -1 keeps it in the centre only, 1 keeps it at the edges only (-1 to 1)
+ * - u_dispersionColor (float): Rotates the colors around the hue wheel, 0 to 1 for a full turn
  * - u_focusCenter (float): Reduces the spread in a circular zone at the centre; 0 keeps it full to the centre (0 to 1)
  * - u_focusEdges (float): Reduces the spread toward the edges; 0 keeps it full to the edges, 1 restores the original image there (0 to 1)
  * - u_noise (float): Scatters the spread direction with noise; 0 is off (0 to 1)
@@ -62,7 +63,8 @@ uniform float u_angle;
 uniform float u_perspective;
 uniform float u_count;
 uniform float u_dispersion;
-uniform float u_colorShift;
+uniform float u_dispersionShift;
+uniform float u_dispersionColor;
 uniform float u_focusCenter;
 uniform float u_focusEdges;
 uniform float u_noise;
@@ -126,12 +128,12 @@ float spreadReach() {
   return .7 * pow(u_spread, 1.3 + 2.7 * u_spread);
 }
 
-float innerCircleMask(vec2 uv, float scale) {
+float innerCircleMask(vec2 uv) {
   vec2 fromCenter = uv - .5;
   fromCenter.x *= u_imageAspectRatio;
   float radius = length(fromCenter);
-  float innerRadius = boxInradius() * scale;
-  return 1. - smoothstep(.5 * innerRadius, 1.1 * innerRadius, radius);
+  float innerRaduis = boxInradius();
+  return 1. - smoothstep(.5 * innerRaduis, 1.1 * innerRaduis, radius);
 }
 
 float dispersionCurve(float t, float biasPow) {
@@ -248,25 +250,18 @@ void main() {
 
   float biasPower = 1. + 2. * abs(u_bias);
   vec2 imageOffset = vec2(u_imageX, u_imageY);
-    
-  float splitStart = .35;
-  float splitEnd = .65;
-  float falloff = 1. - abs(u_dispersion);
-  float side = sign(u_dispersion) * falloff;
-  float centerAmount = 1. - clamp(side / splitStart, 0., 1.);
-  float edgesAmount = 1. - clamp(-side / splitStart, 0., 1.);
-  float remaining = 1. - clamp((falloff - splitEnd) / (1. - splitEnd), 0., 1.);
-  float splitT = clamp((falloff - splitStart) / (splitEnd - splitStart), 0., 1.);
-  float maskScale = 1. + sign(u_dispersion) * .3 * splitT;
-  float dispersion = remaining * mix(edgesAmount, centerAmount, innerCircleMask(uv, maskScale));
-  float dispersionPower = pow(dispersion, 1.);
+
+  float centerAmount = clamp(1. - u_dispersionShift, 0., 1.);
+  float edgesAmount = clamp(1. + u_dispersionShift, 0., 1.);
+  float dispersion = u_dispersion * mix(edgesAmount, centerAmount, innerCircleMask(uv));
+  float dispersionPower = pow(dispersion, .8);
 
   for (int i = 0; i < ${lensDistortionMeta.maxSamples}; i++) {
     if (i >= countInteger) break;
 
     float huePos = float(i) / count;
     float spreadPos = float(i) / (count - 1.);
-    float hue = u_colorShift + .5 + huePos;
+    float hue = u_dispersionColor + .5 + huePos;
 
     float spread = dispersionCurve(spreadPos, biasPower);
     vec2 offset = mix(spreadAxis, -spreadAxis, spread);
@@ -304,7 +299,8 @@ export interface LensDistortionUniforms extends ShaderSizingUniforms {
   u_perspective: number;
   u_count: number;
   u_dispersion: number;
-  u_colorShift: number;
+  u_dispersionShift: number;
+  u_dispersionColor: number;
   u_focusCenter: number;
   u_focusEdges: number;
   u_noise: number;
@@ -326,7 +322,8 @@ export interface LensDistortionParams extends ShaderSizingParams, ShaderMotionPa
   perspective?: number;
   count?: number;
   dispersion?: number;
-  colorShift?: number;
+  dispersionShift?: number;
+  dispersionColor?: number;
   focusCenter?: number;
   focusEdges?: number;
   noise?: number;

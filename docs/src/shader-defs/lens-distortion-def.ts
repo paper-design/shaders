@@ -62,20 +62,29 @@ export const lensDistortionDef: ShaderDef = {
     {
       name: 'dispersion',
       type: 'number',
-      min: -1,
+      min: 0,
       max: 1,
       defaultValue: defaultParams.dispersion,
       description:
-        'Amount of chromatic aberration and where it sits: at 0 every layer keeps the original image color, so the spread reads as a plain blur. Negative values grow the rainbow tint from a soft circular zone at the centre outwards, positive values grow it from the edges inwards - around -0.5 only that central zone is tinted, around 0.5 only the area outside it, and at -1 and 1 the tint covers the whole image (no effect with spread = 0)',
+        'Overall amount of color dispersion: at 1 each layer takes its own hue from the rainbow, giving the chromatic aberration look; at 0 every layer keeps the original image color, so the spread reads as a plain blur (no effect with spread = 0)',
     },
     {
-      name: 'colorShift',
+      name: 'dispersionShift',
+      type: 'number',
+      min: -1,
+      max: 1,
+      defaultValue: defaultParams.dispersionShift,
+      description:
+        'Balances the dispersion between a soft circular zone at the centre of the image and the rest of it: 0 applies it evenly over the whole image, -1 keeps it in the centre only, 1 keeps it at the edges only (no effect with spread = 0 or dispersion = 0)',
+    },
+    {
+      name: 'dispersionColor',
       type: 'number',
       min: 0,
       max: 1,
-      defaultValue: defaultParams.colorShift,
+      defaultValue: defaultParams.dispersionColor,
       description:
-        'Rotates the colors around the hue wheel, 0 to 1 for a full turn (no effect with spread = 0)',
+        'Rotates the colors around the hue wheel, 0 to 1 for a full turn (no effect with spread = 0 or dispersion = 0)',
     },
     {
       name: 'focusCenter',

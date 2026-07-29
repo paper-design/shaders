@@ -16,7 +16,7 @@ import { useUrlParams } from '@/helpers/use-url-params';
 const { worldWidth, worldHeight, ...defaults } = lensDistortionPresets[0].params;
 
 const imageFiles = [
-  'test.png',
+  // 'test.png',
   '001.webp',
   '002.webp',
   '003.webp',
@@ -72,8 +72,9 @@ const LensDistortionWithControls = () => {
       angle: { value: defaults.angle, min: 0, max: 360, order: 102 },
       perspective: { value: defaults.perspective, min: 0, max: 1, order: 103 },
       count: { value: defaults.count, min: 2, max: lensDistortionMeta.maxSamples, step: 1, order: 104 },
-      dispersion: { value: defaults.dispersion, min: -1, max: 1, order: 105 },
-      colorShift: { value: defaults.colorShift, min: 0, max: 1, order: 106 },
+      dispersion: { value: defaults.dispersion, min: 0, max: 1, order: 105 },
+      dispersionShift: { value: defaults.dispersionShift, min: -1, max: 1, order: 106 },
+      dispersionColor: { value: defaults.dispersionColor, min: 0, max: 1, order: 107 },
       focusCenter: { value: defaults.focusCenter, min: 0, max: 1, order: 204 },
       focusEdges: { value: defaults.focusEdges, min: 0, max: 1, order: 205 },
       noise: { value: defaults.noise, min: 0, max: 1, order: 300 },
