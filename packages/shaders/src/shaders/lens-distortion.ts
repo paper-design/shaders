@@ -19,7 +19,7 @@ export const lensDistortionMeta = {
  * - u_angle (float): Direction of the spread in degrees (0 to 360)
  * - u_perspective (float): Shapes the spread direction from a straight line (0) to a radial burst out from the centre (1) (0 to 1)
  * - u_count (float): Number of sampled color layers along the spread; higher is smoother and costlier (2 to 50)
- * - u_colorFade (float): Fades the color dispersion out from the centre or from the edges; 0 tints the whole image, -.7 keeps the tint in the centre only, .7 keeps it at the edges only, -1 and 1 remove it entirely (-1 to 1)
+ * - u_dispersion (float): Amount of color dispersion, growing from the centre outwards (negative) or from the edges inwards (positive); 0 keeps the original image color, -.5 tints a circular zone at the centre only, .5 tints everything outside it, -1 and 1 tint the whole image (-1 to 1)
  * - u_colorShift (float): Rotates the colors around the hue wheel, 0 to 1 for a full turn
  * - u_focusCenter (float): Reduces the spread in a circular zone at the centre; 0 keeps it full to the centre (0 to 1)
  * - u_focusEdges (float): Reduces the spread toward the edges; 0 keeps it full to the edges, 1 restores the original image there (0 to 1)
@@ -61,7 +61,7 @@ uniform float u_bias;
 uniform float u_angle;
 uniform float u_perspective;
 uniform float u_count;
-uniform float u_colorFade;
+uniform float u_dispersion;
 uniform float u_colorShift;
 uniform float u_focusCenter;
 uniform float u_focusEdges;
@@ -251,11 +251,13 @@ void main() {
     
   float splitStart = .35;
   float splitEnd = .65;
-  float centerAmount = 1. - clamp(u_colorFade / splitStart, 0., 1.);
-  float edgesAmount = 1. - clamp(-u_colorFade / splitStart, 0., 1.);
-  float remaining = 1. - clamp((abs(u_colorFade) - splitEnd) / (1. - splitEnd), 0., 1.);
-  float splitT = clamp((abs(u_colorFade) - splitStart) / (splitEnd - splitStart), 0., 1.);
-  float maskScale = 1. + sign(u_colorFade) * .3 * splitT;
+  float falloff = 1. - abs(u_dispersion);
+  float side = sign(u_dispersion) * falloff;
+  float centerAmount = 1. - clamp(side / splitStart, 0., 1.);
+  float edgesAmount = 1. - clamp(-side / splitStart, 0., 1.);
+  float remaining = 1. - clamp((falloff - splitEnd) / (1. - splitEnd), 0., 1.);
+  float splitT = clamp((falloff - splitStart) / (splitEnd - splitStart), 0., 1.);
+  float maskScale = 1. + sign(u_dispersion) * .3 * splitT;
   float dispersion = remaining * mix(edgesAmount, centerAmount, innerCircleMask(uv, maskScale));
   float dispersionPower = pow(dispersion, 1.);
 
@@ -301,7 +303,7 @@ export interface LensDistortionUniforms extends ShaderSizingUniforms {
   u_angle: number;
   u_perspective: number;
   u_count: number;
-  u_colorFade: number;
+  u_dispersion: number;
   u_colorShift: number;
   u_focusCenter: number;
   u_focusEdges: number;
@@ -323,7 +325,7 @@ export interface LensDistortionParams extends ShaderSizingParams, ShaderMotionPa
   angle?: number;
   perspective?: number;
   count?: number;
-  colorFade?: number;
+  dispersion?: number;
   colorShift?: number;
   focusCenter?: number;
   focusEdges?: number;

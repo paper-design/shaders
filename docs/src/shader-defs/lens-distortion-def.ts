@@ -60,13 +60,13 @@ export const lensDistortionDef: ShaderDef = {
         'Number of colored layers making the spread - more layers blend into a blur, fewer stay as separate ghosted copies (no effect with spread = 0)',
     },
     {
-      name: 'colorFade',
+      name: 'dispersion',
       type: 'number',
       min: -1,
       max: 1,
-      defaultValue: defaultParams.colorFade,
+      defaultValue: defaultParams.dispersion,
       description:
-        'Fades the chromatic aberration out from the centre or from the edges: at 0 the whole image takes the rainbow tint, at -0.7 it is left in a soft circular zone at the centre only, at 0.7 outside that zone only, and it keeps fading from there until -1 and 1 remove it from the whole image. Where the tint is gone every layer keeps the original image color, so the spread reads as a plain blur there (no effect with spread = 0)',
+        'Amount of chromatic aberration and where it sits: at 0 every layer keeps the original image color, so the spread reads as a plain blur. Negative values grow the rainbow tint from a soft circular zone at the centre outwards, positive values grow it from the edges inwards - around -0.5 only that central zone is tinted, around 0.5 only the area outside it, and at -1 and 1 the tint covers the whole image (no effect with spread = 0)',
     },
     {
       name: 'colorShift',
