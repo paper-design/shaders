@@ -66,7 +66,7 @@ export const lensDistortionDef: ShaderDef = {
       max: 1,
       defaultValue: defaultParams.colorFade,
       description:
-        'Sweeps the chromatic aberration in and out as a soft ring: at 0 the whole image takes the rainbow tint, positive values fade it away from the centre outwards, negative values fade it in from the edges inwards; at -1 and 1 every layer keeps the original image color, so the spread reads as a plain blur (no effect with spread = 0)',
+        'Fades the chromatic aberration out from the centre or from the edges: at 0 the whole image takes the rainbow tint, at -0.7 it is left in a soft circular zone at the centre only, at 0.7 outside that zone only, and it keeps fading from there until -1 and 1 remove it from the whole image. Where the tint is gone every layer keeps the original image color, so the spread reads as a plain blur there (no effect with spread = 0)',
     },
     {
       name: 'colorShift',
@@ -75,7 +75,7 @@ export const lensDistortionDef: ShaderDef = {
       max: 1,
       defaultValue: defaultParams.colorShift,
       description:
-        'Rotates the colors around the hue wheel, 0 to 1 for a full turn (no effect with spread = 0 or colorFade = -1 or 1)',
+        'Rotates the colors around the hue wheel, 0 to 1 for a full turn (no effect with spread = 0)',
     },
     {
       name: 'focusCenter',
