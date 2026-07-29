@@ -19,7 +19,7 @@ export const lensDistortionMeta = {
  * - u_angle (float): Direction of the spread in degrees (0 to 360)
  * - u_perspective (float): Shapes the spread direction from a straight line (0) to a radial burst out from the centre (1) (0 to 1)
  * - u_count (float): Number of sampled color layers along the spread; higher is smoother and costlier (2 to 50)
- * - u_colorDispersion (float): Amount of color dispersion across the layers; 1 tints each layer with its own rainbow hue, 0 keeps the original image color (0 to 1)
+ * - u_colorFade (float): Sweeps a soft ring of rainbow tinting outwards from the centre; 0 tints the whole image, -1 and 1 keep the original image color (-1 to 1)
  * - u_colorShift (float): Rotates the colors around the hue wheel, 0 to 1 for a full turn
  * - u_focusCenter (float): Reduces the spread in a circular zone at the centre; 0 keeps it full to the centre (0 to 1)
  * - u_focusEdges (float): Reduces the spread toward the edges; 0 keeps it full to the edges, 1 restores the original image there (0 to 1)
@@ -61,7 +61,7 @@ uniform float u_bias;
 uniform float u_angle;
 uniform float u_perspective;
 uniform float u_count;
-uniform float u_colorDispersion;
+uniform float u_colorFade;
 uniform float u_colorShift;
 uniform float u_focusCenter;
 uniform float u_focusEdges;
@@ -241,6 +241,24 @@ void main() {
   float biasPower = 1. + 2. * abs(u_bias);
   vec2 imageOffset = vec2(u_imageX, u_imageY);
 
+  vec2 fromCenter = uv - .5;
+  fromCenter.x *= u_imageAspectRatio;
+  float inradius = boxInradius();
+  float radius = length(fromCenter);
+
+  vec2 dispersionDir = fromCenter / max(radius, 1e-5);
+  vec2 halfBox = vec2(u_imageAspectRatio, 1.) * .5;
+  float rBox = min(halfBox.x / max(abs(dispersionDir.x), 1e-4), halfBox.y / max(abs(dispersionDir.y), 1e-4));
+  float boxness = smoothstep(0., 1., clamp(radius / rBox, 0., 1.));
+  float dispersionDist = radius / mix(boxOutradius(), rBox, boxness);
+
+  float feather = .5;
+  float fade = sign(u_colorFade) * pow(abs(u_colorFade), 2.);
+  float outerEdge = mix(-feather, 1. + feather, clamp(fade + 1., 0., 1.));
+  float innerEdge = mix(-feather, 1. + feather, clamp(fade, 0., 1.));
+  float dispersion = smoothstep(innerEdge - feather, innerEdge + feather, dispersionDist)
+                   * (1. - smoothstep(outerEdge - feather, outerEdge + feather, dispersionDist));
+
   for (int i = 0; i < ${lensDistortionMeta.maxSamples}; i++) {
     if (i >= countInteger) break;
 
@@ -251,7 +269,7 @@ void main() {
     float spread = dispersionCurve(spreadPos, biasPower);
     vec2 offset = mix(spreadAxis, -spreadAxis, spread);
     vec4 tap = sampleOverWhite(baseUV + offset - imageOffset);
-    vec3 weight = mix(vec3(1.), 1. - hueColor(hue), pow(u_colorDispersion, .5));
+    vec3 weight = mix(vec3(1.), 1. - hueColor(hue), dispersion);
 
     colorSum += tap.rgb * weight;
     weightSum += weight;
@@ -283,7 +301,7 @@ export interface LensDistortionUniforms extends ShaderSizingUniforms {
   u_angle: number;
   u_perspective: number;
   u_count: number;
-  u_colorDispersion: number;
+  u_colorFade: number;
   u_colorShift: number;
   u_focusCenter: number;
   u_focusEdges: number;
@@ -305,7 +323,7 @@ export interface LensDistortionParams extends ShaderSizingParams, ShaderMotionPa
   angle?: number;
   perspective?: number;
   count?: number;
-  colorDispersion?: number;
+  colorFade?: number;
   colorShift?: number;
   focusCenter?: number;
   focusEdges?: number;

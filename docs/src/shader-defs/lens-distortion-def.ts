@@ -60,13 +60,13 @@ export const lensDistortionDef: ShaderDef = {
         'Number of colored layers making the spread - more layers blend into a blur, fewer stay as separate ghosted copies (no effect with spread = 0)',
     },
     {
-      name: 'colorDispersion',
+      name: 'colorFade',
       type: 'number',
-      min: 0,
+      min: -1,
       max: 1,
-      defaultValue: defaultParams.colorDispersion,
+      defaultValue: defaultParams.colorFade,
       description:
-        'Amount of color dispersion across the layers: at 1 each layer takes its own hue from the rainbow, giving the chromatic aberration look; at 0 every layer keeps the original image color, so the spread reads as a plain blur (no effect with spread = 0)',
+        'Sweeps the chromatic aberration in and out as a soft ring: at 0 the whole image takes the rainbow tint, positive values fade it away from the centre outwards, negative values fade it in from the edges inwards; at -1 and 1 every layer keeps the original image color, so the spread reads as a plain blur (no effect with spread = 0)',
     },
     {
       name: 'colorShift',
@@ -75,7 +75,7 @@ export const lensDistortionDef: ShaderDef = {
       max: 1,
       defaultValue: defaultParams.colorShift,
       description:
-        'Rotates the colors around the hue wheel, 0 to 1 for a full turn (no effect with spread = 0 or colorDispersion = 0)',
+        'Rotates the colors around the hue wheel, 0 to 1 for a full turn (no effect with spread = 0 or colorFade = -1 or 1)',
     },
     {
       name: 'focusCenter',
