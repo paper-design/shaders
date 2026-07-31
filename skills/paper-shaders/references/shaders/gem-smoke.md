@@ -12,16 +12,16 @@ Animated color fields placed over uploaded logo shape; gives the illusion of smo
 
 | Prop | Type | Required | React default | Constraints | Effect |
 | --- | --- | --- | --- | --- | --- |
-| `colors` | `string[]` | no | `["#333333","#e7e6df"]` | — | Colors used by the shader; implementation capacity is 6. |
-| `colorBack` | `string` | no | `"#f0efea"` | — | Background color |
+| `colors` | `string[]` | no | `["#333333","#e7e6df"]` | — | Up to 6 smoke colors in RGBA |
+| `colorBack` | `string` | no | `"#f0efea"` | — | Background color in RGBA |
 | `image` | `HTMLImageElement \| string \| undefined` | no | `""` | — | An optional image used as an effect mask. A transparent background is required. If no image is provided, the shader defaults to one of the predefined shapes. |
-| `innerDistortion` | `number` | no | `0.8` | editor range: 0…1 | The power of smoke distortion inside the input shape (shape defined by alpha channel) |
-| `outerDistortion` | `number` | no | `0.6` | editor range: 0…1 | The power of smoke distortion outside the input shape (shape defined by alpha channel) |
-| `outerGlow` | `number` | no | `0.55` | editor range: 0…1 | The visibility of smoke shape out of the input shape (shape defined by alpha channel) |
-| `innerGlow` | `number` | no | `1` | editor range: 0…1 | The visibility of smoke shape inside the input shape (shape defined by alpha channel) |
-| `colorInner` | `string` | no | `"#fafaf5"` | — | Additional color inside the input shape, mixing with smoke |
+| `innerDistortion` | `number` | no | `0.8` | editor range: 0…1 | Power of smoke distortion inside the input shape |
+| `outerDistortion` | `number` | no | `0.6` | editor range: 0…1 | Power of smoke distortion outside the input shape |
+| `outerGlow` | `number` | no | `0.55` | editor range: 0…1 | Visibility of smoke shape outside the input shape |
+| `innerGlow` | `number` | no | `1` | editor range: 0…1 | Visibility of smoke shape inside the input shape |
+| `colorInner` | `string` | no | `"#fafaf5"` | — | Additional color inside the input shape, mixing with smoke (RGBA) |
 | `offset` | `number` | no | `0` | editor range: -1…1 | Vertical offset of smoke inside the shape |
-| `angle` | `number` | no | `0` | editor range: 0…360 | Smoke direction |
-| `size` | `number` | no | `0.8` | editor range: 0…1 | The size of smoke shape relative to the image box |
+| `angle` | `number` | no | `0` | editor range: 0…360 | Smoke direction in degrees |
+| `size` | `number` | no | `0.8` | editor range: 0…1 | Size of smoke shape relative to the image box |
 | `shape` | `GemSmokeShape` | no | `"diamond"` | options: "none", "circle", "daisy", "diamond", "metaballs" | The predefined shape used as an effect mask when no image is provided. |
 | `suspendWhenProcessingImage` | `boolean` | no | `false` | — | React-only. Suspends the component when the image is being processed. |

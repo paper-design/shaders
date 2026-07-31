@@ -1,0 +1,10 @@
+{
+  "name": "@paper-design/skill-generator",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "generate": "bun run src/generate-skills.ts",
+    "check": "bun run src/generate-skills.ts --check",
+    "type-check": "tsc --project tsconfig.json"
+  }
+}

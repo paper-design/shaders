@@ -12,13 +12,13 @@ Static grid pattern made of circles, diamonds, squares or triangles.
 
 | Prop | Type | Required | React default | Constraints | Effect |
 | --- | --- | --- | --- | --- | --- |
-| `colorBack` | `string` | no | `"#000000"` | — | Background color |
-| `colorFill` | `string` | no | `"#ffffff"` | — | Shape fill color |
-| `colorStroke` | `string` | no | `"#ffaa00"` | — | Shape stroke color |
-| `size` | `number` | no | `2` | editor range: 1…100 | Base size of each shape, pixels |
-| `gapX` | `number` | no | `32` | editor range: 2…500 | Pattern horizontal spacing, pixels |
-| `gapY` | `number` | no | `32` | editor range: 2…500 | Pattern vertical spacing, pixels |
-| `strokeWidth` | `number` | no | `0` | editor range: 0…50 | The outline stroke width, pixels |
-| `sizeRange` | `number` | no | `0` | editor range: 0…1 | Random variation in shape size (0 = uniform size, higher = random value up to base size) |
-| `opacityRange` | `number` | no | `0` | editor range: 0…1 | Random variation in shape opacity (0 = all shapes opaque, higher = semi-transparent dots) |
-| `shape` | `DotGridShape` | no | `"circle"` | options: "circle", "diamond", "square", "triangle" | The shape type |
+| `colorBack` | `string` | no | `"#000000"` | — | Background color in RGBA |
+| `colorFill` | `string` | no | `"#ffffff"` | — | Shape fill color in RGBA |
+| `colorStroke` | `string` | no | `"#ffaa00"` | — | Shape stroke color in RGBA |
+| `size` | `number` | no | `2` | editor range: 1…100 | Base size of each shape in pixels |
+| `gapX` | `number` | no | `32` | editor range: 2…500 | Pattern horizontal spacing in pixels |
+| `gapY` | `number` | no | `32` | editor range: 2…500 | Pattern vertical spacing in pixels |
+| `strokeWidth` | `number` | no | `0` | editor range: 0…50 | Outline stroke width in pixels |
+| `sizeRange` | `number` | no | `0` | editor range: 0…1 | Random variation in shape size, 0 = uniform, higher = random up to base size |
+| `opacityRange` | `number` | no | `0` | editor range: 0…1 | Random variation in shape opacity, 0 = opaque, higher = semi-transparent |
+| `shape` | `DotGridShape` | no | `"circle"` | options: "circle", "diamond", "square", "triangle" | Shape type (0 = circle, 1 = diamond, 2 = square, 3 = triangle) |

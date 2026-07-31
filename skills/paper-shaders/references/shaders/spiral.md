@@ -11,13 +11,13 @@ A single-colored animated spiral that morphs across a wide range of shapes - fro
 
 | Prop | Type | Required | React default | Constraints | Effect |
 | --- | --- | --- | --- | --- | --- |
-| `colorBack` | `string` | no | `"#001429"` | — | Background color |
-| `colorFront` | `string` | no | `"#79D1FF"` | — | Foreground (ink) color |
-| `density` | `number` | no | `1` | editor range: 0…1 | Spacing falloff simulating perspective (0 = flat spiral) |
+| `colorBack` | `string` | no | `"#001429"` | — | Background color in RGBA |
+| `colorFront` | `string` | no | `"#79D1FF"` | — | Foreground (ink) color in RGBA |
+| `density` | `number` | no | `1` | editor range: 0…1 | Spacing falloff simulating perspective, 0 = flat spiral |
 | `distortion` | `number` | no | `0` | editor range: 0…1 | Power of shape distortion applied along the spiral |
 | `strokeWidth` | `number` | no | `0.5` | editor range: 0…1 | Thickness of spiral curve |
-| `strokeTaper` | `number` | no | `0` | editor range: 0…1 | How much the stroke loses width away from the center (0 = full visibility) |
-| `strokeCap` | `number` | no | `0` | editor range: 0…1 | Extra stroke width at the center (no effect with strokeWidth = 0.5) |
-| `noise` | `number` | no | `0` | editor range: 0…1 | Noise distortion applied over the canvas (no effect with noiseFrequency = 0) |
-| `noiseFrequency` | `number` | no | `0` | editor range: 0…1 | Noise frequency (no effect with noise = 0) |
-| `softness` | `number` | no | `0` | editor range: 0…1 | Color transition sharpness (0 = hard edge, 1 = smooth gradient) |
+| `strokeTaper` | `number` | no | `0` | editor range: 0…1 | How much stroke loses width away from center, 0 = full visibility |
+| `strokeCap` | `number` | no | `0` | editor range: 0…1 | Extra stroke width at the center, no effect with strokeWidth = 0.5 |
+| `noise` | `number` | no | `0` | editor range: 0…1 | Noise distortion applied over the canvas, no effect with noiseFrequency = 0 |
+| `noiseFrequency` | `number` | no | `0` | editor range: 0…1 | Noise frequency, no effect with noise = 0 |
+| `softness` | `number` | no | `0` | editor range: 0…1 | Color transition sharpness, 0 = hard edge, 1 = smooth gradient |

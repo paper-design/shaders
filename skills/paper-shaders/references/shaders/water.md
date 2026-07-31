@@ -12,11 +12,11 @@ Water-like surface distortion with natural caustic realism. Works as an image fi
 
 | Prop | Type | Required | React default | Constraints | Effect |
 | --- | --- | --- | --- | --- | --- |
-| `image` | `HTMLImageElement \| string` | no | `""` | — | The image to use for the effect |
-| `colorBack` | `string` | no | `"#909090"` | — | Background color |
-| `colorHighlight` | `string` | no | `"#ffffff"` | — | Highlight color |
-| `highlights` | `number` | no | `0.07` | editor range: 0…1 | A coloring added over the image/background, following the caustic shape |
-| `layering` | `number` | no | `0.5` | editor range: 0…1 | The power of 2nd layer of caustic distortion |
+| `image` | `HTMLImageElement \| string` | no | `""` | — | Optional source image texture |
+| `colorBack` | `string` | no | `"#909090"` | — | Background color in RGBA |
+| `colorHighlight` | `string` | no | `"#ffffff"` | — | Highlight color in RGBA |
+| `highlights` | `number` | no | `0.07` | editor range: 0…1 | Coloring added over image/background following caustic shape |
+| `layering` | `number` | no | `0.5` | editor range: 0…1 | Power of 2nd layer of caustic distortion |
 | `edges` | `number` | no | `0.8` | editor range: 0…1 | Caustic distortion power on the image edges |
 | `caustic` | `number` | no | `0.1` | editor range: 0…1 | Power of caustic distortion |
 | `waves` | `number` | no | `0.3` | editor range: 0…1 | Additional distortion based on simplex noise, independent from caustic |

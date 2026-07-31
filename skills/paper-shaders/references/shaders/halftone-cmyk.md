@@ -12,25 +12,25 @@ CMYK halftone printing effect applied to images with customizable dot patterns a
 
 | Prop | Type | Required | React default | Constraints | Effect |
 | --- | --- | --- | --- | --- | --- |
-| `image` | `HTMLImageElement \| string` | no | `""` | — | The image to use for the effect |
-| `colorBack` | `string` | no | `"#fbfaf5"` | — | Background (paper) color |
-| `colorC` | `string` | no | `"#00b4ff"` | — | Cyan ink color (alpha controls layer transparency, not dot size) |
-| `colorM` | `string` | no | `"#fc519f"` | — | Magenta ink color (alpha controls layer transparency, not dot size) |
-| `colorY` | `string` | no | `"#ffd800"` | — | Yellow ink color (alpha controls layer transparency, not dot size) |
-| `colorK` | `string` | no | `"#231f20"` | — | Black ink color (alpha controls layer transparency, not dot size) |
-| `size` | `number` | no | `0.2` | editor range: 0…1 | Grid size (relative to image box) |
-| `contrast` | `number` | no | `1` | editor range: 0…2 | Input image contrast |
-| `softness` | `number` | no | `1` | editor range: 0…1 | Dots edge softness |
-| `grainSize` | `number` | no | `0.5` | editor range: 0…1 | Size of grain overlay texture (relative to image box) |
+| `image` | `HTMLImageElement \| string` | no | `""` | — | Source image texture |
+| `colorBack` | `string` | no | `"#fbfaf5"` | — | Background (paper) color in RGBA |
+| `colorC` | `string` | no | `"#00b4ff"` | — | Cyan ink color in RGBA |
+| `colorM` | `string` | no | `"#fc519f"` | — | Magenta ink color in RGBA |
+| `colorY` | `string` | no | `"#ffd800"` | — | Yellow ink color in RGBA |
+| `colorK` | `string` | no | `"#231f20"` | — | Black ink color in RGBA |
+| `size` | `number` | no | `0.2` | editor range: 0…1 | Halftone cell size |
+| `contrast` | `number` | no | `1` | editor range: 0…2 | Image contrast adjustment |
+| `softness` | `number` | no | `1` | editor range: 0…1 | Edge softness of dots |
+| `grainSize` | `number` | no | `0.5` | editor range: 0…1 | Size of grain overlay texture |
 | `grainMixer` | `number` | no | `0` | editor range: 0…1 | Strength of grain affecting dot size |
-| `grainOverlay` | `number` | no | `0` | editor range: 0…1 | Strength of the black-and-white grain overlay on the final output |
-| `gridNoise` | `number` | no | `0.2` | editor range: 0…1 | Displaces both dot positions and color sampling points; naturally makes the background more visible |
-| `floodC` | `number` | no | `0.15` | editor range: 0…1; shader source documents -1…1 | Flat cyan dot-size adjustment applied uniformly |
-| `floodM` | `number` | no | `0` | editor range: 0…1; shader source documents -1…1 | Flat magenta dot-size adjustment applied uniformly |
-| `floodY` | `number` | no | `0` | editor range: 0…1; shader source documents -1…1 | Flat yellow dot-size adjustment applied uniformly |
-| `floodK` | `number` | no | `0` | editor range: 0…1; shader source documents -1…1 | Flat black dot-size adjustment applied uniformly |
-| `gainC` | `number` | no | `0.3` | editor range: -1…1 | Proportional cyan dot-size gain that enhances existing dots |
-| `gainM` | `number` | no | `0` | editor range: -1…1 | Proportional magenta dot-size gain that enhances existing dots |
-| `gainY` | `number` | no | `0.2` | editor range: -1…1 | Proportional yellow dot-size gain that enhances existing dots |
-| `gainK` | `number` | no | `0` | editor range: -1…1 | Proportional black dot-size gain that enhances existing dots |
-| `type` | `HalftoneCmykType` | no | `"ink"` | options: "dots", "ink", "sharp" | Dot type style (the difference between dots and ink is visible only with low softness) |
+| `grainOverlay` | `number` | no | `0` | editor range: 0…1 | Strength of grain overlay on final output |
+| `gridNoise` | `number` | no | `0.2` | editor range: 0…1 | Strength of smooth noise applied to both dot positions and color sampling |
+| `floodC` | `number` | no | `0.15` | editor range: 0…1; shader source documents -1…1 | Flat cyan dot size adjustment applied uniformly |
+| `floodM` | `number` | no | `0` | editor range: 0…1; shader source documents -1…1 | Flat magenta dot size adjustment applied uniformly |
+| `floodY` | `number` | no | `0` | editor range: 0…1; shader source documents -1…1 | Flat yellow dot size adjustment applied uniformly |
+| `floodK` | `number` | no | `0` | editor range: 0…1; shader source documents -1…1 | Flat black dot size adjustment applied uniformly |
+| `gainC` | `number` | no | `0.3` | editor range: -1…1 | Proportional cyan dot size gain (enhances existing dots) |
+| `gainM` | `number` | no | `0` | editor range: -1…1 | Proportional magenta dot size gain (enhances existing dots) |
+| `gainY` | `number` | no | `0.2` | editor range: -1…1 | Proportional yellow dot size gain (enhances existing dots) |
+| `gainK` | `number` | no | `0` | editor range: -1…1 | Proportional black dot size gain (enhances existing dots) |
+| `type` | `HalftoneCmykType` | no | `"ink"` | options: "dots", "ink", "sharp" | Dot shape style (0 = dots, 1 = ink, 2 = sharp) |

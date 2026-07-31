@@ -12,21 +12,21 @@ Luminous trails of color merging into a glowing gradient contour.
 
 | Prop | Type | Required | React default | Constraints | Effect |
 | --- | --- | --- | --- | --- | --- |
-| `colorBack` | `string` | no | `"#000000"` | — | Background color |
-| `colors` | `string[]` | no | `["#0dc1fd","#d915ef","#ff3f2ecc"]` | — | Colors used by the shader; implementation capacity is 5. |
-| `roundness` | `number` | no | `0.25` | editor range: 0…1 | The border radius |
-| `thickness` | `number` | no | `0.1` | editor range: 0…1 | The border base width |
+| `colorBack` | `string` | no | `"#000000"` | — | Background color in RGBA |
+| `colors` | `string[]` | no | `["#0dc1fd","#d915ef","#ff3f2ecc"]` | — | Up to 5 spot colors in RGBA |
+| `roundness` | `number` | no | `0.25` | editor range: 0…1 | Border radius |
+| `thickness` | `number` | no | `0.1` | editor range: 0…1 | Border base width |
 | `margin` | `number` | no | `0` | editor range: 0…1 | Distance from canvas edges to the effect |
 | `marginLeft` | `number` | no | `0` | editor range: 0…1 | Distance from the left edge to the effect |
 | `marginRight` | `number` | no | `0` | editor range: 0…1 | Distance from the right edge to the effect |
 | `marginTop` | `number` | no | `0` | editor range: 0…1 | Distance from the top edge to the effect |
 | `marginBottom` | `number` | no | `0` | editor range: 0…1 | Distance from the bottom edge to the effect |
-| `aspectRatio` | `PulsingBorderAspectRatio` | no | `"auto"` | options: "auto", "square" | Aspect ratio of the effect |
-| `softness` | `number` | no | `0.75` | editor range: 0…1 | Border edge sharpness (0 = hard edge, 1 = smooth gradient) |
+| `aspectRatio` | `PulsingBorderAspectRatio` | no | `"auto"` | options: "auto", "square" | Aspect ratio mode (0 = auto, 1 = square) |
+| `softness` | `number` | no | `0.75` | editor range: 0…1 | Border edge sharpness, 0 = hard edge, 1 = smooth gradient |
 | `intensity` | `number` | no | `0.2` | editor range: 0…1 | Thickness of individual color spots |
-| `bloom` | `number` | no | `0.25` | editor range: 0…1 | The power of glow (0 = normal color blending, 1 = fully additive blending) |
-| `spots` | `number` | no | `5` | editor range: 1…20; step: 1; shader loop capacity: 4 | Requested spots per color. The shader renders at most 4, so the default value of 5 has the same effective spot count as 4. |
+| `bloom` | `number` | no | `0.25` | editor range: 0…1 | Power of glow, 0 = normal blending, 1 = additive blending |
+| `spots` | `number` | no | `5` | editor range: 1…20; step: 1; implementation capacity: 4 | Number of spots added for each color |
 | `spotSize` | `number` | no | `0.5` | editor range: 0…1 | Angular size of spots |
-| `pulse` | `number` | no | `0.25` | editor range: 0…1 | Optional pulsing animation |
-| `smoke` | `number` | no | `0.3` | editor range: 0…1 | Optional noisy shape extending the border shape |
-| `smokeSize` | `number` | no | `0.6` | editor range: 0…1 | The size of the smoke effect (effective with smoke > 0) |
+| `pulse` | `number` | no | `0.25` | editor range: 0…1 | Optional pulsing animation intensity |
+| `smoke` | `number` | no | `0.3` | editor range: 0…1 | Optional noisy shape extending the border |
+| `smokeSize` | `number` | no | `0.6` | editor range: 0…1 | Size of the smoke effect |

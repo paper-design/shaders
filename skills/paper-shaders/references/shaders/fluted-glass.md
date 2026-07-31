@@ -13,16 +13,16 @@ Fluted glass image filter that transforms an image into streaked, ribbed distort
 
 | Prop | Type | Required | React default | Constraints | Effect |
 | --- | --- | --- | --- | --- | --- |
-| `image` | `HTMLImageElement \| string` | no | `""` | — | The image to use for the effect |
-| `colorBack` | `string` | no | `"#00000000"` | — | Background color |
-| `colorShadow` | `string` | no | `"#000000"` | — | Shadows color |
-| `colorHighlight` | `string` | no | `"#ffffff"` | — | Highlights color |
-| `shadows` | `number` | no | `0.25` | editor range: 0…1 | A color gradient added over both image and background, following the distortion shape |
-| `size` | `number` | no | `0.5` | editor range: 0…1; step: 0.001 | The size of the distortion shape grid |
-| `angle` | `number` | no | `0` | editor range: 0…180 | Direction of the grid relative to the image |
-| `distortion` | `number` | no | `0.5` | editor range: 0…1 | The power of distortion applied within each stripe |
+| `image` | `HTMLImageElement \| string` | no | `""` | — | Source image texture |
+| `colorBack` | `string` | no | `"#00000000"` | — | Background color in RGBA |
+| `colorShadow` | `string` | no | `"#000000"` | — | Shadows color in RGBA |
+| `colorHighlight` | `string` | no | `"#ffffff"` | — | Highlights color in RGBA |
+| `shadows` | `number` | no | `0.25` | editor range: 0…1 | Color gradient added over image and background, following distortion shape |
+| `size` | `number` | no | `0.5` | editor range: 0…1; step: 0.001 | Size of the distortion shape grid |
+| `angle` | `number` | no | `0` | editor range: 0…180 | Direction of the grid relative to the image in degrees |
+| `distortion` | `number` | no | `0.5` | editor range: 0…1 | Power of distortion applied within each stripe |
 | `shift` | `number` | no | `0` | editor range: -1…1 | Texture shift in direction opposite to the grid |
-| `blur` | `number` | no | `0` | editor range: 0…1 | One-directional blur over the image and extra blur around the edges |
+| `blur` | `number` | no | `0` | editor range: 0…1 | One-directional blur over the image and extra blur around edges |
 | `edges` | `number` | no | `0.25` | editor range: 0…1 | Glass distortion and softness on the image edges |
 | `margin` | `number` | no | `0` | editor range: 0…1 | Distance from image edges to the effect |
 | `marginLeft` | `number` | no | `0` | editor range: 0…1 | Distance from the left edge to the effect |
@@ -30,9 +30,9 @@ Fluted glass image filter that transforms an image into streaked, ribbed distort
 | `marginTop` | `number` | no | `0` | editor range: 0…1 | Distance from the top edge to the effect |
 | `marginBottom` | `number` | no | `0` | editor range: 0…1 | Distance from the bottom edge to the effect |
 | `stretch` | `number` | no | `0` | editor range: 0…1 | Extra distortion along the grid lines |
-| `distortionShape` | `GlassDistortionShape` | no | `"prism"` | options: "prism", "lens", "contour", "cascade", "flat" | The shape of the distortion |
-| `highlights` | `number` | no | `0.1` | editor range: 0…1 | Thin strokes along the distortion shape; useful for antialiasing on a small grid |
-| `shape` | `GlassGridShape` | no | `"lines"` | options: "lines", "linesIrregular", "wave", "zigzag", "pattern" | The shape of the grid |
-| `grainMixer` | `number` | no | `0` | editor range: 0…1 | Strength of grain distortion applied to the shapes’ edges |
-| `grainOverlay` | `number` | no | `0` | editor range: 0…1 | Post-processing b/w grain overlay |
+| `distortionShape` | `GlassDistortionShape` | no | `"prism"` | options: "prism", "lens", "contour", "cascade", "flat" | Shape of distortion (1 = prism, 2 = lens, 3 = contour, 4 = cascade, 5 = flat) |
+| `highlights` | `number` | no | `0.1` | editor range: 0…1 | Thin strokes along distortion shape, useful for antialiasing on small grid |
+| `shape` | `GlassGridShape` | no | `"lines"` | options: "lines", "linesIrregular", "wave", "zigzag", "pattern" | Grid shape (1 = lines, 2 = linesIrregular, 3 = wave, 4 = zigzag, 5 = pattern) |
+| `grainMixer` | `number` | no | `0` | editor range: 0…1 | Strength of grain distortion applied to shape edges |
+| `grainOverlay` | `number` | no | `0` | editor range: 0…1 | Post-processing black/white grain overlay |
 | `count` | `number` | no | — | — | React-only. @deprecated use `size` instead |

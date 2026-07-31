@@ -12,19 +12,19 @@ A static texture built from multiple noise layers, usable for realistic paper an
 
 | Prop | Type | Required | React default | Constraints | Effect |
 | --- | --- | --- | --- | --- | --- |
-| `image` | `HTMLImageElement \| string` | no | `""` | — | The image to use for the effect |
-| `colorFront` | `string` | no | `"#9fadbc"` | — | Foreground color |
-| `colorBack` | `string` | no | `"#ffffff"` | — | Background color |
-| `contrast` | `number` | no | `0.3` | editor range: 0…1 | Blending behavior (sharper vs. smoother color transitions) |
-| `roughness` | `number` | no | `0.4` | editor range: 0…1 | Pixel noise, related to canvas (not scalable) |
-| `fiber` | `number` | no | `0.3` | editor range: 0…1 | Curly-shaped noise |
+| `image` | `HTMLImageElement \| string` | no | `""` | — | Optional source image texture |
+| `colorFront` | `string` | no | `"#9fadbc"` | — | Foreground color in RGBA |
+| `colorBack` | `string` | no | `"#ffffff"` | — | Background color in RGBA |
+| `contrast` | `number` | no | `0.3` | editor range: 0…1 | Blending behavior, sharper vs smoother color transitions |
+| `roughness` | `number` | no | `0.4` | editor range: 0…1 | Pixel noise, related to canvas and not scalable |
+| `fiber` | `number` | no | `0.3` | editor range: 0…1 | Curly-shaped noise intensity |
 | `fiberSize` | `number` | no | `0.2` | editor range: 0…1 | Curly-shaped noise scale |
-| `crumples` | `number` | no | `0.3` | editor range: 0…1 | Cell-based crumple pattern |
-| `foldCount` | `number` | no | `5` | editor range: 1…15; step: 1 | Number of folds (15 max) |
+| `crumples` | `number` | no | `0.3` | editor range: 0…1 | Cell-based crumple pattern intensity |
+| `foldCount` | `number` | no | `5` | editor range: 1…15; step: 1 | Number of folds |
 | `folds` | `number` | no | `0.65` | editor range: 0…1 | Depth of the folds |
 | `fade` | `number` | no | `0` | editor range: 0…1 | Big-scale noise mask applied to the pattern |
 | `crumpleSize` | `number` | no | `0.35` | editor range: 0…1 | Cell-based crumple pattern scale |
-| `drops` | `number` | no | `0.2` | editor range: 0…1 | The visibility of speckle pattern |
+| `drops` | `number` | no | `0.2` | editor range: 0…1 | Visibility of speckle pattern |
 | `seed` | `number` | no | `5.8` | editor range: 0…1000 | Seed applied to folds, crumples and dots |
 | `fiberScale` | `number` | no | — | — | React-only. @deprecated use `fiberSize` instead |
 | `crumplesScale` | `number` | no | — | — | React-only. @deprecated use `crumpleSize` instead |

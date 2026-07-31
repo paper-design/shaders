@@ -11,9 +11,9 @@ Animated 2-color dithering over multiple pattern sources (noise, warp, dots, wav
 
 | Prop | Type | Required | React default | Constraints | Effect |
 | --- | --- | --- | --- | --- | --- |
-| `colorBack` | `string` | no | `"#000000"` | — | Background color |
-| `colorFront` | `string` | no | `"#00b2ff"` | — | The foreground (ink) color |
-| `shape` | `DitheringShape` | no | `"sphere"` | options: "simplex", "warp", "dots", "wave", "ripple", "swirl", "sphere" | Shape pattern type |
-| `type` | `DitheringType` | no | `"4x4"` | options: "random", "2x2", "4x4", "8x8" | Dithering type |
+| `colorBack` | `string` | no | `"#000000"` | — | Background color in RGBA |
+| `colorFront` | `string` | no | `"#00b2ff"` | — | Foreground (ink) color in RGBA |
+| `shape` | `DitheringShape` | no | `"sphere"` | options: "simplex", "warp", "dots", "wave", "ripple", "swirl", "sphere" | Shape pattern type (1 = simplex, 2 = warp, 3 = dots, 4 = wave, 5 = ripple, 6 = swirl, 7 = sphere) |
+| `type` | `DitheringType` | no | `"4x4"` | options: "random", "2x2", "4x4", "8x8" | Dithering type (1 = random, 2 = 2x2 Bayer, 3 = 4x4 Bayer, 4 = 8x8 Bayer) |
 | `size` | `number` | no | `2` | editor range: 1…20; shader source documents 0.5…20 | Pixel size of dithering grid |
 | `pxSize` | `number` | no | — | — | React-only. @deprecated use `size` instead |

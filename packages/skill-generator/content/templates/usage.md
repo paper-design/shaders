@@ -60,12 +60,7 @@ export function HeroShader() {
 Every named shader component accepts its shader-specific params plus the common component controls:
 
 - ordinary `div` props except `color` and `ref`
-- `ref?: React.Ref<PaperShaderElement>`
-- `width?: string | number`
-- `height?: string | number`
-- `minPixelRatio?: number`
-- `maxPixelCount?: number`
-- `webGlContextAttributes?: WebGLContextAttributes`
+{{componentControls}}
 
 `width` and `height` become inline styles. Other layout styles can be passed through `style`. Ensure the element resolves to a non-zero width and height.
 
@@ -247,15 +242,7 @@ It does not parse CSS named colors. Invalid values fall back to `[0.5, 0.5, 0.5,
 
 All named shader components accept:
 
-- `fit?: "none" | "contain" | "cover"`
-- `scale?: number`
-- `rotation?: number`
-- `originX?: number`
-- `originY?: number`
-- `offsetX?: number`
-- `offsetY?: number`
-- `worldWidth?: number`
-- `worldHeight?: number`
+{{sizingProperties}}
 
 Defaults come from one of two source objects, then may be overridden by the component's default preset:
 
@@ -266,8 +253,7 @@ The catalog lists the effective defaults for every shader.
 
 Shaders whose params extend `ShaderMotionParams` also accept:
 
-- `speed?: number`: `0` stops the animation loop; negative values play backward
-- `frame?: number`: animation position in milliseconds; the shader receives seconds as `u_time`
+{{motionProperties}}
 
 The mount pauses animated rendering when the document is hidden. It also pauses when the element leaves the viewport when `IntersectionObserver` is available in the element's window.
 

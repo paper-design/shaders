@@ -12,12 +12,12 @@ Animated color fields warped by noise and swirls, applied over base patterns (ch
 
 | Prop | Type | Required | React default | Constraints | Effect |
 | --- | --- | --- | --- | --- | --- |
-| `colors` | `string[]` | no | `["#121212","#9470ff","#121212","#8838ff"]` | — | Colors used by the shader; implementation capacity is 10. |
-| `rotation` | `number` | no | `0` | editor range: 0…360 | Overall rotation angle of the graphics. |
-| `proportion` | `number` | no | `0.45` | editor range: 0…1 | Blend point between 2 colors (0.5 = equal distribution) |
-| `softness` | `number` | no | `1` | editor range: 0…1 | Color transition sharpness (0 = hard edge, 1 = smooth gradient) |
-| `shape` | `WarpPattern` | no | `"checks"` | options: "checks", "stripes", "edge" | Base pattern type |
+| `colors` | `string[]` | no | `["#121212","#9470ff","#121212","#8838ff"]` | — | Up to 10 gradient colors in RGBA |
+| `rotation` | `number` | no | `0` | editor range: 0…360 | Overall rotation angle of the graphics in degrees |
+| `proportion` | `number` | no | `0.45` | editor range: 0…1 | Blend point between colors, 0.5 = equal distribution |
+| `softness` | `number` | no | `1` | editor range: 0…1 | Color transition sharpness, 0 = hard edge, 1 = smooth gradient |
+| `shape` | `WarpPattern` | no | `"checks"` | options: "checks", "stripes", "edge" | Base pattern type (0 = checks, 1 = stripes, 2 = edge) |
 | `shapeScale` | `number` | no | `0.1` | editor range: 0…1 | Zoom level of the base pattern |
 | `distortion` | `number` | no | `0.25` | editor range: 0…1 | Strength of noise-based distortion |
 | `swirl` | `number` | no | `0.8` | editor range: 0…1 | Strength of the swirl distortion |
-| `swirlIterations` | `number` | no | `10` | editor range: 0…20; hard loop capacity: 20 | Exclusive integer loop bound for layered swirl passes. For an integer `N` in the editor range, the shader executes indices 1 through `N - 1`; the default 10 therefore runs 9 passes, and 20 runs 19. Values of 21 or more reach the hard 20-pass loop capacity. |
+| `swirlIterations` | `number` | no | `10` | editor range: 0…20 | Number of layered swirl passes, effective with swirl > 0 |

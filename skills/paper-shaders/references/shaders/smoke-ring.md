@@ -12,10 +12,10 @@ Radial multi-colored gradient shaped with layered noise for a natural, smoky aes
 
 | Prop | Type | Required | React default | Constraints | Effect |
 | --- | --- | --- | --- | --- | --- |
-| `colorBack` | `string` | no | `"#000000"` | — | Background color |
-| `colors` | `string[]` | no | `["#ffffff"]` | — | Colors used by the shader; implementation capacity is 10. |
-| `noiseScale` | `number` | no | `3` | editor range: 0.01…5 | The noise frequency |
-| `thickness` | `number` | no | `0.65` | editor range: 0.01…1 | The thickness of the ring shape |
-| `radius` | `number` | no | `0.25` | editor range: 0…1 | The radius of the ring shape |
-| `innerShape` | `number` | no | `0.7` | editor range: 0…4 | The ring inner fill |
-| `noiseIterations` | `number` | no | `8` | editor range: 1…8; step: 1 | A number of noise layers, more layers gives more details |
+| `colorBack` | `string` | no | `"#000000"` | — | Background color in RGBA |
+| `colors` | `string[]` | no | `["#ffffff"]` | — | Up to 10 gradient colors in RGBA |
+| `noiseScale` | `number` | no | `3` | editor range: 0.01…5 | Noise frequency |
+| `thickness` | `number` | no | `0.65` | editor range: 0.01…1 | Thickness of the ring shape |
+| `radius` | `number` | no | `0.25` | editor range: 0…1 | Radius of the ring shape |
+| `innerShape` | `number` | no | `0.7` | editor range: 0…4 | Ring inner fill amount |
+| `noiseIterations` | `number` | no | `8` | editor range: 1…8; step: 1 | Number of noise layers, more layers gives more details |

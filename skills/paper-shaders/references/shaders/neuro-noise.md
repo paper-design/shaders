@@ -11,8 +11,8 @@ A glowing, web-like structure of fluid lines and soft intersections. Great for c
 
 | Prop | Type | Required | React default | Constraints | Effect |
 | --- | --- | --- | --- | --- | --- |
-| `colorFront` | `string` | no | `"#ffffff"` | — | Graphics highlight color |
-| `colorMid` | `string` | no | `"#47a6ff"` | — | Graphics main color |
-| `colorBack` | `string` | no | `"#000000"` | — | Background color |
+| `colorFront` | `string` | no | `"#ffffff"` | — | Graphics highlight color in RGBA |
+| `colorMid` | `string` | no | `"#47a6ff"` | — | Graphics main color in RGBA |
+| `colorBack` | `string` | no | `"#000000"` | — | Background color in RGBA |
 | `brightness` | `number` | no | `0.05` | editor range: 0…1 | Luminosity of the crossing points |
-| `contrast` | `number` | no | `0.3` | editor range: 0…1 | Sharpness of the bright–dark transition |
+| `contrast` | `number` | no | `0.3` | editor range: 0…1 | Sharpness of the bright-dark transition |

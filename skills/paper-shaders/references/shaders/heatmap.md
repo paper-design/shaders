@@ -12,12 +12,12 @@ A glowing gradient of colors flowing through an input shape. The effect creates 
 
 | Prop | Type | Required | React default | Constraints | Effect |
 | --- | --- | --- | --- | --- | --- |
-| `image` | `HTMLImageElement \| string` | yes | `""` | — | The image to use for the effect |
-| `contour` | `number` | no | `0.5` | editor range: 0…1 | The heat intensity near the edges of the input shape |
-| `angle` | `number` | no | `0` | editor range: 0…360 | The direction of the heatwaves (angle relative to the shape) |
+| `image` | `HTMLImageElement \| string` | yes | `""` | — | Pre-processed source image texture (R = contour, G = outer blur, B = inner blur) |
+| `contour` | `number` | no | `0.5` | editor range: 0…1 | Heat intensity near the edges of the input shape |
+| `angle` | `number` | no | `0` | editor range: 0…360 | Direction of the heatwaves in degrees |
 | `noise` | `number` | no | `0` | editor range: 0…1 | Grain applied across the entire graphic |
-| `innerGlow` | `number` | no | `0.5` | editor range: 0…1 | The size of the heated area inside the input shape |
+| `innerGlow` | `number` | no | `0.5` | editor range: 0…1 | Size of the heated area inside the input shape |
 | `outerGlow` | `number` | no | `0.5` | editor range: 0…1 | Size of the heated area outside the input shape |
-| `colorBack` | `string` | no | `"#000000"` | — | Background color |
-| `colors` | `string[]` | no | `["#11206a","#1f3ba2","#2f63e7","#6bd7ff","#ffe679","#ff991e","#ff4c00"]` | — | Colors used by the shader; implementation capacity is 10. |
+| `colorBack` | `string` | no | `"#000000"` | — | Background color in RGBA |
+| `colors` | `string[]` | no | `["#11206a","#1f3ba2","#2f63e7","#6bd7ff","#ffe679","#ff991e","#ff4c00"]` | — | Up to 10 heatmap colors in RGBA |
 | `suspendWhenProcessingImage` | `boolean` | no | `false` | — | React-only. Suspends the component when the image is being processed. |

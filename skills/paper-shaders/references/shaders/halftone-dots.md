@@ -11,16 +11,16 @@ A halftone-dot image filter featuring customizable grids, color palettes, and do
 
 | Prop | Type | Required | React default | Constraints | Effect |
 | --- | --- | --- | --- | --- | --- |
-| `image` | `HTMLImageElement \| string` | no | `""` | — | The image to use for the effect |
-| `colorFront` | `string` | no | `"#2b2b2b"` | — | Foreground color |
-| `colorBack` | `string` | no | `"#f2f1e8"` | — | Background color |
+| `image` | `HTMLImageElement \| string` | no | `""` | — | Source image texture |
+| `colorFront` | `string` | no | `"#2b2b2b"` | — | Foreground color in RGBA |
+| `colorBack` | `string` | no | `"#f2f1e8"` | — | Background color in RGBA |
 | `size` | `number` | no | `0.5` | editor range: 0…1 | Grid size relative to the image box |
-| `grid` | `HalftoneDotsGrid` | no | `"hex"` | options: "square", "hex" | Dots grid type |
-| `radius` | `number` | no | `1.25` | editor range: 0…2 | Maximum dot size (relative to the grid cell) |
+| `grid` | `HalftoneDotsGrid` | no | `"hex"` | options: "square", "hex" | Grid type (0 = square, 1 = hex) |
+| `radius` | `number` | no | `1.25` | editor range: 0…2 | Maximum dot size relative to grid cell |
 | `contrast` | `number` | no | `0.4` | editor range: 0…1 | Contrast applied to the sampled image |
-| `originalColors` | `boolean` | no | `false` | options: "true", "false" | Use the sampled image’s original colors instead of colorFront |
-| `inverted` | `boolean` | no | `false` | options: "true", "false" | Inverts the image luminance, doesn’t affect the color scheme; not effective at zero contrast |
+| `originalColors` | `boolean` | no | `false` | — | Use sampled image's original colors instead of colorFront |
+| `inverted` | `boolean` | no | `false` | — | Inverts the image luminance, doesn't affect the color scheme; not effective at zero contrast |
 | `grainMixer` | `number` | no | `0.2` | editor range: 0…1 | Strength of grain distortion applied to shape edges |
-| `grainOverlay` | `number` | no | `0.2` | editor range: 0…1 | Post-processing b/w grain overlay |
-| `grainSize` | `number` | no | `0.5` | editor range: 0…1 | The scale applied to both grain distortion and grain overlay |
-| `type` | `HalftoneDotsType` | no | `"gooey"` | options: "classic", "gooey", "holes", "soft" | Dot style |
+| `grainOverlay` | `number` | no | `0.2` | editor range: 0…1 | Post-processing black/white grain overlay |
+| `grainSize` | `number` | no | `0.5` | editor range: 0…1 | Scale applied to both grain distortion and grain overlay |
+| `type` | `HalftoneDotsType` | no | `"gooey"` | options: "classic", "gooey", "holes", "soft" | Dot style (0 = classic, 1 = gooey, 2 = holes, 3 = soft) |

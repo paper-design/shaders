@@ -11,10 +11,10 @@ Classic animated 3D Perlin noise with exposed controls. Original algorithm: http
 
 | Prop | Type | Required | React default | Constraints | Effect |
 | --- | --- | --- | --- | --- | --- |
-| `colorFront` | `string` | no | `"#fccff7"` | — | Foreground color |
-| `colorBack` | `string` | no | `"#632ad5"` | — | Background color |
-| `proportion` | `number` | no | `0.35` | editor range: 0…1 | Blend point between 2 colors (0.5 = equal distribution) |
-| `softness` | `number` | no | `0.1` | editor range: 0…1 | Color transition sharpness (0 = hard edge, 1 = smooth gradient) |
-| `octaveCount` | `number` | no | `1` | editor range: 1…8; step: 1 | Perlin noise octaves number (more octaves for more detailed patterns) |
+| `colorFront` | `string` | no | `"#fccff7"` | — | Foreground color in RGBA |
+| `colorBack` | `string` | no | `"#632ad5"` | — | Background color in RGBA |
+| `proportion` | `number` | no | `0.35` | editor range: 0…1 | Blend point between 2 colors, 0.5 = equal distribution |
+| `softness` | `number` | no | `0.1` | editor range: 0…1 | Color transition sharpness, 0 = hard edge, 1 = smooth gradient |
+| `octaveCount` | `number` | no | `1` | editor range: 1…8; step: 1 | Perlin noise octaves number, more octaves for more detailed patterns |
 | `persistence` | `number` | no | `1` | editor range: 0.3…1 | Roughness, falloff between octaves |
-| `lacunarity` | `number` | no | `1.5` | editor range: 1.5…10 | Frequency step, typically around 2. Defines how compressed the pattern is |
+| `lacunarity` | `number` | no | `1.5` | editor range: 1.5…10 | Frequency step, defines how compressed the pattern is |

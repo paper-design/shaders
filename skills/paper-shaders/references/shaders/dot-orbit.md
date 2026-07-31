@@ -12,9 +12,9 @@ Animated multi-color dots pattern with each dot orbiting around its cell center.
 
 | Prop | Type | Required | React default | Constraints | Effect |
 | --- | --- | --- | --- | --- | --- |
-| `colorBack` | `string` | no | `"#000000"` | — | Background color |
-| `colors` | `string[]` | no | `["#ffc96b","#ff6200","#ff2f00","#421100","#1a0000"]` | — | Colors used by the shader; implementation capacity is 10. |
+| `colorBack` | `string` | no | `"#000000"` | — | Background color in RGBA |
+| `colors` | `string[]` | no | `["#ffc96b","#ff6200","#ff2f00","#421100","#1a0000"]` | — | Up to 10 base colors in RGBA |
 | `size` | `number` | no | `1` | editor range: 0…1 | Dot radius relative to cell size |
-| `sizeRange` | `number` | no | `0` | editor range: 0…1 | Random variation in shape size (0 = uniform size, higher = random value up to base size) |
-| `spreading` | `number` | no | `1` | editor range: 0…1 | Maximum orbit distance |
-| `stepsPerColor` | `number` | no | `4` | editor range: 1…4; step: 1 | Number of extra colors between base colors (1 = N color palette, 2 = 2×N color palette, 3 = 3×N color palette, etc) |
+| `sizeRange` | `number` | no | `0` | editor range: 0…1 | Random variation in shape size, 0 = uniform, higher = random up to base size |
+| `spreading` | `number` | no | `1` | editor range: 0…1 | Maximum orbit distance around cell center |
+| `stepsPerColor` | `number` | no | `4` | editor range: 1…4; step: 1 | Number of extra colors between base colors, 1 = N colors, 2 = 2×N, etc. |
