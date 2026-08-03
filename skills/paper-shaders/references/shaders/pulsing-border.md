@@ -13,7 +13,7 @@ Luminous trails of color merging into a glowing gradient contour.
 | Prop | Type | Required | React default | Constraints | Effect |
 | --- | --- | --- | --- | --- | --- |
 | `colorBack` | `string` | no | `"#000000"` | — | Background color in RGBA |
-| `colors` | `string[]` | no | `["#0dc1fd","#d915ef","#ff3f2ecc"]` | — | Up to 5 spot colors in RGBA |
+| `colors` | `string[]` | no | `["#0dc1fd","#d915ef","#ff3f2ecc"]` | implementation capacity: 5 | Up to 5 spot colors in RGBA |
 | `roundness` | `number` | no | `0.25` | editor range: 0…1 | Border radius |
 | `thickness` | `number` | no | `0.1` | editor range: 0…1 | Border base width |
 | `margin` | `number` | no | `0` | editor range: 0…1 | Distance from canvas edges to the effect |

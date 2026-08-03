@@ -19,5 +19,5 @@ A glowing gradient of colors flowing through an input shape. The effect creates 
 | `innerGlow` | `number` | no | `0.5` | editor range: 0…1 | Size of the heated area inside the input shape |
 | `outerGlow` | `number` | no | `0.5` | editor range: 0…1 | Size of the heated area outside the input shape |
 | `colorBack` | `string` | no | `"#000000"` | — | Background color in RGBA |
-| `colors` | `string[]` | no | `["#11206a","#1f3ba2","#2f63e7","#6bd7ff","#ffe679","#ff991e","#ff4c00"]` | — | Up to 10 heatmap colors in RGBA |
+| `colors` | `string[]` | no | `["#11206a","#1f3ba2","#2f63e7","#6bd7ff","#ffe679","#ff991e","#ff4c00"]` | implementation capacity: 10 | Up to 10 heatmap colors in RGBA |
 | `suspendWhenProcessingImage` | `boolean` | no | `false` | — | React-only. Suspends the component when the image is being processed. |

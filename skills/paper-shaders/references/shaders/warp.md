@@ -12,7 +12,7 @@ Animated color fields warped by noise and swirls, applied over base patterns (ch
 
 | Prop | Type | Required | React default | Constraints | Effect |
 | --- | --- | --- | --- | --- | --- |
-| `colors` | `string[]` | no | `["#121212","#9470ff","#121212","#8838ff"]` | — | Up to 10 gradient colors in RGBA |
+| `colors` | `string[]` | no | `["#121212","#9470ff","#121212","#8838ff"]` | implementation capacity: 10 | Up to 10 gradient colors in RGBA |
 | `rotation` | `number` | no | `0` | editor range: 0…360 | Overall rotation angle of the graphics in degrees |
 | `proportion` | `number` | no | `0.45` | editor range: 0…1 | Blend point between colors, 0.5 = equal distribution |
 | `softness` | `number` | no | `1` | editor range: 0…1 | Color transition sharpness, 0 = hard edge, 1 = smooth gradient |

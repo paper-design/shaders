@@ -82,15 +82,15 @@ export const constraintStep = (step: number): string => `step: ${step}`;
 export const constraintOptions = (options: string[]): string =>
   `options: ${options.map((option) => JSON.stringify(option)).join(', ')}`;
 
-export const documentedSourceRange = (min: number, max: number): string =>
-  `shader source documents ${min}…${max}`;
+export const documentedSourceRange = (min: number, max: number): string => `shader source documents ${min}…${max}`;
 
 export const capacityConstraint = (capacity: number): string => `implementation capacity: ${capacity}`;
 
 export const propertyCapacity = (propertyName: string, metadata: StaticRecord): number | undefined => {
-  const name = `max${propertyName.charAt(0).toUpperCase()}${propertyName.slice(1)}`;
-  const value = metadata[name];
-  return typeof value === 'number' ? value : undefined;
+  const property = `${propertyName.charAt(0).toUpperCase()}${propertyName.slice(1)}`;
+  const singularProperty = propertyName.endsWith('s') ? property.slice(0, -1) : property;
+  const names = [`max${property}`, `max${singularProperty}Count`];
+  return names.map((name) => metadata[name]).find((value): value is number => typeof value === 'number');
 };
 
 export const replaceTokens = (template: string, values: Record<string, string>): string =>

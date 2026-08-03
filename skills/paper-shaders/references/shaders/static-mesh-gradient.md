@@ -11,7 +11,7 @@ Multi-point mesh gradient with up to 10 color spots, enhanced by two-direction w
 
 | Prop | Type | Required | React default | Constraints | Effect |
 | --- | --- | --- | --- | --- | --- |
-| `colors` | `string[]` | no | `["#ffad0a","#6200ff","#e2a3ff","#ff99fd"]` | — | Up to 10 gradient colors in RGBA |
+| `colors` | `string[]` | no | `["#ffad0a","#6200ff","#e2a3ff","#ff99fd"]` | implementation capacity: 10 | Up to 10 gradient colors in RGBA |
 | `positions` | `number` | no | `2` | editor range: 0…100 | Color spots placement seed |
 | `waveX` | `number` | no | `1` | editor range: 0…1 | Strength of sine wave distortion along X axis |
 | `waveXShift` | `number` | no | `0.6` | editor range: 0…1 | Phase offset applied to the X-axis wave |

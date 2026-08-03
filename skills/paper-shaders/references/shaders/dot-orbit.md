@@ -13,7 +13,7 @@ Animated multi-color dots pattern with each dot orbiting around its cell center.
 | Prop | Type | Required | React default | Constraints | Effect |
 | --- | --- | --- | --- | --- | --- |
 | `colorBack` | `string` | no | `"#000000"` | — | Background color in RGBA |
-| `colors` | `string[]` | no | `["#ffc96b","#ff6200","#ff2f00","#421100","#1a0000"]` | — | Up to 10 base colors in RGBA |
+| `colors` | `string[]` | no | `["#ffc96b","#ff6200","#ff2f00","#421100","#1a0000"]` | implementation capacity: 10 | Up to 10 base colors in RGBA |
 | `size` | `number` | no | `1` | editor range: 0…1 | Dot radius relative to cell size |
 | `sizeRange` | `number` | no | `0` | editor range: 0…1 | Random variation in shape size, 0 = uniform, higher = random up to base size |
 | `spreading` | `number` | no | `1` | editor range: 0…1 | Maximum orbit distance around cell center |

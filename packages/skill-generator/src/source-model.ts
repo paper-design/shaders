@@ -329,11 +329,10 @@ const descendants = (root: ts.Node): ts.Node[] => {
   return children;
 };
 
-const referencedIdentifier = (expression: ts.Expression, names: ReadonlySet<string>): string | undefined =>
-  [expression, ...descendants(expression)]
-    .filter(ts.isIdentifier)
-    .map((identifier) => identifier.text)
-    .find((name) => names.has(name));
+const referencedIdentifier = (expression: ts.Expression, names: ReadonlySet<string>): string | undefined => {
+  const identifier = unwrapExpression(expression);
+  return ts.isIdentifier(identifier) && names.has(identifier.text) ? identifier.text : undefined;
+};
 
 const enumMappingName = (sourceFile: ts.SourceFile, checker: ts.TypeChecker, typeName: string): string | undefined => {
   const mapping = mappingNameForType(sourceFile, typeName);

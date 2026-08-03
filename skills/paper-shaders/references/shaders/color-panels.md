@@ -11,7 +11,7 @@ Pseudo-3D semi-transparent panels rotating around a central axis
 
 | Prop | Type | Required | React default | Constraints | Effect |
 | --- | --- | --- | --- | --- | --- |
-| `colors` | `string[]` | no | `["#ff9d00","#fd4f30","#809bff","#6d2eff","#333aff","#f15cff","#ffd557"]` | — | Up to 7 RGBA colors used to color the panels |
+| `colors` | `string[]` | no | `["#ff9d00","#fd4f30","#809bff","#6d2eff","#333aff","#f15cff","#ffd557"]` | implementation capacity: 7 | Up to 7 RGBA colors used to color the panels |
 | `colorBack` | `string` | no | `"#000000"` | — | Background color in RGBA |
 | `angle1` | `number` | no | `0` | editor range: -1…1 | Skew angle applied to all panes |
 | `angle2` | `number` | no | `0` | editor range: -1…1 | Skew angle applied to all panes |

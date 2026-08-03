@@ -14,7 +14,7 @@ Animated rays of light radiating from the center, blended with up to 5 colors.
 | --- | --- | --- | --- | --- | --- |
 | `colorBack` | `string` | no | `"#000000"` | — | Background color in RGBA |
 | `colorBloom` | `string` | no | `"#0000ff"` | — | Color overlay blended with the rays in RGBA |
-| `colors` | `string[]` | no | `["#a600ff6e","#6200fff0","#ffffff","#33fff5"]` | — | Up to 5 ray colors in RGBA |
+| `colors` | `string[]` | no | `["#a600ff6e","#6200fff0","#ffffff","#33fff5"]` | implementation capacity: 5 | Up to 5 ray colors in RGBA |
 | `spotty` | `number` | no | `0.3` | editor range: 0…1 | The length of the rays, higher = more spots/shorter rays |
 | `midSize` | `number` | no | `0.2` | editor range: 0…1 | Size of the circular glow shape in the center |
 | `midIntensity` | `number` | no | `0.4` | editor range: 0…1 | Brightness/intensity of the central glow |

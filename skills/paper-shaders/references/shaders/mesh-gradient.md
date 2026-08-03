@@ -11,7 +11,7 @@ A flowing composition of color spots, moving along distinct trajectories and tra
 
 | Prop | Type | Required | React default | Constraints | Effect |
 | --- | --- | --- | --- | --- | --- |
-| `colors` | `string[]` | no | `["#e0eaff","#241d9a","#f75092","#9f50d3"]` | — | Up to 10 color spots in RGBA |
+| `colors` | `string[]` | no | `["#e0eaff","#241d9a","#f75092","#9f50d3"]` | implementation capacity: 10 | Up to 10 color spots in RGBA |
 | `distortion` | `number` | no | `0.8` | editor range: 0…1 | Power of organic noise distortion |
 | `swirl` | `number` | no | `0.1` | editor range: 0…1 | Power of vortex distortion |
 | `grainMixer` | `number` | no | `0` | editor range: 0…1 | Strength of grain distortion applied to shape edges |

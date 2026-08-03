@@ -13,7 +13,7 @@ Multi-color gradients with grainy, noise-textured distortion available in 7 anim
 | Prop | Type | Required | React default | Constraints | Effect |
 | --- | --- | --- | --- | --- | --- |
 | `colorBack` | `string` | no | `"#000000"` | — | Background color in RGBA |
-| `colors` | `string[]` | no | `["#7300ff","#eba8ff","#00bfff","#2a00ff"]` | — | Up to 7 gradient colors in RGBA |
+| `colors` | `string[]` | no | `["#7300ff","#eba8ff","#00bfff","#2a00ff"]` | implementation capacity: 7 | Up to 7 gradient colors in RGBA |
 | `softness` | `number` | no | `0.5` | editor range: 0…1 | Color transition sharpness, 0 = hard edge, 1 = smooth gradient |
 | `intensity` | `number` | no | `0.5` | editor range: 0…1 | Distortion between color bands |
 | `noise` | `number` | no | `0.25` | editor range: 0…1 | Grainy noise overlay |

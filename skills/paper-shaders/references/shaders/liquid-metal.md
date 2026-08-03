@@ -14,7 +14,7 @@ Futuristic liquid metal material applied to uploaded logo or abstract shape. Flu
 | --- | --- | --- | --- | --- | --- |
 | `colorBack` | `string` | no | `"#AAAAAC"` | — | Background color in RGBA |
 | `colorTint` | `string` | no | `"#ffffff"` | — | Overlay color in RGBA (color burn blending used) |
-| `image` | `HTMLImageElement \| string \| undefined` | no | `""` | — | Whether an image is being used as the effect mask |
+| `image` | `HTMLImageElement \| string \| undefined` | no | `""` | — | Pre-processed source image texture (R = edge gradient, G = opacity) |
 | `repetition` | `number` | no | `2` | editor range: 1…10 | Density of pattern stripes |
 | `shiftRed` | `number` | no | `0.3` | editor range: -1…1 | R-channel dispersion |
 | `shiftBlue` | `number` | no | `0.3` | editor range: -1…1 | B-channel dispersion |

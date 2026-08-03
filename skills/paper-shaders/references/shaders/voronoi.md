@@ -12,7 +12,7 @@ Anti-aliased animated Voronoi pattern with smooth and customizable edges.
 
 | Prop | Type | Required | React default | Constraints | Effect |
 | --- | --- | --- | --- | --- | --- |
-| `colors` | `string[]` | no | `["#ff8247","#ffe53d"]` | — | Up to 5 base cell colors in RGBA |
+| `colors` | `string[]` | no | `["#ff8247","#ffe53d"]` | implementation capacity: 5 | Up to 5 base cell colors in RGBA |
 | `stepsPerColor` | `number` | no | `3` | editor range: 1…3; step: 1 | Number of extra colors between base colors, 1 = N colors, 2 = 2×N, etc. |
 | `colorGap` | `string` | no | `"#2e0000"` | — | Color used for cell borders/gaps in RGBA |
 | `colorGlow` | `string` | no | `"#ffffff"` | — | Color tint for radial inner shadow inside cells in RGBA, effective with glow > 0 |

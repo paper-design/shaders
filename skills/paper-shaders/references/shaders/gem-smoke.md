@@ -12,9 +12,9 @@ Animated color fields placed over uploaded logo shape; gives the illusion of smo
 
 | Prop | Type | Required | React default | Constraints | Effect |
 | --- | --- | --- | --- | --- | --- |
-| `colors` | `string[]` | no | `["#333333","#e7e6df"]` | — | Up to 6 smoke colors in RGBA |
+| `colors` | `string[]` | no | `["#333333","#e7e6df"]` | implementation capacity: 6 | Up to 6 smoke colors in RGBA |
 | `colorBack` | `string` | no | `"#f0efea"` | — | Background color in RGBA |
-| `image` | `HTMLImageElement \| string \| undefined` | no | `""` | — | An optional image used as an effect mask. A transparent background is required. If no image is provided, the shader defaults to one of the predefined shapes. |
+| `image` | `HTMLImageElement \| string \| undefined` | no | `""` | — | Pre-processed source image texture (R = edge gradient, G = alpha) |
 | `innerDistortion` | `number` | no | `0.8` | editor range: 0…1 | Power of smoke distortion inside the input shape |
 | `outerDistortion` | `number` | no | `0.6` | editor range: 0…1 | Power of smoke distortion outside the input shape |
 | `outerGlow` | `number` | no | `0.55` | editor range: 0…1 | Visibility of smoke shape outside the input shape |

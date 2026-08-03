@@ -13,6 +13,6 @@ Up to 20 colored gooey balls moving around the center and merging into smooth or
 | Prop | Type | Required | React default | Constraints | Effect |
 | --- | --- | --- | --- | --- | --- |
 | `colorBack` | `string` | no | `"#000000"` | — | Background color in RGBA |
-| `colors` | `string[]` | no | `["#6e33cc","#ff5500","#ffc105","#ffc800","#f585ff"]` | — | Up to 8 base colors in RGBA |
+| `colors` | `string[]` | no | `["#6e33cc","#ff5500","#ffc105","#ffc800","#f585ff"]` | implementation capacity: 8 | Up to 8 base colors in RGBA |
 | `count` | `number` | no | `10` | editor range: 1…20 | Number of balls |
 | `size` | `number` | no | `0.83` | editor range: 0…1 | Size of the balls |

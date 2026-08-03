@@ -12,7 +12,7 @@ Radial gradient with up to 10 blended colors, featuring advanced mixing modes, f
 | Prop | Type | Required | React default | Constraints | Effect |
 | --- | --- | --- | --- | --- | --- |
 | `colorBack` | `string` | no | `"#000000"` | — | Background color in RGBA |
-| `colors` | `string[]` | no | `["#00bbff","#00ffe1","#ffffff"]` | — | Up to 10 gradient colors in RGBA |
+| `colors` | `string[]` | no | `["#00bbff","#00ffe1","#ffffff"]` | implementation capacity: 10 | Up to 10 gradient colors in RGBA |
 | `radius` | `number` | no | `0.8` | editor range: 0…3 | Size of the shape |
 | `focalDistance` | `number` | no | `0.99` | editor range: 0…3 | Distance of the focal point from center |
 | `focalAngle` | `number` | no | `0` | editor range: 0…360 | Angle of the focal point in degrees, effective with focalDistance > 0 |

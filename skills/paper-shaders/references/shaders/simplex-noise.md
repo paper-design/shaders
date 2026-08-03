@@ -11,6 +11,6 @@ A multi-color gradient mapped into smooth, animated curves built as a combinatio
 
 | Prop | Type | Required | React default | Constraints | Effect |
 | --- | --- | --- | --- | --- | --- |
-| `colors` | `string[]` | no | `["#4449CF","#FFD1E0","#F94446","#FFD36B","#FFFFFF"]` | — | Up to 10 base colors in RGBA |
+| `colors` | `string[]` | no | `["#4449CF","#FFD1E0","#F94446","#FFD36B","#FFFFFF"]` | implementation capacity: 10 | Up to 10 base colors in RGBA |
 | `stepsPerColor` | `number` | no | `2` | editor range: 1…10; step: 1 | Number of extra colors between base colors, 1 = N colors, 2 = 2×N, etc. |
 | `softness` | `number` | no | `0` | editor range: 0…1 | Color transition sharpness, 0 = hard edge, 1 = smooth gradient |
