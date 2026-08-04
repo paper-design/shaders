@@ -77,6 +77,7 @@ const LensDistortionWithControls = () => {
       dispersionColor: { value: defaults.dispersionColor, min: 0, max: 1, order: 107 },
       focusCenter: { value: defaults.focusCenter, min: 0, max: 1, order: 204 },
       focusEdges: { value: defaults.focusEdges, min: 0, max: 1, order: 205 },
+      swirl: { value: defaults.swirl, min: -1, max: 1, order: 280 },
       noise: { value: defaults.noise, min: 0, max: 1, order: 300 },
       noiseFrequency: { value: defaults.noiseFrequency, min: 0, max: 1, order: 301 },
       noiseOffset: { value: defaults.noiseOffset, min: 0, max: 30, order: 302 },

@@ -105,6 +105,15 @@ export const lensDistortionDef: ShaderDef = {
         'Reduces the spread distance along the image edges. 0 keeps the full layers spread at the edges, 1 restores the original image at the edges regardless of the chosen spread distance (no effect with spread = 0)',
     },
     {
+      name: 'swirl',
+      type: 'number',
+      min: -1,
+      max: 1,
+      defaultValue: defaultParams.swirl,
+      description:
+        'Bends the spread around the centre of the image, so the layers trail along circles like a vortex instead of spreading along a straight line. Like noise, it only turns the spread direction and never changes the distance (no effect with spread = 0)',
+    },
+    {
       name: 'noise',
       type: 'number',
       min: 0,

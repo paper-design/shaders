@@ -24,6 +24,7 @@ export const lensDistortionMeta = {
  * - u_dispersionColor (float): Rotates the colors around the hue wheel, 0 to 1 for a full turn
  * - u_focusCenter (float): Reduces the spread in a circular zone at the centre; 0 keeps it full to the centre (0 to 1)
  * - u_focusEdges (float): Reduces the spread toward the edges; 0 keeps it full to the edges, 1 restores the original image there (0 to 1)
+ * - u_swirl (float): Rotates the color layers around the centre by an angle growing along the spread; 0 is off (-1 to 1)
  * - u_noise (float): Scatters the spread direction with noise; 0 is off (0 to 1)
  * - u_noiseFrequency (float): Frequency of the noise, 0 to 1 mapped internally to 0 to 18; higher is finer (no effect with noise = 0)
  * - u_noiseOffset (float): Offsets the noise pattern for a different seed (no effect with noise = 0)
@@ -67,6 +68,7 @@ uniform float u_dispersionShift;
 uniform float u_dispersionColor;
 uniform float u_focusCenter;
 uniform float u_focusEdges;
+uniform float u_swirl;
 uniform float u_noise;
 uniform float u_noiseFrequency;
 uniform float u_noiseOffset;
@@ -142,7 +144,7 @@ float dispersionCurve(float t, float biasPow) {
   return u_bias < 0. ? 1. - curved : curved;
 }
 
-vec2 getSpread(vec2 uv, vec2 warpedUV) {
+vec2 getSpread(vec2 uv, vec2 warpedUV, out float outStrength) {
   float reach = spreadReach();
   float angleRad = radians(u_angle);
   vec2 uniformDir = vec2(cos(angleRad), sin(angleRad));
@@ -175,6 +177,7 @@ vec2 getSpread(vec2 uv, vec2 warpedUV) {
   float margin = max(reach * length(spreadDir), aa);
   strength *= 1. - smoothstep(0., margin, length(outside));
 
+  outStrength = strength;
   vec2 axis = spreadDir * reach * strength;
 
   if (u_noise > 0.) {
@@ -227,7 +230,8 @@ void main() {
   vec2 uv = v_imageUV;
   float bulgeFade;
   vec2 baseUV = lensWarp(uv, bulgeFade);
-  vec2 spreadAxis = getSpread(uv, baseUV);
+  float spreadStrength;
+  vec2 spreadAxis = getSpread(uv, baseUV, spreadStrength);
 
   vec2 grainUV = vec2(0.);
   if (u_grainMixer > 0. || u_grainOverlay > 0.) {
@@ -256,6 +260,11 @@ void main() {
   float dispersion = u_dispersion * mix(edgesAmount, centerAmount, innerCircleMask(uv));
   float dispersionPower = pow(dispersion, .8);
 
+  vec2 swirlFromCenter = baseUV - .5;
+  swirlFromCenter.x *= u_imageAspectRatio;
+  float swirlRadiusNorm = length(swirlFromCenter) / boxInradius();
+  float swirlAngle = u_swirl * .4 * PI * spreadStrength * u_spread * min(1., 1. / max(swirlRadiusNorm, 1e-4));
+
   for (int i = 0; i < ${lensDistortionMeta.maxSamples}; i++) {
     if (i >= countInteger) break;
 
@@ -265,7 +274,14 @@ void main() {
 
     float spread = dispersionCurve(spreadPos, biasPower);
     vec2 offset = mix(spreadAxis, -spreadAxis, spread);
-    vec4 tap = sampleOverWhite(baseUV + offset - imageOffset);
+
+    vec2 tapUV = baseUV + offset - .5;
+    if (u_swirl != 0.) {
+      tapUV.x *= u_imageAspectRatio;
+      tapUV = rotate(tapUV, swirlAngle * (1. - 2. * spread));
+      tapUV.x /= u_imageAspectRatio;
+    }
+    vec4 tap = sampleOverWhite(tapUV + .5 - imageOffset);
     vec3 weight = mix(vec3(1.), 1. - hueColor(hue), dispersionPower);
 
     colorSum += tap.rgb * weight;
@@ -303,6 +319,7 @@ export interface LensDistortionUniforms extends ShaderSizingUniforms {
   u_dispersionColor: number;
   u_focusCenter: number;
   u_focusEdges: number;
+  u_swirl: number;
   u_noise: number;
   u_noiseFrequency: number;
   u_noiseOffset: number;
@@ -326,6 +343,7 @@ export interface LensDistortionParams extends ShaderSizingParams, ShaderMotionPa
   dispersionColor?: number;
   focusCenter?: number;
   focusEdges?: number;
+  swirl?: number;
   noise?: number;
   noiseFrequency?: number;
   noiseOffset?: number;
