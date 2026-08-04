@@ -164,7 +164,7 @@ vec2 getSpread(vec2 fromCenter, float radius, vec2 warpedUV, float edgeAA, float
   strength *= mix(1., mix(.15, .03, max(-u_lensBulge, 0.)), lensCircleMaxing);
 
   vec2 outside = max(warpedAbs - .5, 0.);
-  float margin = max(reach * length(spreadDir), edgeAA);
+  float margin = max(reach * length(spreadDir) * (1. - u_lensCircle), edgeAA);
   strength *= 1. - smoothstep(0., margin, length(outside));
 
   outStrength = strength;
