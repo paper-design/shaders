@@ -99,9 +99,9 @@ float valueNoise(vec2 st) {
 }
 
 float getUvFrame(vec2 uv) {
-  vec2 aa = clamp(fwidth(uv), 1e-5, .02);
-  vec2 lo = clamp(uv / aa + .5, 0., 1.);
-  vec2 hi = clamp((1. - uv) / aa + .5, 0., 1.);
+  vec2 invAA = 1. / clamp(fwidth(uv), 1e-5, .02);
+  vec2 lo = clamp(uv * invAA + .5, 0., 1.);
+  vec2 hi = clamp((1. - uv) * invAA + .5, 0., 1.);
   return lo.x * hi.x * lo.y * hi.y;
 }
 
@@ -130,12 +130,8 @@ float spreadReach() {
   return .7 * pow(u_spread, 1.3 + 2.7 * u_spread);
 }
 
-float innerCircleMask(vec2 uv) {
-  vec2 fromCenter = uv - .5;
-  fromCenter.x *= u_imageAspectRatio;
-  float radius = length(fromCenter);
-  float innerRaduis = boxInradius();
-  return 1. - smoothstep(.5 * innerRaduis, 1.1 * innerRaduis, radius);
+float innerCircleMask(float radius, float inradius) {
+  return 1. - smoothstep(.5 * inradius, 1.1 * inradius, radius);
 }
 
 float dispersionCurve(float t, float biasPow) {
@@ -144,41 +140,35 @@ float dispersionCurve(float t, float biasPow) {
   return u_bias < 0. ? 1. - curved : curved;
 }
 
-vec2 getSpread(vec2 uv, vec2 warpedUV, out float outStrength) {
-  float reach = spreadReach();
+vec2 getSpread(vec2 fromCenter, float radius, vec2 warpedUV, float edgeAA, float inradius, float outradius, float reach, out float outStrength) {
   float angleRad = radians(u_angle);
   vec2 uniformDir = vec2(cos(angleRad), sin(angleRad));
 
-  vec2 fromCenter = uv - .5;
-  fromCenter.x *= u_imageAspectRatio;
-  float radius = length(fromCenter);
-  float inradius = boxInradius();
-  float outradius = boxOutradius();
-
-  vec2 radialDir = fromCenter / inradius;
-  float maxLen = (outradius + reach) / inradius;
-  float radialLen = length(radialDir);
+  float invInradius = 1. / inradius;
+  vec2 radialDir = fromCenter * invInradius;
+  float maxLen = (outradius + reach) * invInradius;
+  float radialLen = radius * invInradius;
   if (radialLen > maxLen) radialDir *= maxLen / radialLen;
   vec2 spreadDir = mix(uniformDir, radialDir, u_perspective);
 
   float bandProximity = smoothstep(inradius * .8, inradius, radius);
-  float lensCircleMaxing = bandProximity * pow(u_lensCircle, 3.);
+  float lensCircleMaxing = bandProximity * u_lensCircle * u_lensCircle * u_lensCircle;
   spreadDir = mix(spreadDir, radialDir, lensCircleMaxing);
 
+  vec2 warpedAbs = abs(warpedUV - .5);
   float inner = mix(1., smoothstep(0., mix(inradius, outradius, u_focusCenter), radius), u_focusCenter);
-  float boxDist = max(abs(warpedUV.x - .5), abs(warpedUV.y - .5)) * 2.;
+  float boxDist = max(warpedAbs.x, warpedAbs.y) * 2.;
   float outer = mix(1., 1. - min(boxDist, 1.), u_focusEdges);
   float strength = inner * outer;
 
   strength *= mix(1., mix(.15, .03, max(-u_lensBulge, 0.)), lensCircleMaxing);
 
-  vec2 outside = max(abs(warpedUV - .5) - .5, 0.);
-  float aa = clamp(2. * max(fwidth(warpedUV.x), fwidth(warpedUV.y)), .001, .02);
-  float margin = max(reach * length(spreadDir), aa);
+  vec2 outside = max(warpedAbs - .5, 0.);
+  float margin = max(reach * length(spreadDir), edgeAA);
   strength *= 1. - smoothstep(0., margin, length(outside));
 
   outStrength = strength;
-  vec2 axis = spreadDir * reach * strength;
+  vec2 axis = spreadDir * (reach * strength);
 
   if (u_noise > 0.) {
     float turn = (valueNoise(fromCenter * u_noiseFrequency * 18. + u_noiseOffset) - .5) * 2. * u_noise;
@@ -190,15 +180,12 @@ vec2 getSpread(vec2 uv, vec2 warpedUV, out float outStrength) {
   return axis;
 }
 
-vec2 lensWarp(vec2 uv, out float bulgeFade) {
+vec2 lensWarp(vec2 fromCenter, float radius, float inradius, out float bulgeFade) {
   bulgeFade = 1.;
-  if (u_lensBulge == 0. && u_lensCircle <= 0.) return uv;
-
-  vec2 fromCenter = uv - .5;
-  fromCenter.x *= u_imageAspectRatio;
-  float inradius = boxInradius();
-  float radius = length(fromCenter);
-  if (radius < 1e-5) return uv;
+  if (u_lensBulge == 0. && u_lensCircle <= 0.) return fromCenter;
+  if (radius < 1e-5) return fromCenter;
+  
+  float r = radius;
 
   if (u_lensBulge != 0.) {
     float rn = radius / inradius;
@@ -207,11 +194,12 @@ vec2 lensWarp(vec2 uv, out float bulgeFade) {
     float map = u_lensBulge > 0.
       ? tan(min(rn * bulge, 1.53)) / tan(bulge)
       : atan(rn * tan(bulge)) / bulge;
-    fromCenter *= map / rn;
+    float bulgeScale = map / rn;
+    fromCenter *= bulgeScale;
+    r *= bulgeScale;
   }
 
   if (u_lensCircle > 0.) {
-    float r = length(fromCenter);
     vec2 dir = fromCenter / max(r, 1e-5);
     vec2 halfBox = vec2(u_imageAspectRatio, 1.) * .5;
     float rBox = min(halfBox.x / max(abs(dir.x), 1e-4), halfBox.y / max(abs(dir.y), 1e-4));
@@ -222,16 +210,30 @@ vec2 lensWarp(vec2 uv, out float bulgeFade) {
     fromCenter = dir * mix(r, g, u_lensCircle);
   }
 
-  fromCenter.x /= u_imageAspectRatio;
-  return fromCenter + .5;
+  return fromCenter;
 }
 
 void main() {
   vec2 uv = v_imageUV;
+
+  float invAspect = 1. / u_imageAspectRatio;
+  float inradius = boxInradius();
+  float outradius = boxOutradius();
+  float reach = spreadReach();
+
+  vec2 fromCenter = uv - .5;
+  fromCenter.x *= u_imageAspectRatio;
+  float radius = length(fromCenter);
+
   float bulgeFade;
-  vec2 baseUV = lensWarp(uv, bulgeFade);
+  vec2 warpedFromCenter = lensWarp(fromCenter, radius, inradius, bulgeFade);
+  vec2 baseUV = vec2(warpedFromCenter.x * invAspect, warpedFromCenter.y) + .5;
+
+  vec2 baseDerivative = fwidth(baseUV);
+  float edgeAA = clamp(2. * max(baseDerivative.x, baseDerivative.y), .001, .02);
+
   float spreadStrength;
-  vec2 spreadAxis = getSpread(uv, baseUV, spreadStrength);
+  vec2 spreadAxis = getSpread(fromCenter, radius, baseUV, edgeAA, inradius, outradius, reach, spreadStrength);
 
   vec2 grainUV = vec2(0.);
   if (u_grainMixer > 0. || u_grainOverlay > 0.) {
@@ -248,41 +250,46 @@ void main() {
 
   float count = floor(u_count);
   int countInteger = int(count);
+
+  float invCount = 1. / count;
+  float invSpan = 1. / max(count - 1., 1.);
+  float hueBase = u_dispersionColor + .5;
+  float biasPower = 1. + 2. * abs(u_bias);
+  vec2 tapBias = .5 - vec2(u_imageX, u_imageY);
+
+  float centerAmount = clamp(1. - u_dispersionShift, 0., 1.);
+  float edgesAmount = clamp(1. + u_dispersionShift, 0., 1.);
+  float dispersion = u_dispersion * mix(edgesAmount, centerAmount, innerCircleMask(radius, inradius));
+  float dispersionPower = pow(dispersion, .8);
+
+  float warpedRadius = length(warpedFromCenter);
+  float swirlAngle = u_swirl * .4 * PI * spreadStrength * u_spread * min(1., inradius / max(warpedRadius, 1e-4));
+
   vec3 colorSum = vec3(0.);
   vec3 weightSum = vec3(0.);
   float coverSum = 0.;
 
-  float biasPower = 1. + 2. * abs(u_bias);
-  vec2 imageOffset = vec2(u_imageX, u_imageY);
-
-  float centerAmount = clamp(1. - u_dispersionShift, 0., 1.);
-  float edgesAmount = clamp(1. + u_dispersionShift, 0., 1.);
-  float dispersion = u_dispersion * mix(edgesAmount, centerAmount, innerCircleMask(uv));
-  float dispersionPower = pow(dispersion, .8);
-
-  vec2 swirlFromCenter = baseUV - .5;
-  swirlFromCenter.x *= u_imageAspectRatio;
-  float swirlRadiusNorm = length(swirlFromCenter) / boxInradius();
-  float swirlAngle = u_swirl * .4 * PI * spreadStrength * u_spread * min(1., 1. / max(swirlRadiusNorm, 1e-4));
-
   for (int i = 0; i < ${lensDistortionMeta.maxSamples}; i++) {
     if (i >= countInteger) break;
 
-    float huePos = float(i) / count;
-    float spreadPos = float(i) / (count - 1.);
-    float hue = u_dispersionColor + .5 + huePos;
+    float layer = float(i);
+    float hue = hueBase + layer * invCount;
 
-    float spread = dispersionCurve(spreadPos, biasPower);
-    vec2 offset = mix(spreadAxis, -spreadAxis, spread);
+    float spread = layer * invSpan;
+    if (u_bias != 0.) spread = dispersionCurve(spread, biasPower);
 
-    vec2 tapUV = baseUV + offset - .5;
+    // mix(axis, -axis, spread) is axis scaled by the signed position along the fan
+    float fanPos = 1. - 2. * spread;
+    vec2 tapUV = baseUV + spreadAxis * fanPos - .5;
+
     if (u_swirl != 0.) {
       tapUV.x *= u_imageAspectRatio;
-      tapUV = rotate(tapUV, swirlAngle * (1. - 2. * spread));
-      tapUV.x /= u_imageAspectRatio;
+      tapUV = rotate(tapUV, swirlAngle * fanPos);
+      tapUV.x *= invAspect;
     }
-    vec4 tap = sampleOverWhite(tapUV + .5 - imageOffset);
-    vec3 weight = mix(vec3(1.), 1. - hueColor(hue), dispersionPower);
+
+    vec4 tap = sampleOverWhite(tapUV + tapBias);
+    vec3 weight = 1. - dispersionPower * hueColor(hue);
 
     colorSum += tap.rgb * weight;
     weightSum += weight;
@@ -290,7 +297,8 @@ void main() {
   }
 
   vec3 color = colorSum / max(weightSum, 1e-4);
-  float coverAvg = coverSum / count;
+  float coverAvg = coverSum * invCount;
+
   float ground = min(color.r, min(color.g, color.b));
   float alpha = max(coverAvg, 1. - ground);
   vec3 premult = max(color - (1. - alpha), 0.);
