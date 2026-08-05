@@ -29,7 +29,7 @@ export const defaultPreset: LensDistortionPreset = {
     count: 35,
     dispersion: 1,
     dispersionShift: 0,
-    dispersionColor: 0.75,
+    dispersionColor: 0.6,
     focusCenter: 0.8,
     focusEdges: 1,
     swirl: 0.35,
