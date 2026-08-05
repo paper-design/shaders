@@ -111,7 +111,7 @@ export const lensDistortionDef: ShaderDef = {
       max: 1,
       defaultValue: defaultParams.swirl,
       description:
-        'Bends the spread around the centre of the image, so the layers trail along circles like a vortex instead of spreading along a straight line. Like noise, it only turns the spread direction and never changes the distance (no effect with spread = 0)',
+        'Bends the spread around the centre of the image, so the layers trail along circles like a vortex. Same as noise, it only turns the spread direction (no effect with spread = 0)',
     },
     {
       name: 'noise',
