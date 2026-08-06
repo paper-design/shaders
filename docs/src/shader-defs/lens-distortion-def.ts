@@ -7,7 +7,7 @@ const defaultParams = lensDistortionPresets[0].params;
 export const lensDistortionDef: ShaderDef = {
   name: 'Lens Distortion',
   description:
-    'Lens Distortion image filter separates an image into shifting color layers (recreating the chromatic aberration of a lens) and warps the image geometry itself, curving it outward or inward the circle (like barrel and pincushion distortion).',
+    'Lens Distortion image filter separates an image into shifting color layers (recreating the chromatic aberration of a lens) and warps the image geometry itself, curving it outward or inward like barrel and pincushion distortion.',
   params: [
     {
       name: 'image',
@@ -66,7 +66,7 @@ export const lensDistortionDef: ShaderDef = {
       max: 1,
       defaultValue: defaultParams.dispersion,
       description:
-        'Overall amount of color dispersion: at 1 each layer takes its own hue from the rainbow, giving the chromatic aberration look; at 0 every layer keeps the original image color, so the spread reads as a plain blur (no effect with spread = 0)',
+        'Overall amount of color dispersion: at 1 each layer takes its own color from the spectrum, giving the chromatic aberration look; at 0 every layer keeps the original image color, so the spread reads as a plain blur (no effect with spread = 0)',
     },
     {
       name: 'dispersionShift',
@@ -111,7 +111,7 @@ export const lensDistortionDef: ShaderDef = {
       max: 1,
       defaultValue: defaultParams.swirl,
       description:
-        'Bends the spread around the centre of the image, so the layers trail along circles like a vortex. Same as noise, it only turns the spread direction (no effect with spread = 0)',
+        'Bends the spread around the centre of the image, so the layers trail along circles like a vortex. Each layer is rotated around the centre by an angle growing along the spread, and the effect fades out beyond the inscribed circle (no effect with spread = 0)',
     },
     {
       name: 'noise',
@@ -137,7 +137,7 @@ export const lensDistortionDef: ShaderDef = {
       max: 30,
       defaultValue: defaultParams.noiseOffset,
       description:
-        'Shifts the noise texture, can be used as a seed or as an offset relative to the canvas (no effect with spread = 0 or noise = 0)',
+        'Shifts the noise pattern diagonally, can be used as a seed to get a different scatter (no effect with spread = 0 or noise = 0)',
     },
     {
       name: 'lensBulge',
@@ -146,7 +146,7 @@ export const lensDistortionDef: ShaderDef = {
       max: 1,
       defaultValue: defaultParams.lensBulge,
       description:
-        'One of 2 props independent of the color spread: lens warp of the image geometry. 0 is flat, positive bulges out like a fisheye, negative pinches in like a pincushion',
+        'Lens warp of the image geometry, applied before the color spread. 0 is flat, positive bulges out like a fisheye, negative pinches in like a pincushion. Strong positive values fade out the corners of the image',
     },
     {
       name: 'lensCircle',
@@ -155,7 +155,7 @@ export const lensDistortionDef: ShaderDef = {
       max: 1,
       defaultValue: defaultParams.lensCircle,
       description:
-        'One of 2 props independent of the color spread: squeezes pixels outside the circle inward. 0 is off, 1 gives the image exact circular shape with any lensBulge value',
+        'Squeezes pixels outside the circle inward. 0 is off, 1 gives the image exact circular shape with any lensBulge value. Near the rim it also turns the spread radial and damps it, keeping the circular edge clean',
     },
     {
       name: 'grainMixer',
@@ -164,7 +164,7 @@ export const lensDistortionDef: ShaderDef = {
       max: 1,
       defaultValue: defaultParams.grainMixer,
       description:
-        'Strength of grain distortion applied to the edges of the colored layers (no effect with spread = 0)',
+        'Scatters the spread with grain noise, breaking up the edges of the colored layers (no effect with spread = 0)',
     },
     {
       name: 'grainOverlay',

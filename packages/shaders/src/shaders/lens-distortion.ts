@@ -10,7 +10,7 @@ export const lensDistortionMeta = {
  *
  * Lens Distortion image filter separates an image into shifting color layers
  * (recreating the chromatic aberration of a lens) and warps the image geometry,
- * curving it outward or inward the circle (like barrel and pincushion distortion).
+ * curving it outward or inward like barrel and pincushion distortion.
  *
  * Fragment shader uniforms:
  * - u_image (sampler2D): Source image texture
@@ -19,7 +19,7 @@ export const lensDistortionMeta = {
  * - u_angle (float): Direction of the spread in degrees (0 to 360)
  * - u_perspective (float): Shapes the spread direction from a straight line (0) to a radial burst out from the centre (1) (0 to 1)
  * - u_count (float): Number of sampled color layers along the spread; higher is smoother and costlier (2 to 50)
- * - u_dispersion (float): Overall amount of color dispersion; 1 tints each layer with its own rainbow hue, 0 keeps the original image color (0 to 1)
+ * - u_dispersion (float): Overall amount of color dispersion; 1 gives each layer its own color from the spectrum, 0 keeps the original image color (0 to 1)
  * - u_dispersionShift (float): Balance of the dispersion between a soft circular zone at the centre and the rest of the image; 0 applies it evenly, -1 keeps it in the centre only, 1 keeps it at the edges only (-1 to 1)
  * - u_dispersionColor (float): Rotates the colors around the hue wheel, 0 to 1 for a full turn
  * - u_focusCenter (float): Reduces the spread in a circular zone at the centre; 0 keeps it full to the centre (0 to 1)
@@ -28,9 +28,9 @@ export const lensDistortionMeta = {
  * - u_noise (float): Scatters the spread direction with noise; 0 is off (0 to 1)
  * - u_noiseFrequency (float): Frequency of the noise, 0 to 1 mapped internally to 0 to 18; higher is finer (no effect with noise = 0)
  * - u_noiseOffset (float): Offsets the noise pattern for a different seed (no effect with noise = 0)
- * - u_lensBulge (float): Radial lens warp of the image geometry; positive bulges out like a fisheye/barrel, negative pinches in like a pincushion (-1 to 1)
- * - u_lensCircle (float): Squeezes pixels outside the inscribed circle inward so the outline becomes a circle; 0 is off, 1 is full (0 to 1)
- * - u_grainMixer (float): Strength of grain distortion applied to the edges of the colored layers (0 to 1)
+ * - u_lensBulge (float): Radial lens warp of the image geometry; positive bulges out like a fisheye/barrel, negative pinches in like a pincushion; strong positive values fade out the corners (-1 to 1)
+ * - u_lensCircle (float): Squeezes pixels outside the inscribed circle inward so the outline becomes a circle; also turns the spread radial and damps it near the rim; 0 is off, 1 is full (0 to 1)
+ * - u_grainMixer (float): Scatters the spread with grain noise, breaking up the edges of the color layers (0 to 1)
  * - u_grainOverlay (float): Post-processing black/white grain overlay (0 to 1)
  * - u_imageX (float): Pans the image horizontally behind the effect; 0 is centred (-1 to 1)
  * - u_imageY (float): Pans the image vertically behind the effect; 0 is centred (-1 to 1)
