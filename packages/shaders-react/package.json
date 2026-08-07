@@ -1,6 +1,6 @@
 {
   "name": "@paper-design/shaders-react",
-  "version": "0.0.78",
+  "version": "0.0.79",
   "license": "Apache-2.0",
   "type": "module",
   "sideEffects": false,
@@ -26,7 +26,7 @@
     "type-check": "tsc --project tsconfig.json"
   },
   "dependencies": {
-    "@paper-design/shaders": "0.0.78"
+    "@paper-design/shaders": "0.0.79"
   },
   "devDependencies": {
     "@types/react": "19.1.0"

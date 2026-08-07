@@ -1,5 +1,9 @@
 # Paper Shaders
 
+## Version 0.0.79
+
+New shader: **Lens Distortion**
+
 ## Version 0.0.78
 
 - **General**
