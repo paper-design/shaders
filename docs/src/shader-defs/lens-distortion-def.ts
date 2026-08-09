@@ -134,7 +134,7 @@ export const lensDistortionDef: ShaderDef = {
       name: 'noiseOffset',
       type: 'number',
       min: 0,
-      max: 30,
+      max: 1,
       defaultValue: defaultParams.noiseOffset,
       description:
         'Shifts the noise pattern diagonally, can be used as a seed to get a different scatter (no effect with spread = 0 or noise = 0)',

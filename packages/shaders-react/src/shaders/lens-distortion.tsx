@@ -127,7 +127,7 @@ export const smokePreset: LensDistortionPreset = {
     swirl: 0,
     noise: 1,
     noiseFrequency: 0.35,
-    noiseOffset: 9,
+    noiseOffset: 0.3,
     lensBulge: 0,
     lensCircle: 0,
     grainMixer: 0,
