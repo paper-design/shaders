@@ -1,6 +1,6 @@
 {
   "name": "@paper-design/shaders",
-  "version": "0.0.79",
+  "version": "0.0.80",
   "license": "Apache-2.0",
   "type": "module",
   "sideEffects": false,

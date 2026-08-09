@@ -1,5 +1,10 @@
 # Paper Shaders
 
+## Version 0.0.80
+
+- **Lens Distortion**
+  - `noiseOffset` is now a normalized parameter accepting values from 0 to 1
+
 ## Version 0.0.79
 
 New shader: **Lens Distortion**
