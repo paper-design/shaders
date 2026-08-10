@@ -22,6 +22,8 @@ const WarpWithControls = () => {
 
   const [params, setParams] = useControls(() => {
     return {
+      contour: { value: defaults.contour, min: 0, max: 1, order: 10 },
+      antialiasing: { value: defaults.antialiasing, order: 11 },
       proportion: { value: defaults.proportion, min: 0, max: 1, order: 100 },
       softness: { value: defaults.softness, min: 0, max: 1, order: 101 },
       distortion: { value: defaults.distortion, min: 0, max: 1, order: 102 },
