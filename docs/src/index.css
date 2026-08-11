@@ -153,6 +153,9 @@
 
 @layer components {
   [data-leva-container] {
+    --leva-colors-snapPoint: var(--color-leva-button);
+    --leva-sizes-snapPoint: 6px;
+
     & > * {
       background-color: transparent !important;
     }

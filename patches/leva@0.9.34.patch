@@ -1,3 +1,38 @@
+diff --git a/node_modules/leva/.bun-tag-32fc7d33e3d2b2a b/.bun-tag-32fc7d33e3d2b2a
+new file mode 100644
+index 0000000000000000000000000000000000000000..e69de29bb2d1d6434b8b29ae775ad8c2e48c5391
+diff --git a/node_modules/leva/.bun-tag-5b96acc17b78e621 b/.bun-tag-5b96acc17b78e621
+new file mode 100644
+index 0000000000000000000000000000000000000000..e69de29bb2d1d6434b8b29ae775ad8c2e48c5391
+diff --git a/node_modules/leva/.bun-tag-a7023fb6d23d10f7 b/.bun-tag-a7023fb6d23d10f7
+new file mode 100644
+index 0000000000000000000000000000000000000000..e69de29bb2d1d6434b8b29ae775ad8c2e48c5391
+diff --git a/dist/declarations/src/components/Number/number-types.d.ts b/dist/declarations/src/components/Number/number-types.d.ts
+index cb1a8192b5b02d42e119d0bd42ce70777f45a86e..3a7878a0a166a705277d0c197f84ad4db600cc5d 100644
+--- a/dist/declarations/src/components/Number/number-types.d.ts
++++ b/dist/declarations/src/components/Number/number-types.d.ts
+@@ -6,6 +6,8 @@ export declare type InternalNumberSettings = {
+     pad: number;
+     initialValue: number;
+     suffix?: string;
++    /** @paper-design patch: values the slider snaps to while dragging. */
++    snapPoints?: number[];
+ };
+ export declare type NumberInput = InputWithSettings<number | string, NumberSettings>;
+ export declare type NumberProps = LevaInputProps<number, InternalNumberSettings>;
+diff --git a/dist/declarations/src/types/public.d.ts b/dist/declarations/src/types/public.d.ts
+index 64c4b2503c9b5823dbaec9ca30ea259c08958049..7290fb843509641bea5972627d5f5cd792b93582 100644
+--- a/dist/declarations/src/types/public.d.ts
++++ b/dist/declarations/src/types/public.d.ts
+@@ -79,6 +79,8 @@ export declare type NumberSettings = {
+     min?: number;
+     max?: number;
+     step?: number;
++    /** @paper-design patch: values the slider snaps to while dragging. */
++    snapPoints?: number[];
+ };
+ export declare type VectorObj = Record<string, number>;
+ export declare type Vector2dArray = [number, number];
 diff --git a/dist/leva.esm.js b/dist/leva.esm.js
 index d3b68a488f98a26819fc4b92bf656b0373806535..b5be8e7ec9cf665d3e90531507504c52ccda8a3a 100644
 --- a/dist/leva.esm.js
@@ -22,3 +57,276 @@ index d3b68a488f98a26819fc4b92bf656b0373806535..b5be8e7ec9cf665d3e90531507504c52
          }
        }
        rootInitialized = true;
+diff --git a/dist/vector-plugin-20c926af.cjs.dev.js b/dist/vector-plugin-20c926af.cjs.dev.js
+index 404ed2e2bcdbb333907738a4b54c32aa7dcf533a..4eab87eb1725fa007a846b397d1cf5b869253f87 100644
+--- a/dist/vector-plugin-20c926af.cjs.dev.js
++++ b/dist/vector-plugin-20c926af.cjs.dev.js
+@@ -1563,13 +1563,49 @@ const Indicator = styled('div', {
+   backgroundColor: '$accent2'
+ });
+ 
++// --- @paper-design patch: snap points on range sliders -----------------------
++// Sliders may receive a `snapPoints: number[]` setting (passed through leva's
++// number normalize as an unknown setting). While dragging, a value landing
++// within SNAP_SENSITIVITY of the slider range from a snap point is rewritten to
++// that point, so detents like 0 on a -1..1 slider are easy to hit. Hold Alt to
++// drag past them; typing in the number field is never snapped.
++const SNAP_SENSITIVITY = 0.05;
++
++const SnapPoint = styled('div', {
++  position: 'absolute',
++  top: '50%',
++  width: 'var(--leva-sizes-snapPoint, 6px)',
++  height: 'var(--leva-sizes-snapPoint, 6px)',
++  marginTop: 'calc(var(--leva-sizes-snapPoint, 6px) / -2)',
++  marginLeft: 'calc(var(--leva-sizes-snapPoint, 6px) / -2)',
++  borderRadius: '50%',
++  pointerEvents: 'none',
++  backgroundColor: 'var(--leva-colors-snapPoint, var(--leva-colors-highlight1))'
++});
++
++function applySnapPoints(value, min, max, points) {
++  if (!points || points.length === 0) return value;
++  let closest = value;
++  let closestDistance = (max - min) * SNAP_SENSITIVITY;
++  for (const point of points) {
++    const distance = Math.abs(point - value);
++    if (distance < closestDistance) {
++      closest = point;
++      closestDistance = distance;
++    }
++  }
++  return closest;
++}
++// --- end patch ---------------------------------------------------------------
++
+ function RangeSlider({
+   value,
+   min,
+   max,
+   onDrag,
+   step,
+-  initialValue
++  initialValue,
++  snapPoints
+ }) {
+   const ref = React.useRef(null);
+   const scrubberRef = React.useRef(null);
+@@ -1578,6 +1614,7 @@ function RangeSlider({
+   const bind = useDrag(({
+     event,
+     first,
++    altKey,
+     xy: [x],
+     movement: [mx],
+     memo
+@@ -1592,10 +1629,11 @@ function RangeSlider({
+       memo = targetIsScrub ? value : invertedRange((x - left) / width, min, max);
+     }
+     const newValue = memo + invertedRange(mx / rangeWidth.current, 0, max - min);
+-    onDrag(sanitizeStep$1(newValue, {
++    const steppedValue = sanitizeStep$1(newValue, {
+       step,
+       initialValue
+-    }));
++    });
++    onDrag(altKey ? steppedValue : applySnapPoints(steppedValue, min, max, snapPoints));
+     return memo;
+   });
+   const pos = range(value, min, max);
+@@ -1606,7 +1644,12 @@ function RangeSlider({
+       left: 0,
+       right: `${(1 - pos) * 100}%`
+     }
+-  })), React__default["default"].createElement(Scrubber, {
++  }), snapPoints ? snapPoints.map(point => React__default["default"].createElement(SnapPoint, {
++    key: point,
++    style: {
++      left: `calc(${range(point, min, max)} * (100% - ${scrubberWidth}) + ${scrubberWidth} / 2)`
++    }
++  })) : null), React__default["default"].createElement(Scrubber, {
+     ref: scrubberRef,
+     style: {
+       left: `calc(${pos} * (100% - ${scrubberWidth}))`
+diff --git a/dist/vector-plugin-6f82aee9.esm.js b/dist/vector-plugin-6f82aee9.esm.js
+index 8bf534d96705c0bc5d21f7feeeaa203f94778a30..95d61d713fb41b45416f65c1ec404da2396bb785 100644
+--- a/dist/vector-plugin-6f82aee9.esm.js
++++ b/dist/vector-plugin-6f82aee9.esm.js
+@@ -1535,13 +1535,49 @@ const Indicator = styled('div', {
+   backgroundColor: '$accent2'
+ });
+ 
++// --- @paper-design patch: snap points on range sliders -----------------------
++// Sliders may receive a `snapPoints: number[]` setting (passed through leva's
++// number normalize as an unknown setting). While dragging, a value landing
++// within SNAP_SENSITIVITY of the slider range from a snap point is rewritten to
++// that point, so detents like 0 on a -1..1 slider are easy to hit. Hold Alt to
++// drag past them; typing in the number field is never snapped.
++const SNAP_SENSITIVITY = 0.05;
++
++const SnapPoint = styled('div', {
++  position: 'absolute',
++  top: '50%',
++  width: 'var(--leva-sizes-snapPoint, 6px)',
++  height: 'var(--leva-sizes-snapPoint, 6px)',
++  marginTop: 'calc(var(--leva-sizes-snapPoint, 6px) / -2)',
++  marginLeft: 'calc(var(--leva-sizes-snapPoint, 6px) / -2)',
++  borderRadius: '50%',
++  pointerEvents: 'none',
++  backgroundColor: 'var(--leva-colors-snapPoint, var(--leva-colors-highlight1))'
++});
++
++function applySnapPoints(value, min, max, points) {
++  if (!points || points.length === 0) return value;
++  let closest = value;
++  let closestDistance = (max - min) * SNAP_SENSITIVITY;
++  for (const point of points) {
++    const distance = Math.abs(point - value);
++    if (distance < closestDistance) {
++      closest = point;
++      closestDistance = distance;
++    }
++  }
++  return closest;
++}
++// --- end patch ---------------------------------------------------------------
++
+ function RangeSlider({
+   value,
+   min,
+   max,
+   onDrag,
+   step,
+-  initialValue
++  initialValue,
++  snapPoints
+ }) {
+   const ref = useRef(null);
+   const scrubberRef = useRef(null);
+@@ -1550,6 +1586,7 @@ function RangeSlider({
+   const bind = useDrag(({
+     event,
+     first,
++    altKey,
+     xy: [x],
+     movement: [mx],
+     memo
+@@ -1564,10 +1601,11 @@ function RangeSlider({
+       memo = targetIsScrub ? value : invertedRange((x - left) / width, min, max);
+     }
+     const newValue = memo + invertedRange(mx / rangeWidth.current, 0, max - min);
+-    onDrag(sanitizeStep$1(newValue, {
++    const steppedValue = sanitizeStep$1(newValue, {
+       step,
+       initialValue
+-    }));
++    });
++    onDrag(altKey ? steppedValue : applySnapPoints(steppedValue, min, max, snapPoints));
+     return memo;
+   });
+   const pos = range(value, min, max);
+@@ -1578,7 +1616,12 @@ function RangeSlider({
+       left: 0,
+       right: `${(1 - pos) * 100}%`
+     }
+-  })), React.createElement(Scrubber, {
++  }), snapPoints ? snapPoints.map(point => React.createElement(SnapPoint, {
++    key: point,
++    style: {
++      left: `calc(${range(point, min, max)} * (100% - ${scrubberWidth}) + ${scrubberWidth} / 2)`
++    }
++  })) : null), React.createElement(Scrubber, {
+     ref: scrubberRef,
+     style: {
+       left: `calc(${pos} * (100% - ${scrubberWidth}))`
+diff --git a/dist/vector-plugin-c6ed103d.cjs.prod.js b/dist/vector-plugin-c6ed103d.cjs.prod.js
+index 404ed2e2bcdbb333907738a4b54c32aa7dcf533a..4eab87eb1725fa007a846b397d1cf5b869253f87 100644
+--- a/dist/vector-plugin-c6ed103d.cjs.prod.js
++++ b/dist/vector-plugin-c6ed103d.cjs.prod.js
+@@ -1563,13 +1563,49 @@ const Indicator = styled('div', {
+   backgroundColor: '$accent2'
+ });
+ 
++// --- @paper-design patch: snap points on range sliders -----------------------
++// Sliders may receive a `snapPoints: number[]` setting (passed through leva's
++// number normalize as an unknown setting). While dragging, a value landing
++// within SNAP_SENSITIVITY of the slider range from a snap point is rewritten to
++// that point, so detents like 0 on a -1..1 slider are easy to hit. Hold Alt to
++// drag past them; typing in the number field is never snapped.
++const SNAP_SENSITIVITY = 0.05;
++
++const SnapPoint = styled('div', {
++  position: 'absolute',
++  top: '50%',
++  width: 'var(--leva-sizes-snapPoint, 6px)',
++  height: 'var(--leva-sizes-snapPoint, 6px)',
++  marginTop: 'calc(var(--leva-sizes-snapPoint, 6px) / -2)',
++  marginLeft: 'calc(var(--leva-sizes-snapPoint, 6px) / -2)',
++  borderRadius: '50%',
++  pointerEvents: 'none',
++  backgroundColor: 'var(--leva-colors-snapPoint, var(--leva-colors-highlight1))'
++});
++
++function applySnapPoints(value, min, max, points) {
++  if (!points || points.length === 0) return value;
++  let closest = value;
++  let closestDistance = (max - min) * SNAP_SENSITIVITY;
++  for (const point of points) {
++    const distance = Math.abs(point - value);
++    if (distance < closestDistance) {
++      closest = point;
++      closestDistance = distance;
++    }
++  }
++  return closest;
++}
++// --- end patch ---------------------------------------------------------------
++
+ function RangeSlider({
+   value,
+   min,
+   max,
+   onDrag,
+   step,
+-  initialValue
++  initialValue,
++  snapPoints
+ }) {
+   const ref = React.useRef(null);
+   const scrubberRef = React.useRef(null);
+@@ -1578,6 +1614,7 @@ function RangeSlider({
+   const bind = useDrag(({
+     event,
+     first,
++    altKey,
+     xy: [x],
+     movement: [mx],
+     memo
+@@ -1592,10 +1629,11 @@ function RangeSlider({
+       memo = targetIsScrub ? value : invertedRange((x - left) / width, min, max);
+     }
+     const newValue = memo + invertedRange(mx / rangeWidth.current, 0, max - min);
+-    onDrag(sanitizeStep$1(newValue, {
++    const steppedValue = sanitizeStep$1(newValue, {
+       step,
+       initialValue
+-    }));
++    });
++    onDrag(altKey ? steppedValue : applySnapPoints(steppedValue, min, max, snapPoints));
+     return memo;
+   });
+   const pos = range(value, min, max);
+@@ -1606,7 +1644,12 @@ function RangeSlider({
+       left: 0,
+       right: `${(1 - pos) * 100}%`
+     }
+-  })), React__default["default"].createElement(Scrubber, {
++  }), snapPoints ? snapPoints.map(point => React__default["default"].createElement(SnapPoint, {
++    key: point,
++    style: {
++      left: `calc(${range(point, min, max)} * (100% - ${scrubberWidth}) + ${scrubberWidth} / 2)`
++    }
++  })) : null), React__default["default"].createElement(Scrubber, {
+     ref: scrubberRef,
+     style: {
+       left: `calc(${pos} * (100% - ${scrubberWidth}))`
