@@ -25,20 +25,20 @@ const ColorPanelsWithControls = () => {
   const [params, setParams] = useControls(() => {
     return {
       colorBack: { value: toHsla(defaults.colorBack), order: 100 },
-      density: { value: defaults.density, min: 0.25, max: 7, order: 200 },
-      angle1: { value: defaults.angle1, min: -1, max: 1, order: 201 },
-      angle2: { value: defaults.angle2, min: -1, max: 1, order: 202 },
-      length: { value: defaults.length, min: 0, max: 3, order: 203 },
+      density: { value: defaults.density, min: 0.25, max: 7, snapPoints: [1], order: 200 },
+      angle1: { value: defaults.angle1, min: -1, max: 1, snapPoints: [0], order: 201 },
+      angle2: { value: defaults.angle2, min: -1, max: 1, snapPoints: [0], order: 202 },
+      length: { value: defaults.length, min: 0, max: 3, snapPoints: [1], order: 203 },
       edges: { value: defaults.edges, order: 204 },
       blur: { value: defaults.blur, min: 0, max: 0.5, order: 205 },
       fadeIn: { value: defaults.fadeIn, min: 0, max: 1, order: 205 },
       fadeOut: { value: defaults.fadeOut, min: 0, max: 1, order: 207 },
       gradient: { value: defaults.gradient, min: 0, max: 1, order: 208 },
-      speed: { value: defaults.speed, min: 0, max: 4, order: 300 },
-      scale: { value: defaults.scale, min: 0.01, max: 4, order: 301 },
+      speed: { value: defaults.speed, min: 0, max: 4, snapPoints: [1], order: 300 },
+      scale: { value: defaults.scale, min: 0.01, max: 4, snapPoints: [1], order: 301 },
       rotation: { value: defaults.rotation, min: 0, max: 360, order: 302 },
-      offsetX: { value: defaults.offsetX, min: -1, max: 1, order: 303 },
-      offsetY: { value: defaults.offsetY, min: -1, max: 1, order: 304 },
+      offsetX: { value: defaults.offsetX, min: -1, max: 1, snapPoints: [0], order: 303 },
+      offsetY: { value: defaults.offsetY, min: -1, max: 1, snapPoints: [0], order: 304 },
     };
   }, [colors.length]);
 

@@ -79,19 +79,22 @@ const GemSmokeWithControls = () => {
       outerDistortion: { value: defaults.outerDistortion, min: 0, max: 1, order: 202 },
       outerGlow: { value: defaults.outerGlow, min: 0, max: 1, order: 203 },
       innerGlow: { value: defaults.innerGlow, min: 0, max: 1, order: 204 },
-      offset: { value: defaults.offset, min: -1, max: 1, order: 205 },
+      offset: { value: defaults.offset, min: -1, max: 1, snapPoints: [0], order: 205 },
       angle: { value: defaults.angle, min: 0, max: 360, order: 250 },
       size: { value: defaults.angle, min: 0.1, max: 1, order: 251 },
-      speed: { value: defaults.speed, min: 0, max: 4, order: 300 },
-      scale: { value: defaults.scale, min: 0.1, max: 4, order: 301 },
+      speed: { value: defaults.speed, min: 0, max: 4, snapPoints: [1], order: 300 },
+      scale: { value: defaults.scale, min: 0.1, max: 4, snapPoints: [1], order: 301 },
       // rotation: { value: defaults.rotation, min: 0, max: 360, order: 302 },
       // offsetX: { value: defaults.offsetX, min: -1, max: 1, order: 303 },
       // offsetY: { value: defaults.offsetY, min: -1, max: 1, order: 304 },
       // fit: { value: defaults.fit, options: ['contain', 'cover'] as ShaderFit[], order: 305 },
-      Image: folder({
-        'Upload image': levaImageButton((img?: HTMLImageElement) => setImage(img ?? '')),
-        ...(image && { 'Delete image': levaDeleteImageButton(() => setImage('')) }),
-      }, { order: -1 }),
+      Image: folder(
+        {
+          'Upload image': levaImageButton((img?: HTMLImageElement) => setImage(img ?? '')),
+          ...(image && { 'Delete image': levaDeleteImageButton(() => setImage('')) }),
+        },
+        { order: -1 }
+      ),
     };
   }, [colors.length, image]);
 

@@ -80,15 +80,15 @@ const HalftoneCmykWithControls = () => {
         order: 123,
       },
       softness: { value: defaults.softness, min: 0, max: 1, step: 0.01, order: 124 },
-      contrast: { value: defaults.contrast, min: 0, max: 2, step: 0.01, order: 130 },
+      contrast: { value: defaults.contrast, min: 0, max: 2, step: 0.01, snapPoints: [1], order: 130 },
       floodC: { value: defaults.floodC, min: 0, max: 1, step: 0.01, order: 210 },
       floodM: { value: defaults.floodM, min: 0, max: 1, step: 0.01, order: 211 },
       floodY: { value: defaults.floodY, min: 0, max: 1, step: 0.01, order: 212 },
       floodK: { value: defaults.floodK, min: 0, max: 1, step: 0.01, order: 213 },
-      gainC: { value: defaults.gainC, min: -1, max: 1, step: 0.01, order: 200 },
-      gainM: { value: defaults.gainM, min: -1, max: 1, step: 0.01, order: 201 },
-      gainY: { value: defaults.gainY, min: -1, max: 1, step: 0.01, order: 202 },
-      gainK: { value: defaults.gainK, min: -1, max: 1, step: 0.01, order: 203 },
+      gainC: { value: defaults.gainC, min: -1, max: 1, step: 0.01, snapPoints: [0], order: 200 },
+      gainM: { value: defaults.gainM, min: -1, max: 1, step: 0.01, snapPoints: [0], order: 201 },
+      gainY: { value: defaults.gainY, min: -1, max: 1, step: 0.01, snapPoints: [0], order: 202 },
+      gainK: { value: defaults.gainK, min: -1, max: 1, step: 0.01, snapPoints: [0], order: 203 },
       grainMixer: { value: defaults.grainMixer, min: 0, max: 1, order: 350 },
       grainOverlay: { value: defaults.grainOverlay, min: 0, max: 1, order: 351 },
       grainSize: { value: defaults.grainSize, min: 0, max: 1, order: 350 },
@@ -97,7 +97,7 @@ const HalftoneCmykWithControls = () => {
       // originX: { value: defaults.originX, min: 0, max: 1, order: 411 },
       // originY: { value: defaults.originY, min: 0, max: 1, order: 412 },
       // rotation: { value: defaults.rotation, min: 0, max: 360, order: 420 },
-      scale: { value: defaults.scale, min: 0, max: 4, order: 420 },
+      scale: { value: defaults.scale, min: 0, max: 4, snapPoints: [1], order: 420 },
       fit: { value: defaults.fit, options: ['contain', 'cover'] as ShaderFit[], order: 450 },
       Image: folder(
         {
@@ -121,7 +121,7 @@ const HalftoneCmykWithControls = () => {
       <ShaderContainer shaderDef={halftoneCmykDef} currentParams={params}>
         <HalftoneCmyk onClick={handleClick} {...params} image={image} />
       </ShaderContainer>
-      <div onClick={handleClick} className="text-current/70 mx-auto mb-48 mt-16 w-fit select-none text-base">
+      <div onClick={handleClick} className="mx-auto mt-16 mb-48 w-fit text-base text-current/70 select-none">
         Click to change the sample image
       </div>
       <ShaderDetails shaderDef={halftoneCmykDef} currentParams={params} />

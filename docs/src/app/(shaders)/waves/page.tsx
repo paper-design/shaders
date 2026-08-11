@@ -19,13 +19,13 @@ const WavesWithControls = () => {
     return {
       colorBack: { value: toHsla(defaults.colorBack), order: 100 },
       colorFront: { value: toHsla(defaults.colorFront), order: 101 },
-      frequency: { value: defaults.frequency, min: 0, max: 2, order: 300 },
+      frequency: { value: defaults.frequency, min: 0, max: 2, snapPoints: [1], order: 300 },
       amplitude: { value: defaults.amplitude, min: 0, max: 1, order: 301 },
-      spacing: { value: defaults.spacing, min: 0, max: 2, order: 302 },
+      spacing: { value: defaults.spacing, min: 0, max: 2, snapPoints: [1], order: 302 },
       proportion: { value: defaults.proportion, min: 0, max: 1, order: 303 },
       softness: { value: defaults.softness, min: 0, max: 1, order: 304 },
-      shape: { value: defaults.shape, min: 0, max: 3, order: 350 },
-      scale: { value: defaults.scale, min: 0.01, max: 4, order: 400 },
+      shape: { value: defaults.shape, min: 0, max: 3, snapPoints: [1], order: 350 },
+      scale: { value: defaults.scale, min: 0.01, max: 4, snapPoints: [1], order: 400 },
       rotation: { value: defaults.rotation, min: 0, max: 360, order: 401 },
     };
   });

@@ -24,18 +24,18 @@ const StaticRadialGradientWithControls = () => {
   const [params, setParams] = useControls(() => {
     return {
       colorBack: { value: toHsla(defaults.colorBack), order: 100 },
-      radius: { value: defaults.radius, min: 0, max: 3, order: 200 },
-      focalDistance: { value: defaults.focalDistance, min: 0, max: 3, order: 201 },
+      radius: { value: defaults.radius, min: 0, max: 3, snapPoints: [1], order: 200 },
+      focalDistance: { value: defaults.focalDistance, min: 0, max: 3, snapPoints: [1], order: 201 },
       focalAngle: { value: defaults.focalAngle, min: 0, max: 360, order: 202 },
-      falloff: { value: defaults.falloff, min: -1, max: 1, order: 201 },
+      falloff: { value: defaults.falloff, min: -1, max: 1, snapPoints: [0], order: 201 },
       mixing: { value: defaults.mixing, min: 0, max: 1, order: 204 },
       distortion: { value: defaults.distortion, min: 0, max: 1, order: 205 },
-      distortionShift: { value: defaults.distortionShift, min: -1, max: 1, order: 206 },
+      distortionShift: { value: defaults.distortionShift, min: -1, max: 1, snapPoints: [0], order: 206 },
       distortionFreq: { value: defaults.distortionFreq, min: 0, max: 20, step: 1, order: 207 },
       grainMixer: { value: defaults.grainMixer, min: 0, max: 1, order: 208 },
       grainOverlay: { value: defaults.grainOverlay, min: 0, max: 1, order: 209 },
-      offsetX: { value: defaults.offsetX, min: -1, max: 1, order: 300 },
-      offsetY: { value: defaults.offsetY, min: -1, max: 1, order: 301 },
+      offsetX: { value: defaults.offsetX, min: -1, max: 1, snapPoints: [0], order: 300 },
+      offsetY: { value: defaults.offsetY, min: -1, max: 1, snapPoints: [0], order: 301 },
     };
   }, [colors.length]);
 
