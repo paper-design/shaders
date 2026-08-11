@@ -157,7 +157,7 @@ export const halftoneCmykDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.grainSize,
-      description: 'Size of grain overlay texture (relative to image box)',
+      description: 'Size of grain texture, applied to both grain and overlay (relative to image box) (needs grainMixer or grainOverlay > 0)',
     },
     {
       name: 'grainMixer',

@@ -31,7 +31,7 @@ export const dotOrbitDef: ShaderDef = {
       step: 1,
       defaultValue: defaultParams.stepsPerColor,
       description:
-        'Number of extra colors between base colors (1 = N color palette, 2 = 2×N color palette, 3 = 3×N color palette, etc)',
+        'Number of extra colors between base colors (1 = N color palette, 2 = 2×N color palette, 3 = 3×N color palette, etc) (needs 2+ colors)',
     },
     {
       name: 'size',
@@ -55,7 +55,7 @@ export const dotOrbitDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.spreading,
-      description: 'Maximum orbit distance',
+      description: 'Maximum orbit distance (dots are static at spreading = 0)',
     },
     ...animatedCommonParams,
   ],

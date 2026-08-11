@@ -18,7 +18,7 @@ export const heatmapMeta = {
  * - u_colors (vec4[]): Up to 10 heatmap colors in RGBA
  * - u_colorsCount (float): Number of active colors
  * - u_contour (float): Heat intensity near the edges of the input shape (0 to 1)
- * - u_angle (float): Direction of the heatwaves in degrees (0 to 360)
+ * - u_angle (float): Direction of the heatwaves in degrees, needs innerGlow or outerGlow > 0 (0 to 360)
  * - u_noise (float): Grain applied across the entire graphic (0 to 1)
  * - u_innerGlow (float): Size of the heated area inside the input shape (0 to 1)
  * - u_outerGlow (float): Size of the heated area outside the input shape (0 to 1)

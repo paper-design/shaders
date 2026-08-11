@@ -22,8 +22,8 @@ export const warpMeta = {
  * - u_shape (float): Base pattern type (0 = checks, 1 = stripes, 2 = edge)
  * - u_shapeScale (float): Zoom level of the base pattern (0 to 1)
  * - u_distortion (float): Strength of noise-based distortion (0 to 1)
- * - u_swirl (float): Strength of the swirl distortion (0 to 1)
- * - u_swirlIterations (float): Number of layered swirl passes, effective with swirl > 0 (0 to 20)
+ * - u_swirl (float): Strength of the swirl distortion, needs swirlIterations > 1 (0 to 1)
+ * - u_swirlIterations (float): Number of layered swirl passes, needs swirl > 0 (0 to 20)
  * - u_noiseTexture (sampler2D): Pre-computed randomizer source texture
  *
  * Vertex shader outputs (used in fragment shader):

@@ -108,7 +108,7 @@ export const pulsingBorderDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.smokeSize,
-      description: 'The size of the smoke effect (effective with smoke > 0)',
+      description: 'The size of the smoke effect (needs smoke > 0)',
     },
     {
       name: 'margin',

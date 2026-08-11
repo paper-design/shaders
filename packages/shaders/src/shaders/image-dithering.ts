@@ -26,9 +26,9 @@ import { proceduralHash21, declarePI } from '../shader-utils.js';
  * - u_offsetY (float): Vertical offset of the graphics center (-1 to 1)
  * - u_image (sampler2D): Source image texture
  * - u_imageAspectRatio (float): Aspect ratio of the source image
- * - u_colorFront (vec4): Foreground color in RGBA
- * - u_colorBack (vec4): Background color in RGBA
- * - u_colorHighlight (vec4): Secondary foreground color in RGBA (set same as colorFront for classic 2-color dithering)
+ * - u_colorFront (vec4): Foreground color in RGBA, needs originalColors off
+ * - u_colorBack (vec4): Background color in RGBA, needs originalColors off
+ * - u_colorHighlight (vec4): Secondary foreground color in RGBA (set same as colorFront for classic 2-color dithering), needs originalColors off
  * - u_originalColors (bool): Use the original colors of the image instead of the color palette
  * - u_inverted (bool): Inverts the image luminance, doesn't affect the color scheme; not effective at zero contrast
  * - u_type (float): Dithering type (1 = random, 2 = 2x2 Bayer, 3 = 4x4 Bayer, 4 = 8x8 Bayer)

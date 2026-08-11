@@ -26,7 +26,7 @@ export const waterDef: ShaderDef = {
       type: 'string',
       defaultValue: defaultParams.colorHighlight,
       isColor: true,
-      description: 'Highlight color',
+      description: 'Highlight color (needs highlights > 0)',
     },
     {
       name: 'highlights',
@@ -42,7 +42,7 @@ export const waterDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.layering,
-      description: 'The power of 2nd layer of caustic distortion',
+      description: 'The power of 2nd layer of caustic distortion (needs caustic or highlights > 0)',
     },
     {
       name: 'edges',
@@ -50,7 +50,7 @@ export const waterDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.edges,
-      description: 'Caustic distortion power on the image edges',
+      description: 'Caustic distortion power on the image edges (needs caustic > 0)',
     },
     {
       name: 'waves',

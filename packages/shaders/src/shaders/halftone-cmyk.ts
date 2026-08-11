@@ -18,7 +18,7 @@ import { declarePI } from '../shader-utils.js';
  * - u_minDot (float): Minimum dot thickness (0 to 1)
  * - u_contrast (float): Image contrast adjustment (0 to 2)
  * - u_softness (float): Edge softness of dots (0 to 1)
- * - u_grainSize (float): Size of grain overlay texture (0 to 1)
+ * - u_grainSize (float): Size of grain texture, applied to both grain and overlay, needs grainMixer or grainOverlay > 0 (0 to 1)
  * - u_grainMixer (float): Strength of grain affecting dot size (0 to 1)
  * - u_grainOverlay (float): Strength of grain overlay on final output (0 to 1)
  * - u_gridNoise (float): Strength of smooth noise applied to both dot positions and color sampling (0 to 1)

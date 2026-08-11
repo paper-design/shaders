@@ -15,7 +15,7 @@ export const simplexNoiseMeta = {
  * - u_scale (float): Overall zoom level, used for anti-aliasing calculations
  * - u_colors (vec4[]): Up to 10 base colors in RGBA
  * - u_colorsCount (float): Number of active colors
- * - u_stepsPerColor (float): Number of extra colors between base colors, 1 = N colors, 2 = 2×N, etc. (1 to 10)
+ * - u_stepsPerColor (float): Number of extra colors between base colors, 1 = N colors, 2 = 2×N, etc., needs 2+ colors (1 to 10)
  * - u_softness (float): Color transition sharpness, 0 = hard edge, 1 = smooth gradient (0 to 1)
  *
  * Vertex shader outputs (used in fragment shader):

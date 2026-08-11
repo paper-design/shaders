@@ -19,12 +19,12 @@ export const gemSmokeMeta = {
  * - u_colors (vec4[]): Up to 6 smoke colors in RGBA
  * - u_colorsCount (float): Number of active colors
  * - u_colorBack (vec4): Background color in RGBA
- * - u_innerDistortion (float): Power of smoke distortion inside the input shape (0 to 1)
- * - u_outerDistortion (float): Power of smoke distortion outside the input shape (0 to 1)
+ * - u_innerDistortion (float): Power of smoke distortion inside the input shape, needs innerGlow > 0 (0 to 1)
+ * - u_outerDistortion (float): Power of smoke distortion outside the input shape, needs outerGlow > 0 (0 to 1)
  * - u_outerGlow (float): Visibility of smoke shape outside the input shape (0 to 1)
  * - u_innerGlow (float): Visibility of smoke shape inside the input shape (0 to 1)
  * - u_colorInner (vec4): Additional color inside the input shape, mixing with smoke (RGBA)
- * - u_offset (float): Vertical offset of smoke inside the shape (-1 to 1)
+ * - u_offset (float): Vertical offset of smoke inside the shape, needs innerGlow > 0 (-1 to 1)
  * - u_angle (float): Smoke direction in degrees (0 to 360)
  * - u_size (float): Size of smoke shape relative to the image box (0 to 1)
  *

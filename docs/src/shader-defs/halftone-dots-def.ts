@@ -25,7 +25,7 @@ export const halftoneDotsDef: ShaderDef = {
       type: 'string',
       defaultValue: defaultParams.colorFront,
       isColor: true,
-      description: 'Foreground color',
+      description: 'Foreground color (needs originalColors off)',
     },
     {
       name: 'originalColors',
@@ -101,7 +101,7 @@ export const halftoneDotsDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.grainSize,
-      description: 'The scale applied to both grain distortion and grain overlay',
+      description: 'The scale applied to both grain distortion and grain overlay (needs grainMixer or grainOverlay > 0)',
     },
     ...staticImageCommonParams,
   ],

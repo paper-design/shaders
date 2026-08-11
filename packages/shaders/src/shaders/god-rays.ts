@@ -13,14 +13,14 @@ export const godRaysMeta = {
  * Fragment shader uniforms:
  * - u_time (float): Animation time
  * - u_colorBack (vec4): Background color in RGBA
- * - u_colorBloom (vec4): Color overlay blended with the rays in RGBA
+ * - u_colorBloom (vec4): Color overlay blended with the rays in RGBA, needs bloom > 0
  * - u_colors (vec4[]): Up to 5 ray colors in RGBA
  * - u_colorsCount (float): Number of active colors
  * - u_bloom (float): Strength of the bloom/overlay effect, 0 = alpha blend, 1 = additive blend (0 to 1)
  * - u_intensity (float): Visibility/strength of the rays (0 to 1)
  * - u_density (float): The number of rays (0 to 1)
  * - u_spotty (float): The length of the rays, higher = more spots/shorter rays (0 to 1)
- * - u_midSize (float): Size of the circular glow shape in the center (0 to 1)
+ * - u_midSize (float): Size of the circular glow shape in the center, needs midIntensity > 0 (0 to 1)
  * - u_midIntensity (float): Brightness/intensity of the central glow (0 to 1)
  * - u_noiseTexture (sampler2D): Pre-computed randomizer source texture
  *

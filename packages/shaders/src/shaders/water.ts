@@ -10,10 +10,10 @@ import { declarePI, rotation2, simplexNoise } from '../shader-utils.js';
  * - u_image (sampler2D): Optional source image texture
  * - u_imageAspectRatio (float): Aspect ratio of the source image
  * - u_colorBack (vec4): Background color in RGBA
- * - u_colorHighlight (vec4): Highlight color in RGBA
+ * - u_colorHighlight (vec4): Highlight color in RGBA, needs highlights > 0
  * - u_highlights (float): Coloring added over image/background following caustic shape (0 to 1)
- * - u_layering (float): Power of 2nd layer of caustic distortion (0 to 1)
- * - u_edges (float): Caustic distortion power on the image edges (0 to 1)
+ * - u_layering (float): Power of 2nd layer of caustic distortion, needs caustic or highlights > 0 (0 to 1)
+ * - u_edges (float): Caustic distortion power on the image edges, needs caustic > 0 (0 to 1)
  * - u_waves (float): Additional distortion based on simplex noise, independent from caustic (0 to 1)
  * - u_caustic (float): Power of caustic distortion (0 to 1)
  * - u_size (float): Pattern scale relative to the image (0.01 to 7)

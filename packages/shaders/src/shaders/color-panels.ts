@@ -24,7 +24,7 @@ export const colorPanelsMeta = {
  * - u_blur (float): Side blur, 0 for sharp edges (0 to 0.5)
  * - u_fadeIn (float): Transparency near central axis (0 to 1)
  * - u_fadeOut (float): Transparency near viewer (0 to 1)
- * - u_gradient (float): Color mixing within a panel, 0 = solid, 1 = gradient (0 to 1)
+ * - u_gradient (float): Color mixing within a panel, 0 = solid, 1 = gradient, needs 2+ colors (0 to 1)
  *
  * Vertex shader outputs (used in fragment shader):
  * - v_objectUV (vec2): Object box UV coordinates with global sizing (scale, rotation, offsets, etc) applied

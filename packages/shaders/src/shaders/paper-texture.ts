@@ -16,14 +16,14 @@ import { rotation2, declarePI, fiberNoise, textureRandomizerR } from '../shader-
  * - u_contrast (float): Blending behavior, sharper vs smoother color transitions (0 to 1)
  * - u_roughness (float): Pixel noise, related to canvas and not scalable (0 to 1)
  * - u_fiber (float): Curly-shaped noise intensity (0 to 1)
- * - u_fiberSize (float): Curly-shaped noise scale (0 to 1)
+ * - u_fiberSize (float): Curly-shaped noise scale, needs fiber > 0 (0 to 1)
  * - u_crumples (float): Cell-based crumple pattern intensity (0 to 1)
- * - u_crumpleSize (float): Cell-based crumple pattern scale (0 to 1)
- * - u_folds (float): Depth of the folds (0 to 1)
- * - u_foldCount (float): Number of folds (1 to 15)
+ * - u_crumpleSize (float): Cell-based crumple pattern scale, needs crumples > 0 (0 to 1)
+ * - u_folds (float): Depth of the folds, needs contrast > 0 to shade the surface (0 to 1)
+ * - u_foldCount (float): Number of folds, needs folds > 0 (1 to 15)
  * - u_fade (float): Big-scale noise mask applied to the pattern (0 to 1)
  * - u_drops (float): Visibility of speckle pattern (0 to 1)
- * - u_seed (float): Seed applied to folds, crumples and dots (0 to 1000)
+ * - u_seed (float): Seed applied to folds, crumples, dots and fade (0 to 1000)
  * - u_noiseTexture (sampler2D): Pre-computed randomizer source texture
  *
  * Vertex shader outputs (used in fragment shader):

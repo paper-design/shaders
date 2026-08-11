@@ -28,7 +28,7 @@ export const wavesDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.amplitude,
-      description: 'Wave amplitude',
+      description: 'Wave amplitude (at frequency = 0 it only shifts the lines)',
     },
     {
       name: 'frequency',
@@ -69,7 +69,7 @@ export const wavesDef: ShaderDef = {
       max: 3,
       defaultValue: defaultParams.shape,
       description:
-        'Line shape control: zigzag at 0, sine at 1, irregular waves at 2. Intermediate values morph gradually between these shapes',
+        'Line shape control: zigzag at 0, sine at 1, irregular waves at 2. Intermediate values morph gradually between these shapes (needs amplitude > 0)',
     },
     ...staticCommonParams,
   ],

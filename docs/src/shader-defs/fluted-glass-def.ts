@@ -26,14 +26,14 @@ export const flutedGlassDef: ShaderDef = {
       type: 'string',
       defaultValue: defaultParams.colorShadow,
       isColor: true,
-      description: 'Shadows color',
+      description: 'Shadows color (needs shadows > 0)',
     },
     {
       name: 'colorHighlight',
       type: 'string',
       defaultValue: defaultParams.colorHighlight,
       isColor: true,
-      description: 'Highlights color',
+      description: 'Highlights color (needs highlights > 0)',
     },
     {
       name: 'shadows',
@@ -96,7 +96,7 @@ export const flutedGlassDef: ShaderDef = {
       min: -1,
       max: 1,
       defaultValue: defaultParams.shift,
-      description: 'Texture shift in direction opposite to the grid',
+      description: 'Texture shift in direction opposite to the grid (needs distortion > 0)',
     },
     {
       name: 'stretch',
@@ -160,7 +160,7 @@ export const flutedGlassDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.grainMixer,
-      description: 'Strength of grain distortion applied to the shapes’ edges',
+      description: 'Strength of grain distortion applied to the shapes’ edges (needs distortion > 0)',
     },
     {
       name: 'grainOverlay',

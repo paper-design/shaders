@@ -20,12 +20,12 @@ export const voronoiMeta = {
  * - u_scale (float): Overall zoom level, used for anti-aliasing calculations
  * - u_colors (vec4[]): Up to 5 base cell colors in RGBA
  * - u_colorsCount (float): Number of active colors
- * - u_stepsPerColor (float): Number of extra colors between base colors, 1 = N colors, 2 = 2×N, etc. (1 to 3)
- * - u_colorGlow (vec4): Color tint for radial inner shadow inside cells in RGBA, effective with glow > 0
- * - u_colorGap (vec4): Color used for cell borders/gaps in RGBA
+ * - u_stepsPerColor (float): Number of extra colors between base colors, 1 = N colors, 2 = 2×N, etc., needs 2+ colors (1 to 3)
+ * - u_colorGlow (vec4): Color tint for radial inner shadow inside cells in RGBA, needs glow > 0
+ * - u_colorGap (vec4): Color used for cell borders/gaps in RGBA, needs gap > 0
  * - u_distortion (float): Strength of noise-driven displacement of cell centers (0 to 0.5)
  * - u_gap (float): Width of the border/gap between cells (0 to 0.1)
- * - u_glow (float): Strength of the radial inner shadow inside cells (0 to 1)
+ * - u_glow (float): Strength of the radial inner shadow inside cells, needs opaque colorGlow (0 to 1)
  * - u_noiseTexture (sampler2D): Pre-computed randomizer source texture
  *
  * Vertex shader outputs (used in fragment shader):

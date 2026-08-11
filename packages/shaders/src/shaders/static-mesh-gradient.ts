@@ -19,9 +19,9 @@ export const staticMeshGradientMeta = {
  * - u_colorsCount (float): Number of active colors
  * - u_positions (float): Color spots placement seed (0 to 100)
  * - u_waveX (float): Strength of sine wave distortion along X axis (0 to 1)
- * - u_waveXShift (float): Phase offset applied to the X-axis wave (0 to 1)
+ * - u_waveXShift (float): Phase offset applied to the X-axis wave, needs waveX > 0 (0 to 1)
  * - u_waveY (float): Strength of sine wave distortion along Y axis (0 to 1)
- * - u_waveYShift (float): Phase offset applied to the Y-axis wave (0 to 1)
+ * - u_waveYShift (float): Phase offset applied to the Y-axis wave, needs waveY > 0 (0 to 1)
  * - u_mixing (float): Blending behavior, 0 = hard stripes, 0.5 = smooth, 1 = gradual blend (0 to 1)
  * - u_grainMixer (float): Strength of grain distortion applied to shape edges (0 to 1)
  * - u_grainOverlay (float): Post-processing black/white grain overlay (0 to 1)

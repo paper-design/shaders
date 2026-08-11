@@ -46,7 +46,7 @@ export const warpDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.swirl,
-      description: 'Strength of the swirl distortion',
+      description: 'Strength of the swirl distortion (needs swirlIterations > 1)',
     },
     {
       name: 'swirlIterations',
@@ -54,7 +54,7 @@ export const warpDef: ShaderDef = {
       min: 0,
       max: 20,
       defaultValue: defaultParams.swirlIterations,
-      description: 'Number of layered swirl passes (effective with swirl > 0)',
+      description: 'Number of layered swirl passes (needs swirl > 0)',
     },
     {
       name: 'shape',

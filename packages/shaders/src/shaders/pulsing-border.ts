@@ -30,7 +30,7 @@ export const pulsingBorderMeta = {
  * - u_spotSize (float): Angular size of spots (0 to 1)
  * - u_pulse (float): Optional pulsing animation intensity (0 to 1)
  * - u_smoke (float): Optional noisy shape extending the border (0 to 1)
- * - u_smokeSize (float): Size of the smoke effect (0 to 1)
+ * - u_smokeSize (float): Size of the smoke effect, needs smoke > 0 (0 to 1)
  * - u_noiseTexture (sampler2D): Pre-computed randomizer source texture
  *
  * Vertex shader outputs (used in fragment shader):

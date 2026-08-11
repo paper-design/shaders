@@ -42,7 +42,7 @@ export const heatmapDef: ShaderDef = {
       defaultValue: defaultParams.angle,
       min: 0,
       max: 360,
-      description: 'The direction of the heatwaves (angle relative to the shape)',
+      description: 'The direction of the heatwaves (angle relative to the shape) (needs innerGlow or outerGlow > 0)',
     },
     {
       name: 'noise',

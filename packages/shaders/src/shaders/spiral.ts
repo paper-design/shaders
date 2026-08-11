@@ -30,9 +30,9 @@ import { simplexNoise, declarePI, colorBandingFix } from '../shader-utils.js';
  * - u_distortion (float): Power of shape distortion applied along the spiral (0 to 1)
  * - u_strokeWidth (float): Thickness of spiral curve (0 to 1)
  * - u_strokeTaper (float): How much stroke loses width away from center, 0 = full visibility (0 to 1)
- * - u_strokeCap (float): Extra stroke width at the center, no effect with strokeWidth = 0.5 (0 to 1)
- * - u_noise (float): Noise distortion applied over the canvas, no effect with noiseFrequency = 0 (0 to 1)
- * - u_noiseFrequency (float): Noise frequency, no effect with noise = 0 (0 to 1)
+ * - u_strokeCap (float): Extra stroke width at the center, needs strokeWidth ≠ 0.5 (0 to 1)
+ * - u_noise (float): Noise distortion applied over the canvas, needs noiseFrequency > 0 (0 to 1)
+ * - u_noiseFrequency (float): Noise frequency, needs noise > 0 (0 to 1)
  * - u_softness (float): Color transition sharpness, 0 = hard edge, 1 = smooth gradient (0 to 1)
  *
  */

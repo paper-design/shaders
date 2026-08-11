@@ -7,7 +7,7 @@ import { declarePI, simplexNoise } from '../shader-utils.js';
  * Fragment shader uniforms:
  * - u_colorBack (vec4): Background color in RGBA
  * - u_colorFill (vec4): Shape fill color in RGBA
- * - u_colorStroke (vec4): Shape stroke color in RGBA
+ * - u_colorStroke (vec4): Shape stroke color in RGBA, needs strokeWidth > 0
  * - u_dotSize (float): Base size of each shape in pixels (1 to 100)
  * - u_gapX (float): Pattern horizontal spacing in pixels (2 to 500)
  * - u_gapY (float): Pattern vertical spacing in pixels (2 to 500)

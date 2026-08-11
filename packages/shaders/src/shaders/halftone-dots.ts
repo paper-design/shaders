@@ -10,7 +10,7 @@ import { declarePI, rotation2, proceduralHash21 } from '../shader-utils.js';
  * - u_time (float): Animation time
  * - u_image (sampler2D): Source image texture
  * - u_imageAspectRatio (float): Aspect ratio of the source image
- * - u_colorFront (vec4): Foreground color in RGBA
+ * - u_colorFront (vec4): Foreground color in RGBA, needs originalColors off
  * - u_colorBack (vec4): Background color in RGBA
  * - u_originalColors (bool): Use sampled image's original colors instead of colorFront
  * - u_type (float): Dot style (0 = classic, 1 = gooey, 2 = holes, 3 = soft)
@@ -21,7 +21,7 @@ import { declarePI, rotation2, proceduralHash21 } from '../shader-utils.js';
  * - u_contrast (float): Contrast applied to the sampled image (0 to 1)
  * - u_grainMixer (float): Strength of grain distortion applied to shape edges (0 to 1)
  * - u_grainOverlay (float): Post-processing black/white grain overlay (0 to 1)
- * - u_grainSize (float): Scale applied to both grain distortion and grain overlay (0 to 1)
+ * - u_grainSize (float): Scale applied to both grain distortion and grain overlay, needs grainMixer or grainOverlay > 0 (0 to 1)
  *
  * Vertex shader outputs (used in fragment shader):
  * - v_imageUV (vec2): Image UV coordinates with global sizing (rotation, scale, offset, etc) applied

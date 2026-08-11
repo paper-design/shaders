@@ -13,8 +13,8 @@ import { declarePI, rotation2, proceduralHash21 } from '../shader-utils.js';
  * - u_image (sampler2D): Source image texture
  * - u_imageAspectRatio (float): Aspect ratio of the source image
  * - u_colorBack (vec4): Background color in RGBA
- * - u_colorShadow (vec4): Shadows color in RGBA
- * - u_colorHighlight (vec4): Highlights color in RGBA
+ * - u_colorShadow (vec4): Shadows color in RGBA, needs shadows > 0
+ * - u_colorHighlight (vec4): Highlights color in RGBA, needs highlights > 0
  * - u_shadows (float): Color gradient added over image and background, following distortion shape (0 to 1)
  * - u_highlights (float): Thin strokes along distortion shape, useful for antialiasing on small grid (0 to 1)
  * - u_size (float): Size of the distortion shape grid (0 to 1)
@@ -22,7 +22,7 @@ import { declarePI, rotation2, proceduralHash21 } from '../shader-utils.js';
  * - u_angle (float): Direction of the grid relative to the image in degrees (0 to 180)
  * - u_distortionShape (float): Shape of distortion (1 = prism, 2 = lens, 3 = contour, 4 = cascade, 5 = flat)
  * - u_distortion (float): Power of distortion applied within each stripe (0 to 1)
- * - u_shift (float): Texture shift in direction opposite to the grid (-1 to 1)
+ * - u_shift (float): Texture shift in direction opposite to the grid, needs distortion > 0 (-1 to 1)
  * - u_stretch (float): Extra distortion along the grid lines (0 to 1)
  * - u_blur (float): One-directional blur over the image and extra blur around edges (0 to 1)
  * - u_edges (float): Glass distortion and softness on the image edges (0 to 1)
@@ -30,7 +30,7 @@ import { declarePI, rotation2, proceduralHash21 } from '../shader-utils.js';
  * - u_marginRight (float): Distance from the right edge to the effect (0 to 1)
  * - u_marginTop (float): Distance from the top edge to the effect (0 to 1)
  * - u_marginBottom (float): Distance from the bottom edge to the effect (0 to 1)
- * - u_grainMixer (float): Strength of grain distortion applied to shape edges (0 to 1)
+ * - u_grainMixer (float): Strength of grain distortion applied to shape edges, needs distortion > 0 (0 to 1)
  * - u_grainOverlay (float): Post-processing black/white grain overlay (0 to 1)
  *
  * Vertex shader outputs (used in fragment shader):

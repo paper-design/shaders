@@ -28,7 +28,7 @@ export const godRaysDef: ShaderDef = {
       type: 'string',
       defaultValue: defaultParams.colorBloom,
       isColor: true,
-      description: 'Color overlay blended with the rays',
+      description: 'Color overlay blended with the rays (needs bloom > 0)',
     },
     {
       name: 'bloom',
@@ -68,7 +68,7 @@ export const godRaysDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.midSize,
-      description: 'Size of the circular glow shape in the center',
+      description: 'Size of the circular glow shape in the center (needs midIntensity > 0)',
     },
     {
       name: 'midIntensity',

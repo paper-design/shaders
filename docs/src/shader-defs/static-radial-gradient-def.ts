@@ -53,7 +53,7 @@ export const staticRadialGradientDef: ShaderDef = {
       min: 0,
       max: 360,
       defaultValue: defaultParams.focalAngle,
-      description: 'Angle of the focal point in degrees (effective with focalDistance > 0)',
+      description: 'Angle of the focal point in degrees (needs focalDistance > 0)',
     },
     {
       name: 'mixing',
@@ -77,7 +77,7 @@ export const staticRadialGradientDef: ShaderDef = {
       min: -1,
       max: 1,
       defaultValue: defaultParams.distortionShift,
-      description: 'Radial distortion offset (effective with distortion > 0)',
+      description: 'Radial distortion offset (needs distortion > 0)',
     },
     {
       name: 'distortionFreq',
@@ -86,7 +86,7 @@ export const staticRadialGradientDef: ShaderDef = {
       max: 20,
       step: 1,
       defaultValue: defaultParams.distortionFreq,
-      description: 'Radial distortion frequency (effective with distortion > 0)',
+      description: 'Radial distortion frequency (needs distortion > 0)',
     },
     {
       name: 'grainMixer',

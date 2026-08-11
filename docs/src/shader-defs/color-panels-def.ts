@@ -91,7 +91,7 @@ export const colorPanelsDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.gradient,
-      description: 'Color mixing within a panel (0 = solid panel color, 1 = gradient of two colors)',
+      description: 'Color mixing within a panel (0 = solid panel color, 1 = gradient of two colors) (needs 2+ colors)',
     },
     ...animatedCommonParams,
   ],
