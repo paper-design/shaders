@@ -26,7 +26,7 @@ export const pulsingBorderMeta = {
  * - u_aspectRatio (float): Aspect ratio mode (0 = auto, 1 = square)
  * - u_intensity (float): Thickness of individual color spots (0 to 1)
  * - u_bloom (float): Power of glow, 0 = normal blending, 1 = additive blending (0 to 1)
- * - u_spots (float): Number of spots added for each color (1 to 20)
+ * - u_spots (float): Number of spots added for each color (1 to 4)
  * - u_spotSize (float): Angular size of spots (0 to 1)
  * - u_pulse (float): Optional pulsing animation intensity (0 to 1)
  * - u_smoke (float): Optional noisy shape extending the border (0 to 1)
