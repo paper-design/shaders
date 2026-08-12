@@ -36,7 +36,7 @@ export const wavesDef: ShaderDef = {
       min: 0,
       max: 2,
       defaultValue: defaultParams.frequency,
-      description: 'Wave frequency',
+      description: 'Wave frequency (needs amplitude > 0)',
     },
     {
       name: 'spacing',
@@ -69,7 +69,7 @@ export const wavesDef: ShaderDef = {
       max: 3,
       defaultValue: defaultParams.shape,
       description:
-        'Line shape control: zigzag at 0, sine at 1, irregular waves at 2. Intermediate values morph gradually between these shapes (needs amplitude > 0)',
+        'Line shape control: zigzag at 0, sine at 1, irregular waves at 2 and 3. Intermediate values morph gradually between these shapes (needs amplitude > 0, frequency > 0)',
     },
     ...staticCommonParams,
   ],
