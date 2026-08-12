@@ -13,7 +13,7 @@ export const metaballsDef: ShaderDef = {
       type: 'string[]',
       defaultValue: [],
       isColor: true,
-      description: 'Up to 8 base colors',
+      description: 'Up to 8 base colors, applied to the balls in order (colors beyond count are unused)',
     },
     {
       name: 'colorBack',
@@ -28,7 +28,7 @@ export const metaballsDef: ShaderDef = {
       min: 1,
       max: 20,
       defaultValue: defaultParams.count,
-      description: 'Number of balls',
+      description: 'Number of balls (fractional values shrink the last ball)',
     },
     {
       name: 'size',
