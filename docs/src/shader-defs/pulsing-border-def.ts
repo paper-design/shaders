@@ -59,7 +59,7 @@ export const pulsingBorderDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.intensity,
-      description: 'Thickness of individual color spots',
+      description: 'Thickness of individual color spots (amplified by softness)',
     },
     {
       name: 'bloom',
@@ -73,7 +73,7 @@ export const pulsingBorderDef: ShaderDef = {
       name: 'spots',
       type: 'number',
       min: 1,
-      max: 20,
+      max: 4,
       step: 1,
       defaultValue: defaultParams.spots,
       description: 'Number of spots added for each color',
@@ -116,7 +116,8 @@ export const pulsingBorderDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: undefined,
-      description: 'Distance from canvas edges to the effect',
+      description:
+        'Distance from canvas edges to the effect (overridden by marginLeft/marginRight/marginTop/marginBottom)',
     },
     {
       name: 'marginLeft',
