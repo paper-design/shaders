@@ -12,7 +12,6 @@ export const simplexNoiseMeta = {
  *
  * Fragment shader uniforms:
  * - u_time (float): Animation time
- * - u_scale (float): Overall zoom level, used for anti-aliasing calculations
  * - u_colors (vec4[]): Up to 10 base colors in RGBA
  * - u_colorsCount (float): Number of active colors
  * - u_stepsPerColor (float): Number of extra colors between base colors, 1 = N colors, 2 = 2×N, etc., needs 2+ colors (1 to 10)
@@ -41,7 +40,6 @@ export const simplexNoiseFragmentShader: string = `#version 300 es
 precision mediump float;
 
 uniform float u_time;
-uniform float u_scale;
 
 uniform vec4 u_colors[${ simplexNoiseMeta.maxColorCount }];
 uniform float u_colorsCount;
@@ -77,12 +75,7 @@ void main() {
 
   float shape = .5 + .5 * getNoise(shape_uv, t);
 
-  bool u_extraSides = true;
-
-  float mixer = shape * (u_colorsCount - 1.);
-  if (u_extraSides == true) {
-    mixer = (shape - .5 / u_colorsCount) * u_colorsCount;
-  }
+  float mixer = (shape - .5 / u_colorsCount) * u_colorsCount;
 
   float steps = max(1., u_stepsPerColor);
 
@@ -99,19 +92,17 @@ void main() {
     gradient = mix(gradient, c, localM);
   }
 
-  if (u_extraSides == true) {
-    if ((mixer < 0.) || (mixer > (u_colorsCount - 1.))) {
-      float localM = mixer + 1.;
-      if (mixer > (u_colorsCount - 1.)) {
-        localM = mixer - (u_colorsCount - 1.);
-      }
-      localM = steppedSmooth(localM, steps, .5 * u_softness);
-      vec4 cFst = u_colors[0];
-      cFst.rgb *= cFst.a;
-      vec4 cLast = u_colors[int(u_colorsCount - 1.)];
-      cLast.rgb *= cLast.a;
-      gradient = mix(cLast, cFst, localM);
+  if ((mixer < 0.) || (mixer > (u_colorsCount - 1.))) {
+    float localM = mixer + 1.;
+    if (mixer > (u_colorsCount - 1.)) {
+      localM = mixer - (u_colorsCount - 1.);
     }
+    localM = steppedSmooth(localM, steps, .5 * u_softness);
+    vec4 cFst = u_colors[0];
+    cFst.rgb *= cFst.a;
+    vec4 cLast = u_colors[int(u_colorsCount - 1.)];
+    cLast.rgb *= cLast.a;
+    gradient = mix(cLast, cFst, localM);
   }
 
   vec3 color = gradient.rgb;
