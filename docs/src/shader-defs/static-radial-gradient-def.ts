@@ -45,7 +45,7 @@ export const staticRadialGradientDef: ShaderDef = {
       min: -1,
       max: 1,
       defaultValue: defaultParams.falloff,
-      description: 'Gradient decay (0 for linear gradient)',
+      description: 'Gradient decay (0 = equal color distribution)',
     },
     {
       name: 'focalAngle',

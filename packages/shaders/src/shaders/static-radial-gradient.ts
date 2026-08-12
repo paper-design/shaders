@@ -21,7 +21,7 @@ export const staticRadialGradientMeta = {
  * - u_radius (float): Size of the shape (0 to 3)
  * - u_focalDistance (float): Distance of the focal point from center (0 to 3)
  * - u_focalAngle (float): Angle of the focal point in degrees, needs focalDistance > 0 (0 to 360)
- * - u_falloff (float): Gradient decay, 0 = linear gradient (-1 to 1)
+ * - u_falloff (float): Gradient decay, 0 = equal color distribution (-1 to 1)
  * - u_mixing (float): Blending behavior, 0 = hard stripes, 1 = smooth gradient (0 to 1)
  * - u_distortion (float): Strength of radial distortion (0 to 1)
  * - u_distortionShift (float): Radial distortion offset, needs distortion > 0 (-1 to 1)
