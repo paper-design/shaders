@@ -19,7 +19,7 @@ export const smokeRingMeta = {
  * - u_colorsCount (float): Number of active colors
  * - u_thickness (float): Thickness of the ring shape (0.01 to 1)
  * - u_radius (float): Radius of the ring shape (0 to 1)
- * - u_innerShape (float): Ring inner fill amount (0 to 4)
+ * - u_innerShape (float): Ring inner fill amount, needs radius > 0 (0 to 4)
  * - u_noiseIterations (float): Number of noise layers, more layers gives more details (1 to 8)
  * - u_noiseScale (float): Noise frequency (0.01 to 5)
  * - u_noiseTexture (sampler2D): Pre-computed randomizer source texture

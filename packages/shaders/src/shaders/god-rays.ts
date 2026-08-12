@@ -21,7 +21,7 @@ export const godRaysMeta = {
  * - u_density (float): The number of rays (0 to 1)
  * - u_spotty (float): The length of the rays, higher = more spots/shorter rays (0 to 1)
  * - u_midSize (float): Size of the circular glow shape in the center, needs midIntensity > 0 (0 to 1)
- * - u_midIntensity (float): Brightness/intensity of the central glow (0 to 1)
+ * - u_midIntensity (float): Brightness/intensity of the central glow, needs midSize > 0 (0 to 1)
  * - u_noiseTexture (sampler2D): Pre-computed randomizer source texture
  *
  * Vertex shader outputs (used in fragment shader):

@@ -76,7 +76,7 @@ export const godRaysDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.midIntensity,
-      description: 'Brightness/intensity of the central glow',
+      description: 'Brightness/intensity of the central glow (needs midSize > 0)',
     },
     ...animatedCommonParams,
   ],
