@@ -120,7 +120,6 @@ void main() {
 
     vec2 pos = getPosition(i, positionSeed) + mixerGrain;
     float dist = length(uv - pos);
-    dist = length(uv - pos);
 
     vec3 colorFraction = u_colors[i].rgb * u_colors[i].a;
     float opacityFraction = u_colors[i].a;
