@@ -28,7 +28,7 @@ export const perlinNoiseDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.proportion,
-      description: 'Blend point between 2 colors (0.5 = equal distribution)',
+      description: 'Blend point between two colors (0.5 = equal distribution)',
     },
     {
       name: 'softness',

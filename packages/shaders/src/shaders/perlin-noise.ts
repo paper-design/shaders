@@ -10,7 +10,7 @@ import { declarePI, colorBandingFix, proceduralHash11, proceduralHash21 } from '
  * - u_time (float): Animation time
  * - u_colorFront (vec4): Foreground color in RGBA
  * - u_colorBack (vec4): Background color in RGBA
- * - u_proportion (float): Blend point between 2 colors, 0.5 = equal distribution (0 to 1)
+ * - u_proportion (float): Blend point between two colors, 0.5 = equal distribution (0 to 1)
  * - u_softness (float): Color transition sharpness, 0 = hard edge, 1 = smooth gradient (0 to 1)
  * - u_octaveCount (float): Perlin noise octaves number, more octaves for more detailed patterns (1 to 8)
  * - u_persistence (float): Roughness, falloff between octaves, needs octaveCount > 1 (0.3 to 1)
@@ -136,13 +136,11 @@ float p_noise(vec3 position, int octaveCount, float persistence, float lacunarit
   float value = 0.0;
   float amplitude = 1.0;
   float frequency = 10.0;
-  float maxValue = 0.0;
   octaveCount = clamp(octaveCount, 1, 8);
 
   for (int i = 0; i < octaveCount; i++) {
     float seed = float(i) * 0.7319;
     value += perlinNoise(position * frequency, seed) * amplitude;
-    maxValue += amplitude;
     amplitude *= persistence;
     frequency *= lacunarity;
   }
@@ -152,10 +150,6 @@ float p_noise(vec3 position, int octaveCount, float persistence, float lacunarit
 float get_max_amp(float persistence, float octaveCount) {
   persistence = clamp(persistence * 0.999, 0.0, 0.999);
   octaveCount = clamp(octaveCount, 1.0, 8.0);
-
-  if (abs(persistence - 1.0) < 0.001) {
-    return octaveCount;
-  }
 
   return (1.0 - pow(persistence, octaveCount)) / max(1e-4, (1.0 - persistence));
 }
