@@ -11,7 +11,6 @@ import { declarePI, rotation2, simplexNoise, colorBandingFix } from '../shader-u
  * - u_time (float): Animation time
  * - u_resolution (vec2): Canvas resolution in pixels
  * - u_image (sampler2D): Pre-processed source image texture (R = edge gradient, G = opacity)
- * - u_imageAspectRatio (float): Aspect ratio of the source image
  * - u_colorBack (vec4): Background color in RGBA
  * - u_colorTint (vec4): Overlay color in RGBA (color burn blending used)
  * - u_repetition (float): Density of pattern stripes (1 to 10)
@@ -51,7 +50,6 @@ export const liquidMetalFragmentShader: string = `#version 300 es
 precision mediump float;
 
 uniform sampler2D u_image;
-uniform float u_imageAspectRatio;
 
 uniform vec2 u_resolution;
 uniform float u_time;
@@ -171,6 +169,9 @@ void main() {
   rotatedUV.x * sinA + rotatedUV.y * cosA
   ) + vec2(.5);
 
+  // u_contour is applied in 2 separate ranges:
+  // - 0 to .4 sets the edge hardness, saturated above .4 (both branches below)
+  // - .5 to 1 warps the stripes direction along the edges, inactive below .5 (see u_contour range 2)
   if (u_isImage == true) {
     float edgeRaw = img.r;
     edge = blurEdge3x3(u_image, uv, dudx, dudy, 6., edgeRaw);
@@ -303,6 +304,7 @@ void main() {
   direction += diagBLtoTR;
   float contour = 0.;
   direction -= 2. * noise * diagBLtoTR * (smoothstep(0., 1., edge) * (1.0 - smoothstep(0., 1., edge)));
+  // u_contour range 2
   direction *= mix(1., 1. - edge, smoothstep(.5, 1., u_contour));
   direction -= 1.7 * edge * smoothstep(.5, 1., u_contour);
   direction += .2 * pow(u_contour, 4.) * (1.0 - smoothstep(0., 1., edge));
