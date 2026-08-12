@@ -13,7 +13,7 @@ export const voronoiDef: ShaderDef = {
       type: 'string[]',
       defaultValue: [],
       isColor: true,
-      description: 'Base cell colors (up to 10)',
+      description: 'Base cell colors (up to 5)',
     },
     {
       name: 'colorGlow',
@@ -27,7 +27,7 @@ export const voronoiDef: ShaderDef = {
       type: 'string',
       defaultValue: defaultParams.colorGap,
       isColor: true,
-      description: 'Color used for cell borders/gaps (needs gap > 0)',
+      description: 'Color used for cell borders/gaps',
     },
     {
       name: 'stepsPerColor',
@@ -37,7 +37,7 @@ export const voronoiDef: ShaderDef = {
       step: 1,
       defaultValue: defaultParams.stepsPerColor,
       description:
-        'Number of extra colors between base colors (1 = N color palette, 2 = 2×N color palette, 3 = 3×N color palette, etc) (needs 2+ colors)',
+        'Number of extra colors between base colors (1 = N color palette, 2 = 2×N color palette, 3 = 3×N color palette, etc), needs 2+ colors',
     },
     {
       name: 'distortion',
@@ -61,7 +61,7 @@ export const voronoiDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.glow,
-      description: 'Strength of the radial inner shadow inside cells (needs opaque colorGlow)',
+      description: 'Strength of the radial inner shadow inside cells (needs colorGlow alpha > 0)',
     },
     ...animatedCommonParams,
   ],
