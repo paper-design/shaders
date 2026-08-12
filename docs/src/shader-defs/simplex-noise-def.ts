@@ -31,7 +31,7 @@ export const simplexNoiseDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.softness,
-      description: 'Color transition sharpness (0 = hard edge, 1 = smooth gradient)',
+      description: 'Color transition sharpness (0 = hard edge, 1 = smooth gradient), needs 2+ colors',
     },
     ...animatedCommonParams,
   ],
