@@ -18,7 +18,7 @@ import { proceduralHash21, declarePI } from '../shader-utils.js';
  * - u_originX (float): Reference point for positioning world width in the canvas (0 to 1)
  * - u_originY (float): Reference point for positioning world height in the canvas (0 to 1)
  * - u_fit (float): How to fit the rendered shader into the canvas dimensions (0 = none, 1 = contain, 2 = cover)
- * - u_scale (float): Overall zoom level of the graphics (0.01 to 4)
+ * - u_scale (float): Overall zoom level of the graphics (0.1 to 4)
  * - u_rotation (float): Overall rotation angle of the graphics in degrees (0 to 360)
  * - u_offsetX (float): Horizontal offset of the graphics center (-1 to 1)
  * - u_offsetY (float): Vertical offset of the graphics center (-1 to 1)

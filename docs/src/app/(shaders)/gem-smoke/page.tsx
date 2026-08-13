@@ -83,11 +83,7 @@ const GemSmokeWithControls = () => {
       angle: { value: defaults.angle, min: 0, max: 360, order: 250 },
       size: { value: defaults.size, min: 0, max: 1, order: 251 },
       speed: { value: defaults.speed, min: 0, max: 4, order: 300 },
-      scale: { value: defaults.scale, min: 0.01, max: 4, order: 301 },
-      // rotation: { value: defaults.rotation, min: 0, max: 360, order: 302 },
-      // offsetX: { value: defaults.offsetX, min: -1, max: 1, order: 303 },
-      // offsetY: { value: defaults.offsetY, min: -1, max: 1, order: 304 },
-      // fit: { value: defaults.fit, options: ['contain', 'cover'] as ShaderFit[], order: 305 },
+      scale: { value: defaults.scale, min: 0.1, max: 4, order: 301 },
       Image: folder({
         'Upload image': levaImageButton((img?: HTMLImageElement) => setImage(img ?? '')),
         ...(image && { 'Delete image': levaDeleteImageButton(() => setImage('')) }),
