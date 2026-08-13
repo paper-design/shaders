@@ -15,7 +15,7 @@ export const lensDistortionMeta = {
  * Fragment shader uniforms:
  * - u_image (sampler2D): Source image texture
  * - u_spread (float): Strength of the color split; how far the color layers are pushed apart; 0 is off (0 to 1)
- * - u_bias (float): Shifts the colors toward one end of the spread; 0 spaces them evenly, needs spread > 0 (-1 to 1)
+ * - u_bias (float): Shifts the colors toward one end of the spread; 0 spaces them evenly, needs spread > 0, count > 2 (-1 to 1)
  * - u_angle (float): Direction of the spread in degrees, needs spread > 0, perspective < 1 (0 to 360)
  * - u_perspective (float): Shapes the spread direction from a straight line (0) to a radial burst out from the centre (1), needs spread > 0 (0 to 1)
  * - u_count (float): Number of sampled color layers along the spread; higher is smoother and costlier, needs spread > 0 (2 to 50)

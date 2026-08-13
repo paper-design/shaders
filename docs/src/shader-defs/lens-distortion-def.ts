@@ -30,7 +30,7 @@ export const lensDistortionDef: ShaderDef = {
       max: 1,
       defaultValue: defaultParams.bias,
       description:
-        'Bias of the color spread: warps how the colors distribute along it. 0 spaces them evenly; toward +/-1 they bunch toward one end of the fan and spread out at the other (needs spread > 0)',
+        'Bias of the color spread: warps how the colors distribute along it. 0 spaces them evenly; toward +/-1 they bunch toward one end of the fan and spread out at the other (needs spread > 0, count > 2)',
     },
     {
       name: 'angle',
