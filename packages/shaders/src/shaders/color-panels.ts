@@ -98,7 +98,7 @@ vec2 getPanel(float angle, vec2 uv, float invLength, float aa) {
   float rightEdge2 = right + blurX;
 
   float panel = smoothstep(leftEdge1, leftEdge2, x) * (1.0 - smoothstep(rightEdge1, rightEdge2, x));
-  panel *= mix(0., panel, smoothstep(0., .01 / max(u_scale, 1e-6), panelMap));
+  panel *= mix(0., panel, smoothstep(0., .01 / u_scale, panelMap));
 
   float midScreen = abs(sinA);
   if (u_edges == true) {

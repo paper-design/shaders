@@ -97,7 +97,7 @@ const FlutedGlassWithControls = () => {
       // marginBottom: { value: defaults.marginBottom, min: 0, max: 1, order: 504 },
       grainMixer: { value: defaults.grainMixer, min: 0, max: 1, order: 550 },
       grainOverlay: { value: defaults.grainOverlay, min: 0, max: 1, order: 551 },
-      scale: { value: defaults.scale, min: 0.5, max: 4, order: 600 },
+      scale: { value: defaults.scale, min: 0.01, max: 4, order: 600 },
       // rotation: { value: defaults.rotation, min: 0, max: 360, order: 601 },
       // offsetX: { value: defaults.offsetX, min: -1, max: 1, order: 602 },
       // offsetY: { value: defaults.offsetX, min: -1, max: 1, order: 603 },

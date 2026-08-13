@@ -55,7 +55,7 @@ export const paperTextureDef: ShaderDef = {
     {
       name: 'fiberSize',
       type: 'number',
-      min: 0,
+      min: 0.01,
       max: 1,
       defaultValue: defaultParams.fiberSize,
       description: 'Curly-shaped noise scale (needs fiber > 0)',
@@ -71,7 +71,7 @@ export const paperTextureDef: ShaderDef = {
     {
       name: 'crumpleSize',
       type: 'number',
-      min: 0,
+      min: 0.01,
       max: 1,
       defaultValue: defaultParams.crumpleSize,
       description: 'Cell-based crumple pattern scale (needs crumples > 0)',
