@@ -13,7 +13,6 @@ export const heatmapMeta = {
  * Fragment shader uniforms:
  * - u_time (float): Animation time
  * - u_image (sampler2D): Pre-processed source image texture (R = contour, G = outer blur, B = inner blur)
- * - u_imageAspectRatio (float): Aspect ratio of the source image
  * - u_colorBack (vec4): Background color in RGBA
  * - u_colors (vec4[]): Up to 10 heatmap colors in RGBA
  * - u_colorsCount (float): Number of active colors
@@ -53,7 +52,6 @@ out vec4 fragColor;
 
 uniform sampler2D u_image;
 uniform float u_time;
-uniform mediump float u_imageAspectRatio;
 
 uniform vec4 u_colorBack;
 uniform vec4 u_colors[${ heatmapMeta.maxColorCount }];
