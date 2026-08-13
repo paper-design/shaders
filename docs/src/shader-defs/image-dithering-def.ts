@@ -33,13 +33,20 @@ export const imageDitheringDef: ShaderDef = {
       type: 'string',
       defaultValue: defaultParams.colorHighlight,
       isColor: true,
-      description: 'The secondary foreground color (set it same as colorFront to get a classic 2-color dithering) (needs originalColors off)',
+      description: 'The secondary foreground color (set it same as colorFront to get a classic 2-color dithering), needs originalColors off',
     },
     {
       name: 'originalColors',
       type: 'boolean',
       defaultValue: defaultParams.originalColors,
       description: 'Use the original colors of the image',
+      options: ['true', 'false'],
+    },
+    {
+      name: 'inverted',
+      type: 'boolean',
+      defaultValue: defaultParams.inverted,
+      description: 'Inverts the image luminance, doesn’t affect the color scheme',
       options: ['true', 'false'],
     },
     {
