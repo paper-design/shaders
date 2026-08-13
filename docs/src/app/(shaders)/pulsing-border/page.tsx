@@ -50,10 +50,10 @@ const PulsingBorderWithControls = () => {
       offsetX: { value: defaults.offsetX, min: -1, max: 1, order: 303 },
       offsetY: { value: defaults.offsetY, min: -1, max: 1, order: 304 },
       // margin: { value: defaults.margin, min: 0, max: 1, order: 403 },
-      marginLeft: { value: defaults.marginLeft, min: 0, max: 0.5, order: 403 },
-      marginRight: { value: defaults.marginRight, min: 0, max: 0.5, order: 403 },
-      marginTop: { value: defaults.marginTop, min: 0, max: 0.5, order: 403 },
-      marginBottom: { value: defaults.marginBottom, min: 0, max: 0.5, order: 403 },
+      marginLeft: { value: defaults.marginLeft, min: 0, max: 1, order: 403 },
+      marginRight: { value: defaults.marginRight, min: 0, max: 1, order: 403 },
+      marginTop: { value: defaults.marginTop, min: 0, max: 1, order: 403 },
+      marginBottom: { value: defaults.marginBottom, min: 0, max: 1, order: 403 },
     };
   }, [colors.length]);
 

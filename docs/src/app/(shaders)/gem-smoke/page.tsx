@@ -81,7 +81,7 @@ const GemSmokeWithControls = () => {
       innerGlow: { value: defaults.innerGlow, min: 0, max: 1, order: 204 },
       offset: { value: defaults.offset, min: -1, max: 1, order: 205 },
       angle: { value: defaults.angle, min: 0, max: 360, order: 250 },
-      size: { value: defaults.angle, min: 0.1, max: 1, order: 251 },
+      size: { value: defaults.size, min: 0, max: 1, order: 251 },
       speed: { value: defaults.speed, min: 0, max: 4, order: 300 },
       scale: { value: defaults.scale, min: 0.1, max: 4, order: 301 },
       // rotation: { value: defaults.rotation, min: 0, max: 360, order: 302 },
