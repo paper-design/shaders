@@ -18,7 +18,7 @@ export const gemSmokeDef: ShaderDef = {
       name: 'shape',
       type: 'enum',
       defaultValue: defaultParams.shape,
-      description: 'The predefined shape used as an effect mask when no image is provided.',
+      description: 'The predefined shape used as an effect mask (needs no image)',
       options: ['none', 'circle', 'daisy', 'diamond', 'metaballs'],
     },
     {
@@ -26,7 +26,7 @@ export const gemSmokeDef: ShaderDef = {
       type: 'string[]',
       defaultValue: [],
       isColor: true,
-      description: 'Up to 5 ray colors',
+      description: 'Up to 6 colors',
     },
     {
       name: 'colorBack',
@@ -41,7 +41,7 @@ export const gemSmokeDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.innerDistortion,
-      description: 'The power of smoke distortion inside the input shape (shape defined by alpha channel) (needs innerGlow > 0)',
+      description: 'The power of smoke distortion inside the input shape (shape defined by alpha channel), needs innerGlow > 0',
     },
     {
       name: 'outerDistortion',
@@ -49,7 +49,7 @@ export const gemSmokeDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.outerDistortion,
-      description: 'The power of smoke distortion outside the input shape (shape defined by alpha channel) (needs outerGlow > 0)',
+      description: 'The power of smoke distortion outside the input shape (shape defined by alpha channel), needs outerGlow > 0',
     },
     {
       name: 'outerGlow',
