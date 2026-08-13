@@ -6,19 +6,17 @@ import { declarePI, rotation2, proceduralHash21 } from '../shader-utils.js';
  * A halftone-dot image filter featuring customizable grids, color palettes, and dot styles.
  *
  * Fragment shader uniforms:
- * - u_rotation (float): Overall rotation angle of the graphics in degrees (0 to 360)
- * - u_time (float): Animation time
  * - u_image (sampler2D): Source image texture
  * - u_imageAspectRatio (float): Aspect ratio of the source image
  * - u_colorFront (vec4): Foreground color in RGBA, needs originalColors off
  * - u_colorBack (vec4): Background color in RGBA
  * - u_originalColors (bool): Use sampled image's original colors instead of colorFront
  * - u_type (float): Dot style (0 = classic, 1 = gooey, 2 = holes, 3 = soft)
- * - u_inverted (bool): Inverts the image luminance, doesn't affect the color scheme; not effective at zero contrast
+ * - u_inverted (bool): Inverts the image luminance, doesn't affect the color scheme, needs contrast > 0
  * - u_grid (float): Grid type (0 = square, 1 = hex)
  * - u_size (float): Grid size relative to the image box (0 to 1)
  * - u_radius (float): Maximum dot size relative to grid cell (0 to 2)
- * - u_contrast (float): Contrast applied to the sampled image (0 to 1)
+ * - u_contrast (float): Contrast applied to the sampled image, at 0 the luminance is flat so all the dots get equal size (0 to 1)
  * - u_grainMixer (float): Strength of grain distortion applied to shape edges (0 to 1)
  * - u_grainOverlay (float): Post-processing black/white grain overlay (0 to 1)
  * - u_grainSize (float): Scale applied to both grain distortion and grain overlay, needs grainMixer or grainOverlay > 0 (0 to 1)
@@ -43,10 +41,6 @@ import { declarePI, rotation2, proceduralHash21 } from '../shader-utils.js';
 // language=GLSL
 export const halftoneDotsFragmentShader: string = `#version 300 es
 precision mediump float;
-
-uniform float u_rotation;
-
-uniform float u_time;
 
 uniform vec4 u_colorFront;
 uniform vec4 u_colorBack;

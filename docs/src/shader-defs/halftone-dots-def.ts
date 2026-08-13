@@ -45,7 +45,7 @@ export const halftoneDotsDef: ShaderDef = {
       name: 'inverted',
       type: 'boolean',
       defaultValue: defaultParams.inverted,
-      description: 'Inverts the image luminance, doesn’t affect the color scheme; not effective at zero contrast',
+      description: 'Inverts the image luminance, doesn’t affect the color scheme (needs contrast > 0)',
       options: ['true', 'false'],
     },
     {
@@ -77,7 +77,8 @@ export const halftoneDotsDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.contrast,
-      description: 'Contrast applied to the sampled image',
+      description:
+        'Contrast applied to the sampled image (at 0 the luminance is flat, so all the dots get equal size and the image content is lost; with originalColors on the dots still take their color from the image)',
     },
     {
       name: 'grainMixer',
