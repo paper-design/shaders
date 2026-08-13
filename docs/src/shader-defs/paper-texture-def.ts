@@ -91,7 +91,7 @@ export const paperTextureDef: ShaderDef = {
       max: 15,
       step: 1,
       defaultValue: defaultParams.foldCount,
-      description: 'Number of folds (15 max) (needs folds > 0)',
+      description: 'Number of folds (15 max), needs folds > 0',
     },
     {
       name: 'fade',
