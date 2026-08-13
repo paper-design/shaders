@@ -15,21 +15,20 @@ import { declarePI } from '../shader-utils.js';
  * - u_colorY (vec4): Yellow ink color in RGBA
  * - u_colorK (vec4): Black ink color in RGBA
  * - u_size (float): Halftone cell size (0 to 1)
- * - u_minDot (float): Minimum dot thickness (0 to 1)
  * - u_contrast (float): Image contrast adjustment (0 to 2)
  * - u_softness (float): Edge softness of dots (0 to 1)
  * - u_grainSize (float): Size of grain texture, applied to both grain and overlay, needs grainMixer or grainOverlay > 0 (0 to 1)
  * - u_grainMixer (float): Strength of grain affecting dot size (0 to 1)
  * - u_grainOverlay (float): Strength of grain overlay on final output (0 to 1)
- * - u_gridNoise (float): Strength of smooth noise applied to both dot positions and color sampling (0 to 1)
- * - u_floodC (float): Flat cyan dot size adjustment applied uniformly (-1 to 1)
- * - u_floodM (float): Flat magenta dot size adjustment applied uniformly (-1 to 1)
- * - u_floodY (float): Flat yellow dot size adjustment applied uniformly (-1 to 1)
- * - u_floodK (float): Flat black dot size adjustment applied uniformly (-1 to 1)
- * - u_gainC (float): Proportional cyan dot size gain (enhances existing dots, -1 to 1)
- * - u_gainM (float): Proportional magenta dot size gain (enhances existing dots, -1 to 1)
- * - u_gainY (float): Proportional yellow dot size gain (enhances existing dots, -1 to 1)
- * - u_gainK (float): Proportional black dot size gain (enhances existing dots, -1 to 1)
+ * - u_gridNoise (float): Strength of smooth noise applied to both dot positions and color sampling, positions only with sharp type (0 to 1)
+ * - u_floodC (float): Flat cyan dot size adjustment applied uniformly, needs colorC alpha > 0 (0 to 1)
+ * - u_floodM (float): Flat magenta dot size adjustment applied uniformly, needs colorM alpha > 0 (0 to 1)
+ * - u_floodY (float): Flat yellow dot size adjustment applied uniformly, needs colorY alpha > 0 (0 to 1)
+ * - u_floodK (float): Flat black dot size adjustment applied uniformly, needs colorK alpha > 0 (0 to 1)
+ * - u_gainC (float): Proportional cyan dot size gain, needs colorC alpha > 0 (enhances existing dots, -1 to 1)
+ * - u_gainM (float): Proportional magenta dot size gain, needs colorM alpha > 0 (enhances existing dots, -1 to 1)
+ * - u_gainY (float): Proportional yellow dot size gain, needs colorY alpha > 0 (enhances existing dots, -1 to 1)
+ * - u_gainK (float): Proportional black dot size gain, needs colorK alpha > 0 (enhances existing dots, -1 to 1)
  * - u_type (float): Dot shape style (0 = dots, 1 = ink, 2 = sharp)
  * - u_noiseTexture (sampler2D): Pre-computed randomizer source texture
  *
@@ -63,7 +62,6 @@ uniform vec4 u_colorM;
 uniform vec4 u_colorY;
 uniform vec4 u_colorK;
 uniform float u_size;
-uniform float u_minDot;
 uniform float u_contrast;
 uniform float u_grainSize;
 uniform float u_grainMixer;
