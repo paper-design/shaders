@@ -13,9 +13,9 @@ import { declarePI, rotation2, simplexNoise } from '../shader-utils.js';
  * - u_colorHighlight (vec4): Highlight color in RGBA, needs highlights > 0
  * - u_highlights (float): Coloring added over image/background following caustic shape (0 to 1)
  * - u_layering (float): Power of 2nd layer of caustic distortion, needs caustic or highlights > 0 (0 to 1)
- * - u_edges (float): Caustic distortion power on the image edges, needs caustic > 0 (0 to 1)
+ * - u_edges (float): Caustic distortion power on the image edges, needs image and caustic > 0 (0 to 1)
  * - u_waves (float): Additional distortion based on simplex noise, independent from caustic (0 to 1)
- * - u_caustic (float): Power of caustic distortion (0 to 1)
+ * - u_caustic (float): Power of caustic distortion, needs image (0 to 1)
  * - u_size (float): Pattern scale relative to the image (0.01 to 7)
  *
  * Vertex shader outputs (used in fragment shader):
@@ -136,7 +136,7 @@ void main() {
 
   float hightlight = .025 * u_highlights * causticNoise;
   hightlight *= u_colorHighlight.a;
-  color = mix(color, u_colorHighlight.rgb, .05 * u_highlights * causticNoise);
+  color = mix(color, u_colorHighlight.rgb, .05 * u_highlights * causticNoise * u_colorHighlight.a);
   opacity += hightlight;
 
   color += hightlight * (.5 + .5 * wavesNoise);

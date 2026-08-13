@@ -50,7 +50,7 @@ export const waterDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.edges,
-      description: 'Caustic distortion power on the image edges (needs caustic > 0)',
+      description: 'Caustic distortion power on the image edges (needs image and caustic > 0)',
     },
     {
       name: 'waves',
@@ -66,7 +66,7 @@ export const waterDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.caustic,
-      description: 'Power of caustic distortion',
+      description: 'Power of caustic distortion (needs image)',
     },
     {
       name: 'size',
