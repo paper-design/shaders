@@ -9,13 +9,12 @@ import { declarePI, rotation2, proceduralHash21 } from '../shader-utils.js';
  * Fragment shader uniforms:
  * - u_resolution (vec2): Canvas resolution in pixels
  * - u_pixelRatio (float): Device pixel ratio
- * - u_rotation (float): Overall rotation angle of the graphics in degrees (0 to 360)
  * - u_image (sampler2D): Source image texture
  * - u_imageAspectRatio (float): Aspect ratio of the source image
  * - u_colorBack (vec4): Background color in RGBA
  * - u_colorShadow (vec4): Shadows color in RGBA, needs shadows > 0
  * - u_colorHighlight (vec4): Highlights color in RGBA, needs highlights > 0
- * - u_shadows (float): Color gradient added over image and background, following distortion shape (0 to 1)
+ * - u_shadows (float): Color gradient added over image and background, following distortion shape, needs colorShadow alpha > 0 (0 to 1)
  * - u_highlights (float): Thin strokes along distortion shape, useful for antialiasing on small grid (0 to 1)
  * - u_size (float): Size of the distortion shape grid (0 to 1)
  * - u_shape (float): Grid shape (1 = lines, 2 = linesIrregular, 3 = wave, 4 = zigzag, 5 = pattern)
@@ -56,7 +55,6 @@ precision mediump float;
 
 uniform vec2 u_resolution;
 uniform float u_pixelRatio;
-uniform float u_rotation;
 
 uniform vec4 u_colorBack;
 uniform vec4 u_colorShadow;
@@ -405,7 +403,6 @@ export interface FlutedGlassUniforms extends ShaderSizingUniforms {
   u_shape: (typeof GlassGridShapes)[GlassGridShape];
   u_grainMixer: number;
   u_grainOverlay: number;
-  u_noiseTexture?: HTMLImageElement;
 }
 
 export interface FlutedGlassParams extends ShaderSizingParams, ShaderMotionParams {
