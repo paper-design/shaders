@@ -20,7 +20,7 @@ import { declarePI, rotation2, simplexNoise, colorBandingFix } from '../shader-u
  * - u_distortion (float): Noise distortion over the stripes pattern (0 to 1)
  * - u_contour (float): Strength of the distortion on the shape edges (0 to 1)
  * - u_angle (float): Direction of pattern animation in degrees (0 to 360)
- * - u_shape (float): Predefined shape when no image provided (0 = none, 1 = circle, 2 = daisy, 3 = diamond, 4 = metaballs)
+ * - u_shape (float): Predefined shape mask, needs no image (0 = none, 1 = circle, 2 = daisy, 3 = diamond, 4 = metaballs)
  * - u_isImage (bool): Whether an image is being used as the effect mask
  *
  * Vertex shader outputs (used in fragment shader):
