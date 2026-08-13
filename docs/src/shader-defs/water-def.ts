@@ -34,7 +34,8 @@ export const waterDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.highlights,
-      description: 'A coloring added over the image/background, following the caustic shape',
+      description:
+        'A coloring added over the image/background, following the caustic shape (needs colorHighlight alpha > 0)',
     },
     {
       name: 'layering',

@@ -71,7 +71,9 @@ void main() {
   float angle = atan(uv.y, uv.x) - t;
   float angleNormalised = angle / TWO_PI;
 
-  angleNormalised += .125 * u_noise * snoise(16. * pow(u_noiseFrequency, 3.) * uv);
+  if (u_noise > 0.) {
+    angleNormalised += .125 * u_noise * snoise(16. * pow(u_noiseFrequency, 3.) * uv);
+  }
 
   float offset = l + angleNormalised;
   offset -= u_distortion * (sin(4. * l - .5 * t) * cos(PI + l + .5 * t));

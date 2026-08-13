@@ -82,7 +82,9 @@ void main() {
 
   float shape = fract(offset);
   shape = 1. - abs(2. * shape - 1.);
-  shape += u_noise * snoise(15. * pow(u_noiseFrequency, 2.) * shape_uv);
+  if (u_noise > 0.) {
+    shape += u_noise * snoise(15. * pow(u_noiseFrequency, 2.) * shape_uv);
+  }
 
   float mid = smoothstep(.2, .2 + .8 * u_center, pow(l, twist));
   shape = mix(0., shape, mid);

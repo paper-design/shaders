@@ -290,10 +290,12 @@ void main() {
   vec2 grainUV = v_imageUV - .5;
   grainUV *= grainSize;
   grainUV += .5;
-  float grain = valueNoise(grainUV);
-  grain = smoothstep(.55, .7 + .2 * u_grainMixer, grain);
-  grain *= u_grainMixer;
-  finalShape = mix(finalShape, 0., grain);
+  if (u_grainMixer > 0.) {
+    float grain = valueNoise(grainUV);
+    grain = smoothstep(.55, .7 + .2 * u_grainMixer, grain);
+    grain *= u_grainMixer;
+    finalShape = mix(finalShape, 0., grain);
+  }
 
   vec3 color = vec3(0.);
   float opacity = 0.;
@@ -317,17 +319,19 @@ void main() {
     opacity += bgOpacity * (1. - opacity);
   }
 
-  float grainOverlay = valueNoise(rotate(grainUV, 1.) + vec2(3.));
-  grainOverlay = mix(grainOverlay, valueNoise(rotate(grainUV, 2.) + vec2(-1.)), .5);
-  grainOverlay = pow(grainOverlay, 1.3);
+  if (u_grainOverlay > 0.) {
+    float grainOverlay = valueNoise(rotate(grainUV, 1.) + vec2(3.));
+    grainOverlay = mix(grainOverlay, valueNoise(rotate(grainUV, 2.) + vec2(-1.)), .5);
+    grainOverlay = pow(grainOverlay, 1.3);
 
-  float grainOverlayV = grainOverlay * 2. - 1.;
-  vec3 grainOverlayColor = vec3(step(0., grainOverlayV));
-  float grainOverlayStrength = u_grainOverlay * abs(grainOverlayV);
-  grainOverlayStrength = pow(grainOverlayStrength, .8);
-  color = mix(color, grainOverlayColor, .5 * grainOverlayStrength);
+    float grainOverlayV = grainOverlay * 2. - 1.;
+    vec3 grainOverlayColor = vec3(step(0., grainOverlayV));
+    float grainOverlayStrength = u_grainOverlay * abs(grainOverlayV);
+    grainOverlayStrength = pow(grainOverlayStrength, .8);
+    color = mix(color, grainOverlayColor, .5 * grainOverlayStrength);
 
-  opacity += .5 * grainOverlayStrength;
+    opacity += .5 * grainOverlayStrength;
+  }
   opacity = clamp(opacity, 0., 1.);
 
   fragColor = vec4(color, opacity);

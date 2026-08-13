@@ -208,29 +208,51 @@ void main() {
   vec2 patternUV = v_imageUV - .5;
   patternUV = 5. * (patternUV * vec2(u_imageAspectRatio, 1.));
 
+  // every noise layer below is skipped when its own uniform is 0: the branches are
+  // uniform-driven, so all the fragments take the same path (no divergence)
   vec2 roughnessUv = 1.5 * (gl_FragCoord.xy - .5 * u_resolution) / u_pixelRatio;
-  float roughness = roughness(roughnessUv + vec2(1., 0.)) - roughness(roughnessUv - vec2(1., 0.));
+  float roughnessNoise = 0.;
+  if (u_roughness > 0.) {
+    roughnessNoise = roughness(roughnessUv + vec2(1., 0.)) - roughness(roughnessUv - vec2(1., 0.));
+  }
+  float roughness = roughnessNoise;
 
-  vec2 crumplesUV = fract(patternUV * .02 / u_crumpleSize - u_seed) * 32.;
-  float crumples = u_crumples * (crumplesShape(crumplesUV + vec2(.05, 0.)) - crumplesShape(crumplesUV));
+  float crumples = 0.;
+  if (u_crumples > 0.) {
+    vec2 crumplesUV = fract(patternUV * .02 / u_crumpleSize - u_seed) * 32.;
+    crumples = u_crumples * (crumplesShape(crumplesUV + vec2(.05, 0.)) - crumplesShape(crumplesUV));
+  }
 
-  vec2 fiberUV = 2. / u_fiberSize * patternUV;
-  float fiber = fiberNoise(fiberUV, vec2(0.));
-  fiber = .5 * u_fiber * (fiber - 1.);
+  float fiber = 0.;
+  if (u_fiber > 0.) {
+    vec2 fiberUV = 2. / u_fiberSize * patternUV;
+    fiber = .5 * u_fiber * (fiberNoise(fiberUV, vec2(0.)) - 1.);
+  }
 
   vec2 normal = vec2(0.);
   vec2 normalImage = vec2(0.);
 
-  vec2 foldsUV = patternUV * .12;
-  foldsUV = rotate(foldsUV, 4. * u_seed);
-  vec2 w = folds(foldsUV);
-  foldsUV = rotate(foldsUV + .007 * cos(u_seed), .01 * sin(u_seed));
-  vec2 w2 = folds(foldsUV);
+  vec2 w = vec2(0.);
+  vec2 w2 = vec2(0.);
+  if (u_folds > 0.) {
+    vec2 foldsUV = patternUV * .12;
+    foldsUV = rotate(foldsUV, 4. * u_seed);
+    w = folds(foldsUV);
+    foldsUV = rotate(foldsUV + .007 * cos(u_seed), .01 * sin(u_seed));
+    w2 = folds(foldsUV);
+  }
 
-  float drops = u_drops * drops(patternUV * 2.);
+  float dropsNoise = 0.;
+  if (u_drops > 0.) {
+    dropsNoise = drops(patternUV * 2.);
+  }
+  float drops = u_drops * dropsNoise;
 
-  float fade = u_fade * fbm(.17 * patternUV + 10. * u_seed);
-  fade = clamp(8. * fade * fade * fade, 0., 1.);
+  float fade = 0.;
+  if (u_fade > 0.) {
+    fade = u_fade * fbm(.17 * patternUV + 10. * u_seed);
+    fade = clamp(8. * fade * fade * fade, 0., 1.);
+  }
 
   w = mix(w, vec2(0.), fade);
   w2 = mix(w2, vec2(0.), fade);

@@ -11,7 +11,7 @@ import { declarePI, rotation2, simplexNoise } from '../shader-utils.js';
  * - u_imageAspectRatio (float): Aspect ratio of the source image
  * - u_colorBack (vec4): Background color in RGBA
  * - u_colorHighlight (vec4): Highlight color in RGBA, needs highlights > 0
- * - u_highlights (float): Coloring added over image/background following caustic shape (0 to 1)
+ * - u_highlights (float): Coloring added over image/background following caustic shape, needs colorHighlight alpha > 0 (0 to 1)
  * - u_layering (float): Power of 2nd layer of caustic distortion, needs caustic or highlights > 0 (0 to 1)
  * - u_edges (float): Caustic distortion power on the image edges, needs image and caustic > 0 (0 to 1)
  * - u_waves (float): Additional distortion based on simplex noise, independent from caustic (0 to 1)
@@ -107,7 +107,9 @@ void main() {
 
   float causticNoise = getCausticNoise(patternUV + u_waves * vec2(1., -1.) * wavesNoise, 2. * t, 1.5);
 
-  causticNoise += u_layering * getCausticNoise(patternUV + 2. * u_waves * vec2(1., -1.) * wavesNoise, 1.5 * t, 2.);
+  if (u_layering > 0.) {
+    causticNoise += u_layering * getCausticNoise(patternUV + 2. * u_waves * vec2(1., -1.) * wavesNoise, 1.5 * t, 2.);
+  }
   causticNoise = causticNoise * causticNoise;
 
   float edgesDistortion = smoothstep(0., .1, imageUV.x);

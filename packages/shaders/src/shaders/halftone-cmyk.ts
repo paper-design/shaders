@@ -223,7 +223,11 @@ void main() {
 
   vec2 grainSize = mix(2000., 200., u_grainSize) * vec2(1., 1. / u_imageAspectRatio);
   vec2 grainUV = (v_imageUV - .5) * grainSize + .5;
-  vec3 noiseValues = valueNoise3(grainUV);
+  // shared by the grain mixer and the grain overlay, skip it when neither is on
+  vec3 noiseValues = vec3(0.);
+  if (u_grainMixer > 0. || u_grainOverlay > 0.) {
+    noiseValues = valueNoise3(grainUV);
+  }
   float grain = sst(.55, 1., noiseValues.r);
   grain *= u_grainMixer;
 
