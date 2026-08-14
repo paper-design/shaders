@@ -22,7 +22,6 @@ export const paperTextureMeta = {
  * - u_folds (float): Depth of the folds (0 to 1)
  * - u_foldType (float): Type of folds pattern (0 = radial folds, 1 = creases)
  * - u_foldCount (float): Size/frequency of folds or creases (0 to 1)
- * - u_foldsShape (float): Shape/width of the folds (0 to 1)
  * - u_drops (float): Visibility of speckle / drop pattern (0 to 1)
  * - u_seed (float): Seed applied to folds and dots (0 to 1000)
  * - u_fade (float): Large-scale noise mask applied to the pattern (0 to 1)
@@ -67,7 +66,6 @@ uniform float u_foldType;
 uniform float u_foldCount;
 uniform float u_foldSize;
 uniform bool u_foldY;
-uniform float u_foldsShape;
 uniform float u_foldOffset;
 uniform float u_drops;
 uniform float u_seed;
@@ -272,7 +270,7 @@ vec4 getCrease(float coord, float offset, float count) {
   float creaseIdx = floor(g);
   float depthMod = .7 + .3 * fract(sin(creaseIdx * 127.1 + u_seed * 3.7) * 43758.5453);
   float dx = crX - .5;
-  float foldWidth = mix(.1, .5, u_foldsShape);
+  float foldWidth = .5;
   float foldAmount = (1. - smoothstep(0., foldWidth, abs(dx))) * depthMod;
   float slope = sign(dx) * foldAmount;
   float creaseDark = smoothstep(0., foldWidth * .5, abs(dx));
@@ -333,7 +331,7 @@ void main() {
       float crLightX = max(-.5 * sin(angleX) + .5 * cos(angleX), 0.) * mix(.9, 1., h.y);
       drops *= mix(1., h.y, u_folds);
       pattern += u_folds * crLightX;
-      float distortBaseX = mix(pow(h.y, .2), abs(h.z), .5 * u_foldsShape);
+      float distortBaseX = mix(pow(h.y, .2), abs(h.z), .5);
       yShift += .022 * u_folds * (1. - distortBaseX);
       patternUV.y += yShift;
 
@@ -343,7 +341,7 @@ void main() {
         float crLightY = max(-.5 * sin(angleY) + .5 * cos(angleY), 0.) * mix(.9, 1., v.y);
         drops *= mix(1., v.y, u_folds);
         pattern += u_folds * crLightY;
-        float distortBaseY = mix(pow(v.y, .2), abs(v.z), .5 * u_foldsShape);
+        float distortBaseY = mix(pow(v.y, .2), abs(v.z), .5);
         float xFan = 2. * (imageUV.x - .5);
         xDistortion -= .02 * u_folds * (1. - distortBaseY) * xFan;
         patternUV.x -= .022 * u_folds * (1. - distortBaseY) * xFan;
@@ -444,7 +442,6 @@ export interface PaperTextureUniforms extends ShaderSizingUniforms {
   u_foldSize: number;
   u_foldY: boolean;
   u_foldOffset: number;
-  u_foldsShape: number;
   u_fade: number;
   u_drops: number;
   u_seed: number;
@@ -467,7 +464,6 @@ export interface PaperTextureParams extends ShaderSizingParams, ShaderMotionPara
   foldSize?: number;
   foldY?: boolean;
   foldOffset?: number;
-  foldsShape?: number;
   fade?: number;
   drops?: number;
   seed?: number;
