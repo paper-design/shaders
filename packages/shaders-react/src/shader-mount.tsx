@@ -105,8 +105,11 @@ async function processUniforms(uniformsProp: ShaderMountUniformsReact): Promise<
 
       imageLoadPromises.push(imagePromise);
     } else if (value instanceof HTMLImageElement) {
-      setMinImageSize(value);
-      processedUniforms[key] = value;
+      const imagePromise = value.decode().then(() => {
+        setMinImageSize(value);
+        processedUniforms[key] = value;
+      });
+      imageLoadPromises.push(imagePromise);
     } else {
       processedUniforms[key] = value;
     }

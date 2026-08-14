@@ -99,6 +99,10 @@ export { ImageDithering, imageDitheringPresets } from './shaders/image-dithering
 export type { ImageDitheringProps } from './shaders/image-dithering.js';
 export type { ImageDitheringUniforms, ImageDitheringParams } from '@paper-design/shaders';
 
+export { LensDistortion, lensDistortionPresets } from './shaders/lens-distortion.js';
+export type { LensDistortionProps } from './shaders/lens-distortion.js';
+export type { LensDistortionUniforms, LensDistortionParams } from '@paper-design/shaders';
+
 export { Heatmap, heatmapPresets } from './shaders/heatmap.js';
 export type { HeatmapProps } from './shaders/heatmap.js';
 export type { HeatmapUniforms, HeatmapParams } from '@paper-design/shaders';

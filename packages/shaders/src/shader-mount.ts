@@ -18,7 +18,7 @@ export class ShaderMount {
   private currentFrame = 0;
   /** The speed that we progress through animation time (multiplies by delta time every update). Allows negatives to play in reverse. If set to 0, rAF will stop entirely so static shaders have no recurring performance costs */
   private speed = 0;
-  /** Actual speed used that accounts for document visibility (we pause the shader if the tab is hidden) */
+  /** Actual speed used that accounts for visibility: we pause the shader if the tab is hidden or the element out of the viewport */
   private currentSpeed = 0;
   /** Uniforms that are provided by the user for the specific shader being mounted (not including uniforms that this Mount adds, like time and resolution) */
   private providedUniforms: ShaderMountUniforms;
@@ -107,6 +107,8 @@ export class ShaderMount {
     this.setupResizeObserver();
     // Set up the visual viewport change listener to handle zoom changes (pinch zoom and classic browser zoom)
     visualViewport?.addEventListener('resize', this.handleVisualViewportChange);
+    // Set up the intersection observer to pause animation when the element is scrolled out of view
+    this.setupIntersectionObserver();
 
     // Set the animation speed after everything is ready to go
     this.setSpeed(speed);
@@ -172,6 +174,9 @@ export class ShaderMount {
   private parentDevicePixelHeight = 0;
   private devicePixelsSupported = false;
 
+  private intersectionObserver: IntersectionObserver | null = null;
+  private isInViewport = true;
+
   private resizeObserver: ResizeObserver | null = null;
   private setupResizeObserver = () => {
     this.resizeObserver = new ResizeObserver(([entry]) => {
@@ -192,6 +197,19 @@ export class ShaderMount {
     });
 
     this.resizeObserver.observe(this.parentElement);
+  };
+
+  private setupIntersectionObserver = () => {
+    // we check element's own window to support shaders used within iframe/PiP elements
+    const view = this.ownerDocument.defaultView;
+    if (!view?.IntersectionObserver) return;
+
+    this.intersectionObserver = new view.IntersectionObserver(([entry]) => {
+      this.isInViewport = entry?.isIntersecting ?? true;
+      this.updateCurrentSpeed();
+    });
+
+    this.intersectionObserver.observe(this.parentElement);
   };
 
   // Visual viewport resize handler, mainly used to react to browser zoom changes.
@@ -490,7 +508,12 @@ export class ShaderMount {
   public setSpeed = (newSpeed = 1): void => {
     // Set the new animation speed
     this.speed = newSpeed;
-    this.setCurrentSpeed(this.ownerDocument.hidden ? 0 : newSpeed);
+    this.updateCurrentSpeed();
+  };
+
+  /** Apply the target speed, pausing (0) while the tab is hidden or the element is out of the viewport */
+  private updateCurrentSpeed = (): void => {
+    this.setCurrentSpeed(this.ownerDocument.hidden || !this.isInViewport ? 0 : this.speed);
   };
 
   private setCurrentSpeed = (newSpeed: number): void => {
@@ -532,7 +555,7 @@ export class ShaderMount {
   };
 
   private handleDocumentVisibilityChange = () => {
-    this.setCurrentSpeed(this.ownerDocument.hidden ? 0 : this.speed);
+    this.updateCurrentSpeed();
   };
 
   /** Dispose of the shader mount, cleaning up all of the WebGL resources */
@@ -569,6 +592,11 @@ export class ShaderMount {
     if (this.resizeObserver) {
       this.resizeObserver.disconnect();
       this.resizeObserver = null;
+    }
+
+    if (this.intersectionObserver) {
+      this.intersectionObserver.disconnect();
+      this.intersectionObserver = null;
     }
 
     visualViewport?.removeEventListener('resize', this.handleVisualViewportChange);

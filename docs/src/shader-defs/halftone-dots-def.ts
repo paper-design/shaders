@@ -25,7 +25,7 @@ export const halftoneDotsDef: ShaderDef = {
       type: 'string',
       defaultValue: defaultParams.colorFront,
       isColor: true,
-      description: 'Foreground color (effective with originalColors off)',
+      description: 'Foreground color',
     },
     {
       name: 'originalColors',

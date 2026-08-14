@@ -28,7 +28,7 @@ export const godRaysDef: ShaderDef = {
       type: 'string',
       defaultValue: defaultParams.colorBloom,
       isColor: true,
-      description: 'Color overlay blended with the rays (effective with bloom > 0)',
+      description: 'Color overlay blended with the rays',
     },
     {
       name: 'bloom',

@@ -11,14 +11,8 @@ import { ShaderDetails } from '@/components/shader-details';
 import { staticMeshGradientDef } from '@/shader-defs/static-mesh-gradient-def';
 import { ShaderContainer } from '@/components/shader-container';
 import { useUrlParams } from '@/helpers/use-url-params';
-import { applyControlRules, type ControlRules } from '@/helpers/leva-control-rules';
 
 const { worldWidth, worldHeight, ...defaults } = staticMeshGradientPresets[0].params;
-
-const controlRules: ControlRules = {
-  waveXShift: { showWhen: { waveX: { moreThan: 0 } } },
-  waveYShift: { showWhen: { waveY: { moreThan: 0 } } },
-};
 
 const StaticMeshGradientWithControls = () => {
   const { colors, setColors } = useColors({
@@ -27,7 +21,7 @@ const StaticMeshGradientWithControls = () => {
   });
 
   const [params, setParams] = useControls(() => {
-    return applyControlRules({
+    return {
       positions: { value: defaults.positions, min: 0, max: 100, order: 200 },
       waveX: { value: defaults.waveX, min: 0, max: 1, order: 201 },
       waveXShift: { value: defaults.waveXShift, min: 0, max: 1, order: 202 },
@@ -40,7 +34,7 @@ const StaticMeshGradientWithControls = () => {
       rotation: { value: defaults.rotation, min: 0, max: 360, order: 301 },
       offsetX: { value: defaults.offsetX, min: -1, max: 1, order: 302 },
       offsetY: { value: defaults.offsetY, min: -1, max: 1, order: 303 },
-    }, controlRules);
+    };
   }, [colors.length]);
 
   useControls(() => {

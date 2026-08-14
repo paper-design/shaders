@@ -11,13 +11,8 @@ import { ShaderDetails } from '@/components/shader-details';
 import { warpDef } from '@/shader-defs/warp-def';
 import { ShaderContainer } from '@/components/shader-container';
 import { useUrlParams } from '@/helpers/use-url-params';
-import { applyControlRules, type ControlRules } from '@/helpers/leva-control-rules';
 
 const { worldWidth, worldHeight, ...defaults } = warpPresets[0].params;
-
-const controlRules: ControlRules = {
-  swirlIterations: { showWhen: { swirl: { moreThan: 0 } } },
-};
 
 const WarpWithControls = () => {
   const { colors, setColors } = useColors({
@@ -26,18 +21,18 @@ const WarpWithControls = () => {
   });
 
   const [params, setParams] = useControls(() => {
-    return applyControlRules({
+    return {
       proportion: { value: defaults.proportion, min: 0, max: 1, order: 100 },
       softness: { value: defaults.softness, min: 0, max: 1, order: 101 },
       distortion: { value: defaults.distortion, min: 0, max: 1, order: 102 },
       swirl: { value: defaults.swirl, min: 0, max: 1, order: 103 },
-      swirlIterations: { value: defaults.swirlIterations, min: 1, max: 20, step: 1, order: 104 },
+      swirlIterations: { value: defaults.swirlIterations, min: 0, max: 20, order: 104 },
       shape: { value: defaults.shape, options: Object.keys(WarpPatterns) as WarpPattern[], order: 105 },
       shapeScale: { value: defaults.shapeScale, min: 0, max: 1, order: 106 },
       speed: { value: defaults.speed, min: 0, max: 20, order: 300 },
       scale: { value: defaults.scale, min: 0.01, max: 5, order: 301 },
       rotation: { value: defaults.rotation, min: 0, max: 360, order: 302 },
-    }, controlRules);
+    };
   }, [colors.length]);
 
   useControls(() => {

@@ -15,14 +15,8 @@ import { useUrlParams } from '@/helpers/use-url-params';
 import { gemSmokeDef } from '@/shader-defs/gem-smoke-def';
 import { toHsla } from '@/helpers/color-utils';
 import { useColors } from '@/helpers/use-colors';
-import { applyControlRules, type ControlRules } from '@/helpers/leva-control-rules';
 
 const { worldWidth, worldHeight, ...defaults } = gemSmokePresets[0].params;
-
-const controlRules: ControlRules = {
-  outerDistortion: { showWhen: { outerGlow: { moreThan: 0 } } },
-  innerDistortion: { showWhen: { innerGlow: { moreThan: 0 } } },
-};
 
 const imageFiles = [
   'contra.svg',
@@ -72,7 +66,7 @@ const GemSmokeWithControls = () => {
   });
 
   const [params, setParams] = useControls(() => {
-    return applyControlRules({
+    return {
       colorBack: { value: toHsla(defaults.colorBack), order: 100 },
       colorInner: { value: toHsla(defaults.colorInner), order: 101 },
       shape: {
@@ -81,10 +75,10 @@ const GemSmokeWithControls = () => {
         order: 102,
         disabled: Boolean(image),
       },
-      outerGlow: { value: defaults.outerGlow, min: 0, max: 1, order: 201 },
-      outerDistortion: { value: defaults.outerDistortion, min: 0, max: 1, order: 201.5 },
-      innerGlow: { value: defaults.innerGlow, min: 0, max: 1, order: 202 },
-      innerDistortion: { value: defaults.innerDistortion, min: 0, max: 1, order: 202.5 },
+      innerDistortion: { value: defaults.innerDistortion, min: 0, max: 1, order: 201 },
+      outerDistortion: { value: defaults.outerDistortion, min: 0, max: 1, order: 202 },
+      outerGlow: { value: defaults.outerGlow, min: 0, max: 1, order: 203 },
+      innerGlow: { value: defaults.innerGlow, min: 0, max: 1, order: 204 },
       offset: { value: defaults.offset, min: -1, max: 1, order: 205 },
       angle: { value: defaults.angle, min: 0, max: 360, order: 250 },
       size: { value: defaults.angle, min: 0.1, max: 1, order: 251 },
@@ -98,7 +92,7 @@ const GemSmokeWithControls = () => {
         'Upload image': levaImageButton((img?: HTMLImageElement) => setImage(img ?? '')),
         ...(image && { 'Delete image': levaDeleteImageButton(() => setImage('')) }),
       }, { order: -1 }),
-    }, controlRules);
+    };
   }, [colors.length, image]);
 
   useControls(() => {

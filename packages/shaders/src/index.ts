@@ -184,6 +184,9 @@ export {
   type ImageDitheringUniforms,
 } from './shaders/image-dithering.js';
 
+/** Lens Distortion image filter that separates an image into shifting color layers, recreating the chromatic aberration of a lens, and warps the image geometry with barrel or pincushion curvature */
+export { lensDistortionFragmentShader, lensDistortionMeta, type LensDistortionParams, type LensDistortionUniforms } from './shaders/lens-distortion.js';
+
 /** A glowing gradient of colors flowing through an input image. The effect creates a smoothly animated wave of intensity across the image */
 export {
   heatmapMeta,

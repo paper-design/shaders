@@ -77,7 +77,7 @@ export const spiralDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.noiseFrequency,
-      description: 'Noise frequency (effective with noise > 0)',
+      description: 'Moise frequency (no effect with noise = 0)',
     },
     {
       name: 'softness',

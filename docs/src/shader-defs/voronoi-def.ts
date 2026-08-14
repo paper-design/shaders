@@ -27,7 +27,7 @@ export const voronoiDef: ShaderDef = {
       type: 'string',
       defaultValue: defaultParams.colorGap,
       isColor: true,
-      description: 'Color used for cell borders/gaps (effective with gap > 0)',
+      description: 'Color used for cell borders/gaps',
     },
     {
       name: 'stepsPerColor',

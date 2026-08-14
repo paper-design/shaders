@@ -12,13 +12,8 @@ import { ShaderDetails } from '@/components/shader-details';
 import { pulsingBorderDef } from '@/shader-defs/pulsing-border-def';
 import { ShaderContainer } from '@/components/shader-container';
 import { useUrlParams } from '@/helpers/use-url-params';
-import { applyControlRules, type ControlRules } from '@/helpers/leva-control-rules';
 
 const { worldWidth, worldHeight, ...defaults } = pulsingBorderPresets[0].params;
-
-const controlRules: ControlRules = {
-  smokeSize: { showWhen: { smoke: { moreThan: 0 } } },
-};
 
 const PulsingBorderWithControls = () => {
   const { colors, setColors } = useColors({
@@ -26,7 +21,7 @@ const PulsingBorderWithControls = () => {
     maxColorCount: pulsingBorderMeta.maxColorCount,
   });
   const [params, setParams] = useControls(() => {
-    return applyControlRules({
+    return {
       colorBack: { value: toHsla(defaults.colorBack), order: 100 },
       roundness: { value: defaults.roundness, min: 0, max: 1, order: 200 },
       thickness: { value: defaults.thickness, min: 0, max: 1, order: 201 },
@@ -59,7 +54,7 @@ const PulsingBorderWithControls = () => {
       marginRight: { value: defaults.marginRight, min: 0, max: 0.5, order: 403 },
       marginTop: { value: defaults.marginTop, min: 0, max: 0.5, order: 403 },
       marginBottom: { value: defaults.marginBottom, min: 0, max: 0.5, order: 403 },
-    }, controlRules);
+    };
   }, [colors.length]);
 
   useControls(() => {

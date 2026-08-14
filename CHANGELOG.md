@@ -1,5 +1,23 @@
 # Paper Shaders
 
+## Version 0.0.80
+
+- **Lens Distortion**
+  - `noiseOffset` is now a normalized parameter accepting values from 0 to 1
+
+## Version 0.0.79
+
+New shader: **Lens Distortion**
+
+## Version 0.0.78
+
+- **General**
+  - The animation loop is now paused while a shader is out of the viewport
+  - Malformed hex color strings fall back to a default color instead of resolving to `NaN`; the default color changed from black to gray
+  - `HTMLImageElement` uniforms now wait for the image to decode before being passed to the shader
+  - React components re-render when a new prop is added
+  - Docs: missing shaders added to the shadcn registry and the shader definitions list
+
 ## Version 0.0.77
 
 - **General**

@@ -11,13 +11,8 @@ import { ShaderDetails } from '@/components/shader-details';
 import { swirlDef } from '@/shader-defs/swirl-def';
 import { ShaderContainer } from '@/components/shader-container';
 import { useUrlParams } from '@/helpers/use-url-params';
-import { applyControlRules, type ControlRules } from '@/helpers/leva-control-rules';
 
 const { worldWidth, worldHeight, ...defaults } = swirlPresets[0].params;
-
-const controlRules: ControlRules = {
-  noiseFrequency: { showWhen: { noise: { moreThan: 0 } } },
-};
 
 const SwirlWithControls = () => {
   const { colors, setColors } = useColors({
@@ -26,7 +21,7 @@ const SwirlWithControls = () => {
   });
 
   const [params, setParams] = useControls(() => {
-    return applyControlRules({
+    return {
       colorBack: { value: toHsla(defaults.colorBack), order: 100 },
       bandCount: { value: defaults.bandCount, min: 0, max: 15, step: 1, order: 200 },
       twist: { value: defaults.twist, min: 0, max: 1, order: 201 },
@@ -40,7 +35,7 @@ const SwirlWithControls = () => {
       rotation: { value: defaults.rotation, min: 0, max: 360, order: 302 },
       offsetX: { value: defaults.offsetX, min: -1, max: 1, order: 303 },
       offsetY: { value: defaults.offsetY, min: -1, max: 1, order: 304 },
-    }, controlRules);
+    };
   }, [colors.length]);
 
   useControls(() => {
