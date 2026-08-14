@@ -38,7 +38,7 @@ export const staticMeshGradientDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.waveXShift,
-      description: 'Phase offset applied to the X-axis wave',
+      description: 'Phase offset applied to the X-axis wave (needs waveX > 0)',
     },
     {
       name: 'waveY',
@@ -54,7 +54,7 @@ export const staticMeshGradientDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.waveYShift,
-      description: 'Phase offset applied to the Y-axis wave',
+      description: 'Phase offset applied to the Y-axis wave (needs waveY > 0)',
     },
     {
       name: 'mixing',

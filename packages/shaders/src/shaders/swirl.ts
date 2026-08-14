@@ -17,11 +17,11 @@ export const swirlMeta = {
  * - u_colorsCount (float): Number of active colors
  * - u_bandCount (float): Number of color bands, 0 = concentric ripples (0 to 15)
  * - u_twist (float): Vortex power, 0 = straight sectoral shapes (0 to 1)
- * - u_center (float): How far from the center the swirl colors begin to appear (0 to 1)
+ * - u_center (float): How far from the center the swirl colors begin to appear, needs twist > 0 (0 to 1)
  * - u_proportion (float): Blend point between colors, 0.5 = equal distribution (0 to 1)
  * - u_softness (float): Color transition sharpness, 0 = hard edge, 1 = smooth gradient (0 to 1)
- * - u_noise (float): Strength of noise distortion, no effect with noiseFrequency = 0 (0 to 1)
- * - u_noiseFrequency (float): Noise frequency, no effect with noise = 0 (0 to 1)
+ * - u_noise (float): Strength of noise distortion, needs noiseFrequency > 0 (0 to 1)
+ * - u_noiseFrequency (float): Noise frequency, needs noise > 0 (0 to 1)
  *
  * Vertex shader outputs (used in fragment shader):
  * - v_objectUV (vec2): Object box UV coordinates with global sizing (scale, rotation, offsets, etc) applied
@@ -82,7 +82,9 @@ void main() {
 
   float shape = fract(offset);
   shape = 1. - abs(2. * shape - 1.);
-  shape += u_noise * snoise(15. * pow(u_noiseFrequency, 2.) * shape_uv);
+  if (u_noise > 0.) {
+    shape += u_noise * snoise(15. * pow(u_noiseFrequency, 2.) * shape_uv);
+  }
 
   float mid = smoothstep(.2, .2 + .8 * u_center, pow(l, twist));
   shape = mix(0., shape, mid);

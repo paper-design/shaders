@@ -72,7 +72,7 @@ const HalftoneCmykWithControls = () => {
       colorM: { value: toHsla(defaults.colorM), order: 102 },
       colorY: { value: toHsla(defaults.colorY), order: 103 },
       colorK: { value: toHsla(defaults.colorK), order: 104 },
-      size: { value: defaults.size, min: 0.01, max: 1, step: 0.01, order: 120 },
+      size: { value: defaults.size, min: 0, max: 1, step: 0.01, order: 120 },
       gridNoise: { value: defaults.gridNoise, min: 0, max: 1, step: 0.01, order: 121 },
       type: {
         value: defaults.type,
@@ -92,12 +92,7 @@ const HalftoneCmykWithControls = () => {
       grainMixer: { value: defaults.grainMixer, min: 0, max: 1, order: 350 },
       grainOverlay: { value: defaults.grainOverlay, min: 0, max: 1, order: 351 },
       grainSize: { value: defaults.grainSize, min: 0, max: 1, order: 350 },
-      // offsetX: { value: defaults.offsetX, min: -1, max: 1, order: 401 },
-      // offsetY: { value: defaults.offsetY, min: -1, max: 1, order: 402 },
-      // originX: { value: defaults.originX, min: 0, max: 1, order: 411 },
-      // originY: { value: defaults.originY, min: 0, max: 1, order: 412 },
-      // rotation: { value: defaults.rotation, min: 0, max: 360, order: 420 },
-      scale: { value: defaults.scale, min: 0, max: 4, order: 420 },
+       scale: { value: defaults.scale, min: 0.1, max: 4, order: 420 },
       fit: { value: defaults.fit, options: ['contain', 'cover'] as ShaderFit[], order: 450 },
       Image: folder(
         {

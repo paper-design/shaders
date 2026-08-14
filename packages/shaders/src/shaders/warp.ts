@@ -14,7 +14,6 @@ export const warpMeta = {
  *
  * Fragment shader uniforms:
  * - u_time (float): Animation time
- * - u_scale (float): Overall zoom level, used for anti-aliasing calculations
  * - u_colors (vec4[]): Up to 10 gradient colors in RGBA
  * - u_colorsCount (float): Number of active colors
  * - u_proportion (float): Blend point between colors, 0.5 = equal distribution (0 to 1)
@@ -22,8 +21,8 @@ export const warpMeta = {
  * - u_shape (float): Base pattern type (0 = checks, 1 = stripes, 2 = edge)
  * - u_shapeScale (float): Zoom level of the base pattern (0 to 1)
  * - u_distortion (float): Strength of noise-based distortion (0 to 1)
- * - u_swirl (float): Strength of the swirl distortion (0 to 1)
- * - u_swirlIterations (float): Number of layered swirl passes, effective with swirl > 0 (0 to 20)
+ * - u_swirl (float): Strength of the swirl distortion, needs swirlIterations > 1 (0 to 1)
+ * - u_swirlIterations (float): Number of layered swirl passes as an integer, needs swirl > 0 (2 to 20)
  * - u_noiseTexture (sampler2D): Pre-computed randomizer source texture
  *
  * Vertex shader outputs (used in fragment shader):
@@ -49,7 +48,6 @@ export const warpFragmentShader: string = `#version 300 es
 precision mediump float;
 
 uniform float u_time;
-uniform float u_scale;
 
 uniform sampler2D u_noiseTexture;
 
@@ -104,7 +102,6 @@ void main() {
   for (int i = 1; i <= 20; i++) {
     if (i >= int(u_swirlIterations)) break;
     float iFloat = float(i);
-    //    swirl *= (1. - smoothstep(.0, .25, length(fwidth(uv))));
     uv.x += swirl / iFloat * cos(t + iFloat * 1.5 * uv.y);
     uv.y += swirl / iFloat * cos(t + iFloat * 1. * uv.x);
   }
@@ -172,7 +169,6 @@ export interface WarpUniforms extends ShaderSizingUniforms {
 
 export interface WarpParams extends ShaderSizingParams, ShaderMotionParams {
   colors?: string[];
-  rotation?: number;
   proportion?: number;
   softness?: number;
   shape?: WarpPattern;

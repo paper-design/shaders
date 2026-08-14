@@ -7,7 +7,7 @@ const defaultParams = heatmapPresets[0].params;
 export const heatmapDef: ShaderDef = {
   name: 'Heatmap',
   description:
-    'A glowing gradient of colors flowing through an input shape. The effect creates a smoothly animated wave of intensity across the image. With default colors, it shift from cool blues to hot reds, like thermal energy radiating through the shape.',
+    'A glowing gradient of colors flowing through an input shape. The effect creates a smoothly animated wave of intensity across the image. With default colors, it shifts from cool blues to hot reds, like thermal energy radiating through the shape.',
   params: [
     {
       name: 'image',
@@ -42,7 +42,7 @@ export const heatmapDef: ShaderDef = {
       defaultValue: defaultParams.angle,
       min: 0,
       max: 360,
-      description: 'The direction of the heatwaves (angle relative to the shape)',
+      description: 'The direction of the heatwaves (angle relative to the shape), needs innerGlow or outerGlow > 0',
     },
     {
       name: 'noise',
@@ -66,7 +66,7 @@ export const heatmapDef: ShaderDef = {
       defaultValue: defaultParams.outerGlow,
       min: 0,
       max: 1,
-      description: 'The side of the heated area outside the input shape',
+      description: 'The size of the heated area outside the input shape',
     },
     // {
     //   name: 'suspendWhenProcessingImage',

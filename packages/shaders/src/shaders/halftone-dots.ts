@@ -6,22 +6,20 @@ import { declarePI, rotation2, proceduralHash21 } from '../shader-utils.js';
  * A halftone-dot image filter featuring customizable grids, color palettes, and dot styles.
  *
  * Fragment shader uniforms:
- * - u_rotation (float): Overall rotation angle of the graphics in degrees (0 to 360)
- * - u_time (float): Animation time
  * - u_image (sampler2D): Source image texture
  * - u_imageAspectRatio (float): Aspect ratio of the source image
- * - u_colorFront (vec4): Foreground color in RGBA
+ * - u_colorFront (vec4): Foreground color in RGBA, needs originalColors off
  * - u_colorBack (vec4): Background color in RGBA
  * - u_originalColors (bool): Use sampled image's original colors instead of colorFront
  * - u_type (float): Dot style (0 = classic, 1 = gooey, 2 = holes, 3 = soft)
- * - u_inverted (bool): Inverts the image luminance, doesn't affect the color scheme; not effective at zero contrast
+ * - u_inverted (bool): Inverts the image luminance, doesn't affect the color scheme, needs contrast > 0
  * - u_grid (float): Grid type (0 = square, 1 = hex)
  * - u_size (float): Grid size relative to the image box (0 to 1)
  * - u_radius (float): Maximum dot size relative to grid cell (0 to 2)
- * - u_contrast (float): Contrast applied to the sampled image (0 to 1)
+ * - u_contrast (float): Contrast applied to the sampled image, at 0 the luminance is flat so all the dots get equal size (0 to 1)
  * - u_grainMixer (float): Strength of grain distortion applied to shape edges (0 to 1)
  * - u_grainOverlay (float): Post-processing black/white grain overlay (0 to 1)
- * - u_grainSize (float): Scale applied to both grain distortion and grain overlay (0 to 1)
+ * - u_grainSize (float): Scale applied to both grain distortion and grain overlay, needs grainMixer or grainOverlay > 0 (0 to 1)
  *
  * Vertex shader outputs (used in fragment shader):
  * - v_imageUV (vec2): Image UV coordinates with global sizing (rotation, scale, offset, etc) applied
@@ -32,7 +30,7 @@ import { declarePI, rotation2, proceduralHash21 } from '../shader-utils.js';
  * - u_originX (float): Reference point for positioning world width in the canvas (0 to 1)
  * - u_originY (float): Reference point for positioning world height in the canvas (0 to 1)
  * - u_fit (float): How to fit the rendered shader into the canvas dimensions (0 = none, 1 = contain, 2 = cover)
- * - u_scale (float): Overall zoom level of the graphics (0.01 to 4)
+ * - u_scale (float): Overall zoom level of the graphics (0.1 to 4)
  * - u_rotation (float): Overall rotation angle of the graphics in degrees (0 to 360)
  * - u_offsetX (float): Horizontal offset of the graphics center (-1 to 1)
  * - u_offsetY (float): Vertical offset of the graphics center (-1 to 1)
@@ -43,10 +41,6 @@ import { declarePI, rotation2, proceduralHash21 } from '../shader-utils.js';
 // language=GLSL
 export const halftoneDotsFragmentShader: string = `#version 300 es
 precision mediump float;
-
-uniform float u_rotation;
-
-uniform float u_time;
 
 uniform vec4 u_colorFront;
 uniform vec4 u_colorBack;
@@ -296,10 +290,12 @@ void main() {
   vec2 grainUV = v_imageUV - .5;
   grainUV *= grainSize;
   grainUV += .5;
-  float grain = valueNoise(grainUV);
-  grain = smoothstep(.55, .7 + .2 * u_grainMixer, grain);
-  grain *= u_grainMixer;
-  finalShape = mix(finalShape, 0., grain);
+  if (u_grainMixer > 0.) {
+    float grain = valueNoise(grainUV);
+    grain = smoothstep(.55, .7 + .2 * u_grainMixer, grain);
+    grain *= u_grainMixer;
+    finalShape = mix(finalShape, 0., grain);
+  }
 
   vec3 color = vec3(0.);
   float opacity = 0.;
@@ -323,17 +319,19 @@ void main() {
     opacity += bgOpacity * (1. - opacity);
   }
 
-  float grainOverlay = valueNoise(rotate(grainUV, 1.) + vec2(3.));
-  grainOverlay = mix(grainOverlay, valueNoise(rotate(grainUV, 2.) + vec2(-1.)), .5);
-  grainOverlay = pow(grainOverlay, 1.3);
+  if (u_grainOverlay > 0.) {
+    float grainOverlay = valueNoise(rotate(grainUV, 1.) + vec2(3.));
+    grainOverlay = mix(grainOverlay, valueNoise(rotate(grainUV, 2.) + vec2(-1.)), .5);
+    grainOverlay = pow(grainOverlay, 1.3);
 
-  float grainOverlayV = grainOverlay * 2. - 1.;
-  vec3 grainOverlayColor = vec3(step(0., grainOverlayV));
-  float grainOverlayStrength = u_grainOverlay * abs(grainOverlayV);
-  grainOverlayStrength = pow(grainOverlayStrength, .8);
-  color = mix(color, grainOverlayColor, .5 * grainOverlayStrength);
+    float grainOverlayV = grainOverlay * 2. - 1.;
+    vec3 grainOverlayColor = vec3(step(0., grainOverlayV));
+    float grainOverlayStrength = u_grainOverlay * abs(grainOverlayV);
+    grainOverlayStrength = pow(grainOverlayStrength, .8);
+    color = mix(color, grainOverlayColor, .5 * grainOverlayStrength);
 
-  opacity += .5 * grainOverlayStrength;
+    opacity += .5 * grainOverlayStrength;
+  }
   opacity = clamp(opacity, 0., 1.);
 
   fragColor = vec4(color, opacity);

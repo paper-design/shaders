@@ -9,20 +9,19 @@ import { declarePI, rotation2, proceduralHash21 } from '../shader-utils.js';
  * Fragment shader uniforms:
  * - u_resolution (vec2): Canvas resolution in pixels
  * - u_pixelRatio (float): Device pixel ratio
- * - u_rotation (float): Overall rotation angle of the graphics in degrees (0 to 360)
  * - u_image (sampler2D): Source image texture
  * - u_imageAspectRatio (float): Aspect ratio of the source image
  * - u_colorBack (vec4): Background color in RGBA
- * - u_colorShadow (vec4): Shadows color in RGBA
- * - u_colorHighlight (vec4): Highlights color in RGBA
- * - u_shadows (float): Color gradient added over image and background, following distortion shape (0 to 1)
+ * - u_colorShadow (vec4): Shadows color in RGBA, needs shadows > 0
+ * - u_colorHighlight (vec4): Highlights color in RGBA, needs highlights > 0
+ * - u_shadows (float): Color gradient added over image and background, following distortion shape, needs colorShadow alpha > 0 (0 to 1)
  * - u_highlights (float): Thin strokes along distortion shape, useful for antialiasing on small grid (0 to 1)
  * - u_size (float): Size of the distortion shape grid (0 to 1)
  * - u_shape (float): Grid shape (1 = lines, 2 = linesIrregular, 3 = wave, 4 = zigzag, 5 = pattern)
  * - u_angle (float): Direction of the grid relative to the image in degrees (0 to 180)
  * - u_distortionShape (float): Shape of distortion (1 = prism, 2 = lens, 3 = contour, 4 = cascade, 5 = flat)
  * - u_distortion (float): Power of distortion applied within each stripe (0 to 1)
- * - u_shift (float): Texture shift in direction opposite to the grid (-1 to 1)
+ * - u_shift (float): Texture shift in direction opposite to the grid, needs distortion > 0 (-1 to 1)
  * - u_stretch (float): Extra distortion along the grid lines (0 to 1)
  * - u_blur (float): One-directional blur over the image and extra blur around edges (0 to 1)
  * - u_edges (float): Glass distortion and softness on the image edges (0 to 1)
@@ -30,7 +29,7 @@ import { declarePI, rotation2, proceduralHash21 } from '../shader-utils.js';
  * - u_marginRight (float): Distance from the right edge to the effect (0 to 1)
  * - u_marginTop (float): Distance from the top edge to the effect (0 to 1)
  * - u_marginBottom (float): Distance from the bottom edge to the effect (0 to 1)
- * - u_grainMixer (float): Strength of grain distortion applied to shape edges (0 to 1)
+ * - u_grainMixer (float): Strength of grain distortion applied to shape edges, needs distortion > 0 (0 to 1)
  * - u_grainOverlay (float): Post-processing black/white grain overlay (0 to 1)
  *
  * Vertex shader outputs (used in fragment shader):
@@ -42,7 +41,7 @@ import { declarePI, rotation2, proceduralHash21 } from '../shader-utils.js';
  * - u_originX (float): Reference point for positioning world width in the canvas (0 to 1)
  * - u_originY (float): Reference point for positioning world height in the canvas (0 to 1)
  * - u_fit (float): How to fit the rendered shader into the canvas dimensions (0 = none, 1 = contain, 2 = cover)
- * - u_scale (float): Overall zoom level of the graphics (0.01 to 4)
+ * - u_scale (float): Overall zoom level of the graphics (0.1 to 4)
  * - u_rotation (float): Overall rotation angle of the graphics in degrees (0 to 360)
  * - u_offsetX (float): Horizontal offset of the graphics center (-1 to 1)
  * - u_offsetY (float): Vertical offset of the graphics center (-1 to 1)
@@ -56,7 +55,6 @@ precision mediump float;
 
 uniform vec2 u_resolution;
 uniform float u_pixelRatio;
-uniform float u_rotation;
 
 uniform vec4 u_colorBack;
 uniform vec4 u_colorShadow;
@@ -302,10 +300,12 @@ void main() {
   vec2 grainUV = v_imageUV - .5;
   grainUV *= (.8 / vec2(length(dudx), length(dudy)));
   grainUV += .5;
-  float grain = valueNoise(grainUV);
-  grain = smoothstep(.4, .7, grain);
-  grain *= u_grainMixer;
-  distortion = mix(distortion, 0., grain);
+  if (u_grainMixer > 0.) {
+    float grain = valueNoise(grainUV);
+    grain = smoothstep(.4, .7, grain);
+    grain *= u_grainMixer;
+    distortion = mix(distortion, 0., grain);
+  }
 
   shadows = min(shadows, 1.);
   shadows += maskStrokeInner;
@@ -365,18 +365,20 @@ void main() {
   color += backColor.rgb * (1. - opacity);
   opacity += backColor.a * (1. - opacity);
 
-  float grainOverlay = valueNoise(rotate(grainUV, 1.) + vec2(3.));
-  grainOverlay = mix(grainOverlay, valueNoise(rotate(grainUV, 2.) + vec2(-1.)), .5);
-  grainOverlay = pow(grainOverlay, 1.3);
+  if (u_grainOverlay > 0.) {
+    float grainOverlay = valueNoise(rotate(grainUV, 1.) + vec2(3.));
+    grainOverlay = mix(grainOverlay, valueNoise(rotate(grainUV, 2.) + vec2(-1.)), .5);
+    grainOverlay = pow(grainOverlay, 1.3);
 
-  float grainOverlayV = grainOverlay * 2. - 1.;
-  vec3 grainOverlayColor = vec3(step(0., grainOverlayV));
-  float grainOverlayStrength = u_grainOverlay * abs(grainOverlayV);
-  grainOverlayStrength = pow(grainOverlayStrength, .8);
-  grainOverlayStrength *= mask;
-  color = mix(color, grainOverlayColor, .35 * grainOverlayStrength);
+    float grainOverlayV = grainOverlay * 2. - 1.;
+    vec3 grainOverlayColor = vec3(step(0., grainOverlayV));
+    float grainOverlayStrength = u_grainOverlay * abs(grainOverlayV);
+    grainOverlayStrength = pow(grainOverlayStrength, .8);
+    grainOverlayStrength *= mask;
+    color = mix(color, grainOverlayColor, .35 * grainOverlayStrength);
 
-  opacity += .5 * grainOverlayStrength;
+    opacity += .5 * grainOverlayStrength;
+  }
   opacity = clamp(opacity, 0., 1.);
 
   fragColor = vec4(color, opacity);
@@ -405,7 +407,6 @@ export interface FlutedGlassUniforms extends ShaderSizingUniforms {
   u_shape: (typeof GlassGridShapes)[GlassGridShape];
   u_grainMixer: number;
   u_grainOverlay: number;
-  u_noiseTexture?: HTMLImageElement;
 }
 
 export interface FlutedGlassParams extends ShaderSizingParams, ShaderMotionParams {

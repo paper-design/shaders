@@ -62,13 +62,14 @@ export const halftoneCmykDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.gridNoise,
-      description: 'Displaces both dot positions and color sampling points; naturally makes the background more visible',
+      description:
+        'Displaces both dot positions and color sampling points (positions only with sharp type); naturally makes the background more visible',
     },
     {
       name: 'type',
       type: 'enum',
       defaultValue: defaultParams.type,
-      description: 'Dot type style (the difference between dots and ink is visible only with low softness)',
+      description: 'Dot type style (dots and ink differ most at low softness)',
       options: ['dots', 'ink', 'sharp'],
     },
     {
@@ -93,7 +94,7 @@ export const halftoneCmykDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.floodC,
-      description: 'Uniform cyan flood applied to all dots',
+      description: 'Uniform cyan flood applied to all dots (needs colorC alpha > 0)',
     },
     {
       name: 'floodM',
@@ -101,7 +102,7 @@ export const halftoneCmykDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.floodM,
-      description: 'Uniform magenta flood applied to all dots',
+      description: 'Uniform magenta flood applied to all dots (needs colorM alpha > 0)',
     },
     {
       name: 'floodY',
@@ -109,7 +110,7 @@ export const halftoneCmykDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.floodY,
-      description: 'Uniform yellow flood applied to all dots',
+      description: 'Uniform yellow flood applied to all dots (needs colorY alpha > 0)',
     },
     {
       name: 'floodK',
@@ -117,7 +118,7 @@ export const halftoneCmykDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.floodK,
-      description: 'Uniform black flood applied to all dots',
+      description: 'Uniform black flood applied to all dots (needs colorK alpha > 0)',
     },
     {
       name: 'gainC',
@@ -125,7 +126,7 @@ export const halftoneCmykDef: ShaderDef = {
       min: -1,
       max: 1,
       defaultValue: defaultParams.gainC,
-      description: 'Proportional cyan gain that enhances existing dots',
+      description: 'Proportional cyan gain that enhances existing dots (needs colorC alpha > 0)',
     },
     {
       name: 'gainM',
@@ -133,7 +134,7 @@ export const halftoneCmykDef: ShaderDef = {
       min: -1,
       max: 1,
       defaultValue: defaultParams.gainM,
-      description: 'Proportional magenta gain that enhances existing dots',
+      description: 'Proportional magenta gain that enhances existing dots (needs colorM alpha > 0)',
     },
     {
       name: 'gainY',
@@ -141,7 +142,7 @@ export const halftoneCmykDef: ShaderDef = {
       min: -1,
       max: 1,
       defaultValue: defaultParams.gainY,
-      description: 'Proportional yellow gain that enhances existing dots',
+      description: 'Proportional yellow gain that enhances existing dots (needs colorY alpha > 0)',
     },
     {
       name: 'gainK',
@@ -149,7 +150,7 @@ export const halftoneCmykDef: ShaderDef = {
       min: -1,
       max: 1,
       defaultValue: defaultParams.gainK,
-      description: 'Proportional black gain that enhances existing dots',
+      description: 'Proportional black gain that enhances existing dots (needs colorK alpha > 0)',
     },
     {
       name: 'grainSize',
@@ -157,7 +158,7 @@ export const halftoneCmykDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.grainSize,
-      description: 'Size of grain overlay texture (relative to image box)',
+      description: 'Size of grain texture, applied to both grain and overlay (relative to image box), needs grainMixer or grainOverlay > 0',
     },
     {
       name: 'grainMixer',

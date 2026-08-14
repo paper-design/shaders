@@ -45,7 +45,7 @@ export const swirlDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.center,
-      description: 'How far from the center the swirl colors begin to appear',
+      description: 'How far from the center the swirl colors begin to appear (needs twist > 0)',
     },
     {
       name: 'proportion',
@@ -69,7 +69,7 @@ export const swirlDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.noise,
-      description: 'Strength of noise distortion (no effect with noiseFrequency = 0)',
+      description: 'Strength of noise distortion (needs noiseFrequency > 0)',
     },
     {
       name: 'noiseFrequency',
@@ -77,7 +77,7 @@ export const swirlDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.noiseFrequency,
-      description: 'Noise frequency (no effect with noise = 0)',
+      description: 'Noise frequency (needs noise > 0)',
     },
     ...animatedCommonParams,
   ],

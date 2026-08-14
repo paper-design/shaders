@@ -13,12 +13,11 @@ export const heatmapMeta = {
  * Fragment shader uniforms:
  * - u_time (float): Animation time
  * - u_image (sampler2D): Pre-processed source image texture (R = contour, G = outer blur, B = inner blur)
- * - u_imageAspectRatio (float): Aspect ratio of the source image
  * - u_colorBack (vec4): Background color in RGBA
  * - u_colors (vec4[]): Up to 10 heatmap colors in RGBA
  * - u_colorsCount (float): Number of active colors
  * - u_contour (float): Heat intensity near the edges of the input shape (0 to 1)
- * - u_angle (float): Direction of the heatwaves in degrees (0 to 360)
+ * - u_angle (float): Direction of the heatwaves in degrees, needs innerGlow or outerGlow > 0 (0 to 360)
  * - u_noise (float): Grain applied across the entire graphic (0 to 1)
  * - u_innerGlow (float): Size of the heated area inside the input shape (0 to 1)
  * - u_outerGlow (float): Size of the heated area outside the input shape (0 to 1)
@@ -35,7 +34,7 @@ export const heatmapMeta = {
  * - u_worldWidth (float): Virtual width of the graphic before it's scaled to fit the canvas
  * - u_worldHeight (float): Virtual height of the graphic before it's scaled to fit the canvas
  * - u_fit (float): How to fit the rendered shader into the canvas dimensions (0 = none, 1 = contain, 2 = cover)
- * - u_scale (float): Overall zoom level of the graphics (0.01 to 4)
+ * - u_scale (float): Overall zoom level of the graphics (0.1 to 4)
  * - u_rotation (float): Overall rotation angle of the graphics in degrees (0 to 360)
  * - u_offsetX (float): Horizontal offset of the graphics center (-1 to 1)
  * - u_offsetY (float): Vertical offset of the graphics center (-1 to 1)
@@ -53,7 +52,6 @@ out vec4 fragColor;
 
 uniform sampler2D u_image;
 uniform float u_time;
-uniform mediump float u_imageAspectRatio;
 
 uniform vec4 u_colorBack;
 uniform vec4 u_colors[${ heatmapMeta.maxColorCount }];

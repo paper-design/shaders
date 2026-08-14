@@ -28,7 +28,7 @@ export const perlinNoiseDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.proportion,
-      description: 'Blend point between 2 colors (0.5 = equal distribution)',
+      description: 'Blend point between two colors (0.5 = equal distribution)',
     },
     {
       name: 'softness',
@@ -53,7 +53,7 @@ export const perlinNoiseDef: ShaderDef = {
       min: 0.3,
       max: 1,
       defaultValue: defaultParams.persistence,
-      description: 'Roughness, falloff between octaves',
+      description: 'Roughness, falloff between octaves (needs octaveCount > 1)',
     },
     {
       name: 'lacunarity',
@@ -61,7 +61,7 @@ export const perlinNoiseDef: ShaderDef = {
       min: 1.5,
       max: 10,
       defaultValue: defaultParams.lacunarity,
-      description: 'Frequency step, typically around 2. Defines how compressed the pattern is',
+      description: 'Frequency step, typically around 2. Defines how compressed the pattern is (needs octaveCount > 1)',
     },
     ...animatedCommonParams,
   ],
