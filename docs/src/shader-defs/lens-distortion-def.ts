@@ -30,7 +30,7 @@ export const lensDistortionDef: ShaderDef = {
       max: 1,
       defaultValue: defaultParams.bias,
       description:
-        'Bias of the color spread: warps how the colors distribute along it. 0 spaces them evenly; toward +/-1 they bunch toward one end of the fan and spread out at the other (no effect with spread = 0)',
+        'Bias of the color spread: warps how the colors distribute along it. 0 spaces them evenly; toward +/-1 they bunch toward one end of the fan and spread out at the other (needs spread > 0, count > 2)',
     },
     {
       name: 'angle',
@@ -38,7 +38,7 @@ export const lensDistortionDef: ShaderDef = {
       min: 0,
       max: 360,
       defaultValue: defaultParams.angle,
-      description: 'Angle of the color spread in degrees (no effect with spread = 0 or perspective = 1)',
+      description: 'Angle of the color spread in degrees (needs spread > 0, perspective < 1)',
     },
     {
       name: 'perspective',
@@ -47,7 +47,7 @@ export const lensDistortionDef: ShaderDef = {
       max: 1,
       defaultValue: defaultParams.perspective,
       description:
-        'Perspective of the spread: shapes its direction from a straight line to a radial burst. At 0 all layers spread along the straight line set by angle; at 1 they radiate outward from the centre (no effect with spread = 0)',
+        'Perspective of the spread: shapes its direction from a straight line to a radial burst. At 0 all layers spread along the straight line set by angle; at 1 they radiate outward from the centre (needs spread > 0)',
     },
     {
       name: 'count',
@@ -57,7 +57,7 @@ export const lensDistortionDef: ShaderDef = {
       step: 1,
       defaultValue: defaultParams.count,
       description:
-        'Number of colored layers making the spread - more layers blend into a blur, fewer stay as separate ghosted copies (no effect with spread = 0)',
+        'Number of colored layers making the spread - more layers blend into a blur, fewer stay as separate ghosted copies (needs spread > 0)',
     },
     {
       name: 'dispersion',
@@ -66,7 +66,7 @@ export const lensDistortionDef: ShaderDef = {
       max: 1,
       defaultValue: defaultParams.dispersion,
       description:
-        'Overall amount of color dispersion: at 1 each layer takes its own color from the spectrum, giving the chromatic aberration look; at 0 every layer keeps the original image color, so the spread reads as a plain blur (no effect with spread = 0)',
+        'Overall amount of color dispersion: at 1 each layer takes its own color from the spectrum, giving the chromatic aberration look; at 0 every layer keeps the original image color, so the spread reads as a plain blur (needs spread > 0)',
     },
     {
       name: 'dispersionShift',
@@ -75,7 +75,7 @@ export const lensDistortionDef: ShaderDef = {
       max: 1,
       defaultValue: defaultParams.dispersionShift,
       description:
-        'Balances the dispersion between a soft circular zone at the centre of the image and the rest of it: 0 applies it evenly over the whole image, -1 keeps it in the centre only, 1 keeps it at the edges only (no effect with spread = 0 or dispersion = 0)',
+        'Balances the dispersion between a soft circular zone at the centre of the image and the rest of it: 0 applies it evenly over the whole image, -1 keeps it in the centre only, 1 keeps it at the edges only (needs spread > 0, dispersion > 0)',
     },
     {
       name: 'dispersionColor',
@@ -84,7 +84,7 @@ export const lensDistortionDef: ShaderDef = {
       max: 1,
       defaultValue: defaultParams.dispersionColor,
       description:
-        'Rotates the colors around the hue wheel, 0 to 1 for a full turn (no effect with spread = 0 or dispersion = 0)',
+        'Rotates the colors around the hue wheel, 0 to 1 for a full turn (needs spread > 0, dispersion > 0)',
     },
     {
       name: 'focusCenter',
@@ -93,7 +93,7 @@ export const lensDistortionDef: ShaderDef = {
       max: 1,
       defaultValue: defaultParams.focusCenter,
       description:
-        'Reduces the spread distance in a circular zone at the centre of the image. 0 keeps the full layers spread in the middle, higher values move the layers closer building an illusion of focus (no effect with spread = 0)',
+        'Reduces the spread distance in a circular zone at the centre of the image. 0 keeps the full layers spread in the middle, higher values move the layers closer building an illusion of focus (needs spread > 0)',
     },
     {
       name: 'focusEdges',
@@ -102,7 +102,7 @@ export const lensDistortionDef: ShaderDef = {
       max: 1,
       defaultValue: defaultParams.focusEdges,
       description:
-        'Reduces the spread distance along the image edges. 0 keeps the full layers spread at the edges, 1 restores the original image at the edges regardless of the chosen spread distance (no effect with spread = 0)',
+        'Reduces the spread distance along the image edges. 0 keeps the full layers spread at the edges, 1 restores the original image at the edges regardless of the chosen spread distance (needs spread > 0)',
     },
     {
       name: 'swirl',
@@ -111,7 +111,7 @@ export const lensDistortionDef: ShaderDef = {
       max: 1,
       defaultValue: defaultParams.swirl,
       description:
-        'Bends the spread around the centre of the image, so the layers trail along circles like a vortex. Each layer is rotated around the centre by an angle growing along the spread, and the effect fades out beyond the inscribed circle (no effect with spread = 0)',
+        'Bends the spread around the centre of the image, so the layers trail along circles like a vortex. Each layer is rotated around the centre by an angle growing along the spread, and the effect fades out beyond the inscribed circle (needs spread > 0)',
     },
     {
       name: 'noise',
@@ -119,7 +119,7 @@ export const lensDistortionDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.noise,
-      description: 'Noise distortion over the spread direction within the spread distance (no effect with spread = 0)',
+      description: 'Noise distortion over the spread direction within the spread distance (needs spread > 0)',
     },
     {
       name: 'noiseFrequency',
@@ -128,7 +128,7 @@ export const lensDistortionDef: ShaderDef = {
       max: 1,
       defaultValue: defaultParams.noiseFrequency,
       description:
-        'Noise frequency (scale), higher value gives more detailed distortion (no effect with spread = 0 or noise = 0)',
+        'Noise frequency (scale), higher value gives more detailed distortion (needs spread > 0, noise > 0)',
     },
     {
       name: 'noiseOffset',
@@ -137,7 +137,7 @@ export const lensDistortionDef: ShaderDef = {
       max: 1,
       defaultValue: defaultParams.noiseOffset,
       description:
-        'Shifts the noise pattern diagonally, can be used as a seed to get a different scatter (no effect with spread = 0 or noise = 0)',
+        'Shifts the noise pattern diagonally, can be used as a seed to get a different scatter (needs spread > 0, noise > 0)',
     },
     {
       name: 'lensBulge',
@@ -164,7 +164,7 @@ export const lensDistortionDef: ShaderDef = {
       max: 1,
       defaultValue: defaultParams.grainMixer,
       description:
-        'Scatters the spread with grain noise, breaking up the edges of the colored layers (no effect with spread = 0)',
+        'Scatters the spread with grain noise, breaking up the edges of the colored layers (needs spread > 0)',
     },
     {
       name: 'grainOverlay',

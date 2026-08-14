@@ -7,7 +7,7 @@ const defaultParams = ditheringPresets[0].params;
 export const ditheringDef: ShaderDef = {
   name: 'Dithering',
   description:
-    'Animated 2-color dithering over with multiple pattern sources (noise, warp, dots, waves, ripple, swirl, sphere). Great for retro, print-like, or stylized UI textures.',
+    'Animated 2-color dithering over multiple pattern sources (noise, warp, dots, waves, ripple, swirl, sphere). Great for retro, print-like, or stylized UI textures.',
   params: [
     {
       name: 'colorBack',

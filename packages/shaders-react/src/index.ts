@@ -141,6 +141,7 @@ export {
   voronoiMeta,
   warpMeta,
   heatmapMeta,
+  lensDistortionMeta,
   staticMeshGradientMeta,
   staticRadialGradientMeta,
 } from '@paper-design/shaders';

@@ -27,7 +27,7 @@ export const dotGridDef: ShaderDef = {
       type: 'string',
       defaultValue: defaultParams.colorStroke,
       isColor: true,
-      description: 'Shape stroke color',
+      description: 'Shape stroke color (needs strokeWidth > 0)',
     },
     {
       name: 'shape',
@@ -66,7 +66,7 @@ export const dotGridDef: ShaderDef = {
       min: 0,
       max: 50,
       defaultValue: defaultParams.strokeWidth,
-      description: 'The outline stroke width, pixels',
+      description: 'The outline stroke width, pixels (needs colorStroke alpha > 0)',
     },
     {
       name: 'sizeRange',

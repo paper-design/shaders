@@ -8,13 +8,11 @@ import { rotation2, colorBandingFix } from '../shader-utils.js';
  *
  * Fragment shader uniforms:
  * - u_time (float): Animation time
- * - u_resolution (vec2): Canvas resolution in pixels
- * - u_pixelRatio (float): Device pixel ratio
  * - u_colorFront (vec4): Graphics highlight color in RGBA
  * - u_colorMid (vec4): Graphics main color in RGBA
  * - u_colorBack (vec4): Background color in RGBA
  * - u_brightness (float): Luminosity of the crossing points (0 to 1)
- * - u_contrast (float): Sharpness of the bright-dark transition (0 to 1)
+ * - u_contrast (float): Sharpness of the transition between colorMid and colorBack (0 to 1)
  *
  * Vertex shader outputs (used in fragment shader):
  * - v_patternUV (vec2): UV coordinates for pattern with global sizing (rotation, scale, offset, etc) applied
@@ -40,8 +38,6 @@ export const neuroNoiseFragmentShader: string = `#version 300 es
 precision mediump float;
 
 uniform float u_time;
-uniform vec2 u_resolution;
-uniform float u_pixelRatio;
 
 uniform vec4 u_colorFront;
 uniform vec4 u_colorMid;

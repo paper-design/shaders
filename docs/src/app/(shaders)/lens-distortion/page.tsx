@@ -86,7 +86,7 @@ const LensDistortionWithControls = () => {
       grainOverlay: { value: defaults.grainOverlay, min: 0, max: 1, order: 410 },
       imageX: { value: defaults.imageX, min: -1, max: 1, order: 411 },
       imageY: { value: defaults.imageY, min: -1, max: 1, order: 412 },
-      scale: { value: defaults.scale, min: 0.5, max: 4, order: 450 },
+      scale: { value: defaults.scale, min: 0.1, max: 4, order: 450 },
       fit: { value: defaults.fit, options: ['contain', 'cover'] as ShaderFit[], order: 451 },
       Image: folder(
         {

@@ -11,14 +11,13 @@ export const gemSmokeDef: ShaderDef = {
     {
       name: 'image',
       type: 'HTMLImageElement | string',
-      description:
-        'An optional image used as an effect mask. A transparent background is required. If no image is provided, the shader defaults to one of the predefined shapes.',
+      description: 'An optional image used as an effect mask. A transparent background is required.',
     },
     {
       name: 'shape',
       type: 'enum',
       defaultValue: defaultParams.shape,
-      description: 'The predefined shape used as an effect mask when no image is provided.',
+      description: 'The predefined shape used as an effect mask (needs no image)',
       options: ['none', 'circle', 'daisy', 'diamond', 'metaballs'],
     },
     {
@@ -26,7 +25,7 @@ export const gemSmokeDef: ShaderDef = {
       type: 'string[]',
       defaultValue: [],
       isColor: true,
-      description: 'Up to 5 ray colors',
+      description: 'Up to 6 colors',
     },
     {
       name: 'colorBack',
@@ -41,7 +40,7 @@ export const gemSmokeDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.innerDistortion,
-      description: 'The power of smoke distortion inside the input shape (shape defined by alpha channel)',
+      description: 'The power of smoke distortion inside the input shape (shape defined by alpha channel), needs innerGlow > 0',
     },
     {
       name: 'outerDistortion',
@@ -49,7 +48,7 @@ export const gemSmokeDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.outerDistortion,
-      description: 'The power of smoke distortion outside the input shape (shape defined by alpha channel)',
+      description: 'The power of smoke distortion outside the input shape (shape defined by alpha channel), needs outerGlow > 0',
     },
     {
       name: 'outerGlow',
@@ -80,7 +79,7 @@ export const gemSmokeDef: ShaderDef = {
       min: -1,
       max: 1,
       defaultValue: defaultParams.offset,
-      description: 'Vertical offset of smoke inside the shape',
+      description: 'Vertical offset of smoke inside the shape (needs innerGlow > 0)',
     },
     {
       name: 'angle',
