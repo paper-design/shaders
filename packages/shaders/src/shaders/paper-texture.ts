@@ -16,17 +16,20 @@ export const paperTextureMeta = {
  * - u_colorFront (vec4): Foreground color in RGBA
  * - u_colorBack (vec4): Background color in RGBA
  * - u_roughness (float): Hi-freq grain-like distortion intensity (0 to 1)
- * - u_roughnessSize (float): Scale of the roughness noise (0 to 1)
+ * - u_roughnessSize (float): Scale of the roughness noise, needs u_roughness > 0 (0 to 1)
  * - u_fiber (float): Curly-shaped noise intensity (0 to 1)
- * - u_fiberSize (float): Curly-shaped noise scale (0 to 1)
+ * - u_fiberSize (float): Curly-shaped noise scale, needs u_fiber > 0 (0 to 1)
  * - u_folds (float): Depth of the folds (0 to 1)
- * - u_foldType (float): Type of folds pattern (0 = radial folds, 1 = creases)
- * - u_foldCount (float): Size/frequency of folds or creases (0 to 1)
+ * - u_foldType (float): Type of folds pattern, needs u_folds > 0 (0 = radial folds, 1 = creases)
+ * - u_foldCount (float): Number of radial folds, needs u_folds > 0 and u_foldType = 0 (1 to 20)
+ * - u_foldSize (float): Size of the creases, needs u_folds > 0 and u_foldType = 1 (0 to 1)
+ * - u_foldY (bool): Adds a horizontal crease, needs u_folds > 0 and u_foldType = 1
+ * - u_foldOffset (float): Shifts the creases across the surface, needs u_folds > 0 and u_foldType = 1 (-0.5 to 0.5)
  * - u_drops (float): Visibility of speckle / drop pattern (0 to 1)
- * - u_seed (float): Seed applied to folds and dots (0 to 1000)
+ * - u_seed (float): Seed applied to folds, drops and fade (0 to 1000)
  * - u_fade (float): Large-scale noise mask applied to the pattern (0 to 1)
- * - u_blending (float): How much the image is printed into the paper; 0 = exact image, 1 = image multiplied with a grayscale paper-texture ink (toned by colorFront) and thinned so the background reads through (0 to 1)
- * - u_distortion (float): Amount of distortion of the image by the paper normals (0 to 1)
+ * - u_blending (float): How much the image is printed into the paper; 0 = exact image, 1 = image multiplied with a grayscale paper-texture ink (toned by colorFront) and thinned so the background reads through, needs image (0 to 1)
+ * - u_distortion (float): Amount of distortion of the image by the paper normals, needs image (-1 to 1)
  * - u_background (bool): Shows or hides the paper texture outside the image frame
  * - u_noiseTexture (sampler2D): Pre-computed randomizer source texture
  *
