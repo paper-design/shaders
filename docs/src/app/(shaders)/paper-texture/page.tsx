@@ -5,7 +5,7 @@ import { useControls, button, folder } from 'leva';
 import { setParamsSafe, useResetLevaParams } from '@/helpers/use-reset-leva-params';
 import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
-import { ShaderFit, PaperTextureFoldTypes, paperTextureMeta, type PaperTextureFoldType } from '@paper-design/shaders';
+import { ShaderFit, paperTextureMeta } from '@paper-design/shaders';
 import { levaImageButton, levaDeleteImageButton } from '@/helpers/leva-image-button';
 import { useState, useEffect, useCallback } from 'react';
 import { toHsla } from '@/helpers/color-utils';
@@ -77,15 +77,11 @@ const PaperTextureWithControls = () => {
       fiber: { value: defaults.fiber, min: 0, max: 1, order: 210 },
       fiberSize: { value: defaults.fiberSize, min: 0, max: 1, order: 211 },
       folds: { value: defaults.folds, min: 0, max: 1, order: 230 },
-      foldType: {
-        value: defaults.foldType,
-        options: Object.keys(PaperTextureFoldTypes) as PaperTextureFoldType[],
-        order: 231,
-      },
-      foldCount: { value: defaults.foldCount, min: 1, max: paperTextureMeta.maxFoldCount, step: 1, order: 232 },
-      foldSize: { value: defaults.foldSize, min: 0, max: 1, order: 232.5 },
-      foldY: { value: defaults.foldY, order: 232.6 },
-      foldOffset: { value: defaults.foldOffset, min: -0.5, max: 0.5, order: 233 },
+      foldCount: { value: defaults.foldCount, min: 1, max: paperTextureMeta.maxFoldCount, step: 1, order: 231 },
+      creases: { value: defaults.creases, min: 0, max: 1, order: 235 },
+      creaseSize: { value: defaults.creaseSize, min: 0, max: 1, order: 236 },
+      creaseCross: { value: defaults.creaseCross, min: 0, max: 1, order: 237 },
+      creaseOffset: { value: defaults.creaseOffset, min: -0.5, max: 0.5, order: 238 },
       drops: { value: defaults.drops, min: 0, max: 1, order: 250 },
       seed: { value: defaults.seed, min: 0, step: 1, max: 1000, order: 250 },
       fade: { value: defaults.fade, min: 0, max: 1, order: 260 },

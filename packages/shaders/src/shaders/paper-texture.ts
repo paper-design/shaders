@@ -19,12 +19,12 @@ export const paperTextureMeta = {
  * - u_roughnessSize (float): Scale of the roughness noise, needs u_roughness > 0 (0 to 1)
  * - u_fiber (float): Curly-shaped noise intensity (0 to 1)
  * - u_fiberSize (float): Curly-shaped noise scale, needs u_fiber > 0 (0 to 1)
- * - u_folds (float): Depth of the folds (0 to 1)
- * - u_foldType (float): Type of folds pattern, needs u_folds > 0 (0 = radial folds, 1 = creases)
- * - u_foldCount (float): Number of radial folds, needs u_folds > 0 and u_foldType = 0 (1 to 20)
- * - u_foldSize (float): Size of the creases, needs u_folds > 0 and u_foldType = 1 (0 to 1)
- * - u_foldY (bool): Adds a horizontal crease, needs u_folds > 0 and u_foldType = 1
- * - u_foldOffset (float): Shifts the creases across the surface, needs u_folds > 0 and u_foldType = 1 (-0.5 to 0.5)
+ * - u_folds (float): Depth of the radial folds (0 to 1)
+ * - u_foldCount (float): Number of radial folds, needs u_folds > 0 (1 to 20)
+ * - u_creases (float): Depth of the creases, an independent layer over the radial folds (0 to 1)
+ * - u_creaseSize (float): Size of the creases, needs u_creases > 0 (0 to 1)
+ * - u_creaseCross (float): Depth of a single horizontal crease running across the others, needs u_creases > 0 (0 to 1)
+ * - u_creaseOffset (float): Shifts the creases across the surface, needs u_creases > 0 (-0.5 to 0.5)
  * - u_drops (float): Visibility of speckle / drop pattern (0 to 1)
  * - u_seed (float): Seed applied to folds, drops and fade (0 to 1000)
  * - u_fade (float): Large-scale noise mask applied to the pattern (0 to 1)
@@ -65,11 +65,11 @@ uniform float u_roughness;
 uniform float u_fiber;
 uniform float u_fiberSize;
 uniform float u_folds;
-uniform float u_foldType;
 uniform float u_foldCount;
-uniform float u_foldSize;
-uniform bool u_foldY;
-uniform float u_foldOffset;
+uniform float u_creases;
+uniform float u_creaseSize;
+uniform float u_creaseCross;
+uniform float u_creaseOffset;
 uniform float u_drops;
 uniform float u_seed;
 uniform float u_fade;
@@ -310,45 +310,48 @@ void main() {
     drops = mix(drops, 0., fade);
   }
 
+  // Radial folds and creases are independent layers: both may be visible at once.
+  // Folds go first, so the crease shift below also carries the roughness and fiber layers.
   if (u_folds > 0.) {
-    if (u_foldType < .5) {
-      vec2 foldsUV1 = rotate(patternUV * .18, 4. * u_seed);
-      vec2 foldsUV2 = foldsUV1 + .03 * sin(2. * u_seed) * (texture(u_noiseTexture, fract(patternUV * .015 + u_seed)).rg - .5);
-      vec4 foldsRaw = getFolds(foldsUV1, foldsUV2);
-      vec4 radialFolds = vec4(clamp(5. * foldsRaw.xyz, 0., 1.), foldsRaw.w);
-      radialFolds.xyz = mix(radialFolds.xyz, vec3(.5), .4 * fade);
-      float foldsPattern = radialFolds.x + radialFolds.y;
+    vec2 foldsUV1 = rotate(patternUV * .18, 4. * u_seed);
+    vec2 foldsUV2 = foldsUV1 + .03 * sin(2. * u_seed) * (texture(u_noiseTexture, fract(patternUV * .015 + u_seed)).rg - .5);
+    vec4 foldsRaw = getFolds(foldsUV1, foldsUV2);
+    vec4 radialFolds = vec4(clamp(5. * foldsRaw.xyz, 0., 1.), foldsRaw.w);
+    radialFolds.xyz = mix(radialFolds.xyz, vec3(.5), .4 * fade);
+    float foldsPattern = radialFolds.x + radialFolds.y;
 
-      pattern += u_folds * foldsPattern;
+    pattern += u_folds * foldsPattern;
 
-      vec2 fromCenter = imageUV - .5;
-      scaleDistortion = .22 * radialFolds.z * u_folds;
-    } else {
-      vec2 uv = imageUV + .5;
-      float count = mix(25., 1., pow(u_foldSize, .4));
-      float offset = 1. - u_foldOffset;
+    scaleDistortion = .22 * radialFolds.z * u_folds;
+  }
 
-      // Normal creases: run vertically (vary along x), displacing the image in y.
-      vec4 h = getCrease(uv.x, offset, count);
-      float angleX = h.x * 1.1345;
-      float crLightX = max(-.5 * sin(angleX) + .5 * cos(angleX), 0.) * mix(.9, 1., h.y);
-      drops *= mix(1., h.y, u_folds);
-      pattern += u_folds * crLightX;
-      float distortBaseX = mix(pow(h.y, .2), abs(h.z), .5);
-      yShift += .022 * u_folds * (1. - distortBaseX);
-      patternUV.y += yShift;
+  if (u_creases > 0.) {
+    // Aspect-corrected, so crease spacing is even in screen units rather than stretched with the image.
+    vec2 uv = 1. + (imageUV - .5) * vec2(u_imageAspectRatio, 1.);
+    float count = mix(25., 1., pow(u_creaseSize, .4));
+    float offset = 1. - u_creaseOffset;
 
-      if (u_foldY) {
-        vec4 v = getCrease(uv.y, 1., 1.);
-        float angleY = v.x * 1.1345;
-        float crLightY = max(-.5 * sin(angleY) + .5 * cos(angleY), 0.) * mix(.9, 1., v.y);
-        drops *= mix(1., v.y, u_folds);
-        pattern += u_folds * crLightY;
-        float distortBaseY = mix(pow(v.y, .2), abs(v.z), .5);
-        float xFan = 2. * (imageUV.x - .5);
-        xDistortion -= .02 * u_folds * (1. - distortBaseY) * xFan;
-        patternUV.x -= .022 * u_folds * (1. - distortBaseY) * xFan;
-      }
+    // Normal creases: run vertically (vary along x), displacing the image in y.
+    vec4 h = getCrease(uv.x, offset, count);
+    float angleX = h.x * 1.1345;
+    float crLightX = max(-.5 * sin(angleX) + .5 * cos(angleX), 0.) * mix(.9, 1., h.y);
+    drops *= mix(1., h.y, u_creases);
+    pattern += u_creases * crLightX;
+    float distortBaseX = mix(pow(h.y, .2), abs(h.z), .5);
+    yShift += .022 * u_creases * (1. - distortBaseX);
+    patternUV.y += yShift;
+
+    if (u_creaseCross > 0.) {
+      float crossDepth = u_creases * u_creaseCross;
+      vec4 v = getCrease(uv.y, 1., 1.);
+      float angleY = v.x * 1.1345;
+      float crLightY = max(-.5 * sin(angleY) + .5 * cos(angleY), 0.) * mix(.9, 1., v.y);
+      drops *= mix(1., v.y, crossDepth);
+      pattern += crossDepth * crLightY;
+      float distortBaseY = mix(pow(v.y, .2), abs(v.z), .5);
+      float xFan = 2. * (imageUV.x - .5);
+      xDistortion -= .02 * crossDepth * (1. - distortBaseY) * xFan;
+      patternUV.x -= .022 * crossDepth * (1. - distortBaseY) * xFan;
     }
   }
 
@@ -440,11 +443,11 @@ export interface PaperTextureUniforms extends ShaderSizingUniforms {
   u_fiber: number;
   u_fiberSize: number;
   u_folds: number;
-  u_foldType: number;
   u_foldCount: number;
-  u_foldSize: number;
-  u_foldY: boolean;
-  u_foldOffset: number;
+  u_creases: number;
+  u_creaseSize: number;
+  u_creaseCross: number;
+  u_creaseOffset: number;
   u_fade: number;
   u_drops: number;
   u_seed: number;
@@ -462,11 +465,11 @@ export interface PaperTextureParams extends ShaderSizingParams, ShaderMotionPara
   fiber?: number;
   fiberSize?: number;
   folds?: number;
-  foldType?: PaperTextureFoldType;
   foldCount?: number;
-  foldSize?: number;
-  foldY?: boolean;
-  foldOffset?: number;
+  creases?: number;
+  creaseSize?: number;
+  creaseCross?: number;
+  creaseOffset?: number;
   fade?: number;
   drops?: number;
   seed?: number;
@@ -474,10 +477,3 @@ export interface PaperTextureParams extends ShaderSizingParams, ShaderMotionPara
   distortion?: number;
   background?: boolean;
 }
-
-export type PaperTextureFoldType = 'folds' | 'creases';
-
-export const PaperTextureFoldTypes: Record<PaperTextureFoldType, number> = {
-  folds: 0,
-  creases: 1,
-};
