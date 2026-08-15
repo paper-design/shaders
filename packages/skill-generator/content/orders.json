@@ -1,0 +1,16 @@
+{
+  "usageComponentProperties": ["ref", "width", "height", "minPixelRatio", "maxPixelCount", "webGlContextAttributes"],
+  "commonDefaults": [
+    "speed",
+    "frame",
+    "fit",
+    "scale",
+    "rotation",
+    "offsetX",
+    "offsetY",
+    "originX",
+    "originY",
+    "worldWidth",
+    "worldHeight"
+  ]
+}

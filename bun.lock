@@ -66,6 +66,9 @@
         "@types/react",
       ],
     },
+    "packages/skill-generator": {
+      "name": "@paper-design/skill-generator",
+    },
   },
   "patchedDependencies": {
     "leva@0.9.34": "patches/leva@0.9.34.patch",
@@ -318,6 +321,8 @@
     "@paper-design/shaders": ["@paper-design/shaders@workspace:packages/shaders"],
 
     "@paper-design/shaders-react": ["@paper-design/shaders-react@workspace:packages/shaders-react"],
+
+    "@paper-design/skill-generator": ["@paper-design/skill-generator@workspace:packages/skill-generator"],
 
     "@radix-ui/popper": ["@radix-ui/popper@0.1.0", "", { "dependencies": { "@babel/runtime": "^7.13.10", "csstype": "^3.0.4" } }, "sha512-uzYeElL3w7SeNMuQpXiFlBhTT+JyaNMCwDfjKkrzugEcYrf5n52PHqncNdQPUtR42hJh8V9FsqyEDbDxkeNjJQ=="],
 
