@@ -51,8 +51,8 @@ export const defaultPreset: PaperTexturePreset = {
   },
 };
 
-export const cardboardPreset: PaperTexturePreset = {
-  name: 'Cardboard',
+export const gridPreset: PaperTexturePreset = {
+  name: 'Grid',
   params: {
     ...defaultObjectSizing,
     blending: 1,
@@ -144,7 +144,7 @@ export const coloredPreset: PaperTexturePreset = {
 export const paperTexturePresets: PaperTexturePreset[] = [
   defaultPreset,
   spreadPreset,
-  cardboardPreset,
+  gridPreset,
   coloredPreset,
 ] as const;
 
