@@ -29,8 +29,7 @@ export const paperTextureMeta = {
  * - u_creaseOffsetY (float): Shifts the horizontal creases across the surface, needs u_creases > 0 (-0.5 to 0.5)
  * - u_lightAngle (float): Direction the folded surface is lit from, clockwise from the top of the canvas, in degrees (0 to 360)
  * - u_drops (float): Visibility of speckle / drop pattern (0 to 1)
- * - u_seed (float): Seed applied to folds, drops and fade (0 to 1000)
- * - u_fade (float): Large-scale noise mask applied to the pattern (0 to 1)
+ * - u_seed (float): Seed applied to folds and drops (0 to 1000)
  * - u_blending (float): How much the image is printed into the paper; 0 = exact image, 1 = image multiplied with a grayscale paper-texture ink (toned by colorFront) and thinned so the background reads through, needs image (0 to 1)
  * - u_distortion (float): Amount of distortion of the image by the paper normals, needs image (-1 to 1)
  * - u_background (bool): Shows or hides the paper texture outside the image frame, needs image
@@ -77,7 +76,6 @@ uniform float u_creaseOffsetY;
 uniform float u_lightAngle;
 uniform float u_drops;
 uniform float u_seed;
-uniform float u_fade;
 uniform float u_blending;
 uniform float u_distortion;
 uniform float u_roughnessSize;
@@ -92,7 +90,7 @@ out vec4 fragColor;
 #define CELL_EDGE .4
 #define GRAIN_BY_LIGHT .5
 #define CREASE_WEAR .6
-#define LIGHT_ELEVATION 60.
+#define LIGHT_ELEVATION 45.
 #define LIFT_SHARPNESS 4.
 #define GRAIN_DRAG .2
 #define SHADING_SCALE 1.
@@ -108,37 +106,9 @@ float getUvFrame(vec2 uv, float blur) {
 float lst(float edge0, float edge1, float x) {
   return clamp((x - edge0) / (edge1 - edge0), 0.0, 1.0);
 }
-float sst(float edge0, float edge1, float x) {
-  return smoothstep(edge0, edge1, x);
-}
 
 ${declarePI}
 ${rotation2}
-float randomR(vec2 p) {
-  vec2 uv = floor(p) / 100. + .5;
-  return texture(u_noiseTexture, fract(uv)).r;
-}
-float valueNoise(vec2 st) {
-  vec2 i = floor(st);
-  vec2 f = fract(st);
-  float a = randomR(i);
-  float b = randomR(i + vec2(1.0, 0.0));
-  float c = randomR(i + vec2(0.0, 1.0));
-  float d = randomR(i + vec2(1.0, 1.0));
-  vec2 u = f * f * (3.0 - 2.0 * f);
-  float x1 = mix(a, b, u.x);
-  float x2 = mix(c, d, u.x);
-  return mix(x1, x2, u.y);
-}
-float getFadeMask(vec2 n) {
-  float total = 0.0, amplitude = .4;
-  for (int i = 0; i < 2; i++) {
-    total += valueNoise(n) * amplitude;
-    n *= 1.99;
-    amplitude *= 0.65;
-  }
-  return total;
-}
 
 float getRoughness(vec2 p) {
   vec2 u = p / vec2(2, 4);
@@ -326,13 +296,9 @@ void main() {
   float yShift = 0.;
   float scaleDistortion = 0.;
 
-  float fade = u_fade * getFadeMask(.3 * patternUV + 10. * u_seed);
-  fade = clamp(8. * fade * fade * fade, 0., 1.);
-
   float drops = 0.;
   if (u_drops > 0.) {
     drops = getDrops(patternUV * 2.);
-    drops = mix(drops, 0., fade);
   }
 
   float lightAzimuth = radians(u_lightAngle);
@@ -350,12 +316,12 @@ void main() {
     vec2 foldsUV2 = foldsUV1 + .03 * sin(2. * u_seed) * (texture(u_noiseTexture, fract(patternUV * .015 + u_seed)).rg - .5);
     vec4 folds = getFolds(foldsUV1, foldsUV2);
 
-    vec2 foldTilt = u_folds * mix(folds.xy, vec2(0.), .4 * fade);
+    vec2 foldTilt = u_folds * folds.xy;
     relief += foldTilt;
     reliefAmount += u_folds;
     foldFlow = folds.w * foldTilt;
 
-    scaleDistortion = .22 * mix(clamp(5. * folds.z, 0., 1.), .5, .4 * fade) * u_folds;
+    scaleDistortion = .22 * clamp(5. * folds.z, 0., 1.) * u_folds;
   }
 
   if (u_creases > 0.) {
@@ -398,7 +364,6 @@ void main() {
 
   if (u_roughness > 0.) {
     float roughness = getRoughness(200. * patternUV);
-    roughness *= mix(1., .3, fade);
     roughness *= u_roughness * detailGain;
     pattern += roughness;
     radialDistortion += .02 * roughness;
@@ -406,7 +371,6 @@ void main() {
 
   if (u_fiber > 0.) {
     float fiber = getFiber(10. * patternUV);
-    fiber *= mix(1., .3, fade);
     fiber *= u_fiber * detailGain;
     pattern += fiber;
     radialDistortion += .02 * fiber;
@@ -431,11 +395,8 @@ void main() {
   float r2 = dot(dc, dc);
   imageUV = .5 + dc * (1. - abs(u_distortion) * radialDistortion * r2);
 
-  float frameSoftness = .002 + .005 * abs(u_distortion) * (.7 * u_fiber + u_roughness);
-  float frame = getUvFrame(imageUV, frameSoftness);
+  float frame = getUvFrame(imageUV, .005);
   vec4 image = texture(u_image, imageUV);
-
-  pattern = clamp(.75 * pattern, 0., 1.);
 
   float patternAlpha = fgOpacity * pattern;
 
@@ -492,7 +453,6 @@ export interface PaperTextureUniforms extends ShaderSizingUniforms {
   u_creaseOffsetX: number;
   u_creaseOffsetY: number;
   u_lightAngle: number;
-  u_fade: number;
   u_drops: number;
   u_seed: number;
   u_blending: number;
@@ -516,7 +476,6 @@ export interface PaperTextureParams extends ShaderSizingParams, ShaderMotionPara
   creaseOffsetX?: number;
   creaseOffsetY?: number;
   lightAngle?: number;
-  fade?: number;
   drops?: number;
   seed?: number;
   blending?: number;

@@ -149,14 +149,6 @@ export const paperTextureDef: ShaderDef = {
       description: 'Direction the folded surface is lit from, clockwise from the top of the canvas, in degrees',
     },
     {
-      name: 'fade',
-      type: 'number',
-      min: 0,
-      max: 1,
-      defaultValue: defaultParams.fade,
-      description: 'Big-scale noise mask applied to the pattern',
-    },
-    {
       name: 'drops',
       type: 'number',
       min: 0,
@@ -170,7 +162,7 @@ export const paperTextureDef: ShaderDef = {
       min: 0,
       max: 1000,
       defaultValue: defaultParams.seed,
-      description: 'Seed applied to folds, drops and fade',
+      description: 'Seed applied to folds and drops',
     },
     ...staticImageCommonParams,
   ],

@@ -17,8 +17,6 @@ export interface PaperTextureProps extends ShaderComponentProps, PaperTexturePar
   fiberScale?: number;
   /** @deprecated use `foldCount` instead */
   foldsNumber?: number;
-  /** @deprecated use `fade` instead */
-  blur?: number;
 }
 
 type PaperTexturePreset = ImageShaderPreset<PaperTextureParams>;
@@ -47,7 +45,6 @@ export const defaultPreset: PaperTexturePreset = {
     creaseOffsetX: 0,
     creaseOffsetY: 0,
     lightAngle: 90,
-    fade: 0,
     drops: 0,
     seed: 354,
     background: true,
@@ -78,7 +75,6 @@ export const cardboardPreset: PaperTexturePreset = {
     creaseOffsetX: 0,
     creaseOffsetY: 0,
     lightAngle: 90,
-    fade: 0,
     drops: 0.2,
     seed: 1.6,
     background: true,
@@ -107,7 +103,6 @@ export const spreadPreset: PaperTexturePreset = {
     creaseOffsetY: 0,
     lightAngle: 90,
     drops: 0,
-    fade: 0.68,
     scale: 0.95,
     fit: 'contain',
     speed: 1,
@@ -140,7 +135,6 @@ export const coloredPreset: PaperTexturePreset = {
     creaseOffsetX: 0,
     creaseOffsetY: 0,
     lightAngle: 90,
-    fade: 1,
     drops: 1,
     seed: 784,
     background: true,
@@ -180,8 +174,6 @@ export const PaperTexture: React.FC<PaperTextureProps> = memo(function PaperText
   // Reworked props
   fiberScale,
   fiberSize = fiberScale === undefined ? defaultPreset.params.fiberSize : 0.2 / fiberScale,
-  blur,
-  fade = blur === undefined ? defaultPreset.params.fade : blur,
   foldsNumber,
   foldCount = foldsNumber === undefined ? defaultPreset.params.foldCount : foldsNumber,
 
@@ -217,7 +209,6 @@ export const PaperTexture: React.FC<PaperTextureProps> = memo(function PaperText
     u_lightAngle: lightAngle,
     u_folds: folds,
     u_creases: creases,
-    u_fade: fade,
     u_drops: drops,
     u_seed: seed,
     u_blending: blending,
