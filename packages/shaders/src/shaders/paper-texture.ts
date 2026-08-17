@@ -1,6 +1,6 @@
 import type { ShaderMotionParams } from '../shader-mount.js';
 import { type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
-import { rotation2, declarePI } from '../shader-utils.js';
+import { rotation2, declarePI, proceduralHash22 } from '../shader-utils.js';
 
 export const paperTextureMeta = {
   maxFoldCount: 20,
@@ -87,6 +87,11 @@ out vec4 fragColor;
 
 #define FACET_CURVE 2.
 #define FOLDS_TO_CREASES .02
+#define FOLD_LINE_GAP .02
+#define FOLD_CROWDING 7.
+#define FOLD_AXES 6.
+#define RADIAL_FALLOFF .25
+#define TILT_FLOOR .5
 #define CELL_EDGE .4
 #define GRAIN_BY_LIGHT .5
 #define CREASE_WEAR .6
@@ -108,6 +113,7 @@ float lst(float edge0, float edge1, float x) {
 }
 
 ${declarePI}
+${proceduralHash22}
 ${rotation2}
 
 float getRoughness(vec2 p) {
@@ -128,13 +134,13 @@ float getRoughness(vec2 p) {
   float norm = 0., amp = .5;
   for (int i = 0; i < 4; i++) {
     float absIdx = baseLevel + float(i);
-    float freq = pow(2.1, absIdx);
+    float freq = exp2(absIdx * logLac);
     vec2 qx = size * px * freq;
     float qy = size * py * freq;
 
     float wi = 1.;
     if (i == 0) wi = 1. - fade;
-    if (i == 4) wi = fade;
+    if (i == 3) wi = fade;
 
     vec2 fx = fract(qx);
     float fy = fract(qy);
@@ -170,7 +176,7 @@ float getFiber(vec2 p) {
   float amp = 1.;
   for (int i = 0; i < 5; i++) {
     float absIdx = baseLevel + float(i);
-    float freq = pow(1.7, absIdx);
+    float freq = exp2(absIdx * 0.76553);
     vec2 q = size * p * freq;
 
     float an = absIdx * .8;
@@ -201,6 +207,15 @@ float getFiber(vec2 p) {
   return .5 * length(grad) - .5;
 }
 
+vec2 smoothNoise(vec2 p) {
+  vec2 sz = vec2(textureSize(u_noiseTexture, 0));
+  vec2 t = p * sz - .5;
+  vec2 i = floor(t);
+  vec2 f = fract(t);
+  f = f * f * (3. - 2. * f);
+  return texture(u_noiseTexture, fract((i + f + .5) / sz)).rg;
+}
+
 vec2 randomGB(vec2 p) {
   vec2 uv = floor(p) / 50. + .5;
   return texture(u_noiseTexture, fract(uv)).gb;
@@ -223,42 +238,47 @@ float getDrops(vec2 uv) {
   return 1. - lst(.05, .09, sqrt(dropsMinDist));
 }
 
-vec2 getCellTilt(float idx) {
-  vec2 rand = randomGB(vec2(idx + 31., idx * u_seed + 17.));
-  float an = rand.x * TWO_PI;
-  return vec2(cos(an), sin(an)) * rand.y;
+vec2 getCellTilt(float idx, float radius) {
+  vec2 rand = hash22(vec2(idx + 31., idx * u_seed + 17.));
+  float an = floor(rand.x * FOLD_AXES) / FOLD_AXES * TWO_PI;
+  return vec2(cos(an), sin(an)) * mix(TILT_FLOOR, 1., rand.y) * mix(RADIAL_FALLOFF, 1., radius);
 }
 
 vec4 getFolds(vec2 uv1, vec2 uv2) {
-  float l1 = 9., l2 = 9., l2b = 9.;
+  float near1 = 9., near2 = 9., near2b = 9.;
   float idx1 = 0., idx2 = 0.;
   vec2 p1 = vec2(0.), p2 = vec2(0.);
   for (int i = 0; i < ${paperTextureMeta.maxFoldCount}; i++) {
     if (float(i) >= floor(u_foldCount + .5)) break;
-    vec2 rand = randomGB(vec2(float(i), float(i) * u_seed));
+    vec2 rand = hash22(vec2(float(i), float(i) * u_seed));
     float an = rand.x * TWO_PI;
-    vec2 p = vec2(cos(an), sin(an)) * rand.y;
-    float dist1 = distance(uv1, p);
-    if (dist1 < l1) {
-      l1 = dist1;
+    vec2 p = vec2(cos(an), sin(an)) * pow(rand.y, FOLD_CROWDING);
+
+    vec2 d1 = uv1 - p;
+    float dsq1 = dot(d1, d1);
+    if (dsq1 < near1) {
+      near1 = dsq1;
       idx1 = float(i);
       p1 = p;
     }
-    float dist2 = distance(uv2, p);
-    if (dist2 < l2) {
-      l2b = l2;
-      l2 = dist2;
+
+    vec2 d2 = uv2 - p;
+    float dsq2 = dot(d2, d2);
+    if (dsq2 < near2) {
+      near2b = near2;
+      near2 = dsq2;
       idx2 = float(i);
       p2 = p;
-    } else if (dist2 < l2b) {
-      l2b = dist2;
+    } else if (dsq2 < near2b) {
+      near2b = dsq2;
     }
   }
+  float l = sqrt(near2), lb = sqrt(near2b);
 
-  vec2 tilt1 = getCellTilt(idx1) + FACET_CURVE * (uv1 - p1);
-  vec2 tilt2 = getCellTilt(idx2) + FACET_CURVE * (uv2 - p2);
+  vec2 tilt1 = getCellTilt(idx1, length(p1)) + FACET_CURVE * (uv1 - p1);
+  vec2 tilt2 = getCellTilt(idx2, length(p2)) + FACET_CURVE * (uv2 - p2);
 
-  return vec4(.5 * (tilt1 + tilt2), .2 * l2, smoothstep(0., CELL_EDGE, l2b - l2));
+  return vec4(.5 * (tilt1 + tilt2), .2 * l, smoothstep(0., CELL_EDGE, lb - l));
 }
 
 vec3 getCrease(float coord, float offset, float count) {
@@ -313,7 +333,7 @@ void main() {
 
   if (u_folds > 0.) {
     vec2 foldsUV1 = rotate(patternUV * .18, 4. * u_seed);
-    vec2 foldsUV2 = foldsUV1 + .03 * sin(2. * u_seed) * (texture(u_noiseTexture, fract(patternUV * .015 + u_seed)).rg - .5);
+    vec2 foldsUV2 = foldsUV1 + FOLD_LINE_GAP * sin(2. * u_seed) * (smoothNoise(patternUV * .015 + u_seed) - .5);
     vec4 folds = getFolds(foldsUV1, foldsUV2);
 
     vec2 foldTilt = u_folds * folds.xy;
@@ -398,7 +418,7 @@ void main() {
   float frame = getUvFrame(imageUV, .005);
   vec4 image = texture(u_image, imageUV);
 
-  float patternAlpha = fgOpacity * pattern;
+  float patternAlpha = clamp(fgOpacity * pattern, 0., 1.);
 
   float maxC = max(max(image.r, image.g), image.b);
   float minC = min(min(image.r, image.g), image.b);
