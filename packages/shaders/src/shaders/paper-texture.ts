@@ -1,6 +1,6 @@
 import type { ShaderMotionParams } from '../shader-mount.js';
 import { type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
-import { rotation2, declarePI, proceduralHash22 } from '../shader-utils.js';
+import { declarePI, proceduralHash22 } from '../shader-utils.js';
 
 export const paperTextureMeta = {
   maxFoldCount: 20,
@@ -27,7 +27,8 @@ export const paperTextureMeta = {
  * - u_creaseSizeY (float): Size of the horizontal creases running across them, needs u_creases > 0 (0 to 1)
  * - u_creaseOffsetX (float): Shifts the vertical creases across the surface, needs u_creases > 0 (-0.5 to 0.5)
  * - u_creaseOffsetY (float): Shifts the horizontal creases across the surface, needs u_creases > 0 (-0.5 to 0.5)
- * - u_lightAngle (float): Direction the folded surface is lit from, clockwise from the top of the canvas, in degrees (0 to 360)
+ * - u_lightDir (vec2): Direction the folded surface is lit from, as a unit vector (derived from the lightAngle prop)
+ * - u_foldTrig (vec3): Seed-derived constants for the crumple: cos and sin of its frame rotation, and the amplitude of the second fold line
  * - u_drops (float): Visibility of speckle / drop pattern (0 to 1)
  * - u_seed (float): Seed applied to folds and drops (0 to 1000)
  * - u_blending (float): How much the image is printed into the paper; 0 = exact image, 1 = image multiplied with a grayscale paper-texture ink (toned by colorFront) and thinned so the background reads through, needs image (0 to 1)
@@ -73,7 +74,8 @@ uniform float u_creaseSizeX;
 uniform float u_creaseSizeY;
 uniform float u_creaseOffsetX;
 uniform float u_creaseOffsetY;
-uniform float u_lightAngle;
+uniform vec2 u_lightDir;
+uniform vec3 u_foldTrig;
 uniform float u_drops;
 uniform float u_seed;
 uniform float u_blending;
@@ -114,7 +116,6 @@ float lst(float edge0, float edge1, float x) {
 
 ${declarePI}
 ${proceduralHash22}
-${rotation2}
 
 float getRoughness(vec2 p) {
   vec2 u = p / vec2(2, 4);
@@ -321,8 +322,6 @@ void main() {
     drops = getDrops(patternUV * 2.);
   }
 
-  float lightAzimuth = radians(u_lightAngle);
-  vec2 lightDir = vec2(sin(lightAzimuth), -cos(lightAzimuth));
   float grazing = radians(90. - LIGHT_ELEVATION);
 
   vec2 relief = vec2(0.);
@@ -332,8 +331,9 @@ void main() {
   vec2 foldFlow = vec2(0.);
 
   if (u_folds > 0.) {
-    vec2 foldsUV1 = rotate(patternUV * .18, 4. * u_seed);
-    vec2 foldsUV2 = foldsUV1 + FOLD_LINE_GAP * sin(2. * u_seed) * (smoothNoise(patternUV * .015 + u_seed) - .5);
+    vec2 foldQ = patternUV * .18;
+    vec2 foldsUV1 = vec2(u_foldTrig.x * foldQ.x - u_foldTrig.y * foldQ.y, u_foldTrig.y * foldQ.x + u_foldTrig.x * foldQ.y);
+    vec2 foldsUV2 = foldsUV1 + FOLD_LINE_GAP * u_foldTrig.z * (smoothNoise(patternUV * .015 + u_seed) - .5);
     vec4 folds = getFolds(foldsUV1, foldsUV2);
 
     vec2 foldTilt = u_folds * folds.xy;
@@ -345,7 +345,7 @@ void main() {
   }
 
   if (u_creases > 0.) {
-    vec2 uv = 1. + (imageUV - .5) * vec2(u_imageAspectRatio, 1.) + FOLDS_TO_CREASES * foldFlow;
+    vec2 uv = 1. + patternUV * .2 + FOLDS_TO_CREASES * foldFlow;
 
     // Normal creases: run vertically (vary along x), displacing the image in y.
     vec3 h = getCrease(uv.x, 1. - u_creaseOffsetX, mix(3., .5, u_creaseSizeX));
@@ -354,7 +354,7 @@ void main() {
     creaseInk *= mix(.9, 1., h.y);
     creaseWear = max(creaseWear, (1. - h.y) * u_creases);
     drops *= mix(1., h.y, u_creases);
-    yShift += .022 * u_creases * h.z * abs(lightDir.x);
+    yShift += .022 * u_creases * h.z * abs(u_lightDir.x);
     patternUV.y += yShift;
 
     vec3 v = getCrease(uv.y, 1. - u_creaseOffsetY, mix(3., .5, u_creaseSizeY));
@@ -363,7 +363,7 @@ void main() {
     creaseInk *= mix(.9, 1., v.y);
     creaseWear = max(creaseWear, (1. - v.y) * u_creases);
     drops *= mix(1., v.y, u_creases);
-    float xFan = 2. * (imageUV.x - .5) * abs(lightDir.y);
+    float xFan = 2. * (imageUV.x - .5) * abs(u_lightDir.y);
     xDistortion -= .02 * u_creases * v.z * xFan;
     patternUV.x -= .022 * u_creases * v.z * xFan;
   }
@@ -372,7 +372,7 @@ void main() {
   float lit = unlit;
 
   if (reliefAmount > 0.) {
-    float slope = clamp(dot(relief, lightDir), -1.2, 1.2);
+    float slope = clamp(dot(relief, u_lightDir), -1.2, 1.2);
     lit = SHADING_SCALE * max(cos(slope + grazing), 0.);
 
     pattern += (clamp(reliefAmount, 0., 1.) * unlit + (lit - unlit)) * creaseInk;
@@ -415,29 +415,35 @@ void main() {
   float r2 = dot(dc, dc);
   imageUV = .5 + dc * (1. - abs(u_distortion) * radialDistortion * r2);
 
-  float frame = getUvFrame(imageUV, .005);
-  vec4 image = texture(u_image, imageUV);
-
   float patternAlpha = clamp(fgOpacity * pattern, 0., 1.);
 
-  float maxC = max(max(image.r, image.g), image.b);
-  float minC = min(min(image.r, image.g), image.b);
-  float sat = maxC > 0. ? (maxC - minC) / maxC : 0.;
-  float midC = image.r + image.g + image.b - maxC - minC;
-  float secondaryness = maxC > minC ? (midC - minC) / (maxC - minC) : 0.;
-  float satDampen = sat * (1. - .5 * secondaryness);
+  vec3 pic = vec3(0.);
+  float imageFootprint = 0.;
 
-  float lum = dot(vec3(.2126, .7152, .0722), image.rgb);
+  if (u_isImage) {
+    float frame = getUvFrame(imageUV, .005);
+    vec4 image = texture(u_image, imageUV);
 
-  vec3 ink = mix(vec3(1.), fgColor, patternAlpha);
-  vec3 pic = blendMultiply(image.rgb, ink, u_blending);
+    float maxC = max(max(image.r, image.g), image.b);
+    float minC = min(min(image.r, image.g), image.b);
+    float sat = maxC > 0. ? (maxC - minC) / maxC : 0.;
+    float midC = image.r + image.g + image.b - maxC - minC;
+    float secondaryness = maxC > minC ? (midC - minC) / (maxC - minC) : 0.;
+    float satDampen = sat * (1. - .5 * secondaryness);
 
-  float darkDampen = 1. - lum;
-  float dampen = mix(0., .7, u_blending) * max(satDampen, darkDampen);
-  pic = mix(pic, vec3(1.), .4 * pow(dampen, 2. + 3. * pattern));
-  pic = clamp(pic, 0., 1.);
+    float lum = dot(vec3(.2126, .7152, .0722), image.rgb);
 
-  float imageFootprint = frame * image.a;
+    vec3 ink = mix(vec3(1.), fgColor, patternAlpha);
+    pic = blendMultiply(image.rgb, ink, u_blending);
+
+    float darkDampen = 1. - lum;
+    float dampen = mix(0., .7, u_blending) * max(satDampen, darkDampen);
+    pic = mix(pic, vec3(1.), .4 * pow(dampen, 2. + 3. * pattern));
+    pic = clamp(pic, 0., 1.);
+
+    imageFootprint = frame * image.a;
+  }
+
   float imageAlpha = imageFootprint;
 
   vec3 overlay = pic * imageAlpha + fgColor * patternAlpha * (1. - imageAlpha);
@@ -472,7 +478,8 @@ export interface PaperTextureUniforms extends ShaderSizingUniforms {
   u_creaseSizeY: number;
   u_creaseOffsetX: number;
   u_creaseOffsetY: number;
-  u_lightAngle: number;
+  u_lightDir: [number, number];
+  u_foldTrig: [number, number, number];
   u_drops: number;
   u_seed: number;
   u_blending: number;
