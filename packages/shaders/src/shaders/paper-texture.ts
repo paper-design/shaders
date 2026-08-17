@@ -25,10 +25,10 @@ export const paperTextureMeta = {
  * - u_creases (float): Depth of the creases, an independent layer over the radial folds (0 to 1)
  * - u_creaseSizeX (float): Size of the vertical creases, needs u_creases > 0 (0 to 1)
  * - u_creaseSizeY (float): Size of the horizontal creases running across them, needs u_creases > 0 (0 to 1)
- * - u_creaseOffsetX (float): Shifts the vertical creases across the surface, needs u_creases > 0 (-0.5 to 0.5)
- * - u_creaseOffsetY (float): Shifts the horizontal creases across the surface, needs u_creases > 0 (-0.5 to 0.5)
+ * - u_creaseOffsetX (float): Shifts the vertical creases across the surface, needs u_creases > 0 (0 to 1)
+ * - u_creaseOffsetY (float): Shifts the horizontal creases across the surface, needs u_creases > 0 (0 to 1)
  * - u_lightDir (vec2): Direction the folded surface is lit from, as a unit vector (derived from the lightAngle prop)
- * - u_foldTrig (vec3): Seed-derived constants for the crumple: cos and sin of its frame rotation, and the amplitude of the second fold line
+ * - u_foldTrig (vec2): Cos and sin of the crumple frame rotation, derived from the seed
  * - u_drops (float): Visibility of speckle / drop pattern (0 to 1)
  * - u_seed (float): Seed applied to folds and drops (0 to 1000)
  * - u_blending (float): How much the image is printed into the paper; 0 = exact image, 1 = image multiplied with a grayscale paper-texture ink (toned by colorFront) and thinned so the background reads through, needs image (0 to 1)
@@ -75,7 +75,7 @@ uniform float u_creaseSizeY;
 uniform float u_creaseOffsetX;
 uniform float u_creaseOffsetY;
 uniform vec2 u_lightDir;
-uniform vec3 u_foldTrig;
+uniform vec2 u_foldTrig;
 uniform float u_drops;
 uniform float u_seed;
 uniform float u_blending;
@@ -87,14 +87,7 @@ uniform sampler2D u_noiseTexture;
 in vec2 v_imageUV;
 out vec4 fragColor;
 
-#define FACET_CURVE 2.
 #define FOLDS_TO_CREASES .02
-#define FOLD_LINE_GAP .02
-#define FOLD_CROWDING 7.
-#define FOLD_AXES 6.
-#define RADIAL_FALLOFF .25
-#define TILT_FLOOR .5
-#define CELL_EDGE .4
 #define GRAIN_BY_LIGHT .5
 #define CREASE_WEAR .6
 #define LIGHT_ELEVATION 45.
@@ -232,17 +225,16 @@ float getDrops(vec2 uv) {
       vec2 offset = randomGB(iDropsUV + neighbor);
       offset = .5 + .5 * sin(10. * u_seed + TWO_PI * offset);
       vec2 pos = neighbor + offset - fDropsUV;
-      float dist = length(pos);
-      dropsMinDist = min(dropsMinDist, dropsMinDist*dist);
+      dropsMinDist *= min(1., dot(pos, pos));
     }
   }
-  return 1. - lst(.05, .09, sqrt(dropsMinDist));
+  return 1. - lst(.05, .09, sqrt(sqrt(dropsMinDist)));
 }
 
 vec2 getCellTilt(float idx, float radius) {
   vec2 rand = hash22(vec2(idx + 31., idx * u_seed + 17.));
-  float an = floor(rand.x * FOLD_AXES) / FOLD_AXES * TWO_PI;
-  return vec2(cos(an), sin(an)) * mix(TILT_FLOOR, 1., rand.y) * mix(RADIAL_FALLOFF, 1., radius);
+  float an = floor(rand.x * 24.) / 24. * TWO_PI;
+  return vec2(cos(an), sin(an)) * mix(.5, 1., rand.y) * mix(.45, 1., radius);
 }
 
 vec4 getFolds(vec2 uv1, vec2 uv2) {
@@ -253,18 +245,17 @@ vec4 getFolds(vec2 uv1, vec2 uv2) {
     if (float(i) >= floor(u_foldCount + .5)) break;
     vec2 rand = hash22(vec2(float(i), float(i) * u_seed));
     float an = rand.x * TWO_PI;
-    vec2 p = vec2(cos(an), sin(an)) * pow(rand.y, FOLD_CROWDING);
+    vec2 p = vec2(cos(an), sin(an)) * rand.y * rand.y;
 
-    vec2 d1 = uv1 - p;
-    float dsq1 = dot(d1, d1);
+    vec4 d = vec4(uv1, uv2) - p.xyxy;
+    float dsq1 = dot(d.xy, d.xy);
     if (dsq1 < near1) {
       near1 = dsq1;
       idx1 = float(i);
       p1 = p;
     }
 
-    vec2 d2 = uv2 - p;
-    float dsq2 = dot(d2, d2);
+    float dsq2 = dot(d.zw, d.zw);
     if (dsq2 < near2) {
       near2b = near2;
       near2 = dsq2;
@@ -276,25 +267,21 @@ vec4 getFolds(vec2 uv1, vec2 uv2) {
   }
   float l = sqrt(near2), lb = sqrt(near2b);
 
-  vec2 tilt1 = getCellTilt(idx1, length(p1)) + FACET_CURVE * (uv1 - p1);
-  vec2 tilt2 = getCellTilt(idx2, length(p2)) + FACET_CURVE * (uv2 - p2);
+  vec2 tilt1 = getCellTilt(idx1, length(p1)) + 1.1 * (uv1 - p1);
+  vec2 tilt2 = getCellTilt(idx2, length(p2)) + 1.1 * (uv2 - p2);
 
-  return vec4(.5 * (tilt1 + tilt2), .2 * l, smoothstep(0., CELL_EDGE, lb - l));
+  return vec4(.5 * (tilt1 + tilt2), .2 * l, lst(0., .5, lb - l));
 }
 
-vec3 getCrease(float coord, float offset, float count) {
-  float g = (coord - 1.) * count + .5 * offset;
-  float crX = fract(g);
-  float creaseIdx = floor(g);
-  float depthMod = .7 + .3 * fract(sin(creaseIdx * 127.1 + u_seed * 3.7) * 43758.5453);
-  float dx = crX - .5;
+void getCreases(vec2 coord, vec2 offset, vec2 count, out vec2 slope, out vec2 dark, out vec2 lift) {
+  vec2 g = (coord - 1.) * count + .5 * offset;
+  vec2 creaseIdx = floor(g);
+  vec2 dx = fract(g) - .5;
   float foldWidth = .5;
-  float parity = depthMod * (1. - 2. * mod(creaseIdx, 2.));
-  float foldAmount = (1. - smoothstep(0., foldWidth, abs(dx))) * parity;
-  float slope = sign(dx) * foldAmount;
-  float creaseDark = smoothstep(0., foldWidth * .5, abs(dx));
-  float lift = pow(1. - clamp(abs(dx) / foldWidth, 0., 1.), LIFT_SHARPNESS) * parity;
-  return vec3(slope, creaseDark, lift);
+  vec2 parity = (1. - 2. * mod(creaseIdx, 2.));
+  slope = sign(dx) * (1. - smoothstep(0., foldWidth, abs(dx))) * parity;
+  dark = smoothstep(0., foldWidth * .5, abs(dx));
+  lift = pow(1. - clamp(abs(dx) / foldWidth, 0., 1.), vec2(LIFT_SHARPNESS)) * parity;
 }
 
 vec3 blendMultiply(vec3 base, vec3 blend) {
@@ -322,8 +309,7 @@ void main() {
     drops = getDrops(patternUV * 2.);
   }
 
-  float grazing = radians(90. - LIGHT_ELEVATION);
-
+  float grazing = 0.7;
   vec2 relief = vec2(0.);
   float reliefAmount = 0.;
   float creaseInk = 1.;
@@ -333,7 +319,7 @@ void main() {
   if (u_folds > 0.) {
     vec2 foldQ = patternUV * .18;
     vec2 foldsUV1 = vec2(u_foldTrig.x * foldQ.x - u_foldTrig.y * foldQ.y, u_foldTrig.y * foldQ.x + u_foldTrig.x * foldQ.y);
-    vec2 foldsUV2 = foldsUV1 + FOLD_LINE_GAP * u_foldTrig.z * (smoothNoise(patternUV * .015 + u_seed) - .5);
+    vec2 foldsUV2 = foldsUV1 + .012 * (smoothNoise(patternUV * .015 + u_seed) - .5);
     vec4 folds = getFolds(foldsUV1, foldsUV2);
 
     vec2 foldTilt = u_folds * folds.xy;
@@ -345,27 +331,27 @@ void main() {
   }
 
   if (u_creases > 0.) {
-    vec2 uv = 1. + patternUV * .2 + FOLDS_TO_CREASES * foldFlow;
+    vec2 uv = 1. + patternUV * .2 + .03 * foldFlow;
 
-    // Normal creases: run vertically (vary along x), displacing the image in y.
-    vec3 h = getCrease(uv.x, 1. - u_creaseOffsetX, mix(3., .5, u_creaseSizeX));
-    relief.x += u_creases * h.x;
-    reliefAmount += u_creases;
-    creaseInk *= mix(.9, 1., h.y);
-    creaseWear = max(creaseWear, (1. - h.y) * u_creases);
-    drops *= mix(1., h.y, u_creases);
-    yShift += .022 * u_creases * h.z * abs(u_lightDir.x);
+    // x drives the creases running vertically, y the ones running across them.
+    vec2 slope, dark, lift;
+    getCreases(uv, vec2(1. - 2. * u_creaseOffsetX, 1. - 2. * u_creaseOffsetY),
+      vec2(mix(3., .5, u_creaseSizeX), mix(3., .5, u_creaseSizeY)), slope, dark, lift);
+
+    relief += u_creases * slope;
+    reliefAmount += 1. * u_creases;
+    vec2 ink = mix(vec2(.9), vec2(1.), dark);
+    creaseInk *= ink.x * ink.y;
+    creaseWear = max(creaseWear, max(1. - dark.x, 1. - dark.y) * u_creases);
+    vec2 dropMask = mix(vec2(1.), dark, u_creases);
+    drops *= dropMask.x * dropMask.y;
+
+    yShift += .022 * u_creases * lift.x * abs(u_lightDir.x);
     patternUV.y += yShift;
 
-    vec3 v = getCrease(uv.y, 1. - u_creaseOffsetY, mix(3., .5, u_creaseSizeY));
-    relief.y += u_creases * v.x;
-    reliefAmount += u_creases;
-    creaseInk *= mix(.9, 1., v.y);
-    creaseWear = max(creaseWear, (1. - v.y) * u_creases);
-    drops *= mix(1., v.y, u_creases);
     float xFan = 2. * (imageUV.x - .5) * abs(u_lightDir.y);
-    xDistortion -= .02 * u_creases * v.z * xFan;
-    patternUV.x -= .022 * u_creases * v.z * xFan;
+    xDistortion -= .02 * u_creases * lift.y * xFan;
+    patternUV.x -= .022 * u_creases * lift.y * xFan;
   }
 
   float unlit = SHADING_SCALE * cos(grazing);
@@ -380,7 +366,7 @@ void main() {
 
   patternUV += GRAIN_DRAG * foldFlow;
 
-  float detailGain = max(0., 1. + GRAIN_BY_LIGHT * (lit - unlit) / SHADING_SCALE) * (1. + CREASE_WEAR * creaseWear);
+  float detailGain = (1. + CREASE_WEAR * creaseWear);
 
   if (u_roughness > 0.) {
     float roughness = getRoughness(200. * patternUV);
@@ -409,8 +395,7 @@ void main() {
   float fgOpacity = u_colorFront.a;
 
   imageUV = .5 + fromCenter * (1. + u_distortion * scaleDistortion);
-  imageUV.x += u_distortion * xDistortion;
-  imageUV.y -= u_distortion * yShift;
+  imageUV += u_distortion * vec2(xDistortion, -yShift);
   vec2 dc = imageUV - .5;
   float r2 = dot(dc, dc);
   imageUV = .5 + dc * (1. - abs(u_distortion) * radialDistortion * r2);
@@ -479,7 +464,7 @@ export interface PaperTextureUniforms extends ShaderSizingUniforms {
   u_creaseOffsetX: number;
   u_creaseOffsetY: number;
   u_lightDir: [number, number];
-  u_foldTrig: [number, number, number];
+  u_foldTrig: [number, number];
   u_drops: number;
   u_seed: number;
   u_blending: number;
