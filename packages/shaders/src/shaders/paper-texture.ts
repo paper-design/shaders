@@ -87,13 +87,17 @@ uniform sampler2D u_noiseTexture;
 in vec2 v_imageUV;
 out vec4 fragColor;
 
-#define FOLDS_TO_CREASES .02
-#define GRAIN_BY_LIGHT .5
 #define CREASE_WEAR .6
-#define LIGHT_ELEVATION 45.
 #define LIFT_SHARPNESS 4.
 #define GRAIN_DRAG .2
-#define SHADING_SCALE 1.
+
+ #define TILT_FLOOR .9
+//#define TILT_FLOOR .35
+ #define RADIAL_FALLOFF .7
+//#define RADIAL_FALLOFF .25
+ #define FACET_CURVE 1.5
+//#define FACET_CURVE .3
+ #define SHADING_SCALE 1.
 
 float getUvFrame(vec2 uv, float blur) {
   float left = smoothstep(0., blur, uv.x);
@@ -234,7 +238,7 @@ float getDrops(vec2 uv) {
 vec2 getCellTilt(float idx, float radius) {
   vec2 rand = hash22(vec2(idx + 31., idx * u_seed + 17.));
   float an = floor(rand.x * 24.) / 24. * TWO_PI;
-  return vec2(cos(an), sin(an)) * mix(.5, 1., rand.y) * mix(.45, 1., radius);
+  return vec2(cos(an), sin(an)) * mix(TILT_FLOOR, 1., rand.y) * mix(RADIAL_FALLOFF, 1., radius);
 }
 
 vec4 getFolds(vec2 uv1, vec2 uv2) {
@@ -245,7 +249,8 @@ vec4 getFolds(vec2 uv1, vec2 uv2) {
     if (float(i) >= floor(u_foldCount + .5)) break;
     vec2 rand = hash22(vec2(float(i), float(i) * u_seed));
     float an = rand.x * TWO_PI;
-    vec2 p = vec2(cos(an), sin(an)) * rand.y * rand.y;
+    // vec2 p = vec2(cos(an), sin(an)) * rand.y * rand.y;
+    vec2 p = vec2(cos(an), sin(an)) * rand.y;
 
     vec4 d = vec4(uv1, uv2) - p.xyxy;
     float dsq1 = dot(d.xy, d.xy);
@@ -267,8 +272,8 @@ vec4 getFolds(vec2 uv1, vec2 uv2) {
   }
   float l = sqrt(near2), lb = sqrt(near2b);
 
-  vec2 tilt1 = getCellTilt(idx1, length(p1)) + 1.1 * (uv1 - p1);
-  vec2 tilt2 = getCellTilt(idx2, length(p2)) + 1.1 * (uv2 - p2);
+  vec2 tilt1 = getCellTilt(idx1, length(p1)) + FACET_CURVE * (uv1 - p1);
+  vec2 tilt2 = getCellTilt(idx2, length(p2)) + FACET_CURVE * (uv2 - p2);
 
   return vec4(.5 * (tilt1 + tilt2), .2 * l, lst(0., .5, lb - l));
 }
