@@ -214,11 +214,6 @@ vec2 smoothNoise(vec2 p) {
   return texture(u_noiseTexture, fract((i + f + .5) / sz)).rg;
 }
 
-vec2 randomGB(vec2 p) {
-  vec2 uv = floor(p) / 50. + .5;
-  return texture(u_noiseTexture, fract(uv)).gb;
-}
-
 float getDrops(vec2 uv) {
   vec2 iDropsUV = floor(uv);
   vec2 fDropsUV = fract(uv);
@@ -226,7 +221,7 @@ float getDrops(vec2 uv) {
   for (int y = -1; y < 2; y += 1) {
     for (int x = -1; x < 2; x += 1) {
       vec2 neighbor = vec2(float(y), float(x));
-      vec2 offset = randomGB(iDropsUV + neighbor);
+      vec2 offset = hash22(iDropsUV + neighbor);
       offset = .5 + .5 * sin(10. * u_seed + TWO_PI * offset);
       vec2 pos = neighbor + offset - fDropsUV;
       dropsMinDist *= min(1., dot(pos, pos));
