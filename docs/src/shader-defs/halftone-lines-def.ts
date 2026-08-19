@@ -103,8 +103,7 @@ export const halftoneLinesDef: ShaderDef = {
       min: -1,
       max: 1,
       defaultValue: defaultParams.gridOffsetX,
-      description:
-        'The horizontal offset of grid, in grid cells for the lines and waves types and in canvas units for radial',
+      description: 'The horizontal offset of grid, in canvas units',
     },
     {
       name: 'gridOffsetY',
@@ -112,8 +111,7 @@ export const halftoneLinesDef: ShaderDef = {
       min: -1,
       max: 1,
       defaultValue: defaultParams.gridOffsetY,
-      description:
-        'The vertical offset of grid, in grid cells for the lines and waves types and in canvas units for radial',
+      description: 'The vertical offset of grid, in canvas units',
     },
     {
       name: 'gridRotation',

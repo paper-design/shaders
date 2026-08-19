@@ -13,22 +13,20 @@ export const halftoneLinesMeta = {
  *
  * Fragment shader uniforms:
  * - u_resolution (vec2): Canvas resolution in pixels (used for blur calculations)
- * - u_time (float): Animation time (unused: the shader is static)
  * - u_image (sampler2D): Source image texture
  * - u_imageAspectRatio (float): Aspect ratio of the source image
  * - u_colorFront (vec4): Foreground (line) color in RGBA, needs originalColors off
  * - u_colorBack (vec4): Background color in RGBA
  * - u_size (float): Grid size relative to the canvas; the grid lives in object space, so it doesn't follow the image box (0 to 1)
  * - u_grid (float): Grid pattern type (0 = lines, 1 = radial, 2 = waves, 3 = noise)
- * - u_gridOffsetX (float): Horizontal grid offset, in grid cells for lines/waves and in canvas units for radial (-1 to 1)
- * - u_gridOffsetY (float): Vertical grid offset, in grid cells for lines/waves and in canvas units for radial (-1 to 1)
+ * - u_gridOffsetX (float): Horizontal grid offset in canvas units (-1 to 1)
+ * - u_gridOffsetY (float): Vertical grid offset in canvas units (-1 to 1)
  * - u_gridRotation (float): Grid rotation angle in degrees, with the radial grid needs a nonzero grid offset (0 to 360)
  * - u_gridAngleDistortion (float): Luminosity-based angle distortion strength, with the radial grid needs a nonzero grid offset (0 to 1)
  * - u_gridNoiseDistortion (float): Noise-based position distortion strength (0 to 1)
  * - u_stripeWidth (float): Max width of the line, relative to grid size (0 to 1)
  * - u_thinLines (bool): Allow sub-pixel thin lines (set false to keep lines antialiased)
  * - u_allowOverflow (bool): Allow the line to take the whole grid cell (set false to keep the gaps visible)
- * - u_straight (bool): Unused, the fragment shader never reads it
  * - u_contrast (float): Image contrast adjustment (0 to 1)
  * - u_smoothness (float): Blur radius applied to the source image before the luminance is read (0 to 8)
  * - u_originalColors (bool): Use the sampled image's original colors instead of colorFront
@@ -64,8 +62,6 @@ precision mediump float;
 
 uniform mediump vec2 u_resolution;
 
-uniform float u_time;
-
 uniform sampler2D u_image;
 uniform mediump float u_imageAspectRatio;
 
@@ -83,7 +79,6 @@ uniform float u_grainMixer;
 uniform float u_grainMixerSize;
 uniform float u_grainOverlay;
 uniform float u_grainOverlaySize;
-uniform bool u_straight;
 uniform bool u_originalColors;
 uniform bool u_inverted;
 uniform float u_stripeWidth;
@@ -113,10 +108,6 @@ float valueNoise(vec2 st) {
   float x1 = mix(a, b, u.x);
   float x2 = mix(c, d, u.x);
   return mix(x1, x2, u.y);
-}
-
-float lst(float edge0, float edge1, float x) {
-  return clamp((x - edge0) / (edge1 - edge0), 0.0, 1.0);
 }
 
 float getImgFrame(vec2 uv, float th) {
@@ -205,18 +196,17 @@ void main() {
   float angleOffset = u_gridRotation * PI / 180.;
   float angleDistort = u_gridAngleDistortion * lum;
 
-  vec2 gridOffset = -vec2(u_gridOffsetX, u_gridOffsetY);
+  // The offset is in canvas units for every grid type; gridSize converts it into the scaled grid space
+  vec2 gridOffset = -gridSize * vec2(u_gridOffsetX, u_gridOffsetY);
   if (u_grid == 0.) {
     uvGrid += gridOffset;
     uvGrid = rotate(uvGrid, angleOffset + angleDistort);
     gridLine = uvGrid.y;
   } else if (u_grid == 1.) {
-    uvGrid += gridSize * gridOffset;
-
-    uvGrid -= gridSize * gridOffset;
+    // Concentric rings are symmetric around their own center, so the offset is applied after
+    // the rotation: that way the rotation orbits the ring center instead of doing nothing
     uvGrid = rotate(uvGrid, angleOffset + angleDistort);
-    uvGrid += gridSize * gridOffset;
-
+    uvGrid += gridOffset;
     gridLine = length(uvGrid);
   } else if (u_grid == 2.) {
     uvGrid += gridOffset;
