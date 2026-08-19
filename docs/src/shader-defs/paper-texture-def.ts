@@ -7,7 +7,7 @@ const defaultParams = paperTexturePresets[0].params;
 export const paperTextureDef: ShaderDef = {
   name: 'Paper Texture',
   description:
-    'Static paper-like texture built from a combination of grain, noise and multiple folds pattarns. Works as an image filter or as a standalone texture.',
+    'Static paper-like texture built from a combination of grain, noise and multiple fold patterns. Works as an image filter or as a standalone texture.',
   params: [
     {
       name: 'image',
@@ -26,7 +26,7 @@ export const paperTextureDef: ShaderDef = {
       type: 'string',
       defaultValue: defaultParams.colorShadow,
       isColor: true,
-      description: 'The color used for folds, creases, grain and speckles, blends into image',
+      description: 'The color used for folds, creases, grain and speckles, blends into the image',
     },
     {
       name: 'blending',
@@ -58,7 +58,7 @@ export const paperTextureDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.roughness,
-      description: 'Grain noise with size independednt from scaling and with level of delails depending on it',
+      description: 'Grain noise, sized independently of scaling, with its level of detail depending on the scale',
     },
     {
       name: 'roughnessSize',

@@ -7,33 +7,33 @@ export const paperTextureMeta = {
 } as const;
 
 /**
- * A static texture built from multiple noise layers, usable for realistic paper and cardboard surfaces.
- * Can be used as an image filter or as a standalone texture.
+ * Static paper-like texture built from a combination of grain, noise and multiple fold patterns.
+ * Works as an image filter or as a standalone texture.
  *
  * Fragment shader uniforms:
  * - u_image (sampler2D): Optional source image texture
  * - u_isImage (bool): Whether a source image was provided
  * - u_imageAspectRatio (float): Aspect ratio of the source image
- * - u_colorShadow (vec4): Colour laid into the shaded side of the surface, in RGBA
- * - u_colorBack (vec4): Background color in RGBA
- * - u_roughness (float): Hi-freq grain-like distortion intensity (0 to 1)
+ * - u_colorShadow (vec4): Color used for folds, creases, grain and speckles, blends into the image, in RGBA
+ * - u_colorBack (vec4): Color behind the image, usually light, in RGBA
+ * - u_roughness (float): Grain noise, sized independently of scaling, with its level of detail depending on the scale (0 to 1)
  * - u_roughnessSize (float): Scale of the roughness noise, needs u_roughness > 0 (0 to 1)
- * - u_fiber (float): Curly-shaped noise intensity (0 to 1)
- * - u_fiberSize (float): Curly-shaped noise scale, needs u_fiber > 0 (0 to 1)
- * - u_folds (float): Depth of the radial folds (0 to 1)
- * - u_foldCount (float): Number of radial folds, needs u_folds > 0 (1 to 20)
- * - u_creases (float): Depth of the creases, an independent layer over the radial folds (0 to 1)
+ * - u_fiber (float): Curly fiber noise, simulating real paper (0 to 1)
+ * - u_fiberSize (float): Scale of the fiber noise, needs u_fiber > 0 (0 to 1)
+ * - u_folds (float): Depth of the centered, irregular field of facets across the sheet (0 to 1)
+ * - u_foldCount (float): Number of folds, needs u_folds > 0 (1 to 20)
+ * - u_creases (float): Depth of the straight creases, alternating between ridges and valleys (0 to 1)
  * - u_creaseSizeX (float): Size of the vertical creases, needs u_creases > 0 (0 to 1)
- * - u_creaseSizeY (float): Size of the horizontal creases running across them, needs u_creases > 0 (0 to 1)
+ * - u_creaseSizeY (float): Size of the horizontal creases, needs u_creases > 0 (0 to 1)
  * - u_creaseOffsetX (float): Shifts the vertical creases across the surface, needs u_creases > 0 (0 to 1)
  * - u_creaseOffsetY (float): Shifts the horizontal creases across the surface, needs u_creases > 0 (0 to 1)
- * - u_lightDir (vec2): Direction the folded surface is lit from, as a unit vector (derived from the lightAngle prop)
+ * - u_lightDir (vec2): Direction the surface is lit from as a unit vector, derived from the lightAngle prop, needs u_folds or u_creases > 0
  * - u_foldTrig (vec2): Cos and sin of the crumple frame rotation, derived from the seed
- * - u_drops (float): Visibility of speckle / drop pattern (0 to 1)
+ * - u_drops (float): Visibility of the speckle pattern (0 to 1)
  * - u_seed (float): Seed applied to folds and drops (0 to 1000)
  * - u_blending (float): How much the image is printed into the paper; 0 = exact image, 1 = image multiplied with a grayscale paper-texture ink (toned by colorShadow) and thinned so the background reads through, needs image (0 to 1)
- * - u_distortion (float): Amount of distortion of the image by the paper normals, needs image (-1 to 1)
- * - u_background (bool): Shows or hides the paper texture outside the image frame, needs image
+ * - u_distortion (float): How much the image bends with the paper surface; negative values bend it the opposite direction, needs image (-1 to 1)
+ * - u_background (bool): Shows or hides the paper texture outside the distorted image frame, needs image
  * - u_noiseTexture (sampler2D): Pre-computed randomizer source texture
  *
  * Vertex shader outputs (used in fragment shader):
