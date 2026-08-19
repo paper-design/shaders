@@ -46,12 +46,10 @@ const imageFiles = [
 const HalftoneDotsWithControls = () => {
   const [imageIdx, setImageIdx] = useState(-1);
   const [image, setImage] = useState<HTMLImageElement | string>('/images/image-filters/0018.webp');
-  const [status, setStatus] = useState('Click to load an image');
 
   useEffect(() => {
     if (imageIdx >= 0) {
       const name = imageFiles[imageIdx];
-      setStatus(`Displaying image: ${name}`);
       const img = new Image();
       img.src = `/images/image-filters/${name}`;
       img.onload = () => setImage(img);
@@ -65,7 +63,6 @@ const HalftoneDotsWithControls = () => {
   const setImageWithoutStatus = useCallback((img?: HTMLImageElement) => {
     setImage(img ?? '');
     setImageIdx(-1);
-    setStatus(``);
   }, []);
 
   const [params, setParams] = useControls(() => {
@@ -90,18 +87,13 @@ const HalftoneDotsWithControls = () => {
         order: 202,
       },
       inverted: { value: defaults.inverted, order: 203 },
-      size: { value: defaults.size, min: 0.01, max: 1, step: 0.001, order: 300 },
+      size: { value: defaults.size, min: 0, max: 1, step: 0.001, order: 300 },
       radius: { value: defaults.radius, min: 0, max: 2, order: 301 },
-      contrast: { value: defaults.contrast, min: 0.01, max: 1, order: 302 },
+      contrast: { value: defaults.contrast, min: 0, max: 1, order: 302 },
       grainMixer: { value: defaults.grainMixer, min: 0, max: 1, order: 350 },
       grainOverlay: { value: defaults.grainOverlay, min: 0, max: 1, order: 351 },
       grainSize: { value: defaults.grainSize, min: 0, max: 1, order: 352 },
-      scale: { value: defaults.scale, min: 0.1, max: 10, order: 400 },
-      // offsetX: { value: defaults.offsetX, min: -1, max: 1, order: 401 },
-      // offsetY: { value: defaults.offsetY, min: -1, max: 1, order: 402 },
-      // originX: { value: defaults.originX, min: 0, max: 1, order: 411 },
-      // originY: { value: defaults.originY, min: 0, max: 1, order: 412 },
-      // rotation: { value: defaults.rotation, min: 0, max: 360, order: 420 },
+      scale: { value: defaults.scale, min: 0.1, max: 4, order: 400 },
       fit: { value: defaults.fit, options: ['contain', 'cover'] as ShaderFit[], order: 450 },
       Image: folder(
         {

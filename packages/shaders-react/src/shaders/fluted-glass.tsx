@@ -24,7 +24,6 @@ export const defaultPreset: FlutedGlassPreset = {
   params: {
     ...defaultObjectSizing,
     fit: 'cover',
-    scale: 1.1,
     speed: 0,
     frame: 0,
     colorBack: '#00000000',

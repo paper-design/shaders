@@ -44,7 +44,7 @@ export const smokeRingDef: ShaderDef = {
       min: 0,
       max: 4,
       defaultValue: defaultParams.innerShape,
-      description: 'The ring inner fill',
+      description: 'The ring inner fill (needs radius > 0)',
     },
     {
       name: 'noiseIterations',

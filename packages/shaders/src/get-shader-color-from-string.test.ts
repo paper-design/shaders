@@ -48,11 +48,29 @@ describe('getShaderColorFromString', () => {
 
   // Test edge cases
   test('handles undefined input', () => {
-    expect(getShaderColorFromString(undefined)).toEqual([0, 0, 0, 1]);
+    expect(getShaderColorFromString(undefined)).toEqual([0.5, 0.5, 0.5, 1]);
   });
 
   test('handles invalid color string', () => {
-    expect(getShaderColorFromString('not-a-color')).toEqual([0, 0, 0, 1]);
+    expect(getShaderColorFromString('not-a-color')).toEqual([0.5, 0.5, 0.5, 1]);
+  });
+
+  test('handles 4-digit hex with alpha', () => {
+    expect(getShaderColorFromString('#ff0c')).toEqual([1, 1, 0, 0.8]);
+  });
+
+  test('returns fallback for hex with invalid characters', () => {
+    expect(getShaderColorFromString('#gggggg')).toEqual([0.5, 0.5, 0.5, 1]);
+  });
+
+  test('returns fallback for hex with invalid length', () => {
+    expect(getShaderColorFromString('#12345')).toEqual([0.5, 0.5, 0.5, 1]);
+    expect(getShaderColorFromString('#ff')).toEqual([0.5, 0.5, 0.5, 1]);
+  });
+
+  test('returns fallback for malformed rgb/hsl', () => {
+    expect(getShaderColorFromString('rgb(nope)')).toEqual([0.5, 0.5, 0.5, 1]);
+    expect(getShaderColorFromString('hsl(nope)')).toEqual([0.5, 0.5, 0.5, 1]);
   });
 
   // Test color value ranges

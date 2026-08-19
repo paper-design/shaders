@@ -25,15 +25,15 @@ export const liquidMetalDef: ShaderDef = {
     {
       name: 'image',
       type: 'HTMLImageElement | string',
-      description:
-        'An optional image used as an effect mask. A transparent background is required. If no image is provided, the shader defaults to one of the predefined shapes.',
+      description: 'An optional image used as an effect mask. A transparent background is required.',
     },
     {
       name: 'shape',
       type: 'enum',
       defaultValue: defaultParams.shape,
-      description: 'The predefined shape used as an effect mask when no image is provided.',
-      options: ['none', 'circle', 'daisy', 'metaballs'],
+      description:
+        'The predefined shape used as an effect mask (none = the effect fills the canvas), needs no image',
+      options: ['none', 'circle', 'daisy', 'diamond', 'metaballs'],
     },
     {
       name: 'repetition',

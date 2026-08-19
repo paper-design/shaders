@@ -14,9 +14,9 @@ export const metaballsMeta = {
  * Fragment shader uniforms:
  * - u_time (float): Animation time
  * - u_colorBack (vec4): Background color in RGBA
- * - u_colors (vec4[]): Up to 8 base colors in RGBA
+ * - u_colors (vec4[]): Up to 8 base colors in RGBA, applied to the balls in order (colors beyond u_count are unused)
  * - u_colorsCount (float): Number of active colors
- * - u_count (float): Number of balls (1 to 20)
+ * - u_count (float): Number of balls, fractional values shrink the last ball (1 to 20)
  * - u_size (float): Size of the balls (0 to 1)
  * - u_noiseTexture (sampler2D): Pre-computed randomizer source texture
  *
@@ -50,7 +50,6 @@ uniform vec4 u_colorBack;
 uniform vec4 u_colors[${ metaballsMeta.maxColorCount }];
 uniform float u_colorsCount;
 uniform float u_size;
-uniform float u_sizeRange;
 uniform float u_count;
 
 in vec2 v_objectUV;

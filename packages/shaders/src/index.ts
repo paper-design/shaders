@@ -181,6 +181,9 @@ export {
   type ImageDitheringUniforms,
 } from './shaders/image-dithering.js';
 
+/** Lens Distortion image filter that separates an image into shifting color layers, recreating the chromatic aberration of a lens, and warps the image geometry with barrel or pincushion curvature */
+export { lensDistortionFragmentShader, lensDistortionMeta, type LensDistortionParams, type LensDistortionUniforms } from './shaders/lens-distortion.js';
+
 /** A glowing gradient of colors flowing through an input image. The effect creates a smoothly animated wave of intensity across the image */
 export {
   heatmapMeta,
@@ -211,6 +214,26 @@ export {
   type HalftoneDotsGrid,
 } from './shaders/halftone-dots.js';
 
+/** A halftone CMYK classic algo */
+export {
+  HalftoneCmykTypes,
+  halftoneCmykFragmentShader,
+  type HalftoneCmykParams,
+  type HalftoneCmykUniforms,
+  type HalftoneCmykType,
+} from './shaders/halftone-cmyk.js';
+
+/** Animated color fields running around a glassy logo shape */
+export {
+  gemSmokeMeta,
+  gemSmokeFragmentShader,
+  toProcessedGemSmoke,
+  GemSmokeShapes,
+  type GemSmokeShape,
+  type GemSmokeParams,
+  type GemSmokeUniforms,
+} from './shaders/gem-smoke.js';
+
 export {
   HalftoneLinesGrids,
   halftoneLinesMeta,
@@ -223,4 +246,4 @@ export {
 // ----- Utils ----- //
 export { getShaderColorFromString } from './get-shader-color-from-string.js';
 export { getShaderNoiseTexture } from './get-shader-noise-texture.js';
-export { getEmptyPixel } from './get-empty-pixel.js';
+export { emptyPixel } from './empty-pixel.js';

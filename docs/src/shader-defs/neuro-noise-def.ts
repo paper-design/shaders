@@ -44,7 +44,7 @@ export const neuroNoiseDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.contrast,
-      description: 'Sharpness of the bright–dark transition',
+      description: 'Sharpness of the transition between colorMid and colorBack',
     },
     ...animatedCommonParams,
   ],

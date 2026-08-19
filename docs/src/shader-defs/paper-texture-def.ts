@@ -55,10 +55,10 @@ export const paperTextureDef: ShaderDef = {
     {
       name: 'fiberSize',
       type: 'number',
-      min: 0,
+      min: 0.01,
       max: 1,
       defaultValue: defaultParams.fiberSize,
-      description: 'Curly-shaped noise scale',
+      description: 'Curly-shaped noise scale (needs fiber > 0)',
     },
     {
       name: 'crumples',
@@ -71,10 +71,10 @@ export const paperTextureDef: ShaderDef = {
     {
       name: 'crumpleSize',
       type: 'number',
-      min: 0,
+      min: 0.01,
       max: 1,
       defaultValue: defaultParams.crumpleSize,
-      description: 'Cell-based crumple pattern scale',
+      description: 'Cell-based crumple pattern scale (needs crumples > 0)',
     },
     {
       name: 'folds',
@@ -82,7 +82,7 @@ export const paperTextureDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.folds,
-      description: 'Depth of the folds',
+      description: 'Depth of the folds (needs contrast > 0 to shade the surface)',
     },
     {
       name: 'foldCount',
@@ -91,7 +91,7 @@ export const paperTextureDef: ShaderDef = {
       max: 15,
       step: 1,
       defaultValue: defaultParams.foldCount,
-      description: 'Number of folds (15 max)',
+      description: 'Number of folds (15 max), needs folds > 0',
     },
     {
       name: 'fade',
@@ -115,7 +115,7 @@ export const paperTextureDef: ShaderDef = {
       min: 0,
       max: 1000,
       defaultValue: defaultParams.seed,
-      description: 'Seed applied to folds, crumples and dots',
+      description: 'Seed applied to folds, crumples, dots and fade',
     },
     ...staticImageCommonParams,
   ],

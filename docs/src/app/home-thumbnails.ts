@@ -25,6 +25,9 @@ import waterImg from '../../public/shaders/water.webp';
 import heatmapImg from '../../public/shaders/heatmap.webp';
 import liquidMetalImg from '../../public/shaders/liquid-metal.webp';
 import halftoneDotsImg from '../../public/shaders/halftone-dots.webp';
+import halftoneCmykImg from '../../public/shaders/halftone-cmyk.webp';
+import gemSmokeImg from '../../public/shaders/gem-smoke.webp';
+import lensDistortionImg from '../../public/shaders/lens-distortion.webp';
 import {
   DotGrid,
   dotGridPresets,
@@ -80,6 +83,12 @@ import {
   heatmapPresets,
   HalftoneDots,
   halftoneDotsPresets,
+  HalftoneCmyk,
+  halftoneCmykPresets,
+  GemSmoke,
+  gemSmokePresets,
+  LensDistortion,
+  lensDistortionPresets,
 } from '@paper-design/shaders-react';
 import { StaticImageData } from 'next/image';
 
@@ -151,6 +160,30 @@ export const homeThumbnails = [
           speed: 0,
         },
       },
+      {
+        name: 'halftone cmyk',
+        url: '/halftone-cmyk',
+        ShaderComponent: HalftoneCmyk,
+        image: halftoneCmykImg,
+        shaderConfig: {
+          ...halftoneCmykPresets[0].params,
+          image: '/images/image-filters/0018.webp',
+          size: 0.7,
+          softness: 0.5,
+          speed: 0,
+        },
+      },
+      {
+        name: 'lens distortion',
+        url: '/lens-distortion',
+        ShaderComponent: LensDistortion,
+        image: lensDistortionImg,
+        alwaysLivePreview: false,
+        shaderConfig: {
+          ...lensDistortionPresets[0].params,
+          image: '/images/image-filters/0018.webp',
+        },
+      },
     ],
   },
   {
@@ -177,6 +210,21 @@ export const homeThumbnails = [
         shaderConfig: {
           ...liquidMetalPresets[0].params,
           scale: 0.9,
+          suspendWhenProcessingImage: true,
+          image: '/images/logos/diamond.svg',
+        },
+      },
+      {
+        name: 'gem smoke',
+        url: '/gem-smoke',
+        ShaderComponent: GemSmoke,
+        image: gemSmokeImg,
+        shaderConfig: {
+          ...gemSmokePresets[0].params,
+          frame: 1000,
+          scale: 0.9,
+          outerGlow: 0.4,
+          size: 0.5,
           suspendWhenProcessingImage: true,
           image: '/images/logos/diamond.svg',
         },

@@ -35,7 +35,7 @@ const DotOrbitWithControls = () => {
       sizeRange: { value: defaults.sizeRange, min: 0, max: 1, order: 202 },
       spreading: { value: defaults.spreading, min: 0, max: 1, order: 203 },
       speed: { value: defaults.speed, min: 0, max: 20, order: 300 },
-      scale: { value: defaults.scale, min: 0.01, max: 5, order: 301 },
+      scale: { value: defaults.scale, min: 0.01, max: 4, order: 301 },
     };
   }, [colors.length]);
 

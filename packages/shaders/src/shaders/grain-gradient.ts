@@ -25,8 +25,6 @@ export const grainGradientMeta = {
  * - u_time (float): Animation time
  * - u_resolution (vec2): Canvas resolution in pixels
  * - u_pixelRatio (float): Device pixel ratio
- * - u_originX (float): Reference point for positioning (0 to 1)
- * - u_originY (float): Reference point for positioning (0 to 1)
  * - u_worldWidth (float): Virtual width of the graphic
  * - u_worldHeight (float): Virtual height of the graphic
  * - u_fit (float): Fit mode (0 = none, 1 = contain, 2 = cover)
@@ -82,8 +80,6 @@ uniform float u_intensity;
 uniform float u_noise;
 uniform float u_shape;
 
-uniform mediump float u_originX;
-uniform mediump float u_originY;
 uniform mediump float u_worldWidth;
 uniform mediump float u_worldHeight;
 uniform mediump float u_fit;

@@ -4,6 +4,10 @@ interface PropsWithColors {
 }
 
 export function colorPropsAreEqual(prevProps: PropsWithColors, nextProps: PropsWithColors): boolean {
+  if (Object.keys(prevProps).length !== Object.keys(nextProps).length) {
+    return false;
+  }
+
   for (const key in prevProps) {
     if (key === 'colors') {
       const prevIsArray = Array.isArray(prevProps.colors);

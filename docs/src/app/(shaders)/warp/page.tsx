@@ -26,11 +26,11 @@ const WarpWithControls = () => {
       softness: { value: defaults.softness, min: 0, max: 1, order: 101 },
       distortion: { value: defaults.distortion, min: 0, max: 1, order: 102 },
       swirl: { value: defaults.swirl, min: 0, max: 1, order: 103 },
-      swirlIterations: { value: defaults.swirlIterations, min: 0, max: 20, order: 104 },
+      swirlIterations: { value: defaults.swirlIterations, min: 2, max: 20, step: 1, order: 104 },
       shape: { value: defaults.shape, options: Object.keys(WarpPatterns) as WarpPattern[], order: 105 },
       shapeScale: { value: defaults.shapeScale, min: 0, max: 1, order: 106 },
       speed: { value: defaults.speed, min: 0, max: 20, order: 300 },
-      scale: { value: defaults.scale, min: 0.01, max: 5, order: 301 },
+      scale: { value: defaults.scale, min: 0.01, max: 4, order: 301 },
       rotation: { value: defaults.rotation, min: 0, max: 360, order: 302 },
     };
   }, [colors.length]);

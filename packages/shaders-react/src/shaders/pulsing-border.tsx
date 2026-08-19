@@ -37,7 +37,7 @@ export const defaultPreset: PulsingBorderPreset = {
     softness: 0.75,
     intensity: 0.2,
     bloom: 0.25,
-    spots: 5,
+    spots: 4,
     spotSize: 0.5,
     pulse: 0.25,
     smoke: 0.3,

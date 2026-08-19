@@ -99,6 +99,10 @@ export { ImageDithering, imageDitheringPresets } from './shaders/image-dithering
 export type { ImageDitheringProps } from './shaders/image-dithering.js';
 export type { ImageDitheringUniforms, ImageDitheringParams } from '@paper-design/shaders';
 
+export { LensDistortion, lensDistortionPresets } from './shaders/lens-distortion.js';
+export type { LensDistortionProps } from './shaders/lens-distortion.js';
+export type { LensDistortionUniforms, LensDistortionParams } from '@paper-design/shaders';
+
 export { Heatmap, heatmapPresets } from './shaders/heatmap.js';
 export type { HeatmapProps } from './shaders/heatmap.js';
 export type { HeatmapUniforms, HeatmapParams } from '@paper-design/shaders';
@@ -110,6 +114,14 @@ export type { LiquidMetalUniforms, LiquidMetalParams } from '@paper-design/shade
 export { HalftoneDots, halftoneDotsPresets } from './shaders/halftone-dots.js';
 export type { HalftoneDotsProps } from './shaders/halftone-dots.js';
 export type { HalftoneDotsUniforms, HalftoneDotsParams } from '@paper-design/shaders';
+
+export { HalftoneCmyk, halftoneCmykPresets } from './shaders/halftone-cmyk.js';
+export type { HalftoneCmykProps } from './shaders/halftone-cmyk.js';
+export type { HalftoneCmykUniforms, HalftoneCmykParams } from '@paper-design/shaders';
+
+export { GemSmoke, gemSmokePresets } from './shaders/gem-smoke.js';
+export type { GemSmokeProps } from './shaders/gem-smoke.js';
+export type { GemSmokeUniforms, GemSmokeParams } from '@paper-design/shaders';
 
 export { HalftoneLines, halftoneLinesPresets } from './shaders/halftone-lines.js';
 export type { HalftoneLinesProps } from './shaders/halftone-lines.js';
@@ -132,6 +144,7 @@ export {
   voronoiMeta,
   warpMeta,
   heatmapMeta,
+  lensDistortionMeta,
   staticMeshGradientMeta,
   staticRadialGradientMeta,
 } from '@paper-design/shaders';

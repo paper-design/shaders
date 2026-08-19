@@ -20,12 +20,12 @@ export const staticRadialGradientMeta = {
  * - u_colorsCount (float): Number of active colors
  * - u_radius (float): Size of the shape (0 to 3)
  * - u_focalDistance (float): Distance of the focal point from center (0 to 3)
- * - u_focalAngle (float): Angle of the focal point in degrees, effective with focalDistance > 0 (0 to 360)
- * - u_falloff (float): Gradient decay, 0 = linear gradient (-1 to 1)
- * - u_mixing (float): Blending behavior, 0 = stepped, 0.5 = smooth, 1 = pronounced color points (0 to 1)
+ * - u_focalAngle (float): Angle of the focal point in degrees, needs focalDistance > 0 (0 to 360)
+ * - u_falloff (float): Gradient decay, 0 = equal color distribution (-1 to 1)
+ * - u_mixing (float): Blending behavior, 0 = hard stripes, 1 = smooth gradient (0 to 1)
  * - u_distortion (float): Strength of radial distortion (0 to 1)
- * - u_distortionShift (float): Radial distortion offset, effective with distortion > 0 (-1 to 1)
- * - u_distortionFreq (float): Radial distortion frequency, effective with distortion > 0 (0 to 20)
+ * - u_distortionShift (float): Radial distortion offset, needs distortion > 0 (-1 to 1)
+ * - u_distortionFreq (float): Radial distortion frequency, needs distortion > 0 (0 to 20)
  * - u_grainMixer (float): Strength of grain distortion applied to shape edges (0 to 1)
  * - u_grainOverlay (float): Post-processing black/white grain overlay (0 to 1)
  *
@@ -161,8 +161,10 @@ void main() {
   float angle = atan(f_to_uv.y, f_to_uv.x);
   shape -= pow(u_distortion, 2.) * shape * pow(abs(sin(PI * clamp(length(f_to_uv) - 0.2 + u_distortionShift, 0.0, 1.0))), 4.0) * (sin(u_distortionFreq * angle) + cos(floor(0.65 * u_distortionFreq) * angle));
 
-  float grain = noise(grainUV, vec2(0.));
-  float mixerGrain = .4 * u_grainMixer * (grain - .5);
+  float mixerGrain = 0.;
+  if (u_grainMixer > 0.) {
+    mixerGrain = .4 * u_grainMixer * (noise(grainUV, vec2(0.)) - .5);
+  }
 
   float mixer = shape * u_colorsCount + mixerGrain;
   vec4 gradient = u_colors[0];
@@ -173,18 +175,17 @@ void main() {
     if (i > int(u_colorsCount)) break;
     float mLinear = clamp(mixer - float(i - 1), 0.0, 1.0);
 
-    float m = 0.;
-    float mixing = u_mixing * 3.;
-    if (mixing > 2.) {
-      float tt = mLinear * mLinear;
-      m = mix(mLinear, tt, .5 * clamp((mixing - 2.), 0., 1.));
-    } else if (mixing > 1.) {
-      m = mix(smoothstep(0., 1., mLinear), mLinear, clamp((mixing - 1.), 0., 1.));
-    } else {
-      float aa = fwidth(mLinear);
-      m = smoothstep(.5 - .5 * mixing - aa, .5 + .5 * mixing + aa, mLinear);
-    }
+    float aa = fwidth(mLinear);
+    float width = min(u_mixing, 0.5);
+    float t = clamp((mLinear - (0.5 - width - aa)) / (2. * width + 2. * aa), 0., 1.);
+    float p = mix(2., 1., clamp((u_mixing - 0.5) * 2., 0., 1.));
+    float m = t < 0.5
+      ? 0.5 * pow(2. * t, p)
+      : 1. - 0.5 * pow(2. * (1. - t), p);
 
+    float quadBlend = clamp((u_mixing - 0.5) * 2., 0., 1.);
+    m = mix(m, m * m, 0.5 * quadBlend);
+    
     if (i == 1) {
       outerShape = m;
     }
@@ -201,17 +202,19 @@ void main() {
   color = color + bgColor * (1.0 - opacity);
   opacity = opacity + u_colorBack.a * (1.0 - opacity);
 
-  float grainOverlay = valueNoise(rotate(grainUV, 1.) + vec2(3.));
-  grainOverlay = mix(grainOverlay, valueNoise(rotate(grainUV, 2.) + vec2(-1.)), .5);
-  grainOverlay = pow(grainOverlay, 1.3);
+  if (u_grainOverlay > 0.) {
+    float grainOverlay = valueNoise(rotate(grainUV, 1.) + vec2(3.));
+    grainOverlay = mix(grainOverlay, valueNoise(rotate(grainUV, 2.) + vec2(-1.)), .5);
+    grainOverlay = pow(grainOverlay, 1.3);
 
-  float grainOverlayV = grainOverlay * 2. - 1.;
-  vec3 grainOverlayColor = vec3(step(0., grainOverlayV));
-  float grainOverlayStrength = u_grainOverlay * abs(grainOverlayV);
-  grainOverlayStrength = pow(grainOverlayStrength, .8);
-  color = mix(color, grainOverlayColor, .35 * grainOverlayStrength);
+    float grainOverlayV = grainOverlay * 2. - 1.;
+    vec3 grainOverlayColor = vec3(step(0., grainOverlayV));
+    float grainOverlayStrength = u_grainOverlay * abs(grainOverlayV);
+    grainOverlayStrength = pow(grainOverlayStrength, .8);
+    color = mix(color, grainOverlayColor, .35 * grainOverlayStrength);
 
-  opacity += .5 * grainOverlayStrength;
+    opacity += .5 * grainOverlayStrength;
+  }
   opacity = clamp(opacity, 0., 1.);
 
   fragColor = vec4(color, opacity);

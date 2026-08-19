@@ -16,10 +16,10 @@ export const dotOrbitMeta = {
  * - u_colorBack (vec4): Background color in RGBA
  * - u_colors (vec4[]): Up to 10 base colors in RGBA
  * - u_colorsCount (float): Number of active colors
- * - u_stepsPerColor (float): Number of extra colors between base colors, 1 = N colors, 2 = 2×N, etc. (1 to 4)
+ * - u_stepsPerColor (float): Number of extra colors between base colors, 1 = N colors, 2 = 2×N, etc., needs 2+ colors (1 to 4)
  * - u_size (float): Dot radius relative to cell size (0 to 1)
  * - u_sizeRange (float): Random variation in shape size, 0 = uniform, higher = random up to base size (0 to 1)
- * - u_spreading (float): Maximum orbit distance around cell center (0 to 1)
+ * - u_spreading (float): Maximum orbit distance around cell center, dots are static at 0 (0 to 1)
  * - u_noiseTexture (sampler2D): Pre-computed randomizer source texture
  *
  * Vertex shader outputs (used in fragment shader):

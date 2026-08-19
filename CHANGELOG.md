@@ -1,5 +1,80 @@
 # Paper Shaders
 
+## Version 0.0.80
+
+- **Lens Distortion**
+  - `noiseOffset` is now a normalized parameter accepting values from 0 to 1
+
+## Version 0.0.79
+
+New shader: **Lens Distortion**
+
+## Version 0.0.78
+
+- **General**
+  - The animation loop is now paused while a shader is out of the viewport
+  - Malformed hex color strings fall back to a default color instead of resolving to `NaN`; the default color changed from black to gray
+  - `HTMLImageElement` uniforms now wait for the image to decode before being passed to the shader
+  - React components re-render when a new prop is added
+  - Docs: missing shaders added to the shadcn registry and the shader definitions list
+
+## Version 0.0.77
+
+- **General**
+  - License changed to [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0). Every package now ships the `LICENSE` and `NOTICE` files.
+
+## Version 0.0.76
+
+- **Gem Smoke**
+  - Presets adjusted
+
+## Version 0.0.75
+
+- **Gem Smoke**, **Liquid Metal**
+  - Presets adjusted
+
+## Version 0.0.74
+
+- **Gem Smoke**
+  - Added a set of generic shapes
+- **Liquid Metal**
+  - Fixed the "none" shape for narrow containers
+
+## Version 0.0.73
+
+New shader: **Gem Smoke**
+
+## Version 0.0.72
+
+- **General**
+  - Added support for isolated documents (iframes, PiP windows) for both packages
+  - Resolved a Firefox-specific issue where an empty image prop triggered an error during the initial page load
+
+## Version 0.0.71
+
+- **General**
+  - Images smaller than 1024x1024 are now upscaled before final rasterization, improving the quality of small SVG image inputs
+- **Halftone CMYK**
+  - Flood parameters now affect the transparent areas
+  - Full support of image transparency
+- **Image Dithering**
+  - Added `inverted` option
+
+## Version 0.0.70
+
+- **Halftone CMYK**
+  - Tweaked presets
+
+## Version 0.0.69
+
+- **New shader**: **Halftone CMYK**
+- **General**
+  - Minor performance improvements (DotOrbit, GrainGradient, PerlinNoise, SmokeRing, FlutedGlass, HalftoneDots)
+- **Fluted Glass**
+  - Default `scale` parameter to 1
+- **Static Mesh Gradient, Static Radial Gradient**
+  - `mixing` parameter working via smoother curve
+
 ## Version 0.0.68
 
 - **General**
@@ -12,7 +87,7 @@
   - Several performance improvements
 - **Halftone Dots**
   - Restored default cell `size` after extension of allowed range
-  
+
 ## Version 0.0.67
 
 - **Mesh Gradient**

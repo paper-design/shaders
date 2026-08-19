@@ -71,7 +71,7 @@ const FlutedGlassWithControls = () => {
       colorBack: { value: toHsla(defaults.colorBack), order: 100 },
       colorShadow: { value: toHsla(defaults.colorShadow), order: 101 },
       colorHighlight: { value: toHsla(defaults.colorHighlight), order: 102 },
-      size: { value: defaults.size, min: 0.01, max: 1, step: 0.01, order: 210 },
+      size: { value: defaults.size, min: 0, max: 1, step: 0.001, order: 210 },
       shadows: { value: defaults.shadows, min: 0, max: 1, order: 200 },
       highlights: { value: defaults.highlights, min: 0, max: 1, order: 201 },
       shape: {
@@ -90,17 +90,10 @@ const FlutedGlassWithControls = () => {
       stretch: { value: defaults.stretch, min: 0, max: 1, order: 216 },
       blur: { value: defaults.blur, min: 0, max: 1, order: 220 },
       edges: { value: defaults.edges, min: 0, max: 1, order: 221 },
-      margin: { value: defaults.margin, min: 0, max: 0.5, order: 500 },
-      // marginLeft: { value: defaults.marginLeft, min: 0, max: 1, order: 501 },
-      // marginRight: { value: defaults.marginRight, min: 0, max: 1, order: 502 },
-      // marginTop: { value: defaults.marginTop, min: 0, max: 1, order: 503 },
-      // marginBottom: { value: defaults.marginBottom, min: 0, max: 1, order: 504 },
+      margin: { value: defaults.margin, min: 0, max: 1, order: 500 },
       grainMixer: { value: defaults.grainMixer, min: 0, max: 1, order: 550 },
       grainOverlay: { value: defaults.grainOverlay, min: 0, max: 1, order: 551 },
-      scale: { value: defaults.scale, min: 0.5, max: 4, order: 600 },
-      // rotation: { value: defaults.rotation, min: 0, max: 360, order: 601 },
-      // offsetX: { value: defaults.offsetX, min: -1, max: 1, order: 602 },
-      // offsetY: { value: defaults.offsetX, min: -1, max: 1, order: 603 },
+      scale: { value: defaults.scale, min: 0.1, max: 4, order: 600 },
       fit: { value: defaults.fit, options: ['contain', 'cover'] as ShaderFit[], order: 604 },
 
       Image: folder(

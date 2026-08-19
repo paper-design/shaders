@@ -127,8 +127,9 @@ export const staticCommonParams: CommonParamDef[] = [
   commonParams.maxPixelCount,
 ];
 
+// Image-based shaders get a higher scale floor: below 0.1 the source image is a speck
 export const staticImageCommonParams: CommonParamDef[] = [
-  commonParams.scale,
+  { ...commonParams.scale, min: 0.1 },
   commonParams.rotation,
   commonParams.offsetX,
   commonParams.offsetY,
@@ -141,10 +142,11 @@ export const staticImageCommonParams: CommonParamDef[] = [
   commonParams.maxPixelCount,
 ];
 
+// Image-based shaders get a higher scale floor: below 0.1 the source image is a speck
 export const animatedImageCommonParams: CommonParamDef[] = [
   commonParams.speed,
   commonParams.frame,
-  commonParams.scale,
+  { ...commonParams.scale, min: 0.1 },
   commonParams.rotation,
   commonParams.offsetX,
   commonParams.offsetY,

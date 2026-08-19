@@ -18,7 +18,7 @@ export class ShaderMount {
   private currentFrame = 0;
   /** The speed that we progress through animation time (multiplies by delta time every update). Allows negatives to play in reverse. If set to 0, rAF will stop entirely so static shaders have no recurring performance costs */
   private speed = 0;
-  /** Actual speed used that accounts for document visibility (we pause the shader if the tab is hidden) */
+  /** Actual speed used that accounts for visibility: we pause the shader if the tab is hidden or the element out of the viewport */
   private currentSpeed = 0;
   /** Uniforms that are provided by the user for the specific shader being mounted (not including uniforms that this Mount adds, like time and resolution) */
   private providedUniforms: ShaderMountUniforms;
@@ -35,6 +35,7 @@ export class ShaderMount {
   private isSafari = isSafari();
   private uniformCache: Record<string, unknown> = {};
   private textureUnitMap: Map<string, number> = new Map();
+  private ownerDocument: Document;
 
   constructor(
     /** The div you'd like to mount the shader to. The shader will match its size. */
@@ -62,21 +63,24 @@ export class ShaderMount {
     /** Names of the uniforms that should have mipmaps generated for them */
     mipmaps: string[] = []
   ) {
-    if (parentElement instanceof HTMLElement) {
+    // nodeType check instead of `instanceof` to work across document boundaries (iframes, PiP windows)
+    if (parentElement?.nodeType === 1) {
       this.parentElement = parentElement as PaperShaderElement;
     } else {
       throw new Error('Paper Shaders: parent element must be an HTMLElement');
     }
 
-    if (!document.querySelector('style[data-paper-shader]')) {
-      const styleElement = document.createElement('style');
+    this.ownerDocument = parentElement.ownerDocument;
+
+    if (!this.ownerDocument.querySelector('style[data-paper-shader]')) {
+      const styleElement = this.ownerDocument.createElement('style');
       styleElement.innerHTML = defaultStyle;
       styleElement.setAttribute('data-paper-shader', '');
-      document.head.prepend(styleElement);
+      this.ownerDocument.head.prepend(styleElement);
     }
 
     // Create the canvas element and mount it into the provided element
-    const canvasElement = document.createElement('canvas');
+    const canvasElement = this.ownerDocument.createElement('canvas');
     this.canvasElement = canvasElement;
     this.parentElement.prepend(canvasElement);
     this.fragmentShader = fragmentShader;
@@ -103,6 +107,8 @@ export class ShaderMount {
     this.setupResizeObserver();
     // Set up the visual viewport change listener to handle zoom changes (pinch zoom and classic browser zoom)
     visualViewport?.addEventListener('resize', this.handleVisualViewportChange);
+    // Set up the intersection observer to pause animation when the element is scrolled out of view
+    this.setupIntersectionObserver();
 
     // Set the animation speed after everything is ready to go
     this.setSpeed(speed);
@@ -114,7 +120,7 @@ export class ShaderMount {
     this.parentElement.paperShaderMount = this;
 
     // Listen for document visibility changes to pause the shader when the tab is hidden
-    document.addEventListener('visibilitychange', this.handleDocumentVisibilityChange);
+    this.ownerDocument.addEventListener('visibilitychange', this.handleDocumentVisibilityChange);
   }
 
   private initProgram = () => {
@@ -168,6 +174,9 @@ export class ShaderMount {
   private parentDevicePixelHeight = 0;
   private devicePixelsSupported = false;
 
+  private intersectionObserver: IntersectionObserver | null = null;
+  private isInViewport = true;
+
   private resizeObserver: ResizeObserver | null = null;
   private setupResizeObserver = () => {
     this.resizeObserver = new ResizeObserver(([entry]) => {
@@ -188,6 +197,19 @@ export class ShaderMount {
     });
 
     this.resizeObserver.observe(this.parentElement);
+  };
+
+  private setupIntersectionObserver = () => {
+    // we check element's own window to support shaders used within iframe/PiP elements
+    const view = this.ownerDocument.defaultView;
+    if (!view?.IntersectionObserver) return;
+
+    this.intersectionObserver = new view.IntersectionObserver(([entry]) => {
+      this.isInViewport = entry?.isIntersecting ?? true;
+      this.updateCurrentSpeed();
+    });
+
+    this.intersectionObserver.observe(this.parentElement);
   };
 
   // Visual viewport resize handler, mainly used to react to browser zoom changes.
@@ -236,7 +258,7 @@ export class ShaderMount {
         // To avoid sidebars upscaling the target resolution, set a minimum zoom level of 1.
         // This will render at higher resolution when zoomed out, but that's fine.
         // (We mostly care about maintaining good quality when zoomed in).
-        const zoomLevel = bestGuessBrowserZoom();
+        const zoomLevel = bestGuessBrowserZoom(this.ownerDocument);
         targetRenderScale *= Math.max(1, zoomLevel);
       }
 
@@ -486,7 +508,12 @@ export class ShaderMount {
   public setSpeed = (newSpeed = 1): void => {
     // Set the new animation speed
     this.speed = newSpeed;
-    this.setCurrentSpeed(document.hidden ? 0 : newSpeed);
+    this.updateCurrentSpeed();
+  };
+
+  /** Apply the target speed, pausing (0) while the tab is hidden or the element is out of the viewport */
+  private updateCurrentSpeed = (): void => {
+    this.setCurrentSpeed(this.ownerDocument.hidden || !this.isInViewport ? 0 : this.speed);
   };
 
   private setCurrentSpeed = (newSpeed: number): void => {
@@ -528,7 +555,7 @@ export class ShaderMount {
   };
 
   private handleDocumentVisibilityChange = () => {
-    this.setCurrentSpeed(document.hidden ? 0 : this.speed);
+    this.updateCurrentSpeed();
   };
 
   /** Dispose of the shader mount, cleaning up all of the WebGL resources */
@@ -567,8 +594,13 @@ export class ShaderMount {
       this.resizeObserver = null;
     }
 
+    if (this.intersectionObserver) {
+      this.intersectionObserver.disconnect();
+      this.intersectionObserver = null;
+    }
+
     visualViewport?.removeEventListener('resize', this.handleVisualViewportChange);
-    document.removeEventListener('visibilitychange', this.handleDocumentVisibilityChange);
+    this.ownerDocument.removeEventListener('visibilitychange', this.handleDocumentVisibilityChange);
 
     this.uniformLocations = {};
 
@@ -725,10 +757,10 @@ function isSafari() {
 // level detection and result in a larger target resolution. Not a concern in real-world usage
 // with Safari, but we'd rather not try to detect zoom levels with other browsers
 // (e.g. Arc always has a sidebar, which affects outerWidth vs visualViewport.width).
-function bestGuessBrowserZoom() {
+function bestGuessBrowserZoom(doc: Document) {
   const viewportScale = visualViewport?.scale ?? 1;
   const viewportWidth = visualViewport?.width ?? window.innerWidth;
-  const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
+  const scrollbarWidth = window.innerWidth - doc.documentElement.clientWidth;
   const innerWidth = viewportScale * viewportWidth + scrollbarWidth;
 
   // outerWidth and innerWidth are always integers so we won't often get the original zoom ratio

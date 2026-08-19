@@ -26,14 +26,14 @@ export const flutedGlassDef: ShaderDef = {
       type: 'string',
       defaultValue: defaultParams.colorShadow,
       isColor: true,
-      description: 'Shadows color',
+      description: 'Shadows color (needs shadows > 0)',
     },
     {
       name: 'colorHighlight',
       type: 'string',
       defaultValue: defaultParams.colorHighlight,
       isColor: true,
-      description: 'Highlights color',
+      description: 'Highlights color (needs highlights > 0)',
     },
     {
       name: 'shadows',
@@ -41,7 +41,8 @@ export const flutedGlassDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.shadows,
-      description: 'A color gradient added over both image and background, following the distortion shape',
+      description:
+        'A color gradient added over both image and background, following the distortion shape (needs colorShadow alpha > 0)',
     },
     {
       name: 'highlights',
@@ -49,7 +50,7 @@ export const flutedGlassDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.highlights,
-      description: 'Thin stokes along distortion shape; useful for antialiasing on the small grid',
+      description: 'Thin strokes along distortion shape; useful for antialiasing on the small grid',
     },
     {
       name: 'size',
@@ -80,7 +81,7 @@ export const flutedGlassDef: ShaderDef = {
       type: 'enum',
       defaultValue: defaultParams.distortionShape,
       description: 'The shape of the distortion',
-      options: ['prism', 'lens', 'contour', 'cascade', 'facete'],
+      options: ['prism', 'lens', 'contour', 'cascade', 'flat'],
     },
     {
       name: 'distortion',
@@ -96,7 +97,7 @@ export const flutedGlassDef: ShaderDef = {
       min: -1,
       max: 1,
       defaultValue: defaultParams.shift,
-      description: 'Texture shift in direction opposite to the grid',
+      description: 'Texture shift in direction opposite to the grid (needs distortion > 0)',
     },
     {
       name: 'stretch',
@@ -128,7 +129,8 @@ export const flutedGlassDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: undefined,
-      description: 'Distance from image edges to the effect',
+      description:
+        'Distance from image edges to the effect (overridden by marginLeft/marginRight/marginTop/marginBottom)',
     },
     {
       name: 'marginLeft',
@@ -160,7 +162,7 @@ export const flutedGlassDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.grainMixer,
-      description: 'Strength of grain distortion applied to the shapes’ edges',
+      description: 'Strength of grain distortion applied to the shapes’ edges (needs distortion > 0)',
     },
     {
       name: 'grainOverlay',

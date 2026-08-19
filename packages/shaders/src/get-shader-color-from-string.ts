@@ -21,9 +21,13 @@ export function getShaderColorFromString(
   if (colorString.startsWith('#')) {
     [r, g, b, a] = hexToRgba(colorString);
   } else if (colorString.startsWith('rgb')) {
-    [r, g, b, a] = parseRgba(colorString);
+    const rgba = parseRgba(colorString);
+    if (rgba === null) return fallbackColor;
+    [r, g, b, a] = rgba;
   } else if (colorString.startsWith('hsl')) {
-    [r, g, b, a] = hslaToRgba(parseHsla(colorString));
+    const hsla = parseHsla(colorString);
+    if (hsla === null) return fallbackColor;
+    [r, g, b, a] = hslaToRgba(hsla);
   } else {
     console.error('Unsupported color format', colorString);
     return fallbackColor;
@@ -37,8 +41,8 @@ function hexToRgba(hex: string): [number, number, number, number] {
   // Remove # if present
   hex = hex.replace(/^#/, '');
 
-  // Expand three-letter hex to six-letter
-  if (hex.length === 3) {
+  // Expand shorthand hex (3-letter #rgb or 4-letter #rgba) by doubling each digit
+  if (hex.length === 3 || hex.length === 4) {
     hex = hex
       .split('')
       .map((char) => char + char)
@@ -47,6 +51,13 @@ function hexToRgba(hex: string): [number, number, number, number] {
   // Expand six-letter hex to eight-letter (add full opacity if no alpha)
   if (hex.length === 6) {
     hex = hex + 'ff';
+  }
+
+  // Bail out on malformed hex (wrong length or non-hex characters) so callers
+  // get the fallback color instead of NaN channels leaking into the shader.
+  if (!/^[0-9a-f]{8}$/i.test(hex)) {
+    console.warn('Invalid hex color');
+    return fallbackColor;
   }
 
   // Parse the components
@@ -58,11 +69,11 @@ function hexToRgba(hex: string): [number, number, number, number] {
   return [r, g, b, a];
 }
 
-/** Parse RGBA string to RGBA (0 to 1 range) */
-function parseRgba(rgba: string): [number, number, number, number] {
+/** Parse RGBA string to RGBA (0 to 1 range), or null if unparseable */
+function parseRgba(rgba: string): [number, number, number, number] | null {
   // Match both rgb and rgba patterns
   const match = rgba.match(/^rgba?\s*\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*(?:,\s*([0-9.]+))?\s*\)$/i);
-  if (!match) return [0, 0, 0, 1];
+  if (!match) return null;
 
   return [
     parseInt(match[1] ?? '0') / 255,
@@ -72,10 +83,10 @@ function parseRgba(rgba: string): [number, number, number, number] {
   ];
 }
 
-/** Parse HSLA string */
-function parseHsla(hsla: string): [number, number, number, number] {
+/** Parse HSLA string, or null if unparseable */
+function parseHsla(hsla: string): [number, number, number, number] | null {
   const match = hsla.match(/^hsla?\s*\(\s*(\d+)\s*,\s*(\d+)%\s*,\s*(\d+)%\s*(?:,\s*([0-9.]+))?\s*\)$/i);
-  if (!match) return [0, 0, 0, 1];
+  if (!match) return null;
 
   return [
     parseInt(match[1] ?? '0'),
@@ -117,4 +128,4 @@ function hslaToRgba(hsla: [number, number, number, number]): [number, number, nu
 
 export const clamp = (n: number, min: number, max: number): number => Math.min(Math.max(n, min), max);
 
-const fallbackColor = [0, 0, 0, 1] as [0, 0, 0, 1];
+const fallbackColor = [0.5, 0.5, 0.5, 1] as [number, number, number, number];

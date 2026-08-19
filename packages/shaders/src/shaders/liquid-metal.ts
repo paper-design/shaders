@@ -11,7 +11,6 @@ import { declarePI, rotation2, simplexNoise, colorBandingFix } from '../shader-u
  * - u_time (float): Animation time
  * - u_resolution (vec2): Canvas resolution in pixels
  * - u_image (sampler2D): Pre-processed source image texture (R = edge gradient, G = opacity)
- * - u_imageAspectRatio (float): Aspect ratio of the source image
  * - u_colorBack (vec4): Background color in RGBA
  * - u_colorTint (vec4): Overlay color in RGBA (color burn blending used)
  * - u_repetition (float): Density of pattern stripes (1 to 10)
@@ -21,7 +20,7 @@ import { declarePI, rotation2, simplexNoise, colorBandingFix } from '../shader-u
  * - u_distortion (float): Noise distortion over the stripes pattern (0 to 1)
  * - u_contour (float): Strength of the distortion on the shape edges (0 to 1)
  * - u_angle (float): Direction of pattern animation in degrees (0 to 360)
- * - u_shape (float): Predefined shape when no image provided (0 = none, 1 = circle, 2 = daisy, 3 = diamond, 4 = metaballs)
+ * - u_shape (float): Predefined shape mask, needs no image (0 = none, 1 = circle, 2 = daisy, 3 = diamond, 4 = metaballs)
  * - u_isImage (bool): Whether an image is being used as the effect mask
  *
  * Vertex shader outputs (used in fragment shader):
@@ -38,7 +37,7 @@ import { declarePI, rotation2, simplexNoise, colorBandingFix } from '../shader-u
  * - u_worldWidth (float): Virtual width of the graphic before it's scaled to fit the canvas
  * - u_worldHeight (float): Virtual height of the graphic before it's scaled to fit the canvas
  * - u_fit (float): How to fit the rendered shader into the canvas dimensions (0 = none, 1 = contain, 2 = cover)
- * - u_scale (float): Overall zoom level of the graphics (0.01 to 4)
+ * - u_scale (float): Overall zoom level of the graphics (0.1 to 4)
  * - u_rotation (float): Overall rotation angle of the graphics in degrees (0 to 360)
  * - u_offsetX (float): Horizontal offset of the graphics center (-1 to 1)
  * - u_offsetY (float): Vertical offset of the graphics center (-1 to 1)
@@ -51,7 +50,6 @@ export const liquidMetalFragmentShader: string = `#version 300 es
 precision mediump float;
 
 uniform sampler2D u_image;
-uniform float u_imageAspectRatio;
 
 uniform vec2 u_resolution;
 uniform float u_time;
@@ -171,6 +169,9 @@ void main() {
   rotatedUV.x * sinA + rotatedUV.y * cosA
   ) + vec2(.5);
 
+  // u_contour is applied in 2 separate ranges:
+  // - 0 to .4 sets the edge hardness, saturated above .4 (both branches below)
+  // - .5 to 1 warps the stripes direction along the edges, inactive below .5 (see u_contour range 2)
   if (u_isImage == true) {
     float edgeRaw = img.r;
     edge = blurEdge3x3(u_image, uv, dudx, dudy, 6., edgeRaw);
@@ -182,7 +183,7 @@ void main() {
       vec2 borderUV = v_responsiveUV + .5;
       float ratio = v_responsiveBoxGivenSize.x / v_responsiveBoxGivenSize.y;
       vec2 mask = min(borderUV, 1. - borderUV);
-      vec2 pixel_thickness = 250. / v_responsiveBoxGivenSize;
+      vec2 pixel_thickness = min(250. / v_responsiveBoxGivenSize, vec2(.5));
       float maskX = smoothstep(0.0, pixel_thickness.x, mask.x);
       float maskY = smoothstep(0.0, pixel_thickness.y, mask.y);
       maskX = pow(maskX, .25);
@@ -303,6 +304,7 @@ void main() {
   direction += diagBLtoTR;
   float contour = 0.;
   direction -= 2. * noise * diagBLtoTR * (smoothstep(0., 1., edge) * (1.0 - smoothstep(0., 1., edge)));
+  // u_contour range 2
   direction *= mix(1., 1. - edge, smoothstep(.5, 1., u_contour));
   direction -= 1.7 * edge * smoothstep(.5, 1., u_contour);
   direction += .2 * pow(u_contour, 4.) * (1.0 - smoothstep(0., 1., edge));
