@@ -22,11 +22,11 @@ export const paperTextureDef: ShaderDef = {
       description: 'Background color',
     },
     {
-      name: 'colorFront',
+      name: 'colorShadow',
       type: 'string',
-      defaultValue: defaultParams.colorFront,
+      defaultValue: defaultParams.colorShadow,
       isColor: true,
-      description: 'Foreground color',
+      description: 'Colour laid into the shaded side of the surface',
     },
     {
       name: 'blending',
