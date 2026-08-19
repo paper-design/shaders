@@ -7,35 +7,36 @@ export const halftoneLinesMeta = {
 } as const;
 
 /**
- * Animated halftone lines effect with customizable grid patterns (lines, radial, waves, noise)
- * and distortion based on image luminosity. Supports original colors or custom color overlay.
+ * A halftone image filter drawing the image as a line grid (lines, radial, waves, noise),
+ * with the line width and the grid distortion driven by image luminance.
+ * Supports original colors or a custom 2-color palette.
  *
  * Fragment shader uniforms:
  * - u_resolution (vec2): Canvas resolution in pixels (used for blur calculations)
- * - u_time (float): Animation time
+ * - u_time (float): Animation time (unused: the shader is static)
  * - u_image (sampler2D): Source image texture
  * - u_imageAspectRatio (float): Aspect ratio of the source image
- * - u_colorFront (vec4): Foreground (line) color in RGBA (used when originalColors = false)
+ * - u_colorFront (vec4): Foreground (line) color in RGBA, needs originalColors off
  * - u_colorBack (vec4): Background color in RGBA
- * - u_size (float): Halftone cell/grid size (0 to 1)
+ * - u_size (float): Grid size relative to the canvas; the grid lives in object space, so it doesn't follow the image box (0 to 1)
  * - u_grid (float): Grid pattern type (0 = lines, 1 = radial, 2 = waves, 3 = noise)
- * - u_gridOffsetX (float): Horizontal grid offset
- * - u_gridOffsetY (float): Vertical grid offset
- * - u_gridRotation (float): Grid rotation angle in degrees
- * - u_gridAngleDistortion (float): Luminosity-based angle distortion strength (0 to 1)
+ * - u_gridOffsetX (float): Horizontal grid offset, in grid cells for lines/waves and in canvas units for radial (-1 to 1)
+ * - u_gridOffsetY (float): Vertical grid offset, in grid cells for lines/waves and in canvas units for radial (-1 to 1)
+ * - u_gridRotation (float): Grid rotation angle in degrees, with the radial grid needs a nonzero grid offset (0 to 360)
+ * - u_gridAngleDistortion (float): Luminosity-based angle distortion strength, with the radial grid needs a nonzero grid offset (0 to 1)
  * - u_gridNoiseDistortion (float): Noise-based position distortion strength (0 to 1)
- * - u_stripeWidth (float): Width of lines/stripes (0 to 1)
- * - u_thinLines (bool): Use thinner lines with anti-aliasing
- * - u_allowOverflow (bool): Allow lines to overflow cell boundaries
- * - u_straight (bool): Disable wave distortion for straight lines
+ * - u_stripeWidth (float): Max width of the line, relative to grid size (0 to 1)
+ * - u_thinLines (bool): Allow sub-pixel thin lines (set false to keep lines antialiased)
+ * - u_allowOverflow (bool): Allow the line to take the whole grid cell (set false to keep the gaps visible)
+ * - u_straight (bool): Unused, the fragment shader never reads it
  * - u_contrast (float): Image contrast adjustment (0 to 1)
- * - u_smoothness (float): Blur amount applied to source image (0 to 8)
- * - u_originalColors (bool): Use original image colors (true) or custom colors (false)
- * - u_inverted (bool): Invert luminosity calculation
- * - u_grainMixer (float): Strength of grain affecting line width (0 to 1)
- * - u_grainMixerSize (float): Size of grain mixer texture (0 to 1)
- * - u_grainOverlay (float): Strength of grain overlay on final output (0 to 1)
- * - u_grainOverlaySize (float): Size of grain overlay texture (0 to 1)
+ * - u_smoothness (float): Blur radius applied to the source image before the luminance is read (0 to 8)
+ * - u_originalColors (bool): Use the sampled image's original colors instead of colorFront
+ * - u_inverted (bool): Inverts the image luminance, needs contrast > 0
+ * - u_grainMixer (float): Strength of grain distortion applied to the lines (0 to 1)
+ * - u_grainMixerSize (float): Scale of the grain distortion, needs grainMixer > 0 (0 to 1)
+ * - u_grainOverlay (float): Strength of the post-processing black/white grain overlay (0 to 1)
+ * - u_grainOverlaySize (float): Scale of the grain overlay, needs grainOverlay > 0 (0 to 1)
  *
  * Vertex shader outputs (used in fragment shader):
  * - v_imageUV (vec2): UV coordinates for sampling the source image, with fit, scale, rotation, and offset applied
@@ -49,7 +50,7 @@ export const halftoneLinesMeta = {
  * - u_worldWidth (float): Virtual width of the graphic before it's scaled to fit the canvas
  * - u_worldHeight (float): Virtual height of the graphic before it's scaled to fit the canvas
  * - u_fit (float): How to fit the rendered shader into the canvas dimensions (0 = none, 1 = contain, 2 = cover)
- * - u_scale (float): Overall zoom level of the graphics (0.01 to 4)
+ * - u_scale (float): Overall zoom level of the graphics (0.1 to 4)
  * - u_rotation (float): Overall rotation angle of the graphics in degrees (0 to 360)
  * - u_offsetX (float): Horizontal offset of the graphics center (-1 to 1)
  * - u_offsetY (float): Vertical offset of the graphics center (-1 to 1)

@@ -28,7 +28,7 @@ export const defaultPreset: HalftoneLinesPreset = {
     gridOffsetX: -0.5,
     gridOffsetY: -0.2,
     stripeWidth: 1,
-    smoothness: 10,
+    smoothness: 8,
     size: 0.75,
     thinLines: false,
     allowOverflow: true,
@@ -58,7 +58,7 @@ export const noisePreset: HalftoneLinesPreset = {
     gridOffsetX: -0.5,
     gridOffsetY: -0.5,
     stripeWidth: 0.5,
-    smoothness: 10,
+    smoothness: 8,
     size: 0.3,
     thinLines: true,
     allowOverflow: false,
@@ -88,7 +88,7 @@ export const strokesPreset: HalftoneLinesPreset = {
     gridOffsetX: -0.5,
     gridOffsetY: -0.5,
     stripeWidth: 0.8,
-    smoothness: 10,
+    smoothness: 8,
     size: 0.8,
     thinLines: false,
     allowOverflow: true,
@@ -118,7 +118,7 @@ export const classicPreset: HalftoneLinesPreset = {
     gridOffsetX: -0.5,
     gridOffsetY: -0.5,
     stripeWidth: 1,
-    smoothness: 10,
+    smoothness: 8,
     size: 0.6,
     thinLines: true,
     allowOverflow: true,
@@ -165,7 +165,13 @@ export const artyPreset: HalftoneLinesPreset = {
   },
 };
 
-export const halftoneLinesPresets: HalftoneLinesPreset[] = [defaultPreset, strokesPreset, noisePreset, artyPreset, classicPreset];
+export const halftoneLinesPresets: HalftoneLinesPreset[] = [
+  defaultPreset,
+  strokesPreset,
+  noisePreset,
+  artyPreset,
+  classicPreset,
+];
 
 export const HalftoneLines: React.FC<HalftoneLinesProps> = memo(function HalftoneLinesImpl({
   // Own props

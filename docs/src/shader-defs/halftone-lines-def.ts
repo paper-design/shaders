@@ -26,7 +26,7 @@ export const halftoneLinesDef: ShaderDef = {
       type: 'string',
       defaultValue: defaultParams.colorFront,
       isColor: true,
-      description: 'Foreground color',
+      description: 'Foreground color, needs originalColors off',
     },
     {
       name: 'originalColors',
@@ -47,14 +47,14 @@ export const halftoneLinesDef: ShaderDef = {
       name: 'inverted',
       type: 'boolean',
       defaultValue: defaultParams.inverted,
-      description: 'Inverts the image luminance',
+      description: 'Inverts the image luminance, needs contrast > 0',
       options: ['true', 'false'],
     },
     {
       name: 'smoothness',
       type: 'number',
       min: 0,
-      max: 1,
+      max: 8,
       defaultValue: defaultParams.smoothness,
       description: 'The size of blur applied to original image, the more image is blurred the smoother is stroke shape',
     },
@@ -94,23 +94,26 @@ export const halftoneLinesDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.size,
-      description: 'Grid size relative to the image box',
+      description:
+        'Grid size relative to the canvas (the grid lives in object space, so it does not follow the image box)',
     },
     {
       name: 'gridOffsetX',
       type: 'number',
-      min: 0,
+      min: -1,
       max: 1,
       defaultValue: defaultParams.gridOffsetX,
-      description: 'The horizontal offset of grid relative to the image box',
+      description:
+        'The horizontal offset of grid, in grid cells for the lines and waves types and in canvas units for radial',
     },
     {
       name: 'gridOffsetY',
       type: 'number',
-      min: 0,
+      min: -1,
       max: 1,
       defaultValue: defaultParams.gridOffsetY,
-      description: 'The vertical offset of grid relative to the image box',
+      description:
+        'The vertical offset of grid, in grid cells for the lines and waves types and in canvas units for radial',
     },
     {
       name: 'gridRotation',
@@ -118,7 +121,7 @@ export const halftoneLinesDef: ShaderDef = {
       min: 0,
       max: 360,
       defaultValue: defaultParams.gridRotation,
-      description: 'The grid rotation around image center (not efficient for radial grid + zero grid offsets)',
+      description: 'The grid rotation around the canvas center, with the radial grid needs a nonzero grid offset',
     },
     {
       name: 'gridAngleDistortion',
@@ -126,7 +129,8 @@ export const halftoneLinesDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.gridAngleDistortion,
-      description: 'Changing the grid rotation on the darker image areas',
+      description:
+        'Changing the grid rotation on the darker image areas, with the radial grid needs a nonzero grid offset',
     },
     {
       name: 'gridNoiseDistortion',
@@ -150,7 +154,7 @@ export const halftoneLinesDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.grainMixerSize,
-      description: 'The scale applied to the grain distortion',
+      description: 'The scale applied to the grain distortion, needs grainMixer > 0',
     },
     {
       name: 'grainOverlay',
@@ -166,7 +170,7 @@ export const halftoneLinesDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.grainOverlaySize,
-      description: 'The scale applied to the grain overlay',
+      description: 'The scale applied to the grain overlay, needs grainOverlay > 0',
     },
     ...staticImageCommonParams,
   ],

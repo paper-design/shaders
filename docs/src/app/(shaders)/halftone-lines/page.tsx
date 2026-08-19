@@ -40,12 +40,10 @@ const imageFiles = [
 const HalftoneLinesWithControls = () => {
   const [imageIdx, setImageIdx] = useState(-1);
   const [image, setImage] = useState<HTMLImageElement | string>('/images/image-filters/0018.webp');
-  const [status, setStatus] = useState('Click to load an image');
 
   useEffect(() => {
     if (imageIdx >= 0) {
       const name = imageFiles[imageIdx];
-      setStatus(`Displaying image: ${name}`);
       const img = new Image();
       img.src = `/images/image-filters/${name}`;
       img.onload = () => setImage(img);
@@ -59,7 +57,6 @@ const HalftoneLinesWithControls = () => {
   const setImageWithoutStatus = useCallback((img?: HTMLImageElement) => {
     setImage(img ?? '');
     setImageIdx(-1);
-    setStatus(``);
   }, []);
 
   const [params, setParams] = useControls(() => {
@@ -74,7 +71,7 @@ const HalftoneLinesWithControls = () => {
       colorFront: { value: toHsla(defaults.colorFront), order: 101 },
       originalColors: { value: defaults.originalColors, order: 102 },
 
-      contrast: { value: defaults.contrast, min: 0.01, max: 1, order: 200 },
+      contrast: { value: defaults.contrast, min: 0, max: 1, order: 200 },
       inverted: { value: defaults.inverted, order: 201 },
       smoothness: { value: defaults.smoothness, min: 0, max: halftoneLinesMeta.maxBlurRadius, order: 202 },
       stripeWidth: { value: defaults.stripeWidth, min: 0, max: 1, order: 203 },
@@ -98,7 +95,7 @@ const HalftoneLinesWithControls = () => {
       grainOverlay: { value: defaults.grainOverlay, min: 0, max: 1, order: 352 },
       grainOverlaySize: { value: defaults.grainOverlaySize, min: 0, max: 1, order: 353 },
 
-      scale: { value: defaults.scale, min: 0.1, max: 10, order: 400 },
+      scale: { value: defaults.scale, min: 0.1, max: 4, order: 400 },
       fit: { value: defaults.fit, options: ['contain', 'cover'] as ShaderFit[], order: 450 },
       Image: folder(
         {
