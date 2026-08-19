@@ -7,7 +7,7 @@ const defaultParams = paperTexturePresets[0].params;
 export const paperTextureDef: ShaderDef = {
   name: 'Paper Texture',
   description:
-    'A static texture built from multiple noise layers, usable for a realistic paper and cardboard surfaces. Can be used as a image filter or as a texture.',
+    'Static paper-like texture built from a combination of grain, noise and multiple folds pattarns. Works as an image filter or as a standalone texture.',
   params: [
     {
       name: 'image',
@@ -19,14 +19,14 @@ export const paperTextureDef: ShaderDef = {
       type: 'string',
       defaultValue: defaultParams.colorBack,
       isColor: true,
-      description: 'Background color',
+      description: 'The color behind the image, usually light',
     },
     {
       name: 'colorShadow',
       type: 'string',
       defaultValue: defaultParams.colorShadow,
       isColor: true,
-      description: 'Colour laid into the shaded side of the surface',
+      description: 'The color used for folds, creases, grain and speckles, blends into image',
     },
     {
       name: 'blending',
@@ -35,7 +35,7 @@ export const paperTextureDef: ShaderDef = {
       max: 1,
       defaultValue: defaultParams.blending,
       description:
-        'How much the image is printed into the paper (0 = exact image, 1 = image multiplied with the paper ink), needs image',
+        'How much the image is printed into the paper (0 = exact image, 1 = image multiplied with the pattern), needs image',
     },
     {
       name: 'distortion',
@@ -43,13 +43,14 @@ export const paperTextureDef: ShaderDef = {
       min: -1,
       max: 1,
       defaultValue: defaultParams.distortion,
-      description: 'Amount of image distortion following the paper surface (needs image)',
+      description:
+        'How much the image bends with the paper surface; negative values bend it the opposite direction (needs image)',
     },
     {
       name: 'background',
       type: 'boolean',
       defaultValue: defaultParams.background,
-      description: 'Shows or hides the paper texture outside the image frame (needs image)',
+      description: 'Shows or hides the paper texture outside the distorted image frame (needs image)',
     },
     {
       name: 'roughness',
@@ -57,7 +58,7 @@ export const paperTextureDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.roughness,
-      description: 'Pixel noise, related to canvas (not scalable)',
+      description: 'Grain noise with size independednt from scaling and with level of delails depending on it',
     },
     {
       name: 'roughnessSize',
@@ -73,7 +74,7 @@ export const paperTextureDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.fiber,
-      description: 'Curly-shaped noise',
+      description: 'Curly fiber noise, simulating the real paper',
     },
     {
       name: 'fiberSize',
@@ -81,7 +82,7 @@ export const paperTextureDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.fiberSize,
-      description: 'Curly-shaped noise scale (needs fiber > 0)',
+      description: 'Scale of the fiber noise (needs fiber > 0)',
     },
     {
       name: 'folds',
@@ -89,7 +90,7 @@ export const paperTextureDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.folds,
-      description: 'Depth of the radial folds',
+      description: 'Depth of the centered, irregular field of facets across the sheet',
     },
     {
       name: 'foldCount',
@@ -98,7 +99,7 @@ export const paperTextureDef: ShaderDef = {
       max: 20,
       step: 1,
       defaultValue: defaultParams.foldCount,
-      description: 'Number of radial folds (20 max), needs folds > 0',
+      description: 'Number of folds (20 max), needs folds > 0',
     },
     {
       name: 'creases',
@@ -106,7 +107,7 @@ export const paperTextureDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.creases,
-      description: 'Depth of the creases, an independent layer over the radial folds',
+      description: 'Depth of the straight creases, alternating between ridges and valleys',
     },
     {
       name: 'creaseSizeX',
@@ -122,7 +123,7 @@ export const paperTextureDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.creaseSizeY,
-      description: 'Size of the horizontal creases running across them (needs creases > 0)',
+      description: 'Size of the horizontal creases (needs creases > 0)',
     },
     {
       name: 'creaseOffsetX',
@@ -146,7 +147,8 @@ export const paperTextureDef: ShaderDef = {
       min: 0,
       max: 360,
       defaultValue: defaultParams.lightAngle,
-      description: 'Direction the folded surface is lit from, clockwise from the top of the canvas, in degrees',
+      description:
+        'Direction the surface is lit from, clockwise from the top of the canvas, needs folds or creases > 0',
     },
     {
       name: 'drops',
@@ -154,7 +156,7 @@ export const paperTextureDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.drops,
-      description: 'The visibility of speckle pattern',
+      description: 'Visibility of the speckle pattern',
     },
     {
       name: 'seed',
