@@ -75,9 +75,8 @@ const HalftoneLinesWithControls = () => {
       inverted: { value: defaults.inverted, order: 201 },
       smoothness: { value: defaults.smoothness, min: 0, max: 1, order: 202 },
       colorSmoothness: { value: defaults.colorSmoothness, min: 0, max: 1, order: 203 },
-      stripeWidth: { value: defaults.stripeWidth, min: 0, max: 1, order: 203 },
-      thinLines: { value: defaults.thinLines, order: 204 },
-      allowOverflow: { value: defaults.allowOverflow, order: 205 },
+      strokeWidth: { value: defaults.strokeWidth, min: 0.05, max: 1, order: 204 },
+      softness: { value: defaults.softness, min: 0, max: 1, order: 205 },
 
       grid: {
         value: defaults.grid,

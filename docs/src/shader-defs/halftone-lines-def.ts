@@ -67,27 +67,21 @@ export const halftoneLinesDef: ShaderDef = {
       description: 'Smoothing applied to the sampled image colors, needs originalColors on',
     },
     {
-      name: 'stripeWidth',
+      name: 'strokeWidth',
+      type: 'number',
+      min: 0.05,
+      max: 1,
+      defaultValue: defaultParams.strokeWidth,
+      description: 'Stroke width relative to the grid cell; at 1 the strokes fill the cell completely',
+    },
+    {
+      name: 'softness',
       type: 'number',
       min: 0,
       max: 1,
-      defaultValue: defaultParams.stripeWidth,
-      description: 'The max width of halftone stroke shape, relative to grid size',
-    },
-    {
-      name: 'thinLines',
-      type: 'boolean',
-      defaultValue: defaultParams.thinLines,
-      description: 'Allows thin 1px strokes (set to false for proper antialiasing)',
-      options: ['true', 'false'],
-    },
-    {
-      name: 'allowOverflow',
-      type: 'boolean',
-      defaultValue: defaultParams.allowOverflow,
+      defaultValue: defaultParams.softness,
       description:
-        'Allows thin stripeWidth to take the whole grid size (set to false to make grid lines always visible)',
-      options: ['true', 'false'],
+        'Softness of the stroke edges as a fraction of the grid cell; at 1 the stripes blur out into flat tone',
     },
     {
       name: 'grid',
