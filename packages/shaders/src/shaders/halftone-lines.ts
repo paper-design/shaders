@@ -232,7 +232,7 @@ void main() {
   float stable = min(aa, .25);
   float wDraw = clamp(w, stable, max(.5 - stable, stable));
 
-  float window = max(max(aa, u_softness), 1e-4);
+  float window = max(max(aa, .5 * u_softness), 1e-4);
   float stroke = stripeCoverage(gridLine, window, wDraw);
   stroke *= min(w / max(stable, 1e-4), 1.);
   stroke = 1. + (stroke - 1.) * min((.5 - w) / max(stable, 1e-4), 1.);
