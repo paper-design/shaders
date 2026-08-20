@@ -77,7 +77,8 @@ const HalftoneLinesWithControls = () => {
       colorSmoothness: { value: defaults.colorSmoothness, min: 0, max: 1, order: 203 },
       strokeWidth: { value: defaults.strokeWidth, min: 0.05, max: 1, order: 204 },
       softness: { value: defaults.softness, min: 0, max: 1, order: 205 },
-      strokeOverflow: { value: defaults.strokeOverflow, order: 206 },
+      keepGaps: { value: defaults.keepGaps, order: 206 },
+      keepStrokes: { value: defaults.keepStrokes, order: 207 },
 
       grid: {
         value: defaults.grid,

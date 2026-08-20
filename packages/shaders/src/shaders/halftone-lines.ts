@@ -25,7 +25,8 @@ export const halftoneLinesMeta = {
  * - u_gridNoiseDistortion (float): Noise-based position distortion strength (0 to 1)
  * - u_strokeWidth (float): Stroke width relative to the grid cell, at 1 the strokes fill the cell completely (0 to 1)
  * - u_softness (float): Softness of the stroke edges as a fraction of the grid cell, at 1 the stripes blur out into flat tone (0 to 1)
- * - u_strokeOverflow (bool): Let neighbouring strokes merge where they meet, off keeps a two pixel mask between them
+ * - u_keepGaps (bool): Keep a two pixel gap between neighbouring strokes, off lets them merge where they meet
+ * - u_keepStrokes (bool): Keep strokes at a two pixel minimum width, off lets them fade away in the lightest areas
  * - u_contrast (float): Image contrast adjustment (0 to 1)
  * - u_smoothness (float): Smoothing applied to the luminance that drives the strokes (0 to 1)
  * - u_colorSmoothness (float): Smoothing applied to the sampled color, needs originalColors on (0 to 1)
@@ -78,7 +79,8 @@ uniform float u_grainOverlaySize;
 uniform bool u_originalColors;
 uniform bool u_inverted;
 uniform float u_strokeWidth;
-uniform bool u_strokeOverflow;
+uniform bool u_keepGaps;
+uniform bool u_keepStrokes;
 uniform float u_softness;
 uniform float u_smoothness;
 uniform float u_colorSmoothness;
@@ -223,13 +225,14 @@ void main() {
     length(vec2(dot(gridGrad, dFdx(uvGrid)), dot(gridGrad, dFdy(uvGrid))))
   );
 
-  float wMax = u_strokeOverflow ? .5 + .5 * aa : .5;
-  float w = clamp(wMax * u_strokeWidth * lum - .5 * grain, 0., .5);
+  float wMax = u_keepGaps ? .5 : .5 + .5 * aa;
+  float wMin = u_keepStrokes ? min(aa, .25) * (1. - smoothstep(.25, .5, aa)) : 0.;
+  float w = clamp(wMax * u_strokeWidth * lum - .5 * grain, wMin, .5);
 
   float window = max(max(aa, u_softness), 1e-4);
   float stroke = stripeCoverage(gridLine, window, w);
 
-  if (u_strokeOverflow == false) {
+  if (u_keepGaps == true) {
     float maskWidth = min(aa, .25);
     float mask = stripeCoverage(gridLine + .5, window, maskWidth) * (1. - smoothstep(.25, .5, aa));
     stroke *= 1. - mask;
@@ -283,7 +286,8 @@ export interface HalftoneLinesUniforms extends ShaderSizingUniforms {
   u_gridOffsetX: number;
   u_gridOffsetY: number;
   u_strokeWidth: number;
-  u_strokeOverflow: boolean;
+  u_keepGaps: boolean;
+  u_keepStrokes: boolean;
   u_softness: number;
   u_smoothness: number;
   u_colorSmoothness: number;
@@ -308,7 +312,8 @@ export interface HalftoneLinesParams extends ShaderSizingParams, ShaderMotionPar
   gridOffsetX?: number;
   gridOffsetY?: number;
   strokeWidth?: number;
-  strokeOverflow?: boolean;
+  keepGaps?: boolean;
+  keepStrokes?: boolean;
   softness?: number;
   smoothness?: number;
   colorSmoothness?: number;
