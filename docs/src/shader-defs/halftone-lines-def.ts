@@ -97,11 +97,11 @@ export const halftoneLinesDef: ShaderDef = {
       options: ['lines', 'radial', 'waves', 'noise'],
     },
     {
-      name: 'size',
+      name: 'gridSize',
       type: 'number',
       min: 0,
       max: 1,
-      defaultValue: defaultParams.size,
+      defaultValue: defaultParams.gridSize,
       description:
         'Grid size relative to the canvas (the grid lives in object space, so it does not follow the image box)',
     },

@@ -84,7 +84,7 @@ const HalftoneLinesWithControls = () => {
         options: Object.keys(HalftoneLinesGrids) as HalftoneLinesGrid[],
         order: 250,
       },
-      size: { value: defaults.size, min: 0, max: 1, order: 251 },
+      gridSize: { value: defaults.gridSize, min: 0, max: 1, order: 251 },
       gridOffsetX: { value: defaults.gridOffsetX, min: -1, max: 1, order: 252 },
       gridOffsetY: { value: defaults.gridOffsetY, min: -1, max: 1, order: 253 },
       gridRotation: { value: defaults.gridRotation, min: 0, max: 360, order: 254 },

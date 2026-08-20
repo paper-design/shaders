@@ -16,7 +16,7 @@ export const halftoneLinesMeta = {
  * - u_imageAspectRatio (float): Aspect ratio of the source image
  * - u_colorFront (vec4): Foreground (line) color in RGBA, needs originalColors off
  * - u_colorBack (vec4): Background color in RGBA
- * - u_size (float): Grid size relative to the canvas; the grid lives in object space, so it doesn't follow the image box (0 to 1)
+ * - u_gridSize (float): Grid size relative to the canvas; the grid lives in object space, so it doesn't follow the image box (0 to 1)
  * - u_grid (float): Grid pattern type (0 = lines, 1 = radial, 2 = waves, 3 = noise)
  * - u_gridOffsetX (float): Horizontal grid offset in canvas units (-1 to 1)
  * - u_gridOffsetY (float): Vertical grid offset in canvas units (-1 to 1)
@@ -67,7 +67,7 @@ uniform vec4 u_colorFront;
 uniform vec4 u_colorBack;
 uniform float u_contrast;
 
-uniform float u_size;
+uniform float u_gridSize;
 uniform bool u_thinLines;
 uniform bool u_allowOverflow;
 uniform float u_grid;
@@ -178,15 +178,15 @@ void main() {
 
   vec2 uvGrid = v_objectUV;
   uvGrid += .15 * noise * lum * u_gridNoiseDistortion;
-  float gridSize = mix(200., 5., u_size);
-  uvGrid *= gridSize;
+  float cellsPerSide = mix(200., 5., u_gridSize);
+  uvGrid *= cellsPerSide;
 
   float gridLine;
 
   float angleOffset = u_gridRotation * PI / 180.;
   float angleDistort = u_gridAngleDistortion * lum;
 
-  vec2 gridOffset = -gridSize * vec2(u_gridOffsetX, u_gridOffsetY);
+  vec2 gridOffset = -cellsPerSide * vec2(u_gridOffsetX, u_gridOffsetY);
   if (u_grid == 0.) {
     uvGrid += gridOffset;
     uvGrid = rotate(uvGrid, angleOffset + angleDistort);
@@ -284,7 +284,7 @@ export interface HalftoneLinesUniforms extends ShaderSizingUniforms {
   u_stripeWidth: number;
   u_smoothness: number;
   u_colorSmoothness: number;
-  u_size: number;
+  u_gridSize: number;
   u_thinLines: boolean;
   u_allowOverflow: boolean;
   u_gridAngleDistortion: number;
@@ -309,7 +309,7 @@ export interface HalftoneLinesParams extends ShaderSizingParams, ShaderMotionPar
   stripeWidth?: number;
   smoothness?: number;
   colorSmoothness?: number;
-  size?: number;
+  gridSize?: number;
   thinLines?: boolean;
   allowOverflow?: boolean;
   gridAngleDistortion?: number;
