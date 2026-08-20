@@ -25,6 +25,7 @@ export const halftoneLinesMeta = {
  * - u_gridNoiseDistortion (float): Noise-based position distortion strength (0 to 1)
  * - u_strokeWidth (float): Stroke width relative to the grid cell, at 1 the strokes fill the cell completely (0 to 1)
  * - u_softness (float): Softness of the stroke edges as a fraction of the grid cell, at 1 the stripes blur out into flat tone (0 to 1)
+ * - u_strokeOverflow (bool): Let neighbouring strokes merge where they meet, off keeps a two pixel mask between them
  * - u_contrast (float): Image contrast adjustment (0 to 1)
  * - u_smoothness (float): Smoothing applied to the luminance that drives the strokes (0 to 1)
  * - u_colorSmoothness (float): Smoothing applied to the sampled color, needs originalColors on (0 to 1)
@@ -77,6 +78,7 @@ uniform float u_grainOverlaySize;
 uniform bool u_originalColors;
 uniform bool u_inverted;
 uniform float u_strokeWidth;
+uniform bool u_strokeOverflow;
 uniform float u_softness;
 uniform float u_smoothness;
 uniform float u_colorSmoothness;
@@ -179,6 +181,7 @@ void main() {
   uvGrid *= cellsPerSide;
 
   float gridLine;
+  vec2 gridGrad = vec2(0.);
 
   float angleOffset = u_gridRotation * PI / 180.;
   float angleDistort = u_gridAngleDistortion * lum;
@@ -188,14 +191,18 @@ void main() {
     uvGrid += gridOffset;
     uvGrid = rotate(uvGrid, angleOffset + angleDistort);
     gridLine = uvGrid.y;
+    gridGrad = vec2(0., 1.);
   } else if (u_grid == 1.) {
     uvGrid = rotate(uvGrid, angleOffset + angleDistort);
     uvGrid += gridOffset;
-    gridLine = length(uvGrid);
+    float radius = length(uvGrid);
+    gridLine = radius;
+    gridGrad = radius > 1e-4 ? uvGrid / radius : vec2(1., 0.);
   } else if (u_grid == 2.) {
     uvGrid += gridOffset;
     uvGrid = rotate(uvGrid, angleOffset + angleDistort);
     gridLine = uvGrid.y + sin(.5 * uvGrid.x);
+    gridGrad = vec2(.5 * cos(.5 * uvGrid.x), 1.);
   } else if (u_grid == 3.) {
     uvGrid += gridOffset;
     uvGrid = rotate(uvGrid, angleOffset + angleDistort);
@@ -211,11 +218,24 @@ void main() {
   grain = smoothstep(.55, .9, grain);
   grain *= .5 * pow(u_grainMixer, 3.);
 
-  float w = max(.5 * u_strokeWidth * lum - .5 * grain, 0.);
+  float aa = max(
+    length(vec2(dFdx(gridLine), dFdy(gridLine))),
+    length(vec2(dot(gridGrad, dFdx(uvGrid)), dot(gridGrad, dFdy(uvGrid))))
+  );
 
-  float aa = length(vec2(dFdx(gridLine), dFdy(gridLine)));
+  float wMax = u_strokeOverflow ? .5 + .5 * aa : .5;
+  float w = clamp(wMax * u_strokeWidth * lum - .5 * grain, 0., .5);
+
   float window = max(max(aa, u_softness), 1e-4);
-  float stroke = stripeCoverage(gridLine, window, w) * frame;
+  float stroke = stripeCoverage(gridLine, window, w);
+
+  if (u_strokeOverflow == false) {
+    float maskWidth = min(aa, .25);
+    float mask = stripeCoverage(gridLine + .5, window, maskWidth) * (1. - smoothstep(.25, .5, aa));
+    stroke *= 1. - mask;
+  }
+
+  stroke *= frame;
 
   vec3 color = vec3(0.);
   float opacity = 0.;
@@ -263,6 +283,7 @@ export interface HalftoneLinesUniforms extends ShaderSizingUniforms {
   u_gridOffsetX: number;
   u_gridOffsetY: number;
   u_strokeWidth: number;
+  u_strokeOverflow: boolean;
   u_softness: number;
   u_smoothness: number;
   u_colorSmoothness: number;
@@ -287,6 +308,7 @@ export interface HalftoneLinesParams extends ShaderSizingParams, ShaderMotionPar
   gridOffsetX?: number;
   gridOffsetY?: number;
   strokeWidth?: number;
+  strokeOverflow?: boolean;
   softness?: number;
   smoothness?: number;
   colorSmoothness?: number;

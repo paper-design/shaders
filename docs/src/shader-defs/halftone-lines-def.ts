@@ -84,6 +84,13 @@ export const halftoneLinesDef: ShaderDef = {
         'Softness of the stroke edges as a fraction of the grid cell; at 1 the stripes blur out into flat tone',
     },
     {
+      name: 'strokeOverflow',
+      type: 'boolean',
+      defaultValue: defaultParams.strokeOverflow,
+      description: 'Lets neighbouring strokes merge where they meet; off, a two pixel mask keeps them separated',
+      options: ['true', 'false'],
+    },
+    {
       name: 'grid',
       type: 'enum',
       defaultValue: defaultParams.grid,
