@@ -3,7 +3,7 @@ import { type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-si
 import { declarePI, rotation2, simplexNoise, proceduralHash21 } from '../shader-utils.js';
 
 export const halftoneLinesMeta = {
-  maxBlurRadius: 8,
+  maxBlurRadius: 64,
 } as const;
 
 /**
@@ -12,7 +12,6 @@ export const halftoneLinesMeta = {
  * Supports original colors or a custom 2-color palette.
  *
  * Fragment shader uniforms:
- * - u_resolution (vec2): Canvas resolution in pixels (used for blur calculations)
  * - u_image (sampler2D): Source image texture
  * - u_imageAspectRatio (float): Aspect ratio of the source image
  * - u_colorFront (vec4): Foreground (line) color in RGBA, needs originalColors off
@@ -28,7 +27,8 @@ export const halftoneLinesMeta = {
  * - u_thinLines (bool): Allow sub-pixel thin lines (set false to keep lines antialiased)
  * - u_allowOverflow (bool): Allow the line to take the whole grid cell (set false to keep the gaps visible)
  * - u_contrast (float): Image contrast adjustment (0 to 1)
- * - u_smoothness (float): Blur radius applied to the source image before the luminance is read (0 to 8)
+ * - u_smoothness (float): Smoothing applied to the luminance that drives the strokes (0 to 1)
+ * - u_colorSmoothness (float): Smoothing applied to the sampled color, needs originalColors on (0 to 1)
  * - u_originalColors (bool): Use the sampled image's original colors instead of colorFront
  * - u_inverted (bool): Inverts the image luminance, needs contrast > 0
  * - u_grainMixer (float): Strength of grain distortion applied to the lines (0 to 1)
@@ -60,8 +60,6 @@ export const halftoneLinesMeta = {
 export const halftoneLinesFragmentShader: string = `#version 300 es
 precision mediump float;
 
-uniform mediump vec2 u_resolution;
-
 uniform sampler2D u_image;
 uniform mediump float u_imageAspectRatio;
 
@@ -83,6 +81,7 @@ uniform bool u_originalColors;
 uniform bool u_inverted;
 uniform float u_stripeWidth;
 uniform float u_smoothness;
+uniform float u_colorSmoothness;
 uniform float u_gridAngleDistortion;
 uniform float u_gridNoiseDistortion;
 uniform float u_gridRotation;
@@ -92,10 +91,10 @@ in vec2 v_objectUV;
 
 out vec4 fragColor;
 
-${ declarePI }
-${ rotation2 }
-${ simplexNoise }
-${ proceduralHash21 }
+${declarePI}
+${rotation2}
+${simplexNoise}
+${proceduralHash21}
 
 float valueNoise(vec2 st) {
   vec2 i = floor(st);
@@ -127,59 +126,50 @@ float sigmoid(float x, float k) {
   return 1.0 / (1.0 + exp(-k * (x - 0.5)));
 }
 
-vec4 blurTexture(sampler2D tex, vec2 uv, vec2 texelSize, float radius) {
-  // clamp radius so loops have a known max
-  float r = clamp(radius, 0., float(${ halftoneLinesMeta.maxBlurRadius }));
-  int ir = int(r);
-
-  vec4 acc = vec4(0.0);
-  float weightSum = 0.0;
-
-  // simple Gaussian-ish weights based on distance
-  for (int y = -${ halftoneLinesMeta.maxBlurRadius }; y <= ${ halftoneLinesMeta.maxBlurRadius }; ++y) {
-    if (abs(y) > ir) continue;
-    for (int x = -${ halftoneLinesMeta.maxBlurRadius }; x <= ${ halftoneLinesMeta.maxBlurRadius }; ++x) {
-      if (abs(x) > ir) continue;
-
-      vec2 offset = vec2(float(x), float(y));
-      float dist2 = dot(offset, offset);
-
-      // tweak sigma to taste; lower sigma = sharper falloff
-      float sigma = radius * 0.5 + 0.001;
-      float w = exp(-dist2 / (2.0 * sigma * sigma));
-
-      acc += texture(tex, uv + offset * texelSize) * w;
-      weightSum += w;
-    }
-  }
-
-  return acc / max(weightSum, 0.00001);
-}
-
-
-float getLumAtPx(vec2 uv, float contrast, out vec4 originalTexture) {
-  originalTexture = blurTexture(u_image, uv, vec2(1. / u_resolution), u_smoothness);
+float toLum(vec4 tex, float contrast) {
   vec3 color = vec3(
-  sigmoid(originalTexture.r, contrast),
-  sigmoid(originalTexture.g, contrast),
-  sigmoid(originalTexture.b, contrast)
+  sigmoid(tex.r, contrast),
+  sigmoid(tex.g, contrast),
+  sigmoid(tex.b, contrast)
   );
   float lum = dot(vec3(0.2126, 0.7152, 0.0722), color);
-  lum = mix(1., lum, originalTexture.a);
-  lum = u_inverted ? (1. - lum) : lum;
-  return lum;
+  lum = mix(1., lum, tex.a);
+  return u_inverted ? (1. - lum) : lum;
+}
+
+float smoothingLod(float radius) {
+  return max(0., log2(max(radius, 1.)) - 1.);
+}
+
+vec4 sampleSmoothed(vec2 uv, float radius) {
+  if (radius <= 0.) return texture(u_image, uv);
+
+  vec2 texelSize = 1. / vec2(textureSize(u_image, 0));
+  float lod = smoothingLod(radius);
+  vec2 texelStep = exp2(lod) * texelSize;
+
+  vec4 acc = 2. * textureLod(u_image, uv, lod);
+  acc += textureLod(u_image, uv + vec2(texelStep.x, 0.), lod);
+  acc += textureLod(u_image, uv - vec2(texelStep.x, 0.), lod);
+  acc += textureLod(u_image, uv + vec2(0., texelStep.y), lod);
+  acc += textureLod(u_image, uv - vec2(0., texelStep.y), lod);
+
+  return acc / 6.;
 }
 
 void main() {
 
-  vec2 uvOriginal = v_imageUV;
-
   float contrast = mix(0., 15., u_contrast);
 
-  vec4 originalTexture = vec4(0.);
-  float lum = getLumAtPx(uvOriginal, contrast, originalTexture);
+  float maxRadius = float(${halftoneLinesMeta.maxBlurRadius});
+  float smoothingRadius = maxRadius * u_smoothness * u_smoothness;
+  float colorSmoothingRadius = maxRadius * u_colorSmoothness * u_colorSmoothness;
+
+  vec4 originalTexture = sampleSmoothed(v_imageUV, colorSmoothingRadius);
 
   float frame = getImgFrame(v_imageUV, 0.);
+
+  float lum = toLum(sampleSmoothed(v_imageUV, smoothingRadius), contrast);
   lum = mix(1., lum, frame);
   lum = 1. - lum;
 
@@ -196,15 +186,12 @@ void main() {
   float angleOffset = u_gridRotation * PI / 180.;
   float angleDistort = u_gridAngleDistortion * lum;
 
-  // The offset is in canvas units for every grid type; gridSize converts it into the scaled grid space
   vec2 gridOffset = -gridSize * vec2(u_gridOffsetX, u_gridOffsetY);
   if (u_grid == 0.) {
     uvGrid += gridOffset;
     uvGrid = rotate(uvGrid, angleOffset + angleDistort);
     gridLine = uvGrid.y;
   } else if (u_grid == 1.) {
-    // Concentric rings are symmetric around their own center, so the offset is applied after
-    // the rotation: that way the rotation orbits the ring center instead of doing nothing
     uvGrid = rotate(uvGrid, angleOffset + angleDistort);
     uvGrid += gridOffset;
     gridLine = length(uvGrid);
@@ -296,6 +283,7 @@ export interface HalftoneLinesUniforms extends ShaderSizingUniforms {
   u_gridOffsetY: number;
   u_stripeWidth: number;
   u_smoothness: number;
+  u_colorSmoothness: number;
   u_size: number;
   u_thinLines: boolean;
   u_allowOverflow: boolean;
@@ -320,6 +308,7 @@ export interface HalftoneLinesParams extends ShaderSizingParams, ShaderMotionPar
   gridOffsetY?: number;
   stripeWidth?: number;
   smoothness?: number;
+  colorSmoothness?: number;
   size?: number;
   thinLines?: boolean;
   allowOverflow?: boolean;
