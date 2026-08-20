@@ -114,20 +114,13 @@ export const halftoneLinesDef: ShaderDef = {
         'Grid size relative to the canvas (the grid lives in object space, so it does not follow the image box)',
     },
     {
-      name: 'gridOffsetX',
+      name: 'gridOffset',
       type: 'number',
       min: -1,
       max: 1,
-      defaultValue: defaultParams.gridOffsetX,
-      description: 'The horizontal offset of grid, in canvas units',
-    },
-    {
-      name: 'gridOffsetY',
-      type: 'number',
-      min: -1,
-      max: 1,
-      defaultValue: defaultParams.gridOffsetY,
-      description: 'The vertical offset of grid, in canvas units',
+      defaultValue: defaultParams.gridOffset,
+      description:
+        'Grid offset along the grid Y axis; one grid cell at either end for the lines and waves grids, canvas units for noise and for the radial distance from the image center to the ring center',
     },
     {
       name: 'gridRotation',
@@ -135,7 +128,7 @@ export const halftoneLinesDef: ShaderDef = {
       min: 0,
       max: 360,
       defaultValue: defaultParams.gridRotation,
-      description: 'The grid rotation around the canvas center, with the radial grid needs a nonzero grid offset',
+      description: 'The grid rotation around the image center, with the radial grid needs a nonzero grid offset',
     },
     {
       name: 'gridAngleDistortion',

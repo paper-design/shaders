@@ -18,9 +18,8 @@ export const halftoneLinesMeta = {
  * - u_colorBack (vec4): Background color in RGBA
  * - u_gridSize (float): Grid size relative to the canvas; the grid lives in object space, so it doesn't follow the image box (0 to 1)
  * - u_grid (float): Grid pattern type (0 = lines, 1 = radial, 2 = waves, 3 = noise)
- * - u_gridOffsetX (float): Horizontal grid offset in canvas units (-1 to 1)
- * - u_gridOffsetY (float): Vertical grid offset in canvas units (-1 to 1)
- * - u_gridRotation (float): Grid rotation angle in degrees, with the radial grid needs a nonzero grid offset (0 to 360)
+ * - u_gridOffset (float): Grid offset along the grid Y axis, in grid cells for the lines and waves grids and in canvas units for noise and for the radial ring center distance (-1 to 1)
+ * - u_gridRotation (float): Grid rotation angle in degrees around the image center, with the radial grid needs a nonzero grid offset (0 to 360)
  * - u_gridAngleDistortion (float): Luminosity-based angle distortion strength, with the radial grid needs a nonzero grid offset (0 to 1)
  * - u_gridNoiseDistortion (float): Noise-based position distortion strength (0 to 1)
  * - u_strokeWidth (float): Stroke width relative to the grid cell, at 1 the strokes fill the cell completely (0 to 1)
@@ -70,8 +69,7 @@ uniform float u_contrast;
 
 uniform float u_gridSize;
 uniform float u_grid;
-uniform float u_gridOffsetX;
-uniform float u_gridOffsetY;
+uniform float u_gridOffset;
 uniform float u_grainMixer;
 uniform float u_grainMixerSize;
 uniform float u_grainOverlay;
@@ -188,28 +186,22 @@ void main() {
   float angleOffset = u_gridRotation * PI / 180.;
   float angleDistort = u_gridAngleDistortion * lum;
 
-  vec2 gridOffset = -cellsPerSide * vec2(u_gridOffsetX, u_gridOffsetY);
+  uvGrid = rotate(uvGrid, angleOffset + angleDistort);
+  float offsetScale = (u_grid == 0. || u_grid == 2.) ? 1. : cellsPerSide;
+  uvGrid -= vec2(0., offsetScale * u_gridOffset);
+
   if (u_grid == 0.) {
-    uvGrid += gridOffset;
-    uvGrid = rotate(uvGrid, angleOffset + angleDistort);
     gridLine = uvGrid.y;
     gridGrad = vec2(0., 1.);
   } else if (u_grid == 1.) {
-    uvGrid = rotate(uvGrid, angleOffset + angleDistort);
-    uvGrid += gridOffset;
     float radius = length(uvGrid);
     gridLine = radius;
     gridGrad = radius > 1e-4 ? uvGrid / radius : vec2(1., 0.);
   } else if (u_grid == 2.) {
-    uvGrid += gridOffset;
-    uvGrid = rotate(uvGrid, angleOffset + angleDistort);
     gridLine = uvGrid.y + sin(.5 * uvGrid.x);
     gridGrad = vec2(.5 * cos(.5 * uvGrid.x), 1.);
   } else if (u_grid == 3.) {
-    uvGrid += gridOffset;
-    uvGrid = rotate(uvGrid, angleOffset + angleDistort);
-    noise = snoise(.2 * uvGrid);
-    gridLine = noise;
+    gridLine = snoise(.2 * uvGrid);
   }
 
   vec2 grainMixerScale = mix(1000., 50., u_grainMixerSize) * vec2(1., 1. / u_imageAspectRatio);
@@ -289,8 +281,7 @@ export interface HalftoneLinesUniforms extends ShaderSizingUniforms {
   u_colorFront: [number, number, number, number];
   u_image: HTMLImageElement | string | undefined;
   u_grid: (typeof HalftoneLinesGrids)[HalftoneLinesGrid];
-  u_gridOffsetX: number;
-  u_gridOffsetY: number;
+  u_gridOffset: number;
   u_strokeWidth: number;
   u_keepGaps: boolean;
   u_keepStrokes: boolean;
@@ -315,8 +306,7 @@ export interface HalftoneLinesParams extends ShaderSizingParams, ShaderMotionPar
   colorFront?: string;
   image?: HTMLImageElement | string | undefined;
   grid?: HalftoneLinesGrid;
-  gridOffsetX?: number;
-  gridOffsetY?: number;
+  gridOffset?: number;
   strokeWidth?: number;
   keepGaps?: boolean;
   keepStrokes?: boolean;
