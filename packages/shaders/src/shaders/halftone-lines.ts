@@ -17,11 +17,11 @@ export const halftoneLinesMeta = {
  * - u_colorFront (vec4): Foreground (line) color in RGBA, needs originalColors off
  * - u_colorBack (vec4): Background color in RGBA
  * - u_gridSize (float): Grid size relative to the canvas; the grid lives in object space, so it doesn't follow the image box (0 to 1)
- * - u_grid (float): Grid pattern type (0 = lines, 1 = radial, 2 = waves, 3 = noise)
+ * - u_grid (float): Grid pattern type (0 = lines, 1 = linesIrregular, 2 = waves, 3 = wavesIrregular, 4 = zigzag, 5 = radial, 6 = swirl)
  * - u_gridOffset (float): Grid offset along the grid Y axis, one grid cell at full range for the lines and waves grids, canvas units for the radial distance from the image center to the ring center, and a quarter of that for noise (-1 to 1)
  * - u_gridRotation (float): Grid rotation angle in degrees around the image center, with the radial grid needs a nonzero grid offset (0 to 360)
- * - u_gridAngleDistortion (float): Luminosity-based angle distortion strength, with the radial grid needs a nonzero grid offset (0 to 1)
- * - u_gridNoiseDistortion (float): Noise-based position distortion strength (0 to 1)
+ * - u_gridNoise (float): Noise displacement of the grid along its Y axis (0 to 1)
+ * - u_gridDistortion (float): How gridOffset, gridRotation and gridNoise follow the image, -1 the light areas and 1 the dark ones, 0 applies them evenly; each is weighted so one unit of any of them shifts the pattern equally, and it is independent of contrast (-1 to 1)
  * - u_strokeWidth (float): Stroke width relative to the grid cell, at 1 the strokes fill the cell completely (0 to 1)
  * - u_softness (float): Softness of the stroke edges as a fraction of the grid cell, at 1 the stripes blur out into flat tone (0 to 1)
  * - u_keepGaps (bool): Keep a two pixel gap between neighbouring strokes, off lets them merge where they meet
@@ -82,8 +82,8 @@ uniform bool u_keepStrokes;
 uniform float u_softness;
 uniform float u_smoothness;
 uniform float u_colorSmoothness;
-uniform float u_gridAngleDistortion;
-uniform float u_gridNoiseDistortion;
+uniform float u_gridNoise;
+uniform float u_gridDistortion;
 uniform float u_gridRotation;
 
 in vec2 v_imageUV;
@@ -125,6 +125,12 @@ float stripeCoverage(float x, float window, float w) {
 
 float sigmoid(float x, float k) {
   return 1.0 / (1.0 + exp(-k * (x - 0.5)));
+}
+
+float toLumLinear(vec4 tex) {
+  float lum = dot(vec3(0.2126, 0.7152, 0.0722), tex.rgb);
+  lum = mix(1., lum, tex.a);
+  return u_inverted ? (1. - lum) : lum;
 }
 
 float toLum(vec4 tex, float contrast) {
@@ -170,43 +176,58 @@ void main() {
 
   float frame = getImgFrame(v_imageUV, max(fwidth(v_imageUV), 1e-4));
 
-  float lum = 1. - toLum(sampleSmoothed(v_imageUV, smoothingRadius), contrast);
+  vec4 lumSample = sampleSmoothed(v_imageUV, smoothingRadius);
+  float lum = 1. - toLum(lumSample, contrast);
+  float distortLum = 1. - toLumLinear(lumSample);
 
   vec2 uv = v_objectUV;
-  float noise = snoise(2.5 * uv + 100.);
-
-  vec2 uvGrid = v_objectUV;
-  uvGrid += .15 * noise * lum * u_gridNoiseDistortion;
   float cellsPerSide = mix(200., 5., u_gridSize);
-  uvGrid *= cellsPerSide;
+
+  float offsetScale = u_grid < 4.5 ? 1. : cellsPerSide;
+  float distortionCells = 4. * abs(u_gridDistortion) * ((u_gridDistortion > 0. ? distortLum : 1. - distortLum) - 1.);
+  float offsetDistortion = 1. + distortionCells / offsetScale;
+  float rotationDistortion = 1. + distortionCells / (PI * cellsPerSide);
+  float noiseDistortion = 1. + distortionCells / 5.;
+
+  vec2 uvGrid = uv * cellsPerSide;
+  uvGrid += vec2(0., 15. * u_gridNoise * noiseDistortion * snoise(2.5 * uv));
 
   float gridLine;
   vec2 gridGrad = vec2(0.);
 
-  float angleOffset = u_gridRotation * PI / 180.;
-  float angleDistort = u_gridAngleDistortion * lum;
-
-  uvGrid = rotate(uvGrid, angleOffset + angleDistort);
-  float offsetScale = cellsPerSide;
-  if (u_grid == 0. || u_grid == 2.) {
-    offsetScale = 1.;
-  } else if (u_grid == 3.) {
-    offsetScale = .2 * cellsPerSide;
-  }
-  uvGrid -= vec2(0., offsetScale * u_gridOffset);
+  uvGrid = rotate(uvGrid, u_gridRotation * PI / 180. + rotationDistortion);
+  uvGrid -= vec2(0., offsetScale * u_gridOffset * offsetDistortion);
 
   if (u_grid == 0.) {
     gridLine = uvGrid.y;
     gridGrad = vec2(0., 1.);
   } else if (u_grid == 1.) {
+    gridLine = uvGrid.y + .25 * sin(.5 * uvGrid.y) * sin(1.7 * uvGrid.y);
+    gridGrad = vec2(0., 1. + .25 * (.5 * cos(.5 * uvGrid.y) * sin(1.7 * uvGrid.y) + 1.7 * sin(.5 * uvGrid.y) * cos(1.7 * uvGrid.y)));
+  } else if (u_grid == 2.) {
+    gridLine = uvGrid.y + 1.5 * sin(.5 * uvGrid.x);
+    gridGrad = vec2(.5 * cos(.5 * uvGrid.x), 1.);
+  } else if (u_grid == 3.) {
+    float wave1 = sin(.4 * uvGrid.x);
+    float wave2 = sin(.27 * uvGrid.x + 1.3);
+    float wave3 = cos(.13 * uvGrid.x);
+    gridLine = uvGrid.y + 3. * wave1 * wave2 * wave3;
+    gridGrad = vec2(2. * (.4 * cos(.4 * uvGrid.x) * wave2 * wave3 + .27 * wave1 * cos(.27 * uvGrid.x + 1.3) * wave3 - .13 * wave1 * wave2 * sin(.13 * uvGrid.x)), 1.);
+  } else if (u_grid == 4.) {
+    float tooth = fract(uvGrid.x / (4. * PI)) - .5;
+    gridLine = uvGrid.y + 12. * abs(tooth);
+    gridGrad = vec2(sign(tooth) / PI, 1.);
+  } else if (u_grid == 5.) {
     float radius = length(uvGrid);
     gridLine = radius;
     gridGrad = radius > 1e-4 ? uvGrid / radius : vec2(1., 0.);
-  } else if (u_grid == 2.) {
-    gridLine = uvGrid.y + sin(.5 * uvGrid.x);
-    gridGrad = vec2(.5 * cos(.5 * uvGrid.x), 1.);
-  } else if (u_grid == 3.) {
-    gridLine = snoise(.2 * uvGrid);
+  } else if (u_grid == 6.) {
+    float radius = max(length(uvGrid), 1e-4);
+    float twist = .03 * radius;
+    float twistSin = sin(twist);
+    float twistCos = cos(twist);
+    gridLine = uvGrid.x * twistSin + uvGrid.y * twistCos;
+    gridGrad = vec2(twistSin, twistCos) + .03 * (uvGrid.x * twistCos - uvGrid.y * twistSin) * uvGrid / radius;
   }
 
   vec2 grainMixerScale = mix(1000., 50., u_grainMixerSize) * vec2(1., 1. / u_imageAspectRatio);
@@ -294,8 +315,8 @@ export interface HalftoneLinesUniforms extends ShaderSizingUniforms {
   u_smoothness: number;
   u_colorSmoothness: number;
   u_gridSize: number;
-  u_gridAngleDistortion: number;
-  u_gridNoiseDistortion: number;
+  u_gridNoise: number;
+  u_gridDistortion: number;
   u_gridRotation: number;
   u_contrast: number;
   u_originalColors: boolean;
@@ -319,8 +340,8 @@ export interface HalftoneLinesParams extends ShaderSizingParams, ShaderMotionPar
   smoothness?: number;
   colorSmoothness?: number;
   gridSize?: number;
-  gridAngleDistortion?: number;
-  gridNoiseDistortion?: number;
+  gridNoise?: number;
+  gridDistortion?: number;
   gridRotation?: number;
   contrast?: number;
   originalColors?: boolean;
@@ -333,9 +354,13 @@ export interface HalftoneLinesParams extends ShaderSizingParams, ShaderMotionPar
 
 export const HalftoneLinesGrids = {
   lines: 0,
-  radial: 1,
+  linesIrregular: 1,
   waves: 2,
-  noise: 3,
+  wavesIrregular: 3,
+  zigzag: 4,
+  radial: 5,
+  swirl: 6,
 } as const;
+
 
 export type HalftoneLinesGrid = keyof typeof HalftoneLinesGrids;

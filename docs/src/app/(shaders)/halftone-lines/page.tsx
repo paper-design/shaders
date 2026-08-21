@@ -87,9 +87,9 @@ const HalftoneLinesWithControls = () => {
       },
       gridSize: { value: defaults.gridSize, min: 0, max: 1, order: 251 },
       gridOffset: { value: defaults.gridOffset, min: -1, max: 1, order: 252 },
-      gridRotation: { value: defaults.gridRotation, min: 0, max: 360, order: 254 },
-      gridAngleDistortion: { value: defaults.gridAngleDistortion, min: 0, max: 1, order: 255 },
-      gridNoiseDistortion: { value: defaults.gridNoiseDistortion, min: 0, max: 1, order: 256 },
+      gridRotation: { value: defaults.gridRotation, min: 0, max: 180, order: 254 },
+      gridNoise: { value: defaults.gridNoise, min: 0, max: 1, order: 255 },
+      gridDistortion: { value: defaults.gridDistortion, min: 0, max: 1, order: 256 },
 
       grainMixer: { value: defaults.grainMixer, min: 0, max: 1, order: 350 },
       grainMixerSize: { value: defaults.grainMixerSize, min: 0, max: 1, order: 351 },

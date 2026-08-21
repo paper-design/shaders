@@ -102,7 +102,7 @@ export const halftoneLinesDef: ShaderDef = {
       type: 'enum',
       defaultValue: defaultParams.grid,
       description: 'Grid type',
-      options: ['lines', 'radial', 'waves', 'noise'],
+      options: ['lines', 'linesIrregular', 'waves', 'wavesIrregular', 'zigzag', 'radial', 'swirl'],
     },
     {
       name: 'gridSize',
@@ -131,21 +131,21 @@ export const halftoneLinesDef: ShaderDef = {
       description: 'The grid rotation around the image center, with the radial grid needs a nonzero grid offset',
     },
     {
-      name: 'gridAngleDistortion',
+      name: 'gridNoise',
       type: 'number',
       min: 0,
       max: 1,
-      defaultValue: defaultParams.gridAngleDistortion,
-      description:
-        'Changing the grid rotation on the darker image areas, with the radial grid needs a nonzero grid offset',
+      defaultValue: defaultParams.gridNoise,
+      description: 'Noise displacement of the grid along its Y axis',
     },
     {
-      name: 'gridNoiseDistortion',
+      name: 'gridDistortion',
       type: 'number',
-      min: 0,
+      min: -1,
       max: 1,
-      defaultValue: defaultParams.gridNoiseDistortion,
-      description: 'Applying noise to the grid on the darker image areas',
+      defaultValue: defaultParams.gridDistortion,
+      description:
+        'How gridOffset, gridRotation and gridNoise follow the image: -1 the light areas, 1 the dark ones, 0 applies them evenly; independent of contrast',
     },
     {
       name: 'grainMixer',
