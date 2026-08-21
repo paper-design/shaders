@@ -120,7 +120,7 @@ export const halftoneLinesDef: ShaderDef = {
       max: 1,
       defaultValue: defaultParams.gridOffset,
       description:
-        'Grid offset along the grid Y axis; one grid cell at either end for the lines and waves grids, canvas units for noise and for the radial distance from the image center to the ring center',
+        'Grid offset along the grid Y axis; one grid cell at either end for the lines and waves grids, canvas units for the radial distance from the image center to the ring center, and a quarter of that for noise',
     },
     {
       name: 'gridRotation',
