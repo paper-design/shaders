@@ -75,7 +75,7 @@ const HalftoneLinesWithControls = () => {
       inverted: { value: defaults.inverted, order: 201 },
       smoothness: { value: defaults.smoothness, min: 0, max: 1, order: 202 },
       imageBlur: { value: defaults.imageBlur, min: 0, max: 1, order: 203 },
-      strokeWidth: { value: defaults.strokeWidth, min: 0.05, max: 1, order: 204 },
+      strokeWidth: { value: defaults.strokeWidth, min: 0, max: 1, order: 204 },
       softness: { value: defaults.softness, min: 0, max: 1, order: 205 },
       keepGaps: { value: defaults.keepGaps, order: 206 },
       keepStrokes: { value: defaults.keepStrokes, order: 207 },

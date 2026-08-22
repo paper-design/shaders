@@ -144,19 +144,6 @@ float toLum(vec4 tex, float contrast) {
   return u_inverted ? (1. - lum) : lum;
 }
 
-vec3 contouringWeights(float gridOffset, float gridRotation, float gridNoise) {
-//  const vec3 base = vec3(.25, .25, .25);
-//  const vec3 gain = vec3(1., 0., .0);
-//
-//  float offsetDrive = abs(gridOffset);
-//  float rotationDrive = 1. - abs(2. * fract(gridRotation / 180.) - 1.);
-//  float noiseDrive = gridNoise;
-//
-//  vec3 weights = base + gain * vec3(offsetDrive, rotationDrive, noiseDrive);
-//  return weights / (weights.x + weights.y + weights.z);
-  return vec3(.5, .5, .5);
-}
-
 float smoothingLod(float radius) {
   return max(0., log2(max(radius, 1.)) - 1.);
 }
@@ -197,18 +184,26 @@ void main() {
   float cellsPerSide = mix(200., 5., u_gridSize);
 
   float offsetScale = u_grid < 4.5 ? 1. : cellsPerSide;
-  float contouringPower = 4. * abs(u_gridContouring) * ((u_gridContouring > 0. ? contouringLum : 1. - contouringLum) - 1.);
+  float contouringPower = abs(u_gridContouring) * ((u_gridContouring > 0. ? contouringLum : 1. - contouringLum) - 1.);
 
-  vec3 contouring = contouringWeights(u_gridOffset, u_gridRotation, u_gridNoise) * contouringPower;
+  vec3 contouring = vec3(4., 4., 2.) * contouringPower;
 
   vec2 uvGrid = uv * cellsPerSide;
-  uvGrid += vec2(0., (2. * u_gridNoise + contouring.z) * snoise(.1 * uvGrid));
+  float noiseShift = (6. * u_gridNoise + contouring.z) * snoise(.03 * uvGrid);
+  if (u_grid < 4.5) {
+    uvGrid += vec2(0., noiseShift);
+  }
 
   float gridLine;
   vec2 gridGrad = vec2(0.);
 
   uvGrid = rotate(uvGrid, u_gridRotation * PI / 180. + 2. * contouring.y / cellsPerSide);
   uvGrid -= vec2(0., offsetScale * u_gridOffset + contouring.x);
+
+  if (u_grid > 4.5) {
+    float noiseRadius = length(uvGrid);
+    uvGrid += noiseShift * (noiseRadius > 1e-4 ? uvGrid / noiseRadius : vec2(0., 1.));
+  }
 
   if (u_grid == 0.) {
     gridLine = uvGrid.y;
