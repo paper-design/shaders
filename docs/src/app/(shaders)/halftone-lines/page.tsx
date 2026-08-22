@@ -74,7 +74,7 @@ const HalftoneLinesWithControls = () => {
       contrast: { value: defaults.contrast, min: 0, max: 1, order: 200 },
       inverted: { value: defaults.inverted, order: 201 },
       smoothness: { value: defaults.smoothness, min: 0, max: 1, order: 202 },
-      colorSmoothness: { value: defaults.colorSmoothness, min: 0, max: 1, order: 203 },
+      imageBlur: { value: defaults.imageBlur, min: 0, max: 1, order: 203 },
       strokeWidth: { value: defaults.strokeWidth, min: 0.05, max: 1, order: 204 },
       softness: { value: defaults.softness, min: 0, max: 1, order: 205 },
       keepGaps: { value: defaults.keepGaps, order: 206 },
@@ -89,7 +89,7 @@ const HalftoneLinesWithControls = () => {
       gridOffset: { value: defaults.gridOffset, min: -1, max: 1, order: 252 },
       gridRotation: { value: defaults.gridRotation, min: 0, max: 180, order: 254 },
       gridNoise: { value: defaults.gridNoise, min: 0, max: 1, order: 255 },
-      gridDistortion: { value: defaults.gridDistortion, min: 0, max: 1, order: 256 },
+      gridContouring: { value: defaults.gridContouring, min: -1, max: 1, order: 256 },
 
       grainMixer: { value: defaults.grainMixer, min: 0, max: 1, order: 350 },
       grainMixerSize: { value: defaults.grainMixerSize, min: 0, max: 1, order: 351 },

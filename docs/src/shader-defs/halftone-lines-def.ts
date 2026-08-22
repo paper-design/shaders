@@ -59,12 +59,12 @@ export const halftoneLinesDef: ShaderDef = {
       description: 'Smoothing applied to the luminance that shapes the strokes; the image colors stay sharp',
     },
     {
-      name: 'colorSmoothness',
+      name: 'imageBlur',
       type: 'number',
       min: 0,
       max: 1,
-      defaultValue: defaultParams.colorSmoothness,
-      description: 'Smoothing applied to the sampled image colors, needs originalColors on',
+      defaultValue: defaultParams.imageBlur,
+      description: 'Blur applied to the sampled image colors, needs originalColors on',
     },
     {
       name: 'strokeWidth',
@@ -102,7 +102,7 @@ export const halftoneLinesDef: ShaderDef = {
       type: 'enum',
       defaultValue: defaultParams.grid,
       description: 'Grid type',
-      options: ['lines', 'linesIrregular', 'waves', 'wavesIrregular', 'zigzag', 'radial', 'swirl'],
+      options: ['lines', 'linesIrregular', 'waves', 'wavesIrregular', 'zigzag', 'radial'],
     },
     {
       name: 'gridSize',
@@ -139,13 +139,13 @@ export const halftoneLinesDef: ShaderDef = {
       description: 'Noise displacement of the grid along its Y axis',
     },
     {
-      name: 'gridDistortion',
+      name: 'gridContouring',
       type: 'number',
       min: -1,
       max: 1,
-      defaultValue: defaultParams.gridDistortion,
+      defaultValue: defaultParams.gridContouring,
       description:
-        'How gridOffset, gridRotation and gridNoise follow the image: -1 the light areas, 1 the dark ones, 0 applies them evenly; independent of contrast',
+        'How much the image contours the grid, blending an offset along the grid Y axis, a rotation around the image center and a noise displacement in proportion to gridOffset, gridRotation and gridNoise (-1 follows the light areas, 1 the dark ones, 0 is off), independent of contrast',
     },
     {
       name: 'grainMixer',

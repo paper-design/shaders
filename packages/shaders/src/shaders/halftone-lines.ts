@@ -17,18 +17,18 @@ export const halftoneLinesMeta = {
  * - u_colorFront (vec4): Foreground (line) color in RGBA, needs originalColors off
  * - u_colorBack (vec4): Background color in RGBA
  * - u_gridSize (float): Grid size relative to the canvas; the grid lives in object space, so it doesn't follow the image box (0 to 1)
- * - u_grid (float): Grid pattern type (0 = lines, 1 = linesIrregular, 2 = waves, 3 = wavesIrregular, 4 = zigzag, 5 = radial, 6 = swirl)
+ * - u_grid (float): Grid pattern type (0 = lines, 1 = linesIrregular, 2 = waves, 3 = wavesIrregular, 4 = zigzag, 5 = radial)
  * - u_gridOffset (float): Grid offset along the grid Y axis, one grid cell at full range for the lines and waves grids, canvas units for the radial distance from the image center to the ring center, and a quarter of that for noise (-1 to 1)
  * - u_gridRotation (float): Grid rotation angle in degrees around the image center, with the radial grid needs a nonzero grid offset (0 to 360)
  * - u_gridNoise (float): Noise displacement of the grid along its Y axis (0 to 1)
- * - u_gridDistortion (float): How gridOffset, gridRotation and gridNoise follow the image, -1 the light areas and 1 the dark ones, 0 applies them evenly; each is weighted so one unit of any of them shifts the pattern equally, and it is independent of contrast (-1 to 1)
+ * - u_gridContouring (float): How much the image contours the grid, blending an offset along the grid Y axis, a rotation around the image center and a noise displacement in proportion to gridOffset, gridRotation and gridNoise; -1 follows the light areas and 1 the dark ones, independent of contrast (-1 to 1)
  * - u_strokeWidth (float): Stroke width relative to the grid cell, at 1 the strokes fill the cell completely (0 to 1)
  * - u_softness (float): Softness of the stroke edges as a fraction of the grid cell, at 1 the stripes blur out into flat tone (0 to 1)
  * - u_keepGaps (bool): Keep a two pixel gap between neighbouring strokes, off lets them merge where they meet
  * - u_keepStrokes (bool): Keep strokes at a two pixel minimum width, off lets them fade away in the lightest areas
  * - u_contrast (float): Image contrast adjustment (0 to 1)
  * - u_smoothness (float): Smoothing applied to the luminance that drives the strokes (0 to 1)
- * - u_colorSmoothness (float): Smoothing applied to the sampled color, needs originalColors on (0 to 1)
+ * - u_imageBlur (float): Blur applied to the sampled color, needs originalColors on (0 to 1)
  * - u_originalColors (bool): Use the sampled image's original colors instead of colorFront
  * - u_inverted (bool): Inverts the image luminance, needs contrast > 0
  * - u_grainMixer (float): Strength of grain distortion applied to the lines (0 to 1)
@@ -81,9 +81,9 @@ uniform bool u_keepGaps;
 uniform bool u_keepStrokes;
 uniform float u_softness;
 uniform float u_smoothness;
-uniform float u_colorSmoothness;
+uniform float u_imageBlur;
 uniform float u_gridNoise;
-uniform float u_gridDistortion;
+uniform float u_gridContouring;
 uniform float u_gridRotation;
 
 in vec2 v_imageUV;
@@ -144,6 +144,19 @@ float toLum(vec4 tex, float contrast) {
   return u_inverted ? (1. - lum) : lum;
 }
 
+vec3 contouringWeights(float gridOffset, float gridRotation, float gridNoise) {
+//  const vec3 base = vec3(.25, .25, .25);
+//  const vec3 gain = vec3(1., 0., .0);
+//
+//  float offsetDrive = abs(gridOffset);
+//  float rotationDrive = 1. - abs(2. * fract(gridRotation / 180.) - 1.);
+//  float noiseDrive = gridNoise;
+//
+//  vec3 weights = base + gain * vec3(offsetDrive, rotationDrive, noiseDrive);
+//  return weights / (weights.x + weights.y + weights.z);
+  return vec3(.5, .5, .5);
+}
+
 float smoothingLod(float radius) {
   return max(0., log2(max(radius, 1.)) - 1.);
 }
@@ -170,33 +183,32 @@ void main() {
 
   float maxRadius = float(${halftoneLinesMeta.maxBlurRadius});
   float smoothingRadius = maxRadius * u_smoothness * u_smoothness;
-  float colorSmoothingRadius = maxRadius * u_colorSmoothness * u_colorSmoothness;
+  float imageBlurRadius = maxRadius * u_imageBlur * u_imageBlur;
 
-  vec4 originalTexture = sampleSmoothed(v_imageUV, colorSmoothingRadius);
+  vec4 originalTexture = sampleSmoothed(v_imageUV, imageBlurRadius);
 
   float frame = getImgFrame(v_imageUV, max(fwidth(v_imageUV), 1e-4));
 
   vec4 lumSample = sampleSmoothed(v_imageUV, smoothingRadius);
   float lum = 1. - toLum(lumSample, contrast);
-  float distortLum = 1. - toLumLinear(lumSample);
+  float contouringLum = 1. - toLumLinear(lumSample);
 
   vec2 uv = v_objectUV;
   float cellsPerSide = mix(200., 5., u_gridSize);
 
   float offsetScale = u_grid < 4.5 ? 1. : cellsPerSide;
-  float distortionCells = 4. * abs(u_gridDistortion) * ((u_gridDistortion > 0. ? distortLum : 1. - distortLum) - 1.);
-  float offsetDistortion = 1. + distortionCells / offsetScale;
-  float rotationDistortion = 1. + distortionCells / (PI * cellsPerSide);
-  float noiseDistortion = 1. + distortionCells / 5.;
+  float contouringPower = 4. * abs(u_gridContouring) * ((u_gridContouring > 0. ? contouringLum : 1. - contouringLum) - 1.);
+
+  vec3 contouring = contouringWeights(u_gridOffset, u_gridRotation, u_gridNoise) * contouringPower;
 
   vec2 uvGrid = uv * cellsPerSide;
-  uvGrid += vec2(0., 15. * u_gridNoise * noiseDistortion * snoise(2.5 * uv));
+  uvGrid += vec2(0., (2. * u_gridNoise + contouring.z) * snoise(.1 * uvGrid));
 
   float gridLine;
   vec2 gridGrad = vec2(0.);
 
-  uvGrid = rotate(uvGrid, u_gridRotation * PI / 180. + rotationDistortion);
-  uvGrid -= vec2(0., offsetScale * u_gridOffset * offsetDistortion);
+  uvGrid = rotate(uvGrid, u_gridRotation * PI / 180. + 2. * contouring.y / cellsPerSide);
+  uvGrid -= vec2(0., offsetScale * u_gridOffset + contouring.x);
 
   if (u_grid == 0.) {
     gridLine = uvGrid.y;
@@ -206,28 +218,25 @@ void main() {
     gridGrad = vec2(0., 1. + .25 * (.5 * cos(.5 * uvGrid.y) * sin(1.7 * uvGrid.y) + 1.7 * sin(.5 * uvGrid.y) * cos(1.7 * uvGrid.y)));
   } else if (u_grid == 2.) {
     gridLine = uvGrid.y + 1.5 * sin(.5 * uvGrid.x);
-    gridGrad = vec2(.5 * cos(.5 * uvGrid.x), 1.);
+    gridGrad = vec2(1.5 * .5 * cos(.5 * uvGrid.x), 1.);
   } else if (u_grid == 3.) {
     float wave1 = sin(.4 * uvGrid.x);
     float wave2 = sin(.27 * uvGrid.x + 1.3);
-    float wave3 = cos(.13 * uvGrid.x);
+    float drift = .13 * uvGrid.x + .19 * uvGrid.y;
+    float wave3 = cos(drift);
     gridLine = uvGrid.y + 3. * wave1 * wave2 * wave3;
-    gridGrad = vec2(2. * (.4 * cos(.4 * uvGrid.x) * wave2 * wave3 + .27 * wave1 * cos(.27 * uvGrid.x + 1.3) * wave3 - .13 * wave1 * wave2 * sin(.13 * uvGrid.x)), 1.);
+    gridGrad = vec2(
+      3. * (.4 * cos(.4 * uvGrid.x) * wave2 * wave3 + .27 * wave1 * cos(.27 * uvGrid.x + 1.3) * wave3 - .13 * wave1 * wave2 * sin(drift)),
+      1. - 3. * .19 * wave1 * wave2 * sin(drift)
+    );
   } else if (u_grid == 4.) {
     float tooth = fract(uvGrid.x / (4. * PI)) - .5;
     gridLine = uvGrid.y + 12. * abs(tooth);
-    gridGrad = vec2(sign(tooth) / PI, 1.);
+    gridGrad = vec2(3. * sign(tooth) / PI, 1.);
   } else if (u_grid == 5.) {
     float radius = length(uvGrid);
     gridLine = radius;
     gridGrad = radius > 1e-4 ? uvGrid / radius : vec2(1., 0.);
-  } else if (u_grid == 6.) {
-    float radius = max(length(uvGrid), 1e-4);
-    float twist = .03 * radius;
-    float twistSin = sin(twist);
-    float twistCos = cos(twist);
-    gridLine = uvGrid.x * twistSin + uvGrid.y * twistCos;
-    gridGrad = vec2(twistSin, twistCos) + .03 * (uvGrid.x * twistCos - uvGrid.y * twistSin) * uvGrid / radius;
   }
 
   vec2 grainMixerScale = mix(1000., 50., u_grainMixerSize) * vec2(1., 1. / u_imageAspectRatio);
@@ -242,6 +251,8 @@ void main() {
     length(vec2(dFdx(gridLine), dFdy(gridLine))),
     length(vec2(dot(gridGrad, dFdx(uvGrid)), dot(gridGrad, dFdy(uvGrid))))
   );
+  float baseAA = cellsPerSide * max(length(dFdx(uv)), length(dFdy(uv)));
+  float overlap = smoothstep(1.5, 3.5, aa / max(baseAA, 1e-6));
 
   float wMax = u_keepGaps ? .5 : .5 + .5 * aa;
   float wMin = u_keepStrokes ? min(aa, .25) * (1. - smoothstep(.25, .5, aa)) : 0.;
@@ -254,7 +265,7 @@ void main() {
   float stroke = stripeCoverage(gridLine, window, wDraw);
   stroke *= min(w / max(stable, 1e-4), 1.);
   stroke = 1. + (stroke - 1.) * min((.5 - w) / max(stable, 1e-4), 1.);
-  stroke = mix(stroke, min(2. * w, 1.), smoothstep(.15, .4, aa));
+  stroke = mix(stroke, mix(min(2. * w, 1.), 1., overlap), smoothstep(.15, .4, aa));
 
   if (u_keepGaps == true) {
     float maskWidth = min(aa, .25);
@@ -313,10 +324,10 @@ export interface HalftoneLinesUniforms extends ShaderSizingUniforms {
   u_keepStrokes: boolean;
   u_softness: number;
   u_smoothness: number;
-  u_colorSmoothness: number;
+  u_imageBlur: number;
   u_gridSize: number;
   u_gridNoise: number;
-  u_gridDistortion: number;
+  u_gridContouring: number;
   u_gridRotation: number;
   u_contrast: number;
   u_originalColors: boolean;
@@ -338,10 +349,10 @@ export interface HalftoneLinesParams extends ShaderSizingParams, ShaderMotionPar
   keepStrokes?: boolean;
   softness?: number;
   smoothness?: number;
-  colorSmoothness?: number;
+  imageBlur?: number;
   gridSize?: number;
   gridNoise?: number;
-  gridDistortion?: number;
+  gridContouring?: number;
   gridRotation?: number;
   contrast?: number;
   originalColors?: boolean;
@@ -359,7 +370,6 @@ export const HalftoneLinesGrids = {
   wavesIrregular: 3,
   zigzag: 4,
   radial: 5,
-  swirl: 6,
 } as const;
 
 
