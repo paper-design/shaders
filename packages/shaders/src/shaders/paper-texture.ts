@@ -237,7 +237,7 @@ vec2 getCellTilt(float idx, float radius) {
 
 vec4 getFolds(vec2 uv1, vec2 uv2) {
   float near1 = 9., near2 = 9., near2b = 9.;
-  float idx1 = 0., idx2 = 0.;
+  float idx1 = 0., idx2 = 0., rad1 = 0., rad2 = 0.;
   vec2 p1 = vec2(0.), p2 = vec2(0.), p2b = vec2(0.);
   for (int i = 0; i < ${paperTextureMeta.maxFoldCount}; i++) {
     if (float(i) >= floor(u_foldCount + .5)) break;
@@ -250,6 +250,7 @@ vec4 getFolds(vec2 uv1, vec2 uv2) {
     if (dsq1 < near1) {
       near1 = dsq1;
       idx1 = float(i);
+      rad1 = rand.y;
       p1 = p;
     }
 
@@ -259,6 +260,7 @@ vec4 getFolds(vec2 uv1, vec2 uv2) {
       p2b = p2;
       near2 = dsq2;
       idx2 = float(i);
+      rad2 = rand.y;
       p2 = p;
     } else if (dsq2 < near2b) {
       near2b = dsq2;
@@ -269,7 +271,7 @@ vec4 getFolds(vec2 uv1, vec2 uv2) {
 
   float edge = lst(0., .5, lb - l);
   vec2 edgeGrad = (uv2 - p2b) / max(lb, 1e-4) - (uv2 - p2) / max(l, 1e-4);
-  vec2 tilt = .5 * (getCellTilt(idx1, length(p1)) + getCellTilt(idx2, length(p2)));
+  vec2 tilt = .5 * (getCellTilt(idx1, rad1) + getCellTilt(idx2, rad2));
 
   return vec4(tilt + FACET_CURVE * (1. - edge) * edgeGrad, .2 * l, edge);
 }
