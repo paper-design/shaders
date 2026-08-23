@@ -44,9 +44,9 @@ export const defaultPreset: PaperTexturePreset = {
     creaseSizeY: 0.89,
     creaseOffsetX: 0,
     creaseOffsetY: 0,
-    lightAngle: 45,
+    lightAngle: 300,
     drops: 0.7,
-    seed: 315,
+    seed: 358,
     background: true,
   },
 };
