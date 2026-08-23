@@ -72,17 +72,17 @@ const HalftoneLinesWithControls = () => {
       colorMid: { value: toHsla(defaults.colorMid), order: 102 },
       originalColors: { value: defaults.originalColors, order: 103 },
 
-      contrast: { value: defaults.contrast, min: 0, max: 1, order: 200 },
-      inverted: { value: defaults.inverted, order: 201 },
-      smoothness: { value: defaults.smoothness, min: 0, max: 1, order: 202 },
-      imageBlur: { value: defaults.imageBlur, min: 0, max: 1, order: 203 },
+      strokeContrast: { value: defaults.strokeContrast, min: 0, max: 1, order: 200 },
+      strokeInverted: { value: defaults.strokeInverted, order: 201 },
+      imageSoftness: { value: defaults.imageSoftness, min: 0, max: 1, order: 202 },
+      colorSoftness: { value: defaults.colorSoftness, min: 0, max: 1, order: 203 },
       strokeWidth: { value: defaults.strokeWidth, min: 0, max: 1, order: 204 },
       strokeSoftness: { value: defaults.strokeSoftness, min: 0, max: 1, order: 205 },
-      keepGaps: { value: defaults.keepGaps, order: 206 },
-      keepStrokes: { value: defaults.keepStrokes, order: 207 },
+      strokeKeepGaps: { value: defaults.strokeKeepGaps, order: 206 },
+      strokeKeepWidth: { value: defaults.strokeKeepWidth, order: 207 },
 
-      grid: {
-        value: defaults.grid,
+      gridType: {
+        value: defaults.gridType,
         options: Object.keys(HalftoneLinesGrids) as HalftoneLinesGrid[],
         order: 250,
       },
