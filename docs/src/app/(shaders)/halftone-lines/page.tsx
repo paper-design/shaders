@@ -69,14 +69,15 @@ const HalftoneLinesWithControls = () => {
     return {
       colorBack: { value: toHsla(defaults.colorBack), order: 100 },
       colorFront: { value: toHsla(defaults.colorFront), order: 101 },
-      originalColors: { value: defaults.originalColors, order: 102 },
+      colorMid: { value: toHsla(defaults.colorMid), order: 102 },
+      originalColors: { value: defaults.originalColors, order: 103 },
 
       contrast: { value: defaults.contrast, min: 0, max: 1, order: 200 },
       inverted: { value: defaults.inverted, order: 201 },
       smoothness: { value: defaults.smoothness, min: 0, max: 1, order: 202 },
       imageBlur: { value: defaults.imageBlur, min: 0, max: 1, order: 203 },
       strokeWidth: { value: defaults.strokeWidth, min: 0, max: 1, order: 204 },
-      softness: { value: defaults.softness, min: 0, max: 1, order: 205 },
+      strokeSoftness: { value: defaults.strokeSoftness, min: 0, max: 1, order: 205 },
       keepGaps: { value: defaults.keepGaps, order: 206 },
       keepStrokes: { value: defaults.keepStrokes, order: 207 },
 

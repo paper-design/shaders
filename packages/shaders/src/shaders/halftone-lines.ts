@@ -14,21 +14,22 @@ export const halftoneLinesMeta = {
  * Fragment shader uniforms:
  * - u_image (sampler2D): Source image texture
  * - u_imageAspectRatio (float): Aspect ratio of the source image
- * - u_colorFront (vec4): Foreground (line) color in RGBA, needs originalColors off
+ * - u_colorFront (vec4): Foreground (line) color in RGBA drawn in the dark image areas, blending into colorMid in the light ones, needs originalColors off
+ * - u_colorMid (vec4): Stroke color in RGBA drawn in the light image areas, blending into colorFront in the dark ones, needs originalColors off
  * - u_colorBack (vec4): Background color in RGBA
  * - u_gridSize (float): Grid size relative to the canvas; the grid lives in object space, so it doesn't follow the image box (0 to 1)
- * - u_grid (float): Grid pattern type (0 = lines, 1 = linesIrregular, 2 = waves, 3 = wavesIrregular, 4 = zigzag, 5 = radial)
+ * - u_grid (float): Grid pattern type (0 = lines, 1 = linesIrregular, 2 = waves, 3 = wavesIrregular, 4 = zigzag, 5 = truchet, 6 = radial)
  * - u_gridOffset (float): Grid offset along the grid Y axis, one grid cell at full range for the lines and waves grids, canvas units for the radial distance from the image center to the ring center, and a quarter of that for noise (-1 to 1)
  * - u_gridRotation (float): Grid rotation angle in degrees around the image center, with the radial grid needs a nonzero grid offset (0 to 360)
  * - u_gridNoise (float): Noise displacement of the grid along its Y axis (0 to 1)
  * - u_gridContouring (float): How much the image contours the grid, blending an offset along the grid Y axis, a rotation around the image center and a noise displacement in proportion to gridOffset, gridRotation and gridNoise; -1 follows the light areas and 1 the dark ones, independent of contrast (-1 to 1)
  * - u_strokeWidth (float): Stroke width relative to the grid cell, at 1 the strokes fill the cell completely (0 to 1)
- * - u_softness (float): Softness of the stroke edges as a fraction of the grid cell, at 1 the stripes blur out into flat tone (0 to 1)
+ * - u_strokeSoftness (float): Softness of the stroke edges as a fraction of the grid cell, at 1 the stripes blur out into flat tone (0 to 1)
  * - u_keepGaps (bool): Keep a two pixel gap between neighbouring strokes, off lets them merge where they meet
  * - u_keepStrokes (bool): Keep strokes at a two pixel minimum width, off lets them fade away in the lightest areas
  * - u_contrast (float): Image contrast adjustment (0 to 1)
  * - u_smoothness (float): Smoothing applied to the luminance that drives the strokes (0 to 1)
- * - u_imageBlur (float): Blur applied to the sampled color, needs originalColors on (0 to 1)
+ * - u_imageBlur (float): Blur applied to the sampled color, softening the image colors with originalColors on and the colorMid to colorFront edge with it off, at 0 the two colors meet on a sharp line (0 to 1)
  * - u_originalColors (bool): Use the sampled image's original colors instead of colorFront
  * - u_inverted (bool): Inverts the image luminance, needs contrast > 0
  * - u_grainMixer (float): Strength of grain distortion applied to the lines (0 to 1)
@@ -64,6 +65,7 @@ uniform sampler2D u_image;
 uniform mediump float u_imageAspectRatio;
 
 uniform vec4 u_colorFront;
+uniform vec4 u_colorMid;
 uniform vec4 u_colorBack;
 uniform float u_contrast;
 
@@ -79,7 +81,7 @@ uniform bool u_inverted;
 uniform float u_strokeWidth;
 uniform bool u_keepGaps;
 uniform bool u_keepStrokes;
-uniform float u_softness;
+uniform float u_strokeSoftness;
 uniform float u_smoothness;
 uniform float u_imageBlur;
 uniform float u_gridNoise;
@@ -183,7 +185,7 @@ void main() {
   vec2 uv = v_objectUV;
   float cellsPerSide = mix(200., 5., u_gridSize);
 
-  float offsetScale = u_grid < 4.5 ? 1. : cellsPerSide;
+  float offsetScale = u_grid < 5.5 ? 1. : cellsPerSide;
   float contouringPower = abs(u_gridContouring) * ((u_gridContouring > 0. ? contouringLum : 1. - contouringLum) - 1.);
 
   vec3 contouring = vec3(4., 4., 2.) * contouringPower;
@@ -229,6 +231,21 @@ void main() {
     gridLine = uvGrid.y + 12. * abs(tooth);
     gridGrad = vec2(3. * sign(tooth) / PI, 1.);
   } else if (u_grid == 5.) {
+    float tileSize = 8.;
+    vec2 tile = uvGrid / tileSize;
+    vec2 tileId = floor(tile);
+    vec2 tileUV = fract(tile);
+    float flip = 1.;
+    if (hash21(tileId) > .5) {
+      tileUV.x = 1. - tileUV.x;
+      flip = -1.;
+    }
+    vec2 corner = tileUV.x + tileUV.y < 1. ? vec2(0.) : vec2(1.);
+    vec2 rel = tileUV - corner;
+    float arc = length(rel);
+    gridLine = tileSize * abs(arc - .5);
+    gridGrad = sign(arc - .5) * vec2(flip * rel.x, rel.y) / max(arc, 1e-4);
+  } else if (u_grid == 6.) {
     float radius = length(uvGrid);
     gridLine = radius;
     gridGrad = radius > 1e-4 ? uvGrid / radius : vec2(1., 0.);
@@ -256,7 +273,7 @@ void main() {
   float stable = min(aa, .25);
   float wDraw = clamp(w, stable, max(.5 - stable, stable));
 
-  float window = max(max(aa, .5 * u_softness), 1e-4);
+  float window = max(max(aa, .5 * u_strokeSoftness), 1e-4);
   float stroke = stripeCoverage(gridLine, window, wDraw);
   stroke *= min(w / max(stable, 1e-4), 1.);
   stroke = 1. + (stroke - 1.) * min((.5 - w) / max(stable, 1e-4), 1.);
@@ -270,6 +287,10 @@ void main() {
 
   stroke *= frame;
 
+  float inkLum = 1. - toLumLinear(originalTexture);
+  float inkEdge = max(.5 * u_imageBlur, fwidth(inkLum));
+  float inkMix = smoothstep(.5 - inkEdge, .5 + inkEdge, inkLum);
+
   vec3 color = vec3(0.);
   float opacity = 0.;
   
@@ -281,13 +302,14 @@ void main() {
     color = color + bgColor * (1. - opacity);
     opacity = opacity + u_colorBack.a * (1. - opacity);
   } else {
-    vec3 fgColor = u_colorFront.rgb * u_colorFront.a;
-    float fgOpacity = u_colorFront.a;
+    vec4 frontPremult = vec4(u_colorFront.rgb * u_colorFront.a, u_colorFront.a);
+    vec4 midPremult = vec4(u_colorMid.rgb * u_colorMid.a, u_colorMid.a);
+    vec4 ink = mix(midPremult, frontPremult, inkMix);
     vec3 bgColor = u_colorBack.rgb * u_colorBack.a;
     float bgOpacity = u_colorBack.a;
 
-    color = fgColor * stroke;
-    opacity = fgOpacity * stroke;
+    color = ink.rgb * stroke;
+    opacity = ink.a * stroke;
     color += bgColor * (1. - opacity);
     opacity += bgOpacity * (1. - opacity);
   }
@@ -311,13 +333,14 @@ void main() {
 export interface HalftoneLinesUniforms extends ShaderSizingUniforms {
   u_colorBack: [number, number, number, number];
   u_colorFront: [number, number, number, number];
+  u_colorMid: [number, number, number, number];
   u_image: HTMLImageElement | string | undefined;
   u_grid: (typeof HalftoneLinesGrids)[HalftoneLinesGrid];
   u_gridOffset: number;
   u_strokeWidth: number;
   u_keepGaps: boolean;
   u_keepStrokes: boolean;
-  u_softness: number;
+  u_strokeSoftness: number;
   u_smoothness: number;
   u_imageBlur: number;
   u_gridSize: number;
@@ -336,13 +359,14 @@ export interface HalftoneLinesUniforms extends ShaderSizingUniforms {
 export interface HalftoneLinesParams extends ShaderSizingParams, ShaderMotionParams {
   colorBack?: string;
   colorFront?: string;
+  colorMid?: string;
   image?: HTMLImageElement | string | undefined;
   grid?: HalftoneLinesGrid;
   gridOffset?: number;
   strokeWidth?: number;
   keepGaps?: boolean;
   keepStrokes?: boolean;
-  softness?: number;
+  strokeSoftness?: number;
   smoothness?: number;
   imageBlur?: number;
   gridSize?: number;
@@ -364,7 +388,8 @@ export const HalftoneLinesGrids = {
   waves: 2,
   wavesIrregular: 3,
   zigzag: 4,
-  radial: 5,
+  truchet: 5,
+  radial: 6,
 } as const;
 
 

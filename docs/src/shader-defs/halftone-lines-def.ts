@@ -26,7 +26,16 @@ export const halftoneLinesDef: ShaderDef = {
       type: 'string',
       defaultValue: defaultParams.colorFront,
       isColor: true,
-      description: 'Foreground color, needs originalColors off',
+      description:
+        'Foreground color drawn in the dark image areas, blending into colorMid in the light ones, needs originalColors off',
+    },
+    {
+      name: 'colorMid',
+      type: 'string',
+      defaultValue: defaultParams.colorMid,
+      isColor: true,
+      description:
+        'Stroke color drawn in the light image areas, blending into colorFront in the dark ones, needs originalColors off',
     },
     {
       name: 'originalColors',
@@ -64,7 +73,8 @@ export const halftoneLinesDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.imageBlur,
-      description: 'Blur applied to the sampled image colors, needs originalColors on',
+      description:
+        'Blur applied to the sampled color, softening the image colors with originalColors on and the colorMid to colorFront edge with it off (at 0 the two colors meet on a sharp line)',
     },
     {
       name: 'strokeWidth',
@@ -75,11 +85,11 @@ export const halftoneLinesDef: ShaderDef = {
       description: 'Stroke width relative to the grid cell; at 1 the strokes fill the cell completely',
     },
     {
-      name: 'softness',
+      name: 'strokeSoftness',
       type: 'number',
       min: 0,
       max: 1,
-      defaultValue: defaultParams.softness,
+      defaultValue: defaultParams.strokeSoftness,
       description:
         'Softness of the stroke edges as a fraction of the grid cell; at 1 the stripes blur out into flat tone',
     },
@@ -102,7 +112,7 @@ export const halftoneLinesDef: ShaderDef = {
       type: 'enum',
       defaultValue: defaultParams.grid,
       description: 'Grid type',
-      options: ['lines', 'linesIrregular', 'waves', 'wavesIrregular', 'zigzag', 'radial'],
+      options: ['lines', 'linesIrregular', 'waves', 'wavesIrregular', 'zigzag', 'truchet', 'radial'],
     },
     {
       name: 'gridSize',
