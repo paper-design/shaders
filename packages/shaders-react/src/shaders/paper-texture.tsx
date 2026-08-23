@@ -191,8 +191,6 @@ export const PaperTexture: React.FC<PaperTextureProps> = memo(function PaperText
 }: PaperTextureProps) {
   const noiseTexture = typeof window !== 'undefined' && { u_noiseTexture: getShaderNoiseTexture() };
 
-  const lightRadians = (lightAngle * Math.PI) / 180;
-
   const uniforms = {
     // Own uniforms
     u_image: image,
@@ -208,8 +206,7 @@ export const PaperTexture: React.FC<PaperTextureProps> = memo(function PaperText
     u_creaseSizeY: creaseSizeY,
     u_creaseOffsetX: creaseOffsetX,
     u_creaseOffsetY: creaseOffsetY,
-    u_lightDir: [Math.sin(lightRadians), -Math.cos(lightRadians)],
-    u_foldTrig: [Math.cos(4 * seed), Math.sin(4 * seed)],
+    u_lightAngle: lightAngle,
     u_folds: folds,
     u_creases: creases,
     u_drops: drops,

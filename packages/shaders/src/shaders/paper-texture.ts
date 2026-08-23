@@ -27,8 +27,7 @@ export const paperTextureMeta = {
  * - u_creaseSizeY (float): Size of the horizontal creases, needs u_creases > 0 (0 to 1)
  * - u_creaseOffsetX (float): Shifts the vertical creases across the surface, needs u_creases > 0 (0 to 1)
  * - u_creaseOffsetY (float): Shifts the horizontal creases across the surface, needs u_creases > 0 (0 to 1)
- * - u_lightDir (vec2): Direction the surface is lit from as a unit vector, derived from the lightAngle prop, needs u_folds or u_creases > 0
- * - u_foldTrig (vec2): Cos and sin of the crumple frame rotation, derived from the seed
+ * - u_lightAngle (float): Direction the surface is lit from in degrees, clockwise from the top of the canvas, needs u_folds or u_creases > 0 (0 to 360)
  * - u_drops (float): Visibility of the speckle pattern (0 to 1)
  * - u_seed (float): Seed applied to folds and drops (0 to 1000)
  * - u_blending (float): How much the image is printed into the paper; 0 = exact image, 1 = image multiplied with a grayscale paper-texture ink (toned by colorShadow) and thinned so the background reads through, needs image (0 to 1)
@@ -74,8 +73,7 @@ uniform float u_creaseSizeX;
 uniform float u_creaseSizeY;
 uniform float u_creaseOffsetX;
 uniform float u_creaseOffsetY;
-uniform vec2 u_lightDir;
-uniform vec2 u_foldTrig;
+uniform float u_lightAngle;
 uniform float u_drops;
 uniform float u_seed;
 uniform float u_blending;
@@ -304,6 +302,8 @@ void main() {
   }
 
   float grazing = 0.7;
+  float lightRad = radians(u_lightAngle);
+  vec2 lightDir = vec2(sin(lightRad), -cos(lightRad));
   vec2 relief = vec2(0.);
   float reliefAmount = 0.;
   float creaseInk = 1.;
@@ -311,13 +311,14 @@ void main() {
   vec2 foldFlow = vec2(0.);
 
   if (u_folds > 0.) {
-    vec2 foldQ = patternUV * .18;
-    vec2 foldsUV = vec2(u_foldTrig.x * foldQ.x - u_foldTrig.y * foldQ.y, u_foldTrig.y * foldQ.x + u_foldTrig.x * foldQ.y) +
+    float foldRad = 4. * u_seed;
+    float foldCos = cos(foldRad), foldSin = sin(foldRad);
+    vec2 foldsUV = mat2(foldCos, foldSin, -foldSin, foldCos) * (patternUV * .18) +
       .012 * (smoothNoise(patternUV * .015 + u_seed) - .5);
     vec4 folds = getFolds(foldsUV);
 
     vec2 foldTilt = .5 * u_folds * folds.xy;
-    foldTilt -= (1. - FOLD_LIT_GAIN) * max(dot(foldTilt, u_lightDir), 0.) * u_lightDir;
+    foldTilt -= (1. - FOLD_LIT_GAIN) * max(dot(foldTilt, lightDir), 0.) * lightDir;
     relief += foldTilt;
     reliefAmount += .5 * u_folds;
     foldFlow = folds.w * foldTilt;
@@ -341,10 +342,10 @@ void main() {
     vec2 dropMask = mix(vec2(1.), dark, u_creases);
     drops *= dropMask.x * dropMask.y;
 
-    yShift += .022 * u_creases * lift.x * abs(u_lightDir.x);
+    yShift += .022 * u_creases * lift.x * abs(lightDir.x);
     patternUV.y += yShift;
 
-    float xFan = 2. * (imageUV.x - .5) * abs(u_lightDir.y);
+    float xFan = 2. * (imageUV.x - .5) * abs(lightDir.y);
     xDistortion -= .02 * u_creases * lift.y * xFan;
     patternUV.x -= .022 * u_creases * lift.y * xFan;
   }
@@ -353,7 +354,7 @@ void main() {
   float lit = unlit;
 
   if (reliefAmount > 0.) {
-    float slope = clamp(dot(relief, u_lightDir), -1.2, 1.2);
+    float slope = clamp(dot(relief, lightDir), -1.2, 1.2);
     lit = SHADING_SCALE * max(cos(slope + grazing), LIT_FLOOR);
 
     pattern += (clamp(reliefAmount, 0., 1.) * unlit + (lit - unlit)) * creaseInk;
@@ -458,8 +459,7 @@ export interface PaperTextureUniforms extends ShaderSizingUniforms {
   u_creaseSizeY: number;
   u_creaseOffsetX: number;
   u_creaseOffsetY: number;
-  u_lightDir: [number, number];
-  u_foldTrig: [number, number];
+  u_lightAngle: number;
   u_drops: number;
   u_seed: number;
   u_blending: number;
