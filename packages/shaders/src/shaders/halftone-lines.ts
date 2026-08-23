@@ -187,10 +187,10 @@ void main() {
   float offsetScale = u_gridType < 5.5 ? 1. : cellsPerSide;
   float contouringPower = abs(u_gridContouring) * ((u_gridContouring > 0. ? contouringLum : 1. - contouringLum) - 1.);
 
-  vec3 contouring = vec3(4., 4., 2.) * contouringPower;
+  vec3 contouring = vec3(6., .5 * smoothstep(length(uv), 0., 1.), -5.) * contouringPower;
 
   vec2 uvGrid = uv * cellsPerSide;
-  float noiseShift = (6. * u_gridNoise + contouring.z) * snoise(.03 * uvGrid);
+  float noiseShift = (6. * u_gridNoise + contouring.z) * snoise(3. * uv + 10.);
   if (u_gridType < 4.5) {
     uvGrid += vec2(0., noiseShift);
   }
@@ -198,7 +198,7 @@ void main() {
   float gridLine;
   vec2 gridGrad = vec2(0.);
 
-  uvGrid = rotate(uvGrid, u_gridRotation * PI / 180. + 2. * contouring.y / cellsPerSide);
+  uvGrid = rotate(uvGrid, u_gridRotation * PI / 180. + contouring.y);
   uvGrid -= vec2(0., offsetScale * u_gridOffset + contouring.x);
 
   if (u_gridType > 4.5) {
@@ -265,20 +265,20 @@ void main() {
   float baseAA = cellsPerSide * max(length(dFdx(uv)), length(dFdy(uv)));
   float overlap = smoothstep(1.5, 3.5, aa / max(baseAA, 1e-6));
 
-  float wMax = u_strokeKeepGaps ? .5 : .5 + .5 * aa;
+  float wMax = 1.5 + .5 * aa;
   float w = clamp(wMax * u_strokeWidth * lum - .5 * grain, 0., .5);
 
   float stable = min(aa, .25);
   float wDraw = clamp(w, stable, max(.5 - stable, stable));
 
-  float window = max(clamp(.5 * u_strokeSoftness, aa, max(.5 - 2. * aa, aa)), 1e-4);
+  float window = max(clamp(.25 * u_strokeSoftness, aa, max(.5 - 2. * aa, aa)), 1e-4);
   float wSoft = clamp(wDraw + .5 * (window - aa), 0., max(.5 - .5 * (window + aa), 0.));
   float stroke = stripeCoverage(gridLine, window, wSoft);
   stroke *= min(w / max(stable, 1e-4), 1.);
   stroke = 1. + (stroke - 1.) * min((.5 - w) / max(stable, 1e-4), 1.);
   stroke = mix(stroke, mix(min(2. * w, 1.), 1., overlap), smoothstep(.15, .4, aa));
 
-  float thinWindow = max(aa * (1. + 1. * u_strokeSoftness), 1e-4);
+  float thinWindow = max(aa * (1. + .5 * u_strokeSoftness), 1e-4);
   float thinGrow = .5 * (thinWindow - aa);
 
   if (u_strokeKeepWidth == true) {
@@ -294,7 +294,7 @@ void main() {
 
   stroke *= frame;
 
-  float inkLum = 1. - toLumLinear(originalTexture);
+  float inkLum = 1. - 1.1 * toLum(originalTexture, .8);
   float inkEdge = max(.5 * u_colorSoftness, fwidth(inkLum));
   float inkMix = smoothstep(.5 - inkEdge, .5 + inkEdge, inkLum);
 
