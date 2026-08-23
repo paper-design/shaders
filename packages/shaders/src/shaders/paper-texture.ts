@@ -3,7 +3,7 @@ import { type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-si
 import { declarePI, proceduralHash22 } from '../shader-utils.js';
 
 export const paperTextureMeta = {
-  maxFoldCount: 20,
+  maxFoldCount: 15,
 } as const;
 
 /**
@@ -21,7 +21,7 @@ export const paperTextureMeta = {
  * - u_fiber (float): Curly fiber noise, simulating real paper (0 to 1)
  * - u_fiberSize (float): Scale of the fiber noise, needs u_fiber > 0 (0 to 1)
  * - u_folds (float): Depth of the centered, irregular field of facets across the sheet (0 to 1)
- * - u_foldCount (float): Number of folds, needs u_folds > 0 (1 to 20)
+ * - u_foldCount (float): Number of folds, needs u_folds > 0 (1 to 15)
  * - u_creases (float): Depth of the straight creases, alternating between ridges and valleys (0 to 1)
  * - u_creaseSizeX (float): Size of the vertical creases, needs u_creases > 0 (0 to 1)
  * - u_creaseSizeY (float): Size of the horizontal creases, needs u_creases > 0 (0 to 1)
@@ -92,11 +92,10 @@ out vec4 fragColor;
 #define GRAIN_DRAG .2
 
  #define TILT_FLOOR .9
-//#define TILT_FLOOR .35
  #define RADIAL_FALLOFF .7
-//#define RADIAL_FALLOFF .25
  #define FACET_CURVE 1.5
-//#define FACET_CURVE .3
+ #define FOLD_LIT_GAIN .35
+ #define LIT_FLOOR 0.
  #define SHADING_SCALE 1.
 
 float getUvFrame(vec2 uv, float blur) {
@@ -239,12 +238,11 @@ vec2 getCellTilt(float idx, float radius) {
 vec4 getFolds(vec2 uv1, vec2 uv2) {
   float near1 = 9., near2 = 9., near2b = 9.;
   float idx1 = 0., idx2 = 0.;
-  vec2 p1 = vec2(0.), p2 = vec2(0.);
+  vec2 p1 = vec2(0.), p2 = vec2(0.), p2b = vec2(0.);
   for (int i = 0; i < ${paperTextureMeta.maxFoldCount}; i++) {
     if (float(i) >= floor(u_foldCount + .5)) break;
     vec2 rand = hash22(vec2(float(i), float(i) * u_seed));
     float an = rand.x * TWO_PI;
-    // vec2 p = vec2(cos(an), sin(an)) * rand.y * rand.y;
     vec2 p = vec2(cos(an), sin(an)) * rand.y;
 
     vec4 d = vec4(uv1, uv2) - p.xyxy;
@@ -258,19 +256,22 @@ vec4 getFolds(vec2 uv1, vec2 uv2) {
     float dsq2 = dot(d.zw, d.zw);
     if (dsq2 < near2) {
       near2b = near2;
+      p2b = p2;
       near2 = dsq2;
       idx2 = float(i);
       p2 = p;
     } else if (dsq2 < near2b) {
       near2b = dsq2;
+      p2b = p;
     }
   }
   float l = sqrt(near2), lb = sqrt(near2b);
 
-  vec2 tilt1 = getCellTilt(idx1, length(p1)) + FACET_CURVE * (uv1 - p1);
-  vec2 tilt2 = getCellTilt(idx2, length(p2)) + FACET_CURVE * (uv2 - p2);
+  float edge = lst(0., .5, lb - l);
+  vec2 edgeGrad = (uv2 - p2b) / max(lb, 1e-4) - (uv2 - p2) / max(l, 1e-4);
+  vec2 tilt = .5 * (getCellTilt(idx1, length(p1)) + getCellTilt(idx2, length(p2)));
 
-  return vec4(.5 * (tilt1 + tilt2), .2 * l, lst(0., .5, lb - l));
+  return vec4(tilt + FACET_CURVE * (1. - edge) * edgeGrad, .2 * l, edge);
 }
 
 void getCreases(vec2 coord, vec2 offset, vec2 count, out vec2 slope, out vec2 dark, out vec2 lift) {
@@ -322,12 +323,13 @@ void main() {
     vec2 foldsUV2 = foldsUV1 + .012 * (smoothNoise(patternUV * .015 + u_seed) - .5);
     vec4 folds = getFolds(foldsUV1, foldsUV2);
 
-    vec2 foldTilt = u_folds * folds.xy;
+    vec2 foldTilt = .5 * u_folds * folds.xy;
+    foldTilt -= (1. - FOLD_LIT_GAIN) * max(dot(foldTilt, u_lightDir), 0.) * u_lightDir;
     relief += foldTilt;
-    reliefAmount += u_folds;
+    reliefAmount += .5 * u_folds;
     foldFlow = folds.w * foldTilt;
 
-    scaleDistortion = .22 * clamp(5. * folds.z, 0., 1.) * u_folds;
+    scaleDistortion = .15 * clamp(5. * folds.z, 0., 1.) * u_folds;
   }
 
   if (u_creases > 0.) {
@@ -359,7 +361,7 @@ void main() {
 
   if (reliefAmount > 0.) {
     float slope = clamp(dot(relief, u_lightDir), -1.2, 1.2);
-    lit = SHADING_SCALE * max(cos(slope + grazing), 0.);
+    lit = SHADING_SCALE * max(cos(slope + grazing), LIT_FLOOR);
 
     pattern += (clamp(reliefAmount, 0., 1.) * unlit + (lit - unlit)) * creaseInk;
   }
