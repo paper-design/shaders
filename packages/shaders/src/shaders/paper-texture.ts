@@ -235,45 +235,36 @@ vec2 getCellTilt(float idx, float radius) {
   return vec2(cos(an), sin(an)) * mix(TILT_FLOOR, 1., rand.y) * mix(RADIAL_FALLOFF, 1., radius);
 }
 
-vec4 getFolds(vec2 uv1, vec2 uv2) {
-  float near1 = 9., near2 = 9., near2b = 9.;
-  float idx1 = 0., idx2 = 0., rad1 = 0., rad2 = 0.;
-  vec2 p1 = vec2(0.), p2 = vec2(0.), p2b = vec2(0.);
+vec4 getFolds(vec2 uv) {
+  float near = 9., nearB = 9.;
+  float idx = 0., rad = 0.;
+  vec2 nearP = vec2(0.), nearPb = vec2(0.);
   for (int i = 0; i < ${paperTextureMeta.maxFoldCount}; i++) {
     if (float(i) >= floor(u_foldCount + .5)) break;
     vec2 rand = hash22(vec2(float(i), float(i) * u_seed));
     float an = rand.x * TWO_PI;
     vec2 p = vec2(cos(an), sin(an)) * rand.y;
 
-    vec4 d = vec4(uv1, uv2) - p.xyxy;
-    float dsq1 = dot(d.xy, d.xy);
-    if (dsq1 < near1) {
-      near1 = dsq1;
-      idx1 = float(i);
-      rad1 = rand.y;
-      p1 = p;
-    }
-
-    float dsq2 = dot(d.zw, d.zw);
-    if (dsq2 < near2) {
-      near2b = near2;
-      p2b = p2;
-      near2 = dsq2;
-      idx2 = float(i);
-      rad2 = rand.y;
-      p2 = p;
-    } else if (dsq2 < near2b) {
-      near2b = dsq2;
-      p2b = p;
+    vec2 d = uv - p;
+    float dsq = dot(d, d);
+    if (dsq < near) {
+      nearB = near;
+      nearPb = nearP;
+      near = dsq;
+      idx = float(i);
+      rad = rand.y;
+      nearP = p;
+    } else if (dsq < nearB) {
+      nearB = dsq;
+      nearPb = p;
     }
   }
-  float l = sqrt(near2), lb = sqrt(near2b);
+  float l = sqrt(near), lb = sqrt(nearB);
 
   float edge = lst(0., .5, lb - l);
-  vec2 edgeGrad = (uv2 - p2b) / max(lb, 1e-4) - (uv2 - p2) / max(l, 1e-4);
-  vec2 tilt = .5 * (getCellTilt(idx1, rad1) + getCellTilt(idx2, rad2));
+  vec2 edgeGrad = (uv - nearPb) / max(lb, 1e-4) - (uv - nearP) / max(l, 1e-4);
 
-  return vec4(tilt + FACET_CURVE * (1. - edge) * edgeGrad, .2 * l, edge);
+  return vec4(getCellTilt(idx, rad) + FACET_CURVE * (1. - edge) * edgeGrad, .2 * l, edge);
 }
 
 void getCreases(vec2 coord, vec2 offset, vec2 count, out vec2 slope, out vec2 dark, out vec2 lift) {
@@ -321,9 +312,9 @@ void main() {
 
   if (u_folds > 0.) {
     vec2 foldQ = patternUV * .18;
-    vec2 foldsUV1 = vec2(u_foldTrig.x * foldQ.x - u_foldTrig.y * foldQ.y, u_foldTrig.y * foldQ.x + u_foldTrig.x * foldQ.y);
-    vec2 foldsUV2 = foldsUV1 + .012 * (smoothNoise(patternUV * .015 + u_seed) - .5);
-    vec4 folds = getFolds(foldsUV1, foldsUV2);
+    vec2 foldsUV = vec2(u_foldTrig.x * foldQ.x - u_foldTrig.y * foldQ.y, u_foldTrig.y * foldQ.x + u_foldTrig.x * foldQ.y) +
+      .012 * (smoothNoise(patternUV * .015 + u_seed) - .5);
+    vec4 folds = getFolds(foldsUV);
 
     vec2 foldTilt = .5 * u_folds * folds.xy;
     foldTilt -= (1. - FOLD_LIT_GAIN) * max(dot(foldTilt, u_lightDir), 0.) * u_lightDir;
