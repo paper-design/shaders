@@ -38,7 +38,7 @@ export const defaultPreset: PaperTexturePreset = {
     fiber: 0.65,
     fiberSize: 0.5,
     folds: 0.5,
-    foldCount: 12,
+    foldCount: 6,
     creases: 0,
     creaseSizeX: 0.6,
     creaseSizeY: 0.89,
@@ -46,7 +46,7 @@ export const defaultPreset: PaperTexturePreset = {
     creaseOffsetY: 0,
     lightAngle: 45,
     drops: 0.7,
-    seed: 613,
+    seed: 315,
     background: true,
   },
 };
