@@ -22,14 +22,6 @@ export const halftoneLinesDef: ShaderDef = {
       description: 'Background color',
     },
     {
-      name: 'colorFront',
-      type: 'string',
-      defaultValue: defaultParams.colorFront,
-      isColor: true,
-      description:
-        'Foreground color drawn in the dark image areas, blending into colorMid in the light ones, needs originalColors off',
-    },
-    {
       name: 'colorMid',
       type: 'string',
       defaultValue: defaultParams.colorMid,
@@ -38,35 +30,19 @@ export const halftoneLinesDef: ShaderDef = {
         'Stroke color drawn in the light image areas, blending into colorFront in the dark ones, needs originalColors off',
     },
     {
+      name: 'colorFront',
+      type: 'string',
+      defaultValue: defaultParams.colorFront,
+      isColor: true,
+      description:
+        'Foreground color drawn in the dark image areas, blending into colorMid in the light ones, needs originalColors off',
+    },
+    {
       name: 'originalColors',
       type: 'boolean',
       defaultValue: defaultParams.originalColors,
       description: 'Use the sampled image’s original colors instead of colorMid and colorFront',
       options: ['true', 'false'],
-    },
-    {
-      name: 'strokeContrast',
-      type: 'number',
-      min: 0,
-      max: 1,
-      defaultValue: defaultParams.strokeContrast,
-      description: 'How strongly the image luminance varies the stroke width',
-    },
-    {
-      name: 'strokeInverted',
-      type: 'boolean',
-      defaultValue: defaultParams.strokeInverted,
-      description:
-        'Inverts the image luminance driving the stroke width, leaving the colors and the grid contouring unchanged, needs strokeContrast > 0',
-      options: ['true', 'false'],
-    },
-    {
-      name: 'imageSoftness',
-      type: 'number',
-      min: 0,
-      max: 1,
-      defaultValue: defaultParams.imageSoftness,
-      description: 'Smoothing applied to the luminance that shapes the strokes; the image colors stay sharp',
     },
     {
       name: 'colorSoftness',
@@ -86,26 +62,52 @@ export const halftoneLinesDef: ShaderDef = {
       description: 'Stroke width relative to the grid cell; at 1 the strokes fill the cell completely',
     },
     {
+      name: 'strokeContrast',
+      type: 'number',
+      min: 0,
+      max: 1,
+      defaultValue: defaultParams.strokeContrast,
+      description: 'How strongly the image luminance varies the stroke width',
+    },
+    {
+      name: 'strokesRounding',
+      type: 'number',
+      min: 0,
+      max: 1,
+      defaultValue: defaultParams.strokesRounding,
+      description: 'Smoothing applied to the luminance that shapes the strokes; the image colors stay sharp',
+    },
+    {
+      name: 'strokeInverted',
+      type: 'boolean',
+      defaultValue: defaultParams.strokeInverted,
+      description:
+        'Inverts the image luminance driving the stroke width, leaving the colors and the grid contouring unchanged, needs strokeContrast > 0',
+      options: ['true', 'false'],
+    },
+    {
       name: 'strokeSoftness',
       type: 'number',
       min: 0,
       max: 1,
       defaultValue: defaultParams.strokeSoftness,
       description:
-        'Softness of the stroke edges as a fraction of the grid cell; at 1 the stripes blur out into flat tone',
+        'Softness added at the stroke edges, the same width at any stroke width; the stroke core keeps its full color and the stroke grows outward by the softness',
     },
     {
       name: 'strokeKeepGaps',
       type: 'boolean',
       defaultValue: defaultParams.strokeKeepGaps,
-      description: 'Keeps a two pixel gap between neighbouring strokes; off, they merge where they meet',
+      description:
+        'Keeps a thin gap between neighbouring strokes, two pixels wide and picking up a third of the stroke softness; off lets them merge where they meet',
       options: ['true', 'false'],
     },
     {
       name: 'strokeKeepWidth',
       type: 'boolean',
       defaultValue: defaultParams.strokeKeepWidth,
-      description: 'Keeps strokes at a two pixel minimum width; off, they fade away in the lightest areas',
+      description:
+        'Draws a thin line along the grid where the strokes fade out, two pixels wide and picking up a third of the stroke softness; off lets them fade away in the lightest areas',
       options: ['true', 'false'],
     },
     {
