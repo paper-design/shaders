@@ -79,6 +79,38 @@ export const classicPreset: HalftoneLinesPreset = {
   },
 };
 
+export const lineartPreset: HalftoneLinesPreset = {
+  name: 'Lineart',
+  params: {
+    ...defaultObjectSizing,
+    scale: 1,
+    speed: 0,
+    frame: 0,
+    colorBack: '#f6e9d5',
+    colorMid: '#117e8d',
+    colorFront: '#000000',
+    originalColors: false,
+    colorSoftness: 1,
+    strokeWidth: 0,
+    strokeContrast: 0.5,
+    strokesRounding: 0.35,
+    strokeInverted: false,
+    strokeSoftness: 0,
+    strokeKeepGaps: true,
+    strokeKeepWidth: true,
+    gridType: 'lines',
+    gridSize: 0.67,
+    gridOffset: 0,
+    gridRotation: 0,
+    gridNoise: 0,
+    gridContouring: -0.66,
+    grainMixer: 0,
+    grainMixerSize: 0.26,
+    grainOverlay: 0.19,
+    grainOverlaySize: 0.5,
+  },
+};
+
 export const noisyPreset: HalftoneLinesPreset = {
   name: 'Noisy',
   params: {
@@ -143,7 +175,46 @@ export const photoPreset: HalftoneLinesPreset = {
   },
 };
 
-export const halftoneLinesPresets: HalftoneLinesPreset[] = [defaultPreset, classicPreset, noisyPreset, photoPreset];
+export const texturedPreset: HalftoneLinesPreset = {
+  name: 'Textured',
+  params: {
+    ...defaultObjectSizing,
+    scale: 1,
+    speed: 0,
+    frame: 0,
+    colorBack: '#15484c',
+    colorMid: '#fbff0a',
+    colorFront: '#ff0000',
+    originalColors: false,
+    colorSoftness: 0.65,
+    strokeWidth: 0.44,
+    strokeContrast: 0.51,
+    strokesRounding: 0,
+    strokeInverted: false,
+    strokeSoftness: 0.25,
+    strokeKeepGaps: false,
+    strokeKeepWidth: false,
+    gridType: 'linesIrregular',
+    gridSize: 0.55,
+    gridOffset: 0,
+    gridRotation: 0,
+    gridNoise: 0,
+    gridContouring: -0.02,
+    grainMixer: 0.78,
+    grainMixerSize: 0.76,
+    grainOverlay: 0,
+    grainOverlaySize: 0.5,
+  },
+};
+
+export const halftoneLinesPresets: HalftoneLinesPreset[] = [
+  defaultPreset,
+  classicPreset,
+  lineartPreset,
+  noisyPreset,
+  photoPreset,
+  texturedPreset,
+];
 
 export const HalftoneLines: React.FC<HalftoneLinesProps> = memo(function HalftoneLinesImpl({
   // Own props
