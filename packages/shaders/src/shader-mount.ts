@@ -105,10 +105,7 @@ export class ShaderMount {
     canvasElement.addEventListener('webglcontextlost', this.handleContextLost);
     canvasElement.addEventListener('webglcontextrestored', this.handleContextRestored);
 
-    if (!this.initializeWebGLResources()) {
-      this.dispose();
-      throw new Error('Paper Shaders: failed to initialize WebGL resources');
-    }
+    this.initializeWebGLResourcesOrDispose();
     // Set up the resize observer to handle window resizing and set u_resolution
     this.setupResizeObserver();
     // Set up the visual viewport change listener to handle zoom changes (pinch zoom and classic browser zoom)
@@ -130,7 +127,16 @@ export class ShaderMount {
   }
 
   /** Create all state invalidated by a WebGL context loss */
-  private initializeWebGLResources = (): boolean => {
+  private initializeWebGLResourcesOrDispose = (): void => {
+    try {
+      this.initializeWebGLResources();
+    } catch (error) {
+      this.dispose();
+      throw error;
+    }
+  };
+
+  private initializeWebGLResources = (): void => {
     this.program = null;
     this.positionBuffer = null;
     this.uniformLocations = {};
@@ -138,7 +144,9 @@ export class ShaderMount {
     this.textures.clear();
 
     this.initProgram();
-    if (!this.program) return false;
+    if (!this.program) {
+      throw new Error('Paper Shaders: failed to initialize WebGL resources');
+    }
 
     this.setupPositionAttribute();
     // Grab the locations of the uniforms in the fragment shader
@@ -148,7 +156,6 @@ export class ShaderMount {
 
     this.gl.viewport(0, 0, this.gl.canvas.width, this.gl.canvas.height);
     this.resolutionChanged = true;
-    return true;
   };
 
   private initProgram = () => {
@@ -159,7 +166,14 @@ export class ShaderMount {
 
   private setupPositionAttribute = () => {
     const positionAttributeLocation = this.gl.getAttribLocation(this.program!, 'a_position');
+    if (positionAttributeLocation < 0) {
+      throw new Error('Paper Shaders: failed to locate the position attribute');
+    }
+
     const positionBuffer = this.gl.createBuffer();
+    if (!positionBuffer) {
+      throw new Error('Paper Shaders: failed to create the position buffer');
+    }
     this.positionBuffer = positionBuffer;
     this.gl.bindBuffer(this.gl.ARRAY_BUFFER, positionBuffer);
     const positions = [-1, -1, 1, -1, -1, 1, -1, 1, 1, -1, 1, 1];
@@ -382,6 +396,7 @@ export class ShaderMount {
     const existingTexture = this.textures.get(uniformName);
     if (existingTexture) {
       this.gl.deleteTexture(existingTexture);
+      this.textures.delete(uniformName);
     }
 
     // Get texture unit
@@ -394,6 +409,9 @@ export class ShaderMount {
 
     // Create and set up the new texture
     const texture = this.gl.createTexture();
+    if (!texture) {
+      throw new Error(`Paper Shaders: failed to create texture for uniform ${uniformName}`);
+    }
     this.gl.bindTexture(this.gl.TEXTURE_2D, texture);
 
     // Set texture parameters
@@ -412,9 +430,9 @@ export class ShaderMount {
     }
 
     const error = this.gl.getError();
-    if (error !== this.gl.NO_ERROR || texture === null) {
-      console.error('Paper Shaders: WebGL error when uploading texture:', error);
-      return;
+    if (error !== this.gl.NO_ERROR) {
+      this.gl.deleteTexture(texture);
+      throw new Error(`Paper Shaders: WebGL error ${error} when uploading texture for uniform ${uniformName}`);
     }
 
     // Store the texture
@@ -468,7 +486,12 @@ export class ShaderMount {
 
       if (value instanceof HTMLImageElement) {
         // Texture case, requires a good amount of code so it gets its own function:
-        this.setTextureUniform(key, value);
+        try {
+          this.setTextureUniform(key, value);
+        } catch (error) {
+          delete this.uniformCache[key];
+          throw error;
+        }
       } else if (Array.isArray(value)) {
         // Array case
         let flatArray: number[] | null = null;
@@ -616,10 +639,12 @@ export class ShaderMount {
   private handleContextRestored = () => {
     if (this.hasBeenDisposed) return;
 
-    if (!this.initializeWebGLResources()) {
-      // A restored context with no usable program cannot receive another restore
-      // event. Fail closed instead of leaving an attached mount that only warns.
-      this.dispose();
+    try {
+      this.initializeWebGLResourcesOrDispose();
+    } catch (error) {
+      // A restored context with unusable resources cannot receive another restore
+      // event. The initialization boundary has already disposed the mount.
+      console.error('Paper Shaders: failed to restore WebGL resources', error);
       return;
     }
     this.isContextLost = false;
@@ -757,10 +782,18 @@ function createProgram(
   const vertexShader = createShader(gl, gl.VERTEX_SHADER, vertexShaderSource);
   const fragmentShader = createShader(gl, gl.FRAGMENT_SHADER, fragmentShaderSource);
 
-  if (!vertexShader || !fragmentShader) return null;
+  if (!vertexShader || !fragmentShader) {
+    if (vertexShader) gl.deleteShader(vertexShader);
+    if (fragmentShader) gl.deleteShader(fragmentShader);
+    return null;
+  }
 
   const program = gl.createProgram();
-  if (!program) return null;
+  if (!program) {
+    gl.deleteShader(vertexShader);
+    gl.deleteShader(fragmentShader);
+    return null;
+  }
 
   gl.attachShader(program, vertexShader);
   gl.attachShader(program, fragmentShader);
