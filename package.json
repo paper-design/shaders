@@ -16,9 +16,11 @@
     "dev:docs": "bun run --filter docs dev",
     "dev:packages": "nodemon --watch 'packages/*/src/**/*' --ext ts,tsx --exec 'bun run build' --on-change-only",
     "dev": "run-s clean build && run-p dev:*",
+    "test:browser": "bun run build && playwright test",
     "clean": "rimraf packages/*/dist"
   },
   "devDependencies": {
+    "@playwright/test": "1.62.1",
     "@types/bun": "^1.1.11",
     "esbuild": "^0.24.0",
     "nodemon": "^3.1.7",

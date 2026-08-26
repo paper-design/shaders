@@ -20,6 +20,8 @@ storybook-static
 # Testing
 cypress/videos
 cypress/screenshots
+playwright-report
+test-results
 
 # Editor-specific
 .vscode

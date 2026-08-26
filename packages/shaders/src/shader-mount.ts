@@ -7,6 +7,7 @@ export class ShaderMount {
   public canvasElement: HTMLCanvasElement;
   private gl: WebGL2RenderingContext;
   private program: WebGLProgram | null = null;
+  private positionBuffer: WebGLBuffer | null = null;
   private uniformLocations: Record<string, WebGLUniformLocation | null> = {};
   /** The fragment shader that we are using */
   private fragmentShader: string;
@@ -26,6 +27,8 @@ export class ShaderMount {
   private mipmaps: string[] = [];
   /** Just a sanity check to make sure frames don't run after we're disposed */
   private hasBeenDisposed = false;
+  /** WebGL resources are invalid between context loss and restoration */
+  private isContextLost = false;
   /** If the resolution of the canvas has changed since the last render */
   private resolutionChanged = true;
   /** Store textures that are provided by the user */
@@ -97,12 +100,10 @@ export class ShaderMount {
     }
     this.gl = gl;
 
-    this.initProgram();
-    this.setupPositionAttribute();
-    // Grab the locations of the uniforms in the fragment shader
-    this.setupUniforms();
-    // Put the user provided values into the uniforms
-    this.setUniformValues(this.providedUniforms);
+    canvasElement.addEventListener('webglcontextlost', this.handleContextLost);
+    canvasElement.addEventListener('webglcontextrestored', this.handleContextRestored);
+
+    this.initializeWebGLResources();
     // Set up the resize observer to handle window resizing and set u_resolution
     this.setupResizeObserver();
     // Set up the visual viewport change listener to handle zoom changes (pinch zoom and classic browser zoom)
@@ -123,6 +124,28 @@ export class ShaderMount {
     this.ownerDocument.addEventListener('visibilitychange', this.handleDocumentVisibilityChange);
   }
 
+  /** Create all state invalidated by a WebGL context loss */
+  private initializeWebGLResources = (): boolean => {
+    this.program = null;
+    this.positionBuffer = null;
+    this.uniformLocations = {};
+    this.uniformCache = {};
+    this.textures.clear();
+
+    this.initProgram();
+    if (!this.program) return false;
+
+    this.setupPositionAttribute();
+    // Grab the locations of the uniforms in the fragment shader
+    this.setupUniforms();
+    // Put the user provided values into the uniforms
+    this.setUniformValues(this.providedUniforms);
+
+    this.gl.viewport(0, 0, this.gl.canvas.width, this.gl.canvas.height);
+    this.resolutionChanged = true;
+    return true;
+  };
+
   private initProgram = () => {
     const program = createProgram(this.gl, vertexShaderSource, this.fragmentShader);
     if (!program) return;
@@ -132,6 +155,7 @@ export class ShaderMount {
   private setupPositionAttribute = () => {
     const positionAttributeLocation = this.gl.getAttribLocation(this.program!, 'a_position');
     const positionBuffer = this.gl.createBuffer();
+    this.positionBuffer = positionBuffer;
     this.gl.bindBuffer(this.gl.ARRAY_BUFFER, positionBuffer);
     const positions = [-1, -1, 1, -1, -1, 1, -1, 1, 1, -1, 1, 1];
     this.gl.bufferData(this.gl.ARRAY_BUFFER, new Float32Array(positions), this.gl.STATIC_DRAW);
@@ -283,7 +307,9 @@ export class ShaderMount {
       this.canvasElement.width = newWidth;
       this.canvasElement.height = newHeight;
       this.resolutionChanged = true;
-      this.gl.viewport(0, 0, this.gl.canvas.width, this.gl.canvas.height);
+      if (!this.isContextLost) {
+        this.gl.viewport(0, 0, this.gl.canvas.width, this.gl.canvas.height);
+      }
 
       // this is necessary to avoid flashes while resizing (the next scheduled render will set uniforms)
       this.render(performance.now());
@@ -291,7 +317,7 @@ export class ShaderMount {
   };
 
   private render = (currentTime: number) => {
-    if (this.hasBeenDisposed) return;
+    if (this.hasBeenDisposed || this.isContextLost) return;
 
     if (this.program === null) {
       console.warn('Tried to render before program or gl was initialized');
@@ -333,6 +359,8 @@ export class ShaderMount {
   };
 
   private requestRender = () => {
+    if (this.hasBeenDisposed || this.isContextLost) return;
+
     if (this.rafId !== null) {
       cancelAnimationFrame(this.rafId);
     }
@@ -519,6 +547,8 @@ export class ShaderMount {
   private setCurrentSpeed = (newSpeed: number): void => {
     this.currentSpeed = newSpeed;
 
+    if (this.hasBeenDisposed || this.isContextLost) return;
+
     if (this.rafId === null && newSpeed !== 0) {
       // Moving from 0 to animating, kick off a new rAF loop
       this.lastRenderTime = performance.now();
@@ -548,6 +578,13 @@ export class ShaderMount {
 
   /** Update the uniforms that are provided by the outside shader, can be a partial set with only the uniforms that have changed */
   public setUniforms = (newUniforms: ShaderMountUniforms): void => {
+    if (this.hasBeenDisposed) return;
+
+    if (this.isContextLost) {
+      this.providedUniforms = { ...this.providedUniforms, ...newUniforms };
+      return;
+    }
+
     this.setUniformValues(newUniforms);
     this.providedUniforms = { ...this.providedUniforms, ...newUniforms };
 
@@ -558,10 +595,44 @@ export class ShaderMount {
     this.updateCurrentSpeed();
   };
 
+  private handleContextLost = (event: Event) => {
+    if (this.hasBeenDisposed) return;
+
+    // Opt this live mount into restoration. All logical state remains intact.
+    event.preventDefault();
+    this.isContextLost = true;
+
+    if (this.rafId !== null) {
+      cancelAnimationFrame(this.rafId);
+      this.rafId = null;
+    }
+  };
+
+  private handleContextRestored = () => {
+    if (this.hasBeenDisposed) return;
+
+    this.isContextLost = false;
+    if (!this.initializeWebGLResources()) return;
+
+    // Re-evaluate visibility without advancing through the time spent context-lost.
+    this.updateCurrentSpeed();
+    const currentTime = performance.now();
+    this.lastRenderTime = currentTime;
+    this.render(currentTime);
+  };
+
   /** Dispose of the shader mount, cleaning up all of the WebGL resources */
   public dispose = (): void => {
+    if (this.hasBeenDisposed) return;
+
     // Immediately mark as disposed to prevent future renders from leaking in
     this.hasBeenDisposed = true;
+
+    // Remove lifecycle listeners before explicitly losing the context so disposal
+    // cannot opt the context into restoration or recreate resources.
+    this.canvasElement.removeEventListener('webglcontextlost', this.handleContextLost);
+    this.canvasElement.removeEventListener('webglcontextrestored', this.handleContextRestored);
+    const loseContextExtension = this.gl.getExtension('WEBGL_lose_context');
 
     // Cancel the rAF loop
     if (this.rafId !== null) {
@@ -569,25 +640,32 @@ export class ShaderMount {
       this.rafId = null;
     }
 
-    if (this.gl && this.program) {
-      // Clean up all textures
-      this.textures.forEach((texture) => {
-        this.gl.deleteTexture(texture);
-      });
-      this.textures.clear();
+    // Clean up all textures
+    this.textures.forEach((texture) => {
+      this.gl.deleteTexture(texture);
+    });
+    this.textures.clear();
 
+    if (this.positionBuffer) {
+      this.gl.deleteBuffer(this.positionBuffer);
+      this.positionBuffer = null;
+    }
+
+    if (this.program) {
       this.gl.deleteProgram(this.program);
       this.program = null;
-
-      // Reset the WebGL context
-      this.gl.bindBuffer(this.gl.ARRAY_BUFFER, null);
-      this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, null);
-      this.gl.bindRenderbuffer(this.gl.RENDERBUFFER, null);
-      this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, null);
-
-      // Clear any errors
-      this.gl.getError();
     }
+
+    // Reset the WebGL context
+    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, null);
+    this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, null);
+    this.gl.bindRenderbuffer(this.gl.RENDERBUFFER, null);
+    this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, null);
+
+    // Clear any errors, then terminally relinquish the underlying context.
+    this.gl.getError();
+    loseContextExtension?.loseContext();
+    this.isContextLost = true;
 
     if (this.resizeObserver) {
       this.resizeObserver.disconnect();
@@ -607,7 +685,9 @@ export class ShaderMount {
     // Remove the shader from the div wrapper element
     this.canvasElement.remove();
     // Free up the reference to self to enable garbage collection
-    delete this.parentElement.paperShaderMount;
+    if (this.parentElement.paperShaderMount === this) {
+      delete this.parentElement.paperShaderMount;
+    }
   };
 }
 

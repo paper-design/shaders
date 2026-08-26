@@ -5,6 +5,9 @@ on:
     branches: [main]
     paths:
       - 'packages/**'
+      - 'tests/browser/**'
+      - 'playwright.config.ts'
+      - 'package.json'
       - bun.lock
 
 jobs:
@@ -34,3 +37,9 @@ jobs:
 
       - name: Run tests
         run: bun test
+
+      - name: Install Chromium
+        run: bunx playwright install --with-deps chromium
+
+      - name: Run browser tests
+        run: bun run test:browser
