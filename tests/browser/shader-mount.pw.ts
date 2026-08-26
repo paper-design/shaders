@@ -170,6 +170,115 @@ test('rebuilds resources and resumes retained state after context restoration', 
     .toBeGreaterThan(750);
 });
 
+test('does not construct a live mount when initial WebGL resources cannot be built', async ({ page }) => {
+  await page.goto('/');
+
+  const result = await page.evaluate(async (shader) => {
+    const { ShaderMount } = await import('/packages/shaders/dist/index.js');
+    const parent = document.querySelector<HTMLElement>('#mount')! as HTMLElement & {
+      paperShaderMount?: InstanceType<typeof ShaderMount>;
+    };
+    const canvasPrototype = WebGL2RenderingContext.prototype;
+    const originalCreateProgram = canvasPrototype.createProgram;
+    let errorMessage: string | null = null;
+
+    try {
+      canvasPrototype.createProgram = () => null;
+      new ShaderMount(parent, shader, { u_value: 0.5 });
+    } catch (error) {
+      errorMessage = error instanceof Error ? error.message : String(error);
+    } finally {
+      canvasPrototype.createProgram = originalCreateProgram;
+    }
+
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    return {
+      errorMessage,
+      canvasCount: parent.querySelectorAll('canvas').length,
+      mountAttached: parent.paperShaderMount !== undefined,
+    };
+  }, fragmentShader);
+
+  expect(result.errorMessage).toBe('Paper Shaders: failed to initialize WebGL resources');
+  expect(result.canvasCount).toBe(0);
+  expect(result.mountAttached).toBe(false);
+});
+
+test('fails closed when restored WebGL resources cannot be rebuilt', async ({ page }) => {
+  const renderWarnings: string[] = [];
+  page.on('console', (message) => {
+    if (message.text().includes('Tried to render before program or gl was initialized')) {
+      renderWarnings.push(message.text());
+    }
+  });
+
+  await page.goto('/');
+
+  const result = await page.evaluate(async (shader) => {
+    const { ShaderMount } = await import('/packages/shaders/dist/index.js');
+    const parent = document.querySelector<HTMLElement>('#mount')! as HTMLElement & {
+      paperShaderMount?: InstanceType<typeof ShaderMount>;
+    };
+    const mount = new ShaderMount(parent, shader, { u_value: 0.5 }, { preserveDrawingBuffer: true }, 1);
+    const canvas = mount.canvasElement;
+    const gl = canvas.getContext('webgl2')!;
+    const loseContext = gl.getExtension('WEBGL_lose_context');
+    if (!loseContext) throw new Error('WEBGL_lose_context is unavailable');
+
+    const lost = new Promise<void>((resolve) => {
+      canvas.addEventListener('webglcontextlost', () => resolve(), { once: true });
+    });
+    loseContext.loseContext();
+    await lost;
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    // Force only the restored program rebuild to fail. Construction and the
+    // browser's context restoration itself have already succeeded at this point.
+    Object.defineProperty(gl, 'createProgram', { configurable: true, value: () => null });
+
+    let restorationCount = 0;
+    const restored = new Promise<void>((resolve) => {
+      canvas.addEventListener(
+        'webglcontextrestored',
+        () => {
+          restorationCount += 1;
+          resolve();
+        },
+        { once: true }
+      );
+    });
+    const terminalLoss = new Promise<void>((resolve) => {
+      canvas.addEventListener('webglcontextlost', () => resolve(), { once: true });
+    });
+
+    loseContext.restoreContext();
+    await restored;
+    const terminallyLost = await Promise.race([
+      terminalLoss.then(() => true),
+      new Promise<false>((resolve) => setTimeout(() => resolve(false), 500)),
+    ]);
+
+    mount.setSpeed(1);
+    await new Promise((resolve) => setTimeout(resolve, 100));
+
+    return {
+      terminallyLost,
+      contextLost: gl.isContextLost(),
+      canvasConnected: canvas.isConnected,
+      mountStillAttached: parent.paperShaderMount === mount,
+      restorationCount,
+    };
+  }, fragmentShader);
+
+  expect(result.terminallyLost).toBe(true);
+  expect(result.contextLost).toBe(true);
+  expect(result.canvasConnected).toBe(false);
+  expect(result.mountStillAttached).toBe(false);
+  expect(result.restorationCount).toBe(1);
+  expect(renderWarnings).toEqual([]);
+});
+
 test('terminal disposal loses every remounted context without restoration or accumulation', async ({ page }) => {
   const contextWarnings: string[] = [];
   page.on('console', (message) => {

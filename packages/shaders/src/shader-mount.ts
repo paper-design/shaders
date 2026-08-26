@@ -105,7 +105,10 @@ export class ShaderMount {
     canvasElement.addEventListener('webglcontextlost', this.handleContextLost);
     canvasElement.addEventListener('webglcontextrestored', this.handleContextRestored);
 
-    this.initializeWebGLResources();
+    if (!this.initializeWebGLResources()) {
+      this.dispose();
+      throw new Error('Paper Shaders: failed to initialize WebGL resources');
+    }
     // Set up the resize observer to handle window resizing and set u_resolution
     this.setupResizeObserver();
     // Set up the visual viewport change listener to handle zoom changes (pinch zoom and classic browser zoom)
@@ -613,8 +616,13 @@ export class ShaderMount {
   private handleContextRestored = () => {
     if (this.hasBeenDisposed) return;
 
+    if (!this.initializeWebGLResources()) {
+      // A restored context with no usable program cannot receive another restore
+      // event. Fail closed instead of leaving an attached mount that only warns.
+      this.dispose();
+      return;
+    }
     this.isContextLost = false;
-    if (!this.initializeWebGLResources()) return;
 
     // Re-evaluate visibility without advancing through the time spent context-lost.
     this.updateCurrentSpeed();
@@ -681,8 +689,12 @@ export class ShaderMount {
 
     // Clear any errors, then terminally relinquish the underlying context.
     this.gl.getError();
-    if (!this.gl.isContextLost()) {
-      this.loseContextExtension?.loseContext();
+    if (!this.gl.isContextLost() && this.loseContextExtension) {
+      const loseContextExtension = this.loseContextExtension;
+      // Disposal can run inside webglcontextrestored, where another loss is
+      // invalid until event dispatch completes. A microtask also keeps ordinary
+      // disposal terminal within the current task.
+      queueMicrotask(() => loseContextExtension.loseContext());
     }
     this.isContextLost = true;
 
