@@ -189,6 +189,36 @@ test('terminal disposal loses every remounted context without restoration or acc
       const lossDefaultPrevented: boolean[] = [];
       let previousMount: InstanceType<typeof ShaderMount> | null = null;
 
+      const lostMount = new ShaderMount(parent, shader, { u_value: 0.5 }, { preserveDrawingBuffer: true }, 1);
+      const lostCanvas = lostMount.canvasElement;
+      const lostContext = lostCanvas.getContext('webgl2')!;
+      const lostContextExtension = lostContext.getExtension('WEBGL_lose_context');
+      if (!lostContextExtension) throw new Error('WEBGL_lose_context is unavailable');
+
+      const initialLoss = new Promise<boolean>((resolve) => {
+        lostCanvas.addEventListener('webglcontextlost', (event) => resolve(event.defaultPrevented), { once: true });
+      });
+      lostContextExtension.loseContext();
+      const initialLossDefaultPrevented = await initialLoss;
+      // restoreContext() is invalid until the context-lost event task has completed.
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      const restoredAfterDispose = new Promise<void>((resolve) => {
+        lostCanvas.addEventListener('webglcontextrestored', () => resolve(), { once: true });
+      });
+      const terminalLoss = new Promise<boolean>((resolve) => {
+        lostCanvas.addEventListener('webglcontextlost', (event) => resolve(event.defaultPrevented), { once: true });
+      });
+
+      // Queue restoration first, then dispose before its event task runs.
+      lostContextExtension.restoreContext();
+      lostMount.dispose();
+      await restoredAfterDispose;
+      const terminalLossDefaultPrevented = await Promise.race([
+        terminalLoss,
+        new Promise<null>((resolve) => setTimeout(() => resolve(null), 500)),
+      ]);
+
       for (let index = 0; index < mountCount; index += 1) {
         const mount = new ShaderMount(parent, shader, { u_value: 0.5 }, { preserveDrawingBuffer: true }, 1);
         const canvas = mount.canvasElement;
@@ -228,6 +258,9 @@ test('terminal disposal loses every remounted context without restoration or acc
       finalMount.dispose();
 
       return {
+        initialLossDefaultPrevented,
+        terminalLossDefaultPrevented,
+        disposedDuringLossContextLost: lostContext.isContextLost(),
         allDisposedContextsLost: contexts.every((context) => context.isContextLost()),
         restoredCounts,
         lossDefaultPrevented,
@@ -239,6 +272,9 @@ test('terminal disposal loses every remounted context without restoration or acc
     { shader: fragmentShader, mountCount: 24 }
   );
 
+  expect(result.initialLossDefaultPrevented).toBe(true);
+  expect(result.terminalLossDefaultPrevented).toBe(false);
+  expect(result.disposedDuringLossContextLost).toBe(true);
   expect(result.allDisposedContextsLost).toBe(true);
   expect(result.restoredCounts).toEqual(Array(24).fill(0));
   expect(result.lossDefaultPrevented).toEqual(Array(24).fill(false));

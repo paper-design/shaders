@@ -6,6 +6,7 @@ export class ShaderMount {
   public parentElement: PaperShaderElement;
   public canvasElement: HTMLCanvasElement;
   private gl: WebGL2RenderingContext;
+  private loseContextExtension: WEBGL_lose_context | null = null;
   private program: WebGLProgram | null = null;
   private positionBuffer: WebGLBuffer | null = null;
   private uniformLocations: Record<string, WebGLUniformLocation | null> = {};
@@ -99,6 +100,7 @@ export class ShaderMount {
       throw new Error('Paper Shaders: WebGL is not supported in this browser');
     }
     this.gl = gl;
+    this.loseContextExtension = gl.getExtension('WEBGL_lose_context');
 
     canvasElement.addEventListener('webglcontextlost', this.handleContextLost);
     canvasElement.addEventListener('webglcontextrestored', this.handleContextRestored);
@@ -632,7 +634,22 @@ export class ShaderMount {
     // cannot opt the context into restoration or recreate resources.
     this.canvasElement.removeEventListener('webglcontextlost', this.handleContextLost);
     this.canvasElement.removeEventListener('webglcontextrestored', this.handleContextRestored);
-    const loseContextExtension = this.gl.getExtension('WEBGL_lose_context');
+
+    if (this.gl.isContextLost() && this.loseContextExtension) {
+      const loseContextExtension = this.loseContextExtension;
+      // A real context loss may already be queued for restoration because the live
+      // mount prevented its default. We cannot cancel that restore while still lost,
+      // so terminally lose it again if the browser revives the disposed context.
+      // This one-shot listener retains only the canvas and extension, not the mount.
+      this.canvasElement.addEventListener(
+        'webglcontextrestored',
+        () => {
+          // The context cannot be lost again until the restore event has finished.
+          queueMicrotask(() => loseContextExtension.loseContext());
+        },
+        { capture: true, once: true }
+      );
+    }
 
     // Cancel the rAF loop
     if (this.rafId !== null) {
@@ -664,7 +681,9 @@ export class ShaderMount {
 
     // Clear any errors, then terminally relinquish the underlying context.
     this.gl.getError();
-    loseContextExtension?.loseContext();
+    if (!this.gl.isContextLost()) {
+      this.loseContextExtension?.loseContext();
+    }
     this.isContextLost = true;
 
     if (this.resizeObserver) {
