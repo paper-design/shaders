@@ -15,7 +15,7 @@ export const paperTextureMeta = {
  * - u_isImage (bool): Whether a source image was provided
  * - u_imageAspectRatio (float): Aspect ratio of the source image
  * - u_colorBack (vec4): Color of the bottom layer, behind the sheet; visible where u_clip cuts the sheet away, in RGBA
- * - u_colorFront (vec4): Color of the paper sheet, usually light; printed into the image by u_blending, in RGBA
+ * - u_colorBase (vec4): Color of the paper sheet, usually light; printed into the image by u_blending, in RGBA
  * - u_colorShadow (vec4): Color used for crumples, folds, grain and speckles, blends into the image, in RGBA
  * - u_roughness (float): Grain noise, sized independently of scaling, with its level of detail depending on the scale (0 to 1)
  * - u_roughnessSize (float): Scale of the roughness noise, needs u_roughness > 0 (0 to 1)
@@ -31,7 +31,7 @@ export const paperTextureMeta = {
  * - u_angle (float): Direction the surface is lit from in degrees, clockwise from the top of the canvas, needs u_crumples or u_folds > 0 (0 to 360)
  * - u_drops (float): Visibility of the speckle pattern (0 to 1)
  * - u_seed (float): Seed applied to crumples and drops (0 to 1000)
- * - u_blending (float): How much the image is printed into the paper; 0 = exact image, 1 = image multiplied with a paper-texture ink (colorFront toned by colorShadow) and thinned toward colorFront so the sheet reads through, needs image (0 to 1)
+ * - u_blending (float): How much the image is printed into the paper; 0 = exact image, 1 = image multiplied with a paper-texture ink (colorBase toned by colorShadow) and thinned toward colorBase so the sheet reads through, needs image (0 to 1)
  * - u_distortion (float): How much the image bends with the paper surface; negative values bend it the opposite direction, needs image (-1 to 1)
  * - u_clip (bool): Hides the paper texture outside the distorted image frame, needs image
  * - u_noiseTexture (sampler2D): Pre-computed randomizer source texture
@@ -58,7 +58,7 @@ export const paperTextureFragmentShader: string = `#version 300 es
 precision mediump float;
 
 uniform vec4 u_colorBack;
-uniform vec4 u_colorFront;
+uniform vec4 u_colorBase;
 uniform vec4 u_colorShadow;
 
 uniform sampler2D u_image;
@@ -387,13 +387,13 @@ void main() {
   vec3 backColor = u_colorBack.rgb;
   float backOpacity = u_colorBack.a;
 
-  vec3 frontColor = u_colorFront.rgb;
-  float frontOpacity = u_colorFront.a;
+  vec3 baseColor = u_colorBase.rgb;
+  float baseOpacity = u_colorBase.a;
 
   vec3 shadowColor = u_colorShadow.rgb;
   float shadowOpacity = u_colorShadow.a;
 
-  vec3 paper = mix(vec3(1.), frontColor, frontOpacity);
+  vec3 paper = mix(vec3(1.), baseColor, baseOpacity);
 
   imageUV = .5 + fromCenter * (1. - u_distortion * scaleDistortion);
   imageUV -= u_distortion * vec2(xDistortion, -yShift);
@@ -435,8 +435,8 @@ void main() {
   vec3 overlay = pic * imageAlpha + shadowColor * patternAlpha * (1. - imageAlpha);
   float overlayAlpha = imageAlpha + patternAlpha * (1. - imageAlpha);
 
-  vec3 sheet = overlay + frontColor * frontOpacity * (1. - overlayAlpha);
-  float sheetAlpha = overlayAlpha + frontOpacity * (1. - overlayAlpha);
+  vec3 sheet = overlay + baseColor * baseOpacity * (1. - overlayAlpha);
+  float sheetAlpha = overlayAlpha + baseOpacity * (1. - overlayAlpha);
 
   if (u_clip && u_isImage) {
     sheet *= imageFootprint;
@@ -455,7 +455,7 @@ export interface PaperTextureUniforms extends ShaderSizingUniforms {
   u_isImage: boolean;
   u_noiseTexture?: HTMLImageElement;
   u_colorBack: [number, number, number, number];
-  u_colorFront: [number, number, number, number];
+  u_colorBase: [number, number, number, number];
   u_colorShadow: [number, number, number, number];
   u_roughness: number;
   u_roughnessSize: number;
@@ -479,7 +479,7 @@ export interface PaperTextureUniforms extends ShaderSizingUniforms {
 export interface PaperTextureParams extends ShaderSizingParams, ShaderMotionParams {
   image?: HTMLImageElement | string;
   colorBack?: string;
-  colorFront?: string;
+  colorBase?: string;
   colorShadow?: string;
   roughness?: number;
   roughnessSize?: number;

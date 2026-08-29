@@ -22,11 +22,11 @@ export const paperTextureDef: ShaderDef = {
       description: 'The color of the bottom layer, behind the sheet; visible where clip cuts the sheet away',
     },
     {
-      name: 'colorFront',
+      name: 'colorBase',
       type: 'string',
-      defaultValue: defaultParams.colorFront,
+      defaultValue: defaultParams.colorBase,
       isColor: true,
-      description: 'The color of the paper sheet, usually light; printed into the image by blending',
+      description: 'The color of the paper sheet, printed into the image by blending',
     },
     {
       name: 'colorShadow',
@@ -42,7 +42,7 @@ export const paperTextureDef: ShaderDef = {
       max: 1,
       defaultValue: defaultParams.blending,
       description:
-        'How much the image is printed into the paper (0 = exact image, 1 = image multiplied with the pattern and thinned toward colorFront), needs image',
+        'How much the image is printed into the paper (0 = exact image, 1 = image multiplied with the pattern and thinned toward colorBase), needs image',
     },
     {
       name: 'distortion',
