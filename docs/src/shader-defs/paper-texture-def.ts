@@ -26,7 +26,7 @@ export const paperTextureDef: ShaderDef = {
       type: 'string',
       defaultValue: defaultParams.colorBase,
       isColor: true,
-      description: 'The color of the paper sheet, printed into the image by blending',
+      description: 'The color of the paper sheet, usually light; multiplied into the image by blending',
     },
     {
       name: 'colorShadow',
@@ -42,7 +42,7 @@ export const paperTextureDef: ShaderDef = {
       max: 1,
       defaultValue: defaultParams.blending,
       description:
-        'How much the image is printed into the paper (0 = exact image, 1 = image multiplied with the pattern and thinned toward colorBase), needs image',
+        'Amount of image-to-paper blending (0 = original image color, 1 = image multiplied with the paper), needs image',
     },
     {
       name: 'distortion',
@@ -57,7 +57,7 @@ export const paperTextureDef: ShaderDef = {
       name: 'clip',
       type: 'boolean',
       defaultValue: defaultParams.clip,
-      description: 'Hides the paper texture outside the distorted image frame (needs image)',
+      description: 'Cuts the paper sheet to the distorted image frame, revealing colorBack outside it (needs image)',
     },
     {
       name: 'roughness',
