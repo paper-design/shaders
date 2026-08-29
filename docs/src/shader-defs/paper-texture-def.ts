@@ -142,11 +142,11 @@ export const paperTextureDef: ShaderDef = {
       description: 'Shifts the horizontal creases across the surface (needs creases > 0)',
     },
     {
-      name: 'lightAngle',
+      name: 'angle',
       type: 'number',
       min: 0,
       max: 360,
-      defaultValue: defaultParams.lightAngle,
+      defaultValue: defaultParams.angle,
       description:
         'Direction the surface is lit from, clockwise from the top of the canvas, needs folds or creases > 0',
     },

@@ -27,7 +27,7 @@ export const paperTextureMeta = {
  * - u_creaseSizeY (float): Size of the horizontal creases, needs u_creases > 0 (0 to 1)
  * - u_creaseOffsetX (float): Shifts the vertical creases across the surface, needs u_creases > 0 (0 to 1)
  * - u_creaseOffsetY (float): Shifts the horizontal creases across the surface, needs u_creases > 0 (0 to 1)
- * - u_lightAngle (float): Direction the surface is lit from in degrees, clockwise from the top of the canvas, needs u_folds or u_creases > 0 (0 to 360)
+ * - u_angle (float): Direction the surface is lit from in degrees, clockwise from the top of the canvas, needs u_folds or u_creases > 0 (0 to 360)
  * - u_drops (float): Visibility of the speckle pattern (0 to 1)
  * - u_seed (float): Seed applied to folds and drops (0 to 1000)
  * - u_blending (float): How much the image is printed into the paper; 0 = exact image, 1 = image multiplied with a grayscale paper-texture ink (toned by colorShadow) and thinned so the background reads through, needs image (0 to 1)
@@ -73,7 +73,7 @@ uniform float u_creaseSizeX;
 uniform float u_creaseSizeY;
 uniform float u_creaseOffsetX;
 uniform float u_creaseOffsetY;
-uniform float u_lightAngle;
+uniform float u_angle;
 uniform float u_drops;
 uniform float u_seed;
 uniform float u_blending;
@@ -89,12 +89,11 @@ out vec4 fragColor;
 #define LIFT_SHARPNESS 4.
 #define GRAIN_DRAG .2
 
- #define TILT_FLOOR .9
- #define RADIAL_FALLOFF .7
- #define FACET_CURVE 1.5
- #define FOLD_LIT_GAIN .35
- #define LIT_FLOOR 0.
- #define SHADING_SCALE 1.
+#define TILT_FLOOR .9
+#define RADIAL_FALLOFF .7
+#define FACET_CURVE 1.5
+#define FOLD_LIT_GAIN .35
+#define SHADING_SCALE 1.
 
 float getUvFrame(vec2 uv, float blur) {
   float left = smoothstep(0., blur, uv.x);
@@ -203,12 +202,11 @@ float getFiber(vec2 p) {
 }
 
 vec2 smoothNoise(vec2 p) {
-  vec2 sz = vec2(textureSize(u_noiseTexture, 0));
-  vec2 t = p * sz - .5;
+  vec2 t = p * 50. - .5;
   vec2 i = floor(t);
   vec2 f = fract(t);
   f = f * f * (3. - 2. * f);
-  return texture(u_noiseTexture, fract((i + f + .5) / sz)).rg;
+  return texture(u_noiseTexture, fract((i + f + .5) / vec2(50.))).rg;
 }
 
 float getDrops(vec2 uv) {
@@ -302,7 +300,7 @@ void main() {
   }
 
   float grazing = 0.7;
-  float lightRad = radians(u_lightAngle);
+  float lightRad = radians(u_angle);
   vec2 lightDir = vec2(sin(lightRad), -cos(lightRad));
   vec2 relief = vec2(0.);
   float reliefAmount = 0.;
@@ -355,7 +353,7 @@ void main() {
 
   if (reliefAmount > 0.) {
     float slope = clamp(dot(relief, lightDir), -1.2, 1.2);
-    lit = SHADING_SCALE * max(cos(slope + grazing), LIT_FLOOR);
+    lit = SHADING_SCALE * max(cos(slope + grazing), 0.);
 
     pattern += (clamp(reliefAmount, 0., 1.) * unlit + (lit - unlit)) * creaseInk;
   }
@@ -459,7 +457,7 @@ export interface PaperTextureUniforms extends ShaderSizingUniforms {
   u_creaseSizeY: number;
   u_creaseOffsetX: number;
   u_creaseOffsetY: number;
-  u_lightAngle: number;
+  u_angle: number;
   u_drops: number;
   u_seed: number;
   u_blending: number;
@@ -482,7 +480,7 @@ export interface PaperTextureParams extends ShaderSizingParams, ShaderMotionPara
   creaseSizeY?: number;
   creaseOffsetX?: number;
   creaseOffsetY?: number;
-  lightAngle?: number;
+  angle?: number;
   drops?: number;
   seed?: number;
   blending?: number;
