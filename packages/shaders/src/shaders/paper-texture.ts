@@ -14,8 +14,9 @@ export const paperTextureMeta = {
  * - u_image (sampler2D): Optional source image texture
  * - u_isImage (bool): Whether a source image was provided
  * - u_imageAspectRatio (float): Aspect ratio of the source image
+ * - u_colorBack (vec4): Color of the bottom layer, behind the sheet; visible where u_clip cuts the sheet away, in RGBA
+ * - u_colorFront (vec4): Color of the paper sheet, usually light; printed into the image by u_blending, in RGBA
  * - u_colorShadow (vec4): Color used for crumples, folds, grain and speckles, blends into the image, in RGBA
- * - u_colorBack (vec4): Color behind the image, usually light, in RGBA
  * - u_roughness (float): Grain noise, sized independently of scaling, with its level of detail depending on the scale (0 to 1)
  * - u_roughnessSize (float): Scale of the roughness noise, needs u_roughness > 0 (0 to 1)
  * - u_fiber (float): Curly fiber noise, simulating real paper (0 to 1)
@@ -30,7 +31,7 @@ export const paperTextureMeta = {
  * - u_angle (float): Direction the surface is lit from in degrees, clockwise from the top of the canvas, needs u_crumples or u_folds > 0 (0 to 360)
  * - u_drops (float): Visibility of the speckle pattern (0 to 1)
  * - u_seed (float): Seed applied to crumples and drops (0 to 1000)
- * - u_blending (float): How much the image is printed into the paper; 0 = exact image, 1 = image multiplied with a grayscale paper-texture ink (toned by colorShadow) and thinned so the background reads through, needs image (0 to 1)
+ * - u_blending (float): How much the image is printed into the paper; 0 = exact image, 1 = image multiplied with a paper-texture ink (colorFront toned by colorShadow) and thinned toward colorFront so the sheet reads through, needs image (0 to 1)
  * - u_distortion (float): How much the image bends with the paper surface; negative values bend it the opposite direction, needs image (-1 to 1)
  * - u_clip (bool): Hides the paper texture outside the distorted image frame, needs image
  * - u_noiseTexture (sampler2D): Pre-computed randomizer source texture
@@ -56,8 +57,9 @@ export const paperTextureMeta = {
 export const paperTextureFragmentShader: string = `#version 300 es
 precision mediump float;
 
-uniform vec4 u_colorShadow;
 uniform vec4 u_colorBack;
+uniform vec4 u_colorFront;
+uniform vec4 u_colorShadow;
 
 uniform sampler2D u_image;
 uniform bool u_isImage;
@@ -382,11 +384,16 @@ void main() {
     xDistortion += .03 * drops;
   }
 
-  vec3 bgColor = u_colorBack.rgb;
-  float bgOpacity = u_colorBack.a;
+  vec3 backColor = u_colorBack.rgb;
+  float backOpacity = u_colorBack.a;
+
+  vec3 frontColor = u_colorFront.rgb;
+  float frontOpacity = u_colorFront.a;
 
   vec3 shadowColor = u_colorShadow.rgb;
   float shadowOpacity = u_colorShadow.a;
+
+  vec3 paper = mix(vec3(1.), frontColor, frontOpacity);
 
   imageUV = .5 + fromCenter * (1. - u_distortion * scaleDistortion);
   imageUV -= u_distortion * vec2(xDistortion, -yShift);
@@ -412,12 +419,12 @@ void main() {
 
     float lum = dot(vec3(.2126, .7152, .0722), image.rgb);
 
-    vec3 ink = mix(vec3(1.), shadowColor, patternAlpha);
+    vec3 ink = mix(paper, shadowColor, patternAlpha);
     pic = blendMultiply(image.rgb, ink, u_blending);
 
     float darkDampen = 1. - lum;
     float dampen = mix(0., .7, u_blending) * max(satDampen, darkDampen);
-    pic = mix(pic, vec3(1.), .4 * pow(dampen, 2. + 3. * pattern));
+    pic = mix(pic, paper, .4 * pow(dampen, 2. + 3. * pattern));
     pic = clamp(pic, 0., 1.);
 
     imageFootprint = frame * image.a;
@@ -428,13 +435,16 @@ void main() {
   vec3 overlay = pic * imageAlpha + shadowColor * patternAlpha * (1. - imageAlpha);
   float overlayAlpha = imageAlpha + patternAlpha * (1. - imageAlpha);
 
-  vec3 color = overlay + bgColor * bgOpacity * (1. - overlayAlpha);
-  float opacity = overlayAlpha + bgOpacity * (1. - overlayAlpha);
+  vec3 sheet = overlay + frontColor * frontOpacity * (1. - overlayAlpha);
+  float sheetAlpha = overlayAlpha + frontOpacity * (1. - overlayAlpha);
 
   if (u_clip && u_isImage) {
-    color *= imageFootprint;
-    opacity *= imageFootprint;
+    sheet *= imageFootprint;
+    sheetAlpha *= imageFootprint;
   }
+
+  vec3 color = sheet + backColor * backOpacity * (1. - sheetAlpha);
+  float opacity = sheetAlpha + backOpacity * (1. - sheetAlpha);
 
   fragColor = vec4(color, opacity);
 }
@@ -444,8 +454,9 @@ export interface PaperTextureUniforms extends ShaderSizingUniforms {
   u_image: HTMLImageElement | string | undefined;
   u_isImage: boolean;
   u_noiseTexture?: HTMLImageElement;
-  u_colorShadow: [number, number, number, number];
   u_colorBack: [number, number, number, number];
+  u_colorFront: [number, number, number, number];
+  u_colorShadow: [number, number, number, number];
   u_roughness: number;
   u_roughnessSize: number;
   u_fiber: number;
@@ -467,8 +478,9 @@ export interface PaperTextureUniforms extends ShaderSizingUniforms {
 
 export interface PaperTextureParams extends ShaderSizingParams, ShaderMotionParams {
   image?: HTMLImageElement | string;
-  colorShadow?: string;
   colorBack?: string;
+  colorFront?: string;
+  colorShadow?: string;
   roughness?: number;
   roughnessSize?: number;
   fiber?: number;

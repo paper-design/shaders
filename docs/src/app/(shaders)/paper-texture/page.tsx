@@ -68,7 +68,8 @@ const PaperTextureWithControls = () => {
     );
     return {
       colorBack: { value: toHsla(defaults.colorBack), order: 100 },
-      colorShadow: { value: toHsla(defaults.colorShadow), order: 101 },
+      colorFront: { value: toHsla(defaults.colorFront), order: 101 },
+      colorShadow: { value: toHsla(defaults.colorShadow), order: 102 },
       seed: { value: defaults.seed, min: 0, step: 1, max: 1000, order: 200 },
       angle: { value: defaults.angle, min: 0, max: 360, order: 201 },
       roughness: { value: defaults.roughness, min: 0, max: 1, order: 300 },
