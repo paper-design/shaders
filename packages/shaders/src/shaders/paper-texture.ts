@@ -388,8 +388,8 @@ void main() {
   vec3 shadowColor = u_colorShadow.rgb;
   float shadowOpacity = u_colorShadow.a;
 
-  imageUV = .5 + fromCenter * (1. + u_distortion * scaleDistortion);
-  imageUV += u_distortion * vec2(xDistortion, -yShift);
+  imageUV = .5 + fromCenter * (1. - u_distortion * scaleDistortion);
+  imageUV -= u_distortion * vec2(xDistortion, -yShift);
   vec2 dc = imageUV - .5;
   float r2 = dot(dc, dc);
   imageUV = .5 + dc * (1. - abs(u_distortion) * radialDistortion * r2);

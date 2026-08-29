@@ -26,7 +26,7 @@ export const defaultPreset: PaperTexturePreset = {
   params: {
     ...defaultObjectSizing,
     blending: 1,
-    distortion: 0.5,
+    distortion: -0.5,
     fit: 'contain',
     scale: 0.9,
     speed: 0,
@@ -56,7 +56,7 @@ export const gridPreset: PaperTexturePreset = {
   params: {
     ...defaultObjectSizing,
     blending: 1,
-    distortion: 0.5,
+    distortion: -0.5,
     fit: 'contain',
     scale: 0.9,
     speed: 0,
@@ -86,7 +86,7 @@ export const spreadPreset: PaperTexturePreset = {
   params: {
     ...defaultObjectSizing,
     blending: 1,
-    distortion: 0.38,
+    distortion: -0.38,
     fit: 'contain',
     scale: 0.9,
     speed: 0,
@@ -116,7 +116,7 @@ export const coloredPreset: PaperTexturePreset = {
   params: {
     ...defaultObjectSizing,
     blending: 1,
-    distortion: 0.5,
+    distortion: -0.5,
     fit: 'contain',
     scale: 0.9,
     speed: 0,
