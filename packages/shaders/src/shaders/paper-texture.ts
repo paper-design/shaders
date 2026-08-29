@@ -3,7 +3,7 @@ import { type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-si
 import { declarePI, proceduralHash22 } from '../shader-utils.js';
 
 export const paperTextureMeta = {
-  maxFoldCount: 15,
+  maxCrumpleCount: 15,
 } as const;
 
 /**
@@ -14,22 +14,22 @@ export const paperTextureMeta = {
  * - u_image (sampler2D): Optional source image texture
  * - u_isImage (bool): Whether a source image was provided
  * - u_imageAspectRatio (float): Aspect ratio of the source image
- * - u_colorShadow (vec4): Color used for folds, creases, grain and speckles, blends into the image, in RGBA
+ * - u_colorShadow (vec4): Color used for crumples, folds, grain and speckles, blends into the image, in RGBA
  * - u_colorBack (vec4): Color behind the image, usually light, in RGBA
  * - u_roughness (float): Grain noise, sized independently of scaling, with its level of detail depending on the scale (0 to 1)
  * - u_roughnessSize (float): Scale of the roughness noise, needs u_roughness > 0 (0 to 1)
  * - u_fiber (float): Curly fiber noise, simulating real paper (0 to 1)
  * - u_fiberSize (float): Scale of the fiber noise, needs u_fiber > 0 (0 to 1)
- * - u_folds (float): Depth of the centered, irregular field of facets across the sheet (0 to 1)
- * - u_foldCount (float): Number of folds, needs u_folds > 0 (1 to 15)
- * - u_creases (float): Depth of the straight creases, alternating between ridges and valleys (0 to 1)
- * - u_creaseSizeX (float): Size of the vertical creases, needs u_creases > 0 (0 to 1)
- * - u_creaseSizeY (float): Size of the horizontal creases, needs u_creases > 0 (0 to 1)
- * - u_creaseOffsetX (float): Shifts the vertical creases across the surface, needs u_creases > 0 (0 to 1)
- * - u_creaseOffsetY (float): Shifts the horizontal creases across the surface, needs u_creases > 0 (0 to 1)
- * - u_angle (float): Direction the surface is lit from in degrees, clockwise from the top of the canvas, needs u_folds or u_creases > 0 (0 to 360)
+ * - u_crumples (float): Depth of the centered, irregular field of facets across the sheet (0 to 1)
+ * - u_crumpleCount (float): Number of crumples, needs u_crumples > 0 (1 to 15)
+ * - u_folds (float): Depth of the straight folds, alternating between ridges and valleys (0 to 1)
+ * - u_foldSizeX (float): Size of the vertical folds, needs u_folds > 0 (0 to 1)
+ * - u_foldSizeY (float): Size of the horizontal folds, needs u_folds > 0 (0 to 1)
+ * - u_foldOffsetX (float): Shifts the vertical folds across the surface, needs u_folds > 0 (0 to 1)
+ * - u_foldOffsetY (float): Shifts the horizontal folds across the surface, needs u_folds > 0 (0 to 1)
+ * - u_angle (float): Direction the surface is lit from in degrees, clockwise from the top of the canvas, needs u_crumples or u_folds > 0 (0 to 360)
  * - u_drops (float): Visibility of the speckle pattern (0 to 1)
- * - u_seed (float): Seed applied to folds and drops (0 to 1000)
+ * - u_seed (float): Seed applied to crumples and drops (0 to 1000)
  * - u_blending (float): How much the image is printed into the paper; 0 = exact image, 1 = image multiplied with a grayscale paper-texture ink (toned by colorShadow) and thinned so the background reads through, needs image (0 to 1)
  * - u_distortion (float): How much the image bends with the paper surface; negative values bend it the opposite direction, needs image (-1 to 1)
  * - u_clip (bool): Hides the paper texture outside the distorted image frame, needs image
@@ -66,13 +66,13 @@ uniform float u_imageAspectRatio;
 uniform float u_roughness;
 uniform float u_fiber;
 uniform float u_fiberSize;
+uniform float u_crumples;
+uniform float u_crumpleCount;
 uniform float u_folds;
-uniform float u_foldCount;
-uniform float u_creases;
-uniform float u_creaseSizeX;
-uniform float u_creaseSizeY;
-uniform float u_creaseOffsetX;
-uniform float u_creaseOffsetY;
+uniform float u_foldSizeX;
+uniform float u_foldSizeY;
+uniform float u_foldOffsetX;
+uniform float u_foldOffsetY;
 uniform float u_angle;
 uniform float u_drops;
 uniform float u_seed;
@@ -85,14 +85,14 @@ uniform sampler2D u_noiseTexture;
 in vec2 v_imageUV;
 out vec4 fragColor;
 
-#define CREASE_WEAR .6
+#define FOLD_WEAR .6
 #define LIFT_SHARPNESS 4.
 #define GRAIN_DRAG .2
 
 #define TILT_FLOOR .9
 #define RADIAL_FALLOFF .7
 #define FACET_CURVE 1.5
-#define FOLD_LIT_GAIN .35
+#define CRUMPLE_LIT_GAIN .35
 #define SHADING_SCALE 1.
 
 float getUvFrame(vec2 uv, float blur) {
@@ -231,12 +231,12 @@ vec2 getCellTilt(float idx, float radius) {
   return vec2(cos(an), sin(an)) * mix(TILT_FLOOR, 1., rand.y) * mix(RADIAL_FALLOFF, 1., radius);
 }
 
-vec4 getFolds(vec2 uv) {
+vec4 getCrumples(vec2 uv) {
   float near = 9., nearB = 9.;
   float idx = 0., rad = 0.;
   vec2 nearP = vec2(0.), nearPb = vec2(0.);
-  for (int i = 0; i < ${paperTextureMeta.maxFoldCount}; i++) {
-    if (float(i) >= floor(u_foldCount + .5)) break;
+  for (int i = 0; i < ${paperTextureMeta.maxCrumpleCount}; i++) {
+    if (float(i) >= floor(u_crumpleCount + .5)) break;
     vec2 rand = hash22(vec2(float(i), float(i) * u_seed));
     float an = rand.x * TWO_PI;
     vec2 p = vec2(cos(an), sin(an)) * rand.y;
@@ -263,12 +263,12 @@ vec4 getFolds(vec2 uv) {
   return vec4(getCellTilt(idx, rad) + FACET_CURVE * (1. - edge) * edgeGrad, .2 * l, edge);
 }
 
-void getCreases(vec2 coord, vec2 offset, vec2 count, out vec2 slope, out vec2 dark, out vec2 lift) {
+void getFolds(vec2 coord, vec2 offset, vec2 count, out vec2 slope, out vec2 dark, out vec2 lift) {
   vec2 g = (coord - 1.) * count + .5 * offset;
-  vec2 creaseIdx = floor(g);
+  vec2 foldIdx = floor(g);
   vec2 dx = fract(g) - .5;
   float foldWidth = .5;
-  vec2 parity = (1. - 2. * mod(creaseIdx, 2.));
+  vec2 parity = (1. - 2. * mod(foldIdx, 2.));
   slope = sign(dx) * (1. - smoothstep(0., foldWidth, abs(dx))) * parity;
   dark = smoothstep(0., foldWidth * .5, abs(dx));
   lift = pow(1. - clamp(abs(dx) / foldWidth, 0., 1.), vec2(LIFT_SHARPNESS)) * parity;
@@ -304,48 +304,48 @@ void main() {
   vec2 lightDir = vec2(sin(lightRad), -cos(lightRad));
   vec2 relief = vec2(0.);
   float reliefAmount = 0.;
-  float creaseInk = 1.;
-  float creaseWear = 0.;
-  vec2 foldFlow = vec2(0.);
+  float foldInk = 1.;
+  float foldWear = 0.;
+  vec2 crumpleFlow = vec2(0.);
 
-  if (u_folds > 0.) {
-    float foldRad = 4. * u_seed;
-    float foldCos = cos(foldRad), foldSin = sin(foldRad);
-    vec2 foldsUV = mat2(foldCos, foldSin, -foldSin, foldCos) * (patternUV * .18) +
+  if (u_crumples > 0.) {
+    float crumpleRad = 4. * u_seed;
+    float crumpleCos = cos(crumpleRad), crumpleSin = sin(crumpleRad);
+    vec2 crumplesUV = mat2(crumpleCos, crumpleSin, -crumpleSin, crumpleCos) * (patternUV * .18) +
       .012 * (smoothNoise(patternUV * .015 + u_seed) - .5);
-    vec4 folds = getFolds(foldsUV);
+    vec4 crumples = getCrumples(crumplesUV);
 
-    vec2 foldTilt = .5 * u_folds * folds.xy;
-    foldTilt -= (1. - FOLD_LIT_GAIN) * max(dot(foldTilt, lightDir), 0.) * lightDir;
-    relief += foldTilt;
-    reliefAmount += .5 * u_folds;
-    foldFlow = folds.w * foldTilt;
+    vec2 crumpleTilt = .5 * u_crumples * crumples.xy;
+    crumpleTilt -= (1. - CRUMPLE_LIT_GAIN) * max(dot(crumpleTilt, lightDir), 0.) * lightDir;
+    relief += crumpleTilt;
+    reliefAmount += .5 * u_crumples;
+    crumpleFlow = crumples.w * crumpleTilt;
 
-    scaleDistortion = .15 * clamp(5. * folds.z, 0., 1.) * u_folds;
+    scaleDistortion = .15 * clamp(5. * crumples.z, 0., 1.) * u_crumples;
   }
 
-  if (u_creases > 0.) {
-    vec2 uv = 1. + patternUV * .2 + .03 * foldFlow;
+  if (u_folds > 0.) {
+    vec2 uv = 1. + patternUV * .2 + .03 * crumpleFlow;
 
-    // x drives the creases running vertically, y the ones running across them.
+    // x drives the folds running vertically, y the ones running across them.
     vec2 slope, dark, lift;
-    getCreases(uv, vec2(1. - 2. * u_creaseOffsetX, 1. - 2. * u_creaseOffsetY),
-      vec2(mix(3., .5, u_creaseSizeX), mix(3., .5, u_creaseSizeY)), slope, dark, lift);
+    getFolds(uv, vec2(1. - 2. * u_foldOffsetX, 1. - 2. * u_foldOffsetY),
+      vec2(mix(3., .5, u_foldSizeX), mix(3., .5, u_foldSizeY)), slope, dark, lift);
 
-    relief += u_creases * slope;
-    reliefAmount += 1. * u_creases;
+    relief += u_folds * slope;
+    reliefAmount += 1. * u_folds;
     vec2 ink = mix(vec2(.9), vec2(1.), dark);
-    creaseInk *= ink.x * ink.y;
-    creaseWear = max(creaseWear, max(1. - dark.x, 1. - dark.y) * u_creases);
-    vec2 dropMask = mix(vec2(1.), dark, u_creases);
+    foldInk *= ink.x * ink.y;
+    foldWear = max(foldWear, max(1. - dark.x, 1. - dark.y) * u_folds);
+    vec2 dropMask = mix(vec2(1.), dark, u_folds);
     drops *= dropMask.x * dropMask.y;
 
-    yShift += .022 * u_creases * lift.x * abs(lightDir.x);
+    yShift += .022 * u_folds * lift.x * abs(lightDir.x);
     patternUV.y += yShift;
 
     float xFan = 2. * (imageUV.x - .5) * abs(lightDir.y);
-    xDistortion -= .02 * u_creases * lift.y * xFan;
-    patternUV.x -= .022 * u_creases * lift.y * xFan;
+    xDistortion -= .02 * u_folds * lift.y * xFan;
+    patternUV.x -= .022 * u_folds * lift.y * xFan;
   }
 
   float unlit = SHADING_SCALE * cos(grazing);
@@ -355,12 +355,12 @@ void main() {
     float slope = clamp(dot(relief, lightDir), -1.2, 1.2);
     lit = SHADING_SCALE * max(cos(slope + grazing), 0.);
 
-    pattern += (clamp(reliefAmount, 0., 1.) * unlit + (lit - unlit)) * creaseInk;
+    pattern += (clamp(reliefAmount, 0., 1.) * unlit + (lit - unlit)) * foldInk;
   }
 
-  patternUV += GRAIN_DRAG * foldFlow;
+  patternUV += GRAIN_DRAG * crumpleFlow;
 
-  float detailGain = (1. + CREASE_WEAR * creaseWear);
+  float detailGain = (1. + FOLD_WEAR * foldWear);
 
   if (u_roughness > 0.) {
     float roughness = getRoughness(200. * patternUV);
@@ -450,13 +450,13 @@ export interface PaperTextureUniforms extends ShaderSizingUniforms {
   u_roughnessSize: number;
   u_fiber: number;
   u_fiberSize: number;
+  u_crumples: number;
+  u_crumpleCount: number;
   u_folds: number;
-  u_foldCount: number;
-  u_creases: number;
-  u_creaseSizeX: number;
-  u_creaseSizeY: number;
-  u_creaseOffsetX: number;
-  u_creaseOffsetY: number;
+  u_foldSizeX: number;
+  u_foldSizeY: number;
+  u_foldOffsetX: number;
+  u_foldOffsetY: number;
   u_angle: number;
   u_drops: number;
   u_seed: number;
@@ -473,13 +473,13 @@ export interface PaperTextureParams extends ShaderSizingParams, ShaderMotionPara
   roughnessSize?: number;
   fiber?: number;
   fiberSize?: number;
+  crumples?: number;
+  crumpleCount?: number;
   folds?: number;
-  foldCount?: number;
-  creases?: number;
-  creaseSizeX?: number;
-  creaseSizeY?: number;
-  creaseOffsetX?: number;
-  creaseOffsetY?: number;
+  foldSizeX?: number;
+  foldSizeY?: number;
+  foldOffsetX?: number;
+  foldOffsetY?: number;
   angle?: number;
   drops?: number;
   seed?: number;
