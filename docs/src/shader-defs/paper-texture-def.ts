@@ -109,6 +109,30 @@ export const paperTextureDef: ShaderDef = {
       description: 'Number of crumples (15 max), needs crumples > 0',
     },
     {
+      name: 'test',
+      type: 'number',
+      min: 0,
+      max: 1,
+      defaultValue: defaultParams.test,
+      description: 'Depth of the crease pattern: flat facets separated by sharp folds, spread evenly over the sheet',
+    },
+    {
+      name: 'testSize',
+      type: 'number',
+      min: 0,
+      max: 1,
+      defaultValue: defaultParams.testSize,
+      description: 'Size of the crease facets (needs test > 0)',
+    },
+    {
+      name: 'testCurve',
+      type: 'number',
+      min: 0,
+      max: 1,
+      defaultValue: defaultParams.testCurve,
+      description: 'How much the creases bend: 0 = perfectly straight folds, 1 = arcs (needs test > 0)',
+    },
+    {
       name: 'folds',
       type: 'number',
       min: 0,
@@ -155,7 +179,7 @@ export const paperTextureDef: ShaderDef = {
       max: 360,
       defaultValue: defaultParams.angle,
       description:
-        'Direction the surface is lit from, clockwise from the top of the canvas, needs crumples or folds > 0',
+        'Direction the surface is lit from, clockwise from the top of the canvas, needs crumples, folds or test > 0',
     },
     {
       name: 'drops',
@@ -171,7 +195,7 @@ export const paperTextureDef: ShaderDef = {
       min: 0,
       max: 1000,
       defaultValue: defaultParams.seed,
-      description: 'Seed applied to crumples and drops',
+      description: 'Seed applied to crumples, creases and drops',
     },
     ...staticImageCommonParams,
   ],
