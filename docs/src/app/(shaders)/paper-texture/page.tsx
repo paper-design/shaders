@@ -85,7 +85,7 @@ const PaperTextureWithControls = () => {
       drops: { value: defaults.drops, min: 0, max: 1, order: 340 },
       blending: { value: defaults.blending, min: 0, max: 1, order: 350 },
       distortion: { value: defaults.distortion, min: -1, max: 1, order: 351 },
-      background: { value: defaults.background, order: 352 },
+      clip: { value: defaults.clip, order: 352 },
 
       scale: { value: defaults.scale, min: 0.5, max: 10, order: 400 },
       fit: { value: defaults.fit, options: ['contain', 'cover'] as ShaderFit[], order: 401 },

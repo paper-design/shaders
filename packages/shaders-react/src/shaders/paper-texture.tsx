@@ -47,7 +47,7 @@ export const defaultPreset: PaperTexturePreset = {
     angle: 300,
     drops: 0.7,
     seed: 234,
-    background: true,
+    clip: false,
   },
 };
 
@@ -77,7 +77,7 @@ export const gridPreset: PaperTexturePreset = {
     angle: 140,
     drops: 0,
     seed: 613,
-    background: true,
+    clip: false,
   },
 };
 
@@ -107,7 +107,7 @@ export const spreadPreset: PaperTexturePreset = {
     angle: 88,
     drops: 0,
     seed: 563,
-    background: false,
+    clip: true,
   },
 };
 
@@ -137,7 +137,7 @@ export const coloredPreset: PaperTexturePreset = {
     angle: 316,
     drops: 1,
     seed: 476,
-    background: true,
+    clip: false,
   },
 };
 
@@ -169,7 +169,7 @@ export const PaperTexture: React.FC<PaperTextureProps> = memo(function PaperText
   seed = defaultPreset.params.seed,
   blending = defaultPreset.params.blending,
   distortion = defaultPreset.params.distortion,
-  background = defaultPreset.params.background,
+  clip = defaultPreset.params.clip,
 
   // Reworked props
   fiberScale,
@@ -213,7 +213,7 @@ export const PaperTexture: React.FC<PaperTextureProps> = memo(function PaperText
     u_seed: seed,
     u_blending: blending,
     u_distortion: distortion,
-    u_background: background,
+    u_clip: clip,
     ...noiseTexture,
 
     // Sizing uniforms

@@ -47,10 +47,10 @@ export const paperTextureDef: ShaderDef = {
         'How much the image bends with the paper surface; negative values bend it the opposite direction (needs image)',
     },
     {
-      name: 'background',
+      name: 'clip',
       type: 'boolean',
-      defaultValue: defaultParams.background,
-      description: 'Shows or hides the paper texture outside the distorted image frame (needs image)',
+      defaultValue: defaultParams.clip,
+      description: 'Hides the paper texture outside the distorted image frame (needs image)',
     },
     {
       name: 'roughness',

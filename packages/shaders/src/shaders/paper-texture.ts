@@ -32,7 +32,7 @@ export const paperTextureMeta = {
  * - u_seed (float): Seed applied to folds and drops (0 to 1000)
  * - u_blending (float): How much the image is printed into the paper; 0 = exact image, 1 = image multiplied with a grayscale paper-texture ink (toned by colorShadow) and thinned so the background reads through, needs image (0 to 1)
  * - u_distortion (float): How much the image bends with the paper surface; negative values bend it the opposite direction, needs image (-1 to 1)
- * - u_background (bool): Shows or hides the paper texture outside the distorted image frame, needs image
+ * - u_clip (bool): Hides the paper texture outside the distorted image frame, needs image
  * - u_noiseTexture (sampler2D): Pre-computed randomizer source texture
  *
  * Vertex shader outputs (used in fragment shader):
@@ -79,7 +79,7 @@ uniform float u_seed;
 uniform float u_blending;
 uniform float u_distortion;
 uniform float u_roughnessSize;
-uniform bool u_background;
+uniform bool u_clip;
 uniform sampler2D u_noiseTexture;
 
 in vec2 v_imageUV;
@@ -431,7 +431,7 @@ void main() {
   vec3 color = overlay + bgColor * bgOpacity * (1. - overlayAlpha);
   float opacity = overlayAlpha + bgOpacity * (1. - overlayAlpha);
 
-  if (!u_background && u_isImage) {
+  if (u_clip && u_isImage) {
     color *= imageFootprint;
     opacity *= imageFootprint;
   }
@@ -462,7 +462,7 @@ export interface PaperTextureUniforms extends ShaderSizingUniforms {
   u_seed: number;
   u_blending: number;
   u_distortion: number;
-  u_background: boolean;
+  u_clip: boolean;
 }
 
 export interface PaperTextureParams extends ShaderSizingParams, ShaderMotionParams {
@@ -485,5 +485,5 @@ export interface PaperTextureParams extends ShaderSizingParams, ShaderMotionPara
   seed?: number;
   blending?: number;
   distortion?: number;
-  background?: boolean;
+  clip?: boolean;
 }
