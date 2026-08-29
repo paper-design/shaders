@@ -266,27 +266,21 @@ void getFolds(vec2 coord, vec2 offset, vec2 count, out vec2 slope, out vec2 dark
   lift = pow(1. - clamp(abs(dx) / foldWidth, 0., 1.), vec2(4.)) * parity;
 }
 
-vec3 blendMultiply(vec3 base, vec3 blend) {
-  return base * blend;
-}
 vec3 blendMultiply(vec3 base, vec3 blend, float opacity) {
-  return blendMultiply(base, blend) * opacity + base * (1. - opacity);
+  return base * blend * opacity + base * (1. - opacity);
 }
 
 void main() {
 
-  vec2 imageUV = v_imageUV;
   vec2 patternUV = (v_imageUV - .5) * vec2(u_imageAspectRatio, 1.);
 
   float pattern = 0.;
-  float radialDistortion = 0.;
-  vec2 linearDistortion = vec2(0.);
-  float scaleDistortion = 0.;
 
+  float crumpleDepth = 0.;
+  vec2 foldShift = vec2(0.);
+  float roughness = 0.;
+  float fiber = 0.;
   float drops = 0.;
-  if (u_drops > 0.) {
-    drops = getDrops(patternUV * 10.);
-  }
 
   float grazing = 0.7;
   float lightRad = radians(u_angle);
@@ -294,7 +288,6 @@ void main() {
   vec2 relief = vec2(0.);
   float reliefAmount = 0.;
   float foldInk = 1.;
-  float foldWear = 0.;
   vec2 crumpleFlow = vec2(0.);
 
   if (u_crumples > 0.) {
@@ -310,7 +303,7 @@ void main() {
     reliefAmount += .5 * u_crumples;
     crumpleFlow = crumples.w * crumpleTilt;
 
-    scaleDistortion = .15 * clamp(5. * crumples.z, 0., 1.) * u_crumples;
+    crumpleDepth = clamp(5. * crumples.z, 0., 1.) * u_crumples;
   }
 
   if (u_folds > 0.) {
@@ -324,18 +317,12 @@ void main() {
     reliefAmount += 1. * u_folds;
     vec2 ink = mix(vec2(.9), vec2(1.), dark);
     foldInk *= ink.x * ink.y;
-    foldWear = max(foldWear, max(1. - dark.x, 1. - dark.y) * u_folds);
-    vec2 dropMask = mix(vec2(1.), dark, u_folds);
-    drops *= dropMask.x * dropMask.y;
+      
+    float xFan = 2. * (v_imageUV.x - .5) * abs(lightDir.y);
+    foldShift = u_folds * vec2(lift.y * xFan, lift.x * abs(lightDir.x));
 
-    float foldShiftY = u_folds * lift.x * abs(lightDir.x);
-    patternUV.y += .0044 * foldShiftY;
-    linearDistortion.y -= .022 * foldShiftY;
-
-    float xFan = 2. * (imageUV.x - .5) * abs(lightDir.y);
-    float foldShiftX = u_folds * lift.y * xFan;
-    patternUV.x -= .0044 * foldShiftX;
-    linearDistortion.x -= .022 * foldShiftX;
+    patternUV.x -= .0044 * foldShift.x;
+    patternUV.y += .0044 * foldShift.y;
   }
 
   float unlit = cos(grazing);
@@ -350,50 +337,44 @@ void main() {
 
   patternUV += .04 * crumpleFlow;
 
-  float detailGain = (1. + .6 * foldWear);
-
   if (u_roughness > 0.) {
-    float roughness = getRoughness(1000. * patternUV);
-    roughness *= u_roughness * detailGain;
+    roughness = u_roughness * getRoughness(1000. * patternUV);
     pattern += roughness;
-    radialDistortion += .02 * roughness;
   }
 
   if (u_fiber > 0.) {
-    float fiber = getFiber(50. * patternUV);
-    fiber *= u_fiber * detailGain;
+    fiber = u_fiber * getFiber(50. * patternUV);
     pattern += fiber;
-    radialDistortion += .02 * fiber;
   }
 
   if (u_drops > 0.) {
-    drops *= u_drops;
+    drops = u_drops * getDrops(patternUV * 10.);
     pattern += drops;
-    linearDistortion.x += .03 * drops;
   }
+    
   pattern = clamp(pattern, 0., 1.);
 
   vec3 backColor = u_colorBack.rgb * u_colorBack.a;
   float backOpacity = u_colorBack.a;
-
   vec3 baseColor = u_colorBase.rgb * u_colorBase.a;
   float baseOpacity = u_colorBase.a;
-
   vec3 shadowColor = u_colorShadow.rgb * u_colorShadow.a;
   float shadowOpacity = u_colorShadow.a;
 
-  imageUV = .5 + (imageUV - .5) * (1. - u_distortion * scaleDistortion);
-  imageUV -= u_distortion * linearDistortion;
-  vec2 dc = imageUV - .5;
-  float r2 = dot(dc, dc);
-  imageUV = .5 + dc * (1. - abs(u_distortion) * radialDistortion * r2);
-
+  float notClipped = u_clip ? .2 : 1.;
+  float scaleDistortion = .15 * crumpleDepth;
+  vec2 linearDistortion = -.022 * foldShift + notClipped * .05 * lightDir * drops;
+  float radialDistortion = notClipped * .02 * (roughness + fiber);
+  vec2 centeredUV = (v_imageUV - .5) * (1. - u_distortion * scaleDistortion);
+  centeredUV -= u_distortion * linearDistortion;
+  vec2 imageUV = .5 + centeredUV * (1. - abs(u_distortion) * radialDistortion * dot(centeredUV, centeredUV));
   
+    
   vec3 color = shadowColor * pattern;
   float opacity = shadowOpacity * pattern;
-
   color += baseColor * (1. - opacity);
   opacity += baseOpacity * (1. - opacity);
+
 
   if (u_isImage) {
     float frame = getUvFrame(imageUV, .001);
@@ -426,7 +407,6 @@ void main() {
   opacity += backOpacity * (1. - opacity);
 
   fragColor = vec4(color, opacity);
-//  fragColor = vec4(pattern, pattern, pattern, 1.);
 }
 `;
 
