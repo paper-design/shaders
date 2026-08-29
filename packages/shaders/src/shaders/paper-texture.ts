@@ -87,16 +87,6 @@ uniform sampler2D u_noiseTexture;
 in vec2 v_imageUV;
 out vec4 fragColor;
 
-#define FOLD_WEAR .6
-#define LIFT_SHARPNESS 4.
-#define GRAIN_DRAG .2
-
-#define TILT_FLOOR .9
-#define RADIAL_FALLOFF .7
-#define FACET_CURVE 1.5
-#define CRUMPLE_LIT_GAIN .35
-#define SHADING_SCALE 1.
-
 float getUvFrame(vec2 uv, float blur) {
   float left = smoothstep(0., blur, uv.x);
   float right = 1. - smoothstep(1. - blur, 1., uv.x);
@@ -161,46 +151,46 @@ float getRoughness(vec2 p) {
 }
 
 float getFiber(vec2 p) {
-  float size = mix(4.5, 1.2, u_fiberSize);
-  float w = max(length(dFdx(p)), length(dFdy(p)));
-  float level = -log2(w + 1e-8);
-  float baseLevel = floor(level) - 3.;
-  float fade = fract(level);
+    float size = mix(4., 1., u_fiberSize);
+    float w = max(length(dFdx(p)), length(dFdy(p)));
+    float level = -log2(w + 1e-8);
+    float baseLevel = floor(level) - 3.;
+    float fade = fract(level);
 
-  vec2 grad = vec2(0.);
-  float scale = 1.;
-  float amp = 1.;
-  for (int i = 0; i < 5; i++) {
-    float absIdx = baseLevel + float(i);
-    float freq = exp2(absIdx * 0.76553);
-    vec2 q = size * p * freq;
+    vec2 grad = vec2(0.);
+    float scale = 1.;
+    float amp = 1.;
+    for (int i = 0; i < 5; i++) {
+        float absIdx = baseLevel + float(i);
+        float freq = pow(1.7, absIdx);
+        vec2 q = size * p * freq;
 
-    float an = absIdx * .8;
-    float rc = cos(an), rs = sin(an);
-    q = vec2(rc * q.x - rs * q.y, rs * q.x + rc * q.y);
+        float an = absIdx * .8;
+        float rc = cos(an), rs = sin(an);
+        q = vec2(rc * q.x - rs * q.y, rs * q.x + rc * q.y);
 
-    float wi = 1.;
-    if (i == 0) wi = 1. - fade;
-    if (i == 4) wi = fade;
+        float wi = 1.;
+        if (i == 0) wi = 1. - fade;
+        if (i == 4) wi = fade;
 
-    vec2 iq = floor(q);
-    vec2 fq = fract(q);
-    float shift = absIdx * .3;
-    vec4 uv = fract(vec4(iq, iq + 1.) / 50. + .5 + shift);
-    float aF = texture(u_noiseTexture, uv.xy).b;
-    float bF = texture(u_noiseTexture, uv.zy).b;
-    float cF = texture(u_noiseTexture, uv.xw).b;
-    float dF = texture(u_noiseTexture, uv.zw).b;
-    vec2 u = fq * fq * (3. - 2. * fq);
-    vec2 du = 8. * fq * (1. - fq);
-    float dx = du.x * mix(bF - aF, dF - cF, u.y);
-    float dy = du.y * mix(cF - aF, dF - bF, u.x);
-    grad += wi * amp * scale * vec2(rc * dx + rs * dy, -rs * dx + rc * dy);
-    scale *= 1.7;
-    amp *= .5;
-  }
+        vec2 iq = floor(q);
+        vec2 fq = fract(q);
+        float shift = absIdx * .3;
+        vec4 uv = fract(vec4(iq, iq + 1.) / 50. + .5 + shift);
+        float aF = texture(u_noiseTexture, uv.xy).b;
+        float bF = texture(u_noiseTexture, uv.zy).b;
+        float cF = texture(u_noiseTexture, uv.xw).b;
+        float dF = texture(u_noiseTexture, uv.zw).b;
+        vec2 u = fq * fq * (3. - 2. * fq);
+        vec2 du = 8. * fq * (1. - fq);
+        float dx = du.x * mix(bF - aF, dF - cF, u.y);
+        float dy = du.y * mix(cF - aF, dF - bF, u.x);
+        grad += wi * amp * scale * vec2(rc * dx + rs * dy, -rs * dx + rc * dy);
+        scale *= 1.7;
+        amp *= .5;
+    }
 
-  return .5 * length(grad) - .5;
+    return clamp(.333 * length(grad), 0., 1.);
 }
 
 vec2 smoothNoise(vec2 p) {
@@ -230,7 +220,7 @@ float getDrops(vec2 uv) {
 vec2 getCellTilt(float idx, float radius) {
   vec2 rand = hash22(vec2(idx + 31., idx * u_seed + 17.));
   float an = floor(rand.x * 24.) / 24. * TWO_PI;
-  return vec2(cos(an), sin(an)) * mix(TILT_FLOOR, 1., rand.y) * mix(RADIAL_FALLOFF, 1., radius);
+  return vec2(cos(an), sin(an)) * mix(.9, 1., rand.y) * mix(.7, 1., radius);
 }
 
 vec4 getCrumples(vec2 uv) {
@@ -262,7 +252,7 @@ vec4 getCrumples(vec2 uv) {
   float edge = lst(0., .5, lb - l);
   vec2 edgeGrad = (uv - nearPb) / max(lb, 1e-4) - (uv - nearP) / max(l, 1e-4);
 
-  return vec4(getCellTilt(idx, rad) + FACET_CURVE * (1. - edge) * edgeGrad, .2 * l, edge);
+  return vec4(getCellTilt(idx, rad) + 1.5 * (1. - edge) * edgeGrad, .2 * l, edge);
 }
 
 void getFolds(vec2 coord, vec2 offset, vec2 count, out vec2 slope, out vec2 dark, out vec2 lift) {
@@ -273,7 +263,7 @@ void getFolds(vec2 coord, vec2 offset, vec2 count, out vec2 slope, out vec2 dark
   vec2 parity = (1. - 2. * mod(foldIdx, 2.));
   slope = sign(dx) * (1. - smoothstep(0., foldWidth, abs(dx))) * parity;
   dark = smoothstep(0., foldWidth * .5, abs(dx));
-  lift = pow(1. - clamp(abs(dx) / foldWidth, 0., 1.), vec2(LIFT_SHARPNESS)) * parity;
+  lift = pow(1. - clamp(abs(dx) / foldWidth, 0., 1.), vec2(4.)) * parity;
 }
 
 vec3 blendMultiply(vec3 base, vec3 blend) {
@@ -286,19 +276,16 @@ vec3 blendMultiply(vec3 base, vec3 blend, float opacity) {
 void main() {
 
   vec2 imageUV = v_imageUV;
-  vec2 fromCenter = imageUV - .5;
-  vec2 patternUV = v_imageUV - .5;
-  patternUV *= 5. * vec2(u_imageAspectRatio, 1.);
+  vec2 patternUV = (v_imageUV - .5) * vec2(u_imageAspectRatio, 1.);
 
   float pattern = 0.;
   float radialDistortion = 0.;
-  float xDistortion = 0.;
-  float yShift = 0.;
+  vec2 linearDistortion = vec2(0.);
   float scaleDistortion = 0.;
 
   float drops = 0.;
   if (u_drops > 0.) {
-    drops = getDrops(patternUV * 2.);
+    drops = getDrops(patternUV * 10.);
   }
 
   float grazing = 0.7;
@@ -313,12 +300,12 @@ void main() {
   if (u_crumples > 0.) {
     float crumpleRad = 4. * u_seed;
     float crumpleCos = cos(crumpleRad), crumpleSin = sin(crumpleRad);
-    vec2 crumplesUV = mat2(crumpleCos, crumpleSin, -crumpleSin, crumpleCos) * (patternUV * .18) +
-      .012 * (smoothNoise(patternUV * .015 + u_seed) - .5);
+    vec2 crumplesUV = mat2(crumpleCos, crumpleSin, -crumpleSin, crumpleCos) * (patternUV * .9) +
+      .012 * (smoothNoise(patternUV * .075 + u_seed) - .5);
     vec4 crumples = getCrumples(crumplesUV);
 
     vec2 crumpleTilt = .5 * u_crumples * crumples.xy;
-    crumpleTilt -= (1. - CRUMPLE_LIT_GAIN) * max(dot(crumpleTilt, lightDir), 0.) * lightDir;
+    crumpleTilt -= .65 * max(dot(crumpleTilt, lightDir), 0.) * lightDir;
     relief += crumpleTilt;
     reliefAmount += .5 * u_crumples;
     crumpleFlow = crumples.w * crumpleTilt;
@@ -327,9 +314,8 @@ void main() {
   }
 
   if (u_folds > 0.) {
-    vec2 uv = 1. + patternUV * .2 + .03 * crumpleFlow;
+    vec2 uv = 1. + patternUV + .03 * crumpleFlow;
 
-    // x drives the folds running vertically, y the ones running across them.
     vec2 slope, dark, lift;
     getFolds(uv, vec2(1. - 2. * u_foldOffsetX, 1. - 2. * u_foldOffsetY),
       vec2(mix(3., .5, u_foldSizeX), mix(3., .5, u_foldSizeY)), slope, dark, lift);
@@ -342,37 +328,39 @@ void main() {
     vec2 dropMask = mix(vec2(1.), dark, u_folds);
     drops *= dropMask.x * dropMask.y;
 
-    yShift += .022 * u_folds * lift.x * abs(lightDir.x);
-    patternUV.y += yShift;
+    float foldShiftY = u_folds * lift.x * abs(lightDir.x);
+    patternUV.y += .0044 * foldShiftY;
+    linearDistortion.y -= .022 * foldShiftY;
 
     float xFan = 2. * (imageUV.x - .5) * abs(lightDir.y);
-    xDistortion -= .02 * u_folds * lift.y * xFan;
-    patternUV.x -= .022 * u_folds * lift.y * xFan;
+    float foldShiftX = u_folds * lift.y * xFan;
+    patternUV.x -= .0044 * foldShiftX;
+    linearDistortion.x -= .022 * foldShiftX;
   }
 
-  float unlit = SHADING_SCALE * cos(grazing);
+  float unlit = cos(grazing);
   float lit = unlit;
 
   if (reliefAmount > 0.) {
     float slope = clamp(dot(relief, lightDir), -1.2, 1.2);
-    lit = SHADING_SCALE * max(cos(slope + grazing), 0.);
+    lit = max(cos(slope + grazing), 0.);
 
     pattern += (clamp(reliefAmount, 0., 1.) * unlit + (lit - unlit)) * foldInk;
   }
 
-  patternUV += GRAIN_DRAG * crumpleFlow;
+  patternUV += .04 * crumpleFlow;
 
-  float detailGain = (1. + FOLD_WEAR * foldWear);
+  float detailGain = (1. + .6 * foldWear);
 
   if (u_roughness > 0.) {
-    float roughness = getRoughness(200. * patternUV);
+    float roughness = getRoughness(1000. * patternUV);
     roughness *= u_roughness * detailGain;
     pattern += roughness;
     radialDistortion += .02 * roughness;
   }
 
   if (u_fiber > 0.) {
-    float fiber = getFiber(10. * patternUV);
+    float fiber = getFiber(50. * patternUV);
     fiber *= u_fiber * detailGain;
     pattern += fiber;
     radialDistortion += .02 * fiber;
@@ -381,8 +369,9 @@ void main() {
   if (u_drops > 0.) {
     drops *= u_drops;
     pattern += drops;
-    xDistortion += .03 * drops;
+    linearDistortion.x += .03 * drops;
   }
+  pattern = clamp(pattern, 0., 1.);
 
   vec3 backColor = u_colorBack.rgb * u_colorBack.a;
   float backOpacity = u_colorBack.a;
@@ -393,14 +382,13 @@ void main() {
   vec3 shadowColor = u_colorShadow.rgb * u_colorShadow.a;
   float shadowOpacity = u_colorShadow.a;
 
-  imageUV = .5 + fromCenter * (1. - u_distortion * scaleDistortion);
-  imageUV -= u_distortion * vec2(xDistortion, -yShift);
+  imageUV = .5 + (imageUV - .5) * (1. - u_distortion * scaleDistortion);
+  imageUV -= u_distortion * linearDistortion;
   vec2 dc = imageUV - .5;
   float r2 = dot(dc, dc);
   imageUV = .5 + dc * (1. - abs(u_distortion) * radialDistortion * r2);
 
-  pattern = clamp(pattern, 0., 1.);
-
+  
   vec3 color = shadowColor * pattern;
   float opacity = shadowOpacity * pattern;
 
@@ -438,6 +426,7 @@ void main() {
   opacity += backOpacity * (1. - opacity);
 
   fragColor = vec4(color, opacity);
+//  fragColor = vec4(pattern, pattern, pattern, 1.);
 }
 `;
 
