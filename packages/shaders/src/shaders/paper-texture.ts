@@ -370,7 +370,7 @@ void getFolds(vec2 coord, vec2 offset, vec2 count, vec2 noise, out vec2 slope, o
   vec2 g = (coord - 1.) * count + .5 * offset + noise;
   vec2 foldIdx = floor(g);
   vec2 dx = fract(g) - .5;
-  float foldWidth = .5;
+  float foldWidth = .9;
   vec2 parity = (1. - 2. * mod(foldIdx, 2.));
   slope = sign(dx) * (1. - smoothstep(0., .5 * foldWidth, abs(dx))) * parity;
   dark = smoothstep(0., foldWidth * .5, abs(dx));
@@ -436,7 +436,7 @@ void main() {
 
     vec2 slope, dark, lift;
     getFolds(uv, vec2(1. - 2. * u_foldOffsetX, 1. - 2. * u_foldOffsetY),
-      vec2(mix(3., .5, u_foldSizeX), mix(3., .5, u_foldSizeY)), .007 * warpNoise, slope, dark, lift);
+      vec2(mix(3., .5, u_foldSizeX), mix(3., .5, u_foldSizeY)), .002 * warpNoise, slope, dark, lift);
 
     relief += u_folds * slope;
     reliefAmount += 1. * u_folds;

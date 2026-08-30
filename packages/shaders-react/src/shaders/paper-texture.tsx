@@ -40,7 +40,7 @@ export const defaultPreset: PaperTexturePreset = {
     fiberSize: 0.5,
     crumples: 1,
     crumpleCount: 6,
-    crumpleSoftness: 0,
+    crumpleSoftness: 0.2,
     test: 0,
     testSize: 0.65,
     folds: 0,
