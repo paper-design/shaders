@@ -109,20 +109,20 @@ export const paperTextureDef: ShaderDef = {
       description: 'Number of crumples (15 max), needs crumples > 0',
     },
     {
-      name: 'test',
+      name: 'wrinkles',
       type: 'number',
       min: 0,
       max: 1,
-      defaultValue: defaultParams.test,
+      defaultValue: defaultParams.wrinkles,
       description: 'Depth of a field of fine facets, independent of the crumples',
     },
     {
-      name: 'testSize',
+      name: 'wrinkleSize',
       type: 'number',
       min: 0,
       max: 1,
-      defaultValue: defaultParams.testSize,
-      description: 'Size of the fine facets (needs test > 0)',
+      defaultValue: defaultParams.wrinkleSize,
+      description: 'Size of the fine facets (needs wrinkles > 0)',
     },
     {
       name: 'folds',
@@ -171,7 +171,7 @@ export const paperTextureDef: ShaderDef = {
       max: 360,
       defaultValue: defaultParams.angle,
       description:
-        'Direction the surface is lit from, clockwise from the top of the canvas, needs crumples, folds or test > 0',
+        'Direction the surface is lit from, clockwise from the top of the canvas, needs crumples, folds or wrinkles > 0',
     },
     {
       name: 'drops',

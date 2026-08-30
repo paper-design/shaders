@@ -24,14 +24,14 @@ export const paperTextureMeta = {
  * - u_fiberSize (float): Scale of the fiber noise, needs u_fiber > 0 (0 to 1)
  * - u_crumples (float): Depth of the centered, irregular field of facets across the sheet (0 to 1)
  * - u_crumpleCount (float): Number of crumples, needs u_crumples > 0 (1 to 15)
- * - u_test (float): Depth of a field of fine facets, independent of the crumples (0 to 1)
- * - u_testSize (float): Size of the fine facets, needs u_test > 0 (0 to 1)
+ * - u_wrinkles (float): Depth of a field of fine facets, independent of the crumples (0 to 1)
+ * - u_wrinkleSize (float): Size of the fine facets, needs u_wrinkles > 0 (0 to 1)
  * - u_folds (float): Depth of the straight folds, alternating between ridges and valleys (0 to 1)
  * - u_foldSizeX (float): Size of the vertical folds, needs u_folds > 0 (0 to 1)
  * - u_foldSizeY (float): Size of the horizontal folds, needs u_folds > 0 (0 to 1)
  * - u_foldOffsetX (float): Shifts the vertical folds across the surface, needs u_folds > 0 (0 to 1)
  * - u_foldOffsetY (float): Shifts the horizontal folds across the surface, needs u_folds > 0 (0 to 1)
- * - u_angle (float): Direction the surface is lit from in degrees, clockwise from the top of the canvas, needs u_crumples, u_folds or u_test > 0 (0 to 360)
+ * - u_angle (float): Direction the surface is lit from in degrees, clockwise from the top of the canvas, needs u_crumples, u_folds or u_wrinkles > 0 (0 to 360)
  * - u_drops (float): Visibility of the speckle pattern (0 to 1)
  * - u_seed (float): Seed applied to crumples and drops (0 to 1000)
  * - u_blending (float): Amount of image-to-paper blending; 0 = original image color, 1 = image multiplied with the paper (colorBase toned by colorShadow), needs image (0 to 1)
@@ -73,8 +73,8 @@ uniform float u_fiber;
 uniform float u_fiberSize;
 uniform float u_crumples;
 uniform float u_crumpleCount;
-uniform float u_test;
-uniform float u_testSize;
+uniform float u_wrinkles;
+uniform float u_wrinkleSize;
 uniform float u_folds;
 uniform float u_foldSizeX;
 uniform float u_foldSizeY;
@@ -364,7 +364,7 @@ vec4 getCrumples(vec2 uv) {
   vec2 axis = vec2(cos(bendAngle), sin(bendAngle));
   vec2 curl = (dot(uv - nearP, axis) / max(l + toEdge, 1e-4)) * axis;
 
-  return vec4(tilt / tiltSum + curl + rounding * blend * radial, .2 * l, edge);
+  return vec4(tilt / tiltSum + curl + rounding * blend * radial, radial, edge);
 }
 
 
@@ -391,7 +391,7 @@ void main() {
   float pattern = 0.;
 
   float crumpleDepth = 0.;
-  float testDepth = 0.;
+  float wrinkleDepth = 0.;
   vec2 foldShift = vec2(0.);
   float roughness = 0.;
   float fiber = 0.;
@@ -406,12 +406,12 @@ void main() {
   vec2 crumpleFlow = vec2(0.);
 
   vec2 warpNoise = vec2(0.);
-  if (u_crumples > 0. || u_folds > 0. || u_test > 0.) {
+  if (u_crumples > 0. || u_folds > 0. || u_wrinkles > 0.) {
     warpNoise = smoothNoise(patternUV * .07 + .2 + .6 * fract(.017 * u_seed)) - .5;
   }
 
   vec2 crumplesUV = vec2(0.);
-  if (u_crumples > 0. || u_test > 0.) {
+  if (u_crumples > 0. || u_wrinkles > 0.) {
     float crumpleRad = 4. * u_seed;
     float crumpleCos = cos(crumpleRad), crumpleSin = sin(crumpleRad);
     crumplesUV = mat2(crumpleCos, crumpleSin, -crumpleSin, crumpleCos) * (patternUV * .9) + .012 * warpNoise;
@@ -423,14 +423,14 @@ void main() {
     vec2 crumpleTilt = .5 * u_crumples * crumples.xy;
     crumpleTilt -= .65 * max(dot(crumpleTilt, lightDir), 0.) * lightDir;
     relief += crumpleTilt;
-    reliefAmount += u_crumples;
+    reliefAmount += .6 * u_crumples;
     crumpleFlow = crumples.w * crumpleTilt;
 
-    crumpleDepth = clamp(5. * crumples.z, 0., 1.) * u_crumples;
+    crumpleDepth = clamp(crumples.z, 0., 1.);
   }
 
-  if (u_test > 0.) {
-    float detailFreq = mix(6., 1.5, u_testSize);
+  if (u_wrinkles > 0.) {
+    float detailFreq = mix(6., 1.5, u_wrinkleSize);
     float detailAmp = .2;
     vec2 detailGrad = vec2(0.);
     float detailDepth = 0., depthSum = 0.;
@@ -443,12 +443,12 @@ void main() {
       detailFreq *= 2.1;
     }
 
-    vec2 detailTilt = 1.5 * u_test * detailGrad;
+    vec2 detailTilt = 1.5 * u_wrinkles * detailGrad;
     detailTilt -= .65 * max(dot(detailTilt, lightDir), 0.) * lightDir;
     relief += detailTilt;
-    reliefAmount += .6 * u_test;
+    reliefAmount += .6 * u_wrinkles;
       
-    testDepth = clamp(5. * detailDepth / max(depthSum, 1e-4), 0., 1.);
+    wrinkleDepth = clamp(5. * detailDepth / max(depthSum, 1e-4), 0., 1.);
   }
 
   if (u_folds > 0.) {
@@ -514,7 +514,8 @@ void main() {
   float shadowOpacity = u_colorShadow.a;
 
   float notClipped = u_clip ? .1 : 1.;
-  float scaleDistortion = .15 * u_crumples * (crumpleDepth - .5) + .15 * u_test * (testDepth - .5);
+  float scaleDistortion = .1 * u_crumples * (crumpleDepth - .5) * mix(.2, 1., crumpleDepth) +
+    .15 * u_wrinkles * (wrinkleDepth - .5);
   vec2 linearDistortion = -.022 * foldShift + notClipped * .05 * lightDir * drops;
   float radialDistortion = notClipped * .02 * (roughness + fiber);
   vec2 centeredUV = (v_imageUV - .5) * (1. - u_distortion * scaleDistortion);
@@ -573,8 +574,8 @@ export interface PaperTextureUniforms extends ShaderSizingUniforms {
   u_fiberSize: number;
   u_crumples: number;
   u_crumpleCount: number;
-  u_test: number;
-  u_testSize: number;
+  u_wrinkles: number;
+  u_wrinkleSize: number;
   u_folds: number;
   u_foldSizeX: number;
   u_foldSizeY: number;
@@ -599,8 +600,8 @@ export interface PaperTextureParams extends ShaderSizingParams, ShaderMotionPara
   fiberSize?: number;
   crumples?: number;
   crumpleCount?: number;
-  test?: number;
-  testSize?: number;
+  wrinkles?: number;
+  wrinkleSize?: number;
   folds?: number;
   foldSizeX?: number;
   foldSizeY?: number;
