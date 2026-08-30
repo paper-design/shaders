@@ -109,15 +109,6 @@ export const paperTextureDef: ShaderDef = {
       description: 'Number of crumples (15 max), needs crumples > 0',
     },
     {
-      name: 'crumpleSoftness',
-      type: 'number',
-      min: 0,
-      max: 1,
-      defaultValue: defaultParams.crumpleSoftness,
-      description:
-        'Softens randomly picked crumple cell borders into gradients, leaving the rest as sharp creases (needs crumples > 0)',
-    },
-    {
       name: 'test',
       type: 'number',
       min: 0,
@@ -132,32 +123,6 @@ export const paperTextureDef: ShaderDef = {
       max: 1,
       defaultValue: defaultParams.testSize,
       description: 'Size of the fine facets (needs test > 0)',
-    },
-    {
-      name: 'testLayers',
-      type: 'number',
-      min: 1,
-      max: 3,
-      step: 1,
-      defaultValue: defaultParams.testLayers,
-      description: 'Number of facet layers stacked at falling size and depth (needs test > 0)',
-    },
-    {
-      name: 'testDensity',
-      type: 'number',
-      min: 0,
-      max: 1,
-      defaultValue: defaultParams.testDensity,
-      description: 'How many facets survive per layer; low values merge them into fewer, larger ones (needs test > 0)',
-    },
-    {
-      name: 'testSoftness',
-      type: 'number',
-      min: 0,
-      max: 1,
-      defaultValue: defaultParams.testSoftness,
-      description:
-        'Softens randomly picked facet borders into gradients, leaving the rest as sharp creases (needs test > 0)',
     },
     {
       name: 'folds',
