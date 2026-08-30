@@ -4,6 +4,7 @@ import { declarePI, proceduralHash22 } from '../shader-utils.js';
 
 export const paperTextureMeta = {
   maxCrumpleCount: 15,
+  maxTestLayers: 3,
 } as const;
 
 /**
@@ -24,8 +25,11 @@ export const paperTextureMeta = {
  * - u_crumples (float): Depth of the centered, irregular field of facets across the sheet (0 to 1)
  * - u_crumpleCount (float): Number of crumples, needs u_crumples > 0 (1 to 15)
  * - u_crumpleSoftness (float): Softens randomly picked crumple cell borders into gradients, leaving the rest as sharp creases; higher values soften more borders and soften them further, needs u_crumples > 0 (0 to 1)
- * - u_test (float): Depth of the crease pattern: flat facets separated by sharp straight folds, spread evenly over the sheet (0 to 1)
- * - u_testSize (float): Size of the crease facets, needs u_test > 0 (0 to 1)
+ * - u_test (float): Depth of a field of fine facets, independent of the crumples (0 to 1)
+ * - u_testSize (float): Size of the fine facets, needs u_test > 0 (0 to 1)
+ * - u_testLayers (float): Number of facet layers stacked at falling size and depth, needs u_test > 0 (1 to 3)
+ * - u_testDensity (float): How many facets survive per layer; low values merge them into fewer, larger ones, needs u_test > 0 (0 to 1)
+ * - u_testSoftness (float): Softens randomly picked facet borders into gradients, leaving the rest as sharp creases, needs u_test > 0 (0 to 1)
  * - u_folds (float): Depth of the straight folds, alternating between ridges and valleys (0 to 1)
  * - u_foldSizeX (float): Size of the vertical folds, needs u_folds > 0 (0 to 1)
  * - u_foldSizeY (float): Size of the horizontal folds, needs u_folds > 0 (0 to 1)
@@ -33,7 +37,7 @@ export const paperTextureMeta = {
  * - u_foldOffsetY (float): Shifts the horizontal folds across the surface, needs u_folds > 0 (0 to 1)
  * - u_angle (float): Direction the surface is lit from in degrees, clockwise from the top of the canvas, needs u_crumples, u_folds or u_test > 0 (0 to 360)
  * - u_drops (float): Visibility of the speckle pattern (0 to 1)
- * - u_seed (float): Seed applied to crumples, creases and drops (0 to 1000)
+ * - u_seed (float): Seed applied to crumples and drops (0 to 1000)
  * - u_blending (float): Amount of image-to-paper blending; 0 = original image color, 1 = image multiplied with the paper (colorBase toned by colorShadow), needs image (0 to 1)
  * - u_distortion (float): How much the image bends with the paper surface; negative values bend it the opposite direction, needs image (-1 to 1)
  * - u_clip (bool): Cuts the paper sheet to the distorted image frame, revealing u_colorBack outside it, needs image
@@ -76,6 +80,9 @@ uniform float u_crumpleCount;
 uniform float u_crumpleSoftness;
 uniform float u_test;
 uniform float u_testSize;
+uniform float u_testLayers;
+uniform float u_testDensity;
+uniform float u_testSoftness;
 uniform float u_folds;
 uniform float u_foldSizeX;
 uniform float u_foldSizeY;
@@ -225,8 +232,59 @@ float getDrops(vec2 uv) {
 
 vec2 getCellTilt(float idx, float radius) {
   vec2 rand = hash22(vec2(idx + 31., idx * u_seed + 17.));
-  float an = floor(rand.x * 24.) / 24. * TWO_PI;
-  return vec2(cos(an), sin(an)) * mix(.9, 1., rand.y) * mix(.7, 1., radius);
+  float an = rand.x * TWO_PI;
+  return vec2(cos(an), sin(an)) * mix(.3, 1.7, rand.y * rand.y) * mix(.7, 1., radius);
+}
+
+vec2 getCrumpleDetail(vec2 uv, float freq, float shift) {
+  vec2 v = uv * freq;
+  float pixel = max(length(dFdx(v)), length(dFdy(v)));
+  vec2 base = floor(v);
+  float n1 = 9., n2 = 9.;
+  vec2 s1 = vec2(0.), s2 = vec2(0.), t1 = vec2(0.), t2 = vec2(0.);
+
+  for (int y = -1; y <= 1; y++) {
+    for (int x = -1; x <= 1; x++) {
+      vec2 cell = base + vec2(float(x), float(y));
+      vec2 q = hash22(vec2(cell.y * 1.9 + 3.1 + shift, cell.x * 1.3 + .11 * u_seed));
+      float keep = mix(.5, .95, u_testDensity);
+      if (q.y > keep) continue;
+
+      vec2 r = hash22(vec2(cell.x + .37 * u_seed + shift + 11.1, cell.y - .21 * u_seed + 5.7));
+      vec2 s = cell + .06 + .88 * r;
+      float mag = q.y / keep;
+      float an = q.x * TWO_PI;
+      vec2 t = vec2(cos(an), sin(an)) * mix(.3, 1.7, mag * mag);
+
+      vec2 d = v - s;
+      float dsq = dot(d, d);
+      if (dsq < n1) {
+        n2 = n1;
+        s2 = s1;
+        t2 = t1;
+        n1 = dsq;
+        s1 = s;
+        t1 = t;
+      } else if (dsq < n2) {
+        n2 = dsq;
+        s2 = s;
+        t2 = t;
+      }
+    }
+  }
+
+  if (n1 > 8.) return vec2(0.);
+
+  vec2 span = s1 - s2;
+  float toEdge = (n2 - n1) / (2. * max(length(span), 1e-4));
+  vec2 pair = hash22(s1 + s2 + 1.7 * abs(s1 - s2));
+  float pairSoft = .01 + .4 * u_testSoftness * step(pair.x, .4);
+  float b = clamp(toEdge / max(1.5 * pixel, .5 * pairSoft), 0., 1.);
+  float d1 = max(sqrt(n1), 1e-4), d2 = max(sqrt(n2), 1e-4);
+  vec2 shoulder = max(0., 1. - toEdge / .42) * b * ((v - s2) / d2 - (v - s1) / d1);
+
+  vec2 mid = .5 * (t1 + t2);
+  return mid + (t1 - mid) * b + .9 * shoulder;
 }
 
 vec4 getCrumples(vec2 uv) {
@@ -283,7 +341,7 @@ vec4 getCrumples(vec2 uv) {
     }
 
     float lo = min(idx, float(i)), hi = max(idx, float(i));
-    float pairSoft = .002 + u_crumpleSoftness * smoothstep(.4, .8, rand.y);
+    float pairSoft = .003 + .15 * step(.2, rand.y);
 
     float toBisector = (dsq - near) / (2. * max(length(p - nearP), 1e-4));
     if (toBisector < toEdge) {
@@ -306,63 +364,11 @@ vec4 getCrumples(vec2 uv) {
   vec2 rounding = mix(sharp, wide / max(wideSum, 1.), min(2. * edgeSoft, 1.));
 
   float radial = l / max(l + toEdge, 1e-4);
-  float plateau = lst(.45, 1., radial);
-  plateau = plateau * plateau * (3. - 2. * plateau);
+  float bendAngle = hash22(vec2(idx + 7.7, idx * u_seed + 2.2)).x * PI;
+  vec2 axis = vec2(cos(bendAngle), sin(bendAngle));
+  vec2 curl = (dot(uv - nearP, axis) / max(l + toEdge, 1e-4)) * axis;
 
-  return vec4(tilt / tiltSum + 1.5 * rounding * blend * plateau, .2 * l, edge);
-}
-
-
-float getCreases(vec2 p, out vec2 grad) {
-    grad = vec2(0.);
-    float crease = 0.;
-    float amp = 1.;
-    float freq = mix(6., 1.5, u_testSize);
-    float freq0 = freq;
-    float pixel = 1.5 * max(length(dFdx(p)), length(dFdy(p))) + 1e-6;
-    vec2 seedOffset = 16. * hash22(vec2(u_seed, u_seed + 1.3));
-
-    for (int oct = 0; oct < 5; oct++) {
-        float o = float(oct);
-        float ca = cos(2.4 * o), sa = sin(2.4 * o);
-        mat2 rot = mat2(ca, sa, -sa, ca);
-        float fillet = pixel * freq;
-        vec2 v = rot * p * freq;
-        vec2 base = floor(v);
-        vec2 octGrad = vec2(0.);
-
-        for (int y = -1; y <= 1; y++) {
-            for (int x = -1; x <= 1; x++) {
-                vec2 cell = base + vec2(float(x), float(y));
-                vec2 r1 = hash22(cell + seedOffset + vec2(7.3, -5.1) * o);
-                vec2 r2 = r1;
-                if (r2.y > .85) continue;
-
-                vec2 q = v - cell - .35 - .3 * r1;
-                float t = dot(q, q) / 1.5625;
-                if (t >= 1.) continue;
-
-                float an = r2.x * TWO_PI;
-                vec2 n = vec2(cos(an), sin(an));
-                float side = r2.y < .425 ? -1. : 1.;
-                float depth = amp * (.4 + .6 * r1.x * r1.x);
-                float falloff = 1. - t;
-                float w = falloff * falloff;
-                float d = dot(q, n);
-                float sm = sqrt(d * d + fillet * fillet);
-
-                octGrad += side * depth * (w * (d / sm) * n - .64 * falloff * sm * q);
-                if (side < 0.) crease = max(crease, depth * w * fillet * fillet / (d * d + fillet * fillet));
-            }
-        }
-
-        grad += freq * (octGrad * rot);
-        amp *= .28;
-        freq *= 1.5;
-    }
-
-    grad /= freq0;
-    return crease;
+  return vec4(tilt / tiltSum + curl + rounding * blend * radial, .2 * l, edge);
 }
 
 
@@ -400,18 +406,20 @@ void main() {
   float reliefAmount = 0.;
   float foldInk = 1.;
   vec2 crumpleFlow = vec2(0.);
-  vec2 creaseShift = vec2(0.);
-  float creaseHighlight = 0.;
 
   vec2 warpNoise = vec2(0.);
-  if (u_crumples > 0. || u_folds > 0.) {
+  if (u_crumples > 0. || u_folds > 0. || u_test > 0.) {
     warpNoise = smoothNoise(patternUV * .07 + .2 + .6 * fract(.017 * u_seed)) - .5;
   }
 
-  if (u_crumples > 0.) {
+  vec2 crumplesUV = vec2(0.);
+  if (u_crumples > 0. || u_test > 0.) {
     float crumpleRad = 4. * u_seed;
     float crumpleCos = cos(crumpleRad), crumpleSin = sin(crumpleRad);
-    vec2 crumplesUV = mat2(crumpleCos, crumpleSin, -crumpleSin, crumpleCos) * (patternUV * .9) + .012 * warpNoise;
+    crumplesUV = mat2(crumpleCos, crumpleSin, -crumpleSin, crumpleCos) * (patternUV * .9) + .012 * warpNoise;
+  }
+
+  if (u_crumples > 0.) {
     vec4 crumples = getCrumples(crumplesUV);
 
     vec2 crumpleTilt = .5 * u_crumples * crumples.xy;
@@ -424,27 +432,44 @@ void main() {
   }
 
   if (u_test > 0.) {
-    vec2 creaseGrad;
-    creaseHighlight = getCreases(patternUV, creaseGrad);
-    creaseShift = .55 * u_test * creaseGrad;
-    relief += creaseShift;
-    reliefAmount += .35 * u_test;
+    float detailFreq = mix(6., 1.5, u_testSize);
+    float detailAmp = .3;
+    vec2 detailGrad = vec2(0.);
+    for (int i = 0; i < ${paperTextureMeta.maxTestLayers}; i++) {
+      if (float(i) >= floor(u_testLayers + .5)) break;
+      detailGrad += detailAmp * getCrumpleDetail(crumplesUV, detailFreq, 31. * float(i));
+      detailAmp *= .5;
+      detailFreq *= 2.35;
+    }
+
+    vec2 detailTilt = 1.5 * u_test * detailGrad;
+    detailTilt -= .65 * max(dot(detailTilt, lightDir), 0.) * lightDir;
+    relief += detailTilt;
+    reliefAmount += 1.3 * u_test;
   }
 
   if (u_folds > 0.) {
+    vec2 foldOffset = vec2(1. - 2. * u_foldOffsetX, 1. - 2. * u_foldOffsetY);
+    vec2 foldCount = vec2(mix(3., .5, u_foldSizeX), mix(3., .5, u_foldSizeY));
+    vec2 foldNoise = .002 * warpNoise;
     vec2 uv = 1. + patternUV + .03 * crumpleFlow;
+    float xFan = 2. * (v_imageUV.x - .5) * abs(lightDir.y);
 
     vec2 slope, dark, lift;
-    getFolds(uv, vec2(1. - 2. * u_foldOffsetX, 1. - 2. * u_foldOffsetY),
-      vec2(mix(3., .5, u_foldSizeX), mix(3., .5, u_foldSizeY)), .002 * warpNoise, slope, dark, lift);
+    getFolds(uv, foldOffset, foldCount, foldNoise, slope, dark, lift);
+
+    if (u_isImage) {
+      vec2 shift = u_folds * vec2(lift.y * xFan, lift.x * abs(lightDir.x));
+      uv += .022 * u_distortion * shift * vec2(u_imageAspectRatio, 1.);
+      getFolds(uv, foldOffset, foldCount, foldNoise, slope, dark, lift);
+    }
 
     relief += u_folds * slope;
     reliefAmount += 1. * u_folds;
     vec2 ink = mix(vec2(.96), vec2(1.), dark);
     float flatness = dark.x * dark.y;
     foldInk *= ink.x * ink.y * mix(.5, .3, flatness);
-      
-    float xFan = 2. * (v_imageUV.x - .5) * abs(lightDir.y);
+
     foldShift = u_folds * vec2(lift.y * xFan, lift.x * abs(lightDir.x));
 
     patternUV.x -= .0044 * foldShift.x;
@@ -459,7 +484,6 @@ void main() {
     lit = max(cos(slope + grazing), 0.);
 
     pattern += (clamp(reliefAmount, 0., 1.) * unlit + (lit - unlit)) * foldInk;
-    pattern -= .3 * u_test * creaseHighlight;
   }
 
   patternUV += .04 * crumpleFlow;
@@ -490,7 +514,7 @@ void main() {
 
   float notClipped = u_clip ? .1 : 1.;
   float scaleDistortion = .15 * crumpleDepth;
-  vec2 linearDistortion = -.022 * foldShift - .03 * creaseShift + notClipped * .05 * lightDir * drops;
+  vec2 linearDistortion = -.022 * foldShift + notClipped * .05 * lightDir * drops;
   float radialDistortion = notClipped * .02 * (roughness + fiber);
   vec2 centeredUV = (v_imageUV - .5) * (1. - u_distortion * scaleDistortion);
   centeredUV -= u_distortion * linearDistortion;
@@ -553,6 +577,9 @@ export interface PaperTextureUniforms extends ShaderSizingUniforms {
   u_crumpleSoftness: number;
   u_test: number;
   u_testSize: number;
+  u_testLayers: number;
+  u_testDensity: number;
+  u_testSoftness: number;
   u_folds: number;
   u_foldSizeX: number;
   u_foldSizeY: number;
@@ -580,6 +607,9 @@ export interface PaperTextureParams extends ShaderSizingParams, ShaderMotionPara
   crumpleSoftness?: number;
   test?: number;
   testSize?: number;
+  testLayers?: number;
+  testDensity?: number;
+  testSoftness?: number;
   folds?: number;
   foldSizeX?: number;
   foldSizeY?: number;
