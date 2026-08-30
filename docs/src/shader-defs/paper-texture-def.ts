@@ -109,6 +109,15 @@ export const paperTextureDef: ShaderDef = {
       description: 'Number of crumples (15 max), needs crumples > 0',
     },
     {
+      name: 'crumpleSoftness',
+      type: 'number',
+      min: 0,
+      max: 1,
+      defaultValue: defaultParams.crumpleSoftness,
+      description:
+        'Softens randomly picked crumple cell borders into gradients, leaving the rest as sharp creases (needs crumples > 0)',
+    },
+    {
       name: 'test',
       type: 'number',
       min: 0,
@@ -123,14 +132,6 @@ export const paperTextureDef: ShaderDef = {
       max: 1,
       defaultValue: defaultParams.testSize,
       description: 'Size of the crease facets (needs test > 0)',
-    },
-    {
-      name: 'testCurve',
-      type: 'number',
-      min: 0,
-      max: 1,
-      defaultValue: defaultParams.testCurve,
-      description: 'How much the creases bend: 0 = perfectly straight folds, 1 = arcs (needs test > 0)',
     },
     {
       name: 'folds',
