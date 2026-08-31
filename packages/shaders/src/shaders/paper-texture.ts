@@ -336,7 +336,6 @@ vec4 getCrumples(vec2 uv) {
       wideSum += shoulder;
     }
 
-    float lo = min(idx, float(i)), hi = max(idx, float(i));
     float pairSoft = .003 + .2 * step(.2, rand.y);
 
     float toBisector = (dsq - near) / (2. * max(length(p - nearP), 1e-4));
@@ -364,19 +363,23 @@ vec4 getCrumples(vec2 uv) {
   vec2 axis = vec2(cos(bendAngle), sin(bendAngle));
   vec2 curl = (dot(uv - nearP, axis) / max(l + toEdge, 1e-4)) * axis;
 
-  return vec4(tilt / tiltSum + curl + rounding * blend * radial, radial, edge);
+  return vec4(tilt / tiltSum + curl + rounding * blend * radial, .2 * l, edge);
 }
 
 
-void getFolds(vec2 coord, vec2 offset, vec2 count, vec2 noise, out vec2 slope, out vec2 dark, out vec2 lift) {
+void getFolds(vec2 coord, vec2 offset, vec2 count, vec2 noise, out vec2 slope, out vec2 dark, out vec2 lift, out vec2 seam) {
   vec2 g = (coord - 1.) * count + .5 * offset + noise;
   vec2 foldIdx = floor(g);
   vec2 dx = fract(g) - .5;
   float foldWidth = .9;
   vec2 parity = (1. - 2. * mod(foldIdx, 2.));
-  slope = sign(dx) * (1. - smoothstep(0., .5 * foldWidth, abs(dx))) * parity;
+  slope = sign(dx) * (1. - smoothstep(0., .5 * foldWidth, abs(dx)));
   dark = smoothstep(0., foldWidth * .5, abs(dx));
-  lift = pow(1. - clamp(abs(dx) / (.5 * foldWidth), 0., 1.), vec2(4.)) * parity;
+  lift = pow(1. - clamp(abs(dx) / (.5 * foldWidth), 0., 1.), vec2(3.)) * parity;
+  vec2 nearCross = smoothstep(vec2(0.), vec2(.3), abs(dx.yx));
+  vec2 lineWidth = .02 * count * mix(vec2(2.5), vec2(.8), nearCross);
+  vec2 line = 1. - smoothstep(vec2(0.), lineWidth, abs(dx));
+  slope -= line;
 }
 
 vec3 blendMultiply(vec3 base, vec3 blend, float opacity) {
@@ -386,7 +389,6 @@ vec3 blendMultiply(vec3 base, vec3 blend, float opacity) {
 void main() {
 
   vec2 patternUV = (v_imageUV - .5) * vec2(u_imageAspectRatio, 1.);
-  vec2 fromCenter = v_imageUV - .5;
 
   float pattern = 0.;
 
@@ -403,6 +405,7 @@ void main() {
   vec2 relief = vec2(0.);
   float reliefAmount = 0.;
   float foldInk = 1.;
+  float foldSeam = 0.;
   vec2 crumpleFlow = vec2(0.);
 
   vec2 warpNoise = vec2(0.);
@@ -426,7 +429,7 @@ void main() {
     reliefAmount += .6 * u_crumples;
     crumpleFlow = crumples.w * crumpleTilt;
 
-    crumpleDepth = clamp(crumples.z, 0., 1.);
+    crumpleDepth = clamp(5. * crumples.z, 0., 1.) * u_crumples;
   }
 
   if (u_wrinkles > 0.) {
@@ -454,17 +457,11 @@ void main() {
   if (u_folds > 0.) {
     vec2 foldOffset = vec2(1. - 2. * u_foldOffsetX, 1. - 2. * u_foldOffsetY);
     vec2 foldCount = vec2(mix(3., .5, u_foldSizeX), mix(3., .5, u_foldSizeY));
-    vec2 foldNoise = .002 * warpNoise;
+    vec2 foldNoise = .003 * warpNoise * foldCount;
     vec2 uv = 1. + patternUV + .03 * crumpleFlow;
 
-    vec2 slope, dark, lift;
-    getFolds(uv, foldOffset, foldCount, foldNoise, slope, dark, lift);
-
-    if (u_isImage) {
-      vec2 shift = u_folds * vec2(lift.y * lightDir.y, lift.x * lightDir.x);
-      uv += .022 * u_distortion * shift * vec2(u_imageAspectRatio, 1.);
-      getFolds(uv, foldOffset, foldCount, foldNoise, slope, dark, lift);
-    }
+    vec2 slope, dark, lift, seam;
+    getFolds(uv, foldOffset, foldCount, foldNoise, slope, dark, lift, seam);
  
     relief += u_folds * slope;
     reliefAmount += 1. * u_folds;
@@ -472,8 +469,9 @@ void main() {
     float flatness = dark.x * dark.y;
     foldInk *= mix(1., ink.x * ink.y * mix(.5, .3, flatness), u_folds);
 
-    foldShift = u_folds * vec2(lift.y * lightDir.y, lift.x * lightDir.x);
+    foldSeam = u_folds * (1. - (1. - seam.x) * (1. - seam.y));
 
+    foldShift = u_folds * vec2(lift.y * lightDir.y, lift.x * lightDir.x);
     patternUV += .0044 * foldShift;
   }
 
@@ -485,6 +483,7 @@ void main() {
     lit = max(cos(slope + grazing), 0.);
 
     pattern += (clamp(reliefAmount, 0., 1.) * unlit + (lit - unlit)) * foldInk;
+    pattern += .15 * foldSeam;
   }
 
   patternUV += .04 * crumpleFlow;
@@ -514,9 +513,8 @@ void main() {
   float shadowOpacity = u_colorShadow.a;
 
   float notClipped = u_clip ? .1 : 1.;
-  float scaleDistortion = .1 * u_crumples * (crumpleDepth - .5) * mix(.2, 1., crumpleDepth) +
-    .15 * u_wrinkles * (wrinkleDepth - .5);
-  vec2 linearDistortion = -.022 * foldShift + notClipped * .05 * lightDir * drops;
+  float scaleDistortion = .15 * u_crumples * (crumpleDepth - .5) + .15 * u_wrinkles * (wrinkleDepth - .5);
+  vec2 linearDistortion = -.015 * foldShift + notClipped * .05 * lightDir * drops;
   float radialDistortion = notClipped * .02 * (roughness + fiber);
   vec2 centeredUV = (v_imageUV - .5) * (1. - u_distortion * scaleDistortion);
   centeredUV -= u_distortion * linearDistortion;
