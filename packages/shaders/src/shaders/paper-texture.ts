@@ -336,9 +336,8 @@ vec4 getCrumples(vec2 uv) {
       wideSum += shoulder;
     }
 
-    float pairSoft = .003 + .2 * step(.2, rand.y);
-
-    float toBisector = (dsq - near) / (2. * max(length(p - nearP), 1e-4));
+    float pairSoft = .01 + .1 * step(.2, rand.x) + .1 * step(.4, rand.y);
+    float toBisector = (dsq - near) / (.2 * max(length(p - nearP), 1e-4));
     if (toBisector < toEdge) {
       toEdge = toBisector;
       edgeSoft = pairSoft;
@@ -352,18 +351,12 @@ vec4 getCrumples(vec2 uv) {
     }
   }
 
-  float blend = clamp(toEdge / max(1.5 * pixel, .5 * edgeSoft), 0., 1.);
-  blend = blend * blend * (3. - 2. * blend);
-
+  float blend = clamp(toEdge / edgeSoft, 0., 1.);
   vec2 sharp = (1. - edge) * ((uv - nearPb) / max(lb, 1e-4) - dir);
   vec2 rounding = mix(sharp, wide / max(wideSum, 1.), min(2. * edgeSoft, 1.));
-
   float radial = l / max(l + toEdge, 1e-4);
-  float bendAngle = hash22(vec2(idx + 7.7, idx * u_seed + 2.2)).x * PI;
-  vec2 axis = vec2(cos(bendAngle), sin(bendAngle));
-  vec2 curl = (dot(uv - nearP, axis) / max(l + toEdge, 1e-4)) * axis;
-
-  return vec4(tilt / tiltSum + curl + rounding * blend * radial, .2 * l, edge);
+    
+  return vec4(tilt / tiltSum + rounding * blend * radial, .2 * l, edge);
 }
 
 
@@ -424,7 +417,7 @@ void main() {
     vec4 crumples = getCrumples(crumplesUV);
 
     vec2 crumpleTilt = .5 * u_crumples * crumples.xy;
-    crumpleTilt -= .65 * max(dot(crumpleTilt, lightDir), 0.) * lightDir;
+    crumpleTilt -= .1 * max(dot(crumpleTilt, lightDir), 0.) * lightDir;
     relief += crumpleTilt;
     reliefAmount += .6 * u_crumples;
     crumpleFlow = crumples.w * crumpleTilt;
@@ -478,11 +471,14 @@ void main() {
   float unlit = cos(grazing);
   float lit = unlit;
 
+  float lightFalloff = clamp(.5 + dot(v_imageUV - .5, lightDir), 0., 1.);
+  float lightPower = mix(.5, 1., lightFalloff);
+
   if (reliefAmount > 0.) {
     float slope = clamp(dot(relief, lightDir), -1.2, 1.2);
     lit = max(cos(slope + grazing), 0.);
 
-    pattern += (clamp(reliefAmount, 0., 1.) * unlit + (lit - unlit)) * foldInk;
+    pattern += (clamp(reliefAmount, 0., 1.) * unlit + (lit - unlit)) * foldInk * lightPower;
     pattern += .15 * foldSeam;
   }
 
