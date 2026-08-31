@@ -22,9 +22,9 @@ export const paperTextureDef: ShaderDef = {
       description: 'The color of the bottom layer, behind the sheet; visible where clip cuts the sheet away',
     },
     {
-      name: 'colorBase',
+      name: 'colorPaper',
       type: 'string',
-      defaultValue: defaultParams.colorBase,
+      defaultValue: defaultParams.colorPaper,
       isColor: true,
       description: 'The color of the paper sheet, usually light; multiplied into the image by blending',
     },
