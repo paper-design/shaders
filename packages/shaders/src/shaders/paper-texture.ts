@@ -91,12 +91,11 @@ uniform sampler2D u_noiseTexture;
 in vec2 v_imageUV;
 out vec4 fragColor;
 
-float getUvFrame(vec2 uv, float blur) {
-  float left = smoothstep(0., blur, uv.x);
-  float right = 1. - smoothstep(1. - blur, 1., uv.x);
-  float bottom = smoothstep(0., blur, uv.y);
-  float top = 1. - smoothstep(1. - blur, 1., uv.y);
-  return left * right * bottom * top;
+float getUvFrame(vec2 uv) {
+  vec2 invAA = .5 / clamp(fwidth(uv), 1e-5, .02);
+  vec2 lo = clamp(uv * invAA + .5, 0., 1.);
+  vec2 hi = clamp((1. - uv) * invAA + .5, 0., 1.);
+  return lo.x * hi.x * lo.y * hi.y;
 }
 
 float lst(float edge0, float edge1, float x) {
@@ -522,7 +521,7 @@ void main() {
   opacity += baseOpacity * (1. - opacity);
 
   if (u_isImage) {
-    float frame = getUvFrame(imageUV, .001);
+    float frame = getUvFrame(imageUV);
     vec4 image = texture(u_image, imageUV);
     frame *= image.a;
 
