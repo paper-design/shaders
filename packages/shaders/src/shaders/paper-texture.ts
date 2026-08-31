@@ -495,7 +495,6 @@ void main() {
 
   if (u_drops > 0.) {
     drops = u_drops * getDrops(patternUV * 10.);
-    pattern += drops;
   }
     
   pattern = clamp(pattern, 0., 1.);
@@ -546,6 +545,8 @@ void main() {
       opacity *= frame;
     }
   }
+
+  color *= mix(vec3(1.), .5 * u_colorShadow.rgb, drops);
 
   color += backColor * (1. - opacity);
   opacity += backOpacity * (1. - opacity);
