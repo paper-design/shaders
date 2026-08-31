@@ -134,7 +134,7 @@ export const flatPreset: PaperTexturePreset = {
     colorPaper: '#ffffffa8',
     colorShadow: '#b3b3b3',
     roughness: 1,
-    roughnessSize: 0.74,
+    roughnessSize: 0.5,
     fiber: 0.57,
     fiberSize: 1,
     crumples: 0,

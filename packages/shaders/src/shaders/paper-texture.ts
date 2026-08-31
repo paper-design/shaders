@@ -4,7 +4,6 @@ import { declarePI, proceduralHash11, proceduralHash22 } from '../shader-utils.j
 
 export const paperTextureMeta = {
   maxCrumpleCount: 15,
-  maxTestLayers: 3,
 } as const;
 
 /**
@@ -291,11 +290,13 @@ vec4 getCrumples(vec2 uv) {
   float near = 9., nearB = 9.;
   float idx = 0., rad = 0.;
   vec2 nearP = vec2(0.), nearPb = vec2(0.);
+  vec4 seeds[${paperTextureMeta.maxCrumpleCount}];
   for (int i = 0; i < ${paperTextureMeta.maxCrumpleCount}; i++) {
     if (float(i) >= crumpleN) break;
     vec2 rand = hash22(vec2(float(i), float(i) * u_seed));
     float an = rand.x * TWO_PI;
     vec2 p = vec2(cos(an), sin(an)) * rand.y;
+    seeds[i] = vec4(p, rand);
 
     vec2 d = uv - p;
     float dsq = dot(d, d);
@@ -324,9 +325,9 @@ vec4 getCrumples(vec2 uv) {
   for (int i = 0; i < ${paperTextureMeta.maxCrumpleCount}; i++) {
     if (float(i) >= crumpleN) break;
     if (float(i) == idx) continue;
-    vec2 rand = hash22(vec2(float(i), float(i) * u_seed));
-    float an = rand.x * TWO_PI;
-    vec2 p = vec2(cos(an), sin(an)) * rand.y;
+    vec4 seed = seeds[i];
+    vec2 p = seed.xy;
+    vec2 rand = seed.zw;
 
     vec2 d = uv - p;
     float dsq = dot(d, d);
@@ -362,7 +363,7 @@ vec4 getCrumples(vec2 uv) {
 }
 
 
-void getFolds(vec2 coord, vec2 offset, vec2 count, vec2 noise, out vec2 slope, out vec2 dark, out vec2 lift, out vec2 seam) {
+void getFolds(vec2 coord, vec2 offset, vec2 count, vec2 noise, out vec2 slope, out vec2 dark, out vec2 lift) {
   vec2 g = (coord - 1.) * count + .5 * offset + noise;
   vec2 foldIdx = floor(g);
   vec2 dx = fract(g) - .5;
@@ -401,7 +402,6 @@ void main() {
   vec2 relief = vec2(0.);
   float reliefAmount = 0.;
   float foldInk = 1.;
-  float foldSeam = 0.;
   vec2 crumpleFlow = vec2(0.);
 
   vec2 warpNoise = vec2(0.);
@@ -433,7 +433,7 @@ void main() {
     float detailAmp = .2;
     vec2 detailGrad = vec2(0.);
     float detailDepth = 0., depthSum = 0.;
-    for (int i = 0; i < ${paperTextureMeta.maxTestLayers}; i++) {
+    for (int i = 0; i < 3; i++) {
       float layerDepth;
       detailGrad += detailAmp * getCrumpleDetail(crumplesUV, detailFreq, 31. * float(i), layerDepth);
       detailDepth += detailAmp * layerDepth;
@@ -456,8 +456,8 @@ void main() {
     vec2 foldNoise = .005 * warpNoise * foldCount;
     vec2 uv = 1. + patternUV + .03 * crumpleFlow;
 
-    vec2 slope, dark, lift, seam;
-    getFolds(uv, foldOffset, foldCount, foldNoise, slope, dark, lift, seam);
+    vec2 slope, dark, lift;
+    getFolds(uv, foldOffset, foldCount, foldNoise, slope, dark, lift);
  
     relief += u_folds * slope;
     reliefAmount += 1. * u_folds;
@@ -465,7 +465,6 @@ void main() {
     float flatness = dark.x * dark.y;
     foldInk *= mix(1., ink.x * ink.y * mix(.5, .3, flatness), u_folds);
 
-    foldSeam = u_folds * (1. - (1. - seam.x) * (1. - seam.y));
     foldDepth = u_folds * (lift.y * lightDir.y - lift.x * lightDir.x);
     patternUV += .0044 * foldShift;
   }
@@ -480,7 +479,6 @@ void main() {
     lit = max(cos(slope + grazing), 0.);
 
     pattern += (clamp(reliefAmount, 0., 1.) * unlit + (lit - unlit)) * foldInk * lightPower;
-    pattern += .15 * foldSeam;
   }
 
   patternUV += .04 * crumpleFlow;
