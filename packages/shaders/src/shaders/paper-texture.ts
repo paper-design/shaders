@@ -364,11 +364,12 @@ vec4 getCrumples(vec2 uv) {
 
 
 void getFolds(vec2 coord, vec2 offset, vec2 count, vec2 noise, out vec2 slope, out vec2 dark, out vec2 lift) {
-  vec2 g = (coord - 1.) * count + .5 * offset + noise;
+  vec2 g = coord * count + .5 * offset + noise;
   vec2 foldIdx = floor(g);
   vec2 dx = fract(g) - .5;
   float foldWidth = .6;
-  slope = sign(dx) * (1. - smoothstep(0., .5 * foldWidth, abs(dx)));
+  vec2 crease = clamp(dx / max(fwidth(g), 1e-5), -1., 1.);
+  slope = crease * (1. - smoothstep(0., .5 * foldWidth, abs(dx)));
   dark = smoothstep(0., foldWidth * .5, abs(dx));
   lift = 1. - clamp(abs(dx) / (.5 * foldWidth), 0., 1.);
   lift *= lift;
@@ -454,7 +455,7 @@ void main() {
     vec2 foldOffset = vec2(1. - 2. * u_foldOffsetX, 1. - 2. * u_foldOffsetY);
     vec2 foldCount = vec2(mix(3., .5, u_foldSizeX), mix(3., .5, u_foldSizeY));
     vec2 foldNoise = .005 * warpNoise * foldCount;
-    vec2 uv = 1. + patternUV + .03 * crumpleFlow;
+    vec2 uv = patternUV + .03 * crumpleFlow;
 
     vec2 slope, dark, lift;
     getFolds(uv, foldOffset, foldCount, foldNoise, slope, dark, lift);
