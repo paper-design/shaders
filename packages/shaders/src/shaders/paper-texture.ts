@@ -508,7 +508,7 @@ void main() {
   float shadowOpacity = u_colorShadow.a;
 
   float notClipped = u_clip ? .1 : 1.;
-  float scaleDistortion = .15 * u_crumples * (crumpleDepth - .5) + .15 * u_wrinkles * (wrinkleDepth - .5) + .05 * (foldDepth);
+  float scaleDistortion = .15 * u_crumples * (crumpleDepth - .5) + .09 * u_wrinkles * (wrinkleDepth - .5) + .05 * (foldDepth);
   vec2 linearDistortion = -.015 * foldShift + notClipped * .002 * lightDir * drops;
   float radialDistortion = notClipped * .02 * (roughness + fiber);
   vec2 centeredUV = (v_imageUV - .5) * (1. - u_distortion * scaleDistortion);
