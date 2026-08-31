@@ -1,6 +1,6 @@
 import type { ShaderMotionParams } from '../shader-mount.js';
 import { type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
-import { declarePI, proceduralHash22 } from '../shader-utils.js';
+import { declarePI, proceduralHash11, proceduralHash22 } from '../shader-utils.js';
 
 export const paperTextureMeta = {
   maxCrumpleCount: 15,
@@ -105,6 +105,7 @@ float lst(float edge0, float edge1, float x) {
 }
 
 ${declarePI}
+${proceduralHash11}
 ${proceduralHash22}
 
 float getRoughness(vec2 p) {
@@ -123,9 +124,9 @@ float getRoughness(vec2 p) {
 
   vec2 sum = vec2(0.);
   float norm = 0., amp = .5;
+  float freq = exp2(baseLevel * logLac);
   for (int i = 0; i < 4; i++) {
     float absIdx = baseLevel + float(i);
-    float freq = exp2(absIdx * logLac);
     vec2 qx = size * px * freq;
     float qy = size * py * freq;
 
@@ -148,6 +149,7 @@ float getRoughness(vec2 p) {
     sum += amp * wi * n;
     norm += amp * wi;
     amp *= .8;
+    freq *= 2.1;
   }
 
   vec2 r = sum / norm;
@@ -165,9 +167,9 @@ float getFiber(vec2 p) {
     vec2 grad = vec2(0.);
     float scale = 1.;
     float amp = 1.;
+    float freq = pow(1.7, baseLevel);
     for (int i = 0; i < 5; i++) {
         float absIdx = baseLevel + float(i);
-        float freq = pow(1.7, absIdx);
         vec2 q = size * p * freq;
 
         float an = absIdx * .8;
@@ -193,6 +195,7 @@ float getFiber(vec2 p) {
         grad += wi * amp * scale * vec2(rc * dx + rs * dy, -rs * dx + rc * dy);
         scale *= 1.7;
         amp *= .5;
+        freq *= 1.7;
     }
 
     return clamp(.333 * length(grad), 0., 1.);
@@ -284,11 +287,12 @@ vec2 getCrumpleDetail(vec2 uv, float freq, float shift, out float depth) {
 }
 
 vec4 getCrumples(vec2 uv) {
+  float crumpleN = floor(u_crumpleCount + .5);
   float near = 9., nearB = 9.;
   float idx = 0., rad = 0.;
   vec2 nearP = vec2(0.), nearPb = vec2(0.);
   for (int i = 0; i < ${paperTextureMeta.maxCrumpleCount}; i++) {
-    if (float(i) >= floor(u_crumpleCount + .5)) break;
+    if (float(i) >= crumpleN) break;
     vec2 rand = hash22(vec2(float(i), float(i) * u_seed));
     float an = rand.x * TWO_PI;
     vec2 p = vec2(cos(an), sin(an)) * rand.y;
@@ -311,8 +315,6 @@ vec4 getCrumples(vec2 uv) {
   vec2 dir = (uv - nearP) / max(l, 1e-4);
   float edge = lst(0., .5, lb - l);
 
-  float pixel = max(length(dFdx(uv)), length(dFdy(uv)));
-
   vec2 tilt = getCellTilt(idx, rad);
   float tiltSum = 1.;
   vec2 wide = vec2(0.);
@@ -320,7 +322,7 @@ vec4 getCrumples(vec2 uv) {
   float toEdge = 9., edgeSoft = 0.;
 
   for (int i = 0; i < ${paperTextureMeta.maxCrumpleCount}; i++) {
-    if (float(i) >= floor(u_crumpleCount + .5)) break;
+    if (float(i) >= crumpleN) break;
     if (float(i) == idx) continue;
     vec2 rand = hash22(vec2(float(i), float(i) * u_seed));
     float an = rand.x * TWO_PI;
@@ -364,13 +366,13 @@ void getFolds(vec2 coord, vec2 offset, vec2 count, vec2 noise, out vec2 slope, o
   vec2 g = (coord - 1.) * count + .5 * offset + noise;
   vec2 foldIdx = floor(g);
   vec2 dx = fract(g) - .5;
-  float foldWidth = .9;
-  vec2 parity = (1. - 2. * mod(foldIdx, 2.));
+  float foldWidth = .6;
   slope = sign(dx) * (1. - smoothstep(0., .5 * foldWidth, abs(dx)));
   dark = smoothstep(0., foldWidth * .5, abs(dx));
-  lift = pow(1. - clamp(abs(dx) / (.5 * foldWidth), 0., 1.), vec2(3.)) * parity;
+  lift = 1. - clamp(abs(dx) / (.5 * foldWidth), 0., 1.);
+  lift *= lift;
   vec2 nearCross = smoothstep(vec2(0.), vec2(.3), abs(dx.yx));
-  vec2 lineWidth = .02 * count * mix(vec2(2.5), vec2(.8), nearCross);
+  vec2 lineWidth = .02 * count * mix(vec2(2.5), vec2(.8), nearCross) + .1 * noise;
   vec2 line = 1. - smoothstep(vec2(0.), lineWidth, abs(dx));
   slope -= line;
 }
@@ -388,6 +390,7 @@ void main() {
   float crumpleDepth = 0.;
   float wrinkleDepth = 0.;
   vec2 foldShift = vec2(0.);
+  float foldDepth = 0.;
   float roughness = 0.;
   float fiber = 0.;
   float drops = 0.;
@@ -403,7 +406,7 @@ void main() {
 
   vec2 warpNoise = vec2(0.);
   if (u_crumples > 0. || u_folds > 0. || u_wrinkles > 0.) {
-    warpNoise = smoothNoise(patternUV * .07 + .2 + .6 * fract(.017 * u_seed)) - .5;
+    warpNoise = smoothNoise(patternUV * .1 + .2 + .6 * fract(.017 * u_seed)) - .5;
   }
 
   vec2 crumplesUV = vec2(0.);
@@ -450,7 +453,7 @@ void main() {
   if (u_folds > 0.) {
     vec2 foldOffset = vec2(1. - 2. * u_foldOffsetX, 1. - 2. * u_foldOffsetY);
     vec2 foldCount = vec2(mix(3., .5, u_foldSizeX), mix(3., .5, u_foldSizeY));
-    vec2 foldNoise = .003 * warpNoise * foldCount;
+    vec2 foldNoise = .005 * warpNoise * foldCount;
     vec2 uv = 1. + patternUV + .03 * crumpleFlow;
 
     vec2 slope, dark, lift, seam;
@@ -463,18 +466,16 @@ void main() {
     foldInk *= mix(1., ink.x * ink.y * mix(.5, .3, flatness), u_folds);
 
     foldSeam = u_folds * (1. - (1. - seam.x) * (1. - seam.y));
-
-    foldShift = u_folds * vec2(lift.y * lightDir.y, lift.x * lightDir.x);
+    foldDepth = u_folds * (lift.y * lightDir.y - lift.x * lightDir.x);
     patternUV += .0044 * foldShift;
   }
 
   float unlit = cos(grazing);
   float lit = unlit;
 
-  float lightFalloff = clamp(.5 + dot(v_imageUV - .5, lightDir), 0., 1.);
-  float lightPower = mix(.5, 1., lightFalloff);
-
   if (reliefAmount > 0.) {
+    float lightFalloff = clamp(.5 + dot(v_imageUV - .5, lightDir), 0., 1.);
+    float lightPower = mix(.5, 1., lightFalloff);
     float slope = clamp(dot(relief, lightDir), -1.2, 1.2);
     lit = max(cos(slope + grazing), 0.);
 
@@ -509,7 +510,7 @@ void main() {
   float shadowOpacity = u_colorShadow.a;
 
   float notClipped = u_clip ? .1 : 1.;
-  float scaleDistortion = .15 * u_crumples * (crumpleDepth - .5) + .15 * u_wrinkles * (wrinkleDepth - .5);
+  float scaleDistortion = .15 * u_crumples * (crumpleDepth - .5) + .15 * u_wrinkles * (wrinkleDepth - .5) + .05 * (foldDepth);
   vec2 linearDistortion = -.015 * foldShift + notClipped * .05 * lightDir * drops;
   float radialDistortion = notClipped * .02 * (roughness + fiber);
   vec2 centeredUV = (v_imageUV - .5) * (1. - u_distortion * scaleDistortion);
