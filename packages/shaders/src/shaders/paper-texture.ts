@@ -19,6 +19,7 @@ export const paperTextureMeta = {
  * - u_colorShadow (vec4): Color used for crumples, folds, grain and speckles, blends into the image, in RGBA
  * - u_roughness (float): Grain noise, sized independently of scaling, with its level of detail depending on the scale (0 to 1)
  * - u_roughnessSize (float): Scale of the roughness noise, needs u_roughness > 0 (0 to 1)
+ * - u_roughnessRows (float): Lines the grain up into horizontal rows; 0 = even scatter, 1 = laid-paper rows, needs u_roughness > 0 (0 to 1)
  * - u_fiber (float): Curly fiber noise, simulating real paper (0 to 1)
  * - u_fiberSize (float): Scale of the fiber noise, needs u_fiber > 0 (0 to 1)
  * - u_crumples (float): Depth of the centered, irregular field of facets across the sheet (0 to 1)
@@ -85,6 +86,7 @@ uniform float u_seed;
 uniform float u_blending;
 uniform float u_distortion;
 uniform float u_roughnessSize;
+uniform float u_roughnessRows;
 uniform bool u_clip;
 uniform sampler2D u_noiseTexture;
 
@@ -111,7 +113,7 @@ float getRoughness(vec2 p) {
   float w = max(length(dFdx(p * .1)), length(dFdy(p * .1)));
   float eps = 4. * w;
 
-  float size = mix(3.2, .6, u_roughnessSize);
+  float size = mix(3.2, .05, u_roughnessSize);
   float logLac = log2(2.1);
   float level = -log2(w + 1e-8) / logLac;
   float baseLevel = floor(level) - 2.;
@@ -152,7 +154,10 @@ float getRoughness(vec2 p) {
 
   vec2 r = sum / norm;
   float dx = .5 + r.x - r.y;
-  return 3. * dx * dx - .7;
+  float grain = 3. * dx * dx - .7;
+
+  float rowBand = fract(p.y * .05 * size);
+  return grain + .6 * u_roughnessRows * (rowBand - .5);
 }
 
 float getFiber(vec2 p) {
@@ -564,6 +569,7 @@ export interface PaperTextureUniforms extends ShaderSizingUniforms {
   u_colorShadow: [number, number, number, number];
   u_roughness: number;
   u_roughnessSize: number;
+  u_roughnessRows: number;
   u_fiber: number;
   u_fiberSize: number;
   u_crumples: number;
@@ -590,6 +596,7 @@ export interface PaperTextureParams extends ShaderSizingParams, ShaderMotionPara
   colorShadow?: string;
   roughness?: number;
   roughnessSize?: number;
+  roughnessRows?: number;
   fiber?: number;
   fiberSize?: number;
   crumples?: number;

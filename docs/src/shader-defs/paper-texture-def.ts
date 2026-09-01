@@ -76,6 +76,15 @@ export const paperTextureDef: ShaderDef = {
       description: 'Scale of the roughness noise (needs roughness > 0)',
     },
     {
+      name: 'roughnessRows',
+      type: 'number',
+      min: 0,
+      max: 1,
+      defaultValue: defaultParams.roughnessRows,
+      description:
+        'Lines the grain up into horizontal rows: 0 = even scatter, 1 = laid-paper rows (needs roughness > 0)',
+    },
+    {
       name: 'fiber',
       type: 'number',
       min: 0,

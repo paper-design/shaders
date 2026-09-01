@@ -74,6 +74,7 @@ const PaperTextureWithControls = () => {
       angle: { value: defaults.angle, min: 0, max: 360, order: 201 },
       roughness: { value: defaults.roughness, min: 0, max: 1, order: 300 },
       roughnessSize: { value: defaults.roughnessSize, min: 0, max: 1, order: 301 },
+      roughnessRows: { value: defaults.roughnessRows, min: 0, max: 1, order: 302 },
       fiber: { value: defaults.fiber, min: 0, max: 1, order: 310 },
       fiberSize: { value: defaults.fiberSize, min: 0, max: 1, order: 311 },
       crumples: { value: defaults.crumples, min: 0, max: 1, order: 320 },
