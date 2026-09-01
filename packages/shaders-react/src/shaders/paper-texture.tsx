@@ -84,7 +84,7 @@ export const creasedPreset: PaperTexturePreset = {
     foldOffsetY: 1,
     angle: 236,
     drops: 0,
-    seed: 13,
+    seed: 185,
     clip: false,
   },
 };
@@ -118,7 +118,7 @@ export const spreadPreset: PaperTexturePreset = {
     foldOffsetY: 0,
     angle: 236,
     drops: 0,
-    seed: 563,
+    seed: 613,
     clip: true,
   },
 };

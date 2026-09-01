@@ -108,9 +108,9 @@ ${declarePI}
 ${proceduralHash11}
 ${proceduralHash22}
 
-float getRoughness(vec2 p, vec2 lightDir, vec2 seedShift) {
+float getRoughness(vec2 p, vec2 lightDir, vec2 seedShift, float basePixel) {
   vec2 u = p / vec2(2, 4);
-  float w = max(length(dFdx(p * .1)), length(dFdy(p * .1)));
+  float w = 100. * basePixel;
   float eps = 4. * w;
 
   float size = mix(3.2, .8, u_roughnessSize);
@@ -160,9 +160,9 @@ float getRoughness(vec2 p, vec2 lightDir, vec2 seedShift) {
   return grain + .6 * u_roughnessRows * (rowBand - .5);
 }
 
-float getFiber(vec2 p, vec2 seedShift) {
+float getFiber(vec2 p, vec2 seedShift, float basePixel) {
   float size = mix(4., 1., u_fiberSize);
-  float w = max(length(dFdx(p)), length(dFdy(p)));
+  float w = 50. * basePixel;
   float level = -log2(w + 1e-8);
   float baseLevel = floor(level) - 3.;
   float fade = fract(level);
@@ -234,10 +234,10 @@ vec2 getCellTilt(float idx, float radius) {
   return vec2(cos(an), sin(an)) * mix(.3, 1.7, rand.y * rand.y) * mix(.7, 1., radius);
 }
 
-vec2 getCrumpleDetail(vec2 uv, float freq, float shift, out float depth) {
+vec2 getCrumpleDetail(vec2 uv, float freq, float shift, float basePixel, out float depth) {
   depth = 0.;
   vec2 v = uv * freq;
-  float pixel = max(length(dFdx(v)), length(dFdy(v)));
+  float pixel = .9 * freq * basePixel;
   vec2 base = floor(v);
   float n1 = 9., n2 = 9.;
   vec2 s1 = vec2(0.), s2 = vec2(0.), q1 = vec2(0.), q2 = vec2(0.);
@@ -352,7 +352,7 @@ vec4 getCrumples(vec2 uv) {
       wideSum += shoulder;
     }
 
-    float pairSoft = .01 + .1 * step(.2, rand.x) + .1 * step(.4, rand.y);
+    float pairSoft = .01 + .05 * step(.2, rand.x) + .3 * rand.y;
     float toBisector = (dsq - near) / (.2 * max(length(p - nearP), 1e-4));
     if (toBisector < toEdge) {
       toEdge = toBisector;
@@ -375,29 +375,28 @@ vec4 getCrumples(vec2 uv) {
   return vec4(tilt / tiltSum + rounding * blend * radial, .2 * l, edge);
 }
 
-void getFolds(vec2 coord, vec2 offset, vec2 count, vec2 noise, out vec2 slope, out vec2 dark, out vec2 lift) {
+void getFolds(vec2 coord, vec2 offset, vec2 count, vec2 noise, vec2 baseFwidth, out vec2 slope, out vec2 dark, out vec2 lift) {
   vec2 g = coord * count + .5 * offset + noise;
-  vec2 foldIdx = floor(g);
   vec2 dx = fract(g) - .5;
-  float foldWidth = .6;
-  vec2 crease = clamp(dx / max(fwidth(g), 1e-5), -1., 1.);
-  slope = crease * (1. - smoothstep(0., .5 * foldWidth, abs(dx)));
-  dark = smoothstep(0., foldWidth * .5, abs(dx));
-  lift = 1. - clamp(abs(dx) / (.5 * foldWidth), 0., 1.);
+  vec2 adx = abs(dx);
+  float foldRadius = .3;
+  vec2 t = clamp(adx / foldRadius, 0., 1.);
+  dark = t * t * (3. - 2. * t);
+  lift = 1. - t;
   lift *= lift;
-  vec2 nearCross = smoothstep(vec2(0.), vec2(.3), abs(dx.yx));
-  vec2 lineWidth = .02 * count * mix(vec2(2.5), vec2(.8), nearCross) + .1 * noise;
-  vec2 line = 1. - smoothstep(vec2(0.), lineWidth, abs(dx));
-  slope -= line;
-}
 
-vec3 blendMultiply(vec3 base, vec3 blend, float opacity) {
-  return base * blend * opacity + base * (1. - opacity);
+  vec2 crease = clamp(dx / max(count * baseFwidth, 1e-5), -1., 1.);
+  slope = crease * (1. - dark);
+
+  vec2 lineWidth = .02 * count * mix(vec2(2.5), vec2(.8), dark.yx) + .1 * noise;
+  slope -= 1. - smoothstep(vec2(0.), lineWidth, adx);
 }
 
 void main() {
 
   vec2 patternUV = (v_imageUV - .5) * vec2(u_imageAspectRatio, 1.);
+  float basePixel = max(length(dFdx(patternUV)), length(dFdy(patternUV)));
+  vec2 baseFwidth = fwidth(patternUV);
 
   float pattern = 0.;
 
@@ -420,13 +419,7 @@ void main() {
   if (u_crumples > 0. || u_folds > 0. || u_wrinkles > 0.) {
     warpNoise = smoothNoise(patternUV * .1 + .2 + .6 * fract(.017 * u_seed)) - .5;
   }
-
-  vec2 crumplesUV = vec2(0.);
-  if (u_crumples > 0. || u_wrinkles > 0.) {
-    float crumpleRad = 4. * u_seed;
-    float crumpleCos = cos(crumpleRad), crumpleSin = sin(crumpleRad);
-    crumplesUV = mat2(crumpleCos, crumpleSin, -crumpleSin, crumpleCos) * (patternUV * .9) + .012 * warpNoise;
-  }
+  vec2 crumplesUV = (patternUV * .9) + .012 * warpNoise;
 
   if (u_crumples > 0.) {
     vec4 crumples = getCrumples(crumplesUV);
@@ -447,7 +440,7 @@ void main() {
     float detailDepth = 0., depthSum = 0.;
     for (int i = 0; i < 3; i++) {
       float layerDepth;
-      detailGrad += detailAmp * getCrumpleDetail(crumplesUV, detailFreq, 31. * float(i), layerDepth);
+      detailGrad += detailAmp * getCrumpleDetail(crumplesUV, detailFreq, 31. * float(i), basePixel, layerDepth);
       detailDepth += detailAmp * layerDepth;
       depthSum += detailAmp;
       detailAmp *= (.5 + .2 * detailGrad.x);
@@ -469,7 +462,7 @@ void main() {
     vec2 uv = patternUV + .03 * crumpleFlow;
 
     vec2 slope, dark, lift;
-    getFolds(uv, foldOffset, foldCount, foldNoise, slope, dark, lift);
+    getFolds(uv, foldOffset, foldCount, foldNoise, baseFwidth, slope, dark, lift);
 
     relief += u_folds * slope;
     reliefAmount += 1. * u_folds;
@@ -497,12 +490,12 @@ void main() {
   vec2 seedShift = floor(fract(u_seed * vec2(.7548776662, .5698402909)) * 50.) / 50.;
 
   if (u_roughness > 0.) {
-    roughness = u_roughness * getRoughness(1000. * patternUV, lightDir, seedShift);
+    roughness = u_roughness * getRoughness(1000. * patternUV, lightDir, seedShift, basePixel);
     pattern += roughness;
   }
 
   if (u_fiber > 0.) {
-    fiber = u_fiber * getFiber(50. * patternUV, seedShift);
+    fiber = u_fiber * getFiber(50. * patternUV, seedShift, basePixel);
     pattern += fiber;
   }
 
@@ -547,7 +540,7 @@ void main() {
     float dampen = mix(0., .7, u_blending) * max(satDampen, darkDampen);
 
     vec3 paper = vec3(1.) - opacity + color;
-    vec3 pic = blendMultiply(image.rgb, paper, u_blending);
+    vec3 pic = image.rgb * paper * u_blending + image.rgb * (1. - u_blending);
     pic = mix(pic, vec3(1.), .6 * pow(dampen, 2. + 3. * pattern));
 
     color = mix(color, pic, frame);
