@@ -347,7 +347,7 @@ vec4 getCrumples(vec2 uv) {
 
     if (dsq < shoulderLimit * shoulderLimit) {
       float di = sqrt(dsq);
-      float shoulder = 1. - lst(0., .5, di - l);
+      float shoulder = lst(.5, 0., di - l);
       wide += shoulder * (d / max(di, 1e-4) - dir);
       wideSum += shoulder;
     }
