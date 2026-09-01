@@ -515,7 +515,7 @@ void main() {
   float notClipped = u_clip ? .1 : 1.;
   vec2 imageCenteredUV = v_imageUV - .5;
   float edgeDist = 2. * max(abs(imageCenteredUV.x), abs(imageCenteredUV.y));
-  float wrinkleDistortion = mix(.35, .0175, smoothstep(0., 1., edgeDist));
+  float wrinkleDistortion = mix(.38, .0175, smoothstep(0., 1., edgeDist));
   float scaleDistortion = .15 * u_crumples * (crumpleDepth - .5) + wrinkleDistortion * u_wrinkles * (wrinkleDepth - .5) + .05 * foldDepth;
   vec2 linearDistortion = notClipped * .002 * lightDir * drops;
   float radialDistortion = notClipped * .02 * (roughness + fiber);
