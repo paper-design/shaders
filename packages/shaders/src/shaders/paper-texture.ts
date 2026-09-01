@@ -108,7 +108,7 @@ ${declarePI}
 ${proceduralHash11}
 ${proceduralHash22}
 
-float getRoughness(vec2 p) {
+float getRoughness(vec2 p, vec2 lightDir) {
   vec2 u = p / vec2(2, 4);
   float w = max(length(dFdx(p * .1)), length(dFdy(p * .1)));
   float eps = 4. * w;
@@ -156,7 +156,7 @@ float getRoughness(vec2 p) {
   float dx = .5 + r.x - r.y;
   float grain = 3. * dx * dx - .7;
 
-  float rowBand = fract(p.y * .05 * size);
+  float rowBand = fract(dot(p, lightDir) * .05 * size);
   return grain + .6 * u_roughnessRows * (rowBand - .5);
 }
 
@@ -489,7 +489,7 @@ void main() {
   patternUV += .04 * crumpleFlow;
 
   if (u_roughness > 0.) {
-    roughness = u_roughness * getRoughness(1000. * patternUV);
+    roughness = u_roughness * getRoughness(1000. * patternUV, lightDir);
     pattern += roughness;
   }
 
