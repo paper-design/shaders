@@ -33,7 +33,7 @@ export const paperTextureMeta = {
  * - u_foldOffsetY (float): Shifts the horizontal folds across the surface, needs u_folds > 0 (0 to 1)
  * - u_angle (float): Direction the surface is lit from in degrees, clockwise from the top of the canvas, needs u_crumples, u_folds or u_wrinkles > 0 (0 to 360)
  * - u_drops (float): Visibility of the speckle pattern (0 to 1)
- * - u_seed (float): Seed applied to crumples and drops (0 to 1000)
+ * - u_seed (float): Seed applied to every pattern (0 to 1000)
  * - u_blending (float): Amount of image-to-paper blending; 0 = original image color, 1 = image multiplied with the paper (colorPaper toned by colorShadow), needs image (0 to 1)
  * - u_distortion (float): How much the image bends with the paper surface; negative values bend it the opposite direction, needs image (-1 to 1)
  * - u_clip (bool): Cuts the paper sheet to the distorted image frame, revealing u_colorBack outside it, needs image
@@ -108,12 +108,12 @@ ${declarePI}
 ${proceduralHash11}
 ${proceduralHash22}
 
-float getRoughness(vec2 p, vec2 lightDir) {
+float getRoughness(vec2 p, vec2 lightDir, vec2 seedShift) {
   vec2 u = p / vec2(2, 4);
   float w = max(length(dFdx(p * .1)), length(dFdy(p * .1)));
   float eps = 4. * w;
 
-  float size = mix(3.2, .05, u_roughnessSize);
+  float size = mix(3.2, .8, u_roughnessSize);
   float logLac = log2(2.1);
   float level = -log2(w + 1e-8) / logLac;
   float baseLevel = floor(level) - 2.;
@@ -136,12 +136,12 @@ float getRoughness(vec2 p, vec2 lightDir) {
 
     vec2 fx = fract(qx);
     float fy = fract(qy);
-    float shift = .5 + absIdx * .3;
-    float uvY = floor(qy) / 50. + shift;
-    vec2 s0a = texture(u_noiseTexture, fract(vec2(floor(qx.x) / 50. + shift, uvY))).rg;
-    vec2 s1a = texture(u_noiseTexture, fract(vec2( ceil(qx.x) / 50. + shift, uvY))).rg;
-    vec2 s0b = texture(u_noiseTexture, fract(vec2(floor(qx.y) / 50. + shift, uvY))).rg;
-    vec2 s1b = texture(u_noiseTexture, fract(vec2( ceil(qx.y) / 50. + shift, uvY))).rg;
+    vec2 shift = .5 + absIdx * .3 + seedShift;
+    float uvY = floor(qy) / 50. + shift.y;
+    vec2 s0a = texture(u_noiseTexture, fract(vec2(floor(qx.x) / 50. + shift.x, uvY))).rg;
+    vec2 s1a = texture(u_noiseTexture, fract(vec2( ceil(qx.x) / 50. + shift.x, uvY))).rg;
+    vec2 s0b = texture(u_noiseTexture, fract(vec2(floor(qx.y) / 50. + shift.x, uvY))).rg;
+    vec2 s1b = texture(u_noiseTexture, fract(vec2( ceil(qx.y) / 50. + shift.x, uvY))).rg;
     vec2 ny0 = mix(vec2(s0a.r, s0b.r), vec2(s0a.g, s0b.g), fy);
     vec2 ny1 = mix(vec2(s1a.r, s1b.r), vec2(s1a.g, s1b.g), fy);
     vec2 n = mix(ny0, ny1, fx);
@@ -160,7 +160,7 @@ float getRoughness(vec2 p, vec2 lightDir) {
   return grain + .6 * u_roughnessRows * (rowBand - .5);
 }
 
-float getFiber(vec2 p) {
+float getFiber(vec2 p, vec2 seedShift) {
     float size = mix(4., 1., u_fiberSize);
     float w = max(length(dFdx(p)), length(dFdy(p)));
     float level = -log2(w + 1e-8);
@@ -186,7 +186,7 @@ float getFiber(vec2 p) {
         vec2 iq = floor(q);
         vec2 fq = fract(q);
         float shift = absIdx * .3;
-        vec4 uv = fract(vec4(iq, iq + 1.) / 50. + .5 + shift);
+        vec4 uv = fract(vec4(iq, iq + 1.) / 50. + .5 + shift + seedShift.xyxy);
         float aF = texture(u_noiseTexture, uv.xy).b;
         float bF = texture(u_noiseTexture, uv.zy).b;
         float cF = texture(u_noiseTexture, uv.xw).b;
@@ -434,7 +434,7 @@ void main() {
   }
 
   if (u_wrinkles > 0.) {
-    float detailFreq = mix(6., 1.5, u_wrinkleSize);
+    float detailFreq = mix(10., 1., u_wrinkleSize);
     float detailAmp = .2;
     vec2 detailGrad = vec2(0.);
     float detailDepth = 0., depthSum = 0.;
@@ -488,13 +488,15 @@ void main() {
 
   patternUV += .04 * crumpleFlow;
 
+  vec2 seedShift = floor(fract(u_seed * vec2(.7548776662, .5698402909)) * 50.) / 50.;
+
   if (u_roughness > 0.) {
-    roughness = u_roughness * getRoughness(1000. * patternUV, lightDir);
+    roughness = u_roughness * getRoughness(1000. * patternUV, lightDir, seedShift);
     pattern += roughness;
   }
 
   if (u_fiber > 0.) {
-    fiber = u_fiber * getFiber(50. * patternUV);
+    fiber = u_fiber * getFiber(50. * patternUV, seedShift);
     pattern += fiber;
   }
 

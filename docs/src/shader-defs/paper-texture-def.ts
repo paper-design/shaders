@@ -196,7 +196,7 @@ export const paperTextureDef: ShaderDef = {
       min: 0,
       max: 1000,
       defaultValue: defaultParams.seed,
-      description: 'Seed applied to crumples and drops',
+      description: 'Seed applied to every pattern',
     },
     ...staticImageCommonParams,
   ],
