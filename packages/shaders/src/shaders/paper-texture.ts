@@ -220,13 +220,12 @@ float getDrops(vec2 uv, vec2 seedShift) {
     for (int x = -1; x < 2; x += 1) {
       vec2 neighbor = vec2(float(y), float(x));
       vec2 offset = hash22(iDropsUV + neighbor);
-      if (offset.x > .5) continue;
-      offset = .5 + .5 * sin(u_seed + TWO_PI * offset);
+      offset = .5 + .5 * sin(10. * u_seed + TWO_PI * offset);
       vec2 pos = neighbor + offset - fDropsUV;
       dropsMinDist *= min(1., dot(pos, pos));
     }
   }
-  return .25 * lst(.0004, .0003, dropsMinDist);
+  return .5 * lst(.09, .08, sqrt(sqrt(dropsMinDist)));
 }
 
 vec2 getCellTilt(float idx, float radius) {
@@ -241,7 +240,7 @@ vec2 getCrumpleDetail(vec2 uv, float freq, float shift, out float depth) {
   float pixel = max(length(dFdx(v)), length(dFdy(v)));
   vec2 base = floor(v);
   float n1 = 9., n2 = 9.;
-  vec2 s1 = vec2(0.), s2 = vec2(0.), t1 = vec2(0.), t2 = vec2(0.);
+  vec2 s1 = vec2(0.), s2 = vec2(0.), q1 = vec2(0.), q2 = vec2(0.);
 
   for (int y = -1; y <= 1; y++) {
     for (int x = -1; x <= 1; x++) {
@@ -252,28 +251,30 @@ vec2 getCrumpleDetail(vec2 uv, float freq, float shift, out float depth) {
 
       vec2 r = hash22(vec2(cell.x + .37 * u_seed + shift + 11.1, cell.y - .21 * u_seed + 5.7));
       vec2 s = cell + .06 + .88 * r;
-      float mag = q.y / keep;
-      float an = q.x * TWO_PI;
-      vec2 t = vec2(cos(an), sin(an)) * mix(.3, 1.7, mag * mag);
 
       vec2 d = v - s;
       float dsq = dot(d, d);
       if (dsq < n1) {
         n2 = n1;
         s2 = s1;
-        t2 = t1;
+        q2 = q1;
         n1 = dsq;
         s1 = s;
-        t1 = t;
+        q1 = q;
       } else if (dsq < n2) {
         n2 = dsq;
         s2 = s;
-        t2 = t;
+        q2 = q;
       }
     }
   }
 
   if (n1 > 8.) return vec2(0.);
+
+  float an1 = q1.x * TWO_PI, mag1 = q1.y / .8;
+  vec2 t1 = vec2(cos(an1), sin(an1)) * mix(.3, 1.7, mag1 * mag1);
+  float an2 = q2.x * TWO_PI, mag2 = q2.y / .8;
+  vec2 t2 = vec2(cos(an2), sin(an2)) * mix(.3, 1.7, mag2 * mag2);
 
   vec2 span = s1 - s2;
   float spanLen = max(length(span), 1e-4);
@@ -282,9 +283,14 @@ vec2 getCrumpleDetail(vec2 uv, float freq, float shift, out float depth) {
   vec2 pair = hash22(s1 + s2 + 1.7 * abs(s1 - s2));
   float pairSoft = .01 + .1 * step(pair.x, .4);
   float b = clamp(toEdge / max(1.5 * pixel, .5 * pairSoft), 0., 1.);
-  float d1 = max(sqrt(n1), 1e-4), d2 = max(sqrt(n2), 1e-4);
+  float d1 = max(sqrt(n1), 1e-4);
   depth = .2 * d1;
-  vec2 shoulder = max(0., 1. - toEdge / .42) * b * ((v - s2) / d2 - (v - s1) / d1);
+  float shoulderAmt = max(0., 1. - toEdge / .42) * b;
+  vec2 shoulder = vec2(0.);
+  if (shoulderAmt > 0.) {
+    float d2 = max(sqrt(n2), 1e-4);
+    shoulder = shoulderAmt * ((v - s2) / d2 - (v - s1) / d1);
+  }
 
   vec2 mid = .5 * (t1 + t2);
   return mid + (t1 - mid) * b + .9 * shoulder;
