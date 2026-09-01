@@ -80,7 +80,7 @@ const PaperTextureWithControls = () => {
       crumples: { value: defaults.crumples, min: 0, max: 1, order: 320 },
       crumpleCount: {
         value: defaults.crumpleCount,
-        min: 1,
+        min: 2,
         max: paperTextureMeta.maxCrumpleCount,
         step: 1,
         order: 321,

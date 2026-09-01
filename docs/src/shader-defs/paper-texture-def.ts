@@ -111,7 +111,7 @@ export const paperTextureDef: ShaderDef = {
     {
       name: 'crumpleCount',
       type: 'number',
-      min: 1,
+      min: 2,
       max: 15,
       step: 1,
       defaultValue: defaultParams.crumpleCount,

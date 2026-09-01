@@ -23,7 +23,7 @@ export const paperTextureMeta = {
  * - u_fiber (float): Curly fiber noise, simulating real paper (0 to 1)
  * - u_fiberSize (float): Scale of the fiber noise, needs u_fiber > 0 (0 to 1)
  * - u_crumples (float): Depth of the centered, irregular field of facets across the sheet (0 to 1)
- * - u_crumpleCount (float): Number of crumples, needs u_crumples > 0 (1 to 15)
+ * - u_crumpleCount (float): Number of crumples, needs u_crumples > 0 (2 to 15)
  * - u_wrinkles (float): Depth of a field of fine facets, independent of the crumples (0 to 1)
  * - u_wrinkleSize (float): Size of the fine facets, needs u_wrinkles > 0 (0 to 1)
  * - u_folds (float): Depth of the straight folds, alternating between ridges and valleys (0 to 1)
@@ -212,7 +212,7 @@ vec2 smoothNoise(vec2 p) {
   return texture(u_noiseTexture, fract((i + f + .5) / vec2(50.))).rg;
 }
 
-float getDrops(vec2 uv) {
+float getDrops(vec2 uv, vec2 seedShift) {
   vec2 iDropsUV = floor(uv);
   vec2 fDropsUV = fract(uv);
   float dropsMinDist = 1.;
@@ -220,12 +220,13 @@ float getDrops(vec2 uv) {
     for (int x = -1; x < 2; x += 1) {
       vec2 neighbor = vec2(float(y), float(x));
       vec2 offset = hash22(iDropsUV + neighbor);
-      offset = .5 + .5 * sin(10. * u_seed + TWO_PI * offset);
+      if (offset.x > .5) continue;
+      offset = .5 + .5 * sin(u_seed + TWO_PI * offset);
       vec2 pos = neighbor + offset - fDropsUV;
       dropsMinDist *= min(1., dot(pos, pos));
     }
   }
-  return 1. - lst(.05, .09, sqrt(sqrt(dropsMinDist)));
+  return .25 * lst(.0004, .0003, dropsMinDist);
 }
 
 vec2 getCellTilt(float idx, float radius) {
@@ -290,7 +291,7 @@ vec2 getCrumpleDetail(vec2 uv, float freq, float shift, out float depth) {
 }
 
 vec4 getCrumples(vec2 uv) {
-  float crumpleN = floor(u_crumpleCount + .5);
+  float crumpleN = max(2., floor(u_crumpleCount + .5));
   float near = 9., nearB = 9.;
   float idx = 0., rad = 0.;
   vec2 nearP = vec2(0.), nearPb = vec2(0.);
@@ -320,6 +321,8 @@ vec4 getCrumples(vec2 uv) {
   vec2 dir = (uv - nearP) / max(l, 1e-4);
   float edge = lst(0., .5, lb - l);
 
+  float shoulderLimit = l + .5;
+
   vec2 tilt = getCellTilt(idx, rad);
   float tiltSum = 1.;
   vec2 wide = vec2(0.);
@@ -335,10 +338,10 @@ vec4 getCrumples(vec2 uv) {
 
     vec2 d = uv - p;
     float dsq = dot(d, d);
-    float di = sqrt(dsq);
 
-    float shoulder = 1. - lst(0., .5, di - l);
-    if (shoulder > 0.) {
+    if (dsq < shoulderLimit * shoulderLimit) {
+      float di = sqrt(dsq);
+      float shoulder = 1. - lst(0., .5, di - l);
       wide += shoulder * (d / max(di, 1e-4) - dir);
       wideSum += shoulder;
     }
@@ -394,7 +397,6 @@ void main() {
 
   float crumpleDepth = 0.;
   float wrinkleDepth = 0.;
-  vec2 foldShift = vec2(0.);
   float foldDepth = 0.;
   float roughness = 0.;
   float fiber = 0.;
@@ -429,7 +431,7 @@ void main() {
     reliefAmount += .6 * u_crumples;
     crumpleFlow = crumples.w * crumpleTilt;
 
-    crumpleDepth = clamp(5. * crumples.z, 0., 1.) * u_crumples;
+    crumpleDepth = clamp(5. * crumples.z, 0., 1.);
   }
 
   if (u_wrinkles > 0.) {
@@ -470,7 +472,6 @@ void main() {
     foldInk *= mix(1., ink.x * ink.y * mix(.5, .3, flatness), u_folds);
 
     foldDepth = u_folds * (lift.y * lightDir.y - lift.x * lightDir.x);
-    patternUV += .0044 * foldShift;
   }
 
   float unlit = cos(grazing);
@@ -500,7 +501,7 @@ void main() {
   }
 
   if (u_drops > 0.) {
-    drops = .6 * u_drops * getDrops(patternUV * 10.);
+    drops = u_drops * getDrops(patternUV * 10., seedShift);
   }
 
   pattern = clamp(pattern, 0., 1.);
@@ -514,7 +515,7 @@ void main() {
 
   float notClipped = u_clip ? .1 : 1.;
   float scaleDistortion = .15 * u_crumples * (crumpleDepth - .5) + .09 * u_wrinkles * (wrinkleDepth - .5) + .05 * (foldDepth);
-  vec2 linearDistortion = -.015 * foldShift + notClipped * .002 * lightDir * drops;
+  vec2 linearDistortion = notClipped * .002 * lightDir * drops;
   float radialDistortion = notClipped * .02 * (roughness + fiber);
   vec2 centeredUV = (v_imageUV - .5) * (1. - u_distortion * scaleDistortion);
   centeredUV -= u_distortion * linearDistortion;
