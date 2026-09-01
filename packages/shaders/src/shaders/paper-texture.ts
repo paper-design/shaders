@@ -408,10 +408,13 @@ void main() {
   float drops = 0.;
 
   float grazing = 0.7;
-  float angleInSector = mod(u_angle, 90.);
-  float lightRad = radians(u_angle - angleInSector + mix(12., 78., angleInSector / 90.));
+  float lightRad = radians(u_angle);
   vec2 lightDir = vec2(sin(lightRad), -cos(lightRad));
+  float foldAngleInSector = mod(u_angle, 90.);
+  float foldLightRad = radians(u_angle - foldAngleInSector + mix(12., 78., foldAngleInSector / 90.));
+  vec2 foldLightDir = vec2(sin(foldLightRad), -cos(foldLightRad));
   vec2 relief = vec2(0.);
+  vec2 foldSlope = vec2(0.);
   float reliefAmount = 0.;
   float foldInk = 1.;
   vec2 crumpleFlow = vec2(0.);
@@ -465,13 +468,13 @@ void main() {
     vec2 slope, dark, lift;
     getFolds(uv, foldOffset, foldCount, foldNoise, baseFwidth, slope, dark, lift);
 
-    relief += u_folds * slope;
+    foldSlope = u_folds * slope;
     reliefAmount += 1. * u_folds;
     vec2 ink = mix(vec2(.96), vec2(1.), dark);
     float flatness = dark.x * dark.y;
     foldInk *= mix(1., ink.x * ink.y * mix(.5, .3, flatness), u_folds);
 
-    foldDepth = u_folds * (lift.y * lightDir.y - lift.x * lightDir.x);
+    foldDepth = u_folds * (lift.y * foldLightDir.y - lift.x * foldLightDir.x);
   }
 
   float unlit = cos(grazing);
@@ -480,7 +483,7 @@ void main() {
   if (reliefAmount > 0.) {
     float lightFalloff = clamp(.5 + dot(v_imageUV - .5, lightDir), 0., 1.);
     float lightPower = mix(.5, 1., lightFalloff);
-    float slope = clamp(dot(relief, lightDir), -1.2, 1.2);
+    float slope = clamp(dot(relief, lightDir) + dot(foldSlope, foldLightDir), -1.2, 1.2);
     lit = max(cos(slope + grazing), 0.);
 
     pattern += (clamp(reliefAmount, 0., 1.) * unlit + (lit - unlit)) * foldInk * lightPower;
