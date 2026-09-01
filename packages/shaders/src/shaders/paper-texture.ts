@@ -408,7 +408,8 @@ void main() {
   float drops = 0.;
 
   float grazing = 0.7;
-  float lightRad = radians(u_angle);
+  float angleInSector = mod(u_angle, 90.);
+  float lightRad = radians(u_angle - angleInSector + mix(12., 78., angleInSector / 90.));
   vec2 lightDir = vec2(sin(lightRad), -cos(lightRad));
   vec2 relief = vec2(0.);
   float reliefAmount = 0.;
