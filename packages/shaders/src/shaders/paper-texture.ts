@@ -1,6 +1,6 @@
 import type { ShaderMotionParams } from '../shader-mount.js';
 import { type ShaderSizingParams, type ShaderSizingUniforms } from '../shader-sizing.js';
-import { declarePI, proceduralHash11, proceduralHash22 } from '../shader-utils.js';
+import { declarePI, proceduralHash21, proceduralHash22 } from '../shader-utils.js';
 
 export const paperTextureMeta = {
   maxCrumpleCount: 15,
@@ -105,7 +105,7 @@ float lst(float edge0, float edge1, float x) {
 }
 
 ${declarePI}
-${proceduralHash11}
+${proceduralHash21}
 ${proceduralHash22}
 
 float getRoughness(vec2 p, vec2 lightDir, vec2 seedShift, float basePixel) {
@@ -280,8 +280,8 @@ vec2 getCrumpleDetail(vec2 uv, float freq, float shift, float basePixel, out flo
   float spanLen = max(length(span), 1e-4);
   float toEdge = (n2 - n1) / (2. * spanLen);
 
-  vec2 pair = hash22(s1 + s2 + 1.7 * abs(s1 - s2));
-  float pairSoft = .01 + .1 * step(pair.x, .4);
+  float pair = hash21(s1 + s2 + 1.7 * abs(s1 - s2));
+  float pairSoft = .01 + .1 * step(pair, .4);
   float b = clamp(toEdge / max(1.5 * pixel, .5 * pairSoft), 0., 1.);
   float d1 = max(sqrt(n1), 1e-4);
   depth = .2 * d1;
