@@ -513,10 +513,13 @@ void main() {
   float shadowOpacity = u_colorShadow.a;
 
   float notClipped = u_clip ? .1 : 1.;
-  float scaleDistortion = .15 * u_crumples * (crumpleDepth - .5) + .09 * u_wrinkles * (wrinkleDepth - .5) + .05 * (foldDepth);
+  vec2 imageCenteredUV = v_imageUV - .5;
+  float edgeDist = 2. * max(abs(imageCenteredUV.x), abs(imageCenteredUV.y));
+  float wrinkleDistortion = mix(.35, .0175, smoothstep(0., 1., edgeDist));
+  float scaleDistortion = .15 * u_crumples * (crumpleDepth - .5) + wrinkleDistortion * u_wrinkles * (wrinkleDepth - .5) + .05 * foldDepth;
   vec2 linearDistortion = notClipped * .002 * lightDir * drops;
   float radialDistortion = notClipped * .02 * (roughness + fiber);
-  vec2 centeredUV = (v_imageUV - .5) * (1. - u_distortion * scaleDistortion);
+  vec2 centeredUV = imageCenteredUV * (1. - u_distortion * scaleDistortion);
   centeredUV -= u_distortion * linearDistortion;
   vec2 imageUV = .5 + centeredUV * (1. - abs(u_distortion) * radialDistortion * dot(centeredUV, centeredUV));
 
