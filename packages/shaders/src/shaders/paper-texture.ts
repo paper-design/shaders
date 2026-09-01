@@ -161,47 +161,47 @@ float getRoughness(vec2 p, vec2 lightDir, vec2 seedShift) {
 }
 
 float getFiber(vec2 p, vec2 seedShift) {
-    float size = mix(4., 1., u_fiberSize);
-    float w = max(length(dFdx(p)), length(dFdy(p)));
-    float level = -log2(w + 1e-8);
-    float baseLevel = floor(level) - 3.;
-    float fade = fract(level);
+  float size = mix(4., 1., u_fiberSize);
+  float w = max(length(dFdx(p)), length(dFdy(p)));
+  float level = -log2(w + 1e-8);
+  float baseLevel = floor(level) - 3.;
+  float fade = fract(level);
 
-    vec2 grad = vec2(0.);
-    float scale = 1.;
-    float amp = 1.;
-    float freq = pow(1.7, baseLevel);
-    for (int i = 0; i < 5; i++) {
-        float absIdx = baseLevel + float(i);
-        vec2 q = size * p * freq;
+  vec2 grad = vec2(0.);
+  float scale = 1.;
+  float amp = 1.;
+  float freq = pow(1.7, baseLevel);
+  for (int i = 0; i < 5; i++) {
+    float absIdx = baseLevel + float(i);
+    vec2 q = size * p * freq;
 
-        float an = absIdx * .8;
-        float rc = cos(an), rs = sin(an);
-        q = vec2(rc * q.x - rs * q.y, rs * q.x + rc * q.y);
+    float an = absIdx * .8;
+    float rc = cos(an), rs = sin(an);
+    q = vec2(rc * q.x - rs * q.y, rs * q.x + rc * q.y);
 
-        float wi = 1.;
-        if (i == 0) wi = 1. - fade;
-        if (i == 4) wi = fade;
+    float wi = 1.;
+    if (i == 0) wi = 1. - fade;
+    if (i == 4) wi = fade;
 
-        vec2 iq = floor(q);
-        vec2 fq = fract(q);
-        float shift = absIdx * .3;
-        vec4 uv = fract(vec4(iq, iq + 1.) / 50. + .5 + shift + seedShift.xyxy);
-        float aF = texture(u_noiseTexture, uv.xy).b;
-        float bF = texture(u_noiseTexture, uv.zy).b;
-        float cF = texture(u_noiseTexture, uv.xw).b;
-        float dF = texture(u_noiseTexture, uv.zw).b;
-        vec2 u = fq * fq * (3. - 2. * fq);
-        vec2 du = 8. * fq * (1. - fq);
-        float dx = du.x * mix(bF - aF, dF - cF, u.y);
-        float dy = du.y * mix(cF - aF, dF - bF, u.x);
-        grad += wi * amp * scale * vec2(rc * dx + rs * dy, -rs * dx + rc * dy);
-        scale *= 1.7;
-        amp *= .5;
-        freq *= 1.7;
-    }
+    vec2 iq = floor(q);
+    vec2 fq = fract(q);
+    float shift = absIdx * .3;
+    vec4 uv = fract(vec4(iq, iq + 1.) / 50. + .5 + shift + seedShift.xyxy);
+    float aF = texture(u_noiseTexture, uv.xy).b;
+    float bF = texture(u_noiseTexture, uv.zy).b;
+    float cF = texture(u_noiseTexture, uv.xw).b;
+    float dF = texture(u_noiseTexture, uv.zw).b;
+    vec2 u = fq * fq * (3. - 2. * fq);
+    vec2 du = 8. * fq * (1. - fq);
+    float dx = du.x * mix(bF - aF, dF - cF, u.y);
+    float dy = du.y * mix(cF - aF, dF - bF, u.x);
+    grad += wi * amp * scale * vec2(rc * dx + rs * dy, -rs * dx + rc * dy);
+    scale *= 1.7;
+    amp *= .5;
+    freq *= 1.7;
+  }
 
-    return clamp(.333 * length(grad), 0., 1.);
+  return clamp(.333 * length(grad), 0., 1.);
 }
 
 vec2 smoothNoise(vec2 p) {
@@ -362,10 +362,9 @@ vec4 getCrumples(vec2 uv) {
   vec2 sharp = (1. - edge) * ((uv - nearPb) / max(lb, 1e-4) - dir);
   vec2 rounding = mix(sharp, wide / max(wideSum, 1.), min(2. * edgeSoft, 1.));
   float radial = l / max(l + toEdge, 1e-4);
-    
+
   return vec4(tilt / tiltSum + rounding * blend * radial, .2 * l, edge);
 }
-
 
 void getFolds(vec2 coord, vec2 offset, vec2 count, vec2 noise, out vec2 slope, out vec2 dark, out vec2 lift) {
   vec2 g = coord * count + .5 * offset + noise;
@@ -451,7 +450,7 @@ void main() {
     detailTilt -= .65 * max(dot(detailTilt, lightDir), 0.) * lightDir;
     relief += detailTilt;
     reliefAmount += .6 * u_wrinkles;
-      
+
     wrinkleDepth = clamp(5. * detailDepth / max(depthSum, 1e-4), 0., 1.);
   }
 
@@ -463,7 +462,7 @@ void main() {
 
     vec2 slope, dark, lift;
     getFolds(uv, foldOffset, foldCount, foldNoise, slope, dark, lift);
- 
+
     relief += u_folds * slope;
     reliefAmount += 1. * u_folds;
     vec2 ink = mix(vec2(.96), vec2(1.), dark);
@@ -503,7 +502,7 @@ void main() {
   if (u_drops > 0.) {
     drops = .6 * u_drops * getDrops(patternUV * 10.);
   }
-    
+
   pattern = clamp(pattern, 0., 1.);
 
   vec3 backColor = u_colorBack.rgb * u_colorBack.a;
