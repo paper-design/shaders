@@ -180,7 +180,7 @@ export const paperTextureDef: ShaderDef = {
       max: 360,
       defaultValue: defaultParams.angle,
       description:
-        'Direction the surface is lit from, clockwise from the top of the canvas, needs crumples, folds or wrinkles > 0',
+        'Direction the surface is lit from, clockwise from the top of the canvas; also rotation of roughness rows pattern',
     },
     {
       name: 'drops',
