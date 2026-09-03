@@ -14,29 +14,29 @@ export const paperTextureMeta = {
  * - u_image (sampler2D): Optional source image texture
  * - u_isImage (bool): Whether a source image was provided
  * - u_imageAspectRatio (float): Aspect ratio of the source image
- * - u_colorBack (vec4): Color behind the paper sheet in RGBA
- * - u_colorPaper (vec4): Color of the paper sheet in RGBA
- * - u_colorShadow (vec4): Color of the patterns over the paper sheet in RGBA
+ * - u_blending (float): Amount of image-to-paper blending, needs image (0 to 1)
+ * - u_distortion (float): How much the image bends with the paper surface, needs image (-1 to 1)
+ * - u_clip (bool): Cuts the paper sheet to the image frame, needs image
+ * - u_angle (float): Direction the surface is lit from in degrees, also the roughness rows direction, needs crumples, wrinkles, folds, roughnessRows or drops > 0 (0 to 360)
+ * - u_seed (float): Seed applied to every pattern (0 to 1000)
  * - u_roughness (float): Fine grain covering the surface evenly (0 to 1)
  * - u_roughnessSize (float): Scale of the roughness grain, needs roughness > 0 (0 to 1)
- * - u_roughnessRows (float): Lines the roughness up into stripes, needs roughness > 0 (0 to 1)
+ * - u_roughnessRows (float): Lines the roughness up into stripes, 0 = even scatter, 1 = laid-paper rows, needs roughness > 0 (0 to 1)
  * - u_fiber (float): Curly thread-like noise covering the surface evenly (0 to 1)
  * - u_fiberSize (float): Scale of the fiber noise, needs fiber > 0 (0 to 1)
- * - u_crumples (float): A set of irregular folding lines (0 to 1)
- * - u_crumpleCount (float): Number of facets in the crumple field, needs crumples > 0 (2 to 15)
- * - u_wrinkles (float): Crumple-like facets repeating across the surface (0 to 1)
- * - u_wrinkleSize (float): Scale of the wrinkle facets, needs wrinkles > 0 (0 to 1)
  * - u_folds (float): Straight vertical and horizontal fold lines producing ridges and valleys (0 to 1)
  * - u_foldSizeX (float): Size of the vertical folds, needs folds > 0 (0 to 1)
  * - u_foldSizeY (float): Size of the horizontal folds, needs folds > 0 (0 to 1)
  * - u_foldOffsetX (float): Shifts the vertical folds across the surface, needs folds > 0 (0 to 1)
  * - u_foldOffsetY (float): Shifts the horizontal folds across the surface, needs folds > 0 (0 to 1)
- * - u_angle (float): Direction the surface is lit from in degrees, also the roughness rows direction (0 to 360)
+ * - u_wrinkles (float): Crumple-like facets repeating across the surface (0 to 1)
+ * - u_wrinkleSize (float): Scale of the wrinkle facets, needs wrinkles > 0 (0 to 1)
+ * - u_crumples (float): A set of irregular folding lines (0 to 1)
+ * - u_crumpleCount (float): Number of facets in the crumple field, needs crumples > 0 (2 to 15)
  * - u_drops (float): Visibility of the speckle pattern, darkens the image instead of coloring it (0 to 1)
- * - u_seed (float): Seed applied to every pattern (0 to 1000)
- * - u_blending (float): Amount of image-to-paper blending, needs image (0 to 1)
- * - u_distortion (float): How much the image bends with the paper surface, needs image (-1 to 1)
- * - u_clip (bool): Cuts the paper sheet to the image frame, needs image
+ * - u_colorBack (vec4): Color behind the paper sheet in RGBA
+ * - u_colorPaper (vec4): Color of the paper sheet in RGBA
+ * - u_colorShadow (vec4): Color of the patterns over the paper sheet in RGBA
  * - u_noiseTexture (sampler2D): Pre-computed randomizer source texture
  *
  * Vertex shader outputs (used in fragment shader):
@@ -60,34 +60,36 @@ export const paperTextureMeta = {
 export const paperTextureFragmentShader: string = `#version 300 es
 precision mediump float;
 
-uniform vec4 u_colorBack;
-uniform vec4 u_colorPaper;
-uniform vec4 u_colorShadow;
-
 uniform sampler2D u_image;
 uniform bool u_isImage;
 uniform float u_imageAspectRatio;
 
+uniform float u_blending;
+uniform float u_distortion;
+uniform bool u_clip;
+uniform float u_angle;
+uniform float u_seed;
+
 uniform float u_roughness;
+uniform float u_roughnessSize;
+uniform float u_roughnessRows;
 uniform float u_fiber;
 uniform float u_fiberSize;
-uniform float u_crumples;
-uniform float u_crumpleCount;
-uniform float u_wrinkles;
-uniform float u_wrinkleSize;
 uniform float u_folds;
 uniform float u_foldSizeX;
 uniform float u_foldSizeY;
 uniform float u_foldOffsetX;
 uniform float u_foldOffsetY;
-uniform float u_angle;
+uniform float u_wrinkles;
+uniform float u_wrinkleSize;
+uniform float u_crumples;
+uniform float u_crumpleCount;
 uniform float u_drops;
-uniform float u_seed;
-uniform float u_blending;
-uniform float u_distortion;
-uniform float u_roughnessSize;
-uniform float u_roughnessRows;
-uniform bool u_clip;
+
+uniform vec4 u_colorBack;
+uniform vec4 u_colorPaper;
+uniform vec4 u_colorShadow;
+
 uniform sampler2D u_noiseTexture;
 
 in vec2 v_imageUV;
@@ -571,55 +573,54 @@ void main() {
 export interface PaperTextureUniforms extends ShaderSizingUniforms {
   u_image: HTMLImageElement | string | undefined;
   u_isImage: boolean;
-  u_noiseTexture?: HTMLImageElement;
-  u_colorBack: [number, number, number, number];
-  u_colorPaper: [number, number, number, number];
-  u_colorShadow: [number, number, number, number];
+  u_blending: number;
+  u_distortion: number;
+  u_clip: boolean;
+  u_angle: number;
+  u_seed: number;
   u_roughness: number;
   u_roughnessSize: number;
   u_roughnessRows: number;
   u_fiber: number;
   u_fiberSize: number;
-  u_crumples: number;
-  u_crumpleCount: number;
-  u_wrinkles: number;
-  u_wrinkleSize: number;
   u_folds: number;
   u_foldSizeX: number;
   u_foldSizeY: number;
   u_foldOffsetX: number;
   u_foldOffsetY: number;
-  u_angle: number;
+  u_wrinkles: number;
+  u_wrinkleSize: number;
+  u_crumples: number;
+  u_crumpleCount: number;
   u_drops: number;
-  u_seed: number;
-  u_blending: number;
-  u_distortion: number;
-  u_clip: boolean;
+  u_colorBack: [number, number, number, number];
+  u_colorPaper: [number, number, number, number];
+  u_colorShadow: [number, number, number, number];
+  u_noiseTexture?: HTMLImageElement;
 }
-
 export interface PaperTextureParams extends ShaderSizingParams, ShaderMotionParams {
   image?: HTMLImageElement | string;
-  colorBack?: string;
-  colorPaper?: string;
-  colorShadow?: string;
+  blending?: number;
+  distortion?: number;
+  clip?: boolean;
+  angle?: number;
+  seed?: number;
   roughness?: number;
   roughnessSize?: number;
   roughnessRows?: number;
   fiber?: number;
   fiberSize?: number;
-  crumples?: number;
-  crumpleCount?: number;
-  wrinkles?: number;
-  wrinkleSize?: number;
   folds?: number;
   foldSizeX?: number;
   foldSizeY?: number;
   foldOffsetX?: number;
   foldOffsetY?: number;
-  angle?: number;
+  wrinkles?: number;
+  wrinkleSize?: number;
+  crumples?: number;
+  crumpleCount?: number;
   drops?: number;
-  seed?: number;
-  blending?: number;
-  distortion?: number;
-  clip?: boolean;
+  colorBack?: string;
+  colorPaper?: string;
+  colorShadow?: string;
 }
