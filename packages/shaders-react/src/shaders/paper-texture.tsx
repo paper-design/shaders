@@ -29,6 +29,9 @@ export const defaultPreset: PaperTexturePreset = {
     scale: 0.9,
     speed: 0,
     frame: 0,
+    colorBack: '#d3d2ab',
+    colorPaper: '#ffffffb5',
+    colorShadow: '#b3b3b3',
     blending: 1,
     distortion: 0.75,
     clip: false,
@@ -49,9 +52,6 @@ export const defaultPreset: PaperTexturePreset = {
     crumples: 0,
     crumpleCount: 6,
     drops: 1,
-    colorBack: '#d3d2ab',
-    colorPaper: '#ffffffb5',
-    colorShadow: '#b3b3b3',
   },
 };
 
@@ -63,6 +63,9 @@ export const creasedPreset: PaperTexturePreset = {
     scale: 0.9,
     speed: 0,
     frame: 0,
+    colorBack: '#d3d2ab',
+    colorPaper: '#ffffff',
+    colorShadow: '#b3b3b3',
     blending: 1,
     distortion: -0.5,
     clip: false,
@@ -83,9 +86,6 @@ export const creasedPreset: PaperTexturePreset = {
     crumples: 1,
     crumpleCount: 7,
     drops: 0,
-    colorBack: '#d3d2ab',
-    colorPaper: '#ffffff',
-    colorShadow: '#b3b3b3',
   },
 };
 
@@ -97,6 +97,9 @@ export const spreadPreset: PaperTexturePreset = {
     scale: 0.9,
     speed: 0,
     frame: 0,
+    colorBack: '#ffffff00',
+    colorPaper: '#ffffffb5',
+    colorShadow: '#b3b3b3',
     blending: 1,
     distortion: -0.3,
     clip: true,
@@ -117,9 +120,6 @@ export const spreadPreset: PaperTexturePreset = {
     crumples: 0,
     crumpleCount: 9,
     drops: 0,
-    colorBack: '#ffffff00',
-    colorPaper: '#ffffffb5',
-    colorShadow: '#b3b3b3',
   },
 };
 
@@ -131,6 +131,9 @@ export const flatPreset: PaperTexturePreset = {
     scale: 0.9,
     speed: 0,
     frame: 0,
+    colorBack: '#d4cdab',
+    colorPaper: '#ffffffa8',
+    colorShadow: '#b3b3b3',
     blending: 1,
     distortion: 0,
     clip: false,
@@ -151,9 +154,6 @@ export const flatPreset: PaperTexturePreset = {
     crumples: 0,
     crumpleCount: 6,
     drops: 0.2,
-    colorBack: '#d4cdab',
-    colorPaper: '#ffffffa8',
-    colorShadow: '#b3b3b3',
   },
 };
 
@@ -169,6 +169,9 @@ export const PaperTexture: React.FC<PaperTextureProps> = memo(function PaperText
   speed = defaultPreset.params.speed,
   frame = defaultPreset.params.frame,
   image = '',
+  colorBack = defaultPreset.params.colorBack,
+  colorPaper = defaultPreset.params.colorPaper,
+  colorShadow = defaultPreset.params.colorShadow,
   blending = defaultPreset.params.blending,
   distortion = defaultPreset.params.distortion,
   clip = defaultPreset.params.clip,
@@ -191,9 +194,6 @@ export const PaperTexture: React.FC<PaperTextureProps> = memo(function PaperText
   foldsNumber,
   crumpleCount = foldsNumber === undefined ? defaultPreset.params.crumpleCount : foldsNumber,
   drops = defaultPreset.params.drops,
-  colorBack = defaultPreset.params.colorBack,
-  colorPaper = defaultPreset.params.colorPaper,
-  colorShadow = defaultPreset.params.colorShadow,
 
   // Sizing props
   fit = defaultPreset.params.fit,
@@ -213,6 +213,9 @@ export const PaperTexture: React.FC<PaperTextureProps> = memo(function PaperText
     // Own uniforms
     u_image: image,
     u_isImage: Boolean(image),
+    u_colorBack: getShaderColorFromString(colorBack),
+    u_colorPaper: getShaderColorFromString(colorPaper),
+    u_colorShadow: getShaderColorFromString(colorShadow),
     u_blending: blending,
     u_distortion: distortion,
     u_clip: clip,
@@ -233,9 +236,6 @@ export const PaperTexture: React.FC<PaperTextureProps> = memo(function PaperText
     u_crumples: crumples,
     u_crumpleCount: crumpleCount,
     u_drops: drops,
-    u_colorBack: getShaderColorFromString(colorBack),
-    u_colorPaper: getShaderColorFromString(colorPaper),
-    u_colorShadow: getShaderColorFromString(colorShadow),
     ...noiseTexture,
 
     // Sizing uniforms

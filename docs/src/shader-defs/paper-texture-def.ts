@@ -15,6 +15,29 @@ export const paperTextureDef: ShaderDef = {
       description: 'The image over the paper texture; it can be blended into the texture and bend by it',
     },
     {
+      name: 'colorBack',
+      type: 'string',
+      defaultValue: defaultParams.colorBack,
+      isColor: true,
+      description:
+        'The color behind the paper sheet, visible where clip cuts the image away, or through a semi-transparent colorPaper or colorShadow',
+    },
+    {
+      name: 'colorPaper',
+      type: 'string',
+      defaultValue: defaultParams.colorPaper,
+      isColor: true,
+      description: 'The color of the paper sheet, can be blended into the image',
+    },
+    {
+      name: 'colorShadow',
+      type: 'string',
+      defaultValue: defaultParams.colorShadow,
+      isColor: true,
+      description:
+        'The color of the patterns (grain, fiber, crumples, wrinkles and folds) over the paper sheet, can be blended into the image',
+    },
+    {
       name: 'blending',
       type: 'number',
       min: 0,
@@ -179,29 +202,6 @@ export const paperTextureDef: ShaderDef = {
       defaultValue: defaultParams.drops,
       description:
         'Visibility of the speckle pattern; unlike the other patterns it darkens the image rather than adding a shape colored by colorShadow',
-    },
-    {
-      name: 'colorBack',
-      type: 'string',
-      defaultValue: defaultParams.colorBack,
-      isColor: true,
-      description:
-        'The color behind the paper sheet, visible where clip cuts the image away, or through a semi-transparent colorPaper or colorShadow',
-    },
-    {
-      name: 'colorPaper',
-      type: 'string',
-      defaultValue: defaultParams.colorPaper,
-      isColor: true,
-      description: 'The color of the paper sheet, can be blended into the image',
-    },
-    {
-      name: 'colorShadow',
-      type: 'string',
-      defaultValue: defaultParams.colorShadow,
-      isColor: true,
-      description:
-        'The color of the patterns (grain, fiber, crumples, wrinkles and folds) over the paper sheet, can be blended into the image',
     },
     ...staticImageCommonParams,
   ],

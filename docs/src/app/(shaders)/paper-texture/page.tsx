@@ -67,11 +67,14 @@ const PaperTextureWithControls = () => {
       ])
     );
     return {
-      blending: { value: defaults.blending, min: 0, max: 1, order: 100 },
-      distortion: { value: defaults.distortion, min: -1, max: 1, order: 101 },
-      clip: { value: defaults.clip, order: 102 },
-      angle: { value: defaults.angle, min: 0, max: 360, order: 110 },
-      seed: { value: defaults.seed, min: 0, step: 1, max: 1000, order: 111 },
+      colorBack: { value: toHsla(defaults.colorBack), order: 100 },
+      colorPaper: { value: toHsla(defaults.colorPaper), order: 101 },
+      colorShadow: { value: toHsla(defaults.colorShadow), order: 102 },
+      blending: { value: defaults.blending, min: 0, max: 1, order: 110 },
+      distortion: { value: defaults.distortion, min: -1, max: 1, order: 111 },
+      clip: { value: defaults.clip, order: 112 },
+      angle: { value: defaults.angle, min: 0, max: 360, order: 120 },
+      seed: { value: defaults.seed, min: 0, step: 1, max: 1000, order: 121 },
       roughness: { value: defaults.roughness, min: 0, max: 1, order: 200 },
       roughnessSize: { value: defaults.roughnessSize, min: 0, max: 1, order: 201 },
       roughnessRows: { value: defaults.roughnessRows, min: 0, max: 1, order: 202 },
@@ -93,9 +96,6 @@ const PaperTextureWithControls = () => {
         order: 241,
       },
       drops: { value: defaults.drops, min: 0, max: 1, order: 250 },
-      colorBack: { value: toHsla(defaults.colorBack), order: 300 },
-      colorPaper: { value: toHsla(defaults.colorPaper), order: 301 },
-      colorShadow: { value: toHsla(defaults.colorShadow), order: 302 },
       scale: { value: defaults.scale, min: 0.5, max: 10, order: 400 },
       fit: { value: defaults.fit, options: ['contain', 'cover'] as ShaderFit[], order: 401 },
       Image: folder(

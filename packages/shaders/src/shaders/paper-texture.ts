@@ -14,6 +14,9 @@ export const paperTextureMeta = {
  * - u_image (sampler2D): Optional source image texture
  * - u_isImage (bool): Whether a source image was provided
  * - u_imageAspectRatio (float): Aspect ratio of the source image
+ * - u_colorBack (vec4): Color behind the paper sheet in RGBA
+ * - u_colorPaper (vec4): Color of the paper sheet in RGBA
+ * - u_colorShadow (vec4): Color of the patterns over the paper sheet in RGBA
  * - u_blending (float): Amount of image-to-paper blending, needs image (0 to 1)
  * - u_distortion (float): How much the image bends with the paper surface, needs image (-1 to 1)
  * - u_clip (bool): Cuts the paper sheet to the image frame, needs image
@@ -34,9 +37,6 @@ export const paperTextureMeta = {
  * - u_crumples (float): A set of irregular folding lines (0 to 1)
  * - u_crumpleCount (float): Number of facets in the crumple field, needs crumples > 0 (2 to 15)
  * - u_drops (float): Visibility of the speckle pattern, darkens the image instead of coloring it (0 to 1)
- * - u_colorBack (vec4): Color behind the paper sheet in RGBA
- * - u_colorPaper (vec4): Color of the paper sheet in RGBA
- * - u_colorShadow (vec4): Color of the patterns over the paper sheet in RGBA
  * - u_noiseTexture (sampler2D): Pre-computed randomizer source texture
  *
  * Vertex shader outputs (used in fragment shader):
@@ -64,6 +64,10 @@ uniform sampler2D u_image;
 uniform bool u_isImage;
 uniform float u_imageAspectRatio;
 
+uniform vec4 u_colorBack;
+uniform vec4 u_colorPaper;
+uniform vec4 u_colorShadow;
+
 uniform float u_blending;
 uniform float u_distortion;
 uniform bool u_clip;
@@ -85,10 +89,6 @@ uniform float u_wrinkleSize;
 uniform float u_crumples;
 uniform float u_crumpleCount;
 uniform float u_drops;
-
-uniform vec4 u_colorBack;
-uniform vec4 u_colorPaper;
-uniform vec4 u_colorShadow;
 
 uniform sampler2D u_noiseTexture;
 
@@ -573,6 +573,9 @@ void main() {
 export interface PaperTextureUniforms extends ShaderSizingUniforms {
   u_image: HTMLImageElement | string | undefined;
   u_isImage: boolean;
+  u_colorBack: [number, number, number, number];
+  u_colorPaper: [number, number, number, number];
+  u_colorShadow: [number, number, number, number];
   u_blending: number;
   u_distortion: number;
   u_clip: boolean;
@@ -593,13 +596,13 @@ export interface PaperTextureUniforms extends ShaderSizingUniforms {
   u_crumples: number;
   u_crumpleCount: number;
   u_drops: number;
-  u_colorBack: [number, number, number, number];
-  u_colorPaper: [number, number, number, number];
-  u_colorShadow: [number, number, number, number];
   u_noiseTexture?: HTMLImageElement;
 }
 export interface PaperTextureParams extends ShaderSizingParams, ShaderMotionParams {
   image?: HTMLImageElement | string;
+  colorBack?: string;
+  colorPaper?: string;
+  colorShadow?: string;
   blending?: number;
   distortion?: number;
   clip?: boolean;
@@ -620,7 +623,4 @@ export interface PaperTextureParams extends ShaderSizingParams, ShaderMotionPara
   crumples?: number;
   crumpleCount?: number;
   drops?: number;
-  colorBack?: string;
-  colorPaper?: string;
-  colorShadow?: string;
 }
