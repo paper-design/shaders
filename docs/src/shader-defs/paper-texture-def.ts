@@ -7,33 +7,35 @@ const defaultParams = paperTexturePresets[0].params;
 export const paperTextureDef: ShaderDef = {
   name: 'Paper Texture',
   description:
-    'Static paper-like texture built from a combination of grain, noise and multiple fold patterns. Works as an image filter or as a standalone texture.',
+    'Static texture built from a combination of grains, noises and fold patterns; works as an image filter or as a standalone texture',
   params: [
     {
       name: 'image',
       type: 'HTMLImageElement | string',
-      description: 'The image to use for the effect',
+      description: 'The image over the paper texture; it can be blended into the texture and bend by it',
     },
     {
       name: 'colorBack',
       type: 'string',
       defaultValue: defaultParams.colorBack,
       isColor: true,
-      description: 'The color of the bottom layer, behind the sheet; visible where clip cuts the sheet away',
+      description:
+        'The color behind the paper sheet, visible where clip cuts the image away, or through a semi-transparent colorPaper or colorShadow',
     },
     {
       name: 'colorPaper',
       type: 'string',
       defaultValue: defaultParams.colorPaper,
       isColor: true,
-      description: 'The color of the paper sheet, usually light; multiplied into the image by blending',
+      description: 'The color of the paper sheet, can be blended into the image',
     },
     {
       name: 'colorShadow',
       type: 'string',
       defaultValue: defaultParams.colorShadow,
       isColor: true,
-      description: 'The color used for crumples, folds, grain and speckles, blends into the image',
+      description:
+        'The color of the patterns (grain, fiber, crumples, wrinkles and folds) over the paper sheet, can be blended into the image',
     },
     {
       name: 'blending',
@@ -42,7 +44,7 @@ export const paperTextureDef: ShaderDef = {
       max: 1,
       defaultValue: defaultParams.blending,
       description:
-        'Amount of image-to-paper blending (0 = original image color, 1 = image multiplied with the paper), needs image',
+        'Amount of image-to-paper blending (0 = original image color, 1 = image multiplied with the paper pattern), needs image',
     },
     {
       name: 'distortion',
@@ -51,13 +53,13 @@ export const paperTextureDef: ShaderDef = {
       max: 1,
       defaultValue: defaultParams.distortion,
       description:
-        'How much the image bends with the paper surface; negative values bend it the opposite direction (needs image)',
+        'How much the image bends with the paper surface; negative values bend it the opposite way (needs image)',
     },
     {
       name: 'clip',
       type: 'boolean',
       defaultValue: defaultParams.clip,
-      description: 'Cuts the paper sheet to the distorted image frame, revealing colorBack outside it (needs image)',
+      description: 'Cuts the paper sheet to the image frame (needs image)',
     },
     {
       name: 'roughness',
@@ -65,7 +67,7 @@ export const paperTextureDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.roughness,
-      description: 'Grain noise, sized independently of scaling, with its level of detail depending on the scale',
+      description: 'Fine grain covering the surface evenly',
     },
     {
       name: 'roughnessSize',
@@ -73,7 +75,7 @@ export const paperTextureDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.roughnessSize,
-      description: 'Scale of the roughness noise (needs roughness > 0)',
+      description: 'Scale of the roughness grain (needs roughness > 0)',
     },
     {
       name: 'roughnessRows',
@@ -82,7 +84,7 @@ export const paperTextureDef: ShaderDef = {
       max: 1,
       defaultValue: defaultParams.roughnessRows,
       description:
-        'Lines the grain up into horizontal rows: 0 = even scatter, 1 = laid-paper rows (needs roughness > 0)',
+        'Lines the roughness pattern up into stripes: 0 = even scatter, 1 = laid-paper rows; the rows run across the direction set by angle (needs roughness > 0)',
     },
     {
       name: 'fiber',
@@ -90,7 +92,7 @@ export const paperTextureDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.fiber,
-      description: 'Curly fiber noise, simulating the real paper',
+      description: 'Curly thread-like noise covering the surface evenly',
     },
     {
       name: 'fiberSize',
@@ -106,7 +108,7 @@ export const paperTextureDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.crumples,
-      description: 'Depth of the centered, irregular field of facets across the sheet',
+      description: 'A set of irregular folding lines, shaped by a combination of seed and angle values',
     },
     {
       name: 'crumpleCount',
@@ -115,7 +117,7 @@ export const paperTextureDef: ShaderDef = {
       max: 15,
       step: 1,
       defaultValue: defaultParams.crumpleCount,
-      description: 'Number of crumples (15 max), needs crumples > 0',
+      description: 'Number of facets in the crumple field (needs crumples > 0)',
     },
     {
       name: 'wrinkles',
@@ -123,7 +125,8 @@ export const paperTextureDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.wrinkles,
-      description: 'Depth of a field of fine facets, independent of the crumples',
+      description:
+        'A pattern of facets covering the surface evenly; the wrinkle lines visually resemble the crumple lines, but they repeat across the surface instead of being counted; wrinkles are shaped by a combination of seed and angle values',
     },
     {
       name: 'wrinkleSize',
@@ -131,7 +134,7 @@ export const paperTextureDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.wrinkleSize,
-      description: 'Size of the fine facets (needs wrinkles > 0)',
+      description: 'Scale of the wrinkle facets (needs wrinkles > 0)',
     },
     {
       name: 'folds',
@@ -139,7 +142,8 @@ export const paperTextureDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.folds,
-      description: 'Depth of the straight folds, alternating between ridges and valleys',
+      description:
+        'Straight vertical and horizontal fold lines producing ridges and valleys, depending on the angle value',
     },
     {
       name: 'foldSizeX',
@@ -147,7 +151,7 @@ export const paperTextureDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.foldSizeX,
-      description: 'Size of the vertical folds (needs folds > 0)',
+      description: 'Size of the vertical folds; higher values give fewer and wider folds (needs folds > 0)',
     },
     {
       name: 'foldSizeY',
@@ -155,7 +159,7 @@ export const paperTextureDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.foldSizeY,
-      description: 'Size of the horizontal folds (needs folds > 0)',
+      description: 'Size of the horizontal folds; higher values give fewer and wider folds (needs folds > 0)',
     },
     {
       name: 'foldOffsetX',
@@ -180,7 +184,7 @@ export const paperTextureDef: ShaderDef = {
       max: 360,
       defaultValue: defaultParams.angle,
       description:
-        'Direction the surface is lit from, clockwise from the top of the canvas; also rotation of roughness rows pattern',
+        'Direction the surface is lit from, clockwise from the top of the canvas; it also sets the direction of the roughness rows (needs crumples, wrinkles, folds, roughnessRows or drops > 0)',
     },
     {
       name: 'drops',
@@ -188,7 +192,8 @@ export const paperTextureDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.drops,
-      description: 'Visibility of the speckle pattern',
+      description:
+        'Visibility of the speckle pattern; unlike the other patterns it darkens the image rather than adding a shape colored by colorShadow',
     },
     {
       name: 'seed',
@@ -196,7 +201,7 @@ export const paperTextureDef: ShaderDef = {
       min: 0,
       max: 1000,
       defaultValue: defaultParams.seed,
-      description: 'Seed applied to every pattern',
+      description: 'Seed applied to every pattern: crumples, wrinkles, folds, roughness, fiber and drops',
     },
     ...staticImageCommonParams,
   ],
