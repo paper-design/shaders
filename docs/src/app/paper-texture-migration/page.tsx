@@ -280,7 +280,7 @@ function mixHex(from: string, to: string, amount: number) {
 function remap(old: OldParams) {
   const oldContrast = Math.pow(old.contrast, 0.5);
   return {
-    blending: oldContrast,
+    blending: .65 * oldContrast,
     distortion: 0.8,
     clip: false,
     angle: 300,
