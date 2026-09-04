@@ -6,7 +6,7 @@ import { OldPaperTexture, oldDefaultParams, type OldParams } from './old-paper-t
 
 const image = '/images/image-filters/0018.webp';
 
-type Row = { legacy: string; before: string; after: string; note: string; todo: string; toCheck: boolean };
+type Row = { legacy: string; before: string; after: string; note: string; todo: string };
 
 const rows: Row[] = [
   {
@@ -15,7 +15,6 @@ const rows: Row[] = [
     after: 'colorShadow',
     note: '',
     todo: 'take as colorShadow',
-    toCheck: false,
   },
   {
     legacy: '—',
@@ -23,7 +22,6 @@ const rows: Row[] = [
     after: 'colorBack',
     note: 'now less visible',
     todo: 'take as colorBack',
-    toCheck: false,
   },
   {
     legacy: '—',
@@ -31,23 +29,20 @@ const rows: Row[] = [
     after: 'colorPaper',
     note: 'kinda what colorBack was',
     todo: 'take as colorBack but mix with a bit of colorShadow (colorFront) using contrast',
-    toCheck: false,
   },
   {
     legacy: '—',
     before: 'contrast',
     after: '—',
-    note: 'removed; it was used for overall pattern strength, for image overlay, and for a way colorBack and colorFront were mixing in',
+    note: 'removed; it was used for overall pattern strength, for image overlay, and for the way colorBack and colorFront mixed together',
     todo: 'feeds roughness, wrinkles, crumples and drops, affects blending value + low contrast pulls colorPaper towards colorShadow',
-    toCheck: false,
   },
   {
     legacy: 'blur',
     before: 'fade',
     after: '—',
     note: 'removed, no replacement; it was muting the patterns via noisy mask',
-    todo: 'sqrt(contrast) mutes roughness, wrinkles, crumples and drops (uniformly across the canvas, up to 25%)',
-    toCheck: false,
+    todo: '(1 - 0.25 x fade) mutes roughness, wrinkles, crumples and drops (uniformly across the canvas, up to 25%)',
   },
   {
     legacy: '—',
@@ -55,7 +50,6 @@ const rows: Row[] = [
     after: 'image',
     note: '',
     todo: '',
-    toCheck: false,
   },
   {
     legacy: '—',
@@ -63,7 +57,6 @@ const rows: Row[] = [
     after: 'blending',
     note: 'new (we were blending the picture in with contrast prop)',
     todo: 'using sqrt(contrast) directly',
-    toCheck: false,
   },
   {
     legacy: '—',
@@ -71,7 +64,6 @@ const rows: Row[] = [
     after: 'distortion',
     note: 'new (we were always distorting the pic)',
     todo: 'set to 0.8',
-    toCheck: false,
   },
   {
     legacy: '—',
@@ -79,7 +71,6 @@ const rows: Row[] = [
     after: 'clip',
     note: 'new',
     todo: 'set to false',
-    toCheck: false,
   },
   {
     legacy: '—',
@@ -87,15 +78,13 @@ const rows: Row[] = [
     after: 'angle',
     note: 'new',
     todo: 'set to 300 (like in the Default preset)',
-    toCheck: false,
   },
   {
     legacy: '—',
     before: 'seed',
     after: 'seed',
     note: 'same prop, rebuilt',
-    todo: 'take directly. there is nothing we can do as its not possible to match the old seed visually; we just keep the given value and hope it looks nice',
-    toCheck: false,
+    todo: 'take directly. there is nothing we can do as it is not possible to match the old seed visually; we just keep the given value and hope it looks nice',
   },
   {
     legacy: '—',
@@ -103,7 +92,6 @@ const rows: Row[] = [
     after: 'roughness',
     note: 'same prop, rebuilt',
     todo: 'x1.5, then muted by old contrast and old fade',
-    toCheck: false,
   },
   {
     legacy: '—',
@@ -111,7 +99,6 @@ const rows: Row[] = [
     after: 'roughnessSize',
     note: 'new',
     todo: 'set to 0.65',
-    toCheck: false,
   },
   {
     legacy: '—',
@@ -119,7 +106,6 @@ const rows: Row[] = [
     after: 'roughnessRows',
     note: 'new',
     todo: 'set to 0',
-    toCheck: false,
   },
   {
     legacy: '—',
@@ -127,63 +113,55 @@ const rows: Row[] = [
     after: 'fiber',
     note: 'same prop, rebuilt',
     todo: 'x1.5',
-    toCheck: false,
   },
   {
     legacy: 'fiberScale',
     before: 'fiberSize',
     after: 'fiberSize',
     note: 'different mapping: main scaled the noise by 1 / fiberSize, now it is mix(4, 1, fiberSize)',
-    todo: 'remapped as pow(fiberSize, 0.2) x 1.2 - makes it exceed the 0..1 range which probably wont work in the Paper app',
-    toCheck: false,
+    todo: 'remapped as pow(fiberSize, 0.2) x 1.2 - makes it exceed the 0..1 range which probably will not work in the Paper app',
   },
   {
     legacy: '—',
     before: '—',
     after: 'folds',
-    note: 'same prop name was used differently (old folds renamed to wrinkles, new folds are straight lines we never had)',
+    note: 'same prop name was used differently (old folds are now crumples, new folds are straight lines we never had)',
     todo: 'set to 0',
-    toCheck: false,
   },
   {
     legacy: '—',
     before: '—',
     after: 'foldSizeX',
     note: 'new',
-    todo: 'take a number from Default preset (doesnt matter)',
-    toCheck: false,
+    todo: 'take a number from Default preset (does not matter)',
   },
   {
     legacy: '—',
     before: '—',
     after: 'foldSizeY',
     note: 'new',
-    todo: 'take a number from Default preset (doesnt matter)',
-    toCheck: false,
+    todo: 'take a number from Default preset (does not matter)',
   },
   {
     legacy: '—',
     before: '—',
     after: 'foldOffsetX',
     note: 'new',
-    todo: 'take a number from Default preset (doesnt matter)',
-    toCheck: false,
+    todo: 'take a number from Default preset (does not matter)',
   },
   {
     legacy: '—',
     before: '—',
     after: 'foldOffsetY',
     note: 'new',
-    todo: 'take a number from Default preset (doesnt matter)',
-    toCheck: false,
+    todo: 'take a number from Default preset (does not matter)',
   },
   {
     legacy: '—',
     before: 'crumples',
     after: 'wrinkles',
-    note: 'its a different pattern but close enough to port directly',
+    note: 'it is a different pattern but close enough to port directly',
     todo: 'remapped: x2, then scaled by contrast and fade, capped at 1',
-    toCheck: false,
   },
   {
     legacy: 'crumplesScale',
@@ -191,23 +169,20 @@ const rows: Row[] = [
     after: 'wrinkleSize',
     note: '',
     todo: 'remapped: (10 - 8 / (9 x crumpleSize)) / 9',
-    toCheck: false,
   },
   {
     legacy: '—',
     before: 'folds',
     after: 'crumples',
-    note: 'similar thing but renamed (both shape and randomizer are different but the principle is same)',
+    note: 'similar thing but renamed (both shape and randomizer are different but the principle is the same)',
     todo: 'remapped: x2, then scaled by contrast and fade',
-    toCheck: false,
   },
   {
     legacy: 'foldsNumber',
     before: 'foldCount',
     after: 'crumpleCount',
     note: 'same range on both sides, 15 max',
-    todo: 'clamp to 2 minimum but 1 wasnt effective in the old version as well',
-    toCheck: false,
+    todo: 'clamp to 2 minimum but 1 was not effective in the old version as well',
   },
   {
     legacy: '—',
@@ -215,7 +190,6 @@ const rows: Row[] = [
     after: 'drops',
     note: 'same drops, just different randomizer and different color usage',
     todo: 'remapped: x1.5, then scaled by contrast and fade',
-    toCheck: false,
   },
 ];
 
@@ -387,9 +361,6 @@ export default function PaperTextureMigration() {
   return (
     <div className="mx-auto box-content max-w-1104 px-16 pt-20 pb-64 xs:px-24 sm:px-32 md:px-48">
       <h1 className="mb-8 text-3xl font-light lowercase">Paper Texture: main → new</h1>
-      <p className="mb-24 max-w-720 text-base text-current/70">
-        Ticked rows can be left alone, the rest need a look at your own setup.
-      </p>
       <div className="overflow-x-auto">
         <table className="w-full text-base">
           <thead>
@@ -408,16 +379,7 @@ export default function PaperTextureMigration() {
                 <td className="min-w-140 px-16 py-12 align-top font-medium whitespace-nowrap">{row.before}</td>
                 <td className="min-w-140 px-16 py-12 align-top font-medium whitespace-nowrap">{row.after}</td>
                 <td className="min-w-240 px-16 py-12 align-top text-pretty text-current/70">{row.note}</td>
-                <td className="min-w-200 px-16 py-12 align-top text-pretty text-current/70">
-                  {row.toCheck ? null : (
-                    <span
-                      aria-label="nothing to do"
-                      className="mr-8 inline-block size-12 rounded-full align-middle"
-                      style={{ background: 'light-dark(#00b34a, #3ee87f)' }}
-                    />
-                  )}
-                  {row.todo}
-                </td>
+                <td className="min-w-200 px-16 py-12 align-top text-pretty text-current/70">{row.todo}</td>
               </tr>
             ))}
           </tbody>
