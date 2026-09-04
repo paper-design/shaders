@@ -4,7 +4,56 @@ import { Fragment, useState } from 'react';
 import { PaperTexture, paperTexturePresets } from '@paper-design/shaders-react';
 import { OldPaperTexture, oldDefaultParams, type OldParams } from './old-paper-texture';
 
-const image = '/images/image-filters/0018.webp';
+const images = [
+  '/images/image-filters/001.webp',
+  '/images/image-filters/0010.webp',
+  '/images/image-filters/0011.webp',
+  '/images/image-filters/0012.webp',
+  '/images/image-filters/0013.webp',
+  '/images/image-filters/0014.webp',
+  '/images/image-filters/0015.webp',
+  '/images/image-filters/0016.webp',
+  '/images/image-filters/0017.webp',
+  '/images/image-filters/0018.webp',
+  '/images/image-filters/0019.webp',
+  '/images/image-filters/002.webp',
+  '/images/image-filters/003.webp',
+  '/images/image-filters/004.webp',
+  '/images/image-filters/005.webp',
+  '/images/image-filters/006.webp',
+  '/images/image-filters/007.webp',
+  '/images/image-filters/008.webp',
+  '/images/image-filters/009.webp',
+  '/images/logos/apple.svg',
+  '/images/logos/brave.svg',
+  '/images/logos/capy.svg',
+  '/images/logos/chanel.svg',
+  '/images/logos/cibc.svg',
+  '/images/logos/cloudflare.svg',
+  '/images/logos/contra.svg',
+  '/images/logos/diamond.svg',
+  '/images/logos/discord.svg',
+  '/images/logos/enterprise-rent.svg',
+  '/images/logos/inbound.svg',
+  '/images/logos/infinite.svg',
+  '/images/logos/linear.svg',
+  '/images/logos/mercury.svg',
+  '/images/logos/microsoft.svg',
+  '/images/logos/mymind.svg',
+  '/images/logos/nasa.svg',
+  '/images/logos/netflix.svg',
+  '/images/logos/nike.svg',
+  '/images/logos/paper-logo-only.svg',
+  '/images/logos/paper.svg',
+  '/images/logos/paradigm.svg',
+  '/images/logos/resend.svg',
+  '/images/logos/shopify.svg',
+  '/images/logos/vercel.svg',
+  '/images/logos/volkswagen.svg',
+  '/images/logos/wealth-simple.svg',
+];
+
+const randomImage = () => images[Math.floor(Math.random() * images.length)];
 
 type Row = { legacy: string; before: string; after: string; note: string; todo: string };
 
@@ -355,6 +404,7 @@ function randomizeBlackAndWhite(): OldParams {
 
 export default function PaperTextureMigration() {
   const [old, setOld] = useState<OldParams>(oldDefaultParams);
+  const [image, setImage] = useState('/images/image-filters/0018.webp');
   const next = remap(old);
   const newValues = next as Record<string, unknown>;
 
@@ -390,7 +440,7 @@ export default function PaperTextureMigration() {
 
       <div className="sticky top-0 z-10 grid gap-16 bg-background pt-8 pb-16 sm:grid-cols-2">
         <figure>
-          <div className="h-[50vh] overflow-hidden rounded">
+          <div className="h-[50vh] cursor-pointer overflow-hidden rounded" onClick={() => setImage(randomImage())}>
             <OldPaperTexture params={old} image={image} style={{ height: '100%', width: '100%' }} />
           </div>
           <figcaption className="mt-8 text-sm text-current/70">
@@ -398,7 +448,7 @@ export default function PaperTextureMigration() {
           </figcaption>
         </figure>
         <figure>
-          <div className="h-[50vh] overflow-hidden rounded">
+          <div className="h-[50vh] cursor-pointer overflow-hidden rounded" onClick={() => setImage(randomImage())}>
             <PaperTexture {...next} image={image} style={{ height: '100%', width: '100%' }} />
           </div>
           <figcaption className="mt-8 text-sm text-current/70">This branch, on the same values remapped</figcaption>
