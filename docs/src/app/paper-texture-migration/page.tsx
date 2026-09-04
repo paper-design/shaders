@@ -22,7 +22,7 @@ const rows: Row[] = [
     before: 'colorBack',
     after: 'colorBack',
     note: 'now less visible',
-    todo: 'take as colorBack (nothing to remap)',
+    todo: 'take as colorBack',
     toCheck: false,
   },
   {
@@ -30,23 +30,23 @@ const rows: Row[] = [
     before: '—',
     after: 'colorPaper',
     note: 'kinda what colorBack was',
-    todo: 'take as colorPaper (so colorPaper and colorBack are same)',
+    todo: 'take as colorBack but mix with a bit of colorShadow (colorFront) using contrast',
     toCheck: false,
   },
   {
     legacy: '—',
     before: 'contrast',
     after: '—',
-    note: 'removed (pattern strength now comes from the pattern amounts, colorShadow + you can say from blending)',
-    todo: 'probably taking as a multiplier for all 4 pattern components? should affect the blending too. ',
-    toCheck: true,
+    note: 'removed; it was used for overall pattern strength, for image overlay, and for a way colorBack and colorFront were mixing in',
+    todo: 'feeds roughness, wrinkles, crumples and drops, affects blending value + low contrast pulls colorPaper towards colorShadow',
+    toCheck: false,
   },
   {
     legacy: 'blur',
     before: 'fade',
     after: '—',
-    note: 'removed, no replacement',
-    todo: 'ignore',
+    note: 'removed, no replacement; it was muting the patterns via noisy mask',
+    todo: 'sqrt(contrast) mutes roughness, wrinkles, crumples and drops (uniformly across the canvas, up to 25%)',
     toCheck: false,
   },
   {
@@ -61,17 +61,17 @@ const rows: Row[] = [
     legacy: '—',
     before: '—',
     after: 'blending',
-    note: 'new (we were always blending the picture in)',
-    todo: 'set to 1 (1 is a Default value, check if its visually better to remap to the smaller value)',
-    toCheck: true,
+    note: 'new (we were blending the picture in with contrast prop)',
+    todo: 'using sqrt(contrast) directly',
+    toCheck: false,
   },
   {
     legacy: '—',
     before: '—',
     after: 'distortion',
     note: 'new (we were always distorting the pic)',
-    todo: 'set to 0.75 (1 is a Default value, check if its visually better to remap to another value)',
-    toCheck: true,
+    todo: 'set to 0.8',
+    toCheck: false,
   },
   {
     legacy: '—',
@@ -94,7 +94,7 @@ const rows: Row[] = [
     before: 'seed',
     after: 'seed',
     note: 'same prop, rebuilt',
-    todo: 'nothing we can do as its not possible to match the old seed visually; we just keep the given value and hope it looks nice',
+    todo: 'take directly. there is nothing we can do as its not possible to match the old seed visually; we just keep the given value and hope it looks nice',
     toCheck: false,
   },
   {
@@ -102,16 +102,16 @@ const rows: Row[] = [
     before: 'roughness',
     after: 'roughness',
     note: 'same prop, rebuilt',
-    todo: 'probably keeping the same number - check if should be adjusted',
-    toCheck: true,
+    todo: 'x1.5, then muted by old contrast and old fade',
+    toCheck: false,
   },
   {
     legacy: '—',
     before: '—',
     after: 'roughnessSize',
     note: 'new',
-    todo: 'set to 0.5 (like in the Default preset) - check if should be adjusted',
-    toCheck: true,
+    todo: 'set to 0.65',
+    toCheck: false,
   },
   {
     legacy: '—',
@@ -126,16 +126,16 @@ const rows: Row[] = [
     before: 'fiber',
     after: 'fiber',
     note: 'same prop, rebuilt',
-    todo: 'probably doing x0.5 for the number? coefficient to double toCheck',
-    toCheck: true,
+    todo: 'x1.5',
+    toCheck: false,
   },
   {
     legacy: 'fiberScale',
     before: 'fiberSize',
     after: 'fiberSize',
-    note: 'different mapping',
-    todo: 'coefficient to find out',
-    toCheck: true,
+    note: 'different mapping: main scaled the noise by 1 / fiberSize, now it is mix(4, 1, fiberSize)',
+    todo: 'remapped as pow(fiberSize, 0.2) x 1.2 - makes it exceed the 0..1 range which probably wont work in the Paper app',
+    toCheck: false,
   },
   {
     legacy: '—',
@@ -181,49 +181,41 @@ const rows: Row[] = [
     legacy: '—',
     before: 'crumples',
     after: 'wrinkles',
-    note: 'its a different pattern close enough to port directly',
-    todo: 'same value? to toCheck',
-    toCheck: true,
+    note: 'its a different pattern but close enough to port directly',
+    todo: 'remapped: x2, then scaled by contrast and fade, capped at 1',
+    toCheck: false,
   },
   {
     legacy: 'crumplesScale',
     before: 'crumpleSize',
     after: 'wrinkleSize',
     note: '',
-    todo: 'to toCheck',
-    toCheck: true,
+    todo: 'remapped: (10 - 8 / (9 x crumpleSize)) / 9',
+    toCheck: false,
   },
   {
     legacy: '—',
     before: 'folds',
     after: 'crumples',
-    note: 'similar thing renamed (both shape and randomizer are different but principle is same)',
-    todo: 'same value? to toCheck',
-    toCheck: true,
+    note: 'similar thing but renamed (both shape and randomizer are different but the principle is same)',
+    todo: 'remapped: x2, then scaled by contrast and fade',
+    toCheck: false,
   },
   {
     legacy: 'foldsNumber',
     before: 'foldCount',
     after: 'crumpleCount',
-    note: '',
-    todo: 'check if max limit was changed; might need clapping but nothing else',
-    toCheck: true,
+    note: 'same range on both sides, 15 max',
+    todo: 'clamp to 2 minimum but 1 wasnt effective in the old version as well',
+    toCheck: false,
   },
   {
     legacy: '—',
     before: 'drops',
     after: 'drops',
     note: 'same drops, just different randomizer and different color usage',
-    todo: 'might need remapping, might be same number',
-    toCheck: true,
-  },
-  {
-    legacy: '—',
-    before: 'fit / scale defaults',
-    after: 'fit / scale defaults',
-    note: 'defaults changed',
-    todo: 'need to cover the cases where fit or scale were not specified',
-    toCheck: true,
+    todo: 'remapped: x1.5, then scaled by contrast and fade',
+    toCheck: false,
   },
 ];
 
@@ -263,32 +255,32 @@ function mixHex(from: string, to: string, amount: number) {
 }
 
 function remap(old: OldParams) {
+  const oldContrast = Math.pow(old.contrast, 0.5);
   return {
-    blending: 0.6 * old.contrast,
-    distortion: 0.5,
+    blending: oldContrast,
+    distortion: 0.8,
     clip: false,
     angle: 300,
     seed: old.seed,
-    roughness: 1.5 * old.roughness * old.contrast * (1 - 0.25 * old.fade),
+    roughness: 1.5 * old.roughness * oldContrast * (1 - 0.25 * old.fade),
     roughnessSize: 0.65,
     roughnessRows: 0,
     fiber: old.fiber * 1.5,
-    fiberSize: Math.pow(old.fiberSize, .2) * 1.2,
+    fiberSize: Math.pow(old.fiberSize, 0.2) * 1.2,
     folds: 0,
     foldSizeX: 0.6,
     foldSizeY: 0.44,
     foldOffsetX: 0,
     foldOffsetY: 0,
-    wrinkles: 1.5 * old.crumples * old.contrast * (1 - 0.25 * old.fade),
+    wrinkles: Math.min(1, 2 * old.crumples * oldContrast - 0.25 * old.fade),
     wrinkleSize: (10 - 8 / (9 * old.crumpleSize)) / 9,
-    crumples: 1.5 * old.folds * old.contrast * (1 - 0.25 * old.fade),
+    crumples: 2 * old.folds * oldContrast * (1 - 0.25 * old.fade),
     crumpleCount: Math.max(2, old.foldCount),
-    drops: old.drops * old.contrast * (1 - 0.25 * old.fade),
+    drops: 1.5 * old.drops * oldContrast * (1 - 0.25 * old.fade),
     colorBack: old.colorBack,
-    colorPaper: mixHex(old.colorBack, old.colorFront, 0.2 * (1 - old.contrast)),
+    colorPaper: mixHex(old.colorBack, old.colorFront, 0.2 * (1 - oldContrast)),
     colorShadow: old.colorFront,
-    fit: old.fit, // check if wasn't set?
-    scale: old.scale, // check if wasn't set?
+    scale: old.scale,
 
     // dropped: contrast, fade
   };
@@ -296,10 +288,10 @@ function remap(old: OldParams) {
 
 const oldValues = oldDefaultParams as Record<string, unknown>;
 
-/** Prop names as the table writes them: "a + b", "a / b", and "fit / scale defaults" */
+/** Prop names as the table writes them, "a + b" and "a / b" included */
 function propNames(cell: string) {
   if (cell === '—') return [];
-  return cell.split(/ \+ | \/ /).map((name) => name.replace(/ defaults$/, ''));
+  return cell.split(/ \+ | \/ /);
 }
 
 function control(name: string, old: OldParams, setOld: (params: OldParams) => void) {
@@ -340,7 +332,7 @@ function control(name: string, old: OldParams, setOld: (params: OldParams) => vo
   return <span className="text-current/40">{String(value)}</span>;
 }
 
-function randomize(): OldParams {
+function randomNumbers() {
   const params = { ...oldDefaultParams } as Record<string, unknown>;
 
   for (const { name, min, max, step, randomMin, randomMax } of sliders) {
@@ -350,6 +342,23 @@ function randomize(): OldParams {
     params[name] = Number((from + Math.round(Math.random() * steps) * step).toFixed(4));
   }
 
+  return params;
+}
+
+const hslHex = (hue: number, saturation: number, lightness: number) => {
+  const channel = (n: number) => {
+    const k = (n + hue / 30) % 12;
+    const a = saturation * Math.min(lightness, 1 - lightness);
+    return Math.round((lightness - a * Math.max(-1, Math.min(k - 3, 9 - k, 1))) * 255)
+      .toString(16)
+      .padStart(2, '0');
+  };
+  return `#${channel(0)}${channel(8)}${channel(4)}`;
+};
+
+function randomize(): OldParams {
+  const params = randomNumbers();
+
   for (const name of ['colorFront', 'colorBack']) {
     params[name] =
       '#' +
@@ -358,6 +367,15 @@ function randomize(): OldParams {
         .padStart(6, '0');
   }
 
+  return params as OldParams;
+}
+
+/** light sheet under a greyish top, both barely tinted and sharing one hue */
+function randomizeBlackAndWhite(): OldParams {
+  const params = randomNumbers();
+  const hue = Math.random() * 360;
+  params.colorBack = hslHex(hue, Math.random() * 0.07, 0.9 + Math.random() * 0.1);
+  params.colorFront = hslHex(hue, Math.random() * 0.1, 0.45 + Math.random() * 0.3);
   return params as OldParams;
 }
 
@@ -435,6 +453,13 @@ export default function PaperTextureMigration() {
         </button>
         <button type="button" onClick={() => setOld(randomize())} className="rounded bg-backplate-2 px-12 py-6 text-sm">
           randomize
+        </button>
+        <button
+          type="button"
+          onClick={() => setOld(randomizeBlackAndWhite())}
+          className="rounded bg-backplate-2 px-12 py-6 text-sm"
+        >
+          randomize b/w
         </button>
       </div>
 
