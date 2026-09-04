@@ -303,6 +303,7 @@ function remap(old: OldParams) {
     colorBack: old.colorBack,
     colorPaper: mixHex(old.colorBack, old.colorFront, 0.2 * (1 - oldContrast)),
     colorShadow: old.colorFront,
+    fit: old.fit,
     scale: old.scale,
 
     // dropped: contrast, fade
