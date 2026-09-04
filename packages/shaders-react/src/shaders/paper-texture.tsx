@@ -38,7 +38,7 @@ export const defaultPreset: PaperTexturePreset = {
     angle: 300,
     seed: 234,
     roughness: 0.4,
-    roughnessSize: 0.25,
+    roughnessSize: 0.5,
     roughnessRows: 0,
     fiber: 0.4,
     fiberSize: 0.5,
