@@ -245,9 +245,26 @@ const sliders: Slider[] = [
   { name: 'scale', min: 0.1, max: 4, step: 0.01, randomMin: 0.4, randomMax: 0.9 },
 ];
 
+function mixHex(from: string, to: string, amount: number) {
+  const parse = (hex: string) => {
+    const value = hex.replace('#', '');
+    const full = value.length === 3 ? [...value].map((c) => c + c).join('') : value;
+    return [0, 2, 4].map((i) => parseInt(full.slice(i, i + 2), 16));
+  };
+
+  const [r1, g1, b1] = parse(from);
+  const [r2, g2, b2] = parse(to);
+  const channel = (a: number, b: number) =>
+    Math.round(a + (b - a) * amount)
+      .toString(16)
+      .padStart(2, '0');
+
+  return `#${channel(r1, r2)}${channel(g1, g2)}${channel(b1, b2)}`;
+}
+
 function remap(old: OldParams) {
   return {
-    blending: old.contrast,
+    blending: 0.6 * old.contrast,
     distortion: 0.5,
     clip: false,
     angle: 300,
@@ -256,26 +273,24 @@ function remap(old: OldParams) {
     roughnessSize: 0.65,
     roughnessRows: 0,
     fiber: old.fiber * 1.5,
-    fiberSize: (9 - 1 / old.fiberSize) / 8,
+    fiberSize: Math.pow(old.fiberSize, .2) * 1.2,
     folds: 0,
     foldSizeX: 0.6,
     foldSizeY: 0.44,
     foldOffsetX: 0,
     foldOffsetY: 0,
     wrinkles: 1.5 * old.crumples * old.contrast * (1 - 0.25 * old.fade),
-    // main: .8 / crumpleSize cells across the image, now: .9 * mix(10, 1, wrinkleSize)
     wrinkleSize: (10 - 8 / (9 * old.crumpleSize)) / 9,
     crumples: 1.5 * old.folds * old.contrast * (1 - 0.25 * old.fade),
     crumpleCount: Math.max(2, old.foldCount),
-    drops: 1.5 * old.drops * old.contrast * (1 - 0.25 * old.fade),
+    drops: old.drops * old.contrast * (1 - 0.25 * old.fade),
     colorBack: old.colorBack,
-    colorPaper: old.colorBack,
+    colorPaper: mixHex(old.colorBack, old.colorFront, 0.2 * (1 - old.contrast)),
     colorShadow: old.colorFront,
     fit: old.fit, // check if wasn't set?
     scale: old.scale, // check if wasn't set?
 
-    // dropped:
-    // contrast, fade
+    // dropped: contrast, fade
   };
 }
 
