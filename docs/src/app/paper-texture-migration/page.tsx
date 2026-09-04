@@ -38,7 +38,7 @@ const rows: Row[] = [
     before: 'contrast',
     after: '—',
     note: 'removed (pattern strength now comes from the pattern amounts, colorShadow + you can say from blending)',
-    todo: 'probably taking as a multiplier for all 4 pattern components',
+    todo: 'probably taking as a multiplier for all 4 pattern components? should affect the blending too. ',
     toCheck: true,
   },
   {
@@ -242,41 +242,37 @@ const sliders: Slider[] = [
   { name: 'fade', min: 0, max: 1, step: 0.01 },
   { name: 'drops', min: 0, max: 1, step: 0.01 },
   { name: 'seed', min: 0, max: 1000, step: 0.1 },
-  { name: 'scale', min: 0.1, max: 4, step: 0.01, randomMin: 0.5, randomMax: 1 },
+  { name: 'scale', min: 0.1, max: 4, step: 0.01, randomMin: 0.4, randomMax: 0.9 },
 ];
 
 function remap(old: OldParams) {
-  const defaultPreset = paperTexturePresets[0].params;
   return {
-
-    // remapped
-    blending: 0.3,
-    distortion: defaultPreset.distortion,
-    clip: defaultPreset.clip,
-    angle: defaultPreset.angle,
-    roughnessSize: defaultPreset.roughnessSize,
-    roughnessRows: defaultPreset.roughnessRows,
-    folds: defaultPreset.folds,
-    foldSizeX: defaultPreset.foldSizeX,
-    foldSizeY: defaultPreset.foldSizeY,
-    foldOffsetX: defaultPreset.foldOffsetX,
-    foldOffsetY: defaultPreset.foldOffsetY,
-
-    // carried over
-    colorShadow: old.colorFront,
-    colorPaper: old.colorBack,
-    colorBack: old.colorBack,
-    roughness: old.roughness,
-    fiber: old.fiber,
-    fiberSize: old.fiberSize,
-    wrinkles: old.crumples,
-    wrinkleSize: old.crumpleSize,
-    crumples: old.folds,
-    crumpleCount: Math.max(2, old.foldCount),
-    drops: old.drops,
+    blending: old.contrast,
+    distortion: 0.5,
+    clip: false,
+    angle: 300,
     seed: old.seed,
-    fit: old.fit,
-    scale: old.scale,
+    roughness: 1.5 * old.roughness * old.contrast * (1 - 0.25 * old.fade),
+    roughnessSize: 0.65,
+    roughnessRows: 0,
+    fiber: old.fiber * 1.5,
+    fiberSize: (9 - 1 / old.fiberSize) / 8,
+    folds: 0,
+    foldSizeX: 0.6,
+    foldSizeY: 0.44,
+    foldOffsetX: 0,
+    foldOffsetY: 0,
+    wrinkles: 1.5 * old.crumples * old.contrast * (1 - 0.25 * old.fade),
+    // main: .8 / crumpleSize cells across the image, now: .9 * mix(10, 1, wrinkleSize)
+    wrinkleSize: (10 - 8 / (9 * old.crumpleSize)) / 9,
+    crumples: 1.5 * old.folds * old.contrast * (1 - 0.25 * old.fade),
+    crumpleCount: Math.max(2, old.foldCount),
+    drops: 1.5 * old.drops * old.contrast * (1 - 0.25 * old.fade),
+    colorBack: old.colorBack,
+    colorPaper: old.colorBack,
+    colorShadow: old.colorFront,
+    fit: old.fit, // check if wasn't set?
+    scale: old.scale, // check if wasn't set?
 
     // dropped:
     // contrast, fade
