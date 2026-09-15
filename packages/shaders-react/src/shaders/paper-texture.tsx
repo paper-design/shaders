@@ -203,6 +203,7 @@ export const PaperTexture: React.FC<PaperTextureProps> = memo(function PaperText
       speed={speed}
       frame={frame}
       fragmentShader={paperTextureFragmentShader}
+      htmlUniform="u_image"
       mipmaps={['u_image']}
       uniforms={uniforms}
     />

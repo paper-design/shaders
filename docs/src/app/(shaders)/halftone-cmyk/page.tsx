@@ -13,6 +13,9 @@ import { ShaderDetails } from '@/components/shader-details';
 import { halftoneCmykDef } from '@/shader-defs/halftone-cmyk-def';
 import { ShaderContainer } from '@/components/shader-container';
 import { useUrlParams } from '@/helpers/use-url-params';
+import { isHtmlInCanvasPath, useIsHtmlInCanvasPage } from '@/helpers/use-is-html-in-canvas-page';
+import { HtmlInCanvasShaderPage } from '@/components/html-in-canvas-shader-page';
+import { defaultHtml } from '@/components/default-html';
 
 const { worldWidth, worldHeight, ...defaults } = halftoneCmykPresets[0].params;
 
@@ -38,6 +41,7 @@ const imageFiles = [
 ] as const;
 
 const HalftoneCmykWithControls = () => {
+  const isHtmlInCanvas = useIsHtmlInCanvasPage();
   const [imageIdx, setImageIdx] = useState(-1);
   const [image, setImage] = useState<HTMLImageElement | string>('/images/image-filters/0018.webp');
 
@@ -98,7 +102,7 @@ const HalftoneCmykWithControls = () => {
         {
           'Upload image': levaImageButton(setImageWithoutStatus),
         },
-        { order: 0 }
+        { order: 0, render: () => !isHtmlInCanvasPath() }
       ),
       Presets: folder(presets, { order: -1 }),
     };
@@ -110,6 +114,19 @@ const HalftoneCmykWithControls = () => {
   useUrlParams(params, setParams, halftoneCmykDef);
   usePresetHighlight(halftoneCmykPresets, params);
   cleanUpLevaParams(params);
+
+  if (isHtmlInCanvas) {
+    return (
+      <HtmlInCanvasShaderPage
+        shaderDef={halftoneCmykDef}
+        currentParams={params}
+        defaultParams={defaults}
+        html={defaultHtml}
+      >
+        <HalftoneCmyk {...params}>{defaultHtml.content}</HalftoneCmyk>
+      </HtmlInCanvasShaderPage>
+    );
+  }
 
   return (
     <>

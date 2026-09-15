@@ -13,6 +13,9 @@ import { ShaderDetails } from '@/components/shader-details';
 import { waterDef } from '@/shader-defs/water-def';
 import { ShaderContainer } from '@/components/shader-container';
 import { useUrlParams } from '@/helpers/use-url-params';
+import { isHtmlInCanvasPath, useIsHtmlInCanvasPage } from '@/helpers/use-is-html-in-canvas-page';
+import { HtmlInCanvasShaderPage } from '@/components/html-in-canvas-shader-page';
+import { defaultHtml } from '@/components/default-html';
 
 const { worldWidth, worldHeight, ...defaults } = waterPresets[0].params;
 
@@ -37,7 +40,22 @@ const imageFiles = [
   '0018.webp',
 ] as const;
 
+const notes = (
+  <>
+    Thanks to{' '}
+    <a href="https://x.com/zozuar" target="_blank" rel="noopener">
+      zozuar
+    </a>{' '}
+    for the amazing{' '}
+    <a href="https://twigl.app/?ol=true&ss=-NOAlYulOVLklxMdxBDx" target="_blank" rel="noopener">
+      recursive fractal noise algorithm
+    </a>
+    .
+  </>
+);
+
 const WaterWithControls = () => {
+  const isHtmlInCanvas = useIsHtmlInCanvasPage();
   const [imageIdx, setImageIdx] = useState(-1);
   const [image, setImage] = useState<HTMLImageElement | string>('/images/image-filters/0018.webp');
 
@@ -83,7 +101,7 @@ const WaterWithControls = () => {
           'Upload image': levaImageButton(setImageWithoutStatus),
           ...(image && { 'Delete image': levaDeleteImageButton(() => setImage('')) }),
         },
-        { order: 0 }
+        { order: 0, render: () => !isHtmlInCanvasPath() }
       ),
       Presets: folder(presets, { order: -1 }),
     };
@@ -96,6 +114,20 @@ const WaterWithControls = () => {
   usePresetHighlight(waterPresets, params);
   cleanUpLevaParams(params);
 
+  if (isHtmlInCanvas) {
+    return (
+      <HtmlInCanvasShaderPage
+        shaderDef={waterDef}
+        currentParams={params}
+        defaultParams={defaults}
+        html={defaultHtml}
+        notes={notes}
+      >
+        <Water {...params}>{defaultHtml.content}</Water>
+      </HtmlInCanvasShaderPage>
+    );
+  }
+
   return (
     <>
       <ShaderContainer shaderDef={waterDef} currentParams={params}>
@@ -104,23 +136,7 @@ const WaterWithControls = () => {
       <div onClick={handleClick} className="mx-auto mt-16 mb-48 w-fit text-base text-current/70 select-none">
         Click to change the sample image
       </div>
-      <ShaderDetails
-        shaderDef={waterDef}
-        currentParams={params}
-        notes={
-          <>
-            Thanks to{' '}
-            <a href="https://x.com/zozuar" target="_blank" rel="noopener">
-              zozuar
-            </a>{' '}
-            for the amazing{' '}
-            <a href="https://twigl.app/?ol=true&ss=-NOAlYulOVLklxMdxBDx" target="_blank" rel="noopener">
-              recursive fractal noise algorithm
-            </a>
-            .
-          </>
-        }
-      />
+      <ShaderDetails shaderDef={waterDef} currentParams={params} notes={notes} />
     </>
   );
 };

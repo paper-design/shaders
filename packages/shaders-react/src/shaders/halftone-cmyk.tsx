@@ -230,6 +230,7 @@ export const HalftoneCmyk: React.FC<HalftoneCmykProps> = memo(function HalftoneC
       speed={speed}
       frame={frame}
       fragmentShader={halftoneCmykFragmentShader}
+      htmlUniform="u_image"
       uniforms={uniforms}
     />
   );

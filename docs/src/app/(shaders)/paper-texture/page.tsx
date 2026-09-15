@@ -13,6 +13,9 @@ import { ShaderDetails } from '@/components/shader-details';
 import { paperTextureDef } from '@/shader-defs/paper-texture-def';
 import { ShaderContainer } from '@/components/shader-container';
 import { useUrlParams } from '@/helpers/use-url-params';
+import { isHtmlInCanvasPath, useIsHtmlInCanvasPage } from '@/helpers/use-is-html-in-canvas-page';
+import { HtmlInCanvasShaderPage } from '@/components/html-in-canvas-shader-page';
+import { defaultHtml } from '@/components/default-html';
 
 const { worldWidth, worldHeight, ...defaults } = paperTexturePresets[0].params;
 
@@ -38,6 +41,7 @@ const imageFiles = [
 ] as const;
 
 const PaperTextureWithControls = () => {
+  const isHtmlInCanvas = useIsHtmlInCanvasPage();
   const [imageIdx, setImageIdx] = useState(-1);
   const [image, setImage] = useState<HTMLImageElement | string>('/images/image-filters/0018.webp');
 
@@ -87,7 +91,7 @@ const PaperTextureWithControls = () => {
           'Upload image': levaImageButton(setImageWithoutStatus),
           ...(image && { 'Delete image': levaDeleteImageButton(() => setImage('')) }),
         },
-        { order: 0 }
+        { order: 0, render: () => !isHtmlInCanvasPath() }
       ),
       Presets: folder(presets, { order: -1 }),
     };
@@ -99,6 +103,19 @@ const PaperTextureWithControls = () => {
   useUrlParams(params, setParams, paperTextureDef);
   usePresetHighlight(paperTexturePresets, params);
   cleanUpLevaParams(params);
+
+  if (isHtmlInCanvas) {
+    return (
+      <HtmlInCanvasShaderPage
+        shaderDef={paperTextureDef}
+        currentParams={params}
+        defaultParams={defaults}
+        html={defaultHtml}
+      >
+        <PaperTexture {...params}>{defaultHtml.content}</PaperTexture>
+      </HtmlInCanvasShaderPage>
+    );
+  }
 
   return (
     <>

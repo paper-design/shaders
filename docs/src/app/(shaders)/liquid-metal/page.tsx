@@ -12,6 +12,9 @@ import { useState, Suspense } from 'react';
 import { ShaderDetails } from '@/components/shader-details';
 import { ShaderContainer } from '@/components/shader-container';
 import { useUrlParams } from '@/helpers/use-url-params';
+import { isHtmlInCanvasPath, useIsHtmlInCanvasPage } from '@/helpers/use-is-html-in-canvas-page';
+import { HtmlInCanvasShaderPage } from '@/components/html-in-canvas-shader-page';
+import { defaultHtml } from '@/components/default-html';
 import { liquidMetalDef } from '@/shader-defs/liquid-metal-def';
 import { toHsla } from '@/helpers/color-utils';
 
@@ -21,6 +24,7 @@ import { toHsla } from '@/helpers/color-utils';
 const { worldWidth, worldHeight, ...defaults } = liquidMetalPresets[0].params;
 
 const LiquidMetalWithControls = () => {
+  const isHtmlInCanvas = useIsHtmlInCanvasPage();
   const [image, setImage] = useState<HTMLImageElement | string>('');
 
   const [params, setParams] = useControls(() => {
@@ -37,7 +41,7 @@ const LiquidMetalWithControls = () => {
         value: defaults.shape,
         options: Object.keys(LiquidMetalShapes) as LiquidMetalShape[],
         order: 102,
-        disabled: Boolean(image),
+        disabled: isHtmlInCanvas || Boolean(image),
       },
       repetition: { value: defaults.repetition, min: 1, max: 10, order: 200 },
       softness: { value: defaults.softness, min: 0, max: 1, order: 201 },
@@ -52,10 +56,13 @@ const LiquidMetalWithControls = () => {
       offsetX: { value: defaults.offsetX, min: -1, max: 1, order: 303 },
       offsetY: { value: defaults.offsetY, min: -1, max: 1, order: 304 },
       fit: { value: defaults.fit, options: ['contain', 'cover'] as ShaderFit[], order: 305 },
-      Image: folder({
-        'Upload image': levaImageButton((img?: HTMLImageElement) => setImage(img ?? '')),
-        ...(image && { 'Delete image': levaDeleteImageButton(() => setImage('')) }),
-      }),
+      Image: folder(
+        {
+          'Upload image': levaImageButton((img?: HTMLImageElement) => setImage(img ?? '')),
+          ...(image && { 'Delete image': levaDeleteImageButton(() => setImage('')) }),
+        },
+        { render: () => !isHtmlInCanvasPath() }
+      ),
       Presets: folder(presets, { order: -1 }),
     };
   }, [image]);
@@ -66,6 +73,19 @@ const LiquidMetalWithControls = () => {
   useUrlParams(params, setParams, liquidMetalDef);
   usePresetHighlight(liquidMetalPresets, params);
   cleanUpLevaParams(params);
+
+  if (isHtmlInCanvas) {
+    return (
+      <HtmlInCanvasShaderPage
+        shaderDef={liquidMetalDef}
+        currentParams={params}
+        defaultParams={defaults}
+        html={defaultHtml}
+      >
+        <LiquidMetal {...params}>{defaultHtml.content}</LiquidMetal>
+      </HtmlInCanvasShaderPage>
+    );
+  }
 
   return (
     <>

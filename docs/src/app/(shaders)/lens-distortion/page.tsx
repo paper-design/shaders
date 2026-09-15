@@ -12,6 +12,9 @@ import { ShaderDetails } from '@/components/shader-details';
 import { lensDistortionDef } from '@/shader-defs/lens-distortion-def';
 import { ShaderContainer } from '@/components/shader-container';
 import { useUrlParams } from '@/helpers/use-url-params';
+import { isHtmlInCanvasPath, useIsHtmlInCanvasPage } from '@/helpers/use-is-html-in-canvas-page';
+import { HtmlInCanvasShaderPage } from '@/components/html-in-canvas-shader-page';
+import { defaultHtml } from '@/components/default-html';
 
 const { worldWidth, worldHeight, ...defaults } = lensDistortionPresets[0].params;
 
@@ -37,6 +40,7 @@ const imageFiles = [
 ] as const;
 
 const LensDistortionWithControls = () => {
+  const isHtmlInCanvas = useIsHtmlInCanvasPage();
   const [imageIdx, setImageIdx] = useState(-1);
   const [image, setImage] = useState<HTMLImageElement | string>('/images/image-filters/0018.webp');
 
@@ -92,7 +96,7 @@ const LensDistortionWithControls = () => {
         {
           'Upload image': levaImageButton(setImageWithoutStatus),
         },
-        { order: 0 }
+        { order: 0, render: () => !isHtmlInCanvasPath() }
       ),
       Presets: folder(presets, { order: -1 }),
     };
@@ -104,6 +108,19 @@ const LensDistortionWithControls = () => {
   useUrlParams(params, setParams, lensDistortionDef);
   usePresetHighlight(lensDistortionPresets, params);
   cleanUpLevaParams(params);
+
+  if (isHtmlInCanvas) {
+    return (
+      <HtmlInCanvasShaderPage
+        shaderDef={lensDistortionDef}
+        currentParams={params}
+        defaultParams={defaults}
+        html={defaultHtml}
+      >
+        <LensDistortion {...params}>{defaultHtml.content}</LensDistortion>
+      </HtmlInCanvasShaderPage>
+    );
+  }
 
   return (
     <>

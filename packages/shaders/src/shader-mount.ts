@@ -1,4 +1,13 @@
 import { vertexShaderSource } from './vertex-shader.js';
+import {
+  getLayoutSubtreeCanvas,
+  isHtmlInCanvasSupported,
+  isHtmlTextureElement,
+  type ElementImageContext,
+  type ElementTextureContext,
+  type HtmlCaptureMode,
+  type PaintableCanvas,
+} from './html-in-canvas.js';
 
 const DEFAULT_MAX_PIXEL_COUNT: number = 1920 * 1080 * 4;
 
@@ -36,6 +45,12 @@ export class ShaderMount {
   private uniformCache: Record<string, unknown> = {};
   private textureUnitMap: Map<string, number> = new Map();
   private ownerDocument: Document;
+  /** How HTML element uniforms are captured into textures */
+  private htmlCaptureMode: HtmlCaptureMode;
+  /** Live HTML sources of texture uniforms, keyed by uniform name */
+  private htmlTextures: Map<string, HtmlTexture> = new Map();
+  /** False when an existing `<canvas layoutsubtree>` was adopted as the shader canvas (direct capture mode) */
+  private ownsCanvas = true;
 
   constructor(
     /** The div you'd like to mount the shader to. The shader will match its size. */
@@ -61,7 +76,13 @@ export class ShaderMount {
      */
     maxPixelCount: number = DEFAULT_MAX_PIXEL_COUNT,
     /** Names of the uniforms that should have mipmaps generated for them */
-    mipmaps: string[] = []
+    mipmaps: string[] = [],
+    /**
+     * Experimental: how HTML element uniforms are captured, requires HTML-in-canvas browser support.
+     * - 'bridge' draws the element into a 2D canvas and uploads that canvas
+     * - 'direct' uploads the element with texElementImage2D, keeping the HTML inside the shader canvas
+     */
+    htmlCaptureMode: HtmlCaptureMode = 'bridge'
   ) {
     // nodeType check instead of `instanceof` to work across document boundaries (iframes, PiP windows)
     if (parentElement?.nodeType === 1) {
@@ -79,10 +100,18 @@ export class ShaderMount {
       this.ownerDocument.head.prepend(styleElement);
     }
 
+    this.htmlCaptureMode = htmlCaptureMode;
+
+    // In direct capture mode, a `<canvas layoutsubtree>` that already holds the HTML becomes the shader canvas
+    const htmlCanvas = htmlCaptureMode === 'direct' ? findHtmlCanvas(uniforms, this.parentElement) : null;
+
     // Create the canvas element and mount it into the provided element
-    const canvasElement = this.ownerDocument.createElement('canvas');
+    const canvasElement = htmlCanvas ?? this.ownerDocument.createElement('canvas');
     this.canvasElement = canvasElement;
-    this.parentElement.prepend(canvasElement);
+    this.ownsCanvas = htmlCanvas === null;
+    if (this.ownsCanvas) {
+      this.parentElement.prepend(canvasElement);
+    }
     this.fragmentShader = fragmentShader;
     this.providedUniforms = uniforms;
     this.mipmaps = mipmaps;
@@ -152,7 +181,7 @@ export class ShaderMount {
       uniformLocations[key] = this.gl.getUniformLocation(this.program!, key);
 
       // For texture uniforms, also look for the aspect ratio uniform
-      if (value instanceof HTMLImageElement) {
+      if (value instanceof HTMLImageElement || isHtmlTextureElement(value)) {
         const aspectRatioUniformName = `${key}AspectRatio`;
         uniformLocations[aspectRatioUniformName] = this.gl.getUniformLocation(this.program!, aspectRatioUniformName);
       }
@@ -285,6 +314,12 @@ export class ShaderMount {
       this.resolutionChanged = true;
       this.gl.viewport(0, 0, this.gl.canvas.width, this.gl.canvas.height);
 
+      // HTML textures need a fresh snapshot at the new resolution
+      this.htmlTextures.forEach((htmlTexture) => {
+        this.syncHtmlCanvasSize(htmlTexture);
+        htmlTexture.canvas.requestPaint();
+      });
+
       // this is necessary to avoid flashes while resizing (the next scheduled render will set uniforms)
       this.render(performance.now());
     }
@@ -345,29 +380,8 @@ export class ShaderMount {
       throw new Error(`Paper Shaders: image for uniform ${uniformName} must be fully loaded`);
     }
 
-    // Clean up existing texture if present
-    const existingTexture = this.textures.get(uniformName);
-    if (existingTexture) {
-      this.gl.deleteTexture(existingTexture);
-    }
-
-    // Get texture unit
-    if (!this.textureUnitMap.has(uniformName)) {
-      this.textureUnitMap.set(uniformName, this.textureUnitMap.size);
-    }
-    const textureUnit = this.textureUnitMap.get(uniformName)!;
-    // Activate correct texture unit before creating the texture
-    this.gl.activeTexture(this.gl.TEXTURE0 + textureUnit);
-
-    // Create and set up the new texture
-    const texture = this.gl.createTexture();
-    this.gl.bindTexture(this.gl.TEXTURE_2D, texture);
-
-    // Set texture parameters
-    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_S, this.gl.CLAMP_TO_EDGE);
-    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_T, this.gl.CLAMP_TO_EDGE);
-    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.LINEAR);
-    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MAG_FILTER, this.gl.LINEAR);
+    this.removeHtmlTexture(uniformName);
+    const { texture, textureUnit } = this.createTexture(uniformName);
 
     // Upload image to texture
     this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.gl.RGBA, this.gl.UNSIGNED_BYTE, image);
@@ -399,6 +413,209 @@ export class ShaderMount {
         const aspectRatio = image.naturalWidth / image.naturalHeight;
         this.gl.uniform1f(aspectRatioLocation, aspectRatio);
       }
+    }
+  };
+
+  /** Replaces the uniform's texture with a new empty one, bound to the uniform's texture unit */
+  private createTexture = (uniformName: string): { texture: WebGLTexture | null; textureUnit: number } => {
+    // Clean up existing texture if present
+    const existingTexture = this.textures.get(uniformName);
+    if (existingTexture) {
+      this.gl.deleteTexture(existingTexture);
+    }
+
+    // Get texture unit
+    if (!this.textureUnitMap.has(uniformName)) {
+      this.textureUnitMap.set(uniformName, this.textureUnitMap.size);
+    }
+    const textureUnit = this.textureUnitMap.get(uniformName)!;
+    // Activate correct texture unit before creating the texture
+    this.gl.activeTexture(this.gl.TEXTURE0 + textureUnit);
+
+    // Create and set up the new texture
+    const texture = this.gl.createTexture();
+    this.gl.bindTexture(this.gl.TEXTURE_2D, texture);
+
+    // Set texture parameters
+    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_S, this.gl.CLAMP_TO_EDGE);
+    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_T, this.gl.CLAMP_TO_EDGE);
+    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.LINEAR);
+    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MAG_FILTER, this.gl.LINEAR);
+
+    return { texture, textureUnit };
+  };
+
+  /** Creates a texture that is re-uploaded from a live HTML element every time the element repaints */
+  private setHtmlTextureUniform = (uniformName: string, element: HTMLElement): void => {
+    this.removeHtmlTexture(uniformName);
+    const { texture, textureUnit } = this.createTexture(uniformName);
+    if (texture === null) return;
+
+    // Transparent placeholder until the first snapshot arrives
+    this.gl.texImage2D(
+      this.gl.TEXTURE_2D,
+      0,
+      this.gl.RGBA,
+      1,
+      1,
+      0,
+      this.gl.RGBA,
+      this.gl.UNSIGNED_BYTE,
+      new Uint8Array(4)
+    );
+    this.textures.set(uniformName, texture);
+
+    const location = this.uniformLocations[uniformName];
+    if (location) {
+      this.gl.uniform1i(location, textureUnit);
+    }
+
+    if (!isHtmlInCanvasSupported()) {
+      console.warn(`Paper Shaders: HTML-in-canvas is not supported in this browser, ${uniformName} will stay empty`);
+      return;
+    }
+
+    const isDirect = this.htmlCaptureMode === 'direct';
+    let canvas = getLayoutSubtreeCanvas(element);
+    let createdCanvas = false;
+
+    if (isDirect) {
+      // texElementImage2D only accepts immediate children of the canvas that owns the WebGL context
+      canvas = this.canvasElement as PaintableCanvas;
+      canvas.setAttribute('layoutsubtree', '');
+    } else if (canvas === null || canvas === this.canvasElement) {
+      canvas = this.ownerDocument.createElement('canvas') as PaintableCanvas;
+      canvas.setAttribute('layoutsubtree', '');
+      this.parentElement.append(canvas);
+      createdCanvas = true;
+    }
+
+    const context = isDirect ? null : (canvas.getContext('2d') as ElementImageContext | null);
+    if (!isDirect && context === null) {
+      console.error(`Paper Shaders: could not get a 2D context to capture HTML for ${uniformName}`);
+      if (createdCanvas) canvas.remove();
+      return;
+    }
+
+    const isMoved = element.parentNode !== canvas;
+    const htmlTexture: HtmlTexture = {
+      element,
+      canvas,
+      context,
+      createdCanvas,
+      addedDrawable: !element.hasAttribute('drawable'),
+      originalParent: isMoved ? element.parentNode : null,
+      originalNextSibling: isMoved ? element.nextSibling : null,
+      handlePaint: () => this.uploadHtmlTexture(uniformName),
+    };
+
+    if (isMoved) {
+      canvas.append(element);
+    }
+    // Newer revisions of the spec only draw elements marked as drawable
+    if (htmlTexture.addedDrawable) {
+      element.setAttribute('drawable', '');
+    }
+
+    this.htmlTextures.set(uniformName, htmlTexture);
+    this.syncHtmlCanvasSize(htmlTexture);
+    canvas.addEventListener('paint', htmlTexture.handlePaint);
+    canvas.requestPaint();
+  };
+
+  /** Uploads the latest snapshot of an HTML texture, runs on the canvas paint event */
+  private uploadHtmlTexture = (uniformName: string): void => {
+    const htmlTexture = this.htmlTextures.get(uniformName);
+    const texture = this.textures.get(uniformName);
+    const textureUnit = this.textureUnitMap.get(uniformName);
+    if (this.hasBeenDisposed || !htmlTexture || !texture || textureUnit === undefined) return;
+
+    const { element, canvas, context } = htmlTexture;
+    const gl = this.gl as ElementTextureContext;
+    gl.activeTexture(gl.TEXTURE0 + textureUnit);
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+
+    try {
+      if (context) {
+        context.drawElementImage(element, 0, 0);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, canvas);
+        // The bridge canvas sits under the shader, keep it from showing the undistorted HTML
+        context.clearRect(0, 0, canvas.width, canvas.height);
+      } else {
+        if (gl.texElementImage2D.length >= 6) {
+          gl.texElementImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, element);
+        } else {
+          gl.texElementImage2D(gl.TEXTURE_2D, gl.RGBA8, element);
+        }
+
+        // Newer spec revisions need 3D contexts to report where the element is drawn for hit testing.
+        // The texture always covers the whole canvas, so the element maps to it at the canvas pixel scale.
+        if (canvas.updateElementGeometry && canvas.clientWidth > 0 && canvas.clientHeight > 0) {
+          canvas.updateElementGeometry(element, {
+            canvasTransform: new DOMMatrix().scale(canvas.width / canvas.clientWidth, canvas.height / canvas.clientHeight),
+          });
+        }
+      }
+    } catch (error) {
+      console.warn(`Paper Shaders: could not capture HTML for ${uniformName}`, error);
+      return;
+    }
+
+    if (this.mipmaps.includes(uniformName)) {
+      gl.generateMipmap(gl.TEXTURE_2D);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
+    }
+
+    const aspectRatioLocation = this.uniformLocations[`${uniformName}AspectRatio`];
+    if (aspectRatioLocation && canvas.height > 0) {
+      gl.uniform1f(aspectRatioLocation, canvas.width / canvas.height);
+    }
+
+    // Animated shaders pick up the new texture on their next frame
+    if (this.currentSpeed === 0) {
+      this.render(performance.now());
+    }
+  };
+
+  /** Bridge canvases match the shader canvas resolution so the HTML is rasterized at the same density */
+  private syncHtmlCanvasSize = (htmlTexture: HtmlTexture): void => {
+    const { canvas, context } = htmlTexture;
+    if (context === null) return;
+
+    if (canvas.width !== this.canvasElement.width) {
+      canvas.width = this.canvasElement.width;
+    }
+    if (canvas.height !== this.canvasElement.height) {
+      canvas.height = this.canvasElement.height;
+    }
+  };
+
+  /** Stops capturing an HTML texture and puts the element back where it was */
+  private removeHtmlTexture = (uniformName: string): void => {
+    const htmlTexture = this.htmlTextures.get(uniformName);
+    if (!htmlTexture) return;
+
+    const { element, canvas, context, originalParent, originalNextSibling } = htmlTexture;
+    canvas.removeEventListener('paint', htmlTexture.handlePaint);
+    context?.clearRect(0, 0, canvas.width, canvas.height);
+
+    if (htmlTexture.addedDrawable) {
+      element.removeAttribute('drawable');
+    }
+    if (originalParent) {
+      originalParent.insertBefore(
+        element,
+        originalNextSibling?.parentNode === originalParent ? originalNextSibling : null
+      );
+    }
+    if (htmlTexture.createdCanvas) {
+      canvas.remove();
+    }
+
+    this.htmlTextures.delete(uniformName);
+
+    if (this.ownsCanvas && !Array.from(this.htmlTextures.values()).some((texture) => texture.context === null)) {
+      this.canvasElement.removeAttribute('layoutsubtree');
     }
   };
 
@@ -436,6 +653,9 @@ export class ShaderMount {
       if (value instanceof HTMLImageElement) {
         // Texture case, requires a good amount of code so it gets its own function:
         this.setTextureUniform(key, value);
+      } else if (isHtmlTextureElement(value)) {
+        // Live HTML texture case, re-uploaded whenever the element repaints
+        this.setHtmlTextureUniform(key, value);
       } else if (Array.isArray(value)) {
         // Array case
         let flatArray: number[] | null = null;
@@ -569,6 +789,9 @@ export class ShaderMount {
       this.rafId = null;
     }
 
+    // Stop capturing HTML and put the elements back where they were
+    Array.from(this.htmlTextures.keys()).forEach((uniformName) => this.removeHtmlTexture(uniformName));
+
     if (this.gl && this.program) {
       // Clean up all textures
       this.textures.forEach((texture) => {
@@ -604,8 +827,10 @@ export class ShaderMount {
 
     this.uniformLocations = {};
 
-    // Remove the shader from the div wrapper element
-    this.canvasElement.remove();
+    // Remove the shader from the div wrapper element, unless the canvas was provided by the caller
+    if (this.ownsCanvas) {
+      this.canvasElement.remove();
+    }
     // Free up the reference to self to enable garbage collection
     delete this.parentElement.paperShaderMount;
   };
@@ -672,12 +897,40 @@ function createProgram(
   return program;
 }
 
+/** Returns a `<canvas layoutsubtree>` in the parent element that holds one of the HTML uniforms */
+function findHtmlCanvas(uniforms: ShaderMountUniforms, parentElement: HTMLElement): PaintableCanvas | null {
+  for (const value of Object.values(uniforms)) {
+    if (isHtmlTextureElement(value)) {
+      const canvas = getLayoutSubtreeCanvas(value);
+      if (canvas?.parentElement === parentElement) {
+        return canvas;
+      }
+    }
+  }
+  return null;
+}
+
+/** A live HTML element used as a texture uniform */
+interface HtmlTexture {
+  element: HTMLElement;
+  /** The `<canvas layoutsubtree>` that lays out the element and fires paint events */
+  canvas: PaintableCanvas;
+  /** 2D context of the bridge canvas, null in direct capture mode */
+  context: ElementImageContext | null;
+  createdCanvas: boolean;
+  addedDrawable: boolean;
+  /** Where the element was before it was moved into the canvas, null if it wasn't moved */
+  originalParent: Node | null;
+  originalNextSibling: Node | null;
+  handlePaint: () => void;
+}
+
 const defaultStyle = `@layer paper-shaders {
   :where([data-paper-shader]) {
     isolation: isolate;
     position: relative;
 
-    & canvas {
+    & > canvas {
       contain: strict;
       display: block;
       position: absolute;
@@ -688,12 +941,31 @@ const defaultStyle = `@layer paper-shaders {
       border-radius: inherit;
       corner-shape: inherit;
     }
+
+    & > canvas[layoutsubtree] {
+      z-index: -2;
+    }
+
+    /* HTML in a layoutsubtree canvas sits under the shader output, let pointer events through to it */
+    &:has(> canvas[layoutsubtree]) > canvas:not([layoutsubtree]) {
+      pointer-events: none;
+    }
+
+    & > canvas[layoutsubtree] > * {
+      width: 100%;
+      height: 100%;
+    }
   }
 }`;
 
 /** The parent `<div>` element that has a ShaderMount available on it */
 export interface PaperShaderElement extends HTMLElement {
   paperShaderMount: ShaderMount | undefined;
+  /**
+   * Experimental: re-captures the HTML children of shaders that pre-process their image
+   * (Liquid Metal, Heatmap, Gem Smoke). Available while HTML children are used as the image.
+   */
+  refreshHtmlImage?: () => void;
 }
 
 /** Check if an element is a Paper shader element */
@@ -708,7 +980,7 @@ export function isPaperShaderElement(element: HTMLElement): element is PaperShad
  * We just skip setting the uniform if it's undefined. This allows the shader mount to still take up space during server rendering
  */
 export interface ShaderMountUniforms {
-  [key: string]: boolean | number | number[] | number[][] | HTMLImageElement | undefined;
+  [key: string]: boolean | number | number[] | number[][] | HTMLImageElement | HTMLElement | undefined;
 }
 
 export interface ShaderMotionParams {

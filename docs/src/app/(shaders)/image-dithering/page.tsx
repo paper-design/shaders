@@ -13,6 +13,9 @@ import { ShaderDetails } from '@/components/shader-details';
 import { imageDitheringDef } from '@/shader-defs/image-dithering-def';
 import { ShaderContainer } from '@/components/shader-container';
 import { useUrlParams } from '@/helpers/use-url-params';
+import { isHtmlInCanvasPath, useIsHtmlInCanvasPage } from '@/helpers/use-is-html-in-canvas-page';
+import { HtmlInCanvasShaderPage } from '@/components/html-in-canvas-shader-page';
+import { defaultHtml } from '@/components/default-html';
 
 const { worldWidth, worldHeight, ...defaults } = imageDitheringPresets[0].params;
 
@@ -38,6 +41,7 @@ const imageFiles = [
 ] as const;
 
 const ImageDitheringWithControls = () => {
+  const isHtmlInCanvas = useIsHtmlInCanvasPage();
   const [imageIdx, setImageIdx] = useState(-1);
   const [image, setImage] = useState<HTMLImageElement | string>('/images/image-filters/0018.webp');
 
@@ -81,7 +85,7 @@ const ImageDitheringWithControls = () => {
         {
           'Upload image': levaImageButton(setImageWithoutStatus),
         },
-        { order: 0 }
+        { order: 0, render: () => !isHtmlInCanvasPath() }
       ),
       Presets: folder(presets, { order: -1 }),
     };
@@ -93,6 +97,19 @@ const ImageDitheringWithControls = () => {
   useUrlParams(params, setParams, imageDitheringDef);
   usePresetHighlight(imageDitheringPresets, params);
   cleanUpLevaParams(params);
+
+  if (isHtmlInCanvas) {
+    return (
+      <HtmlInCanvasShaderPage
+        shaderDef={imageDitheringDef}
+        currentParams={params}
+        defaultParams={defaults}
+        html={defaultHtml}
+      >
+        <ImageDithering {...params}>{defaultHtml.content}</ImageDithering>
+      </HtmlInCanvasShaderPage>
+    );
+  }
 
   return (
     <>

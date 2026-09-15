@@ -8,6 +8,13 @@ export type {
   ImageShaderPreset,
 } from './shader-mount.js';
 
+/** Experimental: live HTML as shader textures (HTML-in-canvas) */
+export {
+  isHtmlInCanvasSupported,
+  captureHtmlImage,
+  type HtmlCaptureMode,
+} from './html-in-canvas.js';
+
 /** Shader sizing options and uniforms */
 export {
   defaultObjectSizing,

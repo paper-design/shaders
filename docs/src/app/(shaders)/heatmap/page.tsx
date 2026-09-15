@@ -10,6 +10,9 @@ import { toHsla } from '@/helpers/color-utils';
 import { ShaderDetails } from '@/components/shader-details';
 import { ShaderContainer } from '@/components/shader-container';
 import { useUrlParams } from '@/helpers/use-url-params';
+import { isHtmlInCanvasPath, useIsHtmlInCanvasPage } from '@/helpers/use-is-html-in-canvas-page';
+import { HtmlInCanvasShaderPage } from '@/components/html-in-canvas-shader-page';
+import { defaultHtml } from '@/components/default-html';
 import { heatmapDef } from '@/shader-defs/heatmap-def';
 import { useColors } from '@/helpers/use-colors';
 import { levaImageButton } from '@/helpers/leva-image-button';
@@ -41,6 +44,7 @@ const imageFiles = [
 ] as const;
 
 const HeatmapWithControls = () => {
+  const isHtmlInCanvas = useIsHtmlInCanvasPage();
   const [imageIdx, setImageIdx] = useState(-1);
   const [image, setImage] = useState<HTMLImageElement | string>('/images/logos/diamond.svg');
 
@@ -80,7 +84,7 @@ const HeatmapWithControls = () => {
         {
           'Upload image': levaImageButton((img?: HTMLImageElement) => setImage(img ?? '')),
         },
-        { order: -1 }
+        { order: -1, render: () => !isHtmlInCanvasPath() }
       ),
     };
   }, [colors.length]);
@@ -107,6 +111,21 @@ const HeatmapWithControls = () => {
   useUrlParams(params, setParams, heatmapDef, setColors);
   usePresetHighlight(heatmapPresets, params);
   cleanUpLevaParams(params);
+
+  if (isHtmlInCanvas) {
+    return (
+      <HtmlInCanvasShaderPage
+        shaderDef={heatmapDef}
+        currentParams={{ colors, ...params }}
+        defaultParams={defaults}
+        html={defaultHtml}
+      >
+        <Heatmap {...params} colors={colors}>
+          {defaultHtml.content}
+        </Heatmap>
+      </HtmlInCanvasShaderPage>
+    );
+  }
 
   return (
     <>

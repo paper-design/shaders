@@ -12,6 +12,9 @@ import { useState, Suspense, useEffect, useCallback } from 'react';
 import { ShaderDetails } from '@/components/shader-details';
 import { ShaderContainer } from '@/components/shader-container';
 import { useUrlParams } from '@/helpers/use-url-params';
+import { isHtmlInCanvasPath, useIsHtmlInCanvasPage } from '@/helpers/use-is-html-in-canvas-page';
+import { HtmlInCanvasShaderPage } from '@/components/html-in-canvas-shader-page';
+import { defaultHtml } from '@/components/default-html';
 import { gemSmokeDef } from '@/shader-defs/gem-smoke-def';
 import { toHsla } from '@/helpers/color-utils';
 import { useColors } from '@/helpers/use-colors';
@@ -43,6 +46,7 @@ const imageFiles = [
 ] as const;
 
 const GemSmokeWithControls = () => {
+  const isHtmlInCanvas = useIsHtmlInCanvasPage();
   const [imageIdx, setImageIdx] = useState(-1);
   const [image, setImage] = useState<HTMLImageElement | string>('');
 
@@ -73,7 +77,7 @@ const GemSmokeWithControls = () => {
         value: defaults.shape,
         options: Object.keys(GemSmokeShapes) as GemSmokeShape[],
         order: 102,
-        disabled: Boolean(image),
+        disabled: isHtmlInCanvas || Boolean(image),
       },
       innerDistortion: { value: defaults.innerDistortion, min: 0, max: 1, order: 201 },
       outerDistortion: { value: defaults.outerDistortion, min: 0, max: 1, order: 202 },
@@ -87,7 +91,7 @@ const GemSmokeWithControls = () => {
       Image: folder({
         'Upload image': levaImageButton((img?: HTMLImageElement) => setImage(img ?? '')),
         ...(image && { 'Delete image': levaDeleteImageButton(() => setImage('')) }),
-      }, { order: -1 }),
+      }, { order: -1, render: () => !isHtmlInCanvasPath() }),
     };
   }, [colors.length, image]);
 
@@ -113,6 +117,21 @@ const GemSmokeWithControls = () => {
   useUrlParams(params, setParams, gemSmokeDef, setColors);
   usePresetHighlight(gemSmokePresets, params);
   cleanUpLevaParams(params);
+
+  if (isHtmlInCanvas) {
+    return (
+      <HtmlInCanvasShaderPage
+        shaderDef={gemSmokeDef}
+        currentParams={{ colors, ...params }}
+        defaultParams={defaults}
+        html={defaultHtml}
+      >
+        <GemSmoke {...params} colors={colors}>
+          {defaultHtml.content}
+        </GemSmoke>
+      </HtmlInCanvasShaderPage>
+    );
+  }
 
   return (
     <>

@@ -476,7 +476,7 @@ export interface HeatmapUniforms extends ShaderSizingUniforms {
 }
 
 export interface HeatmapParams extends ShaderSizingParams, ShaderMotionParams {
-  image: HTMLImageElement | string;
+  image?: HTMLImageElement | string;
   contour?: number;
   angle?: number;
   noise?: number;
