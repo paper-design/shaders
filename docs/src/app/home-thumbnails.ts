@@ -120,8 +120,16 @@ export const homeThumbnails = [
         name: 'paper texture',
         url: '/paper-texture',
         ShaderComponent: PaperTexture,
+        // alwaysLivePreview: true,
         image: paperTextureImg,
-        shaderConfig: { ...paperTexturePresets[0].params, scale: 1.05 },
+        shaderConfig: {
+          ...paperTexturePresets[0].params,
+          scale: 1.05,
+          image: '/images/image-filters/0018.webp',
+          blending: 1,
+          colorPaper: '#ffffff',
+          colorShadow: '#cccccc',
+        },
       },
       {
         name: 'fluted glass',
