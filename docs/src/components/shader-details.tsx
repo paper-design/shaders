@@ -112,7 +112,7 @@ interface ShaderCodeProps {
   currentParams: Record<string, unknown>;
   codeSampleImageName?: string;
   /** Live HTML input: the sample shows it as children and leaves out params that match the defaults */
-  html?: { code: string; defaultParams: Record<string, unknown>; imports?: string[]; setup?: string };
+  html?: { code: string; defaultParams: Record<string, unknown> };
 }
 
 const sectionsClassName =
@@ -173,19 +173,22 @@ function getShaderCode({ shaderDef, currentParams, codeSampleImageName, html }: 
       }
     });
 
-  const attributes = ['width={1280}', 'height={720}', ...(hasImageParam && !html ? [`image="${image}"`] : []), ...params];
-  const openingTag = `<${componentName}\n  ${attributes.join('\n  ')}`;
+  // HTML samples show what the page actually runs: the shader fills its container instead of a fixed size
+  const attributes = html
+    ? params
+    : ['width={1280}', 'height={720}', ...(hasImageParam ? [`image="${image}"`] : []), ...params];
+  const hasAttributes = attributes.length > 0;
+  const openingTag = hasAttributes ? `<${componentName}\n  ${attributes.join('\n  ')}\n>` : `<${componentName}>`;
   const element = html
-    ? `${openingTag}\n>\n${html.code
+    ? `${openingTag}\n${html.code
         .split('\n')
         .map((line) => `  ${line}`)
         .join('\n')}\n</${componentName}>`
-    : `${openingTag}\n/>`;
+    : hasAttributes
+      ? `<${componentName}\n  ${attributes.join('\n  ')}\n/>`
+      : `<${componentName} />`;
 
-  const imports = [...(html?.imports ?? []), `import { ${componentName} } from '@paper-design/shaders-react';`];
-  const setup = html?.setup ? `${html.setup}\n\n` : '';
-
-  return `${imports.join('\n')}\n\n${setup}${element}\n`;
+  return `import { ${componentName} } from '@paper-design/shaders-react';\n\n${element}\n`;
 }
 
 function InstallationSection() {

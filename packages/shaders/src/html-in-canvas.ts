@@ -7,17 +7,10 @@
  * Available in Chromium behind `chrome://flags/#canvas-draw-element` or the "HTMLInCanvas" origin trial.
  */
 
-/**
- * How HTML texture uniforms are captured:
- * - `bridge` draws the element into its own 2D canvas with `drawElementImage` and uploads that canvas
- * - `direct` uploads the element with `texElementImage2D`; the HTML lives inside the shader canvas itself
- */
-export type HtmlCaptureMode = 'bridge' | 'direct';
-
 /** A canvas with the HTML-in-canvas additions */
 export interface PaintableCanvas extends HTMLCanvasElement {
   requestPaint(): void;
-  /** Newer spec revisions: stores where an element is drawn for hit testing */
+  /** Reports where an element is drawn, which 3D contexts must do for hit testing and accessibility */
   updateElementGeometry?(element: Element, options?: { canvasTransform?: DOMMatrixInit }): void;
 }
 
@@ -26,23 +19,21 @@ export interface ElementImageContext extends CanvasRenderingContext2D {
   drawElementImage(element: Element, dx: number, dy: number): void;
 }
 
-/** A WebGL2 context with the HTML-in-canvas additions, signature changed between browser versions */
+/** A WebGL2 context with the HTML-in-canvas additions */
 export interface ElementTextureContext extends WebGL2RenderingContext {
-  texElementImage2D(...args: unknown[]): void;
+  /** Draws into storage that the caller allocated, like texSubImage2D */
+  texElementSubImage2D(
+    target: GLenum,
+    level: GLint,
+    xoffset: GLint,
+    yoffset: GLint,
+    element: Element,
+    config?: { width?: number; height?: number; sx?: number; sy?: number; swidth?: number; sheight?: number }
+  ): void;
 }
 
 /** Canvas pixels per CSS pixel for one-off snapshots */
 const SNAPSHOT_SCALE = 2;
-
-/** Whether the browser supports drawing HTML elements into a canvas */
-export function isHtmlInCanvasSupported(): boolean {
-  return (
-    typeof HTMLCanvasElement !== 'undefined' &&
-    typeof CanvasRenderingContext2D !== 'undefined' &&
-    'requestPaint' in HTMLCanvasElement.prototype &&
-    'drawElementImage' in CanvasRenderingContext2D.prototype
-  );
-}
 
 /** Any element except `<img>` (which is uploaded as a static image) can be used as a live HTML texture */
 export function isHtmlTextureElement(value: unknown): value is HTMLElement {
@@ -71,12 +62,10 @@ export function getLayoutSubtreeCanvas(element: Element): PaintableCanvas | null
  */
 export function captureHtmlImage(element: HTMLElement): Promise<Blob> {
   const canvas = getLayoutSubtreeCanvas(element);
-  const context = isHtmlInCanvasSupported() ? (canvas?.getContext('2d') as ElementImageContext | null) : null;
+  const context = canvas?.getContext('2d') as ElementImageContext | null;
 
   if (!canvas || !context) {
-    return Promise.reject(
-      new Error('Paper Shaders: HTML snapshots need HTML-in-canvas support and an element inside <canvas layoutsubtree>')
-    );
+    return Promise.reject(new Error('Paper Shaders: HTML snapshots need an element inside <canvas layoutsubtree>'));
   }
 
   return new Promise((resolve, reject) => {

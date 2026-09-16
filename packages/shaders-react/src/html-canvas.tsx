@@ -1,14 +1,7 @@
 'use client';
 
-import { Children, forwardRef, useEffect, useState, useSyncExternalStore } from 'react';
-import { captureHtmlImage, isHtmlInCanvasSupported, type PaperShaderElement } from '@paper-design/shaders';
-
-const subscribeToNothing = () => () => {};
-
-/** Whether the browser supports HTML-in-canvas, always false during server rendering and hydration */
-export function useHtmlInCanvasSupport(): boolean {
-  return useSyncExternalStore(subscribeToNothing, isHtmlInCanvasSupported, () => false);
-}
+import { Children, forwardRef, useEffect, useState } from 'react';
+import { captureHtmlImage } from '@paper-design/shaders';
 
 export function hasChildren(children: React.ReactNode): boolean {
   return Children.toArray(children).length > 0;
@@ -29,8 +22,8 @@ export const HtmlCanvas: React.ForwardRefExoticComponent<HtmlCanvasProps & React
   });
 
 /**
- * Keeps a processed snapshot of the HTML children for shaders that pre-process their image.
- * Captures once when enabled, then again on every `refreshHtmlImage()` call on the shader element.
+ * Keeps a processed snapshot of the HTML children for shaders that pre-process their image,
+ * re-capturing whenever the HTML repaints.
  * `processImage` should be defined outside the component so it keeps its identity between renders.
  */
 export function useProcessedHtmlImage(
@@ -42,17 +35,23 @@ export function useProcessedHtmlImage(
 
   useEffect(() => {
     const html = htmlRef.current;
-    const shaderElement = html?.parentElement?.parentElement as PaperShaderElement | null | undefined;
-    if (!isEnabled || !html || !shaderElement) return;
+    const canvas = html?.parentElement;
+    if (!isEnabled || !html || !canvas) return;
 
     let isCurrent = true;
+    let isCapturing = false;
     let isRefreshing = false;
     let hasPendingRefresh = false;
     // The previous URL may still be loading into the shader when a new one arrives, so revoke one step behind
     const urls: string[] = [];
 
     const captureAndProcess = async () => {
-      const snapshotUrl = URL.createObjectURL(await captureHtmlImage(html));
+      isCapturing = true;
+      const snapshot = await captureHtmlImage(html).finally(() => {
+        // Capturing paints the canvas itself, let that paint event pass before listening again
+        requestAnimationFrame(() => (isCapturing = false));
+      });
+      const snapshotUrl = URL.createObjectURL(snapshot);
 
       try {
         const processed = await processImage(snapshotUrl);
@@ -68,8 +67,8 @@ export function useProcessedHtmlImage(
       }
     };
 
-    // Processing takes a while, so calls made in the meantime collapse into one more run with the latest HTML
-    const refresh = async () => {
+    // Processing takes a while, so repaints in the meantime collapse into one more run with the latest HTML
+    const runRefresh = async () => {
       if (isRefreshing) {
         hasPendingRefresh = true;
         return;
@@ -86,14 +85,20 @@ export function useProcessedHtmlImage(
       }
     };
 
-    shaderElement.refreshHtmlImage = () => {
-      refresh().catch((error) => console.error('Paper Shaders: could not process the HTML image', error));
+    const refresh = () => {
+      runRefresh().catch((error) => console.error('Paper Shaders: could not process the HTML image', error));
     };
-    shaderElement.refreshHtmlImage();
+
+    const handlePaint = () => {
+      if (!isCapturing) refresh();
+    };
+
+    canvas.addEventListener('paint', handlePaint);
+    refresh();
 
     return () => {
       isCurrent = false;
-      delete shaderElement.refreshHtmlImage;
+      canvas.removeEventListener('paint', handlePaint);
       urls.forEach((url) => URL.revokeObjectURL(url));
       setProcessedUrl(undefined);
     };

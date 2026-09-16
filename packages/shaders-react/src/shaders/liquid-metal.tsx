@@ -13,7 +13,7 @@ import {
 } from '@paper-design/shaders';
 import { transparentPixel } from '../transparent-pixel.js';
 import { suspend } from '../suspend.js';
-import { HtmlCanvas, hasChildren, useHtmlInCanvasSupport, useProcessedHtmlImage } from '../html-canvas.js';
+import { HtmlCanvas, hasChildren, useProcessedHtmlImage } from '../html-canvas.js';
 
 export interface LiquidMetalProps extends ShaderComponentProps, LiquidMetalParams {
   /**
@@ -142,8 +142,7 @@ export const LiquidMetal: React.FC<LiquidMetalProps> = memo(function LiquidMetal
   ...props
 }: LiquidMetalProps) {
   const htmlRef = useRef<HTMLDivElement>(null);
-  const isHtmlInCanvasSupported = useHtmlInCanvasSupport();
-  const isHtmlImage = isHtmlInCanvasSupported && hasChildren(children);
+  const isHtmlImage = hasChildren(children);
   const htmlImage = useProcessedHtmlImage(htmlRef, isHtmlImage, processHtmlImage);
 
   const imageUrl = typeof image === 'string' ? image : image.src;

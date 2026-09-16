@@ -4,14 +4,13 @@ import { useEffect, useRef, forwardRef, useState } from 'react';
 import {
   ShaderMount as ShaderMountVanilla,
   emptyPixel,
-  type HtmlCaptureMode,
   type PaperShaderElement,
   type ShaderMotionParams,
   type ShaderMountUniforms,
 } from '@paper-design/shaders';
 import { useMergeRefs } from './use-merge-refs.js';
 import { setMinImageSize } from './set-min-image-size.js';
-import { HtmlCanvas, hasChildren, useHtmlInCanvasSupport } from './html-canvas.js';
+import { HtmlCanvas, hasChildren } from './html-canvas.js';
 
 /**
  * React Shader Mount can also accept strings as uniform values, which will assumed to be URLs and loaded as images
@@ -31,13 +30,8 @@ export interface ShaderMountProps extends Omit<React.ComponentProps<'div'>, 'col
   minPixelRatio?: number;
   maxPixelCount?: number;
   webGlContextAttributes?: WebGLContextAttributes;
-  /**
-   * Experimental: name of the texture uniform that receives the children as live HTML.
-   * Without HTML-in-canvas browser support, children render as regular DOM on top of the shader.
-   */
+  /** Experimental: name of the texture uniform that receives the children as live HTML */
   htmlUniform?: string;
-  /** Experimental: how HTML children are captured into the texture, defaults to 'bridge' */
-  htmlCapture?: HtmlCaptureMode;
 
   /** Inline CSS width style */
   width?: string | number;
@@ -50,8 +44,6 @@ export interface ShaderComponentProps extends Omit<React.ComponentProps<'div'>, 
   minPixelRatio?: number;
   maxPixelCount?: number;
   webGlContextAttributes?: WebGLContextAttributes;
-  /** Experimental: how HTML children are captured into the texture, defaults to 'bridge' */
-  htmlCapture?: HtmlCaptureMode;
 
   /** Inline CSS width style */
   width?: string | number;
@@ -148,7 +140,6 @@ export const ShaderMount: React.FC<ShaderMountProps> = forwardRef<PaperShaderEle
       maxPixelCount,
       mipmaps,
       htmlUniform,
-      htmlCapture = 'bridge',
       children,
       style,
       ...divProps
@@ -160,8 +151,7 @@ export const ShaderMount: React.FC<ShaderMountProps> = forwardRef<PaperShaderEle
     const htmlRef = useRef<HTMLDivElement>(null);
     const shaderMountRef: React.RefObject<ShaderMountVanilla | null> = useRef<ShaderMountVanilla>(null);
     const webGlContextAttributesRef = useRef(webGlContextAttributes);
-    const isHtmlInCanvasSupported = useHtmlInCanvasSupport();
-    const isHtmlTexture = htmlUniform !== undefined && isHtmlInCanvasSupported && hasChildren(children);
+    const isHtmlTexture = htmlUniform !== undefined && hasChildren(children);
 
     // Children replace the HTML uniform once they are mounted into the canvas
     const getUniforms = (): ShaderMountUniformsReact => {
@@ -188,8 +178,7 @@ export const ShaderMount: React.FC<ShaderMountProps> = forwardRef<PaperShaderEle
             frame,
             minPixelRatio,
             maxPixelCount,
-            mipmaps,
-            htmlCapture
+            mipmaps
           );
 
           setIsInitialized(true);
@@ -203,7 +192,7 @@ export const ShaderMount: React.FC<ShaderMountProps> = forwardRef<PaperShaderEle
         shaderMountRef.current?.dispose();
         shaderMountRef.current = null;
       };
-    }, [fragmentShader, isHtmlTexture, htmlCapture]);
+    }, [fragmentShader, isHtmlTexture]);
 
     // Uniforms
     useEffect(() => {
@@ -262,10 +251,7 @@ export const ShaderMount: React.FC<ShaderMountProps> = forwardRef<PaperShaderEle
         {...divProps}
       >
         {isHtmlTexture ? (
-          // A new canvas per capture mode: a canvas can't switch between 2D and WebGL contexts
-          <HtmlCanvas key={htmlCapture} ref={htmlRef}>
-            {children}
-          </HtmlCanvas>
+          <HtmlCanvas ref={htmlRef}>{children}</HtmlCanvas>
         ) : (
           children
         )}

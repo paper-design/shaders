@@ -14,10 +14,38 @@ import { halftoneCmykDef } from '@/shader-defs/halftone-cmyk-def';
 import { ShaderContainer } from '@/components/shader-container';
 import { useUrlParams } from '@/helpers/use-url-params';
 import { isHtmlInCanvasPath, useIsHtmlInCanvasPage } from '@/helpers/use-is-html-in-canvas-page';
+import { withCode } from '@/helpers/jsx-to-code';
 import { HtmlInCanvasShaderPage } from '@/components/html-in-canvas-shader-page';
-import { defaultHtml } from '@/components/default-html';
 
 const { worldWidth, worldHeight, ...defaults } = halftoneCmykPresets[0].params;
+
+const htmlStyle = `
+  .demo { display: grid; align-content: center; justify-items: start; gap: 40px; height: 100%; padding: 0 8% }
+  .demo p { margin: 0; font: 700 120px/1 system-ui; background: linear-gradient(90deg, #4052d6, #9b5de5); background-clip: text; color: transparent }
+  .demo button { padding: 32px 64px; border: 0; border-radius: 99px; font: 48px system-ui; color: #fff; background: linear-gradient(135deg, #4052d6, #9b5de5) }
+  .demo button:hover { filter: brightness(1.15) }
+`;
+
+// The counter runs from the function and prints from the string: the compiler rewrites function bodies
+const handleClick = withCode(
+  (event: { currentTarget: HTMLButtonElement }) => {
+    const clicks = Number(event.currentTarget.dataset.clicks ?? 0) + 1;
+    event.currentTarget.dataset.clicks = String(clicks);
+    event.currentTarget.textContent = `Clicked ${clicks} time${clicks === 1 ? '' : 's'}`;
+  },
+  `(event) => {
+  const clicks = Number(event.currentTarget.dataset.clicks ?? 0) + 1;
+  event.currentTarget.dataset.clicks = String(clicks);
+  event.currentTarget.textContent = \`Clicked \${clicks} time\${clicks === 1 ? '' : 's'}\`;
+}`
+);
+const html = (
+  <div className="demo">
+    <style>{htmlStyle}</style>
+    <p>Select this text</p>
+    <button onClick={handleClick}>Hover and click me</button>
+  </div>
+);
 
 const imageFiles = [
   '001.webp',
@@ -96,7 +124,7 @@ const HalftoneCmykWithControls = () => {
       grainMixer: { value: defaults.grainMixer, min: 0, max: 1, order: 350 },
       grainOverlay: { value: defaults.grainOverlay, min: 0, max: 1, order: 351 },
       grainSize: { value: defaults.grainSize, min: 0, max: 1, order: 350 },
-       scale: { value: defaults.scale, min: 0.1, max: 4, order: 420 },
+      scale: { value: defaults.scale, min: 0.1, max: 4, order: 420 },
       fit: { value: defaults.fit, options: ['contain', 'cover'] as ShaderFit[], order: 450 },
       Image: folder(
         {
@@ -104,7 +132,11 @@ const HalftoneCmykWithControls = () => {
         },
         { order: 0, render: () => !isHtmlInCanvasPath() }
       ),
-      Presets: folder(presets, { order: -1 }),
+      Presets: folder(presets, { order: -1, render: () => !isHtmlInCanvasPath() }),
+      Preset: folder(
+        { Reset: button(() => setParamsSafe(params, setParams, defaults)) },
+        { order: -1, render: () => isHtmlInCanvasPath() }
+      ),
     };
   });
 
@@ -112,18 +144,13 @@ const HalftoneCmykWithControls = () => {
   // shaders when navigating (if two shaders have a color1 param for example)
   useResetLevaParams(params, setParams, defaults);
   useUrlParams(params, setParams, halftoneCmykDef);
-  usePresetHighlight(halftoneCmykPresets, params);
+  usePresetHighlight(isHtmlInCanvas ? [{ name: 'Reset', params: defaults }] : halftoneCmykPresets, params);
   cleanUpLevaParams(params);
 
   if (isHtmlInCanvas) {
     return (
-      <HtmlInCanvasShaderPage
-        shaderDef={halftoneCmykDef}
-        currentParams={params}
-        defaultParams={defaults}
-        html={defaultHtml}
-      >
-        <HalftoneCmyk {...params}>{defaultHtml.content}</HalftoneCmyk>
+      <HtmlInCanvasShaderPage shaderDef={halftoneCmykDef} currentParams={params} defaultParams={defaults} html={html}>
+        <HalftoneCmyk {...params}>{html}</HalftoneCmyk>
       </HtmlInCanvasShaderPage>
     );
   }
@@ -133,7 +160,7 @@ const HalftoneCmykWithControls = () => {
       <ShaderContainer shaderDef={halftoneCmykDef} currentParams={params}>
         <HalftoneCmyk onClick={handleClick} {...params} image={image} />
       </ShaderContainer>
-      <div onClick={handleClick} className="text-current/70 mx-auto mb-48 mt-16 w-fit select-none text-base">
+      <div onClick={handleClick} className="mx-auto mt-16 mb-48 w-fit text-base text-current/70 select-none">
         Click to change the sample image
       </div>
       <ShaderDetails shaderDef={halftoneCmykDef} currentParams={params} />

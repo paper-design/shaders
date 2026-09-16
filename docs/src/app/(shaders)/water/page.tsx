@@ -14,10 +14,38 @@ import { waterDef } from '@/shader-defs/water-def';
 import { ShaderContainer } from '@/components/shader-container';
 import { useUrlParams } from '@/helpers/use-url-params';
 import { isHtmlInCanvasPath, useIsHtmlInCanvasPage } from '@/helpers/use-is-html-in-canvas-page';
+import { withCode } from '@/helpers/jsx-to-code';
 import { HtmlInCanvasShaderPage } from '@/components/html-in-canvas-shader-page';
-import { defaultHtml } from '@/components/default-html';
 
 const { worldWidth, worldHeight, ...defaults } = waterPresets[0].params;
+
+const htmlStyle = `
+  .demo { display: grid; align-content: center; justify-items: start; gap: 40px; height: 100%; padding: 0 8% }
+  .demo p { margin: 0; font: 700 120px/1 system-ui; background: linear-gradient(90deg, #4052d6, #9b5de5); background-clip: text; color: transparent }
+  .demo button { padding: 32px 64px; border: 0; border-radius: 99px; font: 48px system-ui; color: #fff; background: linear-gradient(135deg, #4052d6, #9b5de5) }
+  .demo button:hover { filter: brightness(1.15) }
+`;
+
+// The counter runs from the function and prints from the string: the compiler rewrites function bodies
+const handleClick = withCode(
+  (event: { currentTarget: HTMLButtonElement }) => {
+    const clicks = Number(event.currentTarget.dataset.clicks ?? 0) + 1;
+    event.currentTarget.dataset.clicks = String(clicks);
+    event.currentTarget.textContent = `Clicked ${clicks} time${clicks === 1 ? '' : 's'}`;
+  },
+  `(event) => {
+  const clicks = Number(event.currentTarget.dataset.clicks ?? 0) + 1;
+  event.currentTarget.dataset.clicks = String(clicks);
+  event.currentTarget.textContent = \`Clicked \${clicks} time\${clicks === 1 ? '' : 's'}\`;
+}`
+);
+const html = (
+  <div className="demo">
+    <style>{htmlStyle}</style>
+    <p>Select this text</p>
+    <button onClick={handleClick}>Hover and click me</button>
+  </div>
+);
 
 const imageFiles = [
   '001.webp',
@@ -103,7 +131,11 @@ const WaterWithControls = () => {
         },
         { order: 0, render: () => !isHtmlInCanvasPath() }
       ),
-      Presets: folder(presets, { order: -1 }),
+      Presets: folder(presets, { order: -1, render: () => !isHtmlInCanvasPath() }),
+      Preset: folder(
+        { Reset: button(() => setParamsSafe(params, setParams, defaults)) },
+        { order: -1, render: () => isHtmlInCanvasPath() }
+      ),
     };
   }, [image]);
 
@@ -111,7 +143,7 @@ const WaterWithControls = () => {
   // shaders when navigating (if two shaders have a color1 param for example)
   useResetLevaParams(params, setParams, defaults);
   useUrlParams(params, setParams, waterDef);
-  usePresetHighlight(waterPresets, params);
+  usePresetHighlight(isHtmlInCanvas ? [{ name: 'Reset', params: defaults }] : waterPresets, params);
   cleanUpLevaParams(params);
 
   if (isHtmlInCanvas) {
@@ -120,10 +152,10 @@ const WaterWithControls = () => {
         shaderDef={waterDef}
         currentParams={params}
         defaultParams={defaults}
-        html={defaultHtml}
+        html={html}
         notes={notes}
       >
-        <Water {...params}>{defaultHtml.content}</Water>
+        <Water {...params}>{html}</Water>
       </HtmlInCanvasShaderPage>
     );
   }
