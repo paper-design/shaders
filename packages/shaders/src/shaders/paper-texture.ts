@@ -283,8 +283,9 @@ vec2 getCrumpleDetail(vec2 uv, float freq, float shift, float basePixel, out flo
   float toEdge = (n2 - n1) / (2. * spanLen);
 
   float pair = hash21(s1 + s2 + 1.7 * abs(s1 - s2));
-  float pairSoft = .01 + .1 * step(pair, .4);
+  float pairSoft = .05 + .1 * step(pair, .4);
   float b = clamp(toEdge / max(1.5 * pixel, .5 * pairSoft), 0., 1.);
+  b = b * b * (3. - 2. * b);
   float d1 = max(sqrt(n1), 1e-4);
   depth = .2 * d1;
   float shoulderAmt = max(0., 1. - toEdge / .42) * b;

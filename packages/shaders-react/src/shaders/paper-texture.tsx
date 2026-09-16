@@ -51,7 +51,7 @@ export const defaultPreset: PaperTexturePreset = {
     wrinkleSize: 0.65,
     crumples: 0,
     crumpleCount: 6,
-    drops: 1,
+    drops: 0.5,
   },
 };
 
