@@ -133,6 +133,7 @@ export {
   grainGradientMeta,
   meshGradientMeta,
   metaballsMeta,
+  paperTextureMeta,
   pulsingBorderMeta,
   simplexNoiseMeta,
   smokeRingMeta,
