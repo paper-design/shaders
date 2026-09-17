@@ -17,11 +17,11 @@ import { isHtmlInCanvasPath, useIsHtmlInCanvasPage } from '@/helpers/use-is-html
 import { withCode } from '@/helpers/jsx-to-code';
 import { HtmlInCanvasShaderPage } from '@/components/html-in-canvas-shader-page';
 
-const { worldWidth, worldHeight, ...imageDefaults } = halftoneCmykPresets[0].params;
+const { worldWidth, worldHeight, ...presetDefaults } = halftoneCmykPresets[0].params;
 
 /** The HTML-in-canvas page uses a coarse, high-contrast screen so the HTML reads through the dot pattern */
-const htmlDefaults = {
-  ...imageDefaults,
+const htmlInCanvasDefaults = {
+  ...presetDefaults,
   size: 0.59,
   gridNoise: 0.5,
   softness: 0.22,
@@ -93,7 +93,7 @@ const imageFiles = [
 
 const HalftoneCmykWithControls = () => {
   const isHtmlInCanvas = useIsHtmlInCanvasPage();
-  const defaults = isHtmlInCanvas ? htmlDefaults : imageDefaults;
+  const defaults = isHtmlInCanvas ? htmlInCanvasDefaults : presetDefaults;
   const [imageIdx, setImageIdx] = useState(-1);
   const [image, setImage] = useState<HTMLImageElement | string>('/images/image-filters/0018.webp');
 
@@ -176,7 +176,7 @@ const HalftoneCmykWithControls = () => {
       <HtmlInCanvasShaderPage
         shaderDef={halftoneCmykDef}
         currentParams={params}
-        defaultParams={imageDefaults}
+        defaultParams={presetDefaults}
         html={html}
       >
         <HalftoneCmyk {...params}>{html}</HalftoneCmyk>

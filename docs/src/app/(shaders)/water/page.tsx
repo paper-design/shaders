@@ -17,7 +17,19 @@ import { isHtmlInCanvasPath, useIsHtmlInCanvasPage } from '@/helpers/use-is-html
 import { withCode } from '@/helpers/jsx-to-code';
 import { HtmlInCanvasShaderPage } from '@/components/html-in-canvas-shader-page';
 
-const { worldWidth, worldHeight, ...defaults } = waterPresets[0].params;
+const { worldWidth, worldHeight, ...presetDefaults } = waterPresets[0].params;
+
+/** The HTML-in-canvas page uses teal water with bigger, brighter ripples, so the HTML shows through the surface */
+const htmlInCanvasDefaults = {
+  ...presetDefaults,
+  colorBack: '#8ed7d5',
+  colorHighlight: '#fcffeb',
+  highlights: 0.35,
+  layering: 0.61,
+  waves: 0.38,
+  caustic: 0.07,
+  size: 1.77,
+};
 
 const htmlStyle = `
   .demo { display: grid; align-content: center; justify-items: start; gap: 48px; height: 100%; padding: 0 8%; color: #222 }
@@ -91,6 +103,7 @@ const notes = (
 
 const WaterWithControls = () => {
   const isHtmlInCanvas = useIsHtmlInCanvasPage();
+  const defaults = isHtmlInCanvas ? htmlInCanvasDefaults : presetDefaults;
   const [imageIdx, setImageIdx] = useState(-1);
   const [image, setImage] = useState<HTMLImageElement | string>('/images/image-filters/0018.webp');
 
@@ -158,7 +171,7 @@ const WaterWithControls = () => {
       <HtmlInCanvasShaderPage
         shaderDef={waterDef}
         currentParams={params}
-        defaultParams={defaults}
+        defaultParams={presetDefaults}
         html={html}
         notes={notes}
       >

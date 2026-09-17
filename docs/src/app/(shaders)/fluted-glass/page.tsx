@@ -18,11 +18,11 @@ import { isHtmlInCanvasPath, useIsHtmlInCanvasPage } from '@/helpers/use-is-html
 import { withCode } from '@/helpers/jsx-to-code';
 import { HtmlInCanvasShaderPage } from '@/components/html-in-canvas-shader-page';
 
-const { worldWidth, worldHeight, ...imageDefaults } = flutedGlassPresets[0].params;
+const { worldWidth, worldHeight, ...presetDefaults } = flutedGlassPresets[0].params;
 
 /** The HTML-in-canvas page uses wider flutes and a softer cascade, so the HTML stays legible through the glass */
-const htmlDefaults = {
-  ...imageDefaults,
+const htmlInCanvasDefaults = {
+  ...presetDefaults,
   shadows: 0.24,
   highlights: 0,
   size: 0.8,
@@ -91,7 +91,7 @@ const imageFiles = [
 
 const FlutedGlassWithControls = () => {
   const isHtmlInCanvas = useIsHtmlInCanvasPage();
-  const defaults = isHtmlInCanvas ? htmlDefaults : imageDefaults;
+  const defaults = isHtmlInCanvas ? htmlInCanvasDefaults : presetDefaults;
   const [imageIdx, setImageIdx] = useState(-1);
   const [image, setImage] = useState<HTMLImageElement | string>('/images/image-filters/0018.webp');
 
@@ -172,11 +172,11 @@ const FlutedGlassWithControls = () => {
 
   if (isHtmlInCanvas) {
     return (
-      // The code sample leaves out params matching the component defaults, which are the image preset's
+      // The code sample leaves out params matching the component defaults, which are the default preset's
       <HtmlInCanvasShaderPage
         shaderDef={flutedGlassDef}
         currentParams={params}
-        defaultParams={imageDefaults}
+        defaultParams={presetDefaults}
         html={html}
       >
         <FlutedGlass {...params}>{html}</FlutedGlass>

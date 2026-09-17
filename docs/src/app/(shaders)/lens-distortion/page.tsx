@@ -16,11 +16,11 @@ import { isHtmlInCanvasPath, useIsHtmlInCanvasPage } from '@/helpers/use-is-html
 import { withCode } from '@/helpers/jsx-to-code';
 import { HtmlInCanvasShaderPage } from '@/components/html-in-canvas-shader-page';
 
-const { worldWidth, worldHeight, ...imageDefaults } = lensDistortionPresets[0].params;
+const { worldWidth, worldHeight, ...presetDefaults } = lensDistortionPresets[0].params;
 
 /** The HTML-in-canvas page spreads the dispersion over noisy, bulged glass, which keeps the HTML readable at the center */
-const htmlDefaults = {
-  ...imageDefaults,
+const htmlInCanvasDefaults = {
+  ...presetDefaults,
   spread: 0.36,
   angle: 28,
   perspective: 1,
@@ -92,7 +92,7 @@ const imageFiles = [
 
 const LensDistortionWithControls = () => {
   const isHtmlInCanvas = useIsHtmlInCanvasPage();
-  const defaults = isHtmlInCanvas ? htmlDefaults : imageDefaults;
+  const defaults = isHtmlInCanvas ? htmlInCanvasDefaults : presetDefaults;
   const [imageIdx, setImageIdx] = useState(-1);
   const [image, setImage] = useState<HTMLImageElement | string>('/images/image-filters/0018.webp');
 
@@ -170,7 +170,7 @@ const LensDistortionWithControls = () => {
       <HtmlInCanvasShaderPage
         shaderDef={lensDistortionDef}
         currentParams={params}
-        defaultParams={imageDefaults}
+        defaultParams={presetDefaults}
         html={html}
       >
         <LensDistortion {...params}>{html}</LensDistortion>

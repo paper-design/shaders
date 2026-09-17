@@ -17,11 +17,11 @@ import { isHtmlInCanvasPath, useIsHtmlInCanvasPage } from '@/helpers/use-is-html
 import { withCode } from '@/helpers/jsx-to-code';
 import { HtmlInCanvasShaderPage } from '@/components/html-in-canvas-shader-page';
 
-const { worldWidth, worldHeight, ...imageDefaults } = paperTexturePresets[0].params;
+const { worldWidth, worldHeight, ...presetDefaults } = paperTexturePresets[0].params;
 
 /** The HTML-in-canvas page keeps the paper white and the texture pronounced, so the HTML stays readable through it */
-const htmlDefaults = {
-  ...imageDefaults,
+const htmlInCanvasDefaults = {
+  ...presetDefaults,
   colorBack: '#ffffff',
   colorPaper: '#ffffff',
   colorShadow: '#bfbfbf',
@@ -96,7 +96,7 @@ const imageFiles = [
 
 const PaperTextureWithControls = () => {
   const isHtmlInCanvas = useIsHtmlInCanvasPage();
-  const defaults = isHtmlInCanvas ? htmlDefaults : imageDefaults;
+  const defaults = isHtmlInCanvas ? htmlInCanvasDefaults : presetDefaults;
   const [imageIdx, setImageIdx] = useState(-1);
   const [image, setImage] = useState<HTMLImageElement | string>('/images/image-filters/0018.webp');
 
@@ -181,11 +181,11 @@ const PaperTextureWithControls = () => {
 
   if (isHtmlInCanvas) {
     return (
-      // The code sample leaves out params matching the component defaults, which are the image preset's
+      // The code sample leaves out params matching the component defaults, which are the default preset's
       <HtmlInCanvasShaderPage
         shaderDef={paperTextureDef}
         currentParams={params}
-        defaultParams={imageDefaults}
+        defaultParams={presetDefaults}
         html={html}
       >
         <PaperTexture {...params}>{html}</PaperTexture>
