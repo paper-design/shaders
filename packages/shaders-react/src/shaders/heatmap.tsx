@@ -1,4 +1,4 @@
-import React, { memo, useLayoutEffect, useMemo, useState } from 'react';
+import React, { memo, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { ShaderMount, type ShaderComponentProps } from '../shader-mount.js';
 import {
   getShaderColorFromString,
@@ -14,6 +14,7 @@ import {
 import { transparentPixel } from '../transparent-pixel.js';
 import { suspend } from '../suspend.js';
 import { colorPropsAreEqual } from '../color-props-are-equal.js';
+import { HtmlCanvas, hasChildren, useProcessedHtmlImage } from '../html-canvas.js';
 
 export interface HeatmapProps extends ShaderComponentProps, HeatmapParams {
   /**
@@ -60,6 +61,9 @@ export const sepiaPreset: HeatmapPreset = {
 
 export const heatmapPresets: HeatmapPreset[] = [defaultPreset, sepiaPreset];
 
+/** HTML snapshots are pre-processed the same way as uploaded images */
+const processHtmlImage = (url: string): Promise<Blob> => toProcessedHeatmap(url).then((result) => result.blob);
+
 export const Heatmap: React.FC<HeatmapProps> = memo(function HeatmapImpl({
   // Own props
   speed = defaultPreset.params.speed,
@@ -84,15 +88,20 @@ export const Heatmap: React.FC<HeatmapProps> = memo(function HeatmapImpl({
   scale = defaultPreset.params.scale,
   worldHeight = defaultPreset.params.worldHeight,
   worldWidth = defaultPreset.params.worldWidth,
+  children,
   ...props
 }: HeatmapProps) {
+  const htmlRef = useRef<HTMLDivElement>(null);
+  const isHtmlImage = hasChildren(children);
+  const htmlImage = useProcessedHtmlImage(htmlRef, isHtmlImage, processHtmlImage);
+
   const imageUrl = typeof image === 'string' ? image : image.src;
   const [processedStateImage, setProcessedStateImage] = useState<string>(transparentPixel);
 
   let processedImage: string;
 
   // toProcessedHeatmap expects the document object to exist. This prevents SSR issues during builds.
-  if (suspendWhenProcessingImage && typeof window !== 'undefined') {
+  if (suspendWhenProcessingImage && !isHtmlImage && typeof window !== 'undefined') {
     processedImage = suspend(
       (): Promise<string> => toProcessedHeatmap(imageUrl).then((result) => URL.createObjectURL(result.blob)),
       [imageUrl, 'heatmap']
@@ -102,8 +111,8 @@ export const Heatmap: React.FC<HeatmapProps> = memo(function HeatmapImpl({
   }
 
   useLayoutEffect(() => {
-    if (suspendWhenProcessingImage) {
-      // Skip doing work in the effect as it's been handled by suspense.
+    if (suspendWhenProcessingImage || isHtmlImage) {
+      // Skip doing work in the effect as it's been handled by suspense or HTML children are used instead.
       return;
     }
 
@@ -125,12 +134,12 @@ export const Heatmap: React.FC<HeatmapProps> = memo(function HeatmapImpl({
     return () => {
       current = false;
     };
-  }, [imageUrl, suspendWhenProcessingImage]);
+  }, [imageUrl, suspendWhenProcessingImage, isHtmlImage]);
 
   const uniforms = useMemo(
     () => ({
       // Own uniforms
-      u_image: processedImage,
+      u_image: isHtmlImage ? (htmlImage ?? transparentPixel) : processedImage,
       u_contour: contour,
       u_angle: angle,
       u_noise: noise,
@@ -162,6 +171,8 @@ export const Heatmap: React.FC<HeatmapProps> = memo(function HeatmapImpl({
       colors,
       colorBack,
       processedImage,
+      htmlImage,
+      isHtmlImage,
       fit,
       offsetX,
       offsetY,
@@ -182,6 +193,8 @@ export const Heatmap: React.FC<HeatmapProps> = memo(function HeatmapImpl({
       fragmentShader={heatmapFragmentShader}
       mipmaps={['u_image']}
       uniforms={uniforms}
-    />
+    >
+      {isHtmlImage ? <HtmlCanvas ref={htmlRef}>{children}</HtmlCanvas> : children}
+    </ShaderMount>
   );
 }, colorPropsAreEqual);

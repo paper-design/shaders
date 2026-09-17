@@ -13,8 +13,65 @@ import { ShaderDetails } from '@/components/shader-details';
 import { paperTextureDef } from '@/shader-defs/paper-texture-def';
 import { ShaderContainer } from '@/components/shader-container';
 import { useUrlParams } from '@/helpers/use-url-params';
+import { isHtmlInCanvasPath, useIsHtmlInCanvasPage } from '@/helpers/use-is-html-in-canvas-page';
+import { withCode } from '@/helpers/jsx-to-code';
+import { HtmlInCanvasShaderPage } from '@/components/html-in-canvas-shader-page';
 
-const { worldWidth, worldHeight, ...defaults } = paperTexturePresets[0].params;
+const { worldWidth, worldHeight, ...presetDefaults } = paperTexturePresets[0].params;
+
+/** The HTML-in-canvas page keeps the paper white and the texture pronounced, so the HTML stays readable through it */
+const htmlInCanvasDefaults = {
+  ...presetDefaults,
+  colorBack: '#ffffff',
+  colorPaper: '#ffffff',
+  colorShadow: '#bfbfbf',
+  distortion: 0.21,
+  angle: 360,
+  roughness: 1,
+  roughnessRows: 1,
+  fiber: 1,
+  fiberSize: 0.72,
+  folds: 1,
+  foldSizeX: 0.52,
+  foldOffsetY: 1,
+  crumpleCount: 2,
+  drops: 0.3,
+};
+
+const htmlStyle = `
+  .demo { display: grid; align-content: center; justify-items: start; gap: 48px; height: 100%; padding: 0 8%; color: #222 }
+  .demo p { margin: 0; font: 300 120px/1.1 Matter, system-ui; font-feature-settings: "ss01"; word-spacing: 0.1em; text-transform: lowercase }
+  .demo button { display: flex; align-items: center; height: 128px; padding: 0 40px; border: 3px solid rgb(0 0 0 / 20%); border-radius: 24px; font: 44px 'Paper Mono', ui-monospace, monospace; color: #222; background: #fff; transition: background-color 150ms cubic-bezier(0.685, 0.89, 0.315, 0.995) }
+  .demo button:hover { background: #f0efe4 }
+  .demo button:active { background: #e9e8e0 }
+  .demo .logos { display: flex; align-items: center; gap: 40px }
+  .demo .logos img { height: 80px; width: auto }
+`;
+
+// The counter runs from the function and prints from the string: the compiler rewrites function bodies
+const handleClick = withCode(
+  (event: { currentTarget: HTMLButtonElement }) => {
+    const clicks = Number(event.currentTarget.dataset.clicks ?? 0) + 1;
+    event.currentTarget.dataset.clicks = String(clicks);
+    event.currentTarget.textContent = `clicked ${clicks} time${clicks === 1 ? '' : 's'}`;
+  },
+  `(event) => {
+  const clicks = Number(event.currentTarget.dataset.clicks ?? 0) + 1;
+  event.currentTarget.dataset.clicks = String(clicks);
+  event.currentTarget.textContent = \`clicked \${clicks} time\${clicks === 1 ? '' : 's'}\`;
+}`
+);
+const html = (
+  <div className="demo">
+    <style>{htmlStyle}</style>
+    <p>Select this text</p>
+    <div className="logos">
+      <img src="/images/logos/paper-logo-only.svg" alt="Paper logo" />
+      <img src="/apple-touch-icon.png" alt="Paper icon" />
+    </div>
+    <button onClick={handleClick}>hover and click me</button>
+  </div>
+);
 
 const imageFiles = [
   '001.webp',
@@ -38,6 +95,8 @@ const imageFiles = [
 ] as const;
 
 const PaperTextureWithControls = () => {
+  const isHtmlInCanvas = useIsHtmlInCanvasPage();
+  const defaults = isHtmlInCanvas ? htmlInCanvasDefaults : presetDefaults;
   const [imageIdx, setImageIdx] = useState(-1);
   const [image, setImage] = useState<HTMLImageElement | string>('/images/image-filters/0018.webp');
 
@@ -103,9 +162,13 @@ const PaperTextureWithControls = () => {
           'Upload image': levaImageButton(setImageWithoutStatus),
           ...(image && { 'Delete image': levaDeleteImageButton(() => setImage('')) }),
         },
-        { order: 0 }
+        { order: 0, render: () => !isHtmlInCanvasPath() }
       ),
-      Presets: folder(presets, { order: -1 }),
+      Presets: folder(presets, { order: -1, render: () => !isHtmlInCanvasPath() }),
+      Preset: folder(
+        { Reset: button(() => setParamsSafe(params, setParams, defaults)) },
+        { order: -1, render: () => isHtmlInCanvasPath() }
+      ),
     };
   }, [image]);
 
@@ -113,8 +176,22 @@ const PaperTextureWithControls = () => {
   // shaders when navigating (if two shaders have a color1 param for example)
   useResetLevaParams(params, setParams, defaults);
   useUrlParams(params, setParams, paperTextureDef);
-  usePresetHighlight(paperTexturePresets, params);
+  usePresetHighlight(isHtmlInCanvas ? [{ name: 'Reset', params: defaults }] : paperTexturePresets, params);
   cleanUpLevaParams(params);
+
+  if (isHtmlInCanvas) {
+    return (
+      // The code sample leaves out params matching the component defaults, which are the default preset's
+      <HtmlInCanvasShaderPage
+        shaderDef={paperTextureDef}
+        currentParams={params}
+        defaultParams={presetDefaults}
+        html={html}
+      >
+        <PaperTexture {...params}>{html}</PaperTexture>
+      </HtmlInCanvasShaderPage>
+    );
+  }
 
   return (
     <>

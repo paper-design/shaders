@@ -1,4 +1,4 @@
-import { memo, useLayoutEffect, useState } from 'react';
+import { memo, useLayoutEffect, useRef, useState } from 'react';
 import { ShaderMount, type ShaderComponentProps } from '../shader-mount.js';
 import {
   liquidMetalFragmentShader,
@@ -13,6 +13,7 @@ import {
 } from '@paper-design/shaders';
 import { transparentPixel } from '../transparent-pixel.js';
 import { suspend } from '../suspend.js';
+import { HtmlCanvas, hasChildren, useProcessedHtmlImage } from '../html-canvas.js';
 
 export interface LiquidMetalProps extends ShaderComponentProps, LiquidMetalParams {
   /**
@@ -107,6 +108,9 @@ export const stripesPreset: LiquidMetalPreset = {
 
 export const liquidMetalPresets: LiquidMetalPreset[] = [defaultPreset, noirPreset, fullScreenPreset, stripesPreset];
 
+/** HTML snapshots are pre-processed the same way as uploaded images */
+const processHtmlImage = (url: string): Promise<Blob> => toProcessedLiquidMetal(url).then((result) => result.pngBlob);
+
 export const LiquidMetal: React.FC<LiquidMetalProps> = memo(function LiquidMetalImpl({
   // Own props
   colorBack = defaultPreset.params.colorBack,
@@ -134,14 +138,19 @@ export const LiquidMetal: React.FC<LiquidMetalProps> = memo(function LiquidMetal
   offsetY = defaultPreset.params.offsetY,
   worldWidth = defaultPreset.params.worldWidth,
   worldHeight = defaultPreset.params.worldHeight,
+  children,
   ...props
 }: LiquidMetalProps) {
+  const htmlRef = useRef<HTMLDivElement>(null);
+  const isHtmlImage = hasChildren(children);
+  const htmlImage = useProcessedHtmlImage(htmlRef, isHtmlImage, processHtmlImage);
+
   const imageUrl = typeof image === 'string' ? image : image.src;
   const [processedStateImage, setProcessedStateImage] = useState<string>(transparentPixel);
 
   let processedImage: string;
 
-  if (suspendWhenProcessingImage && typeof window !== 'undefined' && imageUrl) {
+  if (suspendWhenProcessingImage && !isHtmlImage && typeof window !== 'undefined' && imageUrl) {
     processedImage = suspend(
       (): Promise<string> => toProcessedLiquidMetal(imageUrl).then((result) => URL.createObjectURL(result.pngBlob)),
       [imageUrl, 'liquid-metal']
@@ -151,8 +160,8 @@ export const LiquidMetal: React.FC<LiquidMetalProps> = memo(function LiquidMetal
   }
 
   useLayoutEffect(() => {
-    if (suspendWhenProcessingImage) {
-      // Skip doing work in the effect as it's been handled by suspense.
+    if (suspendWhenProcessingImage || isHtmlImage) {
+      // Skip doing work in the effect as it's been handled by suspense or HTML children are used instead.
       return;
     }
 
@@ -174,14 +183,14 @@ export const LiquidMetal: React.FC<LiquidMetalProps> = memo(function LiquidMetal
     return () => {
       current = false;
     };
-  }, [imageUrl, suspendWhenProcessingImage]);
+  }, [imageUrl, suspendWhenProcessingImage, isHtmlImage]);
 
   const uniforms = {
     // Own uniforms
     u_colorBack: getShaderColorFromString(colorBack),
     u_colorTint: getShaderColorFromString(colorTint),
 
-    u_image: processedImage,
+    u_image: isHtmlImage ? (htmlImage ?? transparentPixel) : processedImage,
     u_contour: contour,
     u_distortion: distortion,
     u_softness: softness,
@@ -189,7 +198,7 @@ export const LiquidMetal: React.FC<LiquidMetalProps> = memo(function LiquidMetal
     u_shiftRed: shiftRed,
     u_shiftBlue: shiftBlue,
     u_angle: angle,
-    u_isImage: Boolean(image),
+    u_isImage: isHtmlImage || Boolean(image),
     u_shape: LiquidMetalShapes[shape],
 
     // Sizing uniforms
@@ -212,6 +221,8 @@ export const LiquidMetal: React.FC<LiquidMetalProps> = memo(function LiquidMetal
       fragmentShader={liquidMetalFragmentShader}
       mipmaps={['u_image']}
       uniforms={uniforms}
-    />
+    >
+      {isHtmlImage ? <HtmlCanvas ref={htmlRef}>{children}</HtmlCanvas> : children}
+    </ShaderMount>
   );
 });

@@ -4,6 +4,9 @@ import { ShaderDef } from '@/shader-defs/shader-def-types';
 import { Leva } from 'leva';
 import { CopyButton } from './copy-button';
 import { useState } from 'react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { useIsHtmlInCanvasPage } from '@/helpers/use-is-html-in-canvas-page';
 
 export function ShaderContainer({
   children,
@@ -13,6 +16,11 @@ export function ShaderContainer({
   currentParams?: Record<string, unknown>;
   shaderDef?: ShaderDef;
 }>) {
+  const pathname = usePathname();
+  const isHtmlInCanvasPage = useIsHtmlInCanvasPage();
+  // Shaders that take an image also have an HTML-in-canvas version of their page
+  const hasHtmlInCanvasPage = !isHtmlInCanvasPage && shaderDef?.params.some((param) => param.name === 'image');
+
   return (
     <div className="md:mb-24">
       {shaderDef && currentParams && (
@@ -46,6 +54,18 @@ export function ShaderContainer({
 
       <div className="relative">
         <ResizableShader>{children}</ResizableShader>
+
+        {(hasHtmlInCanvasPage || isHtmlInCanvasPage) && (
+          // Positioned out of the flow so the content below the shader keeps its place
+          <div className="absolute top-full right-0 mt-20 hidden md:flex">
+            <Link
+              href={isHtmlInCanvasPage ? pathname.replace(/\/html-in-canvas$/, '') : `${pathname}/html-in-canvas`}
+              className="-mx-8 flex h-32 items-center gap-8 rounded-md px-8 outline-0 outline-focus transition-colors hover:bg-backplate-2 focus-visible:outline-2 active:bg-backplate-3 squircle:rounded-lg"
+            >
+              {isHtmlInCanvasPage ? 'back to image demo' : 'open HTML-in-Canvas demo'}
+            </Link>
+          </div>
+        )}
 
         <div
           className="absolute -top-4 -right-332 hidden w-300 overflow-auto rounded-xl bg-(--color-leva-background) pb-4 has-[[data-leva-container]>[style*='display:none']]:hidden lg:block squircle:rounded-2xl"

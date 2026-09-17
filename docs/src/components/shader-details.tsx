@@ -3,7 +3,7 @@
 import type { ReactNode } from 'react';
 import { ShaderDef, ParamOption, ParamDef } from '../shader-defs/shader-def-types';
 import { CopyButton } from './copy-button';
-import { hslToHex } from '@/helpers/color-utils';
+import { hslToHex, toHsla } from '@/helpers/color-utils';
 import { commonParams } from '@/shader-defs/common-param-def';
 
 const formatJsxAttribute = (key: string, value: unknown): string => {
@@ -107,31 +107,50 @@ function PropsTable({ params }: { params: ParamDef[] }) {
   );
 }
 
-export function ShaderDetails({
-  shaderDef,
-  currentParams,
-  notes,
-  codeSampleImageName,
-}: {
+interface ShaderCodeProps {
   shaderDef: ShaderDef;
   currentParams: Record<string, unknown>;
-  notes?: ReactNode;
   codeSampleImageName?: string;
-}) {
-  const componentName = shaderDef.name.replace(/ /g, '');
+  /** Live HTML input: the sample shows it as children and leaves out params that match the defaults */
+  html?: { code: string; defaultParams: Record<string, unknown> };
+}
 
-  const installationCode = 'npm i @paper-design/shaders-react';
+const sectionsClassName =
+  'flex w-full flex-col gap-32 [&_a]:link [&>section]:flex [&>section]:flex-col [&>section]:gap-16';
+
+const installationCode = 'npm i @paper-design/shaders-react';
+
+function isDefaultParam(param: ParamDef | undefined, value: unknown, defaultValue: unknown): boolean {
+  if (defaultValue === undefined) {
+    return false;
+  }
+
+  if (param?.isColor) {
+    const toHex = (color: unknown) => (typeof color === 'string' ? hslToHex(toHsla(color)) : color);
+    const normalize = (colors: unknown) => (Array.isArray(colors) ? colors.map(toHex) : toHex(colors));
+    return JSON.stringify(normalize(value)) === JSON.stringify(normalize(defaultValue));
+  }
+
+  return JSON.stringify(value) === JSON.stringify(defaultValue);
+}
+
+function getShaderCode({ shaderDef, currentParams, codeSampleImageName, html }: ShaderCodeProps): string {
+  const componentName = shaderDef.name.replace(/ /g, '');
   const image = codeSampleImageName
     ? `https://shaders.paper.design/${codeSampleImageName}`
     : 'https://paper.design/flowers.webp';
+  const hasImageParam = shaderDef.params.some((p) => p.name === 'image');
 
-  const code = `import { ${componentName} } from '@paper-design/shaders-react';
-
-<${componentName}
-  width={1280}
-  height={720}${shaderDef.params.find((p) => p.name === 'image') ? `\n  image="${image}"` : ''}
-  ${Object.entries(currentParams)
+  const params = Object.entries(currentParams)
     .filter(([key, value]) => {
+      // Disabled Leva controls report undefined
+      if (value === undefined) {
+        return false;
+      }
+      if (html) {
+        const param = shaderDef.params.find((p) => p.name === key);
+        return !isDefaultParam(param, value, html.defaultParams[key]);
+      }
       if (['offsetX', 'offsetY', 'rotation'].includes(key) && value === 0) {
         return false;
       }
@@ -152,43 +171,77 @@ export function ShaderDetails({
           value.map((v) => hslToHex(v))
         );
       }
-    })
-    .join('\n  ')}
-/>
-`;
+    });
+
+  // HTML samples show what the page actually runs: the shader fills its container instead of a fixed size
+  const attributes = html
+    ? params
+    : ['width={1280}', 'height={720}', ...(hasImageParam ? [`image="${image}"`] : []), ...params];
+  const hasAttributes = attributes.length > 0;
+  const openingTag = hasAttributes ? `<${componentName}\n  ${attributes.join('\n  ')}\n>` : `<${componentName}>`;
+  const element = html
+    ? `${openingTag}\n${html.code
+        .split('\n')
+        .map((line) => `  ${line}`)
+        .join('\n')}\n</${componentName}>`
+    : hasAttributes
+      ? `<${componentName}\n  ${attributes.join('\n  ')}\n/>`
+      : `<${componentName} />`;
+
+  return `import { ${componentName} } from '@paper-design/shaders-react';\n\n${element}\n`;
+}
+
+function InstallationSection() {
+  return (
+    <section>
+      <div className="flex items-center gap-8">
+        <h2 className="text-2xl font-medium lowercase">Installation</h2>
+        <CopyButton
+          className="-mt-14 -mb-16 size-32 rounded-md outline-0 outline-focus transition-colors hover:bg-backplate-1 focus-visible:outline-2 active:bg-backplate-2 squircle:rounded-lg"
+          getText={() => installationCode}
+        />
+      </div>
+      <pre className="no-scrollbar w-full overflow-x-auto rounded-xl bg-backplate-1 p-24 text-code squircle:rounded-2xl">
+        {installationCode}
+      </pre>
+    </section>
+  );
+}
+
+function CodeSection({ code }: { code: string }) {
+  return (
+    <section>
+      <div className="flex items-center gap-8">
+        <h2 className="text-2xl font-medium lowercase">Code</h2>
+        <CopyButton
+          className="-mt-14 -mb-16 size-32 rounded-md outline-0 outline-focus transition-colors hover:bg-backplate-1 focus-visible:outline-2 active:bg-backplate-2 squircle:rounded-lg"
+          getText={() => code}
+        />
+      </div>
+      <div className="flex flex-col gap-8">
+        <pre className="custom-scrollbar overflow-x-auto rounded-xl bg-backplate-1 p-24 text-code squircle:rounded-2xl">
+          {code}
+        </pre>
+      </div>
+    </section>
+  );
+}
+
+export function ShaderDetails({
+  shaderDef,
+  currentParams,
+  notes,
+  codeSampleImageName,
+  html,
+}: ShaderCodeProps & { notes?: ReactNode }) {
   const commonPropNames = Object.keys(commonParams);
   const shaderProps = shaderDef.params.filter((p) => !commonPropNames.includes(p.name));
   const commonProps = shaderDef.params.filter((p) => commonPropNames.includes(p.name));
 
   return (
-    <div className="mt-24 flex w-full flex-col gap-32 md:mt-40 [&_a]:link [&>section]:flex [&>section]:flex-col [&>section]:gap-16">
-      <section>
-        <div className="flex items-center gap-8">
-          <h2 className="text-2xl font-medium lowercase">Installation</h2>
-          <CopyButton
-            className="-mt-14 -mb-16 size-32 rounded-md outline-0 outline-focus transition-colors hover:bg-backplate-1 focus-visible:outline-2 active:bg-backplate-2 squircle:rounded-lg"
-            getText={() => installationCode}
-          />
-        </div>
-        <pre className="no-scrollbar w-full overflow-x-auto rounded-xl bg-backplate-1 p-24 text-code squircle:rounded-2xl">
-          {installationCode}
-        </pre>
-      </section>
-
-      <section>
-        <div className="flex items-center gap-8">
-          <h2 className="text-2xl font-medium lowercase">Code</h2>
-          <CopyButton
-            className="-mt-14 -mb-16 size-32 rounded-md outline-0 outline-focus transition-colors hover:bg-backplate-1 focus-visible:outline-2 active:bg-backplate-2 squircle:rounded-lg"
-            getText={() => code}
-          />
-        </div>
-        <div className="flex flex-col gap-8">
-          <pre className="custom-scrollbar overflow-x-auto rounded-xl bg-backplate-1 p-24 text-code squircle:rounded-2xl">
-            {code}
-          </pre>
-        </div>
-      </section>
+    <div className={`mt-24 md:mt-40 ${sectionsClassName}`}>
+      <InstallationSection />
+      <CodeSection code={getShaderCode({ shaderDef, currentParams, codeSampleImageName, html })} />
 
       <section>
         <div className="flex flex-col gap-16">

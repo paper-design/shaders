@@ -10,11 +10,49 @@ import { toHsla } from '@/helpers/color-utils';
 import { ShaderDetails } from '@/components/shader-details';
 import { ShaderContainer } from '@/components/shader-container';
 import { useUrlParams } from '@/helpers/use-url-params';
+import { isHtmlInCanvasPath, useIsHtmlInCanvasPage } from '@/helpers/use-is-html-in-canvas-page';
+import { withCode } from '@/helpers/jsx-to-code';
+import { HtmlInCanvasShaderPage } from '@/components/html-in-canvas-shader-page';
 import { heatmapDef } from '@/shader-defs/heatmap-def';
 import { useColors } from '@/helpers/use-colors';
 import { levaImageButton } from '@/helpers/leva-image-button';
 
 const { worldWidth, worldHeight, ...defaults } = heatmapPresets[0].params;
+
+const htmlStyle = `
+  .demo { display: grid; align-content: center; justify-items: start; gap: 48px; height: 100%; padding: 0 8%; color: #222 }
+  .demo p { margin: 0; font: 300 120px/1.1 Matter, system-ui; font-feature-settings: "ss01"; word-spacing: 0.1em; text-transform: lowercase }
+  .demo button { display: flex; align-items: center; height: 128px; padding: 0 40px; border: 3px solid rgb(0 0 0 / 20%); border-radius: 24px; font: 44px 'Paper Mono', ui-monospace, monospace; color: #222; background: #fff; transition: background-color 150ms cubic-bezier(0.685, 0.89, 0.315, 0.995) }
+  .demo button:hover { background: #f0efe4 }
+  .demo button:active { background: #e9e8e0 }
+  .demo .logos { display: flex; align-items: center; gap: 40px }
+  .demo .logos img { height: 80px; width: auto }
+`;
+
+// The counter runs from the function and prints from the string: the compiler rewrites function bodies
+const handleClick = withCode(
+  (event: { currentTarget: HTMLButtonElement }) => {
+    const clicks = Number(event.currentTarget.dataset.clicks ?? 0) + 1;
+    event.currentTarget.dataset.clicks = String(clicks);
+    event.currentTarget.textContent = `clicked ${clicks} time${clicks === 1 ? '' : 's'}`;
+  },
+  `(event) => {
+  const clicks = Number(event.currentTarget.dataset.clicks ?? 0) + 1;
+  event.currentTarget.dataset.clicks = String(clicks);
+  event.currentTarget.textContent = \`clicked \${clicks} time\${clicks === 1 ? '' : 's'}\`;
+}`
+);
+const html = (
+  <div className="demo">
+    <style>{htmlStyle}</style>
+    <p>Select this text</p>
+    <div className="logos">
+      <img src="/images/logos/paper-logo-only.svg" alt="Paper logo" />
+      <img src="/apple-touch-icon.png" alt="Paper icon" />
+    </div>
+    <button onClick={handleClick}>hover and click me</button>
+  </div>
+);
 
 const imageFiles = [
   'contra.svg',
@@ -41,6 +79,7 @@ const imageFiles = [
 ] as const;
 
 const HeatmapWithControls = () => {
+  const isHtmlInCanvas = useIsHtmlInCanvasPage();
   const [imageIdx, setImageIdx] = useState(-1);
   const [image, setImage] = useState<HTMLImageElement | string>('/images/logos/diamond.svg');
 
@@ -80,7 +119,7 @@ const HeatmapWithControls = () => {
         {
           'Upload image': levaImageButton((img?: HTMLImageElement) => setImage(img ?? '')),
         },
-        { order: -1 }
+        { order: -1, render: () => !isHtmlInCanvasPath() }
       ),
     };
   }, [colors.length]);
@@ -97,7 +136,17 @@ const HeatmapWithControls = () => {
       ])
     );
     return {
-      Presets: folder(presets, { order: -2 }),
+      Presets: folder(presets, { order: -2, render: () => !isHtmlInCanvasPath() }),
+      Preset: folder(
+        {
+          Reset: button(() => {
+            const { colors, ...presetParams } = defaults;
+            setColors(colors);
+            setParamsSafe(params, setParams, presetParams);
+          }),
+        },
+        { order: -2, render: () => isHtmlInCanvasPath() }
+      ),
     };
   });
 
@@ -105,8 +154,23 @@ const HeatmapWithControls = () => {
   // shaders when navigating (if two shaders have a color1 param for example)
   useResetLevaParams(params, setParams, defaults);
   useUrlParams(params, setParams, heatmapDef, setColors);
-  usePresetHighlight(heatmapPresets, params);
+  usePresetHighlight(isHtmlInCanvas ? [{ name: 'Reset', params: defaults }] : heatmapPresets, params);
   cleanUpLevaParams(params);
+
+  if (isHtmlInCanvas) {
+    return (
+      <HtmlInCanvasShaderPage
+        shaderDef={heatmapDef}
+        currentParams={{ colors, ...params }}
+        defaultParams={defaults}
+        html={html}
+      >
+        <Heatmap {...params} colors={colors}>
+          {html}
+        </Heatmap>
+      </HtmlInCanvasShaderPage>
+    );
+  }
 
   return (
     <>
