@@ -55,164 +55,165 @@ const images = [
 
 const randomImage = () => images[Math.floor(Math.random() * images.length)];
 
-type Row = { before: string; after: string; note: string; todo: string };
+type Row = { before: string; after: string; note: string; migration: string };
 
 const rows: Row[] = [
   {
     before: 'colorFront',
     after: 'colorShadow',
     note: '',
-    todo: 'taken directly',
+    migration: 'taken directly',
   },
   {
     before: 'colorBack',
     after: 'colorBack',
-    note: 'now less visible',
-    todo: 'taken directly',
+    note: 'now hidden behind additional colorPaper layer',
+    migration: 'taken directly',
   },
   {
     before: '—',
     after: 'colorPaper',
     note: 'kinda what colorBack was',
-    todo: 'mix(colorBack, colorFront, 0.2 x (1 - sqrt(contrast)))',
+    migration: 'using mix of colorBack and colorFront: mix(colorBack, colorFront, 0.2 x (1 - sqrt(contrast)))',
   },
   {
     before: 'contrast',
     after: '—',
-    note: 'removed; drove pattern strength, image overlay, and the colorBack / colorFront mix',
-    todo: 'sqrt(contrast) feeds blending, roughness, wrinkles, crumples, drops and colorPaper',
+    note: 'it was used for pattern strength, for image blending, for a way colorBack and colorFront are mixing in',
+    migration: 'taken as sqrt(contrast), feeds blending, roughness, wrinkles, crumples, drops and colorPaper',
   },
   {
     before: 'fade',
     after: '—',
-    note: 'removed, no replacement; muted the patterns via a noisy mask',
-    todo: '(1 - 0.25 x fade) mutes roughness, crumples and drops; wrinkles subtract 0.25 x fade instead',
+    note: 'removed, no replacement; muted the pattern via a noisy mask',
+    migration:
+      'taken as (1 - 0.25 x fade), mutes roughness, wrinkles, crumples and drops (uniformly across the canvas, up to 25%)',
   },
   {
     before: 'image',
     after: 'image',
     note: '',
-    todo: '',
+    migration: '',
   },
   {
     before: '—',
     after: 'blending',
     note: 'new (contrast used to do this)',
-    todo: 'sqrt(contrast)',
+    migration: 'taken as sqrt(contrast)',
   },
   {
     before: '—',
     after: 'distortion',
-    note: 'new (the pic was always distorted)',
-    todo: '0.7',
+    note: 'new (the image was always distorted)',
+    migration: 'set to 0.7',
   },
   {
     before: '—',
     after: 'clip',
     note: 'new',
-    todo: 'false',
+    migration: 'set to false',
   },
   {
     before: '—',
     after: 'angle',
     note: 'new',
-    todo: '300',
+    migration: 'set to 300',
   },
   {
     before: 'seed',
     after: 'seed',
     note: 'same prop, rebuilt',
-    todo: 'taken directly; old seeds cannot be matched visually',
+    migration: 'taken directly, although old seeds cannot be matched visually',
   },
   {
     before: 'roughness',
     after: 'roughness',
     note: 'same prop, rebuilt',
-    todo: '1.5 x roughness x sqrt(contrast) x (1 - 0.25 x fade)',
+    migration: 'taken as 1.5 x roughness x sqrt(contrast) x (1 - 0.25 x fade)',
   },
   {
     before: '—',
     after: 'roughnessSize',
     note: 'new',
-    todo: '0.65',
+    migration: 'taken as 0.65',
   },
   {
     before: '—',
     after: 'roughnessRows',
     note: 'new',
-    todo: '0',
+    migration: '0',
   },
   {
     before: 'fiber',
     after: 'fiber',
     note: 'same prop, rebuilt',
-    todo: '1.5 x fiber (contrast and fade not applied)',
+    migration: 'taken as 1.5 x fiber',
   },
   {
     before: 'fiberSize',
     after: 'fiberSize',
-    note: 'different mapping: 1 / fiberSize before, mix(4, 1, fiberSize) now',
-    todo: 'pow(fiberSize, 0.2) x 1.2 - exceeds the 0..1 range, may not work in the Paper app',
+    note: '',
+    migration: 'taken as pow(fiberSize, 0.2) x 1.2, aiming to get visually close to the update scaling',
   },
   {
     before: '—',
     after: 'folds',
     note: 'name reused: old folds are now crumples, new folds are straight lines we never had',
-    todo: '0',
+    migration: '0',
   },
   {
     before: '—',
     after: 'foldSizeX',
     note: 'new',
-    todo: '0.6',
+    migration: '0.6',
   },
   {
     before: '—',
     after: 'foldSizeY',
     note: 'new',
-    todo: '0.44',
+    migration: '0.44',
   },
   {
     before: '—',
     after: 'foldOffsetX',
     note: 'new',
-    todo: '0',
+    migration: '0',
   },
   {
     before: '—',
     after: 'foldOffsetY',
     note: 'new',
-    todo: '0',
+    migration: '0',
   },
   {
     before: 'crumples',
     after: 'wrinkles',
     note: 'different pattern, close enough to port directly',
-    todo: 'min(1, 2 x crumples x sqrt(contrast) - 0.25 x fade)',
+    migration: 'taken as min(1, 2 x crumples x sqrt(contrast) - 0.25 x fade)',
   },
   {
     before: 'crumpleSize',
     after: 'wrinkleSize',
     note: '',
-    todo: '(10 - 8 / (9 x crumpleSize)) / 9',
+    migration: 'taken as (10 - 8 / (9 x crumpleSize)) / 9',
   },
   {
     before: 'folds',
     after: 'crumples',
-    note: 'renamed; different shape and randomizer, same principle',
-    todo: '2 x folds x sqrt(contrast) x (1 - 0.25 x fade)',
+    note: 'renamed (different shape and different randomizer, same principle)',
+    migration: 'taken as 2 x folds x sqrt(contrast) x (1 - 0.25 x fade)',
   },
   {
     before: 'foldCount',
     after: 'crumpleCount',
     note: 'same range, 15 max',
-    todo: 'max(2, foldCount); 1 was not effective before either',
+    migration: '',
   },
   {
     before: 'drops',
     after: 'drops',
     note: 'same drops, different randomizer and color usage',
-    todo: '1.5 x drops x sqrt(contrast) x (1 - 0.25 x fade)',
+    migration: 'taken as 1.5 x drops x sqrt(contrast) x (1 - 0.25 x fade)',
   },
 ];
 
@@ -393,7 +394,7 @@ export default function PaperTextureMigration() {
               <th className="px-16 py-12 text-left align-top font-medium lowercase">0.0.80</th>
               <th className="px-16 py-12 text-left align-top font-medium lowercase">0.0.81</th>
               <th className="px-16 py-12 text-left align-top font-medium lowercase">note</th>
-              <th className="px-16 py-12 text-left align-top font-medium lowercase">to do</th>
+              <th className="px-16 py-12 text-left align-top font-medium lowercase">migration</th>
             </tr>
           </thead>
           <tbody>
@@ -402,7 +403,7 @@ export default function PaperTextureMigration() {
                 <td className="min-w-140 px-16 py-12 align-top font-medium whitespace-nowrap">{row.before}</td>
                 <td className="min-w-140 px-16 py-12 align-top font-medium whitespace-nowrap">{row.after}</td>
                 <td className="min-w-240 px-16 py-12 align-top text-pretty text-current/70">{row.note}</td>
-                <td className="min-w-200 px-16 py-12 align-top text-pretty text-current/70">{row.todo}</td>
+                <td className="min-w-200 px-16 py-12 align-top text-pretty text-current/70">{row.migration}</td>
               </tr>
             ))}
           </tbody>

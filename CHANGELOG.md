@@ -1,5 +1,34 @@
 # Paper Shaders
 
+## Version 0.0.81
+
+- **Paper Texture**
+  - Reworked from scratch
+  - Switched from 2-color scheme (`colorFront` / `colorBack`) to 3-color scheme (`colorShadow` /  `colorPaper` / `colorBack`)
+  - Renamed patterns: 
+    - old `folds` / `foldCount` are now `crumples` / `crumpleCount`
+    - old `crumples` / `crumpleSize` are now `wrinkles` / `wrinkleSize` (`wrinkleSize` has a new mapping)
+  - New params:
+    - `blending` - amount of image-to-paper blending
+    - `distortion` - how much the image bends with the paper surface
+    - `clip` - cuts the paper sheet to the image frame
+    - `angle` - direction the surface is 'lit' from
+    - `folds` - a new pattern of straight vertical and horizontal fold lines, controlled by `foldSizeX`, `foldSizeY`, `foldOffsetX` and `foldOffsetY`
+    - `roughnessSize` - scale of the roughness grain
+    - `roughnessRows` - lines the grain up into laid-paper stripes
+  - Removed params:
+    - `contrast`: a similar effect can be achieved with the new color scheme + `blending` for image-to-paper blending
+    - `fade`: a similar effect can be achieved with `angle`
+  - `roughness`, `fiber`, `drops` and `seed` are rebuilt to assure better performance
+  - `fiberSize` has a new mapping
+  - Updated presets
+  - For more information: [docs page](https://shaders.paper.design/paper-texture) and [migration guide](https://shaders.paper.design/paper-texture-migration)
+- **Water**
+  - `colorHighlight` alpha is now applied to highlights
+- **General**
+  - Performance improvements for all the shaders with grain layer
+  - Cleanup around JSDocs and documentation
+  
 ## Version 0.0.80
 
 - **Lens Distortion**
