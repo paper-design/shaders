@@ -55,190 +55,164 @@ const images = [
 
 const randomImage = () => images[Math.floor(Math.random() * images.length)];
 
-type Row = { legacy: string; before: string; after: string; note: string; todo: string };
+type Row = { before: string; after: string; note: string; todo: string };
 
 const rows: Row[] = [
   {
-    legacy: '—',
     before: 'colorFront',
     after: 'colorShadow',
     note: '',
-    todo: 'take as colorShadow',
+    todo: 'taken directly',
   },
   {
-    legacy: '—',
     before: 'colorBack',
     after: 'colorBack',
     note: 'now less visible',
-    todo: 'take as colorBack',
+    todo: 'taken directly',
   },
   {
-    legacy: '—',
     before: '—',
     after: 'colorPaper',
     note: 'kinda what colorBack was',
-    todo: 'take as colorBack but mix with a bit of colorShadow (colorFront) using contrast',
+    todo: 'mix(colorBack, colorFront, 0.2 x (1 - sqrt(contrast)))',
   },
   {
-    legacy: '—',
     before: 'contrast',
     after: '—',
-    note: 'removed; it was used for overall pattern strength, for image overlay, and for the way colorBack and colorFront mixed together',
-    todo: 'feeds roughness, wrinkles, crumples and drops, affects blending value + low contrast pulls colorPaper towards colorShadow',
+    note: 'removed; drove pattern strength, image overlay, and the colorBack / colorFront mix',
+    todo: 'sqrt(contrast) feeds blending, roughness, wrinkles, crumples, drops and colorPaper',
   },
   {
-    legacy: 'blur',
     before: 'fade',
     after: '—',
-    note: 'removed, no replacement; it was muting the patterns via noisy mask',
-    todo: '(1 - 0.25 x fade) mutes roughness, wrinkles, crumples and drops (uniformly across the canvas, up to 25%)',
+    note: 'removed, no replacement; muted the patterns via a noisy mask',
+    todo: '(1 - 0.25 x fade) mutes roughness, crumples and drops; wrinkles subtract 0.25 x fade instead',
   },
   {
-    legacy: '—',
     before: 'image',
     after: 'image',
     note: '',
     todo: '',
   },
   {
-    legacy: '—',
     before: '—',
     after: 'blending',
-    note: 'new (we were blending the picture in with contrast prop)',
-    todo: 'using sqrt(contrast) directly',
+    note: 'new (contrast used to do this)',
+    todo: 'sqrt(contrast)',
   },
   {
-    legacy: '—',
     before: '—',
     after: 'distortion',
-    note: 'new (we were always distorting the pic)',
-    todo: 'set to 0.8',
+    note: 'new (the pic was always distorted)',
+    todo: '0.7',
   },
   {
-    legacy: '—',
     before: '—',
     after: 'clip',
     note: 'new',
-    todo: 'set to false',
+    todo: 'false',
   },
   {
-    legacy: '—',
     before: '—',
     after: 'angle',
     note: 'new',
-    todo: 'set to 300 (like in the Default preset)',
+    todo: '300',
   },
   {
-    legacy: '—',
     before: 'seed',
     after: 'seed',
     note: 'same prop, rebuilt',
-    todo: 'take directly. there is nothing we can do as it is not possible to match the old seed visually; we just keep the given value and hope it looks nice',
+    todo: 'taken directly; old seeds cannot be matched visually',
   },
   {
-    legacy: '—',
     before: 'roughness',
     after: 'roughness',
     note: 'same prop, rebuilt',
-    todo: 'x1.5, then muted by old contrast and old fade',
+    todo: '1.5 x roughness x sqrt(contrast) x (1 - 0.25 x fade)',
   },
   {
-    legacy: '—',
     before: '—',
     after: 'roughnessSize',
     note: 'new',
-    todo: 'set to 0.65',
+    todo: '0.65',
   },
   {
-    legacy: '—',
     before: '—',
     after: 'roughnessRows',
     note: 'new',
-    todo: 'set to 0',
+    todo: '0',
   },
   {
-    legacy: '—',
     before: 'fiber',
     after: 'fiber',
     note: 'same prop, rebuilt',
-    todo: 'x1.5',
+    todo: '1.5 x fiber (contrast and fade not applied)',
   },
   {
-    legacy: 'fiberScale',
     before: 'fiberSize',
     after: 'fiberSize',
-    note: 'different mapping: main scaled the noise by 1 / fiberSize, now it is mix(4, 1, fiberSize)',
-    todo: 'remapped as pow(fiberSize, 0.2) x 1.2 - makes it exceed the 0..1 range which probably will not work in the Paper app',
+    note: 'different mapping: 1 / fiberSize before, mix(4, 1, fiberSize) now',
+    todo: 'pow(fiberSize, 0.2) x 1.2 - exceeds the 0..1 range, may not work in the Paper app',
   },
   {
-    legacy: '—',
     before: '—',
     after: 'folds',
-    note: 'same prop name was used differently (old folds are now crumples, new folds are straight lines we never had)',
-    todo: 'set to 0',
+    note: 'name reused: old folds are now crumples, new folds are straight lines we never had',
+    todo: '0',
   },
   {
-    legacy: '—',
     before: '—',
     after: 'foldSizeX',
     note: 'new',
-    todo: 'take a number from Default preset (does not matter)',
+    todo: '0.6',
   },
   {
-    legacy: '—',
     before: '—',
     after: 'foldSizeY',
     note: 'new',
-    todo: 'take a number from Default preset (does not matter)',
+    todo: '0.44',
   },
   {
-    legacy: '—',
     before: '—',
     after: 'foldOffsetX',
     note: 'new',
-    todo: 'take a number from Default preset (does not matter)',
+    todo: '0',
   },
   {
-    legacy: '—',
     before: '—',
     after: 'foldOffsetY',
     note: 'new',
-    todo: 'take a number from Default preset (does not matter)',
+    todo: '0',
   },
   {
-    legacy: '—',
     before: 'crumples',
     after: 'wrinkles',
-    note: 'it is a different pattern but close enough to port directly',
-    todo: 'remapped: x2, then scaled by contrast and fade, capped at 1',
+    note: 'different pattern, close enough to port directly',
+    todo: 'min(1, 2 x crumples x sqrt(contrast) - 0.25 x fade)',
   },
   {
-    legacy: 'crumplesScale',
     before: 'crumpleSize',
     after: 'wrinkleSize',
     note: '',
-    todo: 'remapped: (10 - 8 / (9 x crumpleSize)) / 9',
+    todo: '(10 - 8 / (9 x crumpleSize)) / 9',
   },
   {
-    legacy: '—',
     before: 'folds',
     after: 'crumples',
-    note: 'similar thing but renamed (both shape and randomizer are different but the principle is the same)',
-    todo: 'remapped: x2, then scaled by contrast and fade',
+    note: 'renamed; different shape and randomizer, same principle',
+    todo: '2 x folds x sqrt(contrast) x (1 - 0.25 x fade)',
   },
   {
-    legacy: 'foldsNumber',
     before: 'foldCount',
     after: 'crumpleCount',
-    note: 'same range on both sides, 15 max',
-    todo: 'clamp to 2 minimum but 1 was not effective in the old version as well',
+    note: 'same range, 15 max',
+    todo: 'max(2, foldCount); 1 was not effective before either',
   },
   {
-    legacy: '—',
     before: 'drops',
     after: 'drops',
-    note: 'same drops, just different randomizer and different color usage',
-    todo: 'remapped: x1.5, then scaled by contrast and fade',
+    note: 'same drops, different randomizer and color usage',
+    todo: '1.5 x drops x sqrt(contrast) x (1 - 0.25 x fade)',
   },
 ];
 
@@ -411,22 +385,20 @@ export default function PaperTextureMigration() {
 
   return (
     <div className="mx-auto box-content max-w-1104 px-16 pt-20 pb-64 xs:px-24 sm:px-32 md:px-48">
-      <h1 className="mb-8 text-3xl font-light lowercase">Paper Texture: main → new</h1>
+      <h1 className="mb-8 text-3xl font-light lowercase">Paper Texture: 0.0.80 → 0.0.81</h1>
       <div className="overflow-x-auto">
         <table className="w-full text-base">
           <thead>
             <tr className="bg-backplate-2">
-              <th className="px-16 py-12 text-left align-top font-medium lowercase">before Sep 2025</th>
-              <th className="px-16 py-12 text-left align-top font-medium lowercase">main</th>
-              <th className="px-16 py-12 text-left align-top font-medium lowercase">new</th>
+              <th className="px-16 py-12 text-left align-top font-medium lowercase">0.0.80</th>
+              <th className="px-16 py-12 text-left align-top font-medium lowercase">0.0.81</th>
               <th className="px-16 py-12 text-left align-top font-medium lowercase">note</th>
               <th className="px-16 py-12 text-left align-top font-medium lowercase">to do</th>
             </tr>
           </thead>
           <tbody>
             {rows.map((row) => (
-              <tr key={row.legacy + row.before + row.after} className="border-table-border not-last:border-b">
-                <td className="min-w-120 px-16 py-12 align-top font-medium whitespace-nowrap">{row.legacy}</td>
+              <tr key={row.before + row.after} className="border-table-border not-last:border-b">
                 <td className="min-w-140 px-16 py-12 align-top font-medium whitespace-nowrap">{row.before}</td>
                 <td className="min-w-140 px-16 py-12 align-top font-medium whitespace-nowrap">{row.after}</td>
                 <td className="min-w-240 px-16 py-12 align-top text-pretty text-current/70">{row.note}</td>
@@ -482,7 +454,7 @@ export default function PaperTextureMigration() {
           const newNames = propNames(row.after).filter((name) => name in newValues);
 
           return (
-            <Fragment key={row.legacy + row.before + row.after}>
+            <Fragment key={row.before + row.after}>
               <div className="flex min-h-40 flex-col justify-center gap-4 border-b border-table-border py-8 font-mono text-sm">
                 {oldNames.length === 0 && <span className="text-current/40">—</span>}
                 {oldNames.map((name) => (

@@ -140,10 +140,10 @@ float getRoughness(vec2 p, vec2 lightDir, vec2 seedShift, float basePixel) {
     float fy = fract(qy);
     vec2 shift = .5 + absIdx * .3 + seedShift;
     float uvY = floor(qy) / 50. + shift.y;
-    vec2 s0a = texture(u_noiseTexture, fract(vec2(floor(qx.x) / 50. + shift.x, uvY))).rg;
-    vec2 s1a = texture(u_noiseTexture, fract(vec2( ceil(qx.x) / 50. + shift.x, uvY))).rg;
-    vec2 s0b = texture(u_noiseTexture, fract(vec2(floor(qx.y) / 50. + shift.x, uvY))).rg;
-    vec2 s1b = texture(u_noiseTexture, fract(vec2( ceil(qx.y) / 50. + shift.x, uvY))).rg;
+    vec2 s0a = textureLod(u_noiseTexture, fract(vec2(floor(qx.x) / 50. + shift.x, uvY)), 0.).rg;
+    vec2 s1a = textureLod(u_noiseTexture, fract(vec2( ceil(qx.x) / 50. + shift.x, uvY)), 0.).rg;
+    vec2 s0b = textureLod(u_noiseTexture, fract(vec2(floor(qx.y) / 50. + shift.x, uvY)), 0.).rg;
+    vec2 s1b = textureLod(u_noiseTexture, fract(vec2( ceil(qx.y) / 50. + shift.x, uvY)), 0.).rg;
     vec2 ny0 = mix(vec2(s0a.r, s0b.r), vec2(s0a.g, s0b.g), fy);
     vec2 ny1 = mix(vec2(s1a.r, s1b.r), vec2(s1a.g, s1b.g), fy);
     vec2 n = mix(ny0, ny1, fx);
@@ -189,10 +189,10 @@ float getFiber(vec2 p, vec2 seedShift, float basePixel) {
     vec2 fq = fract(q);
     float shift = absIdx * .3;
     vec4 uv = fract(vec4(iq, iq + 1.) / 50. + .5 + shift + seedShift.xyxy);
-    float aF = texture(u_noiseTexture, uv.xy).b;
-    float bF = texture(u_noiseTexture, uv.zy).b;
-    float cF = texture(u_noiseTexture, uv.xw).b;
-    float dF = texture(u_noiseTexture, uv.zw).b;
+    float aF = textureLod(u_noiseTexture, uv.xy, 0.).b;
+    float bF = textureLod(u_noiseTexture, uv.zy, 0.).b;
+    float cF = textureLod(u_noiseTexture, uv.xw, 0.).b;
+    float dF = textureLod(u_noiseTexture, uv.zw, 0.).b;
     vec2 u = fq * fq * (3. - 2. * fq);
     vec2 du = 8. * fq * (1. - fq);
     float dx = du.x * mix(bF - aF, dF - cF, u.y);
@@ -211,7 +211,7 @@ vec2 smoothNoise(vec2 p) {
   vec2 i = floor(t);
   vec2 f = fract(t);
   f = f * f * (3. - 2. * f);
-  return texture(u_noiseTexture, fract((i + f + .5) / vec2(50.))).rg;
+  return textureLod(u_noiseTexture, fract((i + f + .5) / vec2(50.)), 0.).rg;
 }
 
 float getDrops(vec2 uv, vec2 seedShift) {
@@ -221,8 +221,7 @@ float getDrops(vec2 uv, vec2 seedShift) {
   for (int y = -1; y < 2; y += 1) {
     for (int x = -1; x < 2; x += 1) {
       vec2 neighbor = vec2(float(y), float(x));
-      vec2 offset = hash22(iDropsUV + neighbor);
-      offset = .5 + .5 * sin(10. * u_seed + TWO_PI * offset);
+      vec2 offset = hash22(iDropsUV + neighbor + 50. * seedShift);
       vec2 pos = neighbor + offset - fDropsUV;
       dropsMinDist *= min(1., dot(pos, pos));
     }
@@ -301,7 +300,7 @@ vec2 getCrumpleDetail(vec2 uv, float freq, float shift, float basePixel, out flo
 
 vec4 getCrumples(vec2 uv) {
   float crumpleN = max(2., floor(u_crumpleCount + .5));
-  float near = 9., nearB = 9.;
+  float near = 60000., nearB = 60000.;
   float idx = 0., rad = 0.;
   vec2 nearP = vec2(0.), nearPb = vec2(0.);
   vec4 seeds[${paperTextureMeta.maxCrumpleCount}];
