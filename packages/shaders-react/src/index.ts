@@ -123,6 +123,10 @@ export { GemSmoke, gemSmokePresets } from './shaders/gem-smoke.js';
 export type { GemSmokeProps } from './shaders/gem-smoke.js';
 export type { GemSmokeUniforms, GemSmokeParams } from '@paper-design/shaders';
 
+export { HalftoneLines, halftoneLinesPresets } from './shaders/halftone-lines.js';
+export type { HalftoneLinesProps } from './shaders/halftone-lines.js';
+export type { HalftoneLinesUniforms, HalftoneLinesParams } from '@paper-design/shaders';
+
 export { isPaperShaderElement, getShaderColorFromString } from '@paper-design/shaders';
 export type { PaperShaderElement, ShaderFit, ShaderSizingParams, ShaderSizingUniforms } from '@paper-design/shaders';
 

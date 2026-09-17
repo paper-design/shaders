@@ -27,6 +27,7 @@ import { waterDef } from './water-def';
 import { wavesDef } from './waves-def';
 import { halftoneDotsDef } from './halftone-dots-def';
 import { halftoneCmykDef } from './halftone-cmyk-def';
+import { halftoneLinesDef } from './halftone-lines-def';
 import { heatmapDef } from './heatmap-def';
 import { gemSmokeDef } from './gem-smoke-def';
 import { lensDistortionDef } from './lens-distortion-def';
@@ -59,6 +60,7 @@ export const shaderDefs: ShaderDef[] = [
   waterDef,
   halftoneDotsDef,
   halftoneCmykDef,
+  halftoneLinesDef,
   heatmapDef,
   gemSmokeDef,
   lensDistortionDef,
