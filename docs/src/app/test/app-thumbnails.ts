@@ -147,9 +147,6 @@ export const appThumbnails = flatHomeThumbnails.map((item) => {
         ...item.shaderConfig,
         scale: 1.05,
         image: '/images/image-filters/0018.webp',
-        blending: 1,
-        colorPaper: '#ffffff',
-        colorShadow: '#cccccc',
       },
     };
   }
