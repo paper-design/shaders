@@ -1,5 +1,6 @@
 {
   "lockfileVersion": 1,
+  "configVersion": 0,
   "workspaces": {
     "": {
       "name": "paper-shaders",
@@ -29,6 +30,7 @@
         "next": "15.3.6",
         "react": "19.2.2",
         "react-dom": "19.2.2",
+        "shaders-old": "npm:@paper-design/shaders@0.0.79",
       },
       "devDependencies": {
         "@eslint/eslintrc": "3.2.0",
@@ -47,13 +49,13 @@
     },
     "packages/shaders": {
       "name": "@paper-design/shaders",
-      "version": "0.0.68",
+      "version": "0.0.80",
     },
     "packages/shaders-react": {
       "name": "@paper-design/shaders-react",
-      "version": "0.0.68",
+      "version": "0.0.80",
       "dependencies": {
-        "@paper-design/shaders": "workspace:*",
+        "@paper-design/shaders": "0.0.80",
       },
       "devDependencies": {
         "@types/react": "19.1.0",
@@ -1146,6 +1148,8 @@
     "set-value": ["set-value@2.0.1", "", { "dependencies": { "extend-shallow": "^2.0.1", "is-extendable": "^0.1.1", "is-plain-object": "^2.0.3", "split-string": "^3.0.1" } }, "sha512-JxHc1weCN68wRY0fhCoXpyK55m/XPHafOmK4UWD7m2CI14GMcFypt4w/0+NV5f/ZMby2F6S2wwA7fgynh9gWSw=="],
 
     "shadcn": ["shadcn@2.4.0-canary.9", "", { "dependencies": { "@antfu/ni": "^23.2.0", "@babel/core": "^7.22.1", "@babel/parser": "^7.22.6", "@babel/plugin-transform-typescript": "^7.22.5", "commander": "^10.0.0", "cosmiconfig": "^8.1.3", "deepmerge": "^4.3.1", "diff": "^5.1.0", "execa": "^7.0.0", "fast-glob": "^3.3.2", "fs-extra": "^11.1.0", "https-proxy-agent": "^6.2.0", "kleur": "^4.1.5", "node-fetch": "^3.3.0", "ora": "^6.1.2", "postcss": "^8.4.24", "prompts": "^2.4.2", "recast": "^0.23.2", "stringify-object": "^5.0.0", "ts-morph": "^18.0.0", "tsconfig-paths": "^4.2.0", "zod": "^3.20.2" }, "bin": { "shadcn": "dist/index.js" } }, "sha512-1uOaCi/a2+MlPbXZSX8HrTEg5nMl1wQKGpkdz+6GzizRxvpZqmVpwuEb1oefOfsqkm/fZy68kHGXR4yr64VTwQ=="],
+
+    "shaders-old": ["@paper-design/shaders@0.0.79", "", {}, "sha512-wUom4Dec4DBSXlOkxup8YIIHFYLZI/ZL4wmmD/plkkoetr+xYbZJ2SI6OmaRZelB1UnUj/cZBLAg79Q4CCjf8g=="],
 
     "sharp": ["sharp@0.34.5", "", { "dependencies": { "@img/colour": "^1.0.0", "detect-libc": "^2.1.2", "semver": "^7.7.3" }, "optionalDependencies": { "@img/sharp-darwin-arm64": "0.34.5", "@img/sharp-darwin-x64": "0.34.5", "@img/sharp-libvips-darwin-arm64": "1.2.4", "@img/sharp-libvips-darwin-x64": "1.2.4", "@img/sharp-libvips-linux-arm": "1.2.4", "@img/sharp-libvips-linux-arm64": "1.2.4", "@img/sharp-libvips-linux-ppc64": "1.2.4", "@img/sharp-libvips-linux-riscv64": "1.2.4", "@img/sharp-libvips-linux-s390x": "1.2.4", "@img/sharp-libvips-linux-x64": "1.2.4", "@img/sharp-libvips-linuxmusl-arm64": "1.2.4", "@img/sharp-libvips-linuxmusl-x64": "1.2.4", "@img/sharp-linux-arm": "0.34.5", "@img/sharp-linux-arm64": "0.34.5", "@img/sharp-linux-ppc64": "0.34.5", "@img/sharp-linux-riscv64": "0.34.5", "@img/sharp-linux-s390x": "0.34.5", "@img/sharp-linux-x64": "0.34.5", "@img/sharp-linuxmusl-arm64": "0.34.5", "@img/sharp-linuxmusl-x64": "0.34.5", "@img/sharp-wasm32": "0.34.5", "@img/sharp-win32-arm64": "0.34.5", "@img/sharp-win32-ia32": "0.34.5", "@img/sharp-win32-x64": "0.34.5" } }, "sha512-Ou9I5Ft9WNcCbXrU9cMgPBcCK8LiwLqcbywW3t4oDV37n1pzpuNLsYiAV8eODnjbtQlSDwZ2cUEeQz4E54Hltg=="],
 

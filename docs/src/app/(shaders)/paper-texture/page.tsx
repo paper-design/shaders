@@ -5,7 +5,7 @@ import { useControls, button, folder } from 'leva';
 import { setParamsSafe, useResetLevaParams } from '@/helpers/use-reset-leva-params';
 import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
-import { ShaderFit } from '@paper-design/shaders';
+import { ShaderFit, paperTextureMeta } from '@paper-design/shaders';
 import { levaImageButton, levaDeleteImageButton } from '@/helpers/leva-image-button';
 import { useState, useEffect, useCallback } from 'react';
 import { toHsla } from '@/helpers/color-utils';
@@ -68,20 +68,36 @@ const PaperTextureWithControls = () => {
     );
     return {
       colorBack: { value: toHsla(defaults.colorBack), order: 100 },
-      colorFront: { value: toHsla(defaults.colorFront), order: 101 },
-      contrast: { value: defaults.contrast, min: 0, max: 1, order: 200 },
-      roughness: { value: defaults.roughness, min: 0, max: 1, order: 201 },
-      fiber: { value: defaults.fiber, min: 0, max: 1, order: 202 },
-      fiberSize: { value: defaults.fiberSize, min: 0.01, max: 1, order: 203 },
-      crumples: { value: defaults.crumples, min: 0, max: 1, order: 204 },
-      crumpleSize: { value: defaults.crumpleSize, min: 0.01, max: 1, order: 205 },
-      folds: { value: defaults.folds, min: 0, max: 1, order: 206 },
-      foldCount: { value: defaults.foldCount, min: 1, max: 15, step: 1, order: 207 },
-      drops: { value: defaults.drops, min: 0, max: 1, order: 209 },
-      fade: { value: defaults.fade, min: 0, max: 1, order: 208 },
-      seed: { value: defaults.seed, min: 0, step: 1, max: 1000, order: 250 },
-      scale: { value: defaults.scale, min: 0.1, max: 4, order: 300 },
-      fit: { value: defaults.fit, options: ['contain', 'cover'] as ShaderFit[], order: 301 },
+      colorPaper: { value: toHsla(defaults.colorPaper), order: 101 },
+      colorShadow: { value: toHsla(defaults.colorShadow), order: 102 },
+      blending: { value: defaults.blending, min: 0, max: 1, order: 110 },
+      distortion: { value: defaults.distortion, min: -1, max: 1, order: 111 },
+      clip: { value: defaults.clip, order: 112 },
+      angle: { value: defaults.angle, min: 0, max: 360, order: 120 },
+      seed: { value: defaults.seed, min: 0, step: 1, max: 1000, order: 121 },
+      roughness: { value: defaults.roughness, min: 0, max: 1, order: 200 },
+      roughnessSize: { value: defaults.roughnessSize, min: 0, max: 1, order: 201 },
+      roughnessRows: { value: defaults.roughnessRows, min: 0, max: 1, order: 202 },
+      fiber: { value: defaults.fiber, min: 0, max: 1, order: 210 },
+      fiberSize: { value: defaults.fiberSize, min: 0, max: 1, order: 211 },
+      folds: { value: defaults.folds, min: 0, max: 1, order: 220 },
+      foldSizeX: { value: defaults.foldSizeX, min: 0, max: 1, order: 221 },
+      foldSizeY: { value: defaults.foldSizeY, min: 0, max: 1, order: 222 },
+      foldOffsetX: { value: defaults.foldOffsetX, min: 0, max: 1, order: 223 },
+      foldOffsetY: { value: defaults.foldOffsetY, min: 0, max: 1, order: 224 },
+      wrinkles: { value: defaults.wrinkles, min: 0, max: 1, order: 230 },
+      wrinkleSize: { value: defaults.wrinkleSize, min: 0, max: 1, order: 231 },
+      crumples: { value: defaults.crumples, min: 0, max: 1, order: 240 },
+      crumpleCount: {
+        value: defaults.crumpleCount,
+        min: 2,
+        max: paperTextureMeta.maxCrumpleCount,
+        step: 1,
+        order: 241,
+      },
+      drops: { value: defaults.drops, min: 0, max: 1, order: 250 },
+      scale: { value: defaults.scale, min: 0.5, max: 10, order: 400 },
+      fit: { value: defaults.fit, options: ['contain', 'cover'] as ShaderFit[], order: 401 },
       Image: folder(
         {
           'Upload image': levaImageButton(setImageWithoutStatus),

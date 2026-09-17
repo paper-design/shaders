@@ -7,6 +7,7 @@ import {
   HalftoneDots,
   Heatmap,
   LiquidMetal,
+  PaperTexture,
   PulsingBorder,
   SmokeRing,
   Spiral,
@@ -134,6 +135,18 @@ export const appThumbnails = flatHomeThumbnails.map((item) => {
         size: 0.15,
         grainMixer: 0,
         grainOverlay: 0,
+      },
+    };
+  }
+
+
+  if (item.ShaderComponent === PaperTexture) {
+    return {
+      ...item,
+      shaderConfig: {
+        ...item.shaderConfig,
+        scale: 1.05,
+        image: '/images/image-filters/0018.webp',
       },
     };
   }

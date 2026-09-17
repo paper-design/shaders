@@ -121,7 +121,11 @@ export const homeThumbnails = [
         url: '/paper-texture',
         ShaderComponent: PaperTexture,
         image: paperTextureImg,
-        shaderConfig: { ...paperTexturePresets[0].params, scale: 1.05 },
+        shaderConfig: {
+          ...paperTexturePresets[0].params,
+          scale: 1.05,
+          image: '/images/image-filters/0018.webp',
+        },
       },
       {
         name: 'fluted glass',
@@ -178,7 +182,6 @@ export const homeThumbnails = [
         url: '/lens-distortion',
         ShaderComponent: LensDistortion,
         image: lensDistortionImg,
-        alwaysLivePreview: false,
         shaderConfig: {
           ...lensDistortionPresets[0].params,
           image: '/images/image-filters/0018.webp',
