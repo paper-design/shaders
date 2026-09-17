@@ -55,14 +55,14 @@ export function ShaderContainer({
       <div className="relative">
         <ResizableShader>{children}</ResizableShader>
 
-        {hasHtmlInCanvasPage && (
+        {(hasHtmlInCanvasPage || isHtmlInCanvasPage) && (
           // Positioned out of the flow so the content below the shader keeps its place
           <div className="absolute top-full right-0 mt-20 hidden md:flex">
             <Link
-              href={`${pathname}/html-in-canvas`}
+              href={isHtmlInCanvasPage ? pathname.replace(/\/html-in-canvas$/, '') : `${pathname}/html-in-canvas`}
               className="-mx-8 flex h-32 items-center gap-8 rounded-md px-8 outline-0 outline-focus transition-colors hover:bg-backplate-2 focus-visible:outline-2 active:bg-backplate-3 squircle:rounded-lg"
             >
-              open HTML-in-Canvas demo
+              {isHtmlInCanvasPage ? 'back to image demo' : 'open HTML-in-Canvas demo'}
             </Link>
           </div>
         )}
