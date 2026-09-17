@@ -1,0 +1,13 @@
+{
+  "shaderLink": "- [{{name}}](references/shaders/{{slug}}.md)",
+  "note": "- {{note}}",
+  "default": "{{name}}={{value}}",
+  "inlineCode": "`{{value}}`",
+  "tableHeader": [
+    "| Prop | Type | Required | React default | Constraints | Effect |",
+    "| --- | --- | --- | --- | --- | --- |"
+  ],
+  "tableRow": "| `{{name}}` | `{{type}}` | {{required}} | {{defaultValue}} | {{constraints}} | {{description}} |",
+  "usageProperty": "- `{{name}}{{optional}}: {{type}}`",
+  "usageMotionProperty": "- `{{name}}{{optional}}: {{type}}`: {{description}}"
+}

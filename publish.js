@@ -3,12 +3,15 @@ import { spawn } from 'child_process';
 import { readFileSync, writeFileSync } from 'fs';
 import { $ } from 'bun';
 
+await $`bun run generate-skills`;
+
 // This publish process automatically replaces workspace:* with the actual version number of other packages currently in the repo
 
 // The packages to publish – this will run in order and await each package before moving on
 const packages = ['shaders', 'shaders-react'];
 
 const isDryRun = process.argv.includes('--dry-run');
+const publishedPackages = [];
 // Extract the tag value from the command line arguments
 
 const isCanaryRelease = process.argv.includes('--canary');
@@ -92,6 +95,7 @@ async function publish(pkg) {
         console.log(`Skipping ${pkg}: Publication failed or package is already up to date`);
       } else {
         console.log(`Published ${pkg}`);
+        publishedPackages.push(pkg);
       }
 
       // Restore the original package.json to put back workspace:* dependencies
@@ -105,10 +109,30 @@ async function publish(pkg) {
   });
 }
 
+async function commitGeneratedSkills() {
+  const changes = await $`git status --porcelain -- skills`.text();
+  if (!changes.trim()) {
+    console.log('Generated skills are already up to date in Git');
+    return;
+  }
+
+  const publishedVersions = [
+    ...new Set(publishedPackages.map((pkg) => packageVersionMap[`@paper-design/${pkg}`])),
+  ].join(', ');
+
+  await $`git add skills`;
+  await $`git commit -m ${`Generate skills for ${publishedVersions}`}`;
+  await $`git push`;
+  console.log('Committed and pushed generated skills');
+}
+
 async function publishAll() {
   try {
     for (const pkg of packages) {
       await publish(pkg);
+    }
+    if (!isDryRun && publishedPackages.length > 0) {
+      await commitGeneratedSkills();
     }
     console.log('All packages processed!');
   } catch (error) {

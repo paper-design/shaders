@@ -1,0 +1,39 @@
+name: Generated Skills
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'docs/src/shader-defs/**'
+      - 'packages/shaders/**'
+      - 'packages/shaders-react/**'
+      - 'packages/skill-generator/**'
+      - 'skills/**'
+      - '.github/workflows/generated-skills.yml'
+      - '.bun-version'
+      - 'bun.lock'
+      - 'package.json'
+      - 'publish.js'
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Use Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version-file: .bun-version
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Type-check generator
+        run: bun run --cwd packages/skill-generator type-check
+
+      - name: Check generated skills
+        run: bun run check-skills
