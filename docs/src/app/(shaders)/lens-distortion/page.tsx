@@ -16,13 +16,32 @@ import { isHtmlInCanvasPath, useIsHtmlInCanvasPage } from '@/helpers/use-is-html
 import { withCode } from '@/helpers/jsx-to-code';
 import { HtmlInCanvasShaderPage } from '@/components/html-in-canvas-shader-page';
 
-const { worldWidth, worldHeight, ...defaults } = lensDistortionPresets[0].params;
+const { worldWidth, worldHeight, ...imageDefaults } = lensDistortionPresets[0].params;
+
+/** The HTML-in-canvas page spreads the dispersion over noisy, bulged glass, which keeps the HTML readable at the center */
+const htmlDefaults = {
+  ...imageDefaults,
+  spread: 0.36,
+  angle: 28,
+  perspective: 1,
+  count: 50,
+  dispersionColor: 0.89,
+  focusCenter: 1,
+  focusEdges: 0,
+  swirl: 0.15,
+  noise: 0.69,
+  noiseFrequency: 0,
+  lensBulge: -0.4,
+};
 
 const htmlStyle = `
-  .demo { display: grid; align-content: center; justify-items: start; gap: 40px; height: 100%; padding: 0 8% }
-  .demo p { margin: 0; font: 700 120px/1 system-ui; background: linear-gradient(90deg, #4052d6, #9b5de5); background-clip: text; color: transparent }
-  .demo button { padding: 32px 64px; border: 0; border-radius: 99px; font: 48px system-ui; color: #fff; background: linear-gradient(135deg, #4052d6, #9b5de5) }
-  .demo button:hover { filter: brightness(1.15) }
+  .demo { display: grid; align-content: center; justify-items: start; gap: 48px; height: 100%; padding: 0 8%; color: #222 }
+  .demo p { margin: 0; font: 300 120px/1.1 Matter, system-ui; font-feature-settings: "ss01"; word-spacing: 0.1em; text-transform: lowercase }
+  .demo button { display: flex; align-items: center; height: 128px; padding: 0 40px; border: 3px solid rgb(0 0 0 / 20%); border-radius: 24px; font: 44px 'Paper Mono', ui-monospace, monospace; color: #222; background: #fff; transition: background-color 150ms cubic-bezier(0.685, 0.89, 0.315, 0.995) }
+  .demo button:hover { background: #f0efe4 }
+  .demo button:active { background: #e9e8e0 }
+  .demo .logos { display: flex; align-items: center; gap: 40px }
+  .demo .logos img { height: 80px; width: auto }
 `;
 
 // The counter runs from the function and prints from the string: the compiler rewrites function bodies
@@ -30,19 +49,23 @@ const handleClick = withCode(
   (event: { currentTarget: HTMLButtonElement }) => {
     const clicks = Number(event.currentTarget.dataset.clicks ?? 0) + 1;
     event.currentTarget.dataset.clicks = String(clicks);
-    event.currentTarget.textContent = `Clicked ${clicks} time${clicks === 1 ? '' : 's'}`;
+    event.currentTarget.textContent = `clicked ${clicks} time${clicks === 1 ? '' : 's'}`;
   },
   `(event) => {
   const clicks = Number(event.currentTarget.dataset.clicks ?? 0) + 1;
   event.currentTarget.dataset.clicks = String(clicks);
-  event.currentTarget.textContent = \`Clicked \${clicks} time\${clicks === 1 ? '' : 's'}\`;
+  event.currentTarget.textContent = \`clicked \${clicks} time\${clicks === 1 ? '' : 's'}\`;
 }`
 );
 const html = (
   <div className="demo">
     <style>{htmlStyle}</style>
     <p>Select this text</p>
-    <button onClick={handleClick}>Hover and click me</button>
+    <div className="logos">
+      <img src="/images/logos/paper-logo-only.svg" alt="Paper logo" />
+      <img src="/apple-touch-icon.png" alt="Paper icon" />
+    </div>
+    <button onClick={handleClick}>hover and click me</button>
   </div>
 );
 
@@ -69,6 +92,7 @@ const imageFiles = [
 
 const LensDistortionWithControls = () => {
   const isHtmlInCanvas = useIsHtmlInCanvasPage();
+  const defaults = isHtmlInCanvas ? htmlDefaults : imageDefaults;
   const [imageIdx, setImageIdx] = useState(-1);
   const [image, setImage] = useState<HTMLImageElement | string>('/images/image-filters/0018.webp');
 
@@ -143,7 +167,12 @@ const LensDistortionWithControls = () => {
 
   if (isHtmlInCanvas) {
     return (
-      <HtmlInCanvasShaderPage shaderDef={lensDistortionDef} currentParams={params} defaultParams={defaults} html={html}>
+      <HtmlInCanvasShaderPage
+        shaderDef={lensDistortionDef}
+        currentParams={params}
+        defaultParams={imageDefaults}
+        html={html}
+      >
         <LensDistortion {...params}>{html}</LensDistortion>
       </HtmlInCanvasShaderPage>
     );

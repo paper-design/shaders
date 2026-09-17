@@ -17,13 +17,32 @@ import { isHtmlInCanvasPath, useIsHtmlInCanvasPage } from '@/helpers/use-is-html
 import { withCode } from '@/helpers/jsx-to-code';
 import { HtmlInCanvasShaderPage } from '@/components/html-in-canvas-shader-page';
 
-const { worldWidth, worldHeight, ...defaults } = halftoneCmykPresets[0].params;
+const { worldWidth, worldHeight, ...imageDefaults } = halftoneCmykPresets[0].params;
+
+/** The HTML-in-canvas page uses a coarse, high-contrast screen so the HTML reads through the dot pattern */
+const htmlDefaults = {
+  ...imageDefaults,
+  size: 0.59,
+  gridNoise: 0.5,
+  softness: 0.22,
+  contrast: 2,
+  gainC: 0.61,
+  gainM: 0.09,
+  gainY: 1,
+  floodC: 0.13,
+  floodM: 0.09,
+  floodK: 0.24,
+  grainSize: 0,
+};
 
 const htmlStyle = `
-  .demo { display: grid; align-content: center; justify-items: start; gap: 40px; height: 100%; padding: 0 8% }
-  .demo p { margin: 0; font: 700 120px/1 system-ui; background: linear-gradient(90deg, #4052d6, #9b5de5); background-clip: text; color: transparent }
-  .demo button { padding: 32px 64px; border: 0; border-radius: 99px; font: 48px system-ui; color: #fff; background: linear-gradient(135deg, #4052d6, #9b5de5) }
-  .demo button:hover { filter: brightness(1.15) }
+  .demo { display: grid; align-content: center; justify-items: start; gap: 48px; height: 100%; padding: 0 8%; color: #222 }
+  .demo p { margin: 0; font: 300 120px/1.1 Matter, system-ui; font-feature-settings: "ss01"; word-spacing: 0.1em; text-transform: lowercase }
+  .demo button { display: flex; align-items: center; height: 128px; padding: 0 40px; border: 3px solid rgb(0 0 0 / 20%); border-radius: 24px; font: 44px 'Paper Mono', ui-monospace, monospace; color: #222; background: #fff; transition: background-color 150ms cubic-bezier(0.685, 0.89, 0.315, 0.995) }
+  .demo button:hover { background: #f0efe4 }
+  .demo button:active { background: #e9e8e0 }
+  .demo .logos { display: flex; align-items: center; gap: 40px }
+  .demo .logos img { height: 80px; width: auto }
 `;
 
 // The counter runs from the function and prints from the string: the compiler rewrites function bodies
@@ -31,19 +50,23 @@ const handleClick = withCode(
   (event: { currentTarget: HTMLButtonElement }) => {
     const clicks = Number(event.currentTarget.dataset.clicks ?? 0) + 1;
     event.currentTarget.dataset.clicks = String(clicks);
-    event.currentTarget.textContent = `Clicked ${clicks} time${clicks === 1 ? '' : 's'}`;
+    event.currentTarget.textContent = `clicked ${clicks} time${clicks === 1 ? '' : 's'}`;
   },
   `(event) => {
   const clicks = Number(event.currentTarget.dataset.clicks ?? 0) + 1;
   event.currentTarget.dataset.clicks = String(clicks);
-  event.currentTarget.textContent = \`Clicked \${clicks} time\${clicks === 1 ? '' : 's'}\`;
+  event.currentTarget.textContent = \`clicked \${clicks} time\${clicks === 1 ? '' : 's'}\`;
 }`
 );
 const html = (
   <div className="demo">
     <style>{htmlStyle}</style>
     <p>Select this text</p>
-    <button onClick={handleClick}>Hover and click me</button>
+    <div className="logos">
+      <img src="/images/logos/paper-logo-only.svg" alt="Paper logo" />
+      <img src="/apple-touch-icon.png" alt="Paper icon" />
+    </div>
+    <button onClick={handleClick}>hover and click me</button>
   </div>
 );
 
@@ -70,6 +93,7 @@ const imageFiles = [
 
 const HalftoneCmykWithControls = () => {
   const isHtmlInCanvas = useIsHtmlInCanvasPage();
+  const defaults = isHtmlInCanvas ? htmlDefaults : imageDefaults;
   const [imageIdx, setImageIdx] = useState(-1);
   const [image, setImage] = useState<HTMLImageElement | string>('/images/image-filters/0018.webp');
 
@@ -149,7 +173,12 @@ const HalftoneCmykWithControls = () => {
 
   if (isHtmlInCanvas) {
     return (
-      <HtmlInCanvasShaderPage shaderDef={halftoneCmykDef} currentParams={params} defaultParams={defaults} html={html}>
+      <HtmlInCanvasShaderPage
+        shaderDef={halftoneCmykDef}
+        currentParams={params}
+        defaultParams={imageDefaults}
+        html={html}
+      >
         <HalftoneCmyk {...params}>{html}</HalftoneCmyk>
       </HtmlInCanvasShaderPage>
     );
