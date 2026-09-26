@@ -101,6 +101,19 @@
   code {
     font-size: 0.9em;
   }
+
+  /* Token colors for sugar-high, used by the shader code samples */
+  .syntax-highlight {
+    --sh-keyword: light-dark(#a3386c, #e08aae);
+    --sh-string: light-dark(#3c7a3e, #a6cf8c);
+    --sh-jsxliterals: var(--color-code);
+    --sh-entity: light-dark(#2f63b8, #86b0f0);
+    --sh-class: light-dark(#2f63b8, #86b0f0);
+    --sh-property: light-dark(#9a5a0f, #e2b172);
+    --sh-identifier: var(--color-code);
+    --sh-sign: light-dark(#8a8980, #7c7b72);
+    --sh-comment: light-dark(#9a998f, #6c6b63);
+  }
 }
 
 @custom-variant squircle {

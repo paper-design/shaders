@@ -1,6 +1,7 @@
 'use client';
 
 import type { ReactNode } from 'react';
+import { highlight } from 'sugar-high';
 import { ShaderDef, ParamOption, ParamDef } from '../shader-defs/shader-def-types';
 import { CopyButton } from './copy-button';
 import { hslToHex, toHsla } from '@/helpers/color-utils';
@@ -219,9 +220,11 @@ function CodeSection({ code }: { code: string }) {
         />
       </div>
       <div className="flex flex-col gap-8">
-        <pre className="custom-scrollbar overflow-x-auto rounded-xl bg-backplate-1 p-24 text-code squircle:rounded-2xl">
-          {code}
-        </pre>
+        {/* sugar-high escapes the source, so the markup only holds its own token spans */}
+        <pre
+          className="syntax-highlight custom-scrollbar overflow-x-auto rounded-xl bg-backplate-1 p-24 text-code squircle:rounded-2xl"
+          dangerouslySetInnerHTML={{ __html: highlight(code) }}
+        />
       </div>
     </section>
   );

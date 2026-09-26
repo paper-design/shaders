@@ -31,6 +31,7 @@
         "react": "19.2.2",
         "react-dom": "19.2.2",
         "shaders-old": "npm:@paper-design/shaders@0.0.79",
+        "sugar-high": "^0.9.3",
       },
       "devDependencies": {
         "@eslint/eslintrc": "3.2.0",
@@ -49,13 +50,13 @@
     },
     "packages/shaders": {
       "name": "@paper-design/shaders",
-      "version": "0.0.80",
+      "version": "0.0.81",
     },
     "packages/shaders-react": {
       "name": "@paper-design/shaders-react",
-      "version": "0.0.80",
+      "version": "0.0.81",
       "dependencies": {
-        "@paper-design/shaders": "0.0.80",
+        "@paper-design/shaders": "0.0.81",
       },
       "devDependencies": {
         "@types/react": "19.1.0",
@@ -1226,6 +1227,8 @@
     "strip-json-comments": ["strip-json-comments@3.1.1", "", {}, "sha512-6fPc+R4ihwqP6N/aIv2f1gMH8lOVtWQHoqC4yK6oSDVVocumAsfCqjkXnqiYMhmMwS/mEHLp7Vehlt3ql6lEig=="],
 
     "styled-jsx": ["styled-jsx@5.1.6", "", { "dependencies": { "client-only": "0.0.1" }, "peerDependencies": { "react": ">= 16.8.0 || 17.x.x || ^18.0.0-0 || ^19.0.0-0" } }, "sha512-qSVyDTeMotdvQYoHWLNGwRFJHC+i+ZvdBRYosOFgC+Wg1vx4frN2/RG/NA7SYqqvKNLf39P2LSRA2pu6n0XYZA=="],
+
+    "sugar-high": ["sugar-high@0.9.5", "", {}, "sha512-eirwp9p7QcMg6EFCD6zrGh4H30uFx2YtfiMJUavagceP6/YUUjLeiQmis7QuwqKB3nXrWXlLaRumCqOd9AKpSA=="],
 
     "supports-color": ["supports-color@5.5.0", "", { "dependencies": { "has-flag": "^3.0.0" } }, "sha512-QjVjwdXIt408MIiAqCX4oUKsgU2EqAGzs2Ppkm4aQYbjm+ZEWEcW4SfFNTr4uMNZma0ey4f5lgLrkB0aX0QMow=="],
 
