@@ -7,7 +7,7 @@ import { usePresetHighlight } from '@/helpers/use-preset-highlight';
 import { cleanUpLevaParams } from '@/helpers/clean-up-leva-params';
 import { HalftoneCmykType, HalftoneCmykTypes, ShaderFit } from '@paper-design/shaders';
 import { levaImageButton } from '@/helpers/leva-image-button';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, type MouseEvent } from 'react';
 import { toHsla } from '@/helpers/color-utils';
 import { ShaderDetails } from '@/components/shader-details';
 import { halftoneCmykDef } from '@/shader-defs/halftone-cmyk-def';
@@ -19,54 +19,87 @@ import { HtmlInCanvasShaderPage } from '@/components/html-in-canvas-shader-page'
 
 const { worldWidth, worldHeight, ...presetDefaults } = halftoneCmykPresets[0].params;
 
-/** The HTML-in-canvas page uses a coarse, high-contrast screen so the HTML reads through the dot pattern */
+/** The HTML-in-canvas page uses a neutral, medium screen so the flat colors of the HTML split cleanly into the four inks */
 const htmlInCanvasDefaults = {
   ...presetDefaults,
-  size: 0.59,
-  gridNoise: 0.5,
-  softness: 0.22,
-  contrast: 2,
-  gainC: 0.61,
-  gainM: 0.09,
-  gainY: 1,
-  floodC: 0.13,
-  floodM: 0.09,
-  floodK: 0.24,
+  size: 0.45,
+  gridNoise: 0.2,
+  softness: 0.3,
+  contrast: 1.2,
+  gainC: 0,
+  gainY: 0,
+  floodC: 0,
   grainSize: 0,
 };
 
+// Carets are always 1px wide, so the textarea is laid out at a quarter size and scaled up 4x to thicken its caret
 const htmlStyle = `
-  .demo { display: grid; align-content: center; justify-items: start; gap: 48px; height: 100%; padding: 0 8%; color: #222 }
-  .demo p { margin: 0; font: 300 120px/1.1 Matter, system-ui; font-feature-settings: "ss01"; word-spacing: 0.1em; text-transform: lowercase }
-  .demo button { display: flex; align-items: center; height: 128px; padding: 0 40px; border: 3px solid rgb(0 0 0 / 20%); border-radius: 24px; font: 44px 'Paper Mono', ui-monospace, monospace; color: #222; background: #fff; transition: background-color 150ms cubic-bezier(0.685, 0.89, 0.315, 0.995) }
-  .demo button:hover { background: #f0efe4 }
-  .demo button:active { background: #e9e8e0 }
-  .demo .logos { display: flex; align-items: center; gap: 40px }
-  .demo .logos img { height: 80px; width: auto }
+  .demo { display: grid; grid-template-rows: 1fr auto; gap: 3%; height: 100%; padding: 5% 6%; box-sizing: border-box; container-type: inline-size; color: #111; background: #fff; --hover-transition: 250ms cubic-bezier(0.22, 1, 0.36, 1) }
+  .demo .panel { position: relative; border: 0.6cqw solid #111; background: repeating-conic-gradient(from 0deg at 28% 70%, var(--a) 0 6deg, var(--b) 6deg 12deg); cursor: pointer }
+  .demo h1 { position: absolute; left: 6%; bottom: 9%; margin: 0; font: 900 11cqw/0.88 Matter, system-ui; color: #fff; -webkit-text-stroke: 0.6cqw #111; paint-order: stroke fill; text-shadow: 1.2cqw 1.2cqw 0 #111; rotate: -6deg; transition: var(--hover-transition); transition-property: rotate, scale }
+  .demo h1:hover { rotate: -3deg; scale: 1.05 }
+  .demo .bubble { position: absolute; top: 10%; right: 6%; display: grid; align-items: center; width: 42%; min-height: 7.6cqw; padding: 3.5cqw 4cqw; border: 0.5cqw solid #111; border-radius: 50%; background: #fff; cursor: auto; transition: var(--hover-transition); transition-property: rotate, scale }
+  .demo .bubble:hover { rotate: 3deg; scale: 1.05 }
+  .demo .bubble::before, .demo .bubble::after { content: ""; position: absolute; top: 80%; left: 20%; width: 7cqw; height: 8cqw; background: #111; clip-path: polygon(0 0, 100% 0, 0 100%) }
+  .demo .bubble::after { top: calc(80% - 0.7cqw); left: calc(20% + 0.5cqw); width: 5.4cqw; height: 6.2cqw; background: #fff }
+  .demo textarea { display: block; justify-self: center; width: 25%; field-sizing: content; padding: 0; border: 0; outline: none; resize: none; overflow: hidden; font: 700 0.85cqw/1.1 Matter, system-ui; text-align: center; text-transform: uppercase; color: inherit; caret-color: #111; background: none; scale: 4 }
+  .demo fieldset { display: flex; justify-content: flex-end; gap: 2.4cqw; margin: 0; padding: 0; border: 0 }
+  .demo input { appearance: none; width: 4.4cqw; height: 4.4cqw; margin: 0; border: 0.4cqw solid #111; border-radius: 50%; background: var(--a); cursor: pointer; transition: scale var(--hover-transition) }
+  .demo input:hover { scale: 1.12 }
+  .demo input:checked { box-shadow: 0 0 0 0.5cqw #fff, 0 0 0 0.9cqw #111 }
+  .demo, .demo [value="orange"] { --a: #ffa630; --b: #ff8000 }
+  .demo [value="red"], .demo:has([value="red"]:checked) { --a: #ff5c4d; --b: #e0301e }
+  .demo [value="teal"], .demo:has([value="teal"]:checked) { --a: #3dc9b0; --b: #16a08e }
+  .demo [value="violet"], .demo:has([value="violet"]:checked) { --a: #a37cff; --b: #7c4dff }
 `;
 
-// The counter runs from the function and prints from the string: the compiler rewrites function bodies
-const handleClick = withCode(
-  (event: { currentTarget: HTMLButtonElement }) => {
-    const clicks = Number(event.currentTarget.dataset.clicks ?? 0) + 1;
-    event.currentTarget.dataset.clicks = String(clicks);
-    event.currentTarget.textContent = `clicked ${clicks} time${clicks === 1 ? '' : 's'}`;
+// The focus runs from the function and prints from the string: the compiler rewrites function bodies
+const focusAtEnd = withCode(
+  (textarea: HTMLTextAreaElement | null) => {
+    textarea?.focus({ preventScroll: true });
+    textarea?.setSelectionRange(textarea.value.length, textarea.value.length);
+  },
+  `(textarea) => {
+  textarea?.focus({ preventScroll: true });
+  textarea?.setSelectionRange(textarea.value.length, textarea.value.length);
+}`
+);
+// Clicking the panel outside the bubble picks the next color, without taking the focus from the bubble
+const selectNextColor = withCode(
+  (event: MouseEvent<HTMLElement>) => {
+    if ((event.target as Element).closest('.bubble')) return;
+    event.preventDefault();
+    const inputs = [...event.currentTarget.parentElement!.querySelectorAll('input')];
+    const checkedIndex = inputs.findIndex((input) => input.checked);
+    inputs[(checkedIndex + 1) % inputs.length]!.checked = true;
   },
   `(event) => {
-  const clicks = Number(event.currentTarget.dataset.clicks ?? 0) + 1;
-  event.currentTarget.dataset.clicks = String(clicks);
-  event.currentTarget.textContent = \`clicked \${clicks} time\${clicks === 1 ? '' : 's'}\`;
+  if (event.target.closest('.bubble')) return;
+  event.preventDefault();
+  const inputs = [...event.currentTarget.parentElement.querySelectorAll('input')];
+  const checkedIndex = inputs.findIndex((input) => input.checked);
+  inputs[(checkedIndex + 1) % inputs.length].checked = true;
 }`
 );
 const html = (
   <div className="demo">
     <style>{htmlStyle}</style>
-    <p>Select this text</p>
-    <div className="logos">
-      <img src="/images/logos/paper-logo-only.svg" alt="Paper logo" />
-      <img src="/apple-touch-icon.png" alt="Paper icon" />
+    <div className="panel" onMouseDown={selectNextColor}>
+      <h1>
+        DIGITAL
+        <br />
+        INK!
+      </h1>
+      <div className="bubble">
+        <textarea ref={focusAtEnd} defaultValue="type here" spellCheck={false} aria-label="Speech bubble" />
+      </div>
     </div>
-    <button onClick={handleClick}>hover and click me</button>
+    <fieldset>
+      <input type="radio" name="panel-color" value="orange" aria-label="Orange" defaultChecked />
+      <input type="radio" name="panel-color" value="red" aria-label="Red" />
+      <input type="radio" name="panel-color" value="teal" aria-label="Teal" />
+      <input type="radio" name="panel-color" value="violet" aria-label="Violet" />
+    </fieldset>
   </div>
 );
 

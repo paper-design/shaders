@@ -1,5 +1,6 @@
 import { vertexShaderSource } from './vertex-shader.js';
 import {
+  getHtmlTextureTransform,
   getLayoutSubtreeCanvas,
   isHtmlTextureElement,
   type ElementTextureContext,
@@ -174,6 +175,11 @@ export class ShaderMount {
       if (value instanceof HTMLImageElement || isHtmlTextureElement(value)) {
         const aspectRatioUniformName = `${key}AspectRatio`;
         uniformLocations[aspectRatioUniformName] = this.gl.getUniformLocation(this.program!, aspectRatioUniformName);
+      }
+
+      if (isHtmlTextureElement(value)) {
+        const premultipliedUniformName = `${key}Premultiplied`;
+        uniformLocations[premultipliedUniformName] = this.gl.getUniformLocation(this.program!, premultipliedUniformName);
       }
     });
 
@@ -402,6 +408,12 @@ export class ShaderMount {
         const aspectRatio = image.naturalWidth / image.naturalHeight;
         this.gl.uniform1f(aspectRatioLocation, aspectRatio);
       }
+
+      // Images upload with straight alpha, unlike HTML textures (see uploadHtmlTexture)
+      const premultipliedLocation = this.uniformLocations[`${uniformName}Premultiplied`];
+      if (premultipliedLocation) {
+        this.gl.uniform1f(premultipliedLocation, 0);
+      }
     }
   };
 
@@ -513,11 +525,20 @@ export class ShaderMount {
         htmlTexture.textureHeight = height;
       }
 
-      gl.texElementSubImage2D(gl.TEXTURE_2D, 0, 0, 0, element, { width, height });
+      // Transparent HTML pixels arrive as black with straight alpha, and filtering bleeds that black into the edges.
+      // Shaders that declare the premultiplied uniform get the HTML premultiplied so it filters without dark outlines.
+      const premultipliedLocation = this.uniformLocations[`${uniformName}Premultiplied`];
+      gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, !!premultipliedLocation);
+      try {
+        gl.texElementSubImage2D(gl.TEXTURE_2D, 0, 0, 0, element, { width, height });
+      } finally {
+        gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
+      }
+      if (premultipliedLocation) {
+        gl.uniform1f(premultipliedLocation, 1);
+      }
 
-      // 3D contexts report where the element is drawn for hit testing and accessibility.
-      // The element covers the canvas and is drawn over all of it, so its box maps to the canvas unchanged.
-      canvas.updateElementGeometry?.(element, { canvasTransform: new DOMMatrix() });
+      this.updateHtmlGeometry(element);
     } catch (error) {
       if (!hasWarnedAboutHtmlCapture) {
         hasWarnedAboutHtmlCapture = true;
@@ -543,6 +564,27 @@ export class ShaderMount {
     if (this.currentSpeed === 0) {
       this.render(performance.now());
     }
+  };
+
+  /**
+   * 3D contexts report where the element is drawn for hit testing and accessibility.
+   * The element covers the canvas and moves with the image sizing uniforms.
+   */
+  private updateHtmlGeometry = (element: HTMLElement): void => {
+    const uniform = (name: string, fallback: number) => {
+      const value = this.providedUniforms[name];
+      return typeof value === 'number' ? value : fallback;
+    };
+    const canvasTransform = getHtmlTextureTransform(this.canvasElement, {
+      fit: uniform('u_fit', 0),
+      scale: uniform('u_scale', 1),
+      rotation: uniform('u_rotation', 0),
+      offsetX: uniform('u_offsetX', 0),
+      offsetY: uniform('u_offsetY', 0),
+      originX: uniform('u_originX', 0.5),
+      originY: uniform('u_originY', 0.5),
+    });
+    (this.canvasElement as PaintableCanvas).updateElementGeometry?.(element, { canvasTransform });
   };
 
   /** Stops capturing an HTML texture and puts the element back where it was */
@@ -720,6 +762,7 @@ export class ShaderMount {
   public setUniforms = (newUniforms: ShaderMountUniforms): void => {
     this.setUniformValues(newUniforms);
     this.providedUniforms = { ...this.providedUniforms, ...newUniforms };
+    this.htmlTextures.forEach(({ element }) => this.updateHtmlGeometry(element));
 
     this.render(performance.now());
   };

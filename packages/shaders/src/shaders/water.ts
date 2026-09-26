@@ -9,6 +9,8 @@ import { declarePI, rotation2, simplexNoise } from '../shader-utils.js';
  * - u_time (float): Animation time
  * - u_image (sampler2D): Optional source image texture
  * - u_imageAspectRatio (float): Aspect ratio of the source image
+ * - u_imagePremultiplied (float): 1 when the source image is premultiplied (HTML), 0 for straight alpha (images).
+ *   HTML comes premultiplied because its transparent pixels are black, and filtering straight alpha bleeds that black into the edges as a dark outline
  * - u_colorBack (vec4): Background color in RGBA
  * - u_colorHighlight (vec4): Highlight color in RGBA, needs highlights > 0
  * - u_highlights (float): Coloring added over image/background following caustic shape, needs colorHighlight alpha > 0 (0 to 1)
@@ -48,6 +50,7 @@ uniform vec4 u_colorHighlight;
 
 uniform sampler2D u_image;
 uniform float u_imageAspectRatio;
+uniform float u_imagePremultiplied;
 
 uniform float u_size;
 uniform float u_highlights;
@@ -128,10 +131,11 @@ void main() {
   float frame = getUvFrame(imageUV);
 
   vec4 image = texture(u_image, imageUV);
+  image.rgb *= mix(image.a, 1., u_imagePremultiplied);
   vec4 backColor = u_colorBack;
   backColor.rgb *= backColor.a;
 
-  vec3 color = mix(backColor.rgb, image.rgb, image.a * frame);
+  vec3 color = backColor.rgb * (1. - image.a * frame) + image.rgb * frame;
   float opacity = backColor.a + image.a * frame;
 
   causticNoise = max(-.2, causticNoise);

@@ -1,4 +1,4 @@
-import { memo, useLayoutEffect, useRef, useState } from 'react';
+import { memo, useLayoutEffect, useState } from 'react';
 import { ShaderMount, type ShaderComponentProps } from '../shader-mount.js';
 import { colorPropsAreEqual } from '../color-props-are-equal.js';
 import {
@@ -14,7 +14,6 @@ import {
 } from '@paper-design/shaders';
 import { transparentPixel } from '../transparent-pixel.js';
 import { suspend } from '../suspend.js';
-import { HtmlCanvas, hasChildren, useProcessedHtmlImage } from '../html-canvas.js';
 
 export interface GemSmokeProps extends ShaderComponentProps, GemSmokeParams {
   /**
@@ -111,9 +110,6 @@ export const infraredPreset: GemSmokePreset = {
 
 export const gemSmokePresets: GemSmokePreset[] = [defaultPreset, firePreset, fluorescentPreset, infraredPreset];
 
-/** HTML snapshots are pre-processed the same way as uploaded images */
-const processHtmlImage = (url: string): Promise<Blob> => toProcessedGemSmoke(url).then((result) => result.pngBlob);
-
 export const GemSmoke: React.FC<GemSmokeProps> = memo(function GemSmokeImpl({
   // Own props
   colorBack = defaultPreset.params.colorBack,
@@ -142,19 +138,14 @@ export const GemSmoke: React.FC<GemSmokeProps> = memo(function GemSmokeImpl({
   offsetY = defaultPreset.params.offsetY,
   worldWidth = defaultPreset.params.worldWidth,
   worldHeight = defaultPreset.params.worldHeight,
-  children,
   ...props
 }: GemSmokeProps) {
-  const htmlRef = useRef<HTMLDivElement>(null);
-  const isHtmlImage = hasChildren(children);
-  const htmlImage = useProcessedHtmlImage(htmlRef, isHtmlImage, processHtmlImage);
-
   const imageUrl = typeof image === 'string' ? image : image.src;
   const [processedStateImage, setProcessedStateImage] = useState<string>(transparentPixel);
 
   let processedImage: string;
 
-  if (suspendWhenProcessingImage && !isHtmlImage && typeof window !== 'undefined' && imageUrl) {
+  if (suspendWhenProcessingImage && typeof window !== 'undefined' && imageUrl) {
     processedImage = suspend(
       (): Promise<string> => toProcessedGemSmoke(imageUrl).then((result) => URL.createObjectURL(result.pngBlob)),
       [imageUrl, 'gemSmoke']
@@ -164,8 +155,8 @@ export const GemSmoke: React.FC<GemSmokeProps> = memo(function GemSmokeImpl({
   }
 
   useLayoutEffect(() => {
-    if (suspendWhenProcessingImage || isHtmlImage) {
-      // Skip doing work in the effect as it's been handled by suspense or HTML children are used instead.
+    if (suspendWhenProcessingImage) {
+      // Skip doing work in the effect as it's been handled by suspense.
       return;
     }
 
@@ -187,14 +178,14 @@ export const GemSmoke: React.FC<GemSmokeProps> = memo(function GemSmokeImpl({
     return () => {
       current = false;
     };
-  }, [imageUrl, suspendWhenProcessingImage, isHtmlImage]);
+  }, [imageUrl, suspendWhenProcessingImage]);
 
   const uniforms = {
     // Own uniforms
     u_colors: colors.map(getShaderColorFromString),
     u_colorsCount: colors.length,
     u_colorBack: getShaderColorFromString(colorBack),
-    u_image: isHtmlImage ? (htmlImage ?? transparentPixel) : processedImage,
+    u_image: processedImage,
     u_innerDistortion: innerDistortion,
     u_outerDistortion: outerDistortion,
     u_outerGlow: outerGlow,
@@ -203,7 +194,7 @@ export const GemSmoke: React.FC<GemSmokeProps> = memo(function GemSmokeImpl({
     u_offset: offset,
     u_angle: angle,
     u_size: size,
-    u_isImage: isHtmlImage || Boolean(image),
+    u_isImage: Boolean(image),
     u_shape: GemSmokeShapes[shape],
 
     // Sizing uniforms
@@ -226,8 +217,6 @@ export const GemSmoke: React.FC<GemSmokeProps> = memo(function GemSmokeImpl({
       fragmentShader={gemSmokeFragmentShader}
       mipmaps={['u_image']}
       uniforms={uniforms}
-    >
-      {isHtmlImage ? <HtmlCanvas ref={htmlRef}>{children}</HtmlCanvas> : children}
-    </ShaderMount>
+    />
   );
 }, colorPropsAreEqual);

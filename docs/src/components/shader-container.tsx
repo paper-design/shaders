@@ -8,6 +8,17 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useIsHtmlInCanvasPage } from '@/helpers/use-is-html-in-canvas-page';
 
+// Set by hand for now: only these shaders link to their HTML-in-canvas page
+const shadersWithHtmlInCanvasPage = [
+  'Halftone Dots',
+  'Halftone CMYK',
+  'Water',
+  'Fluted Glass',
+  'Paper Texture',
+  'Image Dithering',
+  'Lens Distortion',
+];
+
 export function ShaderContainer({
   children,
   currentParams,
@@ -18,8 +29,7 @@ export function ShaderContainer({
 }>) {
   const pathname = usePathname();
   const isHtmlInCanvasPage = useIsHtmlInCanvasPage();
-  // Shaders that take an image also have an HTML-in-canvas version of their page
-  const hasHtmlInCanvasPage = !isHtmlInCanvasPage && shaderDef?.params.some((param) => param.name === 'image');
+  const hasHtmlInCanvasPage = !isHtmlInCanvasPage && shadersWithHtmlInCanvasPage.includes(shaderDef?.name ?? '');
 
   return (
     <div className="md:mb-24">

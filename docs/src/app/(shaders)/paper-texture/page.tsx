@@ -22,54 +22,107 @@ const { worldWidth, worldHeight, ...presetDefaults } = paperTexturePresets[0].pa
 /** The HTML-in-canvas page keeps the paper white and the texture pronounced, so the HTML stays readable through it */
 const htmlInCanvasDefaults = {
   ...presetDefaults,
-  colorBack: '#ffffff',
+  scale: 1.4,
+  colorBack: '#00000000',
+  clip: true,
   colorPaper: '#ffffff',
-  colorShadow: '#bfbfbf',
-  distortion: 0.21,
-  angle: 360,
-  roughness: 1,
-  roughnessRows: 1,
-  fiber: 1,
+  colorShadow: '#cccccc',
+  distortion: 0.3,
+  angle: 0,
+  roughness: 0.2,
+  roughnessRows: 0,
+  fiber: 0.4,
   fiberSize: 0.72,
-  folds: 1,
+  folds: 0.5,
   foldSizeX: 0.52,
-  foldOffsetY: 1,
-  crumpleCount: 2,
-  drops: 0.3,
+  foldOffsetY: 0.09,
+  crumples: 1,
+  crumpleCount: 15,
+  wrinkles: 0.5,
+  drops: 0.7,
+  seed: 311,
 };
 
 const htmlStyle = `
-  .demo { display: grid; align-content: center; justify-items: start; gap: 48px; height: 100%; padding: 0 8%; color: #222 }
-  .demo p { margin: 0; font: 300 120px/1.1 Matter, system-ui; font-feature-settings: "ss01"; word-spacing: 0.1em; text-transform: lowercase }
-  .demo button { display: flex; align-items: center; height: 128px; padding: 0 40px; border: 3px solid rgb(0 0 0 / 20%); border-radius: 24px; font: 44px 'Paper Mono', ui-monospace, monospace; color: #222; background: #fff; transition: background-color 150ms cubic-bezier(0.685, 0.89, 0.315, 0.995) }
-  .demo button:hover { background: #f0efe4 }
-  .demo button:active { background: #e9e8e0 }
-  .demo .logos { display: flex; align-items: center; gap: 40px }
-  .demo .logos img { height: 80px; width: auto }
+  .demo { --ink: #222; --error: #d93025; --ease: cubic-bezier(0.685, 0.89, 0.315, 0.995); display: grid; place-items: center; height: 100%; color: var(--ink) }
+  .demo form { display: grid; gap: 12px; width: 360px; padding: 48px; border: 1px solid rgb(34 34 34 / 18%); background: #fff; box-shadow: 0 1px 2px rgb(0 0 0 / 8%), 0 12px 32px -8px rgb(0 0 0 / 22%); font: 16px 'Paper Mono', ui-monospace, monospace }
+  .demo h2 { margin: 0 0 12px; font: 400 28px/1.2 Matter, system-ui; font-feature-settings: "ss01" }
+  .demo .field { display: grid; gap: 6px }
+  .demo input[type="text"], .demo input[type="email"] { height: 44px; padding: 0 14px; border: 1px solid var(--ink); border-radius: 2px; font: inherit; color: inherit; background: #fff; outline: none; transition: border-color 150ms var(--ease), box-shadow 150ms var(--ease) }
+  .demo input::placeholder { color: var(--ink) }
+  .demo ::selection { background: rgb(34 34 34 / 14%); color: var(--ink) }
+  .demo input:focus-visible { box-shadow: 0 0 0 3px rgb(34 34 34 / 12%) }
+  .demo .error { display: none; font-size: 13px; color: var(--error) }
+  .demo input:user-invalid, .demo form.submitted input:invalid { border-color: var(--error); box-shadow: 0 0 0 3px rgb(217 48 37 / 12%) }
+  .demo input:user-invalid + .error, .demo form.submitted input:invalid + .error { display: block; animation: error-in 200ms var(--ease) }
+  .demo label { display: flex; align-items: center; gap: 10px }
+  .demo input[type="checkbox"] { appearance: none; width: 18px; height: 18px; margin: 0; border: 1px solid var(--ink); border-radius: 2px; background: #fff }
+  .demo input[type="checkbox"]:checked { background: var(--ink); box-shadow: inset 0 0 0 3px #fff }
+  .demo button { height: 44px; margin-top: 4px; border: 1px solid var(--ink); border-radius: 2px; font: inherit; color: inherit; background: #fff; transition: background-color 150ms var(--ease), color 150ms var(--ease), border-color 150ms var(--ease) }
+  .demo button:hover { background: var(--ink); color: #fff }
+  .demo button:active { background: #000 }
+  .demo form:invalid button { border-color: rgb(34 34 34 / 20%); color: rgb(34 34 34 / 40%); pointer-events: none }
+  .demo .sent { display: none; margin: 0; font-size: 13px; text-align: center }
+  .demo form.done .sent { display: block; animation: error-in 200ms var(--ease) }
+  @keyframes error-in { from { opacity: 0; transform: translateY(-4px) } }
 `;
 
-// The counter runs from the function and prints from the string: the compiler rewrites function bodies
-const handleClick = withCode(
-  (event: { currentTarget: HTMLButtonElement }) => {
-    const clicks = Number(event.currentTarget.dataset.clicks ?? 0) + 1;
-    event.currentTarget.dataset.clicks = String(clicks);
-    event.currentTarget.textContent = `clicked ${clicks} time${clicks === 1 ? '' : 's'}`;
+// The handler runs from the function and prints from the string: the compiler rewrites function bodies
+const handleSubmit = withCode(
+  (event: { preventDefault: () => void; currentTarget: HTMLFormElement }) => {
+    event.preventDefault();
+    const form = event.currentTarget;
+    if (!form.checkValidity()) {
+      form.classList.add('submitted');
+      form.querySelector<HTMLInputElement>(':invalid')?.focus();
+      return;
+    }
+    form.reset();
+    form.classList.remove('submitted');
+    form.classList.add('done');
+    setTimeout(() => form.classList.remove('done'), 3000);
   },
   `(event) => {
-  const clicks = Number(event.currentTarget.dataset.clicks ?? 0) + 1;
-  event.currentTarget.dataset.clicks = String(clicks);
-  event.currentTarget.textContent = \`clicked \${clicks} time\${clicks === 1 ? '' : 's'}\`;
+  event.preventDefault();
+  const form = event.currentTarget;
+  if (!form.checkValidity()) {
+    form.classList.add('submitted');
+    form.querySelector(':invalid')?.focus();
+    return;
+  }
+  form.reset();
+  form.classList.remove('submitted');
+  form.classList.add('done');
+  setTimeout(() => form.classList.remove('done'), 3000);
 }`
 );
 const html = (
   <div className="demo">
     <style>{htmlStyle}</style>
-    <p>Select this text</p>
-    <div className="logos">
-      <img src="/images/logos/paper-logo-only.svg" alt="Paper logo" />
-      <img src="/apple-touch-icon.png" alt="Paper icon" />
-    </div>
-    <button onClick={handleClick}>hover and click me</button>
+    <form noValidate onSubmit={handleSubmit}>
+      <h2>Stay in touch</h2>
+      <div className="field">
+        <input type="text" name="name" placeholder="name" autoComplete="name" required />
+        <span className="error">Please enter your name</span>
+      </div>
+      <div className="field">
+        <input
+          type="email"
+          name="email"
+          placeholder="email"
+          autoComplete="email"
+          pattern="[^@\s]+@[^@\s]+\.[^@\s]+"
+          required
+        />
+        <span className="error">Please enter a valid email</span>
+      </div>
+      <label>
+        <input type="checkbox" name="subscribe" required />
+        subscribe to updates
+      </label>
+      <button type="submit">send</button>
+      <p className="sent">Thanks, you&apos;re on the list</p>
+    </form>
   </div>
 );
 
