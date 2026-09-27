@@ -45,7 +45,7 @@ const htmlInCanvasDefaults = {
 
 const htmlStyle = `
   .demo { --ink: #222; --error: #d93025; --ease: cubic-bezier(0.685, 0.89, 0.315, 0.995); display: grid; place-items: center; height: 100%; color: var(--ink) }
-  .demo form { display: grid; gap: 12px; width: 360px; padding: 48px; border: 1px solid rgb(34 34 34 / 18%); background: #fff; box-shadow: 0 1px 2px rgb(0 0 0 / 8%), 0 12px 32px -8px rgb(0 0 0 / 22%); font: 16px 'Paper Mono', ui-monospace, monospace }
+  .demo form { display: grid; gap: 12px; width: 360px; padding: 48px; background: #fff; font: 16px 'Paper Mono', ui-monospace, monospace }
   .demo h2 { margin: 0 0 12px; font: 400 28px/1.2 Matter, system-ui; font-feature-settings: "ss01" }
   .demo .field { display: grid; gap: 6px }
   .demo input[type="text"], .demo input[type="email"] { height: 44px; padding: 0 14px; border: 1px solid var(--ink); border-radius: 2px; font: inherit; color: inherit; background: #fff; outline: none; transition: border-color 150ms var(--ease), box-shadow 150ms var(--ease) }
