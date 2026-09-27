@@ -9,6 +9,7 @@ import { declarePI } from '../shader-utils.js';
  * Fragment shader uniforms:
  * - u_image (sampler2D): Source image texture
  * - u_imageAspectRatio (float): Aspect ratio of the source image
+ * - u_imagePremultiplied (float): 1 for premultiplied HTML, 0 for straight-alpha images
  * - u_colorBack (vec4): Background (paper) color in RGBA
  * - u_colorC (vec4): Cyan ink color in RGBA
  * - u_colorM (vec4): Magenta ink color in RGBA
@@ -54,6 +55,7 @@ export const halftoneCmykFragmentShader: string = `#version 300 es
 precision mediump float;
 
 uniform sampler2D u_image;
+uniform float u_imagePremultiplied;
 uniform float u_imageAspectRatio;
 
 uniform vec4 u_colorBack;
@@ -81,6 +83,12 @@ uniform sampler2D u_noiseTexture;
 
 in vec2 v_imageUV;
 out vec4 fragColor;
+
+vec4 sampleImage(vec2 uv) {
+  vec4 image = texture(u_image, uv);
+  image.rgb /= mix(1., max(image.a, .0001), u_imagePremultiplied);
+  return image;
+}
 
 const float shiftC = -.5;
 const float shiftM = -.25;
@@ -241,25 +249,25 @@ void main() {
         vec2 cellOffset = vec2(float(dx), float(dy));
 
         vec2 cellCenterC = cellCenterPos(uvC, cellOffset, 0.);
-        vec4 texC = texture(u_image, gridToImageUV(cellCenterC, cosC, sinC, shiftC, pad));
+        vec4 texC = sampleImage(gridToImageUV(cellCenterC, cosC, sinC, shiftC, pad));
         colorMask(uvC, cellCenterC, getCyan(texC), insideImageBox * texC.a, grain, u_floodC, u_gainC, generalComp, isJoined, outMask[0]);
 
         vec2 cellCenterM = cellCenterPos(uvM, cellOffset, 1.);
-        vec4 texM = texture(u_image, gridToImageUV(cellCenterM, cosM, sinM, shiftM, pad));
+        vec4 texM = sampleImage(gridToImageUV(cellCenterM, cosM, sinM, shiftM, pad));
         colorMask(uvM, cellCenterM, getMagenta(texM), insideImageBox * texM.a, grain, u_floodM, u_gainM, generalComp, isJoined, outMask[1]);
 
         vec2 cellCenterY = cellCenterPos(uvY, cellOffset, 2.);
-        vec4 texY = texture(u_image, gridToImageUV(cellCenterY, cosY, sinY, shiftY, pad));
+        vec4 texY = sampleImage(gridToImageUV(cellCenterY, cosY, sinY, shiftY, pad));
         colorMask(uvY, cellCenterY, getYellow(texY), insideImageBox * texY.a, grain, u_floodY, u_gainY, generalComp, isJoined, outMask[2]);
 
         vec2 cellCenterK = cellCenterPos(uvK, cellOffset, 3.);
-        vec4 texK = texture(u_image, gridToImageUV(cellCenterK, cosK, sinK, shiftK, pad));
+        vec4 texK = sampleImage(gridToImageUV(cellCenterK, cosK, sinK, shiftK, pad));
         colorMask(uvK, cellCenterK, getBlack(texK), insideImageBox * texK.a, grain, u_floodK, u_gainK, generalComp, isJoined, outMask[3]);
       }
     }
   } else {
     // sharp: direct px color sampling
-    vec4 tex = texture(u_image, uv);
+    vec4 tex = sampleImage(uv);
     tex.rgb = applyContrast(tex.rgb);
     insideImageBox *= tex.a;
     vec4 cmykOriginal = RGBAtoCMYK(tex);

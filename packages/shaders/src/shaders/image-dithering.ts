@@ -24,6 +24,7 @@ import { proceduralHash21, declarePI } from '../shader-utils.js';
  * - u_offsetY (float): Vertical offset of the graphics center (-1 to 1)
  * - u_image (sampler2D): Source image texture
  * - u_imageAspectRatio (float): Aspect ratio of the source image
+ * - u_imagePremultiplied (float): 1 for premultiplied HTML, 0 for straight-alpha images
  * - u_colorFront (vec4): Foreground color in RGBA, needs originalColors off
  * - u_colorBack (vec4): Background color in RGBA, needs originalColors off
  * - u_colorHighlight (vec4): Secondary foreground color in RGBA (set same as colorFront for classic 2-color dithering), needs originalColors off
@@ -55,6 +56,7 @@ uniform vec4 u_colorBack;
 uniform vec4 u_colorHighlight;
 
 uniform sampler2D u_image;
+uniform float u_imagePremultiplied;
 uniform float u_imageAspectRatio;
 
 uniform float u_type;
@@ -64,6 +66,12 @@ uniform bool u_inverted;
 uniform float u_colorSteps;
 
 out vec4 fragColor;
+
+vec4 sampleImage(vec2 uv) {
+  vec4 image = texture(u_image, uv);
+  image.rgb /= mix(1., max(image.a, .0001), u_imagePremultiplied);
+  return image;
+}
 
 
 ${ proceduralHash21 }
@@ -156,7 +164,7 @@ void main() {
 
   vec2 imageUV = getImageUV(normalizedUV);
   vec2 ditheringNoiseUV = canvasPixelizedUV;
-  vec4 image = texture(u_image, imageUV);
+  vec4 image = sampleImage(imageUV);
   float frame = getUvFrame(imageUV, pxSize / u_resolution);
 
   int type = int(floor(u_type));

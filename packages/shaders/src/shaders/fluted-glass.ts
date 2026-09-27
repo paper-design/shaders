@@ -11,8 +11,7 @@ import { declarePI, rotation2, proceduralHash21 } from '../shader-utils.js';
  * - u_pixelRatio (float): Device pixel ratio
  * - u_image (sampler2D): Source image texture
  * - u_imageAspectRatio (float): Aspect ratio of the source image
- * - u_imagePremultiplied (float): 1 when the source image is premultiplied (HTML), 0 for straight alpha (images).
- *   HTML comes premultiplied because its transparent pixels are black, and filtering straight alpha bleeds that black into the edges as a dark outline
+ * - u_imagePremultiplied (float): 1 for premultiplied HTML, 0 for straight-alpha images
  * - u_colorBack (vec4): Background color in RGBA
  * - u_colorShadow (vec4): Shadows color in RGBA, needs shadows > 0
  * - u_colorHighlight (vec4): Highlights color in RGBA, needs highlights > 0
