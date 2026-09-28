@@ -317,7 +317,12 @@ const LensDistortionWithControls = () => {
       imageX: { value: defaults.imageX, min: -1, max: 1, order: 411 },
       imageY: { value: defaults.imageY, min: -1, max: 1, order: 412 },
       scale: { value: defaults.scale, min: 0.1, max: 4, order: 450 },
-      fit: { value: defaults.fit, options: ['contain', 'cover'] as ShaderFit[], order: 451 },
+      fit: {
+        value: defaults.fit,
+        options: ['contain', 'cover'] as ShaderFit[],
+        order: 451,
+        render: () => !isHtmlInCanvasPath(),
+      },
       Image: folder(
         {
           'Upload image': levaImageButton(setImageWithoutStatus),

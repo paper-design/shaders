@@ -205,7 +205,12 @@ const ImageDitheringWithControls = () => {
       size: { value: defaults.size, min: 0.5, max: 20, order: 201 },
       colorSteps: { value: defaults.colorSteps, min: 1, max: 7, step: 1, order: 202 },
       scale: { value: defaults.scale, min: 0.1, max: 4, order: 300 },
-      fit: { value: defaults.fit, options: ['contain', 'cover'] as ShaderFit[], order: 301 },
+      fit: {
+        value: defaults.fit,
+        options: ['contain', 'cover'] as ShaderFit[],
+        order: 301,
+        render: () => !isHtmlInCanvasPath(),
+      },
       Image: folder(
         {
           'Upload image': levaImageButton(setImageWithoutStatus),

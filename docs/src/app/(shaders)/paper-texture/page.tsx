@@ -209,7 +209,12 @@ const PaperTextureWithControls = () => {
       },
       drops: { value: defaults.drops, min: 0, max: 1, order: 250 },
       scale: { value: defaults.scale, min: 0.5, max: 10, order: 400 },
-      fit: { value: defaults.fit, options: ['contain', 'cover'] as ShaderFit[], order: 401 },
+      fit: {
+        value: defaults.fit,
+        options: ['contain', 'cover'] as ShaderFit[],
+        order: 401,
+        render: () => !isHtmlInCanvasPath(),
+      },
       Image: folder(
         {
           'Upload image': levaImageButton(setImageWithoutStatus),

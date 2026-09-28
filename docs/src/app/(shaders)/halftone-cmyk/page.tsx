@@ -182,7 +182,12 @@ const HalftoneCmykWithControls = () => {
       grainOverlay: { value: defaults.grainOverlay, min: 0, max: 1, order: 351 },
       grainSize: { value: defaults.grainSize, min: 0, max: 1, order: 350 },
       scale: { value: defaults.scale, min: 0.1, max: 4, order: 420 },
-      fit: { value: defaults.fit, options: ['contain', 'cover'] as ShaderFit[], order: 450 },
+      fit: {
+        value: defaults.fit,
+        options: ['contain', 'cover'] as ShaderFit[],
+        order: 450,
+        render: () => !isHtmlInCanvasPath(),
+      },
       Image: folder(
         {
           'Upload image': levaImageButton(setImageWithoutStatus),

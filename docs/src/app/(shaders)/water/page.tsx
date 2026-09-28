@@ -159,7 +159,12 @@ const WaterWithControls = () => {
       size: { value: defaults.size, min: 0.01, max: 7, order: 205 },
       speed: { value: defaults.speed, min: 0, max: 3, order: 300 },
       scale: { value: defaults.scale, min: 0.1, max: 4, order: 301 },
-      fit: { value: defaults.fit, options: ['contain', 'cover'] as ShaderFit[], order: 302 },
+      fit: {
+        value: defaults.fit,
+        options: ['contain', 'cover'] as ShaderFit[],
+        order: 302,
+        render: () => !isHtmlInCanvasPath(),
+      },
       Image: folder(
         {
           'Upload image': levaImageButton(setImageWithoutStatus),
