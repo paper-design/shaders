@@ -1,7 +1,7 @@
 /**
  * Experimental HTML-in-canvas support (https://github.com/WICG/html-in-canvas).
  *
- * Children of a `<canvas layoutsubtree>` are laid out, hit-tested and exposed to accessibility like regular DOM,
+ * Children of a `<canvas content="drawable">` are laid out, hit-tested and exposed to accessibility like regular DOM,
  * but only become visible when drawn into the canvas. Paper Shaders uses them as live texture sources.
  *
  * Available in Chromium behind `chrome://flags/#canvas-draw-element` or the "HTMLInCanvas" origin trial.
@@ -11,7 +11,7 @@
 export interface PaintableCanvas extends HTMLCanvasElement {
   requestPaint(): void;
   /** Reports where an element is drawn, which 3D contexts must do for hit testing and accessibility */
-  updateElementGeometry?(element: Element, options?: { canvasTransform?: DOMMatrixInit }): void;
+  updateElementGeometry(element: Element, options?: { canvasTransform?: DOMMatrixInit }): void;
 }
 
 /** A WebGL2 context with the HTML-in-canvas additions */
@@ -38,10 +38,24 @@ export function isHtmlTextureElement(value: unknown): value is HTMLElement {
   );
 }
 
-/** Returns the `<canvas layoutsubtree>` that the element is an immediate child of */
-export function getLayoutSubtreeCanvas(element: Element): PaintableCanvas | null {
+/** Whether the canvas lays out its children via `content="drawable"` */
+export function hasDrawableContent(canvas: Element): boolean {
+  return canvas.getAttribute('content') === 'drawable';
+}
+
+/** Makes the canvas lay out its children */
+export function setDrawableContent(canvas: Element, enabled: boolean): void {
+  if (enabled) {
+    canvas.setAttribute('content', 'drawable');
+  } else {
+    canvas.removeAttribute('content');
+  }
+}
+
+/** Returns the `<canvas content="drawable">` that the element is an immediate child of */
+export function getDrawableContentCanvas(element: Element): PaintableCanvas | null {
   const parent = element.parentElement;
-  if (parent?.tagName === 'CANVAS' && parent.hasAttribute('layoutsubtree')) {
+  if (parent?.tagName === 'CANVAS' && hasDrawableContent(parent)) {
     return parent as PaintableCanvas;
   }
   return null;

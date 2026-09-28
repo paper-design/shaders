@@ -10,11 +10,11 @@ interface HtmlCanvasProps {
   children?: React.ReactNode;
 }
 
-/** A `<canvas layoutsubtree>` that lays out its children so they can be captured into shader textures */
+/** A `<canvas content="drawable">` that lays out its children so they can be captured into shader textures */
 export const HtmlCanvas: React.ForwardRefExoticComponent<HtmlCanvasProps & React.RefAttributes<HTMLDivElement>> =
   forwardRef<HTMLDivElement, HtmlCanvasProps>(function HtmlCanvasImpl({ children }, ref) {
     return (
-      <canvas {...{ layoutsubtree: '' }}>
+      <canvas {...{ content: 'drawable' }}>
         <div ref={ref}>{children}</div>
       </canvas>
     );

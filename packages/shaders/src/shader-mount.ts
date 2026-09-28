@@ -1,7 +1,8 @@
 import { vertexShaderSource } from './vertex-shader.js';
 import {
   getHtmlTextureTransform,
-  getLayoutSubtreeCanvas,
+  getDrawableContentCanvas,
+  setDrawableContent,
   isHtmlTextureElement,
   type ElementTextureContext,
   type PaintableCanvas,
@@ -48,7 +49,7 @@ export class ShaderMount {
   private ownerDocument: Document;
   /** Live HTML sources of texture uniforms, keyed by uniform name */
   private htmlTextures: Map<string, HtmlTexture> = new Map();
-  /** False when an existing `<canvas layoutsubtree>` was adopted as the shader canvas */
+  /** False when an existing `<canvas content="drawable">` was adopted as the shader canvas */
   private ownsCanvas = true;
 
   constructor(
@@ -93,7 +94,7 @@ export class ShaderMount {
       this.ownerDocument.head.prepend(styleElement);
     }
 
-    // A `<canvas layoutsubtree>` that already holds the HTML becomes the shader canvas
+    // A `<canvas content="drawable">` that already holds the HTML becomes the shader canvas
     const htmlCanvas = findHtmlCanvas(uniforms, this.parentElement);
 
     // Create the canvas element and mount it into the provided element
@@ -473,7 +474,7 @@ export class ShaderMount {
 
     // The element must live in the canvas that owns the WebGL context for it to be drawn into its textures
     const canvas = this.canvasElement as PaintableCanvas;
-    canvas.setAttribute('layoutsubtree', '');
+    setDrawableContent(canvas, true);
 
     const isMoved = element.parentNode !== canvas;
     const htmlTexture: HtmlTexture = {
@@ -489,7 +490,7 @@ export class ShaderMount {
     if (isMoved) {
       canvas.append(element);
     }
-    // Newer revisions of the spec only draw elements marked as drawable
+    // Only elements marked as drawable can be drawn
     if (htmlTexture.addedDrawable) {
       element.setAttribute('drawable', '');
     }
@@ -584,7 +585,7 @@ export class ShaderMount {
       originX: uniform('u_originX', 0.5),
       originY: uniform('u_originY', 0.5),
     });
-    (this.canvasElement as PaintableCanvas).updateElementGeometry?.(element, { canvasTransform });
+    (this.canvasElement as PaintableCanvas).updateElementGeometry(element, { canvasTransform });
   };
 
   /** Stops capturing an HTML texture and puts the element back where it was */
@@ -607,7 +608,7 @@ export class ShaderMount {
     this.htmlTextures.delete(uniformName);
 
     if (this.ownsCanvas && this.htmlTextures.size === 0) {
-      this.canvasElement.removeAttribute('layoutsubtree');
+      setDrawableContent(this.canvasElement, false);
     }
   };
 
@@ -890,11 +891,11 @@ function createProgram(
   return program;
 }
 
-/** Returns a `<canvas layoutsubtree>` in the parent element that holds one of the HTML uniforms */
+/** Returns a `<canvas content="drawable">` in the parent element that holds one of the HTML uniforms */
 function findHtmlCanvas(uniforms: ShaderMountUniforms, parentElement: HTMLElement): PaintableCanvas | null {
   for (const value of Object.values(uniforms)) {
     if (isHtmlTextureElement(value)) {
-      const canvas = getLayoutSubtreeCanvas(value);
+      const canvas = getDrawableContentCanvas(value);
       if (canvas?.parentElement === parentElement) {
         return canvas;
       }
@@ -933,16 +934,16 @@ const defaultStyle = `@layer paper-shaders {
       corner-shape: inherit;
     }
 
-    & > canvas[layoutsubtree] {
+    & > canvas[content='drawable'] {
       z-index: -2;
     }
 
-    /* HTML in a layoutsubtree canvas sits under the shader output, let pointer events through to it */
-    &:has(> canvas[layoutsubtree]) > canvas:not([layoutsubtree]) {
+    /* HTML in a drawable-content canvas sits under the shader output, let pointer events through to it */
+    &:has(> canvas[content='drawable']) > canvas:not([content='drawable']) {
       pointer-events: none;
     }
 
-    & > canvas[layoutsubtree] > * {
+    & > canvas[content='drawable'] > * {
       width: 100%;
       height: 100%;
     }
