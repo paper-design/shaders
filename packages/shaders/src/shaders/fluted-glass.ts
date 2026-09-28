@@ -11,7 +11,7 @@ import { declarePI, rotation2, proceduralHash21 } from '../shader-utils.js';
  * - u_pixelRatio (float): Device pixel ratio
  * - u_image (sampler2D): Source image texture
  * - u_imageAspectRatio (float): Aspect ratio of the source image
- * - u_imagePremultiplied (float): 1 for premultiplied HTML, 0 for straight-alpha images
+ * - u_imageIsHtml (float): 1 for live HTML, which is premultiplied and drawn without sizing, 0 for straight-alpha images
  * - u_colorBack (vec4): Background color in RGBA
  * - u_colorShadow (vec4): Shadows color in RGBA, needs shadows > 0
  * - u_colorHighlight (vec4): Highlights color in RGBA, needs highlights > 0
@@ -63,7 +63,7 @@ uniform vec4 u_colorHighlight;
 
 uniform sampler2D u_image;
 uniform float u_imageAspectRatio;
-uniform float u_imagePremultiplied;
+uniform float u_imageIsHtml;
 
 uniform float u_size;
 uniform float u_shadows;
@@ -117,7 +117,7 @@ float getUvFrame(vec2 uv, float softness) {
 const int MAX_RADIUS = 50;
 vec4 samplePremultiplied(sampler2D tex, vec2 uv) {
   vec4 c = texture(tex, uv);
-  c.rgb *= mix(c.a, 1., u_imagePremultiplied);
+  c.rgb *= mix(c.a, 1., u_imageIsHtml);
   return c;
 }
 vec4 getBlur(sampler2D tex, vec2 uv, vec2 texelSize, vec2 dir, float sigma) {

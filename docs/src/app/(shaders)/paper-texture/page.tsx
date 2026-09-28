@@ -22,7 +22,6 @@ const { worldWidth, worldHeight, ...presetDefaults } = paperTexturePresets[0].pa
 /** The HTML-in-canvas page keeps the paper white and the texture pronounced, so the HTML stays readable through it */
 const htmlInCanvasDefaults = {
   ...presetDefaults,
-  scale: 1.4,
   colorBack: '#00000000',
   clip: true,
   colorPaper: '#ffffff',
@@ -208,7 +207,7 @@ const PaperTextureWithControls = () => {
         order: 241,
       },
       drops: { value: defaults.drops, min: 0, max: 1, order: 250 },
-      scale: { value: defaults.scale, min: 0.5, max: 10, order: 400 },
+      scale: { value: defaults.scale, min: 0.5, max: 10, order: 400, render: () => !isHtmlInCanvasPath() },
       fit: {
         value: defaults.fit,
         options: ['contain', 'cover'] as ShaderFit[],

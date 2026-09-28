@@ -14,7 +14,7 @@ export const lensDistortionMeta = {
  *
  * Fragment shader uniforms:
  * - u_image (sampler2D): Source image texture
- * - u_imagePremultiplied (float): 1 for premultiplied HTML, 0 for straight-alpha images
+ * - u_imageIsHtml (float): 1 for live HTML, which is premultiplied and drawn without sizing, 0 for straight-alpha images
  * - u_spread (float): Strength of the color split; how far the color layers are pushed apart; 0 is off (0 to 1)
  * - u_bias (float): Shifts the colors toward one end of the spread; 0 spaces them evenly, needs spread > 0, count > 2 (-1 to 1)
  * - u_angle (float): Direction of the spread in degrees, needs spread > 0, perspective < 1 (0 to 360)
@@ -58,7 +58,7 @@ export const lensDistortionFragmentShader: string = `#version 300 es
 precision mediump float;
 
 uniform sampler2D u_image;
-uniform float u_imagePremultiplied;
+uniform float u_imageIsHtml;
 uniform float u_imageAspectRatio;
 uniform float u_spread;
 uniform float u_bias;
@@ -87,7 +87,7 @@ out vec4 fragColor;
 
 vec4 sampleImage(vec2 uv) {
   vec4 image = texture(u_image, uv);
-  image.rgb /= mix(1., max(image.a, .0001), u_imagePremultiplied);
+  image.rgb /= mix(1., max(image.a, .0001), u_imageIsHtml);
   return image;
 }
 

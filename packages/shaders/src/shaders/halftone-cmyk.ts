@@ -9,7 +9,7 @@ import { declarePI } from '../shader-utils.js';
  * Fragment shader uniforms:
  * - u_image (sampler2D): Source image texture
  * - u_imageAspectRatio (float): Aspect ratio of the source image
- * - u_imagePremultiplied (float): 1 for premultiplied HTML, 0 for straight-alpha images
+ * - u_imageIsHtml (float): 1 for live HTML, which is premultiplied and drawn without sizing, 0 for straight-alpha images
  * - u_colorBack (vec4): Background (paper) color in RGBA
  * - u_colorC (vec4): Cyan ink color in RGBA
  * - u_colorM (vec4): Magenta ink color in RGBA
@@ -55,7 +55,7 @@ export const halftoneCmykFragmentShader: string = `#version 300 es
 precision mediump float;
 
 uniform sampler2D u_image;
-uniform float u_imagePremultiplied;
+uniform float u_imageIsHtml;
 uniform float u_imageAspectRatio;
 
 uniform vec4 u_colorBack;
@@ -86,7 +86,7 @@ out vec4 fragColor;
 
 vec4 sampleImage(vec2 uv) {
   vec4 image = texture(u_image, uv);
-  image.rgb /= mix(1., max(image.a, .0001), u_imagePremultiplied);
+  image.rgb /= mix(1., max(image.a, .0001), u_imageIsHtml);
   return image;
 }
 

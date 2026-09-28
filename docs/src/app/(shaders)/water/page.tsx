@@ -22,7 +22,6 @@ const { worldWidth, worldHeight, ...presetDefaults } = waterPresets[0].params;
 /** The HTML-in-canvas page uses teal water with bigger, brighter ripples, so the HTML shows through the surface */
 const htmlInCanvasDefaults = {
   ...presetDefaults,
-  scale: 1.05,
   colorBack: '#8ed7d5',
   colorHighlight: '#ffffff',
   highlights: 0.25,
@@ -158,7 +157,7 @@ const WaterWithControls = () => {
       caustic: { value: defaults.caustic, min: 0, max: 1, order: 204 },
       size: { value: defaults.size, min: 0.01, max: 7, order: 205 },
       speed: { value: defaults.speed, min: 0, max: 3, order: 300 },
-      scale: { value: defaults.scale, min: 0.1, max: 4, order: 301 },
+      scale: { value: defaults.scale, min: 0.1, max: 4, order: 301, render: () => !isHtmlInCanvasPath() },
       fit: {
         value: defaults.fit,
         options: ['contain', 'cover'] as ShaderFit[],

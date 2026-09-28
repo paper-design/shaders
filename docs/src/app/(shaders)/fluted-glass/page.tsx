@@ -171,7 +171,7 @@ const FlutedGlassWithControls = () => {
       marginBottom: { value: defaults.marginBottom, min: 0, max: 1, order: 504, render: () => isHtmlInCanvasPath() },
       grainMixer: { value: defaults.grainMixer, min: 0, max: 1, order: 550 },
       grainOverlay: { value: defaults.grainOverlay, min: 0, max: 1, order: 551 },
-      scale: { value: defaults.scale, min: 0.1, max: 4, order: 600 },
+      scale: { value: defaults.scale, min: 0.1, max: 4, order: 600, render: () => !isHtmlInCanvasPath() },
       fit: {
         value: defaults.fit,
         options: ['contain', 'cover'] as ShaderFit[],
