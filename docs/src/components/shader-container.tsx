@@ -6,7 +6,7 @@ import { CopyButton } from './copy-button';
 import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useIsHtmlInCanvasPage } from '@/helpers/use-is-html-in-canvas-page';
+import { getHtmlInCanvasToggleHref, useIsHtmlInCanvasPage } from '@/helpers/html-in-canvas-page';
 
 // Set by hand for now: only these shaders link to their HTML-in-canvas page
 const shadersWithHtmlInCanvasPage = [
@@ -69,7 +69,7 @@ export function ShaderContainer({
           // Positioned out of the flow so the content below the shader keeps its place
           <div className="absolute top-full right-0 mt-20 hidden md:flex">
             <Link
-              href={isHtmlInCanvasPage ? pathname.replace(/\/html-in-canvas$/, '') : `${pathname}/html-in-canvas`}
+              href={getHtmlInCanvasToggleHref(pathname)}
               className="-mx-8 flex h-32 items-center gap-8 rounded-md px-8 outline-0 outline-focus transition-colors hover:bg-backplate-2 focus-visible:outline-2 active:bg-backplate-3 squircle:rounded-lg"
             >
               {isHtmlInCanvasPage ? 'back to image demo' : 'open HTML-in-Canvas demo'}

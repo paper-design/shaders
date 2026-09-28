@@ -102,7 +102,6 @@
     font-size: 0.9em;
   }
 
-  /* Token colors for the shader code samples, see highlight-code.ts */
   .syntax-highlight {
     --syntax-keyword: light-dark(#a3386c, #e08aae);
     --syntax-string: light-dark(#3c7a3e, #a6cf8c);

@@ -49,13 +49,13 @@
     },
     "packages/shaders": {
       "name": "@paper-design/shaders",
-      "version": "0.0.81",
+      "version": "0.0.80",
     },
     "packages/shaders-react": {
       "name": "@paper-design/shaders-react",
-      "version": "0.0.81",
+      "version": "0.0.80",
       "dependencies": {
-        "@paper-design/shaders": "0.0.81",
+        "@paper-design/shaders": "0.0.80",
       },
       "devDependencies": {
         "@types/react": "19.1.0",
