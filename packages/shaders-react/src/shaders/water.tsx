@@ -155,6 +155,7 @@ export const Water: React.FC<WaterProps> = memo(function WaterImpl({
       speed={speed}
       frame={frame}
       fragmentShader={waterFragmentShader}
+      htmlUniform="u_image"
       mipmaps={['u_image']}
       uniforms={uniforms}
     />

@@ -11,6 +11,7 @@ import { declarePI, rotation2, proceduralHash21 } from '../shader-utils.js';
  * - u_pixelRatio (float): Device pixel ratio
  * - u_image (sampler2D): Source image texture
  * - u_imageAspectRatio (float): Aspect ratio of the source image
+ * - u_imageIsHtml (float): 1 for live HTML, which is premultiplied and drawn without sizing, 0 for straight-alpha images
  * - u_colorBack (vec4): Background color in RGBA
  * - u_colorShadow (vec4): Shadows color in RGBA, needs shadows > 0
  * - u_colorHighlight (vec4): Highlights color in RGBA, needs highlights > 0
@@ -62,6 +63,7 @@ uniform vec4 u_colorHighlight;
 
 uniform sampler2D u_image;
 uniform float u_imageAspectRatio;
+uniform float u_imageIsHtml;
 
 uniform float u_size;
 uniform float u_shadows;
@@ -115,11 +117,11 @@ float getUvFrame(vec2 uv, float softness) {
 const int MAX_RADIUS = 50;
 vec4 samplePremultiplied(sampler2D tex, vec2 uv) {
   vec4 c = texture(tex, uv);
-  c.rgb *= c.a;
+  c.rgb *= mix(c.a, 1., u_imageIsHtml);
   return c;
 }
 vec4 getBlur(sampler2D tex, vec2 uv, vec2 texelSize, vec2 dir, float sigma) {
-  if (sigma <= .5) return texture(tex, uv);
+  if (sigma <= .5) return samplePremultiplied(tex, uv);
   int radius = int(min(float(MAX_RADIUS), ceil(3.0 * sigma)));
 
   float twoSigma2 = 2.0 * sigma * sigma;
@@ -142,12 +144,7 @@ vec4 getBlur(sampler2D tex, vec2 uv, vec2 texelSize, vec2 dir, float sigma) {
     weightSum += 2.0 * w;
   }
 
-  vec4 result = sum / weightSum;
-  if (result.a > 0.) {
-    result.rgb /= result.a;
-  }
-
-  return result;
+  return sum / weightSum;
 }
 
 vec2 rotateAspect(vec2 p, float a, float aspect) {
@@ -342,7 +339,6 @@ void main() {
   uv.y = mix(uv.y, .5, u_stretch * stretch);
 
   vec4 image = getBlur(u_image, uv, 1. / u_resolution / u_pixelRatio, vec2(0., 1.), blur);
-  image.rgb *= image.a;
   vec4 backColor = u_colorBack;
   backColor.rgb *= backColor.a;
   vec4 highlightColor = u_colorHighlight;

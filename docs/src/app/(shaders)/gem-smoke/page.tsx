@@ -84,10 +84,13 @@ const GemSmokeWithControls = () => {
       size: { value: defaults.size, min: 0, max: 1, order: 251 },
       speed: { value: defaults.speed, min: 0, max: 4, order: 300 },
       scale: { value: defaults.scale, min: 0.1, max: 4, order: 301 },
-      Image: folder({
-        'Upload image': levaImageButton((img?: HTMLImageElement) => setImage(img ?? '')),
-        ...(image && { 'Delete image': levaDeleteImageButton(() => setImage('')) }),
-      }, { order: -1 }),
+      Image: folder(
+        {
+          'Upload image': levaImageButton((img?: HTMLImageElement) => setImage(img ?? '')),
+          ...(image && { 'Delete image': levaDeleteImageButton(() => setImage('')) }),
+        },
+        { order: -1 }
+      ),
     };
   }, [colors.length, image]);
 

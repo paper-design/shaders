@@ -19,8 +19,13 @@ import { ShaderDetails } from '@/components/shader-details';
 import { halftoneDotsDef } from '@/shader-defs/halftone-dots-def';
 import { ShaderContainer } from '@/components/shader-container';
 import { useUrlParams } from '@/helpers/use-url-params';
+import { htmlOnly, imageOnly, useIsHtmlInCanvasPage } from '@/helpers/html-in-canvas-page';
+import { HtmlInCanvasShaderPage } from '@/components/html-in-canvas-shader-page';
+import { css, html, htmlInCanvasParams } from './html-in-canvas/demo';
 
-const { worldWidth, worldHeight, ...defaults } = halftoneDotsPresets[0].params;
+const { worldWidth, worldHeight, ...presetDefaults } = halftoneDotsPresets[0].params;
+
+const htmlInCanvasDefaults = { ...presetDefaults, ...htmlInCanvasParams };
 
 const imageFiles = [
   '001.webp',
@@ -44,6 +49,8 @@ const imageFiles = [
 ] as const;
 
 const HalftoneDotsWithControls = () => {
+  const isHtmlInCanvas = useIsHtmlInCanvasPage();
+  const defaults = isHtmlInCanvas ? htmlInCanvasDefaults : presetDefaults;
   const [imageIdx, setImageIdx] = useState(-1);
   const [image, setImage] = useState<HTMLImageElement | string>('/images/image-filters/0018.webp');
 
@@ -93,15 +100,16 @@ const HalftoneDotsWithControls = () => {
       grainMixer: { value: defaults.grainMixer, min: 0, max: 1, order: 350 },
       grainOverlay: { value: defaults.grainOverlay, min: 0, max: 1, order: 351 },
       grainSize: { value: defaults.grainSize, min: 0, max: 1, order: 352 },
-      scale: { value: defaults.scale, min: 0.1, max: 4, order: 400 },
-      fit: { value: defaults.fit, options: ['contain', 'cover'] as ShaderFit[], order: 450 },
+      scale: { value: defaults.scale, min: 0.1, max: 4, order: 400, ...imageOnly },
+      fit: { value: defaults.fit, options: ['contain', 'cover'] as ShaderFit[], order: 450, ...imageOnly },
       Image: folder(
         {
           'Upload image': levaImageButton(setImageWithoutStatus),
         },
-        { order: 0 }
+        { order: 0, ...imageOnly }
       ),
-      Presets: folder(presets, { order: -1 }),
+      Presets: folder(presets, { order: -1, ...imageOnly }),
+      Preset: folder({ Reset: button(() => setParamsSafe(params, setParams, defaults)) }, { order: -1, ...htmlOnly }),
     };
   });
 
@@ -109,8 +117,22 @@ const HalftoneDotsWithControls = () => {
   // shaders when navigating (if two shaders have a color1 param for example)
   useResetLevaParams(params, setParams, defaults);
   useUrlParams(params, setParams, halftoneDotsDef);
-  usePresetHighlight(halftoneDotsPresets, params);
+  usePresetHighlight(isHtmlInCanvas ? [{ name: 'Reset', params: defaults }] : halftoneDotsPresets, params);
   cleanUpLevaParams(params);
+
+  if (isHtmlInCanvas) {
+    return (
+      <HtmlInCanvasShaderPage
+        shaderDef={halftoneDotsDef}
+        currentParams={params}
+        defaultParams={presetDefaults}
+        html={html}
+        css={css}
+      >
+        <HalftoneDots {...params}>{html}</HalftoneDots>
+      </HtmlInCanvasShaderPage>
+    );
+  }
 
   return (
     <>

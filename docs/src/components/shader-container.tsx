@@ -4,6 +4,20 @@ import { ShaderDef } from '@/shader-defs/shader-def-types';
 import { Leva } from 'leva';
 import { CopyButton } from './copy-button';
 import { useState } from 'react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { getHtmlInCanvasToggleHref, useIsHtmlInCanvasPage } from '@/helpers/html-in-canvas-page';
+
+// Set by hand for now: only these shaders link to their HTML-in-canvas page
+const shadersWithHtmlInCanvasPage = [
+  'Halftone Dots',
+  'Halftone CMYK',
+  'Water',
+  'Fluted Glass',
+  'Paper Texture',
+  'Image Dithering',
+  'Lens Distortion',
+];
 
 export function ShaderContainer({
   children,
@@ -13,6 +27,10 @@ export function ShaderContainer({
   currentParams?: Record<string, unknown>;
   shaderDef?: ShaderDef;
 }>) {
+  const pathname = usePathname();
+  const isHtmlInCanvasPage = useIsHtmlInCanvasPage();
+  const hasHtmlInCanvasPage = !isHtmlInCanvasPage && shadersWithHtmlInCanvasPage.includes(shaderDef?.name ?? '');
+
   return (
     <div className="md:mb-24">
       {shaderDef && currentParams && (
@@ -45,7 +63,20 @@ export function ShaderContainer({
       )}
 
       <div className="relative">
-        <ResizableShader>{children}</ResizableShader>
+        <ResizableShader alwaysResizable={isHtmlInCanvasPage}>{children}</ResizableShader>
+
+        {(hasHtmlInCanvasPage || isHtmlInCanvasPage) && (
+          // Out of the flow on wide screens so the content below the shader keeps its place.
+          // Narrower, it would overlap the centered line below, so it takes a line of its own above it
+          <div className="mt-20 flex justify-end min-[75rem]:absolute min-[75rem]:top-full min-[75rem]:right-0">
+            <Link
+              href={getHtmlInCanvasToggleHref(pathname)}
+              className="-mx-8 flex h-32 items-center gap-8 rounded-md px-8 outline-0 outline-focus transition-colors hover:bg-backplate-2 focus-visible:outline-2 active:bg-backplate-3 squircle:rounded-lg"
+            >
+              {isHtmlInCanvasPage ? 'back to image demo' : 'open HTML-in-Canvas demo'}
+            </Link>
+          </div>
+        )}
 
         <div
           className="absolute -top-4 -right-332 hidden w-300 overflow-auto rounded-xl bg-(--color-leva-background) pb-4 has-[[data-leva-container]>[style*='display:none']]:hidden lg:block squircle:rounded-2xl"
@@ -111,7 +142,11 @@ export function ShaderContainer({
   );
 }
 
-function ResizableShader({ children }: React.PropsWithChildren) {
+/** Alt+drag resizes the image demos; HTML demos take pointer input of their own, so they always show the handle */
+function ResizableShader({
+  children,
+  alwaysResizable = false,
+}: React.PropsWithChildren<{ alwaysResizable?: boolean }>) {
   const [canStartResize, setCanStartResize] = useState(false);
 
   return (
@@ -121,7 +156,8 @@ function ResizableShader({ children }: React.PropsWithChildren) {
       onPointerLeave={() => setCanStartResize(false)}
     >
       <div
-        data-resizable={canStartResize || undefined}
+        data-resizable={canStartResize || alwaysResizable || undefined}
+        data-resize-handle={alwaysResizable || undefined}
         className="flex overflow-hidden *:size-full data-resizable:resize [[style*='width']]:resize"
       >
         {children}
