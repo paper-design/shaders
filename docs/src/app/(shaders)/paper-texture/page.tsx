@@ -15,7 +15,7 @@ import { ShaderContainer } from '@/components/shader-container';
 import { useUrlParams } from '@/helpers/use-url-params';
 import { htmlOnly, imageOnly, useIsHtmlInCanvasPage } from '@/helpers/html-in-canvas-page';
 import { HtmlInCanvasShaderPage } from '@/components/html-in-canvas-shader-page';
-import { getHtml, htmlInCanvasParams } from './html-in-canvas/demo';
+import { css, getHtml, htmlInCanvasParams } from './html-in-canvas/demo';
 
 const { worldWidth, worldHeight, ...presetDefaults } = paperTexturePresets[0].params;
 
@@ -134,6 +134,7 @@ const PaperTextureWithControls = () => {
         currentParams={params}
         defaultParams={presetDefaults}
         html={html}
+        css={css}
       >
         <PaperTexture {...params}>{html}</PaperTexture>
       </HtmlInCanvasShaderPage>

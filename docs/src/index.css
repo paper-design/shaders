@@ -111,7 +111,6 @@
     --syntax-property: light-dark(#9a5a0f, #e2b172);
     --syntax-identifier: var(--color-code);
     --syntax-sign: light-dark(#8a8980, #7c7b72);
-    --syntax-comment: light-dark(#9a998f, #6c6b63);
   }
 }
 

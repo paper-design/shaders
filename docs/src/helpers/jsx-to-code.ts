@@ -37,11 +37,6 @@ export function jsxToCode(node: ReactNode, indent = ''): string {
         : `${indent}<${tag} ${attributes.join(' ')} />`;
   }
 
-  // A <style> tag holds its CSS as a template literal
-  if (tag === 'style' && typeof children === 'string') {
-    return `${indent}<style>{\`${children.trim()}\`}</style>`;
-  }
-
   const openTag =
     attributes.length === 0
       ? `${indent}<${tag}>`
@@ -49,8 +44,8 @@ export function jsxToCode(node: ReactNode, indent = ''): string {
         ? `${indent}<${tag}\n${attributes.map((attribute) => `${indent}  ${attribute}`).join('\n')}\n${indent}>`
         : `${indent}<${tag} ${attributes.join(' ')}>`;
 
-  if (typeof children === 'string' && !isMultilineTag) {
-    return `${openTag}${children.trim()}</${tag}>`;
+  if ((typeof children === 'string' || typeof children === 'number') && !isMultilineTag) {
+    return `${openTag}${String(children).trim()}</${tag}>`;
   }
 
   return `${openTag}\n${jsxToCode(children as ReactNode, `${indent}  `)}\n${indent}</${tag}>`;

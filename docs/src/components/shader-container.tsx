@@ -66,8 +66,9 @@ export function ShaderContainer({
         <ResizableShader alwaysResizable={isHtmlInCanvasPage}>{children}</ResizableShader>
 
         {(hasHtmlInCanvasPage || isHtmlInCanvasPage) && (
-          // Positioned out of the flow so the content below the shader keeps its place
-          <div className="absolute top-full right-0 mt-20 hidden md:flex">
+          // Out of the flow on wide screens so the content below the shader keeps its place.
+          // Narrower, it would overlap the centered line below, so it takes a line of its own above it
+          <div className="mt-20 flex justify-end min-[75rem]:absolute min-[75rem]:top-full min-[75rem]:right-0">
             <Link
               href={getHtmlInCanvasToggleHref(pathname)}
               className="-mx-8 flex h-32 items-center gap-8 rounded-md px-8 outline-0 outline-focus transition-colors hover:bg-backplate-2 focus-visible:outline-2 active:bg-backplate-3 squircle:rounded-lg"

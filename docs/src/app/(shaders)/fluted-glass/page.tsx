@@ -16,7 +16,7 @@ import { ShaderContainer } from '@/components/shader-container';
 import { useUrlParams } from '@/helpers/use-url-params';
 import { htmlOnly, imageOnly, useIsHtmlInCanvasPage } from '@/helpers/html-in-canvas-page';
 import { HtmlInCanvasShaderPage } from '@/components/html-in-canvas-shader-page';
-import { getHtml, htmlInCanvasParams } from './html-in-canvas/demo';
+import { css, getHtml, htmlInCanvasParams } from './html-in-canvas/demo';
 
 const { worldWidth, worldHeight, ...presetDefaults } = flutedGlassPresets[0].params;
 
@@ -141,6 +141,7 @@ const FlutedGlassWithControls = () => {
         currentParams={shaderParams}
         defaultParams={presetDefaults}
         html={html}
+        css={css}
       >
         <FlutedGlass {...shaderParams}>{html}</FlutedGlass>
       </HtmlInCanvasShaderPage>

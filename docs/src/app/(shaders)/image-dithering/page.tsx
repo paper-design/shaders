@@ -15,7 +15,7 @@ import { ShaderContainer } from '@/components/shader-container';
 import { useUrlParams } from '@/helpers/use-url-params';
 import { htmlOnly, imageOnly, useIsHtmlInCanvasPage } from '@/helpers/html-in-canvas-page';
 import { HtmlInCanvasShaderPage } from '@/components/html-in-canvas-shader-page';
-import { html, htmlInCanvasParams } from './html-in-canvas/demo';
+import { css, html, htmlInCanvasParams } from './html-in-canvas/demo';
 
 const { worldWidth, worldHeight, ...presetDefaults } = imageDitheringPresets[0].params;
 
@@ -104,7 +104,13 @@ const ImageDitheringWithControls = () => {
 
   if (isHtmlInCanvas) {
     return (
-      <HtmlInCanvasShaderPage shaderDef={imageDitheringDef} currentParams={params} defaultParams={defaults} html={html}>
+      <HtmlInCanvasShaderPage
+        shaderDef={imageDitheringDef}
+        currentParams={params}
+        defaultParams={defaults}
+        html={html}
+        css={css}
+      >
         <ImageDithering {...params}>{html}</ImageDithering>
       </HtmlInCanvasShaderPage>
     );

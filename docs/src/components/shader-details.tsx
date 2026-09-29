@@ -5,7 +5,7 @@ import { ShaderDef, ParamOption, ParamDef } from '../shader-defs/shader-def-type
 import { CopyButton } from './copy-button';
 import { hslToHex, toHsla } from '@/helpers/color-utils';
 import { commonParams } from '@/shader-defs/common-param-def';
-import { highlightCode } from '@/helpers/highlight-code';
+import { highlightCode, highlightCss } from '@/helpers/highlight-code';
 
 const formatJsxAttribute = (key: string, value: unknown): string => {
   if (value === true) {
@@ -113,7 +113,7 @@ interface ShaderCodeProps {
   currentParams: Record<string, unknown>;
   codeSampleImageName?: string;
   /** Live HTML input: the sample shows it as children and leaves out params that match the defaults */
-  html?: { code: string; defaultParams: Record<string, unknown> };
+  html?: { code: string; css: string; defaultParams: Record<string, unknown> };
 }
 
 const sectionsClassName =
@@ -189,7 +189,8 @@ function getShaderCode({ shaderDef, currentParams, codeSampleImageName, html }: 
       ? `<${componentName}\n  ${attributes.join('\n  ')}\n/>`
       : `<${componentName} />`;
 
-  return `import { ${componentName} } from '@paper-design/shaders-react';\n\n${element}\n`;
+  const imports = `import { ${componentName} } from '@paper-design/shaders-react';${html ? `\nimport './demo.css';` : ''}`;
+  return `${imports}\n\n${element}\n`;
 }
 
 function InstallationSection() {
@@ -209,7 +210,7 @@ function InstallationSection() {
   );
 }
 
-function CodeSection({ code }: { code: string }) {
+function CodeSection({ code, css }: { code: string; css?: string }) {
   return (
     <section>
       <div className="flex items-center gap-8">
@@ -225,6 +226,21 @@ function CodeSection({ code }: { code: string }) {
           className="syntax-highlight custom-scrollbar overflow-x-auto rounded-xl bg-backplate-1 p-24 text-code squircle:rounded-2xl"
           dangerouslySetInnerHTML={{ __html: highlightCode(code) }}
         />
+        {css && (
+          <>
+            <div className="mt-16 flex items-center gap-8">
+              <h3 className="font-mono text-base">demo.css</h3>
+              <CopyButton
+                className="-mt-14 -mb-16 size-32 rounded-md outline-0 outline-focus transition-colors hover:bg-backplate-1 focus-visible:outline-2 active:bg-backplate-2 squircle:rounded-lg"
+                getText={() => css}
+              />
+            </div>
+            <pre
+              className="syntax-highlight custom-scrollbar overflow-x-auto rounded-xl bg-backplate-1 p-24 text-code squircle:rounded-2xl"
+              dangerouslySetInnerHTML={{ __html: highlightCss(css) }}
+            />
+          </>
+        )}
       </div>
     </section>
   );
@@ -244,7 +260,10 @@ export function ShaderDetails({
   return (
     <div className={`mt-24 md:mt-40 ${sectionsClassName}`}>
       <InstallationSection />
-      <CodeSection code={getShaderCode({ shaderDef, currentParams, codeSampleImageName, html })} />
+      <CodeSection
+        code={getShaderCode({ shaderDef, currentParams, codeSampleImageName, html })}
+        css={html?.css.trim()}
+      />
 
       <section>
         <div className="flex flex-col gap-16">

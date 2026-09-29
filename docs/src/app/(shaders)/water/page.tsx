@@ -15,7 +15,7 @@ import { ShaderContainer } from '@/components/shader-container';
 import { useUrlParams } from '@/helpers/use-url-params';
 import { htmlOnly, imageOnly, useIsHtmlInCanvasPage } from '@/helpers/html-in-canvas-page';
 import { HtmlInCanvasShaderPage } from '@/components/html-in-canvas-shader-page';
-import { html, htmlInCanvasParams } from './html-in-canvas/demo';
+import { css, html, htmlInCanvasParams } from './html-in-canvas/demo';
 
 const { worldWidth, worldHeight, ...presetDefaults } = waterPresets[0].params;
 
@@ -125,6 +125,7 @@ const WaterWithControls = () => {
         currentParams={params}
         defaultParams={presetDefaults}
         html={html}
+        css={css}
         notes={notes}
       >
         <Water {...params}>{html}</Water>

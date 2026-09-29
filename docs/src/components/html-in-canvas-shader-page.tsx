@@ -12,6 +12,7 @@ export function HtmlInCanvasShaderPage({
   currentParams,
   defaultParams,
   html,
+  css,
   notes,
   children,
 }: {
@@ -21,11 +22,14 @@ export function HtmlInCanvasShaderPage({
   defaultParams: Record<string, unknown>;
   /** The HTML fed to the shader, also printed in the code sample */
   html: ReactNode;
+  /** The stylesheet for the HTML, printed as its own file in the code sample */
+  css: string;
   notes?: ReactNode;
   children: ReactNode;
 }) {
   return (
     <>
+      <style>{css}</style>
       <ShaderContainer shaderDef={shaderDef} currentParams={currentParams}>
         {children}
       </ShaderContainer>
@@ -33,7 +37,7 @@ export function HtmlInCanvasShaderPage({
         shaderDef={shaderDef}
         currentParams={currentParams}
         notes={notes}
-        html={{ code: jsxToCode(html), defaultParams }}
+        html={{ code: jsxToCode(html), css, defaultParams }}
       />
     </>
   );
