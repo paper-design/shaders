@@ -63,7 +63,7 @@ export function ShaderContainer({
       )}
 
       <div className="relative">
-        <ResizableShader>{children}</ResizableShader>
+        <ResizableShader alwaysResizable={isHtmlInCanvasPage}>{children}</ResizableShader>
 
         {(hasHtmlInCanvasPage || isHtmlInCanvasPage) && (
           // Positioned out of the flow so the content below the shader keeps its place
@@ -141,7 +141,11 @@ export function ShaderContainer({
   );
 }
 
-function ResizableShader({ children }: React.PropsWithChildren) {
+/** Alt+drag resizes the image demos; HTML demos take pointer input of their own, so they always show the handle */
+function ResizableShader({
+  children,
+  alwaysResizable = false,
+}: React.PropsWithChildren<{ alwaysResizable?: boolean }>) {
   const [canStartResize, setCanStartResize] = useState(false);
 
   return (
@@ -151,7 +155,8 @@ function ResizableShader({ children }: React.PropsWithChildren) {
       onPointerLeave={() => setCanStartResize(false)}
     >
       <div
-        data-resizable={canStartResize || undefined}
+        data-resizable={canStartResize || alwaysResizable || undefined}
+        data-resize-handle={alwaysResizable || undefined}
         className="flex overflow-hidden *:size-full data-resizable:resize [[style*='width']]:resize"
       >
         {children}

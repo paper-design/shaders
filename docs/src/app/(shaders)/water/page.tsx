@@ -92,7 +92,7 @@ const WaterWithControls = () => {
       colorHighlight: { value: toHsla(defaults.colorHighlight), order: 101 },
       highlights: { value: defaults.highlights, min: 0, max: 1, order: 200 },
       layering: { value: defaults.layering, min: 0, max: 1, order: 201 },
-      edges: { value: defaults.edges, min: 0, max: 1, order: 202 },
+      edges: { value: defaults.edges, min: 0, max: 1, order: 202, ...imageOnly },
       waves: { value: defaults.waves, min: 0, max: 1, order: 203 },
       caustic: { value: defaults.caustic, min: 0, max: 1, order: 204 },
       size: { value: defaults.size, min: 0.01, max: 7, order: 205 },

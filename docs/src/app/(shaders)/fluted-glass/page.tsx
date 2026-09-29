@@ -132,9 +132,7 @@ const FlutedGlassWithControls = () => {
     : { ...restParams, margin };
 
   if (isHtmlInCanvas) {
-    const html = getHtml(params.distortionShape, (shape) =>
-      setParamsSafe(params, setParams, { distortionShape: shape })
-    );
+    const html = getHtml(params, (name, value) => setParamsSafe(params, setParams, { [name]: value }));
 
     return (
       // The code sample leaves out params matching the component defaults, which are the default preset's

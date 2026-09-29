@@ -14,26 +14,31 @@ export const htmlInCanvasParams = {
   lensBulge: 0.1,
 };
 
-// Footer buttons fit their label and longest value (in monospace characters), so cycling values doesn't resize them
+// Each viewfinder slider is a native range input that sets its CSS variable on the demo:
+// --ev is exposure in stops, --zoom scales the scene and --wb is white balance in kelvin.
+// The color slider drives the shader's dispersionColor instead, so the HTML controls the lens that distorts it.
+// The header and the dials share one width, and labels and readouts have fixed widths, so everything lines up.
 const htmlStyle = `
-  .demo { --x: 64%; --y: 45%; position: relative; height: 100%; container-type: inline-size; overflow: hidden; color: #f4f3ec; background: #121212; font: 1.8cqw 'Paper Mono', ui-monospace, monospace; text-transform: uppercase; user-select: none; touch-action: none; cursor: crosshair }
-  .demo header, .demo footer { position: absolute; left: 11cqw; right: 11cqw; display: flex; align-items: center; gap: 1.5cqw }
-  .demo header { top: 5cqw }
-  .demo footer { bottom: 5cqw; justify-content: center }
-  .demo header time { margin-right: auto; font-feature-settings: "tnum", "zero" }
-  .demo .battery::before { content: ''; display: inline-block; width: 3.2cqw; height: 1.4cqw; margin-right: 1cqw; padding: 0.2cqw; border: 0.2cqw solid; border-radius: 0.3cqw; vertical-align: -0.2cqw; background: linear-gradient(90deg, currentColor 76%, transparent 0) content-box }
-  .demo button { padding: 1cqw 1.6cqw; border: 0.15cqw solid rgb(255 255 255 / 30%); border-radius: 0.8cqw; font: inherit; text-transform: inherit; color: inherit; background: rgb(255 255 255 / 0%); cursor: pointer; transition: background-color 150ms cubic-bezier(0.685, 0.89, 0.315, 0.995) }
-  .demo button:hover { background: rgb(255 255 255 / 14%) }
-  .demo button:active { background: rgb(255 255 255 / 24%) }
-  .demo footer button::before { content: attr(data-label); margin-right: 0.8cqw; opacity: 0.55 }
-  .demo footer button { box-sizing: content-box; width: calc(var(--chars) * 1ch + 0.8cqw); text-align: left }
-  .demo [data-label="shutter"] { --chars: 13 }
-  .demo [data-label="iris"] { --chars: 9 }
-  .demo [data-label="iso"], .demo [data-label="wb"] { --chars: 7 }
-  .demo .rec::before { content: ''; display: inline-block; width: 1.2cqw; height: 1.2cqw; margin-right: 0.8cqw; border-radius: 50%; background: #ff3b30; animation: blink 1s infinite }
+  .demo { --ev: 0; --zoom: 1; --wb: 5600; --warmth: calc((var(--wb) - 5600) / 2400); --panel: 38cqw; --gap: 1.6cqw; --inset: 2.2cqw; position: relative; height: 100%; container-type: inline-size; overflow: hidden; color: #f4f3ec; background: #121212; font: 2.2cqw 'Paper Mono', ui-monospace, monospace; text-transform: uppercase; user-select: none; text-shadow: 0 0.1cqw 0.4cqw rgb(0 0 0 / 50%) }
+  .demo .scene { position: absolute; inset: 0; background: url(/images/image-filters/003.webp) center / cover; scale: var(--zoom); filter: brightness(pow(2, var(--ev))); transition: scale 200ms cubic-bezier(0.22, 1, 0.36, 1), filter 200ms }
+  .demo .tint { position: absolute; inset: 0; background: color-mix(in oklab, #3d7bff, #ff9a3d calc((var(--warmth) + 1) * 50%)); mix-blend-mode: soft-light; opacity: calc(max(var(--warmth), -1 * var(--warmth)) * 0.8); transition: opacity 200ms }
+  .demo .shade { position: absolute; inset: 0; background: linear-gradient(rgb(0 0 0 / 55%), transparent 25% 55%, rgb(0 0 0 / 75%)) }
+  .demo header, .demo footer { position: absolute; left: 50%; width: calc(2 * var(--panel) + var(--gap)); translate: -50% 0 }
+  .demo header { top: 5cqw; display: flex; justify-content: space-between; align-items: center }
+  .demo footer { bottom: 5cqw; display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--gap) }
+  .demo header time { padding-left: var(--inset); font-feature-settings: "tnum", "zero" }
+  .demo .rec { border: 0.2cqw solid rgb(255 255 255 / 30%); border-radius: 1.4cqw; background: rgb(0 0 0 / 45%) }
+  .demo .rec { padding: 1.4cqw var(--inset); font: inherit; text-transform: inherit; color: inherit; cursor: pointer; transition: background-color 150ms cubic-bezier(0.685, 0.89, 0.315, 0.995) }
+  .demo .rec:hover { background: rgb(255 255 255 / 14%) }
+  .demo .rec:active { background: rgb(255 255 255 / 24%) }
+  .demo .rec::before { content: ''; display: inline-block; width: 1.5cqw; height: 1.5cqw; margin-right: 1cqw; border-radius: 50%; background: #ff3b30; animation: blink 1s infinite }
   .demo[data-recording="off"] .rec::before { background: transparent; box-shadow: inset 0 0 0 0.2cqw currentColor; animation: none }
-  .demo .focus { position: absolute; left: var(--x); top: var(--y); width: var(--w, 22cqw); height: var(--h, 16cqw); translate: -50% -50%; border: 0.2cqw solid #ffd84d; pointer-events: none }
-  .demo .focus span { position: absolute; bottom: 100%; left: -0.2cqw; padding-bottom: 0.6cqw; font-size: 1.4cqw; color: #ffd84d }
+  .demo .dial { display: grid; grid-template-columns: 5ch 1fr 5ch; align-items: center; gap: 1.6cqw; padding: 1.2cqw var(--inset) }
+  .demo .dial span { opacity: 0.75 }
+  .demo .dial output { text-align: right; font-feature-settings: "tnum" }
+  .demo input[type="range"] { appearance: none; min-width: 0; height: 4.4cqw; margin: 0; background: linear-gradient(transparent calc(50% - 0.15cqw), rgb(255 255 255 / 55%) 0 calc(50% + 0.15cqw), transparent 0); outline: none; cursor: pointer }
+  .demo input[type="range"]::-webkit-slider-thumb { appearance: none; width: 1.4cqw; height: 3.6cqw; border-radius: 0.7cqw; background: #f4f3ec; box-shadow: 0 0.1cqw 0.6cqw rgb(0 0 0 / 50%); transition: background-color 150ms }
+  .demo input[type="range"]:focus-visible::-webkit-slider-thumb { background: #ffd84d }
   @keyframes blink { 50% { opacity: 0.15 } }
 `;
 
@@ -62,106 +67,6 @@ const startTimecode = withCode(
   return () => clearInterval(interval);
 }`
 );
-const handlePointerDown = withCode(
-  (event: {
-    currentTarget: HTMLDivElement;
-    target: EventTarget;
-    clientX: number;
-    clientY: number;
-    pointerId: number;
-  }) => {
-    if ((event.target as Element).closest('button')) return;
-    const demo = event.currentTarget;
-    const bounds = demo.getBoundingClientRect();
-    demo.dataset.x = String(((event.clientX - bounds.left) / bounds.width) * 100);
-    demo.dataset.y = String(((event.clientY - bounds.top) / bounds.height) * 100);
-    delete demo.dataset.dragged;
-    demo.setPointerCapture(event.pointerId);
-  },
-  `(event) => {
-  if (event.target.closest('button')) return;
-  const demo = event.currentTarget;
-  const bounds = demo.getBoundingClientRect();
-  demo.dataset.x = String(((event.clientX - bounds.left) / bounds.width) * 100);
-  demo.dataset.y = String(((event.clientY - bounds.top) / bounds.height) * 100);
-  delete demo.dataset.dragged;
-  demo.setPointerCapture(event.pointerId);
-}`
-);
-const handlePointerMove = withCode(
-  (event: { currentTarget: HTMLDivElement; clientX: number; clientY: number }) => {
-    const demo = event.currentTarget;
-    if (demo.dataset.x === undefined) return;
-    const bounds = demo.getBoundingClientRect();
-    const [startX, startY] = [Number(demo.dataset.x), Number(demo.dataset.y)];
-    const x = ((event.clientX - bounds.left) / bounds.width) * 100;
-    const y = ((event.clientY - bounds.top) / bounds.height) * 100;
-    if (!demo.dataset.dragged && Math.hypot(x - startX, y - startY) < 2) return;
-    demo.dataset.dragged = 'true';
-    demo.style.setProperty('--x', `${(x + startX) / 2}%`);
-    demo.style.setProperty('--y', `${(y + startY) / 2}%`);
-    demo.style.setProperty('--w', `${Math.abs(x - startX)}%`);
-    demo.style.setProperty('--h', `${Math.abs(y - startY)}%`);
-    demo.querySelector('.focus span')!.textContent = 'track';
-  },
-  `(event) => {
-  const demo = event.currentTarget;
-  if (demo.dataset.x === undefined) return;
-  const bounds = demo.getBoundingClientRect();
-  const [startX, startY] = [Number(demo.dataset.x), Number(demo.dataset.y)];
-  const x = ((event.clientX - bounds.left) / bounds.width) * 100;
-  const y = ((event.clientY - bounds.top) / bounds.height) * 100;
-  if (!demo.dataset.dragged && Math.hypot(x - startX, y - startY) < 2) return;
-  demo.dataset.dragged = 'true';
-  demo.style.setProperty('--x', \`\${(x + startX) / 2}%\`);
-  demo.style.setProperty('--y', \`\${(y + startY) / 2}%\`);
-  demo.style.setProperty('--w', \`\${Math.abs(x - startX)}%\`);
-  demo.style.setProperty('--h', \`\${Math.abs(y - startY)}%\`);
-  demo.querySelector('.focus span').textContent = 'track';
-}`
-);
-const handlePointerUp = withCode(
-  (event: { currentTarget: HTMLDivElement }) => {
-    const demo = event.currentTarget;
-    if (demo.dataset.x === undefined) return;
-    const focus = demo.querySelector('.focus')!;
-    if (demo.dataset.dragged) {
-      focus.animate([{ opacity: 0 }, { opacity: 1 }, { opacity: 0 }, { opacity: 1 }], 300);
-    } else {
-      demo.style.setProperty('--x', `${demo.dataset.x}%`);
-      demo.style.setProperty('--y', `${demo.dataset.y}%`);
-      demo.style.removeProperty('--w');
-      demo.style.removeProperty('--h');
-      focus.firstElementChild!.textContent = 'af-s';
-      focus.animate(
-        [
-          { scale: 1.4, opacity: 0 },
-          { scale: 1, opacity: 1 },
-        ],
-        250
-      );
-    }
-    delete demo.dataset.x;
-    delete demo.dataset.y;
-  },
-  `(event) => {
-  const demo = event.currentTarget;
-  if (demo.dataset.x === undefined) return;
-  const focus = demo.querySelector('.focus');
-  if (demo.dataset.dragged) {
-    focus.animate([{ opacity: 0 }, { opacity: 1 }, { opacity: 0 }, { opacity: 1 }], 300);
-  } else {
-    demo.style.setProperty('--x', \`\${demo.dataset.x}%\`);
-    demo.style.setProperty('--y', \`\${demo.dataset.y}%\`);
-    demo.style.removeProperty('--w');
-    demo.style.removeProperty('--h');
-    focus.firstElementChild.textContent = 'af-s';
-    focus.animate([{ scale: 1.4, opacity: 0 }, { scale: 1, opacity: 1 }], 250);
-  }
-  delete demo.dataset.x;
-  delete demo.dataset.y;
-}`
-);
 const toggleRecording = withCode(
   (event: { currentTarget: HTMLButtonElement }) => {
     const demo = event.currentTarget.closest<HTMLElement>('.demo')!;
@@ -172,53 +77,70 @@ const toggleRecording = withCode(
   demo.dataset.recording = demo.dataset.recording === 'off' ? 'on' : 'off';
 }`
 );
-const cycleSetting = withCode(
-  (event: { currentTarget: HTMLButtonElement }) => {
-    const button = event.currentTarget;
-    const values = button.dataset.values!.split(' ');
-    button.textContent = values[(values.indexOf(button.textContent!) + 1) % values.length]!;
+const updateDial = withCode(
+  (event: { currentTarget: HTMLInputElement }) => {
+    const input = event.currentTarget;
+    input.closest<HTMLElement>('.demo')!.style.setProperty(input.dataset.property!, input.value);
+    const value = input.valueAsNumber.toFixed(Number(input.dataset.digits ?? 1));
+    input.parentElement!.querySelector('output')!.textContent = input.dataset.format!.replace('%', value);
   },
   `(event) => {
-  const button = event.currentTarget;
-  const values = button.dataset.values.split(' ');
-  button.textContent = values[(values.indexOf(button.textContent) + 1) % values.length];
+  const input = event.currentTarget;
+  input.closest('.demo').style.setProperty(input.dataset.property, input.value);
+  const value = input.valueAsNumber.toFixed(Number(input.dataset.digits ?? 1));
+  input.parentElement.querySelector('output').textContent = input.dataset.format.replace('%', value);
 }`
 );
-export const html = (
-  <div
-    className="demo"
-    data-recording="on"
-    ref={startTimecode}
-    onPointerDown={handlePointerDown}
-    onPointerMove={handlePointerMove}
-    onPointerUp={handlePointerUp}
-    onPointerCancel={handlePointerUp}
-  >
-    <style>{htmlStyle}</style>
-    <div className="focus">
-      <span>af-s</span>
+
+const dials = [
+  { label: 'ev', property: '--ev', min: -2, max: 2, step: 0.1, value: 0, format: '%' },
+  { label: 'zoom', property: '--zoom', min: 1, max: 3, step: 0.1, value: 1, format: '%×' },
+  { label: 'wb', property: '--wb', min: 3200, max: 8000, step: 100, value: 5600, format: '%K', digits: 0 },
+];
+
+/** The color slider sets the shader's dispersionColor, so the HTML also controls the lens it's seen through */
+export const getHtml = (dispersionColor: number, setDispersionColor: (value: number) => void) => {
+  const updateDispersionColor = withCode(
+    (event: { currentTarget: HTMLInputElement }) => setDispersionColor(event.currentTarget.valueAsNumber),
+    `(event) => setDispersionColor(event.currentTarget.valueAsNumber)`
+  );
+
+  return (
+    <div className="demo" data-recording="on" ref={startTimecode}>
+      <style>{htmlStyle}</style>
+      <div className="scene" />
+      <div className="tint" />
+      <div className="shade" />
+      <header>
+        <time>00:00:00:00</time>
+        <button className="rec" onClick={toggleRecording}>
+          rec
+        </button>
+      </header>
+      <footer>
+        {dials.map(({ label, property, min, max, step, value, format, digits }) => (
+          <label className="dial" key={label}>
+            <span>{label}</span>
+            <input
+              type="range"
+              min={min}
+              max={max}
+              step={step}
+              defaultValue={value}
+              data-property={property}
+              data-format={format}
+              {...(digits !== undefined && { 'data-digits': digits })}
+              onInput={updateDial}
+            />
+            <output>{format.replace('%', value.toFixed(digits ?? 1))}</output>
+          </label>
+        ))}
+        <label className="dial">
+          <span>color</span>
+          <input type="range" min={0} max={1} step={0.01} value={dispersionColor} onChange={updateDispersionColor} />
+          <output>{dispersionColor.toFixed(2)}</output>
+        </label>
+      </footer>
     </div>
-    <header>
-      <button className="rec" onClick={toggleRecording}>
-        rec
-      </button>
-      <time>00:00:00:00</time>
-      <span>4k · 24p</span>
-      <span className="battery">76%</span>
-    </header>
-    <footer>
-      <button data-label="shutter" data-values="1/60 1/125 1/250 1/500 1/1000" onClick={cycleSetting}>
-        1/250
-      </button>
-      <button data-label="iris" data-values="f/1.4 f/2 f/2.8 f/4 f/5.6 f/8 f/11 f/16" onClick={cycleSetting}>
-        f/2.8
-      </button>
-      <button data-label="iso" data-values="100 200 400 800 1600 3200" onClick={cycleSetting}>
-        400
-      </button>
-      <button data-label="wb" data-values="3200K 4300K 5600K 6500K" onClick={cycleSetting}>
-        5600K
-      </button>
-    </footer>
-  </div>
-);
+  );
+};

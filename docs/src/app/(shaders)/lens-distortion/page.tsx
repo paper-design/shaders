@@ -14,7 +14,7 @@ import { ShaderContainer } from '@/components/shader-container';
 import { useUrlParams } from '@/helpers/use-url-params';
 import { htmlOnly, imageOnly, useIsHtmlInCanvasPage } from '@/helpers/html-in-canvas-page';
 import { HtmlInCanvasShaderPage } from '@/components/html-in-canvas-shader-page';
-import { html, htmlInCanvasParams } from './html-in-canvas/demo';
+import { getHtml, htmlInCanvasParams } from './html-in-canvas/demo';
 
 const { worldWidth, worldHeight, ...presetDefaults } = lensDistortionPresets[0].params;
 
@@ -114,6 +114,10 @@ const LensDistortionWithControls = () => {
   cleanUpLevaParams(params);
 
   if (isHtmlInCanvas) {
+    const html = getHtml(params.dispersionColor, (value) =>
+      setParamsSafe(params, setParams, { dispersionColor: value })
+    );
+
     return (
       <HtmlInCanvasShaderPage
         shaderDef={lensDistortionDef}
