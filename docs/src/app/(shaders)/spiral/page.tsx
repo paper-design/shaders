@@ -27,7 +27,7 @@ const SpiralWithControls = () => {
       density: { value: defaults.density, min: 0, max: 1, order: 200 },
       distortion: { value: defaults.distortion, min: 0, max: 1, order: 201 },
       strokeWidth: { value: defaults.strokeWidth, min: 0, max: 1, order: 202 },
-      strokeTaper: { value: defaults.strokeTaper, min: 0, max: 1, order: 203 },
+      strokeTaper: { value: defaults.strokeTaper, min: -1, max: 1, order: 203 },
       strokeCap: { value: defaults.strokeCap, min: 0, max: 1, order: 204 },
       noise: { value: defaults.noise, min: 0, max: 1, order: 205 },
       noiseFrequency: { value: defaults.noiseFrequency, min: 0, max: 1, order: 206 },

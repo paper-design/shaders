@@ -29,7 +29,7 @@ export const spiralDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.density,
-      description: 'Spacing falloff simulating perspective (0 = flat spiral)',
+      description: 'Spacing of the turns (1 = evenly spaced, lower = denser toward the center, 0 = single radial sector)',
     },
     {
       name: 'distortion',
@@ -50,10 +50,10 @@ export const spiralDef: ShaderDef = {
     {
       name: 'strokeTaper',
       type: 'number',
-      min: 0,
+      min: -1,
       max: 1,
       defaultValue: defaultParams.strokeTaper,
-      description: 'how much the stroke is loosing width away from center (0 = full visibility)',
+      description: 'How much the stroke thins away from the center (0 = constant width, negative = thickens instead)',
     },
     {
       name: 'strokeCap',
@@ -61,7 +61,7 @@ export const spiralDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.strokeCap,
-      description: 'Extra stroke width at the center (needs strokeWidth ≠ 0.5)',
+      description: 'Shape of the stroke end at the center (0 = pointed, 1 = round)',
     },
     {
       name: 'noise',
