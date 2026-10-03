@@ -61,13 +61,13 @@ out vec4 fragColor;
 ${ declarePI }
 ${ simplexNoise }
 
-void spiralCurve(highp float u, highp float d, highp float t, out highp vec2 c, out highp vec2 cp, out highp vec2 cpp) {
-  highp float uc = max(u, 1e-4);
-  highp float s = pow(uc, 1. / d);
-  highp float ds = s / (d * uc);
-  highp float phi = t - TWO_PI * u;
-  highp vec2 dir = vec2(cos(phi), sin(phi));
-  highp vec2 nrm = vec2(-dir.y, dir.x);
+void spiralCurve(float u, float d, float t, out vec2 c, out vec2 cp, out vec2 cpp) {
+  float uc = max(u, 1e-4);
+  float s = pow(uc, 1. / d);
+  float ds = s / (d * uc);
+  float phi = t - TWO_PI * u;
+  vec2 dir = vec2(cos(phi), sin(phi));
+  vec2 nrm = vec2(-dir.y, dir.x);
   c = s * dir;
   cp = ds * dir - TWO_PI * s * nrm;
   cpp = -2. * TWO_PI * ds * nrm - TWO_PI * TWO_PI * s * dir;
@@ -99,26 +99,26 @@ void main() {
   float exactMix = (1. - smoothstep(.6, 1., l)) * smoothstep(.1, .25, density) * clamp(u_strokeCap, 0., 1.);
   float shapeExact = shape;
   float signedExact = 0.;
-  highp float warpAngle = TWO_PI * (nz - distortionShift);
-  highp vec2 uvWarp = mat2(cos(warpAngle), sin(warpAngle), -sin(warpAngle), cos(warpAngle)) * uv;
+  float warpAngle = TWO_PI * (nz - distortionShift);
+  vec2 uvWarp = mat2(cos(warpAngle), sin(warpAngle), -sin(warpAngle), cos(warpAngle)) * uv;
   if (exactMix > 0.) {
-    highp float dExact = max(density, .1);
-    highp vec2 c, cp, cpp;
-    highp float lCurve = l - (offset - floor(offset + .5));
-    highp float bestDist = 1e4;
-    highp float bestU = 0.;
-    highp float bestSigned = 0.;
+    float dExact = max(density, .1);
+    vec2 c, cp, cpp;
+    float lCurve = l - (offset - floor(offset + .5));
+    float bestDist = 1e4;
+    float bestU = 0.;
+    float bestSigned = 0.;
     for (int k = 0; k < 3; k++) {
-      highp float u = (k == 2) ? l : max(lCurve + float(k - 1), 0.);
-      for (int i = 0; i < 2; i++) {
+      float u = (k == 2) ? l : max(lCurve + float(k - 1), 0.);
+      for (int i = 0; i < 1; i++) {
         spiralCurve(u, dExact, t, c, cp, cpp);
-        highp vec2 diff = c - uvWarp;
-        highp float h = dot(diff, cp);
-        highp float hp = dot(cp, cp) + dot(diff, cpp);
+        vec2 diff = c - uvWarp;
+        float h = dot(diff, cp);
+        float hp = dot(cp, cp) + dot(diff, cpp);
         u = max(u - clamp(h / max(hp, 1e-4), -.15, .15), 0.);
       }
       spiralCurve(u, dExact, t, c, cp, cpp);
-      highp float dist = length(c - uvWarp);
+      float dist = length(c - uvWarp);
       if (dist < bestDist) {
         bestDist = dist;
         bestU = u;
@@ -126,8 +126,8 @@ void main() {
       }
     }
 
-    highp float bestS = pow(max(bestU, 1e-4), 1. / dExact);
-    highp float spacing = pow(max(bestS, .5), 1. - dExact) / dExact;
+    float bestS = pow(max(bestU, 1e-4), 1. / dExact);
+    float spacing = pow(max(bestS, .5), 1. - dExact) / dExact;
     shapeExact = 1. - 2. * bestDist / spacing;
     signedExact = bestSigned / spacing;
   }
