@@ -61,82 +61,44 @@ out vec4 fragColor;
 ${ declarePI }
 ${ simplexNoise }
 
-void spiralCurve(float u, float d, float t, out vec2 c, out vec2 cp, out vec2 cpp) {
-  float uc = max(u, 1e-4);
-  float s = pow(uc, 1. / d);
-  float ds = s / (d * uc);
-  float phi = t - TWO_PI * u;
-  vec2 dir = vec2(cos(phi), sin(phi));
-  vec2 nrm = vec2(-dir.y, dir.x);
-  c = s * dir;
-  cp = ds * dir - TWO_PI * s * nrm;
-  cpp = -2. * TWO_PI * ds * nrm - TWO_PI * TWO_PI * s * dir;
-}
-
 void main() {
   vec2 uv = 2. * v_patternUV;
 
   float t = u_time;
-  float r = length(uv);
+  float r = max(length(uv), 1e-6);
   float density = clamp(u_density, 0., 1.);
-  float l = pow(max(r, 1e-6), density);
+  float l = pow(r, density);
   float angle = atan(uv.y, uv.x) - t;
   float angleNormalised = angle / TWO_PI;
 
-  float nz = 0.;
   if (u_noise > 0.) {
-    nz = .125 * u_noise * snoise(16. * pow(u_noiseFrequency, 3.) * uv);
-    angleNormalised += nz;
+    angleNormalised += .125 * u_noise * snoise(16. * pow(u_noiseFrequency, 3.) * uv);
   }
 
   float offset = l + angleNormalised;
-  float distortionShift = u_distortion * (sin(4. * l - .5 * t) * cos(PI + l + .5 * t));
-  offset -= distortionShift;
+  offset -= u_distortion * (sin(4. * l - .5 * t) * cos(PI + l + .5 * t));
   float stripe = fract(offset);
 
   float shape = 2. * abs(stripe - .5);
 
-  float exactMix = (1. - smoothstep(.6, 1., l)) * smoothstep(.1, .25, density) * clamp(u_strokeCap, 0., 1.);
-  float shapeExact = shape;
-  float signedExact = 0.;
-  float warpAngle = TWO_PI * (nz - distortionShift);
-  vec2 uvWarp = mat2(cos(warpAngle), sin(warpAngle), -sin(warpAngle), cos(warpAngle)) * uv;
-  if (exactMix > 0.) {
-    float dExact = max(density, .1);
-    vec2 c, cp, cpp;
-    float lCurve = l - (offset - floor(offset + .5));
-    float bestDist = 1e4;
-    float bestU = 0.;
-    float bestSigned = 0.;
-    for (int k = 0; k < 3; k++) {
-      float u = (k == 2) ? l : max(lCurve + float(k - 1), 0.);
-      for (int i = 0; i < 1; i++) {
-        spiralCurve(u, dExact, t, c, cp, cpp);
-        vec2 diff = c - uvWarp;
-        float h = dot(diff, cp);
-        float hp = dot(cp, cp) + dot(diff, cpp);
-        u = max(u - clamp(h / max(hp, 1e-4), -.15, .15), 0.);
-      }
-      spiralCurve(u, dExact, t, c, cp, cpp);
-      float dist = length(c - uvWarp);
-      if (dist < bestDist) {
-        bestDist = dist;
-        bestU = u;
-        bestSigned = dot(uvWarp - c, vec2(-cp.y, cp.x)) / max(length(cp), 1e-8);
-      }
-    }
-
-    float bestS = pow(max(bestU, 1e-4), 1. / dExact);
-    float spacing = pow(max(bestS, .5), 1. - dExact) / dExact;
-    shapeExact = 1. - 2. * bestDist / spacing;
-    signedExact = bestSigned / spacing;
-  }
-  float exactPixel = length(vec2(dFdx(signedExact), dFdy(signedExact)));
-  shape = mix(shape, shapeExact, exactMix);
-
   vec2 offsetGrad = vec2(dFdx(offset), dFdy(offset));
   float fw = length(offsetGrad - round(offsetGrad));
-  float pixelSize = mix(fw, min(exactPixel, fw), exactMix);
+  float pixelSize = fw;
+
+  float capMix = sqrt(sqrt(density)) * clamp(u_strokeCap, 0., 1.);
+  if (capMix > 0.) {
+    float capDensity = max(density, 1e-3);
+    float radialGrad = capDensity * l / r;
+    float widthFix = radialGrad / length(vec2(radialGrad, 1. / (TWO_PI * r)));
+    float capRadius = max(r, .5);
+    float capDist = r * capDensity * pow(capRadius, capDensity) / capRadius;
+    float strokeDist = .5 * (1. - shape) * widthFix;
+    float blend = max(.5 * clamp(u_strokeWidth, 0., 1.), 1e-4);
+    float h = clamp(.5 + .5 * (capDist - strokeDist) / blend, 0., 1.);
+    float dist = mix(capDist, strokeDist, h) - blend * h * (1. - h);
+    shape = mix(shape, 1. - 2. * dist, capMix);
+    pixelSize = mix(fw, fw * widthFix, capMix);
+  }
 
   float minWidth = min(pixelSize, .5);
   float baseWidth = clamp(u_strokeWidth, minWidth, 1. - minWidth);
