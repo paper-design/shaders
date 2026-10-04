@@ -392,6 +392,19 @@
           "type": "registry:component"
         }
       ]
+    },
+    {
+      "name": "halftone-lines",
+      "type": "registry:component",
+      "title": "Halftone Lines Example",
+      "description": "Halftone Lines shader example.",
+      "dependencies": ["@paper-design/shaders-react"],
+      "files": [
+        {
+          "path": "registry/halftone-lines-example.tsx",
+          "type": "registry:component"
+        }
+      ]
     }
   ]
 }
