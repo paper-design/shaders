@@ -30,7 +30,7 @@ import { simplexNoise, declarePI, colorBandingFix } from '../shader-utils.js';
  * - u_distortion (float): Power of shape distortion applied along the spiral (0 to 1)
  * - u_strokeWidth (float): Thickness of spiral curve (0 to 1)
  * - u_strokeTaper (float): How much the stroke thins away from the center, 0 = constant width, negative = stroke thickens away from the center (-1 to 1)
- * - u_strokeCap (float): Shape of the stroke end at the center, 0 = pointed, 1 = round (0 to 1)
+ * - u_strokeCap (float): Shape of the stroke end at the center, 0 = pointed, 0.5 = round, 1 = round and enlarged, visible at any strokeWidth (0 to 1)
  * - u_noise (float): Noise distortion applied over the canvas, needs noiseFrequency > 0 (0 to 1)
  * - u_noiseFrequency (float): Noise frequency, needs noise > 0 (0 to 1)
  * - u_softness (float): Color transition sharpness, 0 = hard edge, 1 = smooth gradient (0 to 1)
@@ -85,7 +85,7 @@ void main() {
   float fw = length(offsetGrad - round(offsetGrad));
   float pixelSize = fw;
 
-  float capMix = sqrt(sqrt(density)) * clamp(u_strokeCap, 0., 1.);
+  float capMix = sqrt(sqrt(density)) * clamp(2. * u_strokeCap, 0., 1.);
   if (capMix > 0.) {
     float capDensity = max(density, 1e-3);
     float radialGrad = capDensity * l / r;
@@ -93,11 +93,13 @@ void main() {
     float capRadius = max(r, .5);
     float capDist = r * capDensity * pow(capRadius, capDensity) / capRadius;
     float strokeDist = .5 * (1. - shape) * widthFix;
-    float blend = max(.5 * clamp(u_strokeWidth, 0., 1.), 1e-4);
+    float capGrow = .2 * clamp(2. * u_strokeCap - 1., 0., 1.);
+    float blend = max(.5 * clamp(u_strokeWidth, 0., 1.) + 2. * capGrow, 1e-4);
     float h = clamp(.5 + .5 * (capDist - strokeDist) / blend, 0., 1.);
     float dist = mix(capDist, strokeDist, h) - blend * h * (1. - h);
     shape = mix(shape, 1. - 2. * dist, capMix);
-    pixelSize = mix(fw, fw * widthFix, capMix);
+    float distPixel = length(vec2(dFdx(dist), dFdy(dist)));
+    pixelSize = mix(fw, mix(distPixel, fw * widthFix, h), capMix);
   }
 
   float minWidth = min(pixelSize, .5);
