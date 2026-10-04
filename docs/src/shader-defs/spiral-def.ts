@@ -61,7 +61,7 @@ export const spiralDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.strokeCap,
-      description: 'Shape of the stroke end at the center (0 = pointed, 1 = round)',
+      description: 'Round cap at the start of the stroke (0 = pointed, 1 = round)',
     },
     {
       name: 'noise',

@@ -30,7 +30,7 @@ import { simplexNoise, declarePI, colorBandingFix } from '../shader-utils.js';
  * - u_distortion (float): Power of shape distortion applied along the spiral (0 to 1)
  * - u_strokeWidth (float): Thickness of spiral curve (0 to 1)
  * - u_strokeTaper (float): How much the stroke thins away from the center, 0 = constant width, negative = stroke thickens away from the center (-1 to 1)
- * - u_strokeCap (float): Shape of the stroke end at the center, 0 = pointed, 0.5 = round, 1 = round and enlarged, visible at any strokeWidth (0 to 1)
+ * - u_strokeCap (float): Round cap at the start of the stroke, 0 = pointed, 1 = round (0 to 1)
  * - u_noise (float): Noise distortion applied over the canvas, needs noiseFrequency > 0 (0 to 1)
  * - u_noiseFrequency (float): Noise frequency, needs noise > 0 (0 to 1)
  * - u_softness (float): Color transition sharpness, 0 = hard edge, 1 = smooth gradient (0 to 1)
@@ -85,21 +85,27 @@ void main() {
   float fw = length(offsetGrad - round(offsetGrad));
   float pixelSize = fw;
 
-  float capMix = sqrt(sqrt(density)) * clamp(2. * u_strokeCap, 0., 1.);
-  if (capMix > 0.) {
+  float cap = sqrt(sqrt(density)) * clamp(u_strokeCap, 0., 1.);
+  if (cap > 0.) {
     float capDensity = max(density, 1e-3);
     float radialGrad = capDensity * l / r;
     float widthFix = radialGrad / length(vec2(radialGrad, 1. / (TWO_PI * r)));
-    float capRadius = max(r, .5);
-    float capDist = r * capDensity * pow(capRadius, capDensity) / capRadius;
+    widthFix = mix(1., widthFix, sqrt(cap));
     float strokeDist = .5 * (1. - shape) * widthFix;
-    float capGrow = .2 * clamp(2. * u_strokeCap - 1., 0., 1.);
-    float blend = max(.5 * clamp(u_strokeWidth, 0., 1.) + 2. * capGrow, 1e-4);
+    float halfWidth = .5 * clamp(u_strokeWidth, 0., 1.);
+    float capU = (1. - cap) * halfWidth;
+    float capAngle = t - TWO_PI * (capU - u_distortion * sin(4. * capU - .5 * t) * cos(PI + capU + .5 * t));
+    vec2 capCenter = pow(capU, 1. / capDensity) * vec2(cos(capAngle), sin(capAngle));
+    float capDist = length(uv - capCenter) * max(capDensity * pow(.5, capDensity - 1.), 1.);
+    float blend = max(cap * halfWidth, 1e-4);
+    capDist += (1. - cap) * halfWidth;
     float h = clamp(.5 + .5 * (capDist - strokeDist) / blend, 0., 1.);
     float dist = mix(capDist, strokeDist, h) - blend * h * (1. - h);
-    shape = mix(shape, 1. - 2. * dist, capMix);
+    float capShape = 1. - 2. * dist;
     float distPixel = length(vec2(dFdx(dist), dFdy(dist)));
-    pixelSize = mix(fw, mix(distPixel, fw * widthFix, h), capMix);
+    float grow = step(shape, capShape);
+    pixelSize = mix(pixelSize, mix(distPixel, fw * widthFix, h), grow);
+    shape = max(shape, capShape);
   }
 
   float minWidth = min(pixelSize, .5);
