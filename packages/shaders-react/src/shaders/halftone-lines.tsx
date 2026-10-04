@@ -27,7 +27,7 @@ export const defaultPreset: HalftoneLinesPreset = {
     colorFront: '#000000',
     originalColors: false,
     colorSoftness: 0.5,
-    strokeWidth: 1,
+    strokeWidth: 0.5,
     strokeContrast: 1,
     strokesRounding: 0.4,
     strokeInverted: false,
