@@ -110,6 +110,8 @@ export class ShaderMount {
     // Set up the intersection observer to pause animation when the element is scrolled out of view
     this.setupIntersectionObserver();
 
+    this.isWindowFocused = this.ownerDocument.hasFocus();
+
     // Set the animation speed after everything is ready to go
     this.setSpeed(speed);
 
@@ -121,6 +123,10 @@ export class ShaderMount {
 
     // Listen for document visibility changes to pause the shader when the tab is hidden
     this.ownerDocument.addEventListener('visibilitychange', this.handleDocumentVisibilityChange);
+
+    // Listen for window focus changes to pause the shader when the window is blurred
+    this.ownerDocument.defaultView?.addEventListener('blur', this.handleWindowBlur);
+    this.ownerDocument.defaultView?.addEventListener('focus', this.handleWindowFocus);
   }
 
   private initProgram = () => {
@@ -176,6 +182,7 @@ export class ShaderMount {
 
   private intersectionObserver: IntersectionObserver | null = null;
   private isInViewport = true;
+  private isWindowFocused = true;
 
   private resizeObserver: ResizeObserver | null = null;
   private setupResizeObserver = () => {
@@ -511,9 +518,10 @@ export class ShaderMount {
     this.updateCurrentSpeed();
   };
 
-  /** Apply the target speed, pausing (0) while the tab is hidden or the element is out of the viewport */
+  /** Apply the target speed, pausing (0) while the tab is hidden, the window is blurred, or the element is out of the viewport */
   private updateCurrentSpeed = (): void => {
-    this.setCurrentSpeed(this.ownerDocument.hidden || !this.isInViewport ? 0 : this.speed);
+    const isPaused = this.ownerDocument.hidden || !this.isWindowFocused || !this.isInViewport;
+    this.setCurrentSpeed(isPaused ? 0 : this.speed);
   };
 
   private setCurrentSpeed = (newSpeed: number): void => {
@@ -555,6 +563,16 @@ export class ShaderMount {
   };
 
   private handleDocumentVisibilityChange = () => {
+    this.updateCurrentSpeed();
+  };
+
+  private handleWindowBlur = () => {
+    this.isWindowFocused = false;
+    this.updateCurrentSpeed();
+  };
+
+  private handleWindowFocus = () => {
+    this.isWindowFocused = true;
     this.updateCurrentSpeed();
   };
 
@@ -601,6 +619,8 @@ export class ShaderMount {
 
     visualViewport?.removeEventListener('resize', this.handleVisualViewportChange);
     this.ownerDocument.removeEventListener('visibilitychange', this.handleDocumentVisibilityChange);
+    this.ownerDocument.defaultView?.removeEventListener('blur', this.handleWindowBlur);
+    this.ownerDocument.defaultView?.removeEventListener('focus', this.handleWindowFocus);
 
     this.uniformLocations = {};
 
