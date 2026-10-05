@@ -34,6 +34,7 @@ import { simplexNoise, declarePI, colorBandingFix } from '../shader-utils.js';
  * - u_noise (float): Noise distortion applied over the canvas, needs noiseFrequency > 0 (0 to 1)
  * - u_noiseFrequency (float): Noise frequency, needs noise > 0 (0 to 1)
  * - u_softness (float): Color transition sharpness, 0 = hard edge, 1 = smooth gradient (0 to 1)
+ * - u_reversed (bool): Winds the spiral in the opposite direction
  *
  */
 
@@ -49,6 +50,7 @@ uniform float u_density;
 uniform float u_distortion;
 uniform float u_strokeWidth;
 uniform float u_strokeCap;
+uniform bool u_reversed;
 uniform float u_strokeTaper;
 uniform float u_noise;
 uniform float u_noiseFrequency;
@@ -63,6 +65,9 @@ ${ simplexNoise }
 
 void main() {
   vec2 uv = 2. * v_patternUV;
+  if (u_reversed) {
+    uv.y = -uv.y;
+  }
 
   float t = u_time;
   float r = max(length(uv), 1e-6);
@@ -151,6 +156,7 @@ export interface SpiralUniforms extends ShaderSizingUniforms {
   u_strokeWidth: number;
   u_strokeTaper: number;
   u_strokeCap: number;
+  u_reversed: boolean;
   u_noise: number;
   u_noiseFrequency: number;
   u_softness: number;
@@ -167,4 +173,5 @@ export interface SpiralParams extends ShaderSizingParams, ShaderMotionParams {
   noise?: number;
   noiseFrequency?: number;
   softness?: number;
+  reversed?: boolean;
 }
