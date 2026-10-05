@@ -22,6 +22,7 @@ export const smokeRingMeta = {
  * - u_innerShape (float): Ring inner fill amount, needs radius > 0 (0 to 4)
  * - u_noiseIterations (float): Number of noise layers, more layers gives more details (1 to 8)
  * - u_noiseScale (float): Noise frequency (0.01 to 5)
+ * - u_inward (bool): Smoke flows toward the center instead of outward, needs speed ≠ 0
  * - u_noiseTexture (sampler2D): Pre-computed randomizer source texture
  *
  * Vertex shader outputs (used in fragment shader):
@@ -59,6 +60,7 @@ uniform float u_radius;
 uniform float u_innerShape;
 uniform float u_noiseScale;
 uniform float u_noiseIterations;
+uniform bool u_inward;
 
 in vec2 v_objectUV;
 
@@ -125,8 +127,9 @@ void main() {
   float atg = atan(shape_uv.y, shape_uv.x) + .001;
   float l = length(shape_uv);
   float radialOffset = .5 * l - inversesqrt(max(1e-4, l));
-  vec2 polar_uv1 = vec2(atg, localTime1 - radialOffset) * u_noiseScale;
-  vec2 polar_uv2 = vec2(atg, localTime2 - radialOffset) * u_noiseScale;
+  float flow = u_inward ? -1. : 1.;
+  vec2 polar_uv1 = vec2(atg, flow * localTime1 - radialOffset) * u_noiseScale;
+  vec2 polar_uv2 = vec2(atg, flow * localTime2 - radialOffset) * u_noiseScale;
   
   float noise1 = getNoise(shape_uv, polar_uv1, t);
   float noise2 = getNoise(shape_uv, polar_uv2, t);
@@ -170,6 +173,7 @@ export interface SmokeRingUniforms extends ShaderSizingUniforms {
   u_radius: number;
   u_innerShape: number;
   u_noiseIterations: number;
+  u_inward: boolean;
   u_noiseTexture?: HTMLImageElement;
 }
 
@@ -181,4 +185,5 @@ export interface SmokeRingParams extends ShaderSizingParams, ShaderMotionParams 
   radius?: number;
   innerShape?: number;
   noiseIterations?: number;
+  inward?: boolean;
 }
