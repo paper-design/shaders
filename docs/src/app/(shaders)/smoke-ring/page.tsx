@@ -35,6 +35,7 @@ const SmokeRingWithControls = () => {
       radius: { value: defaults.radius, min: 0, max: 1, order: 202 },
       thickness: { value: defaults.thickness, min: 0.01, max: 1, order: 203 },
       innerShape: { value: defaults.innerShape, min: 0, max: 4, order: 204 },
+      inward: { value: defaults.inward, order: 205 },
       speed: { value: defaults.speed, min: 0, max: 4, order: 300 },
       scale: { value: defaults.scale, min: 0.01, max: 4, order: 301 },
       rotation: { value: defaults.rotation, min: 0, max: 360, order: 302 },
@@ -65,8 +66,6 @@ const SmokeRingWithControls = () => {
   useUrlParams(params, setParams, smokeRingDef, setColors);
   usePresetHighlight(smokeRingPresets, params);
   cleanUpLevaParams(params);
-
-  // const { reverse, ...shaderParams } = { ...params, speed: params.speed * (params.reverse ? -1 : 1) };
 
   return (
     <>

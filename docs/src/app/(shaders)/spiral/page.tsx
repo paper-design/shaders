@@ -11,13 +11,7 @@ import { spiralDef } from '@/shader-defs/spiral-def';
 import { ShaderContainer } from '@/components/shader-container';
 import { useUrlParams } from '@/helpers/use-url-params';
 
-const firstPresetParams = spiralPresets[0].params;
-const { worldWidth, worldHeight, ...defaults } = {
-  ...firstPresetParams,
-  speed: Math.abs(firstPresetParams.speed),
-  reverse: firstPresetParams.speed < 0,
-  style: { background: 'hsla(0, 0%, 0%, 0)' },
-};
+const { worldWidth, worldHeight, ...defaults } = spiralPresets[0].params;
 
 const SpiralWithControls = () => {
   const [params, setParams] = useControls(() => {
@@ -27,11 +21,12 @@ const SpiralWithControls = () => {
       density: { value: defaults.density, min: 0, max: 1, order: 200 },
       distortion: { value: defaults.distortion, min: 0, max: 1, order: 201 },
       strokeWidth: { value: defaults.strokeWidth, min: 0, max: 1, order: 202 },
-      strokeTaper: { value: defaults.strokeTaper, min: 0, max: 1, order: 203 },
+      strokeTaper: { value: defaults.strokeTaper, min: -1, max: 1, order: 203 },
       strokeCap: { value: defaults.strokeCap, min: 0, max: 1, order: 204 },
       noise: { value: defaults.noise, min: 0, max: 1, order: 205 },
       noiseFrequency: { value: defaults.noiseFrequency, min: 0, max: 1, order: 206 },
       softness: { value: defaults.softness, min: 0, max: 1, order: 207 },
+      reversed: { value: defaults.reversed, order: 208 },
       speed: { value: defaults.speed, min: 0, max: 2, order: 300 },
       scale: { value: defaults.scale, min: 0.01, max: 4, order: 301 },
       rotation: { value: defaults.rotation, min: 0, max: 360, order: 302 },
