@@ -19,7 +19,7 @@ export const htmlInCanvasParams = {
 // The color slider drives the shader's dispersionColor instead, so the HTML controls the lens that distorts it.
 // The header and the dials share one width, and labels and readouts have fixed widths, so everything lines up.
 export const css = `
-.demo { --ev: 0; --zoom: 1; --wb: 5600; --warmth: calc((var(--wb) - 5600) / 2400); --panel: 38cqw; --gap: 1.6cqw; --inset: 2.2cqw; position: relative; height: 100%; container-type: inline-size; overflow: hidden; color: #f4f3ec; background: #121212; font: 2.2cqw ui-monospace, monospace; text-transform: uppercase; user-select: none; text-shadow: 0 0.1cqw 0.4cqw rgb(0 0 0 / 50%) }
+.demo { --ev: 0; --zoom: 1; --wb: 5600; --warmth: calc((var(--wb) - 5600) / 2400); --panel: 38cqw; --gap: 1.6cqw; --inset: 2.2cqw; position: relative; height: 100%; container-type: inline-size; overflow: hidden; color: #f4f3ec; background: #121212; font: 22px ui-monospace, monospace; text-transform: uppercase; user-select: none; text-shadow: 0 0.1cqw 0.4cqw rgb(0 0 0 / 50%) }
 .demo .scene { position: absolute; inset: 0; background: url(/images/image-filters/003.webp) center / cover; scale: var(--zoom); filter: brightness(pow(2, var(--ev))); transition: scale 200ms cubic-bezier(0.22, 1, 0.36, 1), filter 200ms }
 .demo .tint { position: absolute; inset: 0; background: color-mix(in oklab, #3d7bff, #ff9a3d calc((var(--warmth) + 1) * 50%)); mix-blend-mode: soft-light; opacity: calc(max(var(--warmth), -1 * var(--warmth)) * 0.8); transition: opacity 200ms }
 .demo .shade { position: absolute; inset: 0; background: linear-gradient(rgb(0 0 0 / 55%), transparent 25% 55%, rgb(0 0 0 / 75%)) }

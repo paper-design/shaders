@@ -18,7 +18,7 @@ export const css = `
 @property --highlight-stroke { syntax: '<length>'; inherits: false; initial-value: 0px }
 .demo { --ease: cubic-bezier(0.22, 1, 0.36, 1); position: relative; height: 100%; container-type: inline-size; overflow: hidden; color: #222; background: #fff }
 .demo ul { display: grid; align-content: center; justify-items: start; width: 50%; height: 100%; margin: 0; padding: 0 0 0 3cqw; box-sizing: border-box; list-style: none }
-.demo a { display: flex; align-items: baseline; gap: 2cqw; padding: 0.8cqw 0; font: 300 8cqw/1.1 system-ui; letter-spacing: 0.03em; text-transform: lowercase; -webkit-text-stroke: var(--highlight-stroke) currentColor; cursor: default; transition: --highlight-stroke 1000ms var(--ease) }
+.demo a { display: flex; align-items: baseline; gap: 2cqw; padding: 0.8cqw 0; font: 300 80px/1.1 system-ui; letter-spacing: 0.03em; text-transform: lowercase; -webkit-text-stroke: var(--highlight-stroke) currentColor; cursor: default; transition: --highlight-stroke 1000ms var(--ease) }
 .demo a.active { --highlight-stroke: 0.065em }
 .demo a::after { content: ''; flex: none; width: 0.32em; height: 0.32em; translate: 0 calc(0.16em - 0.5ex); border-radius: 50%; background: currentColor; scale: 0; transition: scale 1000ms var(--ease) }
 .demo a.active::after { scale: 1 }
