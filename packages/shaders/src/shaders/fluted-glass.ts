@@ -9,9 +9,8 @@ import { declarePI, rotation2, proceduralHash21 } from '../shader-utils.js';
  * Fragment shader uniforms:
  * - u_resolution (vec2): Canvas resolution in pixels
  * - u_pixelRatio (float): Device pixel ratio
- * - u_image (sampler2D): Source image texture
+ * - u_image (sampler2D): Source image texture, premultiplied alpha
  * - u_imageAspectRatio (float): Aspect ratio of the source image
- * - u_imageIsHtml (float): 1 for live HTML, which is premultiplied and drawn without sizing, 0 for straight-alpha images
  * - u_colorBack (vec4): Background color in RGBA
  * - u_colorShadow (vec4): Shadows color in RGBA, needs shadows > 0
  * - u_colorHighlight (vec4): Highlights color in RGBA, needs highlights > 0
@@ -63,7 +62,6 @@ uniform vec4 u_colorHighlight;
 
 uniform sampler2D u_image;
 uniform float u_imageAspectRatio;
-uniform float u_imageIsHtml;
 
 uniform float u_size;
 uniform float u_shadows;
@@ -115,19 +113,14 @@ float getUvFrame(vec2 uv, float softness) {
 }
 
 const int MAX_RADIUS = 50;
-vec4 samplePremultiplied(sampler2D tex, vec2 uv) {
-  vec4 c = texture(tex, uv);
-  c.rgb *= mix(c.a, 1., u_imageIsHtml);
-  return c;
-}
 vec4 getBlur(sampler2D tex, vec2 uv, vec2 texelSize, vec2 dir, float sigma) {
-  if (sigma <= .5) return samplePremultiplied(tex, uv);
+  if (sigma <= .5) return texture(tex, uv);
   int radius = int(min(float(MAX_RADIUS), ceil(3.0 * sigma)));
 
   float twoSigma2 = 2.0 * sigma * sigma;
   float gaussianNorm = 1.0 / sqrt(TWO_PI * sigma * sigma);
 
-  vec4 sum = samplePremultiplied(tex, uv) * gaussianNorm;
+  vec4 sum = texture(tex, uv) * gaussianNorm;
   float weightSum = gaussianNorm;
 
   for (int i = 1; i <= MAX_RADIUS; i++) {
@@ -137,8 +130,8 @@ vec4 getBlur(sampler2D tex, vec2 uv, vec2 texelSize, vec2 dir, float sigma) {
     float w = exp(-(x * x) / twoSigma2) * gaussianNorm;
 
     vec2 offset = dir * texelSize * x;
-    vec4 s1 = samplePremultiplied(tex, uv + offset);
-    vec4 s2 = samplePremultiplied(tex, uv - offset);
+    vec4 s1 = texture(tex, uv + offset);
+    vec4 s2 = texture(tex, uv - offset);
 
     sum += (s1 + s2) * w;
     weightSum += 2.0 * w;

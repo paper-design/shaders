@@ -6,9 +6,8 @@ import { declarePI, rotation2, proceduralHash21 } from '../shader-utils.js';
  * A halftone-dot image filter featuring customizable grids, color palettes, and dot styles.
  *
  * Fragment shader uniforms:
- * - u_image (sampler2D): Source image texture
+ * - u_image (sampler2D): Source image texture, premultiplied alpha
  * - u_imageAspectRatio (float): Aspect ratio of the source image
- * - u_imageIsHtml (float): 1 for live HTML, which is premultiplied and drawn without sizing, 0 for straight-alpha images
  * - u_colorFront (vec4): Foreground color in RGBA, needs originalColors off
  * - u_colorBack (vec4): Background color in RGBA
  * - u_originalColors (bool): Use sampled image's original colors instead of colorFront
@@ -49,7 +48,6 @@ uniform float u_radius;
 uniform float u_contrast;
 
 uniform sampler2D u_image;
-uniform float u_imageIsHtml;
 uniform float u_imageAspectRatio;
 
 uniform float u_size;
@@ -67,7 +65,7 @@ out vec4 fragColor;
 
 vec4 sampleImage(vec2 uv) {
   vec4 image = texture(u_image, uv);
-  image.rgb /= mix(1., max(image.a, .0001), u_imageIsHtml);
+  image.rgb /= max(image.a, .0001);
   return image;
 }
 

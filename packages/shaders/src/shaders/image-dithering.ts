@@ -22,9 +22,8 @@ import { proceduralHash21, declarePI } from '../shader-utils.js';
  * - u_rotation (float): Overall rotation angle of the graphics in degrees (0 to 360)
  * - u_offsetX (float): Horizontal offset of the graphics center (-1 to 1)
  * - u_offsetY (float): Vertical offset of the graphics center (-1 to 1)
- * - u_image (sampler2D): Source image texture
+ * - u_image (sampler2D): Source image texture, premultiplied alpha
  * - u_imageAspectRatio (float): Aspect ratio of the source image
- * - u_imageIsHtml (float): 1 for live HTML, which is premultiplied and drawn without sizing, 0 for straight-alpha images
  * - u_colorFront (vec4): Foreground color in RGBA, needs originalColors off
  * - u_colorBack (vec4): Background color in RGBA, needs originalColors off
  * - u_colorHighlight (vec4): Secondary foreground color in RGBA (set same as colorFront for classic 2-color dithering), needs originalColors off
@@ -56,7 +55,6 @@ uniform vec4 u_colorBack;
 uniform vec4 u_colorHighlight;
 
 uniform sampler2D u_image;
-uniform float u_imageIsHtml;
 uniform float u_imageAspectRatio;
 
 uniform float u_type;
@@ -69,10 +67,9 @@ out vec4 fragColor;
 
 vec4 sampleImage(vec2 uv) {
   vec4 image = texture(u_image, uv);
-  image.rgb /= mix(1., max(image.a, .0001), u_imageIsHtml);
+  image.rgb /= max(image.a, .0001);
   return image;
 }
-
 
 ${ proceduralHash21 }
 ${ declarePI }
