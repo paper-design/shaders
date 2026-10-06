@@ -107,7 +107,7 @@ const ImageDitheringWithControls = () => {
       <HtmlInCanvasShaderPage
         shaderDef={imageDitheringDef}
         currentParams={params}
-        defaultParams={defaults}
+        defaultParams={presetDefaults}
         html={html}
         css={css}
       >
