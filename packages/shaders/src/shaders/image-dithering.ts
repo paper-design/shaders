@@ -22,7 +22,7 @@ import { proceduralHash21, declarePI } from '../shader-utils.js';
  * - u_rotation (float): Overall rotation angle of the graphics in degrees (0 to 360)
  * - u_offsetX (float): Horizontal offset of the graphics center (-1 to 1)
  * - u_offsetY (float): Vertical offset of the graphics center (-1 to 1)
- * - u_image (sampler2D): Source image texture
+ * - u_image (sampler2D): Source image texture, premultiplied alpha
  * - u_imageAspectRatio (float): Aspect ratio of the source image
  * - u_colorFront (vec4): Foreground color in RGBA, needs originalColors off
  * - u_colorBack (vec4): Background color in RGBA, needs originalColors off
@@ -65,6 +65,11 @@ uniform float u_colorSteps;
 
 out vec4 fragColor;
 
+vec4 sampleImage(vec2 uv) {
+  vec4 image = texture(u_image, uv);
+  image.rgb /= max(image.a, .0001);
+  return image;
+}
 
 ${ proceduralHash21 }
 ${ declarePI }
@@ -156,7 +161,7 @@ void main() {
 
   vec2 imageUV = getImageUV(normalizedUV);
   vec2 ditheringNoiseUV = canvasPixelizedUV;
-  vec4 image = texture(u_image, imageUV);
+  vec4 image = sampleImage(imageUV);
   float frame = getUvFrame(imageUV, pxSize / u_resolution);
 
   int type = int(floor(u_type));
@@ -231,7 +236,7 @@ export interface ImageDitheringUniforms extends ShaderSizingUniforms {
 }
 
 export interface ImageDitheringParams extends ShaderSizingParams, ShaderMotionParams {
-  image: HTMLImageElement | string;
+  image?: HTMLImageElement | string;
   colorFront?: string;
   colorBack?: string;
   colorHighlight?: string;

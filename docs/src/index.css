@@ -101,6 +101,17 @@
   code {
     font-size: 0.9em;
   }
+
+  .syntax-highlight {
+    --syntax-keyword: light-dark(#a3386c, #e08aae);
+    --syntax-string: light-dark(#3c7a3e, #a6cf8c);
+    --syntax-text: var(--color-code);
+    --syntax-entity: light-dark(#2f63b8, #86b0f0);
+    --syntax-number: light-dark(#2f63b8, #86b0f0);
+    --syntax-property: light-dark(#9a5a0f, #e2b172);
+    --syntax-identifier: var(--color-code);
+    --syntax-sign: light-dark(#8a8980, #7c7b72);
+  }
 }
 
 @custom-variant squircle {
@@ -240,4 +251,22 @@
 
 ::-webkit-resizer {
   display: none;
+}
+
+/* The HTML-in-canvas demos always show a resize handle, since Alt+drag would fight their own pointer input.
+   The grip is drawn over the canvas and lets the drag through to the resizer underneath */
+[data-resize-handle] {
+  position: relative;
+
+  &::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    z-index: 1;
+    width: 22px;
+    height: 22px;
+    pointer-events: none;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 22 22' fill='none' stroke-linecap='round'%3E%3Cpath d='M18 6 6 18M18 12l-6 6' stroke='%23000' stroke-opacity='.45' stroke-width='5'/%3E%3Cpath d='M18 6 6 18M18 12l-6 6' stroke='%23fff' stroke-width='2.5'/%3E%3C/svg%3E");
+  }
 }

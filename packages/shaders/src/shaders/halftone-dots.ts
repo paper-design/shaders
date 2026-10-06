@@ -6,7 +6,7 @@ import { declarePI, rotation2, proceduralHash21 } from '../shader-utils.js';
  * A halftone-dot image filter featuring customizable grids, color palettes, and dot styles.
  *
  * Fragment shader uniforms:
- * - u_image (sampler2D): Source image texture
+ * - u_image (sampler2D): Source image texture, premultiplied alpha
  * - u_imageAspectRatio (float): Aspect ratio of the source image
  * - u_colorFront (vec4): Foreground color in RGBA, needs originalColors off
  * - u_colorBack (vec4): Background color in RGBA
@@ -62,6 +62,12 @@ uniform float u_type;
 in vec2 v_imageUV;
 
 out vec4 fragColor;
+
+vec4 sampleImage(vec2 uv) {
+  vec4 image = texture(u_image, uv);
+  image.rgb /= max(image.a, .0001);
+  return image;
+}
 
 ${ declarePI }
 ${ rotation2 }
@@ -156,7 +162,7 @@ float sigmoid(float x, float k) {
 }
 
 float getLumAtPx(vec2 uv, float contrast) {
-  vec4 tex = texture(u_image, uv);
+  vec4 tex = sampleImage(uv);
   vec3 color = vec3(
   sigmoid(tex.r, contrast),
   sigmoid(tex.g, contrast),
@@ -176,7 +182,7 @@ float getLumBall(vec2 p, vec2 pad, vec2 inCellOffset, float contrast, float base
   float outOfFrame = getUvFrame(samplingUV, pad * stepSize);
 
   float lum = getLumAtPx(samplingUV, contrast);
-  ballColor = texture(u_image, samplingUV);
+  ballColor = sampleImage(samplingUV);
   ballColor.rgb *= ballColor.a;
   ballColor *= outOfFrame;
 
