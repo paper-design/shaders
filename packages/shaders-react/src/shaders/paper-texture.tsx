@@ -1,7 +1,7 @@
 import { memo } from 'react';
 import { ShaderMount, type ShaderComponentProps } from '../shader-mount.js';
 import { colorPropsAreEqual } from '../color-props-are-equal.js';
-import { hasChildren } from '../html-canvas.js';
+import { hasChildren } from '../drawable-canvas.js';
 import {
   defaultObjectSizing,
   getShaderColorFromString,

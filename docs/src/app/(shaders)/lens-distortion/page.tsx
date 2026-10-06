@@ -12,13 +12,13 @@ import { ShaderDetails } from '@/components/shader-details';
 import { lensDistortionDef } from '@/shader-defs/lens-distortion-def';
 import { ShaderContainer } from '@/components/shader-container';
 import { useUrlParams } from '@/helpers/use-url-params';
-import { htmlOnly, imageOnly, useIsHtmlInCanvasPage } from '@/helpers/html-in-canvas-page';
-import { HtmlInCanvasShaderPage } from '@/components/html-in-canvas-shader-page';
-import { css, getHtml, htmlInCanvasParams } from './html-in-canvas/demo';
+import { htmlInputOnly, imageInputOnly, useIsHtmlInCanvasPage } from '@/helpers/html-in-canvas-page';
+import { HtmlInCanvasDemo } from '@/components/html-in-canvas-demo';
+import { htmlContentCss, getHtmlContent, htmlInCanvasOverrides } from './html-in-canvas/html-content';
 
 const { worldWidth, worldHeight, ...presetDefaults } = lensDistortionPresets[0].params;
 
-const htmlInCanvasDefaults = { ...presetDefaults, ...htmlInCanvasParams };
+const htmlInCanvasDefaults = { ...presetDefaults, ...htmlInCanvasOverrides };
 
 const imageFiles = [
   '001.webp',
@@ -93,16 +93,16 @@ const LensDistortionWithControls = () => {
       grainOverlay: { value: defaults.grainOverlay, min: 0, max: 1, order: 410 },
       imageX: { value: defaults.imageX, min: -1, max: 1, order: 411 },
       imageY: { value: defaults.imageY, min: -1, max: 1, order: 412 },
-      scale: { value: defaults.scale, min: 0.1, max: 4, order: 450, ...imageOnly },
-      fit: { value: defaults.fit, options: ['contain', 'cover'] as ShaderFit[], order: 451, ...imageOnly },
+      scale: { value: defaults.scale, min: 0.1, max: 4, order: 450, ...imageInputOnly },
+      fit: { value: defaults.fit, options: ['contain', 'cover'] as ShaderFit[], order: 451, ...imageInputOnly },
       Image: folder(
         {
           'Upload image': levaImageButton(setImageWithoutStatus),
         },
-        { order: 0, ...imageOnly }
+        { order: 0, ...imageInputOnly }
       ),
-      Presets: folder(presets, { order: -1, ...imageOnly }),
-      Preset: folder({ Reset: button(() => setParamsSafe(params, setParams, defaults)) }, { order: -1, ...htmlOnly }),
+      Presets: folder(presets, { order: -1, ...imageInputOnly }),
+      Preset: folder({ Reset: button(() => setParamsSafe(params, setParams, defaults)) }, { order: -1, ...htmlInputOnly }),
     };
   });
 
@@ -114,20 +114,20 @@ const LensDistortionWithControls = () => {
   cleanUpLevaParams(params);
 
   if (isHtmlInCanvas) {
-    const html = getHtml(params.dispersionColor, (value) =>
+    const htmlContent = getHtmlContent(params.dispersionColor, (value) =>
       setParamsSafe(params, setParams, { dispersionColor: value })
     );
 
     return (
-      <HtmlInCanvasShaderPage
+      <HtmlInCanvasDemo
         shaderDef={lensDistortionDef}
         currentParams={params}
         defaultParams={presetDefaults}
-        html={html}
-        css={css}
+        htmlContent={htmlContent}
+        htmlContentCss={htmlContentCss}
       >
-        <LensDistortion {...params}>{html}</LensDistortion>
-      </HtmlInCanvasShaderPage>
+        <LensDistortion {...params}>{htmlContent}</LensDistortion>
+      </HtmlInCanvasDemo>
     );
   }
 

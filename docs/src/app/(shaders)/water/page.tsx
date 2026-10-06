@@ -13,13 +13,13 @@ import { ShaderDetails } from '@/components/shader-details';
 import { waterDef } from '@/shader-defs/water-def';
 import { ShaderContainer } from '@/components/shader-container';
 import { useUrlParams } from '@/helpers/use-url-params';
-import { htmlOnly, imageOnly, useIsHtmlInCanvasPage } from '@/helpers/html-in-canvas-page';
-import { HtmlInCanvasShaderPage } from '@/components/html-in-canvas-shader-page';
-import { css, html, htmlInCanvasParams } from './html-in-canvas/demo';
+import { htmlInputOnly, imageInputOnly, useIsHtmlInCanvasPage } from '@/helpers/html-in-canvas-page';
+import { HtmlInCanvasDemo } from '@/components/html-in-canvas-demo';
+import { htmlContentCss, htmlContent, htmlInCanvasOverrides } from './html-in-canvas/html-content';
 
 const { worldWidth, worldHeight, ...presetDefaults } = waterPresets[0].params;
 
-const htmlInCanvasDefaults = { ...presetDefaults, ...htmlInCanvasParams };
+const htmlInCanvasDefaults = { ...presetDefaults, ...htmlInCanvasOverrides };
 
 const imageFiles = [
   '001.webp',
@@ -92,22 +92,22 @@ const WaterWithControls = () => {
       colorHighlight: { value: toHsla(defaults.colorHighlight), order: 101 },
       highlights: { value: defaults.highlights, min: 0, max: 1, order: 200 },
       layering: { value: defaults.layering, min: 0, max: 1, order: 201 },
-      edges: { value: defaults.edges, min: 0, max: 1, order: 202, ...imageOnly },
+      edges: { value: defaults.edges, min: 0, max: 1, order: 202, ...imageInputOnly },
       waves: { value: defaults.waves, min: 0, max: 1, order: 203 },
       caustic: { value: defaults.caustic, min: 0, max: 1, order: 204 },
       size: { value: defaults.size, min: 0.01, max: 7, order: 205 },
       speed: { value: defaults.speed, min: 0, max: 3, order: 300 },
-      scale: { value: defaults.scale, min: 0.1, max: 4, order: 301, ...imageOnly },
-      fit: { value: defaults.fit, options: ['contain', 'cover'] as ShaderFit[], order: 302, ...imageOnly },
+      scale: { value: defaults.scale, min: 0.1, max: 4, order: 301, ...imageInputOnly },
+      fit: { value: defaults.fit, options: ['contain', 'cover'] as ShaderFit[], order: 302, ...imageInputOnly },
       Image: folder(
         {
           'Upload image': levaImageButton(setImageWithoutStatus),
           ...(image && { 'Delete image': levaDeleteImageButton(() => setImage('')) }),
         },
-        { order: 0, ...imageOnly }
+        { order: 0, ...imageInputOnly }
       ),
-      Presets: folder(presets, { order: -1, ...imageOnly }),
-      Preset: folder({ Reset: button(() => setParamsSafe(params, setParams, defaults)) }, { order: -1, ...htmlOnly }),
+      Presets: folder(presets, { order: -1, ...imageInputOnly }),
+      Preset: folder({ Reset: button(() => setParamsSafe(params, setParams, defaults)) }, { order: -1, ...htmlInputOnly }),
     };
   }, [image]);
 
@@ -120,16 +120,16 @@ const WaterWithControls = () => {
 
   if (isHtmlInCanvas) {
     return (
-      <HtmlInCanvasShaderPage
+      <HtmlInCanvasDemo
         shaderDef={waterDef}
         currentParams={params}
         defaultParams={presetDefaults}
-        html={html}
-        css={css}
+        htmlContent={htmlContent}
+        htmlContentCss={htmlContentCss}
         notes={notes}
       >
-        <Water {...params}>{html}</Water>
-      </HtmlInCanvasShaderPage>
+        <Water {...params}>{htmlContent}</Water>
+      </HtmlInCanvasDemo>
     );
   }
 

@@ -13,13 +13,13 @@ import { ShaderDetails } from '@/components/shader-details';
 import { halftoneCmykDef } from '@/shader-defs/halftone-cmyk-def';
 import { ShaderContainer } from '@/components/shader-container';
 import { useUrlParams } from '@/helpers/use-url-params';
-import { htmlOnly, imageOnly, useIsHtmlInCanvasPage } from '@/helpers/html-in-canvas-page';
-import { HtmlInCanvasShaderPage } from '@/components/html-in-canvas-shader-page';
-import { css, html, htmlInCanvasParams } from './html-in-canvas/demo';
+import { htmlInputOnly, imageInputOnly, useIsHtmlInCanvasPage } from '@/helpers/html-in-canvas-page';
+import { HtmlInCanvasDemo } from '@/components/html-in-canvas-demo';
+import { htmlContentCss, htmlContent, htmlInCanvasOverrides } from './html-in-canvas/html-content';
 
 const { worldWidth, worldHeight, ...presetDefaults } = halftoneCmykPresets[0].params;
 
-const htmlInCanvasDefaults = { ...presetDefaults, ...htmlInCanvasParams };
+const htmlInCanvasDefaults = { ...presetDefaults, ...htmlInCanvasOverrides };
 
 const imageFiles = [
   '001.webp',
@@ -99,16 +99,16 @@ const HalftoneCmykWithControls = () => {
       grainMixer: { value: defaults.grainMixer, min: 0, max: 1, order: 350 },
       grainOverlay: { value: defaults.grainOverlay, min: 0, max: 1, order: 351 },
       grainSize: { value: defaults.grainSize, min: 0, max: 1, order: 350 },
-      scale: { value: defaults.scale, min: 0.1, max: 4, order: 420, ...imageOnly },
-      fit: { value: defaults.fit, options: ['contain', 'cover'] as ShaderFit[], order: 450, ...imageOnly },
+      scale: { value: defaults.scale, min: 0.1, max: 4, order: 420, ...imageInputOnly },
+      fit: { value: defaults.fit, options: ['contain', 'cover'] as ShaderFit[], order: 450, ...imageInputOnly },
       Image: folder(
         {
           'Upload image': levaImageButton(setImageWithoutStatus),
         },
-        { order: 0, ...imageOnly }
+        { order: 0, ...imageInputOnly }
       ),
-      Presets: folder(presets, { order: -1, ...imageOnly }),
-      Preset: folder({ Reset: button(() => setParamsSafe(params, setParams, defaults)) }, { order: -1, ...htmlOnly }),
+      Presets: folder(presets, { order: -1, ...imageInputOnly }),
+      Preset: folder({ Reset: button(() => setParamsSafe(params, setParams, defaults)) }, { order: -1, ...htmlInputOnly }),
     };
   });
 
@@ -121,15 +121,15 @@ const HalftoneCmykWithControls = () => {
 
   if (isHtmlInCanvas) {
     return (
-      <HtmlInCanvasShaderPage
+      <HtmlInCanvasDemo
         shaderDef={halftoneCmykDef}
         currentParams={params}
         defaultParams={presetDefaults}
-        html={html}
-        css={css}
+        htmlContent={htmlContent}
+        htmlContentCss={htmlContentCss}
       >
-        <HalftoneCmyk {...params}>{html}</HalftoneCmyk>
-      </HtmlInCanvasShaderPage>
+        <HalftoneCmyk {...params}>{htmlContent}</HalftoneCmyk>
+      </HtmlInCanvasDemo>
     );
   }
 

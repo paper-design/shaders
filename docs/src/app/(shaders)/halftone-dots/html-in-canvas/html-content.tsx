@@ -2,7 +2,7 @@ import { type PointerEvent } from 'react';
 import { withCode } from '@/helpers/jsx-to-code';
 
 /** The HTML-in-canvas page drops the grain distortion, so the text edges stay clean */
-export const htmlInCanvasParams = {
+export const htmlInCanvasOverrides = {
   colorBack: '#fff6d6',
   grainMixer: 0,
   radius: 1.15,
@@ -14,7 +14,7 @@ export const htmlInCanvasParams = {
 // The stroke width itself doesn't animate, so it follows a registered length property that does.
 // A dot grows in right after the active name on the same timing. It sits on the baseline and is lifted by half
 // an x-height minus its radius, so it centers on the lowercase letters in whatever font the system picks.
-export const css = `
+export const htmlContentCss = `
 @property --highlight-stroke { syntax: '<length>'; inherits: false; initial-value: 0px }
 .demo { --ease: cubic-bezier(0.22, 1, 0.36, 1); position: relative; height: 100%; container-type: inline-size; overflow: hidden; color: #222; background: #fff }
 .demo ul { display: grid; align-content: center; justify-items: start; width: 50%; height: 100%; margin: 0; padding: 0 0 0 3cqw; box-sizing: border-box; list-style: none }
@@ -54,7 +54,7 @@ const showImage = withCode(
 }`
 );
 
-export const html = (
+export const htmlContent = (
   <div className="demo" onPointerOver={showImage}>
     {topics.map(({ src, alt }, index) => (
       <img key={src} src={src} alt={alt} {...(index === 0 && { className: 'active' })} />

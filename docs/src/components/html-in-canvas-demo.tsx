@@ -6,13 +6,13 @@ import { jsxToCode } from '@/helpers/jsx-to-code';
 import { ShaderContainer } from './shader-container';
 import { ShaderDetails } from './shader-details';
 
-/** Shader page with live HTML input: the code sample is generated from the same markup the shader renders */
-export function HtmlInCanvasShaderPage({
+/** Shader demo with live HTML input: the code sample is generated from the same markup the shader renders */
+export function HtmlInCanvasDemo({
   shaderDef,
   currentParams,
   defaultParams,
-  html,
-  css,
+  htmlContent,
+  htmlContentCss,
   notes,
   children,
 }: {
@@ -21,15 +21,15 @@ export function HtmlInCanvasShaderPage({
   /** Params equal to these are left out of the code sample */
   defaultParams: Record<string, unknown>;
   /** The HTML fed to the shader, also printed in the code sample */
-  html: ReactNode;
+  htmlContent: ReactNode;
   /** The stylesheet for the HTML, printed as its own file in the code sample */
-  css: string;
+  htmlContentCss: string;
   notes?: ReactNode;
   children: ReactNode;
 }) {
   return (
     <>
-      <style>{css}</style>
+      <style>{htmlContentCss}</style>
       <ShaderContainer shaderDef={shaderDef} currentParams={currentParams}>
         {children}
       </ShaderContainer>
@@ -37,7 +37,7 @@ export function HtmlInCanvasShaderPage({
         shaderDef={shaderDef}
         currentParams={currentParams}
         notes={notes}
-        html={{ code: jsxToCode(html), css, defaultParams }}
+        htmlSample={{ code: jsxToCode(htmlContent), css: htmlContentCss, defaultParams }}
       />
     </>
   );

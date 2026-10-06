@@ -1,7 +1,7 @@
 import { withCode } from '@/helpers/jsx-to-code';
 
 /** The HTML-in-canvas page uses teal water with bigger, brighter ripples, so the HTML shows through the surface */
-export const htmlInCanvasParams = {
+export const htmlInCanvasOverrides = {
   colorBack: '#8ed7d5',
   colorHighlight: '#ffffff',
   highlights: 0.25,
@@ -13,7 +13,7 @@ export const htmlInCanvasParams = {
 
 // The mode radios show one section each with plain CSS, and the start button reads its label from the stopwatch state.
 // The stopwatch keeps its state in data attributes: time run so far, and when the current run started.
-export const css = `
+export const htmlContentCss = `
 .demo { display: grid; place-content: center; justify-items: center; gap: 2cqw; height: 100%; container-type: inline-size; color: #fff; font: 24px ui-monospace, monospace; user-select: none }
 .demo time { font-size: 128px; line-height: 1; }
 .demo nav, .demo section { display: flex; align-items: center; gap: 3cqw; min-height: 5.6cqw }
@@ -117,7 +117,7 @@ const reset = withCode(
 }`
 );
 
-export const html = (
+export const htmlContent = (
   <div className="demo" ref={startClock}>
     <nav>
       <label>

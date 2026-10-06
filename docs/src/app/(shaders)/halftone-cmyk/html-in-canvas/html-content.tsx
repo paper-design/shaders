@@ -2,7 +2,7 @@ import { type ChangeEvent, type PointerEvent } from 'react';
 import { withCode } from '@/helpers/jsx-to-code';
 
 /** The HTML-in-canvas page uses a neutral, medium screen so the flat colors of the HTML split cleanly into the four inks */
-export const htmlInCanvasParams = {
+export const htmlInCanvasOverrides = {
   size: 0.45,
   gridNoise: 0.2,
   softness: 0.3,
@@ -15,7 +15,7 @@ export const htmlInCanvasParams = {
 
 // Carets are always 1px wide, so the textarea is laid out at a quarter size and scaled up 4x to thicken its caret.
 // Scaling doesn't resize the caption, so a hidden full-size copy of the text gives the caption its height
-export const css = `
+export const htmlContentCss = `
 .demo { --hue: 55; --a: oklch(0.93 0.07 var(--hue)); --b: oklch(0.7 0.19 var(--hue)); position: relative; display: grid; grid-template-rows: 1fr auto; gap: 3%; height: 100%; padding: 5% 6%; box-sizing: border-box; container-type: inline-size; color: #111; background: #fff; --hover-transition: 250ms cubic-bezier(0.22, 1, 0.36, 1) }
 .demo .panel { position: relative; border: 0.6cqw solid #111; background: repeating-conic-gradient(from 0deg at 28% 58%, var(--a) 0 6deg, var(--b) 6deg 12deg) }
 .demo h1 { position: absolute; left: 6%; bottom: 20%; margin: 0; font: 900 110px/0.88 system-ui; color: #fff; -webkit-text-stroke: 0.6cqw #111; paint-order: stroke fill; text-shadow: 1.2cqw 1.2cqw 0 #111; rotate: -6deg; cursor: grab; touch-action: none; user-select: none; transition: var(--hover-transition); transition-property: rotate, scale }
@@ -123,7 +123,7 @@ const drag = withCode(
   }, { once: true });
 }`
 );
-export const html = (
+export const htmlContent = (
   <div className="demo" onPointerDown={drag}>
     <div className="panel">
       <h1>

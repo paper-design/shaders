@@ -5,7 +5,7 @@ import { ShaderDef, ParamOption, ParamDef } from '../shader-defs/shader-def-type
 import { CopyButton } from './copy-button';
 import { hslToHex, toHsla } from '@/helpers/color-utils';
 import { commonParams } from '@/shader-defs/common-param-def';
-import { highlightCode, highlightCss } from '@/helpers/highlight-code';
+import { highlightJsx, highlightCss } from '@/helpers/highlight-code';
 
 const formatJsxAttribute = (key: string, value: unknown): string => {
   if (value === true) {
@@ -113,7 +113,7 @@ interface ShaderCodeProps {
   currentParams: Record<string, unknown>;
   codeSampleImageName?: string;
   /** Live HTML input: the sample shows it as children and leaves out params that match the defaults */
-  html?: { code: string; css: string; defaultParams: Record<string, unknown> };
+  htmlSample?: { code: string; css: string; defaultParams: Record<string, unknown> };
 }
 
 const sectionsClassName =
@@ -135,7 +135,7 @@ function isDefaultParam(param: ParamDef | undefined, value: unknown, defaultValu
   return JSON.stringify(value) === JSON.stringify(defaultValue);
 }
 
-function getShaderCode({ shaderDef, currentParams, codeSampleImageName, html }: ShaderCodeProps): string {
+function getShaderCode({ shaderDef, currentParams, codeSampleImageName, htmlSample }: ShaderCodeProps): string {
   const componentName = shaderDef.name.replace(/ /g, '');
   const image = codeSampleImageName
     ? `https://shaders.paper.design/${codeSampleImageName}`
@@ -148,9 +148,9 @@ function getShaderCode({ shaderDef, currentParams, codeSampleImageName, html }: 
       if (value === undefined) {
         return false;
       }
-      if (html) {
+      if (htmlSample) {
         const param = shaderDef.params.find((p) => p.name === key);
-        return !isDefaultParam(param, value, html.defaultParams[key]);
+        return !isDefaultParam(param, value, htmlSample.defaultParams[key]);
       }
       if (['offsetX', 'offsetY', 'rotation'].includes(key) && value === 0) {
         return false;
@@ -175,13 +175,13 @@ function getShaderCode({ shaderDef, currentParams, codeSampleImageName, html }: 
     });
 
   // HTML samples show what the page actually runs: the shader fills its container instead of a fixed size
-  const attributes = html
+  const attributes = htmlSample
     ? params
     : ['width={1280}', 'height={720}', ...(hasImageParam ? [`image="${image}"`] : []), ...params];
   const hasAttributes = attributes.length > 0;
   const openingTag = hasAttributes ? `<${componentName}\n  ${attributes.join('\n  ')}\n>` : `<${componentName}>`;
-  const element = html
-    ? `${openingTag}\n${html.code
+  const element = htmlSample
+    ? `${openingTag}\n${htmlSample.code
         .split('\n')
         .map((line) => `  ${line}`)
         .join('\n')}\n</${componentName}>`
@@ -189,7 +189,7 @@ function getShaderCode({ shaderDef, currentParams, codeSampleImageName, html }: 
       ? `<${componentName}\n  ${attributes.join('\n  ')}\n/>`
       : `<${componentName} />`;
 
-  const imports = `import { ${componentName} } from '@paper-design/shaders-react';${html ? `\nimport './demo.css';` : ''}`;
+  const imports = `import { ${componentName} } from '@paper-design/shaders-react';${htmlSample ? `\nimport './demo.css';` : ''}`;
   return `${imports}\n\n${element}\n`;
 }
 
@@ -221,10 +221,10 @@ function CodeSection({ code, css }: { code: string; css?: string }) {
         />
       </div>
       <div className="flex flex-col gap-8">
-        {/* highlightCode escapes the source, so the markup only holds its own token spans */}
+        {/* highlightJsx escapes the source, so the markup only holds its own token spans */}
         <pre
           className="syntax-highlight custom-scrollbar overflow-x-auto rounded-xl bg-backplate-1 p-24 text-code squircle:rounded-2xl"
-          dangerouslySetInnerHTML={{ __html: highlightCode(code) }}
+          dangerouslySetInnerHTML={{ __html: highlightJsx(code) }}
         />
         {css && (
           <>
@@ -251,7 +251,7 @@ export function ShaderDetails({
   currentParams,
   notes,
   codeSampleImageName,
-  html,
+  htmlSample,
 }: ShaderCodeProps & { notes?: ReactNode }) {
   const commonPropNames = Object.keys(commonParams);
   const shaderProps = shaderDef.params.filter((p) => !commonPropNames.includes(p.name));
@@ -261,8 +261,8 @@ export function ShaderDetails({
     <div className={`mt-24 md:mt-40 ${sectionsClassName}`}>
       <InstallationSection />
       <CodeSection
-        code={getShaderCode({ shaderDef, currentParams, codeSampleImageName, html })}
-        css={html?.css.trim()}
+        code={getShaderCode({ shaderDef, currentParams, codeSampleImageName, htmlSample })}
+        css={htmlSample?.css.trim()}
       />
 
       <section>

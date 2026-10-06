@@ -24,8 +24,8 @@ export function getHtmlInCanvasToggleHref(pathname: string): string {
     : `${pathname}${htmlInCanvasSuffix}`;
 }
 
-/** Leva settings that show a control or folder only on the image page */
-export const imageOnly = { render: () => !isHtmlInCanvasPath() };
+/** Leva settings that show a control or folder only when the shader's input is an image */
+export const imageInputOnly = { render: () => !isHtmlInCanvasPath() };
 
-/** Leva settings that show a control or folder only on the HTML-in-canvas page */
-export const htmlOnly = { render: () => isHtmlInCanvasPath() };
+/** Leva settings that show a control or folder only when the shader's input is HTML */
+export const htmlInputOnly = { render: () => isHtmlInCanvasPath() };

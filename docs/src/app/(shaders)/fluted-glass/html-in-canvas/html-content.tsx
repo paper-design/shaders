@@ -3,7 +3,7 @@ import { type FlutedGlassParams, GlassDistortionShapes } from '@paper-design/sha
 import { withCode } from '@/helpers/jsx-to-code';
 
 /** The HTML-in-canvas page uses wider flutes and a softer cascade, so the HTML stays legible through the glass */
-export const htmlInCanvasParams = {
+export const htmlInCanvasOverrides = {
   colorShadow: '#92aae3',
   shadows: 0.4,
   highlights: 0,
@@ -19,7 +19,7 @@ export const htmlInCanvasParams = {
 };
 
 // Every repaint of the HTML is captured again for the shader, so the hint stops bouncing once the page is scrolled
-export const css = `
+export const htmlContentCss = `
 .demo { position: relative; height: 100%; color: #fff; overflow: hidden; timeline-scope: --demo-scroll }
 .demo .bg { position: absolute; inset: 0; height: 300%; background: url(/images/html-in-canvas/succulents.jpg) center top / cover; filter: brightness(0.7); animation: bg-pan linear both; animation-timeline: --demo-scroll; animation-range: 0px 4000px }
 .demo ::selection { background: #ffd60a; color: #1a1a1a }
@@ -56,7 +56,7 @@ const dials = [
 type GlassControls = Required<Pick<FlutedGlassParams, 'distortionShape' | (typeof dials)[number]['name']>>;
 
 /** The buttons and sliders in the text drive the shader's params, so the HTML both shows the effect and controls it */
-export const getHtml = (params: GlassControls, setParam: (name: string, value: string | number) => void) => {
+export const getHtmlContent = (params: GlassControls, setParam: (name: string, value: string | number) => void) => {
   // The handlers run from the functions and print from the strings: the compiler rewrites function bodies
   const selectShape = withCode(
     (event: SyntheticEvent<HTMLButtonElement>) => setParam(event.currentTarget.name, event.currentTarget.value),

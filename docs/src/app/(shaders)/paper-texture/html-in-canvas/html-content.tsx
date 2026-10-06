@@ -1,7 +1,7 @@
 import { withCode } from '@/helpers/jsx-to-code';
 
 /** The HTML-in-canvas page keeps the paper white and the texture pronounced, so the HTML stays readable through it */
-export const htmlInCanvasParams = {
+export const htmlInCanvasOverrides = {
   colorBack: '#8b8fa7',
   clip: true,
   colorPaper: '#ffffff',
@@ -20,7 +20,7 @@ export const htmlInCanvasParams = {
   seed: 311,
 };
 
-export const css = `
+export const htmlContentCss = `
 .demo { --ink: #222; --error: #d93025; --ease: cubic-bezier(0.685, 0.89, 0.315, 0.995); display: grid; place-items: center; height: 100%; color: var(--ink) }
 .demo form { display: grid; gap: 12px; width: 360px; padding: 48px; background: #fff; font: 16px ui-monospace, monospace }
 .demo h2 { margin: 0 0 12px; font: 400 28px/1.2 system-ui }
@@ -74,7 +74,7 @@ const handleSubmit = withCode(
 }`
 );
 /** Every symbol typed into the form reshuffles the paper's seed, so the sheet crumples anew under the text */
-export const getHtml = (setSeed: (seed: number) => void) => {
+export const getHtmlContent = (setSeed: (seed: number) => void) => {
   // The handler runs from the function and prints from the string: the compiler rewrites function bodies
   const reshuffleSeed = withCode(
     () => setSeed(Math.floor(Math.random() * 1000)),

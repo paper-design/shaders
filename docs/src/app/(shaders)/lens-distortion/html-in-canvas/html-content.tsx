@@ -1,7 +1,7 @@
 import { withCode } from '@/helpers/jsx-to-code';
 
 /** The HTML-in-canvas page spreads the dispersion over noisy, bulged glass, which keeps the HTML readable at the center */
-export const htmlInCanvasParams = {
+export const htmlInCanvasOverrides = {
   spread: 0.15,
   angle: 28,
   perspective: 1,
@@ -18,7 +18,7 @@ export const htmlInCanvasParams = {
 // --ev is exposure in stops, --zoom scales the scene and --wb is white balance in kelvin.
 // The color slider drives the shader's dispersionColor instead, so the HTML controls the lens that distorts it.
 // The header and the dials share one width, and labels and readouts have fixed widths, so everything lines up.
-export const css = `
+export const htmlContentCss = `
 .demo { --ev: 0; --zoom: 1; --wb: 5600; --warmth: calc((var(--wb) - 5600) / 2400); --panel: 38cqw; --gap: 1.6cqw; --inset: 2.2cqw; position: relative; height: 100%; container-type: inline-size; overflow: hidden; color: #f4f3ec; background: #121212; font: 22px ui-monospace, monospace; text-transform: uppercase; user-select: none; text-shadow: 0 0.1cqw 0.4cqw rgb(0 0 0 / 50%) }
 .demo .scene { position: absolute; inset: 0; background: url(/images/image-filters/003.webp) center / cover; scale: var(--zoom); filter: brightness(pow(2, var(--ev))); transition: scale 200ms cubic-bezier(0.22, 1, 0.36, 1), filter 200ms }
 .demo .tint { position: absolute; inset: 0; background: color-mix(in oklab, #3d7bff, #ff9a3d calc((var(--warmth) + 1) * 50%)); mix-blend-mode: soft-light; opacity: calc(max(var(--warmth), -1 * var(--warmth)) * 0.8); transition: opacity 200ms }
@@ -101,7 +101,7 @@ const dials = [
 ];
 
 /** The color slider sets the shader's dispersionColor, so the HTML also controls the lens it's seen through */
-export const getHtml = (dispersionColor: number, setDispersionColor: (value: number) => void) => {
+export const getHtmlContent = (dispersionColor: number, setDispersionColor: (value: number) => void) => {
   const updateDispersionColor = withCode(
     (event: { currentTarget: HTMLInputElement }) => setDispersionColor(event.currentTarget.valueAsNumber),
     `(event) => setDispersionColor(event.currentTarget.valueAsNumber)`

@@ -13,13 +13,13 @@ import { ShaderDetails } from '@/components/shader-details';
 import { paperTextureDef } from '@/shader-defs/paper-texture-def';
 import { ShaderContainer } from '@/components/shader-container';
 import { useUrlParams } from '@/helpers/use-url-params';
-import { htmlOnly, imageOnly, useIsHtmlInCanvasPage } from '@/helpers/html-in-canvas-page';
-import { HtmlInCanvasShaderPage } from '@/components/html-in-canvas-shader-page';
-import { css, getHtml, htmlInCanvasParams } from './html-in-canvas/demo';
+import { htmlInputOnly, imageInputOnly, useIsHtmlInCanvasPage } from '@/helpers/html-in-canvas-page';
+import { HtmlInCanvasDemo } from '@/components/html-in-canvas-demo';
+import { htmlContentCss, getHtmlContent, htmlInCanvasOverrides } from './html-in-canvas/html-content';
 
 const { worldWidth, worldHeight, ...presetDefaults } = paperTexturePresets[0].params;
 
-const htmlInCanvasDefaults = { ...presetDefaults, ...htmlInCanvasParams };
+const htmlInCanvasDefaults = { ...presetDefaults, ...htmlInCanvasOverrides };
 
 const imageFiles = [
   '001.webp',
@@ -103,17 +103,17 @@ const PaperTextureWithControls = () => {
         order: 241,
       },
       drops: { value: defaults.drops, min: 0, max: 1, order: 250 },
-      scale: { value: defaults.scale, min: 0.5, max: 10, order: 400, ...imageOnly },
-      fit: { value: defaults.fit, options: ['contain', 'cover'] as ShaderFit[], order: 401, ...imageOnly },
+      scale: { value: defaults.scale, min: 0.5, max: 10, order: 400, ...imageInputOnly },
+      fit: { value: defaults.fit, options: ['contain', 'cover'] as ShaderFit[], order: 401, ...imageInputOnly },
       Image: folder(
         {
           'Upload image': levaImageButton(setImageWithoutStatus),
           ...(image && { 'Delete image': levaDeleteImageButton(() => setImage('')) }),
         },
-        { order: 0, ...imageOnly }
+        { order: 0, ...imageInputOnly }
       ),
-      Presets: folder(presets, { order: -1, ...imageOnly }),
-      Preset: folder({ Reset: button(() => setParamsSafe(params, setParams, defaults)) }, { order: -1, ...htmlOnly }),
+      Presets: folder(presets, { order: -1, ...imageInputOnly }),
+      Preset: folder({ Reset: button(() => setParamsSafe(params, setParams, defaults)) }, { order: -1, ...htmlInputOnly }),
     };
   }, [image]);
 
@@ -125,19 +125,19 @@ const PaperTextureWithControls = () => {
   cleanUpLevaParams(params);
 
   if (isHtmlInCanvas) {
-    const html = getHtml((seed) => setParamsSafe(params, setParams, { seed }));
+    const htmlContent = getHtmlContent((seed) => setParamsSafe(params, setParams, { seed }));
 
     return (
       // The code sample leaves out params matching the component defaults, which are the default preset's
-      <HtmlInCanvasShaderPage
+      <HtmlInCanvasDemo
         shaderDef={paperTextureDef}
         currentParams={params}
         defaultParams={presetDefaults}
-        html={html}
-        css={css}
+        htmlContent={htmlContent}
+        htmlContentCss={htmlContentCss}
       >
-        <PaperTexture {...params}>{html}</PaperTexture>
-      </HtmlInCanvasShaderPage>
+        <PaperTexture {...params}>{htmlContent}</PaperTexture>
+      </HtmlInCanvasDemo>
     );
   }
 

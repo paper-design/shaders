@@ -1,14 +1,11 @@
 import { vertexShaderSource } from './vertex-shader.js';
 import {
-  attachToCanvas,
-  detachFromCanvas,
-  drawElementToTexture,
-  findDrawableContentCanvas,
-  setDrawableContent,
-  isHtmlTextureElement,
-  type DrawableElement,
-  type ElementTextureState,
-  type PaintableCanvas,
+  drawDrawableChild,
+  findDrawableCanvas,
+  getDrawableCanvas,
+  isDrawableChildCandidate,
+  type DrawableCanvasElement,
+  type DrawableChild,
 } from './html-in-canvas.js';
 
 const DEFAULT_MAX_PIXEL_COUNT: number = 1920 * 1080 * 4;
@@ -47,10 +44,8 @@ export class ShaderMount {
   private uniformCache: Record<string, unknown> = {};
   private textureUnitMap: Map<string, number> = new Map();
   private ownerDocument: Document;
-  /** Live HTML sources of texture uniforms, keyed by uniform name */
-  private htmlTextures: Map<string, HtmlTexture> = new Map();
-  /** False when an existing `<canvas content="drawable">` was adopted as the shader canvas */
-  private ownsCanvas = true;
+  private drawableChildren: Map<string, DrawableChildTexture> = new Map();
+  private isCanvasAdopted = false;
 
   constructor(
     /** The div you'd like to mount the shader to. The shader will match its size. */
@@ -94,14 +89,14 @@ export class ShaderMount {
       this.ownerDocument.head.prepend(styleElement);
     }
 
-    // A `<canvas content="drawable">` that already holds the HTML becomes the shader canvas
-    const htmlCanvas = findDrawableContentCanvas(Object.values(uniforms), this.parentElement);
+    // A canvas can only draw its own children, so a `<canvas content="drawable">` holding an HTML uniform becomes the shader canvas
+    const adoptedCanvas = findDrawableCanvas(Object.values(uniforms), this.parentElement);
 
-    // Create the canvas element and mount it into the provided element
-    const canvasElement = htmlCanvas ?? this.ownerDocument.createElement('canvas');
+    // Otherwise, create the canvas element and mount it into the provided element
+    const canvasElement = adoptedCanvas ?? this.ownerDocument.createElement('canvas');
     this.canvasElement = canvasElement;
-    this.ownsCanvas = htmlCanvas === null;
-    if (this.ownsCanvas) {
+    this.isCanvasAdopted = adoptedCanvas !== null;
+    if (!this.isCanvasAdopted) {
       this.parentElement.prepend(canvasElement);
     }
     this.fragmentShader = fragmentShader;
@@ -119,7 +114,7 @@ export class ShaderMount {
     this.gl = gl;
 
     // Textures are uploaded premultiplied, so that filtering doesn't bleed the color of transparent pixels into the edges.
-    // Images arrive with straight alpha (and so does HTML, see drawElementToTexture), which shaders unpremultiply if they need to
+    // Images arrive with straight alpha (and so does HTML, see drawDrawableChild), which shaders unpremultiply if they need to
     this.gl.pixelStorei(this.gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
 
     this.initProgram();
@@ -179,7 +174,7 @@ export class ShaderMount {
       uniformLocations[key] = this.gl.getUniformLocation(this.program!, key);
 
       // For texture uniforms, also look for the aspect ratio and HTML source uniforms
-      if (value instanceof HTMLImageElement || isHtmlTextureElement(value)) {
+      if (value instanceof HTMLImageElement || isDrawableChildCandidate(value)) {
         const aspectRatioUniformName = `${key}AspectRatio`;
         uniformLocations[aspectRatioUniformName] = this.gl.getUniformLocation(this.program!, aspectRatioUniformName);
         const isHtmlUniformName = `${key}IsHtml`;
@@ -316,8 +311,8 @@ export class ShaderMount {
 
       // HTML textures need a fresh snapshot at the new resolution,
       // which the browser only paints by itself if the canvas CSS size changed too (not on zoom or pixel count changes)
-      if (this.htmlTextures.size > 0) {
-        (this.canvasElement as PaintableCanvas).requestPaint();
+      if (this.drawableChildren.size > 0) {
+        (this.canvasElement as DrawableCanvasElement).requestPaint();
       }
 
       // this is necessary to avoid flashes while resizing (the next scheduled render will set uniforms)
@@ -372,12 +367,12 @@ export class ShaderMount {
   };
 
   /** Creates a texture from an image and sets it into a uniform value */
-  private setTextureUniform = (uniformName: string, image: HTMLImageElement): void => {
+  private setImageUniform = (uniformName: string, image: HTMLImageElement): void => {
     if (!image.complete || image.naturalWidth === 0) {
       throw new Error(`Paper Shaders: image for uniform ${uniformName} must be fully loaded`);
     }
 
-    this.removeHtmlTexture(uniformName);
+    this.unsetDrawableChildUniform(uniformName);
     const { texture, textureUnit } = this.createTexture(uniformName);
 
     // Upload image to texture
@@ -411,7 +406,7 @@ export class ShaderMount {
         this.gl.uniform1f(aspectRatioLocation, aspectRatio);
       }
 
-      // Images follow the sizing uniforms, unlike HTML textures (see setHtmlTextureUniform)
+      // Images follow the sizing uniforms, unlike drawable children (see setDrawableChildUniform)
       const isHtmlLocation = this.uniformLocations[`${uniformName}IsHtml`];
       if (isHtmlLocation) {
         this.gl.uniform1f(isHtmlLocation, 0);
@@ -448,9 +443,9 @@ export class ShaderMount {
     return { texture, textureUnit };
   };
 
-  /** Creates a texture that is re-uploaded from a live HTML element every time the element repaints */
-  private setHtmlTextureUniform = (uniformName: string, element: HTMLElement): void => {
-    this.removeHtmlTexture(uniformName);
+  /** Creates a texture that is redrawn from a drawable child of the shader canvas every time the child repaints */
+  private setDrawableChildUniform = (uniformName: string, element: HTMLElement): void => {
+    this.unsetDrawableChildUniform(uniformName);
     const { texture, textureUnit } = this.createTexture(uniformName);
     if (texture === null) return;
 
@@ -479,39 +474,46 @@ export class ShaderMount {
       }
     }
 
-    // The element must live in the canvas that owns the WebGL context for it to be drawn into its textures
-    const canvas = this.canvasElement as PaintableCanvas;
-    const htmlTexture: HtmlTexture = {
-      ...attachToCanvas(canvas, element),
+    // The element must be a drawable child of the canvas that owns the WebGL context for it to be drawn into its textures
+    const canvas = this.canvasElement as DrawableCanvasElement;
+    if (getDrawableCanvas(element) !== canvas) {
+      console.warn(
+        `Paper Shaders: HTML for ${uniformName} must be a drawable child of a <canvas content="drawable"> in the shader's parent element: <div><canvas content="drawable"><div drawable>…</div></canvas></div>`
+      );
+      return;
+    }
+
+    const child: DrawableChildTexture = {
+      element,
       textureWidth: 0,
       textureHeight: 0,
       hasGeometry: false,
-      handlePaint: () => this.uploadHtmlTexture(uniformName),
+      handlePaint: () => this.redrawDrawableChild(uniformName),
     };
 
-    this.htmlTextures.set(uniformName, htmlTexture);
-    canvas.addEventListener('paint', htmlTexture.handlePaint);
+    this.drawableChildren.set(uniformName, child);
+    canvas.addEventListener('paint', child.handlePaint);
     canvas.requestPaint();
   };
 
-  /** Uploads the latest snapshot of an HTML texture, runs on the canvas paint event */
-  private uploadHtmlTexture = (uniformName: string): void => {
-    const htmlTexture = this.htmlTextures.get(uniformName);
+  /** Draws the latest snapshot of a drawable child into its texture, runs on the canvas paint event */
+  private redrawDrawableChild = (uniformName: string): void => {
+    const child = this.drawableChildren.get(uniformName);
     const texture = this.textures.get(uniformName);
     const textureUnit = this.textureUnitMap.get(uniformName);
-    if (this.hasBeenDisposed || !htmlTexture || !texture || textureUnit === undefined) return;
+    if (this.hasBeenDisposed || !child || !texture || textureUnit === undefined) return;
 
     this.gl.activeTexture(this.gl.TEXTURE0 + textureUnit);
     this.gl.bindTexture(this.gl.TEXTURE_2D, texture);
 
     // Mipmaps are skipped even when requested: at 1:1 they only blur text, and regenerating them on every paint is costly
-    const { textureWidth, textureHeight } = htmlTexture;
-    if (!drawElementToTexture(this.gl, this.canvasElement as PaintableCanvas, htmlTexture)) return;
+    const { textureWidth, textureHeight } = child;
+    if (!drawDrawableChild(this.gl, this.canvasElement as DrawableCanvasElement, child)) return;
 
-    if (htmlTexture.textureWidth !== textureWidth || htmlTexture.textureHeight !== textureHeight) {
+    if (child.textureWidth !== textureWidth || child.textureHeight !== textureHeight) {
       const aspectRatioLocation = this.uniformLocations[`${uniformName}AspectRatio`];
       if (aspectRatioLocation) {
-        this.gl.uniform1f(aspectRatioLocation, htmlTexture.textureWidth / htmlTexture.textureHeight);
+        this.gl.uniform1f(aspectRatioLocation, child.textureWidth / child.textureHeight);
       }
     }
 
@@ -521,18 +523,13 @@ export class ShaderMount {
     }
   };
 
-  /** Stops capturing an HTML texture and puts the element back where it was */
-  private removeHtmlTexture = (uniformName: string): void => {
-    const htmlTexture = this.htmlTextures.get(uniformName);
-    if (!htmlTexture) return;
+  /** Stops redrawing a drawable child into its texture */
+  private unsetDrawableChildUniform = (uniformName: string): void => {
+    const child = this.drawableChildren.get(uniformName);
+    if (!child) return;
 
-    this.canvasElement.removeEventListener('paint', htmlTexture.handlePaint);
-    detachFromCanvas(htmlTexture);
-    this.htmlTextures.delete(uniformName);
-
-    if (this.ownsCanvas && this.htmlTextures.size === 0) {
-      setDrawableContent(this.canvasElement, false);
-    }
+    this.canvasElement.removeEventListener('paint', child.handlePaint);
+    this.drawableChildren.delete(uniformName);
   };
 
   /** Utility: recursive equality test for all the uniforms */
@@ -567,10 +564,10 @@ export class ShaderMount {
 
       if (value instanceof HTMLImageElement) {
         // Texture case, requires a good amount of code so it gets its own function:
-        this.setTextureUniform(key, value);
-      } else if (isHtmlTextureElement(value)) {
-        // Live HTML texture case, re-uploaded whenever the element repaints
-        this.setHtmlTextureUniform(key, value);
+        this.setImageUniform(key, value);
+      } else if (isDrawableChildCandidate(value)) {
+        // Live HTML texture case, redrawn whenever the drawable child repaints
+        this.setDrawableChildUniform(key, value);
       } else if (Array.isArray(value)) {
         // Array case
         let flatArray: number[] | null = null;
@@ -704,8 +701,8 @@ export class ShaderMount {
       this.rafId = null;
     }
 
-    // Stop capturing HTML and put the elements back where they were
-    Array.from(this.htmlTextures.keys()).forEach((uniformName) => this.removeHtmlTexture(uniformName));
+    // Stop redrawing drawable children
+    Array.from(this.drawableChildren.keys()).forEach((uniformName) => this.unsetDrawableChildUniform(uniformName));
 
     if (this.gl && this.program) {
       // Clean up all textures
@@ -742,8 +739,8 @@ export class ShaderMount {
 
     this.uniformLocations = {};
 
-    // Remove the shader from the div wrapper element, unless the canvas was provided by the caller
-    if (this.ownsCanvas) {
+    // Remove the shader from the div wrapper element, unless the canvas was adopted from the caller
+    if (!this.isCanvasAdopted) {
       this.canvasElement.remove();
     }
     // Free up the reference to self to enable garbage collection
@@ -812,8 +809,8 @@ function createProgram(
   return program;
 }
 
-/** A live HTML element used as a texture uniform, laid out inside the shader canvas */
-interface HtmlTexture extends DrawableElement, ElementTextureState {
+/** A drawable child of the shader canvas used as a texture uniform */
+interface DrawableChildTexture extends DrawableChild {
   handlePaint: () => void;
 }
 

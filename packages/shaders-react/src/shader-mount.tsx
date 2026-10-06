@@ -10,7 +10,7 @@ import {
 } from '@paper-design/shaders';
 import { useMergeRefs } from './use-merge-refs.js';
 import { setMinImageSize } from './set-min-image-size.js';
-import { useHtmlTexture } from './html-canvas.js';
+import { useDrawableChildren } from './drawable-canvas.js';
 
 /**
  * React Shader Mount can also accept strings as uniform values, which will assumed to be URLs and loaded as images
@@ -150,9 +150,9 @@ export const ShaderMount: React.FC<ShaderMountProps> = forwardRef<PaperShaderEle
     const divRef = useRef<PaperShaderElement>(null);
     const shaderMountRef: React.RefObject<ShaderMountVanilla | null> = useRef<ShaderMountVanilla>(null);
     const webGlContextAttributesRef = useRef(webGlContextAttributes);
-    const { isHtmlTexture, withHtmlUniform, content } = useHtmlTexture(htmlUniform, children);
+    const { hasDrawableChildren, addDrawableChildUniform, renderedChildren } = useDrawableChildren(htmlUniform, children);
 
-    const getUniforms = (): ShaderMountUniformsReact => withHtmlUniform(uniformsProp);
+    const getUniforms = (): ShaderMountUniformsReact => addDrawableChildUniform(uniformsProp);
 
     // Initialize the ShaderMountVanilla
     useEffect(() => {
@@ -185,7 +185,7 @@ export const ShaderMount: React.FC<ShaderMountProps> = forwardRef<PaperShaderEle
         shaderMountRef.current?.dispose();
         shaderMountRef.current = null;
       };
-    }, [fragmentShader, isHtmlTexture]);
+    }, [fragmentShader, hasDrawableChildren]);
 
     // Uniforms
     useEffect(() => {
@@ -243,7 +243,7 @@ export const ShaderMount: React.FC<ShaderMountProps> = forwardRef<PaperShaderEle
         }
         {...divProps}
       >
-        {content}
+        {renderedChildren}
       </div>
     );
   }

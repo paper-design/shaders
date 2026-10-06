@@ -14,13 +14,13 @@ import { ShaderDetails } from '@/components/shader-details';
 import { flutedGlassDef } from '@/shader-defs/fluted-glass-def';
 import { ShaderContainer } from '@/components/shader-container';
 import { useUrlParams } from '@/helpers/use-url-params';
-import { htmlOnly, imageOnly, useIsHtmlInCanvasPage } from '@/helpers/html-in-canvas-page';
-import { HtmlInCanvasShaderPage } from '@/components/html-in-canvas-shader-page';
-import { css, getHtml, htmlInCanvasParams } from './html-in-canvas/demo';
+import { htmlInputOnly, imageInputOnly, useIsHtmlInCanvasPage } from '@/helpers/html-in-canvas-page';
+import { HtmlInCanvasDemo } from '@/components/html-in-canvas-demo';
+import { htmlContentCss, getHtmlContent, htmlInCanvasOverrides } from './html-in-canvas/html-content';
 
 const { worldWidth, worldHeight, ...presetDefaults } = flutedGlassPresets[0].params;
 
-const htmlInCanvasDefaults = { ...presetDefaults, ...htmlInCanvasParams };
+const htmlInCanvasDefaults = { ...presetDefaults, ...htmlInCanvasOverrides };
 
 const imageFiles = [
   '001.webp',
@@ -97,24 +97,24 @@ const FlutedGlassWithControls = () => {
       stretch: { value: defaults.stretch, min: 0, max: 1, order: 216 },
       blur: { value: defaults.blur, min: 0, max: 1, order: 220 },
       edges: { value: defaults.edges, min: 0, max: 1, order: 221 },
-      margin: { value: defaults.margin, min: 0, max: 1, order: 500, ...imageOnly },
-      marginLeft: { value: defaults.marginLeft, min: 0, max: 1, order: 501, ...htmlOnly },
-      marginRight: { value: defaults.marginRight, min: 0, max: 1, order: 502, ...htmlOnly },
-      marginTop: { value: defaults.marginTop, min: 0, max: 1, order: 503, ...htmlOnly },
-      marginBottom: { value: defaults.marginBottom, min: 0, max: 1, order: 504, ...htmlOnly },
+      margin: { value: defaults.margin, min: 0, max: 1, order: 500, ...imageInputOnly },
+      marginLeft: { value: defaults.marginLeft, min: 0, max: 1, order: 501, ...htmlInputOnly },
+      marginRight: { value: defaults.marginRight, min: 0, max: 1, order: 502, ...htmlInputOnly },
+      marginTop: { value: defaults.marginTop, min: 0, max: 1, order: 503, ...htmlInputOnly },
+      marginBottom: { value: defaults.marginBottom, min: 0, max: 1, order: 504, ...htmlInputOnly },
       grainMixer: { value: defaults.grainMixer, min: 0, max: 1, order: 550 },
       grainOverlay: { value: defaults.grainOverlay, min: 0, max: 1, order: 551 },
-      scale: { value: defaults.scale, min: 0.1, max: 4, order: 600, ...imageOnly },
-      fit: { value: defaults.fit, options: ['contain', 'cover'] as ShaderFit[], order: 604, ...imageOnly },
+      scale: { value: defaults.scale, min: 0.1, max: 4, order: 600, ...imageInputOnly },
+      fit: { value: defaults.fit, options: ['contain', 'cover'] as ShaderFit[], order: 604, ...imageInputOnly },
 
       Image: folder(
         {
           'Upload image': levaImageButton(setImageWithoutStatus),
         },
-        { order: 0, ...imageOnly }
+        { order: 0, ...imageInputOnly }
       ),
-      Presets: folder(presets, { order: -1, ...imageOnly }),
-      Preset: folder({ Reset: button(() => setParamsSafe(params, setParams, defaults)) }, { order: -1, ...htmlOnly }),
+      Presets: folder(presets, { order: -1, ...imageInputOnly }),
+      Preset: folder({ Reset: button(() => setParamsSafe(params, setParams, defaults)) }, { order: -1, ...htmlInputOnly }),
     };
   });
 
@@ -132,19 +132,19 @@ const FlutedGlassWithControls = () => {
     : { ...restParams, margin };
 
   if (isHtmlInCanvas) {
-    const html = getHtml(params, (name, value) => setParamsSafe(params, setParams, { [name]: value }));
+    const htmlContent = getHtmlContent(params, (name, value) => setParamsSafe(params, setParams, { [name]: value }));
 
     return (
       // The code sample leaves out params matching the component defaults, which are the default preset's
-      <HtmlInCanvasShaderPage
+      <HtmlInCanvasDemo
         shaderDef={flutedGlassDef}
         currentParams={shaderParams}
         defaultParams={presetDefaults}
-        html={html}
-        css={css}
+        htmlContent={htmlContent}
+        htmlContentCss={htmlContentCss}
       >
-        <FlutedGlass {...shaderParams}>{html}</FlutedGlass>
-      </HtmlInCanvasShaderPage>
+        <FlutedGlass {...shaderParams}>{htmlContent}</FlutedGlass>
+      </HtmlInCanvasDemo>
     );
   }
 
