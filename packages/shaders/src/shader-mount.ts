@@ -98,6 +98,8 @@ export class ShaderMount {
     this.gl = gl;
 
     this.initProgram();
+    // The mount only ever has one program
+    this.gl.useProgram(this.program);
     this.setupPositionAttribute();
     // Grab the locations of the uniforms in the fragment shader
     this.setupUniforms();
@@ -309,9 +311,6 @@ export class ShaderMount {
     // Clear the canvas
     this.gl.clear(this.gl.COLOR_BUFFER_BIT);
 
-    // Update uniforms
-    this.gl.useProgram(this.program);
-
     // Update the time uniform
     this.gl.uniform1f(this.uniformLocations.u_time!, this.currentFrame * 0.001);
 
@@ -413,7 +412,6 @@ export class ShaderMount {
 
   /** Sets the provided uniform values into the WebGL program, can be a partial list of uniforms that have changed */
   private setUniformValues = (updatedUniforms: ShaderMountUniforms) => {
-    this.gl.useProgram(this.program);
     Object.entries(updatedUniforms).forEach(([key, value]) => {
       // Grab the value to use in the uniform cache
       let cacheValue: ShaderMountUniforms[keyof ShaderMountUniforms] | string = value;
