@@ -834,16 +834,9 @@ const defaultStyle = `@layer paper-shaders {
       corner-shape: inherit;
     }
 
-    & > canvas[content='drawable'] {
-      z-index: -2;
-    }
-
-    /* HTML in a drawable-content canvas sits under the shader output, let pointer events through to it */
-    &:has(> canvas[content='drawable']) > canvas:not([content='drawable']) {
-      pointer-events: none;
-    }
-
+    /* HTML is drawn at the canvas size, so its border box must fill the canvas */
     & > canvas[content='drawable'] > * {
+      box-sizing: border-box;
       width: 100%;
       height: 100%;
     }
