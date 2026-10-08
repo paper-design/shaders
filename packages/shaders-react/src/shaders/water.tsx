@@ -33,6 +33,8 @@ export const defaultPreset: WaterPreset = {
     waves: 0.3,
     caustic: 0.1,
     size: 1,
+    angle: 315,
+    dispersion: 0,
   },
 };
 
@@ -52,6 +54,8 @@ export const abstractPreset: WaterPreset = {
     waves: 1,
     caustic: 0.4,
     size: 0.15,
+    angle: 315,
+    dispersion: 0,
   },
 };
 
@@ -71,6 +75,8 @@ export const streamingPreset: WaterPreset = {
     waves: 0.5,
     caustic: 0,
     size: 0.5,
+    angle: 315,
+    dispersion: 0,
   },
 };
 
@@ -90,6 +96,8 @@ export const slowMoPreset: WaterPreset = {
     waves: 0,
     caustic: 0.2,
     size: 0.7,
+    angle: 315,
+    dispersion: 0,
   },
 };
 
@@ -107,6 +115,8 @@ export const Water: React.FC<WaterProps> = memo(function WaterImpl({
   waves = defaultPreset.params.waves,
   edges = defaultPreset.params.edges,
   caustic = defaultPreset.params.caustic,
+  angle = defaultPreset.params.angle,
+  dispersion = defaultPreset.params.dispersion,
 
   // `effectScale` was deprecated in favor of `size`
   // (it was a reverse value by mistake, so we took the opportunity to rename the param too)
@@ -136,6 +146,8 @@ export const Water: React.FC<WaterProps> = memo(function WaterImpl({
     u_edges: edges,
     u_caustic: caustic,
     u_size: size,
+    u_angle: angle,
+    u_dispersion: dispersion,
 
     // Sizing uniforms
     u_fit: ShaderFitOptions[fit],

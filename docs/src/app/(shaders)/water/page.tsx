@@ -75,6 +75,8 @@ const WaterWithControls = () => {
       waves: { value: defaults.waves, min: 0, max: 1, order: 203 },
       caustic: { value: defaults.caustic, min: 0, max: 1, order: 204 },
       size: { value: defaults.size, min: 0.01, max: 7, order: 205 },
+      angle: { value: defaults.angle, min: 0, max: 360, order: 206 },
+      dispersion: { value: defaults.dispersion, min: 0, max: 1, order: 207 },
       speed: { value: defaults.speed, min: 0, max: 3, order: 300 },
       scale: { value: defaults.scale, min: 0.1, max: 4, order: 301 },
       fit: { value: defaults.fit, options: ['contain', 'cover'] as ShaderFit[], order: 302 },

@@ -77,6 +77,24 @@ export const waterDef: ShaderDef = {
       defaultValue: defaultParams.size,
       description: 'Pattern scale relative to the image',
     },
+    {
+      name: 'angle',
+      type: 'number',
+      min: 0,
+      max: 360,
+      defaultValue: defaultParams.angle,
+      description:
+        'Axis of the caustic distortion, in degrees; waves push perpendicular to it (needs caustic or waves > 0)',
+    },
+    {
+      name: 'dispersion',
+      type: 'number',
+      min: 0,
+      max: 1,
+      defaultValue: defaultParams.dispersion,
+      description:
+        'Color fringing that grows with the caustic distortion and follows edges on the image frame; also splits highlights (needs image and caustic > 0, or highlights > 0)',
+    },
     ...animatedImageCommonParams,
   ],
 };
