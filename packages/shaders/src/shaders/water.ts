@@ -18,7 +18,7 @@ import { declarePI, rotation2, simplexNoise } from '../shader-utils.js';
  * - u_caustic (float): Power of caustic distortion, needs image (0 to 1)
  * - u_size (float): Pattern scale relative to the image (0.01 to 7)
  * - u_angle (float): Axis of the caustic distortion in degrees, waves push perpendicular to it, needs caustic or waves > 0 (0 to 360)
- * - u_dispersion (float): Color fringing that grows with the caustic distortion and follows edges on the image frame, also splits highlights, needs image and caustic > 0 or highlights > 0 (0 to 1)
+ * - u_dispersion (float): Color fringing along the caustic lines, calm water stays clean, follows edges on the image frame, also splits highlights, needs image and caustic > 0 or highlights > 0 (0 to 1)
  *
  * Vertex shader outputs (used in fragment shader):
  * - v_imageUV (vec2): UV coordinates for sampling the source image, with fit, scale, rotation, and offset applied
@@ -134,25 +134,34 @@ void main() {
   float causticNoiseDistortion = .0283 * u_caustic * (causticNoise - causticMean) * edgesDistortion;
   float wavesDistortion = .1414 * u_waves * wavesNoise;
 
-  vec2 causticDistortion = causticNoiseDistortion * causticDir;
-  vec2 distortion = causticDistortion + wavesDistortion * wavesDir;
+  vec2 distortion = causticNoiseDistortion * causticDir + wavesDistortion * wavesDir;
   distortion.x /= u_imageAspectRatio;
-  causticDistortion.x /= u_imageAspectRatio;
 
-  float dispersion = .3 * u_dispersion * edgesDistortion;
+  float causticPeak = causticNoise / (causticNoise + causticMean);
+  vec2 dispersion = .04 * u_dispersion * smoothstep(0., .1, u_caustic) * causticPeak * edgesDistortion * causticDir;
+  dispersion.x /= u_imageAspectRatio;
+
   imageUV += distortion;
-  vec2 uvR = imageUV - causticDistortion * dispersion;
-  vec2 uvB = imageUV + causticDistortion * dispersion;
 
   float frame = getUvFrame(imageUV);
   vec3 frameRGB = vec3(frame);
 
   vec4 image = texture(u_image, imageUV);
   if (u_dispersion > 0.) {
-    image.r = texture(u_image, uvR).r;
-    image.b = texture(u_image, uvB).b;
-    frameRGB.r = getUvFrame(uvR);
-    frameRGB.b = getUvFrame(uvB);
+    vec3 dispersedImage = vec3(image.r, 0., 0.);
+    vec3 dispersedFrame = vec3(frame, 0., 0.);
+    vec3 weightSum = vec3(1., 0., 0.);
+    for (int i = 1; i < 5; i++) {
+      float s = float(i) / 4.;
+      vec3 weight = clamp(1. - 2. * abs(s - vec3(0., .5, 1.)), 0., 1.);
+      vec2 tapUV = imageUV + s * dispersion;
+      dispersedImage += weight * texture(u_image, tapUV).rgb;
+      dispersedFrame += weight * getUvFrame(tapUV);
+      weightSum += weight;
+    }
+    frameRGB = dispersedFrame / weightSum;
+    dispersedImage /= weightSum;
+    image.rgb = dispersedImage;
   }
 
   vec4 backColor = u_colorBack;
@@ -163,13 +172,16 @@ void main() {
 
   vec3 causticRGB = vec3(causticNoise);
   if (u_dispersion > 0. && u_highlights > 0.) {
-    vec2 highlightShift = .15 * u_dispersion * causticDir;
-    causticRGB.r = getCaustic(patternUV - highlightShift, wavesNoise, t);
-    causticRGB.b = getCaustic(patternUV + highlightShift, wavesNoise, t);
+    float highlightDelay = .08 * u_dispersion;
+    causticRGB.r = getCaustic(patternUV, wavesNoise, t - highlightDelay);
+    causticRGB.b = getCaustic(patternUV, wavesNoise, t + highlightDelay);
   }
 
   vec3 highlight = .025 * u_highlights * u_colorHighlight.a * causticRGB;
-  color = mix(color, u_colorHighlight.rgb, .05 * u_highlights * u_colorHighlight.a * causticRGB);
+  float highlightMix = .05 * u_highlights * u_colorHighlight.a;
+  float highlightValue = max(u_colorHighlight.r, max(u_colorHighlight.g, u_colorHighlight.b));
+  vec3 highlightFringe = highlightMix * (causticRGB - causticNoise) * (highlightValue - color);
+  color = mix(color, u_colorHighlight.rgb, highlightMix * causticNoise) + highlightFringe;
   float highlightOpacity = max(highlight.r, max(highlight.g, highlight.b));
   opacity += highlightOpacity;
 

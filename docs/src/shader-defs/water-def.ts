@@ -93,7 +93,7 @@ export const waterDef: ShaderDef = {
       max: 1,
       defaultValue: defaultParams.dispersion,
       description:
-        'Color fringing that grows with the caustic distortion and follows edges on the image frame; also splits highlights (needs image and caustic > 0, or highlights > 0)',
+        'Color fringing along the caustic lines (calm water stays clean); follows edges on the image frame; also splits highlights (needs image and caustic > 0 or highlights > 0)',
     },
     ...animatedImageCommonParams,
   ],
