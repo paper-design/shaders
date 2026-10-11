@@ -14,7 +14,7 @@ export const htmlInCanvasOverrides = {
 // The mode radios show one section each with plain CSS, and the start button reads its label from the stopwatch state.
 // The stopwatch keeps its state in data attributes: time run so far, and when the current run started.
 export const htmlContentCss = `
-.demo { display: grid; place-content: center; justify-items: center; gap: 2cqw; height: 100%; container-type: inline-size; color: #fff; font: 24px ui-monospace, monospace; user-select: none }
+.demo { display: grid; place-content: center; justify-items: center; gap: 2cqw; width: 100%; height: 100%; container-type: inline-size; color: #fff; font: 24px ui-monospace, monospace; user-select: none }
 .demo time { font-size: 128px; line-height: 1; }
 .demo nav, .demo section { display: flex; align-items: center; gap: 3cqw; min-height: 5.6cqw }
 .demo section { gap: 1.6cqw }

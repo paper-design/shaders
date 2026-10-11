@@ -16,7 +16,7 @@ export const htmlInCanvasOverrides = {
 // an x-height minus its radius, so it centers on the lowercase letters in whatever font the system picks.
 export const htmlContentCss = `
 @property --highlight-stroke { syntax: '<length>'; inherits: false; initial-value: 0px }
-.demo { --ease: cubic-bezier(0.22, 1, 0.36, 1); position: relative; height: 100%; container-type: inline-size; overflow: hidden; color: #222; background: #fff }
+.demo { --ease: cubic-bezier(0.22, 1, 0.36, 1); position: relative; width: 100%; height: 100%; container-type: inline-size; overflow: hidden; color: #222; background: #fff }
 .demo ul { display: grid; align-content: center; justify-items: start; width: 50%; height: 100%; margin: 0; padding: 0 0 0 3cqw; box-sizing: border-box; list-style: none }
 .demo a { display: flex; align-items: baseline; gap: 2cqw; padding: 0.8cqw 0; font: 300 80px/1.1 system-ui; letter-spacing: 0.03em; text-transform: lowercase; -webkit-text-stroke: var(--highlight-stroke) currentColor; cursor: default; transition: --highlight-stroke 1000ms var(--ease) }
 .demo a.active { --highlight-stroke: 0.065em }

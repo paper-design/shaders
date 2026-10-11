@@ -47,5 +47,20 @@ async function build(packageDir) {
   console.log(`Built ${outDir}/index.js`);
 }
 
+// The vanilla package as a single ES module for the docs' plain HTML examples, which import it through an import map
+async function buildDocsScript() {
+  await esbuild.build({
+    entryPoints: ['packages/shaders/src/index.ts'],
+    outfile: 'docs/public/examples/paper-shaders.js',
+    bundle: true,
+    format: 'esm',
+    platform: 'browser',
+    target: 'es2022',
+  });
+
+  console.log('Built docs/public/examples/paper-shaders.js');
+}
+
 build('packages/shaders');
 build('packages/shaders-react');
+buildDocsScript();

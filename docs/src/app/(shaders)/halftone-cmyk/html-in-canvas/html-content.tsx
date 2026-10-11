@@ -16,7 +16,7 @@ export const htmlInCanvasOverrides = {
 // Carets are always 1px wide, so the textarea is laid out at a quarter size and scaled up 4x to thicken its caret.
 // Scaling doesn't resize the caption, so a hidden full-size copy of the text gives the caption its height
 export const htmlContentCss = `
-.demo { --hue: 55; --a: oklch(0.93 0.07 var(--hue)); --b: oklch(0.7 0.19 var(--hue)); position: relative; display: grid; grid-template-rows: 1fr auto; gap: 3%; height: 100%; padding: 5% 6%; box-sizing: border-box; container-type: inline-size; color: #111; background: #fff; --hover-transition: 250ms cubic-bezier(0.22, 1, 0.36, 1) }
+.demo { --hue: 55; --a: oklch(0.93 0.07 var(--hue)); --b: oklch(0.7 0.19 var(--hue)); position: relative; display: grid; grid-template-rows: 1fr auto; gap: 3%; width: 100%; height: 100%; padding: 5% 6%; box-sizing: border-box; container-type: inline-size; color: #111; background: #fff; --hover-transition: 250ms cubic-bezier(0.22, 1, 0.36, 1) }
 .demo .panel { position: relative; border: 0.6cqw solid #111; background: repeating-conic-gradient(from 0deg at 28% 58%, var(--a) 0 6deg, var(--b) 6deg 12deg) }
 .demo h1 { position: absolute; left: 6%; bottom: 20%; margin: 0; font: 900 110px/0.88 system-ui; color: #fff; -webkit-text-stroke: 0.6cqw #111; paint-order: stroke fill; text-shadow: 1.2cqw 1.2cqw 0 #111; rotate: -6deg; cursor: grab; touch-action: none; user-select: none; transition: var(--hover-transition); transition-property: rotate, scale }
 .demo h1:is(:hover:not(.dropped), .dragging) { rotate: -3deg; scale: 1.05 }

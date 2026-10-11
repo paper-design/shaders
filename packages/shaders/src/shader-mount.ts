@@ -1,9 +1,10 @@
 import { vertexShaderSource } from './vertex-shader.js';
 import {
+  attachDrawableChild,
   drawDrawableChild,
   findDrawableCanvas,
-  getDrawableCanvas,
   isDrawableChildCandidate,
+  isHtmlInCanvasSupported,
   type DrawableCanvasElement,
   type DrawableChild,
 } from './html-in-canvas.js';
@@ -89,7 +90,8 @@ export class ShaderMount {
       this.ownerDocument.head.prepend(styleElement);
     }
 
-    // A canvas can only draw its own children, so a `<canvas content="drawable">` holding an HTML uniform becomes the shader canvas
+    // HTML uniforms are moved into the shader canvas, unless they already sit in a `<canvas content="drawable">`
+    // in the parent element (as React renders them), which then becomes the shader canvas
     const adoptedCanvas = findDrawableCanvas(Object.values(uniforms), this.parentElement);
 
     // Otherwise, create the canvas element and mount it into the provided element
@@ -467,27 +469,33 @@ export class ShaderMount {
     if (location) {
       this.gl.uniform1i(location, textureUnit);
 
-      // HTML is drawn without sizing: it already fills the canvas where it's laid out
+      // HTML is drawn without sizing: 1:1 where it's laid out in the canvas
       const isHtmlLocation = this.uniformLocations[`${uniformName}IsHtml`];
       if (isHtmlLocation) {
         this.gl.uniform1f(isHtmlLocation, 1);
       }
     }
 
-    // The element must be a drawable child of the canvas that owns the WebGL context for it to be drawn into its textures
+    // Where HTML can't be drawn, a drawable child would be hidden, so the element stays where it is
     const canvas = this.canvasElement as DrawableCanvasElement;
-    if (getDrawableCanvas(element) !== canvas) {
+    if (!isHtmlInCanvasSupported()) {
       console.warn(
-        `Paper Shaders: HTML for ${uniformName} must be a drawable child of a <canvas content="drawable"> in the shader's parent element: <div><canvas content="drawable"><div drawable>…</div></canvas></div>`
+        `Paper Shaders: HTML for ${uniformName} can't be drawn in this browser, it needs HTML in canvas support (Chrome with chrome://flags/#canvas-draw-element enabled)`
       );
       return;
     }
+    if (element.contains(canvas)) {
+      console.warn(`Paper Shaders: HTML for ${uniformName} can't contain the shader`);
+      return;
+    }
 
+    // The element must be a drawable child of the canvas that owns the WebGL context for it to be drawn into its textures
     const child: DrawableChildTexture = {
       element,
       textureWidth: 0,
       textureHeight: 0,
       hasGeometry: false,
+      detach: attachDrawableChild(canvas, element),
       handlePaint: () => this.redrawDrawableChild(uniformName),
     };
 
@@ -523,12 +531,13 @@ export class ShaderMount {
     }
   };
 
-  /** Stops redrawing a drawable child into its texture */
+  /** Stops redrawing a drawable child into its texture and puts the element back where it was */
   private unsetDrawableChildUniform = (uniformName: string): void => {
     const child = this.drawableChildren.get(uniformName);
     if (!child) return;
 
     this.canvasElement.removeEventListener('paint', child.handlePaint);
+    child.detach();
     this.drawableChildren.delete(uniformName);
   };
 
@@ -811,6 +820,8 @@ function createProgram(
 
 /** A drawable child of the shader canvas used as a texture uniform */
 interface DrawableChildTexture extends DrawableChild {
+  /** Puts the element back where it was before it was moved into the canvas */
+  detach: () => void;
   handlePaint: () => void;
 }
 
@@ -829,13 +840,6 @@ const defaultStyle = `@layer paper-shaders {
       height: 100%;
       border-radius: inherit;
       corner-shape: inherit;
-    }
-
-    /* HTML is drawn at the canvas size, so its border box must fill the canvas */
-    & > canvas[content='drawable'] > * {
-      box-sizing: border-box;
-      width: 100%;
-      height: 100%;
     }
   }
 }`;

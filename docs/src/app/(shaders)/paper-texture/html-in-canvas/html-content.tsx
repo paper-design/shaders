@@ -21,7 +21,7 @@ export const htmlInCanvasOverrides = {
 };
 
 export const htmlContentCss = `
-.demo { --ink: #222; --error: #d93025; --ease: cubic-bezier(0.685, 0.89, 0.315, 0.995); display: grid; place-items: center; height: 100%; color: var(--ink) }
+.demo { --ink: #222; --error: #d93025; --ease: cubic-bezier(0.685, 0.89, 0.315, 0.995); display: grid; place-items: center; width: 100%; height: 100%; color: var(--ink) }
 .demo form { display: grid; gap: 12px; width: 360px; padding: 48px; background: #fff; font: 16px ui-monospace, monospace }
 .demo h2 { margin: 0 0 12px; font: 400 28px/1.2 system-ui }
 .demo .field { display: grid; gap: 6px }

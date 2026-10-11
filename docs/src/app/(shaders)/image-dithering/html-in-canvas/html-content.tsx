@@ -12,7 +12,7 @@ export const htmlInCanvasOverrides = {
 } satisfies Partial<ImageDitheringParams>;
 
 export const htmlContentCss = `
-.demo { --bg: #f0efe4; --text: #222; --panel: #e2dfcf; --muted: #666; --shade: rgb(0 0 0 / 20%); --yellow: #ffd23f; --pink: #ff8fab; --blue: #7aa7ff; --green: #5fd49a; --like: #ff5e5e; --skeleton: #808080; display: flex; flex-direction: column; height: 100%; overflow: hidden; background: var(--bg); color: var(--text); font: 500 28px/1.2 system-ui; user-select: none }
+.demo { --bg: #f0efe4; --text: #222; --panel: #e2dfcf; --muted: #666; --shade: rgb(0 0 0 / 20%); --yellow: #ffd23f; --pink: #ff8fab; --blue: #7aa7ff; --green: #5fd49a; --like: #ff5e5e; --skeleton: #808080; display: flex; flex-direction: column; width: 100%; height: 100%; overflow: hidden; background: var(--bg); color: var(--text); font: 500 28px/1.2 system-ui; user-select: none }
 .demo button { padding: 0; border: 0; background: none; color: inherit; font: inherit; cursor: pointer }
 .demo header { position: relative; display: flex; align-items: center; gap: 28px; padding: 20px 32px }
 .demo header::after { content: ""; position: absolute; top: 100%; left: 0; right: 0; z-index: 3; height: 32px; background: linear-gradient(var(--shade), transparent); pointer-events: none }

@@ -44,3 +44,6 @@ public/r/
 
 public/llms.txt
 public/llms-full.txt
+
+# Built by build.js for the plain HTML examples
+/public/examples/paper-shaders.js

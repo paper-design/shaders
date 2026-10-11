@@ -1,7 +1,8 @@
 'use client';
 
-import { Children, forwardRef, useRef, useSyncExternalStore } from 'react';
+import { Children, cloneElement, forwardRef, isValidElement, useRef, useSyncExternalStore, version } from 'react';
 import { isHtmlInCanvasSupported } from '@paper-design/shaders';
+import { useMergeRefs } from './use-merge-refs.js';
 
 export function hasChildren(children: React.ReactNode): boolean {
   return Children.toArray(children).length > 0;
@@ -20,14 +21,39 @@ interface DrawableCanvasProps {
   children?: React.ReactNode;
 }
 
-/** A `<canvas content="drawable">` that lays out its children in a drawable `<div>`, so the shader can draw them into textures */
-export const DrawableCanvas: React.ForwardRefExoticComponent<DrawableCanvasProps & React.RefAttributes<HTMLDivElement>> =
-  forwardRef<HTMLDivElement, DrawableCanvasProps>(function DrawableCanvasImpl({ children }, ref) {
+type HostElement = React.ReactElement<{ ref?: React.Ref<HTMLElement> }, string>;
+
+/** Returns the only child when it's a single HTML element, which can be the drawable child itself */
+function getOnlyHostElement(children: React.ReactNode): HostElement | null {
+  const array = Children.toArray(children);
+  const only = array[0];
+  return array.length === 1 && isValidElement(only) && typeof only.type === 'string' ? (only as HostElement) : null;
+}
+
+/** The child's own ref, which moved from the element to its props in React 19 */
+function getElementRef(element: HostElement): React.Ref<HTMLElement> | undefined {
+  return parseInt(version) >= 19 ? element.props.ref : (element as unknown as { ref?: React.Ref<HTMLElement> }).ref;
+}
+
+/**
+ * A `<canvas content="drawable">` that lays out its children so the shader can draw them into textures.
+ * A single HTML element becomes the drawable child itself, so its own CSS sizes it against the canvas, like in vanilla.
+ * Anything else (text, several elements, components) is wrapped in a drawable `<div>`.
+ */
+export const DrawableCanvas: React.ForwardRefExoticComponent<DrawableCanvasProps & React.RefAttributes<HTMLElement>> =
+  forwardRef<HTMLElement, DrawableCanvasProps>(function DrawableCanvasImpl({ children }, ref) {
+    const onlyElement = getOnlyHostElement(children);
+    const mergedRef = useMergeRefs([ref, onlyElement ? getElementRef(onlyElement) : undefined]);
+
     return (
       <canvas {...{ content: 'drawable' }}>
-        <div ref={ref} {...{ drawable: '' }}>
-          {children}
-        </div>
+        {onlyElement ? (
+          cloneElement(onlyElement, { ref: mergedRef, drawable: '' } as object)
+        ) : (
+          <div ref={ref as React.Ref<HTMLDivElement>} {...{ drawable: '' }}>
+            {children}
+          </div>
+        )}
       </canvas>
     );
   });
@@ -46,7 +72,7 @@ export function useDrawableChildren(
   addDrawableChildUniform: <T extends object>(uniforms: T) => T;
   renderedChildren: React.ReactNode;
 } {
-  const drawableChildRef = useRef<HTMLDivElement>(null);
+  const drawableChildRef = useRef<HTMLElement>(null);
   const isSupported = useSyncExternalStore(subscribeToNothing, isHtmlInCanvasSupported, isSupportedOnServer);
   const hasDrawableChildren = acceptsHtmlChildren && isSupported && hasChildren(children);
 

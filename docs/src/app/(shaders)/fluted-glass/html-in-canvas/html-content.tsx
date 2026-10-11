@@ -20,7 +20,7 @@ export const htmlInCanvasOverrides = {
 
 // Every repaint of the HTML is captured again for the shader, so the hint stops bouncing once the page is scrolled
 export const htmlContentCss = `
-.demo { position: relative; height: 100%; color: #fff; overflow: hidden; timeline-scope: --demo-scroll }
+.demo { position: relative; width: 100%; height: 100%; color: #fff; overflow: hidden; timeline-scope: --demo-scroll }
 .demo .bg { position: absolute; inset: 0; height: 300%; background: url(/images/html-in-canvas/succulents.jpg) center top / cover; filter: brightness(0.7); animation: bg-pan linear both; animation-timeline: --demo-scroll; animation-range: 0px 4000px }
 .demo ::selection { background: #ffd60a; color: #1a1a1a }
 .demo .scroller { height: 100%; overflow-y: auto; scrollbar-width: none; scroll-timeline: --demo-scroll; position: relative; container-type: scroll-state }
