@@ -34,6 +34,19 @@ export interface DrawableCanvasWebGL2Context extends WebGL2RenderingContext {
   ): void;
 }
 
+/**
+ * Whether the browser can draw HTML into WebGL textures.
+ * Where it can't, children of a `<canvas content="drawable">` are hidden fallback content, so the HTML should be shown some other way.
+ */
+export function isHtmlInCanvasSupported(): boolean {
+  return (
+    typeof HTMLCanvasElement !== 'undefined' &&
+    'requestPaint' in HTMLCanvasElement.prototype &&
+    typeof WebGL2RenderingContext !== 'undefined' &&
+    'texElementSubImage2D' in WebGL2RenderingContext.prototype
+  );
+}
+
 /** Any element except `<img>` (which is uploaded as a static image) can be a drawable child */
 export function isDrawableChildCandidate(value: unknown): value is HTMLElement {
   // nodeType check instead of `instanceof` to work across document boundaries (iframes, PiP windows)
