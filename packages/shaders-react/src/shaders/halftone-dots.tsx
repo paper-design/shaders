@@ -171,7 +171,7 @@ export const HalftoneDots: React.FC<HalftoneDotsProps> = memo(function HalftoneD
       speed={speed}
       frame={frame}
       fragmentShader={halftoneDotsFragmentShader}
-      htmlUniform="u_image"
+      acceptsHtmlChildren
       uniforms={uniforms}
     />
   );

@@ -151,7 +151,7 @@ export const ImageDithering: React.FC<ImageDitheringProps> = memo(function Image
       speed={speed}
       frame={frame}
       fragmentShader={imageDitheringFragmentShader}
-      htmlUniform="u_image"
+      acceptsHtmlChildren
       uniforms={uniforms}
     />
   );

@@ -23,11 +23,11 @@ export const DrawableCanvas: React.ForwardRefExoticComponent<DrawableCanvasProps
   });
 
 /**
- * Passes the children to the shader as a live HTML texture in `htmlUniform`, when both are given.
+ * Passes the children to the shader as a live HTML texture in u_image, when the shader accepts them.
  * Render `renderedChildren` in place of the children.
  */
 export function useDrawableChildren(
-  htmlUniform: string | undefined,
+  acceptsHtmlChildren: boolean,
   children: React.ReactNode
 ): {
   hasDrawableChildren: boolean;
@@ -36,11 +36,11 @@ export function useDrawableChildren(
   renderedChildren: React.ReactNode;
 } {
   const drawableChildRef = useRef<HTMLDivElement>(null);
-  const hasDrawableChildren = htmlUniform !== undefined && hasChildren(children);
+  const hasDrawableChildren = acceptsHtmlChildren && hasChildren(children);
 
   const addDrawableChildUniform = <T extends object>(uniforms: T): T => {
-    if (htmlUniform !== undefined && hasDrawableChildren && drawableChildRef.current) {
-      return { ...uniforms, [htmlUniform]: drawableChildRef.current };
+    if (hasDrawableChildren && drawableChildRef.current) {
+      return { ...uniforms, u_image: drawableChildRef.current };
     }
     return uniforms;
   };
