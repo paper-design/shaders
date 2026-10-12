@@ -8,10 +8,10 @@
     body { margin: 0 }
     .shader { width: 100%; height: 100dvh }
     .demo { display: grid; place-items: center; width: 100%; height: 100% }
-    .card { display: grid; gap: 16px; width: 360px; padding: 40px; border-radius: 16px; background: #fff; color: #111; font: 16px/1.4 system-ui }
-    .card h1 { margin: 0; font-size: 28px; line-height: 1.2 }
+    .card { display: grid; gap: 28px; width: 680px; padding: 72px; border-radius: 28px; background: #fff; color: #111; font: 24px/1.4 system-ui }
+    .card h1 { margin: 0; font-size: 64px; line-height: 1.1 }
     .card p { margin: 0 }
-    .card button { justify-self: start; padding: 10px 18px; border: 0; border-radius: 999px; background: #111; color: #fff; font: inherit; cursor: pointer }
+    .card button { justify-self: start; padding: 18px 32px; border: 0; border-radius: 999px; background: #111; color: #fff; font: inherit; cursor: pointer }
   </style>
 </head>
 <body>
@@ -20,16 +20,23 @@
       <div class="card">
         <h1>Hello from HTML</h1>
         <p>This card is live HTML under the water: select the text, press the button.</p>
-        <button type="button" onclick="alert('Pressed')">Press me</button>
+        <button type="button">Count: 0</button>
       </div>
     </div>
   </div>
 
   <script type="importmap">
-    { "imports": { "@paper-design/shaders": "./paper-shaders.js" } }
+    { "imports": { "@paper-design/shaders": "../dist/index.js" } }
   </script>
   <script type="module">
     import { ShaderMount, getShaderColorFromString, waterFragmentShader } from '@paper-design/shaders';
+
+    let count = 0;
+    const button = document.querySelector('.card button');
+    button.addEventListener('click', () => {
+      count += 1;
+      button.textContent = `Count: ${count}`;
+    });
 
     // The .demo element is moved into the shader's canvas and drawn at its own size where it's laid out.
     // Browsers without HTML in canvas support leave it where it is.
