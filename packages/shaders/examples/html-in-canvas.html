@@ -6,8 +6,7 @@
   <title>HTML in canvas · vanilla</title>
   <style>
     body { margin: 0 }
-    .shader { width: 100%; height: 100dvh }
-    .demo { display: grid; place-items: center; width: 100%; height: 100% }
+    .container { width: 100%; height: 100dvh }
     .card { display: grid; grid-template-columns: 1fr auto; gap: 28px 16px; width: 680px; padding: 72px; border-radius: 28px; background: #fff; color: #111; font: 24px/1.4 system-ui }
     .card h1, .card p, .card output { grid-column: 1 / -1; margin: 0 }
     .card h1 { font-size: 64px; line-height: 1.1 }
@@ -17,8 +16,8 @@
   </style>
 </head>
 <body>
-  <div class="shader">
-    <div class="demo">
+  <div class="container">
+    <div class="content">
       <form class="card">
         <h1>Hello from HTML</h1>
         <p>This form is live HTML under the water: select the text, type your name, press the button.</p>
@@ -26,6 +25,11 @@
         <button>Say hi</button>
         <output></output>
       </form>
+      <img
+        src="../../../docs/public/images/image-filters/001.webp"
+        alt=""
+        style="width: 150px"
+      />
     </div>
   </div>
 
@@ -41,14 +45,11 @@
       form.querySelector('output').textContent = `Hi, ${form.elements.name.value || 'stranger'}!`;
     });
 
-    // The .demo element is moved into the shader's canvas and drawn at its own size where it's laid out.
-    // Browsers without HTML in canvas support leave it where it is.
-
     new ShaderMount(
-      document.querySelector('.shader'),
+      document.querySelector('.container'),
       waterFragmentShader,
       {
-        u_image: document.querySelector('.demo'),
+        u_image: document.querySelector('.content'),
         u_colorBack: getShaderColorFromString('#0d2b45'),
         u_colorHighlight: getShaderColorFromString('#ffffff'),
         u_highlights: 0.2,

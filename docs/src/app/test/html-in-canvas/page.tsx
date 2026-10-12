@@ -13,7 +13,6 @@ export default function HtmlInCanvasTestPage() {
   return (
     <>
       <style>{`
-        .demo { display: grid; place-items: center; width: 100%; height: 100% }
         .card { display: grid; grid-template-columns: 1fr auto; gap: 28px 16px; width: 680px; padding: 72px; border-radius: 28px; background: #fff; color: #111; font: 24px/1.4 system-ui }
         .card h1, .card p, .card output { grid-column: 1 / -1; margin: 0 }
         .card h1 { font-size: 64px; line-height: 1.1 }
@@ -30,22 +29,25 @@ export default function HtmlInCanvasTestPage() {
         caustic={0.05}
         size={1}
       >
-        <div className="demo">
-          <form
-            className="card"
-            onSubmit={(event) => {
-              event.preventDefault();
-              const name = new FormData(event.currentTarget).get('name');
-              setGreeting(`Hi, ${name || 'stranger'}!`);
-            }}
-          >
-            <h1>Hello from HTML</h1>
-            <p>This form is live HTML under the water: select the text, type your name, press the button.</p>
-            <input name="name" placeholder="your name" autoComplete="off" />
-            <button>Say hi</button>
-            <output>{greeting}</output>
-          </form>
-        </div>
+        <form
+          className="card"
+          onSubmit={(event) => {
+            event.preventDefault();
+            const name = new FormData(event.currentTarget).get('name');
+            setGreeting(`Hi, ${name || 'stranger'}!`);
+          }}
+        >
+          <h1>Hello from HTML</h1>
+          <p>This form is live HTML under the water: select the text, type your name, press the button.</p>
+          <input name="name" placeholder="your name" autoComplete="off" />
+          <button>Say hi</button>
+          <output>{greeting}</output>
+        </form>
+        <img
+          src="/flowers.webp"
+          alt=""
+          style={{ display: 'block', width: 150, borderRadius: 28 }}
+        />
       </Water>
     </>
   );
