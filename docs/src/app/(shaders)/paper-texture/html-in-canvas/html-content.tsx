@@ -32,7 +32,7 @@ export const htmlContentCss = `
 .demo ::selection { background: rgb(34 34 34 / 14%); color: #222 }
 .demo :is(input, textarea):focus-visible { box-shadow: 0 0 0 3px rgb(34 34 34 / 12%) }
 .demo .error { display: none; font-size: 13px; color: #d93025 }
-.demo textarea { height: auto; min-height: 88px; padding: 11px 14px; resize: none; field-sizing: content }
+.demo textarea { height: auto; padding: 11px 14px; resize: none; field-sizing: content }
 .demo input:user-invalid, .demo form.submitted input:invalid { border-color: #d93025; box-shadow: 0 0 0 3px rgb(217 48 37 / 12%) }
 .demo input:user-invalid + .error, .demo form.submitted input:invalid + .error { display: block; animation: fade-in 200ms }
 .demo label { display: flex; align-items: center; gap: 10px }

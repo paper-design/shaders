@@ -19,11 +19,11 @@ export const htmlContentCss = `
 @property --highlight-stroke { syntax: '<length>'; inherits: false; initial-value: 0px }
 .demo { position: relative; width: 100%; height: 100%; container-type: size; overflow: hidden; color: #222; background: #fff }
 .demo ul { position: absolute; inset: 0 50% 0 0; display: grid; align-content: center; justify-items: start; margin: 0; padding: 0 0 0 32px; list-style: none }
-.demo a { display: flex; align-items: baseline; gap: 16px; padding: 4px 0; font: 300 64px/1 system-ui; letter-spacing: 0.03em; text-transform: lowercase; -webkit-text-stroke: var(--highlight-stroke) currentColor; cursor: default; transition: --highlight-stroke 1s ease-out }
+.demo a { display: flex; align-items: baseline; gap: 16px; padding: 4px 0; font: 300 64px/1 system-ui; letter-spacing: 0.03em; text-transform: lowercase; -webkit-text-stroke: var(--highlight-stroke) currentColor; cursor: default; transition: --highlight-stroke 1s cubic-bezier(0.22, 1, 0.36, 1) }
 .demo a.active { --highlight-stroke: 0.065em }
-.demo a::after { content: ''; flex: none; width: 0.32em; height: 0.32em; translate: 0 calc(0.16em - 0.5ex); border-radius: 50%; background: currentColor; scale: 0; transition: scale 1s ease-out }
+.demo a::after { content: ''; flex: none; width: 0.32em; height: 0.32em; translate: 0 calc(0.16em - 0.5ex); border-radius: 50%; background: currentColor; scale: 0; transition: scale 1s cubic-bezier(0.22, 1, 0.36, 1) }
 .demo a.active::after { scale: 1 }
-.demo img { position: absolute; top: 0; right: 0; width: 50%; height: 100%; object-fit: cover; opacity: 0; pointer-events: none; transition: opacity 1s ease-out }
+.demo img { position: absolute; top: 0; right: 0; width: 50%; height: 100%; object-fit: cover; opacity: 0; pointer-events: none; transition: opacity 1s cubic-bezier(0.22, 1, 0.36, 1) }
 .demo img.active { opacity: 1 }
 @container (aspect-ratio < 1) {
   .demo ul { inset: 50% 0 0; justify-items: center; padding: 0 }
