@@ -24,6 +24,7 @@ import { proceduralHash21, declarePI } from '../shader-utils.js';
  * - u_offsetY (float): Vertical offset of the graphics center (-1 to 1)
  * - u_image (sampler2D): Source image texture, premultiplied alpha
  * - u_imageAspectRatio (float): Aspect ratio of the source image
+ * - u_imageIsHtml (float): 1 when u_image is HTML, drawn 1:1 without the sizing uniforms
  * - u_colorFront (vec4): Foreground color in RGBA, needs originalColors off
  * - u_colorBack (vec4): Background color in RGBA, needs originalColors off
  * - u_colorHighlight (vec4): Secondary foreground color in RGBA (set same as colorFront for classic 2-color dithering), needs originalColors off
@@ -56,6 +57,7 @@ uniform vec4 u_colorHighlight;
 
 uniform sampler2D u_image;
 uniform float u_imageAspectRatio;
+uniform float u_imageIsHtml;
 
 uniform float u_type;
 uniform float u_pxSize;
@@ -86,30 +88,32 @@ float getUvFrame(vec2 uv, vec2 pad) {
 }
 
 vec2 getImageUV(vec2 uv) {
-  vec2 boxOrigin = vec2(.5 - u_originX, u_originY - .5);
-  float r = u_rotation * PI / 180.;
-  mat2 graphicRotation = mat2(cos(r), sin(r), -sin(r), cos(r));
-  vec2 graphicOffset = vec2(-u_offsetX, u_offsetY);
-
-  vec2 imageBoxSize;
-  if (u_fit == 1.) { // contain
-    imageBoxSize.x = min(u_resolution.x / u_imageAspectRatio, u_resolution.y) * u_imageAspectRatio;
-  } else if (u_fit == 2.) { // cover
-    imageBoxSize.x = max(u_resolution.x / u_imageAspectRatio, u_resolution.y) * u_imageAspectRatio;
-  } else {
-    imageBoxSize.x = min(10.0, 10.0 / u_imageAspectRatio * u_imageAspectRatio);
-  }
-  imageBoxSize.y = imageBoxSize.x / u_imageAspectRatio;
-  vec2 imageBoxScale = u_resolution.xy / imageBoxSize;
-
   vec2 imageUV = uv;
-  imageUV *= imageBoxScale;
-  imageUV += boxOrigin * (imageBoxScale - 1.);
-  imageUV += graphicOffset;
-  imageUV /= u_scale;
-  imageUV.x *= u_imageAspectRatio;
-  imageUV = graphicRotation * imageUV;
-  imageUV.x /= u_imageAspectRatio;
+  if (u_imageIsHtml == 0.) {
+    vec2 boxOrigin = vec2(.5 - u_originX, u_originY - .5);
+    float r = u_rotation * PI / 180.;
+    mat2 graphicRotation = mat2(cos(r), sin(r), -sin(r), cos(r));
+    vec2 graphicOffset = vec2(-u_offsetX, u_offsetY);
+
+    vec2 imageBoxSize;
+    if (u_fit == 1.) { // contain
+      imageBoxSize.x = min(u_resolution.x / u_imageAspectRatio, u_resolution.y) * u_imageAspectRatio;
+    } else if (u_fit == 2.) { // cover
+      imageBoxSize.x = max(u_resolution.x / u_imageAspectRatio, u_resolution.y) * u_imageAspectRatio;
+    } else {
+      imageBoxSize.x = min(10.0, 10.0 / u_imageAspectRatio * u_imageAspectRatio);
+    }
+    imageBoxSize.y = imageBoxSize.x / u_imageAspectRatio;
+    vec2 imageBoxScale = u_resolution.xy / imageBoxSize;
+
+    imageUV *= imageBoxScale;
+    imageUV += boxOrigin * (imageBoxScale - 1.);
+    imageUV += graphicOffset;
+    imageUV /= u_scale;
+    imageUV.x *= u_imageAspectRatio;
+    imageUV = graphicRotation * imageUV;
+    imageUV.x /= u_imageAspectRatio;
+  }
 
   imageUV += .5;
   imageUV.y = 1. - imageUV.y;
