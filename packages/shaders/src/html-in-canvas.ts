@@ -5,7 +5,7 @@
  * An HTML element passed as a texture uniform is moved into the shader canvas and drawn 1:1 where it's laid out:
  *
  * <div data-paper-shader>
- *   <canvas data-paper-shader-canvas content="drawable">
+ *   <canvas content="drawable">
  *     <div drawable>…</div>
  *   </canvas>
  * </div>
@@ -29,8 +29,6 @@ interface DrawableCanvasWebGL2Context extends WebGL2RenderingContext {
   ): void;
 }
 
-export const SHADER_CANVAS_ATTRIBUTE = 'data-paper-shader-canvas';
-
 export function isHtmlInCanvasSupported(): boolean {
   return (
     typeof HTMLCanvasElement !== 'undefined' &&
@@ -53,7 +51,7 @@ export function isHtmlUniform(value: unknown): value is HTMLElement {
 export function findReactCanvas(values: unknown[], parentElement: Element): DrawableCanvasElement | null {
   for (const value of values) {
     const canvas = isHtmlUniform(value) ? value.parentElement : null;
-    if (canvas?.hasAttribute(SHADER_CANVAS_ATTRIBUTE) && canvas.parentElement === parentElement) {
+    if (canvas?.tagName === 'CANVAS' && canvas.parentElement === parentElement) {
       return canvas as DrawableCanvasElement;
     }
   }

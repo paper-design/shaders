@@ -36,7 +36,7 @@ function DrawableCanvas({ children, childRef }: { children: React.ReactNode; chi
   const mergedRef = useMergeRefs([childRef, onlyElement ? getElementRef(onlyElement) : undefined]);
 
   return (
-    <canvas {...{ 'content': 'drawable', 'data-paper-shader-canvas': '' }}>
+    <canvas {...{ content: 'drawable' }}>
       {onlyElement ? (
         cloneElement(onlyElement, { ref: mergedRef, drawable: '' } as object)
       ) : (

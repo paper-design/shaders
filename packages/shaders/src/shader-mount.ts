@@ -5,7 +5,6 @@ import {
   findReactCanvas,
   isHtmlInCanvasSupported,
   isHtmlUniform,
-  SHADER_CANVAS_ATTRIBUTE,
   type DrawableCanvasElement,
 } from './html-in-canvas.js';
 
@@ -96,7 +95,6 @@ export class ShaderMount {
     this.canvasElement = canvasElement;
     this.isReactCanvas = reactCanvas !== null;
     if (!reactCanvas) {
-      canvasElement.setAttribute(SHADER_CANVAS_ATTRIBUTE, '');
       this.parentElement.prepend(canvasElement);
     }
     canvasElement.addEventListener('paint', this.handleCanvasPaint);
