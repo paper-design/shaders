@@ -167,6 +167,12 @@ float smoothFract(float x) {
   return mix(f, 1.0 - f, band);
 }
 
+float marginMask(float t, float marginStart, float marginEnd, float edgeFrom, float edgeTo, float shift) {
+  float fromStart = smoothstep(marginStart + edgeFrom, marginStart + edgeTo, t + shift);
+  float fromEnd = smoothstep(marginEnd + edgeFrom, marginEnd + edgeTo, 1. - t + shift);
+  return marginStart + marginEnd > 1. ? fromStart + fromEnd - fromStart * fromEnd : fromStart * fromEnd;
+}
+
 void main() {
 
   float patternRotation = -u_angle * PI / 180.;
@@ -175,24 +181,17 @@ void main() {
   vec2 uv = v_imageUV;
 
   vec2 uvMask = gl_FragCoord.xy / u_resolution.xy;
-  vec2 sw = vec2(.005);
-  vec4 margins = vec4(u_marginLeft, u_marginTop, u_marginRight, u_marginBottom);
+  float sw = .005;
   float mask =
-  smoothstep(margins[0], margins[0] + sw.x, uvMask.x + sw.x) *
-  smoothstep(margins[2], margins[2] + sw.x, 1.0 - uvMask.x + sw.x) *
-  smoothstep(margins[1], margins[1] + sw.y, uvMask.y + sw.y) *
-  smoothstep(margins[3], margins[3] + sw.y, 1.0 - uvMask.y + sw.y);
+  marginMask(uvMask.x, u_marginLeft, u_marginRight, 0., sw, sw) *
+  marginMask(uvMask.y, u_marginBottom, u_marginTop, 0., sw, sw);
   float maskOuter =
-  smoothstep(margins[0] - sw.x, margins[0], uvMask.x + sw.x) *
-  smoothstep(margins[2] - sw.x, margins[2], 1.0 - uvMask.x + sw.x) *
-  smoothstep(margins[1] - sw.y, margins[1], uvMask.y + sw.y) *
-  smoothstep(margins[3] - sw.y, margins[3], 1.0 - uvMask.y + sw.y);
+  marginMask(uvMask.x, u_marginLeft, u_marginRight, -sw, 0., sw) *
+  marginMask(uvMask.y, u_marginBottom, u_marginTop, -sw, 0., sw);
   float maskStroke = maskOuter - mask;
   float maskInner =
-  smoothstep(margins[0] - 2. * sw.x, margins[0], uvMask.x) *
-  smoothstep(margins[2] - 2. * sw.x, margins[2], 1.0 - uvMask.x) *
-  smoothstep(margins[1] - 2. * sw.y, margins[1], uvMask.y) *
-  smoothstep(margins[3] - 2. * sw.y, margins[3], 1.0 - uvMask.y);
+  marginMask(uvMask.x, u_marginLeft, u_marginRight, -2. * sw, 0., 0.) *
+  marginMask(uvMask.y, u_marginBottom, u_marginTop, -2. * sw, 0., 0.);
   float maskStrokeInner = maskInner - mask;
 
   uv -= .5;
