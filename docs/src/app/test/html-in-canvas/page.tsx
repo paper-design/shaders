@@ -18,7 +18,11 @@ export default function HtmlInCanvasTestPage() {
       caustic={0.05}
       size={1}
     >
-      <img src="/flowers.webp" alt="" style={{ display: 'block', width: 640, margin: '120px auto', borderRadius: 28 }} />
+      <img
+        src="/flowers.webp"
+        alt=""
+        style={{ display: 'block', width: 640, margin: '120px auto', borderRadius: 28 }}
+      />
     </Water>
   );
 }

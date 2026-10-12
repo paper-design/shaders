@@ -15,13 +15,13 @@ export const htmlInCanvasOverrides = {
 // The stopwatch keeps its state in data attributes: time run so far, and when the current run started.
 export const htmlContentCss = `
 .demo { display: grid; place-content: center; justify-items: center; gap: 2cqw; width: 100%; height: 100%; container-type: inline-size; color: #fff; font: 24px ui-monospace, monospace; user-select: none }
-.demo time { font-size: 128px; line-height: 1; }
+.demo time { font-size: 128px; line-height: 1 }
 .demo nav, .demo section { display: flex; align-items: center; gap: 3cqw; min-height: 5.6cqw }
 .demo section { gap: 1.6cqw }
 .demo label { padding: 0.5cqw 0; border-bottom: 0.2cqw solid transparent; opacity: 0.8; cursor: pointer; transition: opacity 150ms }
 .demo label:hover, .demo label:has(:checked) { opacity: 1 }
 .demo label:has(:checked) { border-color: currentColor }
-.demo nav input { position: absolute; opacity: 0; pointer-events: none }
+.demo input { display: none }
 .demo p { margin: 0 }
 .demo button { min-width: 12cqw; padding: 1cqw 2.4cqw; border: 0.2cqw solid rgb(255 255 255 / 80%); border-radius: 999px; background: rgb(255 255 255 / 25%); color: inherit; font: inherit; cursor: pointer; transition: background-color 150ms, opacity 150ms }
 .demo button:hover { background: rgb(255 255 255 / 40%) }

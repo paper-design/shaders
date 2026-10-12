@@ -19,6 +19,7 @@ export const htmlInCanvasOverrides = {
 };
 
 // Every repaint of the HTML is captured again for the shader, so the hint stops bouncing once the page is scrolled
+// The background is 3 times the demo's height, so panning by at most 2/3 of it keeps its bottom edge in view
 export const htmlContentCss = `
 .demo { position: relative; width: 100%; height: 100%; color: #fff; overflow: hidden; timeline-scope: --demo-scroll }
 .demo .bg { position: absolute; inset: 0; height: 300%; background: url(/images/html-in-canvas/succulents.jpg) center top / cover; filter: brightness(0.7); animation: bg-pan linear both; animation-timeline: --demo-scroll; animation-range: 0px 4000px }
@@ -41,7 +42,7 @@ export const htmlContentCss = `
 .demo kbd { padding: 0.05em 0.35em; border: 2px solid rgb(255 255 255 / 60%); border-bottom-width: 4px; border-radius: 0.25em; font: inherit; font-size: 0.85em }
 .demo .hint { position: fixed; bottom: 15px; right: 20px; display: flex; align-items: center; font-size: 22px; animation: hint-fade linear both; animation-timeline: --demo-scroll; animation-range: 0 16px }
 .demo .hint span { display: inline-block; padding-left: 0.5em; animation: hint-bounce 1.2s ease-in-out infinite }
-@keyframes bg-pan { to { transform: translateY(-2000px) } }
+@keyframes bg-pan { to { translate: 0 max(-2000px, -200% / 3) } }
 @keyframes hint-fade { to { opacity: 0 } }
 @container scroll-state(scrollable: top) { .demo .hint span { animation: none } }
 @keyframes hint-bounce { 50% { transform: translateY(8px) } }

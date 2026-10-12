@@ -14,16 +14,23 @@ export const htmlInCanvasOverrides = {
 // The stroke width itself doesn't animate, so it follows a registered length property that does.
 // A dot grows in right after the active name on the same timing. It sits on the baseline and is lifted by half
 // an x-height minus its radius, so it centers on the lowercase letters in whatever font the system picks.
+// The names and the image sit side by side, or stacked when the demo is taller than wide, and the font scales
+// with the demo's width and height so the longest name never runs into the image.
 export const htmlContentCss = `
 @property --highlight-stroke { syntax: '<length>'; inherits: false; initial-value: 0px }
-.demo { --ease: cubic-bezier(0.22, 1, 0.36, 1); position: relative; width: 100%; height: 100%; container-type: inline-size; overflow: hidden; color: #222; background: #fff }
-.demo ul { display: grid; align-content: center; justify-items: start; width: 50%; height: 100%; margin: 0; padding: 0 0 0 3cqw; box-sizing: border-box; list-style: none }
-.demo a { display: flex; align-items: baseline; gap: 2cqw; padding: 0.8cqw 0; font: 300 80px/1.1 system-ui; letter-spacing: 0.03em; text-transform: lowercase; -webkit-text-stroke: var(--highlight-stroke) currentColor; cursor: default; transition: --highlight-stroke 1000ms var(--ease) }
+.demo { position: relative; width: 100%; height: 100%; container-type: size; overflow: hidden; color: #222; background: #fff }
+.demo ul { position: absolute; inset: 0 50% 0 0; display: grid; align-content: center; justify-items: start; margin: 0; padding: 0 0 0 3cqw; list-style: none }
+.demo a { display: flex; align-items: baseline; gap: 2cqw; padding: 0.8cqw 0; font: 300 min(80px, 8cqw, 16cqh)/1.1 system-ui; letter-spacing: 0.03em; text-transform: lowercase; -webkit-text-stroke: var(--highlight-stroke) currentColor; cursor: default; transition: --highlight-stroke 1s ease-out }
 .demo a.active { --highlight-stroke: 0.065em }
-.demo a::after { content: ''; flex: none; width: 0.32em; height: 0.32em; translate: 0 calc(0.16em - 0.5ex); border-radius: 50%; background: currentColor; scale: 0; transition: scale 1000ms var(--ease) }
+.demo a::after { content: ''; flex: none; width: 0.32em; height: 0.32em; translate: 0 calc(0.16em - 0.5ex); border-radius: 50%; background: currentColor; scale: 0; transition: scale 1s ease-out }
 .demo a.active::after { scale: 1 }
-.demo img { position: absolute; top: 0; right: 0; width: 50%; height: 100%; object-fit: cover; opacity: 0; pointer-events: none; transition: opacity 1000ms var(--ease) }
+.demo img { position: absolute; top: 0; right: 0; width: 50%; height: 100%; object-fit: cover; opacity: 0; pointer-events: none; transition: opacity 1s ease-out }
 .demo img.active { opacity: 1 }
+@container (aspect-ratio < 1) {
+  .demo ul { inset: 50% 0 0; justify-items: center; padding: 0 }
+  .demo a { font-size: min(80px, 14cqw, 8cqh) }
+  .demo img { width: 100%; height: 50% }
+}
 `;
 
 const topics = [

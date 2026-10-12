@@ -274,14 +274,17 @@ export function ShaderDetails({
         </div>
       </section>
 
-      <section>
-        <div className="flex flex-col gap-16">
-          <h2 className="text-2xl font-medium lowercase">Common Props</h2>
-          <div className="custom-scrollbar overflow-x-auto rounded-xl bg-backplate-1 squircle:rounded-2xl">
-            <PropsTable params={commonProps} />
+      {/* HTML demos draw their children 1:1, so the sizing props that make up most of the common ones don't apply */}
+      {!htmlSample && (
+        <section>
+          <div className="flex flex-col gap-16">
+            <h2 className="text-2xl font-medium lowercase">Common Props</h2>
+            <div className="custom-scrollbar overflow-x-auto rounded-xl bg-backplate-1 squircle:rounded-2xl">
+              <PropsTable params={commonProps} />
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {shaderDef.description && (
         <section>
