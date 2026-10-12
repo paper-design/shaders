@@ -30,7 +30,7 @@ export interface ShaderMountProps extends Omit<React.ComponentProps<'div'>, 'col
   minPixelRatio?: number;
   maxPixelCount?: number;
   webGlContextAttributes?: WebGLContextAttributes;
-  /** Experimental: the children are drawn into u_image as live HTML instead of rendered on top. Set by shaders that support it */
+  /** Set by shaders that can draw their children into u_image (experimental) */
   acceptsHtmlChildren?: boolean;
 
   /** Inline CSS width style */
@@ -150,7 +150,10 @@ export const ShaderMount: React.FC<ShaderMountProps> = forwardRef<PaperShaderEle
     const divRef = useRef<PaperShaderElement>(null);
     const shaderMountRef: React.RefObject<ShaderMountVanilla | null> = useRef<ShaderMountVanilla>(null);
     const webGlContextAttributesRef = useRef(webGlContextAttributes);
-    const { hasDrawableChildren, addDrawableChildUniform, renderedChildren } = useDrawableChildren(acceptsHtmlChildren, children);
+    const { hasDrawableChildren, addDrawableChildUniform, renderedChildren } = useDrawableChildren(
+      acceptsHtmlChildren,
+      children
+    );
 
     const getUniforms = (): ShaderMountUniformsReact => addDrawableChildUniform(uniformsProp);
 
