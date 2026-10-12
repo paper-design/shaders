@@ -12,7 +12,7 @@ function hasChildren(children: React.ReactNode): boolean {
   return Children.toArray(children).length > 0;
 }
 
-export function willDrawChildren(children: React.ReactNode): boolean {
+export function willDrawHtmlChildren(children: React.ReactNode): boolean {
   return hasChildren(children) && isHtmlInCanvasSupported();
 }
 
@@ -49,26 +49,26 @@ function DrawableCanvas({ children, childRef }: { children: React.ReactNode; chi
 }
 
 /** Draws the children into u_image where the browser supports it, otherwise they're shown on top of the shader */
-export function useDrawableChildren(
+export function useHtmlChildren(
   acceptsHtmlChildren: boolean,
   children: React.ReactNode
 ): {
-  hasDrawableChildren: boolean;
-  addDrawableChildUniform: <T extends object>(uniforms: T) => T;
+  hasHtmlChildren: boolean;
+  addHtmlUniform: <T extends object>(uniforms: T) => T;
   renderedChildren: React.ReactNode;
 } {
   const drawableChildRef = useRef<HTMLElement>(null);
   const isSupported = useSyncExternalStore(subscribeToNothing, isHtmlInCanvasSupported, isSupportedOnServer);
-  const hasDrawableChildren = acceptsHtmlChildren && isSupported && hasChildren(children);
+  const hasHtmlChildren = acceptsHtmlChildren && isSupported && hasChildren(children);
 
-  const addDrawableChildUniform = <T extends object>(uniforms: T): T =>
-    hasDrawableChildren && drawableChildRef.current ? { ...uniforms, u_image: drawableChildRef.current } : uniforms;
+  const addHtmlUniform = <T extends object>(uniforms: T): T =>
+    hasHtmlChildren && drawableChildRef.current ? { ...uniforms, u_image: drawableChildRef.current } : uniforms;
 
-  const renderedChildren = hasDrawableChildren ? (
+  const renderedChildren = hasHtmlChildren ? (
     <DrawableCanvas childRef={drawableChildRef}>{children}</DrawableCanvas>
   ) : (
     children
   );
 
-  return { hasDrawableChildren, addDrawableChildUniform, renderedChildren };
+  return { hasHtmlChildren, addHtmlUniform, renderedChildren };
 }
