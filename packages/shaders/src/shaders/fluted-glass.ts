@@ -18,7 +18,7 @@ import { declarePI, rotation2, proceduralHash21 } from '../shader-utils.js';
  * - u_highlights (float): Thin strokes along distortion shape, useful for antialiasing on small grid (0 to 1)
  * - u_size (float): Size of the distortion shape grid (0 to 1)
  * - u_shape (float): Grid shape (1 = lines, 2 = linesIrregular, 3 = wave, 4 = zigzag, 5 = pattern)
- * - u_angle (float): Direction of the grid relative to the image in degrees (0 to 180)
+ * - u_angle (float): Direction of the grid relative to the image in degrees (0 to 360)
  * - u_distortionShape (float): Shape of distortion (1 = prism, 2 = lens, 3 = contour, 4 = cascade, 5 = flat)
  * - u_distortion (float): Power of distortion applied within each stripe (0 to 1)
  * - u_shift (float): Texture shift in direction opposite to the grid, needs distortion > 0 (-1 to 1)

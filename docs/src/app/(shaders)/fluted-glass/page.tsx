@@ -79,7 +79,7 @@ const FlutedGlassWithControls = () => {
         options: Object.keys(GlassGridShapes) as GlassGridShape[],
         order: 211,
       },
-      angle: { value: defaults.angle, min: 0, max: 180, order: 212 },
+      angle: { value: defaults.angle, min: 0, max: 360, order: 212 },
       distortionShape: {
         value: defaults.distortionShape,
         options: Object.keys(GlassDistortionShapes) as GlassDistortionShape[],
