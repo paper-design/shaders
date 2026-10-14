@@ -131,6 +131,7 @@ const WaterWithControls = () => {
         defaultParams={presetDefaults}
         htmlContent={htmlContent}
         htmlContentCss={htmlContentCss}
+        wrapperMode="100% centered"
         notes={notes}
       >
         <Water {...params}>{htmlContent}</Water>

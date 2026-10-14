@@ -10,7 +10,7 @@ import { declarePI, rotation2, simplexNoise } from '../shader-utils.js';
  * - u_image (sampler2D): Optional source image texture, premultiplied alpha
  * - u_imageAspectRatio (float): Aspect ratio of the source image; over HTML the canvas aspect from u_resolution is used instead
  * - u_imageIsHtml (float): 1 when u_image is HTML. HTML is drawn 1:1, so the ripples and their distortion are sized in CSS px
- *   to keep their size over it: size sets the ripple scale from 10px to 100px, and the distortion looks as it does over a
+ *   to keep their size over it: size sets the ripple scale from 2px to 100px, and the distortion looks as it does over a
  *   1000px image box. They're anchored at originX / originY
  *   instead of the center, 0 0 being the top left like CSS
  * - u_colorBack (vec4): Background color in RGBA
@@ -75,7 +75,7 @@ out vec4 fragColor;
 
 ${ declarePI }
 float sizeToPx(float size) {
-  return 1000. * (.01 + .09 * size);
+  return 1000. * (.002 + .07 * size);
 }
 ${ rotation2 }
 ${ simplexNoise }
