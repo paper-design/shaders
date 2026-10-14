@@ -1,12 +1,13 @@
 'use client';
 
-import { Children, cloneElement, isValidElement, useRef, useSyncExternalStore, version } from 'react';
+import { Children, useRef, useSyncExternalStore } from 'react';
 import { isHtmlInCanvasSupported } from '@paper-design/shaders';
-import { useMergeRefs } from './use-merge-refs.js';
 
 const subscribeToNothing = () => () => {};
 // Assumed on the server, so that supporting browsers don't re-render the canvas after hydration
 const isSupportedOnServer = () => true;
+
+const defaultWrapperStyle: React.CSSProperties = { width: '100%', height: '100%' };
 
 function hasChildren(children: React.ReactNode): boolean {
   return Children.toArray(children).length > 0;
@@ -16,59 +17,42 @@ export function willDrawHtmlChildren(children: React.ReactNode): boolean {
   return hasChildren(children) && isHtmlInCanvasSupported();
 }
 
-type HostElement = React.ReactElement<{ ref?: React.Ref<HTMLElement> }, string>;
-
-/** A single element is drawn as is, so its own CSS sizes it against the canvas. `<img>` is wrapped, or it'd be a static image */
-function getOnlyHostElement(children: React.ReactNode): HostElement | null {
-  const array = Children.toArray(children);
-  const only = array[0];
-  return array.length === 1 && isValidElement(only) && typeof only.type === 'string' && only.type !== 'img'
-    ? (only as HostElement)
-    : null;
-}
-
-function getElementRef(element: HostElement): React.Ref<HTMLElement> | undefined {
-  return parseInt(version) >= 19 ? element.props.ref : (element as unknown as { ref?: React.Ref<HTMLElement> }).ref;
-}
-
-function DrawableCanvas({ children, childRef }: { children: React.ReactNode; childRef: React.Ref<HTMLElement> }) {
-  const onlyElement = getOnlyHostElement(children);
-  const mergedRef = useMergeRefs([childRef, onlyElement ? getElementRef(onlyElement) : undefined]);
-
-  return (
-    <canvas {...{ content: 'drawable' }}>
-      {onlyElement ? (
-        cloneElement(onlyElement, { ref: mergedRef, drawable: '' } as object)
-      ) : (
-        <div ref={childRef as React.Ref<HTMLDivElement>} {...{ drawable: '' }}>
-          {children}
-        </div>
-      )}
-    </canvas>
-  );
-}
-
-/** Draws the children into u_image where the browser supports it, otherwise they're shown on top of the shader */
+/**
+ * Draws the children into u_image where the browser supports it, otherwise they're shown on top of the shader.
+ * Either way they're held by the same wrapper, so they lay out the same: by default it fills the shader
+ */
 export function useHtmlChildren(
   acceptsHtmlChildren: boolean,
-  children: React.ReactNode
+  children: React.ReactNode,
+  wrapperStyle: React.CSSProperties = defaultWrapperStyle
 ): {
   hasHtmlChildren: boolean;
   addHtmlUniform: <T extends object>(uniforms: T) => T;
   renderedChildren: React.ReactNode;
 } {
-  const drawableChildRef = useRef<HTMLElement>(null);
+  const drawableChildRef = useRef<HTMLDivElement>(null);
   const isSupported = useSyncExternalStore(subscribeToNothing, isHtmlInCanvasSupported, isSupportedOnServer);
-  const hasHtmlChildren = acceptsHtmlChildren && isSupported && hasChildren(children);
+  const isWrapped = acceptsHtmlChildren && hasChildren(children);
+  const hasHtmlChildren = isWrapped && isSupported;
 
   const addHtmlUniform = <T extends object>(uniforms: T): T =>
     hasHtmlChildren && drawableChildRef.current ? { ...uniforms, u_image: drawableChildRef.current } : uniforms;
 
-  const renderedChildren = hasHtmlChildren ? (
-    <DrawableCanvas childRef={drawableChildRef}>{children}</DrawableCanvas>
+  if (!isWrapped) {
+    return { hasHtmlChildren, addHtmlUniform, renderedChildren: children };
+  }
+
+  const wrapper = hasHtmlChildren ? (
+    <div ref={drawableChildRef} style={wrapperStyle} {...{ drawable: '' }}>
+      {children}
+    </div>
   ) : (
-    children
+    <div style={wrapperStyle}>{children}</div>
   );
 
-  return { hasHtmlChildren, addHtmlUniform, renderedChildren };
+  return {
+    hasHtmlChildren,
+    addHtmlUniform,
+    renderedChildren: hasHtmlChildren ? <canvas {...{ content: 'drawable' }}>{wrapper}</canvas> : wrapper,
+  };
 }

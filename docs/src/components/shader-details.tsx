@@ -25,8 +25,11 @@ const formatJsxAttribute = (key: string, value: unknown): string => {
   if (Array.isArray(value)) {
     return `${key}={[${value.map((v) => JSON.stringify(v)).join(', ')}]}`;
   }
-  if (typeof value === 'object') {
-    return `${key}={${JSON.stringify(value)}}`;
+  if (value && typeof value === 'object') {
+    const entries = Object.entries(value).map(
+      ([name, entry]) => `${name}: ${JSON.stringify(entry).replace(/"/g, "'")}`
+    );
+    return entries.length > 0 ? `${key}={{ ${entries.join(', ')} }}` : `${key}={{}}`;
   }
 
   return `${key}={${JSON.stringify(value)}}`;
@@ -189,7 +192,7 @@ function getShaderCode({ shaderDef, currentParams, codeSampleImageName, htmlSamp
       ? `<${componentName}\n  ${attributes.join('\n  ')}\n/>`
       : `<${componentName} />`;
 
-  const imports = `import { ${componentName} } from '@paper-design/shaders-react';${htmlSample ? `\nimport './demo.css';` : ''}`;
+  const imports = `import { ${componentName} } from '@paper-design/shaders-react';${htmlSample ? `\nimport './styles.css';` : ''}`;
   return `${imports}\n\n${element}\n`;
 }
 
@@ -229,7 +232,7 @@ function CodeSection({ code, css }: { code: string; css?: string }) {
         {css && (
           <>
             <div className="mt-16 flex items-center gap-8">
-              <h3 className="font-mono text-base">demo.css</h3>
+              <h3 className="font-mono text-base">styles.css</h3>
               <CopyButton
                 className="-mt-14 -mb-16 size-32 rounded-md outline-0 outline-focus transition-colors hover:bg-backplate-1 focus-visible:outline-2 active:bg-backplate-2 squircle:rounded-lg"
                 getText={() => css}

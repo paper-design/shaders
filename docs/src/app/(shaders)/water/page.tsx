@@ -98,6 +98,8 @@ const WaterWithControls = () => {
       size: { value: defaults.size, min: 0.01, max: 7, order: 205 },
       speed: { value: defaults.speed, min: 0, max: 3, order: 300 },
       scale: { value: defaults.scale, min: 0.1, max: 4, order: 301, ...imageInputOnly },
+      originX: { value: defaults.originX, min: 0, max: 1, order: 301.1, ...htmlInputOnly },
+      originY: { value: defaults.originY, min: 0, max: 1, order: 301.2, ...htmlInputOnly },
       fit: { value: defaults.fit, options: ['contain', 'cover'] as ShaderFit[], order: 302, ...imageInputOnly },
       Image: folder(
         {
@@ -107,7 +109,10 @@ const WaterWithControls = () => {
         { order: 0, ...imageInputOnly }
       ),
       Presets: folder(presets, { order: -1, ...imageInputOnly }),
-      Preset: folder({ Reset: button(() => setParamsSafe(params, setParams, defaults)) }, { order: -1, ...htmlInputOnly }),
+      Preset: folder(
+        { Reset: button(() => setParamsSafe(params, setParams, defaults)) },
+        { order: -1, ...htmlInputOnly }
+      ),
     };
   }, [image]);
 
@@ -126,6 +131,7 @@ const WaterWithControls = () => {
         defaultParams={presetDefaults}
         htmlContent={htmlContent}
         htmlContentCss={htmlContentCss}
+        wrapperMode="100% centered"
         notes={notes}
       >
         <Water {...params}>{htmlContent}</Water>

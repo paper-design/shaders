@@ -105,6 +105,8 @@ const FlutedGlassWithControls = () => {
       grainMixer: { value: defaults.grainMixer, min: 0, max: 1, order: 550 },
       grainOverlay: { value: defaults.grainOverlay, min: 0, max: 1, order: 551 },
       scale: { value: defaults.scale, min: 0.1, max: 4, order: 600, ...imageInputOnly },
+      originX: { value: defaults.originX, min: 0, max: 1, order: 600.1, ...htmlInputOnly },
+      originY: { value: defaults.originY, min: 0, max: 1, order: 600.2, ...htmlInputOnly },
       fit: { value: defaults.fit, options: ['contain', 'cover'] as ShaderFit[], order: 604, ...imageInputOnly },
 
       Image: folder(
@@ -114,7 +116,10 @@ const FlutedGlassWithControls = () => {
         { order: 0, ...imageInputOnly }
       ),
       Presets: folder(presets, { order: -1, ...imageInputOnly }),
-      Preset: folder({ Reset: button(() => setParamsSafe(params, setParams, defaults)) }, { order: -1, ...htmlInputOnly }),
+      Preset: folder(
+        { Reset: button(() => setParamsSafe(params, setParams, defaults)) },
+        { order: -1, ...htmlInputOnly }
+      ),
     };
   });
 

@@ -304,6 +304,9 @@ export class ShaderMount {
       this.resolutionChanged = true;
       this.gl.viewport(0, 0, this.gl.canvas.width, this.gl.canvas.height);
 
+      // Captured again right away, so the frame drawn below doesn't stretch the previous capture over the new size
+      this.captureHtml(true);
+
       // The browser doesn't repaint HTML by itself when only the pixel ratio changes
       if (this.htmlUniforms.size > 0) {
         (this.canvasElement as DrawableCanvasElement).requestPaint();
@@ -458,6 +461,17 @@ export class ShaderMount {
     canvas.requestPaint();
   };
 
+  /** Captures each HTML uniform into its texture. On resize only HTML that has a snapshot already, so it can't throw */
+  private captureHtml = (isResize: boolean): void => {
+    const canvas = this.canvasElement as DrawableCanvasElement;
+    this.htmlUniforms.forEach((html, uniformName) => {
+      if (isResize && html.layout === undefined) return;
+      this.gl.activeTexture(this.gl.TEXTURE0 + this.textureUnitMap.get(uniformName)!);
+      this.gl.bindTexture(this.gl.TEXTURE_2D, this.textures.get(uniformName)!);
+      html.layout = drawHtml(this.gl, canvas, html.element, html.layout);
+    });
+  };
+
   private unsetHtmlUniform = (uniformName: string): void => {
     this.htmlUniforms.get(uniformName)?.detach();
     this.htmlUniforms.delete(uniformName);
@@ -466,15 +480,9 @@ export class ShaderMount {
   private handleCanvasPaint = (): void => {
     const canvas = this.canvasElement as DrawableCanvasElement;
 
-    this.htmlUniforms.forEach((html, uniformName) => {
-      this.gl.activeTexture(this.gl.TEXTURE0 + this.textureUnitMap.get(uniformName)!);
-      this.gl.bindTexture(this.gl.TEXTURE_2D, this.textures.get(uniformName)!);
-      drawHtml(this.gl, canvas, html.element);
-      this.gl.uniform1f(
-        this.uniformLocations[`${uniformName}AspectRatio`] ?? null,
-        Math.max(1, canvas.width) / Math.max(1, canvas.height)
-      );
+    this.captureHtml(false);
 
+    this.htmlUniforms.forEach((html) => {
       // WebGL doesn't tell hit testing and accessibility where the element is drawn, which is where it's laid out
       if (!html.hasGeometry) {
         canvas.updateElementGeometry(html.element, { canvasTransform: new DOMMatrix() });
@@ -769,6 +777,8 @@ interface HtmlUniform {
   element: HTMLElement;
   detach: () => void;
   hasGeometry: boolean;
+  /** The texture size and drawn area of the last capture, so a capture into the same layout skips reallocating */
+  layout?: string;
 }
 
 const defaultStyle = `@layer paper-shaders {
