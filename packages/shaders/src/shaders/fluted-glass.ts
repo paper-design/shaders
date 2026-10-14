@@ -11,6 +11,9 @@ import { declarePI, rotation2, proceduralHash21 } from '../shader-utils.js';
  * - u_pixelRatio (float): Device pixel ratio
  * - u_image (sampler2D): Source image texture, premultiplied alpha
  * - u_imageAspectRatio (float): Aspect ratio of the source image
+ * - u_imageIsHtml (float): 1 when u_image is HTML. HTML is drawn 1:1, so the flutes are sized in CSS px to keep their size
+ *   over it, size setting the flute width from 5px to 200px, and anchored at originX / originY instead of the center,
+ *   0 0 being the top left like CSS. Their distortion follows the flute size; margins and edges stay relative to the frame
  * - u_colorBack (vec4): Background color in RGBA
  * - u_colorShadow (vec4): Shadows color in RGBA, needs shadows > 0
  * - u_colorHighlight (vec4): Highlights color in RGBA, needs highlights > 0
@@ -38,8 +41,8 @@ import { declarePI, rotation2, proceduralHash21 } from '../shader-utils.js';
  * Vertex shader uniforms:
  * - u_resolution (vec2): Canvas resolution in pixels
  * - u_pixelRatio (float): Device pixel ratio
- * - u_originX (float): Reference point for positioning world width in the canvas (0 to 1)
- * - u_originY (float): Reference point for positioning world height in the canvas (0 to 1)
+ * - u_originX (float): Reference point for positioning world width in the canvas, over HTML where the effect is anchored (0 to 1)
+ * - u_originY (float): Reference point for positioning world height in the canvas, over HTML where the effect is anchored from the top (0 to 1)
  * - u_fit (float): How to fit the rendered shader into the canvas dimensions (0 = none, 1 = contain, 2 = cover)
  * - u_scale (float): Overall zoom level of the graphics (0.1 to 4)
  * - u_rotation (float): Overall rotation angle of the graphics in degrees (0 to 360)
@@ -62,6 +65,9 @@ uniform vec4 u_colorHighlight;
 
 uniform sampler2D u_image;
 uniform float u_imageAspectRatio;
+uniform float u_imageIsHtml;
+uniform float u_originX;
+uniform float u_originY;
 
 uniform float u_size;
 uniform float u_shadows;
@@ -86,6 +92,9 @@ in vec2 v_imageUV;
 out vec4 fragColor;
 
 ${ declarePI }
+float sizeToPx(float size) {
+  return 1000. / mix(200., 5., size);
+}
 ${ rotation2 }
 ${ proceduralHash21 }
 
@@ -160,7 +169,8 @@ float smoothFract(float x) {
 void main() {
 
   float patternRotation = -u_angle * PI / 180.;
-  float patternSize = mix(200., 5., u_size);
+  float patternSize = mix(mix(200., 2., u_size), u_resolution.x / u_pixelRatio / sizeToPx(u_size), u_imageIsHtml);
+  vec2 patternOrigin = mix(vec2(.5), vec2(u_originX, u_originY), u_imageIsHtml);
 
   vec2 uv = v_imageUV;
 
@@ -185,7 +195,7 @@ void main() {
   smoothstep(margins[3] - 2. * sw.y, margins[3], 1.0 - uvMask.y);
   float maskStrokeInner = maskInner - mask;
 
-  uv -= .5;
+  uv -= patternOrigin;
   uv *= patternSize;
   uv = rotateAspect(uv, patternRotation, u_imageAspectRatio);
 
@@ -287,7 +297,7 @@ void main() {
 
   vec2 dudx = dFdx(v_imageUV);
   vec2 dudy = dFdy(v_imageUV);
-  vec2 grainUV = v_imageUV - .5;
+  vec2 grainUV = v_imageUV - patternOrigin;
   grainUV *= (.8 / vec2(length(dudx), length(dudy)));
   grainUV += .5;
   if (u_grainMixer > 0.) {
@@ -314,7 +324,7 @@ void main() {
   uv = (floorOrigUV + fractOrigUV) / patternSize;
   uv += pow(maskStroke, 4.);
 
-  uv += vec2(.5);
+  uv += patternOrigin;
 
   uv = mix(v_imageUV, uv, smoothstep(0., .7, mask));
   float blur = mix(0., 50., u_blur);

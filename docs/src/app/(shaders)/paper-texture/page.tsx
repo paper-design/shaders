@@ -104,6 +104,8 @@ const PaperTextureWithControls = () => {
       },
       drops: { value: defaults.drops, min: 0, max: 1, order: 250 },
       scale: { value: defaults.scale, min: 0.5, max: 10, order: 400, ...imageInputOnly },
+      originX: { value: defaults.originX, min: 0, max: 1, order: 400.1, ...htmlInputOnly },
+      originY: { value: defaults.originY, min: 0, max: 1, order: 400.2, ...htmlInputOnly },
       fit: { value: defaults.fit, options: ['contain', 'cover'] as ShaderFit[], order: 401, ...imageInputOnly },
       Image: folder(
         {
@@ -138,6 +140,7 @@ const PaperTextureWithControls = () => {
         defaultParams={presetDefaults}
         htmlContent={htmlContent}
         htmlContentCss={htmlContentCss}
+        wrapperMode="100% centered"
       >
         <PaperTexture {...params}>{htmlContent}</PaperTexture>
       </HtmlInCanvasDemo>

@@ -76,6 +76,7 @@ export function HtmlInCanvasDemo({
   defaultParams,
   htmlContent,
   htmlContentCss,
+  wrapperMode: defaultWrapperMode = '100%',
   notes,
   children,
 }: {
@@ -87,11 +88,13 @@ export function HtmlInCanvasDemo({
   htmlContent: ReactNode;
   /** The stylesheet for the HTML, printed as its own file in the code sample */
   htmlContentCss: string;
+  /** The drawable div style the demo starts with */
+  wrapperMode?: WrapperMode;
   notes?: ReactNode;
   /** The shader, which also gets the wrapper style of the chosen mode */
   children: ReactNode;
 }) {
-  const [wrapperMode, setWrapperMode] = useState<WrapperMode>('100%');
+  const [wrapperMode, setWrapperMode] = useState<WrapperMode>(defaultWrapperMode);
   const htmlWrapperStyle = parseCss(wrapperModes.find(({ name }) => name === wrapperMode)!.css);
   const sampleParams = wrapperMode === '100%' ? currentParams : { ...currentParams, htmlWrapperStyle };
 

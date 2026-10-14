@@ -100,6 +100,8 @@ const HalftoneDotsWithControls = () => {
       grainMixer: { value: defaults.grainMixer, min: 0, max: 1, order: 350 },
       grainOverlay: { value: defaults.grainOverlay, min: 0, max: 1, order: 351 },
       grainSize: { value: defaults.grainSize, min: 0, max: 1, order: 352 },
+      originX: { value: defaults.originX, min: 0, max: 1, order: 353, ...htmlInputOnly },
+      originY: { value: defaults.originY, min: 0, max: 1, order: 354, ...htmlInputOnly },
       scale: { value: defaults.scale, min: 0.1, max: 4, order: 400, ...imageInputOnly },
       fit: { value: defaults.fit, options: ['contain', 'cover'] as ShaderFit[], order: 450, ...imageInputOnly },
       Image: folder(
@@ -109,7 +111,10 @@ const HalftoneDotsWithControls = () => {
         { order: 0, ...imageInputOnly }
       ),
       Presets: folder(presets, { order: -1, ...imageInputOnly }),
-      Preset: folder({ Reset: button(() => setParamsSafe(params, setParams, defaults)) }, { order: -1, ...htmlInputOnly }),
+      Preset: folder(
+        { Reset: button(() => setParamsSafe(params, setParams, defaults)) },
+        { order: -1, ...htmlInputOnly }
+      ),
     };
   });
 

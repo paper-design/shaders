@@ -9,6 +9,9 @@ import { declarePI } from '../shader-utils.js';
  * Fragment shader uniforms:
  * - u_image (sampler2D): Source image texture, premultiplied alpha
  * - u_imageAspectRatio (float): Aspect ratio of the source image
+ * - u_imageIsHtml (float): 1 when u_image is HTML. HTML is drawn 1:1, so the grid and grain are sized in CSS px to keep
+ *   their size over it: size sets the grid cell from about 2.5px to 143px, and the grain looks as it does over an image box 1000px wide.
+ *   The grid and grain are anchored at originX / originY instead of the center, 0 0 being the top left like CSS
  * - u_colorBack (vec4): Background (paper) color in RGBA
  * - u_colorC (vec4): Cyan ink color in RGBA
  * - u_colorM (vec4): Magenta ink color in RGBA
@@ -38,8 +41,8 @@ import { declarePI } from '../shader-utils.js';
  * Vertex shader uniforms:
  * - u_resolution (vec2): Canvas resolution in pixels
  * - u_pixelRatio (float): Device pixel ratio
- * - u_originX (float): Reference point for positioning world width in the canvas (0 to 1)
- * - u_originY (float): Reference point for positioning world height in the canvas (0 to 1)
+ * - u_originX (float): Reference point for positioning world width in the canvas, over HTML where the effect is anchored (0 to 1)
+ * - u_originY (float): Reference point for positioning world height in the canvas, over HTML where the effect is anchored from the top (0 to 1)
  * - u_fit (float): How to fit the rendered shader into the canvas dimensions (0 = none, 1 = contain, 2 = cover)
  * - u_scale (float): Overall zoom level of the graphics (0.1 to 4)
  * - u_rotation (float): Overall rotation angle of the graphics in degrees (0 to 360)
@@ -55,6 +58,11 @@ precision mediump float;
 
 uniform sampler2D u_image;
 uniform float u_imageAspectRatio;
+uniform float u_imageIsHtml;
+uniform vec2 u_resolution;
+uniform float u_pixelRatio;
+uniform float u_originX;
+uniform float u_originY;
 
 uniform vec4 u_colorBack;
 uniform vec4 u_colorC;
@@ -177,9 +185,17 @@ vec2 cellCenterPos(vec2 uv, vec2 cellOffset, float channelIdx) {
   return cellCenter + (randomRG(cellCenter + channelIdx * 50.) - .5) * u_gridNoise;
 }
 
+float sizeToPx(float size) {
+  return 1000. / mix(400., 7., pow(size, .7));
+}
+
+vec2 getGridOrigin() {
+  return mix(vec2(.5), vec2(u_originX, u_originY), u_imageIsHtml);
+}
+
 vec2 gridToImageUV(vec2 cellCenter, float cosA, float sinA, float shift, vec2 pad) {
   vec2 uvGrid = mat2(cosA, -sinA, sinA, cosA) * (cellCenter - shift);
-  return uvGrid * pad + 0.5;
+  return uvGrid * pad + getGridOrigin();
 }
 
 void colorMask(vec2 pos, vec2 cellCenter, float rad, float transparency, float grain, float channelAddon, float channelgain, float generalComp, bool isJoined, inout float outMask) {
@@ -214,10 +230,11 @@ vec3 applyInk(vec3 paper, vec3 inkColor, float cov) {
 void main() {
   vec2 uv = v_imageUV;
 
-  float cellsPerSide = mix(400.0, 7.0, pow(u_size, 0.7));
+  vec2 cssSize = u_resolution / u_pixelRatio;
+  float cellsPerSide = mix(mix(400.0, 7.0, pow(u_size, 0.7)), cssSize.y / sizeToPx(u_size), u_imageIsHtml);
   float cellSizeY = 1.0 / cellsPerSide;
   vec2 pad = cellSizeY * vec2(1.0 / u_imageAspectRatio, 1.0);
-  vec2 uvGrid = (uv - .5) / pad;
+  vec2 uvGrid = (uv - getGridOrigin()) / pad;
   float insideImageBox = getUvFrame(uv, pad);
 
   float generalComp = .1 * u_softness + .1 * u_gridNoise + .1 * (1. - step(0.5, u_type)) * (1.5 - u_softness);
@@ -227,8 +244,8 @@ void main() {
   vec2 uvY = mat2(cosY, sinY, -sinY, cosY) * uvGrid + shiftY;
   vec2 uvK = mat2(cosK, sinK, -sinK, cosK) * uvGrid + shiftK;
 
-  vec2 grainSize = mix(2000., 200., u_grainSize) * vec2(1., 1. / u_imageAspectRatio);
-  vec2 grainUV = (v_imageUV - .5) * grainSize + .5;
+  vec2 grainSize = mix(2000., 200., u_grainSize) * mix(vec2(1., 1. / u_imageAspectRatio), cssSize / 1000., u_imageIsHtml);
+  vec2 grainUV = (v_imageUV - getGridOrigin()) * grainSize + .5;
   // shared by the grain mixer and the grain overlay, skip it when neither is on
   vec3 noiseValues = vec3(0.);
   if (u_grainMixer > 0. || u_grainOverlay > 0.) {

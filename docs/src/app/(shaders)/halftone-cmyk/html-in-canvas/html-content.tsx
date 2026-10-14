@@ -3,7 +3,9 @@ import { withCode } from '@/helpers/jsx-to-code';
 
 /** The HTML-in-canvas page uses a neutral, medium screen so the flat colors of the HTML split cleanly into the four inks */
 export const htmlInCanvasOverrides = {
-  size: 0.45,
+  originX: 0,
+  originY: 0,
+  size: 0.25,
   gridNoise: 0.2,
   softness: 0.3,
   contrast: 1.2,

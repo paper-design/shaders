@@ -15,7 +15,7 @@ export const htmlInCanvasOverrides = {
   folds: 0.5,
   crumples: 0,
   wrinkles: 1,
-  wrinkleSize: 0.83,
+  wrinkleSize: 0.5,
   drops: 0.15,
   seed: 311,
 };

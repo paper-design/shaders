@@ -100,6 +100,8 @@ const HalftoneCmykWithControls = () => {
       grainOverlay: { value: defaults.grainOverlay, min: 0, max: 1, order: 351 },
       grainSize: { value: defaults.grainSize, min: 0, max: 1, order: 350 },
       scale: { value: defaults.scale, min: 0.1, max: 4, order: 420, ...imageInputOnly },
+      originX: { value: defaults.originX, min: 0, max: 1, order: 420.1, ...htmlInputOnly },
+      originY: { value: defaults.originY, min: 0, max: 1, order: 420.2, ...htmlInputOnly },
       fit: { value: defaults.fit, options: ['contain', 'cover'] as ShaderFit[], order: 450, ...imageInputOnly },
       Image: folder(
         {
@@ -108,7 +110,10 @@ const HalftoneCmykWithControls = () => {
         { order: 0, ...imageInputOnly }
       ),
       Presets: folder(presets, { order: -1, ...imageInputOnly }),
-      Preset: folder({ Reset: button(() => setParamsSafe(params, setParams, defaults)) }, { order: -1, ...htmlInputOnly }),
+      Preset: folder(
+        { Reset: button(() => setParamsSafe(params, setParams, defaults)) },
+        { order: -1, ...htmlInputOnly }
+      ),
     };
   });
 
@@ -138,7 +143,7 @@ const HalftoneCmykWithControls = () => {
       <ShaderContainer shaderDef={halftoneCmykDef} currentParams={params}>
         <HalftoneCmyk onClick={handleClick} {...params} image={image} />
       </ShaderContainer>
-      <div onClick={handleClick} className="text-current/70 mx-auto mb-48 mt-16 w-fit select-none text-base">
+      <div onClick={handleClick} className="mx-auto mt-16 mb-48 w-fit text-base text-current/70 select-none">
         Click to change the sample image
       </div>
       <ShaderDetails shaderDef={halftoneCmykDef} currentParams={params} />

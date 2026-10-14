@@ -3,6 +3,8 @@ import { withCode } from '@/helpers/jsx-to-code';
 
 /** The HTML-in-canvas page keeps the page's own colors, so the palette survives the dithering */
 export const htmlInCanvasOverrides = {
+  originX: 0,
+  originY: 0,
   colorFront: '#fff3a8',
   colorHighlight: '#ff00f7',
   originalColors: true,

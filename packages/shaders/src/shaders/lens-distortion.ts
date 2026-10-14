@@ -14,6 +14,9 @@ export const lensDistortionMeta = {
  *
  * Fragment shader uniforms:
  * - u_image (sampler2D): Source image texture, premultiplied alpha
+ * - u_imageIsHtml (float): 1 when u_image is HTML. HTML is drawn 1:1, so the spread and its noise are sized in CSS px to keep
+ *   their size over it, looking as they do over an image box 1000px tall. The lens itself (bulge, circle, focus zones)
+ *   belongs to the frame, so it stays relative to the frame and centered in it
  * - u_spread (float): Strength of the color split; how far the color layers are pushed apart; 0 is off (0 to 1)
  * - u_bias (float): Shifts the colors toward one end of the spread; 0 spaces them evenly, needs spread > 0, count > 2 (-1 to 1)
  * - u_angle (float): Direction of the spread in degrees, needs spread > 0, perspective < 1 (0 to 360)
@@ -58,6 +61,9 @@ precision mediump float;
 
 uniform sampler2D u_image;
 uniform float u_imageAspectRatio;
+uniform float u_imageIsHtml;
+uniform vec2 u_resolution;
+uniform float u_pixelRatio;
 uniform float u_spread;
 uniform float u_bias;
 uniform float u_angle;
@@ -146,7 +152,7 @@ float dispersionCurve(float t, float biasPow) {
   return u_bias < 0. ? 1. - curved : curved;
 }
 
-vec2 getSpread(vec2 fromCenter, float radius, vec2 warpedUV, float edgeAA, float inradius, float outradius, float reach, out float outStrength) {
+vec2 getSpread(vec2 fromCenter, float radius, vec2 warpedUV, float edgeAA, float inradius, float outradius, float reach, float htmlScale, out float outStrength) {
   float angleRad = radians(u_angle);
   vec2 uniformDir = vec2(cos(angleRad), sin(angleRad));
 
@@ -177,7 +183,7 @@ vec2 getSpread(vec2 fromCenter, float radius, vec2 warpedUV, float edgeAA, float
   vec2 axis = spreadDir * (reach * strength);
 
   if (u_noise > 0.) {
-    float turn = (valueNoise(fromCenter * u_noiseFrequency * 18. + u_noiseOffset * 30.) - .5) * 2. * u_noise;
+    float turn = (valueNoise(fromCenter * htmlScale * u_noiseFrequency * 18. + u_noiseOffset * 30.) - .5) * 2. * u_noise;
     float cs = cos(turn), sn = sin(turn);
     axis = mat2(cs, -sn, sn, cs) * axis;
   }
@@ -225,7 +231,8 @@ void main() {
   float invAspect = 1. / u_imageAspectRatio;
   float inradius = boxInradius();
   float outradius = boxOutradius();
-  float reach = spreadReach();
+  float htmlScale = mix(1., u_resolution.y / u_pixelRatio / 1000., u_imageIsHtml);
+  float reach = spreadReach() / htmlScale;
 
   vec2 fromCenter = uv - .5;
   fromCenter.x *= u_imageAspectRatio;
@@ -239,7 +246,7 @@ void main() {
   float edgeAA = clamp(2. * max(baseDerivative.x, baseDerivative.y), .001, .02);
 
   float spreadStrength;
-  vec2 spreadAxis = getSpread(fromCenter, radius, baseUV, edgeAA, inradius, outradius, reach, spreadStrength);
+  vec2 spreadAxis = getSpread(fromCenter, radius, baseUV, edgeAA, inradius, outradius, reach, htmlScale, spreadStrength);
 
   vec2 grainUV = vec2(0.);
   if (u_grainMixer > 0. || u_grainOverlay > 0.) {

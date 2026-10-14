@@ -4,6 +4,8 @@ import { withCode } from '@/helpers/jsx-to-code';
 
 /** The HTML-in-canvas page uses wider flutes and a softer cascade, so the HTML stays legible through the glass */
 export const htmlInCanvasOverrides = {
+  originX: 0,
+  originY: 0,
   colorShadow: '#92aae3',
   shadows: 0.4,
   highlights: 0,
