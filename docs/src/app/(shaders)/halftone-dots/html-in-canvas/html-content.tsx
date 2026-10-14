@@ -8,8 +8,9 @@ export const htmlInCanvasOverrides = {
   colorBack: '#fff6d6',
   grainMixer: 0,
   radius: 1.15,
-  contrast: 0.4,
-  size: 0.3
+  contrast: 0.3,
+  size: 0.3,
+  grainOverlay: 0
 };
 
 // The active name thickens with a growing text stroke rather than font-weight, which would also widen the word:
