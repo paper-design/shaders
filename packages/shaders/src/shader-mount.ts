@@ -45,7 +45,6 @@ export class ShaderMount {
   private textureUnitMap: Map<string, number> = new Map();
   private ownerDocument: Document;
   private htmlUniforms: Map<string, HtmlUniform> = new Map();
-  private htmlFramebuffer: WebGLFramebuffer | null = null;
   private isReactCanvas = false;
 
   constructor(
@@ -305,7 +304,8 @@ export class ShaderMount {
       this.resolutionChanged = true;
       this.gl.viewport(0, 0, this.gl.canvas.width, this.gl.canvas.height);
 
-      this.htmlUniforms.forEach((html, uniformName) => this.fitHtmlTexture(uniformName, html));
+      // Captured again right away, so the frame drawn below doesn't stretch the previous capture over the new size
+      this.captureHtml(true);
 
       // The browser doesn't repaint HTML by itself when only the pixel ratio changes
       if (this.htmlUniforms.size > 0) {
@@ -422,12 +422,6 @@ export class ShaderMount {
       this.textureUnitMap.set(uniformName, this.textureUnitMap.size);
     }
     const textureUnit = this.textureUnitMap.get(uniformName)!;
-
-    return { texture: this.createBoundTexture(textureUnit), textureUnit };
-  };
-
-  /** Creates a texture with the default sampling and binds it to the texture unit */
-  private createBoundTexture = (textureUnit: number): WebGLTexture | null => {
     // Activate correct texture unit before creating the texture
     this.gl.activeTexture(this.gl.TEXTURE0 + textureUnit);
 
@@ -441,7 +435,7 @@ export class ShaderMount {
     this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.LINEAR);
     this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MAG_FILTER, this.gl.LINEAR);
 
-    return texture;
+    return { texture, textureUnit };
   };
 
   /** Moves the element into the shader canvas and redraws it into the texture on every canvas paint */
@@ -450,7 +444,7 @@ export class ShaderMount {
     const { texture, textureUnit } = this.createTexture(uniformName);
     if (texture === null) return;
 
-    this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA8, 1, 1, 0, this.gl.RGBA, this.gl.UNSIGNED_BYTE, null);
+    this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, 1, 1, 0, this.gl.RGBA, this.gl.UNSIGNED_BYTE, null);
     this.textures.set(uniformName, texture);
     this.gl.uniform1i(this.uniformLocations[uniformName] ?? null, textureUnit);
     this.gl.uniform1f(this.uniformLocations[`${uniformName}IsHtml`] ?? null, 1);
@@ -463,50 +457,19 @@ export class ShaderMount {
     }
 
     const canvas = this.canvasElement as DrawableCanvasElement;
-    this.htmlUniforms.set(uniformName, {
-      element,
-      detach: attachHtml(canvas, element),
-      hasGeometry: false,
-      width: 1,
-      height: 1,
-    });
+    this.htmlUniforms.set(uniformName, { element, detach: attachHtml(canvas, element), hasGeometry: false });
     canvas.requestPaint();
   };
 
-  /**
-   * Keeps the HTML texture at the canvas size, reallocating it only when that size changes.
-   * The previous capture is copied in 1:1, so the HTML stays in place until the next paint captures it again
-   */
-  private fitHtmlTexture = (uniformName: string, html: HtmlUniform): void => {
-    const width = Math.max(1, this.canvasElement.width);
-    const height = Math.max(1, this.canvasElement.height);
-    if (html.width === width && html.height === height) return;
-
-    const oldTexture = this.textures.get(uniformName)!;
-    const texture = this.createBoundTexture(this.textureUnitMap.get(uniformName)!);
-    this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA8, width, height, 0, this.gl.RGBA, this.gl.UNSIGNED_BYTE, null);
-
-    this.bindHtmlFramebuffer(oldTexture);
-    this.gl.copyTexSubImage2D(this.gl.TEXTURE_2D, 0, 0, 0, 0, 0, Math.min(width, html.width), Math.min(height, html.height));
-    this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, null);
-
-    this.gl.deleteTexture(oldTexture);
-    this.textures.set(uniformName, texture!);
-    html.width = width;
-    html.height = height;
-  };
-
-  /** Clears the texture to transparent, for the parts of the canvas the HTML doesn't cover */
-  private clearTexture = (texture: WebGLTexture): void => {
-    this.bindHtmlFramebuffer(texture);
-    this.gl.clear(this.gl.COLOR_BUFFER_BIT);
-    this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, null);
-  };
-
-  private bindHtmlFramebuffer = (texture: WebGLTexture): void => {
-    this.htmlFramebuffer ??= this.gl.createFramebuffer();
-    this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, this.htmlFramebuffer);
-    this.gl.framebufferTexture2D(this.gl.FRAMEBUFFER, this.gl.COLOR_ATTACHMENT0, this.gl.TEXTURE_2D, texture, 0);
+  /** Captures each HTML uniform into its texture. On resize only HTML that has a snapshot already, so it can't throw */
+  private captureHtml = (isResize: boolean): void => {
+    const canvas = this.canvasElement as DrawableCanvasElement;
+    this.htmlUniforms.forEach((html, uniformName) => {
+      if (isResize && html.layout === undefined) return;
+      this.gl.activeTexture(this.gl.TEXTURE0 + this.textureUnitMap.get(uniformName)!);
+      this.gl.bindTexture(this.gl.TEXTURE_2D, this.textures.get(uniformName)!);
+      html.layout = drawHtml(this.gl, canvas, html.element, html.layout);
+    });
   };
 
   private unsetHtmlUniform = (uniformName: string): void => {
@@ -517,14 +480,9 @@ export class ShaderMount {
   private handleCanvasPaint = (): void => {
     const canvas = this.canvasElement as DrawableCanvasElement;
 
-    this.htmlUniforms.forEach((html, uniformName) => {
-      this.fitHtmlTexture(uniformName, html);
-      const texture = this.textures.get(uniformName)!;
-      this.clearTexture(texture);
-      this.gl.activeTexture(this.gl.TEXTURE0 + this.textureUnitMap.get(uniformName)!);
-      this.gl.bindTexture(this.gl.TEXTURE_2D, texture);
-      drawHtml(this.gl, canvas, html.element);
+    this.captureHtml(false);
 
+    this.htmlUniforms.forEach((html) => {
       // WebGL doesn't tell hit testing and accessibility where the element is drawn, which is where it's laid out
       if (!html.hasGeometry) {
         canvas.updateElementGeometry(html.element, { canvasTransform: new DOMMatrix() });
@@ -709,8 +667,6 @@ export class ShaderMount {
     this.canvasElement.removeEventListener('paint', this.handleCanvasPaint);
     this.htmlUniforms.forEach(({ detach }) => detach());
     this.htmlUniforms.clear();
-    this.gl?.deleteFramebuffer(this.htmlFramebuffer);
-    this.htmlFramebuffer = null;
 
     if (this.gl && this.program) {
       // Clean up all textures
@@ -821,9 +777,8 @@ interface HtmlUniform {
   element: HTMLElement;
   detach: () => void;
   hasGeometry: boolean;
-  /** The size the texture is allocated at, which follows the canvas drawing buffer */
-  width: number;
-  height: number;
+  /** The texture size and drawn area of the last capture, so a capture into the same layout skips reallocating */
+  layout?: string;
 }
 
 const defaultStyle = `@layer paper-shaders {
