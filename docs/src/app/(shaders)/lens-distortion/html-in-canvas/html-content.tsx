@@ -17,28 +17,29 @@ export const htmlInCanvasOverrides = {
 // Each viewfinder slider is a native range input that sets its CSS variable on the demo:
 // --ev is exposure in stops, --zoom scales the scene and --wb is white balance in kelvin.
 // The color slider drives the shader's dispersionColor instead, so the HTML controls the lens that distorts it.
+// Every layer is positioned inside the viewfinder, so the viewfinder sets its own minimum height.
 // The header and the dials share one centered, capped width. The dials sit in two columns and stack into one
 // when two don't fit, and labels and readouts have fixed widths, so the sliders line up.
 export const htmlContentCss = `
-.demo { --ev: 0; --zoom: 1; --wb: 5600; --warmth: calc((var(--wb) - 5600) / 2400); position: relative; width: 100%; height: 100%; overflow: hidden; color: #f4f3ec; background: #121212; font: 22px ui-monospace, monospace; text-transform: uppercase; user-select: none; text-shadow: 0 1px 4px rgb(0 0 0 / 50%) }
-.demo .scene { position: absolute; inset: 0; background: url(/images/image-filters/003.webp) center / cover; scale: var(--zoom); filter: brightness(pow(2, var(--ev))); transition: scale 200ms ease-out, filter 200ms }
-.demo .tint { position: absolute; inset: 0; background: color-mix(in oklab, #3d7bff, #ff9a3d calc((var(--warmth) + 1) * 50%)); mix-blend-mode: soft-light; opacity: calc(max(var(--warmth), -1 * var(--warmth)) * 0.8); transition: opacity 200ms }
-.demo .shade { position: absolute; inset: 0; background: linear-gradient(rgb(0 0 0 / 55%), transparent 25% 55%, rgb(0 0 0 / 75%)) }
-.demo header, .demo footer { position: absolute; inset-inline: 24px; max-width: 880px; margin-inline: auto }
-.demo header { top: 40px; display: flex; justify-content: space-between; align-items: center }
-.demo footer { bottom: 40px; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(380px, 100%), 1fr)); gap: 16px }
-.demo header time { padding-left: 22px }
-.demo .rec { padding: 14px 22px; border: 2px solid rgb(255 255 255 / 30%); border-radius: 14px; background: rgb(0 0 0 / 45%); font: inherit; text-transform: inherit; color: inherit; cursor: pointer; transition: background-color 150ms }
-.demo .rec:hover { background: rgb(255 255 255 / 14%) }
-.demo .rec:active { background: rgb(255 255 255 / 24%) }
-.demo .rec::before { content: ''; display: inline-block; width: 15px; height: 15px; margin-right: 10px; border-radius: 50%; background: #ff3b30; animation: blink 1s infinite }
-.demo[data-recording="off"] .rec::before { background: transparent; box-shadow: inset 0 0 0 2px currentColor; animation: none }
-.demo .dial { display: grid; grid-template-columns: 5ch 1fr 5ch; align-items: center; gap: 16px; padding: 12px 22px }
-.demo .dial span { opacity: 0.75 }
-.demo .dial output { text-align: right }
-.demo input { appearance: none; min-width: 0; height: 44px; margin: 0; background: linear-gradient(transparent calc(50% - 1.5px), rgb(255 255 255 / 55%) 0 calc(50% + 1.5px), transparent 0); outline: none; cursor: pointer }
-.demo input::-webkit-slider-thumb { appearance: none; width: 14px; height: 36px; border-radius: 7px; background: #f4f3ec; box-shadow: 0 1px 6px rgb(0 0 0 / 50%); transition: background-color 150ms }
-.demo input:focus-visible::-webkit-slider-thumb { background: #ffd84d }
+.viewfinder { --ev: 0; --zoom: 1; --wb: 5600; --warmth: calc((var(--wb) - 5600) / 2400); position: relative; width: 100%; min-width: 400px; height: 100%; min-height: 400px; color: #f4f3ec; background: #121212; font: 22px ui-monospace, monospace; text-transform: uppercase; user-select: none }
+.viewfinder .scene { position: absolute; inset: 0; background: url(/images/image-filters/003.webp) center / cover; scale: var(--zoom); filter: brightness(pow(2, var(--ev))); transition: scale 200ms ease-out, filter 200ms }
+.viewfinder .tint { position: absolute; inset: 0; background: color-mix(in oklab, #3d7bff, #ff9a3d calc((var(--warmth) + 1) * 50%)); mix-blend-mode: soft-light; opacity: calc(max(var(--warmth), -1 * var(--warmth)) * 0.8); transition: opacity 200ms }
+.viewfinder .shade { position: absolute; inset: 0; background: linear-gradient(rgb(0 0 0 / 55%), transparent 25% 55%, rgb(0 0 0 / 75%)) }
+.viewfinder header, .viewfinder footer { position: absolute; inset-inline: 24px; max-width: 880px; margin-inline: auto }
+.viewfinder header { top: 40px; display: flex; justify-content: space-between; align-items: center }
+.viewfinder footer { bottom: 40px; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(380px, 100%), 1fr)); gap: 16px }
+.viewfinder header time { padding-left: 22px }
+.viewfinder .rec { padding: 14px 22px; border: 2px solid rgb(255 255 255 / 30%); border-radius: 14px; background: rgb(0 0 0 / 45%); font: inherit; text-transform: inherit; color: inherit; cursor: pointer; transition: background-color 150ms }
+.viewfinder .rec:hover { background: rgb(255 255 255 / 14%) }
+.viewfinder .rec:active { background: rgb(255 255 255 / 24%) }
+.viewfinder .rec::before { content: ''; display: inline-block; width: 15px; height: 15px; margin-right: 10px; border-radius: 50%; background: #ff3b30; animation: blink 1s infinite }
+.viewfinder[data-recording="off"] .rec::before { background: transparent; box-shadow: inset 0 0 0 2px currentColor; animation: none }
+.viewfinder .dial { display: grid; grid-template-columns: 5ch 1fr 5ch; align-items: center; gap: 16px; padding: 12px 22px }
+.viewfinder .dial span { opacity: 0.75 }
+.viewfinder .dial output { text-align: right }
+.viewfinder input { appearance: none; min-width: 0; height: 44px; margin: 0; background: linear-gradient(transparent calc(50% - 1.5px), rgb(255 255 255 / 55%) 0 calc(50% + 1.5px), transparent 0); outline: none; cursor: pointer }
+.viewfinder input::-webkit-slider-thumb { appearance: none; width: 14px; height: 36px; border-radius: 7px; background: #f4f3ec; box-shadow: 0 1px 6px rgb(0 0 0 / 50%); transition: background-color 150ms }
+.viewfinder input:focus-visible::-webkit-slider-thumb { background: #ffd84d }
 @keyframes blink { 50% { opacity: 0.15 } }
 `;
 
@@ -69,12 +70,12 @@ const startTimecode = withCode(
 );
 const toggleRecording = withCode(
   (event: { currentTarget: HTMLButtonElement }) => {
-    const demo = event.currentTarget.closest<HTMLElement>('.demo')!;
-    demo.dataset.recording = demo.dataset.recording === 'off' ? 'on' : 'off';
+    const viewfinder = event.currentTarget.closest<HTMLElement>('.viewfinder')!;
+    viewfinder.dataset.recording = viewfinder.dataset.recording === 'off' ? 'on' : 'off';
   },
   `(event) => {
-  const demo = event.currentTarget.closest('.demo');
-  demo.dataset.recording = demo.dataset.recording === 'off' ? 'on' : 'off';
+  const viewfinder = event.currentTarget.closest('.viewfinder');
+  viewfinder.dataset.recording = viewfinder.dataset.recording === 'off' ? 'on' : 'off';
 }`
 );
 // One handler on the footer serves every dial; the color slider has no CSS property and is left to its own handler
@@ -82,14 +83,14 @@ const updateDial = withCode(
   (event: { target: EventTarget }) => {
     const input = event.target as HTMLInputElement;
     if (!input.dataset.property) return;
-    input.closest<HTMLElement>('.demo')!.style.setProperty(input.dataset.property, input.value);
+    input.closest<HTMLElement>('.viewfinder')!.style.setProperty(input.dataset.property, input.value);
     const value = input.valueAsNumber.toFixed(Number(input.dataset.digits ?? 1));
     input.parentElement!.querySelector('output')!.textContent = input.dataset.format!.replace('%', value);
   },
   `(event) => {
   const input = event.target;
   if (!input.dataset.property) return;
-  input.closest('.demo').style.setProperty(input.dataset.property, input.value);
+  input.closest('.viewfinder').style.setProperty(input.dataset.property, input.value);
   const value = input.valueAsNumber.toFixed(Number(input.dataset.digits ?? 1));
   input.parentElement.querySelector('output').textContent = input.dataset.format.replace('%', value);
 }`
@@ -109,7 +110,7 @@ export const getHtmlContent = (dispersionColor: number, setDispersionColor: (val
   );
 
   return (
-    <div className="demo" data-recording="on" ref={startTimecode}>
+    <div className="viewfinder" data-recording="on" ref={startTimecode}>
       <div className="scene" />
       <div className="tint" />
       <div className="shade" />

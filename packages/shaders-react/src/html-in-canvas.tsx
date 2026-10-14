@@ -7,6 +7,8 @@ const subscribeToNothing = () => () => {};
 // Assumed on the server, so that supporting browsers don't re-render the canvas after hydration
 const isSupportedOnServer = () => true;
 
+const defaultWrapperStyle: React.CSSProperties = { width: '100%', height: '100%' };
+
 function hasChildren(children: React.ReactNode): boolean {
   return Children.toArray(children).length > 0;
 }
@@ -16,23 +18,13 @@ export function willDrawHtmlChildren(children: React.ReactNode): boolean {
 }
 
 /**
- * The children are wrapped in a drawable element the size of the shader, so they lay out against it
- * the same way they do as its own children when the browser can't draw them
+ * Draws the children into u_image where the browser supports it, otherwise they're shown on top of the shader.
+ * Either way they're held by the same wrapper, so they lay out the same: by default it fills the shader
  */
-function DrawableCanvas({ children, childRef }: { children: React.ReactNode; childRef: React.Ref<HTMLDivElement> }) {
-  return (
-    <canvas {...{ content: 'drawable' }}>
-      <div ref={childRef} style={{ width: '100%', height: '100%' }} {...{ drawable: '' }}>
-        {children}
-      </div>
-    </canvas>
-  );
-}
-
-/** Draws the children into u_image where the browser supports it, otherwise they're shown on top of the shader */
 export function useHtmlChildren(
   acceptsHtmlChildren: boolean,
-  children: React.ReactNode
+  children: React.ReactNode,
+  wrapperStyle: React.CSSProperties = defaultWrapperStyle
 ): {
   hasHtmlChildren: boolean;
   addHtmlUniform: <T extends object>(uniforms: T) => T;
@@ -40,16 +32,27 @@ export function useHtmlChildren(
 } {
   const drawableChildRef = useRef<HTMLDivElement>(null);
   const isSupported = useSyncExternalStore(subscribeToNothing, isHtmlInCanvasSupported, isSupportedOnServer);
-  const hasHtmlChildren = acceptsHtmlChildren && isSupported && hasChildren(children);
+  const isWrapped = acceptsHtmlChildren && hasChildren(children);
+  const hasHtmlChildren = isWrapped && isSupported;
 
   const addHtmlUniform = <T extends object>(uniforms: T): T =>
     hasHtmlChildren && drawableChildRef.current ? { ...uniforms, u_image: drawableChildRef.current } : uniforms;
 
-  const renderedChildren = hasHtmlChildren ? (
-    <DrawableCanvas childRef={drawableChildRef}>{children}</DrawableCanvas>
+  if (!isWrapped) {
+    return { hasHtmlChildren, addHtmlUniform, renderedChildren: children };
+  }
+
+  const wrapper = hasHtmlChildren ? (
+    <div ref={drawableChildRef} style={wrapperStyle} {...{ drawable: '' }}>
+      {children}
+    </div>
   ) : (
-    children
+    <div style={wrapperStyle}>{children}</div>
   );
 
-  return { hasHtmlChildren, addHtmlUniform, renderedChildren };
+  return {
+    hasHtmlChildren,
+    addHtmlUniform,
+    renderedChildren: hasHtmlChildren ? <canvas {...{ content: 'drawable' }}>{wrapper}</canvas> : wrapper,
+  };
 }

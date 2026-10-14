@@ -23,9 +23,12 @@ export function ShaderContainer({
   children,
   currentParams,
   shaderDef,
+  controls,
 }: React.PropsWithChildren<{
   currentParams?: Record<string, unknown>;
   shaderDef?: ShaderDef;
+  /** Extra controls shown in the controls card, above Leva */
+  controls?: React.ReactNode;
 }>) {
   const pathname = usePathname();
   const isHtmlInCanvasPage = useIsHtmlInCanvasPage();
@@ -88,6 +91,7 @@ export function ShaderContainer({
           `,
           }}
         >
+          {controls}
           <div className="-mb-14 cursor-default p-10 font-mono text-[11px]">Presets</div>
 
           <div data-leva-container>
@@ -142,7 +146,10 @@ export function ShaderContainer({
   );
 }
 
-/** Alt+drag resizes the image demos; HTML demos take pointer input of their own, so they always show the handle */
+/**
+ * Alt+drag resizes the image demos; HTML demos take pointer input of their own, so they always show the handle.
+ * The shader starts at the section's width, and once resized it keeps the dragged size, even past the section
+ */
 function ResizableShader({
   children,
   alwaysResizable = false,
@@ -150,15 +157,11 @@ function ResizableShader({
   const [canStartResize, setCanStartResize] = useState(false);
 
   return (
-    <div
-      className="flex aspect-4/3 *:size-full *:max-h-full not-has-[[data-paper-shader]]:bg-header xs:aspect-3/2 md:aspect-16/9"
-      onPointerMove={(event) => setCanStartResize(event.altKey)}
-      onPointerLeave={() => setCanStartResize(false)}
-    >
+    <div onPointerMove={(event) => setCanStartResize(event.altKey)} onPointerLeave={() => setCanStartResize(false)}>
       <div
         data-resizable={canStartResize || alwaysResizable || undefined}
         data-resize-handle={alwaysResizable || undefined}
-        className="flex overflow-hidden *:size-full data-resizable:resize [[style*='width']]:resize"
+        className="flex aspect-4/3 w-full overflow-hidden ring-1 ring-current/15 *:size-full not-has-[[data-paper-shader]]:bg-header data-resizable:resize xs:aspect-3/2 md:aspect-16/9 [[style*='width']]:resize"
       >
         {children}
       </div>
