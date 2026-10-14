@@ -51,7 +51,7 @@ export const lensDistortionMeta = {
  * - u_rotation (float): Overall rotation angle of the graphics in degrees (0 to 360)
  * - u_offsetX (float): Horizontal offset of the graphics center (-1 to 1)
  * - u_offsetY (float): Vertical offset of the graphics center (-1 to 1)
- * - u_imageAspectRatio (float): Aspect ratio of the source image
+ * - u_imageAspectRatio (float): Aspect ratio of the source image; over HTML the canvas aspect from u_resolution is used instead
  *
  */
 
@@ -86,6 +86,10 @@ uniform float u_imageX;
 uniform float u_imageY;
 
 in vec2 v_imageUV;
+
+float getImageAspectRatio() {
+  return mix(u_imageAspectRatio, u_resolution.x / u_resolution.y, u_imageIsHtml);
+}
 
 out vec4 fragColor;
 
@@ -131,11 +135,11 @@ vec3 hueColor(float hue) {
 }
                                             
 float boxInradius() {
-  return .5 * min(u_imageAspectRatio, 1.);
+  return .5 * min(getImageAspectRatio(), 1.);
 }
 
 float boxOutradius() {
-  return .5 * length(vec2(u_imageAspectRatio, 1.));
+  return .5 * length(vec2(getImageAspectRatio(), 1.));
 }
 
 float spreadReach() {
@@ -188,7 +192,7 @@ vec2 getSpread(vec2 fromCenter, float radius, vec2 warpedUV, float edgeAA, float
     axis = mat2(cs, -sn, sn, cs) * axis;
   }
 
-  axis.x /= u_imageAspectRatio;
+  axis.x /= getImageAspectRatio();
   return axis;
 }
 
@@ -213,7 +217,7 @@ vec2 lensWarp(vec2 fromCenter, float radius, float inradius, out float bulgeFade
 
   if (u_lensCircle > 0.) {
     vec2 dir = fromCenter / max(r, 1e-5);
-    vec2 halfBox = vec2(u_imageAspectRatio, 1.) * .5;
+    vec2 halfBox = vec2(getImageAspectRatio(), 1.) * .5;
     float rBox = min(halfBox.x / max(abs(dir.x), 1e-4), halfBox.y / max(abs(dir.y), 1e-4));
     float band = inradius * mix(.03, .2, .5 * (u_lensBulge + 1.));
     float innerEdge = inradius - band;
@@ -228,14 +232,14 @@ vec2 lensWarp(vec2 fromCenter, float radius, float inradius, out float bulgeFade
 void main() {
   vec2 uv = v_imageUV;
 
-  float invAspect = 1. / u_imageAspectRatio;
+  float invAspect = 1. / getImageAspectRatio();
   float inradius = boxInradius();
   float outradius = boxOutradius();
   float htmlScale = mix(1., u_resolution.y / u_pixelRatio / 1000., u_imageIsHtml);
   float reach = spreadReach() / htmlScale;
 
   vec2 fromCenter = uv - .5;
-  fromCenter.x *= u_imageAspectRatio;
+  fromCenter.x *= getImageAspectRatio();
   float radius = length(fromCenter);
 
   float bulgeFade;
@@ -296,7 +300,7 @@ void main() {
     vec2 tapUV = baseUV + spreadAxis * fanPos - .5;
 
     if (u_swirl != 0.) {
-      tapUV.x *= u_imageAspectRatio;
+      tapUV.x *= getImageAspectRatio();
       tapUV = rotate(tapUV, swirlAngle * fanPos);
       tapUV.x *= invAspect;
     }

@@ -13,7 +13,7 @@ export const paperTextureMeta = {
  * Fragment shader uniforms:
  * - u_image (sampler2D): Optional source image texture, premultiplied alpha
  * - u_isImage (bool): Whether a source image was provided
- * - u_imageAspectRatio (float): Aspect ratio of the source image
+ * - u_imageAspectRatio (float): Aspect ratio of the source image; over HTML the canvas aspect from u_resolution is used instead
  * - u_imageIsHtml (float): 1 when u_image is HTML. HTML is drawn 1:1, so the surface detail (crumples, wrinkles, roughness,
  *   fiber, drops) is sized in CSS px to keep its size over it, looking as it does over an image box 1000px tall, and anchored
  *   at originX / originY instead of the center, 0 0 being the top left like CSS. The folds are anchored there too,
@@ -102,6 +102,11 @@ uniform float u_drops;
 uniform sampler2D u_noiseTexture;
 
 in vec2 v_imageUV;
+
+float getImageAspectRatio() {
+  return mix(u_imageAspectRatio, u_resolution.x / u_resolution.y, u_imageIsHtml);
+}
+
 out vec4 fragColor;
 
 float getUvFrame(vec2 uv) {
@@ -406,8 +411,8 @@ void getFolds(vec2 coord, vec2 offset, vec2 count, vec2 noise, vec2 baseFwidth, 
 void main() {
 
   vec2 surfaceOrigin = mix(vec2(.5), vec2(u_originX, u_originY), u_imageIsHtml);
-  vec2 patternUV = (v_imageUV - surfaceOrigin) * vec2(u_imageAspectRatio, 1.);
-  vec2 surfaceUV = (v_imageUV - surfaceOrigin) * vec2(u_imageAspectRatio, 1.);
+  vec2 patternUV = (v_imageUV - surfaceOrigin) * vec2(getImageAspectRatio(), 1.);
+  vec2 surfaceUV = (v_imageUV - surfaceOrigin) * vec2(getImageAspectRatio(), 1.);
   surfaceUV *= mix(1., u_resolution.y / u_pixelRatio / 1000., u_imageIsHtml);
   float basePixel = max(length(dFdx(surfaceUV)), length(dFdy(surfaceUV)));
   vec2 baseFwidth = fwidth(patternUV);

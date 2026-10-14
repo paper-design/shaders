@@ -11,6 +11,9 @@
  * </div>
  *
  * React renders this markup itself, since it can't let its nodes be moved, and the shader adopts that canvas.
+ *
+ * The HTML texture always matches the canvas size, so shaders sample it like any canvas-sized texture. A resize copies
+ * the previous capture 1:1 into the resized texture, so the frames until the next paint still show it in place.
  */
 
 export interface DrawableCanvasElement extends HTMLCanvasElement {
@@ -80,7 +83,7 @@ export function attachHtml(canvas: DrawableCanvasElement, element: HTMLElement):
   };
 }
 
-/** Draws the element into the bound texture, sized to the canvas drawing buffer */
+/** Captures the element into the bound texture, which is kept at the canvas drawing buffer size */
 export function drawHtml(gl: WebGL2RenderingContext, canvas: DrawableCanvasElement, element: HTMLElement): void {
   const width = Math.max(1, canvas.width);
   const height = Math.max(1, canvas.height);
@@ -97,8 +100,6 @@ export function drawHtml(gl: WebGL2RenderingContext, canvas: DrawableCanvasEleme
   const y0 = Math.round(visibleTop * scaleY);
   const x1 = Math.min(width, Math.round(visibleRight * scaleX));
   const y1 = Math.min(height, Math.round(visibleBottom * scaleY));
-
-  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA8, width, height, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
 
   if (x1 > x0 && y1 > y0) {
     (gl as DrawableCanvasWebGL2Context).texElementSubImage2D(gl.TEXTURE_2D, 0, x0, y0, element, {

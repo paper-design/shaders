@@ -7,7 +7,7 @@ import { declarePI, rotation2, proceduralHash21 } from '../shader-utils.js';
  *
  * Fragment shader uniforms:
  * - u_image (sampler2D): Source image texture, premultiplied alpha
- * - u_imageAspectRatio (float): Aspect ratio of the source image
+ * - u_imageAspectRatio (float): Aspect ratio of the source image; over HTML the canvas aspect from u_resolution is used instead
  * - u_imageIsHtml (float): 1 when u_image is HTML. HTML is drawn 1:1, so the grid and grain are sized in CSS px to keep
  *   their size over it: size sets the grid cell from about 3px to 143px, and the grain looks as it does over an image box 1000px wide.
  *   The grid and grain are anchored at originX / originY instead of the center, 0 0 being the top left like CSS
@@ -68,6 +68,10 @@ uniform bool u_inverted;
 uniform float u_type;
 
 in vec2 v_imageUV;
+
+float getImageAspectRatio() {
+  return mix(u_imageAspectRatio, u_resolution.x / u_resolution.y, u_imageIsHtml);
+}
 
 out vec4 fragColor;
 
@@ -236,7 +240,7 @@ void main() {
   float cellsPerSide = mix(mix(300., 7., pow(u_size, .7)), cssSize.y / sizeToPx(u_size), u_imageIsHtml);
   cellsPerSide /= stepMultiplier;
   float cellSizeY = 1. / cellsPerSide;
-  vec2 pad = cellSizeY * vec2(1. / u_imageAspectRatio, 1.);
+  vec2 pad = cellSizeY * vec2(1. / getImageAspectRatio(), 1.);
   if (u_type == 1. && u_grid == 1.) {
     // gooey diagonal grid works differently
     pad *= .7;
@@ -309,7 +313,7 @@ void main() {
     finalShape = totalShape;
   }
 
-  vec2 grainSize = mix(2000., 200., u_grainSize) * mix(vec2(1., 1. / u_imageAspectRatio), cssSize / 1000., u_imageIsHtml);
+  vec2 grainSize = mix(2000., 200., u_grainSize) * mix(vec2(1., 1. / getImageAspectRatio()), cssSize / 1000., u_imageIsHtml);
   vec2 grainUV = v_imageUV - getGridOrigin();
   grainUV *= grainSize;
   grainUV += .5;

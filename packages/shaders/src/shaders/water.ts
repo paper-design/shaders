@@ -8,7 +8,7 @@ import { declarePI, rotation2, simplexNoise } from '../shader-utils.js';
  * Fragment shader uniforms:
  * - u_time (float): Animation time
  * - u_image (sampler2D): Optional source image texture, premultiplied alpha
- * - u_imageAspectRatio (float): Aspect ratio of the source image
+ * - u_imageAspectRatio (float): Aspect ratio of the source image; over HTML the canvas aspect from u_resolution is used instead
  * - u_imageIsHtml (float): 1 when u_image is HTML. HTML is drawn 1:1, so the ripples and their distortion are sized in CSS px
  *   to keep their size over it: size sets the ripple scale from 10px to 100px, and the distortion looks as it does over a
  *   1000px image box. They're anchored at originX / originY
@@ -67,6 +67,10 @@ uniform float u_waves;
 
 in vec2 v_imageUV;
 
+float getImageAspectRatio() {
+  return mix(u_imageAspectRatio, u_resolution.x / u_resolution.y, u_imageIsHtml);
+}
+
 out vec4 fragColor;
 
 ${ declarePI }
@@ -111,7 +115,7 @@ void main() {
   vec2 htmlScale = mix(vec2(1.), u_resolution / u_pixelRatio / 1000., u_imageIsHtml);
   vec2 imageUV = v_imageUV;
   vec2 patternUV = v_imageUV - mix(vec2(.5), vec2(u_originX, u_originY), u_imageIsHtml);
-  patternUV = (patternUV * vec2(u_imageAspectRatio, 1.));
+  patternUV = (patternUV * vec2(getImageAspectRatio(), 1.));
   patternUV /= mix(.1 * u_size, sizeToPx(u_size) / (u_resolution.y / u_pixelRatio), u_imageIsHtml);
 
   float t = u_time;

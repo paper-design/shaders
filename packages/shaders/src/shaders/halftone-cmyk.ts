@@ -8,7 +8,7 @@ import { declarePI } from '../shader-utils.js';
  *
  * Fragment shader uniforms:
  * - u_image (sampler2D): Source image texture, premultiplied alpha
- * - u_imageAspectRatio (float): Aspect ratio of the source image
+ * - u_imageAspectRatio (float): Aspect ratio of the source image; over HTML the canvas aspect from u_resolution is used instead
  * - u_imageIsHtml (float): 1 when u_image is HTML. HTML is drawn 1:1, so the grid and grain are sized in CSS px to keep
  *   their size over it: size sets the grid cell from about 2.5px to 143px, and the grain looks as it does over an image box 1000px wide.
  *   The grid and grain are anchored at originX / originY instead of the center, 0 0 being the top left like CSS
@@ -88,6 +88,10 @@ uniform float u_type;
 uniform sampler2D u_noiseTexture;
 
 in vec2 v_imageUV;
+
+float getImageAspectRatio() {
+  return mix(u_imageAspectRatio, u_resolution.x / u_resolution.y, u_imageIsHtml);
+}
 out vec4 fragColor;
 
 vec4 sampleImage(vec2 uv) {
@@ -233,7 +237,7 @@ void main() {
   vec2 cssSize = u_resolution / u_pixelRatio;
   float cellsPerSide = mix(mix(400.0, 7.0, pow(u_size, 0.7)), cssSize.y / sizeToPx(u_size), u_imageIsHtml);
   float cellSizeY = 1.0 / cellsPerSide;
-  vec2 pad = cellSizeY * vec2(1.0 / u_imageAspectRatio, 1.0);
+  vec2 pad = cellSizeY * vec2(1.0 / getImageAspectRatio(), 1.0);
   vec2 uvGrid = (uv - getGridOrigin()) / pad;
   float insideImageBox = getUvFrame(uv, pad);
 
@@ -244,7 +248,7 @@ void main() {
   vec2 uvY = mat2(cosY, sinY, -sinY, cosY) * uvGrid + shiftY;
   vec2 uvK = mat2(cosK, sinK, -sinK, cosK) * uvGrid + shiftK;
 
-  vec2 grainSize = mix(2000., 200., u_grainSize) * mix(vec2(1., 1. / u_imageAspectRatio), cssSize / 1000., u_imageIsHtml);
+  vec2 grainSize = mix(2000., 200., u_grainSize) * mix(vec2(1., 1. / getImageAspectRatio()), cssSize / 1000., u_imageIsHtml);
   vec2 grainUV = (v_imageUV - getGridOrigin()) * grainSize + .5;
   // shared by the grain mixer and the grain overlay, skip it when neither is on
   vec3 noiseValues = vec3(0.);

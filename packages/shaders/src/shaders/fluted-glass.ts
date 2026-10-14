@@ -10,7 +10,7 @@ import { declarePI, rotation2, proceduralHash21 } from '../shader-utils.js';
  * - u_resolution (vec2): Canvas resolution in pixels
  * - u_pixelRatio (float): Device pixel ratio
  * - u_image (sampler2D): Source image texture, premultiplied alpha
- * - u_imageAspectRatio (float): Aspect ratio of the source image
+ * - u_imageAspectRatio (float): Aspect ratio of the source image; over HTML the canvas aspect from u_resolution is used instead
  * - u_imageIsHtml (float): 1 when u_image is HTML. HTML is drawn 1:1, so the flutes are sized in CSS px to keep their size
  *   over it, size setting the flute width from 5px to 200px, and anchored at originX / originY instead of the center,
  *   0 0 being the top left like CSS. Their distortion follows the flute size; margins and edges stay relative to the frame
@@ -88,6 +88,10 @@ uniform float u_grainMixer;
 uniform float u_grainOverlay;
 
 in vec2 v_imageUV;
+
+float getImageAspectRatio() {
+  return mix(u_imageAspectRatio, u_resolution.x / u_resolution.y, u_imageIsHtml);
+}
 
 out vec4 fragColor;
 
@@ -197,10 +201,10 @@ void main() {
 
   uv -= patternOrigin;
   uv *= patternSize;
-  uv = rotateAspect(uv, patternRotation, u_imageAspectRatio);
+  uv = rotateAspect(uv, patternRotation, getImageAspectRatio());
 
   float curve = 0.;
-  float patternY = uv.y / u_imageAspectRatio;
+  float patternY = uv.y / getImageAspectRatio();
   if (u_shape > 4.5) {
     // pattern
     curve = .5 + .5 * sin(.5 * PI * uv.x) * cos(.5 * PI * patternY);
@@ -318,8 +322,8 @@ void main() {
   frameFade *= u_distortion;
 
   fractOrigUV.x += distortion;
-  floorOrigUV = rotateAspect(floorOrigUV, -patternRotation, u_imageAspectRatio);
-  fractOrigUV = rotateAspect(fractOrigUV, -patternRotation, u_imageAspectRatio);
+  floorOrigUV = rotateAspect(floorOrigUV, -patternRotation, getImageAspectRatio());
+  fractOrigUV = rotateAspect(fractOrigUV, -patternRotation, getImageAspectRatio());
 
   uv = (floorOrigUV + fractOrigUV) / patternSize;
   uv += pow(maskStroke, 4.);
