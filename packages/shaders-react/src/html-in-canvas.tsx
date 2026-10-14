@@ -1,8 +1,7 @@
 'use client';
 
-import { Children, cloneElement, isValidElement, useRef, useSyncExternalStore, version } from 'react';
+import { Children, useRef, useSyncExternalStore } from 'react';
 import { isHtmlInCanvasSupported } from '@paper-design/shaders';
-import { useMergeRefs } from './use-merge-refs.js';
 
 const subscribeToNothing = () => () => {};
 // Assumed on the server, so that supporting browsers don't re-render the canvas after hydration
@@ -16,34 +15,16 @@ export function willDrawHtmlChildren(children: React.ReactNode): boolean {
   return hasChildren(children) && isHtmlInCanvasSupported();
 }
 
-type HostElement = React.ReactElement<{ ref?: React.Ref<HTMLElement> }, string>;
-
-/** A single element is drawn as is, so its own CSS sizes it against the canvas. `<img>` is wrapped, or it'd be a static image */
-function getOnlyHostElement(children: React.ReactNode): HostElement | null {
-  const array = Children.toArray(children);
-  const only = array[0];
-  return array.length === 1 && isValidElement(only) && typeof only.type === 'string' && only.type !== 'img'
-    ? (only as HostElement)
-    : null;
-}
-
-function getElementRef(element: HostElement): React.Ref<HTMLElement> | undefined {
-  return parseInt(version) >= 19 ? element.props.ref : (element as unknown as { ref?: React.Ref<HTMLElement> }).ref;
-}
-
-function DrawableCanvas({ children, childRef }: { children: React.ReactNode; childRef: React.Ref<HTMLElement> }) {
-  const onlyElement = getOnlyHostElement(children);
-  const mergedRef = useMergeRefs([childRef, onlyElement ? getElementRef(onlyElement) : undefined]);
-
+/**
+ * The children are wrapped in a drawable element the size of the shader, so they lay out against it
+ * the same way they do as its own children when the browser can't draw them
+ */
+function DrawableCanvas({ children, childRef }: { children: React.ReactNode; childRef: React.Ref<HTMLDivElement> }) {
   return (
     <canvas {...{ content: 'drawable' }}>
-      {onlyElement ? (
-        cloneElement(onlyElement, { ref: mergedRef, drawable: '' } as object)
-      ) : (
-        <div ref={childRef as React.Ref<HTMLDivElement>} {...{ drawable: '' }}>
-          {children}
-        </div>
-      )}
+      <div ref={childRef} style={{ width: '100%', height: '100%' }} {...{ drawable: '' }}>
+        {children}
+      </div>
     </canvas>
   );
 }
@@ -57,7 +38,7 @@ export function useHtmlChildren(
   addHtmlUniform: <T extends object>(uniforms: T) => T;
   renderedChildren: React.ReactNode;
 } {
-  const drawableChildRef = useRef<HTMLElement>(null);
+  const drawableChildRef = useRef<HTMLDivElement>(null);
   const isSupported = useSyncExternalStore(subscribeToNothing, isHtmlInCanvasSupported, isSupportedOnServer);
   const hasHtmlChildren = acceptsHtmlChildren && isSupported && hasChildren(children);
 
