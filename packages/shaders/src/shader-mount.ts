@@ -2,6 +2,7 @@ import { vertexShaderSource } from './vertex-shader.js';
 import {
   attachHtml,
   drawHtml,
+  fitCanvasToHtml,
   findReactCanvas,
   isHtmlInCanvasSupported,
   isHtmlUniform,
@@ -45,6 +46,10 @@ export class ShaderMount {
   private textureUnitMap: Map<string, number> = new Map();
   private ownerDocument: Document;
   private htmlUniforms: Map<string, HtmlUniform> = new Map();
+  /** Watches the HTML and its children, so the canvas follows the HTML's natural size */
+  private htmlSizeObserver: ResizeObserver | null = null;
+  /** Watches for children added to the HTML later, so they're watched too */
+  private htmlChildrenObserver: MutationObserver | null = null;
   private isReactCanvas = false;
 
   constructor(
@@ -458,7 +463,28 @@ export class ShaderMount {
 
     const canvas = this.canvasElement as DrawableCanvasElement;
     this.htmlUniforms.set(uniformName, { element, detach: attachHtml(canvas, element), hasGeometry: false });
+    this.observeHtmlSize();
     canvas.requestPaint();
+  };
+
+  /** Sizes the canvas to the HTML whenever the HTML or one of its children changes size */
+  private give  = (): void => {
+    this.htmlSizeObserver?.disconnect();
+    this.htmlChildrenObserver?.disconnect();
+    if (this.htmlUniforms.size === 0) return;
+
+    this.htmlSizeObserver = new ResizeObserver(() => {
+      this.htmlUniforms.forEach(({ element }) => fitCanvasToHtml(this.canvasElement, element));
+    });
+    this.htmlChildrenObserver = new MutationObserver(() => this.observeHtmlSize());
+
+    this.htmlUniforms.forEach(({ element }) => {
+      this.htmlSizeObserver!.observe(element);
+      for (const child of element.children) {
+        this.htmlSizeObserver!.observe(child);
+      }
+      this.htmlChildrenObserver!.observe(element, { childList: true });
+    });
   };
 
   /** Captures each HTML uniform into its texture. On resize only HTML that has a snapshot already, so it can't throw */
@@ -473,8 +499,10 @@ export class ShaderMount {
   };
 
   private unsetHtmlUniform = (uniformName: string): void => {
-    this.htmlUniforms.get(uniformName)?.detach();
+    if (!this.htmlUniforms.has(uniformName)) return;
+    this.htmlUniforms.get(uniformName)!.detach();
     this.htmlUniforms.delete(uniformName);
+    this.observeHtmlSize();
   };
 
   private handleCanvasPaint = (): void => {
@@ -667,6 +695,8 @@ export class ShaderMount {
     this.canvasElement.removeEventListener('paint', this.handleCanvasPaint);
     this.htmlUniforms.forEach(({ detach }) => detach());
     this.htmlUniforms.clear();
+    this.htmlSizeObserver?.disconnect();
+    this.htmlChildrenObserver?.disconnect();
 
     if (this.gl && this.program) {
       // Clean up all textures
@@ -796,6 +826,15 @@ const defaultStyle = `@layer paper-shaders {
       height: 100%;
       border-radius: inherit;
       corner-shape: inherit;
+    }
+
+    /* Holding HTML, the canvas is sized to it and in flow, so the shader can take its size from the HTML */
+    & > canvas[content='drawable'] {
+      position: relative;
+      min-width: 100%;
+      min-height: 100%;
+      max-width: 100%;
+      max-height: 100%;
     }
   }
 }`;

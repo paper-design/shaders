@@ -12,6 +12,9 @@
  *
  * React renders this markup itself, since it can't let its nodes be moved, and the shader adopts that canvas.
  *
+ * A canvas never takes its size from its children, so the shader sizes it to the HTML instead (`fitCanvasToHtml`),
+ * and a shader sized by its content (fit-content, auto height) wraps around the HTML like a plain div would.
+ *
  * The HTML texture always matches the canvas size, so shaders sample it like any canvas-sized texture: a resize
  * captures the HTML again right away instead of waiting for the next paint.
  */
@@ -81,6 +84,30 @@ export function attachHtml(canvas: DrawableCanvasElement, element: HTMLElement):
       element.remove();
     }
   };
+}
+
+/**
+ * Sets the canvas size to the HTML's natural size. The stylesheet keeps the canvas between that and its parent:
+ * min 100% fills a parent that has a size of its own, max 100% keeps it inside one (and wraps the HTML at its width)
+ */
+export function fitCanvasToHtml(canvas: HTMLCanvasElement, element: HTMLElement): void {
+  const { width, height } = element.style;
+
+  // The width the HTML takes when nothing wraps it
+  element.style.width = 'max-content';
+  const naturalWidth = `${element.getBoundingClientRect().width}px`;
+  element.style.width = width;
+  if (canvas.style.width !== naturalWidth) {
+    canvas.style.width = naturalWidth;
+  }
+
+  // The height at the width the canvas ends up with
+  element.style.height = 'auto';
+  const naturalHeight = `${element.getBoundingClientRect().height}px`;
+  element.style.height = height;
+  if (canvas.style.height !== naturalHeight) {
+    canvas.style.height = naturalHeight;
+  }
 }
 
 /**

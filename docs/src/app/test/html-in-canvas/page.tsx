@@ -12,8 +12,11 @@ const waterParams = {
   size: 1,
 };
 
-/** One case of the fit-content comparison: its title, and the live size of the box it holds (the OUTER DIV) */
-function SizingCase({ title, children }: { title: string; children: ReactNode }) {
+/**
+ * One case of the fit-content comparison: its title, and the live size of the box it holds (the OUTER DIV).
+ * `parentWidth` gives the box a parent of that width, otherwise the case is as wide as its content
+ */
+function SizingCase({ title, parentWidth, children }: { title: string; parentWidth?: number; children: ReactNode }) {
   const stageRef = useRef<HTMLDivElement>(null);
   const [size, setSize] = useState('');
 
@@ -29,7 +32,7 @@ function SizingCase({ title, children }: { title: string; children: ReactNode })
   }, []);
 
   return (
-    <figure className="sizing-case">
+    <figure className="sizing-case" style={{ width: parentWidth }}>
       <figcaption>
         {title}
         <b>{size}</b>
@@ -43,6 +46,13 @@ const badge = (
   <div className="badge">
     <h2>Hello from HTML</h2>
     <p>The box should wrap around this</p>
+  </div>
+);
+
+const longBadge = (
+  <div className="badge">
+    <h2>Hello from HTML</h2>
+    <p>A longer text that doesn't fit on one line, so the box should stop at its parent's width and wrap it</p>
   </div>
 );
 
@@ -83,6 +93,19 @@ export default function HtmlInCanvasTestPage() {
           <div className="reference" style={{ width: 'fit-content' }}>
             {badge}
           </div>
+        </SizingCase>
+        <SizingCase title="OUTER DIV width: fit-content, longer text, 400px parent" parentWidth={400}>
+          <Water {...waterParams} style={{ width: 'fit-content' }}>
+            {longBadge}
+          </Water>
+        </SizingCase>
+        <SizingCase title="No shader: the same in a plain div (expected box)" parentWidth={400}>
+          <div className="reference" style={{ width: 'fit-content' }}>
+            {longBadge}
+          </div>
+        </SizingCase>
+        <SizingCase title="OUTER DIV with no size: full parent width, height from the content" parentWidth={640}>
+          <Water {...waterParams}>{badge}</Water>
         </SizingCase>
       </section>
     </>
