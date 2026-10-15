@@ -1,54 +1,90 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { Water } from '@paper-design/shaders-react';
 
+const waterParams = {
+  colorBack: '#0d2b45',
+  colorHighlight: '#ffffff',
+  highlights: 0.2,
+  waves: 0.1,
+  caustic: 0.05,
+  size: 1,
+};
+
+/** One case of the fit-content comparison: its title, and the live size of the box it holds (the OUTER DIV) */
+function SizingCase({ title, children }: { title: string; children: ReactNode }) {
+  const stageRef = useRef<HTMLDivElement>(null);
+  const [size, setSize] = useState('');
+
+  useEffect(() => {
+    const box = stageRef.current?.firstElementChild;
+    if (!box) return;
+    const observer = new ResizeObserver(([entry]) => {
+      const { inlineSize, blockSize } = entry!.borderBoxSize[0]!;
+      setSize(`${Math.round(inlineSize)} × ${Math.round(blockSize)}`);
+    });
+    observer.observe(box);
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <figure className="sizing-case">
+      <figcaption>
+        {title}
+        <b>{size}</b>
+      </figcaption>
+      <div ref={stageRef}>{children}</div>
+    </figure>
+  );
+}
+
+const badge = (
+  <div className="badge">
+    <h2>Hello from HTML</h2>
+    <p>The box should wrap around this</p>
+  </div>
+);
+
 /**
- * React counterpart of packages/shaders/examples/html-in-canvas.html: the children are the shader's input.
- * Browsers without HTML in canvas support show the children on top of the shader instead.
+ * The fit-content problem: an OUTER DIV can't wrap around HTML drawn into its canvas.
+ * Each OUTER DIV is outlined in red, with its live size under the title
  */
 export default function HtmlInCanvasTestPage() {
-  const [greeting, setGreeting] = useState('');
-
   return (
     <>
       <style>{`
-        .card { display: grid; grid-template-columns: 1fr auto; gap: 28px 16px; width: 680px; padding: 72px; border-radius: 28px; background: #fff; color: #111; font: 24px/1.4 system-ui }
-        .card h1, .card p, .card output { grid-column: 1 / -1; margin: 0 }
-        .card h1 { font-size: 64px; line-height: 1.1 }
-        .card input { min-width: 0; padding: 16px 24px; border: 2px solid #111; border-radius: 999px; font: inherit }
-        .card output:empty { display: none }
-        .card button { padding: 18px 32px; border: 0; border-radius: 999px; background: #111; color: #fff; font: inherit; cursor: pointer }
+        .sizing { display: flex; flex-wrap: wrap; align-items: start; gap: 48px; min-height: 100dvh; padding: 48px; background: #f4f4f4; color: #111; font: 16px/1.4 system-ui }
+        .sizing > h2 { flex-basis: 100%; margin: 0; font-size: 28px }
+        .sizing-case { display: grid; gap: 12px; margin: 0 }
+        .sizing-case figcaption { display: grid; font-family: ui-monospace, monospace; font-size: 13px }
+        .sizing-case [data-paper-shader], .sizing-case .reference { outline: 2px dashed #e5484d; outline-offset: 4px }
+        .badge { padding: 32px; border-radius: 20px; background: #fff }
+        .badge h2 { margin: 0 0 8px; font-size: 32px }
+        .badge p { margin: 0 }
       `}</style>
-      <Water
-        style={{ height: '100dvh' }}
-        colorBack="#0d2b45"
-        colorHighlight="#ffffff"
-        highlights={0.2}
-        waves={0.1}
-        caustic={0.05}
-        size={1}
-      >
-        <form
-          className="card"
-          onSubmit={(event) => {
-            event.preventDefault();
-            const name = new FormData(event.currentTarget).get('name');
-            setGreeting(`Hi, ${name || 'stranger'}!`);
-          }}
-        >
-          <h1>Hello from HTML</h1>
-          <p>This form is live HTML under the water: select the text, type your name, press the button.</p>
-          <input name="name" placeholder="your name" autoComplete="off" />
-          <button>Say hi</button>
-          <output>{greeting}</output>
-        </form>
-        <img
-          src="/flowers.webp"
-          alt=""
-          style={{ display: 'block', width: 150, borderRadius: 28 }}
-        />
-      </Water>
+      <section className="sizing">
+        <SizingCase title="OUTER DIV 480 × 240, INNER DIV 100% (default)">
+          <Water {...waterParams} style={{ width: 480, height: 240 }}>
+            {badge}
+          </Water>
+        </SizingCase>
+        <SizingCase title="OUTER DIV width: fit-content, INNER DIV 100% (default)">
+          <Water {...waterParams} style={{ width: 'fit-content' }}>
+            {badge}
+          </Water>
+        </SizingCase>
+        <SizingCase title="OUTER DIV width: fit-content, INNER DIV no styles">
+          <Water {...waterParams} style={{ width: 'fit-content' }} htmlWrapperStyle={{}}>
+            {badge}
+          </Water>
+        </SizingCase>
+        <SizingCase title="No shader: plain div with width: fit-content (expected box)">
+          <div className="reference" style={{ width: 'fit-content' }}>
+            {badge}
+          </div>
+        </SizingCase>
+      </section>
     </>
   );
 }
