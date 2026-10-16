@@ -140,7 +140,6 @@ const PaperTextureWithControls = () => {
         defaultParams={presetDefaults}
         htmlContent={htmlContent}
         htmlContentCss={htmlContentCss}
-        wrapperMode="100% centered"
       >
         <PaperTexture {...params}>{htmlContent}</PaperTexture>
       </HtmlInCanvasDemo>

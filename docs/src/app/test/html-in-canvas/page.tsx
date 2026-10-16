@@ -64,18 +64,13 @@ export default function HtmlInCanvasTestPage() {
         .badge p { margin: 0 }
       `}</style>
       <section className="sizing">
-        <SizingCase title="OUTER DIV 480 × 240, INNER DIV 100% (default)">
+        <SizingCase title="OUTER DIV 480 × 240">
           <Water {...waterParams} style={{ width: 480, height: 240 }}>
             {badge}
           </Water>
         </SizingCase>
-        <SizingCase title="OUTER DIV width: fit-content, INNER DIV 100% (default)">
+        <SizingCase title="OUTER DIV width: fit-content">
           <Water {...waterParams} style={{ width: 'fit-content' }}>
-            {badge}
-          </Water>
-        </SizingCase>
-        <SizingCase title="OUTER DIV width: fit-content, INNER DIV no styles">
-          <Water {...waterParams} style={{ width: 'fit-content' }} htmlWrapperStyle={{}}>
             {badge}
           </Water>
         </SizingCase>

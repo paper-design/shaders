@@ -32,8 +32,6 @@ export interface ShaderMountProps extends Omit<React.ComponentProps<'div'>, 'col
   webGlContextAttributes?: WebGLContextAttributes;
   /** Set by shaders that can draw their children into u_image (experimental) */
   acceptsHtmlChildren?: boolean;
-  /** Inline style of the element that holds the HTML children, fills the shader by default (experimental) */
-  htmlWrapperStyle?: React.CSSProperties;
 
   /** Inline CSS width style */
   width?: string | number;
@@ -46,8 +44,6 @@ export interface ShaderComponentProps extends Omit<React.ComponentProps<'div'>, 
   minPixelRatio?: number;
   maxPixelCount?: number;
   webGlContextAttributes?: WebGLContextAttributes;
-  /** Inline style of the element that holds the HTML children, fills the shader by default (experimental) */
-  htmlWrapperStyle?: React.CSSProperties;
 
   /** Inline CSS width style */
   width?: string | number;
@@ -144,7 +140,6 @@ export const ShaderMount: React.FC<ShaderMountProps> = forwardRef<PaperShaderEle
       maxPixelCount,
       mipmaps,
       acceptsHtmlChildren = false,
-      htmlWrapperStyle,
       children,
       style,
       ...divProps
@@ -155,11 +150,7 @@ export const ShaderMount: React.FC<ShaderMountProps> = forwardRef<PaperShaderEle
     const divRef = useRef<PaperShaderElement>(null);
     const shaderMountRef: React.RefObject<ShaderMountVanilla | null> = useRef<ShaderMountVanilla>(null);
     const webGlContextAttributesRef = useRef(webGlContextAttributes);
-    const { hasHtmlChildren, addHtmlUniform, renderedChildren } = useHtmlChildren(
-      acceptsHtmlChildren,
-      children,
-      htmlWrapperStyle
-    );
+    const { hasHtmlChildren, addHtmlUniform, renderedChildren } = useHtmlChildren(acceptsHtmlChildren, children);
 
     const getUniforms = (): ShaderMountUniformsReact => addHtmlUniform(uniformsProp);
 

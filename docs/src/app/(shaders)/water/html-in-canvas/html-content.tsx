@@ -2,8 +2,8 @@ import { withCode } from '@/helpers/jsx-to-code';
 
 /** The HTML-in-canvas page uses teal water with bigger, brighter ripples, so the HTML shows through the surface */
 export const htmlInCanvasOverrides = {
-  originX: 0.5,
-  originY: 0.5,
+  originX: 0,
+  originY: 0,
   colorBack: '#8ed7d5',
   colorHighlight: '#ffffff',
   highlights: 0.25,

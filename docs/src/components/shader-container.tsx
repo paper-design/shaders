@@ -23,12 +23,9 @@ export function ShaderContainer({
   children,
   currentParams,
   shaderDef,
-  controls,
 }: React.PropsWithChildren<{
   currentParams?: Record<string, unknown>;
   shaderDef?: ShaderDef;
-  /** Extra controls shown in the controls card, above Leva */
-  controls?: React.ReactNode;
 }>) {
   const pathname = usePathname();
   const isHtmlInCanvasPage = useIsHtmlInCanvasPage();
@@ -91,7 +88,6 @@ export function ShaderContainer({
           `,
           }}
         >
-          {controls}
           <div className="-mb-14 cursor-default p-10 font-mono text-[11px]">Presets</div>
 
           <div data-leva-container>

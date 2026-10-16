@@ -2,6 +2,8 @@ import { withCode } from '@/helpers/jsx-to-code';
 
 /** The HTML-in-canvas page keeps the paper white and the texture pronounced, so the HTML stays readable through it */
 export const htmlInCanvasOverrides = {
+  originX: 0,
+  originY: 0,
   colorBack: '#8b8fa7',
   clip: true,
   colorPaper: '#ffffff',

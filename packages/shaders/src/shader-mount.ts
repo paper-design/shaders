@@ -797,6 +797,12 @@ const defaultStyle = `@layer paper-shaders {
       border-radius: inherit;
       corner-shape: inherit;
     }
+
+    & > canvas > [drawable],
+    & > [drawable] {
+      width: 100%;
+      height: 100%;
+    }
   }
 }`;
 
