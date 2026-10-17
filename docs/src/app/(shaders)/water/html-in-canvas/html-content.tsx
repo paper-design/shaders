@@ -120,7 +120,7 @@ const reset = withCode(
 
 export const htmlContent = (
   <div className="timekeeper" ref={startClock}>
-    <div className="modes">
+    <form className="modes">
       <label>
         <input type="radio" name="water-mode" value="clock" defaultChecked />
         clock
@@ -129,7 +129,7 @@ export const htmlContent = (
         <input type="radio" name="water-mode" value="stopwatch" />
         stopwatch
       </label>
-    </div>
+    </form>
     <time>00:00:00</time>
     <section className="clock">today</section>
     <section className="stopwatch" data-elapsed="0">
