@@ -1,11 +1,12 @@
 /**
  * Experimental HTML-in-canvas support (https://github.com/WICG/html-in-canvas),
- * available in Chromium behind `chrome://flags/#canvas-draw-element`.
+ * available in Chromium behind `chrome://flags/#canvas-draw-element`. Older Chromium versions opt the canvas in with
+ * `layoutsubtree` instead of `content="drawable"`, so the canvas gets both.
  *
  * An HTML element passed as a texture uniform is moved into the shader canvas and drawn 1:1 where it's laid out:
  *
  * <div data-paper-shader>
- *   <canvas content="drawable">
+ *   <canvas content="drawable" layoutsubtree>
  *     <div drawable>…</div>
  *   </canvas>
  * </div>
@@ -70,6 +71,7 @@ export function attachHtml(canvas: DrawableCanvasElement, element: HTMLElement):
   const parent = element.parentNode;
   const nextSibling = element.nextSibling;
   canvas.setAttribute('content', 'drawable');
+  canvas.setAttribute('layoutsubtree', '');
   element.setAttribute('drawable', '');
   canvas.append(element);
 

@@ -50,6 +50,6 @@ export function useHtmlChildren(
   return {
     hasHtmlChildren,
     addHtmlUniform,
-    renderedChildren: hasHtmlChildren ? <canvas {...{ content: 'drawable' }}>{wrapper}</canvas> : wrapper,
+    renderedChildren: hasHtmlChildren ? <canvas {...{ content: 'drawable', layoutsubtree: '' }}>{wrapper}</canvas> : wrapper,
   };
 }
