@@ -9,8 +9,11 @@ import { declarePI, rotation2, proceduralHash21 } from '../shader-utils.js';
  * Fragment shader uniforms:
  * - u_resolution (vec2): Canvas resolution in pixels
  * - u_pixelRatio (float): Device pixel ratio
- * - u_image (sampler2D): Source image texture
- * - u_imageAspectRatio (float): Aspect ratio of the source image
+ * - u_image (sampler2D): Source image texture, premultiplied alpha
+ * - u_imageAspectRatio (float): Aspect ratio of the source image; over HTML the canvas aspect from u_resolution is used instead
+ * - u_imageIsHtml (float): 1 when u_image is HTML. HTML is drawn 1:1, so the flutes are sized in CSS px to keep their size
+ *   over it, size setting the flute width from 5px to 200px, and anchored at originX / originY instead of the center,
+ *   0 0 being the top left like CSS. Their distortion follows the flute size; margins and edges stay relative to the frame
  * - u_colorBack (vec4): Background color in RGBA
  * - u_colorShadow (vec4): Shadows color in RGBA, needs shadows > 0
  * - u_colorHighlight (vec4): Highlights color in RGBA, needs highlights > 0
@@ -38,8 +41,8 @@ import { declarePI, rotation2, proceduralHash21 } from '../shader-utils.js';
  * Vertex shader uniforms:
  * - u_resolution (vec2): Canvas resolution in pixels
  * - u_pixelRatio (float): Device pixel ratio
- * - u_originX (float): Reference point for positioning world width in the canvas (0 to 1)
- * - u_originY (float): Reference point for positioning world height in the canvas (0 to 1)
+ * - u_originX (float): Reference point for positioning world width in the canvas, over HTML where the effect is anchored (0 to 1)
+ * - u_originY (float): Reference point for positioning world height in the canvas, over HTML where the effect is anchored from the top (0 to 1)
  * - u_fit (float): How to fit the rendered shader into the canvas dimensions (0 = none, 1 = contain, 2 = cover)
  * - u_scale (float): Overall zoom level of the graphics (0.1 to 4)
  * - u_rotation (float): Overall rotation angle of the graphics in degrees (0 to 360)
@@ -62,6 +65,9 @@ uniform vec4 u_colorHighlight;
 
 uniform sampler2D u_image;
 uniform float u_imageAspectRatio;
+uniform float u_imageIsHtml;
+uniform float u_originX;
+uniform float u_originY;
 
 uniform float u_size;
 uniform float u_shadows;
@@ -83,9 +89,16 @@ uniform float u_grainOverlay;
 
 in vec2 v_imageUV;
 
+float getImageAspectRatio() {
+  return mix(u_imageAspectRatio, u_resolution.x / u_resolution.y, u_imageIsHtml);
+}
+
 out vec4 fragColor;
 
 ${ declarePI }
+float sizeToPx(float size) {
+  return 1000. / mix(200., 5., size);
+}
 ${ rotation2 }
 ${ proceduralHash21 }
 
@@ -113,11 +126,6 @@ float getUvFrame(vec2 uv, float softness) {
 }
 
 const int MAX_RADIUS = 50;
-vec4 samplePremultiplied(sampler2D tex, vec2 uv) {
-  vec4 c = texture(tex, uv);
-  c.rgb *= c.a;
-  return c;
-}
 vec4 getBlur(sampler2D tex, vec2 uv, vec2 texelSize, vec2 dir, float sigma) {
   if (sigma <= .5) return texture(tex, uv);
   int radius = int(min(float(MAX_RADIUS), ceil(3.0 * sigma)));
@@ -125,7 +133,7 @@ vec4 getBlur(sampler2D tex, vec2 uv, vec2 texelSize, vec2 dir, float sigma) {
   float twoSigma2 = 2.0 * sigma * sigma;
   float gaussianNorm = 1.0 / sqrt(TWO_PI * sigma * sigma);
 
-  vec4 sum = samplePremultiplied(tex, uv) * gaussianNorm;
+  vec4 sum = texture(tex, uv) * gaussianNorm;
   float weightSum = gaussianNorm;
 
   for (int i = 1; i <= MAX_RADIUS; i++) {
@@ -135,19 +143,14 @@ vec4 getBlur(sampler2D tex, vec2 uv, vec2 texelSize, vec2 dir, float sigma) {
     float w = exp(-(x * x) / twoSigma2) * gaussianNorm;
 
     vec2 offset = dir * texelSize * x;
-    vec4 s1 = samplePremultiplied(tex, uv + offset);
-    vec4 s2 = samplePremultiplied(tex, uv - offset);
+    vec4 s1 = texture(tex, uv + offset);
+    vec4 s2 = texture(tex, uv - offset);
 
     sum += (s1 + s2) * w;
     weightSum += 2.0 * w;
   }
 
-  vec4 result = sum / weightSum;
-  if (result.a > 0.) {
-    result.rgb /= result.a;
-  }
-
-  return result;
+  return sum / weightSum;
 }
 
 vec2 rotateAspect(vec2 p, float a, float aspect) {
@@ -170,7 +173,8 @@ float smoothFract(float x) {
 void main() {
 
   float patternRotation = -u_angle * PI / 180.;
-  float patternSize = mix(200., 5., u_size);
+  float patternSize = mix(mix(200., 2., u_size), u_resolution.x / u_pixelRatio / sizeToPx(u_size), u_imageIsHtml);
+  vec2 patternOrigin = mix(vec2(.5), vec2(u_originX, u_originY), u_imageIsHtml);
 
   vec2 uv = v_imageUV;
 
@@ -195,12 +199,12 @@ void main() {
   smoothstep(margins[3] - 2. * sw.y, margins[3], 1.0 - uvMask.y);
   float maskStrokeInner = maskInner - mask;
 
-  uv -= .5;
+  uv -= patternOrigin;
   uv *= patternSize;
-  uv = rotateAspect(uv, patternRotation, u_imageAspectRatio);
+  uv = rotateAspect(uv, patternRotation, getImageAspectRatio());
 
   float curve = 0.;
-  float patternY = uv.y / u_imageAspectRatio;
+  float patternY = uv.y / getImageAspectRatio();
   if (u_shape > 4.5) {
     // pattern
     curve = .5 + .5 * sin(.5 * PI * uv.x) * cos(.5 * PI * patternY);
@@ -297,7 +301,7 @@ void main() {
 
   vec2 dudx = dFdx(v_imageUV);
   vec2 dudy = dFdy(v_imageUV);
-  vec2 grainUV = v_imageUV - .5;
+  vec2 grainUV = v_imageUV - patternOrigin;
   grainUV *= (.8 / vec2(length(dudx), length(dudy)));
   grainUV += .5;
   if (u_grainMixer > 0.) {
@@ -318,13 +322,13 @@ void main() {
   frameFade *= u_distortion;
 
   fractOrigUV.x += distortion;
-  floorOrigUV = rotateAspect(floorOrigUV, -patternRotation, u_imageAspectRatio);
-  fractOrigUV = rotateAspect(fractOrigUV, -patternRotation, u_imageAspectRatio);
+  floorOrigUV = rotateAspect(floorOrigUV, -patternRotation, getImageAspectRatio());
+  fractOrigUV = rotateAspect(fractOrigUV, -patternRotation, getImageAspectRatio());
 
   uv = (floorOrigUV + fractOrigUV) / patternSize;
   uv += pow(maskStroke, 4.);
 
-  uv += vec2(.5);
+  uv += patternOrigin;
 
   uv = mix(v_imageUV, uv, smoothstep(0., .7, mask));
   float blur = mix(0., 50., u_blur);
@@ -342,7 +346,6 @@ void main() {
   uv.y = mix(uv.y, .5, u_stretch * stretch);
 
   vec4 image = getBlur(u_image, uv, 1. / u_resolution / u_pixelRatio, vec2(0., 1.), blur);
-  image.rgb *= image.a;
   vec4 backColor = u_colorBack;
   backColor.rgb *= backColor.a;
   vec4 highlightColor = u_colorHighlight;

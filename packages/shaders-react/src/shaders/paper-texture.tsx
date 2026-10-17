@@ -1,6 +1,7 @@
 import { memo } from 'react';
 import { ShaderMount, type ShaderComponentProps } from '../shader-mount.js';
 import { colorPropsAreEqual } from '../color-props-are-equal.js';
+import { willDrawHtmlChildren } from '../html-in-canvas.js';
 import {
   defaultObjectSizing,
   getShaderColorFromString,
@@ -212,7 +213,7 @@ export const PaperTexture: React.FC<PaperTextureProps> = memo(function PaperText
   const uniforms = {
     // Own uniforms
     u_image: image,
-    u_isImage: Boolean(image),
+    u_isImage: willDrawHtmlChildren(props.children) || Boolean(image),
     u_colorBack: getShaderColorFromString(colorBack),
     u_colorPaper: getShaderColorFromString(colorPaper),
     u_colorShadow: getShaderColorFromString(colorShadow),
@@ -256,6 +257,7 @@ export const PaperTexture: React.FC<PaperTextureProps> = memo(function PaperText
       speed={speed}
       frame={frame}
       fragmentShader={paperTextureFragmentShader}
+      acceptsHtmlChildren
       mipmaps={['u_image']}
       uniforms={uniforms}
     />

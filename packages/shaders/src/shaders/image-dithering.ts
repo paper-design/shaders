@@ -15,15 +15,17 @@ import { proceduralHash21, declarePI } from '../shader-utils.js';
  * Fragment shader uniforms:
  * - u_resolution (vec2): Canvas resolution in pixels
  * - u_pixelRatio (float): Device pixel ratio
- * - u_originX (float): Reference point for positioning world width in the canvas (0 to 1)
- * - u_originY (float): Reference point for positioning world height in the canvas (0 to 1)
+ * - u_originX (float): Reference point for positioning world width in the canvas, over HTML where the effect is anchored (0 to 1)
+ * - u_originY (float): Reference point for positioning world height in the canvas, over HTML where the effect is anchored from the top (0 to 1)
  * - u_fit (float): How to fit the rendered shader into the canvas dimensions (0 = none, 1 = contain, 2 = cover)
  * - u_scale (float): Overall zoom level of the graphics (0.1 to 4)
  * - u_rotation (float): Overall rotation angle of the graphics in degrees (0 to 360)
  * - u_offsetX (float): Horizontal offset of the graphics center (-1 to 1)
  * - u_offsetY (float): Vertical offset of the graphics center (-1 to 1)
- * - u_image (sampler2D): Source image texture
+ * - u_image (sampler2D): Source image texture, premultiplied alpha
  * - u_imageAspectRatio (float): Aspect ratio of the source image
+ * - u_imageIsHtml (float): 1 when u_image is HTML, drawn 1:1 without the sizing uniforms. The pixel size is already in px,
+ *   and over HTML the pixel grid is anchored at originX / originY instead of the center, 0 0 being the top left like CSS
  * - u_colorFront (vec4): Foreground color in RGBA, needs originalColors off
  * - u_colorBack (vec4): Background color in RGBA, needs originalColors off
  * - u_colorHighlight (vec4): Secondary foreground color in RGBA (set same as colorFront for classic 2-color dithering), needs originalColors off
@@ -56,6 +58,7 @@ uniform vec4 u_colorHighlight;
 
 uniform sampler2D u_image;
 uniform float u_imageAspectRatio;
+uniform float u_imageIsHtml;
 
 uniform float u_type;
 uniform float u_pxSize;
@@ -65,6 +68,11 @@ uniform float u_colorSteps;
 
 out vec4 fragColor;
 
+vec4 sampleImage(vec2 uv) {
+  vec4 image = texture(u_image, uv);
+  image.rgb /= max(image.a, .0001);
+  return image;
+}
 
 ${ proceduralHash21 }
 ${ declarePI }
@@ -81,30 +89,32 @@ float getUvFrame(vec2 uv, vec2 pad) {
 }
 
 vec2 getImageUV(vec2 uv) {
-  vec2 boxOrigin = vec2(.5 - u_originX, u_originY - .5);
-  float r = u_rotation * PI / 180.;
-  mat2 graphicRotation = mat2(cos(r), sin(r), -sin(r), cos(r));
-  vec2 graphicOffset = vec2(-u_offsetX, u_offsetY);
-
-  vec2 imageBoxSize;
-  if (u_fit == 1.) { // contain
-    imageBoxSize.x = min(u_resolution.x / u_imageAspectRatio, u_resolution.y) * u_imageAspectRatio;
-  } else if (u_fit == 2.) { // cover
-    imageBoxSize.x = max(u_resolution.x / u_imageAspectRatio, u_resolution.y) * u_imageAspectRatio;
-  } else {
-    imageBoxSize.x = min(10.0, 10.0 / u_imageAspectRatio * u_imageAspectRatio);
-  }
-  imageBoxSize.y = imageBoxSize.x / u_imageAspectRatio;
-  vec2 imageBoxScale = u_resolution.xy / imageBoxSize;
-
   vec2 imageUV = uv;
-  imageUV *= imageBoxScale;
-  imageUV += boxOrigin * (imageBoxScale - 1.);
-  imageUV += graphicOffset;
-  imageUV /= u_scale;
-  imageUV.x *= u_imageAspectRatio;
-  imageUV = graphicRotation * imageUV;
-  imageUV.x /= u_imageAspectRatio;
+  if (u_imageIsHtml == 0.) {
+    vec2 boxOrigin = vec2(.5 - u_originX, u_originY - .5);
+    float r = u_rotation * PI / 180.;
+    mat2 graphicRotation = mat2(cos(r), sin(r), -sin(r), cos(r));
+    vec2 graphicOffset = vec2(-u_offsetX, u_offsetY);
+
+    vec2 imageBoxSize;
+    if (u_fit == 1.) { // contain
+      imageBoxSize.x = min(u_resolution.x / u_imageAspectRatio, u_resolution.y) * u_imageAspectRatio;
+    } else if (u_fit == 2.) { // cover
+      imageBoxSize.x = max(u_resolution.x / u_imageAspectRatio, u_resolution.y) * u_imageAspectRatio;
+    } else {
+      imageBoxSize.x = min(10.0, 10.0 / u_imageAspectRatio * u_imageAspectRatio);
+    }
+    imageBoxSize.y = imageBoxSize.x / u_imageAspectRatio;
+    vec2 imageBoxScale = u_resolution.xy / imageBoxSize;
+
+    imageUV *= imageBoxScale;
+    imageUV += boxOrigin * (imageBoxScale - 1.);
+    imageUV += graphicOffset;
+    imageUV /= u_scale;
+    imageUV.x *= u_imageAspectRatio;
+    imageUV = graphicRotation * imageUV;
+    imageUV.x /= u_imageAspectRatio;
+  }
 
   imageUV += .5;
   imageUV.y = 1. - imageUV.y;
@@ -149,14 +159,16 @@ float getBayerValue(vec2 uv, int size) {
 void main() {
 
   float pxSize = u_pxSize * u_pixelRatio;
-  vec2 pxSizeUV = gl_FragCoord.xy - .5 * u_resolution;
+  vec2 gridOrigin = mix(vec2(.5), vec2(u_originX, 1. - u_originY), u_imageIsHtml) * u_resolution;
+  vec2 pxSizeUV = gl_FragCoord.xy - gridOrigin;
   pxSizeUV /= pxSize;
-  vec2 canvasPixelizedUV = (floor(pxSizeUV) + .5) * pxSize;
+  vec2 gridPixelizedUV = (floor(pxSizeUV) + .5) * pxSize;
+  vec2 canvasPixelizedUV = gridPixelizedUV + gridOrigin - .5 * u_resolution;
   vec2 normalizedUV = canvasPixelizedUV / u_resolution;
 
   vec2 imageUV = getImageUV(normalizedUV);
-  vec2 ditheringNoiseUV = canvasPixelizedUV;
-  vec4 image = texture(u_image, imageUV);
+  vec2 ditheringNoiseUV = gridPixelizedUV;
+  vec4 image = sampleImage(imageUV);
   float frame = getUvFrame(imageUV, pxSize / u_resolution);
 
   int type = int(floor(u_type));
@@ -231,7 +243,7 @@ export interface ImageDitheringUniforms extends ShaderSizingUniforms {
 }
 
 export interface ImageDitheringParams extends ShaderSizingParams, ShaderMotionParams {
-  image: HTMLImageElement | string;
+  image?: HTMLImageElement | string;
   colorFront?: string;
   colorBack?: string;
   colorHighlight?: string;

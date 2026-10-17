@@ -14,6 +14,7 @@
     "publish-canary": "run-s clean build && bun run publish.js --canary",
     "publish-all-test": "run-s clean build && bun run publish.js --dry-run",
     "dev:docs": "bun run --filter docs dev",
+    "dev:examples": "bunx serve . -l 4000",
     "dev:packages": "nodemon --watch 'packages/*/src/**/*' --ext ts,tsx --exec 'bun run build' --on-change-only",
     "dev": "run-s clean build && run-p dev:*",
     "clean": "rimraf packages/*/dist"
