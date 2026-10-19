@@ -91,7 +91,12 @@ export class ShaderMount {
     this.minPixelRatio = minPixelRatio;
     this.maxPixelCount = maxPixelCount;
 
-    const gl = canvasElement.getContext('webgl2', webGlContextAttributes);
+    const gl = canvasElement.getContext('webgl2', {
+      antialias: false,
+      depth: false,
+      stencil: false,
+      ...webGlContextAttributes,
+    });
     if (!gl) {
       throw new Error('Paper Shaders: WebGL is not supported in this browser');
     }
