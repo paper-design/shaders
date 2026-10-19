@@ -514,7 +514,7 @@ export class ShaderMount {
   public setFrame = (newFrame: number): void => {
     this.currentFrame = newFrame;
     this.lastRenderTime = performance.now();
-    this.render(performance.now());
+    this.renderUnlessAnimating();
   };
 
   /** Set an animation speed (or 0 to stop animation) */
@@ -564,7 +564,14 @@ export class ShaderMount {
     this.setUniformValues(newUniforms);
     this.providedUniforms = { ...this.providedUniforms, ...newUniforms };
 
-    this.render(performance.now());
+    this.renderUnlessAnimating();
+  };
+
+  /** Render right away only when the rAF loop isn't running */
+  private renderUnlessAnimating = (): void => {
+    if (this.rafId === null) {
+      this.render(performance.now());
+    }
   };
 
   private handleDocumentVisibilityChange = () => {
