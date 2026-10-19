@@ -493,9 +493,7 @@ export class ShaderMount {
       }
     });
 
-    if (this.currentSpeed === 0) {
-      this.render(performance.now());
-    }
+    this.renderUnlessAnimating();
   };
 
   /** Utility: recursive equality test for all the uniforms */
