@@ -291,28 +291,12 @@ export class ShaderMount {
     }
   };
 
-  private debugRendersThisFrame = 0;
-
   private render = (currentTime: number) => {
     if (this.hasBeenDisposed) return;
 
     if (this.program === null) {
       console.warn('Tried to render before program or gl was initialized');
       return;
-    }
-
-    // TEMP debug: log every render and flag a second render within the same frame
-    this.debugRendersThisFrame++;
-    if (this.debugRendersThisFrame === 1) {
-      requestAnimationFrame(() => {
-        this.debugRendersThisFrame = 0;
-      });
-    }
-    const debugCaller = new Error().stack?.split('\n')[2]?.trim();
-    if (this.debugRendersThisFrame > 1) {
-      console.warn(`[ShaderMount] DOUBLE RENDER #${this.debugRendersThisFrame} in one frame`, debugCaller, this.parentElement);
-    } else {
-      console.log('[ShaderMount] render', debugCaller, this.parentElement);
     }
 
     // Calculate the delta time
