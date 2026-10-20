@@ -10,7 +10,7 @@ import {
 } from '@paper-design/shaders';
 import { useMergeRefs } from './use-merge-refs.js';
 import { setMinImageSize } from './set-min-image-size.js';
-import { useHtmlChildren } from './html-in-canvas.js';
+import { useHtmlChildren, type ShaderContentProps, type ShaderSizeToContent } from './html-in-canvas.js';
 
 /**
  * React Shader Mount can also accept strings as uniform values, which will assumed to be URLs and loaded as images
@@ -32,10 +32,10 @@ export interface ShaderMountProps extends Omit<React.ComponentProps<'div'>, 'col
   webGlContextAttributes?: WebGLContextAttributes;
   /** Set by shaders that can draw their children into u_image (experimental) */
   acceptsHtmlChildren?: boolean;
-  /** Style of the element that holds the children, for their layout: display, gap, padding, alignment */
-  contentStyle?: React.CSSProperties;
-  /** Class name of the element that holds the children */
-  contentClassName?: string;
+  /** Props of the element that holds the children and is drawn with them: layout, padding, background, border */
+  contentProps?: ShaderContentProps;
+  /** Size the shader to its children on these axes instead of its own width and height styles */
+  sizeToContent?: ShaderSizeToContent;
 
   /** Inline CSS width style */
   width?: string | number;
@@ -48,10 +48,10 @@ export interface ShaderComponentProps extends Omit<React.ComponentProps<'div'>, 
   minPixelRatio?: number;
   maxPixelCount?: number;
   webGlContextAttributes?: WebGLContextAttributes;
-  /** Style of the element that holds the children, for shaders that accept HTML children */
-  contentStyle?: React.CSSProperties;
-  /** Class name of the element that holds the children, for shaders that accept HTML children */
-  contentClassName?: string;
+  /** Props of the element that holds the children and is drawn with them, for shaders that accept HTML children */
+  contentProps?: ShaderContentProps;
+  /** Size the shader to its children on these axes, for shaders that accept HTML children */
+  sizeToContent?: ShaderSizeToContent;
 
   /** Inline CSS width style */
   width?: string | number;
@@ -148,8 +148,8 @@ export const ShaderMount: React.FC<ShaderMountProps> = forwardRef<PaperShaderEle
       maxPixelCount,
       mipmaps,
       acceptsHtmlChildren = false,
-      contentStyle,
-      contentClassName,
+      contentProps,
+      sizeToContent,
       children,
       style,
       ...divProps
@@ -160,10 +160,13 @@ export const ShaderMount: React.FC<ShaderMountProps> = forwardRef<PaperShaderEle
     const divRef = useRef<PaperShaderElement>(null);
     const shaderMountRef: React.RefObject<ShaderMountVanilla | null> = useRef<ShaderMountVanilla>(null);
     const webGlContextAttributesRef = useRef(webGlContextAttributes);
-    const { hasHtmlChildren, addHtmlUniform, renderedChildren } = useHtmlChildren(acceptsHtmlChildren, children, {
-      style: contentStyle,
-      className: contentClassName,
-    });
+    const { hasHtmlChildren, addHtmlUniform, renderedChildren, sizeStyle } = useHtmlChildren(
+      acceptsHtmlChildren,
+      children,
+      contentProps,
+      sizeToContent,
+      divRef
+    );
 
     const getUniforms = (): ShaderMountUniformsReact => addHtmlUniform(uniformsProp);
 
@@ -242,20 +245,16 @@ export const ShaderMount: React.FC<ShaderMountProps> = forwardRef<PaperShaderEle
     }, [frame, isInitialized]);
 
     const mergedRef = useMergeRefs([divRef, forwardedRef]) as unknown as React.RefObject<HTMLDivElement>;
+    const shaderStyle =
+      width !== undefined || height !== undefined
+        ? {
+            width: typeof width === 'string' && isNaN(+width) === false ? +width : width,
+            height: typeof height === 'string' && isNaN(+height) === false ? +height : height,
+            ...style,
+          }
+        : style;
     return (
-      <div
-        ref={mergedRef}
-        style={
-          width !== undefined || height !== undefined
-            ? {
-                width: typeof width === 'string' && isNaN(+width) === false ? +width : width,
-                height: typeof height === 'string' && isNaN(+height) === false ? +height : height,
-                ...style,
-              }
-            : style
-        }
-        {...divProps}
-      >
+      <div ref={mergedRef} style={sizeStyle ? { ...shaderStyle, ...sizeStyle } : shaderStyle} {...divProps}>
         {renderedChildren}
       </div>
     );

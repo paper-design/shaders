@@ -808,6 +808,7 @@ const defaultStyle = `@layer paper-shaders {
     & > canvas > [drawable],
     & > [drawable] {
       box-sizing: border-box;
+      position: relative;
       width: 100%;
       height: 100%;
     }
