@@ -91,7 +91,12 @@ export class ShaderMount {
     this.minPixelRatio = minPixelRatio;
     this.maxPixelCount = maxPixelCount;
 
-    const gl = canvasElement.getContext('webgl2', webGlContextAttributes);
+    const gl = canvasElement.getContext('webgl2', {
+      antialias: false,
+      depth: false,
+      stencil: false,
+      ...webGlContextAttributes,
+    });
     if (!gl) {
       throw new Error('Paper Shaders: WebGL is not supported in this browser');
     }
@@ -127,6 +132,7 @@ export class ShaderMount {
     const program = createProgram(this.gl, vertexShaderSource, this.fragmentShader);
     if (!program) return;
     this.program = program;
+    this.gl.useProgram(program);
   };
 
   private setupPositionAttribute = () => {
@@ -309,9 +315,6 @@ export class ShaderMount {
     // Clear the canvas
     this.gl.clear(this.gl.COLOR_BUFFER_BIT);
 
-    // Update uniforms
-    this.gl.useProgram(this.program);
-
     // Update the time uniform
     this.gl.uniform1f(this.uniformLocations.u_time!, this.currentFrame * 0.001);
 
@@ -413,7 +416,6 @@ export class ShaderMount {
 
   /** Sets the provided uniform values into the WebGL program, can be a partial list of uniforms that have changed */
   private setUniformValues = (updatedUniforms: ShaderMountUniforms) => {
-    this.gl.useProgram(this.program);
     Object.entries(updatedUniforms).forEach(([key, value]) => {
       // Grab the value to use in the uniform cache
       let cacheValue: ShaderMountUniforms[keyof ShaderMountUniforms] | string = value;
@@ -501,7 +503,7 @@ export class ShaderMount {
   public setFrame = (newFrame: number): void => {
     this.currentFrame = newFrame;
     this.lastRenderTime = performance.now();
-    this.render(performance.now());
+    this.renderUnlessAnimating();
   };
 
   /** Set an animation speed (or 0 to stop animation) */
@@ -551,7 +553,14 @@ export class ShaderMount {
     this.setUniformValues(newUniforms);
     this.providedUniforms = { ...this.providedUniforms, ...newUniforms };
 
-    this.render(performance.now());
+    this.renderUnlessAnimating();
+  };
+
+  /** Render right away only when the rAF loop isn't running */
+  private renderUnlessAnimating = (): void => {
+    if (this.rafId === null) {
+      this.render(performance.now());
+    }
   };
 
   private handleDocumentVisibilityChange = () => {
