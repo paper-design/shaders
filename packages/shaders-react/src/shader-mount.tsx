@@ -32,6 +32,10 @@ export interface ShaderMountProps extends Omit<React.ComponentProps<'div'>, 'col
   webGlContextAttributes?: WebGLContextAttributes;
   /** Set by shaders that can draw their children into u_image (experimental) */
   acceptsHtmlChildren?: boolean;
+  /** Style of the element that holds the children, for their layout: display, gap, padding, alignment */
+  contentStyle?: React.CSSProperties;
+  /** Class name of the element that holds the children */
+  contentClassName?: string;
 
   /** Inline CSS width style */
   width?: string | number;
@@ -44,6 +48,10 @@ export interface ShaderComponentProps extends Omit<React.ComponentProps<'div'>, 
   minPixelRatio?: number;
   maxPixelCount?: number;
   webGlContextAttributes?: WebGLContextAttributes;
+  /** Style of the element that holds the children, for shaders that accept HTML children */
+  contentStyle?: React.CSSProperties;
+  /** Class name of the element that holds the children, for shaders that accept HTML children */
+  contentClassName?: string;
 
   /** Inline CSS width style */
   width?: string | number;
@@ -140,6 +148,8 @@ export const ShaderMount: React.FC<ShaderMountProps> = forwardRef<PaperShaderEle
       maxPixelCount,
       mipmaps,
       acceptsHtmlChildren = false,
+      contentStyle,
+      contentClassName,
       children,
       style,
       ...divProps
@@ -150,7 +160,10 @@ export const ShaderMount: React.FC<ShaderMountProps> = forwardRef<PaperShaderEle
     const divRef = useRef<PaperShaderElement>(null);
     const shaderMountRef: React.RefObject<ShaderMountVanilla | null> = useRef<ShaderMountVanilla>(null);
     const webGlContextAttributesRef = useRef(webGlContextAttributes);
-    const { hasHtmlChildren, addHtmlUniform, renderedChildren } = useHtmlChildren(acceptsHtmlChildren, children);
+    const { hasHtmlChildren, addHtmlUniform, renderedChildren } = useHtmlChildren(acceptsHtmlChildren, children, {
+      style: contentStyle,
+      className: contentClassName,
+    });
 
     const getUniforms = (): ShaderMountUniformsReact => addHtmlUniform(uniformsProp);
 

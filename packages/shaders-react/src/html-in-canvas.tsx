@@ -17,11 +17,13 @@ export function willDrawHtmlChildren(children: React.ReactNode): boolean {
 
 /**
  * Draws the children into u_image where the browser supports it, otherwise they're shown on top of the shader.
- * Either way they're held by the same wrapper, so they lay out the same: it fills the shader
+ * Either way they're held by the same wrapper, so they lay out the same: it fills the shader and takes the content
+ * props, so the layout styles apply to the children directly
  */
 export function useHtmlChildren(
   acceptsHtmlChildren: boolean,
-  children: React.ReactNode
+  children: React.ReactNode,
+  contentProps: { style?: React.CSSProperties; className?: string }
 ): {
   hasHtmlChildren: boolean;
   addHtmlUniform: <T extends object>(uniforms: T) => T;
@@ -40,11 +42,13 @@ export function useHtmlChildren(
   }
 
   const wrapper = hasHtmlChildren ? (
-    <div ref={drawableChildRef} {...{ drawable: '' }}>
+    <div ref={drawableChildRef} {...contentProps} {...{ drawable: '' }}>
       {children}
     </div>
   ) : (
-    <div {...{ drawable: '' }}>{children}</div>
+    <div {...contentProps} {...{ drawable: '' }}>
+      {children}
+    </div>
   );
 
   return {
