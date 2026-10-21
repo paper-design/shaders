@@ -1,5 +1,13 @@
 # Paper Shaders
 
+## Version 0.0.82
+
+- **General**
+  - Performance optimizations in `ShaderMount`:
+    - Cleaned up WebGL context attributes
+    - The WebGL context is now released when a shader is disposed
+    - Animated shaders no longer render twice per frame
+
 ## Version 0.0.81
 
 - **Paper Texture**
