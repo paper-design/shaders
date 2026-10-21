@@ -598,6 +598,9 @@ export class ShaderMount {
       this.gl.getError();
     }
 
+    // Free the drawing buffers now instead of whenever GC collects the canvas
+    this.gl.getExtension('WEBGL_lose_context')?.loseContext();
+
     if (this.resizeObserver) {
       this.resizeObserver.disconnect();
       this.resizeObserver = null;
