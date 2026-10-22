@@ -16,7 +16,7 @@ export const htmlInCanvasOverrides = {
 // The mode radios show one section each with plain CSS, and the start button reads its label from the stopwatch state.
 // The stopwatch keeps its state in data attributes: time run so far, and when the current run started.
 export const htmlContentCss = `
-.timekeeper { text-align: center; color: #fff; font: 24px ui-monospace, monospace; user-select: none }
+.timekeeper { display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; height: 100%; color: #fff; font: 24px ui-monospace, monospace; user-select: none }
 .timekeeper time { font-size: 128px; line-height: 1 }
 .timekeeper .modes, .timekeeper section { display: flex; justify-content: center; align-items: center; gap: 3cqw; min-height: 5.6cqw }
 .timekeeper section { gap: 1.6cqw }
