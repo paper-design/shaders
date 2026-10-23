@@ -7,8 +7,12 @@ import { declarePI, rotation2, simplexNoise } from '../shader-utils.js';
  *
  * Fragment shader uniforms:
  * - u_time (float): Animation time
- * - u_image (sampler2D): Optional source image texture
- * - u_imageAspectRatio (float): Aspect ratio of the source image
+ * - u_image (sampler2D): Optional source image texture, premultiplied alpha
+ * - u_imageAspectRatio (float): Aspect ratio of the source image; over HTML the canvas aspect from u_resolution is used instead
+ * - u_imageIsHtml (float): 1 when u_image is HTML. HTML is drawn 1:1, so the ripples and their distortion are sized in CSS px
+ *   to keep their size over it: size sets the ripple scale from 2px to 100px, and the distortion looks as it does over a
+ *   1000px image box. They're anchored at originX / originY
+ *   instead of the center, 0 0 being the top left like CSS
  * - u_colorBack (vec4): Background color in RGBA
  * - u_colorHighlight (vec4): Highlight color in RGBA, needs highlights > 0
  * - u_highlights (float): Coloring added over image/background following caustic shape, needs colorHighlight alpha > 0 (0 to 1)
@@ -24,8 +28,8 @@ import { declarePI, rotation2, simplexNoise } from '../shader-utils.js';
  * Vertex shader uniforms:
  * - u_resolution (vec2): Canvas resolution in pixels
  * - u_pixelRatio (float): Device pixel ratio
- * - u_originX (float): Reference point for positioning world width in the canvas (0 to 1)
- * - u_originY (float): Reference point for positioning world height in the canvas (0 to 1)
+ * - u_originX (float): Reference point for positioning world width in the canvas, over HTML where the effect is anchored (0 to 1)
+ * - u_originY (float): Reference point for positioning world height in the canvas, over HTML where the effect is anchored from the top (0 to 1)
  * - u_worldWidth (float): Virtual width of the graphic before it's scaled to fit the canvas
  * - u_worldHeight (float): Virtual height of the graphic before it's scaled to fit the canvas
  * - u_fit (float): How to fit the rendered shader into the canvas dimensions (0 = none, 1 = contain, 2 = cover)
@@ -48,6 +52,11 @@ uniform vec4 u_colorHighlight;
 
 uniform sampler2D u_image;
 uniform float u_imageAspectRatio;
+uniform float u_imageIsHtml;
+uniform vec2 u_resolution;
+uniform float u_pixelRatio;
+uniform float u_originX;
+uniform float u_originY;
 
 uniform float u_size;
 uniform float u_highlights;
@@ -58,9 +67,16 @@ uniform float u_waves;
 
 in vec2 v_imageUV;
 
+float getImageAspectRatio() {
+  return mix(u_imageAspectRatio, u_resolution.x / u_resolution.y, u_imageIsHtml);
+}
+
 out vec4 fragColor;
 
 ${ declarePI }
+float sizeToPx(float size) {
+  return 1000. * (.002 + .07 * size);
+}
 ${ rotation2 }
 ${ simplexNoise }
 
@@ -96,10 +112,11 @@ float getCausticNoise(vec2 uv, float t, float scale) {
 }
 
 void main() {
+  vec2 htmlScale = mix(vec2(1.), u_resolution / u_pixelRatio / 1000., u_imageIsHtml);
   vec2 imageUV = v_imageUV;
-  vec2 patternUV = v_imageUV - .5;
-  patternUV = (patternUV * vec2(u_imageAspectRatio, 1.));
-  patternUV /= (.01 + .09 * u_size);
+  vec2 patternUV = v_imageUV - mix(vec2(.5), vec2(u_originX, u_originY), u_imageIsHtml);
+  patternUV = (patternUV * vec2(getImageAspectRatio(), 1.));
+  patternUV /= mix(.1 * u_size, sizeToPx(u_size) / (u_resolution.y / u_pixelRatio), u_imageIsHtml);
 
   float t = u_time;
 
@@ -122,8 +139,8 @@ void main() {
 
   float wavesDistortion = .1 * u_waves * wavesNoise;
 
-  imageUV += vec2(wavesDistortion, -wavesDistortion);
-  imageUV += (u_caustic * causticNoiseDistortion);
+  imageUV += vec2(wavesDistortion, -wavesDistortion) / htmlScale;
+  imageUV += (u_caustic * causticNoiseDistortion) / htmlScale;
 
   float frame = getUvFrame(imageUV);
 
@@ -131,7 +148,7 @@ void main() {
   vec4 backColor = u_colorBack;
   backColor.rgb *= backColor.a;
 
-  vec3 color = mix(backColor.rgb, image.rgb, image.a * frame);
+  vec3 color = backColor.rgb * (1. - image.a * frame) + image.rgb * frame;
   float opacity = backColor.a + image.a * frame;
 
   causticNoise = max(-.2, causticNoise);

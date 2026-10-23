@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>HTML in canvas · vanilla</title>
+  <style>
+    body { margin: 0 }
+    .container { width: 100%; height: 100dvh }
+    .card { display: grid; grid-template-columns: 1fr auto; gap: 28px 16px; width: 680px; padding: 72px; border-radius: 28px; background: #fff; color: #111; font: 24px/1.4 system-ui }
+    .card h1, .card p, .card output { grid-column: 1 / -1; margin: 0 }
+    .card h1 { font-size: 64px; line-height: 1.1 }
+    .card input { min-width: 0; padding: 16px 24px; border: 2px solid #111; border-radius: 999px; font: inherit }
+    .card output:empty { display: none }
+    .card button { padding: 18px 32px; border: 0; border-radius: 999px; background: #111; color: #fff; font: inherit; cursor: pointer }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="content">
+      <form class="card">
+        <h1>Hello from HTML</h1>
+        <p>This form is live HTML under the water: select the text, type your name, press the button.</p>
+        <input name="name" placeholder="your name" autocomplete="off">
+        <button>Say hi</button>
+        <output></output>
+      </form>
+      <img
+        src="../../../docs/public/images/image-filters/001.webp"
+        alt=""
+        style="width: 150px"
+      />
+    </div>
+  </div>
+
+  <script type="importmap">
+    { "imports": { "@paper-design/shaders": "../dist/index.js" } }
+  </script>
+  <script type="module">
+    import { ShaderMount, getShaderColorFromString, waterFragmentShader } from '@paper-design/shaders';
+
+    const form = document.querySelector('.card');
+    form.addEventListener('submit', (event) => {
+      event.preventDefault();
+      form.querySelector('output').textContent = `Hi, ${form.elements.name.value || 'stranger'}!`;
+    });
+
+    new ShaderMount(
+      document.querySelector('.container'),
+      waterFragmentShader,
+      {
+        u_image: document.querySelector('.content'),
+        u_colorBack: getShaderColorFromString('#0d2b45'),
+        u_colorHighlight: getShaderColorFromString('#ffffff'),
+        u_highlights: 0.2,
+        u_layering: 0.5,
+        u_waves: 0.1,
+        u_edges: 0.8,
+        u_caustic: 0.05,
+        u_size: 1,
+        u_fit: 0,
+        u_scale: 1,
+        u_rotation: 0,
+        u_offsetX: 0,
+        u_offsetY: 0,
+        u_originX: 0.5,
+        u_originY: 0.5,
+        u_worldWidth: 0,
+        u_worldHeight: 0,
+      },
+      undefined,
+      1
+    );
+  </script>
+</body>
+</html>
