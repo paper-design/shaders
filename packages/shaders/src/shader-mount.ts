@@ -202,7 +202,7 @@ export class ShaderMount {
       this.handleResize();
     });
 
-    this.resizeObserver.observe(this.parentElement);
+    this.resizeObserver.observe(this.canvasElement);
   };
 
   private setupIntersectionObserver = () => {
@@ -348,29 +348,7 @@ export class ShaderMount {
       throw new Error(`Paper Shaders: image for uniform ${uniformName} must be fully loaded`);
     }
 
-    // Clean up existing texture if present
-    const existingTexture = this.textures.get(uniformName);
-    if (existingTexture) {
-      this.gl.deleteTexture(existingTexture);
-    }
-
-    // Get texture unit
-    if (!this.textureUnitMap.has(uniformName)) {
-      this.textureUnitMap.set(uniformName, this.textureUnitMap.size);
-    }
-    const textureUnit = this.textureUnitMap.get(uniformName)!;
-    // Activate correct texture unit before creating the texture
-    this.gl.activeTexture(this.gl.TEXTURE0 + textureUnit);
-
-    // Create and set up the new texture
-    const texture = this.gl.createTexture();
-    this.gl.bindTexture(this.gl.TEXTURE_2D, texture);
-
-    // Set texture parameters
-    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_S, this.gl.CLAMP_TO_EDGE);
-    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_T, this.gl.CLAMP_TO_EDGE);
-    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.LINEAR);
-    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MAG_FILTER, this.gl.LINEAR);
+    const { texture, textureUnit } = this.createTexture(uniformName);
 
     // Upload image to texture
     this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.gl.RGBA, this.gl.UNSIGNED_BYTE, image);
@@ -403,6 +381,34 @@ export class ShaderMount {
         this.gl.uniform1f(aspectRatioLocation, aspectRatio);
       }
     }
+  };
+
+  private createTexture = (uniformName: string): { texture: WebGLTexture | null; textureUnit: number } => {
+    // Clean up existing texture if present
+    const existingTexture = this.textures.get(uniformName);
+    if (existingTexture) {
+      this.gl.deleteTexture(existingTexture);
+    }
+
+    // Get texture unit
+    if (!this.textureUnitMap.has(uniformName)) {
+      this.textureUnitMap.set(uniformName, this.textureUnitMap.size);
+    }
+    const textureUnit = this.textureUnitMap.get(uniformName)!;
+    // Activate correct texture unit before creating the texture
+    this.gl.activeTexture(this.gl.TEXTURE0 + textureUnit);
+
+    // Create and set up the new texture
+    const texture = this.gl.createTexture();
+    this.gl.bindTexture(this.gl.TEXTURE_2D, texture);
+
+    // Set texture parameters
+    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_S, this.gl.CLAMP_TO_EDGE);
+    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_T, this.gl.CLAMP_TO_EDGE);
+    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.LINEAR);
+    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MAG_FILTER, this.gl.LINEAR);
+
+    return { texture, textureUnit };
   };
 
   /** Utility: recursive equality test for all the uniforms */
@@ -689,7 +695,7 @@ const defaultStyle = `@layer paper-shaders {
     isolation: isolate;
     position: relative;
 
-    & canvas {
+    & > canvas {
       contain: strict;
       display: block;
       position: absolute;
