@@ -689,7 +689,7 @@ const defaultStyle = `@layer paper-shaders {
     isolation: isolate;
     position: relative;
 
-    & canvas {
+    & > canvas {
       contain: strict;
       display: block;
       position: absolute;
