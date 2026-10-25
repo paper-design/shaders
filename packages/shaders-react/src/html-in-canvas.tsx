@@ -1,7 +1,7 @@
 'use client';
 
 import { Children, useLayoutEffect, useRef, useSyncExternalStore } from 'react';
-import { isHtmlInCanvasSupported } from '@paper-design/shaders';
+import { isHtmlInCanvasSupported, observeContentSize, type ShaderSizeToContent } from '@paper-design/shaders';
 import { useMergeRefs } from './use-merge-refs.js';
 
 const subscribeToNothing = () => () => {};
@@ -11,8 +11,7 @@ const isSupportedOnServer = () => true;
 /** Props of the element that holds the children. It's what gets drawn, so it takes their layout and the visuals */
 export type ShaderLayoutProps = React.ComponentProps<'div'> & { [key: `data-${string}`]: unknown };
 
-/** Axes on which the shader takes the size of its content instead of its own size styles */
-export type ShaderSizeToContent = 'width' | 'height' | 'both';
+export type { ShaderSizeToContent };
 
 function hasChildren(children: React.ReactNode): boolean {
   return Children.toArray(children).length > 0;
@@ -27,8 +26,7 @@ export function willDrawHtmlChildren(children: React.ReactNode): boolean {
  * Either way they're held by the same content element, so they lay out the same.
  *
  * The content element fills the shader, except on the axes sized to content: there it takes the size of the children,
- * and the shader follows it. The canvas can't be sized by what's inside it, so the content size is measured and
- * set on the shader element. Resize observer callbacks run before paint, so this settles within the same frame.
+ * and the shader follows it (see `observeContentSize`).
  */
 export function useHtmlChildren(
   acceptsHtmlChildren: boolean,
@@ -54,42 +52,12 @@ export function useHtmlChildren(
   useLayoutEffect(() => {
     const content = contentRef.current;
     const shader = shaderRef.current;
-    if (!content || !shader || (!fitsWidth && !fitsHeight)) {
+    if (!content || !shader || !isWrapped || !sizeToContent) {
       return;
     }
 
-    let contentWidth = 0;
-    let contentHeight = 0;
-
-    // The shader is observed too, so that its border changes are picked up
-    const observer = new ResizeObserver((entries) => {
-      for (const entry of entries) {
-        const size = entry.borderBoxSize[0];
-        if (entry.target === content && size) {
-          contentWidth = size.inlineSize;
-          contentHeight = size.blockSize;
-        }
-      }
-
-      // The shader's own border sits around the content
-      const style = getComputedStyle(shader);
-      let borderX = 0;
-      let borderY = 0;
-      if (style.boxSizing === 'border-box') {
-        borderX = parseFloat(style.borderLeftWidth) + parseFloat(style.borderRightWidth);
-        borderY = parseFloat(style.borderTopWidth) + parseFloat(style.borderBottomWidth);
-      }
-
-      shader.style.setProperty('--paper-shader-content-width', `${contentWidth + borderX}px`);
-      shader.style.setProperty('--paper-shader-content-height', `${contentHeight + borderY}px`);
-    });
-    observer.observe(content);
-    observer.observe(shader);
-
-    return () => {
-      observer.disconnect();
-    };
-  }, [fitsWidth, fitsHeight, hasHtmlChildren, shaderRef]);
+    return observeContentSize(shader, content, sizeToContent);
+  }, [isWrapped, sizeToContent, hasHtmlChildren, shaderRef]);
 
   const addHtmlUniform = <T extends object>(uniforms: T): T =>
     hasHtmlChildren && contentRef.current ? { ...uniforms, u_image: contentRef.current } : uniforms;

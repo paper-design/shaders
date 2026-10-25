@@ -252,6 +252,21 @@ export class ShaderMount {
     // - animation frame 2: a paint after the resize observer has been handled, if it was ever triggered
   };
 
+  /** Resizes to the canvas right away, for size changes the resize observer would only see next frame */
+  public syncSize = (): void => {
+    const style = getComputedStyle(this.canvasElement);
+    this.parentWidth = parseFloat(style.width) || 0;
+    this.parentHeight = parseFloat(style.height) || 0;
+
+    // Estimated until the resize observer reports the real device pixels
+    if (this.devicePixelsSupported) {
+      this.parentDevicePixelWidth = Math.round(this.parentWidth * window.devicePixelRatio);
+      this.parentDevicePixelHeight = Math.round(this.parentHeight * window.devicePixelRatio);
+    }
+
+    this.handleResize();
+  };
+
   /** Resize handler for when the container div changes size or the max pixel count changes and we want to resize our canvas to match */
   private handleResize = () => {
     // Aim to render at least as many pixels as physically displayed
@@ -811,6 +826,25 @@ const defaultStyle = `@layer paper-shaders {
       position: relative;
       width: 100%;
       height: 100%;
+    }
+
+    /* Sized to content, see observeContentSize */
+    &:where([data-paper-shader-fit~='width']) {
+      width: var(--paper-shader-content-width);
+
+      & > canvas > [drawable],
+      & > [drawable] {
+        width: max-content;
+      }
+    }
+
+    &:where([data-paper-shader-fit~='height']) {
+      height: var(--paper-shader-content-height);
+
+      & > canvas > [drawable],
+      & > [drawable] {
+        height: auto;
+      }
     }
   }
 }`;
