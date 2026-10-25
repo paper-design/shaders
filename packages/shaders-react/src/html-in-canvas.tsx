@@ -58,13 +58,33 @@ export function useHtmlChildren(
       return;
     }
 
-    const observer = new ResizeObserver(([entry]) => {
-      const size = entry?.borderBoxSize[0];
-      if (!size) return;
-      shader.style.setProperty('--paper-shader-content-width', `${size.inlineSize}px`);
-      shader.style.setProperty('--paper-shader-content-height', `${size.blockSize}px`);
+    let contentWidth = 0;
+    let contentHeight = 0;
+
+    // The shader is observed too, so that its border changes are picked up
+    const observer = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        const size = entry.borderBoxSize[0];
+        if (entry.target === content && size) {
+          contentWidth = size.inlineSize;
+          contentHeight = size.blockSize;
+        }
+      }
+
+      // The shader's own border sits around the content
+      const style = getComputedStyle(shader);
+      let borderX = 0;
+      let borderY = 0;
+      if (style.boxSizing === 'border-box') {
+        borderX = parseFloat(style.borderLeftWidth) + parseFloat(style.borderRightWidth);
+        borderY = parseFloat(style.borderTopWidth) + parseFloat(style.borderBottomWidth);
+      }
+
+      shader.style.setProperty('--paper-shader-content-width', `${contentWidth + borderX}px`);
+      shader.style.setProperty('--paper-shader-content-height', `${contentHeight + borderY}px`);
     });
     observer.observe(content);
+    observer.observe(shader);
 
     return () => {
       observer.disconnect();
