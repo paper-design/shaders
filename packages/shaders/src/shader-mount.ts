@@ -202,7 +202,7 @@ export class ShaderMount {
       this.handleResize();
     });
 
-    this.resizeObserver.observe(this.parentElement);
+    this.resizeObserver.observe(this.canvasElement);
   };
 
   private setupIntersectionObserver = () => {
