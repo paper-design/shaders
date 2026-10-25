@@ -9,7 +9,7 @@ const subscribeToNothing = () => () => {};
 const isSupportedOnServer = () => true;
 
 /** Props of the element that holds the children. It's what gets drawn, so it takes their layout and the visuals */
-export type ShaderContentProps = React.ComponentProps<'div'> & { [key: `data-${string}`]: unknown };
+export type ShaderLayoutProps = React.ComponentProps<'div'> & { [key: `data-${string}`]: unknown };
 
 /** Axes on which the shader takes the size of its content instead of its own size styles */
 export type ShaderSizeToContent = 'width' | 'height' | 'both';
@@ -33,7 +33,7 @@ export function willDrawHtmlChildren(children: React.ReactNode): boolean {
 export function useHtmlChildren(
   acceptsHtmlChildren: boolean,
   children: React.ReactNode,
-  contentProps: ShaderContentProps | undefined,
+  layoutProps: ShaderLayoutProps | undefined,
   sizeToContent: ShaderSizeToContent | undefined,
   shaderRef: React.RefObject<HTMLElement | null>
 ): {
@@ -43,7 +43,7 @@ export function useHtmlChildren(
   sizeStyle: React.CSSProperties | undefined;
 } {
   const contentRef = useRef<HTMLDivElement>(null);
-  const mergedContentRef = useMergeRefs([contentRef, contentProps?.ref]);
+  const mergedContentRef = useMergeRefs([contentRef, layoutProps?.ref]);
   const isSupported = useSyncExternalStore(subscribeToNothing, isHtmlInCanvasSupported, isSupportedOnServer);
   const isWrapped = acceptsHtmlChildren && hasChildren(children);
   const hasHtmlChildren = isWrapped && isSupported;
@@ -79,7 +79,7 @@ export function useHtmlChildren(
   }
 
   // Sized to content: the content element takes the size of the children, which can overflow the canvas
-  const contentStyle: React.CSSProperties = { ...contentProps?.style };
+  const contentStyle: React.CSSProperties = { ...layoutProps?.style };
   if (fitsWidth) {
     contentStyle.width = 'max-content';
   }
@@ -100,7 +100,7 @@ export function useHtmlChildren(
   }
 
   const content = (
-    <div {...contentProps} ref={mergedContentRef} style={contentStyle} {...{ drawable: '' }}>
+    <div {...layoutProps} ref={mergedContentRef} style={contentStyle} {...{ drawable: '' }}>
       {children}
     </div>
   );

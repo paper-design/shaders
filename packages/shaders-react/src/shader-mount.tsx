@@ -10,7 +10,7 @@ import {
 } from '@paper-design/shaders';
 import { useMergeRefs } from './use-merge-refs.js';
 import { setMinImageSize } from './set-min-image-size.js';
-import { useHtmlChildren, type ShaderContentProps, type ShaderSizeToContent } from './html-in-canvas.js';
+import { useHtmlChildren, type ShaderLayoutProps, type ShaderSizeToContent } from './html-in-canvas.js';
 
 /**
  * React Shader Mount can also accept strings as uniform values, which will assumed to be URLs and loaded as images
@@ -33,7 +33,7 @@ export interface ShaderMountProps extends Omit<React.ComponentProps<'div'>, 'col
   /** Set by shaders that can draw their children into u_image (experimental) */
   acceptsHtmlChildren?: boolean;
   /** Props of the element that holds the children and is drawn with them: layout, padding, background, border */
-  contentProps?: ShaderContentProps;
+  layoutProps?: ShaderLayoutProps;
   /** Size the shader to its children on these axes instead of its own width and height styles */
   sizeToContent?: ShaderSizeToContent;
 
@@ -49,7 +49,7 @@ export interface ShaderComponentProps extends Omit<React.ComponentProps<'div'>, 
   maxPixelCount?: number;
   webGlContextAttributes?: WebGLContextAttributes;
   /** Props of the element that holds the children and is drawn with them, for shaders that accept HTML children */
-  contentProps?: ShaderContentProps;
+  layoutProps?: ShaderLayoutProps;
   /** Size the shader to its children on these axes, for shaders that accept HTML children */
   sizeToContent?: ShaderSizeToContent;
 
@@ -148,7 +148,7 @@ export const ShaderMount: React.FC<ShaderMountProps> = forwardRef<PaperShaderEle
       maxPixelCount,
       mipmaps,
       acceptsHtmlChildren = false,
-      contentProps,
+      layoutProps,
       sizeToContent,
       children,
       style,
@@ -163,7 +163,7 @@ export const ShaderMount: React.FC<ShaderMountProps> = forwardRef<PaperShaderEle
     const { hasHtmlChildren, addHtmlUniform, renderedChildren, sizeStyle } = useHtmlChildren(
       acceptsHtmlChildren,
       children,
-      contentProps,
+      layoutProps,
       sizeToContent,
       divRef
     );
