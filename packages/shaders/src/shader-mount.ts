@@ -1,4 +1,12 @@
 import { vertexShaderSource } from './vertex-shader.js';
+import {
+  attachHtml,
+  drawHtml,
+  findReactCanvas,
+  isHtmlInCanvasSupported,
+  isHtmlUniform,
+  type DrawableCanvasElement,
+} from './html-in-canvas.js';
 
 const DEFAULT_MAX_PIXEL_COUNT: number = 1920 * 1080 * 4;
 
@@ -36,6 +44,8 @@ export class ShaderMount {
   private uniformCache: Record<string, unknown> = {};
   private textureUnitMap: Map<string, number> = new Map();
   private ownerDocument: Document;
+  private htmlUniforms: Map<string, HtmlUniform> = new Map();
+  private isReactCanvas = false;
 
   constructor(
     /** The div you'd like to mount the shader to. The shader will match its size. */
@@ -79,10 +89,15 @@ export class ShaderMount {
       this.ownerDocument.head.prepend(styleElement);
     }
 
-    // Create the canvas element and mount it into the provided element
-    const canvasElement = this.ownerDocument.createElement('canvas');
+    // Create the canvas element and mount it into the provided element, unless React rendered it
+    const reactCanvas = findReactCanvas(Object.values(uniforms), this.parentElement);
+    const canvasElement = reactCanvas ?? this.ownerDocument.createElement('canvas');
     this.canvasElement = canvasElement;
-    this.parentElement.prepend(canvasElement);
+    this.isReactCanvas = reactCanvas !== null;
+    if (!reactCanvas) {
+      this.parentElement.prepend(canvasElement);
+    }
+    canvasElement.addEventListener('paint', this.handleCanvasPaint);
     this.fragmentShader = fragmentShader;
     this.providedUniforms = uniforms;
     this.mipmaps = mipmaps;
@@ -101,6 +116,9 @@ export class ShaderMount {
       throw new Error('Paper Shaders: WebGL is not supported in this browser');
     }
     this.gl = gl;
+
+    // Premultiplied, so that filtering doesn't bleed the color of transparent pixels into the edges
+    this.gl.pixelStorei(this.gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
 
     this.initProgram();
     this.setupPositionAttribute();
@@ -158,9 +176,10 @@ export class ShaderMount {
       uniformLocations[key] = this.gl.getUniformLocation(this.program!, key);
 
       // For texture uniforms, also look for the aspect ratio uniform
-      if (value instanceof HTMLImageElement) {
+      if (value instanceof HTMLImageElement || isHtmlUniform(value)) {
         const aspectRatioUniformName = `${key}AspectRatio`;
         uniformLocations[aspectRatioUniformName] = this.gl.getUniformLocation(this.program!, aspectRatioUniformName);
+        uniformLocations[`${key}IsHtml`] = this.gl.getUniformLocation(this.program!, `${key}IsHtml`);
       }
     });
 
@@ -202,7 +221,7 @@ export class ShaderMount {
       this.handleResize();
     });
 
-    this.resizeObserver.observe(this.parentElement);
+    this.resizeObserver.observe(this.canvasElement);
   };
 
   private setupIntersectionObserver = () => {
@@ -231,6 +250,21 @@ export class ShaderMount {
     // In case of debugging timing, from here on:
     // - animation frame 1: a paint after the visual viewport resize
     // - animation frame 2: a paint after the resize observer has been handled, if it was ever triggered
+  };
+
+  /** Resizes to the canvas right away, for size changes the resize observer would only see next frame */
+  public syncSize = (): void => {
+    const style = getComputedStyle(this.canvasElement);
+    this.parentWidth = parseFloat(style.width) || 0;
+    this.parentHeight = parseFloat(style.height) || 0;
+
+    // Estimated until the resize observer reports the real device pixels
+    if (this.devicePixelsSupported) {
+      this.parentDevicePixelWidth = Math.round(this.parentWidth * window.devicePixelRatio);
+      this.parentDevicePixelHeight = Math.round(this.parentHeight * window.devicePixelRatio);
+    }
+
+    this.handleResize();
   };
 
   /** Resize handler for when the container div changes size or the max pixel count changes and we want to resize our canvas to match */
@@ -291,6 +325,14 @@ export class ShaderMount {
       this.resolutionChanged = true;
       this.gl.viewport(0, 0, this.gl.canvas.width, this.gl.canvas.height);
 
+      // Captured again right away, so the frame drawn below doesn't stretch the previous capture over the new size
+      this.captureHtml(true);
+
+      // The browser doesn't repaint HTML by itself when only the pixel ratio changes
+      if (this.htmlUniforms.size > 0) {
+        (this.canvasElement as DrawableCanvasElement).requestPaint();
+      }
+
       // this is necessary to avoid flashes while resizing (the next scheduled render will set uniforms)
       this.render(performance.now());
     }
@@ -348,29 +390,8 @@ export class ShaderMount {
       throw new Error(`Paper Shaders: image for uniform ${uniformName} must be fully loaded`);
     }
 
-    // Clean up existing texture if present
-    const existingTexture = this.textures.get(uniformName);
-    if (existingTexture) {
-      this.gl.deleteTexture(existingTexture);
-    }
-
-    // Get texture unit
-    if (!this.textureUnitMap.has(uniformName)) {
-      this.textureUnitMap.set(uniformName, this.textureUnitMap.size);
-    }
-    const textureUnit = this.textureUnitMap.get(uniformName)!;
-    // Activate correct texture unit before creating the texture
-    this.gl.activeTexture(this.gl.TEXTURE0 + textureUnit);
-
-    // Create and set up the new texture
-    const texture = this.gl.createTexture();
-    this.gl.bindTexture(this.gl.TEXTURE_2D, texture);
-
-    // Set texture parameters
-    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_S, this.gl.CLAMP_TO_EDGE);
-    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_T, this.gl.CLAMP_TO_EDGE);
-    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.LINEAR);
-    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MAG_FILTER, this.gl.LINEAR);
+    this.unsetHtmlUniform(uniformName);
+    const { texture, textureUnit } = this.createTexture(uniformName);
 
     // Upload image to texture
     this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.gl.RGBA, this.gl.UNSIGNED_BYTE, image);
@@ -402,7 +423,92 @@ export class ShaderMount {
         const aspectRatio = image.naturalWidth / image.naturalHeight;
         this.gl.uniform1f(aspectRatioLocation, aspectRatio);
       }
+
+      this.gl.uniform1f(this.uniformLocations[`${uniformName}IsHtml`] ?? null, 0);
     }
+  };
+
+  private createTexture = (uniformName: string): { texture: WebGLTexture | null; textureUnit: number } => {
+    // Clean up existing texture if present
+    const existingTexture = this.textures.get(uniformName);
+    if (existingTexture) {
+      this.gl.deleteTexture(existingTexture);
+    }
+
+    // Get texture unit
+    if (!this.textureUnitMap.has(uniformName)) {
+      this.textureUnitMap.set(uniformName, this.textureUnitMap.size);
+    }
+    const textureUnit = this.textureUnitMap.get(uniformName)!;
+    // Activate correct texture unit before creating the texture
+    this.gl.activeTexture(this.gl.TEXTURE0 + textureUnit);
+
+    // Create and set up the new texture
+    const texture = this.gl.createTexture();
+    this.gl.bindTexture(this.gl.TEXTURE_2D, texture);
+
+    // Set texture parameters
+    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_S, this.gl.CLAMP_TO_EDGE);
+    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_T, this.gl.CLAMP_TO_EDGE);
+    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.LINEAR);
+    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MAG_FILTER, this.gl.LINEAR);
+
+    return { texture, textureUnit };
+  };
+
+  /** Moves the element into the shader canvas and redraws it into the texture on every canvas paint */
+  private setHtmlUniform = (uniformName: string, element: HTMLElement): void => {
+    this.unsetHtmlUniform(uniformName);
+    const { texture, textureUnit } = this.createTexture(uniformName);
+    if (texture === null) return;
+
+    this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, 1, 1, 0, this.gl.RGBA, this.gl.UNSIGNED_BYTE, null);
+    this.textures.set(uniformName, texture);
+    this.gl.uniform1i(this.uniformLocations[uniformName] ?? null, textureUnit);
+    this.gl.uniform1f(this.uniformLocations[`${uniformName}IsHtml`] ?? null, 1);
+
+    if (!isHtmlInCanvasSupported()) {
+      console.warn(
+        `Paper Shaders: HTML for ${uniformName} needs HTML in canvas support (chrome://flags/#canvas-draw-element)`
+      );
+      return;
+    }
+
+    const canvas = this.canvasElement as DrawableCanvasElement;
+    this.htmlUniforms.set(uniformName, { element, detach: attachHtml(canvas, element), hasGeometry: false });
+    canvas.requestPaint();
+  };
+
+  /** Captures each HTML uniform into its texture. On resize only HTML that has a snapshot already, so it can't throw */
+  private captureHtml = (isResize: boolean): void => {
+    const canvas = this.canvasElement as DrawableCanvasElement;
+    this.htmlUniforms.forEach((html, uniformName) => {
+      if (isResize && html.layout === undefined) return;
+      this.gl.activeTexture(this.gl.TEXTURE0 + this.textureUnitMap.get(uniformName)!);
+      this.gl.bindTexture(this.gl.TEXTURE_2D, this.textures.get(uniformName)!);
+      html.layout = drawHtml(this.gl, canvas, html.element, html.layout);
+    });
+  };
+
+  private unsetHtmlUniform = (uniformName: string): void => {
+    this.htmlUniforms.get(uniformName)?.detach();
+    this.htmlUniforms.delete(uniformName);
+  };
+
+  private handleCanvasPaint = (): void => {
+    const canvas = this.canvasElement as DrawableCanvasElement;
+
+    this.captureHtml(false);
+
+    this.htmlUniforms.forEach((html) => {
+      // WebGL doesn't tell hit testing and accessibility where the element is drawn, which is where it's laid out
+      if (!html.hasGeometry) {
+        canvas.updateElementGeometry(html.element, { canvasTransform: new DOMMatrix() });
+        html.hasGeometry = true;
+      }
+    });
+
+    this.renderUnlessAnimating();
   };
 
   /** Utility: recursive equality test for all the uniforms */
@@ -438,6 +544,8 @@ export class ShaderMount {
       if (value instanceof HTMLImageElement) {
         // Texture case, requires a good amount of code so it gets its own function:
         this.setTextureUniform(key, value);
+      } else if (isHtmlUniform(value)) {
+        this.setHtmlUniform(key, value);
       } else if (Array.isArray(value)) {
         // Array case
         let flatArray: number[] | null = null;
@@ -578,6 +686,10 @@ export class ShaderMount {
       this.rafId = null;
     }
 
+    this.canvasElement.removeEventListener('paint', this.handleCanvasPaint);
+    this.htmlUniforms.forEach(({ detach }) => detach());
+    this.htmlUniforms.clear();
+
     if (this.gl && this.program) {
       // Clean up all textures
       this.textures.forEach((texture) => {
@@ -616,8 +728,10 @@ export class ShaderMount {
 
     this.uniformLocations = {};
 
-    // Remove the shader from the div wrapper element
-    this.canvasElement.remove();
+    // Remove the shader from the div wrapper element, unless React rendered it
+    if (!this.isReactCanvas) {
+      this.canvasElement.remove();
+    }
     // Free up the reference to self to enable garbage collection
     delete this.parentElement.paperShaderMount;
   };
@@ -684,12 +798,20 @@ function createProgram(
   return program;
 }
 
+interface HtmlUniform {
+  element: HTMLElement;
+  detach: () => void;
+  hasGeometry: boolean;
+  /** The texture size and drawn area of the last capture, so a capture into the same layout skips reallocating */
+  layout?: string;
+}
+
 const defaultStyle = `@layer paper-shaders {
   :where([data-paper-shader]) {
     isolation: isolate;
     position: relative;
 
-    & canvas {
+    & > canvas {
       contain: strict;
       display: block;
       position: absolute;
@@ -699,6 +821,33 @@ const defaultStyle = `@layer paper-shaders {
       height: 100%;
       border-radius: inherit;
       corner-shape: inherit;
+    }
+
+    & > canvas > [drawable],
+    & > [drawable] {
+      box-sizing: border-box;
+      position: relative;
+      width: 100%;
+      height: 100%;
+    }
+
+    /* Sized to content, see observeContentSize */
+    &:where([data-paper-shader-fit~='width']) {
+      width: var(--paper-shader-content-width);
+
+      & > canvas > [drawable],
+      & > [drawable] {
+        width: max-content;
+      }
+    }
+
+    &:where([data-paper-shader-fit~='height']) {
+      height: var(--paper-shader-content-height);
+
+      & > canvas > [drawable],
+      & > [drawable] {
+        height: auto;
+      }
     }
   }
 }`;
@@ -720,7 +869,7 @@ export function isPaperShaderElement(element: HTMLElement): element is PaperShad
  * We just skip setting the uniform if it's undefined. This allows the shader mount to still take up space during server rendering
  */
 export interface ShaderMountUniforms {
-  [key: string]: boolean | number | number[] | number[][] | HTMLImageElement | undefined;
+  [key: string]: boolean | number | number[] | number[][] | HTMLImageElement | HTMLElement | undefined;
 }
 
 export interface ShaderMotionParams {
