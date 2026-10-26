@@ -33,6 +33,10 @@ interface DrawableCanvasWebGL2Context extends WebGL2RenderingContext {
   ): void;
 }
 
+interface DrawableCanvasRenderingContext2D extends CanvasRenderingContext2D {
+  drawElementImage(element: Element, dx: number, dy: number, dwidth?: number, dheight?: number): void;
+}
+
 export function isHtmlInCanvasSupported(): boolean {
   return (
     typeof HTMLCanvasElement !== 'undefined' &&
@@ -128,4 +132,32 @@ export function drawHtml(
   }
 
   return layout;
+}
+
+/**
+ * The shared context version of drawHtml: the element can only be captured by the canvas it's in, which is the
+ * shader's 2D canvas, so it's drawn there where it's laid out and that canvas is uploaded into the bound texture.
+ * The shader output has to replace the drawing in the same task, so it's never shown
+ */
+export function drawHtmlThrough2d(
+  gl: WebGL2RenderingContext,
+  canvas: DrawableCanvasElement,
+  context: CanvasRenderingContext2D,
+  element: HTMLElement
+): string {
+  const scaleX = canvas.width / Math.max(1, canvas.clientWidth);
+  const scaleY = canvas.height / Math.max(1, canvas.clientHeight);
+
+  context.globalCompositeOperation = 'source-over';
+  context.clearRect(0, 0, canvas.width, canvas.height);
+  (context as DrawableCanvasRenderingContext2D).drawElementImage(
+    element,
+    element.offsetLeft * scaleX,
+    element.offsetTop * scaleY,
+    element.offsetWidth * scaleX,
+    element.offsetHeight * scaleY
+  );
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, canvas);
+
+  return `${canvas.width}x${canvas.height}`;
 }
