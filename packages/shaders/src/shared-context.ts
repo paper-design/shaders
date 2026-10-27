@@ -142,6 +142,7 @@ export function acquireAtlasContext(user: AtlasUser): WebGL2RenderingContext | n
 
 export function releaseAtlasContext(user: AtlasUser): void {
   queued.delete(user);
+  drawnNow.delete(user);
   atlas.release(user);
 }
 
@@ -154,6 +155,45 @@ export function queueAtlasTile(user: AtlasUser): void {
   frameId ??= requestAnimationFrame(drawAtlas);
 }
 
+const drawnNow = new Set<AtlasUser>();
+let isBatching = false;
+
+/**
+ * Draws the shader in the atlas right away, for a resize: the canvas was just cleared and has to be filled before the
+ * browser paints. Inside batchAtlasTiles, it's drawn when the batch ends, together with the others
+ */
+export function drawAtlasTileNow(user: AtlasUser): void {
+  drawnNow.add(user);
+  if (!isBatching) {
+    drawDrawnNow();
+  }
+}
+
+/** Collects the shaders drawn with drawAtlasTileNow during the callback, so that they wait for the GPU only once */
+export function batchAtlasTiles(callback: () => void): void {
+  isBatching = true;
+  try {
+    callback();
+  } finally {
+    isBatching = false;
+  }
+  drawDrawnNow();
+}
+
+function drawDrawnNow(): void {
+  if (drawnNow.size === 0) return;
+  const users = [...drawnNow];
+  drawnNow.clear();
+  drawTiles(users, performance.now());
+}
+
+function drawAtlas(time: number): void {
+  frameId = null;
+  const users = [...queued];
+  queued.clear();
+  drawTiles(users, time);
+}
+
 interface Tile {
   user: AtlasUser;
   width: number;
@@ -163,13 +203,10 @@ interface Tile {
 }
 
 /**
- * Packs the queued shaders into rows of tiles, tallest first. A tile that doesn't fit in the largest canvas the
- * context allows starts a new page, which is drawn and copied on its own
+ * Packs the shaders into rows of tiles, tallest first. A tile that doesn't fit in the largest canvas the context
+ * allows starts a new page, which is drawn and copied on its own
  */
-function drawAtlas(time: number): void {
-  frameId = null;
-  const users = [...queued];
-  queued.clear();
+function drawTiles(users: AtlasUser[], time: number): void {
   const gl = atlas.gl;
   // Lost: restoring the context queues its shaders again
   if (!gl) return;

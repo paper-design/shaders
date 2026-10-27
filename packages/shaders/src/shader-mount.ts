@@ -11,7 +11,9 @@ import {
 import {
   acquireAtlasContext,
   acquireSharedContext,
+  batchAtlasTiles,
   copySharedCorner,
+  drawAtlasTileNow,
   isSharedContextEnabled,
   prepareSharedCorner,
   queueAtlasTile,
@@ -30,11 +32,6 @@ export class ShaderMount implements AtlasUser {
   private output: CanvasRenderingContext2D | null = null;
   /** Whether the shared context is the atlas one, which animated shaders without HTML are drawn in */
   private inAtlas = false;
-  /**
-   * In the atlas, a new canvas size waits for the frame that fills it, since resizing clears the canvas and the frame
-   * is only drawn on the next animation frame
-   */
-  private pendingSize: { width: number; height: number } | null = null;
   private program: WebGLProgram | null = null;
   private tileOriginLocation: WebGLUniformLocation | null = null;
   private vertexArray: WebGLVertexArrayObject | null = null;
@@ -211,21 +208,11 @@ export class ShaderMount implements AtlasUser {
     }
 
     this.inAtlas = inAtlas;
-    if (!inAtlas) {
-      this.applyPendingSize();
-    }
     const gl = inAtlas ? acquireAtlasContext(this) : acquireSharedContext(this);
     if (gl) {
       this.restoreContext(gl);
     }
     return true;
-  };
-
-  private applyPendingSize = (): void => {
-    if (!this.pendingSize) return;
-    this.canvasElement.width = this.pendingSize.width;
-    this.canvasElement.height = this.pendingSize.height;
-    this.pendingSize = null;
   };
 
   private setupPositionAttribute = () => {
@@ -292,26 +279,26 @@ export class ShaderMount implements AtlasUser {
   private intersectionObserver: IntersectionObserver | null = null;
   private isInViewport = true;
 
-  private resizeObserver: ResizeObserver | null = null;
   private setupResizeObserver = () => {
-    this.resizeObserver = new ResizeObserver(([entry]) => {
-      if (entry?.borderBoxSize[0]) {
-        const physicalPixelSize = entry.devicePixelContentBoxSize?.[0];
+    observeResize(this.canvasElement, this);
+  };
 
-        if (physicalPixelSize !== undefined) {
-          this.devicePixelsSupported = true;
-          this.parentDevicePixelWidth = physicalPixelSize.inlineSize;
-          this.parentDevicePixelHeight = physicalPixelSize.blockSize;
-        }
+  /** @internal Called by the resize observer shared by all shaders */
+  public handleResizeEntry = (entry: ResizeObserverEntry): void => {
+    if (entry.borderBoxSize[0]) {
+      const physicalPixelSize = entry.devicePixelContentBoxSize?.[0];
 
-        this.parentWidth = entry.borderBoxSize[0].inlineSize;
-        this.parentHeight = entry.borderBoxSize[0].blockSize;
+      if (physicalPixelSize !== undefined) {
+        this.devicePixelsSupported = true;
+        this.parentDevicePixelWidth = physicalPixelSize.inlineSize;
+        this.parentDevicePixelHeight = physicalPixelSize.blockSize;
       }
 
-      this.handleResize();
-    });
+      this.parentWidth = entry.borderBoxSize[0].inlineSize;
+      this.parentHeight = entry.borderBoxSize[0].blockSize;
+    }
 
-    this.resizeObserver.observe(this.canvasElement);
+    this.handleResize();
   };
 
   private setupIntersectionObserver = () => {
@@ -334,7 +321,7 @@ export class ShaderMount implements AtlasUser {
   // and because we'd like to know the device pixel sizes of elements, we just restart
   // the observer to get a guaranteed fresh callback regardless if it would have triggered or not.
   private handleVisualViewportChange = () => {
-    this.resizeObserver?.disconnect();
+    unobserveResize(this.canvasElement);
     this.setupResizeObserver();
 
     // In case of debugging timing, from here on:
@@ -404,24 +391,22 @@ export class ShaderMount implements AtlasUser {
     const newHeight = Math.round(targetPixelHeight * scaleToMeetMaxPixelCount);
     const newRenderScale = newWidth / Math.round(this.parentWidth);
 
-    const size = this.pendingSize ?? this.canvasElement;
     if (
-      size.width !== newWidth ||
-      size.height !== newHeight ||
+      this.canvasElement.width !== newWidth ||
+      this.canvasElement.height !== newHeight ||
       this.renderScale !== newRenderScale // Usually, only render scale changes when the user zooms in/out
     ) {
       this.renderScale = newRenderScale;
+      this.canvasElement.width = newWidth;
+      this.canvasElement.height = newHeight;
       this.resolutionChanged = true;
 
+      // Resizing cleared the canvas, so it's filled before the browser paints, together with the other resized shaders
       if (this.inAtlas) {
-        // Until the next frame is drawn, the last one stretches, like any other image would
-        this.pendingSize = { width: newWidth, height: newHeight };
-        this.render(performance.now());
+        drawAtlasTileNow(this);
         return;
       }
 
-      this.canvasElement.width = newWidth;
-      this.canvasElement.height = newHeight;
       if (!this.output) {
         this.gl.viewport(0, 0, newWidth, newHeight);
       }
@@ -500,12 +485,12 @@ export class ShaderMount implements AtlasUser {
 
   public getAtlasTileSize = (): { width: number; height: number } | null => {
     if (this.hasBeenDisposed || this.program === null) return null;
-    const { width, height } = this.pendingSize ?? this.canvasElement;
+    const { width, height } = this.canvasElement;
     return { width, height };
   };
 
   public drawAtlasTile = (x: number, y: number, time: number): void => {
-    const { width, height } = this.pendingSize ?? this.canvasElement;
+    const { width, height } = this.canvasElement;
     this.makeCurrent();
     this.gl.viewport(x, y, width, height);
     this.gl.scissor(x, y, width, height);
@@ -515,7 +500,6 @@ export class ShaderMount implements AtlasUser {
 
   public copyAtlasTile = (image: ImageBitmap, x: number, y: number): void => {
     const output = this.output!;
-    this.applyPendingSize();
     const { width, height } = this.canvasElement;
     output.globalCompositeOperation = 'copy';
     output.drawImage(image, x, y, width, height, 0, 0, width, height);
@@ -926,10 +910,7 @@ export class ShaderMount implements AtlasUser {
       this.gl.getExtension('WEBGL_lose_context')?.loseContext();
     }
 
-    if (this.resizeObserver) {
-      this.resizeObserver.disconnect();
-      this.resizeObserver = null;
-    }
+    unobserveResize(this.canvasElement);
 
     if (this.intersectionObserver) {
       this.intersectionObserver.disconnect();
@@ -1073,6 +1054,27 @@ const defaultStyle = `@layer paper-shaders {
     }
   }
 }`;
+
+/**
+ * One resize observer for all shaders, so that every shader resized in a frame is handled in one callback and the
+ * ones in the atlas are drawn together
+ */
+let resizeObserver: ResizeObserver | null = null;
+const mountsByCanvas = new WeakMap<Element, ShaderMount>();
+
+function observeResize(canvas: HTMLCanvasElement, mount: ShaderMount): void {
+  resizeObserver ??= new ResizeObserver((entries) => {
+    batchAtlasTiles(() => {
+      entries.forEach((entry) => mountsByCanvas.get(entry.target)?.handleResizeEntry(entry));
+    });
+  });
+  mountsByCanvas.set(canvas, mount);
+  resizeObserver.observe(canvas);
+}
+
+function unobserveResize(canvas: HTMLCanvasElement): void {
+  resizeObserver?.unobserve(canvas);
+}
 
 /** The parent `<div>` element that has a ShaderMount available on it */
 export interface PaperShaderElement extends HTMLElement {
