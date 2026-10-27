@@ -9,23 +9,34 @@ import {
   type DrawableCanvasElement,
 } from './html-in-canvas.js';
 import {
+  acquireAtlasContext,
   acquireSharedContext,
   copySharedCorner,
   isSharedContextEnabled,
   prepareSharedCorner,
+  queueAtlasTile,
+  releaseAtlasContext,
   releaseSharedContext,
-  type SharedContextUser,
+  type AtlasUser,
 } from './shared-context.js';
 
 const DEFAULT_MAX_PIXEL_COUNT: number = 1920 * 1080 * 4;
 
-export class ShaderMount implements SharedContextUser {
+export class ShaderMount implements AtlasUser {
   public parentElement: PaperShaderElement;
   public canvasElement: HTMLCanvasElement;
   private gl: WebGL2RenderingContext;
   /** The shader canvas when the WebGL context is shared, see shared-context.ts */
   private output: CanvasRenderingContext2D | null = null;
+  /** Whether the shared context is the atlas one, which animated shaders without HTML are drawn in */
+  private inAtlas = false;
+  /**
+   * In the atlas, a new canvas size waits for the frame that fills it, since resizing clears the canvas and the frame
+   * is only drawn on the next animation frame
+   */
+  private pendingSize: { width: number; height: number } | null = null;
   private program: WebGLProgram | null = null;
+  private tileOriginLocation: WebGLUniformLocation | null = null;
   private vertexArray: WebGLVertexArrayObject | null = null;
   private positionBuffer: WebGLBuffer | null = null;
   private uniformLocations: Record<string, WebGLUniformLocation | null> = {};
@@ -122,8 +133,11 @@ export class ShaderMount implements SharedContextUser {
     // Where the context is shared, the canvas shows a copy of the output, so it keeps its pixels and the context
     // attributes don't apply
     this.output = isSharedContextEnabled() ? canvasElement.getContext('2d') : null;
+    this.inAtlas = this.shouldUseAtlas(speed, uniforms);
     const gl = this.output
-      ? acquireSharedContext(this)
+      ? this.inAtlas
+        ? acquireAtlasContext(this)
+        : acquireSharedContext(this)
       : canvasElement.getContext('webgl2', {
           antialias: false,
           depth: false,
@@ -167,10 +181,51 @@ export class ShaderMount implements SharedContextUser {
   }
 
   private initProgram = () => {
-    const program = createProgram(this.gl, vertexShaderSource, this.fragmentShader);
+    const program = createProgram(this.gl, vertexShaderSource, this.fragmentShader, this.output !== null);
     if (!program) return;
     this.program = program;
     this.gl.useProgram(program);
+    // Stays at 0 outside the atlas
+    this.tileOriginLocation = this.gl.getUniformLocation(program, 'u_tileOrigin');
+  };
+
+  /** Animated shaders without HTML are drawn together in the atlas, see shared-context.ts */
+  private shouldUseAtlas = (speed: number, uniforms: ShaderMountUniforms): boolean => {
+    return this.output !== null && speed !== 0 && !Object.values(uniforms).some(isHtmlUniform);
+  };
+
+  /** Moves the shader between the atlas and the direct shared context, returns whether it did */
+  private updateContextPlacement = (): boolean => {
+    const inAtlas = this.shouldUseAtlas(this.speed, this.providedUniforms);
+    if (inAtlas === this.inAtlas) return false;
+
+    if (this.rafId !== null) {
+      cancelAnimationFrame(this.rafId);
+      this.rafId = null;
+    }
+    this.deleteGlResources();
+    if (this.inAtlas) {
+      releaseAtlasContext(this);
+    } else {
+      releaseSharedContext(this);
+    }
+
+    this.inAtlas = inAtlas;
+    if (!inAtlas) {
+      this.applyPendingSize();
+    }
+    const gl = inAtlas ? acquireAtlasContext(this) : acquireSharedContext(this);
+    if (gl) {
+      this.restoreContext(gl);
+    }
+    return true;
+  };
+
+  private applyPendingSize = (): void => {
+    if (!this.pendingSize) return;
+    this.canvasElement.width = this.pendingSize.width;
+    this.canvasElement.height = this.pendingSize.height;
+    this.pendingSize = null;
   };
 
   private setupPositionAttribute = () => {
@@ -349,15 +404,24 @@ export class ShaderMount implements SharedContextUser {
     const newHeight = Math.round(targetPixelHeight * scaleToMeetMaxPixelCount);
     const newRenderScale = newWidth / Math.round(this.parentWidth);
 
+    const size = this.pendingSize ?? this.canvasElement;
     if (
-      this.canvasElement.width !== newWidth ||
-      this.canvasElement.height !== newHeight ||
+      size.width !== newWidth ||
+      size.height !== newHeight ||
       this.renderScale !== newRenderScale // Usually, only render scale changes when the user zooms in/out
     ) {
       this.renderScale = newRenderScale;
+      this.resolutionChanged = true;
+
+      if (this.inAtlas) {
+        // Until the next frame is drawn, the last one stretches, like any other image would
+        this.pendingSize = { width: newWidth, height: newHeight };
+        this.render(performance.now());
+        return;
+      }
+
       this.canvasElement.width = newWidth;
       this.canvasElement.height = newHeight;
-      this.resolutionChanged = true;
       if (!this.output) {
         this.gl.viewport(0, 0, newWidth, newHeight);
       }
@@ -383,12 +447,10 @@ export class ShaderMount implements SharedContextUser {
       return;
     }
 
-    // Calculate the delta time
-    const dt = currentTime - this.lastRenderTime;
-    this.lastRenderTime = currentTime;
-    // Increase the total animation time by dt * animationSpeed
-    if (this.currentSpeed !== 0) {
-      this.currentFrame += dt * this.currentSpeed;
+    // Drawn with the other animated shaders on the next frame instead
+    if (this.inAtlas) {
+      queueAtlasTile(this);
+      return;
     }
 
     this.makeCurrent();
@@ -396,20 +458,7 @@ export class ShaderMount implements SharedContextUser {
       prepareSharedCorner(this.gl, this.canvasElement.width, this.canvasElement.height);
     }
 
-    // Clear the canvas
-    this.gl.clear(this.gl.COLOR_BUFFER_BIT);
-
-    // Update the time uniform
-    this.gl.uniform1f(this.uniformLocations.u_time!, this.currentFrame * 0.001);
-
-    // If the resolution has changed, we need to update the uniform
-    if (this.resolutionChanged) {
-      this.gl.uniform2f(this.uniformLocations.u_resolution!, this.canvasElement.width, this.canvasElement.height);
-      this.gl.uniform1f(this.uniformLocations.u_pixelRatio!, this.renderScale);
-      this.resolutionChanged = false;
-    }
-
-    this.gl.drawArrays(this.gl.TRIANGLES, 0, 6);
+    this.drawFrame(currentTime, this.canvasElement.width, this.canvasElement.height);
 
     if (this.output) {
       copySharedCorner(this.gl, this.output);
@@ -420,6 +469,60 @@ export class ShaderMount implements SharedContextUser {
       this.requestRender();
     } else {
       this.rafId = null;
+    }
+  };
+
+  /** Advances the animation time and draws a frame of this size into the viewport */
+  private drawFrame = (currentTime: number, width: number, height: number) => {
+    // Calculate the delta time
+    const dt = currentTime - this.lastRenderTime;
+    this.lastRenderTime = currentTime;
+    // Increase the total animation time by dt * animationSpeed
+    if (this.currentSpeed !== 0) {
+      this.currentFrame += dt * this.currentSpeed;
+    }
+
+    // Clear the canvas
+    this.gl.clear(this.gl.COLOR_BUFFER_BIT);
+
+    // Update the time uniform
+    this.gl.uniform1f(this.uniformLocations.u_time!, this.currentFrame * 0.001);
+
+    // If the resolution has changed, we need to update the uniform
+    if (this.resolutionChanged) {
+      this.gl.uniform2f(this.uniformLocations.u_resolution!, width, height);
+      this.gl.uniform1f(this.uniformLocations.u_pixelRatio!, this.renderScale);
+      this.resolutionChanged = false;
+    }
+
+    this.gl.drawArrays(this.gl.TRIANGLES, 0, 6);
+  };
+
+  public getAtlasTileSize = (): { width: number; height: number } | null => {
+    if (this.hasBeenDisposed || this.program === null) return null;
+    const { width, height } = this.pendingSize ?? this.canvasElement;
+    return { width, height };
+  };
+
+  public drawAtlasTile = (x: number, y: number, time: number): void => {
+    const { width, height } = this.pendingSize ?? this.canvasElement;
+    this.makeCurrent();
+    this.gl.viewport(x, y, width, height);
+    this.gl.scissor(x, y, width, height);
+    this.gl.uniform2f(this.tileOriginLocation, x, y);
+    this.drawFrame(time, width, height);
+  };
+
+  public copyAtlasTile = (image: ImageBitmap, x: number, y: number): void => {
+    const output = this.output!;
+    this.applyPendingSize();
+    const { width, height } = this.canvasElement;
+    output.globalCompositeOperation = 'copy';
+    output.drawImage(image, x, y, width, height, 0, 0, width, height);
+    output.globalCompositeOperation = 'source-over';
+
+    if (this.currentSpeed !== 0) {
+      queueAtlasTile(this);
     }
   };
 
@@ -686,6 +789,7 @@ export class ShaderMount implements SharedContextUser {
   public setSpeed = (newSpeed = 1): void => {
     // Set the new animation speed
     this.speed = newSpeed;
+    this.updateContextPlacement();
     this.updateCurrentSpeed();
   };
 
@@ -695,7 +799,17 @@ export class ShaderMount implements SharedContextUser {
   };
 
   private setCurrentSpeed = (newSpeed: number): void => {
+    const previousSpeed = this.currentSpeed;
     this.currentSpeed = newSpeed;
+
+    // The atlas runs the loop, and each drawn frame queues the next one while the shader animates
+    if (this.inAtlas) {
+      if (newSpeed !== 0 && previousSpeed === 0) {
+        this.lastRenderTime = performance.now();
+        queueAtlasTile(this);
+      }
+      return;
+    }
 
     if (this.rafId === null && newSpeed !== 0) {
       // Moving from 0 to animating, kick off a new rAF loop
@@ -726,9 +840,11 @@ export class ShaderMount implements SharedContextUser {
 
   /** Update the uniforms that are provided by the outside shader, can be a partial set with only the uniforms that have changed */
   public setUniforms = (newUniforms: ShaderMountUniforms): void => {
-    this.setUniformValues(newUniforms);
     this.providedUniforms = { ...this.providedUniforms, ...newUniforms };
+    // Gaining or losing HTML moves the shader, which sets all the uniforms in the new context
+    if (this.updateContextPlacement()) return;
 
+    this.setUniformValues(newUniforms);
     this.renderUnlessAnimating();
   };
 
@@ -758,6 +874,21 @@ export class ShaderMount implements SharedContextUser {
     this.renderUnlessAnimating();
   };
 
+  /** Deletes the program, buffers and textures, which belong to the current context */
+  private deleteGlResources = (): void => {
+    this.textures.forEach((texture) => {
+      this.gl.deleteTexture(texture);
+    });
+    this.textures.clear();
+
+    this.gl.deleteProgram(this.program);
+    this.program = null;
+    this.gl.deleteVertexArray(this.vertexArray);
+    this.vertexArray = null;
+    this.gl.deleteBuffer(this.positionBuffer);
+    this.positionBuffer = null;
+  };
+
   /** Dispose of the shader mount, cleaning up all of the WebGL resources */
   public dispose = (): void => {
     // Immediately mark as disposed to prevent future renders from leaking in
@@ -774,18 +905,7 @@ export class ShaderMount implements SharedContextUser {
     this.htmlUniforms.clear();
 
     if (this.gl && this.program) {
-      // Clean up all textures
-      this.textures.forEach((texture) => {
-        this.gl.deleteTexture(texture);
-      });
-      this.textures.clear();
-
-      this.gl.deleteProgram(this.program);
-      this.program = null;
-      this.gl.deleteVertexArray(this.vertexArray);
-      this.vertexArray = null;
-      this.gl.deleteBuffer(this.positionBuffer);
-      this.positionBuffer = null;
+      this.deleteGlResources();
 
       // Reset the WebGL context
       this.gl.bindBuffer(this.gl.ARRAY_BUFFER, null);
@@ -797,7 +917,9 @@ export class ShaderMount implements SharedContextUser {
       this.gl.getError();
     }
 
-    if (this.output) {
+    if (this.inAtlas) {
+      releaseAtlasContext(this);
+    } else if (this.output) {
       releaseSharedContext(this);
     } else {
       // Free the drawing buffers now instead of whenever GC collects the canvas
@@ -847,8 +969,17 @@ function createShader(gl: WebGL2RenderingContext, type: number, source: string):
 function createProgram(
   gl: WebGL2RenderingContext,
   vertexShaderSource: string,
-  fragmentShaderSource: string
+  fragmentShaderSource: string,
+  /** Whether the program may be drawn at an offset in a shared canvas, see shared-context.ts */
+  isShared: boolean
 ): WebGLProgram | null {
+  if (isShared) {
+    // gl_FragCoord is a position in the whole canvas, so the offset is taken out for the shader to see its own
+    fragmentShaderSource = fragmentShaderSource
+      .replace(/\bgl_FragCoord\b/g, '(gl_FragCoord - vec4(u_tileOrigin, 0., 0.))')
+      .replace(/^(\s*#version[^\n]*\n)?/, '$1uniform highp vec2 u_tileOrigin;\n');
+  }
+
   const format = gl.getShaderPrecisionFormat(gl.FRAGMENT_SHADER, gl.MEDIUM_FLOAT);
   const precision = format ? format.precision : null;
   // MEDIUM_FLOAT precision can be 10, 16 or 23 bits depending on device;
