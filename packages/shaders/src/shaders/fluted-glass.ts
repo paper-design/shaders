@@ -112,31 +112,39 @@ float getUvFrame(vec2 uv, float softness) {
   return left * right * bottom * top;
 }
 
-const int MAX_RADIUS = 50;
-vec4 samplePremultiplied(sampler2D tex, vec2 uv) {
-  vec4 c = texture(tex, uv);
+const float MAX_BLUR_RADIUS_CSS_PX = 12.5;
+const int BLUR_TAPS = 12;
+vec4 samplePremultiplied(sampler2D tex, vec2 uv, float lod) {
+  vec4 c = textureLod(tex, uv, lod);
   c.rgb *= c.a;
   return c;
 }
-vec4 getBlur(sampler2D tex, vec2 uv, vec2 texelSize, vec2 dir, float sigma) {
+vec4 getBlur(sampler2D tex, vec2 uv, vec2 dir, float sigma) {
   if (sigma <= .5) return texture(tex, uv);
-  int radius = int(min(float(MAX_RADIUS), ceil(3.0 * sigma)));
+  float radius = min(3. * sigma, MAX_BLUR_RADIUS_CSS_PX * u_pixelRatio);
 
-  float twoSigma2 = 2.0 * sigma * sigma;
-  float gaussianNorm = 1.0 / sqrt(TWO_PI * sigma * sigma);
+  float texelsPerStride = stride * float(textureSize(tex, 0).y) / u_resolution.y;
+  float lod = log2(max(texelsPerStride, 1.));
 
-  vec4 sum = samplePremultiplied(tex, uv) * gaussianNorm;
-  float weightSum = gaussianNorm;
+  float twoSigma2 = 2. * sigma * sigma;
+  vec4 sum = samplePremultiplied(tex, uv, lod);
+  float weightSum = 1.;
 
-  for (int i = 1; i <= MAX_RADIUS; i++) {
-    if (i > radius) break;
+  for (int i = 0; i < BLUR_TAPS / 2; i++) {
+    float x1 = float(2 * i + 1) * stride;
+    float x2 = float(2 * i + 2) * stride;
+    if (x1 > radius) break;
 
-    float x = float(i);
-    float w = exp(-(x * x) / twoSigma2) * gaussianNorm;
+    float w1 = exp(-(x1 * x1) / twoSigma2);
+    float w2 = 0.;
+    if (x2 <= radius) {
+      w2 = exp(-(x2 * x2) / twoSigma2);
+    }
+    float w = w1 + w2;
 
-    vec2 offset = dir * texelSize * x;
-    vec4 s1 = samplePremultiplied(tex, uv + offset);
-    vec4 s2 = samplePremultiplied(tex, uv - offset);
+    vec2 offset = dir * ((x1 * w1 + x2 * w2) / w) / u_resolution;
+    vec4 s1 = samplePremultiplied(tex, uv + offset, lod);
+    vec4 s2 = samplePremultiplied(tex, uv - offset, lod);
 
     sum += (s1 + s2) * w;
     weightSum += 2.0 * w;
@@ -224,11 +232,16 @@ void main() {
   float x = smoothFract(UvToFract.x);
   float xNonSmooth = fract(UvToFract.x) + .0001;
 
-  float highlightsWidth = 2. * max(.001, fwidth(UvToFract.x));
+  // Highlight lines are 1 CSS px wide; drawn at least 1 canvas px wide, and faded when thinner than that
+  float highlightsPx = u_pixelRatio;
+  float highlightsWidth = max(highlightsPx, 1.) * max(.001, fwidth(UvToFract.x));
   highlightsWidth += 2. * maskStrokeInner;
   float highlights = smoothstep(0., highlightsWidth, xNonSmooth);
   highlights *= smoothstep(1., 1. - highlightsWidth, xNonSmooth);
   highlights = 1. - highlights;
+  // The wider highlights along the margins aren't sub-pixel, so they don't fade
+  float highlightsFade = mix(min(highlightsPx, 1.), 1., clamp(maskStrokeInner, 0., 1.));
+  highlights *= highlightsFade;
   highlights *= u_highlights;
   highlights = clamp(highlights, 0., 1.);
   highlights *= mask;
@@ -327,7 +340,8 @@ void main() {
   uv += vec2(.5);
 
   uv = mix(v_imageUV, uv, smoothstep(0., .7, mask));
-  float blur = mix(0., 50., u_blur);
+  // Blur sigma in CSS px; 12.5 matches the previous look at a pixel ratio of 2
+  float blur = mix(0., 12.5, u_blur) * u_pixelRatio;
   blur = mix(0., blur, smoothstep(.5, 1., mask));
 
   float edgeDistortion = mix(.0, .04, u_edges);
@@ -341,7 +355,7 @@ void main() {
   stretch *= getUvFrame(uv, .1 + .05 * mask * frameFade);
   uv.y = mix(uv.y, .5, u_stretch * stretch);
 
-  vec4 image = getBlur(u_image, uv, 1. / u_resolution / u_pixelRatio, vec2(0., 1.), blur);
+  vec4 image = getBlur(u_image, uv, vec2(0., 1.), blur);
   image.rgb *= image.a;
   vec4 backColor = u_colorBack;
   backColor.rgb *= backColor.a;

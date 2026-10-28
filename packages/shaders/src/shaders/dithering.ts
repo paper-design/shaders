@@ -109,7 +109,7 @@ float getBayerValue(vec2 uv, int size) {
 void main() {
   float t = .5 * u_time;
 
-  float pxSize = u_pxSize * u_pixelRatio;
+  float pxSize = max(u_pxSize * u_pixelRatio, 1.);
   vec2 pxSizeUV = gl_FragCoord.xy - .5 * u_resolution;
   pxSizeUV /= pxSize;
   vec2 canvasPixelizedUV = (floor(pxSizeUV) + .5) * pxSize;
