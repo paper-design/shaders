@@ -91,7 +91,12 @@ export class ShaderMount {
     this.minPixelRatio = minPixelRatio;
     this.maxPixelCount = maxPixelCount;
 
-    const gl = canvasElement.getContext('webgl2', webGlContextAttributes);
+    const gl = canvasElement.getContext('webgl2', {
+      antialias: false,
+      depth: false,
+      stencil: false,
+      ...webGlContextAttributes,
+    });
     if (!gl) {
       throw new Error('Paper Shaders: WebGL is not supported in this browser');
     }
@@ -127,6 +132,7 @@ export class ShaderMount {
     const program = createProgram(this.gl, vertexShaderSource, this.fragmentShader);
     if (!program) return;
     this.program = program;
+    this.gl.useProgram(program);
   };
 
   private setupPositionAttribute = () => {
@@ -196,7 +202,7 @@ export class ShaderMount {
       this.handleResize();
     });
 
-    this.resizeObserver.observe(this.parentElement);
+    this.resizeObserver.observe(this.canvasElement);
   };
 
   private setupIntersectionObserver = () => {
@@ -309,9 +315,6 @@ export class ShaderMount {
     // Clear the canvas
     this.gl.clear(this.gl.COLOR_BUFFER_BIT);
 
-    // Update uniforms
-    this.gl.useProgram(this.program);
-
     // Update the time uniform
     this.gl.uniform1f(this.uniformLocations.u_time!, this.currentFrame * 0.001);
 
@@ -345,29 +348,7 @@ export class ShaderMount {
       throw new Error(`Paper Shaders: image for uniform ${uniformName} must be fully loaded`);
     }
 
-    // Clean up existing texture if present
-    const existingTexture = this.textures.get(uniformName);
-    if (existingTexture) {
-      this.gl.deleteTexture(existingTexture);
-    }
-
-    // Get texture unit
-    if (!this.textureUnitMap.has(uniformName)) {
-      this.textureUnitMap.set(uniformName, this.textureUnitMap.size);
-    }
-    const textureUnit = this.textureUnitMap.get(uniformName)!;
-    // Activate correct texture unit before creating the texture
-    this.gl.activeTexture(this.gl.TEXTURE0 + textureUnit);
-
-    // Create and set up the new texture
-    const texture = this.gl.createTexture();
-    this.gl.bindTexture(this.gl.TEXTURE_2D, texture);
-
-    // Set texture parameters
-    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_S, this.gl.CLAMP_TO_EDGE);
-    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_T, this.gl.CLAMP_TO_EDGE);
-    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.LINEAR);
-    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MAG_FILTER, this.gl.LINEAR);
+    const { texture, textureUnit } = this.createTexture(uniformName);
 
     // Upload image to texture
     this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.gl.RGBA, this.gl.UNSIGNED_BYTE, image);
@@ -402,6 +383,34 @@ export class ShaderMount {
     }
   };
 
+  private createTexture = (uniformName: string): { texture: WebGLTexture | null; textureUnit: number } => {
+    // Clean up existing texture if present
+    const existingTexture = this.textures.get(uniformName);
+    if (existingTexture) {
+      this.gl.deleteTexture(existingTexture);
+    }
+
+    // Get texture unit
+    if (!this.textureUnitMap.has(uniformName)) {
+      this.textureUnitMap.set(uniformName, this.textureUnitMap.size);
+    }
+    const textureUnit = this.textureUnitMap.get(uniformName)!;
+    // Activate correct texture unit before creating the texture
+    this.gl.activeTexture(this.gl.TEXTURE0 + textureUnit);
+
+    // Create and set up the new texture
+    const texture = this.gl.createTexture();
+    this.gl.bindTexture(this.gl.TEXTURE_2D, texture);
+
+    // Set texture parameters
+    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_S, this.gl.CLAMP_TO_EDGE);
+    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_T, this.gl.CLAMP_TO_EDGE);
+    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.LINEAR);
+    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MAG_FILTER, this.gl.LINEAR);
+
+    return { texture, textureUnit };
+  };
+
   /** Utility: recursive equality test for all the uniforms */
   private areUniformValuesEqual = (a: any, b: any): boolean => {
     if (a === b) return true;
@@ -413,7 +422,6 @@ export class ShaderMount {
 
   /** Sets the provided uniform values into the WebGL program, can be a partial list of uniforms that have changed */
   private setUniformValues = (updatedUniforms: ShaderMountUniforms) => {
-    this.gl.useProgram(this.program);
     Object.entries(updatedUniforms).forEach(([key, value]) => {
       // Grab the value to use in the uniform cache
       let cacheValue: ShaderMountUniforms[keyof ShaderMountUniforms] | string = value;
@@ -501,7 +509,7 @@ export class ShaderMount {
   public setFrame = (newFrame: number): void => {
     this.currentFrame = newFrame;
     this.lastRenderTime = performance.now();
-    this.render(performance.now());
+    this.renderUnlessAnimating();
   };
 
   /** Set an animation speed (or 0 to stop animation) */
@@ -551,7 +559,14 @@ export class ShaderMount {
     this.setUniformValues(newUniforms);
     this.providedUniforms = { ...this.providedUniforms, ...newUniforms };
 
-    this.render(performance.now());
+    this.renderUnlessAnimating();
+  };
+
+  /** Render right away only when the rAF loop isn't running */
+  private renderUnlessAnimating = (): void => {
+    if (this.rafId === null) {
+      this.render(performance.now());
+    }
   };
 
   private handleDocumentVisibilityChange = () => {
@@ -588,6 +603,9 @@ export class ShaderMount {
       // Clear any errors
       this.gl.getError();
     }
+
+    // Free the drawing buffers now instead of whenever GC collects the canvas
+    this.gl.getExtension('WEBGL_lose_context')?.loseContext();
 
     if (this.resizeObserver) {
       this.resizeObserver.disconnect();
@@ -677,7 +695,7 @@ const defaultStyle = `@layer paper-shaders {
     isolation: isolate;
     position: relative;
 
-    & canvas {
+    & > canvas {
       contain: strict;
       display: block;
       position: absolute;
