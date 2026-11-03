@@ -111,8 +111,7 @@ void main() {
 
   float shape = voronoi[1];
 
-  float mixer = shape * (u_colorsCount - 1.);
-  mixer = (shape - .5 / u_colorsCount) * u_colorsCount;
+  float mixer = (shape - .5 / u_colorsCount) * u_colorsCount;
   float steps = max(1., u_stepsPerColor);
 
   vec4 gradient = u_colors[0];
