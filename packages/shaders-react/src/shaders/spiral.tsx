@@ -28,7 +28,7 @@ export const defaultPreset: SpiralPreset = {
     strokeTaper: 0,
     strokeCap: 0,
     noise: 0,
-    noiseFrequency: 0,
+    noiseFrequency: 0.3,
     softness: 0,
     reversed: false,
     speed: 1,

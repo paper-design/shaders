@@ -29,7 +29,7 @@ import { simplexNoise, declarePI, colorBandingFix } from '../shader-utils.js';
  * - u_density (float): Spacing of the turns, 1 = evenly spaced, lower = denser toward the center, 0 = single radial sector (0 to 1)
  * - u_distortion (float): Power of shape distortion applied along the spiral (0 to 1)
  * - u_strokeWidth (float): Thickness of spiral curve (0 to 1)
- * - u_strokeTaper (float): How much the stroke thins away from the center, 0 = constant width, negative = stroke thickens away from the center (-1 to 1)
+ * - u_strokeTaper (float): How much the stroke thins away from the center, 0 = constant width (0 to 1)
  * - u_strokeCap (float): Round cap at the start of the stroke, 0 = pointed, 1 = round (0 to 1)
  * - u_noise (float): Noise distortion applied over the canvas, needs noiseFrequency > 0 (0 to 1)
  * - u_noiseFrequency (float): Noise frequency, needs noise > 0 (0 to 1)
@@ -115,9 +115,13 @@ void main() {
 
   float minWidth = min(pixelSize, .5);
   float baseWidth = clamp(u_strokeWidth, minWidth, 1. - minWidth);
-  float taperFactor = 1. - clamp(u_strokeTaper, -1., 1.) * l;
+  float taper = clamp(u_strokeTaper, 0., 1.);
+  float taperFactor = 1. - taper * l;
   float taperCut = .5 * minWidth / max(baseWidth, 1e-5);
-  float taperEnd = clamp((taperFactor - taperCut) / max(fwidth(taperFactor), 1e-5) + .5, 0., 1.);
+  float taperPixel = max(fwidth(taperFactor), 1e-5);
+  float taperSoftness = taper * u_softness;
+  float taperEnd = clamp((taperFactor - taperCut + .5 * taperPixel) / (taperPixel + taperSoftness), 0., 1.);
+  taperEnd = mix(taperEnd, taperEnd * taperEnd * (3. - 2. * taperEnd), taperSoftness / (taperSoftness + taperPixel));
   float strokeWidth = min(max(baseWidth * taperFactor, minWidth), 1.);
   float width = 1. - strokeWidth;
 
