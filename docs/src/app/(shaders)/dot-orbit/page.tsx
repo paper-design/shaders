@@ -21,13 +21,6 @@ const DotOrbitWithControls = () => {
     maxColorCount: dotOrbitMeta.maxColorCount,
   });
   const [params, setParams] = useControls(() => {
-    const presets = Object.fromEntries(
-      dotOrbitPresets.map(({ name, params: { worldWidth, worldHeight, ...preset } }) => [
-        name,
-        button(() => setParamsSafe(params, setParams, preset)),
-      ])
-    );
-
     return {
       colorBack: { value: toHsla(defaults.colorBack), order: 100 },
       stepsPerColor: { value: defaults.stepsPerColor, min: 1, max: 4, step: 1, order: 200 },

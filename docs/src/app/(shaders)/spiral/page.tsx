@@ -11,13 +11,7 @@ import { spiralDef } from '@/shader-defs/spiral-def';
 import { ShaderContainer } from '@/components/shader-container';
 import { useUrlParams } from '@/helpers/use-url-params';
 
-const firstPresetParams = spiralPresets[0].params;
-const { worldWidth, worldHeight, ...defaults } = {
-  ...firstPresetParams,
-  speed: Math.abs(firstPresetParams.speed),
-  reverse: firstPresetParams.speed < 0,
-  style: { background: 'hsla(0, 0%, 0%, 0)' },
-};
+const { worldWidth, worldHeight, ...defaults } = spiralPresets[0].params;
 
 const SpiralWithControls = () => {
   const [params, setParams] = useControls(() => {
