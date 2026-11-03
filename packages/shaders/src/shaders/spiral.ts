@@ -89,6 +89,7 @@ void main() {
   vec2 offsetGrad = vec2(dFdx(offset), dFdy(offset));
   float fw = length(offsetGrad - round(offsetGrad));
   float pixelSize = fw;
+  float softness = u_softness;
 
   float cap = sqrt(sqrt(density)) * clamp(u_strokeCap, 0., 1.);
   if (cap > 0.) {
@@ -109,7 +110,13 @@ void main() {
     float capShape = 1. - 2. * dist;
     float distPixel = length(vec2(dFdx(dist), dFdy(dist)));
     float grow = step(shape, capShape);
-    pixelSize = mix(pixelSize, mix(distPixel, fw * widthFix, h), grow);
+    pixelSize = mix(pixelSize, mix(distPixel, fw * widthFix, step(1., h)), grow);
+    vec2 capGrad = vec2(dFdx(capDist), dFdy(capDist));
+    vec2 strokeGrad = widthFix * (offsetGrad - round(offsetGrad));
+    float side = clamp(4. * sin(TWO_PI * stripe), -1., 1.);
+    float blended = length(mix(capGrad, sign(side) * strokeGrad, h));
+    float crossing = length(vec2((1. - h) * length(capGrad), h * length(strokeGrad)));
+    softness *= mix(crossing, blended, abs(side) * (1. - smoothstep(.1, .5, u_softness))) / max(fw, 1e-5);
     shape = max(shape, capShape);
   }
 
@@ -125,8 +132,8 @@ void main() {
   float strokeWidth = min(max(baseWidth * taperFactor, minWidth), 1.);
   float width = 1. - strokeWidth;
 
-  float edge = clamp((shape - width + pixelSize + u_softness) / (2. * (pixelSize + u_softness)), 0., 1.);
-  float res = mix(edge, edge * edge * (3. - 2. * edge), u_softness / (u_softness + pixelSize));
+  float edge = clamp((shape - width + pixelSize + softness) / (2. * (pixelSize + softness)), 0., 1.);
+  float res = mix(edge, edge * edge * (3. - 2. * edge), softness / (softness + pixelSize));
   res *= taperEnd;
   res = mix(res, 1., clamp(1. - width / max(pixelSize, 1e-4), 0., 1.));
 
@@ -144,7 +151,7 @@ void main() {
   opacity += bgOpacity * (1. - opacity);
 
   colorLinear = pow(colorLinear / max(opacity, 1e-4), vec3(1. / 2.2)) * opacity;
-  color = mix(color, colorLinear, pixelSize / (pixelSize + u_softness));
+  color = mix(color, colorLinear, pixelSize / (pixelSize + softness));
 
   ${ colorBandingFix }
 
