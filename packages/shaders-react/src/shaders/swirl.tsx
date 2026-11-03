@@ -30,6 +30,7 @@ export const defaultPreset: SwirlPreset = {
     softness: 0,
     noiseFrequency: 0.4,
     noise: 0.2,
+    reversed: false,
   },
 };
 
@@ -50,6 +51,7 @@ export const openingPreset: SwirlPreset = {
     softness: 0,
     noiseFrequency: 0,
     noise: 0,
+    reversed: false,
     scale: 1,
   },
 } as const;
@@ -69,6 +71,7 @@ export const jamesBondPreset: SwirlPreset = {
     softness: 0,
     noiseFrequency: 0.5,
     noise: 0,
+    reversed: false,
   },
 } as const;
 
@@ -87,6 +90,7 @@ export const candyPreset: SwirlPreset = {
     softness: 1,
     noiseFrequency: 0.5,
     noise: 0,
+    reversed: false,
   },
 } as const;
 
@@ -105,6 +109,7 @@ export const Swirl: React.FC<SwirlProps> = memo(function SwirlImpl({
   softness = defaultPreset.params.softness,
   noiseFrequency = defaultPreset.params.noiseFrequency,
   noise = defaultPreset.params.noise,
+  reversed = defaultPreset.params.reversed,
 
   // Sizing props
   fit = defaultPreset.params.fit,
@@ -130,6 +135,7 @@ export const Swirl: React.FC<SwirlProps> = memo(function SwirlImpl({
     u_softness: softness,
     u_noiseFrequency: noiseFrequency,
     u_noise: noise,
+    u_reversed: reversed,
 
     // Sizing uniforms
     u_fit: ShaderFitOptions[fit],

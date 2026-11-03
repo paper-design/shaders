@@ -32,6 +32,7 @@ const SpiralWithControls = () => {
       noise: { value: defaults.noise, min: 0, max: 1, order: 205 },
       noiseFrequency: { value: defaults.noiseFrequency, min: 0, max: 1, order: 206 },
       softness: { value: defaults.softness, min: 0, max: 1, order: 207 },
+      reversed: { value: defaults.reversed, order: 208 },
       speed: { value: defaults.speed, min: 0, max: 2, order: 300 },
       scale: { value: defaults.scale, min: 0.01, max: 4, order: 301 },
       rotation: { value: defaults.rotation, min: 0, max: 360, order: 302 },

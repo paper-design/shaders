@@ -87,6 +87,13 @@ export const spiralDef: ShaderDef = {
       defaultValue: defaultParams.softness,
       description: 'Color transition sharpness (0 = hard edge, 1 = smooth gradient)',
     },
+    {
+      name: 'reversed',
+      type: 'boolean',
+      defaultValue: defaultParams.reversed,
+      description: 'Winds the spiral in the opposite direction',
+      options: ['true', 'false'],
+    },
     ...animatedCommonParams,
   ],
 };

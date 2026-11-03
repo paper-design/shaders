@@ -79,6 +79,13 @@ export const swirlDef: ShaderDef = {
       defaultValue: defaultParams.noiseFrequency,
       description: 'Noise frequency (needs noise > 0)',
     },
+    {
+      name: 'reversed',
+      type: 'boolean',
+      defaultValue: defaultParams.reversed,
+      description: 'Twists the bands in the opposite direction (needs bandCount > 0)',
+      options: ['true', 'false'],
+    },
     ...animatedCommonParams,
   ],
 };
