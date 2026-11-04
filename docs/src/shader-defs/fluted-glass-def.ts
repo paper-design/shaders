@@ -72,7 +72,7 @@ export const flutedGlassDef: ShaderDef = {
       name: 'angle',
       type: 'number',
       min: 0,
-      max: 180,
+      max: 360,
       defaultValue: defaultParams.angle,
       description: 'Direction of the grid relative to the image',
     },
