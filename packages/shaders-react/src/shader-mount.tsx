@@ -31,11 +31,8 @@ export interface ShaderMountProps extends Omit<React.ComponentProps<'div'>, 'col
   minPixelRatio?: number;
   maxPixelCount?: number;
   webGlContextAttributes?: WebGLContextAttributes;
-  /** Set by shaders that can draw their children into u_image (experimental) */
   acceptsHtmlChildren?: boolean;
-  /** Props of the element that holds the children and is drawn with them: layout, padding, background, border */
   layoutProps?: ShaderLayoutProps;
-  /** Size the shader to its children on these axes instead of its own width and height styles */
   sizeToContent?: ShaderSizeToContent;
 
   /** Inline CSS width style */
@@ -49,9 +46,7 @@ export interface ShaderComponentProps extends Omit<React.ComponentProps<'div'>, 
   minPixelRatio?: number;
   maxPixelCount?: number;
   webGlContextAttributes?: WebGLContextAttributes;
-  /** Props of the element that holds the children and is drawn with them, for shaders that accept HTML children */
   layoutProps?: ShaderLayoutProps;
-  /** Size the shader to its children on these axes, for shaders that accept HTML children */
   sizeToContent?: ShaderSizeToContent;
 
   /** Inline CSS width style */

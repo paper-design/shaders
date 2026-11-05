@@ -468,9 +468,7 @@ export class ShaderMount {
     this.setHtmlAspectRatio(uniformName);
 
     if (!isHtmlInCanvasSupported()) {
-      console.warn(
-        `Paper Shaders: HTML for ${uniformName} needs HTML in canvas support (chrome://flags/#canvas-draw-element)`
-      );
+      console.warn(`Paper Shaders: HTML for ${uniformName} needs HTML in canvas support`);
       return;
     }
 

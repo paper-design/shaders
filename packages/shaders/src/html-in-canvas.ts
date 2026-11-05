@@ -1,19 +1,13 @@
 /**
- * Experimental HTML-in-canvas support (https://github.com/WICG/html-in-canvas),
- * available in Chromium behind `chrome://flags/#canvas-draw-element`. Older Chromium versions opt the canvas in with
- * `layoutsubtree` instead of `content="drawable"`, so the canvas gets both.
+ * https://github.com/WICG/html-in-canvas
  *
- * An HTML element passed as a texture uniform is drawn 1:1 where it's laid out. It has to be in this markup already,
- * and the shader adopts that canvas:
+ * An HTML uniform has to be in this markup already, `layoutsubtree` is for older Chromium:
  *
  * <div data-paper-shader>
  *   <canvas content="drawable" layoutsubtree>
  *     <div drawable>…</div>
  *   </canvas>
  * </div>
- *
- * The HTML texture always matches the canvas size, so shaders sample it like any canvas-sized texture: a resize
- * captures the HTML again right away instead of waiting for the next paint.
  */
 
 export interface DrawableCanvasElement extends HTMLCanvasElement {
@@ -41,7 +35,7 @@ export function isHtmlInCanvasSupported(): boolean {
   );
 }
 
-/** `<img>` stays a static image uniform. nodeType instead of `instanceof` works across iframes */
+/** nodeType, since `instanceof` fails across iframes */
 export function isHtmlUniform(value: unknown): value is HTMLElement {
   return (value as Node | null | undefined)?.nodeType === 1 && (value as Element).tagName !== 'IMG';
 }
@@ -56,10 +50,7 @@ export function findDrawableCanvas(values: unknown[], parentElement: Element): D
   return null;
 }
 
-/**
- * Captures the element into the bound texture, sized to the canvas drawing buffer. The texture is only reallocated
- * (and so cleared) when its size or the drawn area changes; returns that layout to pass back in next time
- */
+/** Captures the element into the bound texture, returns the layout to pass back in next time */
 export function drawHtml(
   gl: WebGL2RenderingContext,
   canvas: DrawableCanvasElement,
@@ -69,7 +60,7 @@ export function drawHtml(
   const width = Math.max(1, canvas.width);
   const height = Math.max(1, canvas.height);
 
-  // Computed sizes, since offset and client sizes are rounded and bounding rects include ancestor transforms
+  // Offset and client sizes are rounded, bounding rects include ancestor transforms
   const canvasStyle = getComputedStyle(canvas);
   const elementStyle = getComputedStyle(element);
   const canvasCssWidth = parseFloat(canvasStyle.width) || canvas.clientWidth;

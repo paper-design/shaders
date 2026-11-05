@@ -253,8 +253,6 @@
   display: none;
 }
 
-/* The HTML-in-canvas demos always show a resize handle, since Alt+drag would fight their own pointer input.
-   The grip is drawn over the canvas and lets the drag through to the resizer underneath */
 [data-resize-handle] {
   position: relative;
 
