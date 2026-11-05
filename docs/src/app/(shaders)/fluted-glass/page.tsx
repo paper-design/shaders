@@ -14,13 +14,19 @@ import { ShaderDetails } from '@/components/shader-details';
 import { flutedGlassDef } from '@/shader-defs/fluted-glass-def';
 import { ShaderContainer } from '@/components/shader-container';
 import { useUrlParams } from '@/helpers/use-url-params';
-import { htmlInputOnly, imageInputOnly, useIsHtmlInCanvasPage } from '@/helpers/html-in-canvas-page';
+import {
+  htmlInputOnly,
+  originControls,
+  htmlResetFolder,
+  imageInputOnly,
+  useIsHtmlInCanvasPage,
+} from '@/helpers/html-in-canvas-page';
 import { HtmlInCanvasDemo } from '@/components/html-in-canvas-demo';
-import { htmlContentCss, getHtmlContent, htmlInCanvasOverrides } from './html-in-canvas/html-content';
+import Example, { params as exampleParams } from './html-in-canvas/example';
 
 const { worldWidth, worldHeight, ...presetDefaults } = flutedGlassPresets[0].params;
 
-const htmlInCanvasDefaults = { ...presetDefaults, ...htmlInCanvasOverrides };
+const htmlInCanvasDefaults = { ...presetDefaults, ...exampleParams };
 
 const imageFiles = [
   '001.webp',
@@ -78,7 +84,7 @@ const FlutedGlassWithControls = () => {
       colorBack: { value: toHsla(defaults.colorBack), order: 100 },
       colorShadow: { value: toHsla(defaults.colorShadow), order: 101 },
       colorHighlight: { value: toHsla(defaults.colorHighlight), order: 102 },
-      size: { value: defaults.size, min: 0, max: 1, step: 0.001, order: 210 },
+      size: { value: defaults.size, min: 0, max: 1, step: 0.001, order: 210, ...imageInputOnly },
       shadows: { value: defaults.shadows, min: 0, max: 1, order: 200 },
       highlights: { value: defaults.highlights, min: 0, max: 1, order: 201 },
       shape: {
@@ -91,9 +97,10 @@ const FlutedGlassWithControls = () => {
         value: defaults.distortionShape,
         options: Object.keys(GlassDistortionShapes) as GlassDistortionShape[],
         order: 213,
+        ...imageInputOnly,
       },
-      distortion: { value: defaults.distortion, min: 0, max: 1, order: 214 },
-      shift: { value: defaults.shift, min: -1, max: 1, order: 215 },
+      distortion: { value: defaults.distortion, min: 0, max: 1, order: 214, ...imageInputOnly },
+      shift: { value: defaults.shift, min: -1, max: 1, order: 215, ...imageInputOnly },
       stretch: { value: defaults.stretch, min: 0, max: 1, order: 216 },
       blur: { value: defaults.blur, min: 0, max: 1, order: 220 },
       edges: { value: defaults.edges, min: 0, max: 1, order: 221 },
@@ -105,8 +112,7 @@ const FlutedGlassWithControls = () => {
       grainMixer: { value: defaults.grainMixer, min: 0, max: 1, order: 550 },
       grainOverlay: { value: defaults.grainOverlay, min: 0, max: 1, order: 551 },
       scale: { value: defaults.scale, min: 0.1, max: 4, order: 600, ...imageInputOnly },
-      originX: { value: defaults.originX, min: 0, max: 1, order: 600.1, ...htmlInputOnly },
-      originY: { value: defaults.originY, min: 0, max: 1, order: 600.2, ...htmlInputOnly },
+      ...originControls(defaults, 600.1),
       fit: { value: defaults.fit, options: ['contain', 'cover'] as ShaderFit[], order: 604, ...imageInputOnly },
 
       Image: folder(
@@ -116,10 +122,7 @@ const FlutedGlassWithControls = () => {
         { order: 0, ...imageInputOnly }
       ),
       Presets: folder(presets, { order: -1, ...imageInputOnly }),
-      Preset: folder(
-        { Reset: button(() => setParamsSafe(params, setParams, defaults)) },
-        { order: -1, ...htmlInputOnly }
-      ),
+      Preset: htmlResetFolder(() => setParamsSafe(params, setParams, defaults)),
     };
   });
 
@@ -137,19 +140,13 @@ const FlutedGlassWithControls = () => {
     : { ...restParams, margin };
 
   if (isHtmlInCanvas) {
-    const htmlContent = getHtmlContent(params, (name, value) => setParamsSafe(params, setParams, { [name]: value }));
-
     return (
-      // The code sample leaves out params matching the component defaults, which are the default preset's
       <HtmlInCanvasDemo
+        Example={Example}
         shaderDef={flutedGlassDef}
         currentParams={shaderParams}
         defaultParams={presetDefaults}
-        htmlContent={htmlContent}
-        htmlContentCss={htmlContentCss}
-      >
-        <FlutedGlass {...shaderParams}>{htmlContent}</FlutedGlass>
-      </HtmlInCanvasDemo>
+      />
     );
   }
 

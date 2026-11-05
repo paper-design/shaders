@@ -19,13 +19,13 @@ import { ShaderDetails } from '@/components/shader-details';
 import { halftoneDotsDef } from '@/shader-defs/halftone-dots-def';
 import { ShaderContainer } from '@/components/shader-container';
 import { useUrlParams } from '@/helpers/use-url-params';
-import { htmlInputOnly, imageInputOnly, useIsHtmlInCanvasPage } from '@/helpers/html-in-canvas-page';
+import { originControls, htmlResetFolder, imageInputOnly, useIsHtmlInCanvasPage } from '@/helpers/html-in-canvas-page';
 import { HtmlInCanvasDemo } from '@/components/html-in-canvas-demo';
-import { htmlContentCss, htmlContent, htmlInCanvasOverrides } from './html-in-canvas/html-content';
+import Example, { params as exampleParams } from './html-in-canvas/example';
 
 const { worldWidth, worldHeight, ...presetDefaults } = halftoneDotsPresets[0].params;
 
-const htmlInCanvasDefaults = { ...presetDefaults, ...htmlInCanvasOverrides };
+const htmlInCanvasDefaults = { ...presetDefaults, ...exampleParams };
 
 const imageFiles = [
   '001.webp',
@@ -100,8 +100,7 @@ const HalftoneDotsWithControls = () => {
       grainMixer: { value: defaults.grainMixer, min: 0, max: 1, order: 350 },
       grainOverlay: { value: defaults.grainOverlay, min: 0, max: 1, order: 351 },
       grainSize: { value: defaults.grainSize, min: 0, max: 1, order: 352 },
-      originX: { value: defaults.originX, min: 0, max: 1, order: 353, ...htmlInputOnly },
-      originY: { value: defaults.originY, min: 0, max: 1, order: 354, ...htmlInputOnly },
+      ...originControls(defaults, 353),
       scale: { value: defaults.scale, min: 0.1, max: 4, order: 400, ...imageInputOnly },
       fit: { value: defaults.fit, options: ['contain', 'cover'] as ShaderFit[], order: 450, ...imageInputOnly },
       Image: folder(
@@ -111,10 +110,7 @@ const HalftoneDotsWithControls = () => {
         { order: 0, ...imageInputOnly }
       ),
       Presets: folder(presets, { order: -1, ...imageInputOnly }),
-      Preset: folder(
-        { Reset: button(() => setParamsSafe(params, setParams, defaults)) },
-        { order: -1, ...htmlInputOnly }
-      ),
+      Preset: htmlResetFolder(() => setParamsSafe(params, setParams, defaults)),
     };
   });
 
@@ -128,14 +124,11 @@ const HalftoneDotsWithControls = () => {
   if (isHtmlInCanvas) {
     return (
       <HtmlInCanvasDemo
+        Example={Example}
         shaderDef={halftoneDotsDef}
         currentParams={params}
         defaultParams={presetDefaults}
-        htmlContent={htmlContent}
-        htmlContentCss={htmlContentCss}
-      >
-        <HalftoneDots {...params}>{htmlContent}</HalftoneDots>
-      </HtmlInCanvasDemo>
+      />
     );
   }
 

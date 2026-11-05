@@ -1,0 +1,24 @@
+.scrollable { height: 100%; overflow-y: auto; scrollbar-width: none; scroll-timeline: --demo-scroll; container-type: scroll-state; color: #fff }
+.scrollable .page { position: relative }
+.scrollable .backdrop { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: top; filter: brightness(0.7) }
+.scrollable .page::after { content: ""; display: block; height: 400px }
+.scrollable ::selection { background: #ffd60a; color: #1a1a1a }
+.scrollable article { position: relative; max-width: 1400px; padding: 180px 8% 0; font-family: system-ui; text-transform: uppercase }
+.scrollable h1 { margin: 0; opacity: 0.8; font-size: 180px; line-height: 0.85; letter-spacing: -0.03em }
+.scrollable p { max-width: 80%; margin: 4% 0; font-size: 44px }
+.scrollable .shapes { display: flex; flex-wrap: wrap; gap: 12px; margin: -2% 0 8% }
+.scrollable .shapes button { padding: 0.35em 0.9em; border: 2px solid rgb(255 255 255 / 50%); border-radius: 999px; background: none; color: inherit; font: inherit; font-size: 30px; text-transform: inherit; cursor: pointer }
+.scrollable .shapes button:hover { border-color: #fff }
+.scrollable .shapes button[aria-pressed="true"] { border-color: #ffd60a; background: #ffd60a; color: #1a1a1a }
+.scrollable .dials { display: grid; grid-template-columns: auto 1fr 4ch; align-items: center; gap: 20px 32px; max-width: 80%; margin: -1% 0 8%; font-size: 30px }
+.scrollable .dials label { display: contents }
+.scrollable .dials output { text-align: right; font-variant-numeric: tabular-nums }
+.scrollable input[type="range"] { appearance: none; min-width: 0; height: 36px; margin: 0; background: linear-gradient(transparent calc(50% - 1px), rgb(255 255 255 / 50%) 0 calc(50% + 1px), transparent 0); cursor: pointer }
+.scrollable input[type="range"]::-webkit-slider-thumb { appearance: none; width: 28px; height: 28px; border-radius: 50%; background: #ffd60a }
+.scrollable input[type="range"]:hover::-webkit-slider-thumb { scale: 1.15 }
+.scrollable kbd { padding: 0.05em 0.35em; border: 2px solid rgb(255 255 255 / 60%); border-bottom-width: 4px; border-radius: 0.25em; font: inherit; font-size: 0.85em }
+.scrollable .hint { position: sticky; bottom: 15px; width: fit-content; margin: 0 20px 0 auto; font: 22px system-ui; text-transform: uppercase; animation: hint-fade linear both; animation-timeline: --demo-scroll; animation-range: 0 16px }
+.scrollable .hint span { display: inline-block; padding-left: 0.5em; animation: hint-bounce 1.2s ease-in-out infinite }
+@keyframes hint-fade { to { opacity: 0 } }
+@keyframes hint-bounce { 50% { translate: 0 8px } }
+@container scroll-state(scrollable: top) { .scrollable .hint span { animation: none } }

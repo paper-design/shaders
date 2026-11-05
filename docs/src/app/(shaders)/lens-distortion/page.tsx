@@ -12,13 +12,13 @@ import { ShaderDetails } from '@/components/shader-details';
 import { lensDistortionDef } from '@/shader-defs/lens-distortion-def';
 import { ShaderContainer } from '@/components/shader-container';
 import { useUrlParams } from '@/helpers/use-url-params';
-import { htmlInputOnly, imageInputOnly, useIsHtmlInCanvasPage } from '@/helpers/html-in-canvas-page';
+import { htmlResetFolder, imageInputOnly, useIsHtmlInCanvasPage } from '@/helpers/html-in-canvas-page';
 import { HtmlInCanvasDemo } from '@/components/html-in-canvas-demo';
-import { htmlContentCss, getHtmlContent, htmlInCanvasOverrides } from './html-in-canvas/html-content';
+import Example, { params as exampleParams } from './html-in-canvas/example';
 
 const { worldWidth, worldHeight, ...presetDefaults } = lensDistortionPresets[0].params;
 
-const htmlInCanvasDefaults = { ...presetDefaults, ...htmlInCanvasOverrides };
+const htmlInCanvasDefaults = { ...presetDefaults, ...exampleParams };
 
 const imageFiles = [
   '001.webp',
@@ -80,7 +80,7 @@ const LensDistortionWithControls = () => {
       count: { value: defaults.count, min: 2, max: lensDistortionMeta.maxSamples, step: 1, order: 104 },
       dispersion: { value: defaults.dispersion, min: 0, max: 1, order: 105 },
       dispersionShift: { value: defaults.dispersionShift, min: -1, max: 1, order: 106 },
-      dispersionColor: { value: defaults.dispersionColor, min: 0, max: 1, order: 107 },
+      dispersionColor: { value: defaults.dispersionColor, min: 0, max: 1, order: 107, ...imageInputOnly },
       focusCenter: { value: defaults.focusCenter, min: 0, max: 1, order: 204 },
       focusEdges: { value: defaults.focusEdges, min: 0, max: 1, order: 205 },
       swirl: { value: defaults.swirl, min: -1, max: 1, order: 280 },
@@ -102,7 +102,7 @@ const LensDistortionWithControls = () => {
         { order: 0, ...imageInputOnly }
       ),
       Presets: folder(presets, { order: -1, ...imageInputOnly }),
-      Preset: folder({ Reset: button(() => setParamsSafe(params, setParams, defaults)) }, { order: -1, ...htmlInputOnly }),
+      Preset: htmlResetFolder(() => setParamsSafe(params, setParams, defaults)),
     };
   });
 
@@ -114,20 +114,13 @@ const LensDistortionWithControls = () => {
   cleanUpLevaParams(params);
 
   if (isHtmlInCanvas) {
-    const htmlContent = getHtmlContent(params.dispersionColor, (value) =>
-      setParamsSafe(params, setParams, { dispersionColor: value })
-    );
-
     return (
       <HtmlInCanvasDemo
+        Example={Example}
         shaderDef={lensDistortionDef}
         currentParams={params}
         defaultParams={presetDefaults}
-        htmlContent={htmlContent}
-        htmlContentCss={htmlContentCss}
-      >
-        <LensDistortion {...params}>{htmlContent}</LensDistortion>
-      </HtmlInCanvasDemo>
+      />
     );
   }
 

@@ -1,56 +1,53 @@
 'use client';
 
-import type { ReactNode } from 'react';
+import { createContext, use, type ComponentType, type ReactNode } from 'react';
 import type { ShaderDef } from '@/shader-defs/shader-def-types';
-import { jsxToCode } from '@/helpers/jsx-to-code';
 import { ShaderContainer } from './shader-container';
 import { ShaderDetails } from './shader-details';
 
-/** TEMPORARY: the same HTML placed straight into the page flow, with no shader, wrapper or canvas, to compare against */
-function RawHtmlPreview({ children }: { children: ReactNode }) {
-  return (
-    <>
-      <h2 className="mt-48 mb-12 text-base text-current/70">Raw HTML, not drawn by the shader (temporary)</h2>
-      {/* Mid gray, so both light and dark content shows against it */}
-      <section className="bg-[gray]">{children}</section>
-    </>
-  );
+const ExampleSource = createContext({ source: '', css: '' });
+
+export function ExampleSourceProvider({
+  value,
+  children,
+}: {
+  value: { source: string; css: string };
+  children: ReactNode;
+}) {
+  return <ExampleSource value={value}>{children}</ExampleSource>;
 }
 
-/** Shader demo with live HTML input: the code sample is generated from the same markup the shader renders */
+/** Shader demo with live HTML input: the example file runs here and its source is the code sample */
 export function HtmlInCanvasDemo({
+  Example,
   shaderDef,
   currentParams,
   defaultParams,
-  htmlContent,
-  htmlContentCss,
   notes,
-  children,
 }: {
+  Example: ComponentType<Record<string, unknown>>;
   shaderDef: ShaderDef;
   currentParams: Record<string, unknown>;
   /** Params equal to these are left out of the code sample */
   defaultParams: Record<string, unknown>;
-  /** The HTML fed to the shader, also printed in the code sample */
-  htmlContent: ReactNode;
-  /** The stylesheet for the HTML, printed as its own file in the code sample */
-  htmlContentCss: string;
   notes?: ReactNode;
-  /** The shader */
-  children: ReactNode;
 }) {
+  const { source, css } = use(ExampleSource);
+
+  // Disabled Leva controls report undefined
+  const definedParams = Object.fromEntries(Object.entries(currentParams).filter(([, value]) => value !== undefined));
+
   return (
     <>
-      <style>{htmlContentCss}</style>
       <ShaderContainer shaderDef={shaderDef} currentParams={currentParams}>
-        {children}
+        {/* The example's own sizing is for pasting it into a page, here the shader fills the resizable box */}
+        <Example {...definedParams} style={undefined} sizeToContent={undefined} />
       </ShaderContainer>
-      <RawHtmlPreview>{htmlContent}</RawHtmlPreview>
       <ShaderDetails
         shaderDef={shaderDef}
         currentParams={currentParams}
         notes={notes}
-        htmlSample={{ code: jsxToCode(htmlContent), css: htmlContentCss, defaultParams }}
+        htmlSample={{ source, css, defaultParams }}
       />
     </>
   );

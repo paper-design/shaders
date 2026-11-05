@@ -115,8 +115,8 @@ interface ShaderCodeProps {
   shaderDef: ShaderDef;
   currentParams: Record<string, unknown>;
   codeSampleImageName?: string;
-  /** Live HTML input: the sample shows it as children and leaves out params that match the defaults */
-  htmlSample?: { code: string; css: string; defaultParams: Record<string, unknown> };
+  /** Live HTML input: the sample is the example file and its stylesheet */
+  htmlSample?: { source: string; css: string; defaultParams: Record<string, unknown> };
 }
 
 function isDefaultParam(param: ParamDef | undefined, value: unknown, defaultValue: unknown): boolean {
@@ -133,7 +133,30 @@ function isDefaultParam(param: ParamDef | undefined, value: unknown, defaultValu
   return JSON.stringify(value) === JSON.stringify(defaultValue);
 }
 
+/** The example file with its params block rewritten to the current Leva values */
+function getExampleCode({ shaderDef, currentParams, htmlSample }: ShaderCodeProps): string {
+  const lines = Object.entries(currentParams)
+    .filter(([key, value]) => {
+      const param = shaderDef.params.find((p) => p.name === key);
+      return value !== undefined && !isDefaultParam(param, value, htmlSample!.defaultParams[key]);
+    })
+    .map(([key, value]) => {
+      const isColor = shaderDef.params.some((p) => p.name === key && p.isColor);
+      if (isColor) return `  ${key}: '${hslToHex(value as string)}',`;
+      if (typeof value === 'string') return `  ${key}: '${value}',`;
+      return `  ${key}: ${typeof value === 'number' ? parseFloat(value.toFixed(3)) : JSON.stringify(value)},`;
+    });
+  return htmlSample!.source.replace(
+    /export const params = \{[\s\S]*?\n\};/,
+    `export const params = {\n${lines.join('\n')}\n};`
+  );
+}
+
 function getShaderCode({ shaderDef, currentParams, codeSampleImageName, htmlSample }: ShaderCodeProps): string {
+  if (htmlSample) {
+    return getExampleCode({ shaderDef, currentParams, htmlSample });
+  }
+
   const componentName = shaderDef.name.replace(/ /g, '');
   const image = codeSampleImageName
     ? `https://shaders.paper.design/${codeSampleImageName}`
@@ -145,10 +168,6 @@ function getShaderCode({ shaderDef, currentParams, codeSampleImageName, htmlSamp
       // Disabled Leva controls report undefined
       if (value === undefined) {
         return false;
-      }
-      if (htmlSample) {
-        const param = shaderDef.params.find((p) => p.name === key);
-        return !isDefaultParam(param, value, htmlSample.defaultParams[key]);
       }
       if (['offsetX', 'offsetY', 'rotation'].includes(key) && value === 0) {
         return false;
@@ -172,23 +191,10 @@ function getShaderCode({ shaderDef, currentParams, codeSampleImageName, htmlSamp
       }
     });
 
-  // HTML samples show what the page actually runs: the shader fills its container instead of a fixed size
-  const attributes = htmlSample
-    ? params
-    : ['width={1280}', 'height={720}', ...(hasImageParam ? [`image="${image}"`] : []), ...params];
-  const hasAttributes = attributes.length > 0;
-  const openingTag = hasAttributes ? `<${componentName}\n  ${attributes.join('\n  ')}\n>` : `<${componentName}>`;
-  const element = htmlSample
-    ? `${openingTag}\n${htmlSample.code
-        .split('\n')
-        .map((line) => `  ${line}`)
-        .join('\n')}\n</${componentName}>`
-    : hasAttributes
-      ? `<${componentName}\n  ${attributes.join('\n  ')}\n/>`
-      : `<${componentName} />`;
+  const attributes = ['width={1280}', 'height={720}', ...(hasImageParam ? [`image="${image}"`] : []), ...params];
+  const element = `<${componentName}\n  ${attributes.join('\n  ')}\n/>`;
 
-  const imports = `import { ${componentName} } from '@paper-design/shaders-react';${htmlSample ? `\nimport './styles.css';` : ''}`;
-  return `${imports}\n\n${element}\n`;
+  return `import { ${componentName} } from '@paper-design/shaders-react';\n\n${element}\n`;
 }
 
 function CodeSection({ code, css }: { code: string; css?: string }) {
@@ -210,7 +216,7 @@ function CodeSection({ code, css }: { code: string; css?: string }) {
         {css && (
           <>
             <div className="mt-16 flex items-center gap-8">
-              <h3 className="font-mono text-base">styles.css</h3>
+              <h3 className="font-mono text-base">example.css</h3>
               <CopyButton
                 className="-mt-14 -mb-16 size-32 rounded-md outline-0 outline-focus transition-colors hover:bg-backplate-1 focus-visible:outline-2 active:bg-backplate-2 squircle:rounded-lg"
                 getText={() => css}
@@ -220,6 +226,10 @@ function CodeSection({ code, css }: { code: string; css?: string }) {
               className="syntax-highlight custom-scrollbar overflow-x-auto rounded-xl bg-backplate-1 p-24 text-code squircle:rounded-2xl"
               dangerouslySetInnerHTML={{ __html: highlightCss(css) }}
             />
+            <p className="text-sm text-current/70">
+              Images inside the shader have to be same-origin, or an <code>{'<img crossOrigin="anonymous">'}</code> from
+              a server that sends CORS headers. Other images, including CSS backgrounds, aren&apos;t drawn.
+            </p>
           </>
         )}
       </div>

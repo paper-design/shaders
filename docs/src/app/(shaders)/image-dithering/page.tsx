@@ -13,13 +13,13 @@ import { ShaderDetails } from '@/components/shader-details';
 import { imageDitheringDef } from '@/shader-defs/image-dithering-def';
 import { ShaderContainer } from '@/components/shader-container';
 import { useUrlParams } from '@/helpers/use-url-params';
-import { htmlInputOnly, imageInputOnly, useIsHtmlInCanvasPage } from '@/helpers/html-in-canvas-page';
+import { originControls, htmlResetFolder, imageInputOnly, useIsHtmlInCanvasPage } from '@/helpers/html-in-canvas-page';
 import { HtmlInCanvasDemo } from '@/components/html-in-canvas-demo';
-import { htmlContentCss, htmlContent, htmlInCanvasOverrides } from './html-in-canvas/html-content';
+import Example, { params as exampleParams } from './html-in-canvas/example';
 
 const { worldWidth, worldHeight, ...presetDefaults } = imageDitheringPresets[0].params;
 
-const htmlInCanvasDefaults = { ...presetDefaults, ...htmlInCanvasOverrides };
+const htmlInCanvasDefaults = { ...presetDefaults, ...exampleParams } as typeof presetDefaults;
 
 const imageFiles = [
   '001.webp',
@@ -83,8 +83,7 @@ const ImageDitheringWithControls = () => {
       size: { value: defaults.size, min: 0.5, max: 20, order: 201 },
       colorSteps: { value: defaults.colorSteps, min: 1, max: 7, step: 1, order: 202 },
       scale: { value: defaults.scale, min: 0.1, max: 4, order: 300, ...imageInputOnly },
-      originX: { value: defaults.originX, min: 0, max: 1, order: 300.1, ...htmlInputOnly },
-      originY: { value: defaults.originY, min: 0, max: 1, order: 300.2, ...htmlInputOnly },
+      ...originControls(defaults, 300.1),
       fit: { value: defaults.fit, options: ['contain', 'cover'] as ShaderFit[], order: 301, ...imageInputOnly },
       Image: folder(
         {
@@ -93,10 +92,7 @@ const ImageDitheringWithControls = () => {
         { order: 0, ...imageInputOnly }
       ),
       Presets: folder(presets, { order: -1, ...imageInputOnly }),
-      Preset: folder(
-        { Reset: button(() => setParamsSafe(params, setParams, defaults)) },
-        { order: -1, ...htmlInputOnly }
-      ),
+      Preset: htmlResetFolder(() => setParamsSafe(params, setParams, defaults)),
     };
   });
 
@@ -110,14 +106,11 @@ const ImageDitheringWithControls = () => {
   if (isHtmlInCanvas) {
     return (
       <HtmlInCanvasDemo
+        Example={Example}
         shaderDef={imageDitheringDef}
         currentParams={params}
         defaultParams={presetDefaults}
-        htmlContent={htmlContent}
-        htmlContentCss={htmlContentCss}
-      >
-        <ImageDithering {...params}>{htmlContent}</ImageDithering>
-      </HtmlInCanvasDemo>
+      />
     );
   }
 

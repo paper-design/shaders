@@ -6,6 +6,7 @@ const defaultParams = halftoneCmykPresets[0].params;
 
 export const halftoneCmykDef: ShaderDef = {
   name: 'Halftone CMYK',
+  hasHtmlInCanvasPage: true,
   description: 'CMYK halftone printing effect with customizable dot patterns and ink colors for each channel',
   params: [
     {

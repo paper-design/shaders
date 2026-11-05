@@ -1,5 +1,6 @@
 'use client';
 
+import { button, folder } from 'leva';
 import { usePathname } from 'next/navigation';
 
 /** Shader pages are reused at `/<shader>/html-in-canvas`, where the shader takes live HTML children instead of an image */
@@ -29,3 +30,14 @@ export const imageInputOnly = { render: () => !isHtmlInCanvasPath() };
 
 /** Leva settings that show a control or folder only when the shader's input is HTML */
 export const htmlInputOnly = { render: () => isHtmlInCanvasPath() };
+
+export function originControls(defaults: { originX: number; originY: number }, order: number) {
+  return {
+    originX: { value: defaults.originX, min: 0, max: 1, order, ...htmlInputOnly },
+    originY: { value: defaults.originY, min: 0, max: 1, order: order + 0.1, ...htmlInputOnly },
+  };
+}
+
+export function htmlResetFolder(reset: () => void) {
+  return folder({ Reset: button(reset) }, { order: -1, ...htmlInputOnly });
+}

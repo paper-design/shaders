@@ -6,6 +6,7 @@ const defaultParams = halftoneDotsPresets[0].params;
 
 export const halftoneDotsDef: ShaderDef = {
   name: 'Halftone Dots',
+  hasHtmlInCanvasPage: true,
   description: 'A halftone-dot image filter featuring customizable grids, color palettes, and dot styles',
   params: [
     {

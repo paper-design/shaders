@@ -1,0 +1,14 @@
+.timekeeper { display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; height: 100%; color: #fff; font: 24px ui-monospace, monospace; user-select: none }
+.timekeeper time { font-size: 128px; line-height: 1 }
+.timekeeper .modes, .timekeeper section { display: flex; justify-content: center; align-items: center; gap: 3cqw; min-height: 5.6cqw }
+.timekeeper section { gap: 1.6cqw }
+.timekeeper label { padding: 0.5cqw 0; border-bottom: 0.2cqw solid transparent; opacity: 0.8; cursor: pointer; transition: opacity 150ms }
+.timekeeper label:hover, .timekeeper label:has(:checked) { opacity: 1 }
+.timekeeper label:has(:checked) { border-color: currentColor }
+.timekeeper input { display: none }
+.timekeeper button { min-width: 12cqw; padding: 1cqw 2.4cqw; border: 0.2cqw solid rgb(255 255 255 / 80%); border-radius: 999px; background: rgb(255 255 255 / 25%); color: inherit; font: inherit; cursor: pointer; transition: background-color 150ms, opacity 150ms }
+.timekeeper button:hover { background: rgb(255 255 255 / 40%) }
+.timekeeper [data-elapsed="0"]:not([data-since]) .reset { opacity: 0.4; pointer-events: none }
+.timekeeper:has([value="clock"]:checked) .stopwatch, .timekeeper:has([value="stopwatch"]:checked) .clock { display: none }
+.timekeeper .toggle::before { content: 'start' }
+.timekeeper [data-since] .toggle::before { content: 'pause' }
