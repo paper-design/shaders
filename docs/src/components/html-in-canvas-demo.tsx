@@ -20,12 +20,15 @@ export function ExampleSourceProvider({
 /** Shader demo with live HTML input: the example file runs here and its source is the code sample */
 export function HtmlInCanvasDemo({
   Example,
+  fitsContent = false,
   shaderDef,
   currentParams,
   defaultParams,
   notes,
 }: {
   Example: ComponentType<Record<string, unknown>>;
+  /** The shader keeps the size of its content, as in the example, instead of filling the resizable box */
+  fitsContent?: boolean;
   shaderDef: ShaderDef;
   currentParams: Record<string, unknown>;
   /** Params equal to these are left out of the code sample */
@@ -40,8 +43,14 @@ export function HtmlInCanvasDemo({
   return (
     <>
       <ShaderContainer shaderDef={shaderDef} currentParams={currentParams}>
-        {/* The example's own sizing is for pasting it into a page, here the shader fills the resizable box */}
-        <Example {...definedParams} style={undefined} sizeToContent={undefined} />
+        {fitsContent ? (
+          <div className="grid place-content-center">
+            <Example {...definedParams} />
+          </div>
+        ) : (
+          // The example's own sizing is for pasting it into a page, here the shader fills the resizable box
+          <Example {...definedParams} style={undefined} sizeToContent={undefined} />
+        )}
       </ShaderContainer>
       <ShaderDetails
         shaderDef={shaderDef}

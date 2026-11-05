@@ -52,7 +52,7 @@ export default function Example(props) {
   const [dispersionColor, setDispersionColor] = useState(0.75);
 
   return (
-    <LensDistortion {...params} style={{ height: 500 }} {...props} dispersionColor={dispersionColor}>
+    <LensDistortion {...params} style={{ height: '100vh' }} {...props} dispersionColor={dispersionColor}>
       <div className="viewfinder" data-recording="on" ref={startTimecode}>
         <img
           className="scene"

@@ -6,6 +6,7 @@ import { CopyButton } from './copy-button';
 import { hslToHex, toHsla } from '@/helpers/color-utils';
 import { commonParams } from '@/shader-defs/common-param-def';
 import { highlightJsx, highlightCss } from '@/helpers/highlight-code';
+import { getRunnableExample } from '@/helpers/runnable-example';
 
 const formatJsxAttribute = (key: string, value: unknown): string => {
   if (value === true) {
@@ -204,7 +205,7 @@ function CodeSection({ code, css }: { code: string; css?: string }) {
         <h2 className="text-2xl font-medium lowercase">Code</h2>
         <CopyButton
           className="-mt-14 -mb-16 size-32 rounded-md outline-0 outline-focus transition-colors hover:bg-backplate-1 focus-visible:outline-2 active:bg-backplate-2 squircle:rounded-lg"
-          getText={() => code}
+          getText={() => (css ? getRunnableExample(code, css) : code)}
         />
       </div>
       <div className="flex flex-col gap-8">
@@ -226,10 +227,6 @@ function CodeSection({ code, css }: { code: string; css?: string }) {
               className="syntax-highlight custom-scrollbar overflow-x-auto rounded-xl bg-backplate-1 p-24 text-code squircle:rounded-2xl"
               dangerouslySetInnerHTML={{ __html: highlightCss(css) }}
             />
-            <p className="text-sm text-current/70">
-              Images inside the shader have to be same-origin, or an <code>{'<img crossOrigin="anonymous">'}</code> from
-              a server that sends CORS headers. Other images, including CSS backgrounds, aren&apos;t drawn.
-            </p>
           </>
         )}
       </div>

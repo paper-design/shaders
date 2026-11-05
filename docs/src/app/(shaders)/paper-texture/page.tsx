@@ -129,6 +129,7 @@ const PaperTextureWithControls = () => {
     return (
       <HtmlInCanvasDemo
         Example={Example}
+        fitsContent
         shaderDef={paperTextureDef}
         currentParams={params}
         defaultParams={presetDefaults}

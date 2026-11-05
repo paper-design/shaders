@@ -1,4 +1,4 @@
-.signup { display: grid; gap: 12px; width: fit-content; padding: 48px; background: #fff; color: #222; font: 16px ui-monospace, monospace }
+.signup { display: grid; gap: 12px; padding: 48px; background: #fff; color: #222; font: 16px ui-monospace, monospace }
 .signup h2 { margin: 0 0 12px; font: 400 28px/1.2 system-ui }
 .signup .field { display: grid; gap: 6px }
 .signup .field input, .signup textarea { width: 264px; height: 44px; padding: 0 14px; border: 1px solid; border-radius: 2px; font: inherit; color: inherit; background: #fff; outline: none; transition: 150ms }

@@ -31,7 +31,7 @@ export default function Example(props) {
   const [glass, setGlass] = useState({ distortionShape: 'prism', size: 0.85, distortion: 0.15, shift: 0 });
 
   return (
-    <FlutedGlass {...params} style={{ height: 500 }} {...props} {...glass}>
+    <FlutedGlass {...params} style={{ height: '100vh' }} {...props} {...glass}>
       <div className="scrollable">
         <div className="page">
           <img

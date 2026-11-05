@@ -59,7 +59,7 @@ function reset(event) {
 
 export default function Example(props) {
   return (
-    <Water {...params} style={{ height: 500 }} {...props}>
+    <Water {...params} style={{ height: '100vh' }} {...props}>
       <div className="timekeeper" ref={startClock}>
         <form className="modes">
           <label>

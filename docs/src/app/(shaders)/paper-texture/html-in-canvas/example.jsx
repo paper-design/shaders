@@ -5,21 +5,13 @@ import { PaperTexture } from '@paper-design/shaders-react';
 import './example.css';
 
 export const params = {
-  originX: 0.5,
-  originY: 0.5,
   colorBack: '#00000000',
   clip: true,
-  colorPaper: '#ffffff',
   colorShadow: '#c2c2c2',
   distortion: 0.25,
   angle: 120,
   roughness: 0.2,
-  roughnessRows: 0,
-  fiber: 0.4,
   fiberSize: 0.72,
-  folds: 0.5,
-  crumples: 0,
-  wrinkles: 1,
   wrinkleSize: 0.5,
   drops: 0.15,
 };
@@ -43,13 +35,7 @@ export default function Example(props) {
   const [seed, setSeed] = useState(311);
 
   return (
-    <PaperTexture
-      {...params}
-      layoutProps={{ style: { display: 'grid', placeItems: 'center' } }}
-      sizeToContent="both"
-      {...props}
-      seed={seed}
-    >
+    <PaperTexture {...params} sizeToContent="both" {...props} seed={seed}>
       <form
         className="signup"
         noValidate

@@ -42,7 +42,7 @@ function selectPlaylist(event) {
 
 export default function Example(props) {
   return (
-    <ImageDithering {...params} style={{ height: 560 }} {...props}>
+    <ImageDithering {...params} style={{ height: '100vh' }} {...props}>
       <div className="player" data-playlist="1">
         <header>
           <button className="burger" aria-label="Menu" onClick={handleMenuToggle}>
