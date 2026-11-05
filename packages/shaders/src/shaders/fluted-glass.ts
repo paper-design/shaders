@@ -10,7 +10,7 @@ import { declarePI, rotation2, proceduralHash21 } from '../shader-utils.js';
  * - u_resolution (vec2): Canvas resolution in pixels
  * - u_pixelRatio (float): Device pixel ratio
  * - u_image (sampler2D): Source image texture, premultiplied alpha
- * - u_imageAspectRatio (float): Aspect ratio of the source image; over HTML the canvas aspect from u_resolution is used instead
+ * - u_imageAspectRatio (float): Aspect ratio of the source image; over HTML the canvas aspect ratio
  * - u_imageIsHtml (float): 1 when u_image is HTML. HTML is drawn 1:1, so the flutes are sized in CSS px to keep their size
  *   over it, size setting the flute width from 5px to 200px, and anchored at originX / originY instead of the center,
  *   0 0 being the top left like CSS. Their distortion follows the flute size; margins and edges stay relative to the frame
@@ -88,10 +88,6 @@ uniform float u_grainMixer;
 uniform float u_grainOverlay;
 
 in vec2 v_imageUV;
-
-float getImageAspectRatio() {
-  return mix(u_imageAspectRatio, u_resolution.x / u_resolution.y, u_imageIsHtml);
-}
 
 out vec4 fragColor;
 
@@ -173,8 +169,12 @@ float smoothFract(float x) {
 void main() {
 
   float patternRotation = -u_angle * PI / 180.;
-  float patternSize = mix(mix(200., 2., u_size), u_resolution.x / u_pixelRatio / sizeToPx(u_size), u_imageIsHtml);
-  vec2 patternOrigin = mix(vec2(.5), vec2(u_originX, u_originY), u_imageIsHtml);
+  float patternSize = mix(200., 5., u_size);
+  vec2 patternOrigin = vec2(.5);
+  if (u_imageIsHtml == 1.) {
+    patternSize = u_resolution.x / u_pixelRatio / sizeToPx(u_size);
+    patternOrigin = vec2(u_originX, u_originY);
+  }
 
   vec2 uv = v_imageUV;
 
@@ -201,10 +201,10 @@ void main() {
 
   uv -= patternOrigin;
   uv *= patternSize;
-  uv = rotateAspect(uv, patternRotation, getImageAspectRatio());
+  uv = rotateAspect(uv, patternRotation, u_imageAspectRatio);
 
   float curve = 0.;
-  float patternY = uv.y / getImageAspectRatio();
+  float patternY = uv.y / u_imageAspectRatio;
   if (u_shape > 4.5) {
     // pattern
     curve = .5 + .5 * sin(.5 * PI * uv.x) * cos(.5 * PI * patternY);
@@ -322,8 +322,8 @@ void main() {
   frameFade *= u_distortion;
 
   fractOrigUV.x += distortion;
-  floorOrigUV = rotateAspect(floorOrigUV, -patternRotation, getImageAspectRatio());
-  fractOrigUV = rotateAspect(fractOrigUV, -patternRotation, getImageAspectRatio());
+  floorOrigUV = rotateAspect(floorOrigUV, -patternRotation, u_imageAspectRatio);
+  fractOrigUV = rotateAspect(fractOrigUV, -patternRotation, u_imageAspectRatio);
 
   uv = (floorOrigUV + fractOrigUV) / patternSize;
   uv += pow(maskStroke, 4.);

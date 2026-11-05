@@ -159,11 +159,17 @@ float getBayerValue(vec2 uv, int size) {
 void main() {
 
   float pxSize = u_pxSize * u_pixelRatio;
-  vec2 gridOrigin = mix(vec2(.5), vec2(u_originX, 1. - u_originY), u_imageIsHtml) * u_resolution;
+  vec2 gridOrigin = .5 * u_resolution;
+  if (u_imageIsHtml == 1.) {
+    gridOrigin = vec2(u_originX, 1. - u_originY) * u_resolution;
+  }
   vec2 pxSizeUV = gl_FragCoord.xy - gridOrigin;
   pxSizeUV /= pxSize;
   vec2 gridPixelizedUV = (floor(pxSizeUV) + .5) * pxSize;
-  vec2 canvasPixelizedUV = gridPixelizedUV + gridOrigin - .5 * u_resolution;
+  vec2 canvasPixelizedUV = gridPixelizedUV;
+  if (u_imageIsHtml == 1.) {
+    canvasPixelizedUV = gridPixelizedUV + gridOrigin - .5 * u_resolution;
+  }
   vec2 normalizedUV = canvasPixelizedUV / u_resolution;
 
   vec2 imageUV = getImageUV(normalizedUV);

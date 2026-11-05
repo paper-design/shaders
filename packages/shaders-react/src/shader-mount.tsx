@@ -245,16 +245,21 @@ export const ShaderMount: React.FC<ShaderMountProps> = forwardRef<PaperShaderEle
     }, [frame, isInitialized]);
 
     const mergedRef = useMergeRefs([divRef, forwardedRef]) as unknown as React.RefObject<HTMLDivElement>;
-    const shaderStyle =
-      width !== undefined || height !== undefined
-        ? {
-            width: typeof width === 'string' && isNaN(+width) === false ? +width : width,
-            height: typeof height === 'string' && isNaN(+height) === false ? +height : height,
-            ...style,
-          }
-        : style;
     return (
-      <div ref={mergedRef} style={sizeStyle ? { ...shaderStyle, ...sizeStyle } : shaderStyle} {...divProps}>
+      <div
+        ref={mergedRef}
+        style={
+          width !== undefined || height !== undefined
+            ? {
+                width: typeof width === 'string' && isNaN(+width) === false ? +width : width,
+                height: typeof height === 'string' && isNaN(+height) === false ? +height : height,
+                ...style,
+                ...sizeStyle,
+              }
+            : { ...style, ...sizeStyle }
+        }
+        {...divProps}
+      >
         {renderedChildren}
       </div>
     );

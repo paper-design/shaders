@@ -323,6 +323,7 @@ export class ShaderMount {
       this.canvasElement.height = newHeight;
       this.resolutionChanged = true;
       this.gl.viewport(0, 0, this.gl.canvas.width, this.gl.canvas.height);
+      this.updateHtmlAspectRatios();
 
       // Captured again right away, so the frame drawn below doesn't stretch the previous capture over the new size
       this.captureHtml(true);
@@ -465,6 +466,7 @@ export class ShaderMount {
     this.textures.set(uniformName, texture);
     this.gl.uniform1i(this.uniformLocations[uniformName] ?? null, textureUnit);
     this.gl.uniform1f(this.uniformLocations[`${uniformName}IsHtml`] ?? null, 1);
+    this.setHtmlAspectRatio(uniformName);
 
     if (!isHtmlInCanvasSupported()) {
       console.warn(
@@ -476,6 +478,22 @@ export class ShaderMount {
     const canvas = this.canvasElement as DrawableCanvasElement;
     this.htmlUniforms.set(uniformName, { element, detach: attachHtml(canvas, element), hasGeometry: false });
     canvas.requestPaint();
+  };
+
+  /** HTML is drawn 1:1, so its aspect ratio is the canvas aspect ratio */
+  private setHtmlAspectRatio = (uniformName: string): void => {
+    this.gl.uniform1f(
+      this.uniformLocations[`${uniformName}AspectRatio`] ?? null,
+      this.gl.canvas.width / this.gl.canvas.height
+    );
+  };
+
+  private updateHtmlAspectRatios = (): void => {
+    for (const [uniformName, value] of Object.entries(this.providedUniforms)) {
+      if (isHtmlUniform(value)) {
+        this.setHtmlAspectRatio(uniformName);
+      }
+    }
   };
 
   /** Captures each HTML uniform into its texture. On resize only HTML that has a snapshot already, so it can't throw */
