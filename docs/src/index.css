@@ -101,6 +101,17 @@
   code {
     font-size: 0.9em;
   }
+
+  .syntax-highlight {
+    --syntax-keyword: light-dark(#a3386c, #e08aae);
+    --syntax-string: light-dark(#3c7a3e, #a6cf8c);
+    --syntax-text: var(--color-code);
+    --syntax-entity: light-dark(#2f63b8, #86b0f0);
+    --syntax-number: light-dark(#2f63b8, #86b0f0);
+    --syntax-property: light-dark(#9a5a0f, #e2b172);
+    --syntax-identifier: var(--color-code);
+    --syntax-sign: light-dark(#8a8980, #7c7b72);
+  }
 }
 
 @custom-variant squircle {
