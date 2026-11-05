@@ -11,7 +11,7 @@ export const paperTextureMeta = {
  * Works as an image filter or as a standalone texture.
  *
  * Fragment shader uniforms:
- * - u_image (sampler2D): Optional source image texture
+ * - u_image (sampler2D): Optional source image texture, premultiplied alpha
  * - u_isImage (bool): Whether a source image was provided
  * - u_imageAspectRatio (float): Aspect ratio of the source image
  * - u_colorBack (vec4): Color behind the paper sheet in RGBA
@@ -537,6 +537,7 @@ void main() {
   if (u_isImage) {
     float frame = getUvFrame(imageUV);
     vec4 image = texture(u_image, imageUV);
+    image.rgb /= max(image.a, .0001);
     frame *= image.a;
 
     float maxC = max(max(image.r, image.g), image.b);
