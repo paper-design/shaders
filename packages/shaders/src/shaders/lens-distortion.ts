@@ -83,12 +83,6 @@ in vec2 v_imageUV;
 
 out vec4 fragColor;
 
-vec4 sampleImage(vec2 uv) {
-  vec4 image = texture(u_image, uv);
-  image.rgb /= max(image.a, .0001);
-  return image;
-}
-
 ${declarePI}
 ${proceduralHash21}
 ${rotation2}
@@ -112,10 +106,10 @@ float getUvFrame(vec2 uv) {
 }
 
 vec4 sampleOverWhite(vec2 uv) {
-  vec4 img = sampleImage(uv);
-  float cover = img.a * getUvFrame(uv);
-  vec3 colorOverWhite = mix(vec3(1.), img.rgb, cover);
-  return vec4(colorOverWhite, cover);
+  vec4 img = texture(u_image, uv);
+  float frame = getUvFrame(uv);
+  float cover = img.a * frame;
+  return vec4(1. - cover + img.rgb * frame, cover);
 }
 
 vec3 hueColor(float hue) {
