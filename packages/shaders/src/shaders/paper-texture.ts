@@ -551,7 +551,7 @@ void main() {
   color += baseColor * (1. - opacity);
   opacity += baseOpacity * (1. - opacity);
 
-  if (u_isImage) {
+  if (u_isImage || u_imageIsHtml == 1.) {
     float frame = getUvFrame(imageUV);
     vec4 image = texture(u_image, imageUV);
     image.rgb /= max(image.a, .0001);

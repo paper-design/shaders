@@ -17,10 +17,6 @@ function hasChildren(children: React.ReactNode): boolean {
   return Children.toArray(children).length > 0;
 }
 
-export function willDrawHtmlChildren(children: React.ReactNode): boolean {
-  return hasChildren(children) && isHtmlInCanvasSupported();
-}
-
 /**
  * Draws the children into u_image where the browser supports it, otherwise they're shown on top of the shader.
  * Either way they're held by the same content element, so they lay out the same.
