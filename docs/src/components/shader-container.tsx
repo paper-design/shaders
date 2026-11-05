@@ -157,7 +157,7 @@ function ResizableShader({
       <div
         data-resizable={canStartResize || alwaysResizable || undefined}
         data-resize-handle={alwaysResizable || undefined}
-        className="flex aspect-4/3 w-full overflow-hidden ring-1 ring-current/15 *:size-full not-has-[[data-paper-shader]]:bg-header data-resizable:resize xs:aspect-3/2 md:aspect-16/9 [[style*='width']]:resize"
+        className="flex aspect-4/3 w-full overflow-hidden *:size-full not-has-[[data-paper-shader]]:bg-header data-resizable:resize xs:aspect-3/2 md:aspect-16/9 [[style*='width']]:resize"
       >
         {children}
       </div>
