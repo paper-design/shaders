@@ -187,9 +187,6 @@ void main() {
       float smoothAngle = clamp((.3 - angleNorm) / .05, 0., 1.);
       if (smoothDensity * smoothAngle < .001) continue;
 
-      if (angleNorm > .5) {
-        angleNorm = 0.5;
-      }
       vec2 panel = getPanel(angleNorm * TWO_PI + PI, uv, invLength, aa);
       if (panel[0] <= .001) continue;
       float panelMask = panel[0] * smoothDensity * smoothAngle;

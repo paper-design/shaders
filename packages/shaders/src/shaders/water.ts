@@ -151,8 +151,6 @@ void main() {
   vec3 color = backColor.rgb * (1. - image.a * frame) + image.rgb * frame;
   float opacity = backColor.a + image.a * frame;
 
-  causticNoise = max(-.2, causticNoise);
-
   float hightlight = .025 * u_highlights * causticNoise;
   hightlight *= u_colorHighlight.a;
   color = mix(color, u_colorHighlight.rgb, .05 * u_highlights * causticNoise * u_colorHighlight.a);

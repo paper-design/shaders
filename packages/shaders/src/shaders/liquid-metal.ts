@@ -302,7 +302,6 @@ void main() {
   edge += (1. - edge) * u_distortion * noise;
 
   direction += diagBLtoTR;
-  float contour = 0.;
   direction -= 2. * noise * diagBLtoTR * (smoothstep(0., 1., edge) * (1.0 - smoothstep(0., 1., edge)));
   // u_contour range 2
   direction *= mix(1., 1. - edge, smoothstep(.5, 1., u_contour));
@@ -347,7 +346,7 @@ void main() {
     rExtraBlur = softness * (0.05 + .1 * (u_shiftRed / 20.) * bump);
     gExtraBlur = softness * 0.05 / max(0.001, abs(1. - diagBLtoTR));
   } else {
-    blur = u_softness / 15. + .3 * contour;
+    blur = u_softness / 15.;
   }
 
   vec3 w = vec3(thin_strip_1_width, thin_strip_2_width, wide_strip_ratio);

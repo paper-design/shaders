@@ -66,8 +66,6 @@ const SmokeRingWithControls = () => {
   usePresetHighlight(smokeRingPresets, params);
   cleanUpLevaParams(params);
 
-  // const { reverse, ...shaderParams } = { ...params, speed: params.speed * (params.reverse ? -1 : 1) };
-
   return (
     <>
       <ShaderContainer shaderDef={smokeRingDef} currentParams={{ colors, ...params }}>

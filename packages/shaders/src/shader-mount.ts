@@ -117,7 +117,6 @@ export class ShaderMount {
     }
     this.gl = gl;
 
-    // Premultiplied, so that filtering doesn't bleed the color of transparent pixels into the edges
     this.gl.pixelStorei(this.gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
 
     this.initProgram();
