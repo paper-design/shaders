@@ -7,10 +7,11 @@ import {
   type PaperShaderElement,
   type ShaderMotionParams,
   type ShaderMountUniforms,
+  type ShaderSizeToContent,
 } from '@paper-design/shaders';
 import { useMergeRefs } from './use-merge-refs.js';
 import { setMinImageSize } from './set-min-image-size.js';
-import { useHtmlChildren, type ShaderLayoutProps, type ShaderSizeToContent } from './html-in-canvas.js';
+import { useHtmlChildren, type ShaderLayoutProps } from './html-in-canvas.js';
 
 /**
  * React Shader Mount can also accept strings as uniform values, which will assumed to be URLs and loaded as images

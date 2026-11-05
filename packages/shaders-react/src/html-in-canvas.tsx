@@ -11,12 +11,6 @@ const isSupportedOnServer = () => true;
 /** Props of the element that holds the children. It's what gets drawn, so it takes their layout and the visuals */
 export type ShaderLayoutProps = React.ComponentProps<'div'> & { [key: `data-${string}`]: unknown };
 
-export type { ShaderSizeToContent };
-
-function hasChildren(children: React.ReactNode): boolean {
-  return Children.toArray(children).length > 0;
-}
-
 /**
  * Draws the children into u_image where the browser supports it, otherwise they're shown on top of the shader.
  * Either way they're held by the same content element, so they lay out the same.
@@ -39,7 +33,7 @@ export function useHtmlChildren(
   const contentRef = useRef<HTMLDivElement>(null);
   const mergedContentRef = useMergeRefs([contentRef, layoutProps?.ref]);
   const isSupported = useSyncExternalStore(subscribeToNothing, isHtmlInCanvasSupported, isSupportedOnServer);
-  const isWrapped = acceptsHtmlChildren && hasChildren(children);
+  const isWrapped = acceptsHtmlChildren && Children.toArray(children).length > 0;
   const hasHtmlChildren = isWrapped && isSupported;
 
   const fitsWidth = isWrapped && (sizeToContent === 'width' || sizeToContent === 'both');
@@ -52,7 +46,7 @@ export function useHtmlChildren(
       return;
     }
 
-    return observeContentSize(shader, content, sizeToContent);
+    return observeContentSize(shader, content);
   }, [isWrapped, sizeToContent, hasHtmlChildren, shaderRef]);
 
   const addHtmlUniform = <T extends object>(uniforms: T): T =>

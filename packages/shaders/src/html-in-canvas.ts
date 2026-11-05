@@ -3,15 +3,14 @@
  * available in Chromium behind `chrome://flags/#canvas-draw-element`. Older Chromium versions opt the canvas in with
  * `layoutsubtree` instead of `content="drawable"`, so the canvas gets both.
  *
- * An HTML element passed as a texture uniform is moved into the shader canvas and drawn 1:1 where it's laid out:
+ * An HTML element passed as a texture uniform is drawn 1:1 where it's laid out. It has to be in this markup already,
+ * and the shader adopts that canvas:
  *
  * <div data-paper-shader>
  *   <canvas content="drawable" layoutsubtree>
  *     <div drawable>…</div>
  *   </canvas>
  * </div>
- *
- * React renders this markup itself, since it can't let its nodes be moved, and the shader adopts that canvas.
  *
  * The HTML texture always matches the canvas size, so shaders sample it like any canvas-sized texture: a resize
  * captures the HTML again right away instead of waiting for the next paint.
@@ -44,15 +43,10 @@ export function isHtmlInCanvasSupported(): boolean {
 
 /** `<img>` stays a static image uniform. nodeType instead of `instanceof` works across iframes */
 export function isHtmlUniform(value: unknown): value is HTMLElement {
-  return (
-    typeof value === 'object' &&
-    value !== null &&
-    (value as Node).nodeType === 1 &&
-    (value as Element).tagName !== 'IMG'
-  );
+  return (value as Node | null | undefined)?.nodeType === 1 && (value as Element).tagName !== 'IMG';
 }
 
-export function findReactCanvas(values: unknown[], parentElement: Element): DrawableCanvasElement | null {
+export function findDrawableCanvas(values: unknown[], parentElement: Element): DrawableCanvasElement | null {
   for (const value of values) {
     const canvas = isHtmlUniform(value) ? value.parentElement : null;
     if (canvas?.tagName === 'CANVAS' && canvas.parentElement === parentElement) {
@@ -60,29 +54,6 @@ export function findReactCanvas(values: unknown[], parentElement: Element): Draw
     }
   }
   return null;
-}
-
-/** Moves the element into the canvas, returns a function that puts it back */
-export function attachHtml(canvas: DrawableCanvasElement, element: HTMLElement): () => void {
-  if (element.parentElement === canvas) {
-    return () => {};
-  }
-
-  const parent = element.parentNode;
-  const nextSibling = element.nextSibling;
-  canvas.setAttribute('content', 'drawable');
-  canvas.setAttribute('layoutsubtree', '');
-  element.setAttribute('drawable', '');
-  canvas.append(element);
-
-  return () => {
-    element.removeAttribute('drawable');
-    if (parent) {
-      parent.insertBefore(element, nextSibling?.parentNode === parent ? nextSibling : null);
-    } else {
-      element.remove();
-    }
-  };
 }
 
 /**
@@ -97,15 +68,23 @@ export function drawHtml(
 ): string {
   const width = Math.max(1, canvas.width);
   const height = Math.max(1, canvas.height);
-  const scaleX = width / Math.max(1, canvas.clientWidth);
-  const scaleY = height / Math.max(1, canvas.clientHeight);
+
+  // Computed sizes, since offset and client sizes are rounded and bounding rects include ancestor transforms
+  const canvasStyle = getComputedStyle(canvas);
+  const elementStyle = getComputedStyle(element);
+  const canvasCssWidth = parseFloat(canvasStyle.width) || canvas.clientWidth;
+  const canvasCssHeight = parseFloat(canvasStyle.height) || canvas.clientHeight;
+  const elementCssWidth = parseFloat(elementStyle.width) || element.offsetWidth;
+  const elementCssHeight = parseFloat(elementStyle.height) || element.offsetHeight;
+  const scaleX = width / Math.max(1, canvasCssWidth);
+  const scaleY = height / Math.max(1, canvasCssHeight);
 
   const left = element.offsetLeft;
   const top = element.offsetTop;
   const visibleLeft = Math.max(0, left);
   const visibleTop = Math.max(0, top);
-  const visibleRight = Math.min(canvas.clientWidth, left + element.offsetWidth);
-  const visibleBottom = Math.min(canvas.clientHeight, top + element.offsetHeight);
+  const visibleRight = Math.min(canvasCssWidth, left + elementCssWidth);
+  const visibleBottom = Math.min(canvasCssHeight, top + elementCssHeight);
   const x0 = Math.round(visibleLeft * scaleX);
   const y0 = Math.round(visibleTop * scaleY);
   const x1 = Math.min(width, Math.round(visibleRight * scaleX));

@@ -1,23 +1,17 @@
-import { isPaperShaderElement } from './shader-mount.js';
+import type { PaperShaderElement } from './shader-mount.js';
 
 const WIDTH_VARIABLE = '--paper-shader-content-width';
 const HEIGHT_VARIABLE = '--paper-shader-content-height';
-const FIT_ATTRIBUTE = 'data-paper-shader-fit';
 
 /** Axes on which the shader takes the size of its content instead of its own size styles */
 export type ShaderSizeToContent = 'width' | 'height' | 'both';
 
 /**
- * Sizes the shader element to the content element on the given axes, since the canvas can't be sized by what's
- * inside it. The default styles apply the measured size, so the shader must not have its own size on those axes
+ * Measures the content element for a shader sized to it, since the canvas can't be sized by what's inside it.
+ * The caller applies the measured size: `--paper-shader-content-width` and `--paper-shader-content-height` on the
+ * shader, with the content element at `max-content` width or `auto` height on those axes
  */
-export function observeContentSize(
-  shader: HTMLElement,
-  content: HTMLElement,
-  sizeToContent: ShaderSizeToContent
-): () => void {
-  shader.setAttribute(FIT_ATTRIBUTE, sizeToContent === 'both' ? 'width height' : sizeToContent);
-
+export function observeContentSize(shader: HTMLElement, content: HTMLElement): () => void {
   let contentWidth = 0;
   let contentHeight = 0;
 
@@ -44,9 +38,7 @@ export function observeContentSize(
     shader.style.setProperty(HEIGHT_VARIABLE, `${contentHeight + borderY}px`);
 
     // Otherwise the canvas only sees its new size next frame
-    if (isPaperShaderElement(shader)) {
-      shader.paperShaderMount?.syncSize();
-    }
+    (shader as PaperShaderElement).paperShaderMount?.syncSize();
   });
   // Border box, so that the content's padding changes are picked up
   observer.observe(content, { box: 'border-box' });
@@ -54,7 +46,6 @@ export function observeContentSize(
 
   return () => {
     observer.disconnect();
-    shader.removeAttribute(FIT_ATTRIBUTE);
     shader.style.removeProperty(WIDTH_VARIABLE);
     shader.style.removeProperty(HEIGHT_VARIABLE);
   };
