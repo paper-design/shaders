@@ -119,11 +119,6 @@ interface ShaderCodeProps {
   htmlSample?: { code: string; css: string; defaultParams: Record<string, unknown> };
 }
 
-const sectionsClassName =
-  'flex w-full flex-col gap-32 [&_a]:link [&>section]:flex [&>section]:flex-col [&>section]:gap-16';
-
-const installationCode = 'npm i @paper-design/shaders-react';
-
 function isDefaultParam(param: ParamDef | undefined, value: unknown, defaultValue: unknown): boolean {
   if (defaultValue === undefined) {
     return false;
@@ -196,23 +191,6 @@ function getShaderCode({ shaderDef, currentParams, codeSampleImageName, htmlSamp
   return `${imports}\n\n${element}\n`;
 }
 
-function InstallationSection() {
-  return (
-    <section>
-      <div className="flex items-center gap-8">
-        <h2 className="text-2xl font-medium lowercase">Installation</h2>
-        <CopyButton
-          className="-mt-14 -mb-16 size-32 rounded-md outline-0 outline-focus transition-colors hover:bg-backplate-1 focus-visible:outline-2 active:bg-backplate-2 squircle:rounded-lg"
-          getText={() => installationCode}
-        />
-      </div>
-      <pre className="no-scrollbar w-full overflow-x-auto rounded-xl bg-backplate-1 p-24 text-code squircle:rounded-2xl">
-        {installationCode}
-      </pre>
-    </section>
-  );
-}
-
 function CodeSection({ code, css }: { code: string; css?: string }) {
   return (
     <section>
@@ -256,13 +234,27 @@ export function ShaderDetails({
   codeSampleImageName,
   htmlSample,
 }: ShaderCodeProps & { notes?: ReactNode }) {
+  const installationCode = 'npm i @paper-design/shaders-react';
+
   const commonPropNames = Object.keys(commonParams);
   const shaderProps = shaderDef.params.filter((p) => !commonPropNames.includes(p.name));
   const commonProps = shaderDef.params.filter((p) => commonPropNames.includes(p.name));
 
   return (
-    <div className={`mt-24 md:mt-40 ${sectionsClassName}`}>
-      <InstallationSection />
+    <div className="mt-24 flex w-full flex-col gap-32 md:mt-40 [&_a]:link [&>section]:flex [&>section]:flex-col [&>section]:gap-16">
+      <section>
+        <div className="flex items-center gap-8">
+          <h2 className="text-2xl font-medium lowercase">Installation</h2>
+          <CopyButton
+            className="-mt-14 -mb-16 size-32 rounded-md outline-0 outline-focus transition-colors hover:bg-backplate-1 focus-visible:outline-2 active:bg-backplate-2 squircle:rounded-lg"
+            getText={() => installationCode}
+          />
+        </div>
+        <pre className="no-scrollbar w-full overflow-x-auto rounded-xl bg-backplate-1 p-24 text-code squircle:rounded-2xl">
+          {installationCode}
+        </pre>
+      </section>
+
       <CodeSection
         code={getShaderCode({ shaderDef, currentParams, codeSampleImageName, htmlSample })}
         css={htmlSample?.css.trim()}

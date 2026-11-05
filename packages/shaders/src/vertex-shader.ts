@@ -129,27 +129,27 @@ void main() {
 
   // ===================================================
 
-  v_imageUV = uv;
-  if (u_imageIsHtml == 0.) {
-    vec2 imageBoxSize;
-    if (u_fit == 1.) { // contain
-      imageBoxSize.x = min(u_resolution.x / u_imageAspectRatio, u_resolution.y) * u_imageAspectRatio;
-    } else if (u_fit == 2.) { // cover
-      imageBoxSize.x = max(u_resolution.x / u_imageAspectRatio, u_resolution.y) * u_imageAspectRatio;
-    } else {
-      imageBoxSize.x = min(10.0, 10.0 / u_imageAspectRatio * u_imageAspectRatio);
-    }
-    imageBoxSize.y = imageBoxSize.x / u_imageAspectRatio;
-    vec2 imageBoxScale = u_resolution.xy / imageBoxSize;
-
-    v_imageUV *= imageBoxScale;
-    v_imageUV += boxOrigin * (imageBoxScale - 1.);
-    v_imageUV += graphicOffset;
-    v_imageUV /= u_scale;
-    v_imageUV.x *= u_imageAspectRatio;
-    v_imageUV = graphicRotation * v_imageUV;
-    v_imageUV.x /= u_imageAspectRatio;
+  vec2 imageBoxSize;
+  if (u_fit == 1.) { // contain
+    imageBoxSize.x = min(u_resolution.x / u_imageAspectRatio, u_resolution.y) * u_imageAspectRatio;
+  } else if (u_fit == 2.) { // cover
+    imageBoxSize.x = max(u_resolution.x / u_imageAspectRatio, u_resolution.y) * u_imageAspectRatio;
+  } else {
+    imageBoxSize.x = min(10.0, 10.0 / u_imageAspectRatio * u_imageAspectRatio);
   }
+  imageBoxSize.y = imageBoxSize.x / u_imageAspectRatio;
+  vec2 imageBoxScale = u_resolution.xy / imageBoxSize;
+
+  v_imageUV = uv;
+  v_imageUV *= imageBoxScale;
+  v_imageUV += boxOrigin * (imageBoxScale - 1.);
+  v_imageUV += graphicOffset;
+  v_imageUV /= u_scale;
+  v_imageUV.x *= u_imageAspectRatio;
+  v_imageUV = graphicRotation * v_imageUV;
+  v_imageUV.x /= u_imageAspectRatio;
+
+  if (u_imageIsHtml == 1.) v_imageUV = uv;
 
   v_imageUV += .5;
   v_imageUV.y = 1. - v_imageUV.y;
