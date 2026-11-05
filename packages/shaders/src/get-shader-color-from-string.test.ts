@@ -1,5 +1,69 @@
 import { expect, test, describe } from 'bun:test';
+import { getCssColorSource } from './css-color-source.js';
+import { getCssVariableNames, substituteCssVariables } from './css-color-uniform.js';
 import { getShaderColorFromString } from './get-shader-color-from-string.js';
+
+describe('colors resolved by the browser', () => {
+  test('are gray until a mount resolves them', () => {
+    expect(getShaderColorFromString('var(--brand)')).toEqual([0.5, 0.5, 0.5, 1]);
+  });
+
+  test.each(['oklch(70% 0.2 150)', 'color-mix(red 10%, transparent)', 'red', 'rgb(255 0 0)', 'hsl(0.5 100% 50%)'])(
+    '%s keeps its source for the mount',
+    (color) => {
+      expect(getCssColorSource(getShaderColorFromString(color))).toBe(color);
+    }
+  );
+
+  test('keep their source for the mount, including when mapped over an array', () => {
+    const [first, second] = ['var(--brand)', 'color-mix(var(--brand) 10%, transparent)'].map(getShaderColorFromString);
+
+    expect(getCssColorSource(first)).toBe('var(--brand)');
+    expect(getCssColorSource(second)).toBe('color-mix(var(--brand) 10%, transparent)');
+  });
+
+  test('literal colors have no source', () => {
+    expect(getCssColorSource(getShaderColorFromString('#ff0000'))).toBeUndefined();
+  });
+
+});
+
+describe('getCssVariableNames', () => {
+  test('finds each name once, including inside fallbacks and with spacing', () => {
+    const names = getCssVariableNames('color-mix(var( --a ) var(--b-2, var(--c)), var(--a))');
+
+    expect(names).toEqual(['--a', '--b-2', '--c']);
+  });
+});
+
+describe('substituteCssVariables', () => {
+  const values: Record<string, string> = { '--red': '#f00', '--muted': '10%' };
+  const substitute = (css: string) => substituteCssVariables(css, (name) => values[name] ?? '');
+
+  test('replaces variables embedded in a color function', () => {
+    expect(substitute('color-mix(var(--red) var( --muted ), transparent)')).toBe('color-mix(#f00 10%, transparent)');
+  });
+
+  test('uses a fallback containing commas when the variable has no value', () => {
+    expect(substitute('var(--nope, rgb(0, 255, 0))')).toBe('rgb(0, 255, 0)');
+  });
+
+  test('follows variables inside fallbacks', () => {
+    expect(substitute('var(--nope, var(--red))')).toBe('#f00');
+  });
+
+  test('ignores the fallback when the variable has a value', () => {
+    expect(substitute('var(--red, #00f)')).toBe('#f00');
+  });
+
+  test('returns null for a variable without a value or fallback', () => {
+    expect(substitute('var(--nope)')).toBeNull();
+  });
+
+  test('returns null for unbalanced parentheses', () => {
+    expect(substitute('var(--red')).toBeNull();
+  });
+});
 
 describe('getShaderColorFromString', () => {
   // Test array inputs

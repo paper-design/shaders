@@ -1,4 +1,9 @@
-/**  Convert color string from HSL, RGB, or hex to 0-to-1-range-RGBA array */
+import { createCssColorUniform } from './css-color-source.js';
+
+/**
+ * Convert color string from HSL, RGB, or hex to 0-to-1-range-RGBA array.
+ * Any other CSS color, like `var(--brand)` or `oklch(…)`, is resolved later by ShaderMount in the browser.
+ */
 export function getShaderColorFromString(
   colorString: string | [number, number, number] | [number, number, number, number] | undefined
 ): [number, number, number, number] {
@@ -14,6 +19,10 @@ export function getShaderColorFromString(
     return fallbackColor;
   }
 
+  if (colorString.includes('var(')) {
+    return createCssColorUniform(colorString);
+  }
+
   let r: number,
     g: number,
     b: number,
@@ -22,15 +31,14 @@ export function getShaderColorFromString(
     [r, g, b, a] = hexToRgba(colorString);
   } else if (colorString.startsWith('rgb')) {
     const rgba = parseRgba(colorString);
-    if (rgba === null) return fallbackColor;
+    if (rgba === null) return createCssColorUniform(colorString);
     [r, g, b, a] = rgba;
   } else if (colorString.startsWith('hsl')) {
     const hsla = parseHsla(colorString);
-    if (hsla === null) return fallbackColor;
+    if (hsla === null) return createCssColorUniform(colorString);
     [r, g, b, a] = hslaToRgba(hsla);
   } else {
-    console.error('Unsupported color format', colorString);
-    return fallbackColor;
+    return createCssColorUniform(colorString);
   }
 
   return [clamp(r, 0, 1), clamp(g, 0, 1), clamp(b, 0, 1), clamp(a, 0, 1)];

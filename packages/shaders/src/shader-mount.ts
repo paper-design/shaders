@@ -1,3 +1,5 @@
+import { getCssColorSource } from './css-color-source.js';
+import { CssVariableObserver, getCssVariableNames, resolveCssColor } from './css-color-uniform.js';
 import { vertexShaderSource } from './vertex-shader.js';
 
 const DEFAULT_MAX_PIXEL_COUNT: number = 1920 * 1080 * 4;
@@ -36,6 +38,7 @@ export class ShaderMount {
   private uniformCache: Record<string, unknown> = {};
   private textureUnitMap: Map<string, number> = new Map();
   private ownerDocument: Document;
+  private cssVariableObserver: CssVariableObserver;
 
   constructor(
     /** The div you'd like to mount the shader to. The shader will match its size. */
@@ -83,6 +86,7 @@ export class ShaderMount {
     const canvasElement = this.ownerDocument.createElement('canvas');
     this.canvasElement = canvasElement;
     this.parentElement.prepend(canvasElement);
+    this.cssVariableObserver = new CssVariableObserver(canvasElement, this.parentElement, this.refreshCssColors);
     this.fragmentShader = fragmentShader;
     this.providedUniforms = uniforms;
     this.mipmaps = mipmaps;
@@ -108,6 +112,7 @@ export class ShaderMount {
     this.setupUniforms();
     // Put the user provided values into the uniforms
     this.setUniformValues(this.providedUniforms);
+    this.observeCssVariables();
     // Set up the resize observer to handle window resizing and set u_resolution
     this.setupResizeObserver();
     // Set up the visual viewport change listener to handle zoom changes (pinch zoom and classic browser zoom)
@@ -213,6 +218,11 @@ export class ShaderMount {
     this.intersectionObserver = new view.IntersectionObserver(([entry]) => {
       this.isInViewport = entry?.isIntersecting ?? true;
       this.updateCurrentSpeed();
+
+      // Transitions don't run while an element isn't rendered, so we may have missed a change
+      if (this.isInViewport) {
+        this.refreshCssColors();
+      }
     });
 
     this.intersectionObserver.observe(this.parentElement);
@@ -422,7 +432,7 @@ export class ShaderMount {
 
   /** Sets the provided uniform values into the WebGL program, can be a partial list of uniforms that have changed */
   private setUniformValues = (updatedUniforms: ShaderMountUniforms) => {
-    Object.entries(updatedUniforms).forEach(([key, value]) => {
+    Object.entries(this.resolveCssColors(updatedUniforms)).forEach(([key, value]) => {
       // Grab the value to use in the uniform cache
       let cacheValue: ShaderMountUniforms[keyof ShaderMountUniforms] | string = value;
       if (value instanceof HTMLImageElement) {
@@ -500,6 +510,54 @@ export class ShaderMount {
     });
   };
 
+  /** Replaces colors that use CSS variables with their current values */
+  private resolveCssColors = (uniforms: ShaderMountUniforms): ShaderMountUniforms => {
+    const resolved = { ...uniforms };
+
+    for (const [key, value] of Object.entries(uniforms)) {
+      const source = getCssColorSource(value);
+
+      if (source !== undefined) {
+        resolved[key] = resolveCssColor(source, this.parentElement);
+        continue;
+      }
+
+      if (Array.isArray(value) && (value as unknown[]).some((item) => getCssColorSource(item) !== undefined)) {
+        resolved[key] = (value as number[][]).map((item) => {
+          const itemSource = getCssColorSource(item);
+          return itemSource === undefined ? item : resolveCssColor(itemSource, this.parentElement);
+        });
+      }
+    }
+
+    return resolved;
+  };
+
+  private observeCssVariables = (): void => {
+    const names: string[] = [];
+
+    for (const value of Object.values(this.providedUniforms)) {
+      const items: unknown[] = Array.isArray(value) ? [value, ...value] : [value];
+
+      for (const item of items) {
+        const source = getCssColorSource(item);
+
+        if (source !== undefined) {
+          names.push(...getCssVariableNames(source));
+        }
+      }
+    }
+
+    this.cssVariableObserver.observe([...new Set(names)]);
+  };
+
+  private refreshCssColors = (): void => {
+    if (this.hasBeenDisposed || this.cssVariableObserver.isEmpty) return;
+
+    this.setUniformValues(this.providedUniforms);
+    this.renderUnlessAnimating();
+  };
+
   /** Gets the current total animation time from 0ms */
   public getCurrentFrame = (): number => {
     return this.currentFrame;
@@ -558,6 +616,7 @@ export class ShaderMount {
   public setUniforms = (newUniforms: ShaderMountUniforms): void => {
     this.setUniformValues(newUniforms);
     this.providedUniforms = { ...this.providedUniforms, ...newUniforms };
+    this.observeCssVariables();
 
     this.renderUnlessAnimating();
   };
@@ -621,6 +680,8 @@ export class ShaderMount {
     this.ownerDocument.removeEventListener('visibilitychange', this.handleDocumentVisibilityChange);
 
     this.uniformLocations = {};
+
+    this.cssVariableObserver.dispose();
 
     // Remove the shader from the div wrapper element
     this.canvasElement.remove();
