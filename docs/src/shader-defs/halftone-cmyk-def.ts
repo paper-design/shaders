@@ -54,7 +54,7 @@ export const halftoneCmykDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.size,
-      description: 'Grid size (relative to image box)',
+      description: 'Grid size',
     },
     {
       name: 'gridNoise',
@@ -158,7 +158,7 @@ export const halftoneCmykDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.grainSize,
-      description: 'Size of grain texture, applied to both grain and overlay (relative to image box), needs grainMixer or grainOverlay > 0',
+      description: 'Size of grain texture, applied to both grain and overlay, needs grainMixer or grainOverlay > 0',
     },
     {
       name: 'grainMixer',

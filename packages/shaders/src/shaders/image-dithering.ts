@@ -15,8 +15,8 @@ import { proceduralHash21, declarePI } from '../shader-utils.js';
  * Fragment shader uniforms:
  * - u_resolution (vec2): Canvas resolution in pixels
  * - u_pixelRatio (float): Device pixel ratio
- * - u_originX (float): Reference point for positioning world width in the canvas, over HTML where the effect is anchored (0 to 1)
- * - u_originY (float): Reference point for positioning world height in the canvas, over HTML where the effect is anchored from the top (0 to 1)
+ * - u_originX (float): Reference point for positioning world width in the canvas (0 to 1)
+ * - u_originY (float): Reference point for positioning world height in the canvas (0 to 1)
  * - u_fit (float): How to fit the rendered shader into the canvas dimensions (0 = none, 1 = contain, 2 = cover)
  * - u_scale (float): Overall zoom level of the graphics (0.1 to 4)
  * - u_rotation (float): Overall rotation angle of the graphics in degrees (0 to 360)
@@ -24,15 +24,15 @@ import { proceduralHash21, declarePI } from '../shader-utils.js';
  * - u_offsetY (float): Vertical offset of the graphics center (-1 to 1)
  * - u_image (sampler2D): Source image texture, premultiplied alpha
  * - u_imageAspectRatio (float): Aspect ratio of the source image
- * - u_imageIsHtml (float): 1 when u_image is HTML, drawn 1:1 without the sizing uniforms. The pixel size is already in px,
- *   and over HTML the pixel grid is anchored at originX / originY instead of the center, 0 0 being the top left like CSS
+ * - u_imageIsHtml (float): 1 when u_image is HTML, drawn 1:1 without the sizing uniforms. The dithering grid is anchored
+ *   at originX / originY instead of the center, 0 0 being the top left like CSS
  * - u_colorFront (vec4): Foreground color in RGBA, needs originalColors off
  * - u_colorBack (vec4): Background color in RGBA, needs originalColors off
  * - u_colorHighlight (vec4): Secondary foreground color in RGBA (set same as colorFront for classic 2-color dithering), needs originalColors off
  * - u_originalColors (bool): Use the original colors of the image instead of the color palette
  * - u_inverted (bool): Inverts the image luminance, doesn't affect the color scheme
  * - u_type (float): Dithering type (1 = random, 2 = 2x2 Bayer, 3 = 4x4 Bayer, 4 = 8x8 Bayer)
- * - u_pxSize (float): Pixel size of dithering grid (0.5 to 20)
+ * - u_pxSize (float): Pixel size of dithering grid; linked to the screen space, not to the image box (0.5 to 20)
  * - u_colorSteps (float): Number of colors to use, applies to both color modes (1 to 7)
  *
  */

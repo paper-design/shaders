@@ -61,7 +61,7 @@ export const halftoneDotsDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.size,
-      description: 'Grid size relative to the image box',
+      description: 'Grid size',
     },
     {
       name: 'radius',

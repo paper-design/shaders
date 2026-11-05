@@ -8,11 +8,9 @@ import { declarePI, rotation2, simplexNoise } from '../shader-utils.js';
  * Fragment shader uniforms:
  * - u_time (float): Animation time
  * - u_image (sampler2D): Optional source image texture, premultiplied alpha
- * - u_imageAspectRatio (float): Aspect ratio of the source image; over HTML the canvas aspect ratio
- * - u_imageIsHtml (float): 1 when u_image is HTML. HTML is drawn 1:1, so the ripples and their distortion are sized in CSS px
- *   to keep their size over it: size sets the ripple scale from 2px to 100px, and the distortion looks as it does over a
- *   1000px image box. They're anchored at originX / originY
- *   instead of the center, 0 0 being the top left like CSS
+ * - u_imageAspectRatio (float): Aspect ratio of the source image
+ * - u_imageIsHtml (float): 1 when u_image is HTML. HTML is drawn 1:1, so the ripples and their distortion don't scale with the
+ *   canvas. They're anchored at originX / originY instead of the center, 0 0 being the top left like CSS
  * - u_colorBack (vec4): Background color in RGBA
  * - u_colorHighlight (vec4): Highlight color in RGBA, needs highlights > 0
  * - u_highlights (float): Coloring added over image/background following caustic shape, needs colorHighlight alpha > 0 (0 to 1)
@@ -20,7 +18,7 @@ import { declarePI, rotation2, simplexNoise } from '../shader-utils.js';
  * - u_edges (float): Caustic distortion power on the image edges, needs image and caustic > 0 (0 to 1)
  * - u_waves (float): Additional distortion based on simplex noise, independent from caustic (0 to 1)
  * - u_caustic (float): Power of caustic distortion, needs image (0 to 1)
- * - u_size (float): Pattern scale relative to the image (0.01 to 7)
+ * - u_size (float): Pattern scale (0.01 to 7)
  *
  * Vertex shader outputs (used in fragment shader):
  * - v_imageUV (vec2): UV coordinates for sampling the source image, with fit, scale, rotation, and offset applied
@@ -28,8 +26,8 @@ import { declarePI, rotation2, simplexNoise } from '../shader-utils.js';
  * Vertex shader uniforms:
  * - u_resolution (vec2): Canvas resolution in pixels
  * - u_pixelRatio (float): Device pixel ratio
- * - u_originX (float): Reference point for positioning world width in the canvas, over HTML where the effect is anchored (0 to 1)
- * - u_originY (float): Reference point for positioning world height in the canvas, over HTML where the effect is anchored from the top (0 to 1)
+ * - u_originX (float): Reference point for positioning world width in the canvas (0 to 1)
+ * - u_originY (float): Reference point for positioning world height in the canvas (0 to 1)
  * - u_worldWidth (float): Virtual width of the graphic before it's scaled to fit the canvas
  * - u_worldHeight (float): Virtual height of the graphic before it's scaled to fit the canvas
  * - u_fit (float): How to fit the rendered shader into the canvas dimensions (0 = none, 1 = contain, 2 = cover)

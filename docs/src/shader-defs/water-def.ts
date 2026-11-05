@@ -75,7 +75,7 @@ export const waterDef: ShaderDef = {
       min: 0.01,
       max: 7,
       defaultValue: defaultParams.size,
-      description: 'Pattern scale relative to the image',
+      description: 'Pattern scale',
     },
     ...animatedImageCommonParams,
   ],

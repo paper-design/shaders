@@ -8,16 +8,15 @@ import { declarePI } from '../shader-utils.js';
  *
  * Fragment shader uniforms:
  * - u_image (sampler2D): Source image texture, premultiplied alpha
- * - u_imageAspectRatio (float): Aspect ratio of the source image; over HTML the canvas aspect ratio
- * - u_imageIsHtml (float): 1 when u_image is HTML. HTML is drawn 1:1, so the grid and grain are sized in CSS px to keep
- *   their size over it: size sets the grid cell from about 2.5px to 143px, and the grain looks as it does over an image box 1000px wide.
- *   The grid and grain are anchored at originX / originY instead of the center, 0 0 being the top left like CSS
+ * - u_imageAspectRatio (float): Aspect ratio of the source image
+ * - u_imageIsHtml (float): 1 when u_image is HTML. HTML is drawn 1:1, so the grid and grain don't scale with the canvas.
+ *   They're anchored at originX / originY instead of the center, 0 0 being the top left like CSS
  * - u_colorBack (vec4): Background (paper) color in RGBA
  * - u_colorC (vec4): Cyan ink color in RGBA
  * - u_colorM (vec4): Magenta ink color in RGBA
  * - u_colorY (vec4): Yellow ink color in RGBA
  * - u_colorK (vec4): Black ink color in RGBA
- * - u_size (float): Halftone cell size (0 to 1)
+ * - u_size (float): Grid size (0 to 1)
  * - u_contrast (float): Image contrast adjustment (0 to 2)
  * - u_softness (float): Edge softness of dots (0 to 1)
  * - u_grainSize (float): Size of grain texture, applied to both grain and overlay, needs grainMixer or grainOverlay > 0 (0 to 1)
@@ -41,8 +40,8 @@ import { declarePI } from '../shader-utils.js';
  * Vertex shader uniforms:
  * - u_resolution (vec2): Canvas resolution in pixels
  * - u_pixelRatio (float): Device pixel ratio
- * - u_originX (float): Reference point for positioning world width in the canvas, over HTML where the effect is anchored (0 to 1)
- * - u_originY (float): Reference point for positioning world height in the canvas, over HTML where the effect is anchored from the top (0 to 1)
+ * - u_originX (float): Reference point for positioning world width in the canvas (0 to 1)
+ * - u_originY (float): Reference point for positioning world height in the canvas (0 to 1)
  * - u_fit (float): How to fit the rendered shader into the canvas dimensions (0 = none, 1 = contain, 2 = cover)
  * - u_scale (float): Overall zoom level of the graphics (0.1 to 4)
  * - u_rotation (float): Overall rotation angle of the graphics in degrees (0 to 360)

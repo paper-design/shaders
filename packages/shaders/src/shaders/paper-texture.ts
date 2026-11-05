@@ -13,10 +13,10 @@ export const paperTextureMeta = {
  * Fragment shader uniforms:
  * - u_image (sampler2D): Optional source image texture, premultiplied alpha
  * - u_isImage (bool): Whether a source image was provided
- * - u_imageAspectRatio (float): Aspect ratio of the source image; over HTML the canvas aspect ratio
+ * - u_imageAspectRatio (float): Aspect ratio of the source image
  * - u_imageIsHtml (float): 1 when u_image is HTML. HTML is drawn 1:1, so the surface detail (crumples, wrinkles, roughness,
- *   fiber, drops) is sized in CSS px to keep its size over it, looking as it does over an image box 1000px tall, and anchored
- *   at originX / originY instead of the center, 0 0 being the top left like CSS. The folds are anchored there too,
+ *   fiber, drops) doesn't scale with the canvas. It's anchored at originX / originY instead of the center,
+ *   0 0 being the top left like CSS. The folds are anchored there too,
  *   but keep their size relative to the frame, and so does the warp of the image. Wrinkles get much finer toward wrinkleSize 0
  * - u_colorBack (vec4): Color behind the paper sheet in RGBA
  * - u_colorPaper (vec4): Color of the paper sheet in RGBA
@@ -49,8 +49,8 @@ export const paperTextureMeta = {
  * Vertex shader uniforms:
  * - u_resolution (vec2): Canvas resolution in pixels
  * - u_pixelRatio (float): Device pixel ratio
- * - u_originX (float): Reference point for positioning world width in the canvas, over HTML where the effect is anchored (0 to 1)
- * - u_originY (float): Reference point for positioning world height in the canvas, over HTML where the effect is anchored from the top (0 to 1)
+ * - u_originX (float): Reference point for positioning world width in the canvas (0 to 1)
+ * - u_originY (float): Reference point for positioning world height in the canvas (0 to 1)
  * - u_fit (float): How to fit the rendered shader into the canvas dimensions (0 = none, 1 = contain, 2 = cover)
  * - u_scale (float): Overall zoom level of the graphics (0.01 to 4)
  * - u_rotation (float): Overall rotation angle of the graphics in degrees (0 to 360)
