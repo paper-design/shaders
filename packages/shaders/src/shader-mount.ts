@@ -718,8 +718,8 @@ export class ShaderMount {
     }
 
     // Free the drawing buffers now instead of whenever GC collects the canvas
-    // A provided canvas stays in the DOM and can be reused
-    if (!this.isProvidedCanvas) {
+    // A provided canvas that is still in the DOM can be reused
+    if (!this.isProvidedCanvas || !this.canvasElement.isConnected) {
       this.gl.getExtension('WEBGL_lose_context')?.loseContext();
     }
 
