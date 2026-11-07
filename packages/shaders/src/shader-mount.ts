@@ -56,7 +56,7 @@ export class ShaderMount {
      * The minimum pixel ratio to render at, defaults to 2.
      * May be reduced to improve performance or increased together with `maxPixelCount` to improve antialiasing.
      */
-    minPixelRatio = DEFAULT_MIN_PIXEL_RATIO,
+    minPixelRatio: number = DEFAULT_MIN_PIXEL_RATIO,
     /**
      * The maximum amount of physical device pixels to render for the shader,
      * by default it's 1920 * 1080 * 2x dpi (per each side) = 8,294,400 pixels of a 4K screen.
