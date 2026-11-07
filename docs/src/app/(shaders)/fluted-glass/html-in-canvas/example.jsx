@@ -36,7 +36,7 @@ export default function Example(props) {
         <div className="page">
           <img
             className="backdrop"
-            src="https://shaders-docs-git-html-in-canvas-paper-design.vercel.app/images/image-filters/pumpkins.webp"
+            src="https://shaders.paper.design/images/image-filters/pumpkins.webp"
             crossOrigin="anonymous"
             alt=""
           />

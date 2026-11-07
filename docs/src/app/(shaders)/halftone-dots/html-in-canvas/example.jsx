@@ -14,7 +14,7 @@ export const params = {
   grainOverlay: 0,
 };
 
-const images = 'https://shaders-docs-git-html-in-canvas-paper-design.vercel.app/images/image-filters';
+const images = 'https://shaders.paper.design/images/image-filters';
 
 const topics = [
   { name: 'Tropical', src: `${images}/004.webp`, alt: 'Monstera leaves' },

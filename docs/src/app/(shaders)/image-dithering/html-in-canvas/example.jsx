@@ -51,7 +51,7 @@ export default function Example(props) {
             <span />
           </button>
           <img
-            src="https://shaders-docs-git-html-in-canvas-paper-design.vercel.app/images/image-filters/001.webp"
+            src="https://shaders.paper.design/images/image-filters/001.webp"
             crossOrigin="anonymous"
             alt=""
           />

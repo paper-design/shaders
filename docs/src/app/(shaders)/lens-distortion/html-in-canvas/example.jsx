@@ -56,7 +56,7 @@ export default function Example(props) {
       <div className="viewfinder" data-recording="on" ref={startTimecode}>
         <img
           className="scene"
-          src="https://shaders-docs-git-html-in-canvas-paper-design.vercel.app/images/image-filters/003.webp"
+          src="https://shaders.paper.design/images/image-filters/003.webp"
           crossOrigin="anonymous"
           alt=""
         />
