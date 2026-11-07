@@ -3,9 +3,10 @@
 import type { ReactNode } from 'react';
 import { ShaderDef, ParamOption, ParamDef } from '../shader-defs/shader-def-types';
 import { CopyButton } from './copy-button';
-import { hslToHex } from '@/helpers/color-utils';
+import { hslToHex, toHsla } from '@/helpers/color-utils';
 import { commonParams } from '@/shader-defs/common-param-def';
-import { highlightJsx } from '@/helpers/highlight-code';
+import { highlightJsx, highlightCss } from '@/helpers/highlight-code';
+import { getRunnableExample } from '@/helpers/runnable-example';
 
 const formatJsxAttribute = (key: string, value: unknown): string => {
   if (value === true) {
@@ -25,8 +26,11 @@ const formatJsxAttribute = (key: string, value: unknown): string => {
   if (Array.isArray(value)) {
     return `${key}={[${value.map((v) => JSON.stringify(v)).join(', ')}]}`;
   }
-  if (typeof value === 'object') {
-    return `${key}={${JSON.stringify(value)}}`;
+  if (value && typeof value === 'object') {
+    const entries = Object.entries(value).map(
+      ([name, entry]) => `${name}: ${JSON.stringify(entry).replace(/"/g, "'")}`
+    );
+    return entries.length > 0 ? `${key}={{ ${entries.join(', ')} }}` : `${key}={{}}`;
   }
 
   return `${key}={${JSON.stringify(value)}}`;
@@ -108,31 +112,64 @@ function PropsTable({ params }: { params: ParamDef[] }) {
   );
 }
 
-export function ShaderDetails({
-  shaderDef,
-  currentParams,
-  notes,
-  codeSampleImageName,
-}: {
+interface ShaderCodeProps {
   shaderDef: ShaderDef;
   currentParams: Record<string, unknown>;
-  notes?: ReactNode;
   codeSampleImageName?: string;
-}) {
-  const componentName = shaderDef.name.replace(/ /g, '');
+  /** Live HTML input: the sample is the example file and its stylesheet */
+  htmlSample?: { source: string; css: string; defaultParams: Record<string, unknown> };
+}
 
-  const installationCode = 'npm i @paper-design/shaders-react';
+function isDefaultParam(param: ParamDef | undefined, value: unknown, defaultValue: unknown): boolean {
+  if (defaultValue === undefined) {
+    return false;
+  }
+
+  if (param?.isColor) {
+    const toHex = (color: unknown) => (typeof color === 'string' ? hslToHex(toHsla(color)) : color);
+    const normalize = (colors: unknown) => (Array.isArray(colors) ? colors.map(toHex) : toHex(colors));
+    return JSON.stringify(normalize(value)) === JSON.stringify(normalize(defaultValue));
+  }
+
+  return JSON.stringify(value) === JSON.stringify(defaultValue);
+}
+
+/** The example file with its params block rewritten to the current Leva values */
+function getExampleCode({ shaderDef, currentParams, htmlSample }: ShaderCodeProps): string {
+  const lines = Object.entries(currentParams)
+    .filter(([key, value]) => {
+      const param = shaderDef.params.find((p) => p.name === key);
+      return value !== undefined && !isDefaultParam(param, value, htmlSample!.defaultParams[key]);
+    })
+    .map(([key, value]) => {
+      const isColor = shaderDef.params.some((p) => p.name === key && p.isColor);
+      if (isColor) return `  ${key}: '${hslToHex(value as string)}',`;
+      if (typeof value === 'string') return `  ${key}: '${value}',`;
+      return `  ${key}: ${typeof value === 'number' ? parseFloat(value.toFixed(3)) : JSON.stringify(value)},`;
+    });
+  return htmlSample!.source.replace(
+    /export const params = \{[\s\S]*?\n\};/,
+    `export const params = {\n${lines.join('\n')}\n};`
+  );
+}
+
+function getShaderCode({ shaderDef, currentParams, codeSampleImageName, htmlSample }: ShaderCodeProps): string {
+  if (htmlSample) {
+    return getExampleCode({ shaderDef, currentParams, htmlSample });
+  }
+
+  const componentName = shaderDef.name.replace(/ /g, '');
   const image = codeSampleImageName
     ? `https://shaders.paper.design/${codeSampleImageName}`
     : 'https://paper.design/flowers.webp';
+  const hasImageParam = shaderDef.params.some((p) => p.name === 'image');
 
-  const code = `import { ${componentName} } from '@paper-design/shaders-react';
-
-<${componentName}
-  width={1280}
-  height={720}${shaderDef.params.find((p) => p.name === 'image') ? `\n  image="${image}"` : ''}
-  ${Object.entries(currentParams)
+  const params = Object.entries(currentParams)
     .filter(([key, value]) => {
+      // Disabled Leva controls report undefined
+      if (value === undefined) {
+        return false;
+      }
       if (['offsetX', 'offsetY', 'rotation'].includes(key) && value === 0) {
         return false;
       }
@@ -153,10 +190,59 @@ export function ShaderDetails({
           value.map((v) => hslToHex(v))
         );
       }
-    })
-    .join('\n  ')}
-/>
-`;
+    });
+
+  const attributes = ['width={1280}', 'height={720}', ...(hasImageParam ? [`image="${image}"`] : []), ...params];
+  const element = `<${componentName}\n  ${attributes.join('\n  ')}\n/>`;
+
+  return `import { ${componentName} } from '@paper-design/shaders-react';\n\n${element}\n`;
+}
+
+function CodeSection({ code, css }: { code: string; css?: string }) {
+  return (
+    <section>
+      <div className="flex items-center gap-8">
+        <h2 className="text-2xl font-medium lowercase">Code</h2>
+        <CopyButton
+          className="-mt-14 -mb-16 size-32 rounded-md outline-0 outline-focus transition-colors hover:bg-backplate-1 focus-visible:outline-2 active:bg-backplate-2 squircle:rounded-lg"
+          getText={() => (css ? getRunnableExample(code, css) : code)}
+        />
+      </div>
+      <div className="flex flex-col gap-8">
+        {/* highlightJsx escapes the source, so the markup only holds its own token spans */}
+        <pre
+          className="syntax-highlight custom-scrollbar overflow-x-auto rounded-xl bg-backplate-1 p-24 text-code squircle:rounded-2xl"
+          dangerouslySetInnerHTML={{ __html: highlightJsx(code) }}
+        />
+        {css && (
+          <>
+            <div className="mt-16 flex items-center gap-8">
+              <h3 className="font-mono text-base">example.css</h3>
+              <CopyButton
+                className="-mt-14 -mb-16 size-32 rounded-md outline-0 outline-focus transition-colors hover:bg-backplate-1 focus-visible:outline-2 active:bg-backplate-2 squircle:rounded-lg"
+                getText={() => css}
+              />
+            </div>
+            <pre
+              className="syntax-highlight custom-scrollbar overflow-x-auto rounded-xl bg-backplate-1 p-24 text-code squircle:rounded-2xl"
+              dangerouslySetInnerHTML={{ __html: highlightCss(css) }}
+            />
+          </>
+        )}
+      </div>
+    </section>
+  );
+}
+
+export function ShaderDetails({
+  shaderDef,
+  currentParams,
+  notes,
+  codeSampleImageName,
+  htmlSample,
+}: ShaderCodeProps & { notes?: ReactNode }) {
+  const installationCode = 'npm i @paper-design/shaders-react';
+
   const commonPropNames = Object.keys(commonParams);
   const shaderProps = shaderDef.params.filter((p) => !commonPropNames.includes(p.name));
   const commonProps = shaderDef.params.filter((p) => commonPropNames.includes(p.name));
@@ -176,21 +262,10 @@ export function ShaderDetails({
         </pre>
       </section>
 
-      <section>
-        <div className="flex items-center gap-8">
-          <h2 className="text-2xl font-medium lowercase">Code</h2>
-          <CopyButton
-            className="-mt-14 -mb-16 size-32 rounded-md outline-0 outline-focus transition-colors hover:bg-backplate-1 focus-visible:outline-2 active:bg-backplate-2 squircle:rounded-lg"
-            getText={() => code}
-          />
-        </div>
-        <div className="flex flex-col gap-8">
-          <pre
-            className="syntax-highlight custom-scrollbar overflow-x-auto rounded-xl bg-backplate-1 p-24 text-code squircle:rounded-2xl"
-            dangerouslySetInnerHTML={{ __html: highlightJsx(code) }}
-          />
-        </div>
-      </section>
+      <CodeSection
+        code={getShaderCode({ shaderDef, currentParams, codeSampleImageName, htmlSample })}
+        css={htmlSample?.css.trim()}
+      />
 
       <section>
         <div className="flex flex-col gap-16">
@@ -201,14 +276,17 @@ export function ShaderDetails({
         </div>
       </section>
 
-      <section>
-        <div className="flex flex-col gap-16">
-          <h2 className="text-2xl font-medium lowercase">Common Props</h2>
-          <div className="custom-scrollbar overflow-x-auto rounded-xl bg-backplate-1 squircle:rounded-2xl">
-            <PropsTable params={commonProps} />
+      {/* HTML demos draw their children 1:1, so the sizing props that make up most of the common ones don't apply */}
+      {!htmlSample && (
+        <section>
+          <div className="flex flex-col gap-16">
+            <h2 className="text-2xl font-medium lowercase">Common Props</h2>
+            <div className="custom-scrollbar overflow-x-auto rounded-xl bg-backplate-1 squircle:rounded-2xl">
+              <PropsTable params={commonProps} />
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {shaderDef.description && (
         <section>

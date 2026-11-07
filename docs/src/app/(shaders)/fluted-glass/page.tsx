@@ -14,8 +14,19 @@ import { ShaderDetails } from '@/components/shader-details';
 import { flutedGlassDef } from '@/shader-defs/fluted-glass-def';
 import { ShaderContainer } from '@/components/shader-container';
 import { useUrlParams } from '@/helpers/use-url-params';
+import {
+  htmlInputOnly,
+  originControls,
+  htmlResetFolder,
+  imageInputOnly,
+  useIsHtmlInCanvasPage,
+} from '@/helpers/html-in-canvas-page';
+import { HtmlInCanvasDemo } from '@/components/html-in-canvas-demo';
+import Example, { params as exampleParams } from './html-in-canvas/example';
 
-const { worldWidth, worldHeight, ...defaults } = flutedGlassPresets[0].params;
+const { worldWidth, worldHeight, ...presetDefaults } = flutedGlassPresets[0].params;
+
+const htmlInCanvasDefaults = { ...presetDefaults, ...exampleParams };
 
 const imageFiles = [
   '001.webp',
@@ -39,6 +50,8 @@ const imageFiles = [
 ] as const;
 
 const FlutedGlassWithControls = () => {
+  const isHtmlInCanvas = useIsHtmlInCanvasPage();
+  const defaults = isHtmlInCanvas ? htmlInCanvasDefaults : presetDefaults;
   const [imageIdx, setImageIdx] = useState(-1);
   const [image, setImage] = useState<HTMLImageElement | string>('/images/image-filters/0018.webp');
 
@@ -71,7 +84,7 @@ const FlutedGlassWithControls = () => {
       colorBack: { value: toHsla(defaults.colorBack), order: 100 },
       colorShadow: { value: toHsla(defaults.colorShadow), order: 101 },
       colorHighlight: { value: toHsla(defaults.colorHighlight), order: 102 },
-      size: { value: defaults.size, min: 0, max: 1, step: 0.001, order: 210 },
+      size: { value: defaults.size, min: 0, max: 1, step: 0.001, order: 210, ...imageInputOnly },
       shadows: { value: defaults.shadows, min: 0, max: 1, order: 200 },
       highlights: { value: defaults.highlights, min: 0, max: 1, order: 201 },
       shape: {
@@ -84,25 +97,32 @@ const FlutedGlassWithControls = () => {
         value: defaults.distortionShape,
         options: Object.keys(GlassDistortionShapes) as GlassDistortionShape[],
         order: 213,
+        ...imageInputOnly,
       },
-      distortion: { value: defaults.distortion, min: 0, max: 1, order: 214 },
-      shift: { value: defaults.shift, min: -1, max: 1, order: 215 },
+      distortion: { value: defaults.distortion, min: 0, max: 1, order: 214, ...imageInputOnly },
+      shift: { value: defaults.shift, min: -1, max: 1, order: 215, ...imageInputOnly },
       stretch: { value: defaults.stretch, min: 0, max: 1, order: 216 },
       blur: { value: defaults.blur, min: 0, max: 1, order: 220 },
       edges: { value: defaults.edges, min: 0, max: 1, order: 221 },
-      margin: { value: defaults.margin, min: 0, max: 1, order: 500 },
+      margin: { value: defaults.margin, min: 0, max: 1, order: 500, ...imageInputOnly },
+      marginLeft: { value: defaults.marginLeft, min: 0, max: 1, order: 501, ...htmlInputOnly },
+      marginRight: { value: defaults.marginRight, min: 0, max: 1, order: 502, ...htmlInputOnly },
+      marginTop: { value: defaults.marginTop, min: 0, max: 1, order: 503, ...htmlInputOnly },
+      marginBottom: { value: defaults.marginBottom, min: 0, max: 1, order: 504, ...htmlInputOnly },
       grainMixer: { value: defaults.grainMixer, min: 0, max: 1, order: 550 },
       grainOverlay: { value: defaults.grainOverlay, min: 0, max: 1, order: 551 },
-      scale: { value: defaults.scale, min: 0.1, max: 4, order: 600 },
-      fit: { value: defaults.fit, options: ['contain', 'cover'] as ShaderFit[], order: 604 },
+      scale: { value: defaults.scale, min: 0.1, max: 4, order: 600, ...imageInputOnly },
+      ...originControls(defaults, 600.1),
+      fit: { value: defaults.fit, options: ['contain', 'cover'] as ShaderFit[], order: 604, ...imageInputOnly },
 
       Image: folder(
         {
           'Upload image': levaImageButton(setImageWithoutStatus),
         },
-        { order: 0 }
+        { order: 0, ...imageInputOnly }
       ),
-      Presets: folder(presets, { order: -1 }),
+      Presets: folder(presets, { order: -1, ...imageInputOnly }),
+      Preset: htmlResetFolder(() => setParamsSafe(params, setParams, defaults)),
     };
   });
 
@@ -110,20 +130,37 @@ const FlutedGlassWithControls = () => {
   // shaders when navigating (if two shaders have a color1 param for example)
   useResetLevaParams(params, setParams, defaults);
   useUrlParams(params, setParams, flutedGlassDef);
-  usePresetHighlight(flutedGlassPresets, params);
+  usePresetHighlight(isHtmlInCanvas ? [{ name: 'Reset', params: defaults }] : flutedGlassPresets, params);
   cleanUpLevaParams(params);
+
+  // Per-side margins override the shared one, so each page passes only the margins it shows
+  const { margin, marginLeft, marginRight, marginTop, marginBottom, ...restParams } = params;
+  const shaderParams = isHtmlInCanvas
+    ? { ...restParams, marginLeft, marginRight, marginTop, marginBottom }
+    : { ...restParams, margin };
+
+  if (isHtmlInCanvas) {
+    return (
+      <HtmlInCanvasDemo
+        Example={Example}
+        shaderDef={flutedGlassDef}
+        currentParams={shaderParams}
+        defaultParams={presetDefaults}
+      />
+    );
+  }
 
   return (
     <>
-      <ShaderContainer shaderDef={flutedGlassDef} currentParams={params}>
-        <FlutedGlass onClick={handleClick} {...params} image={image} />
+      <ShaderContainer shaderDef={flutedGlassDef} currentParams={shaderParams}>
+        <FlutedGlass onClick={handleClick} {...shaderParams} image={image} />
       </ShaderContainer>
 
       <div onClick={handleClick} className="mx-auto mt-16 mb-48 w-fit text-base text-current/70 select-none">
         Click to change the sample image
       </div>
 
-      <ShaderDetails shaderDef={flutedGlassDef} currentParams={params} />
+      <ShaderDetails shaderDef={flutedGlassDef} currentParams={shaderParams} />
     </>
   );
 };

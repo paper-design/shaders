@@ -9,6 +9,8 @@ import { declarePI, rotation2, simplexNoise } from '../shader-utils.js';
  * - u_time (float): Animation time
  * - u_image (sampler2D): Optional source image texture, premultiplied alpha
  * - u_imageAspectRatio (float): Aspect ratio of the source image
+ * - u_imageIsHtml (float): 1 when u_image is HTML. HTML is drawn 1:1, so the ripples and their distortion don't scale with the
+ *   canvas. They're anchored at originX / originY instead of the center, 0 0 being the top left like CSS
  * - u_colorBack (vec4): Background color in RGBA
  * - u_colorHighlight (vec4): Highlight color in RGBA, needs highlights > 0
  * - u_highlights (float): Coloring added over image/background following caustic shape, needs colorHighlight alpha > 0 (0 to 1)
@@ -16,7 +18,7 @@ import { declarePI, rotation2, simplexNoise } from '../shader-utils.js';
  * - u_edges (float): Caustic distortion power on the image edges, needs image and caustic > 0 (0 to 1)
  * - u_waves (float): Additional distortion based on simplex noise, independent from caustic (0 to 1)
  * - u_caustic (float): Power of caustic distortion, needs image (0 to 1)
- * - u_size (float): Pattern scale relative to the image (0.01 to 7)
+ * - u_size (float): Pattern scale (0.01 to 7)
  *
  * Vertex shader outputs (used in fragment shader):
  * - v_imageUV (vec2): UV coordinates for sampling the source image, with fit, scale, rotation, and offset applied
@@ -48,6 +50,11 @@ uniform vec4 u_colorHighlight;
 
 uniform sampler2D u_image;
 uniform float u_imageAspectRatio;
+uniform float u_imageIsHtml;
+uniform vec2 u_resolution;
+uniform float u_pixelRatio;
+uniform float u_originX;
+uniform float u_originY;
 
 uniform float u_size;
 uniform float u_highlights;
@@ -61,6 +68,9 @@ in vec2 v_imageUV;
 out vec4 fragColor;
 
 ${ declarePI }
+float sizeToPx(float size) {
+  return 1000. * (.002 + .07 * size);
+}
 ${ rotation2 }
 ${ simplexNoise }
 
@@ -97,9 +107,18 @@ float getCausticNoise(vec2 uv, float t, float scale) {
 
 void main() {
   vec2 imageUV = v_imageUV;
-  vec2 patternUV = v_imageUV - .5;
-  patternUV = (patternUV * vec2(u_imageAspectRatio, 1.));
-  patternUV /= (.01 + .09 * u_size);
+  vec2 htmlScale = vec2(1.);
+  vec2 patternUV = v_imageUV;
+  if (u_imageIsHtml == 1.) {
+    htmlScale = u_resolution / u_pixelRatio / 1000.;
+    patternUV -= vec2(u_originX, u_originY);
+    patternUV *= vec2(u_imageAspectRatio, 1.);
+    patternUV /= sizeToPx(u_size) / (u_resolution.y / u_pixelRatio);
+  } else {
+    patternUV -= .5;
+    patternUV = (patternUV * vec2(u_imageAspectRatio, 1.));
+    patternUV /= (.01 + .09 * u_size);
+  }
 
   float t = u_time;
 
@@ -122,8 +141,8 @@ void main() {
 
   float wavesDistortion = .1 * u_waves * wavesNoise;
 
-  imageUV += vec2(wavesDistortion, -wavesDistortion);
-  imageUV += (u_caustic * causticNoiseDistortion);
+  imageUV += vec2(wavesDistortion, -wavesDistortion) / htmlScale;
+  imageUV += (u_caustic * causticNoiseDistortion) / htmlScale;
 
   float frame = getUvFrame(imageUV);
 

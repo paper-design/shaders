@@ -13,8 +13,13 @@ import { ShaderDetails } from '@/components/shader-details';
 import { paperTextureDef } from '@/shader-defs/paper-texture-def';
 import { ShaderContainer } from '@/components/shader-container';
 import { useUrlParams } from '@/helpers/use-url-params';
+import { originControls, htmlResetFolder, imageInputOnly, useIsHtmlInCanvasPage } from '@/helpers/html-in-canvas-page';
+import { HtmlInCanvasDemo } from '@/components/html-in-canvas-demo';
+import Example, { params as exampleParams } from './html-in-canvas/example';
 
-const { worldWidth, worldHeight, ...defaults } = paperTexturePresets[0].params;
+const { worldWidth, worldHeight, ...presetDefaults } = paperTexturePresets[0].params;
+
+const htmlInCanvasDefaults = { ...presetDefaults, ...exampleParams };
 
 const imageFiles = [
   '001.webp',
@@ -38,6 +43,8 @@ const imageFiles = [
 ] as const;
 
 const PaperTextureWithControls = () => {
+  const isHtmlInCanvas = useIsHtmlInCanvasPage();
+  const defaults = isHtmlInCanvas ? htmlInCanvasDefaults : presetDefaults;
   const [imageIdx, setImageIdx] = useState(-1);
   const [image, setImage] = useState<HTMLImageElement | string>('/images/image-filters/0018.webp');
 
@@ -74,7 +81,7 @@ const PaperTextureWithControls = () => {
       distortion: { value: defaults.distortion, min: -1, max: 1, order: 111 },
       clip: { value: defaults.clip, order: 112 },
       angle: { value: defaults.angle, min: 0, max: 360, order: 120 },
-      seed: { value: defaults.seed, min: 0, step: 1, max: 1000, order: 121 },
+      seed: { value: defaults.seed, min: 0, step: 1, max: 1000, order: 121, ...imageInputOnly },
       roughness: { value: defaults.roughness, min: 0, max: 1, order: 200 },
       roughnessSize: { value: defaults.roughnessSize, min: 0, max: 1, order: 201 },
       roughnessRows: { value: defaults.roughnessRows, min: 0, max: 1, order: 202 },
@@ -96,16 +103,18 @@ const PaperTextureWithControls = () => {
         order: 241,
       },
       drops: { value: defaults.drops, min: 0, max: 1, order: 250 },
-      scale: { value: defaults.scale, min: 0.5, max: 10, order: 400 },
-      fit: { value: defaults.fit, options: ['contain', 'cover'] as ShaderFit[], order: 401 },
+      scale: { value: defaults.scale, min: 0.5, max: 10, order: 400, ...imageInputOnly },
+      ...originControls(defaults, 400.1),
+      fit: { value: defaults.fit, options: ['contain', 'cover'] as ShaderFit[], order: 401, ...imageInputOnly },
       Image: folder(
         {
           'Upload image': levaImageButton(setImageWithoutStatus),
           ...(image && { 'Delete image': levaDeleteImageButton(() => setImage('')) }),
         },
-        { order: 0 }
+        { order: 0, ...imageInputOnly }
       ),
-      Presets: folder(presets, { order: -1 }),
+      Presets: folder(presets, { order: -1, ...imageInputOnly }),
+      Preset: htmlResetFolder(() => setParamsSafe(params, setParams, defaults)),
     };
   }, [image]);
 
@@ -113,8 +122,20 @@ const PaperTextureWithControls = () => {
   // shaders when navigating (if two shaders have a color1 param for example)
   useResetLevaParams(params, setParams, defaults);
   useUrlParams(params, setParams, paperTextureDef);
-  usePresetHighlight(paperTexturePresets, params);
+  usePresetHighlight(isHtmlInCanvas ? [{ name: 'Reset', params: defaults }] : paperTexturePresets, params);
   cleanUpLevaParams(params);
+
+  if (isHtmlInCanvas) {
+    return (
+      <HtmlInCanvasDemo
+        Example={Example}
+        fitsContent
+        shaderDef={paperTextureDef}
+        currentParams={params}
+        defaultParams={presetDefaults}
+      />
+    );
+  }
 
   return (
     <>

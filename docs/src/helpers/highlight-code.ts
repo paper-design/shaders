@@ -120,6 +120,20 @@ class Highlighter {
   }
 }
 
+const cssTokenPattern =
+  /(\s+)|([^\s{};][^{};]*(?=\{))|([\w-]+)(?=\s*:)|("[^"]*"|'[^']*')|(#[\da-f]+\b|-?\d*\.?\d+(?:%|[a-z]+)?)|([\w-]+)|(.)/giy;
+
+export function highlightCss(css: string): string {
+  const types = [undefined, 'entity', 'property', 'string', 'number', 'identifier', 'sign'] as const;
+  let html = '';
+  cssTokenPattern.lastIndex = 0;
+  for (let match = cssTokenPattern.exec(css); match; match = cssTokenPattern.exec(css)) {
+    const type = types[match.slice(1).findIndex((group) => group !== undefined)];
+    html += type ? token(type, match[0]) : escapeHtml(match[0]);
+  }
+  return html;
+}
+
 function token(type: TokenType, text: string): string {
   return text ? `<span style="color:var(--syntax-${type})">${escapeHtml(text)}</span>` : '';
 }

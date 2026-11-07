@@ -7,9 +7,11 @@ import {
   type PaperShaderElement,
   type ShaderMotionParams,
   type ShaderMountUniforms,
+  type ShaderSizeToContent,
 } from '@paper-design/shaders';
 import { useMergeRefs } from './use-merge-refs.js';
 import { setMinImageSize } from './set-min-image-size.js';
+import { useHtmlChildren, type ShaderLayoutProps } from './html-in-canvas.js';
 
 /**
  * React Shader Mount can also accept strings as uniform values, which will assumed to be URLs and loaded as images
@@ -18,7 +20,7 @@ import { setMinImageSize } from './set-min-image-size.js';
  * We just skip setting the uniform if it's undefined. This allows the shader mount to still take up space during server rendering
  */
 interface ShaderMountUniformsReact {
-  [key: string]: string | boolean | number | number[] | number[][] | HTMLImageElement | undefined;
+  [key: string]: string | boolean | number | number[] | number[][] | HTMLImageElement | HTMLElement | undefined;
 }
 
 export interface ShaderMountProps extends Omit<React.ComponentProps<'div'>, 'color' | 'ref'>, ShaderMotionParams {
@@ -29,6 +31,9 @@ export interface ShaderMountProps extends Omit<React.ComponentProps<'div'>, 'col
   minPixelRatio?: number;
   maxPixelCount?: number;
   webGlContextAttributes?: WebGLContextAttributes;
+  acceptsHtmlChildren?: boolean;
+  layoutProps?: ShaderLayoutProps;
+  sizeToContent?: ShaderSizeToContent;
 
   /** Inline CSS width style */
   width?: string | number;
@@ -41,6 +46,8 @@ export interface ShaderComponentProps extends Omit<React.ComponentProps<'div'>, 
   minPixelRatio?: number;
   maxPixelCount?: number;
   webGlContextAttributes?: WebGLContextAttributes;
+  layoutProps?: ShaderLayoutProps;
+  sizeToContent?: ShaderSizeToContent;
 
   /** Inline CSS width style */
   width?: string | number;
@@ -136,6 +143,10 @@ export const ShaderMount: React.FC<ShaderMountProps> = forwardRef<PaperShaderEle
       minPixelRatio,
       maxPixelCount,
       mipmaps,
+      acceptsHtmlChildren = false,
+      layoutProps,
+      sizeToContent,
+      children,
       style,
       ...divProps
     },
@@ -145,13 +156,24 @@ export const ShaderMount: React.FC<ShaderMountProps> = forwardRef<PaperShaderEle
     const divRef = useRef<PaperShaderElement>(null);
     const shaderMountRef: React.RefObject<ShaderMountVanilla | null> = useRef<ShaderMountVanilla>(null);
     const webGlContextAttributesRef = useRef(webGlContextAttributes);
+    const { hasHtmlChildren, addHtmlUniform, renderedChildren, sizeStyle } = useHtmlChildren(
+      acceptsHtmlChildren,
+      children,
+      layoutProps,
+      sizeToContent,
+      divRef
+    );
+
+    const getUniforms = (): ShaderMountUniformsReact => addHtmlUniform(uniformsProp);
 
     // Initialize the ShaderMountVanilla
     useEffect(() => {
-      const initShader = async () => {
-        const uniforms = await processUniforms(uniformsProp);
+      let isStale = false;
 
-        if (divRef.current && !shaderMountRef.current) {
+      const initShader = async () => {
+        const uniforms = await processUniforms(getUniforms());
+
+        if (!isStale && divRef.current && !shaderMountRef.current) {
           shaderMountRef.current = new ShaderMountVanilla(
             divRef.current,
             fragmentShader,
@@ -171,17 +193,18 @@ export const ShaderMount: React.FC<ShaderMountProps> = forwardRef<PaperShaderEle
       initShader();
 
       return () => {
+        isStale = true;
         shaderMountRef.current?.dispose();
         shaderMountRef.current = null;
       };
-    }, [fragmentShader]);
+    }, [fragmentShader, hasHtmlChildren]);
 
     // Uniforms
     useEffect(() => {
       let isStale = false;
 
       const updateUniforms = async () => {
-        const uniforms = await processUniforms(uniformsProp);
+        const uniforms = await processUniforms(getUniforms());
 
         if (!isStale) {
           // We only use the freshest uniforms otherwise we can get into race conditions
@@ -227,11 +250,14 @@ export const ShaderMount: React.FC<ShaderMountProps> = forwardRef<PaperShaderEle
                 width: typeof width === 'string' && isNaN(+width) === false ? +width : width,
                 height: typeof height === 'string' && isNaN(+height) === false ? +height : height,
                 ...style,
+                ...sizeStyle,
               }
-            : style
+            : { ...style, ...sizeStyle }
         }
         {...divProps}
-      />
+      >
+        {renderedChildren}
+      </div>
     );
   }
 );

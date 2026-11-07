@@ -8,6 +8,7 @@ layout(location = 0) in vec4 a_position;
 uniform vec2 u_resolution;
 uniform float u_pixelRatio;
 uniform float u_imageAspectRatio;
+uniform float u_imageIsHtml;
 uniform float u_originX;
 uniform float u_originY;
 uniform float u_worldWidth;
@@ -147,6 +148,8 @@ void main() {
   v_imageUV.x *= u_imageAspectRatio;
   v_imageUV = graphicRotation * v_imageUV;
   v_imageUV.x /= u_imageAspectRatio;
+
+  if (u_imageIsHtml == 1.) v_imageUV = uv;
 
   v_imageUV += .5;
   v_imageUV.y = 1. - v_imageUV.y;

@@ -2,6 +2,8 @@
 
 export { ShaderMount } from './shader-mount.js';
 export type { ShaderMountProps, ShaderComponentProps } from './shader-mount.js';
+export type { ShaderLayoutProps } from './html-in-canvas.js';
+export type { ShaderSizeToContent } from '@paper-design/shaders';
 
 export { MeshGradient, meshGradientPresets } from './shaders/mesh-gradient.js';
 export type { MeshGradientProps } from './shaders/mesh-gradient.js';

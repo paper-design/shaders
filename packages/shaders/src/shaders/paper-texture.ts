@@ -14,6 +14,10 @@ export const paperTextureMeta = {
  * - u_image (sampler2D): Optional source image texture, premultiplied alpha
  * - u_isImage (bool): Whether a source image was provided
  * - u_imageAspectRatio (float): Aspect ratio of the source image
+ * - u_imageIsHtml (float): 1 when u_image is HTML. HTML is drawn 1:1, so the surface detail (crumples, wrinkles, roughness,
+ *   fiber, drops) doesn't scale with the canvas. It's anchored at originX / originY instead of the center,
+ *   0 0 being the top left like CSS. The folds are anchored there too,
+ *   but keep their size relative to the frame, and so does the warp of the image. Wrinkles get much finer toward wrinkleSize 0
  * - u_colorBack (vec4): Color behind the paper sheet in RGBA
  * - u_colorPaper (vec4): Color of the paper sheet in RGBA
  * - u_colorShadow (vec4): Color of the patterns over the paper sheet in RGBA
@@ -63,6 +67,11 @@ precision mediump float;
 uniform sampler2D u_image;
 uniform bool u_isImage;
 uniform float u_imageAspectRatio;
+uniform float u_imageIsHtml;
+uniform vec2 u_resolution;
+uniform float u_pixelRatio;
+uniform float u_originX;
+uniform float u_originY;
 
 uniform vec4 u_colorBack;
 uniform vec4 u_colorPaper;
@@ -396,8 +405,13 @@ void getFolds(vec2 coord, vec2 offset, vec2 count, vec2 noise, vec2 baseFwidth, 
 
 void main() {
 
-  vec2 patternUV = (v_imageUV - .5) * vec2(u_imageAspectRatio, 1.);
-  float basePixel = max(length(dFdx(patternUV)), length(dFdy(patternUV)));
+  vec2 surfaceOrigin = u_imageIsHtml == 1. ? vec2(u_originX, u_originY) : vec2(.5);
+  vec2 patternUV = (v_imageUV - surfaceOrigin) * vec2(u_imageAspectRatio, 1.);
+  vec2 surfaceUV = patternUV;
+  if (u_imageIsHtml == 1.) {
+    surfaceUV *= u_resolution.y / u_pixelRatio / 1000.;
+  }
+  float basePixel = max(length(dFdx(surfaceUV)), length(dFdy(surfaceUV)));
   vec2 baseFwidth = fwidth(patternUV);
 
   float pattern = 0.;
@@ -423,9 +437,9 @@ void main() {
 
   vec2 warpNoise = vec2(0.);
   if (u_crumples > 0. || u_folds > 0. || u_wrinkles > 0.) {
-    warpNoise = smoothNoise(patternUV * .1 + .2 + .6 * fract(.017 * u_seed)) - .5;
+    warpNoise = smoothNoise(surfaceUV * .1 + .2 + .6 * fract(.017 * u_seed)) - .5;
   }
-  vec2 crumplesUV = (patternUV * .9) + .012 * warpNoise;
+  vec2 crumplesUV = (surfaceUV * .9) + .012 * warpNoise;
 
   if (u_crumples > 0.) {
     vec4 crumples = getCrumples(crumplesUV);
@@ -441,6 +455,9 @@ void main() {
 
   if (u_wrinkles > 0.) {
     float detailFreq = mix(10., 1., u_wrinkleSize);
+    if (u_imageIsHtml == 1.) {
+      detailFreq *= mix(4., 1., smoothstep(0., .5, u_wrinkleSize));
+    }
     float detailAmp = .2;
     vec2 detailGrad = vec2(0.);
     float detailDepth = 0., depthSum = 0.;
@@ -491,22 +508,22 @@ void main() {
     pattern += (clamp(reliefAmount, 0., 1.) * unlit + (lit - unlit)) * foldInk * lightPower;
   }
 
-  patternUV += .04 * crumpleFlow;
+  surfaceUV += .04 * crumpleFlow;
 
   vec2 seedShift = floor(fract(u_seed * vec2(.7548776662, .5698402909)) * 50.) / 50.;
 
   if (u_roughness > 0.) {
-    roughness = u_roughness * getRoughness(1000. * patternUV, lightDir, seedShift, basePixel);
+    roughness = u_roughness * getRoughness(1000. * surfaceUV, lightDir, seedShift, basePixel);
     pattern += roughness;
   }
 
   if (u_fiber > 0.) {
-    fiber = u_fiber * getFiber(50. * patternUV, seedShift, basePixel);
+    fiber = u_fiber * getFiber(50. * surfaceUV, seedShift, basePixel);
     pattern += fiber;
   }
 
   if (u_drops > 0.) {
-    drops = u_drops * getDrops(patternUV * 10., seedShift);
+    drops = u_drops * getDrops(surfaceUV * 10., seedShift);
   }
 
   pattern = clamp(pattern, 0., 1.);
@@ -534,7 +551,7 @@ void main() {
   color += baseColor * (1. - opacity);
   opacity += baseOpacity * (1. - opacity);
 
-  if (u_isImage) {
+  if (u_isImage || u_imageIsHtml == 1.) {
     float frame = getUvFrame(imageUV);
     vec4 image = texture(u_image, imageUV);
     image.rgb /= max(image.a, .0001);

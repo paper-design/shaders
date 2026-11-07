@@ -224,6 +224,7 @@ export const LensDistortion: React.FC<LensDistortionProps> = memo(function LensD
       speed={speed}
       frame={frame}
       fragmentShader={lensDistortionFragmentShader}
+      acceptsHtmlChildren
       mipmaps={['u_image']}
       uniforms={uniforms}
     />

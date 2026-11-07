@@ -1,5 +1,7 @@
 /** The core Shader Mount class. Pass it a parent element and a fragment shader to get started. */
 export { ShaderMount, isPaperShaderElement } from './shader-mount.js';
+export { isHtmlInCanvasSupported } from './html-in-canvas.js';
+export { observeContentSize, type ShaderSizeToContent } from './size-to-content.js';
 export type {
   PaperShaderElement,
   ShaderMotionParams,
