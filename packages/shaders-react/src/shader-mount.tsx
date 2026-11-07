@@ -98,7 +98,7 @@ async function processUniforms(uniformsProp: ShaderMountUniformsReact): Promise<
         };
         img.onerror = () => {
           console.error(`Could not set uniforms. Failed to load image at ${url}`);
-          reject();
+          reject(new Error(`Paper Shaders: failed to load image at ${url}`));
         };
         img.src = url;
       });
@@ -166,9 +166,15 @@ export const ShaderMount: React.FC<ShaderMountProps> = forwardRef<PaperShaderEle
 
           setIsInitialized(true);
         }
+
+        await shaderMountRef.current?.ready;
+        return shaderMountRef.current;
       };
 
-      initShader();
+      const ready = initShader();
+      if (divRef.current) {
+        divRef.current.paperShaderMountReady = ready;
+      }
 
       return () => {
         shaderMountRef.current?.dispose();

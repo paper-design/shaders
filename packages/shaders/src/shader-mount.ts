@@ -1,6 +1,7 @@
 import { vertexShaderSource } from './vertex-shader.js';
 
-const DEFAULT_MAX_PIXEL_COUNT: number = 1920 * 1080 * 4;
+export const DEFAULT_MIN_PIXEL_RATIO: number = 2;
+export const DEFAULT_MAX_PIXEL_COUNT: number = 1920 * 1080 * 4;
 
 export class ShaderMount {
   public parentElement: PaperShaderElement;
@@ -37,6 +38,10 @@ export class ShaderMount {
   private textureUnitMap: Map<string, number> = new Map();
   private ownerDocument: Document;
 
+  /** Resolves once the canvas has been sized to its element and rendered, e.g. to read its pixels */
+  public readonly ready: Promise<void>;
+  private resolveReady: () => void = () => {};
+
   constructor(
     /** The div you'd like to mount the shader to. The shader will match its size. */
     parentElement: HTMLElement,
@@ -51,7 +56,7 @@ export class ShaderMount {
      * The minimum pixel ratio to render at, defaults to 2.
      * May be reduced to improve performance or increased together with `maxPixelCount` to improve antialiasing.
      */
-    minPixelRatio = 2,
+    minPixelRatio = DEFAULT_MIN_PIXEL_RATIO,
     /**
      * The maximum amount of physical device pixels to render for the shader,
      * by default it's 1920 * 1080 * 2x dpi (per each side) = 8,294,400 pixels of a 4K screen.
@@ -63,6 +68,10 @@ export class ShaderMount {
     /** Names of the uniforms that should have mipmaps generated for them */
     mipmaps: string[] = []
   ) {
+    this.ready = new Promise((resolve) => {
+      this.resolveReady = resolve;
+    });
+
     // nodeType check instead of `instanceof` to work across document boundaries (iframes, PiP windows)
     if (parentElement?.nodeType === 1) {
       this.parentElement = parentElement as PaperShaderElement;
@@ -202,6 +211,7 @@ export class ShaderMount {
       }
 
       this.handleResize();
+      this.resolveReady();
     });
 
     this.resizeObserver.observe(this.canvasElement);
@@ -550,7 +560,7 @@ export class ShaderMount {
   };
 
   /** Set the minimum pixel ratio for the shader */
-  public setMinPixelRatio = (newMinPixelRatio: number = 2): void => {
+  public setMinPixelRatio = (newMinPixelRatio: number = DEFAULT_MIN_PIXEL_RATIO): void => {
     this.minPixelRatio = newMinPixelRatio;
 
     this.handleResize();
@@ -714,6 +724,8 @@ const defaultStyle = `@layer paper-shaders {
 /** The parent `<div>` element that has a ShaderMount available on it */
 export interface PaperShaderElement extends HTMLElement {
   paperShaderMount: ShaderMount | undefined;
+  /** Set by the React ShaderMount when it starts mounting, resolves with the mount once it's `ready` */
+  paperShaderMountReady?: Promise<ShaderMount | null>;
 }
 
 /** Check if an element is a Paper shader element */
