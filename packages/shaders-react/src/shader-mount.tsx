@@ -101,7 +101,7 @@ async function processUniforms(uniformsProp: ShaderMountUniformsReact): Promise<
         };
         img.onerror = () => {
           console.error(`Could not set uniforms. Failed to load image at ${url}`);
-          reject(new Error(`Paper Shaders: failed to load image at ${url}`));
+          reject();
         };
         img.src = url;
       });
