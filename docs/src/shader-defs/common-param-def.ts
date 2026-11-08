@@ -94,8 +94,7 @@ export const commonParams: Record<string, CommonParamDef> = {
   displayScale: {
     name: 'displayScale',
     type: 'number',
-    description:
-      'Scale the element is displayed or drawn at, e.g. 0.25 when a CSS transform shrinks it to 25%, or 3 when it is captured at 3x. Resolution follows it, up to maxPixelCount (default is 1)',
+    description: 'Multiplies the resolution (default is 1)',
   },
 };
 

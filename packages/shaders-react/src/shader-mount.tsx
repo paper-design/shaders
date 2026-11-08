@@ -41,7 +41,6 @@ export interface ShaderComponentProps extends Omit<React.ComponentProps<'div'>, 
   ref?: React.Ref<PaperShaderElement>;
   minPixelRatio?: number;
   maxPixelCount?: number;
-  /** The scale the element is displayed or drawn at, e.g. 0.25 when an ancestor is scaled to 25%, or 3 when captured at 3x */
   displayScale?: number;
   webGlContextAttributes?: WebGLContextAttributes;
 

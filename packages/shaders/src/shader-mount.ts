@@ -38,7 +38,7 @@ export class ShaderMount {
   private textureUnitMap: Map<string, number> = new Map();
   private ownerDocument: Document;
 
-  /** Resolves once the canvas has been rendered at its element's size with all of its inputs, e.g. to read its pixels */
+  /** Resolves after the first render at the element's size */
   public readonly ready: Promise<void>;
   private resolveReadyPromise: () => void = () => {};
 
@@ -67,11 +67,6 @@ export class ShaderMount {
     maxPixelCount: number = DEFAULT_MAX_PIXEL_COUNT,
     /** Names of the uniforms that should have mipmaps generated for them */
     mipmaps: string[] = [],
-    /**
-     * The scale the element is displayed or drawn at, defaults to 1.
-     * Layout sizes ignore CSS transforms and canvas drawing, so pass e.g. 0.25 when an ancestor is scaled to 25%,
-     * or 3 when the element is captured at 3x. Still limited by `maxPixelCount`.
-     */
     displayScale: number = 1
   ) {
     this.ready = new Promise((resolve) => {
@@ -292,14 +287,13 @@ export class ShaderMount {
       targetPixelHeight = Math.round(this.parentHeight) * targetRenderScale;
     }
 
-    // Render as many pixels as the element is displayed or drawn at
+    // Layout sizes ignore CSS transforms
     targetPixelWidth *= this.displayScale;
     targetPixelHeight *= this.displayScale;
 
     // Prevent the total rendered pixel count from exceeding maxPixelCount
     const maxPixelCountHeadroom = Math.sqrt(this.maxPixelCount) / Math.sqrt(targetPixelWidth * targetPixelHeight);
     const scaleToMeetMaxPixelCount = Math.min(1, maxPixelCountHeadroom);
-    // At least one pixel for a visible element: a small display scale would otherwise round to an empty canvas
     const newWidth = roundToVisiblePixels(targetPixelWidth * scaleToMeetMaxPixelCount);
     const newHeight = roundToVisiblePixels(targetPixelHeight * scaleToMeetMaxPixelCount);
     const newRenderScale = newWidth / Math.round(this.parentWidth);
@@ -578,7 +572,7 @@ export class ShaderMount {
     this.handleResize();
   };
 
-  /** Set the scale the element is displayed or drawn at, e.g. when an ancestor's CSS transform scales it */
+  /** Set the scale the shader is displayed at */
   public setDisplayScale = (newDisplayScale: number = 1): void => {
     this.displayScale = newDisplayScale;
 
@@ -750,7 +744,7 @@ function roundToVisiblePixels(size: number): number {
 /** The parent `<div>` element that has a ShaderMount available on it */
 export interface PaperShaderElement extends HTMLElement {
   paperShaderMount: ShaderMount | undefined;
-  /** Set by the React ShaderMount when it starts mounting, resolves with the mount once it's `ready` */
+  /** Set by the React ShaderMount, resolves with the mount once it's `ready` */
   paperShaderMountReady?: Promise<ShaderMount | null>;
 }
 
