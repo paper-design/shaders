@@ -1,5 +1,5 @@
 /** The core Shader Mount class. Pass it a parent element and a fragment shader to get started. */
-export { ShaderMount, isPaperShaderElement, DEFAULT_MIN_PIXEL_RATIO, DEFAULT_MAX_PIXEL_COUNT } from './shader-mount.js';
+export { ShaderMount, isPaperShaderElement } from './shader-mount.js';
 export type {
   PaperShaderElement,
   ShaderMotionParams,

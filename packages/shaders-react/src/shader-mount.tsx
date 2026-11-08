@@ -28,6 +28,7 @@ export interface ShaderMountProps extends Omit<React.ComponentProps<'div'>, 'col
   mipmaps?: string[];
   minPixelRatio?: number;
   maxPixelCount?: number;
+  displayScale?: number;
   webGlContextAttributes?: WebGLContextAttributes;
 
   /** Inline CSS width style */
@@ -40,6 +41,8 @@ export interface ShaderComponentProps extends Omit<React.ComponentProps<'div'>, 
   ref?: React.Ref<PaperShaderElement>;
   minPixelRatio?: number;
   maxPixelCount?: number;
+  /** The scale the element is displayed or drawn at, e.g. 0.25 when an ancestor is scaled to 25%, or 3 when captured at 3x */
+  displayScale?: number;
   webGlContextAttributes?: WebGLContextAttributes;
 
   /** Inline CSS width style */
@@ -135,6 +138,7 @@ export const ShaderMount: React.FC<ShaderMountProps> = forwardRef<PaperShaderEle
       height,
       minPixelRatio,
       maxPixelCount,
+      displayScale,
       mipmaps,
       style,
       ...divProps
@@ -161,7 +165,8 @@ export const ShaderMount: React.FC<ShaderMountProps> = forwardRef<PaperShaderEle
             frame,
             minPixelRatio,
             maxPixelCount,
-            mipmaps
+            mipmaps,
+            displayScale
           );
 
           setIsInitialized(true);
@@ -217,6 +222,11 @@ export const ShaderMount: React.FC<ShaderMountProps> = forwardRef<PaperShaderEle
     useEffect(() => {
       shaderMountRef.current?.setMinPixelRatio(minPixelRatio);
     }, [minPixelRatio, isInitialized]);
+
+    // Display Scale
+    useEffect(() => {
+      shaderMountRef.current?.setDisplayScale(displayScale);
+    }, [displayScale, isInitialized]);
 
     // Frame
     useEffect(() => {

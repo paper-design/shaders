@@ -1,7 +1,6 @@
 import { vertexShaderSource } from './vertex-shader.js';
 
-export const DEFAULT_MIN_PIXEL_RATIO: number = 2;
-export const DEFAULT_MAX_PIXEL_COUNT: number = 1920 * 1080 * 4;
+const DEFAULT_MAX_PIXEL_COUNT: number = 1920 * 1080 * 4;
 
 export class ShaderMount {
   public parentElement: PaperShaderElement;
@@ -33,6 +32,7 @@ export class ShaderMount {
   private textures: Map<string, WebGLTexture> = new Map();
   private minPixelRatio;
   private maxPixelCount;
+  private displayScale;
   private isSafari = isSafari();
   private uniformCache: Record<string, unknown> = {};
   private textureUnitMap: Map<string, number> = new Map();
@@ -56,7 +56,7 @@ export class ShaderMount {
      * The minimum pixel ratio to render at, defaults to 2.
      * May be reduced to improve performance or increased together with `maxPixelCount` to improve antialiasing.
      */
-    minPixelRatio: number = DEFAULT_MIN_PIXEL_RATIO,
+    minPixelRatio = 2,
     /**
      * The maximum amount of physical device pixels to render for the shader,
      * by default it's 1920 * 1080 * 2x dpi (per each side) = 8,294,400 pixels of a 4K screen.
@@ -66,7 +66,13 @@ export class ShaderMount {
      */
     maxPixelCount: number = DEFAULT_MAX_PIXEL_COUNT,
     /** Names of the uniforms that should have mipmaps generated for them */
-    mipmaps: string[] = []
+    mipmaps: string[] = [],
+    /**
+     * The scale the element is displayed or drawn at, defaults to 1.
+     * Layout sizes ignore CSS transforms and canvas drawing, so pass e.g. 0.25 when an ancestor is scaled to 25%,
+     * or 3 when the element is captured at 3x. Still limited by `maxPixelCount`.
+     */
+    displayScale: number = 1
   ) {
     this.ready = new Promise((resolve) => {
       this.resolveReady = resolve;
@@ -99,6 +105,7 @@ export class ShaderMount {
     this.currentFrame = frame;
     this.minPixelRatio = minPixelRatio;
     this.maxPixelCount = maxPixelCount;
+    this.displayScale = displayScale;
 
     const gl = canvasElement.getContext('webgl2', {
       antialias: false,
@@ -285,11 +292,16 @@ export class ShaderMount {
       targetPixelHeight = Math.round(this.parentHeight) * targetRenderScale;
     }
 
+    // Render as many pixels as the element is displayed or drawn at
+    targetPixelWidth *= this.displayScale;
+    targetPixelHeight *= this.displayScale;
+
     // Prevent the total rendered pixel count from exceeding maxPixelCount
     const maxPixelCountHeadroom = Math.sqrt(this.maxPixelCount) / Math.sqrt(targetPixelWidth * targetPixelHeight);
     const scaleToMeetMaxPixelCount = Math.min(1, maxPixelCountHeadroom);
-    const newWidth = Math.round(targetPixelWidth * scaleToMeetMaxPixelCount);
-    const newHeight = Math.round(targetPixelHeight * scaleToMeetMaxPixelCount);
+    // At least one pixel for a visible element: a small display scale would otherwise round to an empty canvas
+    const newWidth = roundToVisiblePixels(targetPixelWidth * scaleToMeetMaxPixelCount);
+    const newHeight = roundToVisiblePixels(targetPixelHeight * scaleToMeetMaxPixelCount);
     const newRenderScale = newWidth / Math.round(this.parentWidth);
 
     if (
@@ -560,8 +572,15 @@ export class ShaderMount {
   };
 
   /** Set the minimum pixel ratio for the shader */
-  public setMinPixelRatio = (newMinPixelRatio: number = DEFAULT_MIN_PIXEL_RATIO): void => {
+  public setMinPixelRatio = (newMinPixelRatio: number = 2): void => {
     this.minPixelRatio = newMinPixelRatio;
+
+    this.handleResize();
+  };
+
+  /** Set the scale the element is displayed or drawn at, e.g. when an ancestor's CSS transform scales it */
+  public setDisplayScale = (newDisplayScale: number = 1): void => {
+    this.displayScale = newDisplayScale;
 
     this.handleResize();
   };
@@ -720,6 +739,13 @@ const defaultStyle = `@layer paper-shaders {
     }
   }
 }`;
+
+function roundToVisiblePixels(size: number): number {
+  if (size > 0) {
+    return Math.max(1, Math.round(size));
+  }
+  return 0;
+}
 
 /** The parent `<div>` element that has a ShaderMount available on it */
 export interface PaperShaderElement extends HTMLElement {
