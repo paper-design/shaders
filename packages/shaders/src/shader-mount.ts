@@ -38,9 +38,9 @@ export class ShaderMount {
   private textureUnitMap: Map<string, number> = new Map();
   private ownerDocument: Document;
 
-  /** Resolves once the canvas has been sized to its element and rendered, e.g. to read its pixels */
+  /** Resolves once the canvas has been rendered at its element's size with all of its inputs, e.g. to read its pixels */
   public readonly ready: Promise<void>;
-  private resolveReady: () => void = () => {};
+  private resolveReadyPromise: () => void = () => {};
 
   constructor(
     /** The div you'd like to mount the shader to. The shader will match its size. */
@@ -75,7 +75,7 @@ export class ShaderMount {
     displayScale: number = 1
   ) {
     this.ready = new Promise((resolve) => {
-      this.resolveReady = resolve;
+      this.resolveReadyPromise = resolve;
     });
 
     // nodeType check instead of `instanceof` to work across document boundaries (iframes, PiP windows)
@@ -218,7 +218,7 @@ export class ShaderMount {
       }
 
       this.handleResize();
-      this.resolveReady();
+      this.resolveReadyPromise();
     });
 
     this.resizeObserver.observe(this.canvasElement);
