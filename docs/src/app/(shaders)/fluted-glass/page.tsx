@@ -26,7 +26,11 @@ import Example, { params as exampleParams } from './html-in-canvas/example';
 
 const { worldWidth, worldHeight, ...presetDefaults } = flutedGlassPresets[0].params;
 
-const htmlInCanvasDefaults = { ...presetDefaults, ...exampleParams };
+const htmlInCanvasDefaults = {
+  ...presetDefaults,
+  ...exampleParams,
+  distortionShape: exampleParams.distortionShape as GlassDistortionShape,
+};
 
 const imageFiles = [
   '001.webp',
@@ -84,7 +88,7 @@ const FlutedGlassWithControls = () => {
       colorBack: { value: toHsla(defaults.colorBack), order: 100 },
       colorShadow: { value: toHsla(defaults.colorShadow), order: 101 },
       colorHighlight: { value: toHsla(defaults.colorHighlight), order: 102 },
-      size: { value: defaults.size, min: 0, max: 1, step: 0.001, order: 210, ...imageInputOnly },
+      size: { value: defaults.size, min: 0, max: 1, step: 0.001, order: 210 },
       shadows: { value: defaults.shadows, min: 0, max: 1, order: 200 },
       highlights: { value: defaults.highlights, min: 0, max: 1, order: 201 },
       shape: {
@@ -97,10 +101,9 @@ const FlutedGlassWithControls = () => {
         value: defaults.distortionShape,
         options: Object.keys(GlassDistortionShapes) as GlassDistortionShape[],
         order: 213,
-        ...imageInputOnly,
       },
-      distortion: { value: defaults.distortion, min: 0, max: 1, order: 214, ...imageInputOnly },
-      shift: { value: defaults.shift, min: -1, max: 1, order: 215, ...imageInputOnly },
+      distortion: { value: defaults.distortion, min: 0, max: 1, order: 214 },
+      shift: { value: defaults.shift, min: -1, max: 1, order: 215 },
       stretch: { value: defaults.stretch, min: 0, max: 1, order: 216 },
       blur: { value: defaults.blur, min: 0, max: 1, order: 220 },
       edges: { value: defaults.edges, min: 0, max: 1, order: 221 },

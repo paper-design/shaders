@@ -1,7 +1,7 @@
 .viewfinder { --ev: 0; --zoom: 1; --wb: 5600; --warmth: calc((var(--wb) - 5600) / 2400); position: relative; width: 100%; min-width: 400px; height: 100%; min-height: 400px; color: #f4f3ec; background: #121212; font: 22px ui-monospace, monospace; text-transform: uppercase; user-select: none }
 .viewfinder .scene { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; scale: var(--zoom); filter: brightness(pow(2, var(--ev))); transition: scale 200ms ease-out, filter 200ms }
-.viewfinder .tint { position: absolute; inset: 0; background: color-mix(in oklab, #3d7bff, #ff9a3d calc((var(--warmth) + 1) * 50%)); mix-blend-mode: soft-light; opacity: calc(max(var(--warmth), -1 * var(--warmth)) * 0.8); transition: opacity 200ms }
-.viewfinder .shade { position: absolute; inset: 0; background: linear-gradient(rgb(0 0 0 / 55%), transparent 25% 55%, rgb(0 0 0 / 75%)) }
+.viewfinder .tint { position: absolute; inset: 0; background: color-mix( in oklab, #3d7bff, #ff9a3d calc((var(--warmth) + 1) * 50%) ); mix-blend-mode: soft-light; opacity: calc(max(var(--warmth), -1 * var(--warmth)) * 0.8); transition: opacity 200ms }
+.viewfinder .shade { position: absolute; inset: 0; background: linear-gradient( rgb(0 0 0 / 55%), transparent 25% 55%, rgb(0 0 0 / 75%) ) }
 .viewfinder header, .viewfinder footer { position: absolute; inset-inline: 24px; max-width: 880px; margin-inline: auto }
 .viewfinder header { top: 40px; display: flex; justify-content: space-between; align-items: center }
 .viewfinder footer { bottom: 40px; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(380px, 100%), 1fr)); gap: 16px }
@@ -10,11 +10,11 @@
 .viewfinder .rec:hover { background: rgb(255 255 255 / 14%) }
 .viewfinder .rec:active { background: rgb(255 255 255 / 24%) }
 .viewfinder .rec::before { content: ''; display: inline-block; width: 15px; height: 15px; margin-right: 10px; border-radius: 50%; background: #ff3b30; animation: blink 1s infinite }
-.viewfinder[data-recording="off"] .rec::before { background: transparent; box-shadow: inset 0 0 0 2px currentColor; animation: none }
+.viewfinder[data-recording='off'] .rec::before { background: transparent; box-shadow: inset 0 0 0 2px currentColor; animation: none }
 .viewfinder .dial { display: grid; grid-template-columns: 5ch 1fr 5ch; align-items: center; gap: 16px; padding: 12px 22px }
 .viewfinder .dial span { opacity: 0.75 }
 .viewfinder .dial output { text-align: right }
-.viewfinder input { appearance: none; min-width: 0; height: 44px; margin: 0; background: linear-gradient(transparent calc(50% - 1.5px), rgb(255 255 255 / 55%) 0 calc(50% + 1.5px), transparent 0); outline: none; cursor: pointer }
+.viewfinder input { appearance: none; min-width: 0; height: 44px; margin: 0; background: linear-gradient( transparent calc(50% - 1.5px), rgb(255 255 255 / 55%) 0 calc(50% + 1.5px), transparent 0 ); outline: none; cursor: pointer }
 .viewfinder input::-webkit-slider-thumb { appearance: none; width: 14px; height: 36px; border-radius: 7px; background: #f4f3ec; box-shadow: 0 1px 6px rgb(0 0 0 / 50%); transition: background-color 150ms }
 .viewfinder input:focus-visible::-webkit-slider-thumb { background: #ffd84d }
 @keyframes blink { 50% { opacity: 0.15 } }

@@ -2,9 +2,11 @@
 
 import { useState } from 'react';
 import { LensDistortion } from '@paper-design/shaders-react';
+import { useFollowPanel } from '@/helpers/html-in-canvas-page'; // docs-only
 import './example.css';
 
 export const params = {
+  dispersionColor: 0.75,
   spread: 0.15,
   angle: 28,
   perspective: 1,
@@ -49,7 +51,8 @@ function updateDial(event) {
 
 export default function Example(props) {
   // The color slider drives the shader, so the HTML also controls the lens it's seen through
-  const [dispersionColor, setDispersionColor] = useState(0.75);
+  const [dispersionColor, setDispersionColor] = useState(params.dispersionColor);
+  useFollowPanel(props.dispersionColor, setDispersionColor); // docs-only
 
   return (
     <LensDistortion {...params} style={{ height: '100vh' }} {...props} dispersionColor={dispersionColor}>

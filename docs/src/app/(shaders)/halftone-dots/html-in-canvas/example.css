@@ -8,7 +8,4 @@
 .gallery a.active::after { scale: 1 }
 .gallery img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; pointer-events: none; transition: opacity 1s cubic-bezier(0.22, 1, 0.36, 1) }
 .gallery img.active { opacity: 1 }
-@container (width < 760px) {
-  .gallery ul, .gallery .photos { grid-column: 1 / -1 }
-  .gallery .photos { order: -1 }
-}
+@container (width < 760px) { .gallery ul, .gallery .photos { grid-column: 1 / -1 } .gallery .photos { order: -1 } }

@@ -6,7 +6,7 @@ import { CopyButton } from './copy-button';
 import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { getHtmlInCanvasToggleHref, useIsHtmlInCanvasPage } from '@/helpers/html-in-canvas-page';
+import { demoButtonClassName, getHtmlInCanvasToggleHref, useIsHtmlInCanvasPage } from '@/helpers/html-in-canvas-page';
 
 export function ShaderContainer({
   children,
@@ -58,10 +58,7 @@ export function ShaderContainer({
           // Out of the flow on wide screens so the content below the shader keeps its place.
           // Narrower, it would overlap the centered line below, so it takes a line of its own above it
           <div className="mt-20 flex justify-end min-[75rem]:absolute min-[75rem]:top-full min-[75rem]:right-0">
-            <Link
-              href={getHtmlInCanvasToggleHref(pathname)}
-              className="-mx-8 flex h-32 items-center gap-8 rounded-md px-8 outline-0 outline-focus transition-colors hover:bg-backplate-2 focus-visible:outline-2 active:bg-backplate-3 squircle:rounded-lg"
-            >
+            <Link href={getHtmlInCanvasToggleHref(pathname)} className={demoButtonClassName}>
               {isHtmlInCanvasPage ? 'back to image demo' : 'open HTML-in-Canvas demo'}
             </Link>
           </div>

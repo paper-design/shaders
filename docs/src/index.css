@@ -112,6 +112,14 @@
     --syntax-identifier: var(--color-code);
     --syntax-sign: light-dark(#8a8980, #7c7b72);
   }
+
+  .syntax-shader {
+    --shader-tag-tint: color-mix(in oklab, var(--color-blue) 26%, transparent);
+    border-radius: 3px;
+    background: var(--shader-tag-tint);
+    box-shadow: 0 0 0 2px var(--shader-tag-tint);
+    color: var(--syntax-entity);
+  }
 }
 
 @custom-variant squircle {

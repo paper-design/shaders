@@ -81,7 +81,7 @@ const PaperTextureWithControls = () => {
       distortion: { value: defaults.distortion, min: -1, max: 1, order: 111 },
       clip: { value: defaults.clip, order: 112 },
       angle: { value: defaults.angle, min: 0, max: 360, order: 120 },
-      seed: { value: defaults.seed, min: 0, step: 1, max: 1000, order: 121, ...imageInputOnly },
+      seed: { value: defaults.seed, min: 0, step: 1, max: 1000, order: 121 },
       roughness: { value: defaults.roughness, min: 0, max: 1, order: 200 },
       roughnessSize: { value: defaults.roughnessSize, min: 0, max: 1, order: 201 },
       roughnessRows: { value: defaults.roughnessRows, min: 0, max: 1, order: 202 },

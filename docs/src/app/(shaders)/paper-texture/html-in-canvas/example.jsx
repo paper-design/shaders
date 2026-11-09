@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { PaperTexture } from '@paper-design/shaders-react';
+import { useFollowPanel } from '@/helpers/html-in-canvas-page'; // docs-only
 import './example.css';
 
 export const params = {
@@ -9,7 +10,8 @@ export const params = {
   clip: true,
   colorShadow: '#c2c2c2',
   distortion: 0.25,
-  angle: 120,
+  angle: 244,
+  seed: 311,
   roughness: 0.2,
   fiberSize: 0.72,
   wrinkleSize: 0.5,
@@ -32,7 +34,8 @@ function handleSubmit(event) {
 
 export default function Example(props) {
   // Every symbol typed reshuffles the seed, so the sheet crumples anew under the text
-  const [seed, setSeed] = useState(311);
+  const [seed, setSeed] = useState(params.seed);
+  useFollowPanel(props.seed, setSeed); // docs-only
 
   return (
     <PaperTexture {...params} sizeToContent="both" {...props} seed={seed}>

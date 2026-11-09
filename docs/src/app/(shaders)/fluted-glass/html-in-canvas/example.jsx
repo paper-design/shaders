@@ -2,12 +2,17 @@
 
 import { useState } from 'react';
 import { FlutedGlass } from '@paper-design/shaders-react';
+import { useFollowPanel } from '@/helpers/html-in-canvas-page'; // docs-only
 import './example.css';
 
 export const params = {
   originX: 0,
   originY: 0,
   colorShadow: '#ff9e66',
+  distortionShape: 'prism',
+  size: 0.85,
+  distortion: 0.15,
+  shift: 0,
   shadows: 0.4,
   highlights: 0,
   blur: 0,
@@ -28,7 +33,13 @@ const dials = [
 
 export default function Example(props) {
   // The buttons and sliders in the text drive the shader, so the HTML both shows the effect and controls it
-  const [glass, setGlass] = useState({ distortionShape: 'prism', size: 0.85, distortion: 0.15, shift: 0 });
+  const { distortionShape, size, distortion, shift } = params;
+  const [glass, setGlass] = useState({ distortionShape, size, distortion, shift });
+  const follow = (name) => (v) => setGlass((g) => ({ ...g, [name]: v })); // docs-only
+  useFollowPanel(props.distortionShape, follow('distortionShape')); // docs-only
+  useFollowPanel(props.size, follow('size')); // docs-only
+  useFollowPanel(props.distortion, follow('distortion')); // docs-only
+  useFollowPanel(props.shift, follow('shift')); // docs-only
 
   return (
     <FlutedGlass {...params} style={{ height: '100vh' }} {...props} {...glass}>

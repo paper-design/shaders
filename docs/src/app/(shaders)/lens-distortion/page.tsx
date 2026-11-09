@@ -80,7 +80,7 @@ const LensDistortionWithControls = () => {
       count: { value: defaults.count, min: 2, max: lensDistortionMeta.maxSamples, step: 1, order: 104 },
       dispersion: { value: defaults.dispersion, min: 0, max: 1, order: 105 },
       dispersionShift: { value: defaults.dispersionShift, min: -1, max: 1, order: 106 },
-      dispersionColor: { value: defaults.dispersionColor, min: 0, max: 1, order: 107, ...imageInputOnly },
+      dispersionColor: { value: defaults.dispersionColor, min: 0, max: 1, order: 107 },
       focusCenter: { value: defaults.focusCenter, min: 0, max: 1, order: 204 },
       focusEdges: { value: defaults.focusEdges, min: 0, max: 1, order: 205 },
       swirl: { value: defaults.swirl, min: -1, max: 1, order: 280 },
