@@ -22,6 +22,8 @@ const layout = { display: 'flex', gap: 8, padding: 12 };
 const card = {
   flex: 1,
   padding: 12,
+  border: '4px solid #8fb3ea',
+  boxSizing: 'border-box',
   borderRadius: 8,
   background: '#f0efe4',
   color: '#222',
@@ -30,7 +32,7 @@ const card = {
   textAlign: 'center',
 } as const;
 
-const cards = ['one', 'two', 'three'].map((name) => (
+const cards = [1, 2, 3].map((name) => (
   <div key={name} style={card}>
     {name}
   </div>
