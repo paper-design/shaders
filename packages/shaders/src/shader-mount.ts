@@ -334,6 +334,11 @@ export class ShaderMount {
 
       // this is necessary to avoid flashes while resizing (the next scheduled render will set uniforms)
       this.render(performance.now());
+
+      // Otherwise a static shader's draws from this frame can stay off screen until something else produces a frame
+      if (this.htmlUniforms.size > 0 && this.rafId === null) {
+        this.requestRender();
+      }
     }
   };
 
