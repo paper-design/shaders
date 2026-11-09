@@ -34,12 +34,7 @@ export default function Example(props) {
     <FlutedGlass {...params} style={{ height: '100vh' }} {...props} {...glass}>
       <div className="scrollable">
         <div className="page">
-          <img
-            className="backdrop"
-            src="https://shaders.paper.design/images/image-filters/pumpkins.webp"
-            crossOrigin="anonymous"
-            alt=""
-          />
+          <img className="backdrop" src="/images/image-filters/pumpkins.webp" crossOrigin="anonymous" alt="" />
           <article>
             <h1>Fluted glass</h1>
             <p>Live HTML, bent by a shader.</p>

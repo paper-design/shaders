@@ -50,11 +50,7 @@ export default function Example(props) {
             <span />
             <span />
           </button>
-          <img
-            src="https://shaders.paper.design/images/image-filters/001.webp"
-            crossOrigin="anonymous"
-            alt=""
-          />
+          <img src="/images/image-filters/001.webp" crossOrigin="anonymous" alt="" />
         </header>
         <div className="body">
           <nav>

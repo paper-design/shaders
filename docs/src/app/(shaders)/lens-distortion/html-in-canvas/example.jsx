@@ -54,12 +54,7 @@ export default function Example(props) {
   return (
     <LensDistortion {...params} style={{ height: '100vh' }} {...props} dispersionColor={dispersionColor}>
       <div className="viewfinder" data-recording="on" ref={startTimecode}>
-        <img
-          className="scene"
-          src="https://shaders.paper.design/images/image-filters/003.webp"
-          crossOrigin="anonymous"
-          alt=""
-        />
+        <img className="scene" src="/images/image-filters/003.webp" crossOrigin="anonymous" alt="" />
         <div className="tint" />
         <div className="shade" />
         <header>
