@@ -513,7 +513,7 @@ export class ShaderMount {
       try {
         html.layout = drawHtml(this.gl, canvas, html.element, html.layout);
       } catch (error) {
-        if (!isResize || (error as DOMException).name !== 'InvalidStateError') throw error;
+        if ((error as DOMException).name !== 'InvalidStateError') throw error;
         // An off-screen canvas has no paint record. The texture may be resized already, so the next paint starts over
         html.layout = undefined;
         return;
