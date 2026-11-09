@@ -1,84 +1,94 @@
 'use client';
 
+import { useState } from 'react';
+import { flushSync } from 'react-dom';
 import { ImageDithering } from '@paper-design/shaders-react';
 import './example.css';
 
 export const params = {
   originX: 0,
   originY: 0,
+  colorBack: '#00021f',
   colorFront: '#fff3a8',
-  colorHighlight: '#ff00f7',
+  colorHighlight: '#940000',
   originalColors: true,
   type: '8x8',
   size: 2,
   colorSteps: 2,
 };
 
-const playlists = [
-  { title: 'Morning coffee', about: 'Slow jazz and soft piano to ease into the day', likes: 128 },
-  { title: 'Deep focus', about: 'Wordless ambient loops that keep you in the zone', likes: 342 },
-  { title: 'Night drive', about: 'Synthwave for empty roads and city lights', likes: 76 },
-  { title: 'Garden party', about: 'Sunny bossa nova and disco for long afternoons', likes: 51 },
+const images = 'https://shaders.paper.design/images/image-filters';
+const layouts = ['cover', 'spread', 'back'];
+const menu = [
+  { name: 'shaders', href: 'https://shaders.paper.design/' },
+  { name: 'docs', href: 'https://shaders.paper.design/html-in-canvas' },
+  { name: 'GitHub', href: 'https://github.com/paper-design/shaders' },
+  { name: 'paper.design', href: 'https://paper.design/' },
 ];
 
-function handleMenuToggle(event) {
-  event.currentTarget.closest('.player').classList.toggle('menu-open');
-}
-
-function handleLike(event) {
-  const like = event.target.closest('.like');
-  if (!like) return;
-  const isLiked = like.classList.toggle('liked');
-  const count = like.querySelector('.count');
-  count.textContent = String(Number(count.textContent) + (isLiked ? 1 : -1));
-}
-
-function selectPlaylist(event) {
-  const button = event.target.closest('.playlists button');
-  if (!button) return;
-  button.closest('.player').dataset.playlist = button.dataset.playlist;
-  for (const other of button.parentElement.children) other.setAttribute('aria-pressed', String(other === button));
-}
-
 export default function Example(props) {
+  const [layout, setLayout] = useState('cover');
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  // flex-direction can't transition, so every block glides from where it was to where it lands
+  const changeLayout = (name, page) => {
+    const blocks = [...page.querySelectorAll('h1, p, figure')];
+    const before = blocks.map((block) => block.getBoundingClientRect());
+    flushSync(() => setLayout(name));
+    blocks.forEach((block, index) => {
+      const from = before[index];
+      const to = block.getBoundingClientRect();
+      const start = `translate(${from.left - to.left}px, ${from.top - to.top}px) scale(${from.width / to.width}, ${from.height / to.height})`;
+      block.animate({ transform: [start, 'none'], transformOrigin: ['0 0', '0 0'] }, { duration: 300, easing: 'ease-out' });
+    });
+  };
+
   return (
     <ImageDithering {...params} style={{ height: '100vh' }} {...props}>
-      <div className="player" data-playlist="1">
-        <header>
-          <button className="burger" aria-label="Menu" onClick={handleMenuToggle}>
-            <span />
-            <span />
-            <span />
-          </button>
-          <img src="/images/image-filters/001.webp" crossOrigin="anonymous" alt="" />
-        </header>
-        <div className="body">
+      <div className="zine">
+        <aside data-open={isMenuOpen || undefined} inert={!isMenuOpen}>
+          <div>
+            {menu.map(({ name, href }) => (
+              <a key={name} href={href} target="_blank" rel="noopener" onClick={() => setIsMenuOpen(false)}>
+                {name}
+              </a>
+            ))}
+          </div>
+        </aside>
+        <div className="page">
           <nav>
-            <span />
-            <span />
-            <span />
-            <span />
+            <button
+              className="burger"
+              aria-label="Menu"
+              aria-expanded={isMenuOpen}
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+            >
+              <span />
+              <span />
+              <span />
+            </button>
+            {layouts.map((name) => (
+              <button
+                key={name}
+                aria-pressed={name === layout}
+                onClick={(event) => changeLayout(name, event.currentTarget.closest('.page'))}
+              >
+                {name}
+              </button>
+            ))}
           </nav>
-          <main>
-            <div className="details" onClick={handleLike}>
-              {playlists.map(({ title, about, likes }) => (
-                <div className="detail" key={title}>
-                  <h1>
-                    <span>{title}</span>
-                  </h1>
-                  <span className="about">{about}</span>
-                  <button className="like">
-                    <span className="count">{likes}</span>
-                  </button>
-                </div>
-              ))}
+          <main data-layout={layout}>
+            <div className="lead">
+              <h1>HTML in Canvas</h1>
+              <p>The web, printed by a shader.</p>
             </div>
-            <div className="playlists" onClick={selectPlaylist}>
-              {playlists.map(({ title }, index) => (
-                <button key={title} data-playlist={index + 1} aria-pressed={index === 0}>
-                  {title}
-                </button>
-              ))}
+            <div className="photos">
+              <figure>
+                <img src={`${images}/0018.webp`} crossOrigin="anonymous" alt="Orange cosmos flowers" />
+              </figure>
+              <figure>
+                <img src={`${images}/004.webp`} crossOrigin="anonymous" alt="Monstera leaves" />
+              </figure>
             </div>
           </main>
         </div>

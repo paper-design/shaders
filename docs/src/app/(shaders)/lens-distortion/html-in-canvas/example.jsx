@@ -1,13 +1,13 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { LensDistortion } from '@paper-design/shaders-react';
-import { useFollowPanel } from '@/helpers/html-in-canvas-page'; // docs-only
 import './example.css';
 
 export const params = {
   dispersionColor: 0.75,
-  spread: 0.15,
+  spread: 0.14,
+  bias: 0.3,
   angle: 28,
   perspective: 1,
   count: 50,
@@ -18,85 +18,57 @@ export const params = {
   lensBulge: 0.1,
 };
 
-const dials = [
-  { label: 'ev', property: '--ev', min: -2, max: 2, step: 0.1, value: 0, format: '%' },
-  { label: 'zoom', property: '--zoom', min: 1, max: 3, step: 0.1, value: 1, format: '%×' },
-  { label: 'wb', property: '--wb', min: 3200, max: 8000, step: 100, value: 5600, format: '%K', digits: 0 },
+const items = [
+  { name: 'text', text: 'Real text you can select and copy.', color: '#8fb3ea', ink: '#222' },
+  { name: 'links', text: 'Links stay clickable.', color: '#f08a5d', ink: '#222' },
+  { name: 'forms', text: 'Inputs and buttons work as usual.', color: '#f2c14e', ink: '#222' },
+  { name: 'flexbox', text: 'Layout works like on any page.', color: '#222', ink: '#f0efe4' },
+  { name: 'images', text: 'Drawn too, with CORS if cross-origin.', color: '#f0efe4', ink: '#222' },
+  { name: 'scroll', text: 'Scrolling areas keep scrolling.', color: '#8fb3ea', ink: '#222' },
+  { name: 'focus', text: 'Focus rings and carets are drawn.', color: '#f08a5d', ink: '#222' },
+  { name: 'search', text: 'Find-in-page highlights are drawn.', color: '#f2c14e', ink: '#222' },
+  { name: 'aria', text: 'Screen readers see regular DOM.', color: '#222', ink: '#f0efe4' },
 ];
 
-function startTimecode(element) {
-  const timecode = element.querySelector('time');
-  let frames = 0;
-  const interval = setInterval(() => {
-    if (element.dataset.recording === 'off') return;
-    frames += 1;
-    const parts = [frames / 86400, (frames / 1440) % 60, (frames / 24) % 60, frames % 24];
-    timecode.textContent = parts.map((part) => String(Math.floor(part)).padStart(2, '0')).join(':');
-  }, 1000 / 24);
-  return () => clearInterval(interval);
-}
-
-function toggleRecording(event) {
-  const viewfinder = event.currentTarget.closest('.viewfinder');
-  viewfinder.dataset.recording = viewfinder.dataset.recording === 'off' ? 'on' : 'off';
-}
-
-function updateDial(event) {
-  const input = event.target;
-  if (!input.dataset.property) return;
-  input.closest('.viewfinder').style.setProperty(input.dataset.property, input.value);
-  const value = input.valueAsNumber.toFixed(Number(input.dataset.digits ?? 1));
-  input.parentElement.querySelector('output').textContent = input.dataset.format.replace('%', value);
-}
+const count = items.length;
+const visibleSides = 3;
+// Panels past the visible ones stay collapsed at the ends, ready to open during a move of any distance
+const renderedSides = visibleSides * 2;
+const slots = Array.from({ length: renderedSides * 2 + 1 }, (_, index) => index - renderedSides);
 
 export default function Example(props) {
-  // The color slider drives the shader, so the HTML also controls the lens it's seen through
-  const [dispersionColor, setDispersionColor] = useState(params.dispersionColor);
-  useFollowPanel(props.dispersionColor, setDispersionColor); // docs-only
+  // Keeps counting past the number of items, so panels keep their place in the row and the menu never has an end
+  const [position, setPosition] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
+
+  useEffect(() => {
+    if (isPaused || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const timeout = setTimeout(() => setPosition(position + 1), 2400);
+    return () => clearTimeout(timeout);
+  }, [position, isPaused]);
 
   return (
-    <LensDistortion {...params} style={{ height: '100vh' }} {...props} dispersionColor={dispersionColor}>
-      <div className="viewfinder" data-recording="on" ref={startTimecode}>
-        <img className="scene" src="/images/image-filters/003.webp" crossOrigin="anonymous" alt="" />
-        <div className="tint" />
-        <div className="shade" />
-        <header>
-          <time>00:00:00:00</time>
-          <button className="rec" onClick={toggleRecording}>
-            rec
-          </button>
-        </header>
-        <footer onInput={updateDial}>
-          {dials.map(({ label, property, min, max, step, value, format, digits }) => (
-            <label className="dial" key={label}>
-              <span>{label}</span>
-              <input
-                type="range"
-                min={min}
-                max={max}
-                step={step}
-                defaultValue={value}
-                data-property={property}
-                data-format={format}
-                data-digits={digits}
-              />
-              <output>{format.replace('%', value.toFixed(digits ?? 1))}</output>
-            </label>
-          ))}
-          <label className="dial">
-            <span>color</span>
-            <input
-              type="range"
-              min={0}
-              max={1}
-              step={0.01}
-              value={dispersionColor}
-              onChange={(event) => setDispersionColor(event.currentTarget.valueAsNumber)}
-            />
-            <output>{dispersionColor.toFixed(2)}</output>
-          </label>
-        </footer>
-      </div>
+    <LensDistortion {...params} style={{ height: '100vh' }} {...props}>
+      <nav className="menu-loop" onPointerEnter={() => setIsPaused(true)} onPointerLeave={() => setIsPaused(false)}>
+        {slots.map((slot) => {
+          const panel = position + slot;
+          const { name, text, color, ink } = items[((panel % count) + count) % count];
+          const isVisible = Math.abs(slot) <= visibleSides;
+
+          return (
+            <button
+              key={panel}
+              style={{ '--grow': slot === 0 ? 5 : isVisible ? 1 : 0, '--color': color, '--ink': ink }}
+              aria-current={slot === 0 ? 'page' : undefined}
+              tabIndex={isVisible ? undefined : -1}
+              onClick={() => setPosition(panel)}
+            >
+              <span>{name}</span>
+              <p>{text}</p>
+            </button>
+          );
+        })}
+      </nav>
     </LensDistortion>
   );
 }

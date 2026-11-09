@@ -1,16 +1,30 @@
-.poster { --hue: 55; position: relative; height: 100%; box-sizing: border-box; display: grid; grid-template-rows: 1fr auto; gap: 24px; padding: clamp(16px, 5%, 48px) clamp(16px, 6%, 56px); color: #111; background: #fff }
-.poster .panel { position: relative; min-height: 480px; border: 6px solid #111; background: repeating-conic-gradient( from 0deg at 28% 58%, oklch(0.93 0.07 var(--hue)) 0 6deg, oklch(0.7 0.19 var(--hue)) 6deg 12deg ) }
-.poster h1 { position: absolute; left: 6%; bottom: 20%; margin: 0; font: 900 110px/0.88 system-ui; color: #fff; -webkit-text-stroke: 6px #111; paint-order: stroke fill; text-shadow: 12px 12px 0 #111; rotate: -6deg; cursor: grab; touch-action: none; user-select: none; transition: rotate 250ms ease-out, scale 250ms ease-out }
-.poster h1:is(:hover:not(.dropped), .dragging) { rotate: -3deg; scale: 1.05 }
-.poster .caption { position: absolute; top: 0; right: 0; display: grid; width: 336px; max-width: 100%; padding: 20px 28px; box-sizing: border-box; border: solid #111; border-width: 0 0 6px 6px; background: #fff5c2; cursor: text }
-.poster .caption::after { content: attr(data-value) ' '; grid-area: 1 / 1; visibility: hidden; white-space: pre-wrap; overflow-wrap: anywhere; font: 700 34px/1.1 system-ui; text-transform: uppercase }
-.poster textarea { grid-area: 1 / 1; align-self: start; width: 25%; overflow-wrap: anywhere; field-sizing: content; padding: 0; border: 0; outline: none; resize: none; overflow: hidden; font: 700 8.5px/1.1 system-ui; text-transform: uppercase; color: inherit; background: none; scale: 4; transform-origin: top left }
-.poster .color { display: flex; justify-content: flex-end; align-items: center; gap: 20px; font: 900 24px/1 system-ui }
-.poster input { appearance: none; width: 360px; min-width: 0; height: 30px; margin: 0; border: 4px solid #111; border-radius: 30px; background: linear-gradient( to right, oklch(0.7 0.19 0), oklch(0.7 0.19 90), oklch(0.7 0.19 180), oklch(0.7 0.19 270), oklch(0.7 0.19 360) ); cursor: pointer }
-.poster input::-webkit-slider-thumb { appearance: none; width: 44px; height: 44px; border: 4px solid #111; border-radius: 50%; background: oklch(0.7 0.19 var(--hue)); box-shadow: 0 0 0 4px #fff; transition: scale 250ms ease-out }
-.poster input:hover::-webkit-slider-thumb { scale: 1.12 }
-.poster .sticker { position: absolute; right: 17%; bottom: 26%; display: grid; place-items: center; width: 260px; aspect-ratio: 1; font: 900 34px/1 system-ui; text-align: center; isolation: isolate; rotate: 12deg; cursor: grab; touch-action: none; user-select: none; transition: scale 250ms ease-out }
-.poster .sticker:is(:hover:not(.dropped), .dragging) { scale: 1.08 }
-.poster .dragging { cursor: grabbing }
-.poster .sticker::before, .poster .sticker::after { content: ''; position: absolute; inset: 0; z-index: -1; background: #111; clip-path: polygon( 50% 0%, 59% 15%, 75% 7%, 75% 25%, 93% 25%, 85% 41%, 100% 50%, 85% 59%, 93% 75%, 75% 75%, 75% 93%, 59% 85%, 50% 100%, 41% 85%, 25% 93%, 25% 75%, 7% 75%, 15% 59%, 0% 50%, 15% 41%, 7% 25%, 25% 25%, 25% 7%, 41% 15% ) }
-.poster .sticker::after { inset: 13px; background: #ffe03a }
+@property --page { syntax: '<color>'; inherits: true; initial-value: #f0efe4 }
+@property --ink { syntax: '<color>'; inherits: true; initial-value: #2f3a78 }
+@property --a { syntax: '<color>'; inherits: true; initial-value: #8fb3ea }
+@property --b { syntax: '<color>'; inherits: true; initial-value: #f2c14e }
+@property --c { syntax: '<color>'; inherits: true; initial-value: #f08a5d }
+@property --d { syntax: '<color>'; inherits: true; initial-value: #b9e5d0 }
+@property --fill { syntax: '<percentage>'; inherits: false; initial-value: 0% }
+.meter { --page: #f0efe4; --ink: #2f3a78; --a: #8fb3ea; --b: #f2c14e; --c: #f08a5d; --d: #b9e5d0; position: relative; container-type: size; display: flex; flex-direction: column; gap: 12px; width: 100%; height: 100%; min-height: 480px; padding: 12px; box-sizing: border-box; background: var(--page); color: var(--ink); font-weight: 800; transition: --page 300ms ease-out, --ink 300ms ease-out, --a 300ms ease-out, --b 300ms ease-out, --c 300ms ease-out, --d 300ms ease-out }
+.meter[data-palette="1"] { --page: #f5f0e3; --ink: #8a3317; --a: #f7bd7d; --b: #bcd6a0; --c: #9cc9ea; --d: #fbe08f }
+.meter[data-palette="2"] { --page: #eef4ea; --ink: #14566e; --a: #a4dcc4; --b: #ffe08a; --c: #7cc4e8; --d: #ff9f80 }
+.meter ::selection { background: var(--ink); color: var(--b) }
+.meter .stat ::selection { color: var(--page) }
+.meter h1 { flex: none; margin: 4px 12px 0; font-size: 46px; line-height: 1.1; white-space: nowrap }
+.meter .row { flex: 1; min-height: 0; display: flex; gap: 12px }
+.meter .row:nth-of-type(1) { flex: 3 }
+.meter .row:nth-of-type(2) { flex: 2 }
+.meter .stat { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center; padding: 0 28px; border-radius: 16px; background: var(--a) }
+.meter .stat b { font-size: 13cqw; line-height: 0.95 }
+.meter .stat span { font-size: 48px; line-height: 1.1; white-space: nowrap }
+.meter .chart { flex: 1; min-width: 0; height: 100%; border-radius: 16px; background: linear-gradient(to bottom, var(--b), var(--c)) }
+.meter stop { stop-color: var(--ink) }
+.meter .chart path:last-child { stroke: var(--ink) }
+.meter .field { position: relative; flex: 1; min-width: 0; overflow: hidden; border-radius: 16px; background: linear-gradient(135deg, var(--b), var(--c) 75%) }
+.meter .field div { position: absolute; top: 50%; left: 50% }
+.meter .field span { position: absolute; translate: -50% -50%; box-sizing: border-box; border: 8px solid var(--ink); border-radius: 50%; opacity: 0 }
+.meter .field i { position: absolute; width: 48px; height: 48px; margin: -24px 0 0 -24px; border-radius: 50%; background: var(--ink) }
+.meter .palette { --fill: 0%; flex: 1; min-width: 0; box-sizing: border-box; border: 5px solid var(--ink); border-radius: 16px; background: color-mix(in oklab, var(--d), var(--ink) var(--fill)); color: inherit; font: inherit; font-size: 46px; line-height: 1.05; cursor: pointer; user-select: none; transition: --fill 300ms ease-out }
+.meter .palette:hover { --fill: 28% }
+.meter .drag { position: relative; z-index: 1; flex: 1; min-width: 0; display: grid; place-items: center; box-sizing: border-box; border: 5px solid var(--ink); border-radius: 16px; background: var(--page); font-size: 46px; line-height: 1.05; cursor: grab; touch-action: none; user-select: none; transition: box-shadow 300ms ease-out }
+.meter .drag:active { box-shadow: 0 20px 44px rgb(0 0 0 / 18%); cursor: grabbing }

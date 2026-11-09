@@ -7,7 +7,7 @@ import { hslToHex, toHsla } from '@/helpers/color-utils';
 import { commonParams } from '@/shader-defs/common-param-def';
 import { highlightJsx, highlightCss } from '@/helpers/highlight-code';
 import { demoButtonClassName } from '@/helpers/html-in-canvas-page';
-import { getRunnableExample, getRunnableExampleParts } from '@/helpers/runnable-example';
+import { getRunnableExample, getRunnableExampleParts, removeJsxHandlers } from '@/helpers/runnable-example';
 
 const formatJsxAttribute = (key: string, value: unknown, maxDecimals = 2): string => {
   if (value === true) {
@@ -155,10 +155,12 @@ function getExampleTagCode(props: ShaderCodeProps): string {
   }
 
   const [opening, indent, componentName, tagRest] = tag;
-  const html = source
-    .slice(tag.index! + opening.length, source.indexOf(`</${componentName}>`))
-    .trimEnd()
-    .replace(new RegExp(`^ {${indent!.length}}`, 'gm'), '');
+  const html = removeJsxHandlers(
+    source
+      .slice(tag.index! + opening.length, source.indexOf(`</${componentName}>`))
+      .trimEnd()
+      .replace(new RegExp(`^ {${indent!.length}}`, 'gm'), '')
+  );
   const params = getSampleParams(props).map(([key, value]) => {
     const isColor = props.shaderDef.params.some((p) => p.name === key && p.isColor);
     return formatJsxAttribute(key, isColor ? hslToHex(value as string) : value, 3);
@@ -234,19 +236,29 @@ function highlightRunnableExample(code: string, css: string): string {
   return `${highlightJsx(parts.start)}\`\n${highlightCss(parts.css)}\n\`;\n\n${highlightJsx(parts.end)}`;
 }
 
-/** With fullCode and css, `code` is a short version: the button reveals the runnable file, the same text Copy gives */
-export function CodeSection({ code, css, fullCode }: { code: string; css?: string; fullCode?: string }) {
+/** With fullCode, `code` is a short version: the button reveals the runnable file, the same text Copy gives */
+export function CodeSection({
+  heading = <h2 className="text-2xl font-medium lowercase">Code</h2>,
+  code,
+  css,
+  fullCode,
+}: {
+  heading?: ReactNode;
+  code: string;
+  css?: string;
+  fullCode?: string;
+}) {
   const [isFullCodeVisible, setIsFullCodeVisible] = useState(false);
-  const highlightedCode =
-    isFullCodeVisible && fullCode && css ? highlightRunnableExample(fullCode, css) : highlightJsx(code);
+  const fullHighlightedCode = fullCode && (css ? highlightRunnableExample(fullCode, css) : highlightJsx(fullCode));
+  const highlightedCode = (isFullCodeVisible && fullHighlightedCode) || highlightJsx(code);
 
   return (
     <section>
       <div className="flex items-center gap-8">
-        <h2 className="text-2xl font-medium lowercase">Code</h2>
+        {heading}
         <CopyButton
           className="-mt-14 -mb-16 size-32 rounded-md outline-0 outline-focus transition-colors hover:bg-backplate-1 focus-visible:outline-2 active:bg-backplate-2 squircle:rounded-lg"
-          getText={() => (css ? getRunnableExample(fullCode ?? code, css) : code)}
+          getText={() => (css ? getRunnableExample(fullCode ?? code, css) : (fullCode ?? code))}
         />
       </div>
       <div className="relative">

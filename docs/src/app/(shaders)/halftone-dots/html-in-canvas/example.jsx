@@ -17,10 +17,10 @@ export const params = {
 const images = 'https://shaders.paper.design/images/image-filters';
 
 const topics = [
-  { name: 'Tropical', src: `${images}/004.webp`, alt: 'Monstera leaves' },
-  { name: 'Palms', src: `${images}/006.webp`, alt: 'Palm fronds on yellow' },
-  { name: 'Herbs', src: `${images}/0015.webp`, alt: 'Mint sprigs' },
-  { name: 'Blooms', src: `${images}/0018.webp`, alt: 'Orange cosmos flowers' },
+  { name: 'Water', path: 'water', src: `${images}/004.webp`, alt: 'Monstera leaves' },
+  { name: 'Fluted Glass', path: 'fluted-glass', src: `${images}/006.webp`, alt: 'Palm fronds on yellow' },
+  { name: 'Lens Distortion', path: 'lens-distortion', src: `${images}/0015.webp`, alt: 'Mint sprigs' },
+  { name: 'Paper Texture', path: 'paper-texture', src: `${images}/0018.webp`, alt: 'Orange cosmos flowers' },
 ];
 
 // One handler on the gallery serves every link: the hovered link and its image share an index
@@ -38,9 +38,16 @@ export default function Example(props) {
     <HalftoneDots {...params} sizeToContent="height" {...props}>
       <div className="gallery" onPointerOver={showImage}>
         <ul>
-          {topics.map(({ name }, index) => (
+          {topics.map(({ name, path }, index) => (
             <li key={name}>
-              <a className={index === 0 ? 'active' : undefined}>{name}</a>
+              <a
+                className={index === 0 ? 'active' : undefined}
+                href={`https://shaders.paper.design/${path}/html-in-canvas`}
+                target="_blank"
+                rel="noopener"
+              >
+                {name}
+              </a>
             </li>
           ))}
         </ul>
