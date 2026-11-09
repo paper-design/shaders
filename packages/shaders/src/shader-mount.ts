@@ -502,7 +502,7 @@ export class ShaderMount {
     }
   };
 
-  /** Captures each HTML uniform into its texture. On resize only HTML that has a snapshot already, so it can't throw */
+  /** Captures each HTML uniform into its texture. On resize only HTML that has a snapshot already */
   private captureHtml = (isResize: boolean): void => {
     const canvas = this.canvasElement as DrawableCanvasElement;
     this.htmlUniforms.forEach((html, uniformName) => {
@@ -510,7 +510,14 @@ export class ShaderMount {
       this.gl.activeTexture(this.gl.TEXTURE0 + this.textureUnitMap.get(uniformName)!);
       this.gl.bindTexture(this.gl.TEXTURE_2D, this.textures.get(uniformName)!);
       const isFirstCapture = html.layout === undefined;
-      html.layout = drawHtml(this.gl, canvas, html.element, html.layout);
+      try {
+        html.layout = drawHtml(this.gl, canvas, html.element, html.layout);
+      } catch (error) {
+        if (!isResize || (error as DOMException).name !== 'InvalidStateError') throw error;
+        // An off-screen canvas has no paint record. The texture may be resized already, so the next paint starts over
+        html.layout = undefined;
+        return;
+      }
 
       // WebGL doesn't tell hit testing and accessibility where the element is drawn, which is where it's laid out
       if (isFirstCapture) {
