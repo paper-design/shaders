@@ -34,7 +34,7 @@ const shaders = [
     params: { ...meshGradientPresets[0].params, swirl: 1, speed: 2, colors: ['#bbbbbb', '#000000', '#666666', '#000000'] },
   },
   { name: 'Swirl', path: 'swirl', Shader: Swirl, params: swirlPresets[0].params },
-  { name: 'SmokeRing', path: 'smoke-ring', Shader: SmokeRing, params: { ...smokeRingPresets[0].params, thickness: 0.5 } },
+  { name: 'SmokeRing', path: 'smoke-ring', Shader: SmokeRing, params: { ...smokeRingPresets[0].params, thickness: 0.5, colorBack: '#222222' } },
 ];
 
 // Other Paper shaders run inside the HTML, and the dots print whatever they draw
