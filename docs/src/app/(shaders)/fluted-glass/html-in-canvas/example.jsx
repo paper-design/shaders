@@ -8,12 +8,12 @@ import './example.css';
 export const params = {
   originX: 0,
   originY: 0,
-  colorShadow: '#ff9e66',
+  colorShadow: '#bdfbff',
   distortionShape: 'prism',
-  size: 0.85,
+  size: 0.8,
   distortion: 0.15,
   shift: 0,
-  shadows: 0.4,
+  shadows: 0.3,
   highlights: 0,
   blur: 0,
   edges: 0,
@@ -45,11 +45,11 @@ export default function Example(props) {
     <FlutedGlass {...params} style={{ height: '100vh' }} {...props} {...glass}>
       <div className="scrollable">
         <div className="page">
-          <img className="backdrop" src="/images/image-filters/pumpkins.webp" crossOrigin="anonymous" alt="" />
+          <img className="backdrop" src="/images/image-filters/0020.webp" crossOrigin="anonymous" alt="" />
           <article>
-            <h1>Fluted glass</h1>
-            <p>Live HTML, bent by a shader.</p>
-            <p>Pick a flute shape:</p>
+            <h1>Live HTML behind glass</h1>
+            <p>Everything here is actual HTML, seen through the FlutedGlass shader.</p>
+            <p>Click a real button to change the flutes:</p>
             <div className="shapes">
               {shapes.map((shape) => (
                 <button
@@ -61,7 +61,7 @@ export default function Example(props) {
                 </button>
               ))}
             </div>
-            <p>Tune the glass:</p>
+            <p>Drag real sliders to tune them:</p>
             <div className="dials">
               {dials.map(({ name, min, max, step }) => (
                 <label key={name}>
@@ -79,11 +79,11 @@ export default function Example(props) {
               ))}
             </div>
             <p>
-              Still real text: <kbd>⌘+F</kbd> finds it, dragging selects it.
+              Select this text, or find it with ⌘+F.
             </p>
           </article>
-          <div className="hint">
-            scroll down <span>↓</span>
+          <div className="hint" aria-label="Scroll down">
+            <span>↓</span>
           </div>
         </div>
       </div>

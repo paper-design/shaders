@@ -2,23 +2,22 @@
 
 import { useState } from 'react';
 import { flushSync } from 'react-dom';
-import { ImageDithering } from '@paper-design/shaders-react';
+import { ImageDithering, MeshGradient, Metaballs } from '@paper-design/shaders-react';
 import './example.css';
 
 export const params = {
   originX: 0,
   originY: 0,
   colorBack: '#00021f',
-  colorFront: '#fff3a8',
-  colorHighlight: '#940000',
+  colorFront: '#b3cbff',
+  colorHighlight: '#ffffff',
   originalColors: true,
   type: '8x8',
   size: 2,
   colorSteps: 2,
 };
 
-const images = 'https://shaders.paper.design/images/image-filters';
-const layouts = ['cover', 'spread', 'back'];
+const layouts = ['column', 'row', 'row-reverse'];
 const menu = [
   { name: 'shaders', href: 'https://shaders.paper.design/' },
   { name: 'docs', href: 'https://shaders.paper.design/html-in-canvas' },
@@ -27,7 +26,7 @@ const menu = [
 ];
 
 export default function Example(props) {
-  const [layout, setLayout] = useState('cover');
+  const [layout, setLayout] = useState('column');
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   // flex-direction can't transition, so every block glides from where it was to where it lands
@@ -80,14 +79,18 @@ export default function Example(props) {
           <main data-layout={layout}>
             <div className="lead">
               <h1>HTML in Canvas</h1>
-              <p>The web, printed by a shader.</p>
+              <p>Any HTML, even other shaders, dithered live.</p>
             </div>
             <div className="photos">
               <figure>
-                <img src={`${images}/0018.webp`} crossOrigin="anonymous" alt="Orange cosmos flowers" />
+                <a href="https://shaders.paper.design/mesh-gradient" target="_blank" rel="noopener" aria-label="Mesh Gradient">
+                  <MeshGradient className="fill" colors={['#8fb3ea', '#f08a5d', '#f2c14e', '#f0efe4']} />
+                </a>
               </figure>
               <figure>
-                <img src={`${images}/004.webp`} crossOrigin="anonymous" alt="Monstera leaves" />
+                <a href="https://shaders.paper.design/metaballs" target="_blank" rel="noopener" aria-label="Metaballs">
+                  <Metaballs className="fill" colorBack="#222222" colors={['#8fb3ea', '#f08a5d', '#f2c14e']} />
+                </a>
               </figure>
             </div>
           </main>

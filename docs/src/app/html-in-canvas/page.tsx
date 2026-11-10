@@ -18,8 +18,7 @@ const quickStart = `<Shader style={{ height: 400 }}>
   {/* and any other content */}
 </Shader>`;
 
-const layoutPropsCode = `// For example, if the cards' styles expect them
-// to be direct children of the layout
+const layoutPropsCode = `// For example, if the cards' styles expect them to be direct children of the layout
 <Water
   style={{ height: 200 }}
   layoutProps={{ style: { display: 'flex', gap: 8, padding: 12 } }}
@@ -163,40 +162,47 @@ new ShaderMount(shader, waterFragmentShader, {
   // ...and the rest of the shader's uniforms
 });`;
 
-const limits: { lead: string; text: ReactNode; code?: string }[] = [
+const limits: { lead: ReactNode; text?: ReactNode; code?: string }[] = [
   {
     lead: 'Content from other sites needs CORS.',
     text: (
       <>
         Cross-origin images need CORS headers and <Code>crossOrigin=&quot;anonymous&quot;</Code>. Cross-origin
-        iframes, <Code>url()</Code> in CSS and SVG, and tainted canvases are missing from the shader&apos;s picture.
+        iframes, <Code>url()</Code> in CSS and SVG, and canvases with images from other sites drawn into them are missing from the shader&apos;s picture.
       </>
     ),
-    code: `// Shows in the shader
-<img src="https://other.site/photo.jpg" crossOrigin="anonymous" />
-
-// Missing from the shader
-<img src="https://other.site/photo.jpg" />
-<iframe src="https://other.site" />
-<div style={{ backgroundImage: 'url(https://other.site/bg.jpg)' }} />`,
+    code: `<Water>
+  // Shows in the shader
+  <img src="https://other.site/photo.jpg" crossOrigin="anonymous" />
+  // Missing from the shader
+  <img src="https://other.site/photo.jpg" />
+  <iframe src="https://other.site" />
+  <div style={{ backgroundImage: 'url(https://other.site/bg.jpg)' }} />
+</Water>`,
   },
   {
     lead: 'Anything private or owned by the browser is left out of the shader\'s picture:',
     text: (
       <>
         system colors and themes, spelling underlines, visited links, autofill, IME popups, and video captions and
-        controls. Text has no subpixel anti-aliasing either.
+        controls.
       </>
     ),
   },
   {
-    lead: 'A transform on the element that holds your children is ignored in the shader.',
-    text: (
+    lead: (
       <>
-        Put it on a child or on the shader. Also, <Code>position: fixed</Code> elements are placed relative to the
-        shader, not the screen.
+        <Code>position: fixed</Code> elements are placed relative to the shader, not the screen.
       </>
     ),
+  },
+  {
+    lead: (
+      <>
+        A <Code>transform</Code> in <Code>layoutProps</Code> is ignored.
+      </>
+    ),
+    text: 'Put it on a child or on the shader instead.',
     code: `// Ignored in the shader
 <Water layoutProps={{ style: { transform: 'rotate(5deg)' } }}>...</Water>
 
@@ -204,10 +210,6 @@ const limits: { lead: string; text: ReactNode; code?: string }[] = [
 <Water>
   <div style={{ transform: 'rotate(5deg)' }}>...</div>
 </Water>`,
-  },
-  {
-    lead: 'The shader moves pixels, not elements.',
-    text: 'Clicks land where an element is laid out, not where the effect moved it.',
   },
 ];
 
@@ -350,7 +352,8 @@ export default function HtmlInCanvasPage() {
           <p>
             The browser paints your HTML, but instead of showing it the normal way, it passes it to the shader as a
             texture. The browser repaints that texture on every HTML change, including things like CSS animations. Static
-            shaders redraw only on HTML change, a shader&apos;s prop change, or resize. Animated shaders redraw every
+            shaders redraw only on HTML change, a shader&apos;s prop change, or resize, like in the{' '}
+            <a href="/halftone-cmyk/html-in-canvas">Halftone CMYK demo</a>. Animated shaders redraw every
             frame and pause only when they&apos;re out of view.
           </p>
         </section>
@@ -358,10 +361,10 @@ export default function HtmlInCanvasPage() {
         <section>
           <h2 className="text-2xl font-medium lowercase">Limits</h2>
           <div className="flex flex-col gap-24">
-            {limits.map(({ lead, text, code }) => (
-              <div key={lead} className="flex flex-col gap-8">
+            {limits.map(({ lead, text, code }, index) => (
+              <div key={index} className="flex flex-col gap-8">
                 <p>
-                  <Lead>{lead}</Lead> {text}
+                  {lead} {text}
                 </p>
                 {code && <CodeBlock code={code} />}
               </div>
@@ -420,10 +423,6 @@ function List({ items }: { items: ReactNode[] }) {
       ))}
     </ul>
   );
-}
-
-function Lead({ children }: { children: ReactNode }) {
-  return <span className="font-medium text-foreground">{children}</span>;
 }
 
 function Code({ children }: { children: ReactNode }) {

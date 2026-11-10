@@ -1,6 +1,17 @@
 'use client';
 
-import { HalftoneDots } from '@paper-design/shaders-react';
+import { useState } from 'react';
+import {
+  HalftoneDots,
+  Metaballs,
+  metaballsPresets,
+  MeshGradient,
+  meshGradientPresets,
+  Swirl,
+  swirlPresets,
+  SmokeRing,
+  smokeRingPresets,
+} from '@paper-design/shaders-react';
 import './example.css';
 
 export const params = {
@@ -10,50 +21,49 @@ export const params = {
   grainMixer: 0,
   radius: 1.15,
   contrast: 0.3,
-  size: 0.3,
+  size: 0.2,
   grainOverlay: 0,
 };
 
-const images = 'https://shaders.paper.design/images/image-filters';
-
-const topics = [
-  { name: 'Water', path: 'water', src: `${images}/004.webp`, alt: 'Monstera leaves' },
-  { name: 'Fluted Glass', path: 'fluted-glass', src: `${images}/006.webp`, alt: 'Palm fronds on yellow' },
-  { name: 'Lens Distortion', path: 'lens-distortion', src: `${images}/0015.webp`, alt: 'Mint sprigs' },
-  { name: 'Paper Texture', path: 'paper-texture', src: `${images}/0018.webp`, alt: 'Orange cosmos flowers' },
+const shaders = [
+  { name: 'Metaballs', path: 'metaballs', Shader: Metaballs, params: { ...metaballsPresets[1].params, scale: 1.5, colorBack: '#333333', colors: ['#ffffff'] } },
+  {
+    name: 'MeshGradient',
+    path: 'mesh-gradient',
+    Shader: MeshGradient,
+    params: { ...meshGradientPresets[0].params, swirl: 1, speed: 2, colors: ['#bbbbbb', '#000000', '#666666', '#000000'] },
+  },
+  { name: 'Swirl', path: 'swirl', Shader: Swirl, params: swirlPresets[0].params },
+  { name: 'SmokeRing', path: 'smoke-ring', Shader: SmokeRing, params: { ...smokeRingPresets[0].params, thickness: 0.5 } },
 ];
 
-// One handler on the gallery serves every link: the hovered link and its image share an index
-function showImage(event) {
-  const link = event.target.closest('a');
-  if (!link) return;
-  const links = [...event.currentTarget.querySelectorAll('a')];
-  const index = links.indexOf(link);
-  links.forEach((other) => other.classList.toggle('active', other === link));
-  event.currentTarget.querySelectorAll('img').forEach((image, i) => image.classList.toggle('active', i === index));
-}
-
+// Other Paper shaders run inside the HTML, and the dots print whatever they draw
 export default function Example(props) {
+  const [active, setActive] = useState(0);
+
   return (
     <HalftoneDots {...params} sizeToContent="height" {...props}>
-      <div className="gallery" onPointerOver={showImage}>
+      <div className="gallery">
         <ul>
-          {topics.map(({ name, path }, index) => (
+          {shaders.map(({ name, path }, index) => (
             <li key={name}>
               <a
-                className={index === 0 ? 'active' : undefined}
-                href={`https://shaders.paper.design/${path}/html-in-canvas`}
+                className={index === active ? 'active' : undefined}
+                href={`https://shaders.paper.design/${path}`}
                 target="_blank"
                 rel="noopener"
+                onPointerEnter={() => setActive(index)}
+                onFocus={() => setActive(index)}
               >
                 {name}
               </a>
             </li>
           ))}
         </ul>
-        <div className="photos">
-          {topics.map(({ src, alt }, index) => (
-            <img key={src} src={src} alt={alt} crossOrigin="anonymous" className={index === 0 ? 'active' : undefined} />
+        <div className="shaders">
+          {shaders.map(({ name, Shader, params }, index) => (
+            // Hidden shaders stand still, so only the one on show keeps drawing
+            <Shader key={name} {...params} speed={index === active ? params.speed : 0} className={index === active ? 'active' : undefined} />
           ))}
         </div>
       </div>

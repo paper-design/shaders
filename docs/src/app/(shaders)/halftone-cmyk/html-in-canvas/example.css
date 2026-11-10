@@ -1,13 +1,14 @@
-@property --page { syntax: '<color>'; inherits: true; initial-value: #f0efe4 }
-@property --ink { syntax: '<color>'; inherits: true; initial-value: #2f3a78 }
-@property --a { syntax: '<color>'; inherits: true; initial-value: #8fb3ea }
-@property --b { syntax: '<color>'; inherits: true; initial-value: #f2c14e }
-@property --c { syntax: '<color>'; inherits: true; initial-value: #f08a5d }
-@property --d { syntax: '<color>'; inherits: true; initial-value: #b9e5d0 }
+@property --page { syntax: '<color>'; inherits: true; initial-value: #eef1f8 }
+@property --ink { syntax: '<color>'; inherits: true; initial-value: #1b2a8f }
+@property --a { syntax: '<color>'; inherits: true; initial-value: #b9c8f5 }
+@property --b { syntax: '<color>'; inherits: true; initial-value: #d9e2fb }
+@property --c { syntax: '<color>'; inherits: true; initial-value: #8ea6f0 }
+@property --d { syntax: '<color>'; inherits: true; initial-value: #ffffff }
 @property --fill { syntax: '<percentage>'; inherits: false; initial-value: 0% }
-.meter { --page: #f0efe4; --ink: #2f3a78; --a: #8fb3ea; --b: #f2c14e; --c: #f08a5d; --d: #b9e5d0; position: relative; container-type: size; display: flex; flex-direction: column; gap: 12px; width: 100%; height: 100%; min-height: 480px; padding: 12px; box-sizing: border-box; background: var(--page); color: var(--ink); font-weight: 800; transition: --page 300ms ease-out, --ink 300ms ease-out, --a 300ms ease-out, --b 300ms ease-out, --c 300ms ease-out, --d 300ms ease-out }
-.meter[data-palette="1"] { --page: #f5f0e3; --ink: #8a3317; --a: #f7bd7d; --b: #bcd6a0; --c: #9cc9ea; --d: #fbe08f }
-.meter[data-palette="2"] { --page: #eef4ea; --ink: #14566e; --a: #a4dcc4; --b: #ffe08a; --c: #7cc4e8; --d: #ff9f80 }
+.meter { --page: #eef1f8; --ink: #1b2a8f; --a: #b9c8f5; --b: #d9e2fb; --c: #8ea6f0; --d: #ffffff; position: relative; container-type: size; display: flex; flex-direction: column; gap: 12px; width: 100%; height: 100%; min-height: 480px; padding: 12px; box-sizing: border-box; background: var(--page); color: var(--ink); font-weight: 800; transition: --page 300ms ease-out, --ink 300ms ease-out, --a 300ms ease-out, --b 300ms ease-out, --c 300ms ease-out, --d 300ms ease-out }
+.meter[data-palette="1"] { --page: #fbf3ee; --ink: #2a1410; --a: #ff6b4a; --b: #ffc2b0; --c: #ffa58a; --d: #ffffff }
+.meter[data-palette="2"] { --page: #eef3ea; --ink: #1f3d2b; --a: #9fcf8f; --b: #d6ead0; --c: #7fbf9a; --d: #f7f3e8 }
+.meter[data-palette="3"] { --page: #f4eff7; --ink: #3a1f5c; --a: #c9a6ef; --b: #e6d8f7; --c: #a98ae0; --d: #ffffff }
 .meter ::selection { background: var(--ink); color: var(--b) }
 .meter .stat ::selection { color: var(--page) }
 .meter h1 { flex: none; margin: 4px 12px 0; font-size: 46px; line-height: 1.1; white-space: nowrap }
@@ -17,14 +18,14 @@
 .meter .stat { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center; padding: 0 28px; border-radius: 16px; background: var(--a) }
 .meter .stat b { font-size: 13cqw; line-height: 0.95 }
 .meter .stat span { font-size: 48px; line-height: 1.1; white-space: nowrap }
-.meter .chart { flex: 1; min-width: 0; height: 100%; border-radius: 16px; background: linear-gradient(to bottom, var(--b), var(--c)) }
-.meter stop { stop-color: var(--ink) }
+.meter .chart { flex: 1; min-width: 0; height: 100%; border-radius: 16px; background: var(--b) }
+.meter .chart path:first-child { fill: var(--c) }
 .meter .chart path:last-child { stroke: var(--ink) }
-.meter .field { position: relative; flex: 1; min-width: 0; overflow: hidden; border-radius: 16px; background: linear-gradient(135deg, var(--b), var(--c) 75%) }
-.meter .field div { position: absolute; top: 50%; left: 50% }
-.meter .field span { position: absolute; translate: -50% -50%; box-sizing: border-box; border: 8px solid var(--ink); border-radius: 50%; opacity: 0 }
-.meter .field i { position: absolute; width: 48px; height: 48px; margin: -24px 0 0 -24px; border-radius: 50%; background: var(--ink) }
+.meter .field { position: relative; cursor: pointer; flex: 1; min-width: 0; overflow: hidden; border-radius: 16px; background: var(--c) }
+.meter .field > [data-paper-shader] { position: absolute; inset: 0 }
+.meter .field button { position: absolute; right: 16px; bottom: 16px; display: grid; place-items: center; width: 64px; height: 64px; padding: 0; border: 5px solid var(--ink); border-radius: 16px; background: var(--page); color: var(--ink); cursor: pointer }
+.meter .field button svg { width: 28px; height: 28px; fill: currentColor }
 .meter .palette { --fill: 0%; flex: 1; min-width: 0; box-sizing: border-box; border: 5px solid var(--ink); border-radius: 16px; background: color-mix(in oklab, var(--d), var(--ink) var(--fill)); color: inherit; font: inherit; font-size: 46px; line-height: 1.05; cursor: pointer; user-select: none; transition: --fill 300ms ease-out }
 .meter .palette:hover { --fill: 28% }
-.meter .drag { position: relative; z-index: 1; flex: 1; min-width: 0; display: grid; place-items: center; box-sizing: border-box; border: 5px solid var(--ink); border-radius: 16px; background: var(--page); font-size: 46px; line-height: 1.05; cursor: grab; touch-action: none; user-select: none; transition: box-shadow 300ms ease-out }
+.meter .drag { position: relative; z-index: 1; flex: 0.6; min-width: 0; display: grid; place-items: center; box-sizing: border-box; border: 5px solid var(--ink); border-radius: 16px; background: var(--page); font-size: 46px; line-height: 1.05; cursor: grab; touch-action: none; user-select: none; transition: box-shadow 300ms ease-out }
 .meter .drag:active { box-shadow: 0 20px 44px rgb(0 0 0 / 18%); cursor: grabbing }

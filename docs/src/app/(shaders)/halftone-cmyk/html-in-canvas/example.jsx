@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { HalftoneCmyk } from '@paper-design/shaders-react';
+import { HalftoneCmyk, Metaballs } from '@paper-design/shaders-react';
 import './example.css';
 
 export const params = {
@@ -20,12 +20,13 @@ export const params = {
 const visibleTime = 10000;
 const drawInterval = 66;
 const counterEvery = 3;
-const paletteCount = 3;
-// Ripples in a row, then how long the dot rests in milliseconds
-const bursts = [[2, 3400], [1, 4600], [3, 2800], [1, 5400], [2, 3800], [1, 3000]];
-const rippleGap = 2200;
-const rippleDuration = 800;
-const ringCount = Math.ceil(rippleDuration / rippleGap);
+// Metaballs colors for each palette in example.css: the field, then the balls in the ink color
+const metaballs = [
+  { colorBack: '#8ea6f0', colors: ['#1b2a8f'] },
+  { colorBack: '#ffa58a', colors: ['#2a1410'] },
+  { colorBack: '#7fbf9a', colors: ['#1f3d2b'] },
+  { colorBack: '#a98ae0', colors: ['#3a1f5c'] },
+];
 
 // Moved with translate, so the block keeps its place in the layout
 function drag(event) {
@@ -47,17 +48,13 @@ export default function Example(props) {
   const rootRef = useRef(null);
   const [repaints, setRepaints] = useState(0);
   const [palette, setPalette] = useState(0);
+  const [playing, setPlaying] = useState(false);
 
   // The canvas fires "paint" whenever the HTML inside it changes, so this counts real repaints
   useEffect(() => {
     const root = rootRef.current;
     const canvas = root.closest('canvas');
     if (!canvas) return;
-    const dot = root.querySelector('.field i');
-    const rings = root.querySelectorAll('.field span');
-    let ring = 0;
-    let burst = 0;
-    let rippleTimeout;
     const chart = root.querySelector('svg');
     const [area, line] = chart.querySelectorAll('path');
     const paintTimes = [];
@@ -85,31 +82,10 @@ export default function Example(props) {
     };
     const drawing = setInterval(drawLine, drawInterval);
 
-    // The dot ripples a different number of times, then rests, and the repaints drop with it
-    const ripple = (ripplesLeft) => {
-      rings[ring++ % ringCount].animate(
-        [
-          { offset: 0, width: '48px', height: '48px', opacity: 1 },
-          { offset: 0.7, opacity: 1 },
-          { offset: 1, width: '150px', height: '150px', opacity: 0 },
-        ],
-        { duration: rippleDuration, easing: 'ease-out' }
-      );
-      dot.animate({ scale: [1, 0.7, 1] }, { duration: rippleDuration, easing: 'ease-in-out' });
-      if (ripplesLeft > 1) {
-        rippleTimeout = setTimeout(() => ripple(ripplesLeft - 1), rippleGap);
-      } else {
-        const rest = bursts[burst++ % bursts.length][1];
-        rippleTimeout = setTimeout(nextBurst, rippleDuration + rest);
-      }
-    };
-    const nextBurst = () => ripple(bursts[burst % bursts.length][0]);
-    if (!matchMedia('(prefers-reduced-motion: reduce)').matches) nextBurst();
 
     return () => {
       canvas.removeEventListener('paint', countPaint);
       clearInterval(drawing);
-      clearTimeout(rippleTimeout);
     };
   }, []);
 
@@ -124,27 +100,21 @@ export default function Example(props) {
             <span>repaints / second</span>
           </div>
           <svg className="chart">
-            <defs>
-              <linearGradient id="meter-area" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0" stopOpacity="0.9" />
-                <stop offset="1" stopOpacity="0.1" />
-              </linearGradient>
-            </defs>
-            <path fill="url(#meter-area)" />
+            <path />
             <path fill="none" strokeWidth="8" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
         </div>
 
         <div className="row">
-          <div className="field">
-            <div>
-              {Array.from({ length: ringCount }, (_, index) => (
-                <span key={index} />
-              ))}
-              <i />
-            </div>
+          <div className="field" onClick={() => setPlaying(!playing)}>
+            <Metaballs {...metaballs[palette]} count={8} size={0.7} speed={playing ? 2.5 : 0} />
+            <button aria-label={playing ? 'pause' : 'play'}>
+              <svg viewBox="0 0 24 24">
+                <path d={playing ? 'M6 4h4v16H6zM14 4h4v16h-4z' : 'M7 4l13 8-13 8z'} />
+              </svg>
+            </button>
           </div>
-          <button className="palette" onClick={() => setPalette((palette + 1) % paletteCount)}>
+          <button className="palette" onClick={() => setPalette((palette + 1) % metaballs.length)}>
             change palette
           </button>
           <div className="drag" onPointerDown={drag}>

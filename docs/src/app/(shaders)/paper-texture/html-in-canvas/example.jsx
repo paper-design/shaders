@@ -8,9 +8,9 @@ import './example.css';
 export const params = {
   colorBack: '#00000000',
   clip: true,
-  colorShadow: '#c2c2c2',
+  colorShadow: '#c7c9d1',
   distortion: 0.25,
-  angle: 244,
+  angle: 116,
   seed: 311,
   roughness: 0.2,
   fiberSize: 0.72,
@@ -45,7 +45,7 @@ export default function Example(props) {
         onSubmit={handleSubmit}
         onInput={() => setSeed(Math.floor(Math.random() * 1000))}
       >
-        <h2>Stay in touch</h2>
+        <h2>HTML form through Paper Texture</h2>
         <div className="field">
           <input type="text" name="name" placeholder="name" autoComplete="off" required />
           <span className="error">Please enter your name</span>
