@@ -57,9 +57,14 @@ export function ShaderContainer({
         {(hasHtmlInCanvasPage || isHtmlInCanvasPage) && (
           // Out of the flow on wide screens so the content below the shader keeps its place.
           // Narrower, it would overlap the centered line below, so it takes a line of its own above it
-          <div className="mt-20 flex justify-end min-[75rem]:absolute min-[75rem]:top-full min-[75rem]:right-0">
+          <div className="mt-20 flex justify-end gap-8 min-[75rem]:absolute min-[75rem]:top-full min-[75rem]:right-0">
+            {isHtmlInCanvasPage && (
+              <Link href="/html-in-canvas" className={demoButtonClassName}>
+                HTML-in-Canvas docs
+              </Link>
+            )}
             <Link href={getHtmlInCanvasToggleHref(pathname)} className={demoButtonClassName}>
-              {isHtmlInCanvasPage ? 'back to image demo' : 'open HTML-in-Canvas demo'}
+              {isHtmlInCanvasPage ? 'image filter demo' : 'HTML-in-Canvas demo'}
             </Link>
           </div>
         )}

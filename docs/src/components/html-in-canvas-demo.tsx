@@ -25,7 +25,10 @@ export function HtmlInCanvasDemo({
   currentParams,
   defaultParams,
   notes,
+  showHtmlProps = true,
 }: {
+  /** Lists the HTML-in-Canvas props (children, sizeToContent, layoutProps, origin) with the shader props */
+  showHtmlProps?: boolean;
   Example: ComponentType<Record<string, unknown>>;
   /** The shader keeps the size of its content, as in the example, instead of filling the resizable box */
   fitsContent?: boolean;
@@ -56,6 +59,7 @@ export function HtmlInCanvasDemo({
         shaderDef={shaderDef}
         currentParams={currentParams}
         notes={notes}
+        showHtmlProps={showHtmlProps}
         htmlSample={{ source, css, defaultParams }}
       />
     </>

@@ -4,7 +4,7 @@ import { useState, type ReactNode } from 'react';
 import { ShaderDef, ParamOption, ParamDef } from '../shader-defs/shader-def-types';
 import { CopyButton } from './copy-button';
 import { hslToHex, toHsla } from '@/helpers/color-utils';
-import { commonParams } from '@/shader-defs/common-param-def';
+import { commonParams, htmlInCanvasParams } from '@/shader-defs/common-param-def';
 import { highlightJsx, highlightCss } from '@/helpers/highlight-code';
 import { demoButtonClassName } from '@/helpers/html-in-canvas-page';
 import { getRunnableExample, getRunnableExampleParts, removeJsxHandlers } from '@/helpers/runnable-example';
@@ -288,15 +288,25 @@ export function ShaderDetails({
   notes,
   codeSampleImageName,
   htmlSample,
-}: ShaderCodeProps & { notes?: ReactNode }) {
+  showHtmlProps = Boolean(htmlSample),
+}: ShaderCodeProps & { notes?: ReactNode; showHtmlProps?: boolean }) {
   const installationCode = 'npm i @paper-design/shaders-react';
 
   const commonPropNames = Object.keys(commonParams);
-  const shaderProps = shaderDef.params.filter((p) => !commonPropNames.includes(p.name));
+  const ownProps = shaderDef.params.filter((p) => !commonPropNames.includes(p.name));
+  const shaderProps = showHtmlProps
+    ? [
+        ...ownProps.map((p) => (p.name === 'image' ? htmlInCanvasParams.children : p)),
+        ...htmlInCanvasParams.rest,
+      ]
+    : ownProps;
   const commonProps = shaderDef.params.filter((p) => commonPropNames.includes(p.name));
 
   return (
-    <div className="mt-24 flex w-full flex-col gap-32 md:mt-40 [&_a]:link [&>section]:flex [&>section]:flex-col [&>section]:gap-16">
+    <div
+      // On wide screens the demo buttons hang below the shader, out of the flow, so the details start below them
+      className={`mt-24 flex w-full flex-col gap-32 md:mt-40 ${htmlSample ? 'min-[75rem]:mt-80' : ''} [&_a]:link [&>section]:flex [&>section]:flex-col [&>section]:gap-16`}
+    >
       <section>
         <div className="flex items-center gap-8">
           <h2 className="text-2xl font-medium lowercase">Installation</h2>

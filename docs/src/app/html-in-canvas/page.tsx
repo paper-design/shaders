@@ -5,9 +5,8 @@ import type { ReactNode } from 'react';
 import { CodeSection } from '@/components/shader-details';
 import { compactJsxTags, getShaderElementCode } from '@/helpers/runnable-example';
 import { SiteHeader } from '@/components/site-header';
-import { CodeBlock, CodeFile, InstallationSection } from './code-block';
+import { CodeBlock, CodeFile } from './code-block';
 import Example from './example';
-import { LayoutPropsComparison } from './layout-props-comparison';
 import { SupportedShaders } from './supported-shaders';
 
 export const metadata: Metadata = {
@@ -19,10 +18,31 @@ const quickStart = `<Shader style={{ height: 400 }}>
   {/* and any other content */}
 </Shader>`;
 
-const structure = `<div data-paper-shader>                     <!-- outer div: className, style -->
-  <canvas content="drawable">
-    <div drawable>                          <!-- inner div: gets drawn -->
-      ...your children...
+const layoutPropsCode = `<Water
+  style={{ height: 200 }}
+  layoutProps={{ style: { display: 'flex', gap: 8, padding: 12 } }}
+>
+  {/* For example, if the cards' styles expect them
+      to be direct children of the layout */}
+  <Card />
+  <Card />
+  <Card />
+</Water>`;
+
+const structureInput = `<Water className="hero">
+  <div className="content">
+    <h1>Hello</h1>
+    <p>Some text</p>
+  </div>
+</Water>`;
+
+const structure = `<div class="hero" data-paper-shader>  // outer div: gets className and style
+  <canvas content="drawable">         // shows the effect
+    <div drawable>                    // inner div: gets layoutProps, everything inside is drawn
+      <div class="content">           // your wrapper, optional
+        <h1>Hello</h1>                // your children, unchanged
+        <p>Some text</p>
+      </div>
     </div>
   </canvas>
 </div>`;
@@ -34,7 +54,9 @@ const sizingCases: { title: string; text: ReactNode; code: string }[] = [
       <>
         Use <Code>style</Code>, <Code>className</Code>, or the <Code>width</Code> and <Code>height</Code> props. The
         width fills the parent by default, like any block. With no height and no <Code>sizeToContent</Code>, the shader
-        is 0px tall, because a canvas doesn&apos;t make room for its children.
+        is 0px tall, because a canvas doesn&apos;t make room for its children. With a fixed height,{' '}
+        <Code>height: 100%</Code> on your content wrapper fills the shader. If you add a border to the shader, the
+        effect isn&apos;t applied to it: the border goes around the effect, like a frame.
       </>
     ),
     code: `{/* Fixed width and height */}
@@ -51,8 +73,10 @@ const sizingCases: { title: string; text: ReactNode; code: string }[] = [
     text: (
       <>
         Set <Code>sizeToContent</Code> and the shader grows and shrinks with its content. For width, the content is
-        measured without wrapping, so a long line can make the shader wider than its parent. Set a width on your own
-        root element if the text should wrap.
+        measured without wrapping, so a long line of text can make the shader wider than its parent. Set a width on your content
+        wrapper if the text should wrap. A <Code>maxWidth</Code> on the shader stops it from growing
+        wider, but the text doesn&apos;t wrap to fit, so whatever doesn&apos;t fit is cut off. With <Code>sizeToContent=&quot;height&quot;</Code>, <Code>height: 100%</Code> on the
+        wrapper has no effect, because the content decides the height.
       </>
     ),
     code: `{/* Height from content: the width follows your layout and text wraps as usual */}
@@ -91,37 +115,40 @@ const sizingCases: { title: string; text: ReactNode; code: string }[] = [
 </div>
 
 <div style={{ display: 'flex' }}>
-  {/* Takes its width from the content, the neighbor takes the rest */}
+  {/* Takes its width from the content, and the neighbor takes the rest */}
   <Water sizeToContent="width" style={{ height: 100 }}>...</Water>
   <aside style={{ flex: 1 }} />
 </div>
 
 <div style={{ display: 'flex' }}>
-  {/* Takes the leftover width, its height comes from the content */}
+  {/* Takes the leftover width, and its height comes from the content */}
   <Water sizeToContent="height" style={{ flex: 1 }}>...</Water>
 </div>`,
   },
 ];
 
-const sizingNotes: ReactNode[] = [
-  <>
-    <Code>sizeToContent</Code> wins over <Code>style</Code> on its axis: with{' '}
-    <Code>sizeToContent=&quot;height&quot;</Code>, a <Code>height</Code> in <Code>style</Code> is ignored.
-  </>,
-  <>
-    <Code>maxWidth</Code> still applies, but content wider than the shader gets cut off.
-  </>,
-  <>
-    With a fixed height, <Code>height: 100%</Code> on your root element fills the shader. With{' '}
-    <Code>sizeToContent=&quot;height&quot;</Code> it has no effect, because the content decides the height.
-  </>,
-  'A border on the shader sits around the content, and the canvas stays inside it.',
-];
-
-const recommended = `<Water style={{ height: 400 }}>
-  <div style={{ display: 'flex', height: '100%', padding: 32 }}>
-    {/* your content */}
+const recommendedFixed = `<Water style={{ height: '100vh' }}>
+  <div style={{ display: 'grid', placeContent: 'center', height: '100%' }}>
+    <h2>Hero</h2>
+    <p>The shader fills the screen, whatever the content.</p>
   </div>
+</Water>`;
+
+const recommendedFit = `<Water sizeToContent="height">
+  <div style={{ display: 'flex', flexDirection: 'column', gap: 16, padding: 32 }}>
+    <h2>Card</h2>
+    <p>The shader is as tall as this text.</p>
+  </div>
+</Water>`;
+
+const recommendedLayoutProps = `<Water
+  sizeToContent="height"
+  layoutProps={{
+    style: { display: 'flex', flexDirection: 'column', gap: 16, padding: 32 },
+  }}
+>
+  <h2>Card</h2>
+  <p>The shader is as tall as this text.</p>
 </Water>`;
 
 const vanillaMarkup = `<div id="shader" style="height: 400px">
@@ -172,167 +199,162 @@ export default function HtmlInCanvasPage() {
   return (
     <div className="mx-auto box-content max-w-1104 px-16 xs:px-24 sm:px-32 md:px-48 2xl:max-w-1472 [&>div]:max-w-none">
       <SiteHeader />
-      <article className="flex w-full flex-col gap-48 pb-128 text-pretty lg:[&_:is(:not(.relative)>pre,.relative:has(>pre))]:max-w-[calc(100%-332px)] 3xl:[&_:is(:not(.relative)>pre,.relative:has(>pre))]:max-w-1104 [&_a:not(.no-underline)]:link [&_p]:text-current/70 [&>section]:flex [&>section]:flex-col [&>section]:gap-16">
+      <article className="flex w-full flex-col gap-48 pb-128 text-pretty lg:[&>*:not(.full-width)>*]:max-w-[calc(100%-332px)] 3xl:[&>*:not(.full-width)>*]:max-w-1104 [&_a:not(.no-underline)]:link [&_p]:text-current/70 [&>section]:flex [&>section]:flex-col [&>section]:gap-16">
         <header className="flex w-full flex-col gap-16 pt-20">
+
           <h1
             className="text-3xl font-light lowercase xs:text-4xl"
             style={{ fontFeatureSettings: '"ss01"', wordSpacing: '0.1em' }}
           >
-            HTML in Canvas
+            HTML-in-Canvas support
           </h1>
-          <p className="text-lg">
-            7 of Paper Shaders support HTML-in-Canvas: pass any content as children of the shader component, and the
-            effect is applied to live HTML. It is a <a href="#browser-support">Chrome only</a> feature
-          </p>
           <CodeBlock code={quickStart} />
+          <p className="text-lg">
+            7 Paper Shaders currently support HTML-in-Canvas. You can pass any content as children of the shader component, and the
+            effect is applied to live HTML.
+          </p>
+          <p>
+            It is a <a href="#browser-support">Chrome-only</a> feature.
+          </p>
         </header>
 
-        <section>
-          <H2>Supported shaders</H2>
+        <section className="full-width">
+          <h2 className="text-2xl font-medium lowercase">Supported shaders</h2>
           <SupportedShaders />
         </section>
 
-        <InstallationSection />
-
         <section className="[&>section]:mt-16 [&>section]:flex [&>section]:flex-col [&>section]:gap-16">
-          <H2>How to use</H2>
+          <h2 className="text-2xl font-medium lowercase">How to use</h2>
           <p>
             Use the shader the same way as before, but instead of passing an image as a prop, pass your HTML as the
             shader&apos;s children.
           </p>
           <p>
-            It's easier to wrap your content in one element and apply the CSS layout on it.
-            Styles on the shader itself don&apos;t reach your content. If the shader has a set height, add{' '}
-            <Code>height: 100%</Code> so the wrapper fills it.
+            The easiest way is to have your content wrapped in a container and have the CSS layout applied to this container.
           </p>
-          <CodeBlock code={recommended} />
+          <CodeBlock code={recommendedFixed} />
           <p>
-            Can&apos;t add a wrapper, or need a <Code>ref</Code> or <Code>data-*</Code> attributes on the element that
-            gets drawn? Use <a href="#layout-props">layoutProps</a>.
+            By default, the shader doesn&apos;t take its size from its children, so the height of the element should be set one way or another.
+            To make the shader resize according to HTML content, use the <Code>sizeToContent</Code> prop. Set it to{' '}
+            <Code>width</Code>, <Code>height</Code> or <Code>both</Code>. See{' '}
+            <a href="#sizing">sizing</a>.
           </p>
+          <CodeBlock code={recommendedFit} />
+          <p>
+            If you can&apos;t or don&apos;t want to wrap your content, use{' '}
+            <a href="#layout-props">layoutProps</a>:
+          </p>
+          <CodeBlock code={recommendedLayoutProps} />
 
-          <H3>Props you should know</H3>
+          <h3 className="text-2xl font-medium lowercase">Shader props</h3>
           <List
             items={[
               <>
-                <Code>style</Code> and <Code>className</Code> are for the box around the shader: its size, margin and
-                where it sits in your layout.
+                <Lead>
+                  <Code>style</Code> and <Code>className</Code>
+                </Lead> size and place the shader on your page, like on any other element. To lay out your content,
+                style your own wrapper inside the shader or use <Code>layoutProps</Code>.
               </>,
               <>
-                <Code>sizeToContent</Code> lets the shader take its size from your content. Set it to{' '}
-                <Code>&quot;width&quot;</Code>, <Code>&quot;height&quot;</Code> or <Code>&quot;both&quot;</Code>. See{' '}
-                <a href="#sizing">Sizing</a>.
+                <Lead>shader-specific props</Lead> like colors, <Code>speed</Code> and every other effect setting.
               </>,
               <>
-                <Code>originX</Code> and <Code>originY</Code> choose where the effect&apos;s pattern starts, with{' '}
-                <Code>0 0</Code> at the top left. Lens Distortion doesn&apos;t use them.
+                <Lead>HTML-in-Canvas props:</Lead>
+                <div className="mt-8">
+                  <List
+                    items={[
+                      <>
+                        <Lead>
+                          <Code>sizeToContent</Code>
+                        </Lead>{' '}
+                        lets the shader take its size from your content:{' '}
+                        <Code>&quot;width&quot;</Code>, <Code>&quot;height&quot;</Code> or{' '}
+                        <Code>&quot;both&quot;</Code>. See <a href="#sizing">sizing</a>.
+                      </>,
+                      <>
+                        <Lead>
+                          <Code>layoutProps</Code>
+                        </Lead>{' '}
+                        styles the element that holds your children. See{' '}
+                        <a href="#layout-props">layoutProps</a>.
+                      </>,
+                      <>
+                        <Lead>
+                          <Code>originX</Code> and <Code>originY</Code>
+                        </Lead>{' '}
+                        set the point the effect&apos;s pattern grows
+                        from, from <Code>0 0</Code> (top left) to <Code>1 1</Code> (bottom right). It matters most when
+                        the shader resizes: the pattern stays fixed at that point. A pixel grid looks most natural
+                        pinned to the top left corner, but if your content is centered, <Code>0.5 0.5</Code> keeps the
+                        pattern centered with it. Resize the <a href="/paper-texture/html-in-canvas">Paper Texture</a>{' '}
+                        and <a href="/image-dithering/html-in-canvas">Image Dithering</a> demos to see the difference.
+                      </>,
+                    ]}
+                  />
+                </div>
               </>,
             ]}
           />
-          <p>HTML is drawn 1:1 with the shader.</p>
 
-          <H3>Example</H3>
+          <h2 className="text-2xl font-medium lowercase">example</h2>
           <p>
-            Text stays real text that you can select, search and read with a screen reader. Buttons, inputs and
-            scrolling work as usual, and flexbox and grid lay everything out like on any page. When the HTML changes,
-            the effect updates by itself, with nothing to capture or sync by hand.
+            Here the Lens Distortion effect is applied to a flexbox layout with buttons that switch its direction, editable text,
+            a resizable block and an image that fits its box, all working exactly like normal HTML.
           </p>
           <Example />
 
           <CodeSection
-            heading={<h3 className="text-lg font-medium lowercase">Example code</h3>}
+            heading={<h3 className="text-2xl font-medium lowercase">Example code</h3>}
             code={getShaderElementCode(source)}
             fullCode={source}
           />
 
-          <H3 id="sizing">Sizing</H3>
+          <h2 className="text-2xl font-medium lowercase" id="sizing">sizing</h2>
           <p>
-            A canvas can&apos;t take its size from the content inside it, so HTML-in-Canvas doesn&apos;t support that on
+            A <Code>&lt;canvas&gt;</Code> can&apos;t take its size from the content inside it, so HTML-in-Canvas doesn&apos;t support that on
             its own. Paper Shaders do: a shader can hug its content on one axis or both, and act as a normal flex item.
-            For that you only set <Code>sizeToContent</Code>.
-          </p>
-          <div className="flex flex-col gap-24">
+            For that you only set <Code>sizeToContent</Code>, which wins over <Code>style</Code> on its axis: with{' '}
+            <Code>sizeToContent=&quot;height&quot;</Code>, a <Code>height</Code> in <Code>style</Code> is ignored.
+          </p>          <div className="flex flex-col gap-24">
             {sizingCases.map(({ title, text, code }) => (
               <div key={title} className="flex flex-col gap-8">
-                <h4 className="font-medium">{title}</h4>
+                <h3 className="text-lg font-medium">{title}</h3>
                 <p>{text}</p>
                 <CodeBlock code={code} />
               </div>
             ))}
           </div>
-          <List items={sizingNotes} />
+
+          <h3 className="text-lg font-medium" id="layout-props">layoutProps</h3>
+          <p>
+            <Code>layoutProps</Code> is a way to pass layout styles to children without wrapping them in a container. It
+            takes{' '}<Code>className</Code>, <Code>style</Code>, <Code>ref</Code> and <Code>data-*</Code> attributes.
+          </p>
+          <CodeBlock code={layoutPropsCode} />
         </section>
 
         <section>
-          <H2>How it works</H2>
-          <p>The shader renders this structure:</p>
+          <h2 className="text-2xl font-medium lowercase">How it works</h2>
+          <p>You write:</p>
+          <CodeBlock code={structureInput} />
+          <p>The shader renders:</p>
           <CodeBlock code={structure} />
-          <H3>Outer and inner div</H3>
-          <List
-            items={[
-              <>
-                <strong className="font-medium">Outer div</strong>: the box on your page, styled with{' '}
-                <Code>className</Code> and <Code>style</Code>. The shader doesn&apos;t process these styles.
-              </>,
-              <>
-                <strong className="font-medium">Inner div</strong>: holds your children and fills the outer div. It
-                becomes the shader&apos;s image, so everything inside it gets drawn. Padding on the outer div
-                doesn&apos;t reach your content.
-              </>,
-            ]}
-          />
-          <H3>How the canvas updates</H3>
+          <h3 className="text-2xl font-medium lowercase">How the canvas updates</h3>
           <p>
-            The browser paints your HTML but gives the picture to the shader instead of showing it. When the HTML
-            changes, the browser paints again and the shader takes the new picture. Running CSS animations mean a new
-            picture every frame.
-          </p>
-          <List
-            items={[
-              <>
-                <strong className="font-medium">Animated</strong> (<Code>speed</Code> above 0): the shader draws every
-                frame with the latest picture, and pauses when it&apos;s out of view.
-              </>,
-              <>
-                <strong className="font-medium">Static</strong> (<Code>speed</Code> 0): the shader only draws when the
-                HTML, a prop or its size changes, so there&apos;s no frame loop while nothing is happening.
-              </>,
-            ]}
-          />
-        </section>
-
-        <section id="layout-props" className="scroll-mt-24">
-          <h2 className="text-2xl font-medium">layoutProps</h2>
-          <p>
-            <Code>layoutProps</Code> passes <Code>className</Code>, <Code>style</Code>, <Code>ref</Code> and{' '}
-            <Code>data-*</Code> straight to the inner div. Your own wrapper is usually simpler, but this can help when:
-          </p>
-          <List
-            items={[
-              "Your children have to be direct children of the layout, for example when an editor or a CMS renders them and you can't add a wrapper.",
-              <>
-                You need a <Code>ref</Code> or <Code>data-*</Code> attributes on the element that gets drawn.
-              </>,
-              <>
-                You&apos;d rather skip the extra element. The inner div already fills the shader, so it doesn&apos;t
-                need <Code>height: 100%</Code>.
-              </>,
-            ]}
-          />
-          <LayoutPropsComparison />
-          <p>
-            With <Code>sizeToContent</Code>, the width or height you sized to content overrides the same property set
-            here.
+            The browser paints your HTML, but instead of showing it the normal way, it passes it to the shader as a
+            texture. The browser repaints that texture on every HTML change, including running CSS animations. Static
+            shaders redraw only when the HTML, a prop or the shader&apos;s size changes. Animated shaders redraw every
+            frame and pause when they&apos;re out of view.
           </p>
         </section>
 
         <section>
-          <H2>Limits</H2>
+          <h2 className="text-2xl font-medium lowercase">Limits</h2>
           <List items={limits} />
         </section>
 
         <section id="browser-support" className="scroll-mt-24">
-          <H2>Browser support</H2>
+          <h2 className="text-2xl font-medium lowercase">Browser support</h2>
           <Table
             head={['Browser', 'Result']}
             rows={[
@@ -355,34 +377,24 @@ export default function HtmlInCanvasPage() {
         </section>
 
         <section>
-          <H2>Without React</H2>
+          <h2 className="text-2xl font-medium lowercase">Without React</h2>
           <p>
             Write the structure yourself and pass the inner div as <Code>u_image</Code>. The canvas has to be a direct
             child of the shader element, and the inner div a direct child of the canvas.
           </p>
+          <p>
+            Unsupported browsers don&apos;t get a fallback automatically: move your content out of the canvas yourself so it still shows.
+            Sizing to content doesn&apos;t happen automatically either: use <Code>observeContentSize</Code> from{' '}
+            <Code>@paper-design/shaders</Code> for that.
+          </p>
           <CodeFile name="index.html" code={vanillaMarkup} />
           <CodeFile name="index.js" code={vanillaScript} />
-          <p>
-            The React fallback isn&apos;t included here: in browsers without support, move the content out of the canvas
-            yourself. <Code>observeContentSize</Code> is exported for sizing a shader to its content.
-          </p>
         </section>
       </article>
     </div>
   );
 }
 
-function H3({ id, children }: { id?: string; children: ReactNode }) {
-  return (
-    <h3 id={id} className="mt-16 scroll-mt-24 text-lg font-medium lowercase">
-      {children}
-    </h3>
-  );
-}
-
-function H2({ children }: { children: ReactNode }) {
-  return <h2 className="text-2xl font-medium lowercase">{children}</h2>;
-}
 
 function List({ items }: { items: ReactNode[] }) {
   return (

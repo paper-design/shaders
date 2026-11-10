@@ -120,6 +120,7 @@ const LensDistortionWithControls = () => {
         shaderDef={lensDistortionDef}
         currentParams={params}
         defaultParams={presetDefaults}
+        showHtmlProps={false}
       />
     );
   }

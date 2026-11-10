@@ -19,9 +19,9 @@ export function isHtmlInCanvasPath(): boolean {
   return typeof window !== 'undefined' && window.location.pathname.endsWith(htmlInCanvasSuffix);
 }
 
-/** The filled button of the HTML-in-canvas demos: the toggle to the other demo and the full code toggle */
+/** The button of the HTML-in-canvas demos, styled like the Leva panel: the demo and docs links and the full code toggle */
 export const demoButtonClassName =
-  'flex h-32 cursor-pointer items-center rounded-md bg-backplate-2 px-12 text-base outline-0 outline-focus transition-colors hover:bg-backplate-3 focus-visible:outline-2 squircle:rounded-lg';
+  'flex h-32 cursor-pointer items-center rounded-md bg-(--color-leva-background) px-12 text-base shadow-[0_0_0_1px_rgba(58,34,17,0.1)] outline-0 outline-focus transition-colors hover:bg-[color-mix(in_oklab,var(--color-leva-background),currentcolor_6%)] focus-visible:outline-2 squircle:rounded-lg';
 
 /** Links a shader page to its HTML-in-canvas version and back */
 export function getHtmlInCanvasToggleHref(pathname: string): string {

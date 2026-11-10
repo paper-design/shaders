@@ -109,7 +109,7 @@ export default function Example() {
       dispersionColor={0.75}
       sizeToContent="both"
     >
-      <div className="flexbox" style={{ display: 'flex', flexDirection: 'column', gap: 12, padding: 12, background: '#f0efe4' }}>
+      <div className="flexbox" style={{ display: 'flex', flexDirection: 'column', gap: 12, minWidth: 480, padding: 12, background: '#f0efe4' }}>
         <style>{css}</style>
         <h2 style={heading}>
           we support
