@@ -56,16 +56,17 @@ export default function Example(props) {
           const isVisible = Math.abs(slot) <= visibleSides;
 
           return (
-            <button
+            <div
               key={panel}
               style={{ '--grow': slot === 0 ? 5 : isVisible ? 1 : 0, '--color': color, '--ink': ink }}
               aria-current={slot === 0 ? 'page' : undefined}
-              tabIndex={isVisible ? undefined : -1}
-              onClick={() => setPosition(panel)}
             >
               <span>{name}</span>
               <p>{text}</p>
-            </button>
+              {slot !== 0 && (
+                <button aria-label={name} tabIndex={isVisible ? undefined : -1} onClick={() => setPosition(panel)} />
+              )}
+            </div>
           );
         })}
       </nav>
