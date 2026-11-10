@@ -4,6 +4,8 @@ export function highlightJsx(code: string): string {
 
 type TokenType = 'keyword' | 'string' | 'text' | 'entity' | 'number' | 'property' | 'identifier' | 'sign' | 'shader';
 
+const nonShaderTags = new Set(['Example', 'Card']);
+
 const keywords = new Set(['const', 'delete', 'else', 'false', 'from', 'if', 'import', 'let', 'new', 'return', 'true']);
 
 class Highlighter {
@@ -69,8 +71,8 @@ class Highlighter {
     const isClosing = this.code.startsWith('</', this.index);
     const start = isClosing ? '</' : '<';
     const tag = this.code.slice(this.index + start.length).match(/^[\w.]*/)![0];
-    // Every capitalized tag in the samples is a shader, except the example's own wrapper
-    const isShader = /^[A-Z]/.test(tag) && tag !== 'Example';
+    // Every capitalized tag in the samples is a shader, except these
+    const isShader = /^[A-Z]/.test(tag) && !nonShaderTags.has(tag);
     if (isShader && isClosing) {
       return this.take(`</${tag}>`, 'shader');
     }
