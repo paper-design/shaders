@@ -8,7 +8,7 @@
 .scrollable p { max-width: 80%; margin: 4% 0 }
 .scrollable :is(h1, p, .hint) { text-shadow: 0 2px 12px rgb(0 0 0 / 35%) }
 .scrollable .shapes { display: flex; flex-wrap: wrap; gap: 12px; margin: -2% 0 8% }
-.scrollable .shapes button { padding: 0.15em 0.7em; border: 2px solid #f0ead6; border-radius: 8px; background: none; color: inherit; font: inherit; cursor: pointer; transition: background-color 150ms, color 150ms }
+.scrollable .shapes button { padding: 0.4em 0.7em; text-box: trim-both cap alphabetic; border: 2px solid #f0ead6; border-radius: 8px; background: none; color: inherit; font: inherit; cursor: pointer; transition: background-color 150ms, color 150ms }
 .scrollable .shapes button:not([aria-pressed="true"]):hover { background: rgb(240 234 214 / 20%) }
 .scrollable .shapes button[aria-pressed='true'] { background: #f0ead6; color: #222; cursor: default }
 .scrollable .dials { display: grid; grid-template-columns: auto 1fr 4ch; align-items: center; gap: 20px 32px; max-width: 80%; margin: -1% 0 8% }
