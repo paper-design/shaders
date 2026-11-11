@@ -247,8 +247,7 @@ export default function HtmlInCanvasPage() {
         <section className="[&>section]:mt-16 [&>section]:flex [&>section]:flex-col [&>section]:gap-16">
           <h2 className="text-2xl font-medium lowercase">How to use</h2>
           <p>
-            Use the shader the same way as in "image filter" mode, but instead of passing an image as a prop, pass your HTML as the
-            shader&apos;s children. The easiest way to manage the layout is to wrap your content in a single container and have the CSS layout applied to this container.
+            Use the shader as usual, but instead of passing an image as a prop, pass any HTML as the shader&apos;s children. The easiest way to manage the layout is to wrap your content in a single container and have the CSS layout applied to this container.
           </p>
           <CodeBlock code={recommendedFixed} />
           <p>
