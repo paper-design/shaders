@@ -117,7 +117,7 @@ type HomeCategory = {
 export const homeThumbnails = [
   {
     name: 'Image Filters',
-    link: { href: '/html-in-canvas', label: 'full support of HTML-In-Canvas' },
+    link: { href: '/html-in-canvas', label: 'support of HTML-In-Canvas' },
     shaders: [
       {
         name: 'paper texture',
