@@ -16,6 +16,7 @@ export const params = {
 };
 
 function startClock(element) {
+  if (!element) return;
   const time = element.querySelector('time');
   const date = element.querySelector('.clock');
   const stopwatch = element.querySelector('.stopwatch');
