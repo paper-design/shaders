@@ -43,16 +43,32 @@ export function originControls(defaults: { originX: number; originY: number }, o
   };
 }
 
+/** Tells examples that Reset was pressed, since a panel value that is already the default doesn't change */
+const htmlResetEvent = 'paper-shaders-html-reset';
+
 export function htmlResetFolder(reset: () => void) {
-  return folder({ Reset: button(reset) }, { order: -1, ...htmlInputOnly });
+  const resetAll = () => {
+    reset();
+    window.dispatchEvent(new Event(htmlResetEvent));
+  };
+  return folder({ Reset: button(resetAll) }, { order: -1, ...htmlInputOnly });
 }
 
 /**
  * Lets the Leva panel drive state an example keeps for its own in-HTML controls: whichever changed last wins.
+ * Reset applies the panel value again, so changes made only in the HTML are undone too.
  * Calls to it are marked `// docs-only`, so they stay out of the code sample and the copied app.
  */
 export function useFollowPanel<T>(value: T | undefined, apply: (value: T) => void) {
   useEffect(() => {
     if (value !== undefined) apply(value);
+  }, [value]);
+
+  useEffect(() => {
+    const applyOnReset = () => {
+      if (value !== undefined) apply(value);
+    };
+    window.addEventListener(htmlResetEvent, applyOnReset);
+    return () => window.removeEventListener(htmlResetEvent, applyOnReset);
   }, [value]);
 }
