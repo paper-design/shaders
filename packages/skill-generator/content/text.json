@@ -1,0 +1,14 @@
+{
+  "phrases": {
+    "noiseRequirement": "Vanilla requirements: create `u_noiseTexture` with `getShaderNoiseTexture()` and wait for the image to load before constructing `ShaderMount`.",
+    "mipmapRequirement": "Vanilla requirements: pass `[\"u_image\"]` as the `ShaderMount` mipmaps argument.",
+    "combinedNoiseAndMipmapRequirement": "Vanilla requirements: create `u_noiseTexture` with `getShaderNoiseTexture()` and wait for the image to load before constructing `ShaderMount`; pass `[\"u_image\"]` as the `ShaderMount` mipmaps argument.",
+    "preprocessorRequirement": "Vanilla requirements: preprocess image input with `{{preprocessor}}`; pass `[\"u_image\"]` as the `ShaderMount` mipmaps argument.",
+    "maxPixelCount": "React performance override: `maxPixelCount` defaults to `{{expression}}`.",
+    "enumMismatch": "Enum source note: the documentation UI definition contains stale {{documented}}; the exported `{{mapping}}` mapping and component type use {{source}}."
+  },
+  "usageMotionDescriptions": {
+    "speed": "`0` stops the animation loop; negative values play backward",
+    "frame": "animation position in milliseconds; the shader receives seconds as `u_time`"
+  }
+}
