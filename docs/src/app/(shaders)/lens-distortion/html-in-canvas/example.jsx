@@ -16,6 +16,8 @@ export const params = {
   swirl: 0,
   noise: 0,
   lensBulge: 0.1,
+  grainMixer: 0.25,
+  grainOverlay: 0.3,
 };
 
 const items = [
