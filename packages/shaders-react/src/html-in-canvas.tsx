@@ -1,69 +1,88 @@
 'use client';
 
-import { Children, useLayoutEffect, useRef, useSyncExternalStore } from 'react';
+import { Children, Fragment, isValidElement, useLayoutEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { isHtmlInCanvasSupported, observeContentSize, type ShaderSizeToContent } from '@paper-design/shaders';
-import { useMergeRefs } from './use-merge-refs.js';
 
 const subscribeToNothing = () => () => {};
 // Assumed on the server, so that supporting browsers don't re-render the canvas after hydration
 const isSupportedOnServer = () => true;
 
-/** Props of the element that holds the children. It's what gets drawn, so it takes their layout and the visuals */
-export type ShaderLayoutProps = React.ComponentProps<'div'> & { [key: `data-${string}`]: unknown };
-
 /**
  * Draws the children into u_image where the browser supports it, otherwise they're shown on top of the shader.
- * Either way they're held by the same content element, so they lay out the same.
+ * A single child element is drawn as it is. Several children or text are wrapped in a div, so there's always one
+ * element to draw. It lays out the same either way.
  *
- * The content element fills the shader, except on the axes sized to content: there it takes the size of the children,
+ * The drawn element fills the shader, except on the axes sized to content: there it takes the size of its children,
  * and the shader follows it (see `observeContentSize`).
  */
 export function useHtmlChildren(
   acceptsHtmlChildren: boolean,
   children: React.ReactNode,
-  layoutProps: ShaderLayoutProps | undefined,
   sizeToContent: ShaderSizeToContent | undefined,
   shaderRef: React.RefObject<HTMLElement | null>
 ): {
   hasHtmlChildren: boolean;
+  content: HTMLElement | null;
   addHtmlUniform: <T extends object>(uniforms: T) => T;
   renderedChildren: React.ReactNode;
+  shaderAttributes: Record<`data-${string}`, string | undefined> | undefined;
   sizeStyle: React.CSSProperties | undefined;
 } {
-  const contentRef = useRef<HTMLDivElement>(null);
-  const mergedContentRef = useMergeRefs([contentRef, layoutProps?.ref]);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [content, setContent] = useState<HTMLElement | null>(null);
   const isSupported = useSyncExternalStore(subscribeToNothing, isHtmlInCanvasSupported, isSupportedOnServer);
-  const isWrapped = acceptsHtmlChildren && Children.toArray(children).length > 0;
-  const hasHtmlChildren = isWrapped && isSupported;
+  const items = acceptsHtmlChildren ? Children.toArray(children) : [];
+  const hasChildren = items.length > 0;
+  const hasHtmlChildren = hasChildren && isSupported;
 
-  const fitsWidth = isWrapped && (sizeToContent === 'width' || sizeToContent === 'both');
-  const fitsHeight = isWrapped && (sizeToContent === 'height' || sizeToContent === 'both');
+  const findContent = (): HTMLElement | null => {
+    if (!hasChildren) {
+      return null;
+    }
+    const element = hasHtmlChildren
+      ? canvasRef.current?.firstElementChild
+      : shaderRef.current?.querySelector(':scope > :not(canvas)');
+    return (element as HTMLElement | null | undefined) ?? null;
+  };
+
+  // Looked up after every render, since the app can swap the child for another element
+  useLayoutEffect(() => {
+    const element = findContent();
+    if (hasHtmlChildren) {
+      element?.setAttribute('drawable', '');
+    }
+    if (element !== content) {
+      setContent(element);
+    }
+  });
 
   useLayoutEffect(() => {
-    const content = contentRef.current;
     const shader = shaderRef.current;
-    if (!content || !shader || !isWrapped || !sizeToContent) {
+    if (!content || !shader || !sizeToContent) {
       return;
     }
 
     return observeContentSize(shader, content);
-  }, [isWrapped, sizeToContent, hasHtmlChildren, shaderRef]);
+  }, [content, sizeToContent, shaderRef]);
 
-  const addHtmlUniform = <T extends object>(uniforms: T): T =>
-    hasHtmlChildren && contentRef.current ? { ...uniforms, u_image: contentRef.current } : uniforms;
+  const addHtmlUniform = <T extends object>(uniforms: T): T => {
+    const element = hasHtmlChildren ? findContent() : null;
+    return element ? { ...uniforms, u_image: element } : uniforms;
+  };
 
-  if (!isWrapped) {
-    return { hasHtmlChildren, addHtmlUniform, renderedChildren: children, sizeStyle: undefined };
+  if (!hasChildren) {
+    return {
+      hasHtmlChildren,
+      content,
+      addHtmlUniform,
+      renderedChildren: children,
+      shaderAttributes: undefined,
+      sizeStyle: undefined,
+    };
   }
 
-  // Sized to content: the content element takes the size of the children, which can overflow the canvas
-  const contentStyle: React.CSSProperties = { ...layoutProps?.style };
-  if (fitsWidth) {
-    contentStyle.width = 'max-content';
-  }
-  if (fitsHeight) {
-    contentStyle.height = 'auto';
-  }
+  const fitsWidth = sizeToContent === 'width' || sizeToContent === 'both';
+  const fitsHeight = sizeToContent === 'height' || sizeToContent === 'both';
 
   // The shader takes the measured content size
   let sizeStyle: React.CSSProperties | undefined;
@@ -77,20 +96,22 @@ export function useHtmlChildren(
     }
   }
 
-  const content = (
-    <div {...layoutProps} ref={mergedContentRef} style={contentStyle} {...{ drawable: '' }}>
-      {children}
-    </div>
-  );
+  const only = items[0];
+  const isSingleElement = items.length === 1 && isValidElement(only) && only.type !== Fragment;
+  const drawn = isSingleElement ? children : <div>{children}</div>;
 
   return {
     hasHtmlChildren,
+    content,
     addHtmlUniform,
     renderedChildren: hasHtmlChildren ? (
-      <canvas {...{ content: 'drawable', layoutsubtree: '' }}>{content}</canvas>
+      <canvas ref={canvasRef} {...{ content: 'drawable', layoutsubtree: '' }}>
+        {drawn}
+      </canvas>
     ) : (
-      content
+      drawn
     ),
+    shaderAttributes: { 'data-paper-shader': 'html', 'data-size-to-content': sizeToContent },
     sizeStyle,
   };
 }

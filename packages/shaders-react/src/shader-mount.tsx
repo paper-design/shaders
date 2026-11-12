@@ -11,7 +11,7 @@ import {
 } from '@paper-design/shaders';
 import { useMergeRefs } from './use-merge-refs.js';
 import { setMinImageSize } from './set-min-image-size.js';
-import { useHtmlChildren, type ShaderLayoutProps } from './html-in-canvas.js';
+import { useHtmlChildren } from './html-in-canvas.js';
 
 /**
  * React Shader Mount can also accept strings as uniform values, which will assumed to be URLs and loaded as images
@@ -32,7 +32,6 @@ export interface ShaderMountProps extends Omit<React.ComponentProps<'div'>, 'col
   maxPixelCount?: number;
   webGlContextAttributes?: WebGLContextAttributes;
   acceptsHtmlChildren?: boolean;
-  layoutProps?: ShaderLayoutProps;
   sizeToContent?: ShaderSizeToContent;
 
   /** Inline CSS width style */
@@ -46,7 +45,6 @@ export interface ShaderComponentProps extends Omit<React.ComponentProps<'div'>, 
   minPixelRatio?: number;
   maxPixelCount?: number;
   webGlContextAttributes?: WebGLContextAttributes;
-  layoutProps?: ShaderLayoutProps;
   sizeToContent?: ShaderSizeToContent;
 
   /** Inline CSS width style */
@@ -144,7 +142,6 @@ export const ShaderMount: React.FC<ShaderMountProps> = forwardRef<PaperShaderEle
       maxPixelCount,
       mipmaps,
       acceptsHtmlChildren = false,
-      layoutProps,
       sizeToContent,
       children,
       style,
@@ -156,10 +153,9 @@ export const ShaderMount: React.FC<ShaderMountProps> = forwardRef<PaperShaderEle
     const divRef = useRef<PaperShaderElement>(null);
     const shaderMountRef: React.RefObject<ShaderMountVanilla | null> = useRef<ShaderMountVanilla>(null);
     const webGlContextAttributesRef = useRef(webGlContextAttributes);
-    const { hasHtmlChildren, addHtmlUniform, renderedChildren, sizeStyle } = useHtmlChildren(
+    const { hasHtmlChildren, content, addHtmlUniform, renderedChildren, shaderAttributes, sizeStyle } = useHtmlChildren(
       acceptsHtmlChildren,
       children,
-      layoutProps,
       sizeToContent,
       divRef
     );
@@ -218,7 +214,7 @@ export const ShaderMount: React.FC<ShaderMountProps> = forwardRef<PaperShaderEle
       return () => {
         isStale = true;
       };
-    }, [uniformsProp, isInitialized]);
+    }, [uniformsProp, isInitialized, content]);
 
     // Speed
     useEffect(() => {
@@ -254,6 +250,7 @@ export const ShaderMount: React.FC<ShaderMountProps> = forwardRef<PaperShaderEle
               }
             : { ...style, ...sizeStyle }
         }
+        {...shaderAttributes}
         {...divProps}
       >
         {renderedChildren}

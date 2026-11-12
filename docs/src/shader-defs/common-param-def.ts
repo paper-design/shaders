@@ -108,12 +108,6 @@ export const htmlInCanvasParams = {
       options: ['width', 'height', 'both'],
     },
     {
-      name: 'layoutProps',
-      type: 'object',
-      description:
-        'className, style, ref and data-* for the element that holds the children, to lay them out without a wrapper of your own',
-    },
-    {
       ...commonParams.originX,
       description: 'Horizontal point the pattern grows from and stays pinned to when the shader resizes. 0 is the left edge',
     },

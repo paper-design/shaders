@@ -9,7 +9,7 @@ export type ShaderSizeToContent = 'width' | 'height' | 'both';
 /**
  * Measures the content element for a shader sized to it, since the canvas can't be sized by what's inside it.
  * The caller applies the measured size: `--paper-shader-content-width` and `--paper-shader-content-height` on the
- * shader, with the content element at `max-content` width or `auto` height on those axes
+ * shader. `data-size-to-content` on the shader puts the content element at `max-content` width or `auto` height
  */
 export function observeContentSize(shader: HTMLElement, content: HTMLElement): () => void {
   let contentWidth = 0;

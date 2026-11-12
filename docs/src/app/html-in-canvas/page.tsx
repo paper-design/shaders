@@ -18,16 +18,6 @@ const quickStart = `<Shader style={{ height: 400 }}>
   {/* and any other content */}
 </Shader>`;
 
-const layoutPropsCode = `// For example, if the cards' styles expect them to be direct children of the layout
-<Water
-  style={{ height: 200 }}
-  layoutProps={{ style: { display: 'flex', gap: 8, padding: 12 } }}
->
-  <Card />
-  <Card />
-  <Card />
-</Water>`;
-
 const structureInput = `<Water className="hero">
   <div className="content">
     <h1>Hello</h1>
@@ -35,13 +25,11 @@ const structureInput = `<Water className="hero">
   </div>
 </Water>`;
 
-const structure = `<div class="hero" data-paper-shader>  // outer div: gets className and style
+const structure = `<div class="hero" data-paper-shader="html">  // outer div: gets className and style
   <canvas content="drawable">         // shows the effect
-    <div drawable>                    // inner div: gets layoutProps, everything inside is drawn
-      <div class="content">           // your wrapper, optional
-        <h1>Hello</h1>                // your children, unchanged
-        <p>Some text</p>
-      </div>
+    <div class="content" drawable>    // your element: drawn, fills the shader
+      <h1>Hello</h1>
+      <p>Some text</p>
     </div>
   </canvas>
 </div>`;
@@ -71,7 +59,8 @@ const sizingCases: { title: string; text: ReactNode; code: string }[] = [
       <>
         Set <Code>sizeToContent</Code> and the shader grows and shrinks with its content. Note that width of content is
         measured without wrapping, so a long line of text can make the shader wider than its parent. Set a width to your content
-        if the text should wrap.
+        if the text should wrap. Don&apos;t give your element a percentage size on that axis: the shader takes its size from your
+        element, so a size in % of the shader collapses to 0.
       </>
     ),
     code: `// Height from content: the width follows your layout and text wraps as usual
@@ -136,16 +125,6 @@ const recommendedFit = `<Water sizeToContent="height">
   </div>
 </Water>`;
 
-const recommendedLayoutProps = `<Water
-  sizeToContent="height"
-  layoutProps={{
-    style: { display: 'flex', flexDirection: 'column', gap: 16, padding: 32 },
-  }}
->
-  <h2>Card</h2>
-  <p>The shader is as tall as this text.</p>
-</Water>`;
-
 const vanillaMarkup = `<div id="shader" style="height: 400px">
   <canvas content="drawable">
     <div drawable>Hello from HTML</div>
@@ -199,16 +178,20 @@ const limits: { lead: ReactNode; text?: ReactNode; code?: string }[] = [
   {
     lead: (
       <>
-        A <Code>transform</Code> in <Code>layoutProps</Code> is ignored.
+        A <Code>transform</Code> on the drawn element is ignored.
       </>
     ),
-    text: 'Put it on a child or on the shader instead.',
+    text: 'Put it on an element inside, or on the shader instead.',
     code: `// Ignored in the shader
-<Water layoutProps={{ style: { transform: 'rotate(5deg)' } }}>...</Water>
+<Water>
+  <div style={{ transform: 'rotate(5deg)' }}>...</div>
+</Water>
 
 // Works
 <Water>
-  <div style={{ transform: 'rotate(5deg)' }}>...</div>
+  <div>
+    <div style={{ transform: 'rotate(5deg)' }}>...</div>
+  </div>
 </Water>`,
   },
 ];
@@ -247,7 +230,7 @@ export default function HtmlInCanvasPage() {
         <section className="[&>section]:mt-16 [&>section]:flex [&>section]:flex-col [&>section]:gap-16">
           <h2 className="text-2xl font-medium lowercase">How to use</h2>
           <p>
-            Use the shader as usual, but instead of passing an image as a prop, pass any HTML as the shader&apos;s children. The easiest way to manage the layout is to wrap your content in a single container and have the CSS layout applied to this container.
+            Use the shader as usual, but instead of passing an image as a prop, pass any HTML as the shader&apos;s children. The easiest way to manage the layout is to pass a single element: it&apos;s the one that gets drawn, it fills the shader, and you style it like any other element.
           </p>
           <CodeBlock code={recommendedFixed} />
           <p>
@@ -258,10 +241,9 @@ export default function HtmlInCanvasPage() {
           </p>
           <CodeBlock code={recommendedFit} />
           <p>
-            If you can&apos;t or don&apos;t want to wrap your content, you can use {' '}
-            <a href="#layout-props">layoutProps</a> to hold styles and attributes:
+            Several children or plain text are wrapped in a <Code>div</Code> for you, so there&apos;s always one element
+            to draw. Going from one child to two adds that wrapper, so wrap your children yourself if their number can change.
           </p>
-          <CodeBlock code={recommendedLayoutProps} />
 
           <h2 className="text-2xl font-medium lowercase">Shader props</h2>
           <List
@@ -282,10 +264,6 @@ export default function HtmlInCanvasPage() {
                         {' '}lets the shader take its size from your content:{' '}
                         <Code>&quot;width&quot;</Code>, <Code>&quot;height&quot;</Code> or{' '}
                         <Code>&quot;both&quot;</Code>
-                      </>,
-                      <>
-                        <Code>layoutProps</Code>
-                        {' '}styles children within shader-container
                       </>,
                       <>
                         <Code>originX</Code> and <Code>originY</Code>
@@ -332,13 +310,6 @@ export default function HtmlInCanvasPage() {
               </div>
             ))}
           </div>
-
-          <h3 className="text-lg font-medium" id="layout-props">layoutProps</h3>
-          <p>
-            <Code>layoutProps</Code> is a way to pass layout styles to children without wrapping them in a container. It
-            takes{' '}<Code>className</Code>, <Code>style</Code>, <Code>ref</Code> and <Code>data-*</Code> attributes.
-          </p>
-          <CodeBlock code={layoutPropsCode} />
         </section>
 
         <section>
