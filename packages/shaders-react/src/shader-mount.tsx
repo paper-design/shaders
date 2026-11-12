@@ -153,7 +153,7 @@ export const ShaderMount: React.FC<ShaderMountProps> = forwardRef<PaperShaderEle
     const divRef = useRef<PaperShaderElement>(null);
     const shaderMountRef: React.RefObject<ShaderMountVanilla | null> = useRef<ShaderMountVanilla>(null);
     const webGlContextAttributesRef = useRef(webGlContextAttributes);
-    const { hasHtmlChildren, content, addHtmlUniform, renderedChildren, shaderAttributes, sizeStyle } = useHtmlChildren(
+    const { hasHtmlChildren, addHtmlUniform, renderedChildren, shaderAttributes, sizeStyle } = useHtmlChildren(
       acceptsHtmlChildren,
       children,
       sizeToContent,
@@ -214,7 +214,7 @@ export const ShaderMount: React.FC<ShaderMountProps> = forwardRef<PaperShaderEle
       return () => {
         isStale = true;
       };
-    }, [uniformsProp, isInitialized, content]);
+    }, [uniformsProp, isInitialized]);
 
     // Speed
     useEffect(() => {

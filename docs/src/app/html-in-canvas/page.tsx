@@ -18,17 +18,15 @@ const quickStart = `<Shader style={{ height: 400 }}>
   {/* and any other content */}
 </Shader>`;
 
-const structureInput = `<Water className="hero">
-  <div className="content">
-    <h1>Hello</h1>
-    <p>Some text</p>
-  </div>
+const structureInput = `<Water className="hero" style={{ display: 'flex', gap: 16 }}>
+  <h1>Hello</h1>
+  <p>Some text</p>
 </Water>`;
 
-const structure = `<div class="hero" data-paper-shader="html">  // outer div: gets className and style
-  <canvas content="drawable">         // shows the effect
-    <div class="content" drawable>    // your element: drawn, fills the shader
-      <h1>Hello</h1>
+const structure = `<div class="hero" style="display: flex; gap: 16px" data-paper-shader="html">
+  <canvas content="drawable">   // shows the effect, inherits the layout
+    <div drawable>              // drawn: inherits the layout, gets the padding
+      <h1>Hello</h1>            // your children, unchanged
       <p>Some text</p>
     </div>
   </canvas>
@@ -58,9 +56,8 @@ const sizingCases: { title: string; text: ReactNode; code: string }[] = [
     text: (
       <>
         Set <Code>sizeToContent</Code> and the shader grows and shrinks with its content. Note that width of content is
-        measured without wrapping, so a long line of text can make the shader wider than its parent. Set a width to your content
-        if the text should wrap. Don&apos;t give your element a percentage size on that axis: the shader takes its size from your
-        element, so a size in % of the shader collapses to 0.
+        measured without wrapping, so a long line of text can make the shader wider than its parent. Give the shader a{' '}
+        <Code>maxWidth</Code> in px if the text should wrap. Min and max sizes in px apply to the content too.
       </>
     ),
     code: `// Height from content: the width follows your layout and text wraps as usual
@@ -73,9 +70,9 @@ const sizingCases: { title: string; text: ReactNode; code: string }[] = [
   <img src="..." crossOrigin="anonymous" style={{ display: 'block', width: '100%' }} />
 </Water>
 
-// Width from content, with a set height
-<Water sizeToContent="width" style={{ height: 100 }}>
-  <div style={{ width: 300 }}>...</div>
+// Width from content up to 300px, with a set height: longer text wraps
+<Water sizeToContent="width" style={{ height: 100, maxWidth: 300 }}>
+  <p>...</p>
 </Water>
 
 // Width and height from content, like a button or a badge
@@ -111,18 +108,17 @@ const sizingCases: { title: string; text: ReactNode; code: string }[] = [
   },
 ];
 
-const recommendedFixed = `<Water style={{ height: '100vh' }}>
-  <div style={{ display: 'grid', placeContent: 'center', height: '100%' }}>
-    <h2>Hero</h2>
-    <p>The shader fills the screen, whatever the content.</p>
-  </div>
+const recommendedFixed = `<Water style={{ height: '100vh', display: 'grid', placeContent: 'center' }}>
+  <h2>Hero</h2>
+  <p>The shader fills the screen, whatever the content.</p>
 </Water>`;
 
-const recommendedFit = `<Water sizeToContent="height">
-  <div style={{ display: 'flex', flexDirection: 'column', gap: 16, padding: 32 }}>
-    <h2>Card</h2>
-    <p>The shader is as tall as this text.</p>
-  </div>
+const recommendedFit = `<Water
+  sizeToContent="height"
+  style={{ display: 'flex', flexDirection: 'column', gap: 16, padding: 32 }}
+>
+  <h2>Card</h2>
+  <p>The shader is as tall as this text.</p>
 </Water>`;
 
 const vanillaMarkup = `<div id="shader" style="height: 400px">
@@ -175,25 +171,6 @@ const limits: { lead: ReactNode; text?: ReactNode; code?: string }[] = [
       </>
     ),
   },
-  {
-    lead: (
-      <>
-        A <Code>transform</Code> on the drawn element is ignored.
-      </>
-    ),
-    text: 'Put it on an element inside, or on the shader instead.',
-    code: `// Ignored in the shader
-<Water>
-  <div style={{ transform: 'rotate(5deg)' }}>...</div>
-</Water>
-
-// Works
-<Water>
-  <div>
-    <div style={{ transform: 'rotate(5deg)' }}>...</div>
-  </div>
-</Water>`,
-  },
 ];
 
 export default function HtmlInCanvasPage() {
@@ -230,7 +207,7 @@ export default function HtmlInCanvasPage() {
         <section className="[&>section]:mt-16 [&>section]:flex [&>section]:flex-col [&>section]:gap-16">
           <h2 className="text-2xl font-medium lowercase">How to use</h2>
           <p>
-            Use the shader as usual, but instead of passing an image as a prop, pass any HTML as the shader&apos;s children. The easiest way to manage the layout is to pass a single element: it&apos;s the one that gets drawn, it fills the shader, and you style it like any other element.
+            Use the shader as usual, but instead of passing an image as a prop, pass any HTML as the shader&apos;s children. Lay them out with the shader&apos;s own <Code>style</Code> or <Code>className</Code>, like on any div: <Code>display</Code>, flex, grid, <Code>gap</Code> and <Code>padding</Code> apply to the children.
           </p>
           <CodeBlock code={recommendedFixed} />
           <p>
@@ -241,8 +218,9 @@ export default function HtmlInCanvasPage() {
           </p>
           <CodeBlock code={recommendedFit} />
           <p>
-            Several children or plain text are wrapped in a <Code>div</Code> for you, so there&apos;s always one element
-            to draw. Going from one child to two adds that wrapper, so wrap your children yourself if their number can change.
+            You don&apos;t need a wrapper: your children are laid out as if the shader held them (see{' '}
+            <a href="#how-it-works">how it works</a>). The one exception is scrolling. The shader can&apos;t scroll what it
+            draws, so put <Code>overflow: auto</Code> on an element of your own inside it.
           </p>
 
           <h2 className="text-2xl font-medium lowercase">Shader props</h2>
@@ -312,12 +290,18 @@ export default function HtmlInCanvasPage() {
           </div>
         </section>
 
-        <section>
+        <section id="how-it-works" className="scroll-mt-24">
           <h2 className="text-2xl font-medium lowercase">How it works</h2>
           <p>You write:</p>
           <CodeBlock code={structureInput} />
           <p>The shader renders:</p>
           <CodeBlock code={structure} />
+          <p>
+            The canvas doesn&apos;t lay out its children like a <Code>div</Code>, so your children are drawn from a{' '}
+            <Code>div</Code> inside it. That <Code>div</Code> fills the shader and inherits its <Code>display</Code>, flex
+            and grid styles and <Code>gap</Code> through the canvas. The canvas covers the shader&apos;s padding, so the
+            padding is copied onto that <Code>div</Code> too.
+          </p>
           <h3 className="text-2xl font-medium lowercase">How the canvas updates</h3>
           <p>
             The browser paints your HTML, but instead of showing it the normal way, it passes it to the shader as a
@@ -373,8 +357,10 @@ export default function HtmlInCanvasPage() {
           </p>
           <p>
             Unsupported browsers don&apos;t get a fallback automatically: move your content out of the canvas yourself so it still shows.
-            Sizing to content doesn&apos;t happen automatically either: use <Code>observeContentSize</Code> from{' '}
-            <Code>@paper-design/shaders</Code> for that.
+            Sizing to content doesn&apos;t happen automatically either: call <Code>observeContentSize(shader, content)</Code>{' '}
+            from <Code>@paper-design/shaders</Code>, set <Code>data-size-to-content</Code> on the shader element, and size
+            it with <Code>var(--paper-shader-content-width)</Code> or <Code>var(--paper-shader-content-height)</Code>. The inner div inherits the shader element&apos;s layout styles, but
+            not its padding: put the padding on the inner div.
           </p>
           <CodeFile name="index.html" code={vanillaMarkup} />
           <CodeFile name="index.js" code={vanillaScript} />

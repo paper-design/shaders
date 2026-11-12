@@ -1,6 +1,6 @@
 'use client';
 
-import { Children, Fragment, isValidElement, useLayoutEffect, useRef, useState, useSyncExternalStore } from 'react';
+import { Children, useLayoutEffect, useRef, useSyncExternalStore } from 'react';
 import { isHtmlInCanvasSupported, observeContentSize, type ShaderSizeToContent } from '@paper-design/shaders';
 
 const subscribeToNothing = () => () => {};
@@ -9,10 +9,12 @@ const isSupportedOnServer = () => true;
 
 /**
  * Draws the children into u_image where the browser supports it, otherwise they're shown on top of the shader.
- * A single child element is drawn as it is. Several children or text are wrapped in a div, so there's always one
- * element to draw. It lays out the same either way.
+ * Either way they're held by the same content element, so they lay out the same.
  *
- * The drawn element fills the shader, except on the axes sized to content: there it takes the size of its children,
+ * The content element takes the shader's layout: its display, flex and grid styles through CSS inheritance, and its
+ * padding copied over, since the canvas covers the padding. So the children lay out as if the shader held them.
+ *
+ * The content element fills the shader, except on the axes sized to content: there it takes the size of the children,
  * and the shader follows it (see `observeContentSize`).
  */
 export function useHtmlChildren(
@@ -22,63 +24,60 @@ export function useHtmlChildren(
   shaderRef: React.RefObject<HTMLElement | null>
 ): {
   hasHtmlChildren: boolean;
-  content: HTMLElement | null;
   addHtmlUniform: <T extends object>(uniforms: T) => T;
   renderedChildren: React.ReactNode;
   shaderAttributes: Record<`data-${string}`, string | undefined> | undefined;
   sizeStyle: React.CSSProperties | undefined;
 } {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [content, setContent] = useState<HTMLElement | null>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
   const isSupported = useSyncExternalStore(subscribeToNothing, isHtmlInCanvasSupported, isSupportedOnServer);
-  const items = acceptsHtmlChildren ? Children.toArray(children) : [];
-  const hasChildren = items.length > 0;
+  const hasChildren = acceptsHtmlChildren && Children.toArray(children).length > 0;
   const hasHtmlChildren = hasChildren && isSupported;
 
-  const findContent = (): HTMLElement | null => {
-    if (!hasChildren) {
-      return null;
+  const copyPadding = () => {
+    const shader = shaderRef.current;
+    const content = contentRef.current;
+    if (!shader || !content) {
+      return;
     }
-    const element = hasHtmlChildren
-      ? canvasRef.current?.firstElementChild
-      : shaderRef.current?.querySelector(':scope > :not(canvas)');
-    return (element as HTMLElement | null | undefined) ?? null;
+    const style = getComputedStyle(shader);
+    const padding = `${style.paddingTop} ${style.paddingRight} ${style.paddingBottom} ${style.paddingLeft}`;
+    if (content.style.padding !== padding) {
+      content.style.padding = padding;
+    }
   };
 
-  // Looked up after every render, since the app can swap the child for another element
+  // After every render, since a style or class change can change the padding
+  useLayoutEffect(copyPadding);
+
+  // Padding can also change without a render, e.g. from a media query
   useLayoutEffect(() => {
-    const element = findContent();
-    if (hasHtmlChildren) {
-      element?.setAttribute('drawable', '');
+    const shader = shaderRef.current;
+    const content = contentRef.current;
+    if (!shader || !content) {
+      return;
     }
-    if (element !== content) {
-      setContent(element);
-    }
-  });
+    const observer = new ResizeObserver(copyPadding);
+    observer.observe(shader);
+    observer.observe(content, { box: 'border-box' });
+    return () => observer.disconnect();
+  }, [hasChildren, hasHtmlChildren, shaderRef]);
 
   useLayoutEffect(() => {
+    const content = contentRef.current;
     const shader = shaderRef.current;
     if (!content || !shader || !sizeToContent) {
       return;
     }
 
     return observeContentSize(shader, content);
-  }, [content, sizeToContent, shaderRef]);
+  }, [hasChildren, hasHtmlChildren, sizeToContent, shaderRef]);
 
-  const addHtmlUniform = <T extends object>(uniforms: T): T => {
-    const element = hasHtmlChildren ? findContent() : null;
-    return element ? { ...uniforms, u_image: element } : uniforms;
-  };
+  const addHtmlUniform = <T extends object>(uniforms: T): T =>
+    hasHtmlChildren && contentRef.current ? { ...uniforms, u_image: contentRef.current } : uniforms;
 
   if (!hasChildren) {
-    return {
-      hasHtmlChildren,
-      content,
-      addHtmlUniform,
-      renderedChildren: children,
-      shaderAttributes: undefined,
-      sizeStyle: undefined,
-    };
+    return { hasHtmlChildren, addHtmlUniform, renderedChildren: children, shaderAttributes: undefined, sizeStyle: undefined };
   }
 
   const fitsWidth = sizeToContent === 'width' || sizeToContent === 'both';
@@ -96,20 +95,21 @@ export function useHtmlChildren(
     }
   }
 
-  const only = items[0];
-  const isSingleElement = items.length === 1 && isValidElement(only) && only.type !== Fragment;
-  const drawn = isSingleElement ? children : <div>{children}</div>;
+  const content = (
+    <div ref={contentRef} {...{ drawable: '' }}>
+      {children}
+    </div>
+  );
 
   return {
     hasHtmlChildren,
-    content,
     addHtmlUniform,
     renderedChildren: hasHtmlChildren ? (
-      <canvas ref={canvasRef} {...{ content: 'drawable', layoutsubtree: '' }}>
-        {drawn}
+      <canvas {...{ content: 'drawable', layoutsubtree: '' }} style={{ display: 'inherit' }}>
+        {content}
       </canvas>
     ) : (
-      drawn
+      content
     ),
     shaderAttributes: { 'data-paper-shader': 'html', 'data-size-to-content': sizeToContent },
     sizeStyle,

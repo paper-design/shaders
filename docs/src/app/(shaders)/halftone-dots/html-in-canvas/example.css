@@ -1,5 +1,5 @@
 @property --highlight-stroke { syntax: '<length>'; inherits: false; initial-value: 0px }
-.gallery { display: grid; grid-template-columns: max-content 1fr; grid-auto-rows: 1fr; container-type: inline-size; color: #222; background: #fff }
+.gallery { height: 100%; display: grid; grid-template-columns: max-content 1fr; grid-auto-rows: 1fr; container-type: inline-size; color: #222; background: #fff }
 .gallery ul { display: grid; align-content: center; justify-items: start; margin: 0; padding: 32px; list-style: none }
 .gallery .shaders { position: relative; min-height: 384px }
 .gallery a { display: block; padding: 4px 0; font-family: system-ui; font-size: 72px; font-weight: 300; line-height: 1.1; letter-spacing: 0.03em; -webkit-text-stroke: var(--highlight-stroke) currentColor; cursor: default; transition: --highlight-stroke 1s cubic-bezier(0.22, 1, 0.36, 1) }

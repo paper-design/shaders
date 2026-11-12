@@ -108,55 +108,55 @@ export default function Example() {
       lensBulge={0.1}
       dispersionColor={0.75}
       sizeToContent="both"
+      className="flexbox"
+      style={{ display: 'flex', flexDirection: 'column', gap: 12, minWidth: 480, padding: 12, background: '#f0efe4' }}
     >
-      <div className="flexbox" style={{ display: 'flex', flexDirection: 'column', gap: 12, minWidth: 480, padding: 12, background: '#f0efe4' }}>
-        <style>{css}</style>
-        <h2 style={heading}>
-          we support
-          <br />
-          flexbox
-        </h2>
-        <div style={{ display: 'flex', gap: 12 }}>
-          {layouts.map((name) => (
-            <button
-              key={name}
-              onClick={() => selectLayout(name)}
-              style={{ ...(name === layout ? activeTab : tab), flex: 1 }}
-            >
-              {name}
-            </button>
-          ))}
+      <style>{css}</style>
+      <h2 style={heading}>
+        we support
+        <br />
+        flexbox
+      </h2>
+      <div style={{ display: 'flex', gap: 12 }}>
+        {layouts.map((name) => (
+          <button
+            key={name}
+            onClick={() => selectLayout(name)}
+            style={{ ...(name === layout ? activeTab : tab), flex: 1 }}
+          >
+            {name}
+          </button>
+        ))}
+      </div>
+      <div style={{ display: 'flex', flexDirection: layout, gap: 12 }}>
+        <div
+          contentEditable
+          suppressContentEditableWarning
+          style={{ ...textBlock, flex: 1, minWidth: 0, minHeight, overflow: 'hidden' }}
+        >
+          type here
         </div>
-        <div style={{ display: 'flex', flexDirection: layout, gap: 12 }}>
-          <div
-            contentEditable
-            suppressContentEditableWarning
-            style={{ ...textBlock, flex: 1, minWidth: 0, minHeight, overflow: 'hidden' }}
-          >
-            type here
-          </div>
-          <div
-            style={{
-              ...resizableBlock,
-              ...size,
-              flex: 'none',
-              minWidth: 100,
-              minHeight: 100,
-              maxWidth: isColumn ? '100%' : '80%',
-            }}
-          >
-            resize this
-            <div onPointerDown={startResize} style={resizeGrip} />
-          </div>
-          <div style={{ ...imageBlock, flex: 1, minWidth: 0, minHeight }}>
-            <img
-              src="https://shaders.paper.design/images/image-filters/0018.webp"
-              crossOrigin="anonymous"
-              alt=""
-              style={image}
-            />
-            <span style={{ position: 'relative' }}>this image fits</span>
-          </div>
+        <div
+          style={{
+            ...resizableBlock,
+            ...size,
+            flex: 'none',
+            minWidth: 100,
+            minHeight: 100,
+            maxWidth: isColumn ? '100%' : '80%',
+          }}
+        >
+          resize this
+          <div onPointerDown={startResize} style={resizeGrip} />
+        </div>
+        <div style={{ ...imageBlock, flex: 1, minWidth: 0, minHeight }}>
+          <img
+            src="https://shaders.paper.design/images/image-filters/0018.webp"
+            crossOrigin="anonymous"
+            alt=""
+            style={image}
+          />
+          <span style={{ position: 'relative' }}>this image fits</span>
         </div>
       </div>
     </LensDistortion>

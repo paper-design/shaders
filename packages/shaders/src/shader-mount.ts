@@ -95,6 +95,10 @@ export class ShaderMount {
     this.isProvidedCanvas = providedCanvas !== null;
     if (!providedCanvas) {
       this.parentElement.prepend(canvasElement);
+    } else {
+      // The content takes the shader's display through the canvas. Inline, since resets like Tailwind's
+      // `canvas { display: block }` are in a later layer than the default styles and would win
+      providedCanvas.style.display = 'inherit';
     }
     canvasElement.addEventListener('paint', this.handleCanvasPaint);
     this.fragmentShader = fragmentShader;
@@ -845,25 +849,58 @@ const defaultStyle = `@layer paper-shaders {
       corner-shape: inherit;
     }
 
-    & > canvas > *,
-    &[data-paper-shader='html'] > :not(canvas) {
+    & > canvas[content='drawable'],
+    & > canvas > [drawable],
+    & > [drawable] {
+      display: inherit;
+      flex-direction: inherit;
+      flex-wrap: inherit;
+      align-items: inherit;
+      align-content: inherit;
+      justify-items: inherit;
+      justify-content: inherit;
+      row-gap: inherit;
+      column-gap: inherit;
+      grid-template-columns: inherit;
+      grid-template-rows: inherit;
+      grid-template-areas: inherit;
+      grid-auto-flow: inherit;
+      grid-auto-columns: inherit;
+      grid-auto-rows: inherit;
+    }
+
+    & > canvas > [drawable],
+    & > [drawable] {
       box-sizing: border-box;
-      position: relative;
       width: 100%;
       height: 100%;
     }
 
+    & > canvas > [drawable] {
+      position: relative;
+    }
+
+    & > [drawable] {
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+
     &:is([data-size-to-content='width'], [data-size-to-content='both']) {
-      & > canvas > *,
-      & > :not(canvas) {
+      & > canvas > [drawable],
+      & > [drawable] {
         width: max-content;
+        min-width: var(--paper-shader-content-min-width, auto);
+        max-width: var(--paper-shader-content-max-width, none);
       }
     }
 
     &:is([data-size-to-content='height'], [data-size-to-content='both']) {
-      & > canvas > *,
-      & > :not(canvas) {
+      & > canvas > [drawable],
+      & > [drawable] {
         height: auto;
+        min-height: var(--paper-shader-content-min-height, auto);
+        max-height: var(--paper-shader-content-max-height, none);
       }
     }
   }
