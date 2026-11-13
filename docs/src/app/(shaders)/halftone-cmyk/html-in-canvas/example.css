@@ -27,5 +27,5 @@
 .meter .field button svg { width: 28px; height: 28px; fill: currentColor }
 .meter .palette { --fill: 0%; flex: 1; min-width: 0; box-sizing: border-box; border: 5px solid var(--ink); border-radius: 16px; background: color-mix(in oklab, var(--d), var(--ink) var(--fill)); color: inherit; font: inherit; font-size: 46px; line-height: 1.05; cursor: pointer; user-select: none; transition: --fill 300ms ease-out }
 .meter .palette:hover { --fill: 28% }
-.meter .drag { position: relative; z-index: 1; flex: 0.6; min-width: 0; display: grid; place-items: center; box-sizing: border-box; border: 5px solid var(--ink); border-radius: 16px; background: var(--page); font-size: 46px; line-height: 1.05; cursor: grab; touch-action: none; user-select: none; transition: box-shadow 300ms ease-out }
-.meter .drag:active { box-shadow: 0 20px 44px rgb(0 0 0 / 18%); cursor: grabbing }
+.meter .drag { position: relative; z-index: 1; flex: none; align-self: center; height: min(100%, 28cqw); aspect-ratio: 1; display: grid; place-items: center; border-radius: 50%; background: radial-gradient(circle at 34% 28%, var(--d), var(--b) 18%, var(--a) 48%, var(--c) 72%, color-mix(in oklab, var(--c), var(--ink) 55%)); box-shadow: inset -14px -18px 32px rgb(0 0 0 / 20%), 0 10px 22px rgb(0 0 0 / 14%); font-size: 40px; font-style: italic; line-height: 1; text-align: center; cursor: grab; touch-action: none; user-select: none; transition: box-shadow 300ms ease-out }
+.meter .drag:active { box-shadow: inset -14px -18px 32px rgb(0 0 0 / 20%), 0 28px 48px rgb(0 0 0 / 22%); cursor: grabbing }
