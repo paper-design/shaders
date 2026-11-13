@@ -13,8 +13,13 @@ import { ShaderDetails } from '@/components/shader-details';
 import { waterDef } from '@/shader-defs/water-def';
 import { ShaderContainer } from '@/components/shader-container';
 import { useUrlParams } from '@/helpers/use-url-params';
+import { originControls, htmlResetFolder, imageInputOnly, useIsHtmlInCanvasPage } from '@/helpers/html-in-canvas-page';
+import { HtmlInCanvasDemo } from '@/components/html-in-canvas-demo';
+import Example, { params as exampleParams } from './html-in-canvas/example';
 
-const { worldWidth, worldHeight, ...defaults } = waterPresets[0].params;
+const { worldWidth, worldHeight, ...presetDefaults } = waterPresets[0].params;
+
+const htmlInCanvasDefaults = { ...presetDefaults, ...exampleParams };
 
 const imageFiles = [
   '001.webp',
@@ -37,7 +42,23 @@ const imageFiles = [
   '0018.webp',
 ] as const;
 
+const notes = (
+  <>
+    Thanks to{' '}
+    <a href="https://x.com/zozuar" target="_blank" rel="noopener">
+      zozuar
+    </a>{' '}
+    for the amazing{' '}
+    <a href="https://twigl.app/?ol=true&ss=-NOAlYulOVLklxMdxBDx" target="_blank" rel="noopener">
+      recursive fractal noise algorithm
+    </a>
+    .
+  </>
+);
+
 const WaterWithControls = () => {
+  const isHtmlInCanvas = useIsHtmlInCanvasPage();
+  const defaults = isHtmlInCanvas ? htmlInCanvasDefaults : presetDefaults;
   const [imageIdx, setImageIdx] = useState(-1);
   const [image, setImage] = useState<HTMLImageElement | string>('/images/image-filters/0018.webp');
 
@@ -76,16 +97,18 @@ const WaterWithControls = () => {
       caustic: { value: defaults.caustic, min: 0, max: 1, order: 204 },
       size: { value: defaults.size, min: 0.01, max: 7, order: 205 },
       speed: { value: defaults.speed, min: 0, max: 3, order: 300 },
-      scale: { value: defaults.scale, min: 0.1, max: 4, order: 301 },
-      fit: { value: defaults.fit, options: ['contain', 'cover'] as ShaderFit[], order: 302 },
+      scale: { value: defaults.scale, min: 0.1, max: 4, order: 301, ...imageInputOnly },
+      ...originControls(defaults, 301.1),
+      fit: { value: defaults.fit, options: ['contain', 'cover'] as ShaderFit[], order: 302, ...imageInputOnly },
       Image: folder(
         {
           'Upload image': levaImageButton(setImageWithoutStatus),
           ...(image && { 'Delete image': levaDeleteImageButton(() => setImage('')) }),
         },
-        { order: 0 }
+        { order: 0, ...imageInputOnly }
       ),
-      Presets: folder(presets, { order: -1 }),
+      Presets: folder(presets, { order: -1, ...imageInputOnly }),
+      Preset: htmlResetFolder(() => setParamsSafe(params, setParams, defaults)),
     };
   }, [image]);
 
@@ -93,8 +116,20 @@ const WaterWithControls = () => {
   // shaders when navigating (if two shaders have a color1 param for example)
   useResetLevaParams(params, setParams, defaults);
   useUrlParams(params, setParams, waterDef);
-  usePresetHighlight(waterPresets, params);
+  usePresetHighlight(isHtmlInCanvas ? [{ name: 'Reset', params: defaults }] : waterPresets, params);
   cleanUpLevaParams(params);
+
+  if (isHtmlInCanvas) {
+    return (
+      <HtmlInCanvasDemo
+        Example={Example}
+        shaderDef={waterDef}
+        currentParams={params}
+        defaultParams={presetDefaults}
+        notes={notes}
+      />
+    );
+  }
 
   return (
     <>
@@ -104,23 +139,7 @@ const WaterWithControls = () => {
       <div onClick={handleClick} className="mx-auto mt-16 mb-48 w-fit text-base text-current/70 select-none">
         Click to change the sample image
       </div>
-      <ShaderDetails
-        shaderDef={waterDef}
-        currentParams={params}
-        notes={
-          <>
-            Thanks to{' '}
-            <a href="https://x.com/zozuar" target="_blank" rel="noopener">
-              zozuar
-            </a>{' '}
-            for the amazing{' '}
-            <a href="https://twigl.app/?ol=true&ss=-NOAlYulOVLklxMdxBDx" target="_blank" rel="noopener">
-              recursive fractal noise algorithm
-            </a>
-            .
-          </>
-        }
-      />
+      <ShaderDetails shaderDef={waterDef} currentParams={params} notes={notes} />
     </>
   );
 };

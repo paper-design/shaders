@@ -93,6 +93,31 @@ export const commonParams: Record<string, CommonParamDef> = {
   },
 };
 
+/** Props of a shader that draws HTML: children take the place of the image prop, the rest follow the shader's own props */
+export const htmlInCanvasParams = {
+  children: {
+    name: 'children',
+    type: 'ReactNode',
+    description: 'The HTML to draw through the effect, in place of an image',
+  },
+  rest: [
+    {
+      name: 'sizeToContent',
+      type: 'enum',
+      description: 'Lets the shader take its size from its content instead of its own width and height',
+      options: ['width', 'height', 'both'],
+    },
+    {
+      ...commonParams.originX,
+      description: 'Horizontal point the pattern grows from and stays pinned to when the shader resizes. 0 is the left edge',
+    },
+    {
+      ...commonParams.originY,
+      description: 'Vertical point the pattern grows from and stays pinned to when the shader resizes. 0 is the top edge',
+    },
+  ] satisfies CommonParamDef[],
+};
+
 export const animatedCommonParams: CommonParamDef[] = [
   commonParams.speed,
   commonParams.frame,

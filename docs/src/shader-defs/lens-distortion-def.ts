@@ -6,6 +6,7 @@ const defaultParams = lensDistortionPresets[0].params;
 
 export const lensDistortionDef: ShaderDef = {
   name: 'Lens Distortion',
+  hasHtmlInCanvasPage: true,
   description:
     'Lens Distortion image filter separates an image into shifting color layers (recreating the chromatic aberration of a lens) and warps the image geometry itself, curving it outward or inward like barrel and pincushion distortion.',
   params: [

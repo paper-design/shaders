@@ -2,7 +2,9 @@ export function highlightJsx(code: string): string {
   return new Highlighter(code).highlightJs(false);
 }
 
-type TokenType = 'keyword' | 'string' | 'text' | 'entity' | 'number' | 'property' | 'identifier' | 'sign';
+type TokenType = 'keyword' | 'string' | 'text' | 'entity' | 'number' | 'property' | 'identifier' | 'sign' | 'shader';
+
+const nonShaderTags = new Set(['Example', 'Card']);
 
 const keywords = new Set(['const', 'delete', 'else', 'false', 'from', 'if', 'import', 'let', 'new', 'return', 'true']);
 
@@ -28,6 +30,12 @@ class Highlighter {
       const space = rest.match(/^\s+/)?.[0];
       if (space) {
         html += this.take(space);
+        continue;
+      }
+
+      const comment = rest.match(/^\/\/[^\n]*|^\/\*[\s\S]*?\*\//)?.[0];
+      if (comment) {
+        html += this.take(comment, 'sign');
         continue;
       }
 
@@ -61,9 +69,15 @@ class Highlighter {
 
   private highlightJsxElement(): string {
     const isClosing = this.code.startsWith('</', this.index);
-    let html = this.take(isClosing ? '</' : '<', 'sign');
-    const tag = this.code.slice(this.index).match(/^[\w.]*/)![0];
-    html += this.take(tag, 'entity');
+    const start = isClosing ? '</' : '<';
+    const tag = this.code.slice(this.index + start.length).match(/^[\w.]*/)![0];
+    // Every capitalized tag in the samples is a shader, except these
+    const isShader = /^[A-Z]/.test(tag) && !nonShaderTags.has(tag);
+    if (isShader && isClosing) {
+      return this.take(`</${tag}>`, 'shader');
+    }
+
+    let html = isShader ? this.take(`<${tag}`, 'shader') : this.take(start, 'sign') + this.take(tag, 'entity');
 
     while (this.index < this.code.length) {
       const rest = this.code.slice(this.index);
@@ -74,9 +88,9 @@ class Highlighter {
       if (space) {
         html += this.take(space);
       } else if (rest.startsWith('/>')) {
-        return html + this.take('/>', 'sign');
+        return html + this.take('/>', isShader ? 'shader' : 'sign');
       } else if (rest[0] === '>') {
-        html += this.take('>', 'sign');
+        html += this.take('>', isShader ? 'shader' : 'sign');
         return isClosing ? html : html + this.highlightJsxChildren();
       } else if (attribute) {
         html += this.take(attribute, 'property');
@@ -120,7 +134,22 @@ class Highlighter {
   }
 }
 
+const cssTokenPattern =
+  /(\s+)|([^\s{};][^{};]*(?=\{))|([\w-]+)(?=\s*:)|("[^"]*"|'[^']*')|(#[\da-f]+\b|-?\d*\.?\d+(?:%|[a-z]+)?)|([\w-]+)|(.)/giy;
+
+export function highlightCss(css: string): string {
+  const types = [undefined, 'entity', 'property', 'string', 'number', 'identifier', 'sign'] as const;
+  let html = '';
+  cssTokenPattern.lastIndex = 0;
+  for (let match = cssTokenPattern.exec(css); match; match = cssTokenPattern.exec(css)) {
+    const type = types[match.slice(1).findIndex((group) => group !== undefined)];
+    html += type ? token(type, match[0]) : escapeHtml(match[0]);
+  }
+  return html;
+}
+
 function token(type: TokenType, text: string): string {
+  if (type === 'shader') return `<span class="syntax-shader">${escapeHtml(text)}</span>`;
   return text ? `<span style="color:var(--syntax-${type})">${escapeHtml(text)}</span>` : '';
 }
 
