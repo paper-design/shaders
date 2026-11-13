@@ -91,6 +91,11 @@ export const commonParams: Record<string, CommonParamDef> = {
     type: 'number',
     description: 'Maximum pixel count that the shader may process',
   },
+  resolutionScale: {
+    name: 'resolutionScale',
+    type: 'number',
+    description: 'Multiplies the resolution (default is 1)',
+  },
 };
 
 export const animatedCommonParams: CommonParamDef[] = [
@@ -109,6 +114,7 @@ export const animatedCommonParams: CommonParamDef[] = [
   commonParams.originY,
   commonParams.minPixelRatio,
   commonParams.maxPixelCount,
+  commonParams.resolutionScale,
 ];
 
 export const staticCommonParams: CommonParamDef[] = [
@@ -125,6 +131,7 @@ export const staticCommonParams: CommonParamDef[] = [
   commonParams.originY,
   commonParams.minPixelRatio,
   commonParams.maxPixelCount,
+  commonParams.resolutionScale,
 ];
 
 // Image-based shaders get a higher scale floor: below 0.1 the source image is a speck
@@ -140,6 +147,7 @@ export const staticImageCommonParams: CommonParamDef[] = [
   commonParams.originY,
   commonParams.minPixelRatio,
   commonParams.maxPixelCount,
+  commonParams.resolutionScale,
 ];
 
 // Image-based shaders get a higher scale floor: below 0.1 the source image is a speck
@@ -157,4 +165,5 @@ export const animatedImageCommonParams: CommonParamDef[] = [
   commonParams.originY,
   commonParams.minPixelRatio,
   commonParams.maxPixelCount,
+  commonParams.resolutionScale,
 ];

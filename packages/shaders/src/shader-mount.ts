@@ -32,10 +32,15 @@ export class ShaderMount {
   private textures: Map<string, WebGLTexture> = new Map();
   private minPixelRatio;
   private maxPixelCount;
+  private resolutionScale;
   private isSafari = isSafari();
   private uniformCache: Record<string, unknown> = {};
   private textureUnitMap: Map<string, number> = new Map();
   private ownerDocument: Document;
+
+  /** Resolves after the first render at the element's size */
+  public readonly ready: Promise<void>;
+  private resolveReadyPromise: () => void = () => {};
 
   constructor(
     /** The div you'd like to mount the shader to. The shader will match its size. */
@@ -61,8 +66,17 @@ export class ShaderMount {
      */
     maxPixelCount: number = DEFAULT_MAX_PIXEL_COUNT,
     /** Names of the uniforms that should have mipmaps generated for them */
-    mipmaps: string[] = []
+    mipmaps: string[] = [],
+    /**
+     * Multiplier on the rendered resolution, defaults to 1.
+     * Useful when an ancestor is scaled with a CSS transform, which layout sizes ignore.
+     */
+    resolutionScale: number = 1
   ) {
+    this.ready = new Promise((resolve) => {
+      this.resolveReadyPromise = resolve;
+    });
+
     // nodeType check instead of `instanceof` to work across document boundaries (iframes, PiP windows)
     if (parentElement?.nodeType === 1) {
       this.parentElement = parentElement as PaperShaderElement;
@@ -90,6 +104,7 @@ export class ShaderMount {
     this.currentFrame = frame;
     this.minPixelRatio = minPixelRatio;
     this.maxPixelCount = maxPixelCount;
+    this.resolutionScale = resolutionScale;
 
     const gl = canvasElement.getContext('webgl2', {
       antialias: false,
@@ -202,6 +217,7 @@ export class ShaderMount {
       }
 
       this.handleResize();
+      this.resolveReadyPromise();
     });
 
     this.resizeObserver.observe(this.canvasElement);
@@ -275,11 +291,15 @@ export class ShaderMount {
       targetPixelHeight = Math.round(this.parentHeight) * targetRenderScale;
     }
 
+    // Layout sizes ignore CSS transforms
+    targetPixelWidth *= this.resolutionScale;
+    targetPixelHeight *= this.resolutionScale;
+
     // Prevent the total rendered pixel count from exceeding maxPixelCount
     const maxPixelCountHeadroom = Math.sqrt(this.maxPixelCount) / Math.sqrt(targetPixelWidth * targetPixelHeight);
     const scaleToMeetMaxPixelCount = Math.min(1, maxPixelCountHeadroom);
-    const newWidth = Math.round(targetPixelWidth * scaleToMeetMaxPixelCount);
-    const newHeight = Math.round(targetPixelHeight * scaleToMeetMaxPixelCount);
+    const newWidth = roundToVisiblePixels(targetPixelWidth * scaleToMeetMaxPixelCount);
+    const newHeight = roundToVisiblePixels(targetPixelHeight * scaleToMeetMaxPixelCount);
     const newRenderScale = newWidth / Math.round(this.parentWidth);
 
     if (
@@ -556,6 +576,13 @@ export class ShaderMount {
     this.handleResize();
   };
 
+  /** Set the multiplier on the rendered resolution */
+  public setResolutionScale = (newResolutionScale: number = 1): void => {
+    this.resolutionScale = newResolutionScale;
+
+    this.handleResize();
+  };
+
   /** Update the uniforms that are provided by the outside shader, can be a partial set with only the uniforms that have changed */
   public setUniforms = (newUniforms: ShaderMountUniforms): void => {
     this.setUniformValues(newUniforms);
@@ -711,9 +738,18 @@ const defaultStyle = `@layer paper-shaders {
   }
 }`;
 
+function roundToVisiblePixels(size: number): number {
+  if (size > 0) {
+    return Math.max(1, Math.round(size));
+  }
+  return 0;
+}
+
 /** The parent `<div>` element that has a ShaderMount available on it */
 export interface PaperShaderElement extends HTMLElement {
   paperShaderMount: ShaderMount | undefined;
+  /** Set by the React ShaderMount, resolves with the mount once it's `ready` */
+  paperShaderMountReady?: Promise<ShaderMount | null>;
 }
 
 /** Check if an element is a Paper shader element */
