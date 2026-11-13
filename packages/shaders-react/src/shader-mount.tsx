@@ -28,7 +28,7 @@ export interface ShaderMountProps extends Omit<React.ComponentProps<'div'>, 'col
   mipmaps?: string[];
   minPixelRatio?: number;
   maxPixelCount?: number;
-  displayScale?: number;
+  resolutionScale?: number;
   webGlContextAttributes?: WebGLContextAttributes;
 
   /** Inline CSS width style */
@@ -41,7 +41,7 @@ export interface ShaderComponentProps extends Omit<React.ComponentProps<'div'>, 
   ref?: React.Ref<PaperShaderElement>;
   minPixelRatio?: number;
   maxPixelCount?: number;
-  displayScale?: number;
+  resolutionScale?: number;
   webGlContextAttributes?: WebGLContextAttributes;
 
   /** Inline CSS width style */
@@ -137,7 +137,7 @@ export const ShaderMount: React.FC<ShaderMountProps> = forwardRef<PaperShaderEle
       height,
       minPixelRatio,
       maxPixelCount,
-      displayScale,
+      resolutionScale,
       mipmaps,
       style,
       ...divProps
@@ -165,7 +165,7 @@ export const ShaderMount: React.FC<ShaderMountProps> = forwardRef<PaperShaderEle
             minPixelRatio,
             maxPixelCount,
             mipmaps,
-            displayScale
+            resolutionScale
           );
 
           setIsInitialized(true);
@@ -224,8 +224,8 @@ export const ShaderMount: React.FC<ShaderMountProps> = forwardRef<PaperShaderEle
 
     // Display Scale
     useEffect(() => {
-      shaderMountRef.current?.setDisplayScale(displayScale);
-    }, [displayScale, isInitialized]);
+      shaderMountRef.current?.setResolutionScale(resolutionScale);
+    }, [resolutionScale, isInitialized]);
 
     // Frame
     useEffect(() => {

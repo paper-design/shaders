@@ -32,7 +32,7 @@ export class ShaderMount {
   private textures: Map<string, WebGLTexture> = new Map();
   private minPixelRatio;
   private maxPixelCount;
-  private displayScale;
+  private resolutionScale;
   private isSafari = isSafari();
   private uniformCache: Record<string, unknown> = {};
   private textureUnitMap: Map<string, number> = new Map();
@@ -67,7 +67,11 @@ export class ShaderMount {
     maxPixelCount: number = DEFAULT_MAX_PIXEL_COUNT,
     /** Names of the uniforms that should have mipmaps generated for them */
     mipmaps: string[] = [],
-    displayScale: number = 1
+    /**
+     * Multiplier on the rendered resolution, defaults to 1.
+     * Useful when an ancestor is scaled with a CSS transform, which layout sizes ignore.
+     */
+    resolutionScale: number = 1
   ) {
     this.ready = new Promise((resolve) => {
       this.resolveReadyPromise = resolve;
@@ -100,7 +104,7 @@ export class ShaderMount {
     this.currentFrame = frame;
     this.minPixelRatio = minPixelRatio;
     this.maxPixelCount = maxPixelCount;
-    this.displayScale = displayScale;
+    this.resolutionScale = resolutionScale;
 
     const gl = canvasElement.getContext('webgl2', {
       antialias: false,
@@ -288,8 +292,8 @@ export class ShaderMount {
     }
 
     // Layout sizes ignore CSS transforms
-    targetPixelWidth *= this.displayScale;
-    targetPixelHeight *= this.displayScale;
+    targetPixelWidth *= this.resolutionScale;
+    targetPixelHeight *= this.resolutionScale;
 
     // Prevent the total rendered pixel count from exceeding maxPixelCount
     const maxPixelCountHeadroom = Math.sqrt(this.maxPixelCount) / Math.sqrt(targetPixelWidth * targetPixelHeight);
@@ -572,9 +576,9 @@ export class ShaderMount {
     this.handleResize();
   };
 
-  /** Set the scale the shader is displayed at */
-  public setDisplayScale = (newDisplayScale: number = 1): void => {
-    this.displayScale = newDisplayScale;
+  /** Set the multiplier on the rendered resolution */
+  public setResolutionScale = (newResolutionScale: number = 1): void => {
+    this.resolutionScale = newResolutionScale;
 
     this.handleResize();
   };
