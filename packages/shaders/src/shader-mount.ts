@@ -1,17 +1,26 @@
 import { vertexShaderSource } from './vertex-shader.js';
+import { getSharedContext, type SharedContext, type SharedContextUser } from './shared-context.js';
 
 const DEFAULT_MAX_PIXEL_COUNT: number = 1920 * 1080 * 4;
 
-export class ShaderMount {
+export class ShaderMount implements SharedContextUser {
   public parentElement: PaperShaderElement;
+  /** A 2D canvas, the shader draws with a WebGL context shared by every shader and copies the frame here */
   public canvasElement: HTMLCanvasElement;
+  public readonly context2d: CanvasRenderingContext2D;
+  /** The size to draw at, the canvas takes it when the frame is copied into it */
+  public frameWidth = 0;
+  public frameHeight = 0;
+  private sharedContext: SharedContext;
   private gl: WebGL2RenderingContext;
   private program: WebGLProgram | null = null;
+  private vertexArray: WebGLVertexArrayObject | null = null;
+  private positionBuffer: WebGLBuffer | null = null;
   private uniformLocations: Record<string, WebGLUniformLocation | null> = {};
   /** The fragment shader that we are using */
   private fragmentShader: string;
-  /** Stores the RAF for the render loop */
-  private rafId: number | null = null;
+  /** If a frame is scheduled in the shared context's render loop */
+  private isFrameScheduled = false;
   /** Time of the last rendered frame */
   private lastRenderTime = 0;
   /** Total time that we have played any animation, passed as a uniform to the shader for time-based VFX */
@@ -106,25 +115,20 @@ export class ShaderMount {
     this.maxPixelCount = maxPixelCount;
     this.resolutionScale = resolutionScale;
 
-    const gl = canvasElement.getContext('webgl2', {
-      antialias: false,
-      depth: false,
-      stencil: false,
-      ...webGlContextAttributes,
-    });
-    if (!gl) {
+    const context2d = canvasElement.getContext('2d');
+    if (!context2d) {
+      throw new Error('Paper Shaders: canvas 2D is not supported in this browser');
+    }
+    this.context2d = context2d;
+
+    const sharedContext = getSharedContext(this.ownerDocument, webGlContextAttributes, this);
+    if (!sharedContext) {
       throw new Error('Paper Shaders: WebGL is not supported in this browser');
     }
-    this.gl = gl;
+    this.sharedContext = sharedContext;
+    this.gl = sharedContext.gl;
 
-    this.gl.pixelStorei(this.gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
-
-    this.initProgram();
-    this.setupPositionAttribute();
-    // Grab the locations of the uniforms in the fragment shader
-    this.setupUniforms();
-    // Put the user provided values into the uniforms
-    this.setUniformValues(this.providedUniforms);
+    this.initGl();
     // Set up the resize observer to handle window resizing and set u_resolution
     this.setupResizeObserver();
     // Set up the visual viewport change listener to handle zoom changes (pinch zoom and classic browser zoom)
@@ -145,6 +149,16 @@ export class ShaderMount {
     this.ownerDocument.addEventListener('visibilitychange', this.handleDocumentVisibilityChange);
   }
 
+  /** Creates the program and its resources in the shared context */
+  private initGl = () => {
+    this.initProgram();
+    this.setupPositionAttribute();
+    // Grab the locations of the uniforms in the fragment shader
+    this.setupUniforms();
+    // Put the user provided values into the uniforms
+    this.setUniformValues(this.providedUniforms);
+  };
+
   private initProgram = () => {
     const program = createProgram(this.gl, vertexShaderSource, this.fragmentShader);
     if (!program) return;
@@ -153,13 +167,19 @@ export class ShaderMount {
   };
 
   private setupPositionAttribute = () => {
+    // Keeps the attribute setup with this shader, other shaders in the shared context have their own
+    this.vertexArray = this.gl.createVertexArray();
+    this.gl.bindVertexArray(this.vertexArray);
+
     const positionAttributeLocation = this.gl.getAttribLocation(this.program!, 'a_position');
-    const positionBuffer = this.gl.createBuffer();
-    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, positionBuffer);
+    this.positionBuffer = this.gl.createBuffer();
+    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.positionBuffer);
     const positions = [-1, -1, 1, -1, -1, 1, -1, 1, 1, -1, 1, 1];
     this.gl.bufferData(this.gl.ARRAY_BUFFER, new Float32Array(positions), this.gl.STATIC_DRAW);
     this.gl.enableVertexAttribArray(positionAttributeLocation);
     this.gl.vertexAttribPointer(positionAttributeLocation, 2, this.gl.FLOAT, false, 0, 0);
+
+    this.gl.bindVertexArray(null);
   };
 
   private setupUniforms = () => {
@@ -217,7 +237,12 @@ export class ShaderMount {
       }
 
       this.handleResize();
-      this.resolveReadyPromise();
+
+      // Ready after the first frame at this size, unless there's nothing to draw
+      const hasSize = this.frameWidth > 0 && this.frameHeight > 0;
+      if (!hasSize) {
+        this.resolveReadyPromise();
+      }
     });
 
     this.resizeObserver.observe(this.canvasElement);
@@ -303,22 +328,29 @@ export class ShaderMount {
     const newRenderScale = newWidth / Math.round(this.parentWidth);
 
     if (
-      this.canvasElement.width !== newWidth ||
-      this.canvasElement.height !== newHeight ||
+      this.frameWidth !== newWidth ||
+      this.frameHeight !== newHeight ||
       this.renderScale !== newRenderScale // Usually, only render scale changes when the user zooms in/out
     ) {
       this.renderScale = newRenderScale;
-      this.canvasElement.width = newWidth;
-      this.canvasElement.height = newHeight;
+      this.frameWidth = newWidth;
+      this.frameHeight = newHeight;
       this.resolutionChanged = true;
-      this.gl.viewport(0, 0, this.gl.canvas.width, this.gl.canvas.height);
 
-      // this is necessary to avoid flashes while resizing (the next scheduled render will set uniforms)
-      this.render(performance.now());
+      // Drawn with the other shaders in the next frame, the canvas keeps its pixels until then (see SharedContext)
+      this.requestRender();
     }
   };
 
+  /** Draws right away instead of in the next shared animation frame */
   private render = (currentTime: number) => {
+    if (this.hasBeenDisposed) return;
+
+    this.sharedContext.drawNow(this, currentTime);
+  };
+
+  /** Draws into the viewport the shared context set up for this shader */
+  public drawFrame = (currentTime: number): void => {
     if (this.hasBeenDisposed) return;
 
     if (this.program === null) {
@@ -334,34 +366,45 @@ export class ShaderMount {
       this.currentFrame += dt * this.currentSpeed;
     }
 
-    // Clear the canvas
-    this.gl.clear(this.gl.COLOR_BUFFER_BIT);
+    // The shared context is left in the state of the last shader that drew
+    this.gl.useProgram(this.program);
+    this.gl.bindVertexArray(this.vertexArray);
+    this.bindTextures();
 
     // Update the time uniform
     this.gl.uniform1f(this.uniformLocations.u_time!, this.currentFrame * 0.001);
 
     // If the resolution has changed, we need to update the uniform
     if (this.resolutionChanged) {
-      this.gl.uniform2f(this.uniformLocations.u_resolution!, this.gl.canvas.width, this.gl.canvas.height);
+      this.gl.uniform2f(this.uniformLocations.u_resolution!, this.frameWidth, this.frameHeight);
       this.gl.uniform1f(this.uniformLocations.u_pixelRatio!, this.renderScale);
       this.resolutionChanged = false;
     }
 
     this.gl.drawArrays(this.gl.TRIANGLES, 0, 6);
+    this.gl.bindVertexArray(null);
+
+    // The shared context copies the frame into the canvas before any `ready` callback runs
+    this.resolveReadyPromise();
 
     // Loop if we're animating
     if (this.currentSpeed !== 0) {
       this.requestRender();
     } else {
-      this.rafId = null;
+      this.isFrameScheduled = false;
     }
   };
 
+  private bindTextures = () => {
+    this.textures.forEach((texture, uniformName) => {
+      this.gl.activeTexture(this.gl.TEXTURE0 + this.textureUnitMap.get(uniformName)!);
+      this.gl.bindTexture(this.gl.TEXTURE_2D, texture);
+    });
+  };
+
   private requestRender = () => {
-    if (this.rafId !== null) {
-      cancelAnimationFrame(this.rafId);
-    }
-    this.rafId = requestAnimationFrame(this.render);
+    this.isFrameScheduled = true;
+    this.sharedContext.scheduleFrame(this);
   };
 
   /** Creates a texture from an image and sets it into a uniform value */
@@ -444,6 +487,11 @@ export class ShaderMount {
 
   /** Sets the provided uniform values into the WebGL program, can be a partial list of uniforms that have changed */
   private setUniformValues = (updatedUniforms: ShaderMountUniforms) => {
+    // Uniforms are set on the current program, which may be another shader's in the shared context
+    if (this.program) {
+      this.gl.useProgram(this.program);
+    }
+
     Object.entries(updatedUniforms).forEach(([key, value]) => {
       // Grab the value to use in the uniform cache
       let cacheValue: ShaderMountUniforms[keyof ShaderMountUniforms] | string = value;
@@ -549,17 +597,14 @@ export class ShaderMount {
   private setCurrentSpeed = (newSpeed: number): void => {
     this.currentSpeed = newSpeed;
 
-    if (this.rafId === null && newSpeed !== 0) {
+    if (!this.isFrameScheduled && newSpeed !== 0) {
       // Moving from 0 to animating, kick off a new rAF loop
       this.lastRenderTime = performance.now();
-      this.rafId = requestAnimationFrame(this.render);
+      this.requestRender();
     }
 
-    if (this.rafId !== null && newSpeed === 0) {
-      // Moving from animating to not animating, cancel the rAF loop
-      cancelAnimationFrame(this.rafId);
-      this.rafId = null;
-    }
+    // Moving from animating to not animating, the scheduled frame isn't cancelled as it may be a resize that has to
+    // draw, it ends the loop as the speed is 0
   };
 
   /** Set the maximum pixel count for the shader, this will limit the number of pixels that will be rendered */
@@ -593,7 +638,7 @@ export class ShaderMount {
 
   /** Render right away only when the rAF loop isn't running */
   private renderUnlessAnimating = (): void => {
-    if (this.rafId === null) {
+    if (!this.isFrameScheduled) {
       this.render(performance.now());
     }
   };
@@ -608,10 +653,8 @@ export class ShaderMount {
     this.hasBeenDisposed = true;
 
     // Cancel the rAF loop
-    if (this.rafId !== null) {
-      cancelAnimationFrame(this.rafId);
-      this.rafId = null;
-    }
+    this.sharedContext.cancelFrame(this);
+    this.isFrameScheduled = false;
 
     if (this.gl && this.program) {
       // Clean up all textures
@@ -623,18 +666,14 @@ export class ShaderMount {
       this.gl.deleteProgram(this.program);
       this.program = null;
 
-      // Reset the WebGL context
-      this.gl.bindBuffer(this.gl.ARRAY_BUFFER, null);
-      this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, null);
-      this.gl.bindRenderbuffer(this.gl.RENDERBUFFER, null);
-      this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, null);
-
-      // Clear any errors
-      this.gl.getError();
+      this.gl.deleteVertexArray(this.vertexArray);
+      this.vertexArray = null;
+      this.gl.deleteBuffer(this.positionBuffer);
+      this.positionBuffer = null;
     }
 
-    // Free the drawing buffers now instead of whenever GC collects the canvas
-    this.gl.getExtension('WEBGL_lose_context')?.loseContext();
+    // The last shader to leave frees the shared context
+    this.sharedContext.removeUser(this);
 
     if (this.resizeObserver) {
       this.resizeObserver.disconnect();
