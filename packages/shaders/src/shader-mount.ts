@@ -1,5 +1,12 @@
 import { vertexShaderSource } from './vertex-shader.js';
 import { getSharedContext, type SharedContext, type SharedContextUser } from './shared-context.js';
+import {
+  drawHtml,
+  findDrawableCanvas,
+  isHtmlInCanvasSupported,
+  isHtmlUniform,
+  type DrawableCanvasElement,
+} from './html-in-canvas.js';
 
 const DEFAULT_MAX_PIXEL_COUNT: number = 1920 * 1080 * 4;
 
@@ -46,6 +53,8 @@ export class ShaderMount implements SharedContextUser {
   private uniformCache: Record<string, unknown> = {};
   private textureUnitMap: Map<string, number> = new Map();
   private ownerDocument: Document;
+  private htmlUniforms: Map<string, HTMLElement> = new Map();
+  private isProvidedCanvas = false;
 
   /** Resolves after the first render at the element's size */
   public readonly ready: Promise<void>;
@@ -102,10 +111,19 @@ export class ShaderMount implements SharedContextUser {
       this.ownerDocument.head.prepend(styleElement);
     }
 
-    // Create the canvas element and mount it into the provided element
-    const canvasElement = this.ownerDocument.createElement('canvas');
+    // Create the canvas element and mount it into the provided element, unless it came with the HTML uniform
+    const providedCanvas = findDrawableCanvas(Object.values(uniforms), this.parentElement);
+    const canvasElement = providedCanvas ?? this.ownerDocument.createElement('canvas');
     this.canvasElement = canvasElement;
-    this.parentElement.prepend(canvasElement);
+    this.isProvidedCanvas = providedCanvas !== null;
+    if (!providedCanvas) {
+      this.parentElement.prepend(canvasElement);
+    } else {
+      // The content takes the shader's display through the canvas. Inline, since resets like Tailwind's
+      // `canvas { display: block }` are in a later layer than the default styles and would win
+      providedCanvas.style.display = 'inherit';
+    }
+    canvasElement.addEventListener('paint', this.handleCanvasPaint);
     this.fragmentShader = fragmentShader;
     this.providedUniforms = uniforms;
     this.mipmaps = mipmaps;
@@ -139,8 +157,10 @@ export class ShaderMount implements SharedContextUser {
     // Set the animation speed after everything is ready to go
     this.setSpeed(speed);
 
-    // Mark parent element as paper shader mount
-    this.parentElement.setAttribute('data-paper-shader', '');
+    // Mark parent element as paper shader mount, keeping a value it may already have (React renders "html")
+    if (!this.parentElement.hasAttribute('data-paper-shader')) {
+      this.parentElement.setAttribute('data-paper-shader', '');
+    }
 
     // Add the shaderMount instance to the div mount element to make it easily accessible
     this.parentElement.paperShaderMount = this;
@@ -195,9 +215,10 @@ export class ShaderMount implements SharedContextUser {
       uniformLocations[key] = this.gl.getUniformLocation(this.program!, key);
 
       // For texture uniforms, also look for the aspect ratio uniform
-      if (value instanceof HTMLImageElement) {
+      if (value instanceof HTMLImageElement || isHtmlUniform(value)) {
         const aspectRatioUniformName = `${key}AspectRatio`;
         uniformLocations[aspectRatioUniformName] = this.gl.getUniformLocation(this.program!, aspectRatioUniformName);
+        uniformLocations[`${key}IsHtml`] = this.gl.getUniformLocation(this.program!, `${key}IsHtml`);
       }
     });
 
@@ -276,6 +297,21 @@ export class ShaderMount implements SharedContextUser {
     // - animation frame 2: a paint after the resize observer has been handled, if it was ever triggered
   };
 
+  /** Resizes to the canvas right away, for size changes the resize observer would only see next frame */
+  public syncSize = (): void => {
+    const style = getComputedStyle(this.canvasElement);
+    this.parentWidth = parseFloat(style.width) || 0;
+    this.parentHeight = parseFloat(style.height) || 0;
+
+    // Estimated until the resize observer reports the real device pixels
+    if (this.devicePixelsSupported) {
+      this.parentDevicePixelWidth = Math.round(this.parentWidth * window.devicePixelRatio);
+      this.parentDevicePixelHeight = Math.round(this.parentHeight * window.devicePixelRatio);
+    }
+
+    this.handleResize();
+  };
+
   /** Resize handler for when the container div changes size or the max pixel count changes and we want to resize our canvas to match */
   private handleResize = () => {
     // Aim to render at least as many pixels as physically displayed
@@ -339,6 +375,11 @@ export class ShaderMount implements SharedContextUser {
 
       // Drawn with the other shaders in the next frame, the canvas keeps its pixels until then (see SharedContext)
       this.requestRender();
+
+      // HTML is captured again at the new size. The browser doesn't repaint it by itself when only the pixel ratio changes
+      if (this.htmlUniforms.size > 0) {
+        (this.canvasElement as DrawableCanvasElement).requestPaint();
+      }
     }
   };
 
@@ -378,6 +419,7 @@ export class ShaderMount implements SharedContextUser {
     if (this.resolutionChanged) {
       this.gl.uniform2f(this.uniformLocations.u_resolution!, this.frameWidth, this.frameHeight);
       this.gl.uniform1f(this.uniformLocations.u_pixelRatio!, this.renderScale);
+      this.htmlUniforms.forEach((_, uniformName) => this.setHtmlAspectRatio(uniformName));
       this.resolutionChanged = false;
     }
 
@@ -413,6 +455,7 @@ export class ShaderMount implements SharedContextUser {
       throw new Error(`Paper Shaders: image for uniform ${uniformName} must be fully loaded`);
     }
 
+    this.htmlUniforms.delete(uniformName);
     const { texture, textureUnit } = this.createTexture(uniformName);
 
     // Upload image to texture
@@ -445,6 +488,8 @@ export class ShaderMount implements SharedContextUser {
         const aspectRatio = image.naturalWidth / image.naturalHeight;
         this.gl.uniform1f(aspectRatioLocation, aspectRatio);
       }
+
+      this.gl.uniform1f(this.uniformLocations[`${uniformName}IsHtml`] ?? null, 0);
     }
   };
 
@@ -474,6 +519,71 @@ export class ShaderMount implements SharedContextUser {
     this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MAG_FILTER, this.gl.LINEAR);
 
     return { texture, textureUnit };
+  };
+
+  /** Captures the element, which has to be a child of the shader canvas, into the texture on every canvas paint */
+  private setHtmlUniform = (uniformName: string, element: HTMLElement): void => {
+    this.htmlUniforms.delete(uniformName);
+    const { texture, textureUnit } = this.createTexture(uniformName);
+    if (texture === null) return;
+
+    this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, 1, 1, 0, this.gl.RGBA, this.gl.UNSIGNED_BYTE, null);
+    this.textures.set(uniformName, texture);
+    this.gl.uniform1i(this.uniformLocations[uniformName] ?? null, textureUnit);
+    this.gl.uniform1f(this.uniformLocations[`${uniformName}IsHtml`] ?? null, 1);
+    this.setHtmlAspectRatio(uniformName);
+
+    if (!isHtmlInCanvasSupported()) {
+      console.warn(`Paper Shaders: HTML for ${uniformName} needs HTML in canvas support`);
+      return;
+    }
+
+    if (element.parentElement !== this.canvasElement) {
+      console.warn(`Paper Shaders: HTML for ${uniformName} has to be a child of the shader canvas`);
+      return;
+    }
+
+    this.htmlUniforms.set(uniformName, element);
+    (this.canvasElement as DrawableCanvasElement).requestPaint();
+  };
+
+  /** HTML is drawn 1:1, so its aspect ratio is the canvas aspect ratio. Needs this program in use */
+  private setHtmlAspectRatio = (uniformName: string): void => {
+    const aspectRatio = this.frameHeight > 0 ? this.frameWidth / this.frameHeight : 1;
+    this.gl.uniform1f(this.uniformLocations[`${uniformName}AspectRatio`] ?? null, aspectRatio);
+  };
+
+  /** Draws each HTML uniform into the canvas and uploads it into its texture, which replaces the frame in the canvas */
+  private captureHtml = (): void => {
+    if (this.frameWidth === 0 || this.frameHeight === 0) return;
+
+    if (this.canvasElement.width !== this.frameWidth || this.canvasElement.height !== this.frameHeight) {
+      this.canvasElement.width = this.frameWidth;
+      this.canvasElement.height = this.frameHeight;
+    }
+
+    this.htmlUniforms.forEach((element, uniformName) => {
+      try {
+        drawHtml(this.context2d, element);
+      } catch (error) {
+        // An off-screen canvas has no paint record, the texture keeps the last capture
+        if ((error as DOMException).name !== 'InvalidStateError') throw error;
+        return;
+      }
+
+      this.gl.activeTexture(this.gl.TEXTURE0 + this.textureUnitMap.get(uniformName)!);
+      this.gl.bindTexture(this.gl.TEXTURE_2D, this.textures.get(uniformName)!);
+      this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.gl.RGBA, this.gl.UNSIGNED_BYTE, this.canvasElement);
+    });
+  };
+
+  /** Captured and drawn within the paint event, so the captured HTML never shows in place of the frame */
+  private handleCanvasPaint = (): void => {
+    if (this.hasBeenDisposed || this.htmlUniforms.size === 0) return;
+
+    this.captureHtml();
+    // At the last frame's time, so an animation doesn't skip ahead
+    this.render(this.lastRenderTime);
   };
 
   /** Utility: recursive equality test for all the uniforms */
@@ -514,6 +624,8 @@ export class ShaderMount implements SharedContextUser {
       if (value instanceof HTMLImageElement) {
         // Texture case, requires a good amount of code so it gets its own function:
         this.setTextureUniform(key, value);
+      } else if (isHtmlUniform(value)) {
+        this.setHtmlUniform(key, value);
       } else if (Array.isArray(value)) {
         // Array case
         let flatArray: number[] | null = null;
@@ -656,6 +768,9 @@ export class ShaderMount implements SharedContextUser {
     this.sharedContext.cancelFrame(this);
     this.isFrameScheduled = false;
 
+    this.canvasElement.removeEventListener('paint', this.handleCanvasPaint);
+    this.htmlUniforms.clear();
+
     if (this.gl && this.program) {
       // Clean up all textures
       this.textures.forEach((texture) => {
@@ -690,8 +805,10 @@ export class ShaderMount implements SharedContextUser {
 
     this.uniformLocations = {};
 
-    // Remove the shader from the div wrapper element
-    this.canvasElement.remove();
+    // Remove the shader from the div wrapper element, unless the canvas was provided
+    if (!this.isProvidedCanvas) {
+      this.canvasElement.remove();
+    }
     // Free up the reference to self to enable garbage collection
     delete this.parentElement.paperShaderMount;
   };
@@ -774,6 +891,61 @@ const defaultStyle = `@layer paper-shaders {
       border-radius: inherit;
       corner-shape: inherit;
     }
+
+    & > canvas[content='drawable'],
+    & > canvas > [drawable],
+    & > [drawable] {
+      display: inherit;
+      flex-direction: inherit;
+      flex-wrap: inherit;
+      align-items: inherit;
+      align-content: inherit;
+      justify-items: inherit;
+      justify-content: inherit;
+      row-gap: inherit;
+      column-gap: inherit;
+      grid-template-columns: inherit;
+      grid-template-rows: inherit;
+      grid-template-areas: inherit;
+      grid-auto-flow: inherit;
+      grid-auto-columns: inherit;
+      grid-auto-rows: inherit;
+    }
+
+    & > canvas > [drawable],
+    & > [drawable] {
+      box-sizing: border-box;
+      width: 100%;
+      height: 100%;
+    }
+
+    & > canvas > [drawable] {
+      position: relative;
+    }
+
+    & > [drawable] {
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+
+    &:is([data-size-to-content='width'], [data-size-to-content='both']) {
+      & > canvas > [drawable],
+      & > [drawable] {
+        width: max-content;
+        min-width: var(--paper-shader-content-min-width, auto);
+        max-width: var(--paper-shader-content-max-width, none);
+      }
+    }
+
+    &:is([data-size-to-content='height'], [data-size-to-content='both']) {
+      & > canvas > [drawable],
+      & > [drawable] {
+        height: auto;
+        min-height: var(--paper-shader-content-min-height, auto);
+        max-height: var(--paper-shader-content-max-height, none);
+      }
+    }
   }
 }`;
 
@@ -803,7 +975,7 @@ export function isPaperShaderElement(element: HTMLElement): element is PaperShad
  * We just skip setting the uniform if it's undefined. This allows the shader mount to still take up space during server rendering
  */
 export interface ShaderMountUniforms {
-  [key: string]: boolean | number | number[] | number[][] | HTMLImageElement | undefined;
+  [key: string]: boolean | number | number[] | number[][] | HTMLImageElement | HTMLElement | undefined;
 }
 
 export interface ShaderMotionParams {

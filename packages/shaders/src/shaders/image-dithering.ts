@@ -24,13 +24,15 @@ import { proceduralHash21, declarePI } from '../shader-utils.js';
  * - u_offsetY (float): Vertical offset of the graphics center (-1 to 1)
  * - u_image (sampler2D): Source image texture, premultiplied alpha
  * - u_imageAspectRatio (float): Aspect ratio of the source image
+ * - u_imageIsHtml (float): 1 when u_image is HTML, drawn 1:1 without the sizing uniforms. The dithering grid is anchored
+ *   at originX / originY instead of the center, 0 0 being the top left like CSS
  * - u_colorFront (vec4): Foreground color in RGBA, needs originalColors off
  * - u_colorBack (vec4): Background color in RGBA, needs originalColors off
  * - u_colorHighlight (vec4): Secondary foreground color in RGBA (set same as colorFront for classic 2-color dithering), needs originalColors off
  * - u_originalColors (bool): Use the original colors of the image instead of the color palette
  * - u_inverted (bool): Inverts the image luminance, doesn't affect the color scheme
  * - u_type (float): Dithering type (1 = random, 2 = 2x2 Bayer, 3 = 4x4 Bayer, 4 = 8x8 Bayer)
- * - u_pxSize (float): Pixel size of dithering grid (0.5 to 20)
+ * - u_pxSize (float): Pixel size of dithering grid; linked to the screen space, not to the image box (0.5 to 20)
  * - u_colorSteps (float): Number of colors to use, applies to both color modes (1 to 7)
  *
  */
@@ -56,6 +58,7 @@ uniform vec4 u_colorHighlight;
 
 uniform sampler2D u_image;
 uniform float u_imageAspectRatio;
+uniform float u_imageIsHtml;
 
 uniform float u_type;
 uniform float u_pxSize;
@@ -70,7 +73,6 @@ vec4 sampleImage(vec2 uv) {
   image.rgb /= max(image.a, .0001);
   return image;
 }
-
 
 ${ proceduralHash21 }
 ${ declarePI }
@@ -111,6 +113,8 @@ vec2 getImageUV(vec2 uv) {
   imageUV.x *= u_imageAspectRatio;
   imageUV = graphicRotation * imageUV;
   imageUV.x /= u_imageAspectRatio;
+
+  if (u_imageIsHtml == 1.) imageUV = uv;
 
   imageUV += .5;
   imageUV.y = 1. - imageUV.y;
@@ -155,13 +159,21 @@ float getBayerValue(vec2 uv, int size) {
 void main() {
 
   float pxSize = u_pxSize * u_pixelRatio;
-  vec2 pxSizeUV = gl_FragCoord.xy - .5 * u_resolution;
+  vec2 gridOrigin = .5 * u_resolution;
+  if (u_imageIsHtml == 1.) {
+    gridOrigin = vec2(u_originX, 1. - u_originY) * u_resolution;
+  }
+  vec2 pxSizeUV = gl_FragCoord.xy - gridOrigin;
   pxSizeUV /= pxSize;
-  vec2 canvasPixelizedUV = (floor(pxSizeUV) + .5) * pxSize;
+  vec2 gridPixelizedUV = (floor(pxSizeUV) + .5) * pxSize;
+  vec2 canvasPixelizedUV = gridPixelizedUV;
+  if (u_imageIsHtml == 1.) {
+    canvasPixelizedUV = gridPixelizedUV + gridOrigin - .5 * u_resolution;
+  }
   vec2 normalizedUV = canvasPixelizedUV / u_resolution;
 
   vec2 imageUV = getImageUV(normalizedUV);
-  vec2 ditheringNoiseUV = canvasPixelizedUV;
+  vec2 ditheringNoiseUV = gridPixelizedUV;
   vec4 image = sampleImage(imageUV);
   float frame = getUvFrame(imageUV, pxSize / u_resolution);
 
@@ -237,7 +249,7 @@ export interface ImageDitheringUniforms extends ShaderSizingUniforms {
 }
 
 export interface ImageDitheringParams extends ShaderSizingParams, ShaderMotionParams {
-  image: HTMLImageElement | string;
+  image?: HTMLImageElement | string;
   colorFront?: string;
   colorBack?: string;
   colorHighlight?: string;

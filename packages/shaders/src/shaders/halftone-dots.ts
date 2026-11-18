@@ -8,13 +8,15 @@ import { declarePI, rotation2, proceduralHash21 } from '../shader-utils.js';
  * Fragment shader uniforms:
  * - u_image (sampler2D): Source image texture, premultiplied alpha
  * - u_imageAspectRatio (float): Aspect ratio of the source image
+ * - u_imageIsHtml (float): 1 when u_image is HTML. HTML is drawn 1:1, so the grid and grain don't scale with the canvas.
+ *   They're anchored at originX / originY instead of the center, 0 0 being the top left like CSS
  * - u_colorFront (vec4): Foreground color in RGBA, needs originalColors off
  * - u_colorBack (vec4): Background color in RGBA
  * - u_originalColors (bool): Use sampled image's original colors instead of colorFront
  * - u_type (float): Dot style (0 = classic, 1 = gooey, 2 = holes, 3 = soft)
  * - u_inverted (bool): Inverts the image luminance, doesn't affect the color scheme, needs contrast > 0
  * - u_grid (float): Grid type (0 = square, 1 = hex)
- * - u_size (float): Grid size relative to the image box (0 to 1)
+ * - u_size (float): Grid size (0 to 1)
  * - u_radius (float): Maximum dot size relative to grid cell (0 to 2)
  * - u_contrast (float): Contrast applied to the sampled image, at 0 the luminance is flat so all the dots get equal size (0 to 1)
  * - u_grainMixer (float): Strength of grain distortion applied to shape edges (0 to 1)
@@ -49,6 +51,11 @@ uniform float u_contrast;
 
 uniform sampler2D u_image;
 uniform float u_imageAspectRatio;
+uniform float u_imageIsHtml;
+uniform float u_originX;
+uniform float u_originY;
+uniform vec2 u_resolution;
+uniform float u_pixelRatio;
 
 uniform float u_size;
 uniform float u_grainMixer;
@@ -174,11 +181,19 @@ float getLumAtPx(vec2 uv, float contrast) {
   return lum;
 }
 
+vec2 getGridOrigin() {
+  return u_imageIsHtml == 1. ? vec2(u_originX, u_originY) : vec2(.5);
+}
+
+float sizeToPx(float size) {
+  return 1000. / mix(300., 7., pow(size, .7));
+}
+
 float getLumBall(vec2 p, vec2 pad, vec2 inCellOffset, float contrast, float baseR, float stepSize, out vec4 ballColor) {
   p += inCellOffset;
   vec2 uv_i = floor(p);
   vec2 uv_f = fract(p);
-  vec2 samplingUV = (uv_i + .5 - inCellOffset) * pad + vec2(.5);
+  vec2 samplingUV = (uv_i + .5 - inCellOffset) * pad + getGridOrigin();
   float outOfFrame = getUvFrame(samplingUV, pad * stepSize);
 
   float lum = getLumAtPx(samplingUV, contrast);
@@ -215,7 +230,11 @@ void main() {
     stepMultiplier = 6.;
   }
 
+  vec2 cssSize = u_resolution / u_pixelRatio;
   float cellsPerSide = mix(300., 7., pow(u_size, .7));
+  if (u_imageIsHtml == 1.) {
+    cellsPerSide = cssSize.y / sizeToPx(u_size);
+  }
   cellsPerSide /= stepMultiplier;
   float cellSizeY = 1. / cellsPerSide;
   vec2 pad = cellSizeY * vec2(1. / u_imageAspectRatio, 1.);
@@ -225,7 +244,7 @@ void main() {
   }
 
   vec2 uv = v_imageUV;
-  uv -= vec2(.5);
+  uv -= getGridOrigin();
   uv /= pad;
 
   float contrast = mix(0., 15., pow(u_contrast, 1.5));
@@ -292,7 +311,10 @@ void main() {
   }
 
   vec2 grainSize = mix(2000., 200., u_grainSize) * vec2(1., 1. / u_imageAspectRatio);
-  vec2 grainUV = v_imageUV - .5;
+  if (u_imageIsHtml == 1.) {
+    grainSize = mix(2000., 200., u_grainSize) * (cssSize / 1000.);
+  }
+  vec2 grainUV = v_imageUV - getGridOrigin();
   grainUV *= grainSize;
   grainUV += .5;
   if (u_grainMixer > 0.) {
