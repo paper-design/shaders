@@ -109,12 +109,15 @@ export type HomeShaderConfig = {
 
 type HomeCategory = {
   name: string;
+  /** Shown next to the category heading */
+  link?: { href: string; label: string };
   shaders: HomeShaderConfig[];
 };
 
 export const homeThumbnails = [
   {
     name: 'Image Filters',
+    link: { href: '/html-in-canvas', label: 'support of HTML-In-Canvas' },
     shaders: [
       {
         name: 'paper texture',

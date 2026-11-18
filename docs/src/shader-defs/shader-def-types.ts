@@ -17,6 +17,7 @@ export interface ParamDef {
 
 export interface ShaderDef {
   name: string;
+  hasHtmlInCanvasPage?: boolean;
   description: string;
   params: ParamDef[];
 }

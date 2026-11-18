@@ -6,6 +6,7 @@ const defaultParams = halftoneDotsPresets[0].params;
 
 export const halftoneDotsDef: ShaderDef = {
   name: 'Halftone Dots',
+  hasHtmlInCanvasPage: true,
   description: 'A halftone-dot image filter featuring customizable grids, color palettes, and dot styles',
   params: [
     {
@@ -61,7 +62,7 @@ export const halftoneDotsDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.size,
-      description: 'Grid size relative to the image box',
+      description: 'Grid size',
     },
     {
       name: 'radius',

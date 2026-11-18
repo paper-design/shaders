@@ -13,8 +13,13 @@ import { ShaderDetails } from '@/components/shader-details';
 import { imageDitheringDef } from '@/shader-defs/image-dithering-def';
 import { ShaderContainer } from '@/components/shader-container';
 import { useUrlParams } from '@/helpers/use-url-params';
+import { originControls, htmlResetFolder, imageInputOnly, useIsHtmlInCanvasPage } from '@/helpers/html-in-canvas-page';
+import { HtmlInCanvasDemo } from '@/components/html-in-canvas-demo';
+import Example, { params as exampleParams } from './html-in-canvas/example';
 
-const { worldWidth, worldHeight, ...defaults } = imageDitheringPresets[0].params;
+const { worldWidth, worldHeight, ...presetDefaults } = imageDitheringPresets[0].params;
+
+const htmlInCanvasDefaults = { ...presetDefaults, ...exampleParams } as typeof presetDefaults;
 
 const imageFiles = [
   '001.webp',
@@ -38,6 +43,8 @@ const imageFiles = [
 ] as const;
 
 const ImageDitheringWithControls = () => {
+  const isHtmlInCanvas = useIsHtmlInCanvasPage();
+  const defaults = isHtmlInCanvas ? htmlInCanvasDefaults : presetDefaults;
   const [imageIdx, setImageIdx] = useState(-1);
   const [image, setImage] = useState<HTMLImageElement | string>('/images/image-filters/0018.webp');
 
@@ -75,15 +82,17 @@ const ImageDitheringWithControls = () => {
       type: { value: defaults.type, options: Object.keys(DitheringTypes) as DitheringType[], order: 200 },
       size: { value: defaults.size, min: 0.5, max: 20, order: 201 },
       colorSteps: { value: defaults.colorSteps, min: 1, max: 7, step: 1, order: 202 },
-      scale: { value: defaults.scale, min: 0.1, max: 4, order: 300 },
-      fit: { value: defaults.fit, options: ['contain', 'cover'] as ShaderFit[], order: 301 },
+      scale: { value: defaults.scale, min: 0.1, max: 4, order: 300, ...imageInputOnly },
+      ...originControls(defaults, 300.1),
+      fit: { value: defaults.fit, options: ['contain', 'cover'] as ShaderFit[], order: 301, ...imageInputOnly },
       Image: folder(
         {
           'Upload image': levaImageButton(setImageWithoutStatus),
         },
-        { order: 0 }
+        { order: 0, ...imageInputOnly }
       ),
-      Presets: folder(presets, { order: -1 }),
+      Presets: folder(presets, { order: -1, ...imageInputOnly }),
+      Preset: htmlResetFolder(() => setParamsSafe(params, setParams, defaults)),
     };
   });
 
@@ -91,8 +100,19 @@ const ImageDitheringWithControls = () => {
   // shaders when navigating (if two shaders have a color1 param for example)
   useResetLevaParams(params, setParams, defaults);
   useUrlParams(params, setParams, imageDitheringDef);
-  usePresetHighlight(imageDitheringPresets, params);
+  usePresetHighlight(isHtmlInCanvas ? [{ name: 'Reset', params: defaults }] : imageDitheringPresets, params);
   cleanUpLevaParams(params);
+
+  if (isHtmlInCanvas) {
+    return (
+      <HtmlInCanvasDemo
+        Example={Example}
+        shaderDef={imageDitheringDef}
+        currentParams={params}
+        defaultParams={presetDefaults}
+      />
+    );
+  }
 
   return (
     <>

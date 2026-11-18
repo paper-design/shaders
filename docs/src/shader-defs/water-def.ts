@@ -6,6 +6,7 @@ const defaultParams = waterPresets[0].params;
 
 export const waterDef: ShaderDef = {
   name: 'Water',
+  hasHtmlInCanvasPage: true,
   description:
     'Water-like surface distortion with natural caustic realism. Works as an image filter or standalone animated texture.',
   params: [
@@ -75,7 +76,7 @@ export const waterDef: ShaderDef = {
       min: 0.01,
       max: 7,
       defaultValue: defaultParams.size,
-      description: 'Pattern scale relative to the image',
+      description: 'Pattern scale',
     },
     ...animatedImageCommonParams,
   ],

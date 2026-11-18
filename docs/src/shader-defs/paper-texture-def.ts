@@ -6,6 +6,7 @@ const defaultParams = paperTexturePresets[0].params;
 
 export const paperTextureDef: ShaderDef = {
   name: 'Paper Texture',
+  hasHtmlInCanvasPage: true,
   description:
     'Static texture built from a combination of grains, noises and fold patterns; works as an image filter or as a standalone texture',
   params: [

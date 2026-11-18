@@ -6,6 +6,7 @@ const defaultParams = imageDitheringPresets[0].params;
 
 export const imageDitheringDef: ShaderDef = {
   name: 'Image Dithering',
+  hasHtmlInCanvasPage: true,
   description:
     'A dithering image filter with support for 4 dithering modes and multiple color palettes (2-color, 3-color, and multicolor options, using either predefined colors or colors sampled from the original image).',
   params: [

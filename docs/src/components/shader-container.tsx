@@ -4,6 +4,9 @@ import { ShaderDef } from '@/shader-defs/shader-def-types';
 import { Leva } from 'leva';
 import { CopyButton } from './copy-button';
 import { useState } from 'react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { demoButtonClassName, getHtmlInCanvasToggleHref, useIsHtmlInCanvasPage } from '@/helpers/html-in-canvas-page';
 
 export function ShaderContainer({
   children,
@@ -13,6 +16,10 @@ export function ShaderContainer({
   currentParams?: Record<string, unknown>;
   shaderDef?: ShaderDef;
 }>) {
+  const pathname = usePathname();
+  const isHtmlInCanvasPage = useIsHtmlInCanvasPage();
+  const hasHtmlInCanvasPage = !isHtmlInCanvasPage && Boolean(shaderDef?.hasHtmlInCanvasPage);
+
   return (
     <div className="md:mb-24">
       {shaderDef && currentParams && (
@@ -45,7 +52,22 @@ export function ShaderContainer({
       )}
 
       <div className="relative">
-        <ResizableShader>{children}</ResizableShader>
+        <ResizableShader alwaysResizable={isHtmlInCanvasPage}>{children}</ResizableShader>
+
+        {(hasHtmlInCanvasPage || isHtmlInCanvasPage) && (
+          // Out of the flow on wide screens so the content below the shader keeps its place.
+          // Narrower, it would overlap the centered line below, so it takes a line of its own above it
+          <div className="mt-20 flex justify-end gap-8 min-[75rem]:absolute min-[75rem]:top-full min-[75rem]:right-0">
+            {isHtmlInCanvasPage && (
+              <Link href="/html-in-canvas" className={demoButtonClassName}>
+                HTML-in-Canvas docs
+              </Link>
+            )}
+            <Link href={getHtmlInCanvasToggleHref(pathname)} className={demoButtonClassName}>
+              {isHtmlInCanvasPage ? 'image filter demo' : 'HTML-in-Canvas demo'}
+            </Link>
+          </div>
+        )}
 
         <div
           className="absolute -top-4 -right-332 hidden w-300 overflow-auto rounded-xl bg-(--color-leva-background) pb-4 has-[[data-leva-container]>[style*='display:none']]:hidden lg:block squircle:rounded-2xl"
@@ -111,18 +133,22 @@ export function ShaderContainer({
   );
 }
 
-function ResizableShader({ children }: React.PropsWithChildren) {
+/**
+ * Alt+drag resizes the image demos; HTML demos take pointer input of their own, so they always show the handle.
+ * The shader starts at the section's width, and once resized it keeps the dragged size, even past the section
+ */
+function ResizableShader({
+  children,
+  alwaysResizable = false,
+}: React.PropsWithChildren<{ alwaysResizable?: boolean }>) {
   const [canStartResize, setCanStartResize] = useState(false);
 
   return (
-    <div
-      className="flex aspect-4/3 *:size-full *:max-h-full not-has-[[data-paper-shader]]:bg-header xs:aspect-3/2 md:aspect-16/9"
-      onPointerMove={(event) => setCanStartResize(event.altKey)}
-      onPointerLeave={() => setCanStartResize(false)}
-    >
+    <div onPointerMove={(event) => setCanStartResize(event.altKey)} onPointerLeave={() => setCanStartResize(false)}>
       <div
-        data-resizable={canStartResize || undefined}
-        className="flex overflow-hidden *:size-full data-resizable:resize [[style*='width']]:resize"
+        data-resizable={canStartResize || alwaysResizable || undefined}
+        data-resize-handle={alwaysResizable || undefined}
+        className="flex aspect-4/3 w-full overflow-hidden *:size-full not-has-[[data-paper-shader]]:bg-header data-resizable:resize xs:aspect-3/2 md:aspect-16/9 [[style*='width']]:resize"
       >
         {children}
       </div>
