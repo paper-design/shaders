@@ -1,0 +1,9 @@
+@property --highlight-stroke { syntax: '<length>'; inherits: false; initial-value: 0px }
+.gallery { height: 100%; display: grid; grid-template-columns: max-content 1fr; grid-auto-rows: 1fr; container-type: inline-size; color: #222; background: #fff }
+.gallery ul { display: grid; align-content: center; justify-items: start; margin: 0; padding: 32px; list-style: none }
+.gallery .shaders { position: relative; min-height: 384px }
+.gallery a { display: block; padding: 4px 0; font-family: system-ui; font-size: 72px; font-weight: 300; line-height: 1.1; letter-spacing: 0.03em; -webkit-text-stroke: var(--highlight-stroke) currentColor; cursor: default; transition: --highlight-stroke 1s cubic-bezier(0.22, 1, 0.36, 1) }
+.gallery a.active { --highlight-stroke: 0.065em }
+.gallery .shaders > * { position: absolute; inset: 0; opacity: 0; pointer-events: none; transition: opacity 1s cubic-bezier(0.22, 1, 0.36, 1) }
+.gallery .shaders > .active { opacity: 1 }
+@container (width < 760px) { .gallery ul, .gallery .shaders { grid-column: 1 / -1 } .gallery .shaders { order: -1 } }

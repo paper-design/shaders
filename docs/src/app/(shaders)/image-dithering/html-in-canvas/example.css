@@ -1,0 +1,34 @@
+.zine { position: relative; container-type: size; display: flex; width: 100%; height: 100%; min-height: 520px; overflow: hidden; background: #f0efe4; color: #222; font-weight: 700 }
+.zine aside { flex: none; width: 0; max-width: 60%; overflow: hidden; background: #222; transition: width 300ms ease-out }
+.zine aside[data-open] { width: 280px }
+.zine aside div { display: flex; flex-direction: column; gap: 8px; width: 280px; padding: 88px 12px 12px; box-sizing: border-box }
+.zine aside a { display: flex; align-items: center; height: 64px; padding: 0 20px; border-radius: 12px; background: #f0efe4; color: #222; font-size: clamp(18px, 3.3cqw, 30px); text-decoration: none; transition: background-color 300ms ease-out }
+.zine aside a:hover { background: #f2c14e }
+.zine .page { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 12px; padding: 12px; box-sizing: border-box }
+.zine nav { display: flex; gap: 12px; padding-left: 76px; transition: padding-left 300ms ease-out }
+.zine:has(aside[data-open]) nav { padding-left: 0 }
+.zine nav button { flex: 1; height: 64px; border: 0; border-radius: 12px; background: #8fb3ea; color: inherit; font: inherit; font-size: clamp(16px, 2.9cqw, 26px); cursor: pointer; transition: background-color 300ms ease-out, color 300ms ease-out, filter 150ms ease-out }
+.zine nav button:hover { filter: brightness(0.9) }
+.zine nav button[aria-pressed="true"] { background: #222; color: #f0efe4 }
+.zine nav .burger { position: absolute; top: 12px; left: 12px; z-index: 1; height: 64px; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 8px; width: 64px; background: #f2c14e }.zine .burger span { width: 36px; height: 6px; border-radius: 3px; background: #222; transition: translate 300ms ease-out, rotate 300ms ease-out, opacity 300ms ease-out }
+.zine .burger[aria-expanded="true"] span:nth-child(1) { translate: 0 14px; rotate: 45deg }
+.zine .burger[aria-expanded="true"] span:nth-child(2) { opacity: 0 }
+.zine .burger[aria-expanded="true"] span:nth-child(3) { translate: 0 -14px; rotate: -45deg }
+.zine main { flex: 1; min-height: 0; display: flex; gap: 12px }
+.zine .lead { display: flex; flex-direction: column; gap: 12px; min-width: 0; min-height: 0 }
+.zine h1 { flex: 1; display: flex; align-items: flex-end; margin: 0; padding: 20px; border-radius: 12px; background: #f08a5d; font-size: clamp(18px, 3.3cqw, 30px); line-height: 1.05; overflow: hidden }
+.zine p { margin: 0; padding: 20px; border-radius: 12px; background: #f2c14e; font-size: clamp(18px, 3.3cqw, 30px); line-height: 1.05 }
+.zine .photos { display: flex; gap: 12px; min-width: 0; min-height: 0 }
+.zine figure { position: relative; flex: 1; min-width: 0; min-height: 0; margin: 0; overflow: hidden; border-radius: 12px; background: #222 }
+.zine .fill { position: absolute; inset: 0; transition: scale 300ms ease-out }
+.zine figure:hover .fill { scale: 1.08 }
+.zine [data-layout="column"] { flex-direction: column }
+.zine [data-layout="column"] .lead { flex: 1 1 0; flex-direction: row }
+.zine [data-layout="column"] h1 { flex: 2 }
+.zine [data-layout="column"] p { flex: 1 }
+.zine [data-layout="column"] .photos { flex: 2 1 0 }
+.zine [data-layout="row"] .lead { flex: 1 1 0 }
+.zine [data-layout="row"] .photos { flex: 2 1 0; flex-direction: column }
+.zine [data-layout="row-reverse"] { flex-direction: row-reverse }
+.zine [data-layout="row-reverse"] .lead { flex: 2 1 0 }
+.zine [data-layout="row-reverse"] .photos { flex: 1 1 0; flex-direction: column }

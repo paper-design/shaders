@@ -1,0 +1,25 @@
+.scrollable { position: relative; height: 100%; overflow-y: auto; scrollbar-width: none; scroll-timeline: --demo-scroll; container-type: scroll-state; color: #f0ead6 }
+.scrollable .page { position: relative; overflow: clip }
+.scrollable .backdrop { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: top; filter: brightness(0.7) saturate(0.75) blur(3px); animation: parallax linear both; animation-timeline: --demo-scroll }
+.scrollable .page::after { content: ''; display: block; height: 400px }
+.scrollable ::selection { background: #f0ead6; color: #222 }
+.scrollable article { position: relative; max-width: 1400px; padding: 180px 8% 0; font: 40px system-ui }
+.scrollable h1 { margin: 0; font-size: 180px; line-height: 0.85; letter-spacing: -0.03em }
+.scrollable p { max-width: 80%; margin: 4% 0 }
+.scrollable :is(h1, p, .hint) { text-shadow: 0 2px 12px rgb(0 0 0 / 35%) }
+.scrollable .shapes { display: flex; flex-wrap: wrap; gap: 12px; margin: -2% 0 8% }
+.scrollable .shapes button { padding: 0.4em 0.7em; text-box: trim-both cap alphabetic; border: 2px solid #f0ead6; border-radius: 8px; background: none; color: inherit; font: inherit; cursor: pointer; transition: background-color 150ms, color 150ms }
+.scrollable .shapes button:not([aria-pressed="true"]):hover { background: rgb(240 234 214 / 20%) }
+.scrollable .shapes button[aria-pressed='true'] { background: #f0ead6; color: #222; cursor: default }
+.scrollable .dials { display: grid; grid-template-columns: auto 1fr 4ch; align-items: center; gap: 20px 32px; max-width: 80%; margin: -1% 0 8% }
+.scrollable .dials label { display: contents }
+.scrollable .dials output { text-align: right; font-variant-numeric: tabular-nums }
+.scrollable input[type='range'] { appearance: none; min-width: 0; height: 36px; margin: 0; background: linear-gradient( transparent calc(50% - 1px), #f0ead6 0 calc(50% + 1px), transparent 0 ); cursor: pointer }
+.scrollable input[type='range']::-webkit-slider-thumb { appearance: none; width: 28px; height: 28px; border-radius: 50%; background: #f0ead6 }
+.scrollable input[type='range']:hover::-webkit-slider-thumb { scale: 1.15 }
+.scrollable .hint { position: sticky; bottom: 15px; width: fit-content; margin: 0 20px 0 auto; font: 40px system-ui; animation: hint-fade linear both; animation-timeline: --demo-scroll; animation-range: 0 16px }
+.scrollable .hint span { display: inline-block; animation: hint-bounce 1.2s ease-in-out infinite }
+@keyframes hint-fade { to { opacity: 0 } }
+@keyframes parallax { to { translate: 0 30% } }
+@keyframes hint-bounce { 50% { translate: 0 8px } }
+@container scroll-state(scrollable: top) { .scrollable .hint span { animation: none } }
