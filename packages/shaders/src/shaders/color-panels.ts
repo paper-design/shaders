@@ -72,16 +72,16 @@ ${ declarePI }
 
 const float zLimit = .5;
 
-vec2 getPanel(float angle, vec2 uv, float invLength, float aa) {
+vec3 getPanel(float angle, vec2 uv, vec2 uvPx, float invLength, float aa) {
   float sinA = sin(angle);
   float cosA = cos(angle);
 
   float denom = sinA - uv.y * cosA;
-  if (abs(denom) < .01) return vec2(0.);
+  if (abs(denom) < 1e-5) return vec3(0.);
 
   float z = uv.y / denom;
 
-  if (z <= 0. || z > zLimit) return vec2(0.);
+  if (z <= 0. || z > zLimit) return vec3(0.);
 
   float zRatio = z / zLimit;
   float panelMap = 1. - zRatio;
@@ -90,28 +90,36 @@ vec2 getPanel(float angle, vec2 uv, float invLength, float aa) {
   float zOffset = zRatio - .5;
   float left = -.5 + zOffset * u_angle1;
   float right = .5 - zOffset * u_angle2;
-  float blurX = aa + 2. * panelMap * u_blur;
+  float dzRatio = sinA / (denom * denom * zLimit);
+  float dxdx = (cosA * z + 1.) * invLength;
+  float dxdy = uv.x * cosA * dzRatio * zLimit * invLength;
+  float aaLeft = max(aa, dot(abs(vec2(dxdx, dxdy - u_angle1 * dzRatio)), uvPx));
+  float aaRight = max(aa, dot(abs(vec2(dxdx, dxdy + u_angle2 * dzRatio)), uvPx));
+  float blur = 2. * panelMap * u_blur;
+  float blurLeft = aaLeft + blur;
+  float blurRight = aaRight + blur;
 
-  float leftEdge1 = left - blurX;
-  float leftEdge2 = left + .25 * blurX;
-  float rightEdge1 = right - .25 * blurX;
-  float rightEdge2 = right + blurX;
+  float leftEdge1 = left - blurLeft;
+  float leftEdge2 = left + .25 * blurLeft;
+  float rightEdge1 = right - .25 * blurRight;
+  float rightEdge2 = right + blurRight;
 
   float panel = smoothstep(leftEdge1, leftEdge2, x) * (1.0 - smoothstep(rightEdge1, rightEdge2, x));
-  panel *= mix(0., panel, smoothstep(0., .01 / u_scale, panelMap));
+  float mapPx = abs(dzRatio) * uvPx.y;
+  panel *= mix(0., panel, smoothstep(0., max(.01 / u_scale, mapPx), panelMap));
 
   float midScreen = abs(sinA);
   if (u_edges == true) {
-    panelMap = mix(.99, panelMap, panel * clamp(panelMap / (.15 * (1. - pow(midScreen, .1))), 0.0, 1.0));
+    panelMap = mix(.99, panelMap, panel * clamp(panelMap / max(.15 * (1. - pow(midScreen, .1)), 1e-4), 0.0, 1.0));
   } else if (midScreen < .07) {
-    panel *= (midScreen * 15.);
+    panel *= midScreen / .07;
   }
 
-  return vec2(panel, panelMap);
+  return vec3(panel, panelMap, mapPx);
 }
 
-vec4 blendColor(vec4 colorA, float panelMask, float panelMap) {
-  float fade = 1. - smoothstep(.97 - .97 * u_fadeIn, 1., panelMap);
+vec4 blendColor(vec4 colorA, float panelMask, float panelMap, float mapPx) {
+  float fade = 1. - smoothstep(min(.97 - .97 * u_fadeIn, 1. - mapPx), 1., panelMap);
 
   fade *= smoothstep(-.2 * (1. - u_fadeOut), u_fadeOut, panelMap);
 
@@ -133,6 +141,7 @@ void main() {
   float opacity = 0.;
 
   float aa = .005 / u_scale;
+  vec2 uvPx = fwidth(uv);
   int colorsCount = int(u_colorsCount);
 
   vec4 premultipliedColors[${ colorPanelsMeta.maxColorCount }];
@@ -187,7 +196,7 @@ void main() {
       float smoothAngle = clamp((.3 - angleNorm) / .05, 0., 1.);
       if (smoothDensity * smoothAngle < .001) continue;
 
-      vec2 panel = getPanel(angleNorm * TWO_PI + PI, uv, invLength, aa);
+      vec3 panel = getPanel(angleNorm * TWO_PI + PI, uv, uvPx, invLength, aa);
       if (panel[0] <= .001) continue;
       float panelMask = panel[0] * smoothDensity * smoothAngle;
       float panelMap = panel[1];
@@ -199,7 +208,7 @@ void main() {
       vec4 colorB = premultipliedColors[nextColorIdx];
 
       colorA = mix(colorA, colorB, max(0., smoothstep(.0, .45, panelMap) - panelGrad));
-      vec4 blended = blendColor(colorA, panelMask, panelMap);
+      vec4 blended = blendColor(colorA, panelMask, panelMap, panel[2]);
       color = blended.rgb + color * (1. - blended.a);
       opacity = blended.a + opacity * (1. - blended.a);
     }
@@ -223,7 +232,7 @@ void main() {
       float smoothAngle = clamp((angleNorm + .3) / .05, 0., 1.);
       if (smoothDensity * smoothAngle < .001) continue;
 
-      vec2 panel = getPanel(angleNorm * TWO_PI + PI, uv, invLength, aa);
+      vec3 panel = getPanel(angleNorm * TWO_PI + PI, uv, uvPx, invLength, aa);
       float panelMask = panel[0] * smoothDensity * smoothAngle;
       if (panelMask <= .001) continue;
       float panelMap = panel[1];
@@ -236,7 +245,7 @@ void main() {
       vec4 colorB = premultipliedColors[nextColorIdx];
 
       colorA = mix(colorA, colorB, max(0., smoothstep(.0, .45, panelMap) - panelGrad));
-      vec4 blended = blendColor(colorA, panelMask, panelMap);
+      vec4 blended = blendColor(colorA, panelMask, panelMap, panel[2]);
       color = blended.rgb + color * (1. - blended.a);
       opacity = blended.a + opacity * (1. - blended.a);
     }
