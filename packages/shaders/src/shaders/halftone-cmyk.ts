@@ -14,17 +14,17 @@ import { declarePI } from '../shader-utils.js';
  * - u_colorM (vec4): Magenta ink color in RGBA
  * - u_colorY (vec4): Yellow ink color in RGBA
  * - u_colorK (vec4): Black ink color in RGBA
- * - u_size (float): Halftone cell size (0 to 1)
+ * - u_size (float): Halftone cell size (0 to 1, soft: below 0 cells keep shrinking, above 1 they keep growing)
  * - u_contrast (float): Image contrast adjustment (0 to 2)
  * - u_softness (float): Edge softness of dots (0 to 1)
- * - u_grainSize (float): Size of grain texture, applied to both grain and overlay, needs grainMixer or grainOverlay > 0 (0 to 1)
+ * - u_grainSize (float): Size of grain texture, applied to both grain and overlay, needs grainMixer or grainOverlay > 0 (0 to 1, soft: above 1 grain keeps growing, below 0 it keeps getting finer)
  * - u_grainMixer (float): Strength of grain affecting dot size (0 to 1)
  * - u_grainOverlay (float): Strength of grain overlay on final output (0 to 1)
  * - u_gridNoise (float): Strength of smooth noise applied to both dot positions and color sampling, positions only with sharp type (0 to 1)
- * - u_floodC (float): Flat cyan dot size adjustment applied uniformly, needs colorC alpha > 0 (0 to 1)
- * - u_floodM (float): Flat magenta dot size adjustment applied uniformly, needs colorM alpha > 0 (0 to 1)
- * - u_floodY (float): Flat yellow dot size adjustment applied uniformly, needs colorY alpha > 0 (0 to 1)
- * - u_floodK (float): Flat black dot size adjustment applied uniformly, needs colorK alpha > 0 (0 to 1)
+ * - u_floodC (float): Flat cyan dot size adjustment applied uniformly, needs colorC alpha > 0, negative values shrink every dot (0 to 1)
+ * - u_floodM (float): Flat magenta dot size adjustment applied uniformly, needs colorM alpha > 0, negative values shrink every dot (0 to 1)
+ * - u_floodY (float): Flat yellow dot size adjustment applied uniformly, needs colorY alpha > 0, negative values shrink every dot (0 to 1)
+ * - u_floodK (float): Flat black dot size adjustment applied uniformly, needs colorK alpha > 0, negative values shrink every dot (0 to 1)
  * - u_gainC (float): Proportional cyan dot size gain, needs colorC alpha > 0 (enhances existing dots, -1 to 1)
  * - u_gainM (float): Proportional magenta dot size gain, needs colorM alpha > 0 (enhances existing dots, -1 to 1)
  * - u_gainY (float): Proportional yellow dot size gain, needs colorY alpha > 0 (enhances existing dots, -1 to 1)
@@ -192,6 +192,7 @@ void colorMask(vec2 pos, vec2 cellCenter, float rad, float transparency, float g
   radius = mix(0., radius, transparency);
   radius += channelAddon;
   radius *= (1. - grain);
+  radius = max(radius, 1e-4);
 
   float mask = 1. - sst(0., radius, dist);
   if (isJoined) {
@@ -215,6 +216,11 @@ void main() {
   vec2 uv = v_imageUV;
 
   float cellsPerSide = mix(400.0, 7.0, pow(u_size, 0.7));
+  if (u_size < 0.) {
+    cellsPerSide = 400. * (1. - u_size);
+  } else if (u_size > 1.) {
+    cellsPerSide = 7. / u_size;
+  }
   float cellSizeY = 1.0 / cellsPerSide;
   vec2 pad = cellSizeY * vec2(1.0 / u_imageAspectRatio, 1.0);
   vec2 uvGrid = (uv - .5) / pad;
@@ -227,7 +233,8 @@ void main() {
   vec2 uvY = mat2(cosY, sinY, -sinY, cosY) * uvGrid + shiftY;
   vec2 uvK = mat2(cosK, sinK, -sinK, cosK) * uvGrid + shiftK;
 
-  vec2 grainSize = mix(2000., 200., u_grainSize) * vec2(1., 1. / u_imageAspectRatio);
+  float grainDensity = u_grainSize <= 1. ? mix(2000., 200., u_grainSize) : 200. / (u_grainSize * u_grainSize);
+  vec2 grainSize = grainDensity * vec2(1., 1. / u_imageAspectRatio);
   vec2 grainUV = (v_imageUV - .5) * grainSize + .5;
   // shared by the grain mixer and the grain overlay, skip it when neither is on
   vec3 noiseValues = vec3(0.);
@@ -324,9 +331,9 @@ void main() {
 
   float grainOverlayV = grainOverlay * 2. - 1.;
   vec3 grainOverlayColor = vec3(step(0., grainOverlayV));
-  float grainOverlayStrength = u_grainOverlay * abs(grainOverlayV);
+  float grainOverlayStrength = (u_grainOverlay <= 1. ? u_grainOverlay : sqrt(u_grainOverlay)) * abs(grainOverlayV);
   grainOverlayStrength = pow(grainOverlayStrength, .8);
-  color = mix(color, grainOverlayColor, .5 * grainOverlayStrength);
+  color = mix(color, grainOverlayColor, min(1., .5 * grainOverlayStrength));
 
   opacity += .5 * grainOverlayStrength;
   opacity = clamp(opacity, 0., 1.);

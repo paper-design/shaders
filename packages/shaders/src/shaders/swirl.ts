@@ -77,8 +77,10 @@ void main() {
   float angle = ceil(u_bandCount) * atan(shape_uv.y, shape_uv.x) + t;
   float angle_norm = angle / TWO_PI;
 
-  float twist = 3. * clamp(u_twist, 0., 1.);
-  float offset = pow(l, -twist) + angle_norm;
+  float twist = 3. * max(u_twist, 0.);
+  float twistPow = min(pow(l, -twist), 1e30);
+  float offset = twistPow + angle_norm;
+  float offsetAA = fwidth(twistPow) + min(fwidth(angle_norm), fwidth(fract(angle_norm + .5)));
 
   float shape = fract(offset);
   shape = 1. - abs(2. * shape - 1.);
@@ -86,13 +88,19 @@ void main() {
     shape += u_noise * snoise(15. * pow(u_noiseFrequency, 2.) * shape_uv);
   }
 
-  float mid = smoothstep(.2, .2 + .8 * u_center, pow(l, twist));
+  float midPow = pow(l, twist);
+  float mid = smoothstep(.2, .2 + max(.8 * u_center, fwidth(midPow)), midPow);
   shape = mix(0., shape, mid);
+  shape = max(shape, 0.);
+  float shapeAA = max(2. * offsetAA * mid, fwidth(shape));
 
   float proportion = clamp(u_proportion, 0., 1.);
   float exponent = mix(.25, 1., proportion * 2.);
   exponent = mix(exponent, 10., max(0., proportion * 2. - 1.));
-  shape = pow(shape, exponent);
+  float lift = clamp(-u_proportion, 0., 1.);
+  float shapeScale = (1. - lift) * clamp(2. - u_proportion, 0., 1.);
+  float aa = clamp(u_colorsCount * exponent * pow(max(shape, 1e-3), exponent - 1.) * shapeAA * shapeScale, 1e-4, 1.);
+  shape = lift + shapeScale * pow(shape, exponent);
 
   float mixer = shape * u_colorsCount;
   vec4 gradient = u_colors[0];
@@ -103,7 +111,6 @@ void main() {
     if (i > int(u_colorsCount)) break;
 
     float m = clamp(mixer - float(i - 1), 0., 1.);
-    float aa = fwidth(m);
     m = smoothstep(.5 - .5 * u_softness - aa, .5 + .5 * u_softness + aa, m);
 
     if (i == 1) {
@@ -115,8 +122,8 @@ void main() {
     gradient = mix(gradient, c, m);
   }
 
-  float midAA = .1 * fwidth(pow(l, -twist));
-  float outerMid = smoothstep(.2, .2 + midAA, pow(l, twist));
+  float midAA = .1 * fwidth(twistPow);
+  float outerMid = smoothstep(.2, .2 + midAA, midPow);
   outerShape = mix(0., outerShape, outerMid);
 
   vec3 color = gradient.rgb * outerShape;

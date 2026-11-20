@@ -14,13 +14,13 @@ export const lensDistortionMeta = {
  *
  * Fragment shader uniforms:
  * - u_image (sampler2D): Source image texture, premultiplied alpha
- * - u_spread (float): Strength of the color split; how far the color layers are pushed apart; 0 is off (0 to 1)
+ * - u_spread (float): Strength of the color split; how far the color layers are pushed apart; 0 is off, negative values push the layers the opposite way (0 to 1)
  * - u_bias (float): Shifts the colors toward one end of the spread; 0 spaces them evenly, needs spread > 0, count > 2 (-1 to 1)
  * - u_angle (float): Direction of the spread in degrees, needs spread > 0, perspective < 1 (0 to 360)
  * - u_perspective (float): Shapes the spread direction from a straight line (0) to a radial burst out from the centre (1), needs spread > 0 (0 to 1)
  * - u_count (float): Number of sampled color layers along the spread; higher is smoother and costlier, needs spread > 0 (2 to 50)
  * - u_dispersion (float): Overall amount of color dispersion; 1 gives each layer its own color from the spectrum, 0 keeps the original image color, needs spread > 0 (0 to 1)
- * - u_dispersionShift (float): Balance of the dispersion between a soft circular zone at the centre and the rest of the image; 0 applies it evenly, -1 keeps it in the centre only, 1 keeps it at the edges only, needs spread > 0, dispersion > 0 (-1 to 1)
+ * - u_dispersionShift (float): Balance of the dispersion between a soft circular zone at the centre and the rest of the image; 0 applies it evenly, -1 keeps it in the centre only, 1 keeps it at the edges only, beyond ±1 the coloured area keeps shrinking (towards the edges above 1, into a smaller centre spot below -1), needs spread > 0, dispersion > 0 (-1 to 1)
  * - u_dispersionColor (float): Rotates the colors around the hue wheel, 0 to 1 for a full turn, needs spread > 0, dispersion > 0
  * - u_focusCenter (float): Reduces the spread in a circular zone at the centre; 0 keeps it full to the centre, needs spread > 0 (0 to 1)
  * - u_focusEdges (float): Reduces the spread toward the edges; 0 keeps it full to the edges, 1 restores the original image there, needs spread > 0 (0 to 1)
@@ -127,7 +127,8 @@ float boxOutradius() {
 }
 
 float spreadReach() {
-  return .7 * pow(u_spread, 1.3 + 2.7 * u_spread);
+  float spread = abs(u_spread);
+  return .7 * pow(spread, 1.3 + 2.7 * spread);
 }
 
 float innerCircleMask(float radius, float inradius) {
@@ -234,6 +235,7 @@ void main() {
 
   float spreadStrength;
   vec2 spreadAxis = getSpread(fromCenter, radius, baseUV, edgeAA, inradius, outradius, reach, spreadStrength);
+  if (u_spread < 0.) spreadAxis = -spreadAxis;
 
   vec2 grainUV = vec2(0.);
   if (u_grainMixer > 0. || u_grainOverlay > 0.) {
@@ -259,7 +261,8 @@ void main() {
 
   float centerAmount = clamp(1. - u_dispersionShift, 0., 1.);
   float edgesAmount = clamp(1. + u_dispersionShift, 0., 1.);
-  float dispersion = u_dispersion * mix(edgesAmount, centerAmount, innerCircleMask(radius, inradius));
+  float shiftCircle = exp2(u_dispersionShift - clamp(u_dispersionShift, -1., 1.));
+  float dispersion = u_dispersion * mix(edgesAmount, centerAmount, innerCircleMask(radius, inradius * shiftCircle));
   float dispersionPower = pow(dispersion, .8);
 
   float warpedRadius = length(warpedFromCenter);
@@ -309,8 +312,8 @@ void main() {
     grain = mix(grain, valueNoise(rotate(grainUV, 2.) + vec2(-1.)), .5);
     grain = pow(grain, 1.3);
     float grainV = grain * 2. - 1.;
-    float grainStrength = pow(u_grainOverlay * abs(grainV), .8) * fragColor.a;
-    fragColor.rgb = mix(fragColor.rgb, vec3(step(0., grainV)) * fragColor.a, .35 * grainStrength);
+    float grainStrength = pow((u_grainOverlay <= 1. ? u_grainOverlay : sqrt(u_grainOverlay)) * abs(grainV), .8) * fragColor.a;
+    fragColor.rgb = mix(fragColor.rgb, vec3(step(0., grainV)) * fragColor.a, min(1., .35 * grainStrength));
   }
 }
 `;

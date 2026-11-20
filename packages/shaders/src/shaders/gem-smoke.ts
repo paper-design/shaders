@@ -199,7 +199,7 @@ void main() {
 // Smoke UV setup
   vec2 smokeUV = v_objectUV;
   smokeUV = rotate(smokeUV, u_angle * PI / 180.);
-  smokeUV *= u_size <= 1. ? mix(4., 1., u_size) : 1. / (u_size * u_size);
+  smokeUV *= u_size <= 1. ? mix(4., 1., u_size) : 1. / u_size;
 
   // Two swirl paths: inner (shape-masked) and outer (free), each with independent distortion
   vec2 innerUV = smokeUV;

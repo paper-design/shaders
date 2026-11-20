@@ -362,10 +362,10 @@ void main() {
 
     float grainOverlayV = grainOverlay * 2. - 1.;
     vec3 grainOverlayColor = vec3(step(0., grainOverlayV));
-    float grainOverlayStrength = u_grainOverlay * abs(grainOverlayV);
+    float grainOverlayStrength = (u_grainOverlay <= 1. ? u_grainOverlay : sqrt(u_grainOverlay)) * abs(grainOverlayV);
     grainOverlayStrength = pow(grainOverlayStrength, .8);
     grainOverlayStrength *= mask;
-    color = mix(color, grainOverlayColor, .35 * grainOverlayStrength);
+    color = mix(color, grainOverlayColor, min(1., .35 * grainOverlayStrength));
 
     opacity += .5 * grainOverlayStrength;
   }

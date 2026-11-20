@@ -106,7 +106,7 @@ void main() {
     uv.y += swirl / iFloat * cos(t + iFloat * 1. * uv.x);
   }
 
-  float proportion = clamp(u_proportion, 0., 1.);
+  float proportion = u_proportion;
 
   float shape = 0.;
   if (u_shape < .5) {

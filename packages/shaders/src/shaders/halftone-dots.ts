@@ -14,12 +14,12 @@ import { declarePI, rotation2, proceduralHash21 } from '../shader-utils.js';
  * - u_type (float): Dot style (0 = classic, 1 = gooey, 2 = holes, 3 = soft)
  * - u_inverted (bool): Inverts the image luminance, doesn't affect the color scheme, needs contrast > 0
  * - u_grid (float): Grid type (0 = square, 1 = hex)
- * - u_size (float): Grid size relative to the image box (0 to 1)
+ * - u_size (float): Grid size relative to the image box (0 to 1, soft: below 0 cells keep shrinking, above 1 they keep growing)
  * - u_radius (float): Maximum dot size relative to grid cell (0 to 2)
  * - u_contrast (float): Contrast applied to the sampled image, at 0 the luminance is flat so all the dots get equal size (0 to 1)
- * - u_grainMixer (float): Strength of grain distortion applied to shape edges (0 to 1)
+ * - u_grainMixer (float): Strength of grain distortion applied to shape edges, above 1 the grain eats into more of the shapes (0 to 1)
  * - u_grainOverlay (float): Post-processing black/white grain overlay (0 to 1)
- * - u_grainSize (float): Scale applied to both grain distortion and grain overlay, needs grainMixer or grainOverlay > 0 (0 to 1)
+ * - u_grainSize (float): Scale applied to both grain distortion and grain overlay, needs grainMixer or grainOverlay > 0 (0 to 1, soft: above 1 grain keeps growing, below 0 it keeps getting finer)
  *
  * Vertex shader outputs (used in fragment shader):
  * - v_imageUV (vec2): Image UV coordinates with global sizing (rotation, scale, offset, etc) applied
@@ -216,6 +216,11 @@ void main() {
   }
 
   float cellsPerSide = mix(300., 7., pow(u_size, .7));
+  if (u_size < 0.) {
+    cellsPerSide = 300. * (1. - u_size);
+  } else if (u_size > 1.) {
+    cellsPerSide = 7. / u_size;
+  }
   cellsPerSide /= stepMultiplier;
   float cellSizeY = 1. / cellsPerSide;
   vec2 pad = cellSizeY * vec2(1. / u_imageAspectRatio, 1.);
@@ -291,14 +296,17 @@ void main() {
     finalShape = totalShape;
   }
 
-  vec2 grainSize = mix(2000., 200., u_grainSize) * vec2(1., 1. / u_imageAspectRatio);
+  float grainDensity = u_grainSize <= 1. ? mix(2000., 200., u_grainSize) : 200. / (u_grainSize * u_grainSize);
+  vec2 grainSize = grainDensity * vec2(1., 1. / u_imageAspectRatio);
   vec2 grainUV = v_imageUV - .5;
   grainUV *= grainSize;
   grainUV += .5;
   if (u_grainMixer > 0.) {
+    float grainMixer = min(u_grainMixer, 1.);
+    float grainReach = .3 * max(u_grainMixer - 1., 0.);
     float grain = valueNoise(grainUV);
-    grain = smoothstep(.55, .7 + .2 * u_grainMixer, grain);
-    grain *= u_grainMixer;
+    grain = smoothstep(.55 - grainReach, .7 + .2 * grainMixer - grainReach, grain);
+    grain *= grainMixer;
     finalShape = mix(finalShape, 0., grain);
   }
 
@@ -331,9 +339,9 @@ void main() {
 
     float grainOverlayV = grainOverlay * 2. - 1.;
     vec3 grainOverlayColor = vec3(step(0., grainOverlayV));
-    float grainOverlayStrength = u_grainOverlay * abs(grainOverlayV);
+    float grainOverlayStrength = (u_grainOverlay <= 1. ? u_grainOverlay : sqrt(u_grainOverlay)) * abs(grainOverlayV);
     grainOverlayStrength = pow(grainOverlayStrength, .8);
-    color = mix(color, grainOverlayColor, .5 * grainOverlayStrength);
+    color = mix(color, grainOverlayColor, min(1., .5 * grainOverlayStrength));
 
     opacity += .5 * grainOverlayStrength;
   }

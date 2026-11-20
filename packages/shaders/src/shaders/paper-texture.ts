@@ -23,17 +23,17 @@ export const paperTextureMeta = {
  * - u_angle (float): Direction the surface is lit from in degrees, also the roughness rows direction, needs crumples, wrinkles, folds, roughnessRows or drops > 0 (0 to 360)
  * - u_seed (float): Seed applied to every pattern (0 to 1000)
  * - u_roughness (float): Fine grain covering the surface evenly (0 to 1)
- * - u_roughnessSize (float): Scale of the roughness grain, needs roughness > 0 (0 to 1)
+ * - u_roughnessSize (float): Scale of the roughness grain, needs roughness > 0 (0 to 1, soft: keeps growing above 1)
  * - u_roughnessRows (float): Lines the roughness up into stripes, 0 = even scatter, 1 = laid-paper rows, needs roughness > 0 (0 to 1)
  * - u_fiber (float): Curly thread-like noise covering the surface evenly (0 to 1)
- * - u_fiberSize (float): Scale of the fiber noise, needs fiber > 0 (0 to 1)
+ * - u_fiberSize (float): Scale of the fiber noise, needs fiber > 0 (0 to 1, soft: keeps growing above 1)
  * - u_folds (float): Straight vertical and horizontal fold lines producing ridges and valleys (0 to 1)
- * - u_foldSizeX (float): Size of the vertical folds, needs folds > 0 (0 to 1)
- * - u_foldSizeY (float): Size of the horizontal folds, needs folds > 0 (0 to 1)
+ * - u_foldSizeX (float): Size of the vertical folds, needs folds > 0 (0 to 1, soft: keeps growing above 1)
+ * - u_foldSizeY (float): Size of the horizontal folds, needs folds > 0 (0 to 1, soft: keeps growing above 1)
  * - u_foldOffsetX (float): Shifts the vertical folds across the surface, needs folds > 0 (0 to 1)
  * - u_foldOffsetY (float): Shifts the horizontal folds across the surface, needs folds > 0 (0 to 1)
  * - u_wrinkles (float): Crumple-like facets repeating across the surface (0 to 1)
- * - u_wrinkleSize (float): Scale of the wrinkle facets, needs wrinkles > 0 (0 to 1)
+ * - u_wrinkleSize (float): Scale of the wrinkle facets, needs wrinkles > 0 (0 to 1, soft: keeps growing above 1)
  * - u_crumples (float): A set of irregular folding lines (0 to 1)
  * - u_crumpleCount (float): Number of facets in the crumple field, needs crumples > 0 (2 to 15)
  * - u_drops (float): Visibility of the speckle pattern, darkens the image instead of coloring it (0 to 1)
@@ -110,12 +110,16 @@ ${declarePI}
 ${proceduralHash21}
 ${proceduralHash22}
 
+float sizeScale(float size, float smallScale, float bigScale) {
+  return size <= 1. ? mix(smallScale, bigScale, size) : bigScale / size;
+}
+
 float getRoughness(vec2 p, vec2 lightDir, vec2 seedShift, float basePixel) {
   vec2 u = p / vec2(2, 4);
   float w = 100. * basePixel;
   float eps = 4. * w;
 
-  float size = mix(3.2, .8, u_roughnessSize);
+  float size = sizeScale(u_roughnessSize, 3.2, .8);
   float logLac = log2(2.1);
   float level = -log2(w + 1e-8) / logLac;
   float baseLevel = floor(level) - 2.;
@@ -163,7 +167,7 @@ float getRoughness(vec2 p, vec2 lightDir, vec2 seedShift, float basePixel) {
 }
 
 float getFiber(vec2 p, vec2 seedShift, float basePixel) {
-  float size = mix(4., 1., u_fiberSize);
+  float size = sizeScale(u_fiberSize, 4., 1.);
   float w = 50. * basePixel;
   float level = -log2(w + 1e-8);
   float baseLevel = floor(level) - 3.;
@@ -440,7 +444,7 @@ void main() {
   }
 
   if (u_wrinkles > 0.) {
-    float detailFreq = mix(10., 1., u_wrinkleSize);
+    float detailFreq = sizeScale(u_wrinkleSize, 10., 1.);
     float detailAmp = .2;
     vec2 detailGrad = vec2(0.);
     float detailDepth = 0., depthSum = 0.;
@@ -463,7 +467,7 @@ void main() {
 
   if (u_folds > 0.) {
     vec2 foldOffset = vec2(1. - 2. * u_foldOffsetX, 1. - 2. * u_foldOffsetY);
-    vec2 foldCount = vec2(mix(3., .5, u_foldSizeX), mix(3., .5, u_foldSizeY));
+    vec2 foldCount = vec2(sizeScale(u_foldSizeX, 3., .5), sizeScale(u_foldSizeY, 3., .5));
     vec2 foldNoise = .005 * warpNoise * foldCount;
     vec2 uv = patternUV + .03 * crumpleFlow;
 

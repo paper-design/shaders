@@ -22,7 +22,7 @@ export const staticRadialGradientMeta = {
  * - u_focalDistance (float): Distance of the focal point from center (0 to 3)
  * - u_focalAngle (float): Angle of the focal point in degrees, needs focalDistance > 0 (0 to 360)
  * - u_falloff (float): Gradient decay, 0 = equal color distribution (-1 to 1)
- * - u_mixing (float): Blending behavior, 0 = hard stripes, 1 = smooth gradient (0 to 1)
+ * - u_mixing (float): Blending behavior, 0 = hard stripes, 1 = smooth gradient, above 1 colors blend further into each other while the outer edge stays (0 to 1)
  * - u_distortion (float): Strength of radial distortion (0 to 1)
  * - u_distortionShift (float): Radial distortion offset, needs distortion > 0 (-1 to 1)
  * - u_distortionFreq (float): Radial distortion frequency, needs distortion > 0 (0 to 20)
@@ -101,6 +101,15 @@ vec2 getPosition(int i, float t) {
   return .5 + .5 * vec2(x, y);
 }
 
+float blendCurve(float mLinear, float width, float aa, float quadBlend) {
+  float t = clamp((mLinear - (0.5 - width - aa)) / (2. * width + 2. * aa), 0., 1.);
+  float p = 2. - quadBlend;
+  float m = t < 0.5
+    ? 0.5 * pow(2. * t, p)
+    : 1. - 0.5 * pow(2. * (1. - t), p);
+  return mix(m, m * m, 0.5 * quadBlend);
+}
+
 void main() {
   vec2 uv = 2. * v_objectUV;
   vec2 grainUV = uv * 1000.;
@@ -171,23 +180,18 @@ void main() {
   gradient.rgb *= gradient.a;
 
   float outerShape = 0.;
+  float quadBlend = clamp((u_mixing - 0.5) * 2., 0., 1.);
+  float edgeWidth = clamp(u_mixing, 0., .5);
+  float colorWidth = edgeWidth + max(u_mixing - 1., 0.);
   for (int i = 1; i < ${ staticRadialGradientMeta.maxColorCount + 1 }; i++) {
     if (i > int(u_colorsCount)) break;
     float mLinear = clamp(mixer - float(i - 1), 0.0, 1.0);
 
     float aa = fwidth(mLinear);
-    float width = min(u_mixing, 0.5);
-    float t = clamp((mLinear - (0.5 - width - aa)) / (2. * width + 2. * aa), 0., 1.);
-    float p = mix(2., 1., clamp((u_mixing - 0.5) * 2., 0., 1.));
-    float m = t < 0.5
-      ? 0.5 * pow(2. * t, p)
-      : 1. - 0.5 * pow(2. * (1. - t), p);
+    float m = blendCurve(mLinear, colorWidth, aa, quadBlend);
 
-    float quadBlend = clamp((u_mixing - 0.5) * 2., 0., 1.);
-    m = mix(m, m * m, 0.5 * quadBlend);
-    
     if (i == 1) {
-      outerShape = m;
+      outerShape = blendCurve(mLinear, edgeWidth, aa, quadBlend);
     }
 
     vec4 c = u_colors[i - 1];
@@ -209,9 +213,9 @@ void main() {
 
     float grainOverlayV = grainOverlay * 2. - 1.;
     vec3 grainOverlayColor = vec3(step(0., grainOverlayV));
-    float grainOverlayStrength = u_grainOverlay * abs(grainOverlayV);
+    float grainOverlayStrength = (u_grainOverlay <= 1. ? u_grainOverlay : sqrt(u_grainOverlay)) * abs(grainOverlayV);
     grainOverlayStrength = pow(grainOverlayStrength, .8);
-    color = mix(color, grainOverlayColor, .35 * grainOverlayStrength);
+    color = mix(color, grainOverlayColor, min(1., .35 * grainOverlayStrength));
 
     opacity += .5 * grainOverlayStrength;
   }

@@ -22,7 +22,7 @@ export const staticMeshGradientMeta = {
  * - u_waveXShift (float): Phase offset applied to the X-axis wave, needs waveX > 0 (0 to 1)
  * - u_waveY (float): Strength of sine wave distortion along Y axis (0 to 1)
  * - u_waveYShift (float): Phase offset applied to the Y-axis wave, needs waveY > 0 (0 to 1)
- * - u_mixing (float): Blending behavior, 0 = hard stripes, 0.5 = smooth, 1 = gradual blend (0 to 1)
+ * - u_mixing (float): Blending behavior, 0 = hard stripes, 0.5 = smooth, 1 = gradual blend, above 1 colors keep blending toward one average color, below 0 borders get crisper (0 to 1)
  * - u_grainMixer (float): Strength of grain distortion applied to shape edges (0 to 1)
  * - u_grainOverlay (float): Post-processing black/white grain overlay (0 to 1)
  *
@@ -117,25 +117,36 @@ void main() {
   float totalWeight = 0.;
   float positionSeed = 25. + .33 * u_positions;
 
+  float mixing = pow(clamp(u_mixing, 0., 1.), .7);
+  float power = mix(2., 1., mixing);
+  float flatten = 1. / pow(max(u_mixing, 1.), 2.);
+  float sharpen = exp2(3. * max(-u_mixing, 0.));
+
+  float weights[${ staticMeshGradientMeta.maxColorCount }];
+  float maxWeight = 1e-20;
   for (int i = 0; i < ${ staticMeshGradientMeta.maxColorCount }; i++) {
     if (i >= int(u_colorsCount)) break;
 
     vec2 pos = getPosition(i, positionSeed) + mixerGrain;
-    float dist = length(uv - pos);
-
-    vec3 colorFraction = u_colors[i].rgb * u_colors[i].a;
-    float opacityFraction = u_colors[i].a;
-
-    float mixing = pow(u_mixing, .7);
-    float power = mix(2., 1., mixing);
-    dist = pow(dist, power);
+    float dist = pow(length(uv - pos), power);
 
     float w = 1. / (dist + 1e-3);
     float baseSharpness = mix(.0, 8., clamp(w, 0., 1.));
     float sharpness = mix(baseSharpness, 1., mixing);
-    w = pow(w, sharpness);
-    color += colorFraction * w;
-    opacity += opacityFraction * w;
+    w = pow(w, sharpness * flatten);
+    weights[i] = w;
+    maxWeight = max(maxWeight, w);
+  }
+
+  for (int i = 0; i < ${ staticMeshGradientMeta.maxColorCount }; i++) {
+    if (i >= int(u_colorsCount)) break;
+
+    float w = weights[i];
+    if (sharpen > 1.) {
+      w = pow(w / maxWeight, sharpen);
+    }
+    color += u_colors[i].rgb * u_colors[i].a * w;
+    opacity += u_colors[i].a * w;
     totalWeight += w;
   }
 
@@ -149,9 +160,9 @@ void main() {
 
     float grainOverlayV = grainOverlay * 2. - 1.;
     vec3 grainOverlayColor = vec3(step(0., grainOverlayV));
-    float grainOverlayStrength = u_grainOverlay * abs(grainOverlayV);
+    float grainOverlayStrength = (u_grainOverlay <= 1. ? u_grainOverlay : sqrt(u_grainOverlay)) * abs(grainOverlayV);
     grainOverlayStrength = pow(grainOverlayStrength, .8);
-    color = mix(color, grainOverlayColor, .35 * grainOverlayStrength);
+    color = mix(color, grainOverlayColor, min(1., .35 * grainOverlayStrength));
 
     opacity += .5 * grainOverlayStrength;
   }
