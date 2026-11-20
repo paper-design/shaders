@@ -107,7 +107,7 @@ void main() {
   float shapeInner = 1. - smoothstep(baseSize - edgeWidth, baseSize + edgeWidth, dist);
   float stroke = shapeOuter - shapeInner;
 
-  float dotOpacity = max(0., 1. - opacity_randomizer * u_opacityRange);
+  float dotOpacity = clamp(1. - opacity_randomizer * u_opacityRange, 0., 1.);
   stroke *= dotOpacity;
   shapeInner *= dotOpacity;
 

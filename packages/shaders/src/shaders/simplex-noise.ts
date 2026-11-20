@@ -15,7 +15,7 @@ export const simplexNoiseMeta = {
  * - u_colors (vec4[]): Up to 10 base colors in RGBA
  * - u_colorsCount (float): Number of active colors
  * - u_stepsPerColor (float): Number of extra colors between base colors, 1 = N colors, 2 = 2×N, etc., needs 2+ colors (1 to 10)
- * - u_softness (float): Color transition sharpness, 0 = hard edge, 1 = smooth gradient, needs 2+ colors (0 to 1)
+ * - u_softness (float): Color transition sharpness, 0 = hard edge, 1 = smooth steps, 2 = steps fully blended into one gradient, needs 2+ colors (0 to 1, soft max 2)
  *
  * Vertex shader outputs (used in fragment shader):
  * - v_patternUV (vec2): UV coordinates for pattern with global sizing (rotation, scale, offset, etc) applied
@@ -63,7 +63,9 @@ float steppedSmooth(float m, float steps, float softness) {
   float stepT = floor(m * steps) / steps;
   float f = m * steps - floor(m * steps);
   float fw = steps * fwidth(m);
-  float smoothed = smoothstep(.5 - softness, min(1., .5 + softness + fw), f);
+  float s = clamp(softness, 0., .5);
+  float smoothed = smoothstep(.5 - s, min(1., .5 + s + fw), f);
+  smoothed = mix(smoothed, f, clamp(2. * softness - 1., 0., 1.));
   return stepT + smoothed / steps;
 }
 

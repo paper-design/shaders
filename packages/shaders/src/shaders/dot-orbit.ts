@@ -70,7 +70,7 @@ vec3 voronoiShape(vec2 uv, float time) {
   vec2 i_uv = floor(uv);
   vec2 f_uv = fract(uv);
 
-  float spreading = .25 * clamp(u_spreading, 0., 1.);
+  float spreading = .25 * u_spreading;
 
   float minDist = 1.;
   vec2 randomizer = vec2(0.);
@@ -104,7 +104,7 @@ void main() {
 
   vec3 voronoi = voronoiShape(shape_uv, t) + 1e-4;
 
-  float radius = .25 * clamp(u_size, 0., 1.) - .5 * clamp(u_sizeRange, 0., 1.) * voronoi[2];
+  float radius = .25 * u_size - .5 * u_sizeRange * voronoi[2];
   float dist = voronoi[0];
   float edgeWidth = fwidth(dist);
   float dots = 1. - smoothstep(radius - edgeWidth, radius + edgeWidth, dist);

@@ -104,7 +104,7 @@ void main() {
   float radius = length(shape_uv);
   float spots = 6.5 * abs(u_spotty);
 
-  float intensity = 4. - 3. * clamp(u_intensity, 0., 1.);
+  float intensity = max(4. - 3. * u_intensity, .05);
 
   float midSize = 10. * abs(u_midSize);
   float ms_lo = 0.02 * midSize;

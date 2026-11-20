@@ -27,7 +27,7 @@ export const pulsingBorderMeta = {
  * - u_intensity (float): Thickness of individual color spots (0 to 1)
  * - u_bloom (float): Power of glow, 0 = normal blending, 1 = additive blending (0 to 1)
  * - u_spots (float): Number of spots added for each color (1 to 4)
- * - u_spotSize (float): Angular size of spots (0 to 1)
+ * - u_spotSize (float): Angular size of spots, negative values shrink spots away, -1 = no spots (0 to 1)
  * - u_pulse (float): Optional pulsing animation intensity (0 to 1)
  * - u_smoke (float): Optional noisy shape extending the border (0 to 1)
  * - u_smokeSize (float): Size of the smoke effect, needs smoke > 0 (0 to 1)
@@ -215,6 +215,10 @@ void main() {
 
   float angle = atan(borderUV.y, borderUV.x) / TWO_PI;
 
+  float spotShrink = clamp(1. + u_spotSize, 0., 1.);
+  float spotGrow = max(u_spotSize, 0.);
+  spotGrow = .6 * spotGrow * spotGrow;
+
   for (int colorIdx = 0; colorIdx < ${ pulsingBorderMeta.maxColorCount }; colorIdx++) {
     if (colorIdx >= int(u_colorsCount)) break;
     float colorIdxF = float(colorIdx);
@@ -241,9 +245,10 @@ void main() {
       mask = mix(mask, pulse, p);
 
       float atg1 = fract(angle + time);
-      float spotSize = .05 + .6 * pow(u_spotSize, 2.) + .05 * randVal.x;
-      spotSize = mix(spotSize, .1, p);
+      float spotSize = (.05 + .05 * randVal.x) * spotShrink + spotGrow;
+      spotSize = max(mix(spotSize, .1, p), 1e-3);
       float sector = sst(.5 - spotSize, .5, atg1) * (1. - sst(.5, .5 + spotSize, atg1));
+      sector *= spotShrink;
 
       sector *= mask;
       sector *= border;

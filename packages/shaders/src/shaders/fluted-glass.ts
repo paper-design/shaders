@@ -16,7 +16,7 @@ import { declarePI, rotation2, proceduralHash21 } from '../shader-utils.js';
  * - u_colorHighlight (vec4): Highlights color in RGBA, needs highlights > 0
  * - u_shadows (float): Color gradient added over image and background, following distortion shape, needs colorShadow alpha > 0 (0 to 1)
  * - u_highlights (float): Thin strokes along distortion shape, useful for antialiasing on small grid (0 to 1)
- * - u_size (float): Size of the distortion shape grid (0 to 1)
+ * - u_size (float): Size of the distortion shape grid (0 to 1, soft max: above 1 flutes keep widening)
  * - u_shape (float): Grid shape (1 = lines, 2 = linesIrregular, 3 = wave, 4 = zigzag, 5 = pattern)
  * - u_angle (float): Direction of the grid relative to the image in degrees (0 to 180)
  * - u_distortionShape (float): Shape of distortion (1 = prism, 2 = lens, 3 = contour, 4 = cascade, 5 = flat)
@@ -160,7 +160,8 @@ float smoothFract(float x) {
 void main() {
 
   float patternRotation = -u_angle * PI / 180.;
-  float patternSize = mix(200., 5., u_size);
+  float patternSize = u_size <= 1. ? mix(200., 5., u_size) : 5. / u_size;
+  float aaSize = min(u_size, 1.);
 
   vec2 uv = v_imageUV;
 
@@ -239,7 +240,7 @@ void main() {
 
     frameFade = pow(1.5 * x, 3.);
     aa = max(.2, aa);
-    aa += mix(.2, 0., u_size);
+    aa += mix(.2, 0., aaSize);
     fadeX = smoothstep(0., aa, xNonSmooth) * smoothstep(1., 1. - aa, xNonSmooth);
     distortion = mix(.5, distortion, fadeX);
   } else if (u_distortionShape == 2.) {
@@ -248,7 +249,7 @@ void main() {
 
     frameFade = pow(abs(x - .5), 4.);
     aa = max(.2, aa);
-    aa += mix(.2, 0., u_size);
+    aa += mix(.2, 0., aaSize);
     fadeX = smoothstep(0., aa, xNonSmooth) * smoothstep(1., 1. - aa, xNonSmooth);
     distortion = mix(.5, distortion, fadeX);
     frameFade = mix(1., frameFade, .5 * fadeX);
@@ -259,7 +260,7 @@ void main() {
 
     frameFade = 1. - 2. * pow(abs(x - .4), 2.);
     aa = .15;
-    aa += mix(.1, 0., u_size);
+    aa += mix(.1, 0., aaSize);
     fadeX = smoothstep(0., aa, xNonSmooth) * smoothstep(1., 1. - aa, xNonSmooth);
     frameFade = mix(1., frameFade, fadeX);
 
@@ -280,7 +281,7 @@ void main() {
     shadows = pow(x, 2.5);
 
     aa = max(.1, aa);
-    aa += mix(.1, 0., u_size);
+    aa += mix(.1, 0., aaSize);
     fadeX = smoothstep(0., aa, xNonSmooth) * smoothstep(1., 1. - aa, xNonSmooth);
     distortion *= fadeX;
   }

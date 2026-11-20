@@ -167,7 +167,7 @@ void main() {
 
   float max_amp = get_max_amp(u_persistence, octCount);
   float noise_normalized = clamp((noise + max_amp) / max(1e-4, (2. * max_amp)) + (u_proportion - .5), 0.0, 1.0);
-  float sharpness = clamp(u_softness, 0., 1.);
+  float sharpness = max(u_softness, 0.);
   float smooth_w = 0.5 * max(fwidth(noise_normalized), 0.001);
   float res = smoothstep(
   .5 - .5 * sharpness - smooth_w,

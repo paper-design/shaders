@@ -24,7 +24,7 @@ export const gemSmokeMeta = {
  * - u_colorInner (vec4): Additional color inside the input shape, mixing with smoke (RGBA)
  * - u_offset (float): Vertical offset of smoke inside the shape, needs innerGlow > 0 (-1 to 1)
  * - u_angle (float): Smoke direction in degrees (0 to 360)
- * - u_size (float): Size of smoke shape relative to the image box (0 to 1)
+ * - u_size (float): Size of smoke shape relative to the image box (0 to 1, soft max: above 1 the smoke keeps growing)
  * - u_shape (float): Predefined shape mask, needs no image (0 = none, 1 = circle, 2 = daisy, 3 = diamond, 4 = metaballs)
  * - u_isImage (bool): Whether an image mask is provided; when true, u_shape is ignored
  *
@@ -199,7 +199,7 @@ void main() {
 // Smoke UV setup
   vec2 smokeUV = v_objectUV;
   smokeUV = rotate(smokeUV, u_angle * PI / 180.);
-  smokeUV *= mix(4., 1., u_size);
+  smokeUV *= u_size <= 1. ? mix(4., 1., u_size) : 1. / (u_size * u_size);
 
   // Two swirl paths: inner (shape-masked) and outer (free), each with independent distortion
   vec2 innerUV = smokeUV;
