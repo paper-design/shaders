@@ -8,7 +8,7 @@ import { declarePI, rotation2, proceduralHash21 } from '../shader-utils.js';
  * Fragment shader uniforms:
  * - u_image (sampler2D): Source image texture, premultiplied alpha
  * - u_imageAspectRatio (float): Aspect ratio of the source image
- * - u_imageIsHtml (float): 1 when u_image is HTML. HTML is drawn 1:1, so the grid and grain don't scale with the canvas.
+ * - u_imageIsHtml (bool): true when u_image is HTML. HTML is drawn 1:1, so the grid and grain don't scale with the canvas.
  *   They're anchored at originX / originY instead of the center, 0 0 being the top left like CSS
  * - u_colorFront (vec4): Foreground color in RGBA, needs originalColors off
  * - u_colorBack (vec4): Background color in RGBA
@@ -51,7 +51,7 @@ uniform float u_contrast;
 
 uniform sampler2D u_image;
 uniform float u_imageAspectRatio;
-uniform float u_imageIsHtml;
+uniform bool u_imageIsHtml;
 uniform float u_originX;
 uniform float u_originY;
 uniform vec2 u_resolution;
@@ -182,7 +182,7 @@ float getLumAtPx(vec2 uv, float contrast) {
 }
 
 vec2 getGridOrigin() {
-  return u_imageIsHtml == 1. ? vec2(u_originX, u_originY) : vec2(.5);
+  return u_imageIsHtml ? vec2(u_originX, u_originY) : vec2(.5);
 }
 
 float sizeToPx(float size) {
@@ -232,7 +232,7 @@ void main() {
 
   vec2 cssSize = u_resolution / u_pixelRatio;
   float cellsPerSide = mix(300., 7., pow(u_size, .7));
-  if (u_imageIsHtml == 1.) {
+  if (u_imageIsHtml) {
     cellsPerSide = cssSize.y / sizeToPx(u_size);
   }
   cellsPerSide /= stepMultiplier;
@@ -311,7 +311,7 @@ void main() {
   }
 
   vec2 grainSize = mix(2000., 200., u_grainSize) * vec2(1., 1. / u_imageAspectRatio);
-  if (u_imageIsHtml == 1.) {
+  if (u_imageIsHtml) {
     grainSize = mix(2000., 200., u_grainSize) * (cssSize / 1000.);
   }
   vec2 grainUV = v_imageUV - getGridOrigin();

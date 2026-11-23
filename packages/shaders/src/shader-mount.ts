@@ -373,13 +373,9 @@ export class ShaderMount implements SharedContextUser {
       this.frameHeight = newHeight;
       this.resolutionChanged = true;
 
-      // Drawn with the other shaders in the next frame, the canvas keeps its pixels until then (see SharedContext)
+      // Drawn in the next frame, the canvas keeps its pixels until then (see SharedContext). HTML is captured again at
+      // the new size, the browser doesn't repaint it by itself when only the pixel ratio changes
       this.requestRender();
-
-      // HTML is captured again at the new size. The browser doesn't repaint it by itself when only the pixel ratio changes
-      if (this.htmlUniforms.size > 0) {
-        (this.canvasElement as DrawableCanvasElement).requestPaint();
-      }
     }
   };
 
@@ -396,6 +392,7 @@ export class ShaderMount implements SharedContextUser {
 
     if (this.program === null) {
       console.warn('Tried to render before program or gl was initialized');
+      this.resolveReadyPromise();
       return;
     }
 
@@ -437,6 +434,29 @@ export class ShaderMount implements SharedContextUser {
     }
   };
 
+  /** Nothing can draw until the context is restored, so `ready` doesn't wait for it */
+  public handleContextLost = (): void => {
+    this.isFrameScheduled = false;
+    this.resolveReadyPromise();
+  };
+
+  /** The restored context has none of the old resources, so they're all created again from the provided uniforms */
+  public handleContextRestored = (): void => {
+    if (this.hasBeenDisposed) return;
+
+    this.program = null;
+    this.vertexArray = null;
+    this.positionBuffer = null;
+    this.textures.clear();
+    this.textureUnitMap.clear();
+    this.htmlUniforms.clear();
+    this.uniformCache = {};
+    this.resolutionChanged = true;
+
+    this.initGl();
+    this.requestRender();
+  };
+
   private bindTextures = () => {
     this.textures.forEach((texture, uniformName) => {
       this.gl.activeTexture(this.gl.TEXTURE0 + this.textureUnitMap.get(uniformName)!);
@@ -444,9 +464,14 @@ export class ShaderMount implements SharedContextUser {
     });
   };
 
+  /** HTML is captured and drawn in the canvas paint event, so a shader with HTML draws only there */
   private requestRender = () => {
     this.isFrameScheduled = true;
-    this.sharedContext.scheduleFrame(this);
+    if (this.htmlUniforms.size > 0) {
+      (this.canvasElement as DrawableCanvasElement).requestPaint();
+    } else {
+      this.sharedContext.scheduleFrame(this);
+    }
   };
 
   /** Creates a texture from an image and sets it into a uniform value */
@@ -455,7 +480,7 @@ export class ShaderMount implements SharedContextUser {
       throw new Error(`Paper Shaders: image for uniform ${uniformName} must be fully loaded`);
     }
 
-    this.htmlUniforms.delete(uniformName);
+    this.removeHtmlUniform(uniformName);
     const { texture, textureUnit } = this.createTexture(uniformName);
 
     // Upload image to texture
@@ -489,7 +514,7 @@ export class ShaderMount implements SharedContextUser {
         this.gl.uniform1f(aspectRatioLocation, aspectRatio);
       }
 
-      this.gl.uniform1f(this.uniformLocations[`${uniformName}IsHtml`] ?? null, 0);
+      this.gl.uniform1i(this.uniformLocations[`${uniformName}IsHtml`] ?? null, 0);
     }
   };
 
@@ -523,14 +548,14 @@ export class ShaderMount implements SharedContextUser {
 
   /** Captures the element, which has to be a child of the shader canvas, into the texture on every canvas paint */
   private setHtmlUniform = (uniformName: string, element: HTMLElement): void => {
-    this.htmlUniforms.delete(uniformName);
+    this.removeHtmlUniform(uniformName);
     const { texture, textureUnit } = this.createTexture(uniformName);
     if (texture === null) return;
 
     this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, 1, 1, 0, this.gl.RGBA, this.gl.UNSIGNED_BYTE, null);
     this.textures.set(uniformName, texture);
     this.gl.uniform1i(this.uniformLocations[uniformName] ?? null, textureUnit);
-    this.gl.uniform1f(this.uniformLocations[`${uniformName}IsHtml`] ?? null, 1);
+    this.gl.uniform1i(this.uniformLocations[`${uniformName}IsHtml`] ?? null, 1);
     this.setHtmlAspectRatio(uniformName);
 
     if (!isHtmlInCanvasSupported()) {
@@ -544,7 +569,14 @@ export class ShaderMount implements SharedContextUser {
     }
 
     this.htmlUniforms.set(uniformName, element);
-    (this.canvasElement as DrawableCanvasElement).requestPaint();
+    this.requestRender();
+  };
+
+  /** Without HTML left, a frame that waits for a paint is drawn in the shared render loop instead */
+  private removeHtmlUniform = (uniformName: string): void => {
+    if (this.htmlUniforms.delete(uniformName) && this.htmlUniforms.size === 0 && this.isFrameScheduled) {
+      this.sharedContext.scheduleFrame(this);
+    }
   };
 
   /** HTML is drawn 1:1, so its aspect ratio is the canvas aspect ratio. Needs this program in use */
@@ -577,13 +609,16 @@ export class ShaderMount implements SharedContextUser {
     });
   };
 
-  /** Captured and drawn within the paint event, so the captured HTML never shows in place of the frame */
+  /**
+   * Captured and drawn within the paint event, so the captured HTML never shows in place of the frame.
+   * Also the animation loop of a shader with HTML, `drawFrame` requests the next paint while animating
+   */
   private handleCanvasPaint = (): void => {
     if (this.hasBeenDisposed || this.htmlUniforms.size === 0) return;
 
+    this.isFrameScheduled = false;
     this.captureHtml();
-    // At the last frame's time, so an animation doesn't skip ahead
-    this.render(this.lastRenderTime);
+    this.render(performance.now());
   };
 
   /** Utility: recursive equality test for all the uniforms */
@@ -745,10 +780,13 @@ export class ShaderMount implements SharedContextUser {
     this.setUniformValues(newUniforms);
     this.providedUniforms = { ...this.providedUniforms, ...newUniforms };
 
-    this.renderUnlessAnimating();
+    // Drawn with the other shaders in the next frame, the canvas keeps its pixels until then
+    if (!this.isFrameScheduled) {
+      this.requestRender();
+    }
   };
 
-  /** Render right away only when the rAF loop isn't running */
+  /** Render right away only when no frame is scheduled, e.g. for frame by frame exports that capture right after */
   private renderUnlessAnimating = (): void => {
     if (!this.isFrameScheduled) {
       this.render(performance.now());
@@ -973,6 +1011,10 @@ export function isPaperShaderElement(element: HTMLElement): element is PaperShad
  *
  * We accept undefined as a convenience for server rendering, when some things may be undefined
  * We just skip setting the uniform if it's undefined. This allows the shader mount to still take up space during server rendering
+ *
+ * An image or HTML uniform `u_name` also sets these uniforms when the shader declares them:
+ * - `u_nameAspectRatio` (float): width / height of the image, or of the canvas for HTML, since HTML is drawn 1:1
+ * - `u_nameIsHtml` (bool): true when the uniform is HTML
  */
 export interface ShaderMountUniforms {
   [key: string]: boolean | number | number[] | number[][] | HTMLImageElement | HTMLElement | undefined;

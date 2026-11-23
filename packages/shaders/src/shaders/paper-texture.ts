@@ -14,7 +14,7 @@ export const paperTextureMeta = {
  * - u_image (sampler2D): Optional source image texture, premultiplied alpha
  * - u_isImage (bool): Whether a source image was provided
  * - u_imageAspectRatio (float): Aspect ratio of the source image
- * - u_imageIsHtml (float): 1 when u_image is HTML. HTML is drawn 1:1, so the surface detail (crumples, wrinkles, roughness,
+ * - u_imageIsHtml (bool): true when u_image is HTML. HTML is drawn 1:1, so the surface detail (crumples, wrinkles, roughness,
  *   fiber, drops) doesn't scale with the canvas. It's anchored at originX / originY instead of the center,
  *   0 0 being the top left like CSS. The folds are anchored there too,
  *   but keep their size relative to the frame, and so does the warp of the image. Wrinkles get much finer toward wrinkleSize 0
@@ -67,7 +67,7 @@ precision mediump float;
 uniform sampler2D u_image;
 uniform bool u_isImage;
 uniform float u_imageAspectRatio;
-uniform float u_imageIsHtml;
+uniform bool u_imageIsHtml;
 uniform vec2 u_resolution;
 uniform float u_pixelRatio;
 uniform float u_originX;
@@ -405,10 +405,10 @@ void getFolds(vec2 coord, vec2 offset, vec2 count, vec2 noise, vec2 baseFwidth, 
 
 void main() {
 
-  vec2 surfaceOrigin = u_imageIsHtml == 1. ? vec2(u_originX, u_originY) : vec2(.5);
+  vec2 surfaceOrigin = u_imageIsHtml ? vec2(u_originX, u_originY) : vec2(.5);
   vec2 patternUV = (v_imageUV - surfaceOrigin) * vec2(u_imageAspectRatio, 1.);
   vec2 surfaceUV = patternUV;
-  if (u_imageIsHtml == 1.) {
+  if (u_imageIsHtml) {
     surfaceUV *= u_resolution.y / u_pixelRatio / 1000.;
   }
   float basePixel = max(length(dFdx(surfaceUV)), length(dFdy(surfaceUV)));
@@ -455,7 +455,7 @@ void main() {
 
   if (u_wrinkles > 0.) {
     float detailFreq = mix(10., 1., u_wrinkleSize);
-    if (u_imageIsHtml == 1.) {
+    if (u_imageIsHtml) {
       detailFreq *= mix(4., 1., smoothstep(0., .5, u_wrinkleSize));
     }
     float detailAmp = .2;
@@ -551,7 +551,7 @@ void main() {
   color += baseColor * (1. - opacity);
   opacity += baseOpacity * (1. - opacity);
 
-  if (u_isImage || u_imageIsHtml == 1.) {
+  if (u_isImage || u_imageIsHtml) {
     float frame = getUvFrame(imageUV);
     vec4 image = texture(u_image, imageUV);
     image.rgb /= max(image.a, .0001);

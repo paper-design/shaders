@@ -24,7 +24,7 @@ import { proceduralHash21, declarePI } from '../shader-utils.js';
  * - u_offsetY (float): Vertical offset of the graphics center (-1 to 1)
  * - u_image (sampler2D): Source image texture, premultiplied alpha
  * - u_imageAspectRatio (float): Aspect ratio of the source image
- * - u_imageIsHtml (float): 1 when u_image is HTML, drawn 1:1 without the sizing uniforms. The dithering grid is anchored
+ * - u_imageIsHtml (bool): true when u_image is HTML, drawn 1:1 without the sizing uniforms. The dithering grid is anchored
  *   at originX / originY instead of the center, 0 0 being the top left like CSS
  * - u_colorFront (vec4): Foreground color in RGBA, needs originalColors off
  * - u_colorBack (vec4): Background color in RGBA, needs originalColors off
@@ -58,7 +58,7 @@ uniform vec4 u_colorHighlight;
 
 uniform sampler2D u_image;
 uniform float u_imageAspectRatio;
-uniform float u_imageIsHtml;
+uniform bool u_imageIsHtml;
 
 uniform float u_type;
 uniform float u_pxSize;
@@ -114,7 +114,7 @@ vec2 getImageUV(vec2 uv) {
   imageUV = graphicRotation * imageUV;
   imageUV.x /= u_imageAspectRatio;
 
-  if (u_imageIsHtml == 1.) imageUV = uv;
+  if (u_imageIsHtml) imageUV = uv;
 
   imageUV += .5;
   imageUV.y = 1. - imageUV.y;
@@ -160,14 +160,14 @@ void main() {
 
   float pxSize = u_pxSize * u_pixelRatio;
   vec2 gridOrigin = .5 * u_resolution;
-  if (u_imageIsHtml == 1.) {
+  if (u_imageIsHtml) {
     gridOrigin = vec2(u_originX, 1. - u_originY) * u_resolution;
   }
   vec2 pxSizeUV = gl_FragCoord.xy - gridOrigin;
   pxSizeUV /= pxSize;
   vec2 gridPixelizedUV = (floor(pxSizeUV) + .5) * pxSize;
   vec2 canvasPixelizedUV = gridPixelizedUV;
-  if (u_imageIsHtml == 1.) {
+  if (u_imageIsHtml) {
     canvasPixelizedUV = gridPixelizedUV + gridOrigin - .5 * u_resolution;
   }
   vec2 normalizedUV = canvasPixelizedUV / u_resolution;

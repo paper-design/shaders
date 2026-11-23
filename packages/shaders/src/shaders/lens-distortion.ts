@@ -14,7 +14,7 @@ export const lensDistortionMeta = {
  *
  * Fragment shader uniforms:
  * - u_image (sampler2D): Source image texture, premultiplied alpha
- * - u_imageIsHtml (float): 1 when u_image is HTML. HTML is drawn 1:1, so the spread and its noise don't scale with the
+ * - u_imageIsHtml (bool): true when u_image is HTML. HTML is drawn 1:1, so the spread and its noise don't scale with the
  *   canvas. The lens itself (bulge, circle, focus zones) belongs to the frame, so it stays relative to the frame and centered in it
  * - u_spread (float): Strength of the color split; how far the color layers are pushed apart; 0 is off (0 to 1)
  * - u_bias (float): Shifts the colors toward one end of the spread; 0 spaces them evenly, needs spread > 0, count > 2 (-1 to 1)
@@ -60,7 +60,7 @@ precision mediump float;
 
 uniform sampler2D u_image;
 uniform float u_imageAspectRatio;
-uniform float u_imageIsHtml;
+uniform bool u_imageIsHtml;
 uniform vec2 u_resolution;
 uniform float u_pixelRatio;
 uniform float u_spread;
@@ -225,7 +225,7 @@ void main() {
   float inradius = boxInradius();
   float outradius = boxOutradius();
   float htmlScale = 1.;
-  if (u_imageIsHtml == 1.) {
+  if (u_imageIsHtml) {
     htmlScale = u_resolution.y / u_pixelRatio / 1000.;
   }
   float reach = spreadReach() / htmlScale;

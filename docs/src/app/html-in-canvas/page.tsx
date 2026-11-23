@@ -127,7 +127,11 @@ const vanillaMarkup = `<div id="shader" style="height: 400px">
   </canvas>
 </div>`;
 
-const vanillaScript = `import { ShaderMount, waterFragmentShader } from '@paper-design/shaders';
+const vanillaScript = `import {
+  ShaderMount,
+  observeHtmlContent,
+  waterFragmentShader,
+} from '@paper-design/shaders';
 
 const shader = document.querySelector('#shader');
 const content = shader.querySelector('[drawable]');
@@ -135,7 +139,8 @@ const content = shader.querySelector('[drawable]');
 new ShaderMount(shader, waterFragmentShader, {
   u_image: content,
   // ...and the rest of the shader's uniforms
-});`;
+});
+observeHtmlContent(shader, content);`;
 
 const limits: { lead: ReactNode; text?: ReactNode; code?: string }[] = [
   {
@@ -357,10 +362,11 @@ export default function HtmlInCanvasPage() {
           </p>
           <p>
             Unsupported browsers don&apos;t get a fallback automatically: move your content out of the canvas yourself so it still shows.
-            Sizing to content doesn&apos;t happen automatically either: call <Code>observeContentSize(shader, content)</Code>{' '}
-            from <Code>@paper-design/shaders</Code>, set <Code>data-size-to-content</Code> on the shader element, and size
-            it with <Code>var(--paper-shader-content-width)</Code> or <Code>var(--paper-shader-content-height)</Code>. The inner div inherits the shader element&apos;s layout styles, but
-            not its padding: put the padding on the inner div.
+            The inner div inherits the shader element&apos;s layout styles; <Code>observeHtmlContent(shader, content)</Code>{' '}
+            from <Code>@paper-design/shaders</Code> copies its padding too. To size to content, pass{' '}
+            <Code>sizeToContent</Code> as the third argument, set <Code>data-size-to-content</Code> on the shader element,
+            and size it with <Code>var(--paper-shader-content-width)</Code> or{' '}
+            <Code>var(--paper-shader-content-height)</Code>.
           </p>
           <CodeFile name="index.html" code={vanillaMarkup} />
           <CodeFile name="index.js" code={vanillaScript} />

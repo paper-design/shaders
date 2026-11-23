@@ -9,7 +9,7 @@ import { declarePI, rotation2, simplexNoise } from '../shader-utils.js';
  * - u_time (float): Animation time
  * - u_image (sampler2D): Optional source image texture, premultiplied alpha
  * - u_imageAspectRatio (float): Aspect ratio of the source image
- * - u_imageIsHtml (float): 1 when u_image is HTML. HTML is drawn 1:1, so the ripples and their distortion don't scale with the
+ * - u_imageIsHtml (bool): true when u_image is HTML. HTML is drawn 1:1, so the ripples and their distortion don't scale with the
  *   canvas. They're anchored at originX / originY instead of the center, 0 0 being the top left like CSS
  * - u_colorBack (vec4): Background color in RGBA
  * - u_colorHighlight (vec4): Highlight color in RGBA, needs highlights > 0
@@ -50,7 +50,7 @@ uniform vec4 u_colorHighlight;
 
 uniform sampler2D u_image;
 uniform float u_imageAspectRatio;
-uniform float u_imageIsHtml;
+uniform bool u_imageIsHtml;
 uniform vec2 u_resolution;
 uniform float u_pixelRatio;
 uniform float u_originX;
@@ -109,7 +109,7 @@ void main() {
   vec2 imageUV = v_imageUV;
   vec2 htmlScale = vec2(1.);
   vec2 patternUV = v_imageUV;
-  if (u_imageIsHtml == 1.) {
+  if (u_imageIsHtml) {
     htmlScale = u_resolution / u_pixelRatio / 1000.;
     patternUV -= vec2(u_originX, u_originY);
     patternUV *= vec2(u_imageAspectRatio, 1.);

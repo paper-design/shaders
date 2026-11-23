@@ -1,7 +1,12 @@
 'use client';
 
 import { Children, useLayoutEffect, useRef, useSyncExternalStore } from 'react';
-import { isHtmlInCanvasSupported, observeContentSize, type ShaderSizeToContent } from '@paper-design/shaders';
+import {
+  isHtmlInCanvasSupported,
+  observeHtmlContent,
+  type HtmlContentObserver,
+  type ShaderSizeToContent,
+} from '@paper-design/shaders';
 
 const subscribeToNothing = () => () => {};
 // Assumed on the server, so that supporting browsers don't re-render the canvas after hydration
@@ -15,7 +20,7 @@ const isSupportedOnServer = () => true;
  * padding copied over, since the canvas covers the padding. So the children lay out as if the shader held them.
  *
  * The content element fills the shader, except on the axes sized to content: there it takes the size of the children,
- * and the shader follows it (see `observeContentSize`).
+ * and the shader follows it (see `observeHtmlContent`).
  */
 export function useHtmlChildren(
   acceptsHtmlChildren: boolean,
@@ -34,44 +39,26 @@ export function useHtmlChildren(
   const hasChildren = acceptsHtmlChildren && Children.toArray(children).length > 0;
   const hasHtmlChildren = hasChildren && isSupported;
 
-  const copyPadding = () => {
-    const shader = shaderRef.current;
-    const content = contentRef.current;
-    if (!shader || !content) {
-      return;
-    }
-    const style = getComputedStyle(shader);
-    const padding = `${style.paddingTop} ${style.paddingRight} ${style.paddingBottom} ${style.paddingLeft}`;
-    if (content.style.padding !== padding) {
-      content.style.padding = padding;
-    }
-  };
+  const observerRef = useRef<HtmlContentObserver | null>(null);
 
-  // After every render, since a style or class change can change the padding
-  useLayoutEffect(copyPadding);
-
-  // Padding can also change without a render, e.g. from a media query
   useLayoutEffect(() => {
     const shader = shaderRef.current;
     const content = contentRef.current;
     if (!shader || !content) {
       return;
     }
-    const observer = new ResizeObserver(copyPadding);
-    observer.observe(shader);
-    observer.observe(content, { box: 'border-box' });
-    return () => observer.disconnect();
-  }, [hasChildren, hasHtmlChildren, shaderRef]);
-
-  useLayoutEffect(() => {
-    const content = contentRef.current;
-    const shader = shaderRef.current;
-    if (!content || !shader || !sizeToContent) {
-      return;
-    }
-
-    return observeContentSize(shader, content);
+    const observer = observeHtmlContent(shader, content, sizeToContent);
+    observerRef.current = observer;
+    return () => {
+      observer.disconnect();
+      observerRef.current = null;
+    };
   }, [hasChildren, hasHtmlChildren, sizeToContent, shaderRef]);
+
+  // After every render, since a style or class change can change the padding without resizing anything
+  useLayoutEffect(() => {
+    observerRef.current?.update();
+  });
 
   const addHtmlUniform = <T extends object>(uniforms: T): T =>
     hasHtmlChildren && contentRef.current ? { ...uniforms, u_image: contentRef.current } : uniforms;

@@ -241,7 +241,7 @@ export const ShaderMount: React.FC<ShaderMountProps> = forwardRef<PaperShaderEle
       shaderMountRef.current?.setMinPixelRatio(minPixelRatio);
     }, [minPixelRatio, isInitialized]);
 
-    // Display Scale
+    // Resolution Scale
     useEffect(() => {
       shaderMountRef.current?.setResolutionScale(resolutionScale);
     }, [resolutionScale, isInitialized]);
