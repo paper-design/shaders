@@ -5,6 +5,7 @@ import { ShaderDef, ParamOption, ParamDef } from '../shader-defs/shader-def-type
 import { CopyButton } from './copy-button';
 import { hslToHex } from '@/helpers/color-utils';
 import { commonParams } from '@/shader-defs/common-param-def';
+import { highlightJsx } from '@/helpers/highlight-code';
 
 const formatJsxAttribute = (key: string, value: unknown): string => {
   if (value === true) {
@@ -184,9 +185,10 @@ export function ShaderDetails({
           />
         </div>
         <div className="flex flex-col gap-8">
-          <pre className="custom-scrollbar overflow-x-auto rounded-xl bg-backplate-1 p-24 text-code squircle:rounded-2xl">
-            {code}
-          </pre>
+          <pre
+            className="syntax-highlight custom-scrollbar overflow-x-auto rounded-xl bg-backplate-1 p-24 text-code squircle:rounded-2xl"
+            dangerouslySetInnerHTML={{ __html: highlightJsx(code) }}
+          />
         </div>
       </section>
 

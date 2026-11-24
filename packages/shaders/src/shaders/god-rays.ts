@@ -86,7 +86,7 @@ float valueNoise(vec2 st) {
 
 ${ proceduralHash11 }
 
-float raysShape(vec2 uv, float r, float freq, float intensity, float radius) {
+float raysShape(vec2 uv, float r, float freq, float intensity) {
   float a = atan(uv.y, uv.x);
   vec2 left = vec2(a * freq, r);
   vec2 right = vec2(fract(a / TWO_PI) * TWO_PI * freq, r);
@@ -105,8 +105,6 @@ void main() {
   float spots = 6.5 * abs(u_spotty);
 
   float intensity = 4. - 3. * clamp(u_intensity, 0., 1.);
-
-  float delta = 1. - smoothstep(0., 1., radius);
 
   float midSize = 10. * abs(u_midSize);
   float ms_lo = 0.02 * midSize;
@@ -127,8 +125,8 @@ void main() {
     float density = 6. * u_density + step(.5, u_density) * pow(4.5 * (u_density - .5), 4.);
     float f = mix(1.0, 3.0 + 0.5 * float(i), hash11(float(i) * 15.)) * density;
 
-    float ray = raysShape(rotatedUV, r1, 5.0 * f, intensity, radius);
-    ray *= raysShape(rotatedUV, r2, 4.0 * f, intensity, radius);
+    float ray = raysShape(rotatedUV, r1, 5.0 * f, intensity);
+    ray *= raysShape(rotatedUV, r2, 4.0 * f, intensity);
     ray += (1. + 4. * ray) * middleShape;
     ray = clamp(ray, 0.0, 1.0);
 

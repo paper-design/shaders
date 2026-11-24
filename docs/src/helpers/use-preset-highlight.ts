@@ -14,10 +14,6 @@ export const usePresetHighlight = (presets: Record<string, any>[], levaParams: R
               ? value.replace('hsla', 'hsl').slice(0, -4) + ')'
               : value;
 
-          if (key === 'speed') {
-            return presetValue === levaValue * (levaParams.reverse ? -1 : 1);
-          }
-
           return presetValue === levaValue;
         });
       });

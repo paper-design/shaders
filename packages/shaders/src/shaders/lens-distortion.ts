@@ -13,7 +13,7 @@ export const lensDistortionMeta = {
  * curving it outward or inward like barrel and pincushion distortion.
  *
  * Fragment shader uniforms:
- * - u_image (sampler2D): Source image texture
+ * - u_image (sampler2D): Source image texture, premultiplied alpha
  * - u_spread (float): Strength of the color split; how far the color layers are pushed apart; 0 is off (0 to 1)
  * - u_bias (float): Shifts the colors toward one end of the spread; 0 spaces them evenly, needs spread > 0, count > 2 (-1 to 1)
  * - u_angle (float): Direction of the spread in degrees, needs spread > 0, perspective < 1 (0 to 360)
@@ -107,9 +107,9 @@ float getUvFrame(vec2 uv) {
 
 vec4 sampleOverWhite(vec2 uv) {
   vec4 img = texture(u_image, uv);
-  float cover = img.a * getUvFrame(uv);
-  vec3 colorOverWhite = mix(vec3(1.), img.rgb, cover);
-  return vec4(colorOverWhite, cover);
+  float frame = getUvFrame(uv);
+  float cover = img.a * frame;
+  return vec4(1. - cover + img.rgb * frame, cover);
 }
 
 vec3 hueColor(float hue) {
