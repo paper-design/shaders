@@ -29,7 +29,7 @@ export const spiralDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.density,
-      description: 'Spacing of the turns (1 = evenly spaced, lower = denser toward the center, 0 = single radial sector)',
+      description: 'Spacing falloff simulating perspective (0 = flat spiral)',
     },
     {
       name: 'distortion',
@@ -53,7 +53,7 @@ export const spiralDef: ShaderDef = {
       min: 0,
       max: 1,
       defaultValue: defaultParams.strokeTaper,
-      description: 'How much the stroke thins away from the center (0 = constant width)',
+      description: 'How much the stroke thins away from center (0 = full visibility)',
     },
     {
       name: 'strokeCap',
@@ -86,13 +86,6 @@ export const spiralDef: ShaderDef = {
       max: 1,
       defaultValue: defaultParams.softness,
       description: 'Color transition sharpness (0 = hard edge, 1 = smooth gradient)',
-    },
-    {
-      name: 'reversed',
-      type: 'boolean',
-      defaultValue: defaultParams.reversed,
-      description: 'Winds the spiral in the opposite direction',
-      options: ['true', 'false'],
     },
     ...animatedCommonParams,
   ],

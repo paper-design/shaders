@@ -26,7 +26,7 @@ import { simplexNoise, declarePI, colorBandingFix } from '../shader-utils.js';
  * - u_time (float): Animation time
  * - u_colorBack (vec4): Background color in RGBA
  * - u_colorFront (vec4): Foreground (ink) color in RGBA
- * - u_density (float): Spacing of the turns, 1 = evenly spaced, lower = denser toward the center, 0 = single radial sector (0 to 1)
+ * - u_density (float): Spacing falloff simulating perspective, 0 = flat spiral (0 to 1)
  * - u_distortion (float): Power of shape distortion applied along the spiral (0 to 1)
  * - u_strokeWidth (float): Thickness of spiral curve (0 to 1)
  * - u_strokeTaper (float): How much the stroke thins away from the center, 0 = constant width (0 to 1)
@@ -34,7 +34,6 @@ import { simplexNoise, declarePI, colorBandingFix } from '../shader-utils.js';
  * - u_noise (float): Noise distortion applied over the canvas, needs noiseFrequency > 0 (0 to 1)
  * - u_noiseFrequency (float): Noise frequency, needs noise > 0 (0 to 1)
  * - u_softness (float): Color transition sharpness, 0 = hard edge, 1 = smooth gradient (0 to 1)
- * - u_reversed (bool): Winds the spiral in the opposite direction
  *
  */
 
@@ -50,7 +49,6 @@ uniform float u_density;
 uniform float u_distortion;
 uniform float u_strokeWidth;
 uniform float u_strokeCap;
-uniform bool u_reversed;
 uniform float u_strokeTaper;
 uniform float u_noise;
 uniform float u_noiseFrequency;
@@ -65,9 +63,6 @@ ${ simplexNoise }
 
 void main() {
   vec2 uv = 2. * v_patternUV;
-  if (u_reversed) {
-    uv.y = -uv.y;
-  }
 
   float t = u_time;
   float r = max(length(uv), 1e-6);
@@ -167,7 +162,6 @@ export interface SpiralUniforms extends ShaderSizingUniforms {
   u_strokeWidth: number;
   u_strokeTaper: number;
   u_strokeCap: number;
-  u_reversed: boolean;
   u_noise: number;
   u_noiseFrequency: number;
   u_softness: number;
@@ -184,5 +178,4 @@ export interface SpiralParams extends ShaderSizingParams, ShaderMotionParams {
   noise?: number;
   noiseFrequency?: number;
   softness?: number;
-  reversed?: boolean;
 }

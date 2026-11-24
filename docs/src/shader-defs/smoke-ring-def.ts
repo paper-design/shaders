@@ -63,13 +63,6 @@ export const smokeRingDef: ShaderDef = {
       defaultValue: defaultParams.noiseScale,
       description: 'The noise frequency',
     },
-    {
-      name: 'inward',
-      type: 'boolean',
-      defaultValue: defaultParams.inward,
-      description: 'Smoke flows toward the center instead of outward (needs speed ≠ 0)',
-      options: ['true', 'false'],
-    },
     ...animatedCommonParams,
   ],
 };

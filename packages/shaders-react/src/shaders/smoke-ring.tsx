@@ -29,7 +29,6 @@ export const defaultPreset: SmokeRingPreset = {
     radius: 0.25,
     thickness: 0.65,
     innerShape: 0.7,
-    inward: false,
     scale: 0.8,
   },
 };
@@ -47,7 +46,6 @@ export const solarPreset: SmokeRingPreset = {
     radius: 0.4,
     thickness: 0.8,
     innerShape: 4,
-    inward: false,
     scale: 2,
     offsetY: 1,
   },
@@ -65,7 +63,6 @@ export const linePreset: SmokeRingPreset = {
     radius: 0.38,
     thickness: 0.01,
     innerShape: 0.88,
-    inward: false,
     speed: 4,
   },
 };
@@ -82,7 +79,6 @@ export const cloudPreset: SmokeRingPreset = {
     radius: 0.5,
     thickness: 0.65,
     innerShape: 0.85,
-    inward: false,
     speed: 0.5,
     scale: 2.5,
   },
@@ -101,7 +97,6 @@ export const SmokeRing: React.FC<SmokeRingProps> = memo(function SmokeRingImpl({
   radius = defaultPreset.params.radius,
   innerShape = defaultPreset.params.innerShape,
   noiseIterations = defaultPreset.params.noiseIterations,
-  inward = defaultPreset.params.inward,
 
   // Sizing props
   fit = defaultPreset.params.fit,
@@ -125,7 +120,6 @@ export const SmokeRing: React.FC<SmokeRingProps> = memo(function SmokeRingImpl({
     u_radius: radius,
     u_innerShape: innerShape,
     u_noiseIterations: noiseIterations,
-    u_inward: inward,
     u_noiseTexture: getShaderNoiseTexture(),
 
     // Sizing uniforms

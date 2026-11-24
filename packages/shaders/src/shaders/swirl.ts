@@ -22,7 +22,6 @@ export const swirlMeta = {
  * - u_softness (float): Color transition sharpness, 0 = hard edge, 1 = smooth gradient (0 to 1)
  * - u_noise (float): Strength of noise distortion, needs noiseFrequency > 0 (0 to 1)
  * - u_noiseFrequency (float): Noise frequency, needs noise > 0 (0 to 1)
- * - u_reversed (bool): Twists the bands in the opposite direction, needs bandCount > 0
  *
  * Vertex shader outputs (used in fragment shader):
  * - v_objectUV (vec2): Object box UV coordinates with global sizing (scale, rotation, offsets, etc) applied
@@ -52,7 +51,6 @@ uniform vec4 u_colorBack;
 uniform vec4 u_colors[${ swirlMeta.maxColorCount }];
 uniform float u_colorsCount;
 uniform float u_bandCount;
-uniform bool u_reversed;
 uniform float u_twist;
 uniform float u_center;
 uniform float u_proportion;
@@ -76,8 +74,7 @@ void main() {
 
   float t = u_time;
 
-  float bandCount = u_reversed ? -ceil(u_bandCount) : ceil(u_bandCount);
-  float angle = bandCount * atan(shape_uv.y, shape_uv.x) + t;
+  float angle = ceil(u_bandCount) * atan(shape_uv.y, shape_uv.x) + t;
   float angle_norm = angle / TWO_PI;
 
   float twist = 3. * clamp(u_twist, 0., 1.);
@@ -140,7 +137,6 @@ export interface SwirlUniforms extends ShaderSizingUniforms {
   u_colors: vec4[];
   u_colorsCount: number;
   u_bandCount: number;
-  u_reversed: boolean;
   u_twist: number;
   u_center: number;
   u_proportion: number;
@@ -159,5 +155,4 @@ export interface SwirlParams extends ShaderSizingParams, ShaderMotionParams {
   softness?: number;
   noiseFrequency?: number;
   noise?: number;
-  reversed?: boolean;
 }

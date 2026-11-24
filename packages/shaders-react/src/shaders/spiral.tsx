@@ -30,7 +30,6 @@ export const defaultPreset: SpiralPreset = {
     noise: 0,
     noiseFrequency: 0.3,
     softness: 0,
-    reversed: false,
     speed: 1,
     frame: 0,
   },
@@ -50,7 +49,6 @@ export const dropletPreset: SpiralPreset = {
     noise: 0.74,
     noiseFrequency: 0.33,
     softness: 0.02,
-    reversed: false,
     speed: 1,
     frame: 0,
   },
@@ -71,7 +69,6 @@ export const junglePreset: SpiralPreset = {
     noise: 1,
     noiseFrequency: 0.25,
     softness: 0,
-    reversed: false,
     speed: 0.75,
     frame: 0,
   },
@@ -92,7 +89,6 @@ export const swirlPreset: SpiralPreset = {
     noise: 0,
     noiseFrequency: 0.3,
     softness: 0.5,
-    reversed: false,
     speed: 1,
     frame: 0,
   },
@@ -114,7 +110,6 @@ export const Spiral: React.FC<SpiralProps> = memo(function SpiralImpl({
   noiseFrequency = defaultPreset.params.noiseFrequency,
   noise = defaultPreset.params.noise,
   softness = defaultPreset.params.softness,
-  reversed = defaultPreset.params.reversed,
 
   // Sizing props
   fit = defaultPreset.params.fit,
@@ -140,7 +135,6 @@ export const Spiral: React.FC<SpiralProps> = memo(function SpiralImpl({
     u_noiseFrequency: noiseFrequency,
     u_noise: noise,
     u_softness: softness,
-    u_reversed: reversed,
 
     // Sizing uniforms
     u_fit: ShaderFitOptions[fit],
