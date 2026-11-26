@@ -15,8 +15,23 @@ const DEFAULT_CONTEXT_ATTRIBUTES: WebGLContextAttributes = {
 /** Shaders are laid out in rows up to this size, a larger shader gets the area to itself */
 const MAX_ATLAS_SIZE = 4096;
 
+/**
+ * Browsers give a canvas larger than about this many pixels a smaller drawing buffer, which would misplace every shader
+ * in it. Chrome scales it down past 2^25, Safari past 4096 * 4096
+ */
+const MAX_CANVAS_AREA = MAX_ATLAS_SIZE * MAX_ATLAS_SIZE;
+
 /** How long the canvas and the frame texture have to be oversized before they shrink */
 const SHRINK_DELAY_MS = 1000;
+
+/**
+ * With more shaders than this drawn together, the canvas and the frame texture grow with room to spare: zooming in
+ * resizes them one after another, and growing to the exact size each time reallocates every few frames
+ */
+const MANY_SHADERS = 10;
+
+/** Room to spare per side, under the twice the area needed that makes them shrink again */
+const GROWTH_HEADROOM = 1.4;
 
 /** A shader drawing with a shared context */
 export interface SharedContextUser {
@@ -162,6 +177,7 @@ export class SharedContext {
     if (this.isLost) return;
 
     let slots: Slot[] = [];
+    const oversizedSlots: Slot[] = [];
     let x = 0;
     let y = 0;
     let rowHeight = 0;
@@ -174,6 +190,13 @@ export class SharedContext {
       if (width === 0 || height === 0) {
         user.canvasElement.width = width;
         user.canvasElement.height = height;
+        continue;
+      }
+
+      // Drawn on its own, rows of shaders next to it would make the canvas too large
+      const isOversized = width > MAX_ATLAS_SIZE || height > MAX_ATLAS_SIZE;
+      if (isOversized) {
+        oversizedSlots.push({ user, x: 0, y: 0, width, height });
         continue;
       }
 
@@ -200,6 +223,10 @@ export class SharedContext {
     }
 
     this.drawAndCopySlots(slots, time);
+
+    for (const slot of oversizedSlots) {
+      this.drawAndCopySlots([slot], time);
+    }
   };
 
   private drawAndCopySlots = (slots: Slot[], time: number): void => {
@@ -217,10 +244,26 @@ export class SharedContext {
     }
     this.shrinkUnusedSpace(right, bottom, slotWidth, slotHeight);
 
+    const headroom = slots.length > MANY_SHADERS ? GROWTH_HEADROOM : 1;
+
     // Grows before drawing, as resizing clears the canvas
     if (this.canvas.width < right || this.canvas.height < bottom) {
-      this.canvas.width = Math.max(this.canvas.width, right);
-      this.canvas.height = Math.max(this.canvas.height, bottom);
+      const [width, height] = getGrownSize(this.canvas.width, this.canvas.height, right, bottom, headroom);
+      this.canvas.width = width;
+      this.canvas.height = height;
+    }
+
+    // Once for the largest shader, instead of again for each larger one
+    if (this.frameTextureWidth < slotWidth || this.frameTextureHeight < slotHeight) {
+      const [width, height] = getGrownSize(
+        this.frameTextureWidth,
+        this.frameTextureHeight,
+        slotWidth,
+        slotHeight,
+        headroom
+      );
+      this.ensureFrameTexture();
+      this.allocateFrameTexture(width, height);
     }
 
     for (const slot of slots) {
@@ -297,12 +340,16 @@ export class SharedContext {
     this.usedTextureHeight = 0;
   };
 
-  /** Binds a framebuffer of at least this size to draw a shader into */
-  private bindFrameTarget = (width: number, height: number): void => {
+  private ensureFrameTexture = (): void => {
     if (!this.frameFramebuffer || !this.frameTexture) {
       this.frameTexture = this.gl.createTexture();
       this.frameFramebuffer = this.gl.createFramebuffer();
     }
+  };
+
+  /** Binds a framebuffer of at least this size to draw a shader into */
+  private bindFrameTarget = (width: number, height: number): void => {
+    this.ensureFrameTexture();
 
     if (this.frameTextureWidth < width || this.frameTextureHeight < height) {
       this.allocateFrameTexture(Math.max(this.frameTextureWidth, width), Math.max(this.frameTextureHeight, height));
@@ -362,6 +409,32 @@ export class SharedContext {
     }
     this.scheduledUsers.clear();
   };
+}
+
+/**
+ * Keeps the current size where it's larger, so sizes changing back and forth don't reallocate. A wide area from one draw
+ * and a tall one from another could add up to more than the canvas can be, then it's just the size needed
+ */
+function getGrownSize(
+  currentWidth: number,
+  currentHeight: number,
+  neededWidth: number,
+  neededHeight: number,
+  headroom: number
+): [number, number] {
+  const width = Math.max(currentWidth, growWithHeadroom(neededWidth, headroom));
+  const height = Math.max(currentHeight, growWithHeadroom(neededHeight, headroom));
+
+  if (width * height > MAX_CANVAS_AREA) {
+    return [neededWidth, neededHeight];
+  }
+
+  return [width, height];
+}
+
+/** Larger by the headroom, up to the largest atlas, but never below the size needed */
+function growWithHeadroom(size: number, headroom: number): number {
+  return Math.max(size, Math.min(MAX_ATLAS_SIZE, Math.ceil(size * headroom)));
 }
 
 const sharedContexts = new WeakMap<Document, Map<string, SharedContext>>();

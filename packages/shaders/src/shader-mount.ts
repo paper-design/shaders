@@ -240,6 +240,8 @@ export class ShaderMount implements SharedContextUser {
 
   private intersectionObserver: IntersectionObserver | null = null;
   private isInViewport = true;
+  /** Paused by the app, whatever the speed */
+  private isPaused = false;
 
   private resizeObserver: ResizeObserver | null = null;
   private setupResizeObserver = () => {
@@ -631,7 +633,9 @@ export class ShaderMount implements SharedContextUser {
   };
 
   /** Sets the provided uniform values into the WebGL program, can be a partial list of uniforms that have changed */
-  private setUniformValues = (updatedUniforms: ShaderMountUniforms) => {
+  private setUniformValues = (updatedUniforms: ShaderMountUniforms): boolean => {
+    let hasChanges = false;
+
     // Uniforms are set on the current program, which may be another shader's in the shared context
     if (this.program) {
       this.gl.useProgram(this.program);
@@ -649,6 +653,7 @@ export class ShaderMount implements SharedContextUser {
       if (this.areUniformValuesEqual(this.uniformCache[key], cacheValue)) return;
       // Update the uniform cache if we are still here
       this.uniformCache[key] = cacheValue;
+      hasChanges = true;
 
       const location = this.uniformLocations[key];
       if (!location) {
@@ -715,6 +720,8 @@ export class ShaderMount implements SharedContextUser {
         console.warn(`Unsupported uniform type for ${key}: ${typeof value}`);
       }
     });
+
+    return hasChanges;
   };
 
   /** Gets the current total animation time from 0ms */
@@ -736,9 +743,15 @@ export class ShaderMount implements SharedContextUser {
     this.updateCurrentSpeed();
   };
 
-  /** Apply the target speed, pausing (0) while the tab is hidden or the element is out of the viewport */
+  /** Pause or resume the animation, keeping the speed to resume at, e.g. while the shader is too small to notice it */
+  public setPaused = (isPaused: boolean): void => {
+    this.isPaused = isPaused;
+    this.updateCurrentSpeed();
+  };
+
+  /** Apply the target speed, pausing (0) while paused, the tab is hidden or the element is out of the viewport */
   private updateCurrentSpeed = (): void => {
-    this.setCurrentSpeed(this.ownerDocument.hidden || !this.isInViewport ? 0 : this.speed);
+    this.setCurrentSpeed(this.isPaused || this.ownerDocument.hidden || !this.isInViewport ? 0 : this.speed);
   };
 
   private setCurrentSpeed = (newSpeed: number): void => {
@@ -777,11 +790,11 @@ export class ShaderMount implements SharedContextUser {
 
   /** Update the uniforms that are provided by the outside shader, can be a partial set with only the uniforms that have changed */
   public setUniforms = (newUniforms: ShaderMountUniforms): void => {
-    this.setUniformValues(newUniforms);
+    const hasChanges = this.setUniformValues(newUniforms);
     this.providedUniforms = { ...this.providedUniforms, ...newUniforms };
 
     // Drawn with the other shaders in the next frame, the canvas keeps its pixels until then
-    if (!this.isFrameScheduled) {
+    if (hasChanges && !this.isFrameScheduled) {
       this.requestRender();
     }
   };

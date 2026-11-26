@@ -126,6 +126,28 @@ async function processUniforms(uniformsProp: ShaderMountUniformsReact): Promise<
   return processedUniforms;
 }
 
+/** The uniforms that differ from the applied ones */
+function getChangedUniforms(
+  uniforms: ShaderMountUniformsReact,
+  appliedUniforms: ShaderMountUniformsReact
+): ShaderMountUniformsReact {
+  const changedUniforms: ShaderMountUniformsReact = {};
+  for (const [key, value] of Object.entries(uniforms)) {
+    if (!areUniformValuesEqual(value, appliedUniforms[key])) {
+      changedUniforms[key] = value;
+    }
+  }
+  return changedUniforms;
+}
+
+function areUniformValuesEqual(a: unknown, b: unknown): boolean {
+  if (a === b) return true;
+  if (Array.isArray(a) && Array.isArray(b) && a.length === b.length) {
+    return a.every((value, i) => areUniformValuesEqual(value, b[i]));
+  }
+  return false;
+}
+
 /**
  * A React component that mounts a shader and updates its uniforms as the component's props change
  * If you pass a string as a uniform value, it will be assumed to be a URL and attempted to be loaded as an image
@@ -156,6 +178,8 @@ export const ShaderMount: React.FC<ShaderMountProps> = forwardRef<PaperShaderEle
     const divRef = useRef<PaperShaderElement>(null);
     const shaderMountRef: React.RefObject<ShaderMountVanilla | null> = useRef<ShaderMountVanilla>(null);
     const webGlContextAttributesRef = useRef(webGlContextAttributes);
+    /** The uniform props the mount has, as passed before processing */
+    const appliedUniformsRef = useRef<ShaderMountUniformsReact>({});
     const { hasHtmlChildren, addHtmlUniform, renderedChildren, shaderAttributes, sizeStyle } = useHtmlChildren(
       acceptsHtmlChildren,
       children,
@@ -170,7 +194,8 @@ export const ShaderMount: React.FC<ShaderMountProps> = forwardRef<PaperShaderEle
       let isStale = false;
 
       const initShader = async () => {
-        const uniforms = await processUniforms(getUniforms());
+        const initialUniforms = getUniforms();
+        const uniforms = await processUniforms(initialUniforms);
 
         if (!isStale && divRef.current && !shaderMountRef.current) {
           shaderMountRef.current = new ShaderMountVanilla(
@@ -185,6 +210,7 @@ export const ShaderMount: React.FC<ShaderMountProps> = forwardRef<PaperShaderEle
             mipmaps,
             resolutionScale
           );
+          appliedUniformsRef.current = initialUniforms;
 
           setIsInitialized(true);
         }
@@ -207,16 +233,25 @@ export const ShaderMount: React.FC<ShaderMountProps> = forwardRef<PaperShaderEle
 
     // Uniforms
     useEffect(() => {
+      // The mount is created with the uniforms of that moment
+      if (!shaderMountRef.current) return;
+
+      // Uniforms are a new object on every render, unchanged images aren't loaded again
+      const changedUniforms = getChangedUniforms(getUniforms(), appliedUniformsRef.current);
+      if (Object.keys(changedUniforms).length === 0) return;
+
       let isStale = false;
 
       const updateUniforms = async () => {
-        const uniforms = await processUniforms(getUniforms());
+        const uniforms = await processUniforms(changedUniforms);
 
-        if (!isStale) {
-          // We only use the freshest uniforms otherwise we can get into race conditions
-          // if some uniforms (images!) take longer to load in subsequent effect runs.
-          shaderMountRef.current?.setUniforms(uniforms);
-        }
+        // We only use the freshest uniforms otherwise we can get into race conditions
+        // if some uniforms (images!) take longer to load in subsequent effect runs.
+        // A stale run isn't marked applied, so the next run includes its changes
+        if (isStale || !shaderMountRef.current) return;
+
+        shaderMountRef.current.setUniforms(uniforms);
+        appliedUniformsRef.current = { ...appliedUniformsRef.current, ...changedUniforms };
       };
 
       updateUniforms();
